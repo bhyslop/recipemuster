@@ -1899,9 +1899,10 @@
       "order": [
         "₢ACAAA",
         "₢ACAAB",
-        "₢ACAAC"
+        "₢ACAAC",
+        "₢ACAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_AC.md",
       "paces": {
         "₢ACAAA": {
@@ -1962,6 +1963,17 @@
               "text": "Create slash command and update mount/groom behavior:\n\n1. Create /jjc-heat-furlough slash command:\n   - Arguments: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - Document all options with examples\n   - Call: ./tt/vvw-r.RunVVX.sh jjx_furlough <firemark> [options]\n   - Report new status and/or new silks on success\n   - Auto-commit via vvx_commit\n\n2. Update /jjc-heat-mount:\n   - When checking current heats, filter to racing only (exclude stabled)\n   - If exactly 1 racing heat: auto-proceed without prompting\n   - If 0 racing heats: error with suggestion to check stabled heats\n   - If 2+ racing heats: prompt for selection (existing behavior)\n\n3. Update /jjc-heat-groom:\n   - Allow grooming stabled heats (no status check)\n   - Mention in output if heat is stabled\n\nFiles: .claude/commands/jjc-heat-furlough.md (new), jjc-heat-mount.md, jjc-heat-groom.md",
               "silks": "furlough-slash-mount",
               "commit": "0000000"
+            }
+          ]
+        },
+        "₢ACAAD": {
+          "tacks": [
+            {
+              "ts": "260118-2025",
+              "state": "rough",
+              "text": "Remove #[serde(alias = \"current\")] from HeatStatus deserialization in jjrg_gallops.rs. Before removing, verify all heat JSON files in current/ and retired/ directories use \"racing\" (not \"current\"). This hardens the schema to match the final-form JJD spec.\n\nFiles: Tools/jjk/vov_veiled/src/jjrg_gallops.rs",
+              "silks": "furlough-remove-current-alias",
+              "commit": "3f6f0b9"
             }
           ]
         }
