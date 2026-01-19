@@ -3044,9 +3044,10 @@
       "order": [
         "₢AFAAB",
         "₢AFAAA",
-        "₢AFAAC"
+        "₢AFAAC",
+        "₢AFAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3079,6 +3080,17 @@
               "text": "Fix vob_release() conformance with VOS spec:\n1. Registry commit: VOS line 917 requires 'commit registry change' after allocating new hallmark - implementation updates file but doesn't commit\n2. Parcel output location: BURC_PROJECT_ROOT is misapplied - parcel goes to parent dir instead of kit forge root; VOS needs explicit spec text for output directory\n\nRequires human decisions on:\n- Where exactly should parcel be output (kit forge root? explicit --output flag?)\n- Commit message format for registry commits\n- Whether to use vvx_commit or direct git",
               "silks": "vob-release-conformance",
               "commit": "c19ff34"
+            }
+          ]
+        },
+        "₢AFAAD": {
+          "tacks": [
+            {
+              "ts": "260119-0939",
+              "state": "rough",
+              "text": "Fix: /jjc-heat-mount calls `jjx_muster --status racing` but jjx_muster doesn't support --status flag.\n\n**Bug:** Slash command assumes CLI filtering that doesn't exist.\n\n**Options:**\n1. Add --status flag to jjx_muster (filter server-side)\n2. Remove --status from slash command, filter client-side\n\n**Preference:** Option 1 — filtering in Rust is cleaner, reduces output parsing in slash command.\n\n**Files:**\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (add --status to MusterArgs)\n- .claude/commands/jjc-heat-mount.md (verify usage after fix)",
+              "silks": "muster-status-filter",
+              "commit": "901647b"
             }
           ]
         }
