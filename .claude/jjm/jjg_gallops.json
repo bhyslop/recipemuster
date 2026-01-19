@@ -4,7 +4,7 @@
     "₣AA": {
       "silks": "vok-fresh-install-release",
       "creation_time": "260114",
-      "status": "current",
+      "status": "racing",
       "order": [
         "₢AAABQ",
         "₢AAABR",
@@ -1895,7 +1895,7 @@
     "₣AC": {
       "silks": "jjk-furlough-feature",
       "creation_time": "260117",
-      "status": "current",
+      "status": "racing",
       "order": [
         "₢ACAAA",
         "₢ACAAB",
@@ -1947,6 +1947,13 @@
         },
         "₢ACAAB": {
           "tacks": [
+            {
+              "ts": "260118-2054",
+              "state": "complete",
+              "text": "Implemented furlough feature in Rust: added Racing/Stabled to HeatStatus enum with serde alias for migration, implemented jjx_furlough command, updated saddle to error on stabled heats, removed muster --status filter. All 134 tests pass.",
+              "silks": "furlough-rust-impl",
+              "commit": "30bca20"
+            },
             {
               "ts": "260118-2025",
               "state": "rough",
@@ -2026,7 +2033,7 @@
     "₣AD": {
       "silks": "vos-spec-and-tooling",
       "creation_time": "260117",
-      "status": "current",
+      "status": "racing",
       "order": [
         "₢ADAAG",
         "₢ADAAF",
@@ -2379,7 +2386,7 @@
     "₣AE": {
       "silks": "jjk-features-polish",
       "creation_time": "260117",
-      "status": "current",
+      "status": "racing",
       "order": [
         "₢AEAAF",
         "₢AEAAE",
