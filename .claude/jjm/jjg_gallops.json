@@ -6,6 +6,7 @@
       "creation_time": "260114",
       "status": "racing",
       "order": [
+        "₢AAABU",
         "₢AAABQ",
         "₢AAABR",
         "₢AAABA",
@@ -78,7 +79,7 @@
         "₢AAABS",
         "₢AAABT"
       ],
-      "next_pace_seed": "ABU",
+      "next_pace_seed": "ABV",
       "paddock_file": ".claude/jjm/jjp_AA.md",
       "paces": {
         "₢AAAA-": {
@@ -1911,6 +1912,17 @@
               "text": "Retire heat ₣AC (jjk-furlough-feature) and retrospect its trophy transformation.\n\nSteps:\n1. Run /jjc-heat-retire-FINAL AC to archive the heat\n2. Verify heat moves from current/ to retired/ directory\n3. Review the trophy (retired heat summary) generated\n4. Document any observations about the furlough feature arc as steeplechase entry\n\nThis closes out the furlough feature heat which delivered:\n- jjx_furlough command with --racing/--stabled/--silks flags\n- HeatStatus enum with Racing/Stabled/Retired values\n- Muster sort order (racing first) and Remaining/Total columns\n- Removal of legacy \"current\" serde alias\n\nFiles: .claude/jjm/current/jjg_AC.json → .claude/jjm/retired/",
               "silks": "retire-furlough-heat",
               "commit": "8ce3a88"
+            }
+          ]
+        },
+        "₢AAABU": {
+          "tacks": [
+            {
+              "ts": "260119-0831",
+              "state": "rough",
+              "text": "Add jjdr_ (Routines) category to JJD with two routines enforcing round-trip validation:\n\n## jjdr_load\n- Read file as raw bytes\n- Deserialize to Rust Gallops structure  \n- Reserialize Rust structure to JSON string\n- Compare reserialized string against original bytes (raw comparison, not normalized)\n- If different: FATAL with diagnostic showing first difference location\n- If identical: return Rust object model\n\n## jjdr_save\n- Accept Rust Gallops object\n- Serialize to canonical JSON (sorted keys via BTreeMap, consistent formatting)\n- Atomic write (temp file → rename)\n\n## Update all write operations\nRevise behavior sections of: jjdo_nominate, jjdo_slate, jjdo_rail, jjdo_draft, jjdo_tally, jjdo_furlough, jjdo_retire\n\nEach write operation behavior becomes:\n1. {jjdr_load} {jjda_file}; on failure, exit immediately with {jjdr_load} error status\n2. (command-specific transformation steps)\n3. {jjdr_save} {jjdgr_gallops} → {jjda_file}\n\n## Mapping section additions\nAdd to JJD mapping section:\n// jjdr_:  Routines (internal reusable procedures)\n:jjdr_load:           <<jjdr_load,load routine>>\n:jjdr_save:           <<jjdr_save,save routine>>\n\n## Architectural constraint\nDocument that jjdr_load is the ONLY way to obtain a Gallops struct - no public constructor. This makes validation bypass impossible.",
+              "silks": "jjd-routines-load-save",
+              "commit": "608fa24"
             }
           ]
         }
