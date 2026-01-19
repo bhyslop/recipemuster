@@ -1933,6 +1933,13 @@
         "₢ACAAB": {
           "tacks": [
             {
+              "ts": "260118-2025",
+              "state": "rough",
+              "text": "Implement furlough feature in Rust:\n\n1. Update HeatStatus enum in jjrg_gallops.rs:\n   - Add HeatStatus::Racing variant\n   - Add HeatStatus::Stabled variant\n   - TEMPORARY: Add #[serde(alias = \"current\")] to Racing for migration\n   - Serialize always writes \"racing\" (never \"current\")\n   - NOTE: The \"current\" alias will be removed in ₢ACAAD after migration completes\n\n2. Implement jjx_furlough command in jjrx_cli.rs:\n   - Args: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - At least one option required (validate)\n   - Check heat exists and is not retired\n   - If --racing/--stabled: verify not already in target state, update status\n   - If --silks: update heat silks\n   - Atomic write\n\n3. Update jjx_saddle in jjrq_query.rs:\n   - Check heat status before returning saddle context\n   - If stabled: return error \"Heat is stabled, cannot saddle\"\n\n4. Update jjx_muster in jjrq_query.rs:\n   - Remove --status filter argument\n   - Always return all heats (racing + stabled)\n\nFiles: Tools/jjk/vov_veiled/src/jjrg_gallops.rs, jjrx_cli.rs, jjrq_query.rs",
+              "silks": "furlough-rust-impl",
+              "commit": "2602772"
+            },
+            {
               "ts": "260117-1406",
               "state": "rough",
               "text": "Drafted from ₢AAABC in ₣AA.\n\nImplement furlough feature in Rust:\n\n1. Lazy migration in jjrg_gallops.rs:\n   - Deserialize: accept both \"current\" and \"racing\" as valid HeatStatus\n   - Serialize: always write \"racing\" (never \"current\")\n   - Add HeatStatus::Stabled variant\n\n2. Implement jjx_furlough command in jjrx_cli.rs:\n   - Args: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - At least one option required (validate)\n   - Check heat exists and is not retired\n   - If --racing/--stabled: verify not already in target state, update status\n   - If --silks: update heat silks\n   - Atomic write\n\n3. Update jjx_saddle in jjrq_query.rs:\n   - Check heat status before returning saddle context\n   - If stabled: return error \"Heat is stabled, cannot saddle\"\n\n4. Update jjx_muster in jjrq_query.rs:\n   - Remove --status filter argument\n   - Always return all heats (racing + stabled)\n\nFiles: Tools/jjk/veiled/src/jjrg_gallops.rs, jjrx_cli.rs, jjrq_query.rs",
