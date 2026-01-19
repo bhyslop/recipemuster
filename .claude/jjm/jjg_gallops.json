@@ -2794,6 +2794,13 @@
         "₢AEAAM": {
           "tacks": [
             {
+              "ts": "260118-2025",
+              "state": "complete",
+              "text": "Added Step 3.5 name assessment to jjc-heat-mount.md with 3-option prompt (Rename/Continue/Stop) for silks validation",
+              "silks": "mount-name-check",
+              "commit": "631a7e2"
+            },
+            {
               "ts": "260118-2017",
               "state": "bridled",
               "text": "Add name assessment to mount for rough and bridled paces, with 3-option prompt.\n\n## Behavior\n\nAfter displaying pace context (Step 3), before branching on state (Step 4):\n\n**Step 3.5: Name assessment**\n\nAssess whether the pace silks fits the spec:\n- Read the spec content\n- Consider if the kebab-case name accurately reflects the work\n- If name fits: proceed silently\n- If mismatch detected: present 3 options\n\n```\n⚠ Name check: \"current-silks\" may not fit.\n  Spec is about [brief summary of actual work].\n  Suggested: \"better-name\"\n  \n  [R] Rename to \"better-name\" (default)\n  [C] Continue with current name  \n  [S] Stop\n\n  Choice [R]:\n```\n\n**On R (or Enter)**: \n- Run `./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks \"better-name\"`\n- Report: \"Renamed to better-name\"\n- Continue with mount\n\n**On C**: Continue with current name, no action.\n\n**On S**: Stop mount, suggest `/jjc-pace-reslate` to refine scope.\n\n## Applies to\n- Rough paces\n- Bridled paces\n\nBoth should have correct names before work begins.\n\n## Files\n- .claude/commands/jjc-heat-mount.md\n\n## Verification\n- Mount a pace with mismatched name, verify prompt appears\n- Test all 3 options (R, C, S)\n- Mount a pace with fitting name, verify no prompt",
