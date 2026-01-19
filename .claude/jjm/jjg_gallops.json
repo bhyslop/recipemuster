@@ -1897,12 +1897,13 @@
       "creation_time": "260117",
       "status": "racing",
       "order": [
+        "₢ACAAE",
         "₢ACAAA",
         "₢ACAAB",
         "₢ACAAC",
         "₢ACAAD"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AC.md",
       "paces": {
         "₢ACAAA": {
@@ -2040,6 +2041,17 @@
               "text": "Remove #[serde(alias = \"current\")] from HeatStatus deserialization in jjrg_gallops.rs. Before removing, verify all heat JSON files in current/ and retired/ directories use \"racing\" (not \"current\"). This hardens the schema to match the final-form JJD spec.\n\nFiles: Tools/jjk/vov_veiled/src/jjrg_gallops.rs",
               "silks": "furlough-remove-current-alias",
               "commit": "3f6f0b9"
+            }
+          ]
+        },
+        "₢ACAAE": {
+          "tacks": [
+            {
+              "ts": "260118-2111",
+              "state": "rough",
+              "text": "Update jjx_muster output format:\n\n1. **Sort order**: Racing heats first, then stabled (then retired if any)\n\n2. **Replace Paces column** with two columns:\n   - **Remaining**: Actionable paces count (rough + bridled)\n   - **Total**: Total pace count\n\nOutput format (TSV):\n```\nFIREMARK<TAB>SILKS<TAB>STATUS<TAB>REMAINING<TAB>TOTAL\n```\n\nFiles:\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (update jjdo_muster spec)\n- Tools/jjk/vov_veiled/src/jjrq_query.rs (update jjrq_run_muster implementation)",
+              "silks": "muster-remaining-sort",
+              "commit": "67404c0"
             }
           ]
         }
