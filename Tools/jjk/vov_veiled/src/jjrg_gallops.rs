@@ -37,8 +37,7 @@ pub enum jjrg_PaceState {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum jjrg_HeatStatus {
-    /// Heat is actively being worked (accepts "current" on read for migration)
-    #[serde(alias = "current")]
+    /// Heat is actively being worked
     Racing,
     /// Heat is paused, not actively worked
     Stabled,
