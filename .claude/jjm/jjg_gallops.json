@@ -1908,6 +1908,13 @@
         "₢ACAAA": {
           "tacks": [
             {
+              "ts": "260118-2043",
+              "state": "complete",
+              "text": "Updated JJD-GallopsData.adoc with furlough concepts: added racing/stabled enum values, jjdo_furlough operation spec, updated saddle to error on stabled heats, removed muster --status filter.",
+              "silks": "furlough-jjd-spec",
+              "commit": "4e7c8c3"
+            },
+            {
               "ts": "260118-2039",
               "state": "bridled",
               "text": "Update JJD-GallopsData.adoc specification with final-form furlough concepts (no migration language):\n\n1. Add HeatStatus enum values:\n   - jjdhe_racing: Heat is actively being worked\n   - jjdhe_stabled: Heat is paused, not actively worked\n   - (jjdhe_retired remains unchanged)\n\n2. Add jjdo_furlough operation:\n   - Arguments: <firemark> [--racing | --stabled] [--silks <new-name>]\n   - At least one option required\n   - Errors if already in target state\n   - Errors if heat is retired (terminal)\n\n3. Update jjdo_saddle:\n   - Add: Fails with error if heat status is stabled\n\n4. Update jjdo_muster:\n   - Remove --status filter (show all heats, no filtering)\n\nNOTE: The spec describes the target state. Implementation may temporarily accept legacy values during migration (see ₢ACAAB, ₢ACAAD).\n\nFiles: Tools/jjk/vov_veiled/JJD-GallopsData.adoc",
