@@ -41,7 +41,7 @@ fn create_test_gallops() -> Gallops {
         Heat {
             silks: "test-heat".to_string(),
             creation_time: "260101".to_string(),
-            status: HeatStatus::Current,
+            status: HeatStatus::Racing,
             order: vec!["₢ABAAA".to_string(), "₢ABAAB".to_string()],
             next_pace_seed: "AAC".to_string(),
             paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
@@ -62,7 +62,7 @@ fn jjtq_muster_output_format() {
     let gallops = create_test_gallops();
     let heat = gallops.heats.get("₣AB").unwrap();
     let expected_format = format!(
-        "₣AB\t{}\tcurrent\t{}",
+        "₣AB\t{}\tracing\t{}",
         heat.silks,
         heat.paces.len()
     );
@@ -188,10 +188,10 @@ fn jjtq_retire_tack_with_direction() {
 fn jjtq_heat_status_filter_current() {
     let gallops = create_test_gallops();
     let heat = gallops.heats.get("₣AB").unwrap();
-    assert_eq!(heat.status, HeatStatus::Current);
+    assert_eq!(heat.status, HeatStatus::Racing);
 
     // Simulate filter
-    let filter = Some(HeatStatus::Current);
+    let filter = Some(HeatStatus::Racing);
     let matches = filter.as_ref().map_or(true, |f| &heat.status == f);
     assert!(matches);
 }

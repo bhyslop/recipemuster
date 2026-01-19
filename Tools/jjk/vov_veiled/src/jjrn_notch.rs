@@ -142,6 +142,7 @@ impl jjrn_ChalkMarker {
 /// - T = Tally: add tack to pace
 /// - D = Draft: move pace between heats (uppercase, rare)
 /// - R = Retire: archive heat (uppercase)
+/// - f = furlough: change heat status or rename (lowercase)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrn_HeatAction {
     Nominate,
@@ -150,6 +151,7 @@ pub enum jjrn_HeatAction {
     Tally,
     Draft,
     Retire,
+    Furlough,
 }
 
 impl jjrn_HeatAction {
@@ -162,6 +164,7 @@ impl jjrn_HeatAction {
             jjrn_HeatAction::Tally => 'T',
             jjrn_HeatAction::Draft => 'D',
             jjrn_HeatAction::Retire => 'R',
+            jjrn_HeatAction::Furlough => 'f',
         }
     }
 
@@ -174,6 +177,7 @@ impl jjrn_HeatAction {
             jjrn_HeatAction::Tally => "tally",
             jjrn_HeatAction::Draft => "draft",
             jjrn_HeatAction::Retire => "retire",
+            jjrn_HeatAction::Furlough => "furlough",
         }
     }
 }

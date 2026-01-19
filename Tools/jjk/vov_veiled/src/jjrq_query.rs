@@ -22,7 +22,6 @@ use std::fs;
 #[derive(Debug)]
 pub struct jjrq_MusterArgs {
     pub file: std::path::PathBuf,
-    pub status: Option<HeatStatus>,
 }
 
 /// Run the muster command - list Heats as TSV
@@ -36,16 +35,10 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
     };
 
     for (key, heat) in &gallops.heats {
-        // Apply status filter if provided
-        if let Some(ref filter_status) = args.status {
-            if &heat.status != filter_status {
-                continue;
-            }
-        }
-
         let pace_count = heat.paces.len();
         let status_str = match heat.status {
-            HeatStatus::Current => "current",
+            HeatStatus::Racing => "racing",
+            HeatStatus::Stabled => "stabled",
             HeatStatus::Retired => "retired",
         };
 
@@ -103,6 +96,12 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
             return 1;
         }
     };
+
+    // Check if heat is stabled (cannot saddle stabled heat)
+    if heat.status == HeatStatus::Stabled {
+        eprintln!("jjx_saddle: error: Cannot saddle stabled heat '{}'", heat_key);
+        return 1;
+    }
 
     // Read paddock file content
     let paddock_content = match fs::read_to_string(&heat.paddock_file) {
@@ -286,7 +285,8 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
             };
 
             let status_str = match heat.status {
-                HeatStatus::Current => "current",
+                HeatStatus::Racing => "racing",
+                HeatStatus::Stabled => "stabled",
                 HeatStatus::Retired => "retired",
             };
 
@@ -467,7 +467,8 @@ pub fn jjrq_run_retire(args: jjrq_RetireArgs) -> i32 {
         silks: heat.silks.clone(),
         created: heat.creation_time.clone(),
         status: match heat.status {
-            HeatStatus::Current => "current".to_string(),
+            HeatStatus::Racing => "racing".to_string(),
+            HeatStatus::Stabled => "stabled".to_string(),
             HeatStatus::Retired => "retired".to_string(),
         },
         paddock_file: heat.paddock_file.clone(),

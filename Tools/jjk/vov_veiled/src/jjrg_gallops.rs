@@ -37,7 +37,12 @@ pub enum jjrg_PaceState {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum jjrg_HeatStatus {
-    Current,
+    /// Heat is actively being worked (accepts "current" on read for migration)
+    #[serde(alias = "current")]
+    Racing,
+    /// Heat is paused, not actively worked
+    Stabled,
+    /// Heat is complete and archived (terminal state)
     Retired,
 }
 
@@ -581,6 +586,18 @@ pub struct jjrg_RetireArgs {
     pub today: String,
 }
 
+/// Arguments for the furlough operation
+pub struct jjrg_FurloughArgs {
+    /// Firemark of heat to furlough
+    pub firemark: String,
+    /// Set status to racing (mutually exclusive with stabled)
+    pub racing: bool,
+    /// Set status to stabled (mutually exclusive with racing)
+    pub stabled: bool,
+    /// New silks (rename heat)
+    pub silks: Option<String>,
+}
+
 /// Result of the retire operation
 #[derive(Debug)]
 pub struct jjrg_RetireResult {
@@ -635,7 +652,7 @@ impl jjrg_Gallops {
         let heat = jjrg_Heat {
             silks: args.silks,
             creation_time: args.created,
-            status: jjrg_HeatStatus::Current,
+            status: jjrg_HeatStatus::Racing,
             order: Vec::new(),
             next_pace_seed: "AAA".to_string(),
             paddock_file,
@@ -1292,6 +1309,63 @@ impl jjrg_Gallops {
         }
 
         Ok(content)
+    }
+
+    /// Furlough a Heat - change status or rename
+    ///
+    /// Updates heat status (racing/stabled) and/or silks.
+    /// At least one change must be requested.
+    pub fn jjrg_furlough(&mut self, args: jjrg_FurloughArgs) -> Result<(), String> {
+        // Validate at least one option provided
+        if !args.racing && !args.stabled && args.silks.is_none() {
+            return Err("At least one option required: --racing, --stabled, or --silks".to_string());
+        }
+
+        // Validate racing/stabled mutual exclusivity
+        if args.racing && args.stabled {
+            return Err("Cannot specify both --racing and --stabled".to_string());
+        }
+
+        // Validate silks if provided
+        if let Some(ref silks) = args.silks {
+            if !zjjrg_is_kebab_case(silks) {
+                return Err(format!("silks must be kebab-case, got '{}'", silks));
+            }
+        }
+
+        // Parse and normalize firemark
+        let firemark = Firemark::jjrf_parse(&args.firemark)
+            .map_err(|e| format!("Invalid firemark: {}", e))?;
+        let firemark_key = firemark.jjrf_display();
+
+        // Verify Heat exists
+        let heat = self.heats.get_mut(&firemark_key)
+            .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+
+        // Check not retired (terminal state)
+        if heat.status == jjrg_HeatStatus::Retired {
+            return Err(format!("Heat '{}' is retired (terminal state)", firemark_key));
+        }
+
+        // Apply status change if requested
+        if args.racing {
+            if heat.status == jjrg_HeatStatus::Racing {
+                return Err(format!("Heat '{}' is already racing", firemark_key));
+            }
+            heat.status = jjrg_HeatStatus::Racing;
+        } else if args.stabled {
+            if heat.status == jjrg_HeatStatus::Stabled {
+                return Err(format!("Heat '{}' is already stabled", firemark_key));
+            }
+            heat.status = jjrg_HeatStatus::Stabled;
+        }
+
+        // Apply silks change if requested
+        if let Some(silks) = args.silks {
+            heat.silks = silks;
+        }
+
+        Ok(())
     }
 }
 

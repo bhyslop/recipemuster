@@ -74,6 +74,10 @@ pub enum jjrx_JjxCommands {
     /// Move a Pace from one Heat to another
     #[command(name = "jjx_draft")]
     Draft(zjjrx_DraftArgs),
+
+    /// Change Heat status (racing/stabled) or rename
+    #[command(name = "jjx_furlough")]
+    Furlough(zjjrx_FurloughArgs),
 }
 
 /// Arguments for jjx_notch command
@@ -127,10 +131,6 @@ struct zjjrx_MusterArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
-
-    /// Filter by Heat status (current or retired)
-    #[arg(long)]
-    status: Option<String>,
 }
 
 /// Arguments for jjx_saddle command
@@ -326,6 +326,29 @@ struct zjjrx_DraftArgs {
     first: bool,
 }
 
+/// Arguments for jjx_furlough command
+#[derive(clap::Args, Debug)]
+struct zjjrx_FurloughArgs {
+    /// Path to the Gallops JSON file
+    #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
+    file: PathBuf,
+
+    /// Target Heat identity (Firemark)
+    firemark: String,
+
+    /// Set status to racing
+    #[arg(long, conflicts_with = "stabled")]
+    racing: bool,
+
+    /// Set status to stabled
+    #[arg(long, conflicts_with = "racing")]
+    stabled: bool,
+
+    /// New silks (rename heat)
+    #[arg(long, short = 's')]
+    silks: Option<String>,
+}
+
 // ============================================================================
 // Public dispatch API
 // ============================================================================
@@ -372,6 +395,7 @@ pub fn jjrx_dispatch(args: &[OsString]) -> i32 {
         jjrx_JjxCommands::Rail(args) => zjjrx_run_rail(args),
         jjrx_JjxCommands::Tally(args) => zjjrx_run_tally(args),
         jjrx_JjxCommands::Draft(args) => zjjrx_run_draft(args),
+        jjrx_JjxCommands::Furlough(args) => zjjrx_run_furlough(args),
     }
 }
 
@@ -500,24 +524,10 @@ fn zjjrx_run_validate(args: zjjrx_ValidateArgs) -> i32 {
 }
 
 fn zjjrx_run_muster(args: zjjrx_MusterArgs) -> i32 {
-    use crate::jjrg_gallops::jjrg_HeatStatus as HeatStatus;
     use crate::jjrq_query::{jjrq_MusterArgs as LibMusterArgs, jjrq_run_muster as lib_run_muster};
-
-    let status = match &args.status {
-        Some(s) => match s.to_lowercase().as_str() {
-            "current" => Some(HeatStatus::Current),
-            "retired" => Some(HeatStatus::Retired),
-            _ => {
-                eprintln!("jjx_muster: error: invalid status '{}', must be 'current' or 'retired'", s);
-                return 1;
-            }
-        },
-        None => None,
-    };
 
     let muster_args = LibMusterArgs {
         file: args.file,
-        status,
     };
 
     lib_run_muster(muster_args)
@@ -1143,6 +1153,86 @@ fn zjjrx_run_draft(args: zjjrx_DraftArgs) -> i32 {
         }
         Err(e) => {
             eprintln!("jjx_draft: error: {}", e);
+            1
+        }
+    }
+    // lock released here
+}
+
+fn zjjrx_run_furlough(args: zjjrx_FurloughArgs) -> i32 {
+    use crate::jjrg_gallops::jjrg_FurloughArgs as LibFurloughArgs;
+
+    // Acquire lock FIRST - fail fast if another operation is in progress
+    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("jjx_furlough: error: {}", e);
+            return 1;
+        }
+    };
+
+    let mut gallops = match Gallops::jjrg_load(&args.file) {
+        Ok(g) => g,
+        Err(e) => {
+            eprintln!("jjx_furlough: error loading Gallops: {}", e);
+            return 1;
+        }
+    };
+
+    // Build description for commit message
+    let mut changes = Vec::new();
+    if args.racing {
+        changes.push("racing".to_string());
+    } else if args.stabled {
+        changes.push("stabled".to_string());
+    }
+    if let Some(ref silks) = args.silks {
+        changes.push(format!("silks={}", silks));
+    }
+    let description = changes.join(", ");
+
+    let firemark_str = args.firemark.clone();
+    let furlough_args = LibFurloughArgs {
+        firemark: args.firemark,
+        racing: args.racing,
+        stabled: args.stabled,
+        silks: args.silks,
+    };
+
+    match gallops.jjrg_furlough(furlough_args) {
+        Ok(()) => {
+            if let Err(e) = gallops.jjrg_save(&args.file) {
+                eprintln!("jjx_furlough: error saving Gallops: {}", e);
+                return 1;
+            }
+
+            // Commit using vvcm_commit with explicit file list
+            let fm = Firemark::jjrf_parse(&firemark_str).expect("furlough given invalid firemark");
+            let gallops_path = args.file.to_string_lossy().to_string();
+            let paddock_path = format!(".claude/jjm/jjp_{}.md", fm.jjrf_as_str());
+            let commit_args = vvc::vvcm_CommitArgs {
+                files: vec![
+                    gallops_path,
+                    paddock_path,
+                ],
+                message: format_heat_message(&fm, HeatAction::Furlough, &description),
+                size_limit: 50000,
+                warn_limit: 30000,
+            };
+
+            match vvc::machine_commit(&lock, &commit_args) {
+                Ok(hash) => {
+                    eprintln!("jjx_furlough: committed {}", &hash[..8]);
+                }
+                Err(e) => {
+                    eprintln!("jjx_furlough: commit warning: {}", e);
+                }
+            }
+
+            0
+        }
+        Err(e) => {
+            eprintln!("jjx_furlough: error: {}", e);
             1
         }
     }

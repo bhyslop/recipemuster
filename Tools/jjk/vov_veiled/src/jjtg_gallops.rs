@@ -51,7 +51,7 @@ fn make_valid_heat(heat_id: &str, silks: &str) -> (String, jjrg_Heat) {
     let heat = jjrg_Heat {
         silks: silks.to_string(),
         creation_time: "260101".to_string(),
-        status: jjrg_HeatStatus::Current,
+        status: jjrg_HeatStatus::Racing,
         order: vec![pace_key],
         next_pace_seed: "AAB".to_string(),
         paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
@@ -427,7 +427,7 @@ fn jjtg_nominate_creates_heat() {
     let heat = gallops.heats.get(&result.firemark).unwrap();
     assert_eq!(heat.silks, "test-heat");
     assert_eq!(heat.creation_time, "260113");
-    assert_eq!(heat.status, jjrg_HeatStatus::Current);
+    assert_eq!(heat.status, jjrg_HeatStatus::Racing);
     assert!(heat.order.is_empty());
     assert_eq!(heat.next_pace_seed, "AAA");
 
