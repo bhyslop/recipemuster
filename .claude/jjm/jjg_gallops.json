@@ -1983,6 +1983,14 @@
         "₢ACAAD": {
           "tacks": [
             {
+              "ts": "260118-2035",
+              "state": "bridled",
+              "text": "Remove #[serde(alias = \"current\")] from HeatStatus deserialization in jjrg_gallops.rs. Before removing, verify all heat JSON files in current/ and retired/ directories use \"racing\" (not \"current\"). This hardens the schema to match the final-form JJD spec.\n\nFiles: Tools/jjk/vov_veiled/src/jjrg_gallops.rs",
+              "silks": "furlough-remove-current-alias",
+              "commit": "546a635",
+              "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: Tools/jjk/vov_veiled/src/jjrg_gallops.rs (1 file)\nSteps:\n1. Grep for \"current\" in .claude/jjm/current/*.json and .claude/jjm/retired/*.json\n2. If any \"current\" values found, abort with error listing files needing migration\n3. If no \"current\" found, remove the #[serde(alias = \"current\")] attribute from HeatStatus::Racing\nVerify: cargo build --manifest-path Tools/vok/Cargo.toml"
+            },
+            {
               "ts": "260118-2025",
               "state": "rough",
               "text": "Remove #[serde(alias = \"current\")] from HeatStatus deserialization in jjrg_gallops.rs. Before removing, verify all heat JSON files in current/ and retired/ directories use \"racing\" (not \"current\"). This hardens the schema to match the final-form JJD spec.\n\nFiles: Tools/jjk/vov_veiled/src/jjrg_gallops.rs",
