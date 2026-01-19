@@ -2334,11 +2334,12 @@
         "₢AEAAB",
         "₢AEAAC",
         "₢AEAAL",
+        "₢AEAAM",
         "₢AEAAD",
         "₢AEAAG",
         "₢AEAAH"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_AE.md",
       "paces": {
         "₢AEAAA": {
@@ -2759,6 +2760,17 @@
               "text": "Add `--silks` to `jjx_tally` for pace rename capability.\n\n## Changes\n\n### 1. JJD-GallopsData.adoc - Update tally arguments\n\nAdd to jjdo_tally Arguments section:\n```\n// ⟦axd_optional⟧\n* {jjda_silks}\n— if provided, new Tack uses this value; otherwise inherits from previous Tack\n```\n\n### 2. jjrg_gallops.rs - Add silks to TallyArgs\n\nAdd `silks: Option<String>` to `jjrg_TallyArgs` struct.\n\nUpdate `jjrg_tally()` to use provided silks or inherit:\n```rust\nlet new_silks = args.silks.unwrap_or_else(|| current_tack.silks.clone());\n```\n\n### 3. jjrm_main.rs - Wire up CLI argument\n\nAdd `--silks` / `-s` argument to tally subcommand, pass to TallyArgs.\n\n## Files\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc\n- Tools/jjk/vov_veiled/src/jjrg_gallops.rs\n- Tools/jjk/vov_veiled/src/jjrm_main.rs\n\n## Verification\n- tt/vow-b.Build.sh && tt/vow-t.Test.sh\n- Manual: `echo \"test\" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks new-name`",
               "silks": "tally-silks-argument",
               "commit": "f7b70db"
+            }
+          ]
+        },
+        "₢AEAAM": {
+          "tacks": [
+            {
+              "ts": "260118-2015",
+              "state": "rough",
+              "text": "Add name assessment to mount for rough and bridled paces, with 3-option prompt.\n\n## Behavior\n\nAfter displaying pace context (Step 3), before branching on state (Step 4):\n\n**Step 3.5: Name assessment**\n\nAssess whether the pace silks fits the spec:\n- Read the spec content\n- Consider if the kebab-case name accurately reflects the work\n- If name fits: proceed silently\n- If mismatch detected: present 3 options\n\n```\n⚠ Name check: \"current-silks\" may not fit.\n  Spec is about [brief summary of actual work].\n  Suggested: \"better-name\"\n  \n  [R] Rename to \"better-name\" (default)\n  [C] Continue with current name  \n  [S] Stop\n\n  Choice [R]:\n```\n\n**On R (or Enter)**: \n- Run `./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks \"better-name\"`\n- Report: \"Renamed to better-name\"\n- Continue with mount\n\n**On C**: Continue with current name, no action.\n\n**On S**: Stop mount, suggest `/jjc-pace-reslate` to refine scope.\n\n## Applies to\n- Rough paces\n- Bridled paces\n\nBoth should have correct names before work begins.\n\n## Files\n- .claude/commands/jjc-heat-mount.md\n\n## Verification\n- Mount a pace with mismatched name, verify prompt appears\n- Test all 3 options (R, C, S)\n- Mount a pace with fitting name, verify no prompt",
+              "silks": "mount-name-check",
+              "commit": "8cde708"
             }
           ]
         }
