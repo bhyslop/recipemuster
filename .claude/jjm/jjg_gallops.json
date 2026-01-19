@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AG",
+  "next_heat_seed": "AH",
   "heats": {
     "₣AA": {
       "silks": "vok-fresh-install-release",
@@ -3037,6 +3037,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_AF.md",
+      "paces": {}
+    },
+    "₣AG": {
+      "silks": "jjk-post-alpha-breaking",
+      "creation_time": "260119",
+      "status": "racing",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {}
     }
   }
