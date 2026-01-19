@@ -15,6 +15,11 @@
 
 pub mod jjrc_core;
 pub mod jjrf_favor;
+pub mod jjrt_types;
+pub mod jjrv_validate;
+pub mod jjri_io;
+pub mod jjro_ops;
+pub mod jjru_util;
 pub mod jjrg_gallops;
 pub mod jjrn_notch;
 pub mod jjrq_query;
@@ -44,6 +49,9 @@ pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark};
 pub use jjrn_notch::{jjrn_ChalkMarker, jjrn_HeatAction, jjrn_format_notch_prefix, jjrn_format_chalk_message, jjrn_format_heat_message, jjrn_format_heat_discussion};
 pub use jjrq_query::{jjrq_MusterArgs, jjrq_SaddleArgs, jjrq_ParadeArgs};
 pub use jjrs_steeplechase::{jjrs_ReinArgs, jjrs_SteeplechaseEntry, jjrs_get_entries};
+
+// Re-export new I/O routines
+pub use jjri_io::{jjdr_load, jjdr_save, jjdr_ValidatedGallops};
 
 // Re-export CLI dispatch function
 pub use jjrx_cli::{jjrx_dispatch, jjrx_is_jjk_command};
