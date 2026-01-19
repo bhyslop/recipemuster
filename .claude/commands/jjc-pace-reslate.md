@@ -34,9 +34,9 @@ Extract from $ARGUMENTS:
 **If identifier looks like silks (kebab-case):**
 - Need heat context to resolve
 - If FIREMARK available from session: use it
-- Otherwise run `./tt/vvw-r.RunVVX.sh jjx_muster --status current`:
+- Otherwise run `./tt/vvw-r.RunVVX.sh jjx_muster`:
   - If 1 heat: use it
-  - If 0 heats: Error "No active heats"
+  - If 0 heats: Error "No heats found"
   - If 2+ heats: ask user to select
 - Run `./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK>` and find pace by silks match
 - Error if silks not found in heat

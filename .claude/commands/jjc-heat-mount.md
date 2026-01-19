@@ -18,14 +18,17 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 - Skip to Step 2
 
 **If $ARGUMENTS is empty or contains silks:**
-- Run: `./tt/vvw-r.RunVVX.sh jjx_muster --status current`
+- Run: `./tt/vvw-r.RunVVX.sh jjx_muster --status racing`
 - Parse TSV output: `FIREMARK<TAB>SILKS<TAB>STATUS<TAB>PACE_COUNT`
 
-**If 0 heats:** Report "No active heats. Create one with `./tt/vvw-r.RunVVX.sh jjx_nominate`." and stop.
+**If 0 racing heats:**
+- Report: "No racing heats found."
+- Suggest: "Check stabled heats with `/jjc-heat-muster` or use `/jjc-heat-furlough <firemark> --racing` to resume a heat."
+- Stop.
 
-**If 1 heat:** Use that heat's Firemark.
+**If 1 racing heat:** Use that heat's Firemark automatically (no prompt).
 
-**If 2+ heats:**
+**If 2+ racing heats:**
 - If $ARGUMENTS matches a silks value, use that heat
 - Otherwise list heats and ask user to select
 
