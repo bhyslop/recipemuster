@@ -3050,9 +3050,10 @@
         "₢AFAAE",
         "₢AFAAF",
         "₢AFAAH",
-        "₢AFAAI"
+        "₢AFAAI",
+        "₢AFAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3158,6 +3159,17 @@
               "text": "Implement jjx_scout command and /jjc-pace-scout slash command for searching across heats and paces by keyword. Should search pace silks, specs, and directions for matches. No schema changes required — queries existing gallops data. Return matching paces with their heat context. Consider: case sensitivity, regex support, output format (which fields to show), whether to search paddock content too.",
               "silks": "implement-scout-search",
               "commit": "1d2151f"
+            }
+          ]
+        },
+        "₢AFAAJ": {
+          "tacks": [
+            {
+              "ts": "260120-1820",
+              "state": "rough",
+              "text": "Change jjx_nominate default: new heats start as 'stabled' not 'racing'. No heat should auto-start running — user must explicitly furlough to racing when ready to execute. Update default in Rust impl and any slash command docs that mention initial state.",
+              "silks": "nominate-defaults-stabled",
+              "commit": "ad0278c"
             }
           ]
         }
