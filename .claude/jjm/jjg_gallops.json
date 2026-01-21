@@ -3047,9 +3047,10 @@
         "₢AFAAC",
         "₢AFAAD",
         "₢AFAAE",
-        "₢AFAAF"
+        "₢AFAAF",
+        "₢AFAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3115,6 +3116,17 @@
               "text": "A release of vvk needs to run all tests before forming the tarball; I did not see tests run before last release",
               "silks": "make-tests-block-release",
               "commit": "6cd9cd3"
+            }
+          ]
+        },
+        "₢AFAAG": {
+          "tacks": [
+            {
+              "ts": "260120-1748",
+              "state": "rough",
+              "text": "The git commit string still has 'rbm' in it and I think that is why rein is not working.  Remove that and vvalidate rein again.",
+              "silks": "fix-hallmark-no-rbm",
+              "commit": "d900fa3"
             }
           ]
         }
