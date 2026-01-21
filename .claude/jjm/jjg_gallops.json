@@ -3122,6 +3122,13 @@
         "₢AFAAG": {
           "tacks": [
             {
+              "ts": "260120-1749",
+              "state": "rough",
+              "text": "The git commit string still has 'rbm' in it and I think that is why rein is not working.  Remove that and validate rein again.",
+              "silks": "fix-hallmark-and-rein-no-rbm",
+              "commit": "10bf511"
+            },
+            {
               "ts": "260120-1748",
               "state": "rough",
               "text": "The git commit string still has 'rbm' in it and I think that is why rein is not working.  Remove that and vvalidate rein again.",
