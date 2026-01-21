@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AH",
+  "next_heat_seed": "AI",
   "heats": {
     "₣AA": {
       "silks": "vok-fresh-install-release",
@@ -3197,6 +3197,15 @@
           ]
         }
       }
+    },
+    "₣AH": {
+      "silks": "jjk-commission-haiku-pilot",
+      "creation_time": "260120",
+      "status": "racing",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AH.md",
+      "paces": {}
     }
   }
 }
