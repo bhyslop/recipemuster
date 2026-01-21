@@ -3045,9 +3045,10 @@
         "₢AFAAB",
         "₢AFAAA",
         "₢AFAAC",
-        "₢AFAAD"
+        "₢AFAAD",
+        "₢AFAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3091,6 +3092,17 @@
               "text": "Fix: /jjc-heat-mount calls `jjx_muster --status racing` but jjx_muster doesn't support --status flag.\n\n**Bug:** Slash command assumes CLI filtering that doesn't exist.\n\n**Options:**\n1. Add --status flag to jjx_muster (filter server-side)\n2. Remove --status from slash command, filter client-side\n\n**Preference:** Option 1 — filtering in Rust is cleaner, reduces output parsing in slash command.\n\n**Files:**\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (add --status to MusterArgs)\n- .claude/commands/jjc-heat-mount.md (verify usage after fix)",
               "silks": "muster-status-filter",
               "commit": "901647b"
+            }
+          ]
+        },
+        "₢AFAAE": {
+          "tacks": [
+            {
+              "ts": "260120-1745",
+              "state": "rough",
+              "text": "Look at paneboard's implementation of sandboxing for macos preventing ALL network access and implement this in the vvx application.",
+              "silks": "add-macos-sandbox",
+              "commit": "ad89d7d"
             }
           ]
         }
