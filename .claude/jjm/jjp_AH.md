@@ -2,8 +2,31 @@
 
 ## Context
 
-(Describe the initiative's background and goals)
+Architect JJK for tiered model execution: Haiku as the fast, cheap "jockey" for routine operations, with Opus as the "steward" brought in for judgment calls.
+
+**Origin:** Trial run with Haiku piloting JJK went surprisingly well, but exposed gaps. The path forward: tune JJX output to be Haiku-legible, and explicitly elect Opus for operations requiring deep judgment.
+
+**Vision:**
+- Haiku handles 80% of operations — mechanical, well-structured, fast
+- Opus handles 20% — bridleability assessment, complex groom decisions, ambiguous specs
+- The system knows when small-think suffices and when big-think is needed
+
+## Key Questions
+
+1. **Escalation triggers** — Hard-coded (bridle → always opus) vs. dynamic (haiku recognizes "I need help")?
+2. **Model switching mechanics** — How does Claude Code switch models mid-flow? Task tool with `model: "opus"`?
+3. **Which operations need Opus?** — Bridle yes. Also: groom? reslate? quarter?
+4. **Output redesign** — What makes JJX output "Haiku-friendly"? More explicit state, decision trees, less inference required.
+
+## Architectural Considerations
+
+- JJX commands should emit structured, unambiguous output that smaller models can parse reliably
+- Slash command prompts may need model-specific variants or clearer decision criteria
+- Bridling is fundamentally a judgment call about scope, ambiguity, and risk — Opus territory
+- Cost/speed tradeoff is significant: Haiku for iteration, Opus for commitment
 
 ## References
 
-(List relevant files, docs, or prior work)
+- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — JJK data model
+- .claude/commands/ — Slash command definitions
+- Task tool `model` parameter — mechanism for model selection in subagents

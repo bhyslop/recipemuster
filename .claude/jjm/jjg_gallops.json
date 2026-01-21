@@ -3202,10 +3202,24 @@
       "silks": "jjk-commission-haiku-pilot",
       "creation_time": "260120",
       "status": "racing",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AHAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AH.md",
-      "paces": {}
+      "paces": {
+        "₢AHAAA": {
+          "tacks": [
+            {
+              "ts": "260120-1818",
+              "state": "rough",
+              "text": "Design the model tiering strategy for JJK. Analyze which operations genuinely require Opus-level judgment vs. which can be reliably executed by Haiku. Map each jjx_* command and slash command to a model tier. Consider: What makes output 'Haiku-friendly'? What are the escalation triggers? How does the Task tool's model parameter integrate? Produce a tiering matrix and architectural recommendations.",
+              "silks": "design-model-tiering-strategy",
+              "commit": "3dc484c"
+            }
+          ]
+        }
+      }
     }
   }
 }
