@@ -3048,9 +3048,10 @@
         "₢AFAAC",
         "₢AFAAD",
         "₢AFAAE",
-        "₢AFAAF"
+        "₢AFAAF",
+        "₢AFAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3134,6 +3135,17 @@
               "text": "The git commit string still has 'rbm' in it and I think that is why rein is not working.  Remove that and vvalidate rein again.",
               "silks": "fix-hallmark-no-rbm",
               "commit": "d900fa3"
+            }
+          ]
+        },
+        "₢AFAAH": {
+          "tacks": [
+            {
+              "ts": "260120-1756",
+              "state": "rough",
+              "text": "Fix muster command to correctly display pace completion status. Currently showing 0/5 for ₣AC when all 5 paces are complete. Verify column semantics (Completed/Total) and ensure query returns accurate completion counts.",
+              "silks": "repair-muster-pace-columns",
+              "commit": "74ff45e"
             }
           ]
         }
