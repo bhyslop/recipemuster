@@ -3049,9 +3049,10 @@
         "₢AFAAD",
         "₢AFAAE",
         "₢AFAAF",
-        "₢AFAAH"
+        "₢AFAAH",
+        "₢AFAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3146,6 +3147,17 @@
               "text": "Fix muster command to correctly display pace completion status. Currently showing 0/5 for ₣AC when all 5 paces are complete. Verify column semantics (Completed/Total) and ensure query returns accurate completion counts.",
               "silks": "repair-muster-pace-columns",
               "commit": "74ff45e"
+            }
+          ]
+        },
+        "₢AFAAI": {
+          "tacks": [
+            {
+              "ts": "260120-1805",
+              "state": "rough",
+              "text": "Implement jjx_scout command and /jjc-pace-scout slash command for searching across heats and paces by keyword. Should search pace silks, specs, and directions for matches. No schema changes required — queries existing gallops data. Return matching paces with their heat context. Consider: case sensitivity, regex support, output format (which fields to show), whether to search paddock content too.",
+              "silks": "implement-scout-search",
+              "commit": "1d2151f"
             }
           ]
         }
