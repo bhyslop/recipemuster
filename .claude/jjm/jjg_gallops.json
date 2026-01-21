@@ -3046,9 +3046,10 @@
         "₢AFAAA",
         "₢AFAAC",
         "₢AFAAD",
-        "₢AFAAE"
+        "₢AFAAE",
+        "₢AFAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3103,6 +3104,17 @@
               "text": "Look at paneboard's implementation of sandboxing for macos preventing ALL network access and implement this in the vvx application.",
               "silks": "add-macos-sandbox",
               "commit": "ad89d7d"
+            }
+          ]
+        },
+        "₢AFAAF": {
+          "tacks": [
+            {
+              "ts": "260120-1746",
+              "state": "rough",
+              "text": "A release of vvk needs to run all tests before forming the tarball; I did not see tests run before last release",
+              "silks": "make-tests-block-release",
+              "commit": "6cd9cd3"
             }
           ]
         }
