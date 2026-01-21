@@ -3042,13 +3042,13 @@
       "creation_time": "260119",
       "status": "racing",
       "order": [
+        "₢AFAAG",
         "₢AFAAB",
         "₢AFAAA",
         "₢AFAAC",
         "₢AFAAD",
         "₢AFAAE",
-        "₢AFAAF",
-        "₢AFAAG"
+        "₢AFAAF"
       ],
       "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AF.md",
