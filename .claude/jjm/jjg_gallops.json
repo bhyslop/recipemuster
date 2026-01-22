@@ -75,7 +75,6 @@
         "₢AAABJ",
         "₢AAABK",
         "₢AAABL",
-        "₢AAABS",
         "₢AAABT"
       ],
       "next_pace_seed": "ABW",
@@ -1870,17 +1869,6 @@
             }
           ]
         },
-        "₢AAABS": {
-          "tacks": [
-            {
-              "ts": "260118-2145",
-              "state": "rough",
-              "text": "Add unit tests for jjrg_furlough operation in jjtg_gallops.rs:\n\nTests to add:\n1. jjtg_furlough_racing_to_stabled - verify racing heat becomes stabled\n2. jjtg_furlough_stabled_to_racing - verify stabled heat becomes racing  \n3. jjtg_furlough_retired_fails - verify furlough on retired heat returns error\n4. jjtg_furlough_already_racing_noop - verify idempotent behavior (already racing, request racing)\n5. jjtg_furlough_already_stabled_noop - verify idempotent behavior (already stabled, request stabled)\n6. jjtg_furlough_with_silks_rename - verify --silks renames heat\n\nFiles: Tools/jjk/vov_veiled/src/jjtg_gallops.rs",
-              "silks": "furlough-unit-tests",
-              "commit": "623a5db"
-            }
-          ]
-        },
         "₢AAABT": {
           "tacks": [
             {
@@ -3227,9 +3215,10 @@
       "status": "racing",
       "order": [
         "₢AIAAA",
-        "₢AIAAB"
+        "₢AIAAB",
+        "₢AIAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AI.md",
       "paces": {
         "₢AIAAA": {
@@ -3265,6 +3254,24 @@
               "text": "Test kit installation and uninstallation workflows against pb_paneboard02, which has archaic kit versions.\n\n**NOT bridleable** — requires human judgment at each verification step.\n\n## Pre-testing\n1. Create checkpoint commit in pb_paneboard02 marking test beginning\n2. Inventory existing kit artifacts in pb_paneboard02/Tools/\n\n## Test sequence\n3. Test BUK uninstall against archaic installation (Tools/buk/lenses/ pattern)\n4. Test BUK fresh install\n5. Verify BUK installation integrity\n6. Repeat for CMK, JJK, VOK as appropriate\n\n## Wrap-up\n7. Document findings and issues discovered\n8. Create completion commit in pb_paneboard02",
               "silks": "paneboard-install-test",
               "commit": "0000000"
+            }
+          ]
+        },
+        "₢AIAAC": {
+          "tacks": [
+            {
+              "ts": "260121-1928",
+              "state": "rough",
+              "text": "Drafted from ₢AAABS in ₣AA.\n\nAdd unit tests for jjrg_furlough operation in jjtg_gallops.rs:\n\nTests to add:\n1. jjtg_furlough_racing_to_stabled - verify racing heat becomes stabled\n2. jjtg_furlough_stabled_to_racing - verify stabled heat becomes racing  \n3. jjtg_furlough_retired_fails - verify furlough on retired heat returns error\n4. jjtg_furlough_already_racing_noop - verify idempotent behavior (already racing, request racing)\n5. jjtg_furlough_already_stabled_noop - verify idempotent behavior (already stabled, request stabled)\n6. jjtg_furlough_with_silks_rename - verify --silks renames heat\n\nFiles: Tools/jjk/vov_veiled/src/jjtg_gallops.rs",
+              "silks": "furlough-unit-tests",
+              "commit": "4b4c5dd"
+            },
+            {
+              "ts": "260118-2145",
+              "state": "rough",
+              "text": "Add unit tests for jjrg_furlough operation in jjtg_gallops.rs:\n\nTests to add:\n1. jjtg_furlough_racing_to_stabled - verify racing heat becomes stabled\n2. jjtg_furlough_stabled_to_racing - verify stabled heat becomes racing  \n3. jjtg_furlough_retired_fails - verify furlough on retired heat returns error\n4. jjtg_furlough_already_racing_noop - verify idempotent behavior (already racing, request racing)\n5. jjtg_furlough_already_stabled_noop - verify idempotent behavior (already stabled, request stabled)\n6. jjtg_furlough_with_silks_rename - verify --silks renames heat\n\nFiles: Tools/jjk/vov_veiled/src/jjtg_gallops.rs",
+              "silks": "furlough-unit-tests",
+              "commit": "623a5db"
             }
           ]
         }
