@@ -3051,9 +3051,10 @@
         "₢AFAAF",
         "₢AFAAH",
         "₢AFAAI",
-        "₢AFAAJ"
+        "₢AFAAJ",
+        "₢AFAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3170,6 +3171,17 @@
               "text": "Change jjx_nominate default: new heats start as 'stabled' not 'racing'. No heat should auto-start running — user must explicitly furlough to racing when ready to execute. Update default in Rust impl and any slash command docs that mention initial state.",
               "silks": "nominate-defaults-stabled",
               "commit": "ad0278c"
+            }
+          ]
+        },
+        "₢AFAAK": {
+          "tacks": [
+            {
+              "ts": "260121-1925",
+              "state": "rough",
+              "text": "Implement /jjc-heat-garland ceremony for honoring a heat that has run many paces.\n\n## Concept\n\nWhen a heat has completed 20+ paces, it deserves celebration and the remaining work should transfer to a fresh heat. \"Garland\" acknowledges magnificent service while preserving the heat for later retrospective.\n\n## Ceremony behavior\n\n1. Add steeplechase marker: \"Garlanded at pace N — magnificent service\"\n2. Furlough heat to stabled (preserves for later retrospective)\n3. Nominate fresh heat (prompt for new silks, or derive from old)\n4. Draft remaining paces to new heat\n5. Open new paddock for rewriting — context has evolved\n\n## Design questions to resolve\n\n- What is slash command vs jjx_ primitive boundary?\n- Should there be a jjx_garland primitive, or is this pure ceremony using existing primitives (chalk, furlough, nominate, draft)?\n- Threshold for warning (20 completed) — where does this live?\n- Warning placement: in groom? in muster? both?\n\n## Related\n\n- jjx_draft already moves paces between heats\n- /jjc-heat-restring is precedent for ceremony using draft primitive\n- Furlough already handles stabling",
+              "silks": "implement-garland-ceremony",
+              "commit": "cc5a988"
             }
           ]
         }
