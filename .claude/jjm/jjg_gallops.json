@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AI",
+  "next_heat_seed": "AJ",
   "heats": {
     "₣AA": {
       "silks": "garlanded-vok-fresh-install-release",
@@ -3244,6 +3244,15 @@
           ]
         }
       }
+    },
+    "₣AI": {
+      "silks": "vok-post-mvp-polish",
+      "creation_time": "260121",
+      "status": "racing",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AI.md",
+      "paces": {}
     }
   }
 }
