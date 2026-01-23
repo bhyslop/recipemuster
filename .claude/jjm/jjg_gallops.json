@@ -3301,9 +3301,10 @@
       "creation_time": "260122",
       "status": "racing",
       "order": [
-        "₢AJAAA"
+        "₢AJAAA",
+        "₢AJAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AJ.md",
       "paces": {
         "₢AJAAA": {
@@ -3314,6 +3315,17 @@
               "text": "Decompose the paddock into executable paces. Review the paddock context, authoritative specifications (VLS, VOS, BUS), and domain list. Draft a sequence of bridleable paces that build incrementally toward a working linter.",
               "silks": "decompose-paddock-to-paces",
               "commit": "bba667d"
+            }
+          ]
+        },
+        "₢AJAAB": {
+          "tacks": [
+            {
+              "ts": "260122-1624",
+              "state": "rough",
+              "text": "STOP. Before slating implementation paces, ensure the linter design is clear. Questions to resolve: (1) What exact directories to scan? (2) How to detect which vesture applies to a file? (3) What output format for warnings? (4) How to handle files that legitimately don't follow liturgy (third-party, legacy)? Only proceed to implementation paces when these questions have answers in the paddock.",
+              "silks": "design-before-implement",
+              "commit": "bc37244"
             }
           ]
         }
