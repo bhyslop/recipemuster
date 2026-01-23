@@ -3114,6 +3114,14 @@
         "₢AFAAD": {
           "tacks": [
             {
+              "ts": "260123-1150",
+              "state": "bridled",
+              "text": "Fix: /jjc-heat-mount calls `jjx_muster --status racing` but jjx_muster doesn't support --status flag.\n\n**Solution:** Option 2 — Remove --status from slash command, filter client-side.\n\n**Rationale:**\n- YAGNI: Only jjc-heat-mount needs this filtering\n- JJD spec defines {jjda_status} but doesn't assign it to muster's arguments\n- Bash filtering on TSV is trivial\n\n**Change:**\nIn `.claude/commands/jjc-heat-mount.md`, replace:\n```\n./tt/vvw-r.RunVVX.sh jjx_muster --status racing\n```\nwith:\n```\n./tt/vvw-r.RunVVX.sh jjx_muster | grep $'\\t'racing$'\\t'\n```\n\n**Files:**\n- .claude/commands/jjc-heat-mount.md (line ~21)",
+              "silks": "muster-status-filter",
+              "commit": "61302f1",
+              "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: .claude/commands/jjc-heat-mount.md (1 file)\nSteps:\n1. Read .claude/commands/jjc-heat-mount.md\n2. Find the line with jjx_muster --status racing\n3. Replace with: jjx_muster followed by pipe to grep for tab-racing-tab pattern\n4. The grep pattern filters TSV output where the status column equals racing\nVerify: Read the file and confirm the change"
+            },
+            {
               "ts": "260123-1149",
               "state": "bridled",
               "text": "Fix: /jjc-heat-mount calls `jjx_muster --status racing` but jjx_muster doesn't support --status flag.\n\n**Solution:** Option 2 — Remove --status from slash command, filter client-side.\n\n**Rationale:**\n- YAGNI: Only jjc-heat-mount needs this filtering\n- JJD spec defines {jjda_status} but doesn't assign it to muster's arguments\n- Bash filtering on TSV is trivial\n\n**Change:**\nIn `.claude/commands/jjc-heat-mount.md`, replace:\n```\n./tt/vvw-r.RunVVX.sh jjx_muster --status racing\n```\nwith:\n```\n./tt/vvw-r.RunVVX.sh jjx_muster | grep $'\\t'racing$'\\t'\n```\n\n**Files:**\n- .claude/commands/jjc-heat-mount.md (line ~21)",
