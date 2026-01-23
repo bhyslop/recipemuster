@@ -3288,10 +3288,24 @@
       "silks": "vok-liturgical-linter",
       "creation_time": "260122",
       "status": "racing",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AJAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AJ.md",
-      "paces": {}
+      "paces": {
+        "₢AJAAA": {
+          "tacks": [
+            {
+              "ts": "260122-1619",
+              "state": "rough",
+              "text": "Decompose the paddock into executable paces. Review the paddock context, authoritative specifications (VLS, VOS, BUS), and domain list. Draft a sequence of bridleable paces that build incrementally toward a working linter.",
+              "silks": "decompose-paddock-to-paces",
+              "commit": "bba667d"
+            }
+          ]
+        }
+      }
     }
   }
 }
