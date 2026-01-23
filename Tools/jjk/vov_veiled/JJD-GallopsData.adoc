@@ -109,6 +109,7 @@
 :jjdo_rein:           <<jjdo_rein,jjx_rein>>
 :jjdo_retire:         <<jjdo_retire,jjx_retire>>
 :jjdo_saddle:         <<jjdo_saddle,jjx_saddle>>
+:jjdo_scout:          <<jjdo_scout,jjx_scout>>
 :jjdo_slate:          <<jjdo_slate,jjx_slate>>
 :jjdo_tally:          <<jjdo_tally,jjx_tally>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
@@ -2326,6 +2327,95 @@ output `direction` from `tacks[0].direction`
 . Get last 10 steeplechase entries for the heat via
 {jjdo_rein}
 logic, output as `recent_work` array
+
+[[jjdo_scout]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_scout}
+
+Search across
+{jjdhr_heat_s}
+and
+{jjdpr_pace_s}
+using regex patterns.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* pattern (positional) — regex pattern to search for (case insensitive)
+
+// ⟦axd_optional⟧
+* `--actionable` — limit results to
+{jjdpe_rough}
+or
+{jjdpe_bridled}
+paces only
+
+{jjds_stdout} Grouped text output:
+----
+₣XX heat-silks
+  ₢XXXXX [state] pace-silks
+    field: ...match excerpt...
+₣YY another-heat
+  ₢YYYYY [state] another-pace
+    field: ...match excerpt...
+----
+
+Where `field` is one of: `silks`, `spec`, `direction`, or `paddock`.
+Match excerpt shows approximately 60 characters of context around the first match.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Build case-insensitive regex from pattern argument
+. For each
+{jjdhr_heat}
+(all statuses: racing, stabled, retired):
+.. For each
+{jjdpr_pace}
+in
+{jjdhm_order}:
+... If `--actionable` specified, skip paces not in
+{jjdpe_rough}
+or
+{jjdpe_bridled}
+state
+... Search in order (first match wins):
+.... {jjdkm_silks}
+(from `tacks[0].silks`)
+.... {jjdkm_text}
+(spec from `tacks[0].text`)
+.... {jjdkm_direction}
+(from `tacks[0].direction` if present)
+.... {jjdhm_paddock}
+file content
+... If match found:
+.... If this is the first match in this
+{jjdhr_heat},
+print heat header
+.... Print pace line with
+{jjdt_coronet},
+state, and
+{jjdkm_silks}
+.... Print match line with field name and context excerpt (60 chars around match)
+
+*Design rationale:*
+{jjdo_scout}
+does NOT search steeplechase/chalk descriptions.
+Steeplechase entries are for session history reconstruction; searching them would conflate "what we planned" with "what we discussed."
+The scout searches plan artifacts only:
+{jjdkm_silks},
+{jjdkm_text},
+{jjdkm_direction},
+and
+{jjdhm_paddock}
+content.
 
 [[jjdo_parade]]
 // ⟦axl_voices axi_cli_subcommand⟧

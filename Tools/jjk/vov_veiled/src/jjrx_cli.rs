@@ -82,6 +82,10 @@ pub enum jjrx_JjxCommands {
     /// Mark a pace complete and commit in one operation
     #[command(name = "jjx_wrap")]
     Wrap(jjrx_WrapArgs),
+
+    /// Search across heats and paces with regex
+    #[command(name = "jjx_scout")]
+    Scout(zjjrx_ScoutArgs),
 }
 
 /// Arguments for jjx_notch command
@@ -372,6 +376,21 @@ struct zjjrx_FurloughArgs {
     silks: Option<String>,
 }
 
+/// Arguments for jjx_scout command
+#[derive(clap::Args, Debug)]
+struct zjjrx_ScoutArgs {
+    /// Path to the Gallops JSON file
+    #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
+    file: PathBuf,
+
+    /// Regex pattern to search for
+    pattern: String,
+
+    /// Limit to actionable paces only (rough/bridled)
+    #[arg(long)]
+    actionable: bool,
+}
+
 // ============================================================================
 // Public dispatch API
 // ============================================================================
@@ -420,6 +439,7 @@ pub fn jjrx_dispatch(args: &[OsString]) -> i32 {
         jjrx_JjxCommands::Draft(args) => zjjrx_run_draft(args),
         jjrx_JjxCommands::Furlough(args) => zjjrx_run_furlough(args),
         jjrx_JjxCommands::Wrap(args) => zjjrx_run_wrap(args),
+        jjrx_JjxCommands::Scout(args) => zjjrx_run_scout(args),
     }
 }
 
@@ -1330,6 +1350,18 @@ fn zjjrx_run_furlough(args: zjjrx_FurloughArgs) -> i32 {
         }
     }
     // lock released here
+}
+
+fn zjjrx_run_scout(args: zjjrx_ScoutArgs) -> i32 {
+    use crate::jjrq_query::{jjrq_ScoutArgs as LibScoutArgs, jjrq_run_scout as lib_run_scout};
+
+    let scout_args = LibScoutArgs {
+        file: args.file,
+        pattern: args.pattern,
+        actionable: args.actionable,
+    };
+
+    lib_run_scout(scout_args)
 }
 
 fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
