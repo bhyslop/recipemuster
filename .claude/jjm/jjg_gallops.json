@@ -3260,6 +3260,13 @@
         "₢AFAAI": {
           "tacks": [
             {
+              "ts": "260123-1216",
+              "state": "rough",
+              "text": "Implement `jjx_scout` command and `/jjc-scout` slash command for regex search across heats and paces.\n\n**Search behavior:**\n- Case insensitive (always)\n- Full regex pattern support\n- Searches: pace silks, specs, directions, paddock content\n- Does NOT search: steeplechase/chalk descriptions\n\n**Filtering:**\n- All heats by default (racing, stabled, retired)\n- `--actionable` flag limits to rough/bridled paces only\n\n**Output format:**\n```\n₣AF jjk-post-alpha-polish\n  ₢AFAAI [rough] implement-scout-search\n    spec: ...keyword... for searching across heats\n₣AA garlanded-vok-fresh-install\n  ₢AAABC [complete] related-pace-name\n    paddock: ...keyword... mentioned in context\n```\n\nOne entry per matching pace, grouped by heat. Shows:\n- Heat firemark and silks (group header)\n- Coronet, state, pace silks (pace line)\n- Field name and excerpt with match context (match line)\n\nMultiple matches in same pace: show first match only (keep output scannable).\n\n**CLI signature:**\n```\njjx_scout <PATTERN> [--actionable]\n```\n\nNo schema changes required — queries existing gallops data via jjdr_load.",
+              "silks": "implement-scout-search",
+              "commit": "3db2c70"
+            },
+            {
               "ts": "260120-1805",
               "state": "rough",
               "text": "Implement jjx_scout command and /jjc-pace-scout slash command for searching across heats and paces by keyword. Should search pace silks, specs, and directions for matches. No schema changes required — queries existing gallops data. Return matching paces with their heat context. Consider: case sensitivity, regex support, output format (which fields to show), whether to search paddock content too.",
