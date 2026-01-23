@@ -2257,17 +2257,16 @@ can parse to reconstruct session history.
 
 ==== Commit Message Patterns
 
-All JJ commits use the format: `jjb:BRAND:HALLMARK:IDENTITY[:ACTION]: message`
+All JJ commits use the format: `jjb:HALLMARK:IDENTITY:ACTION: message`
 
 * `jjb` — JJ brand prefix (literal)
-* `BRAND` — repository identifier baked into arcanum at install time (e.g., "RBM")
 * `HALLMARK` — Version identifier. Format: NNNN (installed) or NNNN-xxxxxxx (dev). Source: `.vvk/vvbf_brand.json` (installed) or max hallmark from `Tools/vok/vov_veiled/vovr_registry.json` + git HEAD (Kit Forge)
 * `IDENTITY` — ₢CORONET for pace-level, ₣FIREMARK for heat-level
 * `ACTION` — single-letter code (required for all commits)
 
 *Standard notch* (created by {jjdo_notch}):
 ----
-jjb:BRAND:HALLMARK:₢XXXXX:n: commit message
+jjb:HALLMARK:₢XXXXX:n: commit message
 
 Co-Authored-By: ...
 ----
@@ -2276,7 +2275,7 @@ Standard notch commits use `n` to denote routine progress tracking.
 
 *Pace-level chalk* (created by {jjdo_chalk}):
 ----
-jjb:BRAND:HALLMARK:₢XXXXX:A: description
+jjb:HALLMARK:₢XXXXX:A: description
 
 Co-Authored-By: ...
 ----
@@ -2291,12 +2290,12 @@ Pace-level action codes:
 
 *Heat-level operations*:
 ----
-jjb:BRAND:HALLMARK:₣XX:N: heat-silks
-jjb:BRAND:HALLMARK:₣XX:S: pace-silks
-jjb:BRAND:HALLMARK:₣XX:r: reordered
-jjb:BRAND:HALLMARK:₣XX:T: pace-silks
-jjb:BRAND:HALLMARK:₣XX:D: old-coronet → new-coronet
-jjb:BRAND:HALLMARK:₣XX:R: heat-silks
+jjb:HALLMARK:₣XX:N: heat-silks
+jjb:HALLMARK:₣XX:S: pace-silks
+jjb:HALLMARK:₣XX:r: reordered
+jjb:HALLMARK:₣XX:T: pace-silks
+jjb:HALLMARK:₣XX:D: old-coronet → new-coronet
+jjb:HALLMARK:₣XX:R: heat-silks
 ----
 
 Heat-level action codes:
@@ -2353,7 +2352,7 @@ Parse git history for steeplechase entries belonging to a
   }
 ]
 ----
-Field `hallmark` is present for new-format commits, absent for old-format commits.
+Field `hallmark` is always present.
 Field `coronet` is present for pace-level entries, absent for heat-level operations.
 Field `action` is present for all commits, including standard notch commits (`n`).
 Entries ordered newest first.
@@ -2363,8 +2362,8 @@ Entries ordered newest first.
 {jjds_behavior}
 
 . Run `git log --all --extended-regexp --grep="^jjb:[^:]+:(₣XX|₢XX)" --format="%ai%x09%s"`
-  (matches any brand; filtering is by identity, not brand)
-. Parse each line: extract timestamp, identity, action (if present), and message
+  (skips hallmark field; filtering is by identity)
+. Parse each line: extract timestamp, hallmark, identity, action, and message
 . For pace-level (₢CORONET): verify coronet belongs to target heat
 . For heat-level (₣FIREMARK): verify firemark matches target heat
 . Build JSON array, limit to requested count
@@ -2396,7 +2395,7 @@ Use when the pace spec justifies legitimate large commits.
 . Stage changes (`git add -u`)
 . Run size guard check (uses `--size-limit` if provided, otherwise 50KB default)
 . Run `claude --print "Generate commit message for this diff: $(git diff --cached)"`
-. Format full message: `jjb:BRAND:₢XXXXX:n: message\n\nCo-Authored-By: ...`
+. Format full message: `jjb:HALLMARK:₢XXXXX:n: message\n\nCo-Authored-By: ...`
 . Run `git commit -m "..."`
 . Release lock
 . Output commit hash
@@ -2428,8 +2427,8 @@ Create an empty commit marking a steeplechase event.
 . Detect identity type by length (5 chars = coronet, 2 chars = firemark)
 . Validate: `A`/`W`/`F` require coronet; `d` accepts either
 . Format message:
-.. If coronet: `jjb:BRAND:₢XXXXX:X: description\n\nCo-Authored-By: ...`
-.. If firemark (discussion only): `jjb:BRAND:₣XX:d: description\n\nCo-Authored-By: ...`
+.. If coronet: `jjb:HALLMARK:₢XXXXX:X: description\n\nCo-Authored-By: ...`
+.. If firemark (discussion only): `jjb:HALLMARK:₣XX:d: description\n\nCo-Authored-By: ...`
 . Run `git commit --allow-empty -m "..."`
 . Release lock
 . Output commit hash

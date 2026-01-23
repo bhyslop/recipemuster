@@ -72,19 +72,20 @@ fn jjtn_heat_action_as_str() {
 }
 
 // Format function tests
+// New format: jjb:HALLMARK:IDENTITY:ACTION: message
 
 #[test]
 fn jjtn_format_notch_prefix() {
     let coronet = Coronet::jjrf_parse("ABAAA").unwrap();
     let prefix = jjrn_format_notch_prefix(&coronet);
-    // Check format: jjb:RBM:HALLMARK:₢ABAAA:n:
-    assert!(prefix.starts_with("jjb:RBM:"));
+    // Check format: jjb:HALLMARK:₢ABAAA:n:
+    assert!(prefix.starts_with("jjb:"));
     assert!(prefix.contains(":₢ABAAA:n: "));
-    // Hallmark should be between "jjb:RBM:" and ":₢"
+    // Parse structure: jjb, HALLMARK, ₢ABAAA, n, " " (trailing space)
     let parts: Vec<&str> = prefix.split(':').collect();
-    assert_eq!(parts.len(), 6); // jjb, RBM, HALLMARK, ₢ABAAA, n, " " (trailing space after final colon)
+    assert_eq!(parts.len(), 5); // jjb, HALLMARK, ₢ABAAA, n, " "
     // Verify hallmark format (NNNN or NNNN-xxxxxxx)
-    let hallmark = parts[2];
+    let hallmark = parts[1];
     assert!(!hallmark.is_empty(), "Hallmark should not be empty");
 }
 
@@ -92,7 +93,7 @@ fn jjtn_format_notch_prefix() {
 fn jjtn_format_chalk_message_approach() {
     let coronet = Coronet::jjrf_parse("ABAAA").unwrap();
     let msg = jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Approach, "Starting work on feature");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₢ABAAA:A: Starting work on feature"));
 }
 
@@ -100,7 +101,7 @@ fn jjtn_format_chalk_message_approach() {
 fn jjtn_format_chalk_message_wrap() {
     let coronet = Coronet::jjrf_parse("__AAA").unwrap();
     let msg = jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Wrap, "Completed the task");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₢__AAA:W: Completed the task"));
 }
 
@@ -108,7 +109,7 @@ fn jjtn_format_chalk_message_wrap() {
 fn jjtn_format_chalk_message_fly() {
     let coronet = Coronet::jjrf_parse("ABCDE").unwrap();
     let msg = jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Fly, "Autonomous execution");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₢ABCDE:F: Autonomous execution"));
 }
 
@@ -116,7 +117,7 @@ fn jjtn_format_chalk_message_fly() {
 fn jjtn_format_chalk_message_discussion() {
     let coronet = Coronet::jjrf_parse("ABAAA").unwrap();
     let msg = jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Discussion, "Design discussion");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₢ABAAA:d: Design discussion"));
 }
 
@@ -124,7 +125,7 @@ fn jjtn_format_chalk_message_discussion() {
 fn jjtn_format_heat_discussion() {
     let fm = Firemark::jjrf_parse("AB").unwrap();
     let msg = jjrn_format_heat_discussion(&fm, "Design discussion without pace");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₣AB:d: Design discussion without pace"));
 }
 
@@ -132,7 +133,7 @@ fn jjtn_format_heat_discussion() {
 fn jjtn_format_heat_message_nominate() {
     let fm = Firemark::jjrf_parse("AB").unwrap();
     let msg = jjrn_format_heat_message(&fm, jjrn_HeatAction::Nominate, "my-new-heat");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₣AB:N: my-new-heat"));
 }
 
@@ -140,7 +141,7 @@ fn jjtn_format_heat_message_nominate() {
 fn jjtn_format_heat_message_slate() {
     let fm = Firemark::jjrf_parse("AB").unwrap();
     let msg = jjrn_format_heat_message(&fm, jjrn_HeatAction::Slate, "new-pace-silks");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₣AB:S: new-pace-silks"));
 }
 
@@ -148,7 +149,7 @@ fn jjtn_format_heat_message_slate() {
 fn jjtn_format_heat_message_rail() {
     let fm = Firemark::jjrf_parse("AB").unwrap();
     let msg = jjrn_format_heat_message(&fm, jjrn_HeatAction::Rail, "reordered");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₣AB:r: reordered"));
 }
 
@@ -156,7 +157,7 @@ fn jjtn_format_heat_message_rail() {
 fn jjtn_format_heat_message_tally() {
     let fm = Firemark::jjrf_parse("AB").unwrap();
     let msg = jjrn_format_heat_message(&fm, jjrn_HeatAction::Tally, "pace-name");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₣AB:T: pace-name"));
 }
 
@@ -164,7 +165,7 @@ fn jjtn_format_heat_message_tally() {
 fn jjtn_format_heat_message_draft() {
     let fm = Firemark::jjrf_parse("CD").unwrap();
     let msg = jjrn_format_heat_message(&fm, jjrn_HeatAction::Draft, "₢ABAAA → ₣CD");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₣CD:D: ₢ABAAA → ₣CD"));
 }
 
@@ -172,6 +173,6 @@ fn jjtn_format_heat_message_draft() {
 fn jjtn_format_heat_message_retire() {
     let fm = Firemark::jjrf_parse("AB").unwrap();
     let msg = jjrn_format_heat_message(&fm, jjrn_HeatAction::Retire, "my-heat-silks");
-    assert!(msg.starts_with("jjb:RBM:"));
+    assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₣AB:R: my-heat-silks"));
 }

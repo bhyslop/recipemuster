@@ -9,11 +9,10 @@
 //! - jjx_chalk: Empty commit marking a steeplechase event (pace-level)
 //! - Heat-level commits: nominate, slate, rail, tally, draft, retire
 //!
-//! Commit format: `jjb:BRAND:HALLMARK:IDENTITY[:ACTION]: message`
-//! - BRAND: Repository identifier (e.g., "RBM")
+//! Commit format: `jjb:HALLMARK:IDENTITY:ACTION: message`
 //! - HALLMARK: Version identifier (NNNN or NNNN-xxxxxxx)
 //! - IDENTITY: ₢CORONET for pace-level, ₣FIREMARK for heat-level
-//! - ACTION: Single letter code (optional for standard notch)
+//! - ACTION: Single letter code (required for all commits)
 //!
 //! The actual commit execution is handled by vorc_commit in the vok crate.
 //! This module exports formatting functions that the CLI handlers use.
@@ -21,9 +20,6 @@
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_CORONET_PREFIX as CORONET_PREFIX, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX};
 use std::fs;
 use std::process::Command;
-
-/// Default brand identifier (placeholder until configured by installation-identifier pace)
-pub const JJRN_DEFAULT_BRAND: &str = "RBM";
 
 /// Commit message prefix
 pub const JJRN_COMMIT_PREFIX: &str = "jjb";
@@ -182,32 +178,29 @@ impl jjrn_HeatAction {
     }
 }
 
-/// Format the notch prefix: jjb:BRAND:HALLMARK:₢CORONET:n:
+/// Format the notch prefix: jjb:HALLMARK:₢CORONET:n:
 ///
 /// Returns the prefix string to prepend to commit messages for JJ-aware commits.
 /// The coronet provides full context (embeds parent firemark).
 pub fn jjrn_format_notch_prefix(coronet: &Coronet) -> String {
     let hallmark = zjjrn_get_hallmark();
     format!(
-        "{}:{}:{}:{}{}:n: ",
+        "{}:{}:{}{}:n: ",
         JJRN_COMMIT_PREFIX,
-        JJRN_DEFAULT_BRAND,
         hallmark,
         CORONET_PREFIX,
         coronet.jjrf_as_str(),
     )
 }
 
-/// Format the chalk message: jjb:BRAND:HALLMARK:₢CORONET:X: description
-/// When coronet is None (heat-level discussion), format as: jjb:BRAND:HALLMARK:₣XX:d: description
+/// Format the chalk message: jjb:HALLMARK:₢CORONET:X: description
 ///
 /// Returns the full commit message for a chalk (steeplechase marker) commit.
 pub fn jjrn_format_chalk_message(coronet: &Coronet, marker: jjrn_ChalkMarker, description: &str) -> String {
     let hallmark = zjjrn_get_hallmark();
     format!(
-        "{}:{}:{}:{}{}:{}: {}",
+        "{}:{}:{}{}:{}: {}",
         JJRN_COMMIT_PREFIX,
-        JJRN_DEFAULT_BRAND,
         hallmark,
         CORONET_PREFIX,
         coronet.jjrf_as_str(),
@@ -216,13 +209,12 @@ pub fn jjrn_format_chalk_message(coronet: &Coronet, marker: jjrn_ChalkMarker, de
     )
 }
 
-/// Format a heat-level discussion message (no pace context): jjb:BRAND:HALLMARK:₣XX:d: description
+/// Format a heat-level discussion message (no pace context): jjb:HALLMARK:₣XX:d: description
 pub fn jjrn_format_heat_discussion(firemark: &Firemark, description: &str) -> String {
     let hallmark = zjjrn_get_hallmark();
     format!(
-        "{}:{}:{}:{}{}:d: {}",
+        "{}:{}:{}{}:d: {}",
         JJRN_COMMIT_PREFIX,
-        JJRN_DEFAULT_BRAND,
         hallmark,
         FIREMARK_PREFIX,
         firemark.jjrf_as_str(),
@@ -230,15 +222,14 @@ pub fn jjrn_format_heat_discussion(firemark: &Firemark, description: &str) -> St
     )
 }
 
-/// Format a heat-level action message: jjb:BRAND:HALLMARK:₣XX:X: description
+/// Format a heat-level action message: jjb:HALLMARK:₣XX:X: description
 ///
 /// Used for nominate, slate, rail, tally, draft, retire operations.
 pub fn jjrn_format_heat_message(firemark: &Firemark, action: jjrn_HeatAction, description: &str) -> String {
     let hallmark = zjjrn_get_hallmark();
     format!(
-        "{}:{}:{}:{}{}:{}: {}",
+        "{}:{}:{}{}:{}: {}",
         JJRN_COMMIT_PREFIX,
-        JJRN_DEFAULT_BRAND,
         hallmark,
         FIREMARK_PREFIX,
         firemark.jjrf_as_str(),

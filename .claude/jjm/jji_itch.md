@@ -1801,6 +1801,72 @@ When groom displays paces, include a summary table:
 
 Identified 2026-01-16. Enhancement to `/jjc-heat-mount` was just added; this extends the same analysis to heat-level review.
 
+## gallops-key-findings-persistence
+Maintain key findings in gallops as durable context that survives session boundaries.
+
+### Problem
+
+During heat execution, critical discoveries emerge that:
+1. Inform current and future heat work
+2. Document facts that can be forgotten over time
+3. Need visibility for a while but aren't permanent paddock content
+4. Require follow-up (approval, feedback, upstream fixes)
+
+**Examples:**
+- Compile bugs worked around that need upstream approval or feedback
+- API quirks discovered during integration
+- Version-specific behaviors that affect approach
+- Workarounds for tooling issues
+- Decisions made under time pressure that need revisiting
+
+Currently these get lost in:
+- Chat session context (evaporates)
+- Steeplechase (execution log, not findings)
+- Paddock (stable info, not transient findings)
+
+### Proposed Solution
+
+Add a "Findings" concept to gallops — structured key-value entries that:
+- Persist across sessions within a heat
+- Surface in mount/groom commands for visibility
+- Can be queried ("what findings exist for this heat?")
+- Have optional expiry or follow-up dates
+- Migrate to paddock or scar when resolved
+
+### Structure
+
+```json
+{
+  "findings": {
+    "rust-edition-workaround": {
+      "summary": "Using edition 2021 due to async-trait incompatibility with 2024",
+      "detail": "async-trait 0.1.83 fails to compile under edition 2024. Workaround: pin edition 2021 until crate updates.",
+      "needs_followup": true,
+      "followup_type": "upstream_fix",
+      "added": "2026-01-23",
+      "context_pace": "₢AfVBk"
+    }
+  }
+}
+```
+
+### Commands
+
+- `/jjc-finding-note` — add a finding to current heat
+- `/jjc-finding-list` — show all active findings
+- `/jjc-finding-resolve` — mark finding as resolved (migrates to paddock or closes)
+
+### Benefits
+
+- **Durable context** — survives session boundaries
+- **Visibility** — mount/groom can surface active findings
+- **Follow-up tracking** — know what needs upstream attention
+- **Historical record** — findings don't disappear when resolved
+
+### Context
+
+Identified 2026-01-23. Compile bugs, API quirks, and workarounds discovered during development often get lost between sessions. Need structured way to capture and surface these.
+
 ## jjx-wrap-atomic-command
 Combine notch + tally + chalk into a single `jjx_wrap` command for atomic pace completion.
 

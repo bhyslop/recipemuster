@@ -1,14 +1,9 @@
 ---
 argument-hint: <source-firemark> <dest-firemark> <coronet> [coronet...]
-description: Draft paces between heats with paddock ceremony
+description: Draft paces between heats with context merge ceremony
 ---
 
-Move one or more paces from a source heat to a destination heat. This is the ceremony that wraps the `jjx_draft` primitive with paddock guidance and steeplechase markers.
-
-**Example:**
-```bash
-/jjc-heat-restring AA AB ₢AAAAJ ₢AAAAM
-```
+Move one or more paces from a source heat to a destination heat. This is the ceremony that wraps the `jjx_draft` primitive with context merge and steeplechase tracking.
 
 Arguments: $ARGUMENTS
 
@@ -21,8 +16,8 @@ Arguments: $ARGUMENTS
 ## Step 1: Parse arguments
 
 Extract from $ARGUMENTS:
-- First positional: source Firemark (e.g., `AA` or `₣AA`)
-- Second positional: destination Firemark (e.g., `AB` or `₣AB`)
+- First positional: source Firemark
+- Second positional: destination Firemark
 - Remaining positionals: one or more Coronets to draft
 
 **Validation:**
@@ -38,11 +33,20 @@ Run:
 
 Verify both source and destination Firemarks appear in the output.
 
-## Step 3: Draft each pace
+## Step 3: Draft and commit each pace
 
-For each Coronet, run:
+For each Coronet:
+
+1. Run draft:
 ```bash
 ./tt/vvw-r.RunVVX.sh jjx_draft <CORONET> --to <DEST_FIREMARK>
+```
+
+2. Capture the new coronet from stdout.
+
+3. Commit using the new coronet:
+```bash
+./tt/vvw-r.RunVVX.sh jjx_notch <NEW_CORONET>
 ```
 
 Collect the mapping: old coronet -> new coronet for each pace.
@@ -65,42 +69,63 @@ Run:
 ```
 
 **If source heat is now empty (no paces):**
-- Warn: "Source heat ₣{source} is now empty. Consider retiring with `/jjc-heat-retire`."
+- Warn that source heat is now empty and suggest considering retirement.
 
-## Step 6: Guide paddock updates
+## Step 6: Context merge analysis
 
-Inform the user:
-```
-Paddock updates may be needed:
+This is the critical step for preserving pace context across heats.
 
-Source (.claude/jjm/jjp_{source}.md):
-- Remove references to drafted paces
-- Add steeplechase note about the restring
+### Step 6a: Gather materials
 
-Destination (.claude/jjm/jjp_{dest}.md):
-- Add context for the incoming paces
-- Reference source heat if relevant
+Read three sources:
+1. Source paddock (`.claude/jjm/jjp_{source}.md`)
+2. Destination paddock (`.claude/jjm/jjp_{dest}.md`)
+3. Specs of the paces being drafted (from gallops JSON or parade output)
 
-Would you like me to open these files for review?
-```
+### Step 6b: Analyze context needs
 
-If user confirms, read and display relevant sections of both paddock files.
+For each drafted pace, analyze what context it requires to be worked on effectively. Compare against what the destination paddock already contains.
+
+Present a structured analysis to the user identifying:
+- Context the pace needs that already exists in destination (no action needed)
+- Context the pace needs that should be imported from source
+- Context that conflicts between source and destination (requires user decision)
+- Context in source that is irrelevant to the drafted paces (can be omitted)
+
+For each item, cite the source location (which paddock, which section).
+
+### Step 6c: User approves merge
+
+Ask the user to confirm:
+- Which items to import
+- How to resolve any conflicts
+- Whether any additional context should be captured
+
+Do not proceed until user confirms the merge plan.
+
+### Step 6d: Store approved context in tack
+
+For any context the user approves for import, add a tack entry to the pace that preserves the existing spec text and prepends the imported context. The tack should record:
+- That context was imported via restring
+- The source heat it came from
+- The substantive context itself (not just a reference)
+
+Use `jjx_tally` with the combined text (imported context + original spec) via stdin.
+
+### Step 6e: Update destination paddock (if needed)
+
+If the user identified context that belongs in the destination paddock (rather than just in tack), edit `.claude/jjm/jjp_{dest}.md` to incorporate it.
+
+### Step 6f: Clean source paddock references
+
+Remove or annotate references to the drafted paces in the source paddock, since those paces no longer live there.
 
 ## Step 7: Create steeplechase marker
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_chalk <DEST_FIREMARK> --marker DISCUSSION --description "Restring: {N} paces from ₣{source}"
+./tt/vvw-r.RunVVX.sh jjx_chalk <DEST_FIREMARK> --marker d --description "Restring: {N} paces from ₣{source}"
 ```
-
-## Step 8: Auto-commit changes
-
-Run guarded commit:
-```bash
-./tt/vvw-r.RunVVX.sh vvx_commit --message "Restring: {N} paces ₣{source} -> ₣{dest}"
-```
-
-On failure (e.g., lock held), report error but don't fail - gallops changes are already saved.
 
 ## Error handling
 
@@ -116,11 +141,4 @@ Common errors:
 - Draft preserves all tack history with a note recording the transfer
 - New Coronets are assigned using destination heat's seed
 - Old Coronets become invalid after draft
-
-## Available Operations
-
-- `/jjc-heat-restring` — Draft paces between heats (this command)
-- `/jjc-heat-mount` — Begin work on next pace
-- `/jjc-heat-groom` — Review and refine heat plan
-- `/jjc-heat-nominate` — Create new heat
-- `/jjc-parade-overview` — Heat summary
+- Context imported via tack travels with the pace if it is drafted again
