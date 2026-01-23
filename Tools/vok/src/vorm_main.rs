@@ -12,8 +12,6 @@ use std::ffi::OsString;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-mod vovs_sandbox;
-
 #[derive(Parser)]
 #[command(name = "vvr")]
 #[command(version)]
@@ -171,9 +169,6 @@ struct VacateArgs {
 }
 
 fn main() -> ExitCode {
-    #[cfg(target_os = "macos")]
-    vovs_sandbox::drop_network_access();
-
     let cli = Cli::parse();
 
     let exit_code = match cli.command {
