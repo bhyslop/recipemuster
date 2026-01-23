@@ -3147,6 +3147,14 @@
         "₢AFAAF": {
           "tacks": [
             {
+              "ts": "260123-1126",
+              "state": "bridled",
+              "text": "Verify that release correctly fails when tests fail.\n\n## Goal\n\nConfirm the test gate in vob_release() actually blocks release on test failure.\n\n## Steps\n\n1. Add a deliberately failing test to Tools/vok (e.g., in a test module: `assert!(false, \"deliberate failure\");`)\n2. Run release: `./tt/vow-r.Release.sh`\n3. Confirm release fails with \"Tests failed\" message\n4. Remove the deliberate failure\n5. Run release again to confirm it succeeds\n\n## Acceptance\n\n- Release aborts when tests fail (exit non-zero, \"Tests failed\" in output)\n- Release succeeds when tests pass\n- No permanent changes to codebase\n\n## Files\n\n- Tools/vok/src/*.rs (temporary test addition)\n- tt/vow-r.Release.sh (invoke only, no edit)",
+              "silks": "verify-tests-block-release",
+              "commit": "25156cc",
+              "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: Tools/vok/src/vorm_main.rs (1 file, temporary edit)\nSteps:\n1. Read Tools/vok/src/vorm_main.rs to find the test module section\n2. Add a failing test function: #[test] fn test_deliberate_failure() { panic!(\"deliberate failure for release gate verification\"); }\n3. Run ./tt/vow-r.Release.sh and capture output\n4. Verify output contains \"Tests failed\" and command exited non-zero\n5. Remove the deliberate failure test from vorm_main.rs\n6. Run cargo build to confirm code is clean\nVerify: vorm_main.rs has no deliberate_failure test, cargo build succeeds\nNotes:\n- Do NOT run release a second time after removing the test\n- Goal is only to confirm test failures block release\n- Report the exact error message observed"
+            },
+            {
               "ts": "260123-1125",
               "state": "rough",
               "text": "Verify that release correctly fails when tests fail.\n\n## Goal\n\nConfirm the test gate in vob_release() actually blocks release on test failure.\n\n## Steps\n\n1. Add a deliberately failing test to Tools/vok (e.g., in a test module: `assert!(false, \"deliberate failure\");`)\n2. Run release: `./tt/vow-r.Release.sh`\n3. Confirm release fails with \"Tests failed\" message\n4. Remove the deliberate failure\n5. Run release again to confirm it succeeds\n\n## Acceptance\n\n- Release aborts when tests fail (exit non-zero, \"Tests failed\" in output)\n- Release succeeds when tests pass\n- No permanent changes to codebase\n\n## Files\n\n- Tools/vok/src/*.rs (temporary test addition)\n- tt/vow-r.Release.sh (invoke only, no edit)",
