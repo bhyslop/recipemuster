@@ -7,7 +7,7 @@ Specification quality and enforcement: refine VOS/AXLA concept models, reconcile
 **Problem:** VOS has accumulated rough edges during rapid development:
 - Liturgy vocabulary has legacy references and unclear definitions
 - Envelope concept (suffix vs frame) deferred but needed
-- State machine patterns in JJD lack AXLA formalization
+- State machine patterns in JJSA lack AXLA formalization
 - Spec vs implementation gaps after MVP work
 - Prefix naming discipline relies on Claude remembering rules
 
@@ -44,7 +44,7 @@ Specification quality and enforcement: refine VOS/AXLA concept models, reconcile
 - Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc — BUS spec (dispatch vocabulary)
 - Tools/cmk/vov_veiled/AXLA-Lexicon.adoc — AXLA shared vocabulary
 - Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc — MCM patterns
-- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — JJD (state machine exemplar)
+- Tools/jjk/vov_veiled/JJSA-GallopsData.adoc — JJSA (state machine exemplar)
 - Tools/vok/vof/ — VOF crate (prefix registry)
 
 ## Key Constraints
