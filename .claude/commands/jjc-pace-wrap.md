@@ -3,7 +3,7 @@ argument-hint: [coronet]
 description: Mark a pace complete
 ---
 
-Mark a pace as complete and record the wrap in steeplechase history.
+Mark a pace as complete, commit all changes, and record the wrap in steeplechase history.
 
 Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
@@ -17,54 +17,25 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 ## Step 1: Identify target pace
 
 **If $ARGUMENTS contains a Coronet (e.g., `AAAAC` or `₢AAAAC`):**
-- Extract Firemark from first 2 characters
 - Use that Coronet directly
 
 **If $ARGUMENTS is empty:**
-- Use PACE_CORONET and FIREMARK from current session context (set by `/jjc-heat-mount`)
-- If no context or ambiguous: Stop with "No pace context. Run /jjc-heat-mount first."
+- Use PACE_CORONET from current session context (set by `/jjc-heat-mount`)
+- If no context: Stop with "No pace context. Run /jjc-heat-mount first."
 
-**Do NOT call saddle to recover context** — wrap requires prior mount context or explicit coronet argument.
+## Step 2: Execute wrap
 
-## Step 2: Summarize outcome
-
-Review the work completed:
-- What was accomplished
-- Key changes made
-- Any notable decisions or deviations from plan
-
-Construct a brief outcome summary (1-3 sentences).
-
-## Step 3: Commit implementation changes
-
-Run notch to commit any pending work with proper JJ context:
-
+Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_notch <CORONET>
+./tt/vvw-r.RunVVX.sh jjx_wrap <CORONET>
 ```
 
 **Interpret the result:**
-- Success with commit hash → report the hash, proceed to Step 4
-- "nothing to commit" or empty staging → proceed silently to Step 4
-- Actual error (lock failure, guard rejection, etc.) → report error and stop wrap
+- Exit 0 with commit hash → Success. Report the hash.
+- Exit 2 → Size guard exceeded. Report: "Commit too large. Use `--size-limit N` flag if this is intentional, e.g.: `./tt/vvw-r.RunVVX.sh jjx_wrap <CORONET> --size-limit 200000`"
+- Exit 1 → General error. Report the error message.
 
-This ensures implementation changes are attributed to the pace before wrap closes it out.
-
-## Step 4: Transition to complete
-
-Run:
-```bash
-echo "<outcome summary>" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --state complete
-```
-
-## Step 5: Create wrap marker
-
-Run:
-```bash
-./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker W --description "<outcome summary>"
-```
-
-## Step 6: Advance to next pace
+## Step 3: Advance to next pace
 
 Run:
 ```bash
@@ -74,19 +45,8 @@ Run:
 **If another actionable pace exists:**
 - Display the next pace's silks and spec
 - If rough: Propose approach (as in /jjc-heat-mount)
-- If bridled: Parse direction for `Agent:` line and report: "Next pace is bridled for {agent} agent. Run `/jjc-heat-mount` to execute."
+- If bridled: Report "Next pace is bridled. Run `/jjc-heat-mount` to execute."
 
 **If no more actionable paces:**
 - Report "All paces complete for heat <SILKS>"
 - Suggest `/jjc-pace-slate` to add more work, or `/jjc-heat-retire` if done
-
-## Available Operations
-
-- `/jjc-pace-slate` — Add a new pace
-- `/jjc-pace-reslate` — Refine pace specification
-- `/jjc-pace-wrap` — Mark pace complete
-- `/jjc-pace-bridle` — Arm pace for autonomous execution
-- `/jjc-heat-mount` — Begin work on next pace
-- `/jjc-heat-rail` — Reorder paces
-- `/jjc-heat-chalk` — Add steeplechase marker
-- `/jjc-parade-overview` — Heat summary
