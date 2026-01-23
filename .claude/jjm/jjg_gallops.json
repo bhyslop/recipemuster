@@ -3404,6 +3404,13 @@
         "₢AFAAR": {
           "tacks": [
             {
+              "ts": "260123-1219",
+              "state": "rough",
+              "text": "Extend jjx_parade to accept coronet (pace identity) in addition to firemark (heat identity). When given a coronet, display the pace's full tack history.\n\n## Behavior\n\n**Detection logic:**\n- 2 chars → firemark (existing behavior)\n- 5 chars starting with valid firemark → coronet (new behavior)\n\n**Coronet mode output:**\n```\nPace: feature-name (₢XXXXX)\nHeat: ₣XX\n\n[0] complete (abc123f)\n    Silks: feature-name\n    \n    Final implementation complete.\n\n[1] bridled (def456a)\n    Silks: feature-name\n    Direction: Agent: sonnet...\n    \n    Ready for autonomous execution.\n\n[2] rough (789abc0)\n    Silks: initial-name\n    \n    Initial spec text here...\n```\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrq_query.rs — add coronet detection, tack history renderer\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — update jjdo_parade to document coronet mode\n\n## Notes\n\n- No new slash command needed — existing /jjc-parade-detail can document coronet usage\n- Relates to ₢AFAAS (consolidate-parade-slash-commands) — may inform that consolidation",
+              "silks": "parade-coronet-history",
+              "commit": "4173803"
+            },
+            {
               "ts": "260123-1148",
               "state": "rough",
               "text": "Add command to display full tack history for a pace, enabling postmortem analysis of plan evolution.\n\n## Use Case\n\nAfter completing a pace (or during debugging), view the full history of tacks:\n- How the spec evolved\n- State transitions (rough → bridled → complete)\n- Direction changes\n- Silks renames\n- Timestamps and commit references\n\n## Command: jjx_tacks\n\nSyntax: `jjx_tacks <CORONET>`\n\nOutput: Formatted display of all tacks, newest first (matching JSON order).\n\n```\nPace: feature-name (₢XXXXX)\nHeat: ₣XX\n\n[0] 260123-1130 complete\n    Silks: feature-name\n    Commit: abc123f\n    \n    Final implementation complete.\n\n[1] 260123-1000 bridled\n    Silks: feature-name  \n    Commit: def456a\n    Direction: Agent: sonnet...\n    \n    Ready for autonomous execution.\n\n[2] 260122-1500 rough\n    Silks: initial-name\n    Commit: 789abc0\n    \n    Initial spec text here...\n```\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (add Tacks command, TacksArgs struct)\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (document jjdo_tacks operation)\n\n## JJD Updates Required\n\nAdd [[jjdo_tacks]] operation documentation:\n- Arguments (coronet positional)\n- Output format specification  \n- Behavior steps (load gallops, find pace, iterate tacks)\n- Exit status",
