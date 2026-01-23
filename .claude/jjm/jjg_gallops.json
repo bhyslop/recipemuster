@@ -3104,6 +3104,13 @@
         "₢AFAAG": {
           "tacks": [
             {
+              "ts": "260123-1032",
+              "state": "complete",
+              "text": "Removed vestigial BRAND field from commit format. New format: jjb:HALLMARK:IDENTITY:ACTION: message. Rein now correctly finds steeplechase entries.",
+              "silks": "fix-hallmark-and-rein-no-rbm",
+              "commit": "9997b47"
+            },
+            {
               "ts": "260120-1749",
               "state": "rough",
               "text": "The git commit string still has 'rbm' in it and I think that is why rein is not working.  Remove that and validate rein again.",
