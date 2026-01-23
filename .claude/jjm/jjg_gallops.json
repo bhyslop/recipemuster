@@ -3032,9 +3032,10 @@
         "₢AFAAM",
         "₢AFAAN",
         "₢AFAAC",
-        "₢AFAAO"
+        "₢AFAAO",
+        "₢AFAAP"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3326,6 +3327,17 @@
               "text": "Investigate why heat-only commits show hallmark as `1010` while pace commits show `1010-xxxxxxx` in Kit Forge.\n\n## Observed\n\n- Pace commit: `jjb:1010-c75754c9:₢AFAAB:n: ...`\n- Heat-only commit: `jjb:1010:₣AF:n: ...`\n\nBoth should use Kit Forge format (`NNNN-xxxxxxx`) since no `.vvk/vvbf_brand.json` exists.\n\n## Investigation Steps\n\n1. Add debug logging to zjjrn_get_hallmark() in jjrn_notch.rs to trace which branch executes\n2. Check if fs::read_to_string succeeds on a non-existent file (should fail, but verify)\n3. Verify the brand file path is correct (`.vvk/vvbf_brand.json` vs `./vvk/...` vs absolute path)\n4. Test both notch and heat-level commit paths to see hallmark output\n5. Check if any symlinks or mount points could cause the brand file to appear/disappear\n\n## Expected Outcome\n\n- Identify root cause of format inconsistency\n- Fix if bug found, or document if environmental quirk\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrn_notch.rs (zjjrn_get_hallmark function)",
               "silks": "investigate-hallmark-format-discrepancy",
               "commit": "02455b7"
+            }
+          ]
+        },
+        "₢AFAAP": {
+          "tacks": [
+            {
+              "ts": "260123-1140",
+              "state": "rough",
+              "text": "Add integration test infrastructure for JJK with JJD specification updates.\n\n## JJD Updates\n\nAdd to JJD-GallopsData.adoc:\n\n### Test Mode section (after Design Principles)\n\nDocument environment variables for test mode:\n- JJTF_TEST_MESSAGE: Skip Claude invocation, use this value as commit message\n- JJTF_TEST_HALLMARK: Override hallmark for tests without installed kit\n\n### Invariants section\n\nDocument properties that MUST hold and that tests verify:\n- Coronet first 2 chars = parent Firemark\n- tacks[0].state = current pace state\n- order keys = paces keys (bijection)\n- bridled state requires non-empty direction\n- Commit messages parseable by jjx_rein regex\n\n### Commit Message Grammar\n\nFormalize the jjb:HALLMARK:IDENTITY:ACTION: format as a proper grammar for test verification.\n\n## Rust Implementation\n\n### Environment variable support\n\nIn jjrn_notch.rs or new jjtf_testmode.rs:\n- Check JJTF_TEST_MESSAGE env var before invoking Claude\n- Check JJTF_TEST_HALLMARK env var in hallmark lookup\n- Keep production path unchanged when vars not set\n\n### Integration test harness\n\nCreate Tools/jjk/vov_veiled/tests/integration/:\n- mod.rs: Test utilities (temp git repo setup, cleanup)\n- lifecycle.rs: nominate → slate → bridle → wrap\n- notch.rs: File list validation, warnings, firemark mode\n\nTests run with: cargo test --features integration-tests\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc\n- Tools/jjk/vov_veiled/src/jjrn_notch.rs (or new jjtf_testmode.rs)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (use test mode in wrap/notch)\n- Tools/jjk/vov_veiled/tests/integration/mod.rs\n- Tools/jjk/vov_veiled/tests/integration/lifecycle.rs\n- Tools/jjk/vov_veiled/Cargo.toml (integration-tests feature)",
+              "silks": "jjk-integration-test-harness",
+              "commit": "6e8320f"
             }
           ]
         }
