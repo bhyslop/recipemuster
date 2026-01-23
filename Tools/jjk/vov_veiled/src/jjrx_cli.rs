@@ -1587,6 +1587,9 @@ fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
     match vvc::machine_commit(&_lock, &chalk_commit_args) {
         Ok(_) => {
             println!("{}", commit_hash);
+            let fm = coronet.jjrf_parent_firemark();
+            eprintln!();
+            eprintln!("Recommended: /clear then /jjc-heat-mount {}", fm.jjrf_as_str());
             0
         }
         Err(e) => {
