@@ -2397,6 +2397,14 @@
         "₢ADAAJ": {
           "tacks": [
             {
+              "ts": "260123-0829",
+              "state": "bridled",
+              "text": "BUS cleanup: fix dispatch definitions extracted from VOS.\n\n## Issues\n\n### Issue 1: Colophon definition clarity\n- Clarify that colophon includes full routing prefix (e.g., `rbw-B` not just `rbw-`)\n- The trailing hyphen is part of colophon identity\n\n### Issue 2: Colophon example error\n- Fix any references to \"jjw- routes to JJK workbench\"\n- Should be \"JJW workbench\" (JJK is kit; JJW is workbench prefix)\n\n### Issue 3: Tabtarget signet_case description\n- Current \"lowercase with hyphen\" description may be incomplete\n- Colophon has internal structure (cipher + variant indicator + hyphen)\n- Clarify the pattern\n\n## Target File\n\nTools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc\n\n## Bridleability\n\nBridleable - editorial fixes with clear targets.",
+              "silks": "bus-dispatch-cleanup",
+              "commit": "eec88d6",
+              "direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (1 file)\nSteps:\n1. In colophon examples, fix 'jjw- routes to JJK workbench' to 'JJW workbench'\n2. Add clarification that colophon includes full routing prefix (e.g., 'rbw-B' not just 'rbw-')\n3. Review signet_case description for clarity\nVerify: Manual review of dispatch definitions"
+            },
+            {
               "ts": "260118-0843",
               "state": "rough",
               "text": "BUS cleanup: fix dispatch definitions extracted from VOS.\n\n## Issues\n\n### Issue 1: Colophon definition clarity\n- Clarify that colophon includes full routing prefix (e.g., `rbw-B` not just `rbw-`)\n- The trailing hyphen is part of colophon identity\n\n### Issue 2: Colophon example error\n- Fix any references to \"jjw- routes to JJK workbench\"\n- Should be \"JJW workbench\" (JJK is kit; JJW is workbench prefix)\n\n### Issue 3: Tabtarget signet_case description\n- Current \"lowercase with hyphen\" description may be incomplete\n- Colophon has internal structure (cipher + variant indicator + hyphen)\n- Clarify the pattern\n\n## Target File\n\nTools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc\n\n## Bridleability\n\nBridleable - editorial fixes with clear targets.",
