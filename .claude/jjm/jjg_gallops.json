@@ -3212,6 +3212,13 @@
         "₢AFAAN": {
           "tacks": [
             {
+              "ts": "260123-1040",
+              "state": "abandoned",
+              "text": "The jjc-heat-mount.md slash command on line 21 uses `jjx_muster --status racing` but jjx_muster does not accept a --status argument.\n\nFix options:\n1. Add --status filtering to jjx_muster in Rust (preferred - cleaner interface)\n2. Update slash command to filter TSV output after the fact\n\nThe Rust implementation should add an optional --status flag that filters heats by status (racing/stabled).",
+              "silks": "fix-muster-status-filter",
+              "commit": "4bd2c17"
+            },
+            {
               "ts": "260123-1039",
               "state": "rough",
               "text": "The jjc-heat-mount.md slash command on line 21 uses `jjx_muster --status racing` but jjx_muster does not accept a --status argument.\n\nFix options:\n1. Add --status filtering to jjx_muster in Rust (preferred - cleaner interface)\n2. Update slash command to filter TSV output after the fact\n\nThe Rust implementation should add an optional --status flag that filters heats by status (racing/stabled).",
