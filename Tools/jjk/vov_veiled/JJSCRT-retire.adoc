@@ -1,0 +1,130 @@
+Archive a
+{jjdhr_heat}
+by writing a trophy file, removing the heat from
+{jjdgr_gallops},
+deleting the paddock file, and committing.
+This is a destructive operation that permanently removes the heat from active tracking.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
+
+// ⟦axd_optional⟧
+* `--execute` — perform the retire operation.
+Without this flag, outputs trophy markdown to stdout as a dry-run preview.
+
+{jjds_stdout}
+Without `--execute`: trophy markdown content (dry-run preview).
+With `--execute`: path to the written trophy file.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+Without `--execute` (dry-run):
+
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Read paddock file contents from
+{jjdhm_paddock}
+. Call
+{jjdo_rein}
+internally to get steeplechase entries
+. Build trophy markdown (see format below)
+. Output trophy markdown to stdout
+
+With `--execute`:
+
+. Acquire lock (`refs/vvg/locks/vvx`)
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Extract
+{jjdhr_heat}
+metadata:
+{jjdhm_silks},
+{jjdhm_created}
+. Read paddock file contents from
+{jjdhm_paddock}
+. Call
+{jjdo_rein}
+internally to get steeplechase entries
+. Build trophy markdown:
++
+----
+# Heat Trophy: {silks}
+
+**Firemark:** {firemark}
+**Created:** {created}
+**Retired:** {today}
+**Status:** retired
+
+## Paddock
+
+{full paddock content}
+
+## Paces
+
+{for each pace in order:}
+
+### {pace_silks} ({coronet}) [{final_state}]
+
+{for each tack, newest first:}
+**[{ts}] {state}**
+
+{tack text}
+
+{if tack has direction:}
+*Direction:* {direction}
+
+## Steeplechase
+
+{for each steeplechase entry from rein, newest first:}
+
+### {date} - {pace_silks or "Heat"} - {marker or "commit"}
+
+{subject/description}
+
+----
+. Compute trophy filename: `.claude/jjm/retired/jjh_b{created}-r{today}-{silks}.md`
+where `{today}` is current date in YYMMDD format
+. Create `.claude/jjm/retired/` directory if it does not exist
+. Write trophy markdown to trophy file
+. Remove
+{jjdhr_heat}
+entry from
+{jjdgr_gallops}
+`heats` object
+.
+{jjdr_save}
+{jjdgr_gallops}
+to
+{jjda_file}
+. Delete paddock file at
+{jjdhm_paddock}
+. Stage exactly three paths: trophy file, gallops.json, paddock file (as deletion)
+. Run size guard with 200KB limit (trophy files can be large for big heats)
+. Commit with message per steeplechase conventions (format TBD by unify-commit-format)
+. Release lock
+. Output trophy file path to stdout

@@ -1,0 +1,39 @@
+Mark a pace complete and commit all changes in one self-contained operation.
+This routine combines staging, committing, state transition, and chalk marker creation.
+Used by `/jjc-pace-wrap` to provide a single-command wrap experience.
+
+{jjds_arguments}
+
+// ⟦axd_required⟧
+* {jjdt_coronet}
+(positional) — pace to wrap
+
+// ⟦axd_optional⟧
+* `--size-limit` — maximum commit size in bytes (default: 50KB)
+
+{jjds_behavior}
+
+. Acquire lock (`refs/vvg/locks/vvx`)
+. Stage all changes (`git add -A`)
+. Size guard check:
+.. Get staged content size
+.. If over limit: release lock, exit 2
+. Generate commit message via Claude from diff
+. Commit staged changes
+. Transition pace state to complete via
+{jjdo_tally}
+. Create W chalk marker with outcome summary
+. Release lock
+. Return commit hash
+
+{jjds_exit_enumerated}
+
+* 0 — success
+* 1 — general error (parse failure, gallops error, git error)
+* 2 — size guard exceeded (use --size-limit to override)
+
+*Design rationale:*
+{jjdr_wrap}
+consolidates the multi-step wrap workflow into a single vvx command.
+This eliminates the need for slash commands to orchestrate separate notch, tally, and chalk operations.
+The distinct exit code 2 for size guard allows callers to advise users about the --size-limit flag.

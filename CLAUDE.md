@@ -105,7 +105,26 @@ Full read and edit access is pre-approved for all files in:
 - **AXMCM** → `cmk/AXMCM-ClaudeMarkConceptMemo.md`
 
 #### JJK Subdirectory (`Tools/jjk/`)
-- **JJD**  → `jjk/vov_veiled/JJD-GallopsData.adoc` (Gallops data model specification)
+- **JJSA** → `jjk/vov_veiled/JJSA-GallopsData.adoc` (Gallops data model specification - main file)
+- **JJSCCH** → `jjk/vov_veiled/JJSCCH-chalk.adoc`
+- **JJSCDR** → `jjk/vov_veiled/JJSCDR-draft.adoc`
+- **JJSCFU** → `jjk/vov_veiled/JJSCFU-furlough.adoc`
+- **JJSCMU** → `jjk/vov_veiled/JJSCMU-muster.adoc`
+- **JJSCNC** → `jjk/vov_veiled/JJSCNC-notch.adoc`
+- **JJSCNO** → `jjk/vov_veiled/JJSCNO-nominate.adoc`
+- **JJSCPD** → `jjk/vov_veiled/JJSCPD-parade.adoc`
+- **JJSCRL** → `jjk/vov_veiled/JJSCRL-rail.adoc`
+- **JJSCRN** → `jjk/vov_veiled/JJSCRN-rein.adoc`
+- **JJSCRT** → `jjk/vov_veiled/JJSCRT-retire.adoc`
+- **JJSCSC** → `jjk/vov_veiled/JJSCSC-scout.adoc`
+- **JJSCSD** → `jjk/vov_veiled/JJSCSD-saddle.adoc`
+- **JJSCSL** → `jjk/vov_veiled/JJSCSL-slate.adoc`
+- **JJSCTL** → `jjk/vov_veiled/JJSCTL-tally.adoc`
+- **JJSCVL** → `jjk/vov_veiled/JJSCVL-validate.adoc`
+- **JJSRLD** → `jjk/vov_veiled/JJSRLD-load.adoc`
+- **JJSRPS** → `jjk/vov_veiled/JJSRPS-persist.adoc`
+- **JJSRSV** → `jjk/vov_veiled/JJSRSV-save.adoc`
+- **JJSRWP** → `jjk/vov_veiled/JJSRWP-wrap.adoc`
 - **JJA**  → `jjk/jja_arcanum.sh` (arcanum - core internal functions)
 - **JJW**  → `jjk/jjw_workbench.sh` (workbench)
 

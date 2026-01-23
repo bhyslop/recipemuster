@@ -1,0 +1,28 @@
+Create an empty commit marking a steeplechase event.
+
+{jjds_arguments}
+
+// ⟦axd_required⟧
+* identity (positional) — {jjdt_coronet} for pace-level, {jjdt_firemark} for heat-level discussion
+
+// ⟦axd_required⟧
+* `--marker` — marker type: `A`, `W`, `F`, or `d` (single letter codes)
+
+// ⟦axd_required⟧
+* `--description` — marker description text
+
+{jjds_stdout} Commit hash
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Acquire lock (`refs/vvg/locks/vvx`)
+. Detect identity type by length (5 chars = coronet, 2 chars = firemark)
+. Validate: `A`/`W`/`F` require coronet; `d` accepts either
+. Format message:
+.. If coronet: `jjb:HALLMARK:₢XXXXX:X: description\n\nCo-Authored-By: ...`
+.. If firemark (discussion only): `jjb:HALLMARK:₣XX:d: description\n\nCo-Authored-By: ...`
+. Run `git commit --allow-empty -m "..."`
+. Release lock
+. Output commit hash

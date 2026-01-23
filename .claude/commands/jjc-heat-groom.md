@@ -29,56 +29,25 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 - If $ARGUMENTS matches a silks value, use that heat
 - Otherwise list heats and ask user to select
 
-## Step 2: Get parade data
+## Step 2: Get full parade data
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --full
 ```
 
-Parse JSON output:
-```json
-{
-  "heat_silks": "...",
-  "heat_created": "YYMMDD",
-  "heat_status": "current|retired",
-  "paddock_file": ".claude/jjm/jjp_XX.md",
-  "paddock_content": "...",
-  "paces": [
-    {
-      "coronet": "₢AAAAC",
-      "silks": "...",
-      "state": "rough|bridled|complete|abandoned",
-      "spec": "...",
-      "direction": "..."
-    }
-  ]
-}
-```
+This returns formatted output with:
+- Heat metadata (silks, status, created date)
+- Full paddock content
+- All paces with specs and directions
 
 ## Step 3: Display heat overview
 
-Present the full heat for planning review:
+Display the parade output directly. It includes all the planning context needed.
 
-### Heat: {heat_silks} (₣{firemark})
-**Created:** {heat_created} | **Status:** {heat_status}
-{If heat_status is "stabled": "⚠ This heat is stabled (paused). Use `/jjc-heat-furlough <firemark> --racing` to resume execution."}
+If heat status is "stabled", note: "⚠ This heat is stabled (paused). Use `/jjc-heat-furlough <firemark> --racing` to resume execution."
 
-### Paddock
-{Full paddock_content - this is the planning context}
-
-### Paces ({N} total)
-
-For each pace in order, show:
-```
-{index}. [{state}] {silks} (₢{coronet})
-   {spec - full specification}
-   {If bridled: "Direction: " + direction}
-```
-
-Show all paces with full detail regardless of state - this is a planning view.
-
-### Progress
+Summarize progress:
 - Complete: X | Abandoned: Y | Remaining: Z (rough: A, bridled: B)
 
 ## Step 4: Enter planning mode

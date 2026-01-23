@@ -1,0 +1,92 @@
+Return context needed to saddle up on a
+{jjdhr_heat}:
+the current
+{jjdpr_pace}
+(first in
+{jjdhm_order}
+whose state is
+{jjdpe_rough}
+or
+{jjdpe_bridled})
+and its
+{jjdkr_tack}
+details.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
+
+{jjds_stdout} JSON object with structure:
+[source,json]
+----
+{
+  "heat_silks": "...",
+  "paddock_file": ".claude/jjm/jjp_XX.md",
+  "paddock_content": "...",
+  "pace_coronet": "₢XXXXX",
+  "pace_silks": "...",
+  "pace_state": "rough|bridled",
+  "spec": "...",
+  "direction": "...",
+  "recent_work": [
+    {"timestamp": "...", "commit": "...", "coronet": "...", "action": "...", "subject": "..."}
+  ]
+}
+----
+Fields `pace_coronet` through `direction` are absent if no actionable pace exists.
+Field `pace_silks` is derived from `tacks[0].silks`.
+Field `direction` is present only when `pace_state` is
+{jjdpe_bridled}.
+Field `paddock_content` contains the full text of the paddock file.
+Field `recent_work` contains the last 10 steeplechase entries for the heat (from
+{jjdo_rein}).
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Error if
+{jjdhm_status}
+is
+{jjdhe_stabled}
+("Cannot saddle stabled heat {firemark}")
+. Output `heat_silks` from
+{jjdhr_heat}
+. Output `paddock_file` from
+{jjdhm_paddock}
+. Read paddock file contents, output as `paddock_content`
+. Walk
+{jjdhm_order}
+array in sequence
+. For each
+{jjdt_coronet},
+check `paces[coronet].tacks[0].state`
+. If state is
+{jjdpe_rough}
+or
+{jjdpe_bridled}:
+.. Output `pace_coronet`,
+`pace_silks` (from `tacks[0].silks`),
+`pace_state`
+.. Output `spec` from `tacks[0].text`
+.. If state is
+{jjdpe_bridled},
+output `direction` from `tacks[0].direction`
+.. Stop walking (first match wins)
+. If no actionable pace found, output only `heat_silks`, `paddock_file`, `paddock_content`, and `recent_work`
+. Get last 10 steeplechase entries for the heat via
+{jjdo_rein}
+logic, output as `recent_work` array

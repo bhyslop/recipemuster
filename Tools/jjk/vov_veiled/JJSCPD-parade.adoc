@@ -1,0 +1,129 @@
+Display
+{jjdhr_heat}
+or
+{jjdpr_pace}
+information in human-readable text format.
+Output varies by target type.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* TARGET (positional) —
+{jjdt_firemark}
+(heat view) or
+{jjdt_coronet}
+(pace view).
+Target type detected by length: 2 base64 chars = heat, 5 base64 chars = pace.
+
+// ⟦axd_optional⟧
+* `--full` — Show paddock and full pace specs (heat mode only)
+
+// ⟦axd_optional⟧
+* `--remaining` — Show only remaining paces (exclude
+{jjdpe_complete}
+and
+{jjdpe_abandoned})
+
+{jjds_stdout} Human-readable text (not JSON).
+
+*Example output — heat list (default):*
+----
+1. [abandoned] vvw-workbench-tabtarget (₢AAAAC)
+2. [complete] install-arch-decision (₢AAAAI)
+3. [rough] vvx-push-rename (₢AAAAJ)
+----
+
+*Example output — heat full:*
+----
+Heat: my-heat (₣AA)
+Status: racing
+Created: 260119
+
+## Paddock
+
+[paddock content...]
+
+## Paces
+
+### pace-silks (₢AAAAJ) [rough]
+
+[full tack text...]
+
+Direction: [if bridled]
+----
+
+*Example output — pace detail (single tack):*
+----
+Pace: vvx-push-rename (₢AAAAJ)
+Heat: ₣AA
+
+[0] rough (abc123f)
+    Silks: vvx-push-rename
+
+    [full tack text...]
+----
+
+*Example output — pace detail (multiple tacks, showing history):*
+----
+Pace: feature-name (₢AAAAK)
+Heat: ₣AA
+
+[0] rough (789abc0)
+    Silks: initial-name
+
+    Initial spec text here...
+
+[1] bridled (def456a)
+    Silks: feature-name
+    Direction: Agent: sonnet...
+
+    Ready for autonomous execution.
+
+[2] complete (abc123f)
+    Silks: feature-name
+
+    Final implementation complete.
+----
+
+Tacks are displayed in chronological order (oldest first, index 0).
+Each tack shows its index, state, commit hash, silks (which may change over time), optional direction (if bridled), and the full spec text.
+Commit hash displays "(no commit)" for placeholder value `0000000`.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Detect target type by length (strip prefix if present):
+.. 2 chars → heat view
+.. 5 chars → pace view
+.. Otherwise: error "target must be Firemark (2 chars) or Coronet (5 chars)"
+. For heat view:
+.. Parse as
+{jjdt_firemark},
+verify heat exists
+.. If `--full` flag:
+... Read paddock file content
+... Print heat header (silks, firemark, status, created)
+... Print paddock section
+... For each pace in
+{jjdhm_order}
+(respecting `--remaining`): print pace header and full tack text
+.. Otherwise (default list):
+... For each pace in
+{jjdhm_order}
+(respecting `--remaining`): print numbered line with state, silks, coronet
+. For pace view:
+.. Parse as
+{jjdt_coronet},
+extract parent
+{jjdt_firemark}
+.. Verify heat and pace exist
+.. Print pace header (silks, coronet, state, heat)
+.. Print full tack text from `tacks[0]`
+.. If bridled, print direction from `tacks[0]`

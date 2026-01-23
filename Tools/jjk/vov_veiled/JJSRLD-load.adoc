@@ -1,0 +1,47 @@
+Load and validate the
+{jjdgr_gallops}
+file.
+Every operation that reads
+{jjdgr_gallops}
+invokes this routine.
+Returns a validated
+{jjdgr_gallops}
+only after all checks pass.
+
+{jjds_arguments}
+
+// ⟦axd_required⟧
+* {jjda_file}
+
+{jjds_behavior}
+
+. Read file contents as raw bytes
+. Deserialize bytes into
+{jjdgr_gallops}
+structure
+. Reserialize
+{jjdgr_gallops}
+structure to JSON string
+. Compare reserialized bytes against original bytes
+. If different:
+{axc_fatal}
+with diagnostic showing first difference location
+. Validate semantic constraints (timestamps, kebab-case silks, invariants)
+. If validation fails:
+{axc_fatal}
+with validation errors
+. Return validated
+{jjdgr_gallops}
+
+{jjds_stdout} None (returns structure to caller)
+
+{jjds_exit_uniform} 0 success, non-zero on validation failure or I/O error.
+
+*Architectural constraint:*
+{jjdr_load}
+is the ONLY way to obtain a
+{jjdgr_gallops}
+from disk.
+This makes validation bypass architecturally impossible.
+The round-trip check (steps 3-5) ensures the file is in canonical form.
+The semantic validation (steps 6-7) ensures business rules are satisfied.

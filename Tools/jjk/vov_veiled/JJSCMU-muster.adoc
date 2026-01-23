@@ -1,0 +1,37 @@
+
+List all
+{jjdhr_heat_s}
+with summary information.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+{jjds_stdout} Tab-separated values, one line per
+{jjdhr_heat}:
+`{jjdt_firemark}<TAB>{jjdt_silks}<TAB>{jjdhm_status}<TAB><completed><TAB><defined>`
+
+Where:
+* `<completed>` — count of paces where {jjdpe_defined} ∧ {jjdpe_resolved} (i.e., complete)
+* `<defined>` — count of paces where {jjdpe_defined} (excludes abandoned)
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Read
+{jjdgr_gallops}
+from file
+. Sort heats by status:
+.. {{jjdhe_racing}} heats first
+.. {{jjdhe_stabled}} heats second
+.. {{jjdhe_retired}} heats third (if any)
+. For each
+{jjdhr_heat}
+in sorted order, output TSV line:
+{jjdt_firemark},
+{jjdhm_silks},
+{jjdhm_status},
+count of paces where {jjdpe_defined} ∧ {jjdpe_resolved} (i.e., complete),
+count of paces where {jjdpe_defined} (excludes abandoned)

@@ -1,0 +1,76 @@
+
+Check that
+{jjdgr_gallops}
+JSON conforms to schema.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+*Validation Rules:*
+
+. Root must be JSON object with
+{jjdgm_seed}
+(2 URL-safe base64 characters matching `[A-Za-z0-9_-]{2}`)
+. Root must have `heats` object
+. Each
+{jjdhr_heat}
+key must match `₣[A-Za-z0-9_-]{2}`
+. Each
+{jjdhr_heat}
+must have:
+{jjdhm_silks}
+(non-empty kebab-case),
+{jjdhm_created}
+(YYMMDD),
+{jjdhm_status}
+({jjdhe_racing},
+{jjdhe_stabled},
+or
+{jjdhe_retired}),
+{jjdhm_order}
+(array),
+{jjdhm_seed}
+(3 URL-safe base64 characters matching `[A-Za-z0-9_-]{3}`),
+`paces` (object)
+. {jjdhm_order}
+array and `paces` object must have identical key sets
+. Each
+{jjdpr_pace}
+key must match `₢[A-Za-z0-9_-]{5}` and embed parent
+{jjdhr_heat}
+identity (first 2 base64 chars after prefix)
+. Each
+{jjdpr_pace}
+must have:
+`tacks` (non-empty array)
+. Each
+{jjdkr_tack}
+must have:
+{jjdkm_refined}
+(YYMMDD-HHMM),
+{jjdkm_state}
+({jjdpe_rough},
+{jjdpe_bridled},
+{jjdpe_complete},
+or
+{jjdpe_abandoned}),
+{jjdkm_text}
+(non-empty string),
+{jjdkm_silks}
+(non-empty kebab-case),
+{jjdkm_commit}
+(valid {jjdkm_commit} format)
+. If
+{jjdkm_state}
+is
+{jjdpe_bridled},
+{jjdkm_direction}
+must be present (non-empty string); otherwise
+{jjdkm_direction}
+must be absent

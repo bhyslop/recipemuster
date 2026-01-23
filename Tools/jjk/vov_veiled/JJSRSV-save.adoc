@@ -1,0 +1,45 @@
+
+Persist
+{jjdgr_gallops}
+to disk with validation.
+Every operation that writes
+{jjdgr_gallops}
+invokes this routine.
+Validates output by loading it back before finalizing.
+
+{jjds_arguments}
+
+// ⟦axd_required⟧
+*
+{jjdgr_gallops}
+(in-memory structure to persist)
+
+// ⟦axd_required⟧
+* {jjda_file}
+
+{jjds_behavior}
+
+. Serialize
+{jjdgr_gallops}
+to canonical JSON string
+. Write JSON to temporary file (atomic write preparation)
+. Call
+{jjdr_load}
+on temporary file to validate what was written
+. If
+{jjdr_load}
+fails: delete temporary file,
+{axc_fatal}
+with error
+. Rename temporary file to final path (atomic commit)
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero on validation failure or I/O error.
+
+*Design rationale:*
+{jjdr_save}
+reuses
+{jjdr_load}
+for validation, ensuring a single validation code path for both reading and writing.
+If an operation produces invalid output, the save fails before corrupting the file.

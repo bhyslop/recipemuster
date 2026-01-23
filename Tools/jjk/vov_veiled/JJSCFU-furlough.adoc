@@ -1,0 +1,89 @@
+Change a
+{jjdhr_heat_p}
+status between
+{jjdhe_racing}
+and
+{jjdhe_stabled},
+or rename its
+{jjdhm_silks}.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — target
+{jjdhr_heat}
+
+// ⟦axd_optional⟧
+* `--racing` — set status to
+{jjdhe_racing}
+
+// ⟦axd_optional⟧
+* `--stabled` — set status to
+{jjdhe_stabled}
+
+// ⟦axd_optional⟧
+* {jjda_silks}
+— new display name
+
+*Requirements:* At least one of `--racing`, `--stabled`, or {jjda_silks} must be provided.
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
+. Verify
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Verify at least one argument provided (`--racing`, `--stabled`, or {jjda_silks})
+. If status change requested:
+.. Error if heat is
+{jjdhe_retired}
+(terminal state)
+.. Error if `--racing` and heat already
+{jjdhe_racing}
+.. Error if `--stabled` and heat already
+{jjdhe_stabled}
+.. Update
+{jjdhm_status}
+to new value
+. If {jjda_silks} provided:
+.. Update
+{jjdhm_silks}
+to new value
+.
+{jjdr_save}
+{jjdgr_gallops}
+to
+{jjda_file}
+
+*Validation errors:*
+
+[cols="2,3"]
+|===
+| Condition | Error
+
+| No arguments provided
+| "At least one of --racing, --stabled, or --silks required"
+
+| Heat is retired
+| "Cannot furlough retired heat {firemark}"
+
+| `--racing` when already racing
+| "Heat {firemark} is already racing"
+
+| `--stabled` when already stabled
+| "Heat {firemark} is already stabled"
+|===

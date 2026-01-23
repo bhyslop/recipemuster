@@ -1,0 +1,1044 @@
+= Job Jockey Gallops Data Model
+:doctype: book
+
+// tag::mapping-section[]
+//
+// Category declarations:
+// jjdt_:  Types (scalar value types with validation rules)
+// jjdgr_: Gallops record
+// jjdgm_: Gallops members
+// jjdhr_: Heat record
+// jjdhm_: Heat members
+// jjdhe_: Heat enum values (status)
+// jjdpr_: Pace record
+// jjdpm_: Pace members
+// jjdkr_: Tack record
+// jjdkm_: Tack members
+// jjdpe_: Tack state enum values
+// jjdo_:  Operations
+// jjdr_:  Routines (internal reusable procedures)
+// jjds_:  Section headers (operation documentation structure)
+// jjdz_:  Serialization concerns
+//
+// Variant patterns:
+//   _s: plural form
+//   _p: possessive form
+//
+
+// Types
+:jjdt_coronet:    <<jjdt_coronet,Coronet>>
+:jjdt_coronet_p:  <<jjdt_coronet,Coronet's>>
+:jjdt_coronet_s:  <<jjdt_coronet,Coronets>>
+:jjdt_firemark:   <<jjdt_firemark,Firemark>>
+:jjdt_firemark_p: <<jjdt_firemark,Firemark's>>
+:jjdt_firemark_s: <<jjdt_firemark,Firemarks>>
+:jjdt_silks:      <<jjdt_silks,Silks>>
+
+// Gallops record and members
+:jjdgm_seed:        <<jjdgm_seed,next_heat_seed>>
+:jjdgr_gallops:     <<jjdgr_gallops,Gallops>>
+:jjdgr_gallops_p:   <<jjdgr_gallops,Gallops'>>
+
+// Heat record and members
+:jjdhe_racing:    <<jjdhe_racing,racing>>
+:jjdhe_stabled:   <<jjdhe_stabled,stabled>>
+:jjdhe_retired:   <<jjdhe_retired,retired>>
+:jjdhm_created:   <<jjdhm_created,creation_time>>
+:jjdhm_firemark:  <<jjdhm_firemark,firemark>>
+:jjdhm_order:     <<jjdhm_order,order>>
+:jjdhm_paddock:   <<jjdhm_paddock,paddock_file>>
+:jjdhm_seed:      <<jjdhm_seed,next_pace_seed>>
+:jjdhm_silks:     <<jjdhm_silks,silks>>
+:jjdhm_status:    <<jjdhm_status,status>>
+:jjdhr_heat:      <<jjdhr_heat,Heat>>
+:jjdhr_heat_p:    <<jjdhr_heat,Heat's>>
+:jjdhr_heat_s:    <<jjdhr_heat,Heats>>
+
+// Pace record and members
+:jjdpm_coronet:   <<jjdpm_coronet,coronet>>
+:jjdpr_pace:      <<jjdpr_pace,Pace>>
+:jjdpr_pace_p:    <<jjdpr_pace,Pace's>>
+:jjdpr_pace_s:    <<jjdpr_pace,Paces>>
+
+// Pace/Tack state enum values (used in Tack)
+:jjdpe_abandoned: <<jjdpe_abandoned,abandoned>>
+:jjdpe_complete:  <<jjdpe_complete,complete>>
+:jjdpe_bridled:   <<jjdpe_bridled,bridled>>
+:jjdpe_rough:     <<jjdpe_rough,rough>>
+:jjdpe_defined:   <<jjdpe_defined,defined>>
+:jjdpe_resolved:  <<jjdpe_resolved,resolved>>
+
+// Tack record and members
+:jjdkm_commit:    <<jjdkm_commit,commit>>
+:jjdkm_direction: <<jjdkm_direction,direction>>
+:jjdkm_refined:   <<jjdkm_refined,ts>>
+:jjdkm_silks:     <<jjdkm_silks,silks>>
+:jjdkm_state:     <<jjdkm_state,state>>
+:jjdkm_text:      <<jjdkm_text,text>>
+:jjdkr_tack:      <<jjdkr_tack,Tack>>
+:jjdkr_tack_p:    <<jjdkr_tack,Tack's>>
+:jjdkr_tack_s:    <<jjdkr_tack,Tacks>>
+
+// Arguments
+:jjda_after:          <<jjda_after,--after>>
+:jjda_before:         <<jjda_before,--before>>
+:jjda_created:        <<jjda_created,--created>>
+:jjda_direction:      <<jjda_direction,--direction>>
+:jjda_file:           <<jjda_file,--file>>
+:jjda_first:          <<jjda_first,--first>>
+:jjda_last:           <<jjda_last,--last>>
+:jjda_move:           <<jjda_move,--move>>
+:jjda_pace:           <<jjda_pace,--pace>>
+:jjda_silks:          <<jjda_silks,--silks>>
+:jjda_state:          <<jjda_state,--state>>
+:jjda_status:         <<jjda_status,--status>>
+:jjda_to:             <<jjda_to,--to>>
+
+// CLI executor
+:jjdx_vvx:   <<jjdx_vvx,vvx>>
+:jjdx_cli:   <<jjdx_cli,jjx>>
+
+// Operations
+:jjdo_chalk:          <<jjdo_chalk,jjx_chalk>>
+:jjdo_draft:          <<jjdo_draft,jjx_draft>>
+:jjdo_furlough:       <<jjdo_furlough,jjx_furlough>>
+:jjdo_muster:         <<jjdo_muster,jjx_muster>>
+:jjdo_nominate:       <<jjdo_nominate,jjx_nominate>>
+:jjdo_notch:          <<jjdo_notch,jjx_notch>>
+:jjdo_rail:           <<jjdo_rail,jjx_rail>>
+:jjdo_rein:           <<jjdo_rein,jjx_rein>>
+:jjdo_retire:         <<jjdo_retire,jjx_retire>>
+:jjdo_saddle:         <<jjdo_saddle,jjx_saddle>>
+:jjdo_scout:          <<jjdo_scout,jjx_scout>>
+:jjdo_slate:          <<jjdo_slate,jjx_slate>>
+:jjdo_tally:          <<jjdo_tally,jjx_tally>>
+:jjdo_validate:       <<jjdo_validate,jjx_validate>>
+
+// Routines
+:jjdr_load:           <<jjdr_load,load routine>>
+:jjdr_save:           <<jjdr_save,save routine>>
+:jjdr_persist:        <<jjdr_persist,persist routine>>
+:jjdr_wrap:           <<jjdr_wrap,wrap routine>>
+
+// Section headers
+:jjds_arguments:        <<jjds_arguments,Arguments:>>
+:jjds_behavior:         <<jjds_behavior,Behavior:>>
+:jjds_exit_enumerated:  <<jjds_exit_enumerated,Exit Status:>>
+:jjds_exit_uniform:     <<jjds_exit_uniform,Exit Status:>>
+:jjds_stdout:           <<jjds_stdout,Stdout:>>
+
+// Serialization
+:jjdz_charset:  <<jjdz_charset,Charset>>
+:jjdz_encoding: <<jjdz_encoding,Identity Encoding>>
+
+// end::mapping-section[]
+
+== Overview
+
+The
+{jjdgr_gallops}
+is the persistent data store for Job Jockey.
+It tracks
+{jjdhr_heat_s}
+(bounded initiatives) and their constituent
+{jjdpr_pace_s}
+(discrete actions).
+Each
+{jjdpr_pace}
+maintains a history of
+{jjdkr_tack_s}
+(plan refinements).
+
+== Design Principles
+
+=== Exclusive JSON Ownership
+
+All access to the
+{jjdgr_gallops}
+goes through {jjdx_cli}, the Job Jockey subcommand of the Voce Viva executor.
+No jq or direct JSON manipulation ever touches this data.
+This is an absolute architectural constraint, not a preference.
+
+The rationale: writing reliable bash with jq pipelines requires fighting LLM training data.
+The internet is full of bad bash.
+Rust replaces fragile jq invocations with compiler-enforced correctness.
+The compiler is tireless; humans are not.
+
+=== Git as Journal
+
+The
+{jjdgr_gallops}
+remains JSON specifically so git can serve as the journalling layer.
+Every mutation creates a diffable commit.
+Git owns the complete history; we need not implement our own audit trail.
+
+The
+{jjdkr_tack}
+history within each
+{jjdpr_pace}
+exists for convenient postmortem analysis.
+Git has the full history, but
+{jjdkr_tack_s}
+let us see plan evolution without spelunking commits.
+
+=== Diff-Friendly Mutations
+
+New
+{jjdkr_tack_s}
+prepend to position 0 rather than append.
+This produces cleaner git diffs: prepending adds a line with trailing comma, while appending would modify the previous last line to add a comma.
+Small discipline, large cumulative benefit.
+
+The
+{jjdhm_order}
+array contains full
+{jjdt_coronet_s}.
+Each
+{jjdt_coronet}
+embeds its parent
+{jjdt_firemark}
+(redundant within a single
+{jjdhr_heat}).
+This redundancy is cheap and enables grep, copy-paste, and self-documenting JSON.
+
+=== Crash-Safe Architecture
+
+Bash handles locking via `git update-ref`.
+{jjdx_cli} owns all
+{jjdgr_gallops}
+file access - reading, transforming, and writing.
+{jjdx_cli} implements atomic writes internally (write to temp file, then rename).
+If {jjdx_cli} crashes mid-transform, no partial writes occur.
+
+The pattern:
+[source,bash]
+----
+lock_acquire
+vvx jjx gallops nominate --file gallops.json "my-heat" "260111" || { lock_release; die; }
+lock_release
+----
+
+This keeps bash simple (just locking and invocation) while {jjdx_cli} owns all JSON file operations.
+
+=== Deterministic Serialization
+
+Implementations MUST serialize JSON object keys in deterministic order to minimize diff churn.
+For `heats` and `paces` objects, use sorted key order (e.g., Rust `BTreeMap` instead of `HashMap`).
+This ensures that reordering paces via
+{jjdo_rail}
+produces minimal diffs — only the `order` array changes, not the entire `paces` object.
+
+=== Identity Encoding
+
+{jjdt_firemark}
+(`₣` prefix) and
+{jjdt_coronet}
+(`₢` prefix) are the canonical identities used in JSON keys, CLI arguments, and display.
+The base64 encoding provides compact, URL-safe, shell-safe strings.
+Internally, Rust may decode to integers for arithmetic, but the string form is authoritative.
+
+=== Horse Racing Vocabulary
+
+Job Jockey uses horse racing metaphors throughout.
+This is intentional: vivid domain vocabulary helps humans hold complex systems in working memory.
+
+* {jjdhr_heat} - a bounded initiative (like a race)
+* {jjdpr_pace} - a discrete action (the rhythm of the race)
+* {jjdkr_tack} - plan refinement (equipment; also "tacking" = adjusting course)
+* {jjdt_firemark} - heat identity, `₣`-prefixed (hot-iron brand marking ownership)
+* {jjdt_coronet} - pace identity, `₢`-prefixed (marking at the hoof line)
+* {jjdt_silks} - display name (jockey's colors)
+* {jjdgr_gallops} - the training grounds (where real work happens before race day)
+
+== Types
+
+[[jjdt_firemark]]
+// ⟦axl_voices axt_string⟧
+{jjdt_firemark}::
+The identity of a
+{jjdhr_heat}.
+Format: `₣` + 2 base64 characters (e.g., `₣AB`).
+The 2 base64 characters encode an integer 0-4095 (2^12).
+Used as JSON keys and in CLI arguments.
+Input may omit the `₣` prefix; output always includes it.
+
+[[jjdt_coronet]]
+// ⟦axl_voices axt_string⟧
+{jjdt_coronet}::
+The identity of a
+{jjdpr_pace}.
+Format: `₢` + 5 base64 characters (e.g., `₢ABCDE`).
+Globally unique: the first 2 base64 characters are the parent
+{jjdhr_heat_p}
+encoded identity; the remaining 3 encode the pace index (0-262143, 2^18).
+Used as JSON keys and in CLI arguments.
+Input may omit the `₢` prefix; output always includes it.
++
+*Reassignment:* When a
+{jjdpr_pace}
+is moved between
+{jjdhr_heat_s}
+via
+{jjdo_draft},
+the old
+{jjdt_coronet}
+becomes invalid and a new one is assigned using the destination
+{jjdhr_heat_p}
+{jjdhm_seed}.
+The new
+{jjdt_coronet}
+embeds the destination
+{jjdt_firemark}.
+{jjdkr_tack}
+history is preserved, with a note recording the original
+{jjdt_coronet}.
+
+[[jjdt_silks]]
+// ⟦axl_voices axt_string⟧
+{jjdt_silks}::
+A kebab-case display name.
+Used for human-readable identification of
+{jjdhr_heat_s}
+and
+{jjdpr_pace_s}.
+Pattern: `[a-z0-9]+(-[a-z0-9]+)*`
+
+== Records
+
+=== {jjdgr_gallops}
+
+[[jjdgr_gallops]]
+// ⟦axl_voices axr_record_json⟧
+{jjdgr_gallops}::
+The root JSON structure containing all Job Jockey data.
+Singleton record persisted at `.claude/jjm/jjg_gallops.json`.
+
+==== Members
+
+* [[jjdgm_seed]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdgm_seed}
+is the next
+{jjdt_firemark}
+to allocate, stored as 2 base64 characters.
+Incremented by
+{jjdo_nominate}.
+
+=== {jjdhr_heat}
+
+[[jjdhr_heat]]
+// ⟦axl_voices axr_record_json⟧
+{jjdhr_heat}::
+A bounded initiative with coherent goals.
+Contains zero or more
+{jjdpr_pace_s}
+representing discrete actions.
+Keyed in JSON by
+{jjdt_firemark}.
+
+==== Members
+
+* [[jjdhm_firemark]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdhm_firemark}
+is the
+{jjdhr_heat_p}
+primary key.
+Type:
+{jjdt_firemark}.
+Implicit from JSON key; not stored as separate field.
+
+* [[jjdhm_silks]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdhm_silks}
+is the
+{jjdhr_heat_p}
+display name.
+Type:
+{jjdt_silks}.
+
+* [[jjdhm_created]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdhm_created}
+records when the
+{jjdhr_heat}
+was nominated.
+Format: YYMMDD.
+
+* [[jjdhm_status]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdhm_status}
+indicates the
+{jjdhr_heat_p}
+lifecycle state.
+Values:
+{jjdhe_racing},
+{jjdhe_stabled},
+or
+{jjdhe_retired}.
+
+* [[jjdhm_order]]
+// ⟦axl_voices axr_member axd_required axd_repeated⟧
+{jjdhm_order}
+lists
+{jjdt_coronet_s}
+in execution sequence.
+May be reordered via
+{jjdo_rail}.
+
+* [[jjdhm_seed]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdhm_seed}
+is the next
+{jjdt_coronet}
+index to allocate, stored as 3 base64 characters.
+Incremented by
+{jjdo_slate}.
+
+* [[jjdhm_paddock]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdhm_paddock}
+is the path to the paddock file containing
+{jjdhr_heat}
+context and background.
+Format: `.claude/jjm/jjp_XX.md` where XX is the base64-encoded
+{jjdt_firemark}
+(without `₣` prefix).
+Created by
+{jjdo_nominate}.
+
+==== Status Values
+
+[[jjdhe_racing]]
+// ⟦axl_voices axt_enum_value⟧
+{jjdhe_racing}::
+The
+{jjdhr_heat}
+is actively being worked.
+
+[[jjdhe_stabled]]
+// ⟦axl_voices axt_enum_value⟧
+{jjdhe_stabled}::
+The
+{jjdhr_heat}
+is paused, not actively worked.
+
+[[jjdhe_retired]]
+// ⟦axl_voices axt_enum_value⟧
+{jjdhe_retired}::
+The
+{jjdhr_heat}
+is complete and archived.
+
+=== {jjdpr_pace}
+
+[[jjdpr_pace]]
+// ⟦axl_voices axr_record_json⟧
+{jjdpr_pace}::
+A discrete action within a
+{jjdhr_heat}.
+Contains one or more
+{jjdkr_tack_s}
+representing state snapshots and plan refinements.
+Current state is derived from `tacks[0].state`.
+Current silks is derived from `tacks[0].silks`.
+Keyed in JSON by
+{jjdt_coronet}.
+
+==== Members
+
+* [[jjdpm_coronet]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdpm_coronet}
+is the
+{jjdpr_pace_p}
+globally unique identity.
+Type:
+{jjdt_coronet}.
+Implicit from JSON key; not stored as separate field.
+
+=== {jjdkr_tack}
+
+[[jjdkr_tack]]
+// ⟦axl_voices axr_record_json⟧
+{jjdkr_tack}::
+A snapshot of
+{jjdpr_pace}
+state and plan at a point in time.
+{jjdkr_tack_s}
+form an append-only history capturing both plan refinements and state transitions.
+Position 0 is the most recent; older
+{jjdkr_tack_s}
+follow.
+New
+{jjdkr_tack_s}
+are prepended for cleaner git diffs.
+The current
+{jjdpr_pace}
+state is always
+`tacks[0].state`.
+
+==== Members
+
+* [[jjdkm_refined]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdkm_refined}
+records when this
+{jjdkr_tack}
+was added.
+Format: YYMMDD-HHMM.
+
+* [[jjdkm_state]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdkm_state}
+indicates the
+{jjdpr_pace_p}
+progress at this snapshot.
+Values:
+{jjdpe_rough},
+{jjdpe_bridled},
+{jjdpe_complete},
+or
+{jjdpe_abandoned}.
+
+* [[jjdkm_text]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdkm_text}
+contains the plan specification.
+Non-empty string describing what the
+{jjdpr_pace}
+should accomplish.
+
+* [[jjdkm_silks]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdkm_silks}
+is the
+{jjdpr_pace_p}
+display name at this point in time.
+Type:
+{jjdt_silks}.
+Enables rename history; current pace silks is derived from `tacks[0].silks`.
+
+* [[jjdkm_commit]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdkm_commit}
+is the commit SHA at
+{jjdkr_tack}
+creation.
+Format: 7-character hex string.
+Captures repo state when plan was written.
+Value `0000000` indicates commit was unavailable at creation time.
+
+* [[jjdkm_direction]]
+// ⟦axl_voices axr_member axd_conditional⟧
+{jjdkm_direction}
+contains execution guidance for autonomous operation.
+Required when
+{jjdkm_state}
+is
+{jjdpe_bridled};
+forbidden otherwise.
+Describes which agent to dispatch, parallelism strategy, or other execution parameters.
+
+==== State Values
+
+[[jjdpe_rough]]
+// ⟦axl_voices axt_enum_value⟧
+{jjdpe_rough}::
+The
+{jjdpr_pace}
+needs clarification before work can proceed.
+When context is assembled for a
+{jjdpe_rough}
+pace, the model is guided to refine the specification rather than begin execution.
+
+[[jjdpe_bridled]]
+// ⟦axl_voices axt_enum_value⟧
+{jjdpe_bridled}::
+The
+{jjdpr_pace}
+is ready for autonomous execution.
+The
+{jjdkm_direction}
+field contains explicit guidance for the executing agent.
+When context is assembled for a
+{jjdpe_bridled}
+pace, the model proceeds without human confirmation.
+
+[[jjdpe_complete]]
+// ⟦axl_voices axt_enum_value⟧
+{jjdpe_complete}::
+The
+{jjdpr_pace}
+has been successfully finished.
+
+[[jjdpe_abandoned]]
+// ⟦axl_voices axt_enum_value⟧
+{jjdpe_abandoned}::
+The
+{jjdpr_pace}
+was stopped without completion.
+
+==== State Classification Predicates
+
+Predicates for querying pace states by semantic category.
+
+[[jjdpe_defined]] {jjdpe_defined}:: Pace contributes to heat's scope.
+* rough: true
+* bridled: true
+* complete: true
+* abandoned: false
+
+[[jjdpe_resolved]] {jjdpe_resolved}:: Pace requires no further action.
+* rough: false
+* bridled: false
+* complete: true
+* abandoned: true
+
+Future states declare their predicate values when added. Query logic uses predicates, not state names.
+
+== Serialization
+
+[[jjdz_charset]]
+{jjdz_charset}::
+The 64-character alphabet for identity encoding.
+Uses URL-safe base64 (RFC 4648 §5):
+`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`
+Position in charset determines numeric value (A=0, B=1, ..., `-`=62, `_`=63).
+This alphabet is safe for JSON keys, URLs, shell, git refs, and filenames.
+Matches Rust `base64::engine::general_purpose::URL_SAFE_NO_PAD`.
+
+[[jjdz_encoding]]
+{jjdz_encoding}::
+The algorithm for encoding
+{jjdt_firemark}
+and
+{jjdt_coronet}
+values.
++
+*{jjdt_firemark} (Heat identity):*
++
+. Format: `₣` + 2 base64 characters
+. Given integer H (0-4095): encode as `₣` + `charset[H/64]` + `charset[H%64]`
+. To decode `₣XY`: H = pos(X) * 64 + pos(Y)
++
+*{jjdt_coronet} (Pace identity):*
++
+. Format: `₢` + 5 base64 characters
+. First 2 characters encode the parent Heat (same as {jjdt_firemark} without prefix)
+. Last 3 characters encode the pace index P (0-262143)
+. Given Heat H and pace index P: encode as `₢` + `charset[H/64]` + `charset[H%64]` + `charset[P/4096]` + `charset[(P/64)%64]` + `charset[P%64]`
+. To decode `₢XYZAB`: H from XY, P = pos(Z) * 4096 + pos(A) * 64 + pos(B)
++
+*Input flexibility:*
++
+CLI commands accept identities with or without prefix.
+Length determines type: 2 base64 chars = {jjdt_firemark}, 5 base64 chars = {jjdt_coronet}.
+Output always includes the prefix (`₣` or `₢`).
+
+== Arguments
+
+*Note:* {jjda_file} appears as the first argument on all operations.
+It is annotated `// ⟦axd_optional axd_defaulted⟧` and uses the default value when not explicitly provided.
+
+[[jjda_file]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_file}::
+Path to the
+{jjdgr_gallops}
+JSON file.
+Long: `--file`.
+Short: none.
+Default: `.claude/jjm/jjg_gallops.json`.
+
+[[jjda_silks]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_silks}::
+Kebab-case display name for the target entity.
+Long: `--silks`.
+Short: `-s`.
+
+[[jjda_state]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_state}::
+Target state for the
+{jjdkr_tack}.
+Long: `--state`.
+Short: none.
+Values:
+{jjdpe_rough},
+{jjdpe_bridled},
+{jjdpe_complete},
+{jjdpe_abandoned}.
+
+[[jjda_direction]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_direction}::
+Execution guidance for autonomous operation.
+Long: `--direction`.
+Short: `-d`.
+Required when
+{jjda_state}
+is
+{jjdpe_bridled};
+forbidden otherwise.
+
+[[jjda_pace]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_pace}::
+Pace silks for context in commit messages.
+Long: `--pace`.
+Short: `-p`.
+
+[[jjda_created]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_created}::
+Creation date in YYMMDD format.
+Long: `--created`.
+Short: `-c`.
+
+[[jjda_before]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_before}::
+{jjdt_coronet}
+to insert before.
+Long: `--before`.
+Short: none.
+Mutually exclusive with
+{jjda_after}
+and
+{jjda_first}.
+
+[[jjda_after]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_after}::
+{jjdt_coronet}
+to insert after.
+Long: `--after`.
+Short: none.
+Mutually exclusive with
+{jjda_before}
+and
+{jjda_first}.
+
+[[jjda_first]]
+// ⟦axl_voices axa_cli_flag⟧
+{jjda_first}::
+Position at first actionable slot in
+{jjdhm_order}
+(before the first
+{jjdpe_rough}
+or
+{jjdpe_bridled}
+pace).
+If no actionable paces exist, positions at end.
+Long: `--first`.
+Short: none.
+Boolean flag, no value.
+Mutually exclusive with
+{jjda_before}
+and
+{jjda_after}.
+
+[[jjda_last]]
+// ⟦axl_voices axa_cli_flag⟧
+{jjda_last}::
+Move to end of
+{jjdhm_order}.
+Long: `--last`.
+Short: none.
+Boolean flag, no value.
+Used only by
+{jjdo_rail}
+move mode.
+Mutually exclusive with
+{jjda_before},
+{jjda_after},
+and
+{jjda_first}.
+
+[[jjda_move]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_move}::
+{jjdt_coronet}
+to relocate within
+{jjdhm_order}.
+Long: `--move`.
+Short: `-m`.
+Triggers move mode in
+{jjdo_rail}.
+Requires exactly one positioning flag:
+{jjda_before},
+{jjda_after},
+{jjda_first},
+or
+{jjda_last}.
+
+[[jjda_status]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_status}::
+Filter by
+{jjdhr_heat}
+status.
+Long: `--status`.
+Short: none.
+Values:
+{jjdhe_racing},
+{jjdhe_stabled},
+{jjdhe_retired}.
+
+[[jjda_to]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_to}::
+Destination
+{jjdt_firemark}
+for
+{jjdo_draft}.
+Long: `--to`.
+Short: none.
+
+== Section Headers
+
+[[jjds_arguments]]
+// ⟦axl_voices axa_argument_list⟧
+{jjds_arguments}::
+Section header introducing operation arguments.
+
+[[jjds_stdout]]
+{jjds_stdout}::
+Section header introducing operation standard output.
+
+[[jjds_exit_uniform]]
+// ⟦axl_voices axa_exit_uniform⟧
+{jjds_exit_uniform}::
+Section header for operations with standard exit semantics.
+
+[[jjds_exit_enumerated]]
+// ⟦axl_voices axa_exit_enumerated⟧
+{jjds_exit_enumerated}::
+Section header for operations with distinct exit codes.
+
+[[jjds_behavior]]
+{jjds_behavior}::
+Section header introducing operation behavior steps.
+
+== CLI
+
+[[jjdx_vvx]]
+// ⟦axl_voices axi_cli_program⟧
+{jjdx_vvx}::
+The Voce Viva executor.
+Local reference to the VVK-defined CLI program that hosts Job Jockey.
+
+[[jjdx_cli]]
+// ⟦axl_voices axi_cli_command_group⟧
+{jjdx_cli}::
+The Job Jockey command group within
+{jjdx_vvx}.
+Invoked as `vvx jjx`.
+All operations are subcommands of
+{jjdx_cli}.
+Inherits Unix CLI semantics: stdout for results, stderr for errors, exit 0 for success, non-zero for failure.
+
+== Commit Message Architecture
+
+All JJ commits include an action code that serves multiple purposes:
+- **Parsing steeplechase history**: Distinguishes between different operation types
+- **Semantic clarity**: Indicates the nature and context of each commit
+- **Consistency**: Applies uniformly across pace-level and heat-level operations
+
+== Routines
+
+Routines are internal reusable procedures invoked by operations.
+They encapsulate common logic for consistent behavior across the codebase.
+
+[[jjdr_load]]
+// ⟦axl_voices axo_routine⟧
+=== {jjdr_load}
+
+include::JJSRLD-load.adoc[]
+
+[[jjdr_save]]
+// ⟦axl_voices axo_routine⟧
+=== {jjdr_save}
+
+include::JJSRSV-save.adoc[]
+
+[[jjdr_persist]]
+// ⟦axl_voices axo_routine⟧
+=== {jjdr_persist}
+
+include::JJSRPS-persist.adoc[]
+
+[[jjdr_wrap]]
+// ⟦axl_voices axo_routine⟧
+=== {jjdr_wrap}
+
+include::JJSRWP-wrap.adoc[]
+
+== Operations
+
+Operations are implemented as {jjdx_cli} subcommands.
+{jjdx_cli} owns all
+{jjdgr_gallops}
+file access through
+{jjdr_load}
+and
+{jjdr_save}.
+Bash handles locking via `git update-ref` and invokes {jjdx_cli} with
+{jjda_file}.
+
+=== Write Operations
+
+[[jjdo_nominate]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_nominate}
+
+include::JJSCNO-nominate.adoc[]
+
+[[jjdo_slate]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_slate}
+
+include::JJSCSL-slate.adoc[]
+
+[[jjdo_rail]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_rail}
+
+include::JJSCRL-rail.adoc[]
+
+[[jjdo_draft]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_draft}
+
+include::JJSCDR-draft.adoc[]
+
+[[jjdo_tally]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_tally}
+
+include::JJSCTL-tally.adoc[]
+
+[[jjdo_furlough]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_furlough}
+
+include::JJSCFU-furlough.adoc[]
+
+[[jjdo_retire]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_retire}
+
+include::JJSCRT-retire.adoc[]
+
+=== Read Operations
+
+[[jjdo_validate]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_validate}
+
+include::JJSCVL-validate.adoc[]
+
+[[jjdo_muster]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_muster}
+
+include::JJSCMU-muster.adoc[]
+
+[[jjdo_saddle]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_saddle}
+
+include::JJSCSD-saddle.adoc[]
+
+[[jjdo_scout]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_scout}
+
+include::JJSCSC-scout.adoc[]
+
+[[jjdo_parade]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_parade}
+
+include::JJSCPD-parade.adoc[]
+
+=== Steeplechase Operations
+
+The steeplechase is Job Jockey's session history, stored in git commits rather than the
+{jjdgr_gallops}
+JSON.
+Commit messages follow patterns that
+{jjdo_rein}
+can parse to reconstruct session history.
+
+==== Commit Message Patterns
+
+All JJ commits use the format: `jjb:HALLMARK:IDENTITY:ACTION: message`
+
+* `jjb` — JJ brand prefix (literal)
+* `HALLMARK` — Version identifier. Format: NNNN (installed) or NNNN-xxxxxxx (dev). Source: `.vvk/vvbf_brand.json` (installed) or max hallmark from `Tools/vok/vov_veiled/vovr_registry.json` + git HEAD (Kit Forge)
+* `IDENTITY` — ₢CORONET for pace-level, ₣FIREMARK for heat-level
+* `ACTION` — single-letter code (required for all commits)
+
+*Standard notch* (created by {jjdo_notch}):
+----
+jjb:HALLMARK:₢XXXXX:n: commit message
+
+Co-Authored-By: ...
+----
+
+Standard notch commits use `n` to denote routine progress tracking.
+
+*Pace-level chalk* (created by {jjdo_chalk}):
+----
+jjb:HALLMARK:₢XXXXX:A: description
+
+Co-Authored-By: ...
+----
+
+Pace-level action codes:
+
+* `n` — Notch: standard commit
+* `A` — APPROACH: proposed approach before work begins
+* `W` — WRAP: pace completion summary
+* `F` — FLY: autonomous execution began (bridled pace)
+* `d` — discussion: significant decision (lowercase, can also be heat-level)
+
+*Heat-level operations*:
+----
+jjb:HALLMARK:₣XX:N: heat-silks
+jjb:HALLMARK:₣XX:S: pace-silks
+jjb:HALLMARK:₣XX:r: reordered
+jjb:HALLMARK:₣XX:T: pace-silks
+jjb:HALLMARK:₣XX:D: old-coronet → new-coronet
+jjb:HALLMARK:₣XX:R: heat-silks
+----
+
+Heat-level action codes:
+
+* `N` — Nominate: create new heat
+* `S` — Slate: add new pace
+* `r` — rail: reorder paces (lowercase)
+* `T` — Tally: add tack to pace
+* `D` — Draft: move pace between heats (uppercase, rare)
+* `R` — Retire: archive heat (uppercase)
+
+[[jjdo_rein]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_rein}
+
+include::JJSCRN-rein.adoc[]
+
+[[jjdo_notch]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_notch}
+
+include::JJSCNC-notch.adoc[]
+
+[[jjdo_chalk]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_chalk}
+
+include::JJSCCH-chalk.adoc[]

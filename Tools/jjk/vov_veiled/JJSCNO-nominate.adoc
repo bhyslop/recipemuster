@@ -1,0 +1,89 @@
+
+Create a new
+{jjdhr_heat}
+with empty
+{jjdpr_pace}
+structure.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjda_silks}
+
+// ⟦axd_required⟧
+* {jjda_created}
+
+{jjds_stdout} New
+{jjdt_firemark}
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. If
+{jjdgr_gallops}
+file exists:
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
+. If
+{jjdgr_gallops}
+file does not exist:
+.. Create parent directory `.claude/jjm/` if needed
+.. Initialize new
+{jjdgr_gallops}
+with
+{jjdgm_seed}
+`AA` and empty `heats`
+. Read current
+{jjdgm_seed}
+as
+{jjdt_firemark}
+. Compute paddock path: `.claude/jjm/jjp_XX.md` where XX is the 2 base64 chars
+. Create paddock file with template:
++
+----
+# Paddock: {silks}
+
+## Context
+
+(Describe the initiative's background and goals)
+
+## References
+
+(List relevant files, docs, or prior work)
+----
+. Create new
+{jjdhr_heat}
+with:
+.. Key: `₣` + encoded
+{jjdt_firemark}
+.. {jjdhm_silks}:
+from argument
+.. {jjdhm_created}:
+from argument
+.. {jjdhm_status}:
+{jjdhe_racing}
+.. {jjdhm_order}:
+empty array
+.. {jjdhm_seed}:
+`AAA` (index 0)
+.. {jjdhm_paddock}:
+computed paddock path
+.. `paces`: empty object
+. Increment
+{jjdgm_seed}
+(base64 arithmetic with carry)
+.
+{jjdr_save}
+{jjdgr_gallops}
+to
+{jjda_file}
+. Output new
+{jjdt_firemark}
+to stdout

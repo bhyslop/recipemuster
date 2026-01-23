@@ -44,10 +44,7 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | List all heats | /jjc-heat-muster |
 | Draft paces between heats | /jjc-heat-restring |
 | Retire completed heat | /jjc-heat-retire |
-| View heat summary | /jjc-parade-overview |
-| View pace order | /jjc-parade-order |
-| View heat detail | /jjc-parade-detail |
-| View full heat | /jjc-parade-full |
+| View heat or pace | /jjc-parade |
 
 **Quick Verbs** — When user says just the verb, invoke the corresponding command:
 
@@ -62,6 +59,7 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | muster | /jjc-heat-muster |
 | groom | /jjc-heat-groom |
 | quarter | /jjc-heat-quarter |
+| parade | /jjc-parade |
 
 **Commit Discipline:**
 When working on a heat/pace, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `vvx_commit` directly — it bypasses pace affiliation and steeplechase tracking.
