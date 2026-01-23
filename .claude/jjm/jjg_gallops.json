@@ -3034,9 +3034,10 @@
         "₢AFAAC",
         "₢AFAAO",
         "₢AFAAP",
-        "₢AFAAQ"
+        "₢AFAAQ",
+        "₢AFAAR"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3350,6 +3351,17 @@
               "text": "Modify the /jjc-heat-mount slash command to NOT automatically begin work on a bridled pace. Instead, when mount detects the next pace is bridled, it should display the pace details and ask for explicit user approval before spawning the agent. This ensures human oversight of every autonomous execution commitment.",
               "silks": "mount-requires-approval",
               "commit": "693a30c"
+            }
+          ]
+        },
+        "₢AFAAR": {
+          "tacks": [
+            {
+              "ts": "260123-1148",
+              "state": "rough",
+              "text": "Add command to display full tack history for a pace, enabling postmortem analysis of plan evolution.\n\n## Use Case\n\nAfter completing a pace (or during debugging), view the full history of tacks:\n- How the spec evolved\n- State transitions (rough → bridled → complete)\n- Direction changes\n- Silks renames\n- Timestamps and commit references\n\n## Command: jjx_tacks\n\nSyntax: `jjx_tacks <CORONET>`\n\nOutput: Formatted display of all tacks, newest first (matching JSON order).\n\n```\nPace: feature-name (₢XXXXX)\nHeat: ₣XX\n\n[0] 260123-1130 complete\n    Silks: feature-name\n    Commit: abc123f\n    \n    Final implementation complete.\n\n[1] 260123-1000 bridled\n    Silks: feature-name  \n    Commit: def456a\n    Direction: Agent: sonnet...\n    \n    Ready for autonomous execution.\n\n[2] 260122-1500 rough\n    Silks: initial-name\n    Commit: 789abc0\n    \n    Initial spec text here...\n```\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (add Tacks command, TacksArgs struct)\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (document jjdo_tacks operation)\n\n## JJD Updates Required\n\nAdd [[jjdo_tacks]] operation documentation:\n- Arguments (coronet positional)\n- Output format specification  \n- Behavior steps (load gallops, find pace, iterate tacks)\n- Exit status",
+              "silks": "pace-tack-history-dump",
+              "commit": "b832542"
             }
           ]
         }
