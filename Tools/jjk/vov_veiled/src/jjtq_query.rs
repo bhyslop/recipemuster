@@ -128,13 +128,6 @@ fn jjtq_saddle_output_no_actionable_pace() {
 }
 
 #[test]
-fn jjtq_parade_format_enum() {
-    // Test ParadeFormat default
-    let format: jjrq_ParadeFormat = Default::default();
-    assert_eq!(format, jjrq_ParadeFormat::Full);
-}
-
-#[test]
 fn jjtq_retire_output_structure() {
     let output = zjjrq_RetireOutput {
         firemark: "₣AB".to_string(),

@@ -274,17 +274,34 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
             }
         };
 
-        // Display full tack detail
-        if let Some(tack) = pace.tacks.first() {
-            let state_str = zjjrq_pace_state_str(&tack.state);
-            println!("Pace: {} ({})", tack.silks, coronet_key);
-            println!("State: {}", state_str);
+        // Display tack history - iterate in reverse order (oldest first)
+        if !pace.tacks.is_empty() {
+            // Print header with current state from tacks[0]
+            let current_tack = &pace.tacks[0];
+            println!("Pace: {} ({})", current_tack.silks, coronet_key);
             println!("Heat: {}", heat_key);
             println!();
-            println!("{}", tack.text);
-            if let Some(ref direction) = tack.direction {
+
+            // Iterate tacks in reverse order (oldest first)
+            for (index, tack) in pace.tacks.iter().rev().enumerate() {
+                let state_str = zjjrq_pace_state_str(&tack.state);
+                let commit_str = if tack.commit == "0000000" {
+                    "(no commit)".to_string()
+                } else {
+                    tack.commit.clone()
+                };
+
+                println!("[{}] {} ({})", index, state_str, commit_str);
+                println!("    Silks: {}", tack.silks);
+                if let Some(ref direction) = tack.direction {
+                    println!("    Direction: {}", direction);
+                }
                 println!();
-                println!("Direction: {}", direction);
+                // Indent spec text
+                for line in tack.text.lines() {
+                    println!("    {}", line);
+                }
+                println!();
             }
         }
     } else if target_str.len() == 2 {

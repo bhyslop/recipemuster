@@ -2478,16 +2478,42 @@ Created: 260119
 Direction: [if bridled]
 ----
 
-*Example output — pace detail:*
+*Example output — pace detail (single tack):*
 ----
 Pace: vvx-push-rename (₢AAAAJ)
-State: rough
 Heat: ₣AA
 
-[full tack text...]
+[0] rough (abc123f)
+    Silks: vvx-push-rename
 
-Direction: [if bridled]
+    [full tack text...]
 ----
+
+*Example output — pace detail (multiple tacks, showing history):*
+----
+Pace: feature-name (₢AAAAK)
+Heat: ₣AA
+
+[0] rough (789abc0)
+    Silks: initial-name
+
+    Initial spec text here...
+
+[1] bridled (def456a)
+    Silks: feature-name
+    Direction: Agent: sonnet...
+
+    Ready for autonomous execution.
+
+[2] complete (abc123f)
+    Silks: feature-name
+
+    Final implementation complete.
+----
+
+Tacks are displayed in chronological order (oldest first, index 0).
+Each tack shows its index, state, commit hash, silks (which may change over time), optional direction (if bridled), and the full spec text.
+Commit hash displays "(no commit)" for placeholder value `0000000`.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
