@@ -1429,98 +1429,121 @@ fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
         return 2;
     }
 
-    // Generate commit message using Claude CLI
-    let diff_content = match Command::new("git")
-        .args(["diff", "--cached"])
-        .output()
-    {
-        Ok(o) => o,
-        Err(e) => {
-            eprintln!("jjx_wrap: error: failed to run git diff --cached: {}", e);
+    // Check if there are staged changes to commit
+    let has_staged_changes = !numstat_str.trim().is_empty();
+
+    // Only generate commit message and commit if there are staged changes
+    let commit_hash = if has_staged_changes {
+        // Generate commit message using Claude CLI
+        let diff_content = match Command::new("git")
+            .args(["diff", "--cached"])
+            .output()
+        {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("jjx_wrap: error: failed to run git diff --cached: {}", e);
+                return 1;
+            }
+        };
+
+        if !diff_content.status.success() {
+            eprintln!("jjx_wrap: error: git diff --cached failed");
             return 1;
         }
+
+        let mut claude_cmd = match Command::new("claude")
+            .args([
+                "--print",
+                &format!("Generate a concise commit message for this diff. The commit wraps pace {}. Output only the message, no quotes.", args.coronet)
+            ])
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+        {
+            Ok(c) => c,
+            Err(e) => {
+                eprintln!("jjx_wrap: error: failed to spawn claude command: {}", e);
+                return 1;
+            }
+        };
+
+        // Write diff to stdin
+        if let Some(mut stdin) = claude_cmd.stdin.take() {
+            if let Err(e) = stdin.write_all(&diff_content.stdout) {
+                eprintln!("jjx_wrap: error: failed to write to claude stdin: {}", e);
+                return 1;
+            }
+        }
+
+        let claude_output = match claude_cmd.wait_with_output() {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("jjx_wrap: error: failed to wait for claude: {}", e);
+                return 1;
+            }
+        };
+
+        if !claude_output.status.success() {
+            eprintln!("jjx_wrap: error: claude command failed");
+            eprintln!("{}", String::from_utf8_lossy(&claude_output.stderr));
+            return 1;
+        }
+
+        let generated_message = String::from_utf8_lossy(&claude_output.stdout).trim().to_string();
+
+        // Commit with git directly (already staged via git add -A)
+        let prefix = format_notch_prefix(&coronet);
+        let full_message = format!("{}{}\n\nCo-Authored-By: Claude <noreply@anthropic.com>", prefix, generated_message);
+
+        let commit_output = match Command::new("git")
+            .args(["commit", "-m", &full_message])
+            .output()
+        {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("jjx_wrap: error: failed to run git commit: {}", e);
+                return 1;
+            }
+        };
+
+        if !commit_output.status.success() {
+            eprintln!("jjx_wrap: error: git commit failed");
+            eprintln!("{}", String::from_utf8_lossy(&commit_output.stderr));
+            return 1;
+        }
+
+        // Get commit hash
+        let hash_output = match Command::new("git")
+            .args(["rev-parse", "HEAD"])
+            .output()
+        {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("jjx_wrap: error: failed to get commit hash: {}", e);
+                return 1;
+            }
+        };
+
+        String::from_utf8_lossy(&hash_output.stdout).trim().to_string()
+    } else {
+        // No staged changes - this is valid for verification-only paces
+        eprintln!("jjx_wrap: no staged changes, proceeding with state transition only");
+
+        // Get current HEAD as reference (no new work commit created)
+        let hash_output = match Command::new("git")
+            .args(["rev-parse", "HEAD"])
+            .output()
+        {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("jjx_wrap: error: failed to get commit hash: {}", e);
+                return 1;
+            }
+        };
+
+        String::from_utf8_lossy(&hash_output.stdout).trim().to_string()
     };
-
-    if !diff_content.status.success() {
-        eprintln!("jjx_wrap: error: git diff --cached failed");
-        return 1;
-    }
-
-    let mut claude_cmd = match Command::new("claude")
-        .args([
-            "--print",
-            &format!("Generate a concise commit message for this diff. The commit wraps pace {}. Output only the message, no quotes.", args.coronet)
-        ])
-        .stdin(std::process::Stdio::piped())
-        .stdout(std::process::Stdio::piped())
-        .stderr(std::process::Stdio::piped())
-        .spawn()
-    {
-        Ok(c) => c,
-        Err(e) => {
-            eprintln!("jjx_wrap: error: failed to spawn claude command: {}", e);
-            return 1;
-        }
-    };
-
-    // Write diff to stdin
-    if let Some(mut stdin) = claude_cmd.stdin.take() {
-        if let Err(e) = stdin.write_all(&diff_content.stdout) {
-            eprintln!("jjx_wrap: error: failed to write to claude stdin: {}", e);
-            return 1;
-        }
-    }
-
-    let claude_output = match claude_cmd.wait_with_output() {
-        Ok(o) => o,
-        Err(e) => {
-            eprintln!("jjx_wrap: error: failed to wait for claude: {}", e);
-            return 1;
-        }
-    };
-
-    if !claude_output.status.success() {
-        eprintln!("jjx_wrap: error: claude command failed");
-        eprintln!("{}", String::from_utf8_lossy(&claude_output.stderr));
-        return 1;
-    }
-
-    let generated_message = String::from_utf8_lossy(&claude_output.stdout).trim().to_string();
-
-    // Commit with git directly (already staged via git add -A)
-    let prefix = format_notch_prefix(&coronet);
-    let full_message = format!("{}{}\n\nCo-Authored-By: Claude <noreply@anthropic.com>", prefix, generated_message);
-
-    let commit_output = match Command::new("git")
-        .args(["commit", "-m", &full_message])
-        .output()
-    {
-        Ok(o) => o,
-        Err(e) => {
-            eprintln!("jjx_wrap: error: failed to run git commit: {}", e);
-            return 1;
-        }
-    };
-
-    if !commit_output.status.success() {
-        eprintln!("jjx_wrap: error: git commit failed");
-        eprintln!("{}", String::from_utf8_lossy(&commit_output.stderr));
-        return 1;
-    }
-
-    // Get commit hash
-    let hash_output = match Command::new("git")
-        .args(["rev-parse", "HEAD"])
-        .output()
-    {
-        Ok(o) => o,
-        Err(e) => {
-            eprintln!("jjx_wrap: error: failed to get commit hash: {}", e);
-            return 1;
-        }
-    };
-
-    let commit_hash = String::from_utf8_lossy(&hash_output.stdout).trim().to_string();
 
     // Transition pace state to complete
     let gallops_path = PathBuf::from(".claude/jjm/jjg_gallops.json");
