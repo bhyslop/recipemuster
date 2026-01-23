@@ -3038,9 +3038,10 @@
         "₢AFAAN",
         "₢AFAAC",
         "₢AFAAO",
-        "₢AFAAP"
+        "₢AFAAP",
+        "₢AFAAV"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3575,6 +3576,17 @@
               "text": "Add post-wrap guidance to jjx_wrap Rust output and simplify the slash command.\n\n**Rust changes (jjx_wrap in jjrx_cli.rs):**\nAfter successful wrap, output to stderr:\n```\nRecommended: /clear then /jjc-heat-mount <FIREMARK>\n```\n- Extract firemark from the coronet (already parsed)\n- Place after the existing success output, before returning 0\n\n**Slash command changes (.claude/commands/jjc-pace-wrap.md):**\n- Remove Step 3 entirely (the \"Advance to next pace\" section that calls jjx_saddle)\n- The Rust output now provides the guidance, reducing Claude round trips\n\nNo schema changes. Build verification: tt/vow-b.Build.sh",
               "silks": "wrap-recommends-clear-mount",
               "commit": "3e36317"
+            }
+          ]
+        },
+        "₢AFAAV": {
+          "tacks": [
+            {
+              "ts": "260123-1318",
+              "state": "rough",
+              "text": "Rethink /jjc-heat-rein output to reduce token usage.\n\nCurrent issue: jjx_rein returns JSON which Claude then reformats. This consumes tokens twice (raw JSON + formatted output).\n\nQuestions to resolve:\n- Should jjx_rein output human-readable text directly?\n- Or should the slash command use a more compact summary?\n- What information is actually useful from rein? (recent context vs full history)\n- Consider: rein exists to show steeplechase history — is formatted text better than structured JSON for this use case?",
+              "silks": "rein-token-efficiency",
+              "commit": "6df2dbb"
             }
           ]
         }
