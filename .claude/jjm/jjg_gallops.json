@@ -3122,6 +3122,14 @@
           "tacks": [
             {
               "ts": "260123-1114",
+              "state": "bridled",
+              "text": "Create Tools/vok/src/vovs_sandbox.rs following the pattern in pb_paneboard02/poc/src/pbmbs_sandbox.rs:\n1. Copy the implementation, adapting comments (\"vvx\" instead of \"PaneBoard\")\n2. Keep the same Seatbelt policy: (version 1)(allow default)(deny network*)\n3. In vorm_main.rs:\n   - Add `mod vovs_sandbox;` near the top with other mods\n   - Add `#[cfg(target_os = \"macos\")] vovs_sandbox::drop_network_access();` as first line of main()\n4. Build with: tt/vow-b.Build.sh",
+              "silks": "add-macos-sandbox",
+              "commit": "011572b",
+              "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: vovs_sandbox.rs (create), vorm_main.rs (edit) — 2 files\nSteps:\n1. Read pb_paneboard02/poc/src/pbmbs_sandbox.rs as pattern source\n2. Create Tools/vok/src/vovs_sandbox.rs with same implementation, change PaneBoard to vvx in comments\n3. In Tools/vok/src/vorm_main.rs, add mod vovs_sandbox near other mod declarations\n4. In vorm_main.rs main(), add sandbox call as first statement with cfg(target_os = macos) gate\nVerify: tt/vow-b.Build.sh"
+            },
+            {
+              "ts": "260123-1114",
               "state": "rough",
               "text": "Create Tools/vok/src/vovs_sandbox.rs following the pattern in pb_paneboard02/poc/src/pbmbs_sandbox.rs:\n1. Copy the implementation, adapting comments (\"vvx\" instead of \"PaneBoard\")\n2. Keep the same Seatbelt policy: (version 1)(allow default)(deny network*)\n3. In vorm_main.rs:\n   - Add `mod vovs_sandbox;` near the top with other mods\n   - Add `#[cfg(target_os = \"macos\")] vovs_sandbox::drop_network_access();` as first line of main()\n4. Build with: tt/vow-b.Build.sh",
               "silks": "add-macos-sandbox",
