@@ -3018,6 +3018,7 @@
       "creation_time": "260119",
       "status": "racing",
       "order": [
+        "₢AFAAT",
         "₢AFAAG",
         "₢AFAAB",
         "₢AFAAA",
@@ -3038,7 +3039,7 @@
         "₢AFAAR",
         "₢AFAAS"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3390,6 +3391,17 @@
               "text": "Consider consolidating the four parade slash commands into one.\n\n## Current State\n\nFour separate slash commands:\n- /jjc-parade-overview — one line per pace\n- /jjc-parade-order — numbered list\n- /jjc-parade-detail — full tack for one pace\n- /jjc-parade-full — paddock + all paces\n\nThis clutters the slash command namespace and adds cognitive load.\n\n## Design Questions\n\n1. **Single command with arguments?**\n   `/jjc-parade [overview|order|detail|full] [pace]`\n   \n2. **Smart defaults?**\n   - No args → overview (most common use)\n   - With pace arg → detail for that pace\n   - `--full` flag → full output\n\n3. **Rust changes needed?**\n   - jjx_parade already has --format flag\n   - Slash command could just expose this better\n   - Or: simplify Rust to have better defaults\n\n4. **What about --remaining flag?**\n   - Currently on jjx_parade\n   - Should consolidated command default to remaining?\n\n## Considerations\n\n- Fewer slash commands = less clutter\n- But: discoverability suffers if too much hidden behind flags\n- Balance: one command with clear, memorable argument patterns\n\n## Outcome Options\n\nA. Keep separate commands (decide current state is fine)\nB. Single /jjc-parade with positional mode argument\nC. Single /jjc-parade with smart defaults based on args\nD. Something else discovered during analysis\n\n## Files (if implementing B or C)\n\n- .claude/commands/jjc-parade.md (new, consolidated)\n- .claude/commands/jjc-parade-overview.md (delete)\n- .claude/commands/jjc-parade-order.md (delete)\n- .claude/commands/jjc-parade-detail.md (delete)\n- .claude/commands/jjc-parade-full.md (delete)\n- Possibly: Tools/jjk/vov_veiled/src/jjrx_cli.rs (if Rust changes help)\n- JJD-GallopsData.adoc (update jjdo_parade if behavior changes)",
               "silks": "consolidate-parade-slash-commands",
               "commit": "35aff82"
+            }
+          ]
+        },
+        "₢AFAAT": {
+          "tacks": [
+            {
+              "ts": "260123-1152",
+              "state": "rough",
+              "text": "Bug: /jjc-pace-reslate inherits stale direction when reslating a bridled pace.\n\n**Problem:**\nWhen reslating a bridled pace, jjx_tally inherits the old direction even though the spec text changed. This causes the pace to have mismatched spec (new) and direction (old/stale).\n\n**Solution:**\nIn /jjc-pace-reslate (Step 4), detect if the pace is currently bridled. If so, explicitly pass `--state rough` to reset to rough state, forcing re-evaluation via /jjc-pace-bridle.\n\n**Change:**\nIn `.claude/commands/jjc-pace-reslate.md`, Step 4 should:\n1. Check current pace state before calling jjx_tally\n2. If state is \"bridled\", add `--state rough` to the jjx_tally call\n3. Report: \"Note: Pace was bridled; reset to rough. Re-run /jjc-pace-bridle to set new direction.\"\n\n**Files:**\n- .claude/commands/jjc-pace-reslate.md",
+              "silks": "reslate-resets-bridled-to-rough",
+              "commit": "ca4f275"
             }
           ]
         }
