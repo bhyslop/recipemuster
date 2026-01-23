@@ -1321,7 +1321,7 @@ into
 at determined position:
 .. If
 {jjda_first}:
-prepend to beginning
+insert before first actionable pace (or append if none)
 .. If
 {jjda_before}:
 insert immediately before target
@@ -1483,7 +1483,7 @@ from current position in
 . Insert at new position:
 .. If
 {jjda_first}:
-prepend to beginning
+insert before first actionable pace (or append if none)
 .. If
 {jjda_last}:
 append to end
