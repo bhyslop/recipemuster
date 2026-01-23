@@ -3441,6 +3441,13 @@
         "₢AFAAR": {
           "tacks": [
             {
+              "ts": "260123-1308",
+              "state": "complete",
+              "text": "Extend jjx_parade to accept coronet (pace identity) in addition to firemark (heat identity). When given a coronet, display the pace's full tack history.\n\n## Behavior\n\n**Detection logic:**\n- 2 chars → firemark (existing behavior)\n- 5 chars starting with valid firemark → coronet (new behavior)\n\n**Coronet mode output:**\n```\nPace: feature-name (₢XXXXX)\nHeat: ₣XX\n\n[0] complete (abc123f)\n    Silks: feature-name\n    \n    Final implementation complete.\n\n[1] bridled (def456a)\n    Silks: feature-name\n    Direction: Agent: sonnet...\n    \n    Ready for autonomous execution.\n\n[2] rough (789abc0)\n    Silks: initial-name\n    \n    Initial spec text here...\n```\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrq_query.rs — add coronet detection, tack history renderer\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — update jjdo_parade to document coronet mode\n\n## Notes\n\n- No new slash command needed — existing /jjc-parade-detail can document coronet usage\n- Relates to ₢AFAAS (consolidate-parade-slash-commands) — may inform that consolidation",
+              "silks": "parade-coronet-history",
+              "commit": "b02ba74"
+            },
+            {
               "ts": "260123-1253",
               "state": "bridled",
               "text": "Extend jjx_parade to accept coronet (pace identity) in addition to firemark (heat identity). When given a coronet, display the pace's full tack history.\n\n## Behavior\n\n**Detection logic:**\n- 2 chars → firemark (existing behavior)\n- 5 chars starting with valid firemark → coronet (new behavior)\n\n**Coronet mode output:**\n```\nPace: feature-name (₢XXXXX)\nHeat: ₣XX\n\n[0] complete (abc123f)\n    Silks: feature-name\n    \n    Final implementation complete.\n\n[1] bridled (def456a)\n    Silks: feature-name\n    Direction: Agent: sonnet...\n    \n    Ready for autonomous execution.\n\n[2] rough (789abc0)\n    Silks: initial-name\n    \n    Initial spec text here...\n```\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrq_query.rs — add coronet detection, tack history renderer\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — update jjdo_parade to document coronet mode\n\n## Notes\n\n- No new slash command needed — existing /jjc-parade-detail can document coronet usage\n- Relates to ₢AFAAS (consolidate-parade-slash-commands) — may inform that consolidation",
