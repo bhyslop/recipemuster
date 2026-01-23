@@ -11,6 +11,6 @@ Backlog for JJK changes that require JSON schema modifications. Parked until pos
 
 ## References
 
-- JJD: Tools/jjk/vov_veiled/JJD-GallopsData.adoc
+- JJSA: Tools/jjk/vov_veiled/JJSA-GallopsData.adoc
 - RCG: Tools/vok/vov_veiled/RCG-RustCodingGuide.md
 - VOS: Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc

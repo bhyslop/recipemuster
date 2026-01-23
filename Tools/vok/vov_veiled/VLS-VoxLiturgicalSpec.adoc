@@ -67,7 +67,7 @@ are complete names;
 {voslv_vesture_s}
 define domain-specific construction rules.
 
-This vocabulary applies to ALL specifications — VOS (kit distribution), BUS (bash dispatch), JJD (gallops data), and others.
+This vocabulary applies to ALL specifications — VOS (kit distribution), BUS (bash dispatch), JJSA (gallops data), and others.
 The liturgy is the shared language for naming things.
 
 For tabtarget dispatch vocabulary (Colophon, Frontispiece, Imprint, Formulary, Launcher), see BUS-BashUtilitiesSpec.adoc.

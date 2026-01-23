@@ -27,6 +27,6 @@ Architect JJK for tiered model execution: Haiku as the fast, cheap "jockey" for 
 
 ## References
 
-- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — JJK data model
+- Tools/jjk/vov_veiled/JJSA-GallopsData.adoc — JJK data model
 - .claude/commands/ — Slash command definitions
 - Task tool `model` parameter — mechanism for model selection in subagents

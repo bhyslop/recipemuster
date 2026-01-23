@@ -75,7 +75,7 @@ Verify: build/test command
 **Format rules:**
 - **Agent**: Always specify model tier (haiku/sonnet/opus)
 - **Cardinality**: "1 sequential" for single agent, "N parallel" for parallel Task agents
-- **Parallelization principle**: Documentation edits (JJD, .md files) can run in parallel with code edits — they don't affect build. Structure as: parallel batch (code + docs), then sequential build.
+- **Parallelization principle**: Documentation edits (JJSA, .md files) can run in parallel with code edits — they don't affect build. Structure as: parallel batch (code + docs), then sequential build.
 - **Doc agent tier**: Use sonnet or opus for documentation edits, not haiku. Docs require judgment about wording, context, and style consistency.
 - **Files**: List ALL files touched, with count in parentheses
 - **Steps**: Numbered, scannable actions
@@ -87,11 +87,11 @@ Verify: build/test command
 ```
 Agent: sonnet
 Cardinality: 1 sequential
-Files: vvcc_commit.rs, jjrx_cli.rs, JJD-GallopsData.adoc (3 files)
+Files: vvcc_commit.rs, jjrx_cli.rs, JJSA-GallopsData.adoc (3 files)
 Steps:
 1. Add size_limit field to vvcc_CommitArgs
 2. Add --size-limit CLI arg to NotchArgs
-3. Document in JJD
+3. Document in JJSA
 Verify: cargo build --features jjk
 ```
 
@@ -108,10 +108,10 @@ Verify: cargo build --features jjk
 **Example (mixed — code + docs in parallel):**
 ```
 Cardinality: 2 parallel + sequential build
-Files: jjrx_cli.rs, jjrq_query.rs, JJD-GallopsData.adoc (3 files)
+Files: jjrx_cli.rs, jjrq_query.rs, JJSA-GallopsData.adoc (3 files)
 Steps:
 1. Agent A (haiku): Add --remaining to ParadeArgs in jjrx_cli.rs and jjrq_query.rs
-2. Agent B (sonnet): Document --remaining in JJD-GallopsData.adoc
+2. Agent B (sonnet): Document --remaining in JJSA-GallopsData.adoc
 3. Sequential: cargo build --features jjk
 ```
 

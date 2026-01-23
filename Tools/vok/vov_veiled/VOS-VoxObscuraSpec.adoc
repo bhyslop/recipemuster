@@ -468,7 +468,7 @@ Whisper::for_kit("jjk")
     .display_name("Job Jockey")
     .managed_section("vocjjmc_core.md", "JJK")
     .managed_section("vocjjmc_gallops.md", "JJK_GALLOPS")
-    .concept_model("JJD-GallopsData.adoc")
+    .concept_model("JJSA-GallopsData.adoc")
     .register(&mut conclave)
 ----
 +
@@ -808,7 +808,7 @@ Indexed by
 {vose_conclave}
 for acronym registry and uniqueness validation.
 +
-Naming: Keeps existing acronym (e.g., `JJD-GallopsData.adoc`).
+Naming: Keeps existing acronym (e.g., `JJSA-GallopsData.adoc`).
 Registered in
 {vose_whisper}
 via `.concept_model()` builder method.
