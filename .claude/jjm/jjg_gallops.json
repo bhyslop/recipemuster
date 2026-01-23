@@ -3018,6 +3018,7 @@
       "creation_time": "260119",
       "status": "racing",
       "order": [
+        "₢AFAAW",
         "₢AFAAQ",
         "₢AFAAT",
         "₢AFAAD",
@@ -3041,7 +3042,7 @@
         "₢AFAAV",
         "₢AFAAK"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3594,6 +3595,17 @@
               "text": "Rethink /jjc-heat-rein output to reduce token usage.\n\nCurrent issue: jjx_rein returns JSON which Claude then reformats. This consumes tokens twice (raw JSON + formatted output).\n\nQuestions to resolve:\n- Should jjx_rein output human-readable text directly?\n- Or should the slash command use a more compact summary?\n- What information is actually useful from rein? (recent context vs full history)\n- Consider: rein exists to show steeplechase history — is formatted text better than structured JSON for this use case?",
               "silks": "rein-token-efficiency",
               "commit": "6df2dbb"
+            }
+          ]
+        },
+        "₢AFAAW": {
+          "tacks": [
+            {
+              "ts": "260123-1403",
+              "state": "rough",
+              "text": "Split JJD-GallopsData.adoc into JJSA (main) + subfiles:\n\n**Pattern:**\n- JJSA-GallopsData.adoc: Main file with mapping section, all [[anchors]], linked term definitions\n- JJSCxx-command.adoc: One per CLI command (nominate, slate, rail, draft, tally, furlough, retire, validate, muster, saddle, scout, parade, rein, notch, chalk)\n- JJSRxx-routine.adoc: One per routine (load, save, persist, wrap)\n\n**File naming:**\n- Commands: JJSCNO-nominate.adoc, JJSCSL-slate.adoc, JJSCRL-rail.adoc, JJSCDR-draft.adoc, JJSCTL-tally.adoc, JJSCFU-furlough.adoc, JJSCRT-retire.adoc, JJSCVL-validate.adoc, JJSCMU-muster.adoc, JJSCSD-saddle.adoc, JJSCSC-scout.adoc, JJSCPD-parade.adoc, JJSCRN-rein.adoc, JJSCNC-notch.adoc, JJSCCH-chalk.adoc\n- Routines: JJSRLD-load.adoc, JJSRSV-save.adoc, JJSRPS-persist.adoc, JJSRWP-wrap.adoc\n\n**Main file keeps:**\n- Mapping section with all :jjd*: attributes\n- All [[anchor]] definitions with linked term headers\n- include:: directives to pull in subfile content\n\n**Subfiles contain:**\n- Only the procedure body (Arguments, Behavior, Stdout, Exit Status sections)\n- No anchors, no linked terms\n\n**Constraint:** Subfile acronyms never start with A (reserved for JJSA).",
+              "silks": "split-jjd-subfiles",
+              "commit": "43ef3b4"
             }
           ]
         }
