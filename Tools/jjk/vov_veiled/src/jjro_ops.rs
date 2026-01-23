@@ -55,7 +55,7 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
     let heat = jjrg_Heat {
         silks: args.silks,
         creation_time: args.created,
-        status: jjrg_HeatStatus::Racing,
+        status: jjrg_HeatStatus::Stabled,
         order: Vec::new(),
         next_pace_seed: "AAA".to_string(),
         paddock_file,
