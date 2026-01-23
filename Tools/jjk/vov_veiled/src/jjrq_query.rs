@@ -22,6 +22,7 @@ use std::fs;
 #[derive(Debug)]
 pub struct jjrq_MusterArgs {
     pub file: std::path::PathBuf,
+    pub status: Option<String>,
 }
 
 /// Run the muster command - list Heats as TSV
@@ -36,6 +37,19 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
 
     // Collect heats with status info for sorting
     let mut heats_by_status: Vec<(&String, &crate::jjrg_gallops::jjrg_Heat)> = gallops.heats.iter().collect();
+
+    // Apply status filter if specified
+    if let Some(ref filter_status) = args.status {
+        let filter_lowercase = filter_status.to_lowercase();
+        heats_by_status.retain(|(_, heat)| {
+            let heat_status_str = match heat.status {
+                HeatStatus::Racing => "racing",
+                HeatStatus::Stabled => "stabled",
+                HeatStatus::Retired => "retired",
+            };
+            heat_status_str == filter_lowercase
+        });
+    }
 
     // Sort: racing first, then stabled, then retired
     heats_by_status.sort_by(|a, b| {

@@ -20,6 +20,7 @@ fn main() {
 
     for (kit_name, cargo_path) in kits {
         if Path::new(cargo_path).exists() {
+            // Enable the feature at compile time via rustc cfg
             println!("cargo:rustc-cfg=feature=\"{}\"", kit_name);
             println!("cargo:warning=Detected {} Rust code, enabling feature", kit_name);
         }

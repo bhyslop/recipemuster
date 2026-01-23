@@ -150,6 +150,10 @@ struct zjjrx_MusterArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
+
+    /// Filter by heat status (racing, stabled)
+    #[arg(long)]
+    status: Option<String>,
 }
 
 /// Arguments for jjx_saddle command
@@ -666,6 +670,7 @@ fn zjjrx_run_muster(args: zjjrx_MusterArgs) -> i32 {
 
     let muster_args = LibMusterArgs {
         file: args.file,
+        status: args.status,
     };
 
     lib_run_muster(muster_args)

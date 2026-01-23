@@ -140,14 +140,41 @@ Before branching on state, assess whether the pace silks fits the spec:
 **If pace_state is "bridled":**
 - The pace has explicit direction in the direction field
 - Parse direction to extract `Agent:` line (haiku/sonnet/opus)
-- Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker F --description "Executing bridled pace via {agent} agent"`
-- **Spawn a Task agent** to execute the pace:
-  - `model`: the extracted agent tier (haiku/sonnet/opus)
-  - `subagent_type`: "general-purpose"
-  - `prompt`: Combine spec + direction. Agent should report completion status when done.
-- The spec contains the "what" (requirements, acceptance criteria); direction contains the "how" (steps, verification)
-- Wait for agent completion and report outcome to user
-- **Do NOT auto-wrap.** Ask user: "Ready to wrap ₢<CORONET>?" and wait for confirmation before running `/jjc-pace-wrap`
+- **Display pace details and request approval:**
+  ```
+  Bridled pace ready for autonomous execution:
+
+  Pace: {pace_silks} (₢{CORONET})
+  Agent: {agent_tier}
+
+  Spec:
+  {spec}
+
+  Direction:
+  {direction}
+
+  [P] Proceed with autonomous execution (default)
+  [I] Stop and work interactively
+  [A] Abort mount
+
+  Choice [P]:
+  ```
+- **On P (or Enter):**
+  - Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker F --description "Executing bridled pace via {agent} agent"`
+  - **Spawn a Task agent** to execute the pace:
+    - `model`: the extracted agent tier (haiku/sonnet/opus)
+    - `subagent_type`: "general-purpose"
+    - `prompt`: Combine spec + direction. Agent should report completion status when done.
+  - The spec contains the "what" (requirements, acceptance criteria); direction contains the "how" (steps, verification)
+  - Wait for agent completion and report outcome to user
+  - **Do NOT auto-wrap.** Ask user: "Ready to wrap ₢<CORONET>?" and wait for confirmation before running `/jjc-pace-wrap`
+- **On I:**
+  - Report: "Switching to interactive mode for ₢{CORONET}"
+  - Suggest: "Use `/jjc-pace-reslate` to unbridle and refine, or work directly on the pace"
+  - Stop mount
+- **On A:**
+  - Report: "Mount aborted at Step 4"
+  - Stop mount
 
 ## Context preservation
 
