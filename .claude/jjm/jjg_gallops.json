@@ -3504,6 +3504,13 @@
         "₢AFAAU": {
           "tacks": [
             {
+              "ts": "260123-1246",
+              "state": "complete",
+              "text": "Add post-wrap guidance to jjx_wrap Rust output and simplify the slash command.\n\n**Rust changes (jjx_wrap in jjrx_cli.rs):**\nAfter successful wrap, output to stderr:\n```\nRecommended: /clear then /jjc-heat-mount <FIREMARK>\n```\n- Extract firemark from the coronet (already parsed)\n- Place after the existing success output, before returning 0\n\n**Slash command changes (.claude/commands/jjc-pace-wrap.md):**\n- Remove Step 3 entirely (the \"Advance to next pace\" section that calls jjx_saddle)\n- The Rust output now provides the guidance, reducing Claude round trips\n\nNo schema changes. Build verification: tt/vow-b.Build.sh",
+              "silks": "wrap-recommends-clear-mount",
+              "commit": "ce4a66c"
+            },
+            {
               "ts": "260123-1236",
               "state": "bridled",
               "text": "Add post-wrap guidance to jjx_wrap Rust output and simplify the slash command.\n\n**Rust changes (jjx_wrap in jjrx_cli.rs):**\nAfter successful wrap, output to stderr:\n```\nRecommended: /clear then /jjc-heat-mount <FIREMARK>\n```\n- Extract firemark from the coronet (already parsed)\n- Place after the existing success output, before returning 0\n\n**Slash command changes (.claude/commands/jjc-pace-wrap.md):**\n- Remove Step 3 entirely (the \"Advance to next pace\" section that calls jjx_saddle)\n- The Rust output now provides the guidance, reducing Claude round trips\n\nNo schema changes. Build verification: tt/vow-b.Build.sh",
