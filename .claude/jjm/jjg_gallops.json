@@ -3004,9 +3004,10 @@
         "₢AFAAH",
         "₢AFAAI",
         "₢AFAAJ",
-        "₢AFAAK"
+        "₢AFAAK",
+        "₢AFAAL"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3134,6 +3135,17 @@
               "text": "Implement /jjc-heat-garland ceremony for honoring a heat that has run many paces.\n\n## Concept\n\nWhen a heat has completed 20+ paces, it deserves celebration and the remaining work should transfer to a fresh heat. \"Garland\" acknowledges magnificent service while preserving the heat for later retrospective.\n\n## Ceremony behavior\n\n1. Add steeplechase marker: \"Garlanded at pace N — magnificent service\"\n2. Furlough heat to stabled (preserves for later retrospective)\n3. Nominate fresh heat (prompt for new silks, or derive from old)\n4. Draft remaining paces to new heat\n5. Open new paddock for rewriting — context has evolved\n\n## Design questions to resolve\n\n- What is slash command vs jjx_ primitive boundary?\n- Should there be a jjx_garland primitive, or is this pure ceremony using existing primitives (chalk, furlough, nominate, draft)?\n- Threshold for warning (20 completed) — where does this live?\n- Warning placement: in groom? in muster? both?\n\n## Related\n\n- jjx_draft already moves paces between heats\n- /jjc-heat-restring is precedent for ceremony using draft primitive\n- Furlough already handles stabling",
               "silks": "implement-garland-ceremony",
               "commit": "cc5a988"
+            }
+          ]
+        },
+        "₢AFAAL": {
+          "tacks": [
+            {
+              "ts": "260122-1622",
+              "state": "rough",
+              "text": "Make --created optional in jjx_nominate by defaulting to system clock.\n\n**Current:** Slash command calls `date +%y%m%d` then passes `--created \"YYMMDD\"`.\n\n**After:** If --created omitted, Rust uses system clock to generate YYMMDD format.\n\n**Files:**\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (make created optional in NominateArgs)\n- Tools/jjk/vov_veiled/src/jjx_nominate.rs (default to chrono::Local::now())\n- .claude/commands/jjc-heat-nominate.md (remove date command, simplify invocation)\n\n**Constraint:** Schema-stable — created field format unchanged, just sourced differently.",
+              "silks": "nominate-default-created-date",
+              "commit": "07ffc0d"
             }
           ]
         }
