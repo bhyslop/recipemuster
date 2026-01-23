@@ -3168,6 +3168,14 @@
         "₢AFAAJ": {
           "tacks": [
             {
+              "ts": "260123-1042",
+              "state": "bridled",
+              "text": "Change jjx_nominate default: new heats start as 'stabled' not 'racing'. No heat should auto-start running — user must explicitly furlough to racing when ready to execute. Update default in Rust impl and any slash command docs that mention initial state.",
+              "silks": "nominate-defaults-stabled",
+              "commit": "9ef896f",
+              "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: jjro_ops.rs (1 file)\nSteps:\n1. In jjrg_nominate function, change line with 'status: jjrg_HeatStatus::Racing' to 'status: jjrg_HeatStatus::Stabled'\nVerify: cargo build --manifest-path Tools/vok/Cargo.toml --features jjk"
+            },
+            {
               "ts": "260120-1820",
               "state": "rough",
               "text": "Change jjx_nominate default: new heats start as 'stabled' not 'racing'. No heat should auto-start running — user must explicitly furlough to racing when ready to execute. Update default in Rust impl and any slash command docs that mention initial state.",
