@@ -2423,8 +2423,10 @@ content.
 
 Display
 {jjdhr_heat}
-status in human-readable text format.
-Output varies by format mode.
+or
+{jjdpr_pace}
+information in human-readable text format.
+Output varies by target type.
 
 {jjds_arguments}
 
@@ -2432,94 +2434,96 @@ Output varies by format mode.
 * {jjda_file}
 
 // ⟦axd_required⟧
-* {jjdt_firemark}
-(positional) — target
-{jjdhr_heat}
-
-// ⟦axd_optional axd_defaulted⟧
-* `--format <mode>` — output format mode (default: `full`)
-
-// ⟦axd_optional⟧
-* `--pace <coronet>` — target
+* TARGET (positional) —
+{jjdt_firemark}
+(heat view) or
 {jjdt_coronet}
-(accepts with or without `₢` prefix; falls back to
-{jjdts_silks}
-match if coronet parse fails or pace not found by coronet).
-Required with `--format detail`
+(pace view).
+Target type detected by length: 2 base64 chars = heat, 5 base64 chars = pace.
 
 // ⟦axd_optional⟧
-* `--remaining` — show only remaining paces (exclude
+* `--full` — Show paddock and full pace specs (heat mode only)
+
+// ⟦axd_optional⟧
+* `--remaining` — Show only remaining paces (exclude
 {jjdpe_complete}
 and
 {jjdpe_abandoned})
 
-*Format Modes*
-
-[cols="1,2,3"]
-|===
-| Mode | Purpose | Output
-
-| `overview`
-| Quick status
-| One line per pace: `[state] silks (₢coronet)`
-
-| `order`
-| Dependency check
-| Numbered: `N. [state] silks (₢coronet)`
-
-| `detail`
-| Inspect one pace
-| Full tack text for specified pace (requires `--pace`)
-
-| `full`
-| Planning context
-| Paddock content + all paces with tack text
-|===
-
 {jjds_stdout} Human-readable text (not JSON).
 
-*Example output — overview:*
-----
-[abandoned] vvw-workbench-tabtarget (₢AAAAC)
-[complete] install-arch-decision (₢AAAAI)
-[rough] vvx-push-rename (₢AAAAJ)
-----
-
-*Example output — order:*
+*Example output — heat list (default):*
 ----
 1. [abandoned] vvw-workbench-tabtarget (₢AAAAC)
 2. [complete] install-arch-decision (₢AAAAI)
 3. [rough] vvx-push-rename (₢AAAAJ)
 ----
 
-*Example output — detail:*
+*Example output — heat full:*
+----
+Heat: my-heat (₣AA)
+Status: racing
+Created: 260119
+
+## Paddock
+
+[paddock content...]
+
+## Paces
+
+### pace-silks (₢AAAAJ) [rough]
+
+[full tack text...]
+
+Direction: [if bridled]
+----
+
+*Example output — pace detail:*
 ----
 Pace: vvx-push-rename (₢AAAAJ)
 State: rough
 Heat: ₣AA
 
 [full tack text...]
+
+Direction: [if bridled]
 ----
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
 
-. Validate arguments (if `--format detail`, require `--pace`)
 . Read
 {jjdgr_gallops}
 from file
-. Verify
-{jjdhr_heat}
-exists with given
+. Detect target type by length (strip prefix if present):
+.. 2 chars → heat view
+.. 5 chars → pace view
+.. Otherwise: error "target must be Firemark (2 chars) or Coronet (5 chars)"
+. For heat view:
+.. Parse as
+{jjdt_firemark},
+verify heat exists
+.. If `--full` flag:
+... Read paddock file content
+... Print heat header (silks, firemark, status, created)
+... Print paddock section
+... For each pace in
+{jjdhm_order}
+(respecting `--remaining`): print pace header and full tack text
+.. Otherwise (default list):
+... For each pace in
+{jjdhm_order}
+(respecting `--remaining`): print numbered line with state, silks, coronet
+. For pace view:
+.. Parse as
+{jjdt_coronet},
+extract parent
 {jjdt_firemark}
-. Match on format mode:
-.. *overview*: For each pace in
-{jjdhm_order},
-print `[state] silks (coronet)` where silks is derived from `tacks[0].silks`
-.. *order*: Same as overview with line numbers
-.. *detail*: Find specified pace, print header and full tack text
-.. *full*: Print heat header, paddock content, then each pace with tack text
+.. Verify heat and pace exist
+.. Print pace header (silks, coronet, state, heat)
+.. Print full tack text from `tacks[0]`
+.. If bridled, print direction from `tacks[0]`
 
 === Steeplechase Operations
 

@@ -1,0 +1,67 @@
+---
+argument-hint: [target or full]
+description: Display heat or pace info
+---
+
+Display heat or pace information with smart defaults.
+
+Arguments: $ARGUMENTS (optional target or keyword)
+
+## Prerequisites
+
+## Step 1: Parse arguments
+
+**If $ARGUMENTS is empty:**
+- Check context for FIREMARK
+- If FIREMARK exists: use it as target (heat list mode)
+- Otherwise: Error "No heat context. Use `/jjc-heat-mount` first or provide a target."
+
+**If $ARGUMENTS is "full":**
+- Check context for FIREMARK
+- If FIREMARK exists: use it as target with --full flag (heat full mode)
+- Otherwise: Error "No heat context. Use `/jjc-heat-mount` first or provide a firemark."
+
+**If $ARGUMENTS starts with "full " (followed by identifier):**
+- Extract identifier after "full "
+- Parse as firemark (heat full mode with explicit target)
+- Use --full flag
+
+**If $ARGUMENTS is a 2-char identifier (e.g., `AB` or `₣AB`):**
+- Parse as firemark (heat list mode)
+
+**If $ARGUMENTS is a 5-char identifier (e.g., `ABCDE` or `₢ABCDE`):**
+- Parse as coronet (pace detail mode)
+
+**Otherwise:**
+- Error "Invalid argument. Use: empty (context), 'full', 'full <firemark>', <firemark>, or <coronet>"
+
+## Step 2: Run parade
+
+Based on determined mode:
+
+**Heat list (firemark, no --full):**
+```bash
+./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK>
+```
+
+**Heat full (firemark with --full):**
+```bash
+./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --full
+```
+
+**Pace detail (coronet):**
+```bash
+./tt/vvw-r.RunVVX.sh jjx_parade <CORONET>
+```
+
+## Step 3: Display output
+
+Display the formatted output from vvx.
+
+## Examples
+
+- `/jjc-parade` — List paces in current heat (requires context)
+- `/jjc-parade full` — Show full current heat with paddock (requires context)
+- `/jjc-parade AB` — List paces in heat ₣AB
+- `/jjc-parade full AB` — Show full heat ₣AB with paddock
+- `/jjc-parade ABCDE` — Show detail for pace ₢ABCDE

@@ -9,7 +9,7 @@
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, jjrg_Pace as Pace};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use crate::jjrs_steeplechase::{jjrs_SteeplechaseEntry, jjrs_get_entries, jjrs_ReinArgs};
 use serde::Serialize;
 use std::fs;
@@ -221,38 +221,17 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
 // Parade - Display comprehensive Heat status for project review
 // ============================================================================
 
-/// Output format modes for parade command
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub enum jjrq_ParadeFormat {
-    /// One line per pace: [state] silks (₢coronet)
-    Overview,
-    /// Numbered list: N. [state] silks (₢coronet)
-    Order,
-    /// Full tack text for one pace (requires --pace)
-    Detail,
-    /// Paddock + all paces with tack text (default)
-    #[default]
-    Full,
-}
-
 /// Arguments for parade command
 #[derive(Debug)]
 pub struct jjrq_ParadeArgs {
     pub file: std::path::PathBuf,
-    pub firemark: Firemark,
-    pub format: jjrq_ParadeFormat,
-    pub pace: Option<String>,
+    pub target: String,
+    pub full: bool,
     pub remaining: bool,
 }
 
 /// Run the parade command - display comprehensive Heat status
 pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
-    // Validate: detail format requires --pace
-    if args.format == jjrq_ParadeFormat::Detail && args.pace.is_none() {
-        eprintln!("jjx_parade: error: --format detail requires --pace <coronet>");
-        return 1;
-    }
-
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
@@ -261,70 +240,74 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
         }
     };
 
-    let heat_key = args.firemark.jjrf_display();
-    let heat = match gallops.heats.get(&heat_key) {
-        Some(h) => h,
-        None => {
-            eprintln!("jjx_parade: error: Heat '{}' not found", heat_key);
-            return 1;
-        }
-    };
+    // Determine target type by length
+    let target_str = args.target.strip_prefix('₢').or_else(|| args.target.strip_prefix('₣')).unwrap_or(&args.target);
 
-    match args.format {
-        jjrq_ParadeFormat::Overview => {
-            for coronet_key in &heat.order {
-                if let Some(pace) = heat.paces.get(coronet_key) {
-                    if let Some(tack) = pace.tacks.first() {
-                        // Skip complete/abandoned if --remaining
-                        if args.remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
-                            continue;
-                        }
-                        let state_str = zjjrq_pace_state_str(&tack.state);
-                        println!("[{}] {} ({})", state_str, tack.silks, coronet_key);
-                    }
-                }
+    if target_str.len() == 5 {
+        // Coronet - pace view
+        let coronet = match Coronet::jjrf_parse(&args.target) {
+            Ok(c) => c,
+            Err(e) => {
+                eprintln!("jjx_parade: error: {}", e);
+                return 1;
             }
-        }
-        jjrq_ParadeFormat::Order => {
-            let mut num = 0;
-            for coronet_key in &heat.order {
-                if let Some(pace) = heat.paces.get(coronet_key) {
-                    if let Some(tack) = pace.tacks.first() {
-                        // Skip complete/abandoned if --remaining
-                        if args.remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
-                            continue;
-                        }
-                        num += 1;
-                        let state_str = zjjrq_pace_state_str(&tack.state);
-                        println!("{}. [{}] {} ({})", num, state_str, tack.silks, coronet_key);
-                    }
-                }
+        };
+
+        // Extract parent firemark
+        let firemark = coronet.jjrf_parent_firemark();
+        let heat_key = firemark.jjrf_display();
+        let heat = match gallops.heats.get(&heat_key) {
+            Some(h) => h,
+            None => {
+                eprintln!("jjx_parade: error: Heat '{}' not found", heat_key);
+                return 1;
             }
-        }
-        jjrq_ParadeFormat::Detail => {
-            let pace_arg = args.pace.as_ref().unwrap();
-            let (coronet_key, pace) = match zjjrq_resolve_pace(heat, pace_arg) {
-                Some(result) => result,
-                None => {
-                    eprintln!("jjx_parade: error: Pace '{}' not found in Heat '{}' (tried coronet and silks)", pace_arg, heat_key);
-                    return 1;
-                }
-            };
-            if let Some(tack) = pace.tacks.first() {
-                let state_str = zjjrq_pace_state_str(&tack.state);
-                println!("Pace: {} ({})", tack.silks, coronet_key);
-                println!("State: {}", state_str);
-                println!("Heat: {}", heat_key);
+        };
+
+        // Find pace
+        let coronet_key = coronet.jjrf_display();
+        let pace = match heat.paces.get(&coronet_key) {
+            Some(p) => p,
+            None => {
+                eprintln!("jjx_parade: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
+                return 1;
+            }
+        };
+
+        // Display full tack detail
+        if let Some(tack) = pace.tacks.first() {
+            let state_str = zjjrq_pace_state_str(&tack.state);
+            println!("Pace: {} ({})", tack.silks, coronet_key);
+            println!("State: {}", state_str);
+            println!("Heat: {}", heat_key);
+            println!();
+            println!("{}", tack.text);
+            if let Some(ref direction) = tack.direction {
                 println!();
-                println!("{}", tack.text);
-                if let Some(ref direction) = tack.direction {
-                    println!();
-                    println!("Direction: {}", direction);
-                }
+                println!("Direction: {}", direction);
             }
         }
-        jjrq_ParadeFormat::Full => {
-            // Read paddock file content
+    } else if target_str.len() == 2 {
+        // Firemark - heat view
+        let firemark = match Firemark::jjrf_parse(&args.target) {
+            Ok(fm) => fm,
+            Err(e) => {
+                eprintln!("jjx_parade: error: {}", e);
+                return 1;
+            }
+        };
+
+        let heat_key = firemark.jjrf_display();
+        let heat = match gallops.heats.get(&heat_key) {
+            Some(h) => h,
+            None => {
+                eprintln!("jjx_parade: error: Heat '{}' not found", heat_key);
+                return 1;
+            }
+        };
+
+        if args.full {
+            // Full view: paddock + all specs
             let paddock_content = match fs::read_to_string(&heat.paddock_file) {
                 Ok(content) => content,
                 Err(e) => {
@@ -369,39 +352,29 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
                     }
                 }
             }
+        } else {
+            // List view: numbered paces
+            let mut num = 0;
+            for coronet_key in &heat.order {
+                if let Some(pace) = heat.paces.get(coronet_key) {
+                    if let Some(tack) = pace.tacks.first() {
+                        // Skip complete/abandoned if --remaining
+                        if args.remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
+                            continue;
+                        }
+                        num += 1;
+                        let state_str = zjjrq_pace_state_str(&tack.state);
+                        println!("{}. [{}] {} ({})", num, state_str, tack.silks, coronet_key);
+                    }
+                }
+            }
         }
+    } else {
+        eprintln!("jjx_parade: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
+        return 1;
     }
 
     0
-}
-
-/// Helper to resolve pace by coronet or silks
-///
-/// First tries to parse pace_arg as a Coronet and lookup by coronet key.
-/// If that fails, iterates heat.paces to find a pace where tacks[0].silks matches pace_arg.
-/// Returns tuple of (coronet_key, pace_ref) if found.
-fn zjjrq_resolve_pace<'a>(
-    heat: &'a crate::jjrg_gallops::jjrg_Heat,
-    pace_arg: &str,
-) -> Option<(&'a String, &'a Pace)> {
-    // Try parsing as Coronet first
-    if let Ok(coronet) = Coronet::jjrf_parse(pace_arg) {
-        let coronet_key = coronet.jjrf_display();
-        if let Some((key, pace)) = heat.paces.get_key_value(&coronet_key) {
-            return Some((key, pace));
-        }
-    }
-
-    // Fallback: search by silks
-    for (coronet_key, pace) in &heat.paces {
-        if let Some(tack) = pace.tacks.first() {
-            if tack.silks == pace_arg {
-                return Some((coronet_key, pace));
-            }
-        }
-    }
-
-    None
 }
 
 /// Helper to convert PaceState to display string

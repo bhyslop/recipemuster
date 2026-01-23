@@ -171,20 +171,6 @@ struct zjjrx_SaddleArgs {
     firemark: String,
 }
 
-/// Output format modes for jjx_parade
-#[derive(clap::ValueEnum, Clone, Copy, Debug, Default)]
-enum zjjrx_ParadeFormatArg {
-    /// One line per pace: [state] silks (coronet)
-    Overview,
-    /// Numbered list: N. [state] silks (coronet)
-    Order,
-    /// Full tack text for one pace (requires --pace)
-    Detail,
-    /// Paddock + all paces with tack text
-    #[default]
-    Full,
-}
-
 /// Arguments for jjx_parade command
 #[derive(clap::Args, Debug)]
 struct zjjrx_ParadeArgs {
@@ -192,16 +178,12 @@ struct zjjrx_ParadeArgs {
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
 
-    /// Target Heat identity (Firemark)
-    firemark: String,
+    /// Target: Firemark (heat view) or Coronet (pace view)
+    target: String,
 
-    /// Output format mode
-    #[arg(long, value_enum, default_value = "full")]
-    format: zjjrx_ParadeFormatArg,
-
-    /// Target Pace coronet (required for --format detail)
+    /// Show paddock and full specs (heat mode only)
     #[arg(long)]
-    pace: Option<String>,
+    full: bool,
 
     /// Show only remaining paces (exclude complete/abandoned)
     #[arg(long)]
@@ -716,28 +698,12 @@ fn zjjrx_run_saddle(args: zjjrx_SaddleArgs) -> i32 {
 }
 
 fn zjjrx_run_parade(args: zjjrx_ParadeArgs) -> i32 {
-    use crate::jjrq_query::{jjrq_ParadeArgs as LibParadeArgs, jjrq_ParadeFormat as ParadeFormat, jjrq_run_parade as lib_run_parade};
-
-    let firemark = match Firemark::jjrf_parse(&args.firemark) {
-        Ok(fm) => fm,
-        Err(e) => {
-            eprintln!("jjx_parade: error: {}", e);
-            return 1;
-        }
-    };
-
-    let format = match args.format {
-        zjjrx_ParadeFormatArg::Overview => ParadeFormat::Overview,
-        zjjrx_ParadeFormatArg::Order => ParadeFormat::Order,
-        zjjrx_ParadeFormatArg::Detail => ParadeFormat::Detail,
-        zjjrx_ParadeFormatArg::Full => ParadeFormat::Full,
-    };
+    use crate::jjrq_query::{jjrq_ParadeArgs as LibParadeArgs, jjrq_run_parade as lib_run_parade};
 
     let parade_args = LibParadeArgs {
         file: args.file,
-        firemark,
-        format,
-        pace: args.pace,
+        target: args.target,
+        full: args.full,
         remaining: args.remaining,
     };
 
