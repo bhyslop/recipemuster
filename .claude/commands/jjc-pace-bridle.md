@@ -62,14 +62,14 @@ Present recommendation to user and ask for approval or adjustments.
 Once user approves the strategy, construct direction text using this structured format:
 
 ```
-Agent: <haiku|sonnet|opus>
-Cardinality: <1 sequential | N parallel>
-Files: <file1.rs, file2.rs, ...> (N files)
+Agent: haiku|sonnet|opus
+Cardinality: 1 sequential | N parallel
+Files: file1.rs, file2.rs, ... (N files)
 Steps:
-1. <first action>
-2. <second action>
+1. First action
+2. Second action
 ...
-Verify: <build/test command>
+Verify: build/test command
 ```
 
 **Format rules:**
@@ -81,6 +81,7 @@ Verify: <build/test command>
 - **Steps**: Numbered, scannable actions
 - **Verify**: Build or test command to confirm success
 - **No line numbers**: Never reference line numbers — they change. Use pattern references instead (function names, string literals, structural markers like "after the ## Prerequisites section")
+- **Shell-safe text**: Direction is passed as a shell argument. Avoid characters that shells interpret: `<` `>` `|` `&` `$` `` ` `` `(` `)`. Write prose instead of angle-bracket placeholders (e.g., "change remaining to completed" not "change <remaining> to <completed>")
 
 **Example (sequential):**
 ```
