@@ -3364,6 +3364,14 @@
         "₢AFAAQ": {
           "tacks": [
             {
+              "ts": "260123-1159",
+              "state": "bridled",
+              "text": "Modify the /jjc-heat-mount slash command to NOT automatically begin work on a bridled pace. Instead, when mount detects the next pace is bridled, it should display the pace details and ask for explicit user approval before spawning the agent. This ensures human oversight of every autonomous execution commitment.",
+              "silks": "mount-requires-approval",
+              "commit": "ed5bf7d",
+              "direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: .claude/commands/jjc-heat-mount.md (1 file)\nSteps:\n1. Read .claude/commands/jjc-heat-mount.md\n2. Find Step 4 bridled branch (the section starting with: If pace_state is bridled)\n3. Before the line that spawns a Task agent, add a confirmation prompt\n4. The prompt should show: pace silks, coronet, spec summary, and direction summary\n5. Ask user to confirm with options like: Proceed with autonomous execution / Stop and work interactively / Abort\n6. Only spawn the Task agent if user confirms proceed\n7. If user chooses interactive, suggest running mount again after unbridling\nVerify: Read the file and confirm the approval gate is in place before agent spawn"
+            },
+            {
               "ts": "260123-1140",
               "state": "rough",
               "text": "Modify the /jjc-heat-mount slash command to NOT automatically begin work on a bridled pace. Instead, when mount detects the next pace is bridled, it should display the pace details and ask for explicit user approval before spawning the agent. This ensures human oversight of every autonomous execution commitment.",
