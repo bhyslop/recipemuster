@@ -1800,6 +1800,11 @@ from `tacks[0]`
 .. If
 {jjda_state}
 provided: use that value
+.. Otherwise, if previous state is
+{jjdpe_bridled}
+AND stdin provided new text: force state to
+{jjdpe_rough}
+(new spec invalidates old direction)
 .. Otherwise: inherit from previous
 {jjdkr_tack}
 . Determine new direction:
@@ -1810,6 +1815,13 @@ is
 use
 {jjda_direction}
 argument (required)
+.. If previous state was
+{jjdpe_bridled}
+AND state was auto-reset to
+{jjdpe_rough}
+(new spec provided without explicit state): omit
+{jjdkm_direction}
+(spec change invalidates direction)
 .. If
 {jjda_state}
 is absent and previous state is

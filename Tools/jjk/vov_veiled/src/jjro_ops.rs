@@ -355,8 +355,19 @@ pub fn jjrg_tally(gallops: &mut jjrg_Gallops, args: jjrg_TallyArgs) -> Result<()
     let current_tack = pace.tacks.first()
         .ok_or_else(|| "Pace has no tacks (should never happen)".to_string())?;
 
+    // Check for the new-spec-invalidates-bridled condition:
+    // If pace is currently bridled AND new spec text is provided AND no explicit --state,
+    // then auto-reset to rough (new spec invalidates old direction)
+    let auto_reset_to_rough = args.state.is_none()
+        && matches!(current_tack.state, jjrg_PaceState::Bridled)
+        && args.text.is_some();
+
     // Determine new state
-    let new_state = args.state.clone().unwrap_or_else(|| current_tack.state.clone());
+    let new_state = if auto_reset_to_rough {
+        jjrg_PaceState::Rough
+    } else {
+        args.state.clone().unwrap_or_else(|| current_tack.state.clone())
+    };
 
     // Determine new direction
     let new_direction = match (&args.state, &new_state) {
@@ -375,6 +386,8 @@ pub fn jjrg_tally(gallops: &mut jjrg_Gallops, args: jjrg_TallyArgs) -> Result<()
             }
             None
         }
+        // Auto-reset to rough: no direction
+        _ if auto_reset_to_rough => None,
         // State inherited and was bridled: inherit direction
         (None, jjrg_PaceState::Bridled) => {
             args.direction.or_else(|| current_tack.direction.clone())
