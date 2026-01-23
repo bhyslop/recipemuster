@@ -21,21 +21,12 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 - Use that Coronet directly
 
 **If $ARGUMENTS is empty:**
-- Use PACE_CORONET from current context
-- If no context, error: "No pace context. Run /jjc-heat-mount first."
+- Use PACE_CORONET and FIREMARK from current session context (set by `/jjc-heat-mount`)
+- If no context or ambiguous: Stop with "No pace context. Run /jjc-heat-mount first."
 
-## Step 2: Get current state
+**Do NOT call saddle to recover context** — wrap requires prior mount context or explicit coronet argument.
 
-Run:
-```bash
-./tt/vvw-r.RunVVX.sh jjx_saddle <FIREMARK>
-```
-
-Verify pace state:
-- If "complete": "Pace already complete."
-- If "abandoned": "Pace was abandoned, cannot wrap."
-
-## Step 3: Summarize outcome
+## Step 2: Summarize outcome
 
 Review the work completed:
 - What was accomplished
@@ -44,7 +35,7 @@ Review the work completed:
 
 Construct a brief outcome summary (1-3 sentences).
 
-## Step 3.5: Commit implementation changes
+## Step 3: Commit implementation changes
 
 Run notch to commit any pending work with proper JJ context:
 
