@@ -78,12 +78,31 @@ pub enum jjrx_JjxCommands {
     /// Change Heat status (racing/stabled) or rename
     #[command(name = "jjx_furlough")]
     Furlough(zjjrx_FurloughArgs),
+
+    /// Mark a pace complete and commit in one operation
+    #[command(name = "jjx_wrap")]
+    Wrap(jjrx_WrapArgs),
 }
 
 /// Arguments for jjx_notch command
 #[derive(clap::Args, Debug)]
 pub struct jjrx_NotchArgs {
-    /// Pace identity (Coronet) - embeds parent Heat
+    /// Identity: Coronet (5-char, pace-affiliated) or Firemark (2-char, heat-only)
+    pub identity: String,
+
+    /// Files to commit (required, at least one)
+    #[arg(required = true)]
+    pub files: Vec<String>,
+
+    /// Size limit in bytes (overrides default 50KB guard)
+    #[arg(long)]
+    pub size_limit: Option<u64>,
+}
+
+/// Arguments for jjx_wrap command
+#[derive(clap::Args, Debug)]
+pub struct jjrx_WrapArgs {
+    /// Pace identity (Coronet)
     pub coronet: String,
 
     /// Size limit in bytes (overrides default 50KB guard)
@@ -396,6 +415,7 @@ pub fn jjrx_dispatch(args: &[OsString]) -> i32 {
         jjrx_JjxCommands::Tally(args) => zjjrx_run_tally(args),
         jjrx_JjxCommands::Draft(args) => zjjrx_run_draft(args),
         jjrx_JjxCommands::Furlough(args) => zjjrx_run_furlough(args),
+        jjrx_JjxCommands::Wrap(args) => zjjrx_run_wrap(args),
     }
 }
 
@@ -409,21 +429,139 @@ pub fn jjrx_is_jjk_command(name: &str) -> bool {
 // ============================================================================
 
 fn zjjrx_run_notch(args: jjrx_NotchArgs) -> i32 {
-    let coronet = match Coronet::jjrf_parse(&args.coronet) {
-        Ok(c) => c,
+    use std::process::Command;
+    use std::collections::HashSet;
+    use crate::jjrf_favor::{JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX};
+
+    // Require non-empty files list
+    if args.files.is_empty() {
+        eprintln!("jjx_notch: error: at least one file required");
+        return 1;
+    }
+
+    // Check each file exists
+    for file in &args.files {
+        if !std::path::Path::new(file).exists() {
+            eprintln!("jjx_notch: error: file does not exist: {}", file);
+            return 1;
+        }
+    }
+
+    // Parse identity - support both Coronet (5 chars) and Firemark (2 chars)
+    let identity = args.identity.strip_prefix(JJRF_CORONET_PREFIX).or_else(|| args.identity.strip_prefix(JJRF_FIREMARK_PREFIX)).unwrap_or(&args.identity);
+
+    let message = if identity.len() == 5 {
+        // Coronet - pace-affiliated commit
+        let coronet = match Coronet::jjrf_parse(&args.identity) {
+            Ok(c) => c,
+            Err(e) => {
+                eprintln!("jjx_notch: error: {}", e);
+                return 1;
+            }
+        };
+        format_notch_prefix(&coronet)
+    } else if identity.len() == 2 {
+        // Firemark - heat-only commit (build format manually to avoid calling private function)
+        let firemark = match Firemark::jjrf_parse(&args.identity) {
+            Ok(fm) => fm,
+            Err(e) => {
+                eprintln!("jjx_notch: error: {}", e);
+                return 1;
+            }
+        };
+        // Read hallmark from git config jj.hallmark (same as zjjrn_get_hallmark)
+        let hallmark_output = match Command::new("git")
+            .args(["config", "jj.hallmark"])
+            .output()
+        {
+            Ok(o) => o,
+            Err(e) => {
+                eprintln!("jjx_notch: error: failed to read jj.hallmark: {}", e);
+                return 1;
+            }
+        };
+        let hallmark = if hallmark_output.status.success() {
+            String::from_utf8_lossy(&hallmark_output.stdout).trim().to_string()
+        } else {
+            "1010".to_string()
+        };
+        // Format: jjb:HALLMARK:₣FIREMARK:n:
+        format!(
+            "jjb:{}:{}{}:n: ",
+            hallmark,
+            JJRF_FIREMARK_PREFIX,
+            firemark.jjrf_as_str(),
+        )
+    } else {
+        eprintln!("jjx_notch: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
+        return 1;
+    };
+
+    // Warn about uncommitted changes outside the file list
+    let output = match Command::new("git")
+        .args(["status", "--porcelain"])
+        .output()
+    {
+        Ok(o) => o,
         Err(e) => {
-            eprintln!("jjx_notch: error: {}", e);
+            eprintln!("jjx_notch: error: failed to run git status: {}", e);
             return 1;
         }
     };
 
-    let prefix = format_notch_prefix(&coronet);
+    if !output.status.success() {
+        eprintln!("jjx_notch: error: git status failed");
+        return 1;
+    }
 
+    let status_output = String::from_utf8_lossy(&output.stdout);
+    let files_set: HashSet<_> = args.files.iter().map(|s| s.as_str()).collect();
+    let mut warnings = Vec::new();
+
+    for line in status_output.lines() {
+        if line.len() < 4 {
+            continue;
+        }
+        // Parse git status --porcelain format: "XY filename"
+        let filepath = &line[3..];
+        if !files_set.contains(filepath) {
+            warnings.push(format!("  {}", line));
+        }
+    }
+
+    if !warnings.is_empty() {
+        eprintln!("warning: uncommitted changes outside file list:");
+        for warning in warnings {
+            eprintln!("{}", warning);
+        }
+    }
+
+    // Stage only the specified files
+    let mut git_add = Command::new("git");
+    git_add.arg("add");
+    for file in &args.files {
+        git_add.arg(file);
+    }
+
+    let add_output = match git_add.output() {
+        Ok(o) => o,
+        Err(e) => {
+            eprintln!("jjx_notch: error: failed to run git add: {}", e);
+            return 1;
+        }
+    };
+
+    if !add_output.status.success() {
+        eprintln!("jjx_notch: error: git add failed");
+        return 1;
+    }
+
+    // Commit using vvc with the generated message prefix
     let commit_args = vvc::vvcc_CommitArgs {
-        prefix: Some(prefix),
+        prefix: Some(message),
         message: None,
         allow_empty: false,
-        no_stage: false,
+        no_stage: true,  // We already staged above
         size_limit: args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
         warn_limit: vvc::VVCG_WARN_LIMIT,
     };
@@ -1183,6 +1321,249 @@ fn zjjrx_run_furlough(args: zjjrx_FurloughArgs) -> i32 {
         }
         Err(e) => {
             eprintln!("jjx_furlough: error: {}", e);
+            1
+        }
+    }
+    // lock released here
+}
+
+fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
+    use std::process::Command;
+    use std::io::Write;
+    use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
+
+    // Parse coronet
+    let coronet = match Coronet::jjrf_parse(&args.coronet) {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: {}", e);
+            return 1;
+        }
+    };
+
+    // Acquire commit lock
+    let _lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: {}", e);
+            return 1;
+        }
+    };
+
+    // Stage all changes
+    let add_output = match Command::new("git")
+        .args(["add", "-A"])
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: failed to run git add: {}", e);
+            return 1;
+        }
+    };
+
+    if !add_output.status.success() {
+        eprintln!("jjx_wrap: error: git add failed");
+        return 1;
+    }
+
+    // Size guard check
+    let size_limit = args.size_limit.unwrap_or(50000); // 50KB default
+    let diff_output = match Command::new("git")
+        .args(["diff", "--cached", "--stat"])
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: failed to run git diff: {}", e);
+            return 1;
+        }
+    };
+
+    if !diff_output.status.success() {
+        eprintln!("jjx_wrap: error: git diff failed");
+        return 1;
+    }
+
+    // Parse size from last line of --stat output (format: "N files changed, M insertions(+), K deletions(-)")
+    // Better size check: get actual staged content size
+    let numstat_output = match Command::new("git")
+        .args(["diff", "--cached", "--numstat"])
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: failed to run git diff --numstat: {}", e);
+            return 1;
+        }
+    };
+
+    if !numstat_output.status.success() {
+        eprintln!("jjx_wrap: error: git diff --numstat failed");
+        return 1;
+    }
+
+    let numstat_str = String::from_utf8_lossy(&numstat_output.stdout);
+    let mut total_size: u64 = 0;
+    for line in numstat_str.lines() {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() >= 2 {
+            // Format: added\tdeleted\tfilename
+            if let Ok(added) = parts[0].parse::<u64>() {
+                total_size += added;
+            }
+            if let Ok(deleted) = parts[1].parse::<u64>() {
+                total_size += deleted;
+            }
+        }
+    }
+
+    if total_size > size_limit {
+        eprintln!("jjx_wrap: error: staged changes exceed size limit ({} > {} bytes)", total_size, size_limit);
+        // Lock released automatically by Drop
+        return 2;
+    }
+
+    // Generate commit message using Claude CLI
+    let diff_content = match Command::new("git")
+        .args(["diff", "--cached"])
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: failed to run git diff --cached: {}", e);
+            return 1;
+        }
+    };
+
+    if !diff_content.status.success() {
+        eprintln!("jjx_wrap: error: git diff --cached failed");
+        return 1;
+    }
+
+    let mut claude_cmd = match Command::new("claude")
+        .args([
+            "--print",
+            &format!("Generate a concise commit message for this diff. The commit wraps pace {}. Output only the message, no quotes.", args.coronet)
+        ])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+    {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: failed to spawn claude command: {}", e);
+            return 1;
+        }
+    };
+
+    // Write diff to stdin
+    if let Some(mut stdin) = claude_cmd.stdin.take() {
+        if let Err(e) = stdin.write_all(&diff_content.stdout) {
+            eprintln!("jjx_wrap: error: failed to write to claude stdin: {}", e);
+            return 1;
+        }
+    }
+
+    let claude_output = match claude_cmd.wait_with_output() {
+        Ok(o) => o,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: failed to wait for claude: {}", e);
+            return 1;
+        }
+    };
+
+    if !claude_output.status.success() {
+        eprintln!("jjx_wrap: error: claude command failed");
+        eprintln!("{}", String::from_utf8_lossy(&claude_output.stderr));
+        return 1;
+    }
+
+    let generated_message = String::from_utf8_lossy(&claude_output.stdout).trim().to_string();
+
+    // Commit with git directly (already staged via git add -A)
+    let prefix = format_notch_prefix(&coronet);
+    let full_message = format!("{}{}\n\nCo-Authored-By: Claude <noreply@anthropic.com>", prefix, generated_message);
+
+    let commit_output = match Command::new("git")
+        .args(["commit", "-m", &full_message])
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: failed to run git commit: {}", e);
+            return 1;
+        }
+    };
+
+    if !commit_output.status.success() {
+        eprintln!("jjx_wrap: error: git commit failed");
+        eprintln!("{}", String::from_utf8_lossy(&commit_output.stderr));
+        return 1;
+    }
+
+    // Get commit hash
+    let hash_output = match Command::new("git")
+        .args(["rev-parse", "HEAD"])
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: failed to get commit hash: {}", e);
+            return 1;
+        }
+    };
+
+    let commit_hash = String::from_utf8_lossy(&hash_output.stdout).trim().to_string();
+
+    // Transition pace state to complete
+    let gallops_path = PathBuf::from(".claude/jjm/jjg_gallops.json");
+    let mut gallops = match Gallops::jjrg_load(&gallops_path) {
+        Ok(g) => g,
+        Err(e) => {
+            eprintln!("jjx_wrap: error loading Gallops: {}", e);
+            return 1;
+        }
+    };
+
+    let tally_args = LibTallyArgs {
+        coronet: args.coronet.clone(),
+        state: Some(PaceState::Complete),
+        direction: None,
+        text: None,
+        silks: None,
+    };
+
+    if let Err(e) = gallops.jjrg_tally(tally_args) {
+        eprintln!("jjx_wrap: error: {}", e);
+        return 1;
+    }
+
+    // Save gallops
+    if let Err(e) = gallops.jjrg_save(&gallops_path) {
+        eprintln!("jjx_wrap: error saving Gallops: {}", e);
+        return 1;
+    }
+
+    // Create W chalk marker commit with gallops state change
+    let chalk_message = format_chalk_message(&coronet, ChalkMarker::Wrap, "pace complete");
+
+    let chalk_commit_args = vvc::vvcm_CommitArgs {
+        files: vec![".claude/jjm/jjg_gallops.json".to_string()],
+        message: chalk_message,
+        size_limit: vvc::VVCG_SIZE_LIMIT,
+        warn_limit: vvc::VVCG_WARN_LIMIT,
+    };
+
+    match vvc::machine_commit(&_lock, &chalk_commit_args) {
+        Ok(_) => {
+            println!("{}", commit_hash);
+            0
+        }
+        Err(e) => {
+            eprintln!("jjx_wrap: error: chalk commit failed: {}", e);
+            eprintln!("jjx_wrap: warning: gallops state updated but not committed");
             1
         }
     }
