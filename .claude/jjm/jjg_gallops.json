@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AJ",
+  "next_heat_seed": "AK",
   "heats": {
     "₣AA": {
       "silks": "garlanded-vok-fresh-install-release",
@@ -3283,6 +3283,15 @@
           ]
         }
       }
+    },
+    "₣AJ": {
+      "silks": "vok-liturgical-linter",
+      "creation_time": "260122",
+      "status": "racing",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AJ.md",
+      "paces": {}
     }
   }
 }
