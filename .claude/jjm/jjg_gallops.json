@@ -3397,6 +3397,13 @@
         "₢AFAAT": {
           "tacks": [
             {
+              "ts": "260123-1156",
+              "state": "rough",
+              "text": "Bug: Reslating a bridled pace inherits stale direction.\n\n**Problem:**\nWhen jjx_tally receives new spec text for a bridled pace without explicit --state, it inherits the bridled state with the old direction. The new spec and old direction are now mismatched.\n\n**Solution:**\nIn jjx_tally, detect when:\n1. Pace is currently bridled\n2. New spec text is provided (stdin not empty)\n3. No explicit --state argument passed\n\nIn this case, auto-reset to rough state (clear direction). This enforces the invariant: \"new spec invalidates old direction.\"\n\n**Files:**\n- Tools/jjk/vov_veiled/src/jjrg_tally.rs (behavior change)\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc (document the invariant)\n\n**Acceptance:**\n- Reslating a bridled pace without --state resets to rough\n- Reslating a bridled pace with explicit --state bridled --direction keeps it bridled (intentional re-bridle)\n- Reslating a rough pace still inherits rough (no change to current behavior)",
+              "silks": "reslate-resets-bridled-to-rough",
+              "commit": "d87a79c"
+            },
+            {
               "ts": "260123-1153",
               "state": "bridled",
               "text": "Bug: /jjc-pace-reslate inherits stale direction when reslating a bridled pace.\n\n**Problem:**\nWhen reslating a bridled pace, jjx_tally inherits the old direction even though the spec text changed. This causes the pace to have mismatched spec (new) and direction (old/stale).\n\n**Solution:**\nIn /jjc-pace-reslate (Step 4), detect if the pace is currently bridled. If so, explicitly pass `--state rough` to reset to rough state, forcing re-evaluation via /jjc-pace-bridle.\n\n**Change:**\nIn `.claude/commands/jjc-pace-reslate.md`, Step 4 should:\n1. Check current pace state before calling jjx_tally\n2. If state is \"bridled\", add `--state rough` to the jjx_tally call\n3. Report: \"Note: Pace was bridled; reset to rough. Re-run /jjc-pace-bridle to set new direction.\"\n\n**Files:**\n- .claude/commands/jjc-pace-reslate.md",
