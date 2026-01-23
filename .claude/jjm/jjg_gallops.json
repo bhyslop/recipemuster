@@ -3021,7 +3021,6 @@
         "₢AFAAG",
         "₢AFAAB",
         "₢AFAAA",
-        "₢AFAAC",
         "₢AFAAD",
         "₢AFAAE",
         "₢AFAAF",
@@ -3031,7 +3030,8 @@
         "₢AFAAK",
         "₢AFAAL",
         "₢AFAAM",
-        "₢AFAAN"
+        "₢AFAAN",
+        "₢AFAAC"
       ],
       "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_AF.md",
