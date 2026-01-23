@@ -3050,6 +3050,13 @@
         "₢AFAAB": {
           "tacks": [
             {
+              "ts": "260123-1047",
+              "state": "complete",
+              "text": "Implemented jjri_persist routine centralizing gallops+paddock commit logic; refactored 5 commands to use it; documented in JJD spec.",
+              "silks": "gallops-commit-routine",
+              "commit": "2427881"
+            },
+            {
               "ts": "260123-1040",
               "state": "bridled",
               "text": "Formalize a JJD routine for committing gallops+paddock. Audit all jjx commands for consistent use.\n\n**Goal:** Single pattern for 'commit gallops+paddock' — no ad-hoc implementations scattered across commands.\n\n**Tasks:**\n1. Define routine in JJD spec (name TBD: jjdr_commit_state? jjdr_persist?)\n2. Audit each jjx command:\n   - slate — currently commits both\n   - tally — currently commits both\n   - nominate — check\n   - rail — check\n   - draft — check\n   - furlough — check\n   - wrap (via tally?) — check\n   - bridle (via tally?) — check\n3. Refactor any ad-hoc implementations to use the new routine\n4. Ensure chalk remains marker-only (no state commit)\n\n**Constraint:** Schema-stable — this is implementation refactoring, not data model change.",
