@@ -3030,9 +3030,10 @@
         "₢AFAAJ",
         "₢AFAAK",
         "₢AFAAL",
-        "₢AFAAM"
+        "₢AFAAM",
+        "₢AFAAN"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3189,6 +3190,17 @@
               "text": "Design the `jjc-heat-braid` operation for consolidating paces across heats.\n\n## Concept\n\nBraid analyzes two heats (source → destination) and recommends how to consolidate similar/overlapping paces. Key gestalt: braid must result in pace reduction, otherwise use restring.\n\n## Established Decisions\n\n- **Agent tier:** Opus (requires judgment on paddock consonance)\n- **Inputs:** Two heats — source and destination\n- **Consolidation method:** Reslate destination pace (enrich spec), abandon source pace\n- **Interactive:** Walk through recommendations, user approves each\n- **No-match handling:** Inform user of incongruity, no forced action\n- **No auto-retire:** Don't automatically retire source heat\n\n## Open Questions\n\n### 1. Single-pace vs multi-pace input\nShould braid:\n- (A) Take two heats and analyze ALL actionable paces for consolidation opportunities?\n- (B) Take a specific source pace and find its best destination match?\n\nOption B might be simpler — user identifies candidate, braid finds the match and executes.\n\n### 2. Relationship to restring\nBraid needs paddock maintenance like restring does. Options:\n- (A) Braid calls restring internally for wholesale moves\n- (B) Braid duplicates restring logic (problematic — we've found this causes drift)\n- (C) Extract shared paddock-maintenance into lower-level utility that both use\n\nNeed to audit restring's paddock handling before deciding.\n\n### 3. Workflow sketch (pending Q1 resolution)\n\nIf multi-pace (A):\n```\n1. Compare paddocks → assess consonance\n2. If low consonance → warn, offer abort\n3. For each source pace:\n   - Find destination matches (or none)\n   - Present: braid into X / move wholesale / no match\n   - User approves → execute\n4. Summary\n```\n\nIf single-pace (B):\n```\n1. User specifies source pace\n2. Opus analyzes destination heat for best match\n3. Present recommendation with rationale\n4. User approves → reslate + abandon\n```\n\n### 4. CLI signature (pending Q1)\n\nMulti-pace: `jjc-heat-braid <source-firemark> <dest-firemark>`\nSingle-pace: `jjc-heat-braid <source-coronet> <dest-firemark>`\n\n## Deliverable\n\nDesign document specifying:\n- Final answers to open questions\n- CLI signature and argument handling\n- Paddock maintenance approach (and restring relationship)\n- Interactive workflow with opus prompts\n- Error cases and edge conditions",
               "silks": "design-heat-braid",
               "commit": "e0172e4"
+            }
+          ]
+        },
+        "₢AFAAN": {
+          "tacks": [
+            {
+              "ts": "260123-1039",
+              "state": "rough",
+              "text": "The jjc-heat-mount.md slash command on line 21 uses `jjx_muster --status racing` but jjx_muster does not accept a --status argument.\n\nFix options:\n1. Add --status filtering to jjx_muster in Rust (preferred - cleaner interface)\n2. Update slash command to filter TSV output after the fact\n\nThe Rust implementation should add an optional --status flag that filters heats by status (racing/stabled).",
+              "silks": "fix-muster-status-filter",
+              "commit": "4465f41"
             }
           ]
         }
