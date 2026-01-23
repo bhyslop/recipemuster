@@ -114,6 +114,7 @@
 // Routines
 :jjdr_load:           <<jjdr_load,load routine>>
 :jjdr_save:           <<jjdr_save,save routine>>
+:jjdr_persist:        <<jjdr_persist,persist routine>>
 
 // Section headers
 :jjds_arguments:        <<jjds_arguments,Arguments:>>
@@ -929,6 +930,115 @@ reuses
 {jjdr_load}
 for validation, ensuring a single validation code path for both reading and writing.
 If an operation produces invalid output, the save fails before corrupting the file.
+
+[[jjdr_persist]]
+// ⟦axl_voices axo_routine⟧
+=== {jjdr_persist}
+
+Persist
+{jjdgr_gallops}
+state and commit changes to git with a JJ-aware commit message.
+This routine combines
+{jjdr_save}
+with git commit operations to maintain the journalling discipline.
+Used by most write operations to ensure every
+{jjdgr_gallops}
+mutation is tracked in git history.
+
+{jjds_arguments}
+
+// ⟦axd_required⟧
+* lock (lock handle) — acquired lock from `vvg_lock_acquire`
+
+// ⟦axd_required⟧
+*
+{jjdgr_gallops}
+(in-memory structure to persist)
+
+// ⟦axd_required⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* identity —
+{jjdt_firemark}
+for heat-level operations or
+{jjdt_coronet}
+for pace-level operations
+
+// ⟦axd_required⟧
+* message — commit message subject (without JJ prefix or Co-Authored-By)
+
+// ⟦axd_required⟧
+* size_limit — maximum commit size in bytes for size guard check
+
+{jjds_behavior}
+
+.
+{jjdr_save}
+{jjdgr_gallops}
+to
+{jjda_file}
+. Stage gallops file with `git add {file}`
+. If paddock file exists for this identity, stage it with `git add {paddock_file}`
+. Run size guard check with provided size_limit
+. Determine action code:
+.. If identity is
+{jjdt_firemark}:
+extract from message prefix (`N:`, `S:`, `r:`, `T:`, `D:`, `R:`)
+.. If identity is
+{jjdt_coronet}:
+extract from message prefix (`n:`, `A:`, `W:`, `F:`, `d:`)
+. Format full commit message: `jjb:HALLMARK:IDENTITY:ACTION: message\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>`
+. Run `git commit -m "..."`
+. Return commit hash
+
+{jjds_stdout} Commit hash (returned to caller)
+
+{jjds_exit_uniform} 0 success, non-zero on error.
+
+*Commands that use
+{jjdr_persist}:*
+
+*
+{jjdo_nominate}
+— creates new heat with action `N`
+*
+{jjdo_slate}
+— adds new pace with action `S`
+*
+{jjdo_rail}
+— reorders paces with action `r`
+*
+{jjdo_tally}
+— adds new tack with action `T`
+*
+{jjdo_draft}
+— moves pace between heats with action `D`
+*
+{jjdo_furlough}
+— changes heat status (action varies)
+
+*Commands that do NOT use
+{jjdr_persist}:*
+
+*
+{jjdo_retire}
+— uses custom commit logic for trophy archival (stages trophy file, gallops, and paddock deletion; uses 200KB limit)
+*
+{jjdo_chalk}
+— creates empty commits only, no gallops changes
+*
+{jjdo_notch}
+— commits work artifacts, not gallops state
+
+*Design rationale:*
+{jjdr_persist}
+ensures consistent commit message formatting and git discipline across all
+{jjdgr_gallops}
+mutations.
+By centralizing the commit logic, we guarantee that every state change is properly journalled with parseable commit messages for
+{jjdo_rein}
+to reconstruct steeplechase history.
 
 == Operations
 

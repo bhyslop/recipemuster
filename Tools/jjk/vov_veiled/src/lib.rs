@@ -51,7 +51,7 @@ pub use jjrq_query::{jjrq_MusterArgs, jjrq_SaddleArgs, jjrq_ParadeArgs};
 pub use jjrs_steeplechase::{jjrs_ReinArgs, jjrs_SteeplechaseEntry, jjrs_get_entries};
 
 // Re-export new I/O routines
-pub use jjri_io::{jjdr_load, jjdr_save, jjdr_ValidatedGallops};
+pub use jjri_io::{jjdr_load, jjdr_save, jjdr_ValidatedGallops, jjri_persist};
 
 // Re-export CLI dispatch function
 pub use jjrx_cli::{jjrx_dispatch, jjrx_is_jjk_command};

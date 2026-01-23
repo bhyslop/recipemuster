@@ -119,3 +119,39 @@ pub fn jjdr_save(gallops: &jjrg_Gallops, path: &Path) -> Result<(), String> {
         }
     }
 }
+
+/// Save Gallops and commit with paddock in a single operation
+///
+/// This is the standard routine for JJK operations that modify gallops.
+/// It saves the gallops file, then commits both the gallops and the paddock file
+/// for the given heat using machine_commit.
+///
+/// Returns the commit hash on success.
+pub fn jjri_persist(
+    lock: &vvc::vvcc_CommitLock,
+    gallops: &jjrg_Gallops,
+    file: &Path,
+    firemark: &crate::jjrf_favor::jjrf_Firemark,
+    message: String,
+    size_limit: u64,
+) -> Result<String, String> {
+    // Save gallops first
+    jjdr_save(gallops, file)?;
+
+    // Construct paths for commit
+    let gallops_path = file.to_string_lossy().to_string();
+    let paddock_path = format!(".claude/jjm/jjp_{}.md", firemark.jjrf_as_str());
+
+    // Commit using machine_commit with explicit file list
+    let commit_args = vvc::vvcm_CommitArgs {
+        files: vec![
+            gallops_path,
+            paddock_path,
+        ],
+        message,
+        size_limit,
+        warn_limit: 30000,
+    };
+
+    vvc::machine_commit(lock, &commit_args)
+}

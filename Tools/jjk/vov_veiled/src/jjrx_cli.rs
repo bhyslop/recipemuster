@@ -769,31 +769,16 @@ fn zjjrx_run_nominate(args: zjjrx_NominateArgs) -> i32 {
 
     match gallops.jjrg_nominate(nominate_args, base_path) {
         Ok(result) => {
-            if let Err(e) = gallops.jjrg_save(&args.file) {
-                eprintln!("jjx_nominate: error saving Gallops: {}", e);
-                return 1;
-            }
-
-            // Commit using vvcm_commit with explicit file list
             let fm = Firemark::jjrf_parse(&result.firemark).expect("nominate returned invalid firemark");
-            let gallops_path = args.file.to_string_lossy().to_string();
-            let paddock_path = format!(".claude/jjm/jjp_{}.md", fm.jjrf_as_str());
-            let commit_args = vvc::vvcm_CommitArgs {
-                files: vec![
-                    gallops_path,
-                    paddock_path,
-                ],
-                message: format_heat_message(&fm, HeatAction::Nominate, &silks),
-                size_limit: 50000,
-                warn_limit: 30000,
-            };
+            let message = format_heat_message(&fm, HeatAction::Nominate, &silks);
 
-            match vvc::machine_commit(&lock, &commit_args) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
                     eprintln!("jjx_nominate: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    eprintln!("jjx_nominate: commit warning: {}", e);
+                    eprintln!("jjx_nominate: error: {}", e);
+                    return 1;
                 }
             }
 
@@ -849,31 +834,16 @@ fn zjjrx_run_slate(args: zjjrx_SlateArgs) -> i32 {
 
     match gallops.jjrg_slate(slate_args) {
         Ok(result) => {
-            if let Err(e) = gallops.jjrg_save(&args.file) {
-                eprintln!("jjx_slate: error saving Gallops: {}", e);
-                return 1;
-            }
-
-            // Commit using vvcm_commit with explicit file list
             let fm = Firemark::jjrf_parse(&firemark).expect("slate given invalid firemark");
-            let gallops_path = args.file.to_string_lossy().to_string();
-            let paddock_path = format!(".claude/jjm/jjp_{}.md", fm.jjrf_as_str());
-            let commit_args = vvc::vvcm_CommitArgs {
-                files: vec![
-                    gallops_path,
-                    paddock_path,
-                ],
-                message: format_heat_message(&fm, HeatAction::Slate, &silks),
-                size_limit: 50000,
-                warn_limit: 30000,
-            };
+            let message = format_heat_message(&fm, HeatAction::Slate, &silks);
 
-            match vvc::machine_commit(&lock, &commit_args) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
                     eprintln!("jjx_slate: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    eprintln!("jjx_slate: commit warning: {}", e);
+                    eprintln!("jjx_slate: error: {}", e);
+                    return 1;
                 }
             }
 
@@ -935,11 +905,6 @@ fn zjjrx_run_rail(args: zjjrx_RailArgs) -> i32 {
 
     match gallops.jjrg_rail(rail_args) {
         Ok(new_order) => {
-            if let Err(e) = gallops.jjrg_save(&args.file) {
-                eprintln!("jjx_rail: error saving Gallops: {}", e);
-                return 1;
-            }
-
             // Compute descriptive subject for commit message
             let subject = if let Some(ref moved) = move_coronet {
                 // Move mode: describe where the pace was moved
@@ -954,26 +919,16 @@ fn zjjrx_run_rail(args: zjjrx_RailArgs) -> i32 {
                 format!("order: {}", new_order.join(", "))
             };
 
-            // Commit using vvcm_commit with explicit file list
             let fm = Firemark::jjrf_parse(&firemark).expect("rail given invalid firemark");
-            let gallops_path = args.file.to_string_lossy().to_string();
-            let paddock_path = format!(".claude/jjm/jjp_{}.md", fm.jjrf_as_str());
-            let commit_args = vvc::vvcm_CommitArgs {
-                files: vec![
-                    gallops_path,
-                    paddock_path,
-                ],
-                message: format_heat_message(&fm, HeatAction::Rail, &subject),
-                size_limit: 50000,
-                warn_limit: 30000,
-            };
+            let message = format_heat_message(&fm, HeatAction::Rail, &subject);
 
-            match vvc::machine_commit(&lock, &commit_args) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
                     eprintln!("jjx_rail: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    eprintln!("jjx_rail: commit warning: {}", e);
+                    eprintln!("jjx_rail: error: {}", e);
+                    return 1;
                 }
             }
 
@@ -1065,33 +1020,16 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
     eprintln!("jjx_tally: calling jjrg_tally");
     match gallops.jjrg_tally(tally_args) {
         Ok(()) => {
-            eprintln!("jjx_tally: tally succeeded, saving gallops");
-            if let Err(e) = gallops.jjrg_save(&args.file) {
-                eprintln!("jjx_tally: error saving Gallops: {}", e);
-                return 1;
-            }
-            eprintln!("jjx_tally: gallops saved");
+            eprintln!("jjx_tally: tally succeeded, persisting");
+            let message = format_heat_message(&fm, HeatAction::Tally, &silks);
 
-            // Commit using vvcm_commit with explicit file list
-            let gallops_path = args.file.to_string_lossy().to_string();
-            let paddock_path = format!(".claude/jjm/jjp_{}.md", fm.jjrf_as_str());
-            let commit_args = vvc::vvcm_CommitArgs {
-                files: vec![
-                    gallops_path,
-                    paddock_path,
-                ],
-                message: format_heat_message(&fm, HeatAction::Tally, &silks),
-                size_limit: 50000,
-                warn_limit: 30000,
-            };
-
-            eprintln!("jjx_tally: calling machine_commit");
-            match vvc::machine_commit(&lock, &commit_args) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
                     eprintln!("jjx_tally: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    eprintln!("jjx_tally: commit warning: {}", e);
+                    eprintln!("jjx_tally: error: {}", e);
+                    return 1;
                 }
             }
 
@@ -1138,24 +1076,41 @@ fn zjjrx_run_draft(args: zjjrx_DraftArgs) -> i32 {
 
     match gallops.jjrg_draft(draft_args) {
         Ok(result) => {
+            // Save gallops
             if let Err(e) = gallops.jjrg_save(&args.file) {
                 eprintln!("jjx_draft: error saving Gallops: {}", e);
                 return 1;
             }
 
-            // Commit while holding lock - use destination firemark as identity
+            // Commit using machine_commit - draft affects source and dest paddocks
+            // Parse both firemarks to get paddock paths
+            let src_coronet = crate::jjrf_favor::jjrf_Coronet::jjrf_parse(&coronet)
+                .expect("draft given invalid source coronet");
+            let src_fm = src_coronet.jjrf_parent_firemark();
             let dest_fm = Firemark::jjrf_parse(&to).expect("draft given invalid destination firemark");
-            let commit_args = vvc::vvcc_CommitArgs {
-                prefix: None,
-                message: Some(format_heat_message(&dest_fm, HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet))),
-                allow_empty: false,
-                no_stage: false,
-                size_limit: vvc::VVCG_SIZE_LIMIT,
-                warn_limit: vvc::VVCG_WARN_LIMIT,
+
+            let gallops_path = args.file.to_string_lossy().to_string();
+            let src_paddock_path = format!(".claude/jjm/jjp_{}.md", src_fm.jjrf_as_str());
+            let dest_paddock_path = format!(".claude/jjm/jjp_{}.md", dest_fm.jjrf_as_str());
+
+            let commit_args = vvc::vvcm_CommitArgs {
+                files: vec![
+                    gallops_path,
+                    src_paddock_path,
+                    dest_paddock_path,
+                ],
+                message: format_heat_message(&dest_fm, HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet)),
+                size_limit: 50000,
+                warn_limit: 30000,
             };
-            match lock.vvcc_commit(&commit_args) {
-                Ok(hash) => eprintln!("jjx_draft: committed {}", &hash[..8]),
-                Err(e) => eprintln!("jjx_draft: commit warning: {}", e),
+
+            match vvc::machine_commit(&lock, &commit_args) {
+                Ok(hash) => {
+                    eprintln!("jjx_draft: committed {}", &hash[..8]);
+                }
+                Err(e) => {
+                    eprintln!("jjx_draft: commit warning: {}", e);
+                }
             }
 
             println!("{}", result.new_coronet);
@@ -1211,31 +1166,16 @@ fn zjjrx_run_furlough(args: zjjrx_FurloughArgs) -> i32 {
 
     match gallops.jjrg_furlough(furlough_args) {
         Ok(()) => {
-            if let Err(e) = gallops.jjrg_save(&args.file) {
-                eprintln!("jjx_furlough: error saving Gallops: {}", e);
-                return 1;
-            }
-
-            // Commit using vvcm_commit with explicit file list
             let fm = Firemark::jjrf_parse(&firemark_str).expect("furlough given invalid firemark");
-            let gallops_path = args.file.to_string_lossy().to_string();
-            let paddock_path = format!(".claude/jjm/jjp_{}.md", fm.jjrf_as_str());
-            let commit_args = vvc::vvcm_CommitArgs {
-                files: vec![
-                    gallops_path,
-                    paddock_path,
-                ],
-                message: format_heat_message(&fm, HeatAction::Furlough, &description),
-                size_limit: 50000,
-                warn_limit: 30000,
-            };
+            let message = format_heat_message(&fm, HeatAction::Furlough, &description);
 
-            match vvc::machine_commit(&lock, &commit_args) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
                     eprintln!("jjx_furlough: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    eprintln!("jjx_furlough: commit warning: {}", e);
+                    eprintln!("jjx_furlough: error: {}", e);
+                    return 1;
                 }
             }
 
