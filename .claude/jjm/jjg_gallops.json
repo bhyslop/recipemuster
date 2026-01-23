@@ -2378,6 +2378,14 @@
         "₢ADAAI": {
           "tacks": [
             {
+              "ts": "260123-0829",
+              "state": "bridled",
+              "text": "VLS cleanup: fix vesture definitions extracted from VOS.\n\n## Issues\n\n### Issue 1: Rust vesture signet_case\n- Change \"signet_case: snake_case\" to \"signet_case: lowercase\"\n- Signet itself is lowercase (vofc), snake_case describes full inscription\n\n### Issue 2: AsciiDoc vesture scope\n- Currently conflates attributes and anchors in single vesture\n- Clarify voslda covers both with different envelope sub-types:\n  - Attributes: no envelope\n  - Anchors: frame envelope `[[...]]`\n\n## Target File\n\nTools/vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc\n\n## Bridleability\n\nBridleable - mechanical edits with clear targets.",
+              "silks": "vls-vesture-cleanup",
+              "commit": "1e411bc",
+              "direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: Tools/vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc (1 file)\nSteps:\n1. In vosldr_rust definition, change 'signet_case: snake_case' to 'signet_case: lowercase'\n2. Verify voslda_asciidoc already clarifies attribute vs anchor envelope (no change needed if correct)\nVerify: Manual review of vesture definitions"
+            },
+            {
               "ts": "260118-0842",
               "state": "rough",
               "text": "VLS cleanup: fix vesture definitions extracted from VOS.\n\n## Issues\n\n### Issue 1: Rust vesture signet_case\n- Change \"signet_case: snake_case\" to \"signet_case: lowercase\"\n- Signet itself is lowercase (vofc), snake_case describes full inscription\n\n### Issue 2: AsciiDoc vesture scope\n- Currently conflates attributes and anchors in single vesture\n- Clarify voslda covers both with different envelope sub-types:\n  - Attributes: no envelope\n  - Anchors: frame envelope `[[...]]`\n\n## Target File\n\nTools/vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc\n\n## Bridleability\n\nBridleable - mechanical edits with clear targets.",
