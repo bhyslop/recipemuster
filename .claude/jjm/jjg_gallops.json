@@ -3056,9 +3056,10 @@
         "₢AFAAO",
         "₢AFAAV",
         "₢AFAAK",
-        "₢AFAAY"
+        "₢AFAAY",
+        "₢AFAAZ"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3681,6 +3682,17 @@
               "text": "Fix remaining JJD→JJSA references in pace specs.\n\nPaces needing reslate:\n- ₢ADAAC liturgy-state-machine-vocabulary\n- ₢AIAAA whisper-conclave-lite\n\nThe tabtarget wrapper outputs log lines to stdout which breaks jq piping. Options:\n1. Fix the tabtarget to send logs to stderr\n2. Use grep to extract JSON portion before piping to jq\n3. Have jjx_peek write to a temp file\n\nOnce extraction works, the reslate pattern is:\n```bash\njjx_peek <CORONET> | jq -r .spec | sed \"s/JJD/JJSA/g\" | jjx_tally <CORONET>\n```\n\nNote: ₢AFAAP was already fixed via direct jq on gallops.json.",
               "silks": "fix-jjd-reslate-extraction",
               "commit": "a4e8449"
+            }
+          ]
+        },
+        "₢AFAAZ": {
+          "tacks": [
+            {
+              "ts": "260123-1458",
+              "state": "rough",
+              "text": "Replace jjx_order/jjx_peek with purpose-built text emitters.\n\n## Problem\n\nJSON output commands require jq parsing, are token-heavy, and break when tabtarget logs pollute stdout.\n\n## Solution\n\nImplement simple text emitters:\n- `jjx_get_pace_spec <CORONET>` — raw spec text only\n- `jjx_get_pace_silks <CORONET>` — silks string only  \n- `jjx_get_heat_coronets <FIREMARK> [--remaining]` — one coronet per line\n\n## Benefits\n\n- No jq needed\n- Pipes cleanly: `jjx_get_pace_spec ADAAC | sed \"s/JJD/JJSA/g\" | jjx_tally ADAAC`\n- Token-minimal\n- Unix-composable\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — add new commands, remove order/peek\n- Tools/jjk/vov_veiled/src/jjrq_query.rs — add implementations, remove order/peek\n- .claude/commands/jjc-heat-rail.md — update to use jjx_get_heat_coronets\n- .claude/commands/jjc-heat-quarter.md — update to use new commands\n- .claude/commands/jjc-pace-reslate.md — update to use jjx_get_pace_spec\n- .claude/commands/jjc-heat-restring.md — update to use jjx_get_heat_coronets\n\n## Constraint\n\nAlso fix tabtarget log pollution (logs should go to stderr, not stdout).",
+              "silks": "implement-text-emitter-commands",
+              "commit": "5b47b75"
             }
           ]
         }
