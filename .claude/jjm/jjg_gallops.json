@@ -3019,6 +3019,7 @@
       "status": "racing",
       "order": [
         "₢AFAAW",
+        "₢AFAAX",
         "₢AFAAQ",
         "₢AFAAT",
         "₢AFAAD",
@@ -3042,7 +3043,7 @@
         "₢AFAAV",
         "₢AFAAK"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3614,6 +3615,17 @@
               "text": "Split JJD-GallopsData.adoc into JJSA (main) + subfiles:\n\n**Pattern:**\n- JJSA-GallopsData.adoc: Main file with mapping section, all [[anchors]], linked term definitions\n- JJSCxx-command.adoc: One per CLI command (nominate, slate, rail, draft, tally, furlough, retire, validate, muster, saddle, scout, parade, rein, notch, chalk)\n- JJSRxx-routine.adoc: One per routine (load, save, persist, wrap)\n\n**File naming:**\n- Commands: JJSCNO-nominate.adoc, JJSCSL-slate.adoc, JJSCRL-rail.adoc, JJSCDR-draft.adoc, JJSCTL-tally.adoc, JJSCFU-furlough.adoc, JJSCRT-retire.adoc, JJSCVL-validate.adoc, JJSCMU-muster.adoc, JJSCSD-saddle.adoc, JJSCSC-scout.adoc, JJSCPD-parade.adoc, JJSCRN-rein.adoc, JJSCNC-notch.adoc, JJSCCH-chalk.adoc\n- Routines: JJSRLD-load.adoc, JJSRSV-save.adoc, JJSRPS-persist.adoc, JJSRWP-wrap.adoc\n\n**Main file keeps:**\n- Mapping section with all :jjd*: attributes\n- All [[anchor]] definitions with linked term headers\n- include:: directives to pull in subfile content\n\n**Subfiles contain:**\n- Only the procedure body (Arguments, Behavior, Stdout, Exit Status sections)\n- No anchors, no linked terms\n\n**Constraint:** Subfile acronyms never start with A (reserved for JJSA).",
               "silks": "split-jjd-subfiles",
               "commit": "43ef3b4"
+            }
+          ]
+        },
+        "₢AFAAX": {
+          "tacks": [
+            {
+              "ts": "260123-1412",
+              "state": "rough",
+              "text": "After JJD is renamed to JJSA, update all remaining references.\n\n**At execution time, rescan for JJD references:**\n1. Run: jjx_scout JJD --actionable\n2. For each pace spec with JJD reference: reslate to replace JJD with JJSA\n3. Edit paddock files (jjp_*.md) to update References sections\n4. Edit other files: CLAUDE.md, jjc-pace-bridle.md, jji_itch.md, VOS-VoxObscuraSpec.adoc, VLS-VoxLiturgicalSpec.adoc\n\n**Do NOT update:**\n- Completed pace specs in gallops.json (historical record)\n- Retired heat trophies in .claude/jjm/retired/\n- RBM-history/ or Study/ directories (false positives)\n\n**Constraint:** This pace depends on split-jjd-subfiles completing first.",
+              "silks": "jjd-to-jjsa-references",
+              "commit": "6905811"
             }
           ]
         }
