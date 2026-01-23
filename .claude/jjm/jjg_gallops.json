@@ -3364,6 +3364,13 @@
         "₢AFAAQ": {
           "tacks": [
             {
+              "ts": "260123-1203",
+              "state": "complete",
+              "text": "Modify the /jjc-heat-mount slash command to NOT automatically begin work on a bridled pace. Instead, when mount detects the next pace is bridled, it should display the pace details and ask for explicit user approval before spawning the agent. This ensures human oversight of every autonomous execution commitment.",
+              "silks": "mount-requires-approval",
+              "commit": "e69cebe"
+            },
+            {
               "ts": "260123-1159",
               "state": "bridled",
               "text": "Modify the /jjc-heat-mount slash command to NOT automatically begin work on a bridled pace. Instead, when mount detects the next pace is bridled, it should display the pace details and ask for explicit user approval before spawning the agent. This ensures human oversight of every autonomous execution commitment.",
