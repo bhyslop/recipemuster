@@ -2359,6 +2359,14 @@
         "₢ADAAH": {
           "tacks": [
             {
+              "ts": "260123-0829",
+              "state": "bridled",
+              "text": "VOS cleanup: update legacy vost_cipher references.\n\n## Issues\n\nUpdate legacy vost_cipher references to voslc_cipher throughout VOS:\n- Search for remaining `vost_cipher` usage\n- Replace with `voslc_cipher` (canonical form now that alias exists in mapping section)\n\n## Context\n\nVOS mapping section has backward-compatibility aliases:\n```\n:vost_cipher:           <<voslc_cipher,Cipher>>\n```\n\nBody text should use the canonical `{voslc_cipher}` form, not the alias.\n\n## Target File\n\nTools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc\n\n## Bridleability\n\nBridleable - mechanical find/replace with verification.",
+              "silks": "vos-cleanup-legacy-refs",
+              "commit": "2897d3f",
+              "direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc (1 file)\nSteps:\n1. Search body text (below mapping section) for {vost_cipher} usage\n2. Replace body references with {voslc_cipher} (keep mapping aliases for backward compat)\n3. Verify no orphaned vost_cipher references remain in body\nVerify: grep -c 'vost_cipher' in body section should be 0"
+            },
+            {
               "ts": "260118-0841",
               "state": "rough",
               "text": "VOS cleanup: update legacy vost_cipher references.\n\n## Issues\n\nUpdate legacy vost_cipher references to voslc_cipher throughout VOS:\n- Search for remaining `vost_cipher` usage\n- Replace with `voslc_cipher` (canonical form now that alias exists in mapping section)\n\n## Context\n\nVOS mapping section has backward-compatibility aliases:\n```\n:vost_cipher:           <<voslc_cipher,Cipher>>\n```\n\nBody text should use the canonical `{voslc_cipher}` form, not the alias.\n\n## Target File\n\nTools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc\n\n## Bridleability\n\nBridleable - mechanical find/replace with verification.",
