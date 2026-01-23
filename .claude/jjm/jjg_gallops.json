@@ -3055,9 +3055,10 @@
         "₢AFAAC",
         "₢AFAAO",
         "₢AFAAV",
-        "₢AFAAK"
+        "₢AFAAK",
+        "₢AFAAY"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3669,6 +3670,17 @@
               "text": "After JJD is renamed to JJSA, update all remaining references.\n\n**At execution time, rescan for JJD references:**\n1. Run: jjx_scout JJD --actionable\n2. For each pace spec with JJD reference: reslate to replace JJD with JJSA\n3. Edit paddock files (jjp_*.md) to update References sections\n4. Edit other files: CLAUDE.md, jjc-pace-bridle.md, jji_itch.md, VOS-VoxObscuraSpec.adoc, VLS-VoxLiturgicalSpec.adoc\n\n**Do NOT update:**\n- Completed pace specs in gallops.json (historical record)\n- Retired heat trophies in .claude/jjm/retired/\n- RBM-history/ or Study/ directories (false positives)\n\n**Constraint:** This pace depends on split-jjd-subfiles completing first.",
               "silks": "jjd-to-jjsa-references",
               "commit": "6905811"
+            }
+          ]
+        },
+        "₢AFAAY": {
+          "tacks": [
+            {
+              "ts": "260123-1453",
+              "state": "rough",
+              "text": "Fix remaining JJD→JJSA references in pace specs.\n\nPaces needing reslate:\n- ₢ADAAC liturgy-state-machine-vocabulary\n- ₢AIAAA whisper-conclave-lite\n\nThe tabtarget wrapper outputs log lines to stdout which breaks jq piping. Options:\n1. Fix the tabtarget to send logs to stderr\n2. Use grep to extract JSON portion before piping to jq\n3. Have jjx_peek write to a temp file\n\nOnce extraction works, the reslate pattern is:\n```bash\njjx_peek <CORONET> | jq -r .spec | sed \"s/JJD/JJSA/g\" | jjx_tally <CORONET>\n```\n\nNote: ₢AFAAP was already fixed via direct jq on gallops.json.",
+              "silks": "fix-jjd-reslate-extraction",
+              "commit": "a4e8449"
             }
           ]
         }
