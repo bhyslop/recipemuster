@@ -18,8 +18,9 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 - Skip to Step 2
 
 **If $ARGUMENTS is empty or contains silks:**
-- Run: `./tt/vvw-r.RunVVX.sh jjx_muster | grep $'\t'racing$'\t'`
+- Run: `./tt/vvw-r.RunVVX.sh jjx_muster`
 - Parse TSV output: `FIREMARK<TAB>SILKS<TAB>STATUS<TAB>PACE_COUNT`
+- Filter for lines where STATUS column is "racing"
 
 **If 0 racing heats:**
 - Report: "No racing heats found."
