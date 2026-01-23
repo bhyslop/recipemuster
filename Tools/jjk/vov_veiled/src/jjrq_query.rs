@@ -67,12 +67,19 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
     });
 
     for (key, heat) in heats_by_status {
-        let total_pace_count = heat.paces.len();
-
-        // Count actionable paces (rough or bridled)
-        let remaining_count = heat.paces.values().filter(|pace| {
+        // Count paces where state != Abandoned
+        let defined_count = heat.paces.values().filter(|pace| {
             if let Some(tack) = pace.tacks.first() {
-                matches!(tack.state, PaceState::Rough | PaceState::Bridled)
+                tack.state != PaceState::Abandoned
+            } else {
+                true
+            }
+        }).count();
+
+        // Count paces where state == Complete
+        let completed_count = heat.paces.values().filter(|pace| {
+            if let Some(tack) = pace.tacks.first() {
+                tack.state == PaceState::Complete
             } else {
                 false
             }
@@ -84,7 +91,7 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
             HeatStatus::Retired => "retired",
         };
 
-        println!("{}\t{}\t{}\t{}\t{}", key, heat.silks, status_str, remaining_count, total_pace_count);
+        println!("{}\t{}\t{}\t{}\t{}", key, heat.silks, status_str, completed_count, defined_count);
     }
 
     0

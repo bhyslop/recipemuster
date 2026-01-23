@@ -65,6 +65,8 @@
 :jjdpe_complete:  <<jjdpe_complete,complete>>
 :jjdpe_bridled:   <<jjdpe_bridled,bridled>>
 :jjdpe_rough:     <<jjdpe_rough,rough>>
+:jjdpe_defined:   <<jjdpe_defined,defined>>
+:jjdpe_resolved:  <<jjdpe_resolved,resolved>>
 
 // Tack record and members
 :jjdkm_commit:    <<jjdkm_commit,commit>>
@@ -575,6 +577,24 @@ has been successfully finished.
 The
 {jjdpr_pace}
 was stopped without completion.
+
+==== State Classification Predicates
+
+Predicates for querying pace states by semantic category.
+
+[[jjdpe_defined]] {jjdpe_defined}:: Pace contributes to heat's scope.
+* rough: true
+* bridled: true
+* complete: true
+* abandoned: false
+
+[[jjdpe_resolved]] {jjdpe_resolved}:: Pace requires no further action.
+* rough: false
+* bridled: false
+* complete: true
+* abandoned: true
+
+Future states declare their predicate values when added. Query logic uses predicates, not state names.
 
 == Serialization
 
@@ -2184,11 +2204,11 @@ with summary information.
 
 {jjds_stdout} Tab-separated values, one line per
 {jjdhr_heat}:
-`{jjdt_firemark}<TAB>{jjdt_silks}<TAB>{jjdhm_status}<TAB><remaining><TAB><total>`
+`{jjdt_firemark}<TAB>{jjdt_silks}<TAB>{jjdhm_status}<TAB><completed><TAB><defined>`
 
 Where:
-* `<remaining>` — count of actionable paces ({{jjdpe_rough}} or {{jjdpe_bridled}})
-* `<total>` — total pace count
+* `<completed>` — count of paces where {jjdpe_defined} ∧ {jjdpe_resolved} (i.e., complete)
+* `<defined>` — count of paces where {jjdpe_defined} (excludes abandoned)
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
@@ -2207,10 +2227,8 @@ in sorted order, output TSV line:
 {jjdt_firemark},
 {jjdhm_silks},
 {jjdhm_status},
-count of actionable paces ({{jjdpe_rough}} or {{jjdpe_bridled}}) in `paces` object,
-total count of
-{jjdpr_pace_s}
-in `paces` object
+count of paces where {jjdpe_defined} ∧ {jjdpe_resolved} (i.e., complete),
+count of paces where {jjdpe_defined} (excludes abandoned)
 
 [[jjdo_saddle]]
 // ⟦axl_voices axi_cli_subcommand⟧
