@@ -3113,6 +3113,13 @@
         "₢AFAAE": {
           "tacks": [
             {
+              "ts": "260123-1114",
+              "state": "rough",
+              "text": "Create Tools/vok/src/vovs_sandbox.rs following the pattern in pb_paneboard02/poc/src/pbmbs_sandbox.rs:\n1. Copy the implementation, adapting comments (\"vvx\" instead of \"PaneBoard\")\n2. Keep the same Seatbelt policy: (version 1)(allow default)(deny network*)\n3. In vorm_main.rs:\n   - Add `mod vovs_sandbox;` near the top with other mods\n   - Add `#[cfg(target_os = \"macos\")] vovs_sandbox::drop_network_access();` as first line of main()\n4. Build with: tt/vow-b.Build.sh",
+              "silks": "add-macos-sandbox",
+              "commit": "82dd153"
+            },
+            {
               "ts": "260120-1745",
               "state": "rough",
               "text": "Look at paneboard's implementation of sandboxing for macos preventing ALL network access and implement this in the vvx application.",
