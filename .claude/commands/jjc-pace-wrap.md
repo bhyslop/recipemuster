@@ -34,3 +34,9 @@ Run:
 - Exit 0 with commit hash → Success. Report the hash.
 - Exit 2 → Size guard exceeded. Report: "Commit too large. Use `--size-limit N` flag if this is intentional, e.g.: `./tt/vvw-r.RunVVX.sh jjx_wrap <CORONET> --size-limit 200000`"
 - Exit 1 → General error. Report the error message.
+
+## Step 3: Report result
+
+Display:
+- Success/failure status and commit hash
+- Any "Recommended:" lines from tool output (pass through verbatim)
