@@ -1,30 +1,46 @@
 ---
-argument-hint:
+argument-hint: <file1> [file2...]
 description: JJ-aware git commit with Claude-generated message
 ---
 
-Create a git commit with Job Jockey pace context prefix. Claude always generates the commit message from the diff.
+Create a git commit with Job Jockey context prefix. Requires explicit file list.
+
+Arguments: $ARGUMENTS (one or more file paths to commit)
+
+## Prerequisites
+
+- Must have pace context from `/jjc-heat-mount`, OR
+- Provide heat-only context with Firemark
 
 ## Execution
 
-Use PACE_CORONET from current session context. If no context, error: "No heat context. Run /jjc-heat-mount first."
-
+**Pace-affiliated commit (default):**
+Use PACE_CORONET from current session context:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_notch <PACE_CORONET>
+./tt/vvw-r.RunVVX.sh jjx_notch <PACE_CORONET> <file1> [file2...]
 ```
 
-The coronet embeds the parent heat, so no separate firemark argument is needed.
+**Heat-only commit (no pace affiliation):**
+Use FIREMARK for commits that affect the heat but not a specific pace:
+```bash
+./tt/vvw-r.RunVVX.sh jjx_notch <FIREMARK> <file1> [file2...]
+```
 
-The Rust command handles everything: lock, staging, guard, message generation, commit, release.
+The Rust command handles: lock, staging specified files only, guard, message generation, commit, release.
 
-Report the commit hash on success, or the error on failure.
+## File list requirement
+
+- At least one file must be specified
+- All files must exist
+- Only specified files are staged and committed
+- Warning printed for uncommitted changes outside the file list
 
 ## Large Commits
 
-The default size guard rejects commits over 50KB. For legitimate large commits (e.g., renames across many files, generated code), use the `--size-limit` flag:
+The default size guard rejects commits over 50KB. For legitimate large commits:
 
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_notch <PACE_CORONET> --size-limit 200000
+./tt/vvw-r.RunVVX.sh jjx_notch <IDENTITY> --size-limit 200000 <file1> [file2...]
 ```
 
-**Requirement**: The pace spec must justify why the large commit is necessary. Don't bypass the guard without documented rationale in the pace's tack text.
+**Requirement**: The pace spec must justify why the large commit is necessary.
