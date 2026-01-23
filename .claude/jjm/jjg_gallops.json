@@ -3397,6 +3397,14 @@
         "₢AFAAT": {
           "tacks": [
             {
+              "ts": "260123-1153",
+              "state": "bridled",
+              "text": "Bug: /jjc-pace-reslate inherits stale direction when reslating a bridled pace.\n\n**Problem:**\nWhen reslating a bridled pace, jjx_tally inherits the old direction even though the spec text changed. This causes the pace to have mismatched spec (new) and direction (old/stale).\n\n**Solution:**\nIn /jjc-pace-reslate (Step 4), detect if the pace is currently bridled. If so, explicitly pass `--state rough` to reset to rough state, forcing re-evaluation via /jjc-pace-bridle.\n\n**Change:**\nIn `.claude/commands/jjc-pace-reslate.md`, Step 4 should:\n1. Check current pace state before calling jjx_tally\n2. If state is \"bridled\", add `--state rough` to the jjx_tally call\n3. Report: \"Note: Pace was bridled; reset to rough. Re-run /jjc-pace-bridle to set new direction.\"\n\n**Files:**\n- .claude/commands/jjc-pace-reslate.md",
+              "silks": "reslate-resets-bridled-to-rough",
+              "commit": "40abce9",
+              "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: .claude/commands/jjc-pace-reslate.md (1 file)\nSteps:\n1. Read .claude/commands/jjc-pace-reslate.md\n2. In Step 4, before the jjx_tally calls, add logic to detect if pace is bridled\n3. Add a paragraph after the Step 4 heading that explains: fetch current pace state, if bridled then add --state rough to the jjx_tally call\n4. Update both jjx_tally command examples (rename case and non-rename case) to show the --state rough variant\n5. Add a note after the commands: If pace was bridled, report to user that it was reset to rough and suggest re-running /jjc-pace-bridle\nVerify: Read the file to confirm changes are present"
+            },
+            {
               "ts": "260123-1152",
               "state": "rough",
               "text": "Bug: /jjc-pace-reslate inherits stale direction when reslating a bridled pace.\n\n**Problem:**\nWhen reslating a bridled pace, jjx_tally inherits the old direction even though the spec text changed. This causes the pace to have mismatched spec (new) and direction (old/stale).\n\n**Solution:**\nIn /jjc-pace-reslate (Step 4), detect if the pace is currently bridled. If so, explicitly pass `--state rough` to reset to rough state, forcing re-evaluation via /jjc-pace-bridle.\n\n**Change:**\nIn `.claude/commands/jjc-pace-reslate.md`, Step 4 should:\n1. Check current pace state before calling jjx_tally\n2. If state is \"bridled\", add `--state rough` to the jjx_tally call\n3. Report: \"Note: Pace was bridled; reset to rough. Re-run /jjc-pace-bridle to set new direction.\"\n\n**Files:**\n- .claude/commands/jjc-pace-reslate.md",
