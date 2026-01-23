@@ -8,6 +8,6 @@ Schema-stable JJK improvements. Bug fixes, CLI ergonomics, documentation, and be
 
 ## References
 
-- JJD: Tools/jjk/vov_veiled/JJD-GallopsData.adoc
+- JJSA: Tools/jjk/vov_veiled/JJSA-GallopsData.adoc
 - RCG: Tools/vok/vov_veiled/RCG-RustCodingGuide.md
 - VOS: Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc
