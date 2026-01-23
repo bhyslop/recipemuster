@@ -3113,6 +3113,14 @@
         "₢AFAAD": {
           "tacks": [
             {
+              "ts": "260123-1149",
+              "state": "bridled",
+              "text": "Fix: /jjc-heat-mount calls `jjx_muster --status racing` but jjx_muster doesn't support --status flag.\n\n**Solution:** Option 2 — Remove --status from slash command, filter client-side.\n\n**Rationale:**\n- YAGNI: Only jjc-heat-mount needs this filtering\n- JJD spec defines {jjda_status} but doesn't assign it to muster's arguments\n- Bash filtering on TSV is trivial\n\n**Change:**\nIn `.claude/commands/jjc-heat-mount.md`, replace:\n```\n./tt/vvw-r.RunVVX.sh jjx_muster --status racing\n```\nwith:\n```\n./tt/vvw-r.RunVVX.sh jjx_muster | grep $'\\t'racing$'\\t'\n```\n\n**Files:**\n- .claude/commands/jjc-heat-mount.md (line ~21)",
+              "silks": "muster-status-filter",
+              "commit": "3fecc68",
+              "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: jjrx_cli.rs, jjrq_query.rs (2 files)\nSteps:\n1. Add status: Option<String> to zjjrx_MusterArgs with #[arg(long)]\n2. Add status field to jjrq_MusterArgs in jjrq_query.rs\n3. In jjrq_run_muster, filter heats if status is Some (match racing/stabled)\n4. Pass status from CLI args to lib args in zjjrx_run_muster\nVerify: cargo build --manifest-path Tools/vok/Cargo.toml"
+            },
+            {
               "ts": "260123-1040",
               "state": "bridled",
               "text": "Fix: /jjc-heat-mount calls `jjx_muster --status racing` but jjx_muster doesn't support --status flag.\n\n**Bug:** Slash command assumes CLI filtering that doesn't exist.\n\n**Options:**\n1. Add --status flag to jjx_muster (filter server-side)\n2. Remove --status from slash command, filter client-side\n\n**Preference:** Option 1 — filtering in Rust is cleaner, reduces output parsing in slash command.\n\n**Files:**\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (add --status to MusterArgs)\n- .claude/commands/jjc-heat-mount.md (verify usage after fix)",
