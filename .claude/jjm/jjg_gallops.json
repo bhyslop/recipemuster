@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AL",
+  "next_heat_seed": "AM",
   "heats": {
     "₣AA": {
       "silks": "garlanded-vok-fresh-install-release",
@@ -4686,6 +4686,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_AK.md",
+      "paces": {}
+    },
+    "₣AL": {
+      "silks": "jjk-restring-rust",
+      "creation_time": "260124",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AL.md",
       "paces": {}
     }
   }
