@@ -113,6 +113,7 @@
 :jjdo_chalk:          <<jjdo_chalk,jjx_chalk>>
 :jjdo_draft:          <<jjdo_draft,jjx_draft>>
 :jjdo_furlough:       <<jjdo_furlough,jjx_furlough>>
+:jjdo_garland:        <<jjdo_garland,jjx_garland>>
 :jjdo_get_coronets:   <<jjdo_get_coronets,jjx_get_coronets>>
 :jjdo_get_spec:       <<jjdo_get_spec,jjx_get_spec>>
 :jjdo_muster:         <<jjdo_muster,jjx_muster>>
@@ -981,6 +982,12 @@ include::JJSCTL-tally.adoc[]
 ==== {jjdo_furlough}
 
 include::JJSCFU-furlough.adoc[]
+
+[[jjdo_garland]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_garland}
+
+include::JJSCGL-garland.adoc[]
 
 [[jjdo_retire]]
 // ⟦axl_voices axi_cli_subcommand⟧
