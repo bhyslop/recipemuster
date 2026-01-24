@@ -4898,67 +4898,6 @@
           ]
         }
       }
-    },
-    "₣AM": {
-      "silks": "test-trophy-validation",
-      "creation_time": "260124",
-      "status": "stabled",
-      "order": [
-        "₢AMAAA",
-        "₢AMAAB",
-        "₢AMAAC"
-      ],
-      "next_pace_seed": "AAD",
-      "paddock_file": ".claude/jjm/jjp_AM.md",
-      "paces": {
-        "₢AMAAA": {
-          "tacks": [
-            {
-              "ts": "260124-1122",
-              "state": "complete",
-              "text": "Test pace alpha - will be completed",
-              "silks": "test-pace-alpha",
-              "commit": "f2524f9"
-            },
-            {
-              "ts": "260124-1122",
-              "state": "rough",
-              "text": "Test pace alpha - will be completed",
-              "silks": "test-pace-alpha",
-              "commit": "031d832"
-            }
-          ]
-        },
-        "₢AMAAB": {
-          "tacks": [
-            {
-              "ts": "260124-1122",
-              "state": "abandoned",
-              "text": "Test pace beta - will be abandoned",
-              "silks": "test-pace-beta",
-              "commit": "d32bd86"
-            },
-            {
-              "ts": "260124-1122",
-              "state": "rough",
-              "text": "Test pace beta - will be abandoned",
-              "silks": "test-pace-beta",
-              "commit": "b74ff30"
-            }
-          ]
-        },
-        "₢AMAAC": {
-          "tacks": [
-            {
-              "ts": "260124-1122",
-              "state": "rough",
-              "text": "Test pace gamma - will stay rough",
-              "silks": "test-pace-gamma",
-              "commit": "64e41bb"
-            }
-          ]
-        }
-      }
     }
   }
 }
