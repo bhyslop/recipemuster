@@ -14,6 +14,7 @@ use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
 use serde::Serialize;
 use std::fs;
+use regex::Regex;
 
 /// Resolve the default heat (first racing heat) when no target is specified
 pub fn jjrq_resolve_default_heat(gallops: &Gallops) -> Result<String, String> {
@@ -1016,6 +1017,106 @@ pub fn jjrq_run_retire(args: jjrq_RetireArgs) -> i32 {
             eprintln!("jjx_retire: error serializing output: {}", e);
             1
         }
+    }
+}
+
+// ============================================================================
+// Silks Sequence Parsing and Building
+// ============================================================================
+
+/// Parse silks into (base, sequence_number)
+///
+/// Silks ending with a 2-digit sequence number are parsed into base and number.
+/// Format: "foo-bar" -> ("foo-bar", None)
+///         "foo-bar-01" -> ("foo-bar", Some(1))
+///         "foo-bar-42" -> ("foo-bar", Some(42))
+pub fn jjrq_parse_silks_sequence(silks: &str) -> (String, Option<u32>) {
+    // Use regex ^(.+)-(\d{2})$ for suffix detection
+    let re = match Regex::new(r"^(.+)-(\d{2})$") {
+        Ok(r) => r,
+        Err(_) => {
+            // Fallback: return full silks as base, no sequence
+            return (silks.to_string(), None);
+        }
+    };
+
+    if let Some(caps) = re.captures(silks) {
+        if let (Some(base_match), Some(num_match)) = (caps.get(1), caps.get(2)) {
+            let base = base_match.as_str().to_string();
+            if let Ok(num_str) = num_match.as_str().parse::<u32>() {
+                return (base, Some(num_str));
+            }
+        }
+    }
+
+    // No match: return full silks as base, no sequence
+    (silks.to_string(), None)
+}
+
+/// Build garlanded silks: "garlanded-{base}-{seq:02}"
+pub fn jjrq_build_garlanded_silks(base: &str, seq: u32) -> String {
+    format!("garlanded-{}-{:02}", base, seq)
+}
+
+/// Build continuation silks: "{base}-{seq:02}"
+pub fn jjrq_build_continuation_silks(base: &str, seq: u32) -> String {
+    format!("{}-{:02}", base, seq)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_silks_sequence_plain() {
+        let (base, seq) = jjrq_parse_silks_sequence("foo-bar");
+        assert_eq!(base, "foo-bar");
+        assert_eq!(seq, None);
+    }
+
+    #[test]
+    fn test_parse_silks_sequence_with_01_suffix() {
+        let (base, seq) = jjrq_parse_silks_sequence("foo-bar-01");
+        assert_eq!(base, "foo-bar");
+        assert_eq!(seq, Some(1));
+    }
+
+    #[test]
+    fn test_parse_silks_sequence_with_99_suffix() {
+        let (base, seq) = jjrq_parse_silks_sequence("foo-bar-99");
+        assert_eq!(base, "foo-bar");
+        assert_eq!(seq, Some(99));
+    }
+
+    #[test]
+    fn test_parse_silks_sequence_single_digit_not_matched() {
+        let (base, seq) = jjrq_parse_silks_sequence("foo-bar-9");
+        assert_eq!(base, "foo-bar-9");
+        assert_eq!(seq, None);
+    }
+
+    #[test]
+    fn test_build_garlanded_silks() {
+        let result = jjrq_build_garlanded_silks("foo-bar", 1);
+        assert_eq!(result, "garlanded-foo-bar-01");
+    }
+
+    #[test]
+    fn test_build_garlanded_silks_high_number() {
+        let result = jjrq_build_garlanded_silks("foo-bar", 42);
+        assert_eq!(result, "garlanded-foo-bar-42");
+    }
+
+    #[test]
+    fn test_build_continuation_silks() {
+        let result = jjrq_build_continuation_silks("foo-bar", 1);
+        assert_eq!(result, "foo-bar-01");
+    }
+
+    #[test]
+    fn test_build_continuation_silks_high_number() {
+        let result = jjrq_build_continuation_silks("foo-bar", 42);
+        assert_eq!(result, "foo-bar-42");
     }
 }
 
