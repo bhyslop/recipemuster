@@ -852,3 +852,153 @@ pub fn jjrg_furlough(gallops: &mut jjrg_Gallops, args: jjrg_FurloughArgs) -> Res
 
     Ok(())
 }
+
+/// Garland a Heat - celebrate completion and create continuation
+///
+/// Updates source heat silks to garlanded form and status to stabled.
+/// Creates new heat with continuation silks, status racing.
+/// Transfers actionable paces (rough/bridled) to new heat.
+/// Retains complete/abandoned paces in garlanded heat.
+pub fn jjrg_garland(gallops: &mut jjrg_Gallops, args: jjrg_GarlandArgs, base_path: &Path) -> Result<jjrg_GarlandResult, String> {
+    use crate::jjrc_core::jjrc_timestamp_from_env;
+    use crate::jjrq_query::{jjrq_parse_silks_sequence, jjrq_build_garlanded_silks, jjrq_build_continuation_silks};
+
+    // Parse and normalize firemark
+    let firemark = Firemark::jjrf_parse(&args.firemark)
+        .map_err(|e| format!("Invalid firemark: {}", e))?;
+    let firemark_key = firemark.jjrf_display();
+
+    // Verify source heat exists and extract needed data (avoid holding the borrow)
+    let (source_silks, source_paddock_file, source_order, actionable_count, retained_count) = {
+        let source_heat = gallops.heats.get(&firemark_key)
+            .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+
+        // Parse source silks to determine sequence
+        let (base, sequence) = jjrq_parse_silks_sequence(&source_heat.silks);
+        let seq = sequence.unwrap_or(1);
+
+        // Count actionable paces
+        let actionable_count = source_heat.order.iter().filter(|coronet_key| {
+            if let Some(pace) = source_heat.paces.get(*coronet_key) {
+                if let Some(tack) = pace.tacks.first() {
+                    matches!(tack.state, jjrg_PaceState::Rough | jjrg_PaceState::Bridled)
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        }).count();
+
+        // Validate there are actionable paces to transfer
+        if actionable_count == 0 {
+            return Err(format!("Heat '{}' has no actionable paces to transfer", firemark_key));
+        }
+
+        // Count retained paces
+        let retained_count = source_heat.paces.len() - actionable_count;
+
+        // Count complete paces for steeplechase marker
+        let complete_count = source_heat.order.iter().filter(|coronet_key| {
+            if let Some(pace) = source_heat.paces.get(*coronet_key) {
+                if let Some(tack) = pace.tacks.first() {
+                    tack.state == jjrg_PaceState::Complete
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        }).count();
+
+        // Create steeplechase marker entry
+        let marker_text = format!("Garlanded at pace {} — magnificent service", complete_count);
+
+        // Update source heat: add steeplechase marker (prepend to paddock file)
+        let source_paddock_path = base_path.join(&source_heat.paddock_file);
+        let existing_content = std::fs::read_to_string(&source_paddock_path)
+            .map_err(|e| format!("Failed to read paddock file: {}", e))?;
+
+        let updated_content = format!("{}\n\n{}", marker_text, existing_content);
+        std::fs::write(&source_paddock_path, updated_content)
+            .map_err(|e| format!("Failed to write paddock file: {}", e))?;
+
+        ((base, seq), source_heat.paddock_file.clone(), source_heat.order.clone(), actionable_count, retained_count)
+    };
+
+    // Build garlanded and continuation silks
+    let (base, seq) = source_silks;
+    let garlanded_silks = jjrq_build_garlanded_silks(&base, seq);
+    let continuation_silks = jjrq_build_continuation_silks(&base, seq + 1);
+
+    // Nominate new heat with continuation silks
+    let created_ts = jjrc_timestamp_from_env();
+    let nominate_args = jjrg_NominateArgs {
+        silks: continuation_silks.clone(),
+        created: created_ts,
+    };
+    let nominate_result = jjrg_nominate(gallops, nominate_args, base_path)?;
+    let new_firemark_key = nominate_result.firemark.clone();
+
+    // Get destination heat paddock file for copy
+    let dest_paddock_file = {
+        let dest_heat = gallops.heats.get(&new_firemark_key)
+            .ok_or_else(|| "Failed to retrieve newly nominated heat".to_string())?;
+        dest_heat.paddock_file.clone()
+    };
+
+    // Read original paddock content before modifications (for new heat)
+    let source_paddock_path = base_path.join(&source_paddock_file);
+    let original_paddock_content = std::fs::read_to_string(&source_paddock_path)
+        .map_err(|e| format!("Failed to read paddock file: {}", e))?;
+
+    // Extract original content (removing marker we just added)
+    let existing_content = original_paddock_content.split_once("\n\n")
+        .map(|(_, rest)| rest)
+        .unwrap_or(&original_paddock_content);
+
+    // Copy paddock content from source to new heat
+    let dest_paddock_path = base_path.join(&dest_paddock_file);
+    std::fs::write(&dest_paddock_path, existing_content)
+        .map_err(|e| format!("Failed to copy paddock to new heat: {}", e))?;
+
+    // Draft all actionable paces to new heat (in order)
+    for coronet_key in source_order {
+        if let Some(pace) = gallops.heats.get(&firemark_key).unwrap().paces.get(&coronet_key) {
+            if let Some(tack) = pace.tacks.first() {
+                if matches!(tack.state, jjrg_PaceState::Rough | jjrg_PaceState::Bridled) {
+                    // Draft this pace to new heat (append to end)
+                    let draft_args = jjrg_DraftArgs {
+                        coronet: coronet_key.clone(),
+                        to: new_firemark_key.clone(),
+                        before: None,
+                        after: None,
+                        first: false, // Append to end to maintain order
+                    };
+                    jjrg_draft(gallops, draft_args)?;
+                }
+            }
+        }
+    }
+
+    // Update source heat: change silks to garlanded, set status to stabled
+    let source_heat_mut = gallops.heats.get_mut(&firemark_key).unwrap();
+    source_heat_mut.silks = garlanded_silks.clone();
+    source_heat_mut.status = jjrg_HeatStatus::Stabled;
+
+    // Set new heat status to racing and move to front
+    let new_heat_mut = gallops.heats.get_mut(&new_firemark_key).unwrap();
+    new_heat_mut.status = jjrg_HeatStatus::Racing;
+    if let Some(heat_entry) = gallops.heats.shift_remove(&new_firemark_key) {
+        gallops.heats.shift_insert(0, new_firemark_key.clone(), heat_entry);
+    }
+
+    Ok(jjrg_GarlandResult {
+        old_firemark: firemark_key,
+        old_silks: garlanded_silks,
+        new_firemark: new_firemark_key,
+        new_silks: continuation_silks,
+        paces_transferred: actionable_count,
+        paces_retained: retained_count,
+    })
+}

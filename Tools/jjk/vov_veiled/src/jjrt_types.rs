@@ -190,3 +190,26 @@ pub struct jjrg_FurloughArgs {
     /// New silks (rename heat)
     pub silks: Option<String>,
 }
+
+/// Arguments for the garland operation
+pub struct jjrg_GarlandArgs {
+    /// Firemark of heat to garland
+    pub firemark: String,
+}
+
+/// Result of the garland operation
+#[derive(Debug)]
+pub struct jjrg_GarlandResult {
+    /// Old firemark
+    pub old_firemark: String,
+    /// Old silks (garlanded)
+    pub old_silks: String,
+    /// New firemark
+    pub new_firemark: String,
+    /// New silks (continuation)
+    pub new_silks: String,
+    /// Number of paces transferred to new heat
+    pub paces_transferred: usize,
+    /// Number of paces retained in garlanded heat
+    pub paces_retained: usize,
+}
