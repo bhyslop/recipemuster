@@ -39,5 +39,5 @@ Entries ordered newest first (most recent at top).
 . Parse each line: extract timestamp, hallmark, identity, action, and message
 . For pace-level (₢CORONET): verify coronet belongs to target heat
 . For heat-level (₣FIREMARK): verify firemark matches target heat
-. Build JSON array, limit to requested count
-. Output JSON
+. Collect entries, limit to requested count (newest first)
+. Output as column-aligned table with header and separator row
