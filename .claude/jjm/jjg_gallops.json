@@ -3700,6 +3700,13 @@
         "₢AFAAa": {
           "tacks": [
             {
+              "ts": "260123-1628",
+              "state": "complete",
+              "text": "Fix test jjtg_nominate_creates_heat which expects Racing but gets Stabled.\n\nThe test at src/jjtg_gallops.rs:432 was written before nominate defaulted to stabled. Update the test assertion to expect Stabled instead of Racing, matching the current behavior from the nominate-defaults-stabled pace.\n\n**File:** Tools/jjk/vov_veiled/src/jjtg_gallops.rs (line ~432)\n**Change:** `assert_eq\\!(heat.status, HeatStatus::Racing)` → `assert_eq\\!(heat.status, HeatStatus::Stabled)`",
+              "silks": "fix-nominate-test",
+              "commit": "5f64ba8"
+            },
+            {
               "ts": "260123-1627",
               "state": "rough",
               "text": "Fix test jjtg_nominate_creates_heat which expects Racing but gets Stabled.\n\nThe test at src/jjtg_gallops.rs:432 was written before nominate defaulted to stabled. Update the test assertion to expect Stabled instead of Racing, matching the current behavior from the nominate-defaults-stabled pace.\n\n**File:** Tools/jjk/vov_veiled/src/jjtg_gallops.rs (line ~432)\n**Change:** `assert_eq\\!(heat.status, HeatStatus::Racing)` → `assert_eq\\!(heat.status, HeatStatus::Stabled)`",
