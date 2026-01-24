@@ -428,7 +428,13 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 - `jjx_saddle` output includes `pace_coronet` (next actionable pace) — no separate parade call needed to find what's next
 
 **Commit Discipline:**
-When working on a heat/pace, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `vvx_commit` directly — it bypasses pace affiliation and steeplechase tracking.
+When working on a heat, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `vvx_commit` directly — it bypasses heat/pace affiliation and steeplechase tracking.
+
+Notch handles two cases:
+- **Pace-affiliated**: Active pace provides context (coronet in commit)
+- **Heat-affiliated**: No active pace, but commit is part of heat work (firemark only)
+
+When user says "notch", invoke `/jjc-pace-notch` — don't second-guess based on pace state.
 
 **Multi-Session Discipline:**
 Multiple Claude sessions may work concurrently in the same repo. The explicit file list in `/jjc-pace-notch` enables orthogonal commits.
