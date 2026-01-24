@@ -3457,6 +3457,13 @@
         "₢AFAAO": {
           "tacks": [
             {
+              "ts": "260123-1942",
+              "state": "complete",
+              "text": "Investigate why heat-only commits show hallmark as `1010` while pace commits show `1010-xxxxxxx` in Kit Forge.\n\n## Observed\n\n- Pace commit: `jjb:1010-c75754c9:₢AFAAB:n: ...`\n- Heat-only commit: `jjb:1010:₣AF:n: ...`\n\nBoth should use Kit Forge format (`NNNN-xxxxxxx`) since no `.vvk/vvbf_brand.json` exists.\n\n## Investigation Steps\n\n1. Add debug logging to zjjrn_get_hallmark() in jjrn_notch.rs to trace which branch executes\n2. Check if fs::read_to_string succeeds on a non-existent file (should fail, but verify)\n3. Verify the brand file path is correct (`.vvk/vvbf_brand.json` vs `./vvk/...` vs absolute path)\n4. Test both notch and heat-level commit paths to see hallmark output\n5. Check if any symlinks or mount points could cause the brand file to appear/disappear\n\n## Expected Outcome\n\n- Identify root cause of format inconsistency\n- Fix if bug found, or document if environmental quirk\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrn_notch.rs (zjjrn_get_hallmark function)",
+              "silks": "investigate-hallmark-format-discrepancy",
+              "commit": "423fc7c"
+            },
+            {
               "ts": "260123-1135",
               "state": "rough",
               "text": "Investigate why heat-only commits show hallmark as `1010` while pace commits show `1010-xxxxxxx` in Kit Forge.\n\n## Observed\n\n- Pace commit: `jjb:1010-c75754c9:₢AFAAB:n: ...`\n- Heat-only commit: `jjb:1010:₣AF:n: ...`\n\nBoth should use Kit Forge format (`NNNN-xxxxxxx`) since no `.vvk/vvbf_brand.json` exists.\n\n## Investigation Steps\n\n1. Add debug logging to zjjrn_get_hallmark() in jjrn_notch.rs to trace which branch executes\n2. Check if fs::read_to_string succeeds on a non-existent file (should fail, but verify)\n3. Verify the brand file path is correct (`.vvk/vvbf_brand.json` vs `./vvk/...` vs absolute path)\n4. Test both notch and heat-level commit paths to see hallmark output\n5. Check if any symlinks or mount points could cause the brand file to appear/disappear\n\n## Expected Outcome\n\n- Identify root cause of format inconsistency\n- Fix if bug found, or document if environmental quirk\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrn_notch.rs (zjjrn_get_hallmark function)",
