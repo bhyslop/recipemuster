@@ -4821,9 +4821,10 @@
       "status": "stabled",
       "order": [
         "₢ANAAA",
-        "₢ANAAB"
+        "₢ANAAB",
+        "₢ANAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AN.md",
       "paces": {
         "₢ANAAA": {
@@ -4845,6 +4846,17 @@
               "text": "Implement JSON trophy types in Rust.\n\n## New Types in jjrt_types.rs\n\n```rust\npub struct jjrt_Trophy {\n    pub firemark: String,\n    pub silks: String,\n    pub created: String,\n    pub retired: String,\n    pub status: String,\n    pub paddock: String,\n    pub sessions: Vec<jjrt_TrophySession>,\n    pub paces: BTreeMap<String, jjrt_TrophyPace>,\n    pub steeplechase: Vec<jjrt_SteeplechaseEntry>,\n}\n\npub struct jjrt_TrophySession {\n    pub start: String,\n    pub end: String,\n    pub duration_min: u32,\n}\n\npub struct jjrt_TrophyPace {\n    pub silks: String,\n    pub final_state: String,\n    pub timeline: Vec<jjrt_StateTransition>,\n    pub flights: Vec<jjrt_Flight>,\n    pub tacks: Vec<String>,  // one-line JSON per tack\n}\n\npub struct jjrt_StateTransition {\n    pub ts: String,\n    pub state: String,\n    pub agent: Option<String>,\n}\n\npub struct jjrt_Flight {\n    pub agent: String,\n    pub started: String,\n    pub landed: String,\n    pub steps: String,\n    pub verify: String,\n    pub files: Vec<String>,\n}\n```\n\n## Serialization\n\n- Derive Serialize for all types\n- Tacks serialize as single-line JSON strings\n- Use BTreeMap for deterministic key ordering\n\n## Depends on\n\ntrophy-alpha-jjsa-json-format (spec must be defined first)",
               "silks": "trophy-alpha-json-types",
               "commit": "a4aa0c3"
+            }
+          ]
+        },
+        "₢ANAAC": {
+          "tacks": [
+            {
+              "ts": "260124-1201",
+              "state": "rough",
+              "text": "Implement trophy computation: sessions, timelines, flights.\n\n## Session Clustering\n\nInput: steeplechase entries with timestamps\nAlgorithm:\n1. Sort entries by timestamp\n2. Group entries where gap < 30 minutes = same session\n3. Compute duration from first to last entry in session\n\n## Timeline Extraction\n\nInput: pace tacks array\nOutput: compact timeline of state transitions\nAlgorithm:\n1. Walk tacks in reverse (oldest first)\n2. Extract {ts, state, agent} for each state change\n3. agent field populated if state is \"bridled\"\n\n## Flight Record Building\n\nInput: steeplechase entries (B, F, L, W markers)\nOutput: flight records per pace\nAlgorithm:\n1. Find B marker for pace → flight start setup\n2. Find F marker → execution began\n3. Find L marker → execution ended, capture result\n4. Correlate files from L marker body\n\n## Implementation\n\n- New module jjrt_trophy.rs or functions in jjro_ops.rs\n- Pure functions: steeplechase → sessions, tacks → timeline, markers → flights\n\n## Depends on\n\ntrophy-alpha-json-types (need types to populate)",
+              "silks": "trophy-alpha-compute",
+              "commit": "2f8f6f1"
             }
           ]
         }
