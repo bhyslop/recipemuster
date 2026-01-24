@@ -424,7 +424,14 @@ Multiple Claude sessions may work concurrently in the same repo. The explicit fi
 **Build & Run Discipline:**
 Always run these after Rust code changes:
 - `tt/vow-b.Build.sh` — Build
-- `tt/vvw-r.RunVVX.sh` — Run VVX
+- `tt/vow-t.Test.sh` — Test
+
+**Pre-wrap Verification:**
+Before wrapping ANY pace, run build + tests:
+```bash
+tt/vow-b.Build.sh && tt/vow-t.Test.sh
+```
+Do not wrap with failing tests or stale binary. This prevents shipping broken code or investigating phantom bugs caused by stale binaries.
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 
