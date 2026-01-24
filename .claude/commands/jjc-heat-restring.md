@@ -110,7 +110,13 @@ For any context the user approves for import, add a tack entry to the pace that 
 - The source heat it came from
 - The substantive context itself (not just a reference)
 
-Use `jjx_tally` with the combined text (imported context + original spec) via stdin.
+Use `jjx_tally` with the combined text via stdin:
+```bash
+cat <<'PACESPEC' | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET>
+[Imported context from ₣{source}]
+{original spec text}
+PACESPEC
+```
 
 ### Step 6e: Update destination paddock (if needed)
 

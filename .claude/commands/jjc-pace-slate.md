@@ -55,7 +55,9 @@ Extract from $ARGUMENTS:
 
 Run:
 ```bash
-echo "<PACE_TEXT>" | ./tt/vvw-r.RunVVX.sh jjx_slate <FIREMARK> --silks "<SILKS>" [POSITIONING]
+cat <<'PACESPEC' | ./tt/vvw-r.RunVVX.sh jjx_slate <FIREMARK> --silks "<SILKS>" [POSITIONING]
+<PACE_TEXT>
+PACESPEC
 ```
 
 Where `[POSITIONING]` is one of (if provided):

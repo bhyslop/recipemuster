@@ -89,12 +89,16 @@ Extract:
 
 **If renaming (RENAME_TO is set):**
 ```bash
-echo "<NEW_TEXT>" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks "<RENAME_TO>"
+cat <<'PACESPEC' | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks "<RENAME_TO>"
+<NEW_TEXT>
+PACESPEC
 ```
 
 **Otherwise:**
 ```bash
-echo "<NEW_TEXT>" | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET>
+cat <<'PACESPEC' | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET>
+<NEW_TEXT>
+PACESPEC
 ```
 
 The new tack text is passed via stdin. State is inherited (stays rough, stays bridled, etc.).
