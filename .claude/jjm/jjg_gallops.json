@@ -3877,6 +3877,14 @@
         "₢AFAAf": {
           "tacks": [
             {
+              "ts": "260124-0743",
+              "state": "bridled",
+              "text": "Add --markdown flag to jjx_parade --remaining that outputs ready-to-display markdown for /jjc-heat-groom.\n\n**Output format:**\n```markdown\n## Heat: {silks} (₣{firemark}) [{status}]\n\n**Progress:** {complete} complete | {abandoned} abandoned | {remaining} remaining ({rough} rough, {bridled} bridled)\n\n**Remaining paces:**\n1. [{state}] {silks} (₢{coronet})\n2. [{state}] {silks} (₢{coronet})\n...\n\n**Next up:** {silks} (₢{coronet}) [{state}]\n```\n\n**Implementation:**\n- Add `--markdown` flag to parade command\n- When combined with `--remaining`, output the format above\n- State indicators: `[rough]`, `[bridled]`, `[complete]`, `[abandoned]`\n- Next up = first pace that is not complete/abandoned\n\n**Files:** jjx_parade.rs (add flag handling and markdown formatter)",
+              "silks": "parade-remaining-markdown",
+              "commit": "7cbf4d3",
+              "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: jjrq_query.rs, jjrx_cli.rs (2 files)\nSteps:\n1. Add markdown field to jjrq_ParadeArgs struct\n2. Add --markdown flag to ParadeArgs in jjrx_cli.rs\n3. In jjrq_run_parade, when args.remaining and args.markdown are both true, output markdown format instead of plain list\n4. Markdown format: H2 header with heat silks/firemark/status, Progress line with stats, Remaining paces as numbered markdown list, Next up callout identifying first non-complete/abandoned pace\nVerify: tt/vow-b.Build.sh"
+            },
+            {
               "ts": "260124-0742",
               "state": "rough",
               "text": "Add --markdown flag to jjx_parade --remaining that outputs ready-to-display markdown for /jjc-heat-groom.\n\n**Output format:**\n```markdown\n## Heat: {silks} (₣{firemark}) [{status}]\n\n**Progress:** {complete} complete | {abandoned} abandoned | {remaining} remaining ({rough} rough, {bridled} bridled)\n\n**Remaining paces:**\n1. [{state}] {silks} (₢{coronet})\n2. [{state}] {silks} (₢{coronet})\n...\n\n**Next up:** {silks} (₢{coronet}) [{state}]\n```\n\n**Implementation:**\n- Add `--markdown` flag to parade command\n- When combined with `--remaining`, output the format above\n- State indicators: `[rough]`, `[bridled]`, `[complete]`, `[abandoned]`\n- Next up = first pace that is not complete/abandoned\n\n**Files:** jjx_parade.rs (add flag handling and markdown formatter)",
