@@ -3674,6 +3674,13 @@
         "₢AFAAX": {
           "tacks": [
             {
+              "ts": "260123-1656",
+              "state": "complete",
+              "text": "After JJD is renamed to JJSA, update all remaining references.\n\n**At execution time, rescan for JJD references:**\n1. Run: jjx_scout JJD --actionable\n2. For each pace spec with JJD reference: reslate to replace JJD with JJSA\n3. Edit paddock files (jjp_*.md) to update References sections\n4. Edit other files: CLAUDE.md, jjc-pace-bridle.md, jji_itch.md, VOS-VoxObscuraSpec.adoc, VLS-VoxLiturgicalSpec.adoc\n\n**Do NOT update:**\n- Completed pace specs in gallops.json (historical record)\n- Retired heat trophies in .claude/jjm/retired/\n- RBM-history/ or Study/ directories (false positives)\n\n**Constraint:** This pace depends on split-jjd-subfiles completing first.",
+              "silks": "jjd-to-jjsa-references",
+              "commit": "efe7427"
+            },
+            {
               "ts": "260123-1412",
               "state": "rough",
               "text": "After JJD is renamed to JJSA, update all remaining references.\n\n**At execution time, rescan for JJD references:**\n1. Run: jjx_scout JJD --actionable\n2. For each pace spec with JJD reference: reslate to replace JJD with JJSA\n3. Edit paddock files (jjp_*.md) to update References sections\n4. Edit other files: CLAUDE.md, jjc-pace-bridle.md, jji_itch.md, VOS-VoxObscuraSpec.adoc, VLS-VoxLiturgicalSpec.adoc\n\n**Do NOT update:**\n- Completed pace specs in gallops.json (historical record)\n- Retired heat trophies in .claude/jjm/retired/\n- RBM-history/ or Study/ directories (false positives)\n\n**Constraint:** This pace depends on split-jjd-subfiles completing first.",
