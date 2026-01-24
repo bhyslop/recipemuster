@@ -43,7 +43,7 @@ This returns:
 
 ## Step 3: Display heat overview
 
-**Always display the remaining paces list.** This shows actionable paces in execution order — the essential context for deciding what to work on.
+**Echo the vvx parade output directly** (no code blocks, no markdown tables, no box-drawing). The vvx output is already column-aligned plain text.
 
 If heat status is "stabled", note: "⚠ This heat is stabled (paused). Use `/jjc-heat-furlough <firemark> --racing` to resume execution."
 
