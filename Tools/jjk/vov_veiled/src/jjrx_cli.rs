@@ -223,10 +223,6 @@ struct zjjrx_NominateArgs {
     /// Kebab-case display name for the Heat
     #[arg(long, short = 's')]
     silks: String,
-
-    /// Creation date in YYMMDD format
-    #[arg(long, short = 'c')]
-    created: String,
 }
 
 /// Arguments for jjx_slate command
@@ -892,6 +888,7 @@ fn zjjrx_run_retire(args: zjjrx_RetireArgs) -> i32 {
 }
 
 fn zjjrx_run_nominate(args: zjjrx_NominateArgs) -> i32 {
+    use crate::jjrc_core::jjrc_timestamp_from_env;
     use crate::jjrg_gallops::jjrg_NominateArgs as LibNominateArgs;
     use std::path::Path;
 
@@ -933,7 +930,7 @@ fn zjjrx_run_nominate(args: zjjrx_NominateArgs) -> i32 {
     let silks = args.silks.clone();
     let nominate_args = LibNominateArgs {
         silks: args.silks,
-        created: args.created,
+        created: jjrc_timestamp_from_env(),
     };
 
     match gallops.jjrg_nominate(nominate_args, base_path) {

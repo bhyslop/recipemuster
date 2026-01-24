@@ -19,24 +19,16 @@ Extract silks from $ARGUMENTS.
 - Must be kebab-case: `[a-z0-9]+(-[a-z0-9]+)*`
 - Error if invalid: "Silks must be kebab-case (e.g., 'my-feature', 'fix-auth-bug')"
 
-## Step 2: Get current date
-
-Get today's date in YYMMDD format (e.g., `260114` for 2026-01-14).
-
-```bash
-date +%y%m%d
-```
-
-## Step 3: Create heat
+## Step 2: Create heat
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_nominate --silks "<SILKS>" --created "<YYMMDD>"
+./tt/vvw-r.RunVVX.sh jjx_nominate --silks "<SILKS>"
 ```
 
 Capture the new Firemark from stdout.
 
-## Step 4: Report result
+## Step 3: Report result
 
 On success:
 - "Created heat: **<SILKS>** (₣AA)"
@@ -45,7 +37,7 @@ On success:
 
 On failure, report the error from vvx.
 
-## Step 5: Offer next steps
+## Step 4: Offer next steps
 
 Ask: "Would you like to:"
 1. Edit the paddock file to add context

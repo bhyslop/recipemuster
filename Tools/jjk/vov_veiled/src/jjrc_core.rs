@@ -28,3 +28,32 @@ pub fn jjrc_timestamp_date() -> String {
 pub fn jjrc_timestamp_full() -> String {
     Local::now().format("%y%m%d-%H%M").to_string()
 }
+
+/// Get creation date from BUD_NOW_STAMP env var, or fall back to system clock
+///
+/// If BUD_NOW_STAMP is set (format: YYYYMMDD-HHMMSS-PID-RANDOM),
+/// extract YYYYMMDD and convert to YYMMDD (drop century).
+/// Otherwise, use jjrc_timestamp_date() for current system clock.
+pub fn jjrc_timestamp_from_env() -> String {
+    match std::env::var("BUD_NOW_STAMP") {
+        Ok(stamp) => {
+            // Expected format: YYYYMMDD-HHMMSS-PID-RANDOM
+            // Extract YYYYMMDD and convert to YYMMDD by dropping first 2 digits
+            if stamp.len() >= 8 {
+                let yyyymmdd = &stamp[..8];
+                // Drop century (first 2 chars) to get YYMMDD
+                if let Ok(year) = yyyymmdd[..4].parse::<u32>() {
+                    let yy = year % 100;
+                    let mmdd = &yyyymmdd[4..];
+                    return format!("{:02}{}", yy, mmdd);
+                }
+            }
+            // Fall back to system clock if parsing fails
+            jjrc_timestamp_date()
+        }
+        Err(_) => {
+            // BUD_NOW_STAMP not set, use system clock
+            jjrc_timestamp_date()
+        }
+    }
+}
