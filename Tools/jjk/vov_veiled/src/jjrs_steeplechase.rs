@@ -16,6 +16,7 @@ use serde::Serialize;
 use std::process::Command;
 
 use crate::jjrf_favor::{jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX};
+use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 
 /// Arguments for jjx_rein command
 #[derive(Debug)]
@@ -208,38 +209,65 @@ pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEnt
     Ok(entries)
 }
 
-/// Format steeplechase entries as human-readable text with fixed-width columns
-/// Columns: timestamp (16), commit (8), action (3), coronet (7), subject
-fn zjjrs_format_entry(entry: &jjrs_SteeplechaseEntry) -> String {
-    let timestamp = format!("{:<16}", entry.timestamp);
-    let commit = format!("{:<8}", entry.commit);
-    let action = match &entry.action {
-        Some(a) => format!("[{}]", a),
-        None => String::new(),
-    };
-    let action_col = format!("{:<3}", action);
-    let coronet = match &entry.coronet {
-        Some(c) => format!("{:<7}", c),
-        None => "       ".to_string(), // 7 spaces for alignment
-    };
-
-    format!(
-        "{}  {}  {}  {}{}",
-        timestamp, commit, action_col, coronet, entry.subject
-    )
-}
-
 /// Run jjx_rein command (CLI wrapper)
+/// Outputs column-aligned plain text table with header and separator
 pub fn jjrs_run(args: jjrs_ReinArgs) -> i32 {
     match jjrs_get_entries(&args) {
         Ok(entries) => {
-            for entry in entries {
-                println!("{}", zjjrs_format_entry(&entry));
+            // Set up table with column definitions
+            let mut table = jjrp_Table::jjrp_new(vec![
+                jjrp_Column::new("Timestamp", jjrp_Align::Left),
+                jjrp_Column::new("Commit", jjrp_Align::Left),
+                jjrp_Column::new("Act", jjrp_Align::Left),
+                jjrp_Column::new("Affil", jjrp_Align::Left),
+                jjrp_Column::new("Subject", jjrp_Align::Left),
+            ]);
+
+            // Measure all rows to compute column widths
+            for entry in &entries {
+                let action_str = entry.action.as_ref().map(|a| format!("[{}]", a)).unwrap_or_else(|| String::new());
+                let affil_str = if let Some(ref coronet) = entry.coronet {
+                    coronet.clone()
+                } else {
+                    // Extract firemark from the first 2 chars after coronet prefix in firemark
+                    // Since we called with a firemark, we need to reconstruct it
+                    // Parse the target firemark from args - it's passed as a raw string
+                    format!("₣{}", args.firemark)
+                };
+                table.jjrp_measure(&[
+                    &entry.timestamp,
+                    &entry.commit,
+                    &action_str,
+                    &affil_str,
+                    &entry.subject,
+                ]);
             }
+
+            // Print header and separator
+            table.jjrp_print_header();
+            table.jjrp_print_separator();
+
+            // Print data rows
+            for entry in &entries {
+                let action_str = entry.action.as_ref().map(|a| format!("[{}]", a)).unwrap_or_else(|| String::new());
+                let affil_str = if let Some(ref coronet) = entry.coronet {
+                    coronet.clone()
+                } else {
+                    format!("₣{}", args.firemark)
+                };
+                table.jjrp_print_row(&[
+                    &entry.timestamp,
+                    &entry.commit,
+                    &action_str,
+                    &affil_str,
+                    &entry.subject,
+                ]);
+            }
+
             0
         }
         Err(e) => {
-            eprintln!("rein: error: {}", e);
+            eprintln!("jjx_rein: error: {}", e);
             1
         }
     }

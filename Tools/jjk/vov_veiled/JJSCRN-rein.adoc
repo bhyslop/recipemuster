@@ -11,38 +11,24 @@ Parse git history for steeplechase entries belonging to a
 // ⟦axd_optional⟧
 * `--limit` — maximum entries to return (default: 50)
 
-{jjds_stdout} JSON array of steeplechase entries:
-[source,json]
+{jjds_stdout} Column-aligned plain text table of steeplechase entries (newest first):
+[source]
 ----
-[
-  {
-    "timestamp": "YYYY-MM-DD HH:MM",
-    "commit": "abc123ef",
-    "hallmark": "1009",
-    "coronet": "₢XXXXX",
-    "action": "n",
-    "subject": "commit message"
-  },
-  {
-    "timestamp": "YYYY-MM-DD HH:MM",
-    "commit": "def456ab",
-    "hallmark": "1009-abc1234",
-    "coronet": "₢XXXXX",
-    "action": "A",
-    "subject": "description"
-  },
-  {
-    "timestamp": "YYYY-MM-DD HH:MM",
-    "hallmark": "1009",
-    "action": "N",
-    "subject": "heat-silks"
-  }
-]
+Timestamp            Commit  Act  Affil     Subject
+────────────────────────────────────────────────────────
+2026-01-24 09:20   f4824e77  [T]  ₣AF       Tally: parade-remaining-markdown
+2026-01-24 08:49   857d982c  [F]  ₢AFAAf    Executing bridled pace...
+2026-01-24 08:47   a6b75159  [W]  ₢AFAAn    pace complete
 ----
-Field `hallmark` is always present.
-Field `coronet` is present for pace-level entries, absent for heat-level operations.
-Field `action` is present for all commits, including standard notch commits (`n`).
-Entries ordered newest first.
+
+Columns:
+- `Timestamp`: date and time in "YYYY-MM-DD HH:MM" format
+- `Commit`: abbreviated git commit SHA (8 chars)
+- `Act`: action code in brackets (e.g., `[n]` for notch, `[A]` for added) or empty for heat-level operations
+- `Affil`: affiliation - shows ₢CORONET for pace-level entries, ₣FIREMARK for heat-level operations
+- `Subject`: commit message or operation description
+
+Entries ordered newest first (most recent at top).
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
