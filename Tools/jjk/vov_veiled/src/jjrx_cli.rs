@@ -95,6 +95,10 @@ pub enum jjrx_JjxCommands {
     /// List Coronets for a Heat
     #[command(name = "jjx_get_coronets")]
     GetCoronets(zjjrx_GetCoronetsArgs),
+
+    /// Get or update Heat paddock (getter/setter)
+    #[command(name = "jjx_curry")]
+    Curry(zjjrx_CurryArgs),
 }
 
 /// Arguments for jjx_notch command
@@ -408,6 +412,49 @@ struct zjjrx_GetCoronetsArgs {
     rough: bool,
 }
 
+/// Curry verb for paddock update mode
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum zjjrx_CurryVerb {
+    Refine,
+    Level,
+    Muck,
+}
+
+impl zjjrx_CurryVerb {
+    fn as_str(&self) -> &'static str {
+        match self {
+            zjjrx_CurryVerb::Refine => "refine",
+            zjjrx_CurryVerb::Level => "level",
+            zjjrx_CurryVerb::Muck => "muck",
+        }
+    }
+}
+
+/// Arguments for jjx_curry command
+#[derive(clap::Args, Debug)]
+struct zjjrx_CurryArgs {
+    /// Path to the Gallops JSON file
+    #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
+    file: PathBuf,
+
+    /// Target Heat identity (Firemark)
+    firemark: String,
+
+    /// Verb for setter mode (required if stdin present)
+    #[arg(long)]
+    refine: bool,
+
+    #[arg(long)]
+    level: bool,
+
+    #[arg(long)]
+    muck: bool,
+
+    /// Optional note for chalk entry
+    #[arg(long)]
+    note: Option<String>,
+}
+
 // ============================================================================
 // Public dispatch API
 // ============================================================================
@@ -459,6 +506,7 @@ pub fn jjrx_dispatch(args: &[OsString]) -> i32 {
         jjrx_JjxCommands::Scout(args) => zjjrx_run_scout(args),
         jjrx_JjxCommands::GetSpec(args) => zjjrx_run_get_spec(args),
         jjrx_JjxCommands::GetCoronets(args) => zjjrx_run_get_coronets(args),
+        jjrx_JjxCommands::Curry(args) => zjjrx_run_curry(args),
     }
 }
 
@@ -1719,4 +1767,96 @@ fn zjjrx_run_get_coronets(args: zjjrx_GetCoronetsArgs) -> i32 {
     };
 
     lib_run_get_coronets(get_coronets_args)
+}
+
+fn zjjrx_run_curry(args: zjjrx_CurryArgs) -> i32 {
+    use crate::jjro_ops::jjrg_curry;
+
+    // Parse firemark
+    let firemark = match Firemark::jjrf_parse(&args.firemark) {
+        Ok(fm) => fm,
+        Err(e) => {
+            eprintln!("jjx_curry: error: {}", e);
+            return 1;
+        }
+    };
+
+    // Check stdin
+    let stdin_content = match read_stdin_optional() {
+        Ok(opt) => opt,
+        Err(e) => {
+            eprintln!("jjx_curry: error: {}", e);
+            return 1;
+        }
+    };
+
+    match stdin_content {
+        None => {
+            // Getter mode: display paddock content
+            let gallops = match Gallops::jjrg_load(&args.file) {
+                Ok(g) => g,
+                Err(e) => {
+                    eprintln!("jjx_curry: error loading Gallops: {}", e);
+                    return 1;
+                }
+            };
+
+            let firemark_key = firemark.jjrf_display();
+            let heat = match gallops.heats.get(&firemark_key) {
+                Some(h) => h,
+                None => {
+                    eprintln!("jjx_curry: error: Heat '{}' not found", firemark_key);
+                    return 1;
+                }
+            };
+
+            let paddock_path = std::path::Path::new(&heat.paddock_file);
+            let content = match std::fs::read_to_string(paddock_path) {
+                Ok(c) => c,
+                Err(e) => {
+                    eprintln!("jjx_curry: error reading paddock: {}", e);
+                    return 1;
+                }
+            };
+
+            print!("{}", content);
+            0
+        }
+        Some(new_content) => {
+            // Setter mode: require verb
+            let verb_count = [args.refine, args.level, args.muck]
+                .iter()
+                .filter(|&&x| x)
+                .count();
+
+            if verb_count == 0 {
+                eprintln!("jjx_curry: error: setter mode requires exactly one verb flag (--refine, --level, or --muck)");
+                return 1;
+            }
+            if verb_count > 1 {
+                eprintln!("jjx_curry: error: only one verb flag allowed");
+                return 1;
+            }
+
+            let verb = if args.refine {
+                zjjrx_CurryVerb::Refine
+            } else if args.level {
+                zjjrx_CurryVerb::Level
+            } else {
+                zjjrx_CurryVerb::Muck
+            };
+
+            // Call operation (curry acquires its own lock)
+            match jjrg_curry(&args.file, &firemark, &new_content, verb.as_str(), args.note.as_deref()) {
+                Ok(()) => {
+                    eprintln!("jjx_curry: paddock updated");
+                    0
+                }
+                Err(e) => {
+                    eprintln!("jjx_curry: error: {}", e);
+                    1
+                }
+            }
+        }
+    }
 }

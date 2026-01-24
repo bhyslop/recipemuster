@@ -727,6 +727,65 @@ fn zjjrg_build_trophy_content(
     Ok(content)
 }
 
+/// Curry - update Heat paddock with chalk entry
+///
+/// Writes new paddock content and creates a chalk commit recording the change.
+/// Verb indicates the type of update: refine (manual), level (from another heat), muck (reduction).
+pub fn jjrg_curry(
+    gallops_path: &std::path::Path,
+    firemark: &Firemark,
+    new_content: &str,
+    verb: &str,
+    note: Option<&str>,
+) -> Result<(), String> {
+    use std::fs;
+
+    // Load gallops
+    let gallops = jjrg_Gallops::jjrg_load(gallops_path)
+        .map_err(|e| format!("Failed to load Gallops: {}", e))?;
+
+    // Verify heat exists
+    let firemark_key = firemark.jjrf_display();
+    let heat = gallops.heats.get(&firemark_key)
+        .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+
+    // Write new paddock content
+    let paddock_path = std::path::Path::new(&heat.paddock_file);
+    fs::write(paddock_path, new_content)
+        .map_err(|e| format!("Failed to write paddock file: {}", e))?;
+
+    // Build chalk message
+    let description = if let Some(n) = note {
+        format!("paddock curried ({}): {}", verb, n)
+    } else {
+        format!("paddock curried ({})", verb)
+    };
+
+    // Create chalk commit using vvc
+    use crate::jjrn_notch::jjrn_format_heat_discussion;
+    let message = jjrn_format_heat_discussion(firemark, &description);
+
+    let commit_args = vvc::vvcm_CommitArgs {
+        files: vec![paddock_path.to_string_lossy().to_string()],
+        message,
+        size_limit: vvc::VVCG_SIZE_LIMIT,
+        warn_limit: vvc::VVCG_WARN_LIMIT,
+    };
+
+    // Acquire lock for commit
+    let lock = vvc::vvcc_CommitLock::vvcc_acquire()
+        .map_err(|e| format!("Failed to acquire commit lock: {}", e))?;
+
+    match vvc::machine_commit(&lock, &commit_args) {
+        Ok(hash) => {
+            eprintln!("jjx_curry: committed {}", &hash[..8]);
+            Ok(())
+        }
+        Err(e) => Err(format!("Commit failed: {}", e)),
+    }
+    // lock released here
+}
+
 /// Furlough a Heat - change status or rename
 ///
 /// Updates heat status (racing/stabled) and/or silks.
