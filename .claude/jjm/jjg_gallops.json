@@ -3199,9 +3199,10 @@
         "₢AFAAz",
         "₢AFAA0",
         "₢AFAA1",
-        "₢AFAA2"
+        "₢AFAA2",
+        "₢AFAA3"
       ],
-      "next_pace_seed": "AA3",
+      "next_pace_seed": "AA4",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAA0": {
@@ -3234,6 +3235,17 @@
               "text": "Implement L commit when agent returns from autonomous execution.\n\n## Trigger\n\nWhen a spawned agent completes execution in `/jjc-heat-mount` bridled flow.\n\n## Implementation\n\nBefore asking user \"Ready to wrap?\":\n1. Collect execution metadata from agent result\n2. Create chalk-style commit with L marker\n3. Subject format: `jjb:HALLMARK:₢XXXXX:L: {agent} {landed|crashed} | {steps}/{total} | verify: {pass|fail}`\n4. Body: files touched, duration, error message if crashed\n\n## Data to Capture\n\n- Agent tier (haiku/sonnet/opus)\n- Steps completed vs total (parse from direction)\n- Verification result (did build/test pass)\n- Files actually touched (from git status or agent report)\n- Duration (from timestamps)\n\n## Changes\n\n- jjrn_notch.rs: Add Landing marker type\n- Update /jjc-heat-mount to create L commit after agent returns\n- May need agent to report structured result\n\n## Depends on\n\ntrophy-alpha-bridle-marker (B must exist to have flights to land)",
               "silks": "trophy-alpha-landing-marker",
               "commit": "c4f508c"
+            }
+          ]
+        },
+        "₢AFAA3": {
+          "tacks": [
+            {
+              "ts": "260124-1150",
+              "state": "rough",
+              "text": "Add --intent parameter to jjx_notch for opus-supplied commit messages.\n\n## Purpose\n\nAllow opus driver to provide top-down intent (\"what we meant to do\") instead of relying on haiku's bottom-up diff description.\n\n## CLI Change\n\n```\njjx_notch <CORONET> [--intent \"message\"] <files...>\n```\n\n- If --intent provided: use as commit subject\n- If omitted: fall back to current haiku behavior\n\n## Implementation\n\n- jjrx_cli.rs: Add --intent Option<String> to notch args\n- jjro_ops.rs: In notch logic, check for intent before calling haiku\n- Format: `jjb:HALLMARK:₢XXXXX:n: {intent}` (same prefix, user message)\n\n## Slash Command Update\n\nUpdate /jjc-pace-notch:\n- Prompt opus for one-line intent summary\n- Pass to jjx_notch --intent\n\n## Backward Compatible\n\nOmitting --intent preserves current haiku-generated messages.",
+              "silks": "trophy-alpha-notch-intent",
+              "commit": "f61a0f8"
             }
           ]
         },
