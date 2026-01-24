@@ -1,6 +1,83 @@
 {
   "next_heat_seed": "AM",
   "heats": {
+    "₣AL": {
+      "silks": "jjk-restring-rust",
+      "creation_time": "260124",
+      "status": "racing",
+      "order": [
+        "₢ALAAA",
+        "₢ALAAB",
+        "₢ALAAC"
+      ],
+      "next_pace_seed": "AAD",
+      "paddock_file": ".claude/jjm/jjp_AL.md",
+      "paces": {
+        "₢ALAAA": {
+          "tacks": [
+            {
+              "ts": "260124-1015",
+              "state": "bridled",
+              "text": "Drafted from ₢AFAAt in ₣AF.\n\nWrite JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
+              "silks": "rust-restring-spec",
+              "commit": "c3c9e01",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: JJSCRS-restring.adoc, JJSA-GallopsData.adoc (2 files) | Steps: 1. Read existing JJSC* specs for MCM pattern reference 2. Create JJSCRS-restring.adoc with arguments, stdout schema, exit codes, behavior steps 3. Add jjdo_restring to JJSA mapping section 4. Add include directive in JJSA operations section | Verify: file exists and follows MCM conventions"
+            },
+            {
+              "ts": "260124-0941",
+              "state": "bridled",
+              "text": "Write JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
+              "silks": "rust-restring-spec",
+              "commit": "de654f0",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: JJSCRS-restring.adoc, JJSA-GallopsData.adoc (2 files) | Steps: 1. Read existing JJSC* specs for MCM pattern reference 2. Create JJSCRS-restring.adoc with arguments, stdout schema, exit codes, behavior steps 3. Add jjdo_restring to JJSA mapping section 4. Add include directive in JJSA operations section | Verify: file exists and follows MCM conventions"
+            },
+            {
+              "ts": "260124-0918",
+              "state": "rough",
+              "text": "Write JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
+              "silks": "rust-restring-spec",
+              "commit": "3207365"
+            }
+          ]
+        },
+        "₢ALAAB": {
+          "tacks": [
+            {
+              "ts": "260124-1015",
+              "state": "rough",
+              "text": "Drafted from ₢AFAAu in ₣AF.\n\nImplement jjx_restring subcommand in Rust per JJSCRS-restring.adoc spec.\n\nLocation: Tools/vok/src/jjx/ (follow existing subcommand patterns)\n\nKey behaviors:\n- Parse source firemark, dest firemark, one or more coronets\n- Validate all inputs before any mutations\n- Draft each pace atomically (single save)\n- Output JSON with source/destination info and drafted array\n- Include spec text from new tacks[0].text in output",
+              "silks": "rust-restring-impl",
+              "commit": "8eca4d9"
+            },
+            {
+              "ts": "260124-0919",
+              "state": "rough",
+              "text": "Implement jjx_restring subcommand in Rust per JJSCRS-restring.adoc spec.\n\nLocation: Tools/vok/src/jjx/ (follow existing subcommand patterns)\n\nKey behaviors:\n- Parse source firemark, dest firemark, one or more coronets\n- Validate all inputs before any mutations\n- Draft each pace atomically (single save)\n- Output JSON with source/destination info and drafted array\n- Include spec text from new tacks[0].text in output",
+              "silks": "rust-restring-impl",
+              "commit": "7ec0414"
+            }
+          ]
+        },
+        "₢ALAAC": {
+          "tacks": [
+            {
+              "ts": "260124-1015",
+              "state": "rough",
+              "text": "Drafted from ₢AFAAv in ₣AF.\n\nUpdate jjc-heat-restring.md slash command to use jjx_restring primitive.\n\nChanges:\n- Replace steps 1-5 (argument parsing, validation, draft loop, summary, empty check) with single jjx_restring call\n- Parse JSON output for ceremony inputs\n- Keep context merge ceremony (step 6) unchanged\n- Keep steeplechase marker (step 7) unchanged\n\nResult: Shorter slash command, fewer CLI calls, all mechanical work in Rust.",
+              "silks": "rust-restring-slash",
+              "commit": "0453bc6"
+            },
+            {
+              "ts": "260124-0919",
+              "state": "rough",
+              "text": "Update jjc-heat-restring.md slash command to use jjx_restring primitive.\n\nChanges:\n- Replace steps 1-5 (argument parsing, validation, draft loop, summary, empty check) with single jjx_restring call\n- Parse JSON output for ceremony inputs\n- Keep context merge ceremony (step 6) unchanged\n- Keep steeplechase marker (step 7) unchanged\n\nResult: Shorter slash command, fewer CLI calls, all mechanical work in Rust.",
+              "silks": "rust-restring-slash",
+              "commit": "ef7d32e"
+            }
+          ]
+        }
+      }
+    },
     "₣AK": {
       "silks": "jjk-garland-feature",
       "creation_time": "260124",
@@ -4780,83 +4857,6 @@
               "text": "STOP. Before slating implementation paces, ensure the linter design is clear. Questions to resolve: (1) What exact directories to scan? (2) How to detect which vesture applies to a file? (3) What output format for warnings? (4) How to handle files that legitimately don't follow liturgy (third-party, legacy)? Only proceed to implementation paces when these questions have answers in the paddock.",
               "silks": "design-before-implement",
               "commit": "bc37244"
-            }
-          ]
-        }
-      }
-    },
-    "₣AL": {
-      "silks": "jjk-restring-rust",
-      "creation_time": "260124",
-      "status": "stabled",
-      "order": [
-        "₢ALAAA",
-        "₢ALAAB",
-        "₢ALAAC"
-      ],
-      "next_pace_seed": "AAD",
-      "paddock_file": ".claude/jjm/jjp_AL.md",
-      "paces": {
-        "₢ALAAA": {
-          "tacks": [
-            {
-              "ts": "260124-1015",
-              "state": "bridled",
-              "text": "Drafted from ₢AFAAt in ₣AF.\n\nWrite JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
-              "silks": "rust-restring-spec",
-              "commit": "c3c9e01",
-              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: JJSCRS-restring.adoc, JJSA-GallopsData.adoc (2 files) | Steps: 1. Read existing JJSC* specs for MCM pattern reference 2. Create JJSCRS-restring.adoc with arguments, stdout schema, exit codes, behavior steps 3. Add jjdo_restring to JJSA mapping section 4. Add include directive in JJSA operations section | Verify: file exists and follows MCM conventions"
-            },
-            {
-              "ts": "260124-0941",
-              "state": "bridled",
-              "text": "Write JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
-              "silks": "rust-restring-spec",
-              "commit": "de654f0",
-              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: JJSCRS-restring.adoc, JJSA-GallopsData.adoc (2 files) | Steps: 1. Read existing JJSC* specs for MCM pattern reference 2. Create JJSCRS-restring.adoc with arguments, stdout schema, exit codes, behavior steps 3. Add jjdo_restring to JJSA mapping section 4. Add include directive in JJSA operations section | Verify: file exists and follows MCM conventions"
-            },
-            {
-              "ts": "260124-0918",
-              "state": "rough",
-              "text": "Write JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
-              "silks": "rust-restring-spec",
-              "commit": "3207365"
-            }
-          ]
-        },
-        "₢ALAAB": {
-          "tacks": [
-            {
-              "ts": "260124-1015",
-              "state": "rough",
-              "text": "Drafted from ₢AFAAu in ₣AF.\n\nImplement jjx_restring subcommand in Rust per JJSCRS-restring.adoc spec.\n\nLocation: Tools/vok/src/jjx/ (follow existing subcommand patterns)\n\nKey behaviors:\n- Parse source firemark, dest firemark, one or more coronets\n- Validate all inputs before any mutations\n- Draft each pace atomically (single save)\n- Output JSON with source/destination info and drafted array\n- Include spec text from new tacks[0].text in output",
-              "silks": "rust-restring-impl",
-              "commit": "8eca4d9"
-            },
-            {
-              "ts": "260124-0919",
-              "state": "rough",
-              "text": "Implement jjx_restring subcommand in Rust per JJSCRS-restring.adoc spec.\n\nLocation: Tools/vok/src/jjx/ (follow existing subcommand patterns)\n\nKey behaviors:\n- Parse source firemark, dest firemark, one or more coronets\n- Validate all inputs before any mutations\n- Draft each pace atomically (single save)\n- Output JSON with source/destination info and drafted array\n- Include spec text from new tacks[0].text in output",
-              "silks": "rust-restring-impl",
-              "commit": "7ec0414"
-            }
-          ]
-        },
-        "₢ALAAC": {
-          "tacks": [
-            {
-              "ts": "260124-1015",
-              "state": "rough",
-              "text": "Drafted from ₢AFAAv in ₣AF.\n\nUpdate jjc-heat-restring.md slash command to use jjx_restring primitive.\n\nChanges:\n- Replace steps 1-5 (argument parsing, validation, draft loop, summary, empty check) with single jjx_restring call\n- Parse JSON output for ceremony inputs\n- Keep context merge ceremony (step 6) unchanged\n- Keep steeplechase marker (step 7) unchanged\n\nResult: Shorter slash command, fewer CLI calls, all mechanical work in Rust.",
-              "silks": "rust-restring-slash",
-              "commit": "0453bc6"
-            },
-            {
-              "ts": "260124-0919",
-              "state": "rough",
-              "text": "Update jjc-heat-restring.md slash command to use jjx_restring primitive.\n\nChanges:\n- Replace steps 1-5 (argument parsing, validation, draft loop, summary, empty check) with single jjx_restring call\n- Parse JSON output for ceremony inputs\n- Keep context merge ceremony (step 6) unchanged\n- Keep steeplechase marker (step 7) unchanged\n\nResult: Shorter slash command, fewer CLI calls, all mechanical work in Rust.",
-              "silks": "rust-restring-slash",
-              "commit": "ef7d32e"
             }
           ]
         }
