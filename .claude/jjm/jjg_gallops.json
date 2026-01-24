@@ -3681,6 +3681,13 @@
         "₢AFAAY": {
           "tacks": [
             {
+              "ts": "260123-1929",
+              "state": "complete",
+              "text": "Fix remaining JJD→JJSA references in pace specs.\n\nPaces needing reslate:\n- ₢ADAAC liturgy-state-machine-vocabulary\n- ₢AIAAA whisper-conclave-lite\n\nThe tabtarget wrapper outputs log lines to stdout which breaks jq piping. Options:\n1. Fix the tabtarget to send logs to stderr\n2. Use grep to extract JSON portion before piping to jq\n3. Have jjx_peek write to a temp file\n\nOnce extraction works, the reslate pattern is:\n```bash\njjx_peek <CORONET> | jq -r .spec | sed \"s/JJD/JJSA/g\" | jjx_tally <CORONET>\n```\n\nNote: ₢AFAAP was already fixed via direct jq on gallops.json.",
+              "silks": "fix-jjd-reslate-extraction",
+              "commit": "1935172"
+            },
+            {
               "ts": "260123-1453",
               "state": "rough",
               "text": "Fix remaining JJD→JJSA references in pace specs.\n\nPaces needing reslate:\n- ₢ADAAC liturgy-state-machine-vocabulary\n- ₢AIAAA whisper-conclave-lite\n\nThe tabtarget wrapper outputs log lines to stdout which breaks jq piping. Options:\n1. Fix the tabtarget to send logs to stderr\n2. Use grep to extract JSON portion before piping to jq\n3. Have jjx_peek write to a temp file\n\nOnce extraction works, the reslate pattern is:\n```bash\njjx_peek <CORONET> | jq -r .spec | sed \"s/JJD/JJSA/g\" | jjx_tally <CORONET>\n```\n\nNote: ₢AFAAP was already fixed via direct jq on gallops.json.",
