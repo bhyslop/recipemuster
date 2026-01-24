@@ -3951,6 +3951,14 @@
         "₢AFAAj": {
           "tacks": [
             {
+              "ts": "260124-0749",
+              "state": "bridled",
+              "text": "Update slash commands to use heredoc pattern for stdin content.\n\n## Files to Update\n\n| File | Lines | Change |\n|------|-------|--------|\n| jjc-pace-slate.md | 58 | echo to cat heredoc |\n| jjc-pace-reslate.md | 92, 97 | echo to cat heredoc |\n| jjc-heat-restring.md | 113 | Add explicit heredoc pattern |\n\n## Pattern\n\nReplace:\n```bash\necho \"<TEXT>\" | ./tt/vvw-r.RunVVX.sh jjx_<cmd> ...\n```\n\nWith:\n```bash\ncat <<'EOF' | ./tt/vvw-r.RunVVX.sh jjx_<cmd> ...\n<content>\nEOF\n```\n\n## Rationale\n\nHeredoc with quoted delimiter is shell-safe for arbitrary content containing $variables, `backticks`, <angles>, pipes, etc. The echo pattern breaks on these characters.\n\n**Delimiter constraint:** The delimiter (e.g., EOF) must not appear alone on a line within the content.\n\n## Bridleable\n\nYes - mechanical text replacement, 3 files, clear pattern.",
+              "silks": "slash-cmd-heredoc-stdin",
+              "commit": "071ae9e",
+              "direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: jjc-pace-slate.md, jjc-pace-reslate.md, jjc-heat-restring.md (3 files)\nSteps:\n1. In jjc-pace-slate.md Step 3: Replace echo pattern with cat heredoc using quoted delimiter\n2. In jjc-pace-reslate.md Step 4: Replace both echo patterns with cat heredoc using quoted delimiter\n3. In jjc-heat-restring.md Step 6d: Add explicit cat heredoc pattern where jjx_tally stdin is mentioned\nVerify: Manual review"
+            },
+            {
               "ts": "260124-0743",
               "state": "rough",
               "text": "Update slash commands to use heredoc pattern for stdin content.\n\n## Files to Update\n\n| File | Lines | Change |\n|------|-------|--------|\n| jjc-pace-slate.md | 58 | echo to cat heredoc |\n| jjc-pace-reslate.md | 92, 97 | echo to cat heredoc |\n| jjc-heat-restring.md | 113 | Add explicit heredoc pattern |\n\n## Pattern\n\nReplace:\n```bash\necho \"<TEXT>\" | ./tt/vvw-r.RunVVX.sh jjx_<cmd> ...\n```\n\nWith:\n```bash\ncat <<'EOF' | ./tt/vvw-r.RunVVX.sh jjx_<cmd> ...\n<content>\nEOF\n```\n\n## Rationale\n\nHeredoc with quoted delimiter is shell-safe for arbitrary content containing $variables, `backticks`, <angles>, pipes, etc. The echo pattern breaks on these characters.\n\n**Delimiter constraint:** The delimiter (e.g., EOF) must not appear alone on a line within the content.\n\n## Bridleable\n\nYes - mechanical text replacement, 3 files, clear pattern.",
