@@ -1,0 +1,70 @@
+
+List
+{jjdt_coronet_s}
+for a
+{jjdhr_heat}
+in order, one per line.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* `FIREMARK` — positional, the
+{jjdt_firemark}
+to query
+
+// ⟦axd_optional⟧
+* `--remaining` — Exclude
+{jjdpe_complete}
+and
+{jjdpe_abandoned}
+paces
+
+// ⟦axd_optional⟧
+* `--rough` — Include only
+{jjdpe_rough}
+paces
+
+{jjds_stdout} One
+{jjdt_coronet}
+per line, in
+{jjdhm_order}
+sequence.
+No decoration, no silks, just the coronet with `₢` prefix.
+
+*Example output:*
+----
+₢AFAAW
+₢AFAAX
+₢AFAAQ
+----
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Parse
+{jjdt_firemark}
+from positional argument
+. Read
+{jjdgr_gallops}
+from file
+. Locate
+{jjdhr_heat}
+by
+{jjdt_firemark}
+. For each
+{jjdt_coronet}
+in
+{jjdhm_order}:
+.. If `--remaining` flag, skip paces where state is
+{jjdpe_complete}
+or
+{jjdpe_abandoned}
+.. If `--rough` flag, skip paces where state is not
+{jjdpe_rough}
+.. Output
+{jjdt_coronet}
+followed by newline

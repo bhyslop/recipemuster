@@ -25,10 +25,10 @@ Arguments: $ARGUMENTS (optional Firemark; uses current heat if omitted)
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --format overview --remaining
+./tt/vvw-r.RunVVX.sh jjx_get_coronets <FIREMARK> --rough
 ```
 
-Parse output to get list of rough paces (skip bridled — already ready).
+This outputs one coronet per line, filtered to rough paces only.
 
 **If no rough paces remain:**
 - Report "No rough paces to quarter. All remaining paces are already bridled or none remain."
@@ -39,7 +39,7 @@ Parse output to get list of rough paces (skip bridled — already ready).
 
 Evaluate all rough paces in parallel:
 
-1. **Fetch tack text** for all rough paces via `jjx_parade --format detail --pace <coronet>`
+1. **Fetch spec text** for all rough paces via `jjx_get_spec <coronet>`
 
 2. **Apply bridleability criteria** to each (all four must hold):
    - **Mechanical**: Clear transformation, not design work

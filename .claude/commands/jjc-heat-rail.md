@@ -87,7 +87,7 @@ On success, the command outputs the new order (one Coronet per line).
 
 Run parade to display the reordered pace list with silks and states:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --format order
+./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK>
 ```
 
 ## Auto-commit changes

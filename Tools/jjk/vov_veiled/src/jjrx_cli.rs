@@ -86,6 +86,14 @@ pub enum jjrx_JjxCommands {
     /// Search across heats and paces with regex
     #[command(name = "jjx_scout")]
     Scout(zjjrx_ScoutArgs),
+
+    /// Get raw spec text for a Pace
+    #[command(name = "jjx_get_spec")]
+    GetSpec(zjjrx_GetSpecArgs),
+
+    /// List Coronets for a Heat
+    #[command(name = "jjx_get_coronets")]
+    GetCoronets(zjjrx_GetCoronetsArgs),
 }
 
 /// Arguments for jjx_notch command
@@ -373,6 +381,36 @@ struct zjjrx_ScoutArgs {
     actionable: bool,
 }
 
+/// Arguments for jjx_get_spec command
+#[derive(clap::Args, Debug)]
+struct zjjrx_GetSpecArgs {
+    /// Path to the Gallops JSON file
+    #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
+    file: PathBuf,
+
+    /// Target Pace identity (Coronet)
+    coronet: String,
+}
+
+/// Arguments for jjx_get_coronets command
+#[derive(clap::Args, Debug)]
+struct zjjrx_GetCoronetsArgs {
+    /// Path to the Gallops JSON file
+    #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
+    file: PathBuf,
+
+    /// Target Heat identity (Firemark)
+    firemark: String,
+
+    /// Exclude complete and abandoned paces
+    #[arg(long)]
+    remaining: bool,
+
+    /// Include only rough paces
+    #[arg(long)]
+    rough: bool,
+}
+
 // ============================================================================
 // Public dispatch API
 // ============================================================================
@@ -422,6 +460,8 @@ pub fn jjrx_dispatch(args: &[OsString]) -> i32 {
         jjrx_JjxCommands::Furlough(args) => zjjrx_run_furlough(args),
         jjrx_JjxCommands::Wrap(args) => zjjrx_run_wrap(args),
         jjrx_JjxCommands::Scout(args) => zjjrx_run_scout(args),
+        jjrx_JjxCommands::GetSpec(args) => zjjrx_run_get_spec(args),
+        jjrx_JjxCommands::GetCoronets(args) => zjjrx_run_get_coronets(args),
     }
 }
 
@@ -1597,4 +1637,44 @@ fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
         }
     }
     // lock released here
+}
+
+fn zjjrx_run_get_spec(args: zjjrx_GetSpecArgs) -> i32 {
+    use crate::jjrq_query::{jjrq_GetSpecArgs as LibGetSpecArgs, jjrq_run_get_spec as lib_run_get_spec};
+
+    let coronet = match Coronet::jjrf_parse(&args.coronet) {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("jjx_get_spec: error: {}", e);
+            return 1;
+        }
+    };
+
+    let get_spec_args = LibGetSpecArgs {
+        file: args.file,
+        coronet,
+    };
+
+    lib_run_get_spec(get_spec_args)
+}
+
+fn zjjrx_run_get_coronets(args: zjjrx_GetCoronetsArgs) -> i32 {
+    use crate::jjrq_query::{jjrq_GetCoronetsArgs as LibGetCoronetsArgs, jjrq_run_get_coronets as lib_run_get_coronets};
+
+    let firemark = match Firemark::jjrf_parse(&args.firemark) {
+        Ok(fm) => fm,
+        Err(e) => {
+            eprintln!("jjx_get_coronets: error: {}", e);
+            return 1;
+        }
+    };
+
+    let get_coronets_args = LibGetCoronetsArgs {
+        file: args.file,
+        firemark,
+        remaining: args.remaining,
+        rough: args.rough,
+    };
+
+    lib_run_get_coronets(get_coronets_args)
 }

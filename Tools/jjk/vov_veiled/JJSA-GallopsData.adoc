@@ -102,6 +102,8 @@
 :jjdo_chalk:          <<jjdo_chalk,jjx_chalk>>
 :jjdo_draft:          <<jjdo_draft,jjx_draft>>
 :jjdo_furlough:       <<jjdo_furlough,jjx_furlough>>
+:jjdo_get_coronets:   <<jjdo_get_coronets,jjx_get_coronets>>
+:jjdo_get_spec:       <<jjdo_get_spec,jjx_get_spec>>
 :jjdo_muster:         <<jjdo_muster,jjx_muster>>
 :jjdo_nominate:       <<jjdo_nominate,jjx_nominate>>
 :jjdo_notch:          <<jjdo_notch,jjx_notch>>
@@ -945,6 +947,18 @@ include::JJSCVL-validate.adoc[]
 ==== {jjdo_muster}
 
 include::JJSCMU-muster.adoc[]
+
+[[jjdo_get_spec]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_get_spec}
+
+include::JJSCGS-get-spec.adoc[]
+
+[[jjdo_get_coronets]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_get_coronets}
+
+include::JJSCGC-get-coronets.adoc[]
 
 [[jjdo_saddle]]
 // ⟦axl_voices axi_cli_subcommand⟧

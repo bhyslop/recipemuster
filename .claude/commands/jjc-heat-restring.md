@@ -65,10 +65,10 @@ Show:
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <SOURCE_FIREMARK> --format overview
+./tt/vvw-r.RunVVX.sh jjx_get_coronets <SOURCE_FIREMARK>
 ```
 
-**If source heat is now empty (no paces):**
+**If output is empty (no coronets):**
 - Warn that source heat is now empty and suggest considering retirement.
 
 ## Step 6: Context merge analysis

@@ -539,6 +539,109 @@ fn zjjrq_extract_match_context(content: &str, re: &regex::Regex) -> String {
 }
 
 // ============================================================================
+// GetSpec - Get raw spec text for a Pace
+// ============================================================================
+
+/// Arguments for get_spec command
+#[derive(Debug)]
+pub struct jjrq_GetSpecArgs {
+    pub file: std::path::PathBuf,
+    pub coronet: Coronet,
+}
+
+/// Run the get_spec command - output raw spec text
+pub fn jjrq_run_get_spec(args: jjrq_GetSpecArgs) -> i32 {
+    let gallops = match Gallops::jjrg_load(&args.file) {
+        Ok(g) => g,
+        Err(e) => {
+            eprintln!("jjx_get_spec: error: {}", e);
+            return 1;
+        }
+    };
+
+    // Extract parent firemark and locate heat
+    let firemark = args.coronet.jjrf_parent_firemark();
+    let heat_key = firemark.jjrf_display();
+    let heat = match gallops.heats.get(&heat_key) {
+        Some(h) => h,
+        None => {
+            eprintln!("jjx_get_spec: error: Heat '{}' not found", heat_key);
+            return 1;
+        }
+    };
+
+    // Locate pace
+    let coronet_key = args.coronet.jjrf_display();
+    let pace = match heat.paces.get(&coronet_key) {
+        Some(p) => p,
+        None => {
+            eprintln!("jjx_get_spec: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
+            return 1;
+        }
+    };
+
+    // Output tacks[0].text (current spec)
+    if let Some(tack) = pace.tacks.first() {
+        print!("{}", tack.text);
+        0
+    } else {
+        eprintln!("jjx_get_spec: error: Pace '{}' has no tacks", coronet_key);
+        1
+    }
+}
+
+// ============================================================================
+// GetCoronets - List Coronets for a Heat
+// ============================================================================
+
+/// Arguments for get_coronets command
+#[derive(Debug)]
+pub struct jjrq_GetCoronetsArgs {
+    pub file: std::path::PathBuf,
+    pub firemark: Firemark,
+    pub remaining: bool,
+    pub rough: bool,
+}
+
+/// Run the get_coronets command - output coronets one per line
+pub fn jjrq_run_get_coronets(args: jjrq_GetCoronetsArgs) -> i32 {
+    let gallops = match Gallops::jjrg_load(&args.file) {
+        Ok(g) => g,
+        Err(e) => {
+            eprintln!("jjx_get_coronets: error: {}", e);
+            return 1;
+        }
+    };
+
+    let heat_key = args.firemark.jjrf_display();
+    let heat = match gallops.heats.get(&heat_key) {
+        Some(h) => h,
+        None => {
+            eprintln!("jjx_get_coronets: error: Heat '{}' not found", heat_key);
+            return 1;
+        }
+    };
+
+    for coronet_key in &heat.order {
+        if let Some(pace) = heat.paces.get(coronet_key) {
+            if let Some(tack) = pace.tacks.first() {
+                // Apply --remaining filter: skip complete/abandoned
+                if args.remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
+                    continue;
+                }
+                // Apply --rough filter: only include rough
+                if args.rough && tack.state != PaceState::Rough {
+                    continue;
+                }
+                println!("{}", coronet_key);
+            }
+        }
+    }
+
+    0
+}
+
+// ============================================================================
 // Retire - Extract complete Heat data for archival trophy
 // ============================================================================
 

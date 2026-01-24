@@ -1,0 +1,32 @@
+
+Get raw spec text for a
+{jjdpr_pace}.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* `CORONET` — positional, the
+{jjdt_coronet}
+to query
+
+{jjds_stdout} Raw spec text with no decoration.
+No prefix, no trailing newline beyond the text itself.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Parse
+{jjdt_coronet}
+from positional argument
+. Read
+{jjdgr_gallops}
+from file
+. Locate
+{jjdpr_pace}
+by
+{jjdt_coronet}
+. Output `tacks[0].text` to stdout

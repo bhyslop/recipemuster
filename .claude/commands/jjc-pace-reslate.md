@@ -47,12 +47,13 @@ Before applying the reslate, assess whether the pace silks still fits the refine
 
 **Fetch current pace data:**
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --pace <CORONET>
+./tt/vvw-r.RunVVX.sh jjx_parade <CORONET>
+./tt/vvw-r.RunVVX.sh jjx_get_spec <CORONET>
 ```
 
 Extract:
-- Current silks (display name)
-- Current spec text (from most recent tack)
+- Current silks from parade output (parse from header line)
+- Current spec text from jjx_get_spec output
 
 **Compare gestalts:**
 - Old focus: What the current spec emphasized
