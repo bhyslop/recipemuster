@@ -3914,6 +3914,13 @@
         "₢AFAAg": {
           "tacks": [
             {
+              "ts": "260124-0822",
+              "state": "rough",
+              "text": "Change jjx_saddle default output from JSON to display-ready markdown. Add --json flag for programmatic access.\n\n**Current output (JSON):**\n```json\n{\n  \"heat_silks\": \"...\",\n  \"paddock_content\": \"...\",\n  \"pace_coronet\": \"₢XXXXX\",\n  ...\n}\n```\n\n**New default output (markdown):**\n```markdown\n## Pace: {silks} (₢{coronet}) [{state}]\n\n**Heat:** {heat_silks} (₣{firemark})\n\n### Specification\n{spec_content}\n\n### Direction\n{direction_content or omit section if rough}\n\n### Paddock\n{paddock_content or 'No paddock file.'}\n\n### Steeplechase History\n{recent_work formatted or 'No prior attempts.'}\n```\n\n**Implementation:**\n- Change default output to markdown format\n- Add `--json` flag to get current JSON output (for programmatic use)\n- Update /jjc-heat-mount slash command to use `--json` flag\n\n**JJSA update:**\n- Update JJSCSD-saddle.adoc: document markdown as default stdout, add --json flag option\n\n**Files:** jjrq_query.rs, jjrx_cli.rs, JJSCSD-saddle.adoc",
+              "silks": "saddle-markdown",
+              "commit": "a983af2"
+            },
+            {
               "ts": "260124-0744",
               "state": "bridled",
               "text": "Add --markdown flag to jjx_saddle that outputs ready-to-display markdown for /jjc-heat-mount.\n\n**Output format:**\n```markdown\n## Pace: {silks} (₢{coronet}) [{state}]\n\n**Heat:** {heat_silks} (₣{firemark})\n\n### Specification\n{spec_content}\n\n### Paddock\n{paddock_content or 'No paddock file.'}\n\n### Steeplechase History\n{rein_output or 'No prior attempts.'}\n```\n\n**Implementation:**\n- Add `--markdown` flag to saddle command\n- Include spec content inline (not just path)\n- Include paddock content if file exists\n- Include steeplechase history (reuse rein logic or call rein internally)\n- State indicators: `[rough]`, `[bridled]`\n\n**Files:** jjx_saddle.rs (add flag handling, read spec/paddock files, integrate rein output)",
