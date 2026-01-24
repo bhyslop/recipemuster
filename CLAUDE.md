@@ -164,6 +164,14 @@ Full read and edit access is pre-approved for all files in:
 - For .adoc files, maintain consistent AsciiDoc formatting
 - For .claudex files, preserve the specific format requirements
 
+### Heredoc Delimiter Selection
+
+When generating heredocs for stdin content, the delimiter must not appear alone on any line within the content.
+
+- **Check content first**: If content includes `EOF` (e.g., code examples showing heredoc patterns), use a different delimiter
+- **Safe alternatives**: `SPEC`, `CONTENT`, `DOC`, `PACESPEC`, `SLASHCMD`
+- **Pattern**: `cat <<'DELIM' | command` (quoted delimiter prevents variable expansion)
+
 ### AsciiDoc Linked Terms
 When working with .adoc files using MCM patterns:
 - **Linked Term**: Concept with three parts:
@@ -372,6 +380,8 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 - Specs go via stdin, not `--spec`
 - Positioning uses `--move X --first`, not `--position first`
 - Read the slash command to see the exact `./tt/vvw-r.RunVVX.sh jjx_*` invocation pattern.
+
+**Heredoc for stdin**: Use `cat <<'DELIM' | jjx_*` pattern with quoted delimiter. The delimiter must not appear alone on any line in the content — if content shows heredoc examples with `EOF`, use a different delimiter like `SPEC` or `PACESPEC`.
 
 | When you need to... | Read first |
 |---------------------|------------|

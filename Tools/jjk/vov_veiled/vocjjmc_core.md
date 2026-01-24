@@ -27,6 +27,8 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 - Positioning uses `--move X --first`, not `--position first`
 - Read the slash command to see the exact `./tt/vvw-r.RunVVX.sh jjx_*` invocation pattern.
 
+**Heredoc for stdin**: Use `cat <<'DELIM' | jjx_*` pattern with quoted delimiter. The delimiter must not appear alone on any line in the content — if content shows heredoc examples with `EOF`, use a different delimiter like `SPEC` or `PACESPEC`.
+
 | When you need to... | Read first |
 |---------------------|------------|
 | Add a new pace | /jjc-pace-slate |
