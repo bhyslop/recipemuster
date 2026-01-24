@@ -3039,6 +3039,7 @@
       "creation_time": "260119",
       "status": "racing",
       "order": [
+        "₢AFAAn",
         "₢AFAAa",
         "₢AFAAW",
         "₢AFAAX",
@@ -3078,7 +3079,7 @@
         "₢AFAAi",
         "₢AFAAl"
       ],
-      "next_pace_seed": "AAn",
+      "next_pace_seed": "AAo",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -4030,6 +4031,17 @@
               "text": "Update VOS (Vox Obscura Spec) with VVX commit message format section.\n\n**Add section: Commit Message Architecture**\n\nDefine the vvb commit format for VOK operations:\n```\nvvb:HALLMARK::ACTION: message\n```\n\n**Fields:**\n- `vvb` — Voce Viva brand prefix (literal)\n- `HALLMARK` — Version identifier (same source as JJ: .vvk/vvbf_brand.json or kit forge registry + HEAD)\n- `` — Empty identity field (VOK ops don't have heat/pace nesting)\n- `ACTION` — Single-letter code\n\n**Action codes:**\n- `A` — Allocate: registry hallmark allocation\n- `R` — Release: parcel creation\n\n**Cross-reference:** Note shared hallmark concept with JJSA jjb: commits.\n\n**Files:** VOS-VoxObscuraSpec.adoc",
               "silks": "vos-commit-message-format",
               "commit": "6866751"
+            }
+          ]
+        },
+        "₢AFAAn": {
+          "tacks": [
+            {
+              "ts": "260124-0821",
+              "state": "rough",
+              "text": "Make TARGET argument optional in jjx_parade and jjx_saddle. When omitted, auto-select the first racing heat.\n\n**Behavior:**\n- If TARGET provided: use it (current behavior)\n- If TARGET omitted: resolve to first racing heat from gallops\n- If no racing heats exist: return error \"No racing heats found\"\n\n**Changes:**\n\n1. **jjrq_query.rs**: Add helper function `jjrq_resolve_default_heat(gallops: &Gallops) -> Result<Firemark>` that returns first racing heat or error\n\n2. **jjrx_cli.rs**: Change `<TARGET>` to `[TARGET]` (optional) in ParadeArgs and SaddleArgs\n\n3. **jjrq_run_parade / jjrq_run_saddle**: If target is None, call resolve helper to get default\n\n4. **JJSA spec updates**: Document optional target behavior in JJSCPD-parade.adoc and JJSCSD-saddle.adoc\n\n**Why:** Eliminates muster round-trip in slash commands like /jjc-heat-groom. The \"first racing heat\" logic (most recently furloughed to racing) already exists in muster ordering.\n\n**Files:** jjrq_query.rs, jjrx_cli.rs, JJSCPD-parade.adoc, JJSCSD-saddle.adoc",
+              "silks": "optional-firemark-target",
+              "commit": "2bd7295"
             }
           ]
         }
