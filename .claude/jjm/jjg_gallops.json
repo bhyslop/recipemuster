@@ -3080,7 +3080,6 @@
         "₢AFAAi",
         "₢AFAAl",
         "₢AFAAM",
-        "₢AFAAv",
         "₢AFAAw",
         "₢AFAAc"
       ],
@@ -4268,17 +4267,6 @@
             }
           ]
         },
-        "₢AFAAv": {
-          "tacks": [
-            {
-              "ts": "260124-0919",
-              "state": "rough",
-              "text": "Update jjc-heat-restring.md slash command to use jjx_restring primitive.\n\nChanges:\n- Replace steps 1-5 (argument parsing, validation, draft loop, summary, empty check) with single jjx_restring call\n- Parse JSON output for ceremony inputs\n- Keep context merge ceremony (step 6) unchanged\n- Keep steeplechase marker (step 7) unchanged\n\nResult: Shorter slash command, fewer CLI calls, all mechanical work in Rust.",
-              "silks": "rust-restring-slash",
-              "commit": "ef7d32e"
-            }
-          ]
-        },
         "₢AFAAw": {
           "tacks": [
             {
@@ -4693,9 +4681,10 @@
       "status": "stabled",
       "order": [
         "₢ALAAA",
-        "₢ALAAB"
+        "₢ALAAB",
+        "₢ALAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AL.md",
       "paces": {
         "₢ALAAA": {
@@ -4740,6 +4729,24 @@
               "text": "Implement jjx_restring subcommand in Rust per JJSCRS-restring.adoc spec.\n\nLocation: Tools/vok/src/jjx/ (follow existing subcommand patterns)\n\nKey behaviors:\n- Parse source firemark, dest firemark, one or more coronets\n- Validate all inputs before any mutations\n- Draft each pace atomically (single save)\n- Output JSON with source/destination info and drafted array\n- Include spec text from new tacks[0].text in output",
               "silks": "rust-restring-impl",
               "commit": "7ec0414"
+            }
+          ]
+        },
+        "₢ALAAC": {
+          "tacks": [
+            {
+              "ts": "260124-1015",
+              "state": "rough",
+              "text": "Drafted from ₢AFAAv in ₣AF.\n\nUpdate jjc-heat-restring.md slash command to use jjx_restring primitive.\n\nChanges:\n- Replace steps 1-5 (argument parsing, validation, draft loop, summary, empty check) with single jjx_restring call\n- Parse JSON output for ceremony inputs\n- Keep context merge ceremony (step 6) unchanged\n- Keep steeplechase marker (step 7) unchanged\n\nResult: Shorter slash command, fewer CLI calls, all mechanical work in Rust.",
+              "silks": "rust-restring-slash",
+              "commit": "0453bc6"
+            },
+            {
+              "ts": "260124-0919",
+              "state": "rough",
+              "text": "Update jjc-heat-restring.md slash command to use jjx_restring primitive.\n\nChanges:\n- Replace steps 1-5 (argument parsing, validation, draft loop, summary, empty check) with single jjx_restring call\n- Parse JSON output for ceremony inputs\n- Keep context merge ceremony (step 6) unchanged\n- Keep steeplechase marker (step 7) unchanged\n\nResult: Shorter slash command, fewer CLI calls, all mechanical work in Rust.",
+              "silks": "rust-restring-slash",
+              "commit": "ef7d32e"
             }
           ]
         }
