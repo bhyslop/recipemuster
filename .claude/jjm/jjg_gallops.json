@@ -3758,6 +3758,14 @@
         "₢AFAAb": {
           "tacks": [
             {
+              "ts": "260123-1947",
+              "state": "bridled",
+              "text": "Switch heats from BTreeMap to IndexMap for insertion-order preservation. Nominate unchanged (appends at end). Furlough-to-racing removes and re-inserts heat at front of heats object. Muster iterates in JSON order. Groom/saddle slash commands pick first racing heat when no firemark provided. Result: furlough controls which heat is active; new heats queue behind existing work.",
+              "silks": "heat-json-order-auto-groom-mount-choice",
+              "commit": "da9e848",
+              "direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: Cargo.toml, jjrt_types.rs, jjro_ops.rs, jjtg_gallops.rs, jjrx_cli.rs, jjtq_query.rs, jjc-heat-groom.md, jjc-heat-mount.md (8 files)\nSteps:\n1. Add indexmap = { version = 1, features = serde } to Tools/jjk/vov_veiled/Cargo.toml\n2. In jjrt_types.rs: add use indexmap::IndexMap, change heats: BTreeMap to heats: IndexMap\n3. In jjro_ops.rs: add IndexMap import, modify jjrg_furlough to remove/shift_insert at index 0 when racing\n4. In jjtg_gallops.rs: update test helpers to use IndexMap\n5. Check jjrx_cli.rs and jjtq_query.rs for any needed import changes\n6. Update jjc-heat-groom.md: when 2+ heats and no arg, pick first racing heat\n7. Update jjc-heat-mount.md: when 2+ racing heats and no arg, pick first one\nVerify: tt/vow-b.Build.sh"
+            },
+            {
               "ts": "260123-1719",
               "state": "rough",
               "text": "Switch heats from BTreeMap to IndexMap for insertion-order preservation. Nominate unchanged (appends at end). Furlough-to-racing removes and re-inserts heat at front of heats object. Muster iterates in JSON order. Groom/saddle slash commands pick first racing heat when no firemark provided. Result: furlough controls which heat is active; new heats queue behind existing work.",
