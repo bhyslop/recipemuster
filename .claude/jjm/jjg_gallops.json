@@ -3061,6 +3061,7 @@
         "₢AFAAb",
         "₢AFAAe",
         "₢AFAAf",
+        "₢AFAAg",
         "₢AFAAd",
         "₢AFAAM",
         "₢AFAAN",
@@ -3071,7 +3072,7 @@
         "₢AFAAZ",
         "₢AFAAc"
       ],
-      "next_pace_seed": "AAg",
+      "next_pace_seed": "AAh",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3878,6 +3879,17 @@
               "text": "Add --markdown flag to jjx_parade --remaining that outputs ready-to-display markdown for /jjc-heat-groom.\n\n**Output format:**\n```markdown\n## Heat: {silks} (₣{firemark}) [{status}]\n\n**Progress:** {complete} complete | {abandoned} abandoned | {remaining} remaining ({rough} rough, {bridled} bridled)\n\n**Remaining paces:**\n1. [{state}] {silks} (₢{coronet})\n2. [{state}] {silks} (₢{coronet})\n...\n\n**Next up:** {silks} (₢{coronet}) [{state}]\n```\n\n**Implementation:**\n- Add `--markdown` flag to parade command\n- When combined with `--remaining`, output the format above\n- State indicators: `[rough]`, `[bridled]`, `[complete]`, `[abandoned]`\n- Next up = first pace that is not complete/abandoned\n\n**Files:** jjx_parade.rs (add flag handling and markdown formatter)",
               "silks": "parade-remaining-markdown",
               "commit": "6a4a37e"
+            }
+          ]
+        },
+        "₢AFAAg": {
+          "tacks": [
+            {
+              "ts": "260124-0742",
+              "state": "rough",
+              "text": "Add --markdown flag to jjx_saddle that outputs ready-to-display markdown for /jjc-heat-mount.\n\n**Output format:**\n```markdown\n## Pace: {silks} (₢{coronet}) [{state}]\n\n**Heat:** {heat_silks} (₣{firemark})\n\n### Specification\n{spec_content}\n\n### Paddock\n{paddock_content or 'No paddock file.'}\n\n### Steeplechase History\n{rein_output or 'No prior attempts.'}\n```\n\n**Implementation:**\n- Add `--markdown` flag to saddle command\n- Include spec content inline (not just path)\n- Include paddock content if file exists\n- Include steeplechase history (reuse rein logic or call rein internally)\n- State indicators: `[rough]`, `[bridled]`\n\n**Files:** jjx_saddle.rs (add flag handling, read spec/paddock files, integrate rein output)",
+              "silks": "saddle-markdown",
+              "commit": "64ec67f"
             }
           ]
         }
