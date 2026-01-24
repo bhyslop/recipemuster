@@ -3975,6 +3975,13 @@
         "₢AFAAg": {
           "tacks": [
             {
+              "ts": "260124-0932",
+              "state": "rough",
+              "text": "Change jjx_saddle to output column-aligned plain text instead of JSON.\n\n**Current:** JSON output requiring agent parsing (wastes tokens)\n\n**New format:**\n```\nHeat: jjk-post-alpha-polish (₣AF) [racing]\nPaddock: .claude/jjm/jjp_AF.md\n\nNext: parade-column-format (₢AFAAf) [bridled]\n\nSpec:\n[spec text here]\n\nDirection:\n[direction text if bridled, omit section if rough]\n```\n\n**Implementation:**\n- Modify jjrq_run_saddle in jjrq_query.rs\n- Replace JSON with plain text format\n- No flags - single output format\n\n**Files:** jjrq_query.rs, JJSCSD-saddle.adoc",
+              "silks": "saddle-column-format",
+              "commit": "f6a8e39"
+            },
+            {
               "ts": "260124-0828",
               "state": "bridled",
               "text": "Change jjx_saddle default output from JSON to display-ready markdown. Add --json flag for programmatic access.\n\n**Current output (JSON):**\n```json\n{\n  \"heat_silks\": \"...\",\n  \"paddock_content\": \"...\",\n  \"pace_coronet\": \"₢XXXXX\",\n  ...\n}\n```\n\n**New default output (markdown):**\n```markdown\n## Pace: {silks} (₢{coronet}) [{state}]\n\n**Heat:** {heat_silks} (₣{firemark})\n\n### Specification\n{spec_content}\n\n### Direction\n{direction_content or omit section if rough}\n\n### Paddock\n{paddock_content or 'No paddock file.'}\n\n### Steeplechase History\n{recent_work formatted or 'No prior attempts.'}\n```\n\n**Implementation:**\n- Change default output to markdown format\n- Add `--json` flag to get current JSON output (for programmatic use)\n- Update /jjc-heat-mount slash command to use `--json` flag\n\n**JJSA update:**\n- Update JJSCSD-saddle.adoc: document markdown as default stdout, add --json flag option\n\n**Files:** jjrq_query.rs, jjrx_cli.rs, JJSCSD-saddle.adoc",
