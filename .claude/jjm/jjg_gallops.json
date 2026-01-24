@@ -3198,9 +3198,10 @@
         "₢AFAAc",
         "₢AFAAz",
         "₢AFAA0",
-        "₢AFAA1"
+        "₢AFAA1",
+        "₢AFAA2"
       ],
-      "next_pace_seed": "AA2",
+      "next_pace_seed": "AA3",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAA0": {
@@ -3222,6 +3223,17 @@
               "text": "Implement B commit when pace is bridled.\n\n## Trigger\n\nWhen `/jjc-pace-bridle` transitions a pace to bridled state.\n\n## Implementation\n\nIn the bridle flow (jjx_tally with state=bridled):\n1. After tack is added to gallops\n2. Create chalk-style commit with B marker\n3. Subject format: `jjb:HALLMARK:₢XXXXX:B: {agent} | {file_count} files | {silks}`\n4. Body: full direction text from the tack\n\n## Changes\n\n- jjrn_notch.rs: Add ChalkMarker::Bridle or similar\n- jjro_ops.rs: Create B commit in tally-bridled path\n- Update /jjc-pace-bridle slash command if needed\n\n## Depends on\n\ntrophy-alpha-jjsa-commit-types (spec must be defined first)",
               "silks": "trophy-alpha-bridle-marker",
               "commit": "0b176b2"
+            }
+          ]
+        },
+        "₢AFAA2": {
+          "tacks": [
+            {
+              "ts": "260124-1150",
+              "state": "rough",
+              "text": "Implement L commit when agent returns from autonomous execution.\n\n## Trigger\n\nWhen a spawned agent completes execution in `/jjc-heat-mount` bridled flow.\n\n## Implementation\n\nBefore asking user \"Ready to wrap?\":\n1. Collect execution metadata from agent result\n2. Create chalk-style commit with L marker\n3. Subject format: `jjb:HALLMARK:₢XXXXX:L: {agent} {landed|crashed} | {steps}/{total} | verify: {pass|fail}`\n4. Body: files touched, duration, error message if crashed\n\n## Data to Capture\n\n- Agent tier (haiku/sonnet/opus)\n- Steps completed vs total (parse from direction)\n- Verification result (did build/test pass)\n- Files actually touched (from git status or agent report)\n- Duration (from timestamps)\n\n## Changes\n\n- jjrn_notch.rs: Add Landing marker type\n- Update /jjc-heat-mount to create L commit after agent returns\n- May need agent to report structured result\n\n## Depends on\n\ntrophy-alpha-bridle-marker (B must exist to have flights to land)",
+              "silks": "trophy-alpha-landing-marker",
+              "commit": "c4f508c"
             }
           ]
         },
