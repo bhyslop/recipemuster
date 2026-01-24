@@ -10,6 +10,7 @@
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
+use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_SteeplechaseEntry, jjrs_get_entries, jjrs_ReinArgs};
 use serde::Serialize;
 use std::fs;
@@ -76,17 +77,55 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
         a_status_order.cmp(&b_status_order)
     });
 
-    // Calculate max silks width for column alignment
-    let max_silks_len = heats_by_status.iter()
-        .map(|(_, heat)| heat.silks.len())
-        .max()
-        .unwrap_or(20)
-        .max(20);
+    // Set up table with column definitions
+    let mut table = jjrp_Table::jjrp_new(vec![
+        jjrp_Column::new("₣Fire", jjrp_Align::Left),
+        jjrp_Column::new("Silks", jjrp_Align::Left),
+        jjrp_Column::new("Status", jjrp_Align::Left),
+        jjrp_Column::new("Done", jjrp_Align::Right),
+        jjrp_Column::new("Total", jjrp_Align::Right),
+    ]);
 
-    // Print header (avoid # which markdown interprets as heading)
-    println!("{:<5}  {:<width$}  {:<7}  {:>4}  {:>5}", "Fire", "Silks", "Status", "Done", "Total", width = max_silks_len);
-    println!("{}", "-".repeat(5 + 2 + max_silks_len + 2 + 7 + 2 + 4 + 2 + 5));
+    // Measure all rows to compute column widths
+    for (key, heat) in &heats_by_status {
+        // Count paces where state != Abandoned
+        let defined_count = heat.paces.values().filter(|pace| {
+            if let Some(tack) = pace.tacks.first() {
+                tack.state != PaceState::Abandoned
+            } else {
+                true
+            }
+        }).count();
 
+        // Count paces where state == Complete
+        let completed_count = heat.paces.values().filter(|pace| {
+            if let Some(tack) = pace.tacks.first() {
+                tack.state == PaceState::Complete
+            } else {
+                false
+            }
+        }).count();
+
+        let status_str = match heat.status {
+            HeatStatus::Racing => "racing",
+            HeatStatus::Stabled => "stabled",
+            HeatStatus::Retired => "retired",
+        };
+
+        table.jjrp_measure(&[
+            key,
+            &heat.silks,
+            status_str,
+            &completed_count.to_string(),
+            &defined_count.to_string(),
+        ]);
+    }
+
+    // Print header and separator
+    table.jjrp_print_header();
+    table.jjrp_print_separator();
+
+    // Print data rows
     for (key, heat) in heats_by_status {
         // Count paces where state != Abandoned
         let defined_count = heat.paces.values().filter(|pace| {
@@ -112,7 +151,13 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
             HeatStatus::Retired => "retired",
         };
 
-        println!("{:<5}  {:<width$}  {:<7}  {:>4}  {:>5}", key, heat.silks, status_str, completed_count, defined_count, width = max_silks_len);
+        table.jjrp_print_row(&[
+            key,
+            &heat.silks,
+            status_str,
+            &completed_count.to_string(),
+            &defined_count.to_string(),
+        ]);
     }
 
     0
@@ -442,26 +487,41 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
 
                 // Table with remaining paces
                 if !remaining_paces.is_empty() {
-                    // Calculate max silks width for dynamic column sizing
-                    let max_silks_len = remaining_paces.iter()
-                        .filter_map(|(_, pace)| pace.tacks.first().map(|t| t.silks.len()))
-                        .max()
-                        .unwrap_or(20)
-                        .max(20);
+                    // Set up table with column definitions
+                    let mut table = jjrp_Table::jjrp_new(vec![
+                        jjrp_Column::new("No", jjrp_Align::Right),
+                        jjrp_Column::new("State", jjrp_Align::Left),
+                        jjrp_Column::new("Pace", jjrp_Align::Left),
+                        jjrp_Column::new("₢Coronet", jjrp_Align::Left),
+                    ]);
 
-                    // Table header (avoid # which markdown interprets as heading)
-                    println!("{:>3}  {:<8}  {:<width$}  {}", "No", "State", "Pace", "Coronet", width = max_silks_len);
-                    println!("{}", "-".repeat(3 + 2 + 8 + 2 + max_silks_len + 2 + 8));
-
-                    // Table rows
+                    // Measure all rows to compute column widths
                     for (idx, (coronet_key, pace)) in remaining_paces.iter().enumerate() {
                         if let Some(tack) = pace.tacks.first() {
                             let state_str = zjjrq_pace_state_str(&tack.state);
-                            // Strip prefix from coronet for display
-                            let coronet_display = coronet_key.trim_start_matches('₢');
-                            println!("{:>3}  {:<8}  {:<width$}  {}",
-                                idx + 1, state_str, tack.silks, coronet_display,
-                                width = max_silks_len);
+                            table.jjrp_measure(&[
+                                &(idx + 1).to_string(),
+                                state_str,
+                                &tack.silks,
+                                coronet_key,
+                            ]);
+                        }
+                    }
+
+                    // Print header and separator
+                    table.jjrp_print_header();
+                    table.jjrp_print_separator();
+
+                    // Print data rows
+                    for (idx, (coronet_key, pace)) in remaining_paces.iter().enumerate() {
+                        if let Some(tack) = pace.tacks.first() {
+                            let state_str = zjjrq_pace_state_str(&tack.state);
+                            table.jjrp_print_row(&[
+                                &(idx + 1).to_string(),
+                                state_str,
+                                &tack.silks,
+                                coronet_key,
+                            ]);
                         }
                     }
                     println!();
@@ -476,29 +536,48 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
                 }
             } else {
                 // Column-justified list view (all paces)
-                // Calculate max silks width for dynamic column sizing
-                let max_silks_len = heat.order.iter()
-                    .filter_map(|k| heat.paces.get(k))
-                    .filter_map(|p| p.tacks.first().map(|t| t.silks.len()))
-                    .max()
-                    .unwrap_or(20)
-                    .max(20);
+                // Set up table with column definitions
+                let mut table = jjrp_Table::jjrp_new(vec![
+                    jjrp_Column::new("No", jjrp_Align::Right),
+                    jjrp_Column::new("State", jjrp_Align::Left),
+                    jjrp_Column::new("Pace", jjrp_Align::Left),
+                    jjrp_Column::new("₢Coronet", jjrp_Align::Left),
+                ]);
 
-                // Table header (avoid # which markdown interprets as heading)
-                println!("{:>3}  {:<10}  {:<width$}  {}", "No", "State", "Pace", "Coronet", width = max_silks_len);
-                println!("{}", "-".repeat(3 + 2 + 10 + 2 + max_silks_len + 2 + 8));
-
-                // Table rows
+                // Measure all rows to compute column widths
                 let mut num = 0;
                 for coronet_key in &heat.order {
                     if let Some(pace) = heat.paces.get(coronet_key) {
                         if let Some(tack) = pace.tacks.first() {
                             num += 1;
                             let state_str = zjjrq_pace_state_str(&tack.state);
-                            let coronet_display = coronet_key.trim_start_matches('₢');
-                            println!("{:>3}  {:<10}  {:<width$}  {}",
-                                num, state_str, tack.silks, coronet_display,
-                                width = max_silks_len);
+                            table.jjrp_measure(&[
+                                &num.to_string(),
+                                state_str,
+                                &tack.silks,
+                                coronet_key,
+                            ]);
+                        }
+                    }
+                }
+
+                // Print header and separator
+                table.jjrp_print_header();
+                table.jjrp_print_separator();
+
+                // Print data rows
+                let mut num = 0;
+                for coronet_key in &heat.order {
+                    if let Some(pace) = heat.paces.get(coronet_key) {
+                        if let Some(tack) = pace.tacks.first() {
+                            num += 1;
+                            let state_str = zjjrq_pace_state_str(&tack.state);
+                            table.jjrp_print_row(&[
+                                &num.to_string(),
+                                state_str,
+                                &tack.silks,
+                                coronet_key,
+                            ]);
                         }
                     }
                 }
