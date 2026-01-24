@@ -3058,6 +3058,7 @@
         "₢AFAAJ",
         "₢AFAAL",
         "₢AFAAO",
+        "₢AFAAd",
         "₢AFAAM",
         "₢AFAAN",
         "₢AFAAC",
@@ -3068,7 +3069,7 @@
         "₢AFAAb",
         "₢AFAAc"
       ],
-      "next_pace_seed": "AAd",
+      "next_pace_seed": "AAe",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3789,6 +3790,17 @@
               "text": "Audit and update CLAUDE.md quick verb table for completeness.\n\n## Tasks\n\n1. Add `scout` → `/jjc-scout` to the quick verbs table\n2. Survey all `/jjc-*` slash commands in `.claude/commands/`\n3. Identify any missing from the quick verbs table that should be there\n4. Update the table with any missing entries\n\n## Criteria for Quick Verbs\n\nQuick verbs are single-word shortcuts that invoke common operations. Good candidates:\n- Frequently used commands\n- Single intuitive verb (e.g., \"mount\", \"wrap\", \"scout\")\n- Not compound operations (e.g., \"heat-retire\" stays as full command)\n\n## Files\n\n- CLAUDE.md — Quick Verbs table in JJK section\n- .claude/commands/jjc-*.md — All JJK slash commands",
               "silks": "claudemd-quick-verb-audit",
               "commit": "0ef0f21"
+            }
+          ]
+        },
+        "₢AFAAd": {
+          "tacks": [
+            {
+              "ts": "260123-2005",
+              "state": "rough",
+              "text": "Implement `jjx_curry` primitive for paddock maintenance with chalk tracking.\n\n## Purpose\n\nEnable chalked paddock modifications so retrospectives can see context evolution.\n\n## CLI Signature\n\n```\njjx_curry <firemark> --<verb> [--note \"reason\"]\n```\n\nContent via stdin.\n\n## Verbs\n\n| Verb | Use case |\n|------|----------|\n| `--refine` | Manual context update during work |\n| `--level` | Braid absorbing context from another heat |\n| `--muck` | Intentional reduction, removing stale material |\n\n## Chalk Entry\n\nFormat: `paddock curried (<verb>)[: <note>]`\nExample: `paddock curried (level): from ₣AB`\n\n## Implementation Notes\n\n- Read new paddock content from stdin\n- Overwrite paddock file\n- Append chalk entry to heat steeplechase\n- Exit 0 on success, non-zero with message on failure",
+              "silks": "implement-jjx-curry",
+              "commit": "3b1ee9a"
             }
           ]
         }
