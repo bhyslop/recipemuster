@@ -429,7 +429,7 @@ fn jjtg_nominate_creates_heat() {
     let heat = gallops.heats.get(&result.firemark).unwrap();
     assert_eq!(heat.silks, "test-heat");
     assert_eq!(heat.creation_time, "260113");
-    assert_eq!(heat.status, jjrg_HeatStatus::Racing);
+    assert_eq!(heat.status, jjrg_HeatStatus::Stabled);
     assert!(heat.order.is_empty());
     assert_eq!(heat.next_pace_seed, "AAA");
 
