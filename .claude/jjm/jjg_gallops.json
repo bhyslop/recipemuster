@@ -3067,9 +3067,10 @@
         "₢AFAAY",
         "₢AFAAZ",
         "₢AFAAb",
-        "₢AFAAc"
+        "₢AFAAc",
+        "₢AFAAe"
       ],
-      "next_pace_seed": "AAe",
+      "next_pace_seed": "AAf",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3816,6 +3817,17 @@
               "text": "Implement `jjx_curry` primitive for paddock maintenance with chalk tracking.\n\n## Purpose\n\nEnable chalked paddock modifications so retrospectives can see context evolution.\n\n## CLI Signature\n\n```\njjx_curry <firemark> --<verb> [--note \"reason\"]\n```\n\nContent via stdin.\n\n## Verbs\n\n| Verb | Use case |\n|------|----------|\n| `--refine` | Manual context update during work |\n| `--level` | Braid absorbing context from another heat |\n| `--muck` | Intentional reduction, removing stale material |\n\n## Chalk Entry\n\nFormat: `paddock curried (<verb>)[: <note>]`\nExample: `paddock curried (level): from ₣AB`\n\n## Implementation Notes\n\n- Read new paddock content from stdin\n- Overwrite paddock file\n- Append chalk entry to heat steeplechase\n- Exit 0 on success, non-zero with message on failure",
               "silks": "implement-jjx-curry",
               "commit": "3b1ee9a"
+            }
+          ]
+        },
+        "₢AFAAe": {
+          "tacks": [
+            {
+              "ts": "260124-0718",
+              "state": "rough",
+              "text": "Modify jjx_muster output to generate a proper box-drawing table for racing heats. Use Unicode box-drawing characters (┌ ─ ┬ ┐ │ ├ ┼ ┤ └ ┴ ┘) to create a formatted table with columns: Firemark, Silks, Status, Progress. Racing heats get the table; stabled heats get a single summary line. Include the 'Which heat would you like to groom?' prompt at the end.",
+              "silks": "muster-box-table-output",
+              "commit": "1731452"
             }
           ]
         }
