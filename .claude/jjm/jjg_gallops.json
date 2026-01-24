@@ -3888,6 +3888,13 @@
         "₢AFAAf": {
           "tacks": [
             {
+              "ts": "260124-0822",
+              "state": "rough",
+              "text": "Change jjx_parade --remaining output from plain text to display-ready markdown. No new flag — this is the new default format.\n\n**Current output (plain text):**\n```\n# Progress: 21 complete, 4 abandoned, 13 remaining (7 rough, 6 bridled)\n1. [rough] slash-cmd-heredoc-stdin (₢AFAAj)\n2. [bridled] muster-box-table-output (₢AFAAe)\n```\n\n**New output (markdown):**\n```markdown\n## Heat: {silks} (₣{firemark}) [{status}]\n\n**Progress:** {complete} complete | {abandoned} abandoned | {remaining} remaining ({rough} rough, {bridled} bridled)\n\n**Remaining paces:**\n1. [{state}] {silks} (₢{coronet})\n2. [{state}] {silks} (₢{coronet})\n...\n\n**Next up:** {silks} (₢{coronet}) [{state}]\n```\n\n**Implementation:**\n- Modify jjrq_run_parade: when --remaining flag is set, output markdown format\n- No new CLI flag — just change the output format\n- \"Next up\" = first pace that is not complete/abandoned\n\n**JJSA update:**\n- Update JJSCPD-parade.adoc stdout section to document new markdown format for --remaining\n\n**Files:** jjrq_query.rs, JJSCPD-parade.adoc",
+              "silks": "parade-remaining-markdown",
+              "commit": "71bf45b"
+            },
+            {
               "ts": "260124-0743",
               "state": "bridled",
               "text": "Add --markdown flag to jjx_parade --remaining that outputs ready-to-display markdown for /jjc-heat-groom.\n\n**Output format:**\n```markdown\n## Heat: {silks} (₣{firemark}) [{status}]\n\n**Progress:** {complete} complete | {abandoned} abandoned | {remaining} remaining ({rough} rough, {bridled} bridled)\n\n**Remaining paces:**\n1. [{state}] {silks} (₢{coronet})\n2. [{state}] {silks} (₢{coronet})\n...\n\n**Next up:** {silks} (₢{coronet}) [{state}]\n```\n\n**Implementation:**\n- Add `--markdown` flag to parade command\n- When combined with `--remaining`, output the format above\n- State indicators: `[rough]`, `[bridled]`, `[complete]`, `[abandoned]`\n- Next up = first pace that is not complete/abandoned\n\n**Files:** jjx_parade.rs (add flag handling and markdown formatter)",
