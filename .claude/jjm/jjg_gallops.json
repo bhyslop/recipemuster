@@ -4820,9 +4820,10 @@
       "creation_time": "260124",
       "status": "stabled",
       "order": [
-        "₢ANAAA"
+        "₢ANAAA",
+        "₢ANAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AN.md",
       "paces": {
         "₢ANAAA": {
@@ -4833,6 +4834,17 @@
               "text": "Update JJSA spec with JSON trophy structure definition.\n\n## Additions to JJSA\n\n### New Section: Trophy Format\n\nDefine the JSON structure for retired heats:\n\n**Top-level fields:**\n- firemark, silks, created, retired, status\n- paddock (full text as string)\n- sessions (computed array)\n- paces (object keyed by coronet)\n- steeplechase (array)\n\n**Session structure:**\n- start, end (YYMMDD-HHMM)\n- duration_min (computed)\n\n**Pace structure:**\n- silks, final_state\n- timeline: array of {ts, state, agent?}\n- flights: array of {agent, started, landed, steps, verify, files}\n- tacks: array (one line per tack, \\n delimited text)\n\n**Flight structure:**\n- agent (haiku/sonnet/opus)\n- started, landed (timestamps)\n- steps (e.g., \"4/4\")\n- verify (pass/fail/skipped)\n- files (array of paths touched)\n\n## Files\n\n- JJSA-GallopsData.adoc (add Trophy section)\n- Possibly JJSCRT-retire.adoc (update output format)",
               "silks": "trophy-alpha-jjsa-json-format",
               "commit": "2044d2d"
+            }
+          ]
+        },
+        "₢ANAAB": {
+          "tacks": [
+            {
+              "ts": "260124-1201",
+              "state": "rough",
+              "text": "Implement JSON trophy types in Rust.\n\n## New Types in jjrt_types.rs\n\n```rust\npub struct jjrt_Trophy {\n    pub firemark: String,\n    pub silks: String,\n    pub created: String,\n    pub retired: String,\n    pub status: String,\n    pub paddock: String,\n    pub sessions: Vec<jjrt_TrophySession>,\n    pub paces: BTreeMap<String, jjrt_TrophyPace>,\n    pub steeplechase: Vec<jjrt_SteeplechaseEntry>,\n}\n\npub struct jjrt_TrophySession {\n    pub start: String,\n    pub end: String,\n    pub duration_min: u32,\n}\n\npub struct jjrt_TrophyPace {\n    pub silks: String,\n    pub final_state: String,\n    pub timeline: Vec<jjrt_StateTransition>,\n    pub flights: Vec<jjrt_Flight>,\n    pub tacks: Vec<String>,  // one-line JSON per tack\n}\n\npub struct jjrt_StateTransition {\n    pub ts: String,\n    pub state: String,\n    pub agent: Option<String>,\n}\n\npub struct jjrt_Flight {\n    pub agent: String,\n    pub started: String,\n    pub landed: String,\n    pub steps: String,\n    pub verify: String,\n    pub files: Vec<String>,\n}\n```\n\n## Serialization\n\n- Derive Serialize for all types\n- Tacks serialize as single-line JSON strings\n- Use BTreeMap for deterministic key ordering\n\n## Depends on\n\ntrophy-alpha-jjsa-json-format (spec must be defined first)",
+              "silks": "trophy-alpha-json-types",
+              "commit": "a4aa0c3"
             }
           ]
         }
