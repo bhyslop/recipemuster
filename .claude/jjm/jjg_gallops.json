@@ -3080,7 +3080,6 @@
         "₢AFAAi",
         "₢AFAAl",
         "₢AFAAM",
-        "₢AFAAt",
         "₢AFAAu",
         "₢AFAAv",
         "₢AFAAw",
@@ -4270,25 +4269,6 @@
             }
           ]
         },
-        "₢AFAAt": {
-          "tacks": [
-            {
-              "ts": "260124-0941",
-              "state": "bridled",
-              "text": "Write JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
-              "silks": "rust-restring-spec",
-              "commit": "de654f0",
-              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: JJSCRS-restring.adoc, JJSA-GallopsData.adoc (2 files) | Steps: 1. Read existing JJSC* specs for MCM pattern reference 2. Create JJSCRS-restring.adoc with arguments, stdout schema, exit codes, behavior steps 3. Add jjdo_restring to JJSA mapping section 4. Add include directive in JJSA operations section | Verify: file exists and follows MCM conventions"
-            },
-            {
-              "ts": "260124-0918",
-              "state": "rough",
-              "text": "Write JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
-              "silks": "rust-restring-spec",
-              "commit": "3207365"
-            }
-          ]
-        },
         "₢AFAAu": {
           "tacks": [
             {
@@ -4723,10 +4703,40 @@
       "silks": "jjk-restring-rust",
       "creation_time": "260124",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢ALAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AL.md",
-      "paces": {}
+      "paces": {
+        "₢ALAAA": {
+          "tacks": [
+            {
+              "ts": "260124-1015",
+              "state": "bridled",
+              "text": "Drafted from ₢AFAAt in ₣AF.\n\nWrite JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
+              "silks": "rust-restring-spec",
+              "commit": "c3c9e01",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: JJSCRS-restring.adoc, JJSA-GallopsData.adoc (2 files) | Steps: 1. Read existing JJSC* specs for MCM pattern reference 2. Create JJSCRS-restring.adoc with arguments, stdout schema, exit codes, behavior steps 3. Add jjdo_restring to JJSA mapping section 4. Add include directive in JJSA operations section | Verify: file exists and follows MCM conventions"
+            },
+            {
+              "ts": "260124-0941",
+              "state": "bridled",
+              "text": "Write JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
+              "silks": "rust-restring-spec",
+              "commit": "de654f0",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: JJSCRS-restring.adoc, JJSA-GallopsData.adoc (2 files) | Steps: 1. Read existing JJSC* specs for MCM pattern reference 2. Create JJSCRS-restring.adoc with arguments, stdout schema, exit codes, behavior steps 3. Add jjdo_restring to JJSA mapping section 4. Add include directive in JJSA operations section | Verify: file exists and follows MCM conventions"
+            },
+            {
+              "ts": "260124-0918",
+              "state": "rough",
+              "text": "Write JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
+              "silks": "rust-restring-spec",
+              "commit": "3207365"
+            }
+          ]
+        }
+      }
     }
   }
 }
