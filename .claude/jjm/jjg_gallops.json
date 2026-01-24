@@ -4819,10 +4819,24 @@
       "silks": "trophy-alpha-reporting",
       "creation_time": "260124",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢ANAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AN.md",
-      "paces": {}
+      "paces": {
+        "₢ANAAA": {
+          "tacks": [
+            {
+              "ts": "260124-1201",
+              "state": "rough",
+              "text": "Update JJSA spec with JSON trophy structure definition.\n\n## Additions to JJSA\n\n### New Section: Trophy Format\n\nDefine the JSON structure for retired heats:\n\n**Top-level fields:**\n- firemark, silks, created, retired, status\n- paddock (full text as string)\n- sessions (computed array)\n- paces (object keyed by coronet)\n- steeplechase (array)\n\n**Session structure:**\n- start, end (YYMMDD-HHMM)\n- duration_min (computed)\n\n**Pace structure:**\n- silks, final_state\n- timeline: array of {ts, state, agent?}\n- flights: array of {agent, started, landed, steps, verify, files}\n- tacks: array (one line per tack, \\n delimited text)\n\n**Flight structure:**\n- agent (haiku/sonnet/opus)\n- started, landed (timestamps)\n- steps (e.g., \"4/4\")\n- verify (pass/fail/skipped)\n- files (array of paths touched)\n\n## Files\n\n- JJSA-GallopsData.adoc (add Trophy section)\n- Possibly JJSCRT-retire.adoc (update output format)",
+              "silks": "trophy-alpha-jjsa-json-format",
+              "commit": "2044d2d"
+            }
+          ]
+        }
+      }
     }
   }
 }
