@@ -17,6 +17,13 @@
         "₢AKAAA": {
           "tacks": [
             {
+              "ts": "260124-1023",
+              "state": "complete",
+              "text": "Drafted from ₢AFAAp in ₣AF.\n\nAdd helper function for parsing and manipulating silks sequence suffixes.\n\n## Function\n\nIn `jjrq_query.rs`, add:\n\n```rust\n/// Parse silks into (base, sequence_number)\n/// \"foo-bar\" -> (\"foo-bar\", None)\n/// \"foo-bar-01\" -> (\"foo-bar\", Some(1))\n/// \"foo-bar-42\" -> (\"foo-bar\", Some(42))\nfn jjrq_parse_silks_sequence(silks: &str) -> (String, Option<u32>)\n\n/// Build garlanded silks: \"garlanded-{base}-{seq:02}\"\nfn jjrq_build_garlanded_silks(base: &str, seq: u32) -> String\n\n/// Build continuation silks: \"{base}-{seq:02}\"\nfn jjrq_build_continuation_silks(base: &str, seq: u32) -> String\n```\n\n## Regex\n\nUse regex `^(.+)-(\\d{2})$` for suffix detection. If no match, base is full silks and sequence is None.\n\n## Tests\n\nAdd unit tests in jjrq_query.rs:\n- Parse plain silks (no suffix)\n- Parse silks with -01 suffix\n- Parse silks with -99 suffix\n- Build garlanded silks\n- Build continuation silks\n\n**Files:** jjrq_query.rs",
+              "silks": "garland-silks-parser",
+              "commit": "77bb97c"
+            },
+            {
               "ts": "260124-1015",
               "state": "bridled",
               "text": "Drafted from ₢AFAAp in ₣AF.\n\nAdd helper function for parsing and manipulating silks sequence suffixes.\n\n## Function\n\nIn `jjrq_query.rs`, add:\n\n```rust\n/// Parse silks into (base, sequence_number)\n/// \"foo-bar\" -> (\"foo-bar\", None)\n/// \"foo-bar-01\" -> (\"foo-bar\", Some(1))\n/// \"foo-bar-42\" -> (\"foo-bar\", Some(42))\nfn jjrq_parse_silks_sequence(silks: &str) -> (String, Option<u32>)\n\n/// Build garlanded silks: \"garlanded-{base}-{seq:02}\"\nfn jjrq_build_garlanded_silks(base: &str, seq: u32) -> String\n\n/// Build continuation silks: \"{base}-{seq:02}\"\nfn jjrq_build_continuation_silks(base: &str, seq: u32) -> String\n```\n\n## Regex\n\nUse regex `^(.+)-(\\d{2})$` for suffix detection. If no match, base is full silks and sequence is None.\n\n## Tests\n\nAdd unit tests in jjrq_query.rs:\n- Parse plain silks (no suffix)\n- Parse silks with -01 suffix\n- Parse silks with -99 suffix\n- Build garlanded silks\n- Build continuation silks\n\n**Files:** jjrq_query.rs",
