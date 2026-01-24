@@ -4165,6 +4165,13 @@
         "₢AFAAl": {
           "tacks": [
             {
+              "ts": "260124-1014",
+              "state": "complete",
+              "text": "Make BUD_TEMP_DIR, BUD_OUTPUT_DIR, and BUD_TRANSCRIPT absolute paths in zbud_setup() to prevent breakage when dispatched scripts change directories. Use PWD builtin (not subshell) per BCG patterns.",
+              "silks": "bud-absolute-paths",
+              "commit": "6472f78"
+            },
+            {
               "ts": "260124-0806",
               "state": "bridled",
               "text": "Make BUD_TEMP_DIR, BUD_OUTPUT_DIR, and BUD_TRANSCRIPT absolute paths in zbud_setup() to prevent breakage when dispatched scripts change directories. Use PWD builtin (not subshell) per BCG patterns.",
