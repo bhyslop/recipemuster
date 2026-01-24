@@ -4903,10 +4903,24 @@
       "silks": "test-trophy-validation",
       "creation_time": "260124",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AMAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AM.md",
-      "paces": {}
+      "paces": {
+        "₢AMAAA": {
+          "tacks": [
+            {
+              "ts": "260124-1122",
+              "state": "rough",
+              "text": "Test pace alpha - will be completed",
+              "silks": "test-pace-alpha",
+              "commit": "031d832"
+            }
+          ]
+        }
+      }
     }
   }
 }
