@@ -3197,9 +3197,10 @@
         "₢AFAAM",
         "₢AFAAc",
         "₢AFAAz",
-        "₢AFAA0"
+        "₢AFAA0",
+        "₢AFAA1"
       ],
-      "next_pace_seed": "AA1",
+      "next_pace_seed": "AA2",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAA0": {
@@ -3210,6 +3211,17 @@
               "text": "Update JJSA spec with new commit types and parameter for trophy data collection.\n\n## Additions to JJSA\n\n### Commit Types Section\n\nAdd to \"Commit Message Patterns\" section:\n\n**B (Bridle)** — Records bridling decision before autonomous execution\n- Created when pace transitions to bridled state\n- Subject: `jjb:HALLMARK:₢XXXXX:B: {agent} | {file_count} files | {silks}`\n- Body contains full direction text\n\n**L (Landing)** — Records agent return after autonomous execution\n- Created when spawned agent completes (success or failure)\n- Subject: `jjb:HALLMARK:₢XXXXX:L: {agent} {landed|crashed} | {steps_completed}/{steps_total} | verify: {pass|fail}`\n- Body contains files touched, duration, error if crashed\n\n### Arguments Section\n\nAdd `--intent` argument for jjx_notch:\n- Optional string parameter\n- If provided, used as commit subject (opus-supplied intent)\n- If omitted, falls back to haiku diff description\n\n## Files\n\n- JJSA-GallopsData.adoc",
               "silks": "trophy-alpha-jjsa-commit-types",
               "commit": "d35c64c"
+            }
+          ]
+        },
+        "₢AFAA1": {
+          "tacks": [
+            {
+              "ts": "260124-1150",
+              "state": "rough",
+              "text": "Implement B commit when pace is bridled.\n\n## Trigger\n\nWhen `/jjc-pace-bridle` transitions a pace to bridled state.\n\n## Implementation\n\nIn the bridle flow (jjx_tally with state=bridled):\n1. After tack is added to gallops\n2. Create chalk-style commit with B marker\n3. Subject format: `jjb:HALLMARK:₢XXXXX:B: {agent} | {file_count} files | {silks}`\n4. Body: full direction text from the tack\n\n## Changes\n\n- jjrn_notch.rs: Add ChalkMarker::Bridle or similar\n- jjro_ops.rs: Create B commit in tally-bridled path\n- Update /jjc-pace-bridle slash command if needed\n\n## Depends on\n\ntrophy-alpha-jjsa-commit-types (spec must be defined first)",
+              "silks": "trophy-alpha-bridle-marker",
+              "commit": "0b176b2"
             }
           ]
         },
