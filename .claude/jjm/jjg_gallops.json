@@ -16,6 +16,13 @@
         "₢ALAAA": {
           "tacks": [
             {
+              "ts": "260124-1048",
+              "state": "complete",
+              "text": "Drafted from ₢AFAAt in ₣AF.\n\nWrite JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
+              "silks": "rust-restring-spec",
+              "commit": "09b3c71"
+            },
+            {
               "ts": "260124-1015",
               "state": "bridled",
               "text": "Drafted from ₢AFAAt in ₣AF.\n\nWrite JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
