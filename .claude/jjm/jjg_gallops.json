@@ -3064,9 +3064,10 @@
         "₢AFAAV",
         "₢AFAAK",
         "₢AFAAY",
-        "₢AFAAZ"
+        "₢AFAAZ",
+        "₢AFAAb"
       ],
-      "next_pace_seed": "AAb",
+      "next_pace_seed": "AAc",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3714,6 +3715,17 @@
               "text": "Fix test jjtg_nominate_creates_heat which expects Racing but gets Stabled.\n\nThe test at src/jjtg_gallops.rs:432 was written before nominate defaulted to stabled. Update the test assertion to expect Stabled instead of Racing, matching the current behavior from the nominate-defaults-stabled pace.\n\n**File:** Tools/jjk/vov_veiled/src/jjtg_gallops.rs (line ~432)\n**Change:** `assert_eq\\!(heat.status, HeatStatus::Racing)` → `assert_eq\\!(heat.status, HeatStatus::Stabled)`",
               "silks": "fix-nominate-test",
               "commit": "95f7fb6"
+            }
+          ]
+        },
+        "₢AFAAb": {
+          "tacks": [
+            {
+              "ts": "260123-1717",
+              "state": "rough",
+              "text": "Switch heats from BTreeMap to IndexMap for insertion-order preservation. Nominate inserts new heats at front. Furlough-to-racing removes and re-inserts at front. Muster iterates in JSON order. Groom/saddle slash commands pick first racing heat when no firemark provided. Result: active heat is always first, eliminating round-trips for heat selection.",
+              "silks": "heat-json-order-auto-groom-mount-choice",
+              "commit": "41b3898"
             }
           ]
         }
