@@ -35,15 +35,23 @@ and
 
 *Example output — heat list (default):*
 ----
-1. [abandoned] vvw-workbench-tabtarget (₢AAAAC)
-2. [complete] install-arch-decision (₢AAAAI)
-3. [rough] vvx-push-rename (₢AAAAJ)
+ No  State       Pace                    Coronet
+-------------------------------------------------
+  1  abandoned   vvw-workbench-tabtarget AAAAC
+  2  complete    install-arch-decision   AAAAI
+  3  rough       vvx-push-rename         AAAAJ
 ----
 
 *Example output — heat list with `--remaining`:*
 ----
-# Progress: 1 complete, 1 abandoned, 1 remaining (1 rough, 0 bridled)
-1. [rough] vvx-push-rename (₢AAAAJ)
+Heat: my-heat (₣AA) [racing]
+Progress: 1 complete | 1 abandoned | 1 remaining (1 rough, 0 bridled)
+
+ No  State     Pace                Coronet
+-------------------------------------------
+  1  rough     vvx-push-rename     AAAAJ
+
+Next: vvx-push-rename (₢AAAAJ) [rough]
 ----
 
 *Example output — heat full:*
@@ -125,10 +133,10 @@ verify heat exists
 {jjdhm_order}
 (respecting `--remaining`): print pace header and full tack text
 .. Otherwise (default list):
-... If `--remaining`: print progress stats comment line: `# Progress: X complete, Y abandoned, Z remaining (A rough, B bridled)`
-... For each pace in
-{jjdhm_order}
-(respecting `--remaining`): print numbered line with state, silks, coronet
+... If `--remaining`: print plain text table with heat header, progress stats, remaining paces in aligned columns, and next up indicator
+... If not `--remaining`: for each pace in
+{jjdhm_order}:
+print numbered line with state, silks, coronet
 . For pace view:
 .. Parse as
 {jjdt_coronet},

@@ -76,6 +76,17 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
         a_status_order.cmp(&b_status_order)
     });
 
+    // Calculate max silks width for column alignment
+    let max_silks_len = heats_by_status.iter()
+        .map(|(_, heat)| heat.silks.len())
+        .max()
+        .unwrap_or(20)
+        .max(20);
+
+    // Print header (avoid # which markdown interprets as heading)
+    println!("{:<5}  {:<width$}  {:<7}  {:>4}  {:>5}", "Fire", "Silks", "Status", "Done", "Total", width = max_silks_len);
+    println!("{}", "-".repeat(5 + 2 + max_silks_len + 2 + 7 + 2 + 4 + 2 + 5));
+
     for (key, heat) in heats_by_status {
         // Count paces where state != Abandoned
         let defined_count = heat.paces.values().filter(|pace| {
@@ -101,7 +112,7 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
             HeatStatus::Retired => "retired",
         };
 
-        println!("{}\t{}\t{}\t{}\t{}", key, heat.silks, status_str, completed_count, defined_count);
+        println!("{:<5}  {:<width$}  {:<7}  {:>4}  {:>5}", key, heat.silks, status_str, completed_count, defined_count, width = max_silks_len);
     }
 
     0
@@ -381,40 +392,114 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
             }
         } else {
             // List view: numbered paces
-            // If --remaining, compute and print progress stats first
+            // If --remaining, output markdown format
             if args.remaining {
                 let mut complete_count = 0;
                 let mut abandoned_count = 0;
                 let mut rough_count = 0;
                 let mut bridled_count = 0;
+                let mut remaining_paces: Vec<(&String, &crate::jjrg_gallops::jjrg_Pace)> = Vec::new();
+                let mut first_remaining_pace: Option<(&String, &crate::jjrg_gallops::jjrg_Pace)> = None;
+
                 for coronet_key in &heat.order {
                     if let Some(pace) = heat.paces.get(coronet_key) {
                         if let Some(tack) = pace.tacks.first() {
                             match tack.state {
                                 PaceState::Complete => complete_count += 1,
                                 PaceState::Abandoned => abandoned_count += 1,
-                                PaceState::Rough => rough_count += 1,
-                                PaceState::Bridled => bridled_count += 1,
+                                PaceState::Rough => {
+                                    rough_count += 1;
+                                    remaining_paces.push((coronet_key, pace));
+                                    if first_remaining_pace.is_none() {
+                                        first_remaining_pace = Some((coronet_key, pace));
+                                    }
+                                }
+                                PaceState::Bridled => {
+                                    bridled_count += 1;
+                                    remaining_paces.push((coronet_key, pace));
+                                    if first_remaining_pace.is_none() {
+                                        first_remaining_pace = Some((coronet_key, pace));
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                let remaining_count = rough_count + bridled_count;
-                println!("# Progress: {} complete, {} abandoned, {} remaining ({} rough, {} bridled)",
-                    complete_count, abandoned_count, remaining_count, rough_count, bridled_count);
-            }
 
-            let mut num = 0;
-            for coronet_key in &heat.order {
-                if let Some(pace) = heat.paces.get(coronet_key) {
-                    if let Some(tack) = pace.tacks.first() {
-                        // Skip complete/abandoned if --remaining
-                        if args.remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
-                            continue;
+                let status_str = match heat.status {
+                    HeatStatus::Racing => "racing",
+                    HeatStatus::Stabled => "stabled",
+                    HeatStatus::Retired => "retired",
+                };
+
+                let remaining_count = rough_count + bridled_count;
+
+                // Header line with heat info
+                println!("Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
+                println!("Progress: {} complete | {} abandoned | {} remaining ({} rough, {} bridled)",
+                    complete_count, abandoned_count, remaining_count, rough_count, bridled_count);
+                println!();
+
+                // Table with remaining paces
+                if !remaining_paces.is_empty() {
+                    // Calculate max silks width for dynamic column sizing
+                    let max_silks_len = remaining_paces.iter()
+                        .filter_map(|(_, pace)| pace.tacks.first().map(|t| t.silks.len()))
+                        .max()
+                        .unwrap_or(20)
+                        .max(20);
+
+                    // Table header (avoid # which markdown interprets as heading)
+                    println!("{:>3}  {:<8}  {:<width$}  {}", "No", "State", "Pace", "Coronet", width = max_silks_len);
+                    println!("{}", "-".repeat(3 + 2 + 8 + 2 + max_silks_len + 2 + 8));
+
+                    // Table rows
+                    for (idx, (coronet_key, pace)) in remaining_paces.iter().enumerate() {
+                        if let Some(tack) = pace.tacks.first() {
+                            let state_str = zjjrq_pace_state_str(&tack.state);
+                            // Strip prefix from coronet for display
+                            let coronet_display = coronet_key.trim_start_matches('₢');
+                            println!("{:>3}  {:<8}  {:<width$}  {}",
+                                idx + 1, state_str, tack.silks, coronet_display,
+                                width = max_silks_len);
                         }
-                        num += 1;
+                    }
+                    println!();
+                }
+
+                // Next up callout
+                if let Some((coronet_key, pace)) = first_remaining_pace {
+                    if let Some(tack) = pace.tacks.first() {
                         let state_str = zjjrq_pace_state_str(&tack.state);
-                        println!("{}. [{}] {} ({})", num, state_str, tack.silks, coronet_key);
+                        println!("Next: {} ({}) [{}]", tack.silks, coronet_key, state_str);
+                    }
+                }
+            } else {
+                // Column-justified list view (all paces)
+                // Calculate max silks width for dynamic column sizing
+                let max_silks_len = heat.order.iter()
+                    .filter_map(|k| heat.paces.get(k))
+                    .filter_map(|p| p.tacks.first().map(|t| t.silks.len()))
+                    .max()
+                    .unwrap_or(20)
+                    .max(20);
+
+                // Table header (avoid # which markdown interprets as heading)
+                println!("{:>3}  {:<10}  {:<width$}  {}", "No", "State", "Pace", "Coronet", width = max_silks_len);
+                println!("{}", "-".repeat(3 + 2 + 10 + 2 + max_silks_len + 2 + 8));
+
+                // Table rows
+                let mut num = 0;
+                for coronet_key in &heat.order {
+                    if let Some(pace) = heat.paces.get(coronet_key) {
+                        if let Some(tack) = pace.tacks.first() {
+                            num += 1;
+                            let state_str = zjjrq_pace_state_str(&tack.state);
+                            let coronet_display = coronet_key.trim_start_matches('₢');
+                            println!("{:>3}  {:<10}  {:<width$}  {}",
+                                num, state_str, tack.silks, coronet_display,
+                                width = max_silks_len);
+                        }
                     }
                 }
             }

@@ -56,7 +56,7 @@ Based on determined mode:
 
 ## Step 3: Display output
 
-Display the formatted output from vvx.
+Echo the vvx output directly in your response text. Do not use code blocks or markdown tables - just output the plain text lines so they display compactly.
 
 ## Examples
 
