@@ -23,6 +23,7 @@ pub mod jjru_util;
 pub mod jjrg_gallops;
 pub mod jjrn_notch;
 pub mod jjrq_query;
+pub mod jjrp_print;
 pub mod jjrs_steeplechase;
 pub mod jjrx_cli;
 

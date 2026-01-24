@@ -15,6 +15,9 @@
 // jjdkr_: Tack record
 // jjdkm_: Tack members
 // jjdpe_: Tack state enum values
+// jjdyr_: Column Table record
+// jjdym_: Column Table members
+// jjdye_: Column Table enum values (alignment)
 // jjdo_:  Operations
 // jjdr_:  Routines (internal reusable procedures)
 // jjds_:  Section headers (operation documentation structure)
@@ -78,6 +81,14 @@
 :jjdkr_tack:      <<jjdkr_tack,Tack>>
 :jjdkr_tack_p:    <<jjdkr_tack,Tack's>>
 :jjdkr_tack_s:    <<jjdkr_tack,Tacks>>
+
+// Column Table record and members
+:jjdyr_table:  <<jjdyr_table,Column Table>>
+:jjdym_column: <<jjdym_column,column>>
+:jjdym_header: <<jjdym_header,header>>
+:jjdym_align:  <<jjdym_align,align>>
+:jjdye_left:   <<jjdye_left,Left>>
+:jjdye_right:  <<jjdye_right,Right>>
 
 // Arguments
 :jjda_after:          <<jjda_after,--after>>
@@ -598,6 +609,49 @@ Predicates for querying pace states by semantic category.
 * abandoned: true
 
 Future states declare their predicate values when added. Query logic uses predicates, not state names.
+
+=== {jjdyr_table}
+
+[[jjdyr_table]]
+// ⟦axl_voices axo_entity⟧
+{jjdyr_table}::
+A structured column layout for formatted output.
+Provides single source of truth for headers, widths, and alignment.
+Eliminates magic numbers and strings from output code.
+
+==== Members
+
+* [[jjdym_column]]
+// ⟦axl_voices axr_member⟧
+{jjdym_column}
+is a column definition with header, width, and alignment.
+
+* [[jjdym_header]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdym_header}
+is the column header text.
+Single source of truth for display.
+
+* [[jjdym_align]]
+// ⟦axl_voices axr_member axd_required⟧
+{jjdym_align}
+specifies the column alignment.
+Values:
+{jjdye_left}
+or
+{jjdye_right}.
+
+==== Alignment Values
+
+[[jjdye_left]]
+// ⟦axl_voices axt_enum_value⟧
+{jjdye_left}::
+Left-align column content.
+
+[[jjdye_right]]
+// ⟦axl_voices axt_enum_value⟧
+{jjdye_right}::
+Right-align column content.
 
 == Serialization
 
