@@ -89,7 +89,7 @@ vvb_run() {
   buc_doc_param "..." "Arguments passed to vvx"
   buc_doc_shown || return 0
 
-  buc_step "Locating VVX binary"
+  buc_log_args "Locating VVX binary"
 
   local z_binary=""
   z_binary=$(zvvb_binary_path_capture) || buc_die "VVX binary not found for platform $(uname -s)-$(uname -m)"

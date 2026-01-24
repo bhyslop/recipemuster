@@ -258,22 +258,22 @@ zbud_main() {
   fi
   zbud_show "Coordinator command: ${zbud_invocation[*]}"
 
-  # Log command to all log files (or disable)
-  if [[ -n "${BUD_NO_LOG:-}" ]]; then
-    echo "logs:        disabled"
-  elif [[ -n "${BUD_INTERACTIVE:-}" ]]; then
-    echo "log (interactive): $BUD_LOG_HIST"
-    echo "command: ${zbud_invocation[*]}" >> "$BUD_LOG_HIST"
-    echo "Git context: $BUD_GIT_CONTEXT"  >> "$BUD_LOG_HIST"
-  else
-    echo "log files:   $BUD_LOG_LAST $BUD_LOG_SAME $BUD_LOG_HIST"
-    echo "command: ${zbud_invocation[*]}" >> "$BUD_LOG_LAST"
-    echo "command: ${zbud_invocation[*]}" >> "$BUD_LOG_SAME"
-    echo "command: ${zbud_invocation[*]}" >> "$BUD_LOG_HIST"
-    echo "Git context: $BUD_GIT_CONTEXT"  >> "$BUD_LOG_HIST"
+  # Log command to all log files (or suppress all output if BUD_NO_LOG)
+  if [[ -z "${BUD_NO_LOG:-}" ]]; then
+    if [[ -n "${BUD_INTERACTIVE:-}" ]]; then
+      echo "log (interactive): $BUD_LOG_HIST"
+      echo "command: ${zbud_invocation[*]}" >> "$BUD_LOG_HIST"
+      echo "Git context: $BUD_GIT_CONTEXT"  >> "$BUD_LOG_HIST"
+    else
+      echo "log files:   $BUD_LOG_LAST $BUD_LOG_SAME $BUD_LOG_HIST"
+      echo "command: ${zbud_invocation[*]}" >> "$BUD_LOG_LAST"
+      echo "command: ${zbud_invocation[*]}" >> "$BUD_LOG_SAME"
+      echo "command: ${zbud_invocation[*]}" >> "$BUD_LOG_HIST"
+      echo "Git context: $BUD_GIT_CONTEXT"  >> "$BUD_LOG_HIST"
+    fi
+    echo "transcript:  ${BUD_TRANSCRIPT}"
+    echo "output dir:  ${BUD_OUTPUT_DIR}"
   fi
-  echo "transcript:  ${BUD_TRANSCRIPT}"
-  echo "output dir:  ${BUD_OUTPUT_DIR}"
 
   zbud_show "Executing coordinator"
 

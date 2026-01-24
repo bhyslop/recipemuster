@@ -1,4 +1,4 @@
 #!/bin/bash
-# TabTarget - delegates to vvw workbench via launcher
-exec "$(dirname "${BASH_SOURCE[0]}")/../.buk/launcher.vvw_workbench.sh" \
-  "${0##*/}" "${@}"
+export BUD_LAUNCHER=".buk/launcher.vvw_workbench.sh"
+export BUD_NO_LOG=1
+exec "$(dirname "${BASH_SOURCE[0]}")/../${BUD_LAUNCHER}" "${0##*/}" "${@}"
