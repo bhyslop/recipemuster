@@ -26,8 +26,9 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 **If 1 heat:** Use that heat's Firemark.
 
 **If 2+ heats:**
-- If $ARGUMENTS matches a silks value, use that heat
-- Otherwise list heats and ask user to select
+- Pick the first racing heat (heats are ordered by priority - most recently activated first)
+- If $ARGUMENTS matches a silks value, override and use that heat instead
+- Otherwise use the first racing heat without prompting
 
 ## Step 2: Get parade data
 

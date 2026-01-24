@@ -595,7 +595,8 @@ pub fn jjrg_retire(
     let paddock_file = heat.paddock_file.clone();
 
     // Remove heat from gallops (do NOT change next_heat_seed)
-    gallops.heats.remove(&firemark_key);
+    // Use shift_remove to preserve order of remaining heats
+    gallops.heats.shift_remove(&firemark_key);
 
     // Delete paddock file
     if paddock_path.exists() {
@@ -753,31 +754,41 @@ pub fn jjrg_furlough(gallops: &mut jjrg_Gallops, args: jjrg_FurloughArgs) -> Res
         .map_err(|e| format!("Invalid firemark: {}", e))?;
     let firemark_key = firemark.jjrf_display();
 
-    // Verify Heat exists
-    let heat = gallops.heats.get_mut(&firemark_key)
-        .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+    // Verify Heat exists and check status
+    {
+        let heat = gallops.heats.get(&firemark_key)
+            .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
 
-    // Check not retired (terminal state)
-    if heat.status == jjrg_HeatStatus::Retired {
-        return Err(format!("Heat '{}' is retired (terminal state)", firemark_key));
+        // Check not retired (terminal state)
+        if heat.status == jjrg_HeatStatus::Retired {
+            return Err(format!("Heat '{}' is retired (terminal state)", firemark_key));
+        }
+
+        // Validate racing/stabled request
+        if args.racing && heat.status == jjrg_HeatStatus::Racing {
+            return Err(format!("Heat '{}' is already racing", firemark_key));
+        }
+        if args.stabled && heat.status == jjrg_HeatStatus::Stabled {
+            return Err(format!("Heat '{}' is already stabled", firemark_key));
+        }
     }
 
     // Apply status change if requested
     if args.racing {
-        if heat.status == jjrg_HeatStatus::Racing {
-            return Err(format!("Heat '{}' is already racing", firemark_key));
+        // Set status to racing
+        gallops.heats.get_mut(&firemark_key).unwrap().status = jjrg_HeatStatus::Racing;
+
+        // Move heat to front of heats object (index 0) to prioritize it
+        if let Some(heat_entry) = gallops.heats.shift_remove(&firemark_key) {
+            gallops.heats.shift_insert(0, firemark_key.clone(), heat_entry);
         }
-        heat.status = jjrg_HeatStatus::Racing;
     } else if args.stabled {
-        if heat.status == jjrg_HeatStatus::Stabled {
-            return Err(format!("Heat '{}' is already stabled", firemark_key));
-        }
-        heat.status = jjrg_HeatStatus::Stabled;
+        gallops.heats.get_mut(&firemark_key).unwrap().status = jjrg_HeatStatus::Stabled;
     }
 
     // Apply silks change if requested
     if let Some(silks) = args.silks {
-        heat.silks = silks;
+        gallops.heats.get_mut(&firemark_key).unwrap().silks = silks;
     }
 
     Ok(())

@@ -13,6 +13,7 @@
 use clap::Parser;
 use std::ffi::OsString;
 use std::path::PathBuf;
+use indexmap::IndexMap;
 
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState, jjrg_read_stdin as read_stdin, jjrg_read_stdin_optional as read_stdin_optional};
@@ -918,7 +919,7 @@ fn zjjrx_run_nominate(args: zjjrx_NominateArgs) -> i32 {
         }
         Gallops {
             next_heat_seed: "AA".to_string(),
-            heats: std::collections::BTreeMap::new(),
+            heats: IndexMap::new(),
         }
     };
 
