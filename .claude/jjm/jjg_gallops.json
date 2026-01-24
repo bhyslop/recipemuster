@@ -4183,6 +4183,14 @@
         "₢AFAAo": {
           "tacks": [
             {
+              "ts": "260124-0939",
+              "state": "bridled",
+              "text": "Extract mount recommendation to shared Rust helper and emit from both wrap and tally.\n\n**Goal:** Consistent \"Recommended: /clear then /jjc-heat-mount\" advice from Rust code, removing need for slash commands to render this.\n\n**Changes:**\n\n1. **jjrx_cli.rs**: Add helper function `zjjrx_emit_mount_recommendation(firemark: &Firemark)` that prints the recommendation to stderr\n\n2. **zjjrx_run_wrap**: Replace inline eprintln with call to the new helper\n\n3. **zjjrx_run_tally**: When state is bridled, call the helper after successful persist (in the Ok branch after \"tally succeeded\")\n\n4. **jjc-pace-bridle.md**: Remove Step 6 mount advice (lines about \"If this pace is next in order\"). The Rust output handles it now.\n\n5. **jjc-pace-wrap.md**: Remove \"pass through Recommended lines\" guidance since it's automatic now.\n\n**Files:** jjrx_cli.rs, .claude/commands/jjc-pace-bridle.md, .claude/commands/jjc-pace-wrap.md",
+              "silks": "common-mount-recommendation",
+              "commit": "b0a7077",
+              "direction": "Agent: haiku | Cardinality: 1 sequential | Files: jjrx_cli.rs, jjc-pace-bridle.md, jjc-pace-wrap.md (3 files) | Steps: 1. Add zjjrx_emit_mount_recommendation helper function in jjrx_cli.rs 2. Replace inline eprintln in zjjrx_run_wrap with helper call 3. Add helper call in zjjrx_run_tally after successful bridled persist 4. Remove Step 6 mount advice from jjc-pace-bridle.md 5. Remove pass-through guidance from jjc-pace-wrap.md | Verify: tt/vow-b.Build.sh"
+            },
+            {
               "ts": "260124-0838",
               "state": "rough",
               "text": "Extract mount recommendation to shared Rust helper and emit from both wrap and tally.\n\n**Goal:** Consistent \"Recommended: /clear then /jjc-heat-mount\" advice from Rust code, removing need for slash commands to render this.\n\n**Changes:**\n\n1. **jjrx_cli.rs**: Add helper function `zjjrx_emit_mount_recommendation(firemark: &Firemark)` that prints the recommendation to stderr\n\n2. **zjjrx_run_wrap**: Replace inline eprintln with call to the new helper\n\n3. **zjjrx_run_tally**: When state is bridled, call the helper after successful persist (in the Ok branch after \"tally succeeded\")\n\n4. **jjc-pace-bridle.md**: Remove Step 6 mount advice (lines about \"If this pace is next in order\"). The Rust output handles it now.\n\n5. **jjc-pace-wrap.md**: Remove \"pass through Recommended lines\" guidance since it's automatic now.\n\n**Files:** jjrx_cli.rs, .claude/commands/jjc-pace-bridle.md, .claude/commands/jjc-pace-wrap.md",
