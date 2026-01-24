@@ -3201,9 +3201,10 @@
         "₢AFAA1",
         "₢AFAA2",
         "₢AFAA3",
-        "₢AFAA4"
+        "₢AFAA4",
+        "₢AFAA5"
       ],
-      "next_pace_seed": "AA5",
+      "next_pace_seed": "AA6",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAA0": {
@@ -3258,6 +3259,17 @@
               "text": "Define V (Version) marker in JJSA for daily model version tracking.\n\n## New Marker Type\n\nAdd to \"Commit Message Patterns\" section:\n\n**V (Version)** — Records Claude model versions in use for the day\n- Created automatically by saddle on first invocation of the day\n- One per day per heat (or global?)\n- Subject: `jjb:HALLMARK:₣XX:V: YYMMDD models`\n- Body contains model ID strings for each tier\n\n## Commit Format\n\n```\njjb:HALLMARK:₣XX:V: 260124 models\n\nhaiku: claude-3-5-haiku-20241022\nsonnet: claude-sonnet-4-20250514\nopus: claude-opus-4-5-20251101\n```\n\n## Semantics\n\n- Marker date in subject (YYMMDD) indicates which day's models\n- Body uses simple `tier: model-id` format, one per line\n- Model IDs are the full strings (e.g., claude-opus-4-5-20251101)\n- Captured once per day, first saddle triggers collection\n\n## Trophy Integration\n\n- V markers included in steeplechase section\n- Enables retrospective: \"which model versions worked on this heat\"\n\n## Files\n\n- JJSA-GallopsData.adoc (add V marker to commit patterns)",
               "silks": "trophy-alpha-jjsa-version-marker",
               "commit": "573ae88"
+            }
+          ]
+        },
+        "₢AFAA5": {
+          "tacks": [
+            {
+              "ts": "260124-1207",
+              "state": "rough",
+              "text": "Implement automatic model version collection in saddle.\n\n## Trigger\n\nIn jjx_saddle, before returning saddle output:\n1. Check steeplechase for V marker with today's date\n2. If found, skip collection\n3. If not found, spawn 3 agents and create marker\n\n## Collection Logic\n\nSpawn 3 minimal Task agents (can be parallel):\n- haiku agent: \"Report your exact model ID string\"\n- sonnet agent: \"Report your exact model ID string\"  \n- opus agent: \"Report your exact model ID string\"\n\nEach agent returns its model ID (e.g., \"claude-opus-4-5-20251101\").\n\n## Marker Creation\n\nAfter collecting all 3 responses:\n1. Format commit body with tier: model-id lines\n2. Create V marker commit via existing chalk infrastructure\n3. Use heat firemark from saddle context\n\n## Implementation Notes\n\n- Agent spawning from Rust: may need to shell out to vvx or use subprocess\n- Or: saddle returns a \"needs_version_check\" flag and slash command handles spawning\n- Fully autonomous: no user prompts\n\n## Error Handling\n\n- If any agent fails to respond, log warning but continue\n- Partial results still useful (record what we got)\n\n## Files\n\n- jjro_ops.rs (saddle logic)\n- Possibly jjrx_cli.rs (if spawning handled at CLI layer)\n\n## Depends on\n\ntrophy-alpha-jjsa-version-marker (spec must be defined first)",
+              "silks": "trophy-alpha-version-collect",
+              "commit": "c3812a5"
             }
           ]
         },
