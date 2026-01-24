@@ -91,6 +91,8 @@ Store for use by other commands:
 
 ## Available Operations
 
+**Commits:** Always use `/jjc-pace-notch` — never vvx_commit directly.
+
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-muster` — List all heats
 - `/jjc-heat-groom` — Review and refine heat

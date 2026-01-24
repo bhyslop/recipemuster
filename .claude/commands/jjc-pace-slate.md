@@ -110,6 +110,8 @@ Common errors:
 
 ## Available Operations
 
+**Commits:** Always use `/jjc-pace-notch` — never vvx_commit directly.
+
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-reslate` — Refine pace specification
 - `/jjc-pace-wrap` — Mark pace complete

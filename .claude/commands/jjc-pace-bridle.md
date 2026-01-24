@@ -115,6 +115,8 @@ Do not offer to execute directly. Execution belongs to `/jjc-heat-mount`.
 
 ## Available Operations
 
+**Commits:** Always use `/jjc-pace-notch` — never vvx_commit directly.
+
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-muster` — List all heats
 - `/jjc-heat-groom` — Review and refine heat
