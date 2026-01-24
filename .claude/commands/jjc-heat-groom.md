@@ -7,41 +7,22 @@ Groom a heat: review the full plan and prepare for refinement work.
 
 Use this command when you want to work on the heat's overall structure - adding paces, reordering, refining specifications - rather than executing the next pace.
 
-Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
+Arguments: $ARGUMENTS (optional Firemark to select specific heat)
 
-## Prerequisites
-
-## Step 1: Identify target heat
-
-**If $ARGUMENTS contains a Firemark (e.g., `AA` or `₣AA`):**
-- Use that Firemark directly
-- Skip to Step 2
-
-**If $ARGUMENTS is empty or contains silks:**
-- Run: `./tt/vvw-r.RunVVX.sh jjx_muster`
-- Parse TSV output: `FIREMARK<TAB>SILKS<TAB>STATUS<TAB>PACE_COUNT`
-
-**If 0 heats:** Report "No heats found. Create one with `./tt/vvw-r.RunVVX.sh jjx_nominate`." and stop.
-
-**If 1 heat:** Use that heat's Firemark.
-
-**If 2+ heats:**
-- Pick the first racing heat (heats are ordered by priority - most recently activated first)
-- If $ARGUMENTS matches a silks value, override and use that heat instead
-- Otherwise use the first racing heat without prompting
-
-## Step 2: Get parade data
+## Step 1: Get parade data
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --remaining
+./tt/vvw-r.RunVVX.sh jjx_parade $ARGUMENTS --remaining
 ```
+
+If $ARGUMENTS is empty, parade defaults to the newest racing heat.
 
 This returns:
 - Progress stats comment line: `# Progress: X complete, Y abandoned, Z remaining (A rough, B bridled)`
 - Remaining paces list in execution order
 
-## Step 3: Display heat overview
+## Step 2: Display heat overview
 
 **Echo the vvx parade output directly** (no code blocks, no markdown tables, no box-drawing). The vvx output is already column-aligned plain text.
 
@@ -52,7 +33,7 @@ Summarize progress:
 
 If user needs full specs or paddock content, they can request it or use `/jjc-parade full`.
 
-## Step 4: Enter planning mode
+## Step 3: Enter planning mode
 
 Identify the **next pace** — first incomplete pace by order (skip complete/abandoned). This is what `/jjc-heat-mount` will execute.
 
