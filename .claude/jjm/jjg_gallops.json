@@ -3642,6 +3642,14 @@
         "₢AFAAV": {
           "tacks": [
             {
+              "ts": "260123-2013",
+              "state": "bridled",
+              "text": "Rethink /jjc-heat-rein output to reduce token usage.\n\nCurrent issue: jjx_rein returns JSON which Claude then reformats. This consumes tokens twice (raw JSON + formatted output).\n\nQuestions to resolve:\n- Should jjx_rein output human-readable text directly?\n- Or should the slash command use a more compact summary?\n- What information is actually useful from rein? (recent context vs full history)\n- Consider: rein exists to show steeplechase history — is formatted text better than structured JSON for this use case?",
+              "silks": "rein-token-efficiency",
+              "commit": "8730d1d",
+              "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: jjrs_steeplechase.rs, jjc-heat-rein.md (2 files)\nSteps:\n1. In jjrs_run, replace serde_json::to_string_pretty with formatted text loop\n2. Output format: TIMESTAMP  COMMIT  [ACTION] CORONET  SUBJECT\n3. Use fixed-width columns: timestamp (16), commit (8), action (3), coronet (7)\n4. Simplify slash command to run and display output directly\nVerify: tt/vow-b.Build.sh and tt/vow-t.Test.sh"
+            },
+            {
               "ts": "260123-1318",
               "state": "rough",
               "text": "Rethink /jjc-heat-rein output to reduce token usage.\n\nCurrent issue: jjx_rein returns JSON which Claude then reformats. This consumes tokens twice (raw JSON + formatted output).\n\nQuestions to resolve:\n- Should jjx_rein output human-readable text directly?\n- Or should the slash command use a more compact summary?\n- What information is actually useful from rein? (recent context vs full history)\n- Consider: rein exists to show steeplechase history — is formatted text better than structured JSON for this use case?",
