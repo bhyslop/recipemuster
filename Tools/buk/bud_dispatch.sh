@@ -76,6 +76,10 @@ zbud_setup() {
   zbud_show "Generated timestamp: ${BUD_NOW_STAMP}"
 
   BUD_TEMP_DIR="${BURC_TEMP_ROOT_DIR}/temp-${BUD_NOW_STAMP}"
+  case "${BUD_TEMP_DIR}" in
+    /*) ;;
+    *)  BUD_TEMP_DIR="${PWD}/${BUD_TEMP_DIR}" ;;
+  esac
   mkdir -p                           "${BUD_TEMP_DIR}"
   zbud_show "Generated temporary dir: ${BUD_TEMP_DIR}"
 
@@ -95,6 +99,10 @@ zbud_setup() {
 
   # Setup output directory (fixed location, cleared on each run)
   BUD_OUTPUT_DIR="${BURC_OUTPUT_ROOT_DIR}/current"
+  case "${BUD_OUTPUT_DIR}" in
+    /*) ;;
+    *)  BUD_OUTPUT_DIR="${PWD}/${BUD_OUTPUT_DIR}" ;;
+  esac
 
   # Clear if exists, then create fresh
   if [[ -d "$BUD_OUTPUT_DIR" ]]; then
