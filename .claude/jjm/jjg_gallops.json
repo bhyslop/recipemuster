@@ -50,6 +50,13 @@
         "₢ALAAB": {
           "tacks": [
             {
+              "ts": "260124-1100",
+              "state": "complete",
+              "text": "Drafted from ₢AFAAu in ₣AF.\n\nImplement jjx_restring subcommand in Rust per JJSCRS-restring.adoc spec.\n\nLocation: Tools/vok/src/jjx/ (follow existing subcommand patterns)\n\nKey behaviors:\n- Parse source firemark, dest firemark, one or more coronets\n- Validate all inputs before any mutations\n- Draft each pace atomically (single save)\n- Output JSON with source/destination info and drafted array\n- Include spec text from new tacks[0].text in output",
+              "silks": "rust-restring-impl",
+              "commit": "866f5d2"
+            },
+            {
               "ts": "260124-1054",
               "state": "bridled",
               "text": "Drafted from ₢AFAAu in ₣AF.\n\nImplement jjx_restring subcommand in Rust per JJSCRS-restring.adoc spec.\n\nLocation: Tools/vok/src/jjx/ (follow existing subcommand patterns)\n\nKey behaviors:\n- Parse source firemark, dest firemark, one or more coronets\n- Validate all inputs before any mutations\n- Draft each pace atomically (single save)\n- Output JSON with source/destination info and drafted array\n- Include spec text from new tacks[0].text in output",
