@@ -3989,6 +3989,14 @@
         "₢AFAAg": {
           "tacks": [
             {
+              "ts": "260124-0937",
+              "state": "bridled",
+              "text": "Change jjx_saddle to output column-aligned plain text instead of JSON.\n\n**Current:** JSON output requiring agent parsing (wastes tokens)\n\n**New format:**\n```\nHeat: jjk-post-alpha-polish (₣AF) [racing]\nPaddock: .claude/jjm/jjp_AF.md\n\nNext: parade-column-format (₢AFAAf) [bridled]\n\nSpec:\n[spec text here]\n\nDirection:\n[direction text if bridled, omit section if rough]\n```\n\n**Implementation:**\n- Modify jjrq_run_saddle in jjrq_query.rs\n- Replace JSON with plain text format\n- No flags - single output format\n\n**Files:** jjrq_query.rs, JJSCSD-saddle.adoc",
+              "silks": "saddle-column-format",
+              "commit": "8e39539",
+              "direction": "Agent: haiku | Cardinality: 1 sequential | Files: jjrq_query.rs, JJSCSD-saddle.adoc (2 files) | Steps: 1. Replace JSON serialization in jjrq_run_saddle with println statements matching spec format 2. Remove or comment zjjrq_SaddleOutput struct 3. Update JJSCSD-saddle.adoc stdout section to show plain text format | Verify: tt/vow-b.Build.sh"
+            },
+            {
               "ts": "260124-0932",
               "state": "rough",
               "text": "Change jjx_saddle to output column-aligned plain text instead of JSON.\n\n**Current:** JSON output requiring agent parsing (wastes tokens)\n\n**New format:**\n```\nHeat: jjk-post-alpha-polish (₣AF) [racing]\nPaddock: .claude/jjm/jjp_AF.md\n\nNext: parade-column-format (₢AFAAf) [bridled]\n\nSpec:\n[spec text here]\n\nDirection:\n[direction text if bridled, omit section if rough]\n```\n\n**Implementation:**\n- Modify jjrq_run_saddle in jjrq_query.rs\n- Replace JSON with plain text format\n- No flags - single output format\n\n**Files:** jjrq_query.rs, JJSCSD-saddle.adoc",
