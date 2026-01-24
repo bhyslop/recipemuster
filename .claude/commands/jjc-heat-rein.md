@@ -26,31 +26,23 @@ Run:
 ./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK> --limit <N>
 ```
 
-Parse JSON output — array of entries with:
-- `timestamp`: "YYYY-MM-DD HH:MM"
-- `commit`: abbreviated git SHA (e.g., "abc123ef")
-- `coronet`: "₢XXXXX" (present for pace-level entries)
-- `action`: single letter code (present for markers/heat actions)
+Output is already formatted as human-readable text with columns:
+- `timestamp`: "YYYY-MM-DD HH:MM" (16 chars)
+- `commit`: abbreviated git SHA (8 chars)
+- `action`: single letter code in brackets (3 chars, e.g., `[W]`)
+- `coronet`: "₢XXXXX" for pace entries (7 chars, blank if heat-level)
 - `subject`: description text
 
-## Step 3: Format and display
+## Step 3: Display output
 
-Display as human-readable history:
-
+Output format:
 ```
-=== Steeplechase: <HEAT_SILKS> (₣<FIREMARK>) ===
-
-YYYY-MM-DD HH:MM  abc123ef  [W] ₢XXXXX  Wrap description
-YYYY-MM-DD HH:MM  def456ab  [T]         Tally: pace-silks
-YYYY-MM-DD HH:MM  1234abcd  [F] ₢XXXXX  Fly: agent execution
-YYYY-MM-DD HH:MM  5678efgh  [n] ₢XXXXX  Commit message
-YYYY-MM-DD HH:MM  9abc0123  [S]         Slate: new-pace-silks
+YYYY-MM-DD HH:MM  abc123ef  [W]  ₢XXXXX  Wrap description
+YYYY-MM-DD HH:MM  def456ab  [T]          Tally: pace-silks
+YYYY-MM-DD HH:MM  1234abcd  [F]  ₢XXXXX  Fly: agent execution
+YYYY-MM-DD HH:MM  5678efgh  [n]  ₢XXXXX  Commit message
+YYYY-MM-DD HH:MM  9abc0123  [S]          Slate: new-pace-silks
 ```
-
-Format rules:
-- Action codes in brackets: `[W]`, `[T]`, `[F]`, `[A]`, `[S]`, `[n]`, `[r]`
-- Coronet column: show if present, blank otherwise
-- Subject: as-is from JSON
 
 Action code meanings:
 - `W` = Wrap (pace complete)

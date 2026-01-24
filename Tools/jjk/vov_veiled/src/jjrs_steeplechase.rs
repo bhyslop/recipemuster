@@ -208,20 +208,35 @@ pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEnt
     Ok(entries)
 }
 
+/// Format steeplechase entries as human-readable text with fixed-width columns
+/// Columns: timestamp (16), commit (8), action (3), coronet (7), subject
+fn zjjrs_format_entry(entry: &jjrs_SteeplechaseEntry) -> String {
+    let timestamp = format!("{:<16}", entry.timestamp);
+    let commit = format!("{:<8}", entry.commit);
+    let action = match &entry.action {
+        Some(a) => format!("[{}]", a),
+        None => String::new(),
+    };
+    let action_col = format!("{:<3}", action);
+    let coronet = match &entry.coronet {
+        Some(c) => format!("{:<7}", c),
+        None => "       ".to_string(), // 7 spaces for alignment
+    };
+
+    format!(
+        "{}  {}  {}  {}{}",
+        timestamp, commit, action_col, coronet, entry.subject
+    )
+}
+
 /// Run jjx_rein command (CLI wrapper)
 pub fn jjrs_run(args: jjrs_ReinArgs) -> i32 {
     match jjrs_get_entries(&args) {
         Ok(entries) => {
-            match serde_json::to_string_pretty(&entries) {
-                Ok(json) => {
-                    println!("{}", json);
-                    0
-                }
-                Err(e) => {
-                    eprintln!("rein: error: failed to serialize JSON: {}", e);
-                    1
-                }
+            for entry in entries {
+                println!("{}", zjjrs_format_entry(&entry));
             }
+            0
         }
         Err(e) => {
             eprintln!("rein: error: {}", e);
