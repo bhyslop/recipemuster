@@ -4915,6 +4915,13 @@
           "tacks": [
             {
               "ts": "260124-1122",
+              "state": "complete",
+              "text": "Test pace alpha - will be completed",
+              "silks": "test-pace-alpha",
+              "commit": "f2524f9"
+            },
+            {
+              "ts": "260124-1122",
               "state": "rough",
               "text": "Test pace alpha - will be completed",
               "silks": "test-pace-alpha",
