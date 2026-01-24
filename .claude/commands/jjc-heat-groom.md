@@ -31,14 +31,14 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 
 ## Step 2: Get parade data
 
-Run both commands:
+Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK>
 ./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --remaining
 ```
 
-The first returns heat metadata (silks, status, created date).
-The second returns the actionable pace list in execution order.
+This returns:
+- Progress stats comment line: `# Progress: X complete, Y abandoned, Z remaining (A rough, B bridled)`
+- Remaining paces list in execution order
 
 ## Step 3: Display heat overview
 

@@ -371,6 +371,29 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
             }
         } else {
             // List view: numbered paces
+            // If --remaining, compute and print progress stats first
+            if args.remaining {
+                let mut complete_count = 0;
+                let mut abandoned_count = 0;
+                let mut rough_count = 0;
+                let mut bridled_count = 0;
+                for coronet_key in &heat.order {
+                    if let Some(pace) = heat.paces.get(coronet_key) {
+                        if let Some(tack) = pace.tacks.first() {
+                            match tack.state {
+                                PaceState::Complete => complete_count += 1,
+                                PaceState::Abandoned => abandoned_count += 1,
+                                PaceState::Rough => rough_count += 1,
+                                PaceState::Bridled => bridled_count += 1,
+                            }
+                        }
+                    }
+                }
+                let remaining_count = rough_count + bridled_count;
+                println!("# Progress: {} complete, {} abandoned, {} remaining ({} rough, {} bridled)",
+                    complete_count, abandoned_count, remaining_count, rough_count, bridled_count);
+            }
+
             let mut num = 0;
             for coronet_key in &heat.order {
                 if let Some(pace) = heat.paces.get(coronet_key) {
