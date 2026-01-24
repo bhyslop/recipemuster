@@ -1002,3 +1002,129 @@ pub fn jjrg_garland(gallops: &mut jjrg_Gallops, args: jjrg_GarlandArgs, base_pat
         paces_retained: retained_count,
     })
 }
+
+/// Restring - bulk draft multiple paces atomically
+///
+/// Moves multiple paces from source heat to destination heat in a single operation.
+/// All paces are validated before any mutations occur.
+/// Order is preserved in the destination heat.
+pub fn jjrg_restring(gallops: &mut jjrg_Gallops, args: jjrg_RestringArgs) -> Result<jjrg_RestringResult, String> {
+    // Parse and normalize firemarks
+    let source_firemark = Firemark::jjrf_parse(&args.source_firemark)
+        .map_err(|e| format!("Invalid source firemark: {}", e))?;
+    let source_firemark_key = source_firemark.jjrf_display();
+
+    let dest_firemark = Firemark::jjrf_parse(&args.dest_firemark)
+        .map_err(|e| format!("Invalid destination firemark: {}", e))?;
+    let dest_firemark_key = dest_firemark.jjrf_display();
+
+    // Validate firemarks are different
+    if source_firemark_key == dest_firemark_key {
+        return Err("Cannot draft paces to same heat".to_string());
+    }
+
+    // Validate both heats exist
+    if !gallops.heats.contains_key(&source_firemark_key) {
+        return Err(format!("Heat '{}' not found", source_firemark_key));
+    }
+    if !gallops.heats.contains_key(&dest_firemark_key) {
+        return Err(format!("Heat '{}' not found", dest_firemark_key));
+    }
+
+    // Validate coronet array is non-empty
+    if args.coronets.is_empty() {
+        return Err("No paces specified for draft".to_string());
+    }
+
+    // Validate all coronets before any mutations
+    let mut normalized_coronets = Vec::new();
+    for coronet_str in &args.coronets {
+        // Parse and normalize coronet
+        let coronet = Coronet::jjrf_parse(coronet_str)
+            .map_err(|e| format!("Invalid coronet '{}': {}", coronet_str, e))?;
+        let coronet_key = coronet.jjrf_display();
+
+        // Verify coronet belongs to source heat
+        let coronet_firemark = coronet.jjrf_parent_firemark();
+        if coronet_firemark.jjrf_display() != source_firemark_key {
+            return Err(format!(
+                "Pace {} does not belong to source heat {}",
+                coronet_key, source_firemark_key
+            ));
+        }
+
+        // Verify pace exists in source heat
+        let source_heat = gallops.heats.get(&source_firemark_key).unwrap();
+        if !source_heat.paces.contains_key(&coronet_key) {
+            return Err(format!(
+                "Pace {} not found in heat {}",
+                coronet_key, source_firemark_key
+            ));
+        }
+
+        normalized_coronets.push(coronet_key);
+    }
+
+    // All validations passed - now perform the operations
+
+    // Capture source heat info before mutations
+    let source_heat = gallops.heats.get(&source_firemark_key).unwrap();
+    let source_silks = source_heat.silks.clone();
+    let source_paddock = source_heat.paddock_file.clone();
+
+    // Capture destination heat info
+    let dest_heat = gallops.heats.get(&dest_firemark_key).unwrap();
+    let dest_silks = dest_heat.silks.clone();
+    let dest_paddock = dest_heat.paddock_file.clone();
+
+    // Draft each pace to destination (preserving order)
+    let mut mappings = Vec::new();
+    for coronet_key in normalized_coronets {
+        let draft_args = jjrg_DraftArgs {
+            coronet: coronet_key.clone(),
+            to: dest_firemark_key.clone(),
+            before: None,
+            after: None,
+            first: false, // Append to end to preserve order
+        };
+
+        // Get pace info before drafting (for output)
+        let source_heat = gallops.heats.get(&source_firemark_key).unwrap();
+        let pace = source_heat.paces.get(&coronet_key).unwrap();
+        let first_tack = pace.tacks.first();
+        let silks = first_tack.map(|t| t.silks.clone()).unwrap_or_default();
+        let state = first_tack.map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough);
+        let spec_full = first_tack.map(|t| t.text.clone()).unwrap_or_default();
+        let spec_preview = if spec_full.len() > 80 {
+            format!("{}...", &spec_full[..77])
+        } else {
+            spec_full.clone()
+        };
+
+        // Perform the draft
+        let result = jjrg_draft(gallops, draft_args)?;
+
+        mappings.push(jjrg_RestringMapping {
+            old_coronet: coronet_key,
+            new_coronet: result.new_coronet,
+            silks,
+            state,
+            spec: spec_preview,
+        });
+    }
+
+    // Check if source heat is now empty
+    let source_heat_after = gallops.heats.get(&source_firemark_key).unwrap();
+    let source_empty_after = source_heat_after.paces.is_empty();
+
+    Ok(jjrg_RestringResult {
+        source_firemark: source_firemark_key,
+        source_silks,
+        source_paddock,
+        source_empty_after,
+        dest_firemark: dest_firemark_key,
+        dest_silks,
+        dest_paddock,
+        drafted: mappings,
+    })
+}

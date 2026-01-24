@@ -21,7 +21,7 @@ pub use crate::jjrv_validate::jjrg_validate;
 pub use crate::jjru_util::{jjrg_capture_commit_sha, jjrg_make_tack, jjrg_read_stdin, jjrg_read_stdin_optional};
 
 // Re-export operations
-pub use crate::jjro_ops::{jjrg_nominate, jjrg_slate, jjrg_rail, jjrg_tally, jjrg_draft, jjrg_retire, jjrg_build_trophy_preview, jjrg_furlough, jjrg_curry, jjrg_garland};
+pub use crate::jjro_ops::{jjrg_nominate, jjrg_slate, jjrg_rail, jjrg_tally, jjrg_draft, jjrg_retire, jjrg_build_trophy_preview, jjrg_furlough, jjrg_curry, jjrg_garland, jjrg_restring};
 
 // Backwards compatibility: impl methods on jjrg_Gallops
 impl jjrg_Gallops {
@@ -99,5 +99,10 @@ impl jjrg_Gallops {
     /// Garland a Heat - celebrate completion and create continuation
     pub fn jjrg_garland(&mut self, args: jjrg_GarlandArgs, base_path: &Path) -> Result<jjrg_GarlandResult, String> {
         jjrg_garland(self, args, base_path)
+    }
+
+    /// Restring - bulk draft multiple paces atomically
+    pub fn jjrg_restring(&mut self, args: jjrg_RestringArgs) -> Result<jjrg_RestringResult, String> {
+        jjrg_restring(self, args)
     }
 }

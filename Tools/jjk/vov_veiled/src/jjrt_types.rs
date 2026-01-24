@@ -213,3 +213,39 @@ pub struct jjrg_GarlandResult {
     /// Number of paces retained in garlanded heat
     pub paces_retained: usize,
 }
+
+/// Arguments for the restring operation
+pub struct jjrg_RestringArgs {
+    /// Source heat Firemark
+    pub source_firemark: String,
+    /// Destination heat Firemark
+    pub dest_firemark: String,
+    /// Coronets to transfer (in order)
+    pub coronets: Vec<String>,
+}
+
+/// Mapping of old coronet to new coronet with pace metadata
+#[derive(Debug, Clone)]
+pub struct jjrg_RestringMapping {
+    pub old_coronet: String,
+    pub new_coronet: String,
+    pub silks: String,
+    pub state: jjrg_PaceState,
+    pub spec: String,
+}
+
+/// Result of the restring operation
+#[derive(Debug)]
+pub struct jjrg_RestringResult {
+    /// Source heat info
+    pub source_firemark: String,
+    pub source_silks: String,
+    pub source_paddock: String,
+    pub source_empty_after: bool,
+    /// Destination heat info
+    pub dest_firemark: String,
+    pub dest_silks: String,
+    pub dest_paddock: String,
+    /// Drafted pace mappings (in transfer order)
+    pub drafted: Vec<jjrg_RestringMapping>,
+}
