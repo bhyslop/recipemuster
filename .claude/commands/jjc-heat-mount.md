@@ -160,8 +160,17 @@ Before branching on state, assess whether the pace silks fits the spec:
   - **Spawn a Task agent** to execute the pace:
     - `model`: the extracted agent tier (haiku/sonnet/opus)
     - `subagent_type`: "general-purpose"
-    - `prompt`: Combine spec + direction. Agent should report completion status when done.
+    - `prompt`: Combine spec + direction + wrap discipline (see below)
   - The spec contains the "what" (requirements, acceptance criteria); direction contains the "how" (steps, verification)
+  - **Include this wrap discipline section in the agent prompt:**
+    ```
+    ## Wrap Discipline
+
+    DO NOT run /jjc-pace-wrap or mark the pace complete. When work is done:
+    1. Run build + tests as specified in direction
+    2. Report completion status and test results
+    3. STOP — the calling agent will confirm wrap with the user
+    ```
   - Wait for agent completion and report outcome to user
   - **Do NOT auto-wrap.** Ask user: "Ready to wrap ₢<CORONET>?" and wait for confirmation before running `/jjc-pace-wrap`
 - **On I:**
