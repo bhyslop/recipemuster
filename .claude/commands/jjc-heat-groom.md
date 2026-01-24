@@ -29,26 +29,27 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 - If $ARGUMENTS matches a silks value, use that heat
 - Otherwise list heats and ask user to select
 
-## Step 2: Get full parade data
+## Step 2: Get parade data
 
-Run:
+Run both commands:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --full
+./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --remaining
 ```
 
-This returns formatted output with:
-- Heat metadata (silks, status, created date)
-- Full paddock content
-- All paces with specs and directions
+The first returns heat metadata (silks, status, created date).
+The second returns the actionable pace list in execution order.
 
 ## Step 3: Display heat overview
 
-Display the parade output directly. It includes all the planning context needed.
+**Always display the remaining paces list.** This shows actionable paces in execution order — the essential context for deciding what to work on.
 
 If heat status is "stabled", note: "⚠ This heat is stabled (paused). Use `/jjc-heat-furlough <firemark> --racing` to resume execution."
 
 Summarize progress:
 - Complete: X | Abandoned: Y | Remaining: Z (rough: A, bridled: B)
+
+If user needs full specs or paddock content, they can request it or use `/jjc-parade full`.
 
 ## Step 4: Enter planning mode
 
@@ -95,4 +96,4 @@ Store for use by other commands:
 - `/jjc-heat-nominate` — Create new heat
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-notch` — JJ-aware git commit
-- `/jjc-parade-overview` — Heat summary
+- `/jjc-parade` — Heat or pace details
