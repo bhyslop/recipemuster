@@ -71,62 +71,8 @@ fn jjtq_muster_output_format() {
     assert!(expected_format.contains("2")); // pace count
 }
 
-#[test]
-fn jjtq_saddle_output_structure() {
-    // Test the SaddleOutput serialization
-    let output = zjjrq_SaddleOutput {
-        heat_silks: "my-heat".to_string(),
-        paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
-        paddock_content: "# Test content".to_string(),
-        pace_coronet: Some("₢ABAAA".to_string()),
-        pace_silks: Some("my-pace".to_string()),
-        pace_state: Some("rough".to_string()),
-        spec: Some("Do the thing".to_string()),
-        direction: None,
-        recent_work: vec![],
-    };
-    let json = serde_json::to_string(&output).unwrap();
-    assert!(json.contains("heat_silks"));
-    assert!(json.contains("pace_coronet"));
-    assert!(!json.contains("\"direction\"")); // None should be skipped
-}
-
-#[test]
-fn jjtq_saddle_output_with_bridled_direction() {
-    let output = zjjrq_SaddleOutput {
-        heat_silks: "my-heat".to_string(),
-        paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
-        paddock_content: "# Test".to_string(),
-        pace_coronet: Some("₢ABAAA".to_string()),
-        pace_silks: Some("my-pace".to_string()),
-        pace_state: Some("bridled".to_string()),
-        spec: Some("Ready to execute".to_string()),
-        direction: Some("Execute autonomously".to_string()),
-        recent_work: vec![],
-    };
-    let json = serde_json::to_string(&output).unwrap();
-    assert!(json.contains("\"direction\""));
-    assert!(json.contains("Execute autonomously"));
-}
-
-#[test]
-fn jjtq_saddle_output_no_actionable_pace() {
-    let output = zjjrq_SaddleOutput {
-        heat_silks: "my-heat".to_string(),
-        paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
-        paddock_content: "# All done".to_string(),
-        pace_coronet: None,
-        pace_silks: None,
-        pace_state: None,
-        spec: None,
-        direction: None,
-        recent_work: vec![],
-    };
-    let json = serde_json::to_string(&output).unwrap();
-    assert!(json.contains("heat_silks"));
-    assert!(!json.contains("pace_coronet"));
-    assert!(!json.contains("pace_silks"));
-}
+// Note: saddle output is now plain text format instead of JSON.
+// Output format is tested through integration tests.
 
 #[test]
 fn jjtq_retire_output_structure() {

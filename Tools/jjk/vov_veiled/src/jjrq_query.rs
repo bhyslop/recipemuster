@@ -11,7 +11,7 @@ use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
-use crate::jjrs_steeplechase::{jjrs_SteeplechaseEntry, jjrs_get_entries, jjrs_ReinArgs};
+use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
 use serde::Serialize;
 use std::fs;
 
@@ -172,25 +172,6 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
 pub struct jjrq_SaddleArgs {
     pub file: std::path::PathBuf,
     pub firemark: Firemark,
-}
-
-/// Output structure for saddle command
-#[derive(Serialize)]
-pub(crate) struct zjjrq_SaddleOutput {
-    pub(crate) heat_silks: String,
-    pub(crate) paddock_file: String,
-    pub(crate) paddock_content: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) pace_coronet: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) pace_silks: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) pace_state: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) spec: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) direction: Option<String>,
-    pub(crate) recent_work: Vec<jjrs_SteeplechaseEntry>,
 }
 
 /// Run the saddle command - return Heat context
