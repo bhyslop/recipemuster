@@ -1,0 +1,252 @@
+
+Draft multiple
+{jjdpr_pace_s}
+from one
+{jjdhr_heat}
+to another as a single atomic operation.
+All
+{jjdpr_pace_s}
+receive new
+{jjdt_coronet_s}
+in the destination
+{jjdhr_heat};
+all
+{jjdkr_tack}
+history is preserved.
+
+This operation mirrors
+{jjdo_draft}
+behavior but operates on multiple
+{jjdpr_pace_s}
+atomically.
+Either all
+{jjdpr_pace_s}
+transfer or none do.
+Unlike
+{jjdo_garland}
+which has specific ceremony semantics (garlanding, furlough, filtering by state),
+{jjdo_restring}
+is a primitive bulk transfer: mechanical movement of specified
+{jjdpr_pace_s}
+with no additional ceremony.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) — source
+{jjdhr_heat}
+
+// ⟦axd_required⟧
+* {jjda_to}
+— destination
+{jjdt_firemark}
+
+// ⟦axd_required⟧
+* stdin — JSON array of
+{jjdt_coronet_s}
+to draft (order preserved in destination)
+
+{jjds_stdout} JSON object:
+
+[source,json]
+----
+{
+  "source": {
+    "firemark": "AF",
+    "silks": "jjk-restring-rust",
+    "paddock": ".claude/jjm/jjp_AF.md",
+    "empty_after": false
+  },
+  "destination": {
+    "firemark": "AG",
+    "silks": "jjk-alpha-launch",
+    "paddock": ".claude/jjm/jjp_AG.md"
+  },
+  "drafted": [
+    {
+      "old_coronet": "AFAAb",
+      "new_coronet": "AGABd",
+      "silks": "implement-bulk-draft",
+      "state": "bridled",
+      "spec": "Implement jjx_restring operation following jjx_draft pattern..."
+    },
+    {
+      "old_coronet": "AFAAc",
+      "new_coronet": "AGABe",
+      "silks": "test-restring-edge-cases",
+      "state": "rough",
+      "spec": "Add tests for empty source, all paces transferred, ordering preservation..."
+    }
+  ]
+}
+----
+
+*Schema fields:*
+
+* `source.firemark`: Source
+{jjdt_firemark}
+* `source.silks`: Source
+{jjdhm_silks}
+* `source.paddock`: Source
+{jjdhm_paddock}
+path
+* `source.empty_after`: Boolean indicating whether source has no remaining
+{jjdpr_pace_s}
+after transfer
+* `destination.firemark`: Destination
+{jjdt_firemark}
+* `destination.silks`: Destination
+{jjdhm_silks}
+* `destination.paddock`: Destination
+{jjdhm_paddock}
+path
+* `drafted[]`: Array in transfer order
+* `drafted[].old_coronet`: Original
+{jjdt_coronet}
+in source
+* `drafted[].new_coronet`: New
+{jjdt_coronet}
+in destination
+* `drafted[].silks`: Current
+{jjdkm_silks}
+from `tacks[0]`
+* `drafted[].state`: Current
+{jjdkm_state}
+from `tacks[0]`
+* `drafted[].spec`: Current
+{jjdkm_text}
+from `tacks[0]`
+(first 80 chars)
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+.
+{jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
+. Parse stdin as JSON array of
+{jjdt_coronet_s}
+. Verify source
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Verify destination
+{jjdhr_heat}
+exists with given
+{jjda_to}
+{jjdt_firemark}
+. Verify source and destination are different
+{jjdhr_heat_s}
+. For each
+{jjdt_coronet}
+in stdin array:
+.. Extract source
+{jjdt_firemark}
+from
+{jjdt_coronet}
+(first 2 base64 chars after prefix)
+.. Verify source
+{jjdt_firemark}
+matches positional argument
+.. Verify
+{jjdpr_pace}
+exists in source
+{jjdhr_heat}
+. Read destination
+{jjdhm_seed}
+. For each
+{jjdt_coronet}
+in stdin array (preserving order):
+.. Construct new
+{jjdt_coronet}:
+`₢` + destination
+{jjdt_firemark}
+(2 chars) + destination
+{jjdhm_seed}
+(3 chars)
+.. Copy
+{jjdpr_pace}
+data to destination with new
+{jjdt_coronet}:
+... Prepend new
+{jjdkr_tack}
+recording the draft:
+.... {jjdkm_refined}:
+current timestamp (YYMMDD-HHMM)
+.... {jjdkm_state}:
+inherited from previous `tacks[0].state`
+.... {jjdkm_text}:
+`Drafted from {old_coronet} in {source_firemark}.\n\n` + previous `tacks[0].text`
+.... {jjdkm_silks}:
+inherited from previous `tacks[0].silks`
+.... {jjdkm_commit}:
+capture {jjdkm_commit}
+... Preserve remaining
+{jjdkr_tack}
+history
+.. Append new
+{jjdt_coronet}
+to destination
+{jjdhm_order}
+.. Increment destination
+{jjdhm_seed}
+.. Record mapping (old
+{jjdt_coronet}
+→ new
+{jjdt_coronet})
+for output
+. Remove all drafted
+{jjdpr_pace_s}
+from source
+{jjdhr_heat}:
+.. For each old
+{jjdt_coronet}:
+... Remove from source `paces` object
+... Remove from source
+{jjdhm_order}
+.
+{jjdr_save}
+{jjdgr_gallops}
+to
+{jjda_file}
+. Construct output JSON with source info, destination info, and drafted array
+. Output JSON to stdout
+
+*Validation errors:*
+
+[cols="2,3"]
+|===
+| Condition | Error
+
+| Source {jjdhr_heat} not found
+| "Heat {firemark} not found"
+
+| Destination {jjdhr_heat} not found
+| "Heat {firemark} not found"
+
+| Source and destination same
+| "Cannot draft paces to same heat"
+
+| Invalid JSON in stdin
+| "Invalid JSON in stdin"
+
+| {jjdt_coronet} not array
+| "Expected JSON array of coronets"
+
+| {jjdt_coronet} source mismatch
+| "Pace {coronet} does not belong to source heat {firemark}"
+
+| {jjdpr_pace} not found
+| "Pace {coronet} not found in heat {firemark}"
+
+| Empty array in stdin
+| "No paces specified for draft"
+|===
