@@ -3085,9 +3085,10 @@
         "₢AFAAM",
         "₢AFAAt",
         "₢AFAAu",
-        "₢AFAAv"
+        "₢AFAAv",
+        "₢AFAAw"
       ],
-      "next_pace_seed": "AAw",
+      "next_pace_seed": "AAx",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -4235,6 +4236,17 @@
               "text": "Update jjc-heat-restring.md slash command to use jjx_restring primitive.\n\nChanges:\n- Replace steps 1-5 (argument parsing, validation, draft loop, summary, empty check) with single jjx_restring call\n- Parse JSON output for ceremony inputs\n- Keep context merge ceremony (step 6) unchanged\n- Keep steeplechase marker (step 7) unchanged\n\nResult: Shorter slash command, fewer CLI calls, all mechanical work in Rust.",
               "silks": "rust-restring-slash",
               "commit": "ef7d32e"
+            }
+          ]
+        },
+        "₢AFAAw": {
+          "tacks": [
+            {
+              "ts": "260124-0929",
+              "state": "rough",
+              "text": "Change jjx_rein to output column-aligned plain text instead of JSON.\n\n**Current:** JSON array requiring agent to parse and format (wastes tokens)\n\n**New format:**\n```\nTimestamp          Commit    Act  Affil     Subject\n-----------------------------------------------------------------\n2026-01-24 09:20   f4824e77  [T]  ₣AF       Tally: parade-remaining-markdown\n2026-01-24 08:49   857d982c  [F]  ₢AFAAf    Executing bridled pace...\n2026-01-24 08:47   a6b75159  [W]  ₢AFAAn    pace complete\n```\n\n**Affil column logic:**\n- If entry has coronet: show ₢XXXXX (pace-level)\n- Otherwise: show ₣XX (heat-level, from the target firemark)\n\n**Implementation:**\n- Modify jjrq_run_rein in jjrq_query.rs\n- Output header row with column names\n- Output separator line of dashes\n- For each entry: timestamp, commit (8 char), action in brackets, affil (coronet or firemark), subject\n- Columns: fixed width, left-aligned\n\n**Files:** jjrq_query.rs, JJSCRN-rein.adoc (update stdout docs)",
+              "silks": "rein-column-format",
+              "commit": "f4824e7"
             }
           ]
         }
