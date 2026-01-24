@@ -3700,6 +3700,13 @@
         "₢AFAAV": {
           "tacks": [
             {
+              "ts": "260124-1050",
+              "state": "complete",
+              "text": "Rethink /jjc-heat-rein output to reduce token usage.\n\nCurrent issue: jjx_rein returns JSON which Claude then reformats. This consumes tokens twice (raw JSON + formatted output).\n\nQuestions to resolve:\n- Should jjx_rein output human-readable text directly?\n- Or should the slash command use a more compact summary?\n- What information is actually useful from rein? (recent context vs full history)\n- Consider: rein exists to show steeplechase history — is formatted text better than structured JSON for this use case?",
+              "silks": "rein-token-efficiency",
+              "commit": "3c4e5b9"
+            },
+            {
               "ts": "260123-2013",
               "state": "bridled",
               "text": "Rethink /jjc-heat-rein output to reduce token usage.\n\nCurrent issue: jjx_rein returns JSON which Claude then reformats. This consumes tokens twice (raw JSON + formatted output).\n\nQuestions to resolve:\n- Should jjx_rein output human-readable text directly?\n- Or should the slash command use a more compact summary?\n- What information is actually useful from rein? (recent context vs full history)\n- Consider: rein exists to show steeplechase history — is formatted text better than structured JSON for this use case?",
