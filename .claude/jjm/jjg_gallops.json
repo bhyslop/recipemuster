@@ -3143,6 +3143,13 @@
         "₢AFAAC": {
           "tacks": [
             {
+              "ts": "260124-0813",
+              "state": "rough",
+              "text": "Fix vob_release() conformance with VOS spec.\n\n**Prerequisite:** ₢AFAAm (vos-commit-message-format) must complete first.\n\n**Changes:**\n\n1. **Parcel output location:**\n   - Create `.jjk/parcels/` directory if not exists\n   - Output parcel to `.jjk/parcels/{kit}-{hallmark}.tar.gz`\n   - Add `.jjk/parcels/` to `.gitignore`\n\n2. **Registry commit:**\n   - After allocating new hallmark in registry, commit using `vvx_commit`\n   - Message format: `vvb:HALLMARK::A: allocate hallmark XXXX for {kit}`\n   - Uses the newly allocated hallmark in the message\n\n**Files:** vob_release.rs (or equivalent), .gitignore",
+              "silks": "vob-release-conformance",
+              "commit": "123b50e"
+            },
+            {
               "ts": "260119-0930",
               "state": "rough",
               "text": "Fix vob_release() conformance with VOS spec:\n1. Registry commit: VOS line 917 requires 'commit registry change' after allocating new hallmark - implementation updates file but doesn't commit\n2. Parcel output location: BURC_PROJECT_ROOT is misapplied - parcel goes to parent dir instead of kit forge root; VOS needs explicit spec text for output directory\n\nRequires human decisions on:\n- Where exactly should parcel be output (kit forge root? explicit --output flag?)\n- Commit message format for registry commits\n- Whether to use vvx_commit or direct git",
