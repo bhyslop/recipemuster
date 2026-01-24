@@ -3819,6 +3819,13 @@
         "₢AFAAd": {
           "tacks": [
             {
+              "ts": "260124-0738",
+              "state": "rough",
+              "text": "Implement `jjx_curry` primitive for paddock maintenance with chalk tracking.\n\n## Purpose\n\nEnable chalked paddock modifications so retrospectives can see context evolution.\n\n## CLI Signature\n\n```\njjx_curry <firemark> --<verb> [--note \"reason\"]\n```\n\nContent via stdin (required, non-empty).\n\n## Verbs\n\n| Verb | Use case |\n|------|----------|\n| `--refine` | Manual context update during work |\n| `--level` | Braid absorbing context from another heat |\n| `--muck` | Intentional reduction, removing stale material |\n\n## Slash Command Pattern\n\nUse heredoc with quoted delimiter for shell-safe content:\n\n```bash\ncat <<'EOF' | ./tt/vvw-r.RunVVX.sh jjx_curry <FIREMARK> --<verb> [--note \"reason\"]\n<new paddock content - any characters allowed>\nEOF\n```\n\n## Chalk Entry\n\nFormat: `paddock curried (<verb>)[: <note>]`\nExample: `paddock curried (level): from ₣AB`\n\n## Implementation Notes\n\n- Read new paddock content from stdin\n- Error if stdin is empty (paddocks are never empty)\n- Overwrite paddock file\n- Append chalk entry to heat steeplechase\n- Exit 0 on success, non-zero with message on failure\n\n## Bridleable\n\nYes. Mechanical implementation following existing jjx_* patterns.\n- Pattern: jjx_chalk for steeplechase, jjx_tally for state updates\n- Files: jjrx_cli.rs, jjro_ops.rs\n- Verify: tt/vow-b.Build.sh && tt/vow-t.Test.sh",
+              "silks": "implement-jjx-curry",
+              "commit": "4dc269a"
+            },
+            {
               "ts": "260123-2005",
               "state": "rough",
               "text": "Implement `jjx_curry` primitive for paddock maintenance with chalk tracking.\n\n## Purpose\n\nEnable chalked paddock modifications so retrospectives can see context evolution.\n\n## CLI Signature\n\n```\njjx_curry <firemark> --<verb> [--note \"reason\"]\n```\n\nContent via stdin.\n\n## Verbs\n\n| Verb | Use case |\n|------|----------|\n| `--refine` | Manual context update during work |\n| `--level` | Braid absorbing context from another heat |\n| `--muck` | Intentional reduction, removing stale material |\n\n## Chalk Entry\n\nFormat: `paddock curried (<verb>)[: <note>]`\nExample: `paddock curried (level): from ₣AB`\n\n## Implementation Notes\n\n- Read new paddock content from stdin\n- Overwrite paddock file\n- Append chalk entry to heat steeplechase\n- Exit 0 on success, non-zero with message on failure",
