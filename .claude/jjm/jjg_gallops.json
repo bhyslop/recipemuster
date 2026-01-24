@@ -3915,6 +3915,13 @@
         "₢AFAAh": {
           "tacks": [
             {
+              "ts": "260124-0748",
+              "state": "abandoned",
+              "text": "Simple content with backticks: `hello`",
+              "silks": "test-heredoc",
+              "commit": "3b54dfe"
+            },
+            {
               "ts": "260124-0743",
               "state": "rough",
               "text": "Simple content with backticks: `hello`",
