@@ -4905,9 +4905,10 @@
       "status": "stabled",
       "order": [
         "₢AMAAA",
-        "₢AMAAB"
+        "₢AMAAB",
+        "₢AMAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AM.md",
       "paces": {
         "₢AMAAA": {
@@ -4929,6 +4930,17 @@
               "text": "Test pace beta - will be abandoned",
               "silks": "test-pace-beta",
               "commit": "b74ff30"
+            }
+          ]
+        },
+        "₢AMAAC": {
+          "tacks": [
+            {
+              "ts": "260124-1122",
+              "state": "rough",
+              "text": "Test pace gamma - will stay rough",
+              "silks": "test-pace-gamma",
+              "commit": "64e41bb"
             }
           ]
         }
