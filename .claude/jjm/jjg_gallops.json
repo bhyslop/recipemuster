@@ -4017,6 +4017,14 @@
         "₢AFAAm": {
           "tacks": [
             {
+              "ts": "260124-0814",
+              "state": "bridled",
+              "text": "Update VOS (Vox Obscura Spec) with VVX commit message format section.\n\n**Add section: Commit Message Architecture**\n\nDefine the vvb commit format for VOK operations:\n```\nvvb:HALLMARK::ACTION: message\n```\n\n**Fields:**\n- `vvb` — Voce Viva brand prefix (literal)\n- `HALLMARK` — Version identifier (same source as JJ: .vvk/vvbf_brand.json or kit forge registry + HEAD)\n- `` — Empty identity field (VOK ops don't have heat/pace nesting)\n- `ACTION` — Single-letter code\n\n**Action codes:**\n- `A` — Allocate: registry hallmark allocation\n- `R` — Release: parcel creation\n\n**Cross-reference:** Note shared hallmark concept with JJSA jjb: commits.\n\n**Files:** VOS-VoxObscuraSpec.adoc",
+              "silks": "vos-commit-message-format",
+              "commit": "a1335af",
+              "direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: VOS-VoxObscuraSpec.adoc (1 file)\nSteps:\n1. Add mapping attributes in mapping section after existing vosc_ entries: vosca_vvb, voscf_format, voscaa_allocate, voscar_release\n2. Add new section after Operations section titled Commit Message Architecture\n3. Define format: vvb:HALLMARK::ACTION: message\n4. Document fields: vvb is Voce Viva brand prefix literal, HALLMARK uses same source as JJ from .vvk/vvbf_brand.json or kit forge registry plus HEAD, empty field denotes no identity nesting, ACTION is single letter code\n5. Define action codes: A for Allocate hallmark in registry, R for Release parcel creation\n6. Add cross-reference note that hallmark concept is shared with JJSA jjb: commits\nVerify: Review that section follows MCM attribute patterns used elsewhere in VOS"
+            },
+            {
               "ts": "260124-0813",
               "state": "rough",
               "text": "Update VOS (Vox Obscura Spec) with VVX commit message format section.\n\n**Add section: Commit Message Architecture**\n\nDefine the vvb commit format for VOK operations:\n```\nvvb:HALLMARK::ACTION: message\n```\n\n**Fields:**\n- `vvb` — Voce Viva brand prefix (literal)\n- `HALLMARK` — Version identifier (same source as JJ: .vvk/vvbf_brand.json or kit forge registry + HEAD)\n- `` — Empty identity field (VOK ops don't have heat/pace nesting)\n- `ACTION` — Single-letter code\n\n**Action codes:**\n- `A` — Allocate: registry hallmark allocation\n- `R` — Release: parcel creation\n\n**Cross-reference:** Note shared hallmark concept with JJSA jjb: commits.\n\n**Files:** VOS-VoxObscuraSpec.adoc",
