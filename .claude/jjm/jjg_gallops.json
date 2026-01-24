@@ -3040,6 +3040,7 @@
       "status": "racing",
       "order": [
         "₢AFAAx",
+        "₢AFAAy",
         "₢AFAAn",
         "₢AFAAf",
         "₢AFAAg",
@@ -3089,7 +3090,7 @@
         "₢AFAAw",
         "₢AFAAc"
       ],
-      "next_pace_seed": "AAy",
+      "next_pace_seed": "AAz",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -4349,6 +4350,17 @@
               "text": "Design and implement jjrp_print.rs column table module following RCG principles.\n\n**Goal:** Eliminate magic numbers/strings from column-formatted output.\n\n**JJSA Update (voices entity):**\nAdd new entity definition to JJSA-GallopsData.adoc mapping section:\n- `jjdyr_table` → Column Table entity (axl_voices axo_entity)\n- `jjdym_column` → Column member (axl_voices axr_member)\n- `jjdym_header` → Header string (axl_voices axr_member axd_required)\n- `jjdym_align` → Alignment (axl_voices axr_member axd_required)\n- `jjdye_left` / `jjdye_right` → Alignment enum values\n\n**Rust Implementation (jjrp_print.rs):**\n\nConstants:\n- `JJRP_COLUMN_GAP: usize = 2` — gap between columns\n- `JJRP_MIN_WIDTH: usize = 5` — minimum column width\n\nStruct `jjrp_Column`:\n- `header: &'static str` — header text (single source of truth)\n- `min_width: usize` — defaults to header.len()\n- `align: jjrp_Align` — Left or Right\n\nStruct `jjrp_Table`:\n- Constructor: `jjrp_new(columns: Vec<jjrp_Column>)`\n- `jjrp_measure(&mut self, row: &[&str])` — update widths from data\n- `jjrp_print_header(&self)` — print header row\n- `jjrp_print_separator(&self)` — print computed-width separator\n- `jjrp_print_row(&self, values: &[&str])` — print data row\n\n**Identity Display Discipline:**\nWhen columns contain Firemark or Coronet identities:\n- ALWAYS include the currency prefix (₣ or ₢)\n- Header should reflect this: \"Fire\" → \"₣Fire\" or just \"Firemark\"\n\n**Files:** JJSA-GallopsData.adoc, jjrp_print.rs (new), lib.rs (wire module)\n\n**Test:** cargo build, cargo test",
               "silks": "jjrp-column-table-module",
               "commit": "ec3812e"
+            }
+          ]
+        },
+        "₢AFAAy": {
+          "tacks": [
+            {
+              "ts": "260124-0955",
+              "state": "rough",
+              "text": "Refactor existing column-formatted output to use jjrp_Table.\n\n**Locations to update:**\n\n1. **jjrq_run_muster** (jjrq_query.rs:79-115)\n   - Headers: Fire, Silks, Status, Done, Total\n   - Replace max_silks_len calculation with jjrp_Table.jjrp_measure()\n   - Replace manual println! with jjrp_print_row()\n   - Identity display: Fire column shows ₣XX format\n\n2. **jjrq_run_parade remaining view** (jjrq_query.rs:445-467)\n   - Headers: No, State, Pace, Coronet\n   - Replace max_silks_len with jjrp_Table\n   - Identity display: Coronet column shows ₢XXXXX format\n\n3. **jjrq_run_parade full view** (jjrq_query.rs:478-505)\n   - Headers: No, State, Pace, Coronet\n   - Same refactoring as remaining view\n   - Identity display: Coronet column shows ₢XXXXX format\n\n**Pattern:**\n```rust\nlet mut table = jjrp_Table::jjrp_new(vec![\n    jjrp_Column { header: \"₣Fire\", ... },\n    jjrp_Column { header: \"Silks\", ... },\n]);\nfor item in items { table.jjrp_measure(&[...]); }\ntable.jjrp_print_header();\ntable.jjrp_print_separator();\nfor item in items { table.jjrp_print_row(&[...]); }\n```\n\n**Verify:**\n- No magic numbers (20, 8, 10) remain in these functions\n- No duplicate string literals for headers\n- ₣/₢ prefixes always displayed\n\n**Files:** jjrq_query.rs\n**Depends on:** ₢AFAAx (jjrp-column-table-module)",
+              "silks": "jjrp-incorporate-existing",
+              "commit": "1554614"
             }
           ]
         }
