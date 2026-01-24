@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AN",
+  "next_heat_seed": "AO",
   "heats": {
     "₣AL": {
       "silks": "jjk-restring-rust",
@@ -4814,6 +4814,15 @@
           ]
         }
       }
+    },
+    "₣AN": {
+      "silks": "trophy-alpha-reporting",
+      "creation_time": "260124",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AN.md",
+      "paces": {}
     }
   }
 }
