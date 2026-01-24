@@ -3081,9 +3081,10 @@
         "₢AFAAl",
         "₢AFAAM",
         "₢AFAAw",
-        "₢AFAAc"
+        "₢AFAAc",
+        "₢AFAAz"
       ],
-      "next_pace_seed": "AAz",
+      "next_pace_seed": "AA0",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -4349,6 +4350,17 @@
               "text": "Refactor existing column-formatted output to use jjrp_Table.\n\n**Locations to update:**\n\n1. **jjrq_run_muster** (jjrq_query.rs:79-115)\n   - Headers: Fire, Silks, Status, Done, Total\n   - Replace max_silks_len calculation with jjrp_Table.jjrp_measure()\n   - Replace manual println! with jjrp_print_row()\n   - Identity display: Fire column shows ₣XX format\n\n2. **jjrq_run_parade remaining view** (jjrq_query.rs:445-467)\n   - Headers: No, State, Pace, Coronet\n   - Replace max_silks_len with jjrp_Table\n   - Identity display: Coronet column shows ₢XXXXX format\n\n3. **jjrq_run_parade full view** (jjrq_query.rs:478-505)\n   - Headers: No, State, Pace, Coronet\n   - Same refactoring as remaining view\n   - Identity display: Coronet column shows ₢XXXXX format\n\n**Pattern:**\n```rust\nlet mut table = jjrp_Table::jjrp_new(vec![\n    jjrp_Column { header: \"₣Fire\", ... },\n    jjrp_Column { header: \"Silks\", ... },\n]);\nfor item in items { table.jjrp_measure(&[...]); }\ntable.jjrp_print_header();\ntable.jjrp_print_separator();\nfor item in items { table.jjrp_print_row(&[...]); }\n```\n\n**Verify:**\n- No magic numbers (20, 8, 10) remain in these functions\n- No duplicate string literals for headers\n- ₣/₢ prefixes always displayed\n\n**Files:** jjrq_query.rs\n**Depends on:** ₢AFAAx (jjrp-column-table-module)",
               "silks": "jjrp-incorporate-existing",
               "commit": "1554614"
+            }
+          ]
+        },
+        "₢AFAAz": {
+          "tacks": [
+            {
+              "ts": "260124-1028",
+              "state": "rough",
+              "text": "Simplify the Recent-work table in jjx_saddle output.\n\n## Changes\n\n1. **Filter entries**: Only show action codes `n` (notch), `A` (approach), `d` (discussion). Exclude lifecycle noise like `W` (wrap), `F` (fly), `S` (slate), etc.\n\n2. **Remove columns**: Drop Timestamp and [A] (action code) columns.\n\n3. **Keep columns**: Commit, Identity, Subject (3 columns).\n\n## Location\n\n`Tools/jjk/vov_veiled/src/jjrq_query.rs:288-337`\n\n## Before\n\n```\nRecent-work:\nTimestamp         Commit    [A]    Identity  Subject\n----------------  --------  -----  --------  --------\n2026-01-24 10:19  a6d71428  [n]    ₢AFAAg    Remove dead struct...\n2026-01-24 10:14  b136fc79  [F]    ₢AFAAg    Executing bridled pace...\n```\n\n## After\n\n```\nRecent-work:\nCommit    Identity  Subject\n--------  --------  --------\na6d71428  ₢AFAAg    Remove dead struct...\n```\n\n## Verify\n\ntt/vow-b.Build.sh && tt/vow-t.Test.sh",
+              "silks": "simplify-saddle-recent-work",
+              "commit": "9af94f5"
             }
           ]
         }
