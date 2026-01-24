@@ -3983,6 +3983,14 @@
         "₢AFAAl": {
           "tacks": [
             {
+              "ts": "260124-0806",
+              "state": "bridled",
+              "text": "Make BUD_TEMP_DIR, BUD_OUTPUT_DIR, and BUD_TRANSCRIPT absolute paths in zbud_setup() to prevent breakage when dispatched scripts change directories. Use PWD builtin (not subshell) per BCG patterns.",
+              "silks": "bud-absolute-paths",
+              "commit": "26078d0",
+              "direction": "Agent: haiku\nCardinality: 1 sequential\nFiles: bud_dispatch.sh (1 file)\nSteps:\n1. After BUD_TEMP_DIR assignment at line 78, add case statement to prepend PWD if path is not absolute\n2. After BUD_OUTPUT_DIR assignment at line 97, add same case statement pattern\n3. BUD_TRANSCRIPT derives from BUD_TEMP_DIR so needs no change\nPattern:\ncase \"${VAR}\" in\n  /*) ;;\n  *)  VAR=\"${PWD}/${VAR}\" ;;\nesac\nVerify: Run tabtarget and confirm BUD_TEMP_DIR and BUD_OUTPUT_DIR are absolute in output"
+            },
+            {
               "ts": "260124-0802",
               "state": "rough",
               "text": "Make BUD_TEMP_DIR, BUD_OUTPUT_DIR, and BUD_TRANSCRIPT absolute paths in zbud_setup() to prevent breakage when dispatched scripts change directories. Use PWD builtin (not subshell) per BCG patterns.",
