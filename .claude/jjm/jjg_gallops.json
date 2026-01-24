@@ -3380,6 +3380,13 @@
         "₢AFAAL": {
           "tacks": [
             {
+              "ts": "260123-1935",
+              "state": "complete",
+              "text": "Remove --created flag from jjx_nominate; derive date automatically.\n\n**Priority:** BUD_NOW_STAMP env var (if set) → system clock fallback.\n\n**Rationale:** When running via BUK infrastructure, BUD_NOW_STAMP provides session-consistent timestamp. Outside BUK, system clock works fine.\n\n**Implementation:**\n- Add `jjrc_timestamp_from_env()` to jjrc_core.rs:\n  - Check BUD_NOW_STAMP env var (format: YYYYMMDD-HHMMSS-PID-RANDOM)\n  - If set, extract YYYYMMDD and convert to YYMMDD (drop century)\n  - If unset, call existing jjrc_timestamp_date() for system clock\n- Remove `created` field from zjjrx_NominateArgs in jjrx_cli.rs\n- In zjjrx_run_nominate, call jjrc_timestamp_from_env() instead of using args.created\n- In jjc-heat-nominate.md, remove --created flag and date command entirely\n\n**Files:**\n- Tools/jjk/vov_veiled/src/jjrc_core.rs (add jjrc_timestamp_from_env)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (remove created from NominateArgs, use new fn)\n- .claude/commands/jjc-heat-nominate.md (simplify invocation)\n\n**Constraint:** Schema-stable — heat created field format unchanged (YYMMDD), just sourced differently.",
+              "silks": "nominate-created-from-env",
+              "commit": "8cba411"
+            },
+            {
               "ts": "260123-1929",
               "state": "bridled",
               "text": "Remove --created flag from jjx_nominate; derive date automatically.\n\n**Priority:** BUD_NOW_STAMP env var (if set) → system clock fallback.\n\n**Rationale:** When running via BUK infrastructure, BUD_NOW_STAMP provides session-consistent timestamp. Outside BUK, system clock works fine.\n\n**Implementation:**\n- Add `jjrc_timestamp_from_env()` to jjrc_core.rs:\n  - Check BUD_NOW_STAMP env var (format: YYYYMMDD-HHMMSS-PID-RANDOM)\n  - If set, extract YYYYMMDD and convert to YYMMDD (drop century)\n  - If unset, call existing jjrc_timestamp_date() for system clock\n- Remove `created` field from zjjrx_NominateArgs in jjrx_cli.rs\n- In zjjrx_run_nominate, call jjrc_timestamp_from_env() instead of using args.created\n- In jjc-heat-nominate.md, remove --created flag and date command entirely\n\n**Files:**\n- Tools/jjk/vov_veiled/src/jjrc_core.rs (add jjrc_timestamp_from_env)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (remove created from NominateArgs, use new fn)\n- .claude/commands/jjc-heat-nominate.md (simplify invocation)\n\n**Constraint:** Schema-stable — heat created field format unchanged (YYMMDD), just sourced differently.",
