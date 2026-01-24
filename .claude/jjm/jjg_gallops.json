@@ -4822,9 +4822,10 @@
       "order": [
         "₢ANAAA",
         "₢ANAAB",
-        "₢ANAAC"
+        "₢ANAAC",
+        "₢ANAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_AN.md",
       "paces": {
         "₢ANAAA": {
@@ -4857,6 +4858,17 @@
               "text": "Implement trophy computation: sessions, timelines, flights.\n\n## Session Clustering\n\nInput: steeplechase entries with timestamps\nAlgorithm:\n1. Sort entries by timestamp\n2. Group entries where gap < 30 minutes = same session\n3. Compute duration from first to last entry in session\n\n## Timeline Extraction\n\nInput: pace tacks array\nOutput: compact timeline of state transitions\nAlgorithm:\n1. Walk tacks in reverse (oldest first)\n2. Extract {ts, state, agent} for each state change\n3. agent field populated if state is \"bridled\"\n\n## Flight Record Building\n\nInput: steeplechase entries (B, F, L, W markers)\nOutput: flight records per pace\nAlgorithm:\n1. Find B marker for pace → flight start setup\n2. Find F marker → execution began\n3. Find L marker → execution ended, capture result\n4. Correlate files from L marker body\n\n## Implementation\n\n- New module jjrt_trophy.rs or functions in jjro_ops.rs\n- Pure functions: steeplechase → sessions, tacks → timeline, markers → flights\n\n## Depends on\n\ntrophy-alpha-json-types (need types to populate)",
               "silks": "trophy-alpha-compute",
               "commit": "2f8f6f1"
+            }
+          ]
+        },
+        "₢ANAAD": {
+          "tacks": [
+            {
+              "ts": "260124-1201",
+              "state": "rough",
+              "text": "Rewrite jjx_retire to output JSON trophy.\n\n## Changes to jjx_retire\n\nReplace zjjrg_build_trophy_content markdown generation with JSON:\n1. Build jjrt_Trophy struct using compute functions\n2. Serialize to JSON with serde_json\n3. Write to .json file (not .md)\n\n## File Naming\n\nChange: `jjh_b{created}-r{retired}-{silks}.md`\nTo: `jjh_b{created}-r{retired}-{silks}.json`\n\n## Bug Fix\n\nFix steeplechase deduplication issue found during testing.\n\n## Dry Run\n\n`jjx_retire <firemark>` outputs JSON preview to stdout (no file write)\n\n## Execute\n\n`jjx_retire <firemark> --execute` writes JSON file, removes heat from gallops\n\n## Tack Serialization\n\nEach tack serialized as single-line JSON string in the tacks array.\nPreserves full history while keeping file scannable.\n\n## Depends on\n\ntrophy-alpha-compute (need computation functions)",
+              "silks": "trophy-alpha-generate",
+              "commit": "a10ed45"
             }
           ]
         }
