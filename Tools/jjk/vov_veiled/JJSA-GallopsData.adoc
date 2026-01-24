@@ -121,6 +121,7 @@
 :jjdo_notch:          <<jjdo_notch,jjx_notch>>
 :jjdo_rail:           <<jjdo_rail,jjx_rail>>
 :jjdo_rein:           <<jjdo_rein,jjx_rein>>
+:jjdo_restring:       <<jjdo_restring,jjx_restring>>
 :jjdo_retire:         <<jjdo_retire,jjx_retire>>
 :jjdo_saddle:         <<jjdo_saddle,jjx_saddle>>
 :jjdo_scout:          <<jjdo_scout,jjx_scout>>
@@ -988,6 +989,12 @@ include::JJSCFU-furlough.adoc[]
 ==== {jjdo_garland}
 
 include::JJSCGL-garland.adoc[]
+
+[[jjdo_restring]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_restring}
+
+include::JJSCRS-restring.adoc[]
 
 [[jjdo_retire]]
 // ⟦axl_voices axi_cli_subcommand⟧
