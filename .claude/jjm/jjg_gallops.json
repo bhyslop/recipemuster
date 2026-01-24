@@ -3060,6 +3060,7 @@
         "₢AFAAO",
         "₢AFAAb",
         "₢AFAAe",
+        "₢AFAAf",
         "₢AFAAd",
         "₢AFAAM",
         "₢AFAAN",
@@ -3070,7 +3071,7 @@
         "₢AFAAZ",
         "₢AFAAc"
       ],
-      "next_pace_seed": "AAf",
+      "next_pace_seed": "AAg",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3866,6 +3867,17 @@
               "text": "Modify jjx_muster output to generate a proper box-drawing table for racing heats. Use Unicode box-drawing characters (┌ ─ ┬ ┐ │ ├ ┼ ┤ └ ┴ ┘) to create a formatted table with columns: Firemark, Silks, Status, Progress. Racing heats get the table; stabled heats get a single summary line. Include the 'Which heat would you like to groom?' prompt at the end.",
               "silks": "muster-box-table-output",
               "commit": "1731452"
+            }
+          ]
+        },
+        "₢AFAAf": {
+          "tacks": [
+            {
+              "ts": "260124-0742",
+              "state": "rough",
+              "text": "Add --markdown flag to jjx_parade --remaining that outputs ready-to-display markdown for /jjc-heat-groom.\n\n**Output format:**\n```markdown\n## Heat: {silks} (₣{firemark}) [{status}]\n\n**Progress:** {complete} complete | {abandoned} abandoned | {remaining} remaining ({rough} rough, {bridled} bridled)\n\n**Remaining paces:**\n1. [{state}] {silks} (₢{coronet})\n2. [{state}] {silks} (₢{coronet})\n...\n\n**Next up:** {silks} (₢{coronet}) [{state}]\n```\n\n**Implementation:**\n- Add `--markdown` flag to parade command\n- When combined with `--remaining`, output the format above\n- State indicators: `[rough]`, `[bridled]`, `[complete]`, `[abandoned]`\n- Next up = first pace that is not complete/abandoned\n\n**Files:** jjx_parade.rs (add flag handling and markdown formatter)",
+              "silks": "parade-remaining-markdown",
+              "commit": "6a4a37e"
             }
           ]
         }
