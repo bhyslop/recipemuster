@@ -236,3 +236,158 @@ fn jjtq_find_first_actionable_pace() {
 
     assert_eq!(found_coronet, Some("₢ABAAA".to_string()));
 }
+
+// ============================================================================
+// GetSpec tests
+// ============================================================================
+
+#[test]
+fn jjtq_get_spec_extracts_tack_text() {
+    let gallops = create_test_gallops();
+    let heat = gallops.heats.get("₣AB").unwrap();
+    let pace = heat.paces.get("₢ABAAA").unwrap();
+    let spec = pace.tacks.first().map(|t| t.text.clone());
+    assert_eq!(spec, Some("First pace rough plan".to_string()));
+}
+
+#[test]
+fn jjtq_get_spec_second_pace() {
+    let gallops = create_test_gallops();
+    let heat = gallops.heats.get("₣AB").unwrap();
+    let pace = heat.paces.get("₢ABAAB").unwrap();
+    let spec = pace.tacks.first().map(|t| t.text.clone());
+    assert_eq!(spec, Some("Completed pace".to_string()));
+}
+
+// ============================================================================
+// GetCoronets tests
+// ============================================================================
+
+fn create_test_gallops_with_mixed_states() -> Gallops {
+    let mut paces = BTreeMap::new();
+    paces.insert(
+        "₢ACAAA".to_string(),
+        Pace {
+            tacks: vec![Tack {
+                ts: "260101-1200".to_string(),
+                state: PaceState::Complete,
+                text: "Done".to_string(),
+                silks: "pace-complete".to_string(),
+                commit: JJRG_UNKNOWN_COMMIT.to_string(),
+                direction: None,
+            }],
+        },
+    );
+    paces.insert(
+        "₢ACAAB".to_string(),
+        Pace {
+            tacks: vec![Tack {
+                ts: "260101-1300".to_string(),
+                state: PaceState::Rough,
+                text: "Needs work".to_string(),
+                silks: "pace-rough".to_string(),
+                commit: JJRG_UNKNOWN_COMMIT.to_string(),
+                direction: None,
+            }],
+        },
+    );
+    paces.insert(
+        "₢ACAAC".to_string(),
+        Pace {
+            tacks: vec![Tack {
+                ts: "260101-1400".to_string(),
+                state: PaceState::Bridled,
+                text: "Ready to fly".to_string(),
+                silks: "pace-bridled".to_string(),
+                commit: JJRG_UNKNOWN_COMMIT.to_string(),
+                direction: Some("Execute with sonnet".to_string()),
+            }],
+        },
+    );
+    paces.insert(
+        "₢ACAAD".to_string(),
+        Pace {
+            tacks: vec![Tack {
+                ts: "260101-1500".to_string(),
+                state: PaceState::Abandoned,
+                text: "Gave up".to_string(),
+                silks: "pace-abandoned".to_string(),
+                commit: JJRG_UNKNOWN_COMMIT.to_string(),
+                direction: None,
+            }],
+        },
+    );
+
+    let mut heats = BTreeMap::new();
+    heats.insert(
+        "₣AC".to_string(),
+        Heat {
+            silks: "mixed-state-heat".to_string(),
+            creation_time: "260101".to_string(),
+            status: HeatStatus::Racing,
+            order: vec![
+                "₢ACAAA".to_string(),
+                "₢ACAAB".to_string(),
+                "₢ACAAC".to_string(),
+                "₢ACAAD".to_string(),
+            ],
+            next_pace_seed: "AAE".to_string(),
+            paddock_file: ".claude/jjm/jjp_AC.md".to_string(),
+            paces,
+        },
+    );
+
+    Gallops {
+        next_heat_seed: "AD".to_string(),
+        heats,
+    }
+}
+
+#[test]
+fn jjtq_get_coronets_all() {
+    let gallops = create_test_gallops_with_mixed_states();
+    let heat = gallops.heats.get("₣AC").unwrap();
+
+    // No filter - all coronets
+    let coronets: Vec<&String> = heat.order.iter().collect();
+    assert_eq!(coronets.len(), 4);
+}
+
+#[test]
+fn jjtq_get_coronets_remaining_filter() {
+    let gallops = create_test_gallops_with_mixed_states();
+    let heat = gallops.heats.get("₣AC").unwrap();
+
+    // --remaining filter: exclude complete and abandoned
+    let remaining: Vec<&String> = heat.order.iter().filter(|coronet_key| {
+        if let Some(pace) = heat.paces.get(*coronet_key) {
+            if let Some(tack) = pace.tacks.first() {
+                return tack.state != PaceState::Complete && tack.state != PaceState::Abandoned;
+            }
+        }
+        true
+    }).collect();
+
+    assert_eq!(remaining.len(), 2);
+    assert!(remaining.contains(&&"₢ACAAB".to_string())); // rough
+    assert!(remaining.contains(&&"₢ACAAC".to_string())); // bridled
+}
+
+#[test]
+fn jjtq_get_coronets_rough_filter() {
+    let gallops = create_test_gallops_with_mixed_states();
+    let heat = gallops.heats.get("₣AC").unwrap();
+
+    // --rough filter: only rough paces
+    let rough: Vec<&String> = heat.order.iter().filter(|coronet_key| {
+        if let Some(pace) = heat.paces.get(*coronet_key) {
+            if let Some(tack) = pace.tacks.first() {
+                return tack.state == PaceState::Rough;
+            }
+        }
+        false
+    }).collect();
+
+    assert_eq!(rough.len(), 1);
+    assert_eq!(rough[0], "₢ACAAB");
+}
