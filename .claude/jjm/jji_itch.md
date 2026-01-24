@@ -1752,7 +1752,7 @@ Add a `duplicate` state (or perhaps `superseded`) that indicates:
 
 1. Keep using `abandoned` with a note in tack text
 2. Use `complete` and note "superseded by ₢XXXXX" in tack
-3. Add `duplicate` as true state in JJD spec
+3. Add `duplicate` as true state in JJSA spec
 
 ### Context
 

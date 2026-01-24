@@ -22,7 +22,7 @@ Five paces in rough dependency order:
 
 ## References
 
-- Tools/jjk/vov_veiled/JJD-GallopsData.adoc — JJD spec (data model changes)
+- Tools/jjk/vov_veiled/JJSA-GallopsData.adoc — JJSA spec (data model changes)
 - Tools/vok/vov_veiled/RCG-RustCodingGuide.md — Rust naming conventions
 - Tools/jjk/vov_veiled/src/jjrg_gallops.rs — Pace/Tack structs
 - Tools/jjk/vov_veiled/src/jjrq_query.rs — Query operations (saddle, parade)
