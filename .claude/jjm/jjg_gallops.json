@@ -3067,6 +3067,7 @@
         "₢AFAAd",
         "₢AFAAN",
         "₢AFAAm",
+        "₢AFAAo",
         "₢AFAAC",
         "₢AFAAV",
         "₢AFAAk",
@@ -3079,7 +3080,7 @@
         "₢AFAAl",
         "₢AFAAM"
       ],
-      "next_pace_seed": "AAo",
+      "next_pace_seed": "AAp",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -4088,6 +4089,17 @@
               "text": "Make TARGET argument optional in jjx_parade and jjx_saddle. When omitted, auto-select the first racing heat.\n\n**Behavior:**\n- If TARGET provided: use it (current behavior)\n- If TARGET omitted: resolve to first racing heat from gallops\n- If no racing heats exist: return error \"No racing heats found\"\n\n**Changes:**\n\n1. **jjrq_query.rs**: Add helper function `jjrq_resolve_default_heat(gallops: &Gallops) -> Result<Firemark>` that returns first racing heat or error\n\n2. **jjrx_cli.rs**: Change `<TARGET>` to `[TARGET]` (optional) in ParadeArgs and SaddleArgs\n\n3. **jjrq_run_parade / jjrq_run_saddle**: If target is None, call resolve helper to get default\n\n4. **JJSA spec updates**: Document optional target behavior in JJSCPD-parade.adoc and JJSCSD-saddle.adoc\n\n**Why:** Eliminates muster round-trip in slash commands like /jjc-heat-groom. The \"first racing heat\" logic (most recently furloughed to racing) already exists in muster ordering.\n\n**Files:** jjrq_query.rs, jjrx_cli.rs, JJSCPD-parade.adoc, JJSCSD-saddle.adoc",
               "silks": "optional-firemark-target",
               "commit": "2bd7295"
+            }
+          ]
+        },
+        "₢AFAAo": {
+          "tacks": [
+            {
+              "ts": "260124-0838",
+              "state": "rough",
+              "text": "Extract mount recommendation to shared Rust helper and emit from both wrap and tally.\n\n**Goal:** Consistent \"Recommended: /clear then /jjc-heat-mount\" advice from Rust code, removing need for slash commands to render this.\n\n**Changes:**\n\n1. **jjrx_cli.rs**: Add helper function `zjjrx_emit_mount_recommendation(firemark: &Firemark)` that prints the recommendation to stderr\n\n2. **zjjrx_run_wrap**: Replace inline eprintln with call to the new helper\n\n3. **zjjrx_run_tally**: When state is bridled, call the helper after successful persist (in the Ok branch after \"tally succeeded\")\n\n4. **jjc-pace-bridle.md**: Remove Step 6 mount advice (lines about \"If this pace is next in order\"). The Rust output handles it now.\n\n5. **jjc-pace-wrap.md**: Remove \"pass through Recommended lines\" guidance since it's automatic now.\n\n**Files:** jjrx_cli.rs, .claude/commands/jjc-pace-bridle.md, .claude/commands/jjc-pace-wrap.md",
+              "silks": "common-mount-recommendation",
+              "commit": "6fa4e72"
             }
           ]
         }
