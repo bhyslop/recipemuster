@@ -59,60 +59,42 @@ Present recommendation to user and ask for approval or adjustments.
 
 ## Step 5: Write direction and transition to bridled
 
-Once user approves the strategy, construct direction text using this structured format:
+Once user approves the strategy, construct direction text as a **single-line string**.
+
+**CRITICAL: Single-line format required.**
+The direction is passed via `--direction "..."` shell argument. Multi-line strings break shell parsing. Use this format:
 
 ```
-Agent: haiku|sonnet|opus
-Cardinality: 1 sequential | N parallel
-Files: file1.rs, file2.rs, ... (N files)
-Steps:
-1. First action
-2. Second action
-...
-Verify: build/test command
+Agent: {tier} | Cardinality: {card} | Files: {list} ({N} files) | Steps: 1. {first} 2. {second} 3. {third} | Verify: {cmd}
 ```
 
 **Format rules:**
+- **Single line**: All content on one line, fields separated by ` | `
 - **Agent**: Always specify model tier (haiku/sonnet/opus)
 - **Cardinality**: "1 sequential" for single agent, "N parallel" for parallel Task agents
-- **Parallelization principle**: Documentation edits (JJSA, .md files) can run in parallel with code edits — they don't affect build. Structure as: parallel batch (code + docs), then sequential build.
-- **Doc agent tier**: Use sonnet or opus for documentation edits, not haiku. Docs require judgment about wording, context, and style consistency.
 - **Files**: List ALL files touched, with count in parentheses
-- **Steps**: Numbered, scannable actions
+- **Steps**: Numbered inline (1. action 2. action 3. action)
 - **Verify**: Build or test command to confirm success
-- **No line numbers**: Never reference line numbers — they change. Use pattern references instead (function names, string literals, structural markers like "after the ## Prerequisites section")
-- **Shell-safe text**: Direction is passed as a shell argument. Avoid characters that shells interpret: `<` `>` `|` `&` `$` `` ` `` `(` `)`. Write prose instead of angle-bracket placeholders (e.g., "change remaining to completed" not "change <remaining> to <completed>")
+- **No line numbers**: Never reference line numbers — they change. Use pattern references instead (function names, string literals, structural markers)
+- **Shell-safe text**: Avoid characters that shells interpret: `<` `>` `&` `$` `` ` `` `(` `)`. Write prose instead of angle-bracket placeholders
+
+**Parallelization principle**: Documentation edits can run in parallel with code edits — they don't affect build.
+
+**Doc agent tier**: Use sonnet or opus for documentation edits, not haiku. Docs require judgment.
 
 **Example (sequential):**
 ```
-Agent: sonnet
-Cardinality: 1 sequential
-Files: vvcc_commit.rs, jjrx_cli.rs, JJSA-GallopsData.adoc (3 files)
-Steps:
-1. Add size_limit field to vvcc_CommitArgs
-2. Add --size-limit CLI arg to NotchArgs
-3. Document in JJSA
-Verify: cargo build --features jjk
+Agent: sonnet | Cardinality: 1 sequential | Files: vvcc_commit.rs, jjrx_cli.rs, JJSA-GallopsData.adoc (3 files) | Steps: 1. Add size_limit field to vvcc_CommitArgs 2. Add --size-limit CLI arg to NotchArgs 3. Document in JJSA | Verify: tt/vow-b.Build.sh
 ```
 
 **Example (parallel):**
 ```
-Agent: haiku
-Cardinality: 14 parallel
-Files: jjrc_core.rs, jjrf_favor.rs, ... (14 files)
-Steps:
-1. Each agent: read file, prepend copyright header, write file
-Verify: cargo build --features jjk
+Agent: haiku | Cardinality: 14 parallel | Files: jjrc_core.rs, jjrf_favor.rs, ... (14 files) | Steps: 1. Each agent reads file, prepends copyright header, writes file | Verify: tt/vow-b.Build.sh
 ```
 
 **Example (mixed — code + docs in parallel):**
 ```
-Cardinality: 2 parallel + sequential build
-Files: jjrx_cli.rs, jjrq_query.rs, JJSA-GallopsData.adoc (3 files)
-Steps:
-1. Agent A (haiku): Add --remaining to ParadeArgs in jjrx_cli.rs and jjrq_query.rs
-2. Agent B (sonnet): Document --remaining in JJSA-GallopsData.adoc
-3. Sequential: cargo build --features jjk
+Agent: haiku+sonnet | Cardinality: 2 parallel then build | Files: jjrx_cli.rs, jjrq_query.rs, JJSA-GallopsData.adoc (3 files) | Steps: 1. Agent A haiku adds --remaining to ParadeArgs 2. Agent B sonnet documents --remaining in JJSA 3. Sequential build | Verify: tt/vow-b.Build.sh
 ```
 
 Run:
