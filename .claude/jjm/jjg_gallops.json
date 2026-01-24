@@ -3071,9 +3071,10 @@
         "₢AFAAY",
         "₢AFAAZ",
         "₢AFAAc",
-        "₢AFAAh"
+        "₢AFAAh",
+        "₢AFAAi"
       ],
-      "next_pace_seed": "AAi",
+      "next_pace_seed": "AAj",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -3902,6 +3903,17 @@
               "text": "Simple content with backticks: `hello`",
               "silks": "test-heredoc",
               "commit": "b03c4b8"
+            }
+          ]
+        },
+        "₢AFAAi": {
+          "tacks": [
+            {
+              "ts": "260124-0743",
+              "state": "rough",
+              "text": "Content with code fence:\n\n```bash\necho \"TEXT\" | command\n```\n\nAnd backticks: `hello` and `world`",
+              "silks": "test-heredoc-2",
+              "commit": "34f7f39"
             }
           ]
         }
