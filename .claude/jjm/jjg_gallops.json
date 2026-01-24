@@ -3856,9 +3856,10 @@
       "order": [
         "₢AGAAA",
         "₢AGAAB",
-        "₢AGAAC"
+        "₢AGAAC",
+        "₢AGAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -3912,6 +3913,17 @@
               "text": "Add integration test infrastructure for JJK with JJD specification updates.\n\n## JJD Updates\n\nAdd to JJD-GallopsData.adoc:\n\n### Test Mode section (after Design Principles)\n\nDocument environment variables for test mode:\n- JJTF_TEST_MESSAGE: Skip Claude invocation, use this value as commit message\n- JJTF_TEST_HALLMARK: Override hallmark for tests without installed kit\n\n### Invariants section\n\nDocument properties that MUST hold and that tests verify:\n- Coronet first 2 chars = parent Firemark\n- tacks[0].state = current pace state\n- order keys = paces keys (bijection)\n- bridled state requires non-empty direction\n- Commit messages parseable by jjx_rein regex\n\n### Commit Message Grammar\n\nFormalize the jjb:HALLMARK:IDENTITY:ACTION: format as a proper grammar for test verification.\n\n## Rust Implementation\n\n### Environment variable support\n\nIn jjrn_notch.rs or new jjtf_testmode.rs:\n- Check JJTF_TEST_MESSAGE env var before invoking Claude\n- Check JJTF_TEST_HALLMARK env var in hallmark lookup\n- Keep production path unchanged when vars not set\n\n### Integration test harness\n\nCreate Tools/jjk/vov_veiled/tests/integration/:\n- mod.rs: Test utilities (temp git repo setup, cleanup)\n- lifecycle.rs: nominate → slate → bridle → wrap\n- notch.rs: File list validation, warnings, firemark mode\n\nTests run with: cargo test --features integration-tests\n\n## Files\n\n- Tools/jjk/vov_veiled/JJD-GallopsData.adoc\n- Tools/jjk/vov_veiled/src/jjrn_notch.rs (or new jjtf_testmode.rs)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (use test mode in wrap/notch)\n- Tools/jjk/vov_veiled/tests/integration/mod.rs\n- Tools/jjk/vov_veiled/tests/integration/lifecycle.rs\n- Tools/jjk/vov_veiled/Cargo.toml (integration-tests feature)",
               "silks": "jjk-integration-test-harness",
               "commit": "6e8320f"
+            }
+          ]
+        },
+        "₢AGAAD": {
+          "tacks": [
+            {
+              "ts": "260124-0731",
+              "state": "rough",
+              "text": "Consider adding new heat-level fields for 'prewrap tests' - commands that must succeed before a pace wrap can proceed. Candidate fields: build_command and test_command. These would enforce the pre-wrap verification discipline (build + test) at the data model level rather than relying on convention.",
+              "silks": "prewrap-test-fields",
+              "commit": "edd2365"
             }
           ]
         }
