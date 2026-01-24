@@ -1,0 +1,145 @@
+Transfer remaining
+{jjdpr_pace_s}
+from a
+{jjdhr_heat}
+to a fresh continuation
+{jjdhr_heat},
+preserving the original for retrospective.
+This is a ceremony operation that combines multiple primitives.
+
+The source
+{jjdhr_heat}
+receives a `garlanded-` prefix and sequence suffix in its
+{jjdhm_silks},
+then is furloughed to
+{jjdhe_stabled}.
+A new
+{jjdhr_heat}
+is nominated with incremented suffix, starts
+{jjdhe_racing},
+and receives all actionable
+{jjdpr_pace_s}
+({jjdpe_rough}
+and
+{jjdpe_bridled}).
+{jjdpe_complete}
+and
+{jjdpe_abandoned}
+{jjdpr_pace_s}
+remain with the garlanded source.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_firemark}
+(positional) —
+{jjdhr_heat}
+to garland
+
+{jjds_stdout} JSON object:
+
+[source,json]
+----
+{
+  "old_firemark": "AF",
+  "old_silks": "garlanded-jjk-post-alpha-polish-01",
+  "new_firemark": "AH",
+  "new_silks": "jjk-post-alpha-polish-02",
+  "paces_transferred": 15,
+  "paces_retained": 25
+}
+----
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. {jjdr_load}
+{jjda_file};
+on failure, exit immediately with
+{jjdr_load}
+error status
+. Verify source
+{jjdhr_heat}
+exists with given
+{jjdt_firemark}
+. Determine sequence number:
+.. If source
+{jjdhm_silks}
+has no `-NN` suffix: sequence = 1
+.. If source
+{jjdhm_silks}
+ends with `-NN`: sequence = NN
+. Compute new
+{jjdhm_silks}
+for source:
+`garlanded-` + base silks (without any `-NN` suffix) + `-` + sequence (zero-padded 2 digits)
+. Compute new
+{jjdhm_silks}
+for continuation:
+base silks (without `-NN` suffix) + `-` + (sequence + 1) (zero-padded 2 digits)
+. Add
+{jjdkr_steeplechase}
+marker to source:
+`Garlanded at pace {complete_count} — magnificent service`
+. Update source
+{jjdhm_silks}
+to garlanded name
+. Update source
+{jjdhm_status}
+to
+{jjdhe_stabled}
+. Nominate continuation
+{jjdhr_heat}
+with computed
+{jjdhm_silks},
+status
+{jjdhe_racing}
+. Copy source
+{jjdhm_paddock}
+to continuation
+{jjdhr_heat}
+. Partition source
+{jjdpr_pace_s}:
+.. Actionable:
+{jjdpe_rough}
+or
+{jjdpe_bridled}
+→ transfer
+.. Retained:
+{jjdpe_complete}
+or
+{jjdpe_abandoned}
+→ stay with source
+. For each actionable
+{jjdpr_pace}
+in
+{jjdhm_order}:
+.. Draft to continuation using
+{jjdr_draft}
+logic (new
+{jjdt_coronet},
+preserve
+{jjdkr_tack}
+history)
+. {jjdr_save}
+{jjdgr_gallops}
+to
+{jjda_file}
+. Output JSON to stdout
+
+*Validation errors:*
+
+[cols="2,3"]
+|===
+| Condition | Error
+
+| Source {jjdhr_heat} not found
+| "Heat {firemark} not found"
+
+| Source has no actionable {jjdpr_pace_s}
+| "Heat {firemark} has no actionable paces to transfer"
+|===
