@@ -176,8 +176,8 @@ struct zjjrx_SaddleArgs {
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
 
-    /// Target Heat identity (Firemark)
-    firemark: String,
+    /// Target Heat identity (Firemark). If omitted, uses first racing heat.
+    firemark: Option<String>,
 }
 
 /// Arguments for jjx_parade command
@@ -187,8 +187,8 @@ struct zjjrx_ParadeArgs {
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     file: PathBuf,
 
-    /// Target: Firemark (heat view) or Coronet (pace view)
-    target: String,
+    /// Target: Firemark (heat view) or Coronet (pace view). If omitted, uses first racing heat.
+    target: Option<String>,
 
     /// Show paddock and full specs (heat mode only)
     #[arg(long)]
@@ -716,9 +716,31 @@ fn zjjrx_run_muster(args: zjjrx_MusterArgs) -> i32 {
 }
 
 fn zjjrx_run_saddle(args: zjjrx_SaddleArgs) -> i32 {
-    use crate::jjrq_query::{jjrq_SaddleArgs as LibSaddleArgs, jjrq_run_saddle as lib_run_saddle};
+    use crate::jjrq_query::{jjrq_SaddleArgs as LibSaddleArgs, jjrq_run_saddle as lib_run_saddle, jjrq_resolve_default_heat};
 
-    let firemark = match Firemark::jjrf_parse(&args.firemark) {
+    // Resolve firemark: use provided value or auto-select first racing heat
+    let firemark_str = match args.firemark {
+        Some(fm) => fm,
+        None => {
+            // Load gallops to resolve default heat
+            let gallops = match Gallops::jjrg_load(&args.file) {
+                Ok(g) => g,
+                Err(e) => {
+                    eprintln!("jjx_saddle: error: {}", e);
+                    return 1;
+                }
+            };
+            match jjrq_resolve_default_heat(&gallops) {
+                Ok(fm) => fm,
+                Err(e) => {
+                    eprintln!("jjx_saddle: error: {}", e);
+                    return 1;
+                }
+            }
+        }
+    };
+
+    let firemark = match Firemark::jjrf_parse(&firemark_str) {
         Ok(fm) => fm,
         Err(e) => {
             eprintln!("jjx_saddle: error: {}", e);
@@ -735,11 +757,33 @@ fn zjjrx_run_saddle(args: zjjrx_SaddleArgs) -> i32 {
 }
 
 fn zjjrx_run_parade(args: zjjrx_ParadeArgs) -> i32 {
-    use crate::jjrq_query::{jjrq_ParadeArgs as LibParadeArgs, jjrq_run_parade as lib_run_parade};
+    use crate::jjrq_query::{jjrq_ParadeArgs as LibParadeArgs, jjrq_run_parade as lib_run_parade, jjrq_resolve_default_heat};
+
+    // Resolve target: use provided value or auto-select first racing heat
+    let target = match args.target {
+        Some(t) => t,
+        None => {
+            // Load gallops to resolve default heat
+            let gallops = match Gallops::jjrg_load(&args.file) {
+                Ok(g) => g,
+                Err(e) => {
+                    eprintln!("jjx_parade: error: {}", e);
+                    return 1;
+                }
+            };
+            match jjrq_resolve_default_heat(&gallops) {
+                Ok(fm) => fm,
+                Err(e) => {
+                    eprintln!("jjx_parade: error: {}", e);
+                    return 1;
+                }
+            }
+        }
+    };
 
     let parade_args = LibParadeArgs {
         file: args.file,
-        target: args.target,
+        target,
         full: args.full,
         remaining: args.remaining,
     };

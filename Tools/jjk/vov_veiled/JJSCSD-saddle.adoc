@@ -17,10 +17,14 @@ details.
 // ⟦axd_optional axd_defaulted⟧
 * {jjda_file}
 
-// ⟦axd_required⟧
+// ⟦axd_optional axd_defaulted⟧
 * {jjdt_firemark}
 (positional) — target
-{jjdhr_heat}
+{jjdhr_heat}.
+If omitted, uses first
+{jjdhe_racing}
+heat.
+Returns error if no racing heats exist.
 
 {jjds_stdout} JSON object with structure:
 [source,json]

@@ -10,13 +10,17 @@ Output varies by target type.
 // ⟦axd_optional axd_defaulted⟧
 * {jjda_file}
 
-// ⟦axd_required⟧
+// ⟦axd_optional axd_defaulted⟧
 * TARGET (positional) —
 {jjdt_firemark}
 (heat view) or
 {jjdt_coronet}
 (pace view).
 Target type detected by length: 2 base64 chars = heat, 5 base64 chars = pace.
+If omitted, uses first
+{jjdhe_racing}
+heat.
+Returns error if no racing heats exist.
 
 // ⟦axd_optional⟧
 * `--full` — Show paddock and full pace specs (heat mode only)

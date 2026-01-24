@@ -14,6 +14,16 @@ use crate::jjrs_steeplechase::{jjrs_SteeplechaseEntry, jjrs_get_entries, jjrs_Re
 use serde::Serialize;
 use std::fs;
 
+/// Resolve the default heat (first racing heat) when no target is specified
+pub fn jjrq_resolve_default_heat(gallops: &Gallops) -> Result<String, String> {
+    for (heat_key, heat) in &gallops.heats {
+        if heat.status == HeatStatus::Racing {
+            return Ok(heat_key.clone());
+        }
+    }
+    Err("No racing heats found".to_string())
+}
+
 // ============================================================================
 // Muster - List all Heats with summary information
 // ============================================================================
