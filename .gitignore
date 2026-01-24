@@ -46,3 +46,6 @@ Tools/vvk/bin/vvx-*
 # Rust build artifacts
 **/target/
 Tools/vvc/target/
+
+# JJK parcels
+.jjk/parcels/

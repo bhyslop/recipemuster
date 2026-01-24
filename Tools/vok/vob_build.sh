@@ -192,12 +192,13 @@ vob_release() {
   buc_log_args "Commit: ${z_commit}"
 
   local z_hallmark_file="${BUD_TEMP_DIR}/hallmark.txt"
+  local z_stderr_file="${BUD_TEMP_DIR}/release_brand_stderr.txt"
 
   "${z_vvx}" release_brand \
     --staging "${z_staging}" \
     --registry "${z_registry}" \
     --commit "${z_commit}" \
-    --managed-kits "${BURC_MANAGED_KITS}" > "${z_hallmark_file}" || buc_die "release_brand failed"
+    --managed-kits "${BURC_MANAGED_KITS}" > "${z_hallmark_file}" 2>"${z_stderr_file}" || buc_die "release_brand failed"
 
   local z_hallmark=""
   z_hallmark=$(<"${z_hallmark_file}")
@@ -205,11 +206,34 @@ vob_release() {
 
   buc_log_args "Hallmark: ${z_hallmark}"
 
+  # Check if a new hallmark was allocated by examining stderr
+  local z_is_new=0
+  if grep -q "Allocated new hallmark: ${z_hallmark}" "${z_stderr_file}" 2>/dev/null; then
+    z_is_new=1
+  fi
+
+  # If new hallmark was allocated, commit the registry
+  if [ "${z_is_new}" -eq 1 ]; then
+    buc_step "Committing registry for new hallmark"
+    buc_log_args "New hallmark: ${z_hallmark}"
+
+    local z_kit_list="${BURC_MANAGED_KITS// /, }"
+    "${z_vvx}" commit \
+      --message "vvb:${z_hallmark}::A: allocate hallmark for ${z_kit_list}" \
+      --file "${z_registry}" || buc_die "Failed to commit registry"
+
+    buc_log_args "Registry committed"
+  fi
+
   buc_step "Creating tarball"
 
   local z_parcel_name="vvk-parcel-${z_hallmark}"
   local z_project_root="${BURC_PROJECT_ROOT:-${PWD}}"
-  local z_tarball="${z_project_root}/${z_parcel_name}.tar.gz"
+  local z_parcels_dir="${z_project_root}/.jjk/parcels"
+  local z_tarball="${z_parcels_dir}/${z_parcel_name}.tar.gz"
+
+  # Create parcels directory if it doesn't exist
+  mkdir -p "${z_parcels_dir}" || buc_die "Failed to create parcels directory: ${z_parcels_dir}"
 
   buc_log_args "Tarball: ${z_tarball}"
 
