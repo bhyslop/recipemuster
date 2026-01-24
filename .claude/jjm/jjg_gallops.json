@@ -3823,6 +3823,14 @@
         "₢AFAAe": {
           "tacks": [
             {
+              "ts": "260124-0724",
+              "state": "bridled",
+              "text": "Modify jjx_muster output to generate a proper box-drawing table for racing heats. Use Unicode box-drawing characters (┌ ─ ┬ ┐ │ ├ ┼ ┤ └ ┴ ┘) to create a formatted table with columns: Firemark, Silks, Status, Progress. Racing heats get the table; stabled heats get a single summary line. Include the 'Which heat would you like to groom?' prompt at the end.",
+              "silks": "muster-box-table-output",
+              "commit": "fe01a9b",
+              "direction": "Cardinality: 2 parallel + sequential build\nFiles: jjrq_query.rs, JJSCMU-muster.adoc (2 files)\nSteps:\n1. Agent A (sonnet): In jjrq_query.rs, modify jjrq_run_muster to output box-drawing table for racing heats, summary line for stabled heats, and groom prompt at end\n2. Agent B (sonnet): In JJSCMU-muster.adoc, update stdout section to document new box-table format for racing heats, summary format for stabled heats, and trailing prompt\n3. Sequential: tt/vow-b.Build.sh and tt/vow-t.Test.sh\nBox chars: corner-TL corner-TR corner-BL corner-BR, horizontal, vertical, T-junctions, cross\nColumns: Firemark, Silks, Status, Progress (completed/defined)"
+            },
+            {
               "ts": "260124-0720",
               "state": "bridled",
               "text": "Modify jjx_muster output to generate a proper box-drawing table for racing heats. Use Unicode box-drawing characters (┌ ─ ┬ ┐ │ ├ ┼ ┤ └ ┴ ┘) to create a formatted table with columns: Firemark, Silks, Status, Progress. Racing heats get the table; stabled heats get a single summary line. Include the 'Which heat would you like to groom?' prompt at the end.",
