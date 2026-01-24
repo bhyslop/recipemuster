@@ -50,6 +50,14 @@
         "₢ALAAB": {
           "tacks": [
             {
+              "ts": "260124-1054",
+              "state": "bridled",
+              "text": "Drafted from ₢AFAAu in ₣AF.\n\nImplement jjx_restring subcommand in Rust per JJSCRS-restring.adoc spec.\n\nLocation: Tools/vok/src/jjx/ (follow existing subcommand patterns)\n\nKey behaviors:\n- Parse source firemark, dest firemark, one or more coronets\n- Validate all inputs before any mutations\n- Draft each pace atomically (single save)\n- Output JSON with source/destination info and drafted array\n- Include spec text from new tacks[0].text in output",
+              "silks": "rust-restring-impl",
+              "commit": "ef75ecd",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: jjrt_types.rs, jjro_ops.rs, jjrg_gallops.rs, jjrx_cli.rs (4 files) | Steps: 1. Add jjrg_RestringArgs and jjrg_RestringResult structs to jjrt_types.rs 2. Implement jjrg_restring function in jjro_ops.rs following jjrg_draft pattern - validate inputs upfront, iterate coronets calling jjrg_draft for each, collect mappings for output 3. Re-export jjrg_restring in jjrg_gallops.rs and add impl method on jjrg_Gallops 4. Add Restring variant to jjrx_JjxCommands enum, zjjrx_RestringArgs struct with file/firemark/--to args, and zjjrx_run_restring handler that parses stdin JSON array, calls operation, outputs JSON with source/destination/drafted fields 5. Use vvc::machine_commit with both paddock files like jjx_draft does | Verify: tt/vow-b.Build.sh and tt/vow-t.Test.sh"
+            },
+            {
               "ts": "260124-1015",
               "state": "rough",
               "text": "Drafted from ₢AFAAu in ₣AF.\n\nImplement jjx_restring subcommand in Rust per JJSCRS-restring.adoc spec.\n\nLocation: Tools/vok/src/jjx/ (follow existing subcommand patterns)\n\nKey behaviors:\n- Parse source firemark, dest firemark, one or more coronets\n- Validate all inputs before any mutations\n- Draft each pace atomically (single save)\n- Output JSON with source/destination info and drafted array\n- Include spec text from new tacks[0].text in output",
