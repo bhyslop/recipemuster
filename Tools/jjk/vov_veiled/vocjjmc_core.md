@@ -64,6 +64,15 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 **Commit Discipline:**
 When working on a heat/pace, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `vvx_commit` directly — it bypasses pace affiliation and steeplechase tracking.
 
+**Multi-Session Discipline:**
+Multiple Claude sessions may work concurrently in the same repo. The explicit file list in `/jjc-pace-notch` enables orthogonal commits.
+
+- Claude is **additive only** — make commits, never discard changes
+- NEVER run destructive commands: `git restore`, `git checkout <file>`, `git reset --hard`, `git clean`, `git stash`
+- "Unexpected" uncommitted changes are likely another session's work
+- If something looks wrong, ASK — do not "fix" by discarding
+- Commit only YOUR files; ignore everything else
+
 **Build & Run Discipline:**
 Always run these after Rust code changes:
 - `tt/vow-b.Build.sh` — Build
