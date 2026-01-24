@@ -41,22 +41,16 @@ Run:
 ./tt/vvw-r.RunVVX.sh jjx_saddle <FIREMARK>
 ```
 
-Parse JSON output:
-```json
-{
-  "heat_silks": "...",
-  "paddock_file": ".claude/jjm/jjp_XX.md",
-  "paddock_content": "...",
-  "pace_coronet": "₢AAAAC",
-  "pace_silks": "...",
-  "pace_state": "rough|bridled",
-  "spec": "...",
-  "direction": "...",
-  "recent_work": [{"timestamp": "...", "commit": "...", "coronet": "...", "action": "...", "subject": "..."}]
-}
-```
+Parse plain text output by label prefix:
+- Line starting with `Heat:` → extract heat silks, firemark, and status
+- Line starting with `Paddock:` → extract paddock file path
+- Section `Paddock-content:` (ends at blank line) → extract paddock content (2-space indented)
+- Line starting with `Next:` → extract pace silks, coronet, and state (if present)
+- Section `Spec:` (ends at blank line) → extract spec text (2-space indented)
+- Section `Direction:` (ends at blank line) → extract direction text if bridled (2-space indented)
+- Section `Recent-work:` → column-formatted table with headers
 
-Fields `pace_coronet` through `direction` are absent if no actionable pace.
+If `Next:` line is absent, no actionable pace exists.
 
 ## Step 3: Display context
 

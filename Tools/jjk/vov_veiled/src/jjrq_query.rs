@@ -234,33 +234,27 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
     }).unwrap_or_default();
 
     // Find first actionable pace (rough or bridled)
-    let mut output = zjjrq_SaddleOutput {
-        heat_silks: heat.silks.clone(),
-        paddock_file: heat.paddock_file.clone(),
-        paddock_content,
-        pace_coronet: None,
-        pace_silks: None,
-        pace_state: None,
-        spec: None,
-        direction: None,
-        recent_work,
-    };
+    let mut pace_coronet: Option<String> = None;
+    let mut pace_silks: Option<String> = None;
+    let mut pace_state: Option<String> = None;
+    let mut spec: Option<String> = None;
+    let mut direction: Option<String> = None;
 
     for coronet_key in &heat.order {
         if let Some(pace) = heat.paces.get(coronet_key) {
             if let Some(tack) = pace.tacks.first() {
                 match tack.state {
                     PaceState::Rough | PaceState::Bridled => {
-                        output.pace_coronet = Some(coronet_key.clone());
-                        output.pace_silks = Some(tack.silks.clone());
-                        output.pace_state = Some(match tack.state {
+                        pace_coronet = Some(coronet_key.clone());
+                        pace_silks = Some(tack.silks.clone());
+                        pace_state = Some(match tack.state {
                             PaceState::Rough => "rough".to_string(),
                             PaceState::Bridled => "bridled".to_string(),
                             _ => unreachable!(),
                         });
-                        output.spec = Some(tack.text.clone());
+                        spec = Some(tack.text.clone());
                         if tack.state == PaceState::Bridled {
-                            output.direction = tack.direction.clone();
+                            direction = tack.direction.clone();
                         }
                         break;
                     }
@@ -270,17 +264,98 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
         }
     }
 
-    // Output JSON
-    match serde_json::to_string_pretty(&output) {
-        Ok(json) => {
-            println!("{}", json);
-            0
-        }
-        Err(e) => {
-            eprintln!("jjx_saddle: error serializing output: {}", e);
-            1
+    // Determine heat status string
+    let status_str = match heat.status {
+        HeatStatus::Racing => "racing",
+        HeatStatus::Stabled => "stabled",
+        HeatStatus::Retired => "retired",
+    };
+
+    // Output plain text format
+    println!("Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
+    println!("Paddock: {}", heat.paddock_file);
+    println!();
+    println!("Paddock-content:");
+    for line in paddock_content.lines() {
+        println!("  {}", line);
+    }
+    println!();
+
+    if let Some(coronet) = pace_coronet {
+        if let Some(silks) = pace_silks {
+            if let Some(state) = pace_state {
+                println!("Next: {} ({}) [{}]", silks, coronet, state);
+                println!();
+                if let Some(spec_text) = spec {
+                    println!("Spec:");
+                    for line in spec_text.lines() {
+                        println!("  {}", line);
+                    }
+                    println!();
+                }
+                if let Some(dir_text) = direction {
+                    println!("Direction:");
+                    for line in dir_text.lines() {
+                        println!("  {}", line);
+                    }
+                    println!();
+                }
+            }
         }
     }
+
+    // Output recent work table
+    if !recent_work.is_empty() {
+        println!("Recent-work:");
+
+        let mut table = jjrp_Table::jjrp_new(vec![
+            jjrp_Column::new("Timestamp", jjrp_Align::Left),
+            jjrp_Column::new("Commit", jjrp_Align::Left),
+            jjrp_Column::new("[A]", jjrp_Align::Left),
+            jjrp_Column::new("Identity", jjrp_Align::Left),
+            jjrp_Column::new("Subject", jjrp_Align::Left),
+        ]);
+
+        // Measure all rows to compute column widths
+        for entry in &recent_work {
+            let action_str = entry.action.as_ref().map(|a| format!("[{}]", a)).unwrap_or_else(|| "   ".to_string());
+            let identity_str = if let Some(ref coronet) = entry.coronet {
+                coronet.clone()
+            } else {
+                heat_key.clone()
+            };
+            table.jjrp_measure(&[
+                &entry.timestamp,
+                &entry.commit,
+                &action_str,
+                &identity_str,
+                &entry.subject,
+            ]);
+        }
+
+        // Print header and separator
+        table.jjrp_print_header();
+        table.jjrp_print_separator();
+
+        // Print data rows
+        for entry in &recent_work {
+            let action_str = entry.action.as_ref().map(|a| format!("[{}]", a)).unwrap_or_else(|| "   ".to_string());
+            let identity_str = if let Some(ref coronet) = entry.coronet {
+                coronet.clone()
+            } else {
+                heat_key.clone()
+            };
+            table.jjrp_print_row(&[
+                &entry.timestamp,
+                &entry.commit,
+                &action_str,
+                &identity_str,
+                &entry.subject,
+            ]);
+        }
+    }
+
+    0
 }
 
 // ============================================================================

@@ -26,30 +26,45 @@ If omitted, uses first
 heat.
 Returns error if no racing heats exist.
 
-{jjds_stdout} JSON object with structure:
-[source,json]
+{jjds_stdout} Plain text format with labeled sections:
+[source,text]
 ----
-{
-  "heat_silks": "...",
-  "paddock_file": ".claude/jjm/jjp_XX.md",
-  "paddock_content": "...",
-  "pace_coronet": "₢XXXXX",
-  "pace_silks": "...",
-  "pace_state": "rough|bridled",
-  "spec": "...",
-  "direction": "...",
-  "recent_work": [
-    {"timestamp": "...", "commit": "...", "coronet": "...", "action": "...", "subject": "..."}
-  ]
-}
+Heat: <silks> (₣<firemark>) [<status>]
+Paddock: <paddock_file_path>
+
+Paddock-content:
+  <line 1 of paddock content>
+  <line 2 of paddock content>
+  ...
+
+Next: <pace_silks> (₢<coronet>) [<state>]
+
+Spec:
+  <line 1 of spec>
+  <line 2 of spec>
+  ...
+
+Direction:
+  <line 1 of direction>
+  <line 2 of direction>
+  ...
+
+Recent-work:
+Timestamp         Commit    [A]  Identity  Subject
+-------------------------------------------------
+YYYY-MM-DD HH:MM  abcd1234  [W]  ₢XXXXX    ...
+YYYY-MM-DD HH:MM  efgh5678  [n]  ₢XXXXX    ...
+...
 ----
-Fields `pace_coronet` through `direction` are absent if no actionable pace exists.
+
+Sections `Next:` through `Direction:` are absent if no actionable pace exists.
 Field `pace_silks` is derived from `tacks[0].silks`.
-Field `direction` is present only when `pace_state` is
+Section `Direction:` is present only when pace state is
 {jjdpe_bridled}.
-Field `paddock_content` contains the full text of the paddock file.
-Field `recent_work` contains the last 10 steeplechase entries for the heat (from
-{jjdo_rein}).
+Section `Paddock-content:` contains the full text of the paddock file, indented 2 spaces.
+Section `Recent-work:` contains the last 10 steeplechase entries for the heat (from
+{jjdo_rein}),
+formatted as column-aligned table.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
