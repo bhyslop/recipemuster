@@ -570,9 +570,9 @@ pub fn jjrg_retire(
     // Build trophy content
     let trophy_content = zjjrg_build_trophy_content(&firemark_key, heat, &paddock_content, &args.today, steeplechase)?;
 
-    // Compute trophy path: .claude/jjm/retired/jjh_<created>-r<today>-<silks>.md
+    // Compute trophy path: .claude/jjm/retired/jjh_b<created>-r<today>-<silks>.md
     let trophy_filename = format!(
-        "jjh_{}-r{}-{}.md",
+        "jjh_b{}-r{}-{}.md",
         heat.creation_time,
         args.today,
         heat.silks
