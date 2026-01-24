@@ -89,10 +89,11 @@ impl jjrp_Table {
     }
 
     /// Print a separator line using computed widths
+    /// Uses box drawing character to avoid markdown interpretation of dashes
     pub fn jjrp_print_separator(&self) {
         let mut parts = Vec::new();
         for width in &self.widths {
-            parts.push("-".repeat(*width));
+            parts.push("─".repeat(*width));
         }
         println!("{}", parts.join(&" ".repeat(JJRP_COLUMN_GAP)));
     }
