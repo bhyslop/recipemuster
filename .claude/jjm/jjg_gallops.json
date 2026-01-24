@@ -3200,9 +3200,10 @@
         "₢AFAA0",
         "₢AFAA1",
         "₢AFAA2",
-        "₢AFAA3"
+        "₢AFAA3",
+        "₢AFAA4"
       ],
-      "next_pace_seed": "AA4",
+      "next_pace_seed": "AA5",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAA0": {
@@ -3246,6 +3247,17 @@
               "text": "Add --intent parameter to jjx_notch for opus-supplied commit messages.\n\n## Purpose\n\nAllow opus driver to provide top-down intent (\"what we meant to do\") instead of relying on haiku's bottom-up diff description.\n\n## CLI Change\n\n```\njjx_notch <CORONET> [--intent \"message\"] <files...>\n```\n\n- If --intent provided: use as commit subject\n- If omitted: fall back to current haiku behavior\n\n## Implementation\n\n- jjrx_cli.rs: Add --intent Option<String> to notch args\n- jjro_ops.rs: In notch logic, check for intent before calling haiku\n- Format: `jjb:HALLMARK:₢XXXXX:n: {intent}` (same prefix, user message)\n\n## Slash Command Update\n\nUpdate /jjc-pace-notch:\n- Prompt opus for one-line intent summary\n- Pass to jjx_notch --intent\n\n## Backward Compatible\n\nOmitting --intent preserves current haiku-generated messages.",
               "silks": "trophy-alpha-notch-intent",
               "commit": "f61a0f8"
+            }
+          ]
+        },
+        "₢AFAA4": {
+          "tacks": [
+            {
+              "ts": "260124-1207",
+              "state": "rough",
+              "text": "Define V (Version) marker in JJSA for daily model version tracking.\n\n## New Marker Type\n\nAdd to \"Commit Message Patterns\" section:\n\n**V (Version)** — Records Claude model versions in use for the day\n- Created automatically by saddle on first invocation of the day\n- One per day per heat (or global?)\n- Subject: `jjb:HALLMARK:₣XX:V: YYMMDD models`\n- Body contains model ID strings for each tier\n\n## Commit Format\n\n```\njjb:HALLMARK:₣XX:V: 260124 models\n\nhaiku: claude-3-5-haiku-20241022\nsonnet: claude-sonnet-4-20250514\nopus: claude-opus-4-5-20251101\n```\n\n## Semantics\n\n- Marker date in subject (YYMMDD) indicates which day's models\n- Body uses simple `tier: model-id` format, one per line\n- Model IDs are the full strings (e.g., claude-opus-4-5-20251101)\n- Captured once per day, first saddle triggers collection\n\n## Trophy Integration\n\n- V markers included in steeplechase section\n- Enables retrospective: \"which model versions worked on this heat\"\n\n## Files\n\n- JJSA-GallopsData.adoc (add V marker to commit patterns)",
+              "silks": "trophy-alpha-jjsa-version-marker",
+              "commit": "573ae88"
             }
           ]
         },
