@@ -3689,6 +3689,13 @@
         "₢AFAAZ": {
           "tacks": [
             {
+              "ts": "260123-1629",
+              "state": "complete",
+              "text": "Replace jjx_order/jjx_peek with purpose-built text emitters.\n\n## Problem\n\nJSON output commands require jq parsing, are token-heavy, and break when tabtarget logs pollute stdout.\n\n## Solution\n\nImplement simple text emitters:\n- `jjx_get_pace_spec <CORONET>` — raw spec text only\n- `jjx_get_pace_silks <CORONET>` — silks string only  \n- `jjx_get_heat_coronets <FIREMARK> [--remaining]` — one coronet per line\n\n## Benefits\n\n- No jq needed\n- Pipes cleanly: `jjx_get_pace_spec ADAAC | sed \"s/JJD/JJSA/g\" | jjx_tally ADAAC`\n- Token-minimal\n- Unix-composable\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — add new commands, remove order/peek\n- Tools/jjk/vov_veiled/src/jjrq_query.rs — add implementations, remove order/peek\n- .claude/commands/jjc-heat-rail.md — update to use jjx_get_heat_coronets\n- .claude/commands/jjc-heat-quarter.md — update to use new commands\n- .claude/commands/jjc-pace-reslate.md — update to use jjx_get_pace_spec\n- .claude/commands/jjc-heat-restring.md — update to use jjx_get_heat_coronets\n\n## Constraint\n\nAlso fix tabtarget log pollution (logs should go to stderr, not stdout).",
+              "silks": "implement-text-emitter-commands",
+              "commit": "bc43f2b"
+            },
+            {
               "ts": "260123-1458",
               "state": "rough",
               "text": "Replace jjx_order/jjx_peek with purpose-built text emitters.\n\n## Problem\n\nJSON output commands require jq parsing, are token-heavy, and break when tabtarget logs pollute stdout.\n\n## Solution\n\nImplement simple text emitters:\n- `jjx_get_pace_spec <CORONET>` — raw spec text only\n- `jjx_get_pace_silks <CORONET>` — silks string only  \n- `jjx_get_heat_coronets <FIREMARK> [--remaining]` — one coronet per line\n\n## Benefits\n\n- No jq needed\n- Pipes cleanly: `jjx_get_pace_spec ADAAC | sed \"s/JJD/JJSA/g\" | jjx_tally ADAAC`\n- Token-minimal\n- Unix-composable\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — add new commands, remove order/peek\n- Tools/jjk/vov_veiled/src/jjrq_query.rs — add implementations, remove order/peek\n- .claude/commands/jjc-heat-rail.md — update to use jjx_get_heat_coronets\n- .claude/commands/jjc-heat-quarter.md — update to use new commands\n- .claude/commands/jjc-pace-reslate.md — update to use jjx_get_pace_spec\n- .claude/commands/jjc-heat-restring.md — update to use jjx_get_heat_coronets\n\n## Constraint\n\nAlso fix tabtarget log pollution (logs should go to stderr, not stdout).",
