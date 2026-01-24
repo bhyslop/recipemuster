@@ -409,6 +409,14 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | groom | /jjc-heat-groom |
 | quarter | /jjc-heat-quarter |
 
+**Common CLI Pitfalls:**
+- `jjx_parade` takes firemark OR coronet directly as sole argument — NO flags for target selection
+  - Heat overview: `jjx_parade AF`
+  - Single pace: `jjx_parade AFAAb`
+  - Valid flags: `--full`, `--remaining` only
+- NEVER invent CLI flags — run `--help` first or read the slash command
+- `jjx_saddle` output includes `pace_coronet` (next actionable pace) — no separate parade call needed to find what's next
+
 **Commit Discipline:**
 When working on a heat/pace, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `vvx_commit` directly — it bypasses pace affiliation and steeplechase tracking.
 
