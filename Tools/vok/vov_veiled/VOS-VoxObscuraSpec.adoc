@@ -152,6 +152,12 @@
 :vosc_show:             <<vosc_show,SHOW>>
 :vosc_step:             <<vosc_step,STEP>>
 
+// Commit architecture terms
+:vosca_vvb:             <<vosca_vvb,vvb>>
+:voscf_format:          <<voscf_format,Commit Format>>
+:voscaa_allocate:       <<voscaa_allocate,Allocate>>
+:voscar_release:        <<voscar_release,Release>>
+
 // Section headers (voice axs_*)
 :voss_inputs:           <<voss_inputs,Inputs:>>
 :voss_behavior:         <<voss_behavior,Behavior:>>
@@ -1253,6 +1259,91 @@ Claude Code integration cleanly removed.
 Kit directories remain for continued use outside Claude Code.
 {vose_uninstalled_marker_s}
 preserve section positions for future reinstall.
+
+
+== Commit Message Architecture
+
+VOK operations use a specialized commit message
+{voscf_format}
+that shares the
+{vost_hallmark}
+concept with Job Jockey but omits identity nesting (no heat/pace hierarchy).
+
+[[voscf_format]]
+// ⟦axl_voices axt_string⟧
+{voscf_format}::
+The canonical structure for VVK commits:
++
+----
+vvb:HALLMARK::ACTION: message
+----
++
+Fields:
++
+* {vosca_vvb}
+— Voce Viva brand prefix (literal string)
+* `HALLMARK` —
+{vost_hallmark}
+from
+{vose_brand_file}
+or
+{vose_registry}
+plus `HEAD`
+* `` — Empty identity field (VOK operations lack heat/pace nesting)
+* `ACTION` — Single-letter operation code
++
+The
+{vost_hallmark}
+source follows the same resolution as Job Jockey:
+first check `.vvk/vvbf_brand.json` in the target repo; if absent or operation is in the kit forge, use
+{vose_registry}
+plus `HEAD`.
+
+[[vosca_vvb]]
+// ⟦axl_voices axt_string⟧
+{vosca_vvb}::
+Voce Viva brand prefix.
+Literal string "vvb" appearing as the first field in the
+{voscf_format}.
+
+=== Action Codes
+
+[[voscaa_allocate]]
+// ⟦axl_voices axo_operation⟧
+{voscaa_allocate}::
+Action code `A`.
+Allocates a new
+{vost_hallmark}
+in the
+{vose_registry}.
++
+Example:
++
+----
+vvb:1000::A: allocated hallmark for initial release
+----
+
+[[voscar_release]]
+// ⟦axl_voices axo_operation⟧
+{voscar_release}::
+Action code `R`.
+Creates a
+{vose_parcel}
+and tags the release.
++
+Example:
++
+----
+vvb:1000::R: release parcel 1000
+----
+
+**Cross-reference:**
+The
+{vost_hallmark}
+concept is shared with Job Jockey's `jjb:` commit format (documented in JJSA-GallopsData.adoc).
+Both systems use the same resolution logic for sourcing
+{vost_hallmark_s},
+but Job Jockey includes heat/pace identity in the third field while VOK leaves it empty.
 
 
 == Whisper Builder API
