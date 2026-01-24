@@ -83,6 +83,13 @@
         "₢ALAAC": {
           "tacks": [
             {
+              "ts": "260124-1105",
+              "state": "complete",
+              "text": "Drafted from ₢AFAAv in ₣AF.\n\nUpdate jjc-heat-restring.md slash command to use jjx_restring primitive.\n\nChanges:\n- Replace steps 1-5 (argument parsing, validation, draft loop, summary, empty check) with single jjx_restring call\n- Parse JSON output for ceremony inputs\n- Keep context merge ceremony (step 6) unchanged\n- Keep steeplechase marker (step 7) unchanged\n\nResult: Shorter slash command, fewer CLI calls, all mechanical work in Rust.",
+              "silks": "rust-restring-slash",
+              "commit": "757a620"
+            },
+            {
               "ts": "260124-1102",
               "state": "bridled",
               "text": "Drafted from ₢AFAAv in ₣AF.\n\nUpdate jjc-heat-restring.md slash command to use jjx_restring primitive.\n\nChanges:\n- Replace steps 1-5 (argument parsing, validation, draft loop, summary, empty check) with single jjx_restring call\n- Parse JSON output for ceremony inputs\n- Keep context merge ceremony (step 6) unchanged\n- Keep steeplechase marker (step 7) unchanged\n\nResult: Shorter slash command, fewer CLI calls, all mechanical work in Rust.",
