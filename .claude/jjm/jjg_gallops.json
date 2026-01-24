@@ -3196,11 +3196,23 @@
         "₢AFAAl",
         "₢AFAAM",
         "₢AFAAc",
-        "₢AFAAz"
+        "₢AFAAz",
+        "₢AFAA0"
       ],
-      "next_pace_seed": "AA0",
+      "next_pace_seed": "AA1",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
+        "₢AFAA0": {
+          "tacks": [
+            {
+              "ts": "260124-1149",
+              "state": "rough",
+              "text": "Update JJSA spec with new commit types and parameter for trophy data collection.\n\n## Additions to JJSA\n\n### Commit Types Section\n\nAdd to \"Commit Message Patterns\" section:\n\n**B (Bridle)** — Records bridling decision before autonomous execution\n- Created when pace transitions to bridled state\n- Subject: `jjb:HALLMARK:₢XXXXX:B: {agent} | {file_count} files | {silks}`\n- Body contains full direction text\n\n**L (Landing)** — Records agent return after autonomous execution\n- Created when spawned agent completes (success or failure)\n- Subject: `jjb:HALLMARK:₢XXXXX:L: {agent} {landed|crashed} | {steps_completed}/{steps_total} | verify: {pass|fail}`\n- Body contains files touched, duration, error if crashed\n\n### Arguments Section\n\nAdd `--intent` argument for jjx_notch:\n- Optional string parameter\n- If provided, used as commit subject (opus-supplied intent)\n- If omitted, falls back to haiku diff description\n\n## Files\n\n- JJSA-GallopsData.adoc",
+              "silks": "trophy-alpha-jjsa-commit-types",
+              "commit": "d35c64c"
+            }
+          ]
+        },
         "₢AFAAA": {
           "tacks": [
             {
