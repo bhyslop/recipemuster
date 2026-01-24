@@ -3083,9 +3083,10 @@
         "₢AFAAi",
         "₢AFAAl",
         "₢AFAAM",
-        "₢AFAAt"
+        "₢AFAAt",
+        "₢AFAAu"
       ],
-      "next_pace_seed": "AAu",
+      "next_pace_seed": "AAv",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAAA": {
@@ -4203,6 +4204,17 @@
               "text": "Write JJSCRS-restring.adoc spec and update JJSA mapping section.\n\nDeliverables:\n- Create Tools/jjk/vov_veiled/JJSCRS-restring.adoc with full operation spec\n- Add jjdo_restring to JJSA mapping section  \n- Add include directive in JJSA operations section\n\nOutput schema defines: source (firemark, silks, paddock, empty_after), destination (firemark, silks, paddock), drafted array (old_coronet, new_coronet, silks, state, spec).\n\nAtomic batch operation - all paces drafted in single save or none.",
               "silks": "rust-restring-spec",
               "commit": "3207365"
+            }
+          ]
+        },
+        "₢AFAAu": {
+          "tacks": [
+            {
+              "ts": "260124-0919",
+              "state": "rough",
+              "text": "Implement jjx_restring subcommand in Rust per JJSCRS-restring.adoc spec.\n\nLocation: Tools/vok/src/jjx/ (follow existing subcommand patterns)\n\nKey behaviors:\n- Parse source firemark, dest firemark, one or more coronets\n- Validate all inputs before any mutations\n- Draft each pace atomically (single save)\n- Output JSON with source/destination info and drafted array\n- Include spec text from new tacks[0].text in output",
+              "silks": "rust-restring-impl",
+              "commit": "7ec0414"
             }
           ]
         }
