@@ -3906,6 +3906,13 @@
         "₢AFAAe": {
           "tacks": [
             {
+              "ts": "260124-0932",
+              "state": "rough",
+              "text": "ALREADY DONE - jjx_muster now outputs column-aligned plain text.\n\nThis pace was completed as part of ₢AFAAf (parade-column-format) work.\n\n**Current output:**\n```\nFire   Silks                                Status   Done  Total\n----------------------------------------------------------------\n₣AF    jjk-post-alpha-polish                racing     22     42\n₣AH    jjk-commission-haiku-pilot           racing      0      1\n```\n\n**Remaining work:** None - mark as complete or abandon as duplicate.",
+              "silks": "muster-column-format",
+              "commit": "e31aef0"
+            },
+            {
               "ts": "260124-0724",
               "state": "bridled",
               "text": "Modify jjx_muster output to generate a proper box-drawing table for racing heats. Use Unicode box-drawing characters (┌ ─ ┬ ┐ │ ├ ┼ ┤ └ ┴ ┘) to create a formatted table with columns: Firemark, Silks, Status, Progress. Racing heats get the table; stabled heats get a single summary line. Include the 'Which heat would you like to groom?' prompt at the end.",
