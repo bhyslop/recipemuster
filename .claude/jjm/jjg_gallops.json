@@ -3906,6 +3906,13 @@
         "₢AFAAe": {
           "tacks": [
             {
+              "ts": "260124-0947",
+              "state": "abandoned",
+              "text": "Duplicate of completed parade-column-format work (₢AFAAf). Muster already outputs column-aligned plain text.",
+              "silks": "muster-column-format",
+              "commit": "e9bfc9e"
+            },
+            {
               "ts": "260124-0932",
               "state": "rough",
               "text": "ALREADY DONE - jjx_muster now outputs column-aligned plain text.\n\nThis pace was completed as part of ₢AFAAf (parade-column-format) work.\n\n**Current output:**\n```\nFire   Silks                                Status   Done  Total\n----------------------------------------------------------------\n₣AF    jjk-post-alpha-polish                racing     22     42\n₣AH    jjk-commission-haiku-pilot           racing      0      1\n```\n\n**Remaining work:** None - mark as complete or abandon as duplicate.",
