@@ -3149,6 +3149,13 @@
         "₢AFAAC": {
           "tacks": [
             {
+              "ts": "260124-1045",
+              "state": "complete",
+              "text": "Fix vob_release() conformance with VOS spec.\n\n**Prerequisite:** ₢AFAAm (vos-commit-message-format) must complete first.\n\n**Changes:**\n\n1. **Parcel output location:**\n   - Create `.jjk/parcels/` directory if not exists\n   - Output parcel to `.jjk/parcels/{kit}-{hallmark}.tar.gz`\n   - Add `.jjk/parcels/` to `.gitignore`\n\n2. **Registry commit:**\n   - After allocating new hallmark in registry, commit using `vvx_commit`\n   - Message format: `vvb:HALLMARK::A: allocate hallmark XXXX for {kit}`\n   - Uses the newly allocated hallmark in the message\n\n**Files:** vob_release.rs (or equivalent), .gitignore",
+              "silks": "vob-release-conformance",
+              "commit": "195ab2a"
+            },
+            {
               "ts": "260124-1041",
               "state": "bridled",
               "text": "Fix vob_release() conformance with VOS spec.\n\n**Prerequisite:** ₢AFAAm (vos-commit-message-format) must complete first.\n\n**Changes:**\n\n1. **Parcel output location:**\n   - Create `.jjk/parcels/` directory if not exists\n   - Output parcel to `.jjk/parcels/{kit}-{hallmark}.tar.gz`\n   - Add `.jjk/parcels/` to `.gitignore`\n\n2. **Registry commit:**\n   - After allocating new hallmark in registry, commit using `vvx_commit`\n   - Message format: `vvb:HALLMARK::A: allocate hallmark XXXX for {kit}`\n   - Uses the newly allocated hallmark in the message\n\n**Files:** vob_release.rs (or equivalent), .gitignore",
