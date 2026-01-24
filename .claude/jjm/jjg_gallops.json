@@ -4374,9 +4374,10 @@
         "₢AGAAA",
         "₢AGAAB",
         "₢AGAAC",
-        "₢AGAAD"
+        "₢AGAAD",
+        "₢AGAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -4441,6 +4442,17 @@
               "text": "Consider adding new heat-level fields for 'prewrap tests' - commands that must succeed before a pace wrap can proceed. Candidate fields: build_command and test_command. These would enforce the pre-wrap verification discipline (build + test) at the data model level rather than relying on convention.",
               "silks": "prewrap-test-fields",
               "commit": "edd2365"
+            }
+          ]
+        },
+        "₢AGAAE": {
+          "tacks": [
+            {
+              "ts": "260124-1031",
+              "state": "rough",
+              "text": "Add explicit heat ordering to Gallops while keeping BTreeMap for deterministic serialization.\n\n## Problem\n\nHeats currently derive order from BTreeMap key sorting. Several commands depend on \"heat order\" semantics:\n- `jjx_muster`: display order\n- `jjx_saddle`: \"first racing heat\" selection when firemark omitted\n- Future: heat priority for concurrent work\n\nBTreeMap gives alphabetical firemark order, not semantic priority order.\n\n## Solution\n\nAdd `heat_order: Vec<Firemark>` to Gallops record, parallel to how `Heat.order` tracks pace order.\n\n## Schema Change\n\n```json\n{\n  \"next_heat_seed\": \"AM\",\n  \"heat_order\": [\"AF\", \"AH\", \"AI\", ...],  // NEW FIELD\n  \"heats\": { ... }\n}\n```\n\n## Behavior\n\n- `jjx_nominate`: append new firemark to `heat_order`\n- `jjx_retire`: remove firemark from `heat_order`\n- `jjx_muster`: iterate `heat_order` instead of BTreeMap keys\n- `jjx_saddle` (no firemark): use first racing heat from `heat_order`\n- Future: `jjx_rail` for heats (reorder heat_order)\n\n## Migration\n\nExisting gallops.json needs `heat_order` populated from current BTreeMap keys on first load (or explicit migration).\n\n## Files\n\njjrg_gallops.rs (Gallops struct), jjro_ops.rs (nominate, retire), jjrq_query.rs (muster, saddle), JJSA spec",
+              "silks": "add-heat-order-vector",
+              "commit": "a6bf1bc"
             }
           ]
         }
