@@ -3074,7 +3074,6 @@
         "₢AFAAV",
         "₢AFAAk",
         "₢AFAAK",
-        "₢AFAAq",
         "₢AFAAr",
         "₢AFAAs",
         "₢AFAAY",
@@ -4273,17 +4272,6 @@
             }
           ]
         },
-        "₢AFAAq": {
-          "tacks": [
-            {
-              "ts": "260124-0917",
-              "state": "rough",
-              "text": "Implement jjrq_run_garland function in jjrq_query.rs.\n\n## CLI Args (jjrx_cli.rs)\n\n```rust\n#[derive(Args)]\nstruct zjjrx_GarlandArgs {\n    /// Heat to garland\n    firemark: String,\n\n    #[arg(long, short)]\n    file: Option<PathBuf>,\n}\n```\n\nWire to subcommand enum and dispatch.\n\n## Core Logic (jjrq_query.rs)\n\n`pub fn jjrq_run_garland(args: &zjjrx_GarlandArgs) -> Result<()>`\n\nSteps:\n1. Load gallops\n2. Verify source heat exists\n3. Parse source silks using jjrq_parse_silks_sequence\n4. If sequence is None, use 1; else use existing sequence\n5. Build garlanded silks: `garlanded-{base}-{seq:02}`\n6. Build continuation silks: `{base}-{seq+1:02}`\n7. Add steeplechase marker: \"Garlanded at pace {complete_count} — magnificent service\"\n8. Update source silks to garlanded name\n9. Update source status to stabled\n10. Nominate new heat with continuation silks, status racing\n11. Copy paddock from source to new heat\n12. Partition paces: actionable (rough/bridled) vs retained (complete/abandoned)\n13. For each actionable pace in order: draft to new heat (reuse jjdr_draft logic)\n14. Save gallops\n15. Output JSON to stdout\n\n## Output (JSON)\n\n```json\n{\n  \"old_firemark\": \"AF\",\n  \"old_silks\": \"garlanded-jjk-post-alpha-polish-01\",\n  \"new_firemark\": \"AH\",\n  \"new_silks\": \"jjk-post-alpha-polish-02\",\n  \"paces_transferred\": 15,\n  \"paces_retained\": 25\n}\n```\n\n## Validation Errors\n\n- \"Heat {firemark} not found\"\n- \"Heat {firemark} has no actionable paces to transfer\"\n\n**Files:** jjrq_query.rs, jjrx_cli.rs\n**Depends on:** garland-silks-parser (₢AFAAp)",
-              "silks": "garland-primitive",
-              "commit": "50d3aa1"
-            }
-          ]
-        },
         "₢AFAAr": {
           "tacks": [
             {
@@ -4664,9 +4652,10 @@
       "creation_time": "260124",
       "status": "stabled",
       "order": [
-        "₢AKAAA"
+        "₢AKAAA",
+        "₢AKAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AK.md",
       "paces": {
         "₢AKAAA": {
@@ -4693,6 +4682,24 @@
               "text": "Add helper function for parsing and manipulating silks sequence suffixes.\n\n## Function\n\nIn `jjrq_query.rs`, add:\n\n```rust\n/// Parse silks into (base, sequence_number)\n/// \"foo-bar\" -> (\"foo-bar\", None)\n/// \"foo-bar-01\" -> (\"foo-bar\", Some(1))\n/// \"foo-bar-42\" -> (\"foo-bar\", Some(42))\nfn jjrq_parse_silks_sequence(silks: &str) -> (String, Option<u32>)\n\n/// Build garlanded silks: \"garlanded-{base}-{seq:02}\"\nfn jjrq_build_garlanded_silks(base: &str, seq: u32) -> String\n\n/// Build continuation silks: \"{base}-{seq:02}\"\nfn jjrq_build_continuation_silks(base: &str, seq: u32) -> String\n```\n\n## Regex\n\nUse regex `^(.+)-(\\d{2})$` for suffix detection. If no match, base is full silks and sequence is None.\n\n## Tests\n\nAdd unit tests in jjrq_query.rs:\n- Parse plain silks (no suffix)\n- Parse silks with -01 suffix\n- Parse silks with -99 suffix\n- Build garlanded silks\n- Build continuation silks\n\n**Files:** jjrq_query.rs",
               "silks": "garland-silks-parser",
               "commit": "525d82e"
+            }
+          ]
+        },
+        "₢AKAAB": {
+          "tacks": [
+            {
+              "ts": "260124-1015",
+              "state": "rough",
+              "text": "Drafted from ₢AFAAq in ₣AF.\n\nImplement jjrq_run_garland function in jjrq_query.rs.\n\n## CLI Args (jjrx_cli.rs)\n\n```rust\n#[derive(Args)]\nstruct zjjrx_GarlandArgs {\n    /// Heat to garland\n    firemark: String,\n\n    #[arg(long, short)]\n    file: Option<PathBuf>,\n}\n```\n\nWire to subcommand enum and dispatch.\n\n## Core Logic (jjrq_query.rs)\n\n`pub fn jjrq_run_garland(args: &zjjrx_GarlandArgs) -> Result<()>`\n\nSteps:\n1. Load gallops\n2. Verify source heat exists\n3. Parse source silks using jjrq_parse_silks_sequence\n4. If sequence is None, use 1; else use existing sequence\n5. Build garlanded silks: `garlanded-{base}-{seq:02}`\n6. Build continuation silks: `{base}-{seq+1:02}`\n7. Add steeplechase marker: \"Garlanded at pace {complete_count} — magnificent service\"\n8. Update source silks to garlanded name\n9. Update source status to stabled\n10. Nominate new heat with continuation silks, status racing\n11. Copy paddock from source to new heat\n12. Partition paces: actionable (rough/bridled) vs retained (complete/abandoned)\n13. For each actionable pace in order: draft to new heat (reuse jjdr_draft logic)\n14. Save gallops\n15. Output JSON to stdout\n\n## Output (JSON)\n\n```json\n{\n  \"old_firemark\": \"AF\",\n  \"old_silks\": \"garlanded-jjk-post-alpha-polish-01\",\n  \"new_firemark\": \"AH\",\n  \"new_silks\": \"jjk-post-alpha-polish-02\",\n  \"paces_transferred\": 15,\n  \"paces_retained\": 25\n}\n```\n\n## Validation Errors\n\n- \"Heat {firemark} not found\"\n- \"Heat {firemark} has no actionable paces to transfer\"\n\n**Files:** jjrq_query.rs, jjrx_cli.rs\n**Depends on:** garland-silks-parser (₢AFAAp)",
+              "silks": "garland-primitive",
+              "commit": "16c4dc0"
+            },
+            {
+              "ts": "260124-0917",
+              "state": "rough",
+              "text": "Implement jjrq_run_garland function in jjrq_query.rs.\n\n## CLI Args (jjrx_cli.rs)\n\n```rust\n#[derive(Args)]\nstruct zjjrx_GarlandArgs {\n    /// Heat to garland\n    firemark: String,\n\n    #[arg(long, short)]\n    file: Option<PathBuf>,\n}\n```\n\nWire to subcommand enum and dispatch.\n\n## Core Logic (jjrq_query.rs)\n\n`pub fn jjrq_run_garland(args: &zjjrx_GarlandArgs) -> Result<()>`\n\nSteps:\n1. Load gallops\n2. Verify source heat exists\n3. Parse source silks using jjrq_parse_silks_sequence\n4. If sequence is None, use 1; else use existing sequence\n5. Build garlanded silks: `garlanded-{base}-{seq:02}`\n6. Build continuation silks: `{base}-{seq+1:02}`\n7. Add steeplechase marker: \"Garlanded at pace {complete_count} — magnificent service\"\n8. Update source silks to garlanded name\n9. Update source status to stabled\n10. Nominate new heat with continuation silks, status racing\n11. Copy paddock from source to new heat\n12. Partition paces: actionable (rough/bridled) vs retained (complete/abandoned)\n13. For each actionable pace in order: draft to new heat (reuse jjdr_draft logic)\n14. Save gallops\n15. Output JSON to stdout\n\n## Output (JSON)\n\n```json\n{\n  \"old_firemark\": \"AF\",\n  \"old_silks\": \"garlanded-jjk-post-alpha-polish-01\",\n  \"new_firemark\": \"AH\",\n  \"new_silks\": \"jjk-post-alpha-polish-02\",\n  \"paces_transferred\": 15,\n  \"paces_retained\": 25\n}\n```\n\n## Validation Errors\n\n- \"Heat {firemark} not found\"\n- \"Heat {firemark} has no actionable paces to transfer\"\n\n**Files:** jjrq_query.rs, jjrx_cli.rs\n**Depends on:** garland-silks-parser (₢AFAAp)",
+              "silks": "garland-primitive",
+              "commit": "50d3aa1"
             }
           ]
         }
