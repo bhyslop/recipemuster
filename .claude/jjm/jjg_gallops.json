@@ -4251,6 +4251,13 @@
         "₢AFAAo": {
           "tacks": [
             {
+              "ts": "260124-1039",
+              "state": "complete",
+              "text": "Extract mount recommendation to shared Rust helper and emit from both wrap and tally.\n\n**Goal:** Consistent post-operation advice from Rust code, removing need for slash commands to render this.\n\n**Output format:**\n```\nRecommended: /clear then /jjc-heat-mount <FIREMARK>\nReminder: Use /jjc-pace-notch for commits\n```\n\n**Changes:**\n\n1. **jjrx_cli.rs**: Add helper function `zjjrx_emit_recommendations(firemark: &Firemark)` that prints both lines to stderr\n\n2. **zjjrx_run_wrap**: Replace inline eprintln with call to the new helper\n\n3. **zjjrx_run_tally**: When state is bridled, call the helper after successful persist\n\n4. **jjc-pace-bridle.md**: Remove Step 6 mount advice - Rust handles it now\n\n5. **jjc-pace-wrap.md**: Remove \"pass through Recommended lines\" guidance - automatic now\n\n**Files:** jjrx_cli.rs, .claude/commands/jjc-pace-bridle.md, .claude/commands/jjc-pace-wrap.md",
+              "silks": "common-mount-recommendation",
+              "commit": "99f0864"
+            },
+            {
               "ts": "260124-1004",
               "state": "bridled",
               "text": "Extract mount recommendation to shared Rust helper and emit from both wrap and tally.\n\n**Goal:** Consistent post-operation advice from Rust code, removing need for slash commands to render this.\n\n**Output format:**\n```\nRecommended: /clear then /jjc-heat-mount <FIREMARK>\nReminder: Use /jjc-pace-notch for commits\n```\n\n**Changes:**\n\n1. **jjrx_cli.rs**: Add helper function `zjjrx_emit_recommendations(firemark: &Firemark)` that prints both lines to stderr\n\n2. **zjjrx_run_wrap**: Replace inline eprintln with call to the new helper\n\n3. **zjjrx_run_tally**: When state is bridled, call the helper after successful persist\n\n4. **jjc-pace-bridle.md**: Remove Step 6 mount advice - Rust handles it now\n\n5. **jjc-pace-wrap.md**: Remove \"pass through Recommended lines\" guidance - automatic now\n\n**Files:** jjrx_cli.rs, .claude/commands/jjc-pace-bridle.md, .claude/commands/jjc-pace-wrap.md",
