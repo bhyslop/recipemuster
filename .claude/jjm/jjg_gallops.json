@@ -3721,6 +3721,13 @@
         "₢AFAAb": {
           "tacks": [
             {
+              "ts": "260123-1719",
+              "state": "rough",
+              "text": "Switch heats from BTreeMap to IndexMap for insertion-order preservation. Nominate unchanged (appends at end). Furlough-to-racing removes and re-inserts heat at front of heats object. Muster iterates in JSON order. Groom/saddle slash commands pick first racing heat when no firemark provided. Result: furlough controls which heat is active; new heats queue behind existing work.",
+              "silks": "heat-json-order-auto-groom-mount-choice",
+              "commit": "013690f"
+            },
+            {
               "ts": "260123-1717",
               "state": "rough",
               "text": "Switch heats from BTreeMap to IndexMap for insertion-order preservation. Nominate inserts new heats at front. Furlough-to-racing removes and re-inserts at front. Muster iterates in JSON order. Groom/saddle slash commands pick first racing heat when no firemark provided. Result: active heat is always first, eliminating round-trips for heat selection.",
