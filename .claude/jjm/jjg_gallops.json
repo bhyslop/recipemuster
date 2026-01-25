@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AP",
+  "next_heat_seed": "AQ",
   "heats": {
     "₣AO": {
       "silks": "rbm-misc-bash-cleanup",
@@ -770,6 +770,15 @@
           ]
         }
       }
+    },
+    "₣AP": {
+      "silks": "rbw-rekindle-bottle-focus",
+      "creation_time": "260125",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AP.md",
+      "paces": {}
     }
   }
 }
