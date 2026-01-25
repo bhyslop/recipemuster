@@ -1,6 +1,77 @@
 {
   "next_heat_seed": "AQ",
   "heats": {
+    "₣AP": {
+      "silks": "rbw-rekindle-bottle-focus",
+      "creation_time": "260125",
+      "status": "racing",
+      "order": [
+        "₢APAAA",
+        "₢APAAB",
+        "₢APAAC",
+        "₢APAAD",
+        "₢APAAE"
+      ],
+      "next_pace_seed": "AAF",
+      "paddock_file": ".claude/jjm/jjp_AP.md",
+      "paces": {
+        "₢APAAA": {
+          "tacks": [
+            {
+              "ts": "260125-0837",
+              "state": "rough",
+              "text": "Verify GCP depot is active and Docker lifecycle works. Start nsproto nameplate (start/stop cycle) to confirm containers spin up correctly. If depot has lapsed, this pace surfaces that early. Tabtargets: tt/rbw-s.Start.nsproto.sh, tt/rbw-z.Stop.nsproto.sh",
+              "silks": "verify-depot-and-docker",
+              "commit": "59df530"
+            }
+          ]
+        },
+        "₢APAAB": {
+          "tacks": [
+            {
+              "ts": "260125-0837",
+              "state": "rough",
+              "text": "Run all 22 nsproto security tests. These validate the censer network isolation model: DNS filtering, TCP 443 restrictions, package blocking, ICMP behavior. Tabtarget: tt/rbw-to.TestBottleService.nsproto.sh",
+              "silks": "run-nsproto-test-suite",
+              "commit": "b5fd0ca"
+            }
+          ]
+        },
+        "₢APAAC": {
+          "tacks": [
+            {
+              "ts": "260125-0837",
+              "state": "rough",
+              "text": "Run all 3 srjcl Jupyter tests. These validate the Jupyter notebook service: container running, HTTP connectivity from host, WebSocket kernel communication. Tabtarget: tt/rbw-to.TestBottleService.srjcl.sh",
+              "silks": "run-srjcl-test-suite",
+              "commit": "48c7555"
+            }
+          ]
+        },
+        "₢APAAD": {
+          "tacks": [
+            {
+              "ts": "260125-0837",
+              "state": "rough",
+              "text": "Run all 5 pluml PlantUML tests. These validate the PlantUML rendering service: text rendering, local diagram generation, HTTP headers, invalid hash handling, malformed diagram rejection. Tabtarget: tt/rbw-to.TestBottleService.pluml.sh",
+              "silks": "run-pluml-test-suite",
+              "commit": "b3fc768"
+            }
+          ]
+        },
+        "₢APAAE": {
+          "tacks": [
+            {
+              "ts": "260125-0837",
+              "state": "rough",
+              "text": "Trigger a full cloud build to verify the OCI Layout Bridge pipeline still works. Uses rbf_Foundry.sh with stitcher to generate Cloud Build JSON, pushes multi-platform image to Artifact Registry via Skopeo. Confirms mason SA, depot, and build infrastructure are functional.",
+              "silks": "verify-cloud-build-pipeline",
+              "commit": "fb0b940"
+            }
+          ]
+        }
+      }
+    },
     "₣AO": {
       "silks": "rbw-misc-bash-cleanup",
       "creation_time": "260125",
@@ -773,77 +844,6 @@
               "text": "Rewrite jjx_retire to output JSON trophy.\n\n## Changes to jjx_retire\n\nReplace zjjrg_build_trophy_content markdown generation with JSON:\n1. Build jjrt_Trophy struct using compute functions\n2. Serialize to JSON with serde_json\n3. Write to .json file (not .md)\n\n## File Naming\n\nChange: `jjh_b{created}-r{retired}-{silks}.md`\nTo: `jjh_b{created}-r{retired}-{silks}.json`\n\n## Bug Fix\n\nFix steeplechase deduplication issue found during testing.\n\n## Dry Run\n\n`jjx_retire <firemark>` outputs JSON preview to stdout (no file write)\n\n## Execute\n\n`jjx_retire <firemark> --execute` writes JSON file, removes heat from gallops\n\n## Tack Serialization\n\nEach tack serialized as single-line JSON string in the tacks array.\nPreserves full history while keeping file scannable.\n\n## Depends on\n\ntrophy-alpha-compute (need computation functions)",
               "silks": "trophy-alpha-generate",
               "commit": "a10ed45"
-            }
-          ]
-        }
-      }
-    },
-    "₣AP": {
-      "silks": "rbw-rekindle-bottle-focus",
-      "creation_time": "260125",
-      "status": "stabled",
-      "order": [
-        "₢APAAA",
-        "₢APAAB",
-        "₢APAAC",
-        "₢APAAD",
-        "₢APAAE"
-      ],
-      "next_pace_seed": "AAF",
-      "paddock_file": ".claude/jjm/jjp_AP.md",
-      "paces": {
-        "₢APAAA": {
-          "tacks": [
-            {
-              "ts": "260125-0837",
-              "state": "rough",
-              "text": "Verify GCP depot is active and Docker lifecycle works. Start nsproto nameplate (start/stop cycle) to confirm containers spin up correctly. If depot has lapsed, this pace surfaces that early. Tabtargets: tt/rbw-s.Start.nsproto.sh, tt/rbw-z.Stop.nsproto.sh",
-              "silks": "verify-depot-and-docker",
-              "commit": "59df530"
-            }
-          ]
-        },
-        "₢APAAB": {
-          "tacks": [
-            {
-              "ts": "260125-0837",
-              "state": "rough",
-              "text": "Run all 22 nsproto security tests. These validate the censer network isolation model: DNS filtering, TCP 443 restrictions, package blocking, ICMP behavior. Tabtarget: tt/rbw-to.TestBottleService.nsproto.sh",
-              "silks": "run-nsproto-test-suite",
-              "commit": "b5fd0ca"
-            }
-          ]
-        },
-        "₢APAAC": {
-          "tacks": [
-            {
-              "ts": "260125-0837",
-              "state": "rough",
-              "text": "Run all 3 srjcl Jupyter tests. These validate the Jupyter notebook service: container running, HTTP connectivity from host, WebSocket kernel communication. Tabtarget: tt/rbw-to.TestBottleService.srjcl.sh",
-              "silks": "run-srjcl-test-suite",
-              "commit": "48c7555"
-            }
-          ]
-        },
-        "₢APAAD": {
-          "tacks": [
-            {
-              "ts": "260125-0837",
-              "state": "rough",
-              "text": "Run all 5 pluml PlantUML tests. These validate the PlantUML rendering service: text rendering, local diagram generation, HTTP headers, invalid hash handling, malformed diagram rejection. Tabtarget: tt/rbw-to.TestBottleService.pluml.sh",
-              "silks": "run-pluml-test-suite",
-              "commit": "b3fc768"
-            }
-          ]
-        },
-        "₢APAAE": {
-          "tacks": [
-            {
-              "ts": "260125-0837",
-              "state": "rough",
-              "text": "Trigger a full cloud build to verify the OCI Layout Bridge pipeline still works. Uses rbf_Foundry.sh with stitcher to generate Cloud Build JSON, pushes multi-platform image to Artifact Registry via Skopeo. Confirms mason SA, depot, and build infrastructure are functional.",
-              "silks": "verify-cloud-build-pipeline",
-              "commit": "fb0b940"
             }
           ]
         }
