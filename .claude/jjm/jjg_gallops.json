@@ -4936,6 +4936,14 @@
         "₢AFABA": {
           "tacks": [
             {
+              "ts": "260124-1836",
+              "state": "bridled",
+              "text": "Develop tests for jjx_scout (regex search across heats/paces).\n\n## Scope\n\n1. Review jjx_scout implementation in jjrsc_scout.rs\n2. Identify testable behaviors: regex matching, multi-heat search, output formatting\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_scout happy paths and error cases.",
+              "silks": "test-jjx-scout",
+              "commit": "a4b96ed",
+              "direction": "Agent: haiku | Cardinality: 1 sequential | Files: jjtsc_scout.rs new, lib.rs add test mod (2 files to edit), jjrsc_scout.rs (1 file to read) | Steps: 1. Read jjrsc_scout.rs to understand helper functions 2. Create jjtsc_scout.rs with tests for zjrsc_pace_state_str all states, zjrsc_extract_match_context with various match positions and window sizes 3. Add test mod jjtsc_scout to lib.rs | Verify: tt/vow-b.Build.sh and tt/vow-t.Test.sh"
+            },
+            {
               "ts": "260124-1828",
               "state": "rough",
               "text": "Develop tests for jjx_scout (regex search across heats/paces).\n\n## Scope\n\n1. Review jjx_scout implementation in jjrsc_scout.rs\n2. Identify testable behaviors: regex matching, multi-heat search, output formatting\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_scout happy paths and error cases.",
