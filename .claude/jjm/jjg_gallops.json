@@ -81,6 +81,14 @@
         "₢APAAF": {
           "tacks": [
             {
+              "ts": "260125-1413",
+              "state": "bridled",
+              "text": "Remove RBRR_GCB_JQ_IMAGE_REF and RBRR_GCB_SYFT_IMAGE_REF from all files. These undocumented variables block container start with validation errors. The GCB metadata step installs jq at runtime anyway. Remove: variable definitions in rbrr_RecipeBottleRegimeRepo.sh, validation calls in rbrr_regime.sh, substitution passing in rbf_Foundry.sh, and usage in rbgjb10-assemble-metadata.sh comments. Leave gcrane and oras refs (they're properly pinned and may be in use).",
+              "silks": "remove-gcb-jq-image-ref",
+              "commit": "497e213",
+              "direction": "Agent: haiku | Cardinality: 1 sequential | Files: rbrr_RecipeBottleRegimeRepo.sh, Tools/rbw/rbrr_regime.sh, Tools/rbw/rbf_Foundry.sh (3 files) | Steps: 1. Delete RBRR_GCB_JQ_IMAGE_REF and RBRR_GCB_SYFT_IMAGE_REF definitions plus their comment block from rbrr_RecipeBottleRegimeRepo.sh 2. Delete the two buv_env_odref validation lines for JQ and SYFT from rbrr_regime.sh 3. In rbf_Foundry.sh delete the two validation test lines, delete the two jq arg lines for zjq_jq_ref and zjq_syft_ref, and delete the two substitution output lines for _RBGY_JQ_REF and _RBGY_SYFT_REF | Verify: source each file in bash to check syntax"
+            },
+            {
               "ts": "260125-1410",
               "state": "rough",
               "text": "Remove RBRR_GCB_JQ_IMAGE_REF and RBRR_GCB_SYFT_IMAGE_REF from all files. These undocumented variables block container start with validation errors. The GCB metadata step installs jq at runtime anyway. Remove: variable definitions in rbrr_RecipeBottleRegimeRepo.sh, validation calls in rbrr_regime.sh, substitution passing in rbf_Foundry.sh, and usage in rbgjb10-assemble-metadata.sh comments. Leave gcrane and oras refs (they're properly pinned and may be in use).",
