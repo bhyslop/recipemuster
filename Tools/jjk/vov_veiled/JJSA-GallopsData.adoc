@@ -1120,6 +1120,32 @@ Co-Authored-By: ...
 
 Subject format: `{agent} {landed|crashed}` where agent is the executor tier (haiku/sonnet/opus) and landed/crashed indicates success/failure. Body contains the agent's raw completion report.
 
+*Session marker* (created automatically by {jjdo_saddle}):
+----
+jjb:HALLMARK:₣XX:s: YYMMDD-HHMM session
+
+haiku: claude-3-5-haiku-20241022
+sonnet: claude-sonnet-4-20250514
+opus: claude-opus-4-5-20251101
+host: macbook-pro.local
+platform: darwin-arm64
+
+Co-Authored-By: ...
+----
+
+Session markers record when a new work session begins. {jjdo_saddle} creates these automatically when:
+
+* The most recent commit in the steeplechase is more than 1 hour old, OR
+* No commits exist in the steeplechase
+
+The subject contains the session start timestamp in `YYMMDD-HHMM` format. The body contains:
+
+* Model IDs for haiku, sonnet, and opus tiers (full model ID strings)
+* Host identifier (machine name)
+* Platform string (e.g., `darwin-arm64`, `linux-x86_64`)
+
+Model IDs are collected using ephemeral subagents created via `--agents` JSON flag with minimal system prompts ("Report only your exact model ID string. Nothing else."). This approach is token-cheap (~10 token prompt, ~15 token response per probe) and provides accurate version tracking for multi-device workflows.
+
 Pace-level action codes:
 
 * `n` — Notch: standard commit
@@ -1134,6 +1160,7 @@ Pace-level action codes:
 ----
 jjb:HALLMARK:₣XX:N: heat-silks
 jjb:HALLMARK:₣XX:S: pace-silks
+jjb:HALLMARK:₣XX:s: YYMMDD-HHMM session
 jjb:HALLMARK:₣XX:r: reordered
 jjb:HALLMARK:₣XX:T: pace-silks
 jjb:HALLMARK:₣XX:D: old-coronet → new-coronet
@@ -1144,6 +1171,7 @@ Heat-level action codes:
 
 * `N` — Nominate: create new heat
 * `S` — Slate: add new pace
+* `s` — session: session start marker (lowercase, automatic)
 * `r` — rail: reorder paces (lowercase)
 * `T` — Tally: add tack to pace
 * `D` — Draft: move pace between heats (uppercase, rare)
