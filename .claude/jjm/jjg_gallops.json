@@ -4922,6 +4922,13 @@
         "₢AFABB": {
           "tacks": [
             {
+              "ts": "260124-1828",
+              "state": "rough",
+              "text": "Develop tests for jjx_furlough (change heat status/rename).\n\n## Scope\n\n1. Review jjx_furlough implementation in jjrfu_furlough.rs\n2. Identify testable behaviors: status transitions (racing/stabled), silks rename, heat reordering\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_furlough happy paths and error cases.",
+              "silks": "test-jjx-furlough",
+              "commit": "ec87f47"
+            },
+            {
               "ts": "260124-1745",
               "state": "rough",
               "text": "Develop tests for jjx_furlough (change heat status/rename).\n\n## Scope\n\n1. Review jjx_furlough implementation in jjro_ops.rs\n2. Identify testable behaviors: status transitions (racing/stabled), silks rename, heat reordering\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_furlough happy paths and error cases.",
