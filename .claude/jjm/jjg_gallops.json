@@ -4306,6 +4306,14 @@
         "₢AFAA_": {
           "tacks": [
             {
+              "ts": "260124-1835",
+              "state": "bridled",
+              "text": "Develop tests for jjx_landing (agent completion commits).\n\n## Scope\n\n1. Review jjx_landing implementation in jjrld_landing.rs\n2. Identify testable behaviors: commit message formatting, coronet marker handling\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_landing happy paths and error cases.",
+              "silks": "test-jjx-landing",
+              "commit": "766f99c",
+              "direction": "Agent: haiku | Cardinality: 1 sequential | Files: jjtn_notch.rs add tests (1 file to edit), jjrn_notch.rs jjrn_format_landing_message, jjrld_landing.rs (2 files to read) | Steps: 1. Read jjrn_format_landing_message in jjrn_notch.rs 2. Read existing tests in jjtn_notch.rs to understand patterns 3. Add tests for jjrn_format_landing_message with various coronets and agent strings 4. Document that commit behavior is not tested due to vvc dependency | Verify: tt/vow-b.Build.sh and tt/vow-t.Test.sh"
+            },
+            {
               "ts": "260124-1828",
               "state": "rough",
               "text": "Develop tests for jjx_landing (agent completion commits).\n\n## Scope\n\n1. Review jjx_landing implementation in jjrld_landing.rs\n2. Identify testable behaviors: commit message formatting, coronet marker handling\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_landing happy paths and error cases.",
