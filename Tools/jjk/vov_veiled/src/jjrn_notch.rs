@@ -263,3 +263,19 @@ pub fn jjrn_format_bridle_message(coronet: &Coronet, agent: &str, silks: &str) -
         silks
     )
 }
+
+/// Format a landing message: jjb:HALLMARK:₢CORONET:L: {agent} landed
+///
+/// Creates the subject line for an L (landing) commit.
+/// Body should contain the agent completion report.
+pub fn jjrn_format_landing_message(coronet: &Coronet, agent: &str) -> String {
+    let hallmark = zjjrn_get_hallmark();
+    format!(
+        "{}:{}:{}{}:L: {} landed",
+        JJRN_COMMIT_PREFIX,
+        hallmark,
+        CORONET_PREFIX,
+        coronet.jjrf_as_str(),
+        agent
+    )
+}
