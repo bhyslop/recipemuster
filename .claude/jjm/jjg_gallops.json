@@ -628,9 +628,10 @@
         "₢AHAAD",
         "₢AHAAE",
         "₢AHAAC",
-        "₢AHAAA"
+        "₢AHAAA",
+        "₢AHAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -743,6 +744,17 @@
               "text": "Implement vosr_probe routine in Rust.\n\n## Context\n\nVOS spec defines vosr_probe; this pace implements it following the vvcc_commit.rs pattern.\n\n## Deliverables\n\n1. **Create vosrp_probe.rs** in Tools/vok/src/ (or appropriate location):\n   - Public function `vosr_probe() -> Result<String, String>`\n   - Spawn 3 parallel claude invocations via tokio:\n     ```\n     claude -p --model haiku --system-prompt \"Report only your exact model ID string.\" --tools \"\" \"go\"\n     ```\n   - Collect hostname via std::env or hostname command\n   - Collect platform via uname equivalent\n   - Return 5-line string format:\n     ```\n     haiku: {model_id}\n     sonnet: {model_id}\n     opus: {model_id}\n     host: {hostname}\n     platform: {os}-{arch}\n     ```\n   - On probe failure for a tier: return `{tier}: unavailable`\n\n2. **Add tokio dependency** if not already present\n\n3. **Wire into jjx_saddle** (or leave for separate pace if complex)\n\n4. **Tests:**\n   - Unit test for output format\n   - Integration test (may need mocking for claude calls)\n\n## Pattern\n\nFollow vvcc_commit.rs:196-249 for spawning claude subprocess.\n\n## Dependency\n\nBlocked by: vos-add-routines-section (₢AHAAB), jjsa-session-probe-update (₢AHAAD)\n\nAcceptance: `cargo build` succeeds, `cargo test` passes, vosr_probe returns expected format.",
               "silks": "impl-vosr-probe",
               "commit": "a04f5e1"
+            }
+          ]
+        },
+        "₢AHAAF": {
+          "tacks": [
+            {
+              "ts": "260125-1425",
+              "state": "rough",
+              "text": "Wire vosr_probe into jjx_saddle output.\n\n## Context\n\nWith vosr_probe implemented in VVC, jjx_saddle needs to call it when session probe is needed.\n\n## Deliverables\n\n1. Add VVC dependency to JJK Cargo.toml if not present\n2. In jjrsd_saddle.rs, when needs_session_probe is true:\n   - Call vvc::vosr_probe()\n   - Include probe result in saddle output (new field or section)\n3. Update saddle output format documentation\n\n## Dependency\n\nBlocked by: impl-vosr-probe (₢AHAAE)\n\nAcceptance: jjx_saddle includes probe data when needs_session_probe is true.",
+              "silks": "wire-saddle-vosr-probe",
+              "commit": "ceb6f3b"
             }
           ]
         }
