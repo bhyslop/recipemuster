@@ -3519,6 +3519,14 @@
         "₢AFAA9": {
           "tacks": [
             {
+              "ts": "260124-1834",
+              "state": "bridled",
+              "text": "Develop tests for jjx_garland (celebrate heat completion, create continuation).\n\n## Scope\n\n1. Review jjx_garland implementation in jjrgl_garland.rs\n2. Identify testable behaviors: completion detection, continuation heat creation, silks handling\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_garland happy paths and error cases.",
+              "silks": "test-jjx-garland",
+              "commit": "d8cbfec",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: jjtgl_garland.rs new, lib.rs add test mod (2 files to edit), jjrgl_garland.rs, jjro_ops.rs jjrg_garland function, jjrq_query.rs silks helpers, jjtg_gallops.rs test patterns (4 files to read) | Steps: 1. Read jjrg_garland in jjro_ops.rs to understand operation logic 2. Read jjrq_query.rs for silks parsing helpers 3. Read jjtg_gallops.rs for test helper patterns with temp dirs 4. Create jjtgl_garland.rs with tests for heat not found, no actionable paces, successful garland with pace counts and silks transformation 5. Add test mod jjtgl_garland to lib.rs 6. Document that CLI commit behavior is not tested | Verify: tt/vow-b.Build.sh and tt/vow-t.Test.sh"
+            },
+            {
               "ts": "260124-1828",
               "state": "rough",
               "text": "Develop tests for jjx_garland (celebrate heat completion, create continuation).\n\n## Scope\n\n1. Review jjx_garland implementation in jjrgl_garland.rs\n2. Identify testable behaviors: completion detection, continuation heat creation, silks handling\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_garland happy paths and error cases.",
