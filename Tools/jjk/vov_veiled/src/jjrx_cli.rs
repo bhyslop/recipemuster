@@ -557,6 +557,7 @@ pub fn jjrx_dispatch(args: &[OsString]) -> i32 {
         jjrx_JjxCommands::Curry(args) => zjjrx_run_curry(args),
         jjrx_JjxCommands::Garland(args) => zjjrx_run_garland(args),
         jjrx_JjxCommands::Restring(args) => zjjrx_run_restring(args),
+        jjrx_JjxCommands::Landing(args) => zjjrx_run_landing(args),
     }
 }
 
@@ -2217,4 +2218,31 @@ fn zjjrx_run_restring(args: zjjrx_RestringArgs) -> i32 {
         }
     }
     // lock released here
+}
+
+fn zjjrx_run_landing(args: jjrx_LandingArgs) -> i32 {
+    // Parse coronet
+    let coronet = match Coronet::jjrf_parse(&args.coronet) {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("jjx_landing: error: {}", e);
+            return 1;
+        }
+    };
+
+    // Use jjrn_format_landing_message to create the commit message
+    use crate::jjrn_notch::jjrn_format_landing_message;
+    let message = jjrn_format_landing_message(&coronet, &args.agent);
+
+    // Create empty landing commit
+    let commit_args = vvc::vvcc_CommitArgs {
+        prefix: None,
+        message: Some(message),
+        allow_empty: true,
+        no_stage: true,
+        size_limit: vvc::VVCG_SIZE_LIMIT,
+        warn_limit: vvc::VVCG_WARN_LIMIT,
+    };
+
+    vvc::commit(&commit_args)
 }
