@@ -3263,6 +3263,13 @@
         "₢AFAA2": {
           "tacks": [
             {
+              "ts": "260124-1720",
+              "state": "rough",
+              "text": "Implement L commit when agent returns from autonomous execution.\n\n## Trigger\n\nWhen a spawned agent completes execution in `/jjc-heat-mount` bridled flow.\n\n## Changes\n\n### 1. jjrn_notch.rs\n- Add `Landing` variant to ChalkMarker enum\n- Add `jjrn_format_landing_message(coronet, agent)` function\n- Returns: `jjb:HALLMARK:₢XXXXX:L: {agent} landed`\n\n### 2. jjrx_cli.rs\n- Add `jjx_landing` subcommand\n- Args: `<CORONET> <AGENT>`\n- Body via stdin (agent completion report)\n- Creates L commit with formatted subject and stdin as body\n\n### 3. JJSA-GallopsData.adoc\n- Document `jjx_landing` command in Commands section\n- Usage: `echo \"agent output\" | jjx_landing <CORONET> <AGENT>`\n\n### 4. /jjc-heat-mount.md\n- After Task agent returns in bridled flow\n- Before asking \"Ready to wrap?\"\n- Invoke: `echo \"{agent_output}\" | jjx_landing <CORONET> <AGENT>`\n\n## Outcome\n\nAlways \"landed\" for now - body tells the actual story.\n\n## Depends on\n\ntrophy-alpha-bridle-marker (B must exist to have flights to land)",
+              "silks": "trophy-alpha-landing-marker",
+              "commit": "2b4e1e6"
+            },
+            {
               "ts": "260124-1719",
               "state": "rough",
               "text": "Implement L commit when agent returns from autonomous execution.\n\n## Trigger\n\nWhen a spawned agent completes execution in `/jjc-heat-mount` bridled flow.\n\n## Implementation\n\nAfter Task agent returns, before asking \"Ready to wrap?\":\n1. Create L marker commit\n2. Subject: `jjb:HALLMARK:₢XXXXX:L: {agent} landed`\n3. Body: agent's completion report (the Task tool result)\n\n## Changes\n\n- jjrn_notch.rs: Add Landing variant to ChalkMarker, add jjrn_format_landing_message(coronet, agent) function\n- /jjc-heat-mount: After Task returns, create L commit with agent output as body\n\n## Outcome\n\nFor now, always use \"landed\" - the body contains the actual outcome details. \"Crashed\" reserved for Task tool failures (rare).\n\n## Depends on\n\ntrophy-alpha-bridle-marker (B must exist to have flights to land)",
