@@ -78,12 +78,14 @@ fn zjjrn_get_hallmark() -> String {
 /// - A = APPROACH: proposed approach before work begins
 /// - W = WRAP: pace completion summary
 /// - F = FLY: autonomous execution began (bridled pace)
+/// - B = BRIDLE: pace transitioned to bridled state
 /// - d = discussion: significant decision (lowercase, can be heat-level too)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrn_ChalkMarker {
     Approach,
     Wrap,
     Fly,
+    Bridle,
     Discussion,
 }
 
@@ -94,9 +96,10 @@ impl jjrn_ChalkMarker {
             "A" | "a" | "APPROACH" | "approach" | "Approach" => Ok(jjrn_ChalkMarker::Approach),
             "W" | "w" | "WRAP" | "wrap" | "Wrap" => Ok(jjrn_ChalkMarker::Wrap),
             "F" | "f" | "FLY" | "fly" | "Fly" => Ok(jjrn_ChalkMarker::Fly),
+            "B" | "b" | "BRIDLE" | "bridle" | "Bridle" => Ok(jjrn_ChalkMarker::Bridle),
             "d" | "D" | "DISCUSSION" | "discussion" | "Discussion" => Ok(jjrn_ChalkMarker::Discussion),
             _ => Err(format!(
-                "Invalid marker type '{}'. Valid: A(pproach), W(rap), F(ly), d(iscussion)",
+                "Invalid marker type '{}'. Valid: A(pproach), W(rap), F(ly), B(ridle), d(iscussion)",
                 s
             )),
         }
@@ -108,6 +111,7 @@ impl jjrn_ChalkMarker {
             jjrn_ChalkMarker::Approach => 'A',
             jjrn_ChalkMarker::Wrap => 'W',
             jjrn_ChalkMarker::Fly => 'F',
+            jjrn_ChalkMarker::Bridle => 'B',
             jjrn_ChalkMarker::Discussion => 'd',
         }
     }
@@ -118,6 +122,7 @@ impl jjrn_ChalkMarker {
             jjrn_ChalkMarker::Approach => "APPROACH",
             jjrn_ChalkMarker::Wrap => "WRAP",
             jjrn_ChalkMarker::Fly => "FLY",
+            jjrn_ChalkMarker::Bridle => "BRIDLE",
             jjrn_ChalkMarker::Discussion => "discussion",
         }
     }
@@ -125,7 +130,7 @@ impl jjrn_ChalkMarker {
     /// Returns true if this marker type requires a pace to be specified
     pub fn jjrn_requires_pace(&self) -> bool {
         match self {
-            jjrn_ChalkMarker::Approach | jjrn_ChalkMarker::Wrap | jjrn_ChalkMarker::Fly => true,
+            jjrn_ChalkMarker::Approach | jjrn_ChalkMarker::Wrap | jjrn_ChalkMarker::Fly | jjrn_ChalkMarker::Bridle => true,
             jjrn_ChalkMarker::Discussion => false,
         }
     }
@@ -239,5 +244,23 @@ pub fn jjrn_format_heat_message(firemark: &Firemark, action: jjrn_HeatAction, de
         firemark.jjrf_as_str(),
         action.jjrn_code(),
         description
+    )
+}
+
+/// Format a bridle message: jjb:HALLMARK:₢CORONET:B: {agent} | {file_count} files | {silks}
+///
+/// Creates the subject line for a B (bridle) commit.
+/// Body should contain the full direction text.
+pub fn jjrn_format_bridle_message(coronet: &Coronet, agent: &str, file_count: usize, silks: &str) -> String {
+    let hallmark = zjjrn_get_hallmark();
+    format!(
+        "{}:{}:{}{}:B: {} | {} files | {}",
+        JJRN_COMMIT_PREFIX,
+        hallmark,
+        CORONET_PREFIX,
+        coronet.jjrf_as_str(),
+        agent,
+        file_count,
+        silks
     )
 }

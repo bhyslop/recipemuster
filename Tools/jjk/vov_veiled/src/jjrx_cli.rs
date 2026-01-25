@@ -1304,6 +1304,9 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
         }
     };
 
+    // Capture whether we're bridling before state is moved
+    let is_bridling = matches!(state, Some(PaceState::Bridled));
+
     let tally_args = LibTallyArgs {
         coronet: args.coronet,
         state,
@@ -1325,6 +1328,72 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
                 Err(e) => {
                     eprintln!("jjx_tally: error: {}", e);
                     return 1;
+                }
+            }
+
+            // If state transitioned to bridled, create B commit
+            if is_bridling {
+                eprintln!("jjx_tally: creating B (bridle) commit");
+
+                // Parse coronet to get the full identity
+                let coronet = match Coronet::jjrf_parse(&coronet_str) {
+                    Ok(c) => c,
+                    Err(e) => {
+                        eprintln!("jjx_tally: error parsing coronet for B commit: {}", e);
+                        return 1;
+                    }
+                };
+
+                // Get direction from the new tack
+                let direction_text = match gallops.heats.get(&fm.jjrf_display())
+                    .and_then(|h| h.paces.get(&coronet.jjrf_display()))
+                    .and_then(|p| p.tacks.first())
+                    .and_then(|t| t.direction.as_ref()) {
+                    Some(d) => d.clone(),
+                    None => {
+                        eprintln!("jjx_tally: warning: no direction found for bridled pace, using empty");
+                        String::new()
+                    }
+                };
+
+                // Count files in direction (for now, use 0 as placeholder - this will be updated when we have file tracking)
+                let file_count = 0;
+                let agent = "tally"; // Agent that bridled the pace
+
+                // Build B commit message
+                use crate::jjrn_notch::jjrn_format_bridle_message;
+                let b_subject = jjrn_format_bridle_message(&coronet, agent, file_count, &silks);
+                let b_message = format!("{}\n\n{}", b_subject, direction_text);
+
+                // Create empty B commit using git directly (like chalk markers)
+                use std::process::Command;
+                let output = Command::new("git")
+                    .args(["commit", "--allow-empty", "-m", &b_message])
+                    .output();
+
+                match output {
+                    Ok(result) if result.status.success() => {
+                        // Get commit hash
+                        let hash_output = Command::new("git")
+                            .args(["rev-parse", "HEAD"])
+                            .output();
+
+                        if let Ok(hash_result) = hash_output {
+                            if hash_result.status.success() {
+                                let hash = String::from_utf8_lossy(&hash_result.stdout).trim().to_string();
+                                eprintln!("jjx_tally: B commit created {}", &hash[..8.min(hash.len())]);
+                            }
+                        }
+                    }
+                    Ok(result) => {
+                        let stderr = String::from_utf8_lossy(&result.stderr);
+                        eprintln!("jjx_tally: error creating B commit: {}", stderr);
+                        return 1;
+                    }
+                    Err(e) => {
+                        eprintln!("jjx_tally: error creating B commit: {}", e);
+                        return 1;
+                    }
                 }
             }
 
