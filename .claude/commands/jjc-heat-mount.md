@@ -172,6 +172,7 @@ Before branching on state, assess whether the pace silks fits the spec:
     3. STOP — the calling agent will confirm wrap with the user
     ```
   - Wait for agent completion and report outcome to user
+  - Create landing commit: `echo "{agent_output}" | ./tt/vvw-r.RunVVX.sh jjx_landing <PACE_CORONET> {agent}`
   - **Do NOT auto-wrap.** Ask user: "Ready to wrap ₢<CORONET>?" and wait for confirmation before running `/jjc-pace-wrap`
 - **On I:**
   - Report: "Switching to interactive mode for ₢{CORONET}"
