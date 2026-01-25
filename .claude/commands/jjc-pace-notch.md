@@ -14,19 +14,28 @@ Arguments: $ARGUMENTS (one or more file paths to commit)
 
 ## Execution
 
+**Step 1: Prompt user for one-line commit intent**
+
+Ask the user: "One-line summary of what you're committing:"
+
+If the user provides a message, use `--intent "<message>"` in the command.
+If the user declines or provides empty input, omit `--intent` (haiku generates message).
+
+**Step 2: Execute commit**
+
 **Pace-affiliated commit (default):**
 Use PACE_CORONET from current session context:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_notch <PACE_CORONET> <file1> [file2...]
+./tt/vvw-r.RunVVX.sh jjx_notch <PACE_CORONET> [--intent "<message>"] <file1> [file2...]
 ```
 
 **Heat-only commit (no pace affiliation):**
 Use FIREMARK for commits that affect the heat but not a specific pace:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_notch <FIREMARK> <file1> [file2...]
+./tt/vvw-r.RunVVX.sh jjx_notch <FIREMARK> [--intent "<message>"] <file1> [file2...]
 ```
 
-The Rust command handles: lock, staging specified files only, guard, message generation, commit, release.
+The Rust command handles: lock, staging specified files only, guard, message generation (or using intent), commit, release.
 
 ## File list requirement
 

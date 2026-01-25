@@ -126,6 +126,10 @@ pub struct jjrx_NotchArgs {
     /// Size limit in bytes (overrides default 50KB guard)
     #[arg(long)]
     pub size_limit: Option<u64>,
+
+    /// User-provided commit message intent (overrides haiku-generated message)
+    #[arg(long)]
+    pub intent: Option<String>,
 }
 
 /// Arguments for jjx_wrap command
@@ -699,13 +703,25 @@ fn zjjrx_run_notch(args: jjrx_NotchArgs) -> i32 {
     }
 
     // Commit using vvc with the generated message prefix
-    let commit_args = vvc::vvcc_CommitArgs {
-        prefix: Some(message),
-        message: None,
-        allow_empty: false,
-        no_stage: true,  // We already staged above
-        size_limit: args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
-        warn_limit: vvc::VVCG_WARN_LIMIT,
+    // If --intent provided, use it as the message; otherwise let haiku generate it
+    let commit_args = if let Some(intent) = args.intent {
+        vvc::vvcc_CommitArgs {
+            prefix: None,
+            message: Some(format!("{}{}", message, intent)),
+            allow_empty: false,
+            no_stage: true,  // We already staged above
+            size_limit: args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
+            warn_limit: vvc::VVCG_WARN_LIMIT,
+        }
+    } else {
+        vvc::vvcc_CommitArgs {
+            prefix: Some(message),
+            message: None,
+            allow_empty: false,
+            no_stage: true,  // We already staged above
+            size_limit: args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
+            warn_limit: vvc::VVCG_WARN_LIMIT,
+        }
     };
 
     vvc::commit(&commit_args)
