@@ -3214,9 +3214,10 @@
         "₢AFABD",
         "₢AFAAc",
         "₢AFABE",
-        "₢AFABF"
+        "₢AFABF",
+        "₢AFABG"
       ],
-      "next_pace_seed": "ABG",
+      "next_pace_seed": "ABH",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAA-": {
@@ -4926,6 +4927,17 @@
               "text": "Rewire CLI dispatch to use new per-command files.\n\n## Depends on\n\nparallel-split-commands (₢ assigned at slate time)\n\n## Deliverable\n\nUpdate lib.rs and CLI dispatch:\n1. Add `pub mod jjrxx_command;` for each new file\n2. Update Subcommand enum to import Args from new locations\n3. Update match dispatch to call handlers from new locations\n4. Build passes\n5. Tests pass\n\n## Sequential\n\nThis pace touches shared files (lib.rs, jjrx_cli.rs) - must be single agent.\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nAll 135 existing tests must pass.",
               "silks": "rewire-command-dispatch",
               "commit": "514bbb8"
+            }
+          ]
+        },
+        "₢AFABG": {
+          "tacks": [
+            {
+              "ts": "260124-1801",
+              "state": "rough",
+              "text": "Delete old aggregate files after successful rewire.\n\n## Depends on\n\nrewire-command-dispatch (build + tests passing)\n\n## Deliverable\n\nRemove obsolete files:\n- jjrx_cli.rs (CLI parsing - now distributed)\n- jjro_ops.rs (operations - now distributed)\n- jjrq_query.rs (queries - now distributed)\n\n## Keep\n\nInfrastructure files remain:\n- jjrg_gallops.rs (data structures)\n- jjru_util.rs (shared utilities)\n- jjrf_favor.rs (encoding)\n- jjri_io.rs (file I/O)\n- jjrn_notch.rs (commit formatting - shared)\n- jjrs_steeplechase.rs (log parsing - shared)\n- jjrp_print.rs (display utilities)\n- jjrt_types.rs (type definitions)\n- jjrv_validate.rs (validation - may stay shared or move)\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nClean build, all tests pass, no dead code warnings.",
+              "silks": "delete-aggregate-files",
+              "commit": "e13d9a5"
             }
           ]
         }
