@@ -728,6 +728,9 @@ fn zjjrx_run_notch(args: jjrx_NotchArgs) -> i32 {
 }
 
 fn zjjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
+    use std::io::{self, BufRead};
+    use crate::jjrn_notch::jjrn_format_session_message;
+
     let marker = match ChalkMarker::jjrn_parse(&args.marker) {
         Ok(m) => m,
         Err(e) => {
@@ -750,7 +753,7 @@ fn zjjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
         };
         format_chalk_message(&coronet, marker, &args.description)
     } else if identity.len() == 2 {
-        // Firemark - heat-level (discussion only)
+        // Firemark - heat-level (discussion, session)
         if marker.jjrn_requires_pace() {
             eprintln!("jjx_chalk: error: {} marker requires a Coronet (pace identity), not a Firemark", marker.jjrn_as_str());
             return 1;
@@ -762,7 +765,28 @@ fn zjjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
                 return 1;
             }
         };
-        format_heat_discussion(&firemark, &args.description)
+
+        // Session markers use a special format and read body from stdin
+        if marker == ChalkMarker::Session {
+            let subject = jjrn_format_session_message(&firemark, &args.description);
+
+            // Read body from stdin (model IDs, host, platform)
+            let stdin = io::stdin();
+            let body: String = stdin.lock().lines()
+                .filter_map(|line| line.ok())
+                .collect::<Vec<_>>()
+                .join("\n");
+
+            if body.is_empty() {
+                // No body provided, just use subject
+                subject
+            } else {
+                // Full commit message with body
+                format!("{}\n\n{}", subject, body)
+            }
+        } else {
+            format_heat_discussion(&firemark, &args.description)
+        }
     } else {
         eprintln!("jjx_chalk: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
         return 1;

@@ -338,6 +338,13 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
         }
     }
 
+    // Check if session probe is needed (gap > 1 hour or no commits)
+    let last_timestamp = recent_work.first().map(|e| e.timestamp.as_str());
+    if crate::jjrc_core::jjrc_needs_session_probe(last_timestamp) {
+        println!();
+        println!("Needs-session-probe: true");
+    }
+
     0
 }
 

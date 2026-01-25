@@ -49,8 +49,51 @@ Parse plain text output by label prefix:
 - Section `Spec:` (ends at blank line) → extract spec text (2-space indented)
 - Section `Direction:` (ends at blank line) → extract direction text if bridled (2-space indented)
 - Section `Recent-work:` → column-formatted table with headers
+- Line starting with `Needs-session-probe:` → if value is "true", session probe is needed
 
 If `Next:` line is absent, no actionable pace exists.
+
+## Step 2.5: Session probe (if needed)
+
+**If `Needs-session-probe: true` was present in saddle output:**
+
+This indicates >1 hour gap since last commit or no prior commits for this heat. Run the session probe to record model availability.
+
+1. **Spawn 3 probe agents in parallel** using Task tool:
+   - Each agent has minimal prompt: "Report only your exact model ID string. Nothing else."
+   - Use `model: "haiku"`, `model: "sonnet"`, `model: "opus"` respectively
+   - `subagent_type: "general-purpose"`
+   - These are ephemeral probes - parse their single-line responses
+
+2. **Collect machine info:**
+   - Hostname: run `hostname` command
+   - Platform: run `uname -s` and `uname -m`, combine as `{os}-{arch}` (e.g., "darwin-arm64")
+
+3. **Create S marker commit:**
+   Generate timestamp in `YYMMDD-HHMM` format (current local time).
+   Build session body:
+   ```
+   haiku: {haiku_model_id}
+   sonnet: {sonnet_model_id}
+   opus: {opus_model_id}
+   host: {hostname}
+   platform: {platform}
+   ```
+
+   Run:
+   ```bash
+   ./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --marker s --description "<YYMMDD-HHMM> session" <<< "{body}"
+   ```
+
+   Note: The chalk command with `--marker s` is heat-level (uses Firemark, not Coronet).
+
+4. **Report:**
+   ```
+   Session marker created: {YYMMDD-HHMM}
+   Models: haiku={id}, sonnet={id}, opus={id}
+   ```
+
+5. **Continue to Step 3** (do not re-run saddle)
 
 ## Step 3: Display context
 
