@@ -114,7 +114,7 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> i32 {
 }
 
 /// Helper to convert PaceState to display string
-fn zjrsc_pace_state_str(state: &PaceState) -> &'static str {
+pub(crate) fn zjrsc_pace_state_str(state: &PaceState) -> &'static str {
     match state {
         PaceState::Rough => "rough",
         PaceState::Bridled => "bridled",
@@ -124,7 +124,7 @@ fn zjrsc_pace_state_str(state: &PaceState) -> &'static str {
 }
 
 /// Extract context around the first regex match in content
-fn zjrsc_extract_match_context(content: &str, re: &Regex) -> String {
+pub(crate) fn zjrsc_extract_match_context(content: &str, re: &Regex) -> String {
     if let Some(mat) = re.find(content) {
         let start = mat.start();
         let end = mat.end();

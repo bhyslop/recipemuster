@@ -176,3 +176,52 @@ fn jjtn_format_heat_message_retire() {
     assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₣AB:R: my-heat-silks"));
 }
+
+// Landing message tests
+// Note: Commit behavior is not tested due to vvc dependency.
+// These tests cover jjrn_format_landing_message formatting only.
+
+#[test]
+fn jjtn_format_landing_message_sonnet() {
+    let coronet = Coronet::jjrf_parse("ABAAA").unwrap();
+    let msg = jjrn_format_landing_message(&coronet, "sonnet");
+    assert!(msg.starts_with("jjb:"));
+    assert!(msg.contains(":₢ABAAA:L: sonnet landed"));
+}
+
+#[test]
+fn jjtn_format_landing_message_haiku() {
+    let coronet = Coronet::jjrf_parse("CDEFG").unwrap();
+    let msg = jjrn_format_landing_message(&coronet, "haiku");
+    assert!(msg.starts_with("jjb:"));
+    assert!(msg.contains(":₢CDEFG:L: haiku landed"));
+}
+
+#[test]
+fn jjtn_format_landing_message_opus() {
+    let coronet = Coronet::jjrf_parse("__AAA").unwrap();
+    let msg = jjrn_format_landing_message(&coronet, "opus");
+    assert!(msg.starts_with("jjb:"));
+    assert!(msg.contains(":₢__AAA:L: opus landed"));
+}
+
+#[test]
+fn jjtn_format_landing_message_structure() {
+    let coronet = Coronet::jjrf_parse("ABAAA").unwrap();
+    let msg = jjrn_format_landing_message(&coronet, "sonnet");
+    // Verify structure: jjb:HALLMARK:₢CORONET:L: agent landed
+    let parts: Vec<&str> = msg.split(':').collect();
+    assert_eq!(parts.len(), 5); // jjb, HALLMARK, ₢ABAAA, L, " sonnet landed"
+    assert_eq!(parts[0], "jjb");
+    assert!(!parts[1].is_empty(), "Hallmark should not be empty");
+    assert_eq!(parts[2], "₢ABAAA");
+    assert_eq!(parts[3], "L");
+    assert!(parts[4].trim().ends_with("landed"));
+}
+
+#[test]
+fn jjtn_format_landing_message_custom_agent() {
+    let coronet = Coronet::jjrf_parse("ABAAA").unwrap();
+    let msg = jjrn_format_landing_message(&coronet, "custom-agent-v2");
+    assert!(msg.contains(":L: custom-agent-v2 landed"));
+}
