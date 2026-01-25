@@ -660,6 +660,13 @@
         "₢AHAAC": {
           "tacks": [
             {
+              "ts": "260125-1405",
+              "state": "abandoned",
+              "text": "Superseded by decomposition into:\n- vos-add-routines-section (₢AHAAB) — VOS spec\n- jjsa-session-probe-update (₢AHAAD) — JJSA spec  \n- impl-vosr-probe (₢AHAAE) — implementation\n\nOriginal scope absorbed into the new three-pace structure.",
+              "silks": "impl-session-probe-triggers",
+              "commit": "0701c6a"
+            },
+            {
               "ts": "260125-0823",
               "state": "rough",
               "text": "Implement session probe trigger behavior in Rust and slash commands:\n\n**Rust changes (jjx_*):**\n\n1. jjx_saddle:\n   - Query steeplechase for most recent \\`s\\` marker commit for the heat\n   - If none found OR timestamp > 1 hour ago: emit \\`Needs-session-probe: true\\`\n   - Existing behavior: checks any commit (wrong) → change to \\`s\\` markers only\n\n2. jjx_parade:\n   - When given a firemark (heat-level parade), add same \\`s\\` marker check\n   - Emit \\`Needs-session-probe: true\\` using same logic as saddle\n   - Pace-level parade (coronet): no session probe needed\n\n**Slash command changes:**\n\n3. jjc-heat-groom.md:\n   - Add session probe check at start of groom flow\n   - Either call jjx_saddle to get probe status, or add jjx_parade check\n   - If probe needed, run the 3-agent model probe and create \\`s\\` marker via jjx_chalk\n\n4. jjc-heat-mount.md:\n   - Verify Step 2.5 works with corrected saddle output\n   - No changes expected if saddle emits correct flag\n\n**Verification:**\n- Fresh heat with no \\`s\\` markers triggers probe on saddle/parade/groom\n- Heat with recent \\`s\\` marker (< 1 hour) does not trigger probe\n- Administrative commits (N, S, f, r, T) do not suppress probe\n\nAcceptance: Session probes fire correctly based on \\`s\\` marker history, not general commit activity.",
