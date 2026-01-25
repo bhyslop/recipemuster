@@ -18,6 +18,13 @@
         "₢APAAA": {
           "tacks": [
             {
+              "ts": "260125-1400",
+              "state": "rough",
+              "text": "Verify GCP depot is active and Docker lifecycle works. First, list images in Artifact Registry to confirm depot access and see what's available. Then start nsproto nameplate (start/stop cycle) to confirm containers spin up correctly. If depot has lapsed or auth expired, this pace surfaces that early. Tabtargets: tt/rbw-il.ImageList.sh, tt/rbw-s.Start.nsproto.sh, tt/rbw-z.Stop.nsproto.sh",
+              "silks": "verify-depot-and-docker",
+              "commit": "035f135"
+            },
+            {
               "ts": "260125-0837",
               "state": "rough",
               "text": "Verify GCP depot is active and Docker lifecycle works. Start nsproto nameplate (start/stop cycle) to confirm containers spin up correctly. If depot has lapsed, this pace surfaces that early. Tabtargets: tt/rbw-s.Start.nsproto.sh, tt/rbw-z.Stop.nsproto.sh",
