@@ -1104,19 +1104,14 @@ Subject format: `{agent} | {silks}` where agent is the designated executor and s
 
 *Landing marker* (created when spawned agent completes):
 ----
-jjb:HALLMARK:₢XXXXX:L: {agent} {landed|crashed} | {steps_completed}/{steps_total} | verify: {pass|fail}
+jjb:HALLMARK:₢XXXXX:L: {agent} {landed|crashed}
 
-Files touched:
-- file1
-- file2
-
-Duration: {elapsed_time}
-{error_message if crashed}
+{agent completion report}
 
 Co-Authored-By: ...
 ----
 
-Subject format: `{agent} {landed|crashed} | {steps_completed}/{steps_total} | verify: {pass|fail}` where agent is the executor name, landed/crashed indicates success/failure, steps show progress, and verify indicates post-execution validation status. Body contains files touched, duration, and error message if crashed.
+Subject format: `{agent} {landed|crashed}` where agent is the executor tier (haiku/sonnet/opus) and landed/crashed indicates success/failure. Body contains the agent's raw completion report.
 
 Pace-level action codes:
 
