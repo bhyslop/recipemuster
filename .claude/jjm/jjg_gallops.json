@@ -3225,6 +3225,14 @@
         "₢AFAA-": {
           "tacks": [
             {
+              "ts": "260124-1835",
+              "state": "bridled",
+              "text": "Develop tests for jjx_restring (bulk pace transfer between heats).\n\n## Scope\n\n1. Review jjx_restring implementation in jjrrs_restring.rs\n2. Identify testable behaviors: pace selection, transfer mechanics, order preservation\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_restring happy paths and error cases.",
+              "silks": "test-jjx-restring",
+              "commit": "bcedfc0",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: jjtrs_restring.rs new, lib.rs add test mod (2 files to edit), jjro_ops.rs jjrg_restring function, jjtg_gallops.rs test patterns (2 files to read) | Steps: 1. Read jjrg_restring in jjro_ops.rs to understand validation and draft mechanics 2. Read jjtg_gallops.rs for test helper patterns 3. Create jjtrs_restring.rs with tests for same heat error, heat not found, empty coronets, coronet not in source, coronet wrong heat identity, successful restring with order preservation 4. Add test mod jjtrs_restring to lib.rs | Verify: tt/vow-b.Build.sh and tt/vow-t.Test.sh"
+            },
+            {
               "ts": "260124-1828",
               "state": "rough",
               "text": "Develop tests for jjx_restring (bulk pace transfer between heats).\n\n## Scope\n\n1. Review jjx_restring implementation in jjrrs_restring.rs\n2. Identify testable behaviors: pace selection, transfer mechanics, order preservation\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_restring happy paths and error cases.",
