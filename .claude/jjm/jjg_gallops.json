@@ -4370,6 +4370,13 @@
         "₢AFAAk": {
           "tacks": [
             {
+              "ts": "260124-1624",
+              "state": "complete",
+              "text": "Test the heat retirement (trophy) operation end-to-end and repair any issues found.\n\n## Scope\n\n1. Create a test heat with a few paces (some complete, some abandoned)\n2. Run /jjc-heat-retire on it\n3. Verify trophy file is created correctly in .claude/jjm/retired/\n4. Verify steeplechase entries are preserved\n5. Verify heat is removed from active gallops\n6. Fix any bugs discovered during testing\n\n## Test Heat Setup\n\n- Nominate a throwaway heat (silks: test-trophy-validation)\n- Add 2-3 paces with minimal specs\n- Complete one pace, abandon another\n- Add a chalk marker\n- Then retire it\n\n## Expected Trophy Contents\n\nPer JJSA spec:\n- Header: firemark, silks, duration, pace counts\n- Paddock: full text preserved\n- Paces table: all paces with final states\n- Steeplechase: git history for heat\n\n## Not Bridleable\n\nExploratory testing with potential bug fixes - requires human judgment on what constitutes correct behavior and how to fix issues.",
+              "silks": "test-trophy-operation",
+              "commit": "eab890a"
+            },
+            {
               "ts": "260124-0751",
               "state": "rough",
               "text": "Test the heat retirement (trophy) operation end-to-end and repair any issues found.\n\n## Scope\n\n1. Create a test heat with a few paces (some complete, some abandoned)\n2. Run /jjc-heat-retire on it\n3. Verify trophy file is created correctly in .claude/jjm/retired/\n4. Verify steeplechase entries are preserved\n5. Verify heat is removed from active gallops\n6. Fix any bugs discovered during testing\n\n## Test Heat Setup\n\n- Nominate a throwaway heat (silks: test-trophy-validation)\n- Add 2-3 paces with minimal specs\n- Complete one pace, abandon another\n- Add a chalk marker\n- Then retire it\n\n## Expected Trophy Contents\n\nPer JJSA spec:\n- Header: firemark, silks, duration, pace counts\n- Paddock: full text preserved\n- Paces table: all paces with final states\n- Steeplechase: git history for heat\n\n## Not Bridleable\n\nExploratory testing with potential bug fixes - requires human judgment on what constitutes correct behavior and how to fix issues.",
