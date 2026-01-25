@@ -505,9 +505,10 @@
       "creation_time": "260120",
       "status": "racing",
       "order": [
-        "₢AHAAA"
+        "₢AHAAA",
+        "₢AHAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -518,6 +519,17 @@
               "text": "Design the model tiering strategy for JJK. Analyze which operations genuinely require Opus-level judgment vs. which can be reliably executed by Haiku. Map each jjx_* command and slash command to a model tier. Consider: What makes output 'Haiku-friendly'? What are the escalation triggers? How does the Task tool's model parameter integrate? Produce a tiering matrix and architectural recommendations.",
               "silks": "design-model-tiering-strategy",
               "commit": "3dc484c"
+            }
+          ]
+        },
+        "₢AHAAB": {
+          "tacks": [
+            {
+              "ts": "260125-0823",
+              "state": "rough",
+              "text": "Update JJK specs to define session probe behavior correctly:\n\n1. JJSA-GallopsData.adoc - Session marker section:\n   - Threshold check: look for most recent \\`s\\` marker for that heat (not any steeplechase commit)\n   - 1-hour threshold relative to most recent \\`s\\` marker\n   - List trigger operations: saddle, parade (with firemark), groom (slash command)\n   - Clarify muster does NOT trigger (global, no heat context)\n\n2. JJSCSD-saddle.adoc:\n   - Update \\`Needs-session-probe\\` output logic to check \\`s\\` markers only\n   - If no \\`s\\` marker OR most recent \\`s\\` > 1 hour: emit \\`Needs-session-probe: true\\`\n\n3. JJSCPD-parade.adoc:\n   - Add \\`Needs-session-probe\\` output when firemark provided\n   - Same logic: check \\`s\\` markers for that heat\n\n4. Slash commands (jjc-heat-groom.md, jjc-heat-mount.md):\n   - Document session probe handling\n   - groom needs probe check added to its flow\n   - mount already has Step 2.5, verify alignment\n\nAcceptance: Specs are consistent and clearly define the corrected session probe behavior.",
+              "silks": "spec-session-probe-triggers",
+              "commit": "3fe5e40"
             }
           ]
         }
