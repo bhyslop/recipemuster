@@ -4963,6 +4963,13 @@
         "₢AFABG": {
           "tacks": [
             {
+              "ts": "260124-1820",
+              "state": "rough",
+              "text": "Remove dead code from CLI modules after rewire.\n\n## Context\n\nThe rewire-command-dispatch pace moved Args and handlers to per-command modules (jjrxx_*.rs). However:\n- jjro_ops.rs contains active operations used via jjrg_gallops re-exports\n- jjrq_query.rs contains query functions still used by jjrsd_saddle.rs\n- These files CANNOT be deleted\n\n## Deliverable\n\n1. Remove unused re-exports from lib.rs:\n   - Check if `jjrq_MusterArgs`, `jjrq_SaddleArgs`, `jjrq_ParadeArgs` are used externally\n   - If not, remove the `pub use jjrq_query::...` line\n\n2. Check jjrx_cli.rs for any remaining dead code patterns\n\n3. Run `cargo fix --lib -p jjk` to auto-fix unused import warnings\n\n## NOT in scope\n\n- jjro_ops.rs stays (active operations)\n- jjrq_query.rs stays (active queries)\n- jjrg_gallops.rs stays (re-export facade)\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nClean build with no warnings, all tests pass.",
+              "silks": "trim-cli-dead-code",
+              "commit": "27c5a62"
+            },
+            {
               "ts": "260124-1801",
               "state": "rough",
               "text": "Delete old aggregate files after successful rewire.\n\n## Depends on\n\nrewire-command-dispatch (build + tests passing)\n\n## Deliverable\n\nRemove obsolete files:\n- jjrx_cli.rs (CLI parsing - now distributed)\n- jjro_ops.rs (operations - now distributed)\n- jjrq_query.rs (queries - now distributed)\n\n## Keep\n\nInfrastructure files remain:\n- jjrg_gallops.rs (data structures)\n- jjru_util.rs (shared utilities)\n- jjrf_favor.rs (encoding)\n- jjri_io.rs (file I/O)\n- jjrn_notch.rs (commit formatting - shared)\n- jjrs_steeplechase.rs (log parsing - shared)\n- jjrp_print.rs (display utilities)\n- jjrt_types.rs (type definitions)\n- jjrv_validate.rs (validation - may stay shared or move)\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nClean build, all tests pass, no dead code warnings.",
