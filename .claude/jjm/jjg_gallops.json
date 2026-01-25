@@ -4963,6 +4963,14 @@
         "₢AFABG": {
           "tacks": [
             {
+              "ts": "260124-1822",
+              "state": "bridled",
+              "text": "Remove dead code from CLI modules after rewire.\n\n## Context\n\nThe rewire-command-dispatch pace moved Args and handlers to per-command modules (jjrxx_*.rs). However:\n- jjro_ops.rs contains active operations used via jjrg_gallops re-exports\n- jjrq_query.rs contains query functions still used by jjrsd_saddle.rs\n- These files CANNOT be deleted\n\n## Deliverable\n\n1. Remove unused re-exports from lib.rs:\n   - Check if `jjrq_MusterArgs`, `jjrq_SaddleArgs`, `jjrq_ParadeArgs` are used externally\n   - If not, remove the `pub use jjrq_query::...` line\n\n2. Check jjrx_cli.rs for any remaining dead code patterns\n\n3. Run `cargo fix --lib -p jjk` to auto-fix unused import warnings\n\n## NOT in scope\n\n- jjro_ops.rs stays (active operations)\n- jjrq_query.rs stays (active queries)\n- jjrg_gallops.rs stays (re-export facade)\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nClean build with no warnings, all tests pass.",
+              "silks": "trim-cli-dead-code",
+              "commit": "1f58612",
+              "direction": "Agent: haiku | Cardinality: 1 sequential | Files: lib.rs (1 file, plus cargo fix touches multiple) | Steps: 1. Remove line 75 pub use jjrq_query from lib.rs 2. Run cargo fix --lib -p jjk --manifest-path Tools/vok/Cargo.toml --allow-dirty to auto-fix unused imports 3. Run tt/vow-b.Build.sh and tt/vow-t.Test.sh | Verify: tt/vow-b.Build.sh with zero warnings"
+            },
+            {
               "ts": "260124-1820",
               "state": "rough",
               "text": "Remove dead code from CLI modules after rewire.\n\n## Context\n\nThe rewire-command-dispatch pace moved Args and handlers to per-command modules (jjrxx_*.rs). However:\n- jjro_ops.rs contains active operations used via jjrg_gallops re-exports\n- jjrq_query.rs contains query functions still used by jjrsd_saddle.rs\n- These files CANNOT be deleted\n\n## Deliverable\n\n1. Remove unused re-exports from lib.rs:\n   - Check if `jjrq_MusterArgs`, `jjrq_SaddleArgs`, `jjrq_ParadeArgs` are used externally\n   - If not, remove the `pub use jjrq_query::...` line\n\n2. Check jjrx_cli.rs for any remaining dead code patterns\n\n3. Run `cargo fix --lib -p jjk` to auto-fix unused import warnings\n\n## NOT in scope\n\n- jjro_ops.rs stays (active operations)\n- jjrq_query.rs stays (active queries)\n- jjrg_gallops.rs stays (re-export facade)\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nClean build with no warnings, all tests pass.",
