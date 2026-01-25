@@ -4411,6 +4411,13 @@
         "₢AFAAc": {
           "tacks": [
             {
+              "ts": "260124-1918",
+              "state": "complete",
+              "text": "Audit and update CLAUDE.md quick verb table for completeness.\n\n## Tasks\n\n1. Add `scout` → `/jjc-scout` to the quick verbs table\n2. Survey all `/jjc-*` slash commands in `.claude/commands/`\n3. Identify any missing from the quick verbs table that should be there\n4. Update the table with any missing entries\n\n## Criteria for Quick Verbs\n\nQuick verbs are single-word shortcuts that invoke common operations. Good candidates:\n- Frequently used commands\n- Single intuitive verb (e.g., \"mount\", \"wrap\", \"scout\")\n- Not compound operations (e.g., \"heat-retire\" stays as full command)\n\n## Files\n\n- CLAUDE.md — Quick Verbs table in JJK section\n- .claude/commands/jjc-*.md — All JJK slash commands",
+              "silks": "claudemd-quick-verb-audit",
+              "commit": "575924b"
+            },
+            {
               "ts": "260123-1933",
               "state": "rough",
               "text": "Audit and update CLAUDE.md quick verb table for completeness.\n\n## Tasks\n\n1. Add `scout` → `/jjc-scout` to the quick verbs table\n2. Survey all `/jjc-*` slash commands in `.claude/commands/`\n3. Identify any missing from the quick verbs table that should be there\n4. Update the table with any missing entries\n\n## Criteria for Quick Verbs\n\nQuick verbs are single-word shortcuts that invoke common operations. Good candidates:\n- Frequently used commands\n- Single intuitive verb (e.g., \"mount\", \"wrap\", \"scout\")\n- Not compound operations (e.g., \"heat-retire\" stays as full command)\n\n## Files\n\n- CLAUDE.md — Quick Verbs table in JJK section\n- .claude/commands/jjc-*.md — All JJK slash commands",
