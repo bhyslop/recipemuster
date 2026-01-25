@@ -776,9 +776,10 @@
       "creation_time": "260125",
       "status": "stabled",
       "order": [
-        "₢APAAA"
+        "₢APAAA",
+        "₢APAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -789,6 +790,17 @@
               "text": "Verify GCP depot is active and Docker lifecycle works. Start nsproto nameplate (start/stop cycle) to confirm containers spin up correctly. If depot has lapsed, this pace surfaces that early. Tabtargets: tt/rbw-s.Start.nsproto.sh, tt/rbw-z.Stop.nsproto.sh",
               "silks": "verify-depot-and-docker",
               "commit": "59df530"
+            }
+          ]
+        },
+        "₢APAAB": {
+          "tacks": [
+            {
+              "ts": "260125-0837",
+              "state": "rough",
+              "text": "Run all 22 nsproto security tests. These validate the censer network isolation model: DNS filtering, TCP 443 restrictions, package blocking, ICMP behavior. Tabtarget: tt/rbw-to.TestBottleService.nsproto.sh",
+              "silks": "run-nsproto-test-suite",
+              "commit": "b5fd0ca"
             }
           ]
         }
