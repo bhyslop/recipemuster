@@ -81,6 +81,13 @@
         "₢APAAF": {
           "tacks": [
             {
+              "ts": "260125-1417",
+              "state": "complete",
+              "text": "Remove RBRR_GCB_JQ_IMAGE_REF and RBRR_GCB_SYFT_IMAGE_REF from all files. These undocumented variables block container start with validation errors. The GCB metadata step installs jq at runtime anyway. Remove: variable definitions in rbrr_RecipeBottleRegimeRepo.sh, validation calls in rbrr_regime.sh, substitution passing in rbf_Foundry.sh, and usage in rbgjb10-assemble-metadata.sh comments. Leave gcrane and oras refs (they're properly pinned and may be in use).",
+              "silks": "remove-gcb-jq-image-ref",
+              "commit": "aa9f930"
+            },
+            {
               "ts": "260125-1413",
               "state": "bridled",
               "text": "Remove RBRR_GCB_JQ_IMAGE_REF and RBRR_GCB_SYFT_IMAGE_REF from all files. These undocumented variables block container start with validation errors. The GCB metadata step installs jq at runtime anyway. Remove: variable definitions in rbrr_RecipeBottleRegimeRepo.sh, validation calls in rbrr_regime.sh, substitution passing in rbf_Foundry.sh, and usage in rbgjb10-assemble-metadata.sh comments. Leave gcrane and oras refs (they're properly pinned and may be in use).",
