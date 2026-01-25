@@ -1093,14 +1093,14 @@ Co-Authored-By: ...
 
 *Bridle marker* (created when pace transitions to bridled state):
 ----
-jjb:HALLMARK:₢XXXXX:B: {agent} | {file_count} files | {silks}
+jjb:HALLMARK:₢XXXXX:B: {agent} | {silks}
 
 {full direction text}
 
 Co-Authored-By: ...
 ----
 
-Subject format: `{agent} | {file_count} files | {silks}` where agent is the designated executor, file_count is the number of files in scope, and silks is the pace display name. Body contains the complete direction text that guides autonomous execution.
+Subject format: `{agent} | {silks}` where agent is the designated executor and silks is the pace display name. Body contains the complete direction text that guides autonomous execution.
 
 *Landing marker* (created when spawned agent completes):
 ----

@@ -247,20 +247,19 @@ pub fn jjrn_format_heat_message(firemark: &Firemark, action: jjrn_HeatAction, de
     )
 }
 
-/// Format a bridle message: jjb:HALLMARK:₢CORONET:B: {agent} | {file_count} files | {silks}
+/// Format a bridle message: jjb:HALLMARK:₢CORONET:B: {agent} | {silks}
 ///
 /// Creates the subject line for a B (bridle) commit.
 /// Body should contain the full direction text.
-pub fn jjrn_format_bridle_message(coronet: &Coronet, agent: &str, file_count: usize, silks: &str) -> String {
+pub fn jjrn_format_bridle_message(coronet: &Coronet, agent: &str, silks: &str) -> String {
     let hallmark = zjjrn_get_hallmark();
     format!(
-        "{}:{}:{}{}:B: {} | {} files | {}",
+        "{}:{}:{}{}:B: {} | {}",
         JJRN_COMMIT_PREFIX,
         hallmark,
         CORONET_PREFIX,
         coronet.jjrf_as_str(),
         agent,
-        file_count,
         silks
     )
 }

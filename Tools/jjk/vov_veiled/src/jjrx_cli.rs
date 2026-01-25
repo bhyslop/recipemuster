@@ -1356,13 +1356,11 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
                     }
                 };
 
-                // Count files in direction (for now, use 0 as placeholder - this will be updated when we have file tracking)
-                let file_count = 0;
                 let agent = "tally"; // Agent that bridled the pace
 
                 // Build B commit message
                 use crate::jjrn_notch::jjrn_format_bridle_message;
-                let b_subject = jjrn_format_bridle_message(&coronet, agent, file_count, &silks);
+                let b_subject = jjrn_format_bridle_message(&coronet, agent, &silks);
                 let b_message = format!("{}\n\n{}", b_subject, direction_text);
 
                 // Create empty B commit using git directly (like chalk markers)
