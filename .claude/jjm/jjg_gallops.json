@@ -5028,6 +5028,14 @@
         "₢AFABD": {
           "tacks": [
             {
+              "ts": "260124-1855",
+              "state": "bridled",
+              "text": "Develop tests for jjx_parade (display heat/pace info).\n\n## Scope\n\n1. Review jjx_parade implementation in jjrpd_parade.rs\n2. Identify testable behaviors: heat display, pace display, --full flag, --remaining flag\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_parade happy paths and error cases.",
+              "silks": "test-jjx-parade",
+              "commit": "b242d40",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: jjtpd_parade.rs (1 file to edit), jjrpd_parade.rs jjtg_gallops.rs (2 files to read) | Steps: 1. Read jjtg_gallops.rs for test helper patterns make_valid_gallops make_valid_heat make_valid_pace 2. Add tests for zjjrpd_pace_state_str helper covering all four states 3. Add tests for zjjrpd_resolve_default_heat with racing heat present and no racing heats 4. Add test for target length validation error message 5. Focus on internal functions since CLI output capture is not available | Verify: tt/vow-b.Build.sh and tt/vow-t.Test.sh"
+            },
+            {
               "ts": "260124-1828",
               "state": "rough",
               "text": "Develop tests for jjx_parade (display heat/pace info).\n\n## Scope\n\n1. Review jjx_parade implementation in jjrpd_parade.rs\n2. Identify testable behaviors: heat display, pace display, --full flag, --remaining flag\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_parade happy paths and error cases.",
