@@ -3310,6 +3310,13 @@
         "₢AFAA3": {
           "tacks": [
             {
+              "ts": "260124-1737",
+              "state": "complete",
+              "text": "Add --intent parameter to jjx_notch for opus-supplied commit messages.\n\n## Purpose\n\nAllow opus driver to provide top-down intent (\"what we meant to do\") instead of relying on haiku's bottom-up diff description.\n\n## CLI Change\n\n```\njjx_notch <CORONET> [--intent \"message\"] <files...>\n```\n\n- If --intent provided: use as commit subject\n- If omitted: fall back to current haiku behavior\n\n## Implementation\n\n- jjrx_cli.rs: Add --intent Option<String> to notch args\n- jjro_ops.rs: In notch logic, check for intent before calling haiku\n- Format: `jjb:HALLMARK:₢XXXXX:n: {intent}` (same prefix, user message)\n\n## Slash Command Update\n\nUpdate /jjc-pace-notch:\n- Prompt opus for one-line intent summary\n- Pass to jjx_notch --intent\n\n## Backward Compatible\n\nOmitting --intent preserves current haiku-generated messages.",
+              "silks": "trophy-alpha-notch-intent",
+              "commit": "b1a2650"
+            },
+            {
               "ts": "260124-1713",
               "state": "bridled",
               "text": "Add --intent parameter to jjx_notch for opus-supplied commit messages.\n\n## Purpose\n\nAllow opus driver to provide top-down intent (\"what we meant to do\") instead of relying on haiku's bottom-up diff description.\n\n## CLI Change\n\n```\njjx_notch <CORONET> [--intent \"message\"] <files...>\n```\n\n- If --intent provided: use as commit subject\n- If omitted: fall back to current haiku behavior\n\n## Implementation\n\n- jjrx_cli.rs: Add --intent Option<String> to notch args\n- jjro_ops.rs: In notch logic, check for intent before calling haiku\n- Format: `jjb:HALLMARK:₢XXXXX:n: {intent}` (same prefix, user message)\n\n## Slash Command Update\n\nUpdate /jjc-pace-notch:\n- Prompt opus for one-line intent summary\n- Pass to jjx_notch --intent\n\n## Backward Compatible\n\nOmitting --intent preserves current haiku-generated messages.",
