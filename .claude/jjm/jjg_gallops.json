@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AO",
+  "next_heat_seed": "AP",
   "heats": {
     "₣AD": {
       "silks": "vos-spec-and-tooling",
@@ -708,6 +708,15 @@
           ]
         }
       }
+    },
+    "₣AO": {
+      "silks": "rbm-misc-bash-cleanup",
+      "creation_time": "260125",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AO.md",
+      "paces": {}
     }
   }
 }
