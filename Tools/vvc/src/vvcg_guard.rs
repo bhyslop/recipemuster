@@ -312,9 +312,5 @@ pub fn vvcg_run(args: &vvcg_GuardArgs, repo_dir: Option<&Path>) -> i32 {
         return 2;
     }
 
-    eprintln!(
-        "guard: OK - staged content {} bytes (limit: {})",
-        total_size, args.limit
-    );
     0
 }

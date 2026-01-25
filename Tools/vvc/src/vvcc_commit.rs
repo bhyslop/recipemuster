@@ -139,7 +139,6 @@ fn zvvcc_stage_changes() -> Result<(), String> {
         .map_err(|e| format!("Failed to run git add: {}", e))?;
 
     if result.status.success() {
-        eprintln!("commit: staged all changes");
         Ok(())
     } else {
         Err(format!(
@@ -200,8 +199,6 @@ fn zvvcc_generate_message_with_claude(diff: &str) -> Result<String, String> {
         diff
     );
 
-    eprintln!("commit: invoking claude for commit message...");
-
     let output = Command::new("claude")
         .args([
             "--print",
@@ -248,7 +245,6 @@ fn zvvcc_generate_message_with_claude(diff: &str) -> Result<String, String> {
         return Err("claude returned empty message".to_string());
     }
 
-    eprintln!("commit: claude generated message");
     Ok(message)
 }
 
@@ -317,7 +313,6 @@ pub fn vvcc_run(args: &vvcc_CommitArgs) -> i32 {
     match lock.vvcc_commit(args) {
         Ok(hash) => {
             println!("{}", hash);
-            eprintln!("commit: success");
             0
         }
         Err(e) => {

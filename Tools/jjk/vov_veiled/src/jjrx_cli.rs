@@ -1274,8 +1274,6 @@ fn zjjrx_run_rail(args: zjjrx_RailArgs) -> i32 {
 fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
     use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
 
-    eprintln!("jjx_tally: starting");
-
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
@@ -1292,7 +1290,6 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
             return 1;
         }
     };
-    eprintln!("jjx_tally: stdin read ({} bytes)", text.as_ref().map(|t| t.len()).unwrap_or(0));
 
     let state = match &args.state {
         Some(s) => match s.to_lowercase().as_str() {
@@ -1315,7 +1312,6 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
             return 1;
         }
     };
-    eprintln!("jjx_tally: gallops loaded");
 
     // Get firemark and silks for commit message before we move args
     let coronet_str = args.coronet.clone();
@@ -1345,15 +1341,13 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
         silks: args.silks,
     };
 
-    eprintln!("jjx_tally: calling jjrg_tally");
     match gallops.jjrg_tally(tally_args) {
         Ok(()) => {
-            eprintln!("jjx_tally: tally succeeded, persisting");
             let message = format_heat_message(&fm, HeatAction::Tally, &silks);
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
-                    eprintln!("jjx_tally: committed {}", &hash[..8]);
+                    println!("committed {}", hash);
                 }
                 Err(e) => {
                     eprintln!("jjx_tally: error: {}", e);
@@ -1363,8 +1357,6 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
 
             // If state transitioned to bridled, create B commit
             if is_bridling {
-                eprintln!("jjx_tally: creating B (bridle) commit");
-
                 // Parse coronet to get the full identity
                 let coronet = match Coronet::jjrf_parse(&coronet_str) {
                     Ok(c) => c,
@@ -1381,7 +1373,6 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
                     .and_then(|t| t.direction.as_ref()) {
                     Some(d) => d.clone(),
                     None => {
-                        eprintln!("jjx_tally: warning: no direction found for bridled pace, using empty");
                         String::new()
                     }
                 };
@@ -1409,7 +1400,7 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
                         if let Ok(hash_result) = hash_output {
                             if hash_result.status.success() {
                                 let hash = String::from_utf8_lossy(&hash_result.stdout).trim().to_string();
-                                eprintln!("jjx_tally: B commit created {}", &hash[..8.min(hash.len())]);
+                                println!("B commit {}", &hash[..8.min(hash.len())]);
                             }
                         }
                     }
@@ -1425,7 +1416,6 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
                 }
             }
 
-            eprintln!("jjx_tally: complete, releasing lock");
             0
         }
         Err(e) => {
