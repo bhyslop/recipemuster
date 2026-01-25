@@ -629,9 +629,10 @@
         "₢AHAAE",
         "₢AHAAC",
         "₢AHAAA",
-        "₢AHAAF"
+        "₢AHAAF",
+        "₢AHAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -755,6 +756,17 @@
               "text": "Wire vosr_probe into jjx_saddle output.\n\n## Context\n\nWith vosr_probe implemented in VVC, jjx_saddle needs to call it when session probe is needed.\n\n## Deliverables\n\n1. Add VVC dependency to JJK Cargo.toml if not present\n2. In jjrsd_saddle.rs, when needs_session_probe is true:\n   - Call vvc::vosr_probe()\n   - Include probe result in saddle output (new field or section)\n3. Update saddle output format documentation\n\n## Dependency\n\nBlocked by: impl-vosr-probe (₢AHAAE)\n\nAcceptance: jjx_saddle includes probe data when needs_session_probe is true.",
               "silks": "wire-saddle-vosr-probe",
               "commit": "ceb6f3b"
+            }
+          ]
+        },
+        "₢AHAAG": {
+          "tacks": [
+            {
+              "ts": "260125-1425",
+              "state": "rough",
+              "text": "Remove session probe logic from slash commands.\n\n## Context\n\nSession probe is moving from slash command (mount) to Rust (saddle calling vosr_probe).\nThe slash commands should no longer contain session probe implementation.\n\n## Deliverables\n\n1. Audit all slash commands in .claude/commands/ for session probe references\n2. Remove Step 2.5 (Session probe) from jjc-heat-mount.md\n3. Remove any probe-related instructions from other commands\n4. Update any documentation that references the old probe location\n\n## Dependency\n\nBlocked by: wire-saddle-vosr-probe\n\nAcceptance: No slash commands reference session probe implementation; probe is handled entirely by saddle.",
+              "silks": "remove-slash-cmd-session-probe",
+              "commit": "60e0fd7"
             }
           ]
         }
