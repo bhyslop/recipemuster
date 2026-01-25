@@ -4962,6 +4962,14 @@
         "₢AFABB": {
           "tacks": [
             {
+              "ts": "260124-1837",
+              "state": "bridled",
+              "text": "Develop tests for jjx_furlough (change heat status/rename).\n\n## Scope\n\n1. Review jjx_furlough implementation in jjrfu_furlough.rs\n2. Identify testable behaviors: status transitions (racing/stabled), silks rename, heat reordering\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_furlough happy paths and error cases.",
+              "silks": "test-jjx-furlough",
+              "commit": "dd7e8ab",
+              "direction": "Agent: haiku | Cardinality: 1 sequential | Files: jjtfu_furlough.rs new, lib.rs add test mod (2 files to edit), jjro_ops.rs jjrg_furlough function, jjtg_gallops.rs test patterns (2 files to read) | Steps: 1. Read jjrg_furlough in jjro_ops.rs 2. Read jjtg_gallops.rs for test helper patterns 3. Create jjtfu_furlough.rs with tests for no options error, both racing and stabled error, invalid silks, heat not found, retired heat error, already racing error, already stabled error, successful status change with reordering, successful silks rename 4. Add test mod jjtfu_furlough to lib.rs | Verify: tt/vow-b.Build.sh and tt/vow-t.Test.sh"
+            },
+            {
               "ts": "260124-1828",
               "state": "rough",
               "text": "Develop tests for jjx_furlough (change heat status/rename).\n\n## Scope\n\n1. Review jjx_furlough implementation in jjrfu_furlough.rs\n2. Identify testable behaviors: status transitions (racing/stabled), silks rename, heat reordering\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_furlough happy paths and error cases.",
