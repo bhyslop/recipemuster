@@ -3236,6 +3236,13 @@
         "₢AFAA1": {
           "tacks": [
             {
+              "ts": "260124-1709",
+              "state": "complete",
+              "text": "Implement B commit when pace is bridled.\n\n## Trigger\n\nWhen `/jjc-pace-bridle` transitions a pace to bridled state.\n\n## Implementation\n\nIn the bridle flow (jjx_tally with state=bridled):\n1. After tack is added to gallops\n2. Create chalk-style commit with B marker\n3. Subject format: `jjb:HALLMARK:₢XXXXX:B: {agent} | {file_count} files | {silks}`\n4. Body: full direction text from the tack\n\n## Changes\n\n- jjrn_notch.rs: Add ChalkMarker::Bridle or similar\n- jjro_ops.rs: Create B commit in tally-bridled path\n- Update /jjc-pace-bridle slash command if needed\n\n## Depends on\n\ntrophy-alpha-jjsa-commit-types (spec must be defined first)",
+              "silks": "trophy-alpha-bridle-marker",
+              "commit": "207c9b2"
+            },
+            {
               "ts": "260124-1649",
               "state": "bridled",
               "text": "Implement B commit when pace is bridled.\n\n## Trigger\n\nWhen `/jjc-pace-bridle` transitions a pace to bridled state.\n\n## Implementation\n\nIn the bridle flow (jjx_tally with state=bridled):\n1. After tack is added to gallops\n2. Create chalk-style commit with B marker\n3. Subject format: `jjb:HALLMARK:₢XXXXX:B: {agent} | {file_count} files | {silks}`\n4. Body: full direction text from the tack\n\n## Changes\n\n- jjrn_notch.rs: Add ChalkMarker::Bridle or similar\n- jjro_ops.rs: Create B commit in tally-bridled path\n- Update /jjc-pace-bridle slash command if needed\n\n## Depends on\n\ntrophy-alpha-jjsa-commit-types (spec must be defined first)",
