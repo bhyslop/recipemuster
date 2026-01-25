@@ -342,7 +342,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
 }
 
 /// Helper to convert PaceState to display string
-fn zjjrpd_pace_state_str(state: &PaceState) -> &'static str {
+pub(crate) fn zjjrpd_pace_state_str(state: &PaceState) -> &'static str {
     match state {
         PaceState::Rough => "rough",
         PaceState::Bridled => "bridled",
@@ -352,7 +352,7 @@ fn zjjrpd_pace_state_str(state: &PaceState) -> &'static str {
 }
 
 /// Resolve the default heat (first racing heat) when no target is specified
-fn zjjrpd_resolve_default_heat(gallops: &Gallops) -> Result<String, String> {
+pub(crate) fn zjjrpd_resolve_default_heat(gallops: &Gallops) -> Result<String, String> {
     for (heat_key, heat) in &gallops.heats {
         if heat.status == HeatStatus::Racing {
             return Ok(heat_key.clone());
