@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AQ",
+  "next_heat_seed": "AR",
   "heats": {
     "₣AP": {
       "silks": "rbw-rekindle-bottle-focus",
@@ -893,6 +893,15 @@
           ]
         }
       }
+    },
+    "₣AQ": {
+      "silks": "rbw-gcb-builder-control",
+      "creation_time": "260125",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AQ.md",
+      "paces": {}
     }
   }
 }
