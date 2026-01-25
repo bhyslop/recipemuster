@@ -898,10 +898,24 @@
       "silks": "rbw-gcb-builder-control",
       "creation_time": "260125",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AQAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AQ.md",
-      "paces": {}
+      "paces": {
+        "₢AQAAA": {
+          "tacks": [
+            {
+              "ts": "260125-1410",
+              "state": "rough",
+              "text": "Design and implement digest-pinned GCB builder images. Research options: (A) pre-built jq image with digest pin, (B) alpine with digest pin + runtime apk install, (C) custom tool image in depot. Document in RBAGS, update RBSTB spec to include _RBGY_JQ_REF and _RBGY_SYFT_REF substitutions. Ensure validation (buv_env_odref) aligns with chosen approach.",
+              "silks": "design-gcb-builder-pinning",
+              "commit": "de5fd84"
+            }
+          ]
+        }
+      }
     }
   }
 }
