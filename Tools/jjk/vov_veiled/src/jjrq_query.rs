@@ -287,29 +287,33 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
     }
 
     // Output recent work table
-    if !recent_work.is_empty() {
+    // Filter entries to only show action codes 'n' (notch), 'A' (approach), 'd' (discussion)
+    let filtered_work: Vec<_> = recent_work.iter().filter(|entry| {
+        if let Some(ref action) = entry.action {
+            action == "n" || action == "A" || action == "d"
+        } else {
+            false
+        }
+    }).collect();
+
+    if !filtered_work.is_empty() {
         println!("Recent-work:");
 
         let mut table = jjrp_Table::jjrp_new(vec![
-            jjrp_Column::new("Timestamp", jjrp_Align::Left),
             jjrp_Column::new("Commit", jjrp_Align::Left),
-            jjrp_Column::new("[A]", jjrp_Align::Left),
             jjrp_Column::new("Identity", jjrp_Align::Left),
             jjrp_Column::new("Subject", jjrp_Align::Left),
         ]);
 
         // Measure all rows to compute column widths
-        for entry in &recent_work {
-            let action_str = entry.action.as_ref().map(|a| format!("[{}]", a)).unwrap_or_else(|| "   ".to_string());
+        for entry in &filtered_work {
             let identity_str = if let Some(ref coronet) = entry.coronet {
                 coronet.clone()
             } else {
                 heat_key.clone()
             };
             table.jjrp_measure(&[
-                &entry.timestamp,
                 &entry.commit,
-                &action_str,
                 &identity_str,
                 &entry.subject,
             ]);
@@ -320,17 +324,14 @@ pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
         table.jjrp_print_separator();
 
         // Print data rows
-        for entry in &recent_work {
-            let action_str = entry.action.as_ref().map(|a| format!("[{}]", a)).unwrap_or_else(|| "   ".to_string());
+        for entry in &filtered_work {
             let identity_str = if let Some(ref coronet) = entry.coronet {
                 coronet.clone()
             } else {
                 heat_key.clone()
             };
             table.jjrp_print_row(&[
-                &entry.timestamp,
                 &entry.commit,
-                &action_str,
                 &identity_str,
                 &entry.subject,
             ]);
