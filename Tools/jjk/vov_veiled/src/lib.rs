@@ -72,6 +72,24 @@ mod jjtq_query;
 #[cfg(test)]
 mod jjtcu_curry;
 
+#[cfg(test)]
+mod jjtgl_garland;
+
+#[cfg(test)]
+mod jjtrs_restring;
+
+#[cfg(test)]
+mod jjtsc_scout;
+
+#[cfg(test)]
+mod jjtfu_furlough;
+
+#[cfg(test)]
+mod jjtrn_rein;
+
+#[cfg(test)]
+mod jjtpd_parade;
+
 // Re-export commonly used types (with RCG prefixes)
 pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark};
 pub use jjrn_notch::{jjrn_ChalkMarker, jjrn_HeatAction, jjrn_format_notch_prefix, jjrn_format_chalk_message, jjrn_format_heat_message, jjrn_format_heat_discussion};
