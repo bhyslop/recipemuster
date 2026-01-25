@@ -712,6 +712,13 @@
         "₢AHAAD": {
           "tacks": [
             {
+              "ts": "260125-1417",
+              "state": "complete",
+              "text": "Update JJSA to consume vosr_probe from VOS layer.\n\n## Context\n\nAfter VOS defines vosr_probe, JJSA needs to reference it for session marker creation. The session probe check (1-hour threshold) stays in JJK; the actual probing (claude --print calls) delegates to VOS.\n\n## Deliverables\n\n1. **Update session marker section in JJSA:**\n   - Reference vosr_probe for model/platform collection\n   - Clarify: JJK checks threshold, calls vosr_probe, formats result into session marker\n\n2. **Update jjx_saddle spec (JJSCSD-saddle.adoc):**\n   - Add `Needs-session-probe: true|false` to output\n   - Logic: check steeplechase for most recent `s` marker for heat\n   - If none or > 1 hour: emit true\n\n3. **Update slash commands if needed:**\n   - jjc-heat-mount.md — verify Step 2.5 alignment\n   - jjc-heat-groom.md — add session probe check if missing\n\n## NOT in scope\n\n- vosr_probe definition (that's the VOS pace)\n- Implementation (that's the coding pace)\n\n## Dependency\n\nBlocked by: vos-add-routines-section (₢AHAAB)\n\nAcceptance: JJSA session marker section clearly references vosr_probe. Saddle spec includes Needs-session-probe output.",
+              "silks": "jjsa-session-probe-update",
+              "commit": "55fb216"
+            },
+            {
               "ts": "260125-1415",
               "state": "bridled",
               "text": "Update JJSA to consume vosr_probe from VOS layer.\n\n## Context\n\nAfter VOS defines vosr_probe, JJSA needs to reference it for session marker creation. The session probe check (1-hour threshold) stays in JJK; the actual probing (claude --print calls) delegates to VOS.\n\n## Deliverables\n\n1. **Update session marker section in JJSA:**\n   - Reference vosr_probe for model/platform collection\n   - Clarify: JJK checks threshold, calls vosr_probe, formats result into session marker\n\n2. **Update jjx_saddle spec (JJSCSD-saddle.adoc):**\n   - Add `Needs-session-probe: true|false` to output\n   - Logic: check steeplechase for most recent `s` marker for heat\n   - If none or > 1 hour: emit true\n\n3. **Update slash commands if needed:**\n   - jjc-heat-mount.md — verify Step 2.5 alignment\n   - jjc-heat-groom.md — add session probe check if missing\n\n## NOT in scope\n\n- vosr_probe definition (that's the VOS pace)\n- Implementation (that's the coding pace)\n\n## Dependency\n\nBlocked by: vos-add-routines-section (₢AHAAB)\n\nAcceptance: JJSA session marker section clearly references vosr_probe. Saddle spec includes Needs-session-probe output.",
