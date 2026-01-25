@@ -3215,9 +3215,10 @@
         "₢AFABB",
         "₢AFABC",
         "₢AFABD",
-        "₢AFAAc"
+        "₢AFAAc",
+        "₢AFABH"
       ],
-      "next_pace_seed": "ABH",
+      "next_pace_seed": "ABI",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAA-": {
@@ -4960,6 +4961,17 @@
               "text": "Delete old aggregate files after successful rewire.\n\n## Depends on\n\nrewire-command-dispatch (build + tests passing)\n\n## Deliverable\n\nRemove obsolete files:\n- jjrx_cli.rs (CLI parsing - now distributed)\n- jjro_ops.rs (operations - now distributed)\n- jjrq_query.rs (queries - now distributed)\n\n## Keep\n\nInfrastructure files remain:\n- jjrg_gallops.rs (data structures)\n- jjru_util.rs (shared utilities)\n- jjrf_favor.rs (encoding)\n- jjri_io.rs (file I/O)\n- jjrn_notch.rs (commit formatting - shared)\n- jjrs_steeplechase.rs (log parsing - shared)\n- jjrp_print.rs (display utilities)\n- jjrt_types.rs (type definitions)\n- jjrv_validate.rs (validation - may stay shared or move)\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nClean build, all tests pass, no dead code warnings.",
               "silks": "delete-aggregate-files",
               "commit": "e13d9a5"
+            }
+          ]
+        },
+        "₢AFABH": {
+          "tacks": [
+            {
+              "ts": "260124-1810",
+              "state": "rough",
+              "text": "Update RCG and BCG copyright dates to 2026.\n\n## Files\n\n- Tools/vok/vov_veiled/RCG-RustCodingGuide.md\n- Tools/buk/vov_veiled/BCG-BashConsoleGuide.md\n\n## Deliverable\n\nChange copyright year references from 2025 (or earlier) to 2026 in both guide files.",
+              "silks": "update-guide-copyrights",
+              "commit": "276a47b"
             }
           ]
         }
