@@ -11,8 +11,6 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::io::Write;
 
-use clap::Parser;
-
 use crate::jjrf_favor::{jjrf_Coronet as Coronet};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_TallyArgs as LibTallyArgs, jjrg_PaceState};
 use crate::jjrn_notch::{jjrn_ChalkMarker, jjrn_format_notch_prefix, jjrn_format_chalk_message};

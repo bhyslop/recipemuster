@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 use super::jjrg_gallops::*;
-use super::jjrv_validate::{zjjrg_is_base64, zjjrg_is_kebab_case, zjjrg_is_yymmdd, zjjrg_is_yymmdd_hhmm, zjjrg_is_commit_sha};
+use super::jjrv_validate::{zjjrg_is_base64, zjjrg_is_kebab_case, zjjrg_is_yymmdd, zjjrg_is_yymmdd_hhmm};
 use super::jjru_util::zjjrg_increment_seed;
 use std::collections::BTreeMap;
 use indexmap::IndexMap;

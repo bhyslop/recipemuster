@@ -8,9 +8,8 @@
 //! and plan refinement through tack prepending.
 
 use std::path::PathBuf;
-use clap::Parser;
 
-use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};
+use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState, jjrg_read_stdin_optional as read_stdin_optional};
 use crate::jjrn_notch::{jjrn_format_heat_message as format_heat_message, jjrn_HeatAction as HeatAction};
 

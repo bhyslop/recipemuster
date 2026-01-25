@@ -7,7 +7,6 @@
 //! Handles retire operation: optionally dry-run (preview trophy) or execute
 //! (write trophy, remove from gallops, delete paddock, commit).
 
-use clap::Parser;
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;

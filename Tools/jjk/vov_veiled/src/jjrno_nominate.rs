@@ -7,11 +7,10 @@
 //! This module provides the Args struct and handler for the jjx_nominate command.
 
 use std::path::PathBuf;
-use clap::Parser;
 use indexmap::IndexMap;
 
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_NominateArgs as LibNominateArgs, jjrg_NominateResult as LibNominateResult};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_NominateArgs as LibNominateArgs};
 use crate::jjrc_core::jjrc_timestamp_from_env;
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
 

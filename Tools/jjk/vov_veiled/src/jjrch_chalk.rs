@@ -7,7 +7,6 @@
 //! The chalk command creates empty commits with special formatting for tracking
 //! steeplechase events like approach, wrap, fly, or heat-level discussions.
 
-use clap::Parser;
 use std::io::{self, BufRead};
 
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};

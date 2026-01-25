@@ -7,10 +7,9 @@
 //! Handles the jjx_restring command which moves multiple paces from one heat
 //! to another in a single atomic operation.
 
-use clap::Parser;
 use std::path::PathBuf;
 
-use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};
+use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_RestringArgs as LibRestringArgs, jjrg_PaceState};
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
 

@@ -8,7 +8,6 @@
 //! Setter mode requires a verb flag (--refine, --level, --muck) to indicate update type.
 
 use std::path::PathBuf;
-use clap::Parser;
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
 

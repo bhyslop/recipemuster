@@ -9,8 +9,8 @@
 use clap::Args;
 use std::path::PathBuf;
 
-use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_read_stdin as read_stdin};
+use crate::jjrf_favor::jjrf_Firemark as Firemark;
+use crate::jjrg_gallops::jjrg_Gallops as Gallops;
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
 
 /// Arguments for jjx_draft command

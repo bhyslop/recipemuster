@@ -10,7 +10,6 @@
 //! - Transfers actionable paces (rough/bridled) to new heat
 //! - Retains complete/abandoned paces in garlanded heat
 
-use clap::Parser;
 use std::path::PathBuf;
 
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_GarlandArgs as LibGarlandArgs};

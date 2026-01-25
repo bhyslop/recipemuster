@@ -6,7 +6,6 @@
 //!
 //! Supports toggling between racing/stabled status and/or renaming a Heat.
 
-use clap::Parser;
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;

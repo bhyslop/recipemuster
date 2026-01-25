@@ -72,7 +72,6 @@ mod jjtq_query;
 // Re-export commonly used types (with RCG prefixes)
 pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark};
 pub use jjrn_notch::{jjrn_ChalkMarker, jjrn_HeatAction, jjrn_format_notch_prefix, jjrn_format_chalk_message, jjrn_format_heat_message, jjrn_format_heat_discussion};
-pub use jjrq_query::{jjrq_MusterArgs, jjrq_SaddleArgs, jjrq_ParadeArgs};
 pub use jjrs_steeplechase::{jjrs_ReinArgs, jjrs_SteeplechaseEntry, jjrs_get_entries};
 
 // Re-export new I/O routines
