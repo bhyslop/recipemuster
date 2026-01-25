@@ -779,9 +779,10 @@
         "₢APAAA",
         "₢APAAB",
         "₢APAAC",
-        "₢APAAD"
+        "₢APAAD",
+        "₢APAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -825,6 +826,17 @@
               "text": "Run all 5 pluml PlantUML tests. These validate the PlantUML rendering service: text rendering, local diagram generation, HTTP headers, invalid hash handling, malformed diagram rejection. Tabtarget: tt/rbw-to.TestBottleService.pluml.sh",
               "silks": "run-pluml-test-suite",
               "commit": "b3fc768"
+            }
+          ]
+        },
+        "₢APAAE": {
+          "tacks": [
+            {
+              "ts": "260125-0837",
+              "state": "rough",
+              "text": "Trigger a full cloud build to verify the OCI Layout Bridge pipeline still works. Uses rbf_Foundry.sh with stitcher to generate Cloud Build JSON, pushes multi-platform image to Artifact Registry via Skopeo. Confirms mason SA, depot, and build infrastructure are functional.",
+              "silks": "verify-cloud-build-pipeline",
+              "commit": "fb0b940"
             }
           ]
         }
