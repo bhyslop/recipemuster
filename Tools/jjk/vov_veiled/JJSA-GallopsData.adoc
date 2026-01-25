@@ -97,6 +97,7 @@
 :jjda_direction:      <<jjda_direction,--direction>>
 :jjda_file:           <<jjda_file,--file>>
 :jjda_first:          <<jjda_first,--first>>
+:jjda_intent:         <<jjda_intent,--intent>>
 :jjda_last:           <<jjda_last,--last>>
 :jjda_move:           <<jjda_move,--move>>
 :jjda_pace:           <<jjda_pace,--pace>>
@@ -748,6 +749,16 @@ Pace silks for context in commit messages.
 Long: `--pace`.
 Short: `-p`.
 
+[[jjda_intent]]
+// ⟦axl_voices axa_cli_option⟧
+{jjda_intent}::
+Commit subject provided by opus.
+Long: `--intent`.
+Short: none.
+If provided, used as commit subject in
+{jjdo_notch};
+if omitted, falls back to haiku diff description.
+
 [[jjda_created]]
 // ⟦axl_voices axa_cli_option⟧
 {jjda_created}::
@@ -1080,12 +1091,41 @@ jjb:HALLMARK:₢XXXXX:A: description
 Co-Authored-By: ...
 ----
 
+*Bridle marker* (created when pace transitions to bridled state):
+----
+jjb:HALLMARK:₢XXXXX:B: {agent} | {file_count} files | {silks}
+
+{full direction text}
+
+Co-Authored-By: ...
+----
+
+Subject format: `{agent} | {file_count} files | {silks}` where agent is the designated executor, file_count is the number of files in scope, and silks is the pace display name. Body contains the complete direction text that guides autonomous execution.
+
+*Landing marker* (created when spawned agent completes):
+----
+jjb:HALLMARK:₢XXXXX:L: {agent} {landed|crashed} | {steps_completed}/{steps_total} | verify: {pass|fail}
+
+Files touched:
+- file1
+- file2
+
+Duration: {elapsed_time}
+{error_message if crashed}
+
+Co-Authored-By: ...
+----
+
+Subject format: `{agent} {landed|crashed} | {steps_completed}/{steps_total} | verify: {pass|fail}` where agent is the executor name, landed/crashed indicates success/failure, steps show progress, and verify indicates post-execution validation status. Body contains files touched, duration, and error message if crashed.
+
 Pace-level action codes:
 
 * `n` — Notch: standard commit
 * `A` — APPROACH: proposed approach before work begins
-* `W` — WRAP: pace completion summary
+* `B` — BRIDLE: records bridling decision before autonomous execution
 * `F` — FLY: autonomous execution began (bridled pace)
+* `L` — LANDING: records agent return after autonomous execution
+* `W` — WRAP: pace completion summary
 * `d` — discussion: significant decision (lowercase, can also be heat-level)
 
 *Heat-level operations*:
