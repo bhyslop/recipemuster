@@ -3204,9 +3204,10 @@
         "₢AFAA5",
         "₢AFAAM",
         "₢AFAAc",
-        "₢AFAA6"
+        "₢AFAA6",
+        "₢AFAA8"
       ],
-      "next_pace_seed": "AA8",
+      "next_pace_seed": "AA9",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAA0": {
@@ -3435,6 +3436,17 @@
               "text": "Strip verbose process chatter from jjx_tally output.\n\n## Rationale\n\nNow that tally is trusted and has good error reporting, the step-by-step narration consumes tokens without benefit.\n\n## Current output (10+ lines)\n\n```\njjx_tally: starting\njjx_tally: stdin read (N bytes)\njjx_tally: gallops loaded\njjx_tally: calling jjrg_tally\njjx_tally: tally succeeded, persisting\nvvcm_commit: staged N file(s)\nguard: OK - staged content N bytes (limit: 50000)\nvvcm_commit: committed <hash>\njjx_tally: committed <hash>\njjx_tally: creating B (bridle) commit\njjx_tally: B commit created <hash>\njjx_tally: complete, releasing lock\n```\n\n## Target output (1-2 lines)\n\nStandard tally:\n```\ncommitted <hash>\n```\n\nBridle tally (with B marker):\n```\ncommitted <hash>\nB commit <hash>\n```\n\n## Lines to eliminate\n\n- `jjx_tally: starting`\n- `jjx_tally: stdin read (N bytes)`\n- `jjx_tally: gallops loaded`\n- `jjx_tally: calling jjrg_tally`\n- `jjx_tally: tally succeeded, persisting`\n- `jjx_tally: committed <hash>` (redundant with vvcm_commit)\n- `jjx_tally: creating B (bridle) commit`\n- `jjx_tally: complete, releasing lock`\n- `vvcm_commit: staged N file(s)`\n- `guard: OK - ...`\n\n## Lines to keep\n\n- `vvcm_commit: committed <hash>` → simplify to `committed <hash>`\n- `jjx_tally: B commit created <hash>` → simplify to `B commit <hash>`\n\n## Files\n\njjrx_cli.rs (tally entry point), vvcc_commit.rs (vvcm_commit output)",
               "silks": "strip-tally-chatter",
               "commit": "a9ae16f"
+            }
+          ]
+        },
+        "₢AFAA8": {
+          "tacks": [
+            {
+              "ts": "260124-1744",
+              "state": "rough",
+              "text": "Develop tests for jjx_curry (paddock getter/setter with chalk).\n\n## Scope\n\n1. Review jjx_curry implementation in jjro_ops.rs\n2. Identify testable behaviors: getter mode, setter mode, verb handling, chalk entries\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_curry happy paths and error cases.",
+              "silks": "test-jjx-curry",
+              "commit": "b0fb2dc"
             }
           ]
         },
