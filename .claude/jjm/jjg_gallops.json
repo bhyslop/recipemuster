@@ -3263,6 +3263,13 @@
         "₢AFAA2": {
           "tacks": [
             {
+              "ts": "260124-1719",
+              "state": "rough",
+              "text": "Implement L commit when agent returns from autonomous execution.\n\n## Trigger\n\nWhen a spawned agent completes execution in `/jjc-heat-mount` bridled flow.\n\n## Implementation\n\nAfter Task agent returns, before asking \"Ready to wrap?\":\n1. Create L marker commit\n2. Subject: `jjb:HALLMARK:₢XXXXX:L: {agent} landed`\n3. Body: agent's completion report (the Task tool result)\n\n## Changes\n\n- jjrn_notch.rs: Add Landing variant to ChalkMarker, add jjrn_format_landing_message(coronet, agent) function\n- /jjc-heat-mount: After Task returns, create L commit with agent output as body\n\n## Outcome\n\nFor now, always use \"landed\" - the body contains the actual outcome details. \"Crashed\" reserved for Task tool failures (rare).\n\n## Depends on\n\ntrophy-alpha-bridle-marker (B must exist to have flights to land)",
+              "silks": "trophy-alpha-landing-marker",
+              "commit": "b217ee3"
+            },
+            {
               "ts": "260124-1718",
               "state": "rough",
               "text": "Implement L commit when agent returns from autonomous execution.\n\n## Trigger\n\nWhen a spawned agent completes execution in `/jjc-heat-mount` bridled flow.\n\n## Implementation\n\nAfter Task agent returns, before asking \"Ready to wrap?\":\n1. Determine outcome: landed (success) or crashed (error)\n2. Create L marker commit\n3. Subject: `jjb:HALLMARK:₢XXXXX:L: {agent} {landed|crashed}`\n4. Body: agent's completion report (raw text)\n\n## Changes\n\n- jjrn_notch.rs: Add Landing variant to ChalkMarker, add jjrn_format_landing_message function\n- /jjc-heat-mount: After Task returns, create L commit with agent output\n\n## Outcome Detection\n\n- **landed**: Task tool returns successfully with agent output\n- **crashed**: Task tool returns error or agent reports failure\n\n## Depends on\n\ntrophy-alpha-bridle-marker (B must exist to have flights to land)",
