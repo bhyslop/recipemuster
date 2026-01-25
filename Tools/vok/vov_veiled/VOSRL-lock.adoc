@@ -1,0 +1,32 @@
+Acquire an exclusive lock for commit operations.
+Uses `git update-ref` for atomic lock acquisition.
+Returns an RAII guard that releases the lock when dropped.
+
+The lock prevents concurrent commit operations from corrupting
+repository state.
+Lock reference: `refs/vvg/locks/vvx`.
+
+{voss_inputs}
+
+// ⟦axd_none⟧
+None.
+
+{voss_behavior}
+
+. Get current HEAD commit SHA via `git rev-parse HEAD`
+. If no HEAD (empty repo): use null SHA `0000000000000000000000000000000000000000`
+. Attempt `git update-ref refs/vvg/locks/vvx <SHA> ""`
+. If update-ref succeeds: lock acquired, return RAII guard
+. If update-ref fails: another operation holds the lock, return error
+
+{voss_outputs}
+
+* On success: RAII lock guard (`vvcc_CommitLock`)
+* On failure: error string "Another commit in progress - lock held"
+
+{voss_completion}
+
+Lock is held until the guard is dropped.
+Drop implementation calls `git update-ref -d refs/vvg/locks/vvx` to release.
+
+*Implementation:* `Tools/vvc/src/vvcc_commit.rs` — `vvcc_CommitLock::vvcc_acquire()`

@@ -1,0 +1,45 @@
+Execute the guarded commit workflow: lock, stage, guard, commit.
+Provides atomic commit with size validation and optional message generation.
+
+Used by `vvx commit` and JJK commands for consistent commit handling.
+
+{voss_inputs}
+
+* `prefix` — Optional string to prepend to commit message (e.g., `jjb:1000:₢XXXXX:n:`)
+* `message` — Optional commit message; if absent, invoke claude to generate from diff
+* `allow_empty` — Allow empty commits (for chalk markers)
+* `no_stage` — Skip `git add -A` (respect pre-staged files)
+* `size_limit` — Maximum staged content size in bytes (standard: 50000)
+* `warn_limit` — Warning threshold in bytes (standard: 30000)
+
+{voss_behavior}
+
+. Acquire lock via
+{vosr_lock}
+. If `no_stage` is false: run `git add -A` to stage all changes
+. If `allow_empty` is false and no staged changes: return error "Nothing to commit"
+. Run
+{vosr_guard}
+with `size_limit` and `warn_limit`
+. If guard returns blocked (exit 1): return error "Staged content exceeds size limit"
+. If guard returns warning (exit 2): emit warning to stderr, continue
+. If `message` is absent:
+.. Get staged diff via `git diff --cached`
+.. Invoke `claude -p --model haiku --system-prompt "Output only a conventional git commit message..." <diff>`
+.. Strip markdown code blocks and Co-Authored-By trailer from response
+. Format full message: `prefix` + `message`
+. Execute `git commit -m <message>` (with `--allow-empty` if `allow_empty` is true)
+. Get commit hash via `git rev-parse HEAD`
+. Release lock (automatic via RAII guard drop)
+. Return commit hash
+
+{voss_outputs}
+
+* On success: 7-character commit hash
+* On failure: error string describing failure
+
+{voss_completion}
+
+Exit 0 with commit hash on stdout, or exit 1 with error on stderr.
+
+*Implementation:* `Tools/vvc/src/vvcc_commit.rs` — `vvcc_run()`, `vvcc_CommitLock::vvcc_commit()`

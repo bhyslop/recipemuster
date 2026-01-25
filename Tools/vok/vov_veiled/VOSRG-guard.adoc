@@ -1,0 +1,44 @@
+Validate staged content size against storage cost limits.
+Prevents accidental commits of release tarballs, build artifacts,
+node_modules, or large binaries.
+
+The cost model approximates incremental storage impact:
+
+* New file (A): blob size
+* Modified text (M): diff size (delta compression)
+* Modified binary (M): blob size (no delta)
+* Deleted file (D): 0
+
+{voss_inputs}
+
+* `limit` — Maximum allowed size in bytes (standard: 50000)
+* `warn` — Warning threshold in bytes (standard: 30000)
+
+{voss_behavior}
+
+. Get list of staged files via `git diff --cached --name-only`
+. For each staged file:
+.. Determine change status via `git diff --cached --name-status`
+.. If deleted: size = 0
+.. If added: size = blob size via `git cat-file -s`
+.. If modified:
+... Check if binary via `git diff --cached --numstat` (binary shows `-\t-\t<path>`)
+... If binary: size = blob size
+... If text: size = diff output size via `git diff --cached -- <path>`
+. Sum all file sizes
+. If total > `limit`: emit blocked message with breakdown, return 1
+. If total > `warn`: emit warning message, return 2
+. Otherwise: return 0
+
+{voss_outputs}
+
+* Exit 0: under limit (OK to commit)
+* Exit 1: over limit (commit blocked)
+* Exit 2: over warning threshold (commit allowed with warning)
+
+{voss_completion}
+
+Returns exit code indicating status.
+On blocked (exit 1), emits breakdown of largest files to stderr.
+
+*Implementation:* `Tools/vvc/src/vvcg_guard.rs` — `vvcg_run()`

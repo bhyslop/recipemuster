@@ -10,6 +10,7 @@
 // vosp_:  Places (repository and location concepts)
 // vosa_:  Assets (distributable or indexed artifacts)
 // voso:   Operations (non-terminal, has children: vosoi_, vosok_, vosou_, vosor_)
+// vosr_:  Routines (internal reusable procedures)
 // vosk_:  Key premises (design constraints)
 // vosc_:  Control terms (voices axc_* in bash scripted context)
 // voss_:  Section headers (voices axs_*)
@@ -143,6 +144,12 @@
 :vosor_release:         <<vosor_release,Release>>
 :vosoi_install:         <<vosoi_install,Install>>
 :vosou_uninstall:       <<vosou_uninstall,Uninstall>>
+
+// Routines (internal reusable procedures)
+:vosr_lock:             <<vosr_lock,lock routine>>
+:vosr_commit:           <<vosr_commit,commit routine>>
+:vosr_guard:            <<vosr_guard,guard routine>>
+:vosr_probe:            <<vosr_probe,probe routine>>
 
 // Control terms (voice axc_* in bash scripted context)
 :vosc_require:          <<vosc_require,REQUIRE>>
@@ -1259,6 +1266,36 @@ Claude Code integration cleanly removed.
 Kit directories remain for continued use outside Claude Code.
 {vose_uninstalled_marker_s}
 preserve section positions for future reinstall.
+
+
+== Routines
+
+Routines are internal reusable procedures invoked by operations.
+They encapsulate common logic for consistent behavior across the codebase.
+
+[[vosr_lock]]
+// ⟦axl_voices axo_routine⟧
+=== {vosr_lock}
+
+include::VOSRL-lock.adoc[]
+
+[[vosr_commit]]
+// ⟦axl_voices axo_routine⟧
+=== {vosr_commit}
+
+include::VOSRC-commit.adoc[]
+
+[[vosr_guard]]
+// ⟦axl_voices axo_routine⟧
+=== {vosr_guard}
+
+include::VOSRG-guard.adoc[]
+
+[[vosr_probe]]
+// ⟦axl_voices axo_routine⟧
+=== {vosr_probe}
+
+include::VOSRP-probe.adoc[]
 
 
 == Commit Message Architecture

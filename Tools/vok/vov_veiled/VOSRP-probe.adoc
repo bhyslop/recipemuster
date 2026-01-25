@@ -1,0 +1,52 @@
+Probe Claude Code environment for model IDs and platform information.
+Spawns minimal claude invocations to discover actual model versions.
+
+Returns structured data suitable for session markers or diagnostics.
+
+{voss_inputs}
+
+// ⟦axd_none⟧
+None.
+
+{voss_behavior}
+
+. Spawn three claude invocations in parallel (via tokio):
++
+----
+claude -p --model haiku --system-prompt "Report only your exact model ID string." --tools "" "go"
+claude -p --model sonnet --system-prompt "Report only your exact model ID string." --tools "" "go"
+claude -p --model opus --system-prompt "Report only your exact model ID string." --tools "" "go"
+----
+. For each invocation:
+.. On success: capture trimmed stdout as model ID
+.. On failure: use string "unavailable"
+. Collect hostname via `std::env` or `hostname` command
+. Collect platform via `uname -s` and `uname -m` (e.g., `darwin-arm64`)
+. Format output as 5-line string
+
+{voss_outputs}
+
+Five-line string in `key: value` format:
+
+----
+haiku: claude-3-5-haiku-20241022
+sonnet: claude-sonnet-4-20250514
+opus: claude-opus-4-5-20251101
+host: macbook-pro.local
+platform: darwin-arm64
+----
+
+If a model tier is unavailable, that line shows:
+
+----
+haiku: unavailable
+----
+
+{voss_completion}
+
+Returns the formatted string on success.
+Individual probe failures are captured as "unavailable" rather than failing the routine.
+
+*Token budget:* ~16 tokens per probe (5 prompt + 1 query + 10 response), ~50 total.
+
+*Implementation:* `Tools/vok/src/vosrp_probe.rs` (to be created)
