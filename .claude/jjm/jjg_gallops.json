@@ -4964,6 +4964,13 @@
         "₢AFABG": {
           "tacks": [
             {
+              "ts": "260124-1827",
+              "state": "complete",
+              "text": "Remove dead code from CLI modules after rewire.\n\n## Context\n\nThe rewire-command-dispatch pace moved Args and handlers to per-command modules (jjrxx_*.rs). However:\n- jjro_ops.rs contains active operations used via jjrg_gallops re-exports\n- jjrq_query.rs contains query functions still used by jjrsd_saddle.rs\n- These files CANNOT be deleted\n\n## Deliverable\n\n1. Remove unused re-exports from lib.rs:\n   - Check if `jjrq_MusterArgs`, `jjrq_SaddleArgs`, `jjrq_ParadeArgs` are used externally\n   - If not, remove the `pub use jjrq_query::...` line\n\n2. Check jjrx_cli.rs for any remaining dead code patterns\n\n3. Run `cargo fix --lib -p jjk` to auto-fix unused import warnings\n\n## NOT in scope\n\n- jjro_ops.rs stays (active operations)\n- jjrq_query.rs stays (active queries)\n- jjrg_gallops.rs stays (re-export facade)\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nClean build with no warnings, all tests pass.",
+              "silks": "trim-cli-dead-code",
+              "commit": "6b39f8e"
+            },
+            {
               "ts": "260124-1822",
               "state": "bridled",
               "text": "Remove dead code from CLI modules after rewire.\n\n## Context\n\nThe rewire-command-dispatch pace moved Args and handlers to per-command modules (jjrxx_*.rs). However:\n- jjro_ops.rs contains active operations used via jjrg_gallops re-exports\n- jjrq_query.rs contains query functions still used by jjrsd_saddle.rs\n- These files CANNOT be deleted\n\n## Deliverable\n\n1. Remove unused re-exports from lib.rs:\n   - Check if `jjrq_MusterArgs`, `jjrq_SaddleArgs`, `jjrq_ParadeArgs` are used externally\n   - If not, remove the `pub use jjrq_query::...` line\n\n2. Check jjrx_cli.rs for any remaining dead code patterns\n\n3. Run `cargo fix --lib -p jjk` to auto-fix unused import warnings\n\n## NOT in scope\n\n- jjro_ops.rs stays (active operations)\n- jjrq_query.rs stays (active queries)\n- jjrg_gallops.rs stays (re-export facade)\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nClean build with no warnings, all tests pass.",
