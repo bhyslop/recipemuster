@@ -3202,9 +3202,10 @@
         "₢AFAA4",
         "₢AFAA5",
         "₢AFAAM",
-        "₢AFAAc"
+        "₢AFAAc",
+        "₢AFAA6"
       ],
-      "next_pace_seed": "AA6",
+      "next_pace_seed": "AA7",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAA0": {
@@ -3345,6 +3346,17 @@
               "text": "Implement automatic model version collection in saddle.\n\n## Trigger\n\nIn jjx_saddle, before returning saddle output:\n1. Check steeplechase for V marker with today's date\n2. If found, skip collection\n3. If not found, spawn 3 agents and create marker\n\n## Collection Logic\n\nSpawn 3 minimal Task agents (can be parallel):\n- haiku agent: \"Report your exact model ID string\"\n- sonnet agent: \"Report your exact model ID string\"  \n- opus agent: \"Report your exact model ID string\"\n\nEach agent returns its model ID (e.g., \"claude-opus-4-5-20251101\").\n\n## Marker Creation\n\nAfter collecting all 3 responses:\n1. Format commit body with tier: model-id lines\n2. Create V marker commit via existing chalk infrastructure\n3. Use heat firemark from saddle context\n\n## Implementation Notes\n\n- Agent spawning from Rust: may need to shell out to vvx or use subprocess\n- Or: saddle returns a \"needs_version_check\" flag and slash command handles spawning\n- Fully autonomous: no user prompts\n\n## Error Handling\n\n- If any agent fails to respond, log warning but continue\n- Partial results still useful (record what we got)\n\n## Files\n\n- jjro_ops.rs (saddle logic)\n- Possibly jjrx_cli.rs (if spawning handled at CLI layer)\n\n## Depends on\n\ntrophy-alpha-jjsa-version-marker (spec must be defined first)",
               "silks": "trophy-alpha-version-collect",
               "commit": "c3812a5"
+            }
+          ]
+        },
+        "₢AFAA6": {
+          "tacks": [
+            {
+              "ts": "260124-1718",
+              "state": "rough",
+              "text": "Remove verbose lock acquired/released messages from VVC, VOK, and JJK.\n\n## Rationale\n\nThese messages consume tokens and provide no value in the success path. The error case (\"Another commit in progress - lock held\") already explains the context.\n\n## Changes\n\n1. **Tools/vvc/src/vvcc_commit.rs**\n   - Delete line 121: `eprintln!(\"commit: lock acquired\");`\n   - Delete line 133: `eprintln!(\"commit: lock released\");`\n\n2. **Tools/vok/src/vorm_main.rs**\n   - Delete line 305: `eprintln!(\"push: lock acquired\");`\n   - Check for corresponding \"lock released\" message and delete if present\n\n3. **Tools/jjk/vov_veiled/src/jjrx_cli.rs**\n   - Delete line 1256: `eprintln!(\"jjx_tally: lock acquired\");`\n   - Check for corresponding \"lock released\" message and delete if present\n\n## Verify\n\ntt/vow-b.Build.sh && tt/vow-t.Test.sh",
+              "silks": "remove-verbose-lock-messages",
+              "commit": "ee2fb8d"
             }
           ]
         },
