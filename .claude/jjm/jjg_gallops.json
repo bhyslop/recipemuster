@@ -6,12 +6,12 @@
       "creation_time": "260125",
       "status": "racing",
       "order": [
+        "₢APAAF",
         "₢APAAA",
         "₢APAAE",
         "₢APAAB",
         "₢APAAC",
-        "₢APAAD",
-        "₢APAAF"
+        "₢APAAD"
       ],
       "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AP.md",
