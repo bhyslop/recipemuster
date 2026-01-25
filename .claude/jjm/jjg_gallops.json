@@ -7,10 +7,10 @@
       "status": "racing",
       "order": [
         "₢APAAA",
+        "₢APAAE",
         "₢APAAB",
         "₢APAAC",
-        "₢APAAD",
-        "₢APAAE"
+        "₢APAAD"
       ],
       "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AP.md",
