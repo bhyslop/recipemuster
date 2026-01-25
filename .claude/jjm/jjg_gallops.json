@@ -10,9 +10,10 @@
         "₢APAAE",
         "₢APAAB",
         "₢APAAC",
-        "₢APAAD"
+        "₢APAAD",
+        "₢APAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -74,6 +75,17 @@
               "text": "Trigger a full cloud build to verify the OCI Layout Bridge pipeline still works. Uses rbf_Foundry.sh with stitcher to generate Cloud Build JSON, pushes multi-platform image to Artifact Registry via Skopeo. Confirms mason SA, depot, and build infrastructure are functional.",
               "silks": "verify-cloud-build-pipeline",
               "commit": "fb0b940"
+            }
+          ]
+        },
+        "₢APAAF": {
+          "tacks": [
+            {
+              "ts": "260125-1410",
+              "state": "rough",
+              "text": "Remove RBRR_GCB_JQ_IMAGE_REF and RBRR_GCB_SYFT_IMAGE_REF from all files. These undocumented variables block container start with validation errors. The GCB metadata step installs jq at runtime anyway. Remove: variable definitions in rbrr_RecipeBottleRegimeRepo.sh, validation calls in rbrr_regime.sh, substitution passing in rbf_Foundry.sh, and usage in rbgjb10-assemble-metadata.sh comments. Leave gcrane and oras refs (they're properly pinned and may be in use).",
+              "silks": "remove-gcb-jq-image-ref",
+              "commit": "993202d"
             }
           ]
         }
