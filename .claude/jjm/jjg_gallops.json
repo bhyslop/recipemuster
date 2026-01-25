@@ -4945,6 +4945,13 @@
         "₢AFABF": {
           "tacks": [
             {
+              "ts": "260124-1817",
+              "state": "complete",
+              "text": "Rewire CLI dispatch to use new per-command files.\n\n## Depends on\n\nparallel-split-commands (₢ assigned at slate time)\n\n## Deliverable\n\nUpdate lib.rs and CLI dispatch:\n1. Add `pub mod jjrxx_command;` for each new file\n2. Update Subcommand enum to import Args from new locations\n3. Update match dispatch to call handlers from new locations\n4. Build passes\n5. Tests pass\n\n## Sequential\n\nThis pace touches shared files (lib.rs, jjrx_cli.rs) - must be single agent.\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nAll 135 existing tests must pass.",
+              "silks": "rewire-command-dispatch",
+              "commit": "34e8578"
+            },
+            {
               "ts": "260124-1800",
               "state": "rough",
               "text": "Rewire CLI dispatch to use new per-command files.\n\n## Depends on\n\nparallel-split-commands (₢ assigned at slate time)\n\n## Deliverable\n\nUpdate lib.rs and CLI dispatch:\n1. Add `pub mod jjrxx_command;` for each new file\n2. Update Subcommand enum to import Args from new locations\n3. Update match dispatch to call handlers from new locations\n4. Build passes\n5. Tests pass\n\n## Sequential\n\nThis pace touches shared files (lib.rs, jjrx_cli.rs) - must be single agent.\n\n## Verification\n\n```\ntt/vow-b.Build.sh && tt/vow-t.Test.sh\n```\n\nAll 135 existing tests must pass.",
