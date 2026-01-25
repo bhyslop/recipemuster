@@ -107,6 +107,10 @@ pub enum jjrx_JjxCommands {
     /// Bulk draft multiple paces between heats atomically
     #[command(name = "jjx_restring")]
     Restring(zjjrx_RestringArgs),
+
+    /// Record agent landing after autonomous execution
+    #[command(name = "jjx_landing")]
+    Landing(jjrx_LandingArgs),
 }
 
 /// Arguments for jjx_notch command
@@ -148,6 +152,16 @@ pub struct jjrx_ChalkArgs {
     /// Marker description text
     #[arg(long)]
     pub description: String,
+}
+
+/// Arguments for jjx_landing command
+#[derive(clap::Args, Debug)]
+pub struct jjrx_LandingArgs {
+    /// Pace identity (Coronet)
+    pub coronet: String,
+
+    /// Agent tier that executed the pace
+    pub agent: String,
 }
 
 /// Arguments for jjx_rein command
@@ -1253,7 +1267,6 @@ fn zjjrx_run_tally(args: zjjrx_TallyArgs) -> i32 {
             return 1;
         }
     };
-    eprintln!("jjx_tally: lock acquired");
 
     let text = match read_stdin_optional() {
         Ok(t) => t,

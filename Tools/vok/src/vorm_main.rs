@@ -302,7 +302,7 @@ fn run_push(args: PushArgs) -> i32 {
 
     match lock_result {
         Ok(output) if output.status.success() => {
-            eprintln!("push: lock acquired");
+            // Lock acquired
         }
         _ => {
             eprintln!("push: error: Another operation in progress - lock held");
@@ -315,7 +315,6 @@ fn run_push(args: PushArgs) -> i32 {
     let _ = Command::new("git")
         .args(["update-ref", "-d", LOCK_REF])
         .output();
-    eprintln!("push: lock released");
 
     match result {
         Ok(()) => {

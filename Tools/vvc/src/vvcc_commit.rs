@@ -118,7 +118,6 @@ fn zvvcc_acquire_lock() -> Result<(), String> {
         .map_err(|e| format!("Failed to run git update-ref: {}", e))?;
 
     if result.status.success() {
-        eprintln!("commit: lock acquired");
         Ok(())
     } else {
         Err("Another commit in progress - lock held".to_string())
@@ -130,7 +129,6 @@ fn zvvcc_release_lock() {
     let _ = Command::new("git")
         .args(["update-ref", "-d", VVCC_LOCK_REF])
         .output();
-    eprintln!("commit: lock released");
 }
 
 /// Stage all changes including untracked files with 'git add -A'
