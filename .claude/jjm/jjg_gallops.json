@@ -1,6 +1,15 @@
 {
   "next_heat_seed": "AP",
   "heats": {
+    "₣AO": {
+      "silks": "rbm-misc-bash-cleanup",
+      "creation_time": "260125",
+      "status": "racing",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AO.md",
+      "paces": {}
+    },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
       "creation_time": "260117",
@@ -708,15 +717,6 @@
           ]
         }
       }
-    },
-    "₣AO": {
-      "silks": "rbm-misc-bash-cleanup",
-      "creation_time": "260125",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paddock_file": ".claude/jjm/jjp_AO.md",
-      "paces": {}
     }
   }
 }
