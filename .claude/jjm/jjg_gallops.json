@@ -5,10 +5,24 @@
       "silks": "rbm-misc-bash-cleanup",
       "creation_time": "260125",
       "status": "racing",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AOAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AO.md",
-      "paces": {}
+      "paces": {
+        "₢AOAAA": {
+          "tacks": [
+            {
+              "ts": "260125-0828",
+              "state": "rough",
+              "text": "Extract paces from legacy orphaned heat file `.claude/jjm/current/jjh_b251226-bash-tooling-cleanup.md` into current Job Jockey structure. This file predates the firemark system and contains unfinished work from the Dec 26, 2025 Recipe Bottle session. Review content, migrate any relevant incomplete paces to appropriate heats, then archive or delete the orphaned file.",
+              "silks": "extract-orphaned-heat-paces",
+              "commit": "a0741a4"
+            }
+          ]
+        }
+      }
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
