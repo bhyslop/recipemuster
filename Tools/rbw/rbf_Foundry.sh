@@ -125,8 +125,6 @@ zrbf_kindle() {
   ZRBF_VESSEL_SIGIL_FILE="${BUD_TEMP_DIR}/rbf_vessel_sigil.txt"
 
   buc_log_args 'For now lets double check these'
-  test -n "${RBRR_GCB_JQ_IMAGE_REF:-}"     || buc_die "RBRR_GCB_JQ_IMAGE_REF not set"
-  test -n "${RBRR_GCB_SYFT_IMAGE_REF:-}"   || buc_die "RBRR_GCB_SYFT_IMAGE_REF not set"
   test -n "${RBRR_GCB_GCRANE_IMAGE_REF:-}" || buc_die "RBRR_GCB_GCRANE_IMAGE_REF not set"
   test -n "${RBRR_GCB_ORAS_IMAGE_REF:-}"   || buc_die "RBRR_GCB_ORAS_IMAGE_REF not set"
 
@@ -605,8 +603,6 @@ rbf_build() {
     --arg zjq_git_commit     "${z_git_commit}"                  \
     --arg zjq_git_branch     "${z_git_branch}"                  \
     --arg zjq_git_repo       "${z_git_repo}"                    \
-    --arg zjq_jq_ref         "${RBRR_GCB_JQ_IMAGE_REF:-}"       \
-    --arg zjq_syft_ref       "${RBRR_GCB_SYFT_IMAGE_REF:-}"     \
     '{
       substitutions: {
         _RBGY_DOCKERFILE:     $zjq_dockerfile,
@@ -617,9 +613,7 @@ rbf_build() {
         _RBGY_GAR_REPOSITORY: $zjq_gar_repository,
         _RBGY_GIT_COMMIT:     $zjq_git_commit,
         _RBGY_GIT_BRANCH:     $zjq_git_branch,
-        _RBGY_GIT_REPO:       $zjq_git_repo,
-        _RBGY_JQ_REF:         $zjq_jq_ref,
-        _RBGY_SYFT_REF:       $zjq_syft_ref
+        _RBGY_GIT_REPO:       $zjq_git_repo
       }
     }' >  "${ZRBF_BUILD_CONFIG_FILE}" || buc_die "Failed to create build config"
 

@@ -62,8 +62,6 @@ zrbrr_kindle() {
   buv_env_string      RBRR_DIRECTOR_RBRA_FILE      1    512
 
   # GCB image pins (digest-pinned)
-  buv_env_odref       RBRR_GCB_JQ_IMAGE_REF
-  buv_env_odref       RBRR_GCB_SYFT_IMAGE_REF
   buv_env_odref       RBRR_GCB_GCRANE_IMAGE_REF
   buv_env_odref       RBRR_GCB_ORAS_IMAGE_REF
 
