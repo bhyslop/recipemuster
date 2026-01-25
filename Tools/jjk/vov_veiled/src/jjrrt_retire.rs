@@ -11,7 +11,7 @@ use clap::Parser;
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops, jjrg_RetireArgs as LibRetireArgs};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_RetireArgs as LibRetireArgs};
 use crate::jjrs_steeplechase::{jjrs_ReinArgs as ReinArgs, jjrs_get_entries as get_entries};
 use crate::jjrc_core::jjrc_timestamp_date;
 use crate::jjrn_notch::{jjrn_format_heat_message, jjrn_HeatAction};

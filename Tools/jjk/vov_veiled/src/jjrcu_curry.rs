@@ -10,7 +10,7 @@
 use std::path::PathBuf;
 use clap::Parser;
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
-use crate::jjrg_gallops::{jjrg_Gallops};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
 
 /// Curry verb for paddock update mode
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

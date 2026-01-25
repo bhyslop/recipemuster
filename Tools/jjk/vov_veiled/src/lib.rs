@@ -27,6 +27,30 @@ pub mod jjrp_print;
 pub mod jjrs_steeplechase;
 pub mod jjrx_cli;
 
+// Per-command modules (jjrxx_command pattern)
+pub mod jjrch_chalk;
+pub mod jjrcu_curry;
+pub mod jjrdr_draft;
+pub mod jjrfu_furlough;
+pub mod jjrgc_get_coronets;
+pub mod jjrgl_garland;
+pub mod jjrgs_get_spec;
+pub mod jjrld_landing;
+pub mod jjrmu_muster;
+pub mod jjrnc_notch;
+pub mod jjrno_nominate;
+pub mod jjrpd_parade;
+pub mod jjrrl_rail;
+pub mod jjrrn_rein;
+pub mod jjrrs_restring;
+pub mod jjrrt_retire;
+pub mod jjrsc_scout;
+pub mod jjrsd_saddle;
+pub mod jjrsl_slate;
+pub mod jjrtl_tally;
+pub mod jjrvl_validate;
+pub mod jjrwp_wrap;
+
 #[cfg(test)]
 mod jjts_steeplechase;
 

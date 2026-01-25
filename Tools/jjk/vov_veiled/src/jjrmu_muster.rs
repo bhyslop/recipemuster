@@ -12,9 +12,14 @@ use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 
 /// Arguments for muster command
-#[derive(Debug)]
+#[derive(clap::Args, Debug)]
 pub struct jjrmu_MusterArgs {
+    /// Path to the Gallops JSON file
+    #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     pub file: PathBuf,
+
+    /// Filter by heat status (racing, stabled)
+    #[arg(long)]
     pub status: Option<String>,
 }
 

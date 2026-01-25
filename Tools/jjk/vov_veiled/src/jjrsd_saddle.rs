@@ -11,12 +11,17 @@ use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
+use crate::jjrq_query::jjrq_resolve_default_heat;
 
 /// Arguments for saddle command
-#[derive(Debug)]
+#[derive(clap::Args, Debug)]
 pub struct jjrsd_SaddleArgs {
+    /// Path to the Gallops JSON file
+    #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     pub file: PathBuf,
-    pub firemark: Firemark,
+
+    /// Target Heat identity (Firemark). If omitted, uses first racing heat.
+    pub firemark: Option<String>,
 }
 
 /// Run the saddle command - return Heat context
@@ -29,7 +34,29 @@ pub fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
         }
     };
 
-    let heat_key = args.firemark.jjrf_display();
+    // Resolve firemark: use provided value or auto-select first racing heat
+    let firemark_str = match args.firemark {
+        Some(fm) => fm,
+        None => {
+            match jjrq_resolve_default_heat(&gallops) {
+                Ok(fm) => fm,
+                Err(e) => {
+                    eprintln!("jjx_saddle: error: {}", e);
+                    return 1;
+                }
+            }
+        }
+    };
+
+    let firemark = match Firemark::jjrf_parse(&firemark_str) {
+        Ok(fm) => fm,
+        Err(e) => {
+            eprintln!("jjx_saddle: error: {}", e);
+            return 1;
+        }
+    };
+
+    let heat_key = firemark.jjrf_display();
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
@@ -55,7 +82,7 @@ pub fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
 
     // Get recent steeplechase entries
     let recent_work = jjrs_get_entries(&jjrs_ReinArgs {
-        firemark: args.firemark.jjrf_as_str().to_string(),
+        firemark: firemark.jjrf_as_str().to_string(),
         limit: 10,
     }).unwrap_or_default();
 

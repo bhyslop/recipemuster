@@ -30,17 +30,16 @@ pub struct jjrgc_GetCoronetsArgs {
     pub rough: bool,
 }
 
-/// Arguments for the underlying get_coronets library function
-#[derive(Debug)]
-pub struct jjrgc_LibGetCoronetsArgs {
-    pub file: PathBuf,
-    pub firemark: Firemark,
-    pub remaining: bool,
-    pub rough: bool,
-}
-
 /// Run the get_coronets command - output coronets one per line
-pub fn jjrgc_run_get_coronets(args: jjrgc_LibGetCoronetsArgs) -> i32 {
+pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> i32 {
+    let firemark = match Firemark::jjrf_parse(&args.firemark) {
+        Ok(fm) => fm,
+        Err(e) => {
+            eprintln!("jjx_get_coronets: error: {}", e);
+            return 1;
+        }
+    };
+
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
@@ -49,7 +48,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_LibGetCoronetsArgs) -> i32 {
         }
     };
 
-    let heat_key = args.firemark.jjrf_display();
+    let heat_key = firemark.jjrf_display();
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
