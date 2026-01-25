@@ -4958,6 +4958,13 @@
         "₢AFABD": {
           "tacks": [
             {
+              "ts": "260124-1828",
+              "state": "rough",
+              "text": "Develop tests for jjx_parade (display heat/pace info).\n\n## Scope\n\n1. Review jjx_parade implementation in jjrpd_parade.rs\n2. Identify testable behaviors: heat display, pace display, --full flag, --remaining flag\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_parade happy paths and error cases.",
+              "silks": "test-jjx-parade",
+              "commit": "f95cfcb"
+            },
+            {
               "ts": "260124-1745",
               "state": "rough",
               "text": "Develop tests for jjx_parade (display heat/pace info).\n\n## Scope\n\n1. Review jjx_parade implementation in jjrq_query.rs\n2. Identify testable behaviors: heat display, pace display, --full flag, --remaining flag\n3. Write unit tests in new or existing jjt*.rs file\n4. If implementation has issues or spec is ambiguous, document and propose fixes\n\n## Spec Review Mandate\n\nWhile planning tests, actively look for:\n- Edge cases not handled\n- Error messages that are unclear\n- Behavior that contradicts documentation\n- Missing validation\n\nPush back on the specification if issues found — do not silently work around problems.\n\n## Deliverable\n\nTest functions covering jjx_parade happy paths and error cases.",
