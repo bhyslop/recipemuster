@@ -778,9 +778,10 @@
       "order": [
         "₢APAAA",
         "₢APAAB",
-        "₢APAAC"
+        "₢APAAC",
+        "₢APAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -813,6 +814,17 @@
               "text": "Run all 3 srjcl Jupyter tests. These validate the Jupyter notebook service: container running, HTTP connectivity from host, WebSocket kernel communication. Tabtarget: tt/rbw-to.TestBottleService.srjcl.sh",
               "silks": "run-srjcl-test-suite",
               "commit": "48c7555"
+            }
+          ]
+        },
+        "₢APAAD": {
+          "tacks": [
+            {
+              "ts": "260125-0837",
+              "state": "rough",
+              "text": "Run all 5 pluml PlantUML tests. These validate the PlantUML rendering service: text rendering, local diagram generation, HTTP headers, invalid hash handling, malformed diagram rejection. Tabtarget: tt/rbw-to.TestBottleService.pluml.sh",
+              "silks": "run-pluml-test-suite",
+              "commit": "b3fc768"
             }
           ]
         }
