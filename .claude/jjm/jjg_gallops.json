@@ -3205,6 +3205,7 @@
         "₢AFABE",
         "₢AFABF",
         "₢AFABG",
+        "₢AFABI",
         "₢AFAAM",
         "₢AFAA6",
         "₢AFAA8",
@@ -3218,7 +3219,7 @@
         "₢AFAAc",
         "₢AFABH"
       ],
-      "next_pace_seed": "ABI",
+      "next_pace_seed": "ABJ",
       "paddock_file": ".claude/jjm/jjp_AF.md",
       "paces": {
         "₢AFAA-": {
@@ -5009,6 +5010,17 @@
               "text": "Update RCG and BCG copyright dates to 2026.\n\n## Files\n\n- Tools/vok/vov_veiled/RCG-RustCodingGuide.md\n- Tools/buk/vov_veiled/BCG-BashConsoleGuide.md\n\n## Deliverable\n\nChange copyright year references from 2025 (or earlier) to 2026 in both guide files.",
               "silks": "update-guide-copyrights",
               "commit": "276a47b"
+            }
+          ]
+        },
+        "₢AFABI": {
+          "tacks": [
+            {
+              "ts": "260124-1823",
+              "state": "rough",
+              "text": "Audit JJK module structure for overlapping implementations after CLI rewire.\n\n## Context\n\nThe rewire-command-dispatch work moved Args and handlers to per-command modules (jjrxx_*.rs), but the old aggregate files still exist with potentially duplicated code.\n\n## Audit checklist\n\n1. **jjrq_query.rs** — Map what's live vs dead:\n   - jjrq_resolve_default_heat (USED by jjrsd_saddle.rs)\n   - jjrq_MusterArgs, jjrq_run_muster (DEAD - replaced by jjrmu_*)\n   - jjrq_SaddleArgs, jjrq_run_saddle (DEAD - replaced by jjrsd_*)\n   - jjrq_ParadeArgs, jjrq_run_parade (DEAD - replaced by jjrpd_*)\n   - Other helper functions?\n\n2. **jjro_ops.rs** — Map what's live vs dead:\n   - Operations called via jjrg_gallops.rs re-exports\n   - Any functions that could move to per-command modules?\n\n3. **jjrg_gallops.rs** — Understand the re-export facade:\n   - Is this indirection necessary?\n   - Could per-command modules import directly?\n\n## Deliverable\n\nDocument findings and slate follow-up paces:\n- prune-dead-query-code (remove dead jjrq_* functions)\n- Any other cleanup needed for \"one file per operation\"\n\n## NOT in scope\n\nActual code changes - this is analysis only.",
+              "silks": "audit-module-overlap",
+              "commit": "438eaa2"
             }
           ]
         }
