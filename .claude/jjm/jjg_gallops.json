@@ -3194,7 +3194,6 @@
         "₢AFAAh",
         "₢AFAAi",
         "₢AFAAl",
-        "₢AFAAc",
         "₢AFAAz",
         "₢AFAA0",
         "₢AFAA1",
@@ -3202,7 +3201,8 @@
         "₢AFAA3",
         "₢AFAA4",
         "₢AFAA5",
-        "₢AFAAM"
+        "₢AFAAM",
+        "₢AFAAc"
       ],
       "next_pace_seed": "AA6",
       "paddock_file": ".claude/jjm/jjp_AF.md",
