@@ -505,9 +505,9 @@
       "creation_time": "260120",
       "status": "racing",
       "order": [
-        "₢AHAAA",
         "₢AHAAB",
-        "₢AHAAC"
+        "₢AHAAC",
+        "₢AHAAA"
       ],
       "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AH.md",
