@@ -2,7 +2,7 @@
   "next_heat_seed": "AQ",
   "heats": {
     "₣AO": {
-      "silks": "rbm-misc-bash-cleanup",
+      "silks": "rbw-misc-bash-cleanup",
       "creation_time": "260125",
       "status": "racing",
       "order": [
