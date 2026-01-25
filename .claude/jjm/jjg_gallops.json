@@ -4981,6 +4981,13 @@
         "₢AFABH": {
           "tacks": [
             {
+              "ts": "260124-1821",
+              "state": "complete",
+              "text": "Update RCG and BCG copyright dates to 2026.\n\n## Files\n\n- Tools/vok/vov_veiled/RCG-RustCodingGuide.md\n- Tools/buk/vov_veiled/BCG-BashConsoleGuide.md\n\n## Deliverable\n\nChange copyright year references from 2025 (or earlier) to 2026 in both guide files.",
+              "silks": "update-guide-copyrights",
+              "commit": "cf48c0c"
+            },
+            {
               "ts": "260124-1813",
               "state": "bridled",
               "text": "Update RCG and BCG copyright dates to 2026.\n\n## Files\n\n- Tools/vok/vov_veiled/RCG-RustCodingGuide.md\n- Tools/buk/vov_veiled/BCG-BashConsoleGuide.md\n\n## Deliverable\n\nChange copyright year references from 2025 (or earlier) to 2026 in both guide files.",
