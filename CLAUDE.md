@@ -411,6 +411,7 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 |------|---------|
 | mount | /jjc-heat-mount |
 | slate | /jjc-pace-slate |
+| reslate | /jjc-pace-reslate |
 | wrap | /jjc-pace-wrap |
 | bridle | /jjc-pace-bridle |
 | notch | /jjc-pace-notch |
@@ -418,6 +419,10 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | muster | /jjc-heat-muster |
 | groom | /jjc-heat-groom |
 | quarter | /jjc-heat-quarter |
+| rail | /jjc-heat-rail |
+| rein | /jjc-heat-rein |
+| scout | /jjc-scout |
+| parade | /jjc-parade |
 
 **Common CLI Pitfalls:**
 - `jjx_parade` takes firemark OR coronet directly as sole argument — NO flags for target selection
