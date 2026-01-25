@@ -3374,6 +3374,13 @@
         "₢AFAA6": {
           "tacks": [
             {
+              "ts": "260124-1728",
+              "state": "complete",
+              "text": "Remove verbose lock acquired/released messages from VVC, VOK, and JJK.\n\n## Rationale\n\nThese messages consume tokens and provide no value in the success path. The error case (\"Another commit in progress - lock held\") already explains the context.\n\n## Changes\n\n1. **Tools/vvc/src/vvcc_commit.rs**\n   - Delete line 121: `eprintln!(\"commit: lock acquired\");`\n   - Delete line 133: `eprintln!(\"commit: lock released\");`\n\n2. **Tools/vok/src/vorm_main.rs**\n   - Delete line 305: `eprintln!(\"push: lock acquired\");`\n   - Check for corresponding \"lock released\" message and delete if present\n\n3. **Tools/jjk/vov_veiled/src/jjrx_cli.rs**\n   - Delete line 1256: `eprintln!(\"jjx_tally: lock acquired\");`\n   - Check for corresponding \"lock released\" message and delete if present\n\n## Verify\n\ntt/vow-b.Build.sh && tt/vow-t.Test.sh",
+              "silks": "remove-verbose-lock-messages",
+              "commit": "3866be9"
+            },
+            {
               "ts": "260124-1719",
               "state": "bridled",
               "text": "Remove verbose lock acquired/released messages from VVC, VOK, and JJK.\n\n## Rationale\n\nThese messages consume tokens and provide no value in the success path. The error case (\"Another commit in progress - lock held\") already explains the context.\n\n## Changes\n\n1. **Tools/vvc/src/vvcc_commit.rs**\n   - Delete line 121: `eprintln!(\"commit: lock acquired\");`\n   - Delete line 133: `eprintln!(\"commit: lock released\");`\n\n2. **Tools/vok/src/vorm_main.rs**\n   - Delete line 305: `eprintln!(\"push: lock acquired\");`\n   - Check for corresponding \"lock released\" message and delete if present\n\n3. **Tools/jjk/vov_veiled/src/jjrx_cli.rs**\n   - Delete line 1256: `eprintln!(\"jjx_tally: lock acquired\");`\n   - Check for corresponding \"lock released\" message and delete if present\n\n## Verify\n\ntt/vow-b.Build.sh && tt/vow-t.Test.sh",
