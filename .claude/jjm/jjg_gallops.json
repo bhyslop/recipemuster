@@ -768,6 +768,13 @@
         "₢AHAAF": {
           "tacks": [
             {
+              "ts": "260127-1058",
+              "state": "complete",
+              "text": "Wire vosr_probe into jjx_saddle output.\n\n## Context\n\nWith vosr_probe implemented in VVC, jjx_saddle needs to call it when session probe is needed.\n\n## Deliverables\n\n1. Add VVC dependency to JJK Cargo.toml if not present\n2. In jjrsd_saddle.rs, when needs_session_probe is true:\n   - Call vvc::vosr_probe()\n   - Include probe result in saddle output (new field or section)\n3. Update saddle output format documentation\n\n## Dependency\n\nBlocked by: impl-vosr-probe (₢AHAAE)\n\nAcceptance: jjx_saddle includes probe data when needs_session_probe is true.",
+              "silks": "wire-saddle-vosr-probe",
+              "commit": "11f0dfe"
+            },
+            {
               "ts": "260127-1050",
               "state": "bridled",
               "text": "Wire vosr_probe into jjx_saddle output.\n\n## Context\n\nWith vosr_probe implemented in VVC, jjx_saddle needs to call it when session probe is needed.\n\n## Deliverables\n\n1. Add VVC dependency to JJK Cargo.toml if not present\n2. In jjrsd_saddle.rs, when needs_session_probe is true:\n   - Call vvc::vosr_probe()\n   - Include probe result in saddle output (new field or section)\n3. Update saddle output format documentation\n\n## Dependency\n\nBlocked by: impl-vosr-probe (₢AHAAE)\n\nAcceptance: jjx_saddle includes probe data when needs_session_probe is true.",
