@@ -844,6 +844,13 @@
         "₢AHAAJ": {
           "tacks": [
             {
+              "ts": "260127-1119",
+              "state": "rough",
+              "text": "Clean up dead code in jjrq_query.rs after CLI modularization.\n\n## Context\n\nThe Jan 24 CLI refactor (d72e0e2b, 34e85785) created per-command modules but left dead code in jjrq_query.rs.\n\nInvestigation confirmed these are DEAD (never called):\n- jjrq_MusterArgs, jjrq_run_muster (replaced by jjrmu_muster)\n- jjrq_ParadeArgs, jjrq_run_parade (replaced by jjrpd_parade)\n- jjrq_ScoutArgs, jjrq_run_scout (replaced by jjrsc_scout)\n- jjrq_GetSpecArgs, jjrq_run_get_spec (replaced by jjrgs_get_spec)\n- jjrq_GetCoronetsArgs, jjrq_run_get_coronets (replaced by jjrgc_get_coronets)\n- jjrq_RetireArgs, jjrq_run_retire (replaced by jjrrt_retire)\n- jjrq_SaddleArgs, jjrq_run_saddle (ALREADY REMOVED - replaced by jjrsd_saddle)\n\nThese MUST STAY (actively used):\n- jjrq_resolve_default_heat — used by jjrsd_saddle.rs\n- jjrq_parse_silks_sequence — used by jjro_ops.rs, jjtgl_garland.rs\n- jjrq_build_garlanded_silks — used by jjro_ops.rs, jjtgl_garland.rs\n- jjrq_build_continuation_silks — used by jjro_ops.rs, jjtgl_garland.rs\n- zjjrq_Retire* types — used by test file jjtq_query.rs\n\n## Deliverables\n\n1. Remove all dead jjrq_run_* functions and their Args structs\n2. Keep the 4 utility functions + retire types for tests\n3. Verify build: cargo build succeeds\n4. Verify tests: cargo test succeeds\n\n## Acceptance\n\njjrq_query.rs contains only actively-used code; build and tests pass.",
+              "silks": "cleanup-jjrq-dead-code",
+              "commit": "6dd2a07"
+            },
+            {
               "ts": "260127-1101",
               "state": "rough",
               "text": "Investigate duplicate saddle implementation in jjrq_query.rs.\n\n## Context\n\nFound two saddle implementations:\n- jjrsd_saddle.rs (jjrsd_run_saddle) — wired in jjrx_cli.rs, actively used\n- jjrq_query.rs (jjrq_run_saddle) — appears to be dead code\n\nBoth contain session probe check logic. Need to verify jjrq version is truly unused before deleting.\n\n## Deliverables\n\n1. **Git history check**: When was jjrq_run_saddle added? Was it the original, later replaced by jjrsd?\n2. **Usage check**: Grep for any callers of jjrq_run_saddle or jjrq_SaddleArgs\n3. **Decision**: If confirmed dead code, delete jjrq_run_saddle and jjrq_SaddleArgs from jjrq_query.rs\n4. **Verify build**: Ensure cargo build succeeds after removal\n\n## Acceptance\n\nEither: dead code removed and build passes, OR: documented reason why code must stay.",
