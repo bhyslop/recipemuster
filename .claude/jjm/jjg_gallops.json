@@ -633,9 +633,10 @@
         "₢AHAAG",
         "₢AHAAA",
         "₢AHAAH",
-        "₢AHAAJ"
+        "₢AHAAJ",
+        "₢AHAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -856,6 +857,17 @@
               "text": "Investigate duplicate saddle implementation in jjrq_query.rs.\n\n## Context\n\nFound two saddle implementations:\n- jjrsd_saddle.rs (jjrsd_run_saddle) — wired in jjrx_cli.rs, actively used\n- jjrq_query.rs (jjrq_run_saddle) — appears to be dead code\n\nBoth contain session probe check logic. Need to verify jjrq version is truly unused before deleting.\n\n## Deliverables\n\n1. **Git history check**: When was jjrq_run_saddle added? Was it the original, later replaced by jjrsd?\n2. **Usage check**: Grep for any callers of jjrq_run_saddle or jjrq_SaddleArgs\n3. **Decision**: If confirmed dead code, delete jjrq_run_saddle and jjrq_SaddleArgs from jjrq_query.rs\n4. **Verify build**: Ensure cargo build succeeds after removal\n\n## Acceptance\n\nEither: dead code removed and build passes, OR: documented reason why code must stay.",
               "silks": "investigate-jjrq-saddle-duplicate",
               "commit": "622c63b"
+            }
+          ]
+        },
+        "₢AHAAK": {
+          "tacks": [
+            {
+              "ts": "260127-1119",
+              "state": "rough",
+              "text": "Rename tack's `commit` field to `basis` for semantic clarity.\n\n## Context\n\nThe tack `commit` field records the commit SHA that was HEAD when the tack was created — NOT the commit that contains the tack (which is impossible due to hash circularity). The name \"commit\" was confusing.\n\n## Changes\n\n1. Rename Rust field from `commit` to `basis`\n2. Keep JSON field as `\"commit\"` via `#[serde(rename = \"commit\")]` — schema unchanged\n3. Rename constant `JJRG_UNKNOWN_COMMIT` to `JJRG_UNKNOWN_BASIS`\n4. Update display output to show `(basis: ...)` instead of just the hash\n5. Update all code references and tests\n\n## Acceptance\n\n- Build passes\n- All 269 tests pass\n- Parade output shows `(basis: <hash>)` format\n- JSON files unchanged (still use `\"commit\"` key)",
+              "silks": "rename-tack-commit-to-basis",
+              "commit": "2353aad"
             }
           ]
         }
