@@ -647,9 +647,10 @@
         "₢AHAAH",
         "₢AHAAJ",
         "₢AHAAK",
-        "₢AHAAL"
+        "₢AHAAL",
+        "₢AHAAM"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -936,6 +937,17 @@
               "text": "Add vow-c.Clean.sh tabtarget for complete build artifact cleanup.\n\n## Context\n\nParallel Claude sessions can corrupt cargo build caches, causing \"could not write output\" errors. A dedicated clean command provides a manual recovery path.\n\n## Deliverables\n\n1. Create `tt/vow-c.Clean.sh` tabtarget\n2. Clean all three crates: vok, vvc, jjk\n3. Remove target directories completely (not just cargo clean)\n4. Report what was cleaned\n\n## Implementation\n\nPattern after existing vow-b.Build.sh colophon routing. The clean should:\n- `rm -rf Tools/vok/target`\n- `rm -rf Tools/vvc/target`  \n- `rm -rf Tools/jjk/vov_veiled/target`\n- Report total space reclaimed\n\n## Acceptance\n\nRunning `tt/vow-c.Clean.sh` removes all build artifacts; subsequent `tt/vow-b.Build.sh` does full rebuild.",
               "silks": "add-vow-clean-command",
               "commit": "e93b544"
+            }
+          ]
+        },
+        "₢AHAAM": {
+          "tacks": [
+            {
+              "ts": "260127-1145",
+              "state": "rough",
+              "text": "Add \"Recommended:\" advice lines to JJX commands to save Claude tokens.\n\n## Context\n\nCurrently only jjrwp_wrap.rs prints advice (\"Recommended: /clear then /jjc-heat-mount {firemark}\"). Claude often generates similar guidance prose, wasting tokens. If JJX commands print actionable next-step advice, Claude can stay silent.\n\n## Deliverables\n\nAdd stderr advice to these commands:\n\n1. **jjx_saddle** (jjrsd_saddle.rs) — after outputting pace context:\n   - If bridled: \"Recommended: /jjc-heat-mount {firemark} to execute\"\n   - If rough: \"Recommended: /jjc-pace-bridle {coronet} or /jjc-heat-mount {firemark}\"\n\n2. **jjx_tally with --state bridled** (bridle operation) — after success:\n   - \"Recommended: /jjc-heat-mount {firemark} to execute\"\n\n3. **jjx_parade** (jjrpd_parade.rs) — when showing remaining paces:\n   - If next pace exists: \"Recommended: /jjc-heat-mount {firemark}\"\n\n## Pattern\n\nUse eprintln! for advice (stderr), matching wrap.rs pattern. Keep advice terse — one line max.\n\nAcceptance: Running jjx_saddle, jjx_tally --state bridled, and jjx_parade shows appropriate \"Recommended:\" line on stderr.",
+              "silks": "jjx-advice-output",
+              "commit": "82443ef"
             }
           ]
         }
