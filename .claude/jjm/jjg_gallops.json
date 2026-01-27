@@ -759,6 +759,14 @@
         "₢AHAAF": {
           "tacks": [
             {
+              "ts": "260127-1050",
+              "state": "bridled",
+              "text": "Wire vosr_probe into jjx_saddle output.\n\n## Context\n\nWith vosr_probe implemented in VVC, jjx_saddle needs to call it when session probe is needed.\n\n## Deliverables\n\n1. Add VVC dependency to JJK Cargo.toml if not present\n2. In jjrsd_saddle.rs, when needs_session_probe is true:\n   - Call vvc::vosr_probe()\n   - Include probe result in saddle output (new field or section)\n3. Update saddle output format documentation\n\n## Dependency\n\nBlocked by: impl-vosr-probe (₢AHAAE)\n\nAcceptance: jjx_saddle includes probe data when needs_session_probe is true.",
+              "silks": "wire-saddle-vosr-probe",
+              "commit": "8a69a86",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: Tools/jjk/vov_veiled/src/jjrx_cli.rs, Tools/jjk/vov_veiled/src/jjrsd_saddle.rs, Tools/vok/src/vorm_main.rs (3 files) | Steps: 1. Make jjrx_dispatch async and add .await to the Saddle match arm only 2. Make jjrsd_run_saddle async 3. In saddle when needs_session_probe is true call vvc::vvcp_probe().await and print result as Session-probe section with 5 indented lines 4. In vorm_main.rs make dispatch_external async and add .await to jjrx_dispatch call | Verify: tt/vow-b.Build.sh"
+            },
+            {
               "ts": "260125-1425",
               "state": "rough",
               "text": "Wire vosr_probe into jjx_saddle output.\n\n## Context\n\nWith vosr_probe implemented in VVC, jjx_saddle needs to call it when session probe is needed.\n\n## Deliverables\n\n1. Add VVC dependency to JJK Cargo.toml if not present\n2. In jjrsd_saddle.rs, when needs_session_probe is true:\n   - Call vvc::vosr_probe()\n   - Include probe result in saddle output (new field or section)\n3. Update saddle output format documentation\n\n## Dependency\n\nBlocked by: impl-vosr-probe (₢AHAAE)\n\nAcceptance: jjx_saddle includes probe data when needs_session_probe is true.",
