@@ -871,6 +871,13 @@
         "₢AHAAK": {
           "tacks": [
             {
+              "ts": "260127-1123",
+              "state": "complete",
+              "text": "Rename tack's `commit` field to `basis` for semantic clarity.\n\n## Context\n\nThe tack `commit` field records the commit SHA that was HEAD when the tack was created — NOT the commit that contains the tack (which is impossible due to hash circularity). The name \"commit\" was confusing.\n\n## Changes\n\n1. Rename Rust field from `commit` to `basis`\n2. Keep JSON field as `\"commit\"` via `#[serde(rename = \"commit\")]` — schema unchanged\n3. Rename constant `JJRG_UNKNOWN_COMMIT` to `JJRG_UNKNOWN_BASIS`\n4. Update display output to show `(basis: ...)` instead of just the hash\n5. Update all code references and tests\n\n## Acceptance\n\n- Build passes\n- All 269 tests pass\n- Parade output shows `(basis: <hash>)` format\n- JSON files unchanged (still use `\"commit\"` key)",
+              "silks": "rename-tack-commit-to-basis",
+              "commit": "9c511b0"
+            },
+            {
               "ts": "260127-1119",
               "state": "rough",
               "text": "Rename tack's `commit` field to `basis` for semantic clarity.\n\n## Context\n\nThe tack `commit` field records the commit SHA that was HEAD when the tack was created — NOT the commit that contains the tack (which is impossible due to hash circularity). The name \"commit\" was confusing.\n\n## Changes\n\n1. Rename Rust field from `commit` to `basis`\n2. Keep JSON field as `\"commit\"` via `#[serde(rename = \"commit\")]` — schema unchanged\n3. Rename constant `JJRG_UNKNOWN_COMMIT` to `JJRG_UNKNOWN_BASIS`\n4. Update display output to show `(basis: ...)` instead of just the hash\n5. Update all code references and tests\n\n## Acceptance\n\n- Build passes\n- All 269 tests pass\n- Parade output shows `(basis: <hash>)` format\n- JSON files unchanged (still use `\"commit\"` key)",
