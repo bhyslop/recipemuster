@@ -963,6 +963,13 @@
         "₢AHAAN": {
           "tacks": [
             {
+              "ts": "260127-1209",
+              "state": "complete",
+              "text": "Test session probe by temporarily forcing it to always fire.\n\n## Context\n\nSession probe only fires when gap > 1 hour. To verify the new saddle-based implementation works correctly, we need to test it without waiting an hour.\n\n## Steps\n\n1. Temporarily modify `jjrc_needs_session_probe` to always return true\n2. Run `/jjc-heat-mount` and verify session probe commit is created with correct format:\n   - Subject: `jjb:XXXX:₣XX:s: YYMMDD-HHMM session` (lowercase s, single \"session\")\n   - Body: haiku/sonnet/opus model IDs, host, platform\n3. Restore original logic (gap > 1 hour check)\n4. Verify build + tests pass\n\n## Acceptance\n\n- Session probe commit created with correct format (no \"session session\" duplication)\n- Body contains model probe results\n- Original time-gap logic restored",
+              "silks": "test-session-probe",
+              "commit": "eb91c9e"
+            },
+            {
               "ts": "260127-1153",
               "state": "rough",
               "text": "Test session probe by temporarily forcing it to always fire.\n\n## Context\n\nSession probe only fires when gap > 1 hour. To verify the new saddle-based implementation works correctly, we need to test it without waiting an hour.\n\n## Steps\n\n1. Temporarily modify `jjrc_needs_session_probe` to always return true\n2. Run `/jjc-heat-mount` and verify session probe commit is created with correct format:\n   - Subject: `jjb:XXXX:₣XX:s: YYMMDD-HHMM session` (lowercase s, single \"session\")\n   - Body: haiku/sonnet/opus model IDs, host, platform\n3. Restore original logic (gap > 1 hour check)\n4. Verify build + tests pass\n\n## Acceptance\n\n- Session probe commit created with correct format (no \"session session\" duplication)\n- Body contains model probe results\n- Original time-gap logic restored",
