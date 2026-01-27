@@ -25,7 +25,7 @@ pub struct jjrsd_SaddleArgs {
 }
 
 /// Run the saddle command - return Heat context
-pub fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
+pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
@@ -213,7 +213,17 @@ pub fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
     let last_timestamp = recent_work.first().map(|e| e.timestamp.as_str());
     if crate::jjrc_core::jjrc_needs_session_probe(last_timestamp) {
         println!();
-        println!("Needs-session-probe: true");
+        match vvc::vvcp_probe().await {
+            Ok(probe_result) => {
+                println!("Session-probe:");
+                for line in probe_result.lines() {
+                    println!("  {}", line);
+                }
+            }
+            Err(e) => {
+                eprintln!("jjx_saddle: warning: probe failed: {}", e);
+            }
+        }
     }
 
     0

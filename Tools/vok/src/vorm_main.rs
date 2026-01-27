@@ -181,7 +181,7 @@ async fn main() -> ExitCode {
         Some(Commands::ReleaseBrand(args)) => run_release_brand(args),
         Some(Commands::VvxEmplace(args)) => run_emplace(args),
         Some(Commands::VvxVacate(args)) => run_vacate(args),
-        Some(Commands::External(args)) => dispatch_external(args),
+        Some(Commands::External(args)) => dispatch_external(args).await,
         None => {
             use clap::CommandFactory;
             Cli::command().print_help().ok();
@@ -215,7 +215,7 @@ fn run_commit(args: CommitArgs) -> i32 {
 }
 
 /// Dispatch external subcommands to appropriate kit CLIs
-fn dispatch_external(args: Vec<OsString>) -> i32 {
+async fn dispatch_external(args: Vec<OsString>) -> i32 {
     if args.is_empty() {
         eprintln!("vvx: error: no subcommand provided");
         return 1;
@@ -226,7 +226,7 @@ fn dispatch_external(args: Vec<OsString>) -> i32 {
     // Delegate to JJK if available and command matches
     #[cfg(feature = "jjk")]
     if jjk::jjrx_is_jjk_command(&cmd_name) {
-        return jjk::jjrx_dispatch(&args);
+        return jjk::jjrx_dispatch(&args).await;
     }
 
     // Unknown external subcommand

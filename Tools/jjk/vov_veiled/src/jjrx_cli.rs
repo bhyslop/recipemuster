@@ -141,7 +141,7 @@ pub enum jjrx_JjxCommands {
 /// The first element of `args` should be the subcommand name (e.g., "jjx_muster").
 ///
 /// Returns exit code (0 for success, non-zero for failure).
-pub fn jjrx_dispatch(args: &[OsString]) -> i32 {
+pub async fn jjrx_dispatch(args: &[OsString]) -> i32 {
     // Prepend synthetic binary name for clap parsing.
     // Clap expects args[0] to be the binary name (used in help text).
     // VOK passes ["jjx_muster", ...] so we prepend "jjx" to get ["jjx", "jjx_muster", ...].
@@ -169,7 +169,7 @@ pub fn jjrx_dispatch(args: &[OsString]) -> i32 {
         jjrx_JjxCommands::Rein(args) => jjrrn_run_rein(args),
         jjrx_JjxCommands::Validate(args) => jjrvl_run_validate(args),
         jjrx_JjxCommands::Muster(args) => jjrmu_run_muster(args),
-        jjrx_JjxCommands::Saddle(args) => jjrsd_run_saddle(args),
+        jjrx_JjxCommands::Saddle(args) => jjrsd_run_saddle(args).await,
         jjrx_JjxCommands::Parade(args) => jjrpd_run_parade(args),
         jjrx_JjxCommands::Retire(args) => jjrrt_run_retire(args),
         jjrx_JjxCommands::Nominate(args) => jjrx_run_nominate(args),
