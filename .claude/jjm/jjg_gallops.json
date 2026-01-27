@@ -536,9 +536,10 @@
         "₢AGAAB",
         "₢AGAAC",
         "₢AGAAD",
-        "₢AGAAE"
+        "₢AGAAE",
+        "₢AGAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -614,6 +615,17 @@
               "text": "Add explicit heat ordering to Gallops while keeping BTreeMap for deterministic serialization.\n\n## Problem\n\nHeats currently derive order from BTreeMap key sorting. Several commands depend on \"heat order\" semantics:\n- `jjx_muster`: display order\n- `jjx_saddle`: \"first racing heat\" selection when firemark omitted\n- Future: heat priority for concurrent work\n\nBTreeMap gives alphabetical firemark order, not semantic priority order.\n\n## Solution\n\nAdd `heat_order: Vec<Firemark>` to Gallops record, parallel to how `Heat.order` tracks pace order.\n\n## Schema Change\n\n```json\n{\n  \"next_heat_seed\": \"AM\",\n  \"heat_order\": [\"AF\", \"AH\", \"AI\", ...],  // NEW FIELD\n  \"heats\": { ... }\n}\n```\n\n## Behavior\n\n- `jjx_nominate`: append new firemark to `heat_order`\n- `jjx_retire`: remove firemark from `heat_order`\n- `jjx_muster`: iterate `heat_order` instead of BTreeMap keys\n- `jjx_saddle` (no firemark): use first racing heat from `heat_order`\n- Future: `jjx_rail` for heats (reorder heat_order)\n\n## Migration\n\nExisting gallops.json needs `heat_order` populated from current BTreeMap keys on first load (or explicit migration).\n\n## Files\n\njjrg_gallops.rs (Gallops struct), jjro_ops.rs (nominate, retire), jjrq_query.rs (muster, saddle), JJSA spec",
               "silks": "add-heat-order-vector",
               "commit": "a6bf1bc"
+            }
+          ]
+        },
+        "₢AGAAF": {
+          "tacks": [
+            {
+              "ts": "260127-1133",
+              "state": "rough",
+              "text": "Change JSON schema field from \"commit\" to \"basis\" in tack records.\n\n## Context\n\nThe Rust code already uses `basis` as the field name (with `#[serde(rename = \"commit\")]` for backwards compatibility). This pace completes the rename by updating the JSON schema itself.\n\n## Changes\n\n1. Remove `#[serde(rename = \"commit\")]` from `jjrt_types.rs` — field serializes as `\"basis\"`\n2. Migrate existing gallops JSON files: `s/\"commit\":/\"basis\":/g`\n3. Update any documentation referencing the JSON schema\n\n## Breaking\n\nThis changes the JSON schema. All existing gallops files must be migrated.\n\n## Acceptance\n\n- JSON files use `\"basis\"` key instead of `\"commit\"`\n- Round-trip validation passes\n- All tests pass",
+              "silks": "json-schema-commit-to-basis",
+              "commit": "74a697f"
             }
           ]
         }
