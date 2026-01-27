@@ -632,9 +632,10 @@
         "₢AHAAI",
         "₢AHAAG",
         "₢AHAAA",
-        "₢AHAAH"
+        "₢AHAAH",
+        "₢AHAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -829,6 +830,17 @@
               "text": "Make saddle create session chalk commit automatically.\n\n## Context\n\nAfter AHAAF, saddle calls vvcp_probe() and outputs Session-probe section. But Claude still needs to parse that and create the chalk commit. Per JJSA: \"Session marker (created automatically by {jjdo_saddle})\". Saddle should do the full operation in Rust.\n\n## Deliverables\n\n1. **In jjrsd_saddle.rs**, after calling vvcp_probe():\n   - Generate timestamp in YYMMDD-HHMM format\n   - Create chalk commit via jjx_chalk logic (or call jjrch_chalk directly):\n     - Firemark (heat-level)\n     - Marker: s\n     - Description: \"{YYMMDD-HHMM} session\"\n     - Body: the 5-line probe output\n   - Output informational line: \"Session-marker: {commit_hash} ({YYMMDD-HHMM})\"\n\n2. **Remove Session-probe section from output** — the probe data goes into the chalk commit body, not stdout\n\n3. **Update saddle output format** — just the informational Session-marker line when probe occurred\n\n## Dependency\n\nBlocked by: wire-saddle-vosr-probe (AHAAF)\n\nAcceptance: Running jjx_saddle on a heat with >1hr gap creates chalk commit automatically. No Claude participation needed.",
               "silks": "saddle-creates-session-chalk",
               "commit": "43d24de"
+            }
+          ]
+        },
+        "₢AHAAJ": {
+          "tacks": [
+            {
+              "ts": "260127-1101",
+              "state": "rough",
+              "text": "Investigate duplicate saddle implementation in jjrq_query.rs.\n\n## Context\n\nFound two saddle implementations:\n- jjrsd_saddle.rs (jjrsd_run_saddle) — wired in jjrx_cli.rs, actively used\n- jjrq_query.rs (jjrq_run_saddle) — appears to be dead code\n\nBoth contain session probe check logic. Need to verify jjrq version is truly unused before deleting.\n\n## Deliverables\n\n1. **Git history check**: When was jjrq_run_saddle added? Was it the original, later replaced by jjrsd?\n2. **Usage check**: Grep for any callers of jjrq_run_saddle or jjrq_SaddleArgs\n3. **Decision**: If confirmed dead code, delete jjrq_run_saddle and jjrq_SaddleArgs from jjrq_query.rs\n4. **Verify build**: Ensure cargo build succeeds after removal\n\n## Acceptance\n\nEither: dead code removed and build passes, OR: documented reason why code must stay.",
+              "silks": "investigate-jjrq-saddle-duplicate",
+              "commit": "622c63b"
             }
           ]
         }
