@@ -60,12 +60,12 @@ pub(crate) fn zjjrg_is_yymmdd_hhmm(s: &str) -> bool {
         && parts[1].chars().all(|c| c.is_ascii_digit())
 }
 
-/// Check if string is valid commit SHA format
+/// Check if string is valid commit SHA format (used for basis field)
 ///
-/// Length is derived from JJRG_UNKNOWN_COMMIT constant.
+/// Length is derived from JJRG_UNKNOWN_BASIS constant.
 #[allow(dead_code)]
 pub(crate) fn zjjrg_is_commit_sha(s: &str) -> bool {
-    s.len() == JJRG_UNKNOWN_COMMIT.len() && s.chars().all(|c| c.is_ascii_hexdigit())
+    s.len() == JJRG_UNKNOWN_BASIS.len() && s.chars().all(|c| c.is_ascii_hexdigit())
 }
 
 /// Validate the Gallops structure
@@ -277,11 +277,11 @@ fn zjjrg_validate_tack(pace_ctx: &str, index: usize, tack: &jjrg_Tack, errors: &
         ));
     }
 
-    // Rule 8: commit must be valid format (7 hex chars)
-    if !zjjrg_is_commit_sha(&tack.commit) {
+    // Rule 8: basis must be valid format (7 hex chars)
+    if !zjjrg_is_commit_sha(&tack.basis) {
         errors.push(format!(
-            "{}: commit must be 7 hex characters, got '{}'",
-            tack_ctx, tack.commit
+            "{}: basis must be 7 hex characters, got '{}'",
+            tack_ctx, tack.basis
         ));
     }
 

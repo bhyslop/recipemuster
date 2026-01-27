@@ -165,190 +165,6 @@ pub fn jjrq_run_muster(args: jjrq_MusterArgs) -> i32 {
 }
 
 // ============================================================================
-// Saddle - Return context needed to saddle up on a Heat
-// ============================================================================
-
-/// Arguments for saddle command
-#[derive(Debug)]
-pub struct jjrq_SaddleArgs {
-    pub file: std::path::PathBuf,
-    pub firemark: Firemark,
-}
-
-/// Run the saddle command - return Heat context
-pub fn jjrq_run_saddle(args: jjrq_SaddleArgs) -> i32 {
-    let gallops = match Gallops::jjrg_load(&args.file) {
-        Ok(g) => g,
-        Err(e) => {
-            eprintln!("jjx_saddle: error: {}", e);
-            return 1;
-        }
-    };
-
-    let heat_key = args.firemark.jjrf_display();
-    let heat = match gallops.heats.get(&heat_key) {
-        Some(h) => h,
-        None => {
-            eprintln!("jjx_saddle: error: Heat '{}' not found", heat_key);
-            return 1;
-        }
-    };
-
-    // Check if heat is stabled (cannot saddle stabled heat)
-    if heat.status == HeatStatus::Stabled {
-        eprintln!("jjx_saddle: error: Cannot saddle stabled heat '{}'", heat_key);
-        return 1;
-    }
-
-    // Read paddock file content
-    let paddock_content = match fs::read_to_string(&heat.paddock_file) {
-        Ok(content) => content,
-        Err(e) => {
-            eprintln!("jjx_saddle: error reading paddock file '{}': {}", heat.paddock_file, e);
-            return 1;
-        }
-    };
-
-    // Get recent steeplechase entries
-    let recent_work = jjrs_get_entries(&jjrs_ReinArgs {
-        firemark: args.firemark.jjrf_as_str().to_string(),
-        limit: 10,
-    }).unwrap_or_default();
-
-    // Find first actionable pace (rough or bridled)
-    let mut pace_coronet: Option<String> = None;
-    let mut pace_silks: Option<String> = None;
-    let mut pace_state: Option<String> = None;
-    let mut spec: Option<String> = None;
-    let mut direction: Option<String> = None;
-
-    for coronet_key in &heat.order {
-        if let Some(pace) = heat.paces.get(coronet_key) {
-            if let Some(tack) = pace.tacks.first() {
-                match tack.state {
-                    PaceState::Rough | PaceState::Bridled => {
-                        pace_coronet = Some(coronet_key.clone());
-                        pace_silks = Some(tack.silks.clone());
-                        pace_state = Some(match tack.state {
-                            PaceState::Rough => "rough".to_string(),
-                            PaceState::Bridled => "bridled".to_string(),
-                            _ => unreachable!(),
-                        });
-                        spec = Some(tack.text.clone());
-                        if tack.state == PaceState::Bridled {
-                            direction = tack.direction.clone();
-                        }
-                        break;
-                    }
-                    _ => continue,
-                }
-            }
-        }
-    }
-
-    // Determine heat status string
-    let status_str = match heat.status {
-        HeatStatus::Racing => "racing",
-        HeatStatus::Stabled => "stabled",
-        HeatStatus::Retired => "retired",
-    };
-
-    // Output plain text format
-    println!("Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
-    println!("Paddock: {}", heat.paddock_file);
-    println!();
-    println!("Paddock-content:");
-    for line in paddock_content.lines() {
-        println!("  {}", line);
-    }
-    println!();
-
-    if let Some(coronet) = pace_coronet {
-        if let Some(silks) = pace_silks {
-            if let Some(state) = pace_state {
-                println!("Next: {} ({}) [{}]", silks, coronet, state);
-                println!();
-                if let Some(spec_text) = spec {
-                    println!("Spec:");
-                    for line in spec_text.lines() {
-                        println!("  {}", line);
-                    }
-                    println!();
-                }
-                if let Some(dir_text) = direction {
-                    println!("Direction:");
-                    for line in dir_text.lines() {
-                        println!("  {}", line);
-                    }
-                    println!();
-                }
-            }
-        }
-    }
-
-    // Output recent work table
-    // Filter entries to only show action codes 'n' (notch), 'A' (approach), 'd' (discussion)
-    let filtered_work: Vec<_> = recent_work.iter().filter(|entry| {
-        if let Some(ref action) = entry.action {
-            action == "n" || action == "A" || action == "d"
-        } else {
-            false
-        }
-    }).collect();
-
-    if !filtered_work.is_empty() {
-        println!("Recent-work:");
-
-        let mut table = jjrp_Table::jjrp_new(vec![
-            jjrp_Column::new("Commit", jjrp_Align::Left),
-            jjrp_Column::new("Identity", jjrp_Align::Left),
-            jjrp_Column::new("Subject", jjrp_Align::Left),
-        ]);
-
-        // Measure all rows to compute column widths
-        for entry in &filtered_work {
-            let identity_str = if let Some(ref coronet) = entry.coronet {
-                coronet.clone()
-            } else {
-                heat_key.clone()
-            };
-            table.jjrp_measure(&[
-                &entry.commit,
-                &identity_str,
-                &entry.subject,
-            ]);
-        }
-
-        // Print header and separator
-        table.jjrp_print_header();
-        table.jjrp_print_separator();
-
-        // Print data rows
-        for entry in &filtered_work {
-            let identity_str = if let Some(ref coronet) = entry.coronet {
-                coronet.clone()
-            } else {
-                heat_key.clone()
-            };
-            table.jjrp_print_row(&[
-                &entry.commit,
-                &identity_str,
-                &entry.subject,
-            ]);
-        }
-    }
-
-    // Check if session probe is needed (gap > 1 hour or no commits)
-    let last_timestamp = recent_work.first().map(|e| e.timestamp.as_str());
-    if crate::jjrc_core::jjrc_needs_session_probe(last_timestamp) {
-        println!();
-        println!("Needs-session-probe: true");
-    }
-
-    0
-}
-
-// ============================================================================
 // Parade - Display comprehensive Heat status for project review
 // ============================================================================
 
@@ -416,13 +232,13 @@ pub fn jjrq_run_parade(args: jjrq_ParadeArgs) -> i32 {
             // Iterate tacks in reverse order (oldest first)
             for (index, tack) in pace.tacks.iter().rev().enumerate() {
                 let state_str = zjjrq_pace_state_str(&tack.state);
-                let commit_str = if tack.commit == "0000000" {
-                    "(no commit)".to_string()
+                let basis_str = if tack.basis == "0000000" {
+                    "(no basis)".to_string()
                 } else {
-                    tack.commit.clone()
+                    tack.basis.clone()
                 };
 
-                println!("[{}] {} ({})", index, state_str, commit_str);
+                println!("[{}] {} (basis: {})", index, state_str, basis_str);
                 println!("    Silks: {}", tack.silks);
                 if let Some(ref direction) = tack.direction {
                     println!("    Direction: {}", direction);

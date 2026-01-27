@@ -101,13 +101,13 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             // Iterate tacks in reverse order (oldest first)
             for (index, tack) in pace.tacks.iter().rev().enumerate() {
                 let state_str = zjjrpd_pace_state_str(&tack.state);
-                let commit_str = if tack.commit == "0000000" {
-                    "(no commit)".to_string()
+                let basis_str = if tack.basis == "0000000" {
+                    "(no basis)".to_string()
                 } else {
-                    tack.commit.clone()
+                    tack.basis.clone()
                 };
 
-                println!("[{}] {} ({})", index, state_str, commit_str);
+                println!("[{}] {} (basis: {})", index, state_str, basis_str);
                 println!("    Silks: {}", tack.silks);
                 if let Some(ref direction) = tack.direction {
                     println!("    Direction: {}", direction);

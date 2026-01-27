@@ -10,11 +10,11 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use indexmap::IndexMap;
 
-/// Unknown/default commit SHA (7 zeros)
+/// Unknown/default basis SHA (7 zeros)
 ///
-/// Used when commit cannot be determined (git errors).
-/// All commit-related code derives the expected length from this constant.
-pub const JJRG_UNKNOWN_COMMIT: &str = "0000000";
+/// Used when basis commit cannot be determined (git errors).
+/// All basis-related code derives the expected length from this constant.
+pub const JJRG_UNKNOWN_BASIS: &str = "0000000";
 
 /// Pace state values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -46,7 +46,8 @@ pub struct jjrg_Tack {
     pub state: jjrg_PaceState,
     pub text: String,
     pub silks: String,
-    pub commit: String,
+    #[serde(rename = "commit")]
+    pub basis: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direction: Option<String>,
 }

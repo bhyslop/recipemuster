@@ -40,14 +40,14 @@ pub(crate) fn zjjrg_increment_seed(seed: &str) -> String {
     String::from_utf8(chars).unwrap_or_else(|_| seed.to_string())
 }
 
-/// Capture current commit SHA
+/// Capture current commit SHA for basis field
 ///
-/// Runs `git rev-parse --short=N HEAD` where N is derived from JJRG_UNKNOWN_COMMIT length.
-/// Returns JJRG_UNKNOWN_COMMIT on error (e.g., not in a git repo).
+/// Runs `git rev-parse --short=N HEAD` where N is derived from JJRG_UNKNOWN_BASIS length.
+/// Returns JJRG_UNKNOWN_BASIS on error (e.g., not in a git repo).
 pub fn jjrg_capture_commit_sha() -> String {
     use std::process::Command;
 
-    let short_arg = format!("--short={}", JJRG_UNKNOWN_COMMIT.len());
+    let short_arg = format!("--short={}", JJRG_UNKNOWN_BASIS.len());
     match Command::new("git")
         .args(["rev-parse", &short_arg, "HEAD"])
         .output()
@@ -55,13 +55,13 @@ pub fn jjrg_capture_commit_sha() -> String {
         Ok(output) if output.status.success() => {
             String::from_utf8_lossy(&output.stdout).trim().to_string()
         }
-        _ => JJRG_UNKNOWN_COMMIT.to_string(),
+        _ => JJRG_UNKNOWN_BASIS.to_string(),
     }
 }
 
-/// Create a new Tack with current timestamp and commit SHA
+/// Create a new Tack with current timestamp and basis SHA
 ///
-/// Centralizes Tack creation to ensure consistent timestamp/commit capture.
+/// Centralizes Tack creation to ensure consistent timestamp/basis capture.
 /// All code creating new Tacks should use this helper.
 pub fn jjrg_make_tack(
     state: jjrg_PaceState,
@@ -74,7 +74,7 @@ pub fn jjrg_make_tack(
         state,
         text,
         silks,
-        commit: jjrg_capture_commit_sha(),
+        basis: jjrg_capture_commit_sha(),
         direction,
     }
 }

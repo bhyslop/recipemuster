@@ -23,14 +23,14 @@ fn make_valid_gallops() -> jjrg_Gallops {
     }
 }
 
-// Helper to create a valid Tack (uses JJRG_UNKNOWN_COMMIT for consistent commit format)
+// Helper to create a valid Tack (uses JJRG_UNKNOWN_BASIS for consistent basis format)
 fn make_valid_tack(state: jjrg_PaceState, silks: &str, direction: Option<String>) -> jjrg_Tack {
     jjrg_Tack {
         ts: "260101-1200".to_string(),
         state,
         text: "Test tack text".to_string(),
         silks: silks.to_string(),
-        commit: JJRG_UNKNOWN_COMMIT.to_string(),
+        basis: JJRG_UNKNOWN_BASIS.to_string(),
         direction,
     }
 }

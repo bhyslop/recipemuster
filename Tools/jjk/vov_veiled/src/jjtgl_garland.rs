@@ -8,7 +8,7 @@
 //! a continuation heat.
 
 use super::jjro_ops::jjrg_garland;
-use super::jjrt_types::{jjrg_PaceState, jjrg_HeatStatus, jjrg_Tack, jjrg_Pace, jjrg_Heat, jjrg_Gallops, jjrg_GarlandArgs, JJRG_UNKNOWN_COMMIT};
+use super::jjrt_types::{jjrg_PaceState, jjrg_HeatStatus, jjrg_Tack, jjrg_Pace, jjrg_Heat, jjrg_Gallops, jjrg_GarlandArgs, JJRG_UNKNOWN_BASIS};
 use super::jjrq_query::{jjrq_parse_silks_sequence, jjrq_build_garlanded_silks, jjrq_build_continuation_silks};
 use std::collections::BTreeMap;
 use indexmap::IndexMap;
@@ -29,7 +29,7 @@ fn make_valid_tack(state: jjrg_PaceState, silks: &str, direction: Option<String>
         state,
         text: "Test tack text".to_string(),
         silks: silks.to_string(),
-        commit: JJRG_UNKNOWN_COMMIT.to_string(),
+        basis: JJRG_UNKNOWN_BASIS.to_string(),
         direction,
     }
 }

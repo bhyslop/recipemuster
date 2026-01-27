@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 use super::jjrq_query::*;
-use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_COMMIT};
+use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_BASIS};
 use std::collections::BTreeMap;
 use indexmap::IndexMap;
 
@@ -17,7 +17,7 @@ fn create_test_gallops() -> Gallops {
                 state: PaceState::Rough,
                 text: "First pace rough plan".to_string(),
                 silks: "test-pace-one".to_string(),
-                commit: JJRG_UNKNOWN_COMMIT.to_string(),
+                basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: None,
             }],
         },
@@ -30,7 +30,7 @@ fn create_test_gallops() -> Gallops {
                 state: PaceState::Complete,
                 text: "Completed pace".to_string(),
                 silks: "test-pace-two".to_string(),
-                commit: JJRG_UNKNOWN_COMMIT.to_string(),
+                basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: None,
             }],
         },
@@ -220,7 +220,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
                 state: PaceState::Complete,
                 text: "Done".to_string(),
                 silks: "pace-complete".to_string(),
-                commit: JJRG_UNKNOWN_COMMIT.to_string(),
+                basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: None,
             }],
         },
@@ -233,7 +233,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
                 state: PaceState::Rough,
                 text: "Needs work".to_string(),
                 silks: "pace-rough".to_string(),
-                commit: JJRG_UNKNOWN_COMMIT.to_string(),
+                basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: None,
             }],
         },
@@ -246,7 +246,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
                 state: PaceState::Bridled,
                 text: "Ready to fly".to_string(),
                 silks: "pace-bridled".to_string(),
-                commit: JJRG_UNKNOWN_COMMIT.to_string(),
+                basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: Some("Execute with sonnet".to_string()),
             }],
         },
@@ -259,7 +259,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
                 state: PaceState::Abandoned,
                 text: "Gave up".to_string(),
                 silks: "pace-abandoned".to_string(),
-                commit: JJRG_UNKNOWN_COMMIT.to_string(),
+                basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: None,
             }],
         },

@@ -22,7 +22,7 @@ fn make_valid_tack(state: jjrg_PaceState, silks: &str, direction: Option<String>
         state,
         text: "Test tack text".to_string(),
         silks: silks.to_string(),
-        commit: JJRG_UNKNOWN_COMMIT.to_string(),
+        basis: JJRG_UNKNOWN_BASIS.to_string(),
         direction,
     }
 }

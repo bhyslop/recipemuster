@@ -4,7 +4,7 @@
 //! Tests for jjx_parade command (heat/pace display)
 
 use super::jjrpd_parade::{zjjrpd_pace_state_str, zjjrpd_resolve_default_heat};
-use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_COMMIT};
+use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
 use std::collections::BTreeMap;
 use indexmap::IndexMap;
 
@@ -23,7 +23,7 @@ fn make_valid_tack(state: jjrg_PaceState, silks: &str) -> jjrg_Tack {
         state,
         text: "Test tack text".to_string(),
         silks: silks.to_string(),
-        commit: JJRG_UNKNOWN_COMMIT.to_string(),
+        basis: JJRG_UNKNOWN_BASIS.to_string(),
         direction: None,
     }
 }
