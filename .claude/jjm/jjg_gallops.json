@@ -631,9 +631,10 @@
         "₢AHAAF",
         "₢AHAAG",
         "₢AHAAA",
-        "₢AHAAH"
+        "₢AHAAH",
+        "₢AHAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -810,6 +811,17 @@
               "text": "Update documentation to reflect tokio-based session probe.\n\n## Context\n\nWith vosr_probe implemented in VVC (vvcp_probe.rs) and wired into saddle, documentation needs updating to reflect the new architecture.\n\n## Deliverables\n\n1. **JJSCSD-saddle.adoc** — Update output format:\n   - Remove or update any Needs-session-probe reference\n   - Add Session-probe section to output format example:\n     ```\n     Session-probe:\n       haiku: claude-3-5-haiku-20241022\n       sonnet: claude-sonnet-4-20250514\n       opus: claude-opus-4-5-20251101\n       host: macbook-pro.local\n       platform: darwin-arm64\n     ```\n   - Add behavior step: \"If session probe needed (gap > 1 hour), call vosr_probe and output Session-probe section\"\n\n2. **JJSA-GallopsData.adoc** — Update line ~1147:\n   - OLD: \"Model IDs are collected using ephemeral subagents created via --agents JSON flag...\"\n   - NEW: \"Model IDs are collected via {vosr_probe} routine, which spawns parallel claude invocations via tokio async subprocess spawning.\"\n   - Ensure {vosr_probe} attribute is defined if not present\n\n## Dependency\n\nBlocked by: wire-saddle-vosr-probe (AHAAF)\n\nAcceptance: Both docs accurately describe the new tokio-based probe flow.",
               "silks": "doc-update-tokio-probe",
               "commit": "8678dca"
+            }
+          ]
+        },
+        "₢AHAAI": {
+          "tacks": [
+            {
+              "ts": "260127-1057",
+              "state": "rough",
+              "text": "Make saddle create session chalk commit automatically.\n\n## Context\n\nAfter AHAAF, saddle calls vvcp_probe() and outputs Session-probe section. But Claude still needs to parse that and create the chalk commit. Per JJSA: \"Session marker (created automatically by {jjdo_saddle})\". Saddle should do the full operation in Rust.\n\n## Deliverables\n\n1. **In jjrsd_saddle.rs**, after calling vvcp_probe():\n   - Generate timestamp in YYMMDD-HHMM format\n   - Create chalk commit via jjx_chalk logic (or call jjrch_chalk directly):\n     - Firemark (heat-level)\n     - Marker: s\n     - Description: \"{YYMMDD-HHMM} session\"\n     - Body: the 5-line probe output\n   - Output informational line: \"Session-marker: {commit_hash} ({YYMMDD-HHMM})\"\n\n2. **Remove Session-probe section from output** — the probe data goes into the chalk commit body, not stdout\n\n3. **Update saddle output format** — just the informational Session-marker line when probe occurred\n\n## Dependency\n\nBlocked by: wire-saddle-vosr-probe (AHAAF)\n\nAcceptance: Running jjx_saddle on a heat with >1hr gap creates chalk commit automatically. No Claude participation needed.",
+              "silks": "saddle-creates-session-chalk",
+              "commit": "43d24de"
             }
           ]
         }
