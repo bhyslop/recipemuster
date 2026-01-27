@@ -49,4 +49,4 @@ Individual probe failures are captured as "unavailable" rather than failing the 
 
 *Token budget:* ~16 tokens per probe (5 prompt + 1 query + 10 response), ~50 total.
 
-*Implementation:* `Tools/vok/src/vosrp_probe.rs` (to be created)
+*Implementation:* `Tools/vvc/src/vvcp_probe.rs`

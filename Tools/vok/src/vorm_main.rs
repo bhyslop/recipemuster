@@ -168,7 +168,8 @@ struct VacateArgs {
     burc: PathBuf,
 }
 
-fn main() -> ExitCode {
+#[tokio::main]
+async fn main() -> ExitCode {
     let cli = Cli::parse();
 
     let exit_code = match cli.command {
