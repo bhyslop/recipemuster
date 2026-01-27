@@ -648,9 +648,10 @@
         "₢AHAAJ",
         "₢AHAAK",
         "₢AHAAL",
-        "₢AHAAM"
+        "₢AHAAM",
+        "₢AHAAN"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -955,6 +956,17 @@
               "text": "Add \"Recommended:\" advice lines to JJX commands to save Claude tokens.\n\n## Context\n\nCurrently only jjrwp_wrap.rs prints advice (\"Recommended: /clear then /jjc-heat-mount {firemark}\"). Claude often generates similar guidance prose, wasting tokens. If JJX commands print actionable next-step advice, Claude can stay silent.\n\n## Deliverables\n\nAdd stderr advice to these commands:\n\n1. **jjx_saddle** (jjrsd_saddle.rs) — after outputting pace context:\n   - If bridled: \"Recommended: /jjc-heat-mount {firemark} to execute\"\n   - If rough: \"Recommended: /jjc-pace-bridle {coronet} or /jjc-heat-mount {firemark}\"\n\n2. **jjx_tally with --state bridled** (bridle operation) — after success:\n   - \"Recommended: /jjc-heat-mount {firemark} to execute\"\n\n3. **jjx_parade** (jjrpd_parade.rs) — when showing remaining paces:\n   - If next pace exists: \"Recommended: /jjc-heat-mount {firemark}\"\n\n## Pattern\n\nUse eprintln! for advice (stderr), matching wrap.rs pattern. Keep advice terse — one line max.\n\nAcceptance: Running jjx_saddle, jjx_tally --state bridled, and jjx_parade shows appropriate \"Recommended:\" line on stderr.",
               "silks": "jjx-advice-output",
               "commit": "82443ef"
+            }
+          ]
+        },
+        "₢AHAAN": {
+          "tacks": [
+            {
+              "ts": "260127-1153",
+              "state": "rough",
+              "text": "Test session probe by temporarily forcing it to always fire.\n\n## Context\n\nSession probe only fires when gap > 1 hour. To verify the new saddle-based implementation works correctly, we need to test it without waiting an hour.\n\n## Steps\n\n1. Temporarily modify `jjrc_needs_session_probe` to always return true\n2. Run `/jjc-heat-mount` and verify session probe commit is created with correct format:\n   - Subject: `jjb:XXXX:₣XX:s: YYMMDD-HHMM session` (lowercase s, single \"session\")\n   - Body: haiku/sonnet/opus model IDs, host, platform\n3. Restore original logic (gap > 1 hour check)\n4. Verify build + tests pass\n\n## Acceptance\n\n- Session probe commit created with correct format (no \"session session\" duplication)\n- Body contains model probe results\n- Original time-gap logic restored",
+              "silks": "test-session-probe",
+              "commit": "061d469"
             }
           ]
         }
