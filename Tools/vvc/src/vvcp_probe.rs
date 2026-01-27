@@ -57,11 +57,9 @@ async fn probe_model_tier(tier: &str) -> String {
             "-p",
             "--model",
             tier,
-            "--system-prompt",
-            "Report only your exact model ID string.",
-            "--tools",
-            "",
-            "go",
+            "--no-session-persistence",
+            "--",
+            "Report your exact model ID string only",
         ])
         .output()
         .await;

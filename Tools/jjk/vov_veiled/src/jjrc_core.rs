@@ -83,10 +83,10 @@ pub fn jjrc_needs_session_probe(last_timestamp: Option<&str>) -> bool {
     // Get current local time as NaiveDateTime
     let now = Local::now().naive_local();
 
-    // Calculate gap in minutes
+    // Calculate gap in seconds
     let duration = now.signed_duration_since(last_time);
-    let gap_minutes = duration.num_minutes();
+    let gap_seconds = duration.num_seconds();
 
-    // Session gap threshold: 60 minutes (1 hour)
-    gap_minutes > 60
+    // Session gap threshold: 1 hour
+    gap_seconds > 60 * 60
 }
