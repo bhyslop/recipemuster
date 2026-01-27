@@ -650,9 +650,10 @@
         "₢AHAAL",
         "₢AHAAM",
         "₢AHAAN",
-        "₢AHAAO"
+        "₢AHAAO",
+        "₢AHAAP"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -986,6 +987,17 @@
               "text": "Add a marker code registry that validates uniqueness at initialization.\n\n## Context\n\nCurrently `jjrn_ChalkMarker` and `jjrn_HeatAction` each have inline char codes in their `jjrn_code()` methods. The S/s distinction (Slate vs Session) is easy to miss. We want a registry pattern that catches collisions.\n\n## Design\n\nCreate a `jjrnm_MarkerRegistry` (marker module) with:\n\n1. **Code constants** — all marker chars defined in one place:\n   ```rust\n   pub const JJRNM_APPROACH: char = 'A';\n   pub const JJRNM_WRAP: char = 'W';\n   pub const JJRNM_SLATE: char = 'S';\n   pub const JJRNM_SESSION: char = 's';\n   // etc.\n   ```\n\n2. **Registration struct** — mini object that registers on construction:\n   ```rust\n   pub struct jjrnm_MarkerCode {\n       code: char,\n       name: &'static str,\n   }\n   \n   impl jjrnm_MarkerCode {\n       pub const fn new(code: char, name: &'static str) -> Self {\n           Self { code, name }\n       }\n   }\n   ```\n\n3. **Static registry** — collects all codes, validates uniqueness:\n   ```rust\n   // Using inventory crate or lazy_static with a validation function\n   // Panics at init if any two codes collide\n   ```\n\n4. **Validation** — either:\n   - Runtime: `lazy_static` init that panics on collision\n   - Test: `#[test]` that iterates all markers and checks uniqueness\n   - Compile-time: const fn if feasible (preferred)\n\n## Deliverables\n\n1. New file `jjrnm_markers.rs` with constants and registry\n2. Update `jjrn_notch.rs` to use constants from registry\n3. Test that validates no collisions exist\n4. Bonus: test that all codes are printable ASCII and case-distinct per category\n\n## Acceptance\n\n- All marker codes defined in one file\n- Collision between any two codes causes test failure or init panic\n- Existing functionality unchanged",
               "silks": "marker-code-registry",
               "commit": "4145416"
+            }
+          ]
+        },
+        "₢AHAAP": {
+          "tacks": [
+            {
+              "ts": "260127-1213",
+              "state": "rough",
+              "text": "Fix .jjk release directory location and gitignore setup:\n\n**Problem:** The .jjk directory is currently at `../.jjk` (parent of repo) instead of in the repo root.\n\n**Required changes:**\n1. Configure JJK to use `.jjk/` in the repo root (not `../.jjk/`)\n2. Create `.jjk/.gitignore` that ignores `parcels/` contents but keeps the directory structure tracked\n3. Ensure `.jjk/` directory itself is tracked in git\n\n**Acceptance criteria:**\n- `.jjk/` exists in repo root\n- `.jjk/.gitignore` contains appropriate rules to ignore parcel contents\n- `git ls-files .jjk/` shows the .gitignore (and any other config files)\n- `parcels/` directory contents are not tracked",
+              "silks": "fix-jjk-release-directory",
+              "commit": "d386e7b"
             }
           ]
         }
