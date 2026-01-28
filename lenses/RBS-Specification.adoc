@@ -154,8 +154,8 @@
 
 :rbrn_moniker:                    <<term_rbrn_moniker,RBRN_MONIKER>>
 :rbrn_description:                <<term_rbrn_description,RBRN_DESCRIPTION>>
-:rbrn_sentry_repo_path:           <<term_rbrn_sentry_repo_path,RBRN_SENTRY_REPO_PATH>>
-:rbrn_bottle_repo_path:           <<term_rbrn_bottle_repo_path,RBRN_BOTTLE_REPO_PATH>>
+:rbrn_sentry_moniker:             <<term_rbrn_sentry_moniker,RBRN_SENTRY_MONIKER>>
+:rbrn_bottle_moniker:             <<term_rbrn_bottle_moniker,RBRN_BOTTLE_MONIKER>>
 :rbrn_sentry_image_tag:           <<term_rbrn_sentry_image_tag,RBRN_SENTRY_IMAGE_TAG>>
 :rbrn_bottle_image_tag:           <<term_rbrn_bottle_image_tag,RBRN_BOTTLE_IMAGE_TAG>>
 :rbrn_entry_enabled:              <<term_rbrn_entry_enabled,RBRN_ENTRY_ENABLED>>
@@ -695,7 +695,7 @@ instantiates and configures the service container:
 . Launch
 {at_bottle_container}:
 * Image
-{rbrn_bottle_repo_path}:{rbrn_bottle_image_tag}
+{rbrn_bottle_moniker}:{rbrn_bottle_image_tag}
 * Name
 {at_bottle_container_name}
 * Attach exclusively to
@@ -834,7 +834,7 @@ within the
 establishes the transient container:
 
 * Create container from
-{rbrn_bottle_repo_path}:{rbrn_bottle_image_tag}
+{rbrn_bottle_moniker}:{rbrn_bottle_image_tag}
 * Allow podman to assign unique container name
 * Attach exclusively to
 {at_enclave_network}
@@ -1460,18 +1460,18 @@ A human-readable explanation of the
 {at_bottle_service_p}
 purpose and function.
 
-[[term_rbrn_sentry_repo_path]]
-{rbrn_sentry_repo_path}::
-The complete repository path where the
+[[term_rbrn_sentry_moniker]]
+{rbrn_sentry_moniker}::
+The image moniker identifier for the
 {at_sentry_image}
-is stored in the
+in the
 {at_container_registry}.
 
-[[term_rbrn_bottle_repo_path]]
-{rbrn_bottle_repo_path}::
-The complete repository path where the
+[[term_rbrn_bottle_moniker]]
+{rbrn_bottle_moniker}::
+The image moniker identifier for the
 {at_bottle_image}
-is stored in the
+in the
 {at_container_registry}.
 
 [[term_rbrn_sentry_image_tag]]

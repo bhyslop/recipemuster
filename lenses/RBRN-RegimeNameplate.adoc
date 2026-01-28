@@ -106,9 +106,9 @@ Must be either "docker" or "podman"
 |===
 |Assignment Variable |Attribute |Details
 
-.4+|**`RBRN_SENTRY_REPO_PATH`**
+.4+|**`RBRN_SENTRY_MONIKER`**
 |Purpose|
-Full repository path for
+Image moniker for
 {at_sentry_image}
 |Type|
 {crg_atom_fqin}:
@@ -117,9 +117,9 @@ Full repository path for
 Yes
 |Constraints|
 
-.4+|**`RBRN_BOTTLE_REPO_PATH`**
+.4+|**`RBRN_BOTTLE_MONIKER`**
 |Purpose|
-Full repository path for
+Image moniker for
 {at_bottle_image}
 |Type|
 {crg_atom_fqin}:
