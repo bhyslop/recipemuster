@@ -161,7 +161,7 @@ zrbf_stitch_build_json() {
     "rbgjb06-build-and-export.sh:gcr.io/cloud-builders/docker:bash:build-and-export"
     "rbgjb07-push-with-skopeo.sh:quay.io/skopeo/stable:bash:push-with-skopeo"
     "rbgjb08-sbom-and-summary.sh:gcr.io/cloud-builders/docker:bash:sbom-and-summary"
-    "rbgjb10-assemble-metadata.sh:alpine:latest:sh:assemble-metadata"
+    "rbgjb10-assemble-metadata.sh:alpine:sh:assemble-metadata"
     "rbgjb09-build-and-push-metadata.sh:gcr.io/cloud-builders/docker:bash:build-and-push-metadata"
   )
 
