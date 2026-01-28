@@ -127,6 +127,13 @@
               "ts": "260128-0702",
               "state": "rough",
               "text": "Improve rbf_list output to show all available images with tags. Current behavior shows only moniker count. New behavior: list all images with full reference (registry/project/repo/moniker:tag) and metadata indicator [meta] when -meta companion exists. Output serves as reference for available images; actual nameplate config will use short monikers once GAR resolution logic is implemented (see ₢APAAI).",
+              "silks": "improve-image-list-output",
+              "commit": "d1b16ce"
+            },
+            {
+              "ts": "260128-0702",
+              "state": "rough",
+              "text": "Improve rbf_list output to show all available images with tags. Current behavior shows only moniker count. New behavior: list all images with full reference (registry/project/repo/moniker:tag) and metadata indicator [meta] when -meta companion exists. Output serves as reference for available images; actual nameplate config will use short monikers once GAR resolution logic is implemented (see ₢APAAI).",
               "silks": "investigate-image-naming",
               "commit": "0e0fbfc"
             },
