@@ -163,7 +163,7 @@ zrbob_create_network() {
 zrbob_launch_sentry() {
   zrbob_sentinel
 
-  local z_image="${RBRN_SENTRY_REPO_PATH}:${RBRN_SENTRY_IMAGE_TAG}"
+  local z_image="${RBGD_GAR_LOCATION}-docker.pkg.dev/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_MONIKER}:${RBRN_SENTRY_IMAGE_TAG}"
 
   buc_step "Launching sentry container: ${ZRBOB_SENTRY}"
 
@@ -221,7 +221,7 @@ zrbob_launch_sentry() {
 zrbob_launch_censer() {
   zrbob_sentinel
 
-  local z_image="${RBRN_SENTRY_REPO_PATH}:${RBRN_SENTRY_IMAGE_TAG}"
+  local z_image="${RBGD_GAR_LOCATION}-docker.pkg.dev/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_MONIKER}:${RBRN_SENTRY_IMAGE_TAG}"
 
   buc_step "Launching censer container: ${ZRBOB_CENSER}"
 
@@ -272,7 +272,7 @@ zrbob_launch_censer() {
 zrbob_launch_bottle() {
   zrbob_sentinel
 
-  local z_image="${RBRN_BOTTLE_REPO_PATH}:${RBRN_BOTTLE_IMAGE_TAG}"
+  local z_image="${RBGD_GAR_LOCATION}-docker.pkg.dev/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_MONIKER}:${RBRN_BOTTLE_IMAGE_TAG}"
 
   buc_step "Creating bottle container: ${ZRBOB_BOTTLE}"
 
