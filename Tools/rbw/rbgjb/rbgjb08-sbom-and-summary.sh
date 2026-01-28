@@ -1,7 +1,6 @@
 #!/bin/bash
 # RBGJB Step 08: Generate SBOM and package summary with Syft
 # Builder: gcr.io/cloud-builders/docker
-# Substitutions: _RBGY_SYFT_REF
 #
 # OCI Layout Bridge Phase 3: Generate SBOM from pushed image.
 # Note: Syft can't handle multi-platform OCI archives directly (GitHub #1545),
@@ -9,8 +8,10 @@
 
 set -euo pipefail
 
-test -n "${_RBGY_SYFT_REF}" || (echo "_RBGY_SYFT_REF missing" >&2; exit 1)
-test -s .image_uri          || (echo ".image_uri not found" >&2; exit 1)
+# Hardcoded syft image - parameterize later if needed
+SYFT_IMAGE="anchore/syft:latest"
+
+test -s .image_uri || (echo ".image_uri not found" >&2; exit 1)
 
 IMAGE_URI="$(cat .image_uri)"
 echo "Pulling image for SBOM analysis: ${IMAGE_URI}..."
@@ -19,10 +20,10 @@ echo "Pulling image for SBOM analysis: ${IMAGE_URI}..."
 docker pull "${IMAGE_URI}"
 
 # Analyze the pulled image
-echo "Generating SBOM..."
+echo "Generating SBOM with ${SYFT_IMAGE}..."
 docker run --rm -v /workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock \
-  "${_RBGY_SYFT_REF}" "docker:${IMAGE_URI}" -o json  > syft_analysis.json
+  "${SYFT_IMAGE}" "docker:${IMAGE_URI}" -o json  > syft_analysis.json
 docker run --rm -v /workspace:/workspace -v /var/run/docker.sock:/var/run/docker.sock \
-  "${_RBGY_SYFT_REF}" "docker:${IMAGE_URI}" -o table > package_summary.txt
+  "${SYFT_IMAGE}" "docker:${IMAGE_URI}" -o table > package_summary.txt
 
 echo "SBOM generation complete"
