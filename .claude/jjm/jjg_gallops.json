@@ -212,6 +212,13 @@
         "₢APAAJ": {
           "tacks": [
             {
+              "ts": "260128-0830",
+              "state": "rough",
+              "text": "Build nsproto vessel images and stage them for local testing.\n\n## Completed\n- Created vessels: `rbev-sentry-ubuntu-large`, `rbev-bottle-ubuntu-test`\n- Updated nameplates (nsproto, pluml, srjcl) with new monikers\n- Deleted local build infrastructure (RBM-recipes/, LocalBuild tabtargets)\n- Built sentry image successfully: `rbev-sentry-ubuntu-large` in GAR\n\n## Remaining\n1. **Rebuild bottle image** — Previous build cancelled (slow arm64 via QEMU). Options:\n   - Retry with patience (~20-30 min for arm64)\n   - Or modify vessel to amd64-only for faster builds\n2. **Get new tags** — Run `tt/rbw-il.ImageList.sh` for both monikers\n3. **Update nameplate** — Set RBRN_*_IMAGE_TAG values in `Tools/rbw/rbrn_nsproto.env`\n4. **Retrieve images** — Pull from GAR to local Docker via `tt/rbw-ir.RetrieveImage.sh`\n5. **Verify** — Confirm images available locally with `docker images`\n\n## Key Commands\n- Build: `tt/rbw-fB.BuildVessel.sh rbev-vessels/rbev-bottle-ubuntu-test`\n- List: `tt/rbw-il.ImageList.sh rbev-sentry-ubuntu-large` (and bottle)\n- Retrieve: `tt/rbw-ir.RetrieveImage.sh <moniker>:<tag>`",
+              "silks": "build-and-stage-nsproto-images",
+              "commit": "c78aff4"
+            },
+            {
               "ts": "260128-0738",
               "state": "rough",
               "text": "Build nsproto vessel images and stage them for local testing.\n\n## Steps\n\n1. **Build images** — Run rbf_build for nsproto sentry and bottle images via Cloud Build\n2. **Get new tags** — Run rbf_list to get the newly created image tags\n3. **Update nameplate** — Edit Tools/rbw/rbrn_nsproto.env with new RBRN_SENTRY_IMAGE_TAG and RBRN_BOTTLE_IMAGE_TAG values\n4. **Retrieve images** — Run rbf_retrieve (via tt/rbw-ir.RetrieveImage.sh) to pull images from GAR to local Docker\n5. **Verify** — Confirm images are available locally with docker images\n\n## Key Commands\n\n- Build: tt/rbw-tb.TriggerBuild.sh (or rbf_build directly)\n- List: tt/rbw-il.ListImages.sh\n- Retrieve: tt/rbw-ir.RetrieveImage.sh\n- Nameplate: Tools/rbw/rbrn_nsproto.env\n\n## Success Criteria\n\n- Images exist in GAR with new tags\n- Nameplate updated with matching tags\n- Images pulled to local Docker daemon\n- Ready for test suite execution",
