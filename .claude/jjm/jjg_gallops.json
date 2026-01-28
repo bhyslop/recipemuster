@@ -11,12 +11,13 @@
         "₢APAAE",
         "₢APAAG",
         "₢APAAI",
+        "₢APAAJ",
         "₢APAAB",
         "₢APAAC",
         "₢APAAD",
         "₢APAAH"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -180,6 +181,17 @@
               "text": "Add GAR image resolution logic to nameplate image handling. Currently nameplates use RBRN_*_REPO_PATH directly with docker pull. Implement resolution that detects GAR vs local images and prepends registry path from regime variables (RBRR_GAR_REPOSITORY, RBGD_GAR_LOCATION, RBGD_GAR_PROJECT_ID) for GAR images. This keeps nameplates DRY - they specify just the moniker, regime provides the registry context. Key file: Tools/rbw/rbob_bottle.sh (z_image construction at lines 166, 224, 275).",
               "silks": "nameplate-gar-resolution",
               "commit": "eb22ae4"
+            }
+          ]
+        },
+        "₢APAAJ": {
+          "tacks": [
+            {
+              "ts": "260128-0709",
+              "state": "rough",
+              "text": "Build nsproto vessel images via Cloud Build and verify they appear in Artifact Registry. Run rbf_build for the nsproto vessel directory. After successful build, run rbf_list to confirm images with tags are present. This ensures test suite has current images to test against.",
+              "silks": "build-nsproto-images",
+              "commit": "7c4b395"
             }
           ]
         }
