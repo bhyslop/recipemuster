@@ -74,7 +74,7 @@ rbk_route() {
     rbw-fB)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build    "$@" ;;
     rbw-fD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete   "$@" ;;
     rbw-il)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_list     "$@" ;;
-    rbw-r)   exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_retrieve "$@" ;;
+    rbw-ir)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_retrieve "$@" ;;
 
     # Unknown command
     *)
