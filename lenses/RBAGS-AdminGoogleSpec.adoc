@@ -254,6 +254,38 @@ All IAM policy modifications enforce version 3 to ensure conditional role bindin
 {gcp_service}
 resources.
 
+== Operational Invariants
+
+=== Concurrent Session Safety
+
+{at_recipe_bottle}
+commands are designed for concurrent execution from multiple independent sessions against the same filesystem.
+This enables parallel workflows where different developers or automation systems invoke commands simultaneously.
+
+Concurrency safety is achieved through:
+
+* *Ephemeral Isolation*:
+Each command invocation creates a unique temporary directory using `BUD_NOW_STAMP` (timestamp + process ID + random component), ensuring intermediate files never collide.
+
+* *Unique Artifact Naming*:
+Cloud resources (source tarballs, build IDs) incorporate the invocation timestamp, preventing overwrite conflicts in
+{rbtgi_build_bucket}
+and
+{rbtgi_repository}.
+
+* *Read-Only Git Queries*:
+Git operations are non-mutating (status checks, metadata reads).
+The `git fetch` operation uses git's internal locking for safe concurrent execution.
+
+* *Semantic Preconditions*:
+Operations like
+{rbtgo_trigger_build}
+require clean git state.
+This is a workflow constraint ensuring reproducible builds, not a collision guard.
+
+NOTE: Concurrent builds of the same vessel produce independent images with different timestamps.
+Both builds succeed; neither overwrites the other.
+
 == Getting Started
 
 For builders and operators new to {at_recipe_bottle}, this section provides conceptual grounding and the setup journey.

@@ -5,6 +5,10 @@ vessel specification using
 and stores the result in
 {rbtgi_repository}.
 
+NOTE: This operation supports concurrent execution per the Concurrent Session Safety invariant.
+Multiple sessions can invoke this command simultaneously against the same repository without collision.
+Each invocation uses isolated temporary directories and uniquely-named cloud artifacts.
+
 The
 {rbtr_director}
 triggers a remote container build:
