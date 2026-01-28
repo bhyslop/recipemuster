@@ -94,8 +94,7 @@ if unpushed: "Local commits not pushed"
 .. Create staging directory for context assembly
 .. Copy `«BUILD_CONTEXT_DIR»` contents to staging
 .. Copy `«DOCKERFILE_PATH»` to staging root
-.. Copy RBGY build template (cloudbuild.yaml) to staging root
-.. Create gzip tarball from staging directory
+.. Create gzip tarball from staging directory (source only; build steps inlined in API request)
 .. {rbbc_store}
 `«CONTEXT_SIZE»` as tarball size in bytes
 .. {rbbc_require}
@@ -120,11 +119,6 @@ if too large: "Context tarball too large (>10MB limit)"
 ... _RBGY_GIT_COMMIT: `«GIT_COMMIT»`
 ... _RBGY_GIT_BRANCH: `«GIT_BRANCH»`
 ... _RBGY_GIT_REPO: `«GIT_REPO»`
-... _RBGY_SERVICE_ACCOUNT:
-{rbtr_mason}
-email
-... _RBGY_MACHINE_TYPE: machine type from regime
-... _RBGY_TIMEOUT: build timeout from regime
 
 . *Upload Build Source to
 {rbtgi_build_bucket}*:
