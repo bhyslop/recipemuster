@@ -71,9 +71,10 @@ rbk_route() {
     rbw-aDS) exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_delete_service_account   "$@" ;;
 
     # Foundry commands
-    rbw-fB)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build  "$@" ;;
-    rbw-fD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete "$@" ;;
-    rbw-il)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_list   "$@" ;;
+    rbw-fB)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build    "$@" ;;
+    rbw-fD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete   "$@" ;;
+    rbw-il)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_list     "$@" ;;
+    rbw-r)   exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_retrieve "$@" ;;
 
     # Unknown command
     *)
