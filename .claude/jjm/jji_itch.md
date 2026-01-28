@@ -1916,6 +1916,60 @@ Or with explicit outcome:
 
 Identified 2026-01-18 when wrap was missing automatic notch. Adding Step 3.5 to slash command works but highlighted that wrap is doing too much orchestration that belongs in Rust.
 
+## rbrv-vessel-role-attribute
+Add vessel role attribute to RBRV regime for image role branding.
+
+### Problem
+
+Images in GAR are undifferentiated blobs. Nothing in the image or metadata declares "I'm designed to be a sentry" vs "I'm designed to be a bottle." The nameplate assigns role via variable name (`RBRN_SENTRY_MONIKER`, `RBRN_BOTTLE_MONIKER`), but the vessel itself has no role awareness.
+
+### Proposed Solution
+
+Add `RBRV_VESSEL_ROLE` to vessel regime (`rbev-vessels/*/rbrv.env`):
+- `sentry` — designed for sentry role
+- `bottle` — designed for bottle role
+- (No 'both' option — vessels should be purpose-built)
+
+The `-meta` artifact would carry this role through to GAR, enabling:
+- `rbw-il` list output grouped by role
+- Validation that nameplate doesn't assign sentry image to bottle role
+- Role-based image filtering in queries
+
+### Open Questions
+
+**Censer/sentry duality**: Currently censer uses the sentry image (same image, different container role). This concept doesn't cleanly address that duality. Options:
+- Censer is an "internal role" not reflected in RBRV (it's a runtime configuration, not an image type)
+- Add `censer` as a distinct role (but then we're building separate images for what's currently shared)
+- Document that sentry images are also valid for censer role by definition
+
+**Security implications**: Role branding could enable:
+- Image signing that embeds permitted roles
+- Registry policies that restrict which images can be pulled for which purposes
+- Audit trails showing role-image mapping over time
+
+These are speculative — may not be worth the complexity.
+
+### Report Format Vision
+
+With role attribute, `rbw-il` could show:
+
+```
+RBRR Registry Context:
+  RBGD_GAR_LOCATION:    us-central1
+  RBGD_GAR_PROJECT_ID:  rbwg-d-proto-251230080456
+  RBRR_GAR_REPOSITORY:  rbw-proto-repository
+
+RBRV_VESSEL_ROLE    RBRN_*_MONIKER         RBRN_*_IMAGE_TAG        AVAILABLE
+────────────────    ────────────────────   ─────────────────────   ──────────
+sentry              sentry_ubuntu_large    (not set)               20260128T... ✓
+bottle              bottle_ubuntu_test     (not set)               (none)
+(unknown)           rbev-busybox           —                       20260128T... ✓
+```
+
+### Context
+
+Identified 2026-01-28 during `rbw-il` output improvement discussion. The list shows images but can't map them to nameplate roles without explicit vessel role metadata.
+
 ## rbw-local-build-push
 Build images locally then push to Artifact Registry for users with Director credentials.
 
