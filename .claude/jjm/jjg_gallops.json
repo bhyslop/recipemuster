@@ -13,9 +13,10 @@
         "₢APAAB",
         "₢APAAC",
         "₢APAAD",
-        "₢APAAH"
+        "₢APAAH",
+        "₢APAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -139,6 +140,17 @@
               "text": "Pin Cloud Build tool image versions to avoid \"latest\" drift. Currently hardcoded: (1) anchore/syft:latest in rbgjb08-sbom-and-summary.sh, (2) alpine (implicit latest) in rbf_Foundry.sh step definitions. Convert to locked versions and consider making them configurable via RBRR or RBRV regime variables.",
               "silks": "pin-gcb-tool-versions",
               "commit": "a7cdea6"
+            }
+          ]
+        },
+        "₢APAAI": {
+          "tacks": [
+            {
+              "ts": "260128-0701",
+              "state": "rough",
+              "text": "Add GAR image resolution logic to nameplate image handling. Currently nameplates use RBRN_*_REPO_PATH directly with docker pull. Implement resolution that detects GAR vs local images and prepends registry path from regime variables (RBRR_GAR_REPOSITORY, RBGD_GAR_LOCATION, RBGD_GAR_PROJECT_ID) for GAR images. This keeps nameplates DRY - they specify just the moniker, regime provides the registry context. Key file: Tools/rbw/rbob_bottle.sh (z_image construction at lines 166, 224, 275).",
+              "silks": "nameplate-gar-resolution",
+              "commit": "eb22ae4"
             }
           ]
         }
