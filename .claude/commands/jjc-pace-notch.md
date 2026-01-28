@@ -14,12 +14,14 @@ Arguments: $ARGUMENTS (one or more file paths to commit)
 
 ## Execution
 
-**Step 1: Prompt user for one-line commit intent**
+**Step 1: Synthesize commit intent from conversation**
 
-Ask the user: "One-line summary of what you're committing:"
+Generate a one-line commit message based on what was just accomplished in this session. Draw on:
+- The work discussed and completed
+- Files being committed and why
+- Heat/pace context
 
-If the user provides a message, use `--intent "<message>"` in the command.
-If the user declines or provides empty input, omit `--intent` (haiku generates message).
+Use this as `--intent "<message>"` in the command. Do not prompt the user — synthesize from your awareness of the conversation.
 
 **Step 2: Execute commit**
 
