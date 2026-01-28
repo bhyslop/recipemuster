@@ -233,6 +233,14 @@
         "₢APAAL": {
           "tacks": [
             {
+              "ts": "260128-0735",
+              "state": "bridled",
+              "text": "Implement GAR image path construction in rbob_bottle.sh. After the MONIKER rename (pace APAAI), rbob needs to construct full GAR image paths.\n\n## Implementation\n\nIn **Tools/rbw/rbob_bottle.sh**, update z_image construction at lines 166, 224, 275:\n\nFrom:\n```bash\nlocal z_image=\"${RBRN_SENTRY_MONIKER}:${RBRN_SENTRY_IMAGE_TAG}\"\n```\n\nTo:\n```bash\nlocal z_image=\"${RBGD_GAR_LOCATION}-docker.pkg.dev/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_MONIKER}:${RBRN_SENTRY_IMAGE_TAG}\"\n```\n\nPattern from rbi_Image.sh lines 45-46 shows the registry path construction.\n\n## Prerequisite\n\nDepends on ₢APAAI (rename-repo-path-to-moniker) completing first — the variables must be renamed before this implementation makes sense.",
+              "silks": "implement-gar-image-resolution",
+              "commit": "8b83d55",
+              "direction": "Agent: haiku | Cardinality: 1 sequential | Files: Tools/rbw/rbob_bottle.sh (1 file) | Steps: 1. In zrbob_launch_sentry replace z_image assignment with GAR path using RBGD_GAR_LOCATION-docker.pkg.dev/RBGD_GAR_PROJECT_ID/RBRR_GAR_REPOSITORY/RBRN_SENTRY_MONIKER:tag 2. In zrbob_launch_censer same pattern with SENTRY moniker 3. In zrbob_launch_bottle same pattern with RBRN_BOTTLE_MONIKER 4. Commit with /jjc-pace-notch | Verify: grep docker.pkg.dev Tools/rbw/rbob_bottle.sh shows 3 matches"
+            },
+            {
               "ts": "260128-0732",
               "state": "rough",
               "text": "Implement GAR image path construction in rbob_bottle.sh. After the MONIKER rename (pace APAAI), rbob needs to construct full GAR image paths.\n\n## Implementation\n\nIn **Tools/rbw/rbob_bottle.sh**, update z_image construction at lines 166, 224, 275:\n\nFrom:\n```bash\nlocal z_image=\"${RBRN_SENTRY_MONIKER}:${RBRN_SENTRY_IMAGE_TAG}\"\n```\n\nTo:\n```bash\nlocal z_image=\"${RBGD_GAR_LOCATION}-docker.pkg.dev/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_MONIKER}:${RBRN_SENTRY_IMAGE_TAG}\"\n```\n\nPattern from rbi_Image.sh lines 45-46 shows the registry path construction.\n\n## Prerequisite\n\nDepends on ₢APAAI (rename-repo-path-to-moniker) completing first — the variables must be renamed before this implementation makes sense.",
