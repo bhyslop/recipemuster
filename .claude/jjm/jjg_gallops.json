@@ -9,11 +9,12 @@
         "₢APAAF",
         "₢APAAA",
         "₢APAAE",
+        "₢APAAG",
         "₢APAAB",
         "₢APAAC",
         "₢APAAD"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -101,6 +102,17 @@
               "text": "Remove RBRR_GCB_JQ_IMAGE_REF and RBRR_GCB_SYFT_IMAGE_REF from all files. These undocumented variables block container start with validation errors. The GCB metadata step installs jq at runtime anyway. Remove: variable definitions in rbrr_RecipeBottleRegimeRepo.sh, validation calls in rbrr_regime.sh, substitution passing in rbf_Foundry.sh, and usage in rbgjb10-assemble-metadata.sh comments. Leave gcrane and oras refs (they're properly pinned and may be in use).",
               "silks": "remove-gcb-jq-image-ref",
               "commit": "993202d"
+            }
+          ]
+        },
+        "₢APAAG": {
+          "tacks": [
+            {
+              "ts": "260128-0630",
+              "state": "rough",
+              "text": "Study why only one busybox image exists in the depot (rbev-busybox) when images should have datestamp names. Investigate: (1) How images are being named during builds, (2) Whether old images are being overwritten vs retained, (3) The expected naming convention and where it's defined. Goal: understand the naming pattern and whether this is expected behavior or a configuration issue.",
+              "silks": "investigate-image-naming",
+              "commit": "01a0bc6"
             }
           ]
         }
