@@ -17,9 +17,10 @@
         "₢APAAB",
         "₢APAAC",
         "₢APAAD",
-        "₢APAAH"
+        "₢APAAH",
+        "₢APAAM"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -267,6 +268,17 @@
               "text": "Implement GAR image path construction in rbob_bottle.sh. After the MONIKER rename (pace APAAI), rbob needs to construct full GAR image paths.\n\n## Implementation\n\nIn **Tools/rbw/rbob_bottle.sh**, update z_image construction at lines 166, 224, 275:\n\nFrom:\n```bash\nlocal z_image=\"${RBRN_SENTRY_MONIKER}:${RBRN_SENTRY_IMAGE_TAG}\"\n```\n\nTo:\n```bash\nlocal z_image=\"${RBGD_GAR_LOCATION}-docker.pkg.dev/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_MONIKER}:${RBRN_SENTRY_IMAGE_TAG}\"\n```\n\nPattern from rbi_Image.sh lines 45-46 shows the registry path construction.\n\n## Prerequisite\n\nDepends on ₢APAAI (rename-repo-path-to-moniker) completing first — the variables must be renamed before this implementation makes sense.",
               "silks": "implement-gar-image-resolution",
               "commit": "cb37602"
+            }
+          ]
+        },
+        "₢APAAM": {
+          "tacks": [
+            {
+              "ts": "260128-0815",
+              "state": "rough",
+              "text": "Fix Cloud Build console URL to include region\n\nThe `ZRBF_CLOUD_QUERY_BASE` URL in `Tools/rbw/rbf_Foundry.sh` generates malformed Cloud Console links.\n\n## Current\n```\nhttps://console.cloud.google.com/cloud-build/builds/${build_id}?project=${project}\n```\n\n## Should be\n```\nhttps://console.cloud.google.com/cloud-build/builds;region=${region}/${build_id}?project=${project}\n```\n\n## Fix\nUpdate `zrbf_kindle()` to include region in `ZRBF_CLOUD_QUERY_BASE`, using `RBGD_GCB_REGION`.",
+              "silks": "fix-cloud-build-console-url",
+              "commit": "2886a54"
             }
           ]
         }
