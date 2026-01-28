@@ -829,9 +829,10 @@
         "₢AHAAM",
         "₢AHAAN",
         "₢AHAAO",
-        "₢AHAAP"
+        "₢AHAAP",
+        "₢AHAAQ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -1176,6 +1177,17 @@
               "text": "Fix .jjk release directory location and gitignore setup:\n\n**Problem:** The .jjk directory is currently at `../.jjk` (parent of repo) instead of in the repo root.\n\n**Required changes:**\n1. Configure JJK to use `.jjk/` in the repo root (not `../.jjk/`)\n2. Create `.jjk/.gitignore` that ignores `parcels/` contents but keeps the directory structure tracked\n3. Ensure `.jjk/` directory itself is tracked in git\n\n**Acceptance criteria:**\n- `.jjk/` exists in repo root\n- `.jjk/.gitignore` contains appropriate rules to ignore parcel contents\n- `git ls-files .jjk/` shows the .gitignore (and any other config files)\n- `parcels/` directory contents are not tracked",
               "silks": "fix-jjk-release-directory",
               "commit": "d386e7b"
+            }
+          ]
+        },
+        "₢AHAAQ": {
+          "tacks": [
+            {
+              "ts": "260128-0801",
+              "state": "rough",
+              "text": "Fix jjx_notch to accept deleted files in the file list.\n\n## Problem\n`jjx_notch` validates that all file arguments exist on disk (`path.exists()`). This fails for deleted files because they no longer exist, even though git tracks them.\n\n## Solution\nChange validation to accept files that either:\n1. Exist on disk (additions/modifications), OR\n2. Are tracked by git (deletions) — check via `git ls-files --error-unmatch <file>`\n\n## Files to modify\n\n### Implementation\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` lines 48-54\n  - Replace `path.exists()` with: exists OR git-tracked\n  - Use `git ls-files --error-unmatch <file>` to check if git knows the file\n\n### Spec  \n- `Tools/jjk/vov_veiled/JJSCNC-notch.adoc` line 28\n  - Change: \"If any file does not exist: exit 1 with...\"\n  - To: \"If any file does not exist AND is not tracked by git: exit 1 with...\"\n\n### Tests\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` or new test file\n  - Add test case for deleted file acceptance\n\n## Verification\nAfter implementation:\n1. `tt/vow-b.Build.sh` — build\n2. `tt/vow-t.Test.sh` — run tests\n3. Manual test: stage a deletion, run notch with deleted file path",
+              "silks": "fix-notch-deleted-files",
+              "commit": "9f03953"
             }
           ]
         }
