@@ -139,11 +139,13 @@ HTTP 200 response
 if upload fails: "GCS upload failed"
 
 . *Submit Build Request*:
+.. Stitch build steps from RBGJB step scripts (rbgjb/*.sh) into JSON array
 .. Construct build request JSON with:
 ... source.storageSource.bucket:
 {rbtgi_build_bucket}
 name
 ... source.storageSource.object: `«TARBALL_NAME»`
+... steps: stitched build steps array
 ... substitutions: RBGY substitutions from step 8
 ... options.logging: `CLOUD_LOGGING_ONLY`
 ... options.machineType: machine type from regime
