@@ -1915,3 +1915,58 @@ Or with explicit outcome:
 ### Context
 
 Identified 2026-01-18 when wrap was missing automatic notch. Adding Step 3.5 to slash command works but highlighted that wrap is doing too much orchestration that belongs in Rust.
+
+## rbw-local-build-push
+Build images locally then push to Artifact Registry for users with Director credentials.
+
+### Problem
+
+Current image creation flow is cloud-only:
+1. Director submits build to Cloud Build
+2. Mason (cloud-only) executes build within GCB
+3. Mason pushes to Artifact Registry
+
+This works but has friction points:
+- Cloud Build queue adds latency during iteration
+- Multi-platform buildx is awkward in Cloud Build (see RBWMBX memo)
+- Simple rebuilds incur Cloud Build costs
+- No offline-first workflow option
+
+### Proposed Feature
+
+Allow users with Director credentials to:
+1. Build locally (docker/podman/buildx)
+2. Push directly to Artifact Registry
+3. Gate on: "has Director RBRA file" (repository write access)
+
+### Design Questions
+
+**Permission granularity**: Director already has repository write permissions. The question is whether "can submit Cloud Build" should gate "can push locally", or whether repository write is the real gate. These are logically distinct capabilities.
+
+**Provenance gap**: Cloud Build creates metadata artifacts (SBOM, build transcript). Local builds would lack this audit trail. Options:
+- Accept the gap for dev workflows
+- Generate equivalent metadata locally
+- Tag local builds distinctly (e.g., `:local-*` suffix)
+
+**Role design**: Is this "Director can also push locally" or a new lighter-weight role (LocalBuilder) with only repository write, no Cloud Build submission?
+
+**Tagging discipline**: Cloud Build uses deterministic tags. Local pushes need discipline to avoid stomping production tags. Perhaps enforce `:local-*` or `:dev-*` prefix for local builds.
+
+### Use Cases
+
+1. **Fast iteration** - Build locally, push, test in target environment without Cloud Build queue
+2. **Multi-platform builds** - Use local buildx for arm64/amd64 manifests
+3. **Offline-first** - Build during travel, push when connected
+4. **Cost reduction** - Skip Cloud Build for trivial rebuilds during development
+
+### Implementation Hints
+
+- New tabtarget: `rbw-lP.LocalPush.sh` or similar
+- Authenticate with Director RBRA, push via docker/podman CLI
+- Validate RBRR_DIRECTOR_RBRA_FILE exists before attempting
+- Enforce tag prefix policy (reject push to `:latest` or production tags)
+- Consider metadata generation (build timestamp, git hash, local builder identity)
+
+### Context
+
+Identified 2026-01-28 during exploratory discussion. Motivating use case unclear — could be dev iteration speed, multi-platform builds, or cost savings. Worth clarifying before implementation.
