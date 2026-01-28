@@ -556,9 +556,10 @@
         "₢AGAAC",
         "₢AGAAD",
         "₢AGAAE",
-        "₢AGAAF"
+        "₢AGAAF",
+        "₢AGAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -645,6 +646,17 @@
               "text": "Change JSON schema field from \"commit\" to \"basis\" in tack records.\n\n## Context\n\nThe Rust code already uses `basis` as the field name (with `#[serde(rename = \"commit\")]` for backwards compatibility). This pace completes the rename by updating the JSON schema itself.\n\n## Changes\n\n1. Remove `#[serde(rename = \"commit\")]` from `jjrt_types.rs` — field serializes as `\"basis\"`\n2. Migrate existing gallops JSON files: `s/\"commit\":/\"basis\":/g`\n3. Update any documentation referencing the JSON schema\n\n## Breaking\n\nThis changes the JSON schema. All existing gallops files must be migrated.\n\n## Acceptance\n\n- JSON files use `\"basis\"` key instead of `\"commit\"`\n- Round-trip validation passes\n- All tests pass",
               "silks": "json-schema-commit-to-basis",
               "commit": "74a697f"
+            }
+          ]
+        },
+        "₢AGAAG": {
+          "tacks": [
+            {
+              "ts": "260128-0638",
+              "state": "rough",
+              "text": "Extract hardcoded Rust build/test commands from the wrap slash command and make build discipline configurable per-heat.\n\nCurrent state: The wrap command (and CLAUDE.md Pre-wrap Verification section) hardcodes `tt/vow-b.Build.sh && tt/vow-t.Test.sh` as the pre-wrap verification step.\n\nGoal: Allow heats to specify their own build discipline (or none), so non-Rust heats don't require Rust builds, and different projects can have appropriate verification.\n\nDesign decision needed: Where should build discipline live?\n- Option A: Paddock structure (new field in paddock file)\n- Option B: Heat fields in gallops.json (new schema field)\n- Option C: Heat-level config file\n\nImplementation:\n1. Choose storage location\n2. Define schema for build discipline specification\n3. Update wrap command to read discipline from heat context\n4. Update CLAUDE.md to reference dynamic discipline rather than hardcoded commands\n5. Migrate existing heats if needed",
+              "silks": "heat-build-discipline",
+              "commit": "26f0d95"
             }
           ]
         }
