@@ -16,9 +16,10 @@
         "₢APAAB",
         "₢APAAC",
         "₢APAAD",
-        "₢APAAH"
+        "₢APAAH",
+        "₢APAAL"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -218,6 +219,17 @@
               "text": "Test the rbf_retrieve workflow by pulling an existing image from GAR to local Docker. Use rbf_list to identify an available image, then run tt/rbw-r.RetrieveImage.sh to pull it. Verify the image appears locally with docker images. This validates the Retriever credential flow and GAR authentication before running test suites.",
               "silks": "test-image-retrieve",
               "commit": "1bebdc8"
+            }
+          ]
+        },
+        "₢APAAL": {
+          "tacks": [
+            {
+              "ts": "260128-0732",
+              "state": "rough",
+              "text": "Implement GAR image path construction in rbob_bottle.sh. After the MONIKER rename (pace APAAI), rbob needs to construct full GAR image paths.\n\n## Implementation\n\nIn **Tools/rbw/rbob_bottle.sh**, update z_image construction at lines 166, 224, 275:\n\nFrom:\n```bash\nlocal z_image=\"${RBRN_SENTRY_MONIKER}:${RBRN_SENTRY_IMAGE_TAG}\"\n```\n\nTo:\n```bash\nlocal z_image=\"${RBGD_GAR_LOCATION}-docker.pkg.dev/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_MONIKER}:${RBRN_SENTRY_IMAGE_TAG}\"\n```\n\nPattern from rbi_Image.sh lines 45-46 shows the registry path construction.\n\n## Prerequisite\n\nDepends on ₢APAAI (rename-repo-path-to-moniker) completing first — the variables must be renamed before this implementation makes sense.",
+              "silks": "implement-gar-image-resolution",
+              "commit": "cb37602"
             }
           ]
         }
