@@ -79,6 +79,13 @@
         "₢APAAE": {
           "tacks": [
             {
+              "ts": "260128-0652",
+              "state": "complete",
+              "text": "Trigger a full cloud build to verify the OCI Layout Bridge pipeline still works. Uses rbf_Foundry.sh with stitcher to generate Cloud Build JSON, pushes multi-platform image to Artifact Registry via Skopeo. Confirms mason SA, depot, and build infrastructure are functional.",
+              "silks": "verify-cloud-build-pipeline",
+              "commit": "7dab9a6"
+            },
+            {
               "ts": "260125-0837",
               "state": "rough",
               "text": "Trigger a full cloud build to verify the OCI Layout Bridge pipeline still works. Uses rbf_Foundry.sh with stitcher to generate Cloud Build JSON, pushes multi-platform image to Artifact Registry via Skopeo. Confirms mason SA, depot, and build infrastructure are functional.",
