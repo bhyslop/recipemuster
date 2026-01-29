@@ -1,0 +1,139 @@
+NOTE: This operation formally renounces an
+{rbtga_ark}
+from
+{rbtgi_repository}
+using the Docker Registry HTTP API V2 implemented by
+{gar_service}.
+
+An
+{rbtga_ark}
+is the coherent unit of a Recipe Bottle build: a paired set of artifacts sharing a common
+{rbtga_ark_stamp}
+but distinguished by suffix.
+The
+{rbtga_ark_image}
+(`-image`) contains the container image itself.
+The
+{rbtga_ark_about}
+(`-about`) contains build provenance, SBOM, and metadata.
+Abjuring an ark removes both artifacts as a single logical operation.
+
+The
+{rbtr_director}
+abjures an ark:
+
+// ⟦axs_inputs⟧
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«INPUT_MONIKER»` provided as first argument
+.. {rbbc_require}
+`«INPUT_ARK_STAMP»` provided as second argument
+.. {rbbc_fatal}
+if moniker missing: "Moniker parameter required"
+.. {rbbc_fatal}
+if ark stamp missing: "Ark stamp parameter required"
+
+. *Validate Ark Stamp Format*:
+.. {rbbc_require}
+`«INPUT_ARK_STAMP»` matches pattern `YYYYMMDDTHHMMSSZ` or similar timestamp format
+.. {rbbc_fatal}
+if malformed: "Ark stamp format invalid"
+
+// ⟦axs_behavior⟧
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+. *Construct Registry Endpoint*:
+.. {rbbc_store}
+`«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
+.. {rbbc_store}
+`«REGISTRY_PATH»` as `{rbrr_depot_project_id}/{rbrr_gar_repository}`
+.. {rbbc_store}
+`«REGISTRY_BASE»` as `https://«REGISTRY_HOST»/v2/«REGISTRY_PATH»`
+
+. *Construct Ark Tags*:
+.. {rbbc_store}
+`«IMAGE_TAG»` as `«INPUT_MONIKER»:«INPUT_ARK_STAMP»-image`
+.. {rbbc_store}
+`«ABOUT_TAG»` as `«INPUT_MONIKER»:«INPUT_ARK_STAMP»-about`
+
+. *Verify Ark Existence*:
+.. {rbbc_call}
+link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: HEAD manifests] for `«IMAGE_TAG»`:
+... method: `HEAD`
+... endpoint: `«REGISTRY_BASE»/«INPUT_MONIKER»/manifests/«INPUT_ARK_STAMP»-image`
+... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
+... header: `Accept: application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json`
+.. {rbbc_store}
+`«IMAGE_EXISTS»` as true if HTTP 200, false if HTTP 404
+.. {rbbc_call}
+same HEAD request for `«ABOUT_TAG»`:
+... endpoint: `«REGISTRY_BASE»/«INPUT_MONIKER»/manifests/«INPUT_ARK_STAMP»-about`
+.. {rbbc_store}
+`«ABOUT_EXISTS»` as true if HTTP 200, false if HTTP 404
+
+. *Evaluate Ark State*:
+.. If both `«IMAGE_EXISTS»` and `«ABOUT_EXISTS»` are false:
+... {rbbc_fatal}
+"Ark not found: neither -image nor -about exists"
+.. If exactly one exists:
+... {rbbc_warn}
+"Orphaned artifact detected"
+... {rbbc_show}
+which artifact exists and which is missing
+.. {rbbc_store}
+`«ARTIFACTS_TO_DELETE»` as list of existing artifacts
+
+. *Confirm Abjuration*:
+.. Unless `--force` flag provided:
+... {rbbc_show}
+"Will abjure ark «INPUT_MONIKER»/«INPUT_ARK_STAMP»:"
+... For each artifact in `«ARTIFACTS_TO_DELETE»`:
+.... {rbbc_show}
+`  - «TAG»`
+... {rbbc_prompt}
+"Proceed with abjuration? [y/N]"
+... {rbbc_require}
+user confirmation
+... {rbbc_fatal}
+if declined: "Abjuration cancelled"
+
+. *Delete Image Artifact* (if exists):
+.. If `«IMAGE_EXISTS»`:
+... {rbbc_call}
+link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#deleting-tags[Docker Registry API: DELETE manifests] with:
+.... method: `DELETE`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_MONIKER»/manifests/«INPUT_ARK_STAMP»-image`
+.... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
+... {rbbc_require}
+HTTP 202 (Accepted) or 204 (No Content) response
+... {rbbc_fatal}
+if delete fails: "Failed to delete -image artifact (HTTP «STATUS_CODE»)"
+
+. *Delete About Artifact* (if exists):
+.. If `«ABOUT_EXISTS»`:
+... {rbbc_call}
+Docker Registry API: DELETE manifests with:
+.... method: `DELETE`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_MONIKER»/manifests/«INPUT_ARK_STAMP»-about`
+.... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
+... {rbbc_require}
+HTTP 202 (Accepted) or 204 (No Content) response
+... {rbbc_fatal}
+if delete fails: "Failed to delete -about artifact (HTTP «STATUS_CODE»)"
+
+// ⟦axs_outputs⟧
+. *Display Results*:
+.. {rbbc_show}
+"Ark abjured: «INPUT_MONIKER»/«INPUT_ARK_STAMP»"
+.. For each deleted artifact:
+... {rbbc_show}
+`  - «TAG» deleted`
+
+// ⟦axs_completion⟧
+Procedure completes successfully when all existing ark artifacts have been deleted from the registry and the abjuration confirmation is displayed.
+The ark is now formally renounced and no longer part of the repository corpus.

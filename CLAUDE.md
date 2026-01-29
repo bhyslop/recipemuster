@@ -49,6 +49,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSDL** → `RBSDL-depot_list.adoc`
 - **RBSGR** → `RBSGR-governor_reset.adoc`
 - **RBSGS** → `RBSGS-GettingStarted.adoc`
+- **RBSAA** → `RBSAA-ark_abjure.adoc`
 - **RBSID** → `RBSID-image_delete.adoc`
 - **RBSIR** → `RBSIR-image_retrieve.adoc`
 - **RBSOB** → `RBSOB-oci_layout_bridge.adoc`

@@ -65,6 +65,13 @@
 :rbtgi_rbra_file:            <<rbtgi_rbra_file,RBRA File>>
 :rbtgi_rbra_file_s:          <<rbtgi_rbra_file,RBRA Files>>
 
+// Recipe Bottle Term Google Ark (coherent build output unit)
+:rbtga_ark:                  <<rbtga_ark,RB Ark>>
+:rbtga_ark_s:                <<rbtga_ark,RB Arks>>
+:rbtga_ark_stamp:            <<rbtga_ark_stamp,Ark Stamp>>
+:rbtga_ark_image:            <<rbtga_ark_image,Ark Image Artifact>>
+:rbtga_ark_about:            <<rbtga_ark_about,Ark About Artifact>>
+
 // Recipe Bottle Term Google Operations
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
 :rbtoe_director_authenticate:     <<rbtoe_director_authenticate,Director Authentication Pattern>>
@@ -73,6 +80,7 @@
 :rbtoe_retriever_authenticate:    <<rbtoe_retriever_authenticate,Retriever Authentication Pattern>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_build>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbf_delete>>
+:rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
 :rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
 :rbtgo_retriever_create:          <<rbtgo_retriever_create,rbgg_create_retriever>>
 :rbtgo_sa_delete:                 <<rbtgo_sa_delete,rbgg_delete_service_account>>
@@ -205,6 +213,7 @@
 :rbbc_use:                   <<rbbc_use,USE>>
 :rbbc_variable:              <<rbbc_variable,VARIABLE>>
 :rbbc_warn:                  <<rbbc_warn,WARN>>
+:rbbc_prompt:                <<rbbc_prompt,PROMPT>>
 
 // RB Human Guide Control Terms (rbhg_* - voices axc_* in axe_human_guide)
 :rbhg_warn:                  <<rbhg_warn,CAUTION>>
@@ -371,6 +380,14 @@ NOTE: For multi-platform build authentication challenges and research findings, 
 === {rbtgo_image_delete}
 
 include::RBSID-image_delete.adoc[]
+
+[[rbtgo_ark_abjure]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_ark_abjure}
+
+Formally renounces an ark from the repository, removing both its image and about artifacts as a coherent unit.
+
+include::RBSAA-ark_abjure.adoc[]
 
 == {rbtr_retriever} Operations
 
@@ -587,6 +604,55 @@ A compressed archive containing
 build transcript, SBOM, and provenance data stored in the
 {rbtgi_repository}
 as a Generic Artifact.
+
+=== Ark Definitions
+
+[[rbtga_ark]]
+// ⟦axl_voices axig_artifact_group⟧
+{rbtga_ark}::
+The coherent unit of a
+{at_recipe_bottle}
+build output: a paired set of artifacts in the
+{rbtgi_repository}
+sharing a common
+{rbtga_ark_stamp}
+but distinguished by suffix.
+An ark comprises the
+{rbtga_ark_image}
+(`-image` suffix) containing the container image and the
+{rbtga_ark_about}
+(`-about` suffix) containing build provenance and metadata.
+Arks are created atomically by
+{rbtgo_trigger_build}
+and abjured atomically by
+{rbtgo_ark_abjure}.
+
+[[rbtga_ark_stamp]]
+// ⟦axl_voices axtg_timestamp⟧
+{rbtga_ark_stamp}::
+The timestamp-based identifier that uniquely identifies an
+{rbtga_ark}
+within a moniker namespace.
+Format: `YYYYMMDDTHHMMSSZ` or similar timestamp pattern.
+Combined with moniker to form complete artifact tags: `«MONIKER»:«ARK_STAMP»-image` and `«MONIKER»:«ARK_STAMP»-about`.
+
+[[rbtga_ark_image]]
+// ⟦axl_voices axig_container_image⟧
+{rbtga_ark_image}::
+The container image artifact within an
+{rbtga_ark},
+tagged with the `-image` suffix.
+Contains the executable container layers built by
+{gcb_service}.
+
+[[rbtga_ark_about]]
+// ⟦axl_voices axig_generic_artifact⟧
+{rbtga_ark_about}::
+The metadata artifact within an
+{rbtga_ark},
+tagged with the `-about` suffix.
+Contains build provenance, SBOM (Software Bill of Materials), and build transcript assembled during
+{rbtgo_trigger_build}.
 
 === Support Infrastructure Definitions
 
@@ -808,6 +874,15 @@ Polls operation endpoint until done=true, then returns result.
 {rbbc_show}::
 Presentation of operational facts to the console.
 Formatted output via echo or printf to stdout.
+
+[[rbbc_prompt]]
+// ⟦axl_voices axc_prompt axe_bash_interactive⟧
+{rbbc_prompt}::
+Interactive request for human operator confirmation before proceeding.
+Displays message and waits for user input (typically y/N).
+Script pauses until confirmation received; continues on affirmative, triggers
+{rbbc_fatal}
+on decline or timeout.
 
 === Human Guide Control Voicings
 
