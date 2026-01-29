@@ -22,9 +22,10 @@
         "₢APAAH",
         "₢APAAN",
         "₢APAAP",
-        "₢APAAQ"
+        "₢APAAQ",
+        "₢APAAR"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -357,6 +358,17 @@
               "text": "Rename nameplate fields from IMAGE_TAG to ARK.\n\n## Changes\nAll nameplate files in `Tools/rbw/rbrn_*.env`:\n- `RBRN_SENTRY_IMAGE_TAG` → `RBRN_SENTRY_ARK`\n- `RBRN_BOTTLE_IMAGE_TAG` → `RBRN_BOTTLE_ARK`\n\n## Files\n- `Tools/rbw/rbrn_nsproto.env`\n- `Tools/rbw/rbrn_pluml.env` (if exists)\n- `Tools/rbw/rbrn_srjcl.env` (if exists)\n- Any code reading these fields\n\n## Verification\nGrep for IMAGE_TAG to ensure complete rename.",
               "silks": "rename-nameplate-fields-to-ark",
               "commit": "25fcbcf"
+            }
+          ]
+        },
+        "₢APAAR": {
+          "tacks": [
+            {
+              "ts": "260128-2116",
+              "state": "rough",
+              "text": "Rename build artifact suffixes from -img/-meta to -image/-about.\n\n## Locations\n- `Tools/rbw/rbgjb/rbgjb09-build-and-push-metadata.sh` — produces -meta, change to -about\n- `Tools/rbw/rbf_Foundry.sh` — references to -img and -meta throughout\n- Any other rbgjb scripts referencing these suffixes\n\n## Changes\n- `-img` → `-image`\n- `-meta` → `-about`\n\n## Impact\nExisting GAR artifacts will become unretrievable. This is accepted — burn the bridges.",
+              "silks": "rename-artifact-suffixes-to-ark",
+              "commit": "a09d4d3"
             }
           ]
         }
