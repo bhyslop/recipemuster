@@ -281,6 +281,14 @@
         "₢APAAM": {
           "tacks": [
             {
+              "ts": "260128-2023",
+              "state": "bridled",
+              "text": "Fix Cloud Build console URL to include region\n\nThe `ZRBF_CLOUD_QUERY_BASE` URL in `Tools/rbw/rbf_Foundry.sh` generates malformed Cloud Console links.\n\n## Current\n```\nhttps://console.cloud.google.com/cloud-build/builds/${build_id}?project=${project}\n```\n\n## Should be\n```\nhttps://console.cloud.google.com/cloud-build/builds;region=${region}/${build_id}?project=${project}\n```\n\n## Fix\nUpdate `zrbf_kindle()` to include region in `ZRBF_CLOUD_QUERY_BASE`, using `RBGD_GCB_REGION`.",
+              "silks": "fix-cloud-build-console-url",
+              "commit": "3ccca77",
+              "direction": "Agent: haiku | Cardinality: 1 sequential | Files: Tools/rbw/rbf_Foundry.sh (1 file) | Steps: 1. Update z_console_url assignment in rbf_build to insert ;region=RBGD_GCB_REGION after ZRBF_CLOUD_QUERY_BASE | Verify: N/A bash tooling"
+            },
+            {
               "ts": "260128-0815",
               "state": "rough",
               "text": "Fix Cloud Build console URL to include region\n\nThe `ZRBF_CLOUD_QUERY_BASE` URL in `Tools/rbw/rbf_Foundry.sh` generates malformed Cloud Console links.\n\n## Current\n```\nhttps://console.cloud.google.com/cloud-build/builds/${build_id}?project=${project}\n```\n\n## Should be\n```\nhttps://console.cloud.google.com/cloud-build/builds;region=${region}/${build_id}?project=${project}\n```\n\n## Fix\nUpdate `zrbf_kindle()` to include region in `ZRBF_CLOUD_QUERY_BASE`, using `RBGD_GCB_REGION`.",
