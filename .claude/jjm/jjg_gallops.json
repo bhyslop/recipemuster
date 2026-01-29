@@ -21,9 +21,10 @@
         "₢APAAD",
         "₢APAAH",
         "₢APAAN",
-        "₢APAAP"
+        "₢APAAP",
+        "₢APAAQ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -345,6 +346,17 @@
               "text": "Define the Ark concept formally in RBAGS specification.\n\n## Vocabulary to define\n\n- **Vessel** (moniker/sigil): mystical artifact design for containing demons\n- **Ark** (timestamp): specific manifestation of a vessel, producing two artifacts:\n  - `-image`: the deployable prison\n  - `-about`: provenance record for trust verification\n- **Roles**: Sentry (guardian), Bottle (prison), Censer (bottle seeing only sentry's smoke)\n\n## Location\n`lenses/RBAGS-AdminGoogleSpec.adoc`\n\n## Changes\n- Add glossary/vocabulary section if not present\n- Define Ark as the fundamental unit of deployment trust\n- Explain the -image/-about artifact pair\n- Update any existing references to \"image tag\" to use Ark terminology",
               "silks": "define-ark-vocabulary-in-rbags",
               "commit": "4c61c56"
+            }
+          ]
+        },
+        "₢APAAQ": {
+          "tacks": [
+            {
+              "ts": "260128-2116",
+              "state": "rough",
+              "text": "Rename nameplate fields from IMAGE_TAG to ARK.\n\n## Changes\nAll nameplate files in `Tools/rbw/rbrn_*.env`:\n- `RBRN_SENTRY_IMAGE_TAG` → `RBRN_SENTRY_ARK`\n- `RBRN_BOTTLE_IMAGE_TAG` → `RBRN_BOTTLE_ARK`\n\n## Files\n- `Tools/rbw/rbrn_nsproto.env`\n- `Tools/rbw/rbrn_pluml.env` (if exists)\n- `Tools/rbw/rbrn_srjcl.env` (if exists)\n- Any code reading these fields\n\n## Verification\nGrep for IMAGE_TAG to ensure complete rename.",
+              "silks": "rename-nameplate-fields-to-ark",
+              "commit": "25fcbcf"
             }
           ]
         }
