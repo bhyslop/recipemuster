@@ -6,6 +6,7 @@
       "creation_time": "260125",
       "status": "racing",
       "order": [
+        "₢APAAU",
         "₢APAAK",
         "₢APAAF",
         "₢APAAA",
@@ -27,7 +28,7 @@
         "₢APAAH",
         "₢APAAN"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -393,6 +394,17 @@
               "text": "Add capability to delete images from GAR by ark.\n\n## Functionality\nNew command/tabtarget to delete both -image and -about artifacts for a given ark.\n\n## Interface\n`tt/rbw-id.ImageDelete.sh moniker:ark` — deletes both artifacts\n\n## Implementation\n- Use GAR API or gcloud to delete specific tags\n- Should delete both -image and -about for the specified ark\n- Confirm before deletion or require --force flag\n\n## Purpose\nClean up old artifacts after vocabulary migration (burn the bridges).",
               "silks": "add-image-delete-by-ark",
               "commit": "cd8d504"
+            }
+          ]
+        },
+        "₢APAAU": {
+          "tacks": [
+            {
+              "ts": "260128-2119",
+              "state": "rough",
+              "text": "Introduce the Recipe Bottle metaphor and trust model in Getting Started.\n\n## Context\nThe Getting Started guide is procedural but lacks conceptual grounding in the metaphor.\n\n## Content to add\n- **Why \"Recipe Bottle\"**: Containing potentially dangerous workloads (demons) safely\n- **Vessel**: Mystical artifact designed to contain demons\n- **Ark**: A specific manifestation of a vessel, producing:\n  - `-image`: the deployable prison\n  - `-about`: provenance record for trust verification\n- **Sentry**: Guardian watching the containment\n- **Bottle**: The prison holding the demon\n- **Censer**: Bottle configured to see only the sentry's smoke (routing through sentry)\n- **Trust model**: Verify the ark's -about before deploying the -image\n\n## Location\n`lenses/RBSGS-GettingStarted.adoc` — add as opening section before \"Depots and Roles\"\n\n## Relationship\nThis narrative introduction complements the formal vocabulary definitions in RBAGS.",
+              "silks": "add-recipe-bottle-cosmology-intro",
+              "commit": "fdd8a22"
             }
           ]
         }
