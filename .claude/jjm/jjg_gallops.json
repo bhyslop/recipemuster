@@ -19,9 +19,10 @@
         "₢APAAC",
         "₢APAAD",
         "₢APAAH",
-        "₢APAAN"
+        "₢APAAN",
+        "₢APAAO"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -313,6 +314,17 @@
               "text": "Fix buc_link ANSI escape sequence rendering.\n\n## Problem\nThe `buc_link` function outputs raw escape codes instead of interpreted ANSI:\n```\nClick to  \\033[34m\\033[4mOpen build in Cloud Console\\033[0m\n```\n\n## Location\n- Called from: `Tools/rbw/rbf_Foundry.sh:473`\n- Implementation: likely in `Tools/buk/buc_command.sh`\n\n## Fix\nEnsure escape sequences are interpreted - either:\n- Use `echo -e` instead of `echo`\n- Use `printf` with proper formatting\n- Use `$'...'` quoting for literal escapes",
               "silks": "fix-buc-link-ansi-escapes",
               "commit": "9b489be"
+            }
+          ]
+        },
+        "₢APAAO": {
+          "tacks": [
+            {
+              "ts": "260128-2039",
+              "state": "rough",
+              "text": "Increase Cloud Build polling limit from 240 to 960 attempts.\n\n## Location\n`Tools/rbw/rbf_Foundry.sh:498`:\n```bash\nlocal z_max_attempts=240  # 20 minutes with 5 second intervals\n```\n\n## Change\n```bash\nlocal z_max_attempts=960  # 80 minutes with 5 second intervals\n```\n\nUpdate comment at line 628 accordingly.",
+              "silks": "quadruple-build-poll-limit",
+              "commit": "6f33ba5"
             }
           ]
         }
