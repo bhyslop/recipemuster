@@ -20,9 +20,10 @@
         "₢APAAC",
         "₢APAAD",
         "₢APAAH",
-        "₢APAAN"
+        "₢APAAN",
+        "₢APAAP"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -333,6 +334,17 @@
               "text": "Increase Cloud Build polling limit from 240 to 960 attempts.\n\n## Location\n`Tools/rbw/rbf_Foundry.sh:498`:\n```bash\nlocal z_max_attempts=240  # 20 minutes with 5 second intervals\n```\n\n## Change\n```bash\nlocal z_max_attempts=960  # 80 minutes with 5 second intervals\n```\n\nUpdate comment at line 628 accordingly.",
               "silks": "quadruple-build-poll-limit",
               "commit": "6f33ba5"
+            }
+          ]
+        },
+        "₢APAAP": {
+          "tacks": [
+            {
+              "ts": "260128-2116",
+              "state": "rough",
+              "text": "Define the Ark concept formally in RBAGS specification.\n\n## Vocabulary to define\n\n- **Vessel** (moniker/sigil): mystical artifact design for containing demons\n- **Ark** (timestamp): specific manifestation of a vessel, producing two artifacts:\n  - `-image`: the deployable prison\n  - `-about`: provenance record for trust verification\n- **Roles**: Sentry (guardian), Bottle (prison), Censer (bottle seeing only sentry's smoke)\n\n## Location\n`lenses/RBAGS-AdminGoogleSpec.adoc`\n\n## Changes\n- Add glossary/vocabulary section if not present\n- Define Ark as the fundamental unit of deployment trust\n- Explain the -image/-about artifact pair\n- Update any existing references to \"image tag\" to use Ark terminology",
+              "silks": "define-ark-vocabulary-in-rbags",
+              "commit": "4c61c56"
             }
           ]
         }
