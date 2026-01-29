@@ -24,9 +24,10 @@
         "₢APAAP",
         "₢APAAQ",
         "₢APAAR",
-        "₢APAAS"
+        "₢APAAS",
+        "₢APAAT"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -381,6 +382,17 @@
               "text": "Update ImageList and Retrieve commands for ark vocabulary.\n\n## ImageList changes\n- Output should show ark timestamps clearly\n- Indicate -image vs -about artifacts distinctly (not both as [meta])\n- Consider showing just the ark (base timestamp) with artifact type annotations\n\n## Retrieve changes  \n- Accept ark (base timestamp) and auto-append -image suffix\n- Or accept explicit full reference with -image suffix\n- Update user-facing messages to use ark terminology\n\n## Location\n`Tools/rbw/rbf_Foundry.sh` — rbf_list and rbf_retrieve functions",
               "silks": "update-imagelist-retrieve-for-ark",
               "commit": "362b25c"
+            }
+          ]
+        },
+        "₢APAAT": {
+          "tacks": [
+            {
+              "ts": "260128-2116",
+              "state": "rough",
+              "text": "Add capability to delete images from GAR by ark.\n\n## Functionality\nNew command/tabtarget to delete both -image and -about artifacts for a given ark.\n\n## Interface\n`tt/rbw-id.ImageDelete.sh moniker:ark` — deletes both artifacts\n\n## Implementation\n- Use GAR API or gcloud to delete specific tags\n- Should delete both -image and -about for the specified ark\n- Confirm before deletion or require --force flag\n\n## Purpose\nClean up old artifacts after vocabulary migration (burn the bridges).",
+              "silks": "add-image-delete-by-ark",
+              "commit": "cd8d504"
             }
           ]
         }
