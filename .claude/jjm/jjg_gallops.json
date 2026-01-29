@@ -23,9 +23,10 @@
         "₢APAAN",
         "₢APAAP",
         "₢APAAQ",
-        "₢APAAR"
+        "₢APAAR",
+        "₢APAAS"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -369,6 +370,17 @@
               "text": "Rename build artifact suffixes from -img/-meta to -image/-about.\n\n## Locations\n- `Tools/rbw/rbgjb/rbgjb09-build-and-push-metadata.sh` — produces -meta, change to -about\n- `Tools/rbw/rbf_Foundry.sh` — references to -img and -meta throughout\n- Any other rbgjb scripts referencing these suffixes\n\n## Changes\n- `-img` → `-image`\n- `-meta` → `-about`\n\n## Impact\nExisting GAR artifacts will become unretrievable. This is accepted — burn the bridges.",
               "silks": "rename-artifact-suffixes-to-ark",
               "commit": "a09d4d3"
+            }
+          ]
+        },
+        "₢APAAS": {
+          "tacks": [
+            {
+              "ts": "260128-2116",
+              "state": "rough",
+              "text": "Update ImageList and Retrieve commands for ark vocabulary.\n\n## ImageList changes\n- Output should show ark timestamps clearly\n- Indicate -image vs -about artifacts distinctly (not both as [meta])\n- Consider showing just the ark (base timestamp) with artifact type annotations\n\n## Retrieve changes  \n- Accept ark (base timestamp) and auto-append -image suffix\n- Or accept explicit full reference with -image suffix\n- Update user-facing messages to use ark terminology\n\n## Location\n`Tools/rbw/rbf_Foundry.sh` — rbf_list and rbf_retrieve functions",
+              "silks": "update-imagelist-retrieve-for-ark",
+              "commit": "362b25c"
             }
           ]
         }
