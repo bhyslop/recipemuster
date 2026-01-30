@@ -121,6 +121,13 @@
         "₢ARAAG": {
           "tacks": [
             {
+              "ts": "260130-0804",
+              "state": "rough",
+              "text": "Introduce Recipe Bottle metaphor and trust model in Getting Started guide.\n\n## Purpose\nProvide conceptual grounding before the procedural content. Help readers understand WHY before HOW.\n\n## Location\nlenses/RBSGS-GettingStarted.adoc — add as opening section before \"Depots and Roles\"\n\n## Content approach\nThis is narrative introduction — complement procedural content that follows. Use linked terms from RBAGS vocabulary.\n\n## Content to cover\n- Why \"Recipe Bottle\" — containing potentially dangerous workloads safely\n- Vessel → Ark → Nameplate flow (the build-to-deploy lifecycle)\n- Trust model: verify the ark's -about before deploying the -image\n- Role tags in vessel naming (sentry, bottle) — semantic convention not type system\n\n## Term usage — decide during pace execution\nThe intro material should NOT use specific regime variables directly (e.g., {rbrv_sigil}). Instead, it should identify concepts like \"vessels\" exist as configuration.\n\nBefore writing:\n1. Review RBAGS mapping section to see what terms exist\n2. Review RBSGS current content for tone and level\n3. Decide which linked terms are appropriate for conceptual intro vs. procedural detail\n4. Note that RBAGS has \"regime prefixes\" section — review for vocabulary guidance\n\nThe future implementer will make term decisions after reading relevant documents with fresh eyes.\n\n## Dependencies\nThis pace depends on vocabulary being established by earlier paces in this heat (ARAAB, ARAAC).",
+              "silks": "add-cosmology-intro-getting-started",
+              "commit": "bc8b268"
+            },
+            {
               "ts": "260130-0741",
               "state": "rough",
               "text": "Introduce Recipe Bottle metaphor and trust model in Getting Started guide.\n\n## Purpose\nProvide conceptual grounding before the procedural content. Help readers understand WHY before HOW.\n\n## Location\nlenses/RBSGS-GettingStarted.adoc — add as opening section before \"Depots and Roles\"\n\n## Content to cover\n- Why \"Recipe Bottle\" — containing potentially dangerous workloads safely\n- Vessel → Ark → Nameplate flow (reference the vocabulary now established)\n- Trust model: verify the ark's -about before deploying the -image\n- Role tags in vessel naming (sentry, bottle) — semantic convention not type system\n\n## Dependencies\nThis pace depends on vocabulary being established by earlier paces in this heat.\n\n## Style\nNarrative introduction — complement the procedural content that follows. Use linked terms from RBAGS vocabulary.",
