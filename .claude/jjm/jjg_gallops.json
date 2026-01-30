@@ -38,6 +38,13 @@
         "₢ARAAB": {
           "tacks": [
             {
+              "ts": "260130-0803",
+              "state": "rough",
+              "text": "Add vessel regime variables to RBAGS mapping section using modern MCM patterns.\n\n## Purpose\nEnable {rbrv_sigil}, {rbrv_conjure_dockerfile}, etc. as linked terms in RBAGS for discussing ark production.\n\n## Implementation\n- Add mapping entries using modern anchor pattern (NO term_ prefix):\n  :rbrv_sigil:              <<rbrv_sigil,RBRV_SIGIL>>\n- Add definition section for RBRV variables\n- Use AXLA motif references (axrg_variable, axf_bash) in annotations\n\n## Exploration required\n- Read documents included by RBAGS (grep for include:: in RBAGS):\n  - RBSAA-ark_abjure.adoc\n  - RBSOB-oci_layout_bridge.adoc\n  - Others as found\n- Identify which should reference vessel vocabulary\n- Document findings for incorporation in those files (separate paces if needed)\n\n## Note\nDo NOT add RBGC_ARK_SUFFIX_* constants to RBAGS — it's dense enough already. Those constants are implementation detail.\n\n## Pattern reference\nSee AXLA-Lexicon.adoc for axrg_* regime motifs and annotation patterns.",
+              "silks": "add-rbrv-vocab-to-rbags",
+              "commit": "c8c5837"
+            },
+            {
               "ts": "260130-0740",
               "state": "rough",
               "text": "Add vessel regime variables to RBAGS mapping section using modern MCM patterns.\n\n## Purpose\nEnable {rbrv_sigil}, {rbrv_conjure_dockerfile}, etc. as linked terms in RBAGS for discussing ark production.\n\n## Implementation\n- Add mapping entries using modern anchor pattern (NO term_ prefix):\n  :rbrv_sigil:              <<rbrv_sigil,RBRV_SIGIL>>\n- Add definition section for RBRV variables\n- Use AXLA motif references (axrg_variable, axf_bash) in annotations\n\n## Exploration required\n- Read documents included by RBAGS (RBSAA, RBSOB, etc.)\n- Identify which should use vessel vocabulary\n- Document findings for incorporation in those files (separate paces if needed)\n\n## Pattern reference\nSee AXLA-Lexicon.adoc for axrg_* regime motifs and annotation patterns.",
