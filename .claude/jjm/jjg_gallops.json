@@ -1,6 +1,101 @@
 {
   "next_heat_seed": "AS",
   "heats": {
+    "₣AR": {
+      "silks": "rbw-ark-vessel-vocabulary",
+      "creation_time": "260130",
+      "status": "racing",
+      "order": [
+        "₢ARAAA",
+        "₢ARAAB",
+        "₢ARAAC",
+        "₢ARAAD",
+        "₢ARAAE",
+        "₢ARAAF",
+        "₢ARAAG"
+      ],
+      "next_pace_seed": "AAH",
+      "paddock_file": ".claude/jjm/jjp_AR.md",
+      "paces": {
+        "₢ARAAA": {
+          "tacks": [
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Add RBGC_ARK_SUFFIX_IMAGE and RBGC_ARK_SUFFIX_ABOUT constants to rbgc_Constants.sh.\n\n## Purpose\nSingle point of maintenance for ark artifact suffixes used across the codebase.\n\n## Implementation\n- Add constants in the zrbgc_kindle() function\n- Values: \"-image\" and \"-about\"\n\n## Follow-on work\n- These constants need to be plumbed into the cloud build script as parameters (future pace)\n- Check bottle service download scripts (rbob_bottle.sh, rbi_Image.sh) for hardcoded suffixes that should use these constants\n- Note any usage gaps for later paces\n\n## Verification\n- Build succeeds\n- Constants are exported and accessible after kindle",
+              "silks": "add-ark-suffix-constants-rbgc",
+              "commit": "243eed7"
+            }
+          ]
+        },
+        "₢ARAAB": {
+          "tacks": [
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Add vessel regime variables to RBAGS mapping section using modern MCM patterns.\n\n## Purpose\nEnable {rbrv_sigil}, {rbrv_conjure_dockerfile}, etc. as linked terms in RBAGS for discussing ark production.\n\n## Implementation\n- Add mapping entries using modern anchor pattern (NO term_ prefix):\n  :rbrv_sigil:              <<rbrv_sigil,RBRV_SIGIL>>\n- Add definition section for RBRV variables\n- Use AXLA motif references (axrg_variable, axf_bash) in annotations\n\n## Exploration required\n- Read documents included by RBAGS (RBSAA, RBSOB, etc.)\n- Identify which should use vessel vocabulary\n- Document findings for incorporation in those files (separate paces if needed)\n\n## Pattern reference\nSee AXLA-Lexicon.adoc for axrg_* regime motifs and annotation patterns.",
+              "silks": "add-rbrv-vocab-to-rbags",
+              "commit": "3e6fffa"
+            }
+          ]
+        },
+        "₢ARAAC": {
+          "tacks": [
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Create RBRV-RegimeVessel.adoc formal specification for vessel configuration.\n\n## Purpose\nDocument the vessel regime variables (RBRV_SIGIL, RBRV_CONJURE_*, etc.) in a standalone AsciiDoc spec.\n\n## Approach\n- Create as standalone file in lenses/ directory\n- Follow RBRN-RegimeNameplate.adoc pattern for structure\n- Use modern MCM anchor patterns (no term_ prefix)\n- Reference AXLA motifs (axrg_regime, axrg_variable, axf_bash)\n- Share mappings with RBAGS non-incidentally (same anchors, same terms)\n\n## Design note\nRegime specs and overarching specs (RBS, RBAGS) describing the same concepts is not fully resolved. For now: standalone files that happen to share mappings because they describe exactly the same thing. Future wisdom will guide grafting them together.\n\n## Variables to document\n- RBRV_SIGIL — vessel identifier\n- RBRV_DESCRIPTION — human-readable description\n- RBRV_CONJURE_DOCKERFILE — path to Dockerfile\n- RBRV_CONJURE_BLDCONTEXT — build context directory\n- RBRV_CONJURE_PLATFORMS — target platforms\n- RBRV_CONJURE_BINFMT_POLICY — binfmt policy",
+              "silks": "create-rbrv-regime-spec",
+              "commit": "3ad9a07"
+            }
+          ]
+        },
+        "₢ARAAD": {
+          "tacks": [
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Replace RBRN image tag pairs with single ark reference pattern.\n\n## Current state\nNameplate uses separate variables:\n- RBRN_SENTRY_MONIKER + RBRN_SENTRY_IMAGE_TAG\n- RBRN_BOTTLE_MONIKER + RBRN_BOTTLE_IMAGE_TAG\n\n## Target state\nSingle ark reference:\n- RBRN_SENTRY_ARK = moniker:ark_stamp\n- RBRN_BOTTLE_ARK = moniker:ark_stamp\n\nRuntime code appends -image or -about suffix using RBGC constants.\n\n## Files to update\n- lenses/RBRN-RegimeNameplate.adoc — spec\n- Tools/rbw/rbrn_*.env — assignment files\n- Any code consuming these variables\n\n## Verification\n- Nameplate validation still works\n- Bottle service startup resolves ark to image correctly",
+              "silks": "evolve-rbrn-ark-reference",
+              "commit": "0ee9ad5"
+            }
+          ]
+        },
+        "₢ARAAE": {
+          "tacks": [
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Update RBS-Specification.adoc to remove term_ prefix from anchors.\n\n## Current state\nRBS uses old anchor pattern:\n  :rbrn_moniker:  <<term_rbrn_moniker,RBRN_MONIKER>>\n\n## Target state\nModern MCM pattern (matches AXLA):\n  :rbrn_moniker:  <<rbrn_moniker,RBRN_MONIKER>>\n\n## Scope\n- Update all mapping entries to remove term_ prefix\n- Update all anchor definitions [[term_xyz]] → [[xyz]]\n- Verify all internal cross-references still resolve\n\n## Verification\n- Document renders correctly\n- All links resolve (no broken anchors)\n- Pattern matches MCM-MetaConceptModel.adoc and AXLA-Lexicon.adoc",
+              "silks": "modernize-rbs-anchors",
+              "commit": "17c3766"
+            }
+          ]
+        },
+        "₢ARAAF": {
+          "tacks": [
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Explore partitioning RBS procedural specifications into AXLA-consistent subsections.\n\n## Purpose\nPreparatory step toward RBSA (eventual RBAGS + RBS consolidation). Make RBS procedure documentation follow AXLA patterns like RBAGS subfiles do.\n\n## Exploration\n1. Read AXLA thoroughly — understand axs_* section motifs, axo_procedure patterns\n2. Review how RBAGS partitions content into subfiles (RBSAA, RBSOB, etc.)\n3. Identify RBS procedure sections that could become standalone subfiles\n\n## Implementation approach\n- Partition procedural specs into subfiles following RBAGS naming pattern\n- Add AXLA-consistent voicings (axs_inputs, axs_behavior, axs_outputs, axs_completion)\n- Use annotations: // ⟦axl_voices axo_command axd_transient⟧\n\n## Concerns to address\n(Future implementer: address these before proceeding)\n- How do subfile mappings merge with parent document mappings?\n- Should subfiles be include::'d or kept as reference documents?\n- What naming pattern for RBS subfiles? (RBSGS pattern vs new pattern)\n\n## Naming discipline\nSubfiles MUST follow naming practices established by RBAGS subfiles. Review existing pattern before creating new files.",
+              "silks": "explode-rbs-procedures-axla-voicings",
+              "commit": "fce4449"
+            }
+          ]
+        },
+        "₢ARAAG": {
+          "tacks": [
+            {
+              "ts": "260130-0741",
+              "state": "rough",
+              "text": "Introduce Recipe Bottle metaphor and trust model in Getting Started guide.\n\n## Purpose\nProvide conceptual grounding before the procedural content. Help readers understand WHY before HOW.\n\n## Location\nlenses/RBSGS-GettingStarted.adoc — add as opening section before \"Depots and Roles\"\n\n## Content to cover\n- Why \"Recipe Bottle\" — containing potentially dangerous workloads safely\n- Vessel → Ark → Nameplate flow (reference the vocabulary now established)\n- Trust model: verify the ark's -about before deploying the -image\n- Role tags in vessel naming (sentry, bottle) — semantic convention not type system\n\n## Dependencies\nThis pace depends on vocabulary being established by earlier paces in this heat.\n\n## Style\nNarrative introduction — complement the procedural content that follows. Use linked terms from RBAGS vocabulary.",
+              "silks": "add-cosmology-intro-getting-started",
+              "commit": "6afdd66"
+            }
+          ]
+        }
+      }
+    },
     "₣AP": {
       "silks": "rbw-rekindle-bottle-focus",
       "creation_time": "260125",
@@ -1552,101 +1647,6 @@
               "text": "Design and implement digest-pinned GCB builder images. Research options: (A) pre-built jq image with digest pin, (B) alpine with digest pin + runtime apk install, (C) custom tool image in depot. Document in RBAGS, update RBSTB spec to include _RBGY_JQ_REF and _RBGY_SYFT_REF substitutions. Ensure validation (buv_env_odref) aligns with chosen approach.",
               "silks": "design-gcb-builder-pinning",
               "commit": "de5fd84"
-            }
-          ]
-        }
-      }
-    },
-    "₣AR": {
-      "silks": "rbw-ark-vessel-vocabulary",
-      "creation_time": "260130",
-      "status": "stabled",
-      "order": [
-        "₢ARAAA",
-        "₢ARAAB",
-        "₢ARAAC",
-        "₢ARAAD",
-        "₢ARAAE",
-        "₢ARAAF",
-        "₢ARAAG"
-      ],
-      "next_pace_seed": "AAH",
-      "paddock_file": ".claude/jjm/jjp_AR.md",
-      "paces": {
-        "₢ARAAA": {
-          "tacks": [
-            {
-              "ts": "260130-0740",
-              "state": "rough",
-              "text": "Add RBGC_ARK_SUFFIX_IMAGE and RBGC_ARK_SUFFIX_ABOUT constants to rbgc_Constants.sh.\n\n## Purpose\nSingle point of maintenance for ark artifact suffixes used across the codebase.\n\n## Implementation\n- Add constants in the zrbgc_kindle() function\n- Values: \"-image\" and \"-about\"\n\n## Follow-on work\n- These constants need to be plumbed into the cloud build script as parameters (future pace)\n- Check bottle service download scripts (rbob_bottle.sh, rbi_Image.sh) for hardcoded suffixes that should use these constants\n- Note any usage gaps for later paces\n\n## Verification\n- Build succeeds\n- Constants are exported and accessible after kindle",
-              "silks": "add-ark-suffix-constants-rbgc",
-              "commit": "243eed7"
-            }
-          ]
-        },
-        "₢ARAAB": {
-          "tacks": [
-            {
-              "ts": "260130-0740",
-              "state": "rough",
-              "text": "Add vessel regime variables to RBAGS mapping section using modern MCM patterns.\n\n## Purpose\nEnable {rbrv_sigil}, {rbrv_conjure_dockerfile}, etc. as linked terms in RBAGS for discussing ark production.\n\n## Implementation\n- Add mapping entries using modern anchor pattern (NO term_ prefix):\n  :rbrv_sigil:              <<rbrv_sigil,RBRV_SIGIL>>\n- Add definition section for RBRV variables\n- Use AXLA motif references (axrg_variable, axf_bash) in annotations\n\n## Exploration required\n- Read documents included by RBAGS (RBSAA, RBSOB, etc.)\n- Identify which should use vessel vocabulary\n- Document findings for incorporation in those files (separate paces if needed)\n\n## Pattern reference\nSee AXLA-Lexicon.adoc for axrg_* regime motifs and annotation patterns.",
-              "silks": "add-rbrv-vocab-to-rbags",
-              "commit": "3e6fffa"
-            }
-          ]
-        },
-        "₢ARAAC": {
-          "tacks": [
-            {
-              "ts": "260130-0740",
-              "state": "rough",
-              "text": "Create RBRV-RegimeVessel.adoc formal specification for vessel configuration.\n\n## Purpose\nDocument the vessel regime variables (RBRV_SIGIL, RBRV_CONJURE_*, etc.) in a standalone AsciiDoc spec.\n\n## Approach\n- Create as standalone file in lenses/ directory\n- Follow RBRN-RegimeNameplate.adoc pattern for structure\n- Use modern MCM anchor patterns (no term_ prefix)\n- Reference AXLA motifs (axrg_regime, axrg_variable, axf_bash)\n- Share mappings with RBAGS non-incidentally (same anchors, same terms)\n\n## Design note\nRegime specs and overarching specs (RBS, RBAGS) describing the same concepts is not fully resolved. For now: standalone files that happen to share mappings because they describe exactly the same thing. Future wisdom will guide grafting them together.\n\n## Variables to document\n- RBRV_SIGIL — vessel identifier\n- RBRV_DESCRIPTION — human-readable description\n- RBRV_CONJURE_DOCKERFILE — path to Dockerfile\n- RBRV_CONJURE_BLDCONTEXT — build context directory\n- RBRV_CONJURE_PLATFORMS — target platforms\n- RBRV_CONJURE_BINFMT_POLICY — binfmt policy",
-              "silks": "create-rbrv-regime-spec",
-              "commit": "3ad9a07"
-            }
-          ]
-        },
-        "₢ARAAD": {
-          "tacks": [
-            {
-              "ts": "260130-0740",
-              "state": "rough",
-              "text": "Replace RBRN image tag pairs with single ark reference pattern.\n\n## Current state\nNameplate uses separate variables:\n- RBRN_SENTRY_MONIKER + RBRN_SENTRY_IMAGE_TAG\n- RBRN_BOTTLE_MONIKER + RBRN_BOTTLE_IMAGE_TAG\n\n## Target state\nSingle ark reference:\n- RBRN_SENTRY_ARK = moniker:ark_stamp\n- RBRN_BOTTLE_ARK = moniker:ark_stamp\n\nRuntime code appends -image or -about suffix using RBGC constants.\n\n## Files to update\n- lenses/RBRN-RegimeNameplate.adoc — spec\n- Tools/rbw/rbrn_*.env — assignment files\n- Any code consuming these variables\n\n## Verification\n- Nameplate validation still works\n- Bottle service startup resolves ark to image correctly",
-              "silks": "evolve-rbrn-ark-reference",
-              "commit": "0ee9ad5"
-            }
-          ]
-        },
-        "₢ARAAE": {
-          "tacks": [
-            {
-              "ts": "260130-0740",
-              "state": "rough",
-              "text": "Update RBS-Specification.adoc to remove term_ prefix from anchors.\n\n## Current state\nRBS uses old anchor pattern:\n  :rbrn_moniker:  <<term_rbrn_moniker,RBRN_MONIKER>>\n\n## Target state\nModern MCM pattern (matches AXLA):\n  :rbrn_moniker:  <<rbrn_moniker,RBRN_MONIKER>>\n\n## Scope\n- Update all mapping entries to remove term_ prefix\n- Update all anchor definitions [[term_xyz]] → [[xyz]]\n- Verify all internal cross-references still resolve\n\n## Verification\n- Document renders correctly\n- All links resolve (no broken anchors)\n- Pattern matches MCM-MetaConceptModel.adoc and AXLA-Lexicon.adoc",
-              "silks": "modernize-rbs-anchors",
-              "commit": "17c3766"
-            }
-          ]
-        },
-        "₢ARAAF": {
-          "tacks": [
-            {
-              "ts": "260130-0740",
-              "state": "rough",
-              "text": "Explore partitioning RBS procedural specifications into AXLA-consistent subsections.\n\n## Purpose\nPreparatory step toward RBSA (eventual RBAGS + RBS consolidation). Make RBS procedure documentation follow AXLA patterns like RBAGS subfiles do.\n\n## Exploration\n1. Read AXLA thoroughly — understand axs_* section motifs, axo_procedure patterns\n2. Review how RBAGS partitions content into subfiles (RBSAA, RBSOB, etc.)\n3. Identify RBS procedure sections that could become standalone subfiles\n\n## Implementation approach\n- Partition procedural specs into subfiles following RBAGS naming pattern\n- Add AXLA-consistent voicings (axs_inputs, axs_behavior, axs_outputs, axs_completion)\n- Use annotations: // ⟦axl_voices axo_command axd_transient⟧\n\n## Concerns to address\n(Future implementer: address these before proceeding)\n- How do subfile mappings merge with parent document mappings?\n- Should subfiles be include::'d or kept as reference documents?\n- What naming pattern for RBS subfiles? (RBSGS pattern vs new pattern)\n\n## Naming discipline\nSubfiles MUST follow naming practices established by RBAGS subfiles. Review existing pattern before creating new files.",
-              "silks": "explode-rbs-procedures-axla-voicings",
-              "commit": "fce4449"
-            }
-          ]
-        },
-        "₢ARAAG": {
-          "tacks": [
-            {
-              "ts": "260130-0741",
-              "state": "rough",
-              "text": "Introduce Recipe Bottle metaphor and trust model in Getting Started guide.\n\n## Purpose\nProvide conceptual grounding before the procedural content. Help readers understand WHY before HOW.\n\n## Location\nlenses/RBSGS-GettingStarted.adoc — add as opening section before \"Depots and Roles\"\n\n## Content to cover\n- Why \"Recipe Bottle\" — containing potentially dangerous workloads safely\n- Vessel → Ark → Nameplate flow (reference the vocabulary now established)\n- Trust model: verify the ark's -about before deploying the -image\n- Role tags in vessel naming (sentry, bottle) — semantic convention not type system\n\n## Dependencies\nThis pace depends on vocabulary being established by earlier paces in this heat.\n\n## Style\nNarrative introduction — complement the procedural content that follows. Use linked terms from RBAGS vocabulary.",
-              "silks": "add-cosmology-intro-getting-started",
-              "commit": "6afdd66"
             }
           ]
         }
