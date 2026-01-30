@@ -1563,9 +1563,10 @@
       "status": "stabled",
       "order": [
         "₢ARAAA",
-        "₢ARAAB"
+        "₢ARAAB",
+        "₢ARAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -1587,6 +1588,17 @@
               "text": "Add vessel regime variables to RBAGS mapping section using modern MCM patterns.\n\n## Purpose\nEnable {rbrv_sigil}, {rbrv_conjure_dockerfile}, etc. as linked terms in RBAGS for discussing ark production.\n\n## Implementation\n- Add mapping entries using modern anchor pattern (NO term_ prefix):\n  :rbrv_sigil:              <<rbrv_sigil,RBRV_SIGIL>>\n- Add definition section for RBRV variables\n- Use AXLA motif references (axrg_variable, axf_bash) in annotations\n\n## Exploration required\n- Read documents included by RBAGS (RBSAA, RBSOB, etc.)\n- Identify which should use vessel vocabulary\n- Document findings for incorporation in those files (separate paces if needed)\n\n## Pattern reference\nSee AXLA-Lexicon.adoc for axrg_* regime motifs and annotation patterns.",
               "silks": "add-rbrv-vocab-to-rbags",
               "commit": "3e6fffa"
+            }
+          ]
+        },
+        "₢ARAAC": {
+          "tacks": [
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Create RBRV-RegimeVessel.adoc formal specification for vessel configuration.\n\n## Purpose\nDocument the vessel regime variables (RBRV_SIGIL, RBRV_CONJURE_*, etc.) in a standalone AsciiDoc spec.\n\n## Approach\n- Create as standalone file in lenses/ directory\n- Follow RBRN-RegimeNameplate.adoc pattern for structure\n- Use modern MCM anchor patterns (no term_ prefix)\n- Reference AXLA motifs (axrg_regime, axrg_variable, axf_bash)\n- Share mappings with RBAGS non-incidentally (same anchors, same terms)\n\n## Design note\nRegime specs and overarching specs (RBS, RBAGS) describing the same concepts is not fully resolved. For now: standalone files that happen to share mappings because they describe exactly the same thing. Future wisdom will guide grafting them together.\n\n## Variables to document\n- RBRV_SIGIL — vessel identifier\n- RBRV_DESCRIPTION — human-readable description\n- RBRV_CONJURE_DOCKERFILE — path to Dockerfile\n- RBRV_CONJURE_BLDCONTEXT — build context directory\n- RBRV_CONJURE_PLATFORMS — target platforms\n- RBRV_CONJURE_BINFMT_POLICY — binfmt policy",
+              "silks": "create-rbrv-regime-spec",
+              "commit": "3ad9a07"
             }
           ]
         }
