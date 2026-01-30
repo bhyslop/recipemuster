@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AR",
+  "next_heat_seed": "AS",
   "heats": {
     "₣AP": {
       "silks": "rbw-rekindle-bottle-focus",
@@ -1556,6 +1556,15 @@
           ]
         }
       }
+    },
+    "₣AR": {
+      "silks": "rbw-ark-vessel-vocabulary",
+      "creation_time": "260130",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AR.md",
+      "paces": {}
     }
   }
 }
