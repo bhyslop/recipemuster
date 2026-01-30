@@ -1566,9 +1566,10 @@
         "₢ARAAB",
         "₢ARAAC",
         "₢ARAAD",
-        "₢ARAAE"
+        "₢ARAAE",
+        "₢ARAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -1623,6 +1624,17 @@
               "text": "Update RBS-Specification.adoc to remove term_ prefix from anchors.\n\n## Current state\nRBS uses old anchor pattern:\n  :rbrn_moniker:  <<term_rbrn_moniker,RBRN_MONIKER>>\n\n## Target state\nModern MCM pattern (matches AXLA):\n  :rbrn_moniker:  <<rbrn_moniker,RBRN_MONIKER>>\n\n## Scope\n- Update all mapping entries to remove term_ prefix\n- Update all anchor definitions [[term_xyz]] → [[xyz]]\n- Verify all internal cross-references still resolve\n\n## Verification\n- Document renders correctly\n- All links resolve (no broken anchors)\n- Pattern matches MCM-MetaConceptModel.adoc and AXLA-Lexicon.adoc",
               "silks": "modernize-rbs-anchors",
               "commit": "17c3766"
+            }
+          ]
+        },
+        "₢ARAAF": {
+          "tacks": [
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Explore partitioning RBS procedural specifications into AXLA-consistent subsections.\n\n## Purpose\nPreparatory step toward RBSA (eventual RBAGS + RBS consolidation). Make RBS procedure documentation follow AXLA patterns like RBAGS subfiles do.\n\n## Exploration\n1. Read AXLA thoroughly — understand axs_* section motifs, axo_procedure patterns\n2. Review how RBAGS partitions content into subfiles (RBSAA, RBSOB, etc.)\n3. Identify RBS procedure sections that could become standalone subfiles\n\n## Implementation approach\n- Partition procedural specs into subfiles following RBAGS naming pattern\n- Add AXLA-consistent voicings (axs_inputs, axs_behavior, axs_outputs, axs_completion)\n- Use annotations: // ⟦axl_voices axo_command axd_transient⟧\n\n## Concerns to address\n(Future implementer: address these before proceeding)\n- How do subfile mappings merge with parent document mappings?\n- Should subfiles be include::'d or kept as reference documents?\n- What naming pattern for RBS subfiles? (RBSGS pattern vs new pattern)\n\n## Naming discipline\nSubfiles MUST follow naming practices established by RBAGS subfiles. Review existing pattern before creating new files.",
+              "silks": "explode-rbs-procedures-axla-voicings",
+              "commit": "fce4449"
             }
           ]
         }
