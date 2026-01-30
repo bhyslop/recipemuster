@@ -11,7 +11,6 @@
         "₢ARAAC",
         "₢ARAAD",
         "₢ARAAE",
-        "₢ARAAF",
         "₢ARAAG",
         "₢ARAAH"
       ],
@@ -108,17 +107,6 @@
             }
           ]
         },
-        "₢ARAAF": {
-          "tacks": [
-            {
-              "ts": "260130-0740",
-              "state": "rough",
-              "text": "Explore partitioning RBS procedural specifications into AXLA-consistent subsections.\n\n## Purpose\nPreparatory step toward RBSA (eventual RBAGS + RBS consolidation). Make RBS procedure documentation follow AXLA patterns like RBAGS subfiles do.\n\n## Exploration\n1. Read AXLA thoroughly — understand axs_* section motifs, axo_procedure patterns\n2. Review how RBAGS partitions content into subfiles (RBSAA, RBSOB, etc.)\n3. Identify RBS procedure sections that could become standalone subfiles\n\n## Implementation approach\n- Partition procedural specs into subfiles following RBAGS naming pattern\n- Add AXLA-consistent voicings (axs_inputs, axs_behavior, axs_outputs, axs_completion)\n- Use annotations: // ⟦axl_voices axo_command axd_transient⟧\n\n## Concerns to address\n(Future implementer: address these before proceeding)\n- How do subfile mappings merge with parent document mappings?\n- Should subfiles be include::'d or kept as reference documents?\n- What naming pattern for RBS subfiles? (RBSGS pattern vs new pattern)\n\n## Naming discipline\nSubfiles MUST follow naming practices established by RBAGS subfiles. Review existing pattern before creating new files.",
-              "silks": "explode-rbs-procedures-axla-voicings",
-              "commit": "fce4449"
-            }
-          ]
-        },
         "₢ARAAG": {
           "tacks": [
             {
@@ -175,9 +163,10 @@
         "₢APAAC",
         "₢APAAD",
         "₢APAAH",
-        "₢APAAN"
+        "₢APAAN",
+        "₢APAAV"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -554,6 +543,24 @@
               "text": "Introduce the Recipe Bottle metaphor and trust model in Getting Started.\n\n## Context\nThe Getting Started guide is procedural but lacks conceptual grounding in the metaphor.\n\n## Content to add\n- **Why \"Recipe Bottle\"**: Containing potentially dangerous workloads (demons) safely\n- **Vessel**: Mystical artifact designed to contain demons\n- **Ark**: A specific manifestation of a vessel, producing:\n  - `-image`: the deployable prison\n  - `-about`: provenance record for trust verification\n- **Sentry**: Guardian watching the containment\n- **Bottle**: The prison holding the demon\n- **Censer**: Bottle configured to see only the sentry's smoke (routing through sentry)\n- **Trust model**: Verify the ark's -about before deploying the -image\n\n## Location\n`lenses/RBSGS-GettingStarted.adoc` — add as opening section before \"Depots and Roles\"\n\n## Relationship\nThis narrative introduction complements the formal vocabulary definitions in RBAGS.",
               "silks": "add-recipe-bottle-cosmology-intro",
               "commit": "fdd8a22"
+            }
+          ]
+        },
+        "₢APAAV": {
+          "tacks": [
+            {
+              "ts": "260130-0804",
+              "state": "rough",
+              "text": "Drafted from ₢ARAAF in ₣AR.\n\nExplore partitioning RBS procedural specifications into AXLA-consistent subsections.\n\n## Purpose\nPreparatory step toward RBSA (eventual RBAGS + RBS consolidation). Make RBS procedure documentation follow AXLA patterns like RBAGS subfiles do.\n\n## Exploration\n1. Read AXLA thoroughly — understand axs_* section motifs, axo_procedure patterns\n2. Review how RBAGS partitions content into subfiles (RBSAA, RBSOB, etc.)\n3. Identify RBS procedure sections that could become standalone subfiles\n\n## Implementation approach\n- Partition procedural specs into subfiles following RBAGS naming pattern\n- Add AXLA-consistent voicings (axs_inputs, axs_behavior, axs_outputs, axs_completion)\n- Use annotations: // ⟦axl_voices axo_command axd_transient⟧\n\n## Concerns to address\n(Future implementer: address these before proceeding)\n- How do subfile mappings merge with parent document mappings?\n- Should subfiles be include::'d or kept as reference documents?\n- What naming pattern for RBS subfiles? (RBSGS pattern vs new pattern)\n\n## Naming discipline\nSubfiles MUST follow naming practices established by RBAGS subfiles. Review existing pattern before creating new files.",
+              "silks": "explode-rbs-procedures-axla-voicings",
+              "commit": "4500545"
+            },
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Explore partitioning RBS procedural specifications into AXLA-consistent subsections.\n\n## Purpose\nPreparatory step toward RBSA (eventual RBAGS + RBS consolidation). Make RBS procedure documentation follow AXLA patterns like RBAGS subfiles do.\n\n## Exploration\n1. Read AXLA thoroughly — understand axs_* section motifs, axo_procedure patterns\n2. Review how RBAGS partitions content into subfiles (RBSAA, RBSOB, etc.)\n3. Identify RBS procedure sections that could become standalone subfiles\n\n## Implementation approach\n- Partition procedural specs into subfiles following RBAGS naming pattern\n- Add AXLA-consistent voicings (axs_inputs, axs_behavior, axs_outputs, axs_completion)\n- Use annotations: // ⟦axl_voices axo_command axd_transient⟧\n\n## Concerns to address\n(Future implementer: address these before proceeding)\n- How do subfile mappings merge with parent document mappings?\n- Should subfiles be include::'d or kept as reference documents?\n- What naming pattern for RBS subfiles? (RBSGS pattern vs new pattern)\n\n## Naming discipline\nSubfiles MUST follow naming practices established by RBAGS subfiles. Review existing pattern before creating new files.",
+              "silks": "explode-rbs-procedures-axla-voicings",
+              "commit": "fce4449"
             }
           ]
         }
