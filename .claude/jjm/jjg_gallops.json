@@ -998,9 +998,10 @@
         "₢AGAAD",
         "₢AGAAE",
         "₢AGAAF",
-        "₢AGAAG"
+        "₢AGAAG",
+        "₢AGAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -1098,6 +1099,17 @@
               "text": "Extract hardcoded Rust build/test commands from the wrap slash command and make build discipline configurable per-heat.\n\nCurrent state: The wrap command (and CLAUDE.md Pre-wrap Verification section) hardcodes `tt/vow-b.Build.sh && tt/vow-t.Test.sh` as the pre-wrap verification step.\n\nGoal: Allow heats to specify their own build discipline (or none), so non-Rust heats don't require Rust builds, and different projects can have appropriate verification.\n\nDesign decision needed: Where should build discipline live?\n- Option A: Paddock structure (new field in paddock file)\n- Option B: Heat fields in gallops.json (new schema field)\n- Option C: Heat-level config file\n\nImplementation:\n1. Choose storage location\n2. Define schema for build discipline specification\n3. Update wrap command to read discipline from heat context\n4. Update CLAUDE.md to reference dynamic discipline rather than hardcoded commands\n5. Migrate existing heats if needed",
               "silks": "heat-build-discipline",
               "commit": "26f0d95"
+            }
+          ]
+        },
+        "₢AGAAH": {
+          "tacks": [
+            {
+              "ts": "260130-0810",
+              "state": "rough",
+              "text": "When wrapping a pace, assess whether the work created materials that downstream paces need to consume or whether their specifications need adjustment.\n\n**Problem:** A pace's output (code changes, schema updates, documentation, data migrations) often creates artifacts that future paces in the same heat depend on. Currently, developers must manually review remaining paces and update specs. This is error-prone and easy to forget, leading to downstream paces with stale or incomplete specifications.\n\n**Proposed workflow:**\n- Define materials/artifacts produced by each pace (outputs field in tack)\n- At wrap time, surface remaining paces that might consume or be affected by these materials\n- Allow developer to review and update downstream pace specs before proceeding\n- Link materials to dependent paces for future reference\n\n**Design questions:**\n- Where does materials tracking live? (tack metadata field? pace spec section?)\n- Should this be enforced at wrap, suggested, or optional?\n- How to represent dependencies between paces in same heat?\n- Integration with bridle: should unresolved downstream specs prevent bridling?\n\n**Implementation approach:**\n- Option A: Extend wrap command with post-wrap assessment prompt\n- Option B: Create separate 'assess' subcommand to run after wrap\n- Option C: Add 'materials' and 'dependents' fields to pace spec itself\n\n**Acceptance:**\n- Developer can identify which remaining paces are affected by current pace's work\n- Pace specs referencing upstream materials are discoverable\n- Developer can update downstream specs and paddock before completing wrap\n- Materials produced are documented for audit trail\n\n**Related:** prewrap-test-fields (₢AGAAD) - this is the post-wrap counterpart, checking *what this pace produces* rather than *whether it's ready to ship*",
+              "silks": "wrap-completion-assessment",
+              "commit": "1aac239"
             }
           ]
         }
