@@ -66,9 +66,19 @@ RBAGS and RBS will eventually combine into RBSA. This heat establishes vocabular
 - `lenses/RBAGS-AdminGoogleSpec.adoc` — Admin Google spec (ark definitions at lines 608-687)
 - `lenses/RBS-Specification.adoc` — Makefile service spec (needs anchor modernization)
 - `lenses/RBRN-RegimeNameplate.adoc` — Nameplate regime spec
-- `lenses/CRR-ConfigRegimeRequirements.adoc` — Config regime definition (old, makefile-centric)
+- `lenses/CRR-ConfigRegimeRequirements.adoc` — Config regime definition (old, makefile-centric — being replaced by BURS)
+- `Tools/buk/vov_veiled/BURS-BashUtilityRegimeSpec.adoc` — [TO CREATE] Modern bash regime spec
 - `Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc` — Modern concept model patterns
 - `Tools/cmk/vov_veiled/AXLA-Lexicon.adoc` — Axial lexicon (regime/format motifs)
 - `Tools/rbw/rbgc_Constants.sh` — GCP constants (needs ark suffix constants)
 - `rbev-vessels/*/rbrv.env` — Vessel assignment files
 - `Tools/rbw/rbrn_*.env` — Nameplate assignment files
+
+## Paddock Maintenance
+
+**On pace wrap**: Review whether the paddock needs revision given what the pace accomplished. Specifically:
+- New files created? Add to References section
+- Conceptual understanding evolved? Update Key Conceptual Model
+- Patterns established that future paces should follow? Document them
+
+The paddock is living documentation — keep it current as the heat progresses.
