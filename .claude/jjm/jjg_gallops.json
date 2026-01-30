@@ -143,6 +143,7 @@
       "creation_time": "260125",
       "status": "racing",
       "order": [
+        "₢APAAV",
         "₢APAAU",
         "₢APAAK",
         "₢APAAF",
@@ -163,8 +164,7 @@
         "₢APAAC",
         "₢APAAD",
         "₢APAAH",
-        "₢APAAN",
-        "₢APAAV"
+        "₢APAAN"
       ],
       "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_AP.md",
