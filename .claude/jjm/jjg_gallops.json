@@ -1567,9 +1567,10 @@
         "₢ARAAC",
         "₢ARAAD",
         "₢ARAAE",
-        "₢ARAAF"
+        "₢ARAAF",
+        "₢ARAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -1635,6 +1636,17 @@
               "text": "Explore partitioning RBS procedural specifications into AXLA-consistent subsections.\n\n## Purpose\nPreparatory step toward RBSA (eventual RBAGS + RBS consolidation). Make RBS procedure documentation follow AXLA patterns like RBAGS subfiles do.\n\n## Exploration\n1. Read AXLA thoroughly — understand axs_* section motifs, axo_procedure patterns\n2. Review how RBAGS partitions content into subfiles (RBSAA, RBSOB, etc.)\n3. Identify RBS procedure sections that could become standalone subfiles\n\n## Implementation approach\n- Partition procedural specs into subfiles following RBAGS naming pattern\n- Add AXLA-consistent voicings (axs_inputs, axs_behavior, axs_outputs, axs_completion)\n- Use annotations: // ⟦axl_voices axo_command axd_transient⟧\n\n## Concerns to address\n(Future implementer: address these before proceeding)\n- How do subfile mappings merge with parent document mappings?\n- Should subfiles be include::'d or kept as reference documents?\n- What naming pattern for RBS subfiles? (RBSGS pattern vs new pattern)\n\n## Naming discipline\nSubfiles MUST follow naming practices established by RBAGS subfiles. Review existing pattern before creating new files.",
               "silks": "explode-rbs-procedures-axla-voicings",
               "commit": "fce4449"
+            }
+          ]
+        },
+        "₢ARAAG": {
+          "tacks": [
+            {
+              "ts": "260130-0741",
+              "state": "rough",
+              "text": "Introduce Recipe Bottle metaphor and trust model in Getting Started guide.\n\n## Purpose\nProvide conceptual grounding before the procedural content. Help readers understand WHY before HOW.\n\n## Location\nlenses/RBSGS-GettingStarted.adoc — add as opening section before \"Depots and Roles\"\n\n## Content to cover\n- Why \"Recipe Bottle\" — containing potentially dangerous workloads safely\n- Vessel → Ark → Nameplate flow (reference the vocabulary now established)\n- Trust model: verify the ark's -about before deploying the -image\n- Role tags in vessel naming (sentry, bottle) — semantic convention not type system\n\n## Dependencies\nThis pace depends on vocabulary being established by earlier paces in this heat.\n\n## Style\nNarrative introduction — complement the procedural content that follows. Use linked terms from RBAGS vocabulary.",
+              "silks": "add-cosmology-intro-getting-started",
+              "commit": "6afdd66"
             }
           ]
         }
