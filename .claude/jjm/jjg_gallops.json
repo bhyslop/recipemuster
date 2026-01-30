@@ -20,6 +20,13 @@
         "₢ARAAA": {
           "tacks": [
             {
+              "ts": "260130-0802",
+              "state": "rough",
+              "text": "Add RBGC_ARK_SUFFIX_IMAGE and RBGC_ARK_SUFFIX_ABOUT constants to rbgc_Constants.sh.\n\n## Purpose\nSingle point of maintenance for ark artifact suffixes used across the codebase.\n\n## Implementation\n- Add constants in the zrbgc_kindle() function (Tools/rbw/rbgc_Constants.sh around line 120)\n- Values: \"-image\" and \"-about\"\n\n## Follow-on work\nCheck these files for hardcoded suffixes that should eventually use these constants:\n- Tools/rbw/rbob_bottle.sh — bottle operations\n- Tools/rbw/rbi_Image.sh — image operations  \n- Tools/rbw/rbf_Foundry.sh — build operations\nNote any usage gaps for later paces; do NOT update these files in this pace.\n\n## Verification\n- Build succeeds (no syntax errors)\n- Constants are accessible after kindle",
+              "silks": "add-ark-suffix-constants-rbgc",
+              "commit": "af09c9f"
+            },
+            {
               "ts": "260130-0740",
               "state": "rough",
               "text": "Add RBGC_ARK_SUFFIX_IMAGE and RBGC_ARK_SUFFIX_ABOUT constants to rbgc_Constants.sh.\n\n## Purpose\nSingle point of maintenance for ark artifact suffixes used across the codebase.\n\n## Implementation\n- Add constants in the zrbgc_kindle() function\n- Values: \"-image\" and \"-about\"\n\n## Follow-on work\n- These constants need to be plumbed into the cloud build script as parameters (future pace)\n- Check bottle service download scripts (rbob_bottle.sh, rbi_Image.sh) for hardcoded suffixes that should use these constants\n- Note any usage gaps for later paces\n\n## Verification\n- Build succeeds\n- Constants are exported and accessible after kindle",
