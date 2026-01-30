@@ -1564,9 +1564,10 @@
       "order": [
         "₢ARAAA",
         "₢ARAAB",
-        "₢ARAAC"
+        "₢ARAAC",
+        "₢ARAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -1599,6 +1600,17 @@
               "text": "Create RBRV-RegimeVessel.adoc formal specification for vessel configuration.\n\n## Purpose\nDocument the vessel regime variables (RBRV_SIGIL, RBRV_CONJURE_*, etc.) in a standalone AsciiDoc spec.\n\n## Approach\n- Create as standalone file in lenses/ directory\n- Follow RBRN-RegimeNameplate.adoc pattern for structure\n- Use modern MCM anchor patterns (no term_ prefix)\n- Reference AXLA motifs (axrg_regime, axrg_variable, axf_bash)\n- Share mappings with RBAGS non-incidentally (same anchors, same terms)\n\n## Design note\nRegime specs and overarching specs (RBS, RBAGS) describing the same concepts is not fully resolved. For now: standalone files that happen to share mappings because they describe exactly the same thing. Future wisdom will guide grafting them together.\n\n## Variables to document\n- RBRV_SIGIL — vessel identifier\n- RBRV_DESCRIPTION — human-readable description\n- RBRV_CONJURE_DOCKERFILE — path to Dockerfile\n- RBRV_CONJURE_BLDCONTEXT — build context directory\n- RBRV_CONJURE_PLATFORMS — target platforms\n- RBRV_CONJURE_BINFMT_POLICY — binfmt policy",
               "silks": "create-rbrv-regime-spec",
               "commit": "3ad9a07"
+            }
+          ]
+        },
+        "₢ARAAD": {
+          "tacks": [
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Replace RBRN image tag pairs with single ark reference pattern.\n\n## Current state\nNameplate uses separate variables:\n- RBRN_SENTRY_MONIKER + RBRN_SENTRY_IMAGE_TAG\n- RBRN_BOTTLE_MONIKER + RBRN_BOTTLE_IMAGE_TAG\n\n## Target state\nSingle ark reference:\n- RBRN_SENTRY_ARK = moniker:ark_stamp\n- RBRN_BOTTLE_ARK = moniker:ark_stamp\n\nRuntime code appends -image or -about suffix using RBGC constants.\n\n## Files to update\n- lenses/RBRN-RegimeNameplate.adoc — spec\n- Tools/rbw/rbrn_*.env — assignment files\n- Any code consuming these variables\n\n## Verification\n- Nameplate validation still works\n- Bottle service startup resolves ark to image correctly",
+              "silks": "evolve-rbrn-ark-reference",
+              "commit": "0ee9ad5"
             }
           ]
         }
