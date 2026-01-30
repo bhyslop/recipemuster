@@ -12,9 +12,10 @@
         "₢ARAAD",
         "₢ARAAE",
         "₢ARAAF",
-        "₢ARAAG"
+        "₢ARAAG",
+        "₢ARAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -133,6 +134,17 @@
               "text": "Introduce Recipe Bottle metaphor and trust model in Getting Started guide.\n\n## Purpose\nProvide conceptual grounding before the procedural content. Help readers understand WHY before HOW.\n\n## Location\nlenses/RBSGS-GettingStarted.adoc — add as opening section before \"Depots and Roles\"\n\n## Content to cover\n- Why \"Recipe Bottle\" — containing potentially dangerous workloads safely\n- Vessel → Ark → Nameplate flow (reference the vocabulary now established)\n- Trust model: verify the ark's -about before deploying the -image\n- Role tags in vessel naming (sentry, bottle) — semantic convention not type system\n\n## Dependencies\nThis pace depends on vocabulary being established by earlier paces in this heat.\n\n## Style\nNarrative introduction — complement the procedural content that follows. Use linked terms from RBAGS vocabulary.",
               "silks": "add-cosmology-intro-getting-started",
               "commit": "6afdd66"
+            }
+          ]
+        },
+        "₢ARAAH": {
+          "tacks": [
+            {
+              "ts": "260130-0804",
+              "state": "rough",
+              "text": "Create BURS-BashUtilityRegimeSpec.adoc — modernized regime definition for bash config systems.\n\n## Purpose\nReplace the old CRR-ConfigRegimeRequirements.adoc (makefile-centric) with a modern bash-focused regime specification. Full excision of makefile patterns — that era is gone.\n\n## Location\nTools/buk/vov_veiled/BURS-BashUtilityRegimeSpec.adoc (veiled, travels with BUK)\n\n## Content approach\n- Read MCM-MetaConceptModel.adoc for document patterns\n- Read AXLA-Lexicon.adoc for regime/format motifs (axrg_*, axf_*)\n- Study BURC as the most recent regime style — use as pattern\n\n## Key changes from CRR\n- Remove all makefile patterns (include, :=, etc.)\n- Focus on bash .env assignment files ({axf_bash})\n- Add AXLA voicings for regime concepts\n- Modern MCM anchor patterns (no term_ prefix)\n- Reference axrg_regime, axrg_variable, axrg_assignment, axrg_prefix motifs\n\n## Scope control\nThis is the formal specification document only. It does NOT include:\n- Updating existing regime files to match\n- Creating validator/renderer scripts\n- Migrating other regimes\n\nThose are future work (potentially separate heat).\n\n## Verification\n- Document follows MCM patterns\n- AXLA motifs are correctly referenced in annotations\n- Can serve as authoritative reference for regime authors",
+              "silks": "create-burs-regime-spec",
+              "commit": "d948460"
             }
           ]
         }
