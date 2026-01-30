@@ -1565,9 +1565,10 @@
         "₢ARAAA",
         "₢ARAAB",
         "₢ARAAC",
-        "₢ARAAD"
+        "₢ARAAD",
+        "₢ARAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -1611,6 +1612,17 @@
               "text": "Replace RBRN image tag pairs with single ark reference pattern.\n\n## Current state\nNameplate uses separate variables:\n- RBRN_SENTRY_MONIKER + RBRN_SENTRY_IMAGE_TAG\n- RBRN_BOTTLE_MONIKER + RBRN_BOTTLE_IMAGE_TAG\n\n## Target state\nSingle ark reference:\n- RBRN_SENTRY_ARK = moniker:ark_stamp\n- RBRN_BOTTLE_ARK = moniker:ark_stamp\n\nRuntime code appends -image or -about suffix using RBGC constants.\n\n## Files to update\n- lenses/RBRN-RegimeNameplate.adoc — spec\n- Tools/rbw/rbrn_*.env — assignment files\n- Any code consuming these variables\n\n## Verification\n- Nameplate validation still works\n- Bottle service startup resolves ark to image correctly",
               "silks": "evolve-rbrn-ark-reference",
               "commit": "0ee9ad5"
+            }
+          ]
+        },
+        "₢ARAAE": {
+          "tacks": [
+            {
+              "ts": "260130-0740",
+              "state": "rough",
+              "text": "Update RBS-Specification.adoc to remove term_ prefix from anchors.\n\n## Current state\nRBS uses old anchor pattern:\n  :rbrn_moniker:  <<term_rbrn_moniker,RBRN_MONIKER>>\n\n## Target state\nModern MCM pattern (matches AXLA):\n  :rbrn_moniker:  <<rbrn_moniker,RBRN_MONIKER>>\n\n## Scope\n- Update all mapping entries to remove term_ prefix\n- Update all anchor definitions [[term_xyz]] → [[xyz]]\n- Verify all internal cross-references still resolve\n\n## Verification\n- Document renders correctly\n- All links resolve (no broken anchors)\n- Pattern matches MCM-MetaConceptModel.adoc and AXLA-Lexicon.adoc",
+              "silks": "modernize-rbs-anchors",
+              "commit": "17c3766"
             }
           ]
         }
