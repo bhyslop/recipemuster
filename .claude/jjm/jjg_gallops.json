@@ -6,6 +6,7 @@
       "creation_time": "260130",
       "status": "racing",
       "order": [
+        "₢ARAAI",
         "₢ARAAA",
         "₢ARAAB",
         "₢ARAAC",
@@ -14,7 +15,7 @@
         "₢ARAAG",
         "₢ARAAH"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -140,6 +141,17 @@
               "text": "Create BURS-BashUtilityRegimeSpec.adoc — modernized regime definition for bash config systems.\n\n## Purpose\nReplace the old CRR-ConfigRegimeRequirements.adoc (makefile-centric) with a modern bash-focused regime specification. Full excision of makefile patterns — that era is gone.\n\n## Location\nTools/buk/vov_veiled/BURS-BashUtilityRegimeSpec.adoc (veiled, travels with BUK)\n\n## Content approach\n- Read MCM-MetaConceptModel.adoc for document patterns\n- Read AXLA-Lexicon.adoc for regime/format motifs (axrg_*, axf_*)\n- Study BURC as the most recent regime style — use as pattern\n\n## Key changes from CRR\n- Remove all makefile patterns (include, :=, etc.)\n- Focus on bash .env assignment files ({axf_bash})\n- Add AXLA voicings for regime concepts\n- Modern MCM anchor patterns (no term_ prefix)\n- Reference axrg_regime, axrg_variable, axrg_assignment, axrg_prefix motifs\n\n## Scope control\nThis is the formal specification document only. It does NOT include:\n- Updating existing regime files to match\n- Creating validator/renderer scripts\n- Migrating other regimes\n\nThose are future work (potentially separate heat).\n\n## Verification\n- Document follows MCM patterns\n- AXLA motifs are correctly referenced in annotations\n- Can serve as authoritative reference for regime authors",
               "silks": "create-burs-regime-spec",
               "commit": "d948460"
+            }
+          ]
+        },
+        "₢ARAAI": {
+          "tacks": [
+            {
+              "ts": "260131-1212",
+              "state": "rough",
+              "text": "Search codebase for RBRV_CLI_KINDLED constant usage to verify if it's misnamed and belongs to RBRV or another subsystem. Determine correct naming and scope.",
+              "silks": "find-rbrv-cli-kindled-usage",
+              "commit": "1d08d2e"
             }
           ]
         }
