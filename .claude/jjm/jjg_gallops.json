@@ -1731,9 +1731,10 @@
       "status": "stabled",
       "order": [
         "₢ASAAA",
-        "₢ASAAB"
+        "₢ASAAB",
+        "₢ASAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AS.md",
       "paces": {
         "₢ASAAA": {
@@ -1755,6 +1756,17 @@
               "text": "Partition RBS procedural specifications into AXLA-consistent subfiles.\n\nMove ₢APAAV from ₣AP. RBS currently monolithic; should follow RBAGS precedent of partitioned subfiles with AXLA voicings.\n\nIdentify RBS procedure sections (Sentry Start, Bottle Start, Bottle Run, etc.) and extract into standalone subfiles.\n\nEach subfile:\n- Follows RBAGS naming pattern (RBSXY-Description.adoc)\n- Includes AXLA-consistent voicings: // ⟦axl_voices axo_procedure axd_transient⟧\n- Documents sections: axs_inputs, axs_behavior, axs_outputs, axs_completion\n- Maintains term mappings compatible with parent RBS document\n\nEstablish naming convention for RBS subfiles before implementation.",
               "silks": "explode-rbs-procedures-axla-voicings",
               "commit": "cfe3870"
+            }
+          ]
+        },
+        "₢ASAAC": {
+          "tacks": [
+            {
+              "ts": "260131-1149",
+              "state": "rough",
+              "text": "Fold RBRN (Nameplate configuration regime) into RBS as subsection.\n\nRBRN is currently separate but is RBS's regime definition—RBS references its variables throughout (rbrn_moniker, rbrn_entry_enabled, etc.). Keeping separate creates cross-reference friction.\n\nIntegrate RBRN as subsection within RBS structure:\n- Service Configuration Regime section in RBS main document\n- Incorporates RBRN's variable definitions, constraints, term glossary\n- Maintains AXLA voicing pattern with axrg_regime and axrg_variable motifs\n- Update RBS mappings to include RBRN terms\n- Remove RBRN.adoc from lenses/ (or keep as archived reference)\n\nResult: Complete service specification in one coherent document.",
+              "silks": "merge-rbrn-into-rbs",
+              "commit": "aadb00a"
             }
           ]
         }
