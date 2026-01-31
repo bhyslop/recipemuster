@@ -30,22 +30,22 @@ if missing: "Vessel configuration not found"
 . *Load Vessel Configuration*:
 .. Source `«VESSEL_ENV_FILE»` into current environment
 .. {rbbc_require}
-RBRV_SIGIL defined and non-empty
+{rbrv_sigil} defined and non-empty
 .. {rbbc_store}
-`«VESSEL_SIGIL»` from RBRV_SIGIL
+`«VESSEL_SIGIL»` from {rbrv_sigil}
 .. Validate vessel directory name matches `«VESSEL_SIGIL»`
 .. {rbbc_fatal}
 if mismatch: "Vessel sigil does not match directory name"
 
 . *Validate Conjuring Configuration*:
 .. {rbbc_require}
-RBRV_CONJURE_DOCKERFILE defined
+{rbrv_conjure_dockerfile} defined
 .. {rbbc_require}
-RBRV_CONJURE_BLDCONTEXT defined
+{rbrv_conjure_bldcontext} defined
 .. {rbbc_store}
-`«DOCKERFILE_PATH»` from RBRV_CONJURE_DOCKERFILE
+`«DOCKERFILE_PATH»` from {rbrv_conjure_dockerfile}
 .. {rbbc_store}
-`«BUILD_CONTEXT_DIR»` from RBRV_CONJURE_BLDCONTEXT
+`«BUILD_CONTEXT_DIR»` from {rbrv_conjure_bldcontext}
 .. {rbbc_require}
 `«DOCKERFILE_PATH»` file exists
 .. {rbbc_require}
@@ -55,9 +55,9 @@ if missing: "Vessel not configured for conjuring"
 
 . *Enforce Binfmt Policy*:
 .. {rbbc_store}
-`«BINFMT_POLICY»` from RBRV_CONJURE_BINFMT_POLICY (default: "allow")
+`«BINFMT_POLICY»` from {rbrv_conjure_binfmt_policy} (default: "allow")
 .. {rbbc_store}
-`«TARGET_PLATFORMS»` from RBRV_CONJURE_PLATFORMS
+`«TARGET_PLATFORMS»` from {rbrv_conjure_platforms}
 .. If `«BINFMT_POLICY»` is "forbid":
 ... Detect native platform (os/arch)
 ... {rbbc_require}

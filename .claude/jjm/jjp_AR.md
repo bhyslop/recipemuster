@@ -74,6 +74,16 @@ RBAGS and RBS will eventually combine into RBSA. This heat establishes vocabular
 - `rbev-vessels/*/rbrv.env` — Vessel assignment files
 - `Tools/rbw/rbrn_*.env` — Nameplate assignment files
 
+## Heat Nature & Wrap Discipline
+
+**This is a documentation-only heat** — all paces involve editing AsciiDoc specifications and AXLA-annotated definitions. No Rust code changes, no build/test requirements before wrapping.
+
+When wrapping a pace, simply verify:
+- Changes to lenses/ files are correct (review the edits)
+- No accidental syntax errors in AsciiDoc
+
+Then invoke `/jjc-pace-wrap` without pre-wrap build/test.
+
 ## Paddock Maintenance
 
 **On pace wrap**: Review whether the paddock needs revision given what the pace accomplished. Specifically:
