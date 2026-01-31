@@ -1730,9 +1730,10 @@
       "creation_time": "260131",
       "status": "stabled",
       "order": [
-        "₢ASAAA"
+        "₢ASAAA",
+        "₢ASAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AS.md",
       "paces": {
         "₢ASAAA": {
@@ -1743,6 +1744,17 @@
               "text": "Expand AXLA's axrg_* regime terms into complete pattern documentation.\n\nCurrently AXLA defines abstract regime motifs (axrg_regime, axrg_variable, axrg_assignment, axrg_prefix) but leaves implementation patterns unexplained. CRR documents these patterns concretely but is Recipe Bottle-specific.\n\nExtract regime architecture from CRR and document as AXLA voicings of axrg_* motifs:\n- Structure of regime specifications (sections, variable tables, format requirements)\n- Glossary and mapping section patterns\n- Assignment file format (makefile, bash, JSON, etc.)\n- Validation and rendering architecture\n\nResult: AXLA becomes authoritative reference for regime pattern; specs reference AXLA rather than repeating CRR.",
               "silks": "expand-axla-regime-section",
               "commit": "35cc5cb"
+            }
+          ]
+        },
+        "₢ASAAB": {
+          "tacks": [
+            {
+              "ts": "260131-1149",
+              "state": "rough",
+              "text": "Partition RBS procedural specifications into AXLA-consistent subfiles.\n\nMove ₢APAAV from ₣AP. RBS currently monolithic; should follow RBAGS precedent of partitioned subfiles with AXLA voicings.\n\nIdentify RBS procedure sections (Sentry Start, Bottle Start, Bottle Run, etc.) and extract into standalone subfiles.\n\nEach subfile:\n- Follows RBAGS naming pattern (RBSXY-Description.adoc)\n- Includes AXLA-consistent voicings: // ⟦axl_voices axo_procedure axd_transient⟧\n- Documents sections: axs_inputs, axs_behavior, axs_outputs, axs_completion\n- Maintains term mappings compatible with parent RBS document\n\nEstablish naming convention for RBS subfiles before implementation.",
+              "silks": "explode-rbs-procedures-axla-voicings",
+              "commit": "cfe3870"
             }
           ]
         }
