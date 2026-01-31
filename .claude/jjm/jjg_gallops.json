@@ -177,6 +177,13 @@
         "₢ARAAI": {
           "tacks": [
             {
+              "ts": "260131-1222",
+              "state": "complete",
+              "text": "Search codebase for RBRV_CLI_KINDLED constant usage to verify if it's misnamed and belongs to RBRV or another subsystem. Determine correct naming and scope.",
+              "silks": "find-rbrv-cli-kindled-usage",
+              "commit": "84377cc"
+            },
+            {
               "ts": "260131-1212",
               "state": "rough",
               "text": "Search codebase for RBRV_CLI_KINDLED constant usage to verify if it's misnamed and belongs to RBRV or another subsystem. Determine correct naming and scope.",
