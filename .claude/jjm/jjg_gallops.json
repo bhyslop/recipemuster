@@ -1810,6 +1810,13 @@
         "₢ATAAB": {
           "tacks": [
             {
+              "ts": "260131-1158",
+              "state": "rough",
+              "text": "Create BURS (Bash Utilities Regime Spec) as universal voicing of AXLA patterns.\n\nBURS defines the authoritative regime pattern for bash utilities, serving as reference for all bash-based configuration regimes. While BURC will provide bash-specific details, BURS itself documents:\n- General regime architecture following AXLA axrg_* motifs\n- Regime specification structure (sections, variable tables, format requirements)\n- Assignment file organization and patterns\n- Validation and rendering architecture\n- Glossary and term mapping discipline\n\nStructure following AXLA regime patterns established in expanded axrg_* section (₣AS ₢ASAAA):\n- Core regime components and their relationships\n- Variable naming and organization conventions\n- Applicable to all regime implementations (bash, makefile, JSON, etc.)\n\nReference: AXLA expanded regime section\nComplements: BURC (bash-native specifics)\nDepends on: ₣AT ₢ATAAA (regime inventory study)\n\nResult: BURS becomes definitive universal regime spec, enabling consistent patterns across all Recipe Bottle configuration regimes.",
+              "silks": "create-burs-regime-spec",
+              "commit": "4340c71"
+            },
+            {
               "ts": "260131-1154",
               "state": "rough",
               "text": "Create BURS (Bash Utilities Regime Spec) as voicing of AXLA patterns.\n\nBURS replaces the old role of CRR for bash utility configuration. Define the regime pattern for BUK tools (buc, bud, but, buv, buw, burc, burs) using AXLA's axrg_* motifs.\n\nStructure following AXLA regime patterns established in expanded axrg_* section:\n- Variables for bash utility configuration (prefixes, paths, settings)\n- Assignment file formats (makefile, bash, JSON)\n- Validation and rendering patterns\n- Glossary with AXLA voicings\n\nReference: AXLA expanded regime section (from ₣AS ₢ASAAA)\nRelated: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (naming vocabulary)\nDepends on: ₣AT ₢ATAAA (regime inventory study)\n\nResult: BURS becomes definitive regime spec for bash utilities, enabling other projects to adopt similar patterns.",
