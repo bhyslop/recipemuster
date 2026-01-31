@@ -1801,9 +1801,10 @@
       "creation_time": "260131",
       "status": "stabled",
       "order": [
-        "₢ATAAA"
+        "₢ATAAA",
+        "₢ATAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1814,6 +1815,17 @@
               "text": "Comprehensive study of ALL configuration regimes in Recipe Bottle.\n\nRecipe Bottle uses multiple configuration regimes:\n- **RBRR** (RegimeRepo) — repository-level configuration\n- **RBRN** (RegimeNameplate) — service-level configuration  \n- **RBB_*** (Base regime, if exists) — core system configuration\n- **RBS_*** (Station regime, if exists) — deployment-specific configuration\n- **BUD_*** (HIDDEN — dispatch-related regime) — variables set during buk dispatch operations\n\nDiscovery tasks:\n1. Enumerate all prefixes in use (RB*, BUD_*, others?)\n2. Map each to its spec document or implementation\n3. Document what each regime controls and its lifecycle\n4. Identify overlaps, conflicts, or inconsistencies\n5. Understand BUD_ regime — what variables exist, where set, how consumed?\n\nDeliverable: Complete regime inventory with:\n- Prefix mapping\n- Variable scope and lifecycle  \n- Cross-regime dependencies\n- Naming conventions per regime\n- Gap analysis (unmapped variables, undocumented regimes)\n\nThis study enables consistent treatment of all regimes in subsequent paces.",
               "silks": "study-all-recipe-bottle-regimes",
               "commit": "fea73b3"
+            }
+          ]
+        },
+        "₢ATAAB": {
+          "tacks": [
+            {
+              "ts": "260131-1154",
+              "state": "rough",
+              "text": "Create BURS (Bash Utilities Regime Spec) as voicing of AXLA patterns.\n\nBURS replaces the old role of CRR for bash utility configuration. Define the regime pattern for BUK tools (buc, bud, but, buv, buw, burc, burs) using AXLA's axrg_* motifs.\n\nStructure following AXLA regime patterns established in expanded axrg_* section:\n- Variables for bash utility configuration (prefixes, paths, settings)\n- Assignment file formats (makefile, bash, JSON)\n- Validation and rendering patterns\n- Glossary with AXLA voicings\n\nReference: AXLA expanded regime section (from ₣AS ₢ASAAA)\nRelated: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (naming vocabulary)\nDepends on: ₣AT ₢ATAAA (regime inventory study)\n\nResult: BURS becomes definitive regime spec for bash utilities, enabling other projects to adopt similar patterns.",
+              "silks": "create-burs-regime-spec",
+              "commit": "0515144"
             }
           ]
         }
