@@ -1,6 +1,29 @@
 {
   "next_heat_seed": "AV",
   "heats": {
+    "₣AU": {
+      "silks": "rbw-mvp-release-finalize",
+      "creation_time": "260131",
+      "status": "racing",
+      "order": [
+        "₢AUAAA"
+      ],
+      "next_pace_seed": "AAB",
+      "paddock_file": ".claude/jjm/jjp_AU.md",
+      "paces": {
+        "₢AUAAA": {
+          "tacks": [
+            {
+              "ts": "260131-1214",
+              "state": "rough",
+              "text": "Evaluate RBRV_CONJURE_BINFMT_POLICY configuration option: determine whether to implement full support, stub it out, or remove it entirely. This is a decision point for MVP release readiness that affects the conjure subsystem's feature completeness.",
+              "silks": "decide-or-remove-rbrv-conjure-binfmt-policy",
+              "commit": "3021242"
+            }
+          ]
+        }
+      }
+    },
     "₣AR": {
       "silks": "rbw-ark-vessel-vocabulary",
       "creation_time": "260130",
@@ -1878,29 +1901,6 @@
               "text": "Create RBVR (Recipe Bottle Vessel Regime) specification.\n\nRBVR documents the vessel configuration regime—how containers are configured, built, and bound in Recipe Bottle. Currently implemented via:\n- rbrv_regime.sh validator (Tools/rbw/)\n- rbrv.env instance files in rbev-vessels/\n- Support for both binding (pre-built images) and conjuring (build from source)\n\nThis pace consolidates the pattern into authoritative spec:\n- Vessel identity and sigil requirements\n- Binding vs conjuring modes\n- Dockerfile and build context configuration\n- Multi-platform support (linux/amd64, linux/arm64, etc.)\n- binfmt policy discipline\n- Variable naming and validation patterns\n\nDepends on: ₣AT ₢ATAAA (regime inventory includes RBRR vessel regime)\nComplements: BURS (universal patterns), BURC (bash specifics)\nResult: RBVR becomes definitive spec for vessel configuration across Recipe Bottle.",
               "silks": "create-rbvr-regime-spec",
               "commit": "1dd6f05"
-            }
-          ]
-        }
-      }
-    },
-    "₣AU": {
-      "silks": "rbw-mvp-release-finalize",
-      "creation_time": "260131",
-      "status": "stabled",
-      "order": [
-        "₢AUAAA"
-      ],
-      "next_pace_seed": "AAB",
-      "paddock_file": ".claude/jjm/jjp_AU.md",
-      "paces": {
-        "₢AUAAA": {
-          "tacks": [
-            {
-              "ts": "260131-1214",
-              "state": "rough",
-              "text": "Evaluate RBRV_CONJURE_BINFMT_POLICY configuration option: determine whether to implement full support, stub it out, or remove it entirely. This is a decision point for MVP release readiness that affects the conjure subsystem's feature completeness.",
-              "silks": "decide-or-remove-rbrv-conjure-binfmt-policy",
-              "commit": "3021242"
             }
           ]
         }
