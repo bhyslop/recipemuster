@@ -1733,9 +1733,10 @@
         "₢ASAAA",
         "₢ASAAB",
         "₢ASAAC",
-        "₢ASAAD"
+        "₢ASAAD",
+        "₢ASAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AS.md",
       "paces": {
         "₢ASAAA": {
@@ -1779,6 +1780,17 @@
               "text": "Plan eventual Recipe Bottle System Architecture (RBSA) consolidation.\n\nRBAGS and RBS will eventually merge into RBSA. This pace establishes the integration strategy without implementing it yet.\n\nBefore starting: Think through:\n- How do RBAGS admin/GCP sections relate to RBS system sections?\n- Which RBAGS content is universal vs Google-specific?\n- How to preserve RBAGS's successful partition model in merged RBSA?\n- Naming discipline for RBSA subfiles?\n- Relationship between AXLA patterns and RBSA implementation?\n\nOutcome: Design document outlining RBSA structure, section organization, term consolidation, and implementation sequence.\n\nTo be detailed during pace execution.",
               "silks": "plan-rbsa-consolidation",
               "commit": "258bd80"
+            }
+          ]
+        },
+        "₢ASAAE": {
+          "tacks": [
+            {
+              "ts": "260131-1152",
+              "state": "rough",
+              "text": "Create BURS (Bash Utilities Regime Spec) as voicing of AXLA patterns.\n\nBURS replaces the old role of CRR for bash utility configuration. Define the regime pattern for BUK tools (buc, bud, but, buv, buw, burc, burs) using AXLA's axrg_* motifs.\n\nStructure following AXLA regime patterns established in expanded axrg_* section:\n- Variables for bash utility configuration (prefixes, paths, settings)\n- Assignment file formats (makefile, bash, JSON)\n- Validation and rendering patterns\n- Glossary with AXLA voicings\n\nReference: AXLA expanded regime section (from ₢ASAAA)\nRelated: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (naming vocabulary)\n\nResult: BURS becomes definitive regime spec for bash utilities, enabling other projects to adopt similar patterns.",
+              "silks": "create-burs-regime-spec",
+              "commit": "53452e7"
             }
           ]
         }
