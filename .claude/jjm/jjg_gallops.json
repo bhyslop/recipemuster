@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AU",
+  "next_heat_seed": "AV",
   "heats": {
     "₣AR": {
       "silks": "rbw-ark-vessel-vocabulary",
@@ -1882,6 +1882,15 @@
           ]
         }
       }
+    },
+    "₣AU": {
+      "silks": "rbw-mvp-release-finalize",
+      "creation_time": "260131",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AU.md",
+      "paces": {}
     }
   }
 }
