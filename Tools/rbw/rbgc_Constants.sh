@@ -117,6 +117,10 @@ zrbgc_kindle() {
   # Operation Prefixes
   RBGC_OP_PREFIX_GLOBAL="operations/"
 
+  # Ark Artifact Suffixes
+  RBGC_ARK_SUFFIX_IMAGE="-image"
+  RBGC_ARK_SUFFIX_ABOUT="-about"
+
   # Artifact Registry (GAR) Composition
   RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"
 
