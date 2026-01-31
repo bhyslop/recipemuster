@@ -1729,10 +1729,24 @@
       "silks": "rbw-spec-axla-coherence",
       "creation_time": "260131",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢ASAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AS.md",
-      "paces": {}
+      "paces": {
+        "₢ASAAA": {
+          "tacks": [
+            {
+              "ts": "260131-1149",
+              "state": "rough",
+              "text": "Expand AXLA's axrg_* regime terms into complete pattern documentation.\n\nCurrently AXLA defines abstract regime motifs (axrg_regime, axrg_variable, axrg_assignment, axrg_prefix) but leaves implementation patterns unexplained. CRR documents these patterns concretely but is Recipe Bottle-specific.\n\nExtract regime architecture from CRR and document as AXLA voicings of axrg_* motifs:\n- Structure of regime specifications (sections, variable tables, format requirements)\n- Glossary and mapping section patterns\n- Assignment file format (makefile, bash, JSON, etc.)\n- Validation and rendering architecture\n\nResult: AXLA becomes authoritative reference for regime pattern; specs reference AXLA rather than repeating CRR.",
+              "silks": "expand-axla-regime-section",
+              "commit": "35cc5cb"
+            }
+          ]
+        }
+      }
     }
   }
 }
