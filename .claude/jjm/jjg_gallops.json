@@ -1800,10 +1800,24 @@
       "silks": "rbw-regime-consolidation",
       "creation_time": "260131",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢ATAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AT.md",
-      "paces": {}
+      "paces": {
+        "₢ATAAA": {
+          "tacks": [
+            {
+              "ts": "260131-1154",
+              "state": "rough",
+              "text": "Comprehensive study of ALL configuration regimes in Recipe Bottle.\n\nRecipe Bottle uses multiple configuration regimes:\n- **RBRR** (RegimeRepo) — repository-level configuration\n- **RBRN** (RegimeNameplate) — service-level configuration  \n- **RBB_*** (Base regime, if exists) — core system configuration\n- **RBS_*** (Station regime, if exists) — deployment-specific configuration\n- **BUD_*** (HIDDEN — dispatch-related regime) — variables set during buk dispatch operations\n\nDiscovery tasks:\n1. Enumerate all prefixes in use (RB*, BUD_*, others?)\n2. Map each to its spec document or implementation\n3. Document what each regime controls and its lifecycle\n4. Identify overlaps, conflicts, or inconsistencies\n5. Understand BUD_ regime — what variables exist, where set, how consumed?\n\nDeliverable: Complete regime inventory with:\n- Prefix mapping\n- Variable scope and lifecycle  \n- Cross-regime dependencies\n- Naming conventions per regime\n- Gap analysis (unmapped variables, undocumented regimes)\n\nThis study enables consistent treatment of all regimes in subsequent paces.",
+              "silks": "study-all-recipe-bottle-regimes",
+              "commit": "fea73b3"
+            }
+          ]
+        }
+      }
     }
   }
 }
