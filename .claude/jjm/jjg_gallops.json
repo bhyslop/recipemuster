@@ -1887,10 +1887,24 @@
       "silks": "rbw-mvp-release-finalize",
       "creation_time": "260131",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AUAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AU.md",
-      "paces": {}
+      "paces": {
+        "₢AUAAA": {
+          "tacks": [
+            {
+              "ts": "260131-1214",
+              "state": "rough",
+              "text": "Evaluate RBRV_CONJURE_BINFMT_POLICY configuration option: determine whether to implement full support, stub it out, or remove it entirely. This is a decision point for MVP release readiness that affects the conjure subsystem's feature completeness.",
+              "silks": "decide-or-remove-rbrv-conjure-binfmt-policy",
+              "commit": "3021242"
+            }
+          ]
+        }
+      }
     }
   }
 }
