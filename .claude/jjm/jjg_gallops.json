@@ -1871,6 +1871,13 @@
         "₢ASAAC": {
           "tacks": [
             {
+              "ts": "260131-2309",
+              "state": "rough",
+              "text": "Fold RBRN (Nameplate configuration regime) into RBS as subsection.\n\n## Context\nRBRN is currently separate but is RBS's regime definition—RBS references its variables throughout (rbrn_moniker, rbrn_entry_enabled, etc.). Keeping separate creates cross-reference friction.\n\n## Pattern to follow (from ₣AR RBRV exemplar)\n\nApply the type voicing and subdocument patterns established for RBRV:\n\n1. **Upgrade RBRN types**: Replace old `crg_*` types with `rbst_*` type voicings\n2. **Parent owns anchors**: RBS defines `[[rbrn_*]]` anchors with gestalt definitions\n3. **Detail section structure**: Tables with `rbst_*` types, NOTE blocks for applicability\n4. **No redundant definitions**: Remove \"Core Term Definitions\" if present — parent owns these\n\n## Work required\n- Integrate RBRN as subsection within RBS structure\n- Add `rbst_*` mappings to RBS for any new types needed\n- Update RBRN variable voicings to use `rbst_*` types\n- Remove RBRN.adoc from lenses/ (or keep as archived reference)\n\n## Acceptance criteria\n- RBRN content merged into RBS with proper structure\n- All RBRN variables use `rbst_*` type voicings\n- No duplicate anchor definitions\n- RBS mappings include all RBRN terms",
+              "silks": "merge-rbrn-into-rbs",
+              "commit": "34e6fa2"
+            },
+            {
               "ts": "260131-1149",
               "state": "rough",
               "text": "Fold RBRN (Nameplate configuration regime) into RBS as subsection.\n\nRBRN is currently separate but is RBS's regime definition—RBS references its variables throughout (rbrn_moniker, rbrn_entry_enabled, etc.). Keeping separate creates cross-reference friction.\n\nIntegrate RBRN as subsection within RBS structure:\n- Service Configuration Regime section in RBS main document\n- Incorporates RBRN's variable definitions, constraints, term glossary\n- Maintains AXLA voicing pattern with axrg_regime and axrg_variable motifs\n- Update RBS mappings to include RBRN terms\n- Remove RBRN.adoc from lenses/ (or keep as archived reference)\n\nResult: Complete service specification in one coherent document.",
