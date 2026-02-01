@@ -38,9 +38,10 @@
         "₢ARAAE",
         "₢ARAAG",
         "₢ARAAH",
-        "₢ARAAK"
+        "₢ARAAK",
+        "₢ARAAL"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -220,6 +221,17 @@
               "text": "Extend AXLA to properly handle regime variable dimensions.\n\n## Context\nRBRV_CONJURE_PLATFORMS is a single assignment containing a space-delimited list. This differs from \"repeated\" (multiple separate assignments). Current AXLA has `axd_repeated` but regime variables need:\n- `axd_optional` — variable may be absent from regime (works for conjure/bind bifurcation)\n- `axd_list` (new?) — single assignment containing delimited list of values\n\n## Work required\n1. Review AXLA dimension terms (`axd_*`) for regime variable applicability\n2. Determine if `axd_list` or similar is needed for multi-valued single assignments\n3. Add appropriate voicings/motifs to AXLA\n4. Update RBAGS type voicings to use the new dimension patterns\n5. Update RBSRV to use proper dimension references instead of prose\n\n## Acceptance criteria\n- AXLA has clear guidance on regime variable dimensions\n- `optional` and `list` patterns are properly distinguished from `repeated`\n- RBSRV dimensions render correctly via RBAGS mappings",
               "silks": "axla-regime-dimension-voicings",
               "commit": "7e8372a"
+            }
+          ]
+        },
+        "₢ARAAL": {
+          "tacks": [
+            {
+              "ts": "260131-2235",
+              "state": "rough",
+              "text": "Simplify rbst_* type definitions to avoid duplicating AXLA.\n\n## Context\nThe rbst_* type voicings in RBAGS currently repeat constraints that are already defined in AXLA motifs (e.g., axtu_xname already says \"must start with letter, may contain...\"). The voicing should only add RB-specific subspecialization, not repeat the base motif.\n\n## Work required\n1. Review each rbst_* definition in RBAGS Type Voicings section\n2. Remove prose that duplicates AXLA motif definitions\n3. Keep only RB-specific constraints (e.g., \"1-64 characters\" for sigils, specific enum values)\n4. Ensure definitions still read coherently\n\n## Acceptance criteria\n- rbst_* definitions are concise\n- No duplication of AXLA motif prose\n- RB-specific constraints are preserved",
+              "silks": "simplify-rbst-definitions",
+              "commit": "0b962f5"
             }
           ]
         }
