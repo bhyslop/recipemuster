@@ -57,6 +57,36 @@ AXLA provides motifs for regime concepts:
 
 Specs should reference these when discussing regimes for consistency.
 
+### Type Voicing Pattern for Subdocuments
+
+**Problem**: Included subdocs (like RBSRV) need type annotations, but AXLA types (`axtu_xname`, etc.) don't resolve because parent doc lacks mappings.
+
+**Solution**: Define Recipe Bottle type voicings (`rbst_*`) that subspecialize AXLA motifs:
+
+1. **RBAGS defines type voicings** in "Type Voicings" section:
+   ```asciidoc
+   [[rbst_xname]]
+   // ⟦axl_voices axtu_xname⟧
+   {rbst_xname}::
+   Cross-context safe identifier. 1-64 characters...
+   ```
+
+2. **RBAGS mapping section** includes `rbst_*` mappings so subdocs can reference them.
+
+3. **Regime variable voicings** reference the subspecialized type:
+   ```asciidoc
+   [[rbrv_sigil]]
+   // ⟦axl_voices axrg_variable rbst_xname⟧
+   {rbrv_sigil}::
+   Vessel identifier...
+   ```
+
+4. **Subdocs use `rbst_*` types** in tables and prose (they resolve via parent mappings).
+
+**Voicing chain**: AXLA motif → rbst_* type → regime variable
+
+**Dimensions**: For now, use prose ("Optional", "list of..."). Future pace (₢ARAAK) will extend AXLA to properly handle regime variable dimensions.
+
 ### Toward RBSA
 
 RBAGS and RBS will eventually combine into RBSA. This heat establishes vocabulary consistency as a preparatory step. For now, regime specs (RBRV, RBRN) are standalone AsciiDoc files that non-incidentally share mappings with their parent specs.
