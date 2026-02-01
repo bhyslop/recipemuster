@@ -83,6 +83,8 @@ Specs should reference these when discussing regimes for consistency.
 
 4. **Subdocs use `rbst_*` types** in tables and prose (they resolve via parent mappings).
 
+5. **Subdocs have NO anchors** — parent doc owns all `[[anchor]]` definitions. Subdocs expand with detail (tables, constraints) but never re-define terms.
+
 **Voicing chain**: AXLA motif → rbst_* type → regime variable
 
 **Dimensions**: For now, use prose ("Optional", "list of..."). Future pace (₢ARAAK) will extend AXLA to properly handle regime variable dimensions.

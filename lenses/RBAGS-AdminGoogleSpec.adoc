@@ -230,6 +230,14 @@
 :rbhg_fatal:                 <<rbhg_fatal,STOP>>
 :rbhg_require:               <<rbhg_require,VERIFY>>
 
+// RB Subspecialized Types (rbst_* - voices AXLA type motifs with RB-specific constraints)
+:rbst_xname:                 <<rbst_xname,XName>>
+:rbst_description:           <<rbst_description,Description>>
+:rbst_image_ref:             <<rbst_image_ref,Image Reference>>
+:rbst_path:                  <<rbst_path,Path>>
+:rbst_platform_list:         <<rbst_platform_list,Platform List>>
+:rbst_binfmt_policy:         <<rbst_binfmt_policy,Binfmt Policy>>
+
 // end::mapping-section[]
 
 == Google API Engagement
@@ -1475,37 +1483,37 @@ The long-lived OAuth refresh token obtained during the authorization flow, used 
 Configuration regime for container image build specifications.
 
 [[rbrv_sigil]]
-// ⟦axl_voices axrg_variable axtu_xname⟧
+// ⟦axl_voices axrg_variable rbst_xname⟧
 {rbrv_sigil}::
 Vessel identifier; basis for directory and ark naming.
 
 [[rbrv_description]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+// ⟦axl_voices axrg_variable rbst_description⟧
 {rbrv_description}::
 Human-readable vessel documentation.
 
 [[rbrv_bind_image]]
-// ⟦axl_voices axrg_variable axtu_string axd_optional⟧
+// ⟦axl_voices axrg_variable rbst_image_ref⟧
 {rbrv_bind_image}::
 Container image reference for binding vessels.
 
 [[rbrv_conjure_dockerfile]]
-// ⟦axl_voices axrg_variable axtu_path axd_optional⟧
+// ⟦axl_voices axrg_variable rbst_path⟧
 {rbrv_conjure_dockerfile}::
 Dockerfile path for conjuring vessels.
 
 [[rbrv_conjure_bldcontext]]
-// ⟦axl_voices axrg_variable axtu_path axd_optional⟧
+// ⟦axl_voices axrg_variable rbst_path⟧
 {rbrv_conjure_bldcontext}::
 Build context directory for conjuring.
 
 [[rbrv_conjure_platforms]]
-// ⟦axl_voices axrg_variable axtu_string axd_repeated axd_optional⟧
+// ⟦axl_voices axrg_variable rbst_platform_list⟧
 {rbrv_conjure_platforms}::
 Target platform architectures for multi-platform builds.
 
 [[rbrv_conjure_binfmt_policy]]
-// ⟦axl_voices axrg_variable axtu_string axd_optional⟧
+// ⟦axl_voices axrg_variable rbst_binfmt_policy⟧
 {rbrv_conjure_binfmt_policy}::
 Qemu binary format policy for cross-platform builds.
 
@@ -1542,6 +1550,47 @@ RBEV regimes specify container execution parameters, port mappings, working dire
 These configurations are typically embedded within recipe files and container orchestration specifications.
 
 NOTE: Individual RBEV variables are actively used throughout the system but formal definition within RBAGS specification is TBD for future documentation efforts.
+
+== Type Voicings
+
+Recipe Bottle type voicings define constrained data formats used throughout the system.
+
+[[rbst_xname]]
+// ⟦axl_voices axtu_xname⟧
+{rbst_xname}::
+Cross-context safe identifier.
+1-64 characters; must start with letter; may contain letters, digits, underscores, and hyphens.
+Forms basis for directory names, monikers, and artifact naming.
+
+[[rbst_description]]
+// ⟦axl_voices axtu_string⟧
+{rbst_description}::
+Human-readable documentation text.
+0-240 characters; used for identification in logs, messages, and documentation contexts.
+
+[[rbst_image_ref]]
+// ⟦axl_voices axtu_string⟧
+{rbst_image_ref}::
+Fully-qualified container image reference.
+1-256 characters; format: `registry/namespace/image:tag` (e.g., `docker.io/library/nginx:1.27-alpine`).
+
+[[rbst_path]]
+// ⟦axl_voices axtu_path⟧
+{rbst_path}::
+File system path within the repository context.
+May be absolute or relative; typically constructed from regime variables.
+
+[[rbst_platform_list]]
+// ⟦axl_voices axtu_string⟧
+{rbst_platform_list}::
+Space-delimited list of container platform identifiers.
+Each element follows `os/arch[/variant]` format (e.g., `linux/amd64 linux/arm64 linux/arm/v7`).
+
+[[rbst_binfmt_policy]]
+// ⟦axl_voices axt_enumeration⟧
+{rbst_binfmt_policy}::
+QEMU binary format policy for cross-platform builds.
+Valid values: `allow` (permit execution), `warn` (emit warning), `forbid` (block cross-platform).
 
 == Trade Studies
 

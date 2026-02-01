@@ -4,6 +4,9 @@ This Configuration Regime specifies variables that define container image vessel
 Each {rbrv_regime} represents a distinct container image definition with its own build parameters and runtime characteristics.
 RBRV regimes are found in `rbev-vessels/*/rbrv.env` files and control the build process for specific container image types.
 
+Vessels are either *binding* (use existing upstream image) or *conjuring* (build from Dockerfile).
+The `RBRV_BIND_*` and `RBRV_CONJURE_*` variable groups are mutually exclusive.
+
 == Feature Groups
 
 === Core Vessel Identity
@@ -16,8 +19,7 @@ RBRV regimes are found in `rbev-vessels/*/rbrv.env` files and control the build 
 |Purpose|
 Unique identifier for the vessel type
 |Type|
-{axtu_xname}:
-1-64 characters
+{rbst_xname}
 |Required|
 Yes
 |Constraints|
@@ -34,8 +36,7 @@ Must form valid directory name and moniker basis
 |Purpose|
 Human-readable documentation of the vessel's purpose, role, and key characteristics
 |Type|
-{axtu_string}:
-0-240 characters
+{rbst_description}
 |Required|
 No
 |Constraints|
@@ -44,24 +45,26 @@ Used for identification in logs, messages, and documentation contexts
 
 === Binding Configuration
 
+NOTE: Variables in this group apply only to binding-type vessels and are absent in conjuring-type vessels.
+
 [cols="1,1,3"]
 |===
 |Assignment Variable |Type |Details
 
 .4+|**`RBRV_BIND_IMAGE`**
 |Purpose|
-Upstream container image reference for binding-type vessels
+Upstream container image reference
 |Type|
-{axtu_string}:
-Fully-qualified image reference (1-256 characters)
+{rbst_image_ref}
 |Required|
-When vessel type is binding
+Yes (for binding vessels)
 |Constraints|
-Format: `registry/namespace/image:tag` (e.g., `docker.io/library/nginx:1.27-alpine`)
-Present only in binding-type vessels; absent in conjuring-type vessels
+Used directly without modification
 |===
 
 === Conjuring Configuration
+
+NOTE: Variables in this group apply only to conjuring-type vessels and are absent in binding-type vessels.
 
 [cols="1,1,3"]
 |===
@@ -69,117 +72,41 @@ Present only in binding-type vessels; absent in conjuring-type vessels
 
 .4+|**`RBRV_CONJURE_DOCKERFILE`**
 |Purpose|
-Path to the Dockerfile used during the build process for conjuring-type vessels
+Path to the Dockerfile used during the build process
 |Type|
-{axtu_path}
+{rbst_path}
 |Required|
-When vessel type is conjuring
+Yes (for conjuring vessels)
 |Constraints|
-Typically constructed as `${RBRR_VESSEL_DIR}/${RBRV_SIGIL}/Dockerfile`
-Present only in conjuring-type vessels; absent in binding-type vessels
+Typically `${RBRR_VESSEL_DIR}/${RBRV_SIGIL}/Dockerfile`
 
 .4+|**`RBRV_CONJURE_BLDCONTEXT`**
 |Purpose|
-Build context directory passed to the container build engine for conjuring-type vessels
+Build context directory passed to the container build engine
 |Type|
-{axtu_path}
+{rbst_path}
 |Required|
-When vessel type is conjuring
+Yes (for conjuring vessels)
 |Constraints|
-Typically constructed as `${RBRR_VESSEL_DIR}/${RBRV_SIGIL}`
-Present only in conjuring-type vessels; absent in binding-type vessels
+Typically `${RBRR_VESSEL_DIR}/${RBRV_SIGIL}`
 
 .4+|**`RBRV_CONJURE_PLATFORMS`**
 |Purpose|
-Space-delimited target platform architectures for multi-platform builds
+Target platform architectures for multi-platform builds
 |Type|
-{axtu_string}:
-Space-separated platform identifiers
+{rbst_platform_list}
 |Required|
 No
 |Constraints|
-{axd_repeated} {axd_optional}
-Example value: `linux/amd64 linux/arm64 linux/arm/v7`
-Present only in conjuring-type vessels; absent in binding-type vessels
+Example: `linux/amd64 linux/arm64 linux/arm/v7`
 
 .4+|**`RBRV_CONJURE_BINFMT_POLICY`**
 |Purpose|
 QEMU binary format policy for multi-platform builds
 |Type|
-{axtu_string}:
-Enumerated value
+{rbst_binfmt_policy}
 |Required|
 No
 |Constraints|
-{axd_optional}
-Typical values: `allow` (permit execution) or `warn` (emit warning without blocking)
-Controls behavior of cross-architecture binary format emulation during build
-Present only in conjuring-type vessels; absent in binding-type vessels
+Controls cross-architecture binary format emulation during build
 |===
-
-== Core Term Definitions
-
-[[rbrv_regime]]
-{rbrv_regime}::
-An
-{axrg_regime}
-that defines container image build specifications and vessel configurations within the Recipe Bottle system.
-RBRV regimes are found in `rbev-vessels/*/rbrv.env` files and control the build process for specific container image types.
-Each vessel represents a distinct container image configuration with its own build parameters and runtime characteristics.
-
-[[rbrv_sigil]]
-{rbrv_sigil}::
-An
-{axrg_variable}
-that uniquely identifies a vessel type across the Recipe Bottle system.
-Forms the basis for directory structure (`rbev-vessels/{rbrv_sigil}/`), naming conventions, and moniker basis when constructing
-{rbtga_ark}
-identifiers.
-Example values: `rbev-bottle-ubuntu-test`, `rbev-sentry-ubuntu-large`, `rbev-nginx-ward`.
-
-[[rbrv_description]]
-{rbrv_description}::
-An
-{axrg_variable}
-providing human-readable documentation of the vessel's purpose, role, and key characteristics.
-Used for identification in logs, messages, and documentation contexts.
-
-[[rbrv_bind_image]]
-{rbrv_bind_image}::
-An
-{axrg_variable}
-for binding vessels that specifies the upstream container image reference to use directly without modification.
-Format: `registry/namespace/image:tag` (e.g., `docker.io/library/nginx:1.27-alpine`).
-Present only in binding-type vessels; absent in conjuring-type vessels.
-
-[[rbrv_conjure_dockerfile]]
-{rbrv_conjure_dockerfile}::
-An
-{axrg_variable}
-for conjuring vessels that specifies the path to the Dockerfile used during the build process.
-Typically constructed as `${RBRR_VESSEL_DIR}/${RBRV_SIGIL}/Dockerfile`.
-Present only in conjuring-type vessels; absent in binding-type vessels.
-
-[[rbrv_conjure_bldcontext]]
-{rbrv_conjure_bldcontext}::
-An
-{axrg_variable}
-for conjuring vessels that specifies the build context directory passed to the container build engine.
-Typically constructed as `${RBRR_VESSEL_DIR}/${RBRV_SIGIL}`.
-Present only in conjuring-type vessels; absent in binding-type vessels.
-
-[[rbrv_conjure_platforms]]
-{rbrv_conjure_platforms}::
-An
-{axrg_variable}
-for conjuring vessels that specifies space-delimited target platform architectures for multi-platform builds.
-Example value: `linux/amd64 linux/arm64 linux/arm/v7`.
-Present only in conjuring-type vessels; absent in binding-type vessels.
-
-[[rbrv_conjure_binfmt_policy]]
-{rbrv_conjure_binfmt_policy}::
-An
-{axrg_variable}
-for conjuring vessels that specifies the qemu binary format policy for multi-platform builds.
-Typical values: `allow` (permit execution) or `warn` (emit warning without blocking).
-Controls behavior of cross-architecture binary format emulation during build.
