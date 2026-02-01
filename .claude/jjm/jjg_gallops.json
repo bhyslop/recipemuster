@@ -1836,13 +1836,14 @@
       "creation_time": "260131",
       "status": "stabled",
       "order": [
+        "₢ASAAG",
         "₢ASAAD",
         "₢ASAAA",
         "₢ASAAB",
         "₢ASAAC",
         "₢ASAAF"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AS.md",
       "paces": {
         "₢ASAAA": {
@@ -1897,6 +1898,17 @@
               "text": "Move all regime variable detail, except for 1-sentence anchor descriptions, from anchor/definition blocks to the detail document subsection. This consolidates detailed regime variable documentation into a dedicated subsection while keeping anchors concise reference points.",
               "silks": "move-regime-vars-to-detail-subsection",
               "commit": "5093cbe"
+            }
+          ]
+        },
+        "₢ASAAG": {
+          "tacks": [
+            {
+              "ts": "260131-2309",
+              "state": "rough",
+              "text": "Determine voicing pattern for Google-specific types in regime variables.\n\n## Context\nRBRV uses `rbst_*` types that subspecialize AXLA universal types (`axtu_*`). But RBRR/RBRA/RBRP regime variables reference Google-specific types (`axtg_project_id`, `axtg_region`, `axtg_service_account`, etc.).\n\n## Question to resolve\nShould regime variables with Google types:\n- (A) Voice `axtg_*` directly — they're already specific enough\n- (B) Voice `rbst_*` subspecializations — e.g., `rbst_depot_project_id` voices `axtg_project_id`\n\n## Considerations\n- `axtg_*` types ARE already subspecializations of universal types\n- Adding `rbst_*` layer may be unnecessary indirection\n- BUT: `rbst_*` allows RB-specific constraints (naming conventions, validation rules)\n- Consistency with RBRV pattern vs pragmatic simplicity\n\n## Acceptance criteria\n- Decision documented in ₣AS paddock\n- Pattern guidance for regime specs using Google types\n- Update RBAGS voicings if needed",
+              "silks": "decide-google-type-voicing-pattern",
+              "commit": "e120b6d"
             }
           ]
         }
