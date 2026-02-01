@@ -205,6 +205,13 @@
         "₢ARAAJ": {
           "tacks": [
             {
+              "ts": "260131-2357",
+              "state": "complete",
+              "text": "Resolve AXLA type reference pattern for included detail documents.\n\n## Context\nRBSRV-RegimeVessel.adoc uses `{axtu_xname}`, `{axrg_variable}` etc. in definition text and table cells, but these don't resolve because RBAGS lacks AXLA mappings. This is a design gap.\n\n## Questions to resolve\n1. Should detail docs (like RBSRV) reference AXLA types at all?\n2. If yes: add AXLA mappings to parent doc, or create new \"subconstraint\" pattern?\n3. If no: use plain text and accept loss of semantic linkage?\n\n## Acceptance criteria\n- Decision documented in paddock\n- RBSRV fixed to match chosen pattern\n- Pattern guidance added for future regime detail specs",
+              "silks": "resolve-axla-detail-doc-pattern",
+              "commit": "3265447"
+            },
+            {
               "ts": "260131-1255",
               "state": "rough",
               "text": "Resolve AXLA type reference pattern for included detail documents.\n\n## Context\nRBSRV-RegimeVessel.adoc uses `{axtu_xname}`, `{axrg_variable}` etc. in definition text and table cells, but these don't resolve because RBAGS lacks AXLA mappings. This is a design gap.\n\n## Questions to resolve\n1. Should detail docs (like RBSRV) reference AXLA types at all?\n2. If yes: add AXLA mappings to parent doc, or create new \"subconstraint\" pattern?\n3. If no: use plain text and accept loss of semantic linkage?\n\n## Acceptance criteria\n- Decision documented in paddock\n- RBSRV fixed to match chosen pattern\n- Pattern guidance added for future regime detail specs",
