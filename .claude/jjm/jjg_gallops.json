@@ -37,9 +37,10 @@
         "₢ARAAD",
         "₢ARAAE",
         "₢ARAAG",
-        "₢ARAAH"
+        "₢ARAAH",
+        "₢ARAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -208,6 +209,17 @@
               "text": "Resolve AXLA type reference pattern for included detail documents.\n\n## Context\nRBSRV-RegimeVessel.adoc uses `{axtu_xname}`, `{axrg_variable}` etc. in definition text and table cells, but these don't resolve because RBAGS lacks AXLA mappings. This is a design gap.\n\n## Questions to resolve\n1. Should detail docs (like RBSRV) reference AXLA types at all?\n2. If yes: add AXLA mappings to parent doc, or create new \"subconstraint\" pattern?\n3. If no: use plain text and accept loss of semantic linkage?\n\n## Acceptance criteria\n- Decision documented in paddock\n- RBSRV fixed to match chosen pattern\n- Pattern guidance added for future regime detail specs",
               "silks": "resolve-axla-detail-doc-pattern",
               "commit": "e34ec4f"
+            }
+          ]
+        },
+        "₢ARAAK": {
+          "tacks": [
+            {
+              "ts": "260131-2231",
+              "state": "rough",
+              "text": "Extend AXLA to properly handle regime variable dimensions.\n\n## Context\nRBRV_CONJURE_PLATFORMS is a single assignment containing a space-delimited list. This differs from \"repeated\" (multiple separate assignments). Current AXLA has `axd_repeated` but regime variables need:\n- `axd_optional` — variable may be absent from regime (works for conjure/bind bifurcation)\n- `axd_list` (new?) — single assignment containing delimited list of values\n\n## Work required\n1. Review AXLA dimension terms (`axd_*`) for regime variable applicability\n2. Determine if `axd_list` or similar is needed for multi-valued single assignments\n3. Add appropriate voicings/motifs to AXLA\n4. Update RBAGS type voicings to use the new dimension patterns\n5. Update RBSRV to use proper dimension references instead of prose\n\n## Acceptance criteria\n- AXLA has clear guidance on regime variable dimensions\n- `optional` and `list` patterns are properly distinguished from `repeated`\n- RBSRV dimensions render correctly via RBAGS mappings",
+              "silks": "axla-regime-dimension-voicings",
+              "commit": "7e8372a"
             }
           ]
         }
