@@ -1937,9 +1937,10 @@
         "₢ATAAB",
         "₢ATAAC",
         "₢ATAAD",
-        "₢ATAAE"
+        "₢ATAAE",
+        "₢ATAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -2015,6 +2016,17 @@
               "text": "Process fresh RBRV-RegimeVessel.adoc document: normalize formatting, validate concept model links, integrate into lens library and update supporting specs (RBAGS, RBRN, RBRR) with new vessel regime terminology.",
               "silks": "process-rbrv-regime-vessel-spec",
               "commit": "ebe0a8c"
+            }
+          ]
+        },
+        "₢ATAAF": {
+          "tacks": [
+            {
+              "ts": "260201-1953",
+              "state": "rough",
+              "text": "Audit RBRR regime for unused/legacy variables from GitHub Container Registry era.\n\nBackground\n\nRBRR originally targeted GitHub Container Registry (GHCR). The project has since moved to Google Artifact Registry (GAR). Some RBRR variables may be vestigial.\n\nSuspect variables (from RBRR-RegimeRepo.adoc and rbrr_regime.sh)\n\n- RBRR_REGISTRY_SERVER — generic registry server (GHCR era?)\n- RBRR_REGISTRY_OWNER — GitHub username/org\n- RBRR_REGISTRY_NAME — GitHub repo name\n- RBRR_GITHUB_PAT_ENV — GitHub credentials file\n\nVariables that appear GAR-native\n\n- RBRR_GAR_REPOSITORY — GAR repository name\n- RBRR_DEPOT_PROJECT_ID — GCP project (but also see RBGD_GAR_PROJECT_ID overlap)\n- RBRR_GCP_REGION — GCP region (but also see RBGD_GAR_LOCATION overlap)\n\nTasks\n\n1. Grep for each RBRR_REGISTRY_* and RBRR_GITHUB_* variable usage\n2. Determine if any are still referenced in active code paths\n3. Check for RBGD/RBRR overlap (DEPOT_PROJECT_ID vs GAR_PROJECT_ID, GCP_REGION vs GAR_LOCATION)\n4. Propose which to remove vs consolidate\n5. Update RBRR-RegimeRepo.adoc to remove stale documentation\n6. Update rbrr_regime.sh validation if variables are removed\n\nAcceptance\n\n- Clear inventory of which RBRR variables are live vs dead\n- Spec changes proposed (separate pace for actual removal)",
+              "silks": "audit-rbrr-legacy-variables",
+              "commit": "82d2a17"
             }
           ]
         }
