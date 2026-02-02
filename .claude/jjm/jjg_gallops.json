@@ -39,9 +39,10 @@
         "₢ARAAG",
         "₢ARAAH",
         "₢ARAAK",
-        "₢ARAAL"
+        "₢ARAAL",
+        "₢ARAAM"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -274,6 +275,17 @@
               "text": "Simplify rbst_* type definitions to avoid duplicating AXLA.\n\n## Context\nThe rbst_* type voicings in RBAGS currently repeat constraints that are already defined in AXLA motifs (e.g., axtu_xname already says \"must start with letter, may contain...\"). The voicing should only add RB-specific subspecialization, not repeat the base motif.\n\n## Work required\n1. Review each rbst_* definition in RBAGS Type Voicings section\n2. Remove prose that duplicates AXLA motif definitions\n3. Keep only RB-specific constraints (e.g., \"1-64 characters\" for sigils, specific enum values)\n4. Ensure definitions still read coherently\n\n## Acceptance criteria\n- rbst_* definitions are concise\n- No duplication of AXLA motif prose\n- RB-specific constraints are preserved",
               "silks": "simplify-rbst-definitions",
               "commit": "0b962f5"
+            }
+          ]
+        },
+        "₢ARAAM": {
+          "tacks": [
+            {
+              "ts": "260201-2123",
+              "state": "rough",
+              "text": "Review GAR delete operation now that ARKs exist. Delete may need to function on a whole ark rather than just a subimage. Evaluate whether image_delete should be ark-aware or if a separate ark_delete operation is needed. Consider implications for RBSID spec and rbga_ArtifactRegistry.sh implementation.",
+              "silks": "gar-delete-ark-cleanup",
+              "commit": "fa9f910"
             }
           ]
         }
