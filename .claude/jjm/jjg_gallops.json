@@ -122,6 +122,13 @@
         "₢ARAAD": {
           "tacks": [
             {
+              "ts": "260201-2031",
+              "state": "complete",
+              "text": "Replace RBRN image tag pairs with single ark reference pattern.\n\n## Current state\nNameplate uses separate variables:\n- RBRN_SENTRY_MONIKER + RBRN_SENTRY_IMAGE_TAG\n- RBRN_BOTTLE_MONIKER + RBRN_BOTTLE_IMAGE_TAG\n\n## Target state\nSingle ark reference:\n- RBRN_SENTRY_ARK = moniker:ark_stamp\n- RBRN_BOTTLE_ARK = moniker:ark_stamp\n\nRuntime code appends -image or -about suffix using RBGC constants.\n\n## Breaking change — burn the bridges\nThis is explicitly a breaking change. There is NO backwards compatibility path. Old nameplate files will not work. This is intentional — we embrace the new nameplate nature fully.\n\n## Files to update\n- lenses/RBRN-RegimeNameplate.adoc — update spec to define new variables, remove old\n- Tools/rbw/rbrn_*.env — update all assignment files to new pattern\n- Grep for RBRN_.*_IMAGE_TAG and RBRN_.*_MONIKER to find consuming code\n\n## Verification\n- Nameplate validation still works (if validation exists)\n- Document any code that needs updating for follow-on paces",
+              "silks": "evolve-rbrn-ark-reference",
+              "commit": "ce8ec22"
+            },
+            {
               "ts": "260130-0803",
               "state": "rough",
               "text": "Replace RBRN image tag pairs with single ark reference pattern.\n\n## Current state\nNameplate uses separate variables:\n- RBRN_SENTRY_MONIKER + RBRN_SENTRY_IMAGE_TAG\n- RBRN_BOTTLE_MONIKER + RBRN_BOTTLE_IMAGE_TAG\n\n## Target state\nSingle ark reference:\n- RBRN_SENTRY_ARK = moniker:ark_stamp\n- RBRN_BOTTLE_ARK = moniker:ark_stamp\n\nRuntime code appends -image or -about suffix using RBGC constants.\n\n## Breaking change — burn the bridges\nThis is explicitly a breaking change. There is NO backwards compatibility path. Old nameplate files will not work. This is intentional — we embrace the new nameplate nature fully.\n\n## Files to update\n- lenses/RBRN-RegimeNameplate.adoc — update spec to define new variables, remove old\n- Tools/rbw/rbrn_*.env — update all assignment files to new pattern\n- Grep for RBRN_.*_IMAGE_TAG and RBRN_.*_MONIKER to find consuming code\n\n## Verification\n- Nameplate validation still works (if validation exists)\n- Document any code that needs updating for follow-on paces",
