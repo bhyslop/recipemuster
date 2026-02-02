@@ -14,6 +14,16 @@ serves as the single source of truth for container artifacts.
 This guide explains the setup sequence and ongoing operational patterns.
 Most of what follows happens once; the final sections describe day-to-day work.
 
+== Core Concepts
+
+{at_recipe_bottle} contains workloads safely.
+A _vessel_ defines what to build--a specification for a container workload.
+An {rbtga_ark} is the built result: the immutable artifact produced from that vessel.
+Multiple {rbtga_ark_s} can exist for a single vessel, each with its own build timestamp and provenance.
+
+Each {rbtga_ark} carries strong pedigree information including SBOMs and build metadata.
+Organizations verify these attestations before deploying.
+
 == Depots and Roles
 
 A
