@@ -147,6 +147,13 @@
         "₢ARAAE": {
           "tacks": [
             {
+              "ts": "260201-2033",
+              "state": "complete",
+              "text": "Update RBS-Specification.adoc to remove term_ prefix from anchors.\n\n## Current state\nRBS uses old anchor pattern:\n  :rbrn_moniker:  <<term_rbrn_moniker,RBRN_MONIKER>>\n\n## Target state\nModern MCM pattern (matches AXLA):\n  :rbrn_moniker:  <<rbrn_moniker,RBRN_MONIKER>>\n\n## Scope\n- Update all mapping entries to remove term_ prefix from anchor references\n- Update all anchor definitions [[term_xyz]] → [[xyz]]\n- Verify all internal cross-references still resolve\n\n## Cross-document references\nNo concern here — when RBS was originally written, there were no cross-document references to its anchors. The term_ prefix was local convention only.\n\n## Verification\n- Document renders correctly (if tooling available)\n- All links resolve (no broken anchors) — grep for [[term_ to ensure none remain\n- Pattern matches MCM-MetaConceptModel.adoc and AXLA-Lexicon.adoc",
+              "silks": "modernize-rbs-anchors",
+              "commit": "58026de"
+            },
+            {
               "ts": "260130-0803",
               "state": "rough",
               "text": "Update RBS-Specification.adoc to remove term_ prefix from anchors.\n\n## Current state\nRBS uses old anchor pattern:\n  :rbrn_moniker:  <<term_rbrn_moniker,RBRN_MONIKER>>\n\n## Target state\nModern MCM pattern (matches AXLA):\n  :rbrn_moniker:  <<rbrn_moniker,RBRN_MONIKER>>\n\n## Scope\n- Update all mapping entries to remove term_ prefix from anchor references\n- Update all anchor definitions [[term_xyz]] → [[xyz]]\n- Verify all internal cross-references still resolve\n\n## Cross-document references\nNo concern here — when RBS was originally written, there were no cross-document references to its anchors. The term_ prefix was local convention only.\n\n## Verification\n- Document renders correctly (if tooling available)\n- All links resolve (no broken anchors) — grep for [[term_ to ensure none remain\n- Pattern matches MCM-MetaConceptModel.adoc and AXLA-Lexicon.adoc",
