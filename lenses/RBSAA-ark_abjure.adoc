@@ -8,7 +8,7 @@ using the Docker Registry HTTP API V2 implemented by
 An
 {rbtga_ark}
 is the coherent unit of a Recipe Bottle build: a paired set of artifacts sharing a common
-{rbtga_ark_stamp}
+{rbtga_consecration}
 but distinguished by suffix.
 The
 {rbtga_ark_image}
@@ -25,19 +25,19 @@ abjures an ark:
 // ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}
-`«INPUT_MONIKER»` provided as first argument
+`«INPUT_VESSEL»` provided as first argument
 .. {rbbc_require}
-`«INPUT_ARK_STAMP»` provided as second argument
+`«INPUT_CONSECRATION»` provided as second argument
 .. {rbbc_fatal}
-if moniker missing: "Moniker parameter required"
+if vessel missing: "Vessel parameter required"
 .. {rbbc_fatal}
-if ark stamp missing: "Ark stamp parameter required"
+if consecration missing: "Consecration parameter required"
 
-. *Validate Ark Stamp Format*:
+. *Validate Consecration Format*:
 .. {rbbc_require}
-`«INPUT_ARK_STAMP»` matches pattern `YYYYMMDDTHHMMSSZ` or similar timestamp format
+`«INPUT_CONSECRATION»` matches pattern `YYYYMMDDTHHMMSSZ` or similar timestamp format
 .. {rbbc_fatal}
-if malformed: "Ark stamp format invalid"
+if malformed: "Consecration format invalid"
 
 // ⟦axs_behavior⟧
 . *Authenticate as
@@ -57,22 +57,22 @@ if malformed: "Ark stamp format invalid"
 
 . *Construct Ark Tags*:
 .. {rbbc_store}
-`«IMAGE_TAG»` as `«INPUT_MONIKER»:«INPUT_ARK_STAMP»-image`
+`«IMAGE_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-image`
 .. {rbbc_store}
-`«ABOUT_TAG»` as `«INPUT_MONIKER»:«INPUT_ARK_STAMP»-about`
+`«ABOUT_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-about`
 
 . *Verify Ark Existence*:
 .. {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: HEAD manifests] for `«IMAGE_TAG»`:
 ... method: `HEAD`
-... endpoint: `«REGISTRY_BASE»/«INPUT_MONIKER»/manifests/«INPUT_ARK_STAMP»-image`
+... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-image`
 ... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 ... header: `Accept: application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json`
 .. {rbbc_store}
 `«IMAGE_EXISTS»` as true if HTTP 200, false if HTTP 404
 .. {rbbc_call}
 same HEAD request for `«ABOUT_TAG»`:
-... endpoint: `«REGISTRY_BASE»/«INPUT_MONIKER»/manifests/«INPUT_ARK_STAMP»-about`
+... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-about`
 .. {rbbc_store}
 `«ABOUT_EXISTS»` as true if HTTP 200, false if HTTP 404
 
@@ -91,7 +91,7 @@ which artifact exists and which is missing
 . *Confirm Abjuration*:
 .. Unless `--force` flag provided:
 ... {rbbc_show}
-"Will abjure ark «INPUT_MONIKER»/«INPUT_ARK_STAMP»:"
+"Will abjure ark «INPUT_VESSEL»/«INPUT_CONSECRATION»:"
 ... For each artifact in `«ARTIFACTS_TO_DELETE»`:
 .... {rbbc_show}
 `  - «TAG»`
@@ -107,7 +107,7 @@ if declined: "Abjuration cancelled"
 ... {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#deleting-tags[Docker Registry API: DELETE manifests] with:
 .... method: `DELETE`
-.... endpoint: `«REGISTRY_BASE»/«INPUT_MONIKER»/manifests/«INPUT_ARK_STAMP»-image`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-image`
 .... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 ... {rbbc_require}
 HTTP 202 (Accepted) or 204 (No Content) response
@@ -119,7 +119,7 @@ if delete fails: "Failed to delete -image artifact (HTTP «STATUS_CODE»)"
 ... {rbbc_call}
 Docker Registry API: DELETE manifests with:
 .... method: `DELETE`
-.... endpoint: `«REGISTRY_BASE»/«INPUT_MONIKER»/manifests/«INPUT_ARK_STAMP»-about`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-about`
 .... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 ... {rbbc_require}
 HTTP 202 (Accepted) or 204 (No Content) response
@@ -129,7 +129,7 @@ if delete fails: "Failed to delete -about artifact (HTTP «STATUS_CODE»)"
 // ⟦axs_outputs⟧
 . *Display Results*:
 .. {rbbc_show}
-"Ark abjured: «INPUT_MONIKER»/«INPUT_ARK_STAMP»"
+"Ark abjured: «INPUT_VESSEL»/«INPUT_CONSECRATION»"
 .. For each deleted artifact:
 ... {rbbc_show}
 `  - «TAG» deleted`

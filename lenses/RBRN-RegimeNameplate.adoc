@@ -100,15 +100,18 @@ Yes
 Must be either "docker" or "podman"
 |===
 
-=== Container Image Configuration
+=== Ark Reference Configuration
+
+Ark references identify which vessel consecration to deploy.
+At runtime, these resolve against `RBRR_GAR_REPOSITORY` to form complete image paths.
 
 [cols="1,1,3"]
 |===
 |Assignment Variable |Attribute |Details
 
-.4+|**`RBRN_SENTRY_MONIKER`**
+.4+|**`RBRN_SENTRY_VESSEL`**
 |Purpose|
-Image moniker for
+Vessel identifier for
 {at_sentry_image}
 |Type|
 {crg_atom_fqin}:
@@ -117,9 +120,20 @@ Image moniker for
 Yes
 |Constraints|
 
-.4+|**`RBRN_BOTTLE_MONIKER`**
+.4+|**`RBRN_SENTRY_CONSECRATION`**
 |Purpose|
-Image moniker for
+Consecration timestamp for
+{at_sentry_image}
+|Type|
+{crg_atom_fqin}:
+1-128 characters
+|Required|
+Yes
+|Constraints|
+
+.4+|**`RBRN_BOTTLE_VESSEL`**
+|Purpose|
+Vessel identifier for
 {at_bottle_image}
 |Type|
 {crg_atom_fqin}:
@@ -128,20 +142,9 @@ Image moniker for
 Yes
 |Constraints|
 
-.4+|**`RBRN_SENTRY_IMAGE_TAG`**
+.4+|**`RBRN_BOTTLE_CONSECRATION`**
 |Purpose|
-Version tag for
-{at_sentry_image}
-|Type|
-{crg_atom_fqin}:
-1-128 characters
-|Required|
-Yes
-|Constraints|
-
-.4+|**`RBRN_BOTTLE_IMAGE_TAG`**
-|Purpose|
-Version tag for
+Consecration timestamp for
 {at_bottle_image}
 |Type|
 {crg_atom_fqin}:

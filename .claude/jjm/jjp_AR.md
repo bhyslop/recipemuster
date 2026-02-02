@@ -22,14 +22,19 @@ Vessel (RBRV) → [conjure/build] → Ark → [deploy via Nameplate] → Contain
 
 ### Ark Definition
 
-An **ark** is a precise built vessel — one of potentially several differing only by timestamp (ark_stamp). It comprises:
-- `{moniker}:{ark_stamp}-image` — the container image
-- `{moniker}:{ark_stamp}-about` — the build provenance/metadata
+An **ark** is a precise built vessel — one of potentially several differing only by **consecration** (timestamp marking when the vessel was consecrated into existence). It comprises:
+- `{vessel}:{consecration}-image` — the container image
+- `{vessel}:{consecration}-about` — the build provenance/metadata
+
+**Terminology:**
+- **Vessel** — what to build (the design/template, e.g., `rbev-sentry-ubuntu-large`)
+- **Consecration** — which build (the timestamp, e.g., `20240115T123456Z`)
+- **Ark** — the coherent result pair (vessel:consecration → image + about artifacts)
 
 The ark is NOT a regime (no assignment file). It is a **bridging artifact** that:
-- Is **produced** by building a vessel
-- Is **stored** in the container registry
-- Is **consumed/selected** by nameplates
+- Is **produced** by conjuring/building a vessel
+- Is **stored** in the container registry (under `RBRR_GAR_REPOSITORY`)
+- Is **consumed/selected** by nameplates via `RBRN_*_VESSEL` and `RBRN_*_CONSECRATION` variables
 
 ### Vessel Tagging Convention
 
@@ -102,7 +107,7 @@ RBAGS and RBS will eventually combine into RBSA. This heat establishes vocabular
 - `Tools/buk/vov_veiled/BURS-BashUtilityRegimeSpec.adoc` — [TO CREATE] Modern bash regime spec
 - `Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc` — Modern concept model patterns
 - `Tools/cmk/vov_veiled/AXLA-Lexicon.adoc` — Axial lexicon (regime/format motifs)
-- `Tools/rbw/rbgc_Constants.sh` — GCP constants (needs ark suffix constants)
+- `Tools/rbw/rbgc_Constants.sh` — GCP constants (has `RBGC_ARK_SUFFIX_IMAGE`, `RBGC_ARK_SUFFIX_ABOUT`, `RBGC_GAR_HOST_SUFFIX`)
 - `rbev-vessels/*/rbrv.env` — Vessel assignment files
 - `Tools/rbw/rbrn_*.env` — Nameplate assignment files
 

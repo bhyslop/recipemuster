@@ -69,10 +69,10 @@ rbrn_render() {
   printf "%-30s %s\n" "RBRN_RUNTIME" "${RBRN_RUNTIME:-<not set>}"
 
   # Container Image Configuration
-  printf "%-30s %s\n" "RBRN_SENTRY_MONIKER" "${RBRN_SENTRY_MONIKER:-<not set>}"
-  printf "%-30s %s\n" "RBRN_BOTTLE_MONIKER" "${RBRN_BOTTLE_MONIKER:-<not set>}"
-  printf "%-30s %s\n" "RBRN_SENTRY_IMAGE_TAG" "${RBRN_SENTRY_IMAGE_TAG:-<not set>}"
-  printf "%-30s %s\n" "RBRN_BOTTLE_IMAGE_TAG" "${RBRN_BOTTLE_IMAGE_TAG:-<not set>}"
+  printf "%-30s %s\n" "RBRN_SENTRY_VESSEL" "${RBRN_SENTRY_VESSEL:-<not set>}"
+  printf "%-30s %s\n" "RBRN_BOTTLE_VESSEL" "${RBRN_BOTTLE_VESSEL:-<not set>}"
+  printf "%-30s %s\n" "RBRN_SENTRY_CONSECRATION" "${RBRN_SENTRY_CONSECRATION:-<not set>}"
+  printf "%-30s %s\n" "RBRN_BOTTLE_CONSECRATION" "${RBRN_BOTTLE_CONSECRATION:-<not set>}"
 
   # Entry Service Configuration
   printf "%-30s %s\n" "RBRN_ENTRY_ENABLED" "${RBRN_ENTRY_ENABLED:-<not set>}"
@@ -126,20 +126,20 @@ ${ZBUC_YELLOW}Core Service Identity${ZBUC_RESET}
 
 ${ZBUC_YELLOW}Container Image Configuration${ZBUC_RESET}
 
-  ${ZBUC_GREEN}RBRN_SENTRY_MONIKER${ZBUC_RESET}
-    Image moniker for Sentry Image
+  ${ZBUC_GREEN}RBRN_SENTRY_VESSEL${ZBUC_RESET}
+    Vessel identifier for Sentry Image
     Type: fqin (1-128 chars), Required: Yes
 
-  ${ZBUC_GREEN}RBRN_BOTTLE_MONIKER${ZBUC_RESET}
-    Image moniker for Bottle Image
+  ${ZBUC_GREEN}RBRN_BOTTLE_VESSEL${ZBUC_RESET}
+    Vessel identifier for Bottle Image
     Type: fqin (1-128 chars), Required: Yes
 
-  ${ZBUC_GREEN}RBRN_SENTRY_IMAGE_TAG${ZBUC_RESET}
-    Version tag for Sentry Image
+  ${ZBUC_GREEN}RBRN_SENTRY_CONSECRATION${ZBUC_RESET}
+    Consecration tag for Sentry Image
     Type: fqin (1-128 chars), Required: Yes
 
-  ${ZBUC_GREEN}RBRN_BOTTLE_IMAGE_TAG${ZBUC_RESET}
-    Version tag for Bottle Image
+  ${ZBUC_GREEN}RBRN_BOTTLE_CONSECRATION${ZBUC_RESET}
+    Consecration tag for Bottle Image
     Type: fqin (1-128 chars), Required: Yes
 
 ${ZBUC_YELLOW}Entry Service Configuration${ZBUC_RESET}

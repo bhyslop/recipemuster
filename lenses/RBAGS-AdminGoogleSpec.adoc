@@ -68,7 +68,7 @@
 // Recipe Bottle Term Google Ark (coherent build output unit)
 :rbtga_ark:                  <<rbtga_ark,RB Ark>>
 :rbtga_ark_s:                <<rbtga_ark,RB Arks>>
-:rbtga_ark_stamp:            <<rbtga_ark_stamp,Ark Stamp>>
+:rbtga_consecration:         <<rbtga_consecration,Consecration>>
 :rbtga_ark_image:            <<rbtga_ark_image,Ark Image Artifact>>
 :rbtga_ark_about:            <<rbtga_ark_about,Ark About Artifact>>
 
@@ -631,7 +631,7 @@ The coherent unit of a
 build output: a paired set of artifacts in the
 {rbtgi_repository}
 sharing a common
-{rbtga_ark_stamp}
+{rbtga_consecration}
 but distinguished by suffix.
 An ark comprises the
 {rbtga_ark_image}
@@ -643,14 +643,13 @@ Arks are created atomically by
 and abjured atomically by
 {rbtgo_ark_abjure}.
 
-[[rbtga_ark_stamp]]
+[[rbtga_consecration]]
 // ⟦axl_voices axtg_timestamp⟧
-{rbtga_ark_stamp}::
-The timestamp-based identifier that uniquely identifies an
-{rbtga_ark}
-within a moniker namespace.
+{rbtga_consecration}::
+The timestamp-based identifier marking when a vessel was consecrated into an
+{rbtga_ark}.
 Format: `YYYYMMDDTHHMMSSZ` or similar timestamp pattern.
-Combined with moniker to form complete artifact tags: `«MONIKER»:«ARK_STAMP»-image` and `«MONIKER»:«ARK_STAMP»-about`.
+Combined with vessel to form complete artifact tags: `«VESSEL»:«CONSECRATION»-image` and `«VESSEL»:«CONSECRATION»-about`.
 
 [[rbtga_ark_image]]
 // ⟦axl_voices axig_container_image⟧
