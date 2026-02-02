@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AV",
+  "next_heat_seed": "AW",
   "heats": {
     "₣AU": {
       "silks": "rbw-mvp-release-finalize",
@@ -2045,6 +2045,15 @@
           ]
         }
       }
+    },
+    "₣AV": {
+      "silks": "rbw-implement-gar-mirroring",
+      "creation_time": "260201",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AV.md",
+      "paces": {}
     }
   }
 }
