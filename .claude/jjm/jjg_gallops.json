@@ -197,6 +197,13 @@
         "₢ARAAH": {
           "tacks": [
             {
+              "ts": "260201-2059",
+              "state": "abandoned",
+              "text": "Superseded by ₣AT regime consolidation work:\n- ₢ATAAB (rename-bus-to-busa) \n- ₢ATAAC (expand-busa-regime-vocabulary)\n\nThe vision evolved: instead of standalone BURS spec, we expand BUSA to be the complete BUK concept model with integrated regime vocabulary.",
+              "silks": "create-burs-regime-spec",
+              "commit": "9e95936"
+            },
+            {
               "ts": "260130-0804",
               "state": "rough",
               "text": "Create BURS-BashUtilityRegimeSpec.adoc — modernized regime definition for bash config systems.\n\n## Purpose\nReplace the old CRR-ConfigRegimeRequirements.adoc (makefile-centric) with a modern bash-focused regime specification. Full excision of makefile patterns — that era is gone.\n\n## Location\nTools/buk/vov_veiled/BURS-BashUtilityRegimeSpec.adoc (veiled, travels with BUK)\n\n## Content approach\n- Read MCM-MetaConceptModel.adoc for document patterns\n- Read AXLA-Lexicon.adoc for regime/format motifs (axrg_*, axf_*)\n- Study BURC as the most recent regime style — use as pattern\n\n## Key changes from CRR\n- Remove all makefile patterns (include, :=, etc.)\n- Focus on bash .env assignment files ({axf_bash})\n- Add AXLA voicings for regime concepts\n- Modern MCM anchor patterns (no term_ prefix)\n- Reference axrg_regime, axrg_variable, axrg_assignment, axrg_prefix motifs\n\n## Scope control\nThis is the formal specification document only. It does NOT include:\n- Updating existing regime files to match\n- Creating validator/renderer scripts\n- Migrating other regimes\n\nThose are future work (potentially separate heat).\n\n## Verification\n- Document follows MCM patterns\n- AXLA motifs are correctly referenced in annotations\n- Can serve as authoritative reference for regime authors",
