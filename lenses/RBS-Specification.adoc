@@ -27,150 +27,150 @@
 
 // Domain declaration: term_<canonical_term>
 
-:at_bottle_image:            <<term_bottle_image,Bottle Image>>
-:at_bottle_service:          <<term_bottle_service,Bottle Service>>
-:at_bottle_service_s:        <<term_bottle_service,Bottle Services>>
-:at_sessile_service:         <<term_sessile_service,Sessile Bottle Service>>
-:at_agile_service:           <<term_agile_service,Agile Bottle Service>>
-:at_workstation:             <<term_workstation,Workstation>>
-:at_workstation_p:           <<term_workstation,Workstation's>>
-:at_enclave_network:         <<term_enclave_network,Enclave Network>>
-:at_enclave_network_s:       <<term_enclave_network,Enclave Network>>
-:at_transit_network:         <<term_transit_network,Transit Network>>
-:at_moniker:                 <<term_moniker,Moniker>>
-:at_nameplate:               <<term_nameplate,Nameplate>>
-:at_nameplate_s:             <<term_nameplate,Nameplates>>
-:at_transit_network_name:    <<term_transit_network_name,Transit Network Name>>
-:at_enclave_namespace_name:  <<term_enclave_namespace_name,Enclave Namespace Name>>
-:at_enclave_network_name:    <<term_enclave_network_name,Enclave Network Name>>
-:at_sentry_image:            <<term_sentry_image,Sentry Image>>
-:at_sentry_container:        <<term_sentry_container,Sentry Container>>
-:at_sentry_container_s:      <<term_sentry_container,Sentry Containers>>
-:at_sentry_container_p:      <<term_sentry_container,Sentry Container's>>
-:at_censer_container:        <<term_censer_container,Censer Container>>
-:at_censer_container_s:      <<term_censer_container,Censer Containers>>
-:at_bottle_container:        <<term_bottle_container,Bottle Container>>
-:at_bottle_container_s:      <<term_bottle_container,Bottle Containers>>
-:at_bottle_container_p:      <<term_bottle_container,Bottle Container's>>
-:at_bottle_container_name:   <<term_bottle_container_name,Bottle Container Name>>
-:at_sentry_container_name:   <<term_sentry_container_name,Sentry Container Name>>
-:at_rbm_console:             <<term_rbm_console,RBM Console Makefile>>
-:at_rbm_config_makefile:     <<term_rbm_config_makefile,RBM Config Makefile>>
-:at_rbm_system:              <<term_rbm_system,RBM System>>
-:at_rbm_system_p:            <<term_rbm_system,RBM System's>>
-:at_rbm_secret:              <<term_rbm_secret,RBM Secret>>
-:at_rbm_secret_s:            <<term_rbm_secret,RBM Secrets>>
-:at_rbm_repo:                <<term_rbm_repo,RBM Repository>>
-:at_user_repo:               <<term_user_repo,User Repository>>
-:at_container_registry:      <<term_container_registry,Remote Container Registry>>
-:at_startup_script:          <<term_startup_script,Startup Script>>
-:at_startup_script_s:        <<term_startup_script,Startup Scripts>>
-:rbtr_consumer:              <<term_consumer,Consumer Role>>
-:rbtr_consumer_s:            <<term_consumer,Consumer Roles>>
-:rbtr_consumer_p:            <<term_consumer,Consumer Role's>>
-:at_ebpf_program:            <<term_at_ebpf_program,eBPF Program>>
-:at_stash_machine:           <<term_stash_machine,Stash Machine>>
-:at_operational_machine:     <<term_operational_machine,Operational Machine>>
+:at_bottle_image:            <<bottle_image,Bottle Image>>
+:at_bottle_service:          <<bottle_service,Bottle Service>>
+:at_bottle_service_s:        <<bottle_service,Bottle Services>>
+:at_sessile_service:         <<sessile_service,Sessile Bottle Service>>
+:at_agile_service:           <<agile_service,Agile Bottle Service>>
+:at_workstation:             <<workstation,Workstation>>
+:at_workstation_p:           <<workstation,Workstation's>>
+:at_enclave_network:         <<enclave_network,Enclave Network>>
+:at_enclave_network_s:       <<enclave_network,Enclave Network>>
+:at_transit_network:         <<transit_network,Transit Network>>
+:at_moniker:                 <<moniker,Moniker>>
+:at_nameplate:               <<nameplate,Nameplate>>
+:at_nameplate_s:             <<nameplate,Nameplates>>
+:at_transit_network_name:    <<transit_network_name,Transit Network Name>>
+:at_enclave_namespace_name:  <<enclave_namespace_name,Enclave Namespace Name>>
+:at_enclave_network_name:    <<enclave_network_name,Enclave Network Name>>
+:at_sentry_image:            <<sentry_image,Sentry Image>>
+:at_sentry_container:        <<sentry_container,Sentry Container>>
+:at_sentry_container_s:      <<sentry_container,Sentry Containers>>
+:at_sentry_container_p:      <<sentry_container,Sentry Container's>>
+:at_censer_container:        <<censer_container,Censer Container>>
+:at_censer_container_s:      <<censer_container,Censer Containers>>
+:at_bottle_container:        <<bottle_container,Bottle Container>>
+:at_bottle_container_s:      <<bottle_container,Bottle Containers>>
+:at_bottle_container_p:      <<bottle_container,Bottle Container's>>
+:at_bottle_container_name:   <<bottle_container_name,Bottle Container Name>>
+:at_sentry_container_name:   <<sentry_container_name,Sentry Container Name>>
+:at_rbm_console:             <<rbm_console,RBM Console Makefile>>
+:at_rbm_config_makefile:     <<rbm_config_makefile,RBM Config Makefile>>
+:at_rbm_system:              <<rbm_system,RBM System>>
+:at_rbm_system_p:            <<rbm_system,RBM System's>>
+:at_rbm_secret:              <<rbm_secret,RBM Secret>>
+:at_rbm_secret_s:            <<rbm_secret,RBM Secrets>>
+:at_rbm_repo:                <<rbm_repo,RBM Repository>>
+:at_user_repo:               <<user_repo,User Repository>>
+:at_container_registry:      <<container_registry,Remote Container Registry>>
+:at_startup_script:          <<startup_script,Startup Script>>
+:at_startup_script_s:        <<startup_script,Startup Scripts>>
+:rbtr_consumer:              <<consumer,Consumer Role>>
+:rbtr_consumer_s:            <<consumer,Consumer Roles>>
+:rbtr_consumer_p:            <<consumer,Consumer Role's>>
+:at_ebpf_program:            <<at_ebpf_program,eBPF Program>>
+:at_stash_machine:           <<stash_machine,Stash Machine>>
+:at_operational_machine:     <<operational_machine,Operational Machine>>
 
-:st_container:               <<term_container,Container>>
-:st_container_s:             <<term_container,Containers>>
-:st_subnet:                  <<term_subnet,Subnet>>
-:st_gateway:                 <<term_gateway,Gateway>>
-:st_dockerfile:              <<term_dockerfile,Dockerfile>>
-:st_published_image:         <<term_published_image,Published Image>>
-:st_published_image_s:       <<term_published_image,Published Images>>
-:st_image:                   <<term_image,Container Image>>
-:st_image_s:                 <<term_image,Container Images>>
-:st_image_store:             <<term_image_store,Local Image Store>>
-:st_port_map:                <<term_port_map,Port Map>>
-:st_port_map_s:              <<term_port_map,Port Maps>>
-:st_volume_mount:            <<term_volume_mount,Volume Mount>>
-:st_volume_mount_s:          <<term_volume_mount,Volume Mounts>>
+:st_container:               <<container,Container>>
+:st_container_s:             <<container,Containers>>
+:st_subnet:                  <<subnet,Subnet>>
+:st_gateway:                 <<gateway,Gateway>>
+:st_dockerfile:              <<dockerfile,Dockerfile>>
+:st_published_image:         <<published_image,Published Image>>
+:st_published_image_s:       <<published_image,Published Images>>
+:st_image:                   <<image,Container Image>>
+:st_image_s:                 <<image,Container Images>>
+:st_image_store:             <<image_store,Local Image Store>>
+:st_port_map:                <<port_map,Port Map>>
+:st_port_map_s:              <<port_map,Port Maps>>
+:st_volume_mount:            <<volume_mount,Volume Mount>>
+:st_volume_mount_s:          <<volume_mount,Volume Mounts>>
 
-:opss_sentry_start:          <<term_opss_sentry_start,Sentry Start Rule>>
-:opbs_bottle_start:          <<term_opbs_bottle_start,Sessile Bottle Start Rule>>
-:opbr_bottle_run:            <<term_opbr_bottle_run,Agile Bottle Run Rule>>
+:opss_sentry_start:          <<opss_sentry_start,Sentry Start Rule>>
+:opbs_bottle_start:          <<opbs_bottle_start,Sessile Bottle Start Rule>>
+:opbr_bottle_run:            <<opbr_bottle_run,Agile Bottle Run Rule>>
 
-:mkr_network_create:         <<term_mkr_network_create,Network Creation Sequence>>
-:mkr_sentry_run:             <<term_mkr_sentry_run,Sentry Launch Sequence>>
-:mkr_network_connect:        <<term_mkr_network_connect,Network Connection Sequence>>
-:mkr_bottle_cleanup:         <<term_mkr_bottle_cleanup,Bottle Cleanup Sequence>>
-:mkr_bottle_launch:          <<term_mkr_bottle_launch,Bottle Launch Sequence>>
-:mkr_bottle_create:          <<term_mkr_bottle_create,Bottle Create Sequence>>
-:mkr_command_exec:           <<term_mkr_command_exec,Command Execution Sequence>>
+:mkr_network_create:         <<mkr_network_create,Network Creation Sequence>>
+:mkr_sentry_run:             <<mkr_sentry_run,Sentry Launch Sequence>>
+:mkr_network_connect:        <<mkr_network_connect,Network Connection Sequence>>
+:mkr_bottle_cleanup:         <<mkr_bottle_cleanup,Bottle Cleanup Sequence>>
+:mkr_bottle_launch:          <<mkr_bottle_launch,Bottle Launch Sequence>>
+:mkr_bottle_create:          <<mkr_bottle_create,Bottle Create Sequence>>
+:mkr_command_exec:           <<mkr_command_exec,Command Execution Sequence>>
 
-:ops_rbv_check:              <<term_ops_rbv_check,RBV Check Operation>>
-:ops_rbv_mirror:             <<term_ops_rbv_mirror,RBV Mirror Operation>>
+:ops_rbv_check:              <<ops_rbv_check,RBV Check Operation>>
+:ops_rbv_mirror:             <<ops_rbv_mirror,RBV Mirror Operation>>
 
-:mkc_interface_check:        <<term_mkc_interface_check,Interface Check Clause>>
+:mkc_interface_check:        <<mkc_interface_check,Interface Check Clause>>
 
-:scr_security_config:        <<term_scr_security_config,Security Configuration Stage>>
-:scr_iptables_init:          <<term_scr_iptables_init,IPTables Initialization Sequence>>
-:scr_access_setup:           <<term_scr_access_setup,Access Control Setup Sequence>>
-:scr_port_setup:             <<term_scr_port_setup,Port Configuration Sequence>>
-:scr_dns_step:               <<term_scr_dns_step,DNS Configuration Sequence>>
+:scr_security_config:        <<scr_security_config,Security Configuration Stage>>
+:scr_iptables_init:          <<scr_iptables_init,IPTables Initialization Sequence>>
+:scr_access_setup:           <<scr_access_setup,Access Control Setup Sequence>>
+:scr_port_setup:             <<scr_port_setup,Port Configuration Sequence>>
+:scr_dns_step:               <<scr_dns_step,DNS Configuration Sequence>>
 
-:cfg_base_regime:           <<term_base_regime,Base Config Regime>>
-:cfg_base_regime_s:         <<term_base_regime,Base Config Regimes>>
-:cfg_station_regime:        <<term_station_regime,Station Config Regime>>
-:cfg_station_regime_s:      <<term_station_regime,Station Config Regimes>>
-:cfg_nameplate_regime:      <<term_nameplate_regime,Nameplate Config Regime>>
-:cfg_nameplate_regime_s:    <<term_nameplate_regime,Nameplate Config Regimes>>
-:cfg_regime_variable:       <<term_regime_variable,Config Regime Variable>>
-:cfg_regime_variable_s:     <<term_regime_variable,Config Regime Variables>>
+:cfg_base_regime:           <<base_regime,Base Config Regime>>
+:cfg_base_regime_s:         <<base_regime,Base Config Regimes>>
+:cfg_station_regime:        <<station_regime,Station Config Regime>>
+:cfg_station_regime_s:      <<station_regime,Station Config Regimes>>
+:cfg_nameplate_regime:      <<nameplate_regime,Nameplate Config Regime>>
+:cfg_nameplate_regime_s:    <<nameplate_regime,Nameplate Config Regimes>>
+:cfg_regime_variable:       <<regime_variable,Config Regime Variable>>
+:cfg_regime_variable_s:     <<regime_variable,Config Regime Variables>>
 
-:cmk_discipline:             <<term_cmk_discipline,Console Makefile Discipline>>
-:cmk_external_rule:          <<term_cmk_external_rule,External Rule>>
-:cmk_external_rule_s:        <<term_cmk_external_rule,External Rules>>
-:cmk_internal_rule:          <<term_cmk_internal_rule,Internal Rule>>
-:cmk_internal_rule_s:        <<term_cmk_internal_rule,Internal Rules>>
-:cmk_makefile:               <<term_cmk_makefile,Console Style Makefile>>
-:cmk_clause:                 <<term_cmk_clause,Makefile Clause>>
-:cmk_recipe_line:            <<term_cmk_recipe_line,Makefile Recipe Line>>
-:cmk_recipe_line_s:          <<term_cmk_recipe_line,Makefile Recipe Lines>>
-:cmk_probe_line:             <<term_cmk_probe_line,Makefile Probe Line>>
-:cmk_probe_line_s:           <<term_cmk_probe_line,Makefile Probe Lines>>
-:cmk_script:                 <<term_cmk_script,Console Support Script>>
-:cmk_script_s:               <<term_cmk_script,Console Support Scripts>>
-:cmk_script_line:            <<term_cmk_script_line,Console Script Line>>
-:cmk_script_line_s:          <<term_cmk_script_line,Console Script Lines>>
+:cmk_discipline:             <<cmk_discipline,Console Makefile Discipline>>
+:cmk_external_rule:          <<cmk_external_rule,External Rule>>
+:cmk_external_rule_s:        <<cmk_external_rule,External Rules>>
+:cmk_internal_rule:          <<cmk_internal_rule,Internal Rule>>
+:cmk_internal_rule_s:        <<cmk_internal_rule,Internal Rules>>
+:cmk_makefile:               <<cmk_makefile,Console Style Makefile>>
+:cmk_clause:                 <<cmk_clause,Makefile Clause>>
+:cmk_recipe_line:            <<cmk_recipe_line,Makefile Recipe Line>>
+:cmk_recipe_line_s:          <<cmk_recipe_line,Makefile Recipe Lines>>
+:cmk_probe_line:             <<cmk_probe_line,Makefile Probe Line>>
+:cmk_probe_line_s:           <<cmk_probe_line,Makefile Probe Lines>>
+:cmk_script:                 <<cmk_script,Console Support Script>>
+:cmk_script_s:               <<cmk_script,Console Support Scripts>>
+:cmk_script_line:            <<cmk_script_line,Console Script Line>>
+:cmk_script_line_s:          <<cmk_script_line,Console Script Lines>>
 
-:rbrr_dns_server:            <<term_rbrr_dns_server,RBRR_DNS_SERVER>>
-:rbrr_nameplate_path:        <<term_rbrr_nameplate_path,RBRR_NAMEPLATE_PATH>>
-:rbrr_registry_server:       <<term_rbrr_registry_server,RBRR_REGISTRY_SERVER>>
-:rbrr_registry_owner:        <<term_rbrr_registry_owner,RBRR_REGISTRY_OWNER>>
-:rbrr_registry_name:         <<term_rbrr_registry_name,RBRR_REGISTRY_NAME>>
-:rbrr_github_pat_env:        <<term_rbrr_github_pat_env,RBRR_GITHUB_PAT_ENV>>
-:rbrr_build_architectures:   <<term_rbrr_build_architectures,RBRR_BUILD_ARCHITECTURES>>
-:rbrr_history_dir:           <<term_rbrr_history_dir,RBRR_HISTORY_DIR>>
-:rbrr_chosen_podman_version: <<term_rbrr_chosen_podman_version,RBRR_CHOSEN_PODMAN_VERSION>>
-:rbrr_chosen_vmimage_origin: <<term_rbrr_chosen_vmimage_origin,RBRR_CHOSEN_VMIMAGE_ORIGIN>>
-:rbrr_chosen_vmimage_fqin:   <<term_rbrr_chosen_vmimage_fqin,RBRR_CHOSEN_VMIMAGE_FQIN>>
-:rbrr_chosen_vmimage_sha:    <<term_rbrr_chosen_vmimage_sha,RBRR_CHOSEN_VMIMAGE_SHA>>
-:rbrr_chosen_identity:       <<term_rbrr_chosen_identity,RBRR_CHOSEN_IDENTITY>>
-:rbrr_stash_machine:         <<term_rbrr_stash_machine,RBRR_STASH_MACHINE>>
-:rbrr_operational_machine:   <<term_rbrr_operational_machine,RBRR_OPERATIONAL_MACHINE>>
-:rbrr_crane_tar_gz:          <<term_rbrr_crane_tar_gz,RBRR_CRANE_TAR_GZ>>
+:rbrr_dns_server:            <<rbrr_dns_server,RBRR_DNS_SERVER>>
+:rbrr_nameplate_path:        <<rbrr_nameplate_path,RBRR_NAMEPLATE_PATH>>
+:rbrr_registry_server:       <<rbrr_registry_server,RBRR_REGISTRY_SERVER>>
+:rbrr_registry_owner:        <<rbrr_registry_owner,RBRR_REGISTRY_OWNER>>
+:rbrr_registry_name:         <<rbrr_registry_name,RBRR_REGISTRY_NAME>>
+:rbrr_github_pat_env:        <<rbrr_github_pat_env,RBRR_GITHUB_PAT_ENV>>
+:rbrr_build_architectures:   <<rbrr_build_architectures,RBRR_BUILD_ARCHITECTURES>>
+:rbrr_history_dir:           <<rbrr_history_dir,RBRR_HISTORY_DIR>>
+:rbrr_chosen_podman_version: <<rbrr_chosen_podman_version,RBRR_CHOSEN_PODMAN_VERSION>>
+:rbrr_chosen_vmimage_origin: <<rbrr_chosen_vmimage_origin,RBRR_CHOSEN_VMIMAGE_ORIGIN>>
+:rbrr_chosen_vmimage_fqin:   <<rbrr_chosen_vmimage_fqin,RBRR_CHOSEN_VMIMAGE_FQIN>>
+:rbrr_chosen_vmimage_sha:    <<rbrr_chosen_vmimage_sha,RBRR_CHOSEN_VMIMAGE_SHA>>
+:rbrr_chosen_identity:       <<rbrr_chosen_identity,RBRR_CHOSEN_IDENTITY>>
+:rbrr_stash_machine:         <<rbrr_stash_machine,RBRR_STASH_MACHINE>>
+:rbrr_operational_machine:   <<rbrr_operational_machine,RBRR_OPERATIONAL_MACHINE>>
+:rbrr_crane_tar_gz:          <<rbrr_crane_tar_gz,RBRR_CRANE_TAR_GZ>>
 
-:rbrn_moniker:                    <<term_rbrn_moniker,RBRN_MONIKER>>
-:rbrn_description:                <<term_rbrn_description,RBRN_DESCRIPTION>>
-:rbrn_sentry_moniker:             <<term_rbrn_sentry_moniker,RBRN_SENTRY_MONIKER>>
-:rbrn_bottle_moniker:             <<term_rbrn_bottle_moniker,RBRN_BOTTLE_MONIKER>>
-:rbrn_sentry_image_tag:           <<term_rbrn_sentry_image_tag,RBRN_SENTRY_IMAGE_TAG>>
-:rbrn_bottle_image_tag:           <<term_rbrn_bottle_image_tag,RBRN_BOTTLE_IMAGE_TAG>>
-:rbrn_entry_enabled:              <<term_rbrn_entry_enabled,RBRN_ENTRY_ENABLED>>
-:rbrn_entry_port_workstation:     <<term_rbrn_entry_port_workstation,RBRN_ENTRY_PORT_WORKSTATION>>
-:rbrn_entry_port_enclave:         <<term_rbrn_entry_port_enclave,RBRN_ENTRY_PORT_ENCLAVE>>
-:rbrn_uplink_dns_enabled:         <<term_rbrn_uplink_dns_enabled,RBRN_UPLINK_DNS_ENABLED>>
-:rbrn_uplink_access_enabled:      <<term_rbrn_uplink_access_enabled,RBRN_UPLINK_ACCESS_ENABLED>>
-:rbrn_uplink_dns_global:          <<term_rbrn_uplink_dns_global,RBRN_UPLINK_DNS_GLOBAL>>
-:rbrn_uplink_access_global:       <<term_rbrn_uplink_access_global,RBRN_UPLINK_ACCESS_GLOBAL>>
-:rbrn_uplink_allowed_cidrs:       <<term_rbrn_uplink_allowed_cidrs,RBRN_UPLINK_ALLOWED_CIDRS>>
-:rbrn_uplink_allowed_domains:     <<term_rbrn_uplink_allowed_domains,RBRN_UPLINK_ALLOWED_DOMAINS>>
-:rbrn_enclave_netmask:            <<term_rbrn_enclave_netmask,RBRN_ENCLAVE_NETMASK>>
-:rbrn_enclave_base_ip:            <<term_rbrn_enclave_base_ip,RBRN_ENCLAVE_BASE_IP>>
-:rbrn_enclave_sentry_ip:          <<term_rbrn_enclave_sentry_ip,RBRN_ENCLAVE_SENTRY_IP>>
-:rbrn_volume_mounts:              <<term_rbrn_volume_mounts,RBRN_VOLUME_MOUNTS>>
+:rbrn_moniker:                    <<rbrn_moniker,RBRN_MONIKER>>
+:rbrn_description:                <<rbrn_description,RBRN_DESCRIPTION>>
+:rbrn_sentry_moniker:             <<rbrn_sentry_moniker,RBRN_SENTRY_MONIKER>>
+:rbrn_bottle_moniker:             <<rbrn_bottle_moniker,RBRN_BOTTLE_MONIKER>>
+:rbrn_sentry_image_tag:           <<rbrn_sentry_image_tag,RBRN_SENTRY_IMAGE_TAG>>
+:rbrn_bottle_image_tag:           <<rbrn_bottle_image_tag,RBRN_BOTTLE_IMAGE_TAG>>
+:rbrn_entry_enabled:              <<rbrn_entry_enabled,RBRN_ENTRY_ENABLED>>
+:rbrn_entry_port_workstation:     <<rbrn_entry_port_workstation,RBRN_ENTRY_PORT_WORKSTATION>>
+:rbrn_entry_port_enclave:         <<rbrn_entry_port_enclave,RBRN_ENTRY_PORT_ENCLAVE>>
+:rbrn_uplink_dns_enabled:         <<rbrn_uplink_dns_enabled,RBRN_UPLINK_DNS_ENABLED>>
+:rbrn_uplink_access_enabled:      <<rbrn_uplink_access_enabled,RBRN_UPLINK_ACCESS_ENABLED>>
+:rbrn_uplink_dns_global:          <<rbrn_uplink_dns_global,RBRN_UPLINK_DNS_GLOBAL>>
+:rbrn_uplink_access_global:       <<rbrn_uplink_access_global,RBRN_UPLINK_ACCESS_GLOBAL>>
+:rbrn_uplink_allowed_cidrs:       <<rbrn_uplink_allowed_cidrs,RBRN_UPLINK_ALLOWED_CIDRS>>
+:rbrn_uplink_allowed_domains:     <<rbrn_uplink_allowed_domains,RBRN_UPLINK_ALLOWED_DOMAINS>>
+:rbrn_enclave_netmask:            <<rbrn_enclave_netmask,RBRN_ENCLAVE_NETMASK>>
+:rbrn_enclave_base_ip:            <<rbrn_enclave_base_ip,RBRN_ENCLAVE_BASE_IP>>
+:rbrn_enclave_sentry_ip:          <<rbrn_enclave_sentry_ip,RBRN_ENCLAVE_SENTRY_IP>>
+:rbrn_volume_mounts:              <<rbrn_volume_mounts,RBRN_VOLUME_MOUNTS>>
 
 // end::mapping-section[]
 
@@ -960,7 +960,7 @@ which come from the
 that defines the core configuration for the
 {at_rbm_system}.
 
-[[term_rbrr_dns_server]]
+[[rbrr_dns_server]]
 {rbrr_dns_server}:: 
 An IPv4 address (e.g., "8.8.8.8") that specifies the upstream DNS resolver for all 
 {at_bottle_service_s}.
@@ -971,7 +971,7 @@ forwards DNS queries to this address instead of the host resolver, enabling cons
 while maintaining the established security boundaries.
 If not specified, the system uses the host's resolver configuration.
 
-[[term_rbrr_nameplate_path]]
+[[rbrr_nameplate_path]]
 {rbrr_nameplate_path}:: 
 A relative path (e.g., "recipes/nameplates") that specifies the directory containing all
 {at_nameplate}
@@ -982,7 +982,7 @@ This path is resolved relative to the
 root, enabling consistent access to configuration files across different installations.
 If not specified, the system uses "nameplates" in the repository root.
 
-[[term_rbrr_registry_server]]
+[[rbrr_registry_server]]
 {rbrr_registry_server}:: 
 A fully-qualified domain name and optional port (e.g., "registry.example.com:5000") that specifies the container registry server for all
 {at_bottle_service_s}.
@@ -993,70 +993,70 @@ retrieves all
 from this registry, ensuring consistent image sourcing across the installation.
 If not specified, the system uses the default public container registry.
 
-[[term_rbrr_registry_owner]]
+[[rbrr_registry_owner]]
 {rbrr_registry_owner}::
 A GitHub username or organization name that specifies the owner of the container registry namespace where
 {st_published_image_s}
 are stored.
 
-[[term_rbrr_registry_name]]
+[[rbrr_registry_name]]
 {rbrr_registry_name}::
 A GitHub repository name that defines the repository within the container registry and forms the complete registry path when combined with
 {rbrr_registry_owner}.
 
-[[term_rbrr_github_pat_env]]
+[[rbrr_github_pat_env]]
 {rbrr_github_pat_env}::
 A file path to an environment file containing GitHub credentials for API and
 {at_container_registry}
 authentication with required RBV_USERNAME and RBV_PAT variables.
 
-[[term_rbrr_build_architectures]]
+[[rbrr_build_architectures]]
 {rbrr_build_architectures}::
 A space-separated list of platform identifiers in os/arch format that specifies target architectures for
 {st_container}
 builds.
 
-[[term_rbrr_history_dir]]
+[[rbrr_history_dir]]
 {rbrr_history_dir}::
 A relative path from the
 {at_rbm_system}
 root that specifies the local directory for storing build artifacts and history from GitHub Actions workflows.
 
-[[term_rbrr_chosen_podman_version]]
+[[rbrr_chosen_podman_version]]
 {rbrr_chosen_podman_version}::
 The user-selected Podman version (e.g., "5.5") that determines which VM image version to use for the RBM system.
 
-[[term_rbrr_chosen_vmimage_origin]]
+[[rbrr_chosen_vmimage_origin]]
 {rbrr_chosen_vmimage_origin}::
 The base container registry path (e.g., "quay.io/podman/machine-os-wsl") from which Podman VM images are sourced.
 
-[[term_rbrr_chosen_vmimage_fqin]]
+[[rbrr_chosen_vmimage_fqin]]
 {rbrr_chosen_vmimage_fqin}::
 The fully qualified image name including registry, repository, and tag that specifies the exact VM image to use.
 
-[[term_rbrr_chosen_vmimage_sha]]
+[[rbrr_chosen_vmimage_sha]]
 {rbrr_chosen_vmimage_sha}::
 The SHA256 digest of the VM image that ensures consistency and integrity across deployments.
 
-[[term_rbrr_chosen_identity]]
+[[rbrr_chosen_identity]]
 {rbrr_chosen_identity}::
 A marker indicating the configuration state or version of the RBM system deployment.
 
-[[term_rbrr_stash_machine]]
+[[rbrr_stash_machine]]
 {rbrr_stash_machine}::
 The name identifier for temporary Podman machines created for registry operations and image verification.
 
-[[term_rbrr_operational_machine]]
+[[rbrr_operational_machine]]
 {rbrr_operational_machine}::
 The name identifier for the primary Podman machine that runs bottle services in production.
 
-[[term_rbrr_crane_tar_gz]]
+[[rbrr_crane_tar_gz]]
 {rbrr_crane_tar_gz}::
 The URL for downloading the crane utility used for container registry operations and image copying.
 
 == Architecture Term Definitions
 
-[[term_bottle_image]]
+[[bottle_image]]
 {at_bottle_image}::
 A
 {st_image}
@@ -1067,7 +1067,7 @@ This image is stored in the
 and is referenced by
 {rbrn_bottle_repo_path} and {rbrn_bottle_image_tag}.
 
-[[term_bottle_service]]
+[[bottle_service]]
 {at_bottle_service}::
 A complete service instance consisting of one
 {at_sentry_container},
@@ -1077,7 +1077,7 @@ and one
 {at_bottle_container}
 working together to provide secure functionality. Each service maintains strict file system and network boundaries while enabling controlled access to resources.
 
-[[term_sessile_service]]
+[[sessile_service]]
 {at_sessile_service}::
 A
 {at_bottle_service}
@@ -1088,7 +1088,7 @@ These services maintain state and provide stable network ports while enforcing a
 {at_sentry_container}
 security constraints.
 
-[[term_agile_service]]
+[[agile_service]]
 {at_agile_service}::
 A
 {at_bottle_service}
@@ -1098,7 +1098,7 @@ for single operations, immediately removing them upon completion. This pattern s
 {st_volume_mount_s}
 with minimal network requirements.
 
-[[term_workstation]]
+[[workstation]]
 {at_workstation}::
 The local computing environment where the
 {rbtr_consumer}
@@ -1108,7 +1108,7 @@ This environment hosts all
 {at_bottle_service_s}
 and their associated networks while providing isolation from other system resources.
 
-[[term_enclave_network]]
+[[enclave_network]]
 {at_enclave_network}::
 An isolated network connecting a
 {at_bottle_container}
@@ -1121,7 +1121,7 @@ for addressing.
 This network enforces strict security policies and provides the only network communication path for the
 {at_bottle_container}.
 
-[[term_transit_network]]
+[[transit_network]]
 {at_transit_network}::
 The network interface that connects a
 {at_sentry_container}
@@ -1130,7 +1130,7 @@ to the
 network resources.
 This network enables controlled external communication while maintaining security boundaries.
 
-[[term_moniker]]
+[[moniker]]
 {at_moniker}::
 A unique identifier specified by
 {rbrn_moniker}
@@ -1140,7 +1140,7 @@ instance within the
 {at_rbm_system}.
 This identifier forms the basis for container names and network identifiers.
 
-[[term_nameplate]]
+[[nameplate]]
 {at_nameplate}::
 A configuration file stored in
 {rbrr_nameplate_path}
@@ -1151,7 +1151,7 @@ Each nameplate provides a complete service specification that the
 {at_rbm_system}
 can instantiate.
 
-[[term_transit_network_name]]
+[[transit_network_name]]
 {at_transit_network_name}::
 The unique network name formed by appending `-uplink` to the service's
 {rbrn_moniker}.
@@ -1163,7 +1163,7 @@ to identify the external-facing network for each
 {at_sentry_container}
 within the container runtime environment.
 
-[[term_enclave_network_name]]
+[[enclave_network_name]]
 {at_enclave_network_name}::
 The unique network name formed by appending `-enclave` to the service's
 {rbrn_moniker}.
@@ -1174,7 +1174,7 @@ uses this consistent naming pattern `${rbrn_moniker}-enclave` to identify the is
 to its
 {at_sentry_container}.
 
-[[term_enclave_namespace_name]]
+[[enclave_namespace_name]]
 {at_enclave_namespace_name}::
 The
 // TODO enclave, transit, network, but then namespace: this all needs a term rebalance... but later
@@ -1189,7 +1189,7 @@ uses this consistent naming pattern `${rbrn_moniker}-namespace` to identify the 
 to its
 {at_sentry_container}.
 
-[[term_sentry_image]]
+[[sentry_image]]
 {at_sentry_image}::
 A
 {st_image}
@@ -1200,7 +1200,7 @@ This image is stored in the
 and is referenced by
 {rbrn_sentry_repo_path} and {rbrn_sentry_image_tag}.
 
-[[term_sentry_container]]
+[[sentry_container]]
 {at_sentry_container}::
 A privileged container that enforces network security policies for a
 {at_bottle_service}.
@@ -1208,7 +1208,7 @@ It connects to both
 {at_transit_network} and {at_enclave_network},
 controlling all network traffic and providing DNS services.
 
-[[term_censer_container]]
+[[censer_container]]
 {at_censer_container}::
 A privileged container using a minimal image that establishes and configures the network namespace before the
 {at_bottle_container}
@@ -1220,7 +1220,7 @@ then shares this pre-configured namespace with the
 via `--net=container:censer`.
 This ensures security policies are enforced from the first packet.
 
-[[term_bottle_container]]
+[[bottle_container]]
 {at_bottle_container}::
 A container that runs the actual service functionality, inheriting its network namespace from the
 {at_censer_container}.
@@ -1231,7 +1231,7 @@ and configured with specific
 All external communication flows through its associated
 {at_sentry_container}.
 
-[[term_bottle_container_name]]
+[[bottle_container_name]]
 {at_bottle_container_name}::
 The 
 {at_bottle_container}
@@ -1245,7 +1245,7 @@ to identify all
 {at_bottle_container_s}
 within the container runtime environment, enabling reliable service management and status tracking.
 
-[[term_sentry_container_name]]
+[[sentry_container_name]]
 {at_sentry_container_name}::
 The unique container name formed by appending `-sentry` to the service's
 {rbrn_moniker}.
@@ -1257,7 +1257,7 @@ to identify all
 {at_sentry_container_s}
 within the container runtime environment, enabling reliable security policy enforcement and network management.
 
-[[term_rbm_console]]
+[[rbm_console]]
 {at_rbm_console}::
 The primary
 {cmk_makefile}
@@ -1269,7 +1269,7 @@ for managing
 {at_bottle_service_s}
 throughout their lifecycle.
 
-[[term_rbm_config_makefile]]
+[[rbm_config_makefile]]
 {at_rbm_config_makefile}::
 A
 {cmk_makefile}
@@ -1280,14 +1280,14 @@ including
 and environment-specific parameters.
 This file typically remains outside version control to protect sensitive data.
 
-[[term_rbm_system]]
+[[rbm_system]]
 {at_rbm_system}::
 The complete Recipe Bottle Makefile system, consisting of the
 {at_rbm_console}, {at_rbm_config_makefile}, {at_nameplate_s},
 and associated tools.
 This system enables secure deployment and management of containerized services.
 
-[[term_rbm_secret]]
+[[rbm_secret]]
 {at_rbm_secret}::
 A sensitive configuration value needed by the
 {at_rbm_system},
@@ -1297,7 +1297,7 @@ These secrets are managed through the
 {at_rbm_config_makefile}
 and kept separate from version control.
 
-[[term_rbm_repo]]
+[[rbm_repo]]
 {at_rbm_repo}::
 The version control repository containing the
 {at_rbm_system}
@@ -1306,7 +1306,7 @@ implementation, including the
 and documentation.
 This repository serves as the authoritative source for system configuration.
 
-[[term_user_repo]]
+[[user_repo]]
 {at_user_repo}::
 A version control repository owned by a
 {rbtr_consumer}.
@@ -1328,12 +1328,12 @@ compliant with the
 to define
 {at_bottle_service_s}.
 
-[[term_container_registry]]
+[[container_registry]]
 {at_container_registry}:: 
 A service that stores and provides access to 
 {st_published_image_s}.
 
-[[term_startup_script]]
+[[startup_script]]
 {at_startup_script}::
 A
 {cmk_script}
@@ -1341,7 +1341,7 @@ that performs initialization and configuration tasks when starting a
 {at_bottle_service}.
 These scripts follow strict requirements for execution environment, logging, and error handling.
 
-[[term_consumer]]
+[[consumer]]
 {rbtr_consumer}::
 An individual operating the
 {at_rbm_system}
@@ -1352,7 +1352,7 @@ control service configuration through
 {at_nameplate_s}
 and interact with services through controlled interfaces, distinct from infrastructure operators who build and deploy the system.
 
-[[term_at_ebpf_program]]
+[[at_ebpf_program]]
 {at_ebpf_program}::
 An eBPF TC (Traffic Control) filter program attached to the
 {at_bottle_container_p}
@@ -1365,7 +1365,7 @@ network traffic routes through its associated
 {at_sentry_container}
 without requiring network namespace manipulation or special container privileges.
 
-[[term_base_regime]]
+[[base_regime]]
 {cfg_base_regime}::
 A
 {crg_regime}
@@ -1377,7 +1377,7 @@ contains exactly one Base Config makefile that exports these variables, establis
 {at_rbm_system}
 installation.
 
-[[term_station_regime]]
+[[station_regime]]
 {cfg_station_regime}::
 A
 {crg_regime}
@@ -1387,7 +1387,7 @@ Each
 {rbtr_consumer}
 maintains their own Station Config makefile outside version control, containing sensitive data like authentication tokens required for their specific installation.
 
-[[term_nameplate_regime]]
+[[nameplate_regime]]
 {cfg_nameplate_regime}::
 A
 {crg_regime}
@@ -1399,7 +1399,7 @@ has exactly one
 {at_nameplate}
 makefile that exports these variables, establishing that service's precise behavior and constraints.
 
-[[term_regime_variable]]
+[[regime_variable]]
 {cfg_regime_variable}::
 A
 {crg_variable}
@@ -1412,12 +1412,12 @@ validates required
 {cfg_regime_variable_s}
 using the ': ${VARIABLE:?}' pattern before use.
 
-[[term_stash_machine]]
+[[stash_machine]]
 {at_stash_machine}::
 A temporary Podman virtual machine created with crane installed for performing registry queries and image operations.
 These machines are removed after completing their specific tasks.
 
-[[term_operational_machine]]
+[[operational_machine]]
 {at_operational_machine}::
 The persistent Podman virtual machine that hosts all bottle services and their associated containers in the RBM system.
 
@@ -1447,59 +1447,59 @@ has exactly one
 {at_nameplate}
 makefile that exports these variables, establishing that service's precise behavior and constraints.
 
-[[term_rbrn_moniker]]
+[[rbrn_moniker]]
 {rbrn_moniker}::
 A unique identifier that distinguishes this
 {at_bottle_service}
 from others in the
 {at_rbm_system}.
 
-[[term_rbrn_description]]
+[[rbrn_description]]
 {rbrn_description}::
 A human-readable explanation of the
 {at_bottle_service_p}
 purpose and function.
 
-[[term_rbrn_sentry_moniker]]
+[[rbrn_sentry_moniker]]
 {rbrn_sentry_moniker}::
 The image moniker identifier for the
 {at_sentry_image}
 in the
 {at_container_registry}.
 
-[[term_rbrn_bottle_moniker]]
+[[rbrn_bottle_moniker]]
 {rbrn_bottle_moniker}::
 The image moniker identifier for the
 {at_bottle_image}
 in the
 {at_container_registry}.
 
-[[term_rbrn_sentry_image_tag]]
+[[rbrn_sentry_image_tag]]
 {rbrn_sentry_image_tag}::
 The version identifier for the
 {at_sentry_image}
 to be deployed.
 
-[[term_rbrn_bottle_image_tag]]
+[[rbrn_bottle_image_tag]]
 {rbrn_bottle_image_tag}::
 The version identifier for the
 {at_bottle_image}
 to be deployed.
 
-[[term_rbrn_entry_enabled]]
+[[rbrn_entry_enabled]]
 {rbrn_entry_enabled}::
 A flag indicating whether the
 {at_bottle_service}
 should expose network ports through the
 {at_sentry_container}.
 
-[[term_rbrn_entry_port_workstation]]
+[[rbrn_entry_port_workstation]]
 {rbrn_entry_port_workstation}::
 The network port number exposed on the
 {at_transit_network}
 when port service is enabled.
 
-[[term_rbrn_entry_port_enclave]]
+[[rbrn_entry_port_enclave]]
 {rbrn_entry_port_enclave}::
 The network port number used for communication between
 {at_sentry_container}
@@ -1508,7 +1508,7 @@ and
 across the
 {at_enclave_network}.
 
-[[term_rbrn_uplink_dns_enabled]]
+[[rbrn_uplink_dns_enabled]]
 {rbrn_uplink_dns_enabled}::
 A flag determining whether the
 {at_sentry_container}
@@ -1524,13 +1524,13 @@ processes DNS queries according to either unrestricted rules
 or domain-specific controls
 ({rbrn_uplink_allowed_domains}).
 
-[[term_rbrn_uplink_access_enabled]]
+[[rbrn_uplink_access_enabled]]
 {rbrn_uplink_access_enabled}::
 A flag indicating whether protected IP access through the
 {at_transit_network}
 is enabled.
 
-[[term_rbrn_uplink_dns_global]]
+[[rbrn_uplink_dns_global]]
 {rbrn_uplink_dns_global}::
 A flag determining how the
 {at_sentry_container}
@@ -1549,34 +1549,34 @@ Has no effect if
 {rbrn_uplink_dns_enabled}
 is false.
 
-[[term_rbrn_uplink_access_global]]
+[[rbrn_uplink_access_global]]
 {rbrn_uplink_access_global}::
 A flag indicating whether unrestricted IP access through the
 {at_transit_network}
 is allowed.
 
-[[term_rbrn_uplink_allowed_cidrs]]
+[[rbrn_uplink_allowed_cidrs]]
 {rbrn_uplink_allowed_cidrs}::
 A space-separated list of CIDR ranges that define allowed outbound traffic through the
 {at_transit_network}.
 
-[[term_rbrn_uplink_allowed_domains]]
+[[rbrn_uplink_allowed_domains]]
 {rbrn_uplink_allowed_domains}::
 A space-separated list of domain names that are allowed for DNS resolution through the
 {at_sentry_container}.
 
-[[term_rbrn_enclave_netmask]]
+[[rbrn_enclave_netmask]]
 {rbrn_enclave_netmask}::
 The network mask width defining the size of address space available for the
 {at_enclave_network}.
 
-[[term_rbrn_enclave_base_ip]]
+[[rbrn_enclave_base_ip]]
 {rbrn_enclave_base_ip}::
 The base IPv4 address that establishes the starting point of the
 {at_enclave_network}
 range.
 
-[[term_rbrn_enclave_sentry_ip]]
+[[rbrn_enclave_sentry_ip]]
 {rbrn_enclave_sentry_ip}::
 The permanent gateway IP address (typically .0.1) assigned to the
 {at_sentry_container}
@@ -1587,18 +1587,18 @@ after removing the initial auto-assigned address. This address serves as the gat
 on the
 {at_enclave_network}.
 
-[[term_rbrn_volume_mounts]]
+[[rbrn_volume_mounts]]
 {rbrn_volume_mounts}::
 A space-separated list of Podman volume mount arguments that define filesystem access for the
 {at_bottle_container}.
 
 == Console Makefile Elements
 
-[[term_cmk_console_discipline]]
+[[cmk_console_discipline]]
 {cmk_discipline}::
 A systematic approach to automation that defines patterns for creating reliable, maintainable build systems through careful rule organization, strict error handling, and standardized operational sequencing. This discipline establishes conventions for multi-pass construction, naming patterns, and the relationships between makefiles, scripts, and configuration files.
 
-[[term_cmk_makefile]]
+[[cmk_makefile]]
 {cmk_makefile}::
 A specific makefile implementation that follows the
 {cmk_discipline},
@@ -1606,7 +1606,7 @@ expressing concrete automation through properly structured
 {cmk_external_rule_s}, {cmk_internal_rule_s}, and {cmk_script_s}
 while maintaining prescribed error handling and operational patterns.
 
-[[term_cmk_clause]]
+[[cmk_clause]]
 {cmk_clause}::
 A standardized sequence of commands or expressions within a
 {cmk_makefile}
@@ -1615,7 +1615,7 @@ that provides consistent behavior across different rules and contexts while main
 patterns.
 These clauses can be invoked directly, used with $(call), or incorporated into larger recipes.
 
-[[term_cmk_recipe_line]]
+[[cmk_recipe_line]]
 {cmk_recipe_line}::
 A single command line within a
 {cmk_external_rule} or {cmk_internal_rule}
@@ -1623,14 +1623,14 @@ that follows
 {cmk_discipline}
 conventions, expressing one concrete bash action.
 
-[[term_cmk_probe_line]]
+[[cmk_probe_line]]
 {cmk_probe_line}::
 A single makefile recipe line that executes a precise command within a container context.
 Recipe lines form the verification backbone of the
 {cmk_discipline},
 ensuring proper state progression through operational sequences.
 
-[[term_cmk_internal_rule]]
+[[cmk_internal_rule]]
 {cmk_internal_rule}::
 A makefile rule that coordinates implementation details within the
 {cmk_discipline},
@@ -1638,13 +1638,13 @@ called by other
 {cmk_external_rule_s} or {cmk_internal_rule_s}
 to perform specific operational sequences.
 
-[[term_cmk_external_rule]]
+[[cmk_external_rule]]
 {cmk_external_rule}::
 A makefile rule that provides primary interface points for
 {rbtr_consumer}
 use, typically invoked by shell scripts or direct user commands to initiate major system operations.
 
-[[term_cmk_script]]
+[[cmk_script]]
 {cmk_script}::
 A bash script that exists as an integral part of a
 {cmk_discipline}
@@ -1652,7 +1652,7 @@ installation, executed under control of
 {cmk_external_rule_s} or {cmk_internal_rule_s}
 and sharing the makefile's operational context and constraints.
 
-[[term_cmk_script_line]]
+[[cmk_script_line]]
 {cmk_script_line}::
 One or more command lines within a
 {cmk_script}
@@ -1663,22 +1663,22 @@ Any failure in a script line results in a non-zero exit status.
 
 == Supporting Infrastructure Definitions
 
-[[term_container]]
+[[container]]
 {st_container}:: 
 A lightweight, standalone executable package containing all necessary components to run a service.
 
-[[term_dockerfile]]
+[[dockerfile]]
 {st_dockerfile}:: 
 A specification file that defines how to build a 
 {st_image}.
 
-[[term_image]] 
+[[image]] 
 {st_image}:: 
 A template used to create 
 {st_container}
 instances, containing the service's code, runtime, and dependencies.
 
-[[term_image_store]]
+[[image_store]]
 {st_image_store}:: 
 The local storage location for 
 {st_image_s}
@@ -1686,40 +1686,40 @@ on the
 {rbtr_consumer_p}
 {at_workstation}.
 
-[[term_published_image]]
+[[published_image]]
 {st_published_image}:: 
 A 
 {st_image}
 that has been uploaded to a 
 {at_container_registry}.
 
-[[term_port_map]]
+[[port_map]]
 {st_port_map}:: 
 A specification of how network ports should be exposed and mapped between 
 {st_container_s}
 and the host system.
 
-[[term_volume_mount]]
+[[volume_mount]]
 {st_volume_mount}:: 
 A configuration that allows 
 {st_container_s}
 to access specified portions of the host filesystem.
 
-[[term_subnet]]
+[[subnet]]
 {st_subnet}:: 
 A logically visible subdivision of IP network address space.
 
-[[term_gateway]]
+[[gateway]]
 {st_gateway}:: 
 A network node that serves as the entry point between two networks.
 
 == Startup Operation Definitions
 
-[[term_opss_sentry_start]]
+[[opss_sentry_start]]
 {opss_sentry_start}:: 
 The complete ordered set of operations required to establish a new {at_bottle_service}, consisting of distinct phases that must be validated before progression.
 
-[[term_scr_security_config]]
+[[scr_security_config]]
 {scr_security_config}:: 
 {cmk_script}
 executed by the
@@ -1729,24 +1729,24 @@ upon the
 that establishes security controls through
 {scr_iptables_init}, {scr_access_setup}, {scr_port_setup}, and the {scr_dns_step}.
 
-[[term_mkr_network_create]]
+[[mkr_network_create]]
 {mkr_network_create}:: 
 Operation that establishes both the
 {at_transit_network} and {at_enclave_network}
 using podman network primitives.
 
-[[term_mkr_sentry_run]]
+[[mkr_sentry_run]]
 {mkr_sentry_run}:: 
 Operation that launches the
 {at_sentry_container}
 with required privileges and initial network configuration.
 
-[[term_mkr_network_connect]]
+[[mkr_network_connect]]
 {mkr_network_connect}:: 
 Operation that establishes the connection between the
 {at_sentry_container} and {at_enclave_network}.
 
-[[term_mkr_bottle_cleanup]]
+[[mkr_bottle_cleanup]]
 {mkr_bottle_cleanup}:: 
 A sequence of
 {cmk_recipe_line_s}
@@ -1755,7 +1755,7 @@ that ensures complete removal of any existing
 matching the service name.
 The sequence guarantees clean system state through progressively stronger actions.
 
-[[term_mkr_bottle_launch]]
+[[mkr_bottle_launch]]
 {mkr_bottle_launch}:: 
 A sequence of
 {cmk_recipe_line_s}
@@ -1763,7 +1763,7 @@ that establishes a persistent
 {at_bottle_container}
 with appropriate service configuration and restart behavior.
 
-[[term_mkr_bottle_create]]
+[[mkr_bottle_create]]
 {mkr_bottle_create}:: 
 A sequence of
 {cmk_recipe_line_s}
@@ -1771,7 +1771,7 @@ that establishes a transient
 {at_bottle_container}
 configured for single-operation execution and automatic cleanup.
 
-[[term_mkr_command_exec]]
+[[mkr_command_exec]]
 {mkr_command_exec}:: 
 A sequence of
 {cmk_recipe_line_s}
@@ -1779,7 +1779,7 @@ that executes the requested operation within a transient
 {at_bottle_container}
 while preserving command status.
 
-[[term_mkc_interface_check]]
+[[mkc_interface_check]]
 {mkc_interface_check}::
 A
 {cmk_clause}
@@ -1797,34 +1797,34 @@ endef
 
 This clause generates precise validation commands for network interface readiness probes, accepting an interface name and timeout duration as parameters.
 
-[[term_ops_rbv_check]]
+[[ops_rbv_check]]
 {ops_rbv_check}::
 An operation that queries upstream registries to compare the latest available VM image SHA against the currently configured SHA.
 Reports discrepancies without modifying configuration files.
 
-[[term_ops_rbv_mirror]]
+[[ops_rbv_mirror]]
 {ops_rbv_mirror}::
 An operation that copies the chosen VM image from upstream to the user's GHCR, verifying SHA consistency throughout.
 Ensures podman machine init retrieves the same image whether from upstream or the mirror.
 
-[[term_scr_iptables_init]]
+[[scr_iptables_init]]
 {scr_iptables_init}:: 
 Operation that establishes the basic IPTables rules and chains within a {at_sentry_container}.
 
-[[term_scr_access_setup]]
+[[scr_access_setup]]
 {scr_access_setup}:: 
 Operation configuring network access controls including NAT rules and connection tracking.
 
-[[term_scr_port_setup]]
+[[scr_port_setup]]
 {scr_port_setup}:: 
 Operation establishing port mapping and service exposure rules within a
 {at_sentry_container}.
 
-[[term_scr_dns_step]]
+[[scr_dns_step]]
 {scr_dns_step}:: 
 Operation configuring DNS resolution controls and domain access restrictions.
 
-[[term_opbs_bottle_start]]
+[[opbs_bottle_start]]
 {opbs_bottle_start}:: 
 An
 {cmk_external_rule}
@@ -1833,7 +1833,7 @@ that establishes a new
 through controlled container instantiation and configuration.
 The rule coordinates container lifecycle, network attachment, and volume management to ensure proper service isolation and accessibility.
 
-[[term_opbr_bottle_run]]
+[[opbr_bottle_run]]
 {opbr_bottle_run}:: 
 An
 {cmk_external_rule}
