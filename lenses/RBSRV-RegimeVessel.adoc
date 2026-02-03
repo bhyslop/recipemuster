@@ -15,7 +15,7 @@ The `RBRV_BIND_*` and `RBRV_CONJURE_*` variable groups are mutually exclusive.
 |===
 |Assignment Variable |Type |Details
 
-.4+|**`RBRV_SIGIL`**
+.4+|**`{rbrv_sigil}`**
 |Purpose|
 Unique identifier for the vessel type
 |Type|
@@ -32,7 +32,7 @@ Must form valid directory name and moniker basis
 |===
 |Assignment Variable |Type |Details
 
-.4+|**`RBRV_DESCRIPTION`**
+.4+|**`{rbrv_description}`**
 |Purpose|
 Human-readable documentation of the vessel's purpose, role, and key characteristics
 |Type|
@@ -51,7 +51,7 @@ NOTE: Variables in this group apply only to binding-type vessels and are absent 
 |===
 |Assignment Variable |Type |Details
 
-.4+|**`RBRV_BIND_IMAGE`**
+.4+|**`{rbrv_bind_image}`**
 |Purpose|
 Upstream container image reference
 |Type|
@@ -70,7 +70,7 @@ NOTE: Variables in this group apply only to conjuring-type vessels and are absen
 |===
 |Assignment Variable |Type |Details
 
-.4+|**`RBRV_CONJURE_DOCKERFILE`**
+.4+|**`{rbrv_conjure_dockerfile}`**
 |Purpose|
 Path to the Dockerfile used during the build process
 |Type|
@@ -80,7 +80,7 @@ Yes (for conjuring vessels)
 |Constraints|
 Typically `${RBRR_VESSEL_DIR}/${RBRV_SIGIL}/Dockerfile`
 
-.4+|**`RBRV_CONJURE_BLDCONTEXT`**
+.4+|**`{rbrv_conjure_bldcontext}`**
 |Purpose|
 Build context directory passed to the container build engine
 |Type|
@@ -90,7 +90,7 @@ Yes (for conjuring vessels)
 |Constraints|
 Typically `${RBRR_VESSEL_DIR}/${RBRV_SIGIL}`
 
-.4+|**`RBRV_CONJURE_PLATFORMS`**
+.4+|**`{rbrv_conjure_platforms}`**
 |Purpose|
 Target platform architectures for multi-platform builds
 |Type|
@@ -100,7 +100,7 @@ No
 |Constraints|
 Example: `linux/amd64 linux/arm64 linux/arm/v7`
 
-.4+|**`RBRV_CONJURE_BINFMT_POLICY`**
+.4+|**`{rbrv_conjure_binfmt_policy}`**
 |Purpose|
 QEMU binary format policy for multi-platform builds
 |Type|
