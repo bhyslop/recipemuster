@@ -6,9 +6,10 @@
       "creation_time": "260131",
       "status": "stabled",
       "order": [
-        "₢AUAAA"
+        "₢AUAAA",
+        "₢AUAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AU.md",
       "paces": {
         "₢AUAAA": {
@@ -19,6 +20,17 @@
               "text": "Evaluate RBRV_CONJURE_BINFMT_POLICY configuration option: determine whether to implement full support, stub it out, or remove it entirely. This is a decision point for MVP release readiness that affects the conjure subsystem's feature completeness.",
               "silks": "decide-or-remove-rbrv-conjure-binfmt-policy",
               "commit": "3021242"
+            }
+          ]
+        },
+        "₢AUAAB": {
+          "tacks": [
+            {
+              "ts": "260202-1944",
+              "state": "rough",
+              "text": "Remember planned directory shuffles for future MVP release work:\n\n1. Move AsciiDoc files to a veiled directory (following precedent from other kits like `Tools/cmk/vov_veiled/`, `Tools/jjk/vov_veiled/`, etc.)\n\n2. Rename `Tools/rbw/` directory to `Tools/rbk/` (Recipe Bottle Kit)\n\nThis pace is a placeholder to capture the intent. Actual execution may require coordination with other heats touching these files.",
+              "silks": "directory-restructure-prep",
+              "commit": "c9b0df7"
             }
           ]
         }
