@@ -1482,37 +1482,37 @@ The long-lived OAuth refresh token obtained during the authorization flow, used 
 Configuration regime for container image build specifications.
 
 [[rbrv_sigil]]
-// ⟦axl_voices axrg_variable rbst_xname⟧
+// ⟦axl_voices axrg_variable rbst_xname axd_required⟧
 {rbrv_sigil}::
 Vessel identifier; basis for directory and ark naming.
 
 [[rbrv_description]]
-// ⟦axl_voices axrg_variable rbst_description⟧
+// ⟦axl_voices axrg_variable rbst_description axd_optional⟧
 {rbrv_description}::
 Human-readable vessel documentation.
 
 [[rbrv_bind_image]]
-// ⟦axl_voices axrg_variable rbst_image_ref⟧
+// ⟦axl_voices axrg_variable rbst_image_ref axd_optional⟧
 {rbrv_bind_image}::
 Container image reference for binding vessels.
 
 [[rbrv_conjure_dockerfile]]
-// ⟦axl_voices axrg_variable rbst_path⟧
+// ⟦axl_voices axrg_variable rbst_path axd_optional⟧
 {rbrv_conjure_dockerfile}::
 Dockerfile path for conjuring vessels.
 
 [[rbrv_conjure_bldcontext]]
-// ⟦axl_voices axrg_variable rbst_path⟧
+// ⟦axl_voices axrg_variable rbst_path axd_optional⟧
 {rbrv_conjure_bldcontext}::
 Build context directory for conjuring.
 
 [[rbrv_conjure_platforms]]
-// ⟦axl_voices axrg_variable rbst_platform_list⟧
+// ⟦axl_voices axrg_variable rbst_platform_list axd_optional⟧
 {rbrv_conjure_platforms}::
 Target platform architectures for multi-platform builds.
 
 [[rbrv_conjure_binfmt_policy]]
-// ⟦axl_voices axrg_variable rbst_binfmt_policy⟧
+// ⟦axl_voices axrg_variable rbst_binfmt_policy axd_optional⟧
 {rbrv_conjure_binfmt_policy}::
 Qemu binary format policy for cross-platform builds.
 
@@ -1580,7 +1580,7 @@ File system path within the repository context.
 May be absolute or relative; typically constructed from regime variables.
 
 [[rbst_platform_list]]
-// ⟦axl_voices axtu_string⟧
+// ⟦axl_voices axtu_string axd_list⟧
 {rbst_platform_list}::
 Space-delimited list of container platform identifiers.
 Each element follows `os/arch[/variant]` format (e.g., `linux/amd64 linux/arm64 linux/arm/v7`).

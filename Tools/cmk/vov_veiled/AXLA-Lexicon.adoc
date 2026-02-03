@@ -63,6 +63,7 @@
 :axd_defaulted:                       <<axd_defaulted,Defaulted>>
 :axd_none:                            <<axd_none,None>>
 :axd_repeated:                        <<axd_repeated,Repeated>>
+:axd_list:                            <<axd_list,List>>
 :axd_field_number:                    <<axd_field_number,Field Number>>
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_endianness:                      <<axd_endianness,Endianness>>
@@ -1545,11 +1546,12 @@ A characteristic modifier that qualifies a member or argument in an
 {axl_motif}
 in annotation format: `// ⟦axl_voices primary dimension ...⟧`
 
-=== Presence Dimensions
+=== Value Dimensions
 
 These
 {axd_dimension_s}
-apply across most serialization formats.
+describe value characteristics and apply across most serialization formats.
+They encompass both presence semantics (required, optional, defaulted) and structural semantics (repeated, list).
 
 [[axd_required]]
 {axd_required}::
@@ -1570,7 +1572,7 @@ Some formats (protobuf) conflate nullable with optional.
 
 [[axd_none]]
 {axd_none}::
-Presence dimension indicating a section or field is explicitly declared as having no content.
+Section or field is explicitly declared as having no content.
 Distinguishes intentional absence from omission.
 Use in section annotations to mark compliance with required sections that have no applicable content.
 
@@ -1583,6 +1585,16 @@ Voicing should specify the default value in prose.
 {axd_repeated}::
 May have multiple values (array, list, repeated field).
 Absence typically means empty collection, not error.
+Applies to usage sites (arguments, members) where multiple occurrences are permitted.
+
+[[axd_list]]
+{axd_list}::
+Single value containing delimited multiple values.
+Distinct from
+{axd_repeated}
+which indicates multiple separate occurrences.
+Applies to type voicings where the type intrinsically represents a delimited collection.
+Voicing should specify the delimiter in prose (space-delimited, comma-delimited, etc.).
 
 === Format-Specific Dimensions
 
@@ -1681,6 +1693,7 @@ usage:
 |{axd_nullable}     |required  |implicit  |recommend |context   |recommend
 |{axd_defaulted}    |optional  |required  |optional  |optional  |optional
 |{axd_repeated}     |recommend |required  |recommend |recommend |recommend
+|{axd_list}         |optional  |optional  |optional  |optional  |optional
 |{axd_field_number} |forbidden |required  |forbidden |forbidden |forbidden
 |{axd_wire_type}    |forbidden |required  |forbidden |forbidden |forbidden
 |{axd_endianness}   |forbidden |forbidden |forbidden |required  |forbidden
@@ -2264,3 +2277,78 @@ or
 
 * {axd_defaulted}
 if a default value applies
+
+=== Type Voicing Qualification
+
+Voicing a type (subspecializing
+{axt_*}
+or
+{axtu_*}
+motifs) constrains dimension usage.
+
+Valid dimensions:
+
+* {axd_list}
+— type intrinsically represents delimited collection
+
+Invalid dimensions:
+
+* {axd_required},
+{axd_optional},
+{axd_defaulted}
+— presence applies to usage sites, not type definitions
+
+* {axd_repeated}
+— repetition applies to usage sites, not type definitions
+
+=== Regime Specification Completeness
+
+Voicing as
+{axrg_regime}
+requires:
+
+* Format dimension (
+{axf_bash},
+{axf_makefile},
+{axf_json},
+etc.) specifying how assignments are carried
+
+=== Regime Variable Qualification
+
+Voicing as
+{axrg_variable}
+requires:
+
+* Type in annotation (base type motif or type voicing)
+
+* At minimum
+{axd_required}
+or
+{axd_optional}
+
+* {axd_defaulted}
+if a default value applies
+
+Valid dimensions:
+
+* {axd_required}
+— variable must have assignment
+
+* {axd_optional}
+— variable may be absent
+
+* {axd_defaulted}
+— fallback value when absent
+
+* {axd_list}
+— inherited from type voicing; variable's type is a delimited collection
+
+Invalid dimensions:
+
+* {axd_repeated}
+— regime files use unique keys; multiple assignments of same variable not permitted
+
+* {axd_nullable}
+— format-dependent;
+{axf_bash}
+has no null distinct from empty string
