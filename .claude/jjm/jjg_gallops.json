@@ -52,9 +52,10 @@
         "₢ARAAH",
         "₢ARAAK",
         "₢ARAAL",
-        "₢ARAAM"
+        "₢ARAAM",
+        "₢ARAAN"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -298,6 +299,17 @@
               "text": "Review GAR delete operation now that ARKs exist. Delete may need to function on a whole ark rather than just a subimage. Evaluate whether image_delete should be ark-aware or if a separate ark_delete operation is needed. Consider implications for RBSID spec and rbga_ArtifactRegistry.sh implementation.",
               "silks": "gar-delete-ark-cleanup",
               "commit": "fa9f910"
+            }
+          ]
+        },
+        "₢ARAAN": {
+          "tacks": [
+            {
+              "ts": "260202-2001",
+              "state": "rough",
+              "text": "Design the AXLA pattern for regime specification subdocuments.\n\nProblem: RBAGS is massive. Subdocs like RBSRV should hold details while RBAGS holds gestalts.\nCurrent approach (all mappings/anchors in parent) makes subdoc \"thin gruel\".\n\nExplore and decide:\n1. What content belongs in parent (RBAGS) vs subdoc (RBSRV)?\n   - Attribute reference mappings location\n   - Anchor definitions location\n   - Table specifications location\n   - Term definitions location\n\n2. Subgroup AXLA representation:\n   - RBRV has mutually-exclusive subgroups: BIND_* vs CONJURE_*\n   - RBRN has conditional subgroups: Entry/Enclave/Uplink (required when enable flag set)\n   - Each subgroup likely needs its own attribute reference and anchor\n   - Define AXLA vocabulary for these patterns (axd_mutual_exclusive? axd_conditional_group?)\n\n3. Consult RBRN as reference - how does it handle subgroups currently?\n\n4. Update AXLA-Lexicon.adoc with new regime subgroup patterns\n\n5. Apply chosen pattern to RBSRV and its RBAGS integration\n\nInputs: RBSRV, RBAGS (lines 1467-1519), RBRN, AXLA-Lexicon.adoc, CRR\nOutput: Revised RBSRV structure, updated AXLA patterns, clear precedent for future regime subdocs",
+              "silks": "regime-subdoc-axla-patterns",
+              "commit": "51ef707"
             }
           ]
         }
