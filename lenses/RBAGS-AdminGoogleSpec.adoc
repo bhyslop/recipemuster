@@ -1557,8 +1557,7 @@ Recipe Bottle type voicings define constrained data formats used throughout the 
 [[rbst_xname]]
 // ⟦axl_voices axtu_xname⟧
 {rbst_xname}::
-Cross-context safe identifier.
-1-64 characters; must start with letter; may contain letters, digits, underscores, and hyphens.
+Cross-context safe identifier, 1-64 characters.
 Forms basis for directory names, monikers, and artifact naming.
 
 [[rbst_description]]
@@ -1576,8 +1575,7 @@ Fully-qualified container image reference.
 [[rbst_path]]
 // ⟦axl_voices axtu_path⟧
 {rbst_path}::
-File system path within the repository context.
-May be absolute or relative; typically constructed from regime variables.
+Repository-context path, typically constructed from regime variables.
 
 [[rbst_platform_list]]
 // ⟦axl_voices axtu_string axd_list⟧
