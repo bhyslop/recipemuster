@@ -54,10 +54,11 @@
         "₢ARAAL",
         "₢ARAAN",
         "₢ARAAP",
+        "₢ARAAQ",
         "₢ARAAM",
         "₢ARAAO"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -362,6 +363,17 @@
               "text": "Apply axvr_* and axhr*_ annotation patterns to RBAGS and RBSRV.\n\n## Work Items\n\n1. Mint RBRV_VESSEL_MODE as enumerated regime variable in RBAGS:\n   - Add axvr_variable annotation\n   - Define axt_enumeration type\n   - Mint enum value linked terms: rbrv_vessel_mode_bind, rbrv_vessel_mode_conjure\n   - Each enum value gets anchor, attrref, and axt_enum_value voicing\n\n2. Mint regime group linked terms in RBAGS:\n   - rbrv_group_binding with axvr_group annotation (axd_conditional)\n   - rbrv_group_conjuring with axvr_group annotation (axd_conditional)\n   - Each group definition's second attrref is {rbrv_regime}\n\n3. Retrofit existing RBRV variable definitions in RBAGS:\n   - Add axvr_variable annotations to rbrv_sigil, rbrv_description, etc.\n   - Each variable definition's second attrref ties it to {rbrv_regime}\n\n4. Restructure RBSRV subdoc using axhr*_ hierarchy markers:\n   - axhrb_regime followed by {rbrv_regime}\n   - axhrv_variable for ungrouped variables (sigil, description, vessel_mode)\n   - axhrgb_group for each group, with axhrgc_gate referencing vessel_mode enum values\n   - axhrgv_variable for grouped variables with axd_required/axd_optional\n\n5. Verify cross-document consistency:\n   - All groups in subdoc match axvr_group definitions in parent\n   - All variables accounted for (either axhrv_variable or axhrgv_variable)\n   - Gate attrrefs are valid enum variable + enum value pairs\n\n## Inputs\nAXLA (with new axvr_/axhr*_ terms from previous pace), RBAGS, RBSRV\n\n## Output\nRBAGS with axvr_* annotated regime/variable/group definitions.\nRBSRV restructured as exemplar regime subdoc using axhr*_ hierarchy.",
               "silks": "apply-regime-annotations-rbsrv",
               "commit": "1bf49e8"
+            }
+          ]
+        },
+        "₢ARAAQ": {
+          "tacks": [
+            {
+              "ts": "260204-0825",
+              "state": "rough",
+              "text": "Assess whether the axvr_*/axhr*_ regime annotation patterns work for RBRN.\n\n## Purpose\n\nRBRN (RegimeNameplate) has different structural patterns from RBRV:\n- Simple conditional groups (Entry gated by ENTRY_ENABLED)\n- Unconditional groups (Enclave, Core Identity, Ark Reference)\n- Compound conditional variables (UPLINK_ALLOWED_CIDRS requires ACCESS_ENABLED=1 AND ACCESS_GLOBAL=0)\n\nThis pace validates the annotation patterns against these structures without necessarily\napplying changes.\n\n## Assessment Questions\n\n1. Do RBRN's unconditional groups (Enclave, Core) work with axhrgb_group without axhrgc_gate?\n2. Does the stacked axhrgc_gate pattern (AND semantics) handle RBRN's compound conditions?\n3. Is RBRN_ENTRY_ENABLED already an enumeration, or does it need to become one for gates?\n   Boolean variables as gates: does axhrgc_gate require axt_enumeration or can axt_boolean work?\n4. Are there RBRN patterns that expose gaps in the axhr*_ design?\n5. Would RBRN benefit from axd_conditional on variable-level (not just group-level)?\n\n## Inputs\nRBRN, AXLA (with new terms), RBSRV (as completed exemplar)\n\n## Output\nAssessment document: what works, what needs adjustment, recommendations for RBRN application.",
+              "silks": "assess-rbrn-regime-fit",
+              "commit": "764e136"
             }
           ]
         }
