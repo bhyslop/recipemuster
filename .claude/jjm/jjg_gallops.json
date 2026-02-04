@@ -41,7 +41,6 @@
       "creation_time": "260130",
       "status": "racing",
       "order": [
-        "₢ARAAO",
         "₢ARAAI",
         "₢ARAAA",
         "₢ARAAB",
@@ -54,7 +53,8 @@
         "₢ARAAK",
         "₢ARAAL",
         "₢ARAAM",
-        "₢ARAAN"
+        "₢ARAAN",
+        "₢ARAAO"
       ],
       "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_AR.md",
