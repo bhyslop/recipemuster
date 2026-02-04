@@ -1347,9 +1347,10 @@
         "₢AHAAN",
         "₢AHAAO",
         "₢AHAAP",
-        "₢AHAAR"
+        "₢AHAAR",
+        "₢AHAAS"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -1731,6 +1732,17 @@
               "text": "When /jjc-heat-mount is invoked without a firemark argument, automatically saddle the first racing heat instead of requiring the user to specify one.\n\nChanges required:\n\n1. **JJSA spec update** (jjk/vov_veiled/JJSA-GallopsData.adoc): Document the saddle command behavior when no firemark is provided — it should select the first racing heat by default.\n\n2. **Rust code update** (jjx_saddle or jjx_mount handler): When no firemark argument is supplied:\n   - Run the equivalent of muster to get racing heats\n   - Print the racing heats list so the user sees context\n   - Auto-select the first racing heat\n   - Proceed with normal saddle behavior for that heat\n\n3. **Slash command update** (jjc-heat-mount.md): Update the mount slash command to reflect that firemark is now optional, and document the auto-selection behavior.\n\nThis is a convenience improvement — currently the user must always specify a firemark, but in most sessions only one or two heats are actively racing.",
               "silks": "mount-auto-saddle-first-racing",
               "commit": "9ce086d"
+            }
+          ]
+        },
+        "₢AHAAS": {
+          "tacks": [
+            {
+              "ts": "260203-1853",
+              "state": "rough",
+              "text": "Evaluate collapsing thin-wrapper slash commands (reslate, slate, wrap, bridle, rail) into direct CLAUDE.md verb-to-vvx mappings.\n\nPain point: Claude regularly guesses wrong vvx subcommand names because slash command names don't match vvx names (e.g., reslate → jjx_tally). The indirection through slash command .md files is a recurring failure mode.\n\nProposed direction:\n- Identify which slash commands are thin wrappers vs. genuine orchestrations\n- For thin wrappers, replace with CLAUDE.md verb table entries that map directly to vvx invocations\n- Standardize shared post-mutation protocol (report, assess, commit) once in CLAUDE.md\n- Rely on vvx --help as authoritative syntax reference\n- Eliminate the dereference step that causes guessing errors\n\nDesign pace — needs human judgment on which commands to collapse and what the CLAUDE.md verb table format should look like.",
+              "silks": "simplify-thin-wrapper-commands",
+              "commit": "175f84e"
             }
           ]
         }
