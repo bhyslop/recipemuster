@@ -291,6 +291,13 @@
         "₢ARAAL": {
           "tacks": [
             {
+              "ts": "260203-1837",
+              "state": "complete",
+              "text": "Simplify rbst_* type definitions to avoid duplicating AXLA.\n\n## Context\nThe rbst_* type voicings in RBAGS currently repeat constraints that are already defined in AXLA motifs (e.g., axtu_xname already says \"must start with letter, may contain...\"). The voicing should only add RB-specific subspecialization, not repeat the base motif.\n\n## Work required\n1. Review each rbst_* definition in RBAGS Type Voicings section\n2. Remove prose that duplicates AXLA motif definitions\n3. Keep only RB-specific constraints (e.g., \"1-64 characters\" for sigils, specific enum values)\n4. Ensure definitions still read coherently\n\n## Acceptance criteria\n- rbst_* definitions are concise\n- No duplication of AXLA motif prose\n- RB-specific constraints are preserved",
+              "silks": "simplify-rbst-definitions",
+              "commit": "1b0920b"
+            },
+            {
               "ts": "260131-2235",
               "state": "rough",
               "text": "Simplify rbst_* type definitions to avoid duplicating AXLA.\n\n## Context\nThe rbst_* type voicings in RBAGS currently repeat constraints that are already defined in AXLA motifs (e.g., axtu_xname already says \"must start with letter, may contain...\"). The voicing should only add RB-specific subspecialization, not repeat the base motif.\n\n## Work required\n1. Review each rbst_* definition in RBAGS Type Voicings section\n2. Remove prose that duplicates AXLA motif definitions\n3. Keep only RB-specific constraints (e.g., \"1-64 characters\" for sigils, specific enum values)\n4. Ensure definitions still read coherently\n\n## Acceptance criteria\n- rbst_* definitions are concise\n- No duplication of AXLA motif prose\n- RB-specific constraints are preserved",
