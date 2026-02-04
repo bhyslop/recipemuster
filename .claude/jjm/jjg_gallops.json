@@ -1719,6 +1719,13 @@
         "₢AHAAR": {
           "tacks": [
             {
+              "ts": "260203-1845",
+              "state": "rough",
+              "text": "When /jjc-heat-mount is invoked, always start by showing racing heats (same table format as muster — factor/reuse the table-rendering code). Then:\n\n- **No firemark argument**: Auto-select the first racing heat and saddle it.\n- **With firemark argument**: Validate it's a racing heat, then saddle it.\n\nChanges required:\n\n1. **JJSA spec update** (jjk/vov_veiled/JJSA-GallopsData.adoc): Document that saddle accepts an optional firemark. When omitted, it selects the first racing heat. When provided, it validates against racing heats.\n\n2. **Rust code update** (jjx_saddle handler):\n   - Factor the muster table-rendering code so both jjx_muster and jjx_saddle can share it\n   - On entry, print the racing heats table (reusing factored code, filtered to racing only)\n   - No firemark: auto-select first racing heat, proceed with saddle\n   - With firemark: validate it's racing, proceed with saddle\n   - Error if no racing heats exist or if provided firemark isn't racing\n\n3. **Slash command update** (jjc-heat-mount.md): Firemark is now optional. Document both paths.\n\nKeep it simple — no extra flags. This is the most common operation.",
+              "silks": "mount-auto-saddle-first-racing",
+              "commit": "28f8645"
+            },
+            {
               "ts": "260203-1840",
               "state": "rough",
               "text": "When /jjc-heat-mount is invoked without a firemark argument, automatically saddle the first racing heat instead of requiring the user to specify one.\n\nChanges required:\n\n1. **JJSA spec update** (jjk/vov_veiled/JJSA-GallopsData.adoc): Document the saddle command behavior when no firemark is provided — it should select the first racing heat by default.\n\n2. **Rust code update** (jjx_saddle or jjx_mount handler): When no firemark argument is supplied:\n   - Run the equivalent of muster to get racing heats\n   - Print the racing heats list so the user sees context\n   - Auto-select the first racing heat\n   - Proceed with normal saddle behavior for that heat\n\n3. **Slash command update** (jjc-heat-mount.md): Update the mount slash command to reflect that firemark is now optional, and document the auto-selection behavior.\n\nThis is a convenience improvement — currently the user must always specify a firemark, but in most sessions only one or two heats are actively racing.",
