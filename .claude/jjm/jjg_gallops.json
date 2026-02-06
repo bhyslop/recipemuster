@@ -1262,8 +1262,7 @@
         "₢AGAAE",
         "₢AGAAF",
         "₢AGAAG",
-        "₢AGAAI",
-        "₢AGAAJ"
+        "₢AGAAI"
       ],
       "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_AG.md",
@@ -1387,24 +1386,6 @@
               "commit": "9cffe27"
             }
           ]
-        },
-        "₢AGAAJ": {
-          "tacks": [
-            {
-              "ts": "260206-0902",
-              "state": "rough",
-              "text": "Add file-touch visualization to parade output using a hybrid bitmap format optimized for token efficiency and model readability.\n\n## Problem\n\nNo consolidated view of which files a heat has touched across paces. Makes it hard to assess blast radius, identify hotspots, or brief a new session.\n\n## Design: Hybrid Bitmap\n\nCombine a fixed-width bitmap (one char per pace) with file grouping — files sharing identical touch patterns collapse to one row. Bare filenames only (no paths), since the prefix naming discipline guarantees uniqueness.\n\n### Format\n\n```\nPaces: A B C D E F\n───────────────────\n·x··x· jjrg_gallops.rs, jjrt_types.rs\n··x··x JJSA-GallopsData.adoc\n····x· jjro_ops.rs\n```\n\n**Pace legend:** One header line mapping single chars (coronet terminal letter) to pace silks. Fixed overhead regardless of file count.\n\n**Bitmap rows:** One row per unique touch-pattern. `x` = touched, `·` = untouched. Files sharing a pattern are comma-separated on the same row.\n\n**File names:** Bare filename only (e.g. `jjrg_gallops.rs` not `Tools/jjk/vov_veiled/src/jjrg_gallops.rs`). Prefix encodes provenance. Sort files within a group by prefix for visual clustering of co-located files.\n\n### Properties\n\n- Worst case (every file unique pattern): degrades to one file per line — still compact\n- Best case (spec + impl + test move together): 3 files collapse to 1 row\n- Fixed-width bitmap column is scannable and diffable\n- Reads left-to-right: pattern → files\n\n## Data Source\n\nSteeplechase tack records contain basis SHAs. `git diff --name-only <sha1> <sha2>` between consecutive tack entries yields files per pace. Only completed paces with commits contribute rows.\n\n## Integration\n\n- Surface via `--files` flag on parade\n- Compute on demand from tack SHAs (no caching needed for typical heat sizes)\n- Paces with no commits yet are columns in the legend but will have no `x` marks\n\n## Acceptance\n\n- `jjx_parade <firemark> --files` outputs hybrid bitmap visualization\n- Bare filenames, grouped by touch pattern, sorted by prefix within groups\n- Pace legend uses coronet terminal letters",
-              "silks": "heat-file-touch-visualization",
-              "commit": "41a512d"
-            },
-            {
-              "ts": "260206-0854",
-              "state": "rough",
-              "text": "Add file-touch visualization to saddle and/or groom commands, showing which files a heat has modified and which paces touched them.\n\n## Problem\n\nWhen working on a heat, there is no consolidated view of which files have been affected across all paces. This makes it hard to:\n- Assess blast radius of a heat's changes\n- Identify hotspot files touched by many paces (potential conflict zones)\n- Review whether a heat's scope has drifted from its paddock intent\n- Brief a new session on what areas of the codebase a heat has been working in\n\n## Proposed Feature\n\nSurface a file-touch summary in saddle and/or groom output. Data source: steeplechase commit history (already tracked via rein/notch).\n\n### Visualization Options\n\n**Per-file summary:**\n```\nFiles touched by ₣AG (5 paces, 12 commits):\n  Tools/jjk/vov_veiled/src/jjrg_gallops.rs  [₢AGAAA ₢AGAAF]  3 commits\n  Tools/jjk/vov_veiled/src/jjro_ops.rs       [₢AGAAE]          1 commit\n  Tools/jjk/vov_veiled/JJSA-GallopsData.adoc [₢AGAAC ₢AGAAF]  4 commits\n```\n\n**Per-pace file list:**\n```\n₢AGAAA express-pace-state:\n  jjrg_gallops.rs, jjrt_types.rs\n₢AGAAF json-schema-commit-to-basis:\n  jjrt_types.rs, jjrg_gallops.rs, JJSA-GallopsData.adoc\n```\n\n### Data Source\n\nSteeplechase tack records already contain `basis` (commit SHA). Between consecutive tack entries, `git diff --name-only <sha1> <sha2>` yields the files changed per pace. Alternatively, parse commit messages matching `jjb:HALLMARK:CORONET:` pattern from git log.\n\n## Design Questions\n\n- Which command(s) should surface this? saddle, groom, parade, or a new subcommand?\n- Should this be a flag (`--files`) or always shown?\n- How to handle paces with no commits yet (rough/bridled but unstarted)?\n- Performance: git log parsing for large heats — cache or compute on demand?\n- Depends on base-commit (₢AGAAI)? Could use heat base_commit as diff anchor, or work without it by using per-pace tack SHAs.\n\n## Acceptance\n\n- Design decision on where visualization lives and what format\n- If proceeding: implementation plan covering data extraction, formatting, and command integration",
-              "silks": "heat-file-touch-visualization",
-              "commit": "6589ff3"
-            }
-          ]
         }
       }
     },
@@ -1431,9 +1412,10 @@
         "₢AHAAO",
         "₢AHAAP",
         "₢AHAAR",
-        "₢AHAAS"
+        "₢AHAAS",
+        "₢AHAAT"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -1826,6 +1808,31 @@
               "text": "Evaluate collapsing thin-wrapper slash commands (reslate, slate, wrap, bridle, rail) into direct CLAUDE.md verb-to-vvx mappings.\n\nPain point: Claude regularly guesses wrong vvx subcommand names because slash command names don't match vvx names (e.g., reslate → jjx_tally). The indirection through slash command .md files is a recurring failure mode.\n\nProposed direction:\n- Identify which slash commands are thin wrappers vs. genuine orchestrations\n- For thin wrappers, replace with CLAUDE.md verb table entries that map directly to vvx invocations\n- Standardize shared post-mutation protocol (report, assess, commit) once in CLAUDE.md\n- Rely on vvx --help as authoritative syntax reference\n- Eliminate the dereference step that causes guessing errors\n\nDesign pace — needs human judgment on which commands to collapse and what the CLAUDE.md verb table format should look like.",
               "silks": "simplify-thin-wrapper-commands",
               "commit": "175f84e"
+            }
+          ]
+        },
+        "₢AHAAT": {
+          "tacks": [
+            {
+              "ts": "260206-0903",
+              "state": "rough",
+              "text": "Drafted from ₢AGAAJ in ₣AG.\n\nAdd file-touch visualization to parade output using a hybrid bitmap format optimized for token efficiency and model readability.\n\n## Problem\n\nNo consolidated view of which files a heat has touched across paces. Makes it hard to assess blast radius, identify hotspots, or brief a new session.\n\n## Design: Hybrid Bitmap\n\nCombine a fixed-width bitmap (one char per pace) with file grouping — files sharing identical touch patterns collapse to one row. Bare filenames only (no paths), since the prefix naming discipline guarantees uniqueness.\n\n### Format\n\n```\nPaces: A B C D E F\n───────────────────\n·x··x· jjrg_gallops.rs, jjrt_types.rs\n··x··x JJSA-GallopsData.adoc\n····x· jjro_ops.rs\n```\n\n**Pace legend:** One header line mapping single chars (coronet terminal letter) to pace silks. Fixed overhead regardless of file count.\n\n**Bitmap rows:** One row per unique touch-pattern. `x` = touched, `·` = untouched. Files sharing a pattern are comma-separated on the same row.\n\n**File names:** Bare filename only (e.g. `jjrg_gallops.rs` not `Tools/jjk/vov_veiled/src/jjrg_gallops.rs`). Prefix encodes provenance. Sort files within a group by prefix for visual clustering of co-located files.\n\n### Properties\n\n- Worst case (every file unique pattern): degrades to one file per line — still compact\n- Best case (spec + impl + test move together): 3 files collapse to 1 row\n- Fixed-width bitmap column is scannable and diffable\n- Reads left-to-right: pattern → files\n\n## Data Source\n\nSteeplechase tack records contain basis SHAs. `git diff --name-only <sha1> <sha2>` between consecutive tack entries yields files per pace. Only completed paces with commits contribute rows.\n\n## Integration\n\n- Surface via `--files` flag on parade\n- Compute on demand from tack SHAs (no caching needed for typical heat sizes)\n- Paces with no commits yet are columns in the legend but will have no `x` marks\n\n## Acceptance\n\n- `jjx_parade <firemark> --files` outputs hybrid bitmap visualization\n- Bare filenames, grouped by touch pattern, sorted by prefix within groups\n- Pace legend uses coronet terminal letters",
+              "silks": "heat-file-touch-visualization",
+              "commit": "90ff518"
+            },
+            {
+              "ts": "260206-0902",
+              "state": "rough",
+              "text": "Add file-touch visualization to parade output using a hybrid bitmap format optimized for token efficiency and model readability.\n\n## Problem\n\nNo consolidated view of which files a heat has touched across paces. Makes it hard to assess blast radius, identify hotspots, or brief a new session.\n\n## Design: Hybrid Bitmap\n\nCombine a fixed-width bitmap (one char per pace) with file grouping — files sharing identical touch patterns collapse to one row. Bare filenames only (no paths), since the prefix naming discipline guarantees uniqueness.\n\n### Format\n\n```\nPaces: A B C D E F\n───────────────────\n·x··x· jjrg_gallops.rs, jjrt_types.rs\n··x··x JJSA-GallopsData.adoc\n····x· jjro_ops.rs\n```\n\n**Pace legend:** One header line mapping single chars (coronet terminal letter) to pace silks. Fixed overhead regardless of file count.\n\n**Bitmap rows:** One row per unique touch-pattern. `x` = touched, `·` = untouched. Files sharing a pattern are comma-separated on the same row.\n\n**File names:** Bare filename only (e.g. `jjrg_gallops.rs` not `Tools/jjk/vov_veiled/src/jjrg_gallops.rs`). Prefix encodes provenance. Sort files within a group by prefix for visual clustering of co-located files.\n\n### Properties\n\n- Worst case (every file unique pattern): degrades to one file per line — still compact\n- Best case (spec + impl + test move together): 3 files collapse to 1 row\n- Fixed-width bitmap column is scannable and diffable\n- Reads left-to-right: pattern → files\n\n## Data Source\n\nSteeplechase tack records contain basis SHAs. `git diff --name-only <sha1> <sha2>` between consecutive tack entries yields files per pace. Only completed paces with commits contribute rows.\n\n## Integration\n\n- Surface via `--files` flag on parade\n- Compute on demand from tack SHAs (no caching needed for typical heat sizes)\n- Paces with no commits yet are columns in the legend but will have no `x` marks\n\n## Acceptance\n\n- `jjx_parade <firemark> --files` outputs hybrid bitmap visualization\n- Bare filenames, grouped by touch pattern, sorted by prefix within groups\n- Pace legend uses coronet terminal letters",
+              "silks": "heat-file-touch-visualization",
+              "commit": "41a512d"
+            },
+            {
+              "ts": "260206-0854",
+              "state": "rough",
+              "text": "Add file-touch visualization to saddle and/or groom commands, showing which files a heat has modified and which paces touched them.\n\n## Problem\n\nWhen working on a heat, there is no consolidated view of which files have been affected across all paces. This makes it hard to:\n- Assess blast radius of a heat's changes\n- Identify hotspot files touched by many paces (potential conflict zones)\n- Review whether a heat's scope has drifted from its paddock intent\n- Brief a new session on what areas of the codebase a heat has been working in\n\n## Proposed Feature\n\nSurface a file-touch summary in saddle and/or groom output. Data source: steeplechase commit history (already tracked via rein/notch).\n\n### Visualization Options\n\n**Per-file summary:**\n```\nFiles touched by ₣AG (5 paces, 12 commits):\n  Tools/jjk/vov_veiled/src/jjrg_gallops.rs  [₢AGAAA ₢AGAAF]  3 commits\n  Tools/jjk/vov_veiled/src/jjro_ops.rs       [₢AGAAE]          1 commit\n  Tools/jjk/vov_veiled/JJSA-GallopsData.adoc [₢AGAAC ₢AGAAF]  4 commits\n```\n\n**Per-pace file list:**\n```\n₢AGAAA express-pace-state:\n  jjrg_gallops.rs, jjrt_types.rs\n₢AGAAF json-schema-commit-to-basis:\n  jjrt_types.rs, jjrg_gallops.rs, JJSA-GallopsData.adoc\n```\n\n### Data Source\n\nSteeplechase tack records already contain `basis` (commit SHA). Between consecutive tack entries, `git diff --name-only <sha1> <sha2>` yields the files changed per pace. Alternatively, parse commit messages matching `jjb:HALLMARK:CORONET:` pattern from git log.\n\n## Design Questions\n\n- Which command(s) should surface this? saddle, groom, parade, or a new subcommand?\n- Should this be a flag (`--files`) or always shown?\n- How to handle paces with no commits yet (rough/bridled but unstarted)?\n- Performance: git log parsing for large heats — cache or compute on demand?\n- Depends on base-commit (₢AGAAI)? Could use heat base_commit as diff anchor, or work without it by using per-pace tack SHAs.\n\n## Acceptance\n\n- Design decision on where visualization lives and what format\n- If proceeding: implementation plan covering data extraction, formatting, and command integration",
+              "silks": "heat-file-touch-visualization",
+              "commit": "6589ff3"
             }
           ]
         }
