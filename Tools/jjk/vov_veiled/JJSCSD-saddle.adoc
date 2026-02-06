@@ -26,9 +26,16 @@ If omitted, uses first
 heat.
 Returns error if no racing heats exist.
 
-{jjds_stdout} Plain text format with labeled sections:
+{jjds_stdout} Plain text format with labeled sections.
+Section `Racing-heats:` shows all racing heats in muster table format.
 [source,text]
 ----
+Racing-heats:
+₣Fire    Silks                       Status  Done  Total
+───────  ──────────────────────────  ──────  ────  ─────
+₣XX      heat-silks-name             racing     3     10
+...
+
 Heat: <silks> (₣<firemark>) [<status>]
 Paddock: <paddock_file_path>
 
@@ -70,6 +77,12 @@ formatted as column-aligned table.
 
 {jjds_behavior}
 
+. Collect all heats with status
+{jjdhe_racing}.
+Render column-aligned table using same format as
+{jjdo_muster}
+(₣Fire, Silks, Status, Done, Total).
+Output as `Racing-heats:` section.
 . Read
 {jjdgr_gallops}
 from file

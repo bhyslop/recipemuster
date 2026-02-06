@@ -36,6 +36,87 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
         }
     };
 
+    // Collect racing heats and display summary table
+    {
+        let mut racing_heats: Vec<(&String, &crate::jjrg_gallops::jjrg_Heat)> = gallops.heats.iter()
+            .filter(|(_, heat)| heat.status == HeatStatus::Racing)
+            .collect();
+
+        // Sort by key for stability
+        racing_heats.sort_by(|a, b| a.0.cmp(b.0));
+
+        if !racing_heats.is_empty() {
+            let mut table = jjrp_Table::jjrp_new(vec![
+                jjrp_Column::new("₣Fire", jjrp_Align::Left),
+                jjrp_Column::new("Silks", jjrp_Align::Left),
+                jjrp_Column::new("Status", jjrp_Align::Left),
+                jjrp_Column::new("Done", jjrp_Align::Right),
+                jjrp_Column::new("Total", jjrp_Align::Right),
+            ]);
+
+            // Measure all rows to compute column widths
+            for (key, heat) in &racing_heats {
+                let defined_count = heat.paces.values().filter(|pace| {
+                    if let Some(tack) = pace.tacks.first() {
+                        tack.state != PaceState::Abandoned
+                    } else {
+                        true
+                    }
+                }).count();
+
+                let completed_count = heat.paces.values().filter(|pace| {
+                    if let Some(tack) = pace.tacks.first() {
+                        tack.state == PaceState::Complete
+                    } else {
+                        false
+                    }
+                }).count();
+
+                table.jjrp_measure(&[
+                    key,
+                    &heat.silks,
+                    "racing",
+                    &completed_count.to_string(),
+                    &defined_count.to_string(),
+                ]);
+            }
+
+            // Print header and separator
+            println!("Racing-heats:");
+            table.jjrp_print_header();
+            table.jjrp_print_separator();
+
+            // Print data rows
+            for (key, heat) in &racing_heats {
+                let defined_count = heat.paces.values().filter(|pace| {
+                    if let Some(tack) = pace.tacks.first() {
+                        tack.state != PaceState::Abandoned
+                    } else {
+                        true
+                    }
+                }).count();
+
+                let completed_count = heat.paces.values().filter(|pace| {
+                    if let Some(tack) = pace.tacks.first() {
+                        tack.state == PaceState::Complete
+                    } else {
+                        false
+                    }
+                }).count();
+
+                table.jjrp_print_row(&[
+                    key,
+                    &heat.silks,
+                    "racing",
+                    &completed_count.to_string(),
+                    &defined_count.to_string(),
+                ]);
+            }
+
+            println!();
+        }
+    }
+
     // Resolve firemark: use provided value or auto-select first racing heat
     let firemark_str = match args.firemark {
         Some(fm) => fm,

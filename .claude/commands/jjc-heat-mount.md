@@ -11,37 +11,18 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 
 ## Prerequisites
 
-## Step 1: Identify target heat
-
-**If $ARGUMENTS contains a Firemark (e.g., `AA` or `₣AA`):**
-- Use that Firemark directly
-- Skip to Step 2
-
-**If $ARGUMENTS is empty or contains silks:**
-- Run: `./tt/vvw-r.RunVVX.sh jjx_muster`
-- Parse TSV output: `FIREMARK<TAB>SILKS<TAB>STATUS<TAB>PACE_COUNT`
-- Filter for lines where STATUS column is "racing"
-
-**If 0 racing heats:**
-- Report: "No racing heats found."
-- Suggest: "Check stabled heats with `/jjc-heat-muster` or use `/jjc-heat-furlough <firemark> --racing` to resume a heat."
-- Stop.
-
-**If 1 racing heat:** Use that heat's Firemark automatically (no prompt).
-
-**If 2+ racing heats:**
-- Pick the first racing heat (heats are ordered by priority - most recently activated first)
-- If $ARGUMENTS matches a silks value, override and use that heat instead
-- Otherwise use the first racing heat without prompting
-
-## Step 2: Get current pace context
+## Step 1: Saddle up
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_saddle <FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_saddle $ARGUMENTS
 ```
 
+If $ARGUMENTS is empty, saddle auto-selects the first racing heat.
+If $ARGUMENTS contains a Firemark (e.g., `AA` or `₣AA`), saddle uses that heat.
+
 Parse plain text output by label prefix:
+- Racing-heats table at top of output → list of racing heats with firemarks
 - Line starting with `Heat:` → extract heat silks, firemark, and status
 - Line starting with `Paddock:` → extract paddock file path
 - Section `Paddock-content:` (ends at blank line) → extract paddock content (2-space indented)
@@ -52,10 +33,11 @@ Parse plain text output by label prefix:
 
 If `Next:` line is absent, no actionable pace exists.
 
-## Step 2.5: Display context
+## Step 2: Display context
 
 Show:
-- Heat silks and Firemark
+- **Racing heats table** (from saddle output top) — show all racing heats so user sees the full context
+- Heat silks and Firemark (of the selected heat)
 - Brief paddock summary (from paddock_content)
 - **Recent work** (from `recent_work` array, last 5-10 entries):
   ```
