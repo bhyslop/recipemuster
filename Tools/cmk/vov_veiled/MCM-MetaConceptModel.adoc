@@ -449,18 +449,34 @@ The form determines how these elements are structured.
 
 [[mcm_annotation]]
 {mcm_annotation}::
-A comment containing Strachey brackets `⟦content⟧` placed between an anchor target and its definition.
+A comment line providing type categorization or metadata about terms in a
+{mcm_document}.
 {mcm_annotation_s}
 are ignored during first-order document reading.
 When a referencing system is in context,
 {mcm_annotation_s}
-provide type categorization or other metadata about the term.
-The bracketed content contains space-separated
+provide structured metadata interpreted by that system.
+The content contains space-separated
 {mcm_linked_term_s}
 from the referencing system, which is typically out-of-context during first-order reading.
-The grammar and interpretation of those
-{mcm_linked_term_s}
-is defined by the referencing system, not MCM.
+The grammar, interpretation, and placement rules for
+{mcm_annotation_s}
+are defined by the referencing system, not MCM.
++
+{mcm_annotation_s}
+take one of two forms:
++
+* *Strachey bracket form*: `// ⟦terms⟧` — a comment with space after `//` containing Strachey-bracketed content.
+* *Prefix-discriminated form*: `//ax...` — no space after `//`, where the initial characters match a registered prefix identifying the referencing system.
+The full content after `//` is interpreted by the referencing system.
++
+The mechanical discriminator is the character immediately following `//`.
+A space character indicates a regular comment or Strachey bracket form.
+A letter with no intervening space indicates prefix-discriminated form.
++
+Registered prefixes:
++
+* `ax` — Axial Lexicon
 
 [[mcm_form_deflist]]
 {mcm_form_deflist}::

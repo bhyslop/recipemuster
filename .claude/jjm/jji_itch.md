@@ -1970,6 +1970,50 @@ bottle              bottle_ubuntu_test     (not set)               (none)
 
 Identified 2026-01-28 during `rbw-il` output improvement discussion. The list shows images but can't map them to nameplate roles without explicit vessel role metadata.
 
+## axla-xref-macro-migration
+Convert AXLA attribute entries from shorthand cross-references to xref macro form.
+
+### Problem
+
+All AXLA attribute entries currently use the shorthand cross-reference form:
+```asciidoc
+:axl_motif: <<axl_motif,Motif>>
+```
+
+The shorthand `<<target,text>>` treats the display text as plain text — no inline formatting is possible.
+
+### Proposed Change
+
+Convert to the xref macro form:
+```asciidoc
+:axl_motif: xref:axl_motif[Motif]
+```
+
+The macro form's square brackets allow inline formatting in the display text (bold, italic, monospace, etc.), enabling richer rendered output for specifications that consume AXLA terms.
+
+### Scope
+
+- All `:attr: <<anchor,text>>` lines in AXLA-Lexicon.adoc (~240 attribute entries)
+- Mechanical transformation: `<<X,Y>>` → `xref:X[Y]`
+- Verify no downstream documents break (grep for `{axl_*}`, `{axc_*}`, etc. in consuming specs)
+- Update MCM spec if it prescribes the shorthand form
+
+### Benefits
+
+- Enables formatted display text (e.g., `xref:axc_fatal[*FATAL*]` for bold)
+- Opens door to richer typographic conventions in rendered specs
+- xref macro is the "long form" — more explicit about what it does
+
+### Risks
+
+- Large diff touching every attribute entry
+- Must verify all AsciiDoc processors in use handle xref macro in attribute values
+- Consuming documents should be unaffected (attribute substitution happens before xref resolution)
+
+### Context
+
+Identified 2026-02-04 during AXLA editing session. Shorthand form prevents any formatting of replacement text.
+
 ## rbw-local-build-push
 Build images locally then push to Artifact Registry for users with Director credentials.
 

@@ -18,6 +18,8 @@
 // axd_: Axial Dimension (member/argument characteristic modifiers) → mcm_form_deflist
 // axf_: Axial Format (serialization/carriage formats) → mcm_form_deflist
 // axrg_: Axial Regime (configuration system patterns) → mcm_form_deflist
+// axvr_: Axial Voicing Regime (definition-site regime annotations) → mcm_form_deflist
+// axhr*_: Axial Hierarchy Regime (standalone hierarchy markers) → mcm_form_deflist
 // xref_: External specification references
 //
 // Extended Type Categories (domain-specific type subcategories):
@@ -71,6 +73,7 @@
 :axd_transient:                       <<axd_transient,Transient>>
 :axd_longrunning:                     <<axd_longrunning,Long-running>>
 :axd_periodic:                        <<axd_periodic,Periodic>>
+:axd_conditional:                     <<axd_conditional,Conditional>>
 
 // Axial Format Terms
 :axf_format:                          <<axf_format,Format>>
@@ -89,6 +92,18 @@
 :axrg_assignment_s:                   <<axrg_assignment,Assignments>>
 :axrg_prefix:                         <<axrg_prefix,Regime Prefix>>
 :axrg_prefix_s:                       <<axrg_prefix,Regime Prefixes>>
+
+// Axial Voicing Regime Terms (definition-site annotations)
+:axvr_regime:                         <<axvr_regime,Regime Voicing>>
+:axvr_variable:                       <<axvr_variable,Variable Voicing>>
+:axvr_group:                          <<axvr_group,Group Voicing>>
+
+// Axial Hierarchy Regime Terms (standalone hierarchy markers)
+:axhrb_regime:                        <<axhrb_regime,Hierarchy Regime>>
+:axhrv_variable:                      <<axhrv_variable,Hierarchy Variable>>
+:axhrgb_group:                        <<axhrgb_group,Hierarchy Group>>
+:axhrgc_gate:                         <<axhrgc_gate,Hierarchy Gate>>
+:axhrgv_variable:                     <<axhrgv_variable,Hierarchy Grouped Variable>>
 
 // Axial Type Universal Terms (generic infrastructure)
 :axtu_string:                         <<axtu_string,String>>
@@ -316,7 +331,7 @@ essential character.
 
 [[axl_voices]]
 {axl_voices}::
-The relationship where a concrete term expresses A
+The relationship where a concrete term expresses a
 {axl_motif}
 in a specific context.
 When a term
@@ -1678,6 +1693,21 @@ May include
 {axs_overlap}
 sections.
 
+=== Regime Dimensions
+
+These
+{axd_dimension_s}
+qualify regime structure annotations.
+
+[[axd_conditional]]
+{axd_conditional}::
+Group activation depends on one or more gate conditions.
+A group annotated with
+{axd_conditional}
+requires corresponding hierarchy markers in the subdocument to include at least one
+{axhrgc_gate}
+specifying the activation criteria.
+
 === Dimension Applicability
 
 Per-format guidance for
@@ -1812,6 +1842,196 @@ becomes deeply embedded across code, configuration files, and documentation.
 Changing an
 {axrg_prefix}
 requires coordinated refactoring across all consuming artifacts.
+
+== Axial Regime Annotation Terms
+
+Regime annotations use the prefix-discriminated form (`//ax...` with no space after `//`) to provide structured metadata about regime definitions in AsciiDoc specifications.
+Two complementary annotation families enable regime specification across parent documents and their subdocuments.
+
+=== Definition-Site Voicing Annotations (axvr_*)
+
+{axvr_*} annotations appear in parent documents between anchor and definition, declaring the regime role of the term being defined.
+The surface syntax follows the prefix-discriminated pattern:
+
+[source,asciidoc]
+----
+[[rbrv_sigil]]
+//axvr_variable axd_required rbst_xname
+{rbrv_sigil}::
+Vessel identifier for build configurations.
+----
+
+The annotation line starts with `//axvr_` (no space after `//`), followed by the specific voicing term, then space-separated dimension and type terms.
+The anchor immediately preceding the annotation must match the first
+{mcm_attribute_reference}
+in the definition text that follows.
+
+[[axvr_regime]]
+{axvr_regime}::
+Voices a regime definition.
+The annotated term defines a structured configuration system that binds related
+{axrg_variable_s}
+under a namespace prefix.
++
+{axd_dimension_s}:
+{axf_format}
+(specifying how
+{axrg_assignment_s}
+are carried).
+
+[[axvr_variable]]
+{axvr_variable}::
+Voices a regime variable definition.
+The annotated term defines a named configuration element within a regime.
+The definition text must include, as its second
+{mcm_attribute_reference},
+the parent regime (an anchor that voices
+{axrg_regime}).
+This ties each variable unequivocally to its regime.
++
+{axd_dimension_s}:
+{axd_required}
+or
+{axd_optional},
+type
+{axl_motif}
+(base type or type voicing).
+
+[[axvr_group]]
+{axvr_group}::
+Voices a regime group definition.
+The annotated term defines a named grouping of related
+{axrg_variable_s}
+within a regime.
+The definition text must include, as its second
+{mcm_attribute_reference},
+the parent regime (an anchor that voices
+{axrg_regime}).
++
+{axd_dimension_s}:
+{axd_conditional}
+(group activation depends on gate conditions in subdocument).
+
+=== Standalone Hierarchy Markers (axhr*_)
+
+Hierarchy markers appear in regime subdocuments as standalone annotations, NOT between anchor and definition.
+Each marker uses the prefix-discriminated form and reads ahead a specified number of
+{mcm_attribute_reference_s}
+from the following text to establish hierarchical context.
+
+The surface syntax:
+
+[source,asciidoc]
+----
+//axhrb_regime
+{rbrv_regime}
+
+//axhrgv_variable
+{rbrv_sigil}
+----
+
+The hierarchy marker line starts with `//axhr` (no space after `//`), followed by the sub-prefix identifying the marker type.
+Following text contains the
+{mcm_attribute_reference_s}
+that the marker reads ahead.
+
+==== Marker Terms and Lookahead Arities
+
+[cols="<,^,<",options="header"]
+|===
+|Marker |Lookahead |Reads
+
+|{axhrb_regime}     |1 attrref |The regime this subdoc describes
+|{axhrv_variable}   |1 attrref |An ungrouped regime variable
+|{axhrgb_group}     |1 attrref |A group (must match {axvr_group} in parent)
+|{axhrgc_gate}      |2 attrrefs|Enumerated variable + enum value
+|{axhrgv_variable}  |1 attrref |A variable within current group
+|===
+
+[[axhrb_regime]]
+{axhrb_regime}::
+Marks the regime that a subdocument describes.
+Lookahead: 1
+{mcm_attribute_reference}
+— the regime this subdoc describes.
+The referenced attribute must correspond to an anchor annotated with
+{axvr_regime}
+in the parent document.
+
+[[axhrv_variable]]
+{axhrv_variable}::
+Marks an ungrouped regime variable in a subdocument.
+Lookahead: 1
+{mcm_attribute_reference}
+— the variable being detailed.
+
+[[axhrgb_group]]
+{axhrgb_group}::
+Marks a group boundary within a subdocument.
+Lookahead: 1
+{mcm_attribute_reference}
+— the group being detailed.
+The referenced attribute must match an anchor annotated with
+{axvr_group}
+in the parent document.
+
+[[axhrgc_gate]]
+{axhrgc_gate}::
+Marks a conditional activation gate within a group.
+Lookahead: 2
+{mcm_attribute_reference_s}
+— the enumerated variable (voicing
+{axt_enumeration})
+and the specific
+{axt_enum_value}
+that activates this gate.
+The gate variable may belong to a different regime (cross-regime gating is legal).
+
+[[axhrgv_variable]]
+{axhrgv_variable}::
+Marks a variable within the current group in a subdocument.
+Lookahead: 1
+{mcm_attribute_reference}
+— the variable being detailed within the current group scope.
+
+==== Nesting Rules
+
+Hierarchy markers establish implicit scope through document order:
+
+* Higher-level markers implicitly close previous scope (no end markers needed)
+* {axhrgb_group},
+{axhrgc_gate},
+and
+{axhrgv_variable}
+must appear within
+{axhrb_regime}
+scope
+* {axhrgc_gate}
+and
+{axhrgv_variable}
+must appear within
+{axhrgb_group}
+scope
+* Multiple
+{axhrgc_gate}
+within one group have AND semantics
+
+==== Cross-Document Validation
+
+* {axhrb_regime}
+attribute reference must match a regime defined with
+{axvr_regime}
+in parent
+* {axhrgb_group}
+attribute reference must match a group defined with
+{axvr_group}
+under that regime
+* {axhrgc_gate}
+first attribute reference must voice
+{axt_enumeration};
+second must be an
+{axt_enum_value}
+of that specific enumeration type
 
 == Axial Type Universal Terms
 
@@ -2352,3 +2572,61 @@ Invalid dimensions:
 — format-dependent;
 {axf_bash}
 has no null distinct from empty string
+
+=== Regime Voicing Annotation Completeness
+
+{axvr_regime}
+requires:
+
+* {axf_format}
+dimension specifying how
+{axrg_assignment_s}
+are carried
+
+{axvr_variable}
+requires:
+
+* Second
+{mcm_attribute_reference}
+in definition text must be the parent regime
+
+* {axd_required}
+or
+{axd_optional}
+
+* Type
+{axl_motif}
+(base type or type voicing)
+
+{axvr_group}
+requires:
+
+* Second
+{mcm_attribute_reference}
+in definition text must be the parent regime
+
+=== Regime Hierarchy Consistency
+
+* {axvr_group}
+with
+{axd_conditional}
+requires corresponding
+{axhrgb_group}
+in subdocument to have at least one
+{axhrgc_gate}
+
+* {axvr_group}
+without
+{axd_conditional}:
+corresponding
+{axhrgb_group}
+must have no
+{axhrgc_gate}
+
+* Every
+{axvr_variable}
+under a regime should appear as either
+{axhrv_variable}
+or
+{axhrgv_variable}
+in the subdocument
