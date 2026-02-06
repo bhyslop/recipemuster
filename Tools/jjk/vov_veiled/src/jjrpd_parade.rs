@@ -8,9 +8,12 @@
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_Heat as Heat, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
+use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries};
+use std::collections::BTreeMap;
 use std::fs;
+use std::process::Command;
 
 /// Arguments for jjx_parade command
 #[derive(clap::Args, Debug)]
@@ -29,6 +32,10 @@ pub struct jjrpd_ParadeArgs {
     /// Show only remaining paces (exclude complete/abandoned)
     #[arg(long)]
     pub remaining: bool,
+
+    /// Show file-touch bitmap (which paces touched which files)
+    #[arg(long)]
+    pub files: bool,
 }
 
 /// Run the parade command - display comprehensive Heat status
@@ -139,7 +146,9 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             }
         };
 
-        if args.full {
+        if args.files {
+            return zjjrpd_print_file_bitmap(&firemark, heat);
+        } else if args.full {
             // Full view: paddock + all specs
             let paddock_content = match fs::read_to_string(&heat.paddock_file) {
                 Ok(content) => content,
@@ -336,6 +345,160 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
     } else {
         eprintln!("jjx_parade: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
         return 1;
+    }
+
+    0
+}
+
+/// Get files changed by a single commit via git diff-tree
+fn zjjrpd_files_for_commit(sha: &str) -> Vec<String> {
+    let output = Command::new("git")
+        .args(["diff-tree", "--no-commit-id", "--name-only", "-r", sha])
+        .output();
+
+    match output {
+        Ok(out) if out.status.success() => {
+            String::from_utf8_lossy(&out.stdout)
+                .lines()
+                .filter(|l| !l.is_empty())
+                .map(|l| l.to_string())
+                .collect()
+        }
+        _ => Vec::new(),
+    }
+}
+
+/// Extract bare filename from a path (last component)
+fn zjjrpd_bare_filename(path: &str) -> String {
+    path.rsplit('/').next().unwrap_or(path).to_string()
+}
+
+/// Build and print the file-touch bitmap for a heat.
+///
+/// Queries steeplechase entries to find all commits affiliated with each pace,
+/// then runs `git diff-tree` per commit to identify touched files.
+/// Output is a bitmap where columns are paces and rows are files,
+/// grouped by identical touch patterns.
+fn zjjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) -> i32 {
+    // Get steeplechase entries for this heat
+    let rein_args = jjrs_ReinArgs {
+        firemark: firemark.jjrf_as_str().to_string(),
+        limit: 10000,
+    };
+
+    let entries = match jjrs_get_entries(&rein_args) {
+        Ok(e) => e,
+        Err(e) => {
+            eprintln!("jjx_parade: error getting steeplechase entries: {}", e);
+            return 1;
+        }
+    };
+
+    // Collect coronets that have at least one commit
+    let mut coronets_with_commits: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+    let mut has_heat_level = false;
+    for entry in &entries {
+        if let Some(ref coronet) = entry.coronet {
+            coronets_with_commits.insert(coronet.clone());
+        } else {
+            has_heat_level = true;
+        }
+    }
+
+    // Build pace columns: only paces with commits, in heat order
+    let mut pace_columns: Vec<(char, String, String)> = Vec::new(); // (terminal_char, coronet_display, silks)
+    for coronet_key in &heat.order {
+        if !coronets_with_commits.contains(coronet_key) {
+            continue;
+        }
+        if let Some(pace) = heat.paces.get(coronet_key) {
+            if let Some(tack) = pace.tacks.first() {
+                let raw = coronet_key.strip_prefix('₢').unwrap_or(coronet_key);
+                if let Some(ch) = raw.chars().last() {
+                    pace_columns.push((ch, coronet_key.clone(), tack.silks.clone()));
+                }
+            }
+        }
+    }
+
+    // Map coronet_display -> column index
+    let mut coronet_to_col: BTreeMap<String, usize> = BTreeMap::new();
+    for (idx, (_, coronet_display, _)) in pace_columns.iter().enumerate() {
+        coronet_to_col.insert(coronet_display.clone(), idx);
+    }
+
+    // Add heat-level column (*) at the end if there are heat-level commits
+    let heat_col_idx = pace_columns.len();
+    let total_cols = if has_heat_level { heat_col_idx + 1 } else { heat_col_idx };
+
+    // Build file -> touch vector mapping
+    let mut file_touches: BTreeMap<String, Vec<bool>> = BTreeMap::new();
+
+    for entry in &entries {
+        let col_idx = if let Some(ref coronet) = entry.coronet {
+            coronet_to_col.get(coronet).copied()
+        } else if has_heat_level {
+            Some(heat_col_idx)
+        } else {
+            None
+        };
+
+        let col_idx = match col_idx {
+            Some(idx) => idx,
+            None => continue,
+        };
+
+        let files = zjjrpd_files_for_commit(&entry.commit);
+        for file_path in files {
+            let bare = zjjrpd_bare_filename(&file_path);
+            let touches = file_touches.entry(bare).or_insert_with(|| vec![false; total_cols]);
+            if col_idx < touches.len() {
+                touches[col_idx] = true;
+            }
+        }
+    }
+
+    if file_touches.is_empty() {
+        println!("File-touch bitmap: (no commits with file changes)");
+        return 0;
+    }
+
+    // Group files by identical touch pattern
+    let mut pattern_groups: BTreeMap<Vec<bool>, Vec<String>> = BTreeMap::new();
+    for (filename, pattern) in &file_touches {
+        pattern_groups.entry(pattern.clone()).or_default().push(filename.clone());
+    }
+
+    // Sort filenames within each group by prefix for visual clustering
+    for files in pattern_groups.values_mut() {
+        files.sort();
+    }
+
+    // Print header
+    println!("File-touch bitmap (x = pace commit touched file):");
+    println!();
+
+    // Print vertical legend: one line per column
+    for (i, (ch, _coronet, silks)) in pace_columns.iter().enumerate() {
+        println!("  {} {} {}", i + 1, ch, silks);
+    }
+    if has_heat_level {
+        println!("  {} * heat-level", pace_columns.len() + 1);
+    }
+    println!();
+
+    // Print bitmap rows, sorted by pattern for deterministic output
+    // Sort patterns: more touches first, then lexicographic
+    let mut sorted_patterns: Vec<(Vec<bool>, Vec<String>)> = pattern_groups.into_iter().collect();
+    sorted_patterns.sort_by(|(pat_a, _), (pat_b, _)| {
+        let count_a: usize = pat_a.iter().filter(|&&b| b).count();
+        let count_b: usize = pat_b.iter().filter(|&&b| b).count();
+        count_b.cmp(&count_a).then_with(|| pat_a.cmp(pat_b))
+    });
+
+    for (pattern, files) in &sorted_patterns {
+        let bitmap: String = pattern.iter().map(|&b| if b { 'x' } else { '·' }).collect();
+        println!("{} {}", bitmap, files.join(", "));
     }
 
     0
