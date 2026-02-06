@@ -1410,6 +1410,7 @@
         "₢AHAAG",
         "₢AHAAR",
         "₢AHAAT",
+        "₢AHAAU",
         "₢AHAAQ",
         "₢AHAAA",
         "₢AHAAH",
@@ -1422,7 +1423,7 @@
         "₢AHAAP",
         "₢AHAAS"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -1847,6 +1848,17 @@
               "text": "Add file-touch visualization to saddle and/or groom commands, showing which files a heat has modified and which paces touched them.\n\n## Problem\n\nWhen working on a heat, there is no consolidated view of which files have been affected across all paces. This makes it hard to:\n- Assess blast radius of a heat's changes\n- Identify hotspot files touched by many paces (potential conflict zones)\n- Review whether a heat's scope has drifted from its paddock intent\n- Brief a new session on what areas of the codebase a heat has been working in\n\n## Proposed Feature\n\nSurface a file-touch summary in saddle and/or groom output. Data source: steeplechase commit history (already tracked via rein/notch).\n\n### Visualization Options\n\n**Per-file summary:**\n```\nFiles touched by ₣AG (5 paces, 12 commits):\n  Tools/jjk/vov_veiled/src/jjrg_gallops.rs  [₢AGAAA ₢AGAAF]  3 commits\n  Tools/jjk/vov_veiled/src/jjro_ops.rs       [₢AGAAE]          1 commit\n  Tools/jjk/vov_veiled/JJSA-GallopsData.adoc [₢AGAAC ₢AGAAF]  4 commits\n```\n\n**Per-pace file list:**\n```\n₢AGAAA express-pace-state:\n  jjrg_gallops.rs, jjrt_types.rs\n₢AGAAF json-schema-commit-to-basis:\n  jjrt_types.rs, jjrg_gallops.rs, JJSA-GallopsData.adoc\n```\n\n### Data Source\n\nSteeplechase tack records already contain `basis` (commit SHA). Between consecutive tack entries, `git diff --name-only <sha1> <sha2>` yields the files changed per pace. Alternatively, parse commit messages matching `jjb:HALLMARK:CORONET:` pattern from git log.\n\n## Design Questions\n\n- Which command(s) should surface this? saddle, groom, parade, or a new subcommand?\n- Should this be a flag (`--files`) or always shown?\n- How to handle paces with no commits yet (rough/bridled but unstarted)?\n- Performance: git log parsing for large heats — cache or compute on demand?\n- Depends on base-commit (₢AGAAI)? Could use heat base_commit as diff anchor, or work without it by using per-pace tack SHAs.\n\n## Acceptance\n\n- Design decision on where visualization lives and what format\n- If proceeding: implementation plan covering data extraction, formatting, and command integration",
               "silks": "heat-file-touch-visualization",
               "commit": "6589ff3"
+            }
+          ]
+        },
+        "₢AHAAU": {
+          "tacks": [
+            {
+              "ts": "260206-0929",
+              "state": "rough",
+              "text": "Add commit-timeline visualization to parade output using a commit-indexed bitmap, complementing the spatial file-touch bitmap (₢AHAAT) with a temporal view.\n\n## Design: Commit-Indexed Swim Lanes\n\nEach row is a pace, each column is a commit (ordered chronologically). Marks show which pace each commit belongs to.\n\n### Format\n\n```\nCommits: 1 2 3 4 5 6 7 8 9 a b\n───────────────────────────────────\n₢AAA     x x · · x · · · · · ·  3c\n₢AAB     · · x x · x x · · · ·  4c\n₢AAC     · · · · · · · x x x ·  3c\n₢AAD     · · · · · · · · · · x  1c\n```\n\n**Column index:** Sequential commit identifier (1-9, a-z for >9). Every column has at least one mark — no sparse matrix, no wasted width.\n\n**Row per pace:** Only paces with commits appear. Suffix shows total commit count.\n\n**Pace legend:** Map coronet terminals to silks (same style as file-touch bitmap).\n\n### Properties\n\n- Width = actual commit count (dense, no calendar gaps)\n- Contiguous marks = focused work on one pace\n- Interleaved marks across rows = parallel work / context switching\n- Rightmost columns = most recent activity = what's \"hot\"\n- A pace with marks only on the left = stale, may need re-engagement\n\n### Data Source\n\nSteeplechase tack records and git log with `jjb:HALLMARK:` pattern matching. Each commit maps to a pace via coronet in the commit message. Heat-only commits (firemark but no coronet) get a separate row or are omitted.\n\n### Large Heat Handling\n\nFor heats with many commits, truncate to last N commits with a `...` prefix — the recent tail is most decision-relevant.\n\n### Relationship to File-Touch Bitmap\n\nThese are orthogonal views of the same underlying data:\n- File-touch (₢AHAAT): files × paces — **where** paces overlap (spatial)\n- Commit-timeline (this pace): paces × commits — **when** paces overlap (temporal)\n\nTogether they form a spatial-temporal map: file-touch shows which files are conflict zones, commit-timeline shows when the conflicts occurred.\n\n## Integration\n\n- Surface via `--timeline` flag on parade\n- Compute on demand from steeplechase commit history\n\n## Acceptance\n\n- `jjx_parade <firemark> --timeline` outputs commit-indexed swim lane bitmap\n- Commit axis is dense (no gaps), ordered chronologically\n- Pace legend uses coronet terminals matching file-touch convention\n- Commit count suffix per row",
+              "silks": "pace-commit-timeline",
+              "commit": "e384d79"
             }
           ]
         }
