@@ -1941,11 +1941,11 @@ that the marker reads ahead.
 |===
 |Marker |Lookahead |Reads
 
-|{axhrb_regime}     |1 attrref |The regime this subdoc describes
-|{axhrv_variable}   |1 attrref |An ungrouped regime variable
-|{axhrgb_group}     |1 attrref |A group (must match {axvr_group} in parent)
-|{axhrgc_gate}      |2 attrrefs|Enumerated variable + enum value
-|{axhrgv_variable}  |1 attrref |A variable within current group
+|{axhrb_regime}     |1 {mcm_attribute_reference}  |The regime this subdoc describes
+|{axhrv_variable}   |1 {mcm_attribute_reference}  |An ungrouped regime variable
+|{axhrgb_group}     |1 {mcm_attribute_reference}  |A group (must match {axvr_group} in parent)
+|{axhrgc_gate}      |2 {mcm_attribute_reference_s}|Enumerated variable + enum value
+|{axhrgv_variable}  |1 {mcm_attribute_reference}  |A variable within current group
 |===
 
 [[axhrb_regime]]

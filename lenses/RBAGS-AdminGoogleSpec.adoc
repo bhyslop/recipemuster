@@ -194,6 +194,11 @@
 :rbrv_conjure_bldcontext:    <<rbrv_conjure_bldcontext,RBRV_CONJURE_BLDCONTEXT>>
 :rbrv_conjure_platforms:     <<rbrv_conjure_platforms,RBRV_CONJURE_PLATFORMS>>
 :rbrv_conjure_binfmt_policy: <<rbrv_conjure_binfmt_policy,RBRV_CONJURE_BINFMT_POLICY>>
+:rbrv_vessel_mode:            <<rbrv_vessel_mode,RBRV_VESSEL_MODE>>
+:rbrv_vessel_mode_bind:       <<rbrv_vessel_mode_bind,bind>>
+:rbrv_vessel_mode_conjure:    <<rbrv_vessel_mode_conjure,conjure>>
+:rbrv_group_binding:          <<rbrv_group_binding,Binding Group>>
+:rbrv_group_conjuring:        <<rbrv_group_conjuring,Conjuring Group>>
 
 // Recipe Bottle Regime: Authentication (service account credentials)
 :rbra_regime:                <<rbra_regime,RBRA Regime>>
@@ -1466,55 +1471,70 @@ The long-lived OAuth refresh token obtained during the authorization flow, used 
 
 === Vessel Regime (RBRV)
 
-// Regime variable mappings
-:rbrv_regime:                 <<rbrv_regime,RBRV_REGIME>>
-:rbrv_sigil:                  <<rbrv_sigil,RBRV_SIGIL>>
-:rbrv_description:            <<rbrv_description,RBRV_DESCRIPTION>>
-:rbrv_bind_image:             <<rbrv_bind_image,RBRV_BIND_IMAGE>>
-:rbrv_conjure_dockerfile:     <<rbrv_conjure_dockerfile,RBRV_CONJURE_DOCKERFILE>>
-:rbrv_conjure_bldcontext:     <<rbrv_conjure_bldcontext,RBRV_CONJURE_BLDCONTEXT>>
-:rbrv_conjure_platforms:      <<rbrv_conjure_platforms,RBRV_CONJURE_PLATFORMS>>
-:rbrv_conjure_binfmt_policy:  <<rbrv_conjure_binfmt_policy,RBRV_CONJURE_BINFMT_POLICY>>
-
 [[rbrv_regime]]
-// ⟦axl_voices axrg_regime axf_bash⟧
+//axvr_regime axf_bash
 {rbrv_regime}::
 Configuration regime for container image build specifications.
 
 [[rbrv_sigil]]
-// ⟦axl_voices axrg_variable rbst_xname axd_required⟧
+//axvr_variable axd_required rbst_xname
 {rbrv_sigil}::
-Vessel identifier; basis for directory and ark naming.
+Vessel identifier for {rbrv_regime}; basis for directory and ark naming.
 
 [[rbrv_description]]
-// ⟦axl_voices axrg_variable rbst_description axd_optional⟧
+//axvr_variable axd_optional rbst_description
 {rbrv_description}::
-Human-readable vessel documentation.
+Human-readable documentation for {rbrv_regime}.
+
+[[rbrv_vessel_mode]]
+//axvr_variable axd_required axt_enumeration
+{rbrv_vessel_mode}::
+Build mode for {rbrv_regime}. Determines which variable group is active.
+
+[[rbrv_vessel_mode_bind]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrv_vessel_mode_bind}::
+Selects binding configuration: vessel uses an existing upstream image.
+
+[[rbrv_vessel_mode_conjure]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrv_vessel_mode_conjure}::
+Selects conjuring configuration: vessel is built from a Dockerfile.
+
+[[rbrv_group_binding]]
+//axvr_group axd_conditional
+{rbrv_group_binding}::
+Variables for binding vessels within {rbrv_regime}.
+
+[[rbrv_group_conjuring]]
+//axvr_group axd_conditional
+{rbrv_group_conjuring}::
+Variables for conjuring vessels within {rbrv_regime}.
 
 [[rbrv_bind_image]]
-// ⟦axl_voices axrg_variable rbst_image_ref axd_optional⟧
+//axvr_variable axd_required rbst_image_ref
 {rbrv_bind_image}::
-Container image reference for binding vessels.
+Container image reference for {rbrv_regime} binding vessels.
 
 [[rbrv_conjure_dockerfile]]
-// ⟦axl_voices axrg_variable rbst_path axd_optional⟧
+//axvr_variable axd_required rbst_path
 {rbrv_conjure_dockerfile}::
-Dockerfile path for conjuring vessels.
+Dockerfile path for {rbrv_regime} conjuring vessels.
 
 [[rbrv_conjure_bldcontext]]
-// ⟦axl_voices axrg_variable rbst_path axd_optional⟧
+//axvr_variable axd_required rbst_path
 {rbrv_conjure_bldcontext}::
-Build context directory for conjuring.
+Build context directory for {rbrv_regime} conjuring.
 
 [[rbrv_conjure_platforms]]
-// ⟦axl_voices axrg_variable rbst_platform_list axd_optional⟧
+//axvr_variable axd_optional rbst_platform_list
 {rbrv_conjure_platforms}::
-Target platform architectures for multi-platform builds.
+Target platform architectures for {rbrv_regime} multi-platform builds.
 
 [[rbrv_conjure_binfmt_policy]]
-// ⟦axl_voices axrg_variable rbst_binfmt_policy axd_optional⟧
+//axvr_variable axd_optional rbst_binfmt_policy
 {rbrv_conjure_binfmt_policy}::
-Qemu binary format policy for cross-platform builds.
+Qemu binary format policy for {rbrv_regime} cross-platform builds.
 
 include::RBSRV-RegimeVessel.adoc[]
 
