@@ -41,6 +41,7 @@
       "creation_time": "260130",
       "status": "racing",
       "order": [
+        "₢ARAAR",
         "₢ARAAI",
         "₢ARAAA",
         "₢ARAAB",
@@ -58,7 +59,7 @@
         "₢ARAAM",
         "₢ARAAO"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -395,6 +396,17 @@
               "text": "Assess whether the axvr_*/axhr*_ regime annotation patterns work for RBRN.\n\n## Purpose\n\nRBRN (RegimeNameplate) has different structural patterns from RBRV:\n- Simple conditional groups (Entry gated by ENTRY_ENABLED)\n- Unconditional groups (Enclave, Core Identity, Ark Reference)\n- Compound conditional variables (UPLINK_ALLOWED_CIDRS requires ACCESS_ENABLED=1 AND ACCESS_GLOBAL=0)\n\nThis pace validates the annotation patterns against these structures without necessarily\napplying changes.\n\n## Assessment Questions\n\n1. Do RBRN's unconditional groups (Enclave, Core) work with axhrgb_group without axhrgc_gate?\n2. Does the stacked axhrgc_gate pattern (AND semantics) handle RBRN's compound conditions?\n3. Is RBRN_ENTRY_ENABLED already an enumeration, or does it need to become one for gates?\n   Boolean variables as gates: does axhrgc_gate require axt_enumeration or can axt_boolean work?\n4. Are there RBRN patterns that expose gaps in the axhr*_ design?\n5. Would RBRN benefit from axd_conditional on variable-level (not just group-level)?\n\n## Inputs\nRBRN, AXLA (with new terms), RBSRV (as completed exemplar)\n\n## Output\nAssessment document: what works, what needs adjustment, recommendations for RBRN application.",
               "silks": "assess-rbrn-regime-fit",
               "commit": "764e136"
+            }
+          ]
+        },
+        "₢ARAAR": {
+          "tacks": [
+            {
+              "ts": "260206-0930",
+              "state": "rough",
+              "text": "Restate RBRN boolean variable pairs as enumerations.\n\n## Problem\n\nRBRN uses boolean pairs (ENABLED + GLOBAL) that are really 3-valued enumerations\nwith an impossible state. This makes axhr gating awkward (compound stacked gates)\nand the regime itself less precise.\n\n## Changes\n\n### Uplink DNS: 2 booleans → 1 enum\n- Remove: RBRN_UPLINK_DNS_ENABLED, RBRN_UPLINK_DNS_GLOBAL\n- Add: RBRN_UPLINK_DNS_MODE = disabled | global | allowlist\n- RBRN_UPLINK_ALLOWED_DOMAINS: required when dns_mode=allowlist (unchanged)\n\n### Uplink Access: 2 booleans → 1 enum  \n- Remove: RBRN_UPLINK_ACCESS_ENABLED, RBRN_UPLINK_ACCESS_GLOBAL\n- Add: RBRN_UPLINK_ACCESS_MODE = disabled | global | allowlist\n- RBRN_UPLINK_ALLOWED_CIDRS: required when access_mode=allowlist (unchanged)\n\n### Entry: 1 boolean → 1 enum\n- Remove: RBRN_ENTRY_ENABLED (crg_atom_bool)\n- Add: RBRN_ENTRY_MODE = disabled | enabled\n- Gated variables unchanged\n\n## Files to update\n1. lenses/RBRN-RegimeNameplate.adoc — the spec itself\n2. Tools/rbw/rbrn_*.env — all nameplate assignment files (update variable names and values)\n3. Tools/rbw/ bash scripts that read these variables — search for RBRN_ENTRY_ENABLED,\n   RBRN_UPLINK_DNS_ENABLED, RBRN_UPLINK_DNS_GLOBAL, RBRN_UPLINK_ACCESS_ENABLED,\n   RBRN_UPLINK_ACCESS_GLOBAL and update to new enum-based logic\n\n## Verification\n- All rbrn_*.env files use new variable names with valid enum values\n- Bash scripts that consume RBRN variables handle new enum values correctly\n- No references to removed variable names remain in codebase",
+              "silks": "rbrn-restate-boolean-enums",
+              "commit": "bb65738"
             }
           ]
         }
