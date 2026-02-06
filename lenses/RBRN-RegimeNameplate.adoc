@@ -40,7 +40,6 @@
 :crg_atom_string:            <<crg_atom_string,String>>
 :crg_atom_xname:             <<crg_atom_xname,XName>>
 :crg_atom_fqin:              <<crg_atom_fqin,FQIN>>
-:crg_atom_bool:              <<crg_atom_bool,Boolean>>
 :crg_atom_decimal:           <<crg_atom_decimal,Decimal>>
 :crg_atom_ipv4:              <<crg_atom_ipv4,IPv4>>
 :crg_atom_cidr:              <<crg_atom_cidr,CIDR>>
@@ -160,11 +159,11 @@ Yes
 |===
 |Assignment Variable |Attribute |Details
 
-.4+|**`RBRN_ENTRY_ENABLED`**
+.4+|**`RBRN_ENTRY_MODE`**
 |Purpose|
-Enable flag for user-initiated entry functionality
+Mode for user-initiated entry functionality
 |Type|
-{crg_atom_bool}
+{crg_atom_string}: "disabled" or "enabled"
 |Required|
 Yes
 |Constraints|
@@ -177,7 +176,7 @@ for user entry
 |Type|
 {crg_atom_port}
 |Required|
-When ENTRY_ENABLED=1
+When ENTRY_MODE=enabled
 |Constraints|
 Must be less than RBRN_UPLINK_PORT_MIN
 
@@ -191,7 +190,7 @@ for entry traffic
 |Type|
 {crg_atom_port}
 |Required|
-When ENTRY_ENABLED=1
+When ENTRY_MODE=enabled
 |Constraints|
 Must be less than RBRN_UPLINK_PORT_MIN
 |===
@@ -259,38 +258,20 @@ Yes
 |Constraints|
 Must be greater than any Entry port
 
-.4+|**`RBRN_UPLINK_DNS_ENABLED`**
+.4+|**`RBRN_UPLINK_DNS_MODE`**
 |Purpose|
-Enable protected DNS resolution for bottle-initiated requests
+DNS resolution mode for bottle-initiated requests
 |Type|
-{crg_atom_bool}
+{crg_atom_string}: "disabled", "global", or "allowlist"
 |Required|
 Yes
 |Constraints|
 
-.4+|**`RBRN_UPLINK_ACCESS_ENABLED`**
+.4+|**`RBRN_UPLINK_ACCESS_MODE`**
 |Purpose|
-Enable protected IP access for bottle-initiated connections
+IP access mode for bottle-initiated connections
 |Type|
-{crg_atom_bool}
-|Required|
-Yes
-|Constraints|
-
-.4+|**`RBRN_UPLINK_DNS_GLOBAL`**
-|Purpose|
-Enable unrestricted DNS resolution for bottle-initiated requests
-|Type|
-{crg_atom_bool}
-|Required|
-Yes
-|Constraints|
-
-.4+|**`RBRN_UPLINK_ACCESS_GLOBAL`**
-|Purpose|
-Enable unrestricted IP access for bottle-initiated connections
-|Type|
-{crg_atom_bool}
+{crg_atom_string}: "disabled", "global", or "allowlist"
 |Required|
 Yes
 |Constraints|
@@ -301,7 +282,7 @@ CIDR ranges for allowed bottle-initiated outbound traffic
 |Type|
 {crg_list_cidr}
 |Required|
-When UPLINK_ACCESS_ENABLED=1 and UPLINK_ACCESS_GLOBAL=0
+When UPLINK_ACCESS_MODE=allowlist
 |Constraints|
 
 .4+|**`RBRN_UPLINK_ALLOWED_DOMAINS`**
@@ -310,7 +291,7 @@ Domain names allowed for bottle-initiated DNS resolution
 |Type|
 {crg_list_domain}
 |Required|
-When UPLINK_DNS_ENABLED=1 and UPLINK_DNS_GLOBAL=0
+When UPLINK_DNS_MODE=allowlist
 |Constraints|
 |===
 

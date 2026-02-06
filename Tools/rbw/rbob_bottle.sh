@@ -169,7 +169,7 @@ zrbob_launch_sentry() {
 
   # Build port mapping args if entry is enabled
   local z_port_args=()
-  if [[ "${RBRN_ENTRY_ENABLED}" == "1" ]]; then
+  if [[ "${RBRN_ENTRY_MODE}" == "enabled" ]]; then
     z_port_args+=("-p" "${RBRN_ENTRY_PORT_WORKSTATION}:${RBRN_ENTRY_PORT_WORKSTATION}")
   fi
 

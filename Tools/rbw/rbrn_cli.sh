@@ -75,7 +75,7 @@ rbrn_render() {
   printf "%-30s %s\n" "RBRN_BOTTLE_CONSECRATION" "${RBRN_BOTTLE_CONSECRATION:-<not set>}"
 
   # Entry Service Configuration
-  printf "%-30s %s\n" "RBRN_ENTRY_ENABLED" "${RBRN_ENTRY_ENABLED:-<not set>}"
+  printf "%-30s %s\n" "RBRN_ENTRY_MODE" "${RBRN_ENTRY_MODE:-<not set>}"
   printf "%-30s %s\n" "RBRN_ENTRY_PORT_WORKSTATION" "${RBRN_ENTRY_PORT_WORKSTATION:-<not set>}"
   printf "%-30s %s\n" "RBRN_ENTRY_PORT_ENCLAVE" "${RBRN_ENTRY_PORT_ENCLAVE:-<not set>}"
 
@@ -87,10 +87,8 @@ rbrn_render() {
 
   # Uplink Configuration
   printf "%-30s %s\n" "RBRN_UPLINK_PORT_MIN" "${RBRN_UPLINK_PORT_MIN:-<not set>}"
-  printf "%-30s %s\n" "RBRN_UPLINK_DNS_ENABLED" "${RBRN_UPLINK_DNS_ENABLED:-<not set>}"
-  printf "%-30s %s\n" "RBRN_UPLINK_ACCESS_ENABLED" "${RBRN_UPLINK_ACCESS_ENABLED:-<not set>}"
-  printf "%-30s %s\n" "RBRN_UPLINK_DNS_GLOBAL" "${RBRN_UPLINK_DNS_GLOBAL:-<not set>}"
-  printf "%-30s %s\n" "RBRN_UPLINK_ACCESS_GLOBAL" "${RBRN_UPLINK_ACCESS_GLOBAL:-<not set>}"
+  printf "%-30s %s\n" "RBRN_UPLINK_DNS_MODE" "${RBRN_UPLINK_DNS_MODE:-<not set>}"
+  printf "%-30s %s\n" "RBRN_UPLINK_ACCESS_MODE" "${RBRN_UPLINK_ACCESS_MODE:-<not set>}"
   printf "%-30s %s\n" "RBRN_UPLINK_ALLOWED_CIDRS" "${RBRN_UPLINK_ALLOWED_CIDRS:-<not set>}"
   printf "%-30s %s\n" "RBRN_UPLINK_ALLOWED_DOMAINS" "${RBRN_UPLINK_ALLOWED_DOMAINS:-<not set>}"
 
@@ -144,17 +142,17 @@ ${ZBUC_YELLOW}Container Image Configuration${ZBUC_RESET}
 
 ${ZBUC_YELLOW}Entry Service Configuration${ZBUC_RESET}
 
-  ${ZBUC_GREEN}RBRN_ENTRY_ENABLED${ZBUC_RESET}
-    Enable user-initiated entry functionality
-    Type: bool, Required: Yes
+  ${ZBUC_GREEN}RBRN_ENTRY_MODE${ZBUC_RESET}
+    Mode for user-initiated entry functionality
+    Type: string ("disabled" or "enabled"), Required: Yes
 
   ${ZBUC_GREEN}RBRN_ENTRY_PORT_WORKSTATION${ZBUC_RESET}
     External port on Transit Network for user entry
-    Type: port, Required: When ENTRY_ENABLED=1
+    Type: port, Required: When ENTRY_MODE=enabled
 
   ${ZBUC_GREEN}RBRN_ENTRY_PORT_ENCLAVE${ZBUC_RESET}
     Port between Sentry and Bottle for entry traffic
-    Type: port, Required: When ENTRY_ENABLED=1
+    Type: port, Required: When ENTRY_MODE=enabled
 
 ${ZBUC_YELLOW}Enclave Network Configuration${ZBUC_RESET}
 
@@ -180,29 +178,21 @@ ${ZBUC_YELLOW}Uplink Configuration${ZBUC_RESET}
     Minimum port for bottle-initiated outbound connections
     Type: port, Required: Yes
 
-  ${ZBUC_GREEN}RBRN_UPLINK_DNS_ENABLED${ZBUC_RESET}
-    Enable protected DNS resolution
-    Type: bool, Required: Yes
+  ${ZBUC_GREEN}RBRN_UPLINK_DNS_MODE${ZBUC_RESET}
+    DNS resolution mode for bottle-initiated requests
+    Type: string ("disabled", "global", or "allowlist"), Required: Yes
 
-  ${ZBUC_GREEN}RBRN_UPLINK_ACCESS_ENABLED${ZBUC_RESET}
-    Enable protected IP access
-    Type: bool, Required: Yes
-
-  ${ZBUC_GREEN}RBRN_UPLINK_DNS_GLOBAL${ZBUC_RESET}
-    Enable unrestricted DNS resolution
-    Type: bool, Required: Yes
-
-  ${ZBUC_GREEN}RBRN_UPLINK_ACCESS_GLOBAL${ZBUC_RESET}
-    Enable unrestricted IP access
-    Type: bool, Required: Yes
+  ${ZBUC_GREEN}RBRN_UPLINK_ACCESS_MODE${ZBUC_RESET}
+    IP access mode for bottle-initiated connections
+    Type: string ("disabled", "global", or "allowlist"), Required: Yes
 
   ${ZBUC_GREEN}RBRN_UPLINK_ALLOWED_CIDRS${ZBUC_RESET}
     CIDR ranges for allowed outbound traffic
-    Type: cidr_list, Required: When ACCESS_ENABLED=1 and ACCESS_GLOBAL=0
+    Type: cidr_list, Required: When ACCESS_MODE=allowlist
 
   ${ZBUC_GREEN}RBRN_UPLINK_ALLOWED_DOMAINS${ZBUC_RESET}
     Domains allowed for DNS resolution
-    Type: domain_list, Required: When DNS_ENABLED=1 and DNS_GLOBAL=0
+    Type: domain_list, Required: When DNS_MODE=allowlist
 
 ${ZBUC_YELLOW}Volume Mount Configuration${ZBUC_RESET}
 

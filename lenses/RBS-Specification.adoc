@@ -158,13 +158,11 @@
 :rbrn_bottle_moniker:             <<rbrn_bottle_moniker,RBRN_BOTTLE_MONIKER>>
 :rbrn_sentry_image_tag:           <<rbrn_sentry_image_tag,RBRN_SENTRY_IMAGE_TAG>>
 :rbrn_bottle_image_tag:           <<rbrn_bottle_image_tag,RBRN_BOTTLE_IMAGE_TAG>>
-:rbrn_entry_enabled:              <<rbrn_entry_enabled,RBRN_ENTRY_ENABLED>>
+:rbrn_entry_mode:                 <<rbrn_entry_mode,RBRN_ENTRY_MODE>>
 :rbrn_entry_port_workstation:     <<rbrn_entry_port_workstation,RBRN_ENTRY_PORT_WORKSTATION>>
 :rbrn_entry_port_enclave:         <<rbrn_entry_port_enclave,RBRN_ENTRY_PORT_ENCLAVE>>
-:rbrn_uplink_dns_enabled:         <<rbrn_uplink_dns_enabled,RBRN_UPLINK_DNS_ENABLED>>
-:rbrn_uplink_access_enabled:      <<rbrn_uplink_access_enabled,RBRN_UPLINK_ACCESS_ENABLED>>
-:rbrn_uplink_dns_global:          <<rbrn_uplink_dns_global,RBRN_UPLINK_DNS_GLOBAL>>
-:rbrn_uplink_access_global:       <<rbrn_uplink_access_global,RBRN_UPLINK_ACCESS_GLOBAL>>
+:rbrn_uplink_dns_mode:            <<rbrn_uplink_dns_mode,RBRN_UPLINK_DNS_MODE>>
+:rbrn_uplink_access_mode:         <<rbrn_uplink_access_mode,RBRN_UPLINK_ACCESS_MODE>>
 :rbrn_uplink_allowed_cidrs:       <<rbrn_uplink_allowed_cidrs,RBRN_UPLINK_ALLOWED_CIDRS>>
 :rbrn_uplink_allowed_domains:     <<rbrn_uplink_allowed_domains,RBRN_UPLINK_ALLOWED_DOMAINS>>
 :rbrn_enclave_netmask:            <<rbrn_enclave_netmask,RBRN_ENCLAVE_NETMASK>>
@@ -302,7 +300,7 @@ fully isolated
 
 // TODO fixup this language realized missing during pod namespace try
 . Service Access Control
-* External access to services only permitted when {rbrn_entry_enabled} is true
+* External access to services only permitted when {rbrn_entry_mode} is enabled
 * No inter-container communication allowed within pods
 * All service access must originate from outside the pod
 * Entry traffic flows: external → pod →
@@ -467,11 +465,11 @@ Establishes foundational security state:
 ==== Phase 2: {scr_port_setup}
 
 If
-{rbrn_entry_enabled}
-is false, this sequence is skipped.
+{rbrn_entry_mode}
+is disabled, this sequence is skipped.
 If
-{rbrn_entry_enabled}
-is true, this sequence configures service port mapping:
+{rbrn_entry_mode}
+is enabled, this sequence configures service port mapping:
 
 . Socat Proxy Configuration:
 * Launch socat proxy process in background:
@@ -511,8 +509,8 @@ IP (
 ==== Phase 3: {scr_access_setup}
 
 If
-{rbrn_uplink_access_enabled}
-is false, this sequence:
+{rbrn_uplink_access_mode}
+is disabled, this sequence:
 
 * Verifies DROP policy exists for all filter table chains
 * Removes NAT rules except those marked "RBM-PORT-FORWARD"
@@ -521,8 +519,8 @@ is false, this sequence:
 ** RBM-FORWARD: DROP all eth1 forward
 
 If
-{rbrn_uplink_access_enabled}
-is true, this sequence:
+{rbrn_uplink_access_mode}
+is global or allowlist, this sequence:
 
 . Network Interface Configuration:
 * Enable IPv4 forwarding
@@ -545,17 +543,17 @@ is configured:
 ** Add rule to RBM-FORWARD accepting traffic to
 {rbrr_dns_server}
 * These rules are independent of
-{rbrn_uplink_access_global}
+{rbrn_uplink_access_mode}
 and
 {rbrn_uplink_allowed_cidrs}
 
 . Filter Configuration:
 * If
-{rbrn_uplink_access_global}:
+{rbrn_uplink_access_mode} is global:
 ** Accept all output on eth0 in RBM-EGRESS
 ** Accept all forward from eth1 in RBM-FORWARD
-* If not
-{rbrn_uplink_access_global}:
+* If
+{rbrn_uplink_access_mode} is allowlist:
 ** For each CIDR in
 {rbrn_uplink_allowed_cidrs}:
 *** Accept in RBM-EGRESS matching destination
@@ -565,8 +563,8 @@ and
 ==== Phase 4: {scr_dns_step}
 
 If
-{rbrn_uplink_dns_enabled}
-is false, the
+{rbrn_uplink_dns_mode}
+is disabled, the
 {at_sentry_container}:
 
 * Blocks all DNS traffic in RBM-FORWARD from eth1
@@ -574,8 +572,8 @@ is false, the
 * Removes any existing DNS-related NAT rules
 
 If
-{rbrn_uplink_dns_enabled}
-is true, the
+{rbrn_uplink_dns_mode}
+is global or allowlist, the
 {at_sentry_container}
 executes this sequence:
 
@@ -615,16 +613,16 @@ specified
 
 * Query Control:
 ** When
-{rbrn_uplink_dns_global}
-is true:
+{rbrn_uplink_dns_mode}
+is global:
 *** Accept all DNS queries from eth1
 *** Forward queries unmodified to upstream
 *** Log each query with timestamp and resolution
 *** Return all responses unmodified
 
-** When 
-{rbrn_uplink_dns_global}
-is false:
+** When
+{rbrn_uplink_dns_mode}
+is allowlist:
 *** Load allowed domains from
 {rbrn_uplink_allowed_domains}
 *** Accept queries only for allowed domains
@@ -1486,11 +1484,14 @@ The version identifier for the
 {at_bottle_image}
 to be deployed.
 
-[[rbrn_entry_enabled]]
-{rbrn_entry_enabled}::
-A flag indicating whether the
+[[rbrn_entry_mode]]
+{rbrn_entry_mode}::
+The mode controlling whether the
 {at_bottle_service}
-should expose network ports through the
+exposes network ports through the
+{at_sentry_container}.
+When disabled, no entry ports are configured.
+When enabled, entry ports are mapped through the
 {at_sentry_container}.
 
 [[rbrn_entry_port_workstation]]
@@ -1508,52 +1509,31 @@ and
 across the
 {at_enclave_network}.
 
-[[rbrn_uplink_dns_enabled]]
-{rbrn_uplink_dns_enabled}::
-A flag determining whether the
-{at_sentry_container}
-allows any DNS resolution for its
-{at_bottle_container}.
-When false, the
+[[rbrn_uplink_dns_mode]]
+{rbrn_uplink_dns_mode}::
+The DNS resolution mode for bottle-initiated requests through the
+{at_sentry_container}.
+When disabled, the
 {at_sentry_container} blocks all DNS queries from the
 {at_bottle_container}.
-When true, the
+When global, the
 {at_sentry_container}
-processes DNS queries according to either unrestricted rules
-({rbrn_uplink_dns_global})
-or domain-specific controls
-({rbrn_uplink_allowed_domains}).
-
-[[rbrn_uplink_access_enabled]]
-{rbrn_uplink_access_enabled}::
-A flag indicating whether protected IP access through the
-{at_transit_network}
-is enabled.
-
-[[rbrn_uplink_dns_global]]
-{rbrn_uplink_dns_global}::
-A flag determining how the
-{at_sentry_container}
-filters DNS queries when
-{rbrn_uplink_dns_enabled}
-is true.
-When false, the
+forwards all DNS queries unmodified to upstream.
+When allowlist, the
 {at_sentry_container}
 allows resolution only for domains listed in
 {rbrn_uplink_allowed_domains}
 and returns NXDOMAIN for all other queries.
-When true, the
-{at_sentry_container}
-allows all DNS queries.
-Has no effect if
-{rbrn_uplink_dns_enabled}
-is false.
 
-[[rbrn_uplink_access_global]]
-{rbrn_uplink_access_global}::
-A flag indicating whether unrestricted IP access through the
-{at_transit_network}
-is allowed.
+[[rbrn_uplink_access_mode]]
+{rbrn_uplink_access_mode}::
+The IP access mode for bottle-initiated connections through the
+{at_transit_network}.
+When disabled, all non-port traffic is blocked.
+When global, unrestricted IP access is allowed.
+When allowlist, only traffic to CIDRs listed in
+{rbrn_uplink_allowed_cidrs}
+is permitted.
 
 [[rbrn_uplink_allowed_cidrs]]
 {rbrn_uplink_allowed_cidrs}::

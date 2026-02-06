@@ -10,14 +10,12 @@ echo "RBSp1: Validate parameters"
 : ${RBRN_ENCLAVE_SENTRY_IP:?}      && echo "RBSp0: RBRN_ENCLAVE_SENTRY_IP      = ${RBRN_ENCLAVE_SENTRY_IP}"
 : ${RBRN_ENCLAVE_BOTTLE_IP:?}      && echo "RBSp0: RBRN_ENCLAVE_BOTTLE_IP      = ${RBRN_ENCLAVE_BOTTLE_IP}"
 : ${RBRR_DNS_SERVER:?}             && echo "RBSp0: RBRR_DNS_SERVER             = ${RBRR_DNS_SERVER}"
-: ${RBRN_ENTRY_ENABLED:?}          && echo "RBSp0: RBRN_ENTRY_ENABLED          = ${RBRN_ENTRY_ENABLED}"
+: ${RBRN_ENTRY_MODE:?}             && echo "RBSp0: RBRN_ENTRY_MODE             = ${RBRN_ENTRY_MODE}"
 : ${RBRN_ENTRY_PORT_WORKSTATION:?} && echo "RBSp0: RBRN_ENTRY_PORT_WORKSTATION = ${RBRN_ENTRY_PORT_WORKSTATION}"
 : ${RBRN_ENTRY_PORT_ENCLAVE:?}     && echo "RBSp0: RBRN_ENTRY_PORT_ENCLAVE     = ${RBRN_ENTRY_PORT_ENCLAVE}"
-: ${RBRN_UPLINK_DNS_ENABLED:?}     && echo "RBSp0: RBRN_UPLINK_DNS_ENABLED     = ${RBRN_UPLINK_DNS_ENABLED}"
+: ${RBRN_UPLINK_DNS_MODE:?}        && echo "RBSp0: RBRN_UPLINK_DNS_MODE        = ${RBRN_UPLINK_DNS_MODE}"
 : ${RBRN_UPLINK_PORT_MIN:?}        && echo "RBSp0: RBRN_UPLINK_PORT_MIN        = ${RBRN_UPLINK_PORT_MIN}"
-: ${RBRN_UPLINK_ACCESS_ENABLED:?}  && echo "RBSp0: RBRN_UPLINK_ACCESS_ENABLED  = ${RBRN_UPLINK_ACCESS_ENABLED}"
-: ${RBRN_UPLINK_DNS_GLOBAL:?}      && echo "RBSp0: RBRN_UPLINK_DNS_GLOBAL      = ${RBRN_UPLINK_DNS_GLOBAL}"
-: ${RBRN_UPLINK_ACCESS_GLOBAL:?}   && echo "RBSp0: RBRN_UPLINK_ACCESS_GLOBAL   = ${RBRN_UPLINK_ACCESS_GLOBAL}"
+: ${RBRN_UPLINK_ACCESS_MODE:?}     && echo "RBSp0: RBRN_UPLINK_ACCESS_MODE     = ${RBRN_UPLINK_ACCESS_MODE}"
 : ${RBRN_UPLINK_ALLOWED_CIDRS:?}   && echo "RBSp0: RBRN_UPLINK_ALLOWED_CIDRS   = ${RBRN_UPLINK_ALLOWED_CIDRS}"
 : ${RBRN_UPLINK_ALLOWED_DOMAINS:?} && echo "RBSp0: RBRN_UPLINK_ALLOWED_DOMAINS = ${RBRN_UPLINK_ALLOWED_DOMAINS}"
 
@@ -59,7 +57,7 @@ iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20
 iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 
 echo "RBSp2: Phase 2: Port Setup"
-if [ "${RBRN_ENTRY_ENABLED}" = "1" ]; then
+if [ "${RBRN_ENTRY_MODE}" = "enabled" ]; then
     echo "RBSp2: Configuring TCP access for bottled services"
 
     echo "RBSp2: Allow direct connections from sentry to bottle for the entry port"
@@ -90,7 +88,7 @@ iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
 iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 28
 
 echo "RBSp3: Phase 3: Access Setup"
-if [ "${RBRN_UPLINK_ACCESS_ENABLED}" = "0" ]; then
+if [ "${RBRN_UPLINK_ACCESS_MODE}" = "disabled" ]; then
     echo "RBSp3: Blocking all non-port traffic"
     iptables -A RBM-EGRESS  -o eth0 -j DROP || exit 30
     iptables -A RBM-FORWARD -i eth1 -j DROP || exit 30
@@ -106,7 +104,7 @@ else
                                          ! -d "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
                                          -j MASQUERADE || exit 31
 
-    if [ "${RBRN_UPLINK_ACCESS_GLOBAL}" = "1" ]; then
+    if [ "${RBRN_UPLINK_ACCESS_MODE}" = "global" ]; then
         echo "RBSp3: Enabling global access"
         iptables -A RBM-EGRESS  -o eth0 -j ACCEPT || exit 31
         iptables -A RBM-FORWARD -i eth1 -j ACCEPT || exit 31
@@ -132,7 +130,7 @@ echo "RBSp4: Configuring DNS services"
 echo "RBSp4: Configuring sentry DNS resolution"
 echo "nameserver ${RBRR_DNS_SERVER}" > /etc/resolv.conf   || exit 40
 
-if [ "${RBRN_UPLINK_DNS_ENABLED}" = "0" ]; then
+if [ "${RBRN_UPLINK_DNS_MODE}" = "disabled" ]; then
     echo "RBSp4: Blocking all DNS traffic"
     iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP || exit 40
     iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP || exit 40
@@ -169,7 +167,7 @@ else
     echo "log-dhcp"                                               >> /etc/dnsmasq.conf || exit 41
     echo "log-debug"                                              >> /etc/dnsmasq.conf || exit 41
     echo "log-async=20"                                           >> /etc/dnsmasq.conf || exit 41
-    if [ "${RBRN_UPLINK_DNS_GLOBAL}" = "1" ]; then
+    if [ "${RBRN_UPLINK_DNS_MODE}" = "global" ]; then
         echo "RBSp4: Enabling global DNS resolution"
         echo "server=${RBRR_DNS_SERVER}"                          >> /etc/dnsmasq.conf || exit 41
     else
