@@ -1255,9 +1255,10 @@
         "₢AGAAE",
         "₢AGAAF",
         "₢AGAAG",
-        "₢AGAAI"
+        "₢AGAAI",
+        "₢AGAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -1377,6 +1378,17 @@
               "text": "Consider adding a 'base commit' field to the heat data model — a git SHA recorded at heat creation time that captures the codebase state when the heat was constructed.\n\n## Problem\n\nThere is currently no way to programmatically determine what the codebase looked like \"before\" a heat's changes began. This matters for:\n- Diffing: `git diff <base_commit>..HEAD` to see all changes a heat has made\n- Rein/steeplechase: Understanding cumulative impact of a heat's paces\n- Rollback analysis: Knowing what \"clean\" looked like before heat work started\n- Heat retirement: Summarizing total delta introduced by the heat\n\n## Proposed Schema Change\n\nAdd `base_commit` (optional string, git SHA) to Heat record in gallops.json:\n\n```json\n{\n  \"silks\": \"my-heat\",\n  \"status\": \"racing\",\n  \"base_commit\": \"a1b2c3d4e5f6...\",  // NEW: SHA at heat creation\n  ...\n}\n```\n\n## Behavior\n\n- `jjx_nominate`: Capture `git rev-parse HEAD` at heat creation, store as `base_commit`\n- `jjx_parade`: Display base commit when present\n- `jjx_rein`: Could use base commit as diff anchor for steeplechase summaries\n- Migration: Existing heats get `base_commit: null` (not retroactively derivable with certainty)\n\n## Design Questions\n\n- Should this be mandatory for new heats or optional?\n- Is a single SHA sufficient, or should we record branch name too?\n- Should this interact with furlough (re-baseline when resuming)?\n- Relationship to tack basis fields: tack records already track per-pace commit SHAs — how does heat-level base commit complement or overlap with per-pace basis?\n\n## Acceptance\n\n- Design decision documented on whether to proceed and with what schema\n- If proceeding: schema change specified, migration path defined",
               "silks": "consider-heat-base-commit",
               "commit": "9cffe27"
+            }
+          ]
+        },
+        "₢AGAAJ": {
+          "tacks": [
+            {
+              "ts": "260206-0854",
+              "state": "rough",
+              "text": "Add file-touch visualization to saddle and/or groom commands, showing which files a heat has modified and which paces touched them.\n\n## Problem\n\nWhen working on a heat, there is no consolidated view of which files have been affected across all paces. This makes it hard to:\n- Assess blast radius of a heat's changes\n- Identify hotspot files touched by many paces (potential conflict zones)\n- Review whether a heat's scope has drifted from its paddock intent\n- Brief a new session on what areas of the codebase a heat has been working in\n\n## Proposed Feature\n\nSurface a file-touch summary in saddle and/or groom output. Data source: steeplechase commit history (already tracked via rein/notch).\n\n### Visualization Options\n\n**Per-file summary:**\n```\nFiles touched by ₣AG (5 paces, 12 commits):\n  Tools/jjk/vov_veiled/src/jjrg_gallops.rs  [₢AGAAA ₢AGAAF]  3 commits\n  Tools/jjk/vov_veiled/src/jjro_ops.rs       [₢AGAAE]          1 commit\n  Tools/jjk/vov_veiled/JJSA-GallopsData.adoc [₢AGAAC ₢AGAAF]  4 commits\n```\n\n**Per-pace file list:**\n```\n₢AGAAA express-pace-state:\n  jjrg_gallops.rs, jjrt_types.rs\n₢AGAAF json-schema-commit-to-basis:\n  jjrt_types.rs, jjrg_gallops.rs, JJSA-GallopsData.adoc\n```\n\n### Data Source\n\nSteeplechase tack records already contain `basis` (commit SHA). Between consecutive tack entries, `git diff --name-only <sha1> <sha2>` yields the files changed per pace. Alternatively, parse commit messages matching `jjb:HALLMARK:CORONET:` pattern from git log.\n\n## Design Questions\n\n- Which command(s) should surface this? saddle, groom, parade, or a new subcommand?\n- Should this be a flag (`--files`) or always shown?\n- How to handle paces with no commits yet (rough/bridled but unstarted)?\n- Performance: git log parsing for large heats — cache or compute on demand?\n- Depends on base-commit (₢AGAAI)? Could use heat base_commit as diff anchor, or work without it by using per-pace tack SHAs.\n\n## Acceptance\n\n- Design decision on where visualization lives and what format\n- If proceeding: implementation plan covering data extraction, formatting, and command integration",
+              "silks": "heat-file-touch-visualization",
+              "commit": "6589ff3"
             }
           ]
         }
