@@ -42,6 +42,7 @@
       "status": "racing",
       "order": [
         "₢ARAAR",
+        "₢ARAAS",
         "₢ARAAI",
         "₢ARAAA",
         "₢ARAAB",
@@ -59,7 +60,7 @@
         "₢ARAAM",
         "₢ARAAO"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -407,6 +408,17 @@
               "text": "Restate RBRN boolean variable pairs as enumerations.\n\n## Problem\n\nRBRN uses boolean pairs (ENABLED + GLOBAL) that are really 3-valued enumerations\nwith an impossible state. This makes axhr gating awkward (compound stacked gates)\nand the regime itself less precise.\n\n## Changes\n\n### Uplink DNS: 2 booleans → 1 enum\n- Remove: RBRN_UPLINK_DNS_ENABLED, RBRN_UPLINK_DNS_GLOBAL\n- Add: RBRN_UPLINK_DNS_MODE = disabled | global | allowlist\n- RBRN_UPLINK_ALLOWED_DOMAINS: required when dns_mode=allowlist (unchanged)\n\n### Uplink Access: 2 booleans → 1 enum  \n- Remove: RBRN_UPLINK_ACCESS_ENABLED, RBRN_UPLINK_ACCESS_GLOBAL\n- Add: RBRN_UPLINK_ACCESS_MODE = disabled | global | allowlist\n- RBRN_UPLINK_ALLOWED_CIDRS: required when access_mode=allowlist (unchanged)\n\n### Entry: 1 boolean → 1 enum\n- Remove: RBRN_ENTRY_ENABLED (crg_atom_bool)\n- Add: RBRN_ENTRY_MODE = disabled | enabled\n- Gated variables unchanged\n\n## Files to update\n1. lenses/RBRN-RegimeNameplate.adoc — the spec itself\n2. Tools/rbw/rbrn_*.env — all nameplate assignment files (update variable names and values)\n3. Tools/rbw/ bash scripts that read these variables — search for RBRN_ENTRY_ENABLED,\n   RBRN_UPLINK_DNS_ENABLED, RBRN_UPLINK_DNS_GLOBAL, RBRN_UPLINK_ACCESS_ENABLED,\n   RBRN_UPLINK_ACCESS_GLOBAL and update to new enum-based logic\n\n## Verification\n- All rbrn_*.env files use new variable names with valid enum values\n- Bash scripts that consume RBRN variables handle new enum values correctly\n- No references to removed variable names remain in codebase",
               "silks": "rbrn-restate-boolean-enums",
               "commit": "bb65738"
+            }
+          ]
+        },
+        "₢ARAAS": {
+          "tacks": [
+            {
+              "ts": "260206-0930",
+              "state": "rough",
+              "text": "Apply axvr_*/axhr*_ regime annotation patterns to RBRN.\n\n## Purpose\n\nDocument RBRN using the same voicing and hierarchy patterns deployed for RBRV in ₢ARAAP.\nThis pace depends on ₢ARAAR (rbrn-restate-boolean-enums) completing first so the\nvariable structure is finalized.\n\n## Changes\n\n### RBAGS parent document — mint rbrn_* voicings\n- rbrn_regime (axvr_regime axf_bash)\n- rbrn_moniker, rbrn_description, rbrn_runtime (axvr_variable)\n- rbrn_sentry_vessel, rbrn_sentry_consecration, rbrn_bottle_vessel, rbrn_bottle_consecration\n- rbrn_entry_mode + enum values (axvr_variable axt_enumeration)\n- rbrn_uplink_dns_mode, rbrn_uplink_access_mode + enum values\n- rbrn_uplink_port_min, rbrn_uplink_allowed_cidrs, rbrn_uplink_allowed_domains\n- rbrn_enclave_* variables\n- rbrn_volume_mounts\n- Group voicings: rbrn_group_ark_reference, rbrn_group_entry, rbrn_group_access_allowlist,\n  rbrn_group_dns_allowlist (axvr_group, conditional where gated)\n- rbst_* type voicings as needed for RBRN's types\n\n### RBRN subdocument — apply axhr hierarchy markers\n- axhrb_regime → rbrn_regime\n- Ungrouped variables via axhrv_variable (moniker, description, runtime, enclave vars, \n  uplink ungrouped vars, volume_mounts)\n- axhrgb_group for ark_reference (unconditional), entry (conditional), \n  access_allowlist (conditional), dns_allowlist (conditional)\n- axhrgc_gate for conditional groups (entry_mode=enabled, access_mode=allowlist, dns_mode=allowlist)\n- axhrgv_variable for grouped variables\n\n## Inputs\n- Assessment memo: Memos/memo-20260206-rbrn-regime-fit-assessment.md\n- RBSRV exemplar (completed in ₢ARAAP)\n- AXLA with axvr_*/axhr*_ terms (from ₢ARAAN)\n\n## Verification\n- All rbrn_* attribute references resolve\n- axhr hierarchy in RBRN subdoc matches axvr voicings in RBAGS parent\n- Cross-document validation rules from AXLA are satisfied",
+              "silks": "rbrn-axhr-voicing",
+              "commit": "e896797"
             }
           ]
         }
