@@ -169,6 +169,13 @@
         "₢AWAAE": {
           "tacks": [
             {
+              "ts": "260207-1408",
+              "state": "complete",
+              "text": "Delete thin wrapper slash commands that will be replaced by the CLI truth table.\n\nDelete these files:\n- .claude/commands/jjc-heat-muster.md\n- .claude/commands/jjc-heat-rein.md\n- .claude/commands/jjc-scout.md\n- .claude/commands/jjc-parade.md\n- .claude/commands/jjc-heat-nominate.md\n- .claude/commands/jjc-pace-wrap.md\n\nAlso update any remaining slash commands that reference these deleted commands in their \"Available Operations\" footer sections — change references to describe the direct CLI invocation or remove the line.\n\nAcceptance: Deleted files do not exist. No remaining slash command references a deleted command.",
+              "silks": "delete-thin-wrapper-slash-cmds",
+              "commit": "38f9c28"
+            },
+            {
               "ts": "260207-0850",
               "state": "bridled",
               "text": "Delete thin wrapper slash commands that will be replaced by the CLI truth table.\n\nDelete these files:\n- .claude/commands/jjc-heat-muster.md\n- .claude/commands/jjc-heat-rein.md\n- .claude/commands/jjc-scout.md\n- .claude/commands/jjc-parade.md\n- .claude/commands/jjc-heat-nominate.md\n- .claude/commands/jjc-pace-wrap.md\n\nAlso update any remaining slash commands that reference these deleted commands in their \"Available Operations\" footer sections — change references to describe the direct CLI invocation or remove the line.\n\nAcceptance: Deleted files do not exist. No remaining slash command references a deleted command.",
