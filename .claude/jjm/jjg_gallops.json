@@ -58,9 +58,10 @@
         "₢ARAAP",
         "₢ARAAQ",
         "₢ARAAM",
+        "₢ARAAT",
         "₢ARAAO"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_AR.md",
       "paces": {
         "₢ARAAA": {
@@ -440,6 +441,17 @@
               "text": "Apply axvr_*/axhr*_ regime annotation patterns to RBRN.\n\n## Purpose\n\nDocument RBRN using the same voicing and hierarchy patterns deployed for RBRV in ₢ARAAP.\nThis pace depends on ₢ARAAR (rbrn-restate-boolean-enums) completing first so the\nvariable structure is finalized.\n\n## Changes\n\n### RBAGS parent document — mint rbrn_* voicings\n- rbrn_regime (axvr_regime axf_bash)\n- rbrn_moniker, rbrn_description, rbrn_runtime (axvr_variable)\n- rbrn_sentry_vessel, rbrn_sentry_consecration, rbrn_bottle_vessel, rbrn_bottle_consecration\n- rbrn_entry_mode + enum values (axvr_variable axt_enumeration)\n- rbrn_uplink_dns_mode, rbrn_uplink_access_mode + enum values\n- rbrn_uplink_port_min, rbrn_uplink_allowed_cidrs, rbrn_uplink_allowed_domains\n- rbrn_enclave_* variables\n- rbrn_volume_mounts\n- Group voicings: rbrn_group_ark_reference, rbrn_group_entry, rbrn_group_access_allowlist,\n  rbrn_group_dns_allowlist (axvr_group, conditional where gated)\n- rbst_* type voicings as needed for RBRN's types\n\n### RBRN subdocument — apply axhr hierarchy markers\n- axhrb_regime → rbrn_regime\n- Ungrouped variables via axhrv_variable (moniker, description, runtime, enclave vars, \n  uplink ungrouped vars, volume_mounts)\n- axhrgb_group for ark_reference (unconditional), entry (conditional), \n  access_allowlist (conditional), dns_allowlist (conditional)\n- axhrgc_gate for conditional groups (entry_mode=enabled, access_mode=allowlist, dns_mode=allowlist)\n- axhrgv_variable for grouped variables\n\n## Inputs\n- Assessment memo: Memos/memo-20260206-rbrn-regime-fit-assessment.md\n- RBSRV exemplar (completed in ₢ARAAP)\n- AXLA with axvr_*/axhr*_ terms (from ₢ARAAN)\n\n## Verification\n- All rbrn_* attribute references resolve\n- axhr hierarchy in RBRN subdoc matches axvr voicings in RBAGS parent\n- Cross-document validation rules from AXLA are satisfied",
               "silks": "rbrn-axhr-voicing",
               "commit": "e896797"
+            }
+          ]
+        },
+        "₢ARAAT": {
+          "tacks": [
+            {
+              "ts": "260206-2035",
+              "state": "rough",
+              "text": "Implement rbf_abjure() in rbf_Foundry.sh following the RBSAA-ark_abjure.adoc spec. Takes vessel and consecration arguments, deletes both -image and -about artifacts as a coherent ark unit. Follow the existing rbf_delete() pattern for HTTP/auth mechanics but operate on paired tags. Add coordinator routing (rbw-fA or similar) in rbk_Coordinator.sh and a tabtarget launcher. Handle orphaned artifacts (one exists, other missing) with warnings per spec. Include --force flag to skip confirmation prompt.",
+              "silks": "implement-rbf-abjure",
+              "commit": "6c78844"
             }
           ]
         }
