@@ -9,11 +9,12 @@
         "₢ASAAG",
         "₢ASAAD",
         "₢ASAAA",
+        "₢ASAAH",
         "₢ASAAB",
         "₢ASAAC",
         "₢ASAAF"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_AS.md",
       "paces": {
         "₢ASAAA": {
@@ -128,6 +129,17 @@
               "text": "Determine voicing pattern for Google-specific types in regime variables.\n\n## Context\nRBRV uses `rbst_*` types that subspecialize AXLA universal types (`axtu_*`). But RBRR/RBRA/RBRP regime variables reference Google-specific types (`axtg_project_id`, `axtg_region`, `axtg_service_account`, etc.).\n\n## Question to resolve\nShould regime variables with Google types:\n- (A) Voice `axtg_*` directly — they're already specific enough\n- (B) Voice `rbst_*` subspecializations — e.g., `rbst_depot_project_id` voices `axtg_project_id`\n\n## Considerations\n- `axtg_*` types ARE already subspecializations of universal types\n- Adding `rbst_*` layer may be unnecessary indirection\n- BUT: `rbst_*` allows RB-specific constraints (naming conventions, validation rules)\n- Consistency with RBRV pattern vs pragmatic simplicity\n\n## Acceptance criteria\n- Decision documented in ₣AS paddock\n- Pattern guidance for regime specs using Google types\n- Update RBAGS voicings if needed",
               "silks": "decide-google-type-voicing-pattern",
               "commit": "e120b6d"
+            }
+          ]
+        },
+        "₢ASAAH": {
+          "tacks": [
+            {
+              "ts": "260207-0853",
+              "state": "rough",
+              "text": "Create RBSA-SystemArchitecture.adoc with unified mapping section and three-tier section structure.\n\n## Context (from ₢ASAAD design)\n\nRBSA is a single document absorbing all RBAGS + RBS content. No two-level includes — RBSA is the parent, existing RBSXX subdocs are the only includes.\n\n## Three-tier structure\n\n### Tier 1: Why and What (significance-first)\n- System overview: the trust challenge, the bottle pattern (from RBS)\n- Security architecture: sentry/censer/enclave model, security properties (from RBS)\n- Getting Started (existing include from RBAGS)\n\n### Tier 2: How (temporal order)\n- Payor Operations (existing RBAGS includes)\n- Governor Operations (existing RBAGS includes)\n- Director Operations (existing RBAGS includes)\n- Retriever Operations (existing RBAGS includes)\n- Multi Role Operations (existing RBAGS includes)\n- Local Operations placeholder (bottle lifecycle — filled by ₢ASAAB)\n\n### Tier 3: Reference\n- Configuration Regimes (unified — filled by ₢ASAAC)\n- Type Voicings\n- Control Voicings (rbbc_, rbhg_)\n- Orchestration Patterns (rbtoe_*)\n- Script Internals (iptables, DNS, socat, eBPF — from RBS)\n- Term Definitions (consolidated from both docs)\n- Trade Studies\n\n## Work required\n\n1. Create RBSA-SystemArchitecture.adoc\n2. Build unified mapping section — merge RBAGS and RBS mappings, resolve divergent anchors (e.g., at_bottle_image -> bottle_image vs at_bottle_image)\n3. Move Tier 1 content from RBS (security architecture sections)\n4. Set up Tier 2 section headers with existing RBAGS include:: directives\n5. Set up Tier 3 section headers with content from both docs\n6. Verify all existing include:: paths still resolve\n\n## Acceptance criteria\n- RBSA file exists with all three tiers\n- Unified mapping section with no duplicate anchors\n- All existing include:: subdocs referenced\n- Tier 1 has security architecture content from RBS\n- Document renders without broken cross-references",
+              "silks": "create-rbsa-skeleton",
+              "commit": "f156bad"
             }
           ]
         }
