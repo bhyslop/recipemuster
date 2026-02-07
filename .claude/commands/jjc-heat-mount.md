@@ -15,11 +15,11 @@ Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_saddle $ARGUMENTS
+./tt/vvw-r.RunVVX.sh jjx_orient $ARGUMENTS
 ```
 
-If $ARGUMENTS is empty, saddle auto-selects the first racing heat.
-If $ARGUMENTS contains a Firemark (e.g., `AA` or `₣AA`), saddle uses that heat.
+If $ARGUMENTS is empty, orient auto-selects the first racing heat.
+If $ARGUMENTS contains a Firemark (e.g., `AA` or `₣AA`), orient uses that heat.
 
 Parse plain text output by label prefix:
 - Racing-heats table at top of output → list of racing heats with firemarks
@@ -27,8 +27,8 @@ Parse plain text output by label prefix:
 - Line starting with `Paddock:` → extract paddock file path
 - Section `Paddock-content:` (ends at blank line) → extract paddock content (2-space indented)
 - Line starting with `Next:` → extract pace silks, coronet, and state (if present)
-- Section `Spec:` (ends at blank line) → extract spec text (2-space indented)
-- Section `Direction:` (ends at blank line) → extract direction text if bridled (2-space indented)
+- Section `Docket:` (ends at blank line) → extract docket text (2-space indented)
+- Section `Warrant:` (ends at blank line) → extract warrant text if bridled (2-space indented)
 - Section `Recent-work:` → column-formatted table with headers
 
 If `Next:` line is absent, no actionable pace exists.
@@ -47,14 +47,14 @@ Show:
   ...
   ```
 - Current pace silks and state (if present)
-- Spec (the pace specification)
+- Docket (the pace specification)
 
 ## Step 3: Name assessment
 
-Before branching on state, assess whether the pace silks fits the spec:
+Before branching on state, assess whether the pace silks fits the docket:
 
 **Assessment:**
-- Read the spec content
+- Read the docket content
 - Consider if the kebab-case name accurately reflects the work
 - If name fits: proceed silently to Step 3.5
 - If mismatch detected: present 3-option prompt
@@ -74,7 +74,7 @@ Before branching on state, assess whether the pace silks fits the spec:
 ```
 
 **On R (or Enter):**
-- Run: `./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks "{better_name}"`
+- Run: `./tt/vvw-r.RunVVX.sh jjx_relabel <CORONET> "{better_name}"`
 - Report: `"Renamed to {better_name}"`
 - Update pace_silks in context to reflect new name
 - Continue to Step 3.5
@@ -96,12 +96,12 @@ Before branching on state, assess whether the pace silks fits the spec:
 - Stop
 
 **If pace_state is "rough":**
-- Analyze the spec to understand the work
-- If spec mentions dependencies, blockers, or sequencing concerns:
+- Analyze the docket to understand the work
+- If docket mentions dependencies, blockers, or sequencing concerns:
   - Surface these to the user as questions before proceeding
   - Do NOT investigate gallops data to validate the system's pace selection
   - If sequencing appears wrong, suggest `/jjc-heat-groom` to reorder or refine
-- Read any files referenced in the pace spec
+- Read any files referenced in the pace docket
 - Propose a concrete approach (2-4 bullets)
 - Assess execution strategy:
   - **Bridleability**: Apply CLAUDE.md criteria (mechanical, pattern exists, no forks, bounded). If all four hold, note "This pace is bridleable" and mention `/jjc-pace-bridle` as an option.
@@ -111,13 +111,13 @@ Before branching on state, assess whether the pace silks fits the spec:
     - Overhead vs benefit (parallel setup cost vs sequential simplicity)
   - **Model tier**: Recommend haiku (mechanical), sonnet (standard dev), or opus (architectural) based on complexity.
   - State recommendation explicitly: e.g., "Sequential haiku — single file, mechanical pattern" or "Parallel sonnet×2 — independent modules"
-- Create chalk APPROACH marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker A --description "<approach summary>"`
+- Create chalk APPROACH marker: `./tt/vvw-r.RunVVX.sh jjx_mark <PACE_CORONET> --marker A --description "<approach summary>"`
 - Ask: "Ready to proceed, or would you prefer to `/jjc-pace-bridle` for autonomous execution later?"
 - On approval: Begin work directly
 
 **If pace_state is "bridled":**
-- The pace has explicit direction in the direction field
-- Parse direction to extract `Agent:` line (haiku/sonnet/opus)
+- The pace has explicit warrant in the warrant field
+- Parse warrant to extract `Agent:` line (haiku/sonnet/opus)
 - **Display pace details and request approval:**
   ```
   Bridled pace ready for autonomous execution:
@@ -125,11 +125,11 @@ Before branching on state, assess whether the pace silks fits the spec:
   Pace: {pace_silks} (₢{CORONET})
   Agent: {agent_tier}
 
-  Spec:
-  {spec}
+  Docket:
+  {docket}
 
-  Direction:
-  {direction}
+  Warrant:
+  {warrant}
 
   [P] Proceed with autonomous execution (default)
   [I] Stop and work interactively
@@ -138,18 +138,18 @@ Before branching on state, assess whether the pace silks fits the spec:
   Choice [P]:
   ```
 - **On P (or Enter):**
-  - Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_chalk <PACE_CORONET> --marker F --description "Executing bridled pace via {agent} agent"`
+  - Create chalk FLY marker: `./tt/vvw-r.RunVVX.sh jjx_mark <PACE_CORONET> --marker F --description "Executing bridled pace via {agent} agent"`
   - **Spawn a Task agent** to execute the pace:
     - `model`: the extracted agent tier (haiku/sonnet/opus)
     - `subagent_type`: "general-purpose"
-    - `prompt`: Combine spec + direction + wrap discipline (see below)
-  - The spec contains the "what" (requirements, acceptance criteria); direction contains the "how" (steps, verification)
+    - `prompt`: Combine docket + warrant + wrap discipline (see below)
+  - The docket contains the "what" (requirements, acceptance criteria); warrant contains the "how" (steps, verification)
   - **Include this wrap discipline section in the agent prompt:**
     ```
     ## Wrap Discipline
 
     DO NOT run /jjc-pace-wrap or mark the pace complete. When work is done:
-    1. Run build + tests as specified in direction
+    1. Run build + tests as specified in warrant
     2. Report completion status and test results
     3. STOP — the calling agent will confirm wrap with the user
     ```

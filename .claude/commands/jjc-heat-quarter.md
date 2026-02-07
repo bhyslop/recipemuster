@@ -39,7 +39,7 @@ This outputs one coronet per line, filtered to rough paces only.
 
 Evaluate all rough paces in parallel:
 
-1. **Fetch spec text** for all rough paces via `jjx_get_spec <coronet>`
+1. **Fetch docket text** for all rough paces via `jjx_get_brief <coronet>`
 
 2. **Apply bridleability criteria** to each (all four must hold):
    - **Mechanical**: Clear transformation, not design work
@@ -75,7 +75,7 @@ Invoke `/jjc-pace-bridle` for the identified pace.
 This delegates to the bridle command which will:
 - Recommend execution strategy (agent tier, parallelization)
 - Get user approval
-- Write direction and transition to bridled state
+- Write warrant and transition to bridled state
 
 ## Step 6: Offer next action
 
@@ -88,5 +88,5 @@ After bridling completes:
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-quarter` — Evaluate and bridle next bridleable pace
 - `/jjc-pace-bridle` — Manually bridle a specific pace
-- `/jjc-pace-reslate` — Refine pace specification
+- `/jjc-pace-reslate` — Refine pace docket
 - `/jjc-parade-overview` — View all paces

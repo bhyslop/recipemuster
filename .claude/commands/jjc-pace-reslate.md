@@ -34,11 +34,11 @@ Extract from $ARGUMENTS:
 **If identifier looks like silks (kebab-case):**
 - Need heat context to resolve
 - If FIREMARK available from session: use it
-- Otherwise run `./tt/vvw-r.RunVVX.sh jjx_muster`:
+- Otherwise run `./tt/vvw-r.RunVVX.sh jjx_list`:
   - If 1 heat: use it
   - If 0 heats: Error "No heats found"
   - If 2+ heats: ask user to select
-- Run `./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK>` and find pace by silks match
+- Run `./tt/vvw-r.RunVVX.sh jjx_show <FIREMARK>` and find pace by silks match
 - Error if silks not found in heat
 
 ## Step 3: Name assessment
@@ -47,17 +47,17 @@ Before applying the reslate, assess whether the pace silks still fits the refine
 
 **Fetch current pace data:**
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <CORONET>
-./tt/vvw-r.RunVVX.sh jjx_get_spec <CORONET>
+./tt/vvw-r.RunVVX.sh jjx_show <CORONET>
+./tt/vvw-r.RunVVX.sh jjx_get_brief <CORONET>
 ```
 
 Extract:
 - Current silks from parade output (parse from header line)
-- Current spec text from jjx_get_spec output
+- Current docket text from jjx_get_brief output
 
 **Compare gestalts:**
-- Old focus: What the current spec emphasized
-- New focus: What the refined spec emphasizes
+- Old focus: What the current docket emphasized
+- New focus: What the refined docket emphasizes
 - Assess: Does the current name still capture the refined essence?
 
 **If name still fits:**
@@ -68,7 +68,7 @@ Extract:
 - Present 3-option prompt:
 
 ```
-⚠ Name check: "old-silks" may not fit refined spec.
+⚠ Name check: "old-silks" may not fit refined docket.
   Was: [old focus summary]
   Now: [new focus summary]
   Suggested: "better-name"
@@ -89,16 +89,21 @@ Extract:
 
 **If renaming (RENAME_TO is set):**
 ```bash
-cat <<'PACESPEC' | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --silks "<RENAME_TO>"
+cat <<'DOCKET' | ./tt/vvw-r.RunVVX.sh jjx_revise_docket <CORONET>
 <NEW_TEXT>
-PACESPEC
+DOCKET
 ```
 
-**Otherwise:**
+Then relabel:
 ```bash
-cat <<'PACESPEC' | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET>
+./tt/vvw-r.RunVVX.sh jjx_relabel <CORONET> "<RENAME_TO>"
+```
+
+**Otherwise (text update only):**
+```bash
+cat <<'DOCKET' | ./tt/vvw-r.RunVVX.sh jjx_revise_docket <CORONET>
 <NEW_TEXT>
-PACESPEC
+DOCKET
 ```
 
 The new tack text is passed via stdin. State is inherited (stays rough, stays bridled, etc.).
@@ -125,7 +130,7 @@ Then **assess the pace's health**:
 
 Apply **Primeability Assessment** criteria from CLAUDE.md.
 
-If bridleable, suggest direction (agent type, parallelism, key files).
+If bridleable, suggest warrant (agent type, parallelism, key files).
 If not bridleable, state why: "Needs human judgment — [reason]"
 
 **Next:** `/jjc-pace-reslate` (refine more) | `/jjc-pace-bridle` (arm) | `/jjc-parade-overview` (view all)
@@ -153,7 +158,7 @@ Common errors:
 **Commits:** Always use `/jjc-pace-notch` — never vvx_commit directly.
 
 - `/jjc-pace-slate` — Add a new pace
-- `/jjc-pace-reslate` — Refine pace specification
+- `/jjc-pace-reslate` — Refine pace docket
 - `/jjc-pace-wrap` — Mark pace complete
 - `/jjc-pace-bridle` — Arm pace for autonomous execution
 - `/jjc-heat-mount` — Begin work on next pace

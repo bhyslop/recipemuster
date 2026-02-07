@@ -11,7 +11,7 @@ Arguments: $ARGUMENTS (required firemark, e.g., "AB" or "₣AB")
 
 Run dry run first:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_retire $ARGUMENTS
+./tt/vvw-r.RunVVX.sh jjx_archive $ARGUMENTS
 ```
 
 Display the heat silks and pace count from JSON output.
@@ -25,7 +25,7 @@ If user declines, stop.
 ## Step 3: Execute
 
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_retire $ARGUMENTS --execute
+./tt/vvw-r.RunVVX.sh jjx_archive $ARGUMENTS --execute
 ```
 
 The Rust command handles everything:

@@ -3,7 +3,7 @@ argument-hint: [coronet]
 description: Bridle a pace for autonomous execution
 ---
 
-Study a rough pace and prepare it for autonomous execution by adding direction.
+Study a rough pace and prepare it for autonomous execution by adding warrant.
 
 Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
@@ -27,7 +27,7 @@ Arguments: $ARGUMENTS (optional Coronet; uses current pace if omitted)
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_saddle <FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_orient <FIREMARK>
 ```
 
 Verify the target pace is in "rough" state. If not:
@@ -37,8 +37,8 @@ Verify the target pace is in "rough" state. If not:
 ## Step 3: Study the pace
 
 Read and analyze:
-1. The spec (pace specification)
-2. Any files referenced in the spec
+1. The docket (pace specification)
+2. Any files referenced in the docket
 3. The paddock_content for broader context
 
 ## Step 4: Recommend execution strategy
@@ -57,12 +57,12 @@ Based on your analysis, recommend:
 
 Present recommendation to user and ask for approval or adjustments.
 
-## Step 5: Write direction and transition to bridled
+## Step 5: Write warrant and transition to bridled
 
-Once user approves the strategy, construct direction text as a **single-line string**.
+Once user approves the strategy, construct warrant text as a **single-line string**.
 
 **CRITICAL: Single-line format required.**
-The direction is passed via `--direction "..."` shell argument. Multi-line strings break shell parsing. Use this format:
+The warrant is passed via stdin to jjx_arm. Use this format:
 
 ```
 Agent: {tier} | Cardinality: {card} | Files: {list} ({N} files) | Steps: 1. {first} 2. {second} 3. {third} | Verify: {cmd}
@@ -94,15 +94,17 @@ Agent: haiku | Cardinality: 14 parallel | Files: jjrc_core.rs, jjrf_favor.rs, ..
 
 **Example (mixed — code + docs in parallel):**
 ```
-Agent: haiku+sonnet | Cardinality: 2 parallel then build | Files: jjrx_cli.rs, jjrq_query.rs, JJSA-GallopsData.adoc (3 files) | Steps: 1. Agent A haiku adds --remaining to ParadeArgs 2. Agent B sonnet documents --remaining in JJSA 3. Sequential build | Verify: tt/vow-b.Build.sh
+Agent: haiku+sonnet | Cardinality: 2 parallel then build | Files: jjrx_cli.rs, jjrq_query.rs, JJSA-GallopsData.adoc (3 files) | Steps: 1. Agent A haiku adds --remaining to ParadeArgs 2. Agent B sonnet documents --remaining in JJSA 3. Sequential build | Verify: tt/vvw-b.Build.sh
 ```
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --state bridled --direction "<direction text>"
+cat <<'WARRANT' | ./tt/vvw-r.RunVVX.sh jjx_arm <CORONET>
+<warrant text>
+WARRANT
 ```
 
-Note: `--direction` is a string argument, not stdin. The text field is inherited when stdin is empty.
+Note: The warrant is passed via stdin.
 
 ## Step 6: Confirm bridled
 

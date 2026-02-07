@@ -42,7 +42,7 @@ Extract Firemark from first Coronet (e.g., `₢AAAAC` → `₣AA`).
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_rail <FIREMARK> <CORONET1> <CORONET2> [CORONET3...]
+./tt/vvw-r.RunVVX.sh jjx_reorder <FIREMARK> <CORONET1> <CORONET2> [CORONET3...]
 ```
 
 **Validation:**
@@ -71,10 +71,10 @@ Extract Firemark from the move Coronet.
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --first
-./tt/vvw-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --last
-./tt/vvw-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --before <TARGET>
-./tt/vvw-r.RunVVX.sh jjx_rail <FIREMARK> --move <CORONET> --after <TARGET>
+./tt/vvw-r.RunVVX.sh jjx_reorder <FIREMARK> --move <CORONET> --first
+./tt/vvw-r.RunVVX.sh jjx_reorder <FIREMARK> --move <CORONET> --last
+./tt/vvw-r.RunVVX.sh jjx_reorder <FIREMARK> --move <CORONET> --before <TARGET>
+./tt/vvw-r.RunVVX.sh jjx_reorder <FIREMARK> --move <CORONET> --after <TARGET>
 ```
 
 **Validation:**
@@ -87,7 +87,7 @@ On success, the command outputs the new order (one Coronet per line).
 
 Run parade to display the reordered pace list with silks and states:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_show <FIREMARK>
 ```
 
 ## Auto-commit changes
@@ -115,7 +115,7 @@ Common errors:
 ## Available Operations
 
 - `/jjc-pace-slate` — Add a new pace
-- `/jjc-pace-reslate` — Refine pace specification
+- `/jjc-pace-reslate` — Refine pace docket
 - `/jjc-pace-wrap` — Mark pace complete
 - `/jjc-pace-bridle` — Arm pace for autonomous execution
 - `/jjc-heat-mount` — Begin work on next pace

@@ -28,13 +28,13 @@ Use this as `--intent "<message>"` in the command. Do not prompt the user — sy
 **Pace-affiliated commit (default):**
 Use PACE_CORONET from current session context:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_notch <PACE_CORONET> [--intent "<message>"] <file1> [file2...]
+./tt/vvw-r.RunVVX.sh jjx_record <PACE_CORONET> [--intent "<message>"] <file1> [file2...]
 ```
 
 **Heat-only commit (no pace affiliation):**
 Use FIREMARK for commits that affect the heat but not a specific pace:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_notch <FIREMARK> [--intent "<message>"] <file1> [file2...]
+./tt/vvw-r.RunVVX.sh jjx_record <FIREMARK> [--intent "<message>"] <file1> [file2...]
 ```
 
 The Rust command handles: lock, staging specified files only, guard, message generation (or using intent), commit, release.
@@ -51,7 +51,7 @@ The Rust command handles: lock, staging specified files only, guard, message gen
 The default size guard rejects commits over 50KB. For legitimate large commits:
 
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_notch <IDENTITY> --size-limit 200000 <file1> [file2...]
+./tt/vvw-r.RunVVX.sh jjx_record <IDENTITY> --size-limit 200000 <file1> [file2...]
 ```
 
-**Requirement**: The pace spec must justify why the large commit is necessary.
+**Requirement**: The pace docket must justify why the large commit is necessary.

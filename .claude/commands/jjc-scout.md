@@ -1,6 +1,6 @@
 # jjc-scout
 
-Search across heats and paces with regex patterns. Case-insensitive, searches pace silks, specs, directions, and paddock content.
+Search across heats and paces with regex patterns. Case-insensitive, searches pace silks, dockets, warrants, and paddock content.
 
 ## Usage
 
@@ -33,7 +33,7 @@ Results are grouped by heat:
 ```
 ₣AF jjk-post-alpha-polish
   ₢AFAAI [rough] implement-scout-search
-    spec: ...keyword... for searching across heats
+    docket: ...keyword... for searching across heats
 ₣AA garlanded-vok-fresh-install
   ₢AAABC [complete] related-pace-name
     paddock: ...keyword... mentioned in context
@@ -50,8 +50,8 @@ Only the first match per pace is shown (keeps output scannable).
 
 Searches in order (first match wins):
 1. Pace silks
-2. Pace spec (tack text)
-3. Pace direction (if present)
+2. Pace docket (tack text)
+3. Pace warrant (if present)
 4. Paddock file content
 
 **Note:** Steeplechase/chalk descriptions are NOT searched - scout searches plan artifacts only.
@@ -63,4 +63,4 @@ Searches in order (first match wins):
 
 ## Implementation
 
-Invokes: `./tt/vvw-r.RunVVX.sh jjx_scout <pattern> [--actionable]`
+Invokes: `./tt/vvw-r.RunVVX.sh jjx_search <pattern> [--actionable]`

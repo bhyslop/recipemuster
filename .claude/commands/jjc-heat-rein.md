@@ -23,7 +23,7 @@ Arguments: $ARGUMENTS (required Firemark, optional --limit N, default 20)
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK> --limit <N>
+./tt/vvw-r.RunVVX.sh jjx_log <FIREMARK> --limit <N>
 ```
 
 Output is already formatted as human-readable text with columns:

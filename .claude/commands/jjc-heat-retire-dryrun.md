@@ -10,7 +10,7 @@ Arguments: $ARGUMENTS (required firemark, e.g., "AB" or "₣AB")
 ## Execution
 
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_retire $ARGUMENTS
+./tt/vvw-r.RunVVX.sh jjx_archive $ARGUMENTS
 ```
 
 Display the JSON output showing:

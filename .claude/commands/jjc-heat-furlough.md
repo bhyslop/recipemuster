@@ -41,7 +41,7 @@ Extract from $ARGUMENTS:
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_muster
+./tt/vvw-r.RunVVX.sh jjx_list
 ```
 
 Parse TSV output and verify the Firemark exists. Capture current status and silks for reporting.
@@ -52,7 +52,7 @@ Parse TSV output and verify the Firemark exists. Capture current status and silk
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_furlough <FIREMARK> [--racing | --stabled] [--silks "<NEW_NAME>"]
+./tt/vvw-r.RunVVX.sh jjx_alter <FIREMARK> [--racing | --stabled] [--silks "<NEW_NAME>"]
 ```
 
 Pass through the flags exactly as provided by the user.

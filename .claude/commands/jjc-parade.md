@@ -16,15 +16,15 @@ Arguments: $ARGUMENTS (optional target or keyword)
 - If FIREMARK exists: use it as target (heat list mode)
 - Otherwise: Error "No heat context. Use `/jjc-heat-mount` first or provide a target."
 
-**If $ARGUMENTS is "full":**
+**If $ARGUMENTS is "detail":**
 - Check context for FIREMARK
-- If FIREMARK exists: use it as target with --full flag (heat full mode)
+- If FIREMARK exists: use it as target with --detail flag (heat detail mode)
 - Otherwise: Error "No heat context. Use `/jjc-heat-mount` first or provide a firemark."
 
-**If $ARGUMENTS starts with "full " (followed by identifier):**
-- Extract identifier after "full "
-- Parse as firemark (heat full mode with explicit target)
-- Use --full flag
+**If $ARGUMENTS starts with "detail " (followed by identifier):**
+- Extract identifier after "detail "
+- Parse as firemark (heat detail mode with explicit target)
+- Use --detail flag
 
 **If $ARGUMENTS is a 2-char identifier (e.g., `AB` or `₣AB`):**
 - Parse as firemark (heat list mode)
@@ -33,25 +33,25 @@ Arguments: $ARGUMENTS (optional target or keyword)
 - Parse as coronet (pace detail mode)
 
 **Otherwise:**
-- Error "Invalid argument. Use: empty (context), 'full', 'full <firemark>', <firemark>, or <coronet>"
+- Error "Invalid argument. Use: empty (context), 'detail', 'detail <firemark>', <firemark>, or <coronet>"
 
 ## Step 2: Run parade
 
 Based on determined mode:
 
-**Heat list (firemark, no --full):**
+**Heat list (firemark, no --detail):**
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_show <FIREMARK>
 ```
 
-**Heat full (firemark with --full):**
+**Heat detail (firemark with --detail):**
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --full
+./tt/vvw-r.RunVVX.sh jjx_show <FIREMARK> --detail
 ```
 
 **Pace detail (coronet):**
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <CORONET>
+./tt/vvw-r.RunVVX.sh jjx_show <CORONET>
 ```
 
 ## Step 3: Display output
@@ -61,7 +61,7 @@ Echo the vvx output directly in your response text. Do not use code blocks or ma
 ## Examples
 
 - `/jjc-parade` — List paces in current heat (requires context)
-- `/jjc-parade full` — Show full current heat with paddock (requires context)
+- `/jjc-parade detail` — Show detailed current heat with paddock (requires context)
 - `/jjc-parade AB` — List paces in heat ₣AB
-- `/jjc-parade full AB` — Show full heat ₣AB with paddock
+- `/jjc-parade detail AB` — Show detailed heat ₣AB with paddock
 - `/jjc-parade ABCDE` — Show detail for pace ₢ABCDE

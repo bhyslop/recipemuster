@@ -4,7 +4,7 @@ description: List all heats with summary
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_muster
+./tt/vvw-r.RunVVX.sh jjx_list
 ```
 
 Echo the output directly in your response text (no code blocks). Columns: Fire, Silks, Status, Done, Total.

@@ -3,7 +3,7 @@ argument-hint: <source-firemark> <dest-firemark> <coronet> [coronet...]
 description: Draft paces between heats with context merge ceremony
 ---
 
-Move one or more paces from a source heat to a destination heat. This is the ceremony that wraps the `jjx_restring` primitive with context merge and steeplechase tracking.
+Move one or more paces from a source heat to a destination heat. This is the ceremony that wraps the `jjx_transfer` primitive with context merge and steeplechase tracking.
 
 Arguments: $ARGUMENTS
 
@@ -13,14 +13,14 @@ Arguments: $ARGUMENTS
 - Source and destination heats must exist
 - All specified Coronets must exist in source heat
 
-## Step 1-5: Draft paces using jjx_restring
+## Step 1-5: Draft paces using jjx_transfer
 
 Extract from $ARGUMENTS:
 - First positional: source Firemark
 - Second positional: destination Firemark
 - Remaining positionals: one or more Coronets to draft
 
-Build a JSON array of coronets and pipe to jjx_restring:
+Build a JSON array of coronets and pipe to jjx_transfer:
 
 ```bash
 # Parse arguments
@@ -36,8 +36,8 @@ for coronet in "${CORONETS[@]}"; do
 done
 CORONET_JSON="${CORONET_JSON%,}]"
 
-# Run jjx_restring and capture JSON output
-RESTRING_OUTPUT=$(cat <<SPEC | ./tt/vvw-r.RunVVX.sh jjx_restring "${SOURCE_FIREMARK}" --to "${DEST_FIREMARK}"
+# Run jjx_transfer and capture JSON output
+RESTRING_OUTPUT=$(cat <<SPEC | ./tt/vvw-r.RunVVX.sh jjx_transfer "${SOURCE_FIREMARK}" --to "${DEST_FIREMARK}"
 ${CORONET_JSON}
 SPEC
 )
@@ -51,7 +51,7 @@ DEST_SILKS=$(echo "${RESTRING_OUTPUT}" | jq -r '.dest_silks')
 SOURCE_IS_EMPTY=$(echo "${RESTRING_OUTPUT}" | jq -r '.source_is_empty')
 ```
 
-**On any failure:** Report error and stop. jjx_restring is atomic - no partial drafts.
+**On any failure:** Report error and stop. jjx_transfer is atomic - no partial drafts.
 
 Display draft summary:
 - Number of paces drafted
@@ -64,7 +64,7 @@ Display draft summary:
 
 ## Step 6: Context merge analysis
 
-This is the critical step for preserving pace context across heats. Use the parsed paddock paths from jjx_restring output.
+This is the critical step for preserving pace context across heats. Use the parsed paddock paths from jjx_transfer output.
 
 ### Step 6a: Gather materials
 
@@ -101,12 +101,12 @@ For any context the user approves for import, add a tack entry to the pace that 
 - The source heat it came from
 - The substantive context itself (not just a reference)
 
-Use `jjx_tally` with the combined text via stdin:
+Use `jjx_revise_docket` with the combined text via stdin:
 ```bash
-cat <<'PACESPEC' | ./tt/vvw-r.RunVVX.sh jjx_tally <CORONET>
+cat <<'DOCKET' | ./tt/vvw-r.RunVVX.sh jjx_revise_docket <CORONET>
 [Imported context from ₣{SOURCE_FIREMARK}]
-{original spec text}
-PACESPEC
+{original docket text}
+DOCKET
 ```
 
 ### Step 6e: Update destination paddock (if needed)

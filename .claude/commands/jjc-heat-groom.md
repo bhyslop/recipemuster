@@ -5,7 +5,7 @@ description: Review and refine heat plan
 
 Groom a heat: review the full plan and prepare for refinement work.
 
-Use this command when you want to work on the heat's overall structure - adding paces, reordering, refining specifications - rather than executing the next pace.
+Use this command when you want to work on the heat's overall structure - adding paces, reordering, refining dockets - rather than executing the next pace.
 
 Arguments: $ARGUMENTS (optional Firemark to select specific heat)
 
@@ -13,10 +13,10 @@ Arguments: $ARGUMENTS (optional Firemark to select specific heat)
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade $ARGUMENTS --remaining
+./tt/vvw-r.RunVVX.sh jjx_show $ARGUMENTS --remaining
 ```
 
-If $ARGUMENTS is empty, parade defaults to the newest racing heat.
+If $ARGUMENTS is empty, show defaults to the newest racing heat.
 
 This returns:
 - Progress stats comment line: `# Progress: X complete, Y abandoned, Z remaining (A rough, B bridled)`
@@ -31,7 +31,7 @@ If heat status is "stabled", note: "⚠ This heat is stabled (paused). Use `/jjc
 Summarize progress:
 - Complete: X | Abandoned: Y | Remaining: Z (rough: A, bridled: B)
 
-If user needs full specs or paddock content, they can request it or use `/jjc-parade full`.
+If user needs full dockets or paddock content, they can request it or use `/jjc-parade detail`.
 
 ## Step 3: Enter planning mode
 
@@ -56,7 +56,7 @@ Suggest actions anchored to the next pace:
 Then offer structural operations:
 - "Add new paces with `/jjc-pace-slate`"
 - "Reorder paces with `/jjc-heat-rail`"
-- "Refine a pace specification with `/jjc-pace-reslate`"
+- "Refine a pace docket with `/jjc-pace-reslate`"
 - "Review paddock context" (offer to edit paddock file)
 
 If all paces complete:

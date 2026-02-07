@@ -42,7 +42,7 @@ Extract from $ARGUMENTS:
 - Use that Firemark
 
 **Otherwise:**
-- Run: `./tt/vvw-r.RunVVX.sh jjx_muster`
+- Run: `./tt/vvw-r.RunVVX.sh jjx_list`
 - Parse TSV output
 
 **If 0 heats:** Error: "No heats found. Create one with `/jjc-heat-nominate` first."
@@ -55,9 +55,9 @@ Extract from $ARGUMENTS:
 
 Run:
 ```bash
-cat <<'PACESPEC' | ./tt/vvw-r.RunVVX.sh jjx_slate <FIREMARK> --silks "<SILKS>" [POSITIONING]
+cat <<'DOCKET' | ./tt/vvw-r.RunVVX.sh jjx_enroll <FIREMARK> --silks "<SILKS>" [POSITIONING]
 <PACE_TEXT>
-PACESPEC
+DOCKET
 ```
 
 Where `[POSITIONING]` is one of (if provided):
@@ -88,7 +88,7 @@ Then **assess the pace's health**:
 
 Apply **Primeability Assessment** criteria from CLAUDE.md.
 
-If bridleable, suggest direction (agent type, parallelism, key files).
+If bridleable, suggest warrant (agent type, parallelism, key files).
 If not bridleable, state why: "Needs human judgment — [reason]"
 
 **Next:** `/jjc-pace-slate` (add another) | `/jjc-pace-reslate` (refine) | `/jjc-pace-bridle` (arm)
@@ -115,7 +115,7 @@ Common errors:
 **Commits:** Always use `/jjc-pace-notch` — never vvx_commit directly.
 
 - `/jjc-pace-slate` — Add a new pace
-- `/jjc-pace-reslate` — Refine pace specification
+- `/jjc-pace-reslate` — Refine pace docket
 - `/jjc-pace-wrap` — Mark pace complete
 - `/jjc-pace-bridle` — Arm pace for autonomous execution
 - `/jjc-heat-mount` — Begin work on next pace

@@ -20,7 +20,7 @@ Extract Firemark from $ARGUMENTS if provided.
 - Skip to Step 2
 
 **If $ARGUMENTS is empty:**
-- Run: `./tt/vvw-r.RunVVX.sh jjx_muster`
+- Run: `./tt/vvw-r.RunVVX.sh jjx_list`
 - Parse TSV output: `FIREMARK<TAB>SILKS<TAB>STATUS<TAB>PACE_COUNT`
 - Filter for lines where STATUS column is "racing"
 
@@ -39,7 +39,7 @@ Extract Firemark from $ARGUMENTS if provided.
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --remaining
+./tt/vvw-r.RunVVX.sh jjx_show <FIREMARK> --remaining
 ```
 
 Parse output to extract:
@@ -78,7 +78,7 @@ Proceed? [y/n]
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_garland <FIREMARK>
+./tt/vvw-r.RunVVX.sh jjx_continue <FIREMARK>
 ```
 
 Capture output which includes:

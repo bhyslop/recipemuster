@@ -44,8 +44,8 @@ Extract from $ARGUMENTS:
 
 Run parade for both heats:
 ```bash
-PARADE_A=$(./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK_A> --remaining)
-PARADE_B=$(./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK_B> --remaining)
+PARADE_A=$(./tt/vvw-r.RunVVX.sh jjx_show <FIREMARK_A> --remaining)
+PARADE_B=$(./tt/vvw-r.RunVVX.sh jjx_show <FIREMARK_B> --remaining)
 ```
 
 Extract from each:
@@ -68,8 +68,8 @@ Extract from each:
 
 Read paddock content for both heats:
 ```bash
-PADDOCK_A=$(./tt/vvw-r.RunVVX.sh jjx_curry <FIREMARK_A>)
-PADDOCK_B=$(./tt/vvw-r.RunVVX.sh jjx_curry <FIREMARK_B>)
+PADDOCK_A=$(./tt/vvw-r.RunVVX.sh jjx_paddock <FIREMARK_A>)
+PADDOCK_B=$(./tt/vvw-r.RunVVX.sh jjx_paddock <FIREMARK_B>)
 ```
 
 Analyze both heat gestalts:
@@ -97,16 +97,16 @@ Gestalt overlap: {HIGH | MODERATE | LOW | NONE}
 
 ## Step 4: Haiku correlation pass
 
-Fetch full specs for all remaining paces in both heats:
+Fetch full dockets for all remaining paces in both heats:
 ```bash
 # For each coronet in PARADE_A and PARADE_B
-SPEC=$(./tt/vvw-r.RunVVX.sh jjx_get_spec <CORONET>)
+DOCKET=$(./tt/vvw-r.RunVVX.sh jjx_get_brief <CORONET>)
 ```
 
 Load steeplechase history for both heats:
 ```bash
-REIN_A=$(./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK_A> --limit 100)
-REIN_B=$(./tt/vvw-r.RunVVX.sh jjx_rein <FIREMARK_B> --limit 100)
+REIN_A=$(./tt/vvw-r.RunVVX.sh jjx_log <FIREMARK_A> --limit 100)
+REIN_B=$(./tt/vvw-r.RunVVX.sh jjx_log <FIREMARK_B> --limit 100)
 ```
 
 **Task for Haiku:** For each pace in heat A and each pace in heat B:
@@ -140,7 +140,7 @@ Run Haiku pass in a single block analyzing all pace pairs.
 
 **Overlap:**
 - STRONG or MODERATE correlation with pace in other heat
-- Action: Pick keeper (better spec, more recent tack, or first by order), reslate keeper with merged context, abandon duplicate
+- Action: Pick keeper (better docket, more recent tack, or first by order), reslate keeper with merged context, abandon duplicate
 
 **Distinct:**
 - WEAK or NONE correlation with all paces in other heat
@@ -148,11 +148,11 @@ Run Haiku pass in a single block analyzing all pace pairs.
 - Action: Leave in place
 
 **Soggy:**
-- Spec too vague to assess correlation
+- Docket too vague to assess correlation
 - Action: Flag for human grooming
 
 **Opus judgment calls:**
-- When correlation is MODERATE, use gestalt fit and spec quality to decide overlap vs distinct
+- When correlation is MODERATE, use gestalt fit and docket quality to decide overlap vs distinct
 - When multiple paces in one heat overlap with single pace in other, group them
 - Consider dependency chains (if pace A overlaps but pace B depends on A's output)
 
@@ -188,7 +188,7 @@ Braid summary for ₣{FA} ({silks-A}) × ₣{FB} ({silks-B}):
 - Stop
 
 **If all soggy:**
-- Report: "All paces are soggy (ill-formed specs). Recommend `/jjc-heat-groom` for both heats before braiding."
+- Report: "All paces are soggy (ill-formed dockets). Recommend `/jjc-heat-groom` for both heats before braiding."
 - Stop
 
 ## Step 7: Walk through findings with user approval
@@ -207,12 +207,12 @@ For each already-done pace:
 
 **On user approval (Y or Enter):**
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_tally <CORONET> --state abandoned
+./tt/vvw-r.RunVVX.sh jjx_drop <CORONET> abandoned
 ```
 
 Add chalk entry recording the abandonment reason:
 ```bash
-cat <<'CHALKNOTE' | ./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --note -
+cat <<'CHALKNOTE' | ./tt/vvw-r.RunVVX.sh jjx_mark <FIREMARK> --note -
 Braid: Abandoned ₢{coronet} ({silks}) — already done per {citation}
 CHALKNOTE
 ```
@@ -238,30 +238,30 @@ Overlap: ₢{A-coronet} ({A-silks}) ≈ ₢{B-coronet} ({B-silks})
 **On user approval (Y or Enter):**
 
 1. **Merge context into keeper:**
-   - Read keeper spec: `./tt/vvw-r.RunVVX.sh jjx_get_spec <KEEPER_CORONET>`
-   - Read duplicate spec: `./tt/vvw-r.RunVVX.sh jjx_get_spec <DUP_CORONET>`
-   - Synthesize merged spec preserving best details from both
+   - Read keeper docket: `./tt/vvw-r.RunVVX.sh jjx_get_brief <KEEPER_CORONET>`
+   - Read duplicate docket: `./tt/vvw-r.RunVVX.sh jjx_get_brief <DUP_CORONET>`
+   - Synthesize merged docket preserving best details from both
    - Apply reslate to keeper:
    ```bash
-   cat <<'PACESPEC' | ./tt/vvw-r.RunVVX.sh jjx_tally <KEEPER_CORONET>
+   cat <<'DOCKET' | ./tt/vvw-r.RunVVX.sh jjx_revise_docket <KEEPER_CORONET>
    [Merged from ₢{dup-coronet} during braid]
 
-   {synthesized merged spec}
-   PACESPEC
+   {synthesized merged docket}
+   DOCKET
    ```
 
 2. **Abandon duplicate:**
    ```bash
-   ./tt/vvw-r.RunVVX.sh jjx_tally <DUP_CORONET> --state abandoned
+   ./tt/vvw-r.RunVVX.sh jjx_drop <DUP_CORONET> abandoned
    ```
 
 3. **Chalk both heats:**
    ```bash
-   cat <<'CHALKNOTE' | ./tt/vvw-r.RunVVX.sh jjx_chalk <KEEPER_FIREMARK> --note -
+   cat <<'CHALKNOTE' | ./tt/vvw-r.RunVVX.sh jjx_mark <KEEPER_FIREMARK> --note -
    Braid: Merged ₢{dup-coronet} from ₣{dup-firemark} into ₢{keeper-coronet}
    CHALKNOTE
 
-   cat <<'CHALKNOTE' | ./tt/vvw-r.RunVVX.sh jjx_chalk <DUP_FIREMARK> --note -
+   cat <<'CHALKNOTE' | ./tt/vvw-r.RunVVX.sh jjx_mark <DUP_FIREMARK> --note -
    Braid: Abandoned ₢{dup-coronet} (overlap with ₢{keeper-coronet} in ₣{keeper-firemark})
    CHALKNOTE
    ```
@@ -282,7 +282,7 @@ For each soggy pace:
 
 **On user approval (Y or Enter):**
 ```bash
-cat <<'CHALKNOTE' | ./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --note -
+cat <<'CHALKNOTE' | ./tt/vvw-r.RunVVX.sh jjx_mark <FIREMARK> --note -
 Braid: Flagged ₢{coronet} ({silks}) for grooming — {reason}
 CHALKNOTE
 ```
@@ -305,8 +305,8 @@ These paces fit their respective heats and have no overlap.
 
 After processing all findings, run paddock leveling for both heats:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_curry <FIREMARK_A> --level
-./tt/vvw-r.RunVVX.sh jjx_curry <FIREMARK_B> --level
+./tt/vvw-r.RunVVX.sh jjx_paddock <FIREMARK_A> --level
+./tt/vvw-r.RunVVX.sh jjx_paddock <FIREMARK_B> --level
 ```
 
 This removes obsolete references to abandoned paces and adjusts paddock content to match new heat state.
@@ -343,7 +343,7 @@ For each heat, check:
 
 **Note:** Heat rename is not yet implemented in jjx. For now, record suggested rename in chalk:
 ```bash
-cat <<'CHALKNOTE' | ./tt/vvw-r.RunVVX.sh jjx_chalk <FIREMARK> --note -
+cat <<'CHALKNOTE' | ./tt/vvw-r.RunVVX.sh jjx_mark <FIREMARK> --note -
 Braid: Suggested rename "{old-silks}" → "{new-silks}" (gestalt shifted)
 CHALKNOTE
 ```
@@ -354,7 +354,7 @@ After braid, check if either heat is now empty (all paces complete/abandoned):
 
 For each heat:
 ```bash
-REMAINING=$(./tt/vvw-r.RunVVX.sh jjx_parade <FIREMARK> --remaining | tail -n +2 | wc -l)
+REMAINING=$(./tt/vvw-r.RunVVX.sh jjx_show <FIREMARK> --remaining | tail -n +2 | wc -l)
 ```
 
 **If REMAINING is 0:**

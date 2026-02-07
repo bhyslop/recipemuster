@@ -23,7 +23,7 @@ Extract silks from $ARGUMENTS.
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_nominate --silks "<SILKS>"
+./tt/vvw-r.RunVVX.sh jjx_create --silks "<SILKS>"
 ```
 
 Capture the new Firemark from stdout.
