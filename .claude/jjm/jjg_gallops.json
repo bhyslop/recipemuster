@@ -2453,6 +2453,7 @@
       "creation_time": "260206",
       "status": "stabled",
       "order": [
+        "₢AWAAK",
         "₢AWAAA",
         "₢AWAAJ",
         "₢AWAAB",
@@ -2464,7 +2465,7 @@
         "₢AWAAH",
         "₢AWAAI"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -2602,6 +2603,17 @@
               "text": "Split jjx_tally (jjx_revise) into four single-purpose commands.\n\nCurrent jjx_tally is multipurpose: spec revision, rename, bridle, abandon — with conditional flag validity that causes LLM misfires. Split into:\n\n1. jjx_revise CORONET < stdin — update spec text, carry forward state/silks\n2. jjx_relabel CORONET --silks \"name\" — rename, carry forward text/state\n3. jjx_arm CORONET --direction \"...\" < stdin — set state=bridled + direction + spec\n4. jjx_drop CORONET — set state=abandoned\n\nAll four create a new tack (same underlying mechanism). Each has a minimal, unambiguous signature.\n\nFiles:\n- Tools/jjk/vov_veiled/src/jjrtl_tally.rs — refactor into separate handler functions\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — register 4 new subcommands, remove jjx_tally\n- May need new source files for each command, or keep in jjrtl_tally.rs with separate entry points\n\nDelete jjx_tally entirely — no backwards compatibility.\n\nAcceptance: Each command works independently. jjx_tally produces \"unknown command.\" tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
               "silks": "split-tally-into-primitives",
               "commit": "c8cb6d1"
+            }
+          ]
+        },
+        "₢AWAAK": {
+          "tacks": [
+            {
+              "ts": "260206-2223",
+              "state": "rough",
+              "text": "Fix jjx_scout panic on UTF-8 boundary in long spec text.\n\nScout panics at jjrsc_scout.rs:143 with \"byte index 1359 is not a char boundary; it is inside '—'\" when truncating long spec text for context display. The substring operation uses byte indexing on a UTF-8 string containing multi-byte characters (em-dash, currency symbols).\n\nFix: use char-boundary-safe truncation (e.g., floor to nearest char boundary before slicing, or use char_indices).\n\nFiles: Tools/jjk/vov_veiled/src/jjrsc_scout.rs\n\nAcceptance: `jjx_scout spec` completes without panic. tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
+              "silks": "fix-scout-utf8-panic",
+              "commit": "a51b962"
             }
           ]
         }
