@@ -3032,9 +3032,10 @@
       "creation_time": "260207",
       "status": "stabled",
       "order": [
-        "₢AXAAA"
+        "₢AXAAA",
+        "₢AXAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AX.md",
       "paces": {
         "₢AXAAA": {
@@ -3045,6 +3046,17 @@
               "text": "Investigate and decisively answer the open design questions before implementation begins. Read the PaneBoard POC source code and spec, then write answers directly into the paddock file.\n\n## Questions to resolve\n\n1. **Border thickness**: Should the orange highlight border be 4px (matching green startup border) or thicker for at-a-glance visibility during fast Tab cycling? Examine the green border code in pbmbo_overlay.rs or the Swift overlay, measure what 4px looks like at retina scale, and recommend a value. Decide and document.\n\n2. **Cross-repo strategy**: This heat lives in rbm_alpha but PaneBoard source lives in ../pb_paneboard02/poc/src/. Determine: should paces directly edit PB source files (Claude has permissions per CLAUDE.md for Tools/), or should paces produce design specs that get implemented in the PB repo separately? Examine whether the JJ commit workflow (notch) can handle files outside the current repo. Decide and document.\n\n3. **AX geometry during Alt-Tab**: During a Command+Tab session, can we reliably query AXPosition/AXSize for the highlighted window? What happens for minimized windows, windows on other Spaces, or fullscreen windows? Review existing AX query patterns in pbmba_ax.rs and the MRU validation logic. Document the edge cases and proposed handling (skip border? show on last known position?).\n\n4. **Slush item scoping**: Review the slush items in the paddock. Which belong on this heat as paces vs. deferred to itch file or separate heats? Recommend and document.\n\n## Deliverable\nUpdated paddock file (.claude/jjm/jjp_AX.md) with a \"Design Decisions\" section containing firm answers for each question above.\n\n## Files to examine\n- ../pb_paneboard02/poc/src/pbmbo_overlay.rs\n- ../pb_paneboard02/poc/src/pbmba_ax.rs\n- ../pb_paneboard02/poc/src/pbmsa_alttab.rs\n- ../pb_paneboard02/poc/src/pbmsm_mru.rs\n- ../pb_paneboard02/poc/src/pbmbo_observer.swift\n- ../pb_paneboard02/poc/paneboard-poc.md",
               "silks": "investigate-design-questions",
               "commit": "d1f4818"
+            }
+          ]
+        },
+        "₢AXAAB": {
+          "tacks": [
+            {
+              "ts": "260207-0905",
+              "state": "rough",
+              "text": "Create a reusable \"highlight border\" overlay that draws a colored border around an arbitrary screen rect.\n\n## Goal\nA function/module that takes a screen rect (x, y, width, height) and a color, and displays a borderless NSWindow overlay with an N-px colored border around that rect. Adapted from the green startup characterization border pattern.\n\n## Requirements\n- Borderless, transparent NSWindow with only a colored stroke border\n- Must be topmost (above all other windows) so it's visible during Alt-Tab\n- Must support show/hide/reposition without recreating the window\n- Orange color for Alt-Tab use case (but parameterized)\n- Border thickness determined by ₢AXAAA investigation\n\n## Pattern to follow\nThe green startup characterization border (Display Characterization section of POC spec, ~line 392). That code creates a borderless transparent window with a 4px green border positioned at viewport bounds. This is the same pattern, just parameterized for arbitrary rects and colors.\n\n## Key files\n- pbmbo_overlay.rs (existing base overlay utilities)\n- pbmbo_observer.swift (Swift overlay code)\n\n## Depends on\n₢AXAAA (design decisions determine border thickness and cross-repo strategy)",
+              "silks": "pb-window-highlight-overlay",
+              "commit": "d7be12c"
             }
           ]
         }
