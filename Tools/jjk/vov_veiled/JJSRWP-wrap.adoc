@@ -20,8 +20,7 @@ Used by `/jjc-pace-wrap` to provide a single-command wrap experience.
 .. If over limit: release lock, exit 2
 . Generate commit message via Claude from diff
 . Commit staged changes
-. Transition pace state to complete via
-{jjdo_tally}
+. Transition pace state to complete via internal tack prepend (state={jjdpe_complete})
 . Create W chalk marker with outcome summary
 . Release lock
 . Return commit hash

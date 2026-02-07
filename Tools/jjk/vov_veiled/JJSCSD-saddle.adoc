@@ -46,9 +46,9 @@ Paddock-content:
 
 Next: <pace_silks> (₢<coronet>) [<state>]
 
-Spec:
-  <line 1 of spec>
-  <line 2 of spec>
+Docket:
+  <line 1 of docket>
+  <line 2 of docket>
   ...
 
 Work-files:
@@ -56,9 +56,9 @@ Work-files:
   <bare_filename_2>
   ...
 
-Direction:
-  <line 1 of direction>
-  <line 2 of direction>
+Warrant:
+  <line 1 of warrant>
+  <line 2 of warrant>
   ...
 
 Recent-work:
@@ -69,14 +69,14 @@ YYYY-MM-DD HH:MM  efgh5678  [n]  ₢XXXXX    ...
 ...
 ----
 
-Sections `Next:` through `Direction:` are absent if no actionable pace exists.
+Sections `Next:` through `Warrant:` are absent if no actionable pace exists.
 Field `pace_silks` is derived from `tacks[0].silks`.
-Section `Direction:` is present only when pace state is
+Section `Warrant:` is present only when pace state is
 {jjdpe_bridled}.
 Section `Paddock-content:` contains the full text of the paddock file, indented 2 spaces.
 Section `Work-files:` lists files touched by the actionable pace's commits (excluding `.claude/jjm/*`), indented 2 spaces, sorted, one per line.
 Section `Recent-work:` contains the last 10 steeplechase entries for the heat (from
-{jjdo_rein}),
+{jjdo_log}),
 formatted as column-aligned table.
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -86,7 +86,7 @@ formatted as column-aligned table.
 . Collect all heats with status
 {jjdhe_racing}.
 Render column-aligned table using same format as
-{jjdo_muster}
+{jjdo_list}
 (₣Fire, Silks, Status, Done, Total).
 Output as `Racing-heats:` section.
 . Read
@@ -119,13 +119,13 @@ or
 .. Output `pace_coronet`,
 `pace_silks` (from `tacks[0].silks`),
 `pace_state`
-.. Output `spec` from `tacks[0].text`
+.. Output `docket` from `tacks[0].text`
 .. Query steeplechase entries for heat, filter by actionable pace coronet, run `git diff-tree` per commit, collect unique work file names (excluding `.claude/jjm/*`), output as `Work-files:` section (2-space indented, sorted, one per line)
 .. If state is
 {jjdpe_bridled},
-output `direction` from `tacks[0].direction`
+output `warrant` from `tacks[0].direction`
 .. Stop walking (first match wins)
 . If no actionable pace found, output only `heat_silks`, `paddock_file`, `paddock_content`, and `recent_work`
 . Get last 10 steeplechase entries for the heat via
-{jjdo_rein}
+{jjdo_log}
 logic, output as `recent_work` array

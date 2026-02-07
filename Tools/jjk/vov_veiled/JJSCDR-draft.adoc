@@ -15,7 +15,7 @@ all
 {jjdkr_tack}
 history is preserved.
 
-*Important:* "Drafted" is not a
+*Important:* "Relocated" is not a
 {jjdpr_pace}
 state.
 {jjdpr_pace}
@@ -24,7 +24,7 @@ states remain:
 {jjdpe_bridled},
 {jjdpe_complete},
 {jjdpe_abandoned}.
-Draft is an operation that moves
+Relocate is an operation that moves
 {jjdpr_pace_s}
 between
 {jjdhr_heat_s};
@@ -127,13 +127,13 @@ data to destination with new
 {jjdt_coronet}:
 .. Prepend new
 {jjdkr_tack}
-recording the draft:
+recording the relocate:
 ... {jjdkm_refined}:
 current timestamp (YYMMDD-HHMM)
 ... {jjdkm_state}:
 inherited from previous `tacks[0].state`
 ... {jjdkm_text}:
-`Drafted from {old_coronet} in {source_firemark}.\n\n` + previous `tacks[0].text`
+`Relocated from {old_coronet} in {source_firemark}.\n\n` + previous `tacks[0].text`
 ... {jjdkm_silks}:
 inherited from previous `tacks[0].silks`
 ... {jjdkm_commit}:
@@ -171,7 +171,7 @@ to stdout
 | Condition | Error
 
 | Source and destination same
-| "Cannot draft pace to same heat"
+| "Cannot relocate pace to same heat"
 
 | Source {jjdpr_pace} not found
 | "Pace {coronet} not found in heat {firemark}"

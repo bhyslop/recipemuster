@@ -15,7 +15,7 @@ all
 history is preserved.
 
 This operation mirrors
-{jjdo_draft}
+{jjdo_relocate}
 behavior but operates on multiple
 {jjdpr_pace_s}
 atomically.
@@ -23,9 +23,9 @@ Either all
 {jjdpr_pace_s}
 transfer or none do.
 Unlike
-{jjdo_garland}
-which has specific ceremony semantics (garlanding, furlough, filtering by state),
-{jjdo_restring}
+{jjdo_continue}
+which has specific ceremony semantics (garlanding, alter, filtering by state),
+{jjdo_transfer}
 is a primitive bulk transfer: mechanical movement of specified
 {jjdpr_pace_s}
 with no additional ceremony.
@@ -70,16 +70,16 @@ to draft (order preserved in destination)
     {
       "old_coronet": "AFAAb",
       "new_coronet": "AGABd",
-      "silks": "implement-bulk-draft",
+      "silks": "implement-bulk-relocate",
       "state": "bridled",
-      "spec": "Implement jjx_restring operation following jjx_draft pattern..."
+      "docket": "Implement jjx_transfer operation following jjx_relocate pattern..."
     },
     {
       "old_coronet": "AFAAc",
       "new_coronet": "AGABe",
-      "silks": "test-restring-edge-cases",
+      "silks": "test-transfer-edge-cases",
       "state": "rough",
-      "spec": "Add tests for empty source, all paces transferred, ordering preservation..."
+      "docket": "Add tests for empty source, all paces transferred, ordering preservation..."
     }
   ]
 }
@@ -117,7 +117,7 @@ from `tacks[0]`
 * `drafted[].state`: Current
 {jjdkm_state}
 from `tacks[0]`
-* `drafted[].spec`: Current
+* `drafted[].docket`: Current
 {jjdkm_text}
 from `tacks[0]`
 (first 80 chars)
@@ -178,13 +178,13 @@ data to destination with new
 {jjdt_coronet}:
 ... Prepend new
 {jjdkr_tack}
-recording the draft:
+recording the relocate:
 .... {jjdkm_refined}:
 current timestamp (YYMMDD-HHMM)
 .... {jjdkm_state}:
 inherited from previous `tacks[0].state`
 .... {jjdkm_text}:
-`Drafted from {old_coronet} in {source_firemark}.\n\n` + previous `tacks[0].text`
+`Relocated from {old_coronet} in {source_firemark}.\n\n` + previous `tacks[0].text`
 .... {jjdkm_silks}:
 inherited from previous `tacks[0].silks`
 .... {jjdkm_commit}:
@@ -233,7 +233,7 @@ to
 | "Heat {firemark} not found"
 
 | Source and destination same
-| "Cannot draft paces to same heat"
+| "Cannot relocate paces to same heat"
 
 | Invalid JSON in stdin
 | "Invalid JSON in stdin"
@@ -248,5 +248,5 @@ to
 | "Pace {coronet} not found in heat {firemark}"
 
 | Empty array in stdin
-| "No paces specified for draft"
+| "No paces specified for relocate"
 |===

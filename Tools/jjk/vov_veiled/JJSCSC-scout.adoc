@@ -30,7 +30,7 @@ paces only
     field: ...match excerpt...
 ----
 
-Where `field` is one of: `silks`, `spec`, `direction`, or `paddock`.
+Where `field` is one of: `silks`, `docket`, `warrant`, or `paddock`.
 Match excerpt shows approximately 60 characters of context around the first match.
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -57,8 +57,8 @@ state
 .... {jjdkm_silks}
 (from `tacks[0].silks`)
 .... {jjdkm_text}
-(spec from `tacks[0].text`)
-.... {jjdkm_direction}
+(docket from `tacks[0].text`)
+.... {jjdkm_warrant}
 (from `tacks[0].direction` if present)
 .... {jjdhm_paddock}
 file content
@@ -73,13 +73,13 @@ state, and
 .... Print match line with field name and context excerpt (60 chars around match)
 
 *Design rationale:*
-{jjdo_scout}
+{jjdo_search}
 does NOT search steeplechase/chalk descriptions.
 Steeplechase entries are for session history reconstruction; searching them would conflate "what we planned" with "what we discussed."
 The scout searches plan artifacts only:
 {jjdkm_silks},
 {jjdkm_text},
-{jjdkm_direction},
+{jjdkm_warrant},
 and
 {jjdhm_paddock}
 content.

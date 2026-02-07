@@ -42,7 +42,7 @@ exists with given
 . Read paddock file contents from
 {jjdhm_paddock}
 . Call
-{jjdo_rein}
+{jjdo_log}
 internally to get steeplechase entries
 . Build trophy markdown (see format below)
 . Output trophy markdown to stdout
@@ -68,7 +68,7 @@ metadata:
 . Read paddock file contents from
 {jjdhm_paddock}
 . Call
-{jjdo_rein}
+{jjdo_log}
 internally to get steeplechase entries
 . Build trophy markdown:
 +
@@ -95,8 +95,8 @@ internally to get steeplechase entries
 
 {tack text}
 
-{if tack has direction:}
-*Direction:* {direction}
+{if tack has warrant:}
+*Warrant:* {warrant}
 
 ## Steeplechase
 

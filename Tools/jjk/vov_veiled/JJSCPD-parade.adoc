@@ -23,7 +23,7 @@ heat.
 Returns error if no racing heats exist.
 
 // ⟦axd_optional⟧
-* `--full` — Show paddock and full pace specs (heat mode only)
+* `--detail` — Show paddock and full pace dockets (heat mode only)
 
 // ⟦axd_optional⟧
 * `--remaining` — Show only remaining paces (exclude
@@ -122,7 +122,7 @@ Created: 260119
 
 [full tack text...]
 
-Direction: [if bridled]
+Warrant: [if bridled]
 ----
 
 *Example output — pace detail (single tack):*
@@ -146,11 +146,11 @@ Heat: ₣AA
 [0] rough (789abc0)
     Silks: initial-name
 
-    Initial spec text here...
+    Initial docket text here...
 
 [1] bridled (def456a)
     Silks: feature-name
-    Direction: Agent: sonnet...
+    Warrant: Agent: sonnet...
 
     Ready for autonomous execution.
 
@@ -161,7 +161,7 @@ Heat: ₣AA
 ----
 
 Tacks are displayed in chronological order (oldest first, index 0).
-Each tack shows its index, state, commit hash, silks (which may change over time), optional direction (if bridled), and the full spec text.
+Each tack shows its index, state, commit hash, silks (which may change over time), optional warrant (if bridled), and the full docket text.
 Commit hash displays "(no commit)" for placeholder value `0000000`.
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -179,7 +179,7 @@ from file
 .. Parse as
 {jjdt_firemark},
 verify heat exists
-.. If `--full` flag:
+.. If `--detail` flag:
 ... Read paddock file content
 ... Print heat header (silks, firemark, status, created)
 ... Print paddock section
@@ -202,5 +202,5 @@ extract parent
 .. Query steeplechase entries for parent heat, filter by coronet, run `git diff-tree` per commit, collect unique work file names (excluding `.claude/jjm/*`), display as "Work files:" line (bare filenames, sorted)
 .. Print pace header (silks, coronet, state, heat)
 .. Print full tack text from `tacks[0]`
-.. If bridled, print direction from `tacks[0]`
+.. If bridled, print warrant from `tacks[0]`
 .. After tack history, always append pace commits bitmap: query steeplechase entries for heat, filter by coronet, reverse for chronological order; run `git diff-tree` per commit to get work files (excluding `.claude/jjm/*`); group files by identical touch pattern; legend shows commit SHA and subject; column-header line above bitmap rows

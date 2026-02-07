@@ -73,7 +73,7 @@
 
 // Tack record and members
 :jjdkm_commit:    <<jjdkm_commit,commit>>
-:jjdkm_direction: <<jjdkm_direction,direction>>
+:jjdkm_warrant: <<jjdkm_warrant,direction>>
 :jjdkm_refined:   <<jjdkm_refined,ts>>
 :jjdkm_silks:     <<jjdkm_silks,silks>>
 :jjdkm_state:     <<jjdkm_state,state>>
@@ -111,24 +111,24 @@
 :jjdx_cli:   <<jjdx_cli,jjx>>
 
 // Operations
-:jjdo_chalk:          <<jjdo_chalk,jjx_mark>>
-:jjdo_draft:          <<jjdo_draft,jjx_relocate>>
-:jjdo_furlough:       <<jjdo_furlough,jjx_alter>>
-:jjdo_garland:        <<jjdo_garland,jjx_continue>>
+:jjdo_mark:          <<jjdo_mark,jjx_mark>>
+:jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
+:jjdo_alter:       <<jjdo_alter,jjx_alter>>
+:jjdo_continue:        <<jjdo_continue,jjx_continue>>
 :jjdo_get_coronets:   <<jjdo_get_coronets,jjx_get_coronets>>
-:jjdo_get_spec:       <<jjdo_get_spec,jjx_get_brief>>
+:jjdo_get_brief:       <<jjdo_get_brief,jjx_get_brief>>
 :jjdo_landing:        <<jjdo_landing,jjx_landing>>
-:jjdo_muster:         <<jjdo_muster,jjx_list>>
-:jjdo_nominate:       <<jjdo_nominate,jjx_create>>
-:jjdo_notch:          <<jjdo_notch,jjx_record>>
-:jjdo_parade:         <<jjdo_parade,jjx_show>>
-:jjdo_rail:           <<jjdo_rail,jjx_reorder>>
-:jjdo_rein:           <<jjdo_rein,jjx_log>>
-:jjdo_restring:       <<jjdo_restring,jjx_transfer>>
-:jjdo_retire:         <<jjdo_retire,jjx_archive>>
-:jjdo_saddle:         <<jjdo_saddle,jjx_orient>>
-:jjdo_scout:          <<jjdo_scout,jjx_search>>
-:jjdo_slate:          <<jjdo_slate,jjx_enroll>>
+:jjdo_list:         <<jjdo_list,jjx_list>>
+:jjdo_create:       <<jjdo_create,jjx_create>>
+:jjdo_record:          <<jjdo_record,jjx_record>>
+:jjdo_show:         <<jjdo_show,jjx_show>>
+:jjdo_reorder:           <<jjdo_reorder,jjx_reorder>>
+:jjdo_log:           <<jjdo_log,jjx_log>>
+:jjdo_transfer:       <<jjdo_transfer,jjx_transfer>>
+:jjdo_archive:         <<jjdo_archive,jjx_archive>>
+:jjdo_orient:         <<jjdo_orient,jjx_orient>>
+:jjdo_search:          <<jjdo_search,jjx_search>>
+:jjdo_enroll:          <<jjdo_enroll,jjx_enroll>>
 :jjdo_revise_docket:  <<jjdo_revise_docket,jjx_revise_docket>>
 :jjdo_arm:            <<jjdo_arm,jjx_arm>>
 :jjdo_relabel:        <<jjdo_relabel,jjx_relabel>>
@@ -246,7 +246,7 @@ This keeps bash simple (just locking and invocation) while {jjdx_cli} owns all J
 Implementations MUST serialize JSON object keys in deterministic order to minimize diff churn.
 For `heats` and `paces` objects, use sorted key order (e.g., Rust `BTreeMap` instead of `HashMap`).
 This ensures that reordering paces via
-{jjdo_rail}
+{jjdo_reorder}
 produces minimal diffs — only the `order` array changes, not the entire `paces` object.
 
 === Identity Encoding
@@ -276,7 +276,7 @@ This is intentional: vivid domain vocabulary helps humans hold complex systems i
 The CLI and display layer uses distinct terms for certain schema fields to avoid collision with other project vocabulary:
 
 * *docket* — the presentation term for the {jjdkm_text} field. What the {jjdpr_pace} should accomplish. Used in CLI output labels and slash command descriptions. The JSON schema field remains `text`.
-* *warrant* — the presentation term for the {jjdkm_direction} field. Execution guidance for autonomous operation. Used in CLI output labels and slash command descriptions. The JSON schema field remains `direction`.
+* *warrant* — the presentation term for the {jjdkm_warrant} field. Execution guidance for autonomous operation. Used in CLI output labels and slash command descriptions. The JSON schema field remains `direction`.
 
 These are display/CLI terms, not schema changes. The schema field names (`text`, `direction`) are unchanged and deferred to a future heat.
 
@@ -309,7 +309,7 @@ Input may omit the `₢` prefix; output always includes it.
 is moved between
 {jjdhr_heat_s}
 via
-{jjdo_draft},
+{jjdo_relocate},
 the old
 {jjdt_coronet}
 becomes invalid and a new one is assigned using the destination
@@ -352,7 +352,7 @@ is the next
 {jjdt_firemark}
 to allocate, stored as 2 base64 characters.
 Incremented by
-{jjdo_nominate}.
+{jjdo_create}.
 
 === {jjdhr_heat}
 
@@ -414,7 +414,7 @@ lists
 {jjdt_coronet_s}
 in execution sequence.
 May be reordered via
-{jjdo_rail}.
+{jjdo_reorder}.
 
 * [[jjdhm_seed]]
 // ⟦axl_voices axr_member axd_required⟧
@@ -423,7 +423,7 @@ is the next
 {jjdt_coronet}
 index to allocate, stored as 3 base64 characters.
 Incremented by
-{jjdo_slate}.
+{jjdo_enroll}.
 
 * [[jjdhm_paddock]]
 // ⟦axl_voices axr_member axd_required⟧
@@ -435,7 +435,7 @@ Format: `.claude/jjm/jjp_XX.md` where XX is the base64-encoded
 {jjdt_firemark}
 (without `₣` prefix).
 Created by
-{jjdo_nominate}.
+{jjdo_create}.
 
 ==== Status Values
 
@@ -559,9 +559,9 @@ Format: 7-character hex string.
 Captures repo state when plan was written.
 Value `0000000` indicates commit was unavailable at creation time.
 
-* [[jjdkm_direction]]
+* [[jjdkm_warrant]]
 // ⟦axl_voices axr_member axd_conditional⟧
-{jjdkm_direction}
+{jjdkm_warrant}
 contains execution guidance for autonomous operation.
 Required when
 {jjdkm_state}
@@ -589,7 +589,7 @@ The
 {jjdpr_pace}
 is ready for autonomous execution.
 The
-{jjdkm_direction}
+{jjdkm_warrant}
 field contains explicit guidance for the executing agent.
 When context is assembled for a
 {jjdpe_bridled}
@@ -770,7 +770,7 @@ Commit subject provided by opus.
 Long: `--intent`.
 Short: none.
 If provided, used as commit subject in
-{jjdo_notch};
+{jjdo_record};
 if omitted, falls back to haiku diff description.
 
 [[jjda_created]]
@@ -832,7 +832,7 @@ Long: `--last`.
 Short: none.
 Boolean flag, no value.
 Used only by
-{jjdo_rail}
+{jjdo_reorder}
 move mode.
 Mutually exclusive with
 {jjda_before},
@@ -849,7 +849,7 @@ to relocate within
 Long: `--move`.
 Short: `-m`.
 Triggers move mode in
-{jjdo_rail}.
+{jjdo_reorder}.
 Requires exactly one positioning flag:
 {jjda_before},
 {jjda_after},
@@ -876,7 +876,7 @@ Values:
 Destination
 {jjdt_firemark}
 for
-{jjdo_draft}.
+{jjdo_relocate}.
 Long: `--to`.
 Short: none.
 
@@ -973,27 +973,27 @@ Bash handles locking via `git update-ref` and invokes {jjdx_cli} with
 
 === Write Operations
 
-[[jjdo_nominate]]
+[[jjdo_create]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_nominate}
+==== {jjdo_create}
 
 include::JJSCNO-nominate.adoc[]
 
-[[jjdo_slate]]
+[[jjdo_enroll]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_slate}
+==== {jjdo_enroll}
 
 include::JJSCSL-slate.adoc[]
 
-[[jjdo_rail]]
+[[jjdo_reorder]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_rail}
+==== {jjdo_reorder}
 
 include::JJSCRL-rail.adoc[]
 
-[[jjdo_draft]]
+[[jjdo_relocate]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_draft}
+==== {jjdo_relocate}
 
 include::JJSCDR-draft.adoc[]
 
@@ -1097,27 +1097,27 @@ Set a {jjdpr_pace_p} state to {jjdpe_abandoned}.
 . Prepend new {jjdkr_tack} with state={jjdpe_abandoned}, current silks, current docket text, current commit SHA
 . {jjdr_save}
 
-[[jjdo_furlough]]
+[[jjdo_alter]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_furlough}
+==== {jjdo_alter}
 
 include::JJSCFU-furlough.adoc[]
 
-[[jjdo_garland]]
+[[jjdo_continue]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_garland}
+==== {jjdo_continue}
 
 include::JJSCGL-garland.adoc[]
 
-[[jjdo_restring]]
+[[jjdo_transfer]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_restring}
+==== {jjdo_transfer}
 
 include::JJSCRS-restring.adoc[]
 
-[[jjdo_retire]]
+[[jjdo_archive]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_retire}
+==== {jjdo_archive}
 
 include::JJSCRT-retire.adoc[]
 
@@ -1129,15 +1129,15 @@ include::JJSCRT-retire.adoc[]
 
 include::JJSCVL-validate.adoc[]
 
-[[jjdo_muster]]
+[[jjdo_list]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_muster}
+==== {jjdo_list}
 
 include::JJSCMU-muster.adoc[]
 
-[[jjdo_get_spec]]
+[[jjdo_get_brief]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_get_spec}
+==== {jjdo_get_brief}
 
 include::JJSCGS-get-spec.adoc[]
 
@@ -1153,21 +1153,21 @@ include::JJSCGC-get-coronets.adoc[]
 
 include::JJSCLD-landing.adoc[]
 
-[[jjdo_saddle]]
+[[jjdo_orient]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_saddle}
+==== {jjdo_orient}
 
 include::JJSCSD-saddle.adoc[]
 
-[[jjdo_scout]]
+[[jjdo_search]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_scout}
+==== {jjdo_search}
 
 include::JJSCSC-scout.adoc[]
 
-[[jjdo_parade]]
+[[jjdo_show]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_parade}
+==== {jjdo_show}
 
 include::JJSCPD-parade.adoc[]
 
@@ -1177,7 +1177,7 @@ The steeplechase is Job Jockey's session history, stored in git commits rather t
 {jjdgr_gallops}
 JSON.
 Commit messages follow patterns that
-{jjdo_rein}
+{jjdo_log}
 can parse to reconstruct session history.
 
 ==== Commit Message Patterns
@@ -1189,7 +1189,7 @@ All JJ commits use the format: `jjb:HALLMARK:IDENTITY:ACTION: message`
 * `IDENTITY` — ₢CORONET for pace-level, ₣FIREMARK for heat-level
 * `ACTION` — single-letter code (required for all commits)
 
-*Standard notch* (created by {jjdo_notch}):
+*Standard notch* (created by {jjdo_record}):
 ----
 jjb:HALLMARK:₢XXXXX:n: commit message
 
@@ -1198,7 +1198,7 @@ Co-Authored-By: ...
 
 Standard notch commits use `n` to denote routine progress tracking.
 
-*Pace-level chalk* (created by {jjdo_chalk}):
+*Pace-level chalk* (created by {jjdo_mark}):
 ----
 jjb:HALLMARK:₢XXXXX:A: description
 
@@ -1227,7 +1227,7 @@ Co-Authored-By: ...
 
 Subject format: `{agent} {landed|crashed}` where agent is the executor tier (haiku/sonnet/opus) and landed/crashed indicates success/failure. Body contains the agent's raw completion report.
 
-*Session marker* (created automatically by {jjdo_saddle}):
+*Session marker* (created automatically by {jjdo_orient}):
 ----
 jjb:HALLMARK:₣XX:s: YYMMDD-HHMM session
 
@@ -1240,7 +1240,7 @@ platform: darwin-arm64
 Co-Authored-By: ...
 ----
 
-Session markers record when a new work session begins. {jjdo_saddle} creates these automatically when:
+Session markers record when a new work session begins. {jjdo_orient} creates these automatically when:
 
 * The most recent commit in the steeplechase is more than 1 hour old, OR
 * No commits exist in the steeplechase
@@ -1285,20 +1285,20 @@ Heat-level action codes:
 
 NOTE: Officium markers migrated to VVC INVITATORY (vvb:...:i:), see VOS-VoxObscuraSpec.adoc
 
-[[jjdo_rein]]
+[[jjdo_log]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_rein}
+==== {jjdo_log}
 
 include::JJSCRN-rein.adoc[]
 
-[[jjdo_notch]]
+[[jjdo_record]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_notch}
+==== {jjdo_record}
 
 include::JJSCNC-notch.adoc[]
 
-[[jjdo_chalk]]
+[[jjdo_mark]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_chalk}
+==== {jjdo_mark}
 
 include::JJSCCH-chalk.adoc[]

@@ -63,35 +63,38 @@ extract from message prefix (`n:`, `A:`, `W:`, `F:`, `d:`)
 {jjdr_persist}:*
 
 *
-{jjdo_nominate}
+{jjdo_create}
 — creates new heat with action `N`
 *
-{jjdo_slate}
+{jjdo_enroll}
 — adds new pace with action `S`
 *
-{jjdo_rail}
+{jjdo_reorder}
 — reorders paces with action `r`
 *
-{jjdo_tally}
-— adds new tack with action `T`
+{jjdo_revise_docket},
+{jjdo_arm},
+{jjdo_relabel},
+{jjdo_drop}
+— add new tack with action `T`
 *
-{jjdo_draft}
+{jjdo_relocate}
 — moves pace between heats with action `D`
 *
-{jjdo_furlough}
+{jjdo_alter}
 — changes heat status (action varies)
 
 *Commands that do NOT use
 {jjdr_persist}:*
 
 *
-{jjdo_retire}
+{jjdo_archive}
 — uses custom commit logic for trophy archival (stages trophy file, gallops, and paddock deletion; uses 200KB limit)
 *
-{jjdo_chalk}
+{jjdo_mark}
 — creates empty commits only, no gallops changes
 *
-{jjdo_notch}
+{jjdo_record}
 — commits work artifacts, not gallops state
 
 *Design rationale:*
@@ -100,5 +103,5 @@ ensures consistent commit message formatting and git discipline across all
 {jjdgr_gallops}
 mutations.
 By centralizing the commit logic, we guarantee that every state change is properly journalled with parseable commit messages for
-{jjdo_rein}
+{jjdo_log}
 to reconstruct steeplechase history.

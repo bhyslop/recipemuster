@@ -118,8 +118,8 @@ or
 {jjdpr_pace}
 in
 {jjdhm_order}:
-.. Draft to continuation using
-{jjdr_draft}
+.. Relocate to continuation using
+{jjdr_relocate}
 logic (new
 {jjdt_coronet},
 preserve

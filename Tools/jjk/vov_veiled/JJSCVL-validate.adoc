@@ -70,7 +70,7 @@ or
 {jjdkm_state}
 is
 {jjdpe_bridled},
-{jjdkm_direction}
+{jjdkm_warrant}
 must be present (non-empty string); otherwise
-{jjdkm_direction}
+{jjdkm_warrant}
 must be absent

@@ -10,12 +10,12 @@ Supports two modes: *order mode* replaces the entire sequence; *move mode* reloc
 
 *Order mode* (full replacement):
 ----
-vvx jjx_rail <FIREMARK> <CORONET>...
+vvx jjx_reorder <FIREMARK> <CORONET>...
 ----
 
 *Move mode* (single relocation):
 ----
-vvx jjx_rail <FIREMARK> --move <CORONET> [--before <TARGET> | --after <TARGET> | --first | --last]
+vvx jjx_reorder <FIREMARK> --move <CORONET> [--before <TARGET> | --after <TARGET> | --first | --last]
 ----
 
 {jjds_arguments}

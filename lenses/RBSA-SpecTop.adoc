@@ -1,10 +1,8 @@
-= Recipe Bottle Google Specification
+= Recipe Bottle Specification
 :toc:
 :toc-title: Table of Contents
 :sectnums:
 :icons: font
-:stylesheet: dark-theme.css
-:stylesdir: .
 :index:
 
 // Begin Mapping Section
@@ -21,8 +19,9 @@
 // giam_ prefix: Google Cloud Identity and Access Management
 // rbrr_ prefix: Repository Regime configuration
 
-// Cross-reference terms from RBS/Index:
-// at_ prefix: Architectural Term (maintained for consistency)
+// Local Architecture Terms (bottle deployment architecture):
+// at_ prefix: Architectural Term (core system components)
+// st_ prefix: Support Term (infrastructure and technical concepts)
 
 // Variant patterns:
 //   _s: plural form
@@ -151,7 +150,7 @@
 :rbtoe_rbra_load:            <<rbtoe_rbra_load,rbgu_rbra_load>>
 :rbtoe_rbro_load:            <<rbtoe_rbro_load,rbgu_rbro_load>>
 
-// Cross-referenced from existing specs
+// Core Architecture Terms
 :at_base_utilities:          <<at_base_utilities,Base Utilities>>
 :at_bottle_image:            <<at_bottle_image,Bottle Image>>
 :at_bottle_image_s:          <<at_bottle_image,Bottle Images>>
@@ -159,6 +158,28 @@
 :at_rbm_system:              <<at_rbm_system,Recipe Bottle Workbench>>
 :at_workstation:             <<at_workstation,Workstation>>
 :at_workstation_p:           <<at_workstation,Workstation's>>
+
+// Local Deployment Architecture Terms
+:at_bottle_service:          <<at_bottle_service,Bottle Service>>
+:at_bottle_service_s:        <<at_bottle_service,Bottle Services>>
+:at_bottle_container:        <<at_bottle_container,Bottle Container>>
+:at_bottle_container_s:      <<at_bottle_container,Bottle Containers>>
+:at_bottle_container_p:      <<at_bottle_container,Bottle Container's>>
+:at_sentry_container:        <<at_sentry_container,Sentry Container>>
+:at_sentry_container_s:      <<at_sentry_container,Sentry Containers>>
+:at_sentry_container_p:      <<at_sentry_container,Sentry Container's>>
+:at_censer_container:        <<at_censer_container,Censer Container>>
+:at_enclave_network:         <<at_enclave_network,Enclave Network>>
+:at_transit_network:         <<at_transit_network,Transit Network>>
+:at_nameplate:               <<at_nameplate,Nameplate>>
+:at_nameplate_s:             <<at_nameplate,Nameplates>>
+:at_ebpf_program:            <<at_ebpf_program,eBPF Program>>
+:st_container:               <<st_container,Container>>
+:st_container_s:             <<st_container,Containers>>
+:st_volume_mount:            <<st_volume_mount,Volume Mount>>
+:st_volume_mount_s:          <<st_volume_mount,Volume Mounts>>
+:st_port_map:                <<st_port_map,Port Map>>
+:st_port_map_s:              <<st_port_map,Port Maps>>
 
 // Recipe Bottle Regime: Repo (subset)
 :rbrr_depot_project_id:      <<rbrr_depot_project_id,RBRR_DEPOT_PROJECT_ID>>
@@ -287,7 +308,161 @@
 :rbrn_group_access_allowlist:    <<rbrn_group_access_allowlist,Access Allowlist Group>>
 :rbrn_group_dns_allowlist:       <<rbrn_group_dns_allowlist,DNS Allowlist Group>>
 
+// Google-specific Type Voicings (rbgt_* - voices axtg_* with RB-specific constraints)
+:rbgt_project_id:            <<rbgt_project_id,GCP Project ID>>
+:rbgt_region:                <<rbgt_region,GCP Region>>
+:rbgt_service_account:       <<rbgt_service_account,GCP Service Account>>
+:rbgt_billing_account:       <<rbgt_billing_account,GCP Billing Account>>
+
+// Cross-references to companion specifications
+:xref_AXLA:                  Axial Lexicon Specification
+
+// AXLA environment terms (text references)
+:axe_bash_interactive:       bash interactive
+:axe_human_guide:            human guide
+
 // end::mapping-section[]
+
+// ============================================================================
+// TIER 1: WHY AND WHAT
+// ============================================================================
+
+== System Overview
+
+=== Core Trust Challenge
+
+Modern development increasingly requires running foreign code with access to local work.
+
+{st_container}-
+based development tools processing source code, local AI/ML tools analyzing proprietary data, and third-party services needing controlled network access create fundamental security challenges.
+
+This creates a fundamental trust dilemma:
+
+* {st_container_s}
+provide powerful tool isolation
+* But they need controlled access
+to do useful work
+* Standard
+{st_container}
+networking
+grants unfettered outbound access or else network services completely unavailable.
+
+=== The Bottle Pattern
+
+{at_rbm_system}
+solves this by creating two simple, robust boundaries around a certain
+{st_container}
+type here referred to as a
+{at_bottle_container}:
+
+. File Access Boundary
+* {at_bottle_container}
+sees only explicitly controlled set of
+{st_volume_mount_s}
+* No other access
+to
+{at_workstation}
+filesystem
+
+. Network Boundary
+* {at_bottle_container}
+has no direct network access
+* All traffic
+flows through dedicated
+{at_sentry_container},
+a
+{st_container}
+configured with very tight network access and visibility controls.
+* Only declared
+{st_port_map_s}
+and destinations
+allowed
+* Full logging
+of allowed and denied traffic
+
+Each
+{at_bottle_service}
+maintains these boundaries through a three-container architecture:
+
+* One
+{at_sentry_container}
+enforcing network policy on dual networks (bridge and enclave)
+* One
+{at_censer_container}
+establishing and configuring the network namespace
+* One
+{at_bottle_container}
+running the actual service, sharing the censer's network namespace
+* Clear configuration
+in a single
+{at_nameplate}
+file
+
+The
+{at_censer_container}
+is a privileged container that establishes the network namespace, configures routing to ensure all traffic flows through the
+{at_sentry_container},
+then shares this pre-configured namespace with the
+{at_bottle_container}
+via `--net=container:censer`.
+This ensures security policies are enforced from the first packet, and the
+{at_bottle_container}
+experiences only a functional path to its
+{at_sentry_container}
+gateway
+
+=== Security Properties
+
+The
+{at_rbm_system}
+maintains following essential guarantees:
+
+. File Access Control
+* {at_bottle_container_s}
+can access only explicitly configured
+{st_volume_mount_s}
+* No access to broader system resources
+
+. Network Isolation
+* All traffic flows through dedicated
+{at_sentry_container}
+* Each permitted traffic flow maintains exactly one controlled pathway
+* Precise ingress, forwarding, and NAT rules enforce strict boundaries
+* Only explicitly configured
+{st_port_map_s}
+allow traffic between
+{at_transit_network} and {at_enclave_network}
+* {at_bottle_container_s}
+have no direct network access; all connectivity flows through
+{at_sentry_container_s}
+* Comprehensive traffic logging
+
+. Service Separation
+* Each
+{at_bottle_service}
+fully isolated
+* No cross-service communication
+* Independent security policies
+* Clean state separation
+
+. Service Access Control
+* External access to services only permitted when {rbrn_entry_mode} is enabled
+* No inter-container communication allowed within pods
+* All service access must originate from outside the pod
+* Entry traffic flows: external -> pod ->
+{at_sentry_container} -> {at_bottle_container}
+
+These properties hold across all operations and failure modes.
+
+== Getting Started
+
+For builders and operators new to {at_recipe_bottle}, this section provides conceptual grounding and the setup journey.
+
+include::RBSGS-GettingStarted.adoc[leveloffset=+2]
+
+// ============================================================================
+// TIER 2: HOW
+// ============================================================================
 
 == Google API Engagement
 
@@ -359,12 +534,6 @@ This is a workflow constraint ensuring reproducible builds, not a collision guar
 
 NOTE: Concurrent builds of the same vessel produce independent images with different timestamps.
 Both builds succeed; neither overwrites the other.
-
-== Getting Started
-
-For builders and operators new to {at_recipe_bottle}, this section provides conceptual grounding and the setup journey.
-
-include::RBSGS-GettingStarted.adoc[leveloffset=+2]
 
 == {rbtr_payor} Operations
 
@@ -476,7 +645,17 @@ include::RBSSL-sa_list.adoc[]
 
 include::RBSSD-sa_delete.adoc[]
 
-== Definitions
+== Local Operations
+
+// PLACEHOLDER: Bottle lifecycle operations (sentry start, bottle start/stop)
+// Rewritten in AXLA-style procedures. Content from RBS startup sequences.
+// To be filled by pace ASAAB.
+
+// ============================================================================
+// TIER 3: REFERENCE
+// ============================================================================
+
+== Term Definitions
 
 === Core {gcp_project_id} Terms
 
@@ -858,333 +1037,6 @@ A
 {gcp_service}
 identity that applications and services use to authenticate and authorize API operations, consisting of an email address, unique ID, and associated cryptographic keys for non-interactive authentication.
 
-=== Bash Console Control Voicings
-
-Control terms for Recipe Bottle operations executing in a bash shell with human operator present.
-Each term voices the corresponding
-{xref_AXLA}
-control motif in the
-{axe_bash_interactive}
-environment.
-
-[[rbbc_variable]]
-// ⟦axl_voices axc_variable axe_bash_interactive⟧
-{rbbc_variable}::
-A shell variable denoted by guillemets `«NAME»` storing intermediate results.
-Implemented as bash variables or associative array entries.
-
-[[rbbc_fatal]]
-// ⟦axl_voices axc_fatal axe_bash_interactive⟧
-{rbbc_fatal}::
-Red console text followed by `exit 1`.
-Script terminates immediately. Human operator must intervene.
-
-[[rbbc_warn]]
-// ⟦axl_voices axc_warn axe_bash_interactive⟧
-{rbbc_warn}::
-Yellow console text indicating non-blocking concern.
-Script continues execution. Human operator may note for later.
-
-[[rbbc_store]]
-// ⟦axl_voices axc_store axe_bash_interactive⟧
-{rbbc_store}::
-Capture of a value from command output or API response into a
-{rbbc_variable}.
-Typically via bash assignment or jq extraction.
-
-[[rbbc_use]]
-// ⟦axl_voices axc_use axe_bash_interactive⟧
-{rbbc_use}::
-Reference to a previously stored
-{rbbc_variable}
-value.
-Expanded via bash variable substitution.
-
-[[rbbc_require]]
-// ⟦axl_voices axc_require axe_bash_interactive⟧
-{rbbc_require}::
-Validation check that confirms an expected condition.
-Triggers
-{rbbc_fatal}
-if condition not met.
-
-[[rbbc_poll]]
-// ⟦axl_voices axc_poll axe_bash_interactive⟧
-{rbbc_poll}::
-Repeated execution of a command at defined intervals until condition satisfied or timeout.
-Implemented as bash while loop with sleep.
-
-[[rbbc_call]]
-// ⟦axl_voices axc_call axe_bash_interactive⟧
-{rbbc_call}::
-Synchronous invocation of a REST API endpoint via curl.
-Captures HTTP status code and response body. Returns when response received.
-
-[[rbbc_submit]]
-// ⟦axl_voices axc_submit axe_bash_interactive⟧
-{rbbc_submit}::
-Asynchronous invocation of a REST API that returns an LRO operation handle.
-Returns immediately with operation ID for later
-{rbbc_await}.
-
-[[rbbc_await]]
-// ⟦axl_voices axc_await axe_bash_interactive⟧
-{rbbc_await}::
-Blocking wait on a submitted LRO operation until completion.
-Polls operation endpoint until done=true, then returns result.
-
-[[rbbc_show]]
-// ⟦axl_voices axc_show axe_bash_interactive⟧
-{rbbc_show}::
-Presentation of operational facts to the console.
-Formatted output via echo or printf to stdout.
-
-[[rbbc_prompt]]
-// ⟦axl_voices axc_prompt axe_bash_interactive⟧
-{rbbc_prompt}::
-Interactive request for human operator confirmation before proceeding.
-Displays message and waits for user input (typically y/N).
-Script pauses until confirmation received; continues on affirmative, triggers
-{rbbc_fatal}
-on decline or timeout.
-
-=== Human Guide Control Voicings
-
-Control terms for Recipe Bottle procedures executed by a human operator following a rendered document while interacting with external systems (web console, GUI).
-Each term voices the corresponding
-{xref_AXLA}
-control motif in the
-{axe_human_guide}
-environment.
-
-[[rbhg_fatal]]
-// ⟦axl_voices axc_fatal axe_human_guide⟧
-{rbhg_fatal}::
-Instruction to abort the procedure immediately.
-Human must not proceed. May require rollback or support contact.
-
-[[rbhg_warn]]
-// ⟦axl_voices axc_warn axe_human_guide⟧
-{rbhg_warn}::
-Cautionary note requiring human acknowledgment before proceeding.
-Highlights potential issues or irreversible actions.
-
-[[rbhg_store]]
-// ⟦axl_voices axc_store axe_human_guide⟧
-{rbhg_store}::
-Instruction for human to record a value for later use.
-Typically written down, copied to clipboard, or saved to a file.
-
-[[rbhg_require]]
-// ⟦axl_voices axc_require axe_human_guide⟧
-{rbhg_require}::
-Verification checkpoint where human confirms a condition before proceeding.
-May involve visual inspection or testing in external UI.
-
-[[rbhg_show]]
-// ⟦axl_voices axc_show axe_human_guide⟧
-{rbhg_show}::
-Informational note presented to the human during procedure.
-Provides context or expected outcomes without requiring action.
-
-=== Recipe Bottle Orchestration Patterns (RB-specific)
-
-[[rbtoe_rbra_generate]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_rbra_generate}::
-A pattern that converts Google
-{giam_service_account}
-credentials into
-{rbtgi_rbra_file}
-format:
-extracts `client_email`, `private_key`, and `project_id` from base64-encoded key data or JSON structure,
-converts to RBRA environment variables (`RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`, `RBRA_PROJECT_ID`),
-and writes to specified file path with 600 permissions (owner read/write only).
-
-[[rbtoe_rbra_load]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_rbra_load}::
-A pattern that sources an
-{rbtgi_rbra_file}
-and validates required fields:
-sources the specified RBRA file into the current environment,
-validates that `RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`, and `RBRA_PROJECT_ID` are all present and non-empty,
-and triggers
-{rbbc_fatal}
-with standardized error message if any field is missing or invalid.
-
-[[rbtoe_jwt_oauth_exchange]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_jwt_oauth_exchange}::
-A pattern that exchanges
-{giam_service_account}
-RBRA credentials for an
-{oauth_token}:
-constructs JWT with RS256 signature using RBRA_PRIVATE_KEY,
-sets JWT claims (iss=RBRA_CLIENT_EMAIL, aud=https://oauth2.googleapis.com/token, scope=https://www.googleapis.com/auth/cloud-platform),
-POSTs to OAuth2 token endpoint,
-returns access_token from response,
-triggers
-{rbbc_fatal}
-on non-200 HTTP response.
-
-[[rbtoe_api_enable]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_api_enable}::
-A pattern that ensures a specified Google Cloud API is enabled in a project with idempotent behavior:
-
-. attempts to enable the API via serviceusage.services.enable,
-. tolerates HTTP 200 (success) or HTTP 400 with "already enabled" error,
-. executes
-{rbbc_await}
-if Long Running Operation returned,
-. verifies API state is ENABLED via serviceusage.services.get,
-. triggers
-{rbbc_fatal}
-on unexpected errors (409 conflicts, permission denied, etc.),
-. returns success when API is confirmed enabled.
-
-
-[[rbtoe_oauth_refresh]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_oauth_refresh}::
-A pattern that exchanges OAuth refresh token for access token:
-
-. loads RBRO_REFRESH_TOKEN and RBRO_CLIENT_SECRET from
-{rbro_regime},
-. loads RBRP_OAUTH_CLIENT_ID from
-{rbrp_payor_project_id}
-configuration,
-. constructs JSON request with refresh_token, client_id, client_secret, and grant_type=refresh_token,
-. POSTs to https://oauth2.googleapis.com/token with Content-Type: application/json,
-. validates HTTP 200 response or triggers
-{rbbc_fatal}
-with error description,
-. extracts access_token from JSON response,
-. {rbbc_require} access_token is present and non-empty,
-. returns fresh access_token for immediate use,
-. handles 400/401 errors by triggering
-{rbbc_fatal}
-with "OAuth credentials expired or invalid - run
-{rbtgo_payor_refresh}
-".
-
-[[rbtoe_payor_authenticate]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_payor_authenticate}::
-A pattern that establishes
-{rbtr_payor}
-OAuth context:
-
-. executes
-{rbtoe_rbro_load}
-to load OAuth credentials,
-. loads RBRP_OAUTH_CLIENT_ID from rbrp.env configuration,
-. executes
-{rbtoe_oauth_refresh}
-to obtain access token,
-. stores token as `«PAYOR_ACCESS_TOKEN»` for subsequent API calls.
-
-[[rbtoe_governor_authenticate]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_governor_authenticate}::
-A pattern that establishes
-{rbtr_governor}
-service account context:
-
-. {rbbc_require}
-{rbrr_governor_rbra_file}
-exists or
-{rbbc_fatal}
-"Governor RBRA file missing - run
-{rbtgo_governor_reset}",
-. loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
-. generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
-. {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
-. stores token as `«GOVERNOR_ACCESS_TOKEN»` for subsequent API calls.
-
-[[rbtoe_director_authenticate]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_director_authenticate}::
-A pattern that establishes
-{rbtr_director}
-service account context:
-
-. {rbbc_require}
-{rbrr_director_rbra_file}
-exists or
-{rbbc_fatal}
-"Director RBRA file missing - run
-{rbtgo_director_create}",
-. loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
-. generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
-. {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
-. stores token as `«DIRECTOR_ACCESS_TOKEN»` for subsequent API calls.
-
-[[rbtoe_retriever_authenticate]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_retriever_authenticate}::
-A pattern that establishes
-{rbtr_retriever}
-service account context:
-
-. {rbbc_require}
-{rbrr_retriever_rbra_file}
-exists or
-{rbbc_fatal}
-"Retriever RBRA file missing - run
-{rbtgo_retriever_create}",
-. loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
-. generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
-. {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
-. stores token as `«RETRIEVER_ACCESS_TOKEN»` for subsequent API calls.
-
-[[rbtoe_rbro_load]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_rbro_load}::
-A pattern that loads and validates RBRO credentials:
-
-. {rbbc_require} ~/.rbw/ directory exists or
-{rbbc_fatal}
-"RBRO directory missing - run {rbtgo_payor_install}",
-. {rbbc_require} ~/.rbw/rbro.env file exists or
-{rbbc_fatal}
-"RBRO credentials missing - run {rbtgo_payor_install}",
-. validates file permissions are 600 or
-{rbbc_warn}
-"RBRO file permissions should be 600",
-. sources ~/.rbw/rbro.env into current environment,
-. validates RBRO_CLIENT_SECRET is present and non-empty or
-{rbbc_fatal}
-"RBRO_CLIENT_SECRET missing",
-. validates RBRO_REFRESH_TOKEN is present and non-empty or
-{rbbc_fatal}
-"RBRO_REFRESH_TOKEN missing",
-. returns success when all RBRO variables are loaded and validated.
-
-[[rbtoe_depot_list_update]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_depot_list_update}::
-A pattern that synchronizes depot project tracking:
-
-. executes
-{rbtoe_payor_authenticate}
-to obtain access token,
-. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter `projectId:rbw-depot-* AND lifecycleState:ACTIVE`,
-. {rbbc_require} HTTP 200 response from projects API,
-. extracts project IDs from `.projects[].projectId` array,
-. validates each project ID matches pattern `rbw-[name]-[timestamp]`,
-. constructs space-delimited string from valid depot project IDs,
-. updates RBRP_DEPOT_PROJECT_IDS in rbrp.env file,
-. handles empty results by setting RBRP_DEPOT_PROJECT_IDS="",
-. {rbbc_require} rbrp.env file update successful,
-. invoked by
-{rbtgo_payor_install},
-{rbtgo_depot_create},
-and
-{rbtgo_depot_destroy}
-operations.
-
 === Cross-Reference Definitions
 
 [[at_rbm_system]]
@@ -1241,7 +1093,108 @@ The minimal set of command-line tools
 required on the
 {at_workstation}.
 
-== Configuration Regime Definitions
+=== Local Architecture Definitions
+
+[[at_bottle_service]]
+{at_bottle_service}::
+A complete service instance consisting of one
+{at_sentry_container},
+one
+{at_censer_container},
+and one
+{at_bottle_container}
+working together to provide secure functionality.
+Each service maintains strict file system and network boundaries while enabling controlled access to resources.
+
+[[at_sentry_container]]
+{at_sentry_container}::
+A privileged container that enforces network security policies for a
+{at_bottle_service}.
+It connects to both
+{at_transit_network} and {at_enclave_network},
+controlling all network traffic and providing DNS services.
+
+[[at_censer_container]]
+{at_censer_container}::
+A privileged container using a minimal image that establishes and configures the network namespace before the
+{at_bottle_container}
+starts.
+It sets up routing to ensure all traffic flows through the
+{at_sentry_container},
+then shares this pre-configured namespace with the
+{at_bottle_container}
+via `--net=container:censer`.
+This ensures security policies are enforced from the first packet.
+
+[[at_bottle_container]]
+{at_bottle_container}::
+A container that runs the actual service functionality, inheriting its network namespace from the
+{at_censer_container}.
+It is connected only to the
+{at_enclave_network}
+and configured with specific
+{st_volume_mount_s}.
+All external communication flows through its associated
+{at_sentry_container}.
+
+[[at_enclave_network]]
+{at_enclave_network}::
+An isolated network connecting a
+{at_bottle_container}
+to its
+{at_sentry_container},
+using
+{rbrn_enclave_base_ip}/{rbrn_enclave_netmask}
+for addressing.
+This network enforces strict security policies and provides the only network communication path for the
+{at_bottle_container}.
+
+[[at_transit_network]]
+{at_transit_network}::
+The network interface that connects a
+{at_sentry_container}
+to the
+{at_workstation_p}
+network resources.
+This network enables controlled external communication while maintaining security boundaries.
+
+[[at_nameplate]]
+{at_nameplate}::
+A configuration file that defines all aspects of a
+{at_bottle_service},
+including its images, network settings, and security policies.
+Each nameplate provides a complete service specification that the
+{at_rbm_system}
+can instantiate.
+
+[[at_ebpf_program]]
+{at_ebpf_program}::
+An eBPF TC (Traffic Control) filter program attached to the
+{at_bottle_container_p}
+veth interface that intercepts and rewrites Ethernet frames at the packet level.
+This program ensures all
+{at_bottle_container}
+network traffic routes through its associated
+{at_sentry_container}
+without requiring network namespace manipulation or special container privileges.
+
+[[st_container]]
+{st_container}::
+A lightweight, standalone executable package containing all necessary components to run a service.
+
+[[st_volume_mount]]
+{st_volume_mount}::
+A configuration that allows
+{st_container_s}
+to access specified portions of the host filesystem.
+
+[[st_port_map]]
+{st_port_map}::
+A specification of how network ports should be exposed and mapped between
+{st_container_s}
+and the host system.
+
+== Configuration Regimes
 
 [[rbrr_prefix]]
 // ⟦axl_voices axrg_prefix⟧
@@ -1786,7 +1739,7 @@ APIs.
 RBRA regimes are security-isolated configuration files typically stored outside the main repository in `../station-files/secrets/rbra-*.env` locations.
 These regimes enable different service account roles to authenticate and operate within their designated scopes.
 
-NOTE: Individual RBRA variables beyond the core documented set are actively used throughout the system but formal definition within RBAGS specification is TBD for future documentation efforts.
+NOTE: Individual RBRA variables beyond the core documented set are actively used throughout the system but formal definition within this specification is TBD for future documentation efforts.
 
 === Environment Variables Regime (RBEV)
 
@@ -1801,7 +1754,7 @@ instances.
 RBEV regimes specify container execution parameters, port mappings, working directories, and other runtime characteristics that are applied when containers are instantiated.
 These configurations are typically embedded within recipe files and container orchestration specifications.
 
-NOTE: Individual RBEV variables are actively used throughout the system but formal definition within RBAGS specification is TBD for future documentation efforts.
+NOTE: Individual RBEV variables are actively used throughout the system but formal definition within this specification is TBD for future documentation efforts.
 
 == Type Voicings
 
@@ -1871,6 +1824,372 @@ Each element follows `address/prefix` format (e.g., `10.0.0.0/8 172.16.0.0/12`).
 {rbst_domain_list}::
 Space-delimited list of fully-qualified domain names.
 Each element is a valid DNS domain (e.g., `api.example.com registry.example.com`).
+
+=== Google-specific Types (rbgt_*)
+
+Google-specific type voicings define constrained data formats for Google Cloud Platform resources.
+Each voices the corresponding `axtg_*` type motif from {xref_AXLA}.
+
+[[rbgt_project_id]]
+// ⟦axl_voices axtg_project_id⟧
+{rbgt_project_id}::
+GCP project identifier.
+6-30 lowercase letters, digits, and hyphens; must start with letter, end with letter or digit.
+
+[[rbgt_region]]
+// ⟦axl_voices axtg_region⟧
+{rbgt_region}::
+GCP region identifier.
+Format: `continent-direction[N]` (e.g., `us-central1`, `europe-west1`).
+
+[[rbgt_service_account]]
+// ⟦axl_voices axtg_service_account⟧
+{rbgt_service_account}::
+GCP service account email address.
+Format: `name@project.iam.gserviceaccount.com`.
+
+[[rbgt_billing_account]]
+// ⟦axl_voices axtg_billing_account⟧
+{rbgt_billing_account}::
+GCP billing account identifier.
+Format: `XXXXXX-XXXXXX-XXXXXX`.
+
+== Control Voicings
+
+=== Bash Console Control Voicings
+
+Control terms for Recipe Bottle operations executing in a bash shell with human operator present.
+Each term voices the corresponding
+{xref_AXLA}
+control motif in the
+{axe_bash_interactive}
+environment.
+
+[[rbbc_variable]]
+// ⟦axl_voices axc_variable axe_bash_interactive⟧
+{rbbc_variable}::
+A shell variable denoted by guillemets `«NAME»` storing intermediate results.
+Implemented as bash variables or associative array entries.
+
+[[rbbc_fatal]]
+// ⟦axl_voices axc_fatal axe_bash_interactive⟧
+{rbbc_fatal}::
+Red console text followed by `exit 1`.
+Script terminates immediately. Human operator must intervene.
+
+[[rbbc_warn]]
+// ⟦axl_voices axc_warn axe_bash_interactive⟧
+{rbbc_warn}::
+Yellow console text indicating non-blocking concern.
+Script continues execution. Human operator may note for later.
+
+[[rbbc_store]]
+// ⟦axl_voices axc_store axe_bash_interactive⟧
+{rbbc_store}::
+Capture of a value from command output or API response into a
+{rbbc_variable}.
+Typically via bash assignment or jq extraction.
+
+[[rbbc_use]]
+// ⟦axl_voices axc_use axe_bash_interactive⟧
+{rbbc_use}::
+Reference to a previously stored
+{rbbc_variable}
+value.
+Expanded via bash variable substitution.
+
+[[rbbc_require]]
+// ⟦axl_voices axc_require axe_bash_interactive⟧
+{rbbc_require}::
+Validation check that confirms an expected condition.
+Triggers
+{rbbc_fatal}
+if condition not met.
+
+[[rbbc_poll]]
+// ⟦axl_voices axc_poll axe_bash_interactive⟧
+{rbbc_poll}::
+Repeated execution of a command at defined intervals until condition satisfied or timeout.
+Implemented as bash while loop with sleep.
+
+[[rbbc_call]]
+// ⟦axl_voices axc_call axe_bash_interactive⟧
+{rbbc_call}::
+Synchronous invocation of a REST API endpoint via curl.
+Captures HTTP status code and response body. Returns when response received.
+
+[[rbbc_submit]]
+// ⟦axl_voices axc_submit axe_bash_interactive⟧
+{rbbc_submit}::
+Asynchronous invocation of a REST API that returns an LRO operation handle.
+Returns immediately with operation ID for later
+{rbbc_await}.
+
+[[rbbc_await]]
+// ⟦axl_voices axc_await axe_bash_interactive⟧
+{rbbc_await}::
+Blocking wait on a submitted LRO operation until completion.
+Polls operation endpoint until done=true, then returns result.
+
+[[rbbc_show]]
+// ⟦axl_voices axc_show axe_bash_interactive⟧
+{rbbc_show}::
+Presentation of operational facts to the console.
+Formatted output via echo or printf to stdout.
+
+[[rbbc_prompt]]
+// ⟦axl_voices axc_prompt axe_bash_interactive⟧
+{rbbc_prompt}::
+Interactive request for human operator confirmation before proceeding.
+Displays message and waits for user input (typically y/N).
+Script pauses until confirmation received; continues on affirmative, triggers
+{rbbc_fatal}
+on decline or timeout.
+
+=== Human Guide Control Voicings
+
+Control terms for Recipe Bottle procedures executed by a human operator following a rendered document while interacting with external systems (web console, GUI).
+Each term voices the corresponding
+{xref_AXLA}
+control motif in the
+{axe_human_guide}
+environment.
+
+[[rbhg_fatal]]
+// ⟦axl_voices axc_fatal axe_human_guide⟧
+{rbhg_fatal}::
+Instruction to abort the procedure immediately.
+Human must not proceed. May require rollback or support contact.
+
+[[rbhg_warn]]
+// ⟦axl_voices axc_warn axe_human_guide⟧
+{rbhg_warn}::
+Cautionary note requiring human acknowledgment before proceeding.
+Highlights potential issues or irreversible actions.
+
+[[rbhg_store]]
+// ⟦axl_voices axc_store axe_human_guide⟧
+{rbhg_store}::
+Instruction for human to record a value for later use.
+Typically written down, copied to clipboard, or saved to a file.
+
+[[rbhg_require]]
+// ⟦axl_voices axc_require axe_human_guide⟧
+{rbhg_require}::
+Verification checkpoint where human confirms a condition before proceeding.
+May involve visual inspection or testing in external UI.
+
+[[rbhg_show]]
+// ⟦axl_voices axc_show axe_human_guide⟧
+{rbhg_show}::
+Informational note presented to the human during procedure.
+Provides context or expected outcomes without requiring action.
+
+== Orchestration Patterns
+
+Recipe Bottle orchestration patterns define reusable implementation sequences for system operations.
+
+[[rbtoe_rbra_generate]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_rbra_generate}::
+A pattern that converts Google
+{giam_service_account}
+credentials into
+{rbtgi_rbra_file}
+format:
+extracts `client_email`, `private_key`, and `project_id` from base64-encoded key data or JSON structure,
+converts to RBRA environment variables (`RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`, `RBRA_PROJECT_ID`),
+and writes to specified file path with 600 permissions (owner read/write only).
+
+[[rbtoe_rbra_load]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_rbra_load}::
+A pattern that sources an
+{rbtgi_rbra_file}
+and validates required fields:
+sources the specified RBRA file into the current environment,
+validates that `RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`, and `RBRA_PROJECT_ID` are all present and non-empty,
+and triggers
+{rbbc_fatal}
+with standardized error message if any field is missing or invalid.
+
+[[rbtoe_jwt_oauth_exchange]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_jwt_oauth_exchange}::
+A pattern that exchanges
+{giam_service_account}
+RBRA credentials for an
+{oauth_token}:
+constructs JWT with RS256 signature using RBRA_PRIVATE_KEY,
+sets JWT claims (iss=RBRA_CLIENT_EMAIL, aud=https://oauth2.googleapis.com/token, scope=https://www.googleapis.com/auth/cloud-platform),
+POSTs to OAuth2 token endpoint,
+returns access_token from response,
+triggers
+{rbbc_fatal}
+on non-200 HTTP response.
+
+[[rbtoe_api_enable]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_api_enable}::
+A pattern that ensures a specified Google Cloud API is enabled in a project with idempotent behavior:
+
+. attempts to enable the API via serviceusage.services.enable,
+. tolerates HTTP 200 (success) or HTTP 400 with "already enabled" error,
+. executes
+{rbbc_await}
+if Long Running Operation returned,
+. verifies API state is ENABLED via serviceusage.services.get,
+. triggers
+{rbbc_fatal}
+on unexpected errors (409 conflicts, permission denied, etc.),
+. returns success when API is confirmed enabled.
+
+
+[[rbtoe_oauth_refresh]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_oauth_refresh}::
+A pattern that exchanges OAuth refresh token for access token:
+
+. loads RBRO_REFRESH_TOKEN and RBRO_CLIENT_SECRET from
+{rbro_regime},
+. loads RBRP_OAUTH_CLIENT_ID from
+{rbrp_payor_project_id}
+configuration,
+. constructs JSON request with refresh_token, client_id, client_secret, and grant_type=refresh_token,
+. POSTs to https://oauth2.googleapis.com/token with Content-Type: application/json,
+. validates HTTP 200 response or triggers
+{rbbc_fatal}
+with error description,
+. extracts access_token from JSON response,
+. {rbbc_require} access_token is present and non-empty,
+. returns fresh access_token for immediate use,
+. handles 400/401 errors by triggering
+{rbbc_fatal}
+with "OAuth credentials expired or invalid - run
+{rbtgo_payor_refresh}
+".
+
+[[rbtoe_payor_authenticate]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_payor_authenticate}::
+A pattern that establishes
+{rbtr_payor}
+OAuth context:
+
+. executes
+{rbtoe_rbro_load}
+to load OAuth credentials,
+. loads RBRP_OAUTH_CLIENT_ID from rbrp.env configuration,
+. executes
+{rbtoe_oauth_refresh}
+to obtain access token,
+. stores token as `«PAYOR_ACCESS_TOKEN»` for subsequent API calls.
+
+[[rbtoe_governor_authenticate]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_governor_authenticate}::
+A pattern that establishes
+{rbtr_governor}
+service account context:
+
+. {rbbc_require}
+{rbrr_governor_rbra_file}
+exists or
+{rbbc_fatal}
+"Governor RBRA file missing - run
+{rbtgo_governor_reset}",
+. loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
+. generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
+. {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
+. stores token as `«GOVERNOR_ACCESS_TOKEN»` for subsequent API calls.
+
+[[rbtoe_director_authenticate]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_director_authenticate}::
+A pattern that establishes
+{rbtr_director}
+service account context:
+
+. {rbbc_require}
+{rbrr_director_rbra_file}
+exists or
+{rbbc_fatal}
+"Director RBRA file missing - run
+{rbtgo_director_create}",
+. loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
+. generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
+. {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
+. stores token as `«DIRECTOR_ACCESS_TOKEN»` for subsequent API calls.
+
+[[rbtoe_retriever_authenticate]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_retriever_authenticate}::
+A pattern that establishes
+{rbtr_retriever}
+service account context:
+
+. {rbbc_require}
+{rbrr_retriever_rbra_file}
+exists or
+{rbbc_fatal}
+"Retriever RBRA file missing - run
+{rbtgo_retriever_create}",
+. loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
+. generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
+. {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
+. stores token as `«RETRIEVER_ACCESS_TOKEN»` for subsequent API calls.
+
+[[rbtoe_rbro_load]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_rbro_load}::
+A pattern that loads and validates RBRO credentials:
+
+. {rbbc_require} ~/.rbw/ directory exists or
+{rbbc_fatal}
+"RBRO directory missing - run {rbtgo_payor_install}",
+. {rbbc_require} ~/.rbw/rbro.env file exists or
+{rbbc_fatal}
+"RBRO credentials missing - run {rbtgo_payor_install}",
+. validates file permissions are 600 or
+{rbbc_warn}
+"RBRO file permissions should be 600",
+. sources ~/.rbw/rbro.env into current environment,
+. validates RBRO_CLIENT_SECRET is present and non-empty or
+{rbbc_fatal}
+"RBRO_CLIENT_SECRET missing",
+. validates RBRO_REFRESH_TOKEN is present and non-empty or
+{rbbc_fatal}
+"RBRO_REFRESH_TOKEN missing",
+. returns success when all RBRO variables are loaded and validated.
+
+[[rbtoe_depot_list_update]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_depot_list_update}::
+A pattern that synchronizes depot project tracking:
+
+. executes
+{rbtoe_payor_authenticate}
+to obtain access token,
+. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter `projectId:rbw-depot-* AND lifecycleState:ACTIVE`,
+. {rbbc_require} HTTP 200 response from projects API,
+. extracts project IDs from `.projects[].projectId` array,
+. validates each project ID matches pattern `rbw-[name]-[timestamp]`,
+. constructs space-delimited string from valid depot project IDs,
+. updates RBRP_DEPOT_PROJECT_IDS in rbrp.env file,
+. handles empty results by setting RBRP_DEPOT_PROJECT_IDS="",
+. {rbbc_require} rbrp.env file update successful,
+. invoked by
+{rbtgo_payor_install},
+{rbtgo_depot_create},
+and
+{rbtgo_depot_destroy}
+operations.
+
+== Script Internals
+
+// PLACEHOLDER: Detailed implementation reference for security enforcement internals.
+// Content from RBS: iptables chain configuration, DNS/dnsmasq setup, socat proxy,
+// eBPF frame rewriting. To be migrated from RBS-Specification.adoc.
 
 == Trade Studies
 

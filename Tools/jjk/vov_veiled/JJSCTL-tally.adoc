@@ -1,11 +1,16 @@
 
-Add a new
-{jjdkr_tack}
-to a
-{jjdpr_pace}.
-This is the unified operation for all
-{jjdkr_tack}
-creation: state transitions, plan refinements, or both.
+This document is superseded. The unified `jjx_tally` command has been split into four single-purpose operations:
+
+* `jjx_revise_docket` — Update {jjdkm_text} content
+* `jjx_arm` — Set state to {jjdpe_bridled} with {jjdkm_warrant}
+* `jjx_relabel` — Change {jjdkm_silks}
+* `jjx_drop` — Set state to {jjdpe_abandoned}
+
+Each creates a new {jjdkr_tack} with a single concern. They compose with `&&` for multi-field updates.
+
+== jjx_revise_docket
+
+Update the {jjdkm_text} content of a {jjdpr_pace}. State and {jjdkm_silks} carry forward from the previous {jjdkr_tack}.
 
 {jjds_arguments}
 
@@ -13,37 +18,10 @@ creation: state transitions, plan refinements, or both.
 * {jjda_file}
 
 // ⟦axd_required⟧
-* {jjdt_coronet}
-(positional)
+* {jjdt_coronet} (positional)
 
-// ⟦axd_optional⟧
-* {jjda_state}
-— if absent, inherits from previous
-{jjdkr_tack}
-
-// ⟦axd_conditional⟧
-* {jjda_direction}
-— required if
-{jjda_state}
-is
-{jjdpe_bridled};
-forbidden if
-{jjda_state}
-is provided and not
-{jjdpe_bridled};
-ignored if
-{jjda_state}
-is absent (inherits with state)
-
-// ⟦axd_optional⟧
-* {jjda_silks}
-— if provided, new Tack uses this value; otherwise inherits from previous Tack
-
-// ⟦axd_optional⟧
-* stdin —
-{jjdkm_text}
-content; if absent, inherits from previous
-{jjdkr_tack}
+// ⟦axd_required⟧
+* stdin — New {jjdkm_text} content
 
 {jjds_stdout} None
 
@@ -51,85 +29,135 @@ content; if absent, inherits from previous
 
 {jjds_behavior}
 
-.
-{jjdr_load}
-{jjda_file};
-on failure, exit immediately with
-{jjdr_load}
-error status
-. Extract parent
-{jjdt_firemark}
-from
-{jjdt_coronet}
-(first 2 base64 chars after prefix)
-. Verify
-{jjdhr_heat}
-exists
-. Verify
-{jjdpr_pace}
-exists with given
-{jjdt_coronet}
-. Read current
-{jjdkr_tack}
-from `tacks[0]`
-. Determine new state:
-.. If
-{jjda_state}
-provided: use that value
-.. Otherwise, if previous state is
-{jjdpe_bridled}
-AND stdin provided new text: force state to
-{jjdpe_rough}
-(new spec invalidates old direction)
-.. Otherwise: inherit from previous
-{jjdkr_tack}
-. Determine new direction:
-.. If
-{jjda_state}
-is
-{jjdpe_bridled}:
-use
-{jjda_direction}
-argument (required)
-.. If previous state was
-{jjdpe_bridled}
-AND state was auto-reset to
-{jjdpe_rough}
-(new spec provided without explicit state): omit
-{jjdkm_direction}
-(spec change invalidates direction)
-.. If
-{jjda_state}
-is absent and previous state is
-{jjdpe_bridled}:
-inherit from previous
-{jjdkr_tack}
-.. Otherwise: omit
-{jjdkm_direction}
-. Determine new text:
-.. If stdin provided: use stdin content
-.. Otherwise: inherit from previous
-{jjdkr_tack}
-. Create new
-{jjdkr_tack}
-with:
-.. {jjdkm_refined}:
-current timestamp (YYMMDD-HHMM)
-.. {jjdkm_state}:
-determined above
-.. {jjdkm_text}:
-determined above
-.. {jjdkm_silks}:
-inherited from previous `tacks[0].silks`
-.. {jjdkm_commit}:
-capture {jjdkm_commit}
-.. {jjdkm_direction}:
-determined above (if applicable)
-. Prepend new
-{jjdkr_tack}
-to `tacks` array (position 0)
-.
-{jjdr_save}
-{jjdgr_gallops}
-to
-{jjda_file}
+. {jjdr_load} {jjda_file}; on failure, exit immediately with {jjdr_load} error status
+. Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
+. Verify {jjdhr_heat} exists
+. Verify {jjdpr_pace} exists with given {jjdt_coronet}
+. Read current {jjdkr_tack} from `tacks[0]`
+. Create new {jjdkr_tack} with:
+.. {jjdkm_refined}: current timestamp (YYMMDD-HHMM)
+.. {jjdkm_state}: inherited from previous `tacks[0].state`
+.. {jjdkm_text}: stdin content
+.. {jjdkm_silks}: inherited from previous `tacks[0].silks`
+.. {jjdkm_commit}: capture {jjdkm_commit}
+.. {jjdkm_warrant}: inherited if present in previous `tacks[0]`
+. Prepend new {jjdkr_tack} to `tacks` array (position 0)
+. {jjdr_save} {jjdgr_gallops} to {jjda_file}
+
+== jjx_arm
+
+Set a {jjdpr_pace} state to {jjdpe_bridled} with an execution {jjdkm_warrant}. The {jjdkm_warrant} is refined guidance for autonomous execution.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_coronet} (positional)
+
+// ⟦axd_required⟧
+* stdin — {jjdkm_warrant} content
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. {jjdr_load} {jjda_file}; on failure, exit immediately with {jjdr_load} error status
+. Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
+. Verify {jjdhr_heat} exists
+. Verify {jjdpr_pace} exists with given {jjdt_coronet}
+. Read current {jjdkr_tack} from `tacks[0]`
+. Create new {jjdkr_tack} with:
+.. {jjdkm_refined}: current timestamp (YYMMDD-HHMM)
+.. {jjdkm_state}: {jjdpe_bridled}
+.. {jjdkm_text}: inherited from previous `tacks[0].text`
+.. {jjdkm_silks}: inherited from previous `tacks[0].silks`
+.. {jjdkm_commit}: capture {jjdkm_commit}
+.. {jjdkm_warrant}: stdin content
+. Prepend new {jjdkr_tack} to `tacks` array (position 0)
+. {jjdr_save} {jjdgr_gallops} to {jjda_file}
+
+== jjx_relabel
+
+Change the {jjdkm_silks} (display name) of a {jjdpr_pace}. {jjdkm_text} and state carry forward.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_coronet} (positional)
+
+// ⟦axd_required⟧
+* {jjda_silks}
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. {jjdr_load} {jjda_file}; on failure, exit immediately with {jjdr_load} error status
+. Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
+. Verify {jjdhr_heat} exists
+. Verify {jjdpr_pace} exists with given {jjdt_coronet}
+. Read current {jjdkr_tack} from `tacks[0]`
+. Create new {jjdkr_tack} with:
+.. {jjdkm_refined}: current timestamp (YYMMDD-HHMM)
+.. {jjdkm_state}: inherited from previous `tacks[0].state`
+.. {jjdkm_text}: inherited from previous `tacks[0].text`
+.. {jjdkm_silks}: value from {jjda_silks} argument
+.. {jjdkm_commit}: capture {jjdkm_commit}
+.. {jjdkm_warrant}: inherited if present in previous `tacks[0]`
+. Prepend new {jjdkr_tack} to `tacks` array (position 0)
+. {jjdr_save} {jjdgr_gallops} to {jjda_file}
+
+== jjx_drop
+
+Mark a {jjdpr_pace} as {jjdpe_abandoned}. The {jjdpr_pace} is removed from active planning but remains in history.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+// ⟦axd_required⟧
+* {jjdt_coronet} (positional)
+
+{jjds_stdout} None
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. {jjdr_load} {jjda_file}; on failure, exit immediately with {jjdr_load} error status
+. Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
+. Verify {jjdhr_heat} exists
+. Verify {jjdpr_pace} exists with given {jjdt_coronet}
+. Read current {jjdkr_tack} from `tacks[0]`
+. Create new {jjdkr_tack} with:
+.. {jjdkm_refined}: current timestamp (YYMMDD-HHMM)
+.. {jjdkm_state}: {jjdpe_abandoned}
+.. {jjdkm_text}: inherited from previous `tacks[0].text`
+.. {jjdkm_silks}: inherited from previous `tacks[0].silks`
+.. {jjdkm_commit}: capture {jjdkm_commit}
+.. {jjdkm_warrant}: omitted (not applicable for {jjdpe_abandoned} state)
+. Prepend new {jjdkr_tack} to `tacks` array (position 0)
+. {jjdr_save} {jjdgr_gallops} to {jjda_file}
+
+== Composition
+
+These commands compose with `&&` for multi-field updates:
+
+[source,bash]
+----
+# Update docket and rename
+jjx_revise_docket AAEEb < new_docket.txt && jjx_relabel AAEEb --silks "new-name"
+
+# Update docket and arm for execution
+jjx_revise_docket AAEEb < docket.txt && jjx_arm AAEEb < warrant.txt
+----

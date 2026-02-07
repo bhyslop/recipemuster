@@ -1,5 +1,5 @@
 
-Get raw spec text for a
+Get raw docket text for a
 {jjdpr_pace}.
 
 {jjds_arguments}
@@ -12,7 +12,7 @@ Get raw spec text for a
 {jjdt_coronet}
 to query
 
-{jjds_stdout} Raw spec text with no decoration.
+{jjds_stdout} Raw docket text with no decoration.
 No prefix, no trailing newline beyond the text itself.
 
 {jjds_exit_uniform} 0 success, non-zero error.

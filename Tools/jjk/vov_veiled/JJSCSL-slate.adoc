@@ -56,10 +56,10 @@ or
 may be specified.
 If none provided, append to end (default).
 Note:
-{jjdo_rail}
+{jjdo_reorder}
 reorders existing
 {jjdpr_pace_s};
-{jjdo_slate}
+{jjdo_enroll}
 positioning inserts a new
 {jjdpr_pace}
 at a specific location.
