@@ -22,7 +22,8 @@ pub const VVCP_ACTION_INVITATORY: &str = "i";
 /// Officium token for invitatory commit subjects
 pub const VVCP_OFFICIUM_TOKEN: &str = "OFFICIUM";
 
-/// Gap threshold in seconds for officium detection (1 hour)
+/// Gap threshold in seconds for officium detection (1 hour).
+/// For manual testing, lower to 60 and rebuild; restore after.
 pub const VVCP_OFFICIUM_GAP_SECS: u64 = 3600;
 
 /// Raw probe output file for haiku
