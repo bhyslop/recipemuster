@@ -925,5 +925,179 @@ rbf_retrieve() {
   buc_success "Image pull complete"
 }
 
+rbf_abjure() {
+  zrbf_sentinel
+
+  local z_vessel="${1:-}"
+  local z_consecration="${2:-}"
+  local z_force="${3:-}"
+
+  # Documentation block
+  buc_doc_brief "Abjure an ark (delete both -image and -about artifacts as a coherent unit)"
+  buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
+  buc_doc_param "consecration" "Consecration timestamp (e.g., 20250206T120000Z)"
+  buc_doc_param "--force" "Optional: skip confirmation prompt"
+  buc_doc_shown || return 0
+
+  # Validate parameters
+  test -n "${z_vessel}" || buc_die "Vessel parameter required"
+  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+
+  # Check for --force flag in remaining arguments
+  local z_skip_confirm=false
+  if test "${z_force}" = "--force"; then
+    z_skip_confirm=true
+  fi
+
+  buc_step "Authenticating as Director"
+
+  # Get OAuth token using Director credentials
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+
+  # Construct ark tags
+  local z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+
+  buc_step "Verifying ark existence"
+
+  # Check if -image artifact exists
+  local z_image_status_file="${ZRBF_DELETE_PREFIX}image_status.txt"
+  local z_image_response_file="${ZRBF_DELETE_PREFIX}image_response.json"
+
+  curl -X HEAD -s                                   \
+    -H "Authorization: Bearer ${z_token}"           \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -w "%{http_code}"                               \
+    -o "${z_image_response_file}"                   \
+    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_image_tag}" \
+    > "${z_image_status_file}" || buc_die "HEAD request failed for -image artifact"
+
+  local z_image_http_code
+  z_image_http_code=$(<"${z_image_status_file}")
+  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for -image"
+
+  local z_image_exists=false
+  if test "${z_image_http_code}" = "200"; then
+    z_image_exists=true
+  elif test "${z_image_http_code}" != "404"; then
+    buc_die "Unexpected HTTP status ${z_image_http_code} when checking -image artifact"
+  fi
+
+  # Check if -about artifact exists
+  local z_about_status_file="${ZRBF_DELETE_PREFIX}about_status.txt"
+  local z_about_response_file="${ZRBF_DELETE_PREFIX}about_response.json"
+
+  curl -X HEAD -s                                   \
+    -H "Authorization: Bearer ${z_token}"           \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -w "%{http_code}"                               \
+    -o "${z_about_response_file}"                   \
+    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_about_tag}" \
+    > "${z_about_status_file}" || buc_die "HEAD request failed for -about artifact"
+
+  local z_about_http_code
+  z_about_http_code=$(<"${z_about_status_file}")
+  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for -about"
+
+  local z_about_exists=false
+  if test "${z_about_http_code}" = "200"; then
+    z_about_exists=true
+  elif test "${z_about_http_code}" != "404"; then
+    buc_die "Unexpected HTTP status ${z_about_http_code} when checking -about artifact"
+  fi
+
+  # Evaluate ark state
+  if test "${z_image_exists}" = "false" && test "${z_about_exists}" = "false"; then
+    buc_die "Ark not found: neither -image nor -about exists"
+  fi
+
+  if test "${z_image_exists}" = "true" && test "${z_about_exists}" = "false"; then
+    buc_warn "Orphaned artifact detected: -image exists but -about is missing"
+  elif test "${z_image_exists}" = "false" && test "${z_about_exists}" = "true"; then
+    buc_warn "Orphaned artifact detected: -about exists but -image is missing"
+  fi
+
+  # Confirm abjuration unless --force
+  if test "${z_skip_confirm}" = "false"; then
+    echo ""
+    echo "Will abjure ark ${z_vessel}/${z_consecration}:"
+    if test "${z_image_exists}" = "true"; then
+      echo "  - ${z_vessel}:${z_image_tag}"
+    fi
+    if test "${z_about_exists}" = "true"; then
+      echo "  - ${z_vessel}:${z_about_tag}"
+    fi
+    echo ""
+    read -p "Proceed with abjuration? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      buc_die "Abjuration cancelled"
+    fi
+  fi
+
+  # Delete -image artifact if exists
+  if test "${z_image_exists}" = "true"; then
+    buc_step "Deleting -image artifact"
+
+    local z_delete_image_status="${ZRBF_DELETE_PREFIX}delete_image_status.txt"
+    local z_delete_image_response="${ZRBF_DELETE_PREFIX}delete_image_response.json"
+
+    curl -X DELETE -s                                   \
+      -H "Authorization: Bearer ${z_token}"             \
+      -w "%{http_code}"                                 \
+      -o "${z_delete_image_response}"                   \
+      "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_image_tag}" \
+      > "${z_delete_image_status}" || buc_die "DELETE request failed for -image"
+
+    local z_delete_image_code
+    z_delete_image_code=$(<"${z_delete_image_status}")
+    test -n "${z_delete_image_code}" || buc_die "HTTP status code is empty for -image delete"
+
+    if test "${z_delete_image_code}" != "202" && test "${z_delete_image_code}" != "204"; then
+      buc_warn "Response body: $(cat "${z_delete_image_response}" 2>/dev/null || echo 'empty')"
+      buc_die "Failed to delete -image artifact (HTTP ${z_delete_image_code})"
+    fi
+
+    buc_info "Deleted: ${z_vessel}:${z_image_tag}"
+  fi
+
+  # Delete -about artifact if exists
+  if test "${z_about_exists}" = "true"; then
+    buc_step "Deleting -about artifact"
+
+    local z_delete_about_status="${ZRBF_DELETE_PREFIX}delete_about_status.txt"
+    local z_delete_about_response="${ZRBF_DELETE_PREFIX}delete_about_response.json"
+
+    curl -X DELETE -s                                   \
+      -H "Authorization: Bearer ${z_token}"             \
+      -w "%{http_code}"                                 \
+      -o "${z_delete_about_response}"                   \
+      "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_about_tag}" \
+      > "${z_delete_about_status}" || buc_die "DELETE request failed for -about"
+
+    local z_delete_about_code
+    z_delete_about_code=$(<"${z_delete_about_status}")
+    test -n "${z_delete_about_code}" || buc_die "HTTP status code is empty for -about delete"
+
+    if test "${z_delete_about_code}" != "202" && test "${z_delete_about_code}" != "204"; then
+      buc_warn "Response body: $(cat "${z_delete_about_response}" 2>/dev/null || echo 'empty')"
+      buc_die "Failed to delete -about artifact (HTTP ${z_delete_about_code})"
+    fi
+
+    buc_info "Deleted: ${z_vessel}:${z_about_tag}"
+  fi
+
+  # Display results
+  echo ""
+  buc_success "Ark abjured: ${z_vessel}/${z_consecration}"
+  if test "${z_image_exists}" = "true"; then
+    echo "  - ${z_vessel}:${z_image_tag} deleted"
+  fi
+  if test "${z_about_exists}" = "true"; then
+    echo "  - ${z_vessel}:${z_about_tag} deleted"
+  fi
+}
+
 # eof
 

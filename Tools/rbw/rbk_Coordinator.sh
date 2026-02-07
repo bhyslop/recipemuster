@@ -73,6 +73,7 @@ rbk_route() {
     # Foundry commands
     rbw-fB)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build    "$@" ;;
     rbw-fD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete   "$@" ;;
+    rbw-fA)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_abjure   "$@" ;;
     rbw-il)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_list     "$@" ;;
     rbw-ir)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_retrieve "$@" ;;
 
