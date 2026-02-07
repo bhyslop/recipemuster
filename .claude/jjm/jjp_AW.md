@@ -8,13 +8,30 @@ Rename jjx_* CLI commands from horse-racing vocabulary to boring, heterogeneous,
 1. 12 of 22 jjx_ commands share names with slash commands (parade/parade, muster/muster, etc.)
 2. Regular naming patterns invite analogical inference — seeing `--remaining` on parade leads to guessing it exists on muster
 3. The `vvx_commit` / `jjx_notch` overlap compounds the confusion
+4. Multipurpose `jjx_tally` causes repeated misfires (wrong flag combinations for different operations)
+5. "spec" collides with .adoc specification documents; "direction" is too generic
 
-**Solution:** Three coordinated changes:
+**Solution:** Four coordinated changes:
 1. Rename jjx_ commands to heterogeneous boring names (show, list, create, enroll, etc.)
-2. Add a CLI truth table to vocjjmc_core.md (always in LLM context, eliminates guessing)
-3. Delete thin wrapper slash commands; keep only genuine orchestrations as skills
+2. Split jjx_tally into single-purpose primitives composable with `&&`
+3. Add a CLI truth table to vocjjmc_core.md (always in LLM context, eliminates guessing)
+4. Delete thin wrapper slash commands; keep only genuine orchestrations as skills
 
-**Design constraint:** Horse vocabulary stays in the slash command layer (the human interface). The CLI layer becomes plumbing that the LLM doesn't pattern-match against.
+**Design constraints:**
+- Horse vocabulary stays in the slash command layer (the human interface)
+- The CLI layer becomes plumbing that the LLM doesn't pattern-match against
+- JSON schema unchanged — vocabulary changes are presentation/CLI only
+- Schema renames (text→docket, direction→warrant) deferred to ₣AG
+
+## Vocabulary
+
+| Layer | Old term | New term | Meaning |
+|---|---|---|---|
+| Presentation | spec / specification | **docket** | What the pace should accomplish (tack text field) |
+| Presentation | direction | **warrant** | Execution guidance for autonomous operation (tack direction field) |
+| CLI flag | --full | **--detail** | Show detailed view with paddock and docket text |
+| JSON schema | text | text (unchanged) | Deferred to ₣AG ₢AGAAK |
+| JSON schema | direction | direction (unchanged) | Deferred to ₣AG ₢AGAAL |
 
 ## Rename Mapping
 
@@ -37,11 +54,27 @@ Rename jjx_* CLI commands from horse-racing vocabulary to boring, heterogeneous,
 | jjx_curry | jjx_paddock | Get/set paddock |
 | jjx_draft | jjx_relocate | Move single pace |
 | jjx_saddle | jjx_orient | Get context for starting |
-| jjx_tally | jjx_revise | Add tack to pace |
+| jjx_get_spec | jjx_get_brief | Get raw docket text |
 | jjx_get_coronets | keep | List coronets |
-| jjx_get_spec | keep | Get raw spec |
 | jjx_landing | keep | Record agent return |
 | jjx_validate | keep | Validate gallops JSON |
+
+## Tally Split
+
+jjx_tally replaced by four single-purpose commands:
+
+| Command | Signature | Does one thing |
+|---|---|---|
+| jjx_revise_docket | `CORONET < stdin` | Update docket, carry forward state/silks |
+| jjx_arm | `CORONET < stdin` | Set state=bridled, stdin is the warrant |
+| jjx_relabel | `CORONET --silks "name"` | Rename, carry forward docket/state |
+| jjx_drop | `CORONET` | Set state=abandoned |
+
+Compose with `&&` for multi-field updates:
+```bash
+jjx_revise_docket C < docket && jjx_relabel C --silks "name"
+jjx_revise_docket C < docket && jjx_arm C < warrant
+```
 
 ## Thin Wrapper Slash Commands to Delete
 
@@ -58,4 +91,5 @@ Rename jjx_* CLI commands from horse-racing vocabulary to boring, heterogeneous,
 - Tools/jjk/vov_veiled/src/jjrx_cli.rs — CLI registration
 - Tools/jjk/vov_veiled/vocjjmc_core.md — CLAUDE.md managed source
 - .claude/commands/jjc-*.md — slash command definitions
+- ₣AG ₢AGAAK, ₢AGAAL — deferred schema renames (text→docket, direction→warrant)
 - Origin: ₣AH ₢AHAAV explore-parade-flag-reduction
