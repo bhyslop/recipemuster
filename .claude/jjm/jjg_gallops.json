@@ -6,6 +6,7 @@
       "creation_time": "260206",
       "status": "racing",
       "order": [
+        "₢AWAAL",
         "₢AWAAK",
         "₢AWAAA",
         "₢AWAAJ",
@@ -18,7 +19,7 @@
         "₢AWAAH",
         "₢AWAAI"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -223,6 +224,17 @@
               "text": "Fix jjx_scout panic on UTF-8 boundary in long spec text.\n\nScout panics at jjrsc_scout.rs:143 with \"byte index 1359 is not a char boundary; it is inside '—'\" when truncating long spec text for context display. The substring operation uses byte indexing on a UTF-8 string containing multi-byte characters (em-dash, currency symbols).\n\nFix: use char-boundary-safe truncation (e.g., floor to nearest char boundary before slicing, or use char_indices).\n\nFiles: Tools/jjk/vov_veiled/src/jjrsc_scout.rs\n\nAcceptance: `jjx_scout spec` completes without panic. tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
               "silks": "fix-scout-utf8-panic",
               "commit": "a51b962"
+            }
+          ]
+        },
+        "₢AWAAL": {
+          "tacks": [
+            {
+              "ts": "260206-2248",
+              "state": "rough",
+              "text": "Refactor vvcp_probe (Tools/vvc/src/vvcp_probe.rs) so that opus interprets raw haiku/sonnet output into structured model-ID JSON, instead of trusting raw stdout directly.\n\nCurrent problem: probe_model_tier spawns `claude -p --model {tier} -- \"Report your exact model ID string only\"` and trims stdout. This fails in some environments (e.g., work machines) where haiku/sonnet return verbose or unexpected output that doesn't parse as a bare model ID.\n\nChanges:\n1. Make haiku/sonnet prompts more typical/robust (less likely to get \"unavailable\" from environments that restrict novel queries)\n2. Collect raw stdout from all three model tiers\n3. Write all raw probe results to a file in BUD_TEMP_DIR (requires threading BUD_TEMP_DIR through to the probe — likely via env var or parameter)\n4. Feed the raw haiku and sonnet output to the opus query, asking opus to extract model IDs and return structured JSON that jjx can place into the session commit body\n5. Opus already returns its own model ID, so it self-reports while also interpreting the other two\n\nTesting: Lower the session gap threshold in jjrc_needs_session_probe (jjrc_core.rs:91, currently 3600s) to a small value (e.g., 5s) so the probe triggers without waiting an hour. Restore after verification.\n\nKey files:\n- Tools/vvc/src/vvcp_probe.rs (probe implementation)\n- Tools/jjk/vov_veiled/src/jjrc_core.rs (session gap threshold)\n- Tools/jjk/vov_veiled/src/jjrsd_saddle.rs (calls vvcp_probe, consumes result)",
+              "silks": "probe-opus-as-interpreter",
+              "commit": "651e2a1"
             }
           ]
         }
