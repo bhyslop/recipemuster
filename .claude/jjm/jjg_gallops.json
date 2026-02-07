@@ -131,6 +131,7 @@
       "creation_time": "260206",
       "status": "racing",
       "order": [
+        "₢AWAAQ",
         "₢AWAAM",
         "₢AWAAN",
         "₢AWAAO",
@@ -148,7 +149,7 @@
         "₢AWAAH",
         "₢AWAAI"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -586,6 +587,17 @@
               "text": "Wire saddle and muster to call vvx invitatory. Remove session marker from JJK.\n\nImplementation:\n1. Update Tools/jjk/vov_veiled/src/jjrsd_saddle.rs:\n   - Remove the inline session probe block (lines ~295-343 that call jjrc_needs_session_probe, vvcp_probe, jjrn_format_session_message, vvc::commit)\n   - Replace with: call vvx invitatory (either as subprocess or direct Rust call to the new VVC function)\n   - The invitatory handles its own gap check, so saddle just calls it unconditionally\n2. Update jjx_muster (Tools/jjk/vov_veiled/src/jjrm_muster.rs or similar):\n   - Add invitatory call at the end of muster output (same pattern as saddle)\n3. Remove from JJK:\n   - Delete jjrn_format_session_message() from jjrn_notch.rs\n   - Delete Session variant from jjrn_ChalkMarker enum\n   - Delete jjrc_needs_session_probe() from jjrc_core.rs\n   - Update any chalk command code that handles Session marker\n4. Update JJSA spec (Tools/jjk/vov_veiled/JJSA-GallopsData.adoc):\n   - Remove s (session) from action codes\n   - Remove session marker commit pattern\n   - Add cross-reference note: \"Session markers migrated to VVC INVITATORY (vvb:...:i:)\"\n5. Build and test: tt/vow-b.Build.sh && tt/vow-t.Test.sh\n\nKey files:\n- Tools/jjk/vov_veiled/src/jjrsd_saddle.rs (remove inline probe, add invitatory call)\n- Tools/jjk/vov_veiled/src/jjrm_muster.rs (add invitatory call)\n- Tools/jjk/vov_veiled/src/jjrn_notch.rs (delete Session, delete format_session_message)\n- Tools/jjk/vov_veiled/src/jjrc_core.rs (delete needs_session_probe)\n- Tools/jjk/vov_veiled/src/jjrch_chalk.rs (remove Session handling)\n- Tools/jjk/vov_veiled/JJSA-GallopsData.adoc (remove :s: documentation)",
               "silks": "wire-invitatory-triggers",
               "commit": "3d2c1e8"
+            }
+          ]
+        },
+        "₢AWAAQ": {
+          "tacks": [
+            {
+              "ts": "260207-0853",
+              "state": "rough",
+              "text": "Manual integration test for officium/invitatory mechanism.\n\nLower VVCP_OFFICIUM_GAP_SECS to a small value (e.g., 5 seconds), then run jjx_orient, jjx_list, and jjc-heat-groom to verify:\n1. jjx_orient (saddle) triggers an invitatory commit (vvb:...:i: OFFICIUM ...) when gap exceeded\n2. jjx_list (muster) triggers an invitatory commit when gap exceeded\n3. A second immediate call does NOT trigger (gap not exceeded)\n4. The commit body contains probe data (model IDs, host, platform)\n5. git log shows the correct vvb: branded format\n\nAfter verification, restore VVCP_OFFICIUM_GAP_SECS to 3600.\n\nKey files:\n- Tools/vvc/src/vvcp_probe.rs (lower/restore VVCP_OFFICIUM_GAP_SECS)\n\nDepends on: ₢AWAAO (add-vvx-invitatory) and ₢AWAAP (wire-invitatory-triggers) must be complete first.",
+              "silks": "test-officium-threshold",
+              "commit": "78b6836"
             }
           ]
         }
