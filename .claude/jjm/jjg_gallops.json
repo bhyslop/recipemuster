@@ -2469,6 +2469,13 @@
         "₢AWAAA": {
           "tacks": [
             {
+              "ts": "260206-2209",
+              "state": "rough",
+              "text": "Rename jjx_ command strings in jjrx_cli.rs.\n\nUpdate all #[command(name = \"jjx_*\")] attributes to use the new boring names from the paddock mapping table. This is ~22 string edits in one file.\n\nAlso rename the --full flag to --detail in jjrpd_parade.rs (ParadeArgs struct). This is a flag rename, same kind of edit — the flag means \"show detailed view\" not \"show full view.\"\n\nFiles:\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (command names)\n- Tools/jjk/vov_veiled/src/jjrpd_parade.rs (--full → --detail)\n\nAcceptance: `tt/vow-b.Build.sh` compiles, `./tt/vvw-r.RunVVX.sh jjx_show --help` works, `jjx_show AH --detail` works.",
+              "silks": "rename-jjrx-cli-strings",
+              "commit": "bac65d0"
+            },
+            {
               "ts": "260206-2202",
               "state": "rough",
               "text": "Rename jjx_ command strings in jjrx_cli.rs.\n\nUpdate all #[command(name = \"jjx_*\")] attributes to use the new boring names from the paddock mapping table. This is ~22 string edits in one file.\n\nFiles: Tools/jjk/vov_veiled/src/jjrx_cli.rs\n\nAcceptance: `tt/vow-b.Build.sh` compiles, `./tt/vvw-r.RunVVX.sh jjx_show --help` works.",
