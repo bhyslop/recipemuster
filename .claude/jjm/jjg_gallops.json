@@ -2474,9 +2474,10 @@
         "₢AWAAB",
         "₢AWAAC",
         "₢AWAAD",
-        "₢AWAAE"
+        "₢AWAAE",
+        "₢AWAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -2531,6 +2532,17 @@
               "text": "Delete thin wrapper slash commands that will be replaced by the CLI truth table.\n\nDelete these files:\n- .claude/commands/jjc-heat-muster.md\n- .claude/commands/jjc-heat-rein.md\n- .claude/commands/jjc-scout.md\n- .claude/commands/jjc-parade.md\n- .claude/commands/jjc-heat-nominate.md\n- .claude/commands/jjc-pace-wrap.md\n\nAlso update any remaining slash commands that reference these deleted commands in their \"Available Operations\" footer sections — change references to describe the direct CLI invocation or remove the line.\n\nAcceptance: Deleted files do not exist. No remaining slash command references a deleted command.",
               "silks": "delete-thin-wrapper-slash-cmds",
               "commit": "247c706"
+            }
+          ]
+        },
+        "₢AWAAF": {
+          "tacks": [
+            {
+              "ts": "260206-2203",
+              "state": "rough",
+              "text": "Add CLI truth table to vocjjmc_core.md and update all JJK CLAUDE.md content.\n\nReplace the \"Common CLI Pitfalls\" section with a compact CLI truth table showing every jjx_ command with its exact argument/flag syntax. Also update:\n- Quick Verbs table (slash command names stay, but remove verbs for deleted thin wrappers)\n- Slash Command Reference table (remove rows for deleted thin wrappers)\n- Commit Discipline section (jjx_notch → jjx_record, vvx_commit reference stays)\n- Any other jjx_ name references in vocjjmc_core.md\n\nFormat for truth table:\n```\njjx_show [TARGET] [--full] [--remaining]\njjx_list [--status racing|stabled|retired]\njjx_create --silks SILKS\njjx_enroll FIREMARK --silks SILKS [--first|--before C|--after C] <stdin\n...\n```\n\nFiles: Tools/jjk/vov_veiled/vocjjmc_core.md\n\nAcceptance: vocjjmc_core.md contains no old jjx_ names. Truth table covers all 22 commands.",
+              "silks": "add-cli-truth-table",
+              "commit": "0d7e5b6"
             }
           ]
         }
