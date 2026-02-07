@@ -31,6 +31,9 @@ Returns error if no racing heats exist.
 and
 {jjdpe_abandoned})
 
+// ⟦axd_optional⟧
+* `--files` — Show file-touch bitmap (heat mode only). Displays which paces touched which files, derived from steeplechase commit history. JJ infrastructure files (`.claude/jjm/*`) are excluded.
+
 {jjds_stdout} Human-readable text (not JSON).
 
 *Example output — heat list (default):*
@@ -52,6 +55,19 @@ Progress: 1 complete | 1 abandoned | 1 remaining (1 rough, 0 bridled)
   1  rough     vvx-push-rename     AAAAJ
 
 Next: vvx-push-rename (₢AAAAJ) [rough]
+----
+
+*Example output — heat file-touch bitmap:*
+----
+File-touch bitmap (x = pace commit touched file):
+
+  1 B vos-add-routines-section
+  2 D jjsa-session-probe-update
+  3 * heat-level
+
+xxx jjrg_gallops.rs, jjrt_types.rs
+··x JJSA-GallopsData.adoc
+x·· jjro_ops.rs
 ----
 
 *Example output — heat full:*
@@ -77,6 +93,8 @@ Direction: [if bridled]
 ----
 Pace: vvx-push-rename (₢AAAAJ)
 Heat: ₣AA
+
+Work files: jjrpd_parade.rs, jjrq_query.rs
 
 [0] rough (abc123f)
     Silks: vvx-push-rename
@@ -125,6 +143,7 @@ from file
 .. Parse as
 {jjdt_firemark},
 verify heat exists
+.. If `--files` flag: query steeplechase entries for heat, run `git diff-tree` per commit to identify touched work files (excluding `.claude/jjm/*`), group by touch pattern, output bitmap with vertical legend
 .. If `--full` flag:
 ... Read paddock file content
 ... Print heat header (silks, firemark, status, created)
@@ -143,6 +162,7 @@ print numbered line with state, silks, coronet
 extract parent
 {jjdt_firemark}
 .. Verify heat and pace exist
+.. Query steeplechase entries for parent heat, filter by coronet, run `git diff-tree` per commit, collect unique work file names (excluding `.claude/jjm/*`), display as "Work files:" line (bare filenames, sorted)
 .. Print pace header (silks, coronet, state, heat)
 .. Print full tack text from `tacks[0]`
 .. If bridled, print direction from `tacks[0]`

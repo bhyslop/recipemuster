@@ -51,6 +51,11 @@ Spec:
   <line 2 of spec>
   ...
 
+Work-files:
+  <bare_filename_1>
+  <bare_filename_2>
+  ...
+
 Direction:
   <line 1 of direction>
   <line 2 of direction>
@@ -69,6 +74,7 @@ Field `pace_silks` is derived from `tacks[0].silks`.
 Section `Direction:` is present only when pace state is
 {jjdpe_bridled}.
 Section `Paddock-content:` contains the full text of the paddock file, indented 2 spaces.
+Section `Work-files:` lists files touched by the actionable pace's commits (excluding `.claude/jjm/*`), indented 2 spaces, sorted, one per line.
 Section `Recent-work:` contains the last 10 steeplechase entries for the heat (from
 {jjdo_rein}),
 formatted as column-aligned table.
@@ -114,6 +120,7 @@ or
 `pace_silks` (from `tacks[0].silks`),
 `pace_state`
 .. Output `spec` from `tacks[0].text`
+.. Query steeplechase entries for heat, filter by actionable pace coronet, run `git diff-tree` per commit, collect unique work file names (excluding `.claude/jjm/*`), output as `Work-files:` section (2-space indented, sorted, one per line)
 .. If state is
 {jjdpe_bridled},
 output `direction` from `tacks[0].direction`
