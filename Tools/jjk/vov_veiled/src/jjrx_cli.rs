@@ -25,7 +25,7 @@ use crate::jjrrt_retire::{jjrrt_RetireArgs, jjrrt_run_retire};
 use crate::jjrno_nominate::{jjrx_NominateArgs, jjrx_run_nominate};
 use crate::jjrsl_slate::{jjrsl_SlateArgs, jjrsl_run_slate};
 use crate::jjrrl_rail::{jjrrl_RailArgs, jjrrl_run_rail};
-use crate::jjrtl_tally::{jjrtl_TallyArgs, jjrtl_run_tally};
+use crate::jjrtl_tally::{jjrtl_ReviseDocketArgs, jjrtl_run_revise_docket, jjrtl_ArmArgs, jjrtl_run_arm, jjrtl_RelabelArgs, jjrtl_run_relabel, jjrtl_DropArgs, jjrtl_run_drop};
 use crate::jjrdr_draft::{jjrdr_DraftArgs, jjrdr_run_draft};
 use crate::jjrfu_furlough::{jjrfu_FurloughArgs, jjrfu_run_furlough};
 use crate::jjrwp_wrap::{jjrx_WrapArgs, zjjrx_run_wrap};
@@ -43,88 +43,100 @@ use crate::jjrld_landing::{jjrld_LandingArgs, jjrld_run_landing};
 #[command(about = "Job Jockey Kit commands")]
 pub enum jjrx_JjxCommands {
     /// JJ-aware commit with heat/pace context prefix
-    #[command(name = "jjx_notch")]
-    Notch(jjrnc_NotchArgs),
+    #[command(name = "jjx_record")]
+    Record(jjrnc_NotchArgs),
 
     /// Empty commit marking a steeplechase event
-    #[command(name = "jjx_chalk")]
-    Chalk(jjrx_ChalkArgs),
+    #[command(name = "jjx_mark")]
+    Mark(jjrx_ChalkArgs),
 
     /// Parse git history for steeplechase entries
-    #[command(name = "jjx_rein")]
-    Rein(jjrrn_ReinArgs),
+    #[command(name = "jjx_log")]
+    Log(jjrrn_ReinArgs),
 
     /// Validate Gallops JSON schema
     #[command(name = "jjx_validate")]
     Validate(jjrvl_ValidateArgs),
 
     /// List all Heats with summary information
-    #[command(name = "jjx_muster")]
-    Muster(jjrmu_MusterArgs),
+    #[command(name = "jjx_list")]
+    List(jjrmu_MusterArgs),
 
     /// Return context needed to saddle up on a Heat
-    #[command(name = "jjx_saddle")]
-    Saddle(jjrsd_SaddleArgs),
+    #[command(name = "jjx_orient")]
+    Orient(jjrsd_SaddleArgs),
 
     /// Display comprehensive Heat status for project review
-    #[command(name = "jjx_parade")]
-    Parade(jjrpd_ParadeArgs),
+    #[command(name = "jjx_show")]
+    Show(jjrpd_ParadeArgs),
 
     /// Extract complete Heat data for archival trophy
-    #[command(name = "jjx_retire")]
-    Retire(jjrrt_RetireArgs),
+    #[command(name = "jjx_archive")]
+    Archive(jjrrt_RetireArgs),
 
     /// Create a new Heat with empty Pace structure
-    #[command(name = "jjx_nominate")]
-    Nominate(jjrx_NominateArgs),
+    #[command(name = "jjx_create")]
+    Create(jjrx_NominateArgs),
 
     /// Add a new Pace to a Heat
-    #[command(name = "jjx_slate")]
-    Slate(jjrsl_SlateArgs),
+    #[command(name = "jjx_enroll")]
+    Enroll(jjrsl_SlateArgs),
 
     /// Reorder Paces within a Heat
-    #[command(name = "jjx_rail")]
-    Rail(jjrrl_RailArgs),
+    #[command(name = "jjx_reorder")]
+    Reorder(jjrrl_RailArgs),
 
-    /// Add a new Tack to a Pace
-    #[command(name = "jjx_tally")]
-    Tally(jjrtl_TallyArgs),
+    /// Update pace docket text (stdin)
+    #[command(name = "jjx_revise_docket")]
+    ReviseDocket(jjrtl_ReviseDocketArgs),
+
+    /// Set pace state to bridled with warrant (stdin)
+    #[command(name = "jjx_arm")]
+    Arm(jjrtl_ArmArgs),
+
+    /// Rename pace silks
+    #[command(name = "jjx_relabel")]
+    Relabel(jjrtl_RelabelArgs),
+
+    /// Set pace state to abandoned
+    #[command(name = "jjx_drop")]
+    Drop(jjrtl_DropArgs),
 
     /// Move a Pace from one Heat to another
-    #[command(name = "jjx_draft")]
-    Draft(jjrdr_DraftArgs),
+    #[command(name = "jjx_relocate")]
+    Relocate(jjrdr_DraftArgs),
 
     /// Change Heat status (racing/stabled) or rename
-    #[command(name = "jjx_furlough")]
-    Furlough(jjrfu_FurloughArgs),
+    #[command(name = "jjx_alter")]
+    Alter(jjrfu_FurloughArgs),
 
     /// Mark a pace complete and commit in one operation
-    #[command(name = "jjx_wrap")]
-    Wrap(jjrx_WrapArgs),
+    #[command(name = "jjx_close")]
+    Close(jjrx_WrapArgs),
 
     /// Search across heats and paces with regex
-    #[command(name = "jjx_scout")]
-    Scout(jjrsc_ScoutArgs),
+    #[command(name = "jjx_search")]
+    Search(jjrsc_ScoutArgs),
 
-    /// Get raw spec text for a Pace
-    #[command(name = "jjx_get_spec")]
-    GetSpec(jjrgs_GetSpecArgs),
+    /// Get raw docket text for a Pace
+    #[command(name = "jjx_get_brief")]
+    GetBrief(jjrgs_GetSpecArgs),
 
     /// List Coronets for a Heat
     #[command(name = "jjx_get_coronets")]
     GetCoronets(jjrgc_GetCoronetsArgs),
 
     /// Get or update Heat paddock (getter/setter)
-    #[command(name = "jjx_curry")]
-    Curry(jjrcu_CurryArgs),
+    #[command(name = "jjx_paddock")]
+    Paddock(jjrcu_CurryArgs),
 
     /// Garland a heat - celebrate completion and create continuation
-    #[command(name = "jjx_garland")]
-    Garland(jjrgl_GarlandArgs),
+    #[command(name = "jjx_continue")]
+    Continue(jjrgl_GarlandArgs),
 
     /// Bulk draft multiple paces between heats atomically
-    #[command(name = "jjx_restring")]
-    Restring(jjrrs_RestringArgs),
+    #[command(name = "jjx_transfer")]
+    Transfer(jjrrs_RestringArgs),
 
     /// Record agent landing after autonomous execution
     #[command(name = "jjx_landing")]
@@ -164,27 +176,30 @@ pub async fn jjrx_dispatch(args: &[OsString]) -> i32 {
     };
 
     match parsed {
-        jjrx_JjxCommands::Notch(args) => jjrnc_run_notch(args),
-        jjrx_JjxCommands::Chalk(args) => jjrx_run_chalk(args),
-        jjrx_JjxCommands::Rein(args) => jjrrn_run_rein(args),
+        jjrx_JjxCommands::Record(args) => jjrnc_run_notch(args),
+        jjrx_JjxCommands::Mark(args) => jjrx_run_chalk(args),
+        jjrx_JjxCommands::Log(args) => jjrrn_run_rein(args),
         jjrx_JjxCommands::Validate(args) => jjrvl_run_validate(args),
-        jjrx_JjxCommands::Muster(args) => jjrmu_run_muster(args).await,
-        jjrx_JjxCommands::Saddle(args) => jjrsd_run_saddle(args).await,
-        jjrx_JjxCommands::Parade(args) => jjrpd_run_parade(args),
-        jjrx_JjxCommands::Retire(args) => jjrrt_run_retire(args),
-        jjrx_JjxCommands::Nominate(args) => jjrx_run_nominate(args),
-        jjrx_JjxCommands::Slate(args) => jjrsl_run_slate(args),
-        jjrx_JjxCommands::Rail(args) => jjrrl_run_rail(args),
-        jjrx_JjxCommands::Tally(args) => jjrtl_run_tally(args),
-        jjrx_JjxCommands::Draft(args) => jjrdr_run_draft(args),
-        jjrx_JjxCommands::Furlough(args) => jjrfu_run_furlough(args),
-        jjrx_JjxCommands::Wrap(args) => zjjrx_run_wrap(args),
-        jjrx_JjxCommands::Scout(args) => jjrsc_run_scout(args),
-        jjrx_JjxCommands::GetSpec(args) => jjrgs_run_get_spec(args),
+        jjrx_JjxCommands::List(args) => jjrmu_run_muster(args).await,
+        jjrx_JjxCommands::Orient(args) => jjrsd_run_saddle(args).await,
+        jjrx_JjxCommands::Show(args) => jjrpd_run_parade(args),
+        jjrx_JjxCommands::Archive(args) => jjrrt_run_retire(args),
+        jjrx_JjxCommands::Create(args) => jjrx_run_nominate(args),
+        jjrx_JjxCommands::Enroll(args) => jjrsl_run_slate(args),
+        jjrx_JjxCommands::Reorder(args) => jjrrl_run_rail(args),
+        jjrx_JjxCommands::ReviseDocket(args) => jjrtl_run_revise_docket(args),
+        jjrx_JjxCommands::Arm(args) => jjrtl_run_arm(args),
+        jjrx_JjxCommands::Relabel(args) => jjrtl_run_relabel(args),
+        jjrx_JjxCommands::Drop(args) => jjrtl_run_drop(args),
+        jjrx_JjxCommands::Relocate(args) => jjrdr_run_draft(args),
+        jjrx_JjxCommands::Alter(args) => jjrfu_run_furlough(args),
+        jjrx_JjxCommands::Close(args) => zjjrx_run_wrap(args),
+        jjrx_JjxCommands::Search(args) => jjrsc_run_scout(args),
+        jjrx_JjxCommands::GetBrief(args) => jjrgs_run_get_spec(args),
         jjrx_JjxCommands::GetCoronets(args) => jjrgc_run_get_coronets(args),
-        jjrx_JjxCommands::Curry(args) => jjrcu_run_curry(args),
-        jjrx_JjxCommands::Garland(args) => jjrgl_run_garland(args),
-        jjrx_JjxCommands::Restring(args) => jjrrs_run(args),
+        jjrx_JjxCommands::Paddock(args) => jjrcu_run_curry(args),
+        jjrx_JjxCommands::Continue(args) => jjrgl_run_garland(args),
+        jjrx_JjxCommands::Transfer(args) => jjrrs_run(args),
         jjrx_JjxCommands::Landing(args) => jjrld_run_landing(args),
     }
 }

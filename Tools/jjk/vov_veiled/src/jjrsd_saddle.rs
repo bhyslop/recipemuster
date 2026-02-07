@@ -29,7 +29,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_saddle: error: {}", e);
+            eprintln!("jjx_orient: error: {}", e);
             return 1;
         }
     };
@@ -122,7 +122,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
             match jjrq_resolve_default_heat(&gallops) {
                 Ok(fm) => fm,
                 Err(e) => {
-                    eprintln!("jjx_saddle: error: {}", e);
+                    eprintln!("jjx_orient: error: {}", e);
                     return 1;
                 }
             }
@@ -132,7 +132,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
     let firemark = match Firemark::jjrf_parse(&firemark_str) {
         Ok(fm) => fm,
         Err(e) => {
-            eprintln!("jjx_saddle: error: {}", e);
+            eprintln!("jjx_orient: error: {}", e);
             return 1;
         }
     };
@@ -141,14 +141,14 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
-            eprintln!("jjx_saddle: error: Heat '{}' not found", heat_key);
+            eprintln!("jjx_orient: error: Heat '{}' not found", heat_key);
             return 1;
         }
     };
 
     // Check if heat is stabled (cannot saddle stabled heat)
     if heat.status == HeatStatus::Stabled {
-        eprintln!("jjx_saddle: error: Cannot saddle stabled heat '{}'", heat_key);
+        eprintln!("jjx_orient: error: Cannot saddle stabled heat '{}'", heat_key);
         return 1;
     }
 
@@ -156,7 +156,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
     let paddock_content = match fs::read_to_string(&heat.paddock_file) {
         Ok(content) => content,
         Err(e) => {
-            eprintln!("jjx_saddle: error reading paddock file '{}': {}", heat.paddock_file, e);
+            eprintln!("jjx_orient: error reading paddock file '{}': {}", heat.paddock_file, e);
             return 1;
         }
     };
@@ -221,14 +221,14 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
                 println!("Next: {} ({}) [{}]", silks, coronet, state);
                 println!();
                 if let Some(spec_text) = spec {
-                    println!("Spec:");
+                    println!("Docket:");
                     for line in spec_text.lines() {
                         println!("  {}", line);
                     }
                     println!();
                 }
                 if let Some(dir_text) = direction {
-                    println!("Direction:");
+                    println!("Warrant:");
                     for line in dir_text.lines() {
                         println!("  {}", line);
                     }
@@ -292,7 +292,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
 
     // Call invitatory to check/create officium marker
     if let Err(e) = vvc::vvcp_invitatory().await {
-        eprintln!("jjx_saddle: warning: invitatory failed: {}", e);
+        eprintln!("jjx_orient: warning: invitatory failed: {}", e);
     }
 
     0

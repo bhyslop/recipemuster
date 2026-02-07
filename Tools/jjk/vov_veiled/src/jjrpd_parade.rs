@@ -15,7 +15,7 @@ use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries, jjrs_Steeplechas
 use std::collections::BTreeMap;
 use std::fs;
 
-/// Arguments for jjx_parade command
+/// Arguments for jjx_show command
 #[derive(clap::Args, Debug)]
 pub struct jjrpd_ParadeArgs {
     /// Path to the Gallops JSON file
@@ -25,21 +25,21 @@ pub struct jjrpd_ParadeArgs {
     /// Target: Firemark (heat view) or Coronet (pace view). If omitted, uses first racing heat.
     pub target: Option<String>,
 
-    /// Show paddock and full specs (heat mode only)
+    /// Show paddock and full dockets (heat mode only)
     #[arg(long)]
-    pub full: bool,
+    pub detail: bool,
 
     /// Show only remaining paces (exclude complete/abandoned)
     #[arg(long)]
     pub remaining: bool,
 }
 
-/// Run the parade command - display comprehensive Heat status
+/// Run the show command - display comprehensive Heat status
 pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_parade: error: {}", e);
+            eprintln!("jjx_show: error: {}", e);
             return 1;
         }
     };
@@ -52,7 +52,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             match zjjrpd_resolve_default_heat(&gallops) {
                 Ok(fm) => fm,
                 Err(e) => {
-                    eprintln!("jjx_parade: error: {}", e);
+                    eprintln!("jjx_show: error: {}", e);
                     return 1;
                 }
             }
@@ -67,7 +67,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
         let coronet = match Coronet::jjrf_parse(&target) {
             Ok(c) => c,
             Err(e) => {
-                eprintln!("jjx_parade: error: {}", e);
+                eprintln!("jjx_show: error: {}", e);
                 return 1;
             }
         };
@@ -78,7 +78,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
         let heat = match gallops.heats.get(&heat_key) {
             Some(h) => h,
             None => {
-                eprintln!("jjx_parade: error: Heat '{}' not found", heat_key);
+                eprintln!("jjx_show: error: Heat '{}' not found", heat_key);
                 return 1;
             }
         };
@@ -88,7 +88,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
         let pace = match heat.paces.get(&coronet_key) {
             Some(p) => p,
             None => {
-                eprintln!("jjx_parade: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
+                eprintln!("jjx_show: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
                 return 1;
             }
         };
@@ -121,10 +121,10 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                 println!("[{}] {} (basis: {})", index, state_str, basis_str);
                 println!("    Silks: {}", tack.silks);
                 if let Some(ref direction) = tack.direction {
-                    println!("    Direction: {}", direction);
+                    println!("    Warrant: {}", direction);
                 }
                 println!();
-                // Indent spec text
+                // Indent docket text
                 for line in tack.text.lines() {
                     println!("    {}", line);
                 }
@@ -139,7 +139,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
         let firemark = match Firemark::jjrf_parse(&target) {
             Ok(fm) => fm,
             Err(e) => {
-                eprintln!("jjx_parade: error: {}", e);
+                eprintln!("jjx_show: error: {}", e);
                 return 1;
             }
         };
@@ -148,17 +148,17 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
         let heat = match gallops.heats.get(&heat_key) {
             Some(h) => h,
             None => {
-                eprintln!("jjx_parade: error: Heat '{}' not found", heat_key);
+                eprintln!("jjx_show: error: Heat '{}' not found", heat_key);
                 return 1;
             }
         };
 
-        if args.full {
-            // Full view: paddock + all specs
+        if args.detail {
+            // Detail view: paddock + all dockets
             let paddock_content = match fs::read_to_string(&heat.paddock_file) {
                 Ok(content) => content,
                 Err(e) => {
-                    eprintln!("jjx_parade: error reading paddock file '{}': {}", heat.paddock_file, e);
+                    eprintln!("jjx_show: error reading paddock file '{}': {}", heat.paddock_file, e);
                     return 1;
                 }
             };
@@ -193,7 +193,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                         println!("{}", tack.text);
                         if let Some(ref direction) = tack.direction {
                             println!();
-                            println!("**Direction:** {}", direction);
+                            println!("**Warrant:** {}", direction);
                         }
                         println!();
                     }
@@ -352,7 +352,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
         zjjrpd_print_file_bitmap(&firemark, heat);
         zjjrpd_print_commit_swimlanes(&firemark, heat);
     } else {
-        eprintln!("jjx_parade: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
+        eprintln!("jjx_show: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
         return 1;
     }
 
@@ -368,7 +368,7 @@ fn zjjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
     let touches = match jjrq_file_touches_for_heat(firemark.jjrf_as_str()) {
         Ok(t) => t,
         Err(e) => {
-            eprintln!("jjx_parade: error getting file touches: {}", e);
+            eprintln!("jjx_show: error getting file touches: {}", e);
             return;
         }
     };
@@ -516,7 +516,7 @@ fn zjjrpd_print_commit_swimlanes(firemark: &Firemark, heat: &Heat) {
     let entries = match jjrs_get_entries(&rein_args) {
         Ok(e) => e,
         Err(e) => {
-            eprintln!("jjx_parade: error getting steeplechase entries: {}", e);
+            eprintln!("jjx_show: error getting steeplechase entries: {}", e);
             return;
         }
     };
@@ -632,7 +632,7 @@ fn zjjrpd_print_pace_commits(firemark: &Firemark, coronet_key: &str) {
     let entries = match jjrs_get_entries(&rein_args) {
         Ok(e) => e,
         Err(e) => {
-            eprintln!("jjx_parade: error getting steeplechase entries: {}", e);
+            eprintln!("jjx_show: error getting steeplechase entries: {}", e);
             return;
         }
     };
