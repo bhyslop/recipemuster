@@ -13,7 +13,7 @@ use std::collections::HashSet;
 use std::process::Command;
 
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX};
-use crate::jjrn_notch::jjrn_format_notch_prefix;
+use crate::jjrn_notch::{jjrn_format_notch_prefix, JJRN_COMMIT_PREFIX};
 
 /// Arguments for jjx_notch command
 #[derive(Args, Debug)]
@@ -67,7 +67,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
         };
         jjrn_format_notch_prefix(&coronet)
     } else if identity.len() == 2 {
-        // Firemark - heat-only commit (build format manually to avoid calling private function)
+        // Firemark - heat-only commit
         let firemark = match Firemark::jjrf_parse(&args.identity) {
             Ok(fm) => fm,
             Err(e) => {
@@ -75,29 +75,9 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
                 return 1;
             }
         };
-        // Read hallmark from git config jj.hallmark (same as zjjrn_get_hallmark)
-        let hallmark_output = match Command::new("git")
-            .args(["config", "jj.hallmark"])
-            .output()
-        {
-            Ok(o) => o,
-            Err(e) => {
-                eprintln!("jjx_notch: error: failed to read jj.hallmark: {}", e);
-                return 1;
-            }
-        };
-        let hallmark = if hallmark_output.status.success() {
-            String::from_utf8_lossy(&hallmark_output.stdout).trim().to_string()
-        } else {
-            "1010".to_string()
-        };
-        // Format: jjb:HALLMARK:₣FIREMARK:n:
-        format!(
-            "jjb:{}:{}{}:n: ",
-            hallmark,
-            JJRF_FIREMARK_PREFIX,
-            firemark.jjrf_as_str(),
-        )
+        let hallmark = vvc::vvcc_get_hallmark();
+        let identity_str = format!("{}{}", JJRF_FIREMARK_PREFIX, firemark.jjrf_as_str());
+        vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity_str, "n", "", None)
     } else {
         eprintln!("jjx_notch: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
         return 1;

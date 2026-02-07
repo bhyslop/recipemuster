@@ -18,61 +18,10 @@
 //! This module exports formatting functions that the CLI handlers use.
 
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_CORONET_PREFIX as CORONET_PREFIX, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX};
-use std::fs;
-use std::process::Command;
 
 /// Commit message prefix
 pub const JJRN_COMMIT_PREFIX: &str = "jjb";
 
-/// Get hallmark for commit message versioning
-///
-/// Source logic:
-/// 1. Try `.vvk/vvbf_brand.json` → if exists, use `vvbh_hallmark` (4 digits)
-/// 2. If missing (Kit Forge) → read `Tools/vok/vov_veiled/vovr_registry.json`,
-///    find max hallmark, get `git rev-parse --short HEAD`, format as `{hallmark}-{commit}`
-fn zjjrn_get_hallmark() -> String {
-    // Try reading brand file
-    if let Ok(brand_content) = fs::read_to_string(".vvk/vvbf_brand.json") {
-        if let Ok(brand_json) = serde_json::from_str::<serde_json::Value>(&brand_content) {
-            if let Some(hallmark) = brand_json.get("vvbh_hallmark") {
-                if let Some(hallmark_str) = hallmark.as_str() {
-                    return hallmark_str.to_string();
-                }
-            }
-        }
-    }
-
-    // Fallback: Kit Forge mode (read registry + git HEAD)
-    let mut max_hallmark = 0u32;
-    if let Ok(registry_content) = fs::read_to_string("Tools/vok/vov_veiled/vovr_registry.json") {
-        if let Ok(registry_json) = serde_json::from_str::<serde_json::Value>(&registry_content) {
-            if let Some(hallmarks) = registry_json.get("hallmarks").and_then(|v| v.as_object()) {
-                for key in hallmarks.keys() {
-                    if let Ok(num) = key.parse::<u32>() {
-                        max_hallmark = max_hallmark.max(num);
-                    }
-                }
-            }
-        }
-    }
-
-    // Get short commit hash
-    let git_output = Command::new("git")
-        .args(["rev-parse", "--short", "HEAD"])
-        .output();
-
-    let commit_hash = if let Ok(output) = git_output {
-        if output.status.success() {
-            String::from_utf8_lossy(&output.stdout).trim().to_string()
-        } else {
-            "0000000".to_string()
-        }
-    } else {
-        "0000000".to_string()
-    };
-
-    format!("{:04}-{}", max_hallmark, commit_hash)
-}
 
 /// Pace-level chalk markers (single-letter codes)
 /// - A = APPROACH: proposed approach before work begins
@@ -197,59 +146,37 @@ impl jjrn_HeatAction {
 /// Returns the prefix string to prepend to commit messages for JJ-aware commits.
 /// The coronet provides full context (embeds parent firemark).
 pub fn jjrn_format_notch_prefix(coronet: &Coronet) -> String {
-    let hallmark = zjjrn_get_hallmark();
-    format!(
-        "{}:{}:{}{}:n: ",
-        JJRN_COMMIT_PREFIX,
-        hallmark,
-        CORONET_PREFIX,
-        coronet.jjrf_as_str(),
-    )
+    let hallmark = vvc::vvcc_get_hallmark();
+    let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
+    // Special case: subject="" produces "...:n: " and caller appends real message
+    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, "n", "", None)
 }
 
 /// Format the chalk message: jjb:HALLMARK:₢CORONET:X: description
 ///
 /// Returns the full commit message for a chalk (steeplechase marker) commit.
 pub fn jjrn_format_chalk_message(coronet: &Coronet, marker: jjrn_ChalkMarker, description: &str) -> String {
-    let hallmark = zjjrn_get_hallmark();
-    format!(
-        "{}:{}:{}{}:{}: {}",
-        JJRN_COMMIT_PREFIX,
-        hallmark,
-        CORONET_PREFIX,
-        coronet.jjrf_as_str(),
-        marker.jjrn_code(),
-        description
-    )
+    let hallmark = vvc::vvcc_get_hallmark();
+    let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
+    let action = marker.jjrn_code().to_string();
+    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, &action, description, None)
 }
 
 /// Format a heat-level discussion message (no pace context): jjb:HALLMARK:₣XX:d: description
 pub fn jjrn_format_heat_discussion(firemark: &Firemark, description: &str) -> String {
-    let hallmark = zjjrn_get_hallmark();
-    format!(
-        "{}:{}:{}{}:d: {}",
-        JJRN_COMMIT_PREFIX,
-        hallmark,
-        FIREMARK_PREFIX,
-        firemark.jjrf_as_str(),
-        description
-    )
+    let hallmark = vvc::vvcc_get_hallmark();
+    let identity = format!("{}{}", FIREMARK_PREFIX, firemark.jjrf_as_str());
+    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, "d", description, None)
 }
 
 /// Format a heat-level action message: jjb:HALLMARK:₣XX:X: description
 ///
 /// Used for nominate, slate, rail, tally, draft, retire operations.
 pub fn jjrn_format_heat_message(firemark: &Firemark, action: jjrn_HeatAction, description: &str) -> String {
-    let hallmark = zjjrn_get_hallmark();
-    format!(
-        "{}:{}:{}{}:{}: {}",
-        JJRN_COMMIT_PREFIX,
-        hallmark,
-        FIREMARK_PREFIX,
-        firemark.jjrf_as_str(),
-        action.jjrn_code(),
-        description
-    )
+    let hallmark = vvc::vvcc_get_hallmark();
+    let identity = format!("{}{}", FIREMARK_PREFIX, firemark.jjrf_as_str());
+    let action_code = action.jjrn_code().to_string();
+    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, &action_code, description, None)
 }
 
 /// Format a bridle message: jjb:HALLMARK:₢CORONET:B: {agent} | {silks}
@@ -257,16 +184,10 @@ pub fn jjrn_format_heat_message(firemark: &Firemark, action: jjrn_HeatAction, de
 /// Creates the subject line for a B (bridle) commit.
 /// Body should contain the full direction text.
 pub fn jjrn_format_bridle_message(coronet: &Coronet, agent: &str, silks: &str) -> String {
-    let hallmark = zjjrn_get_hallmark();
-    format!(
-        "{}:{}:{}{}:B: {} | {}",
-        JJRN_COMMIT_PREFIX,
-        hallmark,
-        CORONET_PREFIX,
-        coronet.jjrf_as_str(),
-        agent,
-        silks
-    )
+    let hallmark = vvc::vvcc_get_hallmark();
+    let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
+    let subject = format!("{} | {}", agent, silks);
+    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, "B", &subject, None)
 }
 
 /// Format a landing message: jjb:HALLMARK:₢CORONET:L: {agent} landed
@@ -274,15 +195,10 @@ pub fn jjrn_format_bridle_message(coronet: &Coronet, agent: &str, silks: &str) -
 /// Creates the subject line for an L (landing) commit.
 /// Body should contain the agent completion report.
 pub fn jjrn_format_landing_message(coronet: &Coronet, agent: &str) -> String {
-    let hallmark = zjjrn_get_hallmark();
-    format!(
-        "{}:{}:{}{}:L: {} landed",
-        JJRN_COMMIT_PREFIX,
-        hallmark,
-        CORONET_PREFIX,
-        coronet.jjrf_as_str(),
-        agent
-    )
+    let hallmark = vvc::vvcc_get_hallmark();
+    let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
+    let subject = format!("{} landed", agent);
+    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, "L", &subject, None)
 }
 
 /// Format a session marker message: jjb:HALLMARK:₣XX:s: YYMMDD-HHMM session
@@ -290,7 +206,7 @@ pub fn jjrn_format_landing_message(coronet: &Coronet, agent: &str) -> String {
 /// Creates the subject line for an s (session) commit.
 /// Body should contain model IDs, host, and platform.
 pub fn jjrn_format_session_message(firemark: &Firemark, timestamp: &str) -> String {
-    let hallmark = zjjrn_get_hallmark();
+    let hallmark = vvc::vvcc_get_hallmark();
     format!(
         "{}:{}:{}{}:s: {} session",
         JJRN_COMMIT_PREFIX,

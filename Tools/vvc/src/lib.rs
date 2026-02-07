@@ -14,6 +14,7 @@
 #![allow(non_camel_case_types)]
 
 pub mod vvcc_commit;
+pub mod vvcc_format;
 pub mod vvce_env;
 pub mod vvcg_guard;
 pub mod vvcm_machine;
@@ -22,8 +23,12 @@ pub mod vvcp_probe;
 #[cfg(test)]
 mod vvtg_guard;
 
+#[cfg(test)]
+mod vvtf_format;
+
 // Re-export commonly used types (RCG-compliant names)
 pub use vvcc_commit::{vvcc_CommitArgs, vvcc_CommitLock, vvcc_run as commit};
+pub use vvcc_format::{vvcc_format_branded, vvcc_get_hallmark};
 pub use vvce_env::{vvce_env, VvcEnv};
 pub use vvcg_guard::{vvcg_GuardArgs, vvcg_run as guard, VVCG_SIZE_LIMIT, VVCG_WARN_LIMIT};
 pub use vvcm_machine::{vvcm_CommitArgs, vvcm_commit as machine_commit};
