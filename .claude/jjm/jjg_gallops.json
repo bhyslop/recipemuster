@@ -204,6 +204,13 @@
         "₢AWAAK": {
           "tacks": [
             {
+              "ts": "260206-2237",
+              "state": "complete",
+              "text": "Fix jjx_scout panic on UTF-8 boundary in long spec text.\n\nScout panics at jjrsc_scout.rs:143 with \"byte index 1359 is not a char boundary; it is inside '—'\" when truncating long spec text for context display. The substring operation uses byte indexing on a UTF-8 string containing multi-byte characters (em-dash, currency symbols).\n\nFix: use char-boundary-safe truncation (e.g., floor to nearest char boundary before slicing, or use char_indices).\n\nFiles: Tools/jjk/vov_veiled/src/jjrsc_scout.rs\n\nAcceptance: `jjx_scout spec` completes without panic. tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
+              "silks": "fix-scout-utf8-panic",
+              "commit": "9e5fe0b"
+            },
+            {
               "ts": "260206-2236",
               "state": "abandoned",
               "text": "Fix jjx_scout panic on UTF-8 boundary in long spec text.\n\nScout panics at jjrsc_scout.rs:143 with \"byte index 1359 is not a char boundary; it is inside '—'\" when truncating long spec text for context display. The substring operation uses byte indexing on a UTF-8 string containing multi-byte characters (em-dash, currency symbols).\n\nFix: use char-boundary-safe truncation (e.g., floor to nearest char boundary before slicing, or use char_indices).\n\nFiles: Tools/jjk/vov_veiled/src/jjrsc_scout.rs\n\nAcceptance: `jjx_scout spec` completes without panic. tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
