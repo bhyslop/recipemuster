@@ -371,6 +371,13 @@
         "₢ARAAO": {
           "tacks": [
             {
+              "ts": "260206-2055",
+              "state": "complete",
+              "text": "Strengthen CLAUDE.md git discipline section to explicitly forbid ALL git reset variants.\n\nProblem: Claude ran `git reset HEAD <file>` claiming it was \"safe\" because it only unstages.\nWhile technically true, this violates the spirit of additive-only discipline and the command\nis dangerously close to destructive variants.\n\nTasks:\n1. Review current git discipline section in CLAUDE.md\n2. Explicitly enumerate forbidden commands including ALL reset forms:\n   - git reset (all variants, with or without --hard, with or without file paths)\n   - git restore (when used to discard changes)\n   - Existing list: git checkout <file>, git clean, git stash\n3. Consider positive framing: what TO do when staging goes wrong (just run jjx_notch, ask user)\n4. Make the prohibition memorable and unambiguous\n\nThe goal is preventing future Claude sessions from reasoning their way around the intent.",
+              "silks": "claude-md-git-discipline",
+              "commit": "732b971"
+            },
+            {
               "ts": "260202-2012",
               "state": "rough",
               "text": "Strengthen CLAUDE.md git discipline section to explicitly forbid ALL git reset variants.\n\nProblem: Claude ran `git reset HEAD <file>` claiming it was \"safe\" because it only unstages.\nWhile technically true, this violates the spirit of additive-only discipline and the command\nis dangerously close to destructive variants.\n\nTasks:\n1. Review current git discipline section in CLAUDE.md\n2. Explicitly enumerate forbidden commands including ALL reset forms:\n   - git reset (all variants, with or without --hard, with or without file paths)\n   - git restore (when used to discard changes)\n   - Existing list: git checkout <file>, git clean, git stash\n3. Consider positive framing: what TO do when staging goes wrong (just run jjx_notch, ask user)\n4. Make the prohibition memorable and unambiguous\n\nThe goal is preventing future Claude sessions from reasoning their way around the intent.",
