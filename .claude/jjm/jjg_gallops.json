@@ -535,13 +535,14 @@
         "₢ASAAG",
         "₢ASAAD",
         "₢ASAAH",
+        "₢ASAAJ",
         "₢ASAAB",
         "₢ASAAC",
         "₢ASAAF",
         "₢ASAAI",
         "₢ASAAA"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_AS.md",
       "paces": {
         "₢ASAAA": {
@@ -706,6 +707,17 @@
               "text": "Delete RBAGS-AdminGoogleSpec.adoc and RBS-Specification.adoc after RBSA is complete and verified.\n\n## Context (from ₢ASAAD design)\n\nOnce RBSA absorbs all content from both files, the originals become dead weight. This pace is the final cleanup.\n\n## Work required\n\n1. Verify RBSA contains all content from both files:\n   - Every include:: from RBAGS is present in RBSA\n   - Every definition section from RBS is present in RBSA\n   - Mapping section terms are superset of both originals\n\n2. Delete:\n   - lenses/RBAGS-AdminGoogleSpec.adoc\n   - lenses/RBS-Specification.adoc\n\n3. Update any external references:\n   - CLAUDE.md file acronym mappings (RBAGS, RBS entries -> RBSA)\n   - Any cross-references in other lenses/ documents\n   - Paddock references\n\n4. Eliminate remaining stale content:\n   - cmk_* vocabulary (if any survived earlier paces)\n   - CRR references in RBSA (crg_* terms)\n   - Any orphaned terms from the merge\n\n## Acceptance criteria\n- RBAGS and RBS files deleted\n- RBSA is the sole parent spec\n- No broken references anywhere in lenses/\n- CLAUDE.md updated",
               "silks": "retire-rbags-rbs-files",
               "commit": "0bda0ee"
+            }
+          ]
+        },
+        "₢ASAAJ": {
+          "tacks": [
+            {
+              "ts": "260207-1403",
+              "state": "rough",
+              "text": "Compare old RBS-Specification.adoc against RBSA-SpecTop.adoc to verify no content was lost in the consolidation.\n\n## Work required\n\n1. Read RBS-Specification.adoc (the pre-consolidation version — use git history if needed)\n2. Read RBSA-SpecTop.adoc (the new unified document)\n3. Section-by-section comparison:\n   - Tier 1 (Why and What): Security architecture, trust challenge, bottle pattern, security properties\n   - Tier 3 (Reference): Script internals (iptables, DNS/dnsmasq, socat, eBPF), trade studies, term definitions\n   - Local operations content that was in RBS\n4. Flag any content present in RBS but missing from RBSA\n5. Flag any content that was significantly altered (not just reformatted) in ways that change meaning\n\n## Acceptance criteria\n- Every substantive section of RBS accounted for in RBSA (or explicitly noted as intentionally dropped)\n- No semantic loss — reformatting is fine, meaning changes are not\n- Report produced listing: confirmed-present, intentionally-dropped, and missing items",
+              "silks": "assess-rbs-to-rbsa-loss",
+              "commit": "626cb2b"
             }
           ]
         }
