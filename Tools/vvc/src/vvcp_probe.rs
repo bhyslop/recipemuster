@@ -8,6 +8,9 @@
 //! See Tools/vok/vov_veiled/VOSRP-probe.adoc for specification.
 
 use chrono::{DateTime, Local, Utc};
+use regex::Regex;
+use std::path::PathBuf;
+use tokio::fs;
 use tokio::process::Command;
 
 /// Brand prefix for VVC commits
@@ -22,10 +25,31 @@ pub const VVCP_OFFICIUM_TOKEN: &str = "OFFICIUM";
 /// Gap threshold in seconds for officium detection (1 hour)
 pub const VVCP_OFFICIUM_GAP_SECS: u64 = 3600;
 
+/// Raw probe output file for haiku
+const VVCP_RAW_HAIKU_FILE: &str = "vvcp_raw_haiku.txt";
+
+/// Raw probe output file for sonnet
+const VVCP_RAW_SONNET_FILE: &str = "vvcp_raw_sonnet.txt";
+
+/// Raw probe output file for opus
+const VVCP_RAW_OPUS_FILE: &str = "vvcp_raw_opus.txt";
+
+/// XML element name for haiku model ID
+const VVCP_ELEMENT_HAIKU: &str = "vvpxh_haiku";
+
+/// XML element name for sonnet model ID
+const VVCP_ELEMENT_SONNET: &str = "vvpxs_sonnet";
+
+/// XML element name for opus model ID
+const VVCP_ELEMENT_OPUS: &str = "vvpxo_opus";
+
+/// Environment variable for BUD_TEMP_DIR
+const VVCP_BUD_TEMP_DIR_VAR: &str = "BUD_TEMP_DIR";
+
 /// Probe Claude Code environment for model IDs and platform information.
 ///
-/// Spawns three parallel claude invocations to discover actual model versions.
-/// Returns a 5-line string in "key: value" format.
+/// Spawns haiku and sonnet probes in parallel, then asks opus to interpret
+/// the raw outputs and self-report. Returns a 5-line string in "key: value" format.
 ///
 /// # Returns
 ///
@@ -40,13 +64,70 @@ pub const VVCP_OFFICIUM_GAP_SECS: u64 = 3600;
 ///
 /// On probe failure for a tier, returns "unavailable" for that tier.
 pub async fn vvcp_probe() -> Result<String, String> {
-    // Spawn three parallel claude invocations to probe model IDs
-    let haiku_future = probe_model_tier("haiku");
-    let sonnet_future = probe_model_tier("sonnet");
-    let opus_future = probe_model_tier("opus");
+    // Spawn haiku and sonnet probes in parallel to get raw output
+    let haiku_future = probe_model_tier_raw("haiku");
+    let sonnet_future = probe_model_tier_raw("sonnet");
 
-    // Wait for all three probes in parallel
-    let (haiku_id, sonnet_id, opus_id) = tokio::join!(haiku_future, sonnet_future, opus_future);
+    // Wait for both probes
+    let (haiku_raw, sonnet_raw) = tokio::join!(haiku_future, sonnet_future);
+
+    // Get BUD_TEMP_DIR from environment
+    let temp_dir = std::env::var(VVCP_BUD_TEMP_DIR_VAR).ok();
+
+    // Write raw haiku and sonnet outputs to files if BUD_TEMP_DIR is set
+    if let Some(ref dir) = temp_dir {
+        let _ = write_raw_output(dir, VVCP_RAW_HAIKU_FILE, &haiku_raw).await;
+        let _ = write_raw_output(dir, VVCP_RAW_SONNET_FILE, &sonnet_raw).await;
+    }
+
+    // Build opus prompt from constants
+    let prompt = format!(
+        "Report your own model ID. Then extract the Claude model ID from each raw output below.\n\
+        \n\
+        <raw_haiku>\n\
+        {}\n\
+        </raw_haiku>\n\
+        \n\
+        <raw_sonnet>\n\
+        {}\n\
+        </raw_sonnet>\n\
+        \n\
+        Respond with exactly:\n\
+        <{}>[opus model ID]</{}>\n\
+        <{}>[haiku model ID]</{}>\n\
+        <{}>[sonnet model ID]</{}>",
+        haiku_raw,
+        sonnet_raw,
+        VVCP_ELEMENT_OPUS,
+        VVCP_ELEMENT_OPUS,
+        VVCP_ELEMENT_HAIKU,
+        VVCP_ELEMENT_HAIKU,
+        VVCP_ELEMENT_SONNET,
+        VVCP_ELEMENT_SONNET
+    );
+
+    // Invoke opus with the prompt (no --system-prompt flag)
+    let opus_output = Command::new("claude")
+        .args(["-p", "--model", "opus", "--no-session-persistence", "--", &prompt])
+        .output()
+        .await;
+
+    let opus_raw = match opus_output {
+        Ok(output) if output.status.success() => {
+            String::from_utf8_lossy(&output.stdout).to_string()
+        }
+        _ => String::new(),
+    };
+
+    // Write raw opus response if BUD_TEMP_DIR is set
+    if let Some(ref dir) = temp_dir {
+        let _ = write_raw_output(dir, VVCP_RAW_OPUS_FILE, &opus_raw).await;
+    }
+
+    // Parse opus response with regexes
+    let haiku_id = extract_xml_element(&opus_raw, VVCP_ELEMENT_HAIKU);
+    let sonnet_id = extract_xml_element(&opus_raw, VVCP_ELEMENT_SONNET);
+    let opus_id = extract_xml_element(&opus_raw, VVCP_ELEMENT_OPUS);
 
     // Collect hostname
     let hostname = get_hostname().await;
@@ -64,7 +145,8 @@ pub async fn vvcp_probe() -> Result<String, String> {
 }
 
 /// Probe a single model tier by invoking claude with minimal prompt
-async fn probe_model_tier(tier: &str) -> String {
+/// Returns raw stdout without any trimming or parsing
+async fn probe_model_tier_raw(tier: &str) -> String {
     let output = Command::new("claude")
         .args([
             "-p",
@@ -78,11 +160,35 @@ async fn probe_model_tier(tier: &str) -> String {
         .await;
 
     match output {
-        Ok(output) if output.status.success() => {
-            String::from_utf8_lossy(&output.stdout).trim().to_string()
-        }
-        _ => "unavailable".to_string(),
+        Ok(output) if output.status.success() => String::from_utf8_lossy(&output.stdout).to_string(),
+        _ => String::new(),
     }
+}
+
+/// Write raw probe output to file
+async fn write_raw_output(dir: &str, filename: &str, content: &str) -> Result<(), String> {
+    let mut path = PathBuf::from(dir);
+    path.push(filename);
+
+    fs::write(&path, content)
+        .await
+        .map_err(|e| format!("Failed to write {}: {}", filename, e))
+}
+
+/// Extract content from XML element using regex
+/// Returns "unavailable" if element not found or empty
+fn extract_xml_element(text: &str, element: &str) -> String {
+    let pattern = format!(r"<{}>(.*?)</{}>", regex::escape(element), regex::escape(element));
+    let re = match Regex::new(&pattern) {
+        Ok(re) => re,
+        Err(_) => return "unavailable".to_string(),
+    };
+
+    re.captures(text)
+        .and_then(|cap| cap.get(1))
+        .map(|m| m.as_str().trim().to_string())
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| "unavailable".to_string())
 }
 
 /// Get hostname via std::env or hostname command
@@ -282,5 +388,69 @@ mod tests {
         let platform = get_platform().await;
         assert!(platform.contains('-'), "Platform should be OS-ARCH format");
         assert!(!platform.starts_with("unknown-"), "OS should be detected");
+    }
+
+    #[test]
+    fn test_extract_xml_element_clean() {
+        // Test with clean XML
+        let xml = "<vvpxh_haiku>claude-3-5-haiku-20241022</vvpxh_haiku>";
+        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
+        assert_eq!(result, "claude-3-5-haiku-20241022");
+
+        let xml = "<vvpxs_sonnet>claude-sonnet-4-20250514</vvpxs_sonnet>";
+        let result = extract_xml_element(xml, VVCP_ELEMENT_SONNET);
+        assert_eq!(result, "claude-sonnet-4-20250514");
+
+        let xml = "<vvpxo_opus>claude-opus-4-5-20251101</vvpxo_opus>";
+        let result = extract_xml_element(xml, VVCP_ELEMENT_OPUS);
+        assert_eq!(result, "claude-opus-4-5-20251101");
+    }
+
+    #[test]
+    fn test_extract_xml_element_missing() {
+        // Test with missing element returns unavailable
+        let xml = "<vvpxs_sonnet>claude-sonnet-4-20250514</vvpxs_sonnet>";
+        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
+        assert_eq!(result, "unavailable");
+    }
+
+    #[test]
+    fn test_extract_xml_element_empty() {
+        // Test with empty element returns unavailable
+        let xml = "<vvpxh_haiku></vvpxh_haiku>";
+        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
+        assert_eq!(result, "unavailable");
+
+        // Test with whitespace-only element
+        let xml = "<vvpxh_haiku>   </vvpxh_haiku>";
+        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
+        assert_eq!(result, "unavailable");
+    }
+
+    #[test]
+    fn test_extract_xml_element_with_extra_text() {
+        // Test with extra text around XML still extracts correctly
+        let xml = "Here is the information you requested:\n\
+                   <vvpxh_haiku>claude-3-5-haiku-20241022</vvpxh_haiku>\n\
+                   <vvpxs_sonnet>claude-sonnet-4-20250514</vvpxs_sonnet>\n\
+                   <vvpxo_opus>claude-opus-4-5-20251101</vvpxo_opus>\n\
+                   I hope this helps!";
+
+        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
+        assert_eq!(result, "claude-3-5-haiku-20241022");
+
+        let result = extract_xml_element(xml, VVCP_ELEMENT_SONNET);
+        assert_eq!(result, "claude-sonnet-4-20250514");
+
+        let result = extract_xml_element(xml, VVCP_ELEMENT_OPUS);
+        assert_eq!(result, "claude-opus-4-5-20251101");
+    }
+
+    #[test]
+    fn test_extract_xml_element_with_whitespace() {
+        // Test that trimming works inside elements
+        let xml = "<vvpxh_haiku>  claude-3-5-haiku-20241022  </vvpxh_haiku>";
+        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
+        assert_eq!(result, "claude-3-5-haiku-20241022");
     }
 }

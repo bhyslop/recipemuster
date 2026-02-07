@@ -79,7 +79,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> i32 {
             let fm = Firemark::jjrf_parse(&firemark_str).expect("furlough given invalid firemark");
             let message = format_heat_message(&fm, HeatAction::Furlough, &description);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 100000) {
                 Ok(hash) => {
                     eprintln!("jjx_furlough: committed {}", &hash[..8]);
                 }

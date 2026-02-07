@@ -147,10 +147,12 @@ fn jjtfu_retired_heat_error() {
 }
 
 #[test]
-fn jjtfu_already_racing_error() {
+fn jjtfu_already_racing_promotes_to_top() {
     let mut gallops = make_valid_gallops();
-    let (heat_key, heat) = make_valid_heat("AB", "my-heat", jjrg_HeatStatus::Racing);
-    gallops.heats.insert(heat_key, heat);
+    let (heat_key_a, heat_a) = make_valid_heat("AA", "first-heat", jjrg_HeatStatus::Racing);
+    let (heat_key_b, heat_b) = make_valid_heat("AB", "second-heat", jjrg_HeatStatus::Racing);
+    gallops.heats.insert(heat_key_a, heat_a);
+    gallops.heats.insert(heat_key_b, heat_b);
 
     let args = jjrg_FurloughArgs {
         firemark: "AB".to_string(),
@@ -160,15 +162,19 @@ fn jjtfu_already_racing_error() {
     };
 
     let result = gallops.jjrg_furlough(args);
-    assert!(result.is_err());
-    assert!(result.unwrap_err().contains("already racing"));
+    assert!(result.is_ok());
+    // AB should now be first
+    let keys: Vec<&String> = gallops.heats.keys().collect();
+    assert_eq!(keys[0], "₣AB");
 }
 
 #[test]
-fn jjtfu_already_stabled_error() {
+fn jjtfu_already_stabled_promotes_to_top() {
     let mut gallops = make_valid_gallops();
-    let (heat_key, heat) = make_valid_heat("AB", "my-heat", jjrg_HeatStatus::Stabled);
-    gallops.heats.insert(heat_key, heat);
+    let (heat_key_a, heat_a) = make_valid_heat("AA", "first-heat", jjrg_HeatStatus::Stabled);
+    let (heat_key_b, heat_b) = make_valid_heat("AB", "second-heat", jjrg_HeatStatus::Stabled);
+    gallops.heats.insert(heat_key_a, heat_a);
+    gallops.heats.insert(heat_key_b, heat_b);
 
     let args = jjrg_FurloughArgs {
         firemark: "AB".to_string(),
@@ -178,8 +184,10 @@ fn jjtfu_already_stabled_error() {
     };
 
     let result = gallops.jjrg_furlough(args);
-    assert!(result.is_err());
-    assert!(result.unwrap_err().contains("already stabled"));
+    assert!(result.is_ok());
+    // AB should now be first
+    let keys: Vec<&String> = gallops.heats.keys().collect();
+    assert_eq!(keys[0], "₣AB");
 }
 
 // ===== Happy path cases =====

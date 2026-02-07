@@ -77,6 +77,11 @@ On success, report changes:
 - Stabled heats are for planning only (visible in `/jjc-heat-groom`, `/jjc-pace-slate`, etc.)
 - Use furlough to pause work on one heat while focusing on another
 
+**Ordering effect:**
+- Furlough places the heat at the top of its target list (racing or stabled)
+- Even if the heat is already in the requested status, furlough promotes it to the top of that list
+- This is the mechanism for reordering heats within muster output
+
 ## Step 5: Auto-commit changes
 
 Run guarded commit:

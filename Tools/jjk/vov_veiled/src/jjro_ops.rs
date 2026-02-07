@@ -823,26 +823,21 @@ pub fn jjrg_furlough(gallops: &mut jjrg_Gallops, args: jjrg_FurloughArgs) -> Res
             return Err(format!("Heat '{}' is retired (terminal state)", firemark_key));
         }
 
-        // Validate racing/stabled request
-        if args.racing && heat.status == jjrg_HeatStatus::Racing {
-            return Err(format!("Heat '{}' is already racing", firemark_key));
-        }
-        if args.stabled && heat.status == jjrg_HeatStatus::Stabled {
-            return Err(format!("Heat '{}' is already stabled", firemark_key));
-        }
+        // Note: requesting the same status is allowed — it promotes the heat
+        // to the top of its list (racing or stabled) for reordering purposes.
     }
 
-    // Apply status change if requested
+    // Apply status change if requested — also promotes heat to top of list
     if args.racing {
-        // Set status to racing
         gallops.heats.get_mut(&firemark_key).unwrap().status = jjrg_HeatStatus::Racing;
-
-        // Move heat to front of heats object (index 0) to prioritize it
         if let Some(heat_entry) = gallops.heats.shift_remove(&firemark_key) {
             gallops.heats.shift_insert(0, firemark_key.clone(), heat_entry);
         }
     } else if args.stabled {
         gallops.heats.get_mut(&firemark_key).unwrap().status = jjrg_HeatStatus::Stabled;
+        if let Some(heat_entry) = gallops.heats.shift_remove(&firemark_key) {
+            gallops.heats.shift_insert(0, firemark_key.clone(), heat_entry);
+        }
     }
 
     // Apply silks change if requested
