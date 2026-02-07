@@ -508,6 +508,7 @@ dependencies = [
 name = "vvc"
 version = "0.0.1"
 dependencies = [
+ "chrono",
  "clap",
  "serde_json",
  "tokio",

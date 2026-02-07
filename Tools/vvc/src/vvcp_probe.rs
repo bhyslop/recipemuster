@@ -7,7 +7,20 @@
 //! Discovers model IDs and platform information by spawning minimal claude invocations.
 //! See Tools/vok/vov_veiled/VOSRP-probe.adoc for specification.
 
+use chrono::{DateTime, Local, Utc};
 use tokio::process::Command;
+
+/// Brand prefix for VVC commits
+pub const VVCC_BRAND_PREFIX: &str = "vvb";
+
+/// Action code for invitatory commits
+pub const VVCP_ACTION_INVITATORY: &str = "i";
+
+/// Officium token for invitatory commit subjects
+pub const VVCP_OFFICIUM_TOKEN: &str = "OFFICIUM";
+
+/// Gap threshold in seconds for officium detection (1 hour)
+pub const VVCP_OFFICIUM_GAP_SECS: u64 = 3600;
 
 /// Probe Claude Code environment for model IDs and platform information.
 ///
@@ -113,6 +126,116 @@ async fn get_platform() -> String {
     };
 
     format!("{}-{}", os, arch)
+}
+
+/// Check if an officium invitatory is needed
+///
+/// Searches git log for most recent invitatory commit (vvb:...:i:) and checks
+/// if the time gap exceeds VVCP_OFFICIUM_GAP_SECS (1 hour).
+///
+/// Returns true if no invitatory found OR gap exceeds threshold.
+pub(crate) async fn zvvcp_needs_officium() -> bool {
+    // Build grep pattern from constants
+    let pattern = format!("^{}:.*:{}:", VVCC_BRAND_PREFIX, VVCP_ACTION_INVITATORY);
+
+    // Search git log for most recent invitatory commit
+    let output = Command::new("git")
+        .args([
+            "log",
+            "--all",
+            &format!("--grep={}", pattern),
+            "--format=%ai",
+            "-1",
+        ])
+        .output()
+        .await;
+
+    let timestamp_str = match output {
+        Ok(output) if output.status.success() => {
+            let output_str = String::from_utf8_lossy(&output.stdout);
+            let trimmed = output_str.trim();
+            if trimmed.is_empty() {
+                // No invitatory commit found
+                return true;
+            }
+            trimmed.to_string()
+        }
+        _ => {
+            // Git command failed or no commits found
+            return true;
+        }
+    };
+
+    // Parse timestamp (format: "2026-02-07 14:30:00 -0800")
+    let parsed_time = match DateTime::parse_from_str(&timestamp_str, "%Y-%m-%d %H:%M:%S %z") {
+        Ok(dt) => dt.with_timezone(&Utc),
+        Err(_) => {
+            // Parse error - assume gap needed
+            return true;
+        }
+    };
+
+    let now = Utc::now();
+    let gap_secs = (now - parsed_time).num_seconds();
+
+    gap_secs.abs() as u64 > VVCP_OFFICIUM_GAP_SECS
+}
+
+/// Create an invitatory commit to open a new officium
+///
+/// Checks if invitatory is needed via zvvcp_needs_officium().
+/// If not needed, prints "Officium current" and returns Ok.
+/// Otherwise, probes for model IDs, gets hallmark, and creates
+/// an empty branded commit with OFFICIUM timestamp.
+pub async fn vvcp_invitatory() -> Result<(), String> {
+    // Check if invitatory is needed
+    if !zvvcp_needs_officium().await {
+        println!("Officium current");
+        return Ok(());
+    }
+
+    // Probe for model IDs
+    let probe_data = vvcp_probe().await?;
+
+    // Get hallmark
+    let hallmark = crate::vvcc_get_hallmark();
+
+    // Generate timestamp in YYMMDD-HHMM format
+    let now = Local::now();
+    let timestamp = now.format("%y%m%d-%H%M").to_string();
+
+    // Format subject
+    let subject = format!("{} {}", VVCP_OFFICIUM_TOKEN, timestamp);
+
+    // Format commit message
+    let message = crate::vvcc_format_branded(
+        VVCC_BRAND_PREFIX,
+        &hallmark,
+        "",
+        VVCP_ACTION_INVITATORY,
+        &subject,
+        Some(&probe_data),
+    );
+
+    // Create commit arguments
+    let commit_args = crate::vvcc_CommitArgs {
+        prefix: None,
+        message: Some(message),
+        allow_empty: true,
+        no_stage: true,
+        size_limit: crate::VVCG_SIZE_LIMIT,
+        warn_limit: crate::VVCG_WARN_LIMIT,
+    };
+
+    // Create empty commit
+    let hash = match crate::vvcc_CommitLock::vvcc_acquire() {
+        Ok(lock) => lock.vvcc_commit(&commit_args)?,
+        Err(e) => return Err(format!("Failed to acquire lock: {}", e)),
+    };
+
+    println!("Officium: {} ({})", hash, timestamp);
+
+    Ok(())
 }
 
 #[cfg(test)]

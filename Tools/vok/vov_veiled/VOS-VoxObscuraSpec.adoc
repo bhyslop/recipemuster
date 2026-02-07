@@ -163,7 +163,9 @@
 :vosca_vvb:             <<vosca_vvb,vvb>>
 :voscf_format:          <<voscf_format,Commit Format>>
 :voscaa_allocate:       <<voscaa_allocate,Allocate>>
+:voscai_invitatory:     <<voscai_invitatory,Invitatory>>
 :voscar_release:        <<voscar_release,Release>>
+:vost_officium:         <<vost_officium,Officium>>
 
 // Section headers (voice axs_*)
 :voss_inputs:           <<voss_inputs,Inputs:>>
@@ -407,6 +409,21 @@ Appears in
 filenames and manifests.
 +
 Example: `260115-1430` for January 15, 2026 at 14:30.
+
+[[vost_officium]]
+// ⟦axl_voices axt_string⟧
+{vost_officium}::
+A bounded work period opened by the
+{voscai_invitatory}
+commit.
+Replaces the concept of "session" with liturgical terminology.
+The term derives from the Latin for the Divine Office, emphasizing the structured, intentional nature of the work period.
++
+An
+{vost_officium}
+is considered current if the most recent
+{voscai_invitatory}
+commit was created within the gap threshold (1 hour by default).
 
 == Entities
 
@@ -1358,6 +1375,22 @@ Example:
 +
 ----
 vvb:1000::A: allocated hallmark for initial release
+----
+
+[[voscai_invitatory]]
+// ⟦axl_voices axo_operation⟧
+{voscai_invitatory}::
+Action code `i` (lowercase).
+Opens a new
+{vost_officium}
+(bounded work period).
+Created automatically when no recent invitatory exists or the gap exceeds the threshold.
+Includes environment probe data in the commit body.
++
+Example:
++
+----
+vvb:1011::i: OFFICIUM 260207-0701
 ----
 
 [[voscar_release]]
