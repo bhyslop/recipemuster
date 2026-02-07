@@ -67,6 +67,13 @@
         "₢AWAAC": {
           "tacks": [
             {
+              "ts": "260206-2233",
+              "state": "rough",
+              "text": "Update JJSC* individual spec files to reference new command names and vocabulary.\n\nEach spec file mentions jjx_ command names in descriptions and examples. Update:\n- Old command names → new boring names per paddock mapping\n- \"spec\"/\"specification\" in pace context → \"docket\"\n- \"direction\" in bridle context → \"warrant\"\n- --full flag references → --detail\n- jjx_tally references → appropriate new command (jjx_revise_docket, jjx_arm, jjx_relabel, jjx_drop)\n\nFiles: Tools/jjk/vov_veiled/JJSC*.adoc (all spec files)\n\nAcceptance: No spec file references old jjx_ command names or old vocabulary in prose. grep confirms.",
+              "silks": "update-jjsc-spec-prose",
+              "commit": "055d0b6"
+            },
+            {
               "ts": "260206-2202",
               "state": "rough",
               "text": "Update JJSC* individual spec files to reference new command names in prose.\n\nEach spec file (JJSCPD-parade.adoc, JJSCMU-muster.adoc, etc.) mentions its own jjx_ command name in descriptions and examples. Update these references to the new boring names.\n\nFiles: Tools/jjk/vov_veiled/JJSC*.adoc (all spec files)\n\nAcceptance: No spec file references old jjx_ command names in prose text.",
