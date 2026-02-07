@@ -88,6 +88,13 @@
         "₢ASAAG": {
           "tacks": [
             {
+              "ts": "260207-0822",
+              "state": "complete",
+              "text": "Determine voicing pattern for Google-specific types in regime variables.\n\n## Context\nRBRV uses `rbst_*` types that subspecialize AXLA universal types (`axtu_*`). But RBRR/RBRA/RBRP regime variables reference Google-specific types (`axtg_project_id`, `axtg_region`, `axtg_service_account`, etc.).\n\n## Question to resolve\nShould regime variables with Google types:\n- (A) Voice `axtg_*` directly — they're already specific enough\n- (B) Voice `rbst_*` subspecializations — e.g., `rbst_depot_project_id` voices `axtg_project_id`\n\n## Considerations\n- `axtg_*` types ARE already subspecializations of universal types\n- Adding `rbst_*` layer may be unnecessary indirection\n- BUT: `rbst_*` allows RB-specific constraints (naming conventions, validation rules)\n- Consistency with RBRV pattern vs pragmatic simplicity\n\n## Acceptance criteria\n- Decision documented in ₣AS paddock\n- Pattern guidance for regime specs using Google types\n- Update RBAGS voicings if needed",
+              "silks": "decide-google-type-voicing-pattern",
+              "commit": "d3522bf"
+            },
+            {
               "ts": "260131-2309",
               "state": "rough",
               "text": "Determine voicing pattern for Google-specific types in regime variables.\n\n## Context\nRBRV uses `rbst_*` types that subspecialize AXLA universal types (`axtu_*`). But RBRR/RBRA/RBRP regime variables reference Google-specific types (`axtg_project_id`, `axtg_region`, `axtg_service_account`, etc.).\n\n## Question to resolve\nShould regime variables with Google types:\n- (A) Voice `axtg_*` directly — they're already specific enough\n- (B) Voice `rbst_*` subspecializations — e.g., `rbst_depot_project_id` voices `axtg_project_id`\n\n## Considerations\n- `axtg_*` types ARE already subspecializations of universal types\n- Adding `rbst_*` layer may be unnecessary indirection\n- BUT: `rbst_*` allows RB-specific constraints (naming conventions, validation rules)\n- Consistency with RBRV pattern vs pragmatic simplicity\n\n## Acceptance criteria\n- Decision documented in ₣AS paddock\n- Pattern guidance for regime specs using Google types\n- Update RBAGS voicings if needed",
