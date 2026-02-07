@@ -49,6 +49,13 @@
         "₢AWAAB": {
           "tacks": [
             {
+              "ts": "260206-2232",
+              "state": "rough",
+              "text": "Update JJSA-GallopsData.adoc operation names and vocabulary.\n\n**Operation renames** — Change :jjdo_*: attribute display text to new boring names per paddock mapping. E.g., :jjdo_parade: display text becomes \"jjx_show\".\n\n**Tally split** — Remove :jjdo_tally: and add four new operations:\n- :jjdo_revise_docket: → jjx_revise_docket\n- :jjdo_arm: → jjx_arm\n- :jjdo_relabel: → jjx_relabel\n- :jjdo_drop: → jjx_drop\n\n**Presentation vocabulary** — Add notes that:\n- \"docket\" is the presentation term for the tack text field (schema stays \"text\")\n- \"warrant\" is the presentation term for the tack direction field (schema stays \"direction\")\n- These are display/CLI terms, not schema changes\n\nNo file renames — JJSC* spec filenames stay as-is.\n\nFiles: Tools/jjk/vov_veiled/JJSA-GallopsData.adoc\n\nAcceptance: All :jjdo_*: attributes reference new command names. Docket/warrant vocabulary documented.",
+              "silks": "update-jjsa-operation-names",
+              "commit": "43a1726"
+            },
+            {
               "ts": "260206-2202",
               "state": "rough",
               "text": "Update JJSA-GallopsData.adoc operation names.\n\nChange :jjdo_*: attribute references and operation section headers to use new boring names. E.g., :jjdo_parade: becomes display text \"jjx_show\" instead of \"jjx_parade\".\n\nFiles: Tools/jjk/vov_veiled/JJSA-GallopsData.adoc\n\nNo file renames — JJSC* spec filenames stay as-is (PD, MU, etc. are stable internal codes).\n\nAcceptance: All :jjdo_*: attributes reference the new command names.",
