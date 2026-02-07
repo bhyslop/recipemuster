@@ -2473,9 +2473,10 @@
         "₢AWAAA",
         "₢AWAAB",
         "₢AWAAC",
-        "₢AWAAD"
+        "₢AWAAD",
+        "₢AWAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -2519,6 +2520,17 @@
               "text": "Update remaining orchestration slash commands to use new jjx_ names.\n\nThese slash commands invoke jjx_* commands and must reference the new names:\n- jjc-heat-mount.md (jjx_saddle→jjx_orient, jjx_tally→jjx_revise, jjx_chalk→jjx_mark, jjx_landing→keep)\n- jjc-heat-braid.md (jjx_parade→jjx_show, jjx_curry→jjx_paddock, jjx_rein→jjx_log, jjx_get_spec→keep, jjx_tally→jjx_revise, jjx_chalk→jjx_mark)\n- jjc-heat-quarter.md (jjx_get_coronets→keep, jjx_get_spec→keep)\n- jjc-heat-groom.md (jjx_parade→jjx_show)\n- jjc-pace-bridle.md (jjx_saddle→jjx_orient, jjx_tally→jjx_revise)\n- jjc-pace-reslate.md (jjx_parade→jjx_show, jjx_get_spec→keep, jjx_tally→jjx_revise)\n- jjc-pace-slate.md (jjx_muster→jjx_list, jjx_slate→jjx_enroll)\n- jjc-heat-garland.md (jjx_muster→jjx_list, jjx_parade→jjx_show, jjx_garland→jjx_continue)\n- jjc-heat-restring.md (jjx_restring→jjx_transfer, jjx_tally→jjx_revise)\n- jjc-heat-retire-dryrun.md (jjx_retire→jjx_archive)\n- jjc-heat-retire-FINAL.md (jjx_retire→jjx_archive)\n- jjc-heat-furlough.md (jjx_muster→jjx_list, jjx_furlough→jjx_alter)\n- jjc-heat-rail.md (jjx_rail→jjx_reorder, jjx_parade→jjx_show)\n- jjc-pace-notch.md (jjx_notch→jjx_record)\n\nFiles: .claude/commands/jjc-*.md (surviving orchestration commands only)\n\nAcceptance: grep for old jjx_ names in .claude/commands/ returns zero hits (except in commented/historical references).",
               "silks": "update-orchestration-slash-cmds",
               "commit": "bdfb737"
+            }
+          ]
+        },
+        "₢AWAAE": {
+          "tacks": [
+            {
+              "ts": "260206-2202",
+              "state": "rough",
+              "text": "Delete thin wrapper slash commands that will be replaced by the CLI truth table.\n\nDelete these files:\n- .claude/commands/jjc-heat-muster.md\n- .claude/commands/jjc-heat-rein.md\n- .claude/commands/jjc-scout.md\n- .claude/commands/jjc-parade.md\n- .claude/commands/jjc-heat-nominate.md\n- .claude/commands/jjc-pace-wrap.md\n\nAlso update any remaining slash commands that reference these deleted commands in their \"Available Operations\" footer sections — change references to describe the direct CLI invocation or remove the line.\n\nAcceptance: Deleted files do not exist. No remaining slash command references a deleted command.",
+              "silks": "delete-thin-wrapper-slash-cmds",
+              "commit": "247c706"
             }
           ]
         }
