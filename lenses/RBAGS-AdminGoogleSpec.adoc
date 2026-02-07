@@ -213,6 +213,7 @@
 :rbrp_prefix:                <<rbrp_prefix,RBRP_>>
 :rbrr_prefix:                <<rbrr_prefix,RBRR_>>
 :rbrv_prefix:                <<rbrv_prefix,RBRV_>>
+:rbrn_prefix:                <<rbrn_prefix,RBRN_>>
 
 // RB Bash Console Control Terms (rbbc_* - voices axc_* in axe_bash_interactive)
 :rbbc_await:                 <<rbbc_await,AWAIT>>
@@ -242,6 +243,46 @@
 :rbst_path:                  <<rbst_path,Path>>
 :rbst_platform_list:         <<rbst_platform_list,Platform List>>
 :rbst_binfmt_policy:         <<rbst_binfmt_policy,Binfmt Policy>>
+:rbst_port:                  <<rbst_port,Port>>
+:rbst_ipv4:                  <<rbst_ipv4,IPv4>>
+:rbst_netmask:               <<rbst_netmask,Netmask>>
+:rbst_cidr_list:             <<rbst_cidr_list,CIDR List>>
+:rbst_domain_list:           <<rbst_domain_list,Domain List>>
+
+// Recipe Bottle Regime: Nameplate (service deployment configuration)
+:rbrn_regime:                    <<rbrn_regime,RBRN Regime>>
+:rbrn_moniker:                   <<rbrn_moniker,RBRN_MONIKER>>
+:rbrn_description:               <<rbrn_description,RBRN_DESCRIPTION>>
+:rbrn_runtime:                   <<rbrn_runtime,RBRN_RUNTIME>>
+:rbrn_sentry_vessel:             <<rbrn_sentry_vessel,RBRN_SENTRY_VESSEL>>
+:rbrn_sentry_consecration:       <<rbrn_sentry_consecration,RBRN_SENTRY_CONSECRATION>>
+:rbrn_bottle_vessel:             <<rbrn_bottle_vessel,RBRN_BOTTLE_VESSEL>>
+:rbrn_bottle_consecration:       <<rbrn_bottle_consecration,RBRN_BOTTLE_CONSECRATION>>
+:rbrn_entry_mode:                <<rbrn_entry_mode,RBRN_ENTRY_MODE>>
+:rbrn_entry_mode_disabled:       <<rbrn_entry_mode_disabled,disabled>>
+:rbrn_entry_mode_enabled:        <<rbrn_entry_mode_enabled,enabled>>
+:rbrn_entry_port_workstation:    <<rbrn_entry_port_workstation,RBRN_ENTRY_PORT_WORKSTATION>>
+:rbrn_entry_port_enclave:        <<rbrn_entry_port_enclave,RBRN_ENTRY_PORT_ENCLAVE>>
+:rbrn_enclave_base_ip:           <<rbrn_enclave_base_ip,RBRN_ENCLAVE_BASE_IP>>
+:rbrn_enclave_netmask:           <<rbrn_enclave_netmask,RBRN_ENCLAVE_NETMASK>>
+:rbrn_enclave_sentry_ip:         <<rbrn_enclave_sentry_ip,RBRN_ENCLAVE_SENTRY_IP>>
+:rbrn_enclave_bottle_ip:         <<rbrn_enclave_bottle_ip,RBRN_ENCLAVE_BOTTLE_IP>>
+:rbrn_uplink_port_min:           <<rbrn_uplink_port_min,RBRN_UPLINK_PORT_MIN>>
+:rbrn_uplink_dns_mode:           <<rbrn_uplink_dns_mode,RBRN_UPLINK_DNS_MODE>>
+:rbrn_uplink_dns_mode_disabled:  <<rbrn_uplink_dns_mode_disabled,disabled>>
+:rbrn_uplink_dns_mode_global:    <<rbrn_uplink_dns_mode_global,global>>
+:rbrn_uplink_dns_mode_allowlist: <<rbrn_uplink_dns_mode_allowlist,allowlist>>
+:rbrn_uplink_access_mode:        <<rbrn_uplink_access_mode,RBRN_UPLINK_ACCESS_MODE>>
+:rbrn_uplink_access_mode_disabled:  <<rbrn_uplink_access_mode_disabled,disabled>>
+:rbrn_uplink_access_mode_global:    <<rbrn_uplink_access_mode_global,global>>
+:rbrn_uplink_access_mode_allowlist: <<rbrn_uplink_access_mode_allowlist,allowlist>>
+:rbrn_uplink_allowed_cidrs:      <<rbrn_uplink_allowed_cidrs,RBRN_UPLINK_ALLOWED_CIDRS>>
+:rbrn_uplink_allowed_domains:    <<rbrn_uplink_allowed_domains,RBRN_UPLINK_ALLOWED_DOMAINS>>
+:rbrn_volume_mounts:             <<rbrn_volume_mounts,RBRN_VOLUME_MOUNTS>>
+:rbrn_group_ark_reference:       <<rbrn_group_ark_reference,Ark Reference Group>>
+:rbrn_group_entry:               <<rbrn_group_entry,Entry Group>>
+:rbrn_group_access_allowlist:    <<rbrn_group_access_allowlist,Access Allowlist Group>>
+:rbrn_group_dns_allowlist:       <<rbrn_group_dns_allowlist,DNS Allowlist Group>>
 
 // end::mapping-section[]
 
@@ -1215,6 +1256,11 @@ Recipe Bottle Authentication Regime
 {rbev_prefix}::
 Recipe Bottle Environment Variables Regime
 
+[[rbrn_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{rbrn_prefix}::
+Recipe Bottle Nameplate Regime
+
 === Repository Regime (RBRR)
 
 The
@@ -1538,6 +1584,176 @@ Qemu binary format policy for {rbrv_regime} cross-platform builds.
 
 include::RBSRV-RegimeVessel.adoc[]
 
+=== Nameplate Regime (RBRN)
+
+[[rbrn_regime]]
+//axvr_regime axf_bash
+{rbrn_regime}::
+Configuration regime for bottle service deployment.
+RBRN assignment files in `Tools/rbw/rbrn_*.env` define container deployment and network security settings.
+
+[[rbrn_moniker]]
+//axvr_variable axd_required rbst_xname
+{rbrn_moniker}::
+Unique moniker for the bottle service instance; 2-12 characters.
+
+[[rbrn_description]]
+//axvr_variable axd_optional rbst_description
+{rbrn_description}::
+Human-readable description of the service purpose; 0-120 characters.
+
+[[rbrn_runtime]]
+//axvr_variable axd_required rbst_xname
+{rbrn_runtime}::
+Container runtime for service deployment; "docker" or "podman".
+
+[[rbrn_sentry_vessel]]
+//axvr_variable axd_required rbst_xname
+{rbrn_sentry_vessel}::
+Vessel identifier for the sentry container image.
+
+[[rbrn_sentry_consecration]]
+//axvr_variable axd_required rbst_xname
+{rbrn_sentry_consecration}::
+Consecration timestamp for the sentry container image.
+
+[[rbrn_bottle_vessel]]
+//axvr_variable axd_required rbst_xname
+{rbrn_bottle_vessel}::
+Vessel identifier for the bottle container image.
+
+[[rbrn_bottle_consecration]]
+//axvr_variable axd_required rbst_xname
+{rbrn_bottle_consecration}::
+Consecration timestamp for the bottle container image.
+
+[[rbrn_entry_mode]]
+//axvr_variable axd_required axt_enumeration
+{rbrn_entry_mode}::
+Mode for user-initiated entry functionality.
+
+[[rbrn_entry_mode_disabled]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrn_entry_mode_disabled}::
+Entry functionality is disabled; no user-initiated connections.
+
+[[rbrn_entry_mode_enabled]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrn_entry_mode_enabled}::
+Entry functionality is enabled; user-initiated connections accepted.
+
+[[rbrn_entry_port_workstation]]
+//axvr_variable axd_required rbst_port
+{rbrn_entry_port_workstation}::
+External port exposed on the transit network for user entry.
+
+[[rbrn_entry_port_enclave]]
+//axvr_variable axd_required rbst_port
+{rbrn_entry_port_enclave}::
+Port used between sentry and bottle containers for entry traffic.
+
+[[rbrn_enclave_base_ip]]
+//axvr_variable axd_required rbst_ipv4
+{rbrn_enclave_base_ip}::
+Base IPv4 address defining the enclave network range.
+
+[[rbrn_enclave_netmask]]
+//axvr_variable axd_required rbst_netmask
+{rbrn_enclave_netmask}::
+Network mask width for enclave network addressing; 8-30.
+
+[[rbrn_enclave_sentry_ip]]
+//axvr_variable axd_required rbst_ipv4
+{rbrn_enclave_sentry_ip}::
+IP address assigned to the sentry container within the enclave.
+
+[[rbrn_enclave_bottle_ip]]
+//axvr_variable axd_required rbst_ipv4
+{rbrn_enclave_bottle_ip}::
+IP address assigned to the bottle container within the enclave.
+
+[[rbrn_uplink_port_min]]
+//axvr_variable axd_required rbst_port
+{rbrn_uplink_port_min}::
+Minimum port number for bottle-initiated outbound connections.
+
+[[rbrn_uplink_dns_mode]]
+//axvr_variable axd_required axt_enumeration
+{rbrn_uplink_dns_mode}::
+DNS resolution mode for bottle-initiated requests.
+
+[[rbrn_uplink_dns_mode_disabled]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrn_uplink_dns_mode_disabled}::
+DNS resolution disabled; no bottle-initiated DNS queries.
+
+[[rbrn_uplink_dns_mode_global]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrn_uplink_dns_mode_global}::
+DNS resolution globally enabled; all domains resolvable.
+
+[[rbrn_uplink_dns_mode_allowlist]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrn_uplink_dns_mode_allowlist}::
+DNS resolution restricted to allowed domains.
+
+[[rbrn_uplink_access_mode]]
+//axvr_variable axd_required axt_enumeration
+{rbrn_uplink_access_mode}::
+IP access mode for bottle-initiated connections.
+
+[[rbrn_uplink_access_mode_disabled]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrn_uplink_access_mode_disabled}::
+IP access disabled; no bottle-initiated outbound connections.
+
+[[rbrn_uplink_access_mode_global]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrn_uplink_access_mode_global}::
+IP access globally enabled; all destinations reachable.
+
+[[rbrn_uplink_access_mode_allowlist]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrn_uplink_access_mode_allowlist}::
+IP access restricted to allowed CIDR ranges.
+
+[[rbrn_uplink_allowed_cidrs]]
+//axvr_variable axd_required rbst_cidr_list
+{rbrn_uplink_allowed_cidrs}::
+CIDR ranges for allowed bottle-initiated outbound traffic.
+
+[[rbrn_uplink_allowed_domains]]
+//axvr_variable axd_required rbst_domain_list
+{rbrn_uplink_allowed_domains}::
+Domain names allowed for bottle-initiated DNS resolution.
+
+[[rbrn_volume_mounts]]
+//axvr_variable axd_optional rbst_description
+{rbrn_volume_mounts}::
+Podman volume mount arguments for the bottle container; 0-240 characters.
+
+[[rbrn_group_ark_reference]]
+//axvr_group
+{rbrn_group_ark_reference}::
+Ark reference variables identifying which vessel consecration to deploy.
+
+[[rbrn_group_entry]]
+//axvr_group axd_conditional
+{rbrn_group_entry}::
+Entry service variables for user-initiated connections.
+
+[[rbrn_group_access_allowlist]]
+//axvr_group axd_conditional
+{rbrn_group_access_allowlist}::
+Access allowlist variables for IP-restricted outbound traffic.
+
+[[rbrn_group_dns_allowlist]]
+//axvr_group axd_conditional
+{rbrn_group_dns_allowlist}::
+DNS allowlist variables for domain-restricted resolution.
+
+include::RBRN-RegimeNameplate.adoc[]
+
 === Authentication Regime (RBRA)
 
 [[rbra_regime]]
@@ -1608,6 +1824,36 @@ Each element follows `os/arch[/variant]` format (e.g., `linux/amd64 linux/arm64 
 {rbst_binfmt_policy}::
 QEMU binary format policy for cross-platform builds.
 Valid values: `allow` (permit execution), `warn` (emit warning), `forbid` (block cross-platform).
+
+[[rbst_port]]
+// ⟦axl_voices axtu_xname⟧
+{rbst_port}::
+Network port number.
+Valid range: 1-65535.
+
+[[rbst_ipv4]]
+// ⟦axl_voices axtu_xname⟧
+{rbst_ipv4}::
+IPv4 address in dotted-decimal notation.
+Example: `192.168.1.1`.
+
+[[rbst_netmask]]
+// ⟦axl_voices axtu_xname⟧
+{rbst_netmask}::
+Network mask width as decimal integer.
+Valid range: 0-32.
+
+[[rbst_cidr_list]]
+// ⟦axl_voices axtu_string axd_list⟧
+{rbst_cidr_list}::
+Space-delimited list of CIDR range specifications.
+Each element follows `address/prefix` format (e.g., `10.0.0.0/8 172.16.0.0/12`).
+
+[[rbst_domain_list]]
+// ⟦axl_voices axtu_string axd_list⟧
+{rbst_domain_list}::
+Space-delimited list of fully-qualified domain names.
+Each element is a valid DNS domain (e.g., `api.example.com registry.example.com`).
 
 == Trade Studies
 

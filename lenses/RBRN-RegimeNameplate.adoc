@@ -1,399 +1,144 @@
-= Recipe Bottle Service Configuration Regime Specification
-:toc:
-:toc-title: Table of Contents
+//axhrb_regime
+{rbrn_regime}
 
-// Begin Mapping Section
-// tag::mapping-section[]
+This regime specifies variables that define bottle service deployment configurations within the Recipe Bottle system.
+Each {rbrn_regime} instance represents a distinct service deployment with its own network, entry, and uplink settings.
+RBRN assignment files are found in `Tools/rbw/rbrn_*.env` and configure container deployment and network security.
 
-// Category declarations:
-// at_ prefix: Architectural Term (core system components)
-// st_ prefix: Support Term (infrastructure and technical concepts)
+//axhrv_variable
+{rbrn_moniker}
 
-// Variant patterns:
-//   _s: plural form
-//   _p: possessive form
-//   _ed: past tense (verbs)
-//   _ing: progressive form (verbs)
+Unique moniker for the bottle service instance.
+Must be 2-12 characters and form a valid cross-context identifier.
 
-// Domain declaration: term_<canonical_term>
+//axhrv_variable
+{rbrn_description}
 
-:at_bottle_service:          <<term_bottle_service,Bottle Service>>
-:at_bottle_container:        <<term_bottle_container,Bottle Container>>
-:at_bottle_container_s:      <<term_bottle_container,Bottle Containers>>
-:at_bottle_image:            <<term_bottle_image,Bottle Image>>
-:at_sentry_container:        <<term_sentry_container,Sentry Container>>
-:at_sentry_image:            <<term_sentry_image,Sentry Image>>
-:at_nameplate:               <<term_nameplate,Nameplate>>
-:at_nameplate_s:             <<term_nameplate,Nameplates>>
-:at_moniker:                 <<term_moniker,Moniker>>
-:at_workstation:             <<term_workstation,Workstation>>
-:at_workstation_p:           <<term_workstation,Workstation's>>
-:at_user:                    <<term_user,User>>
-:at_enclave_network:         <<term_enclave_network,Enclave Network>>
-:at_transit_network:         <<term_transit_network,Transit Network>>
+Human-readable description of the service purpose.
+Optional; 0-120 characters.
 
-:st_volume_mount:            <<term_volume_mount,Volume Mount>>
-:st_volume_mount_s:          <<term_volume_mount,Volume Mounts>>
-:st_port_map:                <<term_port_map,Port Map>>
+//axhrv_variable
+{rbrn_runtime}
 
-// Configuration Regime Type mappings
-:crg_atom_string:            <<crg_atom_string,String>>
-:crg_atom_xname:             <<crg_atom_xname,XName>>
-:crg_atom_fqin:              <<crg_atom_fqin,FQIN>>
-:crg_atom_decimal:           <<crg_atom_decimal,Decimal>>
-:crg_atom_ipv4:              <<crg_atom_ipv4,IPv4>>
-:crg_atom_cidr:              <<crg_atom_cidr,CIDR>>
-:crg_atom_domain:            <<crg_atom_domain,Domain>>
-:crg_atom_port:              <<crg_atom_port,Port>>
-:crg_list_cidr:              <<crg_list_cidr,CIDRList>>
-:crg_list_domain:            <<crg_list_domain,DomainList>>
+Container runtime for service deployment.
+Must be "docker" or "podman".
 
-// end::mapping-section[]
-
-== Overview
-
-This Configuration Regime defines requirements for
-{at_bottle_service}
-deployment, specifying how
-{at_nameplate_s}
-configure container deployment and network security settings.
-
-== Feature Groups
-
-=== Core Service Identity
-
-[cols="1,1,3"]
-|===
-|Assignment Variable |Attribute |Details
-
-.4+|**`RBRN_MONIKER`**
-|Purpose|
-Unique moniker for
-{at_bottle_service}
-instance
-|Type|
-{crg_atom_xname}:
-2-12 characters
-|Required|
-Yes
-|Constraints|
-.4+|**`RBRN_DESCRIPTION`**
-|Purpose|
-Human-readable description of service purpose
-|Type|
-{crg_atom_string}:
-0-120 characters
-|Required|
-No
-|Constraints|
-
-.4+|**`RBRN_RUNTIME`**
-|Purpose|
-Container runtime to use for service deployment
-|Type|
-{crg_atom_string}:
-"docker" or "podman"
-|Required|
-Yes
-|Constraints|
-Must be either "docker" or "podman"
-|===
-
-=== Ark Reference Configuration
+//axhrgb_group
+{rbrn_group_ark_reference}
 
 Ark references identify which vessel consecration to deploy.
-At runtime, these resolve against `RBRR_GAR_REPOSITORY` to form complete image paths.
+At runtime, these resolve against the repository configuration to form complete image paths.
 
-[cols="1,1,3"]
-|===
-|Assignment Variable |Attribute |Details
+//axhrgv_variable
+{rbrn_sentry_vessel}
 
-.4+|**`RBRN_SENTRY_VESSEL`**
-|Purpose|
-Vessel identifier for
-{at_sentry_image}
-|Type|
-{crg_atom_fqin}:
-1-128 characters
-|Required|
-Yes
-|Constraints|
+Vessel identifier for the sentry container image.
 
-.4+|**`RBRN_SENTRY_CONSECRATION`**
-|Purpose|
-Consecration timestamp for
-{at_sentry_image}
-|Type|
-{crg_atom_fqin}:
-1-128 characters
-|Required|
-Yes
-|Constraints|
+//axhrgv_variable
+{rbrn_sentry_consecration}
 
-.4+|**`RBRN_BOTTLE_VESSEL`**
-|Purpose|
-Vessel identifier for
-{at_bottle_image}
-|Type|
-{crg_atom_fqin}:
-1-128 characters
-|Required|
-Yes
-|Constraints|
+Consecration timestamp for the sentry container image.
 
-.4+|**`RBRN_BOTTLE_CONSECRATION`**
-|Purpose|
-Consecration timestamp for
-{at_bottle_image}
-|Type|
-{crg_atom_fqin}:
-1-128 characters
-|Required|
-Yes
-|Constraints|
-|===
+//axhrgv_variable
+{rbrn_bottle_vessel}
 
-=== Entry Service Configuration
+Vessel identifier for the bottle container image.
 
-[cols="1,1,3"]
-|===
-|Assignment Variable |Attribute |Details
+//axhrgv_variable
+{rbrn_bottle_consecration}
 
-.4+|**`RBRN_ENTRY_MODE`**
-|Purpose|
-Mode for user-initiated entry functionality
-|Type|
-{crg_atom_string}: "disabled" or "enabled"
-|Required|
-Yes
-|Constraints|
+Consecration timestamp for the bottle container image.
 
-.4+|**`RBRN_ENTRY_PORT_WORKSTATION`**
-|Purpose|
-External port exposed on
-{at_transit_network}
-for user entry
-|Type|
-{crg_atom_port}
-|Required|
-When ENTRY_MODE=enabled
-|Constraints|
-Must be less than RBRN_UPLINK_PORT_MIN
+//axhrv_variable
+{rbrn_entry_mode}
 
-.4+|**`RBRN_ENTRY_PORT_ENCLAVE`**
-|Purpose|
-Port used between
-{at_sentry_container}
-and
-{at_bottle_container}
-for entry traffic
-|Type|
-{crg_atom_port}
-|Required|
-When ENTRY_MODE=enabled
-|Constraints|
-Must be less than RBRN_UPLINK_PORT_MIN
-|===
+Selects entry service behavior for user-initiated connections.
 
-=== {at_enclave_network} Configuration 
+//axhrgb_group
+{rbrn_group_entry}
 
-[cols="1,1,3"]
-|===
-|Assignment Variable |Attribute |Details
+//axhrgc_gate
+{rbrn_entry_mode} {rbrn_entry_mode_enabled}
 
-.4+|**`RBRN_ENCLAVE_BASE_IP`**
-|Purpose|
-Base IPv4 address that defines the enclave network range
-|Type|
-{crg_atom_ipv4}
-|Required|
-Yes
-|Constraints|
+Variables in this group apply only when {rbrn_entry_mode} is {rbrn_entry_mode_enabled}.
 
-.4+|**`RBRN_ENCLAVE_NETMASK`**
-|Purpose|
-Network mask width for the enclave network addressing
-|Type|
-{crg_atom_decimal}:
-8-30
-|Required|
-Yes
-|Constraints|
+//axhrgv_variable
+{rbrn_entry_port_workstation}
 
-.4+|**`RBRN_ENCLAVE_SENTRY_IP`**
-|Purpose|
-IP address assigned to the
-{at_sentry_container}
-for traffic mediation
-|Type|
-{crg_atom_ipv4}
-|Required|
-Yes
-|Constraints|
+External port exposed on the transit network for user entry.
+Must be less than {rbrn_uplink_port_min}.
 
-.4+|**`RBRN_ENCLAVE_BOTTLE_IP`**
-|Purpose|
-IP address assigned to the
-{at_bottle_container}
-|Type|
-{crg_atom_ipv4}
-|Required|
-Yes
-|Constraints|
-|===
+//axhrgv_variable
+{rbrn_entry_port_enclave}
 
-=== Uplink Configuration
+Port used between sentry and bottle containers for entry traffic.
+Must be less than {rbrn_uplink_port_min}.
 
-[cols="1,1,3"]
-|===
-|Assignment Variable |Attribute |Details
+//axhrv_variable
+{rbrn_enclave_base_ip}
 
-.4+|**`RBRN_UPLINK_PORT_MIN`**
-|Purpose|
-Minimum port number for bottle-initiated outbound connections
-|Type|
-{crg_atom_port}
-|Required|
-Yes
-|Constraints|
-Must be greater than any Entry port
+Base IPv4 address that defines the enclave network range.
 
-.4+|**`RBRN_UPLINK_DNS_MODE`**
-|Purpose|
-DNS resolution mode for bottle-initiated requests
-|Type|
-{crg_atom_string}: "disabled", "global", or "allowlist"
-|Required|
-Yes
-|Constraints|
+//axhrv_variable
+{rbrn_enclave_netmask}
 
-.4+|**`RBRN_UPLINK_ACCESS_MODE`**
-|Purpose|
-IP access mode for bottle-initiated connections
-|Type|
-{crg_atom_string}: "disabled", "global", or "allowlist"
-|Required|
-Yes
-|Constraints|
+Network mask width for the enclave network addressing.
+Valid range: 8-30.
 
-.4+|**`RBRN_UPLINK_ALLOWED_CIDRS`**
-|Purpose|
-CIDR ranges for allowed bottle-initiated outbound traffic
-|Type|
-{crg_list_cidr}
-|Required|
-When UPLINK_ACCESS_MODE=allowlist
-|Constraints|
+//axhrv_variable
+{rbrn_enclave_sentry_ip}
 
-.4+|**`RBRN_UPLINK_ALLOWED_DOMAINS`**
-|Purpose|
-Domain names allowed for bottle-initiated DNS resolution
-|Type|
-{crg_list_domain}
-|Required|
-When UPLINK_DNS_MODE=allowlist
-|Constraints|
-|===
+IP address assigned to the sentry container for traffic mediation within the enclave.
 
-=== {st_volume_mount} Configuration
+//axhrv_variable
+{rbrn_enclave_bottle_ip}
 
-[cols="1,1,3"]
-|===
-|Assignment Variable |Attribute |Details
+IP address assigned to the bottle container within the enclave.
 
-.4+|**`RBRN_VOLUME_MOUNTS`**
-|Purpose|
-Podman volume mount arguments for
-{at_bottle_container}
-|Type|
-{crg_atom_string}:
-0-240 characters
-|Required|
-No
-|Constraints|
-|===
+//axhrv_variable
+{rbrn_uplink_port_min}
 
-== Core Term Definitions
+Minimum port number for bottle-initiated outbound connections.
+Must be greater than any entry port.
 
-[[term_bottle_service]]
-{at_bottle_service}::
-A complete service instance consisting of one 
-{at_bottle_container} 
-and one 
-{at_sentry_container}, 
-working together to provide secure functionality.
+//axhrv_variable
+{rbrn_uplink_dns_mode}
 
-[[term_bottle_container]]
-{at_bottle_container}::
-A container that runs the actual service functionality, connected only to the 
-{at_enclave_network} 
-and configured with specific 
-{st_volume_mount_s}.
+Selects DNS resolution behavior for bottle-initiated requests.
 
-[[term_bottle_image]]
-{at_bottle_image}::
-A container image that contains the service functionality intended to run within a 
-{at_bottle_container}.
+//axhrv_variable
+{rbrn_uplink_access_mode}
 
-[[term_sentry_container]]
-{at_sentry_container}::
-A privileged container that enforces network security policies for a 
-{at_bottle_service}, 
-controlling all network traffic and providing DNS services.
+Selects IP access behavior for bottle-initiated connections.
 
-[[term_sentry_image]]
-{at_sentry_image}::
-A container image that contains the security enforcement functionality for a 
-{at_sentry_container}.
+//axhrgb_group
+{rbrn_group_access_allowlist}
 
-[[term_nameplate]]
-{at_nameplate}::
-A configuration file that defines all aspects of a 
-{at_bottle_service},
-including its images, network settings, and security policies.
+//axhrgc_gate
+{rbrn_uplink_access_mode} {rbrn_uplink_access_mode_allowlist}
 
-[[term_moniker]]
-{at_moniker}::
-A unique identifier that distinguishes each 
-{at_bottle_service} 
-instance usable on a given
-{at_workstation}.
+Variables in this group apply only when {rbrn_uplink_access_mode} is {rbrn_uplink_access_mode_allowlist}.
 
-[[term_workstation]]
-{at_workstation}::
-The local computing environment where the 
-{at_user} 
-runs containerized services.
+//axhrgv_variable
+{rbrn_uplink_allowed_cidrs}
 
-[[term_transit_network]]
-{at_transit_network}::
-The network interface that connects a 
-{at_sentry_container} 
-to the
-{at_workstation_p}
-network resources, handling both user-initiated entry traffic
-(in lower port space)
-and bottle-initiated uplink traffic
-(in higher port space).
+CIDR ranges for allowed bottle-initiated outbound traffic.
 
-[[term_enclave_network]]
-{at_enclave_network}::
-An isolated network connecting a 
-{at_bottle_container} 
-to its 
-{at_sentry_container}.
+//axhrgb_group
+{rbrn_group_dns_allowlist}
 
-[[term_port_map]]
-{st_port_map}::
-A specification of how network ports should be exposed and mapped between 
-{at_sentry_container} 
-and 
-{at_bottle_container}.
+//axhrgc_gate
+{rbrn_uplink_dns_mode} {rbrn_uplink_dns_mode_allowlist}
 
-[[term_volume_mount]]
-{st_volume_mount}::
-A configuration that allows 
-{at_bottle_container_s} 
-to access specified portions of the host filesystem.
+Variables in this group apply only when {rbrn_uplink_dns_mode} is {rbrn_uplink_dns_mode_allowlist}.
 
+//axhrgv_variable
+{rbrn_uplink_allowed_domains}
 
+Domain names allowed for bottle-initiated DNS resolution.
+
+//axhrv_variable
+{rbrn_volume_mounts}
+
+Podman volume mount arguments for the bottle container.
+Optional; 0-240 characters.
