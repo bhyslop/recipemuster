@@ -7,6 +7,7 @@
       "status": "racing",
       "order": [
         "₢AWAAM",
+        "₢AWAAN",
         "₢AWAAL",
         "₢AWAAK",
         "₢AWAAA",
@@ -20,7 +21,7 @@
         "₢AWAAH",
         "₢AWAAI"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -254,6 +255,17 @@
               "text": "Design the INVITATORY session-begin marker as a vvb-domain concept.\n\nBackground: The current session probe (vvcp_probe) is called from jjrsd_saddle and stamps a session commit as jjb:HALLMARK:₣XX:s:. This is wrong on two axes:\n1. Sessions are cross-heat — you muster, mount AW, switch to AR. Tying to a single firemark is incorrect.\n2. The concept belongs in VOS/VVC (arcane universe), not JJK (equestrian universe).\n\nDecisions reached:\n- Name: INVITATORY (liturgical: the call that opens the Divine Office)\n- Action letter: :i: (available, not used by any current chalk marker or heat action)\n- Commit prefix: vvb: (not jjb:) — this is VVC's domain\n- Searchable token: INVITATORY appears in commit body for easy git log --grep\n\nOpen questions to resolve:\n1. What triggers the invitatory? Currently only saddle (via mount). Should muster or any first-jjx-command trigger it? Or should it be a standalone vvx command?\n2. Commit format: vvb:HALLMARK:i: INVITATORY YYMMDD-HHMM — no identity field needed since it's heat-independent. But does this break the existing 4-field format convention?\n3. VOS spec voicing: INVITATORY needs to be defined in VOS-VoxObscuraSpec.adoc. What section? What linked terms?\n4. JJSA impact: Remove session marker (s) from JJSA steeplechase protocol, or keep it as a JJK-level alias that delegates to vvb?\n5. Backward compat: Existing :s: session commits in git history — do we care? Probably not, just document the transition.\n\nDeliverable: A written design in the paddock or a memo that resolves all open questions above, ready for implementation in the subsequent pace (₢AWAAL probe-opus-as-interpreter).",
               "silks": "design-invitatory-session-mark",
               "commit": "a61e9d2"
+            }
+          ]
+        },
+        "₢AWAAN": {
+          "tacks": [
+            {
+              "ts": "260207-0716",
+              "state": "rough",
+              "text": "Create vvcc_format_branded() in VVC as the single formatting function for all branded commits (jjb: and vvb:).\n\nSignature:\n  vvcc_format_branded(brand: &str, hallmark: &str, identity: &str, action: &str, subject: &str, body: Option<&str>) -> String\n\nOutput: \"{brand}:{hallmark}:{identity}:{action}: {subject}\" with optional \"\\n\\n{body}\" appended.\n\nImplementation:\n1. Add pub fn vvcc_format_branded() to Tools/vvc/src/vvcc_commit.rs (or a new vvcc_format.rs if cleaner)\n2. Export from Tools/vvc/src/lib.rs\n3. Add unit tests: empty identity, with identity, with body, without body, colon enforcement\n4. Migrate all 8 format functions in Tools/jjk/vov_veiled/src/jjrn_notch.rs to call vvcc_format_branded():\n   - jjrn_format_notch_prefix → vvcc_format_branded(\"jjb\", hallmark, identity, \"n\", \"\", None) + \" \"\n   - jjrn_format_chalk_message → vvcc_format_branded(\"jjb\", hallmark, identity, marker, description, None)\n   - jjrn_format_heat_discussion → vvcc_format_branded(\"jjb\", hallmark, identity, \"d\", description, None)\n   - jjrn_format_heat_message → vvcc_format_branded(\"jjb\", hallmark, identity, action, description, None)\n   - jjrn_format_bridle_message → vvcc_format_branded(\"jjb\", hallmark, identity, \"B\", subject, None)\n   - jjrn_format_landing_message → vvcc_format_branded(\"jjb\", hallmark, identity, \"L\", subject, None)\n   - jjrn_format_session_message → DELETE (replaced by invitatory in next pace)\n5. Build and test: tt/vow-b.Build.sh && tt/vow-t.Test.sh\n6. Verify existing commit formats unchanged by running jjx_chalk, jjx_notch dry-run or inspecting format output\n\nKey files:\n- Tools/vvc/src/vvcc_commit.rs (or new vvcc_format.rs)\n- Tools/vvc/src/lib.rs\n- Tools/jjk/vov_veiled/src/jjrn_notch.rs (8 format functions to migrate)",
+              "silks": "add-vvcc-format-branded",
+              "commit": "f7a9786"
             }
           ]
         }
