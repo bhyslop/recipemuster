@@ -10,7 +10,8 @@ use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_Heat as Heat, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
-use crate::jjrq_query::{jjrq_files_for_pace, jjrq_file_touches_for_heat};
+use crate::jjrq_query::{jjrq_files_for_pace, jjrq_file_touches_for_heat, zjjrq_files_for_commit, zjjrq_bare_filename, zjjrq_is_infra_file};
+use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries, jjrs_SteeplechaseEntry};
 use std::collections::BTreeMap;
 use std::fs;
 
@@ -129,6 +130,9 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                 }
                 println!();
             }
+
+            // Append files-per-commit bitmap
+            zjjrpd_print_pace_commits(&firemark, &coronet_key);
         }
     } else if target_str.len() == 2 {
         // Firemark - heat view
@@ -344,8 +348,9 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             }
         }
 
-        // Always show file-touch bitmap after pace listing
+        // Always show file-touch bitmap and commit swim lanes after pace listing
         zjjrpd_print_file_bitmap(&firemark, heat);
+        zjjrpd_print_commit_swimlanes(&firemark, heat);
     } else {
         eprintln!("jjx_parade: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
         return 1;
@@ -486,4 +491,221 @@ pub(crate) fn zjjrpd_resolve_default_heat(gallops: &Gallops) -> Result<String, S
         }
     }
     Err("No racing heats found".to_string())
+}
+
+/// Encode a column index as a dense character: 1-9 then a-z then A-Z (61 max)
+fn zjjrpd_commit_index_char(index: usize) -> Option<char> {
+    match index {
+        0..=8 => Some((b'1' + index as u8) as char),
+        9..=34 => Some((b'a' + (index - 9) as u8) as char),
+        35..=60 => Some((b'A' + (index - 35) as u8) as char),
+        _ => None,
+    }
+}
+
+/// Print commit swim lanes for a heat: paces × commits matrix.
+///
+/// Shows when work happened on each pace and how work interleaved.
+/// Called after file-touch bitmap in heat parade.
+fn zjjrpd_print_commit_swimlanes(firemark: &Firemark, heat: &Heat) {
+    let rein_args = jjrs_ReinArgs {
+        firemark: firemark.jjrf_as_str().to_string(),
+        limit: 10000,
+    };
+
+    let entries = match jjrs_get_entries(&rein_args) {
+        Ok(e) => e,
+        Err(e) => {
+            eprintln!("jjx_parade: error getting steeplechase entries: {}", e);
+            return;
+        }
+    };
+
+    if entries.is_empty() {
+        return;
+    }
+
+    // Entries are newest-first; truncate to 35 most recent, then reverse for chronological
+    let total_commits = entries.len();
+    let max_commits: usize = 35;
+    let truncated = total_commits > max_commits;
+    let display_entries: Vec<&jjrs_SteeplechaseEntry> = entries
+        .iter()
+        .take(max_commits)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .collect();
+
+    // Build pace rows: ordered by first chronological appearance
+    let mut pace_order: Vec<(String, char, String)> = Vec::new(); // (coronet_display, term_char, silks)
+    let mut pace_index: BTreeMap<String, usize> = BTreeMap::new();
+    let mut has_heat_level = false;
+
+    for entry in &display_entries {
+        if let Some(ref coronet) = entry.coronet {
+            if !pace_index.contains_key(coronet) {
+                let idx = pace_order.len();
+                let raw = coronet.strip_prefix('₢').unwrap_or(coronet);
+                let ch = raw.chars().last().unwrap_or('?');
+                let silks = heat.paces.get(coronet)
+                    .and_then(|p| p.tacks.first())
+                    .map(|t| t.silks.clone())
+                    .unwrap_or_else(|| "unknown".to_string());
+                pace_index.insert(coronet.clone(), idx);
+                pace_order.push((coronet.clone(), ch, silks));
+            }
+        } else {
+            has_heat_level = true;
+        }
+    }
+
+    let total_rows = pace_order.len() + if has_heat_level { 1 } else { 0 };
+    let heat_row_idx = pace_order.len();
+
+    if total_rows == 0 {
+        return;
+    }
+
+    // Build bitmap: rows × columns
+    let num_cols = display_entries.len();
+    let mut bitmap: Vec<Vec<bool>> = vec![vec![false; num_cols]; total_rows];
+    let mut row_commit_counts: Vec<usize> = vec![0; total_rows];
+
+    for (col, entry) in display_entries.iter().enumerate() {
+        if let Some(ref coronet) = entry.coronet {
+            if let Some(&row) = pace_index.get(coronet) {
+                bitmap[row][col] = true;
+                row_commit_counts[row] += 1;
+            }
+        } else if has_heat_level {
+            bitmap[heat_row_idx][col] = true;
+            row_commit_counts[heat_row_idx] += 1;
+        }
+    }
+
+    // Print
+    println!();
+    println!("Commit swim lanes (x = commit affiliated with pace):");
+    println!();
+
+    if truncated {
+        println!("(showing last {} of {} commits)", max_commits, total_commits);
+        println!();
+    }
+
+    // Vertical legend
+    for (i, (_, ch, silks)) in pace_order.iter().enumerate() {
+        println!("  {} {} {}", i + 1, ch, silks);
+    }
+    if has_heat_level {
+        println!("  {} * heat-level", pace_order.len() + 1);
+    }
+    println!();
+
+    // Column header line
+    let header: String = (0..num_cols).filter_map(zjjrpd_commit_index_char).collect();
+    println!("{}", header);
+
+    // Bitmap rows
+    for row in 0..total_rows {
+        let bits: String = bitmap[row].iter().map(|&b| if b { 'x' } else { '·' }).collect();
+        let (term_char, count) = if row < pace_order.len() {
+            (pace_order[row].1, row_commit_counts[row])
+        } else {
+            ('*', row_commit_counts[row])
+        };
+        println!("{}  {}  {}c", bits, term_char, count);
+    }
+}
+
+/// Print files-per-commit bitmap for a single pace.
+///
+/// Shows which files each commit in this pace touched.
+/// Called after tack history in pace parade.
+fn zjjrpd_print_pace_commits(firemark: &Firemark, coronet_key: &str) {
+    let rein_args = jjrs_ReinArgs {
+        firemark: firemark.jjrf_as_str().to_string(),
+        limit: 10000,
+    };
+
+    let entries = match jjrs_get_entries(&rein_args) {
+        Ok(e) => e,
+        Err(e) => {
+            eprintln!("jjx_parade: error getting steeplechase entries: {}", e);
+            return;
+        }
+    };
+
+    // Filter by coronet, then reverse for chronological order
+    let pace_entries: Vec<&jjrs_SteeplechaseEntry> = entries
+        .iter()
+        .filter(|e| e.coronet.as_deref() == Some(coronet_key))
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .collect();
+
+    if pace_entries.is_empty() {
+        return;
+    }
+
+    // Get files for each commit
+    let num_commits = pace_entries.len();
+    let mut file_touches: BTreeMap<String, Vec<bool>> = BTreeMap::new();
+
+    for (col, entry) in pace_entries.iter().enumerate() {
+        let files = zjjrq_files_for_commit(&entry.commit);
+        for path in files {
+            if zjjrq_is_infra_file(&path) {
+                continue;
+            }
+            let bare = zjjrq_bare_filename(&path);
+            let row = file_touches.entry(bare).or_insert_with(|| vec![false; num_commits]);
+            row[col] = true;
+        }
+    }
+
+    if file_touches.is_empty() {
+        println!();
+        println!("Pace commits: (no project file commits)");
+        return;
+    }
+
+    println!();
+    println!("Pace commits (x = commit touched file):");
+    println!();
+
+    // Legend: commit index char, SHA, subject
+    for (i, entry) in pace_entries.iter().enumerate() {
+        let ch = zjjrpd_commit_index_char(i).unwrap_or('?');
+        println!("  {} {}  {}", ch, entry.commit, entry.subject);
+    }
+    println!();
+
+    // Column header line
+    let header: String = (0..num_commits).filter_map(zjjrpd_commit_index_char).collect();
+    println!("{}", header);
+
+    // Group by identical touch pattern
+    let mut pattern_groups: BTreeMap<Vec<bool>, Vec<String>> = BTreeMap::new();
+    for (filename, pattern) in &file_touches {
+        pattern_groups.entry(pattern.clone()).or_default().push(filename.clone());
+    }
+    for files in pattern_groups.values_mut() {
+        files.sort();
+    }
+
+    // Sort: more touches first, then lexicographic
+    let mut sorted: Vec<(Vec<bool>, Vec<String>)> = pattern_groups.into_iter().collect();
+    sorted.sort_by(|(a, _), (b, _)| {
+        let ca: usize = a.iter().filter(|&&v| v).count();
+        let cb: usize = b.iter().filter(|&&v| v).count();
+        cb.cmp(&ca).then_with(|| a.cmp(b))
+    });
+
+    for (pattern, files) in &sorted {
+        let bits: String = pattern.iter().map(|&b| if b { 'x' } else { '·' }).collect();
+        println!("{} {}", bits, files.join(", "));
+    }
 }

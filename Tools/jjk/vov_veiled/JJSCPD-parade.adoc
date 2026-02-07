@@ -69,6 +69,43 @@ xxx jjrg_gallops.rs, jjrt_types.rs
 x·· jjro_ops.rs
 ----
 
+*Example output — commit swim lanes (always shown after file-touch bitmap):*
+----
+Commit swim lanes (x = commit affiliated with pace):
+
+  1 B vos-add-routines-section
+  2 D jjsa-session-probe-update
+  3 * heat-level
+
+123456789ab
+··xx·xx····  D  4c
+xx··x······  B  3c
+··········x  *  1c
+----
+
+Commit swim lanes show paces × commits: each column is a commit (chronological, dense-encoded 1-9 then a-z then A-Z for 61 max), each row is a pace ordered by first chronological appearance.
+`*` row captures heat-level commits.
+Row label (terminal char) and commit count suffix appear right of the bitmap.
+Default truncation: last 35 commits; if truncated, prefixed with `(showing last 35 of N commits)`.
+
+*Example output — pace commits (always shown after tack history):*
+----
+Pace commits (x = commit touched file):
+
+  1 abc1234  Fix the main bug
+  2 def5678  Update tests
+  3 ghi9abc  Refactor helper
+
+123
+xx· jjrpd_parade.rs
+x·x jjro_ops.rs
+·xx jjtpd_parade.rs
+----
+
+Pace commits show files × commits for a single pace: each column is a commit within the pace (chronological), each row groups files by identical touch pattern.
+Legend shows commit SHA and subject line.
+Administrative files (`.claude/jjm/*`) excluded from all bitmap outputs.
+
 *Example output — heat full:*
 ----
 Heat: my-heat (₣AA)
@@ -155,6 +192,7 @@ verify heat exists
 {jjdhm_order}:
 print numbered line with state, silks, coronet
 .. After pace listing, always append file-touch bitmap: query steeplechase entries for heat, run `git diff-tree` per commit to identify touched work files (excluding `.claude/jjm/*`), group by touch pattern, output bitmap with vertical legend; include column-header line of terminal characters above bitmap rows to enable positional decoding without counting
+.. After file-touch bitmap, always append commit swim lanes: query steeplechase entries for heat (newest-first from git log), take last 35 (most recent), reverse for chronological column order; rows are paces ordered by first chronological appearance plus `*` row for heat-level commits; columns dense-encoded 1-9 then a-z then A-Z; row label and commit count suffix after bitmap; truncation indicator if >35 commits
 . For pace view:
 .. Parse as
 {jjdt_coronet},
@@ -165,3 +203,4 @@ extract parent
 .. Print pace header (silks, coronet, state, heat)
 .. Print full tack text from `tacks[0]`
 .. If bridled, print direction from `tacks[0]`
+.. After tack history, always append pace commits bitmap: query steeplechase entries for heat, filter by coronet, reverse for chronological order; run `git diff-tree` per commit to get work files (excluding `.claude/jjm/*`); group files by identical touch pattern; legend shows commit SHA and subject; column-header line above bitmap rows
