@@ -454,6 +454,13 @@
         "₢ARAAT": {
           "tacks": [
             {
+              "ts": "260206-2040",
+              "state": "complete",
+              "text": "Implement rbf_abjure() in rbf_Foundry.sh following the RBSAA-ark_abjure.adoc spec. Takes vessel and consecration arguments, deletes both -image and -about artifacts as a coherent ark unit. Follow the existing rbf_delete() pattern for HTTP/auth mechanics but operate on paired tags. Add coordinator routing (rbw-fA or similar) in rbk_Coordinator.sh and a tabtarget launcher. Handle orphaned artifacts (one exists, other missing) with warnings per spec. Include --force flag to skip confirmation prompt.",
+              "silks": "implement-rbf-abjure",
+              "commit": "dbdb680"
+            },
+            {
               "ts": "260206-2036",
               "state": "bridled",
               "text": "Implement rbf_abjure() in rbf_Foundry.sh following the RBSAA-ark_abjure.adoc spec. Takes vessel and consecration arguments, deletes both -image and -about artifacts as a coherent ark unit. Follow the existing rbf_delete() pattern for HTTP/auth mechanics but operate on paired tags. Add coordinator routing (rbw-fA or similar) in rbk_Coordinator.sh and a tabtarget launcher. Handle orphaned artifacts (one exists, other missing) with warnings per spec. Include --force flag to skip confirmation prompt.",
