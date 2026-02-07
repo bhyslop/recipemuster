@@ -31,10 +31,6 @@ pub struct jjrpd_ParadeArgs {
     /// Show only remaining paces (exclude complete/abandoned)
     #[arg(long)]
     pub remaining: bool,
-
-    /// Show file-touch bitmap (which paces touched which files)
-    #[arg(long)]
-    pub files: bool,
 }
 
 /// Run the parade command - display comprehensive Heat status
@@ -153,9 +149,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             }
         };
 
-        if args.files {
-            return zjjrpd_print_file_bitmap(&firemark, heat);
-        } else if args.full {
+        if args.full {
             // Full view: paddock + all specs
             let paddock_content = match fs::read_to_string(&heat.paddock_file) {
                 Ok(content) => content,
@@ -349,6 +343,9 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                 }
             }
         }
+
+        // Always show file-touch bitmap after pace listing
+        zjjrpd_print_file_bitmap(&firemark, heat);
     } else {
         eprintln!("jjx_parade: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
         return 1;
@@ -362,12 +359,12 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
 /// Uses shared query routines from jjrq_query to get file touches,
 /// then formats as a bitmap with columns per pace and rows per file,
 /// grouped by identical touch patterns.
-fn zjjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) -> i32 {
+fn zjjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
     let touches = match jjrq_file_touches_for_heat(firemark.jjrf_as_str()) {
         Ok(t) => t,
         Err(e) => {
             eprintln!("jjx_parade: error getting file touches: {}", e);
-            return 1;
+            return;
         }
     };
 
@@ -423,7 +420,7 @@ fn zjjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) -> i32 {
 
     if file_touches_map.is_empty() {
         println!("File-touch bitmap: (no work file changes)");
-        return 0;
+        return;
     }
 
     // Group files by identical touch pattern
@@ -461,8 +458,6 @@ fn zjjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) -> i32 {
         let bitmap: String = pattern.iter().map(|&b| if b { 'x' } else { '·' }).collect();
         println!("{} {}", bitmap, files.join(", "));
     }
-
-    0
 }
 
 /// Helper to convert PaceState to display string

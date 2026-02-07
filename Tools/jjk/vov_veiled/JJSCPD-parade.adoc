@@ -31,8 +31,6 @@ Returns error if no racing heats exist.
 and
 {jjdpe_abandoned})
 
-// ⟦axd_optional⟧
-* `--files` — Show file-touch bitmap (heat mode only). Displays which paces touched which files, derived from steeplechase commit history. JJ infrastructure files (`.claude/jjm/*`) are excluded.
 
 {jjds_stdout} Human-readable text (not JSON).
 
@@ -57,7 +55,7 @@ Progress: 1 complete | 1 abandoned | 1 remaining (1 rough, 0 bridled)
 Next: vvx-push-rename (₢AAAAJ) [rough]
 ----
 
-*Example output — heat file-touch bitmap:*
+*Example output — heat list with file-touch bitmap (always shown):*
 ----
 File-touch bitmap (x = pace commit touched file):
 
@@ -143,7 +141,6 @@ from file
 .. Parse as
 {jjdt_firemark},
 verify heat exists
-.. If `--files` flag: query steeplechase entries for heat, run `git diff-tree` per commit to identify touched work files (excluding `.claude/jjm/*`), group by touch pattern, output bitmap with vertical legend
 .. If `--full` flag:
 ... Read paddock file content
 ... Print heat header (silks, firemark, status, created)
@@ -156,6 +153,7 @@ verify heat exists
 ... If not `--remaining`: for each pace in
 {jjdhm_order}:
 print numbered line with state, silks, coronet
+.. After pace listing, always append file-touch bitmap: query steeplechase entries for heat, run `git diff-tree` per commit to identify touched work files (excluding `.claude/jjm/*`), group by touch pattern, output bitmap with vertical legend
 . For pace view:
 .. Parse as
 {jjdt_coronet},
