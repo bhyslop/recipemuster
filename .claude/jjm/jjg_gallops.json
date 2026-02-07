@@ -2470,9 +2470,10 @@
       "creation_time": "260206",
       "status": "stabled",
       "order": [
-        "₢AWAAA"
+        "₢AWAAA",
+        "₢AWAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -2483,6 +2484,17 @@
               "text": "Rename jjx_ command strings in jjrx_cli.rs.\n\nUpdate all #[command(name = \"jjx_*\")] attributes to use the new boring names from the paddock mapping table. This is ~22 string edits in one file.\n\nFiles: Tools/jjk/vov_veiled/src/jjrx_cli.rs\n\nAcceptance: `tt/vow-b.Build.sh` compiles, `./tt/vvw-r.RunVVX.sh jjx_show --help` works.",
               "silks": "rename-jjrx-cli-strings",
               "commit": "6e4e697"
+            }
+          ]
+        },
+        "₢AWAAB": {
+          "tacks": [
+            {
+              "ts": "260206-2202",
+              "state": "rough",
+              "text": "Update JJSA-GallopsData.adoc operation names.\n\nChange :jjdo_*: attribute references and operation section headers to use new boring names. E.g., :jjdo_parade: becomes display text \"jjx_show\" instead of \"jjx_parade\".\n\nFiles: Tools/jjk/vov_veiled/JJSA-GallopsData.adoc\n\nNo file renames — JJSC* spec filenames stay as-is (PD, MU, etc. are stable internal codes).\n\nAcceptance: All :jjdo_*: attributes reference the new command names.",
+              "silks": "update-jjsa-operation-names",
+              "commit": "4e44247"
             }
           ]
         }
