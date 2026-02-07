@@ -3033,9 +3033,10 @@
       "status": "stabled",
       "order": [
         "₢AXAAA",
-        "₢AXAAB"
+        "₢AXAAB",
+        "₢AXAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AX.md",
       "paces": {
         "₢AXAAA": {
@@ -3057,6 +3058,17 @@
               "text": "Create a reusable \"highlight border\" overlay that draws a colored border around an arbitrary screen rect.\n\n## Goal\nA function/module that takes a screen rect (x, y, width, height) and a color, and displays a borderless NSWindow overlay with an N-px colored border around that rect. Adapted from the green startup characterization border pattern.\n\n## Requirements\n- Borderless, transparent NSWindow with only a colored stroke border\n- Must be topmost (above all other windows) so it's visible during Alt-Tab\n- Must support show/hide/reposition without recreating the window\n- Orange color for Alt-Tab use case (but parameterized)\n- Border thickness determined by ₢AXAAA investigation\n\n## Pattern to follow\nThe green startup characterization border (Display Characterization section of POC spec, ~line 392). That code creates a borderless transparent window with a 4px green border positioned at viewport bounds. This is the same pattern, just parameterized for arbitrary rects and colors.\n\n## Key files\n- pbmbo_overlay.rs (existing base overlay utilities)\n- pbmbo_observer.swift (Swift overlay code)\n\n## Depends on\n₢AXAAA (design decisions determine border thickness and cross-repo strategy)",
               "silks": "pb-window-highlight-overlay",
               "commit": "d7be12c"
+            }
+          ]
+        },
+        "₢AXAAC": {
+          "tacks": [
+            {
+              "ts": "260207-0905",
+              "state": "rough",
+              "text": "Wire the orange highlight border overlay into the Alt-Tab session lifecycle.\n\n## Goal\nDuring a Command+Tab session, each time the highlight changes (Tab or Shift+Tab press), query the highlighted window's screen geometry and show the orange border overlay around it. On session end, dismiss the overlay.\n\n## Behavior\n1. On each highlight change in Alt-Tab session:\n   - Get the highlighted MRU entry's (pid, window_id)\n   - Query AXPosition and AXSize for that window\n   - Show/reposition the orange border overlay to surround that window's rect\n2. On Command release (session end): hide the overlay\n3. Edge cases (per ₢AXAAA decisions): handle minimized windows, off-screen windows, failed AX queries\n\n## Key files\n- pbmsa_alttab.rs (Alt-Tab session state, highlight change logic)\n- pbmba_ax.rs (AX queries for position/size)\n- pbmsm_mru.rs (MRU entry data with pid/window_id)\n- New overlay primitive from ₢AXAAB\n\n## Depends on\n₢AXAAB (highlight overlay primitive must exist)",
+              "silks": "pb-wire-highlight-to-alttab",
+              "commit": "4529238"
             }
           ]
         }
