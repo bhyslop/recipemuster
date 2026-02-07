@@ -6,6 +6,7 @@
       "creation_time": "260206",
       "status": "racing",
       "order": [
+        "₢AWAAM",
         "₢AWAAL",
         "₢AWAAK",
         "₢AWAAA",
@@ -19,7 +20,7 @@
         "₢AWAAH",
         "₢AWAAI"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -235,6 +236,17 @@
               "text": "Refactor vvcp_probe (Tools/vvc/src/vvcp_probe.rs) so that opus interprets raw haiku/sonnet output into structured model-ID JSON, instead of trusting raw stdout directly.\n\nCurrent problem: probe_model_tier spawns `claude -p --model {tier} -- \"Report your exact model ID string only\"` and trims stdout. This fails in some environments (e.g., work machines) where haiku/sonnet return verbose or unexpected output that doesn't parse as a bare model ID.\n\nChanges:\n1. Make haiku/sonnet prompts more typical/robust (less likely to get \"unavailable\" from environments that restrict novel queries)\n2. Collect raw stdout from all three model tiers\n3. Write all raw probe results to a file in BUD_TEMP_DIR (requires threading BUD_TEMP_DIR through to the probe — likely via env var or parameter)\n4. Feed the raw haiku and sonnet output to the opus query, asking opus to extract model IDs and return structured JSON that jjx can place into the session commit body\n5. Opus already returns its own model ID, so it self-reports while also interpreting the other two\n\nTesting: Lower the session gap threshold in jjrc_needs_session_probe (jjrc_core.rs:91, currently 3600s) to a small value (e.g., 5s) so the probe triggers without waiting an hour. Restore after verification.\n\nKey files:\n- Tools/vvc/src/vvcp_probe.rs (probe implementation)\n- Tools/jjk/vov_veiled/src/jjrc_core.rs (session gap threshold)\n- Tools/jjk/vov_veiled/src/jjrsd_saddle.rs (calls vvcp_probe, consumes result)",
               "silks": "probe-opus-as-interpreter",
               "commit": "651e2a1"
+            }
+          ]
+        },
+        "₢AWAAM": {
+          "tacks": [
+            {
+              "ts": "260206-2303",
+              "state": "rough",
+              "text": "Design the INVITATORY session-begin marker as a vvb-domain concept.\n\nBackground: The current session probe (vvcp_probe) is called from jjrsd_saddle and stamps a session commit as jjb:HALLMARK:₣XX:s:. This is wrong on two axes:\n1. Sessions are cross-heat — you muster, mount AW, switch to AR. Tying to a single firemark is incorrect.\n2. The concept belongs in VOS/VVC (arcane universe), not JJK (equestrian universe).\n\nDecisions reached:\n- Name: INVITATORY (liturgical: the call that opens the Divine Office)\n- Action letter: :i: (available, not used by any current chalk marker or heat action)\n- Commit prefix: vvb: (not jjb:) — this is VVC's domain\n- Searchable token: INVITATORY appears in commit body for easy git log --grep\n\nOpen questions to resolve:\n1. What triggers the invitatory? Currently only saddle (via mount). Should muster or any first-jjx-command trigger it? Or should it be a standalone vvx command?\n2. Commit format: vvb:HALLMARK:i: INVITATORY YYMMDD-HHMM — no identity field needed since it's heat-independent. But does this break the existing 4-field format convention?\n3. VOS spec voicing: INVITATORY needs to be defined in VOS-VoxObscuraSpec.adoc. What section? What linked terms?\n4. JJSA impact: Remove session marker (s) from JJSA steeplechase protocol, or keep it as a JJK-level alias that delegates to vvb?\n5. Backward compat: Existing :s: session commits in git history — do we care? Probably not, just document the transition.\n\nDeliverable: A written design in the paddock or a memo that resolves all open questions above, ready for implementation in the subsequent pace (₢AWAAL probe-opus-as-interpreter).",
+              "silks": "design-invitatory-session-mark",
+              "commit": "a61e9d2"
             }
           ]
         }
