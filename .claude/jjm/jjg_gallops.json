@@ -186,6 +186,13 @@
         "₢AWAAJ": {
           "tacks": [
             {
+              "ts": "260206-2234",
+              "state": "abandoned",
+              "text": "Split jjx_tally (jjx_revise) into four single-purpose commands.\n\nCurrent jjx_tally is multipurpose: spec revision, rename, bridle, abandon — with conditional flag validity that causes LLM misfires. Split into:\n\n1. jjx_revise CORONET < stdin — update spec text, carry forward state/silks\n2. jjx_relabel CORONET --silks \"name\" — rename, carry forward text/state\n3. jjx_arm CORONET --direction \"...\" < stdin — set state=bridled + direction + spec\n4. jjx_drop CORONET — set state=abandoned\n\nAll four create a new tack (same underlying mechanism). Each has a minimal, unambiguous signature.\n\nFiles:\n- Tools/jjk/vov_veiled/src/jjrtl_tally.rs — refactor into separate handler functions\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — register 4 new subcommands, remove jjx_tally\n- May need new source files for each command, or keep in jjrtl_tally.rs with separate entry points\n\nDelete jjx_tally entirely — no backwards compatibility.\n\nAcceptance: Each command works independently. jjx_tally produces \"unknown command.\" tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
+              "silks": "split-tally-into-primitives",
+              "commit": "cd456e3"
+            },
+            {
               "ts": "260206-2212",
               "state": "rough",
               "text": "Split jjx_tally (jjx_revise) into four single-purpose commands.\n\nCurrent jjx_tally is multipurpose: spec revision, rename, bridle, abandon — with conditional flag validity that causes LLM misfires. Split into:\n\n1. jjx_revise CORONET < stdin — update spec text, carry forward state/silks\n2. jjx_relabel CORONET --silks \"name\" — rename, carry forward text/state\n3. jjx_arm CORONET --direction \"...\" < stdin — set state=bridled + direction + spec\n4. jjx_drop CORONET — set state=abandoned\n\nAll four create a new tack (same underlying mechanism). Each has a minimal, unambiguous signature.\n\nFiles:\n- Tools/jjk/vov_veiled/src/jjrtl_tally.rs — refactor into separate handler functions\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — register 4 new subcommands, remove jjx_tally\n- May need new source files for each command, or keep in jjrtl_tally.rs with separate entry points\n\nDelete jjx_tally entirely — no backwards compatibility.\n\nAcceptance: Each command works independently. jjx_tally produces \"unknown command.\" tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
