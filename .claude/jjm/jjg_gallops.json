@@ -96,6 +96,13 @@
         "₢ASAAD": {
           "tacks": [
             {
+              "ts": "260207-0909",
+              "state": "complete",
+              "text": "Plan eventual Recipe Bottle System Architecture (RBSA) consolidation.\n\nRBAGS and RBS will eventually merge into RBSA. This pace establishes the integration strategy without implementing it yet.\n\nBefore starting: Think through:\n- How do RBAGS admin/GCP sections relate to RBS system sections?\n- Which RBAGS content is universal vs Google-specific?\n- How to preserve RBAGS's successful partition model in merged RBSA?\n- Naming discipline for RBSA subfiles?\n- Relationship between AXLA patterns and RBSA implementation?\n\nKnown stale content to eliminate:\n\nRBS-Specification.adoc lines 157-160 have legacy variable mappings:\n  :rbrn_sentry_moniker:    <<term_rbrn_sentry_moniker,RBRN_SENTRY_MONIKER>>\n  :rbrn_bottle_moniker:    ...\n  :rbrn_sentry_image_tag:  ...\n  :rbrn_bottle_image_tag:  ...\n\nThese _image_tag concepts are superseded by the ARK/CONSECRATION pattern established in RBAGS. The consolidation should eliminate these legacy mappings in favor of the canonical RBAGS vocabulary.\n\nOutcome: Design document outlining RBSA structure, section organization, term consolidation, and implementation sequence.\n\nTo be detailed during pace execution.",
+              "silks": "plan-rbsa-consolidation",
+              "commit": "a55337e"
+            },
+            {
               "ts": "260201-2025",
               "state": "rough",
               "text": "Plan eventual Recipe Bottle System Architecture (RBSA) consolidation.\n\nRBAGS and RBS will eventually merge into RBSA. This pace establishes the integration strategy without implementing it yet.\n\nBefore starting: Think through:\n- How do RBAGS admin/GCP sections relate to RBS system sections?\n- Which RBAGS content is universal vs Google-specific?\n- How to preserve RBAGS's successful partition model in merged RBSA?\n- Naming discipline for RBSA subfiles?\n- Relationship between AXLA patterns and RBSA implementation?\n\nKnown stale content to eliminate:\n\nRBS-Specification.adoc lines 157-160 have legacy variable mappings:\n  :rbrn_sentry_moniker:    <<term_rbrn_sentry_moniker,RBRN_SENTRY_MONIKER>>\n  :rbrn_bottle_moniker:    ...\n  :rbrn_sentry_image_tag:  ...\n  :rbrn_bottle_image_tag:  ...\n\nThese _image_tag concepts are superseded by the ARK/CONSECRATION pattern established in RBAGS. The consolidation should eliminate these legacy mappings in favor of the canonical RBAGS vocabulary.\n\nOutcome: Design document outlining RBSA structure, section organization, term consolidation, and implementation sequence.\n\nTo be detailed during pace execution.",
