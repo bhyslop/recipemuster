@@ -111,24 +111,28 @@
 :jjdx_cli:   <<jjdx_cli,jjx>>
 
 // Operations
-:jjdo_chalk:          <<jjdo_chalk,jjx_chalk>>
-:jjdo_draft:          <<jjdo_draft,jjx_draft>>
-:jjdo_furlough:       <<jjdo_furlough,jjx_furlough>>
-:jjdo_garland:        <<jjdo_garland,jjx_garland>>
+:jjdo_chalk:          <<jjdo_chalk,jjx_mark>>
+:jjdo_draft:          <<jjdo_draft,jjx_relocate>>
+:jjdo_furlough:       <<jjdo_furlough,jjx_alter>>
+:jjdo_garland:        <<jjdo_garland,jjx_continue>>
 :jjdo_get_coronets:   <<jjdo_get_coronets,jjx_get_coronets>>
-:jjdo_get_spec:       <<jjdo_get_spec,jjx_get_spec>>
+:jjdo_get_spec:       <<jjdo_get_spec,jjx_get_brief>>
 :jjdo_landing:        <<jjdo_landing,jjx_landing>>
-:jjdo_muster:         <<jjdo_muster,jjx_muster>>
-:jjdo_nominate:       <<jjdo_nominate,jjx_nominate>>
-:jjdo_notch:          <<jjdo_notch,jjx_notch>>
-:jjdo_rail:           <<jjdo_rail,jjx_rail>>
-:jjdo_rein:           <<jjdo_rein,jjx_rein>>
-:jjdo_restring:       <<jjdo_restring,jjx_restring>>
-:jjdo_retire:         <<jjdo_retire,jjx_retire>>
-:jjdo_saddle:         <<jjdo_saddle,jjx_saddle>>
-:jjdo_scout:          <<jjdo_scout,jjx_scout>>
-:jjdo_slate:          <<jjdo_slate,jjx_slate>>
-:jjdo_tally:          <<jjdo_tally,jjx_tally>>
+:jjdo_muster:         <<jjdo_muster,jjx_list>>
+:jjdo_nominate:       <<jjdo_nominate,jjx_create>>
+:jjdo_notch:          <<jjdo_notch,jjx_record>>
+:jjdo_parade:         <<jjdo_parade,jjx_show>>
+:jjdo_rail:           <<jjdo_rail,jjx_reorder>>
+:jjdo_rein:           <<jjdo_rein,jjx_log>>
+:jjdo_restring:       <<jjdo_restring,jjx_transfer>>
+:jjdo_retire:         <<jjdo_retire,jjx_archive>>
+:jjdo_saddle:         <<jjdo_saddle,jjx_orient>>
+:jjdo_scout:          <<jjdo_scout,jjx_search>>
+:jjdo_slate:          <<jjdo_slate,jjx_enroll>>
+:jjdo_revise_docket:  <<jjdo_revise_docket,jjx_revise_docket>>
+:jjdo_arm:            <<jjdo_arm,jjx_arm>>
+:jjdo_relabel:        <<jjdo_relabel,jjx_relabel>>
+:jjdo_drop:           <<jjdo_drop,jjx_drop>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
 
 // Routines
@@ -266,6 +270,15 @@ This is intentional: vivid domain vocabulary helps humans hold complex systems i
 * {jjdt_coronet} - pace identity, `₢`-prefixed (marking at the hoof line)
 * {jjdt_silks} - display name (jockey's colors)
 * {jjdgr_gallops} - the training grounds (where real work happens before race day)
+
+=== Presentation Vocabulary
+
+The CLI and display layer uses distinct terms for certain schema fields to avoid collision with other project vocabulary:
+
+* *docket* — the presentation term for the {jjdkm_text} field. What the {jjdpr_pace} should accomplish. Used in CLI output labels and slash command descriptions. The JSON schema field remains `text`.
+* *warrant* — the presentation term for the {jjdkm_direction} field. Execution guidance for autonomous operation. Used in CLI output labels and slash command descriptions. The JSON schema field remains `direction`.
+
+These are display/CLI terms, not schema changes. The schema field names (`text`, `direction`) are unchanged and deferred to a future heat.
 
 == Types
 
@@ -984,11 +997,105 @@ include::JJSCRL-rail.adoc[]
 
 include::JJSCDR-draft.adoc[]
 
-[[jjdo_tally]]
+[[jjdo_revise_docket]]
 // ⟦axl_voices axi_cli_subcommand⟧
-==== {jjdo_tally}
+==== {jjdo_revise_docket}
 
-include::JJSCTL-tally.adoc[]
+Update a {jjdpr_pace_p} docket text.
+Reads new docket from stdin.
+Carries forward current state and silks.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+* {jjdt_coronet} (positional) — target {jjdpr_pace}.
+
+* stdin — new docket text.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. {jjdr_load}
+. Verify {jjdpr_pace} exists
+. Read stdin as new docket text
+. Prepend new {jjdkr_tack} with current state, current silks, new text, current commit SHA
+. If current state is {jjdpe_bridled}, error (must unbridle first or use {jjdo_arm})
+. {jjdr_save}
+
+[[jjdo_arm]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_arm}
+
+Set a {jjdpr_pace_p} state to {jjdpe_bridled} with warrant from stdin.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+* {jjdt_coronet} (positional) — target {jjdpr_pace}.
+
+* stdin — warrant text (execution guidance).
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. {jjdr_load}
+. Verify {jjdpr_pace} exists
+. Read stdin as warrant (direction) text
+. Prepend new {jjdkr_tack} with state={jjdpe_bridled}, current silks, current docket text, warrant as direction, current commit SHA
+. {jjdr_save}
+
+[[jjdo_relabel]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_relabel}
+
+Rename a {jjdpr_pace_p} silks.
+Carries forward current docket and state.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+* {jjdt_coronet} (positional) — target {jjdpr_pace}.
+
+* {jjda_silks} — new silks name.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. {jjdr_load}
+. Verify {jjdpr_pace} exists
+. Prepend new {jjdkr_tack} with current state, new silks, current docket text, current commit SHA
+. {jjdr_save}
+
+[[jjdo_drop]]
+// ⟦axl_voices axi_cli_subcommand⟧
+==== {jjdo_drop}
+
+Set a {jjdpr_pace_p} state to {jjdpe_abandoned}.
+
+{jjds_arguments}
+
+// ⟦axd_optional axd_defaulted⟧
+* {jjda_file}
+
+* {jjdt_coronet} (positional) — target {jjdpr_pace}.
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. {jjdr_load}
+. Verify {jjdpr_pace} exists
+. Prepend new {jjdkr_tack} with state={jjdpe_abandoned}, current silks, current docket text, current commit SHA
+. {jjdr_save}
 
 [[jjdo_furlough]]
 // ⟦axl_voices axi_cli_subcommand⟧
