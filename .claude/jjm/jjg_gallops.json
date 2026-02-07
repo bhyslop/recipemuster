@@ -2469,10 +2469,24 @@
       "silks": "jjk-boring-cli-rename",
       "creation_time": "260206",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AWAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_AW.md",
-      "paces": {}
+      "paces": {
+        "₢AWAAA": {
+          "tacks": [
+            {
+              "ts": "260206-2202",
+              "state": "rough",
+              "text": "Rename jjx_ command strings in jjrx_cli.rs.\n\nUpdate all #[command(name = \"jjx_*\")] attributes to use the new boring names from the paddock mapping table. This is ~22 string edits in one file.\n\nFiles: Tools/jjk/vov_veiled/src/jjrx_cli.rs\n\nAcceptance: `tt/vow-b.Build.sh` compiles, `./tt/vvw-r.RunVVX.sh jjx_show --help` works.",
+              "silks": "rename-jjrx-cli-strings",
+              "commit": "6e4e697"
+            }
+          ]
+        }
+      }
     }
   }
 }
