@@ -3,7 +3,7 @@
 Job Jockey (JJ) is installed for managing project initiatives.
 
 **Concepts:**
-- **Heat**: Bounded initiative with coherent goals that are clear and present (3-50 sessions). Status: `racing` (active execution) or `stabled` (paused for planning). Location: `current/` or `retired/` (done).
+- **Heat**: Bounded initiative with coherent goals that are clear and present (3-50 officia). Status: `racing` (active execution) or `stabled` (paused for planning). Location: `current/` or `retired/` (done).
 - **Pace**: Discrete action within a heat; can be bridled for autonomous execution via `/jjc-pace-bridle`
 - **Itch**: Future work (any detail level), lives in jji_itch.md
 - **Scar**: Closed work with lessons learned, lives in jjs_scar.md
@@ -84,11 +84,11 @@ Notch handles two cases:
 
 When user says "notch", invoke `/jjc-pace-notch` — don't second-guess based on pace state.
 
-**Multi-Session Discipline:**
-Multiple Claude sessions may work concurrently in the same repo. The explicit file list in `/jjc-pace-notch` enables orthogonal commits.
+**Multi-Officium Discipline:**
+Multiple Claude officia may work concurrently in the same repo. The explicit file list in `/jjc-pace-notch` enables orthogonal commits.
 
 - Claude is **additive only** — make commits, never discard changes
-- "Unexpected" uncommitted changes are likely another session's work
+- "Unexpected" uncommitted changes are likely another officium's work
 - If something looks wrong, ASK — do not "fix" by discarding
 - Commit only YOUR files; ignore everything else
 
@@ -102,7 +102,7 @@ Multiple Claude sessions may work concurrently in the same repo. The explicit fi
 **What to do instead:**
 - Staging wrong? Just run `/jjc-pace-notch` with the correct file list — it handles staging
 - Made a mistake? Make a new commit that fixes it — additive, not destructive
-- Confused by repo state? ASK the user — another session may be mid-work
+- Confused by repo state? ASK the user — another officium may be mid-work
 - Need to undo something? Explain the situation to the user and let them decide
 
 **Build & Run Discipline:**

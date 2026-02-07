@@ -24,7 +24,7 @@ pub struct jjrmu_MusterArgs {
 }
 
 /// Run the muster command - list Heats as TSV
-pub fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> i32 {
+pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> i32 {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
@@ -145,6 +145,11 @@ pub fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> i32 {
             &completed_count.to_string(),
             &defined_count.to_string(),
         ]);
+    }
+
+    // Call invitatory to check/create officium marker
+    if let Err(e) = vvc::vvcp_invitatory().await {
+        eprintln!("jjx_muster: warning: invitatory failed: {}", e);
     }
 
     0

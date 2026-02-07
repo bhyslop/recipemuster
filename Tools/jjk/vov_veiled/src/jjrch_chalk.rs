@@ -7,10 +7,8 @@
 //! The chalk command creates empty commits with special formatting for tracking
 //! steeplechase events like approach, wrap, fly, or heat-level discussions.
 
-use std::io::{self, BufRead};
-
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};
-use crate::jjrn_notch::{jjrn_ChalkMarker as ChalkMarker, jjrn_format_session_message, jjrn_format_chalk_message, jjrn_format_heat_discussion};
+use crate::jjrn_notch::{jjrn_ChalkMarker as ChalkMarker, jjrn_format_chalk_message, jjrn_format_heat_discussion};
 
 /// Arguments for jjx_chalk command
 #[derive(clap::Args, Debug)]
@@ -64,27 +62,7 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
             }
         };
 
-        // Session markers use a special format and read body from stdin
-        if marker == ChalkMarker::Session {
-            let subject = jjrn_format_session_message(&firemark, &args.description);
-
-            // Read body from stdin (model IDs, host, platform)
-            let stdin = io::stdin();
-            let body: String = stdin.lock().lines()
-                .filter_map(|line| line.ok())
-                .collect::<Vec<_>>()
-                .join("\n");
-
-            if body.is_empty() {
-                // No body provided, just use subject
-                subject
-            } else {
-                // Full commit message with body
-                format!("{}\n\n{}", subject, body)
-            }
-        } else {
-            jjrn_format_heat_discussion(&firemark, &args.description)
-        }
+        jjrn_format_heat_discussion(&firemark, &args.description)
     } else {
         eprintln!("jjx_chalk: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
         return 1;

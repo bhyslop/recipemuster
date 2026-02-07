@@ -168,7 +168,7 @@ pub async fn jjrx_dispatch(args: &[OsString]) -> i32 {
         jjrx_JjxCommands::Chalk(args) => jjrx_run_chalk(args),
         jjrx_JjxCommands::Rein(args) => jjrrn_run_rein(args),
         jjrx_JjxCommands::Validate(args) => jjrvl_run_validate(args),
-        jjrx_JjxCommands::Muster(args) => jjrmu_run_muster(args),
+        jjrx_JjxCommands::Muster(args) => jjrmu_run_muster(args).await,
         jjrx_JjxCommands::Saddle(args) => jjrsd_run_saddle(args).await,
         jjrx_JjxCommands::Parade(args) => jjrpd_run_parade(args),
         jjrx_JjxCommands::Retire(args) => jjrrt_run_retire(args),

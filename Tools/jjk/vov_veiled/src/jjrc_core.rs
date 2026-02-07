@@ -58,35 +58,3 @@ pub fn jjrc_timestamp_from_env() -> String {
     }
 }
 
-/// Check if a session probe is needed based on time gap from last commit
-///
-/// Returns true if:
-/// - No timestamp provided (no commits in steeplechase), OR
-/// - Gap from last_timestamp to now is > 1 hour
-///
-/// Timestamp format expected: "YYYY-MM-DD HH:MM"
-pub fn jjrc_needs_session_probe(last_timestamp: Option<&str>) -> bool {
-    use chrono::NaiveDateTime;
-
-    let Some(ts) = last_timestamp else {
-        // No commits in steeplechase - new session
-        return true;
-    };
-
-    // Parse timestamp: "YYYY-MM-DD HH:MM" -> NaiveDateTime
-    let parsed = NaiveDateTime::parse_from_str(&format!("{}:00", ts), "%Y-%m-%d %H:%M:%S");
-    let Ok(last_time) = parsed else {
-        // If we can't parse the timestamp, assume new session
-        return true;
-    };
-
-    // Get current local time as NaiveDateTime
-    let now = Local::now().naive_local();
-
-    // Calculate gap in seconds
-    let duration = now.signed_duration_since(last_time);
-    let gap_seconds = duration.num_seconds();
-
-    // Session gap threshold: 1 hour
-    gap_seconds > 60 * 60
-}

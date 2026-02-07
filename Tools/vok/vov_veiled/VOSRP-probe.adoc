@@ -1,7 +1,7 @@
 Probe Claude Code environment for model IDs and platform information.
 Spawns minimal claude invocations to discover actual model versions.
 
-Returns structured data suitable for session markers or diagnostics.
+Returns structured data suitable for officium markers or diagnostics.
 
 {voss_inputs}
 

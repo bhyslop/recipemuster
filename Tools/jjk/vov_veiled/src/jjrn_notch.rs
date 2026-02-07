@@ -29,7 +29,6 @@ pub const JJRN_COMMIT_PREFIX: &str = "jjb";
 /// - F = FLY: autonomous execution began (bridled pace)
 /// - B = BRIDLE: pace transitioned to bridled state
 /// - d = discussion: significant decision (lowercase, can be heat-level too)
-/// - s = session: new work session started (lowercase, heat-level only)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrn_ChalkMarker {
     Approach,
@@ -37,7 +36,6 @@ pub enum jjrn_ChalkMarker {
     Fly,
     Bridle,
     Discussion,
-    Session,
 }
 
 impl jjrn_ChalkMarker {
@@ -49,9 +47,8 @@ impl jjrn_ChalkMarker {
             "F" | "f" | "FLY" | "fly" | "Fly" => Ok(jjrn_ChalkMarker::Fly),
             "B" | "b" | "BRIDLE" | "bridle" | "Bridle" => Ok(jjrn_ChalkMarker::Bridle),
             "d" | "D" | "DISCUSSION" | "discussion" | "Discussion" => Ok(jjrn_ChalkMarker::Discussion),
-            "s" | "S" | "SESSION" | "session" | "Session" => Ok(jjrn_ChalkMarker::Session),
             _ => Err(format!(
-                "Invalid marker type '{}'. Valid: A(pproach), W(rap), F(ly), B(ridle), d(iscussion), s(ession)",
+                "Invalid marker type '{}'. Valid: A(pproach), W(rap), F(ly), B(ridle), d(iscussion)",
                 s
             )),
         }
@@ -65,7 +62,6 @@ impl jjrn_ChalkMarker {
             jjrn_ChalkMarker::Fly => 'F',
             jjrn_ChalkMarker::Bridle => 'B',
             jjrn_ChalkMarker::Discussion => 'd',
-            jjrn_ChalkMarker::Session => 's',
         }
     }
 
@@ -77,7 +73,6 @@ impl jjrn_ChalkMarker {
             jjrn_ChalkMarker::Fly => "FLY",
             jjrn_ChalkMarker::Bridle => "BRIDLE",
             jjrn_ChalkMarker::Discussion => "discussion",
-            jjrn_ChalkMarker::Session => "session",
         }
     }
 
@@ -85,7 +80,7 @@ impl jjrn_ChalkMarker {
     pub fn jjrn_requires_pace(&self) -> bool {
         match self {
             jjrn_ChalkMarker::Approach | jjrn_ChalkMarker::Wrap | jjrn_ChalkMarker::Fly | jjrn_ChalkMarker::Bridle => true,
-            jjrn_ChalkMarker::Discussion | jjrn_ChalkMarker::Session => false,
+            jjrn_ChalkMarker::Discussion => false,
         }
     }
 }
@@ -201,18 +196,3 @@ pub fn jjrn_format_landing_message(coronet: &Coronet, agent: &str) -> String {
     vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, "L", &subject, None)
 }
 
-/// Format a session marker message: jjb:HALLMARK:₣XX:s: YYMMDD-HHMM session
-///
-/// Creates the subject line for an s (session) commit.
-/// Body should contain model IDs, host, and platform.
-pub fn jjrn_format_session_message(firemark: &Firemark, timestamp: &str) -> String {
-    let hallmark = vvc::vvcc_get_hallmark();
-    format!(
-        "{}:{}:{}{}:s: {} session",
-        JJRN_COMMIT_PREFIX,
-        hallmark,
-        FIREMARK_PREFIX,
-        firemark.jjrf_as_str(),
-        timestamp
-    )
-}

@@ -12,8 +12,6 @@ use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
 use crate::jjrq_query::jjrq_resolve_default_heat;
-use crate::jjrc_core::jjrc_timestamp_full;
-use crate::jjrn_notch::jjrn_format_session_message;
 
 /// Arguments for saddle command
 #[derive(clap::Args, Debug)]
@@ -292,55 +290,9 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
         }
     }
 
-    // Check if session probe is needed (gap > 1 hour or no commits)
-    let last_timestamp = recent_work.first().map(|e| e.timestamp.as_str());
-    if crate::jjrc_core::jjrc_needs_session_probe(last_timestamp) {
-        println!();
-        match vvc::vvcp_probe().await {
-            Ok(probe_result) => {
-                // Get timestamp for session marker
-                let timestamp = jjrc_timestamp_full();
-
-                // Build commit message: subject + body
-                let subject = jjrn_format_session_message(&firemark, &timestamp);
-                let message = format!("{}\n\n{}", subject, probe_result);
-
-                // Create session chalk commit (allow_empty: true, no_stage: true)
-                let commit_args = vvc::vvcc_CommitArgs {
-                    prefix: None,
-                    message: Some(message),
-                    allow_empty: true,
-                    no_stage: true,
-                    size_limit: vvc::VVCG_SIZE_LIMIT,
-                    warn_limit: vvc::VVCG_WARN_LIMIT,
-                };
-
-                match vvc::commit(&commit_args) {
-                    0 => {
-                        // Get the commit hash of HEAD
-                        if let Ok(output) = std::process::Command::new("git")
-                            .args(["rev-parse", "--short", "HEAD"])
-                            .output()
-                        {
-                            if output.status.success() {
-                                let commit_hash = String::from_utf8_lossy(&output.stdout).trim().to_string();
-                                println!("Session-marker: {} ({})", commit_hash, timestamp);
-                            } else {
-                                println!("Session-marker: created ({})", timestamp);
-                            }
-                        } else {
-                            println!("Session-marker: created ({})", timestamp);
-                        }
-                    }
-                    _ => {
-                        eprintln!("jjx_saddle: warning: failed to create session marker commit");
-                    }
-                }
-            }
-            Err(e) => {
-                eprintln!("jjx_saddle: warning: probe failed: {}", e);
-            }
-        }
+    // Call invitatory to check/create officium marker
+    if let Err(e) = vvc::vvcp_invitatory().await {
+        eprintln!("jjx_saddle: warning: invitatory failed: {}", e);
     }
 
     0
