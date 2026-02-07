@@ -2475,9 +2475,10 @@
         "₢AWAAC",
         "₢AWAAD",
         "₢AWAAE",
-        "₢AWAAF"
+        "₢AWAAF",
+        "₢AWAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -2543,6 +2544,17 @@
               "text": "Add CLI truth table to vocjjmc_core.md and update all JJK CLAUDE.md content.\n\nReplace the \"Common CLI Pitfalls\" section with a compact CLI truth table showing every jjx_ command with its exact argument/flag syntax. Also update:\n- Quick Verbs table (slash command names stay, but remove verbs for deleted thin wrappers)\n- Slash Command Reference table (remove rows for deleted thin wrappers)\n- Commit Discipline section (jjx_notch → jjx_record, vvx_commit reference stays)\n- Any other jjx_ name references in vocjjmc_core.md\n\nFormat for truth table:\n```\njjx_show [TARGET] [--full] [--remaining]\njjx_list [--status racing|stabled|retired]\njjx_create --silks SILKS\njjx_enroll FIREMARK --silks SILKS [--first|--before C|--after C] <stdin\n...\n```\n\nFiles: Tools/jjk/vov_veiled/vocjjmc_core.md\n\nAcceptance: vocjjmc_core.md contains no old jjx_ names. Truth table covers all 22 commands.",
               "silks": "add-cli-truth-table",
               "commit": "0d7e5b6"
+            }
+          ]
+        },
+        "₢AWAAG": {
+          "tacks": [
+            {
+              "ts": "260206-2203",
+              "state": "rough",
+              "text": "Reinstall JJK kit to propagate changes to active .claude/ installation.\n\nSteps:\n1. Build: tt/vow-b.Build.sh\n2. Test: tt/vow-t.Test.sh\n3. Reinstall kit (propagate vocjjmc_core.md → CLAUDE.md MANAGED:JJK block)\n4. Verify: run jjx_show, jjx_list, jjx_record --help to confirm new names work\n5. Verify: old names (jjx_parade, jjx_muster, jjx_notch) produce \"unknown command\" errors\n6. Verify: CLAUDE.md MANAGED:JJK section shows new truth table\n\nAcceptance: New CLI names work. Old CLI names fail. CLAUDE.md is updated.",
+              "silks": "reinstall-and-verify",
+              "commit": "64aea83"
             }
           ]
         }
