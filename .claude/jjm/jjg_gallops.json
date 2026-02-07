@@ -2546,6 +2546,13 @@
         "₢AWAAH": {
           "tacks": [
             {
+              "ts": "260206-2205",
+              "state": "abandoned",
+              "text": "Drafted from ₢AHAAS in ₣AH.\n\nEvaluate collapsing thin-wrapper slash commands (reslate, slate, wrap, bridle, rail) into direct CLAUDE.md verb-to-vvx mappings.\n\nPain point: Claude regularly guesses wrong vvx subcommand names because slash command names don't match vvx names (e.g., reslate → jjx_tally). The indirection through slash command .md files is a recurring failure mode.\n\nProposed direction:\n- Identify which slash commands are thin wrappers vs. genuine orchestrations\n- For thin wrappers, replace with CLAUDE.md verb table entries that map directly to vvx invocations\n- Standardize shared post-mutation protocol (report, assess, commit) once in CLAUDE.md\n- Rely on vvx --help as authoritative syntax reference\n- Eliminate the dereference step that causes guessing errors\n\nDesign pace — needs human judgment on which commands to collapse and what the CLAUDE.md verb table format should look like.",
+              "silks": "simplify-thin-wrapper-commands",
+              "commit": "0f059e0"
+            },
+            {
               "ts": "260206-2204",
               "state": "rough",
               "text": "Drafted from ₢AHAAS in ₣AH.\n\nEvaluate collapsing thin-wrapper slash commands (reslate, slate, wrap, bridle, rail) into direct CLAUDE.md verb-to-vvx mappings.\n\nPain point: Claude regularly guesses wrong vvx subcommand names because slash command names don't match vvx names (e.g., reslate → jjx_tally). The indirection through slash command .md files is a recurring failure mode.\n\nProposed direction:\n- Identify which slash commands are thin wrappers vs. genuine orchestrations\n- For thin wrappers, replace with CLAUDE.md verb table entries that map directly to vvx invocations\n- Standardize shared post-mutation protocol (report, assess, commit) once in CLAUDE.md\n- Rely on vvx --help as authoritative syntax reference\n- Eliminate the dereference step that causes guessing errors\n\nDesign pace — needs human judgment on which commands to collapse and what the CLAUDE.md verb table format should look like.",
