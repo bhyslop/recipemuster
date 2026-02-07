@@ -446,6 +446,14 @@ fn zjjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
     }
     println!();
 
+    // Print column header line (terminal chars aligned with bitmap positions)
+    let mut header_chars: Vec<char> = pace_columns.iter().map(|(ch, _, _)| *ch).collect();
+    if has_heat_level {
+        header_chars.push('*');
+    }
+    let header_line: String = header_chars.iter().collect();
+    println!("{}", header_line);
+
     // Sort patterns: more touches first, then lexicographic
     let mut sorted_patterns: Vec<(Vec<bool>, Vec<String>)> = pattern_groups.into_iter().collect();
     sorted_patterns.sort_by(|(pat_a, _), (pat_b, _)| {

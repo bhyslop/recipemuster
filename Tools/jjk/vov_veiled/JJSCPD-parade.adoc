@@ -63,6 +63,7 @@ File-touch bitmap (x = pace commit touched file):
   2 D jjsa-session-probe-update
   3 * heat-level
 
+BD*
 xxx jjrg_gallops.rs, jjrt_types.rs
 ··x JJSA-GallopsData.adoc
 x·· jjro_ops.rs
@@ -153,7 +154,7 @@ verify heat exists
 ... If not `--remaining`: for each pace in
 {jjdhm_order}:
 print numbered line with state, silks, coronet
-.. After pace listing, always append file-touch bitmap: query steeplechase entries for heat, run `git diff-tree` per commit to identify touched work files (excluding `.claude/jjm/*`), group by touch pattern, output bitmap with vertical legend
+.. After pace listing, always append file-touch bitmap: query steeplechase entries for heat, run `git diff-tree` per commit to identify touched work files (excluding `.claude/jjm/*`), group by touch pattern, output bitmap with vertical legend; include column-header line of terminal characters above bitmap rows to enable positional decoding without counting
 . For pace view:
 .. Parse as
 {jjdt_coronet},
