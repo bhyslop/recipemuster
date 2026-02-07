@@ -68,6 +68,9 @@
 :rbtr_consumer:              <<consumer,Consumer Role>>
 :rbtr_consumer_s:            <<consumer,Consumer Roles>>
 :rbtr_consumer_p:            <<consumer,Consumer Role's>>
+:at_operator:                <<operator,Operator>>
+:at_operator_p:              <<operator,Operator's>>
+:at_operator_s:              <<operator,Operators>>
 :at_ebpf_program:            <<at_ebpf_program,eBPF Program>>
 :at_stash_machine:           <<stash_machine,Stash Machine>>
 :at_operational_machine:     <<operational_machine,Operational Machine>>
@@ -177,7 +180,7 @@
 The Recipe Bottle Makefile Service enables safe and effective use of foreign
 {st_container_s}
 at the
-{rbtr_consumer}
+{at_operator_p}
 {at_workstation}.
 
 == System Overview 
@@ -1099,7 +1102,7 @@ with minimal network requirements.
 [[workstation]]
 {at_workstation}::
 The local computing environment where the
-{rbtr_consumer}
+{at_operator}
 runs the
 {at_rbm_system}.
 This environment hosts all
@@ -1306,15 +1309,15 @@ This repository serves as the authoritative source for system configuration.
 
 [[user_repo]]
 {at_user_repo}::
-A version control repository owned by a
-{rbtr_consumer}.
+A version control repository owned by an
+{at_operator}.
 The
-{rbtr_consumer}
+{at_operator}
 chooses how to instantiate the
 {at_rbm_system}
 there, though a git subtree is a good choice.
 The
-{rbtr_consumer}
+{at_operator}
 configures the
 {at_rbm_system}
 by committing a
@@ -1339,16 +1342,24 @@ that performs initialization and configuration tasks when starting a
 {at_bottle_service}.
 These scripts follow strict requirements for execution environment, logging, and error handling.
 
+[[operator]]
+{at_operator}::
+An individual who maintains a local installation of the
+{at_rbm_system}
+on their
+{at_workstation}
+and holds RBRA Files that enable assumption of the system's defined roles.
+
 [[consumer]]
 {rbtr_consumer}::
-An individual operating the
-{at_rbm_system}
-to run containerized services securely on their
+The role an
+{at_operator}
+assumes to run containerized services securely on their
 {at_workstation}.
 {rbtr_consumer_s}
 control service configuration through
 {at_nameplate_s}
-and interact with services through controlled interfaces, distinct from infrastructure operators who build and deploy the system.
+and interact with services through controlled interfaces, distinct from roles that build and deploy the system.
 
 [[at_ebpf_program]]
 {at_ebpf_program}::
@@ -1382,7 +1393,7 @@ A
 that defines and enforces deployment-specific configuration through environment variables with the RBS_*
 {crg_prefix}.
 Each
-{rbtr_consumer}
+{at_operator}
 maintains their own Station Config makefile outside version control, containing sensitive data like authentication tokens required for their specific installation.
 
 [[nameplate_regime]]
@@ -1621,7 +1632,7 @@ to perform specific operational sequences.
 [[cmk_external_rule]]
 {cmk_external_rule}::
 A makefile rule that provides primary interface points for
-{rbtr_consumer}
+{at_operator}
 use, typically invoked by shell scripts or direct user commands to initiate major system operations.
 
 [[cmk_script]]
@@ -1659,11 +1670,11 @@ A template used to create
 instances, containing the service's code, runtime, and dependencies.
 
 [[image_store]]
-{st_image_store}:: 
-The local storage location for 
+{st_image_store}::
+The local storage location for
 {st_image_s}
-on the 
-{rbtr_consumer_p}
+on the
+{at_operator_p}
 {at_workstation}.
 
 [[published_image]]

@@ -38,6 +38,9 @@
 :rbtr_consumer:              <<rbtr_consumer,Consumer Role>>
 :rbtr_consumer_p:            <<rbtr_consumer,Consumer Role's>>
 :rbtr_consumer_s:            <<rbtr_consumer,Consumer Roles>>
+:at_operator:                <<at_operator,Operator>>
+:at_operator_p:              <<at_operator,Operator's>>
+:at_operator_s:              <<at_operator,Operators>>
 :rbtr_director:              <<rbtr_director,Director Role>>
 :rbtr_director_s:            <<rbtr_director,Director Roles>>
 :rbtr_governor:              <<rbtr_governor,Governor Role>>
@@ -491,8 +494,8 @@ infrastructure.
 An operational identity within the
 {at_recipe_bottle}
 system
-that a
-{rbtr_consumer}
+that an
+{at_operator}
 can assume to perform specific cloud operations.
 Each
 {rbtr_role}
@@ -511,8 +514,8 @@ which operates exclusively within cloud infrastructure.
 {rbtr_payor}::
 An
 {rbtr_role}
-that enables a
-{rbtr_consumer}
+that enables an
+{at_operator}
 to manage billing accounts and create depot projects using OAuth user authentication rather than service accounts.
 The
 {rbtr_payor}
@@ -523,8 +526,8 @@ operates through OAuth 2.0 desktop application flow, enabling individual develop
 {rbtr_governor}::
 An
 {rbtr_role}
-that grants a
-{rbtr_consumer}
+that grants an
+{at_operator}
 {gcp_project_id}
 -scope Owner permissions without billing authority, designed for automation-friendly operations.
 
@@ -533,8 +536,8 @@ that grants a
 {rbtr_retriever}::
 An
 {rbtr_role}
-that allows a
-{rbtr_consumer}
+that allows an
+{at_operator}
 read-only access to the
 {rbtgi_repository}
 for pulling
@@ -577,8 +580,8 @@ since it operates entirely within the cloud infrastructure.
 {rbtr_director}::
 An
 {rbtr_role}
-that grants a
-{rbtr_consumer}
+that grants an
+{at_operator}
 full build lifecycle permissions including Cloud Build submission and
 {rbtgi_repository}
 management.
@@ -1200,18 +1203,32 @@ A container image built or replicated through the Google build infrastructure.
 {rbtr_consumer}::
 An
 {rbtr_role}
-that enables an individual to use deployed
+that an
+{at_operator}
+assumes to use deployed
 {at_bottle_image_s}
 on their
 {at_workstation}.
 The
 {rbtr_consumer}
-interacts with bottle and sentry containers to accomplish work, distinct from infrastructure operators who build and deploy the system.
+interacts with bottle and sentry containers to accomplish work, distinct from roles that build and deploy the system.
+
+[[at_operator]]
+// ⟦axl_voices axo_actor⟧
+{at_operator}::
+An individual who maintains a local installation of the
+{at_recipe_bottle}
+system on their
+{at_workstation}
+and holds
+{rbtgi_rbra_file}
+credentials that enable assumption of the system's defined
+{rbtr_role_s}.
 
 [[at_workstation]]
 {at_workstation}::
 The local environment where
-{rbtr_consumer_s}
+{at_operator_s}
 execute
 {at_rbm_system}
 commands.
@@ -1327,11 +1344,11 @@ and
 Path to an
 {rbtgi_rbra_file}
 stored in the
-{rbtr_consumer_p}
+{at_operator_p}
 local filesystem outside the source
 {rbtgi_repository}.
 This file enables the
-{rbtr_consumer}
+{at_operator}
 to assume the
 {rbtr_retriever}
 role for container image operations.
@@ -1342,11 +1359,11 @@ role for container image operations.
 Path to an
 {rbtgi_rbra_file}
 stored in the
-{rbtr_consumer_p}
+{at_operator_p}
 local filesystem outside the source
 {rbtgi_repository}.
 This file enables the
-{rbtr_consumer}
+{at_operator}
 to assume the
 {rbtr_director}
 for build submission and image management operations.
@@ -1357,11 +1374,11 @@ for build submission and image management operations.
 Path to an
 {rbtgi_rbra_file}
 stored in the
-{rbtr_consumer_p}
+{at_operator_p}
 local filesystem outside the source
 {rbtgi_repository}.
 This file enables the
-{rbtr_consumer}
+{at_operator}
 to assume the
 {rbtr_governor}
 role for
@@ -1374,11 +1391,11 @@ administration operations.
 Path to an
 {rbtgi_rbra_file}
 stored in the
-{rbtr_consumer_p}
+{at_operator_p}
 local filesystem outside the source
 {rbtgi_repository}.
 This file enables the
-{rbtr_consumer}
+{at_operator}
 to assume the
 {rbtr_payor}
 role for billing and

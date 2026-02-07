@@ -1,5 +1,5 @@
 The
-{rbtr_consumer}
+{at_operator}
 performs one-time manual setup via Google Cloud Console to establish
 {rbtr_payor}
 OAuth infrastructure.

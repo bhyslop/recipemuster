@@ -1,5 +1,5 @@
 The
-{rbtr_consumer}
+{at_operator}
 completes OAuth credential installation by running the automated installation command with the downloaded OAuth client JSON file.
 This step performs the OAuth authorization flow, securely stores credentials, and validates the Payor project is accessible.
 
