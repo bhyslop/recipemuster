@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AX",
+  "next_heat_seed": "AY",
   "heats": {
     "₣AS": {
       "silks": "rbw-spec-axla-coherence",
@@ -3018,6 +3018,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_AV.md",
+      "paces": {}
+    },
+    "₣AX": {
+      "silks": "pb-quick-plus-alt-tab-clue",
+      "creation_time": "260207",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AX.md",
       "paces": {}
     }
   }
