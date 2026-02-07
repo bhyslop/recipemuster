@@ -482,6 +482,13 @@
         "₢AWAAQ": {
           "tacks": [
             {
+              "ts": "260207-1313",
+              "state": "complete",
+              "text": "Manual integration test for officium/invitatory mechanism.\n\nLower VVCP_OFFICIUM_GAP_SECS to a small value (e.g., 5 seconds), then run jjx_orient, jjx_list, and jjc-heat-groom to verify:\n1. jjx_orient (saddle) triggers an invitatory commit (vvb:...:i: OFFICIUM ...) when gap exceeded\n2. jjx_list (muster) triggers an invitatory commit when gap exceeded\n3. A second immediate call does NOT trigger (gap not exceeded)\n4. The commit body contains probe data (model IDs, host, platform)\n5. git log shows the correct vvb: branded format\n\nAfter verification, restore VVCP_OFFICIUM_GAP_SECS to 3600.\n\nKey files:\n- Tools/vvc/src/vvcp_probe.rs (lower/restore VVCP_OFFICIUM_GAP_SECS)\n\nDepends on: ₢AWAAO (add-vvx-invitatory) and ₢AWAAP (wire-invitatory-triggers) must be complete first.",
+              "silks": "test-officium-threshold",
+              "commit": "44519b3"
+            },
+            {
               "ts": "260207-0853",
               "state": "rough",
               "text": "Manual integration test for officium/invitatory mechanism.\n\nLower VVCP_OFFICIUM_GAP_SECS to a small value (e.g., 5 seconds), then run jjx_orient, jjx_list, and jjc-heat-groom to verify:\n1. jjx_orient (saddle) triggers an invitatory commit (vvb:...:i: OFFICIUM ...) when gap exceeded\n2. jjx_list (muster) triggers an invitatory commit when gap exceeded\n3. A second immediate call does NOT trigger (gap not exceeded)\n4. The commit body contains probe data (model IDs, host, platform)\n5. git log shows the correct vvb: branded format\n\nAfter verification, restore VVCP_OFFICIUM_GAP_SECS to 3600.\n\nKey files:\n- Tools/vvc/src/vvcp_probe.rs (lower/restore VVCP_OFFICIUM_GAP_SECS)\n\nDepends on: ₢AWAAO (add-vvx-invitatory) and ₢AWAAP (wire-invitatory-triggers) must be complete first.",
