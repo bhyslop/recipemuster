@@ -19,6 +19,13 @@
         "₢ASAAA": {
           "tacks": [
             {
+              "ts": "260207-0853",
+              "state": "rough",
+              "text": "DEFERRED to downstream AXLA heat.\n\n## Rationale (from ₢ASAAD design and paddock)\n\nThe paddock explicitly states: \"After completing this heat, plan a follow-up heat to refine AXLA regime vocabulary itself.\" Expanding axrg_* is AXLA vocabulary work, not RBSA consolidation work.\n\nThis pace should move to the downstream AXLA refinement heat once ₣AS completes. The RBSA consolidation work (especially ₢ASAAC regime unification) will generate insights about what AXLA regime patterns need, making this pace more informed when it executes later.\n\n## Original scope (preserved for transfer)\nExpand AXLA's axrg_* regime terms into complete pattern documentation. Extract regime architecture from CRR and document as AXLA voicings of axrg_* motifs.",
+              "silks": "expand-axla-regime-section",
+              "commit": "bb93353"
+            },
+            {
               "ts": "260131-1149",
               "state": "rough",
               "text": "Expand AXLA's axrg_* regime terms into complete pattern documentation.\n\nCurrently AXLA defines abstract regime motifs (axrg_regime, axrg_variable, axrg_assignment, axrg_prefix) but leaves implementation patterns unexplained. CRR documents these patterns concretely but is Recipe Bottle-specific.\n\nExtract regime architecture from CRR and document as AXLA voicings of axrg_* motifs:\n- Structure of regime specifications (sections, variable tables, format requirements)\n- Glossary and mapping section patterns\n- Assignment file format (makefile, bash, JSON, etc.)\n- Validation and rendering architecture\n\nResult: AXLA becomes authoritative reference for regime pattern; specs reference AXLA rather than repeating CRR.",
