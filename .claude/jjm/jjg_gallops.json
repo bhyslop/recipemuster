@@ -24,6 +24,13 @@
         "₢AWAAA": {
           "tacks": [
             {
+              "ts": "260206-2232",
+              "state": "rough",
+              "text": "Rename jjx_ command strings in Rust CLI source.\n\nTwo kinds of changes:\n\n**Command renames** — Update all #[command(name = \"jjx_*\")] attributes in jjrx_cli.rs to use boring names from paddock mapping table. ~18 string edits (22 minus tally which is being split).\n\n**Tally split** — Replace jjx_tally with four single-purpose commands:\n- jjx_revise_docket CORONET < stdin — update docket text, carry forward state/silks\n- jjx_arm CORONET < stdin — set state=bridled, stdin is the warrant\n- jjx_relabel CORONET --silks \"name\" — rename, carry forward docket/state\n- jjx_drop CORONET — set state=abandoned\nAll four create a new tack internally. Each carries forward unchanged fields from tacks[0].\n\n**Flag rename** — Rename --full to --detail in jjrpd_parade.rs ParadeArgs struct.\n\n**Presentation labels** — In parade output (jjrpd_parade.rs), change:\n- \"Spec:\" / spec text labels → \"Docket:\"\n- \"Direction:\" → \"Warrant:\"\n\nFiles:\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (command names, tally split registration)\n- Tools/jjk/vov_veiled/src/jjrtl_tally.rs (refactor into 4 entry points)\n- Tools/jjk/vov_veiled/src/jjrpd_parade.rs (--full→--detail, label renames)\n- Tools/jjk/vov_veiled/src/jjrsd_saddle.rs (label renames: Spec→Docket, Direction→Warrant)\n\nAcceptance: tt/vow-b.Build.sh compiles. jjx_show, jjx_revise_docket, jjx_arm, jjx_relabel, jjx_drop all respond to --help. jjx_tally and jjx_parade produce \"unknown command.\" tt/vow-t.Test.sh passes.",
+              "silks": "rename-jjrx-cli-strings",
+              "commit": "1787240"
+            },
+            {
               "ts": "260206-2209",
               "state": "rough",
               "text": "Rename jjx_ command strings in jjrx_cli.rs.\n\nUpdate all #[command(name = \"jjx_*\")] attributes to use the new boring names from the paddock mapping table. This is ~22 string edits in one file.\n\nAlso rename the --full flag to --detail in jjrpd_parade.rs (ParadeArgs struct). This is a flag rename, same kind of edit — the flag means \"show detailed view\" not \"show full view.\"\n\nFiles:\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (command names)\n- Tools/jjk/vov_veiled/src/jjrpd_parade.rs (--full → --detail)\n\nAcceptance: `tt/vow-b.Build.sh` compiles, `./tt/vvw-r.RunVVX.sh jjx_show --help` works, `jjx_show AH --detail` works.",
