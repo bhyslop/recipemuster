@@ -30,6 +30,13 @@
         "₢ASAAB": {
           "tacks": [
             {
+              "ts": "260207-0851",
+              "state": "rough",
+              "text": "Express bottle lifecycle operations (sentry start, bottle start/stop, security configuration) as RBAGS-style procedures within RBSA.\n\n## Context (from ₢ASAAD design)\n\nRBSA consolidates RBAGS + RBS into a single document. Tier 2 (Operations) organizes all procedures — cloud and local — as peers. Local operations must follow the same RBAGS pattern:\n\n```asciidoc\n[[operation_anchor]]\n// ⟦axl_voices axo_command axe_bash_interactive⟧\n=== {operation_name}\n\ninclude::RBSXX-subdoc.adoc[]\n```\n\n## Work required\n\n1. Identify RBS procedure sections to convert:\n   - Sentry Start (network create, sentry run, network connect, security config)\n   - Sessile Bottle Start (cleanup, launch)\n   - Agile Bottle Run (create, exec)\n   - Bottle Stop (not yet specified in RBS but needed)\n\n2. For each procedure, create an RBSXX subdoc following RBAGS naming:\n   - Use rbbc_* control voicings (CALL, REQUIRE, FATAL, SHOW, etc.)\n   - Document steps as ordered sequences with control flow\n   - Replace cmk_* vocabulary entirely (cmk is dead)\n\n3. Bifurcate operations vs script internals:\n   - Operations in Tier 2: describe WHAT happens at each step\n   - Script internals in Reference: iptables chain setup, NAT rules, dnsmasq config, socat proxy, eBPF attachment detail\n\n## Acceptance criteria\n- Each local operation has its own RBSXX subdoc\n- All operations use axo_command + axe_bash_interactive annotations\n- No cmk_* vocabulary remains in converted content\n- Script internals are in reference section, not inline",
+              "silks": "express-local-ops-axla-voicings",
+              "commit": "be53341"
+            },
+            {
               "ts": "260131-1149",
               "state": "rough",
               "text": "Partition RBS procedural specifications into AXLA-consistent subfiles.\n\nMove ₢APAAV from ₣AP. RBS currently monolithic; should follow RBAGS precedent of partitioned subfiles with AXLA voicings.\n\nIdentify RBS procedure sections (Sentry Start, Bottle Start, Bottle Run, etc.) and extract into standalone subfiles.\n\nEach subfile:\n- Follows RBAGS naming pattern (RBSXY-Description.adoc)\n- Includes AXLA-consistent voicings: // ⟦axl_voices axo_procedure axd_transient⟧\n- Documents sections: axs_inputs, axs_behavior, axs_outputs, axs_completion\n- Maintains term mappings compatible with parent RBS document\n\nEstablish naming convention for RBS subfiles before implementation.",
