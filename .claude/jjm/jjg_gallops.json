@@ -447,6 +447,14 @@
         "₢ARAAT": {
           "tacks": [
             {
+              "ts": "260206-2036",
+              "state": "bridled",
+              "text": "Implement rbf_abjure() in rbf_Foundry.sh following the RBSAA-ark_abjure.adoc spec. Takes vessel and consecration arguments, deletes both -image and -about artifacts as a coherent ark unit. Follow the existing rbf_delete() pattern for HTTP/auth mechanics but operate on paired tags. Add coordinator routing (rbw-fA or similar) in rbk_Coordinator.sh and a tabtarget launcher. Handle orphaned artifacts (one exists, other missing) with warnings per spec. Include --force flag to skip confirmation prompt.",
+              "silks": "implement-rbf-abjure",
+              "commit": "44c6525",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: Tools/rbw/rbf_Foundry.sh, Tools/rbw/rbk_Coordinator.sh, tt/rbw-fA.AbjureArk.sh (3 files) | Steps: 1. Read rbf_delete in rbf_Foundry.sh and RBSAA-ark_abjure.adoc spec as patterns 2. Add rbf_abjure function after rbf_delete -- takes vessel and consecration args, constructs both tags using RBGC_ARK_SUFFIX_IMAGE and RBGC_ARK_SUFFIX_ABOUT, HEAD-checks each tag for existence, warns on orphaned artifacts, prompts for confirmation unless --force, deletes each existing artifact via DELETE, reports results 3. Add rbw-fA routing in rbk_Coordinator.sh case statement in the Foundry commands section pointing to rbf_cli.sh rbf_abjure 4. Create tt/rbw-fA.AbjureArk.sh tabtarget following exact pattern of tt/rbw-fD.DeleteImage.sh 5. Use ZRBF_DELETE_PREFIX for temp files and ZRBF_REGISTRY_API_BASE for endpoints -- add abjure-specific temp file vars in zrbf_kindle if needed | Verify: bash -n Tools/rbw/rbf_Foundry.sh and bash -n Tools/rbw/rbk_Coordinator.sh"
+            },
+            {
               "ts": "260206-2035",
               "state": "rough",
               "text": "Implement rbf_abjure() in rbf_Foundry.sh following the RBSAA-ark_abjure.adoc spec. Takes vessel and consecration arguments, deletes both -image and -about artifacts as a coherent ark unit. Follow the existing rbf_delete() pattern for HTTP/auth mechanics but operate on paired tags. Add coordinator routing (rbw-fA or similar) in rbk_Coordinator.sh and a tabtarget launcher. Handle orphaned artifacts (one exists, other missing) with warnings per spec. Include --force flag to skip confirmation prompt.",
