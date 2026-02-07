@@ -34,7 +34,7 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | Add a new pace | /jjc-pace-slate |
 | Refine pace spec | /jjc-pace-reslate |
 | Bridle for autonomous execution | /jjc-pace-bridle |
-| Mark pace complete | /jjc-pace-wrap |
+| Mark pace complete | `jjx_close` |
 | Commit with JJ context | /jjc-pace-notch |
 | Execute next pace | /jjc-heat-mount |
 | Review heat plan | /jjc-heat-groom |
@@ -42,11 +42,11 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | Reorder paces | /jjc-heat-rail |
 | Add steeplechase marker | /jjc-heat-chalk |
 | Pause or resume heat | /jjc-heat-furlough |
-| Create new heat | /jjc-heat-nominate |
-| List all heats | /jjc-heat-muster |
+| Create new heat | `jjx_create` |
+| List all heats | `jjx_list` |
 | Draft paces between heats | /jjc-heat-restring |
 | Retire completed heat | /jjc-heat-retire |
-| View heat or pace | /jjc-parade |
+| View heat or pace | `jjx_show` |
 
 **Quick Verbs** — When user says just the verb, invoke the corresponding command:
 
@@ -55,17 +55,17 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | mount | /jjc-heat-mount |
 | slate | /jjc-pace-slate |
 | reslate | /jjc-pace-reslate |
-| wrap | /jjc-pace-wrap |
+| wrap | `jjx_close` |
 | bridle | /jjc-pace-bridle |
 | notch | /jjc-pace-notch |
 | furlough | /jjc-heat-furlough |
-| muster | /jjc-heat-muster |
+| muster | `jjx_list` |
 | groom | /jjc-heat-groom |
 | quarter | /jjc-heat-quarter |
 | rail | /jjc-heat-rail |
-| rein | /jjc-heat-rein |
-| scout | /jjc-scout |
-| parade | /jjc-parade |
+| rein | `jjx_log` |
+| scout | `jjx_search` |
+| parade | `jjx_show` |
 
 **Common CLI Pitfalls:**
 - `jjx_parade` takes firemark OR coronet directly as sole argument — NO flags for target selection
@@ -136,7 +136,7 @@ When evaluating whether a pace is ready for autonomous execution (bridled state)
 
 ### Wrap Discipline
 
-**NEVER auto-wrap a pace.** Always ask the user explicitly: "Ready to wrap ₢XXXXX?" and wait for confirmation before running `/jjc-pace-wrap`. The user decides when work is complete, not the agent.
+**NEVER auto-wrap a pace.** Always ask the user explicitly: "Ready to wrap ₢XXXXX?" and wait for confirmation before running `jjx_close`. The user decides when work is complete, not the agent.
 
 This applies to:
 - Direct work on rough paces

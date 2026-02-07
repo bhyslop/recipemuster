@@ -25,7 +25,7 @@ Extract Firemark from $ARGUMENTS if provided.
 - Filter for lines where STATUS column is "racing"
 
 **If 0 racing heats:**
-- Error: "No racing heats found. Use `/jjc-heat-muster` to see all heats."
+- Error: "No racing heats found. Use `jjx_list` to see all heats."
 - Stop
 
 **If 1 racing heat:**
@@ -122,6 +122,6 @@ Common errors:
 - `/jjc-heat-garland` — Transfer paces to continuation (this command)
 - `/jjc-heat-retire` — Archive completed heat (no remaining work)
 - `/jjc-heat-mount` — Begin work on next pace
-- `/jjc-heat-muster` — List all heats
+- `jjx_list` — List all heats
 - `/jjc-heat-groom` — Review and refine heat
 - `/jjc-parade-overview` — Heat summary

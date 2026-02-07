@@ -104,7 +104,7 @@ Common errors:
 
 - `/jjc-heat-furlough` — Pause/resume heat (this command)
 - `/jjc-heat-mount` — Begin work on next pace (racing heats only)
-- `/jjc-heat-muster` — List all heats
+- `jjx_list` — List all heats
 - `/jjc-heat-groom` — Review and refine heat (all heats)
-- `/jjc-heat-nominate` — Create new heat
+- `jjx_create` — Create new heat
 - `/jjc-parade-overview` — Heat summary

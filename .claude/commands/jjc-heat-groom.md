@@ -31,7 +31,7 @@ If heat status is "stabled", note: "⚠ This heat is stabled (paused). Use `/jjc
 Summarize progress:
 - Complete: X | Abandoned: Y | Remaining: Z (rough: A, bridled: B)
 
-If user needs full dockets or paddock content, they can request it or use `/jjc-parade detail`.
+If user needs full dockets or paddock content, they can request it or use `jjx_show --full`.
 
 ## Step 3: Enter planning mode
 
@@ -75,9 +75,9 @@ Store for use by other commands:
 **Commits:** Always use `/jjc-pace-notch` — never vvx_commit directly.
 
 - `/jjc-heat-mount` — Begin work on next pace
-- `/jjc-heat-muster` — List all heats
+- `jjx_list` — List all heats
 - `/jjc-heat-groom` — Review and refine heat
-- `/jjc-heat-nominate` — Create new heat
+- `jjx_create` — Create new heat
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-notch` — JJ-aware git commit
-- `/jjc-parade` — Heat or pace details
+- `jjx_show` — Heat or pace details

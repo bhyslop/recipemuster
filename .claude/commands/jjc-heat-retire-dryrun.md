@@ -24,5 +24,5 @@ No files are modified. No confirmation needed.
 ## Available Operations
 
 - `/jjc-heat-retire-FINAL` — Actually retire the heat (with confirmation)
-- `/jjc-heat-muster` — List all heats
+- `jjx_list` — List all heats
 - `/jjc-parade-full` — View heat details

@@ -148,14 +148,14 @@ Before branching on state, assess whether the pace silks fits the docket:
     ```
     ## Wrap Discipline
 
-    DO NOT run /jjc-pace-wrap or mark the pace complete. When work is done:
+    DO NOT run jjx_close or mark the pace complete. When work is done:
     1. Run build + tests as specified in warrant
     2. Report completion status and test results
     3. STOP — the calling agent will confirm wrap with the user
     ```
   - Wait for agent completion and report outcome to user
   - Create landing commit: `echo "{agent_output}" | ./tt/vvw-r.RunVVX.sh jjx_landing <PACE_CORONET> {agent}`
-  - **Do NOT auto-wrap.** Ask user: "Ready to wrap ₢<CORONET>?" and wait for confirmation before running `/jjc-pace-wrap`
+  - **Do NOT auto-wrap.** Ask user: "Ready to wrap ₢<CORONET>?" and wait for confirmation before running `jjx_close`
 - **On I:**
   - Report: "Switching to interactive mode for ₢{CORONET}"
   - Suggest: "Use `/jjc-pace-reslate` to unbridle and refine, or work directly on the pace"
@@ -176,9 +176,9 @@ Store for use by other commands:
 **Commits:** Always use `/jjc-pace-notch` — never vvx_commit directly.
 
 - `/jjc-heat-mount` — Begin work on next pace
-- `/jjc-heat-muster` — List all heats
+- `jjx_list` — List all heats
 - `/jjc-heat-groom` — Review and refine heat
-- `/jjc-heat-nominate` — Create new heat
+- `jjx_create` — Create new heat
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-notch` — JJ-aware git commit
 - `/jjc-parade-overview` — Heat summary

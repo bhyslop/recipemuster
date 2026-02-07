@@ -45,7 +45,7 @@ Extract from $ARGUMENTS:
 - Run: `./tt/vvw-r.RunVVX.sh jjx_list`
 - Parse TSV output
 
-**If 0 heats:** Error: "No heats found. Create one with `/jjc-heat-nominate` first."
+**If 0 heats:** Error: "No heats found. Create one with `jjx_create` first."
 
 **If 1 heat:** Use that heat's Firemark.
 
@@ -116,7 +116,7 @@ Common errors:
 
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-reslate` — Refine pace docket
-- `/jjc-pace-wrap` — Mark pace complete
+- `jjx_close` — Mark pace complete
 - `/jjc-pace-bridle` — Arm pace for autonomous execution
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-rail` — Reorder paces

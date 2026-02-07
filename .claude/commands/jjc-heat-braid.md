@@ -386,8 +386,8 @@ Heat A (₣{FA}): {X} paces remaining
 Heat B (₣{FB}): {Y} paces remaining
 
 Steeplechase references:
-  ₣{FA}: See `/jjc-heat-rein {FA}` for braid chalk entries
-  ₣{FB}: See `/jjc-heat-rein {FB}` for braid chalk entries
+  ₣{FA}: See `jjx_log {FA}` for braid chalk entries
+  ₣{FB}: See `jjx_log {FB}` for braid chalk entries
 
 Next steps:
   - `/jjc-heat-mount ₣{FA}` — Continue heat A
@@ -408,6 +408,6 @@ Common errors:
 
 - `/jjc-heat-mount` — Begin work on a heat
 - `/jjc-heat-groom` — Review and refine heat
-- `/jjc-heat-rein` — View steeplechase history
+- `jjx_log` — View steeplechase history
 - `/jjc-heat-retire` — Retire completed heat
-- `/jjc-parade` — Heat or pace details
+- `jjx_show` — Heat or pace details

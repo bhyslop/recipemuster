@@ -120,9 +120,9 @@ Do not offer to execute directly. Execution belongs to `/jjc-heat-mount`.
 **Commits:** Always use `/jjc-pace-notch` — never vvx_commit directly.
 
 - `/jjc-heat-mount` — Begin work on next pace
-- `/jjc-heat-muster` — List all heats
+- `jjx_list` — List all heats
 - `/jjc-heat-groom` — Review and refine heat
-- `/jjc-heat-nominate` — Create new heat
+- `jjx_create` — Create new heat
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-notch` — JJ-aware git commit
 - `/jjc-parade-overview` — Heat summary

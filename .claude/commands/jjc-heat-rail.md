@@ -116,7 +116,7 @@ Common errors:
 
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-reslate` — Refine pace docket
-- `/jjc-pace-wrap` — Mark pace complete
+- `jjx_close` — Mark pace complete
 - `/jjc-pace-bridle` — Arm pace for autonomous execution
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-rail` — Reorder paces

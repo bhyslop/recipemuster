@@ -43,5 +43,5 @@ Display:
 ## Available Operations
 
 - `/jjc-heat-retire-dryrun` — Preview retirement without changes
-- `/jjc-heat-muster` — List all heats
+- `jjx_list` — List all heats
 - `/jjc-parade-full` — View heat details before retiring

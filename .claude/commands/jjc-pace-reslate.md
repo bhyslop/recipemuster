@@ -110,7 +110,7 @@ The new tack text is passed via stdin. State is inherited (stays rough, stays br
 
 To change state, use:
 - `/jjc-pace-bridle` → bridled (arm for autonomous execution)
-- `/jjc-pace-wrap` → complete
+- `jjx_close` → complete
 
 ## Step 5: Report and assess
 
@@ -159,7 +159,7 @@ Common errors:
 
 - `/jjc-pace-slate` — Add a new pace
 - `/jjc-pace-reslate` — Refine pace docket
-- `/jjc-pace-wrap` — Mark pace complete
+- `jjx_close` — Mark pace complete
 - `/jjc-pace-bridle` — Arm pace for autonomous execution
 - `/jjc-heat-mount` — Begin work on next pace
 - `/jjc-heat-rail` — Reorder paces
