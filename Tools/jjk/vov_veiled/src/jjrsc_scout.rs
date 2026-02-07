@@ -133,8 +133,17 @@ pub(crate) fn zjrsc_extract_match_context(content: &str, re: &Regex) -> String {
         let context_before = 30;
         let context_after = 30;
 
-        let window_start = start.saturating_sub(context_before);
-        let window_end = (end + context_after).min(content.len());
+        // Snap window boundaries to valid UTF-8 char boundaries
+        let mut window_start = start.saturating_sub(context_before);
+        while !content.is_char_boundary(window_start) {
+            window_start -= 1;
+        }
+
+        let mut window_end = (end + context_after).min(content.len());
+        while !content.is_char_boundary(window_end) {
+            window_end += 1;
+        }
+        let window_end = window_end.min(content.len());
 
         let mut excerpt = String::new();
         if window_start > 0 {
