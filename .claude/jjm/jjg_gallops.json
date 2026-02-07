@@ -1567,10 +1567,11 @@
         "₢AGAAH",
         "₢AGAAE",
         "₢AGAAF",
+        "₢AGAAK",
         "₢AGAAG",
         "₢AGAAI"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -1697,6 +1698,17 @@
               "text": "Consider adding a 'base commit' field to the heat data model — a git SHA recorded at heat creation time that captures the codebase state when the heat was constructed.\n\n## Problem\n\nThere is currently no way to programmatically determine what the codebase looked like \"before\" a heat's changes began. This matters for:\n- Diffing: `git diff <base_commit>..HEAD` to see all changes a heat has made\n- Rein/steeplechase: Understanding cumulative impact of a heat's paces\n- Rollback analysis: Knowing what \"clean\" looked like before heat work started\n- Heat retirement: Summarizing total delta introduced by the heat\n\n## Proposed Schema Change\n\nAdd `base_commit` (optional string, git SHA) to Heat record in gallops.json:\n\n```json\n{\n  \"silks\": \"my-heat\",\n  \"status\": \"racing\",\n  \"base_commit\": \"a1b2c3d4e5f6...\",  // NEW: SHA at heat creation\n  ...\n}\n```\n\n## Behavior\n\n- `jjx_nominate`: Capture `git rev-parse HEAD` at heat creation, store as `base_commit`\n- `jjx_parade`: Display base commit when present\n- `jjx_rein`: Could use base commit as diff anchor for steeplechase summaries\n- Migration: Existing heats get `base_commit: null` (not retroactively derivable with certainty)\n\n## Design Questions\n\n- Should this be mandatory for new heats or optional?\n- Is a single SHA sufficient, or should we record branch name too?\n- Should this interact with furlough (re-baseline when resuming)?\n- Relationship to tack basis fields: tack records already track per-pace commit SHAs — how does heat-level base commit complement or overlap with per-pace basis?\n\n## Acceptance\n\n- Design decision documented on whether to proceed and with what schema\n- If proceeding: schema change specified, migration path defined",
               "silks": "consider-heat-base-commit",
               "commit": "9cffe27"
+            }
+          ]
+        },
+        "₢AGAAK": {
+          "tacks": [
+            {
+              "ts": "260206-2234",
+              "state": "rough",
+              "text": "Rename JSON schema field \"text\" to \"docket\" in tack records.\n\nCompanion to json-schema-commit-to-basis (₢AGAAF). Same pattern:\n1. Remove serde rename attribute (or change field name) in jjrt_types.rs\n2. Migrate existing gallops JSON: s/\"text\":/\"docket\":/g\n3. Update documentation referencing the JSON schema\n\nBreaking: Changes JSON schema. All existing gallops files must be migrated.\n\nAcceptance: JSON files use \"docket\" key. Round-trip validation passes. All tests pass.",
+              "silks": "json-schema-text-to-docket",
+              "commit": "d1b8f5a"
             }
           ]
         }
