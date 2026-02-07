@@ -8,6 +8,7 @@
       "order": [
         "₢AWAAM",
         "₢AWAAN",
+        "₢AWAAO",
         "₢AWAAL",
         "₢AWAAK",
         "₢AWAAA",
@@ -21,7 +22,7 @@
         "₢AWAAH",
         "₢AWAAI"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -266,6 +267,17 @@
               "text": "Create vvcc_format_branded() in VVC as the single formatting function for all branded commits (jjb: and vvb:).\n\nSignature:\n  vvcc_format_branded(brand: &str, hallmark: &str, identity: &str, action: &str, subject: &str, body: Option<&str>) -> String\n\nOutput: \"{brand}:{hallmark}:{identity}:{action}: {subject}\" with optional \"\\n\\n{body}\" appended.\n\nImplementation:\n1. Add pub fn vvcc_format_branded() to Tools/vvc/src/vvcc_commit.rs (or a new vvcc_format.rs if cleaner)\n2. Export from Tools/vvc/src/lib.rs\n3. Add unit tests: empty identity, with identity, with body, without body, colon enforcement\n4. Migrate all 8 format functions in Tools/jjk/vov_veiled/src/jjrn_notch.rs to call vvcc_format_branded():\n   - jjrn_format_notch_prefix → vvcc_format_branded(\"jjb\", hallmark, identity, \"n\", \"\", None) + \" \"\n   - jjrn_format_chalk_message → vvcc_format_branded(\"jjb\", hallmark, identity, marker, description, None)\n   - jjrn_format_heat_discussion → vvcc_format_branded(\"jjb\", hallmark, identity, \"d\", description, None)\n   - jjrn_format_heat_message → vvcc_format_branded(\"jjb\", hallmark, identity, action, description, None)\n   - jjrn_format_bridle_message → vvcc_format_branded(\"jjb\", hallmark, identity, \"B\", subject, None)\n   - jjrn_format_landing_message → vvcc_format_branded(\"jjb\", hallmark, identity, \"L\", subject, None)\n   - jjrn_format_session_message → DELETE (replaced by invitatory in next pace)\n5. Build and test: tt/vow-b.Build.sh && tt/vow-t.Test.sh\n6. Verify existing commit formats unchanged by running jjx_chalk, jjx_notch dry-run or inspecting format output\n\nKey files:\n- Tools/vvc/src/vvcc_commit.rs (or new vvcc_format.rs)\n- Tools/vvc/src/lib.rs\n- Tools/jjk/vov_veiled/src/jjrn_notch.rs (8 format functions to migrate)",
               "silks": "add-vvcc-format-branded",
               "commit": "f7a9786"
+            }
+          ]
+        },
+        "₢AWAAO": {
+          "tacks": [
+            {
+              "ts": "260207-0716",
+              "state": "rough",
+              "text": "Create vvx invitatory command in VVC: session gap check + probe + vvb:...:i: commit.\n\nImplementation:\n1. Move jjrc_needs_session_probe() from Tools/jjk/vov_veiled/src/jjrc_core.rs to VVC (new function vvcp_needs_session() or similar in Tools/vvc/src/vvcp_probe.rs). Keep same logic: >1 hour gap or no commits. The function needs to scan git log for the most recent vvb:...:i: commit (not jjb: commits — those are JJK's domain now).\n2. Add new vvx subcommand \"invitatory\" in Tools/vok/vov_veiled/src/jjrx_cli.rs (or wherever vvx subcommands are registered). This command:\n   a. Checks if session probe is needed (call vvcp_needs_session)\n   b. If not needed: print \"Session current\" and exit 0\n   c. If needed: call vvcp_probe(), format commit using vvcc_format_branded(\"vvb\", hallmark, \"\", \"i\", \"INVITATORY {timestamp}\", Some(probe_data)), create empty commit via vvc::commit()\n   d. Print \"Session-marker: {commit_hash} ({timestamp})\" on success\n3. Export from VVC lib.rs as needed\n4. Add VOS spec update: voscai_invitatory action code i in VOS-VoxObscuraSpec.adoc Commit Message Architecture section\n5. Build and test: tt/vow-b.Build.sh && tt/vow-t.Test.sh\n6. Manual test: lower gap threshold temporarily, run vvx invitatory, verify commit format with git log -1\n\nKey files:\n- Tools/vvc/src/vvcp_probe.rs (add session gap check)\n- Tools/vvc/src/lib.rs (export)\n- Tools/vok/vov_veiled/src/jjrx_cli.rs (register subcommand)\n- Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc (add voscai_invitatory)",
+              "silks": "add-vvx-invitatory",
+              "commit": "cc58912"
             }
           ]
         }
