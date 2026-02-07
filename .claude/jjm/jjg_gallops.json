@@ -1515,9 +1515,10 @@
         "₢AHAAN",
         "₢AHAAO",
         "₢AHAAP",
-        "₢AHAAS"
+        "₢AHAAS",
+        "₢AHAAW"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -2006,6 +2007,17 @@
               "text": "Explore whether parade has too many flags (--full, --remaining, --files) and whether some should become separate commands.\n\nConsider:\n- parade's core job vs. accumulated concerns\n- Whether --files bitmap warrants its own command (e.g., jjx_bitmap)\n- Whether --full and --remaining add value as flags vs. being defaults or separate commands\n- CLI discoverability and option-count discipline\n\nProduce a recommendation memo, not implementation.",
               "silks": "explore-parade-flag-reduction",
               "commit": "b6b3be5"
+            }
+          ]
+        },
+        "₢AHAAW": {
+          "tacks": [
+            {
+              "ts": "260206-2126",
+              "state": "rough",
+              "text": "Enhance the wrap coda output (jjrwp_wrap.rs) to include the next actionable pace's silks and one-line description in the recommendation message.\n\nCurrent output:\n  Recommended: /clear then /jjc-heat-mount AR\n\nDesired output:\n  Recommended: /clear then /jjc-heat-mount AR for pace the-next-pace-silks (first line of pace spec)\n\nIf no next actionable pace exists (heat complete), output something like:\n  Heat AR complete — no remaining paces.\n\nImplementation:\n- After the chalk commit succeeds (line 284), use the already-modified `gallops` (in scope from line 247) to find the parent heat via `coronet.jjrf_parent_firemark()`\n- Iterate `heat.order` looking for first pace with state Rough or Bridled (same pattern as saddle lines 172-201)\n- Extract that pace's silks and first line of its tack text\n- Format the enhanced recommendation message",
+              "silks": "wrap-coda-next-pace-hint",
+              "commit": "6301766"
             }
           ]
         }
