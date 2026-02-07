@@ -1,190 +1,6 @@
 {
   "next_heat_seed": "AY",
   "heats": {
-    "₣AS": {
-      "silks": "rbw-spec-axla-coherence",
-      "creation_time": "260131",
-      "status": "racing",
-      "order": [
-        "₢ASAAG",
-        "₢ASAAD",
-        "₢ASAAH",
-        "₢ASAAB",
-        "₢ASAAC",
-        "₢ASAAF",
-        "₢ASAAI",
-        "₢ASAAA"
-      ],
-      "next_pace_seed": "AAJ",
-      "paddock_file": ".claude/jjm/jjp_AS.md",
-      "paces": {
-        "₢ASAAA": {
-          "tacks": [
-            {
-              "ts": "260207-0906",
-              "state": "abandoned",
-              "text": "Deferred to downstream AXLA heat. See paddock Downstream Work section.\n\nOriginal scope preserved: Expand AXLA's axrg_* regime terms into complete pattern documentation. Extract regime architecture from CRR and document as AXLA voicings of axrg_* motifs.",
-              "silks": "expand-axla-regime-section",
-              "commit": "55869a9"
-            },
-            {
-              "ts": "260207-0853",
-              "state": "rough",
-              "text": "DEFERRED to downstream AXLA heat.\n\n## Rationale (from ₢ASAAD design and paddock)\n\nThe paddock explicitly states: \"After completing this heat, plan a follow-up heat to refine AXLA regime vocabulary itself.\" Expanding axrg_* is AXLA vocabulary work, not RBSA consolidation work.\n\nThis pace should move to the downstream AXLA refinement heat once ₣AS completes. The RBSA consolidation work (especially ₢ASAAC regime unification) will generate insights about what AXLA regime patterns need, making this pace more informed when it executes later.\n\n## Original scope (preserved for transfer)\nExpand AXLA's axrg_* regime terms into complete pattern documentation. Extract regime architecture from CRR and document as AXLA voicings of axrg_* motifs.",
-              "silks": "expand-axla-regime-section",
-              "commit": "bb93353"
-            },
-            {
-              "ts": "260131-1149",
-              "state": "rough",
-              "text": "Expand AXLA's axrg_* regime terms into complete pattern documentation.\n\nCurrently AXLA defines abstract regime motifs (axrg_regime, axrg_variable, axrg_assignment, axrg_prefix) but leaves implementation patterns unexplained. CRR documents these patterns concretely but is Recipe Bottle-specific.\n\nExtract regime architecture from CRR and document as AXLA voicings of axrg_* motifs:\n- Structure of regime specifications (sections, variable tables, format requirements)\n- Glossary and mapping section patterns\n- Assignment file format (makefile, bash, JSON, etc.)\n- Validation and rendering architecture\n\nResult: AXLA becomes authoritative reference for regime pattern; specs reference AXLA rather than repeating CRR.",
-              "silks": "expand-axla-regime-section",
-              "commit": "35cc5cb"
-            }
-          ]
-        },
-        "₢ASAAB": {
-          "tacks": [
-            {
-              "ts": "260207-0851",
-              "state": "rough",
-              "text": "Express bottle lifecycle operations (sentry start, bottle start/stop, security configuration) as RBAGS-style procedures within RBSA.\n\n## Context (from ₢ASAAD design)\n\nRBSA consolidates RBAGS + RBS into a single document. Tier 2 (Operations) organizes all procedures — cloud and local — as peers. Local operations must follow the same RBAGS pattern:\n\n```asciidoc\n[[operation_anchor]]\n// ⟦axl_voices axo_command axe_bash_interactive⟧\n=== {operation_name}\n\ninclude::RBSXX-subdoc.adoc[]\n```\n\n## Work required\n\n1. Identify RBS procedure sections to convert:\n   - Sentry Start (network create, sentry run, network connect, security config)\n   - Sessile Bottle Start (cleanup, launch)\n   - Agile Bottle Run (create, exec)\n   - Bottle Stop (not yet specified in RBS but needed)\n\n2. For each procedure, create an RBSXX subdoc following RBAGS naming:\n   - Use rbbc_* control voicings (CALL, REQUIRE, FATAL, SHOW, etc.)\n   - Document steps as ordered sequences with control flow\n   - Replace cmk_* vocabulary entirely (cmk is dead)\n\n3. Bifurcate operations vs script internals:\n   - Operations in Tier 2: describe WHAT happens at each step\n   - Script internals in Reference: iptables chain setup, NAT rules, dnsmasq config, socat proxy, eBPF attachment detail\n\n## Acceptance criteria\n- Each local operation has its own RBSXX subdoc\n- All operations use axo_command + axe_bash_interactive annotations\n- No cmk_* vocabulary remains in converted content\n- Script internals are in reference section, not inline",
-              "silks": "express-local-ops-axla-voicings",
-              "commit": "be53341"
-            },
-            {
-              "ts": "260131-1149",
-              "state": "rough",
-              "text": "Partition RBS procedural specifications into AXLA-consistent subfiles.\n\nMove ₢APAAV from ₣AP. RBS currently monolithic; should follow RBAGS precedent of partitioned subfiles with AXLA voicings.\n\nIdentify RBS procedure sections (Sentry Start, Bottle Start, Bottle Run, etc.) and extract into standalone subfiles.\n\nEach subfile:\n- Follows RBAGS naming pattern (RBSXY-Description.adoc)\n- Includes AXLA-consistent voicings: // ⟦axl_voices axo_procedure axd_transient⟧\n- Documents sections: axs_inputs, axs_behavior, axs_outputs, axs_completion\n- Maintains term mappings compatible with parent RBS document\n\nEstablish naming convention for RBS subfiles before implementation.",
-              "silks": "explode-rbs-procedures-axla-voicings",
-              "commit": "cfe3870"
-            }
-          ]
-        },
-        "₢ASAAC": {
-          "tacks": [
-            {
-              "ts": "260207-0907",
-              "state": "rough",
-              "text": "Unify all regime definitions into RBSA's Tier 3 (Reference), resolving the CRR/AXLA vocabulary split.\n\n## Context (from ASAAD design)\n\nRBSA absorbs both RBAGS and RBS. RBAGS defines regimes with AXLA annotations (axvr_*, axhr*_). RBS defines regimes using CRR vocabulary (crg_*). RBAGS model governs.\n\nCurrently:\n- RBAGS has: RBRR, RBRA, RBRP, RBRO, RBRV (with include), RBRN (with include), RBEV — all using AXLA annotations\n- RBS has: Base Regime (RBB_*), Station Regime (RBS_*), Nameplate Regime (RBRN_*) — using CRR vocabulary\n- RBS defines RBRR variables (dns_server, nameplate_path, registry_*, build_architectures, etc.) that RBAGS's RBRR section does not cover\n\n## Type voicing prefix decision (from ASAAD)\n\n- rbst_* — universal types voicing axtu_* motifs (existing)\n- rbgt_* — Google-specific types voicing axtg_* motifs (new, introduced in ASAAH)\n\nApply rbgt_* for Google-typed regime variables. Apply rbst_* for universal-typed variables. No double-prefixing (rbst_gcp_* is rejected).\n\n## Work required\n\n1. Identify which RBS regime content is unique vs duplicated:\n   - RBS RBRN definitions duplicate RBAGS RBRN (RBAGS is authoritative) — eliminate RBS copies\n   - RBS RBRR variables (lines 138-153: dns_server, registry_*, vm image, crane) are Makefile-era variables NOT in RBAGS — assess which survive\n   - RBS Base/Station regimes (RBB_*, RBS_*) may need new RBSA-era equivalents\n\n2. For surviving regime content, convert to AXLA annotation style:\n   - Replace crg_* vocabulary with axvr_*/axhr*_ annotations\n   - Apply rbst_* or rbgt_* type voicings as appropriate\n\n3. Eliminate fully superseded content:\n   - Stale _image_tag and _moniker mappings (RBS lines 157-160)\n   - CRR-specific vocabulary from regime sections\n\n## Acceptance criteria\n- Single coherent regime section in RBSA Tier 3\n- All regime definitions use AXLA annotations\n- Google-typed variables use rbgt_* voicings\n- No crg_* vocabulary in regime content\n- Stale _image_tag/_moniker mappings eliminated",
-              "silks": "consolidate-regime-definitions-rbsa",
-              "commit": "cb24c39"
-            },
-            {
-              "ts": "260207-0851",
-              "state": "rough",
-              "text": "Unify all regime definitions into RBSA's Tier 3 (Reference), resolving the CRR/AXLA vocabulary split.\n\n## Context (from ₢ASAAD design)\n\nRBSA absorbs both RBAGS and RBS. RBAGS defines regimes with AXLA annotations (axvr_*, axhr*_). RBS defines regimes using CRR vocabulary (crg_*). RBAGS model governs.\n\nCurrently:\n- RBAGS has: RBRR, RBRA, RBRP, RBRO, RBRV (with include), RBRN (with include), RBEV — all using AXLA annotations\n- RBS has: Base Regime (RBB_*), Station Regime (RBS_*), Nameplate Regime (RBRN_*) — using CRR vocabulary\n- RBS defines RBRR variables (dns_server, nameplate_path, registry_*, build_architectures, etc.) that RBAGS's RBRR section doesn't cover\n\n## Work required\n\n1. Identify which RBS regime content is unique vs duplicated:\n   - RBS RBRN definitions duplicate RBAGS RBRN (RBAGS is authoritative) — eliminate RBS copies\n   - RBS RBRR variables (lines 138-153: dns_server, registry_*, vm image, crane) are Makefile-era variables NOT in RBAGS — assess which survive\n   - RBS Base/Station regimes (RBB_*, RBS_*) may need new RBSA-era equivalents\n\n2. For surviving regime content, convert to AXLA annotation style:\n   - Replace crg_* vocabulary with axvr_*/axhr*_ annotations\n   - Apply rbst_* type voicings per ₢ASAAG decision\n\n3. Eliminate fully superseded content:\n   - stale _image_tag and _moniker mappings (RBS lines 157-160)\n   - CRR-specific vocabulary from regime sections\n\n## Acceptance criteria\n- Single coherent regime section in RBSA Tier 3\n- All regime definitions use AXLA annotations\n- No crg_* vocabulary in regime content\n- Stale _image_tag/_moniker mappings eliminated",
-              "silks": "consolidate-regime-definitions-rbsa",
-              "commit": "387a806"
-            },
-            {
-              "ts": "260131-2309",
-              "state": "rough",
-              "text": "Fold RBRN (Nameplate configuration regime) into RBS as subsection.\n\n## Context\nRBRN is currently separate but is RBS's regime definition—RBS references its variables throughout (rbrn_moniker, rbrn_entry_enabled, etc.). Keeping separate creates cross-reference friction.\n\n## Pattern to follow (from ₣AR RBRV exemplar)\n\nApply the type voicing and subdocument patterns established for RBRV:\n\n1. **Upgrade RBRN types**: Replace old `crg_*` types with `rbst_*` type voicings\n2. **Parent owns anchors**: RBS defines `[[rbrn_*]]` anchors with gestalt definitions\n3. **Detail section structure**: Tables with `rbst_*` types, NOTE blocks for applicability\n4. **No redundant definitions**: Remove \"Core Term Definitions\" if present — parent owns these\n\n## Work required\n- Integrate RBRN as subsection within RBS structure\n- Add `rbst_*` mappings to RBS for any new types needed\n- Update RBRN variable voicings to use `rbst_*` types\n- Remove RBRN.adoc from lenses/ (or keep as archived reference)\n\n## Acceptance criteria\n- RBRN content merged into RBS with proper structure\n- All RBRN variables use `rbst_*` type voicings\n- No duplicate anchor definitions\n- RBS mappings include all RBRN terms",
-              "silks": "merge-rbrn-into-rbs",
-              "commit": "34e6fa2"
-            },
-            {
-              "ts": "260131-1149",
-              "state": "rough",
-              "text": "Fold RBRN (Nameplate configuration regime) into RBS as subsection.\n\nRBRN is currently separate but is RBS's regime definition—RBS references its variables throughout (rbrn_moniker, rbrn_entry_enabled, etc.). Keeping separate creates cross-reference friction.\n\nIntegrate RBRN as subsection within RBS structure:\n- Service Configuration Regime section in RBS main document\n- Incorporates RBRN's variable definitions, constraints, term glossary\n- Maintains AXLA voicing pattern with axrg_regime and axrg_variable motifs\n- Update RBS mappings to include RBRN terms\n- Remove RBRN.adoc from lenses/ (or keep as archived reference)\n\nResult: Complete service specification in one coherent document.",
-              "silks": "merge-rbrn-into-rbs",
-              "commit": "aadb00a"
-            }
-          ]
-        },
-        "₢ASAAD": {
-          "tacks": [
-            {
-              "ts": "260207-0909",
-              "state": "complete",
-              "text": "Plan eventual Recipe Bottle System Architecture (RBSA) consolidation.\n\nRBAGS and RBS will eventually merge into RBSA. This pace establishes the integration strategy without implementing it yet.\n\nBefore starting: Think through:\n- How do RBAGS admin/GCP sections relate to RBS system sections?\n- Which RBAGS content is universal vs Google-specific?\n- How to preserve RBAGS's successful partition model in merged RBSA?\n- Naming discipline for RBSA subfiles?\n- Relationship between AXLA patterns and RBSA implementation?\n\nKnown stale content to eliminate:\n\nRBS-Specification.adoc lines 157-160 have legacy variable mappings:\n  :rbrn_sentry_moniker:    <<term_rbrn_sentry_moniker,RBRN_SENTRY_MONIKER>>\n  :rbrn_bottle_moniker:    ...\n  :rbrn_sentry_image_tag:  ...\n  :rbrn_bottle_image_tag:  ...\n\nThese _image_tag concepts are superseded by the ARK/CONSECRATION pattern established in RBAGS. The consolidation should eliminate these legacy mappings in favor of the canonical RBAGS vocabulary.\n\nOutcome: Design document outlining RBSA structure, section organization, term consolidation, and implementation sequence.\n\nTo be detailed during pace execution.",
-              "silks": "plan-rbsa-consolidation",
-              "commit": "a55337e"
-            },
-            {
-              "ts": "260201-2025",
-              "state": "rough",
-              "text": "Plan eventual Recipe Bottle System Architecture (RBSA) consolidation.\n\nRBAGS and RBS will eventually merge into RBSA. This pace establishes the integration strategy without implementing it yet.\n\nBefore starting: Think through:\n- How do RBAGS admin/GCP sections relate to RBS system sections?\n- Which RBAGS content is universal vs Google-specific?\n- How to preserve RBAGS's successful partition model in merged RBSA?\n- Naming discipline for RBSA subfiles?\n- Relationship between AXLA patterns and RBSA implementation?\n\nKnown stale content to eliminate:\n\nRBS-Specification.adoc lines 157-160 have legacy variable mappings:\n  :rbrn_sentry_moniker:    <<term_rbrn_sentry_moniker,RBRN_SENTRY_MONIKER>>\n  :rbrn_bottle_moniker:    ...\n  :rbrn_sentry_image_tag:  ...\n  :rbrn_bottle_image_tag:  ...\n\nThese _image_tag concepts are superseded by the ARK/CONSECRATION pattern established in RBAGS. The consolidation should eliminate these legacy mappings in favor of the canonical RBAGS vocabulary.\n\nOutcome: Design document outlining RBSA structure, section organization, term consolidation, and implementation sequence.\n\nTo be detailed during pace execution.",
-              "silks": "plan-rbsa-consolidation",
-              "commit": "1d84c69"
-            },
-            {
-              "ts": "260131-1152",
-              "state": "rough",
-              "text": "Plan eventual Recipe Bottle System Architecture (RBSA) consolidation.\n\nRBAGS and RBS will eventually merge into RBSA. This pace establishes the integration strategy without implementing it yet.\n\nBefore starting: Think through:\n- How do RBAGS admin/GCP sections relate to RBS system sections?\n- Which RBAGS content is universal vs Google-specific?\n- How to preserve RBAGS's successful partition model in merged RBSA?\n- Naming discipline for RBSA subfiles?\n- Relationship between AXLA patterns and RBSA implementation?\n\nOutcome: Design document outlining RBSA structure, section organization, term consolidation, and implementation sequence.\n\nTo be detailed during pace execution.",
-              "silks": "plan-rbsa-consolidation",
-              "commit": "258bd80"
-            }
-          ]
-        },
-        "₢ASAAF": {
-          "tacks": [
-            {
-              "ts": "260207-0853",
-              "state": "rough",
-              "text": "Move all regime variable detail from anchor/definition blocks to detail subdocuments within RBSA.\n\n## Context (from ₢ASAAD design)\n\nRBSA Tier 3 (Reference) houses all regime definitions. Each regime's anchor definitions in the parent should be 1-sentence gestalt descriptions. Detailed operational documentation (usage context, typical values, gate explanations, interactions) belongs in the regime's detail subdocument.\n\nThis follows the pattern established in ₣AR (RBRV exemplar) and reinforced by ₢ASAAG:\n- Parent (RBSA): [[anchor]] with terse type reference — the \"what\"\n- Subdoc (RBSRV, RBRN, etc.): Operational narrative — the \"how\"\n- include:: connects them under the same heading\n\n## Work required\n\n1. For each regime with detail subdocs (RBRV, RBRN, and any new ones from ASAAC):\n   - Audit anchor definitions in parent for verbosity\n   - Move operational detail to subdoc\n   - Keep parent anchors to 1-sentence definitions\n\n2. For regimes without subdocs yet (RBRR, RBRA, RBRP, RBRO, RBEV):\n   - Assess whether they need subdocs (based on definition length)\n   - Create subdocs where warranted\n\n## Acceptance criteria\n- All parent anchor definitions are 1-sentence gestalt\n- Operational detail lives in subdocs\n- include:: pattern connects parent to subdocs",
-              "silks": "move-regime-vars-to-detail-subsection",
-              "commit": "bc3ba83"
-            },
-            {
-              "ts": "260131-1215",
-              "state": "rough",
-              "text": "Move all regime variable detail, except for 1-sentence anchor descriptions, from anchor/definition blocks to the detail document subsection. This consolidates detailed regime variable documentation into a dedicated subsection while keeping anchors concise reference points.",
-              "silks": "move-regime-vars-to-detail-subsection",
-              "commit": "5093cbe"
-            }
-          ]
-        },
-        "₢ASAAG": {
-          "tacks": [
-            {
-              "ts": "260207-0822",
-              "state": "complete",
-              "text": "Determine voicing pattern for Google-specific types in regime variables.\n\n## Context\nRBRV uses `rbst_*` types that subspecialize AXLA universal types (`axtu_*`). But RBRR/RBRA/RBRP regime variables reference Google-specific types (`axtg_project_id`, `axtg_region`, `axtg_service_account`, etc.).\n\n## Question to resolve\nShould regime variables with Google types:\n- (A) Voice `axtg_*` directly — they're already specific enough\n- (B) Voice `rbst_*` subspecializations — e.g., `rbst_depot_project_id` voices `axtg_project_id`\n\n## Considerations\n- `axtg_*` types ARE already subspecializations of universal types\n- Adding `rbst_*` layer may be unnecessary indirection\n- BUT: `rbst_*` allows RB-specific constraints (naming conventions, validation rules)\n- Consistency with RBRV pattern vs pragmatic simplicity\n\n## Acceptance criteria\n- Decision documented in ₣AS paddock\n- Pattern guidance for regime specs using Google types\n- Update RBAGS voicings if needed",
-              "silks": "decide-google-type-voicing-pattern",
-              "commit": "d3522bf"
-            },
-            {
-              "ts": "260131-2309",
-              "state": "rough",
-              "text": "Determine voicing pattern for Google-specific types in regime variables.\n\n## Context\nRBRV uses `rbst_*` types that subspecialize AXLA universal types (`axtu_*`). But RBRR/RBRA/RBRP regime variables reference Google-specific types (`axtg_project_id`, `axtg_region`, `axtg_service_account`, etc.).\n\n## Question to resolve\nShould regime variables with Google types:\n- (A) Voice `axtg_*` directly — they're already specific enough\n- (B) Voice `rbst_*` subspecializations — e.g., `rbst_depot_project_id` voices `axtg_project_id`\n\n## Considerations\n- `axtg_*` types ARE already subspecializations of universal types\n- Adding `rbst_*` layer may be unnecessary indirection\n- BUT: `rbst_*` allows RB-specific constraints (naming conventions, validation rules)\n- Consistency with RBRV pattern vs pragmatic simplicity\n\n## Acceptance criteria\n- Decision documented in ₣AS paddock\n- Pattern guidance for regime specs using Google types\n- Update RBAGS voicings if needed",
-              "silks": "decide-google-type-voicing-pattern",
-              "commit": "e120b6d"
-            }
-          ]
-        },
-        "₢ASAAH": {
-          "tacks": [
-            {
-              "ts": "260207-0907",
-              "state": "rough",
-              "text": "Create RBSA-SpecTop.adoc with unified mapping section and three-tier section structure.\n\n## Context (from ASAAD design)\n\nRBSA is a single document absorbing all RBAGS + RBS content. No two-level includes — RBSA is the parent, existing RBSXX subdocs are the only includes. \"A\" suffix indicates top spec document.\n\n## Three-tier structure\n\n### Tier 1: Why and What (significance-first)\n- System overview: the trust challenge, the bottle pattern (from RBS)\n- Security architecture: sentry/censer/enclave model, security properties (from RBS)\n- Getting Started (existing include from RBAGS)\n\n### Tier 2: How (temporal order)\n- Payor Operations (existing RBAGS includes)\n- Governor Operations (existing RBAGS includes)\n- Director Operations (existing RBAGS includes)\n- Retriever Operations (existing RBAGS includes)\n- Multi Role Operations (existing RBAGS includes)\n- Local Operations placeholder (bottle lifecycle — filled by ASAAB)\n\n### Tier 3: Reference\n- Configuration Regimes (unified — filled by ASAAC)\n- Type Voicings (rbst_* universal, rbgt_* Google-specific)\n- Control Voicings (rbbc_, rbhg_)\n- Orchestration Patterns (rbtoe_*)\n- Script Internals (iptables, DNS, socat, eBPF — from RBS)\n- Term Definitions (consolidated from both docs)\n- Trade Studies\n\n## Work required\n\n1. Create lenses/RBSA-SpecTop.adoc\n2. Build unified mapping section — merge RBAGS and RBS mappings, resolve divergent anchors (e.g., RBAGS uses [[at_bottle_image]] while RBS uses [[bottle_image]])\n3. Move Tier 1 content from RBS (security architecture sections)\n4. Set up Tier 2 section headers with existing RBAGS include:: directives\n5. Set up Tier 3 section headers with content from both docs\n6. Introduce rbgt_* type voicings alongside rbst_* in Type Voicings section:\n   - rbgt_project_id voices axtg_project_id\n   - rbgt_region voices axtg_region\n   - rbgt_service_account voices axtg_service_account\n   - rbgt_billing_account voices axtg_billing_account\n7. Verify all existing include:: paths still resolve\n\n## Acceptance criteria\n- RBSA-SpecTop.adoc exists with all three tiers\n- Unified mapping section with no duplicate anchors\n- All existing include:: subdocs referenced\n- Tier 1 has security architecture content from RBS\n- rbgt_* types defined in Type Voicings section\n- Document renders without broken cross-references",
-              "silks": "create-rbsa-skeleton",
-              "commit": "9bbd143"
-            },
-            {
-              "ts": "260207-0853",
-              "state": "rough",
-              "text": "Create RBSA-SystemArchitecture.adoc with unified mapping section and three-tier section structure.\n\n## Context (from ₢ASAAD design)\n\nRBSA is a single document absorbing all RBAGS + RBS content. No two-level includes — RBSA is the parent, existing RBSXX subdocs are the only includes.\n\n## Three-tier structure\n\n### Tier 1: Why and What (significance-first)\n- System overview: the trust challenge, the bottle pattern (from RBS)\n- Security architecture: sentry/censer/enclave model, security properties (from RBS)\n- Getting Started (existing include from RBAGS)\n\n### Tier 2: How (temporal order)\n- Payor Operations (existing RBAGS includes)\n- Governor Operations (existing RBAGS includes)\n- Director Operations (existing RBAGS includes)\n- Retriever Operations (existing RBAGS includes)\n- Multi Role Operations (existing RBAGS includes)\n- Local Operations placeholder (bottle lifecycle — filled by ₢ASAAB)\n\n### Tier 3: Reference\n- Configuration Regimes (unified — filled by ₢ASAAC)\n- Type Voicings\n- Control Voicings (rbbc_, rbhg_)\n- Orchestration Patterns (rbtoe_*)\n- Script Internals (iptables, DNS, socat, eBPF — from RBS)\n- Term Definitions (consolidated from both docs)\n- Trade Studies\n\n## Work required\n\n1. Create RBSA-SystemArchitecture.adoc\n2. Build unified mapping section — merge RBAGS and RBS mappings, resolve divergent anchors (e.g., at_bottle_image -> bottle_image vs at_bottle_image)\n3. Move Tier 1 content from RBS (security architecture sections)\n4. Set up Tier 2 section headers with existing RBAGS include:: directives\n5. Set up Tier 3 section headers with content from both docs\n6. Verify all existing include:: paths still resolve\n\n## Acceptance criteria\n- RBSA file exists with all three tiers\n- Unified mapping section with no duplicate anchors\n- All existing include:: subdocs referenced\n- Tier 1 has security architecture content from RBS\n- Document renders without broken cross-references",
-              "silks": "create-rbsa-skeleton",
-              "commit": "f156bad"
-            }
-          ]
-        },
-        "₢ASAAI": {
-          "tacks": [
-            {
-              "ts": "260207-0854",
-              "state": "rough",
-              "text": "Delete RBAGS-AdminGoogleSpec.adoc and RBS-Specification.adoc after RBSA is complete and verified.\n\n## Context (from ₢ASAAD design)\n\nOnce RBSA absorbs all content from both files, the originals become dead weight. This pace is the final cleanup.\n\n## Work required\n\n1. Verify RBSA contains all content from both files:\n   - Every include:: from RBAGS is present in RBSA\n   - Every definition section from RBS is present in RBSA\n   - Mapping section terms are superset of both originals\n\n2. Delete:\n   - lenses/RBAGS-AdminGoogleSpec.adoc\n   - lenses/RBS-Specification.adoc\n\n3. Update any external references:\n   - CLAUDE.md file acronym mappings (RBAGS, RBS entries -> RBSA)\n   - Any cross-references in other lenses/ documents\n   - Paddock references\n\n4. Eliminate remaining stale content:\n   - cmk_* vocabulary (if any survived earlier paces)\n   - CRR references in RBSA (crg_* terms)\n   - Any orphaned terms from the merge\n\n## Acceptance criteria\n- RBAGS and RBS files deleted\n- RBSA is the sole parent spec\n- No broken references anywhere in lenses/\n- CLAUDE.md updated",
-              "silks": "retire-rbags-rbs-files",
-              "commit": "0bda0ee"
-            }
-          ]
-        }
-      }
-    },
     "₣AW": {
       "silks": "jjk-boring-cli-rename",
       "creation_time": "260206",
@@ -664,6 +480,190 @@
               "text": "Manual integration test for officium/invitatory mechanism.\n\nLower VVCP_OFFICIUM_GAP_SECS to a small value (e.g., 5 seconds), then run jjx_orient, jjx_list, and jjc-heat-groom to verify:\n1. jjx_orient (saddle) triggers an invitatory commit (vvb:...:i: OFFICIUM ...) when gap exceeded\n2. jjx_list (muster) triggers an invitatory commit when gap exceeded\n3. A second immediate call does NOT trigger (gap not exceeded)\n4. The commit body contains probe data (model IDs, host, platform)\n5. git log shows the correct vvb: branded format\n\nAfter verification, restore VVCP_OFFICIUM_GAP_SECS to 3600.\n\nKey files:\n- Tools/vvc/src/vvcp_probe.rs (lower/restore VVCP_OFFICIUM_GAP_SECS)\n\nDepends on: ₢AWAAO (add-vvx-invitatory) and ₢AWAAP (wire-invitatory-triggers) must be complete first.",
               "silks": "test-officium-threshold",
               "commit": "78b6836"
+            }
+          ]
+        }
+      }
+    },
+    "₣AS": {
+      "silks": "rbw-spec-axla-coherence",
+      "creation_time": "260131",
+      "status": "racing",
+      "order": [
+        "₢ASAAG",
+        "₢ASAAD",
+        "₢ASAAH",
+        "₢ASAAB",
+        "₢ASAAC",
+        "₢ASAAF",
+        "₢ASAAI",
+        "₢ASAAA"
+      ],
+      "next_pace_seed": "AAJ",
+      "paddock_file": ".claude/jjm/jjp_AS.md",
+      "paces": {
+        "₢ASAAA": {
+          "tacks": [
+            {
+              "ts": "260207-0906",
+              "state": "abandoned",
+              "text": "Deferred to downstream AXLA heat. See paddock Downstream Work section.\n\nOriginal scope preserved: Expand AXLA's axrg_* regime terms into complete pattern documentation. Extract regime architecture from CRR and document as AXLA voicings of axrg_* motifs.",
+              "silks": "expand-axla-regime-section",
+              "commit": "55869a9"
+            },
+            {
+              "ts": "260207-0853",
+              "state": "rough",
+              "text": "DEFERRED to downstream AXLA heat.\n\n## Rationale (from ₢ASAAD design and paddock)\n\nThe paddock explicitly states: \"After completing this heat, plan a follow-up heat to refine AXLA regime vocabulary itself.\" Expanding axrg_* is AXLA vocabulary work, not RBSA consolidation work.\n\nThis pace should move to the downstream AXLA refinement heat once ₣AS completes. The RBSA consolidation work (especially ₢ASAAC regime unification) will generate insights about what AXLA regime patterns need, making this pace more informed when it executes later.\n\n## Original scope (preserved for transfer)\nExpand AXLA's axrg_* regime terms into complete pattern documentation. Extract regime architecture from CRR and document as AXLA voicings of axrg_* motifs.",
+              "silks": "expand-axla-regime-section",
+              "commit": "bb93353"
+            },
+            {
+              "ts": "260131-1149",
+              "state": "rough",
+              "text": "Expand AXLA's axrg_* regime terms into complete pattern documentation.\n\nCurrently AXLA defines abstract regime motifs (axrg_regime, axrg_variable, axrg_assignment, axrg_prefix) but leaves implementation patterns unexplained. CRR documents these patterns concretely but is Recipe Bottle-specific.\n\nExtract regime architecture from CRR and document as AXLA voicings of axrg_* motifs:\n- Structure of regime specifications (sections, variable tables, format requirements)\n- Glossary and mapping section patterns\n- Assignment file format (makefile, bash, JSON, etc.)\n- Validation and rendering architecture\n\nResult: AXLA becomes authoritative reference for regime pattern; specs reference AXLA rather than repeating CRR.",
+              "silks": "expand-axla-regime-section",
+              "commit": "35cc5cb"
+            }
+          ]
+        },
+        "₢ASAAB": {
+          "tacks": [
+            {
+              "ts": "260207-0851",
+              "state": "rough",
+              "text": "Express bottle lifecycle operations (sentry start, bottle start/stop, security configuration) as RBAGS-style procedures within RBSA.\n\n## Context (from ₢ASAAD design)\n\nRBSA consolidates RBAGS + RBS into a single document. Tier 2 (Operations) organizes all procedures — cloud and local — as peers. Local operations must follow the same RBAGS pattern:\n\n```asciidoc\n[[operation_anchor]]\n// ⟦axl_voices axo_command axe_bash_interactive⟧\n=== {operation_name}\n\ninclude::RBSXX-subdoc.adoc[]\n```\n\n## Work required\n\n1. Identify RBS procedure sections to convert:\n   - Sentry Start (network create, sentry run, network connect, security config)\n   - Sessile Bottle Start (cleanup, launch)\n   - Agile Bottle Run (create, exec)\n   - Bottle Stop (not yet specified in RBS but needed)\n\n2. For each procedure, create an RBSXX subdoc following RBAGS naming:\n   - Use rbbc_* control voicings (CALL, REQUIRE, FATAL, SHOW, etc.)\n   - Document steps as ordered sequences with control flow\n   - Replace cmk_* vocabulary entirely (cmk is dead)\n\n3. Bifurcate operations vs script internals:\n   - Operations in Tier 2: describe WHAT happens at each step\n   - Script internals in Reference: iptables chain setup, NAT rules, dnsmasq config, socat proxy, eBPF attachment detail\n\n## Acceptance criteria\n- Each local operation has its own RBSXX subdoc\n- All operations use axo_command + axe_bash_interactive annotations\n- No cmk_* vocabulary remains in converted content\n- Script internals are in reference section, not inline",
+              "silks": "express-local-ops-axla-voicings",
+              "commit": "be53341"
+            },
+            {
+              "ts": "260131-1149",
+              "state": "rough",
+              "text": "Partition RBS procedural specifications into AXLA-consistent subfiles.\n\nMove ₢APAAV from ₣AP. RBS currently monolithic; should follow RBAGS precedent of partitioned subfiles with AXLA voicings.\n\nIdentify RBS procedure sections (Sentry Start, Bottle Start, Bottle Run, etc.) and extract into standalone subfiles.\n\nEach subfile:\n- Follows RBAGS naming pattern (RBSXY-Description.adoc)\n- Includes AXLA-consistent voicings: // ⟦axl_voices axo_procedure axd_transient⟧\n- Documents sections: axs_inputs, axs_behavior, axs_outputs, axs_completion\n- Maintains term mappings compatible with parent RBS document\n\nEstablish naming convention for RBS subfiles before implementation.",
+              "silks": "explode-rbs-procedures-axla-voicings",
+              "commit": "cfe3870"
+            }
+          ]
+        },
+        "₢ASAAC": {
+          "tacks": [
+            {
+              "ts": "260207-0907",
+              "state": "rough",
+              "text": "Unify all regime definitions into RBSA's Tier 3 (Reference), resolving the CRR/AXLA vocabulary split.\n\n## Context (from ASAAD design)\n\nRBSA absorbs both RBAGS and RBS. RBAGS defines regimes with AXLA annotations (axvr_*, axhr*_). RBS defines regimes using CRR vocabulary (crg_*). RBAGS model governs.\n\nCurrently:\n- RBAGS has: RBRR, RBRA, RBRP, RBRO, RBRV (with include), RBRN (with include), RBEV — all using AXLA annotations\n- RBS has: Base Regime (RBB_*), Station Regime (RBS_*), Nameplate Regime (RBRN_*) — using CRR vocabulary\n- RBS defines RBRR variables (dns_server, nameplate_path, registry_*, build_architectures, etc.) that RBAGS's RBRR section does not cover\n\n## Type voicing prefix decision (from ASAAD)\n\n- rbst_* — universal types voicing axtu_* motifs (existing)\n- rbgt_* — Google-specific types voicing axtg_* motifs (new, introduced in ASAAH)\n\nApply rbgt_* for Google-typed regime variables. Apply rbst_* for universal-typed variables. No double-prefixing (rbst_gcp_* is rejected).\n\n## Work required\n\n1. Identify which RBS regime content is unique vs duplicated:\n   - RBS RBRN definitions duplicate RBAGS RBRN (RBAGS is authoritative) — eliminate RBS copies\n   - RBS RBRR variables (lines 138-153: dns_server, registry_*, vm image, crane) are Makefile-era variables NOT in RBAGS — assess which survive\n   - RBS Base/Station regimes (RBB_*, RBS_*) may need new RBSA-era equivalents\n\n2. For surviving regime content, convert to AXLA annotation style:\n   - Replace crg_* vocabulary with axvr_*/axhr*_ annotations\n   - Apply rbst_* or rbgt_* type voicings as appropriate\n\n3. Eliminate fully superseded content:\n   - Stale _image_tag and _moniker mappings (RBS lines 157-160)\n   - CRR-specific vocabulary from regime sections\n\n## Acceptance criteria\n- Single coherent regime section in RBSA Tier 3\n- All regime definitions use AXLA annotations\n- Google-typed variables use rbgt_* voicings\n- No crg_* vocabulary in regime content\n- Stale _image_tag/_moniker mappings eliminated",
+              "silks": "consolidate-regime-definitions-rbsa",
+              "commit": "cb24c39"
+            },
+            {
+              "ts": "260207-0851",
+              "state": "rough",
+              "text": "Unify all regime definitions into RBSA's Tier 3 (Reference), resolving the CRR/AXLA vocabulary split.\n\n## Context (from ₢ASAAD design)\n\nRBSA absorbs both RBAGS and RBS. RBAGS defines regimes with AXLA annotations (axvr_*, axhr*_). RBS defines regimes using CRR vocabulary (crg_*). RBAGS model governs.\n\nCurrently:\n- RBAGS has: RBRR, RBRA, RBRP, RBRO, RBRV (with include), RBRN (with include), RBEV — all using AXLA annotations\n- RBS has: Base Regime (RBB_*), Station Regime (RBS_*), Nameplate Regime (RBRN_*) — using CRR vocabulary\n- RBS defines RBRR variables (dns_server, nameplate_path, registry_*, build_architectures, etc.) that RBAGS's RBRR section doesn't cover\n\n## Work required\n\n1. Identify which RBS regime content is unique vs duplicated:\n   - RBS RBRN definitions duplicate RBAGS RBRN (RBAGS is authoritative) — eliminate RBS copies\n   - RBS RBRR variables (lines 138-153: dns_server, registry_*, vm image, crane) are Makefile-era variables NOT in RBAGS — assess which survive\n   - RBS Base/Station regimes (RBB_*, RBS_*) may need new RBSA-era equivalents\n\n2. For surviving regime content, convert to AXLA annotation style:\n   - Replace crg_* vocabulary with axvr_*/axhr*_ annotations\n   - Apply rbst_* type voicings per ₢ASAAG decision\n\n3. Eliminate fully superseded content:\n   - stale _image_tag and _moniker mappings (RBS lines 157-160)\n   - CRR-specific vocabulary from regime sections\n\n## Acceptance criteria\n- Single coherent regime section in RBSA Tier 3\n- All regime definitions use AXLA annotations\n- No crg_* vocabulary in regime content\n- Stale _image_tag/_moniker mappings eliminated",
+              "silks": "consolidate-regime-definitions-rbsa",
+              "commit": "387a806"
+            },
+            {
+              "ts": "260131-2309",
+              "state": "rough",
+              "text": "Fold RBRN (Nameplate configuration regime) into RBS as subsection.\n\n## Context\nRBRN is currently separate but is RBS's regime definition—RBS references its variables throughout (rbrn_moniker, rbrn_entry_enabled, etc.). Keeping separate creates cross-reference friction.\n\n## Pattern to follow (from ₣AR RBRV exemplar)\n\nApply the type voicing and subdocument patterns established for RBRV:\n\n1. **Upgrade RBRN types**: Replace old `crg_*` types with `rbst_*` type voicings\n2. **Parent owns anchors**: RBS defines `[[rbrn_*]]` anchors with gestalt definitions\n3. **Detail section structure**: Tables with `rbst_*` types, NOTE blocks for applicability\n4. **No redundant definitions**: Remove \"Core Term Definitions\" if present — parent owns these\n\n## Work required\n- Integrate RBRN as subsection within RBS structure\n- Add `rbst_*` mappings to RBS for any new types needed\n- Update RBRN variable voicings to use `rbst_*` types\n- Remove RBRN.adoc from lenses/ (or keep as archived reference)\n\n## Acceptance criteria\n- RBRN content merged into RBS with proper structure\n- All RBRN variables use `rbst_*` type voicings\n- No duplicate anchor definitions\n- RBS mappings include all RBRN terms",
+              "silks": "merge-rbrn-into-rbs",
+              "commit": "34e6fa2"
+            },
+            {
+              "ts": "260131-1149",
+              "state": "rough",
+              "text": "Fold RBRN (Nameplate configuration regime) into RBS as subsection.\n\nRBRN is currently separate but is RBS's regime definition—RBS references its variables throughout (rbrn_moniker, rbrn_entry_enabled, etc.). Keeping separate creates cross-reference friction.\n\nIntegrate RBRN as subsection within RBS structure:\n- Service Configuration Regime section in RBS main document\n- Incorporates RBRN's variable definitions, constraints, term glossary\n- Maintains AXLA voicing pattern with axrg_regime and axrg_variable motifs\n- Update RBS mappings to include RBRN terms\n- Remove RBRN.adoc from lenses/ (or keep as archived reference)\n\nResult: Complete service specification in one coherent document.",
+              "silks": "merge-rbrn-into-rbs",
+              "commit": "aadb00a"
+            }
+          ]
+        },
+        "₢ASAAD": {
+          "tacks": [
+            {
+              "ts": "260207-0909",
+              "state": "complete",
+              "text": "Plan eventual Recipe Bottle System Architecture (RBSA) consolidation.\n\nRBAGS and RBS will eventually merge into RBSA. This pace establishes the integration strategy without implementing it yet.\n\nBefore starting: Think through:\n- How do RBAGS admin/GCP sections relate to RBS system sections?\n- Which RBAGS content is universal vs Google-specific?\n- How to preserve RBAGS's successful partition model in merged RBSA?\n- Naming discipline for RBSA subfiles?\n- Relationship between AXLA patterns and RBSA implementation?\n\nKnown stale content to eliminate:\n\nRBS-Specification.adoc lines 157-160 have legacy variable mappings:\n  :rbrn_sentry_moniker:    <<term_rbrn_sentry_moniker,RBRN_SENTRY_MONIKER>>\n  :rbrn_bottle_moniker:    ...\n  :rbrn_sentry_image_tag:  ...\n  :rbrn_bottle_image_tag:  ...\n\nThese _image_tag concepts are superseded by the ARK/CONSECRATION pattern established in RBAGS. The consolidation should eliminate these legacy mappings in favor of the canonical RBAGS vocabulary.\n\nOutcome: Design document outlining RBSA structure, section organization, term consolidation, and implementation sequence.\n\nTo be detailed during pace execution.",
+              "silks": "plan-rbsa-consolidation",
+              "commit": "a55337e"
+            },
+            {
+              "ts": "260201-2025",
+              "state": "rough",
+              "text": "Plan eventual Recipe Bottle System Architecture (RBSA) consolidation.\n\nRBAGS and RBS will eventually merge into RBSA. This pace establishes the integration strategy without implementing it yet.\n\nBefore starting: Think through:\n- How do RBAGS admin/GCP sections relate to RBS system sections?\n- Which RBAGS content is universal vs Google-specific?\n- How to preserve RBAGS's successful partition model in merged RBSA?\n- Naming discipline for RBSA subfiles?\n- Relationship between AXLA patterns and RBSA implementation?\n\nKnown stale content to eliminate:\n\nRBS-Specification.adoc lines 157-160 have legacy variable mappings:\n  :rbrn_sentry_moniker:    <<term_rbrn_sentry_moniker,RBRN_SENTRY_MONIKER>>\n  :rbrn_bottle_moniker:    ...\n  :rbrn_sentry_image_tag:  ...\n  :rbrn_bottle_image_tag:  ...\n\nThese _image_tag concepts are superseded by the ARK/CONSECRATION pattern established in RBAGS. The consolidation should eliminate these legacy mappings in favor of the canonical RBAGS vocabulary.\n\nOutcome: Design document outlining RBSA structure, section organization, term consolidation, and implementation sequence.\n\nTo be detailed during pace execution.",
+              "silks": "plan-rbsa-consolidation",
+              "commit": "1d84c69"
+            },
+            {
+              "ts": "260131-1152",
+              "state": "rough",
+              "text": "Plan eventual Recipe Bottle System Architecture (RBSA) consolidation.\n\nRBAGS and RBS will eventually merge into RBSA. This pace establishes the integration strategy without implementing it yet.\n\nBefore starting: Think through:\n- How do RBAGS admin/GCP sections relate to RBS system sections?\n- Which RBAGS content is universal vs Google-specific?\n- How to preserve RBAGS's successful partition model in merged RBSA?\n- Naming discipline for RBSA subfiles?\n- Relationship between AXLA patterns and RBSA implementation?\n\nOutcome: Design document outlining RBSA structure, section organization, term consolidation, and implementation sequence.\n\nTo be detailed during pace execution.",
+              "silks": "plan-rbsa-consolidation",
+              "commit": "258bd80"
+            }
+          ]
+        },
+        "₢ASAAF": {
+          "tacks": [
+            {
+              "ts": "260207-0853",
+              "state": "rough",
+              "text": "Move all regime variable detail from anchor/definition blocks to detail subdocuments within RBSA.\n\n## Context (from ₢ASAAD design)\n\nRBSA Tier 3 (Reference) houses all regime definitions. Each regime's anchor definitions in the parent should be 1-sentence gestalt descriptions. Detailed operational documentation (usage context, typical values, gate explanations, interactions) belongs in the regime's detail subdocument.\n\nThis follows the pattern established in ₣AR (RBRV exemplar) and reinforced by ₢ASAAG:\n- Parent (RBSA): [[anchor]] with terse type reference — the \"what\"\n- Subdoc (RBSRV, RBRN, etc.): Operational narrative — the \"how\"\n- include:: connects them under the same heading\n\n## Work required\n\n1. For each regime with detail subdocs (RBRV, RBRN, and any new ones from ASAAC):\n   - Audit anchor definitions in parent for verbosity\n   - Move operational detail to subdoc\n   - Keep parent anchors to 1-sentence definitions\n\n2. For regimes without subdocs yet (RBRR, RBRA, RBRP, RBRO, RBEV):\n   - Assess whether they need subdocs (based on definition length)\n   - Create subdocs where warranted\n\n## Acceptance criteria\n- All parent anchor definitions are 1-sentence gestalt\n- Operational detail lives in subdocs\n- include:: pattern connects parent to subdocs",
+              "silks": "move-regime-vars-to-detail-subsection",
+              "commit": "bc3ba83"
+            },
+            {
+              "ts": "260131-1215",
+              "state": "rough",
+              "text": "Move all regime variable detail, except for 1-sentence anchor descriptions, from anchor/definition blocks to the detail document subsection. This consolidates detailed regime variable documentation into a dedicated subsection while keeping anchors concise reference points.",
+              "silks": "move-regime-vars-to-detail-subsection",
+              "commit": "5093cbe"
+            }
+          ]
+        },
+        "₢ASAAG": {
+          "tacks": [
+            {
+              "ts": "260207-0822",
+              "state": "complete",
+              "text": "Determine voicing pattern for Google-specific types in regime variables.\n\n## Context\nRBRV uses `rbst_*` types that subspecialize AXLA universal types (`axtu_*`). But RBRR/RBRA/RBRP regime variables reference Google-specific types (`axtg_project_id`, `axtg_region`, `axtg_service_account`, etc.).\n\n## Question to resolve\nShould regime variables with Google types:\n- (A) Voice `axtg_*` directly — they're already specific enough\n- (B) Voice `rbst_*` subspecializations — e.g., `rbst_depot_project_id` voices `axtg_project_id`\n\n## Considerations\n- `axtg_*` types ARE already subspecializations of universal types\n- Adding `rbst_*` layer may be unnecessary indirection\n- BUT: `rbst_*` allows RB-specific constraints (naming conventions, validation rules)\n- Consistency with RBRV pattern vs pragmatic simplicity\n\n## Acceptance criteria\n- Decision documented in ₣AS paddock\n- Pattern guidance for regime specs using Google types\n- Update RBAGS voicings if needed",
+              "silks": "decide-google-type-voicing-pattern",
+              "commit": "d3522bf"
+            },
+            {
+              "ts": "260131-2309",
+              "state": "rough",
+              "text": "Determine voicing pattern for Google-specific types in regime variables.\n\n## Context\nRBRV uses `rbst_*` types that subspecialize AXLA universal types (`axtu_*`). But RBRR/RBRA/RBRP regime variables reference Google-specific types (`axtg_project_id`, `axtg_region`, `axtg_service_account`, etc.).\n\n## Question to resolve\nShould regime variables with Google types:\n- (A) Voice `axtg_*` directly — they're already specific enough\n- (B) Voice `rbst_*` subspecializations — e.g., `rbst_depot_project_id` voices `axtg_project_id`\n\n## Considerations\n- `axtg_*` types ARE already subspecializations of universal types\n- Adding `rbst_*` layer may be unnecessary indirection\n- BUT: `rbst_*` allows RB-specific constraints (naming conventions, validation rules)\n- Consistency with RBRV pattern vs pragmatic simplicity\n\n## Acceptance criteria\n- Decision documented in ₣AS paddock\n- Pattern guidance for regime specs using Google types\n- Update RBAGS voicings if needed",
+              "silks": "decide-google-type-voicing-pattern",
+              "commit": "e120b6d"
+            }
+          ]
+        },
+        "₢ASAAH": {
+          "tacks": [
+            {
+              "ts": "260207-0907",
+              "state": "rough",
+              "text": "Create RBSA-SpecTop.adoc with unified mapping section and three-tier section structure.\n\n## Context (from ASAAD design)\n\nRBSA is a single document absorbing all RBAGS + RBS content. No two-level includes — RBSA is the parent, existing RBSXX subdocs are the only includes. \"A\" suffix indicates top spec document.\n\n## Three-tier structure\n\n### Tier 1: Why and What (significance-first)\n- System overview: the trust challenge, the bottle pattern (from RBS)\n- Security architecture: sentry/censer/enclave model, security properties (from RBS)\n- Getting Started (existing include from RBAGS)\n\n### Tier 2: How (temporal order)\n- Payor Operations (existing RBAGS includes)\n- Governor Operations (existing RBAGS includes)\n- Director Operations (existing RBAGS includes)\n- Retriever Operations (existing RBAGS includes)\n- Multi Role Operations (existing RBAGS includes)\n- Local Operations placeholder (bottle lifecycle — filled by ASAAB)\n\n### Tier 3: Reference\n- Configuration Regimes (unified — filled by ASAAC)\n- Type Voicings (rbst_* universal, rbgt_* Google-specific)\n- Control Voicings (rbbc_, rbhg_)\n- Orchestration Patterns (rbtoe_*)\n- Script Internals (iptables, DNS, socat, eBPF — from RBS)\n- Term Definitions (consolidated from both docs)\n- Trade Studies\n\n## Work required\n\n1. Create lenses/RBSA-SpecTop.adoc\n2. Build unified mapping section — merge RBAGS and RBS mappings, resolve divergent anchors (e.g., RBAGS uses [[at_bottle_image]] while RBS uses [[bottle_image]])\n3. Move Tier 1 content from RBS (security architecture sections)\n4. Set up Tier 2 section headers with existing RBAGS include:: directives\n5. Set up Tier 3 section headers with content from both docs\n6. Introduce rbgt_* type voicings alongside rbst_* in Type Voicings section:\n   - rbgt_project_id voices axtg_project_id\n   - rbgt_region voices axtg_region\n   - rbgt_service_account voices axtg_service_account\n   - rbgt_billing_account voices axtg_billing_account\n7. Verify all existing include:: paths still resolve\n\n## Acceptance criteria\n- RBSA-SpecTop.adoc exists with all three tiers\n- Unified mapping section with no duplicate anchors\n- All existing include:: subdocs referenced\n- Tier 1 has security architecture content from RBS\n- rbgt_* types defined in Type Voicings section\n- Document renders without broken cross-references",
+              "silks": "create-rbsa-skeleton",
+              "commit": "9bbd143"
+            },
+            {
+              "ts": "260207-0853",
+              "state": "rough",
+              "text": "Create RBSA-SystemArchitecture.adoc with unified mapping section and three-tier section structure.\n\n## Context (from ₢ASAAD design)\n\nRBSA is a single document absorbing all RBAGS + RBS content. No two-level includes — RBSA is the parent, existing RBSXX subdocs are the only includes.\n\n## Three-tier structure\n\n### Tier 1: Why and What (significance-first)\n- System overview: the trust challenge, the bottle pattern (from RBS)\n- Security architecture: sentry/censer/enclave model, security properties (from RBS)\n- Getting Started (existing include from RBAGS)\n\n### Tier 2: How (temporal order)\n- Payor Operations (existing RBAGS includes)\n- Governor Operations (existing RBAGS includes)\n- Director Operations (existing RBAGS includes)\n- Retriever Operations (existing RBAGS includes)\n- Multi Role Operations (existing RBAGS includes)\n- Local Operations placeholder (bottle lifecycle — filled by ₢ASAAB)\n\n### Tier 3: Reference\n- Configuration Regimes (unified — filled by ₢ASAAC)\n- Type Voicings\n- Control Voicings (rbbc_, rbhg_)\n- Orchestration Patterns (rbtoe_*)\n- Script Internals (iptables, DNS, socat, eBPF — from RBS)\n- Term Definitions (consolidated from both docs)\n- Trade Studies\n\n## Work required\n\n1. Create RBSA-SystemArchitecture.adoc\n2. Build unified mapping section — merge RBAGS and RBS mappings, resolve divergent anchors (e.g., at_bottle_image -> bottle_image vs at_bottle_image)\n3. Move Tier 1 content from RBS (security architecture sections)\n4. Set up Tier 2 section headers with existing RBAGS include:: directives\n5. Set up Tier 3 section headers with content from both docs\n6. Verify all existing include:: paths still resolve\n\n## Acceptance criteria\n- RBSA file exists with all three tiers\n- Unified mapping section with no duplicate anchors\n- All existing include:: subdocs referenced\n- Tier 1 has security architecture content from RBS\n- Document renders without broken cross-references",
+              "silks": "create-rbsa-skeleton",
+              "commit": "f156bad"
+            }
+          ]
+        },
+        "₢ASAAI": {
+          "tacks": [
+            {
+              "ts": "260207-0854",
+              "state": "rough",
+              "text": "Delete RBAGS-AdminGoogleSpec.adoc and RBS-Specification.adoc after RBSA is complete and verified.\n\n## Context (from ₢ASAAD design)\n\nOnce RBSA absorbs all content from both files, the originals become dead weight. This pace is the final cleanup.\n\n## Work required\n\n1. Verify RBSA contains all content from both files:\n   - Every include:: from RBAGS is present in RBSA\n   - Every definition section from RBS is present in RBSA\n   - Mapping section terms are superset of both originals\n\n2. Delete:\n   - lenses/RBAGS-AdminGoogleSpec.adoc\n   - lenses/RBS-Specification.adoc\n\n3. Update any external references:\n   - CLAUDE.md file acronym mappings (RBAGS, RBS entries -> RBSA)\n   - Any cross-references in other lenses/ documents\n   - Paddock references\n\n4. Eliminate remaining stale content:\n   - cmk_* vocabulary (if any survived earlier paces)\n   - CRR references in RBSA (crg_* terms)\n   - Any orphaned terms from the merge\n\n## Acceptance criteria\n- RBAGS and RBS files deleted\n- RBSA is the sole parent spec\n- No broken references anywhere in lenses/\n- CLAUDE.md updated",
+              "silks": "retire-rbags-rbs-files",
+              "commit": "0bda0ee"
             }
           ]
         }
