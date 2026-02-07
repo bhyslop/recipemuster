@@ -21,6 +21,13 @@
         "₢ASAAA": {
           "tacks": [
             {
+              "ts": "260207-0906",
+              "state": "abandoned",
+              "text": "Deferred to downstream AXLA heat. See paddock Downstream Work section.\n\nOriginal scope preserved: Expand AXLA's axrg_* regime terms into complete pattern documentation. Extract regime architecture from CRR and document as AXLA voicings of axrg_* motifs.",
+              "silks": "expand-axla-regime-section",
+              "commit": "55869a9"
+            },
+            {
               "ts": "260207-0853",
               "state": "rough",
               "text": "DEFERRED to downstream AXLA heat.\n\n## Rationale (from ₢ASAAD design and paddock)\n\nThe paddock explicitly states: \"After completing this heat, plan a follow-up heat to refine AXLA regime vocabulary itself.\" Expanding axrg_* is AXLA vocabulary work, not RBSA consolidation work.\n\nThis pace should move to the downstream AXLA refinement heat once ₣AS completes. The RBSA consolidation work (especially ₢ASAAC regime unification) will generate insights about what AXLA regime patterns need, making this pace more informed when it executes later.\n\n## Original scope (preserved for transfer)\nExpand AXLA's axrg_* regime terms into complete pattern documentation. Extract regime architecture from CRR and document as AXLA voicings of axrg_* motifs.",
