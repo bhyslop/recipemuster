@@ -9,6 +9,7 @@
         "₢AWAAM",
         "₢AWAAN",
         "₢AWAAO",
+        "₢AWAAP",
         "₢AWAAL",
         "₢AWAAK",
         "₢AWAAA",
@@ -22,7 +23,7 @@
         "₢AWAAH",
         "₢AWAAI"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -278,6 +279,17 @@
               "text": "Create vvx invitatory command in VVC: session gap check + probe + vvb:...:i: commit.\n\nImplementation:\n1. Move jjrc_needs_session_probe() from Tools/jjk/vov_veiled/src/jjrc_core.rs to VVC (new function vvcp_needs_session() or similar in Tools/vvc/src/vvcp_probe.rs). Keep same logic: >1 hour gap or no commits. The function needs to scan git log for the most recent vvb:...:i: commit (not jjb: commits — those are JJK's domain now).\n2. Add new vvx subcommand \"invitatory\" in Tools/vok/vov_veiled/src/jjrx_cli.rs (or wherever vvx subcommands are registered). This command:\n   a. Checks if session probe is needed (call vvcp_needs_session)\n   b. If not needed: print \"Session current\" and exit 0\n   c. If needed: call vvcp_probe(), format commit using vvcc_format_branded(\"vvb\", hallmark, \"\", \"i\", \"INVITATORY {timestamp}\", Some(probe_data)), create empty commit via vvc::commit()\n   d. Print \"Session-marker: {commit_hash} ({timestamp})\" on success\n3. Export from VVC lib.rs as needed\n4. Add VOS spec update: voscai_invitatory action code i in VOS-VoxObscuraSpec.adoc Commit Message Architecture section\n5. Build and test: tt/vow-b.Build.sh && tt/vow-t.Test.sh\n6. Manual test: lower gap threshold temporarily, run vvx invitatory, verify commit format with git log -1\n\nKey files:\n- Tools/vvc/src/vvcp_probe.rs (add session gap check)\n- Tools/vvc/src/lib.rs (export)\n- Tools/vok/vov_veiled/src/jjrx_cli.rs (register subcommand)\n- Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc (add voscai_invitatory)",
               "silks": "add-vvx-invitatory",
               "commit": "cc58912"
+            }
+          ]
+        },
+        "₢AWAAP": {
+          "tacks": [
+            {
+              "ts": "260207-0717",
+              "state": "rough",
+              "text": "Wire saddle and muster to call vvx invitatory. Remove session marker from JJK.\n\nImplementation:\n1. Update Tools/jjk/vov_veiled/src/jjrsd_saddle.rs:\n   - Remove the inline session probe block (lines ~295-343 that call jjrc_needs_session_probe, vvcp_probe, jjrn_format_session_message, vvc::commit)\n   - Replace with: call vvx invitatory (either as subprocess or direct Rust call to the new VVC function)\n   - The invitatory handles its own gap check, so saddle just calls it unconditionally\n2. Update jjx_muster (Tools/jjk/vov_veiled/src/jjrm_muster.rs or similar):\n   - Add invitatory call at the end of muster output (same pattern as saddle)\n3. Remove from JJK:\n   - Delete jjrn_format_session_message() from jjrn_notch.rs\n   - Delete Session variant from jjrn_ChalkMarker enum\n   - Delete jjrc_needs_session_probe() from jjrc_core.rs\n   - Update any chalk command code that handles Session marker\n4. Update JJSA spec (Tools/jjk/vov_veiled/JJSA-GallopsData.adoc):\n   - Remove s (session) from action codes\n   - Remove session marker commit pattern\n   - Add cross-reference note: \"Session markers migrated to VVC INVITATORY (vvb:...:i:)\"\n5. Build and test: tt/vow-b.Build.sh && tt/vow-t.Test.sh\n\nKey files:\n- Tools/jjk/vov_veiled/src/jjrsd_saddle.rs (remove inline probe, add invitatory call)\n- Tools/jjk/vov_veiled/src/jjrm_muster.rs (add invitatory call)\n- Tools/jjk/vov_veiled/src/jjrn_notch.rs (delete Session, delete format_session_message)\n- Tools/jjk/vov_veiled/src/jjrc_core.rs (delete needs_session_probe)\n- Tools/jjk/vov_veiled/src/jjrch_chalk.rs (remove Session handling)\n- Tools/jjk/vov_veiled/JJSA-GallopsData.adoc (remove :s: documentation)",
+              "silks": "wire-invitatory-triggers",
+              "commit": "3d2c1e8"
             }
           ]
         }
