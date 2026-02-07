@@ -91,6 +91,13 @@
         "₢ASAAF": {
           "tacks": [
             {
+              "ts": "260207-0853",
+              "state": "rough",
+              "text": "Move all regime variable detail from anchor/definition blocks to detail subdocuments within RBSA.\n\n## Context (from ₢ASAAD design)\n\nRBSA Tier 3 (Reference) houses all regime definitions. Each regime's anchor definitions in the parent should be 1-sentence gestalt descriptions. Detailed operational documentation (usage context, typical values, gate explanations, interactions) belongs in the regime's detail subdocument.\n\nThis follows the pattern established in ₣AR (RBRV exemplar) and reinforced by ₢ASAAG:\n- Parent (RBSA): [[anchor]] with terse type reference — the \"what\"\n- Subdoc (RBSRV, RBRN, etc.): Operational narrative — the \"how\"\n- include:: connects them under the same heading\n\n## Work required\n\n1. For each regime with detail subdocs (RBRV, RBRN, and any new ones from ASAAC):\n   - Audit anchor definitions in parent for verbosity\n   - Move operational detail to subdoc\n   - Keep parent anchors to 1-sentence definitions\n\n2. For regimes without subdocs yet (RBRR, RBRA, RBRP, RBRO, RBEV):\n   - Assess whether they need subdocs (based on definition length)\n   - Create subdocs where warranted\n\n## Acceptance criteria\n- All parent anchor definitions are 1-sentence gestalt\n- Operational detail lives in subdocs\n- include:: pattern connects parent to subdocs",
+              "silks": "move-regime-vars-to-detail-subsection",
+              "commit": "bc3ba83"
+            },
+            {
               "ts": "260131-1215",
               "state": "rough",
               "text": "Move all regime variable detail, except for 1-sentence anchor descriptions, from anchor/definition blocks to the detail document subsection. This consolidates detailed regime variable documentation into a dedicated subsection while keeping anchors concise reference points.",
