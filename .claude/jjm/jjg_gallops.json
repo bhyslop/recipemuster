@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AW",
+  "next_heat_seed": "AX",
   "heats": {
     "₣AU": {
       "silks": "rbw-mvp-release-finalize",
@@ -2463,6 +2463,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_AV.md",
+      "paces": {}
+    },
+    "₣AW": {
+      "silks": "jjk-boring-cli-rename",
+      "creation_time": "260206",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {}
     }
   }
