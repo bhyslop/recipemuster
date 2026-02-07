@@ -88,10 +88,22 @@ When user says "notch", invoke `/jjc-pace-notch` — don't second-guess based on
 Multiple Claude sessions may work concurrently in the same repo. The explicit file list in `/jjc-pace-notch` enables orthogonal commits.
 
 - Claude is **additive only** — make commits, never discard changes
-- NEVER run destructive commands: `git restore`, `git checkout <file>`, `git reset --hard`, `git clean`, `git stash`
 - "Unexpected" uncommitted changes are likely another session's work
 - If something looks wrong, ASK — do not "fix" by discarding
 - Commit only YOUR files; ignore everything else
+
+**Forbidden Git Commands — NO exceptions, NO "safe" variants:**
+- `git reset` — ALL forms: `--hard`, `--soft`, `--mixed`, with paths, without paths. Even `git reset HEAD <file>` (unstaging) is forbidden — it's too close to destructive variants and Claude will reason its way into worse forms.
+- `git restore` — ALL forms: working tree, staged, with `--source`, without
+- `git checkout <file>` — when used to discard changes (navigating branches is fine)
+- `git clean` — ALL forms
+- `git stash` — ALL forms
+
+**What to do instead:**
+- Staging wrong? Just run `/jjc-pace-notch` with the correct file list — it handles staging
+- Made a mistake? Make a new commit that fixes it — additive, not destructive
+- Confused by repo state? ASK the user — another session may be mid-work
+- Need to undo something? Explain the situation to the user and let them decide
 
 **Build & Run Discipline:**
 Always run these after Rust code changes:
