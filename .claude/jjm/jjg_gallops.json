@@ -3034,9 +3034,10 @@
       "order": [
         "₢AXAAA",
         "₢AXAAB",
-        "₢AXAAC"
+        "₢AXAAC",
+        "₢AXAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_AX.md",
       "paces": {
         "₢AXAAA": {
@@ -3069,6 +3070,17 @@
               "text": "Wire the orange highlight border overlay into the Alt-Tab session lifecycle.\n\n## Goal\nDuring a Command+Tab session, each time the highlight changes (Tab or Shift+Tab press), query the highlighted window's screen geometry and show the orange border overlay around it. On session end, dismiss the overlay.\n\n## Behavior\n1. On each highlight change in Alt-Tab session:\n   - Get the highlighted MRU entry's (pid, window_id)\n   - Query AXPosition and AXSize for that window\n   - Show/reposition the orange border overlay to surround that window's rect\n2. On Command release (session end): hide the overlay\n3. Edge cases (per ₢AXAAA decisions): handle minimized windows, off-screen windows, failed AX queries\n\n## Key files\n- pbmsa_alttab.rs (Alt-Tab session state, highlight change logic)\n- pbmba_ax.rs (AX queries for position/size)\n- pbmsm_mru.rs (MRU entry data with pid/window_id)\n- New overlay primitive from ₢AXAAB\n\n## Depends on\n₢AXAAB (highlight overlay primitive must exist)",
               "silks": "pb-wire-highlight-to-alttab",
               "commit": "4529238"
+            }
+          ]
+        },
+        "₢AXAAD": {
+          "tacks": [
+            {
+              "ts": "260207-0905",
+              "state": "rough",
+              "text": "Ensure the orange highlight border is properly dismissed on all session termination paths, not just Command release.\n\n## Cases to handle\n1. Mouse click cancellation (existing path in Alt-Tab: \"Any mouse click during active session immediately cancels\")\n2. CGEventTap auto-disable recovery (tap health check re-enables tap, but overlay may be stranded)\n3. Escape hatch (both Command keys held = blocking suspended)\n4. App termination during active session\n5. Display disconnect during active session (overlay window on vanished display)\n\n## Goal\nAudit every session termination path and ensure the orange overlay is hidden. Add defensive cleanup if overlay state is stale (e.g., timer-based check similar to tap health monitor).\n\n## Key files\n- pbmsa_alttab.rs (session lifecycle, cleanup paths)\n- pbmbe_eventtap.rs (tap health monitoring, mouse click handling)\n- pbmbo_observer.swift (overlay show/hide)\n\n## Depends on\n₢AXAAC (overlay must be wired into Alt-Tab before we can harden cleanup)",
+              "silks": "pb-highlight-cleanup-edge-cases",
+              "commit": "48c0739"
             }
           ]
         }
