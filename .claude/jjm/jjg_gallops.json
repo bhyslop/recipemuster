@@ -1,6 +1,177 @@
 {
   "next_heat_seed": "AX",
   "heats": {
+    "₣AW": {
+      "silks": "jjk-boring-cli-rename",
+      "creation_time": "260206",
+      "status": "racing",
+      "order": [
+        "₢AWAAK",
+        "₢AWAAA",
+        "₢AWAAJ",
+        "₢AWAAB",
+        "₢AWAAC",
+        "₢AWAAD",
+        "₢AWAAE",
+        "₢AWAAF",
+        "₢AWAAG",
+        "₢AWAAH",
+        "₢AWAAI"
+      ],
+      "next_pace_seed": "AAL",
+      "paddock_file": ".claude/jjm/jjp_AW.md",
+      "paces": {
+        "₢AWAAA": {
+          "tacks": [
+            {
+              "ts": "260206-2209",
+              "state": "rough",
+              "text": "Rename jjx_ command strings in jjrx_cli.rs.\n\nUpdate all #[command(name = \"jjx_*\")] attributes to use the new boring names from the paddock mapping table. This is ~22 string edits in one file.\n\nAlso rename the --full flag to --detail in jjrpd_parade.rs (ParadeArgs struct). This is a flag rename, same kind of edit — the flag means \"show detailed view\" not \"show full view.\"\n\nFiles:\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (command names)\n- Tools/jjk/vov_veiled/src/jjrpd_parade.rs (--full → --detail)\n\nAcceptance: `tt/vow-b.Build.sh` compiles, `./tt/vvw-r.RunVVX.sh jjx_show --help` works, `jjx_show AH --detail` works.",
+              "silks": "rename-jjrx-cli-strings",
+              "commit": "bac65d0"
+            },
+            {
+              "ts": "260206-2202",
+              "state": "rough",
+              "text": "Rename jjx_ command strings in jjrx_cli.rs.\n\nUpdate all #[command(name = \"jjx_*\")] attributes to use the new boring names from the paddock mapping table. This is ~22 string edits in one file.\n\nFiles: Tools/jjk/vov_veiled/src/jjrx_cli.rs\n\nAcceptance: `tt/vow-b.Build.sh` compiles, `./tt/vvw-r.RunVVX.sh jjx_show --help` works.",
+              "silks": "rename-jjrx-cli-strings",
+              "commit": "6e4e697"
+            }
+          ]
+        },
+        "₢AWAAB": {
+          "tacks": [
+            {
+              "ts": "260206-2202",
+              "state": "rough",
+              "text": "Update JJSA-GallopsData.adoc operation names.\n\nChange :jjdo_*: attribute references and operation section headers to use new boring names. E.g., :jjdo_parade: becomes display text \"jjx_show\" instead of \"jjx_parade\".\n\nFiles: Tools/jjk/vov_veiled/JJSA-GallopsData.adoc\n\nNo file renames — JJSC* spec filenames stay as-is (PD, MU, etc. are stable internal codes).\n\nAcceptance: All :jjdo_*: attributes reference the new command names.",
+              "silks": "update-jjsa-operation-names",
+              "commit": "4e44247"
+            }
+          ]
+        },
+        "₢AWAAC": {
+          "tacks": [
+            {
+              "ts": "260206-2202",
+              "state": "rough",
+              "text": "Update JJSC* individual spec files to reference new command names in prose.\n\nEach spec file (JJSCPD-parade.adoc, JJSCMU-muster.adoc, etc.) mentions its own jjx_ command name in descriptions and examples. Update these references to the new boring names.\n\nFiles: Tools/jjk/vov_veiled/JJSC*.adoc (all spec files)\n\nAcceptance: No spec file references old jjx_ command names in prose text.",
+              "silks": "update-jjsc-spec-prose",
+              "commit": "3228bd4"
+            }
+          ]
+        },
+        "₢AWAAD": {
+          "tacks": [
+            {
+              "ts": "260206-2202",
+              "state": "rough",
+              "text": "Update remaining orchestration slash commands to use new jjx_ names.\n\nThese slash commands invoke jjx_* commands and must reference the new names:\n- jjc-heat-mount.md (jjx_saddle→jjx_orient, jjx_tally→jjx_revise, jjx_chalk→jjx_mark, jjx_landing→keep)\n- jjc-heat-braid.md (jjx_parade→jjx_show, jjx_curry→jjx_paddock, jjx_rein→jjx_log, jjx_get_spec→keep, jjx_tally→jjx_revise, jjx_chalk→jjx_mark)\n- jjc-heat-quarter.md (jjx_get_coronets→keep, jjx_get_spec→keep)\n- jjc-heat-groom.md (jjx_parade→jjx_show)\n- jjc-pace-bridle.md (jjx_saddle→jjx_orient, jjx_tally→jjx_revise)\n- jjc-pace-reslate.md (jjx_parade→jjx_show, jjx_get_spec→keep, jjx_tally→jjx_revise)\n- jjc-pace-slate.md (jjx_muster→jjx_list, jjx_slate→jjx_enroll)\n- jjc-heat-garland.md (jjx_muster→jjx_list, jjx_parade→jjx_show, jjx_garland→jjx_continue)\n- jjc-heat-restring.md (jjx_restring→jjx_transfer, jjx_tally→jjx_revise)\n- jjc-heat-retire-dryrun.md (jjx_retire→jjx_archive)\n- jjc-heat-retire-FINAL.md (jjx_retire→jjx_archive)\n- jjc-heat-furlough.md (jjx_muster→jjx_list, jjx_furlough→jjx_alter)\n- jjc-heat-rail.md (jjx_rail→jjx_reorder, jjx_parade→jjx_show)\n- jjc-pace-notch.md (jjx_notch→jjx_record)\n\nFiles: .claude/commands/jjc-*.md (surviving orchestration commands only)\n\nAcceptance: grep for old jjx_ names in .claude/commands/ returns zero hits (except in commented/historical references).",
+              "silks": "update-orchestration-slash-cmds",
+              "commit": "bdfb737"
+            }
+          ]
+        },
+        "₢AWAAE": {
+          "tacks": [
+            {
+              "ts": "260206-2202",
+              "state": "rough",
+              "text": "Delete thin wrapper slash commands that will be replaced by the CLI truth table.\n\nDelete these files:\n- .claude/commands/jjc-heat-muster.md\n- .claude/commands/jjc-heat-rein.md\n- .claude/commands/jjc-scout.md\n- .claude/commands/jjc-parade.md\n- .claude/commands/jjc-heat-nominate.md\n- .claude/commands/jjc-pace-wrap.md\n\nAlso update any remaining slash commands that reference these deleted commands in their \"Available Operations\" footer sections — change references to describe the direct CLI invocation or remove the line.\n\nAcceptance: Deleted files do not exist. No remaining slash command references a deleted command.",
+              "silks": "delete-thin-wrapper-slash-cmds",
+              "commit": "247c706"
+            }
+          ]
+        },
+        "₢AWAAF": {
+          "tacks": [
+            {
+              "ts": "260206-2203",
+              "state": "rough",
+              "text": "Add CLI truth table to vocjjmc_core.md and update all JJK CLAUDE.md content.\n\nReplace the \"Common CLI Pitfalls\" section with a compact CLI truth table showing every jjx_ command with its exact argument/flag syntax. Also update:\n- Quick Verbs table (slash command names stay, but remove verbs for deleted thin wrappers)\n- Slash Command Reference table (remove rows for deleted thin wrappers)\n- Commit Discipline section (jjx_notch → jjx_record, vvx_commit reference stays)\n- Any other jjx_ name references in vocjjmc_core.md\n\nFormat for truth table:\n```\njjx_show [TARGET] [--full] [--remaining]\njjx_list [--status racing|stabled|retired]\njjx_create --silks SILKS\njjx_enroll FIREMARK --silks SILKS [--first|--before C|--after C] <stdin\n...\n```\n\nFiles: Tools/jjk/vov_veiled/vocjjmc_core.md\n\nAcceptance: vocjjmc_core.md contains no old jjx_ names. Truth table covers all 22 commands.",
+              "silks": "add-cli-truth-table",
+              "commit": "0d7e5b6"
+            }
+          ]
+        },
+        "₢AWAAG": {
+          "tacks": [
+            {
+              "ts": "260206-2203",
+              "state": "rough",
+              "text": "Reinstall JJK kit to propagate changes to active .claude/ installation.\n\nSteps:\n1. Build: tt/vow-b.Build.sh\n2. Test: tt/vow-t.Test.sh\n3. Reinstall kit (propagate vocjjmc_core.md → CLAUDE.md MANAGED:JJK block)\n4. Verify: run jjx_show, jjx_list, jjx_record --help to confirm new names work\n5. Verify: old names (jjx_parade, jjx_muster, jjx_notch) produce \"unknown command\" errors\n6. Verify: CLAUDE.md MANAGED:JJK section shows new truth table\n\nAcceptance: New CLI names work. Old CLI names fail. CLAUDE.md is updated.",
+              "silks": "reinstall-and-verify",
+              "commit": "64aea83"
+            }
+          ]
+        },
+        "₢AWAAH": {
+          "tacks": [
+            {
+              "ts": "260206-2205",
+              "state": "abandoned",
+              "text": "Drafted from ₢AHAAS in ₣AH.\n\nEvaluate collapsing thin-wrapper slash commands (reslate, slate, wrap, bridle, rail) into direct CLAUDE.md verb-to-vvx mappings.\n\nPain point: Claude regularly guesses wrong vvx subcommand names because slash command names don't match vvx names (e.g., reslate → jjx_tally). The indirection through slash command .md files is a recurring failure mode.\n\nProposed direction:\n- Identify which slash commands are thin wrappers vs. genuine orchestrations\n- For thin wrappers, replace with CLAUDE.md verb table entries that map directly to vvx invocations\n- Standardize shared post-mutation protocol (report, assess, commit) once in CLAUDE.md\n- Rely on vvx --help as authoritative syntax reference\n- Eliminate the dereference step that causes guessing errors\n\nDesign pace — needs human judgment on which commands to collapse and what the CLAUDE.md verb table format should look like.",
+              "silks": "simplify-thin-wrapper-commands",
+              "commit": "0f059e0"
+            },
+            {
+              "ts": "260206-2204",
+              "state": "rough",
+              "text": "Drafted from ₢AHAAS in ₣AH.\n\nEvaluate collapsing thin-wrapper slash commands (reslate, slate, wrap, bridle, rail) into direct CLAUDE.md verb-to-vvx mappings.\n\nPain point: Claude regularly guesses wrong vvx subcommand names because slash command names don't match vvx names (e.g., reslate → jjx_tally). The indirection through slash command .md files is a recurring failure mode.\n\nProposed direction:\n- Identify which slash commands are thin wrappers vs. genuine orchestrations\n- For thin wrappers, replace with CLAUDE.md verb table entries that map directly to vvx invocations\n- Standardize shared post-mutation protocol (report, assess, commit) once in CLAUDE.md\n- Rely on vvx --help as authoritative syntax reference\n- Eliminate the dereference step that causes guessing errors\n\nDesign pace — needs human judgment on which commands to collapse and what the CLAUDE.md verb table format should look like.",
+              "silks": "simplify-thin-wrapper-commands",
+              "commit": "58b0090"
+            },
+            {
+              "ts": "260203-1853",
+              "state": "rough",
+              "text": "Evaluate collapsing thin-wrapper slash commands (reslate, slate, wrap, bridle, rail) into direct CLAUDE.md verb-to-vvx mappings.\n\nPain point: Claude regularly guesses wrong vvx subcommand names because slash command names don't match vvx names (e.g., reslate → jjx_tally). The indirection through slash command .md files is a recurring failure mode.\n\nProposed direction:\n- Identify which slash commands are thin wrappers vs. genuine orchestrations\n- For thin wrappers, replace with CLAUDE.md verb table entries that map directly to vvx invocations\n- Standardize shared post-mutation protocol (report, assess, commit) once in CLAUDE.md\n- Rely on vvx --help as authoritative syntax reference\n- Eliminate the dereference step that causes guessing errors\n\nDesign pace — needs human judgment on which commands to collapse and what the CLAUDE.md verb table format should look like.",
+              "silks": "simplify-thin-wrapper-commands",
+              "commit": "175f84e"
+            }
+          ]
+        },
+        "₢AWAAI": {
+          "tacks": [
+            {
+              "ts": "260206-2204",
+              "state": "rough",
+              "text": "Drafted from ₢AHAAM in ₣AH.\n\nAdd \"Recommended:\" advice lines to JJX commands to save Claude tokens.\n\n## Context\n\nCurrently only jjrwp_wrap.rs prints advice (\"Recommended: /clear then /jjc-heat-mount {firemark}\"). Claude often generates similar guidance prose, wasting tokens. If JJX commands print actionable next-step advice, Claude can stay silent.\n\n## Deliverables\n\nAdd stderr advice to these commands:\n\n1. **jjx_saddle** (jjrsd_saddle.rs) — after outputting pace context:\n   - If bridled: \"Recommended: /jjc-heat-mount {firemark} to execute\"\n   - If rough: \"Recommended: /jjc-pace-bridle {coronet} or /jjc-heat-mount {firemark}\"\n\n2. **jjx_tally with --state bridled** (bridle operation) — after success:\n   - \"Recommended: /jjc-heat-mount {firemark} to execute\"\n\n3. **jjx_parade** (jjrpd_parade.rs) — when showing remaining paces:\n   - If next pace exists: \"Recommended: /jjc-heat-mount {firemark}\"\n\n## Pattern\n\nUse eprintln! for advice (stderr), matching wrap.rs pattern. Keep advice terse — one line max.\n\nAcceptance: Running jjx_saddle, jjx_tally --state bridled, and jjx_parade shows appropriate \"Recommended:\" line on stderr.",
+              "silks": "jjx-advice-output",
+              "commit": "58b0090"
+            },
+            {
+              "ts": "260127-1145",
+              "state": "rough",
+              "text": "Add \"Recommended:\" advice lines to JJX commands to save Claude tokens.\n\n## Context\n\nCurrently only jjrwp_wrap.rs prints advice (\"Recommended: /clear then /jjc-heat-mount {firemark}\"). Claude often generates similar guidance prose, wasting tokens. If JJX commands print actionable next-step advice, Claude can stay silent.\n\n## Deliverables\n\nAdd stderr advice to these commands:\n\n1. **jjx_saddle** (jjrsd_saddle.rs) — after outputting pace context:\n   - If bridled: \"Recommended: /jjc-heat-mount {firemark} to execute\"\n   - If rough: \"Recommended: /jjc-pace-bridle {coronet} or /jjc-heat-mount {firemark}\"\n\n2. **jjx_tally with --state bridled** (bridle operation) — after success:\n   - \"Recommended: /jjc-heat-mount {firemark} to execute\"\n\n3. **jjx_parade** (jjrpd_parade.rs) — when showing remaining paces:\n   - If next pace exists: \"Recommended: /jjc-heat-mount {firemark}\"\n\n## Pattern\n\nUse eprintln! for advice (stderr), matching wrap.rs pattern. Keep advice terse — one line max.\n\nAcceptance: Running jjx_saddle, jjx_tally --state bridled, and jjx_parade shows appropriate \"Recommended:\" line on stderr.",
+              "silks": "jjx-advice-output",
+              "commit": "82443ef"
+            }
+          ]
+        },
+        "₢AWAAJ": {
+          "tacks": [
+            {
+              "ts": "260206-2212",
+              "state": "rough",
+              "text": "Split jjx_tally (jjx_revise) into four single-purpose commands.\n\nCurrent jjx_tally is multipurpose: spec revision, rename, bridle, abandon — with conditional flag validity that causes LLM misfires. Split into:\n\n1. jjx_revise CORONET < stdin — update spec text, carry forward state/silks\n2. jjx_relabel CORONET --silks \"name\" — rename, carry forward text/state\n3. jjx_arm CORONET --direction \"...\" < stdin — set state=bridled + direction + spec\n4. jjx_drop CORONET — set state=abandoned\n\nAll four create a new tack (same underlying mechanism). Each has a minimal, unambiguous signature.\n\nFiles:\n- Tools/jjk/vov_veiled/src/jjrtl_tally.rs — refactor into separate handler functions\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — register 4 new subcommands, remove jjx_tally\n- May need new source files for each command, or keep in jjrtl_tally.rs with separate entry points\n\nDelete jjx_tally entirely — no backwards compatibility.\n\nAcceptance: Each command works independently. jjx_tally produces \"unknown command.\" tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
+              "silks": "split-tally-into-primitives",
+              "commit": "c8cb6d1"
+            }
+          ]
+        },
+        "₢AWAAK": {
+          "tacks": [
+            {
+              "ts": "260206-2223",
+              "state": "rough",
+              "text": "Fix jjx_scout panic on UTF-8 boundary in long spec text.\n\nScout panics at jjrsc_scout.rs:143 with \"byte index 1359 is not a char boundary; it is inside '—'\" when truncating long spec text for context display. The substring operation uses byte indexing on a UTF-8 string containing multi-byte characters (em-dash, currency symbols).\n\nFix: use char-boundary-safe truncation (e.g., floor to nearest char boundary before slicing, or use char_indices).\n\nFiles: Tools/jjk/vov_veiled/src/jjrsc_scout.rs\n\nAcceptance: `jjx_scout spec` completes without panic. tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
+              "silks": "fix-scout-utf8-panic",
+              "commit": "a51b962"
+            }
+          ]
+        }
+      }
+    },
     "₣AU": {
       "silks": "rbw-mvp-release-finalize",
       "creation_time": "260131",
@@ -2447,177 +2618,6 @@
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_AV.md",
       "paces": {}
-    },
-    "₣AW": {
-      "silks": "jjk-boring-cli-rename",
-      "creation_time": "260206",
-      "status": "stabled",
-      "order": [
-        "₢AWAAK",
-        "₢AWAAA",
-        "₢AWAAJ",
-        "₢AWAAB",
-        "₢AWAAC",
-        "₢AWAAD",
-        "₢AWAAE",
-        "₢AWAAF",
-        "₢AWAAG",
-        "₢AWAAH",
-        "₢AWAAI"
-      ],
-      "next_pace_seed": "AAL",
-      "paddock_file": ".claude/jjm/jjp_AW.md",
-      "paces": {
-        "₢AWAAA": {
-          "tacks": [
-            {
-              "ts": "260206-2209",
-              "state": "rough",
-              "text": "Rename jjx_ command strings in jjrx_cli.rs.\n\nUpdate all #[command(name = \"jjx_*\")] attributes to use the new boring names from the paddock mapping table. This is ~22 string edits in one file.\n\nAlso rename the --full flag to --detail in jjrpd_parade.rs (ParadeArgs struct). This is a flag rename, same kind of edit — the flag means \"show detailed view\" not \"show full view.\"\n\nFiles:\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (command names)\n- Tools/jjk/vov_veiled/src/jjrpd_parade.rs (--full → --detail)\n\nAcceptance: `tt/vow-b.Build.sh` compiles, `./tt/vvw-r.RunVVX.sh jjx_show --help` works, `jjx_show AH --detail` works.",
-              "silks": "rename-jjrx-cli-strings",
-              "commit": "bac65d0"
-            },
-            {
-              "ts": "260206-2202",
-              "state": "rough",
-              "text": "Rename jjx_ command strings in jjrx_cli.rs.\n\nUpdate all #[command(name = \"jjx_*\")] attributes to use the new boring names from the paddock mapping table. This is ~22 string edits in one file.\n\nFiles: Tools/jjk/vov_veiled/src/jjrx_cli.rs\n\nAcceptance: `tt/vow-b.Build.sh` compiles, `./tt/vvw-r.RunVVX.sh jjx_show --help` works.",
-              "silks": "rename-jjrx-cli-strings",
-              "commit": "6e4e697"
-            }
-          ]
-        },
-        "₢AWAAB": {
-          "tacks": [
-            {
-              "ts": "260206-2202",
-              "state": "rough",
-              "text": "Update JJSA-GallopsData.adoc operation names.\n\nChange :jjdo_*: attribute references and operation section headers to use new boring names. E.g., :jjdo_parade: becomes display text \"jjx_show\" instead of \"jjx_parade\".\n\nFiles: Tools/jjk/vov_veiled/JJSA-GallopsData.adoc\n\nNo file renames — JJSC* spec filenames stay as-is (PD, MU, etc. are stable internal codes).\n\nAcceptance: All :jjdo_*: attributes reference the new command names.",
-              "silks": "update-jjsa-operation-names",
-              "commit": "4e44247"
-            }
-          ]
-        },
-        "₢AWAAC": {
-          "tacks": [
-            {
-              "ts": "260206-2202",
-              "state": "rough",
-              "text": "Update JJSC* individual spec files to reference new command names in prose.\n\nEach spec file (JJSCPD-parade.adoc, JJSCMU-muster.adoc, etc.) mentions its own jjx_ command name in descriptions and examples. Update these references to the new boring names.\n\nFiles: Tools/jjk/vov_veiled/JJSC*.adoc (all spec files)\n\nAcceptance: No spec file references old jjx_ command names in prose text.",
-              "silks": "update-jjsc-spec-prose",
-              "commit": "3228bd4"
-            }
-          ]
-        },
-        "₢AWAAD": {
-          "tacks": [
-            {
-              "ts": "260206-2202",
-              "state": "rough",
-              "text": "Update remaining orchestration slash commands to use new jjx_ names.\n\nThese slash commands invoke jjx_* commands and must reference the new names:\n- jjc-heat-mount.md (jjx_saddle→jjx_orient, jjx_tally→jjx_revise, jjx_chalk→jjx_mark, jjx_landing→keep)\n- jjc-heat-braid.md (jjx_parade→jjx_show, jjx_curry→jjx_paddock, jjx_rein→jjx_log, jjx_get_spec→keep, jjx_tally→jjx_revise, jjx_chalk→jjx_mark)\n- jjc-heat-quarter.md (jjx_get_coronets→keep, jjx_get_spec→keep)\n- jjc-heat-groom.md (jjx_parade→jjx_show)\n- jjc-pace-bridle.md (jjx_saddle→jjx_orient, jjx_tally→jjx_revise)\n- jjc-pace-reslate.md (jjx_parade→jjx_show, jjx_get_spec→keep, jjx_tally→jjx_revise)\n- jjc-pace-slate.md (jjx_muster→jjx_list, jjx_slate→jjx_enroll)\n- jjc-heat-garland.md (jjx_muster→jjx_list, jjx_parade→jjx_show, jjx_garland→jjx_continue)\n- jjc-heat-restring.md (jjx_restring→jjx_transfer, jjx_tally→jjx_revise)\n- jjc-heat-retire-dryrun.md (jjx_retire→jjx_archive)\n- jjc-heat-retire-FINAL.md (jjx_retire→jjx_archive)\n- jjc-heat-furlough.md (jjx_muster→jjx_list, jjx_furlough→jjx_alter)\n- jjc-heat-rail.md (jjx_rail→jjx_reorder, jjx_parade→jjx_show)\n- jjc-pace-notch.md (jjx_notch→jjx_record)\n\nFiles: .claude/commands/jjc-*.md (surviving orchestration commands only)\n\nAcceptance: grep for old jjx_ names in .claude/commands/ returns zero hits (except in commented/historical references).",
-              "silks": "update-orchestration-slash-cmds",
-              "commit": "bdfb737"
-            }
-          ]
-        },
-        "₢AWAAE": {
-          "tacks": [
-            {
-              "ts": "260206-2202",
-              "state": "rough",
-              "text": "Delete thin wrapper slash commands that will be replaced by the CLI truth table.\n\nDelete these files:\n- .claude/commands/jjc-heat-muster.md\n- .claude/commands/jjc-heat-rein.md\n- .claude/commands/jjc-scout.md\n- .claude/commands/jjc-parade.md\n- .claude/commands/jjc-heat-nominate.md\n- .claude/commands/jjc-pace-wrap.md\n\nAlso update any remaining slash commands that reference these deleted commands in their \"Available Operations\" footer sections — change references to describe the direct CLI invocation or remove the line.\n\nAcceptance: Deleted files do not exist. No remaining slash command references a deleted command.",
-              "silks": "delete-thin-wrapper-slash-cmds",
-              "commit": "247c706"
-            }
-          ]
-        },
-        "₢AWAAF": {
-          "tacks": [
-            {
-              "ts": "260206-2203",
-              "state": "rough",
-              "text": "Add CLI truth table to vocjjmc_core.md and update all JJK CLAUDE.md content.\n\nReplace the \"Common CLI Pitfalls\" section with a compact CLI truth table showing every jjx_ command with its exact argument/flag syntax. Also update:\n- Quick Verbs table (slash command names stay, but remove verbs for deleted thin wrappers)\n- Slash Command Reference table (remove rows for deleted thin wrappers)\n- Commit Discipline section (jjx_notch → jjx_record, vvx_commit reference stays)\n- Any other jjx_ name references in vocjjmc_core.md\n\nFormat for truth table:\n```\njjx_show [TARGET] [--full] [--remaining]\njjx_list [--status racing|stabled|retired]\njjx_create --silks SILKS\njjx_enroll FIREMARK --silks SILKS [--first|--before C|--after C] <stdin\n...\n```\n\nFiles: Tools/jjk/vov_veiled/vocjjmc_core.md\n\nAcceptance: vocjjmc_core.md contains no old jjx_ names. Truth table covers all 22 commands.",
-              "silks": "add-cli-truth-table",
-              "commit": "0d7e5b6"
-            }
-          ]
-        },
-        "₢AWAAG": {
-          "tacks": [
-            {
-              "ts": "260206-2203",
-              "state": "rough",
-              "text": "Reinstall JJK kit to propagate changes to active .claude/ installation.\n\nSteps:\n1. Build: tt/vow-b.Build.sh\n2. Test: tt/vow-t.Test.sh\n3. Reinstall kit (propagate vocjjmc_core.md → CLAUDE.md MANAGED:JJK block)\n4. Verify: run jjx_show, jjx_list, jjx_record --help to confirm new names work\n5. Verify: old names (jjx_parade, jjx_muster, jjx_notch) produce \"unknown command\" errors\n6. Verify: CLAUDE.md MANAGED:JJK section shows new truth table\n\nAcceptance: New CLI names work. Old CLI names fail. CLAUDE.md is updated.",
-              "silks": "reinstall-and-verify",
-              "commit": "64aea83"
-            }
-          ]
-        },
-        "₢AWAAH": {
-          "tacks": [
-            {
-              "ts": "260206-2205",
-              "state": "abandoned",
-              "text": "Drafted from ₢AHAAS in ₣AH.\n\nEvaluate collapsing thin-wrapper slash commands (reslate, slate, wrap, bridle, rail) into direct CLAUDE.md verb-to-vvx mappings.\n\nPain point: Claude regularly guesses wrong vvx subcommand names because slash command names don't match vvx names (e.g., reslate → jjx_tally). The indirection through slash command .md files is a recurring failure mode.\n\nProposed direction:\n- Identify which slash commands are thin wrappers vs. genuine orchestrations\n- For thin wrappers, replace with CLAUDE.md verb table entries that map directly to vvx invocations\n- Standardize shared post-mutation protocol (report, assess, commit) once in CLAUDE.md\n- Rely on vvx --help as authoritative syntax reference\n- Eliminate the dereference step that causes guessing errors\n\nDesign pace — needs human judgment on which commands to collapse and what the CLAUDE.md verb table format should look like.",
-              "silks": "simplify-thin-wrapper-commands",
-              "commit": "0f059e0"
-            },
-            {
-              "ts": "260206-2204",
-              "state": "rough",
-              "text": "Drafted from ₢AHAAS in ₣AH.\n\nEvaluate collapsing thin-wrapper slash commands (reslate, slate, wrap, bridle, rail) into direct CLAUDE.md verb-to-vvx mappings.\n\nPain point: Claude regularly guesses wrong vvx subcommand names because slash command names don't match vvx names (e.g., reslate → jjx_tally). The indirection through slash command .md files is a recurring failure mode.\n\nProposed direction:\n- Identify which slash commands are thin wrappers vs. genuine orchestrations\n- For thin wrappers, replace with CLAUDE.md verb table entries that map directly to vvx invocations\n- Standardize shared post-mutation protocol (report, assess, commit) once in CLAUDE.md\n- Rely on vvx --help as authoritative syntax reference\n- Eliminate the dereference step that causes guessing errors\n\nDesign pace — needs human judgment on which commands to collapse and what the CLAUDE.md verb table format should look like.",
-              "silks": "simplify-thin-wrapper-commands",
-              "commit": "58b0090"
-            },
-            {
-              "ts": "260203-1853",
-              "state": "rough",
-              "text": "Evaluate collapsing thin-wrapper slash commands (reslate, slate, wrap, bridle, rail) into direct CLAUDE.md verb-to-vvx mappings.\n\nPain point: Claude regularly guesses wrong vvx subcommand names because slash command names don't match vvx names (e.g., reslate → jjx_tally). The indirection through slash command .md files is a recurring failure mode.\n\nProposed direction:\n- Identify which slash commands are thin wrappers vs. genuine orchestrations\n- For thin wrappers, replace with CLAUDE.md verb table entries that map directly to vvx invocations\n- Standardize shared post-mutation protocol (report, assess, commit) once in CLAUDE.md\n- Rely on vvx --help as authoritative syntax reference\n- Eliminate the dereference step that causes guessing errors\n\nDesign pace — needs human judgment on which commands to collapse and what the CLAUDE.md verb table format should look like.",
-              "silks": "simplify-thin-wrapper-commands",
-              "commit": "175f84e"
-            }
-          ]
-        },
-        "₢AWAAI": {
-          "tacks": [
-            {
-              "ts": "260206-2204",
-              "state": "rough",
-              "text": "Drafted from ₢AHAAM in ₣AH.\n\nAdd \"Recommended:\" advice lines to JJX commands to save Claude tokens.\n\n## Context\n\nCurrently only jjrwp_wrap.rs prints advice (\"Recommended: /clear then /jjc-heat-mount {firemark}\"). Claude often generates similar guidance prose, wasting tokens. If JJX commands print actionable next-step advice, Claude can stay silent.\n\n## Deliverables\n\nAdd stderr advice to these commands:\n\n1. **jjx_saddle** (jjrsd_saddle.rs) — after outputting pace context:\n   - If bridled: \"Recommended: /jjc-heat-mount {firemark} to execute\"\n   - If rough: \"Recommended: /jjc-pace-bridle {coronet} or /jjc-heat-mount {firemark}\"\n\n2. **jjx_tally with --state bridled** (bridle operation) — after success:\n   - \"Recommended: /jjc-heat-mount {firemark} to execute\"\n\n3. **jjx_parade** (jjrpd_parade.rs) — when showing remaining paces:\n   - If next pace exists: \"Recommended: /jjc-heat-mount {firemark}\"\n\n## Pattern\n\nUse eprintln! for advice (stderr), matching wrap.rs pattern. Keep advice terse — one line max.\n\nAcceptance: Running jjx_saddle, jjx_tally --state bridled, and jjx_parade shows appropriate \"Recommended:\" line on stderr.",
-              "silks": "jjx-advice-output",
-              "commit": "58b0090"
-            },
-            {
-              "ts": "260127-1145",
-              "state": "rough",
-              "text": "Add \"Recommended:\" advice lines to JJX commands to save Claude tokens.\n\n## Context\n\nCurrently only jjrwp_wrap.rs prints advice (\"Recommended: /clear then /jjc-heat-mount {firemark}\"). Claude often generates similar guidance prose, wasting tokens. If JJX commands print actionable next-step advice, Claude can stay silent.\n\n## Deliverables\n\nAdd stderr advice to these commands:\n\n1. **jjx_saddle** (jjrsd_saddle.rs) — after outputting pace context:\n   - If bridled: \"Recommended: /jjc-heat-mount {firemark} to execute\"\n   - If rough: \"Recommended: /jjc-pace-bridle {coronet} or /jjc-heat-mount {firemark}\"\n\n2. **jjx_tally with --state bridled** (bridle operation) — after success:\n   - \"Recommended: /jjc-heat-mount {firemark} to execute\"\n\n3. **jjx_parade** (jjrpd_parade.rs) — when showing remaining paces:\n   - If next pace exists: \"Recommended: /jjc-heat-mount {firemark}\"\n\n## Pattern\n\nUse eprintln! for advice (stderr), matching wrap.rs pattern. Keep advice terse — one line max.\n\nAcceptance: Running jjx_saddle, jjx_tally --state bridled, and jjx_parade shows appropriate \"Recommended:\" line on stderr.",
-              "silks": "jjx-advice-output",
-              "commit": "82443ef"
-            }
-          ]
-        },
-        "₢AWAAJ": {
-          "tacks": [
-            {
-              "ts": "260206-2212",
-              "state": "rough",
-              "text": "Split jjx_tally (jjx_revise) into four single-purpose commands.\n\nCurrent jjx_tally is multipurpose: spec revision, rename, bridle, abandon — with conditional flag validity that causes LLM misfires. Split into:\n\n1. jjx_revise CORONET < stdin — update spec text, carry forward state/silks\n2. jjx_relabel CORONET --silks \"name\" — rename, carry forward text/state\n3. jjx_arm CORONET --direction \"...\" < stdin — set state=bridled + direction + spec\n4. jjx_drop CORONET — set state=abandoned\n\nAll four create a new tack (same underlying mechanism). Each has a minimal, unambiguous signature.\n\nFiles:\n- Tools/jjk/vov_veiled/src/jjrtl_tally.rs — refactor into separate handler functions\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs — register 4 new subcommands, remove jjx_tally\n- May need new source files for each command, or keep in jjrtl_tally.rs with separate entry points\n\nDelete jjx_tally entirely — no backwards compatibility.\n\nAcceptance: Each command works independently. jjx_tally produces \"unknown command.\" tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
-              "silks": "split-tally-into-primitives",
-              "commit": "c8cb6d1"
-            }
-          ]
-        },
-        "₢AWAAK": {
-          "tacks": [
-            {
-              "ts": "260206-2223",
-              "state": "rough",
-              "text": "Fix jjx_scout panic on UTF-8 boundary in long spec text.\n\nScout panics at jjrsc_scout.rs:143 with \"byte index 1359 is not a char boundary; it is inside '—'\" when truncating long spec text for context display. The substring operation uses byte indexing on a UTF-8 string containing multi-byte characters (em-dash, currency symbols).\n\nFix: use char-boundary-safe truncation (e.g., floor to nearest char boundary before slicing, or use char_indices).\n\nFiles: Tools/jjk/vov_veiled/src/jjrsc_scout.rs\n\nAcceptance: `jjx_scout spec` completes without panic. tt/vow-b.Build.sh compiles, tt/vow-t.Test.sh passes.",
-              "silks": "fix-scout-utf8-panic",
-              "commit": "a51b962"
-            }
-          ]
-        }
-      }
     }
   }
 }
