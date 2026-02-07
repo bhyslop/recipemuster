@@ -1568,10 +1568,11 @@
         "₢AGAAE",
         "₢AGAAF",
         "₢AGAAK",
+        "₢AGAAL",
         "₢AGAAG",
         "₢AGAAI"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -1709,6 +1710,17 @@
               "text": "Rename JSON schema field \"text\" to \"docket\" in tack records.\n\nCompanion to json-schema-commit-to-basis (₢AGAAF). Same pattern:\n1. Remove serde rename attribute (or change field name) in jjrt_types.rs\n2. Migrate existing gallops JSON: s/\"text\":/\"docket\":/g\n3. Update documentation referencing the JSON schema\n\nBreaking: Changes JSON schema. All existing gallops files must be migrated.\n\nAcceptance: JSON files use \"docket\" key. Round-trip validation passes. All tests pass.",
               "silks": "json-schema-text-to-docket",
               "commit": "d1b8f5a"
+            }
+          ]
+        },
+        "₢AGAAL": {
+          "tacks": [
+            {
+              "ts": "260206-2234",
+              "state": "rough",
+              "text": "Rename JSON schema field \"direction\" to \"warrant\" in tack records.\n\nCompanion to json-schema-text-to-docket (₢AGAAK). Same pattern:\n1. Remove serde rename attribute (or change field name) in jjrt_types.rs\n2. Migrate existing gallops JSON: s/\"direction\":/\"warrant\":/g\n3. Update documentation referencing the JSON schema\n\nBreaking: Changes JSON schema. All existing gallops files must be migrated.\n\nAcceptance: JSON files use \"warrant\" key. Round-trip validation passes. All tests pass.",
+              "silks": "json-schema-direction-to-warrant",
+              "commit": "8e1572b"
             }
           ]
         }
