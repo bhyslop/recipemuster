@@ -2002,6 +2002,13 @@
         "₢AHAAV": {
           "tacks": [
             {
+              "ts": "260206-2203",
+              "state": "complete",
+              "text": "Explore whether parade has too many flags (--full, --remaining, --files) and whether some should become separate commands.\n\nConsider:\n- parade's core job vs. accumulated concerns\n- Whether --files bitmap warrants its own command (e.g., jjx_bitmap)\n- Whether --full and --remaining add value as flags vs. being defaults or separate commands\n- CLI discoverability and option-count discipline\n\nProduce a recommendation memo, not implementation.",
+              "silks": "explore-parade-flag-reduction",
+              "commit": "aaea9dc"
+            },
+            {
               "ts": "260206-0943",
               "state": "rough",
               "text": "Explore whether parade has too many flags (--full, --remaining, --files) and whether some should become separate commands.\n\nConsider:\n- parade's core job vs. accumulated concerns\n- Whether --files bitmap warrants its own command (e.g., jjx_bitmap)\n- Whether --full and --remaining add value as flags vs. being defaults or separate commands\n- CLI discoverability and option-count discipline\n\nProduce a recommendation memo, not implementation.",
