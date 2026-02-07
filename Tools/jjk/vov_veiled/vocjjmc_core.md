@@ -23,16 +23,16 @@ When a command takes `<firemark>` or `<coronet>`, provide the identity, not the 
 ALWAYS read the corresponding slash command before attempting JJ operations.
 
 **CRITICAL**: JJK CLI syntax is non-standard. Do NOT guess based on common CLI conventions.
-- Specs go via stdin, not `--spec`
+- Dockets go via stdin, not `--docket`
 - Positioning uses `--move X --first`, not `--position first`
 - Read the slash command to see the exact `./tt/vvw-r.RunVVX.sh jjx_*` invocation pattern.
 
-**Heredoc for stdin**: Use `cat <<'DELIM' | jjx_*` pattern with quoted delimiter. The delimiter must not appear alone on any line in the content — if content shows heredoc examples with `EOF`, use a different delimiter like `SPEC` or `PACESPEC`.
+**Heredoc for stdin**: Use `cat <<'DELIM' | jjx_*` pattern with quoted delimiter. The delimiter must not appear alone on any line in the content — if content shows heredoc examples with `EOF`, use a different delimiter like `DOCKET` or `PACESPEC`.
 
 | When you need to... | Read first |
 |---------------------|------------|
 | Add a new pace | /jjc-pace-slate |
-| Refine pace spec | /jjc-pace-reslate |
+| Refine pace docket | /jjc-pace-reslate |
 | Bridle for autonomous execution | /jjc-pace-bridle |
 | Mark pace complete | `jjx_close` |
 | Commit with JJ context | /jjc-pace-notch |
@@ -42,8 +42,6 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | Reorder paces | /jjc-heat-rail |
 | Add steeplechase marker | /jjc-heat-chalk |
 | Pause or resume heat | /jjc-heat-furlough |
-| Create new heat | `jjx_create` |
-| List all heats | `jjx_list` |
 | Draft paces between heats | /jjc-heat-restring |
 | Retire completed heat | /jjc-heat-retire |
 | View heat or pace | `jjx_show` |
@@ -59,24 +57,62 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | bridle | /jjc-pace-bridle |
 | notch | /jjc-pace-notch |
 | furlough | /jjc-heat-furlough |
-| muster | `jjx_list` |
 | groom | /jjc-heat-groom |
 | quarter | /jjc-heat-quarter |
 | rail | /jjc-heat-rail |
-| rein | `jjx_log` |
-| scout | `jjx_search` |
-| parade | `jjx_show` |
 
-**Common CLI Pitfalls:**
-- `jjx_parade` takes firemark OR coronet directly as sole argument — NO flags for target selection
-  - Heat overview: `jjx_parade AF`
-  - Single pace: `jjx_parade AFAAb`
-  - Valid flags: `--full`, `--remaining` only
+**CLI Command Reference:**
+
+```
+jjx_show [TARGET] [--detail] [--remaining]
+jjx_list [--status racing|stabled|retired]
+jjx_create --silks SILKS
+jjx_enroll FIREMARK --silks SILKS [--first|--before C|--after C] <stdin
+jjx_reorder FIREMARK [--move C --first|--last|--before C|--after C | CORONET...]
+jjx_alter FIREMARK [--status racing|stabled] [--silks SILKS]
+jjx_record CORONET FILE [FILE...] [--intent "msg"]
+jjx_close CORONET
+jjx_log FIREMARK [--limit N]
+jjx_search PATTERN [--actionable]
+jjx_archive FIREMARK [--execute]
+jjx_transfer FIREMARK --to FIREMARK <stdin
+jjx_continue FIREMARK
+jjx_mark CORONET --marker M --description "text"
+jjx_paddock FIREMARK [<stdin for set]
+jjx_relocate CORONET --to FIREMARK
+jjx_orient [FIREMARK]
+jjx_revise_docket CORONET <stdin
+jjx_arm CORONET <stdin
+jjx_relabel CORONET --silks "name"
+jjx_drop CORONET
+jjx_get_brief CORONET
+jjx_get_coronets FIREMARK [--rough]
+jjx_landing CORONET AGENT <stdin
+jjx_validate [--file PATH]
+```
+
+**Composition Recipes:**
+
+Common command combinations using `&&`:
+
+```bash
+# Revise docket and rename:
+jjx_revise_docket C <docket_stdin && jjx_relabel C --silks "name"
+
+# Bridle with revised docket:
+jjx_revise_docket C <docket_stdin && jjx_arm C <warrant_stdin
+```
+
+**Key points:**
+- `jjx_show` takes firemark OR coronet directly as sole argument — NO flags for target selection
+  - Heat overview: `jjx_show AF`
+  - Single pace: `jjx_show AFAAb`
+  - Valid flags: `--detail`, `--remaining` only
 - NEVER invent CLI flags — run `--help` first or read the slash command
-- `jjx_saddle` output includes `pace_coronet` (next actionable pace) — no separate parade call needed to find what's next
+- `jjx_orient` output includes `pace_coronet` (next actionable pace) — no separate show call needed to find what's next
 
 **Commit Discipline:**
-When working on a heat, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `vvx_commit` directly — it bypasses heat/pace affiliation and steeplechase tracking.
+When working on a heat, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `jjx_record` directly — the slash command handles context detection. Never bypass heat/pace affiliation and steeplechase tracking.
 
 Notch handles two cases:
 - **Pace-affiliated**: Active pace provides context (coronet in commit)
