@@ -314,6 +314,13 @@
         "₢ARAAM": {
           "tacks": [
             {
+              "ts": "260206-2036",
+              "state": "complete",
+              "text": "Review GAR delete operation now that ARKs exist. Delete may need to function on a whole ark rather than just a subimage. Evaluate whether image_delete should be ark-aware or if a separate ark_delete operation is needed. Consider implications for RBSID spec and rbga_ArtifactRegistry.sh implementation.",
+              "silks": "gar-delete-ark-cleanup",
+              "commit": "284fcfe"
+            },
+            {
               "ts": "260201-2123",
               "state": "rough",
               "text": "Review GAR delete operation now that ARKs exist. Delete may need to function on a whole ark rather than just a subimage. Evaluate whether image_delete should be ark-aware or if a separate ark_delete operation is needed. Consider implications for RBSID spec and rbga_ArtifactRegistry.sh implementation.",
