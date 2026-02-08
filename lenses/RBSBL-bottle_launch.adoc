@@ -9,7 +9,7 @@ instantiates and configures the service container for the
 .. {rbbc_call}
 podman run with:
 ... image:
-{rbrn_bottle_moniker}:{rbrn_bottle_image_tag}
+{rbrn_bottle_vessel}:{rbrn_bottle_consecration}
 ... name:
 {at_bottle_container_name}
 ... network: exclusive attachment to

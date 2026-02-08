@@ -7,7 +7,7 @@ from the configured image, establishing network connectivity and volume mounts w
 // ⟦axs_behavior⟧
 . *Configure Container Parameters*:
 .. {rbbc_use}
-{rbrn_bottle_moniker}:{rbrn_bottle_image_tag} as source image
+{rbrn_bottle_vessel}:{rbrn_bottle_consecration} as source image
 .. {rbbc_use}
 {at_enclave_network} for exclusive network attachment
 .. {rbbc_use}
@@ -18,7 +18,7 @@ from the configured image, establishing network connectivity and volume mounts w
 . *Create Container*:
 .. {rbbc_call}
 podman create with:
-... Image: {rbrn_bottle_moniker}:{rbrn_bottle_image_tag}
+... Image: {rbrn_bottle_vessel}:{rbrn_bottle_consecration}
 ... Network: {at_enclave_network} (exclusive)
 ... DNS: {at_sentry_container} address
 ... Volumes: {rbrn_volume_mounts}

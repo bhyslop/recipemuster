@@ -159,8 +159,6 @@
 :rbrn_description:                <<rbrn_description,RBRN_DESCRIPTION>>
 :rbrn_sentry_moniker:             <<rbrn_sentry_moniker,RBRN_SENTRY_MONIKER>>
 :rbrn_bottle_moniker:             <<rbrn_bottle_moniker,RBRN_BOTTLE_MONIKER>>
-:rbrn_sentry_image_tag:           <<rbrn_sentry_image_tag,RBRN_SENTRY_IMAGE_TAG>>
-:rbrn_bottle_image_tag:           <<rbrn_bottle_image_tag,RBRN_BOTTLE_IMAGE_TAG>>
 :rbrn_entry_mode:                 <<rbrn_entry_mode,RBRN_ENTRY_MODE>>
 :rbrn_entry_port_workstation:     <<rbrn_entry_port_workstation,RBRN_ENTRY_PORT_WORKSTATION>>
 :rbrn_entry_port_enclave:         <<rbrn_entry_port_enclave,RBRN_ENTRY_PORT_ENCLAVE>>
@@ -696,7 +694,7 @@ instantiates and configures the service container:
 . Launch
 {at_bottle_container}:
 * Image
-{rbrn_bottle_moniker}:{rbrn_bottle_image_tag}
+{rbrn_bottle_vessel}:{rbrn_bottle_consecration}
 * Name
 {at_bottle_container_name}
 * Attach exclusively to
@@ -835,7 +833,7 @@ within the
 establishes the transient container:
 
 * Create container from
-{rbrn_bottle_moniker}:{rbrn_bottle_image_tag}
+{rbrn_bottle_vessel}:{rbrn_bottle_consecration}
 * Allow podman to assign unique container name
 * Attach exclusively to
 {at_enclave_network}
@@ -1066,7 +1064,7 @@ that contains the service functionality intended to run within a
 This image is stored in the
 {at_container_registry}
 and is referenced by
-{rbrn_bottle_repo_path} and {rbrn_bottle_image_tag}.
+{rbrn_bottle_vessel} and {rbrn_bottle_consecration}.
 
 [[bottle_service]]
 {at_bottle_service}::
@@ -1199,7 +1197,7 @@ that contains the security enforcement functionality for a
 This image is stored in the
 {at_container_registry}
 and is referenced by
-{rbrn_sentry_repo_path} and {rbrn_sentry_image_tag}.
+{rbrn_sentry_vessel} and {rbrn_sentry_consecration}.
 
 [[sentry_container]]
 {at_sentry_container}::
@@ -1483,17 +1481,6 @@ The image moniker identifier for the
 in the
 {at_container_registry}.
 
-[[rbrn_sentry_image_tag]]
-{rbrn_sentry_image_tag}::
-The version identifier for the
-{at_sentry_image}
-to be deployed.
-
-[[rbrn_bottle_image_tag]]
-{rbrn_bottle_image_tag}::
-The version identifier for the
-{at_bottle_image}
-to be deployed.
 
 [[rbrn_entry_mode]]
 {rbrn_entry_mode}::
