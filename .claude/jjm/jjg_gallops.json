@@ -288,6 +288,13 @@
         "₢AWAAI": {
           "tacks": [
             {
+              "ts": "260208-0721",
+              "state": "complete",
+              "text": "Drafted from ₢AHAAM in ₣AH.\n\nAdd \"Recommended:\" advice lines to JJX commands to save Claude tokens.\n\n## Context\n\nCurrently only jjrwp_wrap.rs prints advice (\"Recommended: /clear then /jjc-heat-mount {firemark}\"). Claude often generates similar guidance prose, wasting tokens. If JJX commands print actionable next-step advice, Claude can stay silent.\n\n## Deliverables\n\nAdd stderr advice to these commands:\n\n1. **jjx_saddle** (jjrsd_saddle.rs) — after outputting pace context:\n   - If bridled: \"Recommended: /jjc-heat-mount {firemark} to execute\"\n   - If rough: \"Recommended: /jjc-pace-bridle {coronet} or /jjc-heat-mount {firemark}\"\n\n2. **jjx_tally with --state bridled** (bridle operation) — after success:\n   - \"Recommended: /jjc-heat-mount {firemark} to execute\"\n\n3. **jjx_parade** (jjrpd_parade.rs) — when showing remaining paces:\n   - If next pace exists: \"Recommended: /jjc-heat-mount {firemark}\"\n\n## Pattern\n\nUse eprintln! for advice (stderr), matching wrap.rs pattern. Keep advice terse — one line max.\n\nAcceptance: Running jjx_saddle, jjx_tally --state bridled, and jjx_parade shows appropriate \"Recommended:\" line on stderr.",
+              "silks": "jjx-advice-output",
+              "commit": "3230665"
+            },
+            {
               "ts": "260208-0714",
               "state": "complete",
               "text": "Drafted from ₢AHAAM in ₣AH.\n\nAdd \"Recommended:\" advice lines to JJX commands to save Claude tokens.\n\n## Context\n\nCurrently only jjrwp_wrap.rs prints advice (\"Recommended: /clear then /jjc-heat-mount {firemark}\"). Claude often generates similar guidance prose, wasting tokens. If JJX commands print actionable next-step advice, Claude can stay silent.\n\n## Deliverables\n\nAdd stderr advice to these commands:\n\n1. **jjx_saddle** (jjrsd_saddle.rs) — after outputting pace context:\n   - If bridled: \"Recommended: /jjc-heat-mount {firemark} to execute\"\n   - If rough: \"Recommended: /jjc-pace-bridle {coronet} or /jjc-heat-mount {firemark}\"\n\n2. **jjx_tally with --state bridled** (bridle operation) — after success:\n   - \"Recommended: /jjc-heat-mount {firemark} to execute\"\n\n3. **jjx_parade** (jjrpd_parade.rs) — when showing remaining paces:\n   - If next pace exists: \"Recommended: /jjc-heat-mount {firemark}\"\n\n## Pattern\n\nUse eprintln! for advice (stderr), matching wrap.rs pattern. Keep advice terse — one line max.\n\nAcceptance: Running jjx_saddle, jjx_tally --state bridled, and jjx_parade shows appropriate \"Recommended:\" line on stderr.",
