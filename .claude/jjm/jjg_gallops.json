@@ -2510,9 +2510,10 @@
         "₢AGAAL",
         "₢AGAAG",
         "₢AGAAI",
-        "₢AGAAM"
+        "₢AGAAM",
+        "₢AGAAN"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -2672,6 +2673,17 @@
               "text": "Add an auto-generated intent field to pace records.\n\nThe intent statement should be a prose summary (1-2 sentences) extracted from the pace docket, maintaining it automatically as part of slate/reslate operations.\n\nDisplay intent:\n- In non-detailed pace listings (alongside silks)\n- In wrap completion summary (showing what was just finished)\n\nThis gives paces more semantic richness than silks alone, helping runners understand purpose at a glance.",
               "silks": "add-intent-field",
               "commit": "d13b192"
+            }
+          ]
+        },
+        "₢AGAAN": {
+          "tacks": [
+            {
+              "ts": "260208-1545",
+              "state": "rough",
+              "text": "Relax silks validation to permit uppercase letters (A-Z) in addition to lowercase.\n\nContinue rejecting spaces and underscores — only allow [a-zA-Z0-9] and hyphens.\n\nCurrent pattern: `[a-z0-9]+(-[a-z0-9]+)*`\nTarget pattern: `[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*`\n\nLocate silks validation in jjk/vvx and update the regex plus any related error messages or tests.",
+              "silks": "permit-uppercase-silks",
+              "commit": "6125f57"
             }
           ]
         }
