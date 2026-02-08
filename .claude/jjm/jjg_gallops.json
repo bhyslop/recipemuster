@@ -846,6 +846,13 @@
         "₢ASAAJ": {
           "tacks": [
             {
+              "ts": "260208-1248",
+              "state": "complete",
+              "text": "Compare old RBS-Specification.adoc against RBSA-SpecTop.adoc to verify no content was lost in the consolidation.\n\n## Work required\n\n1. Read RBS-Specification.adoc (the pre-consolidation version — use git history if needed)\n2. Read RBSA-SpecTop.adoc (the new unified document)\n3. Section-by-section comparison:\n   - Tier 1 (Why and What): Security architecture, trust challenge, bottle pattern, security properties\n   - Tier 3 (Reference): Script internals (iptables, DNS/dnsmasq, socat, eBPF), trade studies, term definitions\n   - Local operations content that was in RBS\n4. Flag any content present in RBS but missing from RBSA\n5. Flag any content that was significantly altered (not just reformatted) in ways that change meaning\n\n## Acceptance criteria\n- Every substantive section of RBS accounted for in RBSA (or explicitly noted as intentionally dropped)\n- No semantic loss — reformatting is fine, meaning changes are not\n- Report produced listing: confirmed-present, intentionally-dropped, and missing items",
+              "silks": "assess-rbs-to-rbsa-loss",
+              "commit": "30e1a31"
+            },
+            {
               "ts": "260207-1404",
               "state": "bridled",
               "text": "Compare old RBS-Specification.adoc against RBSA-SpecTop.adoc to verify no content was lost in the consolidation.\n\n## Work required\n\n1. Read RBS-Specification.adoc (the pre-consolidation version — use git history if needed)\n2. Read RBSA-SpecTop.adoc (the new unified document)\n3. Section-by-section comparison:\n   - Tier 1 (Why and What): Security architecture, trust challenge, bottle pattern, security properties\n   - Tier 3 (Reference): Script internals (iptables, DNS/dnsmasq, socat, eBPF), trade studies, term definitions\n   - Local operations content that was in RBS\n4. Flag any content present in RBS but missing from RBSA\n5. Flag any content that was significantly altered (not just reformatted) in ways that change meaning\n\n## Acceptance criteria\n- Every substantive section of RBS accounted for in RBSA (or explicitly noted as intentionally dropped)\n- No semantic loss — reformatting is fine, meaning changes are not\n- Report produced listing: confirmed-present, intentionally-dropped, and missing items",
