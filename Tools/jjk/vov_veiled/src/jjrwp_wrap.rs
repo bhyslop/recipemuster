@@ -285,10 +285,11 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
         Ok(_) => {
             println!("{}", commit_hash);
             let fm = coronet.jjrf_parent_firemark();
+            let fm_key = fm.jjrf_display();
             let fm_str = fm.jjrf_as_str();
 
             // Lookahead: find next actionable pace in this heat
-            let next_pace_info = gallops.heats.get(fm_str).and_then(|heat| {
+            let next_pace_info = gallops.heats.get(&fm_key).and_then(|heat| {
                 heat.order.iter().find_map(|c| {
                     heat.paces.get(c.as_str()).and_then(|pace| {
                         pace.tacks.first().and_then(|tack| {
