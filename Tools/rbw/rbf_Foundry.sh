@@ -747,29 +747,13 @@ rbf_list() {
       buc_die "Registry error: ${z_error}"
     fi
 
-    # Check if -meta companion exists
-    local z_meta_moniker="${z_moniker}-meta"
-    local z_meta_file="${BUD_TEMP_DIR}/rbf_list_meta_check.json"
-    local z_has_meta=false
-    curl -sL \
-      -H "Authorization: Bearer ${z_token}" \
-      "${ZRBF_REGISTRY_API_BASE}/${z_meta_moniker}/tags/list" \
-      > "${z_meta_file}" 2>/dev/null
-    if ! jq -e '.errors' "${z_meta_file}" >/dev/null 2>&1; then
-      z_has_meta=true
-    fi
-
     # Display tags with full references
     echo ""
     echo "Images for moniker: ${z_moniker}"
     echo ""
     jq -r '.tags[]? // empty' "${z_tags_file}" | sort -r | while read -r tag; do
       local z_full_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_moniker}:${tag}"
-      if test "${z_has_meta}" = "true"; then
-        echo "  ${z_full_ref} [meta]"
-      else
-        echo "  ${z_full_ref}"
-      fi
+      echo "  ${z_full_ref}"
     done
   else
     # List all images (packages) in repository using Artifact Registry REST API
@@ -792,32 +776,19 @@ rbf_list() {
       buc_die "API error: ${z_error}"
     fi
 
-    # Extract package names and build meta companion map
+    # Extract package names
     local z_packages_list="${BUD_TEMP_DIR}/rbf_list_packages.txt"
     jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
       # Extract just the image name (last path component after /packages/)
       echo "${pkg##*/}"
     done | sort > "${z_packages_list}"
 
-    # Build list of primary monikers (exclude -meta companions)
-    local z_primary_list="${BUD_TEMP_DIR}/rbf_list_primary.txt"
-    grep -v -- '-meta$' "${z_packages_list}" > "${z_primary_list}"
-
-    # Create meta companion lookup map
-    local z_meta_map="${BUD_TEMP_DIR}/rbf_list_meta_map.txt"
-    > "${z_meta_map}"
-    while IFS= read -r moniker; do
-      local z_meta_candidate="${moniker}-meta"
-      if grep -Fxq "${z_meta_candidate}" "${z_packages_list}"; then
-        echo "${moniker}" >> "${z_meta_map}"
-      fi
-    done < "${z_primary_list}"
-
     echo ""
     echo "All images in repository:"
     echo ""
 
-    # For each primary moniker, fetch tags and display with full references
+    # For each moniker, fetch tags and display count
+    local z_total=0
     while IFS= read -r moniker; do
       local z_tags_file="${BUD_TEMP_DIR}/rbf_list_tags_${moniker}.json"
       curl -sL \
@@ -830,27 +801,15 @@ rbf_list() {
         continue
       fi
 
-      # Check if this moniker has a meta companion
-      local z_has_meta=false
-      if grep -Fxq "${moniker}" "${z_meta_map}"; then
-        z_has_meta=true
-      fi
+      # Count tags
+      local z_tag_count
+      z_tag_count=$(jq -r '.tags[]? // empty' "${z_tags_file}" | wc -l | tr -d ' ')
+      echo "  ${moniker}  ${z_tag_count} tag(s)"
+      z_total=$((z_total + 1))
+    done < "${z_packages_list}"
 
-      # Display each tag with full reference
-      jq -r '.tags[]? // empty' "${z_tags_file}" | sort -r | while read -r tag; do
-        local z_full_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${moniker}:${tag}"
-        if test "${z_has_meta}" = "true"; then
-          echo "  ${z_full_ref} [meta]"
-        else
-          echo "  ${z_full_ref}"
-        fi
-      done
-    done < "${z_primary_list}"
-
-    local z_count
-    z_count=$(wc -l < "${z_primary_list}" | tr -d ' ')
     echo ""
-    echo "Total: ${z_count} image(s)"
+    echo "Total: ${z_total} image(s)"
   fi
 
   buc_success "List complete"

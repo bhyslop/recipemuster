@@ -81,6 +81,7 @@
 :rbtgo_image_retrieve:            <<rbtgo_image_retrieve,Image Retrieval>>
 :rbtoe_retriever_authenticate:    <<rbtoe_retriever_authenticate,Retriever Authentication Pattern>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_build>>
+:rbtgo_image_list:                <<rbtgo_image_list,rbf_list>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbf_delete>>
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
 :rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
@@ -660,6 +661,12 @@ Builds container image from vessel specification using Cloud Build and stores in
 include::RBSTB-trigger_build.adoc[]
 
 NOTE: For multi-platform build authentication challenges and research findings, see link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
+
+[[rbtgo_image_list]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_image_list}
+
+include::RBSIL-image_list.adoc[]
 
 [[rbtgo_image_delete]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
