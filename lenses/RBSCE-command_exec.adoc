@@ -1,3 +1,19 @@
-This sequence of steps within the {opbr_bottle_run} executes the requested operation:
+NOTE: This sequence within
+{opbr_bottle_run}
+executes a specified command within the
+{at_bottle_container},
+running the operation in the configured container environment.
 
-* Execute specified command in container
+// ⟦axs_behavior⟧
+. *Execute Command*:
+.. {rbbc_require}
+`«CONTAINER_ID»` available from container creation
+.. {rbbc_require}
+`«COMMAND_ARGS»` provided as command specification
+.. {rbbc_call}
+podman exec for `«CONTAINER_ID»` with `«COMMAND_ARGS»`
+.. {rbbc_require}
+command execution completes
+
+// ⟦axs_completion⟧
+Successful execution runs the requested command within the container, with output returned to caller.

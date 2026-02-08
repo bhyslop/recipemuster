@@ -1,44 +1,53 @@
-This sequence of steps
-within the
+NOTE: This sequence within
 {opss_sentry_start}
 establishes required networks for the
-{at_bottle_service}:
+{at_bottle_service}.
 
-. Remove Existing
-{at_transit_network}
-* Remove the
-{at_transit_network}
-named
+// ⟦axs_behavior⟧
+. *Remove Existing
+{at_transit_network}*:
+.. {rbbc_call}
+podman network remove for
 {at_transit_network_name},
 ignoring errors
-* This ensures a clean state before creating the new transit network
+.. NOTE: This ensures a clean state before creating the new transit network
 
-. Create New
-{at_transit_network}
-* Use standard Podman network primitives to create a bridge network named
+. *Create New
+{at_transit_network}*:
+.. {rbbc_call}
+podman network create with:
+... name:
 {at_transit_network_name}
-* The IP address range or any other attributes remain consistent with the
+... type: bridge
+... IPv6: disabled
+... external connectivity: enabled
+.. Apply configuration consistent with
 {rbrn_moniker}-uplink
 definition
-* IPv6 remains disabled, and external connectivity is enabled
+.. {rbbc_require}
+transit network created successfully
 
-. Remove Existing
-{at_enclave_network}
-* Remove the
-{at_enclave_network}
-named
+. *Remove Existing
+{at_enclave_network}*:
+.. {rbbc_call}
+podman network remove for
 {at_enclave_network_name},
 ignoring errors
-* This ensures a clean state before creating the new enclave network
+.. NOTE: This ensures a clean state before creating the new enclave network
 
-. Create New
-{at_enclave_network}
-* Use standard Podman network primitives to create an isolated bridge network named
+. *Create New
+{at_enclave_network}*:
+.. {rbbc_call}
+podman network create with:
+... name:
 {at_enclave_network_name}
-* Configure the network with subnet
+... type: isolated bridge
+... subnet:
 {rbrn_enclave_base_ip}/{rbrn_enclave_netmask}
-* Disable external connectivity to ensure isolation
-* Allow netavark to manage IP address assignment for containers on this network
+... external connectivity: disabled
+... IP assignment: managed by netavark
+.. {rbbc_require}
+enclave network created successfully
 
 After this sequence completes, both networks exist in standard Podman configuration. The
 {at_sentry_container}

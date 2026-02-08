@@ -1,18 +1,30 @@
-This sequence instantiates and configures the service container:
+NOTE: This sequence within
+{opbs_bottle_start}
+instantiates and configures the service container for the
+{at_bottle_service}.
 
-. Launch
-{at_bottle_container}:
-* Image
+// ⟦axs_behavior⟧
+. *Launch
+{at_bottle_container}*:
+.. {rbbc_call}
+podman run with:
+... image:
 {rbrn_bottle_moniker}:{rbrn_bottle_image_tag}
-* Name
+... name:
 {at_bottle_container_name}
-* Attach exclusively to
+... network: exclusive attachment to
 {at_enclave_network}
-* Apply
+... volumes: apply
 {rbrn_volume_mounts}
 specifications
-* Set restart policy to "unless-stopped"
+... restart policy: unless-stopped
+.. {rbbc_require}
+container launched successfully
 
-. Perform post-launch network configuration:
-* Allow container initialization with podman's default network configuration
-* Verify container network interface is active using {mkc_interface_check}
+. *Verify Network Configuration*:
+.. Allow container initialization with podman's default network configuration
+.. {rbbc_call}
+{mkc_interface_check}
+to verify container network interface is active
+.. {rbbc_require}
+network interface ready for operation

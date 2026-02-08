@@ -1,10 +1,26 @@
-This sequence removes any previous container instance:
+NOTE: This sequence within
+{opbs_bottle_start}
+removes any previous container instance to ensure a clean state before launching a new
+{at_bottle_container}.
 
-* Query existence of
-{at_bottle_container}
-named
-{at_bottle_container_name}.
-If found:
-. Terminate container with 5-second timeout
-. Force remove container if still present after timeout
-. Verify complete removal from container runtime
+// ⟦axs_behavior⟧
+. *Query Container Existence*:
+.. {rbbc_call}
+podman container exists for
+{at_bottle_container_name}
+.. {rbbc_store}
+`«CONTAINER_EXISTS»` as result
+
+. *Remove Previous Container* (conditional):
+.. If `«CONTAINER_EXISTS»` is true:
+... {rbbc_call}
+podman stop with 5-second timeout for
+{at_bottle_container_name}
+... {rbbc_call}
+podman rm --force for
+{at_bottle_container_name}
+if still present after timeout
+... {rbbc_call}
+podman container exists to verify removal
+... {rbbc_require}
+container completely removed from runtime

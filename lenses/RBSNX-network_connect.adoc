@@ -1,34 +1,45 @@
-This sequence of steps
-within the
+NOTE: This sequence within
 {opss_sentry_start}
-establishes the secondary network interface connected to
-{at_enclave_network}:
+establishes the secondary network interface for the
+{at_sentry_container},
+connecting it to the
+{at_enclave_network}.
 
-. Connect Container to Enclave Network
-* Attach the
+// ⟦axs_behavior⟧
+. *Connect Container to Enclave Network*:
+.. {rbbc_call}
+podman network connect to attach
 {at_sentry_container}
-to the
+to
 {at_enclave_network}
-using standard Podman network connect
-* Verify successful network attachment
-* Validate interface naming sequence - eth0 must be the transit network interface
-* The enclave network interface must appear as eth1
+.. {rbbc_require}
+successful network attachment
+.. {rbbc_require}
+interface naming sequence: eth0 is transit network, eth1 is enclave network
 
-. Verify Network Interface Configuration
-* Execute within sentry container context
-* {mkc_interface_check}
-with interface `eth1` and timeout_s `5`
-** Exit on first success
-** Fail if timeout reached
+. *Verify Network Interface Configuration*:
+.. {rbbc_call}
+{mkc_interface_check}
+with interface `eth1` and timeout_s `5` within sentry container context
+.. {rbbc_require}
+interface active before timeout
+.. {rbbc_fatal}
+if timeout reached: "Enclave network interface eth1 not active"
 
-. Configure Sentry IP Address
-* Remove the auto-assigned IP address from eth1
-* Assign the permanent
+. *Configure Sentry IP Address*:
+.. Remove auto-assigned IP address from eth1
+.. {rbbc_call}
+ip addr add to assign permanent
 {rbrn_enclave_sentry_ip}/{rbrn_enclave_netmask}
-address to eth1
-* This address will serve as the gateway for the
+to eth1
+.. {rbbc_store}
+`«SENTRY_IP»` as
+{rbrn_enclave_sentry_ip}
+.. NOTE: This address will serve as the gateway for the
 {at_bottle_container}
 after eBPF frame rewriting
+.. {rbbc_require}
+IP address configured successfully
 
 After this sequence completes, the
 {at_sentry_container}

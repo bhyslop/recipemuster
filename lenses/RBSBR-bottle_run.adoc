@@ -1,1 +1,21 @@
-This sequence executes an agile service operation within the {at_rbm_console}:
+NOTE: This operation orchestrates the creation and execution of an agile (transient)
+{at_bottle_container}
+- a temporary container that executes a single operation and cleans itself up automatically.
+
+// ⟦axs_behavior⟧
+. *Create Transient Container*:
+.. {rbbc_call}
+{mkr_bottle_create}
+to establish the temporary container
+.. {rbbc_require}
+container creation successful
+
+. *Execute Operation*:
+.. {rbbc_call}
+{mkr_command_exec}
+with the specified command
+.. {rbbc_require}
+command execution completes
+
+// ⟦axs_completion⟧
+Successful execution runs the requested operation in a transient container that automatically removes itself on exit.

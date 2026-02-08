@@ -1,10 +1,41 @@
-The
-{at_rbm_console}
-defines the
-{opss_sentry_start},
-an operation
-which is the precisely ordered sequence of steps
-needed to start a
+NOTE: This operation orchestrates the precisely ordered sequence of steps needed to start a
 {at_sentry_container}
 that enforces network policy for a new
+{at_bottle_service}.
+
+// ⟦axs_behavior⟧
+. *Create Network Infrastructure*:
+.. {rbbc_call}
+{mkr_network_create}
+to establish
+{at_transit_network}
+and
+{at_enclave_network}
+.. {rbbc_require}
+both networks created successfully
+
+. *Launch Sentry*:
+.. {rbbc_call}
+{mkr_sentry_run}
+to start
+{at_sentry_container}
+with required privileges and initial network configuration
+.. {rbbc_require}
+sentry container running
+
+. *Connect Sentry to Enclave*:
+.. {rbbc_call}
+{mkr_network_connect}
+to attach
+{at_sentry_container}
+to
+{at_enclave_network}
+with proper IP configuration
+.. {rbbc_require}
+sentry has connectivity on both networks
+
+// ⟦axs_completion⟧
+Successful execution establishes the
+{at_sentry_container}
+with dual network connectivity, ready to enforce network policy for the
 {at_bottle_service}.

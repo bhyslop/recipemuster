@@ -1,1 +1,25 @@
-This sequence removes any previous container instance and instantiates and configures the service container within the {at_rbm_console}, thereby establishing a new sessile service instance:
+NOTE: This operation removes any previous container instance and instantiates and configures the service container, thereby establishing a new
+{at_sessile_service}
+instance.
+
+// ⟦axs_behavior⟧
+. *Clean Previous Instance*:
+.. {rbbc_call}
+{mkr_bottle_cleanup}
+to remove any existing
+{at_bottle_container}
+.. {rbbc_require}
+cleanup completed successfully
+
+. *Launch Service Container*:
+.. {rbbc_call}
+{mkr_bottle_launch}
+to instantiate and configure new
+{at_bottle_container}
+.. {rbbc_require}
+container launched and network configured
+
+// ⟦axs_completion⟧
+Successful execution establishes a new
+{at_sessile_service}
+instance with proper network configuration, ready for operation.
