@@ -1355,7 +1355,20 @@ role for billing and
 {gcp_project_id}
 lifecycle operations.
 
-=== Account Regime (RBRA)
+=== Authentication Regime (RBRA)
+
+[[rbra_regime]]
+// ⟦axl_voices axrg_regime axf_bash⟧
+{rbra_regime}::
+An
+regime
+that contains
+{giam_service_account}
+credentials and authentication material for secure access to
+{gcp_service}
+APIs.
+RBRA regimes are security-isolated configuration files typically stored outside the main repository in `../station-files/secrets/rbra-*.env` locations.
+These regimes enable different service account roles to authenticate and operate within their designated scopes.
 
 An {rbtgi_rbra_file} is a credentials file containing the minimum identity and signing material needed for
 {at_recipe_bottle}
@@ -1392,6 +1405,8 @@ that owns the
 Provides scope for all API operations since a
 {giam_service_account}
 can only act within its parent project's boundaries unless granted cross-project roles.
+
+NOTE: Individual RBRA variables beyond the core documented set are actively used throughout the system but formal definition within this specification is TBD for future documentation efforts.
 
 === Payor Regime (RBRP)
 
@@ -1723,23 +1738,6 @@ Access allowlist variables for IP-restricted outbound traffic.
 DNS allowlist variables for domain-restricted resolution.
 
 include::RBRN-RegimeNameplate.adoc[]
-
-=== Authentication Regime (RBRA)
-
-[[rbra_regime]]
-// ⟦axl_voices axrg_regime axf_bash⟧
-{rbra_regime}::
-An
-regime
-that contains
-{giam_service_account}
-credentials and authentication material for secure access to
-{gcp_service}
-APIs.
-RBRA regimes are security-isolated configuration files typically stored outside the main repository in `../station-files/secrets/rbra-*.env` locations.
-These regimes enable different service account roles to authenticate and operate within their designated scopes.
-
-NOTE: Individual RBRA variables beyond the core documented set are actively used throughout the system but formal definition within this specification is TBD for future documentation efforts.
 
 === Environment Variables Regime (RBEV)
 
