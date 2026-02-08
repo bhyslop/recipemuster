@@ -605,6 +605,9 @@ rbf_build() {
     --arg zjq_git_commit     "${z_git_commit}"                  \
     --arg zjq_git_branch     "${z_git_branch}"                  \
     --arg zjq_git_repo       "${z_git_repo}"                    \
+    --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}"         \
+    --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}"        \
+    --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}"        \
     '{
       substitutions: {
         _RBGY_DOCKERFILE:     $zjq_dockerfile,
@@ -615,7 +618,10 @@ rbf_build() {
         _RBGY_GAR_REPOSITORY: $zjq_gar_repository,
         _RBGY_GIT_COMMIT:     $zjq_git_commit,
         _RBGY_GIT_BRANCH:     $zjq_git_branch,
-        _RBGY_GIT_REPO:       $zjq_git_repo
+        _RBGY_GIT_REPO:       $zjq_git_repo,
+        _RBGY_GAR_HOST_SUFFIX:   $zjq_gar_host_suffix,
+        _RBGY_ARK_SUFFIX_IMAGE:  $zjq_ark_suffix_image,
+        _RBGY_ARK_SUFFIX_ABOUT:  $zjq_ark_suffix_about
       }
     }' >  "${ZRBF_BUILD_CONFIG_FILE}" || buc_die "Failed to create build config"
 

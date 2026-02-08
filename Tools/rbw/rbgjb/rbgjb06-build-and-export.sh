@@ -24,7 +24,7 @@ test -n "${_RBGY_GIT_BRANCH}"     || (echo "_RBGY_GIT_BRANCH missing"     >&2; e
 test -n "${_RBGY_GIT_REPO}"       || (echo "_RBGY_GIT_REPO missing"       >&2; exit 1)
 
 TAG_BASE="$(cat .tag_base)"
-IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-img"
+IMAGE_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}"
 
 docker buildx version
 docker version

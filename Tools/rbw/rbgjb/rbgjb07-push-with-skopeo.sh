@@ -20,7 +20,7 @@ test -s .tag_base                  || (echo "tag base not derived"         >&2; 
 test -f /workspace/oci-layout.tar  || (echo "OCI archive not found"        >&2; exit 1)
 
 TAG_BASE="$(cat .tag_base)"
-IMAGE_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-img"
+IMAGE_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}"
 
 # Debug: show what tools are available
 echo "=== Debug: Available tools ==="

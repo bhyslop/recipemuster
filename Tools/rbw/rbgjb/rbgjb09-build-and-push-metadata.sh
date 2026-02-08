@@ -7,7 +7,7 @@ set -euo pipefail
 
 test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
 TAG_BASE="$(cat .tag_base)"
-META_URI="${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-meta"
+META_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}${_RBGY_ARK_SUFFIX_ABOUT}"
 
 {
   echo 'FROM scratch'
