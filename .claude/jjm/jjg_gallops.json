@@ -1991,6 +1991,13 @@
               "ts": "260208-1558",
               "state": "rough",
               "text": "Simplify rbf_list to show raw container images without ark interpretation.\n\n## Current state\nrbf_list has stale `-meta` companion package logic that checks for separate `moniker-meta` packages. This predates the ark model where `-image` and `-about` are tag suffixes on the same moniker.\n\n## Changes\n- Remove all `-meta` companion detection logic (the separate package lookup)\n- Show every tag as a flat line — no grouping, no annotations\n- `rbf_list` (no args): list all monikers with tag counts\n- `rbf_list <vessel>`: list all tags for that vessel, one per line\n\n## Design principle\nrbf_list is the plain, low-level \"what's in GAR\" command. No ark awareness. Ark-level viewing is rbf_augur (separate pace).\n\n## Location\n`Tools/rbw/rbf_Foundry.sh` — rbf_list function\n\n## Verification\n- No `-meta` references remain in rbf_list\n- Output shows raw tags without interpretation",
+              "silks": "simplify-rbf-list-raw-images",
+              "commit": "f553873"
+            },
+            {
+              "ts": "260208-1558",
+              "state": "rough",
+              "text": "Simplify rbf_list to show raw container images without ark interpretation.\n\n## Current state\nrbf_list has stale `-meta` companion package logic that checks for separate `moniker-meta` packages. This predates the ark model where `-image` and `-about` are tag suffixes on the same moniker.\n\n## Changes\n- Remove all `-meta` companion detection logic (the separate package lookup)\n- Show every tag as a flat line — no grouping, no annotations\n- `rbf_list` (no args): list all monikers with tag counts\n- `rbf_list <vessel>`: list all tags for that vessel, one per line\n\n## Design principle\nrbf_list is the plain, low-level \"what's in GAR\" command. No ark awareness. Ark-level viewing is rbf_augur (separate pace).\n\n## Location\n`Tools/rbw/rbf_Foundry.sh` — rbf_list function\n\n## Verification\n- No `-meta` references remain in rbf_list\n- Output shows raw tags without interpretation",
               "silks": "update-imagelist-retrieve-for-ark",
               "commit": "343424d"
             },
