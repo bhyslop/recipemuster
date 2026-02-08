@@ -154,8 +154,10 @@
 :at_base_utilities:          <<at_base_utilities,Base Utilities>>
 :at_bottle_image:            <<at_bottle_image,Bottle Image>>
 :at_bottle_image_s:          <<at_bottle_image,Bottle Images>>
+:at_build_service:           <<at_build_service,Build Service>>
 :at_recipe_bottle:           <<at_recipe_bottle,Recipe Bottle>>
 :at_rbm_system:              <<at_rbm_system,Recipe Bottle Workbench>>
+:at_runtime:                 <<at_runtime,Container Runtime>>
 :at_workstation:             <<at_workstation,Workstation>>
 :at_workstation_p:           <<at_workstation,Workstation's>>
 
@@ -698,6 +700,7 @@ include::RBSSD-sa_delete.adoc[]
 == Local Operations
 
 [[opss_sentry_start]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
 === {opss_sentry_start}
 
 The precisely ordered sequence of steps needed to start a
@@ -708,11 +711,13 @@ that enforces network policy for a new
 include::RBSSS-sentry_start.adoc[]
 
 [[mkr_network_create]]
+// ⟦axl_voices axo_sequence axe_bash_interactive⟧
 === {mkr_network_create}
 
 include::RBSNC-network_create.adoc[]
 
 [[mkr_sentry_run]]
+// ⟦axl_voices axo_sequence axe_bash_interactive⟧
 === {mkr_sentry_run}
 
 Operation that launches the
@@ -720,11 +725,13 @@ Operation that launches the
 with required privileges and initial network configuration.
 
 [[mkr_network_connect]]
+// ⟦axl_voices axo_sequence axe_bash_interactive⟧
 === {mkr_network_connect}
 
 include::RBSNX-network_connect.adoc[]
 
 [[opbs_bottle_start]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
 === {opbs_bottle_start}
 
 Establishes a new
@@ -734,16 +741,19 @@ through controlled container instantiation and configuration.
 include::RBSBS-bottle_start.adoc[]
 
 [[mkr_bottle_cleanup]]
+// ⟦axl_voices axo_sequence axe_bash_interactive⟧
 === {mkr_bottle_cleanup}
 
 include::RBSBK-bottle_cleanup.adoc[]
 
 [[mkr_bottle_launch]]
+// ⟦axl_voices axo_sequence axe_bash_interactive⟧
 === {mkr_bottle_launch}
 
 include::RBSBL-bottle_launch.adoc[]
 
 [[opbr_bottle_run]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
 === {opbr_bottle_run}
 
 Creates and executes a new
@@ -753,11 +763,13 @@ instance through controlled container instantiation and command execution.
 include::RBSBR-bottle_run.adoc[]
 
 [[mkr_bottle_create]]
+// ⟦axl_voices axo_sequence axe_bash_interactive⟧
 === {mkr_bottle_create}
 
 include::RBSBC-bottle_create.adoc[]
 
 [[mkr_command_exec]]
+// ⟦axl_voices axo_sequence axe_bash_interactive⟧
 === {mkr_command_exec}
 
 include::RBSCE-command_exec.adoc[]
@@ -765,6 +777,7 @@ include::RBSCE-command_exec.adoc[]
 === VM Management Operations
 
 [[ops_rbv_check]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
 ==== {ops_rbv_check}
 
 Verifies whether newer VM images are available upstream by comparing SHA digests.
@@ -772,6 +785,7 @@ Verifies whether newer VM images are available upstream by comparing SHA digests
 include::RBSVC-rbv_check.adoc[]
 
 [[ops_rbv_mirror]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
 ==== {ops_rbv_mirror}
 
 Copies the chosen VM image from upstream to the user's GHCR, ensuring consistent deployment across environments.
@@ -779,6 +793,7 @@ Copies the chosen VM image from upstream to the user's GHCR, ensuring consistent
 include::RBSVM-rbv_mirror.adoc[]
 
 [[mkc_interface_check]]
+// ⟦axl_voices axo_routine axe_bash_scripted⟧
 ==== {mkc_interface_check}
 
 A utility that verifies network interface presence and configuration within a container context:
@@ -1236,6 +1251,24 @@ The minimal set of command-line tools
 (`bash`, `git`, `curl`, `openssh`, `jq`)
 required on the
 {at_workstation}.
+
+[[at_build_service]]
+{at_build_service}::
+A system managing container creation through Google Cloud Build and Google Artifact Registry,
+enabling
+{at_operator_s}
+to build containers in isolated environments with complete traceability
+and cryptographic attestation.
+
+[[at_runtime]]
+{at_runtime}::
+Application capable of running
+{st_container_s}
+on the
+{at_workstation}.
+At the time of this writing, `podman` provides the necessary features for full
+{at_bottle_service}
+provisions.
 
 === Local Architecture Definitions
 
@@ -2496,6 +2529,7 @@ Detailed implementation reference for security enforcement internals within the
 {at_sentry_container}.
 
 [[scr_security_config]]
+// ⟦axl_voices axo_command axe_bash_scripted⟧
 === {scr_security_config}
 
 Establishes security controls through four phases executed in sequence, halting early if any command has a nonzero unix status.
@@ -2503,6 +2537,7 @@ Establishes security controls through four phases executed in sequence, halting 
 include::RBSSC-security_config.adoc[]
 
 [[scr_iptables_init]]
+// ⟦axl_voices axo_sequence axe_bash_scripted⟧
 ==== {scr_iptables_init}
 
 Establishes the basic IPTables rules and chains within a
@@ -2511,6 +2546,7 @@ Establishes the basic IPTables rules and chains within a
 include::RBSIP-iptables_init.adoc[]
 
 [[scr_port_setup]]
+// ⟦axl_voices axo_sequence axe_bash_scripted⟧
 ==== {scr_port_setup}
 
 Establishes port mapping and service exposure rules within a
@@ -2519,6 +2555,7 @@ Establishes port mapping and service exposure rules within a
 include::RBSPT-port_setup.adoc[]
 
 [[scr_access_setup]]
+// ⟦axl_voices axo_sequence axe_bash_scripted⟧
 ==== {scr_access_setup}
 
 Configures network access controls including NAT rules and connection tracking.
@@ -2526,6 +2563,7 @@ Configures network access controls including NAT rules and connection tracking.
 include::RBSAX-access_setup.adoc[]
 
 [[scr_dns_step]]
+// ⟦axl_voices axo_sequence axe_bash_scripted⟧
 ==== {scr_dns_step}
 
 Configures DNS resolution controls and domain access restrictions.
