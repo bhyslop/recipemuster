@@ -180,6 +180,30 @@
 :st_volume_mount_s:          <<st_volume_mount,Volume Mounts>>
 :st_port_map:                <<st_port_map,Port Map>>
 :st_port_map_s:              <<st_port_map,Port Maps>>
+:at_sessile_service:         <<at_sessile_service,Sessile Bottle Service>>
+:at_agile_service:           <<at_agile_service,Agile Bottle Service>>
+
+// Local Operations (sentry startup, bottle lifecycle, VM management)
+:opss_sentry_start:          <<opss_sentry_start,Sentry Start Rule>>
+:opbs_bottle_start:          <<opbs_bottle_start,Sessile Bottle Start Rule>>
+:opbr_bottle_run:            <<opbr_bottle_run,Agile Bottle Run Rule>>
+:mkr_network_create:         <<mkr_network_create,Network Creation Sequence>>
+:mkr_sentry_run:             <<mkr_sentry_run,Sentry Launch Sequence>>
+:mkr_network_connect:        <<mkr_network_connect,Network Connection Sequence>>
+:mkr_bottle_cleanup:         <<mkr_bottle_cleanup,Bottle Cleanup Sequence>>
+:mkr_bottle_launch:          <<mkr_bottle_launch,Bottle Launch Sequence>>
+:mkr_bottle_create:          <<mkr_bottle_create,Bottle Create Sequence>>
+:mkr_command_exec:           <<mkr_command_exec,Command Execution Sequence>>
+:ops_rbv_check:              <<ops_rbv_check,RBV Check Operation>>
+:ops_rbv_mirror:             <<ops_rbv_mirror,RBV Mirror Operation>>
+:mkc_interface_check:        <<mkc_interface_check,Interface Check Clause>>
+
+// Script Internals (security enforcement within sentry container)
+:scr_security_config:        <<scr_security_config,Security Configuration Stage>>
+:scr_iptables_init:          <<scr_iptables_init,IPTables Initialization Sequence>>
+:scr_access_setup:           <<scr_access_setup,Access Control Setup Sequence>>
+:scr_port_setup:             <<scr_port_setup,Port Configuration Sequence>>
+:scr_dns_step:               <<scr_dns_step,DNS Configuration Sequence>>
 
 // Recipe Bottle Regime: Repo (subset)
 :rbrr_depot_project_id:      <<rbrr_depot_project_id,RBRR_DEPOT_PROJECT_ID>>
@@ -1188,6 +1212,24 @@ required on the
 {at_workstation}.
 
 === Local Architecture Definitions
+
+[[at_sessile_service]]
+{at_sessile_service}::
+A long-running
+{at_bottle_service}
+that starts via
+{opbs_bottle_start}
+and persists until explicitly stopped.
+The sessile pattern is used for services that maintain state and provide ongoing functionality.
+
+[[at_agile_service]]
+{at_agile_service}::
+A transient
+{at_bottle_service}
+that executes via
+{opbr_bottle_run}
+and terminates when its command completes.
+The agile pattern is used for one-shot operations that produce output and exit.
 
 [[at_bottle_service]]
 {at_bottle_service}::
