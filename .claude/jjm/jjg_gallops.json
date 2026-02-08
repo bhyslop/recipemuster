@@ -602,6 +602,13 @@
         "₢AWAAT": {
           "tacks": [
             {
+              "ts": "260208-0709",
+              "state": "complete",
+              "text": "Create a new AXLA voicing annotation for slash commands and Claude Code concept artifacts.\n\n## Context\n\nThe Upper API section in JJSA introduces jjsus_ (slash command) and jjsuc_ (context artifact) categories. These need AXLA annotations to categorize them in the concept model, similar to how jjdo_ operations use axi_cli_subcommand.\n\n## Deliverables\n\n1. Define new axi_ voicing(s) in AXLA-Lexicon.adoc for:\n   - Slash command skill artifacts (the .claude/commands/*.md files)\n   - Context artifacts (the CLAUDE.md managed sections)\n2. Add annotations to jjsus_ and jjsuc_ definitions in JJSA\n\nAcceptance: All jjsus_ and jjsuc_ entries in JJSA have AXLA annotations. New voicings are defined in AXLA-Lexicon.adoc.",
+              "silks": "add-axi-slash-command-voicing",
+              "commit": "a16c790"
+            },
+            {
               "ts": "260208-0657",
               "state": "rough",
               "text": "Create a new AXLA voicing annotation for slash commands and Claude Code concept artifacts.\n\n## Context\n\nThe Upper API section in JJSA introduces jjsus_ (slash command) and jjsuc_ (context artifact) categories. These need AXLA annotations to categorize them in the concept model, similar to how jjdo_ operations use axi_cli_subcommand.\n\n## Deliverables\n\n1. Define new axi_ voicing(s) in AXLA-Lexicon.adoc for:\n   - Slash command skill artifacts (the .claude/commands/*.md files)\n   - Context artifacts (the CLAUDE.md managed sections)\n2. Add annotations to jjsus_ and jjsuc_ definitions in JJSA\n\nAcceptance: All jjsus_ and jjsuc_ entries in JJSA have AXLA annotations. New voicings are defined in AXLA-Lexicon.adoc.",
