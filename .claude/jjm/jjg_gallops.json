@@ -23,9 +23,10 @@
         "₢AWAAG",
         "₢AWAAH",
         "₢AWAAR",
+        "₢AWAAS",
         "₢AWAAI"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -569,6 +570,17 @@
               "text": "Add Upper API section to JJSA defining the two-layer verb architecture.\n\n## Context\n\nHeat ₣AW renamed jjx_ commands to boring verbs but left the horse vocabulary unmapped in the spec. The human-facing horse terms (slate, mount, bridle, etc.) need formal definitions in JJSA with explicit bindings to their jjdo_ lower-layer operations.\n\n## Deliverables\n\nNew `== Upper API` section in JJSA-GallopsData.adoc containing:\n\n1. Introductory prose explaining the two-layer separation (horse vocabulary upper, boring CLI lower)\n2. Category declarations: jjsud_ (direct verbs), jjsum_ (multistep verbs), jjsus_ (slash commands), jjsuc_ (context artifacts)\n3. Attribute references in the mapping section for all new terms\n4. 13 direct verb definitions (jjsud_) each mapping to one jjdo_ operation\n5. 5 multistep verb definitions (jjsum_) describing orchestration and linking to jjsus_ slash commands\n6. 14 slash command definitions (jjsus_) linking to the verb they implement\n7. 1 context artifact definition (jjsuc_insert) for the CLAUDE.md managed section\n\nAcceptance: JJSA renders with all new cross-references resolving. Upper API section is a peer to the existing Operations section.",
               "silks": "add-upper-api-to-jjsa",
               "commit": "06a6ec7"
+            }
+          ]
+        },
+        "₢AWAAS": {
+          "tacks": [
+            {
+              "ts": "260208-0657",
+              "state": "rough",
+              "text": "Align the CLAUDE.md JJK managed insert (vocjjmc_core.md) with the new Upper API architecture.\n\n## Context\n\nThe Quick Verbs table and slash command reference in vocjjmc_core.md predate the two-layer verb architecture added to JJSA. Several entries reference deleted slash commands or mix layers. The insert needs to derive its content from the JJSA Upper API definitions.\n\n## Deliverables\n\nUpdate vocjjmc_core.md to:\n\n1. Replace the Quick Verbs table with a mapping derived from jjsud_ and jjsum_ definitions: user verb → action (either direct jjx_ invocation or slash command skill)\n2. For direct verbs (jjsud_): map verb directly to ./tt/vvw-r.RunVVX.sh jjx_ invocation\n3. For multistep verbs (jjsum_): map verb to the corresponding /jjc- slash command\n4. Remove references to deleted slash commands\n5. Ensure the \"When you need to...\" table is consistent with the verb mapping\n\nAcceptance: vocjjmc_core.md Quick Verbs table matches JJSA Upper API. No references to deleted slash commands. Freshen produces clean CLAUDE.md.",
+              "silks": "align-claude-insert-with-upper-api",
+              "commit": "be4efc4"
             }
           ]
         }
