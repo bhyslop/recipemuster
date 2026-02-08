@@ -1,0 +1,10 @@
+The
+{at_rbm_console}
+defines the
+{opss_sentry_start},
+an operation
+which is the precisely ordered sequence of steps
+needed to start a
+{at_sentry_container}
+that enforces network policy for a new
+{at_bottle_service}.

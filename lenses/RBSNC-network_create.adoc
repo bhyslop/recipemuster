@@ -1,0 +1,54 @@
+This sequence of steps
+within the
+{opss_sentry_start}
+establishes required networks for the
+{at_bottle_service}:
+
+. Remove Existing
+{at_transit_network}
+* Remove the
+{at_transit_network}
+named
+{at_transit_network_name},
+ignoring errors
+* This ensures a clean state before creating the new transit network
+
+. Create New
+{at_transit_network}
+* Use standard Podman network primitives to create a bridge network named
+{at_transit_network_name}
+* The IP address range or any other attributes remain consistent with the
+{rbrn_moniker}-uplink
+definition
+* IPv6 remains disabled, and external connectivity is enabled
+
+. Remove Existing
+{at_enclave_network}
+* Remove the
+{at_enclave_network}
+named
+{at_enclave_network_name},
+ignoring errors
+* This ensures a clean state before creating the new enclave network
+
+. Create New
+{at_enclave_network}
+* Use standard Podman network primitives to create an isolated bridge network named
+{at_enclave_network_name}
+* Configure the network with subnet
+{rbrn_enclave_base_ip}/{rbrn_enclave_netmask}
+* Disable external connectivity to ensure isolation
+* Allow netavark to manage IP address assignment for containers on this network
+
+After this sequence completes, both networks exist in standard Podman configuration. The
+{at_sentry_container}
+will connect to both networks, while the
+{at_bottle_container}
+will connect only to the
+{at_enclave_network}.
+Before the
+{at_bottle_container}
+starts, an
+{at_ebpf_program}
+will be attached to its veth interface to ensure all traffic routes through the
+{at_sentry_container}.

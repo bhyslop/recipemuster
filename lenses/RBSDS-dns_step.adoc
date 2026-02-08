@@ -1,0 +1,73 @@
+If {rbrn_uplink_dns_mode} is disabled, the {at_sentry_container}:
+
+* Blocks all DNS traffic in RBM-FORWARD from eth1
+* Blocks all DNS traffic in RBM-EGRESS to eth0
+* Removes any existing DNS-related NAT rules
+
+If {rbrn_uplink_dns_mode} is global or allowlist, the {at_sentry_container} executes this sequence:
+
+. DNS Server Validation:
++
+--
+* Verify {rbrr_dns_server} if specified:
+** TCP connect test to port 53 with 5 second timeout
+** UDP query for "." record with 6 second timeout
+* Fail if either test unsuccessful
+--
+
+. Dnsmasq Configuration:
++
+--
+* Core Settings:
+** Interface binding limited strictly to {at_enclave_network} interface eth1
+** Use {rbrn_enclave_sentry_ip} for listen-address
+** DNS service only - all DHCP functionality explicitly disabled
+** DNS resolution configuration isolated from host system settings
+** Clear existing upstream server configuration
+** Configure upstream DNS:
+*** Use configured upstream server when {rbrr_dns_server} specified
+*** Otherwise use host resolver via external network interface
+
+* Cache Settings:
+** Cache size: 1000 entries
+** Minimum TTL: 600 seconds
+** Maximum TTL: 3600 seconds
+
+* Query Control:
+** When {rbrn_uplink_dns_mode} is global:
+*** Accept all DNS queries from eth1
+*** Forward queries unmodified to upstream
+*** Log each query with timestamp and resolution
+*** Return all responses unmodified
+
+** When {rbrn_uplink_dns_mode} is allowlist:
+*** Load allowed domains from {rbrn_uplink_allowed_domains}
+*** Accept queries only for allowed domains
+*** Return NXDOMAIN for all other queries
+*** Configure dnsmasq logging directly with:
+**** log-queries=extra
+**** log-facility=/var/log/dnsmasq.log
+**** log-dhcp
+**** Extra logging options in dnsmasq.conf:
+***** log-debug (for detailed query info)
+***** log-async=20 (for better performance)
+--
+
+. Filter Rules:
++
+--
+* Accept DNS traffic in RBM-FORWARD from eth1:
+** UDP port 53
+** TCP port 53
+* Accept DNS forwarding in RBM-EGRESS to eth0:
+** UDP/TCP port 53 to {rbrr_dns_server}
+** Or to host resolver if no server specified
+--
+
+. NAT Configuration:
++
+--
+* DNAT eth1 DNS to {rbrn_enclave_sentry_ip}:53
+* SNAT outbound queries to eth0 IP
+* Preserve existing port forwarding rules
+--

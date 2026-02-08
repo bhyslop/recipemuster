@@ -1,0 +1,22 @@
+Establishes foundational security state:
+
+. Base Chain Configuration:
+* Flush all rules from filter and nat tables
+* Set policy DROP on all base chains (INPUT, FORWARD, OUTPUT)
+* Accept loopback interface traffic unconditionally via first rule in INPUT chain
+
+. State Tracking Setup:
+* Insert RELATED,ESTABLISHED tracking as second rule in chains:
+** INPUT chain with "-m state --state RELATED,ESTABLISHED -j ACCEPT"
+** FORWARD chain with same state match
+** OUTPUT chain with same state match
+
+. RBM Chain Creation:
+* Create in filter table with default policy DROP:
+** RBM-INGRESS for input control
+** RBM-EGRESS for output control
+** RBM-FORWARD for forwarding control
+* Insert jumps as third rule in respective base chains:
+** INPUT jumps to RBM-INGRESS
+** OUTPUT jumps to RBM-EGRESS
+** FORWARD jumps to RBM-FORWARD

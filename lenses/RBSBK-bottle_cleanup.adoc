@@ -1,0 +1,10 @@
+This sequence removes any previous container instance:
+
+* Query existence of
+{at_bottle_container}
+named
+{at_bottle_container_name}.
+If found:
+. Terminate container with 5-second timeout
+. Force remove container if still present after timeout
+. Verify complete removal from container runtime

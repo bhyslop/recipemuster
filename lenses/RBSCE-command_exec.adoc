@@ -1,0 +1,3 @@
+This sequence of steps within the {opbr_bottle_run} executes the requested operation:
+
+* Execute specified command in container

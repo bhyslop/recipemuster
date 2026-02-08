@@ -138,6 +138,59 @@ These stay separate:
 
 All AXLA terms (`axt_*`, `axtu_*`, `axtg_*`, `axs_*`, etc.) appear exclusively in `// ⟦...⟧` Strachey bracket annotations or `//axvr_*`/`//axhr*_` prefix-discriminated annotations. They are **never** AsciiDoc attribute references (`:term: <<anchor,Display>>`). This is deliberate — the specs are too dense for AXLA terms to compete with project terms in body text. Project-specific voicings (`rbst_*`, `rbgt_*`, `rbrv_*`, etc.) are the only terms that render.
 
+## RBS→RBSA Subdocument Explosion Map (₢ASAAH discussion)
+
+**Decision**: Every anchored RBS procedure gets the RBAGS pattern treatment in RBSA:
+```
+[[anchor]]
+// ⟦annotation⟧
+=== {anchor}
+
+include::RBSxx-name.adoc[]
+```
+Anchor+annotation+heading in RBSA parent; narrative detail in subdocument.
+Existing attribute prefixes (`opss_*`, `mkr_*`, `scr_*`, `ops_*`, `opbs_*`, `opbr_*`) are NOT re-prefixed at this time.
+
+**Existing RBSA subdoc suffixes (avoid collisions):**
+`AA, DC, DD, DI, DL, GR, GS, ID, IR, OB, PE, PI, PR, RC, RV, SD, SL, TB`
+
+**New subdocument map:**
+
+| # | Attribute | Suffix | File | RBS lines | ~Size |
+|---|---|---|---|---:|---:|
+| 1 | `opss_sentry_start` | SS | `RBSSS-sentry_start.adoc` | 314-328 | 13 |
+| 2 | `mkr_network_create` | NC | `RBSNC-network_create.adoc` | 329-386 | 57 |
+| 3 | `mkr_network_connect` | NX | `RBSNX-network_connect.adoc` | 387-429 | 41 |
+| 4 | `scr_security_config` | SC | `RBSSC-security_config.adoc` | 430-442 | 10 |
+| 5 | `scr_iptables_init` | IP | `RBSIP-iptables_init.adoc` | 443-467 | 24 |
+| 6 | `scr_port_setup` | PT | `RBSPT-port_setup.adoc` | 468-511 | 43 |
+| 7 | `scr_access_setup` | AX | `RBSAX-access_setup.adoc` | 512-565 | 52 |
+| 8 | `scr_dns_step` | DS | `RBSDS-dns_step.adoc` | 566-662 | 97 |
+| 9 | `opbs_bottle_start` | BS | `RBSBS-bottle_start.adoc` | 663-670 | 7 |
+| 10 | `mkr_bottle_cleanup` | BK | `RBSBK-bottle_cleanup.adoc` | 671-687 | 15 |
+| 11 | `mkr_bottle_launch` | BL | `RBSBL-bottle_launch.adoc` | 688-712 | 24 |
+| 12 | `opbr_bottle_run` | BR | `RBSBR-bottle_run.adoc` | 713-720 | 7 |
+| 13 | `mkr_bottle_create` | BC | `RBSBC-bottle_create.adoc` | 829-849 | 19 |
+| 14 | `mkr_command_exec` | CE | `RBSCE-command_exec.adoc` | 850-859 | 8 |
+| 15 | `ops_rbv_check` | VC | `RBSVC-rbv_check.adoc` | 725-767 | 42 |
+| 16 | `ops_rbv_mirror` | VM | `RBSVM-rbv_mirror.adoc` | 768-828 | 60 |
+
+**Anchor-only (no procedure section, inline in RBSA parent):**
+- `mkr_sentry_run` — definition only, no narrative
+- `mkc_interface_check` — definition + code example
+
+**Dead RBS sections (not imported):**
+- Console Makefile Elements (`cmk_*` definitions) — dead vocabulary
+- Station Regime (`cfg_station_regime`) — stub, dead `crg_*`
+- Script Requirements (`cmk_script` framing) — dead; content may inform BUK conventions later
+
+**RBS sections already in RBSA (verify during assess paces):**
+- System Overview / Trust / Bottle / Security Properties (Tier 1)
+- Base Regime Definitions (`rbrr_*`) — in RBSA Config Regimes
+- Nameplate Regime Definitions (`rbrn_*`) — via RBRN include
+- Supporting Infrastructure Definitions (`st_*`) — in RBSA Term Definitions
+- Architecture Term Definitions — partially merged, gap analysis needed
+
 ## Downstream Work
 
 **CRITICAL: After completing this heat**, plan a follow-up heat to **refine AXLA regime vocabulary itself** based on what we learn during:

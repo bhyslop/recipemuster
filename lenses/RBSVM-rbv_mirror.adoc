@@ -1,0 +1,41 @@
+The {ops_rbv_mirror} copies the chosen VM image from upstream to the user's GHCR, ensuring consistent deployment across environments. This operation validates preconditions, performs the copy, and verifies podman can access the mirrored image.
+
+. Validate Preconditions
+* If using standard origin (FQIN starts with origin):
+** Query current upstream SHA using crane
+** Compare with {rbrr_chosen_vmimage_sha} if defined
+** Fail if SHAs do not match, directing user to run {ops_rbv_check} first
+
+. Generate GHCR Target
+* Construct GHCR tag using registry naming pattern
+* Format: ghcr.io/{rbrr_registry_owner}/{rbrr_registry_name}/vmimage:{rbrr_chosen_podman_version}
+
+. Check Existing Mirror
+* Query GHCR for existing image at target location
+* If found and SHA defined:
+** Verify existing image SHA matches {rbrr_chosen_vmimage_sha}
+** Exit successfully if match confirmed
+** Fail if SHAs differ
+
+. Copy Image to GHCR
+* Use crane to copy from {rbrr_chosen_vmimage_fqin} to GHCR target
+* Verify copy completed without errors
+* Confirm transferred image integrity
+
+. Verify Copied Image
+* If {rbrr_chosen_vmimage_sha} is defined:
+** Query digest of newly copied GHCR image
+** Compare with expected SHA
+** Fail if verification shows mismatch
+
+. Validate Podman Access
+* Initialize test Podman machine using mirrored image
+* Capture initialization output through standard scrubbing process
+* Extract reported SHA from initialization
+* Compare with {rbrr_chosen_vmimage_sha} if defined
+* Remove test machine after validation
+
+. Report Success
+* Confirm mirror operation completed
+* Note image available at GHCR location
+* Verify podman can successfully use mirrored image

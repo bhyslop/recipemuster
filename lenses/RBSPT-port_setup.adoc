@@ -1,0 +1,26 @@
+If {rbrn_entry_mode} is disabled, this sequence is skipped.
+If {rbrn_entry_mode} is enabled, this sequence configures service port mapping:
+
+. Socat Proxy Configuration:
+* Launch socat proxy process in background:
+** Listen on TCP port {rbrn_entry_port_workstation}
+** Forward connections to {at_bottle_container} IP ({rbrn_enclave_bottle_ip}) on port {rbrn_entry_port_enclave}
+** Enable connection forking and address reuse
+** Log output to `/var/log/socat-proxy.log`
+* Verify socat process started successfully
+
+. Filter Configuration:
+* Add rule to RBM-INGRESS accepting incoming traffic from bridge network:
+** Interface eth0
+** Protocol TCP
+** Destination port {rbrn_entry_port_workstation}
+* Add rule to RBM-EGRESS accepting outbound connections to bottle:
+** Interface eth1
+** Protocol TCP
+** Destination {rbrn_enclave_bottle_ip}
+** Destination port {rbrn_entry_port_enclave}
+* Add rule to RBM-INGRESS accepting return traffic from bottle:
+** Interface eth1
+** Protocol TCP
+** Source {rbrn_enclave_bottle_ip}
+** Source port {rbrn_entry_port_enclave}

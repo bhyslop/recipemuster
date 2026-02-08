@@ -1,0 +1,8 @@
+One unified script executes these commands
+in sequence, halting early if any command
+has a nonzero unix status:
+
+1. {scr_iptables_init}
+2. {scr_port_setup}
+3. {scr_access_setup}
+4. {scr_dns_step}

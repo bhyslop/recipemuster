@@ -1,0 +1,39 @@
+This sequence of steps
+within the
+{opss_sentry_start}
+establishes the secondary network interface connected to
+{at_enclave_network}:
+
+. Connect Container to Enclave Network
+* Attach the
+{at_sentry_container}
+to the
+{at_enclave_network}
+using standard Podman network connect
+* Verify successful network attachment
+* Validate interface naming sequence - eth0 must be the transit network interface
+* The enclave network interface must appear as eth1
+
+. Verify Network Interface Configuration
+* Execute within sentry container context
+* {mkc_interface_check}
+with interface `eth1` and timeout_s `5`
+** Exit on first success
+** Fail if timeout reached
+
+. Configure Sentry IP Address
+* Remove the auto-assigned IP address from eth1
+* Assign the permanent
+{rbrn_enclave_sentry_ip}/{rbrn_enclave_netmask}
+address to eth1
+* This address will serve as the gateway for the
+{at_bottle_container}
+after eBPF frame rewriting
+
+After this sequence completes, the
+{at_sentry_container}
+has connectivity on both networks with the correct IP configuration, ready to receive traffic from the
+{at_bottle_container}
+once the
+{at_ebpf_program}
+is attached.

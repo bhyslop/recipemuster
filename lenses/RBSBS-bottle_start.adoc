@@ -1,0 +1,1 @@
+This sequence removes any previous container instance and instantiates and configures the service container within the {at_rbm_console}, thereby establishing a new sessile service instance:

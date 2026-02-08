@@ -1,0 +1,37 @@
+If {rbrn_uplink_access_mode} is disabled, this sequence:
+
+* Verifies DROP policy exists for all filter table chains
+* Removes NAT rules except those marked "RBM-PORT-FORWARD"
+* Adds explicit DROP rules for non-port traffic:
+** RBM-EGRESS: DROP all eth0 output
+** RBM-FORWARD: DROP all eth1 forward
+
+If {rbrn_uplink_access_mode} is global or allowlist, this sequence:
+
+. Network Interface Configuration:
+* Enable IPv4 forwarding
+* Disable IPv6
+* Set rp_filter to strict mode (1) on all interfaces
+* Set route_localnet on eth0
+
+. NAT Configuration:
+* Add POSTROUTING on eth0:
+** Source from eth1 subnet
+** MASQUERADE to eth0 IP
+* Preserve rules marked "RBM-PORT-FORWARD"
+
+. DNS Server Access:
+* If {rbrr_dns_server} is configured:
+** Add rule to RBM-EGRESS accepting traffic to {rbrr_dns_server}
+** Add rule to RBM-FORWARD accepting traffic to {rbrr_dns_server}
+* These rules are independent of {rbrn_uplink_access_mode} and {rbrn_uplink_allowed_cidrs}
+
+. Filter Configuration:
+* If {rbrn_uplink_access_mode} is global:
+** Accept all output on eth0 in RBM-EGRESS
+** Accept all forward from eth1 in RBM-FORWARD
+* If {rbrn_uplink_access_mode} is allowlist:
+** For each CIDR in {rbrn_uplink_allowed_cidrs}:
+*** Accept in RBM-EGRESS matching destination
+*** Accept in RBM-FORWARD matching destination
+* Maintain existing port rules

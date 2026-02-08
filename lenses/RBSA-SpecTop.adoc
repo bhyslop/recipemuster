@@ -647,9 +647,103 @@ include::RBSSD-sa_delete.adoc[]
 
 == Local Operations
 
-// PLACEHOLDER: Bottle lifecycle operations (sentry start, bottle start/stop)
-// Rewritten in AXLA-style procedures. Content from RBS startup sequences.
-// To be filled by pace ASAAB.
+[[opss_sentry_start]]
+=== {opss_sentry_start}
+
+The precisely ordered sequence of steps needed to start a
+{at_sentry_container}
+that enforces network policy for a new
+{at_bottle_service}.
+
+include::RBSSS-sentry_start.adoc[]
+
+[[mkr_network_create]]
+=== {mkr_network_create}
+
+include::RBSNC-network_create.adoc[]
+
+[[mkr_sentry_run]]
+=== {mkr_sentry_run}
+
+Operation that launches the
+{at_sentry_container}
+with required privileges and initial network configuration.
+
+[[mkr_network_connect]]
+=== {mkr_network_connect}
+
+include::RBSNX-network_connect.adoc[]
+
+[[opbs_bottle_start]]
+=== {opbs_bottle_start}
+
+Establishes a new
+{at_sessile_service}
+through controlled container instantiation and configuration.
+
+include::RBSBS-bottle_start.adoc[]
+
+[[mkr_bottle_cleanup]]
+=== {mkr_bottle_cleanup}
+
+include::RBSBK-bottle_cleanup.adoc[]
+
+[[mkr_bottle_launch]]
+=== {mkr_bottle_launch}
+
+include::RBSBL-bottle_launch.adoc[]
+
+[[opbr_bottle_run]]
+=== {opbr_bottle_run}
+
+Creates and executes a new
+{at_agile_service}
+instance through controlled container instantiation and command execution.
+
+include::RBSBR-bottle_run.adoc[]
+
+[[mkr_bottle_create]]
+=== {mkr_bottle_create}
+
+include::RBSBC-bottle_create.adoc[]
+
+[[mkr_command_exec]]
+=== {mkr_command_exec}
+
+include::RBSCE-command_exec.adoc[]
+
+=== VM Management Operations
+
+[[ops_rbv_check]]
+==== {ops_rbv_check}
+
+Verifies whether newer VM images are available upstream by comparing SHA digests.
+
+include::RBSVC-rbv_check.adoc[]
+
+[[ops_rbv_mirror]]
+==== {ops_rbv_mirror}
+
+Copies the chosen VM image from upstream to the user's GHCR, ensuring consistent deployment across environments.
+
+include::RBSVM-rbv_mirror.adoc[]
+
+[[mkc_interface_check]]
+==== {mkc_interface_check}
+
+A utility that verifies network interface presence and configuration within a container context:
+
+[source,makefile]
+----
+# Waits until interface has an IPv4 address assigned, fails after timeout
+# @param 1 interface   Network interface name to check
+# @param 2 timeout_s   Number of seconds to wait before failing
+define check_interface
+timeout $(2)s sh -c "while ! ip addr show $(1) | grep -q \"inet \"; do sleep 0.2; done"
+endef
+----
+
+This utility generates precise validation commands for network interface readiness probes, accepting an interface name and timeout duration as parameters.
 
 // ============================================================================
 // TIER 3: REFERENCE
@@ -2185,9 +2279,45 @@ operations.
 
 == Script Internals
 
-// PLACEHOLDER: Detailed implementation reference for security enforcement internals.
-// Content from RBS: iptables chain configuration, DNS/dnsmasq setup, socat proxy,
-// eBPF frame rewriting. To be migrated from RBS-Specification.adoc.
+Detailed implementation reference for security enforcement internals within the
+{at_sentry_container}.
+
+[[scr_security_config]]
+=== {scr_security_config}
+
+Establishes security controls through four phases executed in sequence, halting early if any command has a nonzero unix status.
+
+include::RBSSC-security_config.adoc[]
+
+[[scr_iptables_init]]
+==== {scr_iptables_init}
+
+Establishes the basic IPTables rules and chains within a
+{at_sentry_container}.
+
+include::RBSIP-iptables_init.adoc[]
+
+[[scr_port_setup]]
+==== {scr_port_setup}
+
+Establishes port mapping and service exposure rules within a
+{at_sentry_container}.
+
+include::RBSPT-port_setup.adoc[]
+
+[[scr_access_setup]]
+==== {scr_access_setup}
+
+Configures network access controls including NAT rules and connection tracking.
+
+include::RBSAX-access_setup.adoc[]
+
+[[scr_dns_step]]
+==== {scr_dns_step}
+
+Configures DNS resolution controls and domain access restrictions.
+
+include::RBSDS-dns_step.adoc[]
 
 == Trade Studies
 

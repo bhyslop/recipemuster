@@ -1,0 +1,8 @@
+This sequence of steps within the {opbr_bottle_run} establishes the transient container:
+
+* Create container from {rbrn_bottle_moniker}:{rbrn_bottle_image_tag}
+* Allow podman to assign unique container name
+* Attach exclusively to {at_enclave_network}
+* Configure DNS resolver to {at_sentry_container} address
+* Apply {rbrn_volume_mounts} specifications
+* Enable automatic cleanup on exit (--rm)

@@ -1,0 +1,29 @@
+The {ops_rbv_check} verifies whether newer VM images are available upstream by comparing SHA digests. This operation uses a temporary {at_stash_machine} with crane installed to query registries without modifying configuration.
+
+. Create Temporary {at_stash_machine}
+* Initialize new Podman machine using name from {rbrr_stash_machine}
+* Start the machine and install crane from {rbrr_crane_tar_gz}
+* Verify crane installation completed successfully
+
+. Query Upstream Image
+* Use crane to query digest of {rbrr_chosen_vmimage_origin}:{rbrr_chosen_podman_version}
+* Store the returned SHA digest for comparison
+* Fail if query returns no valid digest
+
+. Verify Custom FQIN (if applicable)
+* If {rbrr_chosen_vmimage_fqin} differs from standard origin:version pattern:
+** Query the FQIN directly using crane
+** Compare FQIN digest against upstream digest
+** Report any discrepancies as warnings
+
+. Cleanup Resources
+* Stop and remove the temporary {at_stash_machine}
+* Ensure no orphaned resources remain
+
+. Report Findings
+* Display current {rbrr_chosen_vmimage_sha} value
+* Display latest upstream SHA digest
+* Indicate required actions:
+** If SHA not set: request user to set {rbrr_chosen_vmimage_sha}
+** If SHA differs: notify update available
+** If SHA matches: confirm system is current

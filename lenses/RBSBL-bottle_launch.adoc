@@ -1,0 +1,18 @@
+This sequence instantiates and configures the service container:
+
+. Launch
+{at_bottle_container}:
+* Image
+{rbrn_bottle_moniker}:{rbrn_bottle_image_tag}
+* Name
+{at_bottle_container_name}
+* Attach exclusively to
+{at_enclave_network}
+* Apply
+{rbrn_volume_mounts}
+specifications
+* Set restart policy to "unless-stopped"
+
+. Perform post-launch network configuration:
+* Allow container initialization with podman's default network configuration
+* Verify container network interface is active using {mkc_interface_check}
