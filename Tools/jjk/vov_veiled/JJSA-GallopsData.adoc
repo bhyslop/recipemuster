@@ -345,66 +345,79 @@ Each direct verb maps to exactly one {jjdx_cli} operation.
 The slash command or {jjsuc_insert} may add context gathering around the invocation, but the core action is singular.
 
 [[jjsud_slate]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_slate}::
 Add a {jjdpr_pace} to a {jjdhr_heat}.
 Maps to {jjdo_enroll}.
 
 [[jjsud_reslate]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_reslate}::
 Revise a {jjdpr_pace_p} docket.
 Maps to {jjdo_revise_docket}.
 
 [[jjsud_wrap]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_wrap}::
 Mark a {jjdpr_pace} complete.
 Maps to {jjdo_close}.
 
 [[jjsud_bridle]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_bridle}::
 Set a {jjdpr_pace} to {jjdpe_bridled} state with warrant.
 Maps to {jjdo_arm}.
 
 [[jjsud_rail]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_rail}::
 Reorder {jjdpr_pace_s} within a {jjdhr_heat}.
 Maps to {jjdo_reorder}.
 
 [[jjsud_furlough]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_furlough}::
 Pause or resume a {jjdhr_heat}.
 Maps to {jjdo_alter}.
 
 [[jjsud_retire]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_retire}::
 Archive a completed {jjdhr_heat}.
 Maps to {jjdo_archive}.
 
 [[jjsud_garland]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_garland}::
 Create a continuation {jjdhr_heat} from an existing one.
 Maps to {jjdo_continue}.
 
 [[jjsud_restring]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_restring}::
 Transfer {jjdpr_pace_s} in bulk between {jjdhr_heat_s}.
 Maps to {jjdo_transfer}.
 
 [[jjsud_muster]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_muster}::
 List all {jjdhr_heat_s}.
 Maps to {jjdo_list}.
 
 [[jjsud_parade]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_parade}::
 View a {jjdhr_heat} or {jjdpr_pace}.
 Maps to {jjdo_show}.
 
 [[jjsud_scout]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_scout}::
 Search across {jjdhr_heat_s} and {jjdpr_pace_s}.
 Maps to {jjdo_search}.
 
 [[jjsud_nominate]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsud_nominate}::
 Create a new {jjdhr_heat}.
 Maps to {jjdo_create}.
@@ -415,30 +428,35 @@ A {jjsum_mount} verb requires orchestration across multiple {jjdx_cli} operation
 These are implemented as slash command skills that coordinate the workflow.
 
 [[jjsum_mount]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsum_mount}::
 Engage the next {jjdpr_pace} for execution.
 Orchestrates {jjdo_orient} to obtain context, reads the docket, executes the work, and records outcomes via {jjdo_record}.
 Implemented by {jjsus_mount}.
 
 [[jjsum_groom]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsum_groom}::
 Review and refine a {jjdhr_heat_p} plan.
 Orchestrates {jjdo_show} with remaining view, then enters planning mode for structural edits.
 Implemented by {jjsus_groom}.
 
 [[jjsum_quarter]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsum_quarter}::
 Evaluate remaining {jjdpr_pace_s} and identify candidates for bridling.
 Orchestrates {jjdo_get_coronets}, assesses bridleability, and optionally invokes {jjdo_arm}.
 Implemented by {jjsus_quarter}.
 
 [[jjsum_notch]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsum_notch}::
 JJ-aware git commit with heat and pace affiliation.
 Detects context (pace-affiliated or heat-affiliated), then invokes {jjdo_record} with appropriate identity.
 Implemented by {jjsus_notch}.
 
 [[jjsum_braid]]
+// ⟦axl_voices axi_cc_claudemd_verb⟧
 {jjsum_braid}::
 Consolidate overlapping {jjdpr_pace_s} between two {jjdhr_heat_s}.
 Compares dockets, identifies overlap, and orchestrates {jjdo_relocate} to merge.
@@ -450,64 +468,79 @@ Slash commands are skill artifacts that implement upper API verbs.
 Each is a Claude Code skill file in `.claude/commands/` that contains the orchestration logic.
 
 [[jjsus_mount]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_mount}::
 Implements {jjsum_mount}.
 
 [[jjsus_groom]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_groom}::
 Implements {jjsum_groom}.
 
 [[jjsus_quarter]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_quarter}::
 Implements {jjsum_quarter}.
 
 [[jjsus_rail]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_rail}::
 Implements {jjsud_rail}.
 
 [[jjsus_furlough]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_furlough}::
 Implements {jjsud_furlough}.
 
 [[jjsus_restring]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_restring}::
 Implements {jjsud_restring}.
 
 [[jjsus_braid]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_braid}::
 Implements {jjsum_braid}.
 
 [[jjsus_garland]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_garland}::
 Implements {jjsud_garland}.
 
 [[jjsus_retire_dryrun]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_retire_dryrun}::
 Implements {jjsud_retire} in preview mode.
 
 [[jjsus_retire_final]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_retire_final}::
 Implements {jjsud_retire} with permanent archival.
 
 [[jjsus_slate]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_slate}::
 Implements {jjsud_slate}.
 
 [[jjsus_reslate]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_reslate}::
 Implements {jjsud_reslate}.
 
 [[jjsus_bridle]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_bridle}::
 Implements {jjsud_bridle}.
 
 [[jjsus_notch]]
+// ⟦axl_voices axi_cc_slash_command⟧
 {jjsus_notch}::
 Implements {jjsum_notch}.
 
 === Context Artifact
 
 [[jjsuc_insert]]
+// ⟦axl_voices axi_cc_claudemd_section⟧
 {jjsuc_insert}::
 The `MANAGED:JJK` section of the project CLAUDE.md file.
 Contains the quick verb mapping table, CLI command reference, and operational guidance that enables the LLM to translate upper API verbs into {jjdx_cli} invocations.

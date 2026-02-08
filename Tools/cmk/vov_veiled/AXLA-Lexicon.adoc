@@ -286,6 +286,9 @@
 :axi_rest_api:                        <<axi_rest_api,REST API>>
 :axi_rpc_interface:                   <<axi_rpc_interface,RPC Interface>>
 :axi_sse_endpoint:                    <<axi_sse_endpoint,SSE Endpoint>>
+:axi_cc_slash_command:                <<axi_cc_slash_command,CC Slash Command>>
+:axi_cc_claudemd_section:             <<axi_cc_claudemd_section,CC CLAUDE.md Section>>
+:axi_cc_claudemd_verb:                <<axi_cc_claudemd_verb,CC CLAUDE.md Verb>>
 
 // Axial Key Premise Terms
 :axk_premise:                         <<axk_premise,Premise>>
@@ -1539,6 +1542,36 @@ A
 {axl_motif}
 representing server-sent event stream for push notifications.
 Enables real-time updates to connected clients.
+
+[[axi_cc_slash_command]]
+{axi_cc_slash_command}::
+A
+{axl_motif}
+representing a Claude Code slash command skill artifact.
+Implemented as a `.claude/commands/*.md` file containing orchestration logic that the LLM executes as a skill.
+Slash commands coordinate multiple
+{axi_cli_subcommand}
+invocations, gather context, and apply workflow policies.
+
+[[axi_cc_claudemd_verb]]
+{axi_cc_claudemd_verb}::
+A
+{axl_motif}
+representing an action verb defined in a
+{axi_cc_claudemd_section}
+that maps user intent to tool-layer operations.
+The verb exists as a concept in the LLM context — either mapping directly to a single
+{axi_cli_subcommand}
+(direct verb) or orchestrating multiple operations (multistep verb implemented by a
+{axi_cc_slash_command}).
+
+[[axi_cc_claudemd_section]]
+{axi_cc_claudemd_section}::
+A
+{axl_motif}
+representing a managed section within a project CLAUDE.md file.
+Provides persistent LLM context that bridges specification-layer concepts to runtime execution.
+Typically contains command references, vocabulary mappings, and operational guidance.
 
 == Axial Dimension Terms
 
