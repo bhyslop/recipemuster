@@ -1,34 +1,5 @@
 # Claude Code Project Memory
 
-## Startup Menu
-Please display this menu at the start of each session:
-
-```
-=== Quick Start Menu ===
-bcbcg: Bash Coding with BCG (Bash Console Guide)
-adocrbags: Requirements writing with RBAGS (Admin Google Spec)
-gad: Work on GAD (Google AsciiDoc Differ)
-
-Which would you like to start with? (Enter acronym)
-```
-
-## Preset Activities
-
-### bcbcg: Bash Coding with BCG
-- Primary file: `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`
-- Context: Bash scripting and console development
-- Related utilities: BUC, BUD, BUT, BUV, BUW in Tools/buk/
-
-### adocrbags: Requirements writing with RBAGS
-- Primary file: `lenses/RBAGS-AdminGoogleSpec.adoc`
-- Context: Requirements documentation and specification writing
-- Related specs: RBRN, RBRR, RBS, CRR in lenses/
-
-### gad: Work on GAD (Google AsciiDoc Differ)
-- Primary directory: `Tools/gad/`
-- Context: AsciiDoc diff visualization tool (spec, implementation, memos)
-- See `Tools/gad/CLAUDE.md` for complete GAD acronym mappings and architecture
-
 ## Directory Permissions
 Full read and edit access is pre-approved for all files in:
 - `lenses/`
@@ -406,18 +377,26 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 
 **Quick Verbs** — When user says just the verb, invoke the corresponding command:
 
-| Verb | Command |
-|------|---------|
-| mount | /jjc-heat-mount |
-| slate | /jjc-pace-slate |
-| reslate | /jjc-pace-reslate |
-| wrap | `jjx_close` |
-| bridle | /jjc-pace-bridle |
-| notch | /jjc-pace-notch |
-| furlough | /jjc-heat-furlough |
-| groom | /jjc-heat-groom |
-| quarter | /jjc-heat-quarter |
-| rail | /jjc-heat-rail |
+| Verb | Noun | Command |
+|------|------|---------|
+| muster | heats | `jjx_list` |
+| parade | heat/pace | `jjx_show` |
+| scout | heats | `jjx_search` |
+| braid | heats | /jjc-heat-braid |
+| nominate | heat | `jjx_create` |
+| mount | heat | /jjc-heat-mount |
+| groom | heat | /jjc-heat-groom |
+| quarter | heat | /jjc-heat-quarter |
+| rail | heat | /jjc-heat-rail |
+| furlough | heat | /jjc-heat-furlough |
+| retire | heat | /jjc-heat-retire-dryrun |
+| garland | heat | /jjc-heat-garland |
+| restring | heat | /jjc-heat-restring |
+| slate | pace | /jjc-pace-slate |
+| reslate | pace | /jjc-pace-reslate |
+| bridle | pace | /jjc-pace-bridle |
+| notch | pace | /jjc-pace-notch |
+| wrap | pace | `jjx_close` |
 
 **CLI Command Reference:**
 

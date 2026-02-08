@@ -26,31 +26,31 @@ Job Jockey has two API layers. The *upper layer* uses horse racing vocabulary th
 
 *Direct verbs* — map to a single jjx command:
 
-| Verb | Action |
-|------|--------|
-| slate | `./tt/vvw-r.RunVVX.sh jjx_enroll` |
-| reslate | `./tt/vvw-r.RunVVX.sh jjx_revise_docket` |
-| wrap | `./tt/vvw-r.RunVVX.sh jjx_close` |
-| bridle | `./tt/vvw-r.RunVVX.sh jjx_arm` |
-| rail | `./tt/vvw-r.RunVVX.sh jjx_reorder` |
-| furlough | `./tt/vvw-r.RunVVX.sh jjx_alter` |
-| retire | `./tt/vvw-r.RunVVX.sh jjx_archive` |
-| garland | `./tt/vvw-r.RunVVX.sh jjx_continue` |
-| restring | `./tt/vvw-r.RunVVX.sh jjx_transfer` |
-| muster | `./tt/vvw-r.RunVVX.sh jjx_list` |
-| parade | `./tt/vvw-r.RunVVX.sh jjx_show` |
-| scout | `./tt/vvw-r.RunVVX.sh jjx_search` |
-| nominate | `./tt/vvw-r.RunVVX.sh jjx_create` |
+| Verb | Noun | Action |
+|------|------|--------|
+| muster | heats | `./tt/vvw-r.RunVVX.sh jjx_list` |
+| parade | heat/pace | `./tt/vvw-r.RunVVX.sh jjx_show` |
+| scout | heats | `./tt/vvw-r.RunVVX.sh jjx_search` |
+| nominate | heat | `./tt/vvw-r.RunVVX.sh jjx_create` |
+| slate | pace | `./tt/vvw-r.RunVVX.sh jjx_enroll` |
+| reslate | pace | `./tt/vvw-r.RunVVX.sh jjx_revise_docket` |
+| wrap | pace | `./tt/vvw-r.RunVVX.sh jjx_close` |
+| bridle | pace | `./tt/vvw-r.RunVVX.sh jjx_arm` |
+| rail | heat | `./tt/vvw-r.RunVVX.sh jjx_reorder` |
+| furlough | heat | `./tt/vvw-r.RunVVX.sh jjx_alter` |
+| retire | heat | `./tt/vvw-r.RunVVX.sh jjx_archive` |
+| garland | heat | `./tt/vvw-r.RunVVX.sh jjx_continue` |
+| restring | heat | `./tt/vvw-r.RunVVX.sh jjx_transfer` |
 
 *Multistep verbs* — orchestrated workflows, read the slash command first:
 
-| Verb | Slash command |
-|------|--------------|
-| mount | /jjc-heat-mount |
-| groom | /jjc-heat-groom |
-| quarter | /jjc-heat-quarter |
-| notch | /jjc-pace-notch |
-| braid | /jjc-heat-braid |
+| Verb | Noun | Slash command |
+|------|------|--------------|
+| mount | heat | /jjc-heat-mount |
+| groom | heat | /jjc-heat-groom |
+| quarter | heat | /jjc-heat-quarter |
+| notch | pace | /jjc-pace-notch |
+| braid | heats | /jjc-heat-braid |
 
 **Slash Command Reference:**
 
