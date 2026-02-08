@@ -2253,9 +2253,10 @@
         "₢AGAAK",
         "₢AGAAL",
         "₢AGAAG",
-        "₢AGAAI"
+        "₢AGAAI",
+        "₢AGAAM"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -2404,6 +2405,17 @@
               "text": "Rename JSON schema field \"direction\" to \"warrant\" in tack records.\n\nCompanion to json-schema-text-to-docket (₢AGAAK). Same pattern:\n1. Remove serde rename attribute (or change field name) in jjrt_types.rs\n2. Migrate existing gallops JSON: s/\"direction\":/\"warrant\":/g\n3. Update documentation referencing the JSON schema\n\nBreaking: Changes JSON schema. All existing gallops files must be migrated.\n\nAcceptance: JSON files use \"warrant\" key. Round-trip validation passes. All tests pass.",
               "silks": "json-schema-direction-to-warrant",
               "commit": "8e1572b"
+            }
+          ]
+        },
+        "₢AGAAM": {
+          "tacks": [
+            {
+              "ts": "260208-1318",
+              "state": "rough",
+              "text": "Add an auto-generated intent field to pace records.\n\nThe intent statement should be a prose summary (1-2 sentences) extracted from the pace docket, maintaining it automatically as part of slate/reslate operations.\n\nDisplay intent:\n- In non-detailed pace listings (alongside silks)\n- In wrap completion summary (showing what was just finished)\n\nThis gives paces more semantic richness than silks alone, helping runners understand purpose at a glance.",
+              "silks": "add-intent-field",
+              "commit": "d13b192"
             }
           ]
         }
