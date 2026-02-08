@@ -244,7 +244,7 @@ enabling rapid iteration during development.
 **Related Specifications:**
 
 * **VLS-VoxLiturgicalSpec.adoc** — Universal naming vocabulary (Cipher, Signet, Epithet, Inscription, Vesture)
-* **BUS-BashUtilitiesSpec.adoc** — Tabtarget dispatch vocabulary (Colophon, Frontispiece, Imprint, Formulary, Launcher)
+* **BUSA-BashUtilitiesSpec.adoc** — Tabtarget dispatch vocabulary (Colophon, Frontispiece, Imprint, Formulary, Launcher)
 
 == Key Premises
 
