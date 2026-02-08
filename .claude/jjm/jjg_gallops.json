@@ -1760,6 +1760,13 @@
         "₢APAAP": {
           "tacks": [
             {
+              "ts": "260208-1528",
+              "state": "complete",
+              "text": "Audit and complete existing Ark/Vessel vocabulary in RBSA-SpecTop.adoc.\n\n## Background\n\nRBAGS-AdminGoogleSpec.adoc was renamed to RBSA-SpecTop.adoc (commit 41473401).\nThe `rbtga_*` Ark terms (ark, consecration, ark_image, ark_about) already exist at lines 1011-1054.\nVessel vocabulary exists via `rbrv_*` terms in RBSRV-RegimeVessel.adoc (included by RBSA).\n\n## Audit checklist\n\n1. Verify all Ark/Vessel terms from the original docket are covered:\n   - Vessel (moniker/sigil) — check `rbrv_sigil` definition\n   - Ark (timestamp manifestation) — check `rbtga_ark` definition\n   - Ark `-image` / `-about` pair — check `rbtga_ark_image`, `rbtga_ark_about`\n   - Consecration — check `rbtga_consecration`\n2. Check for stale \"image tag\" references that should use Ark terminology\n3. Verify Roles (Sentry, Bottle, Censer) are defined in `at_*` architectural terms\n4. Confirm cross-references between Vessel regime (rbrv_*) and Ark definitions (rbtga_*) are coherent\n\n## Location\n`lenses/RBSA-SpecTop.adoc`\n\n## Outcome\nEither confirm vocabulary is complete (pace can wrap with no changes) or identify specific gaps to fill.",
+              "silks": "audit-ark-vessel-vocabulary-in-rbsa",
+              "commit": "046d1c6"
+            },
+            {
               "ts": "260208-1526",
               "state": "rough",
               "text": "Audit and complete existing Ark/Vessel vocabulary in RBSA-SpecTop.adoc.\n\n## Background\n\nRBAGS-AdminGoogleSpec.adoc was renamed to RBSA-SpecTop.adoc (commit 41473401).\nThe `rbtga_*` Ark terms (ark, consecration, ark_image, ark_about) already exist at lines 1011-1054.\nVessel vocabulary exists via `rbrv_*` terms in RBSRV-RegimeVessel.adoc (included by RBSA).\n\n## Audit checklist\n\n1. Verify all Ark/Vessel terms from the original docket are covered:\n   - Vessel (moniker/sigil) — check `rbrv_sigil` definition\n   - Ark (timestamp manifestation) — check `rbtga_ark` definition\n   - Ark `-image` / `-about` pair — check `rbtga_ark_image`, `rbtga_ark_about`\n   - Consecration — check `rbtga_consecration`\n2. Check for stale \"image tag\" references that should use Ark terminology\n3. Verify Roles (Sentry, Bottle, Censer) are defined in `at_*` architectural terms\n4. Confirm cross-references between Vessel regime (rbrv_*) and Ark definitions (rbtga_*) are coherent\n\n## Location\n`lenses/RBSA-SpecTop.adoc`\n\n## Outcome\nEither confirm vocabulary is complete (pace can wrap with no changes) or identify specific gaps to fill.",
