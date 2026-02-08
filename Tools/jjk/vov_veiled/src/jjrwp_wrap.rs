@@ -285,8 +285,35 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
         Ok(_) => {
             println!("{}", commit_hash);
             let fm = coronet.jjrf_parent_firemark();
+            let fm_str = fm.jjrf_as_str();
+
+            // Lookahead: find next actionable pace in this heat
+            let next_pace_info = gallops.heats.get(fm_str).and_then(|heat| {
+                heat.order.iter().find_map(|c| {
+                    heat.paces.get(c.as_str()).and_then(|pace| {
+                        pace.tacks.first().and_then(|tack| {
+                            match tack.state {
+                                jjrg_PaceState::Rough | jjrg_PaceState::Bridled => {
+                                    Some((c.clone(), tack.silks.clone()))
+                                }
+                                _ => None,
+                            }
+                        })
+                    })
+                })
+            });
+
             eprintln!();
-            eprintln!("Recommended: /clear then /jjc-heat-mount {}", fm.jjrf_as_str());
+            match next_pace_info {
+                Some((next_coronet, next_silks)) => {
+                    eprintln!("AGENT_RESPONSE: \u{20a2}{} wrapped. Next: {} (\u{20a2}{}) \u{2014} `/clear` then `/jjc-heat-mount {}`",
+                        args.coronet, next_silks, next_coronet, fm_str);
+                }
+                None => {
+                    eprintln!("AGENT_RESPONSE: \u{20a2}{} wrapped. All paces complete \u{2014} `/clear` then `/jjc-heat-retire {}`",
+                        args.coronet, fm_str);
+                }
+            }
             0
         }
         Err(e) => {

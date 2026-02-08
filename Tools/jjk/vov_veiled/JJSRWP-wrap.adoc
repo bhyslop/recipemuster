@@ -22,6 +22,10 @@ Used by `/jjc-pace-wrap` to provide a single-command wrap experience.
 . Commit staged changes
 . Transition pace state to complete via internal tack prepend (state={jjdpe_complete})
 . Create W chalk marker with outcome summary
+. Lookahead: walk parent heat's order array for next actionable pace (first with state {jjdpe_rough} or {jjdpe_bridled})
+. Emit `AGENT_RESPONSE:` line to stderr:
+.. If next pace found: `AGENT_RESPONSE: ₢{coronet} wrapped. Next: {next_silks} (₢{next_coronet}) — \`/clear\` then \`/jjc-heat-mount {firemark}\``
+.. If no next pace: `AGENT_RESPONSE: ₢{coronet} wrapped. All paces complete — \`/clear\` then \`/jjc-heat-retire {firemark}\``
 . Release lock
 . Return commit hash
 
