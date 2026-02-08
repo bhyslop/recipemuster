@@ -1,0 +1,466 @@
+= Recipe Bottle Workbench
+:toc:
+:toc-title: Table of Contents
+:sectnums:
+:icons: font
+:stylesheet: dark-theme.css
+:stylesdir: .
+
+// Begin Mapping Section - subset from original spec
+// tag::mapping-section[]
+:at_problem:                 <<term_problem,Remaining Work Before First Release>>
+:at_bottle_image:            <<term_bottle_image,Bottle Image>>
+:at_bottle_service:          <<term_bottle_service,Bottle Service>>
+:at_bottle_service_s:        <<term_bottle_service,Bottle Services>>
+:at_workstation:             <<term_workstation,Workstation>>
+:at_workstation_p:           <<term_workstation,Workstation's>>
+:at_enclave_network:         <<term_enclave_network,Enclave Network>>
+:at_transit_network:         <<term_transit_network,Transit Network>>
+:at_sentry_container:        <<term_sentry_container,Sentry Container>>
+:at_sentry_container_s:      <<term_sentry_container,Sentry Containers>>
+:at_sentry_container_p:      <<term_sentry_container,Sentry Container's>>
+:at_censer_container:        <<term_censer_container,Censer Container>>
+:at_censer_container_s:      <<term_censer_container,Censer Containers>>
+:at_bottle_container:        <<term_bottle_container,Bottle Container>>
+:at_bottle_container_s:      <<term_bottle_container,Bottle Containers>>
+:at_bottle_container_p:      <<term_bottle_container,Bottle Container's>>
+:at_rbm_system:              <<term_rbm_system,Recipe Bottle Workbench>>
+:at_user:                    <<term_user,User>>
+:at_user_s:                  <<term_user,Users>>
+:at_user_p:                  <<term_user,User's>>
+:at_image:                   <<term_image,Image>>
+:at_image_s:                 <<term_image,Images>>
+:at_volume_mount:            <<term_volume_mount,Volume Mount>>
+:at_volume_mount_s:          <<term_volume_mount,Volume Mounts>>
+:at_build_service:           <<term_build_service,Build Service>>
+:at_build_history:           <<term_build_history,Build History>>
+:at_build_workflow:          <<term_build_workflow,Build Workflow>>
+:at_build_workflow_s:        <<term_build_workflow,Build Workflows>>
+:at_admin:                   <<term_admin,Admin>>
+:at_retriever:               <<term_retriever,Retriever>>
+:at_retriever_s:             <<term_retriever,Retrievers>>
+:at_director:                <<term_director,Director>>
+:at_director_s:              <<term_director,Directors>>
+:at_runtime:                 <<term_runtime,Container Runtime>>
+
+// end::mapping-section[]
+
+== Overview
+
+The
+{at_rbm_system}
+enables developers to safely run untrusted containers -
+a significantly distinct use case than typical container deployments of carefully crafted code.
+
+While containers excel at packaging known applications,
+running third-party or experimental code poses security risks.
+The
+{at_rbm_system}
+addresses this by interposing a security layer
+({at_sentry_container})
+between untrusted containers
+({at_bottle_container_s})
+and system resources,
+without requiring modifications to existing container images.
+
+This approach allows developers to leverage the vast ecosystem of containerized tools while maintaining strict security boundaries -
+essential for small teams experimenting with diverse, potentially risky codebases.
+
+== {at_problem}
+
+GHCR violates OCI specification for reference counting, creating critical operational risk where deleting older container images may remove shared layers that newer images depend upon. GitHub Actions' shared runner environment enables cache poisoning attacks where multiple users share docker daemon access, making it unsafe for building containers from untrusted code.
+
+The
+{at_rbm_system}
+will migrate to Google Cloud Build and Google Artifact Registry, which provide isolated build environments, SLSA Level 3 attestations, reference-counted layer management, native vulnerability scanning, and Binary Authorization for deploy-time verification.
+
+Additionally, the project's build infrastructure currently relies on Makefiles, which limits portability. Converting to pure bash 3.2 implementation will ensure broader compatibility across development environments.
+
+== The {at_rbm_system} Vision
+
+.RBM System Architecture
+image::rbm-abstract-drawio.svg[RBM Architecture,600,400,align="center"]
+
+Maintaining build and service environments is a headache for the small development organization.
+Containers
+are an amazing tool for controlling package version constellations.
+Necessary, but insufficient; I find that I need more redundancy, security, and control for my build setups.
+
+The
+{at_rbm_system}
+is my answer for filling in the gaps.
+The vision is simple: how can a
+{at_user}
+run only a few apps natively on a
+{at_workstation}
+to coordinate and arrange
+containers
+in sophisticated yet safe ways for me and my customer's work?
+
+{at_rbm_system} uses only `bash`, `git`, `curl`, `openssh`, `jq` and a
+{at_runtime}
+(currently only `podman`) natively to produce a safe and controlled space for development involving
+containers
+heavily.
+{at_rbm_system}
+itself is largely a set of bash scripts designed to be easily incorporated into arbitrary projects via
+`git subtree`, `git subrepo`, or `git submodule`
+graft.
+This is purely an open-source undertaking.
+
+=== Part One: {at_image} Management
+
+The
+{at_rbm_system}
+streamlines
+container {at_image}
+creation and curation through Google Cloud Build (GCB) and Google Artifact Registry (GAR).
+The
+{at_build_service}:
+
+- Constructs
+{at_image_s}
+in clean, isolated environments using **Google-curated Cloud Build builder images**
+- **Replicates trusted external images** into GAR with digest preservation and provenance tracking
+- Supports multi-architecture builds via `docker buildx` with binfmt emulation
+- Generates software bills of material for compliance
+- Captures and stores full build transcripts for provenance
+- Maintains build transcripts, SBOMs, and commit references in an **auxiliary metadata artifact** separate from the runtime image
+- Stores validated
+{at_image_s}
+in Google Artifact Registry, tagged with minimal non-invasive labels
+
+This dual approach - building custom images and importing vetted external ones - ensures all container images used in development have known provenance and consistent tagging.
+Small teams can maintain a curated registry combining custom-built tools with carefully selected upstream images, all traceable through GAR's unified storage.
+
+The system uses only
+`gcloud`,
+`curl`,
+`jq`,
+and
+`bash`
+scripts
+to orchestrate both remote
+{at_image}
+construction and registry-to-registry replication, enabling small teams to maintain enterprise-grade
+{at_image}
+management practices without complex tooling.
+
+Auxiliary provenance data, including the SBOM (`syft_analysis.json`), build transcript, build configuration snapshot, and key package summaries, is bundled into a compressed archive and uploaded to GAR as a **Generic Artifact** using the image tag as the package name and a fixed `metadata` version identifier.
+This design keeps the primary image minimal and broadly usable while making rich build history available to those who need it.
+
+=== Part Two: {at_bottle_service} Orchestration
+
+For development services requiring internet and/or IP connectivity at the
+{at_workstation},
+{at_rbm_system}
+then orchestrates startup and configuration of
+{at_bottle_service_s}, which are comprised of a
+{at_sentry_container},
+a
+{at_censer_container},
+and a
+{at_bottle_container}
+operating together.
+
+The {at_rbm_system}
+allows any
+{at_image}
+providing or using network services to function as a
+{at_bottle_container}.
+The
+{at_censer_container}
+establishes a privileged network namespace, configures it to route all traffic through the
+{at_sentry_container},
+then shares this pre-configured namespace with the
+{at_bottle_container}.
+This ensures security policies are enforced from the first packet, and the
+{at_bottle_container}
+experiences only a functional path to its
+{at_sentry_container}
+gateway.
+
+The
+{at_sentry_container}
+thus sets up a potentially sophisticated set of network security safeguards that prevent malicious or compromised
+{at_bottle_container_s}
+from exfiltrating the
+{at_user_p}
+assets.
+Through configuration of deeply mature tools `iptables` and `dnsmasq`, the
+{at_sentry_container}
+prevents such illegal accesses.
+
+By providing these controlled yet accessible tools, the
+{at_rbm_system}
+enables small development teams to maintain proper container hygiene throughout their workflow - from initial building through deployment and eventual cleanup.
+This empowers organizations to leverage the expanding ecosystem of containerized development tools without requiring specialized DevOps expertise.
+
+== Definitions
+
+[[term_bottle_service]]
+{at_bottle_service}::
+A complete service instance consisting of one
+{at_bottle_container},
+one
+{at_censer_container},
+and one
+{at_sentry_container}
+working together to provide secure functionality.
+
+[[term_user]]
+{at_user}::
+An individual operating the
+{at_rbm_system}
+to run containerized services securely on their
+{at_workstation}.
+
+[[term_workstation]]
+{at_workstation}::
+The local computing environment where the
+{at_user}
+runs the
+{at_rbm_system}.
+This environment hosts all
+{at_bottle_service_s}
+and their associated networks while providing isolation from other system resources.
+
+[[term_enclave_network]]
+{at_enclave_network}::
+An isolated network connecting a
+{at_bottle_container}
+to its
+{at_sentry_container},
+using the
+{rbn_enclave_base_ip}/{rbn_enclave_netmask}
+for addressing.
+This network enforces strict security policies and provides the only communication path for the
+{at_bottle_container}.
+
+[[term_transit_network]]
+{at_transit_network}::
+The network interface that connects a
+{at_sentry_container}
+to the
+{at_workstation_p}
+network resources.
+This network enables controlled external communication while maintaining security boundaries.
+
+[[term_sentry_container]]
+{at_sentry_container}::
+A privileged container that enforces network security policies for a
+{at_bottle_service}.
+It connects to both
+{at_transit_network} and {at_enclave_network},
+controlling all network traffic and providing DNS services.
+
+[[term_censer_container]]
+{at_censer_container}::
+A privileged container using a minimal image that establishes and configures the network namespace before the
+{at_bottle_container}
+starts.
+It sets up routing to ensure all traffic flows through the
+{at_sentry_container},
+then shares this pre-configured namespace with the
+{at_bottle_container}.
+
+[[term_bottle_container]]
+{at_bottle_container}::
+A container that runs the actual service functionality, inheriting its network namespace from the
+{at_censer_container}
+via `--net=container:censer`.
+Connected only to the
+{at_enclave_network}
+and configured with specific
+{at_volume_mount_s},
+all external communication flows through its associated
+{at_sentry_container}.
+
+[[term_rbm_system]]
+{at_rbm_system}::
+The complete Recipe Bottle system, enabling secure deployment and management of containerized services through network isolation and controlled resource access.
+
+[[term_volume_mount]]
+{at_volume_mount}::
+A configuration that allows
+containers
+to access specified portions of the host filesystem.
+
+[[term_build_service]]
+{at_build_service}::
+A system managing container creation through Google Cloud Build and Google Artifact Registry,
+enabling
+{at_user_s}
+to build containers in isolated environments with complete traceability
+and cryptographic attestation
+using three service account roles:
+{at_admin}
+manages the lifecycle of operational accounts,
+{at_retriever}
+provides read-only access to stored images,
+and
+{at_director}
+handles complete build lifecycle including image creation, build triggering, and artifact cleanup.
+
+[[term_build_history]]
+{at_build_history}::
+A permanent record maintained by the
+{at_build_service}
+for each container build,
+including build transcripts and commit references that verify container origins.
+
+[[term_problem]]
+{at_problem}::
+The set of technical challenges that must be resolved before the
+{at_rbm_system}
+can be released,
+including registry selection and build system implementation.
+
+[[term_build_workflow]]
+{at_build_workflow}::
+The automated process within Google Cloud Build that standardizes how
+{at_user_s}
+build and publish containers in isolated, ephemeral compute instances while maintaining
+SLSA Level 3 compliance.
+
+[[term_runtime]]
+{at_runtime}::
+Application capable of running
+containers
+on the
+{at_workstation}.
+Early experiments with `docker` led to disappointing results concerning interlacing host networking and internal networking.
+At the time of this writing, `podman` provides the necessary features for full
+{at_bottle_service}
+provisions.
+
+[[term_admin]]
+{at_admin}::
+A service account role that manages the lifecycle of operational service accounts,
+including creation, listing, and deletion of multiple instances of
+{at_retriever}
+and
+{at_director}
+accounts.
+Provides full project control for infrastructure setup and account management.
+
+[[term_retriever]]
+{at_retriever}::
+A service account role providing read-only access to
+Google Artifact Registry
+for pulling and listing container images.
+Multiple instances can be created for different users or use cases.
+
+[[term_director]]
+{at_director}::
+A service account role handling complete build lifecycle including submitting builds to
+Google Cloud Build,
+writing images to
+Google Artifact Registry,
+and deleting build artifacts.
+Multiple instances can be created to support different operational needs.
+
+== Service Account Configuration
+
+The
+{at_build_service}
+operates using three Google Cloud IAM service accounts with distinct role configurations:
+{at_admin},
+{at_retriever},
+and
+{at_director}.
+
+Service account credentials are stored in
+RBRA (Recipe Bottle Regime Auth)
+format as bash-sourceable environment files containing extracted Google service account credentials, eliminating JSON parsing requirements at runtime.
+
+== Significant Events
+
+// Deep spelunk helper: $ git log --remotes=origin --all --graph --name-status
+
+[%header,cols="1,3"]
+|===
+| Date | Event
+
+// | Feb 23, 2022
+// | Got Docker ID.
+// [cnmp:73066af]
+
+| Dec 10, 2023
+| First try at wrangling Docker in local cygwin environment.
+// [cnmp:4009f87]
+
+| Mar 18, 2024
+| Embrace multiple ephemeral docker container images for single build.
+// [cnmp:60f0cf2]
+
+| Aug 7, 2024
+| Started Jupyter Notebook in docker container.
+// [cnmp:22d2fce]
+
+| Aug 11, 2024
+| Learned docker can't connect to host and internal network simultaneously.
+// [cnmp:3b20684]
+
+| Aug 17, 2024
+| Switched to podman for better networking.
+// [cnmp:3a47915]
+
+| Sep 2, 2024
+| First attempt to use asciidoc for concept models.
+
+| Oct 7, 2024
+| GitHub Action performed docker
+{at_image}
+build.
+
+| Nov 2024
+| Bespoke
+{at_bottle_container}
+images with custom networking use
+{at_sentry_container}
+networking via Claude curated requirements and script generation.
+
+| Dec 2024
+| Experiments to start unmodified
+{at_bottle_container}
+images using podman networking configurations fail.
+
+| Dec 31, 2024
+| Submitted Podman feature request https://github.com/containers/podman/issues/24920[issue #24920] for gateway feature.
+
+| Jan 6, 2025
+| Feature request https://github.com/containers/podman/issues/24920[issue #24920] rejected.
+
+| Jan 2025
+| Podman 5.2 VMs running unmodified
+{at_bottle_container}
+images using VM network namespace machinations.
+
+| Feb 2025
+| Podman 5.3 VM update breaks previous, and reversion to 5.2 fails due to reissued VM.  Podman VM tags determined not immutable.
+
+| Mar 2025
+| Developed full reproducibility scenarios and determined that VM network namespace approach no longer valid.
+
+// | Apr 2025
+// | Attempted podman-unshare approach to access network namespaces.
+
+| June 25, 2025
+| Attempting to use eBPF frame rewriting to bypass Netavark gateway behaviors lead to third container concept.
+
+| July 3, 2025
+| {at_censer_container}
+as privileged network namespace configurator hosting unprivileged
+{at_bottle_container}
+functions; all
+{at_sentry_container}/{at_bottle_container}
+test cases pass again.
+
+| July 27, 2025
+| GHCR
+{at_image}
+deletions determined unsafe due to lack of OCI-specified reference counting on layers; deleting old images can destroy new ones.
+
+|===
+
