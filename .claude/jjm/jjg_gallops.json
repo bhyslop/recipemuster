@@ -24,9 +24,10 @@
         "₢AWAAH",
         "₢AWAAR",
         "₢AWAAS",
+        "₢AWAAT",
         "₢AWAAI"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -581,6 +582,17 @@
               "text": "Align the CLAUDE.md JJK managed insert (vocjjmc_core.md) with the new Upper API architecture.\n\n## Context\n\nThe Quick Verbs table and slash command reference in vocjjmc_core.md predate the two-layer verb architecture added to JJSA. Several entries reference deleted slash commands or mix layers. The insert needs to derive its content from the JJSA Upper API definitions.\n\n## Deliverables\n\nUpdate vocjjmc_core.md to:\n\n1. Replace the Quick Verbs table with a mapping derived from jjsud_ and jjsum_ definitions: user verb → action (either direct jjx_ invocation or slash command skill)\n2. For direct verbs (jjsud_): map verb directly to ./tt/vvw-r.RunVVX.sh jjx_ invocation\n3. For multistep verbs (jjsum_): map verb to the corresponding /jjc- slash command\n4. Remove references to deleted slash commands\n5. Ensure the \"When you need to...\" table is consistent with the verb mapping\n\nAcceptance: vocjjmc_core.md Quick Verbs table matches JJSA Upper API. No references to deleted slash commands. Freshen produces clean CLAUDE.md.",
               "silks": "align-claude-insert-with-upper-api",
               "commit": "be4efc4"
+            }
+          ]
+        },
+        "₢AWAAT": {
+          "tacks": [
+            {
+              "ts": "260208-0657",
+              "state": "rough",
+              "text": "Create a new AXLA voicing annotation for slash commands and Claude Code concept artifacts.\n\n## Context\n\nThe Upper API section in JJSA introduces jjsus_ (slash command) and jjsuc_ (context artifact) categories. These need AXLA annotations to categorize them in the concept model, similar to how jjdo_ operations use axi_cli_subcommand.\n\n## Deliverables\n\n1. Define new axi_ voicing(s) in AXLA-Lexicon.adoc for:\n   - Slash command skill artifacts (the .claude/commands/*.md files)\n   - Context artifacts (the CLAUDE.md managed sections)\n2. Add annotations to jjsus_ and jjsuc_ definitions in JJSA\n\nAcceptance: All jjsus_ and jjsuc_ entries in JJSA have AXLA annotations. New voicings are defined in AXLA-Lexicon.adoc.",
+              "silks": "add-axi-slash-command-voicing",
+              "commit": "5dea4da"
             }
           ]
         }
