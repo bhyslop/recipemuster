@@ -2789,6 +2789,13 @@
         "₢AHAAQ": {
           "tacks": [
             {
+              "ts": "260208-1417",
+              "state": "complete",
+              "text": "Fix jjx_notch to accept deleted files in the file list.\n\n## Problem\n`jjx_notch` validates that all file arguments exist on disk (`path.exists()`). This fails for deleted files because they no longer exist, even though git tracks them.\n\n## Solution\nChange validation to accept files that either:\n1. Exist on disk (additions/modifications), OR\n2. Are tracked by git (deletions) — check via `git ls-files --error-unmatch <file>`\n\n## Files to modify\n\n### Implementation\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` lines 48-54\n  - Replace `path.exists()` with: exists OR git-tracked\n  - Use `git ls-files --error-unmatch <file>` to check if git knows the file\n\n### Spec  \n- `Tools/jjk/vov_veiled/JJSCNC-notch.adoc` line 28\n  - Change: \"If any file does not exist: exit 1 with...\"\n  - To: \"If any file does not exist AND is not tracked by git: exit 1 with...\"\n\n### Tests\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` or new test file\n  - Add test case for deleted file acceptance\n\n## Verification\nAfter implementation:\n1. `tt/vow-b.Build.sh` — build\n2. `tt/vow-t.Test.sh` — run tests\n3. Manual test: stage a deletion, run notch with deleted file path",
+              "silks": "fix-notch-deleted-files",
+              "commit": "e5a6d20"
+            },
+            {
               "ts": "260128-0801",
               "state": "bridled",
               "text": "Fix jjx_notch to accept deleted files in the file list.\n\n## Problem\n`jjx_notch` validates that all file arguments exist on disk (`path.exists()`). This fails for deleted files because they no longer exist, even though git tracks them.\n\n## Solution\nChange validation to accept files that either:\n1. Exist on disk (additions/modifications), OR\n2. Are tracked by git (deletions) — check via `git ls-files --error-unmatch <file>`\n\n## Files to modify\n\n### Implementation\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` lines 48-54\n  - Replace `path.exists()` with: exists OR git-tracked\n  - Use `git ls-files --error-unmatch <file>` to check if git knows the file\n\n### Spec  \n- `Tools/jjk/vov_veiled/JJSCNC-notch.adoc` line 28\n  - Change: \"If any file does not exist: exit 1 with...\"\n  - To: \"If any file does not exist AND is not tracked by git: exit 1 with...\"\n\n### Tests\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` or new test file\n  - Add test case for deleted file acceptance\n\n## Verification\nAfter implementation:\n1. `tt/vow-b.Build.sh` — build\n2. `tt/vow-t.Test.sh` — run tests\n3. Manual test: stage a deletion, run notch with deleted file path",
