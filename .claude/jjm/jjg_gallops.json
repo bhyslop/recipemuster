@@ -30,6 +30,13 @@
         "₢ATAAB": {
           "tacks": [
             {
+              "ts": "260208-1548",
+              "state": "complete",
+              "text": "Rename BUS-BashUtilitiesSpec.adoc → BUSA-BashUtilitiesSpec.adoc\n\nMechanical file rename to establish subdocument architecture pattern. This parallels the planned RBS/RBAGS → RBSA merge, enabling future subdocs (BUSxx) within BUSA.\n\n## Tasks\n1. Rename file: `Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc` → `BUSA-BashUtilitiesSpec.adoc`\n2. Update CLAUDE.md acronym mapping (BUS → BUSA)\n3. Grep for any other BUS references and update\n\n## Scope control\n- Pure mechanical rename — no content changes\n- Do NOT add regime vocabulary yet (that's ₢ATAAC)\n\n## Verification\n- File exists at new path\n- No dangling BUS references\n- CLAUDE.md updated\n\nResult: BUSA ready for expansion with regime vocabulary in subsequent pace.",
+              "silks": "rename-bus-to-busa",
+              "commit": "80a49c0"
+            },
+            {
               "ts": "260201-2058",
               "state": "rough",
               "text": "Rename BUS-BashUtilitiesSpec.adoc → BUSA-BashUtilitiesSpec.adoc\n\nMechanical file rename to establish subdocument architecture pattern. This parallels the planned RBS/RBAGS → RBSA merge, enabling future subdocs (BUSxx) within BUSA.\n\n## Tasks\n1. Rename file: `Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc` → `BUSA-BashUtilitiesSpec.adoc`\n2. Update CLAUDE.md acronym mapping (BUS → BUSA)\n3. Grep for any other BUS references and update\n\n## Scope control\n- Pure mechanical rename — no content changes\n- Do NOT add regime vocabulary yet (that's ₢ATAAC)\n\n## Verification\n- File exists at new path\n- No dangling BUS references\n- CLAUDE.md updated\n\nResult: BUSA ready for expansion with regime vocabulary in subsequent pace.",
