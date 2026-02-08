@@ -2447,9 +2447,10 @@
         "₢AHAAO",
         "₢AHAAP",
         "₢AHAAW",
-        "₢AHAAX"
+        "₢AHAAX",
+        "₢AHAAY"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -2973,6 +2974,17 @@
               "text": "Attempt to configure Claude Code permission settings to auto-allow Bash tool calls (or at least vvw/vvx commands), removing the \"Do you want to proceed?\" confirmation dialog on every Bash invocation.\n\nWARNING: Previous attempts to tweak permission configuration have not been very successful. When mounting this pace, REMIND the user of this history before investing time. We may defer or abandon.\n\nApproaches to try:\n1. Check ~/.claude/settings.json and .claude/settings.json for existing permission config\n2. Try adding allowedTools / allow patterns for Bash commands\n3. Test whether patterns like \"Bash(*)\" or \"Bash(./tt/*)\" actually suppress the prompt\n4. If nothing works cleanly, document what was tried and abandon\n\nThis is exploratory — success is not expected.",
               "silks": "attempt-bash-permission-grant",
               "commit": "c6dd2c6"
+            }
+          ]
+        },
+        "₢AHAAY": {
+          "tacks": [
+            {
+              "ts": "260208-1425",
+              "state": "rough",
+              "text": "Add vosr_init() to vvx main entry point — a panic-based environment gate that runs unconditionally before any argument parsing or library use.\n\n## What\n\nAdd a `vosr_init()` function to `Tools/vok/src/vorm_main.rs` that checks `CLAUDE_CODE_DISABLE_AUTO_MEMORY == \"1\"` and panics if not set. Call it as the first line of `main()`, before `Cli::parse()`.\n\n## Implementation\n\n**vorm_main.rs** (2 changes):\n1. Add function:\n```rust\nfn vosr_init() {\n    if std::env::var(\"CLAUDE_CODE_DISABLE_AUTO_MEMORY\").as_deref() != Ok(\"1\") {\n        panic!(\"CLAUDE_CODE_DISABLE_AUTO_MEMORY must be 1\");\n    }\n}\n```\n2. Call at top of main():\n```rust\nasync fn main() -> ExitCode {\n    vosr_init();\n    let cli = Cli::parse();\n```\n\n**VOS-VoxObscuraSpec.adoc** (2 additions):\n1. Add to mapping section: `:vosr_init: <<vosr_init,init routine>>`\n2. Add definition in Routines section with `include::VOSRI-init.adoc[]`\n\n**VOSRI-init.adoc** (new file):\nRoutine spec: unconditional call from main(), checks env var, panics on failure.\n\n## Key decisions\n- panic! not Result — cannot be silently ignored by future edits\n- Before Cli::parse() — no command can bypass the gate\n- Single env var check — only CLAUDE_CODE_DISABLE_AUTO_MEMORY for now\n\n## Files touched\n- Tools/vok/src/vorm_main.rs\n- Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc\n- Tools/vok/vov_veiled/VOSRI-init.adoc (new)\n\n## Verify\n- tt/vow-b.Build.sh succeeds\n- tt/vvw-r.RunVVX.sh jjx_list panics without env var set\n- tt/vvw-r.RunVVX.sh jjx_list works with CLAUDE_CODE_DISABLE_AUTO_MEMORY=1",
+              "silks": "add-vosr-init-env-gate",
+              "commit": "e27abdc"
             }
           ]
         }
