@@ -18,9 +18,60 @@ When a command takes `<firemark>` or `<coronet>`, provide the identity, not the 
 - Target repo dir: `.`
 - JJ Kit path: `Tools/jjk/README.md`
 
-**JJ Slash Command Reference:**
+**Two-Layer API:**
 
-ALWAYS read the corresponding slash command before attempting JJ operations.
+Job Jockey has two API layers. The *upper layer* uses horse racing vocabulary that humans speak. The *lower layer* uses boring, heterogeneous verb names implemented in Rust. The separation prevents the LLM from conflating the layers.
+
+**Quick Verbs** — When user says just the verb, invoke the corresponding action:
+
+*Direct verbs* — map to a single jjx command:
+
+| Verb | Action |
+|------|--------|
+| slate | `./tt/vvw-r.RunVVX.sh jjx_enroll` |
+| reslate | `./tt/vvw-r.RunVVX.sh jjx_revise_docket` |
+| wrap | `./tt/vvw-r.RunVVX.sh jjx_close` |
+| bridle | `./tt/vvw-r.RunVVX.sh jjx_arm` |
+| rail | `./tt/vvw-r.RunVVX.sh jjx_reorder` |
+| furlough | `./tt/vvw-r.RunVVX.sh jjx_alter` |
+| retire | `./tt/vvw-r.RunVVX.sh jjx_archive` |
+| garland | `./tt/vvw-r.RunVVX.sh jjx_continue` |
+| restring | `./tt/vvw-r.RunVVX.sh jjx_transfer` |
+| muster | `./tt/vvw-r.RunVVX.sh jjx_list` |
+| parade | `./tt/vvw-r.RunVVX.sh jjx_show` |
+| scout | `./tt/vvw-r.RunVVX.sh jjx_search` |
+| nominate | `./tt/vvw-r.RunVVX.sh jjx_create` |
+
+*Multistep verbs* — orchestrated workflows, read the slash command first:
+
+| Verb | Slash command |
+|------|--------------|
+| mount | /jjc-heat-mount |
+| groom | /jjc-heat-groom |
+| quarter | /jjc-heat-quarter |
+| notch | /jjc-pace-notch |
+| braid | /jjc-heat-braid |
+
+**Slash Command Reference:**
+
+ALWAYS read the corresponding slash command before attempting multistep operations.
+
+| Slash command | Implements |
+|---------------|------------|
+| /jjc-heat-mount | mount (engage next pace) |
+| /jjc-heat-groom | groom (review heat plan) |
+| /jjc-heat-quarter | quarter (evaluate bridleable paces) |
+| /jjc-heat-rail | rail (reorder paces) |
+| /jjc-heat-furlough | furlough (pause/resume heat) |
+| /jjc-heat-restring | restring (transfer paces between heats) |
+| /jjc-heat-braid | braid (consolidate overlapping paces) |
+| /jjc-heat-garland | garland (create continuation heat) |
+| /jjc-heat-retire-dryrun | retire (preview) |
+| /jjc-heat-retire-FINAL | retire (permanent) |
+| /jjc-pace-slate | slate (add pace) |
+| /jjc-pace-reslate | reslate (refine docket) |
+| /jjc-pace-bridle | bridle (arm for autonomous execution) |
+| /jjc-pace-notch | notch (JJ-aware commit) |
 
 **CRITICAL**: JJK CLI syntax is non-standard. Do NOT guess based on common CLI conventions.
 - Dockets go via stdin, not `--docket`
@@ -28,38 +79,6 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 - Read the slash command to see the exact `./tt/vvw-r.RunVVX.sh jjx_*` invocation pattern.
 
 **Heredoc for stdin**: Use `cat <<'DELIM' | jjx_*` pattern with quoted delimiter. The delimiter must not appear alone on any line in the content — if content shows heredoc examples with `EOF`, use a different delimiter like `DOCKET` or `PACESPEC`.
-
-| When you need to... | Read first |
-|---------------------|------------|
-| Add a new pace | /jjc-pace-slate |
-| Refine pace docket | /jjc-pace-reslate |
-| Bridle for autonomous execution | /jjc-pace-bridle |
-| Mark pace complete | `jjx_close` |
-| Commit with JJ context | /jjc-pace-notch |
-| Execute next pace | /jjc-heat-mount |
-| Review heat plan | /jjc-heat-groom |
-| Evaluate bridleable paces | /jjc-heat-quarter |
-| Reorder paces | /jjc-heat-rail |
-| Add steeplechase marker | /jjc-heat-chalk |
-| Pause or resume heat | /jjc-heat-furlough |
-| Draft paces between heats | /jjc-heat-restring |
-| Retire completed heat | /jjc-heat-retire |
-| View heat or pace | `jjx_show` |
-
-**Quick Verbs** — When user says just the verb, invoke the corresponding command:
-
-| Verb | Command |
-|------|---------|
-| mount | /jjc-heat-mount |
-| slate | /jjc-pace-slate |
-| reslate | /jjc-pace-reslate |
-| wrap | `jjx_close` |
-| bridle | /jjc-pace-bridle |
-| notch | /jjc-pace-notch |
-| furlough | /jjc-heat-furlough |
-| groom | /jjc-heat-groom |
-| quarter | /jjc-heat-quarter |
-| rail | /jjc-heat-rail |
 
 **CLI Command Reference:**
 
