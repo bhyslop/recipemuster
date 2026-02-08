@@ -45,11 +45,28 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
         return 1;
     }
 
-    // Check each file exists
+    // Check each file either exists on disk or is tracked by git (for deletions)
     for file in &args.files {
-        if !std::path::Path::new(file).exists() {
-            eprintln!("jjx_notch: error: file does not exist: {}", file);
-            return 1;
+        let path_exists = std::path::Path::new(file).exists();
+
+        // If file doesn't exist on disk, check if it's tracked by git
+        if !path_exists {
+            let git_ls_output = match Command::new("git")
+                .args(["ls-files", "--error-unmatch", file])
+                .output()
+            {
+                Ok(o) => o,
+                Err(e) => {
+                    eprintln!("jjx_notch: error: failed to check git tracking: {}", e);
+                    return 1;
+                }
+            };
+
+            // If git ls-files fails, file is neither on disk nor tracked
+            if !git_ls_output.status.success() {
+                eprintln!("jjx_notch: error: file does not exist and is not tracked by git: {}", file);
+                return 1;
+            }
         }
     }
 
