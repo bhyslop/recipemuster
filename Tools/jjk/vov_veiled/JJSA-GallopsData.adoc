@@ -22,6 +22,10 @@
 // jjdr_:  Routines (internal reusable procedures)
 // jjds_:  Section headers (operation documentation structure)
 // jjdz_:  Serialization concerns
+// jjsud_: Upper API direct verbs (horse verb → single operation)
+// jjsum_: Upper API multistep verbs (horse verb → orchestrated workflow)
+// jjsus_: Upper API slash commands (skill artifacts)
+// jjsuc_: Upper API context artifacts (CLAUDE.md sections)
 //
 // Variant patterns:
 //   _s: plural form
@@ -152,6 +156,47 @@
 :jjdz_charset:  <<jjdz_charset,Charset>>
 :jjdz_encoding: <<jjdz_encoding,Identity Encoding>>
 
+// Upper API: direct verbs (horse verb → single jjdo_ operation)
+:jjsud_slate:      <<jjsud_slate,slate>>
+:jjsud_reslate:    <<jjsud_reslate,reslate>>
+:jjsud_wrap:       <<jjsud_wrap,wrap>>
+:jjsud_bridle:     <<jjsud_bridle,bridle>>
+:jjsud_rail:       <<jjsud_rail,rail>>
+:jjsud_furlough:   <<jjsud_furlough,furlough>>
+:jjsud_retire:     <<jjsud_retire,retire>>
+:jjsud_garland:    <<jjsud_garland,garland>>
+:jjsud_restring:   <<jjsud_restring,restring>>
+:jjsud_muster:     <<jjsud_muster,muster>>
+:jjsud_parade:     <<jjsud_parade,parade>>
+:jjsud_scout:      <<jjsud_scout,scout>>
+:jjsud_nominate:   <<jjsud_nominate,nominate>>
+
+// Upper API: multistep verbs (horse verb → orchestrated workflow)
+:jjsum_mount:      <<jjsum_mount,mount>>
+:jjsum_groom:      <<jjsum_groom,groom>>
+:jjsum_quarter:    <<jjsum_quarter,quarter>>
+:jjsum_notch:      <<jjsum_notch,notch>>
+:jjsum_braid:      <<jjsum_braid,braid>>
+
+// Upper API: slash commands (skill artifacts implementing verbs)
+:jjsus_mount:          <<jjsus_mount,/jjc-heat-mount>>
+:jjsus_groom:          <<jjsus_groom,/jjc-heat-groom>>
+:jjsus_quarter:        <<jjsus_quarter,/jjc-heat-quarter>>
+:jjsus_rail:           <<jjsus_rail,/jjc-heat-rail>>
+:jjsus_furlough:       <<jjsus_furlough,/jjc-heat-furlough>>
+:jjsus_restring:       <<jjsus_restring,/jjc-heat-restring>>
+:jjsus_braid:          <<jjsus_braid,/jjc-heat-braid>>
+:jjsus_garland:        <<jjsus_garland,/jjc-heat-garland>>
+:jjsus_retire_dryrun:  <<jjsus_retire_dryrun,/jjc-heat-retire-dryrun>>
+:jjsus_retire_final:   <<jjsus_retire_final,/jjc-heat-retire-FINAL>>
+:jjsus_slate:          <<jjsus_slate,/jjc-pace-slate>>
+:jjsus_reslate:        <<jjsus_reslate,/jjc-pace-reslate>>
+:jjsus_bridle:         <<jjsus_bridle,/jjc-pace-bridle>>
+:jjsus_notch:          <<jjsus_notch,/jjc-pace-notch>>
+
+// Upper API: context artifact
+:jjsuc_insert:  <<jjsuc_insert,CLAUDE.md JJK section>>
+
 // end::mapping-section[]
 
 == Overview
@@ -279,6 +324,194 @@ The CLI and display layer uses distinct terms for certain schema fields to avoid
 * *warrant* — the presentation term for the {jjdkm_warrant} field. Execution guidance for autonomous operation. Used in CLI output labels and slash command descriptions. The JSON schema field remains `direction`.
 
 These are display/CLI terms, not schema changes. The schema field names (`text`, `direction`) are unchanged and deferred to a future heat.
+
+== Upper API
+
+Job Jockey has two distinct API layers.
+The *lower layer* is the {jjdx_cli} command set: boring, heterogeneous verb names implemented in Rust ({jjdo_enroll}, {jjdo_orient}, {jjdo_close}, etc.).
+The *upper layer* is the horse racing vocabulary that humans use to direct a language model ({jjsud_slate}, {jjsum_mount}, {jjsud_wrap}, etc.).
+
+The separation is deliberate.
+Shared vocabulary between layers caused the LLM to conflate them — guessing CLI flags by analogy, reaching for raw commands instead of following workflows.
+Boring lower-layer names resist pattern matching.
+Vivid upper-layer names stay memorable for humans.
+
+The {jjsuc_insert} and {jjsus_mount} (slash command) artifacts translate between layers.
+The human speaks horse vocabulary; the LLM maps it to {jjdx_cli} invocations.
+
+=== Direct Verbs
+
+Each direct verb maps to exactly one {jjdx_cli} operation.
+The slash command or {jjsuc_insert} may add context gathering around the invocation, but the core action is singular.
+
+[[jjsud_slate]]
+{jjsud_slate}::
+Add a {jjdpr_pace} to a {jjdhr_heat}.
+Maps to {jjdo_enroll}.
+
+[[jjsud_reslate]]
+{jjsud_reslate}::
+Revise a {jjdpr_pace_p} docket.
+Maps to {jjdo_revise_docket}.
+
+[[jjsud_wrap]]
+{jjsud_wrap}::
+Mark a {jjdpr_pace} complete.
+Maps to {jjdo_close}.
+
+[[jjsud_bridle]]
+{jjsud_bridle}::
+Set a {jjdpr_pace} to {jjdpe_bridled} state with warrant.
+Maps to {jjdo_arm}.
+
+[[jjsud_rail]]
+{jjsud_rail}::
+Reorder {jjdpr_pace_s} within a {jjdhr_heat}.
+Maps to {jjdo_reorder}.
+
+[[jjsud_furlough]]
+{jjsud_furlough}::
+Pause or resume a {jjdhr_heat}.
+Maps to {jjdo_alter}.
+
+[[jjsud_retire]]
+{jjsud_retire}::
+Archive a completed {jjdhr_heat}.
+Maps to {jjdo_archive}.
+
+[[jjsud_garland]]
+{jjsud_garland}::
+Create a continuation {jjdhr_heat} from an existing one.
+Maps to {jjdo_continue}.
+
+[[jjsud_restring]]
+{jjsud_restring}::
+Transfer {jjdpr_pace_s} in bulk between {jjdhr_heat_s}.
+Maps to {jjdo_transfer}.
+
+[[jjsud_muster]]
+{jjsud_muster}::
+List all {jjdhr_heat_s}.
+Maps to {jjdo_list}.
+
+[[jjsud_parade]]
+{jjsud_parade}::
+View a {jjdhr_heat} or {jjdpr_pace}.
+Maps to {jjdo_show}.
+
+[[jjsud_scout]]
+{jjsud_scout}::
+Search across {jjdhr_heat_s} and {jjdpr_pace_s}.
+Maps to {jjdo_search}.
+
+[[jjsud_nominate]]
+{jjsud_nominate}::
+Create a new {jjdhr_heat}.
+Maps to {jjdo_create}.
+
+=== Multistep Verbs
+
+A {jjsum_mount} verb requires orchestration across multiple {jjdx_cli} operations.
+These are implemented as slash command skills that coordinate the workflow.
+
+[[jjsum_mount]]
+{jjsum_mount}::
+Engage the next {jjdpr_pace} for execution.
+Orchestrates {jjdo_orient} to obtain context, reads the docket, executes the work, and records outcomes via {jjdo_record}.
+Implemented by {jjsus_mount}.
+
+[[jjsum_groom]]
+{jjsum_groom}::
+Review and refine a {jjdhr_heat_p} plan.
+Orchestrates {jjdo_show} with remaining view, then enters planning mode for structural edits.
+Implemented by {jjsus_groom}.
+
+[[jjsum_quarter]]
+{jjsum_quarter}::
+Evaluate remaining {jjdpr_pace_s} and identify candidates for bridling.
+Orchestrates {jjdo_get_coronets}, assesses bridleability, and optionally invokes {jjdo_arm}.
+Implemented by {jjsus_quarter}.
+
+[[jjsum_notch]]
+{jjsum_notch}::
+JJ-aware git commit with heat and pace affiliation.
+Detects context (pace-affiliated or heat-affiliated), then invokes {jjdo_record} with appropriate identity.
+Implemented by {jjsus_notch}.
+
+[[jjsum_braid]]
+{jjsum_braid}::
+Consolidate overlapping {jjdpr_pace_s} between two {jjdhr_heat_s}.
+Compares dockets, identifies overlap, and orchestrates {jjdo_relocate} to merge.
+Implemented by {jjsus_braid}.
+
+=== Slash Commands
+
+Slash commands are skill artifacts that implement upper API verbs.
+Each is a Claude Code skill file in `.claude/commands/` that contains the orchestration logic.
+
+[[jjsus_mount]]
+{jjsus_mount}::
+Implements {jjsum_mount}.
+
+[[jjsus_groom]]
+{jjsus_groom}::
+Implements {jjsum_groom}.
+
+[[jjsus_quarter]]
+{jjsus_quarter}::
+Implements {jjsum_quarter}.
+
+[[jjsus_rail]]
+{jjsus_rail}::
+Implements {jjsud_rail}.
+
+[[jjsus_furlough]]
+{jjsus_furlough}::
+Implements {jjsud_furlough}.
+
+[[jjsus_restring]]
+{jjsus_restring}::
+Implements {jjsud_restring}.
+
+[[jjsus_braid]]
+{jjsus_braid}::
+Implements {jjsum_braid}.
+
+[[jjsus_garland]]
+{jjsus_garland}::
+Implements {jjsud_garland}.
+
+[[jjsus_retire_dryrun]]
+{jjsus_retire_dryrun}::
+Implements {jjsud_retire} in preview mode.
+
+[[jjsus_retire_final]]
+{jjsus_retire_final}::
+Implements {jjsud_retire} with permanent archival.
+
+[[jjsus_slate]]
+{jjsus_slate}::
+Implements {jjsud_slate}.
+
+[[jjsus_reslate]]
+{jjsus_reslate}::
+Implements {jjsud_reslate}.
+
+[[jjsus_bridle]]
+{jjsus_bridle}::
+Implements {jjsud_bridle}.
+
+[[jjsus_notch]]
+{jjsus_notch}::
+Implements {jjsum_notch}.
+
+=== Context Artifact
+
+[[jjsuc_insert]]
+{jjsuc_insert}::
+The `MANAGED:JJK` section of the project CLAUDE.md file.
+Contains the quick verb mapping table, CLI command reference, and operational guidance that enables the LLM to translate upper API verbs into {jjdx_cli} invocations.
+This section is the primary mechanism by which the upper and lower API layers are bridged at runtime.
 
 == Types
 
