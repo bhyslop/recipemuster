@@ -1574,6 +1574,7 @@
         "₢APAAR",
         "₢APAAS",
         "₢APAAT",
+        "₢APAAW",
         "₢APAAO",
         "₢APAAJ",
         "₢APAAB",
@@ -1582,7 +1583,7 @@
         "₢APAAH",
         "₢APAAN"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -2103,6 +2104,17 @@
               "text": "Explore partitioning RBS procedural specifications into AXLA-consistent subsections.\n\n## Purpose\nPreparatory step toward RBSA (eventual RBAGS + RBS consolidation). Make RBS procedure documentation follow AXLA patterns like RBAGS subfiles do.\n\n## Exploration\n1. Read AXLA thoroughly — understand axs_* section motifs, axo_procedure patterns\n2. Review how RBAGS partitions content into subfiles (RBSAA, RBSOB, etc.)\n3. Identify RBS procedure sections that could become standalone subfiles\n\n## Implementation approach\n- Partition procedural specs into subfiles following RBAGS naming pattern\n- Add AXLA-consistent voicings (axs_inputs, axs_behavior, axs_outputs, axs_completion)\n- Use annotations: // ⟦axl_voices axo_command axd_transient⟧\n\n## Concerns to address\n(Future implementer: address these before proceeding)\n- How do subfile mappings merge with parent document mappings?\n- Should subfiles be include::'d or kept as reference documents?\n- What naming pattern for RBS subfiles? (RBSGS pattern vs new pattern)\n\n## Naming discipline\nSubfiles MUST follow naming practices established by RBAGS subfiles. Review existing pattern before creating new files.",
               "silks": "explode-rbs-procedures-axla-voicings",
               "commit": "fce4449"
+            }
+          ]
+        },
+        "₢APAAW": {
+          "tacks": [
+            {
+              "ts": "260208-1559",
+              "state": "rough",
+              "text": "Implement rbf_augur — ark-level registry view.\n\n## Concept\nrbf_augur discerns the state of consecrated arks. It correlates `-image` and `-about` tags by shared consecration timestamp, presenting arks as logical units.\n\n## Interface\n- `rbf_augur` (no args): show all arks across all vessels\n- `rbf_augur <vessel>`: show arks for one vessel\n\n## Output format\nFlat list, one line per ark (consecration), with completeness columns:\n```\nVESSEL                        CONSECRATION          -image  -about\nrbev-sentry-ubuntu-large      20250715T032145Z      ✓       ✓\nrbev-bottle-ubuntu-test       20250715T032145Z      ✓       ✓\nrbev-bottle-ubuntu-test       20250710T191022Z      ✓       ✗\n```\n\n## Implementation\n- Fetch all tags per vessel (reuse rbf_list's API calls)\n- Parse tags: strip `-image` and `-about` suffixes to extract base consecration\n- Group by vessel+consecration, track which artifacts exist\n- Sort by vessel then consecration (newest first)\n\n## Design principle\nThis is the ark-level counterpart to rbf_list (plain images). Pairs with rbf_abjure (ark-level delete) and rbf_consecrate (ark-level build).\n\n## Location\n`Tools/rbw/rbf_Foundry.sh` — new rbf_augur function\n\n## Spec\nMay need a new operation lens (RBSAU or similar) and RBSA mapping for rbtgo_ark_augur.\n\n## Verification\n- Shows arks grouped by consecration\n- Correctly detects orphaned artifacts (only -image or only -about)\n- No `-meta` references",
+              "silks": "implement-rbf-augur-ark-view",
+              "commit": "2f1b998"
             }
           ]
         }
