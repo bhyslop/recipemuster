@@ -22,9 +22,10 @@
         "₢AWAAF",
         "₢AWAAG",
         "₢AWAAH",
+        "₢AWAAR",
         "₢AWAAI"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_AW.md",
       "paces": {
         "₢AWAAA": {
@@ -557,6 +558,17 @@
               "text": "Manual integration test for officium/invitatory mechanism.\n\nLower VVCP_OFFICIUM_GAP_SECS to a small value (e.g., 5 seconds), then run jjx_orient, jjx_list, and jjc-heat-groom to verify:\n1. jjx_orient (saddle) triggers an invitatory commit (vvb:...:i: OFFICIUM ...) when gap exceeded\n2. jjx_list (muster) triggers an invitatory commit when gap exceeded\n3. A second immediate call does NOT trigger (gap not exceeded)\n4. The commit body contains probe data (model IDs, host, platform)\n5. git log shows the correct vvb: branded format\n\nAfter verification, restore VVCP_OFFICIUM_GAP_SECS to 3600.\n\nKey files:\n- Tools/vvc/src/vvcp_probe.rs (lower/restore VVCP_OFFICIUM_GAP_SECS)\n\nDepends on: ₢AWAAO (add-vvx-invitatory) and ₢AWAAP (wire-invitatory-triggers) must be complete first.",
               "silks": "test-officium-threshold",
               "commit": "78b6836"
+            }
+          ]
+        },
+        "₢AWAAR": {
+          "tacks": [
+            {
+              "ts": "260208-0657",
+              "state": "rough",
+              "text": "Add Upper API section to JJSA defining the two-layer verb architecture.\n\n## Context\n\nHeat ₣AW renamed jjx_ commands to boring verbs but left the horse vocabulary unmapped in the spec. The human-facing horse terms (slate, mount, bridle, etc.) need formal definitions in JJSA with explicit bindings to their jjdo_ lower-layer operations.\n\n## Deliverables\n\nNew `== Upper API` section in JJSA-GallopsData.adoc containing:\n\n1. Introductory prose explaining the two-layer separation (horse vocabulary upper, boring CLI lower)\n2. Category declarations: jjsud_ (direct verbs), jjsum_ (multistep verbs), jjsus_ (slash commands), jjsuc_ (context artifacts)\n3. Attribute references in the mapping section for all new terms\n4. 13 direct verb definitions (jjsud_) each mapping to one jjdo_ operation\n5. 5 multistep verb definitions (jjsum_) describing orchestration and linking to jjsus_ slash commands\n6. 14 slash command definitions (jjsus_) linking to the verb they implement\n7. 1 context artifact definition (jjsuc_insert) for the CLAUDE.md managed section\n\nAcceptance: JJSA renders with all new cross-references resolving. Upper API section is a peer to the existing Operations section.",
+              "silks": "add-upper-api-to-jjsa",
+              "commit": "06a6ec7"
             }
           ]
         }
