@@ -566,6 +566,13 @@
         "₢AWAAR": {
           "tacks": [
             {
+              "ts": "260208-0658",
+              "state": "complete",
+              "text": "Add Upper API section to JJSA defining the two-layer verb architecture.\n\n## Context\n\nHeat ₣AW renamed jjx_ commands to boring verbs but left the horse vocabulary unmapped in the spec. The human-facing horse terms (slate, mount, bridle, etc.) need formal definitions in JJSA with explicit bindings to their jjdo_ lower-layer operations.\n\n## Deliverables\n\nNew `== Upper API` section in JJSA-GallopsData.adoc containing:\n\n1. Introductory prose explaining the two-layer separation (horse vocabulary upper, boring CLI lower)\n2. Category declarations: jjsud_ (direct verbs), jjsum_ (multistep verbs), jjsus_ (slash commands), jjsuc_ (context artifacts)\n3. Attribute references in the mapping section for all new terms\n4. 13 direct verb definitions (jjsud_) each mapping to one jjdo_ operation\n5. 5 multistep verb definitions (jjsum_) describing orchestration and linking to jjsus_ slash commands\n6. 14 slash command definitions (jjsus_) linking to the verb they implement\n7. 1 context artifact definition (jjsuc_insert) for the CLAUDE.md managed section\n\nAcceptance: JJSA renders with all new cross-references resolving. Upper API section is a peer to the existing Operations section.",
+              "silks": "add-upper-api-to-jjsa",
+              "commit": "d15d3c8"
+            },
+            {
               "ts": "260208-0657",
               "state": "rough",
               "text": "Add Upper API section to JJSA defining the two-layer verb architecture.\n\n## Context\n\nHeat ₣AW renamed jjx_ commands to boring verbs but left the horse vocabulary unmapped in the spec. The human-facing horse terms (slate, mount, bridle, etc.) need formal definitions in JJSA with explicit bindings to their jjdo_ lower-layer operations.\n\n## Deliverables\n\nNew `== Upper API` section in JJSA-GallopsData.adoc containing:\n\n1. Introductory prose explaining the two-layer separation (horse vocabulary upper, boring CLI lower)\n2. Category declarations: jjsud_ (direct verbs), jjsum_ (multistep verbs), jjsus_ (slash commands), jjsuc_ (context artifacts)\n3. Attribute references in the mapping section for all new terms\n4. 13 direct verb definitions (jjsud_) each mapping to one jjdo_ operation\n5. 5 multistep verb definitions (jjsum_) describing orchestration and linking to jjsus_ slash commands\n6. 14 slash command definitions (jjsus_) linking to the verb they implement\n7. 1 context artifact definition (jjsuc_insert) for the CLAUDE.md managed section\n\nAcceptance: JJSA renders with all new cross-references resolving. Upper API section is a peer to the existing Operations section.",
