@@ -584,6 +584,13 @@
         "₢AWAAS": {
           "tacks": [
             {
+              "ts": "260208-0700",
+              "state": "complete",
+              "text": "Align the CLAUDE.md JJK managed insert (vocjjmc_core.md) with the new Upper API architecture.\n\n## Context\n\nThe Quick Verbs table and slash command reference in vocjjmc_core.md predate the two-layer verb architecture added to JJSA. Several entries reference deleted slash commands or mix layers. The insert needs to derive its content from the JJSA Upper API definitions.\n\n## Deliverables\n\nUpdate vocjjmc_core.md to:\n\n1. Replace the Quick Verbs table with a mapping derived from jjsud_ and jjsum_ definitions: user verb → action (either direct jjx_ invocation or slash command skill)\n2. For direct verbs (jjsud_): map verb directly to ./tt/vvw-r.RunVVX.sh jjx_ invocation\n3. For multistep verbs (jjsum_): map verb to the corresponding /jjc- slash command\n4. Remove references to deleted slash commands\n5. Ensure the \"When you need to...\" table is consistent with the verb mapping\n\nAcceptance: vocjjmc_core.md Quick Verbs table matches JJSA Upper API. No references to deleted slash commands. Freshen produces clean CLAUDE.md.",
+              "silks": "align-claude-insert-with-upper-api",
+              "commit": "51d08de"
+            },
+            {
               "ts": "260208-0657",
               "state": "rough",
               "text": "Align the CLAUDE.md JJK managed insert (vocjjmc_core.md) with the new Upper API architecture.\n\n## Context\n\nThe Quick Verbs table and slash command reference in vocjjmc_core.md predate the two-layer verb architecture added to JJSA. Several entries reference deleted slash commands or mix layers. The insert needs to derive its content from the JJSA Upper API definitions.\n\n## Deliverables\n\nUpdate vocjjmc_core.md to:\n\n1. Replace the Quick Verbs table with a mapping derived from jjsud_ and jjsum_ definitions: user verb → action (either direct jjx_ invocation or slash command skill)\n2. For direct verbs (jjsud_): map verb directly to ./tt/vvw-r.RunVVX.sh jjx_ invocation\n3. For multistep verbs (jjsum_): map verb to the corresponding /jjc- slash command\n4. Remove references to deleted slash commands\n5. Ensure the \"When you need to...\" table is consistent with the verb mapping\n\nAcceptance: vocjjmc_core.md Quick Verbs table matches JJSA Upper API. No references to deleted slash commands. Freshen produces clean CLAUDE.md.",
