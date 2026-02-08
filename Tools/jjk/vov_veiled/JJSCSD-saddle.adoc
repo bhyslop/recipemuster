@@ -67,6 +67,13 @@ Timestamp         Commit    [A]  Identity  Subject
 YYYY-MM-DD HH:MM  abcd1234  [W]  ₢XXXXX    ...
 YYYY-MM-DD HH:MM  efgh5678  [n]  ₢XXXXX    ...
 ...
+
+Session-probe:
+  haiku: claude-3-5-haiku-20241022
+  sonnet: claude-sonnet-4-20250514
+  opus: claude-opus-4-5-20251101
+  host: macbook-pro.local
+  platform: darwin-arm64
 ----
 
 Sections `Next:` through `Warrant:` are absent if no actionable pace exists.
@@ -78,6 +85,7 @@ Section `Work-files:` lists files touched by the actionable pace's commits (excl
 Section `Recent-work:` contains the last 10 steeplechase entries for the heat (from
 {jjdo_log}),
 formatted as column-aligned table.
+Section `Session-probe:` contains model IDs and system context collected via session probe, indented 2 spaces, one key-value per line.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
@@ -129,3 +137,4 @@ output `warrant` from `tacks[0].direction`
 . Get last 10 steeplechase entries for the heat via
 {jjdo_log}
 logic, output as `recent_work` array
+. If session probe is needed (gap > 1 hour since last commit), call vosr_probe routine and output `Session-probe:` section with model IDs (haiku, sonnet, opus) and system context (host, platform)

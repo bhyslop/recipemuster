@@ -1517,7 +1517,7 @@ The subject contains the session start timestamp in `YYMMDD-HHMM` format. The bo
 * Host identifier (machine name)
 * Platform string (e.g., `darwin-arm64`, `linux-x86_64`)
 
-Model IDs are collected using ephemeral subagents created via `--agents` JSON flag with minimal system prompts ("Report only your exact model ID string. Nothing else."). This approach is token-cheap (~10 token prompt, ~15 token response per probe) and provides accurate version tracking for multi-device workflows.
+Model IDs are collected via {vosr_probe} routine, which spawns parallel claude invocations via tokio async subprocess spawning. This approach is token-cheap (~10 token prompt, ~15 token response per probe) and provides accurate version tracking for multi-device workflows.
 
 Pace-level action codes:
 
