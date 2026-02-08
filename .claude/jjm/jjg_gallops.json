@@ -2021,6 +2021,13 @@
         "₢APAAT": {
           "tacks": [
             {
+              "ts": "260208-1603",
+              "state": "rough",
+              "text": "Implement rbf_delete for plain container image deletion.\n\n## Concept\nrbf_delete is the plain, low-level counterpart to rbf_list. It deletes a single container image tag from GAR. No ark awareness — it operates on raw image references.\n\n## Interface\n`rbf_delete <vessel>:<tag>` — deletes one tag from the registry\n\n## Code changes\n- New rbf_delete function in rbf_Foundry.sh\n- Use Docker Registry HTTP API V2 DELETE manifests (same pattern as rbf_abjure)\n- Authenticate as Director\n- Confirm before deletion unless --force flag\n- Delete exactly one tag — no companion/pair logic\n\n## Spec changes\n- Add RBSA mapping and definition for rbtgo_image_delete\n- Create operation lens RBSID-image_delete.adoc (or update if exists)\n- Spec describes plain single-tag deletion, distinct from ark-level rbf_abjure\n\n## Design principle\nArk-level deletion (removing both -image and -about as a unit) is rbf_abjure. rbf_delete is for surgical cleanup of individual tags.\n\n## Location\n- `Tools/rbw/rbf_Foundry.sh` — new rbf_delete function\n- `lenses/RBSA-SpecTop.adoc` — mapping/definition\n- `lenses/RBSID-image_delete.adoc` — operation lens\n\n## Verification\n- Can delete a single tag without affecting its ark partner\n- Confirmation prompt works, --force bypasses it\n- RBSA terms consistent with implementation",
+              "silks": "implement-rbf-delete-single-tag",
+              "commit": "fe7e7b6"
+            },
+            {
               "ts": "260208-1558",
               "state": "rough",
               "text": "Implement rbf_delete for plain container image deletion.\n\n## Concept\nrbf_delete is the plain, low-level counterpart to rbf_list. It deletes a single container image tag from GAR. No ark awareness — it operates on raw image references.\n\n## Interface\n`rbf_delete <vessel>:<tag>` — deletes one tag from the registry\n\n## Implementation\n- Use Docker Registry HTTP API V2 DELETE manifests (same pattern as rbf_abjure)\n- Authenticate as Director\n- Confirm before deletion unless --force flag\n- Delete exactly one tag — no companion/pair logic\n\n## Design principle\nArk-level deletion (removing both -image and -about as a unit) is rbf_abjure. rbf_delete is for surgical cleanup of individual tags.\n\n## Location\n`Tools/rbw/rbf_Foundry.sh` — new rbf_delete function\n\n## Verification\n- Can delete a single tag without affecting its ark partner\n- Confirmation prompt works, --force bypasses it",
