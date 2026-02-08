@@ -1,6 +1,124 @@
 {
   "next_heat_seed": "AY",
   "heats": {
+    "₣AT": {
+      "silks": "rbw-regime-consolidation",
+      "creation_time": "260131",
+      "status": "racing",
+      "order": [
+        "₢ATAAB",
+        "₢ATAAA",
+        "₢ATAAC",
+        "₢ATAAD",
+        "₢ATAAE",
+        "₢ATAAF"
+      ],
+      "next_pace_seed": "AAG",
+      "paddock_file": ".claude/jjm/jjp_AT.md",
+      "paces": {
+        "₢ATAAA": {
+          "tacks": [
+            {
+              "ts": "260131-1154",
+              "state": "rough",
+              "text": "Comprehensive study of ALL configuration regimes in Recipe Bottle.\n\nRecipe Bottle uses multiple configuration regimes:\n- **RBRR** (RegimeRepo) — repository-level configuration\n- **RBRN** (RegimeNameplate) — service-level configuration  \n- **RBB_*** (Base regime, if exists) — core system configuration\n- **RBS_*** (Station regime, if exists) — deployment-specific configuration\n- **BUD_*** (HIDDEN — dispatch-related regime) — variables set during buk dispatch operations\n\nDiscovery tasks:\n1. Enumerate all prefixes in use (RB*, BUD_*, others?)\n2. Map each to its spec document or implementation\n3. Document what each regime controls and its lifecycle\n4. Identify overlaps, conflicts, or inconsistencies\n5. Understand BUD_ regime — what variables exist, where set, how consumed?\n\nDeliverable: Complete regime inventory with:\n- Prefix mapping\n- Variable scope and lifecycle  \n- Cross-regime dependencies\n- Naming conventions per regime\n- Gap analysis (unmapped variables, undocumented regimes)\n\nThis study enables consistent treatment of all regimes in subsequent paces.",
+              "silks": "study-all-recipe-bottle-regimes",
+              "commit": "fea73b3"
+            }
+          ]
+        },
+        "₢ATAAB": {
+          "tacks": [
+            {
+              "ts": "260201-2058",
+              "state": "rough",
+              "text": "Rename BUS-BashUtilitiesSpec.adoc → BUSA-BashUtilitiesSpec.adoc\n\nMechanical file rename to establish subdocument architecture pattern. This parallels the planned RBS/RBAGS → RBSA merge, enabling future subdocs (BUSxx) within BUSA.\n\n## Tasks\n1. Rename file: `Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc` → `BUSA-BashUtilitiesSpec.adoc`\n2. Update CLAUDE.md acronym mapping (BUS → BUSA)\n3. Grep for any other BUS references and update\n\n## Scope control\n- Pure mechanical rename — no content changes\n- Do NOT add regime vocabulary yet (that's ₢ATAAC)\n\n## Verification\n- File exists at new path\n- No dangling BUS references\n- CLAUDE.md updated\n\nResult: BUSA ready for expansion with regime vocabulary in subsequent pace.",
+              "silks": "rename-bus-to-busa",
+              "commit": "e963787"
+            },
+            {
+              "ts": "260131-1158",
+              "state": "rough",
+              "text": "Create BURS (Bash Utilities Regime Spec) as universal voicing of AXLA patterns.\n\nBURS defines the authoritative regime pattern for bash utilities, serving as reference for all bash-based configuration regimes. While BURC will provide bash-specific details, BURS itself documents:\n- General regime architecture following AXLA axrg_* motifs\n- Regime specification structure (sections, variable tables, format requirements)\n- Assignment file organization and patterns\n- Validation and rendering architecture\n- Glossary and term mapping discipline\n\nStructure following AXLA regime patterns established in expanded axrg_* section (₣AS ₢ASAAA):\n- Core regime components and their relationships\n- Variable naming and organization conventions\n- Applicable to all regime implementations (bash, makefile, JSON, etc.)\n\nReference: AXLA expanded regime section\nComplements: BURC (bash-native specifics)\nDepends on: ₣AT ₢ATAAA (regime inventory study)\n\nResult: BURS becomes definitive universal regime spec, enabling consistent patterns across all Recipe Bottle configuration regimes.",
+              "silks": "create-burs-regime-spec",
+              "commit": "4340c71"
+            },
+            {
+              "ts": "260131-1154",
+              "state": "rough",
+              "text": "Create BURS (Bash Utilities Regime Spec) as voicing of AXLA patterns.\n\nBURS replaces the old role of CRR for bash utility configuration. Define the regime pattern for BUK tools (buc, bud, but, buv, buw, burc, burs) using AXLA's axrg_* motifs.\n\nStructure following AXLA regime patterns established in expanded axrg_* section:\n- Variables for bash utility configuration (prefixes, paths, settings)\n- Assignment file formats (makefile, bash, JSON)\n- Validation and rendering patterns\n- Glossary with AXLA voicings\n\nReference: AXLA expanded regime section (from ₣AS ₢ASAAA)\nRelated: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (naming vocabulary)\nDepends on: ₣AT ₢ATAAA (regime inventory study)\n\nResult: BURS becomes definitive regime spec for bash utilities, enabling other projects to adopt similar patterns.",
+              "silks": "create-burs-regime-spec",
+              "commit": "0515144"
+            }
+          ]
+        },
+        "₢ATAAC": {
+          "tacks": [
+            {
+              "ts": "260201-2059",
+              "state": "rough",
+              "text": "Expand BUSA-BashUtilitiesSpec.adoc with BURC and BURS regime vocabulary.\n\nBUSA becomes the complete BUK concept model — dispatch vocabulary (existing) plus configuration regimes (new). This follows the pattern where each kit's XXS spec is the authoritative MCM/AXLA-compliant concept model.\n\n## Pattern reference\nStudy how RBEV (vessel regime) is documented within RBAGS/RBS:\n- Mappings in parent spec's mapping section\n- Detailed regime definitions with AXLA voicings (axrg_regime, axrg_variable, axrg_assignment, axrg_prefix)\n- The RBEV/RBSRV subdocument pattern is our most nuanced treatment\n\nSee: lenses/RBAGS-AdminGoogleSpec.adoc, lenses/RBS-Specification.adoc, lenses/RBSRV-*.adoc\n\n## Tasks\n1. Add `burc_*` attribute mappings to BUSA mapping section\n2. Add `burs_*` attribute mappings to BUSA mapping section  \n3. Add BURC regime section with:\n   - Regime definition voicing axrg_regime\n   - Variable definitions voicing axrg_variable (BURC_STATION_FILE, BURC_TABTARGET_DIR, etc.)\n   - AXLA annotations throughout\n4. Add BURS regime section with:\n   - Station-level variables (BURS_LOG_DIR, etc.)\n   - Personal/developer configuration patterns\n5. Absorb content from orphaned `Tools/buk/burc_specification.md`\n6. Delete or deprecate the old markdown spec\n\n## Scope control\n- Focus on regime vocabulary, not implementation details\n- Do NOT create subdocuments yet (future work)\n- Do NOT modify burc_regime.sh or burs_regime.sh (implementation unchanged)\n\n## Verification\n- BUSA has complete burc_* and burs_* mappings\n- All regime variables have AXLA voicings\n- No orphaned spec files\n\nResult: BUSA is authoritative BUK concept model covering dispatch + regimes.",
+              "silks": "expand-busa-regime-vocabulary",
+              "commit": "224947f"
+            },
+            {
+              "ts": "260131-1159",
+              "state": "rough",
+              "text": "Create BURC (Bash Utilities Regime Configuration) specification.\n\nBURC documents bash-native specifics for configuration regimes. While BURS provides the universal pattern, BURC grounds it in bash contexts:\n- Bash variable naming conventions and scoping\n- Source/export discipline for shell contexts\n- Makefile variable declaration patterns (`:=` vs `=`)\n- Integration with BUK dispatch system (BUD_* variables discovered in ₢ATAAA study)\n- Bash validator and renderer architecture\n- Assignment file format for bash (sourceable scripts)\n\nThis pace consolidates bash-specific regime knowledge discovered across RBRR, RBRN, and BUD_ regimes.\n\nReference: BURS spec (₢ATAAB)\nDepends on: ₣AT ₢ATAAA (regime inventory study)\nComplements: ₣AT ₢ATAAB (universal BURS patterns)\n\nResult: Complete bash utilities regime definition, enabling consistent configuration and validation across BUK tools and Recipe Bottle.",
+              "silks": "create-burc-regime-spec",
+              "commit": "dc7dc4c"
+            },
+            {
+              "ts": "260131-1156",
+              "state": "rough",
+              "text": "Drafted from ₢ASAAE in ₣AS.\n\nCreate BURS (Bash Utilities Regime Spec) as voicing of AXLA patterns.\n\nBURS replaces the old role of CRR for bash utility configuration. Define the regime pattern for BUK tools (buc, bud, but, buv, buw, burc, burs) using AXLA's axrg_* motifs.\n\nStructure following AXLA regime patterns established in expanded axrg_* section:\n- Variables for bash utility configuration (prefixes, paths, settings)\n- Assignment file formats (makefile, bash, JSON)\n- Validation and rendering patterns\n- Glossary with AXLA voicings\n\nReference: AXLA expanded regime section (from ₢ASAAA)\nRelated: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (naming vocabulary)\n\nResult: BURS becomes definitive regime spec for bash utilities, enabling other projects to adopt similar patterns.",
+              "silks": "create-burs-regime-spec",
+              "commit": "e6c520b"
+            },
+            {
+              "ts": "260131-1152",
+              "state": "rough",
+              "text": "Create BURS (Bash Utilities Regime Spec) as voicing of AXLA patterns.\n\nBURS replaces the old role of CRR for bash utility configuration. Define the regime pattern for BUK tools (buc, bud, but, buv, buw, burc, burs) using AXLA's axrg_* motifs.\n\nStructure following AXLA regime patterns established in expanded axrg_* section:\n- Variables for bash utility configuration (prefixes, paths, settings)\n- Assignment file formats (makefile, bash, JSON)\n- Validation and rendering patterns\n- Glossary with AXLA voicings\n\nReference: AXLA expanded regime section (from ₢ASAAA)\nRelated: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (naming vocabulary)\n\nResult: BURS becomes definitive regime spec for bash utilities, enabling other projects to adopt similar patterns.",
+              "silks": "create-burs-regime-spec",
+              "commit": "53452e7"
+            }
+          ]
+        },
+        "₢ATAAD": {
+          "tacks": [
+            {
+              "ts": "260131-1202",
+              "state": "rough",
+              "text": "Create RBVR (Recipe Bottle Vessel Regime) specification.\n\nRBVR documents the vessel configuration regime—how containers are configured, built, and bound in Recipe Bottle. Currently implemented via:\n- rbrv_regime.sh validator (Tools/rbw/)\n- rbrv.env instance files in rbev-vessels/\n- Support for both binding (pre-built images) and conjuring (build from source)\n\nThis pace consolidates the pattern into authoritative spec:\n- Vessel identity and sigil requirements\n- Binding vs conjuring modes\n- Dockerfile and build context configuration\n- Multi-platform support (linux/amd64, linux/arm64, etc.)\n- binfmt policy discipline\n- Variable naming and validation patterns\n\nDepends on: ₣AT ₢ATAAA (regime inventory includes RBRR vessel regime)\nComplements: BURS (universal patterns), BURC (bash specifics)\nResult: RBVR becomes definitive spec for vessel configuration across Recipe Bottle.",
+              "silks": "create-rbvr-regime-spec",
+              "commit": "1dd6f05"
+            }
+          ]
+        },
+        "₢ATAAE": {
+          "tacks": [
+            {
+              "ts": "260131-1228",
+              "state": "rough",
+              "text": "Process fresh RBRV-RegimeVessel.adoc document: normalize formatting, validate concept model links, integrate into lens library and update supporting specs (RBAGS, RBRN, RBRR) with new vessel regime terminology.",
+              "silks": "process-rbrv-regime-vessel-spec",
+              "commit": "ebe0a8c"
+            }
+          ]
+        },
+        "₢ATAAF": {
+          "tacks": [
+            {
+              "ts": "260201-1953",
+              "state": "rough",
+              "text": "Audit RBRR regime for unused/legacy variables from GitHub Container Registry era.\n\nBackground\n\nRBRR originally targeted GitHub Container Registry (GHCR). The project has since moved to Google Artifact Registry (GAR). Some RBRR variables may be vestigial.\n\nSuspect variables (from RBRR-RegimeRepo.adoc and rbrr_regime.sh)\n\n- RBRR_REGISTRY_SERVER — generic registry server (GHCR era?)\n- RBRR_REGISTRY_OWNER — GitHub username/org\n- RBRR_REGISTRY_NAME — GitHub repo name\n- RBRR_GITHUB_PAT_ENV — GitHub credentials file\n\nVariables that appear GAR-native\n\n- RBRR_GAR_REPOSITORY — GAR repository name\n- RBRR_DEPOT_PROJECT_ID — GCP project (but also see RBGD_GAR_PROJECT_ID overlap)\n- RBRR_GCP_REGION — GCP region (but also see RBGD_GAR_LOCATION overlap)\n\nTasks\n\n1. Grep for each RBRR_REGISTRY_* and RBRR_GITHUB_* variable usage\n2. Determine if any are still referenced in active code paths\n3. Check for RBGD/RBRR overlap (DEPOT_PROJECT_ID vs GAR_PROJECT_ID, GCP_REGION vs GAR_LOCATION)\n4. Propose which to remove vs consolidate\n5. Update RBRR-RegimeRepo.adoc to remove stale documentation\n6. Update rbrr_regime.sh validation if variables are removed\n\nAcceptance\n\n- Clear inventory of which RBRR variables are live vs dead\n- Spec changes proposed (separate pace for actual removal)",
+              "silks": "audit-rbrr-legacy-variables",
+              "commit": "82d2a17"
+            }
+          ]
+        }
+      }
+    },
     "₣AW": {
       "silks": "jjk-verb-dispatch-polish",
       "creation_time": "260206",
@@ -3356,124 +3474,6 @@
               "text": "Design and implement digest-pinned GCB builder images. Research options: (A) pre-built jq image with digest pin, (B) alpine with digest pin + runtime apk install, (C) custom tool image in depot. Document in RBAGS, update RBSTB spec to include _RBGY_JQ_REF and _RBGY_SYFT_REF substitutions. Ensure validation (buv_env_odref) aligns with chosen approach.",
               "silks": "design-gcb-builder-pinning",
               "commit": "de5fd84"
-            }
-          ]
-        }
-      }
-    },
-    "₣AT": {
-      "silks": "rbw-regime-consolidation",
-      "creation_time": "260131",
-      "status": "stabled",
-      "order": [
-        "₢ATAAB",
-        "₢ATAAA",
-        "₢ATAAC",
-        "₢ATAAD",
-        "₢ATAAE",
-        "₢ATAAF"
-      ],
-      "next_pace_seed": "AAG",
-      "paddock_file": ".claude/jjm/jjp_AT.md",
-      "paces": {
-        "₢ATAAA": {
-          "tacks": [
-            {
-              "ts": "260131-1154",
-              "state": "rough",
-              "text": "Comprehensive study of ALL configuration regimes in Recipe Bottle.\n\nRecipe Bottle uses multiple configuration regimes:\n- **RBRR** (RegimeRepo) — repository-level configuration\n- **RBRN** (RegimeNameplate) — service-level configuration  \n- **RBB_*** (Base regime, if exists) — core system configuration\n- **RBS_*** (Station regime, if exists) — deployment-specific configuration\n- **BUD_*** (HIDDEN — dispatch-related regime) — variables set during buk dispatch operations\n\nDiscovery tasks:\n1. Enumerate all prefixes in use (RB*, BUD_*, others?)\n2. Map each to its spec document or implementation\n3. Document what each regime controls and its lifecycle\n4. Identify overlaps, conflicts, or inconsistencies\n5. Understand BUD_ regime — what variables exist, where set, how consumed?\n\nDeliverable: Complete regime inventory with:\n- Prefix mapping\n- Variable scope and lifecycle  \n- Cross-regime dependencies\n- Naming conventions per regime\n- Gap analysis (unmapped variables, undocumented regimes)\n\nThis study enables consistent treatment of all regimes in subsequent paces.",
-              "silks": "study-all-recipe-bottle-regimes",
-              "commit": "fea73b3"
-            }
-          ]
-        },
-        "₢ATAAB": {
-          "tacks": [
-            {
-              "ts": "260201-2058",
-              "state": "rough",
-              "text": "Rename BUS-BashUtilitiesSpec.adoc → BUSA-BashUtilitiesSpec.adoc\n\nMechanical file rename to establish subdocument architecture pattern. This parallels the planned RBS/RBAGS → RBSA merge, enabling future subdocs (BUSxx) within BUSA.\n\n## Tasks\n1. Rename file: `Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc` → `BUSA-BashUtilitiesSpec.adoc`\n2. Update CLAUDE.md acronym mapping (BUS → BUSA)\n3. Grep for any other BUS references and update\n\n## Scope control\n- Pure mechanical rename — no content changes\n- Do NOT add regime vocabulary yet (that's ₢ATAAC)\n\n## Verification\n- File exists at new path\n- No dangling BUS references\n- CLAUDE.md updated\n\nResult: BUSA ready for expansion with regime vocabulary in subsequent pace.",
-              "silks": "rename-bus-to-busa",
-              "commit": "e963787"
-            },
-            {
-              "ts": "260131-1158",
-              "state": "rough",
-              "text": "Create BURS (Bash Utilities Regime Spec) as universal voicing of AXLA patterns.\n\nBURS defines the authoritative regime pattern for bash utilities, serving as reference for all bash-based configuration regimes. While BURC will provide bash-specific details, BURS itself documents:\n- General regime architecture following AXLA axrg_* motifs\n- Regime specification structure (sections, variable tables, format requirements)\n- Assignment file organization and patterns\n- Validation and rendering architecture\n- Glossary and term mapping discipline\n\nStructure following AXLA regime patterns established in expanded axrg_* section (₣AS ₢ASAAA):\n- Core regime components and their relationships\n- Variable naming and organization conventions\n- Applicable to all regime implementations (bash, makefile, JSON, etc.)\n\nReference: AXLA expanded regime section\nComplements: BURC (bash-native specifics)\nDepends on: ₣AT ₢ATAAA (regime inventory study)\n\nResult: BURS becomes definitive universal regime spec, enabling consistent patterns across all Recipe Bottle configuration regimes.",
-              "silks": "create-burs-regime-spec",
-              "commit": "4340c71"
-            },
-            {
-              "ts": "260131-1154",
-              "state": "rough",
-              "text": "Create BURS (Bash Utilities Regime Spec) as voicing of AXLA patterns.\n\nBURS replaces the old role of CRR for bash utility configuration. Define the regime pattern for BUK tools (buc, bud, but, buv, buw, burc, burs) using AXLA's axrg_* motifs.\n\nStructure following AXLA regime patterns established in expanded axrg_* section:\n- Variables for bash utility configuration (prefixes, paths, settings)\n- Assignment file formats (makefile, bash, JSON)\n- Validation and rendering patterns\n- Glossary with AXLA voicings\n\nReference: AXLA expanded regime section (from ₣AS ₢ASAAA)\nRelated: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (naming vocabulary)\nDepends on: ₣AT ₢ATAAA (regime inventory study)\n\nResult: BURS becomes definitive regime spec for bash utilities, enabling other projects to adopt similar patterns.",
-              "silks": "create-burs-regime-spec",
-              "commit": "0515144"
-            }
-          ]
-        },
-        "₢ATAAC": {
-          "tacks": [
-            {
-              "ts": "260201-2059",
-              "state": "rough",
-              "text": "Expand BUSA-BashUtilitiesSpec.adoc with BURC and BURS regime vocabulary.\n\nBUSA becomes the complete BUK concept model — dispatch vocabulary (existing) plus configuration regimes (new). This follows the pattern where each kit's XXS spec is the authoritative MCM/AXLA-compliant concept model.\n\n## Pattern reference\nStudy how RBEV (vessel regime) is documented within RBAGS/RBS:\n- Mappings in parent spec's mapping section\n- Detailed regime definitions with AXLA voicings (axrg_regime, axrg_variable, axrg_assignment, axrg_prefix)\n- The RBEV/RBSRV subdocument pattern is our most nuanced treatment\n\nSee: lenses/RBAGS-AdminGoogleSpec.adoc, lenses/RBS-Specification.adoc, lenses/RBSRV-*.adoc\n\n## Tasks\n1. Add `burc_*` attribute mappings to BUSA mapping section\n2. Add `burs_*` attribute mappings to BUSA mapping section  \n3. Add BURC regime section with:\n   - Regime definition voicing axrg_regime\n   - Variable definitions voicing axrg_variable (BURC_STATION_FILE, BURC_TABTARGET_DIR, etc.)\n   - AXLA annotations throughout\n4. Add BURS regime section with:\n   - Station-level variables (BURS_LOG_DIR, etc.)\n   - Personal/developer configuration patterns\n5. Absorb content from orphaned `Tools/buk/burc_specification.md`\n6. Delete or deprecate the old markdown spec\n\n## Scope control\n- Focus on regime vocabulary, not implementation details\n- Do NOT create subdocuments yet (future work)\n- Do NOT modify burc_regime.sh or burs_regime.sh (implementation unchanged)\n\n## Verification\n- BUSA has complete burc_* and burs_* mappings\n- All regime variables have AXLA voicings\n- No orphaned spec files\n\nResult: BUSA is authoritative BUK concept model covering dispatch + regimes.",
-              "silks": "expand-busa-regime-vocabulary",
-              "commit": "224947f"
-            },
-            {
-              "ts": "260131-1159",
-              "state": "rough",
-              "text": "Create BURC (Bash Utilities Regime Configuration) specification.\n\nBURC documents bash-native specifics for configuration regimes. While BURS provides the universal pattern, BURC grounds it in bash contexts:\n- Bash variable naming conventions and scoping\n- Source/export discipline for shell contexts\n- Makefile variable declaration patterns (`:=` vs `=`)\n- Integration with BUK dispatch system (BUD_* variables discovered in ₢ATAAA study)\n- Bash validator and renderer architecture\n- Assignment file format for bash (sourceable scripts)\n\nThis pace consolidates bash-specific regime knowledge discovered across RBRR, RBRN, and BUD_ regimes.\n\nReference: BURS spec (₢ATAAB)\nDepends on: ₣AT ₢ATAAA (regime inventory study)\nComplements: ₣AT ₢ATAAB (universal BURS patterns)\n\nResult: Complete bash utilities regime definition, enabling consistent configuration and validation across BUK tools and Recipe Bottle.",
-              "silks": "create-burc-regime-spec",
-              "commit": "dc7dc4c"
-            },
-            {
-              "ts": "260131-1156",
-              "state": "rough",
-              "text": "Drafted from ₢ASAAE in ₣AS.\n\nCreate BURS (Bash Utilities Regime Spec) as voicing of AXLA patterns.\n\nBURS replaces the old role of CRR for bash utility configuration. Define the regime pattern for BUK tools (buc, bud, but, buv, buw, burc, burs) using AXLA's axrg_* motifs.\n\nStructure following AXLA regime patterns established in expanded axrg_* section:\n- Variables for bash utility configuration (prefixes, paths, settings)\n- Assignment file formats (makefile, bash, JSON)\n- Validation and rendering patterns\n- Glossary with AXLA voicings\n\nReference: AXLA expanded regime section (from ₢ASAAA)\nRelated: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (naming vocabulary)\n\nResult: BURS becomes definitive regime spec for bash utilities, enabling other projects to adopt similar patterns.",
-              "silks": "create-burs-regime-spec",
-              "commit": "e6c520b"
-            },
-            {
-              "ts": "260131-1152",
-              "state": "rough",
-              "text": "Create BURS (Bash Utilities Regime Spec) as voicing of AXLA patterns.\n\nBURS replaces the old role of CRR for bash utility configuration. Define the regime pattern for BUK tools (buc, bud, but, buv, buw, burc, burs) using AXLA's axrg_* motifs.\n\nStructure following AXLA regime patterns established in expanded axrg_* section:\n- Variables for bash utility configuration (prefixes, paths, settings)\n- Assignment file formats (makefile, bash, JSON)\n- Validation and rendering patterns\n- Glossary with AXLA voicings\n\nReference: AXLA expanded regime section (from ₢ASAAA)\nRelated: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (naming vocabulary)\n\nResult: BURS becomes definitive regime spec for bash utilities, enabling other projects to adopt similar patterns.",
-              "silks": "create-burs-regime-spec",
-              "commit": "53452e7"
-            }
-          ]
-        },
-        "₢ATAAD": {
-          "tacks": [
-            {
-              "ts": "260131-1202",
-              "state": "rough",
-              "text": "Create RBVR (Recipe Bottle Vessel Regime) specification.\n\nRBVR documents the vessel configuration regime—how containers are configured, built, and bound in Recipe Bottle. Currently implemented via:\n- rbrv_regime.sh validator (Tools/rbw/)\n- rbrv.env instance files in rbev-vessels/\n- Support for both binding (pre-built images) and conjuring (build from source)\n\nThis pace consolidates the pattern into authoritative spec:\n- Vessel identity and sigil requirements\n- Binding vs conjuring modes\n- Dockerfile and build context configuration\n- Multi-platform support (linux/amd64, linux/arm64, etc.)\n- binfmt policy discipline\n- Variable naming and validation patterns\n\nDepends on: ₣AT ₢ATAAA (regime inventory includes RBRR vessel regime)\nComplements: BURS (universal patterns), BURC (bash specifics)\nResult: RBVR becomes definitive spec for vessel configuration across Recipe Bottle.",
-              "silks": "create-rbvr-regime-spec",
-              "commit": "1dd6f05"
-            }
-          ]
-        },
-        "₢ATAAE": {
-          "tacks": [
-            {
-              "ts": "260131-1228",
-              "state": "rough",
-              "text": "Process fresh RBRV-RegimeVessel.adoc document: normalize formatting, validate concept model links, integrate into lens library and update supporting specs (RBAGS, RBRN, RBRR) with new vessel regime terminology.",
-              "silks": "process-rbrv-regime-vessel-spec",
-              "commit": "ebe0a8c"
-            }
-          ]
-        },
-        "₢ATAAF": {
-          "tacks": [
-            {
-              "ts": "260201-1953",
-              "state": "rough",
-              "text": "Audit RBRR regime for unused/legacy variables from GitHub Container Registry era.\n\nBackground\n\nRBRR originally targeted GitHub Container Registry (GHCR). The project has since moved to Google Artifact Registry (GAR). Some RBRR variables may be vestigial.\n\nSuspect variables (from RBRR-RegimeRepo.adoc and rbrr_regime.sh)\n\n- RBRR_REGISTRY_SERVER — generic registry server (GHCR era?)\n- RBRR_REGISTRY_OWNER — GitHub username/org\n- RBRR_REGISTRY_NAME — GitHub repo name\n- RBRR_GITHUB_PAT_ENV — GitHub credentials file\n\nVariables that appear GAR-native\n\n- RBRR_GAR_REPOSITORY — GAR repository name\n- RBRR_DEPOT_PROJECT_ID — GCP project (but also see RBGD_GAR_PROJECT_ID overlap)\n- RBRR_GCP_REGION — GCP region (but also see RBGD_GAR_LOCATION overlap)\n\nTasks\n\n1. Grep for each RBRR_REGISTRY_* and RBRR_GITHUB_* variable usage\n2. Determine if any are still referenced in active code paths\n3. Check for RBGD/RBRR overlap (DEPOT_PROJECT_ID vs GAR_PROJECT_ID, GCP_REGION vs GAR_LOCATION)\n4. Propose which to remove vs consolidate\n5. Update RBRR-RegimeRepo.adoc to remove stale documentation\n6. Update rbrr_regime.sh validation if variables are removed\n\nAcceptance\n\n- Clear inventory of which RBRR variables are live vs dead\n- Spec changes proposed (separate pace for actual removal)",
-              "silks": "audit-rbrr-legacy-variables",
-              "commit": "82d2a17"
             }
           ]
         }
