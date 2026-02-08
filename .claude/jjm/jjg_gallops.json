@@ -728,6 +728,13 @@
               "ts": "260208-1544",
               "state": "rough",
               "text": "BLOCKED — awaiting completion of ₣AT (rbw-regime-consolidation).\n\n₣AT was spun out to handle the full regime consolidation as a dedicated heat. This pace's original scope (unify regime definitions into RBSA Tier 3, resolve CRR/AXLA vocabulary split) is entirely covered by ₣AT paces:\n\n- ₢ATAAA study-all-recipe-bottle-regimes — regime inventory\n- ₢ATAAC expand-busa-regime-vocabulary — BUSA regime vocab\n- ₢ATAAF audit-rbrr-legacy-variables — RBRR cleanup\n\nOnce ₣AT completes, revisit whether any residual RBSA Tier 3 integration work remains, or drop this pace entirely.",
+              "silks": "blocked-on-at-regime-consolidation",
+              "commit": "4aa9b94"
+            },
+            {
+              "ts": "260208-1544",
+              "state": "rough",
+              "text": "BLOCKED — awaiting completion of ₣AT (rbw-regime-consolidation).\n\n₣AT was spun out to handle the full regime consolidation as a dedicated heat. This pace's original scope (unify regime definitions into RBSA Tier 3, resolve CRR/AXLA vocabulary split) is entirely covered by ₣AT paces:\n\n- ₢ATAAA study-all-recipe-bottle-regimes — regime inventory\n- ₢ATAAC expand-busa-regime-vocabulary — BUSA regime vocab\n- ₢ATAAF audit-rbrr-legacy-variables — RBRR cleanup\n\nOnce ₣AT completes, revisit whether any residual RBSA Tier 3 integration work remains, or drop this pace entirely.",
               "silks": "consolidate-regime-definitions-rbsa",
               "commit": "36bb1cb"
             },
