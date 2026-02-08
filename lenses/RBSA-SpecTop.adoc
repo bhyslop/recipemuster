@@ -182,6 +182,32 @@
 :st_port_map_s:              <<st_port_map,Port Maps>>
 :at_sessile_service:         <<at_sessile_service,Sessile Bottle Service>>
 :at_agile_service:           <<at_agile_service,Agile Bottle Service>>
+:at_sentry_image:            <<at_sentry_image,Sentry Image>>
+:at_moniker:                 <<at_moniker,Moniker>>
+:at_rbm_console:             <<at_rbm_console,RB Console>>
+:at_rbm_config:              <<at_rbm_config,RB Configuration>>
+:at_rbm_secret:              <<at_rbm_secret,RB Secret>>
+:at_rbm_secret_s:            <<at_rbm_secret,RB Secrets>>
+:at_rbm_repo:                <<at_rbm_repo,RB Repository>>
+:at_user_repo:               <<at_user_repo,User Repository>>
+:at_container_registry:      <<at_container_registry,Container Registry>>
+:at_startup_script:          <<at_startup_script,Startup Script>>
+:at_startup_script_s:        <<at_startup_script,Startup Scripts>>
+:at_stash_machine:           <<at_stash_machine,Stash Machine>>
+:at_operational_machine:     <<at_operational_machine,Operational Machine>>
+:at_transit_network_name:    <<at_transit_network_name,Transit Network Name>>
+:at_enclave_network_name:    <<at_enclave_network_name,Enclave Network Name>>
+:at_enclave_namespace_name:  <<at_enclave_namespace_name,Enclave Namespace Name>>
+:at_bottle_container_name:   <<at_bottle_container_name,Bottle Container Name>>
+:at_sentry_container_name:   <<at_sentry_container_name,Sentry Container Name>>
+:st_dockerfile:              <<st_dockerfile,Dockerfile>>
+:st_published_image:         <<st_published_image,Published Image>>
+:st_published_image_s:       <<st_published_image,Published Images>>
+:st_image:                   <<st_image,Container Image>>
+:st_image_s:                 <<st_image,Container Images>>
+:st_image_store:             <<st_image_store,Local Image Store>>
+:st_subnet:                  <<st_subnet,Subnet>>
+:st_gateway:                 <<st_gateway,Gateway>>
 
 // Local Operations (sentry startup, bottle lifecycle, VM management)
 :opss_sentry_start:          <<opss_sentry_start,Sentry Start Rule>>
@@ -1329,6 +1355,151 @@ to access specified portions of the host filesystem.
 A specification of how network ports should be exposed and mapped between
 {st_container_s}
 and the host system.
+
+[[at_sentry_image]]
+{at_sentry_image}::
+A
+{st_image}
+that contains the security enforcement functionality for a
+{at_sentry_container}.
+
+[[at_moniker]]
+{at_moniker}::
+A unique identifier that distinguishes each
+{at_bottle_service}
+instance within the
+{at_rbm_system}.
+This identifier forms the basis for container names and network identifiers.
+
+[[at_rbm_console]]
+{at_rbm_console}::
+The primary operational automation that implements the
+{at_rbm_system}
+lifecycle rules for managing
+{at_bottle_service_s}.
+
+[[at_rbm_config]]
+{at_rbm_config}::
+Configuration settings for the
+{at_rbm_system},
+including
+{at_rbm_secret_s}
+and environment-specific parameters.
+This file typically remains outside version control to protect sensitive data.
+
+[[at_rbm_secret]]
+{at_rbm_secret}::
+A sensitive configuration value needed by the
+{at_rbm_system},
+such as registry credentials.
+Kept separate from version control.
+
+[[at_rbm_repo]]
+{at_rbm_repo}::
+The version control repository containing the
+{at_rbm_system}
+implementation, including operational automation,
+{at_nameplate_s},
+and documentation.
+
+[[at_user_repo]]
+{at_user_repo}::
+A version control repository owned by an
+{at_operator}
+where the
+{at_rbm_system}
+is instantiated.
+The
+{at_operator}
+configures it by setting up regime files and creating
+{at_nameplate_s}
+to define
+{at_bottle_service_s}.
+
+[[at_container_registry]]
+{at_container_registry}::
+A service that stores and provides access to
+{st_published_image_s}.
+
+[[at_startup_script]]
+{at_startup_script}::
+A shell script that performs initialization and configuration tasks when starting a
+{at_bottle_service}.
+
+[[at_stash_machine]]
+{at_stash_machine}::
+A temporary Podman virtual machine created with crane installed for performing registry queries and image operations.
+Removed after completing its specific tasks.
+
+[[at_operational_machine]]
+{at_operational_machine}::
+The persistent Podman virtual machine that hosts all
+{at_bottle_service_s}
+and their associated containers.
+
+[[at_transit_network_name]]
+{at_transit_network_name}::
+The unique network name formed by appending `-uplink` to the service's
+{rbrn_moniker}.
+Pattern: `${RBRN_MONIKER}-uplink`.
+
+[[at_enclave_network_name]]
+{at_enclave_network_name}::
+The unique network name formed by appending `-enclave` to the service's
+{rbrn_moniker}.
+Pattern: `${RBRN_MONIKER}-enclave`.
+
+[[at_enclave_namespace_name]]
+{at_enclave_namespace_name}::
+The unique namespace name formed by appending `-namespace` to the service's
+{rbrn_moniker}.
+Pattern: `${RBRN_MONIKER}-namespace`.
+
+[[at_bottle_container_name]]
+{at_bottle_container_name}::
+The unique container name formed by appending `-bottle` to the service's
+{rbrn_moniker}.
+Pattern: `${RBRN_MONIKER}-bottle`.
+
+[[at_sentry_container_name]]
+{at_sentry_container_name}::
+The unique container name formed by appending `-sentry` to the service's
+{rbrn_moniker}.
+Pattern: `${RBRN_MONIKER}-sentry`.
+
+[[st_dockerfile]]
+{st_dockerfile}::
+A specification file that defines how to build a
+{st_image}.
+
+[[st_published_image]]
+{st_published_image}::
+A
+{st_image}
+that has been uploaded to a
+{at_container_registry}.
+
+[[st_image]]
+{st_image}::
+A template used to create
+{st_container}
+instances, containing the service's code, runtime, and dependencies.
+
+[[st_image_store]]
+{st_image_store}::
+The local storage location for
+{st_image_s}
+on the
+{at_operator_p}
+{at_workstation}.
+
+[[st_subnet]]
+{st_subnet}::
+A logically visible subdivision of IP network address space.
+
+[[st_gateway]]
+{st_gateway}::
+A network node that serves as the entry point between two networks.
 
 == Configuration Regimes
 
