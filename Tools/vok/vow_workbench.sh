@@ -60,6 +60,7 @@ vow_route() {
     vow-b)  exec "${z_vob_cli}" vob_build   "$@" ;;
     vow-t)  exec "${z_vob_cli}" vob_test    "$@" ;;
     vow-R)  exec "${z_vob_cli}" vob_release "$@" ;;  # capital R = big action
+    vow-F)  exec "${z_vob_cli}" vob_freshen "$@" ;;  # capital F = CLAUDE.md freshen
 
     # Run VVX binary directly
     vow-r)  exec "${VOW_SCRIPT_DIR}/target/release/vvr" "$@" ;;

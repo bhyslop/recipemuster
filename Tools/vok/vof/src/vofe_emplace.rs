@@ -205,7 +205,7 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
     eprintln!("  burc: {}", args.burc_path.display());
 
     // 1. Parse BURC (resolves paths relative to burc.env location)
-    let burc = zvofe_parse_burc(&args.burc_path)?;
+    let burc = vofe_parse_burc(&args.burc_path)?;
 
     // 2. Validate git state
     zvofe_check_is_git_repo(&burc.project_root)?;
@@ -319,7 +319,7 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
     eprintln!("  burc: {}", args.burc_path.display());
 
     // 1. Parse BURC
-    let burc = zvofe_parse_burc(&args.burc_path)?;
+    let burc = vofe_parse_burc(&args.burc_path)?;
 
     // 2. Validate git state
     zvofe_check_git_clean(&burc.project_root)?;
@@ -410,6 +410,90 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
     })
 }
 
+/// Result of forge freshen operation.
+#[derive(Debug)]
+pub struct vofe_FreshenResult {
+    /// CLAUDE.md sections updated (replaced existing markers)
+    pub updated: Vec<String>,
+    /// CLAUDE.md sections expanded (from UNINSTALLED markers)
+    pub expanded: Vec<String>,
+    /// CLAUDE.md sections appended (no prior markers)
+    pub appended: Vec<String>,
+}
+
+/// Freshen CLAUDE.md managed sections from kit forge source templates.
+///
+/// Reads templates directly from Tools/{kit}/vov_veiled/ (bypassing parcel pipeline).
+/// Does NOT commit — caller decides when to commit.
+///
+/// # Arguments
+/// * `burc_path` - Path to target repo's burc.env file
+///
+/// # Returns
+/// FreshenResult with update summary, or error message
+pub fn vofe_freshen_forge(burc_path: &Path) -> Result<vofe_FreshenResult, String> {
+    let burc = vofe_parse_burc(burc_path)?;
+
+    // Read templates from forge vov_veiled/ directories
+    let mut sections = Vec::new();
+    for kit_id in &burc.managed_kits {
+        let kit = vofc_find_kit_by_id(kit_id)
+            .ok_or_else(|| format!("Kit not in registry: {}", kit_id))?;
+
+        let veiled_dir = burc.tools_dir.join(kit_id).join("vov_veiled");
+
+        for section in kit.managed_sections {
+            let template_path = veiled_dir.join(section.template_path);
+            if !template_path.exists() {
+                return Err(format!(
+                    "Template not found in forge: {} (expected at {})",
+                    section.template_path,
+                    template_path.display()
+                ));
+            }
+
+            let content = fs::read_to_string(&template_path)
+                .map_err(|e| format!("Failed to read template {}: {}", section.template_path, e))?;
+
+            sections.push(voff_ManagedSection {
+                tag: section.tag.to_string(),
+                content,
+            });
+        }
+    }
+
+    // Freshen CLAUDE.md
+    let claude_path = burc.project_root.join("CLAUDE.md");
+    let existing = if claude_path.exists() {
+        fs::read_to_string(&claude_path)
+            .map_err(|e| format!("Failed to read CLAUDE.md: {}", e))?
+    } else {
+        "# Claude Code Project Memory\n".to_string()
+    };
+
+    let result = voff_freshen(&existing, &sections);
+
+    fs::write(&claude_path, &result.content)
+        .map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
+
+    // Report what happened
+    for tag in &result.updated {
+        eprintln!("  freshen: updated [{}]", tag);
+    }
+    for tag in &result.expanded {
+        eprintln!("  freshen: expanded [{}] (was UNINSTALLED)", tag);
+    }
+    for tag in &result.appended {
+        eprintln!("  freshen: appended [{}] (new section)", tag);
+    }
+
+    Ok(vofe_FreshenResult {
+        updated: result.updated,
+        expanded: result.expanded,
+        appended: result.appended,
+    })
+}
+
 // =============================================================================
 // Internal Functions (zvofe_*)
 // =============================================================================
@@ -417,7 +501,7 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
 /// Parse burc.env file to extract environment variables.
 /// BURC_PROJECT_ROOT is the path from burc.env's location to the project root.
 /// BURC_TOOLS_DIR is resolved relative to the resolved project_root (per BURC spec).
-fn zvofe_parse_burc(path: &Path) -> Result<vofe_BurcEnv, String> {
+pub fn vofe_parse_burc(path: &Path) -> Result<vofe_BurcEnv, String> {
     if !path.exists() {
         return Err(format!("burc.env not found: {}", path.display()));
     }
@@ -849,7 +933,7 @@ mod tests {
         writeln!(f, "BURC_TOOLS_DIR=Tools").unwrap();
         writeln!(f, "BURC_MANAGED_KITS=buk,jjk").unwrap();
 
-        let result = zvofe_parse_burc(&burc_path).unwrap();
+        let result = vofe_parse_burc(&burc_path).unwrap();
         assert_eq!(result.project_root.canonicalize().unwrap(), project_dir.canonicalize().unwrap());
         assert_eq!(result.tools_dir.canonicalize().unwrap(), tools_dir.canonicalize().unwrap());
         assert_eq!(result.managed_kits, vec!["buk", "jjk"]);
@@ -876,7 +960,7 @@ mod tests {
         writeln!(f, "BURC_TOOLS_DIR='Tools'").unwrap();
         writeln!(f, "BURC_MANAGED_KITS=\"vvk\"").unwrap();
 
-        let result = zvofe_parse_burc(&burc_path).unwrap();
+        let result = vofe_parse_burc(&burc_path).unwrap();
         assert_eq!(result.project_root.canonicalize().unwrap(), project_dir.canonicalize().unwrap());
         assert_eq!(result.tools_dir.canonicalize().unwrap(), tools_dir.canonicalize().unwrap());
         assert_eq!(result.managed_kits, vec!["vvk"]);

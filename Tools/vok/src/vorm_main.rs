@@ -59,6 +59,10 @@ enum Commands {
     #[command(name = "vvx_vacate")]
     VvxVacate(VacateArgs),
 
+    /// Freshen CLAUDE.md managed sections from kit forge templates
+    #[command(name = "vvx_freshen")]
+    VvxFreshen(FreshenArgs),
+
     /// External subcommands (delegated to kit CLIs)
     #[command(external_subcommand)]
     External(Vec<OsString>),
@@ -172,6 +176,14 @@ struct VacateArgs {
     burc: PathBuf,
 }
 
+/// Arguments for vvx_freshen command
+#[derive(clap::Args, Debug)]
+struct FreshenArgs {
+    /// Path to burc.env file (resolves project_root and tools_dir)
+    #[arg(long)]
+    burc: PathBuf,
+}
+
 #[tokio::main]
 async fn main() -> ExitCode {
     let cli = Cli::parse();
@@ -186,6 +198,7 @@ async fn main() -> ExitCode {
         Some(Commands::ReleaseBrand(args)) => run_release_brand(args),
         Some(Commands::VvxEmplace(args)) => run_emplace(args),
         Some(Commands::VvxVacate(args)) => run_vacate(args),
+        Some(Commands::VvxFreshen(args)) => run_freshen(args),
         Some(Commands::External(args)) => dispatch_external(args).await,
         None => {
             use clap::CommandFactory;
@@ -539,6 +552,25 @@ fn run_vacate(args: VacateArgs) -> i32 {
         }
         Err(e) => {
             eprintln!("vacate: error: {}", e);
+            1
+        }
+    }
+}
+
+/// Run vvx_freshen command
+fn run_freshen(args: FreshenArgs) -> i32 {
+    eprintln!("freshen: updating CLAUDE.md from forge templates...");
+    eprintln!("  burc: {}", args.burc.display());
+
+    match vof::vofe_freshen_forge(&args.burc) {
+        Ok(result) => {
+            let total = result.updated.len() + result.expanded.len() + result.appended.len();
+            eprintln!("freshen: success - {} sections processed ({} updated, {} expanded, {} appended)",
+                total, result.updated.len(), result.expanded.len(), result.appended.len());
+            0
+        }
+        Err(e) => {
+            eprintln!("freshen: error: {}", e);
             1
         }
     }

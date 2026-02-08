@@ -242,4 +242,24 @@ vob_release() {
   buc_success "Parcel created: ${z_tarball}"
 }
 
+vob_freshen() {
+  zvob_sentinel
+
+  buc_doc_brief "Freshen CLAUDE.md managed sections from kit forge templates"
+  buc_doc_shown || return 0
+
+  local z_burc_file="${PWD}/.buk/burc.env"
+  local z_vvx="${VVB_VVX_BINARY}"
+
+  buv_file_exists "${z_burc_file}"
+  buv_file_exists "${z_vvx}"
+
+  buc_step "Freshening CLAUDE.md"
+  buc_log_args "burc: ${z_burc_file}"
+
+  "${z_vvx}" vvx_freshen --burc "${z_burc_file}" || buc_die "vvx_freshen failed"
+
+  buc_success "CLAUDE.md managed sections updated"
+}
+
 # eof

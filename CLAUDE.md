@@ -316,6 +316,7 @@ BUK provides tabtarget/launcher infrastructure. Key vocabulary:
 
 Full spec: `Tools/buk/README.md`
 
+<!-- MANAGED:CMK:BEGIN -->
 ## Concept Model Kit Configuration
 
 Concept Model Kit (CMK) is installed for managing concept model documents.
@@ -345,6 +346,8 @@ For full MCM specification, see `Tools/cmk/MCM-MetaConceptModel.adoc`.
 
 **Important**: Restart Claude Code session after installation for new commands and subagents to become available.
 
+<!-- MANAGED:CMK:END -->
+
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
 - Architecture: Bash-based CLI tools with Google Cloud integration
@@ -358,7 +361,7 @@ For full MCM specification, see `Tools/cmk/MCM-MetaConceptModel.adoc`.
 Job Jockey (JJ) is installed for managing project initiatives.
 
 **Concepts:**
-- **Heat**: Bounded initiative with coherent goals that are clear and present (3-50 sessions). Status: `racing` (active execution) or `stabled` (paused for planning). Location: `current/` or `retired/` (done).
+- **Heat**: Bounded initiative with coherent goals that are clear and present (3-50 officia). Status: `racing` (active execution) or `stabled` (paused for planning). Location: `current/` or `retired/` (done).
 - **Pace**: Discrete action within a heat; can be bridled for autonomous execution via `/jjc-pace-bridle`
 - **Itch**: Future work (any detail level), lives in jji_itch.md
 - **Scar**: Closed work with lessons learned, lives in jjs_scar.md
@@ -378,18 +381,18 @@ When a command takes `<firemark>` or `<coronet>`, provide the identity, not the 
 ALWAYS read the corresponding slash command before attempting JJ operations.
 
 **CRITICAL**: JJK CLI syntax is non-standard. Do NOT guess based on common CLI conventions.
-- Specs go via stdin, not `--spec`
+- Dockets go via stdin, not `--docket`
 - Positioning uses `--move X --first`, not `--position first`
 - Read the slash command to see the exact `./tt/vvw-r.RunVVX.sh jjx_*` invocation pattern.
 
-**Heredoc for stdin**: Use `cat <<'DELIM' | jjx_*` pattern with quoted delimiter. The delimiter must not appear alone on any line in the content — if content shows heredoc examples with `EOF`, use a different delimiter like `SPEC` or `PACESPEC`.
+**Heredoc for stdin**: Use `cat <<'DELIM' | jjx_*` pattern with quoted delimiter. The delimiter must not appear alone on any line in the content — if content shows heredoc examples with `EOF`, use a different delimiter like `DOCKET` or `PACESPEC`.
 
 | When you need to... | Read first |
 |---------------------|------------|
 | Add a new pace | /jjc-pace-slate |
-| Refine pace spec | /jjc-pace-reslate |
+| Refine pace docket | /jjc-pace-reslate |
 | Bridle for autonomous execution | /jjc-pace-bridle |
-| Mark pace complete | /jjc-pace-wrap |
+| Mark pace complete | `jjx_close` |
 | Commit with JJ context | /jjc-pace-notch |
 | Execute next pace | /jjc-heat-mount |
 | Review heat plan | /jjc-heat-groom |
@@ -397,14 +400,9 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | Reorder paces | /jjc-heat-rail |
 | Add steeplechase marker | /jjc-heat-chalk |
 | Pause or resume heat | /jjc-heat-furlough |
-| Create new heat | /jjc-heat-nominate |
-| List all heats | /jjc-heat-muster |
 | Draft paces between heats | /jjc-heat-restring |
 | Retire completed heat | /jjc-heat-retire |
-| View heat summary | /jjc-parade-overview |
-| View pace order | /jjc-parade-order |
-| View heat detail | /jjc-parade-detail |
-| View full heat | /jjc-parade-full |
+| View heat or pace | `jjx_show` |
 
 **Quick Verbs** — When user says just the verb, invoke the corresponding command:
 
@@ -413,28 +411,66 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | mount | /jjc-heat-mount |
 | slate | /jjc-pace-slate |
 | reslate | /jjc-pace-reslate |
-| wrap | /jjc-pace-wrap |
+| wrap | `jjx_close` |
 | bridle | /jjc-pace-bridle |
 | notch | /jjc-pace-notch |
 | furlough | /jjc-heat-furlough |
-| muster | /jjc-heat-muster |
 | groom | /jjc-heat-groom |
 | quarter | /jjc-heat-quarter |
 | rail | /jjc-heat-rail |
-| rein | /jjc-heat-rein |
-| scout | /jjc-scout |
-| parade | /jjc-parade |
 
-**Common CLI Pitfalls:**
-- `jjx_parade` takes firemark OR coronet directly as sole argument — NO flags for target selection
-  - Heat overview: `jjx_parade AF`
-  - Single pace: `jjx_parade AFAAb`
-  - Valid flags: `--full`, `--remaining` only
+**CLI Command Reference:**
+
+```
+jjx_show [TARGET] [--detail] [--remaining]
+jjx_list [--status racing|stabled|retired]
+jjx_create --silks SILKS
+jjx_enroll FIREMARK --silks SILKS [--first|--before C|--after C] <stdin
+jjx_reorder FIREMARK [--move C --first|--last|--before C|--after C | CORONET...]
+jjx_alter FIREMARK [--status racing|stabled] [--silks SILKS]
+jjx_record CORONET FILE [FILE...] [--intent "msg"]
+jjx_close CORONET
+jjx_log FIREMARK [--limit N]
+jjx_search PATTERN [--actionable]
+jjx_archive FIREMARK [--execute]
+jjx_transfer FIREMARK --to FIREMARK <stdin
+jjx_continue FIREMARK
+jjx_mark CORONET --marker M --description "text"
+jjx_paddock FIREMARK [<stdin for set]
+jjx_relocate CORONET --to FIREMARK
+jjx_orient [FIREMARK]
+jjx_revise_docket CORONET <stdin
+jjx_arm CORONET <stdin
+jjx_relabel CORONET --silks "name"
+jjx_drop CORONET
+jjx_get_brief CORONET
+jjx_get_coronets FIREMARK [--rough]
+jjx_landing CORONET AGENT <stdin
+jjx_validate [--file PATH]
+```
+
+**Composition Recipes:**
+
+Common command combinations using `&&`:
+
+```bash
+# Revise docket and rename:
+jjx_revise_docket C <docket_stdin && jjx_relabel C --silks "name"
+
+# Bridle with revised docket:
+jjx_revise_docket C <docket_stdin && jjx_arm C <warrant_stdin
+```
+
+**Key points:**
+- `jjx_show` takes firemark OR coronet directly as sole argument — NO flags for target selection
+  - Heat overview: `jjx_show AF`
+  - Single pace: `jjx_show AFAAb`
+  - Valid flags: `--detail`, `--remaining` only
 - NEVER invent CLI flags — run `--help` first or read the slash command
-- `jjx_saddle` output includes `pace_coronet` (next actionable pace) — no separate parade call needed to find what's next
+- `jjx_orient` output includes `pace_coronet` (next actionable pace) — no separate show call needed to find what's next
 
 **Commit Discipline:**
-When working on a heat, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `vvx_commit` directly — it bypasses heat/pace affiliation and steeplechase tracking.
+When working on a heat, ALWAYS use `/jjc-pace-notch` for commits. NEVER use `jjx_record` directly — the slash command handles context detection. Never bypass heat/pace affiliation and steeplechase tracking.
 
 Notch handles two cases:
 - **Pace-affiliated**: Active pace provides context (coronet in commit)
@@ -442,11 +478,11 @@ Notch handles two cases:
 
 When user says "notch", invoke `/jjc-pace-notch` — don't second-guess based on pace state.
 
-**Multi-Session Discipline:**
-Multiple Claude sessions may work concurrently in the same repo. The explicit file list in `/jjc-pace-notch` enables orthogonal commits.
+**Multi-Officium Discipline:**
+Multiple Claude officia may work concurrently in the same repo. The explicit file list in `/jjc-pace-notch` enables orthogonal commits.
 
 - Claude is **additive only** — make commits, never discard changes
-- "Unexpected" uncommitted changes are likely another session's work
+- "Unexpected" uncommitted changes are likely another officium's work
 - If something looks wrong, ASK — do not "fix" by discarding
 - Commit only YOUR files; ignore everything else
 
@@ -460,20 +496,13 @@ Multiple Claude sessions may work concurrently in the same repo. The explicit fi
 **What to do instead:**
 - Staging wrong? Just run `/jjc-pace-notch` with the correct file list — it handles staging
 - Made a mistake? Make a new commit that fixes it — additive, not destructive
-- Confused by repo state? ASK the user — another session may be mid-work
+- Confused by repo state? ASK the user — another officium may be mid-work
 - Need to undo something? Explain the situation to the user and let them decide
 
 **Build & Run Discipline:**
 Always run these after Rust code changes:
 - `tt/vow-b.Build.sh` — Build
-- `tt/vow-t.Test.sh` — Test
-
-**Pre-wrap Verification:**
-Before wrapping ANY pace, run build + tests:
-```bash
-tt/vow-b.Build.sh && tt/vow-t.Test.sh
-```
-Do not wrap with failing tests or stale binary. This prevents shipping broken code or investigating phantom bugs caused by stale binaries.
+- `tt/vvw-r.RunVVX.sh` — Run VVX
 
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 
@@ -501,7 +530,7 @@ When evaluating whether a pace is ready for autonomous execution (bridled state)
 
 ### Wrap Discipline
 
-**NEVER auto-wrap a pace.** Always ask the user explicitly: "Ready to wrap ₢XXXXX?" and wait for confirmation before running `/jjc-pace-wrap`. The user decides when work is complete, not the agent.
+**NEVER auto-wrap a pace.** Always ask the user explicitly: "Ready to wrap ₢XXXXX?" and wait for confirmation before running `jjx_close`. The user decides when work is complete, not the agent.
 
 This applies to:
 - Direct work on rough paces
@@ -511,3 +540,35 @@ This applies to:
 When work is complete, report outcomes and ask. Do not wrap.
 
 <!-- MANAGED:JJK:END -->
+
+<!-- MANAGED:BUK:BEGIN -->
+## Bash Utility Kit (BUK)
+
+BUK provides tabtarget/launcher infrastructure for bash-based tooling.
+
+**Key files:**
+- `Tools/buk/buc_command.sh` — command utilities
+- `Tools/buk/bud_dispatch.sh` — dispatch utilities
+- `Tools/buk/buw_workbench.sh` — workbench formulary
+
+**Tabtarget pattern:** `{colophon}.{frontispiece}[.{imprint}].sh`
+
+For full documentation, see `Tools/buk/README.md`.
+
+<!-- MANAGED:BUK:END -->
+
+<!-- MANAGED:VVK:BEGIN -->
+## Voce Viva Kit (VVK)
+
+VVK provides core infrastructure for Claude Code kits.
+
+**Key commands:**
+- `/vvc-commit` — Guarded git commit with size validation
+
+**Key files:**
+- `Tools/vvk/bin/vvx` — Core binary
+- `.vvk/vvbf_brand.json` — Installation brand file
+
+For installation/uninstallation, use `vvi_install.sh` and `vvu_uninstall.sh`.
+
+<!-- MANAGED:VVK:END -->

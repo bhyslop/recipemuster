@@ -144,6 +144,7 @@
 :vosor_release:         <<vosor_release,Release>>
 :vosoi_install:         <<vosoi_install,Install>>
 :vosou_uninstall:       <<vosou_uninstall,Uninstall>>
+:vosof_freshen:         <<vosof_freshen,Freshen>>
 
 // Routines (internal reusable procedures)
 :vosr_lock:             <<vosr_lock,lock routine>>
@@ -229,6 +230,15 @@ directories.
 Uses
 {vosls_signet}
 -based prefix matching for command/hook removal.
+The
+{vosof_freshen}
+operation updates CLAUDE.md
+{vose_managed_section_s}
+directly from
+{vosp_kit_forge}
+templates without a
+{vose_parcel},
+enabling rapid iteration during development.
 
 **Related Specifications:**
 
@@ -1283,6 +1293,108 @@ Claude Code integration cleanly removed.
 Kit directories remain for continued use outside Claude Code.
 {vose_uninstalled_marker_s}
 preserve section positions for future reinstall.
+
+
+[[vosof_freshen]]
+// ⟦axl_voices axo_command axe_rust_impl axd_transient⟧
+=== {vosof_freshen}
+
+Updates CLAUDE.md
+{vose_managed_section_s}
+from
+{vosp_kit_forge}
+templates, bypassing the
+{vose_parcel}
+pipeline.
+Operates directly on
+{vosp_veiled}
+content within the
+{vosp_kit_forge}
+itself.
+
+This is a development-time operation for use in the
+{vosp_kit_forge}
+when template content has changed and CLAUDE.md needs to reflect those changes without a full
+{vosor_release}
+and
+{vosoi_install}
+cycle.
+
+Invocation (via tabtarget):
+
+----
+tt/vow-F.Freshen.sh
+----
+
+Or directly:
+
+----
+vvx_freshen --burc .buk/burc.env
+----
+
+{voss_inputs}
+
+// ⟦axd_required⟧
+* Path to `burc.env` file (`--burc` argument)
+
+{voss_behavior}
+
+. *Parse burc.env*:
+.. {vosc_call}
+parse burc.env for `BURC_PROJECT_ROOT`, `BURC_TOOLS_DIR`, `BURC_MANAGED_KITS`
+.. {vosc_fatal}
+if missing or empty: "burc.env missing required variable: {name}"
+
+. *Read forge templates*:
+.. For each kit in `BURC_MANAGED_KITS`:
+... {vosc_call}
+look up
+{vose_kit}
+in
+{vose_registry}
+to get
+{vose_managed_section}
+declarations
+... For each
+{vose_managed_section}:
+{vosc_call}
+read template from `${BURC_TOOLS_DIR}/{kit}/vov_veiled/{template_path}`
+... {vosc_fatal}
+if template not found: "Template not found in forge: {path}"
+
+. *Freshen CLAUDE.md*:
+.. If CLAUDE.md absent:
+{vosc_call}
+create with header `# Claude Code Project Memory`
+.. For each
+{vose_managed_section}:
+... If
+{vose_marker_s}
+exist: replace content between markers
+... Else if
+{vose_uninstalled_marker}
+exists: expand at that location
+... Else: append at end of file
+.. {vosc_step}
+report each section as updated, expanded, or appended
+
+NOTE: No git commit is performed.
+The caller decides when to commit, enabling
+{vosof_freshen}
+to be composed with other operations.
+
+{voss_outputs}
+
+* Updated CLAUDE.md with
+{vose_managed_section_s}
+from forge templates
+
+{voss_completion}
+
+CLAUDE.md
+{vose_managed_section_s}
+reflect current forge template content.
+No other files modified.
 
 
 == Routines
