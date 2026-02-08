@@ -184,8 +184,17 @@ struct FreshenArgs {
     burc: PathBuf,
 }
 
+/// Environment gate — panics if Claude Code environment is misconfigured.
+/// Called unconditionally before any argument parsing or library use.
+fn vosr_init() {
+    if std::env::var("CLAUDE_CODE_DISABLE_AUTO_MEMORY").as_deref() != Ok("1") {
+        panic!("CLAUDE_CODE_DISABLE_AUTO_MEMORY must be 1");
+    }
+}
+
 #[tokio::main]
 async fn main() -> ExitCode {
+    vosr_init();
     let cli = Cli::parse();
 
     let exit_code = match cli.command {

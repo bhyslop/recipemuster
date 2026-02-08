@@ -1,0 +1,27 @@
+Validate Claude Code environment before any operation.
+Panics unconditionally if required environment invariants are not met.
+Called as the first action in main(), before argument parsing.
+
+{voss_inputs}
+
+// ⟦axd_none⟧
+None.
+
+{voss_behavior}
+
+. Check environment variable `CLAUDE_CODE_DISABLE_AUTO_MEMORY`:
+.. {vosc_require}
+value equals `1`
+.. If missing or any other value:
+panic with message "CLAUDE_CODE_DISABLE_AUTO_MEMORY must be 1"
+
+{voss_outputs}
+
+No outputs on success — execution continues silently.
+On failure, process terminates via panic (non-zero exit, no recovery).
+
+{voss_completion}
+
+Environment validated. All subsequent operations may proceed.
+
+*Implementation:* `Tools/vok/src/vorm_main.rs` — `vosr_init()`

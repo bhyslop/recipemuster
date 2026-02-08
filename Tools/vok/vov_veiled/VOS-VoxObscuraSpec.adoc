@@ -151,6 +151,7 @@
 :vosr_commit:           <<vosr_commit,commit routine>>
 :vosr_guard:            <<vosr_guard,guard routine>>
 :vosr_probe:            <<vosr_probe,probe routine>>
+:vosr_init:             <<vosr_init,init routine>>
 
 // Control terms (voice axc_* in bash scripted context)
 :vosc_require:          <<vosc_require,REQUIRE>>
@@ -1425,6 +1426,12 @@ include::VOSRG-guard.adoc[]
 === {vosr_probe}
 
 include::VOSRP-probe.adoc[]
+
+[[vosr_init]]
+// ⟦axl_voices axo_routine⟧
+=== {vosr_init}
+
+include::VOSRI-init.adoc[]
 
 
 == Commit Message Architecture
