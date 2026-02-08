@@ -234,6 +234,12 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
                     }
                     println!();
                 }
+                eprintln!();
+                if state == "bridled" {
+                    eprintln!("Recommended: /jjc-heat-mount {} to execute", firemark.jjrf_as_str());
+                } else {
+                    eprintln!("Recommended: /jjc-pace-bridle {} or /jjc-heat-mount {}", coronet, firemark.jjrf_as_str());
+                }
             }
         }
     }

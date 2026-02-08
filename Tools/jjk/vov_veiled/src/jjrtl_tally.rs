@@ -243,6 +243,8 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs) -> i32 {
                 }
             }
 
+            eprintln!();
+            eprintln!("Recommended: /jjc-heat-mount {} to execute", fm.jjrf_as_str());
             0
         }
         Err(e) => {

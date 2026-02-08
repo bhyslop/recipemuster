@@ -296,6 +296,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                     if let Some(tack) = pace.tacks.first() {
                         let state_str = zjjrpd_pace_state_str(&tack.state);
                         println!("Next: {} ({}) [{}]", tack.silks, coronet_key, state_str);
+                        eprintln!();
+                        eprintln!("Recommended: /jjc-heat-mount {}", heat_key);
                     }
                 }
             } else {
