@@ -2276,6 +2276,7 @@
         "₢APAAY",
         "₢APAAZ",
         "₢APAAO",
+        "₢APAAa",
         "₢APAAJ",
         "₢APAAB",
         "₢APAAC",
@@ -2283,7 +2284,7 @@
         "₢APAAH",
         "₢APAAN"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -2947,6 +2948,17 @@
               "text": "Implement rbf_summon — ark-level image retrieval.\n\n## Concept\nrbf_summon is the ark-level counterpart to rbf_retrieve. Given a vessel and\nconsecration, it pulls both -image and -about artifacts as a coherent unit.\nPairs with rbf_abjure (ark-level delete) and rbf_conjure/rbf_build (ark-level build).\n\n## Interface\nrbf_summon <vessel> <consecration>\n\n## Code changes\n- New rbf_summon function in rbf_Foundry.sh\n- Authenticate as Retriever (fallback to Director, same as rbf_retrieve)\n- Construct both ark tags using RBGC_ARK_SUFFIX_IMAGE and RBGC_ARK_SUFFIX_ABOUT\n- Verify both artifacts exist (HEAD check, like rbf_abjure)\n- Pull both via docker pull\n- Report which artifacts were retrieved\n\n## Spec changes\n- Add rbtgo_ark_summon mapping and definition in RBSA-SpecTop.adoc\n- Create operation lens RBSAS-ark_summon.adoc\n- Coordinator wiring and tabtarget\n\n## Verification\n- Pulls both -image and -about for a given vessel+consecration\n- Reports if either artifact is missing (orphaned ark)\n- Uses Retriever credentials when available\n- RBSA terms consistent with implementation",
               "silks": "implement-rbf-summon-ark-retrieve",
               "commit": "c8334ec"
+            }
+          ]
+        },
+        "₢APAAa": {
+          "tacks": [
+            {
+              "ts": "260209-0739",
+              "state": "rough",
+              "text": "Introduce zipper pattern: a colophon↔module↔command registry for testbench isolation.\n\n## Concept\n\nA \"zipper\" is a BCG-compliant module that kindles array constants mapping\ncolophons to their implementing modules and commands. Testbenches and workbenches\nuse symbolic constants instead of hardcoded colophon strings, so colophon renames\n(like the rbw-fB→rbw-aC migration) require zero test edits.\n\nTwo layers:\n- **buz_zipper.sh** (BUK framework): array infrastructure + create/get API\n- **rbz_zipper.sh** (RBW kit registrations): constants per tuple\n\n## Layer 1: buz_zipper.sh (Tools/buk/)\n\nBCG-compliant module, but unusually only sourced by testbenches and workbenches,\nnot by other BCG modules.\n\n- zbuz_kindle() / zbuz_sentinel() — standard BCG lifecycle\n- Three internal parallel arrays: zbuz_colophons[], zbuz_modules[], zbuz_commands[]\n- buz_create_capture(colophon, module, command) — appends to arrays, prints index\n- buz_get_colophon(idx), buz_get_module(idx), buz_get_command(idx) — getters\n\n## Layer 2: rbz_zipper.sh (Tools/rbw/)\n\n- rbz_kindle() registers all RBW tuples and assigns constants:\n    RBZ_ABJURE_ARK=$(buz_create_capture \"rbw-aA\" \"rbf_Foundry\" \"rbf_abjure\")\n    RBZ_BESEECH_ARK=$(buz_create_capture \"rbw-ab\" \"rbf_Foundry\" \"rbf_beseech\")\n    RBZ_CONJURE_ARK=$(buz_create_capture \"rbw-aC\" \"rbf_Foundry\" \"rbf_build\")\n    RBZ_SUMMON_ARK=$(buz_create_capture \"rbw-as\" \"rbf_Foundry\" \"rbf_summon\")\n    RBZ_DELETE_IMAGE=$(buz_create_capture \"rbw-iD\" \"rbf_Foundry\" \"rbf_delete\")\n    RBZ_LIST_IMAGES=$(buz_create_capture \"rbw-il\" \"rbf_Foundry\" \"rbf_list\")\n    RBZ_RETRIEVE_IMAGE=$(buz_create_capture \"rbw-ir\" \"rbf_Foundry\" \"rbf_retrieve\")\n    ... (all coordinator-wired operations)\n\n## Baby step scope\n\nThis pace creates buz_zipper.sh + rbz_zipper.sh with constants per tuple only.\nNo testbench consumption yet — that comes in the testing paces that follow.\n\n## Documentation\n\nAdd zipper as a formulary type in Tools/buk/README.md alongside workbench/testbench.\nNote the buf_ prefix reservation already exists for \"formulary\" — consider whether\nbuz_ (zipper-specific) or buf_ (generic formulary) is more appropriate.\n\n## Verification\n\n- buz_zipper.sh passes shellcheck\n- rbz_zipper.sh passes shellcheck\n- rbz_kindle() registers all coordinator-wired colophons\n- Constants are integers (array indices)\n- Getters return correct values for each constant",
+              "silks": "introduce-zipper-colophon-registry",
+              "commit": "2ffbc9d"
             }
           ]
         }
