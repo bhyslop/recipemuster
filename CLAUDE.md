@@ -200,7 +200,7 @@ When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-
 
 Tabtargets follow: `{colophon}.{frontispiece}[.{imprint}].sh`
 
-Colophons must reference valid Primary Universe prefixes. See **BUK Concepts** below for terminology (colophon, frontispiece, imprint, formulary).
+Colophons must reference valid Primary Universe prefixes. See **BUK Concepts** below for terminology (colophon, frontispiece, imprint, workbench).
 
 ### Extended Namespace Checklist
 
@@ -271,13 +271,13 @@ BUK provides tabtarget/launcher infrastructure. Key vocabulary:
 
 | Term | Definition |
 |------|------------|
-| **Tabtarget** | Launcher script in `tt/` that delegates to a formulary |
+| **Tabtarget** | Launcher script in `tt/` that delegates to a workbench |
 | **Colophon** | Routing identifier (includes hyphen): `rbw-B`, `buw-tt-ll` |
 | **Frontispiece** | Human-readable description (PascalCase): `ConnectBottle` |
 | **Imprint** | Optional target parameter: `nsproto`, `srjcl` |
-| **Formulary** | Component that routes colophons to implementations |
-| **Workbench** | Formulary for commands: `{prefix}w_workbench.sh` |
-| **Testbench** | Formulary for tests: `{prefix}t_testbench.sh` |
+| **Zipper** | BCG-compliant module kindling colophon→module→command array constants |
+| **Workbench** | Routes commands: `{prefix}w_workbench.sh` |
+| **Testbench** | Routes tests: `{prefix}t_testbench.sh` |
 
 **Tabtarget pattern**: `{colophon}.{frontispiece}[.{imprint}].sh`
 
@@ -528,7 +528,7 @@ BUK provides tabtarget/launcher infrastructure for bash-based tooling.
 **Key files:**
 - `Tools/buk/buc_command.sh` — command utilities
 - `Tools/buk/bud_dispatch.sh` — dispatch utilities
-- `Tools/buk/buw_workbench.sh` — workbench formulary
+- `Tools/buk/buw_workbench.sh` — workbench
 
 **Tabtarget pattern:** `{colophon}.{frontispiece}[.{imprint}].sh`
 

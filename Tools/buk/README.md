@@ -7,9 +7,9 @@ A portable, graftable bash infrastructure for building maintainable command-line
 - [Overview](#overview)
 - [Core Concepts](#core-concepts)
   - [Launchers](#launchers)
-  - [Formulary](#formulary)
   - [Workbenches](#workbenches)
   - [Testbenches](#testbenches)
+  - [Zipper](#zipper)
   - [TabTargets](#tabtargets)
   - [Config Regimes](#config-regimes)
 - [Architecture](#architecture)
@@ -39,7 +39,7 @@ This separation allows BUK to be copied wholesale into any project and configure
 
 **Definition**: A launcher is a bootstrap script that validates configuration, loads regime files, and delegates to BUD (Bash Dispatch Utility). It serves as an **environment gate**—establishing a clean, validated execution context.
 
-**Naming Pattern**: `launcher.{formulary_name}.sh`
+**Naming Pattern**: `launcher.{workbench_name}.sh`
 
 **Location**: `.buk/` directory at project root
 
@@ -62,38 +62,14 @@ This ensures tests exercise real dispatch paths with proper isolation.
 **Design Rationale**:
 - Launchers catch configuration errors before BUD starts
 - Environment gate guarantees isolation between dispatch layers
-- Clear naming ties launcher to its formulary
+- Clear naming ties launcher to its workbench
 - Shared logic in `launcher_common.sh` eliminates boilerplate
-
----
-
-### Formulary
-
-**Definition**: A formulary is the component that BUD (dispatch) invokes to route tabtarget colophons to their implementations. It owns the authoritative colophon→implementation mapping for a toolkit.
-
-**Responsibility**:
-- Receives colophon from BUD (e.g., `rbw-GR`)
-- Routes to appropriate implementation (CLI, module function, or script)
-- Passes imprints to the implementation as target parameters
-- Manages module initialization (kindling) as needed
-- Future: Provides bidirectional lookup (colophon↔frontispiece↔documentation)
-
-**Implementations**:
-
-| Type | Pattern | Routing Strategy |
-|------|---------|------------------|
-| Workbench | `{prefix}w_workbench.sh` | Routes to functions or CLIs |
-| Testbench | `{prefix}t_testbench.sh` | Routes to test functions |
-
-**Design Rationale**:
-- Centralizes colophon→implementation knowledge per toolkit
-- Future-proofs for documentation generation from frontispieces
 
 ---
 
 ### Workbenches
 
-**Definition**: A workbench is a formulary implementation—a multi-call bash script that routes commands to their implementations.
+**Definition**: A workbench is a multi-call bash script that routes commands to their implementations.
 
 **Naming Pattern**: `{prefix}w_workbench.sh`
 
@@ -151,7 +127,7 @@ workbench_main "$@"
 ```
 
 **Key Characteristics**:
-- Single-file formulary that routes commands
+- Single-file router that routes commands
 - Follows multi-call pattern (single script, multiple commands via case routing)
 - Loads configuration (BURC/BURS) as needed
 - Can delegate to other scripts for complex operations
@@ -161,7 +137,7 @@ workbench_main "$@"
 
 ### Testbenches
 
-**Definition**: A testbench is a formulary implementation that orchestrates test scenarios—invoking tabtargets under test and assessing their behavior.
+**Definition**: A testbench orchestrates test scenarios—invoking tabtargets under test and assessing their behavior.
 
 **Naming Pattern**: `{prefix}t_testbench.sh`
 
@@ -184,6 +160,29 @@ tt/jjt-f.TestFavor.sh → Launcher → BUD → jjt_testbench.sh
 
 **Examples**:
 - `Tools/jjk/jjt_testbench.sh` - Job Jockey test scenarios
+
+---
+
+### Zipper
+
+**Definition**: A zipper is a BCG-compliant module that kindles array constants mapping colophons to their implementing modules and commands. Testbenches use symbolic constants instead of hardcoded colophon strings.
+
+**Naming Pattern**: `{prefix}z_zipper.sh`
+
+**Location**: `Tools/{toolkit}/` subdirectory
+
+**Examples**:
+- `Tools/buk/buz_zipper.sh` - BUK zipper (base registry infrastructure)
+- `Tools/rbw/rbz_zipper.sh` - RBW zipper (Recipe Bottle colophon registry)
+
+**Key Functions**:
+- `buz_create_capture(colophon, module, command)` — Register a tuple, returns index
+- `buz_get_colophon(idx)`, `buz_get_module(idx)`, `buz_get_command(idx)` — Getters
+
+**Design Rationale**:
+- Symbolic constants eliminate hardcoded colophon strings in tests
+- Parallel arrays provide O(1) lookup by index
+- Each toolkit's zipper owns its colophon registry
 
 ---
 
@@ -212,7 +211,7 @@ BUK implements the bash dispatch variant. The remainder of this section describe
 
 #### BUK TabTarget Implementation
 
-**Definition**: In BUK, TabTargets are lightweight shell scripts in the `tt/` directory that delegate to formularies via launchers.
+**Definition**: In BUK, TabTargets are lightweight shell scripts in the `tt/` directory that delegate to workbenches via launchers.
 
 **Naming Pattern**: `{colophon}.{frontispiece}[.{imprint}...].sh`
 
@@ -226,14 +225,14 @@ TabTarget filenames encode structured information using publishing terminology:
 
 | Token | Term | Purpose | Example |
 |-------|------|---------|---------|
-| 1 | **Colophon** | Routing identifier—what the formulary matches on | `rbw-B` |
+| 1 | **Colophon** | Routing identifier—what the workbench matches on | `rbw-B` |
 | 2 | **Frontispiece** | Human-readable description | `ConnectBottle` |
 | 3+ | **Imprint** | Embedded parameter(s)—target/instance specifier | `nsproto` |
 
 **Simple example** (no imprint):
 ```
 buw-tt-ll.ListLaunchers.sh
-├── Colophon: buw-tt-ll      (formulary routes on this)
+├── Colophon: buw-tt-ll      (workbench routes on this)
 ├── Frontispiece: ListLaunchers (human reads this)
 └── Extension: sh
 ```
@@ -241,7 +240,7 @@ buw-tt-ll.ListLaunchers.sh
 **Parameterized example** (with imprint):
 ```
 rbw-B.ConnectBottle.nsproto.sh
-├── Colophon: rbw-B          (formulary routes on this)
+├── Colophon: rbw-B          (workbench routes on this)
 ├── Frontispiece: ConnectBottle (human reads this)
 ├── Imprint: nsproto         (passed to implementation)
 └── Extension: sh
@@ -274,7 +273,7 @@ BUD parses the filename into tokens using `BURC_TABTARGET_DELIMITER`:
 | `buw-ll.ListLaunchers.sh` | `buw-ll` | `ListLaunchers` | *(none)* |
 | `rbw-B.ConnectBottle.nsproto.sh` | `rbw-B` | `ConnectBottle` | `nsproto` |
 
-BUD extracts the colophon using `${filename%%${BURC_TABTARGET_DELIMITER}*}` and passes it to the formulary.
+BUD extracts the colophon using `${filename%%${BURC_TABTARGET_DELIMITER}*}` and passes it to the workbench.
 
 **Key Benefits**:
 1. **Tab completion**: Type `tt/buw-` then press TAB to see all BUK commands
@@ -284,7 +283,7 @@ BUD extracts the colophon using `${filename%%${BURC_TABTARGET_DELIMITER}*}` and 
 5. **Lightweight**: No logic in tabtargets, just delegation
 
 **Design Rationale**:
-- Colophons route through the formulary to implementations
+- Colophons route through the workbench to implementations
 - Frontispieces serve as inline documentation for humans
 - Imprints allow the same command to target different instances
 - Delegating to launchers ensures validation happens on every invocation
@@ -410,11 +409,11 @@ User invokes TabTarget:
    → Sources BURS (station config)
    → Sets up logging
 
-5. BUD invokes Formulary (workbench)
+5. BUD invokes Workbench
    → buw_workbench.sh buw-ll [imprints...]
    → Passes colophon as command, imprints as arguments
 
-6. Formulary routes colophon
+6. Workbench routes colophon
    → Case statement routes colophon "buw-ll" to implementation
    → Passes imprints to implementation
    → Executes command logic
@@ -487,15 +486,15 @@ BUK modules use `bu{x}_` prefixes where `{x}` identifies the module.
 | Prefix | Name | Status | Purpose |
 |--------|------|--------|---------|
 | `buc_` | command | Active | Command utilities, output formatting |
-| `bud_` | dispatch | Active | Environment setup, invokes formulary |
-| `buf_` | formulary | Reserved | Colophon↔implementation mapping |
+| `bud_` | dispatch | Active | Environment setup, invokes workbench |
 | `bug_` | guide | Active | Always-visible user interaction |
 | `burc_` | regime-config | Active | Project-level Config Regime |
 | `burs_` | regime-station | Active | Station-level Config Regime |
 | `but_` | test | Active | Testing framework |
 | `buut_` | tabtarget | Active | TabTarget/launcher creation |
 | `buv_` | validation | Active | Type system, input validation |
-| `buw_` | workbench | Active | BUK self-management formulary |
+| `buw_` | workbench | Active | BUK self-management workbench |
+| `buz_` | zipper | Active | Colophon registry via parallel arrays |
 
 **Conventions**:
 - Three-letter: core modules (`buc_`, `bud_`)
@@ -508,20 +507,20 @@ BUK modules use `bu{x}_` prefixes where `{x}` identifies the module.
 
 **File**: `Tools/buk/bud_dispatch.sh`
 
-**Purpose**: Central dispatch system that sets up execution environment and invokes the formulary.
+**Purpose**: Central dispatch system that sets up execution environment and invokes the workbench.
 
 **Key Responsibilities**:
 - Parse tabtarget filename into tokens
 - Environment setup (temp dirs, output dirs, logging)
 - Source BURS (station configuration)
 - Resolve color policy
-- Invoke formulary with proper context
+- Invoke workbench with proper context
 - Capture and propagate exit status
 - Generate execution transcript
 
 #### Execution Context (Exported Variables)
 
-BUD exports the following environment variables for formulary access:
+BUD exports the following environment variables for workbench access:
 
 **Invocation Identity**:
 
@@ -532,7 +531,7 @@ BUD exports the following environment variables for formulary access:
 
 **Token Explosion**:
 
-TabTarget filenames are parsed into tokens using `BURC_TABTARGET_DELIMITER`. Each token is exported for formulary access:
+TabTarget filenames are parsed into tokens using `BURC_TABTARGET_DELIMITER`. Each token is exported for workbench access:
 
 | Variable | Semantic Role | For `rbw-B.ConnectBottle.nsproto.sh` |
 |----------|---------------|--------------------------------------|
@@ -545,7 +544,7 @@ TabTarget filenames are parsed into tokens using `BURC_TABTARGET_DELIMITER`. Eac
 | `BUD_TARGET` | Full filename | `rbw-B.ConnectBottle.nsproto.sh` |
 | `BUD_CLI_ARGS` | CLI arguments | *(extra arguments passed to tabtarget)* |
 
-The formulary receives the colophon for routing and imprints as target parameters. The frontispiece is for human readability and typically not used at runtime.
+The workbench receives the colophon for routing and imprints as target parameters. The frontispiece is for human readability and typically not used at runtime.
 
 This mirrors MBC's `MBC_TTPARAM__FIRST` through `MBC_TTPARAM__FIFTH` pattern.
 
