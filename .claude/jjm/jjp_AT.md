@@ -1,9 +1,1 @@
-# Paddock: rbw-regime-consolidation
-
-## Context
-
-(Describe the initiative's background and goals)
-
-## References
-
-(List relevant files, docs, or prior work)
+Memos/memo-20260209-regime-inventory.md
