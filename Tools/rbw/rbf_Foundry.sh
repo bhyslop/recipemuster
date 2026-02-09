@@ -495,7 +495,7 @@ zrbf_wait_build_completion() {
 
   local z_status="PENDING"
   local z_attempts=0
-  local z_max_attempts=240  # 20 minutes with 5 second intervals
+  local z_max_attempts=960  # 80 minutes with 5 second intervals
 
   while true; do
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break;; esac
@@ -631,7 +631,7 @@ rbf_build() {
   zrbf_compose_build_request_json
   zrbf_submit_build_json
 
-  # Wait for completion (5s x 240 = 20m, no backoff)
+  # Wait for completion (5s x 960 = 80m, no backoff)
   zrbf_wait_build_completion
 
   buc_success "Vessel image built: ${z_tag}"
