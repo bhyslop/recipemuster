@@ -718,11 +718,8 @@ rbf_delete() {
 rbf_list() {
   zrbf_sentinel
 
-  local z_moniker="${1:-}"
-
   # Documentation block
-  buc_doc_brief "List images and tags in the Artifact Registry repository"
-  buc_doc_param "moniker" "Optional: specific image moniker to list tags for (e.g., rbev-busybox)"
+  buc_doc_brief "List all locators (moniker:tag) in the Artifact Registry repository"
   buc_doc_shown || return 0
 
   # Note: Ideally uses Retriever role, but Director also has read access
@@ -730,87 +727,50 @@ rbf_list() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  if test -n "${z_moniker}"; then
-    # List tags for specific moniker
-    buc_step "Listing tags for: ${z_moniker}"
+  buc_step "Listing all images in repository"
 
-    local z_tags_file="${BUD_TEMP_DIR}/rbf_list_tags.json"
+  local z_packages_file="${BUD_TEMP_DIR}/rbf_list_packages.json"
+  local z_gar_api="https://artifactregistry.googleapis.com/v1"
+  local z_repo_path="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+
+  curl -sL \
+    -H "Authorization: Bearer ${z_token}" \
+    "${z_gar_api}/${z_repo_path}/packages" \
+    > "${z_packages_file}" || buc_die "Failed to fetch packages"
+
+  # Check for error response
+  if jq -e '.error' "${z_packages_file}" >/dev/null 2>&1; then
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${z_packages_file}")
+    buc_die "API error: ${z_error}"
+  fi
+
+  # Extract package monikers
+  local z_packages_list="${BUD_TEMP_DIR}/rbf_list_packages.txt"
+  jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
+    echo "${pkg##*/}"
+  done | sort > "${z_packages_list}"
+
+  echo "Repository: ${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}"
+
+  # For each moniker, fetch tags and emit locators
+  while IFS= read -r z_moniker; do
+    local z_tags_file="${BUD_TEMP_DIR}/rbf_list_tags_${z_moniker}.json"
     curl -sL \
       -H "Authorization: Bearer ${z_token}" \
       "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/tags/list" \
-      > "${z_tags_file}" || buc_die "Failed to fetch tags"
+      > "${z_tags_file}" 2>/dev/null || continue
 
-    # Check for error response
+    # Skip if error response
     if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
-      local z_error
-      z_error=$(jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}")
-      buc_die "Registry error: ${z_error}"
+      continue
     fi
 
-    # Display tags with full references
-    echo ""
-    echo "Images for moniker: ${z_moniker}"
-    echo ""
-    jq -r '.tags[]? // empty' "${z_tags_file}" | sort -r | while read -r tag; do
-      local z_full_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_moniker}:${tag}"
-      echo "  ${z_full_ref}"
+    # Emit locators: moniker:tag
+    jq -r '.tags[]? // empty' "${z_tags_file}" | sort | while read -r z_tag; do
+      echo "${z_moniker}:${z_tag}"
     done
-  else
-    # List all images (packages) in repository using Artifact Registry REST API
-    # Docker Registry v2 _catalog doesn't work with GAR
-    buc_step "Listing all images in repository"
-
-    local z_packages_file="${BUD_TEMP_DIR}/rbf_list_packages.json"
-    local z_gar_api="https://artifactregistry.googleapis.com/v1"
-    local z_repo_path="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
-
-    curl -sL \
-      -H "Authorization: Bearer ${z_token}" \
-      "${z_gar_api}/${z_repo_path}/packages" \
-      > "${z_packages_file}" || buc_die "Failed to fetch packages"
-
-    # Check for error response
-    if jq -e '.error' "${z_packages_file}" >/dev/null 2>&1; then
-      local z_error
-      z_error=$(jq -r '.error.message // "Unknown error"' "${z_packages_file}")
-      buc_die "API error: ${z_error}"
-    fi
-
-    # Extract package names
-    local z_packages_list="${BUD_TEMP_DIR}/rbf_list_packages.txt"
-    jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
-      # Extract just the image name (last path component after /packages/)
-      echo "${pkg##*/}"
-    done | sort > "${z_packages_list}"
-
-    echo ""
-    echo "All images in repository:"
-    echo ""
-
-    # For each moniker, fetch tags and display count
-    local z_total=0
-    while IFS= read -r moniker; do
-      local z_tags_file="${BUD_TEMP_DIR}/rbf_list_tags_${moniker}.json"
-      curl -sL \
-        -H "Authorization: Bearer ${z_token}" \
-        "${ZRBF_REGISTRY_API_BASE}/${moniker}/tags/list" \
-        > "${z_tags_file}" 2>/dev/null || continue
-
-      # Skip if error response
-      if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
-        continue
-      fi
-
-      # Count tags
-      local z_tag_count
-      z_tag_count=$(jq -r '.tags[]? // empty' "${z_tags_file}" | wc -l | tr -d ' ')
-      echo "  ${moniker}  ${z_tag_count} tag(s)"
-      z_total=$((z_total + 1))
-    done < "${z_packages_list}"
-
-    echo ""
-    echo "Total: ${z_total} image(s)"
-  fi
+  done < "${z_packages_list}"
 
   buc_success "List complete"
 }

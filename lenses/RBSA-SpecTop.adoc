@@ -317,6 +317,7 @@
 :rbst_xname:                 <<rbst_xname,XName>>
 :rbst_description:           <<rbst_description,Description>>
 :rbst_image_ref:             <<rbst_image_ref,Image Reference>>
+:rbst_locator:               <<rbst_locator,Locator>>
 :rbst_path:                  <<rbst_path,Path>>
 :rbst_platform_list:         <<rbst_platform_list,Platform List>>
 :rbst_binfmt_policy:         <<rbst_binfmt_policy,Binfmt Policy>>
@@ -2122,6 +2123,13 @@ Human-readable documentation text.
 {rbst_image_ref}::
 Fully-qualified container image reference.
 1-256 characters; format: `registry/namespace/image:tag` (e.g., `docker.io/library/nginx:1.27-alpine`).
+
+[[rbst_locator]]
+// ⟦axl_voices axtu_string⟧
+{rbst_locator}::
+Repository-local image identifier combining {at_moniker} and tag.
+Format: `moniker:tag` (e.g., `rbev-busybox:20251231T161441Z-img`).
+Identifies a single artifact within the {rbtgi_repository} without repeating registry host or path.
 
 [[rbst_path]]
 // ⟦axl_voices axtu_path⟧

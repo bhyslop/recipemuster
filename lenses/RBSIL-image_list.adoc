@@ -2,17 +2,13 @@ NOTE: This operation lists container images in
 {rbtgi_repository}
 using the Artifact Registry REST API for package enumeration and the Docker Registry HTTP API V2 for tag listing.
 
-NOTE: This is a low-level operation that displays raw image tags without
+NOTE: This is a low-level operation that displays raw {rbst_locator} values without
 {rbtga_ark}
-semantics. It does not filter `-meta` companion artifacts.
+semantics.
 
 The
 {rbtr_director}
-lists images in two modes:
-
-*Mode 1: List All Packages (No Arguments)*
-
-Lists all package monikers with their tag counts.
+lists all images:
 
 // ⟦axs_inputs⟧
 . *Validate Input Parameters*:
@@ -40,69 +36,23 @@ HTTP 200 response
 .. {rbbc_fatal}
 if request fails: "Failed to fetch package list"
 
-. *Count Tags per Package*:
+. *Fetch Tags per Package*:
 .. For each package in `«PACKAGES»`:
+... Extract {at_moniker} from package name (last path component)
 ... {rbbc_call}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages.tags/list[Artifact Registry API: List Tags] with:
+link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#content-discovery[Docker Registry API: GET tags/list] with:
 .... method: `GET`
-.... endpoint: `{package.name}/tags`
+.... endpoint: `«REGISTRY_BASE»/«MONIKER»/tags/list`
 .... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 ... {rbbc_store}
-tag count from response JSON `tags` array length
-.. {rbbc_store}
-package moniker and tag count pairs
-
-// ⟦axs_outputs⟧
-. *Display Results*:
-.. {rbbc_show}
-table with columns:
-... Package moniker (extracted from package name)
-... Tag count
-
-*Mode 2: List Tags for Specific Package (With Moniker Argument)*
-
-Lists all tags for a given package moniker.
-
-// ⟦axs_inputs⟧
-. *Validate Input Parameters*:
-.. {rbbc_require}
-`«INPUT_MONIKER»` provided as first argument
-
-// ⟦axs_behavior⟧
-. *Authenticate as
-{rbtr_director}*:
-.. Execute
-{rbtoe_director_authenticate}
-.. {rbbc_store}
-`«DIRECTOR_TOKEN»` for subsequent API calls
-
-. *Construct Registry Endpoint*:
-.. {rbbc_store}
-`«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
-.. {rbbc_store}
-`«REGISTRY_PATH»` as `{rbrr_depot_project_id}/{rbrr_gar_repository}`
-.. {rbbc_store}
-`«REGISTRY_BASE»` as `https://«REGISTRY_HOST»/v2/«REGISTRY_PATH»`
-
-. *Fetch Tag List*:
-.. {rbbc_call}
-link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#content-discovery[Docker Registry API: GET tags/list] with:
-... method: `GET`
-... endpoint: `«REGISTRY_BASE»/«INPUT_MONIKER»/tags/list`
-... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
-.. {rbbc_require}
-HTTP 200 response
-.. {rbbc_store}
 `«TAGS»` array from response JSON field `tags`
-.. {rbbc_fatal}
-if request fails: "Failed to fetch tags for «INPUT_MONIKER»"
-.. {rbbc_fatal}
-if package not found: "Package «INPUT_MONIKER» not found"
 
 // ⟦axs_outputs⟧
 . *Display Results*:
 .. {rbbc_show}
-list of tags for `«INPUT_MONIKER»`, one tag per line
+`Repository: «REGISTRY_HOST»/«REGISTRY_PATH»` as first line
+.. {rbbc_show}
+one {rbst_locator} per line in `moniker:tag` format, sorted by {at_moniker} then tag
 
 // ⟦axs_completion⟧
-Procedure completes successfully when the requested image listing has been displayed.
+Procedure completes successfully when all {rbst_locator} values have been displayed.
