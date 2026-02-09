@@ -694,6 +694,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢ATAAG",
         "₢ATAAB",
         "₢ATAAA",
         "₢ATAAC",
@@ -701,7 +702,7 @@
         "₢ATAAE",
         "₢ATAAF"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -823,6 +824,17 @@
               "text": "Audit RBRR regime for unused/legacy variables from GitHub Container Registry era.\n\nBackground\n\nRBRR originally targeted GitHub Container Registry (GHCR). The project has since moved to Google Artifact Registry (GAR). Some RBRR variables may be vestigial.\n\nSuspect variables (from RBRR-RegimeRepo.adoc and rbrr_regime.sh)\n\n- RBRR_REGISTRY_SERVER — generic registry server (GHCR era?)\n- RBRR_REGISTRY_OWNER — GitHub username/org\n- RBRR_REGISTRY_NAME — GitHub repo name\n- RBRR_GITHUB_PAT_ENV — GitHub credentials file\n\nVariables that appear GAR-native\n\n- RBRR_GAR_REPOSITORY — GAR repository name\n- RBRR_DEPOT_PROJECT_ID — GCP project (but also see RBGD_GAR_PROJECT_ID overlap)\n- RBRR_GCP_REGION — GCP region (but also see RBGD_GAR_LOCATION overlap)\n\nTasks\n\n1. Grep for each RBRR_REGISTRY_* and RBRR_GITHUB_* variable usage\n2. Determine if any are still referenced in active code paths\n3. Check for RBGD/RBRR overlap (DEPOT_PROJECT_ID vs GAR_PROJECT_ID, GCP_REGION vs GAR_LOCATION)\n4. Propose which to remove vs consolidate\n5. Update RBRR-RegimeRepo.adoc to remove stale documentation\n6. Update rbrr_regime.sh validation if variables are removed\n\nAcceptance\n\n- Clear inventory of which RBRR variables are live vs dead\n- Spec changes proposed (separate pace for actual removal)",
               "silks": "audit-rbrr-legacy-variables",
               "commit": "82d2a17"
+            }
+          ]
+        },
+        "₢ATAAG": {
+          "tacks": [
+            {
+              "ts": "260209-1521",
+              "state": "rough",
+              "text": "Synchronize RBRV and RBRN verification implementation and tabtarget coverage across all three services.\n\n## Motivation\n\nThe rest of ₣AT is about treating all regimes the same way. This pace establishes uniform bash infrastructure for RBRV (vessel) and RBRN (nameplate) so subsequent spec/doc paces build on consistent implementation.\n\n## Current asymmetries\n\n### Tabtarget coverage gaps (service imprints: nsproto, srjcl, pluml)\n\n| Operation         | nsproto | srjcl | pluml |\n|-------------------|---------|-------|-------|\n| Start             | yes     | yes   | yes   |\n| Stop              | yes     | yes   | yes   |\n| ObserveNetworks   | yes     | yes   | yes   |\n| TestBottleService | yes     | yes   | yes   |\n| ConnectBottle     | yes     | yes   | NO    |\n| ConnectSentry     | yes     | yes   | yes   |\n| ConnectCenser     | yes     | NO    | NO    |\n\n### Test suite asymmetry\n- test_nsproto_* — 21 tests (security/DNS/ICMP)\n- test_srjcl_* — 3 tests (Jupyter)\n- test_pluml_* — 5 tests (PlantUML)\n\n## Bash files in scope\n\n- Tools/rbw/rbrv_regime.sh — zrbrv_kindle(), zrbrv_sentinel()\n- Tools/rbw/rbrv_cli.sh — rbrv_validate(), rbrv_render(), rbrv_info()\n- Tools/rbw/rbrn_regime.sh — zrbrn_kindle(), zrbrn_sentinel()\n- Tools/rbw/rbrn_cli.sh — rbrn_validate(), rbrn_render(), rbrn_info()\n- Tools/rbw/rbob_bottle.sh — rbob_start/stop/connect_{sentry,censer,bottle}()\n- Tools/rbw/rbob_cli.sh — rbob_validate(), rbob_info(), rbob_observe(), zrbob_furnish()\n- Tools/rbw/rboo_observe.sh — rboo_observe(), zrboo_kindle()\n- Tools/rbw/rbt_testbench.sh — rbt_suite_{nsproto,srjcl,pluml}(), rbt_load_nameplate(), rbt_route()\n- Tools/rbw/rbss.sentry.sh — sentry iptables/DNS config\n- Tools/rbw/rbf_Foundry.sh — build orchestration, consumes RBRV\n\n## Tabtargets in scope\n\nService-imprinted (per-service):\n- tt/rbw-s.Start.{nsproto,srjcl,pluml}.sh\n- tt/rbw-z.Stop.{nsproto,srjcl,pluml}.sh\n- tt/rbw-o.ObserveNetworks.{nsproto,srjcl,pluml}.sh\n- tt/rbw-to.TestBottleService.{nsproto,srjcl,pluml}.sh\n- tt/rbw-B.ConnectBottle.{nsproto,srjcl}.sh (missing pluml)\n- tt/rbw-S.ConnectSentry.{nsproto,srjcl,pluml}.sh\n- tt/rbw-C.ConnectCenser.nsproto.sh (missing srjcl, pluml)\n\n## RBRN env files (3 services)\n- Tools/rbw/rbrn_nsproto.env, rbrn_srjcl.env, rbrn_pluml.env\n\n## RBRV env files (6 vessels)\n- rbev-vessels/{busybox,nginx-ward,pg-keeper,ubu-safety,sentry-ubuntu-large,bottle-ubuntu-test}/rbrv.env\n\n## Related RBS subdocuments (context, not primary focus)\nService lifecycle: RBSSS, RBSBS, RBSBK, RBSBC, RBSBL, RBSBR\nNetwork: RBSNC, RBSNX\nSecurity: RBSSC, RBSAX, RBSIP, RBSDS, RBSPT\nVessel: RBSRV\n\n## Tasks\n1. Audit tabtarget gaps: determine which missing Connect tabtargets are intentional vs oversight\n2. Fill intentional tabtarget gaps (add missing ConnectBottle.pluml, ConnectCenser.{srjcl,pluml} if appropriate)\n3. Synchronize validation patterns between rbrv_cli.sh and rbrn_cli.sh\n4. Review rbt_testbench.sh test coverage — determine if srjcl/pluml suites need additional verification tests\n5. Ensure kindle/sentinel patterns are consistent across rbrv_regime.sh and rbrn_regime.sh\n\n## Scope control\n- Focus is bash implementation, not spec documents\n- Do NOT modify .adoc or .env files (those are separate paces)\n- Tabtarget additions should follow existing patterns exactly\n\n## Verification\n- All three services have identical tabtarget coverage (or documented reasons for differences)\n- rbrv and rbrn validation patterns are consistent\n- No regressions in existing test suites",
+              "silks": "synchronize-rbrv-rbrn-bash-and-tabtargets",
+              "commit": "447eb0d"
             }
           ]
         }
