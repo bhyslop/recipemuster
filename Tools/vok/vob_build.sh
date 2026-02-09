@@ -228,8 +228,7 @@ vob_release() {
   buc_step "Creating tarball"
 
   local z_parcel_name="vvk-parcel-${z_hallmark}"
-  local z_project_root="${BURC_PROJECT_ROOT:-${PWD}}"
-  local z_parcels_dir="${z_project_root}/.jjk/parcels"
+  local z_parcels_dir=".jjk/parcels"
   local z_tarball="${z_parcels_dir}/${z_parcel_name}.tar.gz"
 
   # Create parcels directory if it doesn't exist

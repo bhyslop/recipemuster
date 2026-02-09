@@ -47,5 +47,4 @@ Tools/vvk/bin/vvx-*
 **/target/
 Tools/vvc/target/
 
-# JJK parcels
-.jjk/parcels/
+# JJK release directory (parcels ignored via .jjk/.gitignore)

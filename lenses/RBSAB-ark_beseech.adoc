@@ -1,0 +1,69 @@
+NOTE: This operation petitions
+{rbtgi_repository}
+to reveal its consecrated
+{rbtga_ark}s,
+correlating
+{rbtga_ark_image}
+and
+{rbtga_ark_about}
+artifacts by shared
+{rbtga_consecration}
+timestamp.
+
+The
+{rbtr_director}
+beseeches the registry:
+
+// ⟦axs_inputs⟧
+. *Accept Optional Vessel Filter*:
+.. If `«INPUT_VESSEL»` provided as first argument, restrict enumeration to that vessel
+.. If omitted, enumerate all vessels
+
+// ⟦axs_behavior⟧
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+. *Enumerate Packages*:
+.. {rbbc_call}
+Google Artifact Registry API to fetch all packages from
+{rbtgi_repository}
+.. {rbbc_store}
+`«PACKAGES»` as list of package names
+.. If `«INPUT_VESSEL»` specified, filter to matching package only
+
+. *Fetch Tags Per Package*:
+.. For each package in `«PACKAGES»`:
+... {rbbc_call}
+Docker Registry HTTP API V2 tag list endpoint
+... For each tag returned, classify by suffix:
+.... Tags ending in `-image` → ark image artifact
+.... Tags ending in `-about` → ark about artifact
+.... Other tags → skip (plain image tags, not ark artifacts)
+... {rbbc_store}
+consecration base by stripping suffix from ark tags
+
+. *Correlate Ark Pairs*:
+.. Group artifacts by vessel + consecration
+.. Track presence of each artifact type per group
+.. {rbbc_store}
+correlation results showing which artifacts exist for each ark
+
+// ⟦axs_outputs⟧
+. *Present Tabular Results*:
+.. Sort by vessel (alphabetically), then by consecration (newest first within vessel)
+.. {rbbc_show}
+header row: `VESSEL`, `CONSECRATION`, `-image`, `-about`
+.. For each ark (unique vessel+consecration pair):
+... {rbbc_show}
+vessel name, consecration timestamp
+... {rbbc_show}
+`✓` for present artifacts, `✗` for absent artifacts
+.. Display reveals orphaned arks (only one artifact present) and complete arks (both artifacts)
+
+// ⟦axs_completion⟧
+Procedure completes successfully when all arks have been enumerated and the tabular display presents the correlation state of each consecration's artifact pair.
+The beseech reveals the registry's ark inventory without modifying any resources.

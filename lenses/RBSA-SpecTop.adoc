@@ -84,6 +84,7 @@
 :rbtgo_image_list:                <<rbtgo_image_list,rbf_list>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbf_delete>>
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
+:rbtgo_ark_beseech:              <<rbtgo_ark_beseech,rbf_beseech>>
 :rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
 :rbtgo_retriever_create:          <<rbtgo_retriever_create,rbgg_create_retriever>>
 :rbtgo_sa_delete:                 <<rbtgo_sa_delete,rbgg_delete_service_account>>
@@ -682,6 +683,14 @@ include::RBSID-image_delete.adoc[]
 Formally renounces an ark from the repository, removing both its image and about artifacts as a coherent unit.
 
 include::RBSAA-ark_abjure.adoc[]
+
+[[rbtgo_ark_beseech]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_ark_beseech}
+
+Petitions the registry to reveal its consecrated arks, correlating artifact pairs by shared consecration timestamp.
+
+include::RBSAB-ark_beseech.adoc[]
 
 == {rbtr_retriever} Operations
 

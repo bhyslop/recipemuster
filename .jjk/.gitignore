@@ -1,0 +1,5 @@
+# Parcel contents are build artifacts - ignore them
+parcels/*
+
+# But keep the directory structure
+!parcels/.gitkeep

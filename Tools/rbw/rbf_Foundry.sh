@@ -794,6 +794,116 @@ rbf_list() {
   buc_success "List complete"
 }
 
+rbf_beseech() {
+  zrbf_sentinel
+
+  # Documentation block
+  buc_doc_brief "Petition registry to reveal consecrated arks, correlating artifact pairs by shared consecration timestamp"
+  buc_doc_param "<vessel>" "Optional vessel filter - show only arks for this vessel"
+  buc_doc_shown || return 0
+
+  # Optional vessel filter
+  local z_filter_vessel="${1:-}"
+
+  buc_step "Fetching OAuth token (Director)"
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+
+  buc_step "Enumerating arks from repository"
+
+  local z_packages_file="${BUD_TEMP_DIR}/rbf_beseech_packages.json"
+  local z_gar_api="https://artifactregistry.googleapis.com/v1"
+  local z_repo_path="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+
+  curl -sL \
+    -H "Authorization: Bearer ${z_token}" \
+    "${z_gar_api}/${z_repo_path}/packages" \
+    > "${z_packages_file}" || buc_die "Failed to fetch packages"
+
+  # Check for error response
+  if jq -e '.error' "${z_packages_file}" >/dev/null 2>&1; then
+    local z_error
+    z_error=$(jq -r '.error.message // "Unknown error"' "${z_packages_file}")
+    buc_die "API error: ${z_error}"
+  fi
+
+  # Extract package monikers, optionally filter
+  local z_packages_list="${BUD_TEMP_DIR}/rbf_beseech_packages.txt"
+  if [[ -n "${z_filter_vessel}" ]]; then
+    jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
+      local moniker="${pkg##*/}"
+      if [[ "${moniker}" == "${z_filter_vessel}" ]]; then
+        echo "${moniker}"
+      fi
+    done | sort > "${z_packages_list}"
+  else
+    jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
+      echo "${pkg##*/}"
+    done | sort > "${z_packages_list}"
+  fi
+
+  # Build ark correlation data
+  local z_arks_raw="${BUD_TEMP_DIR}/rbf_beseech_arks_raw.txt"
+  > "${z_arks_raw}"  # Clear file
+
+  while IFS= read -r z_moniker; do
+    local z_tags_file="${BUD_TEMP_DIR}/rbf_beseech_tags_${z_moniker}.json"
+    curl -sL \
+      -H "Authorization: Bearer ${z_token}" \
+      "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/tags/list" \
+      > "${z_tags_file}" 2>/dev/null || continue
+
+    # Skip if error response
+    if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
+      continue
+    fi
+
+    # Process tags: extract consecrations and artifact types
+    jq -r '.tags[]? // empty' "${z_tags_file}" | while read -r z_tag; do
+      # Check for -image suffix
+      if [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}" ]]; then
+        local z_consecration="${z_tag%${RBGC_ARK_SUFFIX_IMAGE}}"
+        echo "${z_moniker}|${z_consecration}|image"
+      # Check for -about suffix
+      elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_ABOUT}" ]]; then
+        local z_consecration="${z_tag%${RBGC_ARK_SUFFIX_ABOUT}}"
+        echo "${z_moniker}|${z_consecration}|about"
+      fi
+      # Skip tags that are neither (plain image tags)
+    done >> "${z_arks_raw}"
+  done < "${z_packages_list}"
+
+  # Correlate artifacts into arks
+  local z_arks_correlated="${BUD_TEMP_DIR}/rbf_beseech_arks_correlated.txt"
+  sort "${z_arks_raw}" | awk -F'|' '
+    {
+      key = $1 "|" $2
+      if ($3 == "image") {
+        has_image[key] = 1
+      } else if ($3 == "about") {
+        has_about[key] = 1
+      }
+      seen[key] = 1
+    }
+    END {
+      for (k in seen) {
+        split(k, parts, "|")
+        vessel = parts[1]
+        consecration = parts[2]
+        image_mark = (has_image[k] ? "✓" : "✗")
+        about_mark = (has_about[k] ? "✓" : "✗")
+        printf "%-30s %-20s %-8s %-8s\n", vessel, consecration, image_mark, about_mark
+      }
+    }
+  ' | sort -k1,1 -k2,2r > "${z_arks_correlated}"
+
+  # Display header and results
+  printf "%-30s %-20s %-8s %-8s\n" "VESSEL" "CONSECRATION" "-image" "-about"
+  cat "${z_arks_correlated}"
+
+  buc_success "Beseech complete"
+}
+
 rbf_retrieve() {
   zrbf_sentinel
 
