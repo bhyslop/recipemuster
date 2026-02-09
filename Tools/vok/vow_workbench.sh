@@ -30,12 +30,12 @@ source "${VOW_SCRIPT_DIR}/../buk/buc_command.sh"
 buc_context "${0##*/}"
 
 # Verify launcher provided regime environment
-test -n "${BUD_REGIME_FILE:-}"   || buc_die "BUD_REGIME_FILE not set - must be called via launcher"
-test -n "${BUD_STATION_FILE:-}"  || buc_die "BUD_STATION_FILE not set - must be called via launcher"
+test -n "${BURD_REGIME_FILE:-}"   || buc_die "BURD_REGIME_FILE not set - must be called via launcher"
+test -n "${BURD_STATION_FILE:-}"  || buc_die "BURD_STATION_FILE not set - must be called via launcher"
 
-# Verbose output if BUD_VERBOSE is set
+# Verbose output if BURD_VERBOSE is set
 vow_show() {
-  test "${BUD_VERBOSE:-0}" != "1" || echo "VOWSHOW: $*"
+  test "${BURD_VERBOSE:-0}" != "1" || echo "VOWSHOW: $*"
 }
 
 # Simple routing function
@@ -46,8 +46,8 @@ vow_route() {
   vow_show "Routing command: ${z_command} with args: $*"
 
   # Verify BUD environment variables are present
-  test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP not set - must be called from BUD"
+  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - must be called from BUD"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BUD"
 
   vow_show "BUD environment verified"
 

@@ -201,8 +201,8 @@ zbuc_print() {
   local min_verbosity="$1"
   shift
 
-  # Always print if min_verbosity is -1, otherwise check BUC_VERBOSE
-  if [ "${min_verbosity}" -eq -1 ] || [ "${BUC_VERBOSE:-0}" -ge "${min_verbosity}" ]; then
+  # Always print if min_verbosity is -1, otherwise check BURD_VERBOSE
+  if [ "${min_verbosity}" -eq -1 ] || [ "${BURD_VERBOSE:-0}" -ge "${min_verbosity}" ]; then
     while [ $# -gt 0 ]; do
       if [ -n "${ZBUC_CONTEXT}" ]; then
         printf '%b%s%b %s\n' "${ZBUC_GRAY}" "${ZBUC_CONTEXT}" "${ZBUC_RESET}" "$1" >&2
@@ -216,11 +216,11 @@ zbuc_print() {
 
 # Core logging implementation - always reads from stdin
 zbuc_log() {
-  test -n "${BUD_TRANSCRIPT:-}" || return 0
+  test -n "${BURD_TRANSCRIPT:-}" || return 0
 
   local z_prefix="$1"
   local z_rest_prefix="$2"
-  local z_outfile="${BUD_TRANSCRIPT}"
+  local z_outfile="${BURD_TRANSCRIPT}"
 
   while IFS= read -r z_line; do
     printf '%s%s\n' "${z_prefix}" "${z_line}" >> "${z_outfile}"
@@ -328,7 +328,7 @@ buc_execute() {
 }
 
 # --- Hyperlink helpers (OSC-8), falls back to plain text when disabled ---
-# Disable with: export BUD_NO_HYPERLINKS=1
+# Disable with: export BURD_NO_HYPERLINKS=1
 zbuc_hyperlink() {
   local z_text="${1:-}"
   local z_url="${2:-}"
@@ -337,7 +337,7 @@ zbuc_hyperlink() {
   local z_blue_underline='\033[34m\033[4m'
   local z_reset='\033[0m'
 
-  if [ -n "${BUD_NO_HYPERLINKS:-}" ]; then
+  if [ -n "${BURD_NO_HYPERLINKS:-}" ]; then
     # Fallback: blue underlined text with URL in angle brackets
     printf '%s%s%s <%s>' "${z_blue_underline}" "${z_text}" "${z_reset}" "${z_url}"
     return 0

@@ -562,7 +562,7 @@ cmw_install() {
   zcmw_emit_normalizer_agent > ".claude/agents/cmsa-normalizer.md"
 
   buc_step "Patching CLAUDE.md"
-  zcmw_emit_claudemd_section > "${BUD_TEMP_DIR}/cmw_claudemd_section.md"
+  zcmw_emit_claudemd_section > "${BURD_TEMP_DIR}/cmw_claudemd_section.md"
   zcmw_patch_claudemd
 
   buc_success "Concept Model Kit installed"
@@ -584,8 +584,8 @@ cmw_uninstall() {
 }
 
 zcmw_patch_claudemd() {
-  local z_section_file="${BUD_TEMP_DIR}/cmw_claudemd_section.md"
-  local z_prompt_file="${BUD_TEMP_DIR}/cmw_patch_prompt.txt"
+  local z_section_file="${BURD_TEMP_DIR}/cmw_claudemd_section.md"
+  local z_prompt_file="${BURD_TEMP_DIR}/cmw_patch_prompt.txt"
 
   test -f "${z_section_file}" || buc_die "Section file not found: ${z_section_file}"
 

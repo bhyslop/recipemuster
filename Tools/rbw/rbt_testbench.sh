@@ -40,9 +40,9 @@ buc_context "${0##*/}"
 ######################################################################
 # Helper Functions
 
-# Verbose output if BUD_VERBOSE is set
+# Verbose output if BURD_VERBOSE is set
 rbt_show() {
-  test "${BUD_VERBOSE:-0}" != "1" || echo "RBTSHOW: $*"
+  test "${BURD_VERBOSE:-0}" != "1" || echo "RBTSHOW: $*"
 }
 
 # Load nameplate configuration by moniker and kindle RBOB
@@ -362,7 +362,7 @@ test_pluml_malformed_diagram() {
 rbt_suite_nsproto() {
   local z_single_test="${1:-}"
   buc_step "Running nsproto security test suite${z_single_test:+ (single: ${z_single_test})}"
-  local z_test_dir="${BUD_TEMP_DIR}/tests"
+  local z_test_dir="${BURD_TEMP_DIR}/tests"
   mkdir -p "${z_test_dir}"
   but_execute "${z_test_dir}" "test_nsproto_" "${z_single_test}"
 }
@@ -370,7 +370,7 @@ rbt_suite_nsproto() {
 rbt_suite_srjcl() {
   local z_single_test="${1:-}"
   buc_step "Running srjcl Jupyter test suite${z_single_test:+ (single: ${z_single_test})}"
-  local z_test_dir="${BUD_TEMP_DIR}/tests"
+  local z_test_dir="${BURD_TEMP_DIR}/tests"
   mkdir -p "${z_test_dir}"
   but_execute "${z_test_dir}" "test_srjcl_" "${z_single_test}"
 }
@@ -378,7 +378,7 @@ rbt_suite_srjcl() {
 rbt_suite_pluml() {
   local z_single_test="${1:-}"
   buc_step "Running pluml PlantUML test suite${z_single_test:+ (single: ${z_single_test})}"
-  local z_test_dir="${BUD_TEMP_DIR}/tests"
+  local z_test_dir="${BURD_TEMP_DIR}/tests"
   mkdir -p "${z_test_dir}"
   but_execute "${z_test_dir}" "test_pluml_" "${z_single_test}"
 }
@@ -394,8 +394,8 @@ rbt_route() {
   rbt_show "Routing command: ${z_command} with moniker: ${z_moniker}"
 
   # Verify BUD environment
-  test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP not set - must be called from BUD"
+  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - must be called from BUD"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BUD"
 
   case "${z_command}" in
     rbt-to)

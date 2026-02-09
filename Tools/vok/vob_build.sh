@@ -35,7 +35,7 @@ zvob_kindle() {
   test -z "${ZVOB_KINDLED:-}" || buc_die "Module vob already kindled"
 
   # Validate BUD environment
-  test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR is unset"
+  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR is unset"
 
   # Validate BURC environment
   test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR is unset"
@@ -139,7 +139,7 @@ vob_release() {
   buc_doc_brief "Create VVK parcel: test, build, collect, brand, tarball"
   buc_doc_shown || return 0
 
-  local z_staging="${BUD_TEMP_DIR}/staging"
+  local z_staging="${BURD_TEMP_DIR}/staging"
   local z_install_script="${BURC_TOOLS_DIR}/vvk/vvi_install.sh"
   local z_registry="${BURC_TOOLS_DIR}/vok/vov_veiled/vovr_registry.json"
   local z_vvx="${VVB_VVX_BINARY}"
@@ -191,8 +191,8 @@ vob_release() {
   buc_log_args "Registry: ${z_registry}"
   buc_log_args "Commit: ${z_commit}"
 
-  local z_hallmark_file="${BUD_TEMP_DIR}/hallmark.txt"
-  local z_stderr_file="${BUD_TEMP_DIR}/release_brand_stderr.txt"
+  local z_hallmark_file="${BURD_TEMP_DIR}/hallmark.txt"
+  local z_stderr_file="${BURD_TEMP_DIR}/release_brand_stderr.txt"
 
   "${z_vvx}" release_brand \
     --staging "${z_staging}" \

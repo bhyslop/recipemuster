@@ -37,7 +37,7 @@ zrbgm_kindle() {
   zrbgc_sentinel
 
   local z_use_color=0
-  if [ -z "${NO_COLOR:-}" ] && [ "${BUD_COLOR:-0}" = "1" ]; then
+  if [ -z "${NO_COLOR:-}" ] && [ "${BURD_COLOR:-0}" = "1" ]; then
     z_use_color=1
   fi
 
@@ -63,7 +63,7 @@ zrbgm_kindle() {
   ZRBGM_RBRR_FILE="$(cd "${ZRBGM_SCRIPT_DIR}/../.." && pwd)/rbrr_RecipeBottleRegimeRepo.sh"
 
 
-  ZRBGM_PREFIX="${BUD_TEMP_DIR}/rbgm_"
+  ZRBGM_PREFIX="${BURD_TEMP_DIR}/rbgm_"
   ZRBGM_LIST_RESPONSE="${ZRBGM_PREFIX}list_response.json"
   ZRBGM_LIST_CODE="${ZRBGM_PREFIX}list_code.txt"
   ZRBGM_CREATE_REQUEST="${ZRBGM_PREFIX}create_request.json"

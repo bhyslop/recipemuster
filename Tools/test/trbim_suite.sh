@@ -35,8 +35,8 @@ ztrbim_invoke_rbim() {
   local z_rbg_now_stamp
   z_rbg_now_stamp="$(date +%Y%m%d__%H%M%S)"
 
-  BUD_TEMP_DIR="${z_rbg_temp_dir}"                            \
-  BUD_NOW_STAMP="${z_rbg_now_stamp}"                          \
+  BURD_TEMP_DIR="${z_rbg_temp_dir}"                            \
+  BURD_NOW_STAMP="${z_rbg_now_stamp}"                          \
   RBG_RUNTIME="podman"                                        \
   RBG_RUNTIME_ARG="--connection=${RBRR_DEPLOY_MACHINE_NAME}"  \
     "${ZTRBIM_SCRIPT_DIR}/rbim_cli.sh"                        \

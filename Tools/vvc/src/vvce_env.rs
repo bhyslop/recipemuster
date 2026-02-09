@@ -16,13 +16,13 @@ use std::sync::OnceLock;
 
 /// BUD environment - validated on first access
 pub struct VvcEnv {
-    /// Ephemeral temp directory for intermediate files (BUD_TEMP_DIR)
+    /// Ephemeral temp directory for intermediate files (BURD_TEMP_DIR)
     pub temp_dir: PathBuf,
-    /// Output directory for command results (BUD_OUTPUT_DIR)
+    /// Output directory for command results (BURD_OUTPUT_DIR)
     pub output_dir: PathBuf,
-    /// Invocation identity timestamp-pid-random (BUD_NOW_STAMP)
+    /// Invocation identity timestamp-pid-random (BURD_NOW_STAMP)
     pub now_stamp: String,
-    /// Git describe output for provenance (BUD_GIT_CONTEXT)
+    /// Git describe output for provenance (BURD_GIT_CONTEXT)
     pub git_context: String,
 }
 
@@ -39,10 +39,10 @@ static ENV: OnceLock<VvcEnv> = OnceLock::new();
 /// # Panics
 ///
 /// Panics if any of these environment variables are missing:
-/// - `BUD_TEMP_DIR` - must be set and point to an existing directory
-/// - `BUD_OUTPUT_DIR` - must be set and point to an existing directory
-/// - `BUD_NOW_STAMP` - must be set (non-empty)
-/// - `BUD_GIT_CONTEXT` - must be set (non-empty)
+/// - `BURD_TEMP_DIR` - must be set and point to an existing directory
+/// - `BURD_OUTPUT_DIR` - must be set and point to an existing directory
+/// - `BURD_NOW_STAMP` - must be set (non-empty)
+/// - `BURD_GIT_CONTEXT` - must be set (non-empty)
 ///
 /// This is intentional fail-fast behavior. vvx should only run via
 /// BUK tabtarget which guarantees these variables are set.
@@ -55,74 +55,74 @@ fn zvvce_validate_env() -> VvcEnv {
     let mut missing: Vec<&str> = Vec::new();
     let mut invalid: Vec<String> = Vec::new();
 
-    // Validate BUD_TEMP_DIR (canonicalize to absolute path for test compatibility)
-    let temp_dir = match std::env::var("BUD_TEMP_DIR") {
+    // Validate BURD_TEMP_DIR (canonicalize to absolute path for test compatibility)
+    let temp_dir = match std::env::var("BURD_TEMP_DIR") {
         Ok(v) if !v.is_empty() => {
             let path = PathBuf::from(&v);
             match path.canonicalize() {
                 Ok(abs_path) => {
                     if !abs_path.is_dir() {
-                        invalid.push(format!("BUD_TEMP_DIR='{}' is not a directory", v));
+                        invalid.push(format!("BURD_TEMP_DIR='{}' is not a directory", v));
                     }
                     abs_path
                 }
                 Err(e) => {
-                    invalid.push(format!("BUD_TEMP_DIR='{}' cannot be resolved: {}", v, e));
+                    invalid.push(format!("BURD_TEMP_DIR='{}' cannot be resolved: {}", v, e));
                     path
                 }
             }
         }
         Ok(_) => {
-            missing.push("BUD_TEMP_DIR");
+            missing.push("BURD_TEMP_DIR");
             PathBuf::new()
         }
         Err(_) => {
-            missing.push("BUD_TEMP_DIR");
+            missing.push("BURD_TEMP_DIR");
             PathBuf::new()
         }
     };
 
-    // Validate BUD_OUTPUT_DIR (canonicalize to absolute path for consistency)
-    let output_dir = match std::env::var("BUD_OUTPUT_DIR") {
+    // Validate BURD_OUTPUT_DIR (canonicalize to absolute path for consistency)
+    let output_dir = match std::env::var("BURD_OUTPUT_DIR") {
         Ok(v) if !v.is_empty() => {
             let path = PathBuf::from(&v);
             match path.canonicalize() {
                 Ok(abs_path) => {
                     if !abs_path.is_dir() {
-                        invalid.push(format!("BUD_OUTPUT_DIR='{}' is not a directory", v));
+                        invalid.push(format!("BURD_OUTPUT_DIR='{}' is not a directory", v));
                     }
                     abs_path
                 }
                 Err(e) => {
-                    invalid.push(format!("BUD_OUTPUT_DIR='{}' cannot be resolved: {}", v, e));
+                    invalid.push(format!("BURD_OUTPUT_DIR='{}' cannot be resolved: {}", v, e));
                     path
                 }
             }
         }
         Ok(_) => {
-            missing.push("BUD_OUTPUT_DIR");
+            missing.push("BURD_OUTPUT_DIR");
             PathBuf::new()
         }
         Err(_) => {
-            missing.push("BUD_OUTPUT_DIR");
+            missing.push("BURD_OUTPUT_DIR");
             PathBuf::new()
         }
     };
 
-    // Validate BUD_NOW_STAMP
-    let now_stamp = match std::env::var("BUD_NOW_STAMP") {
+    // Validate BURD_NOW_STAMP
+    let now_stamp = match std::env::var("BURD_NOW_STAMP") {
         Ok(v) if !v.is_empty() => v,
         _ => {
-            missing.push("BUD_NOW_STAMP");
+            missing.push("BURD_NOW_STAMP");
             String::new()
         }
     };
 
-    // Validate BUD_GIT_CONTEXT
-    let git_context = match std::env::var("BUD_GIT_CONTEXT") {
+    // Validate BURD_GIT_CONTEXT
+    let git_context = match std::env::var("BURD_GIT_CONTEXT") {
         Ok(v) if !v.is_empty() => v,
         _ => {
-            missing.push("BUD_GIT_CONTEXT");
+            missing.push("BURD_GIT_CONTEXT");
             String::new()
         }
     };

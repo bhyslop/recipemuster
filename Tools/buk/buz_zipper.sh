@@ -110,9 +110,9 @@ buz_register() {
 # buz_init_evidence() - Create evidence root dir under testbench temp
 buz_init_evidence() {
   zbuz_sentinel
-  test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - buz_init_evidence requires BUD context"
+  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - buz_init_evidence requires BURD context"
 
-  ZBUZ_EVIDENCE_ROOT="${BUD_TEMP_DIR}/evidence"
+  ZBUZ_EVIDENCE_ROOT="${BURD_TEMP_DIR}/evidence"
   mkdir -p "${ZBUZ_EVIDENCE_ROOT}"
   buc_log_args "Evidence root: ${ZBUZ_EVIDENCE_ROOT}"
 }
@@ -146,7 +146,7 @@ buz_dispatch() {
   local z_exit_status=0
   BURV_OUTPUT_ROOT_DIR="${z_burv_output}" \
   BURV_TEMP_ROOT_DIR="${z_burv_temp}" \
-  BUD_NO_LOG=1 \
+  BURD_NO_LOG=1 \
     "${z_tabtarget}" "$@" || z_exit_status=$?
 
   buc_log_args "Step ${z_step_idx} exit status: ${z_exit_status}"

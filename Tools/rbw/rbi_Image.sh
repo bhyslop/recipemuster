@@ -35,7 +35,7 @@ zrbi_kindle() {
 
   # Check required environment
   test -n "${RBRR_GAR_REPOSITORY:-}" || buc_die "RBRR_GAR_REPOSITORY not set"
-  test -n "${BUD_TEMP_DIR:-}"        || buc_die "BUD_TEMP_DIR not set"
+  test -n "${BURD_TEMP_DIR:-}"        || buc_die "BURD_TEMP_DIR not set"
 
   # Verify GAR service account file is configured
   test -n "${RBRR_RETRIEVER_RBRA_FILE:-}"   || buc_die "RBRR_RETRIEVER_RBRA_FILE not set"
@@ -56,20 +56,20 @@ zrbi_kindle() {
   ZRBI_ACCEPT_MANIFEST_MTYPES="${ZRBI_MTYPE_DV2},${ZRBI_MTYPE_DLIST},${ZRBI_MTYPE_OCI},${ZRBI_MTYPE_OCM}"
 
   # File prefixes for all operations
-  ZRBI_MANIFEST_PREFIX="${BUD_TEMP_DIR}/rbi_manifest_"
-  ZRBI_CONFIG_PREFIX="${BUD_TEMP_DIR}/rbi_config_"
-  ZRBI_DETAIL_PREFIX="${BUD_TEMP_DIR}/rbi_detail_"
-  ZRBI_TOKEN_PREFIX="${BUD_TEMP_DIR}/rbi_token_"
-  ZRBI_TAGS_PREFIX="${BUD_TEMP_DIR}/rbi_tags_"
-  ZRBI_METADATA_PREFIX="${BUD_TEMP_DIR}/rbi_metadata_"
+  ZRBI_MANIFEST_PREFIX="${BURD_TEMP_DIR}/rbi_manifest_"
+  ZRBI_CONFIG_PREFIX="${BURD_TEMP_DIR}/rbi_config_"
+  ZRBI_DETAIL_PREFIX="${BURD_TEMP_DIR}/rbi_detail_"
+  ZRBI_TOKEN_PREFIX="${BURD_TEMP_DIR}/rbi_token_"
+  ZRBI_TAGS_PREFIX="${BURD_TEMP_DIR}/rbi_tags_"
+  ZRBI_METADATA_PREFIX="${BURD_TEMP_DIR}/rbi_metadata_"
 
   # Output files
-  ZRBI_IMAGE_RECORDS_FILE="${BUD_TEMP_DIR}/rbi_IMAGE_RECORDS.json"
-  ZRBI_IMAGE_DETAIL_FILE="${BUD_TEMP_DIR}/rbi_IMAGE_DETAILS.json"
-  ZRBI_IMAGE_STATS_FILE="${BUD_TEMP_DIR}/rbi_IMAGE_STATS.json"
-  ZRBI_FQIN_FILE="${BUD_TEMP_DIR}/rbi_FQIN.txt"
+  ZRBI_IMAGE_RECORDS_FILE="${BURD_TEMP_DIR}/rbi_IMAGE_RECORDS.json"
+  ZRBI_IMAGE_DETAIL_FILE="${BURD_TEMP_DIR}/rbi_IMAGE_DETAILS.json"
+  ZRBI_IMAGE_STATS_FILE="${BURD_TEMP_DIR}/rbi_IMAGE_STATS.json"
+  ZRBI_FQIN_FILE="${BURD_TEMP_DIR}/rbi_FQIN.txt"
   ZRBI_TOKEN_FILE="${ZRBI_TOKEN_PREFIX}access.txt"
-  ZRBI_METADATA_ARCHIVE="${BUD_TEMP_DIR}/rbi_metadata.tgz"
+  ZRBI_METADATA_ARCHIVE="${BURD_TEMP_DIR}/rbi_metadata.tgz"
 
   # File index counter
   ZRBI_FILE_INDEX=0

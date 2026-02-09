@@ -571,7 +571,7 @@ This enables parallel workflows where different developers or automation systems
 Concurrency safety is achieved through:
 
 * *Ephemeral Isolation*:
-Each command invocation creates a unique temporary directory using `BUD_NOW_STAMP` (timestamp + process ID + random component), ensuring intermediate files never collide.
+Each command invocation creates a unique temporary directory using `BURD_NOW_STAMP` (timestamp + process ID + random component), ensuring intermediate files never collide.
 
 * *Unique Artifact Naming*:
 Cloud resources (source tarballs, build IDs) incorporate the invocation timestamp, preventing overwrite conflicts in

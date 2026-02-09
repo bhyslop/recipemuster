@@ -23,9 +23,9 @@ set -euo pipefail
 # Get script directory
 RBK_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
-# Verbose output if BUD_VERBOSE is set
+# Verbose output if BURD_VERBOSE is set
 rbk_show() {
-  test "${BUD_VERBOSE:-0}" != "1" || echo "RBKSHOW: $*"
+  test "${BURD_VERBOSE:-0}" != "1" || echo "RBKSHOW: $*"
 }
 
 # Simple routing function
@@ -36,17 +36,17 @@ rbk_route() {
   rbk_show "Routing command: $z_command with args: $*"
 
   # Verify BDU environment variables are present
-  if [ -z "${BUD_TEMP_DIR:-}" ]; then
-    echo "ERROR: BUD_TEMP_DIR not set - must be called from BDU" >&2
+  if [ -z "${BURD_TEMP_DIR:-}" ]; then
+    echo "ERROR: BURD_TEMP_DIR not set - must be called from BDU" >&2
     exit 1
   fi
 
-  if [ -z "${BUD_NOW_STAMP:-}" ]; then
-    echo "ERROR: BUD_NOW_STAMP not set - must be called from BDU" >&2
+  if [ -z "${BURD_NOW_STAMP:-}" ]; then
+    echo "ERROR: BURD_NOW_STAMP not set - must be called from BDU" >&2
     exit 1
   fi
 
-  rbk_show "BDU environment verified: TEMP_DIR=$BUD_TEMP_DIR, NOW_STAMP=$BUD_NOW_STAMP"
+  rbk_show "BDU environment verified: TEMP_DIR=$BURD_TEMP_DIR, NOW_STAMP=$BURD_NOW_STAMP"
 
   # Route based on command prefix
   case "$z_command" in

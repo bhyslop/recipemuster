@@ -32,12 +32,12 @@ source "${ZRBF_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbf_Foundry.sh"
 
 zrbf_furnish() {
-  buc_doc_env "BUD_TEMP_DIR  " "Bash Dispatch Utility provided temporary directory, empty at start of command"
-  buc_doc_env "BUD_NOW_STAMP " "Bash Dispatch Utility provided string unique between invocations"
+  buc_doc_env "BURD_TEMP_DIR  " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  buc_doc_env "BURD_NOW_STAMP " "Bash Dispatch Utility provided string unique between invocations"
 
   buc_log_args 'Validate BUD environment'
-  buv_dir_exists "${BUD_TEMP_DIR}"
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP is unset or empty"
+  buv_dir_exists "${BURD_TEMP_DIR}"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP is unset or empty"
 
   buc_log_args 'Validate required tools'
   command -v git >/dev/null 2>&1 || buc_die "git not found - required for assuring controlled build context"

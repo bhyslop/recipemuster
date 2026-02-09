@@ -51,15 +51,15 @@ zccck_route() {
   buc_step "Routing command: $z_command with args: $*"
 
   # Verify BDU environment variables are present
-  test -n "${BUD_TEMP_DIR:-}"  || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP not set - must be called from BUD"
+  test -n "${BURD_TEMP_DIR:-}"  || buc_die "BURD_TEMP_DIR not set - must be called from BUD"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BUD"
 
   source "${zccck_kit_dir}/../cccr.env"
 
   test -n "${CCCR_SSH_PORT:-}"          || buc_die "CCCR_SSH_PORT not set in cccr.env"
   test -n "${CCCR_CLAUDE_CONFIG_DIR:-}" || buc_die "CCCR_CLAUDE_CONFIG_DIR not set in cccr.env"
 
-  buc_step "BUD environment verified: TEMP_DIR=$BUD_TEMP_DIR, NOW_STAMP=$BUD_NOW_STAMP, CCCR_SSH_PORT=${CCCR_SSH_PORT} CCCR_WEB_PORT=${CCCR_WEB_PORT} CCCR_CLAUDE_CONFIG_DIR=${CCCR_CLAUDE_CONFIG_DIR}"
+  buc_step "BUD environment verified: TEMP_DIR=$BURD_TEMP_DIR, NOW_STAMP=$BURD_NOW_STAMP, CCCR_SSH_PORT=${CCCR_SSH_PORT} CCCR_WEB_PORT=${CCCR_WEB_PORT} CCCR_CLAUDE_CONFIG_DIR=${CCCR_CLAUDE_CONFIG_DIR}"
 
   # Route based on command prefix
   case "$z_command" in

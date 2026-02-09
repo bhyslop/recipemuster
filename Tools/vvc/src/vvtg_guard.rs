@@ -17,9 +17,9 @@ mod tests {
     /// Get test temp directory - uses BUD if available, falls back to system temp
     fn get_test_base() -> PathBuf {
         // Try to use BUD temp dir if available (when run via tabtarget)
-        if let Ok(bud_temp) = std::env::var("BUD_TEMP_DIR") {
+        if let Ok(bud_temp) = std::env::var("BURD_TEMP_DIR") {
             let path = PathBuf::from(bud_temp);
-            // Canonicalize to absolute path (BUD_TEMP_DIR may be relative)
+            // Canonicalize to absolute path (BURD_TEMP_DIR may be relative)
             path.canonicalize().unwrap_or(path)
         } else {
             // Fall back to system temp for direct cargo test

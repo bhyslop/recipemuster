@@ -44,8 +44,8 @@ const VVCP_ELEMENT_SONNET: &str = "vvpxs_sonnet";
 /// XML element name for opus model ID
 const VVCP_ELEMENT_OPUS: &str = "vvpxo_opus";
 
-/// Environment variable for BUD_TEMP_DIR
-const VVCP_BUD_TEMP_DIR_VAR: &str = "BUD_TEMP_DIR";
+/// Environment variable for BURD_TEMP_DIR
+const VVCP_BURD_TEMP_DIR_VAR: &str = "BURD_TEMP_DIR";
 
 /// Probe Claude Code environment for model IDs and platform information.
 ///
@@ -72,10 +72,10 @@ pub async fn vvcp_probe() -> Result<String, String> {
     // Wait for both probes
     let (haiku_raw, sonnet_raw) = tokio::join!(haiku_future, sonnet_future);
 
-    // Get BUD_TEMP_DIR from environment
-    let temp_dir = std::env::var(VVCP_BUD_TEMP_DIR_VAR).ok();
+    // Get BURD_TEMP_DIR from environment
+    let temp_dir = std::env::var(VVCP_BURD_TEMP_DIR_VAR).ok();
 
-    // Write raw haiku and sonnet outputs to files if BUD_TEMP_DIR is set
+    // Write raw haiku and sonnet outputs to files if BURD_TEMP_DIR is set
     if let Some(ref dir) = temp_dir {
         let _ = write_raw_output(dir, VVCP_RAW_HAIKU_FILE, &haiku_raw).await;
         let _ = write_raw_output(dir, VVCP_RAW_SONNET_FILE, &sonnet_raw).await;
@@ -120,7 +120,7 @@ pub async fn vvcp_probe() -> Result<String, String> {
         _ => String::new(),
     };
 
-    // Write raw opus response if BUD_TEMP_DIR is set
+    // Write raw opus response if BURD_TEMP_DIR is set
     if let Some(ref dir) = temp_dir {
         let _ = write_raw_output(dir, VVCP_RAW_OPUS_FILE, &opus_raw).await;
     }

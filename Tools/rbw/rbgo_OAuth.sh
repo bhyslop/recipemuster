@@ -34,16 +34,16 @@ zrbgo_kindle() {
   zrbgc_sentinel
 
   buc_log_args "Check environment"
-  test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set"
-  test -d "${BUD_TEMP_DIR}"   || buc_die "BUD_TEMP_DIR not a directory"
+  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set"
+  test -d "${BURD_TEMP_DIR}"   || buc_die "BURD_TEMP_DIR not a directory"
 
   buc_log_args "Set Module Variables (ZRBGO_*)"
-  ZRBGO_JWT_HEADER_FILE="${BUD_TEMP_DIR}/rbgo_jwt_header.json"
-  ZRBGO_JWT_CLAIMS_FILE="${BUD_TEMP_DIR}/rbgo_jwt_claims.json"
-  ZRBGO_JWT_UNSIGNED_FILE="${BUD_TEMP_DIR}/rbgo_jwt_unsigned.txt"
-  ZRBGO_JWT_SIGNATURE_FILE="${BUD_TEMP_DIR}/rbgo_jwt_signature.txt"
-  ZRBGO_OAUTH_RESPONSE_FILE="${BUD_TEMP_DIR}/rbgo_oauth_response.json"
-  ZRBGO_PRIVATE_KEY_FILE="${BUD_TEMP_DIR}/rbgo_private_key.pem"
+  ZRBGO_JWT_HEADER_FILE="${BURD_TEMP_DIR}/rbgo_jwt_header.json"
+  ZRBGO_JWT_CLAIMS_FILE="${BURD_TEMP_DIR}/rbgo_jwt_claims.json"
+  ZRBGO_JWT_UNSIGNED_FILE="${BURD_TEMP_DIR}/rbgo_jwt_unsigned.txt"
+  ZRBGO_JWT_SIGNATURE_FILE="${BURD_TEMP_DIR}/rbgo_jwt_signature.txt"
+  ZRBGO_OAUTH_RESPONSE_FILE="${BURD_TEMP_DIR}/rbgo_oauth_response.json"
+  ZRBGO_PRIVATE_KEY_FILE="${BURD_TEMP_DIR}/rbgo_private_key.pem"
 
   ZRBGO_KINDLED=1
 }

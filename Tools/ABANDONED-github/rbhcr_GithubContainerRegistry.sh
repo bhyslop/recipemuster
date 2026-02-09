@@ -18,7 +18,7 @@ zrbhcr_kindle() {
   test -n "${RBRR_REGISTRY_OWNER:-}" || buc_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"  || buc_die "RBRR_REGISTRY_NAME not set"
   test -n "${RBG_RUNTIME:-}"         || buc_die "RBG_RUNTIME not set"
-  test -n "${BUD_TEMP_DIR:-}"        || buc_die "BUD_TEMP_DIR not set"
+  test -n "${BURD_TEMP_DIR:-}"        || buc_die "BURD_TEMP_DIR not set"
 
   # Detect environment and set auth variables
   if test -n "${GITHUB_ACTIONS:-}"; then
@@ -59,19 +59,19 @@ zrbhcr_kindle() {
   ZRBHCR_HEADER_ACCEPT_MANIFEST="Accept: ${ZRBHCR_ACCEPT_MANIFEST_MTYPES}"
 
   # File prefixes for all operations
-  ZRBHCR_LIST_PAGE_PREFIX="${BUD_TEMP_DIR}/list_page_"
-  ZRBHCR_LIST_RECORDS_PREFIX="${BUD_TEMP_DIR}/list_records_"
-  ZRBHCR_MANIFEST_PREFIX="${BUD_TEMP_DIR}/manifest_"
-  ZRBHCR_CONFIG_PREFIX="${BUD_TEMP_DIR}/config_"
-  ZRBHCR_DELETE_PREFIX="${BUD_TEMP_DIR}/delete_"
-  ZRBHCR_VERSION_PREFIX="${BUD_TEMP_DIR}/version_"
-  ZRBHCR_DETAIL_PREFIX="${BUD_TEMP_DIR}/detail_"
+  ZRBHCR_LIST_PAGE_PREFIX="${BURD_TEMP_DIR}/list_page_"
+  ZRBHCR_LIST_RECORDS_PREFIX="${BURD_TEMP_DIR}/list_records_"
+  ZRBHCR_MANIFEST_PREFIX="${BURD_TEMP_DIR}/manifest_"
+  ZRBHCR_CONFIG_PREFIX="${BURD_TEMP_DIR}/config_"
+  ZRBHCR_DELETE_PREFIX="${BURD_TEMP_DIR}/delete_"
+  ZRBHCR_VERSION_PREFIX="${BURD_TEMP_DIR}/version_"
+  ZRBHCR_DETAIL_PREFIX="${BURD_TEMP_DIR}/detail_"
 
   # Output files
-  ZRBHCR_IMAGE_RECORDS_FILE="${BUD_TEMP_DIR}/IMAGE_RECORDS.json"
-  ZRBHCR_IMAGE_DETAIL_FILE="${BUD_TEMP_DIR}/IMAGE_DETAILS.json"
-  ZRBHCR_IMAGE_STATS_FILE="${BUD_TEMP_DIR}/IMAGE_STATS.json"
-  ZRBHCR_FQIN_FILE="${BUD_TEMP_DIR}/FQIN.txt"
+  ZRBHCR_IMAGE_RECORDS_FILE="${BURD_TEMP_DIR}/IMAGE_RECORDS.json"
+  ZRBHCR_IMAGE_DETAIL_FILE="${BURD_TEMP_DIR}/IMAGE_DETAILS.json"
+  ZRBHCR_IMAGE_STATS_FILE="${BURD_TEMP_DIR}/IMAGE_STATS.json"
+  ZRBHCR_FQIN_FILE="${BURD_TEMP_DIR}/FQIN.txt"
 
   # File index counter
   ZRBHCR_FILE_INDEX=0

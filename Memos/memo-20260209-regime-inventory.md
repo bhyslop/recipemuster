@@ -3,7 +3,7 @@
 **Pace:** ATAAA (study-all-recipe-bottle-regimes)
 **Heat:** AT (rbw-regime-consolidation)
 **Date:** 2026-02-09
-**Inputs:** CRR, all `*_regime.sh` validators, assignment files, `bud_dispatch.sh`, `rbgo_OAuth.sh`, `rbgp_Payor.sh`, `rbgg_Governor.sh`
+**Inputs:** CRR, all `*_regime.sh` validators, assignment files, `burd_dispatch.sh`, `rbgo_OAuth.sh`, `rbgp_Payor.sh`, `rbgg_Governor.sh`
 
 ---
 
@@ -13,7 +13,7 @@
 |---|--------|-----------|--------|-------|-----------|-----------|---------------|----------|
 | 1 | BURC_ | Regime Configuration | BUK | Project | Git-tracked, sourced at dispatch | `buk/burc_regime.sh` | `.buk/burc.env` | -- |
 | 2 | BURS_ | Regime Station | BUK | Developer/machine | External (NOT in git) | `buk/burs_regime.sh` | Path from `BURC_STATION_FILE` | -- |
-| 3 | BUD_ | Dispatch Runtime | BUK | Ephemeral | Set during `bud_dispatch.sh`, dies with process | -- (runtime only) | -- (computed) | -- |
+| 3 | BURD_ | Dispatch Runtime | BUK | Ephemeral | Set during `burd_dispatch.sh`, dies with process | -- (runtime only) | -- (computed) | -- |
 | 4 | RBRR_ | Regime Repo | RBW | Repository | Git-tracked, sourced at workbench kindle | `rbw/rbrr_regime.sh` | `rbrr_RecipeBottleRegimeRepo.sh` | `RBRR-RegimeRepo.adoc` |
 | 5 | RBRN_ | Regime Nameplate | RBW | Per-service | Git-tracked, one file per nameplate | `rbw/rbrn_regime.sh` | `rbw/rbrn_nsproto.env`, `rbrn_srjcl.env`, `rbrn_pluml.env` | `RBRN-RegimeNameplate.adoc` |
 | 6 | RBRP_ | Regime Payor | RBW | GCP payor project | Git-tracked | `rbw/rbrp_regime.sh` | `rbrp.env` | -- |
@@ -54,29 +54,29 @@ Sourced from path in `BURC_STATION_FILE`. Validated by `burs_regime.sh:zburs_kin
 |----------|------|-------|
 | BURS_LOG_DIR | string | Directory for log files |
 
-### 3. BUD_ (Dispatch Runtime)
+### 3. BURD_ (Dispatch Runtime)
 
-Set by `bud_dispatch.sh` during execution. **Not a declared regime** -- no validator, no assignment file, no spec doc. Runtime-only.
+Set by `burd_dispatch.sh` during execution. **Not a declared regime** -- no validator, no assignment file, no spec doc. Runtime-only.
 
 | Variable | Lifecycle | Notes |
 |----------|-----------|-------|
-| BUD_VERBOSE | Input | Set before dispatch (0/1/2) |
-| BUD_REGIME_FILE | Input | Path to BURC env file |
-| BUD_NOW_STAMP | Computed | Timestamp+PID+random |
-| BUD_TEMP_DIR | Computed | Ephemeral temp directory |
-| BUD_OUTPUT_DIR | Computed | Output directory for current run |
-| BUD_TRANSCRIPT | Computed | Path to transcript file |
-| BUD_GIT_CONTEXT | Computed | `git describe` output |
-| BUD_COMMAND | Parsed | Primary command token |
-| BUD_TARGET | Parsed | Target argument |
-| BUD_CLI_ARGS | Parsed | Remaining CLI arguments (array) |
-| BUD_TOKEN_1..5 | Parsed | Positional tokens from tabtarget |
-| BUD_LOG_LAST | Computed | Path to "last" log |
-| BUD_LOG_SAME | Computed | Path to "same" log |
-| BUD_LOG_HIST | Computed | Path to "hist" log |
-| BUD_COLOR | Computed | Color policy (0/1) |
-| BUD_NO_LOG | Input | Suppress logging |
-| BUD_INTERACTIVE | Input | Interactive mode flag |
+| BURD_VERBOSE | Input | Set before dispatch (0/1/2) |
+| BURD_REGIME_FILE | Input | Path to BURC env file |
+| BURD_NOW_STAMP | Computed | Timestamp+PID+random |
+| BURD_TEMP_DIR | Computed | Ephemeral temp directory |
+| BURD_OUTPUT_DIR | Computed | Output directory for current run |
+| BURD_TRANSCRIPT | Computed | Path to transcript file |
+| BURD_GIT_CONTEXT | Computed | `git describe` output |
+| BURD_COMMAND | Parsed | Primary command token |
+| BURD_TARGET | Parsed | Target argument |
+| BURD_CLI_ARGS | Parsed | Remaining CLI arguments (array) |
+| BURD_TOKEN_1..5 | Parsed | Positional tokens from tabtarget |
+| BURD_LOG_LAST | Computed | Path to "last" log |
+| BURD_LOG_SAME | Computed | Path to "same" log |
+| BURD_LOG_HIST | Computed | Path to "hist" log |
+| BURD_COLOR | Computed | Color policy (0/1) |
+| BURD_NO_LOG | Input | Suppress logging |
+| BURD_INTERACTIVE | Input | Interactive mode flag |
 
 ### 4. RBRR_ (Regime Repo)
 
@@ -233,7 +233,7 @@ Service account credential files sourced at runtime. **Not a regime** in the CRR
 ```
 BURC ─── sources ──► BURS  (via BURC_STATION_FILE path)
   │
-  └─── feeds ──► BUD  (dispatch reads BURC, creates BUD_ runtime vars)
+  └─── feeds ──► BURD  (dispatch reads BURC, creates BURD_ runtime vars)
 
 RBRR ─── references ──► RBRA  (3 file paths: GOVERNOR, RETRIEVER, DIRECTOR)
   │
@@ -271,7 +271,7 @@ RBRA ─── written by ──► RBGP (Payor), RBGG (Governor)
 |--------|-----------|---------------|----------------|-------------|-------------|---------------|
 | BURC_ | Yes | Yes | Yes | No | No | Partial |
 | BURS_ | Yes | Yes | Yes (external) | No | No | Partial |
-| BUD_ | Yes | No (runtime) | No | No | No | N/A (not a regime) |
+| BURD_ | Yes | No (runtime) | No | No | No | N/A (not a regime) |
 | RBRR_ | Yes | Yes | Yes | Yes | No | Mostly |
 | RBRN_ | Yes | Yes | Yes (3 files) | Yes | No | Mostly |
 | RBRP_ | Yes | Yes | Yes | No | No | Partial |

@@ -1,4 +1,4 @@
 #!/bin/bash
-export BUD_LAUNCHER=".buk/launcher.vvw_workbench.sh"
-export BUD_NO_LOG=1
-exec "$(dirname "${BASH_SOURCE[0]}")/../${BUD_LAUNCHER}" "${0##*/}" "${@}"
+export BURD_LAUNCHER=".buk/launcher.vvw_workbench.sh"
+export BURD_NO_LOG=1
+exec "$(dirname "${BASH_SOURCE[0]}")/../${BURD_LAUNCHER}" "${0##*/}" "${@}"

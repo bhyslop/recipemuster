@@ -189,7 +189,7 @@ rbgu_Utility.sh, rbi_Image.sh, rbk_Coordinator.sh
 rbl_Locator.sh, rbob_bottle.sh, rbv_PodmanVM.sh
 gadf_factory.py, gadib_base.js, gadic_cascade.css
 gadie_engine.js, gadiu_user.js, gadiw_webpage.html
-buc_command.sh, bud_dispatch.sh, bug_guide.sh
+buc_command.sh, burd_dispatch.sh, bug_guide.sh
 but_test.sh, buv_validation.sh, buw_workbench.sh
 ```
 
@@ -432,8 +432,8 @@ ZBUC_INCLUDED=1
 ```
 
 **Variable Naming:**
-- Config: `BURC_*`, `BURS_*`, `BUD_*` (upper-case prefix)
-- Private state: `ZBUC_*`, `ZBUD_*` (Z-prefix upper-case)
+- Config: `BURC_*`, `BURS_*`, `BURD_*` (upper-case prefix)
+- Private state: `ZBUC_*`, `ZBURD_*` (Z-prefix upper-case)
 
 **Portable Kit Evidence:**
 - No project-specific logic in `Tools/buk/*.sh`
@@ -753,7 +753,7 @@ pbw-*  PB Workbench (2 launchers)
   - Semantic pairs: `pbw-p.ProofOfConcept` (human chose mnemonic + full name)
   - Versioned variants: `pbw-t.ProofOfConceptTimed.10.sh` (human chose to append version number)
 - **Delegation pattern consistent**: All launchers use `exec` to delegate to `.buk/launcher.{workbench}.sh`
-- **Configuration via environment**: `BUD_LAUNCHER`, `BUD_NO_LOG` set before exec
+- **Configuration via environment**: `BURD_LAUNCHER`, `BURD_NO_LOG` set before exec
 
 **Anomalies:**
 - None. This is a textbook greenfield implementation.

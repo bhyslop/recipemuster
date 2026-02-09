@@ -16,15 +16,15 @@ ZRBHA_INCLUDED=1
 zrbha_kindle() {
   # Check required environment
   test -n "${RBRG_PAT:-}"      || buc_die "RBRG_PAT not set"
-  test -n "${BUD_TEMP_DIR:-}"  || buc_die "BUD_TEMP_DIR not set"
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP not set"
+  test -n "${BURD_TEMP_DIR:-}"  || buc_die "BURD_TEMP_DIR not set"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set"
 
   # Module Variables (zrbha_*)
   ZRBHA_GITAPI_URL="https://api.github.com"
   ZRBHA_MTYPE_GHV3="application/vnd.github.v3+json"
 
-  ZRBHA_WORKFLOW_RUN_ID_FILE="${BUD_TEMP_DIR}/workflow_run_id__${BUD_NOW_STAMP}.txt"
-  ZRBHA_WORKFLOW_LOGS_FILE="${BUD_TEMP_DIR}/workflow_logs__${BUD_NOW_STAMP}.txt"
+  ZRBHA_WORKFLOW_RUN_ID_FILE="${BURD_TEMP_DIR}/workflow_run_id__${BURD_NOW_STAMP}.txt"
+  ZRBHA_WORKFLOW_LOGS_FILE="${BURD_TEMP_DIR}/workflow_logs__${BURD_NOW_STAMP}.txt"
 
   ZRBHA_KINDLED=1
 }

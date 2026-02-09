@@ -29,9 +29,9 @@ source "${VSLW_SCRIPT_DIR}/../buk/buc_command.sh"
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verbose output if BUD_VERBOSE is set
+# Verbose output if BURD_VERBOSE is set
 vslw_show() {
-  test "${BUD_VERBOSE:-0}" != "1" || echo "VSLWSHOW: $*"
+  test "${BURD_VERBOSE:-0}" != "1" || echo "VSLWSHOW: $*"
 }
 
 # Load BURC configuration
@@ -57,8 +57,8 @@ vslw_route() {
   vslw_show "Routing command: ${z_command} with args: $*"
 
   # Verify BUD environment variables are present
-  test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP not set - must be called from BUD"
+  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - must be called from BUD"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BUD"
 
   test -n "${VSLW_TEMPLATE_DIR:-}" || buc_die "VSLW_TEMPLATE_DIR not set - must be set by launcher"
 

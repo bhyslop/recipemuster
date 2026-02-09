@@ -15,19 +15,19 @@ ZRBHR_INCLUDED=1
 
 zrbhr_kindle() {
   # Check required environment
-  test -n "${BUD_TEMP_DIR:-}"             || buc_die "BUD_TEMP_DIR not set"
-  test -n "${BUD_NOW_STAMP:-}"            || buc_die "BUD_NOW_STAMP not set"
+  test -n "${BURD_TEMP_DIR:-}"             || buc_die "BURD_TEMP_DIR not set"
+  test -n "${BURD_NOW_STAMP:-}"            || buc_die "BURD_NOW_STAMP not set"
   test -n "${RBRR_BUILD_ARCHITECTURES:-}" || buc_die "RBRR_BUILD_ARCHITECTURES not set"
   test -n "${RBRR_HISTORY_DIR:-}"         || buc_die "RBRR_HISTORY_DIR not set"
   test -n "${RBRR_REGISTRY_OWNER:-}"      || buc_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"       || buc_die "RBRR_REGISTRY_NAME not set"
 
   # Module Variables (ZRBHR_*)
-  ZRBHR_ALL_VERSIONS_FILE="${BUD_TEMP_DIR}/rbhr_all_versions.json"
-  ZRBHR_PAGE_FILE="${BUD_TEMP_DIR}/rbhr_page.json"
-  ZRBHR_ALL_VERSIONS_TMP_FILE="${BUD_TEMP_DIR}/rbhr_all_versions.tmp"
-  ZRBHR_DELETE_RESULT_FILE="${BUD_TEMP_DIR}/rbhr_delete_result.txt"
-  ZRBHR_HTTP_CODE_FILE="${BUD_TEMP_DIR}/rbhr_delete_http_code.txt"
+  ZRBHR_ALL_VERSIONS_FILE="${BURD_TEMP_DIR}/rbhr_all_versions.json"
+  ZRBHR_PAGE_FILE="${BURD_TEMP_DIR}/rbhr_page.json"
+  ZRBHR_ALL_VERSIONS_TMP_FILE="${BURD_TEMP_DIR}/rbhr_all_versions.tmp"
+  ZRBHR_DELETE_RESULT_FILE="${BURD_TEMP_DIR}/rbhr_delete_result.txt"
+  ZRBHR_HTTP_CODE_FILE="${BURD_TEMP_DIR}/rbhr_delete_http_code.txt"
 
   ZRBHR_KINDLED=1
 }
@@ -161,7 +161,7 @@ rbhr_delete_image() {
   rbcr_delete "${z_tag}"
 
   # Record deletion
-  local z_delete_dir="${RBRR_HISTORY_DIR}/_deletions/${BUD_NOW_STAMP}_${z_tag}"
+  local z_delete_dir="${RBRR_HISTORY_DIR}/_deletions/${BURD_NOW_STAMP}_${z_tag}"
 
   mkdir -p                        "${z_delete_dir}"
   echo "${z_fqin}"              > "${z_delete_dir}/deleted_fqin.txt"

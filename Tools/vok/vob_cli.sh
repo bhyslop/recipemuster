@@ -31,7 +31,7 @@ source "${ZVOB_CLI_SCRIPT_DIR}/vob_build.sh"
 
 zvob_furnish() {
 
-  buc_doc_env "BUD_TEMP_DIR         " "Temporary directory for intermediate files"
+  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
   buc_doc_env "BURC_TOOLS_DIR       " "Directory for tools"
 
   # Load BURC configuration

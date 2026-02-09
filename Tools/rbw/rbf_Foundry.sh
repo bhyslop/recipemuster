@@ -31,8 +31,8 @@ zrbf_kindle() {
   test -z "${ZRBF_KINDLED:-}" || buc_die "Module rbf already kindled"
 
   # Validate environment
-  buv_dir_exists "${BUD_TEMP_DIR}"
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP is unset or empty"
+  buv_dir_exists "${BURD_TEMP_DIR}"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP is unset or empty"
 
   buc_log_args 'Check required GCB/GAR environment variables'
   zrbgc_sentinel
@@ -53,11 +53,11 @@ zrbf_kindle() {
   ZRBF_GCS_UPLOAD_BASE="https://storage.googleapis.com/upload/storage/v1"
 
   # Temp files for object naming and requests
-  ZRBF_TARBALL_NAME_FILE="${BUD_TEMP_DIR}/rbf_tarball_name.txt"
-  ZRBF_GCS_OBJECT_FILE="${BUD_TEMP_DIR}/rbf_gcs_object.txt"
-  ZRBF_BUILD_REQUEST_FILE="${BUD_TEMP_DIR}/rbf_build_request.json"
-  ZRBF_GCS_UPLOAD_RESP="${BUD_TEMP_DIR}/rbf_gcs_upload_resp.json"
-  ZRBF_GCS_UPLOAD_HTTP="${BUD_TEMP_DIR}/rbf_gcs_upload_http.txt"
+  ZRBF_TARBALL_NAME_FILE="${BURD_TEMP_DIR}/rbf_tarball_name.txt"
+  ZRBF_GCS_OBJECT_FILE="${BURD_TEMP_DIR}/rbf_gcs_object.txt"
+  ZRBF_BUILD_REQUEST_FILE="${BURD_TEMP_DIR}/rbf_build_request.json"
+  ZRBF_GCS_UPLOAD_RESP="${BURD_TEMP_DIR}/rbf_gcs_upload_resp.json"
+  ZRBF_GCS_UPLOAD_HTTP="${BURD_TEMP_DIR}/rbf_gcs_upload_http.txt"
 
   ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
   ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
@@ -81,48 +81,48 @@ zrbf_kindle() {
   test -f "${ZRBF_RBGJM_MIRROR_FILE}" || buc_die "RBGJM mirror file not found: ${ZRBF_RBGJM_MIRROR_FILE}"
 
   buc_log_args 'Define stitched build JSON temp file'
-  ZRBF_STITCHED_BUILD_FILE="${BUD_TEMP_DIR}/rbf_stitched_build.json"
+  ZRBF_STITCHED_BUILD_FILE="${BURD_TEMP_DIR}/rbf_stitched_build.json"
 
   buc_log_args 'Define temp files for build operations'
-  ZRBF_BUILD_CONTEXT_TAR="${BUD_TEMP_DIR}/rbf_build_context.tar.gz"
-  ZRBF_BUILD_CONFIG_FILE="${BUD_TEMP_DIR}/rbf_build_config.json"
-  ZRBF_BUILD_ID_FILE="${BUD_TEMP_DIR}/rbf_build_id.txt"
-  ZRBF_BUILD_STATUS_FILE="${BUD_TEMP_DIR}/rbf_build_status.json"
-  ZRBF_BUILD_LOG_FILE="${BUD_TEMP_DIR}/rbf_build_log.txt"
-  ZRBF_BUILD_RESPONSE_FILE="${BUD_TEMP_DIR}/rbf_build_response.json"
-  ZRBF_BUILD_HTTP_CODE="${BUD_TEMP_DIR}/rbf_build_http_code.txt"
+  ZRBF_BUILD_CONTEXT_TAR="${BURD_TEMP_DIR}/rbf_build_context.tar.gz"
+  ZRBF_BUILD_CONFIG_FILE="${BURD_TEMP_DIR}/rbf_build_config.json"
+  ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
+  ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
+  ZRBF_BUILD_LOG_FILE="${BURD_TEMP_DIR}/rbf_build_log.txt"
+  ZRBF_BUILD_RESPONSE_FILE="${BURD_TEMP_DIR}/rbf_build_response.json"
+  ZRBF_BUILD_HTTP_CODE="${BURD_TEMP_DIR}/rbf_build_http_code.txt"
 
   buc_log_args 'Define copy staging files'
-  ZRBF_COPY_STAGING_DIR="${BUD_TEMP_DIR}/rbf_copy_staging"
-  ZRBF_COPY_CONTEXT_TAR="${BUD_TEMP_DIR}/rbf_copy_context.tar.gz"
+  ZRBF_COPY_STAGING_DIR="${BURD_TEMP_DIR}/rbf_copy_staging"
+  ZRBF_COPY_CONTEXT_TAR="${BURD_TEMP_DIR}/rbf_copy_context.tar.gz"
 
   buc_log_args 'Define git info files'
-  ZRBF_GIT_INFO_FILE="${BUD_TEMP_DIR}/rbf_git_info.json"
-  ZRBF_GIT_COMMIT_FILE="${BUD_TEMP_DIR}/rbf_git_commit.txt"
-  ZRBF_GIT_BRANCH_FILE="${BUD_TEMP_DIR}/rbf_git_branch.txt"
-  ZRBF_GIT_REPO_FILE="${BUD_TEMP_DIR}/rbf_git_repo_url.txt"
-  ZRBF_GIT_UNTRACKED_FILE="${BUD_TEMP_DIR}/rbf_git_untracked.txt"
-  ZRBF_GIT_REMOTE_FILE="${BUD_TEMP_DIR}/rbf_git_remote.txt"
+  ZRBF_GIT_INFO_FILE="${BURD_TEMP_DIR}/rbf_git_info.json"
+  ZRBF_GIT_COMMIT_FILE="${BURD_TEMP_DIR}/rbf_git_commit.txt"
+  ZRBF_GIT_BRANCH_FILE="${BURD_TEMP_DIR}/rbf_git_branch.txt"
+  ZRBF_GIT_REPO_FILE="${BURD_TEMP_DIR}/rbf_git_repo_url.txt"
+  ZRBF_GIT_UNTRACKED_FILE="${BURD_TEMP_DIR}/rbf_git_untracked.txt"
+  ZRBF_GIT_REMOTE_FILE="${BURD_TEMP_DIR}/rbf_git_remote.txt"
 
   buc_log_args 'Define staging and size files'
-  ZRBF_STAGING_DIR="${BUD_TEMP_DIR}/rbf_staging"
-  ZRBF_CONTEXT_SIZE_FILE="${BUD_TEMP_DIR}/rbf_context_size_bytes.txt"
+  ZRBF_STAGING_DIR="${BURD_TEMP_DIR}/rbf_staging"
+  ZRBF_CONTEXT_SIZE_FILE="${BURD_TEMP_DIR}/rbf_context_size_bytes.txt"
 
   buc_log_args 'Define validation files'
-  ZRBF_STATUS_CHECK_FILE="${BUD_TEMP_DIR}/rbf_status_check.txt"
-  ZRBF_BUILD_ID_TMP_FILE="${BUD_TEMP_DIR}/rbf_build_id_tmp.txt"
+  ZRBF_STATUS_CHECK_FILE="${BURD_TEMP_DIR}/rbf_status_check.txt"
+  ZRBF_BUILD_ID_TMP_FILE="${BURD_TEMP_DIR}/rbf_build_id_tmp.txt"
 
   buc_log_args 'Define delete operation files'
-  ZRBF_DELETE_PREFIX="${BUD_TEMP_DIR}/rbf_delete_"
-  ZRBF_TOKEN_FILE="${BUD_TEMP_DIR}/rbf_token.txt"
+  ZRBF_DELETE_PREFIX="${BURD_TEMP_DIR}/rbf_delete_"
+  ZRBF_TOKEN_FILE="${BURD_TEMP_DIR}/rbf_token.txt"
 
   buc_log_args 'Define copy operation files'
-  ZRBF_COPY_CONFIG_FILE="${BUD_TEMP_DIR}/rbf_copy_config.json"
-  ZRBF_COPY_RESPONSE_FILE="${BUD_TEMP_DIR}/rbf_copy_response.json"
+  ZRBF_COPY_CONFIG_FILE="${BURD_TEMP_DIR}/rbf_copy_config.json"
+  ZRBF_COPY_RESPONSE_FILE="${BURD_TEMP_DIR}/rbf_copy_response.json"
 
   buc_log_args 'Vessel-related files'
-  ZRBF_VESSEL_ENV_FILE="${BUD_TEMP_DIR}/rbf_vessel_env.txt"
-  ZRBF_VESSEL_SIGIL_FILE="${BUD_TEMP_DIR}/rbf_vessel_sigil.txt"
+  ZRBF_VESSEL_ENV_FILE="${BURD_TEMP_DIR}/rbf_vessel_env.txt"
+  ZRBF_VESSEL_SIGIL_FILE="${BURD_TEMP_DIR}/rbf_vessel_sigil.txt"
 
   buc_log_args 'For now lets double check these'
   test -n "${RBRR_GCB_GCRANE_IMAGE_REF:-}" || buc_die "RBRR_GCB_GCRANE_IMAGE_REF not set"
@@ -372,8 +372,8 @@ zrbf_compose_tarball_name() {
   z_sigil=$(<"${ZRBF_VESSEL_SIGIL_FILE}") || buc_die "Failed to read vessel sigil"
   test -n "${z_sigil}" || buc_die "Empty vessel sigil"
 
-  # Flat namespace (no subdirectories), BUD_NOW_STAMP for source artifact
-  local z_name="${z_sigil}.${BUD_NOW_STAMP}.source.tar.gz"
+  # Flat namespace (no subdirectories), BURD_NOW_STAMP for source artifact
+  local z_name="${z_sigil}.${BURD_NOW_STAMP}.source.tar.gz"
   echo "${z_name}" > "${ZRBF_TARBALL_NAME_FILE}"      || buc_die "Failed to write tarball name"
   echo "${RBGD_GCS_BUCKET}/${z_name}" > "${ZRBF_GCS_OBJECT_FILE}" || buc_die "Failed to write bucket/object"
   buc_log_args "Tarball object: ${z_name}"
@@ -563,7 +563,7 @@ rbf_build() {
   fi
 
   buc_log_args "Generate build tag using vessel sigil"
-  local z_tag="${RBRV_SIGIL}.${BUD_NOW_STAMP}"
+  local z_tag="${RBRV_SIGIL}.${BURD_NOW_STAMP}"
 
   buc_info "Building vessel image: ${RBRV_SIGIL} -> ${z_tag}"
 
@@ -748,7 +748,7 @@ rbf_list() {
 
   buc_step "Listing all images in repository"
 
-  local z_packages_file="${BUD_TEMP_DIR}/rbf_list_packages.json"
+  local z_packages_file="${BURD_TEMP_DIR}/rbf_list_packages.json"
   local z_gar_api="https://artifactregistry.googleapis.com/v1"
   local z_repo_path="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
@@ -765,7 +765,7 @@ rbf_list() {
   fi
 
   # Extract package monikers
-  local z_packages_list="${BUD_TEMP_DIR}/rbf_list_packages.txt"
+  local z_packages_list="${BURD_TEMP_DIR}/rbf_list_packages.txt"
   jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
     echo "${pkg##*/}"
   done | sort > "${z_packages_list}"
@@ -774,7 +774,7 @@ rbf_list() {
 
   # For each moniker, fetch tags and emit locators
   while IFS= read -r z_moniker; do
-    local z_tags_file="${BUD_TEMP_DIR}/rbf_list_tags_${z_moniker}.json"
+    local z_tags_file="${BURD_TEMP_DIR}/rbf_list_tags_${z_moniker}.json"
     curl -sL \
       -H "Authorization: Bearer ${z_token}" \
       "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/tags/list" \
@@ -811,7 +811,7 @@ rbf_beseech() {
 
   buc_step "Enumerating arks from repository"
 
-  local z_packages_file="${BUD_TEMP_DIR}/rbf_beseech_packages.json"
+  local z_packages_file="${BURD_TEMP_DIR}/rbf_beseech_packages.json"
   local z_gar_api="https://artifactregistry.googleapis.com/v1"
   local z_repo_path="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
@@ -828,7 +828,7 @@ rbf_beseech() {
   fi
 
   # Extract package monikers, optionally filter
-  local z_packages_list="${BUD_TEMP_DIR}/rbf_beseech_packages.txt"
+  local z_packages_list="${BURD_TEMP_DIR}/rbf_beseech_packages.txt"
   if [[ -n "${z_filter_vessel}" ]]; then
     jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
       local moniker="${pkg##*/}"
@@ -843,11 +843,11 @@ rbf_beseech() {
   fi
 
   # Build ark correlation data
-  local z_arks_raw="${BUD_TEMP_DIR}/rbf_beseech_arks_raw.txt"
+  local z_arks_raw="${BURD_TEMP_DIR}/rbf_beseech_arks_raw.txt"
   > "${z_arks_raw}"  # Clear file
 
   while IFS= read -r z_moniker; do
-    local z_tags_file="${BUD_TEMP_DIR}/rbf_beseech_tags_${z_moniker}.json"
+    local z_tags_file="${BURD_TEMP_DIR}/rbf_beseech_tags_${z_moniker}.json"
     curl -sL \
       -H "Authorization: Bearer ${z_token}" \
       "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/tags/list" \
@@ -874,7 +874,7 @@ rbf_beseech() {
   done < "${z_packages_list}"
 
   # Correlate artifacts into arks
-  local z_arks_correlated="${BUD_TEMP_DIR}/rbf_beseech_arks_correlated.txt"
+  local z_arks_correlated="${BURD_TEMP_DIR}/rbf_beseech_arks_correlated.txt"
   sort "${z_arks_raw}" | awk -F'|' '
     {
       key = $1 "|" $2

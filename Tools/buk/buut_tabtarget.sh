@@ -33,8 +33,8 @@ ZBUUT_SOURCED=1
 zbuut_kindle() {
   test -z "${ZBUUT_KINDLED:-}" || buc_die "Module buut already kindled"
 
-  # Validate BUD environment
-  test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR is unset"
+  # Validate BURD environment
+  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR is unset"
 
   # Validate BURC environment (needed for paths)
   test -n "${BURC_TABTARGET_DIR:-}" || buc_die "BURC_TABTARGET_DIR is unset"
@@ -47,9 +47,9 @@ zbuut_sentinel() {
   test "${ZBUUT_KINDLED:-}" = "1" || buc_die "Module buut not kindled - call zbuut_kindle first"
 }
 
-# Verbose output if BUD_VERBOSE is set
+# Verbose output if BURD_VERBOSE is set
 zbuut_show() {
-  test "${BUD_VERBOSE:-0}" != "1" || echo "BUUTSHOW: $*"
+  test "${BURD_VERBOSE:-0}" != "1" || echo "BUUTSHOW: $*"
 }
 
 # Write a tabtarget file with specified flags
@@ -68,14 +68,14 @@ zbuut_write_tabtarget() {
 
   # Build the tabtarget content
   echo '#!/bin/bash' > "${z_tabtarget_file}"
-  echo "export BUD_LAUNCHER=\"${z_launcher_path}\"" >> "${z_tabtarget_file}"
+  echo "export BURD_LAUNCHER=\"${z_launcher_path}\"" >> "${z_tabtarget_file}"
 
   # Add flag lines if provided
   if test -n "${z_flag_lines}"; then
     echo "${z_flag_lines}" >> "${z_tabtarget_file}"
   fi
 
-  echo 'exec "$(dirname "${BASH_SOURCE[0]}")/../${BUD_LAUNCHER}" "${0##*/}" "${@}"' >> "${z_tabtarget_file}"
+  echo 'exec "$(dirname "${BASH_SOURCE[0]}")/../${BURD_LAUNCHER}" "${0##*/}" "${@}"' >> "${z_tabtarget_file}"
 
   chmod +x "${z_tabtarget_file}" || buc_die "Failed to make tabtarget executable: ${z_tabtarget_file}"
 }
@@ -141,12 +141,12 @@ buut_tabtarget_batch_logging() {
   zbuut_create_tabtargets "" "${z_launcher_path}" "$@"
 }
 
-# Create batch+nolog tabtargets (BUD_NO_LOG=1)
+# Create batch+nolog tabtargets (BURD_NO_LOG=1)
 buut_tabtarget_batch_nolog() {
   local z_launcher_path="${1:-}"
   shift || true
 
-  buc_doc_brief "Create batch+nolog tabtarget(s) (BUD_NO_LOG=1)"
+  buc_doc_brief "Create batch+nolog tabtarget(s) (BURD_NO_LOG=1)"
   buc_doc_param "launcher_path" "Path to launcher (e.g., .buk/launcher.rbw_workbench.sh)"
   buc_doc_param "tabtarget_name" "One or more tabtarget names (e.g., rbw-ri.RegimeInfo)"
   buc_doc_shown || return 0
@@ -155,15 +155,15 @@ buut_tabtarget_batch_nolog() {
   test -n "${z_launcher_path}" || buc_usage_die
 
   buc_step "Creating batch+nolog tabtarget(s)"
-  zbuut_create_tabtargets 'export BUD_NO_LOG=1' "${z_launcher_path}" "$@"
+  zbuut_create_tabtargets 'export BURD_NO_LOG=1' "${z_launcher_path}" "$@"
 }
 
-# Create interactive+logging tabtargets (BUD_INTERACTIVE=1)
+# Create interactive+logging tabtargets (BURD_INTERACTIVE=1)
 buut_tabtarget_interactive_logging() {
   local z_launcher_path="${1:-}"
   shift || true
 
-  buc_doc_brief "Create interactive+logging tabtarget(s) (BUD_INTERACTIVE=1)"
+  buc_doc_brief "Create interactive+logging tabtarget(s) (BURD_INTERACTIVE=1)"
   buc_doc_param "launcher_path" "Path to launcher (e.g., .buk/launcher.cccw_workbench.sh)"
   buc_doc_param "tabtarget_name" "One or more tabtarget names (e.g., ccck-s.ConnectShell)"
   buc_doc_shown || return 0
@@ -172,7 +172,7 @@ buut_tabtarget_interactive_logging() {
   test -n "${z_launcher_path}" || buc_usage_die
 
   buc_step "Creating interactive+logging tabtarget(s)"
-  zbuut_create_tabtargets 'export BUD_INTERACTIVE=1' "${z_launcher_path}" "$@"
+  zbuut_create_tabtargets 'export BURD_INTERACTIVE=1' "${z_launcher_path}" "$@"
 }
 
 # Create interactive+nolog tabtargets (both flags)
@@ -180,7 +180,7 @@ buut_tabtarget_interactive_nolog() {
   local z_launcher_path="${1:-}"
   shift || true
 
-  buc_doc_brief "Create interactive+nolog tabtarget(s) (BUD_INTERACTIVE=1, BUD_NO_LOG=1)"
+  buc_doc_brief "Create interactive+nolog tabtarget(s) (BURD_INTERACTIVE=1, BURD_NO_LOG=1)"
   buc_doc_param "launcher_path" "Path to launcher (e.g., .buk/launcher.rbk_Coordinator.sh)"
   buc_doc_param "tabtarget_name" "One or more tabtarget names (e.g., rbw-PI.PayorInstall)"
   buc_doc_shown || return 0
@@ -189,8 +189,8 @@ buut_tabtarget_interactive_nolog() {
   test -n "${z_launcher_path}" || buc_usage_die
 
   buc_step "Creating interactive+nolog tabtarget(s)"
-  local z_flags='export BUD_NO_LOG=1
-export BUD_INTERACTIVE=1'
+  local z_flags='export BURD_NO_LOG=1
+export BURD_INTERACTIVE=1'
   zbuut_create_tabtargets "${z_flags}" "${z_launcher_path}" "$@"
 }
 

@@ -39,7 +39,7 @@ zrbgb_kindle() {
   zrbgu_sentinel
   zrbgi_sentinel
 
-  ZRBGB_PREFIX="${BUD_TEMP_DIR}/rbgb_"
+  ZRBGB_PREFIX="${BURD_TEMP_DIR}/rbgb_"
   ZRBGB_EMPTY_JSON="${ZRBGB_PREFIX}empty.json"
   printf '{}' > "${ZRBGB_EMPTY_JSON}"
 
@@ -157,7 +157,7 @@ rbgb_bucket_create() {
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Create bucket request JSON'
-  local z_bucket_req="${BUD_TEMP_DIR}/rbgb_bucket_create_req.json"
+  local z_bucket_req="${BURD_TEMP_DIR}/rbgb_bucket_create_req.json"
   jq -n --arg name "${z_bucket_name}" --arg location "${RBGC_GAR_LOCATION}" '
 {
   name: $name,
@@ -233,7 +233,7 @@ rbgb_bucket_set_iam() {
 
   buc_log_args 'Set IAM policy'
   local z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/iam"
-  local z_policy_file="${BUD_TEMP_DIR}/rbgb_bucket_set_iam.json"
+  local z_policy_file="${BURD_TEMP_DIR}/rbgb_bucket_set_iam.json"
 
   if test -f "${z_policy_json}"; then
     cp "${z_policy_json}" "${z_policy_file}"
@@ -299,7 +299,7 @@ rbgb_bucket_set_lifecycle() {
 
   buc_log_args 'Set lifecycle policy'
   local z_lifecycle_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
-  local z_lifecycle_file="${BUD_TEMP_DIR}/rbgb_bucket_set_lifecycle.json"
+  local z_lifecycle_file="${BURD_TEMP_DIR}/rbgb_bucket_set_lifecycle.json"
 
   if test -f "${z_lifecycle_json}"; then
     jq -n --slurpfile lifecycle "${z_lifecycle_json}" '{ lifecycle: $lifecycle[0] }' > "${z_lifecycle_file}"

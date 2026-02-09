@@ -29,9 +29,9 @@ source "${JJW_SCRIPT_DIR}/../buk/buc_command.sh"
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verbose output if BUD_VERBOSE is set
+# Verbose output if BURD_VERBOSE is set
 jjw_show() {
-  test "${BUD_VERBOSE:-0}" != "1" || echo "JJWSHOW: $*"
+  test "${BURD_VERBOSE:-0}" != "1" || echo "JJWSHOW: $*"
 }
 
 # Simple routing function
@@ -42,8 +42,8 @@ jjw_route() {
   jjw_show "Routing command: ${z_command} with args: $*"
 
   # Verify BDU environment variables are present
-  test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP not set - must be called from BUD"
+  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - must be called from BUD"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BUD"
 
   jjw_show "BDU environment verified"
 

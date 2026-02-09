@@ -34,6 +34,6 @@ source "${ZRGBS_CLI_SCRIPT_DIR}/rgbs_ServiceAccounts.sh"
 # Initialize modules
 rbl_kindle_all
 
-bud_dispatch "$@"
+burd_dispatch "$@"
 
 # eof

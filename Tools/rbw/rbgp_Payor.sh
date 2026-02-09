@@ -36,7 +36,7 @@ zrbgp_kindle() {
   zrbgu_sentinel
   zrbgi_sentinel
 
-  ZRBGP_PREFIX="${BUD_TEMP_DIR}/rbgp_"
+  ZRBGP_PREFIX="${BURD_TEMP_DIR}/rbgp_"
   ZRBGP_EMPTY_JSON="${ZRBGP_PREFIX}empty.json"
   printf '{}' > "${ZRBGP_EMPTY_JSON}"
 
@@ -222,7 +222,7 @@ zrbgp_billing_attach() {
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
-  local z_billing_body="${BUD_TEMP_DIR}/rbgp_billing_attach.json"
+  local z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_attach.json"
   jq -n --arg billingAccountName "billingAccounts/${z_billing_account}" \
     --arg projectId "${RBRR_DEPOT_PROJECT_ID}" \
     '{
@@ -249,7 +249,7 @@ zrbgp_billing_detach() {
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
-  local z_billing_body="${BUD_TEMP_DIR}/rbgp_billing_detach.json"
+  local z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_detach.json"
   jq -n --arg projectId "${RBRR_DEPOT_PROJECT_ID}" \
     '{
       projectId: $projectId,
@@ -384,7 +384,7 @@ zrbgp_create_gcs_bucket() {
   local z_bucket_name="${2}"
 
   buc_log_args 'Create bucket request JSON for '"${z_bucket_name}"
-  local z_bucket_req="${BUD_TEMP_DIR}/rbgp_bucket_create_req.json"
+  local z_bucket_req="${BURD_TEMP_DIR}/rbgp_bucket_create_req.json"
   jq -n --arg name "${z_bucket_name}" --arg location "${RBGC_GAR_LOCATION}" '
     {
       name: $name,
@@ -618,7 +618,7 @@ rbgp_depot_create() {
   buc_log_args "Generated depot project ID: ${z_depot_project_id}"
 
   buc_step 'Create depot project'
-  local z_create_project_body="${BUD_TEMP_DIR}/rbgp_create_project.json"
+  local z_create_project_body="${BURD_TEMP_DIR}/rbgp_create_project.json"
   
   # OAuth users create projects without parent (per MPCR)
   jq -n \
@@ -643,7 +643,7 @@ rbgp_depot_create() {
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
   buc_step 'Link billing account'
-  local z_billing_body="${BUD_TEMP_DIR}/rbgp_billing_link.json"
+  local z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_link.json"
   jq -n \
     --arg billingAccountName "billingAccounts/${RBRP_BILLING_ACCOUNT_ID}" \
     '{
@@ -679,7 +679,7 @@ rbgp_depot_create() {
 
   buc_step 'Create build bucket'
   local z_build_bucket="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_timestamp}"
-  local z_bucket_req="${BUD_TEMP_DIR}/rbgp_bucket_create_req.json"
+  local z_bucket_req="${BURD_TEMP_DIR}/rbgp_bucket_create_req.json"
   jq -n \
     --arg name "${z_build_bucket}" \
     --arg location "${z_region}" \
@@ -706,7 +706,7 @@ rbgp_depot_create() {
   local z_repository_name="rbw-${z_depot_name}-repository"
   local z_parent="projects/${z_depot_project_id}/locations/${z_region}"
   local z_create_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}/repositories?repositoryId=${z_repository_name}"
-  local z_create_repo_body="${BUD_TEMP_DIR}/rbgp_create_repo.json"
+  local z_create_repo_body="${BURD_TEMP_DIR}/rbgp_create_repo.json"
   
   jq -n '{format:"DOCKER"}' > "${z_create_repo_body}" || buc_die "Failed to build create-repo body"
 
@@ -729,7 +729,7 @@ rbgp_depot_create() {
   buc_step 'Create Mason service account'
   local z_mason_name="${RBGC_MASON_PREFIX}-${z_depot_name}"
   local z_mason_display_name="Mason for RB Depot: ${z_depot_name}"
-  local z_create_sa_body="${BUD_TEMP_DIR}/rbgp_create_mason.json"
+  local z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_mason.json"
   
   jq -n \
     --arg accountId "${z_mason_name}" \
@@ -888,7 +888,7 @@ rbgp_depot_destroy() {
   fi
 
   buc_step 'Unlink billing account (releases quota immediately)'
-  local z_billing_unlink_body="${BUD_TEMP_DIR}/rbgp_billing_unlink.json"
+  local z_billing_unlink_body="${BURD_TEMP_DIR}/rbgp_billing_unlink.json"
   echo '{"billingAccountName":""}' > "${z_billing_unlink_body}" || buc_die "Failed to build billing unlink body"
 
   local z_billing_unlink_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_depot_project_id}/billingInfo"
@@ -1166,7 +1166,7 @@ rbgp_governor_reset() {
   buc_log_args "Governor account ID: ${z_governor_account_id}"
 
   buc_step 'Create Governor service account'
-  local z_create_sa_body="${BUD_TEMP_DIR}/rbgp_create_governor.json"
+  local z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_governor.json"
   jq -n \
     --arg accountId "${z_governor_account_id}" \
     --arg displayName "Governor for RB Depot" \
@@ -1196,7 +1196,7 @@ rbgp_governor_reset() {
     "governor-owner"
 
   buc_step 'Generate service account key'
-  local z_key_req="${BUD_TEMP_DIR}/rbgp_governor_key_request.json"
+  local z_key_req="${BURD_TEMP_DIR}/rbgp_governor_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
 
   local z_key_url="${z_sa_list_url}/${z_governor_email}/keys"
@@ -1208,7 +1208,7 @@ rbgp_governor_reset() {
   z_key_b64=$(rbgu_json_field_capture "${ZRBGP_INFIX_GOV_KEY}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
 
-  local z_key_json="${BUD_TEMP_DIR}/rbgp_governor_key.json"
+  local z_key_json="${BURD_TEMP_DIR}/rbgp_governor_key.json"
   buc_log_args 'Tolerate macos base64 difference'
   if ! printf '%s' "${z_key_b64}" | base64 -d > "${z_key_json}" 2>/dev/null; then
        printf '%s' "${z_key_b64}" | base64 -D > "${z_key_json}" 2>/dev/null \
@@ -1216,7 +1216,7 @@ rbgp_governor_reset() {
   fi
 
   buc_step 'Convert JSON key to RBRA format'
-  local z_rbra_file="${BUD_OUTPUT_DIR}/governor-${z_timestamp}.rbra"
+  local z_rbra_file="${BURD_OUTPUT_DIR}/governor-${z_timestamp}.rbra"
 
   local z_client_email
   z_client_email=$(jq -r '.client_email' "${z_key_json}") || buc_die "Failed to extract client_email"

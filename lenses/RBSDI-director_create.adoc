@@ -10,7 +10,7 @@ with build management permissions:
 .. {rbbc_require}
 `«INPUT_INSTANCE»` provided as first argument
 .. {rbbc_require}
-`BUD_OUTPUT_DIR` environment variable set and directory exists
+`BURD_OUTPUT_DIR` environment variable set and directory exists
 .. {rbbc_store}
 `«DIRECTOR_ACCOUNT_NAME»` as `rb-director-«INPUT_INSTANCE»`
 .. {rbbc_store}

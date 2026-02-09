@@ -39,7 +39,7 @@ zrbga_kindle() {
   zrbgu_sentinel
   zrbgi_sentinel
 
-  ZRBGA_PREFIX="${BUD_TEMP_DIR}/rbga_"
+  ZRBGA_PREFIX="${BURD_TEMP_DIR}/rbga_"
   ZRBGA_EMPTY_JSON="${ZRBGA_PREFIX}empty.json"
   printf '{}' > "${ZRBGA_EMPTY_JSON}"
 
@@ -86,7 +86,7 @@ rbga_repo_create() {
   local z_parent="projects/${RBRR_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}"
   local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_create_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}${RBGC_PATH_REPOSITORIES}?repositoryId=${z_repo_name}"
-  local z_create_body="${BUD_TEMP_DIR}/rbga_create_repo_body.json"
+  local z_create_body="${BURD_TEMP_DIR}/rbga_create_repo_body.json"
 
   jq -n --arg format "${z_format}" '{format: $format}' > "${z_create_body}" || buc_die "Failed to build create-repo body"
 
@@ -170,7 +170,7 @@ rbga_repo_set_iam() {
 
   local z_resource="projects/${RBRR_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
-  local z_policy_file="${BUD_TEMP_DIR}/rbga_repo_set_iam.json"
+  local z_policy_file="${BURD_TEMP_DIR}/rbga_repo_set_iam.json"
 
   if test -f "${z_policy_json}"; then
     jq -n --slurpfile policy "${z_policy_json}" '{ policy: $policy[0] }' > "${z_policy_file}"

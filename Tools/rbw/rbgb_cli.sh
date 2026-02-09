@@ -35,6 +35,6 @@ source "${ZRBGB_CLI_SCRIPT_DIR}/rbgb_Buckets.sh"
 # Initialize modules
 rbl_kindle_all
 
-bud_dispatch "$@"
+burd_dispatch "$@"
 
 # eof

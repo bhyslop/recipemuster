@@ -18,7 +18,7 @@
 #
 # BURS CLI - Command line interface for BURS regime operations
 #
-# Requires BUD_STATION_FILE environment variable (path to burs.env).
+# Requires BURD_STATION_FILE environment variable (path to burs.env).
 # This CLI sources the file and validates/renders/displays BURS configuration.
 
 set -euo pipefail
@@ -36,7 +36,7 @@ zburs_cli_kindle() {
   test -z "${ZBURS_CLI_KINDLED:-}" || buc_die "BURS CLI already kindled"
 
   # Verify environment
-  test -n "${BUD_STATION_FILE:-}" || buc_die "BUD_STATION_FILE not set - must be called via launcher"
+  test -n "${BURD_STATION_FILE:-}" || buc_die "BURD_STATION_FILE not set - must be called via launcher"
 
   ZBURS_SPEC_FILE="${ZBURS_CLI_SCRIPT_DIR}/burs_specification.md"
 
@@ -45,9 +45,9 @@ zburs_cli_kindle() {
 
 # Command: validate - source file and validate
 burs_validate() {
-  buc_step "Validating BURS: ${BUD_STATION_FILE}"
+  buc_step "Validating BURS: ${BURD_STATION_FILE}"
 
-  source "${BUD_STATION_FILE}" || buc_die "Failed to source BURS"
+  source "${BURD_STATION_FILE}" || buc_die "Failed to source BURS"
   zburs_kindle
 
   buc_success "BURS configuration valid"
@@ -55,9 +55,9 @@ burs_validate() {
 
 # Command: render - display configuration values
 burs_render() {
-  buc_step "BURS Configuration: ${BUD_STATION_FILE}"
+  buc_step "BURS Configuration: ${BURD_STATION_FILE}"
 
-  source "${BUD_STATION_FILE}" || buc_die "Failed to source BURS"
+  source "${BURD_STATION_FILE}" || buc_die "Failed to source BURS"
 
   # Render with aligned columns
   printf "%-25s %s\n" "BURS_LOG_DIR" "${BURS_LOG_DIR:-<not set>}"

@@ -1,2 +1,2 @@
 #!/bin/bash
-cd "${0%/*}/.." && Tools/buk/bud_dispatch.sh "${0##*/}" "$@"
+cd "${0%/*}/.." && Tools/buk/burd_dispatch.sh "${0##*/}" "$@"

@@ -362,7 +362,7 @@ Project Root/
 │
 ├── Tools/                             # Tool scripts (portable, reusable)
 │   ├── buk/                           # BUK core utilities (graftable module)
-│   │   ├── bud_dispatch.sh # Dispatch system
+│   │   ├── burd_dispatch.sh # Dispatch system
 │   │   ├── buc_command.sh  # Command utilities
 │   │   ├── but_test.sh     # Test utilities
 │   │   ├── buv_validation.sh # Validation (type system)
@@ -399,16 +399,16 @@ User invokes TabTarget:
    → burs_regime.sh validate ../station-files/burs.env
    → (If validation fails, display info and exit)
 
-3. Launcher delegates to BUD
-   → bud_dispatch.sh buw-ll
+3. Launcher delegates to BURD
+   → burd_dispatch.sh buw-ll
 
-4. BUD sets up environment
+4. BURD sets up environment
    → Parses colophon, frontispiece, imprint(s) from filename
    → Creates temp/output directories
    → Sources BURS (station config)
    → Sets up logging
 
-5. BUD invokes Workbench
+5. BURD invokes Workbench
    → buw_workbench.sh buw-ll [imprints...]
    → Passes colophon as command, imprints as arguments
 
@@ -418,7 +418,7 @@ User invokes TabTarget:
    → Executes command logic
    → Returns exit status
 
-7. BUD cleans up
+7. BURD cleans up
    → Writes transcript
    → Propagates exit status
 ```
@@ -485,7 +485,7 @@ BUK modules use `bu{x}_` prefixes where `{x}` identifies the module.
 | Prefix | Name | Status | Purpose |
 |--------|------|--------|---------|
 | `buc_` | command | Active | Command utilities, output formatting |
-| `bud_` | dispatch | Active | Environment setup, invokes workbench |
+| `burd_` | dispatch | Active | Environment setup, invokes workbench |
 | `bug_` | guide | Active | Always-visible user interaction |
 | `burc_` | regime-config | Active | Project-level Config Regime |
 | `burs_` | regime-station | Active | Station-level Config Regime |
@@ -502,9 +502,9 @@ BUK modules use `bu{x}_` prefixes where `{x}` identifies the module.
 
 ---
 
-### BUD - Bash Dispatch Utility
+### BURD - Bash Dispatch Utility
 
-**File**: `Tools/buk/bud_dispatch.sh`
+**File**: `Tools/buk/burd_dispatch.sh`
 
 **Purpose**: Central dispatch system that sets up execution environment and invokes the workbench.
 
@@ -519,14 +519,14 @@ BUK modules use `bu{x}_` prefixes where `{x}` identifies the module.
 
 #### Execution Context (Exported Variables)
 
-BUD exports the following environment variables for workbench access:
+BURD exports the following environment variables for workbench access:
 
 **Invocation Identity**:
 
 | Variable | Example | Description |
 |----------|---------|-------------|
-| `BUD_NOW_STAMP` | `20250101-143022-1234-567` | Unique timestamp: `YYYYMMDD-HHMMSS-PID-RANDOM` |
-| `BUD_GIT_CONTEXT` | `v1.2.3-5-gabc123-dirty` | Output of `git describe --always --dirty --tags --long` |
+| `BURD_NOW_STAMP` | `20250101-143022-1234-567` | Unique timestamp: `YYYYMMDD-HHMMSS-PID-RANDOM` |
+| `BURD_GIT_CONTEXT` | `v1.2.3-5-gabc123-dirty` | Output of `git describe --always --dirty --tags --long` |
 
 **Token Explosion**:
 
@@ -534,14 +534,14 @@ TabTarget filenames are parsed into tokens using `BURC_TABTARGET_DELIMITER`. Eac
 
 | Variable | Semantic Role | For `rbw-B.ConnectBottle.nsproto.sh` |
 |----------|---------------|--------------------------------------|
-| `BUD_TOKEN_1` | **Colophon** | `rbw-B` |
-| `BUD_TOKEN_2` | **Frontispiece** | `ConnectBottle` |
-| `BUD_TOKEN_3` | **Imprint** | `nsproto` |
-| `BUD_TOKEN_4` | Imprint (2nd) | *(empty)* |
-| `BUD_TOKEN_5` | Imprint (3rd) | *(empty)* |
-| `BUD_COMMAND` | Colophon | `rbw-B` *(legacy, same as TOKEN_1)* |
-| `BUD_TARGET` | Full filename | `rbw-B.ConnectBottle.nsproto.sh` |
-| `BUD_CLI_ARGS` | CLI arguments | *(extra arguments passed to tabtarget)* |
+| `BURD_TOKEN_1` | **Colophon** | `rbw-B` |
+| `BURD_TOKEN_2` | **Frontispiece** | `ConnectBottle` |
+| `BURD_TOKEN_3` | **Imprint** | `nsproto` |
+| `BURD_TOKEN_4` | Imprint (2nd) | *(empty)* |
+| `BURD_TOKEN_5` | Imprint (3rd) | *(empty)* |
+| `BURD_COMMAND` | Colophon | `rbw-B` *(legacy, same as TOKEN_1)* |
+| `BURD_TARGET` | Full filename | `rbw-B.ConnectBottle.nsproto.sh` |
+| `BURD_CLI_ARGS` | CLI arguments | *(extra arguments passed to tabtarget)* |
 
 The workbench receives the colophon for routing and imprints as target parameters. The frontispiece is for human readability and typically not used at runtime.
 
@@ -551,23 +551,23 @@ This mirrors MBC's `MBC_TTPARAM__FIRST` through `MBC_TTPARAM__FIFTH` pattern.
 
 | Variable | Description |
 |----------|-------------|
-| `BUD_TEMP_DIR` | Ephemeral temp directory, unique per invocation; safe for intermediate files |
-| `BUD_OUTPUT_DIR` | Output directory; cleared and recreated each run |
-| `BUD_TRANSCRIPT` | Path to transcript file in temp directory |
+| `BURD_TEMP_DIR` | Ephemeral temp directory, unique per invocation; safe for intermediate files |
+| `BURD_OUTPUT_DIR` | Output directory; cleared and recreated each run |
+| `BURD_TRANSCRIPT` | Path to transcript file in temp directory |
 
 **Logging** (paths, not file handles):
 
 | Variable | Description |
 |----------|-------------|
-| `BUD_LOG_LAST` | Path to "last run" log |
-| `BUD_LOG_SAME` | Path to same-name log |
-| `BUD_LOG_HIST` | Path to historical log (timestamped) |
+| `BURD_LOG_LAST` | Path to "last run" log |
+| `BURD_LOG_SAME` | Path to same-name log |
+| `BURD_LOG_HIST` | Path to historical log (timestamped) |
 
 **Display**:
 
 | Variable | Values | Description |
 |----------|--------|-------------|
-| `BUD_COLOR` | `0` or `1` | Color policy after terminal detection; respects `NO_COLOR` |
+| `BURD_COLOR` | `0` or `1` | Color policy after terminal detection; respects `NO_COLOR` |
 
 #### Control Variables
 
@@ -575,25 +575,25 @@ Set these *before* invoking a tabtarget to modify dispatch behavior:
 
 | Variable | Values | Effect |
 |----------|--------|--------|
-| `BUD_VERBOSE` | `0`, `1`, `2` | `0`=quiet, `1`=debug output, `2`=bash trace (`set -x`) |
-| `BUD_NO_LOG` | any value | Disables all logging |
-| `BUD_INTERACTIVE` | any value | Line-buffered output mode for interactive commands |
+| `BURD_VERBOSE` | `0`, `1`, `2` | `0`=quiet, `1`=debug output, `2`=bash trace (`set -x`) |
+| `BURD_NO_LOG` | any value | Disables all logging |
+| `BURD_INTERACTIVE` | any value | Line-buffered output mode for interactive commands |
 
 #### The Three-Log Pattern
 
-BDU maintains three views of execution output to support different debugging scenarios:
+BURD maintains three views of execution output to support different debugging scenarios:
 
 | Log | Variable | Lifecycle | Purpose |
 |-----|----------|-----------|---------|
-| **Historical** | `BDU_LOG_HIST` | Never overwritten | Timestamped archive; enables audit trail and post-hoc debugging |
-| **Latest** | `BDU_LOG_LAST` | Overwritten each invocation | Quick access to most recent run, regardless of command |
-| **Same-name** | `BDU_LOG_SAME` | Overwritten per-command | Preserves last run of *this specific* tabtarget |
+| **Historical** | `BURD_LOG_HIST` | Never overwritten | Timestamped archive; enables audit trail and post-hoc debugging |
+| **Latest** | `BURD_LOG_LAST` | Overwritten each invocation | Quick access to most recent run, regardless of command |
+| **Same-name** | `BURD_LOG_SAME` | Overwritten per-command | Preserves last run of *this specific* tabtarget |
 
 **Rationale**: Different debugging scenarios need different log access patterns:
 
-- "What just happened?" → Latest log (`BDU_LOG_LAST`)
-- "What happened last time I ran *this* command?" → Same-name log (`BDU_LOG_SAME`)
-- "What happened at 3pm yesterday?" → Historical log (`BDU_LOG_HIST`)
+- "What just happened?" → Latest log (`BURD_LOG_LAST`)
+- "What happened last time I ran *this* command?" → Same-name log (`BURD_LOG_SAME`)
+- "What happened at 3pm yesterday?" → Historical log (`BURD_LOG_HIST`)
 
 **Filename Conventions**:
 

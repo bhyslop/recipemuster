@@ -18,16 +18,16 @@ source "${ZRBHR_CLI_SCRIPT_DIR}/rbhr_GithubRemote.sh"
 # CLI-specific environment function
 zrbhr_furnish() {
   # Handle documentation mode
-  buc_doc_env "BUD_TEMP_DIR   " "Empty temporary directory"
-  buc_doc_env "BUD_NOW_STAMP  " "Timestamp for per run branding"
+  buc_doc_env "BURD_TEMP_DIR   " "Empty temporary directory"
+  buc_doc_env "BURD_NOW_STAMP  " "Timestamp for per run branding"
   buc_doc_env "GITHUB_TOKEN   " "GitHub token for API access"
   buc_doc_env "GITHUB_SHA     " "Git commit SHA (optional, defaults to 'unknown')"
 
   # Get regime file location
   zrbl_kindle
 
-  buv_dir_exists  "${BUD_TEMP_DIR}"
-  buv_env_string     BUD_NOW_STAMP  1 128
+  buv_dir_exists  "${BURD_TEMP_DIR}"
+  buv_env_string     BURD_NOW_STAMP  1 128
 
   # Validate and source regime file
   test -f "${RBL_RBRR_FILE}" || buc_die "Regime file not found: ${RBL_RBRR_FILE}"

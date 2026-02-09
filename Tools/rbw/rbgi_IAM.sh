@@ -44,14 +44,14 @@ zrbgi_kindle() {
   test -z "${ZRBGI_KINDLED:-}" || buc_die "Module rbgi already kindled"
 
   # Validate dependencies
-  buv_dir_exists "${BUD_TEMP_DIR}"
+  buv_dir_exists "${BURD_TEMP_DIR}"
 
   # Ensure dependencies are kindled
   zrbgc_sentinel
   zrbgu_sentinel
 
   # Module prefix for temp files
-  ZRBGI_PREFIX="${BUD_TEMP_DIR}/rbgi_"
+  ZRBGI_PREFIX="${BURD_TEMP_DIR}/rbgi_"
   ZRBGI_EMPTY_JSON="${ZRBGI_PREFIX}empty.json"
   printf '{}' > "${ZRBGI_EMPTY_JSON}"
 
@@ -216,7 +216,7 @@ rbgi_add_repo_iam_role() {
     || buc_die "Failed to update policy JSON"
 
   buc_log_args 'Set updated repo IAM policy'
-  local z_repo_set_body="${BUD_TEMP_DIR}/rbgi_repo_set_policy_body.json"
+  local z_repo_set_body="${BURD_TEMP_DIR}/rbgi_repo_set_policy_body.json"
   printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_repo_set_body}" \
     || buc_die "Failed to build repo setIamPolicy body"
   rbgu_http_json "POST" "${z_set_url}" "${z_token}" \
@@ -275,7 +275,7 @@ rbgi_add_sa_iam_role() {
     || buc_die "Failed to update SA IAM policy"
 
   buc_log_args 'Set updated SA IAM policy'
-  local z_set_body="${BUD_TEMP_DIR}/rbgi_sa_set_policy_body.json"
+  local z_set_body="${BURD_TEMP_DIR}/rbgi_sa_set_policy_body.json"
   printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_set_body}" \
     || buc_die "Failed to build SA setIamPolicy body"
 
@@ -319,7 +319,7 @@ rbgi_add_bucket_iam_role() {
     || buc_die "Failed to update bucket IAM policy"
 
   buc_log_args 'Set updated bucket IAM policy'
-  local z_bucket_set_body="${BUD_TEMP_DIR}/rbgi_bucket_set_policy_body.json"
+  local z_bucket_set_body="${BURD_TEMP_DIR}/rbgi_bucket_set_policy_body.json"
   printf '%s\n' "${z_updated_policy_json}" > "${z_bucket_set_body}" \
     || buc_die "Failed to write bucket policy body"
 

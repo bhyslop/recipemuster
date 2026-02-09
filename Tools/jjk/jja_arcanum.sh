@@ -467,7 +467,7 @@ jjw_install() {
 
   buc_step "Computing brand from kit content"
   local z_ledger_file="${ZJJW_SCRIPT_DIR}/jjl_ledger.json"
-  local z_temp_file="${BUD_TEMP_DIR}/jjw_ledger_temp.json"
+  local z_temp_file="${BURD_TEMP_DIR}/jjw_ledger_temp.json"
 
   local z_hash
   z_hash=$(zjjw_compute_source_hash)
@@ -511,12 +511,12 @@ jjw_install() {
   zjjw_emit_notch_command "${z_brand}" > ".claude/commands/jjc-notch.md"
 
   buc_step "Patching CLAUDE.md"
-  zjjw_emit_claudemd_section > "${BUD_TEMP_DIR}/jjw_claudemd_section.md"
+  zjjw_emit_claudemd_section > "${BURD_TEMP_DIR}/jjw_claudemd_section.md"
   zjjw_patch_claudemd
 
   buc_step "Adding JJM edit permissions to settings.local.json"
   local z_settings_file=".claude/settings.local.json"
-  local z_temp_file="${BUD_TEMP_DIR}/jjw_settings_temp.json"
+  local z_temp_file="${BURD_TEMP_DIR}/jjw_settings_temp.json"
   # Install both permission variants - one should work regardless of Claude Code's expectations
   local z_perm_old='Edit(.claude/jjm/**)'
   local z_perm_new='Edit(/.claude/jjm/**)'
@@ -550,7 +550,7 @@ jjw_uninstall() {
 
   buc_step "Removing JJM edit permissions from settings.local.json"
   local z_settings_file=".claude/settings.local.json"
-  local z_temp_file="${BUD_TEMP_DIR}/jjw_settings_temp.json"
+  local z_temp_file="${BURD_TEMP_DIR}/jjw_settings_temp.json"
 
   if test -f "${z_settings_file}"; then
     # Remove both old and new permission variants for cross-version compatibility
@@ -604,8 +604,8 @@ jjw_check() {
 }
 
 zjjw_patch_claudemd() {
-  local z_section_file="${BUD_TEMP_DIR}/jjw_claudemd_section.md"
-  local z_prompt_file="${BUD_TEMP_DIR}/jjw_patch_prompt.txt"
+  local z_section_file="${BURD_TEMP_DIR}/jjw_claudemd_section.md"
+  local z_prompt_file="${BURD_TEMP_DIR}/jjw_patch_prompt.txt"
 
   test -f "${z_section_file}" || buc_die "Section file not found: ${z_section_file}"
 

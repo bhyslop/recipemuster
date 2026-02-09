@@ -146,7 +146,7 @@ bug_link() {
   # Blue + underline style
   local z_link_style="\033[34;4m"
 
-  if [ -n "${BUD_NO_HYPERLINKS:-}" ]; then
+  if [ -n "${BURD_NO_HYPERLINKS:-}" ]; then
     # Fallback: styled text with URL in angle brackets
     printf '%s%b%s%b <%s>%s\n' \
       "${z_prefix}" "${z_link_style}" "${z_text}" "${ZBUG_R}" "${z_url}" "${z_suffix}" >&2

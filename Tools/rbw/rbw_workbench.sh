@@ -40,9 +40,9 @@ source "${RBW_SCRIPT_DIR}/../buk/buc_command.sh"
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verbose output if BUD_VERBOSE is set
+# Verbose output if BURD_VERBOSE is set
 rbw_show() {
-  test "${BUD_VERBOSE:-0}" != "1" || echo "RBWSHOW: $*"
+  test "${BURD_VERBOSE:-0}" != "1" || echo "RBWSHOW: $*"
 }
 
 ######################################################################
@@ -51,7 +51,7 @@ rbw_show() {
 rbw_local_build() {
   local z_recipe="${1:-}"
   local z_recipe_file="${RBW_SCRIPT_DIR}/../../RBM-recipes/${z_recipe}.recipe"
-  local z_image_tag="${z_recipe}:local-${BUD_NOW_STAMP}"
+  local z_image_tag="${z_recipe}:local-${BURD_NOW_STAMP}"
 
   test -f "${z_recipe_file}" || buc_die "Recipe not found: ${z_recipe_file}"
 
@@ -75,8 +75,8 @@ rbw_route() {
   rbw_show "Routing command: ${z_command} with args: $*"
 
   # Verify BUD environment
-  test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP not set - must be called from BUD"
+  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - must be called from BUD"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BUD"
 
   rbw_show "BUD environment verified"
 
@@ -86,10 +86,10 @@ rbw_route() {
   case "${z_command}" in
 
     # Bottle operations (routed to rbob_cli.sh)
-    # Workbench translates BUD_TOKEN_3 (imprint) to RBOB_MONIKER for CLI
+    # Workbench translates BURD_TOKEN_3 (imprint) to RBOB_MONIKER for CLI
     rbw-s|rbw-z|rbw-S|rbw-C|rbw-B|rbw-o)
-      test -n "${BUD_TOKEN_3:-}" || buc_die "${z_command} requires moniker imprint (BUD_TOKEN_3)"
-      export RBOB_MONIKER="${BUD_TOKEN_3}"
+      test -n "${BURD_TOKEN_3:-}" || buc_die "${z_command} requires moniker imprint (BURD_TOKEN_3)"
+      export RBOB_MONIKER="${BURD_TOKEN_3}"
       case "${z_command}" in
         rbw-s)  exec "${z_rbob_cli}" rbob_start          ;;
         rbw-z)  exec "${z_rbob_cli}" rbob_stop           ;;
@@ -100,10 +100,10 @@ rbw_route() {
       esac
       ;;
 
-    # Local build (handled here - recipe from imprint BUD_TOKEN_3)
+    # Local build (handled here - recipe from imprint BURD_TOKEN_3)
     rbw-lB)
-      test -n "${BUD_TOKEN_3:-}" || buc_die "rbw-lB requires recipe imprint (BUD_TOKEN_3)"
-      rbw_local_build "${BUD_TOKEN_3}"
+      test -n "${BURD_TOKEN_3:-}" || buc_die "rbw-lB requires recipe imprint (BURD_TOKEN_3)"
+      rbw_local_build "${BURD_TOKEN_3}"
       ;;
 
     # Unknown command

@@ -53,7 +53,7 @@ zrbgg_kindle() {
   zrbgu_sentinel
   zrbgi_sentinel
 
-  ZRBGG_PREFIX="${BUD_TEMP_DIR}/rbgg_"
+  ZRBGG_PREFIX="${BURD_TEMP_DIR}/rbgg_"
   ZRBGG_EMPTY_JSON="${ZRBGG_PREFIX}empty.json"
   printf '{}' > "${ZRBGG_EMPTY_JSON}"
 
@@ -203,7 +203,7 @@ zrbgg_create_service_account_with_key() {
   fi
 
   buc_step 'Generate service account key'
-  local z_key_req="${BUD_TEMP_DIR}/rbgg_key_request.json"
+  local z_key_req="${BURD_TEMP_DIR}/rbgg_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
   rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
                                          "${z_token}" "${ZRBGG_INFIX_KEY}" "${z_key_req}"
@@ -213,7 +213,7 @@ zrbgg_create_service_account_with_key() {
   local z_key_b64
   z_key_b64=$(rbgu_json_field_capture "${ZRBGG_INFIX_KEY}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
-  local z_key_json="${BUD_TEMP_DIR}/rbgg_key_${z_instance}.json"
+  local z_key_json="${BURD_TEMP_DIR}/rbgg_key_${z_instance}.json"
   buc_log_args 'Tolerate macos base64 difference'
   if ! printf '%s' "${z_key_b64}" | base64 -d > "${z_key_json}" 2>/dev/null; then
        printf '%s' "${z_key_b64}" | base64 -D > "${z_key_json}" 2>/dev/null \
@@ -221,7 +221,7 @@ zrbgg_create_service_account_with_key() {
   fi
 
   buc_step 'Convert JSON key to RBRA format'
-  local z_rbra_file="${BUD_OUTPUT_DIR}/${z_instance}.rbra"
+  local z_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
 
   local z_client_email
   z_client_email=$(jq -r '.client_email' "${z_key_json}") || buc_die "Failed to extract client_email"
@@ -266,7 +266,7 @@ zrbgg_create_service_account_no_key() {
 
   buc_step "Create service account (no key): ${z_account_name}"
   # write body FIRST
-  local z_body="${BUD_TEMP_DIR}/rbgg_sa_create_nokey.json"
+  local z_body="${BURD_TEMP_DIR}/rbgg_sa_create_nokey.json"
   jq -n --arg account_id   "${z_account_name}" \
         --arg display_name "${z_display_name}" '
     { accountId: $account_id, serviceAccount: { displayName: $display_name } }
@@ -295,7 +295,7 @@ zrbgg_create_gcs_bucket() {
   local z_bucket_name="${2}"
 
   buc_log_args 'Create bucket request JSON for '"${z_bucket_name}"
-  local z_bucket_req="${BUD_TEMP_DIR}/rbgg_bucket_create_req.json"
+  local z_bucket_req="${BURD_TEMP_DIR}/rbgg_bucket_create_req.json"
   jq -n --arg name "${z_bucket_name}" --arg location "${RBGC_GAR_LOCATION}" '
 {
   name: $name,
@@ -487,8 +487,8 @@ rbgg_create_retriever() {
   buc_doc_shown || return 0
 
   test -n "${z_instance}" || buc_die "Instance name required"
-  test -n "${BUD_OUTPUT_DIR}" || buc_die "BUD_OUTPUT_DIR not set"
-  test -d "${BUD_OUTPUT_DIR}" || buc_die "BUD_OUTPUT_DIR does not exist: ${BUD_OUTPUT_DIR}"
+  test -n "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR not set"
+  test -d "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR does not exist: ${BURD_OUTPUT_DIR}"
 
   local z_account_name="${RBGC_RETRIEVER_PREFIX}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
@@ -513,7 +513,7 @@ rbgg_create_retriever() {
     "serviceAccount:${z_account_email}"     \
     "retriever-reader"
 
-  local z_actual_rbra_file="${BUD_OUTPUT_DIR}/${z_instance}.rbra"
+  local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
 
   buc_step 'To install the RBRA file locally, run:'
   buc_code ""
@@ -532,8 +532,8 @@ rbgg_create_director() {
   buc_doc_shown || return 0
 
   test -n "${z_instance}"     || buc_die "Instance name required"
-  test -n "${BUD_OUTPUT_DIR}" || buc_die "BUD_OUTPUT_DIR not set"
-  test -d "${BUD_OUTPUT_DIR}" || buc_die "BUD_OUTPUT_DIR does not exist: ${BUD_OUTPUT_DIR}"
+  test -n "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR not set"
+  test -d "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR does not exist: ${BURD_OUTPUT_DIR}"
 
   local z_account_name="${RBGC_DIRECTOR_PREFIX}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
@@ -586,7 +586,7 @@ rbgg_create_director() {
   rbgi_add_repo_iam_role "${z_token}" "${RBGD_GAR_PROJECT_ID}" "${z_account_email}" \
     "${RBGD_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "roles/artifactregistry.repoAdmin"
 
-  local z_actual_rbra_file="${BUD_OUTPUT_DIR}/${z_instance}.rbra"
+  local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
 
   buc_step 'To install the RBRA file locally, run:'
   buc_code ""

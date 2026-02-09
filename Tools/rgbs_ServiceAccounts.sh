@@ -38,7 +38,7 @@ zrgbs_kindle() {
   zrbgo_sentinel
   zrbgu_sentinel
 
-  ZRGBS_PREFIX="${BUD_TEMP_DIR}/rgbs_"
+  ZRGBS_PREFIX="${BURD_TEMP_DIR}/rgbs_"
   ZRGBS_EMPTY_JSON="${ZRGBS_PREFIX}empty.json"
   printf '{}' > "${ZRGBS_EMPTY_JSON}"
 
@@ -162,7 +162,7 @@ zrgbs_create_service_account_no_key() {
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step "Create service account (no key): ${z_account_name}"
-  local z_body="${BUD_TEMP_DIR}/rgbs_sa_create_nokey.json"
+  local z_body="${BURD_TEMP_DIR}/rgbs_sa_create_nokey.json"
   jq -n --arg account_id   "${z_account_name}" \
         --arg display_name "${z_display_name}" '
     { accountId: $account_id, serviceAccount: { displayName: $display_name } }

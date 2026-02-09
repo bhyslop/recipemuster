@@ -49,7 +49,7 @@ rbtg_case_dispatch_exercise() {
   z_output_dir=$(buz_get_step_output_capture "${z_step}") || buc_die "Failed to get step output dir"
   test -d "${z_output_dir}" || buc_die "Evidence directory not created: ${z_output_dir}"
   buc_log_args "Evidence dir: ${z_output_dir}"
-  buc_log_args "Testbench output dir: ${BUD_OUTPUT_DIR}"
+  buc_log_args "Testbench output dir: ${BURD_OUTPUT_DIR}"
 
   buc_step "Verifying BURV isolation"
   local z_burv_temp="${ZBUZ_EVIDENCE_ROOT}/step-${z_step}/burv-temp"
@@ -65,8 +65,8 @@ rbtg_route() {
   local z_command="${1:-}"
   shift || true
 
-  test -n "${BUD_TEMP_DIR:-}" || buc_die "BUD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP not set - must be called from BUD"
+  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - must be called from BURD"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BURD"
 
   case "${z_command}" in
     rbtg-de) rbtg_case_dispatch_exercise ;;

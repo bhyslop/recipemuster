@@ -31,14 +31,14 @@ zrbgu_kindle() {
   test -z "${ZRBGU_KINDLED:-}" || buc_die "Module rbgu already kindled"
 
   # Validate dependencies
-  buv_dir_exists "${BUD_TEMP_DIR}"
+  buv_dir_exists "${BURD_TEMP_DIR}"
 
   # Ensure dependencies kindled first
   zrbgc_sentinel
   zrbgo_sentinel
 
   # Module prefix for temp files
-  ZRBGU_PREFIX="${BUD_TEMP_DIR}/rbgu_"
+  ZRBGU_PREFIX="${BURD_TEMP_DIR}/rbgu_"
   ZRBGU_EMPTY_JSON="${ZRBGU_PREFIX}empty.json"
   printf '{}' > "${ZRBGU_EMPTY_JSON}"
 

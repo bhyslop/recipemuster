@@ -29,7 +29,7 @@ source "${ZBUUT_CLI_SCRIPT_DIR}/buut_tabtarget.sh"
 
 zbuut_furnish() {
 
-  buc_doc_env "BUD_TEMP_DIR         " "Temporary directory for intermediate files"
+  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
   buc_doc_env "BURC_TABTARGET_DIR   " "Directory for tabtarget scripts"
   buc_doc_env "BURC_TOOLS_DIR       " "Directory for tools"
 

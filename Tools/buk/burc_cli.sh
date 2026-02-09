@@ -18,7 +18,7 @@
 #
 # BURC CLI - Command line interface for BURC regime operations
 #
-# Requires BUD_REGIME_FILE environment variable (path to burc.env).
+# Requires BURD_REGIME_FILE environment variable (path to burc.env).
 # This CLI sources the file and validates/renders/displays BURC configuration.
 
 set -euo pipefail
@@ -36,7 +36,7 @@ zburc_cli_kindle() {
   test -z "${ZBURC_CLI_KINDLED:-}" || buc_die "BURC CLI already kindled"
 
   # Verify environment
-  test -n "${BUD_REGIME_FILE:-}" || buc_die "BUD_REGIME_FILE not set - must be called via launcher"
+  test -n "${BURD_REGIME_FILE:-}" || buc_die "BURD_REGIME_FILE not set - must be called via launcher"
 
   ZBURC_SPEC_FILE="${ZBURC_CLI_SCRIPT_DIR}/burc_specification.md"
   ZBURC_SPEC_FILE_ABSOLUTE="$(cd "${ZBURC_CLI_SCRIPT_DIR}" && pwd)/burc_specification.md"
@@ -46,9 +46,9 @@ zburc_cli_kindle() {
 
 # Command: validate - source file and validate
 burc_validate() {
-  buc_step "Validating BURC: ${BUD_REGIME_FILE}"
+  buc_step "Validating BURC: ${BURD_REGIME_FILE}"
 
-  source "${BUD_REGIME_FILE}" || buc_die "Failed to source BURC"
+  source "${BURD_REGIME_FILE}" || buc_die "Failed to source BURC"
   zburc_kindle
 
   buc_success "BURC configuration valid"
@@ -56,9 +56,9 @@ burc_validate() {
 
 # Command: render - display configuration values
 burc_render() {
-  buc_step "BURC Configuration: ${BUD_REGIME_FILE}"
+  buc_step "BURC Configuration: ${BURD_REGIME_FILE}"
 
-  source "${BUD_REGIME_FILE}" || buc_die "Failed to source BURC"
+  source "${BURD_REGIME_FILE}" || buc_die "Failed to source BURC"
 
   # Render with aligned columns
   printf "%-25s %s\n" "BURC_STATION_FILE" "${BURC_STATION_FILE:-<not set>}"

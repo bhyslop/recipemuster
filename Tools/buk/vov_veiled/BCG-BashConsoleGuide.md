@@ -137,9 +137,9 @@ source "${Z«PREFIX»_CLI_SCRIPT_DIR}/«prefix»_«name».sh"
 z«prefix»_furnish() {
   
   # Document only the BUD variables actually used
-  buc_doc_env "BUD_TEMP_DIR         " "Temporary directory for intermediate files"
-  buc_doc_env "BUD_NOW_STAMP        " "Unique string between invocations"
-  buc_doc_env "BUD_OUTPUT_DIR       " "Directory for command outputs"
+  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
+  buc_doc_env "BURD_NOW_STAMP        " "Unique string between invocations"
+  buc_doc_env "BURD_OUTPUT_DIR       " "Directory for command outputs"
 
   # Document module specific environment variables needed
   buc_doc_env "«PREFIX»_XXX         " "Module specific environment variable"
@@ -175,10 +175,10 @@ Z«PREFIX»_SOURCED=1
 z«prefix»_kindle() {
   test -z "${Z«PREFIX»_KINDLED:-}" || buc_die "Module «prefix» already kindled"
 
-  # Validate only the BUD variables actually used
-  buv_dir_exists "${BUD_TEMP_DIR}"   # If using temp files
-  buv_dir_exists "${BUD_OUTPUT_DIR}"  # If producing outputs  
-  test -n "${BUD_NOW_STAMP:-}" || buc_die "BUD_NOW_STAMP is unset"  # If using timestamps
+  # Validate only the BURD variables actually used
+  buv_dir_exists "${BURD_TEMP_DIR}"   # If using temp files
+  buv_dir_exists "${BURD_OUTPUT_DIR}"  # If producing outputs
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP is unset"  # If using timestamps
 
   # Validate module specific environment
   buv_file_exists "${«PREFIX»_REGIME_FILE}"  # If present
@@ -190,13 +190,13 @@ z«prefix»_kindle() {
   «PREFIX»_PUBLIC_SELECTED_NAME="some-specific-name"
 
   # Internal constants
-  Z«PREFIX»_TEMP_FILE="${BUD_TEMP_DIR}/«prefix»_temp.txt"  # Non-secret data only
-  Z«PREFIX»_RESULT_FILE="${BUD_TEMP_DIR}/«prefix»_«command»_«step_number»_result.json"
-  Z«PREFIX»_CONFIG_PREFIX="${BUD_TEMP_DIR}/«prefix»_«command»_«step_number»_config_"     # rest of file name appended on use
-  Z«PREFIX»_MANIFEST_PREFIX="${BUD_TEMP_DIR}/«prefix»_«command»_«step_number»_manifest_"   # rest of file name appended on use
+  Z«PREFIX»_TEMP_FILE="${BURD_TEMP_DIR}/«prefix»_temp.txt"  # Non-secret data only
+  Z«PREFIX»_RESULT_FILE="${BURD_TEMP_DIR}/«prefix»_«command»_«step_number»_result.json"
+  Z«PREFIX»_CONFIG_PREFIX="${BURD_TEMP_DIR}/«prefix»_«command»_«step_number»_config_"     # rest of file name appended on use
+  Z«PREFIX»_MANIFEST_PREFIX="${BURD_TEMP_DIR}/«prefix»_«command»_«step_number»_manifest_"   # rest of file name appended on use
 
-  # Temporary files (if using BUD_OUTPUT_DIR)
-  Z«PREFIX»_OUTPUT_RESULT="${BUD_OUTPUT_DIR}/result.txt"
+  # Temporary files (if using BURD_OUTPUT_DIR)
+  Z«PREFIX»_OUTPUT_RESULT="${BURD_OUTPUT_DIR}/result.txt"
 
   Z«PREFIX»_KINDLED=1
 }

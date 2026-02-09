@@ -34,8 +34,8 @@ source "${ZRBGM_SCRIPT_DIR}/rbgm_ManualProcedures.sh"
 
 zrbgm_furnish() {
 
-  buc_doc_env "BUD_TEMP_DIR   " "Temporary directory for intermediate files"
-  buc_doc_env "BUD_OUTPUT_DIR " "Directory for command outputs"
+  buc_doc_env "BURD_TEMP_DIR   " "Temporary directory for intermediate files"
+  buc_doc_env "BURD_OUTPUT_DIR " "Directory for command outputs"
 
   zrbl_kindle
 

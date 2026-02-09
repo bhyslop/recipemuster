@@ -18,10 +18,10 @@ zrbhh_kindle() {
   test -n "${RBRR_REGISTRY_OWNER:-}" || buc_die "RBRR_REGISTRY_OWNER not set"
   test -n "${RBRR_REGISTRY_NAME:-}"  || buc_die "RBRR_REGISTRY_NAME not set"
   test -n "${RBRR_HISTORY_DIR:-}"    || buc_die "RBRR_HISTORY_DIR not set"
-  test -n "${BUD_TEMP_DIR:-}"        || buc_die "BUD_TEMP_DIR not set"
+  test -n "${BURD_TEMP_DIR:-}"        || buc_die "BURD_TEMP_DIR not set"
 
   # Module Variables (ZRBHH_*)
-  ZRBHH_BUILD_DIR_LATEST_FILE="${BUD_TEMP_DIR}/latest_build_dir.txt"
+  ZRBHH_BUILD_DIR_LATEST_FILE="${BURD_TEMP_DIR}/latest_build_dir.txt"
 
   ZRBHH_KINDLED=1
 }
@@ -200,9 +200,9 @@ rbhh_delete_workflow() {
   local z_escaped_ref="${z_commit_ref//\\/\\\\}"
   z_escaped_ref="${z_escaped_ref//\"/\\\"}"
 
-  printf '{"fqin": "%s", "ref": "%s"}' "${z_escaped_fqin}" "${z_escaped_ref}" > "${BUD_TEMP_DIR}/delete_payload.json"
+  printf '{"fqin": "%s", "ref": "%s"}' "${z_escaped_fqin}" "${z_escaped_ref}" > "${BURD_TEMP_DIR}/delete_payload.json"
   local z_payload
-  z_payload=$(<"${BUD_TEMP_DIR}/delete_payload.json")
+  z_payload=$(<"${BURD_TEMP_DIR}/delete_payload.json")
 
   buc_step "Triggering GitHub Actions deletion with z_payload=${z_payload}"
   rbga_dispatch "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}" "rbgr_delete" "${z_payload}"

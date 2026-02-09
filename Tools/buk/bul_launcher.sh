@@ -32,15 +32,15 @@ ZBUL_PROJECT_ROOT="${BASH_SOURCE[1]%/*}/.."
 cd "${ZBUL_PROJECT_ROOT}" || exit 1
 
 # Load BURC configuration
-export BUD_REGIME_FILE="${ZBUL_PROJECT_ROOT}/.buk/burc.env"
-source "${BUD_REGIME_FILE}" || exit 1
+export BURD_REGIME_FILE="${ZBUL_PROJECT_ROOT}/.buk/burc.env"
+source "${BURD_REGIME_FILE}" || exit 1
 
 # Apply BURV (Bash Utility Regime Verification) overrides if set
 BURC_OUTPUT_ROOT_DIR="${BURV_OUTPUT_ROOT_DIR:-${BURC_OUTPUT_ROOT_DIR}}"
 BURC_TEMP_ROOT_DIR="${BURV_TEMP_ROOT_DIR:-${BURC_TEMP_ROOT_DIR}}"
 
 # Source BUK modules and kindle BURC
-export BUD_STATION_FILE="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
+export BURD_STATION_FILE="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
 source "${BURC_TOOLS_DIR}/buk/buc_command.sh"
 source "${BURC_TOOLS_DIR}/buk/burc_regime.sh"
 zburc_kindle
@@ -51,11 +51,11 @@ source "${z_station_file}" || exit 1
 source "${BURC_TOOLS_DIR}/buk/burs_regime.sh"
 zburs_kindle
 
-# Helper function to delegate to BUD
+# Helper function to delegate to BURD
 # Usage: bul_launch "path/to/workbench.sh" "$@"
 bul_launch() {
   local z_coordinator="$1"
   shift
-  export BUD_COORDINATOR_SCRIPT="${z_coordinator}"
-  exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"
+  export BURD_COORDINATOR_SCRIPT="${z_coordinator}"
+  exec "${BURC_TOOLS_DIR}/buk/burd_dispatch.sh" "${1##*/}" "${@:2}"
 }
