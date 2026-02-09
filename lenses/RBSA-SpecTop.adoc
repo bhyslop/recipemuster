@@ -86,6 +86,7 @@
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
 :rbtgo_ark_beseech:              <<rbtgo_ark_beseech,rbf_beseech>>
 :rbtgo_ark_conjure:              <<rbtgo_ark_conjure,rbf_build>>
+:rbtgo_ark_summon:               <<rbtgo_ark_summon,rbf_summon>>
 :rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
 :rbtgo_retriever_create:          <<rbtgo_retriever_create,rbgg_create_retriever>>
 :rbtgo_sa_delete:                 <<rbtgo_sa_delete,rbgg_delete_service_account>>
@@ -708,6 +709,14 @@ include::RBSAC-ark_conjure.adoc[]
 === {rbtgo_image_retrieve}
 
 include::RBSIR-image_retrieve.adoc[]
+
+[[rbtgo_ark_summon]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_ark_summon}
+
+Summons an ark from the repository, retrieving both its image and about artifacts to the local container runtime.
+
+include::RBSAS-ark_summon.adoc[]
 
 == Multi Role Operations
 

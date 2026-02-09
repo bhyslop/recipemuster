@@ -970,6 +970,136 @@ rbf_retrieve() {
   buc_success "Image pull complete"
 }
 
+rbf_summon() {
+  zrbf_sentinel
+
+  local z_vessel="${1:-}"
+  local z_consecration="${2:-}"
+
+  # Documentation block
+  buc_doc_brief "Summon an ark (pull both -image and -about artifacts as a coherent unit)"
+  buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
+  buc_doc_param "consecration" "Consecration timestamp (e.g., 20250206T120000Z)"
+  buc_doc_shown || return 0
+
+  buc_log_args "Validate parameters"
+  test -n "${z_vessel}" || buc_die "Vessel parameter required"
+  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+
+  buc_step "Authenticating for retrieval"
+
+  # Prefer Retriever credentials, fallback to Director
+  local z_rbra_file=""
+  if test -n "${RBRR_RETRIEVER_RBRA_FILE:-}" && test -f "${RBRR_RETRIEVER_RBRA_FILE}"; then
+    z_rbra_file="${RBRR_RETRIEVER_RBRA_FILE}"
+    buc_info "Using Retriever credentials"
+  else
+    z_rbra_file="${RBRR_DIRECTOR_RBRA_FILE}"
+    buc_info "Retriever not configured, using Director credentials"
+  fi
+
+  # Get OAuth token
+  local z_token
+  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token"
+
+  # Construct ark tags
+  local z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+
+  buc_step "Verifying ark existence"
+
+  # Check if -image artifact exists
+  local z_image_status_file="${ZRBF_DELETE_PREFIX}summon_image_status.txt"
+  local z_image_response_file="${ZRBF_DELETE_PREFIX}summon_image_response.json"
+
+  curl -X HEAD -s                                   \
+    -H "Authorization: Bearer ${z_token}"           \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -w "%{http_code}"                               \
+    -o "${z_image_response_file}"                   \
+    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_image_tag}" \
+    > "${z_image_status_file}" || buc_die "HEAD request failed for -image artifact"
+
+  local z_image_http_code
+  z_image_http_code=$(<"${z_image_status_file}")
+  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for -image"
+
+  local z_image_exists=false
+  if test "${z_image_http_code}" = "200"; then
+    z_image_exists=true
+  elif test "${z_image_http_code}" != "404"; then
+    buc_die "Unexpected HTTP status ${z_image_http_code} when checking -image artifact"
+  fi
+
+  # Check if -about artifact exists
+  local z_about_status_file="${ZRBF_DELETE_PREFIX}summon_about_status.txt"
+  local z_about_response_file="${ZRBF_DELETE_PREFIX}summon_about_response.json"
+
+  curl -X HEAD -s                                   \
+    -H "Authorization: Bearer ${z_token}"           \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -w "%{http_code}"                               \
+    -o "${z_about_response_file}"                   \
+    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_about_tag}" \
+    > "${z_about_status_file}" || buc_die "HEAD request failed for -about artifact"
+
+  local z_about_http_code
+  z_about_http_code=$(<"${z_about_status_file}")
+  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for -about"
+
+  local z_about_exists=false
+  if test "${z_about_http_code}" = "200"; then
+    z_about_exists=true
+  elif test "${z_about_http_code}" != "404"; then
+    buc_die "Unexpected HTTP status ${z_about_http_code} when checking -about artifact"
+  fi
+
+  # Evaluate ark state
+  if test "${z_image_exists}" = "false" && test "${z_about_exists}" = "false"; then
+    buc_die "Ark not found: neither -image nor -about exists"
+  fi
+
+  if test "${z_image_exists}" = "true" && test "${z_about_exists}" = "false"; then
+    buc_warn "Orphaned artifact detected: -image exists but -about is missing"
+  elif test "${z_image_exists}" = "false" && test "${z_about_exists}" = "true"; then
+    buc_warn "Orphaned artifact detected: -about exists but -image is missing"
+  fi
+
+  buc_step "Logging into container registry"
+
+  # Docker login to GAR
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBF_REGISTRY_HOST}" \
+    || buc_die "Container runtime authentication failed"
+
+  # Pull -image artifact if exists
+  if test "${z_image_exists}" = "true"; then
+    buc_step "Pulling -image artifact"
+
+    local z_image_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel}:${z_image_tag}"
+    docker pull "${z_image_ref}" || buc_die "Failed to pull -image artifact"
+    buc_info "Retrieved: ${z_image_ref}"
+  fi
+
+  # Pull -about artifact if exists
+  if test "${z_about_exists}" = "true"; then
+    buc_step "Pulling -about artifact"
+
+    local z_about_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel}:${z_about_tag}"
+    docker pull "${z_about_ref}" || buc_die "Failed to pull -about artifact"
+    buc_info "Retrieved: ${z_about_ref}"
+  fi
+
+  # Display results
+  echo ""
+  buc_success "Ark summoned: ${z_vessel}/${z_consecration}"
+  if test "${z_image_exists}" = "true"; then
+    echo "  - ${z_vessel}:${z_image_tag} retrieved"
+  fi
+  if test "${z_about_exists}" = "true"; then
+    echo "  - ${z_vessel}:${z_about_tag} retrieved"
+  fi
+}
+
 rbf_abjure() {
   zrbf_sentinel
 

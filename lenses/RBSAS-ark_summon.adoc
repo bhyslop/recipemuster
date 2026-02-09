@@ -1,0 +1,72 @@
+NOTE: This operation summons an
+{rbtga_ark}
+from
+{rbtgi_repository},
+pulling both
+{rbtga_ark_image}
+and
+{rbtga_ark_about}
+artifacts to the local container runtime. Uses
+{rbtr_retriever}
+credentials when available, falling back to
+{rbtr_director}.
+
+NOTE: This is the ark-level view of image retrieval. For single-artifact retrieval, see
+{rbtgo_image_retrieve}.
+
+The summon operation:
+
+// ⟦axs_inputs⟧
+. *Validate Input Parameters*:
+.. {rbbc_require}
+vessel provided as first argument
+.. {rbbc_require}
+consecration provided as second argument
+
+// ⟦axs_behavior⟧
+. *Authenticate as
+{rbtr_retriever}*:
+.. Execute
+{rbtoe_retriever_authenticate}
+.. Fall back to
+{rbtoe_director_authenticate}
+if retriever credentials unavailable
+.. {rbbc_store}
+authentication token for subsequent API calls
+
+. *Construct Ark Tags*:
+.. {rbbc_store}
+image tag as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-image`
+.. {rbbc_store}
+about tag as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-about`
+
+. *Verify Ark Existence*:
+.. {rbbc_call}
+Docker Registry API HEAD requests for both artifacts
+.. {rbbc_store}
+image existence status
+.. {rbbc_store}
+about existence status
+
+. *Evaluate Ark State*:
+.. If both artifacts missing:
+... {rbbc_fatal}
+"Ark not found"
+.. If exactly one missing:
+... {rbbc_warn}
+"Orphaned artifact detected"
+
+. *Docker Login and Pull*:
+.. {rbbc_call}
+docker login to registry
+.. For each existing artifact:
+... {rbbc_call}
+docker pull to retrieve artifact to local container runtime
+
+// ⟦axs_outputs⟧
+. *Display Results*:
+.. {rbbc_show}
+which artifacts were retrieved
+
+// ⟦axs_completion⟧
+Successful execution retrieves the {rbtga_ark} artifacts to the local container runtime, making them available for use.

@@ -67,13 +67,17 @@ rbk_route() {
 
     # Admin commands
     rbw-ps)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_payor_establish          "$@" ;;
-    rbw-al)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_list_service_accounts    "$@" ;;
-    rbw-aDS) exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_delete_service_account   "$@" ;;
+    rbw-Gl)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_list_service_accounts    "$@" ;;
+    rbw-GS)  exec "$RBK_SCRIPT_DIR/rbgg_cli.sh" rbgg_delete_service_account   "$@" ;;
 
-    # Foundry commands
-    rbw-fB)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build    "$@" ;;
-    rbw-fD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete   "$@" ;;
-    rbw-fA)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_abjure   "$@" ;;
+    # Ark commands (paired -image + -about artifacts)
+    rbw-aA)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_abjure   "$@" ;;
+    rbw-ab)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_beseech  "$@" ;;
+    rbw-aC)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build    "$@" ;;
+    rbw-as)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_summon   "$@" ;;
+
+    # Image commands (single artifact)
+    rbw-iD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete   "$@" ;;
     rbw-il)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_list     "$@" ;;
     rbw-ir)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_retrieve "$@" ;;
 
