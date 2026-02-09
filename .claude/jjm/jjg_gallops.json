@@ -3122,6 +3122,13 @@
         "₢APAAd": {
           "tacks": [
             {
+              "ts": "260209-1622",
+              "state": "complete",
+              "text": "Full external-boundary integration test for ark lifecycle using zipper dispatch.\n\n## Prerequisites\n- Dispatch infrastructure and BURV regime from zipper-dispatch-burv-testbench pace\n- BURD_ rename complete\n\n## rbtg_case_ark_lifecycle\n\nAdd to Tools/rbw/rbtg_testbench.sh:\n\n| Step | Zipper Constant | Check After |\n|------|----------------|-------------|\n| 1 | RBZ_LIST_IMAGES | Exit 0, capture baseline count |\n| 2 | RBZ_CONJURE_ARK | Exit 0, FQIN file in evidence → harvest FQIN |\n| 3 | RBZ_LIST_IMAGES | Exit 0, count = baseline + 1 |\n| 4 | RBZ_RETRIEVE_IMAGE | Exit 0, artifact in evidence (using harvested tag) |\n| 5 | RBZ_DELETE_IMAGE | Exit 0 |\n| 6 | RBZ_LIST_IMAGES | Exit 0, count = baseline |\n\nSources buz_zipper.sh + rbz_zipper.sh, kindles both.\nUses trbim_dockerfile.recipe as test recipe.\n\n## Wiring\n- Tabtarget: tt/rbtg-al.ArkLifecycle.<imprint>.sh\n\n## Verification\n- Full ark lifecycle passes against live GCP environment\n- Evidence dirs contain expected artifacts at each step\n- Baseline count restored after delete\n- BURV isolation holds throughout multi-step sequence",
+              "silks": "ark-lifecycle-cloud-testbench",
+              "commit": "1358ded"
+            },
+            {
               "ts": "260209-1027",
               "state": "rough",
               "text": "Full external-boundary integration test for ark lifecycle using zipper dispatch.\n\n## Prerequisites\n- Dispatch infrastructure and BURV regime from zipper-dispatch-burv-testbench pace\n- BURD_ rename complete\n\n## rbtg_case_ark_lifecycle\n\nAdd to Tools/rbw/rbtg_testbench.sh:\n\n| Step | Zipper Constant | Check After |\n|------|----------------|-------------|\n| 1 | RBZ_LIST_IMAGES | Exit 0, capture baseline count |\n| 2 | RBZ_CONJURE_ARK | Exit 0, FQIN file in evidence → harvest FQIN |\n| 3 | RBZ_LIST_IMAGES | Exit 0, count = baseline + 1 |\n| 4 | RBZ_RETRIEVE_IMAGE | Exit 0, artifact in evidence (using harvested tag) |\n| 5 | RBZ_DELETE_IMAGE | Exit 0 |\n| 6 | RBZ_LIST_IMAGES | Exit 0, count = baseline |\n\nSources buz_zipper.sh + rbz_zipper.sh, kindles both.\nUses trbim_dockerfile.recipe as test recipe.\n\n## Wiring\n- Tabtarget: tt/rbtg-al.ArkLifecycle.<imprint>.sh\n\n## Verification\n- Full ark lifecycle passes against live GCP environment\n- Evidence dirs contain expected artifacts at each step\n- Baseline count restored after delete\n- BURV isolation holds throughout multi-step sequence",
