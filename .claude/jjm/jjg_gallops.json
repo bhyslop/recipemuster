@@ -3254,6 +3254,13 @@
         "₢AHAAP": {
           "tacks": [
             {
+              "ts": "260209-0615",
+              "state": "complete",
+              "text": "Fix .jjk release directory location and gitignore setup:\n\n**Problem:** The .jjk directory is currently at `../.jjk` (parent of repo) instead of in the repo root.\n\n**Required changes:**\n1. Configure JJK to use `.jjk/` in the repo root (not `../.jjk/`)\n2. Create `.jjk/.gitignore` that ignores `parcels/` contents but keeps the directory structure tracked\n3. Ensure `.jjk/` directory itself is tracked in git\n\n**Acceptance criteria:**\n- `.jjk/` exists in repo root\n- `.jjk/.gitignore` contains appropriate rules to ignore parcel contents\n- `git ls-files .jjk/` shows the .gitignore (and any other config files)\n- `parcels/` directory contents are not tracked",
+              "silks": "fix-jjk-release-directory",
+              "commit": "8361275"
+            },
+            {
               "ts": "260127-1213",
               "state": "rough",
               "text": "Fix .jjk release directory location and gitignore setup:\n\n**Problem:** The .jjk directory is currently at `../.jjk` (parent of repo) instead of in the repo root.\n\n**Required changes:**\n1. Configure JJK to use `.jjk/` in the repo root (not `../.jjk/`)\n2. Create `.jjk/.gitignore` that ignores `parcels/` contents but keeps the directory structure tracked\n3. Ensure `.jjk/` directory itself is tracked in git\n\n**Acceptance criteria:**\n- `.jjk/` exists in repo root\n- `.jjk/.gitignore` contains appropriate rules to ignore parcel contents\n- `git ls-files .jjk/` shows the .gitignore (and any other config files)\n- `parcels/` directory contents are not tracked",
