@@ -2294,9 +2294,10 @@
         "₢APAAC",
         "₢APAAD",
         "₢APAAH",
-        "₢APAAN"
+        "₢APAAN",
+        "₢APAAb"
       ],
-      "next_pace_seed": "AAb",
+      "next_pace_seed": "AAc",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -3006,6 +3007,17 @@
               "text": "Introduce zipper pattern: a colophon↔module↔command registry for testbench isolation.\n\n## Concept\n\nA \"zipper\" is a BCG-compliant module that kindles array constants mapping\ncolophons to their implementing modules and commands. Testbenches and workbenches\nuse symbolic constants instead of hardcoded colophon strings, so colophon renames\n(like the rbw-fB→rbw-aC migration) require zero test edits.\n\nTwo layers:\n- **buz_zipper.sh** (BUK framework): array infrastructure + create/get API\n- **rbz_zipper.sh** (RBW kit registrations): constants per tuple\n\n## Layer 1: buz_zipper.sh (Tools/buk/)\n\nBCG-compliant module, but unusually only sourced by testbenches and workbenches,\nnot by other BCG modules.\n\n- zbuz_kindle() / zbuz_sentinel() — standard BCG lifecycle\n- Three internal parallel arrays: zbuz_colophons[], zbuz_modules[], zbuz_commands[]\n- buz_create_capture(colophon, module, command) — appends to arrays, prints index\n- buz_get_colophon(idx), buz_get_module(idx), buz_get_command(idx) — getters\n\n## Layer 2: rbz_zipper.sh (Tools/rbw/)\n\n- rbz_kindle() registers all RBW tuples and assigns constants:\n    RBZ_ABJURE_ARK=$(buz_create_capture \"rbw-aA\" \"rbf_Foundry\" \"rbf_abjure\")\n    RBZ_BESEECH_ARK=$(buz_create_capture \"rbw-ab\" \"rbf_Foundry\" \"rbf_beseech\")\n    RBZ_CONJURE_ARK=$(buz_create_capture \"rbw-aC\" \"rbf_Foundry\" \"rbf_build\")\n    RBZ_SUMMON_ARK=$(buz_create_capture \"rbw-as\" \"rbf_Foundry\" \"rbf_summon\")\n    RBZ_DELETE_IMAGE=$(buz_create_capture \"rbw-iD\" \"rbf_Foundry\" \"rbf_delete\")\n    RBZ_LIST_IMAGES=$(buz_create_capture \"rbw-il\" \"rbf_Foundry\" \"rbf_list\")\n    RBZ_RETRIEVE_IMAGE=$(buz_create_capture \"rbw-ir\" \"rbf_Foundry\" \"rbf_retrieve\")\n    ... (all coordinator-wired operations)\n\n## Baby step scope\n\nThis pace creates buz_zipper.sh + rbz_zipper.sh with constants per tuple only.\nNo testbench consumption yet — that comes in the testing paces that follow.\n\n## Documentation\n\nAdd zipper as a formulary type in Tools/buk/README.md alongside workbench/testbench.\nNote the buf_ prefix reservation already exists for \"formulary\" — consider whether\nbuz_ (zipper-specific) or buf_ (generic formulary) is more appropriate.\n\n## Verification\n\n- buz_zipper.sh passes shellcheck\n- rbz_zipper.sh passes shellcheck\n- rbz_kindle() registers all coordinator-wired colophons\n- Constants are integers (array indices)\n- Getters return correct values for each constant",
               "silks": "introduce-zipper-colophon-registry",
               "commit": "2ffbc9d"
+            }
+          ]
+        },
+        "₢APAAb": {
+          "tacks": [
+            {
+              "ts": "260209-0840",
+              "state": "rough",
+              "text": "Add dispatch infrastructure to buz_zipper.sh and create first integration testbench.\n\n## buz_zipper.sh updates\n\n### 4th parallel array: tabtargets\n- Add `zbuz_tabtargets=()` array to kindle\n- Add `buz_get_tabtarget(idx)` getter\n- Update `buz_create_capture` to resolve tabtarget via bash glob (builtin, no subprocess):\n  ```\n  local z_matches=(\"${BURC_TABTARGET_DIR}/${z_colophon}.\"*.sh)\n  ```\n- Die at kindle time if 0 matches (missing tabtarget) or >1 match (ambiguous colophon)\n- Bash 3.2 compliant: no-match glob returns literal, check with `test -e`\n\n### Dispatch + evidence infrastructure\n- `buz_init_evidence()` — create evidence root dir under testbench temp\n- Step result parallel arrays: `zbuz_step_colophon_idx[]`, `zbuz_step_exit_status[]`, `zbuz_step_output_dir[]`\n- `buz_dispatch_capture(colophon_idx, ...)` — invoke tabtarget (from resolved path, no subprocess lookup), harvest `${BURC_OUTPUT_ROOT_DIR}/current` to evidence subdir via `cp -r`, record in step arrays, return step index\n- `buz_dispatch_expect_ok(colophon_idx, ...)` — dispatch_capture + buc_die on non-zero exit\n- `buz_dispatch_expect_fail(colophon_idx, ...)` — dispatch_capture + buc_die on zero exit\n- Step getters: `buz_get_step_exit(step_idx)`, `buz_get_step_output(step_idx)`\n\n## New file: Tools/rbw/rbtg_testbench.sh\n\nBCG-compliant testbench (Recipe Bottle Testbench Google).\n\n### rbtg_case_ark_lifecycle\n\nFull external-boundary integration test using zipper dispatch:\n\n| Step | Zipper Constant | Check After |\n|------|----------------|-------------|\n| 1 | RBZ_LIST_IMAGES | Exit 0, capture baseline |\n| 2 | RBZ_CONJURE_ARK | Exit 0, FQIN file in evidence → harvest FQIN |\n| 3 | RBZ_LIST_IMAGES | Exit 0, count = baseline + 1 |\n| 4 | RBZ_RETRIEVE_IMAGE | Exit 0, artifact in evidence (using harvested tag) |\n| 5 | RBZ_DELETE_IMAGE | Exit 0 |\n| 6 | RBZ_LIST_IMAGES | Exit 0, count = baseline |\n\nSources buz_zipper.sh + rbz_zipper.sh, kindles both.\nUses `trbim_dockerfile.recipe` as test recipe.\n\n## Wiring\n\n- Tabtarget: `tt/rbtg-al.ArkLifecycle.<imprint>.sh` (or similar)\n- Launcher: `.buk/launcher.rbtg_testbench.sh`\n\n## Verification\n\n- buz_zipper.sh passes shellcheck\n- rbtg_testbench.sh passes shellcheck\n- Kindle validates all RBZ colophons resolve to exactly one tabtarget\n- Full ark lifecycle passes against live GCP environment\n\n## Bash 3.2 compliance\n\nAll new code must work with bash 3.2 (macOS default). No bash 4+ features.",
+              "silks": "zipper-dispatch-ark-lifecycle-testbench",
+              "commit": "99497af"
             }
           ]
         }
