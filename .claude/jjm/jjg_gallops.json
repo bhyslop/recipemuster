@@ -1,6 +1,29 @@
 {
   "next_heat_seed": "AZ",
   "heats": {
+    "₣AY": {
+      "silks": "jjk-cue-calibration",
+      "creation_time": "260209",
+      "status": "stabled",
+      "order": [
+        "₢AYAAA"
+      ],
+      "next_pace_seed": "AAB",
+      "paddock_file": ".claude/jjm/jjp_AY.md",
+      "paces": {
+        "₢AYAAA": {
+          "tacks": [
+            {
+              "ts": "260209-0708",
+              "state": "rough",
+              "text": "Add a test/probe command to VVX that validates the --model convention for model-aware CLI output.\n\n## Goal\n\nBuild a `jjx_probe` (or similar) command that:\n1. Accepts `--model opus|sonnet|haiku` flag\n2. Emits the same semantic content but formatted differently per model tier:\n   - **opus**: Rich, detailed output (tables, context, suggestions)\n   - **sonnet**: Balanced output (structured but concise)\n   - **haiku**: Minimal, machine-parseable output (bare facts, no decoration)\n3. Returns a known test payload so we can grade whether the calling model correctly interprets it\n\n## Experiment Design\n\nThe probe command should emit a structured scenario that requires the model to:\n- Parse specific fields from the output\n- Make a decision based on parsed data\n- Report what it understood\n\nThis lets us test: \"Given CLAUDE.md says `always pass --model`, does the model do it? And does jjx output tuned for that model tier actually improve comprehension?\"\n\n## CLAUDE.md Cue\n\nAdd to JJK managed insert:\n```\nWhen calling jjx_* commands, pass --model opus|sonnet|haiku matching your model tier.\n```\n\nThen observe across sessions whether models comply and whether tier-tuned output helps.\n\n## Files\n- Tools/jjk/vov_veiled/src/ (new probe command)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (register command)\n- CLAUDE.md (add --model cue to JJK insert)\n\n## Success Criteria\n- Command builds and runs\n- Three distinct output modes produce visibly different formatting\n- Can be invoked in a test session to observe model behavior",
+              "silks": "vvx-model-probe",
+              "commit": "daf4b26"
+            }
+          ]
+        }
+      }
+    },
     "₣AH": {
       "silks": "jjk-nonbreaking-cleanups",
       "creation_time": "260120",
@@ -3738,29 +3761,6 @@
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_AV.md",
       "paces": {}
-    },
-    "₣AY": {
-      "silks": "jjk-cue-calibration",
-      "creation_time": "260209",
-      "status": "stabled",
-      "order": [
-        "₢AYAAA"
-      ],
-      "next_pace_seed": "AAB",
-      "paddock_file": ".claude/jjm/jjp_AY.md",
-      "paces": {
-        "₢AYAAA": {
-          "tacks": [
-            {
-              "ts": "260209-0708",
-              "state": "rough",
-              "text": "Add a test/probe command to VVX that validates the --model convention for model-aware CLI output.\n\n## Goal\n\nBuild a `jjx_probe` (or similar) command that:\n1. Accepts `--model opus|sonnet|haiku` flag\n2. Emits the same semantic content but formatted differently per model tier:\n   - **opus**: Rich, detailed output (tables, context, suggestions)\n   - **sonnet**: Balanced output (structured but concise)\n   - **haiku**: Minimal, machine-parseable output (bare facts, no decoration)\n3. Returns a known test payload so we can grade whether the calling model correctly interprets it\n\n## Experiment Design\n\nThe probe command should emit a structured scenario that requires the model to:\n- Parse specific fields from the output\n- Make a decision based on parsed data\n- Report what it understood\n\nThis lets us test: \"Given CLAUDE.md says `always pass --model`, does the model do it? And does jjx output tuned for that model tier actually improve comprehension?\"\n\n## CLAUDE.md Cue\n\nAdd to JJK managed insert:\n```\nWhen calling jjx_* commands, pass --model opus|sonnet|haiku matching your model tier.\n```\n\nThen observe across sessions whether models comply and whether tier-tuned output helps.\n\n## Files\n- Tools/jjk/vov_veiled/src/ (new probe command)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (register command)\n- CLAUDE.md (add --model cue to JJK insert)\n\n## Success Criteria\n- Command builds and runs\n- Three distinct output modes produce visibly different formatting\n- Can be invoked in a test session to observe model behavior",
-              "silks": "vvx-model-probe",
-              "commit": "daf4b26"
-            }
-          ]
-        }
-      }
     }
   }
 }
