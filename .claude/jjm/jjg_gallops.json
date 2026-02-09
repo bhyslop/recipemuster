@@ -2608,6 +2608,13 @@
         "₢APAAO": {
           "tacks": [
             {
+              "ts": "260209-0755",
+              "state": "complete",
+              "text": "Increase Cloud Build polling limit from 240 to 960 attempts.\n\n## Location\n`Tools/rbw/rbf_Foundry.sh:498`:\n```bash\nlocal z_max_attempts=240  # 20 minutes with 5 second intervals\n```\n\n## Change\n```bash\nlocal z_max_attempts=960  # 80 minutes with 5 second intervals\n```\n\nUpdate comment at line 628 accordingly.",
+              "silks": "quadruple-build-poll-limit",
+              "commit": "4901c36"
+            },
+            {
               "ts": "260128-2042",
               "state": "bridled",
               "text": "Increase Cloud Build polling limit from 240 to 960 attempts.\n\n## Location\n`Tools/rbw/rbf_Foundry.sh:498`:\n```bash\nlocal z_max_attempts=240  # 20 minutes with 5 second intervals\n```\n\n## Change\n```bash\nlocal z_max_attempts=960  # 80 minutes with 5 second intervals\n```\n\nUpdate comment at line 628 accordingly.",
