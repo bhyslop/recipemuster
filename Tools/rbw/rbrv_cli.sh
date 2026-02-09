@@ -35,7 +35,7 @@ zrbrv_cli_kindle() {
   ZRBRV_CLI_KINDLED=1
 }
 
-# Command: validate - source file and validate
+# Command: validate - source file and validate (dies on first error)
 rbrv_validate() {
   local z_file="${1:-}"
   test -n "${z_file}" || buc_die "rbrv_validate: file argument required"
@@ -46,85 +46,79 @@ rbrv_validate() {
   # Source the assignment file
   source "${z_file}" || buc_die "rbrv_validate: failed to source ${z_file}"
 
-  # Validate via kindle
+  # Prepare state (no dying)
   zrbrv_kindle
+
+  # Strict validation (dies on error)
+  zrbrv_validate_fields
 
   buc_step "RBRV vessel valid"
 }
 
-# Command: render - display configuration values
+# Display one field: name, description, value
+zrbrv_render_field() {
+  local z_name="$1"
+  local z_desc="$2"
+  local z_value="${!z_name:-}"
+
+  if test -n "${z_value}"; then
+    printf "  ${ZBUC_GREEN}%-30s${ZBUC_RESET} %s\n" "${z_name}" "${z_value}"
+  else
+    printf "  ${ZBUC_YELLOW}%-30s${ZBUC_RESET} ${ZBUC_CYAN}(not set)${ZBUC_RESET}\n" "${z_name}"
+  fi
+  printf "  ${ZBUC_CYAN}%-30s %s${ZBUC_RESET}\n" "" "${z_desc}"
+}
+
+# Command: render - diagnostic display then validate
 rbrv_render() {
   local z_file="${1:-}"
   test -n "${z_file}" || buc_die "rbrv_render: file argument required"
   test -f "${z_file}" || buc_die "rbrv_render: file not found: ${z_file}"
 
-  buc_step "RBRV Vessel: ${z_file}"
-
-  # Source the assignment file
+  # Source and kindle (no dying)
   source "${z_file}" || buc_die "rbrv_render: failed to source ${z_file}"
+  zrbrv_kindle
+
+  # Display header
+  echo ""
+  echo "${ZBUC_CYAN}========================================${ZBUC_RESET}"
+  echo "${ZBUC_WHITE}RBRV - Recipe Bottle Regime Vessel${ZBUC_RESET}"
+  echo "${ZBUC_CYAN}========================================${ZBUC_RESET}"
+  echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
+  echo ""
 
   # Core Vessel Identity
-  printf "%-30s %s\n" "RBRV_SIGIL" "${RBRV_SIGIL:-<not set>}"
-  printf "%-30s %s\n" "RBRV_DESCRIPTION" "${RBRV_DESCRIPTION:-<not set>}"
+  echo "${ZBUC_YELLOW}Core Vessel Identity${ZBUC_RESET}"
+  zrbrv_render_field RBRV_SIGIL                  "Unique identifier (must match directory name) — xname 1-64, Required"
+  zrbrv_render_field RBRV_DESCRIPTION            "Human-readable description — string 0-512, Optional"
+  echo ""
 
   # Binding Configuration
-  printf "%-30s %s\n" "RBRV_BIND_IMAGE" "${RBRV_BIND_IMAGE:-<not set>}"
+  echo "${ZBUC_YELLOW}Binding Configuration${ZBUC_RESET}"
+  zrbrv_render_field RBRV_BIND_IMAGE             "Source image to copy from registry — fqin 1-512, Required for bind mode"
+  echo ""
 
   # Conjuring Configuration
-  printf "%-30s %s\n" "RBRV_CONJURE_DOCKERFILE" "${RBRV_CONJURE_DOCKERFILE:-<not set>}"
-  printf "%-30s %s\n" "RBRV_CONJURE_BLDCONTEXT" "${RBRV_CONJURE_BLDCONTEXT:-<not set>}"
-  printf "%-30s %s\n" "RBRV_CONJURE_PLATFORMS" "${RBRV_CONJURE_PLATFORMS:-<not set>}"
-  printf "%-30s %s\n" "RBRV_CONJURE_BINFMT_POLICY" "${RBRV_CONJURE_BINFMT_POLICY:-<not set>}"
-}
+  echo "${ZBUC_YELLOW}Conjuring Configuration${ZBUC_RESET}"
+  zrbrv_render_field RBRV_CONJURE_DOCKERFILE     "Dockerfile path relative to repo root — string 1-512, Required for conjure mode"
+  zrbrv_render_field RBRV_CONJURE_BLDCONTEXT     "Build context relative to repo root — string 1-512, Required for conjure mode"
+  zrbrv_render_field RBRV_CONJURE_PLATFORMS      "Space-separated target platforms — string 1-512, Required for conjure mode"
+  zrbrv_render_field RBRV_CONJURE_BINFMT_POLICY  "Cross-platform policy: allow or forbid — string 1-16, Required for conjure mode"
+  echo ""
 
-# Command: info - display specification (formatted for terminal)
-rbrv_info() {
-  cat <<EOF
+  # Unexpected variables
+  if test ${#ZRBRV_UNEXPECTED[@]} -gt 0; then
+    echo "${ZBUC_RED}Unexpected RBRV_ variables:${ZBUC_RESET}"
+    local z_var
+    for z_var in "${ZRBRV_UNEXPECTED[@]}"; do
+      printf "  ${ZBUC_RED}%-30s${ZBUC_RESET} = %s\n" "${z_var}" "${!z_var:-}"
+    done
+    echo ""
+  fi
 
-${ZBUC_CYAN}========================================${ZBUC_RESET}
-${ZBUC_WHITE}RBRV - Recipe Bottle Regime Vessel${ZBUC_RESET}
-${ZBUC_CYAN}========================================${ZBUC_RESET}
-
-${ZBUC_YELLOW}Overview${ZBUC_RESET}
-Defines a Vessel configuration for container image management.
-Vessels can be configured for binding (copying from registry) or
-conjuring (building from source). At least one mode must be configured.
-
-${ZBUC_YELLOW}Core Vessel Identity${ZBUC_RESET}
-
-  ${ZBUC_GREEN}RBRV_SIGIL${ZBUC_RESET}
-    Unique identifier for this vessel (must match directory name)
-    Type: xname (1-64 chars), Required: Yes
-
-  ${ZBUC_GREEN}RBRV_DESCRIPTION${ZBUC_RESET}
-    Human-readable description of vessel purpose
-    Type: string (0-512 chars), Required: No
-
-${ZBUC_YELLOW}Binding Configuration${ZBUC_RESET}
-
-  ${ZBUC_GREEN}RBRV_BIND_IMAGE${ZBUC_RESET}
-    Source image to copy from registry
-    Type: fqin (1-512 chars), Required: When using bind mode
-
-${ZBUC_YELLOW}Conjuring Configuration${ZBUC_RESET}
-
-  ${ZBUC_GREEN}RBRV_CONJURE_DOCKERFILE${ZBUC_RESET}
-    Path to Dockerfile relative to repo root
-    Type: string (1-512 chars), Required: When using conjure mode
-
-  ${ZBUC_GREEN}RBRV_CONJURE_BLDCONTEXT${ZBUC_RESET}
-    Build context path relative to repo root
-    Type: string (1-512 chars), Required: When using conjure mode
-
-  ${ZBUC_GREEN}RBRV_CONJURE_PLATFORMS${ZBUC_RESET}
-    Space-separated target platforms (e.g., "linux/amd64 linux/arm64")
-    Type: string (1-512 chars), Required: When using conjure mode
-
-  ${ZBUC_GREEN}RBRV_CONJURE_BINFMT_POLICY${ZBUC_RESET}
-    Policy for cross-platform builds: "allow" or "forbid"
-    Type: string (1-16 chars), Required: When using conjure mode
-
-EOF
+  # Validate (dies on first error, after full display)
+  zrbrv_validate_fields
+  buc_step "RBRV vessel valid"
 }
 
 ######################################################################
@@ -143,11 +137,8 @@ case "${z_command}" in
     shift
     rbrv_render "${@}"
     ;;
-  info)
-    rbrv_info
-    ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: rbrv_cli.sh {validate|render|info} [args]"
+    buc_die "Unknown command: ${z_command}. Usage: rbrv_cli.sh {validate|render} [args]"
     ;;
 esac
 

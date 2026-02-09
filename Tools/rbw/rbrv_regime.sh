@@ -30,43 +30,25 @@ ZRBRV_SOURCED=1
 zrbrv_kindle() {
   test -z "${ZRBRV_KINDLED:-}" || buc_die "Module rbrv already kindled"
 
-  # Set defaults for optional fields (Required: No)
+  # Set defaults for all fields (validate enforces required-ness)
+  RBRV_SIGIL="${RBRV_SIGIL:-}"
   RBRV_DESCRIPTION="${RBRV_DESCRIPTION:-}"
-
-  # Set defaults for conditional fields (may not be provided depending on mode)
   RBRV_BIND_IMAGE="${RBRV_BIND_IMAGE:-}"
   RBRV_CONJURE_DOCKERFILE="${RBRV_CONJURE_DOCKERFILE:-}"
   RBRV_CONJURE_BLDCONTEXT="${RBRV_CONJURE_BLDCONTEXT:-}"
   RBRV_CONJURE_PLATFORMS="${RBRV_CONJURE_PLATFORMS:-}"
   RBRV_CONJURE_BINFMT_POLICY="${RBRV_CONJURE_BINFMT_POLICY:-}"
 
-  # Core Vessel Identity
-  buv_env_xname       RBRV_SIGIL                   1     64  # Must match directory name
-  buv_env_string      RBRV_DESCRIPTION             0    512  # Optional description
-
-  # Binding Configuration (for copying from registry)
-  if test -n "${RBRV_BIND_IMAGE}"; then
-    buv_env_fqin      RBRV_BIND_IMAGE              1    512  # Source image to copy
-  fi
-
-  # Conjuring Configuration (for building from source)
-  if test -n "${RBRV_CONJURE_DOCKERFILE}"; then
-    buv_env_string    RBRV_CONJURE_DOCKERFILE      1    512  # Path relative to repo root
-    buv_env_string    RBRV_CONJURE_BLDCONTEXT      1    512  # Build context relative to repo root
-
-    # Platform configuration - only meaningful for builds
-    buv_env_string    RBRV_CONJURE_PLATFORMS       1    512  # Space-separated platforms
-    buv_env_string    RBRV_CONJURE_BINFMT_POLICY   1     16  # Either "allow" or "forbid"
-    case "${RBRV_CONJURE_BINFMT_POLICY}" in
-      allow|forbid) : ;;
-      *) buc_die "Invalid RBRV_CONJURE_BINFMT_POLICY: '${RBRV_CONJURE_BINFMT_POLICY}' (must be 'allow' or 'forbid')" ;;
+  # Detect unexpected RBRV_ variables
+  local z_known="RBRV_SIGIL RBRV_DESCRIPTION RBRV_BIND_IMAGE RBRV_CONJURE_DOCKERFILE RBRV_CONJURE_BLDCONTEXT RBRV_CONJURE_PLATFORMS RBRV_CONJURE_BINFMT_POLICY"
+  ZRBRV_UNEXPECTED=()
+  local z_var
+  for z_var in $(compgen -v RBRV_); do
+    case " ${z_known} " in
+      *" ${z_var} "*) : ;;
+      *) ZRBRV_UNEXPECTED+=("${z_var}") ;;
     esac
-  fi
-
-  # Validate at least one operation mode is configured
-  if test -z "${RBRV_BIND_IMAGE}" && test -z "${RBRV_CONJURE_DOCKERFILE}"; then
-    buc_die "Vessel must define either RBRV_BIND_IMAGE (for binding) or RBRV_CONJURE_DOCKERFILE (for conjuring)"
-  fi
+  done
 
   # Build rollup of all RBRV_ variables for passing to scripts/containers
   ZRBRV_ROLLUP=""
@@ -83,6 +65,43 @@ zrbrv_kindle() {
 
 zrbrv_sentinel() {
   test "${ZRBRV_KINDLED:-}" = "1" || buc_die "Module rbrv not kindled - call zrbrv_kindle first"
+}
+
+# Validate RBRV variables via buv_env_* (dies on first error)
+# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
+zrbrv_validate_fields() {
+  zrbrv_sentinel
+
+  # Die on unexpected variables
+  if test ${#ZRBRV_UNEXPECTED[@]} -gt 0; then
+    buc_die "Unexpected RBRV_ variables: ${ZRBRV_UNEXPECTED[*]}"
+  fi
+
+  # Core Vessel Identity
+  buv_env_xname       RBRV_SIGIL                   1     64  # Must match directory name
+  buv_env_string      RBRV_DESCRIPTION             0    512  # Optional description
+
+  # Binding Configuration (for copying from registry)
+  if test -n "${RBRV_BIND_IMAGE}"; then
+    buv_env_fqin      RBRV_BIND_IMAGE              1    512  # Source image to copy
+  fi
+
+  # Conjuring Configuration (for building from source)
+  if test -n "${RBRV_CONJURE_DOCKERFILE}"; then
+    buv_env_string    RBRV_CONJURE_DOCKERFILE      1    512  # Path relative to repo root
+    buv_env_string    RBRV_CONJURE_BLDCONTEXT      1    512  # Build context relative to repo root
+    buv_env_string    RBRV_CONJURE_PLATFORMS       1    512  # Space-separated platforms
+    buv_env_string    RBRV_CONJURE_BINFMT_POLICY   1     16  # Either "allow" or "forbid"
+    case "${RBRV_CONJURE_BINFMT_POLICY}" in
+      allow|forbid) : ;;
+      *) buc_die "Invalid RBRV_CONJURE_BINFMT_POLICY: '${RBRV_CONJURE_BINFMT_POLICY}' (must be 'allow' or 'forbid')" ;;
+    esac
+  fi
+
+  # Validate at least one operation mode is configured
+  if test -z "${RBRV_BIND_IMAGE}" && test -z "${RBRV_CONJURE_DOCKERFILE}"; then
+    buc_die "Vessel must define either RBRV_BIND_IMAGE (for binding) or RBRV_CONJURE_DOCKERFILE (for conjuring)"
+  fi
 }
 
 # eof

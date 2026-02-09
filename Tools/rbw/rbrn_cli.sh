@@ -35,7 +35,7 @@ zrbrn_cli_kindle() {
   ZRBRN_CLI_KINDLED=1
 }
 
-# Command: validate - source file and validate
+# Command: validate - source file and validate (dies on first error)
 rbrn_validate() {
   local z_file="${1:-}"
   test -n "${z_file}" || buc_die "rbrn_validate: file argument required"
@@ -46,161 +46,104 @@ rbrn_validate() {
   # Source the assignment file
   source "${z_file}" || buc_die "rbrn_validate: failed to source ${z_file}"
 
-  # Validate via kindle
+  # Prepare state (no dying)
   zrbrn_kindle
+
+  # Strict validation (dies on error)
+  zrbrn_validate_fields
 
   buc_step "RBRN nameplate valid"
 }
 
-# Command: render - display configuration values
+# Display one field: name, description, value
+zrbrn_render_field() {
+  local z_name="$1"
+  local z_desc="$2"
+  local z_value="${!z_name:-}"
+
+  if test -n "${z_value}"; then
+    printf "  ${ZBUC_GREEN}%-30s${ZBUC_RESET} %s\n" "${z_name}" "${z_value}"
+  else
+    printf "  ${ZBUC_YELLOW}%-30s${ZBUC_RESET} ${ZBUC_CYAN}(not set)${ZBUC_RESET}\n" "${z_name}"
+  fi
+  printf "  ${ZBUC_CYAN}%-30s %s${ZBUC_RESET}\n" "" "${z_desc}"
+}
+
+# Command: render - diagnostic display then validate
 rbrn_render() {
   local z_file="${1:-}"
   test -n "${z_file}" || buc_die "rbrn_render: file argument required"
   test -f "${z_file}" || buc_die "rbrn_render: file not found: ${z_file}"
 
-  buc_step "RBRN Nameplate: ${z_file}"
-
-  # Source the assignment file
+  # Source and kindle (no dying)
   source "${z_file}" || buc_die "rbrn_render: failed to source ${z_file}"
+  zrbrn_kindle
+
+  # Display header
+  echo ""
+  echo "${ZBUC_CYAN}========================================${ZBUC_RESET}"
+  echo "${ZBUC_WHITE}RBRN - Recipe Bottle Regime Nameplate${ZBUC_RESET}"
+  echo "${ZBUC_CYAN}========================================${ZBUC_RESET}"
+  echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
+  echo ""
 
   # Core Service Identity
-  printf "%-30s %s\n" "RBRN_MONIKER" "${RBRN_MONIKER:-<not set>}"
-  printf "%-30s %s\n" "RBRN_DESCRIPTION" "${RBRN_DESCRIPTION:-<not set>}"
-  printf "%-30s %s\n" "RBRN_RUNTIME" "${RBRN_RUNTIME:-<not set>}"
+  echo "${ZBUC_YELLOW}Core Service Identity${ZBUC_RESET}"
+  zrbrn_render_field RBRN_MONIKER                 "Unique identifier for Bottle Service — xname 2-12, Required"
+  zrbrn_render_field RBRN_DESCRIPTION             "Human-readable description — string 0-120, Optional"
+  zrbrn_render_field RBRN_RUNTIME                 "Container runtime: docker or podman — string 1-16, Required"
+  echo ""
 
   # Container Image Configuration
-  printf "%-30s %s\n" "RBRN_SENTRY_VESSEL" "${RBRN_SENTRY_VESSEL:-<not set>}"
-  printf "%-30s %s\n" "RBRN_BOTTLE_VESSEL" "${RBRN_BOTTLE_VESSEL:-<not set>}"
-  printf "%-30s %s\n" "RBRN_SENTRY_CONSECRATION" "${RBRN_SENTRY_CONSECRATION:-<not set>}"
-  printf "%-30s %s\n" "RBRN_BOTTLE_CONSECRATION" "${RBRN_BOTTLE_CONSECRATION:-<not set>}"
+  echo "${ZBUC_YELLOW}Container Image Configuration${ZBUC_RESET}"
+  zrbrn_render_field RBRN_SENTRY_VESSEL           "Vessel identifier for Sentry Image — fqin 1-128, Required"
+  zrbrn_render_field RBRN_BOTTLE_VESSEL           "Vessel identifier for Bottle Image — fqin 1-128, Required"
+  zrbrn_render_field RBRN_SENTRY_CONSECRATION     "Consecration tag for Sentry Image — fqin 1-128, Required"
+  zrbrn_render_field RBRN_BOTTLE_CONSECRATION     "Consecration tag for Bottle Image — fqin 1-128, Required"
+  echo ""
 
   # Entry Service Configuration
-  printf "%-30s %s\n" "RBRN_ENTRY_MODE" "${RBRN_ENTRY_MODE:-<not set>}"
-  printf "%-30s %s\n" "RBRN_ENTRY_PORT_WORKSTATION" "${RBRN_ENTRY_PORT_WORKSTATION:-<not set>}"
-  printf "%-30s %s\n" "RBRN_ENTRY_PORT_ENCLAVE" "${RBRN_ENTRY_PORT_ENCLAVE:-<not set>}"
+  echo "${ZBUC_YELLOW}Entry Service Configuration${ZBUC_RESET}"
+  zrbrn_render_field RBRN_ENTRY_MODE              "Entry functionality: disabled or enabled — Required"
+  zrbrn_render_field RBRN_ENTRY_PORT_WORKSTATION  "External port on Transit Network — port, When ENTRY_MODE=enabled"
+  zrbrn_render_field RBRN_ENTRY_PORT_ENCLAVE      "Port between Sentry and Bottle — port, When ENTRY_MODE=enabled"
+  echo ""
 
   # Enclave Network Configuration
-  printf "%-30s %s\n" "RBRN_ENCLAVE_BASE_IP" "${RBRN_ENCLAVE_BASE_IP:-<not set>}"
-  printf "%-30s %s\n" "RBRN_ENCLAVE_NETMASK" "${RBRN_ENCLAVE_NETMASK:-<not set>}"
-  printf "%-30s %s\n" "RBRN_ENCLAVE_SENTRY_IP" "${RBRN_ENCLAVE_SENTRY_IP:-<not set>}"
-  printf "%-30s %s\n" "RBRN_ENCLAVE_BOTTLE_IP" "${RBRN_ENCLAVE_BOTTLE_IP:-<not set>}"
+  echo "${ZBUC_YELLOW}Enclave Network Configuration${ZBUC_RESET}"
+  zrbrn_render_field RBRN_ENCLAVE_BASE_IP         "Base IPv4 for enclave network — ipv4, Required"
+  zrbrn_render_field RBRN_ENCLAVE_NETMASK         "Network mask width (8-30) — decimal, Required"
+  zrbrn_render_field RBRN_ENCLAVE_SENTRY_IP       "IP address for Sentry Container — ipv4, Required"
+  zrbrn_render_field RBRN_ENCLAVE_BOTTLE_IP       "IP address for Bottle Container — ipv4, Required"
+  echo ""
 
   # Uplink Configuration
-  printf "%-30s %s\n" "RBRN_UPLINK_PORT_MIN" "${RBRN_UPLINK_PORT_MIN:-<not set>}"
-  printf "%-30s %s\n" "RBRN_UPLINK_DNS_MODE" "${RBRN_UPLINK_DNS_MODE:-<not set>}"
-  printf "%-30s %s\n" "RBRN_UPLINK_ACCESS_MODE" "${RBRN_UPLINK_ACCESS_MODE:-<not set>}"
-  printf "%-30s %s\n" "RBRN_UPLINK_ALLOWED_CIDRS" "${RBRN_UPLINK_ALLOWED_CIDRS:-<not set>}"
-  printf "%-30s %s\n" "RBRN_UPLINK_ALLOWED_DOMAINS" "${RBRN_UPLINK_ALLOWED_DOMAINS:-<not set>}"
+  echo "${ZBUC_YELLOW}Uplink Configuration${ZBUC_RESET}"
+  zrbrn_render_field RBRN_UPLINK_PORT_MIN         "Minimum port for outbound connections — port, Required"
+  zrbrn_render_field RBRN_UPLINK_DNS_MODE         "DNS mode: disabled, global, or allowlist — Required"
+  zrbrn_render_field RBRN_UPLINK_ACCESS_MODE      "IP access mode: disabled, global, or allowlist — Required"
+  zrbrn_render_field RBRN_UPLINK_ALLOWED_CIDRS    "Allowed CIDR ranges — cidr_list, When ACCESS_MODE=allowlist"
+  zrbrn_render_field RBRN_UPLINK_ALLOWED_DOMAINS  "Allowed DNS domains — domain_list, When DNS_MODE=allowlist"
+  echo ""
 
   # Volume Mount Configuration
-  printf "%-30s %s\n" "RBRN_VOLUME_MOUNTS" "${RBRN_VOLUME_MOUNTS:-<not set>}"
-}
+  echo "${ZBUC_YELLOW}Volume Mount Configuration${ZBUC_RESET}"
+  zrbrn_render_field RBRN_VOLUME_MOUNTS           "Volume mount arguments for Bottle — string 0-240, Optional"
+  echo ""
 
-# Command: info - display specification (formatted for terminal)
-rbrn_info() {
-  cat <<EOF
+  # Unexpected variables
+  if test ${#ZRBRN_UNEXPECTED[@]} -gt 0; then
+    echo "${ZBUC_RED}Unexpected RBRN_ variables:${ZBUC_RESET}"
+    local z_var
+    for z_var in "${ZRBRN_UNEXPECTED[@]}"; do
+      printf "  ${ZBUC_RED}%-30s${ZBUC_RESET} = %s\n" "${z_var}" "${!z_var:-}"
+    done
+    echo ""
+  fi
 
-${ZBUC_CYAN}========================================${ZBUC_RESET}
-${ZBUC_WHITE}RBRN - Recipe Bottle Regime Nameplate${ZBUC_RESET}
-${ZBUC_CYAN}========================================${ZBUC_RESET}
-
-${ZBUC_YELLOW}Overview${ZBUC_RESET}
-Defines a Bottle Service deployment: container images, network security,
-and entry/uplink configuration. Each nameplate is a complete service definition.
-
-${ZBUC_YELLOW}Core Service Identity${ZBUC_RESET}
-
-  ${ZBUC_GREEN}RBRN_MONIKER${ZBUC_RESET}
-    Unique identifier for this Bottle Service instance
-    Type: xname (2-12 chars), Required: Yes
-
-  ${ZBUC_GREEN}RBRN_DESCRIPTION${ZBUC_RESET}
-    Human-readable description of service purpose
-    Type: string (0-120 chars), Required: No
-
-  ${ZBUC_GREEN}RBRN_RUNTIME${ZBUC_RESET}
-    Container runtime to use for service deployment
-    Type: string ("docker" or "podman"), Required: Yes
-
-${ZBUC_YELLOW}Container Image Configuration${ZBUC_RESET}
-
-  ${ZBUC_GREEN}RBRN_SENTRY_VESSEL${ZBUC_RESET}
-    Vessel identifier for Sentry Image
-    Type: fqin (1-128 chars), Required: Yes
-
-  ${ZBUC_GREEN}RBRN_BOTTLE_VESSEL${ZBUC_RESET}
-    Vessel identifier for Bottle Image
-    Type: fqin (1-128 chars), Required: Yes
-
-  ${ZBUC_GREEN}RBRN_SENTRY_CONSECRATION${ZBUC_RESET}
-    Consecration tag for Sentry Image
-    Type: fqin (1-128 chars), Required: Yes
-
-  ${ZBUC_GREEN}RBRN_BOTTLE_CONSECRATION${ZBUC_RESET}
-    Consecration tag for Bottle Image
-    Type: fqin (1-128 chars), Required: Yes
-
-${ZBUC_YELLOW}Entry Service Configuration${ZBUC_RESET}
-
-  ${ZBUC_GREEN}RBRN_ENTRY_MODE${ZBUC_RESET}
-    Mode for user-initiated entry functionality
-    Type: string ("disabled" or "enabled"), Required: Yes
-
-  ${ZBUC_GREEN}RBRN_ENTRY_PORT_WORKSTATION${ZBUC_RESET}
-    External port on Transit Network for user entry
-    Type: port, Required: When ENTRY_MODE=enabled
-
-  ${ZBUC_GREEN}RBRN_ENTRY_PORT_ENCLAVE${ZBUC_RESET}
-    Port between Sentry and Bottle for entry traffic
-    Type: port, Required: When ENTRY_MODE=enabled
-
-${ZBUC_YELLOW}Enclave Network Configuration${ZBUC_RESET}
-
-  ${ZBUC_GREEN}RBRN_ENCLAVE_BASE_IP${ZBUC_RESET}
-    Base IPv4 address for enclave network range
-    Type: ipv4, Required: Yes
-
-  ${ZBUC_GREEN}RBRN_ENCLAVE_NETMASK${ZBUC_RESET}
-    Network mask width (8-30)
-    Type: decimal, Required: Yes
-
-  ${ZBUC_GREEN}RBRN_ENCLAVE_SENTRY_IP${ZBUC_RESET}
-    IP address for Sentry Container
-    Type: ipv4, Required: Yes
-
-  ${ZBUC_GREEN}RBRN_ENCLAVE_BOTTLE_IP${ZBUC_RESET}
-    IP address for Bottle Container
-    Type: ipv4, Required: Yes
-
-${ZBUC_YELLOW}Uplink Configuration${ZBUC_RESET}
-
-  ${ZBUC_GREEN}RBRN_UPLINK_PORT_MIN${ZBUC_RESET}
-    Minimum port for bottle-initiated outbound connections
-    Type: port, Required: Yes
-
-  ${ZBUC_GREEN}RBRN_UPLINK_DNS_MODE${ZBUC_RESET}
-    DNS resolution mode for bottle-initiated requests
-    Type: string ("disabled", "global", or "allowlist"), Required: Yes
-
-  ${ZBUC_GREEN}RBRN_UPLINK_ACCESS_MODE${ZBUC_RESET}
-    IP access mode for bottle-initiated connections
-    Type: string ("disabled", "global", or "allowlist"), Required: Yes
-
-  ${ZBUC_GREEN}RBRN_UPLINK_ALLOWED_CIDRS${ZBUC_RESET}
-    CIDR ranges for allowed outbound traffic
-    Type: cidr_list, Required: When ACCESS_MODE=allowlist
-
-  ${ZBUC_GREEN}RBRN_UPLINK_ALLOWED_DOMAINS${ZBUC_RESET}
-    Domains allowed for DNS resolution
-    Type: domain_list, Required: When DNS_MODE=allowlist
-
-${ZBUC_YELLOW}Volume Mount Configuration${ZBUC_RESET}
-
-  ${ZBUC_GREEN}RBRN_VOLUME_MOUNTS${ZBUC_RESET}
-    Volume mount arguments for Bottle Container
-    Type: string (0-240 chars), Required: No
-
-EOF
+  # Validate (dies on first error, after full display)
+  zrbrn_validate_fields
+  buc_step "RBRN nameplate valid"
 }
 
 ######################################################################
@@ -219,11 +162,8 @@ case "${z_command}" in
     shift
     rbrn_render "${@}"
     ;;
-  info)
-    rbrn_info
-    ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: rbrn_cli.sh {validate|render|info} [args]"
+    buc_die "Unknown command: ${z_command}. Usage: rbrn_cli.sh {validate|render} [args]"
     ;;
 esac
 

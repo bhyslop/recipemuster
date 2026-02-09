@@ -109,6 +109,7 @@ zrbob_furnish() {
   test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate"
   zrbrn_kindle
+  zrbrn_validate_fields
 
   # Load RBRR - config loading belongs in furnish per BCG pattern
   local z_rbrr_file="${ZRBOB_CLI_SCRIPT_DIR}/../../rbrr_RecipeBottleRegimeRepo.sh"

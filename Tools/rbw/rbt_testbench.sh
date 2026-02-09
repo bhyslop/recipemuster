@@ -59,6 +59,7 @@ rbt_load_nameplate() {
 
   rbt_show "Kindling nameplate regime"
   zrbrn_kindle
+  zrbrn_validate_fields
 
   rbt_show "Nameplate loaded: RBRN_MONIKER=${RBRN_MONIKER}, RBRN_RUNTIME=${RBRN_RUNTIME}"
 
