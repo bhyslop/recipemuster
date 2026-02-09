@@ -64,9 +64,10 @@
         "₢AHAAW",
         "₢AHAAX",
         "₢AHAAY",
-        "₢AHAAZ"
+        "₢AHAAZ",
+        "₢AHAAa"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -648,6 +649,17 @@
               "text": "Remove the dysfunctional verb flags (--refine, --level, --muck) from jjx_paddock/jjx_curry.\n\nThese three mutually-exclusive flags have zero behavioral effect — the code path is identical regardless of which flag is passed. They exist only to annotate the chalk commit message with a subcategory string like \"paddock curried (refine)\". This is metadata on metadata for a heat-level commit.\n\nThe flags are an agent trap: the CLI reference in CLAUDE.md doesn't document them, so agents guess wrong and fail. The --help text has no descriptions for --level and --muck. The taxonomy (manual vs cross-heat vs reduction) is subjective and agents will always get it wrong.\n\nChanges:\n1. Remove --refine, --level, --muck from jjrcu_CurryArgs and jjrcu_CurryVerb enum\n2. Simplify jjrcu_run_curry to not require a verb in setter mode\n3. Update chalk message to just \"paddock curried\" (or use --note if caller wants annotation)\n4. Update jjtcu_curry.rs tests to match\n5. Update CLAUDE.md JJK managed insert: fix jjx_paddock entry in CLI reference to show setter requires stdin only (no verb flags)\n6. Build and test\n\nKey files:\n- Tools/jjk/vov_veiled/src/jjrcu_curry.rs\n- Tools/jjk/vov_veiled/src/jjtcu_curry.rs\n- Tools/jjk/vov_veiled/src/jjro_ops.rs (jjrg_curry fn signature — remove verb param)\n- CLAUDE.md (JJK managed insert, CLI reference)",
               "silks": "jjk-spook-paddocks-curry",
               "commit": "f6a7bab"
+            }
+          ]
+        },
+        "₢AHAAa": {
+          "tacks": [
+            {
+              "ts": "260209-0755",
+              "state": "rough",
+              "text": "Wrap commit messages currently say only \"pace complete\" — no summary of what was accomplished.\n\n## Problem\nEvery `:W:` commit has the identical message \"pace complete\", which provides no useful information when reviewing git history. Example from 2026-02-08: 30 wraps all saying \"pace complete\".\n\n## Inspiration\nCould we generate a whole-pace summary at wrap time? Challenges:\n- The session performing the wrap may not have full context of all work done during the pace\n- However, pace commit history IS available (jjx_show --detail shows all pace commits)\n- The docket text describes what was intended\n- Combined, these could produce a meaningful summary\n\n## Design Questions\n1. Should the wrap message be auto-generated from pace commit history + docket?\n2. Should jjx_close accept an optional summary via stdin or flag?\n3. What's the right balance between automation and manual summary?\n4. How to handle multi-session paces where the wrapping session lacks full context?\n\n## Scope\nDesign decision only — determine approach, then slate implementation paces.",
+              "silks": "design-richer-wrap-commit-messages",
+              "commit": "42bd7da"
             }
           ]
         }
