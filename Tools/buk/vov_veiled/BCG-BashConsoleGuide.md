@@ -345,6 +345,7 @@ This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
 |-----------|--------------------------------|----------------------|------------------------------|---------------------------|-------------------------------------|
 | Predicate | `[z]«prefix»_«name»_predicate` | `z«prefix»_sentinel` | 0=true, 1=false              | No (use buc_log_«source») | Never dies, status only             |
 | Capture   | `[z]«prefix»_«name»_capture`   | `z«prefix»_sentinel` | stdout once at end or exit 1 | No (use buc_log_«source») | Clean error handling, single return |
+| Register  | `[z]«prefix»_«name»_register` or `[z]«prefix»_register` | `z«prefix»_sentinel` | `z1z_«prefix»_«term»` vars  | No (use buc_log_«source») | Mutates shared state AND returns via variables |
 
 ---
 
@@ -413,6 +414,41 @@ else
 fi
 ```
 
+#### Register Functions (shared state mutation + return values)
+
+**Purpose: Mutate shared state (arrays, globals) AND return value(s) through `z1z_` prefixed variables.**
+
+Register functions solve the subshell problem: when a function both mutates shared state and returns a value, calling it in `$()` loses the mutations. Register functions avoid `$()` entirely by setting `z1z_` return variables.
+
+```bash
+buz_register() {
+  zbuz_sentinel
+
+  local z_colophon="${1:-}"
+  # ... validate and mutate registry arrays ...
+
+  # Return via variable — NOT echo
+  z1z_buz_colophon="${z_colophon}"
+}
+
+# Caller: direct call, then read variable
+buz_register "rbw-il" "rbf_Foundry" "rbf_list"
+RBZ_LIST_IMAGES="${z1z_buz_colophon}"
+```
+
+**Use register functions for:**
+- Functions that populate registry arrays AND return an identifier
+- Bootstrap sequences where both mutation and return value matter
+- Any function where `$()` subshell would discard needed side effects
+
+**Contract:**
+- Mutates shared state (arrays, module variables)
+- Returns value(s) via `z1z_«prefix»_«term»` variables (NOT echo, NOT `Z`-prefixed kindle constants)
+- `z1z_` prefix signals: rare bootstrap return channel, not a kindle constant
+- Must NOT be called inside `$()` — side effects would be lost
+- May use `buc_die` internally (unlike `_capture`)
+- Should rarely be used — only when a function must both mutate and return
+
 ---
 
 ## When to Use Special Functions
@@ -441,6 +477,7 @@ fi
 | Module variables             | `Z«PREFIX»_«NAME»`           | `ZRBV_TEMP_FILE`             | Impl     | SCREAMING_SNAKE (multi-word)  |
 | Environment vars             | `«PREFIX»_«NAME»`            | `RBV_REGIME_FILE`            | Both     | SCREAMING_SNAKE (multi-word)  |
 | Local parameters             | `z_«name»`                   | `z_vm_name`, `z_force_flag`  | Both     | snake_case (multi-word)       |
+| Register return vars         | `z1z_«prefix»_«term»`        | `z1z_buz_colophon`           | Impl     | snake_case                    |
 
 ---
 
@@ -635,6 +672,7 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 | Conditional tests   | `test` not `[[ ]]`                                               |
 | Pattern matching    | `[[ var =~ pattern ]]` only                                      |
 | Secret extraction   | `_capture` function, never temp files                            |
+| Shared state + return| `_register` function, `z1z_` return vars                         |
 | True/false check    | `_predicate` function                                            |
 | Runtime information | `buc_log_«source»`/`buc_step`, never comments                             |
 | File paths          | ALL defined in kindle as module variables                        |
@@ -677,6 +715,7 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] Every command that can fail has `|| buc_die` or `|| buc_warn`
 - [ ] `_predicate` functions return 0/1, never die, no output
 - [ ] `_capture` functions output once at end or exit 1, no stderr
+- [ ] `_register` functions set `z1z_` return vars, never echo; callers never use `$()`
 - [ ] Two-line pattern for capturing: `z_var=$(func_capture) || buc_die`
 - [ ] File reads validated: `test -n "${z_content}" || buc_die`
 - [ ] No hidden failures in pipelines

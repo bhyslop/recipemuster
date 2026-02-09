@@ -27,43 +27,64 @@ ZRBZ_SOURCED=1
 ######################################################################
 # Colophon registry initialization
 
-# shellcheck disable=SC2034
+# shellcheck disable=SC2034,SC2154
 zrbz_kindle() {
   test -z "${ZRBZ_KINDLED:-}" || buc_die "rbz already kindled"
 
   # Verify buz zipper is kindled (CLI furnish must kindle buz first)
   zbuz_sentinel
 
+  # z1z_buz_colophon set by buz_register (cross-module return channel)
+
   # Payor commands
-  RBZ_CREATE_DEPOT=$(buz_create_capture "rbw-PC" "rbgp_Payor" "rbgp_depot_create")
-  RBZ_PAYOR_INSTALL=$(buz_create_capture "rbw-PI" "rbgp_Payor" "rbgp_payor_install")
-  RBZ_DESTROY_DEPOT=$(buz_create_capture "rbw-PD" "rbgp_Payor" "rbgp_depot_destroy")
-  RBZ_PAYOR_ESTABLISH=$(buz_create_capture "rbw-PE" "rbgm_Manual" "rbgm_payor_establish")
-  RBZ_GOVERNOR_RESET=$(buz_create_capture "rbw-PG" "rbgp_Payor" "rbgp_governor_reset")
-  RBZ_PAYOR_REFRESH=$(buz_create_capture "rbw-PR" "rbgm_Manual" "rbgm_payor_refresh")
+  buz_register "rbw-PC" "rbgp_Payor" "rbgp_depot_create"
+  RBZ_CREATE_DEPOT="${z1z_buz_colophon}"
+  buz_register "rbw-PI" "rbgp_Payor" "rbgp_payor_install"
+  RBZ_PAYOR_INSTALL="${z1z_buz_colophon}"
+  buz_register "rbw-PD" "rbgp_Payor" "rbgp_depot_destroy"
+  RBZ_DESTROY_DEPOT="${z1z_buz_colophon}"
+  buz_register "rbw-PE" "rbgm_Manual" "rbgm_payor_establish"
+  RBZ_PAYOR_ESTABLISH="${z1z_buz_colophon}"
+  buz_register "rbw-PG" "rbgp_Payor" "rbgp_governor_reset"
+  RBZ_GOVERNOR_RESET="${z1z_buz_colophon}"
+  buz_register "rbw-PR" "rbgm_Manual" "rbgm_payor_refresh"
+  RBZ_PAYOR_REFRESH="${z1z_buz_colophon}"
 
   # General depot operations
-  RBZ_LIST_DEPOT=$(buz_create_capture "rbw-ld" "rbgp_Payor" "rbgp_depot_list")
+  buz_register "rbw-ld" "rbgp_Payor" "rbgp_depot_list"
+  RBZ_LIST_DEPOT="${z1z_buz_colophon}"
 
   # Governor commands
-  RBZ_CREATE_RETRIEVER=$(buz_create_capture "rbw-GR" "rbgg_Governor" "rbgg_create_retriever")
-  RBZ_CREATE_DIRECTOR=$(buz_create_capture "rbw-GD" "rbgg_Governor" "rbgg_create_director")
+  buz_register "rbw-GR" "rbgg_Governor" "rbgg_create_retriever"
+  RBZ_CREATE_RETRIEVER="${z1z_buz_colophon}"
+  buz_register "rbw-GD" "rbgg_Governor" "rbgg_create_director"
+  RBZ_CREATE_DIRECTOR="${z1z_buz_colophon}"
 
   # Admin commands
-  RBZ_ADMIN_ESTABLISH=$(buz_create_capture "rbw-ps" "rbgm_Manual" "rbgm_payor_establish")
-  RBZ_LIST_SERVICE_ACCOUNTS=$(buz_create_capture "rbw-Gl" "rbgg_Governor" "rbgg_list_service_accounts")
-  RBZ_DELETE_SERVICE_ACCOUNT=$(buz_create_capture "rbw-GS" "rbgg_Governor" "rbgg_delete_service_account")
+  buz_register "rbw-ps" "rbgm_Manual" "rbgm_payor_establish"
+  RBZ_ADMIN_ESTABLISH="${z1z_buz_colophon}"
+  buz_register "rbw-Gl" "rbgg_Governor" "rbgg_list_service_accounts"
+  RBZ_LIST_SERVICE_ACCOUNTS="${z1z_buz_colophon}"
+  buz_register "rbw-GS" "rbgg_Governor" "rbgg_delete_service_account"
+  RBZ_DELETE_SERVICE_ACCOUNT="${z1z_buz_colophon}"
 
   # Ark commands (paired -image + -about artifacts)
-  RBZ_ABJURE_ARK=$(buz_create_capture "rbw-aA" "rbf_Foundry" "rbf_abjure")
-  RBZ_BESEECH_ARK=$(buz_create_capture "rbw-ab" "rbf_Foundry" "rbf_beseech")
-  RBZ_CONJURE_ARK=$(buz_create_capture "rbw-aC" "rbf_Foundry" "rbf_build")
-  RBZ_SUMMON_ARK=$(buz_create_capture "rbw-as" "rbf_Foundry" "rbf_summon")
+  buz_register "rbw-aA" "rbf_Foundry" "rbf_abjure"
+  RBZ_ABJURE_ARK="${z1z_buz_colophon}"
+  buz_register "rbw-ab" "rbf_Foundry" "rbf_beseech"
+  RBZ_BESEECH_ARK="${z1z_buz_colophon}"
+  buz_register "rbw-aC" "rbf_Foundry" "rbf_build"
+  RBZ_CONJURE_ARK="${z1z_buz_colophon}"
+  buz_register "rbw-as" "rbf_Foundry" "rbf_summon"
+  RBZ_SUMMON_ARK="${z1z_buz_colophon}"
 
   # Image commands (single artifact)
-  RBZ_DELETE_IMAGE=$(buz_create_capture "rbw-iD" "rbf_Foundry" "rbf_delete")
-  RBZ_LIST_IMAGES=$(buz_create_capture "rbw-il" "rbf_Foundry" "rbf_list")
-  RBZ_RETRIEVE_IMAGE=$(buz_create_capture "rbw-ir" "rbf_Foundry" "rbf_retrieve")
+  buz_register "rbw-iD" "rbf_Foundry" "rbf_delete"
+  RBZ_DELETE_IMAGE="${z1z_buz_colophon}"
+  buz_register "rbw-il" "rbf_Foundry" "rbf_list"
+  RBZ_LIST_IMAGES="${z1z_buz_colophon}"
+  buz_register "rbw-ir" "rbf_Foundry" "rbf_retrieve"
+  RBZ_RETRIEVE_IMAGE="${z1z_buz_colophon}"
 
   ZRBZ_KINDLED=1
 }

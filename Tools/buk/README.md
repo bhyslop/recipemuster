@@ -176,8 +176,7 @@ tt/jjt-f.TestFavor.sh → Launcher → BUD → jjt_testbench.sh
 - `Tools/rbw/rbz_zipper.sh` - RBW zipper (Recipe Bottle colophon registry)
 
 **Key Functions**:
-- `buz_create_capture(colophon, module, command)` — Register a tuple, returns index
-- `buz_get_colophon(idx)`, `buz_get_module(idx)`, `buz_get_command(idx)` — Getters
+- `buz_register(colophon, module, command)` — Register a tuple, sets `z1z_buz_colophon`
 
 **Design Rationale**:
 - Symbolic constants eliminate hardcoded colophon strings in tests

@@ -76,11 +76,11 @@ zbuz_resolve_tabtarget_capture() {
 ######################################################################
 # Public registry operations
 
-# buz_create_capture() - Validate colophon and return it
+# buz_register() - Register colophon tuple in parallel arrays
 # Args: colophon, module, command
-# Returns: colophon string (for caller to store as constant)
-# Side effects: populates registry arrays (in same-process context only)
-buz_create_capture() {
+# Sets: z1z_buz_colophon (colophon string for caller to store as constant)
+# Side effects: populates registry arrays (must be called in same process, NOT inside $())
+buz_register() {
   zbuz_sentinel
 
   local z_colophon="${1:-}"
@@ -100,35 +100,8 @@ buz_create_capture() {
   zbuz_commands+=("${z_command}")
   zbuz_tabtargets+=("${z_tabtarget}")
 
-  echo "${z_colophon}"
-}
-
-# buz_get_colophon() - Getter for colophon at index
-buz_get_colophon() {
-  zbuz_sentinel
-  local z_idx="${1:-}"
-  echo "${zbuz_colophons[$z_idx]}"
-}
-
-# buz_get_module() - Getter for module at index
-buz_get_module() {
-  zbuz_sentinel
-  local z_idx="${1:-}"
-  echo "${zbuz_modules[$z_idx]}"
-}
-
-# buz_get_command() - Getter for command at index
-buz_get_command() {
-  zbuz_sentinel
-  local z_idx="${1:-}"
-  echo "${zbuz_commands[$z_idx]}"
-}
-
-# buz_get_tabtarget() - Getter for tabtarget at index
-buz_get_tabtarget() {
-  zbuz_sentinel
-  local z_idx="${1:-}"
-  echo "${zbuz_tabtargets[$z_idx]}"
+  # shellcheck disable=SC2034
+  z1z_buz_colophon="${z_colophon}"
 }
 
 ######################################################################
