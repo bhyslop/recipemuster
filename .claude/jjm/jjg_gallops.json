@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AY",
+  "next_heat_seed": "AZ",
   "heats": {
     "₣AH": {
       "silks": "jjk-nonbreaking-cleanups",
@@ -3737,6 +3737,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_AV.md",
+      "paces": {}
+    },
+    "₣AY": {
+      "silks": "jjk-cue-calibration",
+      "creation_time": "260209",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AY.md",
       "paces": {}
     }
   }
