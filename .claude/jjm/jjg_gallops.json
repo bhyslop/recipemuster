@@ -1819,9 +1819,10 @@
         "₢AUAAC",
         "₢AUAAD",
         "₢AUAAA",
-        "₢AUAAB"
+        "₢AUAAB",
+        "₢AUAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AU.md",
       "paces": {
         "₢AUAAA": {
@@ -1865,6 +1866,17 @@
               "text": "Move all 37 RBS* specification files from legacy `lenses/` to `Tools/rbk/vov_veiled/`.\n\n## Prerequisite\n₢AUAAC (delete-rbk-coordinator) must complete first to free the `rbk` prefix.\n\n## Files to move (37 total)\n- `RBS-Specification.adoc` (main spec)\n- `RBSA-SpecTop.adoc`\n- 35 subdocuments: RBSAA, RBSAX, RBSBC, RBSBK, RBSBL, RBSBR, RBSBS, RBSCE, RBSCO, RBSDC, RBSDD, RBSDI, RBSDL, RBSDS, RBSGR, RBSGS, RBSID, RBSIL, RBSIP, RBSIR, RBSNC, RBSNX, RBSOB, RBSPE, RBSPI, RBSPR, RBSPT, RBSRC, RBSRV, RBSSC, RBSSD, RBSSL, RBSSS, RBSTB, RBSVC, RBSVM\n\n## Tasks\n1. Create `Tools/rbk/vov_veiled/` directory\n2. `git mv` all 37 RBS* files from `lenses/` to `Tools/rbk/vov_veiled/`\n3. Update CLAUDE.md acronym mappings for all RBS* entries (new paths)\n4. Grep for any cross-references from remaining `lenses/` files to RBS* files and update paths\n5. Verify `lenses/` retains only non-RBS files (CRR, RBRN, RBRR, RBWMBX, axl-AXMCM)\n\n## Verification\n- All 37 files exist under `Tools/rbk/vov_veiled/`\n- No RBS* files remain in `lenses/`\n- CLAUDE.md mappings point to new paths\n- No broken cross-references\n\nResult: RBS concept models follow the veiled pattern. `Tools/rbk/` established as Recipe Bottle Kit directory.",
               "silks": "move-rbs-specs-to-rbk-veiled",
               "commit": "c72d3bf"
+            }
+          ]
+        },
+        "₢AUAAE": {
+          "tacks": [
+            {
+              "ts": "260209-1650",
+              "state": "rough",
+              "text": "Add regime validation testbench to rbtg_testbench.sh exercising RBRV and RBRN validators with both synthetic bad inputs and real good inputs.\n\n## Negative tests (but_expect_fatal)\n\nRBRV failure cases:\n- Missing RBRV_SIGIL (required xname)\n- Neither RBRV_BIND_IMAGE nor RBRV_CONJURE_DOCKERFILE set\n- Invalid RBRV_CONJURE_BINFMT_POLICY (not \"allow\" or \"forbid\")\n- Unexpected RBRV_ variable present (e.g. RBRV_BOGUS=foo)\n- Partial conjure config (CONJURE_DOCKERFILE set but CONJURE_PLATFORMS missing)\n\nRBRN failure cases:\n- Missing RBRN_MONIKER (required xname)\n- Invalid RBRN_RUNTIME (not \"docker\" or \"podman\")\n- Invalid RBRN_ENTRY_MODE (not \"disabled\" or \"enabled\")\n- Invalid RBRN_UPLINK_DNS_MODE / RBRN_UPLINK_ACCESS_MODE\n- ENTRY_PORT_WORKSTATION >= UPLINK_PORT_MIN when entry enabled\n- Unexpected RBRN_ variable present\n- Bad IP format for RBRN_ENCLAVE_BASE_IP\n\n## Positive tests (but_expect_ok)\n\n- Validate all 7 rbev-vessels/*/rbrv.env files pass via rbrv_cli.sh validate\n- Validate all 3 rbrn_*.env nameplate files pass via rbrn_cli.sh validate\n\n## Mechanism\n\nEach negative test runs in a subshell, sets up bad env vars, calls kindle + validate_fields, expects death. Positive tests call through CLI validate path. New route `rbtg-rv` in rbtg_testbench.sh. New tabtarget `tt/rbtg-rv.RegimeValidation.sh`.\n\n## Scope control\n\n- Pure local tests — no GCP, no containers, no network\n- Only add to rbtg_testbench.sh and create tabtarget\n- Do NOT modify regime.sh or cli.sh files",
+              "silks": "regime-validation-testbench",
+              "commit": "bfd30e0"
             }
           ]
         }
