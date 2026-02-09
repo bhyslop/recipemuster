@@ -7,6 +7,7 @@
       "status": "racing",
       "order": [
         "₢AHAAb",
+        "₢AHAAc",
         "₢AHAAB",
         "₢AHAAD",
         "₢AHAAE",
@@ -33,7 +34,7 @@
         "₢AHAAZ",
         "₢AHAAa"
       ],
-      "next_pace_seed": "AAc",
+      "next_pace_seed": "AAd",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -637,6 +638,17 @@
               "text": "Add file-touch bitmap and commit swim lanes to jjx_orient output.\n\n## Context\n\nMount workflow calls jjx_orient, which returns Recent-work table but no file-level history. The bitmap displays already exist in jjx_show (parade) heat view. Adding them to orient helps the agent understand repo state without reaching past JJ to raw git.\n\n## Scope\n\nWire existing bitmap/swim-lane rendering from parade into orient's output path. No new display features.\n\n1. Update JJSCSD-saddle.adoc — document bitmap sections in orient output\n2. In Rust orient (saddle) code, call the same bitmap rendering functions used by parade after the Recent-work section\n3. Build and test\n\n## Verification\n\n- `jjx_orient AP` shows file-touch bitmap and commit swim lanes after Recent-work\n- Output format matches jjx_show exactly\n- tt/vow-b.Build.sh passes\n- tt/vow-t.Test.sh passes",
               "silks": "orient-bitmap-displays",
               "commit": "7a18d25"
+            }
+          ]
+        },
+        "₢AHAAc": {
+          "tacks": [
+            {
+              "ts": "260209-1155",
+              "state": "rough",
+              "text": "Fix jjx_alter CLI reference in CLAUDE.md to match actual implementation.\n\n## Spook\n\nCLAUDE.md CLI reference shows `jjx_alter FIREMARK [--status racing|stabled]` but the actual CLI uses `--racing` / `--stabled` boolean flags. Agent invoked `--status racing`, got rejected, recovered via `--help`.\n\n## Fix\n\nUpdate CLAUDE.md JJK section: change `[--status racing|stabled]` to `[--racing|--stabled]` in the CLI Command Reference table.\n\n## Verification\n\n- CLAUDE.md CLI reference matches `jjx_alter --help` output",
+              "silks": "spook-alter-status-flag",
+              "commit": "a5d2458"
             }
           ]
         }
