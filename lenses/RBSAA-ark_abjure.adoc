@@ -91,16 +91,11 @@ which artifact exists and which is missing
 . *Confirm Abjuration*:
 .. Unless `--force` flag provided:
 ... {rbbc_show}
-"Will abjure ark «INPUT_VESSEL»/«INPUT_CONSECRATION»:"
-... For each artifact in `«ARTIFACTS_TO_DELETE»`:
-.... {rbbc_show}
-`  - «TAG»`
-... {rbbc_prompt}
-"Proceed with abjuration? [y/N]"
+"Will abjure ark «INPUT_VESSEL»/«INPUT_CONSECRATION»:" followed by each artifact in `«ARTIFACTS_TO_DELETE»`
 ... {rbbc_require}
-user confirmation
+user types `yes` to confirm
 ... {rbbc_fatal}
-if declined: "Abjuration cancelled"
+if not confirmed: "prompt not confirmed."
 
 . *Delete Image Artifact* (if exists):
 .. If `«IMAGE_EXISTS»`:

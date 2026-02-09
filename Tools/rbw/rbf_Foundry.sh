@@ -670,18 +670,33 @@ rbf_study() {
 rbf_delete() {
   zrbf_sentinel
 
-  local z_moniker="${1:-}"
-  local z_tag="${2:-}"
+  local z_locator="${1:-}"
+  local z_force="${2:-}"
 
   # Documentation block
-  buc_doc_brief "Delete an image tag from the registry"
-  buc_doc_param "moniker" "Image name (e.g., rbev-busybox)"
-  buc_doc_param "tag" "Image tag to delete"
+  buc_doc_brief "Delete an image tag from the registry by locator"
+  buc_doc_param "locator" "Image locator in moniker:tag format (e.g., rbev-busybox:20251231T160211Z-img)"
+  buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
 
-  # Validate parameters
-  test -n "${z_moniker}" || buc_die "Moniker parameter required"
-  test -n "${z_tag}" || buc_die "Tag parameter required"
+  # Validate locator parameter
+  test -n "${z_locator}" || buc_die "Locator parameter required (moniker:tag)"
+
+  # Parse locator into moniker and tag
+  case "${z_locator}" in
+    *:*) : ;;
+    *)   buc_die "Invalid locator format. Expected moniker:tag" ;;
+  esac
+  local z_moniker="${z_locator%%:*}"
+  local z_tag="${z_locator#*:}"
+  test -n "${z_moniker}" || buc_die "Moniker is empty in locator"
+  test -n "${z_tag}" || buc_die "Tag is empty in locator"
+
+  # Check for --force flag
+  local z_skip_confirm=false
+  if test "${z_force}" = "--force"; then
+    z_skip_confirm=true
+  fi
 
   buc_step "Authenticating as Director"
 
@@ -689,10 +704,14 @@ rbf_delete() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  buc_step "Deleting tag: ${z_moniker}:${z_tag}"
+  # Confirm deletion unless --force
+  if test "${z_skip_confirm}" = "false"; then
+    buc_require "Will delete: ${z_locator}" "yes"
+  fi
 
-  # Delete by tag reference (not digest)
-  # GAR requires tag deletion before manifest can be removed
+  buc_step "Deleting: ${z_locator}"
+
+  # Delete by tag reference
   local z_status_file="${ZRBF_DELETE_PREFIX}status.txt"
   local z_response_file="${ZRBF_DELETE_PREFIX}response.json"
 
@@ -712,7 +731,7 @@ rbf_delete() {
     buc_die "Delete failed with HTTP ${z_http_code}"
   fi
 
-  buc_success "Tag deleted: ${z_moniker}:${z_tag}"
+  buc_success "Deleted or nonexistent: ${z_locator}"
 }
 
 rbf_list() {
@@ -945,20 +964,14 @@ rbf_abjure() {
 
   # Confirm abjuration unless --force
   if test "${z_skip_confirm}" = "false"; then
-    echo ""
-    echo "Will abjure ark ${z_vessel}/${z_consecration}:"
+    local z_confirm_msg="Will abjure ark ${z_vessel}/${z_consecration}:"
     if test "${z_image_exists}" = "true"; then
-      echo "  - ${z_vessel}:${z_image_tag}"
+      z_confirm_msg="${z_confirm_msg}\n  - ${z_vessel}:${z_image_tag}"
     fi
     if test "${z_about_exists}" = "true"; then
-      echo "  - ${z_vessel}:${z_about_tag}"
+      z_confirm_msg="${z_confirm_msg}\n  - ${z_vessel}:${z_about_tag}"
     fi
-    echo ""
-    read -p "Proceed with abjuration? [y/N] " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-      buc_die "Abjuration cancelled"
-    fi
+    buc_require "${z_confirm_msg}" "yes"
   fi
 
   # Delete -image artifact if exists

@@ -7,14 +7,20 @@ NOTE: To delete an entire {rbtga_ark} (both `-image` and `-about` artifacts), us
 
 The
 {rbtr_director}
-deletes an image by tag:
+deletes an image by {rbst_locator}:
 
 // ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}
-`«INPUT_TAG»` provided as first argument
+`«INPUT_LOCATOR»` provided as first argument in `moniker:tag` format
 .. {rbbc_fatal}
-if missing: "Tag parameter required"
+if missing: "Locator parameter required (moniker:tag)"
+.. {rbbc_fatal}
+if malformed (no colon): "Invalid locator format. Expected moniker:tag"
+.. {rbbc_store}
+`«MONIKER»` as portion before first colon
+.. {rbbc_store}
+`«TAG»` as portion after first colon
 
 // ⟦axs_behavior⟧
 . *Authenticate as
@@ -24,37 +30,20 @@ if missing: "Tag parameter required"
 .. {rbbc_store}
 `«DIRECTOR_TOKEN»` for subsequent API calls
 
-. *Construct Registry Endpoint*:
-.. {rbbc_store}
-`«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
-.. {rbbc_store}
-`«REGISTRY_PATH»` as `{rbrr_depot_project_id}/{rbrr_gar_repository}`
-.. {rbbc_store}
-`«REGISTRY_BASE»` as `https://«REGISTRY_HOST»/v2/«REGISTRY_PATH»`
+. *Confirm Deletion*:
+.. Unless `--force` flag is provided:
+... {rbbc_show}
+`Will delete: «INPUT_LOCATOR»`
+... {rbbc_require}
+user types `yes` to confirm
+... {rbbc_fatal}
+if not confirmed: "prompt not confirmed."
 
-. *Fetch Manifest Digest*:
-.. {rbbc_call}
-link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: GET manifests] with:
-... method: `HEAD`
-... endpoint: `«REGISTRY_BASE»/manifests/«INPUT_TAG»`
-... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
-... header: `Accept: application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json`
-.. {rbbc_require}
-HTTP 200 response
-.. {rbbc_store}
-`«MANIFEST_DIGEST»` from response header `Docker-Content-Digest`
-.. {rbbc_require}
-`«MANIFEST_DIGEST»` is non-empty
-.. {rbbc_fatal}
-if manifest not found: "Failed to fetch manifest headers"
-.. {rbbc_fatal}
-if digest empty: "Manifest digest is empty"
-
-. *Delete Manifest by Digest*:
+. *Delete Tag*:
 .. {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#deleting-tags[Docker Registry API: DELETE manifests] with:
 ... method: `DELETE`
-... endpoint: `«REGISTRY_BASE»/manifests/«MANIFEST_DIGEST»`
+... endpoint: `«REGISTRY_BASE»/«MONIKER»/manifests/«TAG»`
 ... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 .. {rbbc_require}
 HTTP 202 (Accepted) or 204 (No Content) response
@@ -64,7 +53,7 @@ if delete fails: "Delete failed with HTTP «STATUS_CODE»"
 // ⟦axs_outputs⟧
 . *Display Results*:
 .. {rbbc_show}
-image deleted: `«INPUT_TAG»`
+`Deleted or nonexistent: «INPUT_LOCATOR»`
 
 // ⟦axs_completion⟧
-Procedure completes successfully when the manifest has been deleted from the registry and the image deleted message is displayed.
+Procedure completes successfully when the tag has been deleted from the registry and the deleted message is displayed.
