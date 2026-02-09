@@ -3118,6 +3118,13 @@
         "₢AHAAL": {
           "tacks": [
             {
+              "ts": "260209-0526",
+              "state": "complete",
+              "text": "Add vow-c.Clean.sh tabtarget for complete build artifact cleanup.\n\n## Context\n\nParallel Claude sessions can corrupt cargo build caches, causing \"could not write output\" errors. A dedicated clean command provides a manual recovery path.\n\n## Deliverables\n\n1. Create `tt/vow-c.Clean.sh` tabtarget\n2. Clean all three crates: vok, vvc, jjk\n3. Remove target directories completely (not just cargo clean)\n4. Report what was cleaned\n\n## Implementation\n\nPattern after existing vow-b.Build.sh colophon routing. The clean should:\n- `rm -rf Tools/vok/target`\n- `rm -rf Tools/vvc/target`  \n- `rm -rf Tools/jjk/vov_veiled/target`\n- Report total space reclaimed\n\n## Acceptance\n\nRunning `tt/vow-c.Clean.sh` removes all build artifacts; subsequent `tt/vow-b.Build.sh` does full rebuild.",
+              "silks": "add-vow-clean-command",
+              "commit": "38faffc"
+            },
+            {
               "ts": "260127-1131",
               "state": "rough",
               "text": "Add vow-c.Clean.sh tabtarget for complete build artifact cleanup.\n\n## Context\n\nParallel Claude sessions can corrupt cargo build caches, causing \"could not write output\" errors. A dedicated clean command provides a manual recovery path.\n\n## Deliverables\n\n1. Create `tt/vow-c.Clean.sh` tabtarget\n2. Clean all three crates: vok, vvc, jjk\n3. Remove target directories completely (not just cargo clean)\n4. Report what was cleaned\n\n## Implementation\n\nPattern after existing vow-b.Build.sh colophon routing. The clean should:\n- `rm -rf Tools/vok/target`\n- `rm -rf Tools/vvc/target`  \n- `rm -rf Tools/jjk/vov_veiled/target`\n- Report total space reclaimed\n\n## Acceptance\n\nRunning `tt/vow-c.Clean.sh` removes all build artifacts; subsequent `tt/vow-b.Build.sh` does full rebuild.",
