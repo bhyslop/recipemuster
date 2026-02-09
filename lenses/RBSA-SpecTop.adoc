@@ -85,6 +85,7 @@
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbf_delete>>
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
 :rbtgo_ark_beseech:              <<rbtgo_ark_beseech,rbf_beseech>>
+:rbtgo_ark_conjure:              <<rbtgo_ark_conjure,rbf_build>>
 :rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
 :rbtgo_retriever_create:          <<rbtgo_retriever_create,rbgg_create_retriever>>
 :rbtgo_sa_delete:                 <<rbtgo_sa_delete,rbgg_delete_service_account>>
@@ -692,6 +693,14 @@ Petitions the registry to reveal its consecrated arks, correlating artifact pair
 
 include::RBSAB-ark_beseech.adoc[]
 
+[[rbtgo_ark_conjure]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_ark_conjure}
+
+Conjures an ark by building a container image from a vessel specification and storing both image and about artifacts in the repository.
+
+include::RBSAC-ark_conjure.adoc[]
+
 == {rbtr_retriever} Operations
 
 [[rbtgo_image_retrieve]]
@@ -1042,8 +1051,8 @@ An ark comprises the
 (`-image` suffix) containing the container image and the
 {rbtga_ark_about}
 (`-about` suffix) containing build provenance and metadata.
-Arks are created atomically by
-{rbtgo_trigger_build}
+Arks are conjured atomically by
+{rbtgo_ark_conjure}
 and abjured atomically by
 {rbtgo_ark_abjure}.
 

@@ -1,0 +1,48 @@
+NOTE: This operation conjures an
+{rbtga_ark}
+in
+{rbtgi_repository}
+by building a container image from a vessel specification and assembling build provenance metadata. The
+{rbtr_director}
+performs the build via
+{gcb_service}.
+
+NOTE: This is the ark-level view of the build operation. For detailed build procedure steps, see
+{rbtgo_trigger_build}.
+
+The conjure operation:
+
+// ⟦axs_inputs⟧
+. *Validate Input Parameters*:
+.. {rbbc_require}
+vessel directory provided as first argument
+.. {rbbc_require}
+vessel contains conjuring configuration (RBRV_CONJURE_DOCKERFILE, RBRV_CONJURE_BLDCONTEXT)
+
+// ⟦axs_behavior⟧
+. *Execute Build*:
+.. Delegate to
+{rbtgo_trigger_build}
+which:
+... Verifies git repository is clean
+... Packages build context from vessel
+... Submits build to
+{gcb_service}
+... Waits for build completion
+.. On success, both
+{rbtga_ark_image}
+and
+{rbtga_ark_about}
+artifacts are created with shared
+{rbtga_consecration}
+
+// ⟦axs_outputs⟧
+. *Display Results*:
+.. {rbbc_show}
+vessel image built with consecration tag
+
+// ⟦axs_completion⟧
+Successful execution creates a complete
+{rbtga_ark}
+with both image and about artifacts sharing the same
+{rbtga_consecration}.
