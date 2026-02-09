@@ -1608,6 +1608,7 @@
         "₢APAAW",
         "₢APAAX",
         "₢APAAY",
+        "₢APAAZ",
         "₢APAAO",
         "₢APAAJ",
         "₢APAAB",
@@ -1616,7 +1617,7 @@
         "₢APAAH",
         "₢APAAN"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -2220,6 +2221,17 @@
               "text": "Formalize the conjure operation in RBSA vocabulary.\n\n## Context\nrbf_build is already the conjuring operation (uses conjuring config: RBRV_CONJURE_DOCKERFILE, etc.)\nbut has no rbtgo_ark_conjure mapping in RBSA. The ark verb table should be complete:\nabjure (delete), beseech (list), conjure (build), summon (retrieve).\n\n## Code changes\nNone — rbf_build remains the implementation function.\n\n## Spec changes\n- Add rbtgo_ark_conjure mapping in RBSA-SpecTop.adoc (pointing to rbf_build)\n- Add definition section for rbtgo_ark_conjure\n- Optionally create RBSAC-ark_conjure.adoc that references/includes existing RBSTB spec\n\n## Verification\n- RBSA has complete ark verb table: abjure, beseech, conjure, summon\n- No code changes, spec-only pace",
               "silks": "formalize-conjure-in-rbsa",
               "commit": "63e0016"
+            }
+          ]
+        },
+        "₢APAAZ": {
+          "tacks": [
+            {
+              "ts": "260209-0607",
+              "state": "rough",
+              "text": "Implement rbf_summon — ark-level image retrieval.\n\n## Concept\nrbf_summon is the ark-level counterpart to rbf_retrieve. Given a vessel and\nconsecration, it pulls both -image and -about artifacts as a coherent unit.\nPairs with rbf_abjure (ark-level delete) and rbf_conjure/rbf_build (ark-level build).\n\n## Interface\nrbf_summon <vessel> <consecration>\n\n## Code changes\n- New rbf_summon function in rbf_Foundry.sh\n- Authenticate as Retriever (fallback to Director, same as rbf_retrieve)\n- Construct both ark tags using RBGC_ARK_SUFFIX_IMAGE and RBGC_ARK_SUFFIX_ABOUT\n- Verify both artifacts exist (HEAD check, like rbf_abjure)\n- Pull both via docker pull\n- Report which artifacts were retrieved\n\n## Spec changes\n- Add rbtgo_ark_summon mapping and definition in RBSA-SpecTop.adoc\n- Create operation lens RBSAS-ark_summon.adoc\n- Coordinator wiring and tabtarget\n\n## Verification\n- Pulls both -image and -about for a given vessel+consecration\n- Reports if either artifact is missing (orphaned ark)\n- Uses Retriever credentials when available\n- RBSA terms consistent with implementation",
+              "silks": "implement-rbf-summon-ark-retrieve",
+              "commit": "c8334ec"
             }
           ]
         }
