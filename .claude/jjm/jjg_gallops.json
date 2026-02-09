@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "AZ",
+  "next_heat_seed": "Aa",
   "heats": {
     "₣AY": {
       "silks": "jjk-cue-calibration",
@@ -3930,6 +3930,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_AV.md",
+      "paces": {}
+    },
+    "₣AZ": {
+      "silks": "cmk-diptych-prototype",
+      "creation_time": "260209",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_AZ.md",
       "paces": {}
     }
   }
