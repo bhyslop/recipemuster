@@ -43,14 +43,20 @@ rbrv_validate() {
 
   buc_step "Validating RBRV vessel file: ${z_file}"
 
+  # Source RBRR (vessel env files may reference RBRR_ variables)
+  local z_rbrr_file="${ZRBRV_CLI_SCRIPT_DIR}/../../rbrr_RecipeBottleRegimeRepo.sh"
+  if test -f "${z_rbrr_file}"; then
+    source "${z_rbrr_file}" || buc_die "rbrv_validate: failed to source RBRR"
+  fi
+
   # Source the assignment file
   source "${z_file}" || buc_die "rbrv_validate: failed to source ${z_file}"
 
   # Prepare state (no dying)
   zrbrv_kindle
 
-  # Strict validation (dies on error)
-  zrbrv_validate_fields
+  # Strict validation (dies on error; suppress buv echo output)
+  zrbrv_validate_fields > /dev/null
 
   buc_step "RBRV vessel valid"
 }
@@ -74,6 +80,12 @@ rbrv_render() {
   local z_file="${1:-}"
   test -n "${z_file}" || buc_die "rbrv_render: file argument required"
   test -f "${z_file}" || buc_die "rbrv_render: file not found: ${z_file}"
+
+  # Source RBRR (vessel env files may reference RBRR_ variables)
+  local z_rbrr_file="${ZRBRV_CLI_SCRIPT_DIR}/../../rbrr_RecipeBottleRegimeRepo.sh"
+  if test -f "${z_rbrr_file}"; then
+    source "${z_rbrr_file}" || buc_die "rbrv_render: failed to source RBRR"
+  fi
 
   # Source and kindle (no dying)
   source "${z_file}" || buc_die "rbrv_render: failed to source ${z_file}"
@@ -116,8 +128,8 @@ rbrv_render() {
     echo ""
   fi
 
-  # Validate (dies on first error, after full display)
-  zrbrv_validate_fields
+  # Validate (dies on first error, after full display; suppress buv echo output)
+  zrbrv_validate_fields > /dev/null
   buc_step "RBRV vessel valid"
 }
 

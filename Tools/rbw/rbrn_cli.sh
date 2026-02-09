@@ -49,8 +49,8 @@ rbrn_validate() {
   # Prepare state (no dying)
   zrbrn_kindle
 
-  # Strict validation (dies on error)
-  zrbrn_validate_fields
+  # Strict validation (dies on error; suppress buv echo output)
+  zrbrn_validate_fields > /dev/null
 
   buc_step "RBRN nameplate valid"
 }
@@ -141,8 +141,8 @@ rbrn_render() {
     echo ""
   fi
 
-  # Validate (dies on first error, after full display)
-  zrbrn_validate_fields
+  # Validate (dies on first error, after full display; suppress buv echo output)
+  zrbrn_validate_fields > /dev/null
   buc_step "RBRN nameplate valid"
 }
 
