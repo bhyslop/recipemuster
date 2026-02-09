@@ -2887,9 +2887,10 @@
         "₢AHAAP",
         "₢AHAAW",
         "₢AHAAX",
-        "₢AHAAY"
+        "₢AHAAY",
+        "₢AHAAZ"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -3453,6 +3454,17 @@
               "text": "Add vosr_init() to vvx main entry point — a panic-based environment gate that runs unconditionally before any argument parsing or library use.\n\n## What\n\nAdd a `vosr_init()` function to `Tools/vok/src/vorm_main.rs` that checks `CLAUDE_CODE_DISABLE_AUTO_MEMORY == \"1\"` and panics if not set. Call it as the first line of `main()`, before `Cli::parse()`.\n\n## Implementation\n\n**vorm_main.rs** (2 changes):\n1. Add function:\n```rust\nfn vosr_init() {\n    if std::env::var(\"CLAUDE_CODE_DISABLE_AUTO_MEMORY\").as_deref() != Ok(\"1\") {\n        panic!(\"CLAUDE_CODE_DISABLE_AUTO_MEMORY must be 1\");\n    }\n}\n```\n2. Call at top of main():\n```rust\nasync fn main() -> ExitCode {\n    vosr_init();\n    let cli = Cli::parse();\n```\n\n**VOS-VoxObscuraSpec.adoc** (2 additions):\n1. Add to mapping section: `:vosr_init: <<vosr_init,init routine>>`\n2. Add definition in Routines section with `include::VOSRI-init.adoc[]`\n\n**VOSRI-init.adoc** (new file):\nRoutine spec: unconditional call from main(), checks env var, panics on failure.\n\n## Key decisions\n- panic! not Result — cannot be silently ignored by future edits\n- Before Cli::parse() — no command can bypass the gate\n- Single env var check — only CLAUDE_CODE_DISABLE_AUTO_MEMORY for now\n\n## Files touched\n- Tools/vok/src/vorm_main.rs\n- Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc\n- Tools/vok/vov_veiled/VOSRI-init.adoc (new)\n\n## Verify\n- tt/vow-b.Build.sh succeeds\n- tt/vvw-r.RunVVX.sh jjx_list panics without env var set\n- tt/vvw-r.RunVVX.sh jjx_list works with CLAUDE_CODE_DISABLE_AUTO_MEMORY=1",
               "silks": "add-vosr-init-env-gate",
               "commit": "e27abdc"
+            }
+          ]
+        },
+        "₢AHAAZ": {
+          "tacks": [
+            {
+              "ts": "260209-0610",
+              "state": "rough",
+              "text": "Remove the dysfunctional verb flags (--refine, --level, --muck) from jjx_paddock/jjx_curry.\n\nThese three mutually-exclusive flags have zero behavioral effect — the code path is identical regardless of which flag is passed. They exist only to annotate the chalk commit message with a subcategory string like \"paddock curried (refine)\". This is metadata on metadata for a heat-level commit.\n\nThe flags are an agent trap: the CLI reference in CLAUDE.md doesn't document them, so agents guess wrong and fail. The --help text has no descriptions for --level and --muck. The taxonomy (manual vs cross-heat vs reduction) is subjective and agents will always get it wrong.\n\nChanges:\n1. Remove --refine, --level, --muck from jjrcu_CurryArgs and jjrcu_CurryVerb enum\n2. Simplify jjrcu_run_curry to not require a verb in setter mode\n3. Update chalk message to just \"paddock curried\" (or use --note if caller wants annotation)\n4. Update jjtcu_curry.rs tests to match\n5. Update CLAUDE.md JJK managed insert: fix jjx_paddock entry in CLI reference to show setter requires stdin only (no verb flags)\n6. Build and test\n\nKey files:\n- Tools/jjk/vov_veiled/src/jjrcu_curry.rs\n- Tools/jjk/vov_veiled/src/jjtcu_curry.rs\n- Tools/jjk/vov_veiled/src/jjro_ops.rs (jjrg_curry fn signature — remove verb param)\n- CLAUDE.md (JJK managed insert, CLI reference)",
+              "silks": "jjk-spook-paddocks-curry",
+              "commit": "f6a7bab"
             }
           ]
         }
