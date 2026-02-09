@@ -56,6 +56,11 @@ zbud_setup() {
   zbud_show "Starting BDU setup"
 
   source            "${BUD_REGIME_FILE}"
+
+  # Apply BURV (Bash Utility Regime Verification) overrides if set
+  BURC_OUTPUT_ROOT_DIR="${BURV_OUTPUT_ROOT_DIR:-${BURC_OUTPUT_ROOT_DIR}}"
+  BURC_TEMP_ROOT_DIR="${BURV_TEMP_ROOT_DIR:-${BURC_TEMP_ROOT_DIR}}"
+
   zbud_check_string "${BUD_REGIME_FILE}" BURC_STATION_FILE        1 256
   zbud_check_string "${BUD_REGIME_FILE}" BURC_LOG_LAST            1 256
   zbud_check_string "${BUD_REGIME_FILE}" BURC_LOG_EXT             1 32

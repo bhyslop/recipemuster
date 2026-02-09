@@ -35,6 +35,10 @@ cd "${ZBUL_PROJECT_ROOT}" || exit 1
 export BUD_REGIME_FILE="${ZBUL_PROJECT_ROOT}/.buk/burc.env"
 source "${BUD_REGIME_FILE}" || exit 1
 
+# Apply BURV (Bash Utility Regime Verification) overrides if set
+BURC_OUTPUT_ROOT_DIR="${BURV_OUTPUT_ROOT_DIR:-${BURC_OUTPUT_ROOT_DIR}}"
+BURC_TEMP_ROOT_DIR="${BURV_TEMP_ROOT_DIR:-${BURC_TEMP_ROOT_DIR}}"
+
 # Source BUK modules and kindle BURC
 export BUD_STATION_FILE="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
 source "${BURC_TOOLS_DIR}/buk/buc_command.sh"
