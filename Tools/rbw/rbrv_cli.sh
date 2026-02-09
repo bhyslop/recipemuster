@@ -130,7 +130,7 @@ rbrv_render() {
 
   # Validate (dies on first error, after full display; suppress buv echo output)
   zrbrv_validate_fields > /dev/null
-  buc_step "RBRV vessel valid"
+  echo "${ZBUC_GREEN}RBRV vessel valid${ZBUC_RESET}"
 }
 
 ######################################################################

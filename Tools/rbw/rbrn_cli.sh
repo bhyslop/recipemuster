@@ -143,7 +143,7 @@ rbrn_render() {
 
   # Validate (dies on first error, after full display; suppress buv echo output)
   zrbrn_validate_fields > /dev/null
-  buc_step "RBRN nameplate valid"
+  echo "${ZBUC_GREEN}RBRN nameplate valid${ZBUC_RESET}"
 }
 
 ######################################################################
