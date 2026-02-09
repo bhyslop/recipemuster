@@ -41,6 +41,7 @@
       "creation_time": "260120",
       "status": "stabled",
       "order": [
+        "₢AHAAb",
         "₢AHAAB",
         "₢AHAAD",
         "₢AHAAE",
@@ -67,7 +68,7 @@
         "₢AHAAZ",
         "₢AHAAa"
       ],
-      "next_pace_seed": "AAb",
+      "next_pace_seed": "AAc",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -660,6 +661,17 @@
               "text": "Wrap commit messages currently say only \"pace complete\" — no summary of what was accomplished.\n\n## Problem\nEvery `:W:` commit has the identical message \"pace complete\", which provides no useful information when reviewing git history. Example from 2026-02-08: 30 wraps all saying \"pace complete\".\n\n## Inspiration\nCould we generate a whole-pace summary at wrap time? Challenges:\n- The session performing the wrap may not have full context of all work done during the pace\n- However, pace commit history IS available (jjx_show --detail shows all pace commits)\n- The docket text describes what was intended\n- Combined, these could produce a meaningful summary\n\n## Design Questions\n1. Should the wrap message be auto-generated from pace commit history + docket?\n2. Should jjx_close accept an optional summary via stdin or flag?\n3. What's the right balance between automation and manual summary?\n4. How to handle multi-session paces where the wrapping session lacks full context?\n\n## Scope\nDesign decision only — determine approach, then slate implementation paces.",
               "silks": "design-richer-wrap-commit-messages",
               "commit": "42bd7da"
+            }
+          ]
+        },
+        "₢AHAAb": {
+          "tacks": [
+            {
+              "ts": "260209-1153",
+              "state": "rough",
+              "text": "Add file-touch bitmap and commit swim lanes to jjx_orient output.\n\n## Context\n\nMount workflow calls jjx_orient, which returns Recent-work table but no file-level history. The bitmap displays already exist in jjx_show (parade) heat view. Adding them to orient helps the agent understand repo state without reaching past JJ to raw git.\n\n## Scope\n\nWire existing bitmap/swim-lane rendering from parade into orient's output path. No new display features.\n\n1. Update JJSCSD-saddle.adoc — document bitmap sections in orient output\n2. In Rust orient (saddle) code, call the same bitmap rendering functions used by parade after the Recent-work section\n3. Build and test\n\n## Verification\n\n- `jjx_orient AP` shows file-touch bitmap and commit swim lanes after Recent-work\n- Output format matches jjx_show exactly\n- tt/vow-b.Build.sh passes\n- tt/vow-t.Test.sh passes",
+              "silks": "orient-bitmap-displays",
+              "commit": "7a18d25"
             }
           ]
         }
