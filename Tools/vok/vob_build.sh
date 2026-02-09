@@ -242,6 +242,37 @@ vob_release() {
   buc_success "Parcel created: ${z_tarball}"
 }
 
+vob_clean() {
+  zvob_sentinel
+
+  buc_doc_brief "Remove all Rust build artifacts from kit target directories"
+  buc_doc_shown || return 0
+
+  local z_dirs=(
+    "${BURC_TOOLS_DIR}/vok/target"
+    "${BURC_TOOLS_DIR}/vok/vof/target"
+    "${BURC_TOOLS_DIR}/vvc/target"
+    "${BURC_TOOLS_DIR}/jjk/vov_veiled/target"
+  )
+
+  local z_total=0
+  local z_dir=""
+  for z_dir in "${z_dirs[@]}"; do
+    if [ -d "${z_dir}" ]; then
+      local z_size=""
+      z_size=$(du -sm "${z_dir}" 2>/dev/null | awk '{print $1}') || z_size=0
+      z_total=$((z_total + z_size))
+      buc_step "Removing ${z_dir##*/} (${z_size}MB)"
+      buc_log_args "Path: ${z_dir}"
+      rm -rf "${z_dir}" || buc_die "Failed to remove: ${z_dir}"
+    else
+      buc_step "Skipping ${z_dir} (not found)"
+    fi
+  done
+
+  buc_success "Cleaned ${z_total}MB of build artifacts"
+}
+
 vob_freshen() {
   zvob_sentinel
 
