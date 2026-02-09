@@ -2854,6 +2854,13 @@
         "₢APAAY": {
           "tacks": [
             {
+              "ts": "260209-0632",
+              "state": "complete",
+              "text": "Formalize the conjure operation in RBSA vocabulary.\n\n## Context\nrbf_build is already the conjuring operation (uses conjuring config: RBRV_CONJURE_DOCKERFILE, etc.)\nbut has no rbtgo_ark_conjure mapping in RBSA. The ark verb table should be complete:\nabjure (delete), beseech (list), conjure (build), summon (retrieve).\n\n## Code changes\nNone — rbf_build remains the implementation function.\n\n## Spec changes\n- Add rbtgo_ark_conjure mapping in RBSA-SpecTop.adoc (pointing to rbf_build)\n- Add definition section for rbtgo_ark_conjure\n- Optionally create RBSAC-ark_conjure.adoc that references/includes existing RBSTB spec\n\n## Verification\n- RBSA has complete ark verb table: abjure, beseech, conjure, summon\n- No code changes, spec-only pace",
+              "silks": "formalize-conjure-in-rbsa",
+              "commit": "1567a3e"
+            },
+            {
               "ts": "260209-0606",
               "state": "rough",
               "text": "Formalize the conjure operation in RBSA vocabulary.\n\n## Context\nrbf_build is already the conjuring operation (uses conjuring config: RBRV_CONJURE_DOCKERFILE, etc.)\nbut has no rbtgo_ark_conjure mapping in RBSA. The ark verb table should be complete:\nabjure (delete), beseech (list), conjure (build), summon (retrieve).\n\n## Code changes\nNone — rbf_build remains the implementation function.\n\n## Spec changes\n- Add rbtgo_ark_conjure mapping in RBSA-SpecTop.adoc (pointing to rbf_build)\n- Add definition section for rbtgo_ark_conjure\n- Optionally create RBSAC-ark_conjure.adoc that references/includes existing RBSTB spec\n\n## Verification\n- RBSA has complete ark verb table: abjure, beseech, conjure, summon\n- No code changes, spec-only pace",
