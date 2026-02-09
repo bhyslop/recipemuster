@@ -2297,6 +2297,7 @@
         "₢APAAO",
         "₢APAAa",
         "₢APAAb",
+        "₢APAAc",
         "₢APAAJ",
         "₢APAAB",
         "₢APAAC",
@@ -2304,7 +2305,7 @@
         "₢APAAH",
         "₢APAAN"
       ],
-      "next_pace_seed": "AAc",
+      "next_pace_seed": "AAd",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -3039,6 +3040,17 @@
               "text": "Add dispatch infrastructure to buz_zipper.sh and create first integration testbench.\n\n## buz_zipper.sh updates\n\n### 4th parallel array: tabtargets\n- Add `zbuz_tabtargets=()` array to kindle\n- Add `buz_get_tabtarget(idx)` getter\n- Update `buz_create_capture` to resolve tabtarget via bash glob (builtin, no subprocess):\n  ```\n  local z_matches=(\"${BURC_TABTARGET_DIR}/${z_colophon}.\"*.sh)\n  ```\n- Die at kindle time if 0 matches (missing tabtarget) or >1 match (ambiguous colophon)\n- Bash 3.2 compliant: no-match glob returns literal, check with `test -e`\n\n### Dispatch + evidence infrastructure\n- `buz_init_evidence()` — create evidence root dir under testbench temp\n- Step result parallel arrays: `zbuz_step_colophon_idx[]`, `zbuz_step_exit_status[]`, `zbuz_step_output_dir[]`\n- `buz_dispatch_capture(colophon_idx, ...)` — invoke tabtarget (from resolved path, no subprocess lookup), harvest `${BURC_OUTPUT_ROOT_DIR}/current` to evidence subdir via `cp -r`, record in step arrays, return step index\n- `buz_dispatch_expect_ok(colophon_idx, ...)` — dispatch_capture + buc_die on non-zero exit\n- `buz_dispatch_expect_fail(colophon_idx, ...)` — dispatch_capture + buc_die on zero exit\n- Step getters: `buz_get_step_exit(step_idx)`, `buz_get_step_output(step_idx)`\n\n## New file: Tools/rbw/rbtg_testbench.sh\n\nBCG-compliant testbench (Recipe Bottle Testbench Google).\n\n### rbtg_case_ark_lifecycle\n\nFull external-boundary integration test using zipper dispatch:\n\n| Step | Zipper Constant | Check After |\n|------|----------------|-------------|\n| 1 | RBZ_LIST_IMAGES | Exit 0, capture baseline |\n| 2 | RBZ_CONJURE_ARK | Exit 0, FQIN file in evidence → harvest FQIN |\n| 3 | RBZ_LIST_IMAGES | Exit 0, count = baseline + 1 |\n| 4 | RBZ_RETRIEVE_IMAGE | Exit 0, artifact in evidence (using harvested tag) |\n| 5 | RBZ_DELETE_IMAGE | Exit 0 |\n| 6 | RBZ_LIST_IMAGES | Exit 0, count = baseline |\n\nSources buz_zipper.sh + rbz_zipper.sh, kindles both.\nUses `trbim_dockerfile.recipe` as test recipe.\n\n## Wiring\n\n- Tabtarget: `tt/rbtg-al.ArkLifecycle.<imprint>.sh` (or similar)\n- Launcher: `.buk/launcher.rbtg_testbench.sh`\n\n## Verification\n\n- buz_zipper.sh passes shellcheck\n- rbtg_testbench.sh passes shellcheck\n- Kindle validates all RBZ colophons resolve to exactly one tabtarget\n- Full ark lifecycle passes against live GCP environment\n\n## Bash 3.2 compliance\n\nAll new code must work with bash 3.2 (macOS default). No bash 4+ features.",
               "silks": "zipper-dispatch-ark-lifecycle-testbench",
               "commit": "99497af"
+            }
+          ]
+        },
+        "₢APAAc": {
+          "tacks": [
+            {
+              "ts": "260209-1027",
+              "state": "rough",
+              "text": "Rename all BUD_ items to BURD_ (Bash Utility Regime Dispatch) across the codebase.\n\n## Scope\n\nMechanical rename in these files:\n- Tools/buk/bud_dispatch.sh — all BUD_* variables → BURD_*, zbud_* → zburd_*, rename file to burd_dispatch.sh\n- Tools/buk/bul_launcher.sh — BUD_REGIME_FILE, BUD_COORDINATOR_SCRIPT, BUD_STATION_FILE → BURD_*\n- Tools/buk/burc_regime.sh — any BUD_ references\n- Tools/buk/burc_cli.sh — any BUD_ references\n- Tools/buk/buc_command.sh — any BUD_ references\n- All tabtargets in tt/ — BUD_NO_LOG, BUD_INTERACTIVE etc.\n- Tools/buk/README.md — documentation references\n- Tools/buk/burc_specification.md — specification references\n- Any other files referencing BUD_ or zbud_\n\n## Rules\n- BUD_ → BURD_ (public dispatch regime variables)\n- zbud_ → zburd_ (private dispatch functions)\n- BUD_VERBOSE, BUD_NO_LOG, BUD_INTERACTIVE etc. all become BURD_*\n- zbud_die → zburd_die, zbud_show → zburd_show etc.\n- BURC_* unchanged (file-based config regime)\n- BURS_* unchanged (secrets regime)\n- BURV_* unchanged (verification regime — new in prior pace)\n\n## Strategy\nRecommend parallel haiku agents — files are independent. Partition by file or file group:\n- Agent 1: bud_dispatch.sh (heaviest — bulk of references + file rename)\n- Agent 2: bul_launcher.sh + burc_regime.sh + burc_cli.sh + buc_command.sh\n- Agent 3: All tt/*.sh tabtargets\n- Agent 4: README.md + burc_specification.md + any other docs\nVerify with grep that no BUD_ or zbud_ references remain after all agents complete.\n\n## Verification\n- `grep -r 'BUD_' Tools/buk/` returns zero matches (only BURD_)\n- `grep -r 'zbud_' Tools/buk/` returns zero matches (only zburd_)\n- `grep -r 'BUD_' tt/` returns zero matches\n- All tabtargets still execute (smoke test a few)\n- shellcheck passes on modified files",
+              "silks": "rename-bud-to-burd",
+              "commit": "cfa7bd8"
             }
           ]
         }
