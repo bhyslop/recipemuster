@@ -1607,6 +1607,7 @@
         "₢APAAT",
         "₢APAAW",
         "₢APAAX",
+        "₢APAAY",
         "₢APAAO",
         "₢APAAJ",
         "₢APAAB",
@@ -1615,7 +1616,7 @@
         "₢APAAH",
         "₢APAAN"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -2208,6 +2209,17 @@
               "text": "Align rbf_retrieve with updated vocabulary and specification patterns.\n\n## Context\nrbf_list and rbf_delete have been updated to use rbst_locator (moniker:tag format).\nrbf_retrieve still uses the old interface and spec terminology.\n\n## Code changes\n- Update rbf_retrieve in rbf_Foundry.sh to accept rbst_locator input\n- Simplify parameter parsing (no digest support needed — locator is moniker:tag)\n- Align parameter naming with rbf_delete pattern\n\n## Spec changes\n- Update RBSIR-image_retrieve.adoc to use {rbst_locator} vocabulary\n- Align with RBSID-image_delete.adoc pattern\n\n## Verification\n- rbf_retrieve accepts locator from rbf_list output (copy-paste workflow)\n- Spec uses {rbst_locator} consistently\n- Tabtarget and coordinator unchanged (pass-through)",
               "silks": "align-rbf-retrieve-with-locator-vocab",
               "commit": "744f26e"
+            }
+          ]
+        },
+        "₢APAAY": {
+          "tacks": [
+            {
+              "ts": "260209-0606",
+              "state": "rough",
+              "text": "Formalize the conjure operation in RBSA vocabulary.\n\n## Context\nrbf_build is already the conjuring operation (uses conjuring config: RBRV_CONJURE_DOCKERFILE, etc.)\nbut has no rbtgo_ark_conjure mapping in RBSA. The ark verb table should be complete:\nabjure (delete), beseech (list), conjure (build), summon (retrieve).\n\n## Code changes\nNone — rbf_build remains the implementation function.\n\n## Spec changes\n- Add rbtgo_ark_conjure mapping in RBSA-SpecTop.adoc (pointing to rbf_build)\n- Add definition section for rbtgo_ark_conjure\n- Optionally create RBSAC-ark_conjure.adoc that references/includes existing RBSTB spec\n\n## Verification\n- RBSA has complete ark verb table: abjure, beseech, conjure, summon\n- No code changes, spec-only pace",
+              "silks": "formalize-conjure-in-rbsa",
+              "commit": "63e0016"
             }
           ]
         }
