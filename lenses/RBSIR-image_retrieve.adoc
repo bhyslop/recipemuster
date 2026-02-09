@@ -6,15 +6,20 @@ has read-only access to the repository.
 
 The
 {rbtr_retriever}
-pulls an image by tag or digest:
+pulls an image by {rbst_locator}:
 
 // ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}
-`«INPUT_IMAGE_REF»` provided as first argument
-.. Validate format: `«IMAGE_NAME»:«TAG»` or `«IMAGE_NAME»@«DIGEST»`
+`«INPUT_LOCATOR»` provided as first argument in `moniker:tag` format
 .. {rbbc_fatal}
-if missing or malformed: "Image reference required (name:tag or name@digest)"
+if missing: "Locator parameter required (moniker:tag)"
+.. {rbbc_fatal}
+if malformed (no colon): "Invalid locator format. Expected moniker:tag"
+.. {rbbc_store}
+`«MONIKER»` as portion before first colon
+.. {rbbc_store}
+`«TAG»` as portion after first colon
 
 // ⟦axs_behavior⟧
 . *Authenticate as
@@ -28,7 +33,7 @@ if missing or malformed: "Image reference required (name:tag or name@digest)"
 .. {rbbc_store}
 `«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
 .. {rbbc_store}
-`«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/{rbrr_depot_project_id}/{rbrr_gar_repository}/«INPUT_IMAGE_REF»`
+`«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/{rbrr_depot_project_id}/{rbrr_gar_repository}/«INPUT_LOCATOR»`
 
 . *Configure Container Runtime Authentication*:
 .. {rbbc_call}

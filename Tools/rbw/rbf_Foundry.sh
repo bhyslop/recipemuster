@@ -907,34 +907,25 @@ rbf_beseech() {
 rbf_retrieve() {
   zrbf_sentinel
 
-  local z_image_ref="${1:-}"
+  local z_locator="${1:-}"
 
   # Documentation block
-  buc_doc_brief "Pull an image from the registry to local container runtime"
-  buc_doc_param "image_ref" "Image reference: moniker:tag or moniker@digest"
+  buc_doc_brief "Pull an image from the registry to local container runtime by locator"
+  buc_doc_param "locator" "Image locator in moniker:tag format (from rbf_list output)"
   buc_doc_shown || return 0
 
-  # Validate parameter
-  test -n "${z_image_ref}" || buc_die "Image reference required (name:tag or name@digest)"
+  # Validate locator parameter
+  test -n "${z_locator}" || buc_die "Locator parameter required (moniker:tag)"
 
-  # Parse image reference (moniker:tag or moniker@digest)
-  local z_moniker=""
-  local z_ref_part=""
-
-  if [[ "${z_image_ref}" == *"@"* ]]; then
-    # Digest format: moniker@sha256:...
-    z_moniker="${z_image_ref%%@*}"
-    z_ref_part="${z_image_ref#*@}"
-  elif [[ "${z_image_ref}" == *":"* ]]; then
-    # Tag format: moniker:tag
-    z_moniker="${z_image_ref%%:*}"
-    z_ref_part="${z_image_ref#*:}"
-  else
-    buc_die "Invalid image reference format. Expected name:tag or name@digest"
-  fi
-
-  test -n "${z_moniker}" || buc_die "Moniker is empty"
-  test -n "${z_ref_part}" || buc_die "Tag or digest is empty"
+  # Parse locator into moniker and tag
+  case "${z_locator}" in
+    *:*) : ;;
+    *)   buc_die "Invalid locator format. Expected moniker:tag" ;;
+  esac
+  local z_moniker="${z_locator%%:*}"
+  local z_tag="${z_locator#*:}"
+  test -n "${z_moniker}" || buc_die "Moniker is empty in locator"
+  test -n "${z_tag}" || buc_die "Tag is empty in locator"
 
   buc_step "Authenticating as Retriever"
 
@@ -955,7 +946,7 @@ rbf_retrieve() {
   buc_step "Logging into container registry"
 
   # Construct full image reference
-  local z_full_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_image_ref}"
+  local z_full_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_locator}"
 
   # Docker login to GAR
   echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBF_REGISTRY_HOST}" \
