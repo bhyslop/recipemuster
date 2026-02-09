@@ -27,7 +27,7 @@ Architect JJK for tiered model execution: Haiku as the fast, cheap "jockey" for 
 
 ## Spook Log
 
-A "spook" is a failure of slash command guidance or CLAUDE.md context to produce a correct `jjx_*` invocation, causing the agent to stumble and recover via `--help` or trial-and-error. Each spook indicates a gap in the upper API layer.
+A "spook" is a failure of slash command guidance or CLAUDE.md context to produce a correct `jjx_*` invocation, causing the agent to stumble and recover via `--help` or trial-and-error. Each spook indicates a gap in the upper API layer. The fix for a spook is always a deft adjustment to CLAUDE.md, a slash command, or jjx output — whichever layer failed to guide the agent correctly. The goal is prevention: make the same mistake impossible next time.
 
 ### jjx_alter --status (260209)
 
