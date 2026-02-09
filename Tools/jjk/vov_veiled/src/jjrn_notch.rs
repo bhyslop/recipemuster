@@ -18,6 +18,7 @@
 //! This module exports formatting functions that the CLI handlers use.
 
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_CORONET_PREFIX as CORONET_PREFIX, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX};
+use crate::jjrnm_markers::*;
 
 /// Commit message prefix
 pub const JJRN_COMMIT_PREFIX: &str = "jjb";
@@ -57,11 +58,11 @@ impl jjrn_ChalkMarker {
     /// Get single-letter code for commit message
     pub fn jjrn_code(&self) -> char {
         match self {
-            jjrn_ChalkMarker::Approach => 'A',
-            jjrn_ChalkMarker::Wrap => 'W',
-            jjrn_ChalkMarker::Fly => 'F',
-            jjrn_ChalkMarker::Bridle => 'B',
-            jjrn_ChalkMarker::Discussion => 'd',
+            jjrn_ChalkMarker::Approach => JJRNM_APPROACH,
+            jjrn_ChalkMarker::Wrap => JJRNM_WRAP,
+            jjrn_ChalkMarker::Fly => JJRNM_FLY,
+            jjrn_ChalkMarker::Bridle => JJRNM_BRIDLE,
+            jjrn_ChalkMarker::Discussion => JJRNM_DISCUSSION,
         }
     }
 
@@ -110,14 +111,14 @@ impl jjrn_HeatAction {
     /// Get single-letter code for commit message
     pub fn jjrn_code(&self) -> char {
         match self {
-            jjrn_HeatAction::Nominate => 'N',
-            jjrn_HeatAction::Slate => 'S',
-            jjrn_HeatAction::Rail => 'r',
-            jjrn_HeatAction::Tally => 'T',
-            jjrn_HeatAction::Draft => 'D',
-            jjrn_HeatAction::Retire => 'R',
-            jjrn_HeatAction::Furlough => 'f',
-            jjrn_HeatAction::Garland => 'G',
+            jjrn_HeatAction::Nominate => JJRNM_NOMINATE,
+            jjrn_HeatAction::Slate => JJRNM_SLATE,
+            jjrn_HeatAction::Rail => JJRNM_RAIL,
+            jjrn_HeatAction::Tally => JJRNM_TALLY,
+            jjrn_HeatAction::Draft => JJRNM_DRAFT,
+            jjrn_HeatAction::Retire => JJRNM_RETIRE,
+            jjrn_HeatAction::Furlough => JJRNM_FURLOUGH,
+            jjrn_HeatAction::Garland => JJRNM_GARLAND,
         }
     }
 
@@ -144,7 +145,8 @@ pub fn jjrn_format_notch_prefix(coronet: &Coronet) -> String {
     let hallmark = vvc::vvcc_get_hallmark();
     let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
     // Special case: subject="" produces "...:n: " and caller appends real message
-    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, "n", "", None)
+    let action = JJRNM_NOTCH.to_string();
+    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, &action, "", None)
 }
 
 /// Format the chalk message: jjb:HALLMARK:₢CORONET:X: description
@@ -161,7 +163,8 @@ pub fn jjrn_format_chalk_message(coronet: &Coronet, marker: jjrn_ChalkMarker, de
 pub fn jjrn_format_heat_discussion(firemark: &Firemark, description: &str) -> String {
     let hallmark = vvc::vvcc_get_hallmark();
     let identity = format!("{}{}", FIREMARK_PREFIX, firemark.jjrf_as_str());
-    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, "d", description, None)
+    let action = JJRNM_DISCUSSION.to_string();
+    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, &action, description, None)
 }
 
 /// Format a heat-level action message: jjb:HALLMARK:₣XX:X: description
@@ -182,7 +185,8 @@ pub fn jjrn_format_bridle_message(coronet: &Coronet, agent: &str, silks: &str) -
     let hallmark = vvc::vvcc_get_hallmark();
     let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
     let subject = format!("{} | {}", agent, silks);
-    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, "B", &subject, None)
+    let action = JJRNM_BRIDLE.to_string();
+    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, &action, &subject, None)
 }
 
 /// Format a landing message: jjb:HALLMARK:₢CORONET:L: {agent} landed
@@ -193,6 +197,7 @@ pub fn jjrn_format_landing_message(coronet: &Coronet, agent: &str) -> String {
     let hallmark = vvc::vvcc_get_hallmark();
     let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
     let subject = format!("{} landed", agent);
-    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, "L", &subject, None)
+    let action = JJRNM_LANDING.to_string();
+    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, &action, &subject, None)
 }
 
