@@ -1081,6 +1081,13 @@
         "₢ATAAO": {
           "tacks": [
             {
+              "ts": "260210-1308",
+              "state": "complete",
+              "text": "Convert rbtg_case_ark_lifecycle to a conventional testbench using the new\nBUT framework (buto_/butr_/butd_/rbtcXY_ pattern).\n\n## Work\n\n1. Create rbtcal_ArkLifecycle.sh containing rbtcal_lifecycle() function.\n   - Zero-arg function, self-contained\n   - Uses buto_dispatch for BURV isolation and evidence collection\n   - Uses buto_fatal_on_error for assertion\n   - Uses buto_info/buto_section for progress output (not buc_*)\n   - Uses BUT_TEMP_DIR (from butd_ framework) for temp files\n   - Accesses RBZ_* colophon constants (rbz_zipper.sh must be sourced)\n\n2. Register in rbtb_testbench.sh:\n   butr_register \"rbtcal\" \"rbtcal_*\" zrbtb_setup_ark \"slow\"\n   Setup function kindles buz, rbz, and initializes buto evidence.\n\n3. Verify it runs through butd_ runner end-to-end.\n\n## Note\nThis is a real integration test against live GCP. Tier is \"slow\".\nThe 6-step sequence (list/conjure/verify/retrieve/delete/verify) stays\nas one function -- it is inherently sequential with dependencies between\nsteps.\n\n## Depends on\n- but-framework-infrastructure pace (buto_/butr_/butd_ must exist)",
+              "silks": "convert-ark-lifecycle",
+              "commit": "cfeee14"
+            },
+            {
               "ts": "260210-1235",
               "state": "rough",
               "text": "Convert rbtg_case_ark_lifecycle to a conventional testbench using the new\nBUT framework (buto_/butr_/butd_/rbtcXY_ pattern).\n\n## Work\n\n1. Create rbtcal_ArkLifecycle.sh containing rbtcal_lifecycle() function.\n   - Zero-arg function, self-contained\n   - Uses buto_dispatch for BURV isolation and evidence collection\n   - Uses buto_fatal_on_error for assertion\n   - Uses buto_info/buto_section for progress output (not buc_*)\n   - Uses BUT_TEMP_DIR (from butd_ framework) for temp files\n   - Accesses RBZ_* colophon constants (rbz_zipper.sh must be sourced)\n\n2. Register in rbtb_testbench.sh:\n   butr_register \"rbtcal\" \"rbtcal_*\" zrbtb_setup_ark \"slow\"\n   Setup function kindles buz, rbz, and initializes buto evidence.\n\n3. Verify it runs through butd_ runner end-to-end.\n\n## Note\nThis is a real integration test against live GCP. Tier is \"slow\".\nThe 6-step sequence (list/conjure/verify/retrieve/delete/verify) stays\nas one function -- it is inherently sequential with dependencies between\nsteps.\n\n## Depends on\n- but-framework-infrastructure pace (buto_/butr_/butd_ must exist)",
