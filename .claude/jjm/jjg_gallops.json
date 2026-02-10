@@ -3398,6 +3398,13 @@
               "ts": "260210-1114",
               "state": "rough",
               "text": "Review and refine rbrn_cli.sh and rbrv_cli.sh render output formatting.\n\n## Context\n\nSections 1-4 of the original regime-load-cleanup docket are complete and committed. This pace now focuses solely on the render appearance review that was deferred.\n\n## Work\n\n1. Run rbrn_cli.sh render with a real nameplate (e.g., nsproto) and review output formatting\n2. Run rbrv_cli.sh render with a real vessel and review output formatting\n3. Collect specific appearance nudges: alignment, color usage, field grouping, whitespace, header style\n4. Apply agreed refinements\n\n## Notes\n\n- The render/validate architecture was established in ₢ATAAG (refactor-rbrv-rbrn-render-validate)\n- This is cosmetic polish, not structural changes\n- User input required to identify what needs nudging",
+              "silks": "regime-render-polish",
+              "commit": "4e87019"
+            },
+            {
+              "ts": "260210-1114",
+              "state": "rough",
+              "text": "Review and refine rbrn_cli.sh and rbrv_cli.sh render output formatting.\n\n## Context\n\nSections 1-4 of the original regime-load-cleanup docket are complete and committed. This pace now focuses solely on the render appearance review that was deferred.\n\n## Work\n\n1. Run rbrn_cli.sh render with a real nameplate (e.g., nsproto) and review output formatting\n2. Run rbrv_cli.sh render with a real vessel and review output formatting\n3. Collect specific appearance nudges: alignment, color usage, field grouping, whitespace, header style\n4. Apply agreed refinements\n\n## Notes\n\n- The render/validate architecture was established in ₢ATAAG (refactor-rbrv-rbrn-render-validate)\n- This is cosmetic polish, not structural changes\n- User input required to identify what needs nudging",
               "silks": "regime-load-cleanup",
               "commit": "38a9746"
             },
