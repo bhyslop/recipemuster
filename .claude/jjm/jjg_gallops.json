@@ -693,6 +693,13 @@
         "₢AHAAd": {
           "tacks": [
             {
+              "ts": "260210-1312",
+              "state": "complete",
+              "text": "Drafted from ₢AGAAN in ₣AG.\n\nRelax silks validation to permit uppercase letters (A-Z) in addition to lowercase.\n\nContinue rejecting spaces and underscores — only allow [a-zA-Z0-9] and hyphens.\n\nCurrent pattern: `[a-z0-9]+(-[a-z0-9]+)*`\nTarget pattern: `[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*`\n\nLocate silks validation in jjk/vvx and update the regex plus any related error messages or tests.",
+              "silks": "permit-uppercase-silks",
+              "commit": "f4fbcd8"
+            },
+            {
               "ts": "260210-1124",
               "state": "rough",
               "text": "Drafted from ₢AGAAN in ₣AG.\n\nRelax silks validation to permit uppercase letters (A-Z) in addition to lowercase.\n\nContinue rejecting spaces and underscores — only allow [a-zA-Z0-9] and hyphens.\n\nCurrent pattern: `[a-z0-9]+(-[a-z0-9]+)*`\nTarget pattern: `[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*`\n\nLocate silks validation in jjk/vvx and update the regex plus any related error messages or tests.",
