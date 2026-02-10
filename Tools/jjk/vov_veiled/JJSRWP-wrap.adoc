@@ -9,6 +9,7 @@ Used by `/jjc-pace-wrap` to provide a single-command wrap experience.
 (positional) — pace to wrap
 
 // ⟦axd_optional⟧
+* stdin — wrap summary text (used as chalk description; if absent, uses "pace {silks} complete")
 * `--size-limit` — maximum commit size in bytes (default: 50KB)
 
 {jjds_behavior}
@@ -21,7 +22,7 @@ Used by `/jjc-pace-wrap` to provide a single-command wrap experience.
 . Generate commit message via Claude from diff
 . Commit staged changes
 . Transition pace state to complete via internal tack prepend (state={jjdpe_complete})
-. Create W chalk marker with outcome summary
+. Create W chalk marker with outcome summary (uses stdin if provided, else "pace {silks} complete" from gallops)
 . Lookahead: walk parent heat's order array for next actionable pace (first with state {jjdpe_rough} or {jjdpe_bridled})
 . Emit `AGENT_RESPONSE:` line to stderr:
 .. If next pace found: `AGENT_RESPONSE: ₢{coronet} wrapped. Next: {next_silks} (₢{next_coronet}) — \`/clear\` then \`/jjc-heat-mount {firemark}\``

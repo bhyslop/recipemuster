@@ -518,6 +518,10 @@ This applies to:
 
 When work is complete, report outcomes and ask. Do not wrap.
 
+When wrapping (after user confirms), always pipe a one-line summary of the work via stdin:
+`echo "Added bitmap displays to orient output" | jjx_close CORONET`
+The agent always has context about what was accomplished — include it.
+
 <!-- MANAGED:JJK:END -->
 
 <!-- MANAGED:BUK:BEGIN -->

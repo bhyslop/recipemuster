@@ -26,6 +26,16 @@ pub struct jjrx_WrapArgs {
     pub size_limit: Option<u64>,
 }
 
+/// Helper to get pace silks or return default message
+fn get_pace_silks_or_default(gallops: &Gallops, firemark_key: &str, coronet_key: &str) -> String {
+    gallops.heats
+        .get(firemark_key)
+        .and_then(|heat| heat.paces.get(coronet_key))
+        .and_then(|pace| pace.tacks.first())
+        .map(|tack| format!("pace {} complete", tack.silks))
+        .unwrap_or_else(|| "pace complete".to_string())
+}
+
 /// Execute wrap command - mark pace complete with commit
 ///
 /// Stages all changes, checks size, generates commit message using Claude,
@@ -37,6 +47,15 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
     // Parse coronet
     let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
+        Err(e) => {
+            eprintln!("jjx_wrap: error: {}", e);
+            return 1;
+        }
+    };
+
+    // Read optional stdin for chalk description
+    let stdin_summary = match crate::jjrg_gallops::jjrg_read_stdin_optional() {
+        Ok(opt) => opt,
         Err(e) => {
             eprintln!("jjx_wrap: error: {}", e);
             return 1;
@@ -271,8 +290,26 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
         return 1;
     }
 
+    // Build chalk description: use stdin if provided, else "pace {silks} complete"
+    let firemark = coronet.jjrf_parent_firemark();
+    let firemark_key = firemark.jjrf_display();
+    let coronet_key = coronet.jjrf_display();
+
+    let chalk_description = if let Some(ref text) = stdin_summary {
+        let trimmed = text.trim();
+        if !trimmed.is_empty() {
+            trimmed.to_string()
+        } else {
+            // Empty stdin - use default with silks
+            get_pace_silks_or_default(&gallops, &firemark_key, &coronet_key)
+        }
+    } else {
+        // No stdin - use default with silks
+        get_pace_silks_or_default(&gallops, &firemark_key, &coronet_key)
+    };
+
     // Create W chalk marker commit with gallops state change
-    let chalk_message = jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Wrap, "pace complete");
+    let chalk_message = jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Wrap, &chalk_description);
 
     let chalk_commit_args = vvc::vvcm_CommitArgs {
         files: vec![".claude/jjm/jjg_gallops.json".to_string()],
