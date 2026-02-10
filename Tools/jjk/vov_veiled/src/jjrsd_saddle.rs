@@ -12,6 +12,7 @@ use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
 use crate::jjrq_query::jjrq_resolve_default_heat;
+use crate::jjrpd_parade::{jjrpd_print_file_bitmap, jjrpd_print_commit_swimlanes};
 
 /// Arguments for saddle command
 #[derive(clap::Args, Debug)]
@@ -295,6 +296,10 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
             ]);
         }
     }
+
+    // Always show file-touch bitmap and commit swim lanes after recent work
+    jjrpd_print_file_bitmap(&firemark, heat);
+    jjrpd_print_commit_swimlanes(&firemark, heat);
 
     // Call invitatory to check/create officium marker
     if let Err(e) = vvc::vvcp_invitatory().await {

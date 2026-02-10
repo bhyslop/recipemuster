@@ -351,8 +351,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
         }
 
         // Always show file-touch bitmap and commit swim lanes after pace listing
-        zjjrpd_print_file_bitmap(&firemark, heat);
-        zjjrpd_print_commit_swimlanes(&firemark, heat);
+        jjrpd_print_file_bitmap(&firemark, heat);
+        jjrpd_print_commit_swimlanes(&firemark, heat);
     } else {
         eprintln!("jjx_show: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
         return 1;
@@ -366,7 +366,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
 /// Uses shared query routines from jjrq_query to get file touches,
 /// then formats as a bitmap with columns per pace and rows per file,
 /// grouped by identical touch patterns.
-fn zjjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
+pub(crate) fn jjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
     let touches = match jjrq_file_touches_for_heat(firemark.jjrf_as_str()) {
         Ok(t) => t,
         Err(e) => {
@@ -509,7 +509,7 @@ fn zjjrpd_commit_index_char(index: usize) -> Option<char> {
 ///
 /// Shows when work happened on each pace and how work interleaved.
 /// Called after file-touch bitmap in heat parade.
-fn zjjrpd_print_commit_swimlanes(firemark: &Firemark, heat: &Heat) {
+pub(crate) fn jjrpd_print_commit_swimlanes(firemark: &Firemark, heat: &Heat) {
     let rein_args = jjrs_ReinArgs {
         firemark: firemark.jjrf_as_str().to_string(),
         limit: 10000,

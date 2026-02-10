@@ -62,11 +62,33 @@ Warrant:
   ...
 
 Recent-work:
-Timestamp         Commit    [A]  Identity  Subject
--------------------------------------------------
-YYYY-MM-DD HH:MM  abcd1234  [W]  ₢XXXXX    ...
-YYYY-MM-DD HH:MM  efgh5678  [n]  ₢XXXXX    ...
+Commit    Identity  Subject
+-------------------------------
+abcd1234  ₢XXXXX    ...
+efgh5678  ₢XXXXX    ...
 ...
+
+File-touch bitmap (x = pace commit touched file):
+
+  1 B vos-add-routines-section
+  2 D jjsa-session-probe-update
+  3 * heat-level
+
+BD*
+xxx jjrg_gallops.rs, jjrt_types.rs
+··x JJSA-GallopsData.adoc
+x·· jjro_ops.rs
+
+Commit swim lanes (x = commit affiliated with pace):
+
+  1 B vos-add-routines-section
+  2 D jjsa-session-probe-update
+  3 * heat-level
+
+123456789ab
+··xx·xx····  D  4c
+xx··x······  B  3c
+··········x  *  1c
 
 Session-probe:
   haiku: claude-3-5-haiku-20241022
@@ -85,6 +107,14 @@ Section `Work-files:` lists files touched by the actionable pace's commits (excl
 Section `Recent-work:` contains the last 10 steeplechase entries for the heat (from
 {jjdo_log}),
 formatted as column-aligned table.
+Section `File-touch bitmap:` displays which files were touched by commits affiliated with each pace.
+Output format matches
+{jjdo_show}
+heat view: vertical legend mapping pace terminal chars to silks, column-header line of terminal characters, then bitmap rows grouping files by identical touch patterns.
+Section `Commit swim lanes:` displays commit activity across paces in chronological order.
+Output format matches
+{jjdo_show}
+heat view: vertical legend, column-header line (commits dense-encoded 1-9 then a-z then A-Z), then bitmap rows showing pace × commits matrix with row labels (terminal char) and commit count suffix.
 Section `Session-probe:` contains model IDs and system context collected via session probe, indented 2 spaces, one key-value per line.
 
 {jjds_exit_uniform} 0 success, non-zero error.
