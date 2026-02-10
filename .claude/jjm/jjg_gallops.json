@@ -1038,6 +1038,13 @@
         "₢ATAAL": {
           "tacks": [
             {
+              "ts": "260210-1338",
+              "state": "complete",
+              "text": "Convert tbvu_suite_xname.sh, trbim_suite.sh, and any other remaining testbenches\nto the new BUT framework (buto_/butr_/butd_/rbtcXY_ pattern).\n\nFor each testbench:\n- Create rbtcXY_*.sh case file(s) with renamed test functions\n- Register suites in rbtb_testbench.sh\n- Retire the old testbench file\n\n## Files to survey\n- Tools/buk/tbvu_suite_xname.sh\n- Tools/rbw/trbim_suite.sh (verify this exists and check its structure)\n- Any other *_suite*.sh or *_testbench*.sh files\n\n## Depends on\n- but-framework-infrastructure pace (buto_/butr_/butd_ must exist)",
+              "silks": "convert-remaining-testbenches",
+              "commit": "f9081cf"
+            },
+            {
               "ts": "260210-1233",
               "state": "rough",
               "text": "Convert tbvu_suite_xname.sh, trbim_suite.sh, and any other remaining testbenches\nto the new BUT framework (buto_/butr_/butd_/rbtcXY_ pattern).\n\nFor each testbench:\n- Create rbtcXY_*.sh case file(s) with renamed test functions\n- Register suites in rbtb_testbench.sh\n- Retire the old testbench file\n\n## Files to survey\n- Tools/buk/tbvu_suite_xname.sh\n- Tools/rbw/trbim_suite.sh (verify this exists and check its structure)\n- Any other *_suite*.sh or *_testbench*.sh files\n\n## Depends on\n- but-framework-infrastructure pace (buto_/butr_/butd_ must exist)",
