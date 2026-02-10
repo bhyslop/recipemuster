@@ -42,6 +42,8 @@ source "${RBTB_SCRIPT_DIR}/../buk/butcde_DispatchExercise.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcns_NsproSecurity.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcsj_SrjclJupyter.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcpl_PlumlDiagram.sh"
+source "${RBTB_SCRIPT_DIR}/../buk/butcvu_XnameValidation.sh"
+source "${RBTB_SCRIPT_DIR}/rbtcim_ImageManagement.sh"
 
 buc_context "${0##*/}"
 zrbcc_kindle
@@ -131,6 +133,15 @@ zrbtb_setup_pluml() {
   rbtb_load_nameplate "pluml"
 }
 
+zrbtb_setup_xname() {
+  buto_trace "Setup for xname-validation suite (no-op)"
+}
+
+zrbtb_setup_image() {
+  buto_trace "Setup for image-management suite"
+  rbrr_load || buto_fatal "Failed to load RBRR configuration"
+}
+
 ######################################################################
 # Registration
 
@@ -142,6 +153,8 @@ rbtb_kindle() {
   butr_register "nsproto-security" "rbtcns_" "zrbtb_setup_nsproto" "slow"
   butr_register "srjcl-jupyter" "rbtcsj_" "zrbtb_setup_srjcl" "slow"
   butr_register "pluml-diagram" "rbtcpl_" "zrbtb_setup_pluml" "slow"
+  butr_register "xname-validation" "butcvu_" "zrbtb_setup_xname" "fast"
+  butr_register "image-management" "rbtcim_" "zrbtb_setup_image" "slow"
 }
 
 ######################################################################
