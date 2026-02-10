@@ -629,6 +629,13 @@
         "₢AHAAa": {
           "tacks": [
             {
+              "ts": "260210-0301",
+              "state": "complete",
+              "text": "Wrap commit messages currently say only \"pace complete\" — no summary of what was accomplished.\n\n## Problem\nEvery `:W:` commit has the identical message \"pace complete\", which provides no useful information when reviewing git history. Example from 2026-02-08: 30 wraps all saying \"pace complete\".\n\n## Inspiration\nCould we generate a whole-pace summary at wrap time? Challenges:\n- The session performing the wrap may not have full context of all work done during the pace\n- However, pace commit history IS available (jjx_show --detail shows all pace commits)\n- The docket text describes what was intended\n- Combined, these could produce a meaningful summary\n\n## Design Questions\n1. Should the wrap message be auto-generated from pace commit history + docket?\n2. Should jjx_close accept an optional summary via stdin or flag?\n3. What's the right balance between automation and manual summary?\n4. How to handle multi-session paces where the wrapping session lacks full context?\n\n## Scope\nDesign decision only — determine approach, then slate implementation paces.",
+              "silks": "design-richer-wrap-commit-messages",
+              "commit": "3469b67"
+            },
+            {
               "ts": "260209-0755",
               "state": "rough",
               "text": "Wrap commit messages currently say only \"pace complete\" — no summary of what was accomplished.\n\n## Problem\nEvery `:W:` commit has the identical message \"pace complete\", which provides no useful information when reviewing git history. Example from 2026-02-08: 30 wraps all saying \"pace complete\".\n\n## Inspiration\nCould we generate a whole-pace summary at wrap time? Challenges:\n- The session performing the wrap may not have full context of all work done during the pace\n- However, pace commit history IS available (jjx_show --detail shows all pace commits)\n- The docket text describes what was intended\n- Combined, these could produce a meaningful summary\n\n## Design Questions\n1. Should the wrap message be auto-generated from pace commit history + docket?\n2. Should jjx_close accept an optional summary via stdin or flag?\n3. What's the right balance between automation and manual summary?\n4. How to handle multi-session paces where the wrapping session lacks full context?\n\n## Scope\nDesign decision only — determine approach, then slate implementation paces.",
