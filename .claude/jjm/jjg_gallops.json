@@ -1048,6 +1048,13 @@
         "₢ATAAM": {
           "tacks": [
             {
+              "ts": "260210-1331",
+              "state": "complete",
+              "text": "Convert rbt_testbench.sh suites (nsproto, srjcl, pluml) to the new BUT\nframework using rbtcXY_ case files.\n\n## Work\n\n1. Create test case files:\n   - rbtcns_NsproSecurity.sh: rename test_nsproto_* to rbtcns_*\n   - rbtcsj_SrjclJupyter.sh: rename test_srjcl_* to rbtcsj_*\n   - rbtcpl_PlumlDiagram.sh: rename test_pluml_* to rbtcpl_*\n\n2. Move shared helpers to rbtb_testbench.sh:\n   - rbt_exec_sentry/censer/bottle and _i variants -> rbtb_exec_*\n   - rbt_load_nameplate -> rbtb_load_nameplate\n   - rbt_show -> rbtb_show\n\n3. Register suites in rbtb_testbench.sh kindle:\n   - butr_register \"rbtcns\" \"rbtcns_*\" zrbtb_setup_nsproto \"slow\"\n   - butr_register \"rbtcsj\" \"rbtcsj_*\" zrbtb_setup_srjcl \"slow\"\n   - butr_register \"rbtcpl\" \"rbtcpl_*\" zrbtb_setup_pluml \"slow\"\n   (All slow because they require live containers)\n\n4. Retire rbt_testbench.sh\n\n## Depends on\n- but-framework-infrastructure pace (buto_/butr_/butd_ must exist)",
+              "silks": "convert-rbt-suites",
+              "commit": "cc1fc34"
+            },
+            {
               "ts": "260210-1234",
               "state": "rough",
               "text": "Convert rbt_testbench.sh suites (nsproto, srjcl, pluml) to the new BUT\nframework using rbtcXY_ case files.\n\n## Work\n\n1. Create test case files:\n   - rbtcns_NsproSecurity.sh: rename test_nsproto_* to rbtcns_*\n   - rbtcsj_SrjclJupyter.sh: rename test_srjcl_* to rbtcsj_*\n   - rbtcpl_PlumlDiagram.sh: rename test_pluml_* to rbtcpl_*\n\n2. Move shared helpers to rbtb_testbench.sh:\n   - rbt_exec_sentry/censer/bottle and _i variants -> rbtb_exec_*\n   - rbt_load_nameplate -> rbtb_load_nameplate\n   - rbt_show -> rbtb_show\n\n3. Register suites in rbtb_testbench.sh kindle:\n   - butr_register \"rbtcns\" \"rbtcns_*\" zrbtb_setup_nsproto \"slow\"\n   - butr_register \"rbtcsj\" \"rbtcsj_*\" zrbtb_setup_srjcl \"slow\"\n   - butr_register \"rbtcpl\" \"rbtcpl_*\" zrbtb_setup_pluml \"slow\"\n   (All slow because they require live containers)\n\n4. Retire rbt_testbench.sh\n\n## Depends on\n- but-framework-infrastructure pace (buto_/butr_/butd_ must exist)",
