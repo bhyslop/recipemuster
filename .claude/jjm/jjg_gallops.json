@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Aa",
+  "next_heat_seed": "Ab",
   "heats": {
     "₣AH": {
       "silks": "jjk-nonbreaking-cleanups",
@@ -4473,6 +4473,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_AZ.md",
+      "paces": {}
+    },
+    "₣Aa": {
+      "silks": "rbw-test-improvement-ideas",
+      "creation_time": "260210",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_Aa.md",
       "paces": {}
     }
   }
