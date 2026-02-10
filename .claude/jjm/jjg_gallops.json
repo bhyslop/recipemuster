@@ -730,6 +730,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢ATAAI",
         "₢ATAAG",
         "₢ATAAH",
         "₢ATAAB",
@@ -739,7 +740,7 @@
         "₢ATAAE",
         "₢ATAAF"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -904,6 +905,17 @@
               "text": "Audit and fix how programmatic consumers call regime validation functions.\n\nKnown items from ₢ATAAG work:\n\n1. buv echo suppression: rbob_cli.sh:112 and rbt_testbench.sh:62 call\n   zrbrn_validate_fields without > /dev/null. Their buv echo output leaks\n   into BUD logs. Decide if this matters and what the right fix is.\n\n2. return 0 vs exit 0 in rbw_workbench.sh discovery listing (lines 130, 154):\n   Uses return 0 after listing available nameplates/vessels. Verify this is\n   correct given BUD's exec chain vs function call invocation.\n\n3. buc_step vs echo in render valid message: The current fix uses echo to\n   stdout to avoid stderr/stdout ordering issues through BUD pipe buffering.\n   Decide if this is the right long-term pattern or if a buc-level fix is\n   better.\n\n4. Testbench factoring: rbt_testbench.sh may have excellent reasons NOT to\n   use buc at all. Evaluate whether testbenches should have their own output\n   discipline separate from buc.\n\nCRITICAL: All of these are HUMAN DECISIONS about internal factoring and output\ndiscipline. Do not presume answers — present options and tradeoffs, then ask\nthe user to decide.",
               "silks": "audit-regime-validation-consumers",
               "commit": "142c656"
+            }
+          ]
+        },
+        "₢ATAAI": {
+          "tacks": [
+            {
+              "ts": "260210-0920",
+              "state": "rough",
+              "text": "Refactor but_test.sh to introduce three assertion families: but_unit_*, but_tt_*, but_launch_*.\n\n## Motivation\n\nTest assertions are currently split between BUT (raw commands) and BUZ zipper (tabtarget dispatch). The zipper reinvented expect_ok/expect_fail using buc_die instead of BUT primitives. Consolidate all test assertions into but_test.sh with clear family prefixes that distinguish invocation mechanism.\n\n## Three assertion families\n\n| Family | Invokes via | Entry point | Requires |\n|--------|------------|-------------|----------|\n| `but_unit_*` | `zbut_invoke` | Raw command | Nothing (self-contained) |\n| `but_tt_*` | Tabtarget file | `tt/{colophon}.*.sh` (must exist) | BUZ sourced |\n| `but_launch_*` | BUK dispatch | Workbench routing (no tt/ file) | BURD sourced |\n\n- `but_unit_*` — renamed from current `but_expect_*`. Tests raw commands.\n- `but_tt_*` — moved from `buz_dispatch_expect_ok/fail`. Tests tabtarget wiring. File must exist in tt/.\n- `but_launch_*` — new. Routes colophon through BURD workbench dispatch without requiring tt/ file. For testing workbench routing of commands that don't need operator-facing tabtargets (e.g., test-only ark operations).\n\n## Functions per family\n\nEach family gets:\n- `but_{family}_expect_ok` — invoke, assert exit 0\n- `but_{family}_expect_fatal` — invoke, assert exit != 0\n\nPlus unit keeps:\n- `but_unit_expect_ok_stdout` — invoke, assert exit 0 + stdout match\n\n## Naming conventions\n\n- Use `_fatal` not `_fail` (matches BUT convention — means \"die on assertion failure\")\n- `but_*` shared infrastructure (colors, rendering, but_fatal, but_execute) stays unchanged\n- Double-prefix (`but_unit_`, `but_tt_`, `but_launch_`) is allowed within test rigging\n\n## Files in scope\n\nModify:\n- Tools/buk/but_test.sh — add but_tt_* and but_launch_* families, rename but_expect_* to but_unit_expect_*\n- Tools/buk/buz_zipper.sh — remove buz_dispatch_expect_ok and buz_dispatch_expect_fail\n- All testbenches calling but_expect_* or buz_dispatch_expect_* — update to new names\n\n## Design notes\n\n- but_test.sh does NOT source BUZ or BUC. The but_tt_* and but_launch_* functions assume the caller's environment has sourced the necessary dispatch infrastructure.\n- but_tt_* resolves colophon to tt/ file (like current zbuz_resolve_tabtarget_capture), dies if file missing\n- but_launch_* routes through BURD dispatch — check how burd_dispatch.sh resolves colophons to workbenches\n\n## Verification\n\n- All existing testbench tests pass with renamed functions\n- but_tt_expect_ok dies when tt/ file is missing for given colophon\n- but_launch_expect_ok routes through workbench without tt/ file\n- No but_expect_ok (old name) calls remain in codebase\n- No buz_dispatch_expect_ok/fail calls remain in codebase\n- but_test.sh has no BUC sourcing",
+              "silks": "refactor-but-test-families",
+              "commit": "15343ac"
             }
           ]
         }
