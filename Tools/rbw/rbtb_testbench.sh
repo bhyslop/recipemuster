@@ -33,6 +33,7 @@ source "${RBTB_SCRIPT_DIR}/rbz_zipper.sh"
 # Source test case files
 source "${RBTB_SCRIPT_DIR}/rbtckk_KickTires.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcal_ArkLifecycle.sh"
+source "${RBTB_SCRIPT_DIR}/../buk/butcde_DispatchExercise.sh"
 
 buc_context "${0##*/}"
 
@@ -52,6 +53,13 @@ zrbtb_setup_ark() {
   ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
 }
 
+zrbtb_setup_dispatch() {
+  buto_trace "Setup for dispatch-exercise suite"
+  zbuz_kindle
+  buz_register "butctt" "butcde_DispatchExercise" "butcde_run"
+  ZBUTCDE_TEST_COLOPHON="${z1z_buz_colophon}"
+}
+
 ######################################################################
 # Registration
 
@@ -59,6 +67,7 @@ rbtb_kindle() {
   butr_kindle
   butr_register "kick-tires" "rbtckk_" "zrbtb_setup_kick" "fast"
   butr_register "ark-lifecycle" "rbtcal_" "zrbtb_setup_ark" "slow"
+  butr_register "dispatch-exercise" "butcde_" "zrbtb_setup_dispatch" "fast"
 }
 
 ######################################################################
