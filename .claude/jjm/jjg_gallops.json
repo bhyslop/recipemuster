@@ -2426,6 +2426,7 @@
       "creation_time": "260125",
       "status": "racing",
       "order": [
+        "₢APAAg",
         "₢APAAf",
         "₢APAAV",
         "₢APAAU",
@@ -2459,7 +2460,7 @@
         "₢APAAN",
         "₢APAAe"
       ],
-      "next_pace_seed": "AAg",
+      "next_pace_seed": "AAh",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -3294,6 +3295,17 @@
               "text": "Redesign the ark function API surface (summon, beseech, abjure) for nameplate-centric workflow.\n\n## Problem\n\nCurrent API requires explicit consecration arguments for summon and abjure, but the natural workflow is nameplate-driven: the nameplate declares which consecrations are active, and operations should follow from that.\n\n## Design Questions to Resolve\n\n1. **Summon**: Should take a nameplate (or work from regime context) and pull whatever consecrations are declared there — no explicit consecration arg. \"Make local match what nameplate says.\" Consider: summon both vessels at once vs per-vessel.\n\n2. **Beseech**: Becomes the discovery/selection tool. Should it output copy-pasteable nameplate lines? Interactive \"install this consecration\" mode? Both?\n\n3. **Abjure**: Stays by-consecration (deleting a specific version is inherently explicit), BUT must add a safeguard: refuse to delete any consecration currently referenced by a nameplate. Scan surface: `Tools/rbw/rbrn_*.env` files.\n\n4. **Tabtarget implications**: Current `rbw-as.SummonArk.sh` takes `<vessel> <consecration>` — this signature changes. Consider whether vessel arg is even needed if nameplate provides both.\n\n## Bugs Found During Investigation (already fixed)\n\n- beseech vessel filter didn't strip path prefix (fixed: `${var##*/}`)\n- `curl -X HEAD` vs `curl --head` in summon/abjure caused exit code 18 (fixed)\n\n## Scope\n\n- Design the new API signatures for all three functions\n- Update tabtarget arguments to match\n- Update spec docs (RBSAS, RBSAB, RBSAA) to reflect new contracts\n- Implement and test\n\n## Notes\n\n- This is a design pace — needs human judgment on API shape\n- Asymmetric by nature: summon is nameplate-driven, abjure is consecration-driven with nameplate guard",
               "silks": "redesign-ark-summon-abjure-api",
               "commit": "a8fec84"
+            }
+          ]
+        },
+        "₢APAAg": {
+          "tacks": [
+            {
+              "ts": "260210-0946",
+              "state": "rough",
+              "text": "Consolidate nameplate and repo regime loading into canonical functions in their respective _regime.sh files.\n\n## Functions to Create\n\n### In `rbrn_regime.sh`\n\n1. **`rbrn_load <moniker>`** — Canonical entry point: construct path to `rbrn_<moniker>.env`, verify exists, source, kindle, validate. Single call replaces the 4-6 line pattern repeated across callers.\n\n2. **`rbrn_list`** — Enumerate concrete nameplate monikers by globbing `rbrn_*.env` and stripping prefix/suffix. No loaded regime prerequisite — this is a regime primitive for \"what instances exist?\"\n\n### In `rbrr_regime.sh`\n\n3. **`rbrr_load`** — Source `rbrr_RecipeBottleRegimeRepo.sh`, kindle. Encapsulates path construction and existence check. Not all callers need RBRR (e.g., rbob_cli doesn't always), so this stays separate from rbrn_load.\n\n## Callsites to Refactor\n\n### rbrn_load consolidation (4 sites):\n- `rbt_testbench.sh:54-62` — construct path, exists, source, kindle, validate\n- `rbob_cli.sh:108-112` — construct path, exists, source, kindle, validate\n- `rbrn_cli.sh:47-48` — source + kindle (validate cmd)\n- `rbrn_cli.sh:78-80` — source + kindle (render cmd)\n\n### rbrr_load consolidation (8 sites):\n- `rbt_testbench.sh:68-71` — construct path, exists, source, kindle\n- `rbob_cli.sh:115-118` — construct path, exists, source, kindle\n- `rbf_cli.sh:49-52` — via RBL, exists, source, kindle\n- `rbgg_cli.sh:43-46` — via RBL, exists, source\n- `rbgd_DepotConstants.sh:33-37` — via RBL, source, kindle, validate\n- `rbrv_cli.sh:47-50` — conditional source (validate)\n- `rbrv_cli.sh:85-88` — conditional source (render)\n- `trbim_suite.sh:27` — source RBRR\n\n### rbrn_list consolidation (1 site):\n- `rbw_workbench.sh:123-132` — inline glob with strip logic\n\n## Notes\n\n- rbrn_cli.sh callers receive the file path externally; rbrn_load takes a moniker. Decide whether rbrn_load is moniker-only or also accepts a path, or whether rbrn_cli uses a lower-level internal.\n- Some RBRR callers go through RBL (rbl_Locator.sh) for path resolution. Decide whether rbrr_load encapsulates RBL or sits alongside it.\n- Mechanical refactoring — pattern is clear from existing code.",
+              "silks": "consolidate-regime-load-primitives",
+              "commit": "edba36e"
             }
           ]
         }
