@@ -52,7 +52,7 @@ rbt_load_nameplate() {
   test -n "${z_moniker}" || buc_die "rbt_load_nameplate: moniker argument required"
 
   rbt_show "Loading nameplate: ${z_moniker}"
-  rbrn_load "${z_moniker}"
+  rbrn_load_moniker "${z_moniker}"
 
   rbt_show "Nameplate loaded: RBRN_MONIKER=${RBRN_MONIKER}, RBRN_RUNTIME=${RBRN_RUNTIME}"
 

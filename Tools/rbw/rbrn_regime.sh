@@ -194,11 +194,11 @@ zrbrn_validate_fields() {
 # Public Functions (rbrn_*)
 
 # Load nameplate regime by moniker
-# Usage: rbrn_load <moniker>
+# Usage: rbrn_load_moniker <moniker>
 # Constructs path, verifies file exists, sources, kindles, and validates
-rbrn_load() {
+rbrn_load_moniker() {
   local z_moniker="${1:-}"
-  test -n "${z_moniker}" || buc_die "rbrn_load: moniker argument required"
+  test -n "${z_moniker}" || buc_die "rbrn_load_moniker: moniker argument required"
 
   local z_nameplate_file="${BURC_TOOLS_DIR}/rbw/rbrn_${z_moniker}.env"
   test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"

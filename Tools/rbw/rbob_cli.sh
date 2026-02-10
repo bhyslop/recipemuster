@@ -105,7 +105,7 @@ zrbob_furnish() {
   test -n "${z_moniker}" || buc_die "RBOB_MONIKER environment variable required"
 
   # Load nameplate
-  rbrn_load "${z_moniker}"
+  rbrn_load_moniker "${z_moniker}"
 
   # Load RBRR - config loading belongs in furnish per BCG pattern
   rbrr_load
