@@ -33,7 +33,6 @@
         "₢AHAAZ",
         "₢AHAAa",
         "₢AHAAd",
-        "₢AHAAX",
         "₢AHAAe"
       ],
       "next_pace_seed": "AAf",
@@ -570,17 +569,6 @@
               "text": "Enhance the wrap coda output (jjrwp_wrap.rs) to include the next actionable pace's silks and one-line description in the recommendation message.\n\nCurrent output:\n  Recommended: /clear then /jjc-heat-mount AR\n\nDesired output:\n  Recommended: /clear then /jjc-heat-mount AR for pace the-next-pace-silks (first line of pace spec)\n\nIf no next actionable pace exists (heat complete), output something like:\n  Heat AR complete — no remaining paces.\n\nImplementation:\n- After the chalk commit succeeds (line 284), use the already-modified `gallops` (in scope from line 247) to find the parent heat via `coronet.jjrf_parent_firemark()`\n- Iterate `heat.order` looking for first pace with state Rough or Bridled (same pattern as saddle lines 172-201)\n- Extract that pace's silks and first line of its tack text\n- Format the enhanced recommendation message",
               "silks": "wrap-coda-next-pace-hint",
               "commit": "6301766"
-            }
-          ]
-        },
-        "₢AHAAX": {
-          "tacks": [
-            {
-              "ts": "260207-0736",
-              "state": "rough",
-              "text": "Attempt to configure Claude Code permission settings to auto-allow Bash tool calls (or at least vvw/vvx commands), removing the \"Do you want to proceed?\" confirmation dialog on every Bash invocation.\n\nWARNING: Previous attempts to tweak permission configuration have not been very successful. When mounting this pace, REMIND the user of this history before investing time. We may defer or abandon.\n\nApproaches to try:\n1. Check ~/.claude/settings.json and .claude/settings.json for existing permission config\n2. Try adding allowedTools / allow patterns for Bash commands\n3. Test whether patterns like \"Bash(*)\" or \"Bash(./tt/*)\" actually suppress the prompt\n4. If nothing works cleanly, document what was tried and abandon\n\nThis is exploratory — success is not expected.",
-              "silks": "attempt-bash-permission-grant",
-              "commit": "c6dd2c6"
             }
           ]
         },
@@ -3581,9 +3569,10 @@
       "creation_time": "260125",
       "status": "racing",
       "order": [
-        "₢AOAAA"
+        "₢AOAAA",
+        "₢AOAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -3594,6 +3583,24 @@
               "text": "Extract paces from legacy orphaned heat file `.claude/jjm/current/jjh_b251226-bash-tooling-cleanup.md` into current Job Jockey structure. This file predates the firemark system and contains unfinished work from the Dec 26, 2025 Recipe Bottle session. Review content, migrate any relevant incomplete paces to appropriate heats, then archive or delete the orphaned file.",
               "silks": "extract-orphaned-heat-paces",
               "commit": "a0741a4"
+            }
+          ]
+        },
+        "₢AOAAB": {
+          "tacks": [
+            {
+              "ts": "260210-1312",
+              "state": "rough",
+              "text": "Drafted from ₢AHAAX in ₣AH.\n\nAttempt to configure Claude Code permission settings to auto-allow Bash tool calls (or at least vvw/vvx commands), removing the \"Do you want to proceed?\" confirmation dialog on every Bash invocation.\n\nWARNING: Previous attempts to tweak permission configuration have not been very successful. When mounting this pace, REMIND the user of this history before investing time. We may defer or abandon.\n\nApproaches to try:\n1. Check ~/.claude/settings.json and .claude/settings.json for existing permission config\n2. Try adding allowedTools / allow patterns for Bash commands\n3. Test whether patterns like \"Bash(*)\" or \"Bash(./tt/*)\" actually suppress the prompt\n4. If nothing works cleanly, document what was tried and abandon\n\nThis is exploratory — success is not expected.",
+              "silks": "attempt-bash-permission-grant",
+              "commit": "c75fe16"
+            },
+            {
+              "ts": "260207-0736",
+              "state": "rough",
+              "text": "Attempt to configure Claude Code permission settings to auto-allow Bash tool calls (or at least vvw/vvx commands), removing the \"Do you want to proceed?\" confirmation dialog on every Bash invocation.\n\nWARNING: Previous attempts to tweak permission configuration have not been very successful. When mounting this pace, REMIND the user of this history before investing time. We may defer or abandon.\n\nApproaches to try:\n1. Check ~/.claude/settings.json and .claude/settings.json for existing permission config\n2. Try adding allowedTools / allow patterns for Bash commands\n3. Test whether patterns like \"Bash(*)\" or \"Bash(./tt/*)\" actually suppress the prompt\n4. If nothing works cleanly, document what was tried and abandon\n\nThis is exploratory — success is not expected.",
+              "silks": "attempt-bash-permission-grant",
+              "commit": "c6dd2c6"
             }
           ]
         }
