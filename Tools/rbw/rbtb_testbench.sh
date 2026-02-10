@@ -32,6 +32,7 @@ source "${RBTB_SCRIPT_DIR}/rbz_zipper.sh"
 
 # Source test case files
 source "${RBTB_SCRIPT_DIR}/rbtckk_KickTires.sh"
+source "${RBTB_SCRIPT_DIR}/rbtcal_ArkLifecycle.sh"
 
 buc_context "${0##*/}"
 
@@ -42,12 +43,22 @@ zrbtb_setup_kick() {
   buto_trace "Setup for kick-tires suite (no-op)"
 }
 
+zrbtb_setup_ark() {
+  buto_trace "Setup for ark-lifecycle suite"
+  zbuz_kindle
+  zrbz_kindle
+  buto_init_dispatch
+  buto_init_evidence
+  ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
+}
+
 ######################################################################
 # Registration
 
 rbtb_kindle() {
   butr_kindle
   butr_register "kick-tires" "rbtckk_" "zrbtb_setup_kick" "fast"
+  butr_register "ark-lifecycle" "rbtcal_" "zrbtb_setup_ark" "slow"
 }
 
 ######################################################################
