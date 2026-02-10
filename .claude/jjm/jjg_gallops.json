@@ -764,6 +764,7 @@
         "₢ATAAI",
         "₢ATAAG",
         "₢ATAAJ",
+        "₢ATAAS",
         "₢ATAAH",
         "₢ATAAQ",
         "₢ATAAR",
@@ -775,7 +776,7 @@
         "₢ATAAF",
         "₢ATAAK"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1143,6 +1144,17 @@
               "text": "Refactor zrbrr_kindle to follow the kindle/validate_fields separation pattern used by RBRN and RBRV.\n\n## Context\n\nRBRN and RBRV regimes use a clean two-phase pattern:\n- `kindle()` — silent: sets defaults with `VAR=\"${VAR:-}\"`, detects unexpected vars, builds rollup/docker-env arrays\n- `validate_fields()` — strict: calls buv_env_* for validation, dies on first error\n\nRBRR's `zrbrr_kindle()` mixes both phases: it calls buv_env_* directly during kindle, making kindle noisy and inseparable from validation. This causes stdout noise in rbrv_cli.sh render (which calls rbrr_load as a dependency).\n\n## Prerequisites\n\n- ₢ATAAQ (study-buv-env-stdout-pattern) must be complete first — the buv_env_* contract may change, which affects how validate_fields is written.\n\n## Work\n\n1. Split zrbrr_kindle() into:\n   - `zrbrr_kindle()` — set defaults, detect unexpected vars, build ZRBRR_DOCKER_ENV, set ZRBRR_KINDLED. Silent.\n   - `zrbrr_validate_fields()` — buv_env_* calls + format checks (podman version, timeout, platform). Dies on error.\n2. Update rbrr_load() to call both kindle and validate\n3. Update rbrv_cli.sh render/validate to benefit (no more stdout noise from rbrr_load)\n4. Verify all callers of rbrr_load / zrbrr_kindle still work\n\n## Acceptance\n\n- rbrr_regime.sh follows same kindle/validate_fields pattern as rbrn_regime.sh and rbrv_regime.sh\n- `tt/rbw-rvr.RenderVesselRegime.sh` produces no preamble noise\n- All render and validate tabtargets pass",
               "silks": "align-rbrr-kindle-with-rbrn-rbrv",
               "commit": "f173424"
+            }
+          ]
+        },
+        "₢ATAAS": {
+          "tacks": [
+            {
+              "ts": "260210-1338",
+              "state": "rough",
+              "text": "Human pace: manually run all BUT framework testbench suites, review output, and get comfortable with the butc*/butr/buto patterns. Amend anything that feels wrong before moving on to the audit paces.",
+              "silks": "exercise-but-suites",
+              "commit": "4282bbf"
             }
           ]
         }
