@@ -200,7 +200,7 @@ rbrn_load_moniker() {
   local z_moniker="${1:-}"
   test -n "${z_moniker}" || buc_die "rbrn_load_moniker: moniker argument required"
 
-  local z_nameplate_file="${BURC_TOOLS_DIR}/rbw/rbrn_${z_moniker}.env"
+  local z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_RBRN_PREFIX}${z_moniker}${RBCC_RBRN_EXT}"
   test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
 
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
@@ -225,13 +225,13 @@ rbrn_load_file() {
 # Usage: rbrn_list
 # Returns list of concrete nameplate monikers by globbing rbrn_*.env files
 rbrn_list() {
-  local z_nameplate_files=("${BURC_TOOLS_DIR}/rbw/rbrn_"*.env)
+  local z_nameplate_files=("${RBCC_KIT_DIR}/${RBCC_RBRN_PREFIX}"*"${RBCC_RBRN_EXT}")
 
   for z_file in "${z_nameplate_files[@]}"; do
     test -f "${z_file}" || continue
     local z_basename="${z_file##*/}"
-    local z_moniker="${z_basename#rbrn_}"
-    z_moniker="${z_moniker%.env}"
+    local z_moniker="${z_basename#${RBCC_RBRN_PREFIX}}"
+    z_moniker="${z_moniker%${RBCC_RBRN_EXT}}"
     echo "${z_moniker}"
   done
 }

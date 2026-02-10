@@ -37,6 +37,7 @@ source "${ZRBOB_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbrn_regime.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+source "${ZRBOB_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbob_bottle.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rboo_observe.sh"
 
@@ -103,6 +104,8 @@ zrbob_furnish() {
 
   local z_moniker="${RBOB_MONIKER:-}"
   test -n "${z_moniker}" || buc_die "RBOB_MONIKER environment variable required"
+
+  zrbcc_kindle
 
   # Load nameplate
   rbrn_load_moniker "${z_moniker}"

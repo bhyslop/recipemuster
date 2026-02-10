@@ -32,10 +32,12 @@ source "${RBT_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${RBT_SCRIPT_DIR}/../buk/but_test.sh"
 source "${RBT_SCRIPT_DIR}/rbrn_regime.sh"
 source "${RBT_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBT_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${RBT_SCRIPT_DIR}/rbob_bottle.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
+zrbcc_kindle
 
 ######################################################################
 # Helper Functions

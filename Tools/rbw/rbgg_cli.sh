@@ -27,6 +27,7 @@ ZRBGG_BUK_DIR="${ZRBGG_CLI_SCRIPT_DIR}/../buk"
 source "${ZRBGG_BUK_DIR}/buc_command.sh"
 source "${ZRBGG_BUK_DIR}/buv_validation.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbl_Locator.sh"
+source "${ZRBGG_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
@@ -40,6 +41,7 @@ zrbgg_furnish() {
   buc_doc_env "BURD_TEMP_DIR   " "Temporary directory for intermediate files"
   buc_doc_env "BURD_OUTPUT_DIR " "Directory for command outputs"
 
+  zrbcc_kindle
   rbrr_load
 
   zrbgc_kindle

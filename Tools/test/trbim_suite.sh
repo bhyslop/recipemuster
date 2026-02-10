@@ -24,8 +24,10 @@ ZTRBIM_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")/.."
 source "${ZTRBIM_SCRIPT_DIR}/but_test.sh"
 source "${ZTRBIM_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${ZTRBIM_SCRIPT_DIR}/../rbw/rbrr_regime.sh"
+source "${ZTRBIM_SCRIPT_DIR}/../rbw/rbcc_Constants.sh"
 
 # Source RBRR configuration to get machine names
+zrbcc_kindle
 rbrr_load || but_fatal "Failed to load RBRR configuration"
 
 # Helper function to invoke RBIM with proper environment

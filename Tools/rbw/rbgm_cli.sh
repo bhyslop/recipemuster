@@ -29,6 +29,8 @@ source "${ZRBGM_BUK_DIR}/buv_validation.sh"
 source "${ZRBGM_BUK_DIR}/bug_guide.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgc_Constants.sh"
+source "${ZRBGM_SCRIPT_DIR}/rbcc_Constants.sh"
+source "${ZRBGM_SCRIPT_DIR}/rbrr_regime.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbrp_regime.sh"
 source "${ZRBGM_SCRIPT_DIR}/rbgm_ManualProcedures.sh"
 
@@ -37,11 +39,11 @@ zrbgm_furnish() {
   buc_doc_env "BURD_TEMP_DIR   " "Temporary directory for intermediate files"
   buc_doc_env "BURD_OUTPUT_DIR " "Directory for command outputs"
 
+  zrbcc_kindle
+
+  rbrr_load
+
   zrbl_kindle
-
-  buv_file_exists "${RBL_RBRR_FILE}"
-  source          "${RBL_RBRR_FILE}" || buc_die "Failed to source RBRR regime file"
-
   buv_file_exists "${RBL_RBRP_FILE}"
   source          "${RBL_RBRP_FILE}" || buc_die "Failed to source RBRP regime file"
 

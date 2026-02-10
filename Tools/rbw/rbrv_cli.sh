@@ -26,6 +26,8 @@ ZRBRV_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZRBRV_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${ZRBRV_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBRV_CLI_SCRIPT_DIR}/rbrv_regime.sh"
+source "${ZRBRV_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
+source "${ZRBRV_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 
 ######################################################################
 # CLI Functions
@@ -44,7 +46,7 @@ rbrv_validate() {
   buc_step "Validating RBRV vessel file: ${z_file}"
 
   # Source RBRR (vessel env files may reference RBRR_ variables)
-  if test -f "${BURC_PROJECT_ROOT}/rbrr_RecipeBottleRegimeRepo.sh"; then
+  if test -f "${RBCC_RBRR_FILE}"; then
     rbrr_load
   fi
 
@@ -81,7 +83,7 @@ rbrv_render() {
   test -f "${z_file}" || buc_die "rbrv_render: file not found: ${z_file}"
 
   # Source RBRR (vessel env files may reference RBRR_ variables)
-  if test -f "${BURC_PROJECT_ROOT}/rbrr_RecipeBottleRegimeRepo.sh"; then
+  if test -f "${RBCC_RBRR_FILE}"; then
     rbrr_load
   fi
 
@@ -135,6 +137,7 @@ rbrv_render() {
 # Main dispatch
 
 zrbrv_cli_kindle
+zrbcc_kindle
 
 z_command="${1:-}"
 

@@ -26,6 +26,7 @@ ZRBRN_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZRBRN_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${ZRBRN_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBRN_CLI_SCRIPT_DIR}/rbrn_regime.sh"
+source "${ZRBRN_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 
 ######################################################################
 # CLI Functions
@@ -144,6 +145,7 @@ rbrn_render() {
 # Main dispatch
 
 zrbrn_cli_kindle
+zrbcc_kindle
 
 z_command="${1:-}"
 

@@ -26,8 +26,10 @@ ZRBF_BUK_DIR="${ZRBF_CLI_SCRIPT_DIR}/../buk"
 source "${ZRBF_BUK_DIR}/buc_command.sh"
 source "${ZRBF_BUK_DIR}/buv_validation.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbl_Locator.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
+source "${ZRBF_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbf_Foundry.sh"
 
@@ -45,6 +47,8 @@ zrbf_furnish() {
   buc_log_args 'Container runtime settings'
   RBG_RUNTIME="${RBG_RUNTIME:-podman}"
   RBG_RUNTIME_ARG="${RBG_RUNTIME_ARG:-}"
+
+  zrbcc_kindle
 
   buc_log_args 'Load RBRR using canonical loader'
   rbrr_load

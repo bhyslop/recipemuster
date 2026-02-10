@@ -29,6 +29,8 @@ source "${ZRBGP_BUK_DIR}/buv_validation.sh"
 source "${ZRBGP_BUK_DIR}/bug_guide.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
+source "${ZRBGP_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
+source "${ZRBGP_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgi_IAM.sh"
@@ -37,11 +39,11 @@ source "${ZRBGP_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
 
 zrbgp_furnish() {
   buc_log_args 'Initialize modules'
+  zrbcc_kindle
+
+  rbrr_load
+
   zrbl_kindle
-
-  buv_file_exists "${RBL_RBRR_FILE}"
-  source          "${RBL_RBRR_FILE}" || buc_die "Failed to source RBRR regime file"
-
   buv_file_exists "${RBL_RBRP_FILE}"
   source          "${RBL_RBRP_FILE}" || buc_die "Failed to source RBRP regime file"
 
