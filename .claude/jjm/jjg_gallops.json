@@ -3864,9 +3864,10 @@
         "₢AGAAG",
         "₢AGAAI",
         "₢AGAAM",
-        "₢AGAAN"
+        "₢AGAAN",
+        "₢AGAAO"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_AG.md",
       "paces": {
         "₢AGAAA": {
@@ -4037,6 +4038,17 @@
               "text": "Relax silks validation to permit uppercase letters (A-Z) in addition to lowercase.\n\nContinue rejecting spaces and underscores — only allow [a-zA-Z0-9] and hyphens.\n\nCurrent pattern: `[a-z0-9]+(-[a-z0-9]+)*`\nTarget pattern: `[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*`\n\nLocate silks validation in jjk/vvx and update the regex plus any related error messages or tests.",
               "silks": "permit-uppercase-silks",
               "commit": "6125f57"
+            }
+          ]
+        },
+        "₢AGAAO": {
+          "tacks": [
+            {
+              "ts": "260210-1124",
+              "state": "rough",
+              "text": "Design and implement a \"snip\" operation for paces.\n\n## Concept\n\nMidway through executing a pace, the runner realizes a chunk of remaining work belongs in a separate pace (typically the one immediately following). The snip operation:\n\n1. Creates a new pace positioned immediately after the current pace\n2. Moves the \"snipped\" steps from the current pace's docket into the new pace's docket\n3. Revises the current pace's docket to remove those steps\n\n## Context\n\nThis typically arises at wrap time — the runner wants to wrap the current pace but recognizes some planned steps weren't done and belong in their own pace rather than being abandoned or crammed in.\n\n## Vocabulary TBD\n\nNeed good naming. Candidates to consider:\n- snip (cutting thread)\n- cleave (splitting)\n- shear (cutting wool — fits equestrian theme)\n- fork (splitting path)\n- calve (splitting off)\n\nThe verb should feel natural in the JJ equestrian vocabulary.\n\n## Schema Implications\n\nMay need a new CLI command (jjx_snip or similar). Likely composes existing primitives (enroll + revise_docket) but having a dedicated command ensures atomicity and correct positioning.\n\n## Open Questions\n\n- Should snip only work on the currently-active pace, or any pace?\n- Should it auto-position after current, or allow positioning?\n- How to handle the docket split — interactive, or provide both halves?\n- Should the snipped pace inherit any properties (markers, state)?",
+              "silks": "pace-snip-operation",
+              "commit": "3b1e8db"
             }
           ]
         }
