@@ -3395,6 +3395,13 @@
         "₢APAAh": {
           "tacks": [
             {
+              "ts": "260210-1114",
+              "state": "rough",
+              "text": "Review and refine rbrn_cli.sh and rbrv_cli.sh render output formatting.\n\n## Context\n\nSections 1-4 of the original regime-load-cleanup docket are complete and committed. This pace now focuses solely on the render appearance review that was deferred.\n\n## Work\n\n1. Run rbrn_cli.sh render with a real nameplate (e.g., nsproto) and review output formatting\n2. Run rbrv_cli.sh render with a real vessel and review output formatting\n3. Collect specific appearance nudges: alignment, color usage, field grouping, whitespace, header style\n4. Apply agreed refinements\n\n## Notes\n\n- The render/validate architecture was established in ₢ATAAG (refactor-rbrv-rbrn-render-validate)\n- This is cosmetic polish, not structural changes\n- User input required to identify what needs nudging",
+              "silks": "regime-load-cleanup",
+              "commit": "38a9746"
+            },
+            {
               "ts": "260210-1054",
               "state": "rough",
               "text": "Clean up regime load primitives from APAAg: eliminate magic strings, fix bugs, create RBCC constants module, and refactor missed callsites.\n\n## Completed\n\n### 1. Created RBCC Constants Module\nNew BCG module `rbcc_Constants.sh` in `Tools/rbw/` with zrbcc_kindle() providing:\n- RBCC_KIT_DIR, RBCC_RBRN_PREFIX, RBCC_RBRN_EXT, RBCC_RBRR_FILE\n- BURC_TOOLS_DIR guard (dies if not set)\n\n### 2. Fixed BURC_PROJECT_ROOT Bug\n- rbrr_regime.sh: rbrr_load uses RBCC_RBRR_FILE instead of broken BURC_PROJECT_ROOT path\n- rbrv_cli.sh: both conditional checks use RBCC_RBRR_FILE; added missing source rbrr_regime.sh\n\n### 3. Replaced Magic Strings in rbrn_regime.sh\n- rbrn_load_moniker: path construction uses RBCC_KIT_DIR/RBCC_RBRN_PREFIX/RBCC_RBRN_EXT\n- rbrn_list: glob pattern and prefix/extension stripping use RBCC constants\n\n### 4. Refactored Missed Callsites\n- rbgm_cli.sh: RBL-based RBRR loading replaced with rbrr_load (RBL kept for RBRP)\n- rbgp_cli.sh: same refactor as rbgm\n\n### Additional fixes from review\n- rbf_cli.sh: added missing source rbrr_regime.sh (APAAg bug)\n- rbgg_cli.sh, rbf_cli.sh: fixed sourcing order (rbcc before rbgd)\n- rbgd_DepotConstants.sh: removed rbrr_load from zrbgd_kindle (double-kindle bug)\n- rbrr_regime.sh: updated stale comment\n- All callers of rbrn_load/rbrr_load: wired rbcc source + zrbcc_kindle\n\n## Deferred\n\n### 5. RBL Locator Retirement → ₢ATAAK (consolidate-rbrp-retire-rbl)\n### 6. Makefile References — bare string acceptable, Makefile being deleted soon\n### 7. Render Appearance Nudges — no nudges requested, closed",
