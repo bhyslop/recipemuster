@@ -110,35 +110,35 @@ rbt_exec_bottle_i() {
 # Test Cases - nsproto security tests
 #
 # Ported from RBM-tests/rbt.test.nsproto.mk
-# Pattern: but_expect_ok = success expected, but_expect_fatal = failure expected
+# Pattern: but_unit_expect_ok = success expected, but_unit_expect_fatal = failure expected
 # Use _i variants for commands that read stdin (dig, traceroute, apt-get)
 
 #--- Basic network verification ---
 
 test_nsproto_basic_dnsmasq() {
   # Verify dnsmasq is running on sentry
-  but_expect_ok rbt_exec_sentry ps aux
+  but_unit_expect_ok rbt_exec_sentry ps aux
   rbt_exec_sentry ps aux | grep -q dnsmasq || but_fatal "dnsmasq not running on sentry"
 }
 
 test_nsproto_basic_ping_sentry() {
   # Censer can ping sentry within enclave
-  but_expect_ok rbt_exec_censer ping "${RBRN_ENCLAVE_SENTRY_IP}" -c 2
+  but_unit_expect_ok rbt_exec_censer ping "${RBRN_ENCLAVE_SENTRY_IP}" -c 2
 }
 
 test_nsproto_basic_iptables() {
   # Verify RBM-INGRESS chain exists
-  but_expect_ok rbt_exec_sentry iptables -L RBM-INGRESS
+  but_unit_expect_ok rbt_exec_sentry iptables -L RBM-INGRESS
 }
 
 #--- DNS allow/block tests ---
 
 test_nsproto_dns_allow_anthropic() {
-  but_expect_ok rbt_exec_bottle nslookup anthropic.com
+  but_unit_expect_ok rbt_exec_bottle nslookup anthropic.com
 }
 
 test_nsproto_dns_block_google() {
-  but_expect_fatal rbt_exec_bottle nslookup google.com
+  but_unit_expect_fatal rbt_exec_bottle nslookup google.com
 }
 
 #--- TCP 443 connection tests ---
@@ -148,7 +148,7 @@ test_nsproto_tcp443_allow_anthropic() {
   local z_ip
   z_ip=$(rbt_exec_sentry_i dig +short anthropic.com | head -1)
   test -n "${z_ip}" || but_fatal "Failed to resolve anthropic.com"
-  but_expect_ok rbt_exec_bottle nc -w 2 -zv "${z_ip}" 443
+  but_unit_expect_ok rbt_exec_bottle nc -w 2 -zv "${z_ip}" 443
 }
 
 test_nsproto_tcp443_block_google() {
@@ -156,7 +156,7 @@ test_nsproto_tcp443_block_google() {
   local z_ip
   z_ip=$(rbt_exec_sentry_i dig +short google.com | head -1)
   test -n "${z_ip}" || but_fatal "Failed to resolve google.com"
-  but_expect_fatal rbt_exec_bottle nc -w 2 -zv "${z_ip}" 443
+  but_unit_expect_fatal rbt_exec_bottle nc -w 2 -zv "${z_ip}" 443
 }
 
 #--- DNS protocol tests ---
@@ -170,62 +170,62 @@ test_nsproto_dns_nonexist() {
 
 test_nsproto_dns_tcp() {
   # DNS over TCP should work for allowed domains
-  but_expect_ok rbt_exec_bottle_i dig +tcp anthropic.com
+  but_unit_expect_ok rbt_exec_bottle_i dig +tcp anthropic.com
 }
 
 test_nsproto_dns_notcp() {
   # DNS over UDP should work for allowed domains
-  but_expect_ok rbt_exec_bottle_i dig +notcp anthropic.com
+  but_unit_expect_ok rbt_exec_bottle_i dig +notcp anthropic.com
 }
 
 #--- DNS security tests (block bypass attempts) ---
 
 test_nsproto_dns_block_direct() {
   # Cannot query external DNS directly
-  but_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 anthropic.com
+  but_unit_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 anthropic.com
   # Cannot connect to external DNS port
-  but_expect_fatal rbt_exec_bottle nc -w 2 -zv 8.8.8.8 53
+  but_unit_expect_fatal rbt_exec_bottle nc -w 2 -zv 8.8.8.8 53
 }
 
 test_nsproto_dns_block_altport() {
   # Cannot use alternate DNS ports
-  but_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 -p 5353 example.com
-  but_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 -p 443 example.com
+  but_unit_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 -p 5353 example.com
+  but_unit_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 -p 443 example.com
 }
 
 test_nsproto_dns_block_cloudflare() {
-  but_expect_fatal rbt_exec_bottle_i dig @1.1.1.1 example.com
+  but_unit_expect_fatal rbt_exec_bottle_i dig @1.1.1.1 example.com
 }
 
 test_nsproto_dns_block_quad9() {
-  but_expect_fatal rbt_exec_bottle_i dig @9.9.9.9 example.com
+  but_unit_expect_fatal rbt_exec_bottle_i dig @9.9.9.9 example.com
 }
 
 test_nsproto_dns_block_zonetransfer() {
-  but_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 example.com AXFR
+  but_unit_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 example.com AXFR
 }
 
 test_nsproto_dns_block_ipv6() {
-  but_expect_fatal rbt_exec_bottle_i dig @2001:4860:4860::8888 example.com
+  but_unit_expect_fatal rbt_exec_bottle_i dig @2001:4860:4860::8888 example.com
 }
 
 test_nsproto_dns_block_multicast() {
-  but_expect_fatal rbt_exec_bottle_i dig @224.0.0.251 -p 5353 example.local
+  but_unit_expect_fatal rbt_exec_bottle_i dig @224.0.0.251 -p 5353 example.local
 }
 
 test_nsproto_dns_block_spoofing() {
-  but_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 +nsid example.com -b 192.168.1.2
+  but_unit_expect_fatal rbt_exec_bottle_i dig @8.8.8.8 +nsid example.com -b 192.168.1.2
 }
 
 test_nsproto_dns_block_tunneling() {
-  but_expect_fatal rbt_exec_bottle nc -z -w 1 8.8.8.8 53
+  but_unit_expect_fatal rbt_exec_bottle nc -z -w 1 8.8.8.8 53
 }
 
 #--- Package management test ---
 
 test_nsproto_block_packages() {
   # apt-get update should fail (cannot reach package repos)
-  but_expect_fatal rbt_exec_bottle_i timeout 5 apt-get -qq update
+  but_unit_expect_fatal rbt_exec_bottle_i timeout 5 apt-get -qq update
 }
 
 #--- ICMP tests ---
@@ -264,7 +264,7 @@ RBT_SRJCL_TEST_IMAGE="ghcr.io/bhyslop/recipemuster:rbtest_python_networking.2025
 
 test_srjcl_jupyter_running() {
   # Verify Jupyter process is running in bottle
-  but_expect_ok rbt_exec_bottle ps aux
+  but_unit_expect_ok rbt_exec_bottle ps aux
   rbt_exec_bottle ps aux | grep -q jupyter || but_fatal "jupyter not running in bottle"
 }
 
@@ -289,7 +289,7 @@ test_srjcl_websocket_kernel() {
 
   # Run Python test in dedicated container with networking dependencies
   # Note: Python script uses RBRN_ENTRY_PORT_WORKSTATION env var
-  but_expect_ok ${ZRBOB_RUNTIME} run --rm -i \
+  but_unit_expect_ok ${ZRBOB_RUNTIME} run --rm -i \
     --network host \
     -e RBRN_ENTRY_PORT_WORKSTATION="${RBRN_ENTRY_PORT_WORKSTATION}" \
     "${RBT_SRJCL_TEST_IMAGE}" \

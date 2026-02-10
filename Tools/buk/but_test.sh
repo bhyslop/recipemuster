@@ -116,7 +116,10 @@ zbut_invoke() {
   rm -f "${tmp_stdout}" "${tmp_stderr}"
 }
 
-but_expect_ok_stdout() {
+######################################################################
+# but_unit_* - Raw command invocation via zbut_invoke
+
+but_unit_expect_ok_stdout() {
   set -e
 
   local expected="$1"; shift
@@ -133,7 +136,7 @@ but_expect_ok_stdout() {
                                                      "Got:      '${ZBUT_STDOUT}'"
 }
 
-but_expect_ok() {
+but_unit_expect_ok() {
   set -e
 
   zbut_invoke "$@"
@@ -143,13 +146,115 @@ but_expect_ok() {
                                       "STDERR: ${ZBUT_STDERR}"
 }
 
-but_expect_fatal() {
+but_unit_expect_fatal() {
   set -e
 
   zbut_invoke "$@"
 
   but_fatal_on_success "${ZBUT_STATUS}" "Expected failure but got success" \
                                         "Command: $*"                      \
+                                        "STDOUT: ${ZBUT_STDOUT}"           \
+                                        "STDERR: ${ZBUT_STDERR}"
+}
+
+######################################################################
+# but_tt_* - Tabtarget file invocation (requires tabtarget exists)
+#
+# Resolves colophon to tt/{colophon}.*.sh file, dies if missing.
+# Extra args pass through to tabtarget script.
+# Caller's environment must have sourced BUZ.
+
+zbut_resolve_tabtarget() {
+  local z_colophon="${1:-}"
+  test -n "${z_colophon}" || but_fatal "zbut_resolve_tabtarget: colophon required"
+
+  # Resolve against BURC_TABTARGET_DIR if set, otherwise use tt/ from project root
+  local z_tt_dir="${BURC_TABTARGET_DIR:-tt}"
+  local z_matches=("${z_tt_dir}/${z_colophon}."*.sh)
+
+  # Bash 3.2: no-match glob returns literal — check with test -e
+  test -e "${z_matches[0]}" || but_fatal "No tabtarget found for colophon '${z_colophon}' in ${z_tt_dir}/"
+
+  test "${#z_matches[@]}" -eq 1 || but_fatal "Multiple tabtargets found for colophon '${z_colophon}' in ${z_tt_dir}/"
+
+  echo "${z_matches[0]}"
+}
+
+but_tt_expect_ok() {
+  set -e
+
+  local z_colophon="${1:-}"
+  test -n "${z_colophon}" || but_fatal "but_tt_expect_ok: colophon required"
+  shift
+
+  local z_tabtarget
+  z_tabtarget=$(zbut_resolve_tabtarget "${z_colophon}")
+
+  zbut_invoke "${z_tabtarget}" "$@"
+
+  but_fatal_on_error "${ZBUT_STATUS}" "Tabtarget failed with status ${ZBUT_STATUS}" \
+                                      "Colophon: ${z_colophon}"                     \
+                                      "Tabtarget: ${z_tabtarget}"                   \
+                                      "STDERR: ${ZBUT_STDERR}"
+}
+
+but_tt_expect_fatal() {
+  set -e
+
+  local z_colophon="${1:-}"
+  test -n "${z_colophon}" || but_fatal "but_tt_expect_fatal: colophon required"
+  shift
+
+  local z_tabtarget
+  z_tabtarget=$(zbut_resolve_tabtarget "${z_colophon}")
+
+  zbut_invoke "${z_tabtarget}" "$@"
+
+  but_fatal_on_success "${ZBUT_STATUS}" "Expected failure but got success"    \
+                                        "Colophon: ${z_colophon}"             \
+                                        "Tabtarget: ${z_tabtarget}"           \
+                                        "STDOUT: ${ZBUT_STDOUT}"              \
+                                        "STDERR: ${ZBUT_STDERR}"
+}
+
+######################################################################
+# but_launch_* - Workbench dispatch (no tabtarget file required)
+#
+# First arg is launcher (workbench), second is colophon, rest are args.
+# Invokes launcher directly with colophon+args.
+# Caller's environment must have sourced BURD.
+
+but_launch_expect_ok() {
+  set -e
+
+  local z_launcher="${1:-}"
+  local z_colophon="${2:-}"
+  test -n "${z_launcher}" || but_fatal "but_launch_expect_ok: launcher required"
+  test -n "${z_colophon}" || but_fatal "but_launch_expect_ok: colophon required"
+  shift 2
+
+  zbut_invoke "${z_launcher}" "${z_colophon}" "$@"
+
+  but_fatal_on_error "${ZBUT_STATUS}" "Launch failed with status ${ZBUT_STATUS}" \
+                                      "Launcher: ${z_launcher}"                  \
+                                      "Colophon: ${z_colophon}"                  \
+                                      "STDERR: ${ZBUT_STDERR}"
+}
+
+but_launch_expect_fatal() {
+  set -e
+
+  local z_launcher="${1:-}"
+  local z_colophon="${2:-}"
+  test -n "${z_launcher}" || but_fatal "but_launch_expect_fatal: launcher required"
+  test -n "${z_colophon}" || but_fatal "but_launch_expect_fatal: colophon required"
+  shift 2
+
+  zbut_invoke "${z_launcher}" "${z_colophon}" "$@"
+
+  but_fatal_on_success "${ZBUT_STATUS}" "Expected failure but got success" \
+                                        "Launcher: ${z_launcher}"          \
+                                        "Colophon: ${z_colophon}"          \
                                         "STDOUT: ${ZBUT_STDOUT}"           \
                                         "STDERR: ${ZBUT_STDERR}"
 }

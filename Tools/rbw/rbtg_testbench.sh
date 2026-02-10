@@ -24,6 +24,7 @@ RBTG_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${RBTG_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${RBTG_SCRIPT_DIR}/../buk/but_test.sh"
 source "${RBTG_SCRIPT_DIR}/../buk/buz_zipper.sh"
 source "${RBTG_SCRIPT_DIR}/rbz_zipper.sh"
 
@@ -40,7 +41,7 @@ rbtg_case_dispatch_exercise() {
   buz_init_evidence
 
   buc_step "Dispatching RBZ_LIST_IMAGES"
-  buz_dispatch_expect_ok "${RBZ_LIST_IMAGES}"
+  but_tt_expect_ok "${RBZ_LIST_IMAGES}"
 
   buc_step "Verifying evidence collection"
   local z_step
@@ -95,19 +96,19 @@ rbtg_case_ark_lifecycle() {
   # Step 1: Capture baseline image list
   buc_step "Step 1/6: Listing images (baseline)"
   local z_baseline_file="${BURD_TEMP_DIR}/rbtg_list_baseline.txt"
-  buz_dispatch_expect_ok "${RBZ_LIST_IMAGES}" > "${z_baseline_file}"
+  but_tt_expect_ok "${RBZ_LIST_IMAGES}" > "${z_baseline_file}"
   local z_baseline_count
   z_baseline_count=$(zrbtg_count_locators "${z_baseline_file}")
   buc_info "Baseline locator count: ${z_baseline_count}"
 
   # Step 2: Conjure ark
   buc_step "Step 2/6: Conjuring ark from vessel ${z_vessel_sigil}"
-  buz_dispatch_expect_ok "${RBZ_CONJURE_ARK}" "${z_vessel_dir}"
+  but_tt_expect_ok "${RBZ_CONJURE_ARK}" "${z_vessel_dir}"
 
   # Step 3: Verify image count increased
   buc_step "Step 3/6: Listing images (post-conjure)"
   local z_post_conjure_file="${BURD_TEMP_DIR}/rbtg_list_post_conjure.txt"
-  buz_dispatch_expect_ok "${RBZ_LIST_IMAGES}" > "${z_post_conjure_file}"
+  but_tt_expect_ok "${RBZ_LIST_IMAGES}" > "${z_post_conjure_file}"
   local z_post_conjure_count
   z_post_conjure_count=$(zrbtg_count_locators "${z_post_conjure_file}")
   buc_info "Post-conjure locator count: ${z_post_conjure_count}"
@@ -132,19 +133,19 @@ rbtg_case_ark_lifecycle() {
   z_retrieve_locator=$(head -1 "${z_new_locators_file}")
   test -n "${z_retrieve_locator}" || buc_die "No locator available for retrieve"
   buc_info "Retrieving: ${z_retrieve_locator}"
-  buz_dispatch_expect_ok "${RBZ_RETRIEVE_IMAGE}" "${z_retrieve_locator}"
+  but_tt_expect_ok "${RBZ_RETRIEVE_IMAGE}" "${z_retrieve_locator}"
 
   # Step 5: Delete all new locators to restore baseline
   buc_step "Step 5/6: Deleting new images"
   while IFS= read -r z_locator; do
     buc_info "Deleting: ${z_locator}"
-    buz_dispatch_expect_ok "${RBZ_DELETE_IMAGE}" "${z_locator}" "--force"
+    but_tt_expect_ok "${RBZ_DELETE_IMAGE}" "${z_locator}" "--force"
   done < "${z_new_locators_file}"
 
   # Step 6: Verify count restored to baseline
   buc_step "Step 6/6: Listing images (post-delete)"
   local z_post_delete_file="${BURD_TEMP_DIR}/rbtg_list_post_delete.txt"
-  buz_dispatch_expect_ok "${RBZ_LIST_IMAGES}" > "${z_post_delete_file}"
+  but_tt_expect_ok "${RBZ_LIST_IMAGES}" > "${z_post_delete_file}"
   local z_final_count
   z_final_count=$(zrbtg_count_locators "${z_post_delete_file}")
   buc_info "Final locator count: ${z_final_count}"

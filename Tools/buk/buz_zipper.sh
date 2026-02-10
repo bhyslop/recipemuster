@@ -160,37 +160,6 @@ buz_dispatch() {
   zbuz_step_output_dir+=("${z_evidence_dir}")
 }
 
-# buz_dispatch_expect_ok() - dispatch + die on non-zero exit
-# Args: colophon [extra_args...]
-buz_dispatch_expect_ok() {
-  zbuz_sentinel
-
-  buz_dispatch "$@"
-
-  local z_step_idx
-  z_step_idx=$(buz_last_step_capture) || buc_die "No step recorded after dispatch"
-
-  local z_status="${zbuz_step_exit_status[$z_step_idx]}"
-  if test "${z_status}" -ne 0; then
-    buc_die "Dispatch '${zbuz_step_colophons[$z_step_idx]}' expected exit 0, got ${z_status}"
-  fi
-}
-
-# buz_dispatch_expect_fail() - dispatch + die on zero exit
-# Args: colophon [extra_args...]
-buz_dispatch_expect_fail() {
-  zbuz_sentinel
-
-  buz_dispatch "$@"
-
-  local z_step_idx
-  z_step_idx=$(buz_last_step_capture) || buc_die "No step recorded after dispatch"
-
-  local z_status="${zbuz_step_exit_status[$z_step_idx]}"
-  if test "${z_status}" -eq 0; then
-    buc_die "Dispatch '${zbuz_step_colophons[$z_step_idx]}' expected non-zero exit, got 0"
-  fi
-}
 
 ######################################################################
 # Step result _capture functions
