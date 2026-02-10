@@ -95,7 +95,6 @@ fn zvvcm_stage_files(files: &[String]) -> Result<(), String> {
         .map_err(|e| format!("Failed to run git add: {}", e))?;
 
     if result.status.success() {
-        eprintln!("vvcm_commit: staged {} file(s)", files.len());
         Ok(())
     } else {
         Err(format!(
@@ -131,7 +130,6 @@ fn zvvcm_execute_commit(message: &str) -> Result<String, String> {
         .trim()
         .to_string();
 
-    eprintln!("vvcm_commit: committed {}", &hash[..8.min(hash.len())]);
     Ok(hash)
 }
 

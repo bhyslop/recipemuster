@@ -84,9 +84,7 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs) -> i32 {
             let message = format_heat_message(&fm, HeatAction::Slate, &silks);
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
-                Ok(hash) => {
-                    eprintln!("jjx_slate: committed {}", &hash[..8]);
-                }
+                Ok(_hash) => {}
                 Err(e) => {
                     eprintln!("jjx_slate: error: {}", e);
                     return 1;
