@@ -730,12 +730,10 @@ fn zjjrg_build_trophy_content(
 /// Curry - update Heat paddock with chalk entry
 ///
 /// Writes new paddock content and creates a chalk commit recording the change.
-/// Verb indicates the type of update: refine (manual), level (from another heat), muck (reduction).
 pub fn jjrg_curry(
     gallops_path: &std::path::Path,
     firemark: &Firemark,
     new_content: &str,
-    verb: &str,
     note: Option<&str>,
 ) -> Result<(), String> {
     use std::fs;
@@ -756,9 +754,9 @@ pub fn jjrg_curry(
 
     // Build chalk message
     let description = if let Some(n) = note {
-        format!("paddock curried ({}): {}", verb, n)
+        format!("paddock curried: {}", n)
     } else {
-        format!("paddock curried ({})", verb)
+        "paddock curried".to_string()
     };
 
     // Create chalk commit using vvc

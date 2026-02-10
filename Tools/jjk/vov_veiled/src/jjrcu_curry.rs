@@ -5,29 +5,10 @@
 //! Curry command - paddock update operation for Heat context
 //!
 //! Supports getter mode (display paddock) and setter mode (update with chalk entry).
-//! Setter mode requires a verb flag (--refine, --level, --muck) to indicate update type.
 
 use std::path::PathBuf;
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
-
-/// Curry verb for paddock update mode
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum jjrcu_CurryVerb {
-    Refine,
-    Level,
-    Muck,
-}
-
-impl jjrcu_CurryVerb {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            jjrcu_CurryVerb::Refine => "refine",
-            jjrcu_CurryVerb::Level => "level",
-            jjrcu_CurryVerb::Muck => "muck",
-        }
-    }
-}
 
 /// Arguments for jjx_curry command
 #[derive(clap::Args, Debug)]
@@ -38,16 +19,6 @@ pub struct jjrcu_CurryArgs {
 
     /// Target Heat identity (Firemark)
     pub firemark: String,
-
-    /// Verb for setter mode (required if stdin present)
-    #[arg(long)]
-    pub refine: bool,
-
-    #[arg(long)]
-    pub level: bool,
-
-    #[arg(long)]
-    pub muck: bool,
 
     /// Optional note for chalk entry
     #[arg(long)]
@@ -110,31 +81,9 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs) -> i32 {
             0
         }
         Some(new_content) => {
-            // Setter mode: require verb
-            let verb_count = [args.refine, args.level, args.muck]
-                .iter()
-                .filter(|&&x| x)
-                .count();
-
-            if verb_count == 0 {
-                eprintln!("jjx_curry: error: setter mode requires exactly one verb flag (--refine, --level, or --muck)");
-                return 1;
-            }
-            if verb_count > 1 {
-                eprintln!("jjx_curry: error: only one verb flag allowed");
-                return 1;
-            }
-
-            let verb = if args.refine {
-                jjrcu_CurryVerb::Refine
-            } else if args.level {
-                jjrcu_CurryVerb::Level
-            } else {
-                jjrcu_CurryVerb::Muck
-            };
-
+            // Setter mode: update paddock
             // Call operation (curry acquires its own lock)
-            match jjrg_curry(&args.file, &firemark, &new_content, verb.as_str(), args.note.as_deref()) {
+            match jjrg_curry(&args.file, &firemark, &new_content, args.note.as_deref()) {
                 Ok(()) => {
                     eprintln!("jjx_curry: paddock updated");
                     0
