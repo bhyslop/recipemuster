@@ -659,6 +659,13 @@
         "₢AHAAc": {
           "tacks": [
             {
+              "ts": "260210-0235",
+              "state": "complete",
+              "text": "Fix jjx_alter CLI reference in CLAUDE.md to match actual implementation.\n\n## Spook\n\nCLAUDE.md CLI reference shows `jjx_alter FIREMARK [--status racing|stabled]` but the actual CLI uses `--racing` / `--stabled` boolean flags. Agent invoked `--status racing`, got rejected, recovered via `--help`.\n\n## Fix\n\nUpdate CLAUDE.md JJK section: change `[--status racing|stabled]` to `[--racing|--stabled]` in the CLI Command Reference table.\n\n## Verification\n\n- CLAUDE.md CLI reference matches `jjx_alter --help` output",
+              "silks": "spook-alter-status-flag",
+              "commit": "9438a52"
+            },
+            {
               "ts": "260209-1155",
               "state": "rough",
               "text": "Fix jjx_alter CLI reference in CLAUDE.md to match actual implementation.\n\n## Spook\n\nCLAUDE.md CLI reference shows `jjx_alter FIREMARK [--status racing|stabled]` but the actual CLI uses `--racing` / `--stabled` boolean flags. Agent invoked `--status racing`, got rejected, recovered via `--help`.\n\n## Fix\n\nUpdate CLAUDE.md JJK section: change `[--status racing|stabled]` to `[--racing|--stabled]` in the CLI Command Reference table.\n\n## Verification\n\n- CLAUDE.md CLI reference matches `jjx_alter --help` output",
