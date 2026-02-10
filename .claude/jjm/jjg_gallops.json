@@ -771,6 +771,7 @@
         "₢ATAAJ",
         "₢ATAAH",
         "₢ATAAQ",
+        "₢ATAAR",
         "₢ATAAB",
         "₢ATAAA",
         "₢ATAAC",
@@ -779,7 +780,7 @@
         "₢ATAAF",
         "₢ATAAK"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1122,6 +1123,17 @@
               "text": "Study whether buv_env_* validators should echo validated values to stdout.\n\n## Context\n\nThe buv_env_* functions (buv_env_xname, buv_env_string, etc.) in buv_validation.sh echo the validated value to stdout on success. This was designed for capture patterns like `result=$(buv_env_xname ...)`, but most callers (notably zrbrr_kindle) call them without capturing, spilling raw values to stdout.\n\nCurrently rbrv_cli.sh and rbrn_cli.sh work around this by redirecting `zrbrv_validate_fields > /dev/null`. This `> /dev/null` pattern is a code smell — it suppresses output because the API contract is wrong, not because the output is intentionally discardable.\n\n## Work\n\n1. Audit all callers of buv_env_* across the codebase — how many capture the return value vs discard it?\n2. Determine if the echo-to-stdout contract is actually used by anyone (capture pattern)\n3. If no callers capture: remove the echo from buv_val_* validators, making them silent-on-success / die-on-failure\n4. If some callers capture: consider splitting into buv_env_* (silent, for kindle) and buv_val_* (returns value, for capture)\n5. Remove all `> /dev/null` suppressions that become unnecessary\n6. Verify no regressions in render/validate paths\n\n## Acceptance\n\n- buv_env_* calls in kindle functions produce no stdout noise\n- No `> /dev/null` workarounds remain for validation calls\n- All existing render and validate tabtargets still work correctly",
               "silks": "study-buv-env-stdout-pattern",
               "commit": "b48c7d1"
+            }
+          ]
+        },
+        "₢ATAAR": {
+          "tacks": [
+            {
+              "ts": "260210-1308",
+              "state": "rough",
+              "text": "Refactor zrbrr_kindle to follow the kindle/validate_fields separation pattern used by RBRN and RBRV.\n\n## Context\n\nRBRN and RBRV regimes use a clean two-phase pattern:\n- `kindle()` — silent: sets defaults with `VAR=\"${VAR:-}\"`, detects unexpected vars, builds rollup/docker-env arrays\n- `validate_fields()` — strict: calls buv_env_* for validation, dies on first error\n\nRBRR's `zrbrr_kindle()` mixes both phases: it calls buv_env_* directly during kindle, making kindle noisy and inseparable from validation. This causes stdout noise in rbrv_cli.sh render (which calls rbrr_load as a dependency).\n\n## Prerequisites\n\n- ₢ATAAQ (study-buv-env-stdout-pattern) must be complete first — the buv_env_* contract may change, which affects how validate_fields is written.\n\n## Work\n\n1. Split zrbrr_kindle() into:\n   - `zrbrr_kindle()` — set defaults, detect unexpected vars, build ZRBRR_DOCKER_ENV, set ZRBRR_KINDLED. Silent.\n   - `zrbrr_validate_fields()` — buv_env_* calls + format checks (podman version, timeout, platform). Dies on error.\n2. Update rbrr_load() to call both kindle and validate\n3. Update rbrv_cli.sh render/validate to benefit (no more stdout noise from rbrr_load)\n4. Verify all callers of rbrr_load / zrbrr_kindle still work\n\n## Acceptance\n\n- rbrr_regime.sh follows same kindle/validate_fields pattern as rbrn_regime.sh and rbrv_regime.sh\n- `tt/rbw-rvr.RenderVesselRegime.sh` produces no preamble noise\n- All render and validate tabtargets pass",
+              "silks": "align-rbrr-kindle-with-rbrn-rbrv",
+              "commit": "f173424"
             }
           ]
         }
