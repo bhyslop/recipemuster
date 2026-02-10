@@ -2349,6 +2349,7 @@
       "creation_time": "260125",
       "status": "racing",
       "order": [
+        "₢APAAf",
         "₢APAAV",
         "₢APAAU",
         "₢APAAK",
@@ -2381,7 +2382,7 @@
         "₢APAAN",
         "₢APAAe"
       ],
-      "next_pace_seed": "AAf",
+      "next_pace_seed": "AAg",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -3198,6 +3199,17 @@
               "text": "## Problem Discovery\n\nWhen dispatching two Cloud Build jobs from separate terminal sessions against the same GCP depot project, the second build remains in QUEUED status while the first is WORKING. Only after the first completes (SUCCESS) does the second transition from QUEUED to WORKING. The serialization occurs in the cloud, not at the CLI level.\n\n## Root Cause\n\nGoogle Cloud Build's **default pool** enforces a concurrent build limit of **1 build per project per region**. The Recipe Bottle system uses the default pool (no private worker pool configured) with `E2_HIGHCPU_8` machine type, as set in `rbrr_RecipeBottleRegimeRepo.sh`:\n```\nRBRR_GCB_MACHINE_TYPE=E2_HIGHCPU_8\n```\n\nNo `workerPool` field is present in the build submission JSON constructed in `rbf_Foundry.sh` (around line 438).\n\n## Architectural Note\n\nThe RBSA spec's \"Concurrent Session Safety\" section (RBSA-SpecTop.adoc, lines 563-593) explicitly documents that concurrent builds are supported and produce independent images. The CLI-level isolation is correct — unique timestamps, isolated temp dirs, no collision. The bottleneck is purely the GCP quota on the default Cloud Build pool.\n\n## Recommended Repair Options (in order of preference)\n\n1. **Request GCP quota increase** — Increase the concurrent build limit for the default pool via GCP Console (IAM & Admin > Quotas & System Limits, filter for `cloudbuild.googleapis.com`). Zero code changes. Google typically grants small increases (5-10) without friction. This is the right first move.\n\n2. **Private worker pool** — Create a Cloud Build private pool with explicit concurrency configuration. Requires:\n   - New regime variable for pool name/config\n   - Adding `workerPool` field to the build request JSON in `rbf_Foundry.sh`\n   - Pool creation/teardown procedures (likely new RBSA operations)\n   - More infrastructure to manage, but gives direct concurrency control\n\n3. **Document the limitation** — At minimum, add a NOTE to the Concurrent Session Safety section in RBSA-SpecTop.adoc clarifying that while the CLI supports concurrent invocation, the default Cloud Build pool quota may serialize actual execution.\n\n## Key Files\n- `rbrr_RecipeBottleRegimeRepo.sh` — regime config with `RBRR_GCB_MACHINE_TYPE`\n- `Tools/rbw/rbf_Foundry.sh` — build submission (line ~438, no workerPool field)\n- `lenses/RBSA-SpecTop.adoc` — Concurrent Session Safety section (lines 563-593)\n- `lenses/RBSTB-trigger_build.adoc` — trigger_build spec (step 9: submit, step 10: poll)",
               "silks": "increase-gcb-concurrent-build-quota",
               "commit": "46c98bd"
+            }
+          ]
+        },
+        "₢APAAf": {
+          "tacks": [
+            {
+              "ts": "260209-1727",
+              "state": "rough",
+              "text": "Redesign the ark function API surface (summon, beseech, abjure) for nameplate-centric workflow.\n\n## Problem\n\nCurrent API requires explicit consecration arguments for summon and abjure, but the natural workflow is nameplate-driven: the nameplate declares which consecrations are active, and operations should follow from that.\n\n## Design Questions to Resolve\n\n1. **Summon**: Should take a nameplate (or work from regime context) and pull whatever consecrations are declared there — no explicit consecration arg. \"Make local match what nameplate says.\" Consider: summon both vessels at once vs per-vessel.\n\n2. **Beseech**: Becomes the discovery/selection tool. Should it output copy-pasteable nameplate lines? Interactive \"install this consecration\" mode? Both?\n\n3. **Abjure**: Stays by-consecration (deleting a specific version is inherently explicit), BUT must add a safeguard: refuse to delete any consecration currently referenced by a nameplate. Scan surface: `Tools/rbw/rbrn_*.env` files.\n\n4. **Tabtarget implications**: Current `rbw-as.SummonArk.sh` takes `<vessel> <consecration>` — this signature changes. Consider whether vessel arg is even needed if nameplate provides both.\n\n## Bugs Found During Investigation (already fixed)\n\n- beseech vessel filter didn't strip path prefix (fixed: `${var##*/}`)\n- `curl -X HEAD` vs `curl --head` in summon/abjure caused exit code 18 (fixed)\n\n## Scope\n\n- Design the new API signatures for all three functions\n- Update tabtarget arguments to match\n- Update spec docs (RBSAS, RBSAB, RBSAA) to reflect new contracts\n- Implement and test\n\n## Notes\n\n- This is a design pace — needs human judgment on API shape\n- Asymmetric by nature: summon is nameplate-driven, abjure is consecration-driven with nameplate guard",
+              "silks": "redesign-ark-summon-abjure-api",
+              "commit": "a8fec84"
             }
           ]
         }
