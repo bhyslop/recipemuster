@@ -706,6 +706,13 @@
         "₢AHAAe": {
           "tacks": [
             {
+              "ts": "260210-1455",
+              "state": "complete",
+              "text": "Remove three noisy eprintln! lines from slate/enroll output:\n\n1. `Tools/vvc/src/vvcm_machine.rs:98` — `eprintln!(\"vvcm_commit: staged {} file(s)\", files.len());`\n2. `Tools/vvc/src/vvcm_machine.rs:134` — `eprintln!(\"vvcm_commit: committed {}\", &hash[..8.min(hash.len())]);`\n3. `Tools/jjk/vov_veiled/src/jjrsl_slate.rs:88` — `eprintln!(\"jjx_slate: committed {}\", &hash[..8]);`\n\nDelete the three eprintln! lines. The coronet line (stdout) is the only useful output from enroll/slate.\n\nKeep the WARNING line at vvcm_machine.rs:76 — that one is useful.\n\nBuild after: `tt/vow-b.Build.sh`",
+              "silks": "quiet-slate-output",
+              "commit": "1856295"
+            },
+            {
               "ts": "260210-1237",
               "state": "rough",
               "text": "Remove three noisy eprintln! lines from slate/enroll output:\n\n1. `Tools/vvc/src/vvcm_machine.rs:98` — `eprintln!(\"vvcm_commit: staged {} file(s)\", files.len());`\n2. `Tools/vvc/src/vvcm_machine.rs:134` — `eprintln!(\"vvcm_commit: committed {}\", &hash[..8.min(hash.len())]);`\n3. `Tools/jjk/vov_veiled/src/jjrsl_slate.rs:88` — `eprintln!(\"jjx_slate: committed {}\", &hash[..8]);`\n\nDelete the three eprintln! lines. The coronet line (stdout) is the only useful output from enroll/slate.\n\nKeep the WARNING line at vvcm_machine.rs:76 — that one is useful.\n\nBuild after: `tt/vow-b.Build.sh`",
