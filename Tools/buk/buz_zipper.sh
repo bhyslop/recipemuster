@@ -36,11 +36,6 @@ zbuz_kindle() {
   zbuz_commands=()
   zbuz_tabtargets=()
 
-  # Step result arrays (populated by buz_dispatch)
-  zbuz_step_colophons=()
-  zbuz_step_exit_status=()
-  zbuz_step_output_dir=()
-
   ZBUZ_KINDLED=1
 }
 
@@ -105,88 +100,20 @@ buz_register() {
 }
 
 ######################################################################
-# Dispatch and evidence infrastructure
+# Dispatch/evidence compatibility shims
+#
+# These delegate to buto_operations.sh (sourced via but_test.sh shim).
+# Callers not yet migrated to buto_ can continue using buz_ names.
+# Removed when convert-dispatch-exercise and convert-ark-lifecycle paces complete.
 
-# buz_init_evidence() - Create evidence root dir under testbench temp
 buz_init_evidence() {
-  zbuz_sentinel
-  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - buz_init_evidence requires BURD context"
-
-  ZBUZ_EVIDENCE_ROOT="${BURD_TEMP_DIR}/evidence"
-  mkdir -p "${ZBUZ_EVIDENCE_ROOT}"
-  buc_log_args "Evidence root: ${ZBUZ_EVIDENCE_ROOT}"
+  test -n "${ZBUTO_DISPATCH_READY:-}" || buto_init_dispatch
+  buto_init_evidence
+  ZBUZ_EVIDENCE_ROOT="${ZBUTO_EVIDENCE_ROOT}"
 }
-
-# buz_dispatch() - Invoke tabtarget via BURV-isolated environment
-# Args: colophon [extra_args...]
-# NOT a _capture function — has side effects (step arrays, dirs)
-# Step index available via buz_last_step_capture after return
-buz_dispatch() {
-  zbuz_sentinel
-  test -n "${ZBUZ_EVIDENCE_ROOT:-}" || buc_die "Evidence not initialized - call buz_init_evidence first"
-
-  local z_colophon="${1:-}"
-  test -n "${z_colophon}" || buc_die "buz_dispatch requires colophon"
-  shift
-
-  # Resolve tabtarget on-demand
-  local z_tabtarget
-  z_tabtarget=$(zbuz_resolve_tabtarget_capture "${z_colophon}") || buc_die "Cannot resolve tabtarget for '${z_colophon}'"
-
-  local z_step_idx="${#zbuz_step_colophons[@]}"
-
-  local z_step_dir="${ZBUZ_EVIDENCE_ROOT}/step-${z_step_idx}"
-  local z_burv_output="${z_step_dir}/burv-output"
-  local z_burv_temp="${z_step_dir}/burv-temp"
-  local z_evidence_dir="${z_step_dir}/evidence"
-  mkdir -p "${z_burv_output}" "${z_burv_temp}" "${z_evidence_dir}"
-
-  buc_log_args "Dispatching step ${z_step_idx}: colophon=${z_colophon} tabtarget=${z_tabtarget}"
-
-  local z_exit_status=0
-  BURV_OUTPUT_ROOT_DIR="${z_burv_output}" \
-  BURV_TEMP_ROOT_DIR="${z_burv_temp}" \
-  BURD_NO_LOG=1 \
-    "${z_tabtarget}" "$@" || z_exit_status=$?
-
-  buc_log_args "Step ${z_step_idx} exit status: ${z_exit_status}"
-
-  if test -d "${z_burv_output}/current"; then
-    cp -r "${z_burv_output}/current/." "${z_evidence_dir}/" || buc_warn "Evidence harvest failed for step ${z_step_idx}"
-  fi
-
-  zbuz_step_colophons+=("${z_colophon}")
-  zbuz_step_exit_status+=("${z_exit_status}")
-  zbuz_step_output_dir+=("${z_evidence_dir}")
-}
-
-######################################################################
-# Step result _capture functions
-
-# buz_last_step_capture() - Return index of most recent step
-buz_last_step_capture() {
-  zbuz_sentinel
-  local z_count="${#zbuz_step_colophons[@]}"
-  test "${z_count}" -gt 0 || return 1
-  echo "$((z_count - 1))"
-}
-
-# buz_get_step_exit_capture() - Return exit status for step
-# Args: step_index
-buz_get_step_exit_capture() {
-  zbuz_sentinel
-  local z_idx="${1:-}"
-  test -n "${z_idx}" || return 1
-  echo "${zbuz_step_exit_status[$z_idx]}"
-}
-
-# buz_get_step_output_capture() - Return evidence dir for step
-# Args: step_index
-buz_get_step_output_capture() {
-  zbuz_sentinel
-  local z_idx="${1:-}"
-  test -n "${z_idx}" || return 1
-  echo "${zbuz_step_output_dir[$z_idx]}"
-}
+buz_dispatch()                { buto_dispatch "$@"; }
+buz_last_step_capture()       { buto_last_step_capture; }
+buz_get_step_exit_capture()   { buto_get_step_exit_capture "$@"; }
+buz_get_step_output_capture() { buto_get_step_output_capture "$@"; }
 
 # eof
