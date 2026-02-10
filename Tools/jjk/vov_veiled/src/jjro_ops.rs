@@ -19,9 +19,9 @@ use crate::jjrv_validate::{zjjrg_is_kebab_case, zjjrg_is_yymmdd};
 ///
 /// Creates a new Heat with empty Pace structure and creates the paddock file.
 pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_path: &Path) -> Result<jjrg_NominateResult, String> {
-    // Validate silks is kebab-case
+    // Validate silks is alphanumeric-kebab
     if !zjjrg_is_kebab_case(&args.silks) {
-        return Err(format!("silks must be kebab-case, got '{}'", args.silks));
+        return Err(format!("silks must be non-empty alphanumeric-kebab (letters, digits, hyphens), got '{}'", args.silks));
     }
 
     // Validate created is YYMMDD
@@ -76,9 +76,9 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
 /// Adds a new Pace to a Heat with an initial Tack in rough state.
 /// Positioning: use before/after/first to insert at specific location.
 pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jjrg_SlateResult, String> {
-    // Validate silks is kebab-case
+    // Validate silks is alphanumeric-kebab
     if !zjjrg_is_kebab_case(&args.silks) {
-        return Err(format!("silks must be kebab-case, got '{}'", args.silks));
+        return Err(format!("silks must be non-empty alphanumeric-kebab (letters, digits, hyphens), got '{}'", args.silks));
     }
 
     // Validate text is non-empty
@@ -802,7 +802,7 @@ pub fn jjrg_furlough(gallops: &mut jjrg_Gallops, args: jjrg_FurloughArgs) -> Res
     // Validate silks if provided
     if let Some(ref silks) = args.silks {
         if !zjjrg_is_kebab_case(silks) {
-            return Err(format!("silks must be kebab-case, got '{}'", silks));
+            return Err(format!("silks must be non-empty alphanumeric-kebab (letters, digits, hyphens), got '{}'", silks));
         }
     }
 

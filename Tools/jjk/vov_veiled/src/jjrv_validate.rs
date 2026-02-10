@@ -16,19 +16,19 @@ pub(crate) fn zjjrg_is_base64(s: &str) -> bool {
     s.bytes().all(|b| JJRF_CHARSET.contains(&b))
 }
 
-/// Check if string is valid kebab-case (non-empty, lowercase alphanumeric with hyphens)
+/// Check if string is valid kebab-case (non-empty, alphanumeric with hyphens, case-insensitive)
 #[allow(dead_code)]
 pub(crate) fn zjjrg_is_kebab_case(s: &str) -> bool {
     if s.is_empty() {
         return false;
     }
-    // Pattern: [a-z0-9]+(-[a-z0-9]+)*
+    // Pattern: [a-zA-Z0-9]+(-[a-zA-Z0-9]+)*
     let parts: Vec<&str> = s.split('-').collect();
     for part in parts {
         if part.is_empty() {
             return false;
         }
-        if !part.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()) {
+        if !part.chars().all(|c| c.is_ascii_alphanumeric()) {
             return false;
         }
     }
@@ -124,10 +124,10 @@ fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String
     }
 
     // Rule 4: Required Heat fields
-    // silks (non-empty kebab-case)
+    // silks (non-empty alphanumeric-kebab)
     if !zjjrg_is_kebab_case(&heat.silks) {
         errors.push(format!(
-            "{}: silks must be non-empty kebab-case, got '{}'",
+            "{}: silks must be non-empty alphanumeric-kebab (letters, digits, hyphens), got '{}'",
             heat_ctx, heat.silks
         ));
     }
@@ -269,10 +269,10 @@ fn zjjrg_validate_tack(pace_ctx: &str, index: usize, tack: &jjrg_Tack, errors: &
         errors.push(format!("{}: text must not be empty", tack_ctx));
     }
 
-    // Rule 8: silks must be non-empty kebab-case
+    // Rule 8: silks must be non-empty alphanumeric-kebab
     if !zjjrg_is_kebab_case(&tack.silks) {
         errors.push(format!(
-            "{}: silks must be non-empty kebab-case, got '{}'",
+            "{}: silks must be non-empty alphanumeric-kebab (letters, digits, hyphens), got '{}'",
             tack_ctx, tack.silks
         ));
     }

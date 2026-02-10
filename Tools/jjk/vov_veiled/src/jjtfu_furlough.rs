@@ -103,12 +103,12 @@ fn jjtfu_invalid_silks() {
         firemark: "AB".to_string(),
         racing: false,
         stabled: false,
-        silks: Some("InvalidSilks".to_string()),
+        silks: Some("invalid_silks".to_string()),
     };
 
     let result = gallops.jjrg_furlough(args);
     assert!(result.is_err());
-    assert!(result.unwrap_err().contains("silks must be kebab-case"));
+    assert!(result.unwrap_err().contains("silks must be non-empty alphanumeric-kebab"));
 }
 
 #[test]
@@ -321,6 +321,8 @@ fn jjtfu_valid_kebab_case_silks() {
         "my-cool-heat",
         "heat-with-123-numbers",
         "a-b-c-d-e",
+        "MixedCase",
+        "Upper-lower-Mix",
     ];
 
     for new_silks in valid_names {
@@ -348,7 +350,6 @@ fn jjtfu_invalid_kebab_case_silks() {
 
     // Test various invalid kebab-case names
     let invalid_names = vec![
-        "CapitalCase",
         "snake_case",
         "-leading-dash",
         "trailing-dash-",

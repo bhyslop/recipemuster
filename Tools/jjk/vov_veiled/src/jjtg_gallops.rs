@@ -85,12 +85,15 @@ fn jjtg_zjjrg_is_kebab_case_valid() {
     assert!(zjjrg_is_kebab_case("test-pace"));
     assert!(zjjrg_is_kebab_case("my-cool-heat123"));
     assert!(zjjrg_is_kebab_case("a1-b2-c3"));
+    assert!(zjjrg_is_kebab_case("Test"));
+    assert!(zjjrg_is_kebab_case("MyHeat-Name"));
+    assert!(zjjrg_is_kebab_case("ALLCAPS"));
+    assert!(zjjrg_is_kebab_case("mixedCase-123"));
 }
 
 #[test]
 fn jjtg_zjjrg_is_kebab_case_invalid() {
     assert!(!zjjrg_is_kebab_case(""));
-    assert!(!zjjrg_is_kebab_case("Test"));
     assert!(!zjjrg_is_kebab_case("test_pace"));
     assert!(!zjjrg_is_kebab_case("-test"));
     assert!(!zjjrg_is_kebab_case("test-"));
@@ -173,7 +176,7 @@ fn jjtg_validate_heat_invalid_silks() {
     heat.silks = "Invalid_Silks".to_string();
     gallops.heats.insert(heat_key, heat);
     let errors = gallops.jjrg_validate().unwrap_err();
-    assert!(errors.iter().any(|e| e.contains("silks must be non-empty kebab-case")));
+    assert!(errors.iter().any(|e| e.contains("silks must be non-empty alphanumeric-kebab")));
 }
 
 #[test]
@@ -237,7 +240,7 @@ fn jjtg_validate_tack_invalid_silks() {
     }
     gallops.heats.insert(heat_key, heat);
     let errors = gallops.jjrg_validate().unwrap_err();
-    assert!(errors.iter().any(|e| e.contains("silks must be non-empty kebab-case")));
+    assert!(errors.iter().any(|e| e.contains("silks must be non-empty alphanumeric-kebab")));
 }
 
 #[test]
@@ -373,7 +376,7 @@ fn jjtg_multiple_errors_collected() {
         heats: IndexMap::new(),
     };
     let (_, mut heat) = make_valid_heat("AB", "my-heat");
-    heat.silks = "InvalidSilks".to_string(); // Not kebab-case
+    heat.silks = "Invalid_Silks".to_string(); // Has underscore
     heat.creation_time = "invalid".to_string(); // Not YYMMDD
     gallops.heats.insert("₣AB".to_string(), heat);
 
@@ -447,13 +450,13 @@ fn jjtg_nominate_invalid_silks() {
     let temp_dir = std::env::temp_dir();
 
     let args = jjrg_NominateArgs {
-        silks: "InvalidSilks".to_string(),
+        silks: "invalid_silks".to_string(),
         created: "260113".to_string(),
     };
 
     let result = gallops.jjrg_nominate(args, &temp_dir);
     assert!(result.is_err());
-    assert!(result.unwrap_err().contains("silks must be kebab-case"));
+    assert!(result.unwrap_err().contains("silks must be non-empty alphanumeric-kebab"));
 }
 
 #[test]
@@ -534,7 +537,7 @@ fn jjtg_slate_invalid_silks() {
 
     let args = jjrg_SlateArgs {
         firemark: "AB".to_string(),
-        silks: "InvalidSilks".to_string(),
+        silks: "invalid_silks".to_string(),
         text: "Do something".to_string(),
         before: None,
         after: None,
@@ -543,7 +546,7 @@ fn jjtg_slate_invalid_silks() {
 
     let result = gallops.jjrg_slate(args);
     assert!(result.is_err());
-    assert!(result.unwrap_err().contains("silks must be kebab-case"));
+    assert!(result.unwrap_err().contains("silks must be non-empty alphanumeric-kebab"));
 }
 
 #[test]

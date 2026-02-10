@@ -592,12 +592,12 @@ history is preserved, with a note recording the original
 [[jjdt_silks]]
 // ⟦axl_voices axt_string⟧
 {jjdt_silks}::
-A kebab-case display name.
+A case-insensitive kebab display name.
 Used for human-readable identification of
 {jjdhr_heat_s}
 and
 {jjdpr_pace_s}.
-Pattern: `[a-z0-9]+(-[a-z0-9]+)*`
+Pattern: `[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*`
 
 == Records
 
