@@ -21,7 +21,7 @@ Optional; 0-120 characters.
 {rbrn_runtime}
 
 Container runtime for service deployment.
-Must be "docker" or "podman".
+Must be {rbrn_runtime_docker} or {rbrn_runtime_podman}.
 
 //axhrgb_group
 {rbrn_group_ark_reference}

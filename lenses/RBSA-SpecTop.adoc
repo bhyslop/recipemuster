@@ -321,6 +321,7 @@
 :rbst_description:           <<rbst_description,Description>>
 :rbst_image_ref:             <<rbst_image_ref,Image Reference>>
 :rbst_locator:               <<rbst_locator,Locator>>
+:rbst_consecration:              <<rbst_consecration,Consecration>>
 :rbst_path:                  <<rbst_path,Path>>
 :rbst_platform_list:         <<rbst_platform_list,Platform List>>
 :rbst_binfmt_policy:         <<rbst_binfmt_policy,Binfmt Policy>>
@@ -335,6 +336,8 @@
 :rbrn_moniker:                   <<rbrn_moniker,RBRN_MONIKER>>
 :rbrn_description:               <<rbrn_description,RBRN_DESCRIPTION>>
 :rbrn_runtime:                   <<rbrn_runtime,RBRN_RUNTIME>>
+:rbrn_runtime_docker:            <<rbrn_runtime_docker,docker>>
+:rbrn_runtime_podman:            <<rbrn_runtime_podman,podman>>
 :rbrn_sentry_vessel:             <<rbrn_sentry_vessel,RBRN_SENTRY_VESSEL>>
 :rbrn_sentry_consecration:       <<rbrn_sentry_consecration,RBRN_SENTRY_CONSECRATION>>
 :rbrn_bottle_vessel:             <<rbrn_bottle_vessel,RBRN_BOTTLE_VESSEL>>
@@ -1963,9 +1966,19 @@ Unique moniker for the bottle service instance; 2-12 characters.
 Human-readable description of the service purpose; 0-120 characters.
 
 [[rbrn_runtime]]
-//axvr_variable axd_required rbst_xname
+//axvr_variable axd_required axt_enumeration
 {rbrn_runtime}::
-Container runtime for service deployment; "docker" or "podman".
+Container runtime for service deployment.
+
+[[rbrn_runtime_docker]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrn_runtime_docker}::
+Use Docker container runtime.
+
+[[rbrn_runtime_podman]]
+// ⟦axl_voices axt_enum_value⟧
+{rbrn_runtime_podman}::
+Use Podman container runtime.
 
 [[rbrn_sentry_vessel]]
 //axvr_variable axd_required rbst_xname
@@ -1973,7 +1986,7 @@ Container runtime for service deployment; "docker" or "podman".
 Vessel identifier for the sentry container image.
 
 [[rbrn_sentry_consecration]]
-//axvr_variable axd_required rbst_xname
+//axvr_variable axd_required rbst_consecration
 {rbrn_sentry_consecration}::
 Consecration timestamp for the sentry container image.
 
@@ -1983,7 +1996,7 @@ Consecration timestamp for the sentry container image.
 Vessel identifier for the bottle container image.
 
 [[rbrn_bottle_consecration]]
-//axvr_variable axd_required rbst_xname
+//axvr_variable axd_required rbst_consecration
 {rbrn_bottle_consecration}::
 Consecration timestamp for the bottle container image.
 
@@ -2157,6 +2170,12 @@ Fully-qualified container image reference.
 Repository-local image identifier combining {at_moniker} and tag.
 Format: `moniker:tag` (e.g., `rbev-busybox:20251231T161441Z-img`).
 Identifies a single artifact within the {rbtgi_repository} without repeating registry host or path.
+
+[[rbst_consecration]]
+// ⟦axl_voices axtu_string⟧
+{rbst_consecration}::
+Build timestamp marking when a vessel image was consecrated.
+ISO 8601 basic format (e.g., `20260209T235622Z`); 1-128 characters.
 
 [[rbst_path]]
 // ⟦axl_voices axtu_path⟧
