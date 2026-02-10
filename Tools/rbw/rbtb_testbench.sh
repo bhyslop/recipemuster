@@ -29,13 +29,69 @@ source "${RBTB_SCRIPT_DIR}/../buk/butr_registry.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butd_dispatch.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/buz_zipper.sh"
 source "${RBTB_SCRIPT_DIR}/rbz_zipper.sh"
+source "${RBTB_SCRIPT_DIR}/../buk/buv_validation.sh"
+source "${RBTB_SCRIPT_DIR}/rbrn_regime.sh"
+source "${RBTB_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBTB_SCRIPT_DIR}/rbcc_Constants.sh"
+source "${RBTB_SCRIPT_DIR}/rbob_bottle.sh"
 
 # Source test case files
 source "${RBTB_SCRIPT_DIR}/rbtckk_KickTires.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcal_ArkLifecycle.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butcde_DispatchExercise.sh"
+source "${RBTB_SCRIPT_DIR}/rbtcns_NsproSecurity.sh"
+source "${RBTB_SCRIPT_DIR}/rbtcsj_SrjclJupyter.sh"
+source "${RBTB_SCRIPT_DIR}/rbtcpl_PlumlDiagram.sh"
 
 buc_context "${0##*/}"
+zrbcc_kindle
+
+######################################################################
+# Shared test helpers (migrated from rbt_testbench.sh)
+
+rbtb_show() {
+  test "${BURD_VERBOSE:-0}" != "1" || echo "RBTSHOW: $*"
+}
+
+rbtb_load_nameplate() {
+  local z_moniker="${1:-}"
+  test -n "${z_moniker}" || buc_die "rbtb_load_nameplate: moniker argument required"
+
+  rbtb_show "Loading nameplate: ${z_moniker}"
+  rbrn_load_moniker "${z_moniker}"
+
+  rbtb_show "Nameplate loaded: RBRN_MONIKER=${RBRN_MONIKER}, RBRN_RUNTIME=${RBRN_RUNTIME}"
+
+  rbtb_show "Loading RBRR"
+  rbrr_load
+
+  rbtb_show "Kindling RBOB"
+  zrbob_kindle
+}
+
+rbtb_exec_sentry() {
+  ${ZRBOB_RUNTIME} exec "${ZRBOB_SENTRY}" "$@"
+}
+
+rbtb_exec_sentry_i() {
+  ${ZRBOB_RUNTIME} exec -i "${ZRBOB_SENTRY}" "$@"
+}
+
+rbtb_exec_censer() {
+  ${ZRBOB_RUNTIME} exec "${ZRBOB_CENSER}" "$@"
+}
+
+rbtb_exec_censer_i() {
+  ${ZRBOB_RUNTIME} exec -i "${ZRBOB_CENSER}" "$@"
+}
+
+rbtb_exec_bottle() {
+  ${ZRBOB_RUNTIME} exec "${ZRBOB_BOTTLE}" "$@"
+}
+
+rbtb_exec_bottle_i() {
+  ${ZRBOB_RUNTIME} exec -i "${ZRBOB_BOTTLE}" "$@"
+}
 
 ######################################################################
 # Setup functions
@@ -60,6 +116,21 @@ zrbtb_setup_dispatch() {
   ZBUTCDE_TEST_COLOPHON="${z1z_buz_colophon}"
 }
 
+zrbtb_setup_nsproto() {
+  buto_trace "Setup for nsproto-security suite"
+  rbtb_load_nameplate "nsproto"
+}
+
+zrbtb_setup_srjcl() {
+  buto_trace "Setup for srjcl-jupyter suite"
+  rbtb_load_nameplate "srjcl"
+}
+
+zrbtb_setup_pluml() {
+  buto_trace "Setup for pluml-diagram suite"
+  rbtb_load_nameplate "pluml"
+}
+
 ######################################################################
 # Registration
 
@@ -68,6 +139,9 @@ rbtb_kindle() {
   butr_register "kick-tires" "rbtckk_" "zrbtb_setup_kick" "fast"
   butr_register "ark-lifecycle" "rbtcal_" "zrbtb_setup_ark" "slow"
   butr_register "dispatch-exercise" "butcde_" "zrbtb_setup_dispatch" "fast"
+  butr_register "nsproto-security" "rbtcns_" "zrbtb_setup_nsproto" "slow"
+  butr_register "srjcl-jupyter" "rbtcsj_" "zrbtb_setup_srjcl" "slow"
+  butr_register "pluml-diagram" "rbtcpl_" "zrbtb_setup_pluml" "slow"
 }
 
 ######################################################################
@@ -89,6 +163,9 @@ rbtb_route() {
     rbtb-ta) butd_run_all ;;
     rbtb-ts) butd_run_suite "${1:-}" ;;
     rbtb-to) butd_run_one "${1:-}" ;;
+    rbtb-ns) butd_run_suite "nsproto-security" ;;
+    rbtb-sj) butd_run_suite "srjcl-jupyter" ;;
+    rbtb-pl) butd_run_suite "pluml-diagram" ;;
     *)       buc_die "Unknown command: ${z_command}" ;;
   esac
 }
