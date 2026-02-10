@@ -770,6 +770,7 @@
         "₢ATAAG",
         "₢ATAAJ",
         "₢ATAAH",
+        "₢ATAAQ",
         "₢ATAAB",
         "₢ATAAA",
         "₢ATAAC",
@@ -778,7 +779,7 @@
         "₢ATAAF",
         "₢ATAAK"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1103,6 +1104,17 @@
               "text": "Create the new BUT test framework: buto_ operations, butr_ registry,\nbutd_ dispatch, plus rbtb_ testbench skeleton with one kick-tires case.\n\nAbsorbs the work from abandoned ATAAJ (extract dispatch from buz).\n\n## New prefix tree\n\n  but (parent -- BUK Test)\n  +-- buto_ -- Operations (assertions, invocations, output)\n  +-- butr_ -- Registry (suite registration, pure data)\n  +-- butd_ -- Dispatch (runner, execution, reporting)\n  +-- butc_ -- Cases (butcXY_* BUK-level test case files, future)\n  +-- butb_ -- Bench (BUK-level testbench, future)\n\n  rbt (parent -- Recipe Bottle Test)\n  +-- rbtc_ -- Cases (rbtcXY_* test case files)\n  +-- rbtb_ -- Bench (testbench, domain helpers, kindle)\n\n## Files to create\n\n1. Tools/buk/buto_operations.sh\n   - All content from current but_test.sh, renamed but_* to buto_*:\n     buto_section, buto_info, buto_trace, buto_fatal,\n     buto_fatal_on_error, buto_fatal_on_success,\n     buto_unit_expect_ok, buto_unit_expect_ok_stdout,\n     buto_unit_expect_fatal,\n     buto_tt_expect_ok, buto_tt_expect_fatal,\n     buto_launch_expect_ok, buto_launch_expect_fatal\n   - Extract from buz_zipper.sh and rename:\n     buto_init_evidence, buto_dispatch, buto_last_step_capture,\n     buto_get_step_exit_capture, buto_get_step_output_capture\n   - Internal: buc_log_args to buto_info, buc_die to buto_fatal,\n     zbuz_sentinel to buto-local validation,\n     zbut_resolve_tabtarget used for tabtarget resolution\n   - Include guard: ZBUTO_INCLUDED\n   - Add buto_success (green output to stderr, matching zbut_case\n     pattern at current but_test.sh:288)\n\n2. Tools/buk/butr_registry.sh\n   - butr_kindle: initialize suite parallel arrays\n   - butr_register(suite_name, glob_pattern, setup_fn, tier):\n     populate arrays\n   - butr_get_suites, butr_get_pattern, butr_get_setup, butr_get_tier:\n     query functions\n   - Include guard: ZBUTR_INCLUDED\n\n3. Tools/buk/butd_dispatch.sh\n   - butd_run_all [--fast|--slow]: run all registered suites\n   - butd_run_suite suite_name: run one suite\n   - butd_run_one function_name: run single test\n   - Creates per-suite temp dirs under BURD_TEMP_DIR\n   - Calls setup function before each suite (from registry)\n   - Discovers functions via declare -F + registered glob\n   - Runs each in subshell (zbuto_case pattern, moved from buto_)\n   - Reports pass/fail summary\n   - Include guard: ZBUTD_INCLUDED\n\n4. Tools/rbw/rbtb_testbench.sh (skeleton)\n   - Sources buto_operations.sh, butr_registry.sh, butd_dispatch.sh\n   - Sources buz_zipper.sh, rbz_zipper.sh (for colophon constants)\n   - rbtb_kindle: register at least one kick-tires suite\n   - Provides setup functions (zrbtb_setup_*)\n   - Route command to butd_ runner\n\n5. Tools/rbw/rbtckk_KickTires.sh (kick-tires case file)\n   - One or two trivial rbtckk_* test functions\n   - Proves end-to-end: tabtarget -> BURD -> rbtb -> butd -> buto\n\n6. Tabtarget: tt/rbtb-t.TestAll.sh (or similar colophon)\n\n## Also modify\n\n- Tools/buk/buz_zipper.sh: remove dispatch/evidence/step sections\n  (lines 107-191). Remove step arrays from zbuz_kindle. Keep only\n  registry: zbuz_kindle, zbuz_sentinel, zbuz_resolve_tabtarget_capture,\n  buz_register.\n- Delete Tools/buk/but_test.sh (after all callers migrated -- may need\n  to keep as shim initially if other paces have not yet converted callers)\n\n## Callers NOT migrated in this pace\n- rbtg_testbench.sh (handled by convert-dispatch-exercise and\n  convert-ark-lifecycle paces)\n- rbt_testbench.sh (handled by convert-rbt-suites pace)\n- tbvu_suite_xname.sh, trbim_suite.sh (handled by\n  convert-remaining-testbenches pace)\nThese callers continue using but_test.sh until their conversion paces.\nKeeping but_test.sh as a compatibility shim that sources buto_operations.sh\nand aliases buto_* back to but_* enables incremental migration.\n\n## Verification\n- rbtckk kick-tires case runs end-to-end through the new framework\n- buz_zipper.sh contains only registry functions\n- buto_operations.sh has all assertion/invocation/dispatch functions\n- butr_registry.sh handles suite registration\n- butd_dispatch.sh runs registered suites",
               "silks": "but-framework-infrastructure",
               "commit": "8255a2a"
+            }
+          ]
+        },
+        "₢ATAAQ": {
+          "tacks": [
+            {
+              "ts": "260210-1307",
+              "state": "rough",
+              "text": "Study whether buv_env_* validators should echo validated values to stdout.\n\n## Context\n\nThe buv_env_* functions (buv_env_xname, buv_env_string, etc.) in buv_validation.sh echo the validated value to stdout on success. This was designed for capture patterns like `result=$(buv_env_xname ...)`, but most callers (notably zrbrr_kindle) call them without capturing, spilling raw values to stdout.\n\nCurrently rbrv_cli.sh and rbrn_cli.sh work around this by redirecting `zrbrv_validate_fields > /dev/null`. This `> /dev/null` pattern is a code smell — it suppresses output because the API contract is wrong, not because the output is intentionally discardable.\n\n## Work\n\n1. Audit all callers of buv_env_* across the codebase — how many capture the return value vs discard it?\n2. Determine if the echo-to-stdout contract is actually used by anyone (capture pattern)\n3. If no callers capture: remove the echo from buv_val_* validators, making them silent-on-success / die-on-failure\n4. If some callers capture: consider splitting into buv_env_* (silent, for kindle) and buv_val_* (returns value, for capture)\n5. Remove all `> /dev/null` suppressions that become unnecessary\n6. Verify no regressions in render/validate paths\n\n## Acceptance\n\n- buv_env_* calls in kindle functions produce no stdout noise\n- No `> /dev/null` workarounds remain for validation calls\n- All existing render and validate tabtargets still work correctly",
+              "silks": "study-buv-env-stdout-pattern",
+              "commit": "b48c7d1"
             }
           ]
         }
