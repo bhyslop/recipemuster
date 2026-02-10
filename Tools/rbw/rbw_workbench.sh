@@ -42,6 +42,11 @@ RBW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${RBW_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${RBW_SCRIPT_DIR}/rbcc_Constants.sh"
+source "${RBW_SCRIPT_DIR}/rbrn_regime.sh"
+
+# Kindle constants (needed for rbrn_list)
+zrbcc_kindle
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
