@@ -168,8 +168,9 @@ zbut_resolve_tabtarget() {
   local z_colophon="${1:-}"
   test -n "${z_colophon}" || but_fatal "zbut_resolve_tabtarget: colophon required"
 
-  # Resolve against BURC_TABTARGET_DIR if set, otherwise use tt/ from project root
-  local z_tt_dir="${BURC_TABTARGET_DIR:-tt}"
+  # Resolve against BURC_TABTARGET_DIR (required)
+  local z_tt_dir="${BURC_TABTARGET_DIR:-}"
+  test -n "${z_tt_dir}" || but_fatal "BURC_TABTARGET_DIR not set -- but_tt requires BUK environment"
   local z_matches=("${z_tt_dir}/${z_colophon}."*.sh)
 
   # Bash 3.2: no-match glob returns literal — check with test -e

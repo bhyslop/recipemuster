@@ -160,7 +160,6 @@ buz_dispatch() {
   zbuz_step_output_dir+=("${z_evidence_dir}")
 }
 
-
 ######################################################################
 # Step result _capture functions
 
