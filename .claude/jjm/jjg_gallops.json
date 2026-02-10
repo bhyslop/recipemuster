@@ -4479,10 +4479,24 @@
       "silks": "rbw-test-improvement-ideas",
       "creation_time": "260210",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AaAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_Aa.md",
-      "paces": {}
+      "paces": {
+        "₢AaAAA": {
+          "tacks": [
+            {
+              "ts": "260210-1459",
+              "state": "rough",
+              "text": "Add a suite-level precondition that fails fast if the local repo is not clean and aligned with its remote. This addresses failures caused by misalignment between local repo state and cloud state. The precondition should check that the working tree is clean (no uncommitted changes) and that the local branch is in sync with the remote, aborting the suite early with a clear error message if not.",
+              "silks": "suite-git-precondition",
+              "commit": "f3d6f91"
+            }
+          ]
+        }
+      }
     }
   }
 }
