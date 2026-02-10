@@ -32,9 +32,10 @@
         "₢AHAAY",
         "₢AHAAZ",
         "₢AHAAa",
-        "₢AHAAX"
+        "₢AHAAX",
+        "₢AHAAd"
       ],
-      "next_pace_seed": "AAd",
+      "next_pace_seed": "AAe",
       "paddock_file": ".claude/jjm/jjp_AH.md",
       "paces": {
         "₢AHAAA": {
@@ -685,6 +686,24 @@
               "text": "Fix jjx_alter CLI reference in CLAUDE.md to match actual implementation.\n\n## Spook\n\nCLAUDE.md CLI reference shows `jjx_alter FIREMARK [--status racing|stabled]` but the actual CLI uses `--racing` / `--stabled` boolean flags. Agent invoked `--status racing`, got rejected, recovered via `--help`.\n\n## Fix\n\nUpdate CLAUDE.md JJK section: change `[--status racing|stabled]` to `[--racing|--stabled]` in the CLI Command Reference table.\n\n## Verification\n\n- CLAUDE.md CLI reference matches `jjx_alter --help` output",
               "silks": "spook-alter-status-flag",
               "commit": "a5d2458"
+            }
+          ]
+        },
+        "₢AHAAd": {
+          "tacks": [
+            {
+              "ts": "260210-1124",
+              "state": "rough",
+              "text": "Drafted from ₢AGAAN in ₣AG.\n\nRelax silks validation to permit uppercase letters (A-Z) in addition to lowercase.\n\nContinue rejecting spaces and underscores — only allow [a-zA-Z0-9] and hyphens.\n\nCurrent pattern: `[a-z0-9]+(-[a-z0-9]+)*`\nTarget pattern: `[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*`\n\nLocate silks validation in jjk/vvx and update the regex plus any related error messages or tests.",
+              "silks": "permit-uppercase-silks",
+              "commit": "4c8e787"
+            },
+            {
+              "ts": "260208-1545",
+              "state": "rough",
+              "text": "Relax silks validation to permit uppercase letters (A-Z) in addition to lowercase.\n\nContinue rejecting spaces and underscores — only allow [a-zA-Z0-9] and hyphens.\n\nCurrent pattern: `[a-z0-9]+(-[a-z0-9]+)*`\nTarget pattern: `[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*`\n\nLocate silks validation in jjk/vvx and update the regex plus any related error messages or tests.",
+              "silks": "permit-uppercase-silks",
+              "commit": "6125f57"
             }
           ]
         }
@@ -3864,7 +3883,6 @@
         "₢AGAAG",
         "₢AGAAI",
         "₢AGAAM",
-        "₢AGAAN",
         "₢AGAAO"
       ],
       "next_pace_seed": "AAP",
@@ -4027,17 +4045,6 @@
               "text": "Add an auto-generated intent field to pace records.\n\nThe intent statement should be a prose summary (1-2 sentences) extracted from the pace docket, maintaining it automatically as part of slate/reslate operations.\n\nDisplay intent:\n- In non-detailed pace listings (alongside silks)\n- In wrap completion summary (showing what was just finished)\n\nThis gives paces more semantic richness than silks alone, helping runners understand purpose at a glance.",
               "silks": "add-intent-field",
               "commit": "d13b192"
-            }
-          ]
-        },
-        "₢AGAAN": {
-          "tacks": [
-            {
-              "ts": "260208-1545",
-              "state": "rough",
-              "text": "Relax silks validation to permit uppercase letters (A-Z) in addition to lowercase.\n\nContinue rejecting spaces and underscores — only allow [a-zA-Z0-9] and hyphens.\n\nCurrent pattern: `[a-z0-9]+(-[a-z0-9]+)*`\nTarget pattern: `[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*`\n\nLocate silks validation in jjk/vvx and update the regex plus any related error messages or tests.",
-              "silks": "permit-uppercase-silks",
-              "commit": "6125f57"
             }
           ]
         },
