@@ -2378,9 +2378,10 @@
         "₢APAAC",
         "₢APAAD",
         "₢APAAH",
-        "₢APAAN"
+        "₢APAAN",
+        "₢APAAe"
       ],
-      "next_pace_seed": "AAe",
+      "next_pace_seed": "AAf",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -3186,6 +3187,17 @@
               "text": "Full external-boundary integration test for ark lifecycle using zipper dispatch.\n\n## Prerequisites\n- Dispatch infrastructure and BURV regime from zipper-dispatch-burv-testbench pace\n- BURD_ rename complete\n\n## rbtg_case_ark_lifecycle\n\nAdd to Tools/rbw/rbtg_testbench.sh:\n\n| Step | Zipper Constant | Check After |\n|------|----------------|-------------|\n| 1 | RBZ_LIST_IMAGES | Exit 0, capture baseline count |\n| 2 | RBZ_CONJURE_ARK | Exit 0, FQIN file in evidence → harvest FQIN |\n| 3 | RBZ_LIST_IMAGES | Exit 0, count = baseline + 1 |\n| 4 | RBZ_RETRIEVE_IMAGE | Exit 0, artifact in evidence (using harvested tag) |\n| 5 | RBZ_DELETE_IMAGE | Exit 0 |\n| 6 | RBZ_LIST_IMAGES | Exit 0, count = baseline |\n\nSources buz_zipper.sh + rbz_zipper.sh, kindles both.\nUses trbim_dockerfile.recipe as test recipe.\n\n## Wiring\n- Tabtarget: tt/rbtg-al.ArkLifecycle.<imprint>.sh\n\n## Verification\n- Full ark lifecycle passes against live GCP environment\n- Evidence dirs contain expected artifacts at each step\n- Baseline count restored after delete\n- BURV isolation holds throughout multi-step sequence",
               "silks": "ark-lifecycle-cloud-testbench",
               "commit": "a7bc0cb"
+            }
+          ]
+        },
+        "₢APAAe": {
+          "tacks": [
+            {
+              "ts": "260209-1709",
+              "state": "rough",
+              "text": "## Problem Discovery\n\nWhen dispatching two Cloud Build jobs from separate terminal sessions against the same GCP depot project, the second build remains in QUEUED status while the first is WORKING. Only after the first completes (SUCCESS) does the second transition from QUEUED to WORKING. The serialization occurs in the cloud, not at the CLI level.\n\n## Root Cause\n\nGoogle Cloud Build's **default pool** enforces a concurrent build limit of **1 build per project per region**. The Recipe Bottle system uses the default pool (no private worker pool configured) with `E2_HIGHCPU_8` machine type, as set in `rbrr_RecipeBottleRegimeRepo.sh`:\n```\nRBRR_GCB_MACHINE_TYPE=E2_HIGHCPU_8\n```\n\nNo `workerPool` field is present in the build submission JSON constructed in `rbf_Foundry.sh` (around line 438).\n\n## Architectural Note\n\nThe RBSA spec's \"Concurrent Session Safety\" section (RBSA-SpecTop.adoc, lines 563-593) explicitly documents that concurrent builds are supported and produce independent images. The CLI-level isolation is correct — unique timestamps, isolated temp dirs, no collision. The bottleneck is purely the GCP quota on the default Cloud Build pool.\n\n## Recommended Repair Options (in order of preference)\n\n1. **Request GCP quota increase** — Increase the concurrent build limit for the default pool via GCP Console (IAM & Admin > Quotas & System Limits, filter for `cloudbuild.googleapis.com`). Zero code changes. Google typically grants small increases (5-10) without friction. This is the right first move.\n\n2. **Private worker pool** — Create a Cloud Build private pool with explicit concurrency configuration. Requires:\n   - New regime variable for pool name/config\n   - Adding `workerPool` field to the build request JSON in `rbf_Foundry.sh`\n   - Pool creation/teardown procedures (likely new RBSA operations)\n   - More infrastructure to manage, but gives direct concurrency control\n\n3. **Document the limitation** — At minimum, add a NOTE to the Concurrent Session Safety section in RBSA-SpecTop.adoc clarifying that while the CLI supports concurrent invocation, the default Cloud Build pool quota may serialize actual execution.\n\n## Key Files\n- `rbrr_RecipeBottleRegimeRepo.sh` — regime config with `RBRR_GCB_MACHINE_TYPE`\n- `Tools/rbw/rbf_Foundry.sh` — build submission (line ~438, no workerPool field)\n- `lenses/RBSA-SpecTop.adoc` — Concurrent Session Safety section (lines 563-593)\n- `lenses/RBSTB-trigger_build.adoc` — trigger_build spec (step 9: submit, step 10: poll)",
+              "silks": "increase-gcb-concurrent-build-quota",
+              "commit": "46c98bd"
             }
           ]
         }
