@@ -802,8 +802,9 @@ rbf_beseech() {
   buc_doc_param "<vessel>" "Optional vessel filter - show only arks for this vessel"
   buc_doc_shown || return 0
 
-  # Optional vessel filter
+  # Optional vessel filter (strip path prefix — accept directory path or bare moniker)
   local z_filter_vessel="${1:-}"
+  z_filter_vessel="${z_filter_vessel##*/}"
 
   buc_step "Fetching OAuth token (Director)"
   local z_token
@@ -974,6 +975,7 @@ rbf_summon() {
   zrbf_sentinel
 
   local z_vessel="${1:-}"
+  z_vessel="${z_vessel##*/}"  # strip path prefix — accept directory path or bare moniker
   local z_consecration="${2:-}"
 
   # Documentation block
@@ -1104,6 +1106,7 @@ rbf_abjure() {
   zrbf_sentinel
 
   local z_vessel="${1:-}"
+  z_vessel="${z_vessel##*/}"  # strip path prefix — accept directory path or bare moniker
   local z_consecration="${2:-}"
   local z_force="${3:-}"
 
