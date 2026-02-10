@@ -31,10 +31,8 @@ zrbgd_kindle() {
   test -z "${ZRBGD_KINDLED:-}" || buc_die "Module rbgd already kindled"
 
   # Source and validate RBRR (Recipe Bottle Regime Repository) file
-  buc_log_args 'Use RBL to locate and source RBRR file'
-  zrbl_sentinel
-  test -f "${RBL_RBRR_FILE}" || buc_die "RBRR file not found: ${RBL_RBRR_FILE}"
-  source  "${RBL_RBRR_FILE}" || buc_die "Failed to source RBRR file"
+  buc_log_args 'Load RBRR using canonical loader'
+  rbrr_load
 
   buc_log_args 'Validate RBRR variables using validator'
   ZRBGD_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"

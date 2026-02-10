@@ -44,9 +44,8 @@ rbrv_validate() {
   buc_step "Validating RBRV vessel file: ${z_file}"
 
   # Source RBRR (vessel env files may reference RBRR_ variables)
-  local z_rbrr_file="${ZRBRV_CLI_SCRIPT_DIR}/../../rbrr_RecipeBottleRegimeRepo.sh"
-  if test -f "${z_rbrr_file}"; then
-    source "${z_rbrr_file}" || buc_die "rbrv_validate: failed to source RBRR"
+  if test -f "${BURC_PROJECT_ROOT}/rbrr_RecipeBottleRegimeRepo.sh"; then
+    rbrr_load
   fi
 
   # Source the assignment file
@@ -82,9 +81,8 @@ rbrv_render() {
   test -f "${z_file}" || buc_die "rbrv_render: file not found: ${z_file}"
 
   # Source RBRR (vessel env files may reference RBRR_ variables)
-  local z_rbrr_file="${ZRBRV_CLI_SCRIPT_DIR}/../../rbrr_RecipeBottleRegimeRepo.sh"
-  if test -f "${z_rbrr_file}"; then
-    source "${z_rbrr_file}" || buc_die "rbrv_render: failed to source RBRR"
+  if test -f "${BURC_PROJECT_ROOT}/rbrr_RecipeBottleRegimeRepo.sh"; then
+    rbrr_load
   fi
 
   # Source and kindle (no dying)

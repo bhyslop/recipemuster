@@ -190,4 +190,50 @@ zrbrn_validate_fields() {
   buv_env_string      RBRN_VOLUME_MOUNTS           0    240
 }
 
+######################################################################
+# Public Functions (rbrn_*)
+
+# Load nameplate regime by moniker
+# Usage: rbrn_load <moniker>
+# Constructs path, verifies file exists, sources, kindles, and validates
+rbrn_load() {
+  local z_moniker="${1:-}"
+  test -n "${z_moniker}" || buc_die "rbrn_load: moniker argument required"
+
+  local z_nameplate_file="${BURC_TOOLS_DIR}/rbw/rbrn_${z_moniker}.env"
+  test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
+
+  source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
+  zrbrn_kindle
+  zrbrn_validate_fields
+}
+
+# Load nameplate regime by file path
+# Usage: rbrn_load_file <path>
+# Takes explicit file path, sources, kindles, and validates
+rbrn_load_file() {
+  local z_file="${1:-}"
+  test -n "${z_file}" || buc_die "rbrn_load_file: file argument required"
+  test -f "${z_file}" || buc_die "rbrn_load_file: file not found: ${z_file}"
+
+  source "${z_file}" || buc_die "Failed to source nameplate: ${z_file}"
+  zrbrn_kindle
+  zrbrn_validate_fields
+}
+
+# List available nameplate monikers
+# Usage: rbrn_list
+# Returns list of concrete nameplate monikers by globbing rbrn_*.env files
+rbrn_list() {
+  local z_nameplate_files=("${BURC_TOOLS_DIR}/rbw/rbrn_"*.env)
+
+  for z_file in "${z_nameplate_files[@]}"; do
+    test -f "${z_file}" || continue
+    local z_basename="${z_file##*/}"
+    local z_moniker="${z_basename#rbrn_}"
+    z_moniker="${z_moniker%.env}"
+    echo "${z_moniker}"
+  done
+}
+
 # eof

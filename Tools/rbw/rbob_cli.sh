@@ -105,17 +105,10 @@ zrbob_furnish() {
   test -n "${z_moniker}" || buc_die "RBOB_MONIKER environment variable required"
 
   # Load nameplate
-  local z_nameplate_file="${ZRBOB_CLI_SCRIPT_DIR}/rbrn_${z_moniker}.env"
-  test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
-  source "${z_nameplate_file}" || buc_die "Failed to source nameplate"
-  zrbrn_kindle
-  zrbrn_validate_fields
+  rbrn_load "${z_moniker}"
 
   # Load RBRR - config loading belongs in furnish per BCG pattern
-  local z_rbrr_file="${ZRBOB_CLI_SCRIPT_DIR}/../../rbrr_RecipeBottleRegimeRepo.sh"
-  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
-  source "${z_rbrr_file}" || buc_die "Failed to source RBRR config: ${z_rbrr_file}"
-  zrbrr_kindle
+  rbrr_load
 
   # Kindle RBOB (validates RBRN and RBRR are ready)
   zrbob_kindle

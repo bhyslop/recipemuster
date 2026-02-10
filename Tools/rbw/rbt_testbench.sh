@@ -51,24 +51,14 @@ rbt_load_nameplate() {
   local z_moniker="${1:-}"
   test -n "${z_moniker}" || buc_die "rbt_load_nameplate: moniker argument required"
 
-  local z_nameplate_file="${RBT_SCRIPT_DIR}/rbrn_${z_moniker}.env"
-  test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
-
-  rbt_show "Loading nameplate: ${z_nameplate_file}"
-  source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
-
-  rbt_show "Kindling nameplate regime"
-  zrbrn_kindle
-  zrbrn_validate_fields
+  rbt_show "Loading nameplate: ${z_moniker}"
+  rbrn_load "${z_moniker}"
 
   rbt_show "Nameplate loaded: RBRN_MONIKER=${RBRN_MONIKER}, RBRN_RUNTIME=${RBRN_RUNTIME}"
 
   # Load RBRR (repository regime)
   rbt_show "Loading RBRR"
-  local z_rbrr_file="${RBT_SCRIPT_DIR}/../../rbrr_RecipeBottleRegimeRepo.sh"
-  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
-  source "${z_rbrr_file}" || buc_die "Failed to source RBRR config: ${z_rbrr_file}"
-  zrbrr_kindle
+  rbrr_load
 
   # Kindle RBOB (validates RBRN and RBRR are ready, sets container names)
   rbt_show "Kindling RBOB"

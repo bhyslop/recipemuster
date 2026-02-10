@@ -121,10 +121,7 @@ rbw_route() {
 
       if test -z "${z_moniker}"; then
         buc_step "Available nameplates:"
-        for z_f in "${RBW_SCRIPT_DIR}"/rbrn_*.env; do
-          test -f "${z_f}" || continue
-          local z_m="${z_f##*/rbrn_}"
-          z_m="${z_m%.env}"
+        rbrn_list | while read -r z_m; do
           echo "  ${z_m}"
         done
         return 0

@@ -40,14 +40,10 @@ zrbgg_furnish() {
   buc_doc_env "BURD_TEMP_DIR   " "Temporary directory for intermediate files"
   buc_doc_env "BURD_OUTPUT_DIR " "Directory for command outputs"
 
-  zrbl_kindle
-
-  buv_file_exists "${RBL_RBRR_FILE}"
-  source          "${RBL_RBRR_FILE}" || buc_die "Failed to source RBRR regime file"
+  rbrr_load
 
   zrbgc_kindle
   zrbgd_kindle
-  zrbrr_kindle
   zrbgo_kindle
   zrbgu_kindle
   zrbgi_kindle

@@ -106,4 +106,18 @@ zrbrr_sentinel() {
   test "${ZRBRR_KINDLED:-}" = "1" || buc_die "Module rbrr not kindled - call zrbrr_kindle first"
 }
 
+######################################################################
+# Public Functions (rbrr_*)
+
+# Load RBRR regime
+# Usage: rbrr_load
+# Constructs path to rbrr_RecipeBottleRegimeRepo.sh, verifies exists, sources, kindles
+rbrr_load() {
+  local z_rbrr_file="${BURC_PROJECT_ROOT}/rbrr_RecipeBottleRegimeRepo.sh"
+  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
+
+  source "${z_rbrr_file}" || buc_die "Failed to source RBRR config: ${z_rbrr_file}"
+  zrbrr_kindle
+}
+
 # eof

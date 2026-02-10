@@ -46,10 +46,8 @@ zrbf_furnish() {
   RBG_RUNTIME="${RBG_RUNTIME:-podman}"
   RBG_RUNTIME_ARG="${RBG_RUNTIME_ARG:-}"
 
-  buc_log_args 'Use RBL to locate and source RBRR file'
-  zrbl_kindle
-  test -f "${RBL_RBRR_FILE}" || buc_die "RBRR file not found: ${RBL_RBRR_FILE}"
-  source  "${RBL_RBRR_FILE}" || buc_die "Failed to source RBRR file"
+  buc_log_args 'Load RBRR using canonical loader'
+  rbrr_load
 
   buc_log_args 'Validate RBRR variables using validator'
   source "${ZRBF_CLI_SCRIPT_DIR}/rbrr.validator.sh" || buc_die "Failed to validate RBRR variables"

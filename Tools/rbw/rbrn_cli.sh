@@ -43,14 +43,8 @@ rbrn_validate() {
 
   buc_step "Validating RBRN nameplate file: ${z_file}"
 
-  # Source the assignment file
-  source "${z_file}" || buc_die "rbrn_validate: failed to source ${z_file}"
-
-  # Prepare state (no dying)
-  zrbrn_kindle
-
-  # Strict validation (dies on error; suppress buv echo output)
-  zrbrn_validate_fields > /dev/null
+  # Use rbrn_load_file for standardized loading
+  rbrn_load_file "${z_file}"
 
   buc_step "RBRN nameplate valid"
 }
@@ -75,7 +69,7 @@ rbrn_render() {
   test -n "${z_file}" || buc_die "rbrn_render: file argument required"
   test -f "${z_file}" || buc_die "rbrn_render: file not found: ${z_file}"
 
-  # Source and kindle (no dying)
+  # Use rbrn_load_file for standardized loading (but catch validation errors for display)
   source "${z_file}" || buc_die "rbrn_render: failed to source ${z_file}"
   zrbrn_kindle
 
