@@ -1014,7 +1014,7 @@ rbf_summon() {
   local z_image_status_file="${ZRBF_DELETE_PREFIX}summon_image_status.txt"
   local z_image_response_file="${ZRBF_DELETE_PREFIX}summon_image_response.json"
 
-  curl -X HEAD -s                                   \
+  curl --head -s                                     \
     -H "Authorization: Bearer ${z_token}"           \
     -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
@@ -1037,7 +1037,7 @@ rbf_summon() {
   local z_about_status_file="${ZRBF_DELETE_PREFIX}summon_about_status.txt"
   local z_about_response_file="${ZRBF_DELETE_PREFIX}summon_about_response.json"
 
-  curl -X HEAD -s                                   \
+  curl --head -s                                     \
     -H "Authorization: Bearer ${z_token}"           \
     -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
@@ -1143,7 +1143,7 @@ rbf_abjure() {
   local z_image_status_file="${ZRBF_DELETE_PREFIX}image_status.txt"
   local z_image_response_file="${ZRBF_DELETE_PREFIX}image_response.json"
 
-  curl -X HEAD -s                                   \
+  curl --head -s                                     \
     -H "Authorization: Bearer ${z_token}"           \
     -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
@@ -1166,7 +1166,7 @@ rbf_abjure() {
   local z_about_status_file="${ZRBF_DELETE_PREFIX}about_status.txt"
   local z_about_response_file="${ZRBF_DELETE_PREFIX}about_response.json"
 
-  curl -X HEAD -s                                   \
+  curl --head -s                                     \
     -H "Authorization: Bearer ${z_token}"           \
     -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
