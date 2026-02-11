@@ -377,15 +377,26 @@ buto_dispatch() {
   buc_log_args "Dispatching step ${z_step_idx}: colophon=${z_colophon} tabtarget=${z_tabtarget}"
 
   local z_exit_status=0
+  BURD_NO_LOG= \
   BURV_OUTPUT_ROOT_DIR="${z_burv_output}" \
   BURV_TEMP_ROOT_DIR="${z_burv_temp}" \
-  BURD_NO_LOG=1 \
     "${z_tabtarget}" "$@" || z_exit_status=$?
 
   buc_log_args "Step ${z_step_idx} exit status: ${z_exit_status}"
+  buc_log_args "Step ${z_step_idx} inner BURD output: ${z_burv_output}"
+  buc_log_args "Step ${z_step_idx} inner BURD temp: ${z_burv_temp}"
+  buc_log_args "Step ${z_step_idx} evidence dir: ${z_evidence_dir}"
 
   if test -d "${z_burv_output}/current"; then
     cp -r "${z_burv_output}/current/." "${z_evidence_dir}/" || buc_warn "Evidence harvest failed for step ${z_step_idx}"
+  fi
+
+  if test "${z_exit_status}" -ne 0; then
+    zbuto_render_lines "FAIL" "${ZBUTO_RED}" \
+      "Step ${z_step_idx} FAILED - inner process artifacts:" \
+      "  BURD output: ${z_burv_output}" \
+      "  BURD temp:   ${z_burv_temp}" \
+      "  Evidence:    ${z_evidence_dir}"
   fi
 
   zbuto_step_colophons+=("${z_colophon}")
