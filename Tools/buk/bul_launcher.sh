@@ -57,5 +57,5 @@ bul_launch() {
   local z_coordinator="$1"
   shift
   export BURD_COORDINATOR_SCRIPT="${z_coordinator}"
-  exec "${BURC_TOOLS_DIR}/buk/burd_dispatch.sh" "${1##*/}" "${@:2}"
+  exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"
 }
