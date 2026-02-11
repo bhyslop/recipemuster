@@ -24,7 +24,7 @@ RBTB_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${RBTB_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${RBTB_SCRIPT_DIR}/../buk/buto_operations.sh"
+source "${RBTB_SCRIPT_DIR}/../buk/bute_engine.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butr_registry.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butd_dispatch.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/buz_zipper.sh"
@@ -106,8 +106,8 @@ zrbtb_setup_ark() {
   buto_trace "Setup for ark-lifecycle suite"
   zbuz_kindle
   zrbz_kindle
-  buto_init_dispatch
-  buto_init_evidence
+  bute_init_dispatch
+  bute_init_evidence
   ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
 }
 
@@ -231,7 +231,7 @@ rbtb_route() {
 
   rbtb_kindle
 
-  export ZBUTO_ROOT_TEMP_DIR="${BURD_TEMP_DIR}"
+  export ZBUTE_ROOT_TEMP_DIR="${BURD_TEMP_DIR}"
   export BUT_VERBOSE="${BUT_VERBOSE:-0}"
 
   case "${z_command}" in

@@ -27,7 +27,7 @@ ZBUT_INCLUDED=1
 
 # Source the real implementation
 ZBUT_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-source "${ZBUT_SCRIPT_DIR}/buto_operations.sh"
+source "${ZBUT_SCRIPT_DIR}/bute_engine.sh"
 
 # Legacy color variables
 ZBUT_WHITE="${ZBUTO_WHITE}"
@@ -52,7 +52,7 @@ but_tt_expect_ok()         { buto_tt_expect_ok "$@"; }
 but_tt_expect_fatal()      { buto_tt_expect_fatal "$@"; }
 but_launch_expect_ok()     { buto_launch_expect_ok "$@"; }
 but_launch_expect_fatal()  { buto_launch_expect_fatal "$@"; }
-zbut_case()                { zbuto_case "$@"; }
+zbut_case()                { zbute_case "$@"; }
 but_execute()              { buto_execute "$@"; }
 
 # Legacy globals — callers may reference these after zbut_invoke

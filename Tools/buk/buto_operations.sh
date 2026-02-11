@@ -20,13 +20,6 @@
 
 set -euo pipefail
 
-# Guard die — available before inclusion guard (buto_fatal not yet defined)
-zbuto_guard_die() { echo "FATAL: $*" >&2; exit 1; }
-
-# Multiple inclusion guard
-test -z "${ZBUTO_INCLUDED:-}" || zbuto_guard_die "buto_operations multiply sourced"
-ZBUTO_INCLUDED=1
-
 ######################################################################
 # Color codes
 
@@ -105,11 +98,29 @@ buto_success() {
 }
 
 ######################################################################
+# BURV bridge support
+
+# zbuto_next_invoke_capture() - Find next unused invoke number
+# Scans BUTE_BURV_ROOT/invoke-NNNNN directories for next available slot
+# Returns: next invoke number (starts at 10000)
+zbuto_next_invoke_capture() {
+  local z_burv_root="${BUTE_BURV_ROOT:-}"
+  test -n "${z_burv_root}" || return 1
+
+  local z_invoke_num=10000
+  while test -d "${z_burv_root}/invoke-${z_invoke_num}"; do
+    z_invoke_num=$((z_invoke_num + 1))
+  done
+  echo "${z_invoke_num}"
+}
+
+######################################################################
 # Safely invoke a command under 'set -e', capturing stdout, stderr, and exit status
 # Globals set:
 #   ZBUTO_STDOUT  - command stdout
 #   ZBUTO_STDERR  - command stderr
 #   ZBUTO_STATUS  - command exit code
+# BURV bridge: If BUTE_BURV_ROOT is set, creates per-invocation BURV isolation
 
 zbuto_invoke() {
   buto_trace "Invoking: $*"
@@ -119,9 +130,27 @@ zbuto_invoke() {
   local z_tmp_stderr
   z_tmp_stderr=$(mktemp)
 
+  # BURV bridge setup if enabled
+  local z_burv_output=""
+  local z_burv_temp=""
+  if test -n "${BUTE_BURV_ROOT:-}"; then
+    local z_invoke_num
+    z_invoke_num=$(zbuto_next_invoke_capture)
+    local z_invoke_dir="${BUTE_BURV_ROOT}/invoke-${z_invoke_num}"
+    z_burv_output="${z_invoke_dir}/output"
+    z_burv_temp="${z_invoke_dir}/temp"
+    mkdir -p "${z_burv_output}" "${z_burv_temp}"
+  fi
+
   ZBUTO_STATUS=$( (
       set +e
-      "$@" >"${z_tmp_stdout}" 2>"${z_tmp_stderr}"
+      if test -n "${z_burv_output}"; then
+        BURV_OUTPUT_ROOT_DIR="${z_burv_output}" \
+        BURV_TEMP_ROOT_DIR="${z_burv_temp}" \
+          "$@" >"${z_tmp_stdout}" 2>"${z_tmp_stderr}"
+      else
+        "$@" >"${z_tmp_stdout}" 2>"${z_tmp_stderr}"
+      fi
       printf '%s' "$?"
       exit 0
     ) || printf '__subshell_failed__' )
@@ -277,155 +306,6 @@ buto_launch_expect_fatal() {
                                           "Colophon: ${z_colophon}"          \
                                           "STDOUT: ${ZBUTO_STDOUT}"          \
                                           "STDERR: ${ZBUTO_STDERR}"
-}
-
-######################################################################
-# Test case execution
-
-# Run single test case in subshell
-zbuto_case() {
-  set -e
-
-  local z_case_name="${1}"
-  declare -F "${z_case_name}" >/dev/null || buto_fatal "Test function not found: ${z_case_name}"
-
-  buto_section "START: ${z_case_name}"
-
-  local z_case_temp_dir="${ZBUTO_ROOT_TEMP_DIR}/${z_case_name}"
-  mkdir -p "${z_case_temp_dir}" || buto_fatal "Failed to create test temp dir: ${z_case_temp_dir}"
-
-  local z_status=0
-  (
-    set -e
-    export BUT_TEMP_DIR="${z_case_temp_dir}"
-    "${z_case_name}"
-  ) || z_status=$?
-
-  buto_trace "Ran: ${z_case_name} and got status:${z_status}"
-  buto_fatal_on_error "${z_status}" "Test failed: ${z_case_name}"
-
-  buto_trace "Finished: ${z_case_name} with status: ${z_status}"
-  test "${BUT_VERBOSE:-0}" -le 0 || echo "${ZBUTO_GREEN}PASSED:${ZBUTO_RESET} ${z_case_name}" >&2
-}
-
-# buto_execute removed - dispatch now iterates cases directly via butr_cases_recite
-
-######################################################################
-# Dispatch and evidence infrastructure
-
-# buto_init_dispatch() - Initialize step tracking arrays
-buto_init_dispatch() {
-  test -z "${ZBUTO_DISPATCH_READY:-}" || buto_fatal "buto dispatch already initialized"
-  zbuto_step_colophons=()
-  zbuto_step_exit_status=()
-  zbuto_step_output_dir=()
-  ZBUTO_DISPATCH_READY=1
-}
-
-zbuto_dispatch_sentinel() {
-  test "${ZBUTO_DISPATCH_READY:-}" = "1" || buto_fatal "buto dispatch not initialized - call buto_init_dispatch first"
-}
-
-# Non-fatal tabtarget resolution (returns 1 on failure instead of dying)
-zbuto_resolve_tabtarget_capture() {
-  zbuto_dispatch_sentinel
-
-  local z_colophon="${1:-}"
-  test -n "${z_colophon}" || return 1
-
-  local z_matches=("${BURC_TABTARGET_DIR}/${z_colophon}."*.sh)
-
-  # Bash 3.2: no-match glob returns literal — check with test -e
-  test -e "${z_matches[0]}" || return 1
-  test "${#z_matches[@]}" -eq 1 || return 1
-
-  echo "${z_matches[0]}"
-}
-
-# buto_init_evidence() - Create evidence root dir under testbench temp
-buto_init_evidence() {
-  zbuto_dispatch_sentinel
-  test -n "${BURD_TEMP_DIR:-}" || buto_fatal "BURD_TEMP_DIR not set - buto_init_evidence requires BURD context"
-
-  ZBUTO_EVIDENCE_ROOT="${BURD_TEMP_DIR}/evidence"
-  mkdir -p "${ZBUTO_EVIDENCE_ROOT}"
-  buc_log_args "Evidence root: ${ZBUTO_EVIDENCE_ROOT}"
-}
-
-# buto_dispatch() - Invoke tabtarget via BURV-isolated environment
-# Args: colophon [extra_args...]
-# Step index available via buto_last_step_capture after return
-buto_dispatch() {
-  zbuto_dispatch_sentinel
-  test -n "${ZBUTO_EVIDENCE_ROOT:-}" || buto_fatal "Evidence not initialized - call buto_init_evidence first"
-
-  local z_colophon="${1:-}"
-  test -n "${z_colophon}" || buto_fatal "buto_dispatch requires colophon"
-  shift
-
-  local z_tabtarget
-  z_tabtarget=$(zbuto_resolve_tabtarget_capture "${z_colophon}") || buto_fatal "Cannot resolve tabtarget for '${z_colophon}'"
-
-  local z_step_idx="${#zbuto_step_colophons[@]}"
-
-  local z_step_dir="${ZBUTO_EVIDENCE_ROOT}/step-${z_step_idx}"
-  local z_burv_output="${z_step_dir}/burv-output"
-  local z_burv_temp="${z_step_dir}/burv-temp"
-  local z_evidence_dir="${z_step_dir}/evidence"
-  mkdir -p "${z_burv_output}" "${z_burv_temp}" "${z_evidence_dir}"
-
-  buc_log_args "Dispatching step ${z_step_idx}: colophon=${z_colophon} tabtarget=${z_tabtarget}"
-
-  local z_exit_status=0
-  BURD_NO_LOG= \
-  BURV_OUTPUT_ROOT_DIR="${z_burv_output}" \
-  BURV_TEMP_ROOT_DIR="${z_burv_temp}" \
-    "${z_tabtarget}" "$@" || z_exit_status=$?
-
-  buc_log_args "Step ${z_step_idx} exit status: ${z_exit_status}"
-  buc_log_args "Step ${z_step_idx} inner BURD output: ${z_burv_output}"
-  buc_log_args "Step ${z_step_idx} inner BURD temp: ${z_burv_temp}"
-  buc_log_args "Step ${z_step_idx} evidence dir: ${z_evidence_dir}"
-
-  if test -d "${z_burv_output}/current"; then
-    cp -r "${z_burv_output}/current/." "${z_evidence_dir}/" || buc_warn "Evidence harvest failed for step ${z_step_idx}"
-  fi
-
-  if test "${z_exit_status}" -ne 0; then
-    zbuto_render_lines "FAIL" "${ZBUTO_RED}" \
-      "Step ${z_step_idx} FAILED - inner process artifacts:" \
-      "  BURD output: ${z_burv_output}" \
-      "  BURD temp:   ${z_burv_temp}" \
-      "  Evidence:    ${z_evidence_dir}"
-  fi
-
-  zbuto_step_colophons+=("${z_colophon}")
-  zbuto_step_exit_status+=("${z_exit_status}")
-  zbuto_step_output_dir+=("${z_evidence_dir}")
-}
-
-######################################################################
-# Step result _capture functions
-
-buto_last_step_capture() {
-  zbuto_dispatch_sentinel
-  local z_count="${#zbuto_step_colophons[@]}"
-  test "${z_count}" -gt 0 || return 1
-  echo "$((z_count - 1))"
-}
-
-buto_get_step_exit_capture() {
-  zbuto_dispatch_sentinel
-  local z_idx="${1:-}"
-  test -n "${z_idx}" || return 1
-  echo "${zbuto_step_exit_status[$z_idx]}"
-}
-
-buto_get_step_output_capture() {
-  zbuto_dispatch_sentinel
-  local z_idx="${1:-}"
-  test -n "${z_idx}" || return 1
-  echo "${zbuto_step_output_dir[$z_idx]}"
 }
 
 # eof

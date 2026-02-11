@@ -22,12 +22,12 @@ set -euo pipefail
 
 ######################################################################
 # Private helper: init dispatch and evidence scoped to this test case
-# Uses BUT_TEMP_DIR (set per-case by zbuto_case) for isolated evidence
+# Uses BUT_TEMP_DIR (set per-case by zbute_case) for isolated evidence
 
 zbutcde_init() {
-  buto_init_dispatch
+  bute_init_dispatch
   BURD_TEMP_DIR="${BUT_TEMP_DIR}"
-  buto_init_evidence
+  bute_init_evidence
 }
 
 ######################################################################
@@ -37,15 +37,15 @@ zbutcde_init() {
 butcde_evidence_created() {
   zbutcde_init
   buto_section "Dispatching test target colophon"
-  buto_dispatch "${ZBUTCDE_TEST_COLOPHON}"
+  bute_dispatch "${ZBUTCDE_TEST_COLOPHON}"
 
   buto_section "Verifying dispatch recorded a step"
   local z_step
-  z_step=$(buto_last_step_capture) || buto_fatal "No step recorded after dispatch"
+  z_step=$(bute_last_step_capture) || buto_fatal "No step recorded after dispatch"
 
   buto_section "Verifying evidence directory exists"
   local z_output_dir
-  z_output_dir=$(buto_get_step_output_capture "${z_step}") || buto_fatal "Failed to get step output dir"
+  z_output_dir=$(bute_get_step_output_capture "${z_step}") || buto_fatal "Failed to get step output dir"
   test -d "${z_output_dir}" || buto_fatal "Evidence directory not created: ${z_output_dir}"
   buto_info "Evidence dir: ${z_output_dir}"
 
@@ -58,13 +58,13 @@ butcde_evidence_created() {
 butcde_burv_isolation() {
   zbutcde_init
   buto_section "Dispatching test target colophon"
-  buto_dispatch "${ZBUTCDE_TEST_COLOPHON}"
+  bute_dispatch "${ZBUTCDE_TEST_COLOPHON}"
 
   local z_step
-  z_step=$(buto_last_step_capture) || buto_fatal "No step recorded after dispatch"
+  z_step=$(bute_last_step_capture) || buto_fatal "No step recorded after dispatch"
 
   buto_section "Verifying BURV isolation"
-  local z_burv_temp="${ZBUTO_EVIDENCE_ROOT}/step-${z_step}/burv-temp"
+  local z_burv_temp="${ZBUTE_EVIDENCE_ROOT}/step-${z_step}/burv-temp"
   test -d "${z_burv_temp}" || buto_fatal "BURV temp directory not created: ${z_burv_temp}"
   buto_info "BURV temp dir: ${z_burv_temp}"
 
@@ -72,20 +72,20 @@ butcde_burv_isolation() {
 }
 
 ######################################################################
-# butcde_exit_capture - Verify buto_get_step_exit_capture returns
+# butcde_exit_capture - Verify bute_get_step_exit_capture returns
 # correct status after successful dispatch
 
 butcde_exit_capture() {
   zbutcde_init
   buto_section "Dispatching test target colophon"
-  buto_dispatch "${ZBUTCDE_TEST_COLOPHON}"
+  bute_dispatch "${ZBUTCDE_TEST_COLOPHON}"
 
   local z_step
-  z_step=$(buto_last_step_capture) || buto_fatal "No step recorded after dispatch"
+  z_step=$(bute_last_step_capture) || buto_fatal "No step recorded after dispatch"
 
   buto_section "Verifying exit capture"
   local z_status
-  z_status=$(buto_get_step_exit_capture "${z_step}")
+  z_status=$(bute_get_step_exit_capture "${z_step}")
   buto_fatal_on_error "${z_status}" "dispatch failed" "Colophon: ${ZBUTCDE_TEST_COLOPHON}"
   buto_info "Exit status: ${z_status}"
 

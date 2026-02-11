@@ -102,18 +102,22 @@ buz_register() {
 ######################################################################
 # Dispatch/evidence compatibility shims
 #
-# These delegate to buto_operations.sh (sourced via but_test.sh shim).
-# Callers not yet migrated to buto_ can continue using buz_ names.
+# These delegate to bute_engine.sh.
+# Callers not yet migrated to bute_ can continue using buz_ names.
 # Removed when convert-dispatch-exercise and convert-ark-lifecycle paces complete.
 
+# Source engine for dispatch functions
+ZBUZ_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+source "${ZBUZ_SCRIPT_DIR}/bute_engine.sh"
+
 buz_init_evidence() {
-  test -n "${ZBUTO_DISPATCH_READY:-}" || buto_init_dispatch
-  buto_init_evidence
-  ZBUZ_EVIDENCE_ROOT="${ZBUTO_EVIDENCE_ROOT}"
+  test -n "${ZBUTE_DISPATCH_READY:-}" || bute_init_dispatch
+  bute_init_evidence
+  ZBUZ_EVIDENCE_ROOT="${ZBUTE_EVIDENCE_ROOT}"
 }
-buz_dispatch()                { buto_dispatch "$@"; }
-buz_last_step_capture()       { buto_last_step_capture; }
-buz_get_step_exit_capture()   { buto_get_step_exit_capture "$@"; }
-buz_get_step_output_capture() { buto_get_step_output_capture "$@"; }
+buz_dispatch()                { bute_dispatch "$@"; }
+buz_last_step_capture()       { bute_last_step_capture; }
+buz_get_step_exit_capture()   { bute_get_step_exit_capture "$@"; }
+buz_get_step_output_capture() { bute_get_step_output_capture "$@"; }
 
 # eof

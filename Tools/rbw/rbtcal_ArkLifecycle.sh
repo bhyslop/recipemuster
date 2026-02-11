@@ -44,33 +44,25 @@ rbtcal_lifecycle() {
   local z_vessel_dir="rbev-vessels/${z_vessel_sigil}"
   test -d "${z_vessel_dir}" || buto_fatal "Vessel directory not found: ${z_vessel_dir}"
   buto_info "Vessel: ${z_vessel_sigil} at ${z_vessel_dir}"
-  local z_step z_status
 
   # Step 1: Capture baseline image list
   buto_section "Step 1/6: Listing images (baseline)"
   local z_baseline_file="${BUT_TEMP_DIR}/rbtcal_list_baseline.txt"
-  buto_dispatch "${RBZ_LIST_IMAGES}" > "${z_baseline_file}"
-  z_step=$(buto_last_step_capture)
-  z_status=$(buto_get_step_exit_capture "$z_step")
-  buto_fatal_on_error "$z_status" "dispatch failed" "Colophon: ${RBZ_LIST_IMAGES}"
+  buto_tt_expect_ok "${RBZ_LIST_IMAGES}"
+  echo "${ZBUTO_STDOUT}" > "${z_baseline_file}"
   local z_baseline_count
   z_baseline_count=$(zrbtcal_count_locators "${z_baseline_file}")
   buto_info "Baseline locator count: ${z_baseline_count}"
 
   # Step 2: Conjure ark
   buto_section "Step 2/6: Conjuring ark from vessel ${z_vessel_sigil}"
-  buto_dispatch "${RBZ_CONJURE_ARK}" "${z_vessel_dir}"
-  z_step=$(buto_last_step_capture)
-  z_status=$(buto_get_step_exit_capture "$z_step")
-  buto_fatal_on_error "$z_status" "dispatch failed" "Colophon: ${RBZ_CONJURE_ARK}"
+  buto_tt_expect_ok "${RBZ_CONJURE_ARK}" "${z_vessel_dir}"
 
   # Step 3: Verify image count increased
   buto_section "Step 3/6: Listing images (post-conjure)"
   local z_post_conjure_file="${BUT_TEMP_DIR}/rbtcal_list_post_conjure.txt"
-  buto_dispatch "${RBZ_LIST_IMAGES}" > "${z_post_conjure_file}"
-  z_step=$(buto_last_step_capture)
-  z_status=$(buto_get_step_exit_capture "$z_step")
-  buto_fatal_on_error "$z_status" "dispatch failed" "Colophon: ${RBZ_LIST_IMAGES}"
+  buto_tt_expect_ok "${RBZ_LIST_IMAGES}"
+  echo "${ZBUTO_STDOUT}" > "${z_post_conjure_file}"
   local z_post_conjure_count
   z_post_conjure_count=$(zrbtcal_count_locators "${z_post_conjure_file}")
   buto_info "Post-conjure locator count: ${z_post_conjure_count}"
@@ -95,28 +87,20 @@ rbtcal_lifecycle() {
   z_retrieve_locator=$(head -1 "${z_new_locators_file}")
   test -n "${z_retrieve_locator}" || buto_fatal "No locator available for retrieve"
   buto_info "Retrieving: ${z_retrieve_locator}"
-  buto_dispatch "${RBZ_RETRIEVE_IMAGE}" "${z_retrieve_locator}"
-  z_step=$(buto_last_step_capture)
-  z_status=$(buto_get_step_exit_capture "$z_step")
-  buto_fatal_on_error "$z_status" "dispatch failed" "Colophon: ${RBZ_RETRIEVE_IMAGE}"
+  buto_tt_expect_ok "${RBZ_RETRIEVE_IMAGE}" "${z_retrieve_locator}"
 
   # Step 5: Delete all new locators to restore baseline
   buto_section "Step 5/6: Deleting new images"
   while IFS= read -r z_locator; do
     buto_info "Deleting: ${z_locator}"
-    buto_dispatch "${RBZ_DELETE_IMAGE}" "${z_locator}" "--force"
-    z_step=$(buto_last_step_capture)
-    z_status=$(buto_get_step_exit_capture "$z_step")
-    buto_fatal_on_error "$z_status" "dispatch failed" "Colophon: ${RBZ_DELETE_IMAGE}"
+    buto_tt_expect_ok "${RBZ_DELETE_IMAGE}" "${z_locator}" "--force"
   done < "${z_new_locators_file}"
 
   # Step 6: Verify count restored to baseline
   buto_section "Step 6/6: Listing images (post-delete)"
   local z_post_delete_file="${BUT_TEMP_DIR}/rbtcal_list_post_delete.txt"
-  buto_dispatch "${RBZ_LIST_IMAGES}" > "${z_post_delete_file}"
-  z_step=$(buto_last_step_capture)
-  z_status=$(buto_get_step_exit_capture "$z_step")
-  buto_fatal_on_error "$z_status" "dispatch failed" "Colophon: ${RBZ_LIST_IMAGES}"
+  buto_tt_expect_ok "${RBZ_LIST_IMAGES}"
+  echo "${ZBUTO_STDOUT}" > "${z_post_delete_file}"
   local z_final_count
   z_final_count=$(zrbtcal_count_locators "${z_post_delete_file}")
   buto_info "Final locator count: ${z_final_count}"

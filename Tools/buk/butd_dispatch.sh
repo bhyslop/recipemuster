@@ -20,6 +20,10 @@
 
 set -euo pipefail
 
+# Source test engine
+ZBUTD_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+source "${ZBUTD_SCRIPT_DIR}/bute_engine.sh"
+
 # Multiple inclusion guard
 test -z "${ZBUTD_INCLUDED:-}" || buto_fatal "butd_dispatch multiply sourced"
 ZBUTD_INCLUDED=1
@@ -31,7 +35,18 @@ ZBUTD_INCLUDED=1
 # Args: suite_name
 butd_run_suite() {
   local z_suite="${1:-}"
-  test -n "${z_suite}" || buto_fatal "butd_run_suite: suite_name required"
+  if test -z "${z_suite}"; then
+    buto_info "Available suites:"
+    local z_suite_list
+    z_suite_list=$(mktemp)
+    butr_suites_recite > "${z_suite_list}"
+    while IFS= read -r z_suite_name; do
+      test -n "${z_suite_name}" || continue
+      buto_info "  ${z_suite_name}"
+    done < "${z_suite_list}"
+    rm -f "${z_suite_list}"
+    buto_fatal "butd_run_suite: suite_name required"
+  fi
 
   local z_init
   z_init=$(butr_init_recite "${z_suite}") || buto_fatal "butd_run_suite: failed to get init for '${z_suite}'"
@@ -60,7 +75,7 @@ butd_run_suite() {
   fi
 
   # Create per-suite temp dir
-  local z_suite_dir="${ZBUTO_ROOT_TEMP_DIR}/${z_suite}"
+  local z_suite_dir="${ZBUTE_ROOT_TEMP_DIR}/${z_suite}"
   mkdir -p "${z_suite_dir}"
 
   # Iterate cases directly via butr_cases_recite
@@ -72,7 +87,7 @@ butd_run_suite() {
 
   while IFS= read -r z_case_fn; do
     test -n "${z_case_fn}" || continue
-    zbuto_case "${z_case_fn}"
+    zbute_case "${z_case_fn}"
     z_case_count=$((z_case_count + 1))
   done < "${z_cases_temp}"
 
@@ -87,7 +102,25 @@ butd_run_suite() {
 # Args: function_name
 butd_run_one() {
   local z_func="${1:-}"
-  test -n "${z_func}" || buto_fatal "butd_run_one: function_name required"
+  if test -z "${z_func}"; then
+    buto_info "Available test functions:"
+    local z_suites_list
+    z_suites_list=$(mktemp)
+    butr_suites_recite > "${z_suites_list}"
+    while IFS= read -r z_suite_name; do
+      test -n "${z_suite_name}" || continue
+      local z_cases_list
+      z_cases_list=$(mktemp)
+      butr_cases_recite "${z_suite_name}" > "${z_cases_list}"
+      while IFS= read -r z_case_fn; do
+        test -n "${z_case_fn}" || continue
+        buto_info "  ${z_suite_name}: ${z_case_fn}"
+      done < "${z_cases_list}"
+      rm -f "${z_cases_list}"
+    done < "${z_suites_list}"
+    rm -f "${z_suites_list}"
+    buto_fatal "butd_run_one: function_name required"
+  fi
 
   local z_suite
   z_suite=$(butr_suite_for_case_recite "${z_func}") || buto_fatal "butd_run_one: no suite matches function '${z_func}'"
@@ -118,11 +151,11 @@ butd_run_one() {
   fi
 
   # Create per-suite temp dir
-  local z_suite_dir="${ZBUTO_ROOT_TEMP_DIR}/${z_suite}"
+  local z_suite_dir="${ZBUTE_ROOT_TEMP_DIR}/${z_suite}"
   mkdir -p "${z_suite_dir}"
 
   # Run the single case
-  zbuto_case "${z_func}"
+  zbute_case "${z_func}"
 
   echo "${ZBUTO_GREEN}Test passed: ${z_func}${ZBUTO_RESET}" >&2
 }
