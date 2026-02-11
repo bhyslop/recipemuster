@@ -4530,9 +4530,10 @@
         "₢AcAAB",
         "₢AcAAC",
         "₢AcAAD",
-        "₢AcAAE"
+        "₢AcAAE",
+        "₢AcAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_Ac.md",
       "paces": {
         "₢AcAAA": {
@@ -4636,6 +4637,17 @@
               "text": "Explore splitting buto_operations.sh into two files: buto_operations.sh retains lightweight test-case API (output functions, unit/tt/launch assertions), while bute_engine.sh extracts the heavyweight runner infrastructure (case execution, dispatch, evidence harvest, step capture). bute_engine.sh sources buto_operations.sh — dependency flows engine→operations. Assess the boundary, identify callers on each side, and propose the split.",
               "silks": "split-buto-engine",
               "commit": "7c45138"
+            }
+          ]
+        },
+        "₢AcAAF": {
+          "tacks": [
+            {
+              "ts": "260211-0859",
+              "state": "rough",
+              "text": "Human pace: manually run all BUT framework testbench suites against the redesigned butr_/buto_/butd_ infrastructure. Exercise the new explicit registration API, verify init/setup/case two-phase flow, confirm inconclusive reporting, and validate subdispatch logging improvements. Amend anything that feels wrong. This is the interactive validation gate before the heat can close.",
+              "silks": "exercise-revised-test-suites",
+              "commit": "050c045"
             }
           ]
         }
