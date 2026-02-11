@@ -291,7 +291,7 @@ local -i z_count="${z_input}"  # "abc" becomes 0 — violates no-silent-failures
 
 # ✅ Use plain local with explicit validation
 local z_count="${z_input}"
-test "${z_count}" -ge 0 2>/dev/null || buc_die "z_count must be integer, got: ${z_count}"
+test "${z_count}" -ge 0 2>/dev/null || buc_die "z_count must be non-negative integer, got: ${z_count}"
 
 # ✅ Two-line pattern for captured values (explicit and debuggable)
 local z_token
@@ -697,7 +697,9 @@ z_files=(**/*.txt)              # ** globbing
 readarray -t z_lines            # readarray/mapfile
 ```
 
-### `set -e` is Not Sufficient
+---
+
+## `set -e` is Not Sufficient
 
 **The POSIX suppression rule**: `set -e` is suppressed inside `if`, `while`, `||`, `&&` test expressions, and this propagates through the **entire call tree** of the tested command.
 
@@ -758,18 +760,21 @@ Sourcing is restricted because it breaks error handling. Only three locations ma
 local z_val="${!z_varname}"
 ```
 
-**Use eval only for assignment to indirect variable** — after validation:
+**Use `printf -v` for assignment to indirect variable** — after name validation:
 
 ```bash
-# ✅ eval with validated name for assignment
+# ✅ printf -v for assignment — no quoting hazards from values
 echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' \
   || buc_die "Invalid variable name: ${z_varname}"
-eval "${z_varname}=\${z_new_value}"
+printf -v "${z_varname}" '%s' "${z_new_value}" || buc_die "printf -v failed"
 ```
 
-**Anti-pattern:**
+**Anti-patterns:**
 
 ```bash
+# ❌ eval for assignment — quoting hazards from values with quotes/newlines/backslashes
+eval "${z_varname}=\${z_new_value}"
+
 # ❌ Unvalidated eval — injection risk
 eval "local z_val=\${${z_varname}:-}"
 ```
@@ -905,6 +910,7 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] Parameters use `"${1:-}"` pattern for defensive programming
 - [ ] Module state variable `Z«PREFIX»_KINDLED=1` is the last statement in kindle
 - [ ] No bare `$var` or unbraced `"$var"` expansions
+- [ ] No `local -i` — use plain local with explicit validation
 
 ### Error Handling
 - [ ] Every command that can fail has `|| buc_die` or `|| buc_warn`
@@ -917,6 +923,8 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] Two-line pattern for capturing: `z_var=$(func_capture) || buc_die`
 - [ ] File reads validated: `test -n "${z_content}" || buc_die`
 - [ ] No hidden failures in pipelines
+- [ ] Only `_predicate` functions in `if`/`while` conditions
+- [ ] Error blocks use `{ ...; }` not `( ... )`
 
 ### Command Substitution Rules
 - [ ] NO command substitution except `$(<file)` builtin and `_capture` functions
@@ -945,7 +953,7 @@ for z_i in "${!z_«prefix»_name_roll[@]}"; do
 done
 ```
 
-**Acceptable alternative: guarded value iteration** — check array is non-empty before expanding:
+**Acceptable alternative: guarded value iteration** — check array is non-empty before expanding. The `(( expr ))` arithmetic command returns exit 0 when expr is non-zero, exit 1 when zero — it works in bash 3.2 and is the idiomatic guard for array size checks:
 
 ```bash
 # ✅ Acceptable: guard value iteration with size check
@@ -987,6 +995,7 @@ done
 - [ ] Only `z«prefix»_furnish` sources config files
 - [ ] Credential sourcing documented and never writes to disk
 - [ ] No other sourcing anywhere
+- [ ] `eval` forbidden except validated variable-name dereference; prefer `printf -v` for assignment
 
 ### Code Quality
 - [ ] Prefer bash builtins over external tools (parameter expansion vs sed/awk)
