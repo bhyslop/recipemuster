@@ -764,7 +764,6 @@
       "status": "racing",
       "order": [
         "₢ATAAX",
-        "₢ATAAW",
         "₢ATAAV",
         "₢ATAAU",
         "₢ATAAT",
@@ -1207,31 +1206,6 @@
               "text": "BCG cleanup: butd_run_one and butd_run_suite set what appears to be a kindle constant as inter-function communication. This violates BCG conventions where kindle constants should be set once at module initialization, not mutated during execution. Requires collaborative design — not a mechanical fix. Identify the offending variables, trace their usage, and design a proper BCG-compliant communication pattern.",
               "silks": "bcg-kindle-comm-cleanup",
               "commit": "336fe69"
-            }
-          ]
-        },
-        "₢ATAAW": {
-          "tacks": [
-            {
-              "ts": "260211-0849",
-              "state": "rough",
-              "text": "Redesign butr_registry.sh with explicit case registration and two-phase suite initialization.\n\n## New registration API\n\n```bash\nz_init_cloudbuild=\"rbtb_assure_cloud_and_git\"\nz_setup_ark=\"zrbtb_setup_ark\"\n\nz_suite=\"ark-lifecycle\"\nbutr_suite  ${z_suite}  ${z_init_cloudbuild}  ${z_setup_ark}\nbutr_case   ${z_suite}  rbtcal_lifecycle\n```\n\n## Semantics\n\n- butr_suite: declares suite with init function and setup function\n- butr_case: registers a single explicitly-named function. Fatal error at registration time if declare -F does not find it (no glob discovery)\n- Init: runs first. Failure = inconclusive (non-zero exit, semantically \"environment not ready,\" not \"test broken\"). Example: unpushed git commits blocking cloud build, container registry login requiring interactive TCC prompt\n- Setup: runs after init passes. Failure = fatal\n- Cases run after both succeed\n\n## Execution modes\n\n- Run all cases in a suite: rbtb-ts ark-lifecycle\n- Run one case: rbtb-to rbtcal_lifecycle (engine finds owning suite, runs init+setup, then one case)\n\n## What dies\n\n- Glob-based function discovery (replaced by explicit butr_case registration)\n- Tier concept (fast/slow filtering removed for now)\n\n## Design work needed\n\n- Exact inconclusive reporting format and exit code convention\n- How butd_dispatch.sh adapts to new registry API\n- Whether init functions compose (suite declares multiple init traits) or remain single-function\n- Integration with buto_execute flow\n\nRequires collaborative design — multiple valid approaches for inconclusive semantics and init composition.",
-              "silks": "redesign-butr-registry",
-              "commit": "7866194"
-            },
-            {
-              "ts": "260211-0848",
-              "state": "rough",
-              "text": "Design a pre-flight check mechanism for the BUT test framework. Before running any test cases, the engine would run an 'init' (name TBD — perhaps 'preflight', 'ready', 'gate', 'muster') function for each test module/suite that checks whether the environment is fit for execution. If the check fails, the outcome is 'inconclusive' (not 'failed') — still unix non-zero, but semantically distinct from a test failure. This addresses cases like the ark-lifecycle suite which spends 15s discovering that the local repo has unpushed commits — a precondition that could be caught before any test runs. Design questions: Is this per-module or per-suite? Does it compose with the existing buto_execute flow? What's the right name? Is 'inconclusive' a new result category alongside pass/fail? Requires collaborative design — the idea may not be congruous with the current model.",
-              "silks": "redesign-butr-registry",
-              "commit": "038eb68"
-            },
-            {
-              "ts": "260211-0755",
-              "state": "rough",
-              "text": "Design a pre-flight check mechanism for the BUT test framework. Before running any test cases, the engine would run an 'init' (name TBD — perhaps 'preflight', 'ready', 'gate', 'muster') function for each test module/suite that checks whether the environment is fit for execution. If the check fails, the outcome is 'inconclusive' (not 'failed') — still unix non-zero, but semantically distinct from a test failure. This addresses cases like the ark-lifecycle suite which spends 15s discovering that the local repo has unpushed commits — a precondition that could be caught before any test runs. Design questions: Is this per-module or per-suite? Does it compose with the existing buto_execute flow? What's the right name? Is 'inconclusive' a new result category alongside pass/fail? Requires collaborative design — the idea may not be congruous with the current model.",
-              "silks": "design-test-preflight-gate",
-              "commit": "bcd7f79"
             }
           ]
         },
@@ -4599,10 +4573,45 @@
       "silks": "but-test-overhaul",
       "creation_time": "260211",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AcAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_Ac.md",
-      "paces": {}
+      "paces": {
+        "₢AcAAA": {
+          "tacks": [
+            {
+              "ts": "260211-0859",
+              "state": "rough",
+              "text": "Drafted from ₢ATAAW in ₣AT.\n\nRedesign butr_registry.sh with explicit case registration and two-phase suite initialization.\n\n## New registration API\n\n```bash\nz_init_cloudbuild=\"rbtb_assure_cloud_and_git\"\nz_setup_ark=\"zrbtb_setup_ark\"\n\nz_suite=\"ark-lifecycle\"\nbutr_suite  ${z_suite}  ${z_init_cloudbuild}  ${z_setup_ark}\nbutr_case   ${z_suite}  rbtcal_lifecycle\n```\n\n## Semantics\n\n- butr_suite: declares suite with init function and setup function\n- butr_case: registers a single explicitly-named function. Fatal error at registration time if declare -F does not find it (no glob discovery)\n- Init: runs first. Failure = inconclusive (non-zero exit, semantically \"environment not ready,\" not \"test broken\"). Example: unpushed git commits blocking cloud build, container registry login requiring interactive TCC prompt\n- Setup: runs after init passes. Failure = fatal\n- Cases run after both succeed\n\n## Execution modes\n\n- Run all cases in a suite: rbtb-ts ark-lifecycle\n- Run one case: rbtb-to rbtcal_lifecycle (engine finds owning suite, runs init+setup, then one case)\n\n## What dies\n\n- Glob-based function discovery (replaced by explicit butr_case registration)\n- Tier concept (fast/slow filtering removed for now)\n\n## Design work needed\n\n- Exact inconclusive reporting format and exit code convention\n- How butd_dispatch.sh adapts to new registry API\n- Whether init functions compose (suite declares multiple init traits) or remain single-function\n- Integration with buto_execute flow\n\nRequires collaborative design — multiple valid approaches for inconclusive semantics and init composition.",
+              "silks": "redesign-butr-registry",
+              "commit": "a63f018"
+            },
+            {
+              "ts": "260211-0849",
+              "state": "rough",
+              "text": "Redesign butr_registry.sh with explicit case registration and two-phase suite initialization.\n\n## New registration API\n\n```bash\nz_init_cloudbuild=\"rbtb_assure_cloud_and_git\"\nz_setup_ark=\"zrbtb_setup_ark\"\n\nz_suite=\"ark-lifecycle\"\nbutr_suite  ${z_suite}  ${z_init_cloudbuild}  ${z_setup_ark}\nbutr_case   ${z_suite}  rbtcal_lifecycle\n```\n\n## Semantics\n\n- butr_suite: declares suite with init function and setup function\n- butr_case: registers a single explicitly-named function. Fatal error at registration time if declare -F does not find it (no glob discovery)\n- Init: runs first. Failure = inconclusive (non-zero exit, semantically \"environment not ready,\" not \"test broken\"). Example: unpushed git commits blocking cloud build, container registry login requiring interactive TCC prompt\n- Setup: runs after init passes. Failure = fatal\n- Cases run after both succeed\n\n## Execution modes\n\n- Run all cases in a suite: rbtb-ts ark-lifecycle\n- Run one case: rbtb-to rbtcal_lifecycle (engine finds owning suite, runs init+setup, then one case)\n\n## What dies\n\n- Glob-based function discovery (replaced by explicit butr_case registration)\n- Tier concept (fast/slow filtering removed for now)\n\n## Design work needed\n\n- Exact inconclusive reporting format and exit code convention\n- How butd_dispatch.sh adapts to new registry API\n- Whether init functions compose (suite declares multiple init traits) or remain single-function\n- Integration with buto_execute flow\n\nRequires collaborative design — multiple valid approaches for inconclusive semantics and init composition.",
+              "silks": "redesign-butr-registry",
+              "commit": "7866194"
+            },
+            {
+              "ts": "260211-0848",
+              "state": "rough",
+              "text": "Design a pre-flight check mechanism for the BUT test framework. Before running any test cases, the engine would run an 'init' (name TBD — perhaps 'preflight', 'ready', 'gate', 'muster') function for each test module/suite that checks whether the environment is fit for execution. If the check fails, the outcome is 'inconclusive' (not 'failed') — still unix non-zero, but semantically distinct from a test failure. This addresses cases like the ark-lifecycle suite which spends 15s discovering that the local repo has unpushed commits — a precondition that could be caught before any test runs. Design questions: Is this per-module or per-suite? Does it compose with the existing buto_execute flow? What's the right name? Is 'inconclusive' a new result category alongside pass/fail? Requires collaborative design — the idea may not be congruous with the current model.",
+              "silks": "redesign-butr-registry",
+              "commit": "038eb68"
+            },
+            {
+              "ts": "260211-0755",
+              "state": "rough",
+              "text": "Design a pre-flight check mechanism for the BUT test framework. Before running any test cases, the engine would run an 'init' (name TBD — perhaps 'preflight', 'ready', 'gate', 'muster') function for each test module/suite that checks whether the environment is fit for execution. If the check fails, the outcome is 'inconclusive' (not 'failed') — still unix non-zero, but semantically distinct from a test failure. This addresses cases like the ark-lifecycle suite which spends 15s discovering that the local repo has unpushed commits — a precondition that could be caught before any test runs. Design questions: Is this per-module or per-suite? Does it compose with the existing buto_execute flow? What's the right name? Is 'inconclusive' a new result category alongside pass/fail? Requires collaborative design — the idea may not be congruous with the current model.",
+              "silks": "design-test-preflight-gate",
+              "commit": "bcd7f79"
+            }
+          ]
+        }
+      }
     }
   }
 }
