@@ -308,50 +308,7 @@ zbuto_case() {
   test "${BUT_VERBOSE:-0}" -le 0 || echo "${ZBUTO_GREEN}PASSED:${ZBUTO_RESET} ${z_case_name}" >&2
 }
 
-# Run all or specific tests
-buto_execute() {
-  set -e
-
-  local z_root_temp_dir="${1}"
-  test -n "${z_root_temp_dir}"            || buto_fatal "Usage: script.sh <root_temp_dir> [test_case]"
-  test -d "${z_root_temp_dir}"            || buto_fatal "Root temp dir does not exist: ${z_root_temp_dir}"
-  test -w "${z_root_temp_dir}"            || buto_fatal "Root temp dir is not writable: ${z_root_temp_dir}"
-  test -z "$(ls -A "${z_root_temp_dir}")" || buto_fatal "Root temp dir is not empty: ${z_root_temp_dir}"
-
-  export ZBUTO_ROOT_TEMP_DIR="${z_root_temp_dir}"
-  export BUT_VERBOSE="${BUT_VERBOSE:-0}"
-
-  # Enable bash trace to stderr if BUT_VERBOSE is 3 or higher and bash >= 4.1
-  if test "${BUT_VERBOSE}" -ge 3; then
-    if test "${BASH_VERSINFO[0]}" -gt 4 || { test "${BASH_VERSINFO[0]}" -eq 4 && test "${BASH_VERSINFO[1]}" -ge 1; }; then
-      export PS4='+ ${BASH_SOURCE##*/}:${LINENO}: '
-      export BASH_XTRACEFD=2
-      set -x
-    fi
-  fi
-
-  local z_prefix="${2}"
-  local z_the_case="${3:-}"
-  local z_count=0
-
-  if test -n "${z_the_case}"; then
-    echo "${z_the_case}" | grep -q "^${z_prefix}" || \
-         echo "${z_the_case} mismatch to '${z_prefix}' but trying..."
-    zbuto_case "${z_the_case}"
-    z_count=1
-  else
-    local z_found=0
-    local z_one_case=""
-    for z_one_case in $(declare -F | grep "^declare -f ${z_prefix}" | cut -d' ' -f3); do
-      z_found=1
-      zbuto_case "${z_one_case}"
-      z_count=$((z_count + 1))
-    done
-    buto_fatal_on_success "${z_found}" "No test functions found with prefix '${z_prefix}'"
-  fi
-
-  echo "${ZBUTO_GREEN}All tests passed (${z_count} case$(test ${z_count} -eq 1 || echo 's'))${ZBUTO_RESET}" >&2
-}
+# buto_execute removed - dispatch now iterates cases directly via butr_cases_recite
 
 ######################################################################
 # Dispatch and evidence infrastructure

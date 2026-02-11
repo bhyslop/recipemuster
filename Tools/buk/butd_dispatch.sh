@@ -28,19 +28,29 @@ ZBUTD_INCLUDED=1
 # Suite execution
 
 # butd_run_suite() - Run a single registered suite by name
-# Args: suite_name [single_test_function]
+# Args: suite_name
 butd_run_suite() {
   local z_suite="${1:-}"
   test -n "${z_suite}" || buto_fatal "butd_run_suite: suite_name required"
-  shift
-  local z_single="${1:-}"
 
-  local z_glob
-  z_glob=$(butr_get_glob "${z_suite}") || buto_fatal "butd_run_suite: unknown suite '${z_suite}'"
+  local z_init
+  z_init=$(butr_init_recite "${z_suite}") || buto_fatal "butd_run_suite: failed to get init for '${z_suite}'"
   local z_setup
-  z_setup=$(butr_get_setup "${z_suite}") || buto_fatal "butd_run_suite: failed to get setup for '${z_suite}'"
+  z_setup=$(butr_setup_recite "${z_suite}") || buto_fatal "butd_run_suite: failed to get setup for '${z_suite}'"
 
-  buto_section "Suite: ${z_suite} (glob: ${z_glob})"
+  buto_section "Suite: ${z_suite}"
+
+  # Run init function if specified (status capture pattern)
+  if test -n "${z_init}"; then
+    buto_trace "Running init: ${z_init}"
+    declare -F "${z_init}" >/dev/null || buto_fatal "Init function not found: ${z_init}"
+    local z_status=0
+    "${z_init}" || z_status=$?
+    if test "${z_status}" -ne 0; then
+      buc_warn "Suite '${z_suite}' not ready (init returned ${z_status}), skipping"
+      return 0
+    fi
+  fi
 
   # Run setup function if specified
   if test -n "${z_setup}"; then
@@ -53,8 +63,24 @@ butd_run_suite() {
   local z_suite_dir="${ZBUTO_ROOT_TEMP_DIR}/${z_suite}"
   mkdir -p "${z_suite_dir}"
 
-  # Delegate to buto_execute for test discovery and execution
-  buto_execute "${z_suite_dir}" "${z_glob}" "${z_single}"
+  # Iterate cases directly via butr_cases_recite
+  local z_case_fn
+  local z_case_count=0
+  local z_cases_temp
+  z_cases_temp=$(mktemp)
+  butr_cases_recite "${z_suite}" > "${z_cases_temp}" || buto_fatal "Failed to get cases for suite '${z_suite}'"
+
+  while IFS= read -r z_case_fn; do
+    test -n "${z_case_fn}" || continue
+    zbuto_case "${z_case_fn}"
+    z_case_count=$((z_case_count + 1))
+  done < "${z_cases_temp}"
+
+  rm -f "${z_cases_temp}"
+
+  test "${z_case_count}" -gt 0 || buto_fatal "No test cases found for suite '${z_suite}'"
+
+  echo "${ZBUTO_GREEN}Suite passed: ${z_suite} (${z_case_count} case$(test ${z_case_count} -eq 1 || echo 's'))${ZBUTO_RESET}" >&2
 }
 
 # butd_run_one() - Run a single test function by name
@@ -63,48 +89,78 @@ butd_run_one() {
   local z_func="${1:-}"
   test -n "${z_func}" || buto_fatal "butd_run_one: function_name required"
 
-  local z_suite=""
-  local z_glob=""
-  local z_found=""
-  for z_suite in $(butr_get_suites); do
-    z_glob=$(butr_get_glob "${z_suite}") || continue
-    case "${z_func}" in
-      ${z_glob}*) z_found="${z_suite}"; break ;;
-    esac
-  done
+  local z_suite
+  z_suite=$(butr_suite_for_case_recite "${z_func}") || buto_fatal "butd_run_one: no suite matches function '${z_func}'"
 
-  test -n "${z_found}" || buto_fatal "butd_run_one: no suite matches function '${z_func}'"
+  local z_init
+  z_init=$(butr_init_recite "${z_suite}") || buto_fatal "butd_run_one: failed to get init for '${z_suite}'"
+  local z_setup
+  z_setup=$(butr_setup_recite "${z_suite}") || buto_fatal "butd_run_one: failed to get setup for '${z_suite}'"
 
-  butd_run_suite "${z_found}" "${z_func}"
+  buto_section "Suite: ${z_suite} (single case: ${z_func})"
+
+  # Run init function if specified (status capture pattern)
+  if test -n "${z_init}"; then
+    buto_trace "Running init: ${z_init}"
+    declare -F "${z_init}" >/dev/null || buto_fatal "Init function not found: ${z_init}"
+    local z_status=0
+    "${z_init}" || z_status=$?
+    if test "${z_status}" -ne 0; then
+      buto_fatal "Suite '${z_suite}' not ready (init returned ${z_status})"
+    fi
+  fi
+
+  # Run setup function if specified
+  if test -n "${z_setup}"; then
+    buto_trace "Running setup: ${z_setup}"
+    declare -F "${z_setup}" >/dev/null || buto_fatal "Setup function not found: ${z_setup}"
+    "${z_setup}"
+  fi
+
+  # Create per-suite temp dir
+  local z_suite_dir="${ZBUTO_ROOT_TEMP_DIR}/${z_suite}"
+  mkdir -p "${z_suite_dir}"
+
+  # Run the single case
+  zbuto_case "${z_func}"
+
+  echo "${ZBUTO_GREEN}Test passed: ${z_func}${ZBUTO_RESET}" >&2
 }
 
 # butd_run_all() - Run all registered suites
-# Args: [--fast|--slow] (optional tier filter)
+# Args: none
 butd_run_all() {
-  local z_tier_filter=""
-
-  case "${1:-}" in
-    --fast) z_tier_filter="fast" ;;
-    --slow) z_tier_filter="slow" ;;
-    "")     ;;
-    *)      buto_fatal "butd_run_all: unknown flag '${1}'" ;;
-  esac
-
   local z_total_suites=0
+  local z_total_skipped=0
+  local z_total_failed=0
   local z_suite=""
-  local z_tier=""
+  local z_suites_temp
+  z_suites_temp=$(mktemp)
 
-  for z_suite in $(butr_get_suites); do
-    if test -n "${z_tier_filter}"; then
-      z_tier=$(butr_get_tier "${z_suite}") || continue
-      test "${z_tier}" = "${z_tier_filter}" || continue
+  butr_suites_recite > "${z_suites_temp}" || buto_fatal "Failed to get suites"
+
+  while IFS= read -r z_suite; do
+    test -n "${z_suite}" || continue
+
+    local z_suite_status=0
+    butd_run_suite "${z_suite}" || z_suite_status=$?
+
+    if test "${z_suite_status}" -eq 0; then
+      z_total_suites=$((z_total_suites + 1))
+    else
+      z_total_failed=$((z_total_failed + 1))
+      buc_warn "Suite '${z_suite}' failed with status ${z_suite_status}"
     fi
+  done < "${z_suites_temp}"
 
-    butd_run_suite "${z_suite}"
-    z_total_suites=$((z_total_suites + 1))
-  done
+  rm -f "${z_suites_temp}"
 
-  test "${z_total_suites}" -gt 0 || buto_fatal "No suites matched${z_tier_filter:+ tier '${z_tier_filter}'}"
+  test "${z_total_suites}" -gt 0 || buto_fatal "No suites ran successfully"
+
+  if test "${z_total_failed}" -gt 0; then
+    echo "${ZBUTO_RED}Some suites failed: ${z_total_suites} passed, ${z_total_failed} failed${ZBUTO_RESET}" >&2
+    exit 1
+  fi
 
   echo "${ZBUTO_GREEN}All suites passed (${z_total_suites} suite$(test ${z_total_suites} -eq 1 || echo 's'))${ZBUTO_RESET}" >&2
 }

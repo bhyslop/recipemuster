@@ -64,10 +64,10 @@ ZBUC_DOC_MODE=false
 #   Computes ZBUC_TAG for the given stack depth/label (no I/O).
 #   Note: With depth=0 or too-deep stacks, file/line may be empty (by design).
 zbuc_make_tag() {
-  local -i z_d="${1:-1}"
-  local    z_label="${2:-}"
-  local    z_file="${BASH_SOURCE[z_d]##*/}"
-  local    z_line="${BASH_LINENO[z_d-1]}"
+  local z_d="${1:-1}"
+  local z_label="${2:-}"
+  local z_file="${BASH_SOURCE[z_d]##*/}"
+  local z_line="${BASH_LINENO[z_d-1]}"
   ZBUC_TAG="${z_label}${z_file}:${z_line}: "
 }
 

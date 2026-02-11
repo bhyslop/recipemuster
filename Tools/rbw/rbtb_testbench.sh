@@ -147,14 +147,76 @@ zrbtb_setup_image() {
 
 rbtb_kindle() {
   butr_kindle
-  butr_register "kick-tires" "rbtckk_" "zrbtb_setup_kick" "fast"
-  butr_register "ark-lifecycle" "rbtcal_" "zrbtb_setup_ark" "slow"
-  butr_register "dispatch-exercise" "butcde_" "zrbtb_setup_dispatch" "fast"
-  butr_register "nsproto-security" "rbtcns_" "zrbtb_setup_nsproto" "slow"
-  butr_register "srjcl-jupyter" "rbtcsj_" "zrbtb_setup_srjcl" "slow"
-  butr_register "pluml-diagram" "rbtcpl_" "zrbtb_setup_pluml" "slow"
-  butr_register "xname-validation" "butcvu_" "zrbtb_setup_xname" "fast"
-  butr_register "image-management" "rbtcim_" "zrbtb_setup_image" "slow"
+
+  # kick-tires suite
+  butr_suite_enroll "kick-tires" "" "zrbtb_setup_kick"
+  butr_case_enroll "kick-tires" rbtckk_false
+  butr_case_enroll "kick-tires" rbtckk_true
+
+  # ark-lifecycle suite
+  butr_suite_enroll "ark-lifecycle" "" "zrbtb_setup_ark"
+  butr_case_enroll "ark-lifecycle" rbtcal_lifecycle
+
+  # dispatch-exercise suite
+  butr_suite_enroll "dispatch-exercise" "" "zrbtb_setup_dispatch"
+  butr_case_enroll "dispatch-exercise" butcde_burv_isolation
+  butr_case_enroll "dispatch-exercise" butcde_evidence_created
+  butr_case_enroll "dispatch-exercise" butcde_exit_capture
+
+  # nsproto-security suite
+  butr_suite_enroll "nsproto-security" "" "zrbtb_setup_nsproto"
+  butr_case_enroll "nsproto-security" rbtcns_basic_dnsmasq
+  butr_case_enroll "nsproto-security" rbtcns_basic_iptables
+  butr_case_enroll "nsproto-security" rbtcns_basic_ping_sentry
+  butr_case_enroll "nsproto-security" rbtcns_block_packages
+  butr_case_enroll "nsproto-security" rbtcns_dns_allow_anthropic
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_altport
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_cloudflare
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_direct
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_google
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_ipv6
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_multicast
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_quad9
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_spoofing
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_tunneling
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_zonetransfer
+  butr_case_enroll "nsproto-security" rbtcns_dns_nonexist
+  butr_case_enroll "nsproto-security" rbtcns_dns_notcp
+  butr_case_enroll "nsproto-security" rbtcns_dns_tcp
+  butr_case_enroll "nsproto-security" rbtcns_icmp_block_beyond
+  butr_case_enroll "nsproto-security" rbtcns_icmp_sentry_only
+  butr_case_enroll "nsproto-security" rbtcns_tcp443_allow_anthropic
+  butr_case_enroll "nsproto-security" rbtcns_tcp443_block_google
+
+  # srjcl-jupyter suite
+  butr_suite_enroll "srjcl-jupyter" "" "zrbtb_setup_srjcl"
+  butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_connectivity
+  butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_running
+  butr_case_enroll "srjcl-jupyter" rbtcsj_websocket_kernel
+
+  # pluml-diagram suite
+  butr_suite_enroll "pluml-diagram" "" "zrbtb_setup_pluml"
+  butr_case_enroll "pluml-diagram" rbtcpl_http_headers
+  butr_case_enroll "pluml-diagram" rbtcpl_invalid_hash
+  butr_case_enroll "pluml-diagram" rbtcpl_local_diagram
+  butr_case_enroll "pluml-diagram" rbtcpl_malformed_diagram
+  butr_case_enroll "pluml-diagram" rbtcpl_text_rendering
+
+  # xname-validation suite
+  butr_suite_enroll "xname-validation" "" "zrbtb_setup_xname"
+  butr_case_enroll "xname-validation" butcvu_debug
+  butr_case_enroll "xname-validation" butcvu_xname_defaults
+  butr_case_enroll "xname-validation" butcvu_xname_empty_optional
+  butr_case_enroll "xname-validation" butcvu_xname_env_wrapper
+  butr_case_enroll "xname-validation" butcvu_xname_invalid_chars
+  butr_case_enroll "xname-validation" butcvu_xname_invalid_start
+  butr_case_enroll "xname-validation" butcvu_xname_length
+  butr_case_enroll "xname-validation" butcvu_xname_valid
+
+  # image-management suite
+  butr_suite_enroll "image-management" "" "zrbtb_setup_image"
+  butr_case_enroll "image-management" rbtcim_github_workflow
+  butr_case_enroll "image-management" rbtcim_image_info
 }
 
 ######################################################################

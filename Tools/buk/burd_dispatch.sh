@@ -256,11 +256,11 @@ zburd_main() {
   zburd_resolve_color
 
   # Setup environment
-  zburd_setup || (echo "ERROR: Environment setup failed" >&2 && exit 1)
+  zburd_setup || { echo "ERROR: Environment setup failed" >&2; exit 1; }
   zburd_show "Environment setup complete"
 
   # Process arguments
-  zburd_process_args "$@" || (echo "ERROR: Argument processing failed" >&2 && exit 1)
+  zburd_process_args "$@" || { echo "ERROR: Argument processing failed" >&2; exit 1; }
   zburd_show "Arguments processed"
 
   # Build complete invocation array (always has ≥2 elements, so always safe under set -u)
