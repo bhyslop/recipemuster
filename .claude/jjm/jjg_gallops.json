@@ -14,9 +14,10 @@
         "₢AcAAE",
         "₢AcAAD",
         "₢AcAAB",
+        "₢AcAAJ",
         "₢AcAAF"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_Ac.md",
       "paces": {
         "₢AcAAA": {
@@ -216,6 +217,17 @@
               "text": "Fix BCG noncompliance discovered during document review. All issues are in Tools/buk/ files.\n\n## 1. buv_validation.sh — `test $(command)` silent pass-through\n\nMultiple validators use `test $(echo \"$val\" | grep -E '^pattern$')` which silently passes when grep matches nothing (zero-arg `test` returns true). Replace with `echo \"${z_val}\" | grep -qE '^pattern$' || buc_die \"...\"`.\n\nAffected functions: buv_val_xname (line 136), buv_val_ipv4 (line 277), buv_val_cidr (line 297), buv_val_domain (line 317), buv_val_list_ipv4, buv_val_list_cidr, buv_val_list_domain.\n\n## 2. buv_validation.sh — BCG variable style noncompliance\n\n- Uses `[[ ]]` for inclusion guard (should be `test`)\n- Uses `$(dirname ...)` instead of `${BASH_SOURCE[0]%/*}`\n- Uses unbraced `$var` in multiple places (should be `\"${var}\"`)\n- Local variables missing `z_` prefix in validator functions\n\nDesign consideration: buv predates BCG. Full migration may touch many callers. Scope to the file itself — don't chase callers.\n\n## 3. burd_dispatch.sh — subshell exit bug\n\nLines 259, 263: `zburd_setup || (echo ... && exit 1)` — subshell exit kills only the subshell, script continues. Fix: `|| { echo ... >&2; exit 1; }`.\n\n## 4. buc_command.sh — `local -i` usage\n\nLine 67: `local -i z_d=\"${1:-1}\"` — silently coerces non-integers to 0. Replace with plain `local` and explicit validation per BCG.\n\n## Scope guard\n\nModify only files in Tools/buk/. Do not modify BCG-BashConsoleGuide.md. Do not modify files in Tools/rbw/ (legacy, separate migration).\n\n## Design considerations\n\n- buv_validation.sh variable renaming (z_ prefix) may be extensive; use judgment on how deep to go in one pass\n- burd_dispatch.sh has many other BCG divergences (its own zburd_die, [[ ]] usage, unbraced vars) — scope this pace to the two subshell exit bugs only, flag remaining as future work",
               "silks": "fix-buk-bcg-noncompliance",
               "commit": "ae0b6d0"
+            }
+          ]
+        },
+        "₢AcAAJ": {
+          "tacks": [
+            {
+              "ts": "260211-1530",
+              "state": "rough",
+              "text": "Revert incorrect file and function renames from the BUD_→BURD_ variable rename.\n\nThe BUD_→BURD_ variable rename was correct, but the model also incorrectly renamed:\n1. File: bud_dispatch.sh → burd_dispatch.sh (WRONG - bud is the file/module prefix)\n2. Functions: zbud_* → zburd_* (WRONG - zbud_ is the function prefix for the bud module)\n\nThe bud prefix (file/function namespace) and BURD prefix (variable namespace) are distinct per terminal exclusivity.\n\nFix:\n- Rename file back: burd_dispatch.sh → bud_dispatch.sh\n- Rename all functions back: zburd_* → zbud_* inside the file (zburd_show, zburd_die, zburd_check_string, zburd_setup, zburd_process_args, zburd_curate_same, zburd_curate_hist, zburd_generate_checksum, zburd_resolve_color, zburd_main, plus local zburd_invocation)\n- Update all references in ~14 files: bul_launcher.sh, README.md, CLAUDE.md, 6 tt/ tabtargets, 2 memos, rbga_cli.sh, rbgb_cli.sh, rgbs_cli.sh\n- Leave all BURD_* variables untouched (those renames were correct)",
+              "silks": "revert-bud-file-function-renames",
+              "commit": "f8e6b42"
             }
           ]
         }
