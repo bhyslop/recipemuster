@@ -1164,6 +1164,13 @@
         "₢ATAAS": {
           "tacks": [
             {
+              "ts": "260211-0859",
+              "state": "rough",
+              "text": "Blocked on ₣Ac (but-test-overhaul). That heat redesigns butr_/buto_/butd_ infrastructure including explicit case registration, init/setup two-phase model, and subdispatch logging. Once ₣Ac completes, revisit this pace to exercise the suites under the new framework. Original intent absorbed into ₣Ac paddock and final pace ₢AcAAF (exercise-revised-test-suites).",
+              "silks": "exercise-but-suites",
+              "commit": "f2c7eb4"
+            },
+            {
               "ts": "260210-1338",
               "state": "rough",
               "text": "Human pace: manually run all BUT framework testbench suites, review output, and get comfortable with the butc*/butr/buto patterns. Amend anything that feels wrong before moving on to the audit paces.",
