@@ -114,6 +114,14 @@
         "₢AcAAD": {
           "tacks": [
             {
+              "ts": "260211-1531",
+              "state": "bridled",
+              "text": "Drafted from ₢ATAAU in ₣AT.\n\nWhen tt/rbtb-to.TestOne.sh or tt/rbtb-ts.TestSuite.sh is invoked with no arguments, enhance the error output to list all available targets after the existing error message. Still exit with non-zero status and keep the current ERROR line. For TestOne, list available test function names. For TestSuite, list available suite names. The discovery mechanism should match what these commands already use to resolve their argument.",
+              "silks": "test-cmd-list-targets",
+              "commit": "6c3a216",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: Tools/buk/butd_dispatch.sh (1 file) | Steps: 1. Read BCG-BashConsoleGuide.md for output patterns especially buto_fatal buto_info buto_section 2. Read Tools/buk/butr_registry.sh to understand the recite functions for querying suite names and case function names -- this file will have been rewritten by prior pace AcAAA with butr_suites_recite and butr_cases_recite 3. In butd_run_suite, when z_suite is empty, before the existing fatal, output \"Available suites:\" header via buto_info then list each suite name on its own line by calling butr_suites_recite and formatting via buto_info, then call buto_fatal with the existing error message 4. In butd_run_one, when z_func is empty, before the existing fatal, output \"Available test functions:\" header via buto_info then iterate all suites via butr_suites_recite, for each suite call butr_cases_recite to get case functions, format each as \"  suite-name: func_name\" via buto_info, then call buto_fatal with the existing error message 5. Run bash -n | Verify: bash -n Tools/buk/butd_dispatch.sh"
+            },
+            {
               "ts": "260211-0859",
               "state": "rough",
               "text": "Drafted from ₢ATAAU in ₣AT.\n\nWhen tt/rbtb-to.TestOne.sh or tt/rbtb-ts.TestSuite.sh is invoked with no arguments, enhance the error output to list all available targets after the existing error message. Still exit with non-zero status and keep the current ERROR line. For TestOne, list available test function names. For TestSuite, list available suite names. The discovery mechanism should match what these commands already use to resolve their argument.",
