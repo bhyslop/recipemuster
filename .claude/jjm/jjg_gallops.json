@@ -763,7 +763,6 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
-        "₢ATAAX",
         "₢ATAAU",
         "₢ATAAT",
         "₢ATAAP",
@@ -1194,17 +1193,6 @@
               "text": "When tt/rbtb-to.TestOne.sh or tt/rbtb-ts.TestSuite.sh is invoked with no arguments, enhance the error output to list all available targets after the existing error message. Still exit with non-zero status and keep the current ERROR line. For TestOne, list available test function names. For TestSuite, list available suite names. The discovery mechanism should match what these commands already use to resolve their argument.",
               "silks": "test-cmd-list-targets",
               "commit": "b65e756"
-            }
-          ]
-        },
-        "₢ATAAX": {
-          "tacks": [
-            {
-              "ts": "260211-0813",
-              "state": "rough",
-              "text": "Two changes to buto_dispatch subdispatch behavior:\n\n1. Remove BURD_NO_LOG=1 from buto_dispatch's inner tabtarget invocation (buto_operations.sh ~line 425). Inner tabtargets must run with their natural logging behavior — the test framework should not suppress logging. BURV overrides (BURV_OUTPUT_ROOT_DIR, BURV_TEMP_ROOT_DIR) remain as-is for evidence isolation.\n\n2. Surface inner artifact paths in the outer transcript. After each subdispatch step completes, record the inner process's transcript, log files, and output dir paths into the outer rbtb-c* transcript. On step failure, unconditionally display these paths to console regardless of BUT_VERBOSE, so the operator can immediately inspect what happened in the inner process.",
-              "silks": "fix-subdispatch-logging",
-              "commit": "4cdfb6f"
             }
           ]
         }
@@ -4563,9 +4551,10 @@
       "status": "stabled",
       "order": [
         "₢AcAAA",
-        "₢AcAAB"
+        "₢AcAAB",
+        "₢AcAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_Ac.md",
       "paces": {
         "₢AcAAA": {
@@ -4615,6 +4604,24 @@
               "text": "BCG cleanup: butd_run_one and butd_run_suite set what appears to be a kindle constant as inter-function communication. This violates BCG conventions where kindle constants should be set once at module initialization, not mutated during execution. Requires collaborative design — not a mechanical fix. Identify the offending variables, trace their usage, and design a proper BCG-compliant communication pattern.",
               "silks": "bcg-kindle-comm-cleanup",
               "commit": "336fe69"
+            }
+          ]
+        },
+        "₢AcAAC": {
+          "tacks": [
+            {
+              "ts": "260211-0859",
+              "state": "rough",
+              "text": "Drafted from ₢ATAAX in ₣AT.\n\nTwo changes to buto_dispatch subdispatch behavior:\n\n1. Remove BURD_NO_LOG=1 from buto_dispatch's inner tabtarget invocation (buto_operations.sh ~line 425). Inner tabtargets must run with their natural logging behavior — the test framework should not suppress logging. BURV overrides (BURV_OUTPUT_ROOT_DIR, BURV_TEMP_ROOT_DIR) remain as-is for evidence isolation.\n\n2. Surface inner artifact paths in the outer transcript. After each subdispatch step completes, record the inner process's transcript, log files, and output dir paths into the outer rbtb-c* transcript. On step failure, unconditionally display these paths to console regardless of BUT_VERBOSE, so the operator can immediately inspect what happened in the inner process.",
+              "silks": "fix-subdispatch-logging",
+              "commit": "e17b58a"
+            },
+            {
+              "ts": "260211-0813",
+              "state": "rough",
+              "text": "Two changes to buto_dispatch subdispatch behavior:\n\n1. Remove BURD_NO_LOG=1 from buto_dispatch's inner tabtarget invocation (buto_operations.sh ~line 425). Inner tabtargets must run with their natural logging behavior — the test framework should not suppress logging. BURV overrides (BURV_OUTPUT_ROOT_DIR, BURV_TEMP_ROOT_DIR) remain as-is for evidence isolation.\n\n2. Surface inner artifact paths in the outer transcript. After each subdispatch step completes, record the inner process's transcript, log files, and output dir paths into the outer rbtb-c* transcript. On step failure, unconditionally display these paths to console regardless of BUT_VERBOSE, so the operator can immediately inspect what happened in the inner process.",
+              "silks": "fix-subdispatch-logging",
+              "commit": "4cdfb6f"
             }
           ]
         }
