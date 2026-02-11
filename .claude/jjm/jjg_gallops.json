@@ -4668,9 +4668,10 @@
       "creation_time": "260211",
       "status": "stabled",
       "order": [
-        "₢AbAAA"
+        "₢AbAAA",
+        "₢AbAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_Ab.md",
       "paces": {
         "₢AbAAA": {
@@ -4681,6 +4682,17 @@
               "text": "## Problem\n\nA Claude Code officium exhibited two failures:\n\n1. **Used `cd` in Bash commands** — violating the CLAUDE.md rule \"Never cd in Bash commands — it persists and breaks subsequent tabtarget calls.\" The shell cwd got reset to `pb_paneboard02` after the cd, corrupting all subsequent commands.\n\n2. **Invented `jjx_slate`** — a non-existent subcommand. The slash command `/jjc-pace-slate` loaded successfully but Claude ignored its instructions and guessed at a CLI verb instead of using `jjx_enroll` as documented.\n\n## Investigation Scope\n\n- Why did the officium use `cd` despite clear prohibition? Is the CLAUDE.md instruction insufficiently prominent or poorly worded?\n- Why did the officium invent `jjx_slate` instead of reading the loaded slash command content? Is the slash command output being lost or ignored?\n- What repairs to CLAUDE.md, slash commands, or kit documentation would prevent recurrence?\n\n## Deliverable\n\nA memo with findings and concrete recommended changes (file paths, diff-style edits) to prevent both failure modes.",
               "silks": "jjk-spook-cd-cwd-corruption",
               "commit": "691945d"
+            }
+          ]
+        },
+        "₢AbAAB": {
+          "tacks": [
+            {
+              "ts": "260211-1404",
+              "state": "rough",
+              "text": "## Task\n\nIntroduce the concept of \"spook\" into JJSA (Gallops data model specification) as a formal JJ vocabulary\nterm.\n\n## Definition\n\nA **spook** is a failure of a slash command or other Job Jockey interaction to function correctly. Named by\nanalogy to an equestrian spook — the horse (Claude) shies away from the correct path despite clear guidance.\n\n## Scope\n\n- Add spook as a linked term in JJSA with proper MCM attribute, anchor, and definition\n- Ensure it fits the existing vocabulary categories and naming conventions\n- Consider whether spook warrants subcategories (e.g., cd-spook, phantom-verb-spook) or remains a single\numbrella term\n\n## Deliverable\n\nUpdated JJSA with spook concept properly integrated following MCM linked term patterns.",
+              "silks": "jjk-spook-concept-jjsa",
+              "commit": "b82ac65"
             }
           ]
         }
