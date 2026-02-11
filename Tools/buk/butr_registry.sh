@@ -85,9 +85,6 @@ butr_suite_enroll() {
   z_butr_name_roll+=("${z_name}")
   z_butr_init_roll+=("${z_init}")
   z_butr_setup_roll+=("${z_setup}")
-
-  # Return via variable
-  z_butr_suite_enroll_name="${z_name}"
 }
 
 # butr_case_enroll() - Register a single test case for a suite
@@ -118,9 +115,6 @@ butr_case_enroll() {
 
   z_butr_case_fn_roll+=("${z_case}")
   z_butr_case_suite_roll+=("${z_suite_idx}")
-
-  # Return via variable
-  z_butr_case_enroll_fn="${z_case}"
 }
 
 ######################################################################

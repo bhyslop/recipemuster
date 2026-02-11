@@ -48,7 +48,7 @@ butd_run_suite() {
     "${z_init}" || z_status=$?
     if test "${z_status}" -ne 0; then
       buc_warn "Suite '${z_suite}' not ready (init returned ${z_status}), skipping"
-      return 0
+      return 2
     fi
   fi
 
@@ -80,7 +80,7 @@ butd_run_suite() {
 
   test "${z_case_count}" -gt 0 || buto_fatal "No test cases found for suite '${z_suite}'"
 
-  echo "${ZBUTO_GREEN}Suite passed: ${z_suite} (${z_case_count} case$(test ${z_case_count} -eq 1 || echo 's'))${ZBUTO_RESET}" >&2
+  echo "${ZBUTO_GREEN}Suite passed: ${z_suite} (${z_case_count} case$(test "${z_case_count}" -eq 1 || echo 's'))${ZBUTO_RESET}" >&2
 }
 
 # butd_run_one() - Run a single test function by name
@@ -147,6 +147,8 @@ butd_run_all() {
 
     if test "${z_suite_status}" -eq 0; then
       z_total_suites=$((z_total_suites + 1))
+    elif test "${z_suite_status}" -eq 2; then
+      z_total_skipped=$((z_total_skipped + 1))
     else
       z_total_failed=$((z_total_failed + 1))
       buc_warn "Suite '${z_suite}' failed with status ${z_suite_status}"
@@ -155,14 +157,18 @@ butd_run_all() {
 
   rm -f "${z_suites_temp}"
 
-  test "${z_total_suites}" -gt 0 || buto_fatal "No suites ran successfully"
+  local z_total_ran=$((z_total_suites + z_total_failed))
+  test "${z_total_ran}" -gt 0 || buto_fatal "No suites ran (${z_total_skipped} skipped)"
 
   if test "${z_total_failed}" -gt 0; then
-    echo "${ZBUTO_RED}Some suites failed: ${z_total_suites} passed, ${z_total_failed} failed${ZBUTO_RESET}" >&2
+    echo "${ZBUTO_RED}Some suites failed: ${z_total_suites} passed, ${z_total_failed} failed, ${z_total_skipped} skipped${ZBUTO_RESET}" >&2
     exit 1
   fi
 
-  echo "${ZBUTO_GREEN}All suites passed (${z_total_suites} suite$(test ${z_total_suites} -eq 1 || echo 's'))${ZBUTO_RESET}" >&2
+  local z_skip_note=""
+  test "${z_total_skipped}" -eq 0 || z_skip_note=", ${z_total_skipped} skipped"
+
+  echo "${ZBUTO_GREEN}All suites passed (${z_total_suites} suite$(test "${z_total_suites}" -eq 1 || echo 's')${z_skip_note})${ZBUTO_RESET}" >&2
 }
 
 # eof
