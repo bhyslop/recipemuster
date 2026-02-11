@@ -18,6 +18,8 @@ Enterprise bash isn't about looking clever; it's about being boringly, reliably 
 
 The patterns reject bash 4+ features to maintain compatibility with older enterprise systems still running bash 3.2, particularly older RHEL/CentOS or macOS deployments.
 
+**Legacy code note**: Some older code (particularly rbw modules) predates current BCG form; treat as migration targets, not exemplars.
+
 ## Module Architecture
 
 Every module has an implementation file. CLI entry points are only present if module requires standalone execution.
@@ -284,6 +286,13 @@ local z_name=""
 local z_value="default"
 local z_result=0
 
+# ❌ NEVER use local -i — silently coerces non-integer values to 0
+local -i z_count="${z_input}"  # "abc" becomes 0 — violates no-silent-failures!
+
+# ✅ Use plain local with explicit validation
+local z_count="${z_input}"
+test "${z_count}" -ge 0 2>/dev/null || buc_die "z_count must be integer, got: ${z_count}"
+
 # ✅ Two-line pattern for captured values (explicit and debuggable)
 local z_token
 z_token=$(zauth_get_token_capture) || buc_die "Failed to capture token"
@@ -343,6 +352,8 @@ read -r z_result < "${Z_MODULE_TEMP2}" || buc_die "No result"
 
 # ⚠️ EXCEPTION: Secrets use _capture functions, never temp files
 ```
+
+**Temp file lifecycle**: Temp files under `BURD_TEMP_DIR` are **preserved after execution** for forensic debugging. Never delete temp files in module code — their persistence is intentional. Cleanup is handled by infrastructure outside BCG's scope.
 
 ### String Usage
 
@@ -630,9 +641,34 @@ test -n "${z_param}" || buc_step "Running with zero length parameter"
 [[ -f "${z_file}" ]]           # Use: test -f "${z_file}"
 [[ "${z_var}" == "value" ]]    # Use: test "${z_var}" = "value"
 [[ -n "${z_param}" ]]          # Use: test -n "${z_param}"
+
+# Never use test with command substitution that might expand to empty
+# test with ZERO arguments returns TRUE (exit 0) — silent pass landmine
+test $(echo "${z_val}" | grep -E '^pattern$')  # ❌ Succeeds when grep matches nothing!
+
+# ✅ Use exit-status predicates instead
+echo "${z_val}" | grep -qE '^pattern$' || buc_die "Invalid format"
+
+# ✅ Or use case statement for pattern matching
+case "${z_val}" in
+  *pattern*) buc_log_args "Found pattern" ;;
+  *) buc_die "Pattern not found" ;;
+esac
 ```
 
 **Note**: Use `=` not `==` in test expressions for POSIX compliance.
+
+### ❌ Subshell Exit vs Brace-Group
+
+```bash
+# ❌ exit in subshell kills only the subshell — script continues
+some_cmd || (echo "ERROR" >&2 && exit 1)
+
+# ✅ Brace-group stays in same process — exit/return works correctly
+some_cmd || { echo "ERROR" >&2; exit 1; }
+```
+
+**Rule**: Error blocks must use `{ ...; }` not `( ... )` when intending to exit or return. The `(subshell)` creates a new process — `exit` terminates only that subshell, not the calling script.
 
 ---
 
@@ -658,13 +694,37 @@ echo "stays indented" >> "${z_file}"
 # Avoid these (bash 3.2 compatibility)
 declare -A z_array              # Associative arrays
 z_files=(**/*.txt)              # ** globbing
-z_var=<<<${z_input}             # Here strings
 readarray -t z_lines            # readarray/mapfile
 ```
 
-### Loops and `set -e`
+### `set -e` is Not Sufficient
 
-`set -e` does not reliably catch failures inside `for`/`while` loop bodies in bash 3.2. Every command in a loop body must have explicit error handling — do not rely on `set -e` to catch loop-internal failures.
+**The POSIX suppression rule**: `set -e` is suppressed inside `if`, `while`, `||`, `&&` test expressions, and this propagates through the **entire call tree** of the tested command.
+
+```bash
+# ❌ set -e suppressed for entire call tree of some_function
+if some_function; then ...
+
+# Even if some_function calls other_function that fails,
+# set -e will not terminate — suppression propagates
+```
+
+**BCG rule: Only `_predicate` functions may appear in `if`/`while` conditions.** All other functions must be invoked as simple commands with explicit `|| buc_die` / `|| return`. This completely prevents the suppression hazard.
+
+```bash
+# ✅ Predicate in conditional — designed for this, never dies, status only
+if z«prefix»_ready_predicate; then ...
+
+# ✅ Regular function — explicit error handling, not inside conditional
+some_function || buc_die "..."
+
+# ❌ Regular function in conditional — set -e suppressed for entire call tree
+if some_function; then ...
+```
+
+**Why BCG's `|| buc_die` discipline works**: It doesn't rely on `set -e` — explicit error handling after every command means suppression doesn't matter. The `|| z_status=$?` capture pattern intentionally relies on this suppression behavior.
+
+**Loops**: `set -e` does not reliably catch failures inside `for`/`while` loop bodies in bash 3.2. Every command in a loop body must have explicit error handling.
 
 The error handling suffix depends on the function type:
 
@@ -686,6 +746,33 @@ Sourcing is restricted because it breaks error handling. Only three locations ma
 | CLI file header      | All dependencies           | Module loading                                       |
 | CLI Furnish Function | Config files               | Environment setup                                    |
 | Internal functions   | Credentials when necessary | Context-specific secrets (with documented rationale) |
+
+## Eval Policy
+
+`eval` is **forbidden** except for validated variable-name dereference. Require `^[A-Za-z_][A-Za-z0-9_]*$` regex validation before any eval.
+
+**Prefer indirect expansion for reading** — `${!name}` works in bash 3.2:
+
+```bash
+# ✅ Indirect expansion for reading
+local z_val="${!z_varname}"
+```
+
+**Use eval only for assignment to indirect variable** — after validation:
+
+```bash
+# ✅ eval with validated name for assignment
+echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' \
+  || buc_die "Invalid variable name: ${z_varname}"
+eval "${z_varname}=\${z_new_value}"
+```
+
+**Anti-pattern:**
+
+```bash
+# ❌ Unvalidated eval — injection risk
+eval "local z_val=\${${z_varname}:-}"
+```
 
 ## Output and Messaging Patterns
 
@@ -838,11 +925,45 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] `_capture` functions properly named with suffix
 
 ### Bash Compatibility
-- [ ] No bash 4+ features (associative arrays, `**`, here strings, readarray)
+- [ ] No bash 4+ features (associative arrays, `**`, readarray)
 - [ ] Use `test` not `[[ ]]` except for pattern matching `=~`
 - [ ] Use `=` not `==` in test expressions
 - [ ] No HERE documents (heredocs)
 - [ ] Target bash 3.2 minimum
+- [ ] Array iteration uses index pattern for `set -u` safety
+
+### Array Iteration Under `set -u`
+
+Under `set -u`, `"${array[@]}"` on an empty array triggers "unbound variable" in bash 3.2.
+
+**Primary pattern: index iteration** — works safely on empty arrays, no guard needed:
+
+```bash
+# ✅ Safe: index iteration works on empty arrays under set -u
+for z_i in "${!z_«prefix»_name_roll[@]}"; do
+  echo "${z_«prefix»_name_roll[$z_i]}" || buc_die "Failed to echo"
+done
+```
+
+**Acceptable alternative: guarded value iteration** — check array is non-empty before expanding:
+
+```bash
+# ✅ Acceptable: guard value iteration with size check
+if (( ${#z_«prefix»_name_roll[@]} )); then
+  for z_val in "${z_«prefix»_name_roll[@]}"; do
+    echo "${z_val}" || buc_die "Failed to echo"
+  done
+fi
+```
+
+**Anti-pattern:**
+
+```bash
+# ❌ Unsafe: value iteration fails on empty arrays under set -u in bash 3.2
+for z_val in "${z_«prefix»_name_roll[@]}"; do
+  echo "${z_val}" || buc_die "Failed to echo"
+done
+```
 
 ### Naming Conventions
 - [ ] Module prefix: 2-4 lowercase letters + underscore
