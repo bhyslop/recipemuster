@@ -96,6 +96,13 @@
         "₢AcAAC": {
           "tacks": [
             {
+              "ts": "260211-1641",
+              "state": "complete",
+              "text": "Drafted from ₢ATAAX in ₣AT.\n\nTwo changes to buto_dispatch subdispatch behavior:\n\n1. Remove BURD_NO_LOG=1 from buto_dispatch's inner tabtarget invocation (buto_operations.sh ~line 425). Inner tabtargets must run with their natural logging behavior — the test framework should not suppress logging. BURV overrides (BURV_OUTPUT_ROOT_DIR, BURV_TEMP_ROOT_DIR) remain as-is for evidence isolation.\n\n2. Surface inner artifact paths in the outer transcript. After each subdispatch step completes, record the inner process's transcript, log files, and output dir paths into the outer rbtb-c* transcript. On step failure, unconditionally display these paths to console regardless of BUT_VERBOSE, so the operator can immediately inspect what happened in the inner process.",
+              "silks": "fix-subdispatch-logging",
+              "commit": "3b6e73b"
+            },
+            {
               "ts": "260211-1529",
               "state": "bridled",
               "text": "Drafted from ₢ATAAX in ₣AT.\n\nTwo changes to buto_dispatch subdispatch behavior:\n\n1. Remove BURD_NO_LOG=1 from buto_dispatch's inner tabtarget invocation (buto_operations.sh ~line 425). Inner tabtargets must run with their natural logging behavior — the test framework should not suppress logging. BURV overrides (BURV_OUTPUT_ROOT_DIR, BURV_TEMP_ROOT_DIR) remain as-is for evidence isolation.\n\n2. Surface inner artifact paths in the outer transcript. After each subdispatch step completes, record the inner process's transcript, log files, and output dir paths into the outer rbtb-c* transcript. On step failure, unconditionally display these paths to console regardless of BUT_VERBOSE, so the operator can immediately inspect what happened in the inner process.",
