@@ -6,6 +6,7 @@
       "creation_time": "260211",
       "status": "racing",
       "order": [
+        "₢AcAAG",
         "₢AcAAA",
         "₢AcAAC",
         "₢AcAAE",
@@ -13,7 +14,7 @@
         "₢AcAAB",
         "₢AcAAF"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_Ac.md",
       "paces": {
         "₢AcAAA": {
@@ -128,6 +129,17 @@
               "text": "Human pace: manually run all BUT framework testbench suites against the redesigned butr_/buto_/butd_ infrastructure. Exercise the new explicit registration API, verify init/setup/case two-phase flow, confirm inconclusive reporting, and validate subdispatch logging improvements. Amend anything that feels wrong. This is the interactive validation gate before the heat can close.",
               "silks": "exercise-revised-test-suites",
               "commit": "050c045"
+            }
+          ]
+        },
+        "₢AcAAG": {
+          "tacks": [
+            {
+              "ts": "260211-0945",
+              "state": "rough",
+              "text": "Expand BCG section on _register functions with structural guidance drawn from the two concrete usages: buz_register (zipper colophon routing) and butr_register (test suite registry).\n\n## Current BCG coverage\n\nBCG defines _register at line 348 (special function table) and lines 417-451 (example + contract). The coverage establishes the subshell-avoidance rationale and z1z_ return convention but does not describe the parallel-array registry pattern that both usages share.\n\n## What to add\n\nExpand the _register section in BCG to cover:\n\n1. **Parallel-array registry pattern**: kindle initializes N empty arrays of same length; register validates + appends atomically to all arrays; query scans by key array.\n\n2. **Registration-time validation**: invariants checked at register time, not query/execution time. Examples: buz_register validates tabtarget exists; butr_register (new) should validate declare -F on case functions.\n\n3. **Two-level registries**: when entities have parent-child relationships (suite→case), use two flat registries with a foreign-key column rather than per-parent dynamic arrays. Avoids eval and stays bash 3.2 safe.\n\n4. **Kindle/sentinel/register triple**: how _register functions relate to the kindle/sentinel boilerplate — kindle creates arrays, sentinel guards them, register populates them.\n\n## Scope guard\n\nDo NOT redesign butr_registry.sh in this pace. Only modify BCG-BashConsoleGuide.md. The registry redesign uses this guidance but is a separate pace.",
+              "silks": "clarify-bcg-register-pattern",
+              "commit": "1d65a88"
             }
           ]
         }
