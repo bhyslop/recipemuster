@@ -81,6 +81,10 @@ exec "${TOOLS_DIR}/rbob_cli.sh" rbob_start "$@"
 | Module header        | Implementation | `test -z "${Z«PREFIX»_SOURCED:-}" \|\| buc_die`    | No                | N/A               | Prevent multiple inclusion                       |
 | CLI header           | CLI            | `set -euo pipefail`                                | Yes (all deps)    | N/A               | Source all dependencies                          |
 
+**Module constant exclusivity**: All `Z«PREFIX»_*` internal constants and `«PREFIX»_*` public exports must be defined exclusively within the kindle function. No other function — including enroll, setup, or helper functions — may assign to these variables. This ensures module state is fully determined at kindle time and visible in one place.
+
+**KINDLED must be last**: `Z«PREFIX»_KINDLED=1` must be the final statement in kindle. Since sentinel checks this variable, setting it last guarantees all initialization (constants, roll arrays, enroll calls) is complete before the module is considered operational. Any function calling sentinel before kindle finishes will correctly fail.
+
 ### Regular Functions (output via printouts/temp files)
 
 This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
@@ -233,6 +237,21 @@ z«prefix»_sentinel() {
 }
 ```
 
+**Module constant exclusivity — anti-pattern:**
+
+```bash
+# ❌ Module constant defined outside kindle
+z«prefix»_setup() {
+  Z«PREFIX»_CACHED_PATH="${BURD_TEMP_DIR}/cache"   # VIOLATION: must be in kindle
+}
+
+# ✅ All module constants defined in kindle, used elsewhere
+z«prefix»_kindle() {
+  Z«PREFIX»_CACHED_PATH="${BURD_TEMP_DIR}/cache"
+  Z«PREFIX»_KINDLED=1
+}
+```
+
 ## Variable Handling (General Rules)
 
 ### Expansion Requirements
@@ -304,7 +323,7 @@ test -n "${z_result}" || buc_die "Failed to read or empty: ${Z«PREFIX»_TEMP2}"
 
 # ✅ Reading lines with 'read'
 while IFS= read -r z_line; do
-  echo "Processing: ${z_line}"
+  echo "Processing: ${z_line}" || buc_die "Failed to echo line"
 done < "${Z_MODULE_INPUT_FILE}"
 
 # ✅ Arithmetic with $((...))
@@ -345,7 +364,8 @@ This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
 |-----------|--------------------------------|----------------------|------------------------------|---------------------------|-------------------------------------|
 | Predicate | `[z]«prefix»_«name»_predicate` | `z«prefix»_sentinel` | 0=true, 1=false              | No (use buc_log_«source») | Never dies, status only             |
 | Capture   | `[z]«prefix»_«name»_capture`   | `z«prefix»_sentinel` | stdout once at end or exit 1 | No (use buc_log_«source») | Clean error handling, single return |
-| Register  | `[z]«prefix»_«name»_register` or `[z]«prefix»_register` | `z«prefix»_sentinel` | `z1z_«prefix»_«term»` vars  | No (use buc_log_«source») | Mutates shared state AND returns via variables |
+| Enroll    | `[z]«prefix»_[«scope»_]enroll` | `z«prefix»_sentinel` | `z_«funcname»_«retval»` vars | No (use buc_log_«source») | Mutates rolls (parallel arrays) in kindle only; returns via variables |
+| Recite    | `[z]«prefix»_«what»_recite`    | `z«prefix»_sentinel` | stdout or exit 1             | No (use buc_log_«source») | Read-only access to rolls; never mutates |
 
 ---
 
@@ -394,10 +414,10 @@ z_value=$(z«prefix»_«name»_capture) || buc_die "Failed to capture value"
 Predicate functions are used to make decisions, not indicating error.
 
 ```bash
-zrbv_file_valid_predicate() {
-  zrbv_sentinel
+z«prefix»_file_valid_predicate() {
+  z«prefix»_sentinel
 
-  local z_file="${1}"
+  local z_file="${1:-}"
 
   # Return status only - no output, no dies
   test -f "${z_file}" || return 1
@@ -407,47 +427,117 @@ zrbv_file_valid_predicate() {
 }
 
 # Caller uses in conditionals
-if zrbv_file_valid_predicate "${z_config}"; then
-  buc_log_args "Config valid"
-else
-  buc_warn "Config invalid, using defaults"
-fi
+z«prefix»_file_valid_predicate "${z_config}" || buc_warn "Config invalid, using defaults"
 ```
 
-#### Register Functions (shared state mutation + return values)
+#### Enroll Functions (kindle-only registry population)
 
-**Purpose: Mutate shared state (arrays, globals) AND return value(s) through `z1z_` prefixed variables.**
+**Purpose**: Populate parallel-array registries (rolls) during module initialization. Enroll functions solve the subshell problem: when a function both mutates shared state and returns a value, calling it in `$()` loses the mutations.
 
-Register functions solve the subshell problem: when a function both mutates shared state and returns a value, calling it in `$()` loses the mutations. Register functions avoid `$()` entirely by setting `z1z_` return variables.
+**The parallel-array registry pattern (rolls)**:
+- Kindle initializes N empty arrays (rolls) of the same length
+- Enroll validates inputs and appends atomically to all rolls
+- Recite functions (see below) provide read-only access after kindle completes
+- Variable naming: `z_«prefix»_«name»_roll` for all roll arrays (internal state, initialized in kindle)
+
+**Example** (using synthetic notation — «reg» owns the rolls, «con» consumes them):
 
 ```bash
-buz_register() {
-  zbuz_sentinel
+# Module «reg» — owns the rolls
+z«reg»_kindle() {
+  test -z "${Z«REG»_KINDLED:-}" || buc_die "already kindled"
 
-  local z_colophon="${1:-}"
-  # ... validate and mutate registry arrays ...
+  z_«reg»_name_roll=()
+  z_«reg»_target_roll=()
+  z_«reg»_handler_roll=()
 
-  # Return via variable — NOT echo
-  z1z_buz_colophon="${z_colophon}"
+  Z«REG»_KINDLED=1   # MUST be last — sentinel guards all subsequent calls
 }
 
-# Caller: direct call, then read variable
-buz_register "rbw-il" "rbf_Foundry" "rbf_list"
-RBZ_LIST_IMAGES="${z1z_buz_colophon}"
+# Enroll function — called by consuming module's kindle, NOT «reg»'s own kindle
+«reg»_enroll() {
+  z«reg»_sentinel   # Safe: «reg» is already kindled when consumer calls this
+
+  local z_name="${1:-}"
+  local z_target="${2:-}"
+  local z_handler="${3:-}"
+  test -n "${z_name}" || buc_die "enroll: name required"
+
+  # Registration-time validation
+  declare -F "${z_handler}" >/dev/null || buc_die "enroll: handler not found: ${z_handler}"
+
+  z_«reg»_name_roll+=("${z_name}")
+  z_«reg»_target_roll+=("${z_target}")
+  z_«reg»_handler_roll+=("${z_handler}")
+
+  # Return via variable — NOT echo
+  z_«reg»_enroll_name="${z_name}"
+}
+
+# Module «con» — consumes the registry
+z«con»_kindle() {
+  test -z "${Z«CON»_KINDLED:-}" || buc_die "already kindled"
+
+  # «reg» must be kindled first (rolls initialized, sentinel passes)
+  «reg»_enroll "alpha" "/path/alpha" "handle_alpha"
+  Z«CON»_DEFAULT="${z_«reg»_enroll_name}"
+
+  «reg»_enroll "bravo" "/path/bravo" "handle_bravo"
+
+  Z«CON»_KINDLED=1   # MUST be last
+}
 ```
 
-**Use register functions for:**
-- Functions that populate registry arrays AND return an identifier
-- Bootstrap sequences where both mutation and return value matter
-- Any function where `$()` subshell would discard needed side effects
-
-**Contract:**
-- Mutates shared state (arrays, module variables)
-- Returns value(s) via `z1z_«prefix»_«term»` variables (NOT echo, NOT `Z`-prefixed kindle constants)
-- `z1z_` prefix signals: rare bootstrap return channel, not a kindle constant
+**Key constraints**:
+- Enroll functions may ONLY be called within kindle
+- Rolls are initialized in kindle, populated by enroll in kindle, then immutable after kindle completes
+- Enroll functions work exclusively with rolls (parallel arrays) — no other shared state mutation
+- Registration-time validation: check invariants at enroll time, not at recite/execution time
+- Return values use `z_«funcname»_«retval»` convention (function name embedded verbatim for traceability)
 - Must NOT be called inside `$()` — side effects would be lost
 - May use `buc_die` internally (unlike `_capture`)
+
+**Two-level registries**: When entities have parent-child relationships (e.g., groups containing items), use two flat registries with a foreign-key column rather than per-parent dynamic arrays. This avoids `eval` and stays bash 3.2 safe.
+
+**Contract summary**:
+- Mutates rolls (parallel arrays) only
+- Returns value(s) via `z_«funcname»_«retval»` variables (NOT echo)
+- Called exclusively within kindle
 - Should rarely be used — only when a function must both mutate and return
+
+#### Recite Functions (read-only roll access)
+
+**Purpose: Provide read-only access to roll arrays populated by enroll functions.**
+
+Recite functions are the only access path to rolls after kindle completes. They must never mutate roll arrays.
+
+```bash
+«prefix»_«what»_recite() {
+  z«prefix»_sentinel
+
+  local z_key="${1:-}"
+  test -n "${z_key}" || return 1
+
+  local z_i=0
+  for z_i in "${!z_«prefix»_name_roll[@]}"; do
+    test "${z_«prefix»_name_roll[$z_i]}" = "${z_key}" || continue
+    echo "${z_«prefix»_target_roll[$z_i]}" || return 1
+    return 0
+  done
+  return 1
+}
+
+# Caller uses two-line capture pattern
+local z_target
+z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
+```
+
+**Contract:**
+- Read-only: MUST NOT mutate roll arrays or any shared state
+- Returns via echo (like capture functions) — safe to call in `$()`
+- Returns 1 on not-found (like `_capture`) — never uses `buc_die` internally
+- Caller decides error handling: `|| buc_die` or conditional
+- Usable anywhere after kindle completes (not restricted to kindle)
 
 ---
 
@@ -455,6 +545,8 @@ RBZ_LIST_IMAGES="${z1z_buz_colophon}"
 
 - **_capture**: Need a value that requires command substitution or clean error handling
 - **_predicate**: Need true/false for conditional logic without dying
+- **_enroll**: Populate parallel-array registries (rolls) during kindle with validated inputs and return values
+- **_recite**: Read-only access to roll arrays populated by enroll functions
 - **Neither**: Use temp files for multi-step pipelines, direct `|| buc_die` for simple failures
 
 ## Naming Convention Patterns
@@ -477,7 +569,10 @@ RBZ_LIST_IMAGES="${z1z_buz_colophon}"
 | Module variables             | `Z«PREFIX»_«NAME»`           | `ZRBV_TEMP_FILE`             | Impl     | SCREAMING_SNAKE (multi-word)  |
 | Environment vars             | `«PREFIX»_«NAME»`            | `RBV_REGIME_FILE`            | Both     | SCREAMING_SNAKE (multi-word)  |
 | Local parameters             | `z_«name»`                   | `z_vm_name`, `z_force_flag`  | Both     | snake_case (multi-word)       |
-| Register return vars         | `z1z_«prefix»_«term»`        | `z1z_buz_colophon`           | Impl     | snake_case                    |
+| Enroll functions             | `[z]«prefix»_[«scope»_]enroll` | `«prefix»_enroll`          | Impl     | kindle-only                   |
+| Recite functions             | `[z]«prefix»_«what»_recite`  | `«prefix»_target_recite`     | Impl     | read-only, never mutates      |
+| Roll arrays                  | `z_«prefix»_«name»_roll`     | `z_rbv_target_roll`          | Impl     | snake_case, kindle-only       |
+| Enroll return vars           | `z_«funcname»_«retval»`      | `z_«prefix»_enroll_name`     | Impl     | snake_case (func name verbatim)|
 
 ---
 
@@ -525,9 +620,7 @@ test -n "${z_param}" || buc_step "Running with zero length parameter"
 
 ```bash
 # Only acceptable use of [[ ]] - pattern matching requires it
-if [[ "${z_filename}" =~ \.tar\.gz$ ]]; then
-  z_extension="tar.gz"
-fi
+[[ "${z_filename}" =~ \.tar\.gz$ ]] && z_extension="tar.gz"
 ```
 
 ### ❌ Anti-Patterns
@@ -568,6 +661,19 @@ z_files=(**/*.txt)              # ** globbing
 z_var=<<<${z_input}             # Here strings
 readarray -t z_lines            # readarray/mapfile
 ```
+
+### Loops and `set -e`
+
+`set -e` does not reliably catch failures inside `for`/`while` loop bodies in bash 3.2. Every command in a loop body must have explicit error handling — do not rely on `set -e` to catch loop-internal failures.
+
+The error handling suffix depends on the function type:
+
+| Function type    | On failure use       | Why                                             |
+|------------------|----------------------|-------------------------------------------------|
+| Regular/enroll   | `\|\| buc_die`       | Enroll validates invariants; violations are fatal |
+| Predicate        | `\|\| return 1`      | Never dies, status only                          |
+| Capture/recite   | `\|\| return 1`      | Never dies, caller decides                       |
+| Flow control     | `\|\| continue`      | Intentional skip to next iteration               |
 
 ---
 
@@ -672,7 +778,8 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 | Conditional tests   | `test` not `[[ ]]`                                               |
 | Pattern matching    | `[[ var =~ pattern ]]` only                                      |
 | Secret extraction   | `_capture` function, never temp files                            |
-| Shared state + return| `_register` function, `z1z_` return vars                         |
+| Roll population + return | `_enroll` function (kindle only), `z_«funcname»_«retval»` vars |
+| Roll read access    | `_recite` function                                               |
 | True/false check    | `_predicate` function                                            |
 | Runtime information | `buc_log_«source»`/`buc_step`, never comments                             |
 | File paths          | ALL defined in kindle as module variables                        |
@@ -703,19 +810,23 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] All internal helpers prefixed with `z«prefix»_`
 
 ### Variable Management
-- [ ] Internal file paths/prefix constants in kindle as Z«PREFIX»_*
+- [ ] Internal file paths/prefix constants **exclusively** defined in kindle as Z«PREFIX»_*
 - [ ] Public exports exclusively defined in kindle as «PREFIX»_*
+- [ ] No Z«PREFIX»_* or «PREFIX»_* assignments outside kindle function
 - [ ] All local variables use `z_` prefix
 - [ ] All expansions use `"${var}"` pattern (braced, quoted)
 - [ ] Parameters use `"${1:-}"` pattern for defensive programming
-- [ ] Module state variable `Z«PREFIX»_KINDLED` set in kindle
+- [ ] Module state variable `Z«PREFIX»_KINDLED=1` is the last statement in kindle
 - [ ] No bare `$var` or unbraced `"$var"` expansions
 
 ### Error Handling
 - [ ] Every command that can fail has `|| buc_die` or `|| buc_warn`
 - [ ] `_predicate` functions return 0/1, never die, no output
 - [ ] `_capture` functions output once at end or exit 1, no stderr
-- [ ] `_register` functions set `z1z_` return vars, never echo; callers never use `$()`
+- [ ] `_enroll` functions set `z_«funcname»_«retval»` return vars, never echo; callers never use `$()`
+- [ ] `_enroll` functions called only within kindle
+- [ ] `_recite` functions never mutate roll arrays
+- [ ] Roll arrays use `z_«prefix»_«name»_roll` naming convention
 - [ ] Two-line pattern for capturing: `z_var=$(func_capture) || buc_die`
 - [ ] File reads validated: `test -n "${z_content}" || buc_die`
 - [ ] No hidden failures in pipelines
@@ -739,7 +850,7 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] Internal functions: `z«prefix»_«name»` (snake_case)
 - [ ] Internal constants: `Z«PREFIX»_«NAME»` (SCREAMING_SNAKE)
 - [ ] Public constants: `«PREFIX»_«NAME»` (SCREAMING_SNAKE)
-- [ ] Special functions: `*_predicate`, `*_capture` suffixes
+- [ ] Special functions: `*_predicate`, `*_capture`, `*_enroll`, `*_recite` suffixes
 
 ### Documentation & Visibility
 - [ ] Public functions documented with `buc_doc_*` blocks
@@ -771,3 +882,35 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] Temp files make failures visible and debuggable
 - [ ] Every potential error explicitly handled
 - [ ] Abstraction layers used (BCU/BVU utilities)
+
+---
+
+## Fading Memory — Superseded Conventions
+
+This section documents conventions that have been replaced. When encountering legacy code using these patterns, transform to the current convention. Do not bulk-rename across the codebase — migrate opportunistically when touching affected files.
+
+### FM-001: _register → _enroll
+
+**Superseded pattern:**
+- Function suffix: `_register`
+- Return variables: `z1z_«prefix»_«term»`
+- Array naming: no `_roll` suffix convention
+- Accessor naming: ad-hoc `_get_*` functions
+
+**Recognition — legacy code looks like:**
+- Functions named `*_register` that populate parallel arrays
+- Variables starting with `z1z_` used as return channels
+- Parallel arrays without `_roll` suffix (e.g., `zbuz_colophons` instead of `z_buz_colophon_roll`)
+- Accessor functions named `*_get_*` without `_recite` suffix
+
+**Current convention:**
+- Function suffix: `_enroll` (kindle-only)
+- Return variables: `z_«funcname»_«retval»` (function name embedded verbatim)
+- Array naming: `z_«prefix»_«name»_roll`
+- Accessor suffix: `_recite` (read-only, never mutates)
+
+**Known legacy sites:**
+- `buz_register` in `Tools/buk/buz_zipper.sh`
+- `butr_register` in `Tools/buk/butr_registry.sh`
+
+**Migration:** When touching a file that uses the old pattern, transform to new. Enroll calls must move into kindle. Return variables must use `z_«funcname»_«retval»`. Arrays must gain `_roll` suffix using `z_«prefix»_` convention. Accessors must gain `_recite` suffix.
