@@ -739,6 +739,41 @@ The error handling suffix depends on the function type:
 
 ---
 
+## Array Safety Under `set -u`
+
+Under `set -u`, `"${array[@]}"` on an empty array triggers "unbound variable" in bash 3.2.
+
+**Primary pattern: index iteration** — works safely on empty arrays, no guard needed:
+
+```bash
+# ✅ Safe: index iteration works on empty arrays under set -u
+for z_i in "${!z_«prefix»_name_roll[@]}"; do
+  echo "${z_«prefix»_name_roll[$z_i]}" || buc_die "Failed to echo"
+done
+```
+
+**Acceptable alternative: guarded value iteration** — check array is non-empty before expanding. The `(( expr ))` arithmetic command returns exit 0 when expr is non-zero, exit 1 when zero — it works in bash 3.2 and is the idiomatic guard for array size checks:
+
+```bash
+# ✅ Acceptable: guard value iteration with size check
+if (( ${#z_«prefix»_name_roll[@]} )); then
+  for z_val in "${z_«prefix»_name_roll[@]}"; do
+    echo "${z_val}" || buc_die "Failed to echo"
+  done
+fi
+```
+
+**Anti-pattern:**
+
+```bash
+# ❌ Unsafe: value iteration fails on empty arrays under set -u in bash 3.2
+for z_val in "${z_«prefix»_name_roll[@]}"; do
+  echo "${z_val}" || buc_die "Failed to echo"
+done
+```
+
+---
+
 ## Sourcing Rules
 
 Sourcing is restricted because it breaks error handling. Only three locations may source files:
@@ -911,20 +946,22 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] Module state variable `Z«PREFIX»_KINDLED=1` is the last statement in kindle
 - [ ] No bare `$var` or unbraced `"$var"` expansions
 - [ ] No `local -i` — use plain local with explicit validation
+- [ ] No raw `eval` for value assignment — use `printf -v` after name validation; `${!name}` for reading
 
 ### Error Handling
 - [ ] Every command that can fail has `|| buc_die` or `|| buc_warn`
 - [ ] `_predicate` functions return 0/1, never die, no output
 - [ ] `_capture` functions output once at end or exit 1, no stderr
-- [ ] `_enroll` functions set `z_«funcname»_«retval»` return vars, never echo; callers never use `$()`
-- [ ] `_enroll` functions called only within kindle
-- [ ] `_recite` functions never mutate roll arrays
-- [ ] Roll arrays use `z_«prefix»_«name»_roll` naming convention
+- [ ] `_enroll` functions set `z_«funcname»_«retval»` return vars, never echo; callers never use `$()` (when applicable)
+- [ ] `_enroll` functions called only within kindle (when applicable)
+- [ ] `_recite` functions never mutate roll arrays (when applicable)
+- [ ] Roll arrays use `z_«prefix»_«name»_roll` naming convention (when applicable)
 - [ ] Two-line pattern for capturing: `z_var=$(func_capture) || buc_die`
 - [ ] File reads validated: `test -n "${z_content}" || buc_die`
 - [ ] No hidden failures in pipelines
-- [ ] Only `_predicate` functions in `if`/`while` conditions
-- [ ] Error blocks use `{ ...; }` not `( ... )`
+- [ ] No `test $(command)` — use `grep -q` or `case` for validation
+- [ ] Only `_predicate` functions in `if`/`while` conditions — no regular/enroll functions in conditionals
+- [ ] Error blocks use `{ ...; }` not `( ... )` — no `|| (... exit ...)` patterns
 
 ### Command Substitution Rules
 - [ ] NO command substitution except `$(<file)` builtin and `_capture` functions
@@ -937,41 +974,9 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] Use `test` not `[[ ]]` except for pattern matching `=~`
 - [ ] Use `=` not `==` in test expressions
 - [ ] No HERE documents (heredocs)
+- [ ] Here-strings (`<<<`) single-line piping only; no multi-line
 - [ ] Target bash 3.2 minimum
 - [ ] Array iteration uses index pattern for `set -u` safety
-
-### Array Iteration Under `set -u`
-
-Under `set -u`, `"${array[@]}"` on an empty array triggers "unbound variable" in bash 3.2.
-
-**Primary pattern: index iteration** — works safely on empty arrays, no guard needed:
-
-```bash
-# ✅ Safe: index iteration works on empty arrays under set -u
-for z_i in "${!z_«prefix»_name_roll[@]}"; do
-  echo "${z_«prefix»_name_roll[$z_i]}" || buc_die "Failed to echo"
-done
-```
-
-**Acceptable alternative: guarded value iteration** — check array is non-empty before expanding. The `(( expr ))` arithmetic command returns exit 0 when expr is non-zero, exit 1 when zero — it works in bash 3.2 and is the idiomatic guard for array size checks:
-
-```bash
-# ✅ Acceptable: guard value iteration with size check
-if (( ${#z_«prefix»_name_roll[@]} )); then
-  for z_val in "${z_«prefix»_name_roll[@]}"; do
-    echo "${z_val}" || buc_die "Failed to echo"
-  done
-fi
-```
-
-**Anti-pattern:**
-
-```bash
-# ❌ Unsafe: value iteration fails on empty arrays under set -u in bash 3.2
-for z_val in "${z_«prefix»_name_roll[@]}"; do
-  echo "${z_val}" || buc_die "Failed to echo"
-done
-```
 
 ### Naming Conventions
 - [ ] Module prefix: 2-4 lowercase letters + underscore
@@ -995,7 +1000,6 @@ done
 - [ ] Only `z«prefix»_furnish` sources config files
 - [ ] Credential sourcing documented and never writes to disk
 - [ ] No other sourcing anywhere
-- [ ] `eval` forbidden except validated variable-name dereference; prefer `printf -v` for assignment
 
 ### Code Quality
 - [ ] Prefer bash builtins over external tools (parameter expansion vs sed/awk)
@@ -1004,6 +1008,7 @@ done
 - [ ] Consistent error messages (specific and actionable)
 - [ ] Proper temp file naming with module prefix
 - [ ] No silent failures or ignored conditions
+- [ ] Temp files never deleted in module code — preserved for forensics
 
 ### Enterprise Safety
 - [ ] Crash-fast principle applied throughout
