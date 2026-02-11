@@ -4719,9 +4719,10 @@
         "₢ANAAA",
         "₢ANAAB",
         "₢ANAAC",
-        "₢ANAAD"
+        "₢ANAAD",
+        "₢ANAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_AN.md",
       "paces": {
         "₢ANAAA": {
@@ -4765,6 +4766,17 @@
               "text": "Rewrite jjx_retire to output JSON trophy.\n\n## Changes to jjx_retire\n\nReplace zjjrg_build_trophy_content markdown generation with JSON:\n1. Build jjrt_Trophy struct using compute functions\n2. Serialize to JSON with serde_json\n3. Write to .json file (not .md)\n\n## File Naming\n\nChange: `jjh_b{created}-r{retired}-{silks}.md`\nTo: `jjh_b{created}-r{retired}-{silks}.json`\n\n## Bug Fix\n\nFix steeplechase deduplication issue found during testing.\n\n## Dry Run\n\n`jjx_retire <firemark>` outputs JSON preview to stdout (no file write)\n\n## Execute\n\n`jjx_retire <firemark> --execute` writes JSON file, removes heat from gallops\n\n## Tack Serialization\n\nEach tack serialized as single-line JSON string in the tacks array.\nPreserves full history while keeping file scannable.\n\n## Depends on\n\ntrophy-alpha-compute (need computation functions)",
               "silks": "trophy-alpha-generate",
               "commit": "a10ed45"
+            }
+          ]
+        },
+        "₢ANAAE": {
+          "tacks": [
+            {
+              "ts": "260211-1656",
+              "state": "rough",
+              "text": "Store pre-rendered bitmap displays in trophy JSON.\n\n## What\n\nAdd the file-touch bitmap and commit swim lane ASCII displays\n(as seen in `jjx_show` output) to the trophy JSON as stored text strings.\n\n## Approach\n\n- Render the bitmaps at retirement time using existing display logic\n- Store as string fields in the trophy JSON (pre-rendered ASCII, not structured data)\n- Fields: `file_touch_bitmap` and `commit_swim_lanes` (or similar)\n\n## Depends on\n\n- ₢ANAAB (trophy-alpha-json-types) — need the Trophy struct to add fields\n- ₢ANAAD (trophy-alpha-generate) — retirement is where rendering happens",
+              "silks": "trophy-bitmap-displays",
+              "commit": "1731f49"
             }
           ]
         }
