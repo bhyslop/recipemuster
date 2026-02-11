@@ -1213,6 +1213,13 @@
         "₢ATAAW": {
           "tacks": [
             {
+              "ts": "260211-0848",
+              "state": "rough",
+              "text": "Design a pre-flight check mechanism for the BUT test framework. Before running any test cases, the engine would run an 'init' (name TBD — perhaps 'preflight', 'ready', 'gate', 'muster') function for each test module/suite that checks whether the environment is fit for execution. If the check fails, the outcome is 'inconclusive' (not 'failed') — still unix non-zero, but semantically distinct from a test failure. This addresses cases like the ark-lifecycle suite which spends 15s discovering that the local repo has unpushed commits — a precondition that could be caught before any test runs. Design questions: Is this per-module or per-suite? Does it compose with the existing buto_execute flow? What's the right name? Is 'inconclusive' a new result category alongside pass/fail? Requires collaborative design — the idea may not be congruous with the current model.",
+              "silks": "redesign-butr-registry",
+              "commit": "038eb68"
+            },
+            {
               "ts": "260211-0755",
               "state": "rough",
               "text": "Design a pre-flight check mechanism for the BUT test framework. Before running any test cases, the engine would run an 'init' (name TBD — perhaps 'preflight', 'ready', 'gate', 'muster') function for each test module/suite that checks whether the environment is fit for execution. If the check fails, the outcome is 'inconclusive' (not 'failed') — still unix non-zero, but semantically distinct from a test failure. This addresses cases like the ark-lifecycle suite which spends 15s discovering that the local repo has unpushed commits — a precondition that could be caught before any test runs. Design questions: Is this per-module or per-suite? Does it compose with the existing buto_execute flow? What's the right name? Is 'inconclusive' a new result category alongside pass/fail? Requires collaborative design — the idea may not be congruous with the current model.",
