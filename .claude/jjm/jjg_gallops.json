@@ -4534,10 +4534,10 @@
       "status": "stabled",
       "order": [
         "₢AcAAA",
-        "₢AcAAB",
         "₢AcAAC",
-        "₢AcAAD",
         "₢AcAAE",
+        "₢AcAAD",
+        "₢AcAAB",
         "₢AcAAF"
       ],
       "next_pace_seed": "AAG",
