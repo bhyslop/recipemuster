@@ -763,6 +763,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢ATAAX",
         "₢ATAAW",
         "₢ATAAV",
         "₢ATAAU",
@@ -787,7 +788,7 @@
         "₢ATAAF",
         "₢ATAAK"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1217,6 +1218,17 @@
               "text": "Design a pre-flight check mechanism for the BUT test framework. Before running any test cases, the engine would run an 'init' (name TBD — perhaps 'preflight', 'ready', 'gate', 'muster') function for each test module/suite that checks whether the environment is fit for execution. If the check fails, the outcome is 'inconclusive' (not 'failed') — still unix non-zero, but semantically distinct from a test failure. This addresses cases like the ark-lifecycle suite which spends 15s discovering that the local repo has unpushed commits — a precondition that could be caught before any test runs. Design questions: Is this per-module or per-suite? Does it compose with the existing buto_execute flow? What's the right name? Is 'inconclusive' a new result category alongside pass/fail? Requires collaborative design — the idea may not be congruous with the current model.",
               "silks": "design-test-preflight-gate",
               "commit": "bcd7f79"
+            }
+          ]
+        },
+        "₢ATAAX": {
+          "tacks": [
+            {
+              "ts": "260211-0813",
+              "state": "rough",
+              "text": "Two changes to buto_dispatch subdispatch behavior:\n\n1. Remove BURD_NO_LOG=1 from buto_dispatch's inner tabtarget invocation (buto_operations.sh ~line 425). Inner tabtargets must run with their natural logging behavior — the test framework should not suppress logging. BURV overrides (BURV_OUTPUT_ROOT_DIR, BURV_TEMP_ROOT_DIR) remain as-is for evidence isolation.\n\n2. Surface inner artifact paths in the outer transcript. After each subdispatch step completes, record the inner process's transcript, log files, and output dir paths into the outer rbtb-c* transcript. On step failure, unconditionally display these paths to console regardless of BUT_VERBOSE, so the operator can immediately inspect what happened in the inner process.",
+              "silks": "fix-subdispatch-logging",
+              "commit": "4cdfb6f"
             }
           ]
         }
