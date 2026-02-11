@@ -129,6 +129,13 @@
         "₢AcAAD": {
           "tacks": [
             {
+              "ts": "260211-1649",
+              "state": "complete",
+              "text": "Drafted from ₢ATAAU in ₣AT.\n\nWhen tt/rbtb-to.TestOne.sh or tt/rbtb-ts.TestSuite.sh is invoked with no arguments, enhance the error output to list all available targets after the existing error message. Still exit with non-zero status and keep the current ERROR line. For TestOne, list available test function names. For TestSuite, list available suite names. The discovery mechanism should match what these commands already use to resolve their argument.",
+              "silks": "test-cmd-list-targets",
+              "commit": "878a3ec"
+            },
+            {
               "ts": "260211-1531",
               "state": "bridled",
               "text": "Drafted from ₢ATAAU in ₣AT.\n\nWhen tt/rbtb-to.TestOne.sh or tt/rbtb-ts.TestSuite.sh is invoked with no arguments, enhance the error output to list all available targets after the existing error message. Still exit with non-zero status and keep the current ERROR line. For TestOne, list available test function names. For TestSuite, list available suite names. The discovery mechanism should match what these commands already use to resolve their argument.",
