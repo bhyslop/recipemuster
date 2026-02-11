@@ -3775,9 +3775,10 @@
       "status": "racing",
       "order": [
         "₢AOAAA",
-        "₢AOAAB"
+        "₢AOAAB",
+        "₢AOAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -3806,6 +3807,17 @@
               "text": "Attempt to configure Claude Code permission settings to auto-allow Bash tool calls (or at least vvw/vvx commands), removing the \"Do you want to proceed?\" confirmation dialog on every Bash invocation.\n\nWARNING: Previous attempts to tweak permission configuration have not been very successful. When mounting this pace, REMIND the user of this history before investing time. We may defer or abandon.\n\nApproaches to try:\n1. Check ~/.claude/settings.json and .claude/settings.json for existing permission config\n2. Try adding allowedTools / allow patterns for Bash commands\n3. Test whether patterns like \"Bash(*)\" or \"Bash(./tt/*)\" actually suppress the prompt\n4. If nothing works cleanly, document what was tried and abandon\n\nThis is exploratory — success is not expected.",
               "silks": "attempt-bash-permission-grant",
               "commit": "c6dd2c6"
+            }
+          ]
+        },
+        "₢AOAAC": {
+          "tacks": [
+            {
+              "ts": "260211-1406",
+              "state": "rough",
+              "text": "Refresh all workbench _register function implementations against the updated BCG (BashConsoleGuide) document, which has\n been significantly improved regarding colophon registration patterns. Read the current BCG spec, understand the\nupdated conventions for _register functions, then audit and update each workbench's _register function to conform.",
+              "silks": "refresh-register-colophons",
+              "commit": "b633ad8"
             }
           ]
         }
