@@ -65,6 +65,7 @@ ZBUC_DOC_MODE=false
 #   Note: With depth=0 or too-deep stacks, file/line may be empty (by design).
 zbuc_make_tag() {
   local z_d="${1:-1}"
+  case "${z_d}" in ''|*[!0-9]*) z_d=1 ;; esac
   local z_label="${2:-}"
   local z_file="${BASH_SOURCE[z_d]##*/}"
   local z_line="${BASH_LINENO[z_d-1]}"

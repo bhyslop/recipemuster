@@ -38,15 +38,20 @@ buv_dir_exists() {
 
 buv_dir_empty() {
   local z_dirpath="${1:-}"
-  test -d          "${z_dirpath}"               || buc_die "Required directory not found: ${z_dirpath}"
-  test -z "$(ls -A "${z_dirpath}" 2>/dev/null)" || buc_die "Directory must be empty: ${z_dirpath}"
+  test -d "${z_dirpath}" || buc_die "Required directory not found: ${z_dirpath}"
+  local z_check_file
+  z_check_file=$(mktemp)
+  find "${z_dirpath}" -maxdepth 1 -mindepth 1 -print -quit > "${z_check_file}"
+  test ! -s "${z_check_file}" || { rm -f "${z_check_file}"; buc_die "Directory must be empty: ${z_dirpath}"; }
+  rm -f "${z_check_file}"
 }
 
 # Generic environment variable wrapper
 buv_env_wrapper() {
   local z_func_name="${1:-}"
   local z_varname="${2:-}"
-  eval "local z_val=\${${z_varname}:-}" || buc_die "Variable '${z_varname}' is not defined"
+  echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' || buc_die "Invalid variable name: '${z_varname}'"
+  eval "local z_val=\${${z_varname}:-}"
   shift 2
 
   "${z_func_name}" "${z_varname}" "${z_val}" "$@"
@@ -56,7 +61,8 @@ buv_env_wrapper() {
 buv_opt_wrapper() {
   local z_func_name="${1:-}"
   local z_varname="${2:-}"
-  eval "local z_val=\${${z_varname}:-}" || buc_die "Variable '${z_varname}' is not defined"
+  echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' || buc_die "Invalid variable name: '${z_varname}'"
+  eval "local z_val=\${${z_varname}:-}"
 
   # Empty is always valid for optional
   test -z "${z_val}" && return 0
