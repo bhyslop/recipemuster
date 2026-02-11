@@ -958,7 +958,7 @@ z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
 - [ ] Roll arrays use `z_«prefix»_«name»_roll` naming convention (when applicable)
 - [ ] Two-line pattern for capturing: `z_var=$(func_capture) || buc_die`
 - [ ] File reads validated: `test -n "${z_content}" || buc_die`
-- [ ] No hidden failures in pipelines
+- [ ] Pipelines either: occur inside a `_capture` function, write to temp files with explicit status checks, or explicitly inspect `${PIPESTATUS[@]}`
 - [ ] No `test $(command)` — use `grep -q` or `case` for validation
 - [ ] Only `_predicate` functions in `if`/`while` conditions — no regular/enroll functions in conditionals
 - [ ] Error blocks use `{ ...; }` not `( ... )` — no `|| (... exit ...)` patterns
