@@ -764,7 +764,6 @@
       "status": "racing",
       "order": [
         "₢ATAAX",
-        "₢ATAAV",
         "₢ATAAU",
         "₢ATAAT",
         "₢ATAAP",
@@ -1195,17 +1194,6 @@
               "text": "When tt/rbtb-to.TestOne.sh or tt/rbtb-ts.TestSuite.sh is invoked with no arguments, enhance the error output to list all available targets after the existing error message. Still exit with non-zero status and keep the current ERROR line. For TestOne, list available test function names. For TestSuite, list available suite names. The discovery mechanism should match what these commands already use to resolve their argument.",
               "silks": "test-cmd-list-targets",
               "commit": "b65e756"
-            }
-          ]
-        },
-        "₢ATAAV": {
-          "tacks": [
-            {
-              "ts": "260211-0742",
-              "state": "rough",
-              "text": "BCG cleanup: butd_run_one and butd_run_suite set what appears to be a kindle constant as inter-function communication. This violates BCG conventions where kindle constants should be set once at module initialization, not mutated during execution. Requires collaborative design — not a mechanical fix. Identify the offending variables, trace their usage, and design a proper BCG-compliant communication pattern.",
-              "silks": "bcg-kindle-comm-cleanup",
-              "commit": "336fe69"
             }
           ]
         },
@@ -4574,9 +4562,10 @@
       "creation_time": "260211",
       "status": "stabled",
       "order": [
-        "₢AcAAA"
+        "₢AcAAA",
+        "₢AcAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_Ac.md",
       "paces": {
         "₢AcAAA": {
@@ -4608,6 +4597,24 @@
               "text": "Design a pre-flight check mechanism for the BUT test framework. Before running any test cases, the engine would run an 'init' (name TBD — perhaps 'preflight', 'ready', 'gate', 'muster') function for each test module/suite that checks whether the environment is fit for execution. If the check fails, the outcome is 'inconclusive' (not 'failed') — still unix non-zero, but semantically distinct from a test failure. This addresses cases like the ark-lifecycle suite which spends 15s discovering that the local repo has unpushed commits — a precondition that could be caught before any test runs. Design questions: Is this per-module or per-suite? Does it compose with the existing buto_execute flow? What's the right name? Is 'inconclusive' a new result category alongside pass/fail? Requires collaborative design — the idea may not be congruous with the current model.",
               "silks": "design-test-preflight-gate",
               "commit": "bcd7f79"
+            }
+          ]
+        },
+        "₢AcAAB": {
+          "tacks": [
+            {
+              "ts": "260211-0859",
+              "state": "rough",
+              "text": "Drafted from ₢ATAAV in ₣AT.\n\nBCG cleanup: butd_run_one and butd_run_suite set what appears to be a kindle constant as inter-function communication. This violates BCG conventions where kindle constants should be set once at module initialization, not mutated during execution. Requires collaborative design — not a mechanical fix. Identify the offending variables, trace their usage, and design a proper BCG-compliant communication pattern.",
+              "silks": "bcg-kindle-comm-cleanup",
+              "commit": "a4baf0c"
+            },
+            {
+              "ts": "260211-0742",
+              "state": "rough",
+              "text": "BCG cleanup: butd_run_one and butd_run_suite set what appears to be a kindle constant as inter-function communication. This violates BCG conventions where kindle constants should be set once at module initialization, not mutated during execution. Requires collaborative design — not a mechanical fix. Identify the offending variables, trace their usage, and design a proper BCG-compliant communication pattern.",
+              "silks": "bcg-kindle-comm-cleanup",
+              "commit": "336fe69"
             }
           ]
         }
