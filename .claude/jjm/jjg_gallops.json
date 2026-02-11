@@ -763,6 +763,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢ATAAU",
         "₢ATAAT",
         "₢ATAAP",
         "₢ATAAO",
@@ -784,7 +785,7 @@
         "₢ATAAF",
         "₢ATAAK"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1181,6 +1182,17 @@
               "text": "Explore splitting buto_operations.sh into two files: buto_operations.sh retains lightweight test-case API (output functions, unit/tt/launch assertions), while bute_engine.sh extracts the heavyweight runner infrastructure (case execution, dispatch, evidence harvest, step capture). bute_engine.sh sources buto_operations.sh — dependency flows engine→operations. Assess the boundary, identify callers on each side, and propose the split.",
               "silks": "split-buto-engine",
               "commit": "7c45138"
+            }
+          ]
+        },
+        "₢ATAAU": {
+          "tacks": [
+            {
+              "ts": "260211-0741",
+              "state": "rough",
+              "text": "When tt/rbtb-to.TestOne.sh or tt/rbtb-ts.TestSuite.sh is invoked with no arguments, enhance the error output to list all available targets after the existing error message. Still exit with non-zero status and keep the current ERROR line. For TestOne, list available test function names. For TestSuite, list available suite names. The discovery mechanism should match what these commands already use to resolve their argument.",
+              "silks": "test-cmd-list-targets",
+              "commit": "b65e756"
             }
           ]
         }
