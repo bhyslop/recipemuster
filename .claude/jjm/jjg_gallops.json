@@ -1129,12 +1129,13 @@
         "₢ATAAA",
         "₢ATAAC",
         "₢ATAAY",
+        "₢ATAAc",
         "₢ATAAb",
         "₢ATAAa",
         "₢ATAAF",
         "₢ATAAK"
       ],
-      "next_pace_seed": "AAc",
+      "next_pace_seed": "AAd",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1684,6 +1685,17 @@
               "text": "Improve test tabtarget UX: make suites/cases discoverable, audit and remove dead tabtargets.\n\n## Problem\n\nRunning test tabtargets without arguments produces hostile output — a raw FATAL error\nwith no guidance. For example, `tt/rbw-to.TestOne.sh` prints:\n\n  ERROR: butd_run_one: function_name required\n\nAnd there are pre-existing test tabtargets of unknown status:\n- rbw-tb.TestBottles.parallel.sh\n- rbw-tb.TestBottles.single.sh\n- rbw-tf.FastTest.sh\n- rbw-tg.TestGithubWorkflow.sh\n\nThese may be dead or stale. Each must be researched — trace what they route to,\nwhether the target coordinator/function still exists, and whether they serve any\ncurrent purpose. Do not delete without confirming dead.\n\n## Work\n\n1. **Audit pre-existing test tabtargets**: For each of rbw-tb, rbw-tf, rbw-tg,\n   trace the routing chain. Check if the coordinator they reference exists, if\n   the commands they invoke are still valid. Report findings and delete confirmed\n   dead ones.\n\n2. **butd_run_suite with no arg**: Currently lists suites then fatals. Change to\n   print a clean table of available suites with case counts and exit 0.\n\n3. **butd_run_one with no arg**: Currently lists all functions then fatals. Change\n   to print a clean table grouped by suite and exit 0.\n\n4. **Testbench unknown command**: When rbtb_testbench.sh receives an unknown\n   command, list available test colophons with descriptions instead of dying\n   with \"Unknown command\".\n\n## Acceptance\n\n- Dead test tabtargets identified and removed (with rationale documented)\n- tt/rbw-ts.TestSuite.sh with no args prints available suites cleanly, exits 0\n- tt/rbw-to.TestOne.sh with no args prints available functions, exits 0\n- Output formatted for human scanning (aligned columns, suite grouping)\n- No changes to test execution behavior when args are provided",
               "silks": "improve-test-discoverability",
               "commit": "2184cae"
+            }
+          ]
+        },
+        "₢ATAAc": {
+          "tacks": [
+            {
+              "ts": "260212-1418",
+              "state": "rough",
+              "text": "Re-run `tt/rbw-rrg.RefreshGcbPins.sh` until all three Docker Hub images resolve successfully.\n\n## Context\n\nCommit 0937134a fully qualified three Docker Hub image refs (alpine, syft, binfmt) with `docker.io/` prefix to pass `buv_val_odref` validation. The refresh script now correctly targets `docker.io/library/alpine`, `docker.io/anchore/syft`, and `docker.io/tonistiigi/binfmt`, but Docker Hub rate limiting caused all three to fail on first attempt.\n\n## Steps\n\n1. Run `tt/rbw-rrg.RefreshGcbPins.sh`\n2. If Docker Hub fetches fail with rate limit warnings:\n   - Try `docker login docker.io` (free account raises limit from 100→200 pulls/6hr)\n   - Or wait a few minutes and retry\n3. Verify all 8 images show \"unchanged\" or \"updated\" (0 failed)\n4. If any pins changed, notch the updated `rbrr_RecipeBottleRegimeRepo.sh`\n\n## Key Files\n- `rbrr_RecipeBottleRegimeRepo.sh` — live pin values\n- `Tools/rbw/rbrr_regime.sh` — refresh spec (lines 273-282)",
+              "silks": "refresh-docker-hub-pins",
+              "commit": "341e3c9"
             }
           ]
         }
