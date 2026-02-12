@@ -3303,6 +3303,13 @@
         "₢APAAH": {
           "tacks": [
             {
+              "ts": "260212-1249",
+              "state": "rough",
+              "text": "Pin all GCB step builder images to digest refs in RBRR, and build a refresh tabtarget to maintain them.\n\n## Images to pin (add to existing RBRR_GCB_*_IMAGE_REF group, lines 49-57)\n\nSix unpinned images, all used in GCB build steps:\n1. gcr.io/cloud-builders/gcloud — steps 01, 02 (tag derivation, auth token)\n2. gcr.io/cloud-builders/docker — steps 03, 04, 06, 08, 09 (docker/buildx ops)\n3. quay.io/skopeo/stable — step 07 (OCI push to GAR)\n4. alpine — step 10 (metadata JSON assembly)\n5. anchore/syft:latest — step 08, hardcoded in rbgjb08-sbom-and-summary.sh:12\n6. tonistiigi/binfmt — step 04, hardcoded in rbgjb04-qemu-binfmt.sh:8\n\nTwo already pinned (gcrane, oras) — refresh command should also cover these.\n\n## Refresh tabtarget: tt/rbw-gp.RefreshGcbPins.sh\n\nBuild a tabtarget that:\n- Uses `docker manifest inspect` to resolve each image's current tag to a @sha256: digest\n- Updates RBRR_GCB_*_IMAGE_REF lines in rbrr_RecipeBottleRegimeRepo.sh\n- Updates vintage comments with current date\n- Prints diff: old digest vs new for each image\n\nRun it once to populate initial pins.\n\n## Wiring\n\nAfter pins exist in RBRR:\n- rbf_Foundry.sh step defs (lines 156-166): replace hardcoded image strings with RBRR variables\n- rbgjb08-sbom-and-summary.sh: replace SYFT_IMAGE=\"anchore/syft:latest\" with RBRR variable\n- rbgjb04-qemu-binfmt.sh: replace tonistiigi/binfmt with RBRR variable\n\n## Variable naming pattern\n\nFollow existing: RBRR_GCB_{TOOL}_IMAGE_REF (e.g., RBRR_GCB_GCLOUD_IMAGE_REF)\n\n## Files touched\n\n- rbrr_RecipeBottleRegimeRepo.sh (new pin variables)\n- rbrr_regime.sh (broach/validate the new variables)\n- rbrr_cli.sh (render the new variables)\n- rbf_Foundry.sh (wire variables into step defs)\n- rbgjb04-qemu-binfmt.sh (wire variable)\n- rbgjb08-sbom-and-summary.sh (wire variable)\n- New: tt/rbw-gp.RefreshGcbPins.sh + workbench routing",
+              "silks": "pin-gcb-tool-versions",
+              "commit": "7211d6c"
+            },
+            {
               "ts": "260128-0652",
               "state": "rough",
               "text": "Pin Cloud Build tool image versions to avoid \"latest\" drift. Currently hardcoded: (1) anchore/syft:latest in rbgjb08-sbom-and-summary.sh, (2) alpine (implicit latest) in rbf_Foundry.sh step definitions. Convert to locked versions and consider making them configurable via RBRR or RBRV regime variables.",
