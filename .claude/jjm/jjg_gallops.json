@@ -289,6 +289,13 @@
         "₢AcAAJ": {
           "tacks": [
             {
+              "ts": "260211-1701",
+              "state": "complete",
+              "text": "Revert incorrect file and function renames from the BUD_→BURD_ variable rename.\n\nThe BUD_→BURD_ variable rename was correct, but the model also incorrectly renamed:\n1. File: bud_dispatch.sh → burd_dispatch.sh (WRONG - bud is the file/module prefix)\n2. Functions: zbud_* → zburd_* (WRONG - zbud_ is the function prefix for the bud module)\n\nThe bud prefix (file/function namespace) and BURD prefix (variable namespace) are distinct per terminal exclusivity.\n\nFix:\n- Rename file back: burd_dispatch.sh → bud_dispatch.sh\n- Rename all functions back: zburd_* → zbud_* inside the file (zburd_show, zburd_die, zburd_check_string, zburd_setup, zburd_process_args, zburd_curate_same, zburd_curate_hist, zburd_generate_checksum, zburd_resolve_color, zburd_main, plus local zburd_invocation)\n- Update all references in ~14 files: bul_launcher.sh, README.md, CLAUDE.md, 6 tt/ tabtargets, 2 memos, rbga_cli.sh, rbgb_cli.sh, rgbs_cli.sh\n- Leave all BURD_* variables untouched (those renames were correct)",
+              "silks": "revert-bud-file-function-renames",
+              "commit": "9827140"
+            },
+            {
               "ts": "260211-1654",
               "state": "bridled",
               "text": "Revert incorrect file and function renames from the BUD_→BURD_ variable rename.\n\nThe BUD_→BURD_ variable rename was correct, but the model also incorrectly renamed:\n1. File: bud_dispatch.sh → burd_dispatch.sh (WRONG - bud is the file/module prefix)\n2. Functions: zbud_* → zburd_* (WRONG - zbud_ is the function prefix for the bud module)\n\nThe bud prefix (file/function namespace) and BURD prefix (variable namespace) are distinct per terminal exclusivity.\n\nFix:\n- Rename file back: burd_dispatch.sh → bud_dispatch.sh\n- Rename all functions back: zburd_* → zbud_* inside the file (zburd_show, zburd_die, zburd_check_string, zburd_setup, zburd_process_args, zburd_curate_same, zburd_curate_hist, zburd_generate_checksum, zburd_resolve_color, zburd_main, plus local zburd_invocation)\n- Update all references in ~14 files: bul_launcher.sh, README.md, CLAUDE.md, 6 tt/ tabtargets, 2 memos, rbga_cli.sh, rbgb_cli.sh, rgbs_cli.sh\n- Leave all BURD_* variables untouched (those renames were correct)",
