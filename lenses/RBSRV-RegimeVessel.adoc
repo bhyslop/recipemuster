@@ -1,4 +1,4 @@
-//axhrb_regime
+// ⟦axhrb_regime⟧
 {rbrv_regime}
 
 This regime specifies variables that define container vessel configurations within the Recipe Bottle system.
@@ -7,20 +7,20 @@ Each
 instance represents a vessel image source, either bound from an external registry or conjured from a Dockerfile.
 RBRV assignment files are found in `rbev-vessels/*/rbrv.env` and configure image sourcing for bottle deployments.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrv_sigil}
 
 Unique identifier for the vessel.
 Must be 1-64 characters forming a valid cross-context identifier.
 Must match the vessel directory name.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrv_description}
 
 Human-readable description of the vessel purpose.
 Optional; 0-512 characters.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrv_vessel_mode}
 
 Selects vessel provisioning strategy.
@@ -29,10 +29,10 @@ Must be
 or
 {rbrv_vessel_mode_conjure}.
 
-//axhrgb_group
+// ⟦axhrgb_group⟧
 {rbrv_group_binding}
 
-//axhrgc_gate
+// ⟦axhrgc_gate⟧
 {rbrv_vessel_mode}
 {rbrv_vessel_mode_bind}
 
@@ -42,16 +42,16 @@ is
 {rbrv_vessel_mode_bind}.
 Binding retrieves a pre-built image from an external registry without local build steps.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrv_bind_image}
 
 Fully-qualified image reference to copy from an external registry.
 Must be a valid FQIN; 1-512 characters.
 
-//axhrgb_group
+// ⟦axhrgb_group⟧
 {rbrv_group_conjuring}
 
-//axhrgc_gate
+// ⟦axhrgc_gate⟧
 {rbrv_vessel_mode}
 {rbrv_vessel_mode_conjure}
 
@@ -61,26 +61,26 @@ is
 {rbrv_vessel_mode_conjure}.
 Conjuring builds a vessel image locally from a Dockerfile and build context in the repository.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrv_conjure_dockerfile}
 
 Path to Dockerfile relative to repository root.
 Must be 1-512 characters.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrv_conjure_bldcontext}
 
 Build context path relative to repository root.
 Must be 1-512 characters.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrv_conjure_platforms}
 
 Space-separated list of target platforms for multi-platform builds.
 Must be 1-512 characters.
 Examples: `linux/amd64`, `linux/amd64 linux/arm64`.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrv_conjure_binfmt_policy}
 
 Controls whether cross-platform emulation via binfmt is permitted during builds.
@@ -89,21 +89,21 @@ Must be
 or
 {rbrv_binfmt_forbid}.
 
-//axhro_broach
+// ⟦axhro_broach⟧
 {rbkro_broach}
 
 Sets defaults for all RBRV_ variables via `VAR="${VAR:-}"` pattern.
 Detects unexpected RBRV_ variables via compgen prefix scan.
 Builds ZRBRV_ROLLUP serialization string.
 
-//axhro_validate
+// ⟦axhro_validate⟧
 {rbkro_validate}
 
 Validates fields via buv_env_* type checkers.
 Checks RBRV_BIND_IMAGE or RBRV_CONJURE_DOCKERFILE presence invariant.
 Validates RBRV_CONJURE_BINFMT_POLICY enum constraint.
 
-//axhro_render
+// ⟦axhro_render⟧
 {rbkro_render}
 
 Renders via rbcr_* shared module.

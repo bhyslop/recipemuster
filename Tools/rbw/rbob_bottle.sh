@@ -303,6 +303,9 @@ rbob_start() {
 
   buc_step "Starting bottle service: ${RBRN_MONIKER}"
 
+  # Cross-nameplate validation (silent on success, dies on conflict)
+  rbrn_preflight
+
   # Preflight: verify container images exist locally before touching anything
   ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1 \
     || buc_die "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}

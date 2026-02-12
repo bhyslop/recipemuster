@@ -93,6 +93,10 @@ rbw_route() {
     rbw-rvr) exec "${RBW_SCRIPT_DIR}/rbrv_cli.sh" render   ${1+"$@"} ;;
     rbw-rvv) exec "${RBW_SCRIPT_DIR}/rbrv_cli.sh" validate ${1+"$@"} ;;
 
+    # Cross-nameplate operations (routed to rbrn_cli.sh)
+    rbw-ni) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" survey ${1+"$@"} ;;
+    rbw-nv) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" audit  ${1+"$@"} ;;
+
     # Unknown command
     *)   buc_die "Unknown command: ${z_command}" ;;
   esac

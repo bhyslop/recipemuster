@@ -47,263 +47,263 @@
 :xref_MCM:                            Meta Concept Model
 
 // Axial Lexicon Terms (motif vocabulary)
+:axl_annotation:                      <<axl_annotation,Annotation>>
+:axl_annotation_s:                    <<axl_annotation,Annotations>>
+:axl_evokes:                          <<axl_evokes,Evokes>>
 :axl_motif:                           <<axl_motif,Motif>>
 :axl_motif_s:                         <<axl_motif,Motifs>>
 :axl_voicing:                         <<axl_voicing,Voicing>>
 :axl_voicing_s:                       <<axl_voicing,Voicings>>
 :axl_voices:                          <<axl_voices,Voices>>
-:axl_evokes:                          <<axl_evokes,Evokes>>
-:axl_annotation:                      <<axl_annotation,Annotation>>
-:axl_annotation_s:                    <<axl_annotation,Annotations>>
 
 // Axial Dimension Terms
+:axd_conditional:                     <<axd_conditional,Conditional>>
+:axd_defaulted:                       <<axd_defaulted,Defaulted>>
 :axd_dimension:                       <<axd_dimension,Dimension>>
 :axd_dimension_s:                     <<axd_dimension,Dimensions>>
-:axd_required:                        <<axd_required,Required>>
-:axd_optional:                        <<axd_optional,Optional>>
-:axd_nullable:                        <<axd_nullable,Nullable>>
-:axd_defaulted:                       <<axd_defaulted,Defaulted>>
-:axd_none:                            <<axd_none,None>>
-:axd_repeated:                        <<axd_repeated,Repeated>>
-:axd_list:                            <<axd_list,List>>
-:axd_field_number:                    <<axd_field_number,Field Number>>
-:axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_endianness:                      <<axd_endianness,Endianness>>
-:axd_xml_form:                        <<axd_xml_form,XML Form>>
-:axd_transient:                       <<axd_transient,Transient>>
+:axd_field_number:                    <<axd_field_number,Field Number>>
+:axd_list:                            <<axd_list,List>>
 :axd_longrunning:                     <<axd_longrunning,Long-running>>
+:axd_none:                            <<axd_none,None>>
+:axd_nullable:                        <<axd_nullable,Nullable>>
+:axd_optional:                        <<axd_optional,Optional>>
 :axd_periodic:                        <<axd_periodic,Periodic>>
-:axd_conditional:                     <<axd_conditional,Conditional>>
+:axd_repeated:                        <<axd_repeated,Repeated>>
+:axd_required:                        <<axd_required,Required>>
+:axd_transient:                       <<axd_transient,Transient>>
+:axd_wire_type:                       <<axd_wire_type,Wire Type>>
+:axd_xml_form:                        <<axd_xml_form,XML Form>>
 
 // Axial Format Terms
+:axf_bash:                            <<axf_bash,Bash Format>>
 :axf_format:                          <<axf_format,Format>>
 :axf_format_s:                        <<axf_format,Formats>>
-:axf_bash:                            <<axf_bash,Bash Format>>
-:axf_makefile:                        <<axf_makefile,Makefile Format>>
 :axf_json:                            <<axf_json,JSON Format>>
+:axf_makefile:                        <<axf_makefile,Makefile Format>>
 :axf_yaml:                            <<axf_yaml,YAML Format>>
 
 // Axial Regime Terms
-:axrg_regime:                         <<axrg_regime,Regime>>
-:axrg_regime_s:                       <<axrg_regime,Regimes>>
-:axrg_variable:                       <<axrg_variable,Regime Variable>>
-:axrg_variable_s:                     <<axrg_variable,Regime Variables>>
 :axrg_assignment:                     <<axrg_assignment,Assignment>>
 :axrg_assignment_s:                   <<axrg_assignment,Assignments>>
 :axrg_prefix:                         <<axrg_prefix,Regime Prefix>>
 :axrg_prefix_s:                       <<axrg_prefix,Regime Prefixes>>
+:axrg_regime:                         <<axrg_regime,Regime>>
+:axrg_regime_s:                       <<axrg_regime,Regimes>>
+:axrg_variable:                       <<axrg_variable,Regime Variable>>
+:axrg_variable_s:                     <<axrg_variable,Regime Variables>>
 
 // Axial Voicing Regime Terms (definition-site annotations)
+:axvr_group:                          <<axvr_group,Group Voicing>>
 :axvr_regime:                         <<axvr_regime,Regime Voicing>>
 :axvr_variable:                       <<axvr_variable,Variable Voicing>>
-:axvr_group:                          <<axvr_group,Group Voicing>>
 
 // Axial Hierarchy Regime Terms (standalone hierarchy markers)
+:axhrgc_gate:                         <<axhrgc_gate,Hierarchy Gate>>
+:axhrgb_group:                        <<axhrgb_group,Hierarchy Group>>
+:axhrgv_variable:                     <<axhrgv_variable,Hierarchy Grouped Variable>>
 :axhrb_regime:                        <<axhrb_regime,Hierarchy Regime>>
 :axhrv_variable:                      <<axhrv_variable,Hierarchy Variable>>
-:axhrgb_group:                        <<axhrgb_group,Hierarchy Group>>
-:axhrgc_gate:                         <<axhrgc_gate,Hierarchy Gate>>
-:axhrgv_variable:                     <<axhrgv_variable,Hierarchy Grouped Variable>>
 
 // Axial Regime Provenance Dimensions (assignment origin)
-:axrd_file_sourced:                   <<axrd_file_sourced,File-Sourced>>
-:axrd_env_inherited:                  <<axrd_env_inherited,Environment-Inherited>>
 :axrd_constructed:                    <<axrd_constructed,Constructed>>
+:axrd_env_inherited:                  <<axrd_env_inherited,Environment-Inherited>>
+:axrd_file_sourced:                   <<axrd_file_sourced,File-Sourced>>
 
 // Axial Voicing Regime Operation Terms (definition-site annotations)
 :axvr_broach:                         <<axvr_broach,Broach Voicing>>
-:axvr_validate:                       <<axvr_validate,Validate Voicing>>
 :axvr_render:                         <<axvr_render,Render Voicing>>
+:axvr_validate:                       <<axvr_validate,Validate Voicing>>
 
 // Axial Hierarchy Regime Operation Markers (subdocument)
 :axhro_broach:                        <<axhro_broach,Hierarchy Broach>>
-:axhro_validate:                      <<axhro_validate,Hierarchy Validate>>
 :axhro_render:                        <<axhro_render,Hierarchy Render>>
+:axhro_validate:                      <<axhro_validate,Hierarchy Validate>>
 
 // Axial Type Universal Terms (generic infrastructure)
-:axtu_string:                         <<axtu_string,String>>
-:axtu_path:                           <<axtu_path,Path>>
-:axtu_ipv4:                           <<axtu_ipv4,IPv4 Address>>
 :axtu_cidr:                           <<axtu_cidr,CIDR Block>>
-:axtu_port:                           <<axtu_port,Port Number>>
-:axtu_domain:                         <<axtu_domain,Domain Name>>
-:axtu_sha256:                         <<axtu_sha256,SHA256 Hash>>
 :axtu_xname:                          <<axtu_xname,Cross-Context Name>>
+:axtu_domain:                         <<axtu_domain,Domain Name>>
+:axtu_ipv4:                           <<axtu_ipv4,IPv4 Address>>
+:axtu_path:                           <<axtu_path,Path>>
+:axtu_port:                           <<axtu_port,Port Number>>
+:axtu_sha256:                         <<axtu_sha256,SHA256 Hash>>
+:axtu_string:                         <<axtu_string,String>>
 
 // Axial Type Google Terms (Google Cloud Platform)
+:axtg_billing_account:                <<axtg_billing_account,GCP Billing Account>>
 :axtg_project_id:                     <<axtg_project_id,GCP Project ID>>
 :axtg_project_number:                 <<axtg_project_number,GCP Project Number>>
 :axtg_region:                         <<axtg_region,GCP Region>>
 :axtg_service_account:                <<axtg_service_account,GCP Service Account>>
-:axtg_billing_account:                <<axtg_billing_account,GCP Billing Account>>
 
 // Axial Infrastructure Google Terms (GCP infrastructure resources)
-:axig_resource_manager:               <<axig_resource_manager,GCP Resource Manager>>
-:axig_cloud_storage:                  <<axig_cloud_storage,GCP Cloud Storage>>
+:axig_build:                          <<axig_build,Cloud Build>>
+:axig_container_image:                <<axig_container_image,Container Image>>
+:axig_artifact_repository:            <<axig_artifact_repository,GAR Repository>>
 :axig_artifact_registry:              <<axig_artifact_registry,GCP Artifact Registry>>
 :axig_cloud_build:                    <<axig_cloud_build,GCP Cloud Build>>
-:axig_iam:                            <<axig_iam,GCP IAM>>
-:axig_organization:                   <<axig_organization,GCP Organization>>
+:axig_cloud_storage:                  <<axig_cloud_storage,GCP Cloud Storage>>
 :axig_folder:                         <<axig_folder,GCP Folder>>
-:axig_project:                        <<axig_project,GCP Project>>
+:axig_iam:                            <<axig_iam,GCP IAM>>
 :axig_lien:                           <<axig_lien,GCP Lien>>
+:axig_organization:                   <<axig_organization,GCP Organization>>
+:axig_project:                        <<axig_project,GCP Project>>
+:axig_resource_manager:               <<axig_resource_manager,GCP Resource Manager>>
 :axig_bucket:                         <<axig_bucket,GCS Bucket>>
-:axig_artifact_repository:            <<axig_artifact_repository,GAR Repository>>
-:axig_container_image:                <<axig_container_image,Container Image>>
 :axig_generic_artifact:               <<axig_generic_artifact,Generic Artifact>>
-:axig_build:                          <<axig_build,Cloud Build>>
-:axig_service_account:                <<axig_service_account,Service Account>>
-:axig_role:                           <<axig_role,IAM Role>>
 :axig_binding:                        <<axig_binding,IAM Binding>>
-:axig_service_account_key:            <<axig_service_account_key,Service Account Key>>
+:axig_role:                           <<axig_role,IAM Role>>
 :axig_lro:                            <<axig_lro,Long Running Operation>>
 :axig_project_state:                  <<axig_project_state,Project State>>
+:axig_service_account:                <<axig_service_account,Service Account>>
+:axig_service_account_key:            <<axig_service_account_key,Service Account Key>>
 
 // Axial Control Terms
-:axc_variable:                        <<axc_variable,VARIABLE>>
-:axc_variable_s:                      <<axc_variable,VARIABLES>>
-:axc_fatal:                           <<axc_fatal,FATAL>>
-:axc_warn:                            <<axc_warn,WARN>>
-:axc_store:                           <<axc_store,STORE>>
-:axc_use:                             <<axc_use,USE>>
-:axc_require:                         <<axc_require,REQUIRE>>
-:axc_poll:                            <<axc_poll,POLL>>
-:axc_call:                            <<axc_call,CALL>>
-:axc_submit:                          <<axc_submit,SUBMIT>>
 :axc_await:                           <<axc_await,AWAIT>>
+:axc_call:                            <<axc_call,CALL>>
+:axc_fatal:                           <<axc_fatal,FATAL>>
+:axc_poll:                            <<axc_poll,POLL>>
+:axc_require:                         <<axc_require,REQUIRE>>
 :axc_show:                            <<axc_show,SHOW>>
 :axc_step:                            <<axc_step,STEP>>
+:axc_store:                           <<axc_store,STORE>>
+:axc_submit:                          <<axc_submit,SUBMIT>>
+:axc_use:                             <<axc_use,USE>>
+:axc_variable:                        <<axc_variable,VARIABLE>>
+:axc_variable_s:                      <<axc_variable,VARIABLES>>
+:axc_warn:                            <<axc_warn,WARN>>
 
 // Axial Environment Terms
+:axe_bash_interactive:                <<axe_bash_interactive,Bash Interactive>>
+:axe_bash_scripted:                   <<axe_bash_scripted,Bash Scripted>>
+:axe_bash_unattended:                 <<axe_bash_unattended,Bash Unattended>>
+:axe_daemon_runtime:                  <<axe_daemon_runtime,Daemon Runtime>>
 :axe_environment:                     <<axe_environment,Environment>>
 :axe_environment_s:                   <<axe_environment,Environments>>
-:axe_bash_interactive:                <<axe_bash_interactive,Bash Interactive>>
-:axe_bash_unattended:                 <<axe_bash_unattended,Bash Unattended>>
-:axe_bash_scripted:                   <<axe_bash_scripted,Bash Scripted>>
 :axe_human_guide:                     <<axe_human_guide,Human Guide>>
 :axe_rest_api:                        <<axe_rest_api,REST API>>
-:axe_daemon_runtime:                  <<axe_daemon_runtime,Daemon Runtime>>
 
 // Axial Operation Terms
+:axo_actor:                           <<axo_actor,Actor>>
+:axo_actor_s:                         <<axo_actor,Actors>>
 :axo_command:                         <<axo_command,Command>>
 :axo_command_s:                       <<axo_command,Commands>>
+:axo_entity:                          <<axo_entity,Entity>>
+:axo_entity_s:                        <<axo_entity,Entities>>
 :axo_guide:                           <<axo_guide,Guide>>
-:axo_routine:                         <<axo_routine,Routine>>
-:axo_routine_s:                       <<axo_routine,Routines>>
-:axo_sequence:                        <<axo_sequence,Sequence>>
-:axo_sequence_s:                      <<axo_sequence,Sequences>>
+:axo_identity:                        <<axo_identity,Identity>>
+:axo_identity_s:                      <<axo_identity,Identities>>
 :axo_procedure:                       <<axo_procedure,Procedure>>
 :axo_procedure_s:                     <<axo_procedure,Procedures>>
 :axo_role:                            <<axo_role,Role>>
 :axo_role_s:                          <<axo_role,Roles>>
-:axo_identity:                        <<axo_identity,Identity>>
-:axo_identity_s:                      <<axo_identity,Identities>>
-:axo_actor:                           <<axo_actor,Actor>>
-:axo_actor_s:                         <<axo_actor,Actors>>
-:axo_entity:                          <<axo_entity,Entity>>
-:axo_entity_s:                        <<axo_entity,Entities>>
+:axo_routine:                         <<axo_routine,Routine>>
+:axo_routine_s:                       <<axo_routine,Routines>>
+:axo_sequence:                        <<axo_sequence,Sequence>>
+:axo_sequence_s:                      <<axo_sequence,Sequences>>
 
 // Axial Section Terms
-:axs_inputs:                          <<axs_inputs,Inputs>>
-:axs_preconditions:                   <<axs_preconditions,Preconditions>>
 :axs_behavior:                        <<axs_behavior,Behavior>>
-:axs_outputs:                         <<axs_outputs,Outputs>>
-:axs_postconditions:                  <<axs_postconditions,Postconditions>>
 :axs_completion:                      <<axs_completion,Completion>>
 :axs_errors:                          <<axs_errors,Errors>>
-:axs_startup:                         <<axs_startup,Startup>>
-:axs_shutdown:                        <<axs_shutdown,Shutdown>>
 :axs_health:                          <<axs_health,Health>>
-:axs_signals:                         <<axs_signals,Signals>>
+:axs_idempotency:                     <<axs_idempotency,Idempotency>>
+:axs_inputs:                          <<axs_inputs,Inputs>>
+:axs_outputs:                         <<axs_outputs,Outputs>>
+:axs_overlap:                         <<axs_overlap,Overlap>>
+:axs_postconditions:                  <<axs_postconditions,Postconditions>>
+:axs_preconditions:                   <<axs_preconditions,Preconditions>>
 :axs_recovery:                        <<axs_recovery,Recovery>>
 :axs_schedule:                        <<axs_schedule,Schedule>>
-:axs_idempotency:                     <<axs_idempotency,Idempotency>>
-:axs_overlap:                         <<axs_overlap,Overlap>>
+:axs_shutdown:                        <<axs_shutdown,Shutdown>>
+:axs_signals:                         <<axs_signals,Signals>>
+:axs_startup:                         <<axs_startup,Startup>>
 
 // Axial Type Terms
-:axt_type:                            <<axt_type,Type>>
-:axt_type_s:                          <<axt_type,Types>>
-:axt_string:                          <<axt_string,String Type>>
-:axt_number:                          <<axt_number,Number Type>>
-:axt_boolean:                         <<axt_boolean,Boolean Type>>
 :axt_array:                           <<axt_array,Array Type>>
-:axt_object:                          <<axt_object,Object Type>>
-:axt_enumeration:                     <<axt_enumeration,Enumeration Type>>
+:axt_boolean:                         <<axt_boolean,Boolean Type>>
 :axt_enum_value:                      <<axt_enum_value,Enum Value>>
 :axt_enum_value_s:                    <<axt_enum_value,Enum Values>>
+:axt_enumeration:                     <<axt_enumeration,Enumeration Type>>
+:axt_number:                          <<axt_number,Number Type>>
+:axt_object:                          <<axt_object,Object Type>>
+:axt_string:                          <<axt_string,String Type>>
+:axt_type:                            <<axt_type,Type>>
+:axt_type_s:                          <<axt_type,Types>>
 :axt_variant:                         <<axt_variant,Variant Type>>
 
 // Axial Record Terms
+:axr_record_binary:                   <<axr_record_binary,Binary Record>>
+:axr_record_json:                     <<axr_record_json,JSON Record>>
+:axr_member:                          <<axr_member,Member>>
+:axr_member_s:                        <<axr_member,Members>>
 :axr_record:                          <<axr_record,Record>>
 :axr_record_s:                        <<axr_record,Records>>
-:axr_record_json:                     <<axr_record_json,JSON Record>>
 :axr_record_protobuf:                 <<axr_record_protobuf,Protobuf Record>>
 :axr_record_xml:                      <<axr_record_xml,XML Record>>
 :axr_record_yaml:                     <<axr_record_yaml,YAML Record>>
-:axr_record_binary:                   <<axr_record_binary,Binary Record>>
-:axr_member:                          <<axr_member,Member>>
-:axr_member_s:                        <<axr_member,Members>>
 
 // Axial JSON Terms
-:axj_structure:                       <<axj_structure,JSON Structure>>
-:axj_structure_s:                     <<axj_structure,JSON Structures>>
+:axj_array_element:                   <<axj_array_element,Array Element Type>>
 :axj_field:                           <<axj_field,JSON Field>>
 :axj_field_s:                         <<axj_field,JSON Fields>>
+:axj_field_cardinality:               <<axj_field_cardinality,Field Cardinality>>
 :axj_field_tag:                       <<axj_field_tag,Field Tag>>
 :axj_field_type:                      <<axj_field_type,Field Type>>
-:axj_array_element:                   <<axj_array_element,Array Element Type>>
 :axj_nested_field:                    <<axj_nested_field,Nested Field>>
 :axj_nested_field_s:                  <<axj_nested_field,Nested Fields>>
 :axj_root_structure:                  <<axj_root_structure,Root Structure>>
-:axj_field_cardinality:               <<axj_field_cardinality,Field Cardinality>>
+:axj_structure:                       <<axj_structure,JSON Structure>>
+:axj_structure_s:                     <<axj_structure,JSON Structures>>
 :axj_type_reference:                  <<axj_type_reference,Type Reference>>
 
 // Axial Argument Terms
 :axa_argument:                        <<axa_argument,Argument>>
 :axa_argument_s:                      <<axa_argument,Arguments>>
-:axa_positional:                      <<axa_positional,Positional Argument>>
-:axa_positional_s:                    <<axa_positional,Positional Arguments>>
+:axa_argument_list:                   <<axa_argument_list,Argument List>>
+:axa_argument_type:                   <<axa_argument_type,Argument Type>>
+:axa_cli_option:                      <<axa_cli_option,CLI Option>>
+:axa_defaulted:                       <<axa_defaulted,Defaulted>>
+:axa_exit_enumerated:                 <<axa_exit_enumerated,Exit Enumerated>>
+:axa_exit_uniform:                    <<axa_exit_uniform,Exit Uniform>>
 :axa_keyword:                         <<axa_keyword,Keyword Argument>>
 :axa_keyword_s:                       <<axa_keyword,Keyword Arguments>>
 :axa_long_option:                     <<axa_long_option,Long Option>>
 :axa_long_option_s:                   <<axa_long_option,Long Options>>
-:axa_short_option:                    <<axa_short_option,Short Option>>
-:axa_short_option_s:                  <<axa_short_option,Short Options>>
 :axa_option_name:                     <<axa_option_name,Option Name>>
 :axa_option_value:                    <<axa_option_value,Option Value>>
-:axa_argument_type:                   <<axa_argument_type,Argument Type>>
-:axa_required:                        <<axa_required,Required>>
 :axa_optional:                        <<axa_optional,Optional>>
-:axa_defaulted:                       <<axa_defaulted,Defaulted>>
-:axa_argument_list:                   <<axa_argument_list,Argument List>>
-:axa_cli_option:                      <<axa_cli_option,CLI Option>>
-:axa_exit_uniform:                    <<axa_exit_uniform,Exit Uniform>>
-:axa_exit_enumerated:                 <<axa_exit_enumerated,Exit Enumerated>>
+:axa_positional:                      <<axa_positional,Positional Argument>>
+:axa_positional_s:                    <<axa_positional,Positional Arguments>>
+:axa_required:                        <<axa_required,Required>>
+:axa_short_option:                    <<axa_short_option,Short Option>>
+:axa_short_option_s:                  <<axa_short_option,Short Options>>
 
 // Axial Interface Terms
+:axi_api_method:                      <<axi_api_method,API Method>>
+:axi_cc_claudemd_section:             <<axi_cc_claudemd_section,CC CLAUDE.md Section>>
+:axi_cc_claudemd_verb:                <<axi_cc_claudemd_verb,CC CLAUDE.md Verb>>
+:axi_cc_slash_command:                <<axi_cc_slash_command,CC Slash Command>>
+:axi_cli_command_group:               <<axi_cli_command_group,CLI Command Group>>
+:axi_cli_interface:                   <<axi_cli_interface,CLI Interface>>
+:axi_cli_program:                     <<axi_cli_program,CLI Program>>
+:axi_cli_subcommand:                  <<axi_cli_subcommand,CLI Subcommand>>
 :axi_command_interface:               <<axi_command_interface,Command Interface>>
-:axi_subcommand:                      <<axi_subcommand,Subcommand>>
-:axi_subcommand_s:                    <<axi_subcommand,Subcommands>>
 :axi_command_signature:               <<axi_command_signature,Command Signature>>
 :axi_endpoint:                        <<axi_endpoint,Endpoint>>
 :axi_endpoint_s:                      <<axi_endpoint,Endpoints>>
-:axi_api_method:                      <<axi_api_method,API Method>>
-:axi_url_parameter:                   <<axi_url_parameter,URL Parameter>>
-:axi_url_parameter_s:                 <<axi_url_parameter,URL Parameters>>
 :axi_hash_parameter:                  <<axi_hash_parameter,Hash Parameter>>
 :axi_hash_parameter_s:                <<axi_hash_parameter,Hash Parameters>>
 :axi_request_body:                    <<axi_request_body,Request Body>>
 :axi_response_body:                   <<axi_response_body,Response Body>>
-:axi_cli_interface:                   <<axi_cli_interface,CLI Interface>>
-:axi_cli_program:                     <<axi_cli_program,CLI Program>>
-:axi_cli_command_group:               <<axi_cli_command_group,CLI Command Group>>
-:axi_cli_subcommand:                  <<axi_cli_subcommand,CLI Subcommand>>
 :axi_rest_api:                        <<axi_rest_api,REST API>>
 :axi_rpc_interface:                   <<axi_rpc_interface,RPC Interface>>
 :axi_sse_endpoint:                    <<axi_sse_endpoint,SSE Endpoint>>
-:axi_cc_slash_command:                <<axi_cc_slash_command,CC Slash Command>>
-:axi_cc_claudemd_section:             <<axi_cc_claudemd_section,CC CLAUDE.md Section>>
-:axi_cc_claudemd_verb:                <<axi_cc_claudemd_verb,CC CLAUDE.md Verb>>
+:axi_subcommand:                      <<axi_subcommand,Subcommand>>
+:axi_subcommand_s:                    <<axi_subcommand,Subcommands>>
+:axi_url_parameter:                   <<axi_url_parameter,URL Parameter>>
+:axi_url_parameter_s:                 <<axi_url_parameter,URL Parameters>>
 
 // Axial Key Premise Terms
 :axk_premise:                         <<axk_premise,Premise>>
@@ -403,7 +403,8 @@ When ambiguity or friction arises during LLM processing, the format should evolv
 
 == Motif Implications
 
-{axl_motif_s} carry implied characteristics beyond their definitions.
+{axl_motif_s}
+carry implied characteristics beyond their definitions.
 These implications guide how
 {axl_voicing_s}
 should behave:
@@ -550,8 +551,10 @@ Provides operational visibility without implying warnings or errors.
 
 == Axial Environment Terms
 
-{axe_environment_s} specify execution contexts for control operations.
-{axl_voicing_s} of
+{axe_environment_s}
+specify execution contexts for control operations.
+{axl_voicing_s}
+of
 {axc_call},
 {axc_warn},
 {axc_fatal}
@@ -564,7 +567,8 @@ as a dimension to clarify how the control term manifests in that context.
 A
 {axl_motif}
 representing an execution context that determines how control terms manifest.
-{axe_environment_s} appear as dimensions in
+{axe_environment_s}
+appear as dimensions in
 {axl_voicing_s}
 to bind abstract control semantics to concrete operational behavior.
 
@@ -942,7 +946,8 @@ A
 {axl_motif}
 representing the abstract concept of an operational identity.
 An entity capable of authentication and holding authorities within a system.
-{axo_identity} is the pattern;
+{axo_identity}
+is the pattern;
 {axo_actor_s}
 are named instantiations with specific bindings.
 
@@ -951,7 +956,8 @@ are named instantiations with specific bindings.
 A
 {axl_motif}
 representing a specific named identity with defined responsibilities and exclusive authority over an operational domain.
-{axo_actor_s} instantiate
+{axo_actor_s}
+instantiate
 {axo_identity}
 with concrete bindings (human via OAuth, service via service account) and permissions.
 
@@ -983,7 +989,8 @@ Enforces data validation and enables type-safe operations.
 A
 {axl_motif}
 representing text data type with optional pattern validation.
-{axl_voicing_s} may address context-specific concerns including:
+{axl_voicing_s}
+may address context-specific concerns including:
 +
 * Encoding (ASCII, UTF-8, locale-dependent character sets)
 * Termination semantics (null-terminated, length-prefixed, delimiter-bounded)
@@ -1046,15 +1053,18 @@ Unlike
 which constrains to predefined strings,
 {axt_variant}
 allows structurally different alternatives.
-{axl_voicing_s} define the specific forms and discrimination logic for their context.
+{axl_voicing_s}
+define the specific forms and discrimination logic for their context.
 
 == Axial Record Terms
 
-{axr_record_s} and
+{axr_record_s}
+and
 {axr_member_s}
 provide format-agnostic patterns for structured data.
 Format-specific variants (JSON, protobuf, XML, etc.) capture serialization-specific semantics.
-{axr_member_s} inherit format context from their parent
+{axr_member_s}
+inherit format context from their parent
 {axr_record}.
 
 [[axr_record]]
@@ -1074,7 +1084,8 @@ etc.) when format is known.
 A
 {axl_motif}
 representing a JSON object structure.
-{axr_member_s} are unordered, string-keyed properties.
+{axr_member_s}
+are unordered, string-keyed properties.
 Requires
 {axd_nullable}
 specification since JSON has explicit null.
@@ -1084,7 +1095,8 @@ specification since JSON has explicit null.
 A
 {axl_motif}
 representing a protobuf message.
-{axr_member_s} require
+{axr_member_s}
+require
 {axd_field_number}
 and
 {axd_wire_type}
@@ -1096,7 +1108,8 @@ Supports schema evolution through field numbering.
 A
 {axl_motif}
 representing an XML element structure.
-{axr_member_s} require
+{axr_member_s}
+require
 {axd_xml_form}
 to distinguish attributes from child elements.
 Order may be significant depending on schema.
@@ -1107,14 +1120,16 @@ A
 {axl_motif}
 representing a YAML mapping.
 Superset of JSON with anchors, aliases, and multi-document support.
-{axr_member_s} follow JSON-like semantics with extended syntax.
+{axr_member_s}
+follow JSON-like semantics with extended syntax.
 
 [[axr_record_binary]]
 {axr_record_binary}::
 A
 {axl_motif}
 representing a binary/memory structure.
-{axr_member_s} require
+{axr_member_s}
+require
 {axd_endianness}
 for multi-byte fields.
 Fixed layout with explicit size and alignment.
@@ -1590,7 +1605,8 @@ Typically contains command references, vocabulary mappings, and operational guid
 
 == Axial Dimension Terms
 
-{axd_dimension_s} are modifiers that appear in
+{axd_dimension_s}
+are modifiers that appear in
 {axl_annotation_s}
 to specify characteristics of members and arguments.
 Unlike primary
@@ -1605,7 +1621,8 @@ depends on serialization format context.
 {axd_dimension}::
 A characteristic modifier that qualifies a member or argument in an
 {axl_annotation}.
-{axd_dimension_s} appear after the primary
+{axd_dimension_s}
+appear after the primary
 {axl_motif}
 in annotation format: `// ⟦axl_voices primary dimension ...⟧`
 
@@ -1782,8 +1799,10 @@ Legend: required = must specify; recommend = should specify; optional = may spec
 
 == Axial Format Terms
 
-{axf_format_s} specify how configuration data is serialized and carried.
-{axrg_assignment_s} use a particular
+{axf_format_s}
+specify how configuration data is serialized and carried.
+{axrg_assignment_s}
+use a particular
 {axf_format}
 to encode
 {axrg_variable}
@@ -1794,7 +1813,8 @@ values in files that can be sourced, included, or parsed.
 A
 {axl_motif}
 representing a serialization encoding for configuration data.
-{axf_format_s} determine how
+{axf_format_s}
+determine how
 {axrg_assignment_s}
 are written to and read from files.
 
@@ -1832,7 +1852,8 @@ Parsed by YAML libraries with attention to version-specific semantics.
 
 == Axial Regime Terms
 
-{axrg_regime_s} are structured configuration systems that coordinate specification, validation, and rendering of typed configuration data.
+{axrg_regime_s}
+are structured configuration systems that coordinate specification, validation, and rendering of typed configuration data.
 
 [[axrg_regime]]
 {axrg_regime}::
@@ -1858,7 +1879,8 @@ Each
 belongs to an
 {axrg_regime}
 and defines a name, type constraints, and relationships with other variables.
-{axrg_variable_s} are the "what can be configured" definitions;
+{axrg_variable_s}
+are the "what can be configured" definitions;
 {axrg_assignment_s}
 bind values to them.
 
@@ -1868,7 +1890,8 @@ A
 {axl_motif}
 representing a specific value bound to an
 {axrg_variable}.
-{axrg_assignment_s} are carried in files of a particular
+{axrg_assignment_s}
+are carried in files of a particular
 {axf_format}
 (bash, makefile, JSON, etc.).
 Multiple assignment files may exist for the same
@@ -2180,7 +2203,8 @@ Platform-specific nuances (e.g., path separators on Windows vs Unix) are handled
 A
 {axl_motif}
 representing a generic bounded string value.
-{axl_voicing_s} specify minimum and maximum length constraints appropriate to their context.
+{axl_voicing_s}
+specify minimum and maximum length constraints appropriate to their context.
 
 [[axtu_path]]
 {axtu_path}::

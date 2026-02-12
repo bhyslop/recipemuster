@@ -160,8 +160,21 @@ case "${z_command}" in
       esac
     fi
     ;;
+  survey|audit)
+    # Additional dependencies for cross-nameplate operations
+    source "${ZRBRN_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
+    source "${ZRBRN_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
+    source "${ZRBRN_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+    zrbgc_kindle
+    rbrr_load
+    zrbgd_kindle
+    case "${z_command}" in
+      survey) rbrn_survey ;;
+      audit)  rbrn_audit ;;
+    esac
+    ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: rbrn_cli.sh {validate|render} [moniker]"
+    buc_die "Unknown command: ${z_command}. Usage: rbrn_cli.sh {validate|render|survey|audit} [moniker]"
     ;;
 esac
 

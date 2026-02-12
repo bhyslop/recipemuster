@@ -37,21 +37,19 @@
 :rbtr_consumer:              <<rbtr_consumer,Consumer Role>>
 :rbtr_consumer_p:            <<rbtr_consumer,Consumer Role's>>
 :rbtr_consumer_s:            <<rbtr_consumer,Consumer Roles>>
-:at_operator:                <<at_operator,Operator>>
-:at_operator_p:              <<at_operator,Operator's>>
-:at_operator_s:              <<at_operator,Operators>>
 :rbtr_director:              <<rbtr_director,Director Role>>
 :rbtr_director_s:            <<rbtr_director,Director Roles>>
 :rbtr_governor:              <<rbtr_governor,Governor Role>>
 :rbtr_mason:                 <<rbtr_mason,Mason Role>>
+:at_operator:                <<at_operator,Operator>>
+:at_operator_p:              <<at_operator,Operator's>>
+:at_operator_s:              <<at_operator,Operators>>
 :rbtr_payor:                 <<rbtr_payor,Payor Role>>
 :rbtr_payor_p:               <<rbtr_payor,Payor Role's>>
 :rbtr_retriever:             <<rbtr_retriever,Retriever Role>>
 :rbtr_retriever_s:           <<rbtr_retriever,Retriever Roles>>
 
 // Recipe Bottle Term Google Instances
-:rbtgi_json_key_file:        <<rbtgi_json_key_file,JSON Key File>>
-:rbtgi_json_key_file_s:      <<rbtgi_json_key_file,JSON Key Files>>
 :rbtgi_build_bucket:         <<rbtgi_build_bucket,RB Build Bucket>>
 :rbtgi_build_bucket_s:       <<rbtgi_build_bucket,RB Build Buckets>>
 :rbtgi_repository:           <<rbtgi_repository,RB Container Repository>>
@@ -61,6 +59,8 @@
 :rbtgi_depot_project_s:      <<rbtgi_depot_project,RB Depot Projects>>
 :rbtgi_image:                <<rbtgi_image,RB Image>>
 :rbtgi_image_s:              <<rbtgi_image,RB Images>>
+:rbtgi_json_key_file:        <<rbtgi_json_key_file,JSON Key File>>
+:rbtgi_json_key_file_s:      <<rbtgi_json_key_file,JSON Key Files>>
 :rbtgi_metadata:             <<rbtgi_metadata,RB Metadata Artifact>>
 :rbtgi_metadata_s:           <<rbtgi_metadata,RB Metadata Artifacts>>
 :rbtgi_payor_project:        <<rbtgi_payor_project,RB Payor Project>>
@@ -75,31 +75,31 @@
 :rbtga_ark_about:            <<rbtga_ark_about,Ark About Artifact>>
 
 // Recipe Bottle Term Google Operations
-:rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
-:rbtoe_director_authenticate:     <<rbtoe_director_authenticate,Director Authentication Pattern>>
-:rbtoe_governor_authenticate:     <<rbtoe_governor_authenticate,Governor Authentication Pattern>>
-:rbtgo_image_retrieve:            <<rbtgo_image_retrieve,Image Retrieval>>
-:rbtoe_retriever_authenticate:    <<rbtoe_retriever_authenticate,Retriever Authentication Pattern>>
-:rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_build>>
-:rbtgo_image_list:                <<rbtgo_image_list,rbf_list>>
-:rbtgo_image_delete:              <<rbtgo_image_delete,rbf_delete>>
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
-:rbtgo_ark_beseech:              <<rbtgo_ark_beseech,rbf_beseech>>
-:rbtgo_ark_conjure:              <<rbtgo_ark_conjure,rbf_build>>
-:rbtgo_ark_summon:               <<rbtgo_ark_summon,rbf_summon>>
-:rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
-:rbtgo_retriever_create:          <<rbtgo_retriever_create,rbgg_create_retriever>>
-:rbtgo_sa_delete:                 <<rbtgo_sa_delete,rbgg_delete_service_account>>
-:rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
-:rbtgo_governor_reset:            <<rbtgo_governor_reset,rbgp_governor_reset>>
+:rbtgo_ark_beseech:               <<rbtgo_ark_beseech,rbf_beseech>>
+:rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbf_build>>
+:rbtgo_ark_summon:                <<rbtgo_ark_summon,rbf_summon>>
 :rbtgo_depot_create:              <<rbtgo_depot_create,rbgp_depot_create>>
 :rbtgo_depot_destroy:             <<rbtgo_depot_destroy,rbgp_depot_destroy>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
-:rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
+:rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
+:rbtgo_governor_reset:            <<rbtgo_governor_reset,rbgp_governor_reset>>
+:rbtgo_image_delete:              <<rbtgo_image_delete,rbf_delete>>
+:rbtgo_image_list:                <<rbtgo_image_list,rbf_list>>
+:rbtgo_image_retrieve:            <<rbtgo_image_retrieve,Image Retrieval>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbgm_payor_establish>>
+:rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbgm_payor_refresh>>
-:rbtoe_payor_authenticate:        <<rbtoe_payor_authenticate,zrbgp_authenticate_capture>>
+:rbtgo_retriever_create:          <<rbtgo_retriever_create,rbgg_create_retriever>>
+:rbtgo_sa_delete:                 <<rbtgo_sa_delete,rbgg_delete_service_account>>
+:rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
+:rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_build>>
+:rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
+:rbtoe_director_authenticate:     <<rbtoe_director_authenticate,Director Authentication Pattern>>
+:rbtoe_governor_authenticate:     <<rbtoe_governor_authenticate,Governor Authentication Pattern>>
 :rbtoe_oauth_refresh:             <<rbtoe_oauth_refresh,zrbgp_refresh_capture>>
+:rbtoe_payor_authenticate:        <<rbtoe_payor_authenticate,zrbgp_authenticate_capture>>
+:rbtoe_retriever_authenticate:    <<rbtoe_retriever_authenticate,Retriever Authentication Pattern>>
 
 // Google Cloud Platform Core Concepts
 :gcp_billing_enabled:        <<gcp_billing_enabled,Billing Enabled Status>>
@@ -166,54 +166,54 @@
 :at_workstation_p:           <<at_workstation,Workstation's>>
 
 // Local Deployment Architecture Terms
+:at_agile_service:           <<at_agile_service,Agile Bottle Service>>
+:at_bottle_container:        <<at_bottle_container,Bottle Container>>
+:at_bottle_container_name:   <<at_bottle_container_name,Bottle Container Name>>
+:at_bottle_container_p:      <<at_bottle_container,Bottle Container's>>
+:at_bottle_container_s:      <<at_bottle_container,Bottle Containers>>
 :at_bottle_service:          <<at_bottle_service,Bottle Service>>
 :at_bottle_service_s:        <<at_bottle_service,Bottle Services>>
-:at_bottle_container:        <<at_bottle_container,Bottle Container>>
-:at_bottle_container_s:      <<at_bottle_container,Bottle Containers>>
-:at_bottle_container_p:      <<at_bottle_container,Bottle Container's>>
-:at_sentry_container:        <<at_sentry_container,Sentry Container>>
-:at_sentry_container_s:      <<at_sentry_container,Sentry Containers>>
-:at_sentry_container_p:      <<at_sentry_container,Sentry Container's>>
 :at_censer_container:        <<at_censer_container,Censer Container>>
+:at_container_registry:      <<at_container_registry,Container Registry>>
+:at_ebpf_program:            <<at_ebpf_program,eBPF Program>>
+:at_enclave_namespace_name:  <<at_enclave_namespace_name,Enclave Namespace Name>>
 :at_enclave_network:         <<at_enclave_network,Enclave Network>>
-:at_transit_network:         <<at_transit_network,Transit Network>>
+:at_enclave_network_name:    <<at_enclave_network_name,Enclave Network Name>>
+:at_moniker:                 <<at_moniker,Moniker>>
 :at_nameplate:               <<at_nameplate,Nameplate>>
 :at_nameplate_s:             <<at_nameplate,Nameplates>>
-:at_ebpf_program:            <<at_ebpf_program,eBPF Program>>
-:st_container:               <<st_container,Container>>
-:st_container_s:             <<st_container,Containers>>
-:st_volume_mount:            <<st_volume_mount,Volume Mount>>
-:st_volume_mount_s:          <<st_volume_mount,Volume Mounts>>
-:st_port_map:                <<st_port_map,Port Map>>
-:st_port_map_s:              <<st_port_map,Port Maps>>
-:at_sessile_service:         <<at_sessile_service,Sessile Bottle Service>>
-:at_agile_service:           <<at_agile_service,Agile Bottle Service>>
-:at_sentry_image:            <<at_sentry_image,Sentry Image>>
-:at_moniker:                 <<at_moniker,Moniker>>
-:at_rbm_console:             <<at_rbm_console,RB Console>>
+:at_operational_machine:     <<at_operational_machine,Operational Machine>>
 :at_rbm_config:              <<at_rbm_config,RB Configuration>>
+:at_rbm_console:             <<at_rbm_console,RB Console>>
+:at_rbm_repo:                <<at_rbm_repo,RB Repository>>
 :at_rbm_secret:              <<at_rbm_secret,RB Secret>>
 :at_rbm_secret_s:            <<at_rbm_secret,RB Secrets>>
-:at_rbm_repo:                <<at_rbm_repo,RB Repository>>
-:at_user_repo:               <<at_user_repo,User Repository>>
-:at_container_registry:      <<at_container_registry,Container Registry>>
+:at_sentry_container:        <<at_sentry_container,Sentry Container>>
+:at_sentry_container_name:   <<at_sentry_container_name,Sentry Container Name>>
+:at_sentry_container_p:      <<at_sentry_container,Sentry Container's>>
+:at_sentry_container_s:      <<at_sentry_container,Sentry Containers>>
+:at_sentry_image:            <<at_sentry_image,Sentry Image>>
+:at_sessile_service:         <<at_sessile_service,Sessile Bottle Service>>
 :at_startup_script:          <<at_startup_script,Startup Script>>
 :at_startup_script_s:        <<at_startup_script,Startup Scripts>>
 :at_stash_machine:           <<at_stash_machine,Stash Machine>>
-:at_operational_machine:     <<at_operational_machine,Operational Machine>>
+:at_transit_network:         <<at_transit_network,Transit Network>>
 :at_transit_network_name:    <<at_transit_network_name,Transit Network Name>>
-:at_enclave_network_name:    <<at_enclave_network_name,Enclave Network Name>>
-:at_enclave_namespace_name:  <<at_enclave_namespace_name,Enclave Namespace Name>>
-:at_bottle_container_name:   <<at_bottle_container_name,Bottle Container Name>>
-:at_sentry_container_name:   <<at_sentry_container_name,Sentry Container Name>>
+:at_user_repo:               <<at_user_repo,User Repository>>
+:st_container:               <<st_container,Container>>
+:st_container_s:             <<st_container,Containers>>
 :st_dockerfile:              <<st_dockerfile,Dockerfile>>
-:st_published_image:         <<st_published_image,Published Image>>
-:st_published_image_s:       <<st_published_image,Published Images>>
+:st_gateway:                 <<st_gateway,Gateway>>
 :st_image:                   <<st_image,Container Image>>
 :st_image_s:                 <<st_image,Container Images>>
 :st_image_store:             <<st_image_store,Local Image Store>>
+:st_port_map:                <<st_port_map,Port Map>>
+:st_port_map_s:              <<st_port_map,Port Maps>>
+:st_published_image:         <<st_published_image,Published Image>>
+:st_published_image_s:       <<st_published_image,Published Images>>
 :st_subnet:                  <<st_subnet,Subnet>>
-:st_gateway:                 <<st_gateway,Gateway>>
+:st_volume_mount:            <<st_volume_mount,Volume Mount>>
+:st_volume_mount_s:          <<st_volume_mount,Volume Mounts>>
 
 // Local Operations (sentry startup, bottle lifecycle, VM management)
 :opss_sentry_start:          <<opss_sentry_start,Sentry Start Rule>>
@@ -266,21 +266,21 @@
 
 // Recipe Bottle Regime: Vessel (container image specifications)
 :rbrv_regime:                <<rbrv_regime,RBRV Regime>>
+:rbrv_binfmt_allow:          <<rbrv_binfmt_allow,allow>>
+:rbrv_group_binding:         <<rbrv_group_binding,Binding Group>>
+:rbrv_bind_image:            <<rbrv_bind_image,RBRV_BIND_IMAGE>>
+:rbrv_conjure_bldcontext:    <<rbrv_conjure_bldcontext,RBRV_CONJURE_BLDCONTEXT>>
+:rbrv_conjure_binfmt_policy: <<rbrv_conjure_binfmt_policy,RBRV_CONJURE_BINFMT_POLICY>>
+:rbrv_conjure_dockerfile:    <<rbrv_conjure_dockerfile,RBRV_CONJURE_DOCKERFILE>>
+:rbrv_conjure_platforms:     <<rbrv_conjure_platforms,RBRV_CONJURE_PLATFORMS>>
+:rbrv_group_conjuring:       <<rbrv_group_conjuring,Conjuring Group>>
+:rbrv_binfmt_forbid:         <<rbrv_binfmt_forbid,forbid>>
+:rbrv_description:           <<rbrv_description,RBRV_DESCRIPTION>>
 :rbrv_sigil:                 <<rbrv_sigil,RBRV_SIGIL>>
 :rbrv_sigil_s:               <<rbrv_sigil,RBRV_SIGILs>>
-:rbrv_description:           <<rbrv_description,RBRV_DESCRIPTION>>
-:rbrv_bind_image:            <<rbrv_bind_image,RBRV_BIND_IMAGE>>
-:rbrv_conjure_dockerfile:    <<rbrv_conjure_dockerfile,RBRV_CONJURE_DOCKERFILE>>
-:rbrv_conjure_bldcontext:    <<rbrv_conjure_bldcontext,RBRV_CONJURE_BLDCONTEXT>>
-:rbrv_conjure_platforms:     <<rbrv_conjure_platforms,RBRV_CONJURE_PLATFORMS>>
-:rbrv_conjure_binfmt_policy: <<rbrv_conjure_binfmt_policy,RBRV_CONJURE_BINFMT_POLICY>>
-:rbrv_vessel_mode:            <<rbrv_vessel_mode,RBRV_VESSEL_MODE>>
-:rbrv_vessel_mode_bind:       <<rbrv_vessel_mode_bind,bind>>
-:rbrv_vessel_mode_conjure:    <<rbrv_vessel_mode_conjure,conjure>>
-:rbrv_group_binding:          <<rbrv_group_binding,Binding Group>>
-:rbrv_group_conjuring:        <<rbrv_group_conjuring,Conjuring Group>>
-:rbrv_binfmt_allow:           <<rbrv_binfmt_allow,allow>>
-:rbrv_binfmt_forbid:          <<rbrv_binfmt_forbid,forbid>>
+:rbrv_vessel_mode:           <<rbrv_vessel_mode,RBRV_VESSEL_MODE>>
+:rbrv_vessel_mode_bind:      <<rbrv_vessel_mode_bind,bind>>
+:rbrv_vessel_mode_conjure:   <<rbrv_vessel_mode_conjure,conjure>>
 
 // Recipe Bottle Regime: Authentication (service account credentials)
 :rbra_regime:                <<rbra_regime,RBRA Regime>>
@@ -344,41 +344,41 @@
 :rbst_domain_list:           <<rbst_domain_list,Domain List>>
 
 // Recipe Bottle Regime: Nameplate (service deployment configuration)
-:rbrn_regime:                    <<rbrn_regime,RBRN Regime>>
-:rbrn_moniker:                   <<rbrn_moniker,RBRN_MONIKER>>
-:rbrn_description:               <<rbrn_description,RBRN_DESCRIPTION>>
-:rbrn_runtime:                   <<rbrn_runtime,RBRN_RUNTIME>>
-:rbrn_runtime_docker:            <<rbrn_runtime_docker,docker>>
-:rbrn_runtime_podman:            <<rbrn_runtime_podman,podman>>
-:rbrn_sentry_vessel:             <<rbrn_sentry_vessel,RBRN_SENTRY_VESSEL>>
-:rbrn_sentry_consecration:       <<rbrn_sentry_consecration,RBRN_SENTRY_CONSECRATION>>
-:rbrn_bottle_vessel:             <<rbrn_bottle_vessel,RBRN_BOTTLE_VESSEL>>
-:rbrn_bottle_consecration:       <<rbrn_bottle_consecration,RBRN_BOTTLE_CONSECRATION>>
-:rbrn_entry_mode:                <<rbrn_entry_mode,RBRN_ENTRY_MODE>>
-:rbrn_entry_mode_disabled:       <<rbrn_entry_mode_disabled,disabled>>
-:rbrn_entry_mode_enabled:        <<rbrn_entry_mode_enabled,enabled>>
-:rbrn_entry_port_workstation:    <<rbrn_entry_port_workstation,RBRN_ENTRY_PORT_WORKSTATION>>
-:rbrn_entry_port_enclave:        <<rbrn_entry_port_enclave,RBRN_ENTRY_PORT_ENCLAVE>>
-:rbrn_enclave_base_ip:           <<rbrn_enclave_base_ip,RBRN_ENCLAVE_BASE_IP>>
-:rbrn_enclave_netmask:           <<rbrn_enclave_netmask,RBRN_ENCLAVE_NETMASK>>
-:rbrn_enclave_sentry_ip:         <<rbrn_enclave_sentry_ip,RBRN_ENCLAVE_SENTRY_IP>>
-:rbrn_enclave_bottle_ip:         <<rbrn_enclave_bottle_ip,RBRN_ENCLAVE_BOTTLE_IP>>
-:rbrn_uplink_port_min:           <<rbrn_uplink_port_min,RBRN_UPLINK_PORT_MIN>>
-:rbrn_uplink_dns_mode:           <<rbrn_uplink_dns_mode,RBRN_UPLINK_DNS_MODE>>
-:rbrn_uplink_dns_mode_disabled:  <<rbrn_uplink_dns_mode_disabled,disabled>>
-:rbrn_uplink_dns_mode_global:    <<rbrn_uplink_dns_mode_global,global>>
-:rbrn_uplink_dns_mode_allowlist: <<rbrn_uplink_dns_mode_allowlist,allowlist>>
-:rbrn_uplink_access_mode:        <<rbrn_uplink_access_mode,RBRN_UPLINK_ACCESS_MODE>>
+:rbrn_regime:                       <<rbrn_regime,RBRN Regime>>
+:rbrn_group_access_allowlist:       <<rbrn_group_access_allowlist,Access Allowlist Group>>
+:rbrn_group_ark_reference:          <<rbrn_group_ark_reference,Ark Reference Group>>
+:rbrn_bottle_consecration:          <<rbrn_bottle_consecration,RBRN_BOTTLE_CONSECRATION>>
+:rbrn_bottle_vessel:                <<rbrn_bottle_vessel,RBRN_BOTTLE_VESSEL>>
+:rbrn_description:                  <<rbrn_description,RBRN_DESCRIPTION>>
+:rbrn_enclave_base_ip:              <<rbrn_enclave_base_ip,RBRN_ENCLAVE_BASE_IP>>
+:rbrn_enclave_bottle_ip:            <<rbrn_enclave_bottle_ip,RBRN_ENCLAVE_BOTTLE_IP>>
+:rbrn_enclave_netmask:              <<rbrn_enclave_netmask,RBRN_ENCLAVE_NETMASK>>
+:rbrn_enclave_sentry_ip:            <<rbrn_enclave_sentry_ip,RBRN_ENCLAVE_SENTRY_IP>>
+:rbrn_entry_mode:                   <<rbrn_entry_mode,RBRN_ENTRY_MODE>>
+:rbrn_entry_mode_disabled:          <<rbrn_entry_mode_disabled,disabled>>
+:rbrn_entry_mode_enabled:           <<rbrn_entry_mode_enabled,enabled>>
+:rbrn_entry_port_enclave:           <<rbrn_entry_port_enclave,RBRN_ENTRY_PORT_ENCLAVE>>
+:rbrn_entry_port_workstation:       <<rbrn_entry_port_workstation,RBRN_ENTRY_PORT_WORKSTATION>>
+:rbrn_group_dns_allowlist:          <<rbrn_group_dns_allowlist,DNS Allowlist Group>>
+:rbrn_group_entry:                  <<rbrn_group_entry,Entry Group>>
+:rbrn_moniker:                      <<rbrn_moniker,RBRN_MONIKER>>
+:rbrn_runtime:                      <<rbrn_runtime,RBRN_RUNTIME>>
+:rbrn_runtime_docker:               <<rbrn_runtime_docker,docker>>
+:rbrn_runtime_podman:               <<rbrn_runtime_podman,podman>>
+:rbrn_sentry_consecration:          <<rbrn_sentry_consecration,RBRN_SENTRY_CONSECRATION>>
+:rbrn_sentry_vessel:                <<rbrn_sentry_vessel,RBRN_SENTRY_VESSEL>>
+:rbrn_uplink_access_mode:           <<rbrn_uplink_access_mode,RBRN_UPLINK_ACCESS_MODE>>
+:rbrn_uplink_access_mode_allowlist: <<rbrn_uplink_access_mode_allowlist,allowlist>>
 :rbrn_uplink_access_mode_disabled:  <<rbrn_uplink_access_mode_disabled,disabled>>
 :rbrn_uplink_access_mode_global:    <<rbrn_uplink_access_mode_global,global>>
-:rbrn_uplink_access_mode_allowlist: <<rbrn_uplink_access_mode_allowlist,allowlist>>
-:rbrn_uplink_allowed_cidrs:      <<rbrn_uplink_allowed_cidrs,RBRN_UPLINK_ALLOWED_CIDRS>>
-:rbrn_uplink_allowed_domains:    <<rbrn_uplink_allowed_domains,RBRN_UPLINK_ALLOWED_DOMAINS>>
-:rbrn_volume_mounts:             <<rbrn_volume_mounts,RBRN_VOLUME_MOUNTS>>
-:rbrn_group_ark_reference:       <<rbrn_group_ark_reference,Ark Reference Group>>
-:rbrn_group_entry:               <<rbrn_group_entry,Entry Group>>
-:rbrn_group_access_allowlist:    <<rbrn_group_access_allowlist,Access Allowlist Group>>
-:rbrn_group_dns_allowlist:       <<rbrn_group_dns_allowlist,DNS Allowlist Group>>
+:rbrn_uplink_allowed_cidrs:         <<rbrn_uplink_allowed_cidrs,RBRN_UPLINK_ALLOWED_CIDRS>>
+:rbrn_uplink_allowed_domains:       <<rbrn_uplink_allowed_domains,RBRN_UPLINK_ALLOWED_DOMAINS>>
+:rbrn_uplink_dns_mode:              <<rbrn_uplink_dns_mode,RBRN_UPLINK_DNS_MODE>>
+:rbrn_uplink_dns_mode_allowlist:    <<rbrn_uplink_dns_mode_allowlist,allowlist>>
+:rbrn_uplink_dns_mode_disabled:     <<rbrn_uplink_dns_mode_disabled,disabled>>
+:rbrn_uplink_dns_mode_global:       <<rbrn_uplink_dns_mode_global,global>>
+:rbrn_uplink_port_min:              <<rbrn_uplink_port_min,RBRN_UPLINK_PORT_MIN>>
+:rbrn_volume_mounts:                <<rbrn_volume_mounts,RBRN_VOLUME_MOUNTS>>
 
 // Google-specific Type Voicings (rbgt_* - voices axtg_* with RB-specific constraints)
 :rbgt_project_id:            <<rbgt_project_id,GCP Project ID>>
@@ -404,20 +404,17 @@
 === Core Trust Challenge
 
 Modern development increasingly requires running foreign code with access to local work.
-
-{st_container}-
-based development tools processing source code, local AI/ML tools analyzing proprietary data, and third-party services needing controlled network access create fundamental security challenges.
+{st_container}-based development tools processing source code, local AI/ML tools analyzing proprietary data, and third-party services needing controlled network access create fundamental security challenges.
 
 This creates a fundamental trust dilemma:
 
-* {st_container_s}
+*
+{st_container_s}
 provide powerful tool isolation
-* But they need controlled access
-to do useful work
+* But they need controlled access to do useful work
 * Standard
 {st_container}
-networking
-grants unfettered outbound access or else network services completely unavailable.
+networking grants unfettered outbound access or else network services completely unavailable.
 
 === The Bottle Pattern
 
@@ -428,29 +425,27 @@ type here referred to as a
 {at_bottle_container}:
 
 . File Access Boundary
-* {at_bottle_container}
+*
+{at_bottle_container}
 sees only explicitly controlled set of
 {st_volume_mount_s}
-* No other access
-to
+* No other access to
 {at_workstation}
 filesystem
 
 . Network Boundary
-* {at_bottle_container}
+*
+{at_bottle_container}
 has no direct network access
-* All traffic
-flows through dedicated
+* All traffic flows through dedicated
 {at_sentry_container},
 a
 {st_container}
 configured with very tight network access and visibility controls.
 * Only declared
 {st_port_map_s}
-and destinations
-allowed
-* Full logging
-of allowed and denied traffic
+and destinations allowed
+* Full logging of allowed and denied traffic
 
 Each
 {at_bottle_service}
@@ -465,8 +460,7 @@ establishing and configuring the network namespace
 * One
 {at_bottle_container}
 running the actual service, sharing the censer's network namespace
-* Clear configuration
-in a single
+* Clear configuration in a single
 {at_nameplate}
 file
 
@@ -490,7 +484,8 @@ The
 maintains following essential guarantees:
 
 . File Access Control
-* {at_bottle_container_s}
+*
+{at_bottle_container_s}
 can access only explicitly configured
 {st_volume_mount_s}
 * No access to broader system resources
@@ -503,8 +498,11 @@ can access only explicitly configured
 * Only explicitly configured
 {st_port_map_s}
 allow traffic between
-{at_transit_network} and {at_enclave_network}
-* {at_bottle_container_s}
+{at_transit_network}
+and
+{at_enclave_network}
+*
+{at_bottle_container_s}
 have no direct network access; all connectivity flows through
 {at_sentry_container_s}
 * Comprehensive traffic logging
@@ -518,17 +516,23 @@ fully isolated
 * Clean state separation
 
 . Service Access Control
-* External access to services only permitted when {rbrn_entry_mode} is enabled
+* External access to services only permitted when
+{rbrn_entry_mode}
+is enabled
 * No inter-container communication allowed within pods
 * All service access must originate from outside the pod
 * Entry traffic flows: external -> pod ->
-{at_sentry_container} -> {at_bottle_container}
+{at_sentry_container}
+->
+{at_bottle_container}
 
 These properties hold across all operations and failure modes.
 
 == Getting Started
 
-For builders and operators new to {at_recipe_bottle}, this section provides conceptual grounding and the setup journey.
+For builders and operators new to
+{at_recipe_bottle},
+this section provides conceptual grounding and the setup journey.
 
 include::RBSGS-GettingStarted.adoc[leveloffset=+2]
 
@@ -1356,7 +1360,9 @@ Each service maintains strict file system and network boundaries while enabling 
 A privileged container that enforces network security policies for a
 {at_bottle_service}.
 It connects to both
-{at_transit_network} and {at_enclave_network},
+{at_transit_network}
+and
+{at_enclave_network},
 controlling all network traffic and providing DNS services.
 
 [[at_censer_container]]
@@ -1760,7 +1766,9 @@ APIs.
 RBRA regimes are security-isolated configuration files typically stored outside the main repository in `../station-files/secrets/rbra-*.env` locations.
 These regimes enable different service account roles to authenticate and operate within their designated scopes.
 
-An {rbtgi_rbra_file} is a credentials file containing the minimum identity and signing material needed for
+An
+{rbtgi_rbra_file}
+is a credentials file containing the minimum identity and signing material needed for
 {at_recipe_bottle}
 tools to authenticate to
 {gcp_service}
@@ -1893,21 +1901,21 @@ The long-lived OAuth refresh token obtained during the authorization flow, used 
 === Kit Regime Operations (RBK)
 
 [[rbkro_broach]]
-//axvr_broach
+// ⟦axvr_broach⟧
 {rbkro_broach}::
 Silent initialization of Recipe Bottle regime state from
 {axrg_assignment_s}.
 Sets defaults, detects unexpected variables, builds derived structures.
 
 [[rbkro_validate]]
-//axvr_validate
+// ⟦axvr_validate⟧
 {rbkro_validate}::
 Strict field validation for Recipe Bottle
 {axrg_regime_s}.
 Checks all type and constraint requirements via buv_env_* validators.
 
 [[rbkro_render]]
-//axvr_render
+// ⟦axvr_render⟧
 {rbkro_render}::
 Diagnostic display of Recipe Bottle
 {axrg_regime}
@@ -1917,21 +1925,21 @@ Renders all fields before validation so complete state is visible on failure.
 === Kit Regime Operations (BUK)
 
 [[bukro_broach]]
-//axvr_broach
+// ⟦axvr_broach⟧
 {bukro_broach}::
 Silent initialization of Bash Utility Kit regime state from
 {axrg_assignment_s}.
 Sets defaults, detects unexpected variables, builds derived structures.
 
 [[bukro_validate]]
-//axvr_validate
+// ⟦axvr_validate⟧
 {bukro_validate}::
 Strict field validation for Bash Utility Kit
 {axrg_regime_s}.
 Checks all type and constraint requirements via buv_env_* validators.
 
 [[bukro_render]]
-//axvr_render
+// ⟦axvr_render⟧
 {bukro_render}::
 Diagnostic display of Bash Utility Kit
 {axrg_regime}
@@ -1941,24 +1949,29 @@ Renders all fields before validation so complete state is visible on failure.
 === Vessel Regime (RBRV)
 
 [[rbrv_regime]]
-//axvr_regime axf_bash axrd_file_sourced
+// ⟦axvr_regime axf_bash axrd_file_sourced⟧
 {rbrv_regime}::
 Configuration regime for container image build specifications.
 
 [[rbrv_sigil]]
-//axvr_variable axd_required rbst_xname
+// ⟦axvr_variable axd_required rbst_xname⟧
 {rbrv_sigil}::
-Vessel identifier for {rbrv_regime}; basis for directory and ark naming.
+Vessel identifier for
+{rbrv_regime};
+basis for directory and ark naming.
 
 [[rbrv_description]]
-//axvr_variable axd_optional rbst_description
+// ⟦axvr_variable axd_optional rbst_description⟧
 {rbrv_description}::
-Human-readable documentation for {rbrv_regime}.
+Human-readable documentation for
+{rbrv_regime}.
 
 [[rbrv_vessel_mode]]
-//axvr_variable axd_required axt_enumeration
+// ⟦axvr_variable axd_required axt_enumeration⟧
 {rbrv_vessel_mode}::
-Build mode for {rbrv_regime}. Determines which variable group is active.
+Build mode for
+{rbrv_regime}.
+Determines which variable group is active.
 
 [[rbrv_vessel_mode_bind]]
 // ⟦axl_voices axt_enum_value⟧
@@ -1971,39 +1984,51 @@ Selects binding configuration: vessel uses an existing upstream image.
 Selects conjuring configuration: vessel is built from a Dockerfile.
 
 [[rbrv_group_binding]]
-//axvr_group axd_conditional
+// ⟦axvr_group axd_conditional⟧
 {rbrv_group_binding}::
-Variables for binding vessels within {rbrv_regime}.
+Variables for binding vessels within
+{rbrv_regime}.
 
 [[rbrv_group_conjuring]]
-//axvr_group axd_conditional
+// ⟦axvr_group axd_conditional⟧
 {rbrv_group_conjuring}::
-Variables for conjuring vessels within {rbrv_regime}.
+Variables for conjuring vessels within
+{rbrv_regime}.
 
 [[rbrv_bind_image]]
-//axvr_variable axd_required rbst_image_ref
+// ⟦axvr_variable axd_required rbst_image_ref⟧
 {rbrv_bind_image}::
-Container image reference for {rbrv_regime} binding vessels.
+Container image reference for
+{rbrv_regime}
+binding vessels.
 
 [[rbrv_conjure_dockerfile]]
-//axvr_variable axd_required rbst_path
+// ⟦axvr_variable axd_required rbst_path⟧
 {rbrv_conjure_dockerfile}::
-Dockerfile path for {rbrv_regime} conjuring vessels.
+Dockerfile path for
+{rbrv_regime}
+conjuring vessels.
 
 [[rbrv_conjure_bldcontext]]
-//axvr_variable axd_required rbst_path
+// ⟦axvr_variable axd_required rbst_path⟧
 {rbrv_conjure_bldcontext}::
-Build context directory for {rbrv_regime} conjuring.
+Build context directory for
+{rbrv_regime}
+conjuring.
 
 [[rbrv_conjure_platforms]]
-//axvr_variable axd_optional rbst_platform_list
+// ⟦axvr_variable axd_optional rbst_platform_list⟧
 {rbrv_conjure_platforms}::
-Target platform architectures for {rbrv_regime} multi-platform builds.
+Target platform architectures for
+{rbrv_regime}
+multi-platform builds.
 
 [[rbrv_conjure_binfmt_policy]]
-//axvr_variable axd_optional rbst_binfmt_policy
+// ⟦axvr_variable axd_optional rbst_binfmt_policy⟧
 {rbrv_conjure_binfmt_policy}::
-Qemu binary format policy for {rbrv_regime} cross-platform builds.
+Qemu binary format policy for
+{rbrv_regime}
+cross-platform builds.
 
 [[rbrv_binfmt_allow]]
 {rbrv_binfmt_allow}::
@@ -2018,23 +2043,23 @@ include::RBSRV-RegimeVessel.adoc[]
 === Nameplate Regime (RBRN)
 
 [[rbrn_regime]]
-//axvr_regime axf_bash axrd_file_sourced
+// ⟦axvr_regime axf_bash axrd_file_sourced⟧
 {rbrn_regime}::
 Configuration regime for bottle service deployment.
 RBRN assignment files in `Tools/rbw/rbrn_*.env` define container deployment and network security settings.
 
 [[rbrn_moniker]]
-//axvr_variable axd_required rbst_xname
+// ⟦axvr_variable axd_required rbst_xname⟧
 {rbrn_moniker}::
 Unique moniker for the bottle service instance; 2-12 characters.
 
 [[rbrn_description]]
-//axvr_variable axd_optional rbst_description
+// ⟦axvr_variable axd_optional rbst_description⟧
 {rbrn_description}::
 Human-readable description of the service purpose; 0-120 characters.
 
 [[rbrn_runtime]]
-//axvr_variable axd_required axt_enumeration
+// ⟦axvr_variable axd_required axt_enumeration⟧
 {rbrn_runtime}::
 Container runtime for service deployment.
 
@@ -2049,27 +2074,27 @@ Use Docker container runtime.
 Use Podman container runtime.
 
 [[rbrn_sentry_vessel]]
-//axvr_variable axd_required rbst_xname
+// ⟦axvr_variable axd_required rbst_xname⟧
 {rbrn_sentry_vessel}::
 Vessel identifier for the sentry container image.
 
 [[rbrn_sentry_consecration]]
-//axvr_variable axd_required rbst_consecration
+// ⟦axvr_variable axd_required rbst_consecration⟧
 {rbrn_sentry_consecration}::
 Consecration timestamp for the sentry container image.
 
 [[rbrn_bottle_vessel]]
-//axvr_variable axd_required rbst_xname
+// ⟦axvr_variable axd_required rbst_xname⟧
 {rbrn_bottle_vessel}::
 Vessel identifier for the bottle container image.
 
 [[rbrn_bottle_consecration]]
-//axvr_variable axd_required rbst_consecration
+// ⟦axvr_variable axd_required rbst_consecration⟧
 {rbrn_bottle_consecration}::
 Consecration timestamp for the bottle container image.
 
 [[rbrn_entry_mode]]
-//axvr_variable axd_required axt_enumeration
+// ⟦axvr_variable axd_required axt_enumeration⟧
 {rbrn_entry_mode}::
 Mode for user-initiated entry functionality.
 
@@ -2084,42 +2109,42 @@ Entry functionality is disabled; no user-initiated connections.
 Entry functionality is enabled; user-initiated connections accepted.
 
 [[rbrn_entry_port_workstation]]
-//axvr_variable axd_required rbst_port
+// ⟦axvr_variable axd_required rbst_port⟧
 {rbrn_entry_port_workstation}::
 External port exposed on the transit network for user entry.
 
 [[rbrn_entry_port_enclave]]
-//axvr_variable axd_required rbst_port
+// ⟦axvr_variable axd_required rbst_port⟧
 {rbrn_entry_port_enclave}::
 Port used between sentry and bottle containers for entry traffic.
 
 [[rbrn_enclave_base_ip]]
-//axvr_variable axd_required rbst_ipv4
+// ⟦axvr_variable axd_required rbst_ipv4⟧
 {rbrn_enclave_base_ip}::
 Base IPv4 address defining the enclave network range.
 
 [[rbrn_enclave_netmask]]
-//axvr_variable axd_required rbst_netmask
+// ⟦axvr_variable axd_required rbst_netmask⟧
 {rbrn_enclave_netmask}::
 Network mask width for enclave network addressing; 8-30.
 
 [[rbrn_enclave_sentry_ip]]
-//axvr_variable axd_required rbst_ipv4
+// ⟦axvr_variable axd_required rbst_ipv4⟧
 {rbrn_enclave_sentry_ip}::
 IP address assigned to the sentry container within the enclave.
 
 [[rbrn_enclave_bottle_ip]]
-//axvr_variable axd_required rbst_ipv4
+// ⟦axvr_variable axd_required rbst_ipv4⟧
 {rbrn_enclave_bottle_ip}::
 IP address assigned to the bottle container within the enclave.
 
 [[rbrn_uplink_port_min]]
-//axvr_variable axd_required rbst_port
+// ⟦axvr_variable axd_required rbst_port⟧
 {rbrn_uplink_port_min}::
 Minimum port number for bottle-initiated outbound connections.
 
 [[rbrn_uplink_dns_mode]]
-//axvr_variable axd_required axt_enumeration
+// ⟦axvr_variable axd_required axt_enumeration⟧
 {rbrn_uplink_dns_mode}::
 DNS resolution mode for bottle-initiated requests.
 
@@ -2139,7 +2164,7 @@ DNS resolution globally enabled; all domains resolvable.
 DNS resolution restricted to allowed domains.
 
 [[rbrn_uplink_access_mode]]
-//axvr_variable axd_required axt_enumeration
+// ⟦axvr_variable axd_required axt_enumeration⟧
 {rbrn_uplink_access_mode}::
 IP access mode for bottle-initiated connections.
 
@@ -2159,37 +2184,37 @@ IP access globally enabled; all destinations reachable.
 IP access restricted to allowed CIDR ranges.
 
 [[rbrn_uplink_allowed_cidrs]]
-//axvr_variable axd_required rbst_cidr_list
+// ⟦axvr_variable axd_required rbst_cidr_list⟧
 {rbrn_uplink_allowed_cidrs}::
 CIDR ranges for allowed bottle-initiated outbound traffic.
 
 [[rbrn_uplink_allowed_domains]]
-//axvr_variable axd_required rbst_domain_list
+// ⟦axvr_variable axd_required rbst_domain_list⟧
 {rbrn_uplink_allowed_domains}::
 Domain names allowed for bottle-initiated DNS resolution.
 
 [[rbrn_volume_mounts]]
-//axvr_variable axd_optional rbst_description
+// ⟦axvr_variable axd_optional rbst_description⟧
 {rbrn_volume_mounts}::
 Podman volume mount arguments for the bottle container; 0-240 characters.
 
 [[rbrn_group_ark_reference]]
-//axvr_group
+// ⟦axvr_group⟧
 {rbrn_group_ark_reference}::
 Ark reference variables identifying which vessel consecration to deploy.
 
 [[rbrn_group_entry]]
-//axvr_group axd_conditional
+// ⟦axvr_group axd_conditional⟧
 {rbrn_group_entry}::
 Entry service variables for user-initiated connections.
 
 [[rbrn_group_access_allowlist]]
-//axvr_group axd_conditional
+// ⟦axvr_group axd_conditional⟧
 {rbrn_group_access_allowlist}::
 Access allowlist variables for IP-restricted outbound traffic.
 
 [[rbrn_group_dns_allowlist]]
-//axvr_group axd_conditional
+// ⟦axvr_group axd_conditional⟧
 {rbrn_group_dns_allowlist}::
 DNS allowlist variables for domain-restricted resolution.
 
@@ -2235,9 +2260,13 @@ Fully-qualified container image reference.
 [[rbst_locator]]
 // ⟦axl_voices axtu_string⟧
 {rbst_locator}::
-Repository-local image identifier combining {at_moniker} and tag.
+Repository-local image identifier combining
+{at_moniker}
+and tag.
 Format: `moniker:tag` (e.g., `rbev-busybox:20251231T161441Z-img`).
-Identifies a single artifact within the {rbtgi_repository} without repeating registry host or path.
+Identifies a single artifact within the
+{rbtgi_repository}
+without repeating registry host or path.
 
 [[rbst_consecration]]
 // ⟦axl_voices axtu_string⟧

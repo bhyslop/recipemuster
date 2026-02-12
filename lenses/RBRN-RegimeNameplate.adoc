@@ -1,163 +1,182 @@
-//axhrb_regime
+// ⟦axhrb_regime⟧
 {rbrn_regime}
 
 This regime specifies variables that define bottle service deployment configurations within the Recipe Bottle system.
-Each {rbrn_regime} instance represents a distinct service deployment with its own network, entry, and uplink settings.
+Each
+{rbrn_regime}
+instance represents a distinct service deployment with its own network, entry, and uplink settings.
 RBRN assignment files are found in `Tools/rbw/rbrn_*.env` and configure container deployment and network security.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_moniker}
 
 Unique moniker for the bottle service instance.
 Must be 2-12 characters and form a valid cross-context identifier.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_description}
 
 Human-readable description of the service purpose.
 Optional; 0-120 characters.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_runtime}
 
 Container runtime for service deployment.
-Must be {rbrn_runtime_docker} or {rbrn_runtime_podman}.
+Must be
+{rbrn_runtime_docker}
+or
+{rbrn_runtime_podman}.
 
-//axhrgb_group
+// ⟦axhrgb_group⟧
 {rbrn_group_ark_reference}
 
 Ark references identify which vessel consecration to deploy.
 At runtime, these resolve against the repository configuration to form complete image paths.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrn_sentry_vessel}
 
 Vessel identifier for the sentry container image.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrn_sentry_consecration}
 
 Consecration timestamp for the sentry container image.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrn_bottle_vessel}
 
 Vessel identifier for the bottle container image.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrn_bottle_consecration}
 
 Consecration timestamp for the bottle container image.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_entry_mode}
 
 Selects entry service behavior for user-initiated connections.
 
-//axhrgb_group
+// ⟦axhrgb_group⟧
 {rbrn_group_entry}
 
-//axhrgc_gate
-{rbrn_entry_mode} {rbrn_entry_mode_enabled}
+// ⟦axhrgc_gate⟧
+{rbrn_entry_mode}
+{rbrn_entry_mode_enabled}
 
-Variables in this group apply only when {rbrn_entry_mode} is {rbrn_entry_mode_enabled}.
+Variables in this group apply only when
+{rbrn_entry_mode}
+is
+{rbrn_entry_mode_enabled}.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrn_entry_port_workstation}
 
 External port exposed on the transit network for user entry.
-Must be less than {rbrn_uplink_port_min}.
+Must be less than
+{rbrn_uplink_port_min}.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrn_entry_port_enclave}
 
 Port used between sentry and bottle containers for entry traffic.
-Must be less than {rbrn_uplink_port_min}.
+Must be less than
+{rbrn_uplink_port_min}.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_enclave_base_ip}
 
 Base IPv4 address that defines the enclave network range.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_enclave_netmask}
 
 Network mask width for the enclave network addressing.
 Valid range: 8-30.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_enclave_sentry_ip}
 
 IP address assigned to the sentry container for traffic mediation within the enclave.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_enclave_bottle_ip}
 
 IP address assigned to the bottle container within the enclave.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_uplink_port_min}
 
 Minimum port number for bottle-initiated outbound connections.
 Must be greater than any entry port.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_uplink_dns_mode}
 
 Selects DNS resolution behavior for bottle-initiated requests.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_uplink_access_mode}
 
 Selects IP access behavior for bottle-initiated connections.
 
-//axhrgb_group
+// ⟦axhrgb_group⟧
 {rbrn_group_access_allowlist}
 
-//axhrgc_gate
-{rbrn_uplink_access_mode} {rbrn_uplink_access_mode_allowlist}
+// ⟦axhrgc_gate⟧
+{rbrn_uplink_access_mode}
+{rbrn_uplink_access_mode_allowlist}
 
-Variables in this group apply only when {rbrn_uplink_access_mode} is {rbrn_uplink_access_mode_allowlist}.
+Variables in this group apply only when
+{rbrn_uplink_access_mode}
+is
+{rbrn_uplink_access_mode_allowlist}.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrn_uplink_allowed_cidrs}
 
 CIDR ranges for allowed bottle-initiated outbound traffic.
 
-//axhrgb_group
+// ⟦axhrgb_group⟧
 {rbrn_group_dns_allowlist}
 
-//axhrgc_gate
-{rbrn_uplink_dns_mode} {rbrn_uplink_dns_mode_allowlist}
+// ⟦axhrgc_gate⟧
+{rbrn_uplink_dns_mode}
+{rbrn_uplink_dns_mode_allowlist}
 
-Variables in this group apply only when {rbrn_uplink_dns_mode} is {rbrn_uplink_dns_mode_allowlist}.
+Variables in this group apply only when
+{rbrn_uplink_dns_mode}
+is
+{rbrn_uplink_dns_mode_allowlist}.
 
-//axhrgv_variable
+// ⟦axhrgv_variable⟧
 {rbrn_uplink_allowed_domains}
 
 Domain names allowed for bottle-initiated DNS resolution.
 
-//axhrv_variable
+// ⟦axhrv_variable⟧
 {rbrn_volume_mounts}
 
 Podman volume mount arguments for the bottle container.
 Optional; 0-240 characters.
 
-//axhro_broach
+// ⟦axhro_broach⟧
 {rbkro_broach}
 
 Sets defaults for all RBRN_ variables via `VAR="${VAR:-}"` pattern.
 Detects unexpected RBRN_ variables via compgen prefix scan.
 Builds ZRBRN_ROLLUP serialization string and ZRBRN_DOCKER_ENV injection array.
 
-//axhro_validate
+// ⟦axhro_validate⟧
 {rbkro_validate}
 
 Validates fields via buv_env_* type checkers.
 Validates RBRN_RUNTIME, RBRN_ENTRY_MODE, RBRN_UPLINK_DNS_MODE, RBRN_UPLINK_ACCESS_MODE enum constraints.
 Conditional validation: entry ports when ENTRY_MODE=enabled, allowlists when *_MODE=allowlist.
 
-//axhro_render
+// ⟦axhro_render⟧
 {rbkro_render}
 
 Renders via rbcr_* shared module with gate-aware section suppression.
