@@ -3183,6 +3183,13 @@
         "₢APAAC": {
           "tacks": [
             {
+              "ts": "260212-1203",
+              "state": "complete",
+              "text": "Run all 3 srjcl Jupyter tests. These validate the Jupyter notebook service: container running, HTTP connectivity from host, WebSocket kernel communication. Tabtarget: tt/rbw-to.TestBottleService.srjcl.sh",
+              "silks": "run-srjcl-test-suite",
+              "commit": "14c732a"
+            },
+            {
               "ts": "260125-0837",
               "state": "rough",
               "text": "Run all 3 srjcl Jupyter tests. These validate the Jupyter notebook service: container running, HTTP connectivity from host, WebSocket kernel communication. Tabtarget: tt/rbw-to.TestBottleService.srjcl.sh",
