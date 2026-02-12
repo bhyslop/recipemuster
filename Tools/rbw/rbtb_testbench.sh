@@ -33,6 +33,8 @@ source "${RBTB_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${RBTB_SCRIPT_DIR}/rbrn_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbrr_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbcc_Constants.sh"
+source "${RBTB_SCRIPT_DIR}/rbgc_Constants.sh"
+source "${RBTB_SCRIPT_DIR}/rbgd_DepotConstants.sh"
 source "${RBTB_SCRIPT_DIR}/rbob_bottle.sh"
 
 # Source test case files
@@ -43,7 +45,6 @@ source "${RBTB_SCRIPT_DIR}/rbtcns_NsproSecurity.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcsj_SrjclJupyter.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcpl_PlumlDiagram.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butcvu_XnameValidation.sh"
-source "${RBTB_SCRIPT_DIR}/rbtcim_ImageManagement.sh"
 
 buc_context "${0##*/}"
 zrbcc_kindle
@@ -67,7 +68,9 @@ rbtb_load_nameplate() {
   rbtb_show "Loading RBRR"
   rbrr_load
 
-  rbtb_show "Kindling RBOB"
+  rbtb_show "Kindling RBGC/RBGD/RBOB"
+  zrbgc_kindle
+  zrbgd_kindle
   zrbob_kindle
 }
 
@@ -137,10 +140,6 @@ zrbtb_setup_xname() {
   buto_trace "Setup for xname-validation suite (no-op)"
 }
 
-zrbtb_setup_image() {
-  buto_trace "Setup for image-management suite"
-  rbrr_load || buto_fatal "Failed to load RBRR configuration"
-}
 
 ######################################################################
 # Registration
@@ -213,10 +212,6 @@ rbtb_kindle() {
   butr_case_enroll "xname-validation" butcvu_xname_length
   butr_case_enroll "xname-validation" butcvu_xname_valid
 
-  # image-management suite
-  butr_suite_enroll "image-management" "" "zrbtb_setup_image"
-  butr_case_enroll "image-management" rbtcim_github_workflow
-  butr_case_enroll "image-management" rbtcim_image_info
 }
 
 ######################################################################

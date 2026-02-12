@@ -73,6 +73,11 @@ zrbob_kindle() {
     podman) ZRBOB_CENSER_NETWORK_ARGS="--network ${ZRBOB_NETWORK}:ip=${RBRN_ENCLAVE_BOTTLE_IP}" ;;
   esac
 
+  # GAR image references (computed once, used by launch and preflight)
+  local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
+  ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
+
   ZRBOB_KINDLED=1
 }
 
@@ -163,8 +168,6 @@ zrbob_create_network() {
 zrbob_launch_sentry() {
   zrbob_sentinel
 
-  local z_image="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
-
   buc_step "Launching sentry container: ${ZRBOB_SENTRY}"
 
   # Build port mapping args if entry is enabled
@@ -181,7 +184,7 @@ zrbob_launch_sentry() {
     "${z_port_args[@]}" \
     "${ZRBRR_DOCKER_ENV[@]}" \
     "${ZRBRN_DOCKER_ENV[@]}" \
-    "${z_image}" \
+    "${ZRBOB_SENTRY_IMAGE}" \
     || buc_die "Failed to launch sentry"
 
   # Wait for sentry to be running
@@ -221,8 +224,6 @@ zrbob_launch_sentry() {
 zrbob_launch_censer() {
   zrbob_sentinel
 
-  local z_image="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
-
   buc_step "Launching censer container: ${ZRBOB_CENSER}"
 
   # Run censer on enclave network with bottle IP, sleep infinity
@@ -232,7 +233,7 @@ zrbob_launch_censer() {
     ${ZRBOB_CENSER_NETWORK_ARGS} \
     --privileged \
     --entrypoint /bin/sleep \
-    "${z_image}" \
+    "${ZRBOB_SENTRY_IMAGE}" \
     infinity \
     || buc_die "Failed to launch censer"
 
@@ -272,8 +273,6 @@ zrbob_launch_censer() {
 zrbob_launch_bottle() {
   zrbob_sentinel
 
-  local z_image="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
-
   buc_step "Creating bottle container: ${ZRBOB_BOTTLE}"
 
   # Create bottle sharing censer's network namespace
@@ -281,7 +280,7 @@ zrbob_launch_bottle() {
     --name "${ZRBOB_BOTTLE}" \
     --net=container:"${ZRBOB_CENSER}" \
     --security-opt label=disable \
-    "${z_image}" \
+    "${ZRBOB_BOTTLE_IMAGE}" \
     || buc_die "Failed to create bottle"
 
   buc_step "Starting bottle container"
@@ -303,6 +302,15 @@ rbob_start() {
   zrbob_sentinel
 
   buc_step "Starting bottle service: ${RBRN_MONIKER}"
+
+  # Preflight: verify container images exist locally before touching anything
+  ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1 \
+    || buc_die "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}
+  Run: tt/rbw-as.SummonArk.sh ${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
+
+  ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_IMAGE}" >/dev/null 2>&1 \
+    || buc_die "Bottle image not found locally: ${ZRBOB_BOTTLE_IMAGE}
+  Run: tt/rbw-as.SummonArk.sh ${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
 
   # Cleanup any prior state
   zrbob_cleanup_containers
