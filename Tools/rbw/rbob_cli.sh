@@ -38,6 +38,8 @@ source "${ZRBOB_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbrn_regime.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
+source "${ZRBOB_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
+source "${ZRBOB_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbob_bottle.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rboo_observe.sh"
 
@@ -112,6 +114,10 @@ zrbob_furnish() {
 
   # Load RBRR - config loading belongs in furnish per BCG pattern
   rbrr_load
+
+  # Kindle depot constants (provides RBGD_GAR_LOCATION, RBGD_GAR_PROJECT_ID for image URLs)
+  zrbgc_kindle
+  zrbgd_kindle
 
   # Kindle RBOB (validates RBRN and RBRR are ready)
   zrbob_kindle
