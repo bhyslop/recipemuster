@@ -71,9 +71,7 @@ rbrv_render() {
 
   # Display header
   echo ""
-  echo "${ZBUC_CYAN}========================================${ZBUC_RESET}"
   echo "${ZBUC_WHITE}RBRV - Recipe Bottle Regime Vessel${ZBUC_RESET}"
-  echo "${ZBUC_CYAN}========================================${ZBUC_RESET}"
   echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
   echo ""
 

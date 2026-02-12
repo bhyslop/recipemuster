@@ -64,9 +64,7 @@ rbrn_render() {
 
   # Display header
   echo ""
-  echo "${ZBUC_CYAN}========================================${ZBUC_RESET}"
   echo "${ZBUC_WHITE}RBRN - Recipe Bottle Regime Nameplate${ZBUC_RESET}"
-  echo "${ZBUC_CYAN}========================================${ZBUC_RESET}"
   echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
   echo ""
 

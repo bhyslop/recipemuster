@@ -88,19 +88,22 @@ rbcr_section_begin() {
   fi
 
   if test "${ZRBCR_SECTION_ACTIVE}" = 1; then
-    printf "${ZBUC_YELLOW}%s${ZBUC_RESET}\n" "${z_title}"
+    if test -n "${z_gate_var}"; then
+      printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_BLUE}(since %s=%s)${ZBUC_RESET}\n" \
+        "${z_title}" "${z_gate_var}" "${z_gate_value}"
+    else
+      printf "${ZBUC_YELLOW}%s${ZBUC_RESET}\n" "${z_title}"
+    fi
   else
-    printf "${ZBUC_GRAY}%s [%s]${ZBUC_RESET}\n" "${z_title}" "${ZRBCR_SECTION_GATE_DESC}"
+    printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_BLUE}(%s)${ZBUC_RESET}\n" "${z_title}" "${ZRBCR_SECTION_GATE_DESC}"
   fi
 }
 
 # rbcr_section_end
 #
-# End a render section.  Prints blank line for spacing.
-# Resets section state for next section.
+# End a render section.  Resets section state for next section.
 rbcr_section_end() {
   zrbcr_sentinel
-  echo ""
   ZRBCR_SECTION_ACTIVE=1
   ZRBCR_SECTION_GATE_DESC=""
   ZRBCR_SECTION_SUPPRESSED=()
@@ -141,15 +144,15 @@ rbcr_line() {
   fi
 
   if test "${ZRBCR_LAYOUT}" = single; then
-    # Wide terminal: name value [type] [req] description — one line
-    printf "  ${z_nc}%-30s${ZBUC_RESET}  %-24s  ${ZBUC_GRAY}[%-11s] [%-4s]${ZBUC_RESET}  ${ZBUC_CYAN}%s${ZBUC_RESET}\n" \
-      "${z_varname}" "${z_value}" "${z_type}" "${z_req}" "${z_desc}"
+    # Wide terminal: name value req type description — one line
+    printf "  ${z_nc}%-30s${ZBUC_RESET}  %-24s  ${ZBUC_BLUE}%-4s %-11s${ZBUC_RESET}  ${ZBUC_CYAN}%s${ZBUC_RESET}\n" \
+      "${z_varname}" "${z_value}" "${z_req}" "${z_type}" "${z_desc}"
   else
-    # Narrow terminal: name+value line 1, badges+description line 2
+    # Narrow terminal: name+value line 1, req type description line 2
     printf "  ${z_nc}%-30s${ZBUC_RESET}  %s\n" \
       "${z_varname}" "${z_value}"
-    printf "  %-30s  ${ZBUC_GRAY}[%-11s] [%-4s]${ZBUC_RESET}  ${ZBUC_CYAN}%s${ZBUC_RESET}\n" \
-      "" "${z_type}" "${z_req}" "${z_desc}"
+    printf "      ${ZBUC_BLUE}%-4s %-11s${ZBUC_RESET}  ${ZBUC_CYAN}%s${ZBUC_RESET}\n" \
+      "${z_req}" "${z_type}" "${z_desc}"
   fi
 }
 
