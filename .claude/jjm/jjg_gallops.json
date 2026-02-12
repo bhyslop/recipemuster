@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Ad",
+  "next_heat_seed": "Ae",
   "heats": {
     "₣Ac": {
       "silks": "but-test-overhaul",
@@ -5035,6 +5035,15 @@
           ]
         }
       }
+    },
+    "₣Ad": {
+      "silks": "vvk-file-reservation",
+      "creation_time": "260212",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_Ad.md",
+      "paces": {}
     }
   }
 }
