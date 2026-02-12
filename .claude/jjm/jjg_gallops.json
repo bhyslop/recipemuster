@@ -3201,6 +3201,13 @@
         "₢APAAD": {
           "tacks": [
             {
+              "ts": "260212-1206",
+              "state": "complete",
+              "text": "Run all 5 pluml PlantUML tests. These validate the PlantUML rendering service: text rendering, local diagram generation, HTTP headers, invalid hash handling, malformed diagram rejection. Tabtarget: tt/rbw-to.TestBottleService.pluml.sh",
+              "silks": "run-pluml-test-suite",
+              "commit": "700a6a4"
+            },
+            {
               "ts": "260125-0837",
               "state": "rough",
               "text": "Run all 5 pluml PlantUML tests. These validate the PlantUML rendering service: text rendering, local diagram generation, HTTP headers, invalid hash handling, malformed diagram rejection. Tabtarget: tt/rbw-to.TestBottleService.pluml.sh",
