@@ -1129,10 +1129,11 @@
         "₢ATAAA",
         "₢ATAAC",
         "₢ATAAY",
+        "₢ATAAa",
         "₢ATAAF",
         "₢ATAAK"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1631,6 +1632,17 @@
               "text": "Normalize and validate the regime operation model additions across AXLA, RBSA, and regime subdocuments.\n\n## Context\n\nHeat-level work in this officium added regime operation concepts to AXLA (axvr_broach/validate/render, axhro_broach/validate/render, axrd_* provenance dimensions) and RBSA (rbkro_*/bukro_* kit operation terms). Regime subdocuments RBSRV and RBRN were updated with //axhro_* markers.\n\n## Work\n\n1. Run /cma-normalize on all changed .adoc files:\n   - Tools/cmk/vov_veiled/AXLA-Lexicon.adoc\n   - lenses/RBSA-SpecTop.adoc\n   - lenses/RBSRV-RegimeVessel.adoc\n   - lenses/RBRN-RegimeNameplate.adoc\n\n2. Run /cma-validate on each to check link integrity\n\n3. Verify AXLA internal consistency:\n   - All new mapping entries have corresponding anchors\n   - All new anchors are referenced\n   - axhro_* markers appear in nesting rules table\n   - Completeness rules updated for axvr_regime provenance dimension\n\n4. Verify RBSA consistency:\n   - rbkro_* and bukro_* mapping entries have anchors with voicings\n   - axrd_file_sourced dimension on RBRV and RBRN regime voicings\n\n5. Verify subdocument consistency:\n   - RBSRV axhro_* markers reference rbkro_* terms\n   - RBRN axhro_* markers reference rbkro_* terms\n   - Operation descriptions are regime-specific\n\n## Acceptance\n\n- All four files pass cma-normalize (no changes needed or changes applied)\n- All four files pass cma-validate (no errors)\n- New terms are properly cross-referenced between AXLA, RBSA, and subdocuments",
               "silks": "normalize-regime-operation-specs",
               "commit": "5bd7032"
+            }
+          ]
+        },
+        "₢ATAAa": {
+          "tacks": [
+            {
+              "ts": "260212-1314",
+              "state": "rough",
+              "text": "Unify runtime dispatch: merge RBK into workbench, use zipper kindle constants, add lookup dispatch.\n\n## Finding (from ₢ATAAY exploration)\n\nThree runtime dispatch patterns coexist:\n1. **Zipper+RBK** (20 tabtargets): tabtarget → launcher.rbk_Coordinator → BUD → rbk_Coordinator.sh case → exec CLI\n2. **Workbench case** (bottle ops, 11 tabtargets): tabtarget → launcher.rbw_workbench → BUD → rbw_workbench.sh case → exec CLI\n3. **Workbench pure exec** (regime ops, 8 tabtargets): same as #2 but one-liner exec\n\nRBK is redundant — it does the same case→exec routing as workbench. Neither uses\nthe zipper kindle constants (RBZ_CREATE_DEPOT etc.) — both have hardcoded magic strings.\n\n## Work\n\n1. **Merge RBK case arms into rbw_workbench.sh**: Move all 20 routing entries.\n   Switch their tabtargets from launcher.rbk_Coordinator to launcher.rbw_workbench.\n\n2. **Replace magic strings with zipper constants**: Workbench case arms use\n   ${RBZ_CREATE_DEPOT} instead of \"rbw-PC\", etc. Requires kindling buz/rbz\n   in the workbench (or its launcher).\n\n3. **Add zipper lookup dispatch for degenerate cases**: For arms with no\n   imprint logic, use a zbuz_exec_lookup that resolves colophon→CLI+command\n   from the registry. The workbench case statement shrinks to just non-degenerate\n   entries (bottle ops with RBOB_MONIKER, etc.).\n\n4. **Delete rbk_Coordinator.sh and launcher.rbk_Coordinator.sh**\n\n5. **Register regime colophons in zipper**: Add buz_register calls for\n   rbw-rnr, rbw-rnv, rbw-rvr, rbw-rvv, rbw-rrr, rbw-rrv so they participate\n   in the registry.\n\n## Acceptance\n\n- rbk_Coordinator.sh deleted\n- All 39 rbw-* tabtargets route through rbw_workbench.sh\n- Degenerate case arms use zipper lookup, not hardcoded case entries\n- All tabtargets still function correctly",
+              "silks": "unify-workbench-zipper-dispatch",
+              "commit": "c4a1055"
             }
           ]
         }
