@@ -209,6 +209,13 @@
         "₢AcAAF": {
           "tacks": [
             {
+              "ts": "260212-0658",
+              "state": "complete",
+              "text": "Human pace: manually run all BUT framework testbench suites against the redesigned butr_/buto_/butd_ infrastructure. Exercise the new explicit registration API, verify init/setup/case two-phase flow, confirm inconclusive reporting, and validate subdispatch logging improvements. Amend anything that feels wrong. This is the interactive validation gate before the heat can close.",
+              "silks": "exercise-revised-test-suites",
+              "commit": "b444b95"
+            },
+            {
               "ts": "260211-0859",
               "state": "rough",
               "text": "Human pace: manually run all BUT framework testbench suites against the redesigned butr_/buto_/butd_ infrastructure. Exercise the new explicit registration API, verify init/setup/case two-phase flow, confirm inconclusive reporting, and validate subdispatch logging improvements. Amend anything that feels wrong. This is the interactive validation gate before the heat can close.",
