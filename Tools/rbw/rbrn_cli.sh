@@ -27,6 +27,7 @@ source "${ZRBRN_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${ZRBRN_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBRN_CLI_SCRIPT_DIR}/rbrn_regime.sh"
 source "${ZRBRN_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
+source "${ZRBRN_CLI_SCRIPT_DIR}/rbcr_render.sh"
 
 ######################################################################
 # CLI Functions
@@ -50,29 +51,16 @@ rbrn_validate() {
   buc_step "RBRN nameplate valid"
 }
 
-# Display one field: name, description, value
-zrbrn_render_field() {
-  local z_name="$1"
-  local z_desc="$2"
-  local z_value="${!z_name:-}"
-
-  if test -n "${z_value}"; then
-    printf "  ${ZBUC_GREEN}%-30s${ZBUC_RESET} %s\n" "${z_name}" "${z_value}"
-  else
-    printf "  ${ZBUC_YELLOW}%-30s${ZBUC_RESET} ${ZBUC_CYAN}(not set)${ZBUC_RESET}\n" "${z_name}"
-  fi
-  printf "  ${ZBUC_CYAN}%-30s %s${ZBUC_RESET}\n" "" "${z_desc}"
-}
-
 # Command: render - diagnostic display then validate
 rbrn_render() {
   local z_file="${1:-}"
   test -n "${z_file}" || buc_die "rbrn_render: file argument required"
   test -f "${z_file}" || buc_die "rbrn_render: file not found: ${z_file}"
 
-  # Use rbrn_load_file for standardized loading (but catch validation errors for display)
+  # Source and kindle (no dying — show all fields before validation)
   source "${z_file}" || buc_die "rbrn_render: failed to source ${z_file}"
   zrbrn_kindle
+  zrbcr_kindle
 
   # Display header
   echo ""
@@ -83,50 +71,58 @@ rbrn_render() {
   echo ""
 
   # Core Service Identity
-  echo "${ZBUC_YELLOW}Core Service Identity${ZBUC_RESET}"
-  zrbrn_render_field RBRN_MONIKER                 "Unique identifier for Bottle Service — xname 2-12, Required"
-  zrbrn_render_field RBRN_DESCRIPTION             "Human-readable description — string 0-120, Optional"
-  zrbrn_render_field RBRN_RUNTIME                 "Container runtime: docker or podman — string 1-16, Required"
-  echo ""
+  rbcr_section_begin "Core Service Identity"
+    rbcr_line RBRN_MONIKER              xname   req  "Unique identifier for Bottle Service"
+    rbcr_line RBRN_DESCRIPTION          string  opt  "Human-readable description"
+    rbcr_line RBRN_RUNTIME              enum    req  "Container runtime: docker or podman"
+  rbcr_section_end
 
   # Container Image Configuration
-  echo "${ZBUC_YELLOW}Container Image Configuration${ZBUC_RESET}"
-  zrbrn_render_field RBRN_SENTRY_VESSEL           "Vessel identifier for Sentry Image — fqin 1-128, Required"
-  zrbrn_render_field RBRN_BOTTLE_VESSEL           "Vessel identifier for Bottle Image — fqin 1-128, Required"
-  zrbrn_render_field RBRN_SENTRY_CONSECRATION     "Consecration tag for Sentry Image — fqin 1-128, Required"
-  zrbrn_render_field RBRN_BOTTLE_CONSECRATION     "Consecration tag for Bottle Image — fqin 1-128, Required"
-  echo ""
+  rbcr_section_begin "Container Image Configuration"
+    rbcr_line RBRN_SENTRY_VESSEL        fqin    req  "Vessel identifier for Sentry Image"
+    rbcr_line RBRN_BOTTLE_VESSEL        fqin    req  "Vessel identifier for Bottle Image"
+    rbcr_line RBRN_SENTRY_CONSECRATION  fqin    req  "Consecration tag for Sentry Image"
+    rbcr_line RBRN_BOTTLE_CONSECRATION  fqin    req  "Consecration tag for Bottle Image"
+  rbcr_section_end
 
-  # Entry Service Configuration
-  echo "${ZBUC_YELLOW}Entry Service Configuration${ZBUC_RESET}"
-  zrbrn_render_field RBRN_ENTRY_MODE              "Entry functionality: disabled or enabled — Required"
-  zrbrn_render_field RBRN_ENTRY_PORT_WORKSTATION  "External port on Transit Network — port, When ENTRY_MODE=enabled"
-  zrbrn_render_field RBRN_ENTRY_PORT_ENCLAVE      "Port between Sentry and Bottle — port, When ENTRY_MODE=enabled"
-  echo ""
+  # Entry Service Configuration (gated by ENTRY_MODE)
+  rbcr_section_begin "Entry Service Configuration" RBRN_ENTRY_MODE enabled
+    rbcr_line RBRN_ENTRY_MODE              enum  req   "Entry functionality: disabled or enabled"
+    rbcr_line RBRN_ENTRY_PORT_WORKSTATION  port  cond  "External port on Transit Network"
+    rbcr_line RBRN_ENTRY_PORT_ENCLAVE      port  cond  "Enclave port between Sentry and Bottle"
+  rbcr_section_end
 
   # Enclave Network Configuration
-  echo "${ZBUC_YELLOW}Enclave Network Configuration${ZBUC_RESET}"
-  zrbrn_render_field RBRN_ENCLAVE_BASE_IP         "Base IPv4 for enclave network — ipv4, Required"
-  zrbrn_render_field RBRN_ENCLAVE_NETMASK         "Network mask width (8-30) — decimal, Required"
-  zrbrn_render_field RBRN_ENCLAVE_SENTRY_IP       "IP address for Sentry Container — ipv4, Required"
-  zrbrn_render_field RBRN_ENCLAVE_BOTTLE_IP       "IP address for Bottle Container — ipv4, Required"
-  echo ""
+  rbcr_section_begin "Enclave Network Configuration"
+    rbcr_line RBRN_ENCLAVE_BASE_IP      ipv4     req  "Base IPv4 for enclave network"
+    rbcr_line RBRN_ENCLAVE_NETMASK      decimal  req  "Network mask width (8-30)"
+    rbcr_line RBRN_ENCLAVE_SENTRY_IP    ipv4     req  "IP address for Sentry Container"
+    rbcr_line RBRN_ENCLAVE_BOTTLE_IP    ipv4     req  "IP address for Bottle Container"
+  rbcr_section_end
 
-  # Uplink Configuration
-  echo "${ZBUC_YELLOW}Uplink Configuration${ZBUC_RESET}"
-  zrbrn_render_field RBRN_UPLINK_PORT_MIN         "Minimum port for outbound connections — port, Required"
-  zrbrn_render_field RBRN_UPLINK_DNS_MODE         "DNS mode: disabled, global, or allowlist — Required"
-  zrbrn_render_field RBRN_UPLINK_ACCESS_MODE      "IP access mode: disabled, global, or allowlist — Required"
-  zrbrn_render_field RBRN_UPLINK_ALLOWED_CIDRS    "Allowed CIDR ranges — cidr_list, When ACCESS_MODE=allowlist"
-  zrbrn_render_field RBRN_UPLINK_ALLOWED_DOMAINS  "Allowed DNS domains — domain_list, When DNS_MODE=allowlist"
-  echo ""
+  # Uplink Core
+  rbcr_section_begin "Uplink Core"
+    rbcr_line RBRN_UPLINK_PORT_MIN      port  req  "Minimum port for outbound connections"
+    rbcr_line RBRN_UPLINK_DNS_MODE      enum  req  "DNS mode: disabled, global, or allowlist"
+    rbcr_line RBRN_UPLINK_ACCESS_MODE   enum  req  "IP access mode: disabled, global, or allowlist"
+  rbcr_section_end
+
+  # Uplink DNS Allowlist (gated by DNS_MODE)
+  rbcr_section_begin "Uplink DNS Allowlist" RBRN_UPLINK_DNS_MODE allowlist
+    rbcr_line RBRN_UPLINK_ALLOWED_DOMAINS  domain_list  cond  "Allowed DNS domains"
+  rbcr_section_end
+
+  # Uplink Access Allowlist (gated by ACCESS_MODE)
+  rbcr_section_begin "Uplink Access Allowlist" RBRN_UPLINK_ACCESS_MODE allowlist
+    rbcr_line RBRN_UPLINK_ALLOWED_CIDRS  cidr_list  cond  "Allowed CIDR ranges"
+  rbcr_section_end
 
   # Volume Mount Configuration
-  echo "${ZBUC_YELLOW}Volume Mount Configuration${ZBUC_RESET}"
-  zrbrn_render_field RBRN_VOLUME_MOUNTS           "Volume mount arguments for Bottle — string 0-240, Optional"
-  echo ""
+  rbcr_section_begin "Volume Mount Configuration"
+    rbcr_line RBRN_VOLUME_MOUNTS  string  opt  "Volume mount arguments for Bottle"
+  rbcr_section_end
 
-  # Unexpected variables
+  # Unexpected variables (from kindle, not gated)
   if test ${#ZRBRN_UNEXPECTED[@]} -gt 0; then
     echo "${ZBUC_RED}Unexpected RBRN_ variables:${ZBUC_RESET}"
     local z_var

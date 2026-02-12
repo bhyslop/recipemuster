@@ -28,6 +28,7 @@ source "${ZRBRV_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBRV_CLI_SCRIPT_DIR}/rbrv_regime.sh"
 source "${ZRBRV_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBRV_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+source "${ZRBRV_CLI_SCRIPT_DIR}/rbcr_render.sh"
 
 ######################################################################
 # CLI Functions
@@ -57,29 +58,16 @@ rbrv_validate() {
   buc_step "RBRV vessel valid"
 }
 
-# Display one field: name, description, value
-zrbrv_render_field() {
-  local z_name="$1"
-  local z_desc="$2"
-  local z_value="${!z_name:-}"
-
-  if test -n "${z_value}"; then
-    printf "  ${ZBUC_GREEN}%-30s${ZBUC_RESET} %s\n" "${z_name}" "${z_value}"
-  else
-    printf "  ${ZBUC_YELLOW}%-30s${ZBUC_RESET} ${ZBUC_CYAN}(not set)${ZBUC_RESET}\n" "${z_name}"
-  fi
-  printf "  ${ZBUC_CYAN}%-30s %s${ZBUC_RESET}\n" "" "${z_desc}"
-}
-
 # Command: render - diagnostic display then validate
 rbrv_render() {
   local z_file="${1:-}"
   test -n "${z_file}" || buc_die "rbrv_render: file argument required"
   test -f "${z_file}" || buc_die "rbrv_render: file not found: ${z_file}"
 
-  # Source and kindle (no dying)
+  # Source and kindle (no dying — show all fields before validation)
   source "${z_file}" || buc_die "rbrv_render: failed to source ${z_file}"
   zrbrv_kindle
+  zrbcr_kindle
 
   # Display header
   echo ""
@@ -90,25 +78,25 @@ rbrv_render() {
   echo ""
 
   # Core Vessel Identity
-  echo "${ZBUC_YELLOW}Core Vessel Identity${ZBUC_RESET}"
-  zrbrv_render_field RBRV_SIGIL                  "Unique identifier (must match directory name) — xname 1-64, Required"
-  zrbrv_render_field RBRV_DESCRIPTION            "Human-readable description — string 0-512, Optional"
-  echo ""
+  rbcr_section_begin "Core Vessel Identity"
+    rbcr_line RBRV_SIGIL        xname   req  "Unique identifier (must match directory name)"
+    rbcr_line RBRV_DESCRIPTION  string  opt  "Human-readable description"
+  rbcr_section_end
 
   # Binding Configuration
-  echo "${ZBUC_YELLOW}Binding Configuration${ZBUC_RESET}"
-  zrbrv_render_field RBRV_BIND_IMAGE             "Source image to copy from registry — fqin 1-512, Required for bind mode"
-  echo ""
+  rbcr_section_begin "Binding Configuration"
+    rbcr_line RBRV_BIND_IMAGE  fqin  opt  "Source image to copy from registry"
+  rbcr_section_end
 
   # Conjuring Configuration
-  echo "${ZBUC_YELLOW}Conjuring Configuration${ZBUC_RESET}"
-  zrbrv_render_field RBRV_CONJURE_DOCKERFILE     "Dockerfile path relative to repo root — string 1-512, Required for conjure mode"
-  zrbrv_render_field RBRV_CONJURE_BLDCONTEXT     "Build context relative to repo root — string 1-512, Required for conjure mode"
-  zrbrv_render_field RBRV_CONJURE_PLATFORMS      "Space-separated target platforms — string 1-512, Required for conjure mode"
-  zrbrv_render_field RBRV_CONJURE_BINFMT_POLICY  "Cross-platform policy: allow or forbid — string 1-16, Required for conjure mode"
-  echo ""
+  rbcr_section_begin "Conjuring Configuration"
+    rbcr_line RBRV_CONJURE_DOCKERFILE     string  opt  "Dockerfile path relative to repo root"
+    rbcr_line RBRV_CONJURE_BLDCONTEXT     string  opt  "Build context relative to repo root"
+    rbcr_line RBRV_CONJURE_PLATFORMS      string  opt  "Space-separated target platforms"
+    rbcr_line RBRV_CONJURE_BINFMT_POLICY  enum    opt  "Cross-platform policy: allow or forbid"
+  rbcr_section_end
 
-  # Unexpected variables
+  # Unexpected variables (from kindle, not gated)
   if test ${#ZRBRV_UNEXPECTED[@]} -gt 0; then
     echo "${ZBUC_RED}Unexpected RBRV_ variables:${ZBUC_RESET}"
     local z_var

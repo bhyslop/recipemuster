@@ -56,6 +56,16 @@ zburs_kindle
 bul_launch() {
   local z_coordinator="$1"
   shift
+
+  # Detect terminal width via /dev/tty (survives exec chain and dispatch pipes)
+  # Subshell probe: /dev/tty may exist but not be openable (CI, sandbox)
+  BURD_TERM_COLS=80
+  if (exec </dev/tty) 2>/dev/null; then
+    BURD_TERM_COLS=$(stty size </dev/tty 2>/dev/null | awk '{print $2}')
+    test -n "${BURD_TERM_COLS}" || BURD_TERM_COLS=80
+  fi
+  export BURD_TERM_COLS
+
   export BURD_COORDINATOR_SCRIPT="${z_coordinator}"
   exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"
 }
