@@ -793,7 +793,7 @@ done < "${z_temp_file}"
 
 ### ✅ Pattern: Load-Then-Iterate
 
-Read file contents into an array first, then iterate. The file is fully consumed and closed before any side-effect-producing code runs.
+**Always** read file contents into an array first, then iterate. The file is fully consumed and closed before any loop body code runs.
 
 ```bash
 # ✅ Load phase — file consumed and closed
@@ -810,11 +810,6 @@ for z_i in "${!z_items[@]}"; do
     complex_function "${z_items[$z_i]}"
 done
 ```
-
-### When This Matters
-
-- **Loop body calls functions with side effects** — test runners, container commands, remote execution. Always use load-then-iterate.
-- **Loop body is trivial** (echo, printf, simple assignment) — the open-FD pattern is safe because trivial builtins don't read stdin. But prefer load-then-iterate for consistency when in doubt.
 
 ---
 
@@ -1013,7 +1008,7 @@ buv_val_xname "name" "${z_input_name}" 3 50
 - [ ] `_capture` functions properly named with suffix
 
 ### Loop Safety
-- [ ] While-read loops with complex bodies use load-then-iterate pattern
+- [ ] All while-read loops use load-then-iterate pattern
 - [ ] No file descriptor held open across function calls that may touch stdin
 
 ### Bash Compatibility
