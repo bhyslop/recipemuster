@@ -45,11 +45,6 @@ rbrv_validate() {
 
   buc_step "Validating RBRV vessel file: ${z_file}"
 
-  # Source RBRR (vessel env files may reference RBRR_ variables)
-  if test -f "${RBCC_RBRR_FILE}"; then
-    rbrr_load
-  fi
-
   # Source the assignment file
   source "${z_file}" || buc_die "rbrv_validate: failed to source ${z_file}"
 
@@ -81,11 +76,6 @@ rbrv_render() {
   local z_file="${1:-}"
   test -n "${z_file}" || buc_die "rbrv_render: file argument required"
   test -f "${z_file}" || buc_die "rbrv_render: file not found: ${z_file}"
-
-  # Source RBRR (vessel env files may reference RBRR_ variables)
-  if test -f "${RBCC_RBRR_FILE}"; then
-    rbrr_load
-  fi
 
   # Source and kindle (no dying)
   source "${z_file}" || buc_die "rbrv_render: failed to source ${z_file}"
@@ -140,18 +130,36 @@ zrbrv_cli_kindle
 zrbcc_kindle
 
 z_command="${1:-}"
+z_sigil="${2:-}"
 
 case "${z_command}" in
-  validate)
-    shift
-    rbrv_validate "${@}"
-    ;;
-  render)
-    shift
-    rbrv_render "${@}"
+  validate|render)
+    if test -z "${z_sigil}"; then
+      # Load RBRR to get RBRR_VESSEL_DIR
+      test -f "${RBCC_RBRR_FILE}" || buc_die "RBRR regime file not found: ${RBCC_RBRR_FILE}"
+      rbrr_load
+      buc_step "Available vessels:"
+      for z_d in "${RBRR_VESSEL_DIR}"/*/; do
+        test -d "${z_d}" || continue
+        test -f "${z_d}/rbrv.env" || continue
+        z_s="${z_d%/}"
+        z_s="${z_s##*/}"
+        echo "  ${z_s}"
+      done
+    else
+      # Load RBRR to get RBRR_VESSEL_DIR for path resolution
+      test -f "${RBCC_RBRR_FILE}" || buc_die "RBRR regime file not found: ${RBCC_RBRR_FILE}"
+      rbrr_load
+      z_file="${RBRR_VESSEL_DIR}/${z_sigil}/rbrv.env"
+      test -f "${z_file}" || buc_die "Vessel not found: ${z_file}"
+      case "${z_command}" in
+        validate) rbrv_validate "${z_file}" ;;
+        render)   rbrv_render "${z_file}" ;;
+      esac
+    fi
     ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: rbrv_cli.sh {validate|render} [args]"
+    buc_die "Unknown command: ${z_command}. Usage: rbrv_cli.sh {validate|render} [sigil]"
     ;;
 esac
 

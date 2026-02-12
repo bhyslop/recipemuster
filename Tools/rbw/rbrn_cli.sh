@@ -148,18 +148,26 @@ zrbrn_cli_kindle
 zrbcc_kindle
 
 z_command="${1:-}"
+z_moniker="${2:-}"
 
 case "${z_command}" in
-  validate)
-    shift
-    rbrn_validate "${@}"
-    ;;
-  render)
-    shift
-    rbrn_render "${@}"
+  validate|render)
+    if test -z "${z_moniker}"; then
+      buc_step "Available nameplates:"
+      rbrn_list | while read -r z_m; do
+        echo "  ${z_m}"
+      done
+    else
+      z_file="${RBCC_KIT_DIR}/${RBCC_RBRN_PREFIX}${z_moniker}${RBCC_RBRN_EXT}"
+      test -f "${z_file}" || buc_die "Nameplate not found: ${z_file}"
+      case "${z_command}" in
+        validate) rbrn_validate "${z_file}" ;;
+        render)   rbrn_render "${z_file}" ;;
+      esac
+    fi
     ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: rbrn_cli.sh {validate|render} [args]"
+    buc_die "Unknown command: ${z_command}. Usage: rbrn_cli.sh {validate|render} [moniker]"
     ;;
 esac
 
