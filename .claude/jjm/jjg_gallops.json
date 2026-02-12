@@ -1119,9 +1119,10 @@
         "₢ATAAD",
         "₢ATAAE",
         "₢ATAAF",
-        "₢ATAAK"
+        "₢ATAAK",
+        "₢ATAAY"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1528,6 +1529,17 @@
               "text": "Human pace: manually run all BUT framework testbench suites, review output, and get comfortable with the butc*/butr/buto patterns. Amend anything that feels wrong before moving on to the audit paces.",
               "silks": "exercise-but-suites",
               "commit": "4282bbf"
+            }
+          ]
+        },
+        "₢ATAAY": {
+          "tacks": [
+            {
+              "ts": "260212-0747",
+              "state": "rough",
+              "text": "Explore converting buz_zipper from sourced-function dispatch to exec-based dispatch.\n\n## Context\n\nThe zipper (buz_zipper.sh) currently maps colophon → module → command where\ncommands are sourced functions called in the same process. But several command\nfamilies already use exec to standalone CLI scripts:\n- rbob_cli.sh (bottle operations) via workbench case routing\n- rbrn_cli.sh, rbrv_cli.sh (regime operations) — refactored in ₢ATAAH to be\n  self-contained with their own listing and path resolution\n\nThe workbench (rbw_workbench.sh) now has two dispatch patterns side by side:\n- Bottle ops: case-based exec to rbob_cli.sh\n- Regime ops: pure one-liner exec to rbrn_cli.sh / rbrv_cli.sh\n- Zipper-registered ops: go through rbk_Coordinator.sh (legacy) which also execs\n\n## Question\n\nShould all zipper-registered commands use exec for simplicity? This would:\n1. Unify the dispatch model (no more sourced-function vs exec split)\n2. Let regime CLIs participate in the zipper registry\n3. Potentially retire RBK (legacy coordinator) by merging its routing into\n   the unified zipper dispatch\n\n## Regime-specific notes\n\nrbrn_cli.sh and rbrv_cli.sh are now fully self-contained:\n- Accept `render [moniker/sigil]` and `validate [moniker/sigil]`\n- No arg = list available items\n- Path resolution uses RBCC constants (nameplate) or RBRR_VESSEL_DIR (vessel)\n- Ready to be zipper targets once zipper supports exec pattern\n\n## Work\n\n1. Study buz_register / buz_dispatch flow — identify what sourced-context\n   assumptions exist (shared variables, kindle state, etc.)\n2. Prototype exec-based dispatch variant (buz_register_exec or flag)\n3. Evaluate: can ALL current zipper commands convert, or do some need\n   same-process state? (e.g., commands that read kindled variables)\n4. If viable: convert rbz_zipper.sh registrations, register regime colophons\n5. Assess RBK retirement path\n\n## Acceptance\n\n- Clear recommendation: exec-only, dual-mode, or keep sourced\n- If exec-only viable: prototype working with at least regime colophons registered",
+              "silks": "explore-zipper-exec-dispatch",
+              "commit": "05c7bdc"
             }
           ]
         }
