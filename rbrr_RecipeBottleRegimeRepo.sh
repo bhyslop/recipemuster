@@ -66,13 +66,13 @@ RBRR_GCB_DOCKER_IMAGE_REF="gcr.io/cloud-builders/docker@sha256:a768635eba4ce6b4f
 RBRR_GCB_SKOPEO_IMAGE_REF="quay.io/skopeo/stable@sha256:c709d440707f641213aedd45280fe2ea9236adb941a1a7c34adb5a3eb2eafeeb"
 
 # alpine: minimal Linux for scripting steps (~Feb 2026)
-RBRR_GCB_ALPINE_IMAGE_REF="alpine@sha256:c193c0c4ebfacc63b1ee5a350fceb43f31264d7d50951ce643e84ae543b618bb"
+RBRR_GCB_ALPINE_IMAGE_REF="docker.io/library/alpine@sha256:c193c0c4ebfacc63b1ee5a350fceb43f31264d7d50951ce643e84ae543b618bb"
 
 # syft: SBOM generator (~Feb 2026)
-RBRR_GCB_SYFT_IMAGE_REF="anchore/syft@sha256:19ed45c8f4bf846390b072966a2fec52279d09f9e47650830ffabec7eebaf0fe"
+RBRR_GCB_SYFT_IMAGE_REF="docker.io/anchore/syft@sha256:19ed45c8f4bf846390b072966a2fec52279d09f9e47650830ffabec7eebaf0fe"
 
 # binfmt: QEMU cross-platform registration (~Feb 2026)
-RBRR_GCB_BINFMT_IMAGE_REF="tonistiigi/binfmt@sha256:bc70b34ea97c6fb35ff7c8787a46beca6af9e8ab05e1c9b5f06a6a52dc8e981e"
+RBRR_GCB_BINFMT_IMAGE_REF="docker.io/tonistiigi/binfmt@sha256:bc70b34ea97c6fb35ff7c8787a46beca6af9e8ab05e1c9b5f06a6a52dc8e981e"
 
 
 # Service Account Configuration - RBRA (Recipe Bottle Regime Auth) Format
