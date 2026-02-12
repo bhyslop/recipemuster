@@ -78,20 +78,25 @@ butd_run_suite() {
   local z_suite_dir="${ZBUTE_ROOT_TEMP_DIR}/${z_suite}"
   mkdir -p "${z_suite_dir}"
 
-  # Iterate cases directly via butr_cases_recite
-  local z_case_fn
+  # Load case list into array before execution (BCG: load-then-iterate)
+  # Prevents stdin consumption by test commands (docker exec -i, etc.)
+  local z_cases=()
+  local z_case_fn=""
   local z_case_count=0
   local z_cases_temp
   z_cases_temp=$(mktemp)
   butr_cases_recite "${z_suite}" > "${z_cases_temp}" || buto_fatal "Failed to get cases for suite '${z_suite}'"
-
   while IFS= read -r z_case_fn; do
-    test -n "${z_case_fn}" || continue
-    zbute_case "${z_case_fn}"
-    z_case_count=$((z_case_count + 1))
+    z_cases+=("${z_case_fn}")
   done < "${z_cases_temp}"
-
   rm -f "${z_cases_temp}"
+
+  local z_ci
+  for z_ci in "${!z_cases[@]}"; do
+    test -n "${z_cases[$z_ci]}" || continue
+    zbute_case "${z_cases[$z_ci]}"
+    z_case_count=$((z_case_count + 1))
+  done
 
   test "${z_case_count}" -gt 0 || buto_fatal "No test cases found for suite '${z_suite}'"
 
@@ -170,9 +175,18 @@ butd_run_all() {
   local z_suites_temp
   z_suites_temp=$(mktemp)
 
+  # Load suite list into array before execution (BCG: load-then-iterate)
+  # Prevents stdin consumption by suite test commands
+  local z_suites=()
   butr_suites_recite > "${z_suites_temp}" || buto_fatal "Failed to get suites"
-
   while IFS= read -r z_suite; do
+    z_suites+=("${z_suite}")
+  done < "${z_suites_temp}"
+  rm -f "${z_suites_temp}"
+
+  local z_si
+  for z_si in "${!z_suites[@]}"; do
+    z_suite="${z_suites[$z_si]}"
     test -n "${z_suite}" || continue
 
     local z_suite_status=0
@@ -186,9 +200,7 @@ butd_run_all() {
       z_total_failed=$((z_total_failed + 1))
       buc_warn "Suite '${z_suite}' failed with status ${z_suite_status}"
     fi
-  done < "${z_suites_temp}"
-
-  rm -f "${z_suites_temp}"
+  done
 
   local z_total_ran=$((z_total_suites + z_total_failed))
   test "${z_total_ran}" -gt 0 || buto_fatal "No suites ran (${z_total_skipped} skipped)"

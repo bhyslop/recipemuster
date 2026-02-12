@@ -774,6 +774,50 @@ done
 
 ---
 
+## Stdin Consumption in While-Read Loops
+
+### The Problem
+
+When `while read ... done < file` feeds a file to stdin (FD 0), **any child process that reads stdin silently consumes the loop's remaining input**. This includes `docker exec -i`, `ssh`, `read` without explicit FD, `cat` without arguments, and any command that inherits stdin.
+
+The failure is **silent and partial**: the loop processes some iterations correctly, then stops early with no error. This is one of the hardest bash bugs to diagnose because the loop appears to work — it just processes fewer items than expected.
+
+### ❌ Anti-Pattern: Open-FD Loop Body
+
+```bash
+# ❌ File held open on stdin for entire loop — child processes can consume it
+while IFS= read -r z_item; do
+    complex_function "${z_item}"    # If this touches stdin, remaining items vanish
+done < "${z_temp_file}"
+```
+
+### ✅ Pattern: Load-Then-Iterate
+
+Read file contents into an array first, then iterate. The file is fully consumed and closed before any side-effect-producing code runs.
+
+```bash
+# ✅ Load phase — file consumed and closed
+local z_items=()
+while IFS= read -r z_line; do
+    z_items+=("${z_line}")
+done < "${z_temp_file}"
+rm -f "${z_temp_file}"
+
+# ✅ Iterate phase — stdin is free, no FD held open
+local z_i
+for z_i in "${!z_items[@]}"; do
+    test -n "${z_items[$z_i]}" || continue
+    complex_function "${z_items[$z_i]}"
+done
+```
+
+### When This Matters
+
+- **Loop body calls functions with side effects** — test runners, container commands, remote execution. Always use load-then-iterate.
+- **Loop body is trivial** (echo, printf, simple assignment) — the open-FD pattern is safe because trivial builtins don't read stdin. But prefer load-then-iterate for consistency when in doubt.
+
+---
+
 ## Sourcing Rules
 
 Sourcing is restricted because it breaks error handling. Only three locations may source files:
@@ -967,6 +1011,10 @@ buv_val_xname "name" "${z_input_name}" 3 50
 - [ ] Temp files used instead of complex command substitution
 - [ ] `$(<file)` always followed by validation
 - [ ] `_capture` functions properly named with suffix
+
+### Loop Safety
+- [ ] While-read loops with complex bodies use load-then-iterate pattern
+- [ ] No file descriptor held open across function calls that may touch stdin
 
 ### Bash Compatibility
 - [ ] No bash 4+ features (associative arrays, `**`, readarray)
