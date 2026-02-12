@@ -99,25 +99,4 @@ buz_register() {
   z1z_buz_colophon="${z_colophon}"
 }
 
-######################################################################
-# Dispatch/evidence compatibility shims
-#
-# These delegate to bute_engine.sh.
-# Callers not yet migrated to bute_ can continue using buz_ names.
-# Removed when convert-dispatch-exercise and convert-ark-lifecycle paces complete.
-
-# Source engine for dispatch functions
-ZBUZ_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-source "${ZBUZ_SCRIPT_DIR}/bute_engine.sh"
-
-buz_init_evidence() {
-  test -n "${ZBUTE_DISPATCH_READY:-}" || bute_init_dispatch
-  bute_init_evidence
-  ZBUZ_EVIDENCE_ROOT="${ZBUTE_EVIDENCE_ROOT}"
-}
-buz_dispatch()                { bute_dispatch "$@"; }
-buz_last_step_capture()       { bute_last_step_capture; }
-buz_get_step_exit_capture()   { bute_get_step_exit_capture "$@"; }
-buz_get_step_output_capture() { bute_get_step_output_capture "$@"; }
-
 # eof

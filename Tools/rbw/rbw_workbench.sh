@@ -105,6 +105,11 @@ rbw_route() {
     rbw-ni) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" survey ${1+"$@"} ;;
     rbw-nv) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" audit  ${1+"$@"} ;;
 
+    # Test operations (routed to rbtb_testbench.sh)
+    rbw-ta|rbw-ts|rbw-to|rbw-tns|rbw-tj|rbw-tpl|rbw-trg)
+      exec "${RBW_SCRIPT_DIR}/rbtb_testbench.sh" "${z_command}" "$@"
+      ;;
+
     # Unknown command
     *)   buc_die "Unknown command: ${z_command}" ;;
   esac

@@ -243,13 +243,13 @@ rbtb_route() {
   export BUT_VERBOSE="${BUT_VERBOSE:-0}"
 
   case "${z_command}" in
-    rbtb-ta) butd_run_all ;;
-    rbtb-ts) butd_run_suite "${1:-}" ;;
-    rbtb-to) butd_run_one "${1:-}" ;;
-    rbtb-ns) butd_run_suite "nsproto-security" ;;
-    rbtb-sj) butd_run_suite "srjcl-jupyter" ;;
-    rbtb-pl) butd_run_suite "pluml-diagram" ;;
-    rbtb-rg) butd_run_suite "regime-smoke" ;;
+    rbw-ta) butd_run_all ;;
+    rbw-ts) butd_run_suite "${1:-}" ;;
+    rbw-to) butd_run_one "${1:-}" ;;
+    rbw-tns) butd_run_suite "nsproto-security" ;;
+    rbw-tj) butd_run_suite "srjcl-jupyter" ;;
+    rbw-tpl) butd_run_suite "pluml-diagram" ;;
+    rbw-trg) butd_run_suite "regime-smoke" ;;
     *)       buc_die "Unknown command: ${z_command}" ;;
   esac
 }
