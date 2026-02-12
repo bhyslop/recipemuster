@@ -1502,6 +1502,13 @@
         "₢ATAAS": {
           "tacks": [
             {
+              "ts": "260212-0700",
+              "state": "complete",
+              "text": "Blocked on ₣Ac (but-test-overhaul). That heat redesigns butr_/buto_/butd_ infrastructure including explicit case registration, init/setup two-phase model, and subdispatch logging. Once ₣Ac completes, revisit this pace to exercise the suites under the new framework. Original intent absorbed into ₣Ac paddock and final pace ₢AcAAF (exercise-revised-test-suites).",
+              "silks": "exercise-but-suites",
+              "commit": "4cf0081"
+            },
+            {
               "ts": "260211-0859",
               "state": "rough",
               "text": "Blocked on ₣Ac (but-test-overhaul). That heat redesigns butr_/buto_/butd_ infrastructure including explicit case registration, init/setup two-phase model, and subdispatch logging. Once ₣Ac completes, revisit this pace to exercise the suites under the new framework. Original intent absorbed into ₣Ac paddock and final pace ₢AcAAF (exercise-revised-test-suites).",
