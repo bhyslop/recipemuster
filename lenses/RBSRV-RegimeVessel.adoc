@@ -88,3 +88,25 @@ Must be
 {rbrv_binfmt_allow}
 or
 {rbrv_binfmt_forbid}.
+
+//axhro_broach
+{rbkro_broach}
+
+Sets defaults for all RBRV_ variables via `VAR="${VAR:-}"` pattern.
+Detects unexpected RBRV_ variables via compgen prefix scan.
+Builds ZRBRV_ROLLUP serialization string.
+
+//axhro_validate
+{rbkro_validate}
+
+Validates fields via buv_env_* type checkers.
+Checks RBRV_BIND_IMAGE or RBRV_CONJURE_DOCKERFILE presence invariant.
+Validates RBRV_CONJURE_BINFMT_POLICY enum constraint.
+
+//axhro_render
+{rbkro_render}
+
+Renders via rbcr_* shared module.
+Sections: Core Vessel Identity, Binding Configuration, Conjuring Configuration.
+Displays unexpected variables in red.
+Validates after full render completes.

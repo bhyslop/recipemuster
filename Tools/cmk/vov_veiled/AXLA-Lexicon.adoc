@@ -105,6 +105,21 @@
 :axhrgc_gate:                         <<axhrgc_gate,Hierarchy Gate>>
 :axhrgv_variable:                     <<axhrgv_variable,Hierarchy Grouped Variable>>
 
+// Axial Regime Provenance Dimensions (assignment origin)
+:axrd_file_sourced:                   <<axrd_file_sourced,File-Sourced>>
+:axrd_env_inherited:                  <<axrd_env_inherited,Environment-Inherited>>
+:axrd_constructed:                    <<axrd_constructed,Constructed>>
+
+// Axial Voicing Regime Operation Terms (definition-site annotations)
+:axvr_broach:                         <<axvr_broach,Broach Voicing>>
+:axvr_validate:                       <<axvr_validate,Validate Voicing>>
+:axvr_render:                         <<axvr_render,Render Voicing>>
+
+// Axial Hierarchy Regime Operation Markers (subdocument)
+:axhro_broach:                        <<axhro_broach,Hierarchy Broach>>
+:axhro_validate:                      <<axhro_validate,Hierarchy Validate>>
+:axhro_render:                        <<axhro_render,Hierarchy Render>>
+
 // Axial Type Universal Terms (generic infrastructure)
 :axtu_string:                         <<axtu_string,String>>
 :axtu_path:                           <<axtu_path,Path>>
@@ -1876,6 +1891,32 @@ Changing an
 {axrg_prefix}
 requires coordinated refactoring across all consuming artifacts.
 
+== Axial Regime Provenance Dimensions
+
+Provenance dimensions qualify
+{axrg_assignment}
+to declare how values arrive at
+{axvr_broach}
+time.
+These are valid dimensions on
+{axvr_regime}
+declaring which provenance(s) a regime supports.
+
+[[axrd_file_sourced]]
+{axrd_file_sourced}::
+Assignments loaded from a persistent file via source or equivalent mechanism.
+The file path is known at load time and the regime module is responsible for locating and sourcing it.
+
+[[axrd_env_inherited]]
+{axrd_env_inherited}::
+Assignments received as environment variables from a parent process.
+The regime module finds variables already in scope; no file sourcing occurs.
+
+[[axrd_constructed]]
+{axrd_constructed}::
+Assignments computed or set programmatically before broach.
+Values are assembled by application logic rather than loaded from a static source.
+
 == Axial Regime Annotation Terms
 
 Regime annotations use the prefix-discriminated form (`//ax...` with no space after `//`) to provide structured metadata about regime definitions in AsciiDoc specifications.
@@ -1945,6 +1986,28 @@ the parent regime (an anchor that voices
 {axd_conditional}
 (group activation depends on gate conditions in subdocument).
 
+[[axvr_broach]]
+{axvr_broach}::
+Voices a regime broach operation definition.
+The annotated term defines the silent initialization phase for a
+{axrg_regime}:
+setting defaults, detecting unexpected variables, and building derived structures.
+
+[[axvr_validate]]
+{axvr_validate}::
+Voices a regime validate operation definition.
+The annotated term defines the strict verification phase for a
+{axrg_regime}:
+checking all type and constraint requirements, failing on first violation.
+
+[[axvr_render]]
+{axvr_render}::
+Voices a regime render operation definition.
+The annotated term defines the diagnostic display phase for a
+{axrg_regime}:
+producing human-readable presentation of current state.
+Rendering occurs before validation so all fields are visible on failure.
+
 === Standalone Hierarchy Markers (axhr*_)
 
 Hierarchy markers appear in regime subdocuments as standalone annotations, NOT between anchor and definition.
@@ -1979,6 +2042,9 @@ that the marker reads ahead.
 |{axhrgb_group}     |1 {mcm_attribute_reference}  |A group (must match {axvr_group} in parent)
 |{axhrgc_gate}      |2 {mcm_attribute_reference_s}|Enumerated variable + enum value
 |{axhrgv_variable}  |1 {mcm_attribute_reference}  |A variable within current group
+|{axhro_broach}     |1 {mcm_attribute_reference}  |Kit-level broach operation for this regime
+|{axhro_validate}   |1 {mcm_attribute_reference}  |Kit-level validate operation for this regime
+|{axhro_render}     |1 {mcm_attribute_reference}  |Kit-level render operation for this regime
 |===
 
 [[axhrb_regime]]
@@ -2027,6 +2093,33 @@ Lookahead: 1
 {mcm_attribute_reference}
 — the variable being detailed within the current group scope.
 
+[[axhro_broach]]
+{axhro_broach}::
+Marks a regime broach operation description in a subdocument.
+Lookahead: 1
+{mcm_attribute_reference}
+— the kit-level broach operation term (which must be voiced
+{axvr_broach}
+in the parent document).
+
+[[axhro_validate]]
+{axhro_validate}::
+Marks a regime validate operation description in a subdocument.
+Lookahead: 1
+{mcm_attribute_reference}
+— the kit-level validate operation term (which must be voiced
+{axvr_validate}
+in the parent document).
+
+[[axhro_render]]
+{axhro_render}::
+Marks a regime render operation description in a subdocument.
+Lookahead: 1
+{mcm_attribute_reference}
+— the kit-level render operation term (which must be voiced
+{axvr_render}
+in the parent document).
+
 ==== Nesting Rules
 
 Hierarchy markers establish implicit scope through document order:
@@ -2048,6 +2141,15 @@ scope
 * Multiple
 {axhrgc_gate}
 within one group have AND semantics
+* {axhro_broach},
+{axhro_validate},
+and
+{axhro_render}
+must appear within
+{axhrb_regime}
+scope but outside any
+{axhrgb_group}
+scope
 
 ==== Cross-Document Validation
 
@@ -2565,6 +2667,15 @@ requires:
 {axf_makefile},
 {axf_json},
 etc.) specifying how assignments are carried
+
+* Provenance dimension (
+{axrd_file_sourced},
+{axrd_env_inherited},
+or
+{axrd_constructed})
+declaring how
+{axrg_assignment_s}
+arrive
 
 === Regime Variable Qualification
 

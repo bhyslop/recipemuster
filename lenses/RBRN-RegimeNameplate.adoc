@@ -142,3 +142,25 @@ Domain names allowed for bottle-initiated DNS resolution.
 
 Podman volume mount arguments for the bottle container.
 Optional; 0-240 characters.
+
+//axhro_broach
+{rbkro_broach}
+
+Sets defaults for all RBRN_ variables via `VAR="${VAR:-}"` pattern.
+Detects unexpected RBRN_ variables via compgen prefix scan.
+Builds ZRBRN_ROLLUP serialization string and ZRBRN_DOCKER_ENV injection array.
+
+//axhro_validate
+{rbkro_validate}
+
+Validates fields via buv_env_* type checkers.
+Validates RBRN_RUNTIME, RBRN_ENTRY_MODE, RBRN_UPLINK_DNS_MODE, RBRN_UPLINK_ACCESS_MODE enum constraints.
+Conditional validation: entry ports when ENTRY_MODE=enabled, allowlists when *_MODE=allowlist.
+
+//axhro_render
+{rbkro_render}
+
+Renders via rbcr_* shared module with gate-aware section suppression.
+Sections: Core Service Identity, Container Image Configuration, Entry Service Configuration (gated), Enclave Network, Uplink Core, DNS Allowlist (gated), Access Allowlist (gated), Volume Mount.
+Displays unexpected variables in red.
+Validates after full render completes.

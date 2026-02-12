@@ -297,6 +297,16 @@
 :rbrv_prefix:                <<rbrv_prefix,RBRV_>>
 :rbrn_prefix:                <<rbrn_prefix,RBRN_>>
 
+// Recipe Bottle Kit Regime Operations
+:rbkro_broach:               <<rbkro_broach,RBK Broach>>
+:rbkro_validate:             <<rbkro_validate,RBK Validate>>
+:rbkro_render:               <<rbkro_render,RBK Render>>
+
+// Bash Utility Kit Regime Operations
+:bukro_broach:               <<bukro_broach,BUK Broach>>
+:bukro_validate:             <<bukro_validate,BUK Validate>>
+:bukro_render:               <<bukro_render,BUK Render>>
+
 // RB Bash Console Control Terms (rbbc_* - voices axc_* in axe_bash_interactive)
 :rbbc_await:                 <<rbbc_await,AWAIT>>
 :rbbc_call:                  <<rbbc_call,CALL>>
@@ -1880,10 +1890,58 @@ The OAuth 2.0 client secret from the Google Cloud Console OAuth client configura
 {rbro_refresh_token}::
 The long-lived OAuth refresh token obtained during the authorization flow, used to obtain fresh access tokens.
 
+=== Kit Regime Operations (RBK)
+
+[[rbkro_broach]]
+//axvr_broach
+{rbkro_broach}::
+Silent initialization of Recipe Bottle regime state from
+{axrg_assignment_s}.
+Sets defaults, detects unexpected variables, builds derived structures.
+
+[[rbkro_validate]]
+//axvr_validate
+{rbkro_validate}::
+Strict field validation for Recipe Bottle
+{axrg_regime_s}.
+Checks all type and constraint requirements via buv_env_* validators.
+
+[[rbkro_render]]
+//axvr_render
+{rbkro_render}::
+Diagnostic display of Recipe Bottle
+{axrg_regime}
+state.
+Renders all fields before validation so complete state is visible on failure.
+
+=== Kit Regime Operations (BUK)
+
+[[bukro_broach]]
+//axvr_broach
+{bukro_broach}::
+Silent initialization of Bash Utility Kit regime state from
+{axrg_assignment_s}.
+Sets defaults, detects unexpected variables, builds derived structures.
+
+[[bukro_validate]]
+//axvr_validate
+{bukro_validate}::
+Strict field validation for Bash Utility Kit
+{axrg_regime_s}.
+Checks all type and constraint requirements via buv_env_* validators.
+
+[[bukro_render]]
+//axvr_render
+{bukro_render}::
+Diagnostic display of Bash Utility Kit
+{axrg_regime}
+state.
+Renders all fields before validation so complete state is visible on failure.
+
 === Vessel Regime (RBRV)
 
 [[rbrv_regime]]
-//axvr_regime axf_bash
+//axvr_regime axf_bash axrd_file_sourced
 {rbrv_regime}::
 Configuration regime for container image build specifications.
 
@@ -1960,7 +2018,7 @@ include::RBSRV-RegimeVessel.adoc[]
 === Nameplate Regime (RBRN)
 
 [[rbrn_regime]]
-//axvr_regime axf_bash
+//axvr_regime axf_bash axrd_file_sourced
 {rbrn_regime}::
 Configuration regime for bottle service deployment.
 RBRN assignment files in `Tools/rbw/rbrn_*.env` define container deployment and network security settings.
