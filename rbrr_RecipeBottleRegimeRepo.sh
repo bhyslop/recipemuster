@@ -56,6 +56,24 @@ RBRR_GCB_GCRANE_IMAGE_REF="gcr.io/go-containerregistry/gcrane@sha256:b6f6b744e7b
 # oras: OCI artifact/referrer client (~May 2025)
 RBRR_GCB_ORAS_IMAGE_REF="ghcr.io/oras-project/oras@sha256:61b7765b4c2847d734e1d80f37c63dbfb11494ff0f40a32ab2d0c7e61028b5b1"
 
+# gcloud: GCP CLI builder (~Feb 2026)
+RBRR_GCB_GCLOUD_IMAGE_REF="gcr.io/cloud-builders/gcloud@sha256:PLACEHOLDER_RUN_REFRESH"
+
+# docker: Docker/buildx builder (~Feb 2026)
+RBRR_GCB_DOCKER_IMAGE_REF="gcr.io/cloud-builders/docker@sha256:PLACEHOLDER_RUN_REFRESH"
+
+# skopeo: OCI registry copy tool (~Feb 2026)
+RBRR_GCB_SKOPEO_IMAGE_REF="quay.io/skopeo/stable@sha256:PLACEHOLDER_RUN_REFRESH"
+
+# alpine: minimal Linux for scripting steps (~Feb 2026)
+RBRR_GCB_ALPINE_IMAGE_REF="alpine@sha256:PLACEHOLDER_RUN_REFRESH"
+
+# syft: SBOM generator (~Feb 2026)
+RBRR_GCB_SYFT_IMAGE_REF="anchore/syft@sha256:PLACEHOLDER_RUN_REFRESH"
+
+# binfmt: QEMU cross-platform registration (~Feb 2026)
+RBRR_GCB_BINFMT_IMAGE_REF="tonistiigi/binfmt@sha256:PLACEHOLDER_RUN_REFRESH"
+
 
 # Service Account Configuration - RBRA (Recipe Bottle Regime Auth) Format
 #

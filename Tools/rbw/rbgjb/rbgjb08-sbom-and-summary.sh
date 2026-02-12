@@ -8,8 +8,8 @@
 
 set -euo pipefail
 
-# Hardcoded syft image - parameterize later if needed
-SYFT_IMAGE="anchore/syft:latest"
+# Syft image pinned via RBRR regime variable
+SYFT_IMAGE="${RBRR_GCB_SYFT_IMAGE_REF}"
 
 test -s .image_uri || (echo ".image_uri not found" >&2; exit 1)
 

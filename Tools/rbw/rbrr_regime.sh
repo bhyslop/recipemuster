@@ -52,9 +52,15 @@ zrbrr_broach() {
   RBRR_DIRECTOR_RBRA_FILE="${RBRR_DIRECTOR_RBRA_FILE:-}"
   RBRR_GCB_GCRANE_IMAGE_REF="${RBRR_GCB_GCRANE_IMAGE_REF:-}"
   RBRR_GCB_ORAS_IMAGE_REF="${RBRR_GCB_ORAS_IMAGE_REF:-}"
+  RBRR_GCB_GCLOUD_IMAGE_REF="${RBRR_GCB_GCLOUD_IMAGE_REF:-}"
+  RBRR_GCB_DOCKER_IMAGE_REF="${RBRR_GCB_DOCKER_IMAGE_REF:-}"
+  RBRR_GCB_SKOPEO_IMAGE_REF="${RBRR_GCB_SKOPEO_IMAGE_REF:-}"
+  RBRR_GCB_ALPINE_IMAGE_REF="${RBRR_GCB_ALPINE_IMAGE_REF:-}"
+  RBRR_GCB_SYFT_IMAGE_REF="${RBRR_GCB_SYFT_IMAGE_REF:-}"
+  RBRR_GCB_BINFMT_IMAGE_REF="${RBRR_GCB_BINFMT_IMAGE_REF:-}"
 
   # Detect unexpected RBRR_ variables
-  local z_known="RBRR_REGISTRY_OWNER RBRR_REGISTRY_NAME RBRR_VESSEL_DIR RBRR_DNS_SERVER RBRR_IGNITE_MACHINE_NAME RBRR_DEPLOY_MACHINE_NAME RBRR_CRANE_TAR_GZ RBRR_MANIFEST_PLATFORMS RBRR_CHOSEN_PODMAN_VERSION RBRR_CHOSEN_VMIMAGE_ORIGIN RBRR_CHOSEN_IDENTITY RBRR_DEPOT_PROJECT_ID RBRR_GCP_REGION RBRR_GAR_REPOSITORY RBRR_GCB_MACHINE_TYPE RBRR_GCB_TIMEOUT RBRR_GOVERNOR_RBRA_FILE RBRR_RETRIEVER_RBRA_FILE RBRR_DIRECTOR_RBRA_FILE RBRR_GCB_GCRANE_IMAGE_REF RBRR_GCB_ORAS_IMAGE_REF"
+  local z_known="RBRR_REGISTRY_OWNER RBRR_REGISTRY_NAME RBRR_VESSEL_DIR RBRR_DNS_SERVER RBRR_IGNITE_MACHINE_NAME RBRR_DEPLOY_MACHINE_NAME RBRR_CRANE_TAR_GZ RBRR_MANIFEST_PLATFORMS RBRR_CHOSEN_PODMAN_VERSION RBRR_CHOSEN_VMIMAGE_ORIGIN RBRR_CHOSEN_IDENTITY RBRR_DEPOT_PROJECT_ID RBRR_GCP_REGION RBRR_GAR_REPOSITORY RBRR_GCB_MACHINE_TYPE RBRR_GCB_TIMEOUT RBRR_GOVERNOR_RBRA_FILE RBRR_RETRIEVER_RBRA_FILE RBRR_DIRECTOR_RBRA_FILE RBRR_GCB_GCRANE_IMAGE_REF RBRR_GCB_ORAS_IMAGE_REF RBRR_GCB_GCLOUD_IMAGE_REF RBRR_GCB_DOCKER_IMAGE_REF RBRR_GCB_SKOPEO_IMAGE_REF RBRR_GCB_ALPINE_IMAGE_REF RBRR_GCB_SYFT_IMAGE_REF RBRR_GCB_BINFMT_IMAGE_REF"
   ZRBRR_UNEXPECTED=()
   local z_var
   for z_var in $(compgen -v RBRR_); do
@@ -86,7 +92,13 @@ zrbrr_broach() {
   ZRBRR_ROLLUP+="RBRR_RETRIEVER_RBRA_FILE='${RBRR_RETRIEVER_RBRA_FILE}' "
   ZRBRR_ROLLUP+="RBRR_DIRECTOR_RBRA_FILE='${RBRR_DIRECTOR_RBRA_FILE}' "
   ZRBRR_ROLLUP+="RBRR_GCB_GCRANE_IMAGE_REF='${RBRR_GCB_GCRANE_IMAGE_REF}' "
-  ZRBRR_ROLLUP+="RBRR_GCB_ORAS_IMAGE_REF='${RBRR_GCB_ORAS_IMAGE_REF}'"
+  ZRBRR_ROLLUP+="RBRR_GCB_ORAS_IMAGE_REF='${RBRR_GCB_ORAS_IMAGE_REF}' "
+  ZRBRR_ROLLUP+="RBRR_GCB_GCLOUD_IMAGE_REF='${RBRR_GCB_GCLOUD_IMAGE_REF}' "
+  ZRBRR_ROLLUP+="RBRR_GCB_DOCKER_IMAGE_REF='${RBRR_GCB_DOCKER_IMAGE_REF}' "
+  ZRBRR_ROLLUP+="RBRR_GCB_SKOPEO_IMAGE_REF='${RBRR_GCB_SKOPEO_IMAGE_REF}' "
+  ZRBRR_ROLLUP+="RBRR_GCB_ALPINE_IMAGE_REF='${RBRR_GCB_ALPINE_IMAGE_REF}' "
+  ZRBRR_ROLLUP+="RBRR_GCB_SYFT_IMAGE_REF='${RBRR_GCB_SYFT_IMAGE_REF}' "
+  ZRBRR_ROLLUP+="RBRR_GCB_BINFMT_IMAGE_REF='${RBRR_GCB_BINFMT_IMAGE_REF}'"
 
   # Build docker env args array for container injection
   # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
@@ -143,6 +155,12 @@ zrbrr_validate_fields() {
   # GCB image pins (digest-pinned)
   buv_env_odref       RBRR_GCB_GCRANE_IMAGE_REF
   buv_env_odref       RBRR_GCB_ORAS_IMAGE_REF
+  buv_env_odref       RBRR_GCB_GCLOUD_IMAGE_REF
+  buv_env_odref       RBRR_GCB_DOCKER_IMAGE_REF
+  buv_env_odref       RBRR_GCB_SKOPEO_IMAGE_REF
+  buv_env_odref       RBRR_GCB_ALPINE_IMAGE_REF
+  buv_env_odref       RBRR_GCB_SYFT_IMAGE_REF
+  buv_env_odref       RBRR_GCB_BINFMT_IMAGE_REF
 
   # Validate directories exist
   buv_dir_exists "${RBRR_VESSEL_DIR}"
@@ -185,6 +203,88 @@ rbrr_load() {
   source "${z_rbrr_file}" || buc_die "Failed to source RBRR config: ${z_rbrr_file}"
   zrbrr_broach
   zrbrr_validate_fields
+}
+
+# Refresh GCB tool image pins in the RBRR file
+# Resolves each image tag to a digest via docker manifest inspect,
+# updates the RBRR_GCB_*_IMAGE_REF lines and vintage comments in place.
+# Requires: docker, RBCC_RBRR_FILE set, BURD_NOW_STAMP set
+rbrr_refresh_gcb_pins() {
+  local z_rbrr_file="${RBCC_RBRR_FILE}"
+  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BURD"
+
+  # Vintage from dispatch timestamp (YYYYMMDD-HHMMSS -> Mon YYYY)
+  local z_vintage
+  z_vintage=$(date -j -f "%Y%m%d-%H%M%S" "${BURD_NOW_STAMP}" "+%b %Y" 2>/dev/null) \
+    || z_vintage=$(date -d "${BURD_NOW_STAMP:0:4}-${BURD_NOW_STAMP:4:2}-${BURD_NOW_STAMP:6:2}" "+%b %Y" 2>/dev/null) \
+    || buc_die "Cannot parse BURD_NOW_STAMP: ${BURD_NOW_STAMP}"
+
+  # Image specifications: VARNAME|BASE_IMAGE|TAG
+  local z_specs=(
+    "RBRR_GCB_GCRANE_IMAGE_REF|gcr.io/go-containerregistry/gcrane|latest"
+    "RBRR_GCB_ORAS_IMAGE_REF|ghcr.io/oras-project/oras|latest"
+    "RBRR_GCB_GCLOUD_IMAGE_REF|gcr.io/cloud-builders/gcloud|latest"
+    "RBRR_GCB_DOCKER_IMAGE_REF|gcr.io/cloud-builders/docker|latest"
+    "RBRR_GCB_SKOPEO_IMAGE_REF|quay.io/skopeo/stable|latest"
+    "RBRR_GCB_ALPINE_IMAGE_REF|alpine|latest"
+    "RBRR_GCB_SYFT_IMAGE_REF|anchore/syft|latest"
+    "RBRR_GCB_BINFMT_IMAGE_REF|tonistiigi/binfmt|latest"
+  )
+
+  buc_step "Refreshing GCB tool image pins (vintage: ~${z_vintage})"
+
+  local z_updated=0
+  local z_unchanged=0
+  local z_failed=0
+
+  local z_spec z_varname z_image z_tag z_raw z_digest z_full_ref z_old_ref z_tmpfile
+  for z_spec in "${z_specs[@]}"; do
+    IFS='|' read -r z_varname z_image z_tag <<< "${z_spec}"
+
+    buc_step "Inspecting ${z_image}:${z_tag}"
+
+    z_raw=$(docker manifest inspect "${z_image}:${z_tag}" 2>/dev/null) || {
+      buc_warn "Failed to fetch manifest for ${z_image}:${z_tag}"
+      z_failed=$((z_failed + 1))
+      continue
+    }
+
+    z_digest=$(printf '%s' "${z_raw}" | shasum -a 256 | cut -d' ' -f1)
+    z_full_ref="${z_image}@sha256:${z_digest}"
+
+    z_old_ref=$(grep "^${z_varname}=" "${z_rbrr_file}" | cut -d'"' -f2)
+
+    if test "${z_old_ref}" = "${z_full_ref}"; then
+      buc_info "${z_varname}: unchanged"
+      z_unchanged=$((z_unchanged + 1))
+    else
+      buc_info "${z_varname}: ${z_old_ref} -> ${z_full_ref}"
+
+      z_tmpfile=$(mktemp)
+      sed "s|^${z_varname}=.*|${z_varname}=\"${z_full_ref}\"|" "${z_rbrr_file}" > "${z_tmpfile}"
+      mv "${z_tmpfile}" "${z_rbrr_file}"
+
+      # Update vintage comment on the line before the variable
+      z_tmpfile=$(mktemp)
+      sed "/${z_varname}=/{
+        x
+        s|(~[^)]*)|(~${z_vintage})|
+        x
+      }" "${z_rbrr_file}" > "${z_tmpfile}" 2>/dev/null || true
+      # Only apply if sed succeeded meaningfully
+      if test -s "${z_tmpfile}"; then
+        mv "${z_tmpfile}" "${z_rbrr_file}"
+      else
+        rm -f "${z_tmpfile}"
+      fi
+
+      z_updated=$((z_updated + 1))
+    fi
+  done
+
+  buc_step "Refresh complete: ${z_updated} updated, ${z_unchanged} unchanged, ${z_failed} failed"
+  test "${z_failed}" -eq 0 || buc_die "Some image manifests could not be fetched"
 }
 
 # eof

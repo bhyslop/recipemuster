@@ -152,17 +152,17 @@ zrbf_stitch_build_json() {
   # - Step 10: Assembles metadata JSON from .image_uri
   # - Step 09: Builds and pushes metadata container (depends on step 10)
   # Step definitions: script:builder:entrypoint:id
-  # Note: syft and alpine images hardcoded here; parameterize later if needed
+  # Note: builder images pinned via RBRR_GCB_*_IMAGE_REF variables
   local z_step_defs=(
-    "rbgjb01-derive-tag-base.sh:gcr.io/cloud-builders/gcloud:bash:derive-tag-base"
-    "rbgjb02-get-docker-token.sh:gcr.io/cloud-builders/gcloud:bash:get-docker-token"
-    "rbgjb03-docker-login-gar.sh:gcr.io/cloud-builders/docker:bash:docker-login-gar"
-    "rbgjb04-qemu-binfmt.sh:gcr.io/cloud-builders/docker:bash:qemu-binfmt"
-    "rbgjb06-build-and-export.sh:gcr.io/cloud-builders/docker:bash:build-and-export"
-    "rbgjb07-push-with-skopeo.sh:quay.io/skopeo/stable:bash:push-with-skopeo"
-    "rbgjb08-sbom-and-summary.sh:gcr.io/cloud-builders/docker:bash:sbom-and-summary"
-    "rbgjb10-assemble-metadata.sh:alpine:sh:assemble-metadata"
-    "rbgjb09-build-and-push-metadata.sh:gcr.io/cloud-builders/docker:bash:build-and-push-metadata"
+    "rbgjb01-derive-tag-base.sh:${RBRR_GCB_GCLOUD_IMAGE_REF}:bash:derive-tag-base"
+    "rbgjb02-get-docker-token.sh:${RBRR_GCB_GCLOUD_IMAGE_REF}:bash:get-docker-token"
+    "rbgjb03-docker-login-gar.sh:${RBRR_GCB_DOCKER_IMAGE_REF}:bash:docker-login-gar"
+    "rbgjb04-qemu-binfmt.sh:${RBRR_GCB_DOCKER_IMAGE_REF}:bash:qemu-binfmt"
+    "rbgjb06-build-and-export.sh:${RBRR_GCB_DOCKER_IMAGE_REF}:bash:build-and-export"
+    "rbgjb07-push-with-skopeo.sh:${RBRR_GCB_SKOPEO_IMAGE_REF}:bash:push-with-skopeo"
+    "rbgjb08-sbom-and-summary.sh:${RBRR_GCB_DOCKER_IMAGE_REF}:bash:sbom-and-summary"
+    "rbgjb10-assemble-metadata.sh:${RBRR_GCB_ALPINE_IMAGE_REF}:sh:assemble-metadata"
+    "rbgjb09-build-and-push-metadata.sh:${RBRR_GCB_DOCKER_IMAGE_REF}:bash:build-and-push-metadata"
   )
 
   # Build JSON array of steps
@@ -177,6 +177,12 @@ zrbf_stitch_build_json() {
 
     # Read script body, skip shebang only (comments pass through harmlessly)
     z_body=$(tail -n +2 "${z_script_path}")
+
+    # Expand RBRR_GCB_* image refs in script body before escaping.
+    # These scripts run inside GCB containers where RBRR vars don't exist,
+    # so we bake the pinned refs into the script text at build-config time.
+    z_body="${z_body//\$\{RBRR_GCB_SYFT_IMAGE_REF\}/${RBRR_GCB_SYFT_IMAGE_REF}}"
+    z_body="${z_body//\$\{RBRR_GCB_BINFMT_IMAGE_REF\}/${RBRR_GCB_BINFMT_IMAGE_REF}}"
 
     # Escape $ to $$ for Cloud Build, but preserve ${_RBGY_*} substitutions
     # First escape all $, then restore _RBGY_ substitution vars back to single $

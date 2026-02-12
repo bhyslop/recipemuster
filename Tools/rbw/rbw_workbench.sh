@@ -33,6 +33,7 @@
 #   rbw-rvv Validate vessel regime    → rbrv_cli.sh validate
 #   rbw-rrr Render repo regime        → rbrr_cli.sh render
 #   rbw-rrv Validate repo regime      → rbrr_cli.sh validate
+#   rbw-rrg Refresh GCB image pins    → rbrr_cli.sh refresh_gcb_pins
 #
 # Commands handled locally:
 #   rbw-lB  Local build from recipe (no moniker needed)
@@ -96,8 +97,9 @@ rbw_route() {
     rbw-rvv) exec "${RBW_SCRIPT_DIR}/rbrv_cli.sh" validate ${1+"$@"} ;;
 
     # Repo regime operations (routed to rbrr_cli.sh)
-    rbw-rrr) exec "${RBW_SCRIPT_DIR}/rbrr_cli.sh" render   ${1+"$@"} ;;
-    rbw-rrv) exec "${RBW_SCRIPT_DIR}/rbrr_cli.sh" validate ${1+"$@"} ;;
+    rbw-rrr) exec "${RBW_SCRIPT_DIR}/rbrr_cli.sh" render           ${1+"$@"} ;;
+    rbw-rrv) exec "${RBW_SCRIPT_DIR}/rbrr_cli.sh" validate         ${1+"$@"} ;;
+    rbw-rrg) exec "${RBW_SCRIPT_DIR}/rbrr_cli.sh" refresh_gcb_pins ${1+"$@"} ;;
 
     # Cross-nameplate operations (routed to rbrn_cli.sh)
     rbw-ni) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" survey ${1+"$@"} ;;

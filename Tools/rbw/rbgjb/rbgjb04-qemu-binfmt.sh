@@ -5,4 +5,4 @@
 set -euo pipefail
 
 # Register QEMU for cross-platform builds (arm64, arm/v7)
-docker run --privileged --rm tonistiigi/binfmt --install arm64,arm
+docker run --privileged --rm ${RBRR_GCB_BINFMT_IMAGE_REF} --install arm64,arm

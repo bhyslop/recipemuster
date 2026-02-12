@@ -104,6 +104,12 @@ rbrr_render() {
   rbcr_section_item RBRR_GCB_TIMEOUT             string  req  "Build timeout (e.g., 1200s)"
   rbcr_section_item RBRR_GCB_GCRANE_IMAGE_REF    odref   req  "gcrane image reference (digest-pinned)"
   rbcr_section_item RBRR_GCB_ORAS_IMAGE_REF      odref   req  "oras image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_GCLOUD_IMAGE_REF    odref   req  "gcloud image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_DOCKER_IMAGE_REF    odref   req  "docker image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_SKOPEO_IMAGE_REF    odref   req  "skopeo image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_ALPINE_IMAGE_REF    odref   req  "alpine image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_SYFT_IMAGE_REF      odref   req  "syft image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_BINFMT_IMAGE_REF    odref   req  "binfmt image reference (digest-pinned)"
   rbcr_section_end
 
   # Service Account Configuration
@@ -145,8 +151,11 @@ case "${z_command}" in
       render)   rbrr_render "${z_file}" ;;
     esac
     ;;
+  refresh_gcb_pins)
+    rbrr_refresh_gcb_pins
+    ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: rbrr_cli.sh {validate|render}"
+    buc_die "Unknown command: ${z_command}. Usage: rbrr_cli.sh {validate|render|refresh_gcb_pins}"
     ;;
 esac
 
