@@ -12,7 +12,9 @@ Full read and edit access is pre-approved for all files in:
 - **RBAGS** → `RBAGS-AdminGoogleSpec.adoc`
 - **RBRN**  → `RBRN-RegimeNameplate.adoc`
 - **RBRR**  → `RBRR-RegimeRepo.adoc`
+- **RBSA**  → `RBSA-SpecTop.adoc`
 - **RBS**   → `RBS-Specification.adoc`
+- **RBSRV** → `RBSRV-RegimeVessel.adoc`
 - **CRR**   → `CRR-ConfigRegimeRequirements.adoc`
 - **RBSDC** → `RBSDC-depot_create.adoc`
 - **RBSDD** → `RBSDD-depot_destroy.adoc`
@@ -21,6 +23,10 @@ Full read and edit access is pre-approved for all files in:
 - **RBSGR** → `RBSGR-governor_reset.adoc`
 - **RBSGS** → `RBSGS-GettingStarted.adoc`
 - **RBSAA** → `RBSAA-ark_abjure.adoc`
+- **RBSAB** → `RBSAB-ark_beseech.adoc`
+- **RBSAC** → `RBSAC-ark_conjure.adoc`
+- **RBSAS** → `RBSAS-ark_summon.adoc`
+- **RBSAX** → `RBSAX-access_setup.adoc`
 - **RBSID** → `RBSID-image_delete.adoc`
 - **RBSIR** → `RBSIR-image_retrieve.adoc`
 - **RBSOB** → `RBSOB-oci_layout_bridge.adoc`
