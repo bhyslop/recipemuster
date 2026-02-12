@@ -33,6 +33,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSPE** → `RBSPE-payor_establish.adoc`
 - **RBSPI** → `RBSPI-payor_install.adoc`
 - **RBSPR** → `RBSPR-payor_refresh.adoc`
+- **RBSQB** → `RBSQB-quota_build.adoc`
 - **RBSRC** → `RBSRC-retriever_create.adoc`
 - **RBSSD** → `RBSSD-sa_delete.adoc`
 - **RBSSL** → `RBSSL-sa_list.adoc`

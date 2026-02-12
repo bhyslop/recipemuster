@@ -49,6 +49,8 @@ zrbz_kindle() {
   RBZ_GOVERNOR_RESET="${z1z_buz_colophon}"
   buz_register "rbw-PR" "rbgm_Manual" "rbgm_payor_refresh"
   RBZ_PAYOR_REFRESH="${z1z_buz_colophon}"
+  buz_register "rbw-QB" "rbgm_Manual" "rbgm_quota_build"
+  RBZ_QUOTA_BUILD="${z1z_buz_colophon}"
 
   # General depot operations
   buz_register "rbw-ld" "rbgp_Payor" "rbgp_depot_list"

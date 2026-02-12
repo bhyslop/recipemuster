@@ -43,7 +43,7 @@ RBRR_GCP_REGION=us-central1  # Project doesn't have a region but our services do
 RBRR_GAR_REPOSITORY=rbw-proto-repository
 
 # Google Cloud Build settings  
-RBRR_GCB_MACHINE_TYPE=E2_HIGHCPU_8          # Google Cloud Build machine type (enum form as in web API, not gcloud CLI)
+RBRR_GCB_MACHINE_TYPE=UNSPECIFIED            # Google Cloud Build machine type (2 vCPU default; fits 5 concurrent in 10-CPU quota)
 RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 
 ########################################################################

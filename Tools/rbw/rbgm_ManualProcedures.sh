@@ -321,6 +321,60 @@ rbgm_payor_refresh() {
   buc_success "OAuth credential installation/refresh procedure displayed"
 }
 
+rbgm_quota_build() {
+  zrbgm_sentinel
+
+  buc_doc_brief "Display the Cloud Build CPU quota and machine type concurrency guide"
+  buc_doc_shown || return 0
+
+  bug_section  "Cloud Build Concurrent Build Capacity"
+  bug_t        "The Concurrent Build CPUs quota (default 10 per region) limits parallel builds."
+  bug_t        "Each build consumes vCPUs according to the configured machine type."
+  bug_t        "If the machine type uses most of the CPU quota, builds serialize."
+  bug_e
+  bug_t        "   Machine type vs concurrency at 10-CPU quota:"
+  bug_tc       "     UNSPECIFIED    " "(2 vCPU)  → 5 concurrent builds"
+  bug_tc       "     E2_HIGHCPU_8   " "(8 vCPU)  → 1 concurrent build"
+  bug_tc       "     E2_HIGHCPU_32  " "(32 vCPU) → needs 32+ CPU quota"
+  bug_e
+  bug_section  "Key:"
+  bug_tu       "   Magenta text refers to " "precise words you see on the web page."
+  bug_tc       "   Cyan text is " "something you might copy from here."
+  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, Ctrl + mouse click)"
+  bug_e
+  bug_section  "1. Current Regime Configuration:"
+  bug_tc       "   RBRR_DEPOT_PROJECT_ID: " "${RBRR_DEPOT_PROJECT_ID}"
+  bug_tc       "   RBRR_GCP_REGION:       " "${RBRR_GCP_REGION}"
+  bug_tc       "   RBRR_GCB_MACHINE_TYPE: " "${RBRR_GCB_MACHINE_TYPE}"
+  bug_e
+  bug_section  "2. Check CPU Quota:"
+  bug_link     "   Go to: " "Quotas & System Limits" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
+  bug_tu       "   1. Verify project " "${RBRR_DEPOT_PROJECT_ID}" " is selected in the project picker"
+  bug_t        "   2. In the filter bar, enter:"
+  bug_tc       "      " "cloudbuild.googleapis.com"
+  bug_tut      "   3. Locate " "Concurrent Build CPUs (Regional Default Pool)" " for your region"
+  bug_t        "   4. Note the quota value and current usage percentage"
+  bug_t        "      If usage is near 100% with one build, the machine type is too large for the quota"
+  bug_e
+  bug_section  "3. Adjust Machine Type or Request CPU Quota Increase:"
+  bug_t        "   Option A (preferred): Reduce machine type in regime configuration."
+  bug_tc       "     Set RBRR_GCB_MACHINE_TYPE=" "UNSPECIFIED"
+  bug_t        "     This uses 2 vCPUs per build, allowing 5 concurrent in a 10-CPU quota."
+  bug_e
+  bug_t        "   Option B: Request CPU quota increase via Console."
+  bug_tu       "     Select the " "Concurrent Build CPUs" " row checkbox"
+  bug_tu       "     Click " "Edit Quotas" " and enter the desired CPU count"
+  bug_t        "     For N concurrent E2_HIGHCPU_8 builds, request N × 8 CPUs"
+  bug_e
+  bug_section  "4. Confirm Quota Headroom:"
+  bug_link     "   Return to: " "Quotas & System Limits" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
+  bug_t        "   Filter for cloudbuild.googleapis.com"
+  bug_t        "   Verify: quota >= (desired concurrency × vCPUs per machine type)"
+  bug_e
+
+  buc_success "Cloud Build quota guide displayed"
+}
+
 rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   zrbgm_sentinel
 

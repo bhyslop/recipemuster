@@ -57,6 +57,7 @@ rbk_route() {
     rbw-PE)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_payor_establish          "$@" ;;
     rbw-PG)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_governor_reset           "$@" ;;
     rbw-PR)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_payor_refresh            "$@" ;;
+    rbw-QB)  exec "$RBK_SCRIPT_DIR/rbgm_cli.sh" rbgm_quota_build             "$@" ;;
 
     # General depot operations
     rbw-ld)  exec "$RBK_SCRIPT_DIR/rbgp_cli.sh" rbgp_depot_list               "$@" ;;
