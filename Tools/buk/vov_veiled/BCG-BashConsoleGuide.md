@@ -77,15 +77,15 @@ exec "${TOOLS_DIR}/rbob_cli.sh" rbob_start "$@"
 
 | Function             | Location       | First Line                                         | Can Source?       | Can use buc_step? | Purpose                                          |
 |----------------------|----------------|----------------------------------------------------|-------------------|-------------------|--------------------------------------------------|
-| `z«prefix»_kindle`   | Implementation | `test -z "${Z«PREFIX»_KINDLED:-}" \|\| buc_die`    | Yes (credentials) | No (use buc_log_*)| Define ALL file paths/prefixes, set module state |
+| `z«prefix»_kindle`   | Implementation | `test -z "${Z«PREFIX»_KINDLED:-}" \|\| buc_die`    | Yes (credentials) | No (use buc_log_*)| Define all kindle constants, set module state    |
 | `z«prefix»_sentinel` | Implementation | `test "${Z«PREFIX»_KINDLED:-}" = "1" \|\| buc_die` | No                | No                | Guard all other functions                        |
 | `z«prefix»_furnish`  | CLI only       | `buc_doc_env...`                                   | Yes (configs)     | No                | Document env vars, source configs, call kindle   |
 | Module header        | Implementation | `test -z "${Z«PREFIX»_SOURCED:-}" \|\| buc_die`    | No                | N/A               | Prevent multiple inclusion                       |
 | CLI header           | CLI            | `set -euo pipefail`                                | Yes (all deps)    | N/A               | Source all dependencies                          |
 
-**Module constant exclusivity**: All `Z«PREFIX»_*` internal constants and `«PREFIX»_*` public exports must be defined exclusively within the kindle function. No other function — including enroll, setup, or helper functions — may assign to these variables. This ensures module state is fully determined at kindle time and visible in one place.
+**Kindle constant**: Any variable — internal (`Z«PREFIX»_*`) or public (`«PREFIX»_*`) — defined exclusively within the kindle function. No other function — including enroll, setup, or helper functions — may assign to kindle constants. This ensures module state is fully determined at kindle time and visible in one place.
 
-**KINDLED must be last**: `Z«PREFIX»_KINDLED=1` must be the final statement in kindle. Since sentinel checks this variable, setting it last guarantees all initialization (constants, roll arrays, enroll calls) is complete before the module is considered operational. Any function calling sentinel before kindle finishes will correctly fail.
+**KINDLED must be last**: `Z«PREFIX»_KINDLED=1` must be the final statement in kindle. Since sentinel checks this variable, setting it last guarantees all kindle constants, roll arrays, and enroll calls are complete before the module is considered operational. Any function calling sentinel before kindle finishes will correctly fail.
 
 ### Regular Functions (output via printouts/temp files)
 
@@ -192,10 +192,10 @@ z«prefix»_kindle() {
   # Source credentials into environment only - never write to disk
   source "${REGIME_CRED_FILE}" || buc_die "Failed to source credentials"
 
-  # Public export (safe to read from other modules; never a secret)
+  # Kindle constant (public — safe to read from other modules; never a secret)
   «PREFIX»_PUBLIC_SELECTED_NAME="some-specific-name"
 
-  # Internal constants
+  # Kindle constants (internal)
   Z«PREFIX»_TEMP_FILE="${BURD_TEMP_DIR}/«prefix»_temp.txt"  # Non-secret data only
   Z«PREFIX»_RESULT_FILE="${BURD_TEMP_DIR}/«prefix»_«command»_«step_number»_result.json"
   Z«PREFIX»_CONFIG_PREFIX="${BURD_TEMP_DIR}/«prefix»_«command»_«step_number»_config_"     # rest of file name appended on use
@@ -239,15 +239,15 @@ z«prefix»_sentinel() {
 }
 ```
 
-**Module constant exclusivity — anti-pattern:**
+**Kindle constant — anti-pattern:**
 
 ```bash
-# ❌ Module constant defined outside kindle
+# ❌ Kindle constant defined outside kindle
 z«prefix»_setup() {
   Z«PREFIX»_CACHED_PATH="${BURD_TEMP_DIR}/cache"   # VIOLATION: must be in kindle
 }
 
-# ✅ All module constants defined in kindle, used elsewhere
+# ✅ Kindle constants defined in kindle, used elsewhere
 z«prefix»_kindle() {
   Z«PREFIX»_CACHED_PATH="${BURD_TEMP_DIR}/cache"
   Z«PREFIX»_KINDLED=1
@@ -577,8 +577,8 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 | Predicate Internal functions | `z«prefix»_«name»_predicate` | `zrbv_file_exists_predicate` | Impl     | snake_case                    |
 | Capture Internal functions   | `z«prefix»_«name»_capture`   | `zrbv_get_token_capture`     | Impl     | snake_case                    |
 | Capture Public functions     | `«prefix»_«name»_capture`    | `rbv_get_token_capture`      | Impl     | snake_case                    |
-| Module variables             | `Z«PREFIX»_«NAME»`           | `ZRBV_TEMP_FILE`             | Impl     | SCREAMING_SNAKE (multi-word)  |
-| Environment vars             | `«PREFIX»_«NAME»`            | `RBV_REGIME_FILE`            | Both     | SCREAMING_SNAKE (multi-word)  |
+| Kindle constant (internal)   | `Z«PREFIX»_«NAME»`           | `ZRBV_TEMP_FILE`             | Impl     | SCREAMING_SNAKE (multi-word)  |
+| Kindle constant (public)     | `«PREFIX»_«NAME»`            | `RBV_REGIME_FILE`            | Both     | SCREAMING_SNAKE (multi-word)  |
 | Local parameters             | `z_«name»`                   | `z_vm_name`, `z_force_flag`  | Both     | snake_case (multi-word)       |
 | Enroll functions             | `[z]«prefix»_[«scope»_]enroll` | `«prefix»_enroll`          | Impl     | kindle-only                   |
 | Recite functions             | `[z]«prefix»_«what»_recite`  | `«prefix»_target_recite`     | Impl     | read-only, never mutates      |
@@ -947,7 +947,7 @@ buv_val_xname "name" "${z_input_name}" 3 50
 | Roll read access    | `_recite` function                                               |
 | True/false check    | `_predicate` function                                            |
 | Runtime information | `buc_log_«source»`/`buc_step`, never comments                             |
-| File paths          | ALL defined in kindle as module variables                        |
+| File paths          | Kindle constants — defined in kindle only                        |
 | File reading        | Single-line `$(<file)` with validation                           |
 | Function structure  | See Function Patterns tables                                     |
 | Error handling      | See Error Handling Decision Tree                                 |
@@ -975,9 +975,8 @@ buv_val_xname "name" "${z_input_name}" 3 50
 - [ ] All internal helpers prefixed with `z«prefix»_`
 
 ### Variable Management
-- [ ] Internal file paths/prefix constants **exclusively** defined in kindle as Z«PREFIX»_*
-- [ ] Public exports exclusively defined in kindle as «PREFIX»_*
-- [ ] No Z«PREFIX»_* or «PREFIX»_* assignments outside kindle function
+- [ ] All kindle constants (internal `Z«PREFIX»_*` and public `«PREFIX»_*`) defined exclusively in kindle
+- [ ] No kindle constant assignments outside kindle function
 - [ ] All local variables use `z_` prefix
 - [ ] All expansions use `"${var}"` pattern (braced, quoted)
 - [ ] Parameters use `"${1:-}"` pattern for defensive programming
