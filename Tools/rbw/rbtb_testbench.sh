@@ -45,6 +45,7 @@ source "${RBTB_SCRIPT_DIR}/rbtcns_NsproSecurity.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcsj_SrjclJupyter.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcpl_PlumlDiagram.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butcvu_XnameValidation.sh"
+source "${RBTB_SCRIPT_DIR}/../buk/butcrg_RegimeSmoke.sh"
 
 buc_context "${0##*/}"
 zrbcc_kindle
@@ -140,6 +141,10 @@ zrbtb_setup_xname() {
   buto_trace "Setup for xname-validation suite (no-op)"
 }
 
+zrbtb_setup_regime() {
+  buto_trace "Setup for regime-smoke suite (no-op)"
+}
+
 
 ######################################################################
 # Registration
@@ -201,6 +206,14 @@ rbtb_kindle() {
   butr_case_enroll "pluml-diagram" rbtcpl_malformed_diagram
   butr_case_enroll "pluml-diagram" rbtcpl_text_rendering
 
+  # regime-smoke suite
+  butr_suite_enroll "regime-smoke" "" "zrbtb_setup_regime"
+  butr_case_enroll "regime-smoke" butcrg_burc
+  butr_case_enroll "regime-smoke" butcrg_burs
+  butr_case_enroll "regime-smoke" butcrg_rbrn
+  butr_case_enroll "regime-smoke" butcrg_rbrr
+  butr_case_enroll "regime-smoke" butcrg_rbrv
+
   # xname-validation suite
   butr_suite_enroll "xname-validation" "" "zrbtb_setup_xname"
   butr_case_enroll "xname-validation" butcvu_debug
@@ -236,6 +249,7 @@ rbtb_route() {
     rbtb-ns) butd_run_suite "nsproto-security" ;;
     rbtb-sj) butd_run_suite "srjcl-jupyter" ;;
     rbtb-pl) butd_run_suite "pluml-diagram" ;;
+    rbtb-rg) butd_run_suite "regime-smoke" ;;
     *)       buc_die "Unknown command: ${z_command}" ;;
   esac
 }
