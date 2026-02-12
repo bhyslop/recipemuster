@@ -1639,7 +1639,7 @@ This specification documents only the subset of RBRR variables relevant to
 operations.
 
 [[rbrr_regime]]
-// ⟦axl_voices axrg_regime axf_bash⟧
+// ⟦axl_voices axrg_regime axf_bash axrd_file_sourced⟧
 {rbrr_regime}::
 An
 regime
@@ -1649,7 +1649,7 @@ operations.
 RBRR regimes contain depot project identifiers, regional settings, repository locations, and service account credential file paths that establish the foundational infrastructure configuration.
 
 [[rbrr_depot_project_id]]
-// ⟦axl_voices axrg_variable axtg_project_id⟧
+// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtg_project_id⟧
 {rbrr_depot_project_id}::
 The
 {gcp_service}

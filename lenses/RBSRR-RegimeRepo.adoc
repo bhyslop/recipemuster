@@ -1,0 +1,203 @@
+// ⟦axhrb_regime⟧
+{rbrr_regime}
+
+This regime specifies variables that define repository-wide configuration and installation-wide settings within the Recipe Bottle system.
+Each
+{rbrr_regime}
+instance represents foundational infrastructure configuration that rarely changes and is shared across all Recipe Bottle operations.
+RBRR assignment files are found in the operator's local filesystem (typically `../station-files/rbrr.env`) and configure depot project identifiers, regional settings, repository locations, and service account credential file paths.
+
+// ⟦axhrv_variable⟧
+{rbrr_depot_project_id}
+
+The
+{gcp_service}
+{gcp_project_id}
+where all Recipe Bottle resources are created and managed.
+Used as the target
+{gcp_project_id}
+in API calls and as the audience claim in OAuth token exchange.
+
+// ⟦axhrv_variable⟧
+{rbrr_gcp_region}
+
+The default
+{gcp_service}
+region for regional services like
+{gar_service}
+and
+{gcb_service}.
+Applied when creating repositories and submitting builds unless overridden by operation-specific configuration.
+
+// ⟦axhrv_variable⟧
+{rbrr_gar_repository}
+
+The
+{gar_service}
+repository name within
+{rbrr_depot_project_id}
+that stores all bottle images and metadata.
+
+// ⟦axhrgb_group⟧
+{rbrr_group_service_accounts}
+
+Service account credential file paths that enable different operational roles.
+Each RBRA file contains the minimum identity and signing material needed for authentication to
+{gcp_service}
+via service account.
+
+// ⟦axhrgv_variable⟧
+{rbrr_retriever_rbra_file}
+
+Path to an RBRA file stored in the operator's local filesystem outside the source repository.
+This file enables the operator to assume the retriever role for container image operations.
+
+// ⟦axhrgv_variable⟧
+{rbrr_director_rbra_file}
+
+Path to an RBRA file stored in the operator's local filesystem outside the source repository.
+This file enables the operator to assume the director role for build submission and image management operations.
+
+// ⟦axhrgv_variable⟧
+{rbrr_governor_rbra_file}
+
+Path to an RBRA file stored in the operator's local filesystem outside the source repository.
+This file enables the operator to assume the governor role for
+{gcp_project_id}
+administration operations.
+
+// ⟦axhrgv_variable⟧
+{rbrr_payor_rbra_file}
+
+Path to an RBRA file stored in the operator's local filesystem outside the source repository.
+This file enables the operator to assume the payor role for billing and
+{gcp_project_id}
+lifecycle operations.
+
+// ⟦axhrgb_group⟧
+{rbrr_group_container_runtime}
+
+Variables that configure container runtime and deployment environment settings.
+These settings control local Podman VM configuration, DNS resolution, and build machine selection.
+
+// ⟦axhrgv_variable⟧
+{rbrr_registry_owner}
+
+GitHub username or organization that owns the container image registry.
+Used to construct fully-qualified image references.
+
+// ⟦axhrgv_variable⟧
+{rbrr_registry_name}
+
+GitHub container registry repository name.
+Combined with registry owner to form the base registry path.
+
+// ⟦axhrgv_variable⟧
+{rbrr_vessel_dir}
+
+Directory path containing vessel configuration subdirectories.
+Each subdirectory defines a vessel image source (bind or conjure mode).
+
+// ⟦axhrgv_variable⟧
+{rbrr_dns_server}
+
+DNS server IP address used by sentry containers for name resolution.
+Injected into container environment to control DNS behavior.
+
+// ⟦axhrgv_variable⟧
+{rbrr_ignite_machine_name}
+
+Podman machine name for bottle ignition (startup) operations.
+Identifies which Podman VM to use for local image building and testing.
+
+// ⟦axhrgv_variable⟧
+{rbrr_deploy_machine_name}
+
+Podman machine name for bottle deployment operations.
+Identifies which Podman VM to use for production deployments.
+
+// ⟦axhrgb_group⟧
+{rbrr_group_build_configuration}
+
+Variables that control container image build processes.
+These settings define build tooling, platform targets, timeout constraints, and machine resources for
+{gcb_service}
+operations.
+
+// ⟦axhrgv_variable⟧
+{rbrr_crane_tar_gz}
+
+Path to crane tool tarball archive.
+Crane is used for OCI image manipulation and registry operations.
+
+// ⟦axhrgv_variable⟧
+{rbrr_manifest_platforms}
+
+Space-separated list of platforms for multi-platform manifest creation.
+Example: `linux/amd64 linux/arm64`.
+
+// ⟦axhrgv_variable⟧
+{rbrr_chosen_podman_version}
+
+Podman version string for VM provisioning and build operations.
+Must match a valid Podman release version.
+
+// ⟦axhrgv_variable⟧
+{rbrr_chosen_vmimage_origin}
+
+Podman VM image origin specification.
+Determines which VM base image to use for machine creation.
+
+// ⟦axhrgv_variable⟧
+{rbrr_chosen_identity}
+
+Identity specification for VM or build environment.
+Used to configure authentication and authorization context.
+
+// ⟦axhrgv_variable⟧
+{rbrr_gcb_machine_type}
+
+Google Cloud Build machine type specification.
+Determines CPU, memory, and performance characteristics for build workers.
+Examples: `E2_HIGHCPU_8`, `E2_HIGHCPU_32`.
+
+// ⟦axhrgv_variable⟧
+{rbrr_gcb_timeout}
+
+Maximum duration for Cloud Build operations before timeout.
+Specified in seconds or duration format (e.g., `3600s`).
+
+// ⟦axhrgv_variable⟧
+{rbrr_gcb_gcrane_image_ref}
+
+Fully-qualified image reference for gcrane tool used in Cloud Build steps.
+Gcrane provides Google-authenticated OCI registry operations.
+
+// ⟦axhrgv_variable⟧
+{rbrr_gcb_oras_image_ref}
+
+Fully-qualified image reference for ORAS tool used in Cloud Build steps.
+ORAS handles OCI artifact operations beyond container images.
+
+// ⟦axhro_broach⟧
+{rbkro_broach}
+
+Sets defaults for all RBRR_ variables via `VAR="${VAR:-}"` pattern.
+Detects unexpected RBRR_ variables via compgen prefix scan.
+Builds ZRBRR_ROLLUP serialization string and ZRBRR_DOCKER_ENV injection array.
+
+// ⟦axhro_validate⟧
+{rbkro_validate}
+
+Validates fields via buv_env_* type checkers.
+Checks required fields: DEPOT_PROJECT_ID, GCP_REGION, GAR_REPOSITORY.
+Validates path existence for RBRA credential files.
+Validates machine type and timeout format constraints.
+
+// ⟦axhro_render⟧
+{rbkro_render}
+
+Renders via rbcr_* shared module.
+Sections: GCP Infrastructure, Artifact Registry, Service Account Credentials, Container Runtime Configuration, Build Configuration.
+Displays unexpected variables in red.
+Validates after full render completes.

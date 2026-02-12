@@ -27,8 +27,89 @@ ZRBRR_SOURCED=1
 ######################################################################
 # Internal Functions (zrbrr_*)
 
-zrbrr_kindle() {
+zrbrr_broach() {
   test -z "${ZRBRR_KINDLED:-}" || buc_die "Module rbrr already kindled"
+
+  # Set defaults for all fields (validate enforces required-ness)
+  RBRR_REGISTRY_OWNER="${RBRR_REGISTRY_OWNER:-}"
+  RBRR_REGISTRY_NAME="${RBRR_REGISTRY_NAME:-}"
+  RBRR_VESSEL_DIR="${RBRR_VESSEL_DIR:-}"
+  RBRR_DNS_SERVER="${RBRR_DNS_SERVER:-}"
+  RBRR_IGNITE_MACHINE_NAME="${RBRR_IGNITE_MACHINE_NAME:-}"
+  RBRR_DEPLOY_MACHINE_NAME="${RBRR_DEPLOY_MACHINE_NAME:-}"
+  RBRR_CRANE_TAR_GZ="${RBRR_CRANE_TAR_GZ:-}"
+  RBRR_MANIFEST_PLATFORMS="${RBRR_MANIFEST_PLATFORMS:-}"
+  RBRR_CHOSEN_PODMAN_VERSION="${RBRR_CHOSEN_PODMAN_VERSION:-}"
+  RBRR_CHOSEN_VMIMAGE_ORIGIN="${RBRR_CHOSEN_VMIMAGE_ORIGIN:-}"
+  RBRR_CHOSEN_IDENTITY="${RBRR_CHOSEN_IDENTITY:-}"
+  RBRR_DEPOT_PROJECT_ID="${RBRR_DEPOT_PROJECT_ID:-}"
+  RBRR_GCP_REGION="${RBRR_GCP_REGION:-}"
+  RBRR_GAR_REPOSITORY="${RBRR_GAR_REPOSITORY:-}"
+  RBRR_GCB_MACHINE_TYPE="${RBRR_GCB_MACHINE_TYPE:-}"
+  RBRR_GCB_TIMEOUT="${RBRR_GCB_TIMEOUT:-}"
+  RBRR_GOVERNOR_RBRA_FILE="${RBRR_GOVERNOR_RBRA_FILE:-}"
+  RBRR_RETRIEVER_RBRA_FILE="${RBRR_RETRIEVER_RBRA_FILE:-}"
+  RBRR_DIRECTOR_RBRA_FILE="${RBRR_DIRECTOR_RBRA_FILE:-}"
+  RBRR_GCB_GCRANE_IMAGE_REF="${RBRR_GCB_GCRANE_IMAGE_REF:-}"
+  RBRR_GCB_ORAS_IMAGE_REF="${RBRR_GCB_ORAS_IMAGE_REF:-}"
+
+  # Detect unexpected RBRR_ variables
+  local z_known="RBRR_REGISTRY_OWNER RBRR_REGISTRY_NAME RBRR_VESSEL_DIR RBRR_DNS_SERVER RBRR_IGNITE_MACHINE_NAME RBRR_DEPLOY_MACHINE_NAME RBRR_CRANE_TAR_GZ RBRR_MANIFEST_PLATFORMS RBRR_CHOSEN_PODMAN_VERSION RBRR_CHOSEN_VMIMAGE_ORIGIN RBRR_CHOSEN_IDENTITY RBRR_DEPOT_PROJECT_ID RBRR_GCP_REGION RBRR_GAR_REPOSITORY RBRR_GCB_MACHINE_TYPE RBRR_GCB_TIMEOUT RBRR_GOVERNOR_RBRA_FILE RBRR_RETRIEVER_RBRA_FILE RBRR_DIRECTOR_RBRA_FILE RBRR_GCB_GCRANE_IMAGE_REF RBRR_GCB_ORAS_IMAGE_REF"
+  ZRBRR_UNEXPECTED=()
+  local z_var
+  for z_var in $(compgen -v RBRR_); do
+    case " ${z_known} " in
+      *" ${z_var} "*) : ;;
+      *) ZRBRR_UNEXPECTED+=("${z_var}") ;;
+    esac
+  done
+
+  # Build rollup of all RBRR_ variables for passing to scripts/containers
+  ZRBRR_ROLLUP=""
+  ZRBRR_ROLLUP+="RBRR_REGISTRY_OWNER='${RBRR_REGISTRY_OWNER}' "
+  ZRBRR_ROLLUP+="RBRR_REGISTRY_NAME='${RBRR_REGISTRY_NAME}' "
+  ZRBRR_ROLLUP+="RBRR_VESSEL_DIR='${RBRR_VESSEL_DIR}' "
+  ZRBRR_ROLLUP+="RBRR_DNS_SERVER='${RBRR_DNS_SERVER}' "
+  ZRBRR_ROLLUP+="RBRR_IGNITE_MACHINE_NAME='${RBRR_IGNITE_MACHINE_NAME}' "
+  ZRBRR_ROLLUP+="RBRR_DEPLOY_MACHINE_NAME='${RBRR_DEPLOY_MACHINE_NAME}' "
+  ZRBRR_ROLLUP+="RBRR_CRANE_TAR_GZ='${RBRR_CRANE_TAR_GZ}' "
+  ZRBRR_ROLLUP+="RBRR_MANIFEST_PLATFORMS='${RBRR_MANIFEST_PLATFORMS}' "
+  ZRBRR_ROLLUP+="RBRR_CHOSEN_PODMAN_VERSION='${RBRR_CHOSEN_PODMAN_VERSION}' "
+  ZRBRR_ROLLUP+="RBRR_CHOSEN_VMIMAGE_ORIGIN='${RBRR_CHOSEN_VMIMAGE_ORIGIN}' "
+  ZRBRR_ROLLUP+="RBRR_CHOSEN_IDENTITY='${RBRR_CHOSEN_IDENTITY}' "
+  ZRBRR_ROLLUP+="RBRR_DEPOT_PROJECT_ID='${RBRR_DEPOT_PROJECT_ID}' "
+  ZRBRR_ROLLUP+="RBRR_GCP_REGION='${RBRR_GCP_REGION}' "
+  ZRBRR_ROLLUP+="RBRR_GAR_REPOSITORY='${RBRR_GAR_REPOSITORY}' "
+  ZRBRR_ROLLUP+="RBRR_GCB_MACHINE_TYPE='${RBRR_GCB_MACHINE_TYPE}' "
+  ZRBRR_ROLLUP+="RBRR_GCB_TIMEOUT='${RBRR_GCB_TIMEOUT}' "
+  ZRBRR_ROLLUP+="RBRR_GOVERNOR_RBRA_FILE='${RBRR_GOVERNOR_RBRA_FILE}' "
+  ZRBRR_ROLLUP+="RBRR_RETRIEVER_RBRA_FILE='${RBRR_RETRIEVER_RBRA_FILE}' "
+  ZRBRR_ROLLUP+="RBRR_DIRECTOR_RBRA_FILE='${RBRR_DIRECTOR_RBRA_FILE}' "
+  ZRBRR_ROLLUP+="RBRR_GCB_GCRANE_IMAGE_REF='${RBRR_GCB_GCRANE_IMAGE_REF}' "
+  ZRBRR_ROLLUP+="RBRR_GCB_ORAS_IMAGE_REF='${RBRR_GCB_ORAS_IMAGE_REF}'"
+
+  # Build docker env args array for container injection
+  # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
+  # Currently only RBRR_DNS_SERVER is needed by sentry; add others as needed
+  ZRBRR_DOCKER_ENV=()
+  ZRBRR_DOCKER_ENV+=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")
+
+  ZRBRR_KINDLED=1
+}
+
+zrbrr_sentinel() {
+  test "${ZRBRR_KINDLED:-}" = "1" || buc_die "Module rbrr not kindled - call zrbrr_broach first"
+}
+
+# Validate RBRR variables via buv_env_* (dies on first error)
+# Prerequisite: broach must have been called; buv_validation.sh must be sourced
+zrbrr_validate_fields() {
+  zrbrr_sentinel
+
+  # Die on unexpected variables
+  if test ${#ZRBRR_UNEXPECTED[@]} -gt 0; then
+    buc_die "Unexpected RBRR_ variables: ${ZRBRR_UNEXPECTED[*]}"
+  fi
 
   # Container Registry Configuration
   buv_env_xname       RBRR_REGISTRY_OWNER          2     64
@@ -89,18 +170,6 @@ zrbrr_kindle() {
     buc_step "Expected format: semantic version like 5.5 or 5.5.1"
     buc_die "Invalid RBRR_CHOSEN_PODMAN_VERSION"
   fi
-
-  # Build docker env args array for container injection
-  # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
-  # Currently only RBRR_DNS_SERVER is needed by sentry; add others as needed
-  ZRBRR_DOCKER_ENV=()
-  ZRBRR_DOCKER_ENV+=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")
-
-  ZRBRR_KINDLED=1
-}
-
-zrbrr_sentinel() {
-  test "${ZRBRR_KINDLED:-}" = "1" || buc_die "Module rbrr not kindled - call zrbrr_kindle first"
 }
 
 ######################################################################
@@ -108,13 +177,14 @@ zrbrr_sentinel() {
 
 # Load RBRR regime
 # Usage: rbrr_load
-# Uses RBCC_RBRR_FILE to locate rbrr_RecipeBottleRegimeRepo.sh, verifies exists, sources, kindles
+# Uses RBCC_RBRR_FILE to locate rbrr_RecipeBottleRegimeRepo.sh, verifies exists, sources, broaches, and validates
 rbrr_load() {
   local z_rbrr_file="${RBCC_RBRR_FILE}"
   test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
 
   source "${z_rbrr_file}" || buc_die "Failed to source RBRR config: ${z_rbrr_file}"
-  zrbrr_kindle
+  zrbrr_broach
+  zrbrr_validate_fields
 }
 
 # eof
