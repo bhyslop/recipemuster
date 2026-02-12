@@ -3075,9 +3075,10 @@
         "₢APAAD",
         "₢APAAH",
         "₢APAAN",
-        "₢APAAe"
+        "₢APAAe",
+        "₢APAAi"
       ],
-      "next_pace_seed": "AAi",
+      "next_pace_seed": "AAj",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -4005,6 +4006,17 @@
               "text": "Clean up regime load primitives from APAAg: eliminate magic strings, fix bugs, create RBCC constants module, and refactor missed callsites.\n\n## 1. Create RBCC Constants Module\n\nNew BCG module `rbcc_Constants.sh` in `Tools/rbw/` following `rbgc_Constants.sh` pattern:\n\n```\nzrbcc_kindle():\n  RBCC_KIT_DIR=\"${BURC_TOOLS_DIR}/rbw\"          # kit directory (rbw until renamed rbk)\n  RBCC_RBRN_PREFIX=\"rbrn_\"                      # nameplate file prefix\n  RBCC_RBRN_EXT=\".env\"                          # nameplate file extension\n  RBCC_RBRR_FILE=\"rbrr_RecipeBottleRegimeRepo.sh\"  # RBRR assignment at project root\n```\n\nNo CLI needed (library/utility module). Must be kindled before rbrn_load/rbrr_load are called.\n\n## 2. Fix BURC_PROJECT_ROOT Bug in rbrr_load\n\n`rbrr_regime.sh:116` uses `${BURC_PROJECT_ROOT}/rbrr_RecipeBottleRegimeRepo.sh` but BURC_PROJECT_ROOT=.. is relative to burc.env location, not CWD. From bash CWD (project root), this resolves to parent directory. Fix: use `${RBCC_RBRR_FILE}` (bare relative from project root).\n\nSame bug exists in `rbrv_cli.sh:47,84` conditional checks.\n\n## 3. Replace Magic Strings in rbrn_regime.sh\n\nIn `rbrn_load` (line 203) and `rbrn_list` (line 228):\n- Replace `\"${BURC_TOOLS_DIR}/rbw/rbrn_\"` with `\"${RBCC_KIT_DIR}/${RBCC_RBRN_PREFIX}\"`\n- Replace `.env` with `${RBCC_RBRN_EXT}`\n- Replace prefix strip `rbrn_` with `${RBCC_RBRN_PREFIX}`\n\n## 4. Refactor Missed Callsites\n\nThe APAAg agent missed these rbrr callsites still using old RBL pattern:\n- `rbgm_cli.sh:42-43` — validate + source via RBL_RBRR_FILE\n- `rbgp_cli.sh:42-43` — validate + source via RBL_RBRR_FILE\n\nSwitch to `rbrr_load()`.\n\n## 5. Assess RBL Locator Retirement\n\nAfter all callers migrate to rbrr_load, check if rbl_Locator.sh has remaining consumers. If RBL_RBRR_FILE and RBL_RBRP_FILE are its only exports and all callers have migrated, flag for retirement.\n\n## 6. Makefile References\n\n`rbw.workbench.mk:35,42` uses bare `rbrr_RecipeBottleRegimeRepo.sh` string. These cant call bash functions. Assess whether Makefile should reference RBCC_RBRR_FILE or if bare string is acceptable in Makefile context.\n\n## 7. Render Appearance Nudges\n\nReview `rbrn_cli.sh` render and validate output formatting. Collect specific nudge requests from user during execution.\n\n## Notes\n\n- RBCC kindle must be added to furnish functions of all CLIs that call rbrn_load or rbrr_load\n- The kindle graph change means sourcing rbcc_Constants.sh in CLI headers alongside other dependencies\n- BCG rule: file paths ALL defined in kindle as module variables",
               "silks": "regime-load-cleanup",
               "commit": "3f4dc54"
+            }
+          ]
+        },
+        "₢APAAi": {
+          "tacks": [
+            {
+              "ts": "260212-0932",
+              "state": "rough",
+              "text": "Add a container smoke test step to the ark-lifecycle test suite.\n\n## Context\n\nThe ark-lifecycle test (rbtcal_ArkLifecycle.sh) exercises image build/push/pull\nthrough the foundry but never starts a container from the resulting image. This\nleaves a gap: we prove the image exists in the registry but not that it runs.\n\n## Work\n\n1. After the existing ark-lifecycle image retrieval step, add a new test step\n   that starts a container from the retrieved image using the bottle\n   infrastructure (rbob_start or equivalent).\n2. Interact with the running container at least once — e.g., exec a command,\n   check a health endpoint, or verify a known file exists inside the container.\n3. Stop and clean up the container (rbob_stop or equivalent).\n4. Use the existing rbtb_exec_bottle / rbtb_exec_sentry helpers from\n   rbtb_testbench.sh if applicable, or the BUT framework test primitives.\n\n## Constraints\n\n- The test vessel used is trbim-macos (test image for macOS).\n- Must work within the existing BUT framework case registration pattern.\n- Container start/stop should be idempotent (clean up even on failure).\n\n## Acceptance\n\n- ark-lifecycle suite includes a case that starts a container from the built image\n- At least one interaction proves the container is functional\n- Container is cleaned up after the test",
+              "silks": "ark-lifecycle-container-smoke",
+              "commit": "61be3a1"
             }
           ]
         }
