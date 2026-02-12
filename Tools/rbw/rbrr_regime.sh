@@ -295,6 +295,7 @@ rbrr_refresh_gcb_pins() {
 
     z_raw=$(docker manifest inspect "${z_image}:${z_tag}" 2>/dev/null) || {
       buc_warn "Failed to fetch manifest for ${z_image}:${z_tag}"
+      buc_warn "Docker Hub rate limits are common; wait a few minutes and retry"
       z_failed=$((z_failed + 1))
       continue
     }
@@ -333,7 +334,11 @@ rbrr_refresh_gcb_pins() {
   done
 
   buc_step "Refresh complete: ${z_updated} updated, ${z_unchanged} unchanged, ${z_failed} failed"
-  test "${z_failed}" -eq 0 || buc_die "Some image manifests could not be fetched"
+  if test "${z_failed}" -gt 0; then
+    buc_warn "Some manifests failed — likely Docker Hub rate limiting (unauthenticated pulls)"
+    buc_warn "Successfully pinned images are saved; re-run in a few minutes for the rest"
+    buc_die "Incomplete refresh: ${z_failed} image(s) could not be fetched"
+  fi
 }
 
 # eof
