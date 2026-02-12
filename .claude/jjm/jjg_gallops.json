@@ -3345,6 +3345,13 @@
         "₢APAAN": {
           "tacks": [
             {
+              "ts": "260212-0637",
+              "state": "complete",
+              "text": "Fix buc_link ANSI escape sequence rendering.\n\n## Problem\nThe `buc_link` function outputs raw escape codes instead of interpreted ANSI:\n```\nClick to  \\033[34m\\033[4mOpen build in Cloud Console\\033[0m\n```\n\n## Location\n- Called from: `Tools/rbw/rbf_Foundry.sh:473`\n- Implementation: likely in `Tools/buk/buc_command.sh`\n\n## Fix\nEnsure escape sequences are interpreted - either:\n- Use `echo -e` instead of `echo`\n- Use `printf` with proper formatting\n- Use `$'...'` quoting for literal escapes",
+              "silks": "fix-buc-link-ansi-escapes",
+              "commit": "2b353b1"
+            },
+            {
               "ts": "260128-2035",
               "state": "rough",
               "text": "Fix buc_link ANSI escape sequence rendering.\n\n## Problem\nThe `buc_link` function outputs raw escape codes instead of interpreted ANSI:\n```\nClick to  \\033[34m\\033[4mOpen build in Cloud Console\\033[0m\n```\n\n## Location\n- Called from: `Tools/rbw/rbf_Foundry.sh:473`\n- Implementation: likely in `Tools/buk/buc_command.sh`\n\n## Fix\nEnsure escape sequences are interpreted - either:\n- Use `echo -e` instead of `echo`\n- Use `printf` with proper formatting\n- Use `$'...'` quoting for literal escapes",
