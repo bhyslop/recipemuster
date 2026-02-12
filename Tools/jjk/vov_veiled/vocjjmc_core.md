@@ -165,6 +165,12 @@ Always run these after Rust code changes:
 - `tt/vow-b.Build.sh` — Build
 - `tt/vvw-r.RunVVX.sh` — Run VVX
 
+**JJX Commands Are Self-Committing:**
+`jjx_enroll`, `jjx_close`, `jjx_record`, and other state-mutating jjx commands commit gallops changes internally. Do NOT follow them with a separate `vvx_commit` — the tree will already be clean. If a commit command says "Nothing to commit", check `git status --short` and accept the result.
+
+**Diagnose Before Escalating:**
+When a command fails, check the simplest explanation first. "Nothing to commit" means the tree is clean — verify with `git status`, don't try creative workarounds. "Unexpected argument" means wrong CLI syntax — read `--help`, don't guess. One diagnostic command beats three speculative retries.
+
 **Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available.
 
 ### Bridleability Assessment

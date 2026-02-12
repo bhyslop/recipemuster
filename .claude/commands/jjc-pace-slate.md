@@ -93,14 +93,10 @@ If not bridleable, state why: "Needs human judgment — [reason]"
 
 **Next:** `/jjc-pace-slate` (add another) | `/jjc-pace-reslate` (refine) | `/jjc-pace-bridle` (arm)
 
-## Step 6: Auto-commit changes
+## Step 6: Commit note
 
-Run guarded commit:
-```bash
-./tt/vvw-r.RunVVX.sh vvx_commit --message "Slate: <SILKS> in ₣<FIREMARK>"
-```
-
-On failure (e.g., lock held), report error but don't fail the operation — gallops changes are already saved.
+`jjx_enroll` commits gallops changes internally — no separate commit step needed.
+If `git status` shows a clean tree after enroll, that is expected and correct.
 
 ## Error handling
 
