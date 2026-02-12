@@ -165,11 +165,14 @@ zbupr_render_field() {
     printf "  ${z_nc}%-30s${ZBUC_RESET}  %-24s  ${ZBUC_BLUE}%-4s %-11s${ZBUC_RESET}  ${ZBUC_CYAN}%s${ZBUC_RESET}\n" \
       "${z_varname}" "${z_value}" "${z_req}" "${z_type}" "${z_desc}"
   else
-    # Narrow terminal: name+value line 1, req type description line 2
-    printf "  ${z_nc}%-30s${ZBUC_RESET}  %s\n" \
-      "${z_varname}" "${z_value}"
-    printf "      ${ZBUC_BLUE}%-4s %-11s${ZBUC_RESET}  ${ZBUC_CYAN}%s${ZBUC_RESET}\n" \
-      "${z_req}" "${z_type}" "${z_desc}"
+    # Narrow terminal: 3-line short display
+    # Line 1: name + req + type
+    printf "  ${z_nc}%-30s${ZBUC_RESET}  ${ZBUC_BLUE}%-4s %-11s${ZBUC_RESET}\n" \
+      "${z_varname}" "${z_req}" "${z_type}"
+    # Line 2: value
+    printf "      %s\n" "${z_value}"
+    # Line 3: description
+    printf "      ${ZBUC_CYAN}%s${ZBUC_RESET}\n" "${z_desc}"
   fi
 }
 
