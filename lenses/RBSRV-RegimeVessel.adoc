@@ -1,68 +1,90 @@
 //axhrb_regime
 {rbrv_regime}
 
-This regime specifies variables that define container image vessel configurations within the Recipe Bottle system.
-Each {rbrv_regime} instance represents a distinct container image definition with its own build parameters and runtime characteristics.
-RBRV assignment files are found in `rbev-vessels/*/rbrv.env` and control the build process for specific container image types.
+This regime specifies variables that define container vessel configurations within the Recipe Bottle system.
+Each
+{rbrv_regime}
+instance represents a vessel image source, either bound from an external registry or conjured from a Dockerfile.
+RBRV assignment files are found in `rbev-vessels/*/rbrv.env` and configure image sourcing for bottle deployments.
 
 //axhrv_variable
 {rbrv_sigil}
 
-Unique identifier for the vessel type.
-Must form valid directory name and moniker basis.
+Unique identifier for the vessel.
+Must be 1-64 characters forming a valid cross-context identifier.
+Must match the vessel directory name.
 
 //axhrv_variable
 {rbrv_description}
 
-Human-readable documentation of the vessel's purpose, role, and key characteristics.
-Used for identification in logs, messages, and documentation contexts.
+Human-readable description of the vessel purpose.
+Optional; 0-512 characters.
 
 //axhrv_variable
 {rbrv_vessel_mode}
 
-Selects which variable group is active for this vessel.
+Selects vessel provisioning strategy.
+Must be
+{rbrv_vessel_mode_bind}
+or
+{rbrv_vessel_mode_conjure}.
 
 //axhrgb_group
 {rbrv_group_binding}
 
 //axhrgc_gate
-{rbrv_vessel_mode} {rbrv_vessel_mode_bind}
+{rbrv_vessel_mode}
+{rbrv_vessel_mode_bind}
 
-Variables in this group apply only when {rbrv_vessel_mode} is {rbrv_vessel_mode_bind}.
+Variables in this group apply only when
+{rbrv_vessel_mode}
+is
+{rbrv_vessel_mode_bind}.
+Binding retrieves a pre-built image from an external registry without local build steps.
 
 //axhrgv_variable
 {rbrv_bind_image}
 
-Upstream container image reference used directly without modification.
+Fully-qualified image reference to copy from an external registry.
+Must be a valid FQIN; 1-512 characters.
 
 //axhrgb_group
 {rbrv_group_conjuring}
 
 //axhrgc_gate
-{rbrv_vessel_mode} {rbrv_vessel_mode_conjure}
+{rbrv_vessel_mode}
+{rbrv_vessel_mode_conjure}
 
-Variables in this group apply only when {rbrv_vessel_mode} is {rbrv_vessel_mode_conjure}.
+Variables in this group apply only when
+{rbrv_vessel_mode}
+is
+{rbrv_vessel_mode_conjure}.
+Conjuring builds a vessel image locally from a Dockerfile and build context in the repository.
 
 //axhrgv_variable
 {rbrv_conjure_dockerfile}
 
-Path to the Dockerfile used during the build process.
-Typically `${RBRR_VESSEL_DIR}/${RBRV_SIGIL}/Dockerfile`.
+Path to Dockerfile relative to repository root.
+Must be 1-512 characters.
 
 //axhrgv_variable
 {rbrv_conjure_bldcontext}
 
-Build context directory passed to the container build engine.
-Typically `${RBRR_VESSEL_DIR}/${RBRV_SIGIL}`.
+Build context path relative to repository root.
+Must be 1-512 characters.
 
 //axhrgv_variable
 {rbrv_conjure_platforms}
 
-Target platform architectures for multi-platform builds.
-Example: `linux/amd64 linux/arm64 linux/arm/v7`.
+Space-separated list of target platforms for multi-platform builds.
+Must be 1-512 characters.
+Examples: `linux/amd64`, `linux/amd64 linux/arm64`.
 
 //axhrgv_variable
 {rbrv_conjure_binfmt_policy}
 
-QEMU binary format policy for multi-platform builds.
-Controls cross-architecture binary format emulation during build.
+Controls whether cross-platform emulation via binfmt is permitted during builds.
+Must be
+{rbrv_binfmt_allow}
+or
+{rbrv_binfmt_forbid}.

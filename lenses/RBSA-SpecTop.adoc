@@ -279,6 +279,8 @@
 :rbrv_vessel_mode_conjure:    <<rbrv_vessel_mode_conjure,conjure>>
 :rbrv_group_binding:          <<rbrv_group_binding,Binding Group>>
 :rbrv_group_conjuring:        <<rbrv_group_conjuring,Conjuring Group>>
+:rbrv_binfmt_allow:           <<rbrv_binfmt_allow,allow>>
+:rbrv_binfmt_forbid:          <<rbrv_binfmt_forbid,forbid>>
 
 // Recipe Bottle Regime: Authentication (service account credentials)
 :rbra_regime:                <<rbra_regime,RBRA Regime>>
@@ -1944,6 +1946,14 @@ Target platform architectures for {rbrv_regime} multi-platform builds.
 //axvr_variable axd_optional rbst_binfmt_policy
 {rbrv_conjure_binfmt_policy}::
 Qemu binary format policy for {rbrv_regime} cross-platform builds.
+
+[[rbrv_binfmt_allow]]
+{rbrv_binfmt_allow}::
+Permits cross-platform emulation via binfmt during builds.
+
+[[rbrv_binfmt_forbid]]
+{rbrv_binfmt_forbid}::
+Prohibits cross-platform emulation; build targets must match host architecture.
 
 include::RBSRV-RegimeVessel.adoc[]
 
