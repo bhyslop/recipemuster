@@ -1,2 +1,3 @@
 #!/bin/bash
-cd "${0%/*}/.." && Tools/buk/bud_dispatch.sh "${0##*/}" "$@"
+export BURD_LAUNCHER=".buk/launcher.rbk_Coordinator.sh"
+exec "$(dirname "${BASH_SOURCE[0]}")/../${BURD_LAUNCHER}" "${0##*/}" "${@}"

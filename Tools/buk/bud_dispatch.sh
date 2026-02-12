@@ -22,7 +22,7 @@ set -euo pipefail
 
 BURD_VERBOSE=${BURD_VERBOSE:-0}
 
-BURD_REGIME_FILE=${BURD_REGIME_FILE:-"__MISSING_REGIME_FILE__"}
+BURD_REGIME_FILE=${BURD_REGIME_FILE:-"__MISSING_BURD_REGIME_FILE__"}
 
 # Utility function for verbose output
 zbud_show() { test "$BURD_VERBOSE" != "1" || echo "BURDSHOW: $*"; }

@@ -77,6 +77,7 @@ rbk_route() {
     rbw-as)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_summon   "$@" ;;
 
     # Image commands (single artifact)
+    rbw-iB)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_build    "$@" ;;
     rbw-iD)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_delete   "$@" ;;
     rbw-il)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_list     "$@" ;;
     rbw-ir)  exec "$RBK_SCRIPT_DIR/rbf_cli.sh" rbf_retrieve "$@" ;;
