@@ -169,10 +169,10 @@ zbupr_render_field() {
     # Line 1: name + req + type
     printf "  ${z_nc}%-30s${ZBUC_RESET}  ${ZBUC_BLUE}%-4s %-11s${ZBUC_RESET}\n" \
       "${z_varname}" "${z_req}" "${z_type}"
-    # Line 2: value
-    printf "      %s\n" "${z_value}"
-    # Line 3: description
-    printf "      ${ZBUC_CYAN}%s${ZBUC_RESET}\n" "${z_desc}"
+    # Line 2: current value
+    printf "      ${ZBUC_WHITE}%s${ZBUC_RESET}\n" "${z_value}"
+    # Line 3: meaning
+    printf "      ${ZBUC_GRAY}meaning => %s${ZBUC_RESET}\n" "${z_desc}"
   fi
 }
 
