@@ -38,9 +38,6 @@ zburc_cli_kindle() {
   # Verify environment
   test -n "${BURD_REGIME_FILE:-}" || buc_die "BURD_REGIME_FILE not set - must be called via launcher"
 
-  ZBURC_SPEC_FILE="${ZBURC_CLI_SCRIPT_DIR}/burc_specification.md"
-  ZBURC_SPEC_FILE_ABSOLUTE="$(cd "${ZBURC_CLI_SCRIPT_DIR}" && pwd)/burc_specification.md"
-
   ZBURC_CLI_KINDLED=1
 }
 
@@ -71,65 +68,6 @@ burc_render() {
   printf "%-25s %s\n" "BURC_LOG_EXT" "${BURC_LOG_EXT:-<not set>}"
 }
 
-# Command: info - display specification (formatted for terminal)
-burc_info() {
-  cat <<EOF
-
-${ZBUC_CYAN}========================================${ZBUC_RESET}
-${ZBUC_WHITE}BURC - Bash Utility Regime Configuration${ZBUC_RESET}
-${ZBUC_CYAN}========================================${ZBUC_RESET}
-
-${ZBUC_YELLOW}Overview${ZBUC_RESET}
-Project-level configuration that defines repository structure for BUK.
-Checked into git and shared by all developers on the team.
-
-${ZBUC_YELLOW}Variables${ZBUC_RESET}
-
-  ${ZBUC_GREEN}BURC_STATION_FILE${ZBUC_RESET}
-    Path to developer's BURS file (relative to project root)
-    Type: string
-    Example: ../station-files/burs.env
-
-  ${ZBUC_GREEN}BURC_TABTARGET_DIR${ZBUC_RESET}
-    Directory containing tabtarget scripts
-    Type: string
-    Example: tt
-
-  ${ZBUC_GREEN}BURC_TABTARGET_DELIMITER${ZBUC_RESET}
-    Token separator in tabtarget filenames
-    Type: string
-    Example: .
-
-  ${ZBUC_GREEN}BURC_TOOLS_DIR${ZBUC_RESET}
-    Directory containing tool scripts
-    Type: string
-    Example: Tools
-
-  ${ZBUC_GREEN}BURC_TEMP_ROOT_DIR${ZBUC_RESET}
-    Parent directory for temp directories
-    Type: string
-    Example: ../temp-buk
-
-  ${ZBUC_GREEN}BURC_OUTPUT_ROOT_DIR${ZBUC_RESET}
-    Parent directory for output directories
-    Type: string
-    Example: ../output-buk
-
-  ${ZBUC_GREEN}BURC_LOG_LAST${ZBUC_RESET}
-    Basename for "last run" log file
-    Type: xname
-    Example: last
-
-  ${ZBUC_GREEN}BURC_LOG_EXT${ZBUC_RESET}
-    Extension for log files (without dot)
-    Type: xname
-    Example: txt
-
-EOF
-
-  printf "${ZBUC_CYAN}For full specification, see: \033]8;;file://${ZBURC_SPEC_FILE_ABSOLUTE}\033\\${ZBURC_SPEC_FILE}\033]8;;\033\\${ZBUC_RESET}\n"
-}
-
 ######################################################################
 # Main dispatch
 
@@ -144,11 +82,8 @@ case "${z_command}" in
   render)
     burc_render
     ;;
-  info)
-    burc_info
-    ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: burc_cli.sh {validate|render|info}"
+    buc_die "Unknown command: ${z_command}. Usage: burc_cli.sh {validate|render}"
     ;;
 esac
 

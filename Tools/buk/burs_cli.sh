@@ -38,8 +38,6 @@ zburs_cli_kindle() {
   # Verify environment
   test -n "${BURD_STATION_FILE:-}" || buc_die "BURD_STATION_FILE not set - must be called via launcher"
 
-  ZBURS_SPEC_FILE="${ZBURS_CLI_SCRIPT_DIR}/burs_specification.md"
-
   ZBURS_CLI_KINDLED=1
 }
 
@@ -63,30 +61,6 @@ burs_render() {
   printf "%-25s %s\n" "BURS_LOG_DIR" "${BURS_LOG_DIR:-<not set>}"
 }
 
-# Command: info - display specification (formatted for terminal)
-burs_info() {
-  cat <<EOF
-
-${ZBUC_CYAN}========================================${ZBUC_RESET}
-${ZBUC_WHITE}BURS - Bash Utility Regime Station${ZBUC_RESET}
-${ZBUC_CYAN}========================================${ZBUC_RESET}
-
-${ZBUC_YELLOW}Overview${ZBUC_RESET}
-Developer/machine-level configuration for personal preferences.
-NOT checked into git - each developer has their own BURS file.
-
-${ZBUC_YELLOW}Variables${ZBUC_RESET}
-
-  ${ZBUC_GREEN}BURS_LOG_DIR${ZBUC_RESET}
-    Where this developer stores logs
-    Type: string
-    Example: ../_logs_buk
-
-${ZBUC_CYAN}For full specification, see: ${ZBURS_SPEC_FILE}${ZBUC_RESET}
-
-EOF
-}
-
 ######################################################################
 # Main dispatch
 
@@ -101,11 +75,8 @@ case "${z_command}" in
   render)
     burs_render
     ;;
-  info)
-    burs_info
-    ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: burs_cli.sh {validate|render|info}"
+    buc_die "Unknown command: ${z_command}. Usage: burs_cli.sh {validate|render}"
     ;;
 esac
 

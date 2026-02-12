@@ -11,6 +11,9 @@
 // busdi_: Dispatch Imprint (embedded parameter/target specifier)
 // busdm_: Dispatch Formulary (routing component)
 // busdl_: Dispatch Launcher (bootstrap script)
+// bukro_: Kit Regime Operation (broach/validate/render)
+// burc_:  Configuration Regime (project-level settings)
+// burs_:  Station Regime (developer-level settings)
 //
 // Variant patterns:
 //   _s: plural form
@@ -31,6 +34,44 @@
 :busdm_formulary_s:     <<busdm_formulary,Formularies>>
 :busdl_launcher:        <<busdl_launcher,Launcher>>
 :busdl_launcher_s:      <<busdl_launcher,Launchers>>
+
+// Axial Regime Terms (from AXLA — matching RBSA)
+:axrg_assignment:                  <<axrg_assignment,Assignment>>
+:axrg_assignment_s:                <<axrg_assignment,Assignments>>
+:axrg_prefix:                      <<axrg_prefix,Regime Prefix>>
+:axrg_regime:                      <<axrg_regime,Regime>>
+:axrg_regime_s:                    <<axrg_regime,Regimes>>
+:axrg_variable:                    <<axrg_variable,Regime Variable>>
+:axrg_variable_s:                  <<axrg_variable,Regime Variables>>
+
+// Axial Format Terms (from AXLA — matching RBSA)
+:axf_bash:                         <<axf_bash,Bash Format>>
+
+// BUK Regime Operation Terms
+:bukro_broach:                     <<bukro_broach,BUK Broach>>
+:bukro_validate:                   <<bukro_validate,BUK Validate>>
+:bukro_render:                     <<bukro_render,BUK Render>>
+
+// BUK Regime Prefixes
+:burc_prefix:                      <<burc_prefix,BURC_>>
+:burs_prefix:                      <<burs_prefix,BURS_>>
+
+// BURC Regime: Configuration (project-level BUK settings)
+:burc_regime:                      <<burc_regime,BURC Regime>>
+:burc_station_file:                <<burc_station_file,BURC_STATION_FILE>>
+:burc_tabtarget_dir:               <<burc_tabtarget_dir,BURC_TABTARGET_DIR>>
+:burc_tabtarget_delimiter:         <<burc_tabtarget_delimiter,BURC_TABTARGET_DELIMITER>>
+:burc_tools_dir:                   <<burc_tools_dir,BURC_TOOLS_DIR>>
+:burc_project_root:                <<burc_project_root,BURC_PROJECT_ROOT>>
+:burc_managed_kits:                <<burc_managed_kits,BURC_MANAGED_KITS>>
+:burc_temp_root_dir:               <<burc_temp_root_dir,BURC_TEMP_ROOT_DIR>>
+:burc_output_root_dir:             <<burc_output_root_dir,BURC_OUTPUT_ROOT_DIR>>
+:burc_log_last:                    <<burc_log_last,BURC_LOG_LAST>>
+:burc_log_ext:                     <<burc_log_ext,BURC_LOG_EXT>>
+
+// BURS Regime: Station (developer-level BUK settings)
+:burs_regime:                      <<burs_regime,BURS Regime>>
+:burs_log_dir:                     <<burs_log_dir,BURS_LOG_DIR>>
 
 // end::mapping-section[]
 
@@ -245,3 +286,127 @@ follow a structure that encodes both kit identity and formulary type:
 * `{cipher}-{variant}-` — specialized workbench (e.g., `rbw-B-` for bottle operations)
 
 The trailing hyphen is always part of the colophon — it separates the routing prefix from the dot-delimited tabtarget components.
+
+== Regime Configuration
+
+BUK defines two
+{axrg_regime_s}
+for project and developer configuration.
+{axrg_assignment_s}
+use
+{axf_bash}
+format (shell variable assignment files that are sourced).
+
+=== Regime Prefixes
+
+[[burc_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{burc_prefix}::
+Bash Utility Configuration Regime
+
+[[burs_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{burs_prefix}::
+Bash Utility Station Regime
+
+=== Kit Regime Operations
+
+[[bukro_broach]]
+// ⟦axvr_broach⟧
+{bukro_broach}::
+Silent initialization of Bash Utility Kit regime state from
+{axrg_assignment_s}.
+Sets defaults, detects unexpected variables, builds derived structures.
+
+[[bukro_validate]]
+// ⟦axvr_validate⟧
+{bukro_validate}::
+Strict field validation for Bash Utility Kit
+{axrg_regime_s}.
+Checks all type and constraint requirements via buv_env_* validators.
+
+[[bukro_render]]
+// ⟦axvr_render⟧
+{bukro_render}::
+Diagnostic display of Bash Utility Kit
+{axrg_regime}
+state.
+
+=== BURC Regime
+
+[[burc_regime]]
+// ⟦axvr_regime axf_bash axrd_file_sourced⟧
+{burc_regime}::
+Configuration regime for project-level BUK settings.
+BURC assignment files in `.buk/burc.env` define repository structure and tabtarget infrastructure.
+
+[[burc_station_file]]
+// ⟦axvr_variable axd_required axtu_path⟧
+{burc_station_file}::
+Path to the developer's personal
+{burs_regime}
+assignment file.
+
+[[burc_tabtarget_dir]]
+// ⟦axvr_variable axd_required axtu_path⟧
+{burc_tabtarget_dir}::
+Directory containing
+{busdl_launcher}
+scripts.
+
+[[burc_tabtarget_delimiter]]
+// ⟦axvr_variable axd_required axtu_string⟧
+{burc_tabtarget_delimiter}::
+Single-character token separator in
+{bust_tabtarget}
+inscriptions.
+
+[[burc_tools_dir]]
+// ⟦axvr_variable axd_required axtu_path⟧
+{burc_tools_dir}::
+Directory containing BUK utilities and project tool scripts.
+
+[[burc_project_root]]
+// ⟦axvr_variable axd_required axtu_path⟧
+{burc_project_root}::
+Path from assignment file location to the project root directory.
+
+[[burc_managed_kits]]
+// ⟦axvr_variable axd_required axtu_string⟧
+{burc_managed_kits}::
+Comma-separated list of kits managed by vvx.
+At release time, determines which kits are built into the binary.
+At install time, must exactly match the parcel's kit list.
+
+[[burc_temp_root_dir]]
+// ⟦axvr_variable axd_required axtu_path⟧
+{burc_temp_root_dir}::
+Root directory for BUK temporary files.
+
+[[burc_output_root_dir]]
+// ⟦axvr_variable axd_required axtu_path⟧
+{burc_output_root_dir}::
+Root directory for BUK command output files.
+
+[[burc_log_last]]
+// ⟦axvr_variable axd_required axtu_xname⟧
+{burc_log_last}::
+Filename stem for the most recent command execution log.
+
+[[burc_log_ext]]
+// ⟦axvr_variable axd_required axtu_xname⟧
+{burc_log_ext}::
+File extension for log files, without leading dot.
+
+=== BURS Regime
+
+[[burs_regime]]
+// ⟦axvr_regime axf_bash axrd_file_sourced⟧
+{burs_regime}::
+Configuration regime for developer-level BUK settings.
+BURS assignment files are personal to each developer and not committed to version control.
+
+[[burs_log_dir]]
+// ⟦axvr_variable axd_required axtu_path⟧
+{burs_log_dir}::
+Directory where this developer stores BUK operation logs.

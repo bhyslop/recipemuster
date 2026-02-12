@@ -68,7 +68,7 @@ Full read and edit access is pre-approved for all files in:
 - **BUV**  → `buk/buv_validation.sh` (validation utilities, buv_* functions)
 - **BUW**  → `buk/buw_workbench.sh` (workbench utilities, buw_* functions)
 - **BURC** → `buk/burc_cli.sh`, `buk/burc_regime.sh` (regime configuration)
-- **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime secrets)
+- **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime station)
 
 #### CCCK Subdirectory (`Tools/ccck/`)
 - **CCCK** → `ccck/cccw_workbench.sh`
