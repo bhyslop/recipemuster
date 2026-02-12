@@ -51,28 +51,28 @@ RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 # These are only used inside GCB build steps (_RBGY_* substitutions).
 
 # gcrane: registry utility (~Apr 2025)
-RBRR_GCB_GCRANE_IMAGE_REF="gcr.io/go-containerregistry/gcrane@sha256:b6f6b744e7b5db9f50a85d3c7c0a7f5e04f04d1ad26d872d23eec92cb3dc5025"
+RBRR_GCB_GCRANE_IMAGE_REF="gcr.io/go-containerregistry/gcrane@sha256:c88b1089502143f218178bdb66e2a5346f0bda2adc8f94e92ffb74fec062de7e"
 
 # oras: OCI artifact/referrer client (~May 2025)
-RBRR_GCB_ORAS_IMAGE_REF="ghcr.io/oras-project/oras@sha256:61b7765b4c2847d734e1d80f37c63dbfb11494ff0f40a32ab2d0c7e61028b5b1"
+RBRR_GCB_ORAS_IMAGE_REF="ghcr.io/oras-project/oras@sha256:99d2097851ec7f58f5a2d0b363157a6877ccca0da4855a5637328eea5b3610b2"
 
 # gcloud: GCP CLI builder (~Feb 2026)
-RBRR_GCB_GCLOUD_IMAGE_REF="gcr.io/cloud-builders/gcloud@sha256:PLACEHOLDER_RUN_REFRESH"
+RBRR_GCB_GCLOUD_IMAGE_REF="gcr.io/cloud-builders/gcloud@sha256:1989502ea7ad57108d402ef448498e4c10773d3178cf6e9365ace17f53c48351"
 
 # docker: Docker/buildx builder (~Feb 2026)
-RBRR_GCB_DOCKER_IMAGE_REF="gcr.io/cloud-builders/docker@sha256:PLACEHOLDER_RUN_REFRESH"
+RBRR_GCB_DOCKER_IMAGE_REF="gcr.io/cloud-builders/docker@sha256:a768635eba4ce6b4f234c49fed66a6ced5a1fe057055673f1268a2fe7d55d7e6"
 
 # skopeo: OCI registry copy tool (~Feb 2026)
-RBRR_GCB_SKOPEO_IMAGE_REF="quay.io/skopeo/stable@sha256:PLACEHOLDER_RUN_REFRESH"
+RBRR_GCB_SKOPEO_IMAGE_REF="quay.io/skopeo/stable@sha256:c709d440707f641213aedd45280fe2ea9236adb941a1a7c34adb5a3eb2eafeeb"
 
 # alpine: minimal Linux for scripting steps (~Feb 2026)
-RBRR_GCB_ALPINE_IMAGE_REF="alpine@sha256:PLACEHOLDER_RUN_REFRESH"
+RBRR_GCB_ALPINE_IMAGE_REF="alpine@sha256:c193c0c4ebfacc63b1ee5a350fceb43f31264d7d50951ce643e84ae543b618bb"
 
 # syft: SBOM generator (~Feb 2026)
-RBRR_GCB_SYFT_IMAGE_REF="anchore/syft@sha256:PLACEHOLDER_RUN_REFRESH"
+RBRR_GCB_SYFT_IMAGE_REF="anchore/syft@sha256:19ed45c8f4bf846390b072966a2fec52279d09f9e47650830ffabec7eebaf0fe"
 
 # binfmt: QEMU cross-platform registration (~Feb 2026)
-RBRR_GCB_BINFMT_IMAGE_REF="tonistiigi/binfmt@sha256:PLACEHOLDER_RUN_REFRESH"
+RBRR_GCB_BINFMT_IMAGE_REF="tonistiigi/binfmt@sha256:bc70b34ea97c6fb35ff7c8787a46beca6af9e8ab05e1c9b5f06a6a52dc8e981e"
 
 
 # Service Account Configuration - RBRA (Recipe Bottle Regime Auth) Format

@@ -223,7 +223,7 @@ rbrr_refresh_gcb_pins() {
   # Image specifications: VARNAME|BASE_IMAGE|TAG
   local z_specs=(
     "RBRR_GCB_GCRANE_IMAGE_REF|gcr.io/go-containerregistry/gcrane|latest"
-    "RBRR_GCB_ORAS_IMAGE_REF|ghcr.io/oras-project/oras|latest"
+    "RBRR_GCB_ORAS_IMAGE_REF|ghcr.io/oras-project/oras|v1.2.2"
     "RBRR_GCB_GCLOUD_IMAGE_REF|gcr.io/cloud-builders/gcloud|latest"
     "RBRR_GCB_DOCKER_IMAGE_REF|gcr.io/cloud-builders/docker|latest"
     "RBRR_GCB_SKOPEO_IMAGE_REF|quay.io/skopeo/stable|latest"
