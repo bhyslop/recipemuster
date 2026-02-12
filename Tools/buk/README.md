@@ -362,7 +362,7 @@ Project Root/
 │
 ├── Tools/                             # Tool scripts (portable, reusable)
 │   ├── buk/                           # BUK core utilities (graftable module)
-│   │   ├── burd_dispatch.sh # Dispatch system
+│   │   ├── bud_dispatch.sh # Dispatch system
 │   │   ├── buc_command.sh  # Command utilities
 │   │   ├── but_test.sh     # Test utilities
 │   │   ├── buv_validation.sh # Validation (type system)
@@ -400,7 +400,7 @@ User invokes TabTarget:
    → (If validation fails, display info and exit)
 
 3. Launcher delegates to BURD
-   → burd_dispatch.sh buw-ll
+   → bud_dispatch.sh buw-ll
 
 4. BURD sets up environment
    → Parses colophon, frontispiece, imprint(s) from filename
@@ -504,7 +504,7 @@ BUK modules use `bu{x}_` prefixes where `{x}` identifies the module.
 
 ### BURD - Bash Dispatch Utility
 
-**File**: `Tools/buk/burd_dispatch.sh`
+**File**: `Tools/buk/bud_dispatch.sh`
 
 **Purpose**: Central dispatch system that sets up execution environment and invokes the workbench.
 

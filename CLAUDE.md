@@ -56,7 +56,7 @@ Full read and edit access is pre-approved for all files in:
 - **BCG**  → `buk/vov_veiled/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
 - **BUSA** → `buk/vov_veiled/BUSA-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
 - **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
-- **BURD** → `buk/burd_dispatch.sh` (dispatch utilities, burd_* functions)
+- **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)
 - **BUG**  → `buk/bug_guide.sh` (guide utilities, bug_* functions - always-visible user interaction)
 - **BUT**  → `buk/but_test.sh` (test utilities, but_* functions)
 - **BUV**  → `buk/buv_validation.sh` (validation utilities, buv_* functions)
@@ -531,7 +531,7 @@ BUK provides tabtarget/launcher infrastructure for bash-based tooling.
 
 **Key files:**
 - `Tools/buk/buc_command.sh` — command utilities
-- `Tools/buk/burd_dispatch.sh` — dispatch utilities
+- `Tools/buk/bud_dispatch.sh` — dispatch utilities
 - `Tools/buk/buw_workbench.sh` — workbench
 
 **Tabtarget pattern:** `{colophon}.{frontispiece}[.{imprint}].sh`

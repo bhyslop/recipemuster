@@ -3,7 +3,7 @@
 **Pace:** ATAAA (study-all-recipe-bottle-regimes)
 **Heat:** AT (rbw-regime-consolidation)
 **Date:** 2026-02-09
-**Inputs:** CRR, all `*_regime.sh` validators, assignment files, `burd_dispatch.sh`, `rbgo_OAuth.sh`, `rbgp_Payor.sh`, `rbgg_Governor.sh`
+**Inputs:** CRR, all `*_regime.sh` validators, assignment files, `bud_dispatch.sh`, `rbgo_OAuth.sh`, `rbgp_Payor.sh`, `rbgg_Governor.sh`
 
 ---
 
@@ -13,7 +13,7 @@
 |---|--------|-----------|--------|-------|-----------|-----------|---------------|----------|
 | 1 | BURC_ | Regime Configuration | BUK | Project | Git-tracked, sourced at dispatch | `buk/burc_regime.sh` | `.buk/burc.env` | -- |
 | 2 | BURS_ | Regime Station | BUK | Developer/machine | External (NOT in git) | `buk/burs_regime.sh` | Path from `BURC_STATION_FILE` | -- |
-| 3 | BURD_ | Dispatch Runtime | BUK | Ephemeral | Set during `burd_dispatch.sh`, dies with process | -- (runtime only) | -- (computed) | -- |
+| 3 | BURD_ | Dispatch Runtime | BUK | Ephemeral | Set during `bud_dispatch.sh`, dies with process | -- (runtime only) | -- (computed) | -- |
 | 4 | RBRR_ | Regime Repo | RBW | Repository | Git-tracked, sourced at workbench kindle | `rbw/rbrr_regime.sh` | `rbrr_RecipeBottleRegimeRepo.sh` | `RBRR-RegimeRepo.adoc` |
 | 5 | RBRN_ | Regime Nameplate | RBW | Per-service | Git-tracked, one file per nameplate | `rbw/rbrn_regime.sh` | `rbw/rbrn_nsproto.env`, `rbrn_srjcl.env`, `rbrn_pluml.env` | `RBRN-RegimeNameplate.adoc` |
 | 6 | RBRP_ | Regime Payor | RBW | GCP payor project | Git-tracked | `rbw/rbrp_regime.sh` | `rbrp.env` | -- |
@@ -56,7 +56,7 @@ Sourced from path in `BURC_STATION_FILE`. Validated by `burs_regime.sh:zburs_kin
 
 ### 3. BURD_ (Dispatch Runtime)
 
-Set by `burd_dispatch.sh` during execution. **Not a declared regime** -- no validator, no assignment file, no spec doc. Runtime-only.
+Set by `bud_dispatch.sh` during execution. **Not a declared regime** -- no validator, no assignment file, no spec doc. Runtime-only.
 
 | Variable | Lifecycle | Notes |
 |----------|-----------|-------|

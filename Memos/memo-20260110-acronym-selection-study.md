@@ -189,7 +189,7 @@ rbgu_Utility.sh, rbi_Image.sh, rbk_Coordinator.sh
 rbl_Locator.sh, rbob_bottle.sh, rbv_PodmanVM.sh
 gadf_factory.py, gadib_base.js, gadic_cascade.css
 gadie_engine.js, gadiu_user.js, gadiw_webpage.html
-buc_command.sh, burd_dispatch.sh, bug_guide.sh
+buc_command.sh, bud_dispatch.sh, bug_guide.sh
 but_test.sh, buv_validation.sh, buw_workbench.sh
 ```
 

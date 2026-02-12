@@ -4,7 +4,7 @@ BUK provides tabtarget/launcher infrastructure for bash-based tooling.
 
 **Key files:**
 - `Tools/buk/buc_command.sh` — command utilities
-- `Tools/buk/burd_dispatch.sh` — dispatch utilities
+- `Tools/buk/bud_dispatch.sh` — dispatch utilities
 - `Tools/buk/buw_workbench.sh` — workbench formulary
 
 **Tabtarget pattern:** `{colophon}.{frontispiece}[.{imprint}].sh`
