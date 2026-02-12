@@ -77,21 +77,21 @@ rbrv_render() {
 
   # Core Vessel Identity
   rbcr_section_begin "Core Vessel Identity"
-    rbcr_line RBRV_SIGIL        xname   req  "Unique identifier (must match directory name)"
-    rbcr_line RBRV_DESCRIPTION  string  opt  "Human-readable description"
+  rbcr_section_item RBRV_SIGIL        xname   req  "Unique identifier (must match directory name)"
+  rbcr_section_item RBRV_DESCRIPTION  string  opt  "Human-readable description"
   rbcr_section_end
 
   # Binding Configuration
   rbcr_section_begin "Binding Configuration"
-    rbcr_line RBRV_BIND_IMAGE  fqin  opt  "Source image to copy from registry"
+  rbcr_section_item RBRV_BIND_IMAGE  fqin  opt  "Source image to copy from registry"
   rbcr_section_end
 
   # Conjuring Configuration
   rbcr_section_begin "Conjuring Configuration"
-    rbcr_line RBRV_CONJURE_DOCKERFILE     string  opt  "Dockerfile path relative to repo root"
-    rbcr_line RBRV_CONJURE_BLDCONTEXT     string  opt  "Build context relative to repo root"
-    rbcr_line RBRV_CONJURE_PLATFORMS      string  opt  "Space-separated target platforms"
-    rbcr_line RBRV_CONJURE_BINFMT_POLICY  enum    opt  "Cross-platform policy: allow or forbid"
+  rbcr_section_item RBRV_CONJURE_DOCKERFILE     string  opt  "Dockerfile path relative to repo root"
+  rbcr_section_item RBRV_CONJURE_BLDCONTEXT     string  opt  "Build context relative to repo root"
+  rbcr_section_item RBRV_CONJURE_PLATFORMS      string  opt  "Space-separated target platforms"
+  rbcr_section_item RBRV_CONJURE_BINFMT_POLICY  enum    opt  "Cross-platform policy: allow or forbid"
   rbcr_section_end
 
   # Unexpected variables (from kindle, not gated)

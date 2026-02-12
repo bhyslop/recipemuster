@@ -65,7 +65,7 @@ zrbcr_sentinel() {
 # Begin a render section.  Prints section header.
 # Optional gate: evaluates ${!GATE_VAR} against GATE_VALUE.
 # If gate not satisfied, prints collapsed reminder and suppresses
-# subsequent rbcr_line calls until rbcr_section_end.
+# subsequent rbcr_section_item calls until rbcr_section_end.
 rbcr_section_begin() {
   zrbcr_sentinel
   local z_title="$1"
@@ -89,13 +89,13 @@ rbcr_section_begin() {
 
   if test "${ZRBCR_SECTION_ACTIVE}" = 1; then
     if test -n "${z_gate_var}"; then
-      printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_BLUE}(since %s=%s)${ZBUC_RESET}\n" \
+      printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_GREEN}(since %s=%s)${ZBUC_RESET}\n" \
         "${z_title}" "${z_gate_var}" "${z_gate_value}"
     else
       printf "${ZBUC_YELLOW}%s${ZBUC_RESET}\n" "${z_title}"
     fi
   else
-    printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_BLUE}(%s)${ZBUC_RESET}\n" "${z_title}" "${ZRBCR_SECTION_GATE_DESC}"
+    printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_GREEN}(%s)${ZBUC_RESET}\n" "${z_title}" "${ZRBCR_SECTION_GATE_DESC}"
   fi
 }
 
@@ -109,9 +109,18 @@ rbcr_section_end() {
   ZRBCR_SECTION_SUPPRESSED=()
 }
 
-# rbcr_line VARNAME TYPE REQ_STATUS DESCRIPTION
+# rbcr_item VARNAME TYPE REQ_STATUS DESCRIPTION
 #
-# Render one regime field.
+# Render one regime field outside any section.
+# Same layout as rbcr_section_item but ignores section state.
+rbcr_item() {
+  zrbcr_sentinel
+  zrbcr_render_field "$@"
+}
+
+# rbcr_section_item VARNAME TYPE REQ_STATUS DESCRIPTION
+#
+# Render one regime field within a section.
 #   VARNAME:     unquoted regime variable name (e.g., RBRN_ENTRY_MODE)
 #   TYPE:        unquoted type badge (xname, string, fqin, port, ipv4, etc.)
 #   REQ_STATUS:  unquoted — req, opt, or cond
@@ -119,20 +128,28 @@ rbcr_section_end() {
 #
 # If section is collapsed (gate not satisfied), appends VARNAME to
 # suppressed list and returns silently.
-# Reads ZRBCR_LAYOUT to choose single-line or double-line format.
-rbcr_line() {
+rbcr_section_item() {
   zrbcr_sentinel
+
+  # Collapsed section — track and skip
+  if test "${ZRBCR_SECTION_ACTIVE}" = 0; then
+    ZRBCR_SECTION_SUPPRESSED+=("$1")
+    return 0
+  fi
+
+  zrbcr_render_field "$@"
+}
+
+# zrbcr_render_field VARNAME TYPE REQ_STATUS DESCRIPTION
+#
+# Shared rendering logic for rbcr_item and rbcr_section_item.
+# Reads ZRBCR_LAYOUT to choose single-line or double-line format.
+zrbcr_render_field() {
   local z_varname=$1
   local z_type=$2
   local z_req=$3
   local z_desc="$4"
   local z_value=${!z_varname:-}
-
-  # Collapsed section — track and skip
-  if test "${ZRBCR_SECTION_ACTIVE}" = 0; then
-    ZRBCR_SECTION_SUPPRESSED+=("${z_varname}")
-    return 0
-  fi
 
   # Name color: green when set, yellow when not set
   local z_nc
