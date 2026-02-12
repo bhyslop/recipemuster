@@ -38,13 +38,13 @@ butcvu_debug() {
 # butcvu_xname_valid - Valid xname test cases
 
 butcvu_xname_valid() {
-    buto_unit_expect_ok_stdout "abc"        buv_val_xname "var" "abc"        1 10
-    buto_unit_expect_ok_stdout "Test123"    buv_val_xname "var" "Test123"    1 10
-    buto_unit_expect_ok_stdout "my_var"     buv_val_xname "var" "my_var"     1 10
-    buto_unit_expect_ok_stdout "my-name"    buv_val_xname "var" "my-name"    1 10
-    buto_unit_expect_ok_stdout "A1_2-3"     buv_val_xname "var" "A1_2-3"     1 10
-    buto_unit_expect_ok_stdout "x"          buv_val_xname "var" "x"          1 10
-    buto_unit_expect_ok_stdout "abcdefghij" buv_val_xname "var" "abcdefghij" 1 10
+    buto_unit_expect_ok buv_val_xname "var" "abc"        1 10
+    buto_unit_expect_ok buv_val_xname "var" "Test123"    1 10
+    buto_unit_expect_ok buv_val_xname "var" "my_var"     1 10
+    buto_unit_expect_ok buv_val_xname "var" "my-name"    1 10
+    buto_unit_expect_ok buv_val_xname "var" "A1_2-3"     1 10
+    buto_unit_expect_ok buv_val_xname "var" "x"          1 10
+    buto_unit_expect_ok buv_val_xname "var" "abcdefghij" 1 10
 }
 
 ######################################################################
@@ -81,8 +81,8 @@ butcvu_xname_length() {
     buto_unit_expect_fatal buv_val_xname "var" "abcdefghijk" 1 10
 
     buto_info "Exactly at limits"
-    buto_unit_expect_ok_stdout "abc"        buv_val_xname "var" "abc"        3  10
-    buto_unit_expect_ok_stdout "abcdefghij" buv_val_xname "var" "abcdefghij" 10 10
+    buto_unit_expect_ok buv_val_xname "var" "abc"        3  10
+    buto_unit_expect_ok buv_val_xname "var" "abcdefghij" 10 10
 }
 
 ######################################################################
@@ -90,13 +90,13 @@ butcvu_xname_length() {
 
 butcvu_xname_defaults() {
     buto_info "Empty with default"
-    buto_unit_expect_ok_stdout "mydefault" buv_val_xname "var" "" 1 10 "mydefault"
+    buto_unit_expect_ok buv_val_xname "var" "" 1 10 "mydefault"
 
     buto_info "Non-empty ignores default"
-    buto_unit_expect_ok_stdout "actual" buv_val_xname "var" "actual" 1 10 "mydefault"
+    buto_unit_expect_ok buv_val_xname "var" "actual" 1 10 "mydefault"
 
     buto_info "Empty with min=0 and default"
-    buto_unit_expect_ok_stdout "mydefault" buv_val_xname "var" "" 0 10 "mydefault"
+    buto_unit_expect_ok buv_val_xname "var" "" 0 10 "mydefault"
 
     buto_info "Case completed"
 }
@@ -106,7 +106,7 @@ butcvu_xname_defaults() {
 
 butcvu_xname_empty_optional() {
     buto_info "Empty allowed when min=0"
-    buto_unit_expect_ok_stdout "" buv_val_xname "var" "" 0 10
+    buto_unit_expect_ok buv_val_xname "var" "" 0 10
 
     buto_info "Empty not allowed when min>0"
     buto_unit_expect_fatal buv_val_xname "var" "" 1 10
@@ -118,7 +118,7 @@ butcvu_xname_empty_optional() {
 butcvu_xname_env_wrapper() {
     buto_info "Valid value"
     export TEST_VAR="myname"
-    buto_unit_expect_ok_stdout "myname" buv_env_xname "TEST_VAR" 1 10
+    buto_unit_expect_ok buv_env_xname "TEST_VAR" 1 10
 
     buto_info "Invalid value"
     export TEST_VAR="123invalid"
@@ -126,7 +126,7 @@ butcvu_xname_env_wrapper() {
 
     buto_info "Empty with default"
     export TEST_VAR=""
-    buto_unit_expect_ok_stdout "default123" buv_env_xname "TEST_VAR" 1 10 "default123"
+    buto_unit_expect_ok buv_env_xname "TEST_VAR" 1 10 "default123"
 
     buto_info "Unset variable"
     unset TEST_VAR

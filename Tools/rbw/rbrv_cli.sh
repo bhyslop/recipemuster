@@ -56,8 +56,8 @@ rbrv_validate() {
   # Prepare state (no dying)
   zrbrv_kindle
 
-  # Strict validation (dies on error; suppress buv echo output)
-  zrbrv_validate_fields > /dev/null
+  # Strict validation (dies on error)
+  zrbrv_validate_fields
 
   buc_step "RBRV vessel valid"
 }
@@ -128,8 +128,8 @@ rbrv_render() {
     echo ""
   fi
 
-  # Validate (dies on first error, after full display; suppress buv echo output)
-  zrbrv_validate_fields > /dev/null
+  # Validate (dies on first error, after full display)
+  zrbrv_validate_fields
   echo "${ZBUC_GREEN}RBRV vessel valid${ZBUC_RESET}"
 }
 

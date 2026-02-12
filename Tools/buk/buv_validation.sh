@@ -91,7 +91,6 @@ buv_val_string() {
 
   # Allow empty if min=0
   if test "${z_min}" = "0" && test -z "${z_val}"; then
-    echo "${z_val}"
     return 0
   fi
 
@@ -103,8 +102,6 @@ buv_val_string() {
     test "${#z_val}" -ge "${z_min}" || buc_die "${z_varname} must be at least ${z_min} chars, got '${z_val}' (${#z_val})"
     test "${#z_val}" -le "${z_max}" || buc_die "${z_varname} must be no more than ${z_max} chars, got '${z_val}' (${#z_val})"
   fi
-
-  echo "${z_val}"
 }
 
 # Cross-context name validator (system-safe identifier)
@@ -127,7 +124,6 @@ buv_val_xname() {
 
   # Allow empty if min=0
   if test "${z_min}" = "0" && test -z "${z_val}"; then
-    echo "${z_val}"
     return 0
   fi
 
@@ -141,8 +137,6 @@ buv_val_xname() {
   # Must start with letter and contain only allowed chars
   echo "${z_val}" | grep -qE '^[a-zA-Z][a-zA-Z0-9_-]*$' || \
     buc_die "${z_varname} must start with letter and contain only letters, numbers, underscore, hyphen, got '${z_val}'"
-
-  echo "${z_val}"
 }
 
 # Google-style resource identifier (lowercase, digits, hyphens)
@@ -167,7 +161,6 @@ buv_val_gname() {
 
   # Allow empty if min=0
   if test "${z_min}" = "0" && test -z "${z_val}"; then
-    echo "${z_val}"
     return 0
   fi
 
@@ -179,8 +172,6 @@ buv_val_gname() {
   # Pattern: ^[a-z][a-z0-9-]*[a-z0-9]$
   echo "${z_val}" | grep -qE '^[a-z][a-z0-9-]*[a-z0-9]$' || \
     buc_die "${z_varname} must match ^[a-z][a-z0-9-]*[a-z0-9]$ (lowercase letters, digits, hyphens; start with a letter; end with letter/digit), got '${z_val}'"
-
-  echo "${z_val}"
 }
 
 # Fully Qualified Image Name component validator
@@ -203,7 +194,6 @@ buv_val_fqin() {
 
   # Allow empty if min=0
   if test "${z_min}" = "0" && test -z "${z_val}"; then
-    echo "${z_val}"
     return 0
   fi
 
@@ -217,8 +207,6 @@ buv_val_fqin() {
   # Allow letters, numbers, dots, hyphens, underscores, forward slashes, colons
   echo "${z_val}" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$' || \
     buc_die "${z_varname} must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, got '${z_val}'"
-
-  echo "${z_val}"
 }
 
 # Boolean validator
@@ -237,8 +225,6 @@ buv_val_bool() {
 
   test -n "${z_val}" || buc_die "${z_varname} must not be empty"
   test "${z_val}" = "0" || test "${z_val}" = "1" || buc_die "${z_varname} must be 0 or 1, got: '${z_val}'"
-
-  echo "${z_val}"
 }
 
 # Decimal range validator
@@ -261,8 +247,6 @@ buv_val_decimal() {
 
   test -n "${z_val}" || buc_die "${z_varname} must not be empty"
   test "${z_val}" -ge "${z_min}" && test "${z_val}" -le "${z_max}" || buc_die "${z_varname} value '${z_val}' must be between ${z_min} and ${z_max}"
-
-  echo "${z_val}"
 }
 
 # IPv4 validator
@@ -281,8 +265,6 @@ buv_val_ipv4() {
 
   test -n "${z_val}" || buc_die "${z_varname} must not be empty"
   echo "${z_val}" | grep -qE '^([0-9]{1,3}\.){3}[0-9]{1,3}$' || buc_die "${z_varname} has invalid IPv4 format: '${z_val}'"
-
-  echo "${z_val}"
 }
 
 # CIDR validator
@@ -301,8 +283,6 @@ buv_val_cidr() {
 
   test -n "${z_val}" || buc_die "${z_varname} must not be empty"
   echo "${z_val}" | grep -qE '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$' || buc_die "${z_varname} has invalid CIDR format: '${z_val}'"
-
-  echo "${z_val}"
 }
 
 # Domain validator
@@ -321,8 +301,6 @@ buv_val_domain() {
 
   test -n "${z_val}" || buc_die "${z_varname} must not be empty"
   echo "${z_val}" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$' || buc_die "${z_varname} has invalid domain format: '${z_val}'"
-
-  echo "${z_val}"
 }
 
 # Port validator
@@ -341,8 +319,6 @@ buv_val_port() {
 
   test -n "${z_val}" || buc_die "${z_varname} must not be empty"
   test "${z_val}" -ge 1 && test "${z_val}" -le 65535 || buc_die "${z_varname} value '${z_val}' must be between 1 and 65535"
-
-  echo "${z_val}"
 }
 
 # OCI/Docker image reference that MUST be digest-pinned
@@ -378,8 +354,6 @@ buv_val_odref() {
   #   - digest algo fixed to sha256 with 64 lowercase hex chars
   local z_re='^[a-z0-9.-]+(:[0-9]{2,5})?/([a-z0-9._-]+/)*[a-z0-9._-]+@sha256:[0-9a-f]{64}$'
   echo "${z_val}" | grep -Eq "${z_re}" || buc_die "${z_varname} has invalid image reference format (require host[:port]/repo@sha256:<64hex>), got '${z_val}'"
-
-  echo "${z_val}"
 }
 
 # List validators

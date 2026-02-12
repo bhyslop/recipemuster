@@ -880,9 +880,8 @@ buv_env_string "VAR_NAME" 1 100 "default"
 buv_env_bool   "FLAG_VAR" "0"
 buv_env_ipv4   "IP_VAR"
 
-# Validate parameters
-local z_validated_name
-z_validated_name=$(buv_val_xname "name" "${z_input_name}" 3 50)
+# Validate parameters (dies on failure, no return value)
+buv_val_xname "name" "${z_input_name}" 3 50
 ```
 
 ---
