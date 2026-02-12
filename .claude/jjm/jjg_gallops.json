@@ -1129,11 +1129,12 @@
         "₢ATAAA",
         "₢ATAAC",
         "₢ATAAY",
+        "₢ATAAb",
         "₢ATAAa",
         "₢ATAAF",
         "₢ATAAK"
       ],
-      "next_pace_seed": "AAb",
+      "next_pace_seed": "AAc",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1665,6 +1666,17 @@
               "text": "Unify runtime dispatch: merge RBK into workbench, use zipper kindle constants, add lookup dispatch.\n\n## Finding (from ₢ATAAY exploration)\n\nThree runtime dispatch patterns coexist:\n1. **Zipper+RBK** (20 tabtargets): tabtarget → launcher.rbk_Coordinator → BUD → rbk_Coordinator.sh case → exec CLI\n2. **Workbench case** (bottle ops, 11 tabtargets): tabtarget → launcher.rbw_workbench → BUD → rbw_workbench.sh case → exec CLI\n3. **Workbench pure exec** (regime ops, 8 tabtargets): same as #2 but one-liner exec\n\nRBK is redundant — it does the same case→exec routing as workbench. Neither uses\nthe zipper kindle constants (RBZ_CREATE_DEPOT etc.) — both have hardcoded magic strings.\n\n## Work\n\n1. **Merge RBK case arms into rbw_workbench.sh**: Move all 20 routing entries.\n   Switch their tabtargets from launcher.rbk_Coordinator to launcher.rbw_workbench.\n\n2. **Replace magic strings with zipper constants**: Workbench case arms use\n   ${RBZ_CREATE_DEPOT} instead of \"rbw-PC\", etc. Requires kindling buz/rbz\n   in the workbench (or its launcher).\n\n3. **Add zipper lookup dispatch for degenerate cases**: For arms with no\n   imprint logic, use a zbuz_exec_lookup that resolves colophon→CLI+command\n   from the registry. The workbench case statement shrinks to just non-degenerate\n   entries (bottle ops with RBOB_MONIKER, etc.).\n\n4. **Delete rbk_Coordinator.sh and launcher.rbk_Coordinator.sh**\n\n5. **Register regime colophons in zipper**: Add buz_register calls for\n   rbw-rnr, rbw-rnv, rbw-rvr, rbw-rvv, rbw-rrr, rbw-rrv so they participate\n   in the registry.\n\n## Acceptance\n\n- rbk_Coordinator.sh deleted\n- All 39 rbw-* tabtargets route through rbw_workbench.sh\n- Degenerate case arms use zipper lookup, not hardcoded case entries\n- All tabtargets still function correctly",
               "silks": "unify-workbench-zipper-dispatch",
               "commit": "c4a1055"
+            }
+          ]
+        },
+        "₢ATAAb": {
+          "tacks": [
+            {
+              "ts": "260212-1415",
+              "state": "rough",
+              "text": "Improve test tabtarget UX: make suites/cases discoverable, audit and remove dead tabtargets.\n\n## Problem\n\nRunning test tabtargets without arguments produces hostile output — a raw FATAL error\nwith no guidance. For example, `tt/rbw-to.TestOne.sh` prints:\n\n  ERROR: butd_run_one: function_name required\n\nAnd there are pre-existing test tabtargets of unknown status:\n- rbw-tb.TestBottles.parallel.sh\n- rbw-tb.TestBottles.single.sh\n- rbw-tf.FastTest.sh\n- rbw-tg.TestGithubWorkflow.sh\n\nThese may be dead or stale. Each must be researched — trace what they route to,\nwhether the target coordinator/function still exists, and whether they serve any\ncurrent purpose. Do not delete without confirming dead.\n\n## Work\n\n1. **Audit pre-existing test tabtargets**: For each of rbw-tb, rbw-tf, rbw-tg,\n   trace the routing chain. Check if the coordinator they reference exists, if\n   the commands they invoke are still valid. Report findings and delete confirmed\n   dead ones.\n\n2. **butd_run_suite with no arg**: Currently lists suites then fatals. Change to\n   print a clean table of available suites with case counts and exit 0.\n\n3. **butd_run_one with no arg**: Currently lists all functions then fatals. Change\n   to print a clean table grouped by suite and exit 0.\n\n4. **Testbench unknown command**: When rbtb_testbench.sh receives an unknown\n   command, list available test colophons with descriptions instead of dying\n   with \"Unknown command\".\n\n## Acceptance\n\n- Dead test tabtargets identified and removed (with rationale documented)\n- tt/rbw-ts.TestSuite.sh with no args prints available suites cleanly, exits 0\n- tt/rbw-to.TestOne.sh with no args prints available functions, exits 0\n- Output formatted for human scanning (aligned columns, suite grouping)\n- No changes to test execution behavior when args are provided",
+              "silks": "improve-test-discoverability",
+              "commit": "2184cae"
             }
           ]
         }
