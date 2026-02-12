@@ -220,10 +220,59 @@ rbrr_refresh_gcb_pins() {
     || z_vintage=$(date -d "${BURD_NOW_STAMP:0:4}-${BURD_NOW_STAMP:4:2}-${BURD_NOW_STAMP:6:2}" "+%b %Y" 2>/dev/null) \
     || buc_die "Cannot parse BURD_NOW_STAMP: ${BURD_NOW_STAMP}"
 
+  # Discover latest oras stable version from GHCR API.
+  # oras doesn't publish a :latest tag, so we must find the newest semver release.
+  # GHCR requires a bearer token even for public images.
+  buc_step "Discovering latest oras version from GHCR (no :latest tag published)"
+
+  local z_oras_tag=""
+  local z_token_file="${BURD_TEMP_DIR}/rbrr_oras_token.json"
+  local z_tags_file="${BURD_TEMP_DIR}/rbrr_oras_tags.json"
+
+  # Step 1: Obtain GHCR bearer token (anonymous, scoped to oras repo)
+  curl -sS \
+    "https://ghcr.io/token?scope=repository:oras-project/oras:pull&service=ghcr.io" \
+    -o "${z_token_file}" 2>/dev/null \
+    || buc_warn "Failed to fetch GHCR token"
+
+  local z_oras_token=""
+  if test -f "${z_token_file}"; then
+    z_oras_token=$(jq -r '.token // empty' "${z_token_file}") || true
+  fi
+
+  # Step 2: Fetch tag list using bearer token
+  if test -n "${z_oras_token}"; then
+    curl -sS \
+      -H "Authorization: Bearer ${z_oras_token}" \
+      "https://ghcr.io/v2/oras-project/oras/tags/list?n=1000" \
+      -o "${z_tags_file}" 2>/dev/null \
+      || buc_warn "Failed to fetch oras tags from GHCR"
+  fi
+
+  # Step 3: Extract newest stable semver tag via jq
+  # Filters to exact vN.N.N (no pre-release suffixes), sorts numerically, takes last
+  if test -f "${z_tags_file}"; then
+    z_oras_tag=$(jq -r '
+      [.tags[] | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))]
+      | map(ltrimstr("v") | split(".") | map(tonumber))
+      | sort_by(.[0], .[1], .[2])
+      | last
+      | "v\(.[0]).\(.[1]).\(.[2])"
+    ' "${z_tags_file}") || true
+  fi
+
+  if test -z "${z_oras_tag}" || test "${z_oras_tag}" = "null"; then
+    buc_warn "Could not discover oras version from GHCR API; falling back to v1.2.2"
+    z_oras_tag="v1.2.2"
+  fi
+  buc_info "oras discovered tag: ${z_oras_tag}"
+
   # Image specifications: VARNAME|BASE_IMAGE|TAG
+  # Most images use :latest which always points to newest version.
+  # oras uses discovered semver tag above (no :latest published).
   local z_specs=(
     "RBRR_GCB_GCRANE_IMAGE_REF|gcr.io/go-containerregistry/gcrane|latest"
-    "RBRR_GCB_ORAS_IMAGE_REF|ghcr.io/oras-project/oras|v1.2.2"
+    "RBRR_GCB_ORAS_IMAGE_REF|ghcr.io/oras-project/oras|${z_oras_tag}"
     "RBRR_GCB_GCLOUD_IMAGE_REF|gcr.io/cloud-builders/gcloud|latest"
     "RBRR_GCB_DOCKER_IMAGE_REF|gcr.io/cloud-builders/docker|latest"
     "RBRR_GCB_SKOPEO_IMAGE_REF|quay.io/skopeo/stable|latest"

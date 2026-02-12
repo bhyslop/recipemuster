@@ -54,7 +54,7 @@ RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 RBRR_GCB_GCRANE_IMAGE_REF="gcr.io/go-containerregistry/gcrane@sha256:c88b1089502143f218178bdb66e2a5346f0bda2adc8f94e92ffb74fec062de7e"
 
 # oras: OCI artifact/referrer client (~May 2025)
-RBRR_GCB_ORAS_IMAGE_REF="ghcr.io/oras-project/oras@sha256:99d2097851ec7f58f5a2d0b363157a6877ccca0da4855a5637328eea5b3610b2"
+RBRR_GCB_ORAS_IMAGE_REF="ghcr.io/oras-project/oras@sha256:f16ea03472c9be64ea7708452cbcf61e901ca1498fa1bf7d952905e02bbb07f4"
 
 # gcloud: GCP CLI builder (~Feb 2026)
 RBRR_GCB_GCLOUD_IMAGE_REF="gcr.io/cloud-builders/gcloud@sha256:1989502ea7ad57108d402ef448498e4c10773d3178cf6e9365ace17f53c48351"
