@@ -1217,6 +1217,13 @@
         "₢ATAAD": {
           "tacks": [
             {
+              "ts": "260212-0924",
+              "state": "complete",
+              "text": "Create RBVR (Recipe Bottle Vessel Regime) specification.\n\nRBVR documents the vessel configuration regime—how containers are configured, built, and bound in Recipe Bottle. Currently implemented via:\n- rbrv_regime.sh validator (Tools/rbw/)\n- rbrv.env instance files in rbev-vessels/\n- Support for both binding (pre-built images) and conjuring (build from source)\n\nThis pace consolidates the pattern into authoritative spec:\n- Vessel identity and sigil requirements\n- Binding vs conjuring modes\n- Dockerfile and build context configuration\n- Multi-platform support (linux/amd64, linux/arm64, etc.)\n- binfmt policy discipline\n- Variable naming and validation patterns\n\nDepends on: ₣AT ₢ATAAA (regime inventory includes RBRR vessel regime)\nComplements: BURS (universal patterns), BURC (bash specifics)\nResult: RBVR becomes definitive spec for vessel configuration across Recipe Bottle.",
+              "silks": "create-rbvr-regime-spec",
+              "commit": "16229da"
+            },
+            {
               "ts": "260131-1202",
               "state": "rough",
               "text": "Create RBVR (Recipe Bottle Vessel Regime) specification.\n\nRBVR documents the vessel configuration regime—how containers are configured, built, and bound in Recipe Bottle. Currently implemented via:\n- rbrv_regime.sh validator (Tools/rbw/)\n- rbrv.env instance files in rbev-vessels/\n- Support for both binding (pre-built images) and conjuring (build from source)\n\nThis pace consolidates the pattern into authoritative spec:\n- Vessel identity and sigil requirements\n- Binding vs conjuring modes\n- Dockerfile and build context configuration\n- Multi-platform support (linux/amd64, linux/arm64, etc.)\n- binfmt policy discipline\n- Variable naming and validation patterns\n\nDepends on: ₣AT ₢ATAAA (regime inventory includes RBRR vessel regime)\nComplements: BURS (universal patterns), BURC (bash specifics)\nResult: RBVR becomes definitive spec for vessel configuration across Recipe Bottle.",
