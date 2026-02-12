@@ -245,7 +245,25 @@
 :rbrr_governor_rbra_file:    <<rbrr_governor_rbra_file,RBRR_GOVERNOR_RBRA_FILE>>
 :rbrr_payor_rbra_file:       <<rbrr_payor_rbra_file,RBRR_PAYOR_RBRA_FILE>>
 :rbrr_regime:                <<rbrr_regime,RBRR Regime>>
+:rbrr_group_build_configuration:    <<rbrr_group_build_configuration,Build Configuration Group>>
+:rbrr_group_container_runtime:      <<rbrr_group_container_runtime,Container Runtime Group>>
+:rbrr_group_service_accounts:       <<rbrr_group_service_accounts,Service Accounts Group>>
 :rbrr_retriever_rbra_file:   <<rbrr_retriever_rbra_file,RBRR_RETRIEVER_RBRA_FILE>>
+:rbrr_registry_owner:        <<rbrr_registry_owner,RBRR_REGISTRY_OWNER>>
+:rbrr_registry_name:         <<rbrr_registry_name,RBRR_REGISTRY_NAME>>
+:rbrr_vessel_dir:            <<rbrr_vessel_dir,RBRR_VESSEL_DIR>>
+:rbrr_dns_server:            <<rbrr_dns_server,RBRR_DNS_SERVER>>
+:rbrr_ignite_machine_name:   <<rbrr_ignite_machine_name,RBRR_IGNITE_MACHINE_NAME>>
+:rbrr_deploy_machine_name:   <<rbrr_deploy_machine_name,RBRR_DEPLOY_MACHINE_NAME>>
+:rbrr_crane_tar_gz:          <<rbrr_crane_tar_gz,RBRR_CRANE_TAR_GZ>>
+:rbrr_manifest_platforms:    <<rbrr_manifest_platforms,RBRR_MANIFEST_PLATFORMS>>
+:rbrr_chosen_podman_version: <<rbrr_chosen_podman_version,RBRR_CHOSEN_PODMAN_VERSION>>
+:rbrr_chosen_vmimage_origin: <<rbrr_chosen_vmimage_origin,RBRR_CHOSEN_VMIMAGE_ORIGIN>>
+:rbrr_chosen_identity:       <<rbrr_chosen_identity,RBRR_CHOSEN_IDENTITY>>
+:rbrr_gcb_machine_type:      <<rbrr_gcb_machine_type,RBRR_GCB_MACHINE_TYPE>>
+:rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
+:rbrr_gcb_gcrane_image_ref:  <<rbrr_gcb_gcrane_image_ref,RBRR_GCB_GCRANE_IMAGE_REF>>
+:rbrr_gcb_oras_image_ref:    <<rbrr_gcb_oras_image_ref,RBRR_GCB_ORAS_IMAGE_REF>>
 
 // Recipe Bottle Regime: Account (service account credentials)
 :rbra_client_email:          <<rbra_client_email,RBRA_CLIENT_EMAIL>>
@@ -1664,7 +1682,7 @@ in API calls and as the audience claim in
 exchange.
 
 [[rbrr_gcp_region]]
-// ⟦axl_voices axrg_variable axtg_region⟧
+// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtg_region⟧
 {rbrr_gcp_region}::
 The default
 {gcp_service}
@@ -1675,7 +1693,7 @@ and
 Applied when creating repositories and submitting builds unless overridden by operation-specific configuration.
 
 [[rbrr_gar_repository]]
-// ⟦axl_voices axrg_variable axtg_project_id⟧
+// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtg_project_id⟧
 {rbrr_gar_repository}::
 The
 {gar_service}
@@ -1688,7 +1706,7 @@ and
 {rbtgi_metadata_s}.
 
 [[rbrr_retriever_rbra_file]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtu_path⟧
 {rbrr_retriever_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1703,7 +1721,7 @@ to assume the
 role for container image operations.
 
 [[rbrr_director_rbra_file]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtu_path⟧
 {rbrr_director_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1718,7 +1736,7 @@ to assume the
 for build submission and image management operations.
 
 [[rbrr_governor_rbra_file]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtu_path⟧
 {rbrr_governor_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1735,7 +1753,7 @@ role for
 administration operations.
 
 [[rbrr_payor_rbra_file]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtu_path⟧
 {rbrr_payor_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
