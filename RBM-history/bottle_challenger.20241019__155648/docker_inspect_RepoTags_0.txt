@@ -1,1 +1,0 @@
-ghcr.io/bhyslop/recipemuster:bottle_challenger.20241019__155648

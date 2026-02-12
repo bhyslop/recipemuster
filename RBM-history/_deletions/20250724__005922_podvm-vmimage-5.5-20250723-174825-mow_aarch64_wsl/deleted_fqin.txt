@@ -1,1 +1,0 @@
-ghcr.io/bhyslop/recipemuster:podvm-vmimage-5.5-20250723-174825-mow_aarch64_wsl

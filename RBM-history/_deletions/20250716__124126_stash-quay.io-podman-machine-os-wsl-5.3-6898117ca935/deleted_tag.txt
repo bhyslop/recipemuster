@@ -1,1 +1,0 @@
-stash-quay.io-podman-machine-os-wsl-5.3-6898117ca935

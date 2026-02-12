@@ -1,1 +1,0 @@
-ghcr.io/bhyslop/recipemuster:mirror-quay.io-podman-machine-os-wsl-5.5-5ff073ef4b3d

@@ -1,1 +1,0 @@
-ghcr.io/bhyslop/recipemuster:bottle_ubuntu_test.20241203__154457

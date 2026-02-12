@@ -1,1 +1,0 @@
-ghcr.io/bhyslop/recipemuster@sha256:7995e898c03c1f121b6ee901afd7b694be6f4fc1221eefc07c6de1f7c7ae5dc7

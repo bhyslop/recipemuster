@@ -1,1 +1,0 @@
-mirror-quay.io-podman-machine-os-wsl-5.5-7ec13ff84c01

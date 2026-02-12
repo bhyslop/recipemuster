@@ -1,1 +1,0 @@
-ghcr.io/bhyslop/recipemuster:bottle_plantuml.20250206__133847
