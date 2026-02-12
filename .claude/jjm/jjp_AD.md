@@ -74,6 +74,25 @@ Claude Code hook on Edit/Write tool calls:
 - Returns pass (file is ours or unreserved) or fail (held by another)
 - Auto-acquire possible: first edit to unreserved file triggers implicit reserve
 
+## Rejected alternative: Git worktrees
+
+Explored using `git worktree` to give each session a physically separate
+checkout — full file isolation, independent builds, no locking needed.
+
+**Why it almost works:** Each worktree gets its own `tt/`, `Tools/`, `.buk/`,
+etc. BUK's relative path resolution means tabtargets, launchers, and all shell
+infrastructure work correctly within each worktree without modification.
+
+**Why it fails:** Shared mutable state — particularly `gallops.json` — cannot
+survive concurrent modification across worktrees. JSON is not line-mergeable;
+concurrent JJK operations (pace transitions, commits) from different worktrees
+would produce catastrophic merge conflicts. Same problem for `.claude/`
+settings and any cross-session coordination state.
+
+Worktrees solve file isolation but create a worse problem for shared state.
+The reservation approach embraces git's single-working-tree model instead of
+fighting it.
+
 ## Implementation notes
 
 - All reservation logic in Rust (VVX binary, `git2` crate)
