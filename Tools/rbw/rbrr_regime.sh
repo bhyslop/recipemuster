@@ -33,8 +33,6 @@ zrbrr_kindle() {
   # Container Registry Configuration
   buv_env_xname       RBRR_REGISTRY_OWNER          2     64
   buv_env_xname       RBRR_REGISTRY_NAME           2     64
-  buv_env_string      RBRR_HISTORY_DIR             1    255
-  buv_env_string      RBRR_NAMEPLATE_PATH          1    255
   buv_env_string      RBRR_VESSEL_DIR              1    255
   buv_env_ipv4        RBRR_DNS_SERVER
 
@@ -66,8 +64,7 @@ zrbrr_kindle() {
   buv_env_odref       RBRR_GCB_ORAS_IMAGE_REF
 
   # Validate directories exist
-  buv_dir_exists "${RBRR_HISTORY_DIR}"
-  buv_dir_exists "${RBRR_NAMEPLATE_PATH}"
+  buv_dir_exists "${RBRR_VESSEL_DIR}"
 
   # Validate manifest platforms format (space-separated identifiers)
   local z_platform=""
