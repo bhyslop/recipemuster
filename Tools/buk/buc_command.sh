@@ -335,8 +335,8 @@ zbuc_hyperlink() {
   local z_url="${2:-}"
 
   # ANSI codes for blue underlined text
-  local z_blue_underline='\033[34m\033[4m'
-  local z_reset='\033[0m'
+  local z_blue_underline=$'\033[34m\033[4m'
+  local z_reset=$'\033[0m'
 
   if [ -n "${BURD_NO_HYPERLINKS:-}" ]; then
     # Fallback: blue underlined text with URL in angle brackets
