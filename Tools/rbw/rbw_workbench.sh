@@ -31,6 +31,8 @@
 #   rbw-rnv Validate nameplate regime → rbrn_cli.sh validate
 #   rbw-rvr Render vessel regime      → rbrv_cli.sh render
 #   rbw-rvv Validate vessel regime    → rbrv_cli.sh validate
+#   rbw-rrr Render repo regime        → rbrr_cli.sh render
+#   rbw-rrv Validate repo regime      → rbrr_cli.sh validate
 #
 # Commands handled locally:
 #   rbw-lB  Local build from recipe (no moniker needed)
@@ -92,6 +94,10 @@ rbw_route() {
     # Vessel regime operations (routed to rbrv_cli.sh)
     rbw-rvr) exec "${RBW_SCRIPT_DIR}/rbrv_cli.sh" render   ${1+"$@"} ;;
     rbw-rvv) exec "${RBW_SCRIPT_DIR}/rbrv_cli.sh" validate ${1+"$@"} ;;
+
+    # Repo regime operations (routed to rbrr_cli.sh)
+    rbw-rrr) exec "${RBW_SCRIPT_DIR}/rbrr_cli.sh" render   ${1+"$@"} ;;
+    rbw-rrv) exec "${RBW_SCRIPT_DIR}/rbrr_cli.sh" validate ${1+"$@"} ;;
 
     # Cross-nameplate operations (routed to rbrn_cli.sh)
     rbw-ni) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" survey ${1+"$@"} ;;
