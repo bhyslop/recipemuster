@@ -27,7 +27,9 @@ ZBURC_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${ZBURC_CLI_SCRIPT_DIR}/buc_command.sh"
+source "${ZBURC_CLI_SCRIPT_DIR}/buv_validation.sh"
 source "${ZBURC_CLI_SCRIPT_DIR}/burc_regime.sh"
+source "${ZBURC_CLI_SCRIPT_DIR}/bupr_PresentationRegime.sh"
 
 ######################################################################
 # CLI Functions
@@ -47,25 +49,67 @@ burc_validate() {
 
   source "${BURD_REGIME_FILE}" || buc_die "Failed to source BURC"
   zburc_kindle
+  zburc_validate_fields
 
   buc_success "BURC configuration valid"
 }
 
-# Command: render - display configuration values
+# Command: render - diagnostic display then validate
 burc_render() {
-  buc_step "BURC Configuration: ${BURD_REGIME_FILE}"
+  local z_file="${BURD_REGIME_FILE}"
 
-  source "${BURD_REGIME_FILE}" || buc_die "Failed to source BURC"
+  source "${z_file}" || buc_die "burc_render: failed to source ${z_file}"
+  zburc_kindle
+  zbupr_kindle
 
-  # Render with aligned columns
-  printf "%-25s %s\n" "BURC_STATION_FILE" "${BURC_STATION_FILE:-<not set>}"
-  printf "%-25s %s\n" "BURC_TABTARGET_DIR" "${BURC_TABTARGET_DIR:-<not set>}"
-  printf "%-25s %s\n" "BURC_TABTARGET_DELIMITER" "${BURC_TABTARGET_DELIMITER:-<not set>}"
-  printf "%-25s %s\n" "BURC_TOOLS_DIR" "${BURC_TOOLS_DIR:-<not set>}"
-  printf "%-25s %s\n" "BURC_TEMP_ROOT_DIR" "${BURC_TEMP_ROOT_DIR:-<not set>}"
-  printf "%-25s %s\n" "BURC_OUTPUT_ROOT_DIR" "${BURC_OUTPUT_ROOT_DIR:-<not set>}"
-  printf "%-25s %s\n" "BURC_LOG_LAST" "${BURC_LOG_LAST:-<not set>}"
-  printf "%-25s %s\n" "BURC_LOG_EXT" "${BURC_LOG_EXT:-<not set>}"
+  echo ""
+  echo "${ZBUC_WHITE}BURC - Bash Utility Configuration Regime${ZBUC_RESET}"
+  echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
+  echo ""
+
+  # Station Reference
+  bupr_section_begin "Station Reference"
+  bupr_section_item BURC_STATION_FILE       path    req  "Path to developer's BURS station file"
+  bupr_section_end
+
+  # Tabtarget Infrastructure
+  bupr_section_begin "Tabtarget Infrastructure"
+  bupr_section_item BURC_TABTARGET_DIR       path    req  "Directory containing launcher scripts"
+  bupr_section_item BURC_TABTARGET_DELIMITER string  req  "Token separator in tabtarget filenames"
+  bupr_section_end
+
+  # Project Structure
+  bupr_section_begin "Project Structure"
+  bupr_section_item BURC_TOOLS_DIR           path    req  "Directory containing tool scripts"
+  bupr_section_item BURC_PROJECT_ROOT        path    req  "Path from burc.env to project root"
+  bupr_section_item BURC_MANAGED_KITS        string  req  "Comma-separated kit list for vvx"
+  bupr_section_end
+
+  # Build Output
+  bupr_section_begin "Build Output"
+  bupr_section_item BURC_TEMP_ROOT_DIR       path    req  "Root directory for temporary files"
+  bupr_section_item BURC_OUTPUT_ROOT_DIR     path    req  "Root directory for command output"
+  bupr_section_end
+
+  # Logging
+  bupr_section_begin "Logging"
+  bupr_section_item BURC_LOG_LAST            xname   req  "Filename stem for last-run log"
+  bupr_section_item BURC_LOG_EXT             xname   req  "Log file extension (without dot)"
+  bupr_section_end
+
+  # Unexpected variables
+  if test ${#ZBURC_UNEXPECTED[@]} -gt 0; then
+    echo "${ZBUC_RED}Unexpected BURC_ variables:${ZBUC_RESET}"
+    local z_var
+    for z_var in "${ZBURC_UNEXPECTED[@]}"; do
+      printf "  ${ZBUC_RED}%-30s${ZBUC_RESET} = %s\n" "${z_var}" "${!z_var:-}"
+    done
+    echo ""
+  fi
+
+  # Validate after full display
+  zburc_validate_fields
+  echo "${ZBUC_GREEN}BURC configuration valid${ZBUC_RESET}"
 }
 
 ######################################################################

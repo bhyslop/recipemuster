@@ -30,18 +30,28 @@ ZBURC_SOURCED=1
 zburc_kindle() {
   test -z "${ZBURC_KINDLED:-}" || buc_die "Module burc already kindled"
 
-  # Validate all required BURC variables
-  test -n "${BURC_STATION_FILE:-}" || buc_die "BURC_STATION_FILE is not set"
-  test -n "${BURC_TABTARGET_DIR:-}" || buc_die "BURC_TABTARGET_DIR is not set"
-  test -n "${BURC_TABTARGET_DELIMITER:-}" || buc_die "BURC_TABTARGET_DELIMITER is not set"
-  test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR is not set"
-  test -n "${BURC_TEMP_ROOT_DIR:-}" || buc_die "BURC_TEMP_ROOT_DIR is not set"
-  test -n "${BURC_OUTPUT_ROOT_DIR:-}" || buc_die "BURC_OUTPUT_ROOT_DIR is not set"
-  test -n "${BURC_LOG_LAST:-}" || buc_die "BURC_LOG_LAST is not set"
-  test -n "${BURC_LOG_EXT:-}" || buc_die "BURC_LOG_EXT is not set"
+  # Set defaults for all fields (validate enforces required-ness)
+  BURC_STATION_FILE="${BURC_STATION_FILE:-}"
+  BURC_TABTARGET_DIR="${BURC_TABTARGET_DIR:-}"
+  BURC_TABTARGET_DELIMITER="${BURC_TABTARGET_DELIMITER:-}"
+  BURC_TOOLS_DIR="${BURC_TOOLS_DIR:-}"
+  BURC_PROJECT_ROOT="${BURC_PROJECT_ROOT:-}"
+  BURC_MANAGED_KITS="${BURC_MANAGED_KITS:-}"
+  BURC_TEMP_ROOT_DIR="${BURC_TEMP_ROOT_DIR:-}"
+  BURC_OUTPUT_ROOT_DIR="${BURC_OUTPUT_ROOT_DIR:-}"
+  BURC_LOG_LAST="${BURC_LOG_LAST:-}"
+  BURC_LOG_EXT="${BURC_LOG_EXT:-}"
 
-  # Validate delimiter is exactly one character
-  test "${#BURC_TABTARGET_DELIMITER}" -eq 1 || buc_die "BURC_TABTARGET_DELIMITER must be exactly one character"
+  # Detect unexpected BURC_ variables
+  local z_known="BURC_STATION_FILE BURC_TABTARGET_DIR BURC_TABTARGET_DELIMITER BURC_TOOLS_DIR BURC_PROJECT_ROOT BURC_MANAGED_KITS BURC_TEMP_ROOT_DIR BURC_OUTPUT_ROOT_DIR BURC_LOG_LAST BURC_LOG_EXT"
+  ZBURC_UNEXPECTED=()
+  local z_var
+  for z_var in $(compgen -v BURC_); do
+    case " ${z_known} " in
+      *" ${z_var} "*) : ;;
+      *) ZBURC_UNEXPECTED+=("${z_var}") ;;
+    esac
+  done
 
   # Export variables needed by child processes (exec'd dispatch, workbenches)
   export BURC_TABTARGET_DIR
@@ -52,6 +62,29 @@ zburc_kindle() {
 
 zburc_sentinel() {
   test "${ZBURC_KINDLED:-}" = "1" || buc_die "Module burc not kindled - call zburc_kindle first"
+}
+
+# Validate BURC variables via buv_env_* (dies on first error)
+# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
+zburc_validate_fields() {
+  zburc_sentinel
+
+  # Die on unexpected variables
+  if test ${#ZBURC_UNEXPECTED[@]} -gt 0; then
+    buc_die "Unexpected BURC_ variables: ${ZBURC_UNEXPECTED[*]}"
+  fi
+
+  # Validate each field
+  buv_env_string      BURC_STATION_FILE          1    512
+  buv_env_string      BURC_TABTARGET_DIR         1    128
+  buv_env_string      BURC_TABTARGET_DELIMITER   1      1
+  buv_env_string      BURC_TOOLS_DIR             1    128
+  buv_env_string      BURC_PROJECT_ROOT          1    512
+  buv_env_string      BURC_MANAGED_KITS          1    512
+  buv_env_string      BURC_TEMP_ROOT_DIR         1    512
+  buv_env_string      BURC_OUTPUT_ROOT_DIR       1    512
+  buv_env_xname       BURC_LOG_LAST              1     64
+  buv_env_xname       BURC_LOG_EXT               1     16
 }
 
 # eof

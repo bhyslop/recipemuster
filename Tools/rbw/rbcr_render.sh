@@ -16,161 +16,23 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Regime CLI Render - Shared rendering utilities for regime CLI modules
+# rbcr_render.sh - Backward compatibility wrapper
 #
-# Provides section-based rendering with gate-aware suppression and
-# terminal-adaptive layouts.  Each regime CLI (rbrn_cli, rbrv_cli)
-# sources this module and calls the public functions to compose its
-# own render output.  Formatting mechanics are shared; editorial
-# decisions (section ordering, grouping) stay manual per regime CLI.
+# This module has moved to Tools/buk/bupr_PresentationRegime.sh
+# This wrapper provides old rbcr_* function names for existing consumers.
 
 set -euo pipefail
 
-# Multiple inclusion detection
-test -z "${ZRBCR_SOURCED:-}" || buc_die "Module rbcr multiply sourced - check sourcing hierarchy"
-ZRBCR_SOURCED=1
+# Source the actual module from BUK
+ZRBCR_WRAPPER_DIR="${BASH_SOURCE[0]%/*}"
+source "${ZRBCR_WRAPPER_DIR}/../buk/bupr_PresentationRegime.sh"
 
-######################################################################
-# Internal Functions (zrbcr_*)
-
-zrbcr_kindle() {
-  test -z "${ZRBCR_KINDLED:-}" || buc_die "Module rbcr already kindled"
-
-  # Terminal layout from BURD dispatch (set in bul_launcher before pipe)
-  ZRBCR_TERM_COLS=${BURD_TERM_COLS:-80}
-  if test "${ZRBCR_TERM_COLS}" -ge 120; then
-    ZRBCR_LAYOUT=single
-  else
-    ZRBCR_LAYOUT=double
-  fi
-
-
-  # Section state
-  ZRBCR_SECTION_ACTIVE=1
-  ZRBCR_SECTION_GATE_DESC=""
-  ZRBCR_SECTION_SUPPRESSED=()
-
-  ZRBCR_KINDLED=1
-}
-
-zrbcr_sentinel() {
-  test "${ZRBCR_KINDLED:-}" = "1" || buc_die "Module rbcr not kindled - call zrbcr_kindle first"
-}
-
-######################################################################
-# Public Functions (rbcr_*)
-
-# rbcr_section_begin TITLE [GATE_VAR GATE_VALUE]
-#
-# Begin a render section.  Prints section header.
-# Optional gate: evaluates ${!GATE_VAR} against GATE_VALUE.
-# If gate not satisfied, prints collapsed reminder and suppresses
-# subsequent rbcr_section_item calls until rbcr_section_end.
-rbcr_section_begin() {
-  zrbcr_sentinel
-  local z_title="$1"
-  local z_gate_var=${2:-}
-  local z_gate_value=${3:-}
-
-  ZRBCR_SECTION_SUPPRESSED=()
-  ZRBCR_SECTION_GATE_DESC=""
-
-  if test -n "${z_gate_var}"; then
-    local z_actual=${!z_gate_var:-}
-    if test "${z_actual}" = "${z_gate_value}"; then
-      ZRBCR_SECTION_ACTIVE=1
-    else
-      ZRBCR_SECTION_ACTIVE=0
-      ZRBCR_SECTION_GATE_DESC="${z_gate_var}=${z_actual}"
-    fi
-  else
-    ZRBCR_SECTION_ACTIVE=1
-  fi
-
-  if test "${ZRBCR_SECTION_ACTIVE}" = 1; then
-    if test -n "${z_gate_var}"; then
-      printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_GREEN}(since %s=%s)${ZBUC_RESET}\n" \
-        "${z_title}" "${z_gate_var}" "${z_gate_value}"
-    else
-      printf "${ZBUC_YELLOW}%s${ZBUC_RESET}\n" "${z_title}"
-    fi
-  else
-    printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_GREEN}(%s)${ZBUC_RESET}\n" "${z_title}" "${ZRBCR_SECTION_GATE_DESC}"
-  fi
-}
-
-# rbcr_section_end
-#
-# End a render section.  Resets section state for next section.
-rbcr_section_end() {
-  zrbcr_sentinel
-  ZRBCR_SECTION_ACTIVE=1
-  ZRBCR_SECTION_GATE_DESC=""
-  ZRBCR_SECTION_SUPPRESSED=()
-}
-
-# rbcr_item VARNAME TYPE REQ_STATUS DESCRIPTION
-#
-# Render one regime field outside any section.
-# Same layout as rbcr_section_item but ignores section state.
-rbcr_item() {
-  zrbcr_sentinel
-  zrbcr_render_field "$@"
-}
-
-# rbcr_section_item VARNAME TYPE REQ_STATUS DESCRIPTION
-#
-# Render one regime field within a section.
-#   VARNAME:     unquoted regime variable name (e.g., RBRN_ENTRY_MODE)
-#   TYPE:        unquoted type badge (xname, string, fqin, port, ipv4, etc.)
-#   REQ_STATUS:  unquoted — req, opt, or cond
-#   DESCRIPTION: quoted human prose
-#
-# If section is collapsed (gate not satisfied), appends VARNAME to
-# suppressed list and returns silently.
-rbcr_section_item() {
-  zrbcr_sentinel
-
-  # Collapsed section — track and skip
-  if test "${ZRBCR_SECTION_ACTIVE}" = 0; then
-    ZRBCR_SECTION_SUPPRESSED+=("$1")
-    return 0
-  fi
-
-  zrbcr_render_field "$@"
-}
-
-# zrbcr_render_field VARNAME TYPE REQ_STATUS DESCRIPTION
-#
-# Shared rendering logic for rbcr_item and rbcr_section_item.
-# Reads ZRBCR_LAYOUT to choose single-line or double-line format.
-zrbcr_render_field() {
-  local z_varname=$1
-  local z_type=$2
-  local z_req=$3
-  local z_desc="$4"
-  local z_value=${!z_varname:-}
-
-  # Name color: green when set, yellow when not set
-  local z_nc
-  if test -n "${z_value}"; then
-    z_nc=${ZBUC_GREEN}
-  else
-    z_nc=${ZBUC_YELLOW}
-    z_value="(not set)"
-  fi
-
-  if test "${ZRBCR_LAYOUT}" = single; then
-    # Wide terminal: name value req type description — one line
-    printf "  ${z_nc}%-30s${ZBUC_RESET}  %-24s  ${ZBUC_BLUE}%-4s %-11s${ZBUC_RESET}  ${ZBUC_CYAN}%s${ZBUC_RESET}\n" \
-      "${z_varname}" "${z_value}" "${z_req}" "${z_type}" "${z_desc}"
-  else
-    # Narrow terminal: name+value line 1, req type description line 2
-    printf "  ${z_nc}%-30s${ZBUC_RESET}  %s\n" \
-      "${z_varname}" "${z_value}"
-    printf "      ${ZBUC_BLUE}%-4s %-11s${ZBUC_RESET}  ${ZBUC_CYAN}%s${ZBUC_RESET}\n" \
-      "${z_req}" "${z_type}" "${z_desc}"
-  fi
-}
+# Backward-compatible function aliases
+zrbcr_kindle()       { zbupr_kindle "$@"; }
+zrbcr_sentinel()     { zbupr_sentinel "$@"; }
+rbcr_section_begin() { bupr_section_begin "$@"; }
+rbcr_section_end()   { bupr_section_end "$@"; }
+rbcr_section_item()  { bupr_section_item "$@"; }
+rbcr_item()          { bupr_item "$@"; }
 
 # eof

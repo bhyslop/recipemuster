@@ -66,13 +66,13 @@ buw_route() {
     buw-tt-cin) exec "${z_buut_cli}" buut_tabtarget_interactive_nolog    "$@" ;;
     buw-tt-cl)  exec "${z_buut_cli}" buut_launcher                       "$@" ;;
 
-    # Regime subsystem
-    buw-rgv-burc) exec "${z_burc_cli}" validate ;;
-    buw-rgr-burc) exec "${z_burc_cli}" render ;;
+    # Config Regime subsystem
+    buw-rcv) exec "${z_burc_cli}" validate ;;
+    buw-rcr) exec "${z_burc_cli}" render ;;
 
-    # Regime subsystem
-    buw-rgv-burs) exec "${z_burs_cli}" validate ;;
-    buw-rgr-burs) exec "${z_burs_cli}" render ;;
+    # Station Regime subsystem
+    buw-rsv) exec "${z_burs_cli}" validate ;;
+    buw-rsr) exec "${z_burs_cli}" render ;;
 
     # Unknown command
     *)   buc_die "Unknown command: ${z_command}" ;;

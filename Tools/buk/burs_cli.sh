@@ -27,7 +27,9 @@ ZBURS_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${ZBURS_CLI_SCRIPT_DIR}/buc_command.sh"
+source "${ZBURS_CLI_SCRIPT_DIR}/buv_validation.sh"
 source "${ZBURS_CLI_SCRIPT_DIR}/burs_regime.sh"
+source "${ZBURS_CLI_SCRIPT_DIR}/bupr_PresentationRegime.sh"
 
 ######################################################################
 # CLI Functions
@@ -47,18 +49,42 @@ burs_validate() {
 
   source "${BURD_STATION_FILE}" || buc_die "Failed to source BURS"
   zburs_kindle
+  zburs_validate_fields
 
   buc_success "BURS configuration valid"
 }
 
-# Command: render - display configuration values
+# Command: render - diagnostic display then validate
 burs_render() {
-  buc_step "BURS Configuration: ${BURD_STATION_FILE}"
+  local z_file="${BURD_STATION_FILE}"
 
-  source "${BURD_STATION_FILE}" || buc_die "Failed to source BURS"
+  source "${z_file}" || buc_die "burs_render: failed to source ${z_file}"
+  zburs_kindle
+  zbupr_kindle
 
-  # Render with aligned columns
-  printf "%-25s %s\n" "BURS_LOG_DIR" "${BURS_LOG_DIR:-<not set>}"
+  echo ""
+  echo "${ZBUC_WHITE}BURS - Bash Utility Station Regime${ZBUC_RESET}"
+  echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
+  echo ""
+
+  # Developer Logging
+  bupr_section_begin "Developer Logging"
+  bupr_section_item BURS_LOG_DIR  path  req  "Directory for BUK operation logs"
+  bupr_section_end
+
+  # Unexpected variables
+  if test ${#ZBURS_UNEXPECTED[@]} -gt 0; then
+    echo "${ZBUC_RED}Unexpected BURS_ variables:${ZBUC_RESET}"
+    local z_var
+    for z_var in "${ZBURS_UNEXPECTED[@]}"; do
+      printf "  ${ZBUC_RED}%-30s${ZBUC_RESET} = %s\n" "${z_var}" "${!z_var:-}"
+    done
+    echo ""
+  fi
+
+  # Validate after full display
+  zburs_validate_fields
+  echo "${ZBUC_GREEN}BURS configuration valid${ZBUC_RESET}"
 }
 
 ######################################################################
