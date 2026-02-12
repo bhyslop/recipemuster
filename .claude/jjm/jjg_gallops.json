@@ -1,6 +1,15 @@
 {
   "next_heat_seed": "Ae",
   "heats": {
+    "₣Ad": {
+      "silks": "vvk-file-reservation",
+      "creation_time": "260212",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_Ad.md",
+      "paces": {}
+    },
     "₣Ac": {
       "silks": "but-test-overhaul",
       "creation_time": "260211",
@@ -5042,15 +5051,6 @@
           ]
         }
       }
-    },
-    "₣Ad": {
-      "silks": "vvk-file-reservation",
-      "creation_time": "260212",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paddock_file": ".claude/jjm/jjp_Ad.md",
-      "paces": {}
     }
   }
 }
