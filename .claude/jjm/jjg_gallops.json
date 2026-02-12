@@ -1235,6 +1235,13 @@
         "₢ATAAE": {
           "tacks": [
             {
+              "ts": "260212-0934",
+              "state": "complete",
+              "text": "Process fresh RBRV-RegimeVessel.adoc document: normalize formatting, validate concept model links, integrate into lens library and update supporting specs (RBAGS, RBRN, RBRR) with new vessel regime terminology.",
+              "silks": "process-rbrv-regime-vessel-spec",
+              "commit": "0426f56"
+            },
+            {
               "ts": "260131-1228",
               "state": "rough",
               "text": "Process fresh RBRV-RegimeVessel.adoc document: normalize formatting, validate concept model links, integrate into lens library and update supporting specs (RBAGS, RBRN, RBRR) with new vessel regime terminology.",
