@@ -3149,6 +3149,13 @@
         "₢APAAB": {
           "tacks": [
             {
+              "ts": "260212-1140",
+              "state": "complete",
+              "text": "Run all 22 nsproto security tests. These validate the censer network isolation model: DNS filtering, TCP 443 restrictions, package blocking, ICMP behavior. Tabtarget: tt/rbw-to.TestBottleService.nsproto.sh",
+              "silks": "run-nsproto-test-suite",
+              "commit": "5a71038"
+            },
+            {
               "ts": "260125-0837",
               "state": "rough",
               "text": "Run all 22 nsproto security tests. These validate the censer network isolation model: DNS filtering, TCP 443 restrictions, package blocking, ICMP behavior. Tabtarget: tt/rbw-to.TestBottleService.nsproto.sh",
