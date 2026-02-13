@@ -18,7 +18,7 @@
 #
 # RBW Workbench - Routes Recipe Bottle commands to CLIs
 #
-# Commands routed to rbob_cli.sh (require moniker imprint):
+# Bottle operations (require moniker imprint, explicit case arms):
 #   rbw-s   Start service (sentry + censer + bottle)
 #   rbw-z   Stop service
 #   rbw-S   Connect to sentry container
@@ -26,14 +26,8 @@
 #   rbw-B   Connect to bottle container
 #   rbw-o   Observe network traffic (tcpdump)
 #
-# Regime operations (pure routing to CLI scripts):
-#   rbw-rnr Render nameplate regime  → rbrn_cli.sh render
-#   rbw-rnv Validate nameplate regime → rbrn_cli.sh validate
-#   rbw-rvr Render vessel regime      → rbrv_cli.sh render
-#   rbw-rvv Validate vessel regime    → rbrv_cli.sh validate
-#   rbw-rrr Render repo regime        → rbrr_cli.sh render
-#   rbw-rrv Validate repo regime      → rbrr_cli.sh validate
-#   rbw-rrg Refresh GCB image pins    → rbrr_cli.sh refresh_gcb_pins
+# All other commands dispatch via zipper registry (zbuz_exec_lookup).
+# See rbz_zipper.sh for the complete colophon→CLI→command mapping.
 
 set -euo pipefail
 
@@ -42,8 +36,15 @@ RBW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${RBW_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${RBW_SCRIPT_DIR}/../buk/buz_zipper.sh"
+source "${RBW_SCRIPT_DIR}/rbz_zipper.sh"
+
 # Show filename on each displayed line
 buc_context "${0##*/}"
+
+# Kindle zipper registry
+zbuz_kindle
+zrbz_kindle
 
 # Verbose output if BURD_VERBOSE is set
 rbw_show() {
@@ -66,13 +67,11 @@ rbw_route() {
   rbw_show "BUD environment verified"
 
   # Route based on colophon
-  local z_rbob_cli="${RBW_SCRIPT_DIR}/rbob_cli.sh"
-
   case "${z_command}" in
 
-    # Bottle operations (routed to rbob_cli.sh)
-    # Workbench translates BURD_TOKEN_3 (imprint) to RBOB_MONIKER for CLI
+    # Bottle operations (non-degenerate: translate imprint to RBOB_MONIKER)
     rbw-s|rbw-z|rbw-S|rbw-C|rbw-B|rbw-o)
+      local z_rbob_cli="${RBW_SCRIPT_DIR}/rbob_cli.sh"
       test -n "${BURD_TOKEN_3:-}" || buc_die "${z_command} requires moniker imprint (BURD_TOKEN_3)"
       export RBOB_MONIKER="${BURD_TOKEN_3}"
       case "${z_command}" in
@@ -85,67 +84,71 @@ rbw_route() {
       esac
       ;;
 
-    # Nameplate regime operations (routed to rbrn_cli.sh)
-    rbw-rnr) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" render   ${1+"$@"} ;;
-    rbw-rnv) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" validate ${1+"$@"} ;;
-
-    # Vessel regime operations (routed to rbrv_cli.sh)
-    rbw-rvr) exec "${RBW_SCRIPT_DIR}/rbrv_cli.sh" render   ${1+"$@"} ;;
-    rbw-rvv) exec "${RBW_SCRIPT_DIR}/rbrv_cli.sh" validate ${1+"$@"} ;;
-
-    # Repo regime operations (routed to rbrr_cli.sh)
-    rbw-rrr) exec "${RBW_SCRIPT_DIR}/rbrr_cli.sh" render           ${1+"$@"} ;;
-    rbw-rrv) exec "${RBW_SCRIPT_DIR}/rbrr_cli.sh" validate         ${1+"$@"} ;;
-    rbw-rrg) exec "${RBW_SCRIPT_DIR}/rbrr_cli.sh" refresh_gcb_pins ${1+"$@"} ;;
-
-    # Cross-nameplate operations (routed to rbrn_cli.sh)
-    rbw-ni) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" survey ${1+"$@"} ;;
-    rbw-nv) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" audit  ${1+"$@"} ;;
-
-    # Test operations (routed to rbtb_testbench.sh)
-    rbw-ta|rbw-ts|rbw-to|rbw-tn|rbw-trg)
-      exec "${RBW_SCRIPT_DIR}/rbtb_testbench.sh" "${z_command}" "$@"
-      ;;
-
-    # Unknown command
+    # All other commands: resolve via zipper registry
     *)
-      if [ -n "${z_command}" ]; then
-        buc_warn "Unknown command: ${z_command}"
-      fi
-      buc_info "Available command groups:"
-      buc_info ""
-      buc_info "Bottle operations (require moniker imprint):"
-      buc_info "  rbw-s   Start service (sentry + censer + bottle)"
-      buc_info "  rbw-z   Stop service"
-      buc_info "  rbw-S   Connect to sentry container"
-      buc_info "  rbw-C   Connect to censer container"
-      buc_info "  rbw-B   Connect to bottle container"
-      buc_info "  rbw-o   Observe network traffic (tcpdump)"
-      buc_info ""
-      buc_info "Nameplate regime operations:"
-      buc_info "  rbw-rnr Render nameplate regime"
-      buc_info "  rbw-rnv Validate nameplate regime"
-      buc_info ""
-      buc_info "Vessel regime operations:"
-      buc_info "  rbw-rvr Render vessel regime"
-      buc_info "  rbw-rvv Validate vessel regime"
-      buc_info ""
-      buc_info "Repo regime operations:"
-      buc_info "  rbw-rrr Render repo regime"
-      buc_info "  rbw-rrv Validate repo regime"
-      buc_info "  rbw-rrg Refresh GCB image pins"
-      buc_info ""
-      buc_info "Cross-nameplate operations:"
-      buc_info "  rbw-ni  Survey nameplates"
-      buc_info "  rbw-nv  Audit nameplates"
-      buc_info ""
-      buc_info "Test operations:"
-      buc_info "  rbw-ta  Run all test suites"
-      buc_info "  rbw-ts  Run single test suite"
-      buc_info "  rbw-to  Run single test function"
-      buc_info "  rbw-tn  Run nameplate suite (imprint: nsproto, srjcl, pluml)"
-      buc_info "  rbw-trg Run regime-smoke suite"
-      return 0
+      zbuz_exec_lookup "${z_command}" "${RBW_SCRIPT_DIR}" "$@" || {
+        if [ -n "${z_command}" ]; then
+          buc_warn "Unknown command: ${z_command}"
+        fi
+        buc_info "Available command groups:"
+        buc_info ""
+        buc_info "Bottle operations (require moniker imprint):"
+        buc_info "  rbw-s   Start service (sentry + censer + bottle)"
+        buc_info "  rbw-z   Stop service"
+        buc_info "  rbw-S   Connect to sentry container"
+        buc_info "  rbw-C   Connect to censer container"
+        buc_info "  rbw-B   Connect to bottle container"
+        buc_info "  rbw-o   Observe network traffic (tcpdump)"
+        buc_info ""
+        buc_info "Payor commands:"
+        buc_info "  rbw-PC  Create depot          rbw-PI  Install payor"
+        buc_info "  rbw-PD  Destroy depot          rbw-PE  Establish payor"
+        buc_info "  rbw-PG  Reset governor         rbw-PR  Refresh payor"
+        buc_info "  rbw-QB  Quota build"
+        buc_info ""
+        buc_info "General operations:"
+        buc_info "  rbw-ld  List depots"
+        buc_info ""
+        buc_info "Governor commands:"
+        buc_info "  rbw-GR  Create retriever       rbw-GD  Create director"
+        buc_info ""
+        buc_info "Admin commands:"
+        buc_info "  rbw-ps  Establish payor (admin)"
+        buc_info "  rbw-Gl  List service accounts  rbw-GS  Delete service account"
+        buc_info ""
+        buc_info "Ark commands:"
+        buc_info "  rbw-aA  Abjure ark             rbw-ab  Beseech ark"
+        buc_info "  rbw-aC  Conjure ark            rbw-as  Summon ark"
+        buc_info ""
+        buc_info "Image commands:"
+        buc_info "  rbw-iB  Build image            rbw-iD  Delete image"
+        buc_info "  rbw-il  List images             rbw-ir  Retrieve image"
+        buc_info ""
+        buc_info "Nameplate regime operations:"
+        buc_info "  rbw-rnr Render nameplate regime"
+        buc_info "  rbw-rnv Validate nameplate regime"
+        buc_info ""
+        buc_info "Vessel regime operations:"
+        buc_info "  rbw-rvr Render vessel regime"
+        buc_info "  rbw-rvv Validate vessel regime"
+        buc_info ""
+        buc_info "Repo regime operations:"
+        buc_info "  rbw-rrr Render repo regime"
+        buc_info "  rbw-rrv Validate repo regime"
+        buc_info "  rbw-rrg Refresh GCB image pins"
+        buc_info ""
+        buc_info "Cross-nameplate operations:"
+        buc_info "  rbw-ni  Survey nameplates"
+        buc_info "  rbw-nv  Audit nameplates"
+        buc_info ""
+        buc_info "Test operations:"
+        buc_info "  rbw-ta  Run all test suites"
+        buc_info "  rbw-ts  Run single test suite"
+        buc_info "  rbw-to  Run single test function"
+        buc_info "  rbw-tn  Run nameplate suite (imprint: nsproto, srjcl, pluml)"
+        buc_info "  rbw-trg Run regime-smoke suite"
+        return 0
+      }
       ;;
   esac
 }

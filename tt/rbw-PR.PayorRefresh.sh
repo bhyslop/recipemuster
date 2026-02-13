@@ -1,3 +1,3 @@
 #!/bin/bash
-exec "$(dirname "${BASH_SOURCE[0]}")/../.buk/launcher.rbk_Coordinator.sh" \
-  "${0##*/}" "${@}"
+export BURD_LAUNCHER=".buk/launcher.rbw_workbench.sh"
+exec "$(dirname "${BASH_SOURCE[0]}")/../${BURD_LAUNCHER}" "${0##*/}" "${@}"

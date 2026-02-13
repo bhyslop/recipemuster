@@ -63,8 +63,8 @@ zbuz_resolve_tabtarget_capture() {
   # Bash 3.2: no-match glob returns literal — check with test -e
   test -e "${z_matches[0]}" || return 1
 
-  test "${#z_matches[@]}" -eq 1 || return 1
-
+  # Allow multiple matches (imprinted colophons share a colophon prefix)
+  # Return first match as representative
   echo "${z_matches[0]}"
 }
 
@@ -85,9 +85,9 @@ buz_register() {
   test -n "${z_module}"   || return 1
   test -n "${z_command}"  || return 1
 
-  # Validate tabtarget resolution (die on 0 or >1 matches)
+  # Validate at least one tabtarget exists (imprinted colophons may have multiple)
   local z_tabtarget
-  z_tabtarget=$(zbuz_resolve_tabtarget_capture "${z_colophon}") || buc_die "No unique tabtarget for colophon '${z_colophon}' in ${BURC_TABTARGET_DIR}/"
+  z_tabtarget=$(zbuz_resolve_tabtarget_capture "${z_colophon}") || buc_die "No tabtarget for colophon '${z_colophon}' in ${BURC_TABTARGET_DIR}/"
 
   # Registry population (only persists in same-process context, lost in $() subshell)
   zbuz_colophons+=("${z_colophon}")
@@ -97,6 +97,32 @@ buz_register() {
 
   # shellcheck disable=SC2034
   z1z_buz_colophon="${z_colophon}"
+}
+
+######################################################################
+# Lookup dispatch
+
+# zbuz_exec_lookup() - Resolve colophon via registry and exec
+# Args: colophon, base_dir [, extra args passed through to exec]
+# Execs: ${base_dir}/${module} ${command} [extra args]
+# Returns: 1 if colophon not found (does not exec)
+zbuz_exec_lookup() {
+  zbuz_sentinel
+
+  local z_colophon="${1:-}"
+  local z_base_dir="${2:-}"
+  test -n "${z_colophon}" || buc_die "zbuz_exec_lookup: colophon required"
+  test -n "${z_base_dir}" || buc_die "zbuz_exec_lookup: base_dir required"
+  shift 2
+
+  local z_i
+  for z_i in "${!zbuz_colophons[@]}"; do
+    if [ "${zbuz_colophons[z_i]}" = "${z_colophon}" ]; then
+      exec "${z_base_dir}/${zbuz_modules[z_i]}" "${zbuz_commands[z_i]}" "$@"
+    fi
+  done
+
+  return 1
 }
 
 # eof

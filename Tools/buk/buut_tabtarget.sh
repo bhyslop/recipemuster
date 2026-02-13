@@ -181,7 +181,7 @@ buut_tabtarget_interactive_nolog() {
   shift || true
 
   buc_doc_brief "Create interactive+nolog tabtarget(s) (BURD_INTERACTIVE=1, BURD_NO_LOG=1)"
-  buc_doc_param "launcher_path" "Path to launcher (e.g., .buk/launcher.rbk_Coordinator.sh)"
+  buc_doc_param "launcher_path" "Path to launcher (e.g., .buk/launcher.rbw_workbench.sh)"
   buc_doc_param "tabtarget_name" "One or more tabtarget names (e.g., rbw-PI.PayorInstall)"
   buc_doc_shown || return 0
 

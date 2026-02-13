@@ -54,7 +54,6 @@ Full read and edit access is pre-approved for all files in:
 - **RBGP** → `rbw/rbgp_Payor.sh`
 - **RBGU** → `rbw/rbgu_Utility.sh`
 - **RBI**  → `rbw/rbi_Image.sh`
-- **RBK**  → `rbw/rbk_Coordinator.sh`
 - **RBL**  → `rbw/rbl_Locator.sh`
 - **RBOB** → `rbw/rbob_bottle.sh`
 - **RBV**  → `rbw/rbv_PodmanVM.sh`
