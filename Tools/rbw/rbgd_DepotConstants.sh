@@ -96,11 +96,71 @@ zrbgd_kindle() {
   RBGD_API_GCS_BUCKET_OBJECTS="${RBGD_API_GCS_BUCKET_OPS}/o"
   RBGD_API_GCS_BUCKET_IAM="${RBGD_API_GCS_BUCKET_OPS}/iam"
 
+  # Service Usage - Quota Metrics (v1beta1 — quota API not yet in v1)
+  RBGD_API_QUOTA_GCB="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}${RBGC_PATH_PROJECTS}/${RBRR_DEPOT_PROJECT_ID}/services/cloudbuild.googleapis.com/consumerQuotaMetrics"
+
   ZRBGD_KINDLED=1
 }
 
 zrbgd_sentinel() {
   test "${ZRBGD_KINDLED:-}" = "1" || buc_die "Module rbgd not kindled - call zrbgd_kindle first"
+}
+
+######################################################################
+# External Functions (rbgd_*)
+
+# Validate that the depot project's GCB CPU quota can support the
+# configured machine type at the operator's declared minimum concurrency.
+# Hard fails if quota is insufficient or unqueryable.
+#
+# Parameters:
+#   $1 - Bearer token with serviceusage.quotas read access on depot project
+rbgd_check_gcb_quota() {
+  zrbgd_sentinel
+
+  local z_token="$1"
+  test -n "${z_token}" || buc_die "rbgd_check_gcb_quota: bearer token required"
+
+  buc_log_args "Look up vCPUs for machine type: ${RBRR_GCB_MACHINE_TYPE}"
+  local z_vcpus=""
+  z_vcpus=$(rbgc_gcb_machine_vcpus_capture "${RBRR_GCB_MACHINE_TYPE}") \
+    || buc_die "Failed to resolve vCPUs for machine type: ${RBRR_GCB_MACHINE_TYPE}"
+
+  buc_log_args "Query GCB quota from Service Usage API"
+  local z_resp="${BURD_TEMP_DIR}/rbgd_quota_resp.json"
+  local z_code="${BURD_TEMP_DIR}/rbgd_quota_code.txt"
+
+  curl -sS \
+    -H "Authorization: Bearer ${z_token}" \
+    -o "${z_resp}" \
+    -w "%{http_code}" \
+    "${RBGD_API_QUOTA_GCB}" > "${z_code}" 2>&1
+
+  local z_http_code=""
+  z_http_code=$(<"${z_code}")
+  test "${z_http_code}" = "200" \
+    || buc_die "GCB quota query failed: HTTP ${z_http_code} (check SA permissions for serviceusage.quotas on ${RBRR_DEPOT_PROJECT_ID})"
+
+  buc_log_args "Extract concurrent_public_pool_build_cpus effective limit"
+  local z_cpu_quota=""
+  z_cpu_quota=$(jq -r '
+    .metrics[]
+    | select(.metric == "cloudbuild.googleapis.com/concurrent_public_pool_build_cpus")
+    | .consumerQuotaLimits[0]
+    | .quotaBuckets[]
+    | select(has("dimensions") | not)
+    | .effectiveLimit
+  ' "${z_resp}") || buc_die "Failed to parse quota response"
+
+  test -n "${z_cpu_quota}" \
+    || buc_die "Could not find concurrent_public_pool_build_cpus in quota response"
+
+  local z_max_concurrent=$(( z_cpu_quota / z_vcpus ))
+
+  buc_step "GCB quota: ${z_cpu_quota} CPUs / ${z_vcpus} vCPU (${RBRR_GCB_MACHINE_TYPE}) = ${z_max_concurrent} max concurrent (need ${RBRR_GCB_MIN_CONCURRENT_BUILDS})"
+
+  test "${z_max_concurrent}" -ge "${RBRR_GCB_MIN_CONCURRENT_BUILDS}" \
+    || buc_die "GCB quota insufficient: ${z_max_concurrent} concurrent builds available, ${RBRR_GCB_MIN_CONCURRENT_BUILDS} required"
 }
 
 # eof

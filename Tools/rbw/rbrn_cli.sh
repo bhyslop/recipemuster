@@ -165,12 +165,21 @@ case "${z_command}" in
     source "${ZRBRN_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
     source "${ZRBRN_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
     source "${ZRBRN_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+    source "${ZRBRN_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
     zrbgc_kindle
     rbrr_load
+    zrbgo_kindle
     zrbgd_kindle
     case "${z_command}" in
       survey) rbrn_survey ;;
-      audit)  rbrn_audit ;;
+      audit)
+        rbrn_audit
+        # GCB quota headroom check (requires Director SA token)
+        z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
+          || buc_die "Failed to get token for GCB quota check"
+        rbgd_check_gcb_quota "${z_token}"
+        buc_step "Full audit passed (nameplates + GCB quota)"
+        ;;
     esac
     ;;
   *)

@@ -102,6 +102,7 @@ Sourced from `rbrr_RecipeBottleRegimeRepo.sh` at repo root. Validated by `rbrr_r
 | RBRR_GAR_REPOSITORY | gname[1,63] | Artifact Registry repository |
 | RBRR_GCB_MACHINE_TYPE | string[3,64] | Cloud Build machine type |
 | RBRR_GCB_TIMEOUT | string[2,10] | Cloud Build timeout (Ns format) |
+| RBRR_GCB_MIN_CONCURRENT_BUILDS | integer[1,3] | Min concurrent builds required |
 | RBRR_GOVERNOR_RBRA_FILE | string[1,512] | Path to governor RBRA cred file |
 | RBRR_RETRIEVER_RBRA_FILE | string[1,512] | Path to retriever RBRA cred file |
 | RBRR_DIRECTOR_RBRA_FILE | string[1,512] | Path to director RBRA cred file |

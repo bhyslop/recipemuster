@@ -45,6 +45,7 @@ RBRR_GAR_REPOSITORY=rbw-proto-repository
 # Google Cloud Build settings  
 RBRR_GCB_MACHINE_TYPE=UNSPECIFIED            # Google Cloud Build machine type (2 vCPU default; fits 5 concurrent in 10-CPU quota)
 RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
+RBRR_GCB_MIN_CONCURRENT_BUILDS=3            # Minimum concurrent builds required; audit and build preflight verify quota headroom
 
 ########################################################################
 # Google Cloud Build tool image pins (digest-pinned, ~spring 2025)

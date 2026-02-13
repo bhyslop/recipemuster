@@ -162,6 +162,13 @@ Determines CPU, memory, and performance characteristics for build workers.
 Examples: `E2_HIGHCPU_8`, `E2_HIGHCPU_32`.
 
 // ⟦axhrgv_variable⟧
+{rbrr_gcb_min_concurrent_builds}
+
+Minimum number of concurrent Cloud Build executions required.
+The nameplate audit and build preflight query the depot project's *Concurrent Build CPUs* quota via the Service Usage API and verify that `CPU_QUOTA ÷ vCPUs_per_build ≥` this value.
+Hard-fails if quota headroom is insufficient.
+
+// ⟦axhrgv_variable⟧
 {rbrr_gcb_timeout}
 
 Maximum duration for Cloud Build operations before timeout.

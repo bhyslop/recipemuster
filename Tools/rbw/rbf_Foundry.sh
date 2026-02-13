@@ -594,6 +594,13 @@ rbf_build() {
 
   buc_info "Building vessel image: ${RBRV_SIGIL} -> ${z_tag}"
 
+  # Verify GCB quota headroom before expensive packaging
+  buc_log_args "Check GCB quota headroom"
+  local z_quota_token=""
+  z_quota_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get token for GCB quota check"
+  rbgd_check_gcb_quota "${z_quota_token}"
+
   # Verify git state + capture metadata
   zrbf_verify_git_clean
 
