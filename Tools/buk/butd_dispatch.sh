@@ -42,10 +42,20 @@ butd_run_suite() {
     butr_suites_recite > "${z_suite_list}"
     while IFS= read -r z_suite_name; do
       test -n "${z_suite_name}" || continue
-      buto_info "  ${z_suite_name}"
+      # Count cases for this suite
+      local z_case_count
+      local z_cases_list
+      z_cases_list=$(mktemp)
+      butr_cases_recite "${z_suite_name}" > "${z_cases_list}"
+      z_case_count=$(wc -l < "${z_cases_list}" | tr -d ' ')
+      rm -f "${z_cases_list}"
+
+      local z_plural=""
+      test "${z_case_count}" -eq 1 || z_plural="s"
+      printf "  %-30s %2d case%s\n" "${z_suite_name}" "${z_case_count}" "${z_plural}" >&2
     done < "${z_suite_list}"
     rm -f "${z_suite_list}"
-    buto_fatal "butd_run_suite: suite_name required"
+    return 0
   fi
 
   local z_init
@@ -114,17 +124,18 @@ butd_run_one() {
     butr_suites_recite > "${z_suites_list}"
     while IFS= read -r z_suite_name; do
       test -n "${z_suite_name}" || continue
+      buto_info "  ${z_suite_name}:"
       local z_cases_list
       z_cases_list=$(mktemp)
       butr_cases_recite "${z_suite_name}" > "${z_cases_list}"
       while IFS= read -r z_case_fn; do
         test -n "${z_case_fn}" || continue
-        buto_info "  ${z_suite_name}: ${z_case_fn}"
+        buto_info "    ${z_case_fn}"
       done < "${z_cases_list}"
       rm -f "${z_cases_list}"
     done < "${z_suites_list}"
     rm -f "${z_suites_list}"
-    buto_fatal "butd_run_one: function_name required"
+    return 0
   fi
 
   local z_suite

@@ -34,9 +34,6 @@
 #   rbw-rrr Render repo regime        → rbrr_cli.sh render
 #   rbw-rrv Validate repo regime      → rbrr_cli.sh validate
 #   rbw-rrg Refresh GCB image pins    → rbrr_cli.sh refresh_gcb_pins
-#
-# Commands handled locally:
-#   rbw-lB  Local build from recipe (no moniker needed)
 
 set -euo pipefail
 
@@ -111,7 +108,47 @@ rbw_route() {
       ;;
 
     # Unknown command
-    *)   buc_die "Unknown command: ${z_command}" ;;
+    *)
+      if [ -n "${z_command}" ]; then
+        buc_warn "Unknown command: ${z_command}"
+      fi
+      buc_info "Available command groups:"
+      buc_info ""
+      buc_info "Bottle operations (require moniker imprint):"
+      buc_info "  rbw-s   Start service (sentry + censer + bottle)"
+      buc_info "  rbw-z   Stop service"
+      buc_info "  rbw-S   Connect to sentry container"
+      buc_info "  rbw-C   Connect to censer container"
+      buc_info "  rbw-B   Connect to bottle container"
+      buc_info "  rbw-o   Observe network traffic (tcpdump)"
+      buc_info ""
+      buc_info "Nameplate regime operations:"
+      buc_info "  rbw-rnr Render nameplate regime"
+      buc_info "  rbw-rnv Validate nameplate regime"
+      buc_info ""
+      buc_info "Vessel regime operations:"
+      buc_info "  rbw-rvr Render vessel regime"
+      buc_info "  rbw-rvv Validate vessel regime"
+      buc_info ""
+      buc_info "Repo regime operations:"
+      buc_info "  rbw-rrr Render repo regime"
+      buc_info "  rbw-rrv Validate repo regime"
+      buc_info "  rbw-rrg Refresh GCB image pins"
+      buc_info ""
+      buc_info "Cross-nameplate operations:"
+      buc_info "  rbw-ni  Survey nameplates"
+      buc_info "  rbw-nv  Audit nameplates"
+      buc_info ""
+      buc_info "Test operations:"
+      buc_info "  rbw-ta  Run all test suites"
+      buc_info "  rbw-ts  Run single test suite"
+      buc_info "  rbw-to  Run single test function"
+      buc_info "  rbw-tns Run nsproto-security suite"
+      buc_info "  rbw-tj  Run srjcl-jupyter suite"
+      buc_info "  rbw-tpl Run pluml-diagram suite"
+      buc_info "  rbw-trg Run regime-smoke suite"
+      return 0
+      ;;
   esac
 }
 

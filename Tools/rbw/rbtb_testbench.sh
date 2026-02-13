@@ -250,7 +250,20 @@ rbtb_route() {
     rbw-tj) butd_run_suite "srjcl-jupyter" ;;
     rbw-tpl) butd_run_suite "pluml-diagram" ;;
     rbw-trg) butd_run_suite "regime-smoke" ;;
-    *)       buc_die "Unknown command: ${z_command}" ;;
+    *)
+      if [ -n "${z_command}" ]; then
+        buc_warn "Unknown command: ${z_command}"
+      fi
+      buc_info "Available test commands:"
+      buc_info "  rbw-ta   Run all suites"
+      buc_info "  rbw-ts   Run single suite (pass suite name)"
+      buc_info "  rbw-to   Run single test function (pass function name)"
+      buc_info "  rbw-tns  Run nsproto-security suite"
+      buc_info "  rbw-tj   Run srjcl-jupyter suite"
+      buc_info "  rbw-tpl  Run pluml-diagram suite"
+      buc_info "  rbw-trg  Run regime-smoke suite"
+      return 0
+      ;;
   esac
 }
 
