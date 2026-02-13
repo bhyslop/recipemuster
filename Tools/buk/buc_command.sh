@@ -284,6 +284,18 @@ zbuc_show_help() {
   done
 }
 
+buc_countdown() {
+  local z_seconds="$1"
+  local z_prompt="$2"
+  printf '%b %s' "${ZBUC_YELLOW}${z_prompt}${ZBUC_RESET}" "" >&2
+  local z_i
+  for (( z_i=z_seconds; z_i>=1; z_i-- )); do
+    printf '%d... ' "$z_i" >&2
+    sleep 1
+  done
+  printf '\n' >&2
+}
+
 buc_require() {
   local prompt="$1"
   local required_value="$2"
