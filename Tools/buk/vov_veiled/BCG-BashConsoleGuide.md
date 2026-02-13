@@ -18,8 +18,6 @@ Enterprise bash isn't about looking clever; it's about being boringly, reliably 
 
 The patterns reject bash 4+ features to maintain compatibility with older enterprise systems still running bash 3.2, particularly older RHEL/CentOS or macOS deployments.
 
-**Legacy code note**: Some older code (particularly rbw modules) predates current BCG form; treat as migration targets, not exemplars.
-
 ## Module Architecture
 
 Every module has an implementation file. CLI entry points are only present if module requires standalone execution.
@@ -986,7 +984,7 @@ buv_val_xname "name" "${z_input_name}" 3 50
 - [ ] No raw `eval` for value assignment — use `printf -v` after name validation; `${!name}` for reading
 
 ### Error Handling
-- [ ] Every command that can fail has `|| buc_die` or `|| buc_warn`
+- [ ] Every command that can fail has `|| buc_die` (`|| buc_warn` only with a human-authored comment granting permission and explaining why non-fatal is safe)
 - [ ] `_predicate` functions return 0/1, never die, no output
 - [ ] `_capture` functions output once at end or exit 1, no stderr
 - [ ] `_enroll` functions set `z_«funcname»_«retval»` return vars, never echo; callers never use `$()` (when applicable)
