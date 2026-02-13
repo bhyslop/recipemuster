@@ -307,7 +307,7 @@ zbud_main() {
     }
   else
     {
-      "${zbud_invocation[@]}"
+      "${zbud_invocation[@]}" 2>&1
       echo $? > "${zBURD_STATUS_FILE}"
       zbud_show "Coordinator status: $(cat ${zBURD_STATUS_FILE})"
     } | while IFS= read -r line; do
