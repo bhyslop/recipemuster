@@ -246,9 +246,15 @@ rbtb_route() {
     rbw-ta) butd_run_all ;;
     rbw-ts) butd_run_suite "${1:-}" ;;
     rbw-to) butd_run_one "${1:-}" ;;
-    rbw-tns) butd_run_suite "nsproto-security" ;;
-    rbw-tj) butd_run_suite "srjcl-jupyter" ;;
-    rbw-tpl) butd_run_suite "pluml-diagram" ;;
+    rbw-tn)
+      local z_imprint="${BURD_TOKEN_3:-}"
+      case "${z_imprint}" in
+        nsproto) butd_run_suite "nsproto-security" ;;
+        srjcl)  butd_run_suite "srjcl-jupyter" ;;
+        pluml)  butd_run_suite "pluml-diagram" ;;
+        *)      buc_die "rbw-tn: unknown nameplate imprint '${z_imprint}' (expected: nsproto, srjcl, pluml)" ;;
+      esac
+      ;;
     rbw-trg) butd_run_suite "regime-smoke" ;;
     *)
       if [ -n "${z_command}" ]; then
@@ -258,9 +264,7 @@ rbtb_route() {
       buc_info "  rbw-ta   Run all suites"
       buc_info "  rbw-ts   Run single suite (pass suite name)"
       buc_info "  rbw-to   Run single test function (pass function name)"
-      buc_info "  rbw-tns  Run nsproto-security suite"
-      buc_info "  rbw-tj   Run srjcl-jupyter suite"
-      buc_info "  rbw-tpl  Run pluml-diagram suite"
+      buc_info "  rbw-tn   Run nameplate suite (imprint: nsproto, srjcl, pluml)"
       buc_info "  rbw-trg  Run regime-smoke suite"
       return 0
       ;;

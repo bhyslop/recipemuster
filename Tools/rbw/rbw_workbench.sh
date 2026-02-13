@@ -103,7 +103,7 @@ rbw_route() {
     rbw-nv) exec "${RBW_SCRIPT_DIR}/rbrn_cli.sh" audit  ${1+"$@"} ;;
 
     # Test operations (routed to rbtb_testbench.sh)
-    rbw-ta|rbw-ts|rbw-to|rbw-tns|rbw-tj|rbw-tpl|rbw-trg)
+    rbw-ta|rbw-ts|rbw-to|rbw-tn|rbw-trg)
       exec "${RBW_SCRIPT_DIR}/rbtb_testbench.sh" "${z_command}" "$@"
       ;;
 
@@ -143,9 +143,7 @@ rbw_route() {
       buc_info "  rbw-ta  Run all test suites"
       buc_info "  rbw-ts  Run single test suite"
       buc_info "  rbw-to  Run single test function"
-      buc_info "  rbw-tns Run nsproto-security suite"
-      buc_info "  rbw-tj  Run srjcl-jupyter suite"
-      buc_info "  rbw-tpl Run pluml-diagram suite"
+      buc_info "  rbw-tn  Run nameplate suite (imprint: nsproto, srjcl, pluml)"
       buc_info "  rbw-trg Run regime-smoke suite"
       return 0
       ;;
