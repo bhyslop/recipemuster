@@ -288,6 +288,7 @@ buc_countdown() {
   local z_seconds="$1"
   local z_prompt="$2"
   buc_step "Countdown: ${z_seconds}s to cancel (Ctrl-C)"
+  sleep 1
   printf '%b ' "${ZBUC_YELLOW}${z_prompt}${ZBUC_RESET}" >/dev/tty
   local z_i
   for (( z_i=z_seconds; z_i>=1; z_i-- )); do
