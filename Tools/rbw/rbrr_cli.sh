@@ -28,6 +28,7 @@ source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbcr_render.sh"
+source "${ZRBRR_CLI_SCRIPT_DIR}/rbru_update.sh"
 
 ######################################################################
 # CLI Functions
@@ -152,7 +153,8 @@ case "${z_command}" in
     esac
     ;;
   refresh_gcb_pins)
-    rbrr_refresh_gcb_pins
+    zrbru_kindle
+    rbru_refresh_gcb_pins
     ;;
   *)
     buc_die "Unknown command: ${z_command}. Usage: rbrr_cli.sh {validate|render|refresh_gcb_pins}"
