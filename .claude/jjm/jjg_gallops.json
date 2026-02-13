@@ -1691,6 +1691,13 @@
         "₢ATAAc": {
           "tacks": [
             {
+              "ts": "260213-0642",
+              "state": "complete",
+              "text": "Re-run `tt/rbw-rrg.RefreshGcbPins.sh` until all three Docker Hub images resolve successfully.\n\n## Context\n\nCommit 0937134a fully qualified three Docker Hub image refs (alpine, syft, binfmt) with `docker.io/` prefix to pass `buv_val_odref` validation. The refresh script now correctly targets `docker.io/library/alpine`, `docker.io/anchore/syft`, and `docker.io/tonistiigi/binfmt`, but Docker Hub rate limiting caused all three to fail on first attempt.\n\n## Steps\n\n1. Run `tt/rbw-rrg.RefreshGcbPins.sh`\n2. If Docker Hub fetches fail with rate limit warnings:\n   - Try `docker login docker.io` (free account raises limit from 100→200 pulls/6hr)\n   - Or wait a few minutes and retry\n3. Verify all 8 images show \"unchanged\" or \"updated\" (0 failed)\n4. If any pins changed, notch the updated `rbrr_RecipeBottleRegimeRepo.sh`\n\n## Key Files\n- `rbrr_RecipeBottleRegimeRepo.sh` — live pin values\n- `Tools/rbw/rbrr_regime.sh` — refresh spec (lines 273-282)",
+              "silks": "refresh-docker-hub-pins",
+              "commit": "d5f51dc"
+            },
+            {
               "ts": "260212-1418",
               "state": "rough",
               "text": "Re-run `tt/rbw-rrg.RefreshGcbPins.sh` until all three Docker Hub images resolve successfully.\n\n## Context\n\nCommit 0937134a fully qualified three Docker Hub image refs (alpine, syft, binfmt) with `docker.io/` prefix to pass `buv_val_odref` validation. The refresh script now correctly targets `docker.io/library/alpine`, `docker.io/anchore/syft`, and `docker.io/tonistiigi/binfmt`, but Docker Hub rate limiting caused all three to fail on first attempt.\n\n## Steps\n\n1. Run `tt/rbw-rrg.RefreshGcbPins.sh`\n2. If Docker Hub fetches fail with rate limit warnings:\n   - Try `docker login docker.io` (free account raises limit from 100→200 pulls/6hr)\n   - Or wait a few minutes and retry\n3. Verify all 8 images show \"unchanged\" or \"updated\" (0 failed)\n4. If any pins changed, notch the updated `rbrr_RecipeBottleRegimeRepo.sh`\n\n## Key Files\n- `rbrr_RecipeBottleRegimeRepo.sh` — live pin values\n- `Tools/rbw/rbrr_regime.sh` — refresh spec (lines 273-282)",
