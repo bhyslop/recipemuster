@@ -287,13 +287,14 @@ zbuc_show_help() {
 buc_countdown() {
   local z_seconds="$1"
   local z_prompt="$2"
-  printf '%b %s' "${ZBUC_YELLOW}${z_prompt}${ZBUC_RESET}" "" >&2
+  buc_step "Countdown: ${z_seconds}s to cancel (Ctrl-C)"
+  printf '%b ' "${ZBUC_YELLOW}${z_prompt}${ZBUC_RESET}" >/dev/tty
   local z_i
   for (( z_i=z_seconds; z_i>=1; z_i-- )); do
-    printf '%d... ' "$z_i" >&2
+    printf '%d... ' "$z_i" >/dev/tty
     sleep 1
   done
-  printf '\n' >&2
+  printf '\n' >/dev/tty
 }
 
 buc_require() {
