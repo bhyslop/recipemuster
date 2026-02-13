@@ -140,7 +140,7 @@ zrbf_stitch_build_json() {
 
   buc_log_args 'Stitching build JSON from step scripts'
 
-  # Step definitions: script:builder:entrypoint:id
+  # Step definitions: script|builder|entrypoint|id
   # Entrypoint 'bash' uses args ["-lc", script], 'sh' uses ["-c", script]
   # Note: Step 05 (buildx-create) was merged into step 06 because Cloud Build
   # steps run in isolated containers - builder state doesn't persist across steps
@@ -151,18 +151,18 @@ zrbf_stitch_build_json() {
   # - Step 08: Syft analyzes from oci-layout (faster, more accurate)
   # - Step 10: Assembles metadata JSON from .image_uri
   # - Step 09: Builds and pushes metadata container (depends on step 10)
-  # Step definitions: script:builder:entrypoint:id
+  # Delimiter is | because image refs contain colons (sha256 digests)
   # Note: builder images pinned via RBRR_GCB_*_IMAGE_REF variables
   local z_step_defs=(
-    "rbgjb01-derive-tag-base.sh:${RBRR_GCB_GCLOUD_IMAGE_REF}:bash:derive-tag-base"
-    "rbgjb02-get-docker-token.sh:${RBRR_GCB_GCLOUD_IMAGE_REF}:bash:get-docker-token"
-    "rbgjb03-docker-login-gar.sh:${RBRR_GCB_DOCKER_IMAGE_REF}:bash:docker-login-gar"
-    "rbgjb04-qemu-binfmt.sh:${RBRR_GCB_DOCKER_IMAGE_REF}:bash:qemu-binfmt"
-    "rbgjb06-build-and-export.sh:${RBRR_GCB_DOCKER_IMAGE_REF}:bash:build-and-export"
-    "rbgjb07-push-with-skopeo.sh:${RBRR_GCB_SKOPEO_IMAGE_REF}:bash:push-with-skopeo"
-    "rbgjb08-sbom-and-summary.sh:${RBRR_GCB_DOCKER_IMAGE_REF}:bash:sbom-and-summary"
-    "rbgjb10-assemble-metadata.sh:${RBRR_GCB_ALPINE_IMAGE_REF}:sh:assemble-metadata"
-    "rbgjb09-build-and-push-metadata.sh:${RBRR_GCB_DOCKER_IMAGE_REF}:bash:build-and-push-metadata"
+    "rbgjb01-derive-tag-base.sh|${RBRR_GCB_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
+    "rbgjb02-get-docker-token.sh|${RBRR_GCB_GCLOUD_IMAGE_REF}|bash|get-docker-token"
+    "rbgjb03-docker-login-gar.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|docker-login-gar"
+    "rbgjb04-qemu-binfmt.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
+    "rbgjb06-build-and-export.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-export"
+    "rbgjb07-push-with-skopeo.sh|${RBRR_GCB_SKOPEO_IMAGE_REF}|bash|push-with-skopeo"
+    "rbgjb08-sbom-and-summary.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|sbom-and-summary"
+    "rbgjb10-assemble-metadata.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|assemble-metadata"
+    "rbgjb09-build-and-push-metadata.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-push-metadata"
   )
 
   # Build JSON array of steps
@@ -170,7 +170,7 @@ zrbf_stitch_build_json() {
   local z_def z_script z_builder z_entrypoint z_id z_script_path z_body z_escaped z_arg_flag
 
   for z_def in "${z_step_defs[@]}"; do
-    IFS=':' read -r z_script z_builder z_entrypoint z_id <<< "${z_def}"
+    IFS='|' read -r z_script z_builder z_entrypoint z_id <<< "${z_def}"
     z_script_path="${ZRBF_RBGJB_STEPS_DIR}/${z_script}"
 
     test -f "${z_script_path}" || buc_die "Step script not found: ${z_script_path}"
