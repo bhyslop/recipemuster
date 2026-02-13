@@ -51,28 +51,28 @@ RBRR_GCB_TIMEOUT=1200s                      # 20 minute timeout
 # These are only used inside GCB build steps (_RBGY_* substitutions).
 
 # gcrane: registry utility (~Apr 2025)
-RBRR_GCB_GCRANE_IMAGE_REF="gcr.io/go-containerregistry/gcrane@sha256:c88b1089502143f218178bdb66e2a5346f0bda2adc8f94e92ffb74fec062de7e"
+RBRR_GCB_GCRANE_IMAGE_REF="gcr.io/go-containerregistry/gcrane@sha256:b34b7a92b50cb3017af7ae84916c7ca87e04c1766e639fbec6f0656a21d77470"
 
 # oras: OCI artifact/referrer client (~May 2025)
-RBRR_GCB_ORAS_IMAGE_REF="ghcr.io/oras-project/oras@sha256:f16ea03472c9be64ea7708452cbcf61e901ca1498fa1bf7d952905e02bbb07f4"
+RBRR_GCB_ORAS_IMAGE_REF="ghcr.io/oras-project/oras@sha256:a3ce6b38d4c510ea9fdc0449b942ea44fb790f157e79b5e7e30b1e7460fe5579"
 
 # gcloud: GCP CLI builder (~Feb 2026)
-RBRR_GCB_GCLOUD_IMAGE_REF="gcr.io/cloud-builders/gcloud@sha256:1989502ea7ad57108d402ef448498e4c10773d3178cf6e9365ace17f53c48351"
+RBRR_GCB_GCLOUD_IMAGE_REF="gcr.io/cloud-builders/gcloud@sha256:54bcf51d601ff370171bba523099424765c6f2aadabbc30bab2e2779978da6cd"
 
 # docker: Docker/buildx builder (~Feb 2026)
-RBRR_GCB_DOCKER_IMAGE_REF="gcr.io/cloud-builders/docker@sha256:a768635eba4ce6b4f234c49fed66a6ced5a1fe057055673f1268a2fe7d55d7e6"
+RBRR_GCB_DOCKER_IMAGE_REF="gcr.io/cloud-builders/docker@sha256:80e36415eeda32a4e2fda4c551f6cf7a450afcaa2e91bf4eafaabf942cf69bcc"
 
 # skopeo: OCI registry copy tool (~Feb 2026)
-RBRR_GCB_SKOPEO_IMAGE_REF="quay.io/skopeo/stable@sha256:c709d440707f641213aedd45280fe2ea9236adb941a1a7c34adb5a3eb2eafeeb"
+RBRR_GCB_SKOPEO_IMAGE_REF="quay.io/skopeo/stable@sha256:695c33d1c8ffeb8ab4decdd9692e2bc157bff8931c7725c21a6dbe26c656767c"
 
 # alpine: minimal Linux for scripting steps (~Feb 2026)
-RBRR_GCB_ALPINE_IMAGE_REF="docker.io/library/alpine@sha256:c193c0c4ebfacc63b1ee5a350fceb43f31264d7d50951ce643e84ae543b618bb"
+RBRR_GCB_ALPINE_IMAGE_REF="docker.io/library/alpine@sha256:59855d3dceb3ae53991193bd03301e082b2a7faa56a514b03527ae0ec2ce3a95"
 
 # syft: SBOM generator (~Feb 2026)
-RBRR_GCB_SYFT_IMAGE_REF="docker.io/anchore/syft@sha256:19ed45c8f4bf846390b072966a2fec52279d09f9e47650830ffabec7eebaf0fe"
+RBRR_GCB_SYFT_IMAGE_REF="docker.io/anchore/syft@sha256:d0b19da0182bc17145379ccb3434b3f7eae540676a2b5e6bdae67152f1fae892"
 
 # binfmt: QEMU cross-platform registration (~Feb 2026)
-RBRR_GCB_BINFMT_IMAGE_REF="docker.io/tonistiigi/binfmt@sha256:bc70b34ea97c6fb35ff7c8787a46beca6af9e8ab05e1c9b5f06a6a52dc8e981e"
+RBRR_GCB_BINFMT_IMAGE_REF="docker.io/tonistiigi/binfmt@sha256:cc1e14d6380b2ede7d32669a9986c3b7550624f4a7bc0b5b649e5072598eecf7"
 
 
 # Service Account Configuration - RBRA (Recipe Bottle Regime Auth) Format
