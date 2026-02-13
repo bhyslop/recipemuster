@@ -46,12 +46,14 @@ The Rust command handles: lock, staging specified files only, guard, message gen
 - Only specified files are staged and committed
 - Warning printed for uncommitted changes outside the file list
 
-## Large Commits
+## If the size guard rejects the commit
 
-The default size guard rejects commits over 50KB. For legitimate large commits:
+Do NOT pre-check commit size — just attempt the commit and react if it fails. The guard's measurement is smarter than anything you can estimate.
+
+If `jjx_record` fails with a size-limit error, **ask the user** whether to proceed. Report the guard's measured size and let them decide. Do NOT autonomously retry with `--size-limit`.
+
+On user approval, retry with an explicit limit:
 
 ```bash
 ./tt/vvw-r.RunVVX.sh jjx_record <IDENTITY> --size-limit 200000 <file1> [file2...]
 ```
-
-**Requirement**: The pace docket must justify why the large commit is necessary.
