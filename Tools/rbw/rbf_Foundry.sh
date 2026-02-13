@@ -124,6 +124,9 @@ zrbf_kindle() {
   ZRBF_VESSEL_ENV_FILE="${BURD_TEMP_DIR}/rbf_vessel_env.txt"
   ZRBF_VESSEL_SIGIL_FILE="${BURD_TEMP_DIR}/rbf_vessel_sigil.txt"
 
+  buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
+  ZRBF_STITCH_PREFIX="${BURD_TEMP_DIR}/rbf_stitch_"
+
   buc_log_args 'For now lets double check these'
   test -n "${RBRR_GCB_GCRANE_IMAGE_REF:-}" || buc_die "RBRR_GCB_GCRANE_IMAGE_REF not set"
   test -n "${RBRR_GCB_ORAS_IMAGE_REF:-}"   || buc_die "RBRR_GCB_ORAS_IMAGE_REF not set"
@@ -165,48 +168,66 @@ zrbf_stitch_build_json() {
     "rbgjb09-build-and-push-metadata.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-push-metadata"
   )
 
-  # Build JSON array of steps
-  local z_steps_json="[]"
-  local z_def z_script z_builder z_entrypoint z_id z_script_path z_body z_escaped z_arg_flag
+  local z_def=""
+  local z_script=""
+  local z_builder=""
+  local z_entrypoint=""
+  local z_id=""
+  local z_script_path=""
+  local z_body=""
+  local z_arg_flag=""
+  local z_body_file=""
+  local z_escaped_file=""
+  local z_steps_file=""
+  local z_accumulator_file="${ZRBF_STITCH_PREFIX}steps.json"
+
+  buc_log_args "Initializing empty steps array"
+  echo "[]" > "${z_accumulator_file}" || buc_die "Failed to initialize steps JSON"
 
   for z_def in "${z_step_defs[@]}"; do
     IFS='|' read -r z_script z_builder z_entrypoint z_id <<< "${z_def}"
     z_script_path="${ZRBF_RBGJB_STEPS_DIR}/${z_script}"
+    z_body_file="${ZRBF_STITCH_PREFIX}${z_id}_body.txt"
+    z_escaped_file="${ZRBF_STITCH_PREFIX}${z_id}_escaped.txt"
+    z_steps_file="${ZRBF_STITCH_PREFIX}${z_id}_steps.json"
 
     test -f "${z_script_path}" || buc_die "Step script not found: ${z_script_path}"
 
-    # Read script body, skip shebang only (comments pass through harmlessly)
-    z_body=$(tail -n +2 "${z_script_path}")
+    buc_log_args "Reading script body for ${z_id} (skip shebang, comments pass through)"
+    tail -n +2 "${z_script_path}" > "${z_body_file}" || buc_die "Failed to read step script: ${z_script_path}"
+    z_body=$(<"${z_body_file}")
+    test -n "${z_body}" || buc_die "Empty script body: ${z_script_path}"
 
-    # Expand RBRR_GCB_* image refs in script body before escaping.
-    # These scripts run inside GCB containers where RBRR vars don't exist,
-    # so we bake the pinned refs into the script text at build-config time.
+    buc_log_args "Baking pinned image refs into script text (GCB containers lack RBRR vars)"
     z_body="${z_body//\$\{RBRR_GCB_SYFT_IMAGE_REF\}/${RBRR_GCB_SYFT_IMAGE_REF}}"
     z_body="${z_body//\$\{RBRR_GCB_BINFMT_IMAGE_REF\}/${RBRR_GCB_BINFMT_IMAGE_REF}}"
 
-    # Escape $ to $$ for Cloud Build, but preserve ${_RBGY_*} substitutions
-    # First escape all $, then restore _RBGY_ substitution vars back to single $
-    z_escaped=$(printf '%s' "${z_body}" | sed 's/\$/\$\$/g; s/\$\${_RBGY_/${_RBGY_/g')
+    buc_log_args "Escaping dollars for Cloud Build, preserving RBGY substitutions"
+    printf '%s' "${z_body}" | sed 's/\$/\$\$/g; s/\$\${_RBGY_/${_RBGY_/g' \
+      > "${z_escaped_file}" || buc_die "Failed to escape script body for ${z_id}"
 
-    # Determine arg flag based on entrypoint
     case "${z_entrypoint}" in
       bash) z_arg_flag="-lc" ;;
       sh)   z_arg_flag="-c" ;;
       *)    buc_die "Unknown entrypoint: ${z_entrypoint}" ;;
     esac
 
-    # Append step to JSON array
-    z_steps_json=$(printf '%s' "${z_steps_json}" | jq \
+    buc_log_args "Appending step ${z_id} to JSON array"
+    jq \
       --arg name "${z_builder}" \
       --arg id "${z_id}" \
       --arg ep "${z_entrypoint}" \
       --arg flag "${z_arg_flag}" \
-      --arg script "${z_escaped}" \
-      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]')
+      --rawfile script "${z_escaped_file}" \
+      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+      "${z_accumulator_file}" > "${z_steps_file}" \
+      || buc_die "Failed to append step ${z_id} to JSON"
+    mv "${z_steps_file}" "${z_accumulator_file}" \
+      || buc_die "Failed to update steps JSON for ${z_id}"
   done
 
-  # Write final JSON structure
-  printf '%s' "${z_steps_json}" | jq '{steps: .}' > "${ZRBF_STITCHED_BUILD_FILE}" \
+  buc_log_args "Writing final stitched build structure"
+  jq '{steps: .}' "${z_accumulator_file}" > "${ZRBF_STITCHED_BUILD_FILE}" \
     || buc_die "Failed to write stitched build JSON"
 
   buc_log_args "Stitched ${#z_step_defs[@]} steps to ${ZRBF_STITCHED_BUILD_FILE}"

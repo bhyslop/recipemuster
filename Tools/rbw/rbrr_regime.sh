@@ -106,6 +106,16 @@ zrbrr_broach() {
   ZRBRR_DOCKER_ENV=()
   ZRBRR_DOCKER_ENV+=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")
 
+  buc_log_args 'Define oras discovery temp files'
+  ZRBRR_ORAS_TOKEN_FILE="${BURD_TEMP_DIR}/rbrr_oras_token.json"
+  ZRBRR_ORAS_TAGS_FILE="${BURD_TEMP_DIR}/rbrr_oras_tags.json"
+  ZRBRR_ORAS_TOKEN_VALUE_FILE="${BURD_TEMP_DIR}/rbrr_oras_token_value.txt"
+  ZRBRR_ORAS_TAG_FILE="${BURD_TEMP_DIR}/rbrr_oras_tag.txt"
+
+  buc_log_args 'Define refresh operation file prefixes (postfixed per image varname)'
+  ZRBRR_REFRESH_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_"
+  ZRBRR_REFRESH_SED_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_sed_"
+
   ZRBRR_KINDLED=1
 }
 
@@ -214,11 +224,9 @@ rbrr_refresh_gcb_pins() {
   test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
   test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BURD"
 
-  # Vintage from dispatch timestamp (YYYYMMDD-HHMMSS -> Mon YYYY)
-  local z_vintage
-  z_vintage=$(date -j -f "%Y%m%d-%H%M%S" "${BURD_NOW_STAMP}" "+%b %Y" 2>/dev/null) \
-    || z_vintage=$(date -d "${BURD_NOW_STAMP:0:4}-${BURD_NOW_STAMP:4:2}-${BURD_NOW_STAMP:6:2}" "+%b %Y" 2>/dev/null) \
-    || buc_die "Cannot parse BURD_NOW_STAMP: ${BURD_NOW_STAMP}"
+  buc_countdown 5 "NOTE: Docker anonymous login is heavily rate limited.  Try again in 6 hours if you see that fail.  Continuing in:"
+
+  local z_vintage="${BURD_NOW_STAMP}"
 
   # Discover latest oras stable version from GHCR API.
   # oras doesn't publish a :latest tag, so we must find the newest semver release.
@@ -226,39 +234,39 @@ rbrr_refresh_gcb_pins() {
   buc_step "Discovering latest oras version from GHCR (no :latest tag published)"
 
   local z_oras_tag=""
-  local z_token_file="${BURD_TEMP_DIR}/rbrr_oras_token.json"
-  local z_tags_file="${BURD_TEMP_DIR}/rbrr_oras_tags.json"
+  local z_oras_token=""
 
-  # Step 1: Obtain GHCR bearer token (anonymous, scoped to oras repo)
+  buc_log_args "Obtaining GHCR bearer token (anonymous, scoped to oras repo)"
   curl -sS \
     "https://ghcr.io/token?scope=repository:oras-project/oras:pull&service=ghcr.io" \
-    -o "${z_token_file}" 2>/dev/null \
+    -o "${ZRBRR_ORAS_TOKEN_FILE}" 2>/dev/null \
     || buc_warn "Failed to fetch GHCR token"
 
-  local z_oras_token=""
-  if test -f "${z_token_file}"; then
-    z_oras_token=$(jq -r '.token // empty' "${z_token_file}") || true
+  if test -f "${ZRBRR_ORAS_TOKEN_FILE}"; then
+    jq -r '.token // empty' "${ZRBRR_ORAS_TOKEN_FILE}" > "${ZRBRR_ORAS_TOKEN_VALUE_FILE}" || true
+    z_oras_token=$(<"${ZRBRR_ORAS_TOKEN_VALUE_FILE}")
   fi
 
-  # Step 2: Fetch tag list using bearer token
+  buc_log_args "Fetching tag list using bearer token"
   if test -n "${z_oras_token}"; then
     curl -sS \
       -H "Authorization: Bearer ${z_oras_token}" \
       "https://ghcr.io/v2/oras-project/oras/tags/list?n=1000" \
-      -o "${z_tags_file}" 2>/dev/null \
+      -o "${ZRBRR_ORAS_TAGS_FILE}" 2>/dev/null \
       || buc_warn "Failed to fetch oras tags from GHCR"
   fi
 
-  # Step 3: Extract newest stable semver tag via jq
   # Filters to exact vN.N.N (no pre-release suffixes), sorts numerically, takes last
-  if test -f "${z_tags_file}"; then
-    z_oras_tag=$(jq -r '
+  if test -f "${ZRBRR_ORAS_TAGS_FILE}"; then
+    buc_log_args "Extracting newest stable semver tag"
+    jq -r '
       [.tags[] | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))]
       | map(ltrimstr("v") | split(".") | map(tonumber))
       | sort_by(.[0], .[1], .[2])
       | last
       | "v\(.[0]).\(.[1]).\(.[2])"
-    ' "${z_tags_file}") || true
+    ' "${ZRBRR_ORAS_TAGS_FILE}" > "${ZRBRR_ORAS_TAG_FILE}" || true
+    z_oras_tag=$(<"${ZRBRR_ORAS_TAG_FILE}")
   fi
 
   if test -z "${z_oras_tag}" || test "${z_oras_tag}" = "null"; then
@@ -287,23 +295,49 @@ rbrr_refresh_gcb_pins() {
   local z_unchanged=0
   local z_failed=0
 
-  local z_spec z_varname z_image z_tag z_raw z_digest z_full_ref z_old_ref z_tmpfile
+  local z_spec=""
+  local z_varname=""
+  local z_image=""
+  local z_tag=""
+  local z_manifest_file=""
+  local z_digest_file=""
+  local z_oldref_file=""
+  local z_digest=""
+  local z_full_ref=""
+  local z_old_ref=""
+  local z_sed_value_file=""
+  local z_sed_vintage_file=""
   for z_spec in "${z_specs[@]}"; do
     IFS='|' read -r z_varname z_image z_tag <<< "${z_spec}"
 
+    z_manifest_file="${ZRBRR_REFRESH_PREFIX}${z_varname}_manifest.json"
+    z_digest_file="${ZRBRR_REFRESH_PREFIX}${z_varname}_digest.txt"
+    z_oldref_file="${ZRBRR_REFRESH_PREFIX}${z_varname}_oldref.txt"
+    z_sed_value_file="${ZRBRR_REFRESH_SED_PREFIX}${z_varname}_value.sh"
+    z_sed_vintage_file="${ZRBRR_REFRESH_SED_PREFIX}${z_varname}_vintage.sh"
+
     buc_step "Inspecting ${z_image}:${z_tag}"
 
-    z_raw=$(docker manifest inspect "${z_image}:${z_tag}" 2>/dev/null) || {
+    docker manifest inspect --verbose "${z_image}:${z_tag}" > "${z_manifest_file}" 2>/dev/null || {
       buc_warn "Failed to fetch manifest for ${z_image}:${z_tag}"
       buc_warn "Docker Hub rate limits are common; wait a few minutes and retry"
       z_failed=$((z_failed + 1))
       continue
     }
 
-    z_digest=$(printf '%s' "${z_raw}" | shasum -a 256 | cut -d' ' -f1)
-    z_full_ref="${z_image}@sha256:${z_digest}"
+    buc_log_args "Extracting registry digest (object for single-arch, array for multi-arch)"
+    jq -r 'if type == "array" then .[0].Descriptor.digest else .Descriptor.digest end' \
+      "${z_manifest_file}" > "${z_digest_file}" || {
+      buc_warn "Failed to extract digest for ${z_image}:${z_tag}"
+      z_failed=$((z_failed + 1))
+      continue
+    }
+    z_digest=$(<"${z_digest_file}")
+    test -n "${z_digest}" || { buc_warn "Empty digest for ${z_image}:${z_tag}"; z_failed=$((z_failed + 1)); continue; }
+    z_full_ref="${z_image}@${z_digest}"
 
-    z_old_ref=$(grep "^${z_varname}=" "${z_rbrr_file}" | cut -d'"' -f2)
+    grep "^${z_varname}=" "${z_rbrr_file}" | cut -d'"' -f2 > "${z_oldref_file}" || true
+    z_old_ref=$(<"${z_oldref_file}")
 
     if test "${z_old_ref}" = "${z_full_ref}"; then
       buc_info "${z_varname}: unchanged"
@@ -311,22 +345,18 @@ rbrr_refresh_gcb_pins() {
     else
       buc_info "${z_varname}: ${z_old_ref} -> ${z_full_ref}"
 
-      z_tmpfile=$(mktemp)
-      sed "s|^${z_varname}=.*|${z_varname}=\"${z_full_ref}\"|" "${z_rbrr_file}" > "${z_tmpfile}"
-      mv "${z_tmpfile}" "${z_rbrr_file}"
+      sed "s|^${z_varname}=.*|${z_varname}=\"${z_full_ref}\"|" "${z_rbrr_file}" > "${z_sed_value_file}" \
+        || buc_die "Failed to sed value for ${z_varname}"
+      mv "${z_sed_value_file}" "${z_rbrr_file}" || buc_die "Failed to update ${z_varname} in rbrr file"
 
-      # Update vintage comment on the line before the variable
-      z_tmpfile=$(mktemp)
+      buc_log_args "Updating vintage comment for ${z_varname}"
       sed "/${z_varname}=/{
         x
         s|(~[^)]*)|(~${z_vintage})|
         x
-      }" "${z_rbrr_file}" > "${z_tmpfile}" 2>/dev/null || true
-      # Only apply if sed succeeded meaningfully
-      if test -s "${z_tmpfile}"; then
-        mv "${z_tmpfile}" "${z_rbrr_file}"
-      else
-        rm -f "${z_tmpfile}"
+      }" "${z_rbrr_file}" > "${z_sed_vintage_file}" 2>/dev/null || true
+      if test -s "${z_sed_vintage_file}"; then
+        mv "${z_sed_vintage_file}" "${z_rbrr_file}" || buc_die "Failed to update vintage for ${z_varname}"
       fi
 
       z_updated=$((z_updated + 1))
