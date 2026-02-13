@@ -65,7 +65,6 @@ buto_section() {
 }
 
 buto_info() {
-  test "${BUT_VERBOSE:-0}" -ge 1 || return 0
   zbuto_render_lines "info " "" "$@"
 }
 
