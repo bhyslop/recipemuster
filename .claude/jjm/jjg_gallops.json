@@ -3240,9 +3240,10 @@
         "₢APAAN",
         "₢APAAe",
         "₢APAAi",
-        "₢APAAj"
+        "₢APAAj",
+        "₢APAAk"
       ],
-      "next_pace_seed": "AAk",
+      "next_pace_seed": "AAl",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -4269,6 +4270,17 @@
               "text": "Delete `Tools/rbw/rbk_Coordinator.sh` by absorbing any still-useful content into `rbw_workbench.sh`.\n\n## Rationale\n\nThe `rbk` prefix must be freed for use as a kit directory (`Tools/rbk/`). Terminal exclusivity forbids `rbk` naming both a file prefix and a kit directory.\n\nAlso confirm `rbw.workbench.mk` is gone and clean up any dangling references.\n\n## Tasks\n1. Read `rbk_Coordinator.sh` and `rbw_workbench.sh` — identify what in Coordinator is still useful\n2. Move useful content into `rbw_workbench.sh`\n3. Delete `rbk_Coordinator.sh`\n4. Grep for any `rbk_` references (imports, calls) and update to `rbw_` equivalents\n5. Confirm `rbw.workbench.mk` is absent; grep for references and remove any\n6. Update CLAUDE.md acronym mapping (remove RBK → rbk_Coordinator.sh entry)\n\n## Verification\n- No file at `Tools/rbw/rbk_Coordinator.sh`\n- No `rbk_` references in codebase (except future `Tools/rbk/` kit)\n- No `rbw.workbench.mk` references\n- `rbw_workbench.sh` has any salvaged functionality",
               "silks": "delete-rbk-coordinator",
               "commit": "e78052e"
+            }
+          ]
+        },
+        "₢APAAk": {
+          "tacks": [
+            {
+              "ts": "260213-0924",
+              "state": "rough",
+              "text": "## Context\n\nThe project needs a systematic validation module (`rbq_Qualify.sh`) that checks tabtarget health and colophon registry consistency. This was designed in conversation alongside the GCB quota check work.\n\n## Design Decisions Made\n\n- **Prefix**: `rbq` (\"qualify\") — terminal, no conflicts\n- **Home**: RBW space (must import rbz zipper; BUK can't depend on RBW)\n- **Zipper import**: Sources both `rbz` (RBW) and `buz` (BUK) to get authoritative colophon registries\n- **Tabtarget structural checks**: Validate exports, launcher references, file existence (note: tabtargets may have multiple exports for interactive/nonlogging config)\n- **Colophon cross-check**: Extract colophon from tt/ filename, verify against zipper tables\n- **No aliases**: Reject duplicate colophon→command mappings in workbench case tables\n- **Attachment point**: TBD — must design where rbq checks are invoked (standalone tabtarget? part of audit? both?)\n\n## Steps\n\n1. Design the attachment point: standalone `rbw-Q.Qualify.sh` tabtarget, integration with existing audit, or both\n2. Create `rbq_Qualify.sh` module with kindle/sentinel pattern\n3. Create `rbq_cli.sh` with furnish sourcing both zippers\n4. Implement tabtarget structural validation (shebang, exports, launcher existence, line structure)\n5. Implement colophon cross-check against zipper registrations\n6. Wire tabtarget and test\n7. Update CLAUDE.md acronym mappings\n\n## Key Files\n- `Tools/rbw/rbz_zipper.sh` — RBW colophon registry\n- `Tools/buk/buz_zipper.sh` — BUK colophon registry\n- `Tools/buk/buw_workbench.sh` — BUK workbench routing\n- `Tools/rbw/rbw_workbench.sh` — RBW workbench routing\n- `tt/*.sh` — all tabtargets to validate",
+              "silks": "create-rbq-qualify-module",
+              "commit": "715a1d0"
             }
           ]
         }
