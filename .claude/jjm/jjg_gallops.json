@@ -3248,9 +3248,10 @@
         "₢APAAe",
         "₢APAAi",
         "₢APAAj",
-        "₢APAAk"
+        "₢APAAk",
+        "₢APAAl"
       ],
-      "next_pace_seed": "AAl",
+      "next_pace_seed": "AAm",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -4302,6 +4303,17 @@
               "text": "## Context\n\nThe project needs a systematic validation module (`rbq_Qualify.sh`) that checks tabtarget health and colophon registry consistency. This was designed in conversation alongside the GCB quota check work.\n\n## Design Decisions Made\n\n- **Prefix**: `rbq` (\"qualify\") — terminal, no conflicts\n- **Home**: RBW space (must import rbz zipper; BUK can't depend on RBW)\n- **Zipper import**: Sources both `rbz` (RBW) and `buz` (BUK) to get authoritative colophon registries\n- **Tabtarget structural checks**: Validate exports, launcher references, file existence (note: tabtargets may have multiple exports for interactive/nonlogging config)\n- **Colophon cross-check**: Extract colophon from tt/ filename, verify against zipper tables\n- **No aliases**: Reject duplicate colophon→command mappings in workbench case tables\n- **Attachment point**: TBD — must design where rbq checks are invoked (standalone tabtarget? part of audit? both?)\n\n## Steps\n\n1. Design the attachment point: standalone `rbw-Q.Qualify.sh` tabtarget, integration with existing audit, or both\n2. Create `rbq_Qualify.sh` module with kindle/sentinel pattern\n3. Create `rbq_cli.sh` with furnish sourcing both zippers\n4. Implement tabtarget structural validation (shebang, exports, launcher existence, line structure)\n5. Implement colophon cross-check against zipper registrations\n6. Wire tabtarget and test\n7. Update CLAUDE.md acronym mappings\n\n## Key Files\n- `Tools/rbw/rbz_zipper.sh` — RBW colophon registry\n- `Tools/buk/buz_zipper.sh` — BUK colophon registry\n- `Tools/buk/buw_workbench.sh` — BUK workbench routing\n- `Tools/rbw/rbw_workbench.sh` — RBW workbench routing\n- `tt/*.sh` — all tabtargets to validate",
               "silks": "create-rbq-qualify-module",
               "commit": "715a1d0"
+            }
+          ]
+        },
+        "₢APAAl": {
+          "tacks": [
+            {
+              "ts": "260213-0959",
+              "state": "rough",
+              "text": "Design how gcrane can replace skopeo in the GCB pipeline.\n\n## Context\n\nquay.io aggressively garbage-collects image digests (within hours), making pinned skopeo refs unreliable. gcrane (gcr.io, Google-hosted) is already a GCB dependency and performs similar OCI registry copy operations.\n\n## Work\n\n1. Identify the specific GCB step(s) that use skopeo — what exact skopeo subcommand and flags\n2. Find the gcrane equivalent command(s)\n3. Verify gcrane supports the same OCI artifact types (manifests, indexes, etc.)\n4. Draft the replacement cloudbuild step configuration\n5. Validate that no other skopeo-specific features are relied upon\n\n## Acceptance\n\n- Clear mapping from skopeo command(s) to gcrane equivalent(s)\n- Draft replacement GCB step ready for implementation\n- Confirmation that gcrane handles all artifact types we push",
+              "silks": "design-gcrane-skopeo-replacement",
+              "commit": "db6bb59"
             }
           ]
         }
