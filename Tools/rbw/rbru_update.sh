@@ -29,6 +29,11 @@ ZRBRU_SOURCED=1
 
 zrbru_kindle() {
   test -z "${ZRBRU_KINDLED:-}" || buc_die "Module rbru already kindled"
+
+  # GCB runs on linux/amd64 — pin digests must match this platform
+  ZRBRU_PIN_OS="linux"
+  ZRBRU_PIN_ARCH="amd64"
+
   ZRBRU_KINDLED=1
 }
 
@@ -147,8 +152,14 @@ rbru_refresh_gcb_pins() {
     docker manifest inspect --verbose "${z_image}:${z_tag}" > "${z_manifest_file}" 2>/dev/null \
       || buc_die "Failed to fetch manifest for ${z_image}:${z_tag}"
 
-    buc_log_args "Extracting registry digest (object for single-arch, array for multi-arch)"
-    jq -r 'if type == "array" then .[0].Descriptor.digest else .Descriptor.digest end' \
+    buc_log_args "Extracting ${ZRBRU_PIN_OS}/${ZRBRU_PIN_ARCH} digest from manifest"
+    jq -r --arg os "${ZRBRU_PIN_OS}" --arg arch "${ZRBRU_PIN_ARCH}" '
+      if type == "array" then
+        [.[] | select(.Descriptor.platform.architecture == $arch
+                  and .Descriptor.platform.os == $os)][0].Descriptor.digest
+      else
+        .Descriptor.digest
+      end' \
       "${z_manifest_file}" > "${z_digest_file}" \
       || buc_die "Failed to extract digest for ${z_image}:${z_tag}"
     z_digest=$(<"${z_digest_file}")
