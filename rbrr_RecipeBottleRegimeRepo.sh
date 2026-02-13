@@ -63,7 +63,7 @@ RBRR_GCB_GCLOUD_IMAGE_REF="gcr.io/cloud-builders/gcloud@sha256:54bcf51d601ff3701
 RBRR_GCB_DOCKER_IMAGE_REF="gcr.io/cloud-builders/docker@sha256:80e36415eeda32a4e2fda4c551f6cf7a450afcaa2e91bf4eafaabf942cf69bcc"
 
 # skopeo: OCI registry copy tool (~Feb 2026)
-RBRR_GCB_SKOPEO_IMAGE_REF="quay.io/skopeo/stable@sha256:695c33d1c8ffeb8ab4decdd9692e2bc157bff8931c7725c21a6dbe26c656767c"
+RBRR_GCB_SKOPEO_IMAGE_REF="quay.io/skopeo/stable@sha256:5e778799da518c1d49bc837b9e1760c7d48a1ea9ac8659412651adc4e7219126"
 
 # alpine: minimal Linux for scripting steps (~Feb 2026)
 RBRR_GCB_ALPINE_IMAGE_REF="docker.io/library/alpine@sha256:59855d3dceb3ae53991193bd03301e082b2a7faa56a514b03527ae0ec2ce3a95"
