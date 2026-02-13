@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Ae",
+  "next_heat_seed": "Af",
   "heats": {
     "₣Ad": {
       "silks": "vvk-file-reservation",
@@ -5271,6 +5271,15 @@
           ]
         }
       }
+    },
+    "₣Ae": {
+      "silks": "rbw-stash-builder-images-in-gar",
+      "creation_time": "260213",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_Ae.md",
+      "paces": {}
     }
   }
 }
