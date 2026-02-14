@@ -69,18 +69,6 @@ acts on its behalf when permitted.
 |Example |export RBRR_NAMEPLATE_PATH := recipes/nameplates
 |===
 
-.RBRR_REGISTRY_SERVER
-[cols="1,4"]
-|===
-|Purpose |Specifies the container registry server for retrieving {st_published_image_s}
-
-|Required |No
-
-|Format |Fully-qualified domain name with optional port
-
-|Example |export RBRR_REGISTRY_SERVER := registry.example.com:5000
-|===
-
 === Registry Configuration
 
 .RBRR_REGISTRY_OWNER
@@ -119,84 +107,6 @@ acts on its behalf when permitted.
 |Example |export RBRR_GITHUB_PAT_ENV := ../station-files/secrets/github-ghcr-play.env
 |===
 
-=== Build Configuration
-
-.RBRR_BUILD_ARCHITECTURES
-[cols="1,4"]
-|===
-|Purpose |Target platform architectures for {st_container} builds. Determines which architectures are supported when building {st_published_image_s}.
-
-|Required |Yes
-
-|Format |Space-separated list of platform identifiers in os/arch format
-
-|Example |export RBRR_BUILD_ARCHITECTURES := linux/amd64
-|===
-
-.RBRR_HISTORY_DIR
-[cols="1,4"]
-|===
-|Purpose |Local directory for storing build artifacts and history from GitHub Actions workflows. Maintains records of all {st_container} builds.
-
-|Required |Yes
-
-|Format |Relative path from {at_rbm_system} root
-
-|Default |RBM-history
-
-|Example |export RBRR_HISTORY_DIR := builds/history
-|===
-
-=== Virtual Machine Configuration
-
-.RBRR_MACHINE_NAME
-[cols="1,4"]
-|===
-|Purpose |Name identifier for the Podman virtual machine instance used for {st_container} operations and {at_bottle_service} deployment.
-
-|Required |Yes
-
-|Format |Valid machine name (alphanumeric with hyphens)
-
-|Example |export RBRR_MACHINE_NAME := podman-machine-rbw
-|===
-
-.RBRR_VMDIST_TAG
-[cols="1,4"]
-|===
-|Purpose |Full container image reference for the Podman machine OS distribution. Specifies the exact version of the virtual machine image to use.
-
-|Required |Yes
-
-|Format |Complete container image reference with registry, repository, and tag
-
-|Example |export RBRR_VMDIST_TAG := quay.io/podman/machine-os-wsl:5.3
-|===
-
-.RBRR_VMDIST_BLOB_SHA
-[cols="1,4"]
-|===
-|Purpose |SHA256 hash of the VM filesystem layer blob. Used for image verification and ensuring consistent virtual machine deployments.
-
-|Required |Yes
-
-|Format |64-character hexadecimal SHA256 hash
-
-|Example |export RBRR_VMDIST_BLOB_SHA := 6898117ca935bae6cbdf680d5b8bb27c0f9fbdfe8799e5fe8aae7b87c17728d3
-|===
-
-.RBRR_VMDIST_CRANE
-[cols="1,4"]
-|===
-|Purpose |URL to download the crane utility binary, used for copying {st_container} images between registries during VM image management.
-
-|Required |Yes
-
-|Format |Complete HTTPS URL to crane release archive
-
-|Example |export RBRR_VMDIST_CRANE := https://github.com/google/go-containerregistry/releases/download/v0.20.3/go-containerregistry_Linux_x86_64.tar.gz
-|===
-
 == Term Definitions
 
 [[term_bottle_service]]
@@ -205,9 +115,7 @@ A complete service instance consisting of one bottle container and one sentry co
 
 [[term_enclave_network]]
 {at_enclave_network}::
-An isolated network connecting a bottle container to its sentry container, using the
-RBRR_ENCLAVE_SUBNET
-for addressing.
+An isolated network connecting a bottle container to its sentry container.
 This network enforces strict security policies and provides the only communication path for the bottle container.
 
 [[term_nameplate]]
