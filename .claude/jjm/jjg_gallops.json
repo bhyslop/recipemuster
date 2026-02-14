@@ -1136,9 +1136,10 @@
         "₢ATAAd",
         "₢ATAAK",
         "₢ATAAe",
-        "₢ATAAf"
+        "₢ATAAf",
+        "₢ATAAg"
       ],
-      "next_pace_seed": "AAg",
+      "next_pace_seed": "AAh",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1788,6 +1789,17 @@
               "text": "Create consolidated RBSV-PodmanVmSupplyChain.adoc replacing RBSVC + RBSVM. Add warning to rbv_PodmanVM.sh.\n\nNew document sections (prose, NOT linked terms):\n\n1. Motivation\n   - Quay.io regression: deleting and redownloading a VM with same Podman SemVer silently got a different image\n   - The new image had security hardening that prohibited setns() on external network namespaces — broke working SENTRY/BOTTLE architecture\n   - Upstream rebuilds every 3 hours and deletes old versions; tags are not immutable\n   - This motivated bringing VM images into user-controlled Depot\n\n2. Constraints\n   - VM images are OCI artifacts, not container images (compressed rootfs tarballs or CoreOS disk images, non-standard media types, empty artifactType, custom annotations like disktype=wsl)\n   - Bootstrap chicken-and-egg: need crane/oras/skopeo but don't want to obligate user to install them; use ignite VM as tooling environment\n   - Provenance difficulty: podman machine init prints SHA that can be captured and compared, but only during init\n   - VM locked to Podman SemVer but upstream images not immutable within a version\n\n3. Architecture\n   - Two-machine pattern: ignite (temporary, disposable tooling) vs deploy (persistent, controlled)\n   - Lifecycle overview: check -> mirror -> fetch -> init -> start/stop -> nuke\n\n4. Operations (brief prose descriptions of each)\n   - Check: discover upstream updates (unimplemented)\n   - Mirror: query upstream manifests for WSL + standard families, download blobs, repackage as container images, push to registry\n   - Fetch: pull platform-specific container from registry, extract disk image to local cache\n   - Init: initialize deploy VM from cache, write brand file\n   - Nuke: destroy all VMs and cache\n\n5. Configuration\n   - List RBRR variables used by VM management (prose table, not linked terms):\n     RBRR_IGNITE_MACHINE_NAME, RBRR_DEPLOY_MACHINE_NAME, RBRR_CRANE_TAR_GZ,\n     RBRR_CHOSEN_PODMAN_VERSION, RBRR_CHOSEN_VMIMAGE_ORIGIN, RBRR_CHOSEN_IDENTITY,\n     RBRR_MANIFEST_PLATFORMS, RBRR_REGISTRY_OWNER, RBRR_REGISTRY_NAME\n   - Station variables: RBRS_PODMAN_ROOT_DIR, RBRS_VMIMAGE_CACHE_DIR, RBRS_VM_PLATFORM\n   - Note: these will eventually be pulled out of RBRR into a dedicated VM regime\n\n6. Implementation Status\n   - rbv_PodmanVM.sh exists targeting GHCR, never ported to GAR\n   - Check operation has no implementation\n   - Specs (former RBSVC/RBSVM) described earlier crane-copy model; bash evolved to blob-level repackaging\n   - rbp.podman.mk contains historical prototypes, superseded by rbv_PodmanVM.sh\n\nWarning for rbv_PodmanVM.sh:\n- Add header comment block: \"WARNING: This implementation targets GHCR (GitHub Container Registry). It has NOT been ported to Google Artifact Registry (GAR/Depot). The operations are functionally correct but the registry target is obsolete for this project. See RBSV-PodmanVmSupplyChain.adoc for context.\"\n\nReference material (in this repo):\n- Study/study-net-namespace-permutes/ (regression characterization)\n- podman-gateway-proposal.md (networking journey)\n- Study/study-shared-pod-userid/ and study-shared-pod-ip-forward/ (iptables failures)\n\nAcceptance:\n- RBSV-PodmanVmSupplyChain.adoc created in lenses/\n- All six sections present with substantive prose\n- rbv_PodmanVM.sh has warning banner\n- No linked terms used; prose only",
               "silks": "rbk-podman-vm-consolidate-spec",
               "commit": "ea5f2a9"
+            }
+          ]
+        },
+        "₢ATAAg": {
+          "tacks": [
+            {
+              "ts": "260214-0611",
+              "state": "rough",
+              "text": "Delete superseded VM management files and clean RBSA linked terms. Depends on ₢ATAAf (consolidate-spec) completing first.\n\nFiles to delete:\n- lenses/RBSVC-rbv_check.adoc\n- lenses/RBSVM-rbv_mirror.adoc\n- Tools/rbw/rbp.podman.mk\n- Tools/vme.extractor.sh\n\nRBSA-SpecTop.adoc cleanup:\n1. Remove attribute references (mapping section):\n   - :ops_rbv_check:\n   - :ops_rbv_mirror:\n   - :rbrr_ignite_machine_name:\n   - :rbrr_deploy_machine_name:\n   - :rbrr_crane_tar_gz:\n   - :rbrr_chosen_podman_version:\n   - :rbrr_chosen_vmimage_origin:\n   - :rbrr_chosen_identity:\n   - :at_stash_machine:\n   - :at_operational_machine:\n\n2. Remove definition anchors and definitions:\n   - [[at_stash_machine]] and its definition\n   - [[at_operational_machine]] and its definition\n   - [[ops_rbv_check]] section including include::RBSVC-rbv_check.adoc[]\n   - [[ops_rbv_mirror]] section including include::RBSVM-rbv_mirror.adoc[]\n   - The === VM Management Operations header if now empty\n\n3. Remove definition anchors for deleted rbrr_ terms (find each [[rbrr_*]] block)\n\n4. Add replacement reference: brief note in RBSA where VM Management Operations was, pointing to RBSV-PodmanVmSupplyChain.adoc\n\n5. rbw.workbench.mk: remove the include line for rbp.podman.mk if it exists\n\nCross-reference check before each deletion:\n- Grep for each term/file across all .adoc, .sh, .mk files\n- Only delete if no remaining references (or update references to point to new doc)\n\nAcceptance:\n- All four files deleted\n- RBSA attribute references and definitions removed\n- No dangling cross-references remain\n- Build/include paths updated",
+              "silks": "rbk-podman-vm-delete-legacy",
+              "commit": "3bb584f"
             }
           ]
         }
