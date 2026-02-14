@@ -1134,9 +1134,10 @@
         "₢ATAAa",
         "₢ATAAF",
         "₢ATAAd",
-        "₢ATAAK"
+        "₢ATAAK",
+        "₢ATAAe"
       ],
-      "next_pace_seed": "AAe",
+      "next_pace_seed": "AAf",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1764,6 +1765,17 @@
               "text": "Rename rbrr_RecipeBottleRegimeRepo.sh to rbrr.env for consistency with regime variable file conventions.\n\n## Context\n\nAll other regime variable files use the .env pattern:\n- rbrv.env (vessel), rbrp.env (payor), rbrn_*.env (nameplate), burc.env (BUK config), cccr.env (CCCK)\n\nThe repo regime is the sole outlier: rbrr_RecipeBottleRegimeRepo.sh\n\n## Work required\n\n1. Rename rbrr_RecipeBottleRegimeRepo.sh to rbrr.env\n2. Update all references across the codebase (source/include statements, CLAUDE.md mappings, etc.)\n3. Verify regime validation still works after rename\n\n## Acceptance criteria\n\n- File renamed to rbrr.env\n- All references updated — no broken sources\n- Regime validation passes",
               "silks": "rename-rbrr-regime-to-env",
               "commit": "e67bcf6"
+            }
+          ]
+        },
+        "₢ATAAe": {
+          "tacks": [
+            {
+              "ts": "260214-0610",
+              "state": "rough",
+              "text": "Remove 8 dead RBRR variables from RBRR-RegimeRepo.adoc and fix RBV_GITHUB_PAT_ENV typo in rbw.workbench.mk.\n\nDead variables to remove from spec (table entries):\n- RBRR_REGISTRY_SERVER (lines 72-82)\n- RBRR_BUILD_ARCHITECTURES (lines 123-134)\n- RBRR_HISTORY_DIR (lines 136-148)\n- RBRR_MACHINE_NAME (lines 150-162)\n- RBRR_VMDIST_TAG (lines 164-174)\n- RBRR_VMDIST_BLOB_SHA (lines 176-186)\n- RBRR_VMDIST_CRANE (lines 188-198)\n\nInline reference to remove:\n- RBRR_ENCLAVE_SUBNET in term_enclave_network definition (line 209)\n\nBug fix:\n- rbw.workbench.mk:49 — change RBV_GITHUB_PAT_ENV to RBRR_GITHUB_PAT_ENV\n\nNotes:\n- rbrr_regime.sh is already clean (none of the 8 appear there)\n- RBRR_GITHUB_PAT_ENV and RBRR_NAMEPLATE_PATH are partially active, leave as-is\n- RBS-Specification.adoc fate deferred to heat AS pace ASAAI\n- Removing VMDIST/MACHINE entries is safe: superseded by RBRR_CHOSEN_* and RBRR_IGNITE/DEPLOY_MACHINE_NAME in modern bash (rbv_PodmanVM.sh)\n\nAcceptance:\n- Dead variables removed from spec\n- Bug fixed\n- No orphaned section headers remain (Build Configuration and Virtual Machine Configuration sections fully removed)",
+              "silks": "rbk-podman-vm-cleanup-rbrr",
+              "commit": "9032b0f"
             }
           ]
         }
