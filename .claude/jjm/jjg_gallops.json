@@ -1135,9 +1135,10 @@
         "₢ATAAF",
         "₢ATAAd",
         "₢ATAAK",
-        "₢ATAAe"
+        "₢ATAAe",
+        "₢ATAAf"
       ],
-      "next_pace_seed": "AAf",
+      "next_pace_seed": "AAg",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1776,6 +1777,17 @@
               "text": "Remove 8 dead RBRR variables from RBRR-RegimeRepo.adoc and fix RBV_GITHUB_PAT_ENV typo in rbw.workbench.mk.\n\nDead variables to remove from spec (table entries):\n- RBRR_REGISTRY_SERVER (lines 72-82)\n- RBRR_BUILD_ARCHITECTURES (lines 123-134)\n- RBRR_HISTORY_DIR (lines 136-148)\n- RBRR_MACHINE_NAME (lines 150-162)\n- RBRR_VMDIST_TAG (lines 164-174)\n- RBRR_VMDIST_BLOB_SHA (lines 176-186)\n- RBRR_VMDIST_CRANE (lines 188-198)\n\nInline reference to remove:\n- RBRR_ENCLAVE_SUBNET in term_enclave_network definition (line 209)\n\nBug fix:\n- rbw.workbench.mk:49 — change RBV_GITHUB_PAT_ENV to RBRR_GITHUB_PAT_ENV\n\nNotes:\n- rbrr_regime.sh is already clean (none of the 8 appear there)\n- RBRR_GITHUB_PAT_ENV and RBRR_NAMEPLATE_PATH are partially active, leave as-is\n- RBS-Specification.adoc fate deferred to heat AS pace ASAAI\n- Removing VMDIST/MACHINE entries is safe: superseded by RBRR_CHOSEN_* and RBRR_IGNITE/DEPLOY_MACHINE_NAME in modern bash (rbv_PodmanVM.sh)\n\nAcceptance:\n- Dead variables removed from spec\n- Bug fixed\n- No orphaned section headers remain (Build Configuration and Virtual Machine Configuration sections fully removed)",
               "silks": "rbk-podman-vm-cleanup-rbrr",
               "commit": "9032b0f"
+            }
+          ]
+        },
+        "₢ATAAf": {
+          "tacks": [
+            {
+              "ts": "260214-0610",
+              "state": "rough",
+              "text": "Create consolidated RBSV-PodmanVmSupplyChain.adoc replacing RBSVC + RBSVM. Add warning to rbv_PodmanVM.sh.\n\nNew document sections (prose, NOT linked terms):\n\n1. Motivation\n   - Quay.io regression: deleting and redownloading a VM with same Podman SemVer silently got a different image\n   - The new image had security hardening that prohibited setns() on external network namespaces — broke working SENTRY/BOTTLE architecture\n   - Upstream rebuilds every 3 hours and deletes old versions; tags are not immutable\n   - This motivated bringing VM images into user-controlled Depot\n\n2. Constraints\n   - VM images are OCI artifacts, not container images (compressed rootfs tarballs or CoreOS disk images, non-standard media types, empty artifactType, custom annotations like disktype=wsl)\n   - Bootstrap chicken-and-egg: need crane/oras/skopeo but don't want to obligate user to install them; use ignite VM as tooling environment\n   - Provenance difficulty: podman machine init prints SHA that can be captured and compared, but only during init\n   - VM locked to Podman SemVer but upstream images not immutable within a version\n\n3. Architecture\n   - Two-machine pattern: ignite (temporary, disposable tooling) vs deploy (persistent, controlled)\n   - Lifecycle overview: check -> mirror -> fetch -> init -> start/stop -> nuke\n\n4. Operations (brief prose descriptions of each)\n   - Check: discover upstream updates (unimplemented)\n   - Mirror: query upstream manifests for WSL + standard families, download blobs, repackage as container images, push to registry\n   - Fetch: pull platform-specific container from registry, extract disk image to local cache\n   - Init: initialize deploy VM from cache, write brand file\n   - Nuke: destroy all VMs and cache\n\n5. Configuration\n   - List RBRR variables used by VM management (prose table, not linked terms):\n     RBRR_IGNITE_MACHINE_NAME, RBRR_DEPLOY_MACHINE_NAME, RBRR_CRANE_TAR_GZ,\n     RBRR_CHOSEN_PODMAN_VERSION, RBRR_CHOSEN_VMIMAGE_ORIGIN, RBRR_CHOSEN_IDENTITY,\n     RBRR_MANIFEST_PLATFORMS, RBRR_REGISTRY_OWNER, RBRR_REGISTRY_NAME\n   - Station variables: RBRS_PODMAN_ROOT_DIR, RBRS_VMIMAGE_CACHE_DIR, RBRS_VM_PLATFORM\n   - Note: these will eventually be pulled out of RBRR into a dedicated VM regime\n\n6. Implementation Status\n   - rbv_PodmanVM.sh exists targeting GHCR, never ported to GAR\n   - Check operation has no implementation\n   - Specs (former RBSVC/RBSVM) described earlier crane-copy model; bash evolved to blob-level repackaging\n   - rbp.podman.mk contains historical prototypes, superseded by rbv_PodmanVM.sh\n\nWarning for rbv_PodmanVM.sh:\n- Add header comment block: \"WARNING: This implementation targets GHCR (GitHub Container Registry). It has NOT been ported to Google Artifact Registry (GAR/Depot). The operations are functionally correct but the registry target is obsolete for this project. See RBSV-PodmanVmSupplyChain.adoc for context.\"\n\nReference material (in this repo):\n- Study/study-net-namespace-permutes/ (regression characterization)\n- podman-gateway-proposal.md (networking journey)\n- Study/study-shared-pod-userid/ and study-shared-pod-ip-forward/ (iptables failures)\n\nAcceptance:\n- RBSV-PodmanVmSupplyChain.adoc created in lenses/\n- All six sections present with substantive prose\n- rbv_PodmanVM.sh has warning banner\n- No linked terms used; prose only",
+              "silks": "rbk-podman-vm-consolidate-spec",
+              "commit": "ea5f2a9"
             }
           ]
         }
