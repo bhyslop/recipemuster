@@ -69,44 +69,6 @@ acts on its behalf when permitted.
 |Example |export RBRR_NAMEPLATE_PATH := recipes/nameplates
 |===
 
-=== Registry Configuration
-
-.RBRR_REGISTRY_OWNER
-[cols="1,4"]
-|===
-|Purpose |Specifies the GitHub username or organization that owns the container registry namespace. This determines the registry path where {st_published_image_s} are stored.
-
-|Required |Yes
-
-|Format |Valid GitHub username or organization name
-
-|Example |export RBRR_REGISTRY_OWNER := bhyslop
-|===
-
-.RBRR_REGISTRY_NAME
-[cols="1,4"]
-|===
-|Purpose |Defines the repository name within the GitHub container registry. Combined with RBRR_REGISTRY_OWNER, this forms the complete registry path for storing {st_container} images.
-
-|Required |Yes
-
-|Format |Valid GitHub repository name
-
-|Example |export RBRR_REGISTRY_NAME := recipemuster
-|===
-
-.RBRR_GITHUB_PAT_ENV
-[cols="1,4"]
-|===
-|Purpose |Path to environment file containing GitHub credentials for API and {at_container_registry} authentication. Must contain RBV_USERNAME and RBV_PAT variables.
-
-|Required |Yes
-
-|Format |Relative or absolute file path
-
-|Example |export RBRR_GITHUB_PAT_ENV := ../station-files/secrets/github-ghcr-play.env
-|===
-
 == Term Definitions
 
 [[term_bottle_service]]

@@ -183,7 +183,6 @@
 :at_moniker:                 <<at_moniker,Moniker>>
 :at_nameplate:               <<at_nameplate,Nameplate>>
 :at_nameplate_s:             <<at_nameplate,Nameplates>>
-:at_operational_machine:     <<at_operational_machine,Operational Machine>>
 :at_rbm_config:              <<at_rbm_config,RB Configuration>>
 :at_rbm_console:             <<at_rbm_console,RB Console>>
 :at_rbm_repo:                <<at_rbm_repo,RB Repository>>
@@ -197,7 +196,6 @@
 :at_sessile_service:         <<at_sessile_service,Sessile Bottle Service>>
 :at_startup_script:          <<at_startup_script,Startup Script>>
 :at_startup_script_s:        <<at_startup_script,Startup Scripts>>
-:at_stash_machine:           <<at_stash_machine,Stash Machine>>
 :at_transit_network:         <<at_transit_network,Transit Network>>
 :at_transit_network_name:    <<at_transit_network_name,Transit Network Name>>
 :at_user_repo:               <<at_user_repo,User Repository>>
@@ -227,8 +225,6 @@
 :mkr_bottle_launch:          <<mkr_bottle_launch,Bottle Launch Sequence>>
 :mkr_bottle_create:          <<mkr_bottle_create,Bottle Create Sequence>>
 :mkr_command_exec:           <<mkr_command_exec,Command Execution Sequence>>
-:ops_rbv_check:              <<ops_rbv_check,RBV Check Operation>>
-:ops_rbv_mirror:             <<ops_rbv_mirror,RBV Mirror Operation>>
 :mkc_interface_check:        <<mkc_interface_check,Interface Check Clause>>
 
 // Script Internals (security enforcement within sentry container)
@@ -250,17 +246,8 @@
 :rbrr_group_container_runtime:      <<rbrr_group_container_runtime,Container Runtime Group>>
 :rbrr_group_service_accounts:       <<rbrr_group_service_accounts,Service Accounts Group>>
 :rbrr_retriever_rbra_file:   <<rbrr_retriever_rbra_file,RBRR_RETRIEVER_RBRA_FILE>>
-:rbrr_registry_owner:        <<rbrr_registry_owner,RBRR_REGISTRY_OWNER>>
-:rbrr_registry_name:         <<rbrr_registry_name,RBRR_REGISTRY_NAME>>
 :rbrr_vessel_dir:            <<rbrr_vessel_dir,RBRR_VESSEL_DIR>>
 :rbrr_dns_server:            <<rbrr_dns_server,RBRR_DNS_SERVER>>
-:rbrr_ignite_machine_name:   <<rbrr_ignite_machine_name,RBRR_IGNITE_MACHINE_NAME>>
-:rbrr_deploy_machine_name:   <<rbrr_deploy_machine_name,RBRR_DEPLOY_MACHINE_NAME>>
-:rbrr_crane_tar_gz:          <<rbrr_crane_tar_gz,RBRR_CRANE_TAR_GZ>>
-:rbrr_manifest_platforms:    <<rbrr_manifest_platforms,RBRR_MANIFEST_PLATFORMS>>
-:rbrr_chosen_podman_version: <<rbrr_chosen_podman_version,RBRR_CHOSEN_PODMAN_VERSION>>
-:rbrr_chosen_vmimage_origin: <<rbrr_chosen_vmimage_origin,RBRR_CHOSEN_VMIMAGE_ORIGIN>>
-:rbrr_chosen_identity:       <<rbrr_chosen_identity,RBRR_CHOSEN_IDENTITY>>
 :rbrr_gcb_machine_type:      <<rbrr_gcb_machine_type,RBRR_GCB_MACHINE_TYPE>>
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
@@ -874,23 +861,9 @@ include::RBSBC-bottle_create.adoc[]
 
 include::RBSCE-command_exec.adoc[]
 
-=== VM Management Operations
+=== Podman VM Supply Chain
 
-[[ops_rbv_check]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
-==== {ops_rbv_check}
-
-Verifies whether newer VM images are available upstream by comparing SHA digests.
-
-include::RBSVC-rbv_check.adoc[]
-
-[[ops_rbv_mirror]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
-==== {ops_rbv_mirror}
-
-Copies the chosen VM image from upstream to the user's GHCR, ensuring consistent deployment across environments.
-
-include::RBSVM-rbv_mirror.adoc[]
+include::RBSPV-PodmanVmSupplyChain.adoc[]
 
 [[mkc_interface_check]]
 // ⟦axl_voices axo_routine axe_bash_scripted⟧
@@ -1560,17 +1533,6 @@ A service that stores and provides access to
 {at_startup_script}::
 A shell script that performs initialization and configuration tasks when starting a
 {at_bottle_service}.
-
-[[at_stash_machine]]
-{at_stash_machine}::
-A temporary Podman virtual machine created with crane installed for performing registry queries and image operations.
-Removed after completing its specific tasks.
-
-[[at_operational_machine]]
-{at_operational_machine}::
-The persistent Podman virtual machine that hosts all
-{at_bottle_service_s}
-and their associated containers.
 
 [[at_transit_network_name]]
 {at_transit_network_name}::

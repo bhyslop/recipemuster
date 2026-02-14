@@ -17,8 +17,6 @@
 #
 # Recipe Bottle Repository Configuration - Base Values
 
-RBRR_REGISTRY_OWNER=bhyslop
-RBRR_REGISTRY_NAME=recipemuster
 RBRR_DNS_SERVER=8.8.8.8
 
 RBRR_IGNITE_MACHINE_NAME=rbw-vm-ignite

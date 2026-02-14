@@ -46,10 +46,8 @@ RBM_RECIPE_BOTTLE_VM_SH = RBV_TEMP_DIR="$(MBD_TEMP_DIR)"                   \
 
 -include $(RBM_NAMEPLATE_FILE)
 -include $(RBM_TEST_FILE)
-include $(RBRR_GITHUB_PAT_ENV)
 include $(MBV_TOOLS_DIR)/mbc.console.mk
 include $(MBV_TOOLS_DIR)/rbrn.nameplate.mk
-include $(MBV_TOOLS_DIR)/rbp.podman.mk
 
 
 RBW_RECIPES_DIR  = RBM-recipes
@@ -75,15 +73,6 @@ rbw-hv.%:
 #
 # These rules are designed to allow the pattern match to parameterize
 # the operation via $(RBM_MONIKER).
-
-rbw-a.%: zrbw_prestart_rule rbp_podman_machine_start_rule rbp_check_connection
-	$(MBC_PASS) "Podman started and logged into container registry."
-
-rbw-z.%: zrbw_prestop_rule rbp_podman_machine_stop_rule
-	$(MBC_PASS) "Podman stopped."
-
-rbw-Z.%: zrbw_prenuke_rule rbp_podman_machine_nuke_rule
-	$(MBC_PASS) "Nuke completed."
 
 rbw-N.%:
 	$(MBC_START) "New nuke..."
@@ -124,15 +113,6 @@ rbw-i.%:
 
 rbw-v.%: zrbp_validate_regimes_rule
 	$(MBC_PASS) "No errors."
-
-zrbw_prestart_rule:
-	$(MBC_START) "Starting podman and logging in to container registry..."
-
-zrbw_prestop_rule:
-	$(MBC_START) "Stopping podman..."
-
-zrbw_prenuke_rule:
-	$(MBC_START) "Nuking podman..."
 
 
 #######################################

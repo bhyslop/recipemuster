@@ -73,12 +73,6 @@ rbrr_render() {
   echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
   echo ""
 
-  # Container Registry Configuration
-  rbcr_section_begin "Container Registry Configuration"
-  rbcr_section_item RBRR_REGISTRY_OWNER  xname   req  "Container registry owner identifier"
-  rbcr_section_item RBRR_REGISTRY_NAME   xname   req  "Container registry name"
-  rbcr_section_end
-
   # Vessel and Local Configuration
   rbcr_section_begin "Vessel and Local Configuration"
   rbcr_section_item RBRR_VESSEL_DIR              string  req  "Vessel definitions directory"
