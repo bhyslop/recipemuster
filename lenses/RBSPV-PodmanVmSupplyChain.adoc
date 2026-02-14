@@ -2,17 +2,21 @@
 
 == Motivation
 
-The Recipe Bottle project encountered a critical regression when a Podman virtual machine was deleted and redownloaded using the same Podman semantic version number. Despite the version tag remaining constant, the underlying VM image had silently changed between downloads. This regression manifested initially as broken virtual networking within containers, requiring systematic investigation to understand the root cause. The study documented in Study/study-net-namespace-permutes/ revealed that Podman 5.3 and later versions had implemented security hardening that restricted setns() permissions on external network namespaces. However, the definitive post-mortem analysis in Study/study-net-namespace-permutes/claudeopus4-netns-fail-memo.md established the full scope of the problem.
+Podman is an excellent open-source tool, but its VM image distribution model creates a serious reproducibility hazard. After months of stable development using a particular Podman version, deleting and redownloading the VM with the same semantic version silently produced a fundamentally different image. The entire SENTRY/BOTTLE network architecture — which had been working reliably — broke. Virtual networking inside containers stopped functioning, and the failure mode gave no indication that the underlying VM image had changed.
 
-The underlying issue stems from quay.io's build and retention policies. The upstream registry rebuilds VM images approximately every three hours and deletes older versions, meaning that version tags are not immutable within a Podman semantic version. A user downloading the same version tag at different times may receive fundamentally different disk images with different capabilities and behaviors. This unpredictability makes production deployments fragile and debugging difficult, as environmental differences cannot be reliably attributed to configuration versus image variance.
+Systematic investigation (documented in Study/study-net-namespace-permutes/) revealed that the new VM image carried Podman 5.3+ security hardening that prohibited `setns()` on externally-created network namespaces. This broke Recipe Bottle's core isolation mechanism: containers could no longer join pre-configured network namespaces, regardless of privileges or creation method. The definitive post-mortem in Study/study-net-namespace-permutes/claudeopus4-netns-fail-memo.md confirmed this was not a configuration issue but a fundamental change in the VM's capabilities. The earlier networking journey is recorded in podman-gateway-proposal.md and the iptables architecture failures in Study/study-shared-pod-userid/ and Study/study-shared-pod-ip-forward/.
 
-This motivated the decision to bring VM images under user control by mirroring them into the project's own Depot artifact registry. By maintaining stable, versioned VM images in a controlled repository, Recipe Bottle can ensure reproducible environments and reason clearly about changes in VM behavior over time.
+The root cause is quay.io's build and retention policy. The upstream registry rebuilds VM images approximately every three hours and deletes older versions. Version tags are not immutable within a Podman semantic version — downloading the same tag at different times produces different disk images with different capabilities. There is no way to recover a previous image once it has been replaced.
+
+This motivated bringing VM images under user control by mirroring them into the project's own Depot artifact registry. By maintaining stable, versioned VM images in a controlled repository, Recipe Bottle can ensure reproducible environments and prevent silent regressions from upstream image churn.
 
 == Constraints
 
-Several technical and architectural constraints shape the VM supply chain design. VM images are OCI artifacts rather than standard container images. They contain compressed root filesystem tarballs for WSL environments or CoreOS disk images for standard virtualization platforms. These artifacts use non-standard media types, have empty artifactType fields, and rely on custom annotations such as disktype to indicate their intended use. While they are platform-indexed in the OCI sense, they are not platform-runnable as containers would be.
+Several technical and architectural constraints shape the VM supply chain design.
 
-The bootstrap process faces a chicken-and-egg problem. The mirroring workflow requires tooling like crane, oras, or skopeo to interact with OCI registries at the manifest and blob level. However, Recipe Bottle does not want to obligate users to install these tools on their host systems. The solution is to use an ignite VM, initialized with the latest uncontrolled upstream image, as a disposable tooling environment. This VM provides the necessary utilities in an isolated context and can be discarded after completing the mirroring operation.
+VM images are OCI artifacts rather than standard container images. They contain compressed root filesystem tarballs for WSL environments or CoreOS disk images for standard virtualization platforms. These artifacts use non-standard media types, rely on custom annotations such as disktype to indicate their intended use, and carry opaque blobs rather than composable filesystem layers. While they are platform-indexed in the OCI sense, they are not platform-runnable as containers would be. Because of these differences, standard `podman pull` and `docker pull` cannot correctly retrieve and reassemble VM artifacts — they operate at the container-runtime abstraction level, which assumes runnable images with standard layer structure. Tools like crane (manifest and blob-level registry operations), skopeo (cross-registry copying with format awareness), and oras (OCI Registry As Storage, designed for non-container artifacts) work below that abstraction at the registry API and manifest level, which is why they can handle VM artifacts correctly.
+
+The bootstrap process faces a chicken-and-egg problem. The mirroring workflow requires crane, oras, or skopeo, but Recipe Bottle does not want to obligate users to install and maintain these tools on their host systems. The solution is to use an ignite VM, initialized with the latest uncontrolled upstream image, as a disposable tooling environment. Crane and jq are installed inside the ignite VM, and all registry operations execute there. The ignite VM is discarded after completing the mirroring operation.
 
 Establishing provenance for VM images is difficult. When podman machine init runs, it prints a SHA digest during initialization that can be captured and compared against expected values. However, this information is only available at initialization time. After a VM has been created, there is no reliable way to verify which specific image was used to initialize it. This limitation makes post-hoc auditing challenging and emphasizes the importance of capturing provenance information during the init operation.
 
@@ -30,23 +34,66 @@ This separation between ignite and deploy machines provides a clear boundary bet
 
 == Operations
 
-The check operation is responsible for discovering when new VM images become available upstream. It compares digest values between the current registry state and what quay.io currently offers. This operation was specified in earlier documentation but has never been implemented in the bash codebase, representing planned functionality rather than current capability.
+=== Check (unimplemented)
 
-The mirror operation is the most complex in the supply chain. It begins by querying the upstream manifests for both the machine-os-wsl and machine-os image families at the specified Podman version. Using crane running inside the ignite VM, the operation retrieves the raw manifest data and parses it to identify all available platform variants. For each platform variant, the operation downloads the individual disk image blobs from upstream. These blobs are then repackaged as container images using simple Dockerfiles that copy the disk blob into a scratch-based container. Each platform-specific image is built locally within the ignite VM, then pushed to the GitHub Container Registry with tags that encode the Podman version, a timestamp-based identity, and the platform specification. This results in a set of individually addressable container images, each containing a specific disk image for a specific platform variant.
+Discovers when new VM images are available upstream by comparing digest values between the current registry state and what quay.io currently offers. This operation was specified in earlier documentation but has never been implemented in bash.
 
-The fetch operation pulls a platform-specific container image from the registry based on the user's station configuration. It uses the ignite VM to access the podman image cache, extracts the disk image tarball from the container, and writes it to the local cache directory. This cached file serves as the source for subsequent VM initialization operations. The fetch operation always overwrites any existing cached image to ensure that the latest mirrored version is available.
+=== Mirror
 
-The init operation creates the deploy VM from the cached disk image. It validates that the requested platform matches one of the available manifest platforms, then invokes podman machine init with the rootful flag and the path to the cached image. After initialization, the operation starts the VM temporarily to write a brand file containing the full provenance chain: Podman version, VM image origin, fully qualified image name, digest, and identity timestamp. This brand file provides an auditable record of exactly which image was used to create the VM. After writing the brand file, the operation stops the VM, leaving it ready for normal use.
+The most complex operation. Steps:
 
-The start and stop operations are straightforward lifecycle commands. Start brings the deploy VM online, making it available for container operations. Stop gracefully shuts down the deploy VM. These operations do not affect the ignite VM, which is managed separately as needed for mirroring and fetching.
+. Bootstrap the ignite VM with crane and jq installed
+. Query upstream manifests for both machine-os-wsl and machine-os image families at the specified Podman version
+. Parse manifests to identify all available platform variants (architecture + disk type)
+. For each platform variant, download the individual disk image blob from upstream using `crane blob`
+. Repackage each blob as a container image: a simple Dockerfile copies the disk blob into a scratch-based container, with an identity file for traceability
+. Build each platform-specific image locally within the ignite VM
+. Push to the registry with tags encoding the Podman version, a timestamp-based identity, and the platform specification
 
-The nuke operation provides a complete environment reset. It stops all containers, removes all containers, destroys both the ignite and deploy VMs, and deletes the VM cache directory. This operation requires explicit confirmation to prevent accidental data loss. It is used when switching between Podman versions, recovering from corrupted VM states, or performing clean testing runs.
+The result is a set of individually addressable container images, each containing a specific disk image for a specific platform variant.
+
+=== Fetch
+
+Pulls a platform-specific container image from the registry to the local workstation:
+
+. Start the ignite VM to access the podman image cache
+. Authenticate to the registry
+. Pull the platform-specific container image matching the user's station configuration
+. Extract the disk image tarball from the container
+. Write it to the local cache directory (always overwrites existing)
+
+The cached file serves as the source for subsequent VM initialization.
+
+=== Init
+
+Creates the deploy VM from the cached disk image:
+
+. Validate that the requested platform matches one of the available manifest platforms
+. Run `podman machine init` with the rootful flag and the path to the cached image
+. Start the VM temporarily to write a brand file containing the full provenance chain: Podman version, VM image origin, fully qualified image name, digest, and identity timestamp
+. Stop the VM, leaving it ready for normal use
+
+The brand file provides an auditable record of exactly which image was used to create the VM.
+
+=== Start / Stop
+
+Straightforward lifecycle commands. Start brings the deploy VM online for container operations. Stop gracefully shuts it down. These do not affect the ignite VM.
+
+=== Nuke
+
+Complete environment reset:
+
+. Stop and remove all containers
+. Destroy both the ignite and deploy VMs
+. Delete the VM cache directory
+
+Requires explicit confirmation. Used when switching Podman versions, recovering from corrupted VM states, or performing clean test runs.
 
 == Configuration
 
 The VM supply chain relies on two categories of configuration variables. Regime configuration variables are stored in the repository and apply to all users working within the Recipe Bottle project. Station configuration variables are stored on each workstation and reflect local machine characteristics.
 
-The regime configuration includes several key variables. RBRR_IGNITE_MACHINE_NAME specifies the name for the temporary tooling VM. RBRR_DEPLOY_MACHINE_NAME specifies the name for the persistent production VM. RBRR_CRANE_TAR_GZ provides the URL for downloading the crane binary into the ignite VM. RBRR_CHOSEN_PODMAN_VERSION identifies which Podman semantic version to mirror and use. RBRR_CHOSEN_VMIMAGE_ORIGIN records the upstream source registry. RBRR_CHOSEN_IDENTITY is a timestamp-based identifier assigned during the mirror operation to distinguish different builds of the same Podman version. RBRR_MANIFEST_PLATFORMS lists the platform variants that must be available in the upstream manifest and should be mirrored to the registry.
+The regime configuration includes several key variables. RBRR_IGNITE_MACHINE_NAME specifies the name for the temporary tooling VM. RBRR_DEPLOY_MACHINE_NAME specifies the name for the persistent production VM. RBRR_CRANE_TAR_GZ provides the URL for downloading the crane binary into the ignite VM. RBRR_CHOSEN_PODMAN_VERSION identifies which Podman semantic version to mirror and use. RBRR_CHOSEN_VMIMAGE_ORIGIN records the upstream source registry. RBRR_CHOSEN_IDENTITY is a timestamp-based identifier assigned during the mirror operation to distinguish different builds of the same Podman version. RBRR_MANIFEST_PLATFORMS lists the platform variants that must be available in the upstream manifest and should be mirrored to the registry. RBRR_GITHUB_PAT_ENV provides the path to the credentials file used for registry authentication during mirror and fetch operations.
 
 The station configuration includes variables that vary by workstation. RBRS_PODMAN_ROOT_DIR points to the base directory where Podman stores machine data. RBRS_VMIMAGE_CACHE_DIR specifies where fetched disk images should be cached locally. RBRS_VM_PLATFORM identifies which platform variant the local machine should use, such as mow_amd64_wsl or mos_arm64_base.
 
