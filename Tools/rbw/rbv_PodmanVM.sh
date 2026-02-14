@@ -17,6 +17,14 @@
 #
 # Recipe Bottle VM - Podman Virtual Machine Management
 
+######################################################################
+# WARNING: This implementation targets GHCR (GitHub Container Registry).
+# It has NOT been ported to Google Artifact Registry (GAR/Depot).
+# The operations are functionally correct but the registry target is
+# obsolete for this project.
+# See lenses/RBSPV-PodmanVmSupplyChain.adoc for context.
+######################################################################
+
 set -euo pipefail
 
 # Multiple inclusion detection
