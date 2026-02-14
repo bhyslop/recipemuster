@@ -1137,9 +1137,10 @@
         "₢ATAAf",
         "₢ATAAg",
         "₢ATAAd",
-        "₢ATAAK"
+        "₢ATAAK",
+        "₢ATAAh"
       ],
-      "next_pace_seed": "AAh",
+      "next_pace_seed": "AAi",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1891,6 +1892,17 @@
               "text": "Delete superseded VM management files and clean RBSA linked terms. Depends on ₢ATAAf (consolidate-spec) completing first.\n\nFiles to delete:\n- lenses/RBSVC-rbv_check.adoc\n- lenses/RBSVM-rbv_mirror.adoc\n- Tools/rbw/rbp.podman.mk\n- Tools/vme.extractor.sh\n\nRBSA-SpecTop.adoc cleanup:\n1. Remove attribute references (mapping section):\n   - :ops_rbv_check:\n   - :ops_rbv_mirror:\n   - :rbrr_ignite_machine_name:\n   - :rbrr_deploy_machine_name:\n   - :rbrr_crane_tar_gz:\n   - :rbrr_chosen_podman_version:\n   - :rbrr_chosen_vmimage_origin:\n   - :rbrr_chosen_identity:\n   - :at_stash_machine:\n   - :at_operational_machine:\n\n2. Remove definition anchors and definitions:\n   - [[at_stash_machine]] and its definition\n   - [[at_operational_machine]] and its definition\n   - [[ops_rbv_check]] section including include::RBSVC-rbv_check.adoc[]\n   - [[ops_rbv_mirror]] section including include::RBSVM-rbv_mirror.adoc[]\n   - The === VM Management Operations header if now empty\n\n3. Remove definition anchors for deleted rbrr_ terms (find each [[rbrr_*]] block)\n\n4. Add replacement reference: brief note in RBSA where VM Management Operations was, pointing to RBSV-PodmanVmSupplyChain.adoc\n\n5. rbw.workbench.mk: remove the include line for rbp.podman.mk if it exists\n\nCross-reference check before each deletion:\n- Grep for each term/file across all .adoc, .sh, .mk files\n- Only delete if no remaining references (or update references to point to new doc)\n\nAcceptance:\n- All four files deleted\n- RBSA attribute references and definitions removed\n- No dangling cross-references remain\n- Build/include paths updated",
               "silks": "rbk-podman-vm-delete-legacy",
               "commit": "3bb584f"
+            }
+          ]
+        },
+        "₢ATAAh": {
+          "tacks": [
+            {
+              "ts": "260214-0724",
+              "state": "rough",
+              "text": "Bring RBRR spec documentation into structural parity with RBRN and RBRV.\n\n## Delete legacy document\n- Delete `lenses/RBRR-RegimeRepo.adoc` — old CRR-style format, only 2 of 26 variables, references non-existent `RBRR_NAMEPLATE_PATH`, no new information not already in RBSRR or RBSA\n\n## Update RBSRR-RegimeRepo.adoc\n- Remove dead variables `rbrr_registry_owner` and `rbrr_registry_name` (deleted from validator and assignment file in earlier paces)\n- Verify all 26 current validator variables are documented\n- Confirm `axhro_broach`, `axhro_validate`, `axhro_render` operation voicings are present and accurate\n\n## Wire RBSRR into RBSA via include::\n- Add `include::RBSRR-RegimeRepo.adoc[]` in RBSA's RBRR section (matching RBRN line 2229 and RBRV line 2049 pattern)\n- Remove inline RBRR variable definitions from RBSA body (they move into the subdocument)\n- Keep RBRR regime header and introductory text in RBSA\n\n## Expand RBSA mapping section\n- Add attribute references for all 26 RBRR variables (currently only 7 of 26 have RBSA anchors)\n- Add missing variable anchors: container runtime vars, build configuration vars, GCB image ref vars\n- Follow the `:rbrr_variable_name: <<rbrr_variable_name,Display Text>>` pattern used by RBRN and RBRV\n\n## Do NOT change\n- `rbrr_regime.sh` validator (broach vs kindle naming divergence is a separate concern)\n- `rbrr_cli.sh` \n- Any shell scripts",
+              "silks": "align-rbrr-with-rbrn-rbrv-pattern",
+              "commit": "7b3d40f"
             }
           ]
         }
