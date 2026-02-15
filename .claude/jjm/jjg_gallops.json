@@ -1147,11 +1147,12 @@
         "₢ATAAn",
         "₢ATAAo",
         "₢ATAAr",
+        "₢ATAAt",
         "₢ATAAp",
         "₢ATAAq",
         "₢ATAAs"
       ],
-      "next_pace_seed": "AAt",
+      "next_pace_seed": "AAu",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -2154,6 +2155,17 @@
               "text": "Expand regime smoke tests to cover all regimes, including a new credentials-required suite for external regimes.\n\n## Context\n\nCurrent `butcrg_RegimeSmoke.sh` covers 5 regimes: BURC, BURS, RBRN, RBRR, RBRV. After this heat's work, there are 11 regimes total. Six are missing coverage.\n\nTwo test suites needed:\n- **regime-smoke** (existing, expanded): git-tracked regimes, CI-safe, always runnable\n- **regime-credentials** (new): external regimes requiring credential files on developer workstation\n\n## Expand regime-smoke suite\n\n### Add to butcrg_RegimeSmoke.sh:\n\n`butcrg_rbrp` — validate + render RBRP via new tabtargets (git-tracked rbrp.env, CI-safe)\n\n`butcrg_burd` — verify BURD sentinel is set after dispatch setup. This tests that zburd_sentinel() passes in the test dispatch context (BURD is already constructed by the test infrastructure's bute_init_dispatch).\n\n### Expand existing cases for manifold list operations:\n\n`butcrg_rbrn` — add list operation test (invoke rbrn_list, verify non-empty output, verify each listed moniker validates)\n\n`butcrg_rbrv` — add list operation test (invoke rbrv_list, verify non-empty output, verify each listed sigil validates)\n\n### Enroll new cases in rbtb_testbench.sh:\nAdd `butr_case_enroll \"regime-smoke\" butcrg_rbrp` and `butcrg_burd` to existing enrollment block.\n\n## Create regime-credentials suite\n\n### New file: butcrg_RegimeCredentials.sh (or extend butcrg_RegimeSmoke.sh with gated section)\n\nTest cases for external regimes that require credential files present:\n\n`butcrg_rbra` — For each of RBRR_GOVERNOR_RBRA_FILE, RBRR_RETRIEVER_RBRA_FILE, RBRR_DIRECTOR_RBRA_FILE: verify file exists, validate, render (with masked private key). Requires RBRR kindled first for file paths.\n\n`butcrg_rbre` — validate + render RBRE regime. Requires external RBRE credential file.\n\n`butcrg_rbrg` — validate + render RBRG regime. Requires external RBRG credential file.\n\n`butcrg_rbrs` — validate + render RBRS regime. Requires external RBRS station file (path from BURC_STATION_FILE → BURS).\n\n### Prerequisite checking:\nEach credentials test case should verify its required file exists BEFORE attempting validate/render. If the file is missing, fail with a clear message: \"RBRE credential file not found: <path>. This suite requires a fully configured workstation.\"\n\nDo NOT silently skip — if you run the credentials suite, you expect credentials present.\n\n### Enroll in rbtb_testbench.sh:\nAdd new suite \"regime-credentials\" with all four cases.\nAdd tabtarget for the new suite (e.g., `rbw-trc` or similar — mint colophon following naming discipline).\n\n## Tabtarget for new suite\nCreate launcher in tt/ and register in rbz_zipper.sh. Follow existing regime-smoke pattern (`rbw-trg`).\n\n## Reference\n- Existing smoke test: Tools/buk/butcrg_RegimeSmoke.sh\n- Testbench enrollment: Tools/rbw/rbtb_testbench.sh lines 211-215\n- rbcr_* render pattern for verifying render output\n- Exemplar: butcrg_rbrn, butcrg_rbrv for dispatch pattern",
               "silks": "regime-smoke-test-expansion",
               "commit": "159d87d"
+            }
+          ]
+        },
+        "₢ATAAt": {
+          "tacks": [
+            {
+              "ts": "260215-0845",
+              "state": "rough",
+              "text": "Formalize RBRO (OAuth Regime) with a validator, CLI, and subdocument. RBRO is a small external credential regime (2 variables) similar in nature to RBRG. Currently lives inline in RBSA with anchors and definitions but has no validator, no CLI, and no subdocument.\n\n## Context\n\nRBRO holds OAuth 2.0 credentials used by rbgo_OAuth.sh for token generation.\n- RBRO_CLIENT_SECRET — OAuth client secret from Google Cloud Console\n- RBRO_REFRESH_TOKEN — long-lived refresh token from authorization flow\nBoth are sensitive credentials, NOT in git. External assignment file.\n\nCurrently referenced in RBSA at ~line 2028 with proper anchors and voicings.\nHas an existing load pattern (rbtoe_rbro_load) but no formal regime infrastructure.\n\n## Create: Tools/rbw/rbro_regime.sh\n\nFollowing regime.sh pattern:\n- Multiple inclusion guard (ZRBRO_SOURCED)\n- zrbro_kindle() with ZRBRO_KINDLED guard\n- Validate 2 variables:\n  - RBRO_CLIENT_SECRET (string, required)\n  - RBRO_REFRESH_TOKEN (string, required)\n- Unexpected variable detection via compgen\n- ZRBRO_ROLLUP construction\n- zrbro_sentinel() function\n\n## Create: Tools/rbw/rbro_cli.sh\n\nFollowing rbrn_cli.sh pattern:\n- validate command: source file, kindle, validate fields\n- render command: source file, kindle, rbcr_kindle, render using rbcr_section_begin/item/end\n  - Section: OAuth Credentials (client secret, refresh token)\n  - Security: MASK both values in render display — these are secrets\n- Singleton regime — no list/survey/audit\n\nReference rbrn_cli.sh and rbrv_cli.sh for the rbcr_* shared rendering pattern.\n\n## Create: lenses/RBSRO-RegimeOauth.adoc\n\nSubdocument following RBRN pattern:\n- // ⟦axhrb_regime⟧ header with {rbro_regime} reference\n- Variable voicings for both variables\n- Operation voicings: axhro_kindle, axhro_validate, axhro_render\n\n## Update: lenses/RBSA-SpecTop.adoc\n\n- Move inline RBRO definitions to subdocument\n- Keep 1-sentence gestalt at parent anchor\n- Wire include::RBSRO-RegimeOauth.adoc[]\n- Cardinality: axrd_singleton\n- Provenance: axrd_file_sourced (external credential file)\n\n## Migrate load pattern\n- Assess rbtoe_rbro_load and migrate to rbro_load() in rbro_regime.sh following rbrr_load/rbrn_load_file patterns\n- Update consumers of rbtoe_rbro_load to use new function",
+              "silks": "rbro-oauth-regime-formalization",
+              "commit": "0890969"
             }
           ]
         }
