@@ -1142,9 +1142,10 @@
         "₢ATAAi",
         "₢ATAAj",
         "₢ATAAk",
-        "₢ATAAl"
+        "₢ATAAl",
+        "₢ATAAm"
       ],
-      "next_pace_seed": "AAm",
+      "next_pace_seed": "AAn",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1958,6 +1959,17 @@
               "text": "Extract vessel listing into proper rbrv_list() function and add collection-level voicings to RBRV subdocument.\n\n## Code: Tools/rbw/rbrv_regime.sh\n\n### Extract rbrv_list()\nMove the inline vessel enumeration from rbrv_cli.sh (lines 128-134) into a proper function in rbrv_regime.sh:\n\n```bash\nrbrv_list() {\n  zrbrr_sentinel  # needs RBRR_VESSEL_DIR\n  for z_d in \"${RBRR_VESSEL_DIR}\"/*/; do\n    test -d \"${z_d}\" || continue\n    test -f \"${z_d}/rbrv.env\" || continue\n    local z_s=\"${z_d%/}\"\n    echo \"${z_s##*/}\"\n  done\n}\n```\n\n### Update rbrv_cli.sh\nReplace inline listing with call to `rbrv_list`. The CLI still handles the \"no sigil given → show list\" dispatch, but delegates enumeration to the regime module.\n\n## Spec: lenses/RBSRV-RegimeVessel.adoc\n\n### Rename operation marker\n- `// ⟦axhro_broach⟧` → `// ⟦axhro_kindle⟧`\n\n### Add collection-level voicing\nAdd after existing kindle/validate/render:\n\n```\n// ⟦axhro_list⟧\n{rbkro_list}\n\nEnumerates available vessel instances by scanning subdirectories of RBRR_VESSEL_DIR for rbrv.env files.\nReturns sigil identifiers suitable for instance selection.\n```\n\nNote: RBRV does not currently have survey or audit operations. Add only list for now. Survey/audit can be added when cross-vessel validation needs arise.\n\n## Do NOT change\n- AXLA or RBSA (done in prior paces)\n- rbrv_validate or rbrv_render logic",
               "silks": "rbrv-list-extraction-and-voicings",
               "commit": "86561b5"
+            }
+          ]
+        },
+        "₢ATAAm": {
+          "tacks": [
+            {
+              "ts": "260215-0714",
+              "state": "rough",
+              "text": "Create RBRP (Regime Payor) subdocument and wire into RBSA, following the established RBRN/RBRV/RBRR pattern.\n\n## Create: lenses/RBSRP-RegimePayor.adoc\n\nFollow the subdocument pattern established by RBRN-RegimeNameplate.adoc:\n- `// ⟦axhrb_regime⟧` header with {rbrp_regime} reference\n- Variable voicings for all 3 RBRP variables:\n  - RBRP_PAYOR_PROJECT_ID (required, regex-validated)\n  - RBRP_BILLING_ACCOUNT_ID (optional during initial setup)\n  - RBRP_OAUTH_CLIENT_ID (optional during initial setup)\n- Operation voicings: `axhro_kindle`, `axhro_validate`, `axhro_render`\n- Document RBGC dependency (zrbgc_sentinel required before kindle)\n\n## Update: lenses/RBSA-SpecTop.adoc\n\n### Add mapping section entries\nAdd attribute references for RBRP variables:\n- `:rbrp_regime:`, `:rbrp_prefix:`\n- `:rbrp_payor_project_id:`, `:rbrp_billing_account_id:`, `:rbrp_oauth_client_id:`\n\n### Wire subdocument\nAdd `include::RBSRP-RegimePayor.adoc[]` in the RBRP section of RBSA.\nRemove any inline RBRP definitions if present.\n\n### Cardinality\nAlready annotated `axrd_singleton` in prior vocabulary pace.\n\n## Reference\n- Validator: Tools/rbw/rbrp_regime.sh (zrbrp_kindle)\n- Assignment: rbrp.env at project root\n- Dependencies: RBGC (Constants) must kindle first",
+              "silks": "rbrp-regime-spec",
+              "commit": "dd2d154"
             }
           ]
         }
