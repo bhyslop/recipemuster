@@ -663,32 +663,18 @@ rbgu_rbra_load() {
 # Loads and validates RBRO credentials
 rbgu_rbro_load() {
   zrbgu_sentinel
-  
-  local z_rbro_dir="${HOME}/.rbw"
-  local z_rbro_file="${z_rbro_dir}/rbro.env"
-  
-  buc_log_args "Loading RBRO OAuth credentials"
-  
-  # Check directory exists
-  test -d "${z_rbro_dir}" || buc_die "RBRO directory missing - run rbgp_payor_install"
-  
-  # Check file exists
-  test -f "${z_rbro_file}" || buc_die "RBRO credentials missing - run rbgp_payor_install"
-  
-  # Check file is readable
-  test -r "${z_rbro_file}" || buc_die "RBRO file not readable - check permissions and ownership"
 
-  # Check file is writable
-  test -w "${z_rbro_file}" || buc_die "RBRO file not writable - check permissions and ownership"
-  
-  # Source RBRO credentials
-  # shellcheck source=/dev/null
-  source "${z_rbro_file}" || buc_die "Failed to source RBRO credentials"
-  
-  # Validate required fields
-  test -n "${RBRO_CLIENT_SECRET:-}" || buc_die "RBRO_CLIENT_SECRET missing from ${z_rbro_file}"
-  test -n "${RBRO_REFRESH_TOKEN:-}" || buc_die "RBRO_REFRESH_TOKEN missing from ${z_rbro_file}"
-  
+  buc_log_args "Loading RBRO OAuth credentials"
+
+  # Source regime module if not already loaded
+  if test -z "${ZRBRO_SOURCED:-}"; then
+    # shellcheck source=/dev/null
+    source "${BASH_SOURCE[0]%/*}/rbro_regime.sh"
+  fi
+
+  # Delegate to regime's canonical load
+  rbro_load
+
   buc_log_args "RBRO validation successful"
 }
 

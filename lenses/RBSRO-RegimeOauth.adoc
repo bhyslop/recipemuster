@@ -1,0 +1,42 @@
+// ⟦axhrb_regime⟧
+{rbro_regime}
+
+This regime specifies OAuth 2.0 credentials used by the Payor role for token generation and API authentication.
+RBRO assignment files are external credential files stored in ~/.rbw/rbro.env with 600 permissions, never committed to version control.
+
+// ⟦axhrv_variable⟧
+{rbro_client_secret}
+
+OAuth 2.0 client secret from the Google Cloud Console OAuth client configuration.
+Required; string validated.
+Security-sensitive: masked in render output, never logged.
+
+// ⟦axhrv_variable⟧
+{rbro_refresh_token}
+
+Long-lived OAuth refresh token obtained during the authorization flow.
+Used to obtain fresh access tokens for Payor operations.
+Required; string validated.
+Security-sensitive: masked in render output, never logged.
+
+// ⟦axhro_kindle⟧
+{rbkro_kindle}
+
+Sets defaults for both RBRO variables.
+Detects unexpected RBRO_ variables via compgen.
+Builds ZRBRO_ROLLUP with both values masked.
+
+// ⟦axhro_validate⟧
+{rbkro_validate}
+
+Validates RBRO_CLIENT_SECRET as non-empty string.
+Validates RBRO_REFRESH_TOKEN as non-empty string.
+Dies on unexpected RBRO_ variables.
+
+// ⟦axhro_render⟧
+{rbkro_render}
+
+Renders via rbcr_* shared module.
+Section: OAuth Credentials.
+Both RBRO_CLIENT_SECRET and RBRO_REFRESH_TOKEN displayed as masked (redacted with character count).
+Validates after full render completes.

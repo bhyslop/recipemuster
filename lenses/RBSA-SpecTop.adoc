@@ -2053,6 +2053,8 @@ The OAuth 2.0 client secret from the Google Cloud Console OAuth client configura
 {rbro_refresh_token}::
 The long-lived OAuth refresh token obtained during the authorization flow, used to obtain fresh access tokens.
 
+include::RBSRO-RegimeOauth.adoc[]
+
 === ECR Regime (RBRE)
 
 The ECR regime defines AWS credentials and repository configuration for pushing and pulling container images via Amazon Elastic Container Registry.
