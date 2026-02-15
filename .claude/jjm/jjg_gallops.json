@@ -1146,9 +1146,10 @@
         "₢ATAAm",
         "₢ATAAn",
         "₢ATAAo",
-        "₢ATAAp"
+        "₢ATAAp",
+        "₢ATAAq"
       ],
-      "next_pace_seed": "AAq",
+      "next_pace_seed": "AAr",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -2006,6 +2007,17 @@
               "text": "Full cross-regime audit of all variable voicings across RBSA and BUSA. Quality gate before wiring tabtargets.\n\n## Scope\n\nFor EVERY regime (BURC, BURS, RBRR, RBRN, RBRV, RBRP, RBRE, RBRG, RBRS, RBRA):\n\n### 1. Variable count match\nCompare the number of variables in:\n- The validator (regime.sh kindle function)\n- The spec (RBSA/BUSA mapping section attribute references)\n- The subdocument (axhrgv_variable / axhrv_variable markers)\n\nAll three counts must agree. Flag any discrepancies.\n\n### 2. Dimension consistency\nFor each variable, verify:\n- `axd_required` / `axd_optional` / `axd_conditional` matches validator logic\n- Type annotation (axtu_path, axtu_xname, axtu_string, etc.) matches buv_env_* call\n- Conditional variables are in groups with proper axhrgc_gate markers\n\n### 3. Operation completeness\nFor each regime, verify:\n- Singleton regimes have: kindle, validate, render\n- Manifold regimes have: kindle, validate, render, list (minimum); survey/audit where implemented\n- All operation voicings use axhro_kindle (not axhro_broach — catch any missed renames)\n\n### 4. Cardinality annotation check\nEvery `// ⟦axvr_regime ...⟧` annotation includes axrd_singleton or axrd_manifold.\n\n### 5. Cross-document consistency\n- Every RBSA/BUSA attribute reference has a corresponding anchor\n- Every subdocument operation voices the correct kit-level term (rbkro_* or bukro_*)\n- No orphaned attribute references (mapping entry with no anchor)\n\n## Output\nCreate a memo documenting findings: Memos/memo-YYYYMMDD-regime-voicing-audit.md\nList all fixes applied during this pace.\n\n## Acceptance criteria\n- Zero variable count discrepancies\n- All dimensions match validator logic\n- All operation markers use post-rename terms\n- All cardinality annotations present",
               "silks": "audit-regime-variable-voicings",
               "commit": "ceb2f5a"
+            }
+          ]
+        },
+        "₢ATAAq": {
+          "tacks": [
+            {
+              "ts": "260215-0716",
+              "state": "rough",
+              "text": "Create all missing tabtargets, zipper registrations, and workbench help text for regime operations across all regimes.\n\n## Inventory\n\nFor each regime, determine required tabtarget set based on cardinality:\n\n### Singleton regimes (RBRR, RBRP, BURC, BURS, RBRS)\n- validate (no imprint needed)\n- render (no imprint needed)\n\n### Manifold regimes (RBRN, RBRV, RBRA, RBRE, RBRG)\n- validate (imprint = instance identifier)\n- render (imprint = instance identifier)\n- list (no imprint)\n- survey (no imprint, where implemented)\n- audit (no imprint, where implemented)\n\n## Already exists (verify, do not recreate)\n- RBRN: rbw-rnr, rbw-rnv, rbw-ni (survey), rbw-nv (audit)\n- RBRV: rbw-rvr, rbw-rvv\n- RBRR: rbw-rrr, rbw-rrv, rbw-rrg (refresh pins)\n- BURC: buw-rgr-burc, buw-rgv-burc (in BUK workbench)\n- BURS: buw-rgr-burs, buw-rgv-burs (in BUK workbench)\n\n## Create missing\n\n### Tabtarget launcher scripts (tt/)\nStandard 3-line launcher format. One per missing operation.\n\n### Zipper registrations (Tools/rbw/rbz_zipper.sh)\nAdd `buz_register` calls for each new RBW tabtarget.\nFor BUK tabtargets, update the BUK zipper if applicable.\n\n### Workbench help text\nUpdate `rbw_workbench.sh` help display to include new regime operations.\nGroup by regime, show singleton vs manifold operations appropriately.\n\n## Naming convention\nFollow established colophon patterns:\n- `rbw-rn*` for RBRN operations\n- `rbw-rv*` for RBRV operations\n- `rbw-rr*` for RBRR operations\n- Mint new colophons for RBRP, RBRA, RBRE, RBRG, RBRS following prefix naming discipline\n\n## Acceptance criteria\n- Every regime with a CLI has tabtargets for all its operations\n- All tabtargets registered in appropriate zipper\n- Workbench help text is complete and organized\n- Tab-completion works for all new launchers",
+              "silks": "regime-tabtarget-completeness",
+              "commit": "b7be132"
             }
           ]
         }
