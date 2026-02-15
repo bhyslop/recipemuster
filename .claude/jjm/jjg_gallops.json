@@ -1145,9 +1145,10 @@
         "₢ATAAl",
         "₢ATAAm",
         "₢ATAAn",
-        "₢ATAAo"
+        "₢ATAAo",
+        "₢ATAAp"
       ],
-      "next_pace_seed": "AAp",
+      "next_pace_seed": "AAq",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1994,6 +1995,17 @@
               "text": "Create subdocuments for the three external (not-in-git) regimes: RBRE, RBRG, RBRS. These are structurally similar — singleton or small manifold, external assignment files, already have validators.\n\n## RBRE (Regime ECR) — 6 variables\n\n### Create: lenses/RBSRE-RegimeEcr.adoc\n- Variables: RBRE_AWS_CREDENTIALS_ENV, RBRE_AWS_ACCESS_KEY_ID, RBRE_AWS_SECRET_ACCESS_KEY, RBRE_AWS_ACCOUNT_ID, RBRE_AWS_REGION, RBRE_REPOSITORY_NAME\n- Operations: kindle, validate, render\n- Cardinality: assess — currently one ECR config, but potentially manifold per-environment\n- Security: mask secret key in render\n\n### Update RBSA\n- Add mapping section entries for all RBRE variables\n- Wire include::RBSRE-RegimeEcr.adoc[]\n\n## RBRG (Regime GitHub) — 2 variables\n\n### Create: lenses/RBSRG-RegimeGithub.adoc\n- Variables: RBRG_PAT, RBRG_USERNAME\n- Operations: kindle, validate, render\n- Cardinality: assess — currently one GitHub config, but potentially manifold per-account\n- Security: mask PAT in render\n\n### Update RBSA\n- Add mapping section entries for RBRG variables\n- Wire include::RBSRG-RegimeGithub.adoc[]\n\n## RBRS (Regime Station) — 3 variables\n\n### Create: lenses/RBSRS-RegimeStation.adoc\n- Variables: RBRS_PODMAN_ROOT_DIR, RBRS_VMIMAGE_CACHE_DIR, RBRS_VM_PLATFORM\n- Operations: kindle, validate, render\n- Cardinality: axrd_singleton (one workstation)\n\n### Update RBSA\n- Add mapping section entries for RBRS variables\n- Wire include::RBSRS-RegimeStation.adoc[]\n\n## Pattern\nAll three follow the same subdocument template. No new CLI scripts needed — existing validators and CLI commands already work. This pace is spec-only.",
               "silks": "external-regime-specs",
               "commit": "a05b38d"
+            }
+          ]
+        },
+        "₢ATAAp": {
+          "tacks": [
+            {
+              "ts": "260215-0715",
+              "state": "rough",
+              "text": "Full cross-regime audit of all variable voicings across RBSA and BUSA. Quality gate before wiring tabtargets.\n\n## Scope\n\nFor EVERY regime (BURC, BURS, RBRR, RBRN, RBRV, RBRP, RBRE, RBRG, RBRS, RBRA):\n\n### 1. Variable count match\nCompare the number of variables in:\n- The validator (regime.sh kindle function)\n- The spec (RBSA/BUSA mapping section attribute references)\n- The subdocument (axhrgv_variable / axhrv_variable markers)\n\nAll three counts must agree. Flag any discrepancies.\n\n### 2. Dimension consistency\nFor each variable, verify:\n- `axd_required` / `axd_optional` / `axd_conditional` matches validator logic\n- Type annotation (axtu_path, axtu_xname, axtu_string, etc.) matches buv_env_* call\n- Conditional variables are in groups with proper axhrgc_gate markers\n\n### 3. Operation completeness\nFor each regime, verify:\n- Singleton regimes have: kindle, validate, render\n- Manifold regimes have: kindle, validate, render, list (minimum); survey/audit where implemented\n- All operation voicings use axhro_kindle (not axhro_broach — catch any missed renames)\n\n### 4. Cardinality annotation check\nEvery `// ⟦axvr_regime ...⟧` annotation includes axrd_singleton or axrd_manifold.\n\n### 5. Cross-document consistency\n- Every RBSA/BUSA attribute reference has a corresponding anchor\n- Every subdocument operation voices the correct kit-level term (rbkro_* or bukro_*)\n- No orphaned attribute references (mapping entry with no anchor)\n\n## Output\nCreate a memo documenting findings: Memos/memo-YYYYMMDD-regime-voicing-audit.md\nList all fixes applied during this pace.\n\n## Acceptance criteria\n- Zero variable count discrepancies\n- All dimensions match validator logic\n- All operation markers use post-rename terms\n- All cardinality annotations present",
+              "silks": "audit-regime-variable-voicings",
+              "commit": "ceb2f5a"
             }
           ]
         }
