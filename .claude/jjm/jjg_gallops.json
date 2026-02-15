@@ -1143,9 +1143,10 @@
         "₢ATAAj",
         "₢ATAAk",
         "₢ATAAl",
-        "₢ATAAm"
+        "₢ATAAm",
+        "₢ATAAn"
       ],
-      "next_pace_seed": "AAn",
+      "next_pace_seed": "AAo",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1970,6 +1971,17 @@
               "text": "Create RBRP (Regime Payor) subdocument and wire into RBSA, following the established RBRN/RBRV/RBRR pattern.\n\n## Create: lenses/RBSRP-RegimePayor.adoc\n\nFollow the subdocument pattern established by RBRN-RegimeNameplate.adoc:\n- `// ⟦axhrb_regime⟧` header with {rbrp_regime} reference\n- Variable voicings for all 3 RBRP variables:\n  - RBRP_PAYOR_PROJECT_ID (required, regex-validated)\n  - RBRP_BILLING_ACCOUNT_ID (optional during initial setup)\n  - RBRP_OAUTH_CLIENT_ID (optional during initial setup)\n- Operation voicings: `axhro_kindle`, `axhro_validate`, `axhro_render`\n- Document RBGC dependency (zrbgc_sentinel required before kindle)\n\n## Update: lenses/RBSA-SpecTop.adoc\n\n### Add mapping section entries\nAdd attribute references for RBRP variables:\n- `:rbrp_regime:`, `:rbrp_prefix:`\n- `:rbrp_payor_project_id:`, `:rbrp_billing_account_id:`, `:rbrp_oauth_client_id:`\n\n### Wire subdocument\nAdd `include::RBSRP-RegimePayor.adoc[]` in the RBRP section of RBSA.\nRemove any inline RBRP definitions if present.\n\n### Cardinality\nAlready annotated `axrd_singleton` in prior vocabulary pace.\n\n## Reference\n- Validator: Tools/rbw/rbrp_regime.sh (zrbrp_kindle)\n- Assignment: rbrp.env at project root\n- Dependencies: RBGC (Constants) must kindle first",
               "silks": "rbrp-regime-spec",
               "commit": "dd2d154"
+            }
+          ]
+        },
+        "₢ATAAn": {
+          "tacks": [
+            {
+              "ts": "260215-0714",
+              "state": "rough",
+              "text": "Formalize RBRA (Credential Format) with a validator and subdocument. RBRA is multi-instance (3 credential files) and currently has no validator or spec despite being security-sensitive.\n\n## Create: Tools/rbw/rbra_regime.sh\n\nFollowing the regime.sh pattern:\n- Multiple inclusion guard (ZRBRA_SOURCED)\n- `zrbra_kindle()` with ZRBRA_KINDLED guard\n- Validate 4 variables:\n  - RBRA_CLIENT_EMAIL (string, service account email format)\n  - RBRA_PRIVATE_KEY (string, PEM format presence check)\n  - RBRA_PROJECT_ID (gname, GCP project ID)\n  - RBRA_TOKEN_LIFETIME_SEC (integer, typically 1800)\n- Unexpected variable detection via compgen\n- ZRBRA_ROLLUP construction\n- `zrbra_sentinel()` function\n\n## Create: Tools/rbw/rbra_cli.sh\n\nFollowing rbrn_cli.sh pattern:\n- validate command (per-instance)\n- render command (per-instance, using rbcr_* shared module)\n- list command (enumerate RBRA files referenced by RBRR)\n\nInstance discovery: RBRA files are referenced by RBRR_GOVERNOR_RBRA_FILE, RBRR_RETRIEVER_RBRA_FILE, RBRR_DIRECTOR_RBRA_FILE. The list function enumerates these three paths.\n\n## Create: lenses/RBSRA-CredentialFormat.adoc\n\nSubdocument following RBRN pattern:\n- `// ⟦axhrb_regime⟧` header\n- Variable voicings for all 4 variables\n- Operation voicings: kindle, validate, render, list\n- Note: RBRA files are NOT in git — external credential files\n\n## Update: lenses/RBSA-SpecTop.adoc\n\n- Add mapping section entries for RBRA variables\n- Wire `include::RBSRA-CredentialFormat.adoc[]`\n- Cardinality: `axrd_manifold` (3 instances: governor, retriever, director)\n\n## Security note\nRBRA credential files contain RSA private keys. Validator should verify format, NOT log values. Render should mask RBRA_PRIVATE_KEY display.",
+              "silks": "rbra-regime-formalization",
+              "commit": "aa42f42"
             }
           ]
         }
