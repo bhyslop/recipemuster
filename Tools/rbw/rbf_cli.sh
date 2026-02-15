@@ -25,7 +25,6 @@ ZRBF_BUK_DIR="${ZRBF_CLI_SCRIPT_DIR}/../buk"
 # Source all dependencies
 source "${ZRBF_BUK_DIR}/buc_command.sh"
 source "${ZRBF_BUK_DIR}/buv_validation.sh"
-source "${ZRBF_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"

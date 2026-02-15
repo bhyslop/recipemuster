@@ -25,7 +25,6 @@ ZRGBS_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source all dependencies
 source "${ZRGBS_CLI_SCRIPT_DIR}/buc_command.sh"
 source "${ZRGBS_CLI_SCRIPT_DIR}/buv_validation.sh"
-source "${ZRGBS_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRGBS_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRGBS_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRGBS_CLI_SCRIPT_DIR}/rbgu_Utility.sh"

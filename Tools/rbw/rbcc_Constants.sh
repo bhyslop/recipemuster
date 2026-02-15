@@ -41,6 +41,9 @@ zrbcc_kindle() {
   # RBRR assignment file at project root
   RBCC_RBRR_FILE="rbrr.env"
 
+  # RBRP payor regime file at project root
+  RBCC_RBRP_FILE="rbrp.env"
+
   ZRBCC_KINDLED=1
 }
 

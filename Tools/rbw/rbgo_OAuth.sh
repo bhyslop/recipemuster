@@ -30,6 +30,12 @@ ZRBGO_SOURCED=1
 zrbgo_kindle() {
   test -z "${ZRBGO_KINDLED:-}" || buc_die "Module rbgo already kindled"
 
+  # Validate required tools (rehomed from rbl_Locator.sh)
+  command -v openssl >/dev/null 2>&1 || buc_die "openssl not found - required for JWT signing"
+  command -v curl    >/dev/null 2>&1 || buc_die "curl not found - required for OAuth exchange"
+  command -v base64  >/dev/null 2>&1 || buc_die "base64 not found - required for encoding"
+  command -v jq      >/dev/null 2>&1 || buc_die "jq not found - required for JSON parsing"
+
   buc_log_args "Ensure RBGC is kindled first"
   zrbgc_sentinel
 

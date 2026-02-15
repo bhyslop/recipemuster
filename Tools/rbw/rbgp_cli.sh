@@ -27,7 +27,6 @@ ZRBGP_BUK_DIR="${ZRBGP_CLI_SCRIPT_DIR}/../buk"
 source "${ZRBGP_BUK_DIR}/buc_command.sh"
 source "${ZRBGP_BUK_DIR}/buv_validation.sh"
 source "${ZRBGP_BUK_DIR}/bug_guide.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbl_Locator.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBGP_CLI_SCRIPT_DIR}/rbrr_regime.sh"
@@ -43,12 +42,9 @@ zrbgp_furnish() {
 
   rbrr_load
 
-  zrbl_kindle
-  buv_file_exists "${RBL_RBRP_FILE}"
-  source          "${RBL_RBRP_FILE}" || buc_die "Failed to source RBRP regime file"
-
   zrbgc_kindle
-  zrbrp_kindle
+  rbrp_load
+
   zrbgo_kindle
   zrbgu_kindle
   zrbgi_kindle
