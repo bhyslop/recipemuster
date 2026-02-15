@@ -190,7 +190,7 @@ zrbrr_validate_fields() {
 
 # Load RBRR regime
 # Usage: rbrr_load
-# Uses RBCC_RBRR_FILE to locate rbrr_RecipeBottleRegimeRepo.sh, verifies exists, sources, broaches, and validates
+# Uses RBCC_RBRR_FILE to locate rbrr.env, verifies exists, sources, broaches, and validates
 rbrr_load() {
   local z_rbrr_file="${RBCC_RBRR_FILE}"
   test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"

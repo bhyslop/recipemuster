@@ -39,7 +39,7 @@ zrbcc_kindle() {
   RBCC_RBRN_EXT=".env"
 
   # RBRR assignment file at project root
-  RBCC_RBRR_FILE="rbrr_RecipeBottleRegimeRepo.sh"
+  RBCC_RBRR_FILE="rbrr.env"
 
   ZRBCC_KINDLED=1
 }

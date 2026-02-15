@@ -60,7 +60,7 @@ zrbgm_kindle() {
   # ITCH_LINK_TO_RBL
   ZRBGM_RBRP_FILE="$(cd "${ZRBGM_SCRIPT_DIR}/../.." && pwd)/rbrp.env"
   ZRBGM_RBRP_FILE_BASENAME="${ZRBGM_RBRP_FILE##*/}"
-  ZRBGM_RBRR_FILE="$(cd "${ZRBGM_SCRIPT_DIR}/../.." && pwd)/rbrr_RecipeBottleRegimeRepo.sh"
+  ZRBGM_RBRR_FILE="$(cd "${ZRBGM_SCRIPT_DIR}/../.." && pwd)/rbrr.env"
 
 
   ZRBGM_PREFIX="${BURD_TEMP_DIR}/rbgm_"

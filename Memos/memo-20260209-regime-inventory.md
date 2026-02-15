@@ -14,7 +14,7 @@
 | 1 | BURC_ | Regime Configuration | BUK | Project | Git-tracked, sourced at dispatch | `buk/burc_regime.sh` | `.buk/burc.env` | -- |
 | 2 | BURS_ | Regime Station | BUK | Developer/machine | External (NOT in git) | `buk/burs_regime.sh` | Path from `BURC_STATION_FILE` | -- |
 | 3 | BURD_ | Dispatch Runtime | BUK | Ephemeral | Set during `bud_dispatch.sh`, dies with process | -- (runtime only) | -- (computed) | -- |
-| 4 | RBRR_ | Regime Repo | RBW | Repository | Git-tracked, sourced at workbench kindle | `rbw/rbrr_regime.sh` | `rbrr_RecipeBottleRegimeRepo.sh` | `RBRR-RegimeRepo.adoc` |
+| 4 | RBRR_ | Regime Repo | RBW | Repository | Git-tracked, sourced at workbench kindle | `rbw/rbrr_regime.sh` | `rbrr.env` | `RBRR-RegimeRepo.adoc` |
 | 5 | RBRN_ | Regime Nameplate | RBW | Per-service | Git-tracked, one file per nameplate | `rbw/rbrn_regime.sh` | `rbw/rbrn_nsproto.env`, `rbrn_srjcl.env`, `rbrn_pluml.env` | `RBRN-RegimeNameplate.adoc` |
 | 6 | RBRP_ | Regime Payor | RBW | GCP payor project | Git-tracked | `rbw/rbrp_regime.sh` | `rbrp.env` | -- |
 | 7 | RBRE_ | Regime ECR | RBW | AWS ECR credentials | External (NOT in git) | `rbw/rbre_regime.sh` | External | -- |
@@ -80,7 +80,7 @@ Set by `bud_dispatch.sh` during execution. **Not a declared regime** -- no valid
 
 ### 4. RBRR_ (Regime Repo)
 
-Sourced from `rbrr_RecipeBottleRegimeRepo.sh` at repo root. Validated by `rbrr_regime.sh:zrbrr_kindle()`.
+Sourced from `rbrr.env` at repo root. Validated by `rbrr_regime.sh:zrbrr_kindle()`.
 
 | Variable | Validator Type | Notes |
 |----------|---------------|-------|

@@ -21,7 +21,7 @@ zrbl_kindle() {
   # ITCH_BASH_BASENAME
   ZRBL_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-  RBL_RBRR_FILE="${ZRBL_SCRIPT_DIR}/../../rbrr_RecipeBottleRegimeRepo.sh"
+  RBL_RBRR_FILE="${ZRBL_SCRIPT_DIR}/../../rbrr.env"
   export RBL_RBRR_FILE
 
   RBL_RBRP_FILE="${ZRBL_SCRIPT_DIR}/../../rbrp.env"
