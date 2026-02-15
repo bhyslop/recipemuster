@@ -1146,10 +1146,11 @@
         "₢ATAAm",
         "₢ATAAn",
         "₢ATAAo",
+        "₢ATAAr",
         "₢ATAAp",
         "₢ATAAq"
       ],
-      "next_pace_seed": "AAr",
+      "next_pace_seed": "AAs",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -2039,6 +2040,17 @@
               "text": "Create all missing tabtargets, zipper registrations, and workbench help text for regime operations across all regimes.\n\n## Inventory\n\nFor each regime, determine required tabtarget set based on cardinality:\n\n### Singleton regimes (RBRR, RBRP, BURC, BURS, RBRS)\n- validate (no imprint needed)\n- render (no imprint needed)\n\n### Manifold regimes (RBRN, RBRV, RBRA, RBRE, RBRG)\n- validate (imprint = instance identifier)\n- render (imprint = instance identifier)\n- list (no imprint)\n- survey (no imprint, where implemented)\n- audit (no imprint, where implemented)\n\n## Already exists (verify, do not recreate)\n- RBRN: rbw-rnr, rbw-rnv, rbw-ni (survey), rbw-nv (audit)\n- RBRV: rbw-rvr, rbw-rvv\n- RBRR: rbw-rrr, rbw-rrv, rbw-rrg (refresh pins)\n- BURC: buw-rgr-burc, buw-rgv-burc (in BUK workbench)\n- BURS: buw-rgr-burs, buw-rgv-burs (in BUK workbench)\n\n## Create missing\n\n### Tabtarget launcher scripts (tt/)\nStandard 3-line launcher format. One per missing operation.\n\n### Zipper registrations (Tools/rbw/rbz_zipper.sh)\nAdd `buz_register` calls for each new RBW tabtarget.\nFor BUK tabtargets, update the BUK zipper if applicable.\n\n### Workbench help text\nUpdate `rbw_workbench.sh` help display to include new regime operations.\nGroup by regime, show singleton vs manifold operations appropriately.\n\n## Naming convention\nFollow established colophon patterns:\n- `rbw-rn*` for RBRN operations\n- `rbw-rv*` for RBRV operations\n- `rbw-rr*` for RBRR operations\n- Mint new colophons for RBRP, RBRA, RBRE, RBRG, RBRS following prefix naming discipline\n\n## Acceptance criteria\n- Every regime with a CLI has tabtargets for all its operations\n- All tabtargets registered in appropriate zipper\n- Workbench help text is complete and organized\n- Tab-completion works for all new launchers",
               "silks": "regime-tabtarget-completeness",
               "commit": "b7be132"
+            }
+          ]
+        },
+        "₢ATAAr": {
+          "tacks": [
+            {
+              "ts": "260215-0725",
+              "state": "rough",
+              "text": "Formalize BURD (Dispatch Runtime) as a proper regime in BUSA with sentinel, unexpected variable detection, and spec subdocument. BURD is unique: ephemeral, constructed (not file-sourced), and assembled during dispatch rather than kindled from an assignment file.\n\n## Context\n\nBURD_ variables are set by bud_dispatch.sh during execution. No assignment file exists. Variables arrive via three phases:\n- **Input**: set by caller before dispatch (BURD_VERBOSE, BURD_REGIME_FILE, BURD_NO_LOG, BURD_INTERACTIVE)\n- **Computed**: derived during dispatch setup (BURD_NOW_STAMP, BURD_TEMP_DIR, BURD_OUTPUT_DIR, BURD_TRANSCRIPT, BURD_GIT_CONTEXT, BURD_LOG_LAST, BURD_LOG_SAME, BURD_LOG_HIST, BURD_COLOR)\n- **Parsed**: extracted from tabtarget filename (BURD_COMMAND, BURD_TARGET, BURD_CLI_ARGS, BURD_TOKEN_1..5)\n\nCurrently has no validator, no sentinel, no unexpected variable detection, no spec doc.\n\n## Code: Tools/buk/bud_dispatch.sh\n\n### Add zburd_sentinel()\nDownstream code can assert dispatch is properly initialized. Guard on a ZBURD_INITIALIZED variable set at the end of the dispatch setup block.\n\n### Add unexpected variable detection\nAfter all BURD_ variables are set, scan with `compgen -v BURD_` and flag any variables not in the known set. Follow the pattern used by zrbrn_kindle (ZRBRN_UNEXPECTED array).\n\n### Do NOT refactor into a separate burd_regime.sh\nBURD's initialization is inherently inline in bud_dispatch.sh — there is no file to source, no kindle in the traditional sense. The initialization block IS the kindle. Keep it in place; just add the sentinel and unexpected variable detection.\n\n## Spec: create BUSD-DispatchRuntime.adoc (or similar)\n\nFollowing subdocument pattern:\n- `// ⟦axhrb_regime⟧` header with {burd_regime} reference\n- Three groups for variable phases:\n  - `// ⟦axhrgb_group⟧` {burd_group_input} — set by caller before dispatch\n  - `// ⟦axhrgb_group⟧` {burd_group_computed} — derived during dispatch setup\n  - `// ⟦axhrgb_group⟧` {burd_group_parsed} — extracted from tabtarget invocation\n- Variable voicings for all ~17 BURD_ variables with appropriate dimensions\n- Operation voicings: `axhro_kindle` (the inline initialization block), `axhro_validate` (unexpected variable detection)\n- No render operation (ephemeral — nothing to render after the fact)\n\n## Update: Tools/buk/vov_veiled/BUSA-BashUtilitiesSpec.adoc\n\n### Add mapping section entries\n- `:burd_regime:`, `:burd_prefix:`\n- Attribute references for all BURD_ variables\n- Group references: `:burd_group_input:`, `:burd_group_computed:`, `:burd_group_parsed:`\n\n### Wire subdocument\nAdd `include::` for the BURD subdocument.\n\n### Cardinality and provenance\nAnnotate: `// ⟦axvr_regime axf_bash axrd_constructed axrd_singleton⟧`\n- `axrd_constructed` — assembled programmatically, not sourced from file\n- `axrd_singleton` — one per dispatch invocation\n\n## No CLI, no tabtargets\nBURD is transient (dies with process). No rbrX_cli.sh, no render, no list/survey/audit. The sentinel is the primary consumer-facing guarantee.",
+              "silks": "burd-dispatch-regime-formalization",
+              "commit": "c624ca0"
             }
           ]
         }
