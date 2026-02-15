@@ -5565,9 +5565,10 @@
       "status": "stabled",
       "order": [
         "₢AbAAA",
-        "₢AbAAB"
+        "₢AbAAB",
+        "₢AbAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_Ab.md",
       "paces": {
         "₢AbAAA": {
@@ -5589,6 +5590,17 @@
               "text": "## Task\n\nIntroduce the concept of \"spook\" into JJSA (Gallops data model specification) as a formal JJ vocabulary\nterm.\n\n## Definition\n\nA **spook** is a failure of a slash command or other Job Jockey interaction to function correctly. Named by\nanalogy to an equestrian spook — the horse (Claude) shies away from the correct path despite clear guidance.\n\n## Scope\n\n- Add spook as a linked term in JJSA with proper MCM attribute, anchor, and definition\n- Ensure it fits the existing vocabulary categories and naming conventions\n- Consider whether spook warrants subcategories (e.g., cd-spook, phantom-verb-spook) or remains a single\numbrella term\n\n## Deliverable\n\nUpdated JJSA with spook concept properly integrated following MCM linked term patterns.",
               "silks": "jjk-spook-concept-jjsa",
               "commit": "b82ac65"
+            }
+          ]
+        },
+        "₢AbAAC": {
+          "tacks": [
+            {
+              "ts": "260215-0724",
+              "state": "rough",
+              "text": "## Spook\n\nFull-list `jjx_reorder` requires ALL paces (including complete) to be listed, making it unusable for mature heats. Error: \"Order count mismatch: got 12, expected 38\" when only listing actionable paces.\n\n## Design Decision\n\nRedefine full-list reorder to operate on **non-complete paces only**. Complete paces retain their positions implicitly (historical record, order reflects execution sequence).\n\nAbandoned paces are treated as **moveable** — they're decision markers, not completed actions, and their position relative to rough paces may matter.\n\nRule: complete = frozen, everything else (rough, bridled, in_progress, abandoned) = reorderable.\n\n## Implementation\n\n- `jjx_reorder` full-list mode: count validation uses non-complete paces only\n- Complete paces keep their current indices unchanged\n- Non-complete paces are reordered among the gaps\n- `--move` single-pace mode: no change needed (already works correctly)\n- Add test coverage for mixed-status reordering",
+              "silks": "jjk-spook-rail-full-list-scope",
+              "commit": "bfa08fe"
             }
           ]
         }
