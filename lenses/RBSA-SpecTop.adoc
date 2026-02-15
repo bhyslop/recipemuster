@@ -279,6 +279,26 @@
 :rbro_refresh_token:         <<rbro_refresh_token,RBRO_REFRESH_TOKEN>>
 :rbro_regime:                <<rbro_regime,RBRO Regime>>
 
+// Recipe Bottle Regime: ECR (AWS container registry)
+:rbre_aws_access_key_id:     <<rbre_aws_access_key_id,RBRE_AWS_ACCESS_KEY_ID>>
+:rbre_aws_account_id:        <<rbre_aws_account_id,RBRE_AWS_ACCOUNT_ID>>
+:rbre_aws_credentials_env:   <<rbre_aws_credentials_env,RBRE_AWS_CREDENTIALS_ENV>>
+:rbre_aws_region:            <<rbre_aws_region,RBRE_AWS_REGION>>
+:rbre_aws_secret_access_key: <<rbre_aws_secret_access_key,RBRE_AWS_SECRET_ACCESS_KEY>>
+:rbre_regime:                <<rbre_regime,RBRE Regime>>
+:rbre_repository_name:       <<rbre_repository_name,RBRE_REPOSITORY_NAME>>
+
+// Recipe Bottle Regime: GitHub (GitHub authentication)
+:rbrg_pat:                   <<rbrg_pat,RBRG_PAT>>
+:rbrg_regime:                <<rbrg_regime,RBRG Regime>>
+:rbrg_username:              <<rbrg_username,RBRG_USERNAME>>
+
+// Recipe Bottle Regime: Station (workstation Podman configuration)
+:rbrs_podman_root_dir:       <<rbrs_podman_root_dir,RBRS_PODMAN_ROOT_DIR>>
+:rbrs_regime:                <<rbrs_regime,RBRS Regime>>
+:rbrs_vm_platform:           <<rbrs_vm_platform,RBRS_VM_PLATFORM>>
+:rbrs_vmimage_cache_dir:     <<rbrs_vmimage_cache_dir,RBRS_VMIMAGE_CACHE_DIR>>
+
 // Recipe Bottle Regime: Vessel (container image specifications)
 :rbrv_regime:                <<rbrv_regime,RBRV Regime>>
 :rbrv_binfmt_allow:          <<rbrv_binfmt_allow,allow>>
@@ -304,13 +324,16 @@
 :rbev_regime:                <<rbev_regime,RBEV Regime>>
 
 // Recipe Bottle Regime Prefixes
+:rbre_prefix:                <<rbre_prefix,RBRE_>>
 :rbev_prefix:                <<rbev_prefix,RBEV_>>
 :rbra_prefix:                <<rbra_prefix,RBRA_>>
+:rbrg_prefix:                <<rbrg_prefix,RBRG_>>
+:rbrn_prefix:                <<rbrn_prefix,RBRN_>>
 :rbro_prefix:                <<rbro_prefix,RBRO_>>
 :rbrp_prefix:                <<rbrp_prefix,RBRP_>>
 :rbrr_prefix:                <<rbrr_prefix,RBRR_>>
+:rbrs_prefix:                <<rbrs_prefix,RBRS_>>
 :rbrv_prefix:                <<rbrv_prefix,RBRV_>>
-:rbrn_prefix:                <<rbrn_prefix,RBRN_>>
 
 // Recipe Bottle Kit Regime Operations
 :rbkro_kindle:               <<rbkro_kindle,RBK Kindle>>
@@ -1641,10 +1664,25 @@ Recipe Bottle Authentication Regime
 {rbev_prefix}::
 Recipe Bottle Environment Variables Regime
 
+[[rbre_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{rbre_prefix}::
+Recipe Bottle ECR Regime
+
+[[rbrg_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{rbrg_prefix}::
+Recipe Bottle GitHub Regime
+
 [[rbrn_prefix]]
 // ⟦axl_voices axrg_prefix⟧
 {rbrn_prefix}::
 Recipe Bottle Nameplate Regime
+
+[[rbrs_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{rbrs_prefix}::
+Recipe Bottle Station Regime
 
 === Repository Regime (RBRR)
 
@@ -1996,7 +2034,7 @@ stores sensitive OAuth credentials locally for
 authentication.
 
 [[rbro_regime]]
-// ⟦axl_voices axrg_regime axf_bash axrd_singleton⟧
+// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
 {rbro_regime}::
 An
 regime
@@ -2014,6 +2052,102 @@ The OAuth 2.0 client secret from the Google Cloud Console OAuth client configura
 // ⟦axl_voices axrg_variable axtu_string⟧
 {rbro_refresh_token}::
 The long-lived OAuth refresh token obtained during the authorization flow, used to obtain fresh access tokens.
+
+=== ECR Regime (RBRE)
+
+The ECR regime defines AWS credentials and repository configuration for pushing and pulling container images via Amazon Elastic Container Registry.
+
+[[rbre_regime]]
+// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
+{rbre_regime}::
+An
+regime
+that contains AWS credentials and ECR repository configuration for container image operations via Amazon Elastic Container Registry.
+
+[[rbre_aws_credentials_env]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbre_aws_credentials_env}::
+AWS credentials environment name identifying the credential set.
+
+[[rbre_aws_access_key_id]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbre_aws_access_key_id}::
+AWS access key identifier for programmatic access to ECR services.
+
+[[rbre_aws_secret_access_key]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbre_aws_secret_access_key}::
+AWS secret access key for signing API requests.
+Security-sensitive; masked in render output.
+
+[[rbre_aws_account_id]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbre_aws_account_id}::
+AWS account identifier owning the ECR registry.
+
+[[rbre_aws_region]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbre_aws_region}::
+AWS region where the ECR registry is hosted.
+
+[[rbre_repository_name]]
+// ⟦axl_voices axrg_variable axtu_xname⟧
+{rbre_repository_name}::
+ECR repository name for container image storage.
+
+include::RBSRE-RegimeEcr.adoc[]
+
+=== GitHub Regime (RBRG)
+
+The GitHub regime defines authentication credentials for GitHub repository operations and container registry access.
+
+[[rbrg_regime]]
+// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
+{rbrg_regime}::
+An
+regime
+that contains GitHub authentication credentials for repository operations and container registry access.
+
+[[rbrg_username]]
+// ⟦axl_voices axrg_variable axtu_xname⟧
+{rbrg_username}::
+GitHub username for repository and registry authentication.
+
+[[rbrg_pat]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbrg_pat}::
+GitHub Personal Access Token for API and registry authentication.
+Security-sensitive; masked in render output, never logged.
+
+include::RBSRG-RegimeGithub.adoc[]
+
+=== Station Regime (RBRS)
+
+The station regime defines workstation-specific Podman VM configuration for the local development environment.
+
+[[rbrs_regime]]
+// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
+{rbrs_regime}::
+An
+regime
+that contains workstation-specific Podman VM configuration for the local development environment.
+
+[[rbrs_podman_root_dir]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbrs_podman_root_dir}::
+Root directory for Podman machine storage on the local workstation.
+
+[[rbrs_vmimage_cache_dir]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbrs_vmimage_cache_dir}::
+Directory for caching VM images used by Podman machine initialization.
+
+[[rbrs_vm_platform]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbrs_vm_platform}::
+Platform architecture identifier for the Podman VM.
+
+include::RBSRS-RegimeStation.adoc[]
 
 === Kit Regime Operations (RBK)
 

@@ -1,0 +1,46 @@
+// ⟦axhrb_regime⟧
+{rbrs_regime}
+
+This regime specifies variables that define workstation-specific Podman VM configuration within the Recipe Bottle system.
+The
+{rbrs_regime}
+is a singleton regime containing platform-specific paths and settings for the local development environment.
+RBRS assignment files are external configuration files specific to each developer workstation.
+
+// ⟦axhrv_variable⟧
+{rbrs_podman_root_dir}
+
+Root directory for Podman machine storage on the local workstation.
+Required; filesystem path string.
+
+// ⟦axhrv_variable⟧
+{rbrs_vmimage_cache_dir}
+
+Directory for caching VM images used by Podman machine initialization.
+Required; filesystem path string.
+
+// ⟦axhrv_variable⟧
+{rbrs_vm_platform}
+
+Platform architecture identifier for the Podman VM (e.g., aarch64, x86_64).
+Required; string.
+
+// ⟦axhro_kindle⟧
+{rbkro_kindle}
+
+Validates all 3 RBRS variables inline during kindle.
+Uses buv_env_string for all fields.
+
+// ⟦axhro_validate⟧
+{rbkro_validate}
+
+RBRS kindle performs validation inline — no separate validate_fields function.
+The kindle function is the validator for this regime.
+
+// ⟦axhro_render⟧
+{rbkro_render}
+
+Renders via rbcr_* shared module.
+Section: Podman Configuration.
+No security-sensitive fields; all values displayed normally.
+Validates after full render completes.

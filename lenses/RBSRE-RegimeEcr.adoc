@@ -1,0 +1,65 @@
+// ⟦axhrb_regime⟧
+{rbre_regime}
+
+This regime specifies variables that define AWS ECR (Elastic Container Registry) configuration within the Recipe Bottle system.
+Each
+{rbre_regime}
+instance contains the AWS credentials and repository configuration needed to push and pull container images via ECR as an alternative registry.
+RBRE assignment files are external configuration files stored outside the repository.
+
+// ⟦axhrv_variable⟧
+{rbre_aws_credentials_env}
+
+AWS credentials environment name identifying the credential set.
+Required; string.
+
+// ⟦axhrv_variable⟧
+{rbre_aws_access_key_id}
+
+AWS access key identifier for programmatic access to ECR.
+Required; exactly 20 characters.
+
+// ⟦axhrv_variable⟧
+{rbre_aws_secret_access_key}
+
+AWS secret access key for signing API requests.
+Required; exactly 40 characters.
+Security-sensitive: masked in render output.
+
+// ⟦axhrv_variable⟧
+{rbre_aws_account_id}
+
+AWS account identifier owning the ECR registry.
+Required; exactly 12 characters.
+
+// ⟦axhrv_variable⟧
+{rbre_aws_region}
+
+AWS region where the ECR registry is hosted.
+Required; string (e.g., us-east-1).
+
+// ⟦axhrv_variable⟧
+{rbre_repository_name}
+
+ECR repository name for container image storage.
+Required; xname validated.
+
+// ⟦axhro_kindle⟧
+{rbkro_kindle}
+
+Validates all 6 RBRE variables inline during kindle.
+Uses buv_env_string for credential fields and buv_env_xname for repository name.
+
+// ⟦axhro_validate⟧
+{rbkro_validate}
+
+RBRE kindle performs validation inline — no separate validate_fields function.
+The kindle function is the validator for this regime.
+
+// ⟦axhro_render⟧
+{rbkro_render}
+
+Renders via rbcr_* shared module.
+Sections: AWS Identity, Region & Repository.
+RBRE_AWS_SECRET_ACCESS_KEY displayed as masked (redacted with character count).
+Validates after full render completes.
