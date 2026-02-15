@@ -109,16 +109,24 @@
 :axrd_constructed:                    <<axrd_constructed,Constructed>>
 :axrd_env_inherited:                  <<axrd_env_inherited,Environment-Inherited>>
 :axrd_file_sourced:                   <<axrd_file_sourced,File-Sourced>>
+:axrd_singleton:                      <<axrd_singleton,Singleton>>
+:axrd_manifold:                       <<axrd_manifold,Manifold>>
 
 // Axial Voicing Regime Operation Terms (definition-site annotations)
-:axvr_broach:                         <<axvr_broach,Broach Voicing>>
+:axvr_kindle:                         <<axvr_kindle,Kindle Voicing>>
 :axvr_render:                         <<axvr_render,Render Voicing>>
 :axvr_validate:                       <<axvr_validate,Validate Voicing>>
+:axvr_list:                           <<axvr_list,List Voicing>>
+:axvr_survey:                         <<axvr_survey,Survey Voicing>>
+:axvr_audit:                          <<axvr_audit,Audit Voicing>>
 
 // Axial Hierarchy Regime Operation Markers (subdocument)
-:axhro_broach:                        <<axhro_broach,Hierarchy Broach>>
+:axhro_kindle:                        <<axhro_kindle,Hierarchy Kindle>>
 :axhro_render:                        <<axhro_render,Hierarchy Render>>
 :axhro_validate:                      <<axhro_validate,Hierarchy Validate>>
+:axhro_list:                          <<axhro_list,Hierarchy List>>
+:axhro_survey:                        <<axhro_survey,Hierarchy Survey>>
+:axhro_audit:                         <<axhro_audit,Hierarchy Audit>>
 
 // Axial Type Universal Terms (generic infrastructure)
 :axtu_cidr:                           <<axtu_cidr,CIDR Block>>
@@ -1773,6 +1781,16 @@ requires corresponding hierarchy markers in the subdocument to include at least 
 {axhrgc_gate}
 specifying the activation criteria.
 
+[[axrd_singleton]]
+{axrd_singleton}::
+Regime has exactly one assignment source.
+No enumeration or cross-instance operations apply.
+
+[[axrd_manifold]]
+{axrd_manifold}::
+Regime has multiple assignment sources (one per instance).
+Enumeration and cross-instance operations are meaningful.
+
 === Dimension Applicability
 
 Per-format guidance for
@@ -1919,7 +1937,7 @@ requires coordinated refactoring across all consuming artifacts.
 Provenance dimensions qualify
 {axrg_assignment}
 to declare how values arrive at
-{axvr_broach}
+{axvr_kindle}
 time.
 These are valid dimensions on
 {axvr_regime}
@@ -1937,7 +1955,7 @@ The regime module finds variables already in scope; no file sourcing occurs.
 
 [[axrd_constructed]]
 {axrd_constructed}::
-Assignments computed or set programmatically before broach.
+Assignments computed or set programmatically before kindle.
 Values are assembled by application logic rather than loaded from a static source.
 
 == Axial Regime Annotation Terms
@@ -2009,9 +2027,9 @@ the parent regime (an anchor that voices
 {axd_conditional}
 (group activation depends on gate conditions in subdocument).
 
-[[axvr_broach]]
-{axvr_broach}::
-Voices a regime broach operation definition.
+[[axvr_kindle]]
+{axvr_kindle}::
+Voices a regime kindle operation definition.
 The annotated term defines the silent initialization phase for a
 {axrg_regime}:
 setting defaults, detecting unexpected variables, and building derived structures.
@@ -2030,6 +2048,28 @@ The annotated term defines the diagnostic display phase for a
 {axrg_regime}:
 producing human-readable presentation of current state.
 Rendering occurs before validation so all fields are visible on failure.
+
+[[axvr_list]]
+{axvr_list}::
+Voices a regime list operation definition.
+The annotated term defines an enumeration operation for an
+{axrd_manifold}
+{axrg_regime}:
+listing available instances.
+
+[[axvr_survey]]
+{axvr_survey}::
+Voices a regime survey operation definition.
+The annotated term defines a read-only cross-instance summary operation for an
+{axrd_manifold}
+{axrg_regime}.
+
+[[axvr_audit]]
+{axvr_audit}::
+Voices a regime audit operation definition.
+The annotated term defines a cross-instance validation plus external verification operation for an
+{axrd_manifold}
+{axrg_regime}.
 
 === Standalone Hierarchy Markers (axhr*_)
 
@@ -2065,9 +2105,12 @@ that the marker reads ahead.
 |{axhrgb_group}     |1 {mcm_attribute_reference}  |A group (must match {axvr_group} in parent)
 |{axhrgc_gate}      |2 {mcm_attribute_reference_s}|Enumerated variable + enum value
 |{axhrgv_variable}  |1 {mcm_attribute_reference}  |A variable within current group
-|{axhro_broach}     |1 {mcm_attribute_reference}  |Kit-level broach operation for this regime
+|{axhro_kindle}     |1 {mcm_attribute_reference}  |Kit-level kindle operation for this regime
 |{axhro_validate}   |1 {mcm_attribute_reference}  |Kit-level validate operation for this regime
 |{axhro_render}     |1 {mcm_attribute_reference}  |Kit-level render operation for this regime
+|{axhro_list}       |1 {mcm_attribute_reference}  |Kit-level list operation for this regime
+|{axhro_survey}     |1 {mcm_attribute_reference}  |Kit-level survey operation for this regime
+|{axhro_audit}      |1 {mcm_attribute_reference}  |Kit-level audit operation for this regime
 |===
 
 [[axhrb_regime]]
@@ -2116,13 +2159,13 @@ Lookahead: 1
 {mcm_attribute_reference}
 — the variable being detailed within the current group scope.
 
-[[axhro_broach]]
-{axhro_broach}::
-Marks a regime broach operation description in a subdocument.
+[[axhro_kindle]]
+{axhro_kindle}::
+Marks a regime kindle operation description in a subdocument.
 Lookahead: 1
 {mcm_attribute_reference}
-— the kit-level broach operation term (which must be voiced
-{axvr_broach}
+— the kit-level kindle operation term (which must be voiced
+{axvr_kindle}
 in the parent document).
 
 [[axhro_validate]]
@@ -2142,6 +2185,42 @@ Lookahead: 1
 — the kit-level render operation term (which must be voiced
 {axvr_render}
 in the parent document).
+
+[[axhro_list]]
+{axhro_list}::
+Marks a regime list operation description in a subdocument.
+Lookahead: 1
+{mcm_attribute_reference}
+— the kit-level list operation term (which must be voiced
+{axvr_list}
+in the parent document).
+Only valid on
+{axrd_manifold}
+regimes.
+
+[[axhro_survey]]
+{axhro_survey}::
+Marks a regime survey operation description in a subdocument.
+Lookahead: 1
+{mcm_attribute_reference}
+— the kit-level survey operation term (which must be voiced
+{axvr_survey}
+in the parent document).
+Only valid on
+{axrd_manifold}
+regimes.
+
+[[axhro_audit]]
+{axhro_audit}::
+Marks a regime audit operation description in a subdocument.
+Lookahead: 1
+{mcm_attribute_reference}
+— the kit-level audit operation term (which must be voiced
+{axvr_audit}
+in the parent document).
+Only valid on
+{axrd_manifold}
+regimes.
 
 ==== Nesting Rules
 
@@ -2164,10 +2243,13 @@ scope
 * Multiple
 {axhrgc_gate}
 within one group have AND semantics
-* {axhro_broach},
+* {axhro_kindle},
 {axhro_validate},
+{axhro_render},
+{axhro_list},
+{axhro_survey},
 and
-{axhro_render}
+{axhro_audit}
 must appear within
 {axhrb_regime}
 scope but outside any
