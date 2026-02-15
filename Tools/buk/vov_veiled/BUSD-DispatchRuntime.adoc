@@ -1,0 +1,171 @@
+// ⟦axhrb_regime⟧
+{burd_regime}
+
+This regime specifies the ephemeral runtime state assembled by bud_dispatch.sh during tabtarget execution.
+Unlike file-sourced regimes, BURD variables are constructed inline during dispatch — no assignment file exists.
+Variables arrive via three phases: input (caller-set), computed (derived during setup), and parsed (extracted from tabtarget filename).
+
+// ⟦axhrgb_group⟧
+{burd_group_input}
+
+Variables set by the caller before dispatch invocation.
+These configure dispatch behavior (verbosity, logging, interactivity) and identify the regime and coordinator to use.
+
+// ⟦axhrv_variable⟧
+{burd_verbose}
+
+Verbosity level controlling diagnostic output.
+0=silent, 1=show messages, 2=enable bash trace (set -x).
+Defaults to 0 if unset.
+
+// ⟦axhrv_variable⟧
+{burd_regime_file}
+
+Path to the BURC regime assignment file to source during setup.
+Provides project-level configuration for tabtarget infrastructure.
+
+// ⟦axhrv_variable⟧
+{burd_no_log}
+
+When non-empty, suppresses all log file creation and output.
+Used for lightweight dispatch where logging overhead is unwanted.
+
+// ⟦axhrv_variable⟧
+{burd_interactive}
+
+When non-empty, enables interactive mode: output goes to terminal via tee rather than curated log pipeline.
+
+// ⟦axhrv_variable⟧
+{burd_color}
+
+Color output policy.
+Input as auto/0/1; resolved to 0 or 1 during dispatch.
+Respects NO_COLOR environment convention.
+
+// ⟦axhrv_variable⟧
+{burd_coordinator_script}
+
+Path to the coordinator script (workbench/testbench) that handles the dispatched command.
+
+// ⟦axhrv_variable⟧
+{burd_launcher}
+
+Path to the launcher bootstrap script, set by the tabtarget before exec.
+Identifies which launcher mediates between the tabtarget and the dispatch system.
+
+// ⟦axhrv_variable⟧
+{burd_station_file}
+
+Absolute path to the developer's station regime assignment file.
+Set by the launcher from BURC_STATION_FILE, resolved to an absolute path.
+Used by workbenches as a guard to ensure proper launcher invocation.
+
+// ⟦axhrv_variable⟧
+{burd_term_cols}
+
+Terminal column width at dispatch time.
+Detected from stty if available, defaults to 80.
+Used by presentation regime for output formatting.
+
+// ⟦axhrgb_group⟧
+{burd_group_computed}
+
+Variables derived during dispatch setup by zbud_setup and zbud_process_args.
+These provide temporal identity, filesystem paths for ephemeral artifacts, and execution context.
+
+// ⟦axhrv_variable⟧
+{burd_now_stamp}
+
+Unique timestamp combining date, time, PID, and random component.
+Provides temporal identity for the dispatch invocation.
+
+// ⟦axhrv_variable⟧
+{burd_temp_dir}
+
+Ephemeral directory created for this dispatch invocation.
+Removed after execution; contains working artifacts.
+
+// ⟦axhrv_variable⟧
+{burd_output_dir}
+
+Fixed output directory cleared and recreated on each dispatch.
+Contains command results accessible after execution.
+
+// ⟦axhrv_variable⟧
+{burd_transcript}
+
+Path to the transcript file within the temporary directory.
+Records execution trace.
+
+// ⟦axhrv_variable⟧
+{burd_git_context}
+
+Git describe output capturing repository state at dispatch time.
+Recorded in logs for traceability.
+
+// ⟦axhrv_variable⟧
+{burd_log_last}
+
+Path to the "last" log file, overwritten each dispatch.
+Quick access to most recent execution output.
+
+// ⟦axhrv_variable⟧
+{burd_log_same}
+
+Path to the "same" log file for the command+target combination.
+Curated (colors stripped, temp paths normalized, VOLATILE lines removed).
+
+// ⟦axhrv_variable⟧
+{burd_log_hist}
+
+Path to the timestamped historical log file for the command+target combination.
+Includes timestamps on each line.
+
+// ⟦axhrgb_group⟧
+{burd_group_parsed}
+
+Variables extracted from the tabtarget filename during argument processing.
+The tabtarget inscription is split on the configured delimiter into positional tokens.
+
+// ⟦axhrv_variable⟧
+{burd_command}
+
+Primary command token (first token from tabtarget split).
+Legacy alias equivalent to BURD_TOKEN_1.
+
+// ⟦axhrv_variable⟧
+{burd_target}
+
+Complete tabtarget string as received by dispatch.
+Preserved for logging and diagnostics.
+
+// ⟦axhrv_variable⟧
+{burd_cli_args}
+
+Array of additional CLI arguments passed after the tabtarget.
+Forwarded to the coordinator command.
+
+// ⟦axhrv_variable⟧
+{burd_token_1}
+{burd_token_2}
+{burd_token_3}
+{burd_token_4}
+{burd_token_5}
+
+Positional tokens 1-5 from tabtarget filename split.
+Token 1 is the colophon, token 2 is the frontispiece, token 3 is the imprint (if present).
+Tokens default to empty string if not present in the inscription.
+
+// ⟦axhro_kindle⟧
+{bukro_kindle}
+
+Inline initialization within zbud_main: zbud_setup sources the regime file, derives computed variables, creates ephemeral directories.
+zbud_process_args parses the tabtarget and sets parsed variables.
+No separate kindle function — the dispatch main IS the kindle.
+
+// ⟦axhro_validate⟧
+{bukro_validate}
+
+Unexpected BURD_ variable detection via compgen scan after all variables are set.
+Dies on any variable not in the known set.
+Sentinel (zburd_sentinel) allows downstream code to assert dispatch is properly initialized.

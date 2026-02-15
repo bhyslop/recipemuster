@@ -14,6 +14,7 @@
 // bukro_: Kit Regime Operation (kindle/validate/render)
 // burc_:  Configuration Regime (project-level settings)
 // burs_:  Station Regime (developer-level settings)
+// burd_:  Dispatch Runtime (ephemeral state assembled during dispatch)
 //
 // Variant patterns:
 //   _s: plural form
@@ -72,6 +73,46 @@
 // BURS Regime: Station (developer-level BUK settings)
 :burs_regime:                      <<burs_regime,BURS Regime>>
 :burs_log_dir:                     <<burs_log_dir,BURS_LOG_DIR>>
+
+// BURD Regime: Dispatch Runtime (ephemeral dispatch state)
+:burd_regime:                      <<burd_regime,BURD Regime>>
+:burd_prefix:                      <<burd_prefix,BURD_>>
+
+// BURD Groups
+:burd_group_input:                 <<burd_group_input,Input Variables>>
+:burd_group_computed:              <<burd_group_computed,Computed Variables>>
+:burd_group_parsed:                <<burd_group_parsed,Parsed Variables>>
+
+// BURD Input Variables
+:burd_verbose:                     <<burd_verbose,BURD_VERBOSE>>
+:burd_regime_file:                 <<burd_regime_file,BURD_REGIME_FILE>>
+:burd_no_log:                      <<burd_no_log,BURD_NO_LOG>>
+:burd_interactive:                 <<burd_interactive,BURD_INTERACTIVE>>
+:burd_color:                       <<burd_color,BURD_COLOR>>
+:burd_coordinator_script:          <<burd_coordinator_script,BURD_COORDINATOR_SCRIPT>>
+:burd_launcher:                    <<burd_launcher,BURD_LAUNCHER>>
+:burd_station_file:                <<burd_station_file,BURD_STATION_FILE>>
+:burd_term_cols:                   <<burd_term_cols,BURD_TERM_COLS>>
+
+// BURD Computed Variables
+:burd_now_stamp:                   <<burd_now_stamp,BURD_NOW_STAMP>>
+:burd_temp_dir:                    <<burd_temp_dir,BURD_TEMP_DIR>>
+:burd_output_dir:                  <<burd_output_dir,BURD_OUTPUT_DIR>>
+:burd_transcript:                  <<burd_transcript,BURD_TRANSCRIPT>>
+:burd_git_context:                 <<burd_git_context,BURD_GIT_CONTEXT>>
+:burd_log_last:                    <<burd_log_last,BURD_LOG_LAST>>
+:burd_log_same:                    <<burd_log_same,BURD_LOG_SAME>>
+:burd_log_hist:                    <<burd_log_hist,BURD_LOG_HIST>>
+
+// BURD Parsed Variables
+:burd_command:                     <<burd_command,BURD_COMMAND>>
+:burd_target:                      <<burd_target,BURD_TARGET>>
+:burd_cli_args:                    <<burd_cli_args,BURD_CLI_ARGS>>
+:burd_token_1:                     <<burd_token_1,BURD_TOKEN_1>>
+:burd_token_2:                     <<burd_token_2,BURD_TOKEN_2>>
+:burd_token_3:                     <<burd_token_3,BURD_TOKEN_3>>
+:burd_token_4:                     <<burd_token_4,BURD_TOKEN_4>>
+:burd_token_5:                     <<burd_token_5,BURD_TOKEN_5>>
 
 // end::mapping-section[]
 
@@ -410,3 +451,170 @@ BURS assignment files are personal to each developer and not committed to versio
 // ⟦axvr_variable axd_required axtu_path⟧
 {burs_log_dir}::
 Directory where this developer stores BUK operation logs.
+
+=== BURD Regime
+
+[[burd_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{burd_prefix}::
+Bash Utility Dispatch Runtime
+
+[[burd_regime]]
+// ⟦axvr_regime axf_bash axrd_constructed axrd_singleton⟧
+{burd_regime}::
+Ephemeral runtime state assembled by bud_dispatch.sh during tabtarget execution.
+Unlike file-sourced regimes, BURD variables are constructed inline — no assignment file exists.
+The dispatch main function IS the kindle: zbud_setup sources configuration and derives computed state, zbud_process_args parses the tabtarget into tokens.
+
+==== Input Variables
+
+[[burd_group_input]]
+// ⟦axl_voices axhrgb_group⟧
+{burd_group_input}::
+Variables set by the caller before dispatch invocation.
+
+[[burd_verbose]]
+// ⟦axl_voices axrg_variable axtu_integer⟧
+{burd_verbose}::
+Verbosity level controlling diagnostic output.
+0=silent, 1=show messages, 2=enable bash trace.
+
+[[burd_regime_file]]
+// ⟦axl_voices axrg_variable axtu_path⟧
+{burd_regime_file}::
+Path to the BURC regime assignment file to source during setup.
+
+[[burd_no_log]]
+// ⟦axl_voices axrg_variable axtu_string axd_optional⟧
+{burd_no_log}::
+When non-empty, suppresses all log file creation and output.
+
+[[burd_interactive]]
+// ⟦axl_voices axrg_variable axtu_string axd_optional⟧
+{burd_interactive}::
+When non-empty, enables interactive mode with uncurated tee logging.
+
+[[burd_color]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{burd_color}::
+Color output policy.
+Input as auto/0/1; resolved to 0 or 1 during dispatch.
+Respects NO_COLOR environment convention.
+
+[[burd_coordinator_script]]
+// ⟦axl_voices axrg_variable axtu_path axd_required⟧
+{burd_coordinator_script}::
+Path to the coordinator script (workbench/testbench) that handles the dispatched command.
+
+[[burd_launcher]]
+// ⟦axl_voices axrg_variable axtu_path axd_required⟧
+{burd_launcher}::
+Path to the launcher bootstrap script, set by the tabtarget before exec.
+
+[[burd_station_file]]
+// ⟦axl_voices axrg_variable axtu_path axd_required⟧
+{burd_station_file}::
+Absolute path to the developer's station regime assignment file.
+Set by the launcher from BURC_STATION_FILE.
+
+[[burd_term_cols]]
+// ⟦axl_voices axrg_variable axtu_integer⟧
+{burd_term_cols}::
+Terminal column width at dispatch time.
+Detected from stty if available, defaults to 80.
+
+==== Computed Variables
+
+[[burd_group_computed]]
+// ⟦axl_voices axhrgb_group⟧
+{burd_group_computed}::
+Variables derived during dispatch setup.
+
+[[burd_now_stamp]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{burd_now_stamp}::
+Unique timestamp combining date, time, PID, and random component.
+
+[[burd_temp_dir]]
+// ⟦axl_voices axrg_variable axtu_path⟧
+{burd_temp_dir}::
+Ephemeral directory for this dispatch invocation.
+
+[[burd_output_dir]]
+// ⟦axl_voices axrg_variable axtu_path⟧
+{burd_output_dir}::
+Fixed output directory cleared and recreated on each dispatch.
+
+[[burd_transcript]]
+// ⟦axl_voices axrg_variable axtu_path⟧
+{burd_transcript}::
+Path to the transcript file within the temporary directory.
+
+[[burd_git_context]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{burd_git_context}::
+Git describe output capturing repository state at dispatch time.
+
+[[burd_log_last]]
+// ⟦axl_voices axrg_variable axtu_path⟧
+{burd_log_last}::
+Path to the "last" log file, overwritten each dispatch.
+
+[[burd_log_same]]
+// ⟦axl_voices axrg_variable axtu_path⟧
+{burd_log_same}::
+Path to the curated "same" log file for the command+target combination.
+
+[[burd_log_hist]]
+// ⟦axl_voices axrg_variable axtu_path⟧
+{burd_log_hist}::
+Path to the timestamped historical log file.
+
+==== Parsed Variables
+
+[[burd_group_parsed]]
+// ⟦axl_voices axhrgb_group⟧
+{burd_group_parsed}::
+Variables extracted from the tabtarget filename during argument processing.
+
+[[burd_command]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{burd_command}::
+Primary command token (first token from tabtarget split).
+
+[[burd_target]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{burd_target}::
+Complete tabtarget string as received by dispatch.
+
+[[burd_cli_args]]
+// ⟦axl_voices axrg_variable axtu_string axd_repeated⟧
+{burd_cli_args}::
+Array of additional CLI arguments passed after the tabtarget.
+
+[[burd_token_1]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{burd_token_1}::
+Positional token 1 from tabtarget split (the colophon).
+
+[[burd_token_2]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{burd_token_2}::
+Positional token 2 from tabtarget split (the frontispiece).
+
+[[burd_token_3]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{burd_token_3}::
+Positional token 3 from tabtarget split (the imprint, if present).
+
+[[burd_token_4]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{burd_token_4}::
+Positional token 4 from tabtarget split.
+
+[[burd_token_5]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{burd_token_5}::
+Positional token 5 from tabtarget split.
+
+include::BUSD-DispatchRuntime.adoc[]

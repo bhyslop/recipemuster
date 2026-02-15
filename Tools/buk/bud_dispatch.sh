@@ -34,6 +34,10 @@ fi
 
 zbud_die() { echo "FATAL: $*" >&2; exit 1; }
 
+zburd_sentinel() {
+  test "${ZBURD_INITIALIZED:-}" = "1" || zbud_die "Dispatch not initialized - zbud_main not complete"
+}
+
 # String validator with optional length constraints
 zbud_check_string() {
   local context=$1
@@ -262,6 +266,24 @@ zbud_main() {
   # Process arguments
   zbud_process_args "$@" || { echo "ERROR: Argument processing failed" >&2; exit 1; }
   zbud_show "Arguments processed"
+
+  # Detect unexpected BURD_ variables
+  local z_known="BURD_VERBOSE BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COLOR BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5"
+  ZBURD_UNEXPECTED=()
+  local z_var
+  for z_var in $(compgen -v BURD_); do
+    case " ${z_known} " in
+      *" ${z_var} "*) : ;;
+      *) ZBURD_UNEXPECTED+=("${z_var}") ;;
+    esac
+  done
+
+  # Die on unexpected variables
+  if test ${#ZBURD_UNEXPECTED[@]} -gt 0; then
+    zbud_die "Unexpected BURD_ variables: ${ZBURD_UNEXPECTED[*]}"
+  fi
+
+  ZBURD_INITIALIZED=1
 
   # Build complete invocation array (always has ≥2 elements, so always safe under set -u)
   local coordinator_cmd="${BURD_COORDINATOR_SCRIPT}"
