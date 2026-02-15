@@ -111,7 +111,7 @@ zrbrr_sentinel() {
 }
 
 # Validate RBRR variables via buv_env_* (dies on first error)
-# Prerequisite: broach must have been called; buv_validation.sh must be sourced
+# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
 zrbrr_validate_fields() {
   zrbrr_sentinel
 
@@ -190,7 +190,7 @@ zrbrr_validate_fields() {
 
 # Load RBRR regime
 # Usage: rbrr_load
-# Uses RBCC_RBRR_FILE to locate rbrr.env, verifies exists, sources, broaches, and validates
+# Uses RBCC_RBRR_FILE to locate rbrr.env, verifies exists, sources, kindles, and validates
 rbrr_load() {
   local z_rbrr_file="${RBCC_RBRR_FILE}"
   test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"

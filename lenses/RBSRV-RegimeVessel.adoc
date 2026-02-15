@@ -96,12 +96,6 @@ Sets defaults for all RBRV_ variables via `VAR="${VAR:-}"` pattern.
 Detects unexpected RBRV_ variables via compgen prefix scan.
 Builds ZRBRV_ROLLUP serialization string.
 
-// ⟦axhro_list⟧
-{rbkro_list}
-
-Enumerates available vessel instances by scanning subdirectories of RBRR_VESSEL_DIR for rbrv.env files.
-Returns sigil identifiers suitable for instance selection.
-
 // ⟦axhro_validate⟧
 {rbkro_validate}
 
@@ -116,3 +110,9 @@ Renders via rbcr_* shared module.
 Sections: Core Vessel Identity, Binding Configuration, Conjuring Configuration.
 Displays unexpected variables in red.
 Validates after full render completes.
+
+// ⟦axhro_list⟧
+{rbkro_list}
+
+Enumerates available vessel instances by scanning subdirectories of RBRR_VESSEL_DIR for rbrv.env files.
+Returns sigil identifiers suitable for instance selection.
