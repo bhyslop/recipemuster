@@ -64,7 +64,7 @@ rbrr_render() {
 
   # Source and kindle (no dying — show all fields before validation)
   source "${z_file}" || buc_die "rbrr_render: failed to source ${z_file}"
-  zrbrr_broach
+  zrbrr_kindle
   zrbcr_kindle
 
   # Display header

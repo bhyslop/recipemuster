@@ -81,18 +81,6 @@ Variables that configure container runtime and deployment environment settings.
 These settings control local Podman VM configuration, DNS resolution, and build machine selection.
 
 // ⟦axhrgv_variable⟧
-{rbrr_registry_owner}
-
-GitHub username or organization that owns the container image registry.
-Used to construct fully-qualified image references.
-
-// ⟦axhrgv_variable⟧
-{rbrr_registry_name}
-
-GitHub container registry repository name.
-Combined with registry owner to form the base registry path.
-
-// ⟦axhrgv_variable⟧
 {rbrr_vessel_dir}
 
 Directory path containing vessel configuration subdirectories.
@@ -186,8 +174,8 @@ Gcrane provides Google-authenticated OCI registry operations.
 Fully-qualified image reference for ORAS tool used in Cloud Build steps.
 ORAS handles OCI artifact operations beyond container images.
 
-// ⟦axhro_broach⟧
-{rbkro_broach}
+// ⟦axhro_kindle⟧
+{rbkro_kindle}
 
 Sets defaults for all RBRR_ variables via `VAR="${VAR:-}"` pattern.
 Detects unexpected RBRR_ variables via compgen prefix scan.

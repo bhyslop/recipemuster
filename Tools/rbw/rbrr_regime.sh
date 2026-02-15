@@ -27,7 +27,7 @@ ZRBRR_SOURCED=1
 ######################################################################
 # Internal Functions (zrbrr_*)
 
-zrbrr_broach() {
+zrbrr_kindle() {
   test -z "${ZRBRR_KINDLED:-}" || buc_die "Module rbrr already kindled"
 
   # Set defaults for all fields (validate enforces required-ness)
@@ -107,7 +107,7 @@ zrbrr_broach() {
 }
 
 zrbrr_sentinel() {
-  test "${ZRBRR_KINDLED:-}" = "1" || buc_die "Module rbrr not kindled - call zrbrr_broach first"
+  test "${ZRBRR_KINDLED:-}" = "1" || buc_die "Module rbrr not kindled - call zrbrr_kindle first"
 }
 
 # Validate RBRR variables via buv_env_* (dies on first error)
@@ -196,7 +196,7 @@ rbrr_load() {
   test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
 
   source "${z_rbrr_file}" || buc_die "Failed to source RBRR config: ${z_rbrr_file}"
-  zrbrr_broach
+  zrbrr_kindle
   zrbrr_validate_fields
 }
 
