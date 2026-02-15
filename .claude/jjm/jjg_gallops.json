@@ -1139,9 +1139,10 @@
         "₢ATAAd",
         "₢ATAAK",
         "₢ATAAh",
-        "₢ATAAi"
+        "₢ATAAi",
+        "₢ATAAj"
       ],
-      "next_pace_seed": "AAj",
+      "next_pace_seed": "AAk",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1922,6 +1923,17 @@
               "text": "Rename broach→kindle in AXLA and add cardinality dimensions and collection-level operation markers.\n\n## File: Tools/cmk/vov_veiled/AXLA-Lexicon.adoc\n\n## Rename broach→kindle\n\nRename all broach terms to kindle throughout AXLA:\n- `axvr_broach` → `axvr_kindle` (mapping section attribute reference + anchor + definition)\n- `axhro_broach` → `axhro_kindle` (mapping section attribute reference + anchor + definition)\n- Update all prose references to \"broach\" that refer to this operation\n\nRationale: kindle is the established codebase convention (4 of 5 regime validators use it). validate and render already match their code-level names. Aligning kindle completes the set. The concept (parameterless, call-once initialization from assignments) is language-neutral, not bash-specific.\n\n## Add cardinality dimensions\n\nAdd two new regime dimensions under \"Regime Dimensions\" section (alongside existing `axd_conditional`):\n\n- `axrd_singleton` — Regime has exactly one assignment source. No enumeration or cross-instance operations apply.\n- `axrd_manifold` — Regime has multiple assignment sources (one per instance). Enumeration and cross-instance operations are meaningful.\n\nThese qualify `axvr_regime` declarations, alongside existing provenance dimensions (`axrd_file_sourced`, `axrd_env_inherited`, `axrd_constructed`).\n\nAdd attribute references to mapping section:\n- `:axrd_singleton: <<axrd_singleton,Singleton>>`\n- `:axrd_manifold: <<axrd_manifold,Manifold>>`\n\n## Add collection-level operation markers\n\nAdd three new hierarchy operation markers (alongside existing kindle/validate/render):\n\n- `axhro_list` — Marks a regime list operation in a subdocument. Enumerates available instances. Only valid on `axrd_manifold` regimes.\n- `axhro_survey` — Marks a regime survey operation. Read-only cross-instance summary. Only valid on `axrd_manifold` regimes.\n- `axhro_audit` — Marks a regime audit operation. Cross-instance validation plus external verification. Only valid on `axrd_manifold` regimes.\n\nAdd corresponding definition-site voicing terms:\n- `axvr_list` — Voices a regime list operation definition\n- `axvr_survey` — Voices a regime survey operation definition\n- `axvr_audit` — Voices a regime audit operation definition\n\nAdd all attribute references to mapping section.\n\n## Do NOT change\n- Any file other than AXLA-Lexicon.adoc\n- Provenance dimensions (axrd_file_sourced etc.) — leave as-is\n- Any non-regime uses of dimensions",
               "silks": "axla-kindle-and-cardinality",
               "commit": "eb1b48e"
+            }
+          ]
+        },
+        "₢ATAAj": {
+          "tacks": [
+            {
+              "ts": "260215-0713",
+              "state": "rough",
+              "text": "Update both parent spec documents to use renamed kindle terms, add collection-level operation terms, and annotate all regime declarations with cardinality dimensions.\n\n## Files\n- lenses/RBSA-SpecTop.adoc\n- Tools/buk/vov_veiled/BUSA-BashUtilitiesSpec.adoc\n\n## RBSA changes\n\n### Rename rbkro_broach → rbkro_kindle\n- Mapping section: `:rbkro_broach:` → `:rbkro_kindle:`\n- Anchor: `[[rbkro_broach]]` → `[[rbkro_kindle]]`\n- Definition and all prose references\n\n### Add collection-level operation terms\nAdd to mapping section and define with anchors:\n- `rbkro_list` — Kit-level list operation for RBW regimes (voices `axvr_list`)\n- `rbkro_survey` — Kit-level survey operation (voices `axvr_survey`)\n- `rbkro_audit` — Kit-level audit operation (voices `axvr_audit`)\n\n### Add cardinality to all regime declarations\nUpdate every `// ⟦axvr_regime ...⟧` annotation to include cardinality:\n- RBRR: `axrd_singleton` (one repo config)\n- RBRN: `axrd_manifold` (3 nameplates)\n- RBRV: `axrd_manifold` (6 vessels)\n- RBRP: `axrd_singleton` (one payor project)\n- RBRE: `axrd_manifold` (per-ECR environment)\n- RBRG: `axrd_manifold` (per-GitHub config)\n- RBRS: `axrd_singleton` (one workstation)\n- RBRO: assess and annotate\n\n## BUSA changes\n\n### Rename bukro_broach → bukro_kindle\n- Mapping section: `:bukro_broach:` → `:bukro_kindle:`\n- Anchor: `[[bukro_broach]]` → `[[bukro_kindle]]`\n- Definition and all prose references\n\n### Add cardinality to regime declarations\n- BURC: `axrd_singleton`\n- BURS: `axrd_singleton`\n\n## Do NOT change\n- AXLA-Lexicon.adoc (done in prior pace)\n- Subdocuments (done in subsequent paces)\n- Shell scripts",
+              "silks": "rbsa-busa-vocabulary-alignment",
+              "commit": "cc9c01a"
             }
           ]
         }
