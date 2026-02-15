@@ -1780,6 +1780,13 @@
         "₢ATAAd": {
           "tacks": [
             {
+              "ts": "260215-0804",
+              "state": "complete",
+              "text": "Rename rbrr_RecipeBottleRegimeRepo.sh to rbrr.env for consistency with regime variable file conventions.\n\n## Context\n\nAll other regime variable files use the .env pattern:\n- rbrv.env (vessel), rbrp.env (payor), rbrn_*.env (nameplate), burc.env (BUK config), cccr.env (CCCK)\n\nThe repo regime is the sole outlier: rbrr_RecipeBottleRegimeRepo.sh\n\n## Work required\n\n1. Rename rbrr_RecipeBottleRegimeRepo.sh to rbrr.env\n2. Update all references across the codebase (source/include statements, CLAUDE.md mappings, etc.)\n3. Verify regime validation still works after rename\n\n## Acceptance criteria\n\n- File renamed to rbrr.env\n- All references updated — no broken sources\n- Regime validation passes",
+              "silks": "rename-rbrr-regime-to-env",
+              "commit": "b91ff2d"
+            },
+            {
               "ts": "260213-1008",
               "state": "rough",
               "text": "Rename rbrr_RecipeBottleRegimeRepo.sh to rbrr.env for consistency with regime variable file conventions.\n\n## Context\n\nAll other regime variable files use the .env pattern:\n- rbrv.env (vessel), rbrp.env (payor), rbrn_*.env (nameplate), burc.env (BUK config), cccr.env (CCCK)\n\nThe repo regime is the sole outlier: rbrr_RecipeBottleRegimeRepo.sh\n\n## Work required\n\n1. Rename rbrr_RecipeBottleRegimeRepo.sh to rbrr.env\n2. Update all references across the codebase (source/include statements, CLAUDE.md mappings, etc.)\n3. Verify regime validation still works after rename\n\n## Acceptance criteria\n\n- File renamed to rbrr.env\n- All references updated — no broken sources\n- Regime validation passes",
