@@ -1,0 +1,48 @@
+// ⟦axhrb_regime⟧
+{rbrp_regime}
+
+This regime specifies variables that define administrative payor configuration within the Recipe Bottle system.
+Each
+{rbrp_regime}
+instance represents the administrative control plane that creates and manages depot projects, links billing accounts, and configures OAuth authentication.
+RBRP assignment files are found at the project root (`rbrp.env`) and configure payor project identification, billing account linkage, and OAuth client settings.
+
+// ⟦axhrv_variable⟧
+{rbrp_payor_project_id}
+
+The GCP project ID hosting the OAuth 2.0 client configuration for payor operations.
+Must match the global payor project naming pattern.
+Required; regex-validated against RBGC_GLOBAL_PAYOR_REGEX.
+
+// ⟦axhrv_variable⟧
+{rbrp_billing_account_id}
+
+GCP billing account identifier linked to newly created depot projects.
+Optional during initial setup; format XXXXXX-XXXXXX-XXXXXX when present.
+
+// ⟦axhrv_variable⟧
+{rbrp_oauth_client_id}
+
+Public OAuth 2.0 client identifier for the payor desktop application.
+Optional during initial setup; must end with `.apps.googleusercontent.com` when present.
+
+// ⟦axhro_kindle⟧
+{rbkro_kindle}
+
+Requires RBGC to be kindled first (uses RBGC_GLOBAL_PAYOR_REGEX for validation).
+Validates RBRP_PAYOR_PROJECT_ID presence and format.
+Validates RBRP_BILLING_ACCOUNT_ID format when present.
+Validates RBRP_OAUTH_CLIENT_ID format when present.
+
+// ⟦axhro_validate⟧
+{rbkro_validate}
+
+RBRP kindle performs validation inline — no separate validate_fields function.
+The kindle function is the validator for this regime.
+
+// ⟦axhro_render⟧
+{rbkro_render}
+
+Renders via rbcr_* shared module.
+Sections: Payor Project Identity, Billing Configuration, OAuth Configuration.
+Validates after full render completes.

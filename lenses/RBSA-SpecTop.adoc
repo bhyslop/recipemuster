@@ -1927,7 +1927,7 @@ creates and manages
 instances.
 
 [[rbrp_regime]]
-// ⟦axl_voices axrg_regime axf_bash axrd_singleton⟧
+// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
 {rbrp_regime}::
 An
 regime
@@ -1975,6 +1975,8 @@ desktop application.
 {rbrp_depot_project_ids}::
 Space-delimited array of active depot project IDs managed by this
 {rbtr_payor}.
+
+include::RBSRP-RegimePayor.adoc[]
 
 === OAuth Regime (RBRO)
 
