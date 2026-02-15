@@ -5674,9 +5674,10 @@
       "order": [
         "₢AbAAA",
         "₢AbAAB",
-        "₢AbAAC"
+        "₢AbAAC",
+        "₢AbAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_Ab.md",
       "paces": {
         "₢AbAAA": {
@@ -5709,6 +5710,17 @@
               "text": "## Spook\n\nFull-list `jjx_reorder` requires ALL paces (including complete) to be listed, making it unusable for mature heats. Error: \"Order count mismatch: got 12, expected 38\" when only listing actionable paces.\n\n## Design Decision\n\nRedefine full-list reorder to operate on **non-complete paces only**. Complete paces retain their positions implicitly (historical record, order reflects execution sequence).\n\nAbandoned paces are treated as **moveable** — they're decision markers, not completed actions, and their position relative to rough paces may matter.\n\nRule: complete = frozen, everything else (rough, bridled, in_progress, abandoned) = reorderable.\n\n## Implementation\n\n- `jjx_reorder` full-list mode: count validation uses non-complete paces only\n- Complete paces keep their current indices unchanged\n- Non-complete paces are reordered among the gaps\n- `--move` single-pace mode: no change needed (already works correctly)\n- Add test coverage for mixed-status reordering",
               "silks": "jjk-spook-rail-full-list-scope",
               "commit": "bfa08fe"
+            }
+          ]
+        },
+        "₢AbAAD": {
+          "tacks": [
+            {
+              "ts": "260215-0835",
+              "state": "rough",
+              "text": "Fix jjx_notch to handle staged deletions (git rm'd files).\n\n## Problem\n₢AHAAQ added a fallback check via `git ls-files --error-unmatch` for files that don't exist on disk. But for staged deletions (`D` in column 1 of `git status --porcelain`), the file is removed from both disk AND the index. So `git ls-files --error-unmatch` also fails, producing:\n\n    jjx_notch: error: file does not exist and is not tracked by git: lenses/RBRR-RegimeRepo.adoc\n\n## Root Cause\n`git ls-files` queries the index. `git rm` removes from the index. The existing check covers unstaged deletions (file gone from disk but still in index) but not staged deletions.\n\n## Solution\nAdd a third check: `git diff --cached --name-only --diff-filter=D -- <file>`. If this produces output, the file is a staged deletion and should be accepted.\n\nValidation chain becomes:\n1. `path.exists()` — file on disk (additions/modifications)\n2. `git ls-files --error-unmatch` — file in index (unstaged deletions)\n3. `git diff --cached --name-only --diff-filter=D` — file is staged deletion\n\n## Files to modify\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` — add staged-deletion check after the ls-files fallback\n- `Tools/jjk/vov_veiled/JJSCNC-notch.adoc` — update validation prose to cover all three cases\n\n## Verification\n1. `tt/vow-b.Build.sh`\n2. `tt/vow-t.Test.sh`\n3. Manual: `git rm` a file, run notch with that file — should succeed",
+              "silks": "fix-notch-staged-deletion",
+              "commit": "fca76d9"
             }
           ]
         }
