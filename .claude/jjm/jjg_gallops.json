@@ -1144,9 +1144,10 @@
         "₢ATAAk",
         "₢ATAAl",
         "₢ATAAm",
-        "₢ATAAn"
+        "₢ATAAn",
+        "₢ATAAo"
       ],
-      "next_pace_seed": "AAo",
+      "next_pace_seed": "AAp",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1982,6 +1983,17 @@
               "text": "Formalize RBRA (Credential Format) with a validator and subdocument. RBRA is multi-instance (3 credential files) and currently has no validator or spec despite being security-sensitive.\n\n## Create: Tools/rbw/rbra_regime.sh\n\nFollowing the regime.sh pattern:\n- Multiple inclusion guard (ZRBRA_SOURCED)\n- `zrbra_kindle()` with ZRBRA_KINDLED guard\n- Validate 4 variables:\n  - RBRA_CLIENT_EMAIL (string, service account email format)\n  - RBRA_PRIVATE_KEY (string, PEM format presence check)\n  - RBRA_PROJECT_ID (gname, GCP project ID)\n  - RBRA_TOKEN_LIFETIME_SEC (integer, typically 1800)\n- Unexpected variable detection via compgen\n- ZRBRA_ROLLUP construction\n- `zrbra_sentinel()` function\n\n## Create: Tools/rbw/rbra_cli.sh\n\nFollowing rbrn_cli.sh pattern:\n- validate command (per-instance)\n- render command (per-instance, using rbcr_* shared module)\n- list command (enumerate RBRA files referenced by RBRR)\n\nInstance discovery: RBRA files are referenced by RBRR_GOVERNOR_RBRA_FILE, RBRR_RETRIEVER_RBRA_FILE, RBRR_DIRECTOR_RBRA_FILE. The list function enumerates these three paths.\n\n## Create: lenses/RBSRA-CredentialFormat.adoc\n\nSubdocument following RBRN pattern:\n- `// ⟦axhrb_regime⟧` header\n- Variable voicings for all 4 variables\n- Operation voicings: kindle, validate, render, list\n- Note: RBRA files are NOT in git — external credential files\n\n## Update: lenses/RBSA-SpecTop.adoc\n\n- Add mapping section entries for RBRA variables\n- Wire `include::RBSRA-CredentialFormat.adoc[]`\n- Cardinality: `axrd_manifold` (3 instances: governor, retriever, director)\n\n## Security note\nRBRA credential files contain RSA private keys. Validator should verify format, NOT log values. Render should mask RBRA_PRIVATE_KEY display.",
               "silks": "rbra-regime-formalization",
               "commit": "aa42f42"
+            }
+          ]
+        },
+        "₢ATAAo": {
+          "tacks": [
+            {
+              "ts": "260215-0715",
+              "state": "rough",
+              "text": "Create subdocuments for the three external (not-in-git) regimes: RBRE, RBRG, RBRS. These are structurally similar — singleton or small manifold, external assignment files, already have validators.\n\n## RBRE (Regime ECR) — 6 variables\n\n### Create: lenses/RBSRE-RegimeEcr.adoc\n- Variables: RBRE_AWS_CREDENTIALS_ENV, RBRE_AWS_ACCESS_KEY_ID, RBRE_AWS_SECRET_ACCESS_KEY, RBRE_AWS_ACCOUNT_ID, RBRE_AWS_REGION, RBRE_REPOSITORY_NAME\n- Operations: kindle, validate, render\n- Cardinality: assess — currently one ECR config, but potentially manifold per-environment\n- Security: mask secret key in render\n\n### Update RBSA\n- Add mapping section entries for all RBRE variables\n- Wire include::RBSRE-RegimeEcr.adoc[]\n\n## RBRG (Regime GitHub) — 2 variables\n\n### Create: lenses/RBSRG-RegimeGithub.adoc\n- Variables: RBRG_PAT, RBRG_USERNAME\n- Operations: kindle, validate, render\n- Cardinality: assess — currently one GitHub config, but potentially manifold per-account\n- Security: mask PAT in render\n\n### Update RBSA\n- Add mapping section entries for RBRG variables\n- Wire include::RBSRG-RegimeGithub.adoc[]\n\n## RBRS (Regime Station) — 3 variables\n\n### Create: lenses/RBSRS-RegimeStation.adoc\n- Variables: RBRS_PODMAN_ROOT_DIR, RBRS_VMIMAGE_CACHE_DIR, RBRS_VM_PLATFORM\n- Operations: kindle, validate, render\n- Cardinality: axrd_singleton (one workstation)\n\n### Update RBSA\n- Add mapping section entries for RBRS variables\n- Wire include::RBSRS-RegimeStation.adoc[]\n\n## Pattern\nAll three follow the same subdocument template. No new CLI scripts needed — existing validators and CLI commands already work. This pace is spec-only.",
+              "silks": "external-regime-specs",
+              "commit": "a05b38d"
             }
           ]
         }
