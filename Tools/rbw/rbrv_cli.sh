@@ -125,11 +125,7 @@ case "${z_command}" in
       test -f "${RBCC_RBRR_FILE}" || buc_die "RBRR regime file not found: ${RBCC_RBRR_FILE}"
       rbrr_load
       buc_step "Available vessels:"
-      for z_d in "${RBRR_VESSEL_DIR}"/*/; do
-        test -d "${z_d}" || continue
-        test -f "${z_d}/rbrv.env" || continue
-        z_s="${z_d%/}"
-        z_s="${z_s##*/}"
+      rbrv_list | while read -r z_s; do
         echo "  ${z_s}"
       done
     else

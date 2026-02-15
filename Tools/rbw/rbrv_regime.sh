@@ -104,4 +104,20 @@ zrbrv_validate_fields() {
   fi
 }
 
+######################################################################
+# Public Functions (rbrv_*)
+
+# List available vessel sigils
+# Usage: rbrv_list
+# Prerequisite: RBRR must be loaded (needs RBRR_VESSEL_DIR)
+rbrv_list() {
+  zrbrr_sentinel
+  for z_d in "${RBRR_VESSEL_DIR}"/*/; do
+    test -d "${z_d}" || continue
+    test -f "${z_d}/rbrv.env" || continue
+    local z_s="${z_d%/}"
+    echo "${z_s##*/}"
+  done
+}
+
 # eof

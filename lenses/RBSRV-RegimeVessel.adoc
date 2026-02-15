@@ -89,12 +89,18 @@ Must be
 or
 {rbrv_binfmt_forbid}.
 
-// ⟦axhro_broach⟧
-{rbkro_broach}
+// ⟦axhro_kindle⟧
+{rbkro_kindle}
 
 Sets defaults for all RBRV_ variables via `VAR="${VAR:-}"` pattern.
 Detects unexpected RBRV_ variables via compgen prefix scan.
 Builds ZRBRV_ROLLUP serialization string.
+
+// ⟦axhro_list⟧
+{rbkro_list}
+
+Enumerates available vessel instances by scanning subdirectories of RBRR_VESSEL_DIR for rbrv.env files.
+Returns sigil identifiers suitable for instance selection.
 
 // ⟦axhro_validate⟧
 {rbkro_validate}
