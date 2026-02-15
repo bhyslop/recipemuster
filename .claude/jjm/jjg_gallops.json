@@ -1141,9 +1141,10 @@
         "₢ATAAh",
         "₢ATAAi",
         "₢ATAAj",
-        "₢ATAAk"
+        "₢ATAAk",
+        "₢ATAAl"
       ],
-      "next_pace_seed": "AAl",
+      "next_pace_seed": "AAm",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -1946,6 +1947,17 @@
               "text": "Add collection-level operation voicings to the RBRN subdocument, establishing the exemplar pattern for manifold regimes.\n\n## File: lenses/RBRN-RegimeNameplate.adoc\n\n## Rename existing operation marker\n- `// ⟦axhro_broach⟧` → `// ⟦axhro_kindle⟧`\n\n## Add collection-level operation voicings\n\nAfter the existing kindle/validate/render operation voicings, add three new sections:\n\n### axhro_list\n```\n// ⟦axhro_list⟧\n{rbkro_list}\n\nEnumerates available nameplate instances by scanning assignment files matching the RBRN naming pattern.\nReturns moniker identifiers suitable for instance selection.\n```\n\n### axhro_survey\n```\n// ⟦axhro_survey⟧\n{rbkro_survey}\n\nRead-only cross-instance summary of all nameplates.\nIterates rbrn_list, kindles each instance in a subshell to avoid sentinel conflicts.\nDisplays network topology, entry configuration, and local image availability for all instances.\n```\n\n### axhro_audit\n```\n// ⟦axhro_audit⟧\n{rbkro_audit}\n\nCross-instance validation of all nameplates plus external verification.\nPerforms survey display, then validates cross-instance constraints: port uniqueness, subnet non-overlap, IP uniqueness.\nIncludes GCB quota headroom check via Service Usage API.\n```\n\n## Pattern note\nThis establishes the reference exemplar. RBRV and future manifold regimes will follow this six-operation structure: kindle, validate, render (instance-level) + list, survey, audit (collection-level).",
               "silks": "rbrn-collection-voicings",
               "commit": "bf767bb"
+            }
+          ]
+        },
+        "₢ATAAl": {
+          "tacks": [
+            {
+              "ts": "260215-0713",
+              "state": "rough",
+              "text": "Extract vessel listing into proper rbrv_list() function and add collection-level voicings to RBRV subdocument.\n\n## Code: Tools/rbw/rbrv_regime.sh\n\n### Extract rbrv_list()\nMove the inline vessel enumeration from rbrv_cli.sh (lines 128-134) into a proper function in rbrv_regime.sh:\n\n```bash\nrbrv_list() {\n  zrbrr_sentinel  # needs RBRR_VESSEL_DIR\n  for z_d in \"${RBRR_VESSEL_DIR}\"/*/; do\n    test -d \"${z_d}\" || continue\n    test -f \"${z_d}/rbrv.env\" || continue\n    local z_s=\"${z_d%/}\"\n    echo \"${z_s##*/}\"\n  done\n}\n```\n\n### Update rbrv_cli.sh\nReplace inline listing with call to `rbrv_list`. The CLI still handles the \"no sigil given → show list\" dispatch, but delegates enumeration to the regime module.\n\n## Spec: lenses/RBSRV-RegimeVessel.adoc\n\n### Rename operation marker\n- `// ⟦axhro_broach⟧` → `// ⟦axhro_kindle⟧`\n\n### Add collection-level voicing\nAdd after existing kindle/validate/render:\n\n```\n// ⟦axhro_list⟧\n{rbkro_list}\n\nEnumerates available vessel instances by scanning subdirectories of RBRR_VESSEL_DIR for rbrv.env files.\nReturns sigil identifiers suitable for instance selection.\n```\n\nNote: RBRV does not currently have survey or audit operations. Add only list for now. Survey/audit can be added when cross-vessel validation needs arise.\n\n## Do NOT change\n- AXLA or RBSA (done in prior paces)\n- rbrv_validate or rbrv_render logic",
+              "silks": "rbrv-list-extraction-and-voicings",
+              "commit": "86561b5"
             }
           ]
         }
