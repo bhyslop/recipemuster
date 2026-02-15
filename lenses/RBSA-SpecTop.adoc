@@ -305,12 +305,15 @@
 :rbrn_prefix:                <<rbrn_prefix,RBRN_>>
 
 // Recipe Bottle Kit Regime Operations
-:rbkro_broach:               <<rbkro_broach,RBK Broach>>
+:rbkro_kindle:               <<rbkro_kindle,RBK Kindle>>
 :rbkro_validate:             <<rbkro_validate,RBK Validate>>
 :rbkro_render:               <<rbkro_render,RBK Render>>
+:rbkro_list:                 <<rbkro_list,RBK List>>
+:rbkro_survey:               <<rbkro_survey,RBK Survey>>
+:rbkro_audit:                <<rbkro_audit,RBK Audit>>
 
 // Bash Utility Kit Regime Operations
-:bukro_broach:               <<bukro_broach,BUK Broach>>
+:bukro_kindle:               <<bukro_kindle,BUK Kindle>>
 :bukro_validate:             <<bukro_validate,BUK Validate>>
 :bukro_render:               <<bukro_render,BUK Render>>
 
@@ -1647,7 +1650,7 @@ This specification documents only the subset of RBRR variables relevant to
 operations.
 
 [[rbrr_regime]]
-// ⟦axl_voices axrg_regime axf_bash axrd_file_sourced⟧
+// ⟦axl_voices axrg_regime axf_bash axrd_file_sourced axrd_singleton⟧
 {rbrr_regime}::
 An
 regime
@@ -1657,7 +1660,7 @@ operations.
 RBRR regimes contain depot project identifiers, regional settings, repository locations, and service account credential file paths that establish the foundational infrastructure configuration.
 
 [[rbrr_depot_project_id]]
-// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtg_project_id⟧
+// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_project_id⟧
 {rbrr_depot_project_id}::
 The
 {gcp_service}
@@ -1672,7 +1675,7 @@ in API calls and as the audience claim in
 exchange.
 
 [[rbrr_gcp_region]]
-// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtg_region⟧
+// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_region⟧
 {rbrr_gcp_region}::
 The default
 {gcp_service}
@@ -1683,7 +1686,7 @@ and
 Applied when creating repositories and submitting builds unless overridden by operation-specific configuration.
 
 [[rbrr_gar_repository]]
-// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtg_project_id⟧
+// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_project_id⟧
 {rbrr_gar_repository}::
 The
 {gar_service}
@@ -1696,7 +1699,7 @@ and
 {rbtgi_metadata_s}.
 
 [[rbrr_retriever_rbra_file]]
-// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtu_path⟧
+// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
 {rbrr_retriever_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1711,7 +1714,7 @@ to assume the
 role for container image operations.
 
 [[rbrr_director_rbra_file]]
-// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtu_path⟧
+// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
 {rbrr_director_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1726,7 +1729,7 @@ to assume the
 for build submission and image management operations.
 
 [[rbrr_governor_rbra_file]]
-// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtu_path⟧
+// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
 {rbrr_governor_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1743,7 +1746,7 @@ role for
 administration operations.
 
 [[rbrr_payor_rbra_file]]
-// ⟦axl_voices axrg_variable axvr_broach axvr_validate axvr_render axtu_path⟧
+// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
 {rbrr_payor_rbra_file}::
 Path to an
 {rbtgi_rbra_file}
@@ -1762,7 +1765,7 @@ lifecycle operations.
 === Authentication Regime (RBRA)
 
 [[rbra_regime]]
-// ⟦axl_voices axrg_regime axf_bash⟧
+// ⟦axl_voices axrg_regime axf_bash axrd_manifold⟧
 {rbra_regime}::
 An
 regime
@@ -1829,7 +1832,7 @@ creates and manages
 instances.
 
 [[rbrp_regime]]
-// ⟦axl_voices axrg_regime axf_bash⟧
+// ⟦axl_voices axrg_regime axf_bash axrd_singleton⟧
 {rbrp_regime}::
 An
 regime
@@ -1887,7 +1890,7 @@ stores sensitive OAuth credentials locally for
 authentication.
 
 [[rbro_regime]]
-// ⟦axl_voices axrg_regime axf_bash⟧
+// ⟦axl_voices axrg_regime axf_bash axrd_singleton⟧
 {rbro_regime}::
 An
 regime
@@ -1908,9 +1911,9 @@ The long-lived OAuth refresh token obtained during the authorization flow, used 
 
 === Kit Regime Operations (RBK)
 
-[[rbkro_broach]]
-// ⟦axvr_broach⟧
-{rbkro_broach}::
+[[rbkro_kindle]]
+// ⟦axvr_kindle⟧
+{rbkro_kindle}::
 Silent initialization of Recipe Bottle regime state from
 {axrg_assignment_s}.
 Sets defaults, detects unexpected variables, builds derived structures.
@@ -1930,11 +1933,38 @@ Diagnostic display of Recipe Bottle
 state.
 Renders all fields before validation so complete state is visible on failure.
 
+[[rbkro_list]]
+// ⟦axvr_list⟧
+{rbkro_list}::
+Enumeration of available instances for Recipe Bottle
+{axrg_regime_s}
+with
+{axrd_manifold}
+cardinality.
+
+[[rbkro_survey]]
+// ⟦axvr_survey⟧
+{rbkro_survey}::
+Read-only cross-instance summary for Recipe Bottle
+{axrg_regime_s}
+with
+{axrd_manifold}
+cardinality.
+
+[[rbkro_audit]]
+// ⟦axvr_audit⟧
+{rbkro_audit}::
+Cross-instance validation plus external verification for Recipe Bottle
+{axrg_regime_s}
+with
+{axrd_manifold}
+cardinality.
+
 === Kit Regime Operations (BUK)
 
-[[bukro_broach]]
-// ⟦axvr_broach⟧
-{bukro_broach}::
+[[bukro_kindle]]
+// ⟦axvr_kindle⟧
+{bukro_kindle}::
 Silent initialization of Bash Utility Kit regime state from
 {axrg_assignment_s}.
 Sets defaults, detects unexpected variables, builds derived structures.
@@ -1957,7 +1987,7 @@ Renders all fields before validation so complete state is visible on failure.
 === Vessel Regime (RBRV)
 
 [[rbrv_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced⟧
+// ⟦axvr_regime axf_bash axrd_file_sourced axrd_manifold⟧
 {rbrv_regime}::
 Configuration regime for container image build specifications.
 
@@ -2051,7 +2081,7 @@ include::RBSRV-RegimeVessel.adoc[]
 === Nameplate Regime (RBRN)
 
 [[rbrn_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced⟧
+// ⟦axvr_regime axf_bash axrd_file_sourced axrd_manifold⟧
 {rbrn_regime}::
 Configuration regime for bottle service deployment.
 RBRN assignment files in `Tools/rbw/rbrn_*.env` define container deployment and network security settings.
@@ -2231,7 +2261,7 @@ include::RBRN-RegimeNameplate.adoc[]
 === Environment Variables Regime (RBEV)
 
 [[rbev_regime]]
-// ⟦axl_voices axrg_regime axf_bash⟧
+// ⟦axl_voices axrg_regime axf_bash axrd_manifold⟧
 {rbev_regime}::
 An
 regime

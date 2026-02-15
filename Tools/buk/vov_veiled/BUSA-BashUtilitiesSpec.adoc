@@ -11,7 +11,7 @@
 // busdi_: Dispatch Imprint (embedded parameter/target specifier)
 // busdm_: Dispatch Formulary (routing component)
 // busdl_: Dispatch Launcher (bootstrap script)
-// bukro_: Kit Regime Operation (broach/validate/render)
+// bukro_: Kit Regime Operation (kindle/validate/render)
 // burc_:  Configuration Regime (project-level settings)
 // burs_:  Station Regime (developer-level settings)
 //
@@ -48,7 +48,7 @@
 :axf_bash:                         <<axf_bash,Bash Format>>
 
 // BUK Regime Operation Terms
-:bukro_broach:                     <<bukro_broach,BUK Broach>>
+:bukro_kindle:                     <<bukro_kindle,BUK Kindle>>
 :bukro_validate:                   <<bukro_validate,BUK Validate>>
 :bukro_render:                     <<bukro_render,BUK Render>>
 
@@ -311,9 +311,9 @@ Bash Utility Station Regime
 
 === Kit Regime Operations
 
-[[bukro_broach]]
-// ⟦axvr_broach⟧
-{bukro_broach}::
+[[bukro_kindle]]
+// ⟦axvr_kindle⟧
+{bukro_kindle}::
 Silent initialization of Bash Utility Kit regime state from
 {axrg_assignment_s}.
 Sets defaults, detects unexpected variables, builds derived structures.
@@ -335,7 +335,7 @@ state.
 === BURC Regime
 
 [[burc_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced⟧
+// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
 {burc_regime}::
 Configuration regime for project-level BUK settings.
 BURC assignment files in `.buk/burc.env` define repository structure and tabtarget infrastructure.
@@ -401,7 +401,7 @@ File extension for log files, without leading dot.
 === BURS Regime
 
 [[burs_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced⟧
+// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
 {burs_regime}::
 Configuration regime for developer-level BUK settings.
 BURS assignment files are personal to each developer and not committed to version control.
