@@ -4697,9 +4697,10 @@
         "₢AOAAD",
         "₢AOAAE",
         "₢AOAAF",
-        "₢AOAAG"
+        "₢AOAAG",
+        "₢AOAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -4783,6 +4784,17 @@
               "text": "Fix OS-specific link instructions and redundant text in rbgm_ManualProcedures.sh.\n\n## Issues (from orphaned heat triage)\n\n1. Line 143: Remove redundant \"Default text is this color.\" line — adds no value\n2. Line 144: \"(often, Ctrl + mouse click)\" is wrong on macOS (should be Cmd+click). Replace with OS-detected instruction.\n3. The Key section (lines 140-144) appears in both rbgm_payor_establish and rbgm_quota_build — fix in both places.\n\n## Approach\n\nDetect OS via `uname` and set the click modifier accordingly (Ctrl on Linux, Cmd on macOS). Apply to all bug_link calls that mention the modifier.\n\n## Files\n- `Tools/rbw/rbgm_ManualProcedures.sh` — primary edit target (lines 140-144 in payor_establish, similar block in quota_build around line 340-343)",
               "silks": "fix-rbgm-os-specific-link-instructions",
               "commit": "e71852d"
+            }
+          ]
+        },
+        "₢AOAAH": {
+          "tacks": [
+            {
+              "ts": "260216-1031",
+              "state": "rough",
+              "text": "Simplify path resolution in rbgm_ManualProcedures.sh lines 60-63.\n\n## Issues (from orphaned heat triage)\n\n1. Line 60: `ITCH_LINK_TO_RBL` comment still present — resolve or remove\n2. Lines 61-63: Use `cd \"${ZRBGM_SCRIPT_DIR}/../..\" && pwd` to compute paths — fragile indirection\n3. `ZRBGM_SCRIPT_DIR` is never defined in this file (comes from sourcing chain) — verify provenance\n\n## Approach\n\nReplace `cd .. && pwd` pattern with direct path resolution using BURC_PROJECT_ROOT or equivalent project-root variable that should already be available in the kindling context. Remove the ITCH comment once resolved.\n\n## Files\n- `Tools/rbw/rbgm_ManualProcedures.sh` — lines 60-63 in zrbgm_kindle()",
+              "silks": "untangle-rbgm-path-indirections",
+              "commit": "9b1899b"
             }
           ]
         }
