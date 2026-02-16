@@ -224,37 +224,34 @@ docker buildx build \
   -f "${_RBGY_DOCKERFILE}" \
   .
 
-# Step 7: Push OCI archive with Skopeo (has authentication)
-AR_TOKEN=$(curl -s -H "Metadata-Flavor: Google" \
-  "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | \
-  sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p')
+# Step 7: Push OCI archive with crane (has authentication)
+tar xf /workspace/oci-layout.tar -C /workspace/oci-layout
 
-skopeo copy --all \
-  --dest-registry-token "${AR_TOKEN}" \
-  "oci-archive:/workspace/oci-layout.tar" \
-  "docker://${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-img"
+crane push /workspace/oci-layout \
+  "${_RBGY_GAR_LOCATION}-docker.pkg.dev/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}-img" \
+  --index
 ----
 
-NOTE: Use `--dest-registry-token` (not `--dest-creds`) per https://cloud.google.com/blog/topics/developers-practitioners/five-ways-skopeo-can-simplify-your-google-cloud-container-workflow[Google Cloud blog]. The `oci-archive:` transport reads tarballs; `oci:` transport reads directories.
+NOTE: crane uses Docker credential helper configured by `gcloud auth configure-docker` (GCB step 03). The OCI tarball must be extracted before pushing; crane reads OCI layout directories with `--index` flag for multi-platform images.
 
 **Pros**:
 - BuildKit never needs registry credentials - only writes local filesystem
-- Skopeo runs as Cloud Build step with metadata server access (native GCP auth)
-- Build phase can take hours, push phase takes seconds (no 1-hour token timeout)
+- crane runs as Cloud Build step with Docker credential helper access (native GCP auth)
+- Build phase can take hours, push phase takes seconds (no credential timeout)
 - Preserves all multi-platform capabilities
-- Uses Google-recommended tools (Skopeo explicitly endorsed in Google Cloud blog)
-- Separates concerns: BuildKit does what it's good at (building), Skopeo does what it's good at (registry operations)
+- Uses Google's own tools (crane from go-containerregistry project)
+- Separates concerns: BuildKit does what it's good at (building), crane does what it's good at (registry operations)
 - `/workspace` is shared across Cloud Build steps (perfect for intermediate storage)
 
 **Cons**:
-- Requires Skopeo container image (`quay.io/skopeo/stable:latest`)
+- Requires crane/gcrane container image (`gcr.io/go-containerregistry/gcrane`)
 - Two-step process instead of atomic build-and-push
-- Need to adjust SBOM generation step (Syft can read OCI layouts: `syft oci-dir:/workspace/oci-layout`)
+- Need to adjust SBOM generation step (Syft can read OCI layouts after extraction)
 
 **Why this works**:
 - Docker buildx OCI export: Official Docker feature, documented for multi-platform
-- Skopeo OCI→Docker: Official capability in Skopeo manpage
-- Cloud Build + Skopeo: Google's own blog post demonstrates this exact pattern
+- crane OCI→Docker: Official capability in Google's go-containerregistry project
+- Cloud Build + crane: Google's own tool designed for container registry operations
 - Addresses root cause: Separates build (no auth needed) from push (has auth)
 
 **References**:
@@ -309,11 +306,10 @@ docker buildx build \
   ...
 ----
 
-**Step 6: Push with Skopeo** (rbgjb07-push-with-skopeo.sh):
+**Step 6: Push with crane** (rbgjb07-push-with-crane.sh):
 ----
-skopeo copy --all --dest-registry-token "${AR_TOKEN}" \
-  "oci-archive:/workspace/oci-layout.tar" \
-  "docker://${IMAGE_URI}"
+tar xf /workspace/oci-layout.tar -C /workspace/oci-layout
+crane push /workspace/oci-layout "${IMAGE_URI}" --index
 ----
 
 **Step 7: SBOM Generation** (rbgjb08-sbom-and-summary.sh):
@@ -458,22 +454,23 @@ ____
 
 === Tarball vs Directory Output
 
-Initial research suggested using `tar=false` for directory output compatible with Skopeo's `oci:` transport. However, testing revealed issues with `tar=false`:
+Initial research suggested using `tar=false` for directory output. However, testing revealed issues with `tar=false`:
 
 - https://github.com/moby/buildkit/issues/5572[moby/buildkit #5572]: Annotations not properly written with `tar=false`
 - Directory output less portable than tarball
 
-**Proven solution**: Use default tarball output with Skopeo's `oci-archive:` transport:
+**Proven solution**: Use default tarball output, extract, and push with crane:
 
 ----
 # Build step: tarball output (default, no tar= flag needed)
 --output type=oci,dest=/workspace/oci-layout.tar
 
-# Push step: oci-archive transport reads tarballs
-skopeo copy --all "oci-archive:/workspace/oci-layout.tar" "docker://..."
+# Push step: extract tarball and push with crane
+tar xf /workspace/oci-layout.tar -C /workspace/oci-layout
+crane push /workspace/oci-layout "docker://..." --index
 ----
 
-The `oci-archive:` transport reads OCI tarballs directly. No extraction needed.
+crane requires extraction of the OCI tarball before pushing. The `--index` flag preserves multi-platform image indexes.
 
 === Google Cloud Validation
 
@@ -502,7 +499,7 @@ Based on comprehensive research including GCR test results and investigation of 
 
 . **Implement OCI Layout Bridge (Option 6)**: The recommended solution that separates build from push phases.
   - Modify rbgjb06 to export OCI layout instead of pushing
-  - Create rbgjb07 to push OCI layout using Skopeo with GAR authentication
+  - Create rbgjb07 to push OCI layout using crane with GAR authentication
   - Adjust rbgjb08 SBOM generation to read from OCI layout
   - Test full workflow with busybox vessel
 
@@ -511,7 +508,7 @@ Based on comprehensive research including GCR test results and investigation of 
 . **Update RBSTB specification**: Document the OCI Layout Bridge approach in canonical trigger_build spec, including:
   - Why direct push doesn't work (BuildKit isolation)
   - How OCI layout bridges build and push phases
-  - Skopeo authentication via metadata server
+  - crane authentication via Docker credential helper
   - Multi-platform manifest handling
   - Reference to RBWMBX for decision history
 
@@ -529,25 +526,22 @@ Note: Option 1 (DOCKER_CONFIG) eliminated due to known bug (https://github.com/d
 
 Issues discovered during implementation (build 3b544930, 2025-12-31):
 
-=== Skopeo Authentication
+=== crane Authentication
 
-Use `--dest-registry-token` NOT `--dest-creds`:
+crane uses Docker credential helper configured by `gcloud auth configure-docker` (GCB step 03).
 
-- `--dest-creds="oauth2accesstoken:${TOKEN}"` — returns 403 Forbidden
-- `--dest-registry-token "${TOKEN}"` — works correctly
-
-The Google Cloud blog example uses `--dest-registry-token`. This is the correct approach for OAuth bearer tokens.
+No manual token management needed — crane automatically uses the configured Docker credentials for authentication to Google Artifact Registry.
 
 === IAM Permissions
 
-The Mason service account requires `roles/artifactregistry.admin` on the GAR repository resource (not just project-level). Without this, Skopeo push fails with permission denied.
+The Mason service account requires `roles/artifactregistry.admin` on the GAR repository resource (not just project-level). Without this, crane push fails with permission denied.
 
 === OCI Tarball vs Directory
 
 Use tarball format (default), not `tar=false` directory format:
 
 - `tar=false` has annotation bugs (https://github.com/moby/buildkit/issues/5572[moby/buildkit #5572])
-- Skopeo's `oci-archive:` transport reads tarballs directly
+- crane requires extraction of tarball before pushing, but tarball is the reliable intermediate format
 - Tarball is more portable and reliable
 
 === Syft Multi-Platform Limitation
@@ -642,4 +636,8 @@ Silently mismatched repository names cause confusing failures. The `RBRR_GAR_REP
 |2025-12-31
 |Claude Opus 4.5 + bhyslop
 |**OCI Layout Bridge VERIFIED WORKING** (build 3b544930). Updated Option 6 with proven implementation. Changed tar=false to tarball (moby/buildkit#5572). Fixed Skopeo auth: --dest-registry-token not --dest-creds. Added Implementation Lessons Learned section. Updated "What's Broken" to "Proven Working". Documented Syft multi-platform workaround, distroless image issues, IAM requirements.
+
+|2026-02-16
+|Claude Sonnet 4.5 + bhyslop
+|**Migration from Skopeo to crane**. Replaced Skopeo references with crane (Google's go-containerregistry tool). Updated authentication approach from manual token fetch to gcloud Docker credential helper. Changed OCI archive handling from oci-archive transport to tarball extraction + crane push with --index flag. Historical references and research context preserved.
 |===

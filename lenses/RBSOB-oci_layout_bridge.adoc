@@ -82,21 +82,19 @@ The key insight: instead of fighting BuildKit's isolation to make `--push` work,
 Build Phase (no credentials needed):
   docker buildx build --output type=oci,dest=/workspace/oci-layout.tar ...
 
-Push Phase (has credentials via metadata server):
-  skopeo copy --all --dest-registry-token "${TOKEN}" \
-    "oci-archive:/workspace/oci-layout.tar" \
-    "docker://${IMAGE_URI}"
+Push Phase (auth provided by gcloud auth configure-docker):
+  tar xf /workspace/oci-layout.tar -C /workspace/oci-layout
+  crane push /workspace/oci-layout "${IMAGE_URI}" --index
 ----
 
 ==== Rationale
 
-* **Separation of concerns**: BuildKit builds (what it does best), Skopeo pushes (what it does best)
+* **Separation of concerns**: BuildKit builds (what it does best), crane pushes (what it does best)
 * **No credential propagation needed**: Build phase writes to local filesystem, push phase uses
 {gcb_service}
-metadata server
-* **Google-endorsed**: Skopeo explicitly recommended in https://cloud.google.com/blog/topics/developers-practitioners/five-ways-skopeo-can-simplify-your-google-cloud-container-workflow[Google Cloud blog]
-* **Token timeout eliminated**: Build phase can take hours; push phase takes seconds with fresh
-{oauth_token}
+Docker credential configuration
+* **Google-endorsed**: crane is Google's own container registry tool from the go-containerregistry project
+* **Token timeout eliminated**: Build phase can take hours; push phase takes seconds with fresh credentials
 * **{gcb_service} native**: `/workspace` shared across steps provides natural bridge
 
 ==== Implementation Details
@@ -111,29 +109,24 @@ docker buildx build \
   ...
 ----
 
-**Push step** (rbgjb07-push-with-skopeo.sh):
+**Push step** (rbgjb07-push-with-crane.sh):
 ----
-AR_TOKEN=$(curl -s -H "Metadata-Flavor: Google" \
-  "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | \
-  sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p')
+tar xf /workspace/oci-layout.tar -C /workspace/oci-layout
 
-skopeo copy --all \
-  --dest-registry-token "${AR_TOKEN}" \
-  "oci-archive:/workspace/oci-layout.tar" \
-  "docker://${IMAGE_URI}"
+crane push /workspace/oci-layout "${IMAGE_URI}" --index
 ----
 
 **Critical implementation notes**:
 
-* Use `--dest-registry-token` not `--dest-creds` for OAuth bearer
-{oauth_token_s}
+* crane uses Docker credential helper configured by `gcloud auth configure-docker` in GCB step 03
 * Use tarball format (default), not `tar=false` directory format (has annotation bugs per https://github.com/moby/buildkit/issues/5572[moby/buildkit #5572])
-* Skopeo's `oci-archive:` transport reads tarballs directly
+* crane requires extraction of the OCI tarball before pushing; use `tar xf` to extract to directory
+* The `--index` flag is required for multi-platform OCI layouts to preserve the image index
 * Syft cannot analyze multi-platform OCI archives directly; must pull image first and analyze via docker socket
 * {rbtr_mason}
 requires `roles/artifactregistry.admin` on the
 {rbtgi_repository}
-resource (not project-level) for Skopeo push to succeed
+resource (not project-level) for crane push to succeed
 
 ==== References
 

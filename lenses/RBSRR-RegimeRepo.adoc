@@ -179,12 +179,6 @@ Fully-qualified image reference for Docker tool used in Cloud Build steps.
 Provides container image building and pushing capabilities.
 
 // ⟦axhrgv_variable⟧
-{rbrr_gcb_skopeo_image_ref}
-
-Fully-qualified image reference for Skopeo tool used in Cloud Build steps.
-Provides container image inspection and transfer operations.
-
-// ⟦axhrgv_variable⟧
 {rbrr_gcb_alpine_image_ref}
 
 Fully-qualified image reference for Alpine base image used in Cloud Build steps.

@@ -162,7 +162,7 @@ zrbf_stitch_build_json() {
     "rbgjb03-docker-login-gar.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|docker-login-gar"
     "rbgjb04-qemu-binfmt.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
     "rbgjb06-build-and-export.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-export"
-    "rbgjb07-push-with-skopeo.sh|${RBRR_GCB_SKOPEO_IMAGE_REF}|bash|push-with-skopeo"
+    "rbgjb07-push-with-crane.sh|${RBRR_GCB_GCRANE_IMAGE_REF}|sh|push-with-crane"
     "rbgjb08-sbom-and-summary.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|sbom-and-summary"
     "rbgjb10-assemble-metadata.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|assemble-metadata"
     "rbgjb09-build-and-push-metadata.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-push-metadata"

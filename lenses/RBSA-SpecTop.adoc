@@ -254,7 +254,6 @@
 :rbrr_gcb_oras_image_ref:    <<rbrr_gcb_oras_image_ref,RBRR_GCB_ORAS_IMAGE_REF>>
 :rbrr_gcb_gcloud_image_ref:  <<rbrr_gcb_gcloud_image_ref,RBRR_GCB_GCLOUD_IMAGE_REF>>
 :rbrr_gcb_docker_image_ref:  <<rbrr_gcb_docker_image_ref,RBRR_GCB_DOCKER_IMAGE_REF>>
-:rbrr_gcb_skopeo_image_ref:  <<rbrr_gcb_skopeo_image_ref,RBRR_GCB_SKOPEO_IMAGE_REF>>
 :rbrr_gcb_alpine_image_ref:  <<rbrr_gcb_alpine_image_ref,RBRR_GCB_ALPINE_IMAGE_REF>>
 :rbrr_gcb_syft_image_ref:    <<rbrr_gcb_syft_image_ref,RBRR_GCB_SYFT_IMAGE_REF>>
 :rbrr_gcb_binfmt_image_ref:  <<rbrr_gcb_binfmt_image_ref,RBRR_GCB_BINFMT_IMAGE_REF>>
@@ -1834,11 +1833,6 @@ Fully-qualified image reference for gcloud Cloud Build step.
 // ⟦axvr_variable axd_required rbst_image_ref⟧
 {rbrr_gcb_docker_image_ref}::
 Fully-qualified image reference for Docker Cloud Build step.
-
-[[rbrr_gcb_skopeo_image_ref]]
-// ⟦axvr_variable axd_required rbst_image_ref⟧
-{rbrr_gcb_skopeo_image_ref}::
-Fully-qualified image reference for Skopeo Cloud Build step.
 
 [[rbrr_gcb_alpine_image_ref]]
 // ⟦axvr_variable axd_required rbst_image_ref⟧

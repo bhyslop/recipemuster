@@ -193,7 +193,7 @@ zrbv_ignite_bootstrap() {
     podman machine start "${RBRR_IGNITE_MACHINE_NAME}" || buc_die "Failed to restart ignite machine"
   fi
 
-  buc_step "Ignite machine ready with skopeo installed"
+  buc_step "Ignite machine ready with crane installed"
 }
 
 # Login podman to github container registry in podman VM
