@@ -5737,9 +5737,10 @@
       "creation_time": "260210",
       "status": "stabled",
       "order": [
-        "₢AaAAA"
+        "₢AaAAA",
+        "₢AaAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_Aa.md",
       "paces": {
         "₢AaAAA": {
@@ -5750,6 +5751,17 @@
               "text": "Add a suite-level precondition that fails fast if the local repo is not clean and aligned with its remote. This addresses failures caused by misalignment between local repo state and cloud state. The precondition should check that the working tree is clean (no uncommitted changes) and that the local branch is in sync with the remote, aborting the suite early with a clear error message if not.",
               "silks": "suite-git-precondition",
               "commit": "f3d6f91"
+            }
+          ]
+        },
+        "₢AaAAB": {
+          "tacks": [
+            {
+              "ts": "260216-0547",
+              "state": "rough",
+              "text": "Decide whether regime validators should reject non-empty variables belonging to inactive gates.\n\n## Context\n\nDuring the ATAAp regime voicing audit, we aligned RBRV with the AXLA gated-group pattern\n(axhrgc_gate). The current implementation (matching RBRN) is permissive: variables from\ninactive gates are kindled and listed in z_known but not validated. For example,\nRBRV_VESSEL_MODE=bind with RBRV_CONJURE_DOCKERFILE set would silently carry the conjure\nvalue without error.\n\nThe AXLA spec defines activation semantics for groups but does not mandate rejection of\ncompeting groups' members.\n\n## Options\n\n1. **Permissive (status quo):** Inactive gate vars are silently ignored. Simple, forgiving,\n   matches current RBRN behavior.\n2. **Warn:** Log a warning for non-empty vars in inactive gates, but do not die.\n3. **Strict:** Die if non-empty vars belong to an inactive gate. Catches misconfiguration\n   but may break workflows that template all vars and select mode separately.\n\n## Scope\n\nIf we decide to add strictness:\n- Define the behavior in AXLA (normative spec)\n- Implement in RBRN and RBRV validators as the pattern\n- Audit other regimes with conditional groups\n\n## Decision criteria\n- Does silent carriage of inactive vars cause real bugs?\n- Would strictness break reasonable workflows (e.g., template files with all vars)?\n- Is the complexity of enforcement worth the safety gain?",
+              "silks": "decide-inactive-gate-strictness",
+              "commit": "6ca040f"
             }
           ]
         }
