@@ -3593,9 +3593,10 @@
         "₢APAAj",
         "₢APAAk",
         "₢APAAl",
-        "₢APAAm"
+        "₢APAAm",
+        "₢APAAn"
       ],
-      "next_pace_seed": "AAn",
+      "next_pace_seed": "AAo",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -4711,6 +4712,17 @@
               "text": "Prevent test-all from failing fast when infrastructure prerequisites are missing.\n\n## Problem\n\n`rbw-ta` (TestAll) stops at the first suite failure. Suites like ark-lifecycle fail immediately when the Podman VM isn't running, blocking all downstream suites (including CI-safe ones like regime-smoke and xname-validation) from executing.\n\nAdditionally, some test cases hang indefinitely when they issue a docker/podman command and the daemon isn't available (first-time startup or VM not running).\n\n## Solution\n\nAdd infrastructure precondition checks to suites that require container runtime:\n\n1. **Suite-level precondition**: In setup functions for infrastructure-dependent suites (e.g., `zrbtb_setup_ark`), verify the container runtime is available before running cases. If unavailable, mark the suite as **inconclusive** (not failed) using the existing BUT inconclusive mechanism from the ₣Ac test overhaul.\n\n2. **Timeout protection**: Ensure docker/podman commands in test cases have timeouts so they cannot hang indefinitely when the daemon is unresponsive.\n\n3. **Scope**: ark-lifecycle, nameplate suites (nsproto, srjcl, pluml), and any other suite that dispatches container operations.\n\n## Acceptance\n\n- `rbw-ta` completes all CI-safe suites even when Podman VM is not running\n- Infrastructure-dependent suites report inconclusive (not failed) when preconditions unmet\n- No test case can hang indefinitely on a missing container runtime",
               "silks": "suite-infrastructure-preconditions",
               "commit": "7031bcb"
+            }
+          ]
+        },
+        "₢APAAn": {
+          "tacks": [
+            {
+              "ts": "260216-0840",
+              "state": "rough",
+              "text": "## Context\n\nThe qualify-all system (₢APAAk) is built and running. It correctly identifies\nstructural and registration issues. This pace addresses the findings to achieve\na clean pass.\n\n## Current Failures\n\n### Colophon registration (12 failures)\n\nBottle operation colophons (`rbw-s`, `rbw-z`, `rbw-S`, `rbw-C`, `rbw-B`, `rbw-o`)\nare routed by explicit workbench case arms, not through zipper dispatch. They\nhave tabtargets using the RBW launcher but no `buz_register` entries.\n\nThe workbench routes these specially because it translates the moniker imprint\n(`BURD_TOKEN_3` → `RBOB_MONIKER`) before dispatching to `rbob_cli.sh`. This\ntranslation step doesn't fit the simple zipper `colophon→module→command` pattern.\n\n**Options to resolve:**\n- Register them in the zipper AND keep the explicit case arm for imprint translation\n- Extend zipper dispatch to support imprint translation\n- Another architectural approach (discuss during implementation)\n\nThe user explicitly rejected exemption/skip — these must be properly handled.\n\n### butctt.TestTarget.sh\n\nCurrently passes structural check (accepted `exit` as dispatch pattern) but is\na test fixture, not a real dispatch target. May need architectural review of\nwhether test fixtures belong in `tt/`.\n\n## Acceptance Criteria\n\n- `./tt/rbw-qa.QualifyAll.sh` exits 0 (clean pass)\n- All RBW tabtargets have registered colophons\n- No exemptions or skips in the qualify logic\n- Testbench qualify-all suite passes\n\n## Key Files\n- `Tools/rbw/rbq_Qualify.sh` — qualify orchestrator\n- `Tools/rbw/rbz_zipper.sh` — colophon registry (needs bottle registrations)\n- `Tools/rbw/rbw_workbench.sh` — workbench routing (bottle case arms)\n- `Tools/buk/buv_validation.sh` — structural validation\n- `Tools/buk/buz_zipper.sh` — zipper infrastructure\n- `tt/butctt.TestTarget.sh` — test fixture to resolve\n\n## Read First\n- BCG (always before writing bash)\n- rbw_workbench.sh bottle routing logic\n- buz_zipper.sh zbuz_exec_lookup pattern",
+              "silks": "achieve-clean-qualify-pass",
+              "commit": "cf0729d"
             }
           ]
         }
