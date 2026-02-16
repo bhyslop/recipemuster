@@ -106,9 +106,6 @@ per line
 |===
 | Condition | Error
 
-| {jjda_move} with positional coronets
-| "Cannot combine --move with positional coronets"
-
 | {jjda_move} {jjdt_coronet} not found
 | "Pace {coronet} not found in heat {firemark}"
 
