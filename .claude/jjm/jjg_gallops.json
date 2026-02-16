@@ -4706,6 +4706,13 @@
         "₢AOAAA": {
           "tacks": [
             {
+              "ts": "260216-1034",
+              "state": "complete",
+              "text": "Extract paces from legacy orphaned heat file `.claude/jjm/current/jjh_b251226-bash-tooling-cleanup.md` into current Job Jockey structure. This file predates the firemark system and contains unfinished work from the Dec 26, 2025 Recipe Bottle session. Review content, migrate any relevant incomplete paces to appropriate heats, then archive or delete the orphaned file.",
+              "silks": "extract-orphaned-heat-paces",
+              "commit": "ea778a7"
+            },
+            {
               "ts": "260125-0828",
               "state": "rough",
               "text": "Extract paces from legacy orphaned heat file `.claude/jjm/current/jjh_b251226-bash-tooling-cleanup.md` into current Job Jockey structure. This file predates the firemark system and contains unfinished work from the Dec 26, 2025 Recipe Bottle session. Review content, migrate any relevant incomplete paces to appropriate heats, then archive or delete the orphaned file.",
