@@ -62,10 +62,27 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
                 }
             };
 
-            // If git ls-files fails, file is neither on disk nor tracked
+            // If git ls-files fails, check if it's a staged deletion
             if !git_ls_output.status.success() {
-                eprintln!("jjx_notch: error: file does not exist and is not tracked by git: {}", file);
-                return 1;
+                let git_diff_output = match Command::new("git")
+                    .args(["diff", "--cached", "--name-only", "--diff-filter=D", "--", file])
+                    .output()
+                {
+                    Ok(o) => o,
+                    Err(e) => {
+                        eprintln!("jjx_notch: error: failed to check staged deletion: {}", e);
+                        return 1;
+                    }
+                };
+
+                // If diff output is non-empty, file is a staged deletion - accept it
+                let is_staged_deletion = git_diff_output.status.success()
+                    && !git_diff_output.stdout.is_empty();
+
+                if !is_staged_deletion {
+                    eprintln!("jjx_notch: error: file does not exist and is not tracked by git: {}", file);
+                    return 1;
+                }
             }
         }
     }

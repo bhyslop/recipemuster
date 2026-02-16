@@ -25,7 +25,11 @@ Create a JJ-aware git commit with heat/pace context prefix.
 .. If 2 base64 chars (Firemark): heat-only commit (no pace affiliation)
 . Validate file list:
 .. If empty: exit 1 with "error: no files specified"
-.. If any file does not exist AND is not tracked by git: exit 1 with "error: file not found: {path}"
+.. For each file, verify it is valid by one of:
+... Filesystem existence (additions and modifications)
+... Git index tracking via `git ls-files --error-unmatch` (unstaged deletions)
+... Staged deletion via `git diff --cached --name-only --diff-filter=D` (files removed with `git rm`)
+.. If none of these validations pass: exit 1 with "error: file not found: {path}"
 . Check for uncommitted changes outside file list:
 .. Run `git status --porcelain` to get all modified files
 .. For each modified file NOT in the specified list, warn to stderr:
