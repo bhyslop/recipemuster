@@ -1,19 +1,12 @@
 
-Reorder
-{jjdpr_pace_s}
+Relocate a single
+{jjdpr_pace}
 within a
 {jjdhr_heat}
 by updating
 {jjdhm_order}.
-Supports two modes: *order mode* replaces the entire sequence; *move mode* relocates a single
-{jjdpr_pace}.
 
-*Order mode* (full replacement):
-----
-vvx jjx_reorder <FIREMARK> <CORONET>...
-----
-
-*Move mode* (single relocation):
+*Invocation:*
 ----
 vvx jjx_reorder <FIREMARK> --move <CORONET> [--before <TARGET> | --after <TARGET> | --first | --last]
 ----
@@ -28,15 +21,6 @@ vvx jjx_reorder <FIREMARK> --move <CORONET> [--before <TARGET> | --after <TARGET
 (positional) — target
 {jjdhr_heat}
 
-*Order mode arguments:*
-
-// ⟦axd_required⟧
-* order — array of
-{jjdt_coronet_s}
-in desired sequence (space-separated positional arguments)
-
-*Move mode arguments:*
-
 // ⟦axd_required⟧
 * {jjda_move}
 — {jjdt_coronet}
@@ -50,10 +34,6 @@ to relocate
 or
 {jjda_last}
 
-*Mode detection:* If
-{jjda_move}
-is present, move mode; otherwise order mode.
-
 {jjds_stdout} Updated
 {jjdhm_order}
 array, one
@@ -63,8 +43,6 @@ per line, in new sequence.
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
-
-*Common steps:*
 
 .
 {jjdr_load}
@@ -76,42 +54,6 @@ error status
 {jjdhr_heat}
 exists with given
 {jjdt_firemark}
-
-*Order mode:*
-
-. Parse positional arguments into array of
-{jjdt_coronet_s}
-. Validate order array:
-.. Count must match current
-{jjdhm_order}
-length
-.. No duplicate
-{jjdt_coronet_s}
-.. All
-{jjdt_coronet_s}
-must exist in
-{jjdhr_heat_p}
-`paces` object
-.. All
-{jjdt_coronet_s}
-must embed correct parent
-{jjdt_firemark}
-. Replace
-{jjdhm_order}
-with new order array
-.
-{jjdr_save}
-{jjdgr_gallops}
-to
-{jjda_file}
-. Output new
-{jjdhm_order},
-one
-{jjdt_coronet}
-per line
-
-*Move mode:*
-
 . Validate
 {jjda_move}
 {jjdt_coronet}

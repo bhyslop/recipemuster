@@ -6,7 +6,7 @@
 //!
 //! All mutation operations on Gallops: nominate, slate, rail, tally, draft, retire, furlough.
 
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX};
@@ -278,53 +278,11 @@ pub fn jjrg_rail(gallops: &mut jjrg_Gallops, args: jjrg_RailArgs) -> Result<Vec<
         heat.order.insert(new_pos, move_key);
 
     } else {
-        // Order mode: replace entire sequence
-
-        // Normalize the input order (add prefix if missing)
-        let normalized_order: Result<Vec<String>, String> = args.order.iter()
-            .map(|c| {
-                let coronet = Coronet::jjrf_parse(c)
-                    .map_err(|e| format!("Invalid coronet '{}': {}", c, e))?;
-                Ok(coronet.jjrf_display())
-            })
-            .collect();
-        let new_order = normalized_order?;
-
-        // Validate count matches
-        if new_order.len() != heat.order.len() {
-            return Err(format!(
-                "Order count mismatch: got {}, expected {}",
-                new_order.len(),
-                heat.order.len()
-            ));
+        // Order mode has been removed
+        if !args.order.is_empty() {
+            return Err("Order mode removed. Use --move to reposition individual paces.".to_string());
         }
-
-        // Validate no duplicates
-        let new_set: HashSet<&String> = new_order.iter().collect();
-        if new_set.len() != new_order.len() {
-            return Err("Order contains duplicate Coronets".to_string());
-        }
-
-        // Validate all Coronets exist in paces
-        for coronet in &new_order {
-            if !heat.paces.contains_key(coronet) {
-                return Err(format!("Coronet '{}' not found in Heat's paces", coronet));
-            }
-        }
-
-        // Validate all Coronets embed correct parent Firemark
-        for coronet in &new_order {
-            let c = Coronet::jjrf_parse(coronet).unwrap();
-            if c.jjrf_parent_firemark().jjrf_display() != firemark_key {
-                return Err(format!(
-                    "Coronet '{}' does not embed parent Heat '{}'",
-                    coronet, firemark_key
-                ));
-            }
-        }
-
-        // Replace order
-        heat.order = new_order;
+        return Err("No --move specified. Use --move CORONET with a positioning flag (--first, --last, --before, --after).".to_string());
     }
 
     // Return the new order

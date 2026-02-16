@@ -24,7 +24,7 @@ pub struct jjrrl_RailArgs {
     /// Target Heat identity (Firemark)
     pub firemark: String,
 
-    /// New order of Coronets (space-separated or JSON array) - order mode
+    /// Legacy positional args - rejected at runtime
     #[arg(trailing_var_arg = true)]
     pub order: Vec<String>,
 
