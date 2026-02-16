@@ -476,7 +476,7 @@ Notch handles two cases:
 When user says "notch", invoke `/jjc-pace-notch` — don't second-guess based on pace state.
 
 **Multi-Officium Discipline:**
-Multiple Claude officia may work concurrently in the same repo. The explicit file list in `/jjc-pace-notch` enables orthogonal commits.
+Multiple Claude officia (concurrent git-activity streams, not sessions — see VOS `vost_officium`) may work concurrently in the same repo. The explicit file list in `/jjc-pace-notch` enables orthogonal commits.
 
 - Claude is **additive only** — make commits, never discard changes
 - "Unexpected" uncommitted changes are likely another officium's work
