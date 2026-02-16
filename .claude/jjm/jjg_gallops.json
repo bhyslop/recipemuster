@@ -4688,9 +4688,10 @@
         "₢AOAAB",
         "₢AOAAC",
         "₢AOAAD",
-        "₢AOAAE"
+        "₢AOAAE",
+        "₢AOAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -4752,6 +4753,17 @@
               "text": "Add a parameter to buc_countdown that allows callers to bypass the interactive countdown, enabling Claude to run these tabtargets directly.\n\n## Context\n\nDuring ₣AP pace ₢APAAo, Claude could not run `./tt/rbw-rrg.RefreshGcbPins.sh` because buc_countdown reads from /dev/tty for the cancel window, which fails in non-interactive contexts (Claude's Bash tool, CI pipelines, etc.). The user had to run it manually in their terminal.\n\nbuc_countdown is in Tools/buk/buc_command.sh around line 290. It currently does a timed read from /dev/tty with a \"press Ctrl-C to cancel\" prompt.\n\n## Work\n\n1. Add an environment variable check (e.g., BUC_NONINTERACTIVE=1 or BUK_BATCH=1) that skips the countdown entirely\n2. Alternative: detect non-interactive context automatically (test if /dev/tty is available, or check if stdin is a terminal)\n3. The skip should still print the warning message (so logs show it was acknowledged) but not wait for input\n4. Ensure the pattern works for all tabtargets that use buc_countdown — this is a general solution, not specific to rbw-rrg\n5. Document the mechanism in BCG or BUK README\n\n## Acceptance\n\n- Claude can run `./tt/rbw-rrg.RefreshGcbPins.sh` and similar countdown-protected tabtargets via Bash tool\n- CI pipelines can run these without hanging on /dev/tty\n- Interactive users still get the countdown cancel window by default\n- Warning text still appears in logs even when countdown is bypassed",
               "silks": "buc-countdown-bypass-flag",
               "commit": "f2140c1"
+            }
+          ]
+        },
+        "₢AOAAF": {
+          "tacks": [
+            {
+              "ts": "260216-1010",
+              "state": "rough",
+              "text": "Strip down the RBSQB quota build manual procedure. The original guide was written to address concurrent build serialization, but the root cause turned out to be machine type selection (E2_HIGHCPU_8 consuming 8 of 10 CPU quota), not an actual quota shortage. The machine type was already fixed to UNSPECIFIED. The programmatic preflight check (rbgd_check_gcb_quota) stays as-is.\n\n## Changes\n\nReframe purpose from \"fix serialization problem\" to \"review Cloud Build capacity\" — a health-check procedure, not a repair procedure.\n\n### Keep\n- Machine type / vCPU / concurrency table (genuinely useful reference)\n- Console navigation steps to check quota\n- Regime config display (RBRR_DEPOT_PROJECT_ID, RBRR_GCP_REGION, RBRR_GCB_MACHINE_TYPE)\n\n### Demote\n- \"Request quota increase\" steps become a brief footnote, not a primary option\n- Lesson learned: if builds serialize, check machine type first — quota increase is rarely the answer\n\n### Remove\n- \"Option A vs Option B\" framing that treats machine type change and quota increase as equal alternatives\n- Machine type is the primary lever; quota increase is last resort\n\n## Files\n- `lenses/RBSQB-quota_build.adoc` — spec (primary edit)\n- `Tools/rbw/rbgm_ManualProcedures.sh` — rbgm_quota_build() function (lines 324-376)\n- `lenses/RBSA-SpecTop.adoc` — cross-reference text may need minor adjustment (lines ~669, 714-720)\n\n## Wiring (no changes needed)\n- `tt/rbw-QB.QuotaBuild.sh` — tabtarget stays\n- `Tools/rbw/rbz_zipper.sh` — blazon stays\n- `Tools/rbw/rbw_workbench.sh` — help text stays\n- `Tools/rbw/rbgd_DepotConstants.sh` — programmatic check stays\n- `Tools/rbw/rbf_Foundry.sh` — preflight call stays\n- `Tools/rbw/rbrn_cli.sh` — audit call stays",
+              "silks": "strip-down-quota-build-guide",
+              "commit": "7b94bfb"
             }
           ]
         }
