@@ -207,8 +207,8 @@ zrbf_stitch_build_json() {
       > "${z_escaped_file}" || buc_die "Failed to escape script body for ${z_id}"
 
     case "${z_entrypoint}" in
-      bash) z_arg_flag="-lc" ;;
-      sh)   z_arg_flag="-c" ;;
+      bash) z_entrypoint="/bin/bash"; z_arg_flag="-lc" ;;
+      sh)   z_entrypoint="/bin/sh";   z_arg_flag="-c" ;;
       *)    buc_die "Unknown entrypoint: ${z_entrypoint}" ;;
     esac
 
