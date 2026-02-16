@@ -40,6 +40,7 @@ source "${RBTB_SCRIPT_DIR}/rbob_bottle.sh"
 
 # Source test case files
 source "${RBTB_SCRIPT_DIR}/rbtckk_KickTires.sh"
+source "${RBTB_SCRIPT_DIR}/rbtcqa_QualifyAll.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcal_ArkLifecycle.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butcde_DispatchExercise.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcns_NsproSecurity.sh"
@@ -108,6 +109,15 @@ zrbtb_setup_kick() {
   buto_trace "Setup for kick-tires suite (no-op)"
 }
 
+zrbtb_setup_qualify() {
+  buto_trace "Setup for qualify-all suite"
+  zbuz_kindle
+  zrbz_kindle
+  zrbcc_kindle
+  source "${RBTB_SCRIPT_DIR}/rbq_Qualify.sh"
+  zrbq_kindle
+}
+
 zrbtb_setup_ark() {
   buto_trace "Setup for ark-lifecycle suite"
   zbuz_kindle
@@ -162,6 +172,10 @@ rbtb_kindle() {
   butr_suite_enroll "kick-tires" "" "zrbtb_setup_kick"
   butr_case_enroll "kick-tires" rbtckk_false
   butr_case_enroll "kick-tires" rbtckk_true
+
+  # qualify-all suite
+  butr_suite_enroll "qualify-all" "" "zrbtb_setup_qualify"
+  butr_case_enroll "qualify-all" rbtcqa_qualify_all
 
   # ark-lifecycle suite
   butr_suite_enroll "ark-lifecycle" "" "zrbtb_setup_ark"

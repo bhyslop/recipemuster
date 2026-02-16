@@ -434,5 +434,103 @@ buv_opt_cidr()               { buv_opt_wrapper "buv_val_cidr"             "$@"; 
 buv_opt_domain()             { buv_opt_wrapper "buv_val_domain"           "$@"; }
 buv_opt_port()               { buv_opt_wrapper "buv_val_port"             "$@"; }
 
+######################################################################
+# Tabtarget structural qualification
+
+buv_qualify_tabtargets() {
+  local z_tt_dir="${1:-}"
+  local z_project_root="${2:-}"
+  test -n "${z_tt_dir}"       || buc_die "buv_qualify_tabtargets: tabtarget directory required"
+  test -n "${z_project_root}" || buc_die "buv_qualify_tabtargets: project root required"
+  test -d "${z_tt_dir}"       || buc_die "buv_qualify_tabtargets: directory not found: ${z_tt_dir}"
+
+  buc_step "Qualifying tabtarget structure in ${z_tt_dir}"
+
+  local z_fail_files=()
+  local z_fail_reasons=()
+  local z_count=0
+
+  local z_file=""
+  for z_file in "${z_tt_dir}"/*.sh; do
+    test -e "${z_file}" || continue
+    z_count=$((z_count + 1))
+
+    local z_basename="${z_file##*/}"
+
+    local z_lines=()
+    local z_line=""
+    while IFS= read -r z_line || test -n "${z_line}"; do
+      z_lines+=("${z_line}")
+    done < "${z_file}"
+
+    local z_has_shebang=0
+    if (( ${#z_lines[@]} )); then
+      case "${z_lines[0]}" in
+        '#!/bin/bash') z_has_shebang=1 ;;
+        '#!/bin/sh')   z_has_shebang=1 ;;
+      esac
+    fi
+    test "${z_has_shebang}" = "1" || {
+      z_fail_files+=("${z_basename}")
+      z_fail_reasons+=("missing or invalid shebang")
+      continue
+    }
+
+    local z_has_dispatch=0
+    local z_launcher_path=""
+    local z_i=0
+    for z_i in "${!z_lines[@]}"; do
+      case "${z_lines[$z_i]}" in
+        *'BURD_LAUNCHER='*)
+          z_has_dispatch=1
+          local z_rhs="${z_lines[$z_i]#*BURD_LAUNCHER=}"
+          z_launcher_path="${z_rhs#\"}"
+          z_launcher_path="${z_launcher_path%\"}"
+          ;;
+        *'launcher.'*'.sh'*)
+          z_has_dispatch=1
+          ;;
+        *'bud_dispatch.sh'*)
+          z_has_dispatch=1
+          ;;
+        *'tabtarget-dispatch.sh'*)
+          z_has_dispatch=1
+          ;;
+        *'_cli.sh'*)
+          z_has_dispatch=1
+          ;;
+        'exit '*)
+          z_has_dispatch=1
+          ;;
+      esac
+    done
+    test "${z_has_dispatch}" = "1" || {
+      z_fail_files+=("${z_basename}")
+      z_fail_reasons+=("no dispatch mechanism found")
+      continue
+    }
+
+    test -z "${z_launcher_path}" || {
+      test -f "${z_project_root}/${z_launcher_path}" || {
+        z_fail_files+=("${z_basename}")
+        z_fail_reasons+=("launcher not found: ${z_launcher_path}")
+        continue
+      }
+    }
+  done
+
+  buc_log_args "Checked ${z_count} tabtargets"
+
+  if (( ${#z_fail_files[@]} )); then
+    local z_j=0
+    for z_j in "${!z_fail_files[@]}"; do
+      buc_warn "${z_fail_files[$z_j]}: ${z_fail_reasons[$z_j]}" || buc_die "Failed to warn"
+    done
+    buc_die "Tabtarget qualification failed: ${#z_fail_files[@]} of ${z_count} tabtargets"
+  fi
+
+  buc_log_args "All ${z_count} tabtargets structurally valid"
+}
+
 # eof
 

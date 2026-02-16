@@ -143,6 +143,10 @@ zrbz_kindle() {
   buz_register "rbw-nv" "rbrn_cli.sh" "audit"
   RBZ_AUDIT_NAMEPLATES="${z_buz_register_colophon}"
 
+  # Qualification operations
+  buz_register "rbw-qa" "rbq_cli.sh" "qualify_all"
+  RBZ_QUALIFY_ALL="${z_buz_register_colophon}"
+
   # Test operations (module is testbench, command is colophon)
   buz_register "rbw-ta"  "rbtb_testbench.sh" "rbw-ta"
   RBZ_TEST_ALL="${z_buz_register_colophon}"

@@ -74,6 +74,10 @@ rbw_route() {
       local z_rbob_cli="${RBW_SCRIPT_DIR}/rbob_cli.sh"
       test -n "${BURD_TOKEN_3:-}" || buc_die "${z_command} requires moniker imprint (BURD_TOKEN_3)"
       export RBOB_MONIKER="${BURD_TOKEN_3}"
+      # Qualification gate: die before starting services
+      test "${z_command}" != "rbw-s" || {
+        "${RBW_SCRIPT_DIR}/rbq_cli.sh" qualify_all || buc_die "Qualification gate failed for service start"
+      }
       case "${z_command}" in
         rbw-s)  exec "${z_rbob_cli}" rbob_start          ;;
         rbw-z)  exec "${z_rbob_cli}" rbob_stop           ;;
@@ -82,6 +86,12 @@ rbw_route() {
         rbw-B)  exec "${z_rbob_cli}" rbob_connect_bottle ;;
         rbw-o)  exec "${z_rbob_cli}" rbob_observe        ;;
       esac
+      ;;
+
+    # Cloud build with qualification gate
+    rbw-iB)
+      "${RBW_SCRIPT_DIR}/rbq_cli.sh" qualify_all || buc_die "Qualification gate failed for cloud build"
+      zbuz_exec_lookup "${z_command}" "${RBW_SCRIPT_DIR}" "$@" || buc_die "Failed to dispatch ${z_command}"
       ;;
 
     # All other commands: resolve via zipper registry
@@ -156,6 +166,9 @@ rbw_route() {
         buc_info "Cross-nameplate operations:"
         buc_info "  rbw-ni  Survey nameplates"
         buc_info "  rbw-nv  Audit nameplates"
+        buc_info ""
+        buc_info "Qualification operations:"
+        buc_info "  rbw-qa  Qualify all (tabtargets + colophons + nameplates)"
         buc_info ""
         buc_info "Test operations:"
         buc_info "  rbw-ta  Run all test suites"

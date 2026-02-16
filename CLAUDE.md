@@ -53,6 +53,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBGU** → `rbw/rbgu_Utility.sh`
 - **RBI**  → `rbw/rbi_Image.sh`
 - **RBOB** → `rbw/rbob_bottle.sh`
+- **RBQ**  → `rbw/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBV**  → `rbw/rbv_PodmanVM.sh`
 
 #### BUK Subdirectory (`Tools/buk/`)
@@ -387,7 +388,7 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 | scout | heats | `jjx_search` |
 | braid | heats | /jjc-heat-braid |
 | nominate | heat | `jjx_create` |
-| mount | heat | /jjc-heat-mount |
+| mount | heat/pace | /jjc-heat-mount |
 | groom | heat | /jjc-heat-groom |
 | quarter | heat | /jjc-heat-quarter |
 | rail | heat | /jjc-heat-rail |
