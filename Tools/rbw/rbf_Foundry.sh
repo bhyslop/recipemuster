@@ -162,7 +162,7 @@ zrbf_stitch_build_json() {
     "rbgjb03-docker-login-gar.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|docker-login-gar"
     "rbgjb04-qemu-binfmt.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
     "rbgjb06-build-and-export.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-export"
-    "rbgjb07-push-with-crane.sh|${RBRR_GCB_GCRANE_IMAGE_REF}|sh|push-with-crane"
+    "rbgjb07-push-with-crane.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|push-with-crane"
     "rbgjb08-sbom-and-summary.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|sbom-and-summary"
     "rbgjb10-assemble-metadata.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|assemble-metadata"
     "rbgjb09-build-and-push-metadata.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-push-metadata"
@@ -642,6 +642,7 @@ rbf_build() {
     --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}"         \
     --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}"        \
     --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}"        \
+    --arg zjq_crane_tar_gz     "${RBRR_CRANE_TAR_GZ}"             \
     '{
       substitutions: {
         _RBGY_DOCKERFILE:     $zjq_dockerfile,
@@ -655,7 +656,8 @@ rbf_build() {
         _RBGY_GIT_REPO:       $zjq_git_repo,
         _RBGY_GAR_HOST_SUFFIX:   $zjq_gar_host_suffix,
         _RBGY_ARK_SUFFIX_IMAGE:  $zjq_ark_suffix_image,
-        _RBGY_ARK_SUFFIX_ABOUT:  $zjq_ark_suffix_about
+        _RBGY_ARK_SUFFIX_ABOUT:  $zjq_ark_suffix_about,
+        _RBGY_CRANE_TAR_GZ:     $zjq_crane_tar_gz
       }
     }' >  "${ZRBF_BUILD_CONFIG_FILE}" || buc_die "Failed to create build config"
 
