@@ -150,7 +150,7 @@ zrbf_stitch_build_json() {
   #
   # OCI Layout Bridge pattern (steps 06-08):
   # - Step 06: buildx exports to /workspace/oci-layout (no auth needed)
-  # - Step 07: Skopeo pushes from oci-layout to GAR (with metadata auth)
+  # - Step 07: crane pushes from oci-layout to GAR (with metadata auth)
   # - Step 08: Syft analyzes from oci-layout (faster, more accurate)
   # - Step 10: Assembles metadata JSON from .image_uri
   # - Step 09: Builds and pushes metadata container (depends on step 10)

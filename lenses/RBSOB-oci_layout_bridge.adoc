@@ -122,7 +122,7 @@ crane push /workspace/oci-layout "${IMAGE_URI}" --index
 * Use tarball format (default), not `tar=false` directory format (has annotation bugs per https://github.com/moby/buildkit/issues/5572[moby/buildkit #5572])
 * crane requires extraction of the OCI tarball before pushing; use `tar xf` to extract to directory
 * The `--index` flag is required for multi-platform OCI layouts to preserve the image index
-* Syft cannot analyze multi-platform OCI archives directly; must pull image first and analyze via docker socket
+* Syft analyzes the extracted OCI layout directory directly via `oci-dir:` scheme — no docker pull or socket mount needed
 * {rbtr_mason}
 requires `roles/artifactregistry.admin` on the
 {rbtgi_repository}
