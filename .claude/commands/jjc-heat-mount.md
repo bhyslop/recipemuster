@@ -1,5 +1,5 @@
 ---
-argument-hint: [firemark]
+argument-hint: [firemark or coronet]
 description: Mount up and execute next pace
 ---
 
@@ -7,7 +7,7 @@ Mount a heat: identify the next actionable pace and begin execution.
 
 Use this command when you're ready to work - it finds the next rough or bridled pace and drives toward completing it.
 
-Arguments: $ARGUMENTS (optional Firemark or silks to select specific heat)
+Arguments: $ARGUMENTS (optional Firemark to select heat, or Coronet to target specific pace)
 
 ## Prerequisites
 
@@ -20,6 +20,7 @@ Run:
 
 If $ARGUMENTS is empty, orient auto-selects the first racing heat.
 If $ARGUMENTS contains a Firemark (e.g., `AA` or `₣AA`), orient uses that heat.
+If $ARGUMENTS contains a Coronet (e.g., `AbAAE` or `₢AbAAE`), orient targets that specific pace within its parent heat.
 
 Parse plain text output by label prefix:
 - Racing-heats table at top of output → list of racing heats with firemarks

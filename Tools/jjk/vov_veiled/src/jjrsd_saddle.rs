@@ -8,6 +8,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
+use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
@@ -21,7 +22,7 @@ pub struct jjrsd_SaddleArgs {
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     pub file: PathBuf,
 
-    /// Target Heat identity (Firemark). If omitted, uses first racing heat.
+    /// Target Heat identity (Firemark) or Pace identity (Coronet). If omitted, uses first racing heat.
     pub firemark: Option<String>,
 }
 
@@ -130,11 +131,40 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
         }
     };
 
-    let firemark = match Firemark::jjrf_parse(&firemark_str) {
-        Ok(fm) => fm,
-        Err(e) => {
-            eprintln!("jjx_orient: error: {}", e);
-            return 1;
+    // Detect if input is a coronet (5 chars) or firemark (2 chars)
+    // Strip any prefix first: ₣ (U+20A3) or ₢ (U+20A2)
+    let stripped_input = firemark_str
+        .trim_start_matches('₣')
+        .trim_start_matches('₢');
+
+    let target_coronet = if stripped_input.len() == 5 {
+        // It's a coronet - parse to get parent firemark
+        let coronet = match Coronet::jjrf_parse(&firemark_str) {
+            Ok(c) => c,
+            Err(e) => {
+                eprintln!("jjx_orient: error: {}", e);
+                return 1;
+            }
+        };
+        Some(coronet)
+    } else if stripped_input.len() == 2 {
+        // It's a firemark - existing behavior
+        None
+    } else {
+        eprintln!("jjx_orient: error: Invalid argument '{}' (must be 2-char firemark or 5-char coronet)", firemark_str);
+        return 1;
+    };
+
+    // Extract firemark (either directly provided or from coronet parent)
+    let firemark = if let Some(ref coronet) = target_coronet {
+        coronet.jjrf_parent_firemark()
+    } else {
+        match Firemark::jjrf_parse(&firemark_str) {
+            Ok(fm) => fm,
+            Err(e) => {
+                eprintln!("jjx_orient: error: {}", e);
+                return 1;
+            }
         }
     };
 
@@ -168,32 +198,79 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
         limit: 10,
     }).unwrap_or_default();
 
-    // Find first actionable pace (rough or bridled)
+    // Find pace to display
     let mut pace_coronet: Option<String> = None;
     let mut pace_silks: Option<String> = None;
     let mut pace_state: Option<String> = None;
     let mut spec: Option<String> = None;
     let mut direction: Option<String> = None;
 
-    for coronet_key in &heat.order {
-        if let Some(pace) = heat.paces.get(coronet_key) {
-            if let Some(tack) = pace.tacks.first() {
-                match tack.state {
-                    PaceState::Rough | PaceState::Bridled => {
-                        pace_coronet = Some(coronet_key.clone());
-                        pace_silks = Some(tack.silks.clone());
-                        pace_state = Some(match tack.state {
-                            PaceState::Rough => "rough".to_string(),
-                            PaceState::Bridled => "bridled".to_string(),
-                            _ => unreachable!(),
-                        });
-                        spec = Some(tack.text.clone());
-                        if tack.state == PaceState::Bridled {
-                            direction = tack.direction.clone();
+    if let Some(ref coronet) = target_coronet {
+        // Specific coronet requested - look it up directly
+        let coronet_key = coronet.jjrf_display();
+
+        match heat.paces.get(&coronet_key) {
+            Some(pace) => {
+                if let Some(tack) = pace.tacks.first() {
+                    match tack.state {
+                        PaceState::Rough | PaceState::Bridled => {
+                            pace_coronet = Some(coronet_key.clone());
+                            pace_silks = Some(tack.silks.clone());
+                            pace_state = Some(match tack.state {
+                                PaceState::Rough => "rough".to_string(),
+                                PaceState::Bridled => "bridled".to_string(),
+                                _ => unreachable!(),
+                            });
+                            spec = Some(tack.text.clone());
+                            if tack.state == PaceState::Bridled {
+                                direction = tack.direction.clone();
+                            }
                         }
-                        break;
+                        PaceState::Complete => {
+                            eprintln!("jjx_orient: error: Pace '{}' is already complete", coronet_key);
+                            return 1;
+                        }
+                        PaceState::Abandoned => {
+                            eprintln!("jjx_orient: error: Pace '{}' is abandoned", coronet_key);
+                            return 1;
+                        }
+                        _ => {
+                            eprintln!("jjx_orient: error: Pace '{}' has invalid state", coronet_key);
+                            return 1;
+                        }
                     }
-                    _ => continue,
+                } else {
+                    eprintln!("jjx_orient: error: Pace '{}' has no tacks", coronet_key);
+                    return 1;
+                }
+            }
+            None => {
+                eprintln!("jjx_orient: error: Pace '{}' not found in heat '{}'", coronet_key, heat_key);
+                return 1;
+            }
+        }
+    } else {
+        // Find first actionable pace (rough or bridled)
+        for coronet_key in &heat.order {
+            if let Some(pace) = heat.paces.get(coronet_key) {
+                if let Some(tack) = pace.tacks.first() {
+                    match tack.state {
+                        PaceState::Rough | PaceState::Bridled => {
+                            pace_coronet = Some(coronet_key.clone());
+                            pace_silks = Some(tack.silks.clone());
+                            pace_state = Some(match tack.state {
+                                PaceState::Rough => "rough".to_string(),
+                                PaceState::Bridled => "bridled".to_string(),
+                                _ => unreachable!(),
+                            });
+                            spec = Some(tack.text.clone());
+                            if tack.state == PaceState::Bridled {
+                                direction = tack.direction.clone();
+                            }
+                            break;
+                        }
+                        _ => continue,
+                    }
                 }
             }
         }
