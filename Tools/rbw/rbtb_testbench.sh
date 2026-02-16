@@ -119,7 +119,7 @@ zrbtb_setup_dispatch() {
   buto_trace "Setup for dispatch-exercise suite"
   zbuz_kindle
   buz_register "butctt" "butcde_DispatchExercise" "butcde_run"
-  ZBUTCDE_TEST_COLOPHON="${z1z_buz_colophon}"
+  ZBUTCDE_TEST_COLOPHON="${z_buz_register_colophon}"
 }
 
 zrbtb_setup_nsproto() {

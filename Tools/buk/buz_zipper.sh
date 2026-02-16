@@ -73,7 +73,7 @@ zbuz_resolve_tabtarget_capture() {
 
 # buz_register() - Register colophon tuple in parallel arrays
 # Args: colophon, module, command
-# Sets: z1z_buz_colophon (colophon string for caller to store as constant)
+# Sets: z_buz_register_colophon (colophon string for caller to store as constant)
 # Side effects: populates registry arrays (must be called in same process, NOT inside $())
 buz_register() {
   zbuz_sentinel
@@ -96,7 +96,7 @@ buz_register() {
   zbuz_tabtargets+=("${z_tabtarget}")
 
   # shellcheck disable=SC2034
-  z1z_buz_colophon="${z_colophon}"
+  z_buz_register_colophon="${z_colophon}"
 }
 
 ######################################################################
