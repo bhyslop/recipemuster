@@ -5622,6 +5622,13 @@
         "₢AbAAF": {
           "tacks": [
             {
+              "ts": "260216-0829",
+              "state": "abandoned",
+              "text": "`jjx_record` cannot commit deleted files. It validates that every file in the file list exists on disk, rejecting with \"file does not exist and is not tracked by git\" for `git rm`'d paths.\n\n## Observed behavior\n\nWhen files are staged for deletion via `git rm`, passing them to `jjx_record` fails:\n```\njjx_record APAAj Tools/rbw/rbw.workbench.mk  # already git rm'd\n# error: file does not exist and is not tracked by git: Tools/rbw/rbw.workbench.mk\n```\n\n## Workaround discovered\n\nCommitting only the surviving modified file caused `jjx_record` to include the already-staged deletions as a side effect (they were in the index). But this produced a misleading \"uncommitted changes outside file list\" warning for all 22 deletions, suggesting they weren't committed — when they actually were.\n\n## Expected behavior\n\n`jjx_record` should accept deleted files in its file list. A file that is tracked by git but deleted from disk is a valid commit target. The validation should check `git ls-files` (tracked) OR filesystem existence, not just filesystem existence.\n\n## Affected code\n\n`Tools/vvk/` — likely in the file validation logic of `jjx_record` / `jjx_notch`.",
+              "silks": "jjk-spook-record-deleted-files",
+              "commit": "f418139"
+            },
+            {
               "ts": "260216-0757",
               "state": "rough",
               "text": "`jjx_record` cannot commit deleted files. It validates that every file in the file list exists on disk, rejecting with \"file does not exist and is not tracked by git\" for `git rm`'d paths.\n\n## Observed behavior\n\nWhen files are staged for deletion via `git rm`, passing them to `jjx_record` fails:\n```\njjx_record APAAj Tools/rbw/rbw.workbench.mk  # already git rm'd\n# error: file does not exist and is not tracked by git: Tools/rbw/rbw.workbench.mk\n```\n\n## Workaround discovered\n\nCommitting only the surviving modified file caused `jjx_record` to include the already-staged deletions as a side effect (they were in the index). But this produced a misleading \"uncommitted changes outside file list\" warning for all 22 deletions, suggesting they weren't committed — when they actually were.\n\n## Expected behavior\n\n`jjx_record` should accept deleted files in its file list. A file that is tracked by git but deleted from disk is a valid commit target. The validation should check `git ls-files` (tracked) OR filesystem existence, not just filesystem existence.\n\n## Affected code\n\n`Tools/vvk/` — likely in the file validation logic of `jjx_record` / `jjx_notch`.",
