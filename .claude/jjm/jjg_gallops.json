@@ -3452,6 +3452,7 @@
       "status": "racing",
       "order": [
         "₢APAAp",
+        "₢APAAq",
         "₢APAAg",
         "₢APAAh",
         "₢APAAf",
@@ -3494,7 +3495,7 @@
         "₢APAAo",
         "₢APAAm"
       ],
-      "next_pace_seed": "AAq",
+      "next_pace_seed": "AAr",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -4700,6 +4701,17 @@
               "text": "Fix SBOM generation step failing on arm64-only test vessels in GCB.\n\n## Problem\n\nThe ark-lifecycle test fails at step 6 (rbgjb08-sbom-and-summary.sh) with:\n`no matching manifest for linux/amd64 in the manifest list entries`\n\nThe test vessel `trbim-macos` builds arm64-only, but the SBOM step runs `docker pull` on a linux/amd64 GCB worker, which cannot pull a single-arch arm64 image. This predates the skopeo-to-crane migration and likely broke when the test vessel was narrowed to arm64-only.\n\n## Questions to resolve\n\n1. **Can we do SBOM for arm64 builds?** Syft (the SBOM tool) should work on any OCI image regardless of platform — but `docker pull` on an amd64 host can only pull amd64 images. The fix may be to use `crane pull` or `syft` directly against the registry (no docker pull needed) rather than pulling through Docker.\n\n2. **Should trbim-macos be multi-platform?** A multi-platform test vessel (amd64+arm64) would make the SBOM step work naturally but doubles build time. Alternatively, keep it single-arch and fix the SBOM step to handle any platform.\n\n3. **Do we need platform-specific test vessels?** E.g., `trbim-amd64` and `trbim-arm64` with ark-lifecycle running whichever matches the GCB worker arch. Simpler per-vessel but more vessels to maintain.\n\n## Work\n\n1. Read rbgjb08-sbom-and-summary.sh to understand exactly how it pulls and analyzes\n2. Check if syft can analyze images directly from registry without docker pull\n3. Decide: fix SBOM step to be platform-agnostic, OR make test vessel multi-platform, OR add platform-specific test vessels\n4. Implement the chosen approach\n5. Re-run ark-lifecycle to confirm full pass\n\n## Acceptance\n\n- ark-lifecycle test passes end-to-end (all 6 steps)\n- SBOM generation works for arm64 images built on amd64 GCB workers\n- Clear decision documented on test vessel platform strategy",
               "silks": "fix-sbom-arm64-test-vessel",
               "commit": "3d4224f"
+            }
+          ]
+        },
+        "₢APAAq": {
+          "tacks": [
+            {
+              "ts": "260216-1039",
+              "state": "rough",
+              "text": "Remove unused RBRR_GCB_GCRANE_IMAGE_REF and add crane tarball freshening.\n\n## Context\n\nThe gcrane container image (gcr.io/go-containerregistry/gcrane) is distroless with no shell. After the skopeo-to-crane migration (₢APAAo), step 07 runs in alpine and installs crane from RBRR_CRANE_TAR_GZ. The gcrane image pin has no remaining consumers.\n\n## Work — Remove RBRR_GCB_GCRANE_IMAGE_REF\n\n1. rbrr.env — delete the gcrane comment and variable lines\n2. Tools/rbw/rbrr_cli.sh — remove from regime display and refresh list\n3. Tools/rbw/rbrr_regime.sh — remove default, rollup, env check, validation\n4. lenses/RBSA-SpecTop.adoc — remove attribute reference, anchor, and definition\n5. lenses/RBSRR-RegimeRepo.adoc — remove reference\n6. Tools/rbw/rbf_Foundry.sh — remove the test-n check for RBRR_GCB_GCRANE_IMAGE_REF at line 131\n7. Tools/rbw/rbgjm_mirror.json — this uses the gcrane image; decide if mirror.json should also switch to alpine+crane or if mirror.json is dormant\n\n## Work — Add crane tarball freshening to refresh script\n\nRBRR_CRANE_TAR_GZ is currently a static URL (v0.20.3). The refresh script should discover the latest go-containerregistry release from GitHub API and update the URL. Pattern: query GitHub releases API for google/go-containerregistry, find latest stable tag, construct tarball URL.\n\n## Acceptance\n\n- Zero references to RBRR_GCB_GCRANE_IMAGE_REF in codebase (outside gallops/retired)\n- rbrr_refresh_gcb_pins updates RBRR_CRANE_TAR_GZ to latest stable release\n- qualify-all passes",
+              "silks": "remove-gcrane-pin-add-crane-freshening",
+              "commit": "8fd0670"
             }
           ]
         }
