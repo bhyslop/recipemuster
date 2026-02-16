@@ -3172,6 +3172,13 @@
         "₢ASAAI": {
           "tacks": [
             {
+              "ts": "260216-0756",
+              "state": "complete",
+              "text": "Delete RBAGS-AdminGoogleSpec.adoc and RBS-Specification.adoc after RBSA is complete and verified.\n\n## Context (from ₢ASAAD design)\n\nOnce RBSA absorbs all content from both files, the originals become dead weight. This pace is the final cleanup.\n\n## Work required\n\n1. Verify RBSA contains all content from both files:\n   - Every include:: from RBAGS is present in RBSA\n   - Every definition section from RBS is present in RBSA\n   - Mapping section terms are superset of both originals\n\n2. Delete:\n   - lenses/RBAGS-AdminGoogleSpec.adoc\n   - lenses/RBS-Specification.adoc\n\n3. Update any external references:\n   - CLAUDE.md file acronym mappings (RBAGS, RBS entries -> RBSA)\n   - Any cross-references in other lenses/ documents\n   - Paddock references\n\n4. Eliminate remaining stale content:\n   - cmk_* vocabulary (if any survived earlier paces)\n   - CRR references in RBSA (crg_* terms)\n   - Any orphaned terms from the merge\n\n## Acceptance criteria\n- RBAGS and RBS files deleted\n- RBSA is the sole parent spec\n- No broken references anywhere in lenses/\n- CLAUDE.md updated",
+              "silks": "retire-rbags-rbs-files",
+              "commit": "006b9c3"
+            },
+            {
               "ts": "260207-0854",
               "state": "rough",
               "text": "Delete RBAGS-AdminGoogleSpec.adoc and RBS-Specification.adoc after RBSA is complete and verified.\n\n## Context (from ₢ASAAD design)\n\nOnce RBSA absorbs all content from both files, the originals become dead weight. This pace is the final cleanup.\n\n## Work required\n\n1. Verify RBSA contains all content from both files:\n   - Every include:: from RBAGS is present in RBSA\n   - Every definition section from RBS is present in RBSA\n   - Mapping section terms are superset of both originals\n\n2. Delete:\n   - lenses/RBAGS-AdminGoogleSpec.adoc\n   - lenses/RBS-Specification.adoc\n\n3. Update any external references:\n   - CLAUDE.md file acronym mappings (RBAGS, RBS entries -> RBSA)\n   - Any cross-references in other lenses/ documents\n   - Paddock references\n\n4. Eliminate remaining stale content:\n   - cmk_* vocabulary (if any survived earlier paces)\n   - CRR references in RBSA (crg_* terms)\n   - Any orphaned terms from the merge\n\n## Acceptance criteria\n- RBAGS and RBS files deleted\n- RBSA is the sole parent spec\n- No broken references anywhere in lenses/\n- CLAUDE.md updated",
