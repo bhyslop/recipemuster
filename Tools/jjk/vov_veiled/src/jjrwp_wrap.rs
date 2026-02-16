@@ -167,7 +167,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
             return 1;
         }
 
-        let mut claude_cmd = match Command::new("claude")
+        let mut claude_cmd = match vvc::vvce_claude_command()
             .args([
                 "--print",
                 &format!("Generate a concise commit message for this diff. The commit wraps pace {}. Output only the message, no quotes.", args.coronet)

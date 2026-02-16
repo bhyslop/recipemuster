@@ -108,7 +108,7 @@ pub async fn vvcp_probe() -> Result<String, String> {
     );
 
     // Invoke opus with the prompt (no --system-prompt flag)
-    let opus_output = Command::new("claude")
+    let opus_output = Command::from(crate::vvce_claude_command())
         .args(["-p", "--model", "opus", "--no-session-persistence", "--", &prompt])
         .output()
         .await;
@@ -148,7 +148,7 @@ pub async fn vvcp_probe() -> Result<String, String> {
 /// Probe a single model tier by invoking claude with minimal prompt
 /// Returns raw stdout without any trimming or parsing
 async fn probe_model_tier_raw(tier: &str) -> String {
-    let output = Command::new("claude")
+    let output = Command::from(crate::vvce_claude_command())
         .args([
             "-p",
             "--model",

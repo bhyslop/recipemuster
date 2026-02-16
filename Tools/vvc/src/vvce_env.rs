@@ -157,6 +157,17 @@ fn zvvce_validate_env() -> VvcEnv {
     }
 }
 
+/// Create a Command for invoking claude as a subprocess.
+///
+/// Removes the CLAUDECODE environment variable to prevent the
+/// nested-session guard (v2.1.39+) from blocking subprocess invocations
+/// that are legitimate tool usage, not interactive nesting.
+pub fn vvce_claude_command() -> std::process::Command {
+    let mut cmd = std::process::Command::new("claude");
+    cmd.env_remove("CLAUDECODE");
+    cmd
+}
+
 #[cfg(test)]
 mod tests {
     // Note: These tests are intentionally minimal because they would

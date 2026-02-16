@@ -199,7 +199,7 @@ fn zvvcc_generate_message_with_claude(diff: &str) -> Result<String, String> {
         diff
     );
 
-    let output = Command::new("claude")
+    let output = crate::vvce_claude_command()
         .args([
             "--print",
             "--system-prompt",
