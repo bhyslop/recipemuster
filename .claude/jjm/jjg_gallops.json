@@ -4780,6 +4780,13 @@
         "₢AOAAC": {
           "tacks": [
             {
+              "ts": "260216-1046",
+              "state": "complete",
+              "text": "Refresh all workbench _register function implementations against the updated BCG (BashConsoleGuide) document, which has\n been significantly improved regarding colophon registration patterns. Read the current BCG spec, understand the\nupdated conventions for _register functions, then audit and update each workbench's _register function to conform.",
+              "silks": "refresh-register-colophons",
+              "commit": "6574241"
+            },
+            {
               "ts": "260211-1406",
               "state": "rough",
               "text": "Refresh all workbench _register function implementations against the updated BCG (BashConsoleGuide) document, which has\n been significantly improved regarding colophon registration patterns. Read the current BCG spec, understand the\nupdated conventions for _register functions, then audit and update each workbench's _register function to conform.",
