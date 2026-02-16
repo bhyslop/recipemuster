@@ -5871,9 +5871,10 @@
         "₢AbAAB",
         "₢AbAAC",
         "₢AbAAD",
-        "₢AbAAE"
+        "₢AbAAE",
+        "₢AbAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_Ab.md",
       "paces": {
         "₢AbAAA": {
@@ -5928,6 +5929,17 @@
               "text": "## Feature\n\nExtend the `mount` quick verb (currently `/jjc-heat-mount`) so it can accept a coronet argument to start a specific pace, potentially asynchronously.\n\n## Current Behavior\n\n- `mount` maps to `/jjc-heat-mount`, which finds and executes the next actionable pace in a heat.\n- No way to target a specific pace by coronet.\n\n## Desired Behavior\n\n- `mount` with no coronet: unchanged — finds and executes next actionable pace.\n- `mount ₢XXXXX`: mounts the specified pace directly. If the pace is bridled, it may be dispatched asynchronously (background Task agent). If rough/unbridled, it mounts interactively.\n\n## Scope\n\n- Update `/jjc-heat-mount` slash command to accept an optional coronet argument.\n- Update the quick verb table in CLAUDE.md to document the coronet-accepting variant.\n- Handle edge cases: coronet not found, pace already complete, pace not bridled (interactive fallback).\n- Async dispatch for bridled paces uses Task tool with `run_in_background: true`.\n\n## Open Questions\n\n- Should unbridled paces error or fall through to interactive mount?\n- Does async dispatch need a new slash command or is it a mode within mount?\n\n## Files Likely Touched\n\n- `.claude/commands/jjc-heat-mount.md` — slash command definition\n- `CLAUDE.md` — quick verb table update",
               "silks": "mount-accept-coronet",
               "commit": "67d5c86"
+            }
+          ]
+        },
+        "₢AbAAF": {
+          "tacks": [
+            {
+              "ts": "260216-0757",
+              "state": "rough",
+              "text": "`jjx_record` cannot commit deleted files. It validates that every file in the file list exists on disk, rejecting with \"file does not exist and is not tracked by git\" for `git rm`'d paths.\n\n## Observed behavior\n\nWhen files are staged for deletion via `git rm`, passing them to `jjx_record` fails:\n```\njjx_record APAAj Tools/rbw/rbw.workbench.mk  # already git rm'd\n# error: file does not exist and is not tracked by git: Tools/rbw/rbw.workbench.mk\n```\n\n## Workaround discovered\n\nCommitting only the surviving modified file caused `jjx_record` to include the already-staged deletions as a side effect (they were in the index). But this produced a misleading \"uncommitted changes outside file list\" warning for all 22 deletions, suggesting they weren't committed — when they actually were.\n\n## Expected behavior\n\n`jjx_record` should accept deleted files in its file list. A file that is tracked by git but deleted from disk is a valid commit target. The validation should check `git ls-files` (tracked) OR filesystem existence, not just filesystem existence.\n\n## Affected code\n\n`Tools/vvk/` — likely in the file validation logic of `jjx_record` / `jjx_notch`.",
+              "silks": "jjk-spook-record-deleted-files",
+              "commit": "1f3d70f"
             }
           ]
         }
