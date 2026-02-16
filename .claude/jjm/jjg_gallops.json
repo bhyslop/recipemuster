@@ -19,6 +19,13 @@
         "₢AbAAA": {
           "tacks": [
             {
+              "ts": "260216-0901",
+              "state": "complete",
+              "text": "## Problem\n\nA Claude Code officium exhibited two failures:\n\n1. **Used `cd` in Bash commands** — violating the CLAUDE.md rule \"Never cd in Bash commands — it persists and breaks subsequent tabtarget calls.\" The shell cwd got reset to `pb_paneboard02` after the cd, corrupting all subsequent commands.\n\n2. **Invented `jjx_slate`** — a non-existent subcommand. The slash command `/jjc-pace-slate` loaded successfully but Claude ignored its instructions and guessed at a CLI verb instead of using `jjx_enroll` as documented.\n\n## Investigation Scope\n\n- Why did the officium use `cd` despite clear prohibition? Is the CLAUDE.md instruction insufficiently prominent or poorly worded?\n- Why did the officium invent `jjx_slate` instead of reading the loaded slash command content? Is the slash command output being lost or ignored?\n- What repairs to CLAUDE.md, slash commands, or kit documentation would prevent recurrence?\n\n## Deliverable\n\nA memo with findings and concrete recommended changes (file paths, diff-style edits) to prevent both failure modes.",
+              "silks": "jjk-spook-officium-disobedience",
+              "commit": "6c5ed75"
+            },
+            {
               "ts": "260216-0842",
               "state": "rough",
               "text": "## Problem\n\nA Claude Code officium exhibited two failures:\n\n1. **Used `cd` in Bash commands** — violating the CLAUDE.md rule \"Never cd in Bash commands — it persists and breaks subsequent tabtarget calls.\" The shell cwd got reset to `pb_paneboard02` after the cd, corrupting all subsequent commands.\n\n2. **Invented `jjx_slate`** — a non-existent subcommand. The slash command `/jjc-pace-slate` loaded successfully but Claude ignored its instructions and guessed at a CLI verb instead of using `jjx_enroll` as documented.\n\n## Investigation Scope\n\n- Why did the officium use `cd` despite clear prohibition? Is the CLAUDE.md instruction insufficiently prominent or poorly worded?\n- Why did the officium invent `jjx_slate` instead of reading the loaded slash command content? Is the slash command output being lost or ignored?\n- What repairs to CLAUDE.md, slash commands, or kit documentation would prevent recurrence?\n\n## Deliverable\n\nA memo with findings and concrete recommended changes (file paths, diff-style edits) to prevent both failure modes.",
