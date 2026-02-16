@@ -101,7 +101,7 @@ rbrr_render() {
   rbcr_section_begin "Google Cloud Build Configuration"
   rbcr_section_item RBRR_GCB_MACHINE_TYPE        string  req  "Machine type for Cloud Build"
   rbcr_section_item RBRR_GCB_TIMEOUT             string  req  "Build timeout (e.g., 1200s)"
-  rbcr_section_item RBRR_GCB_MIN_CONCURRENT_BUILDS string req "Min concurrent builds required"
+  rbcr_section_item RBRR_GCB_MIN_CONCURRENT_BUILDS decimal req "Min concurrent builds required"
   rbcr_section_item RBRR_GCB_GCRANE_IMAGE_REF    odref   req  "gcrane image reference (digest-pinned)"
   rbcr_section_item RBRR_GCB_ORAS_IMAGE_REF      odref   req  "oras image reference (digest-pinned)"
   rbcr_section_item RBRR_GCB_GCLOUD_IMAGE_REF    odref   req  "gcloud image reference (digest-pinned)"

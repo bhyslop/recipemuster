@@ -187,7 +187,7 @@ placeholder concept that was never implemented and does not fit the regime patte
 
 ## Open Items for Owner Review
 
-1. **RBRR_PAYOR_RBRA_FILE**: Spec-only variable. Remove from spec/subdoc or add to validator?
-2. **RBRP_DEPOT_PROJECT_IDS**: Spec-only variable. Remove from spec or add to validator?
-3. **RBRV_VESSEL_MODE**: Spec-only variable. Remove from spec/subdoc or add to validator?
-4. **RBRR_GCB_MIN_CONCURRENT_BUILDS**: Missing buv_env_* validation call in validator.
+1. ~~**RBRR_PAYOR_RBRA_FILE**~~: RESOLVED — Removed from RBSA mapping, anchor, and RBSRR subdocument. Payor uses OAuth (RBRO), never RBRA.
+2. ~~**RBRP_DEPOT_PROJECT_IDS**~~: RESOLVED — Removed from RBSA mapping, anchor, and RBSDC reference. Cleaned dead export from rbgp_Payor.sh. Dynamic query suffices.
+3. **RBRV_VESSEL_MODE**: Needs separate attention — computed concept (inferred from RBRV_BIND_IMAGE vs RBRV_CONJURE_DOCKERFILE), not an explicit env var.
+4. ~~**RBRR_GCB_MIN_CONCURRENT_BUILDS**~~: RESOLVED — Added `buv_env_decimal` validation (1–999) to rbrr_regime.sh, fixed CLI type from string to decimal.

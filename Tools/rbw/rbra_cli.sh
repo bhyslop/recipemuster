@@ -144,29 +144,59 @@ rbra_list() {
 }
 
 ######################################################################
+# Role resolution
+
+# Resolve role name to RBRA file path via RBRR
+# Roles: governor, retriever, director
+zrbra_cli_resolve_role() {
+  local z_role="${1:-}"
+  test -n "${z_role}" || buc_die "rbra_cli.sh: role argument required (governor|retriever|director)"
+
+  # Load RBRR to get file paths
+  zrbcc_sentinel
+  local z_rbrr_file="${RBCC_RBRR_FILE}"
+  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
+  source "${z_rbrr_file}" || buc_die "Failed to source RBRR: ${z_rbrr_file}"
+  zrbrr_kindle
+
+  case "${z_role}" in
+    governor)  echo "${RBRR_GOVERNOR_RBRA_FILE}" ;;
+    retriever) echo "${RBRR_RETRIEVER_RBRA_FILE}" ;;
+    director)  echo "${RBRR_DIRECTOR_RBRA_FILE}" ;;
+    *)         buc_die "Unknown role: ${z_role}. Valid roles: governor, retriever, director" ;;
+  esac
+}
+
+######################################################################
 # Main dispatch
 
 zrbra_cli_kindle
 zrbcc_kindle
 
 z_command="${1:-}"
+z_role="${2:-}"
 
 case "${z_command}" in
-  validate)
-    z_file="${2:-}"
-    test -n "${z_file}" || buc_die "rbra_cli.sh validate: file argument required"
-    rbra_validate "${z_file}"
-    ;;
-  render)
-    z_file="${2:-}"
-    test -n "${z_file}" || buc_die "rbra_cli.sh render: file argument required"
-    rbra_render "${z_file}"
+  validate|render)
+    if test -z "${z_role}"; then
+      buc_step "Available roles:"
+      echo "  governor"
+      echo "  retriever"
+      echo "  director"
+    else
+      z_file=$(zrbra_cli_resolve_role "${z_role}")
+      test -f "${z_file}" || buc_die "RBRA file not found for role ${z_role}: ${z_file}"
+      case "${z_command}" in
+        validate) rbra_validate "${z_file}" ;;
+        render)   rbra_render "${z_file}" ;;
+      esac
+    fi
     ;;
   list)
     rbra_list
     ;;
   *)
-    buc_die "Unknown command: ${z_command}. Usage: rbra_cli.sh {validate|render|list} [file]"
+    buc_die "Unknown command: ${z_command}. Usage: rbra_cli.sh {validate|render} <role> | list"
     ;;
 esac
 

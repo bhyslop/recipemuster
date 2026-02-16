@@ -82,15 +82,17 @@ zrbrs_cli_kindle
 zrbcc_kindle
 
 z_command="${1:-}"
+ZRBRS_CLI_DEFAULT_FILE="../station-files/rbrs.env"
+
 case "${z_command}" in
   validate)
-    z_file="${2:-}"
-    test -n "${z_file}" || buc_die "rbrs_cli.sh validate: file argument required"
+    z_file="${2:-${ZRBRS_CLI_DEFAULT_FILE}}"
+    test -f "${z_file}" || buc_die "RBRS file not found: ${z_file}"
     rbrs_validate "${z_file}"
     ;;
   render)
-    z_file="${2:-}"
-    test -n "${z_file}" || buc_die "rbrs_cli.sh render: file argument required"
+    z_file="${2:-${ZRBRS_CLI_DEFAULT_FILE}}"
+    test -f "${z_file}" || buc_die "RBRS file not found: ${z_file}"
     rbrs_render "${z_file}"
     ;;
   *)

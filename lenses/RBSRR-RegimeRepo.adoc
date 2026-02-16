@@ -66,14 +66,6 @@ This file enables the operator to assume the governor role for
 {gcp_project_id}
 administration operations.
 
-// ⟦axhrgv_variable⟧
-{rbrr_payor_rbra_file}
-
-Path to an RBRA file stored in the operator's local filesystem outside the source repository.
-This file enables the operator to assume the payor role for billing and
-{gcp_project_id}
-lifecycle operations.
-
 // ⟦axhrgb_group⟧
 {rbrr_group_container_runtime}
 

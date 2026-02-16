@@ -141,6 +141,7 @@ zrbrr_validate_fields() {
   # Google Cloud Build Configuration
   buv_env_string      RBRR_GCB_MACHINE_TYPE        3     64
   buv_env_string      RBRR_GCB_TIMEOUT             2     10
+  buv_env_decimal     RBRR_GCB_MIN_CONCURRENT_BUILDS  1     999
 
   # Service Account Configuration Files
   buv_env_string      RBRR_GOVERNOR_RBRA_FILE         1    512

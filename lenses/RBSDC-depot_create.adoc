@@ -159,7 +159,7 @@ creation
 . *Update Depot Tracking*:
 .. Execute
 {rbtoe_depot_list_update}
-to add new depot to RBRP_DEPOT_PROJECT_IDS
+to refresh depot project tracking
 
 // ⟦axs_completion⟧
 Successful execution creates depot infrastructure with configured build bucket, container repository, and Mason service account ready for governor creation.

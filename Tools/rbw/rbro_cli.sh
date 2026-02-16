@@ -111,15 +111,17 @@ zrbro_cli_kindle
 zrbcc_kindle
 
 z_command="${1:-}"
+ZRBRO_CLI_DEFAULT_FILE="${HOME}/.rbw/rbro.env"
+
 case "${z_command}" in
   validate)
-    z_file="${2:-}"
-    test -n "${z_file}" || buc_die "rbro_cli.sh validate: file argument required"
+    z_file="${2:-${ZRBRO_CLI_DEFAULT_FILE}}"
+    test -f "${z_file}" || buc_die "RBRO file not found: ${z_file}"
     rbro_validate "${z_file}"
     ;;
   render)
-    z_file="${2:-}"
-    test -n "${z_file}" || buc_die "rbro_cli.sh render: file argument required"
+    z_file="${2:-${ZRBRO_CLI_DEFAULT_FILE}}"
+    test -f "${z_file}" || buc_die "RBRO file not found: ${z_file}"
     rbro_render "${z_file}"
     ;;
   *)

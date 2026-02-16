@@ -167,7 +167,6 @@ zrbgp_depot_list_update() {
   # Non-blocking: if query fails, just log and continue (normal on first install with no projects)
   if ! rbgu_http_require_ok "Query depot projects" "depot_list_tracking" 2>/dev/null; then
     buc_log_args "Depot project list query skipped (expected on first install or API access restrictions)"
-    export RBRP_DEPOT_PROJECT_IDS=""
     return 0
   fi
   
@@ -196,11 +195,8 @@ zrbgp_depot_list_update() {
   # Update RBRP configuration
   # Note: This would normally update rbrp.env file
   # For now, we'll export to environment and log the result
-  export RBRP_DEPOT_PROJECT_IDS="${z_depot_ids# }"
-  
-  buc_log_args "Updated RBRP_DEPOT_PROJECT_IDS: '${RBRP_DEPOT_PROJECT_IDS}'"
   buc_log_args "Found ${z_project_count} depot projects, ${z_depot_ids:+ $(($(printf '%s' "${z_depot_ids}" | wc -w))):+0} valid"
-  
+
   return 0
 }
 

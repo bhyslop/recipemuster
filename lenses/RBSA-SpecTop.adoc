@@ -240,7 +240,6 @@
 :rbrr_gar_repository:        <<rbrr_gar_repository,RBRR_GAR_REPOSITORY>>
 :rbrr_gcp_region:            <<rbrr_gcp_region,RBRR_GCP_REGION>>
 :rbrr_governor_rbra_file:    <<rbrr_governor_rbra_file,RBRR_GOVERNOR_RBRA_FILE>>
-:rbrr_payor_rbra_file:       <<rbrr_payor_rbra_file,RBRR_PAYOR_RBRA_FILE>>
 :rbrr_regime:                <<rbrr_regime,RBRR Regime>>
 :rbrr_group_build_configuration:    <<rbrr_group_build_configuration,Build Configuration Group>>
 :rbrr_group_container_runtime:      <<rbrr_group_container_runtime,Container Runtime Group>>
@@ -275,7 +274,6 @@
 
 // Recipe Bottle Regime: Payor
 :rbrp_billing_account_id:    <<rbrp_billing_account_id,RBRP_BILLING_ACCOUNT_ID>>
-:rbrp_depot_project_ids:     <<rbrp_depot_project_ids,RBRP_DEPOT_PROJECT_IDS>>
 :rbrp_oauth_client_id:       <<rbrp_oauth_client_id,RBRP_OAUTH_CLIENT_ID>>
 :rbrp_payor_project_id:      <<rbrp_payor_project_id,RBRP_PAYOR_PROJECT_ID>>
 :rbrp_regime:                <<rbrp_regime,RBRP Regime>>
@@ -1788,23 +1786,6 @@ role for
 {gcp_project_id}
 administration operations.
 
-[[rbrr_payor_rbra_file]]
-// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
-{rbrr_payor_rbra_file}::
-Path to an
-{rbtgi_rbra_file}
-stored in the
-{at_operator_p}
-local filesystem outside the source
-{rbtgi_repository}.
-This file enables the
-{at_operator}
-to assume the
-{rbtr_payor}
-role for billing and
-{gcp_project_id}
-lifecycle operations.
-
 [[rbrr_vessel_dir]]
 // ⟦axvr_variable axd_required rbst_path⟧
 {rbrr_vessel_dir}::
@@ -2043,12 +2024,6 @@ Format: XXXXXX-XXXXXX-XXXXXX.
 The public OAuth 2.0 client identifier for the
 {rbtr_payor}
 desktop application.
-
-[[rbrp_depot_project_ids]]
-// ⟦axl_voices axrg_variable axtg_project_id axd_repeated⟧
-{rbrp_depot_project_ids}::
-Space-delimited array of active depot project IDs managed by this
-{rbtr_payor}.
 
 include::RBSRP-RegimePayor.adoc[]
 
@@ -2963,9 +2938,6 @@ to obtain access token,
 . extracts project IDs from `.projects[].projectId` array,
 . validates each project ID matches pattern `rbw-[name]-[timestamp]`,
 . constructs space-delimited string from valid depot project IDs,
-. updates RBRP_DEPOT_PROJECT_IDS in rbrp.env file,
-. handles empty results by setting RBRP_DEPOT_PROJECT_IDS="",
-. {rbbc_require} rbrp.env file update successful,
 . invoked by
 {rbtgo_payor_install},
 {rbtgo_depot_create},
