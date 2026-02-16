@@ -112,7 +112,7 @@ zccck_route() {
       ;;
     gadcf)
       # Run GAD factory locally (inside container) with hardcoded parameters
-      rbk_show "Running GAD factory locally"
+      echo "Running GAD factory locally"
       python3 -u Tools/gad/gadf_factory.py --file ../cnmp_CellNodeMessagePrototype/lenses/gad-GADS-GoogleAsciidocDifferSpecification.adoc --directory ../gad-working-dir --branch bth-20240623-1-flaps --max-distinct-renders 5 --once --port "${CCCR_WEB_PORT}"
       ;;
     gadi-i)
