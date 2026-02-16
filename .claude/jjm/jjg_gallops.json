@@ -44,6 +44,13 @@
         "₢AbAAB": {
           "tacks": [
             {
+              "ts": "260216-0911",
+              "state": "complete",
+              "text": "## Task\n\nIntroduce the concept of \"spook\" into JJSA (Gallops data model specification) as a formal JJ vocabulary\nterm.\n\n## Definition\n\nA **spook** is a failure of a slash command or other Job Jockey interaction to function correctly. Named by\nanalogy to an equestrian spook — the horse (Claude) shies away from the correct path despite clear guidance.\n\n## Scope\n\n- Add spook as a linked term in JJSA with proper MCM attribute, anchor, and definition\n- Ensure it fits the existing vocabulary categories and naming conventions\n- Consider whether spook warrants subcategories (e.g., cd-spook, phantom-verb-spook) or remains a single\numbrella term\n\n## Deliverable\n\nUpdated JJSA with spook concept properly integrated following MCM linked term patterns.",
+              "silks": "jjk-spook-concept-jjsa",
+              "commit": "91c99ff"
+            },
+            {
               "ts": "260211-1404",
               "state": "rough",
               "text": "## Task\n\nIntroduce the concept of \"spook\" into JJSA (Gallops data model specification) as a formal JJ vocabulary\nterm.\n\n## Definition\n\nA **spook** is a failure of a slash command or other Job Jockey interaction to function correctly. Named by\nanalogy to an equestrian spook — the horse (Claude) shies away from the correct path despite clear guidance.\n\n## Scope\n\n- Add spook as a linked term in JJSA with proper MCM attribute, anchor, and definition\n- Ensure it fits the existing vocabulary categories and naming conventions\n- Consider whether spook warrants subcategories (e.g., cd-spook, phantom-verb-spook) or remains a single\numbrella term\n\n## Deliverable\n\nUpdated JJSA with spook concept properly integrated following MCM linked term patterns.",
