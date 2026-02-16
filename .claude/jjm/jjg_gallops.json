@@ -4600,6 +4600,13 @@
         "₢APAAl": {
           "tacks": [
             {
+              "ts": "260216-0951",
+              "state": "complete",
+              "text": "Design how gcrane can replace skopeo in the GCB pipeline.\n\n## Context\n\nquay.io aggressively garbage-collects image digests (within hours), making pinned skopeo refs unreliable. gcrane (gcr.io, Google-hosted) is already a GCB dependency and performs similar OCI registry copy operations.\n\n## Work\n\n1. Identify the specific GCB step(s) that use skopeo — what exact skopeo subcommand and flags\n2. Find the gcrane equivalent command(s)\n3. Verify gcrane supports the same OCI artifact types (manifests, indexes, etc.)\n4. Draft the replacement cloudbuild step configuration\n5. Validate that no other skopeo-specific features are relied upon\n\n## Acceptance\n\n- Clear mapping from skopeo command(s) to gcrane equivalent(s)\n- Draft replacement GCB step ready for implementation\n- Confirmation that gcrane handles all artifact types we push",
+              "silks": "design-gcrane-skopeo-replacement",
+              "commit": "66b2fbc"
+            },
+            {
               "ts": "260213-0959",
               "state": "rough",
               "text": "Design how gcrane can replace skopeo in the GCB pipeline.\n\n## Context\n\nquay.io aggressively garbage-collects image digests (within hours), making pinned skopeo refs unreliable. gcrane (gcr.io, Google-hosted) is already a GCB dependency and performs similar OCI registry copy operations.\n\n## Work\n\n1. Identify the specific GCB step(s) that use skopeo — what exact skopeo subcommand and flags\n2. Find the gcrane equivalent command(s)\n3. Verify gcrane supports the same OCI artifact types (manifests, indexes, etc.)\n4. Draft the replacement cloudbuild step configuration\n5. Validate that no other skopeo-specific features are relied upon\n\n## Acceptance\n\n- Clear mapping from skopeo command(s) to gcrane equivalent(s)\n- Draft replacement GCB step ready for implementation\n- Confirmation that gcrane handles all artifact types we push",
