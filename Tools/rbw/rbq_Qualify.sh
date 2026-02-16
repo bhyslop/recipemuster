@@ -88,15 +88,15 @@ rbq_qualify_colophons() {
     # Extract colophon from filename (everything before first delimiter)
     local z_colophon="${z_basename%%.*}"
 
-    # Check colophon exists in zbuz_colophons registry
+    # Check colophon exists in z_buz_colophon_roll registry
     local z_found=0
     local z_i=0
-    for z_i in "${!zbuz_colophons[@]}"; do
-      test "${zbuz_colophons[$z_i]}" = "${z_colophon}" || continue
+    for z_i in "${!z_buz_colophon_roll[@]}"; do
+      test "${z_buz_colophon_roll[$z_i]}" = "${z_colophon}" || continue
       z_found=1
 
       # Verify module file exists
-      local z_module="${zbuz_modules[$z_i]}"
+      local z_module="${z_buz_module_roll[$z_i]}"
       test -f "${ZRBQ_RBW_DIR}/${z_module}" || {
         z_fail_files+=("${z_basename}")
         z_fail_reasons+=("module not found: ${z_module}")
