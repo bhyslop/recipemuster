@@ -32,6 +32,7 @@ source "${RBTB_SCRIPT_DIR}/rbz_zipper.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${RBTB_SCRIPT_DIR}/rbrn_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBTB_SCRIPT_DIR}/rbrv_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${RBTB_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${RBTB_SCRIPT_DIR}/rbgd_DepotConstants.sh"
@@ -46,6 +47,7 @@ source "${RBTB_SCRIPT_DIR}/rbtcsj_SrjclJupyter.sh"
 source "${RBTB_SCRIPT_DIR}/rbtcpl_PlumlDiagram.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butcvu_XnameValidation.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butcrg_RegimeSmoke.sh"
+source "${RBTB_SCRIPT_DIR}/../buk/butcrg_RegimeCredentials.sh"
 
 buc_context "${0##*/}"
 zrbcc_kindle
@@ -145,6 +147,10 @@ zrbtb_setup_regime() {
   buto_trace "Setup for regime-smoke suite (no-op)"
 }
 
+zrbtb_setup_credentials() {
+  buto_trace "Setup for regime-credentials suite (no-op)"
+}
+
 
 ######################################################################
 # Registration
@@ -213,6 +219,14 @@ rbtb_kindle() {
   butr_case_enroll "regime-smoke" butcrg_rbrn
   butr_case_enroll "regime-smoke" butcrg_rbrr
   butr_case_enroll "regime-smoke" butcrg_rbrv
+  butr_case_enroll "regime-smoke" butcrg_rbrp
+  butr_case_enroll "regime-smoke" butcrg_burd
+
+  # regime-credentials suite (requires workstation credentials)
+  butr_suite_enroll "regime-credentials" "" "zrbtb_setup_credentials"
+  butr_case_enroll "regime-credentials" butcrg_rbra
+  butr_case_enroll "regime-credentials" butcrg_rbro
+  butr_case_enroll "regime-credentials" butcrg_rbrs
 
   # xname-validation suite
   butr_suite_enroll "xname-validation" "" "zrbtb_setup_xname"
@@ -256,6 +270,7 @@ rbtb_route() {
       esac
       ;;
     rbw-trg) butd_run_suite "regime-smoke" ;;
+    rbw-trc) butd_run_suite "regime-credentials" ;;
     *)
       if [ -n "${z_command}" ]; then
         buc_warn "Unknown command: ${z_command}"
@@ -266,6 +281,7 @@ rbtb_route() {
       buc_info "  rbw-to   Run single test function (pass function name)"
       buc_info "  rbw-tn   Run nameplate suite (imprint: nsproto, srjcl, pluml)"
       buc_info "  rbw-trg  Run regime-smoke suite"
+      buc_info "  rbw-trc  Run regime-credentials suite"
       return 0
       ;;
   esac

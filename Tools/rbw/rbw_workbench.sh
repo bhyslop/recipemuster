@@ -163,6 +163,7 @@ rbw_route() {
         buc_info "  rbw-to  Run single test function"
         buc_info "  rbw-tn  Run nameplate suite (imprint: nsproto, srjcl, pluml)"
         buc_info "  rbw-trg Run regime-smoke suite"
+        buc_info "  rbw-trc Run regime-credentials suite"
         return 0
       }
       ;;

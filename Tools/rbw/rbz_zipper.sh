@@ -154,6 +154,8 @@ zrbz_kindle() {
   RBZ_TEST_NAMEPLATE="${z_buz_register_colophon}"
   buz_register "rbw-trg" "rbtb_testbench.sh" "rbw-trg"
   RBZ_TEST_REGIME="${z_buz_register_colophon}"
+  buz_register "rbw-trc" "rbtb_testbench.sh" "rbw-trc"
+  RBZ_TEST_REGIME_CREDENTIALS="${z_buz_register_colophon}"
 
   ZRBZ_KINDLED=1
 }
