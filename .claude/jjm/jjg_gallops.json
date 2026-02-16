@@ -3794,9 +3794,10 @@
         "₢APAAi",
         "₢APAAj",
         "₢APAAk",
-        "₢APAAl"
+        "₢APAAl",
+        "₢APAAm"
       ],
-      "next_pace_seed": "AAm",
+      "next_pace_seed": "AAn",
       "paddock_file": ".claude/jjm/jjp_AP.md",
       "paces": {
         "₢APAAA": {
@@ -4866,6 +4867,17 @@
               "text": "Design how gcrane can replace skopeo in the GCB pipeline.\n\n## Context\n\nquay.io aggressively garbage-collects image digests (within hours), making pinned skopeo refs unreliable. gcrane (gcr.io, Google-hosted) is already a GCB dependency and performs similar OCI registry copy operations.\n\n## Work\n\n1. Identify the specific GCB step(s) that use skopeo — what exact skopeo subcommand and flags\n2. Find the gcrane equivalent command(s)\n3. Verify gcrane supports the same OCI artifact types (manifests, indexes, etc.)\n4. Draft the replacement cloudbuild step configuration\n5. Validate that no other skopeo-specific features are relied upon\n\n## Acceptance\n\n- Clear mapping from skopeo command(s) to gcrane equivalent(s)\n- Draft replacement GCB step ready for implementation\n- Confirmation that gcrane handles all artifact types we push",
               "silks": "design-gcrane-skopeo-replacement",
               "commit": "db6bb59"
+            }
+          ]
+        },
+        "₢APAAm": {
+          "tacks": [
+            {
+              "ts": "260216-0612",
+              "state": "rough",
+              "text": "Prevent test-all from failing fast when infrastructure prerequisites are missing.\n\n## Problem\n\n`rbw-ta` (TestAll) stops at the first suite failure. Suites like ark-lifecycle fail immediately when the Podman VM isn't running, blocking all downstream suites (including CI-safe ones like regime-smoke and xname-validation) from executing.\n\nAdditionally, some test cases hang indefinitely when they issue a docker/podman command and the daemon isn't available (first-time startup or VM not running).\n\n## Solution\n\nAdd infrastructure precondition checks to suites that require container runtime:\n\n1. **Suite-level precondition**: In setup functions for infrastructure-dependent suites (e.g., `zrbtb_setup_ark`), verify the container runtime is available before running cases. If unavailable, mark the suite as **inconclusive** (not failed) using the existing BUT inconclusive mechanism from the ₣Ac test overhaul.\n\n2. **Timeout protection**: Ensure docker/podman commands in test cases have timeouts so they cannot hang indefinitely when the daemon is unresponsive.\n\n3. **Scope**: ark-lifecycle, nameplate suites (nsproto, srjcl, pluml), and any other suite that dispatches container operations.\n\n## Acceptance\n\n- `rbw-ta` completes all CI-safe suites even when Podman VM is not running\n- Infrastructure-dependent suites report inconclusive (not failed) when preconditions unmet\n- No test case can hang indefinitely on a missing container runtime",
+              "silks": "suite-infrastructure-preconditions",
+              "commit": "7031bcb"
             }
           ]
         }
