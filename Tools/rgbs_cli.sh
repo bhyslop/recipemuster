@@ -30,9 +30,6 @@ source "${ZRGBS_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRGBS_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRGBS_CLI_SCRIPT_DIR}/rgbs_ServiceAccounts.sh"
 
-# Initialize modules
-rbl_kindle_all
-
 burd_dispatch "$@"
 
 # eof

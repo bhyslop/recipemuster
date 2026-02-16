@@ -31,9 +31,6 @@ source "${ZRBGB_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGB_CLI_SCRIPT_DIR}/rbgi_IAM.sh"
 source "${ZRBGB_CLI_SCRIPT_DIR}/rbgb_Buckets.sh"
 
-# Initialize modules
-rbl_kindle_all
-
 burd_dispatch "$@"
 
 # eof

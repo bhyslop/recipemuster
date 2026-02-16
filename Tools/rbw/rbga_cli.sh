@@ -31,9 +31,6 @@ source "${ZRBGA_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGA_CLI_SCRIPT_DIR}/rbgi_IAM.sh"
 source "${ZRBGA_CLI_SCRIPT_DIR}/rbga_ArtifactRegistry.sh"
 
-# Initialize modules
-rbl_kindle_all
-
 burd_dispatch "$@"
 
 # eof
