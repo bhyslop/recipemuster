@@ -13,6 +13,7 @@ use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrq_query::{jjrq_files_for_pace, jjrq_file_touches_for_heat, zjjrq_files_for_commit, zjjrq_bare_filename, zjjrq_is_infra_file};
 use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries, jjrs_SteeplechaseEntry};
 use std::collections::BTreeMap;
+use std::fmt::Write;
 use std::fs;
 
 /// Arguments for jjx_show command
@@ -361,19 +362,13 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
     0
 }
 
-/// Build and print the file-touch bitmap for a heat.
+/// Format the file-touch bitmap for a heat as a String.
 ///
 /// Uses shared query routines from jjrq_query to get file touches,
 /// then formats as a bitmap with columns per pace and rows per file,
 /// grouped by identical touch patterns.
-pub(crate) fn jjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
-    let touches = match jjrq_file_touches_for_heat(firemark.jjrf_as_str()) {
-        Ok(t) => t,
-        Err(e) => {
-            eprintln!("jjx_show: error getting file touches: {}", e);
-            return;
-        }
-    };
+pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<String, String> {
+    let touches = jjrq_file_touches_for_heat(firemark.jjrf_as_str())?;
 
     let has_heat_level = !touches.heat_files.is_empty();
 
@@ -425,9 +420,11 @@ pub(crate) fn jjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
         }
     }
 
+    let mut output = String::new();
+
     if file_touches_map.is_empty() {
-        println!("File-touch bitmap: (no work file changes)");
-        return;
+        writeln!(output, "File-touch bitmap: (no work file changes)").unwrap();
+        return Ok(output);
     }
 
     // Group files by identical touch pattern
@@ -440,26 +437,26 @@ pub(crate) fn jjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
         files.sort();
     }
 
-    // Print header
-    println!("File-touch bitmap (x = pace commit touched file):");
-    println!();
+    // Header
+    writeln!(output, "File-touch bitmap (x = pace commit touched file):").unwrap();
+    writeln!(output).unwrap();
 
-    // Print vertical legend
+    // Vertical legend
     for (i, (ch, _coronet, silks)) in pace_columns.iter().enumerate() {
-        println!("  {} {} {}", i + 1, ch, silks);
+        writeln!(output, "  {} {} {}", i + 1, ch, silks).unwrap();
     }
     if has_heat_level {
-        println!("  {} * heat-level", pace_columns.len() + 1);
+        writeln!(output, "  {} * heat-level", pace_columns.len() + 1).unwrap();
     }
-    println!();
+    writeln!(output).unwrap();
 
-    // Print column header line (terminal chars aligned with bitmap positions)
+    // Column header line (terminal chars aligned with bitmap positions)
     let mut header_chars: Vec<char> = pace_columns.iter().map(|(ch, _, _)| *ch).collect();
     if has_heat_level {
         header_chars.push('*');
     }
     let header_line: String = header_chars.iter().collect();
-    println!("{}", header_line);
+    writeln!(output, "{}", header_line).unwrap();
 
     // Sort patterns: more touches first, then lexicographic
     let mut sorted_patterns: Vec<(Vec<bool>, Vec<String>)> = pattern_groups.into_iter().collect();
@@ -471,7 +468,17 @@ pub(crate) fn jjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
 
     for (pattern, files) in &sorted_patterns {
         let bitmap: String = pattern.iter().map(|&b| if b { 'x' } else { '·' }).collect();
-        println!("{} {}", bitmap, files.join(", "));
+        writeln!(output, "{} {}", bitmap, files.join(", ")).unwrap();
+    }
+
+    Ok(output)
+}
+
+/// Print the file-touch bitmap for a heat to stdout.
+pub(crate) fn jjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
+    match jjrpd_format_file_bitmap(firemark, heat) {
+        Ok(output) => print!("{}", output),
+        Err(e) => eprintln!("jjx_show: error getting file touches: {}", e),
     }
 }
 
@@ -505,26 +512,19 @@ fn zjjrpd_commit_index_char(index: usize) -> Option<char> {
     }
 }
 
-/// Print commit swim lanes for a heat: paces × commits matrix.
+/// Format commit swim lanes for a heat as a String: paces × commits matrix.
 ///
 /// Shows when work happened on each pace and how work interleaved.
-/// Called after file-touch bitmap in heat parade.
-pub(crate) fn jjrpd_print_commit_swimlanes(firemark: &Firemark, heat: &Heat) {
+pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result<String, String> {
     let rein_args = jjrs_ReinArgs {
         firemark: firemark.jjrf_as_str().to_string(),
         limit: 10000,
     };
 
-    let entries = match jjrs_get_entries(&rein_args) {
-        Ok(e) => e,
-        Err(e) => {
-            eprintln!("jjx_show: error getting steeplechase entries: {}", e);
-            return;
-        }
-    };
+    let entries = jjrs_get_entries(&rein_args)?;
 
     if entries.is_empty() {
-        return;
+        return Ok(String::new());
     }
 
     // Entries are newest-first; truncate to 35 most recent, then reverse for chronological
@@ -566,7 +566,7 @@ pub(crate) fn jjrpd_print_commit_swimlanes(firemark: &Firemark, heat: &Heat) {
     let heat_row_idx = pace_order.len();
 
     if total_rows == 0 {
-        return;
+        return Ok(String::new());
     }
 
     // Build bitmap: rows × columns
@@ -586,28 +586,29 @@ pub(crate) fn jjrpd_print_commit_swimlanes(firemark: &Firemark, heat: &Heat) {
         }
     }
 
-    // Print
-    println!();
-    println!("Commit swim lanes (x = commit affiliated with pace):");
-    println!();
+    let mut output = String::new();
+
+    writeln!(output).unwrap();
+    writeln!(output, "Commit swim lanes (x = commit affiliated with pace):").unwrap();
+    writeln!(output).unwrap();
 
     if truncated {
-        println!("(showing last {} of {} commits)", max_commits, total_commits);
-        println!();
+        writeln!(output, "(showing last {} of {} commits)", max_commits, total_commits).unwrap();
+        writeln!(output).unwrap();
     }
 
     // Vertical legend
     for (i, (_, ch, silks)) in pace_order.iter().enumerate() {
-        println!("  {} {} {}", i + 1, ch, silks);
+        writeln!(output, "  {} {} {}", i + 1, ch, silks).unwrap();
     }
     if has_heat_level {
-        println!("  {} * heat-level", pace_order.len() + 1);
+        writeln!(output, "  {} * heat-level", pace_order.len() + 1).unwrap();
     }
-    println!();
+    writeln!(output).unwrap();
 
     // Column header line
     let header: String = (0..num_cols).filter_map(zjjrpd_commit_index_char).collect();
-    println!("{}", header);
+    writeln!(output, "{}", header).unwrap();
 
     // Bitmap rows
     for row in 0..total_rows {
@@ -617,7 +618,17 @@ pub(crate) fn jjrpd_print_commit_swimlanes(firemark: &Firemark, heat: &Heat) {
         } else {
             ('*', row_commit_counts[row])
         };
-        println!("{}  {}  {}c", bits, term_char, count);
+        writeln!(output, "{}  {}  {}c", bits, term_char, count).unwrap();
+    }
+
+    Ok(output)
+}
+
+/// Print commit swim lanes for a heat to stdout.
+pub(crate) fn jjrpd_print_commit_swimlanes(firemark: &Firemark, heat: &Heat) {
+    match jjrpd_format_commit_swimlanes(firemark, heat) {
+        Ok(output) => print!("{}", output),
+        Err(e) => eprintln!("jjx_show: error getting steeplechase entries: {}", e),
     }
 }
 

@@ -98,6 +98,14 @@ internally to get steeplechase entries
 {if tack has warrant:}
 *Warrant:* {warrant}
 
+## Commit Activity
+
+```
+{file-touch bitmap: paces × files matrix}
+
+{commit swim lanes: paces × commits matrix}
+```
+
 ## Steeplechase
 
 {for each steeplechase entry from rein, newest first:}
