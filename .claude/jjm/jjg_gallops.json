@@ -4696,9 +4696,10 @@
         "₢AOAAC",
         "₢AOAAD",
         "₢AOAAE",
-        "₢AOAAF"
+        "₢AOAAF",
+        "₢AOAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -4771,6 +4772,17 @@
               "text": "Strip down the RBSQB quota build manual procedure. The original guide was written to address concurrent build serialization, but the root cause turned out to be machine type selection (E2_HIGHCPU_8 consuming 8 of 10 CPU quota), not an actual quota shortage. The machine type was already fixed to UNSPECIFIED. The programmatic preflight check (rbgd_check_gcb_quota) stays as-is.\n\n## Changes\n\nReframe purpose from \"fix serialization problem\" to \"review Cloud Build capacity\" — a health-check procedure, not a repair procedure.\n\n### Keep\n- Machine type / vCPU / concurrency table (genuinely useful reference)\n- Console navigation steps to check quota\n- Regime config display (RBRR_DEPOT_PROJECT_ID, RBRR_GCP_REGION, RBRR_GCB_MACHINE_TYPE)\n\n### Demote\n- \"Request quota increase\" steps become a brief footnote, not a primary option\n- Lesson learned: if builds serialize, check machine type first — quota increase is rarely the answer\n\n### Remove\n- \"Option A vs Option B\" framing that treats machine type change and quota increase as equal alternatives\n- Machine type is the primary lever; quota increase is last resort\n\n## Files\n- `lenses/RBSQB-quota_build.adoc` — spec (primary edit)\n- `Tools/rbw/rbgm_ManualProcedures.sh` — rbgm_quota_build() function (lines 324-376)\n- `lenses/RBSA-SpecTop.adoc` — cross-reference text may need minor adjustment (lines ~669, 714-720)\n\n## Wiring (no changes needed)\n- `tt/rbw-QB.QuotaBuild.sh` — tabtarget stays\n- `Tools/rbw/rbz_zipper.sh` — blazon stays\n- `Tools/rbw/rbw_workbench.sh` — help text stays\n- `Tools/rbw/rbgd_DepotConstants.sh` — programmatic check stays\n- `Tools/rbw/rbf_Foundry.sh` — preflight call stays\n- `Tools/rbw/rbrn_cli.sh` — audit call stays",
               "silks": "strip-down-quota-build-guide",
               "commit": "7b94bfb"
+            }
+          ]
+        },
+        "₢AOAAG": {
+          "tacks": [
+            {
+              "ts": "260216-1031",
+              "state": "rough",
+              "text": "Fix OS-specific link instructions and redundant text in rbgm_ManualProcedures.sh.\n\n## Issues (from orphaned heat triage)\n\n1. Line 143: Remove redundant \"Default text is this color.\" line — adds no value\n2. Line 144: \"(often, Ctrl + mouse click)\" is wrong on macOS (should be Cmd+click). Replace with OS-detected instruction.\n3. The Key section (lines 140-144) appears in both rbgm_payor_establish and rbgm_quota_build — fix in both places.\n\n## Approach\n\nDetect OS via `uname` and set the click modifier accordingly (Ctrl on Linux, Cmd on macOS). Apply to all bug_link calls that mention the modifier.\n\n## Files\n- `Tools/rbw/rbgm_ManualProcedures.sh` — primary edit target (lines 140-144 in payor_establish, similar block in quota_build around line 340-343)",
+              "silks": "fix-rbgm-os-specific-link-instructions",
+              "commit": "e71852d"
             }
           ]
         }
