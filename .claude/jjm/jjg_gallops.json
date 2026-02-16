@@ -2249,6 +2249,13 @@
         "₢ATAAv": {
           "tacks": [
             {
+              "ts": "260216-0605",
+              "state": "complete",
+              "text": "Audit that every regime consumption point is guarded by validation.\n\nThree audit vectors:\n\n1. **Direct .env sourcing** — grep for scripts that `source` a regime .env file\n   without going through the canonical `*_load()` function. Any direct source\n   bypasses the atomic source→kindle→validate chain.\n\n2. **Regime variable usage outside load→furnish chain** — find consumption of\n   RBRR_*, RBRN_*, RBRP_*, RBRO_*, RBRS_*, RBRA_*, RBRV_* variables in scripts\n   that do not call the corresponding `*_load()` in their furnish function.\n\n3. **CLI furnish pattern completeness** — verify every `*_cli.sh` uses the\n   buc_execute furnish pattern. Known concern: `rbga_cli.sh` uses an older\n   pattern without furnish. Newer CLIs (rbre_cli.sh, rbrg_cli.sh) need\n   verification.\n\nDeliverable: a list of gaps (if any) and fixes applied, or confirmation that\nall consumption paths are gated.",
+              "silks": "audit-regime-validation-gates",
+              "commit": "077c814"
+            },
+            {
               "ts": "260216-0557",
               "state": "bridled",
               "text": "Audit that every regime consumption point is guarded by validation.\n\nThree audit vectors:\n\n1. **Direct .env sourcing** — grep for scripts that `source` a regime .env file\n   without going through the canonical `*_load()` function. Any direct source\n   bypasses the atomic source→kindle→validate chain.\n\n2. **Regime variable usage outside load→furnish chain** — find consumption of\n   RBRR_*, RBRN_*, RBRP_*, RBRO_*, RBRS_*, RBRA_*, RBRV_* variables in scripts\n   that do not call the corresponding `*_load()` in their furnish function.\n\n3. **CLI furnish pattern completeness** — verify every `*_cli.sh` uses the\n   buc_execute furnish pattern. Known concern: `rbga_cli.sh` uses an older\n   pattern without furnish. Newer CLIs (rbre_cli.sh, rbrg_cli.sh) need\n   verification.\n\nDeliverable: a list of gaps (if any) and fixes applied, or confirmation that\nall consumption paths are gated.",
