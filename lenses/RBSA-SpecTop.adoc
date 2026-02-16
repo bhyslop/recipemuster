@@ -1693,48 +1693,37 @@ operations.
 [[rbrr_regime]]
 // ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
 {rbrr_regime}::
-An
-regime
-that defines repository-wide configuration and installation-wide settings shared across all
+Repository-wide configuration and installation-wide settings shared across all
 {at_recipe_bottle}
 operations.
-RBRR regimes contain depot project identifiers, regional settings, repository locations, and service account credential file paths that establish the foundational infrastructure configuration.
 
 [[rbrr_depot_project_id]]
 // ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_project_id⟧
 {rbrr_depot_project_id}::
-The
 {gcp_service}
 {gcp_project_id}
 where all
 {at_recipe_bottle}
 resources are created and managed.
-Used as the target
-{gcp_project_id}
-in API calls and as the audience claim in
-{oauth_token}
-exchange.
 
 [[rbrr_gcp_region]]
 // ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_region⟧
 {rbrr_gcp_region}::
-The default
+Default
 {gcp_service}
 region for regional services like
 {gar_service}
 and
 {gcb_service}.
-Applied when creating repositories and submitting builds unless overridden by operation-specific configuration.
 
 [[rbrr_gar_repository]]
 // ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_project_id⟧
 {rbrr_gar_repository}::
-The
 {gar_service}
 {rbtgi_repository}
-name within
+within
 {rbrr_depot_project_id}
-that stores all
+for
 {at_bottle_image_s}
 and
 {rbtgi_metadata_s}.
@@ -1742,49 +1731,28 @@ and
 [[rbrr_retriever_rbra_file]]
 // ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
 {rbrr_retriever_rbra_file}::
-Path to an
-{rbtgi_rbra_file}
-stored in the
-{at_operator_p}
-local filesystem outside the source
-{rbtgi_repository}.
-This file enables the
-{at_operator}
-to assume the
+Path to the
 {rbtr_retriever}
-role for container image operations.
+{rbtgi_rbra_file}
+for container image operations.
 
 [[rbrr_director_rbra_file]]
 // ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
 {rbrr_director_rbra_file}::
-Path to an
-{rbtgi_rbra_file}
-stored in the
-{at_operator_p}
-local filesystem outside the source
-{rbtgi_repository}.
-This file enables the
-{at_operator}
-to assume the
+Path to the
 {rbtr_director}
-for build submission and image management operations.
+{rbtgi_rbra_file}
+for build submission and image management.
 
 [[rbrr_governor_rbra_file]]
 // ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
 {rbrr_governor_rbra_file}::
-Path to an
-{rbtgi_rbra_file}
-stored in the
-{at_operator_p}
-local filesystem outside the source
-{rbtgi_repository}.
-This file enables the
-{at_operator}
-to assume the
+Path to the
 {rbtr_governor}
-role for
+{rbtgi_rbra_file}
+for
 {gcp_project_id}
-administration operations.
+administration.
 
 [[rbrr_vessel_dir]]
 // ⟦axvr_variable axd_required rbst_path⟧
@@ -1909,114 +1877,67 @@ include::RBSRR-RegimeRepo.adoc[]
 [[rbra_regime]]
 // ⟦axvr_regime axf_bash axrd_file_sourced axrd_manifold⟧
 {rbra_regime}::
-An
-regime
-that contains
 {giam_service_account}
 credentials and authentication material for secure access to
 {gcp_service}
 APIs.
-RBRA regimes are security-isolated configuration files typically stored outside the main repository in `../station-files/secrets/rbra-*.env` locations.
-These regimes enable different service account roles to authenticate and operate within their designated scopes.
-
-An
-{rbtgi_rbra_file}
-is a credentials file containing the minimum identity and signing material needed for
-{at_recipe_bottle}
-tools to authenticate to
-{gcp_service}
-via
-{giam_service_account}.
 
 [[rbra_client_email]]
 // ⟦axl_voices axrg_variable axtg_service_account⟧
 {rbra_client_email}::
-The
 {giam_service_account}
-email address assigned by
-{gcp_service},
-used as the issuer (`iss`) when constructing JWTs for OAuth2 token exchange.
+email address used as JWT issuer for OAuth2 token exchange.
 
 [[rbra_private_key]]
 // ⟦axl_voices axrg_variable axtu_string⟧
 {rbra_private_key}::
-The PEM-encoded RSA private key material corresponding to the
+PEM-encoded RSA private key for the
 {giam_service_account}.
-Stored as a literal multi-line string with `\n` sequences that are expanded when signing JWTs.
-Used only in memory at runtime; never written separately to disk.
 
 [[rbra_project_id]]
 // ⟦axl_voices axrg_variable axtg_project_id⟧
 {rbra_project_id}::
-The
 {gcp_service}
 {gcp_project_id}
 that owns the
 {giam_service_account}.
-Provides scope for all API operations since a
-{giam_service_account}
-can only act within its parent project's boundaries unless granted cross-project roles.
 
 [[rbra_token_lifetime_sec]]
 // ⟦axl_voices axrg_variable axtu_integer⟧
 {rbra_token_lifetime_sec}::
-The OAuth token lifetime in seconds for JWT token exchange with
+OAuth token lifetime in seconds for JWT token exchange with
 {gcp_service}
 APIs.
-Validated in range 300-3600; typically set to 1800 (30 minutes).
 
 include::RBSRA-CredentialFormat.adoc[]
 
 === Payor Regime (RBRP)
 
-The
-{rbtr_payor}
-regime
-defines configuration for the administrative layer that manages
-{at_recipe_bottle}
-infrastructure.
-These settings control how the
-{rbtr_payor}
-creates and manages
-{rbtgi_depot_project}
-instances.
-
 [[rbrp_regime]]
 // ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
 {rbrp_regime}::
-An
-regime
-that contains configuration for the administrative
+Administrative
 {rbtr_payor}
-layer managing
+configuration for managing
 {at_recipe_bottle}
 infrastructure.
-RBRP regimes define payor project identification, billing account linkage, OAuth client configuration, and depot project tracking arrays that enable infrastructure lifecycle management.
 
 [[rbrp_payor_project_id]]
 // ⟦axl_voices axrg_variable axtg_project_id⟧
 {rbrp_payor_project_id}::
-The
 {gcp_service}
 {gcp_project_id}
-that hosts the OAuth 2.0 client configuration for
+hosting the OAuth 2.0 client configuration for
 {rbtr_payor}
 operations.
-This
-{gcp_project_id}
-must exist before Recipe Bottle initialization and serves as the administrative control plane.
 
 [[rbrp_billing_account_id]]
 // ⟦axl_voices axrg_variable axtg_billing_account⟧
 {rbrp_billing_account_id}::
-The
 {gcp_service}
-billing account identifier that the
-{rbtr_payor}
-links to newly created
+billing account linked to newly created
 {rbtgi_depot_project}
 instances.
-Format: XXXXXX-XXXXXX-XXXXXX.
 
 [[rbrp_oauth_client_id]]
 // ⟦axl_voices axrg_variable axtu_string⟧
@@ -2029,21 +1950,12 @@ include::RBSRP-RegimePayor.adoc[]
 
 === OAuth Regime (RBRO)
 
-The OAuth
-regime
-stores sensitive OAuth credentials locally for
-{rbtr_payor}
-authentication.
-
 [[rbro_regime]]
 // ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
 {rbro_regime}::
-An
-regime
-containing OAuth client credentials and refresh tokens for
+OAuth client credentials and refresh tokens for
 {rbtr_payor}
 operations.
-Stored in `~/.rbw/rbro.env` with 600 permissions, never committed to version control.
 
 [[rbro_client_secret]]
 // ⟦axl_voices axrg_variable axtu_string⟧
