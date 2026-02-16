@@ -1151,9 +1151,10 @@
         "₢ATAAs",
         "₢ATAAp",
         "₢ATAAu",
-        "₢ATAAt"
+        "₢ATAAt",
+        "₢ATAAv"
       ],
-      "next_pace_seed": "AAv",
+      "next_pace_seed": "AAw",
       "paddock_file": ".claude/jjm/jjp_AT.md",
       "paces": {
         "₢ATAAA": {
@@ -2242,6 +2243,17 @@
               "text": "Findings from regime-reviewer session (2026-02-15). Study each item to determine resolution before cleanup.\n\n## Finding 1: ATAAK — rbl_kindle_all calls survive in 3 CLIs [HIGH confidence to fix]\n- Tools/rbw/rbga_cli.sh:35 calls rbl_kindle_all (deleted function)\n- Tools/rbw/rbgb_cli.sh:35 calls rbl_kindle_all (deleted function)\n- Tools/rgbs_cli.sh:34 calls rbl_kindle_all (deleted function)\nThese are runtime failures. Likely just need the calls removed (dead code), but study what rbl_kindle_all actually did before deleting — it may have kindled dependencies these CLIs still need.\n\n## Finding 2: ATAAm — old-style variable annotations in RBSA [LOW confidence — needs study]\nRBSA lines ~1989-2021 use `// ⟦axl_voices axrg_variable ...⟧` instead of modern `// ⟦axvr_variable ...⟧` style. Question: is this a RBRP-specific issue from this pace, or a broader pattern across all RBSA variable annotations? If broader, this is a separate normalization sweep, not a pace-specific fix. Need to assess scope before acting.\n\n## Finding 3: ATAAm — orphan rbrp_depot_project_ids in RBSA [LOW confidence — needs study]\nRBSA line ~2020-2023 defines rbrp_depot_project_ids with axd_repeated dimension. This variable does NOT appear in RBSRP-RegimePayor.adoc subdocument or in rbrp_regime.sh validator. Is this a real variable that was missed, or a stale artifact? Need to check rbrp_regime.sh and rbrp.env to determine if this variable exists.\n\n## Finding 4: ATAAo — RBRE/RBRG marked singleton, architecture says manifold [LOW confidence — needs decision]\nRBSA line ~2061: RBRE annotated axrd_singleton\nRBSA line ~2105: RBRG annotated axrd_singleton\nRegime Cardinality Map says both are `manifold(?)` with question marks. Need to decide:\n- Option A: Commit to manifold now (add list operations to CLIs and subdocuments)\n- Option B: Keep singleton for now, change when multi-instance support is actually needed\n- Option C: The question marks meant \"uncertain\" — resolve the actual cardinality based on current usage\n\n## Action\nStudy each finding. For items marked HIGH confidence, the reviewer agent can likely fix mechanically. For LOW confidence items, human judgment needed before proceeding.",
               "silks": "review-checkpoint-findings",
               "commit": "3e26d6b"
+            }
+          ]
+        },
+        "₢ATAAv": {
+          "tacks": [
+            {
+              "ts": "260216-0554",
+              "state": "rough",
+              "text": "Audit that every regime consumption point is guarded by validation.\n\nThree audit vectors:\n\n1. **Direct .env sourcing** — grep for scripts that `source` a regime .env file\n   without going through the canonical `*_load()` function. Any direct source\n   bypasses the atomic source→kindle→validate chain.\n\n2. **Regime variable usage outside load→furnish chain** — find consumption of\n   RBRR_*, RBRN_*, RBRP_*, RBRO_*, RBRS_*, RBRA_*, RBRV_* variables in scripts\n   that do not call the corresponding `*_load()` in their furnish function.\n\n3. **CLI furnish pattern completeness** — verify every `*_cli.sh` uses the\n   buc_execute furnish pattern. Known concern: `rbga_cli.sh` uses an older\n   pattern without furnish. Newer CLIs (rbre_cli.sh, rbrg_cli.sh) need\n   verification.\n\nDeliverable: a list of gaps (if any) and fixes applied, or confirmation that\nall consumption paths are gated.",
+              "silks": "audit-regime-validation-gates",
+              "commit": "d750108"
             }
           ]
         }
