@@ -4686,9 +4686,10 @@
       "order": [
         "₢AOAAA",
         "₢AOAAB",
-        "₢AOAAC"
+        "₢AOAAC",
+        "₢AOAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -4728,6 +4729,17 @@
               "text": "Refresh all workbench _register function implementations against the updated BCG (BashConsoleGuide) document, which has\n been significantly improved regarding colophon registration patterns. Read the current BCG spec, understand the\nupdated conventions for _register functions, then audit and update each workbench's _register function to conform.",
               "silks": "refresh-register-colophons",
               "commit": "b633ad8"
+            }
+          ]
+        },
+        "₢AOAAD": {
+          "tacks": [
+            {
+              "ts": "260216-1009",
+              "state": "rough",
+              "text": "Detect missing macOS app-data-access permissions at runtime and fail gracefully instead of hanging.\n\n## Context\n\nDuring ₣AP pace ₢APAAo testing, `docker manifest inspect` hung indefinitely because macOS presented an invisible modal dialog: \"iTerm would like to access data from other apps.\" The dialog blocks the Docker CLI socket connection with no timeout. This was encountered when running `./tt/rbw-rrg.RefreshGcbPins.sh` — the transcript showed it stuck on \"Inspecting gcr.io/go-containerregistry/gcrane:latest\" after the oras discovery phase completed normally (oras uses curl, not Docker socket).\n\nThe popup is macOS's TCC (Transparency, Consent, and Control) system. It appears when iTerm (or any terminal app) first tries to access another app's data — in this case, the Docker/Podman socket or container runtime data. Once \"Allow\" is clicked, the permission is cached in TCC.db and won't appear again. But if it's never been granted, any Docker CLI command will hang waiting for the modal.\n\n## Problem\n\n- `docker manifest inspect` hangs forever waiting for TCC consent dialog\n- No timeout, no error message — just silence\n- Tests and tabtargets that use Docker commands become \"stuck\" with no diagnostic\n- The dialog may not be visible if the terminal is not in focus\n\n## Work\n\n1. Research how to detect TCC permission state programmatically on macOS (tccutil, sqlite3 on TCC.db, or behavioral probe)\n2. Design a lightweight pre-flight check: attempt a trivial Docker command with a short timeout (e.g., `timeout 5 docker version`)\n3. If the probe times out, print a clear diagnostic: \"Docker CLI is not responding. If macOS prompted 'iTerm would like to access data from other apps', click Allow and retry.\"\n4. Integrate the check into buc_countdown or a new buc_preflight utility so tabtargets that need Docker fail fast with an actionable message\n5. Mark test results as INCONCLUSIVE rather than hanging when this condition is detected\n\n## Acceptance\n\n- Docker-dependent tabtargets fail within 10 seconds with a clear message when TCC permission is missing\n- No hang, no silent failure\n- Works on macOS (skip check gracefully on Linux)",
+              "silks": "detect-macos-app-permissions",
+              "commit": "075b914"
             }
           ]
         }
