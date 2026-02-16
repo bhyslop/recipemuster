@@ -2014,6 +2014,28 @@ The macro form's square brackets allow inline formatting in the display text (bo
 
 Identified 2026-02-04 during AXLA editing session. Shorthand form prevents any formatting of replacement text.
 
+## rbgm-payor-establish-readme
+Locate or create user-friendly README for the payor establishment workflow.
+
+### Problem
+
+Documentation exists in `lenses/RBSPE-payor_establish.adoc` and `lenses/RBSPR-payor_refresh.adoc` (AsciiDoc format), but no user-friendly README or getting-started guide links to it from `Tools/rbw/`.
+
+### Context
+
+Migrated from orphaned heat `jjh_b251226-bash-tooling-cleanup.md` (item #2), 2026-02-16.
+
+## rbags-image-list-operation
+Define and scope an image registry listing operation for the Director role.
+
+### Problem
+
+No operation exists to enumerate available images in the repository. Need to establish operation name (candidate: something under rbw or rbgd), define scope, parameters, and integration points.
+
+### Context
+
+Migrated from orphaned heat `jjh_b251226-bash-tooling-cleanup.md` (item #8), 2026-02-16. Originally marked `mode: manual`.
+
 ## rbw-local-build-push
 Build images locally then push to Artifact Registry for users with Director credentials.
 
