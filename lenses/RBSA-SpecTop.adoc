@@ -253,6 +253,12 @@
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
 :rbrr_gcb_gcrane_image_ref:  <<rbrr_gcb_gcrane_image_ref,RBRR_GCB_GCRANE_IMAGE_REF>>
 :rbrr_gcb_oras_image_ref:    <<rbrr_gcb_oras_image_ref,RBRR_GCB_ORAS_IMAGE_REF>>
+:rbrr_gcb_gcloud_image_ref:  <<rbrr_gcb_gcloud_image_ref,RBRR_GCB_GCLOUD_IMAGE_REF>>
+:rbrr_gcb_docker_image_ref:  <<rbrr_gcb_docker_image_ref,RBRR_GCB_DOCKER_IMAGE_REF>>
+:rbrr_gcb_skopeo_image_ref:  <<rbrr_gcb_skopeo_image_ref,RBRR_GCB_SKOPEO_IMAGE_REF>>
+:rbrr_gcb_alpine_image_ref:  <<rbrr_gcb_alpine_image_ref,RBRR_GCB_ALPINE_IMAGE_REF>>
+:rbrr_gcb_syft_image_ref:    <<rbrr_gcb_syft_image_ref,RBRR_GCB_SYFT_IMAGE_REF>>
+:rbrr_gcb_binfmt_image_ref:  <<rbrr_gcb_binfmt_image_ref,RBRR_GCB_BINFMT_IMAGE_REF>>
 :rbrr_chosen_identity:       <<rbrr_chosen_identity,RBRR_CHOSEN_IDENTITY>>
 :rbrr_chosen_podman_version: <<rbrr_chosen_podman_version,RBRR_CHOSEN_PODMAN_VERSION>>
 :rbrr_chosen_vmimage_origin: <<rbrr_chosen_vmimage_origin,RBRR_CHOSEN_VMIMAGE_ORIGIN>>
@@ -320,12 +326,8 @@
 // Recipe Bottle Regime: Authentication (service account credentials)
 :rbra_regime:                <<rbra_regime,RBRA Regime>>
 
-// Recipe Bottle Regime: Environment Variables (runtime container configuration)
-:rbev_regime:                <<rbev_regime,RBEV Regime>>
-
 // Recipe Bottle Regime Prefixes
 :rbre_prefix:                <<rbre_prefix,RBRE_>>
-:rbev_prefix:                <<rbev_prefix,RBEV_>>
 :rbra_prefix:                <<rbra_prefix,RBRA_>>
 :rbrg_prefix:                <<rbrg_prefix,RBRG_>>
 :rbrn_prefix:                <<rbrn_prefix,RBRN_>>
@@ -1659,11 +1661,6 @@ Recipe Bottle Vessel Regime
 {rbra_prefix}::
 Recipe Bottle Authentication Regime
 
-[[rbev_prefix]]
-// ⟦axl_voices axrg_prefix⟧
-{rbev_prefix}::
-Recipe Bottle Environment Variables Regime
-
 [[rbre_prefix]]
 // ⟦axl_voices axrg_prefix⟧
 {rbre_prefix}::
@@ -1815,7 +1812,7 @@ Directory containing vessel configuration subdirectories for
 {rbrr_regime}.
 
 [[rbrr_dns_server]]
-// ⟦axvr_variable axd_optional rbst_ip_address⟧
+// ⟦axvr_variable axd_required rbst_ipv4⟧
 {rbrr_dns_server}::
 DNS server IP address for sentry container name resolution.
 
@@ -1878,6 +1875,36 @@ Fully-qualified image reference for gcrane Cloud Build step.
 // ⟦axvr_variable axd_required rbst_image_ref⟧
 {rbrr_gcb_oras_image_ref}::
 Fully-qualified image reference for ORAS Cloud Build step.
+
+[[rbrr_gcb_gcloud_image_ref]]
+// ⟦axvr_variable axd_required rbst_image_ref⟧
+{rbrr_gcb_gcloud_image_ref}::
+Fully-qualified image reference for gcloud Cloud Build step.
+
+[[rbrr_gcb_docker_image_ref]]
+// ⟦axvr_variable axd_required rbst_image_ref⟧
+{rbrr_gcb_docker_image_ref}::
+Fully-qualified image reference for Docker Cloud Build step.
+
+[[rbrr_gcb_skopeo_image_ref]]
+// ⟦axvr_variable axd_required rbst_image_ref⟧
+{rbrr_gcb_skopeo_image_ref}::
+Fully-qualified image reference for Skopeo Cloud Build step.
+
+[[rbrr_gcb_alpine_image_ref]]
+// ⟦axvr_variable axd_required rbst_image_ref⟧
+{rbrr_gcb_alpine_image_ref}::
+Fully-qualified image reference for Alpine Cloud Build step.
+
+[[rbrr_gcb_syft_image_ref]]
+// ⟦axvr_variable axd_required rbst_image_ref⟧
+{rbrr_gcb_syft_image_ref}::
+Fully-qualified image reference for Syft SBOM Cloud Build step.
+
+[[rbrr_gcb_binfmt_image_ref]]
+// ⟦axvr_variable axd_required rbst_image_ref⟧
+{rbrr_gcb_binfmt_image_ref}::
+Fully-qualified image reference for binfmt Cloud Build step.
 
 [[rbrr_group_service_accounts]]
 // ⟦axvr_group⟧
@@ -2276,35 +2303,35 @@ Variables for conjuring vessels within
 {rbrv_regime}.
 
 [[rbrv_bind_image]]
-// ⟦axvr_variable axd_required rbst_image_ref⟧
+// ⟦axvr_variable axd_conditional rbst_image_ref⟧
 {rbrv_bind_image}::
 Container image reference for
 {rbrv_regime}
 binding vessels.
 
 [[rbrv_conjure_dockerfile]]
-// ⟦axvr_variable axd_required rbst_path⟧
+// ⟦axvr_variable axd_conditional rbst_path⟧
 {rbrv_conjure_dockerfile}::
 Dockerfile path for
 {rbrv_regime}
 conjuring vessels.
 
 [[rbrv_conjure_bldcontext]]
-// ⟦axvr_variable axd_required rbst_path⟧
+// ⟦axvr_variable axd_conditional rbst_path⟧
 {rbrv_conjure_bldcontext}::
 Build context directory for
 {rbrv_regime}
 conjuring.
 
 [[rbrv_conjure_platforms]]
-// ⟦axvr_variable axd_optional rbst_platform_list⟧
+// ⟦axvr_variable axd_conditional rbst_platform_list⟧
 {rbrv_conjure_platforms}::
 Target platform architectures for
 {rbrv_regime}
 multi-platform builds.
 
 [[rbrv_conjure_binfmt_policy]]
-// ⟦axvr_variable axd_optional rbst_binfmt_policy⟧
+// ⟦axvr_variable axd_conditional rbst_binfmt_policy⟧
 {rbrv_conjure_binfmt_policy}::
 Qemu binary format policy for
 {rbrv_regime}
@@ -2389,12 +2416,12 @@ Entry functionality is disabled; no user-initiated connections.
 Entry functionality is enabled; user-initiated connections accepted.
 
 [[rbrn_entry_port_workstation]]
-// ⟦axvr_variable axd_required rbst_port⟧
+// ⟦axvr_variable axd_conditional rbst_port⟧
 {rbrn_entry_port_workstation}::
 External port exposed on the transit network for user entry.
 
 [[rbrn_entry_port_enclave]]
-// ⟦axvr_variable axd_required rbst_port⟧
+// ⟦axvr_variable axd_conditional rbst_port⟧
 {rbrn_entry_port_enclave}::
 Port used between sentry and bottle containers for entry traffic.
 
@@ -2464,12 +2491,12 @@ IP access globally enabled; all destinations reachable.
 IP access restricted to allowed CIDR ranges.
 
 [[rbrn_uplink_allowed_cidrs]]
-// ⟦axvr_variable axd_required rbst_cidr_list⟧
+// ⟦axvr_variable axd_conditional rbst_cidr_list⟧
 {rbrn_uplink_allowed_cidrs}::
 CIDR ranges for allowed bottle-initiated outbound traffic.
 
 [[rbrn_uplink_allowed_domains]]
-// ⟦axvr_variable axd_required rbst_domain_list⟧
+// ⟦axvr_variable axd_conditional rbst_domain_list⟧
 {rbrn_uplink_allowed_domains}::
 Domain names allowed for bottle-initiated DNS resolution.
 
@@ -2499,21 +2526,6 @@ Access allowlist variables for IP-restricted outbound traffic.
 DNS allowlist variables for domain-restricted resolution.
 
 include::RBRN-RegimeNameplate.adoc[]
-
-=== Environment Variables Regime (RBEV)
-
-[[rbev_regime]]
-// ⟦axl_voices axrg_regime axf_bash axrd_manifold⟧
-{rbev_regime}::
-An
-regime
-that defines runtime container environment variables and configuration parameters for active
-{at_bottle_image}
-instances.
-RBEV regimes specify container execution parameters, port mappings, working directories, and other runtime characteristics that are applied when containers are instantiated.
-These configurations are typically embedded within recipe files and container orchestration specifications.
-
-NOTE: Individual RBEV variables are actively used throughout the system but formal definition within this specification is TBD for future documentation efforts.
 
 == Type Voicings
 

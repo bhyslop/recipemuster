@@ -174,6 +174,42 @@ Gcrane provides Google-authenticated OCI registry operations.
 Fully-qualified image reference for ORAS tool used in Cloud Build steps.
 ORAS handles OCI artifact operations beyond container images.
 
+// ⟦axhrgv_variable⟧
+{rbrr_gcb_gcloud_image_ref}
+
+Fully-qualified image reference for gcloud tool used in Cloud Build steps.
+Provides Google Cloud CLI for project and service operations.
+
+// ⟦axhrgv_variable⟧
+{rbrr_gcb_docker_image_ref}
+
+Fully-qualified image reference for Docker tool used in Cloud Build steps.
+Provides container image building and pushing capabilities.
+
+// ⟦axhrgv_variable⟧
+{rbrr_gcb_skopeo_image_ref}
+
+Fully-qualified image reference for Skopeo tool used in Cloud Build steps.
+Provides container image inspection and transfer operations.
+
+// ⟦axhrgv_variable⟧
+{rbrr_gcb_alpine_image_ref}
+
+Fully-qualified image reference for Alpine base image used in Cloud Build steps.
+Provides lightweight shell environment for scripting steps.
+
+// ⟦axhrgv_variable⟧
+{rbrr_gcb_syft_image_ref}
+
+Fully-qualified image reference for Syft tool used in Cloud Build steps.
+Generates software bill of materials (SBOM) for built images.
+
+// ⟦axhrgv_variable⟧
+{rbrr_gcb_binfmt_image_ref}
+
+Fully-qualified image reference for binfmt tool used in Cloud Build steps.
+Configures QEMU binary format support for cross-platform builds.
+
 // ⟦axhro_kindle⟧
 {rbkro_kindle}
 
