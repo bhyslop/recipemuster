@@ -1,6 +1,103 @@
 {
   "next_heat_seed": "Af",
   "heats": {
+    "₣Ab": {
+      "silks": "jjk-cleanups-02",
+      "creation_time": "260211",
+      "status": "racing",
+      "order": [
+        "₢AbAAE",
+        "₢AbAAA",
+        "₢AbAAB",
+        "₢AbAAC",
+        "₢AbAAD",
+        "₢AbAAF"
+      ],
+      "next_pace_seed": "AAG",
+      "paddock_file": ".claude/jjm/jjp_Ab.md",
+      "paces": {
+        "₢AbAAA": {
+          "tacks": [
+            {
+              "ts": "260211-0738",
+              "state": "rough",
+              "text": "## Problem\n\nA Claude Code officium exhibited two failures:\n\n1. **Used `cd` in Bash commands** — violating the CLAUDE.md rule \"Never cd in Bash commands — it persists and breaks subsequent tabtarget calls.\" The shell cwd got reset to `pb_paneboard02` after the cd, corrupting all subsequent commands.\n\n2. **Invented `jjx_slate`** — a non-existent subcommand. The slash command `/jjc-pace-slate` loaded successfully but Claude ignored its instructions and guessed at a CLI verb instead of using `jjx_enroll` as documented.\n\n## Investigation Scope\n\n- Why did the officium use `cd` despite clear prohibition? Is the CLAUDE.md instruction insufficiently prominent or poorly worded?\n- Why did the officium invent `jjx_slate` instead of reading the loaded slash command content? Is the slash command output being lost or ignored?\n- What repairs to CLAUDE.md, slash commands, or kit documentation would prevent recurrence?\n\n## Deliverable\n\nA memo with findings and concrete recommended changes (file paths, diff-style edits) to prevent both failure modes.",
+              "silks": "jjk-spook-cd-cwd-corruption",
+              "commit": "691945d"
+            }
+          ]
+        },
+        "₢AbAAB": {
+          "tacks": [
+            {
+              "ts": "260211-1404",
+              "state": "rough",
+              "text": "## Task\n\nIntroduce the concept of \"spook\" into JJSA (Gallops data model specification) as a formal JJ vocabulary\nterm.\n\n## Definition\n\nA **spook** is a failure of a slash command or other Job Jockey interaction to function correctly. Named by\nanalogy to an equestrian spook — the horse (Claude) shies away from the correct path despite clear guidance.\n\n## Scope\n\n- Add spook as a linked term in JJSA with proper MCM attribute, anchor, and definition\n- Ensure it fits the existing vocabulary categories and naming conventions\n- Consider whether spook warrants subcategories (e.g., cd-spook, phantom-verb-spook) or remains a single\numbrella term\n\n## Deliverable\n\nUpdated JJSA with spook concept properly integrated following MCM linked term patterns.",
+              "silks": "jjk-spook-concept-jjsa",
+              "commit": "b82ac65"
+            }
+          ]
+        },
+        "₢AbAAC": {
+          "tacks": [
+            {
+              "ts": "260215-0724",
+              "state": "rough",
+              "text": "## Spook\n\nFull-list `jjx_reorder` requires ALL paces (including complete) to be listed, making it unusable for mature heats. Error: \"Order count mismatch: got 12, expected 38\" when only listing actionable paces.\n\n## Design Decision\n\nRedefine full-list reorder to operate on **non-complete paces only**. Complete paces retain their positions implicitly (historical record, order reflects execution sequence).\n\nAbandoned paces are treated as **moveable** — they're decision markers, not completed actions, and their position relative to rough paces may matter.\n\nRule: complete = frozen, everything else (rough, bridled, in_progress, abandoned) = reorderable.\n\n## Implementation\n\n- `jjx_reorder` full-list mode: count validation uses non-complete paces only\n- Complete paces keep their current indices unchanged\n- Non-complete paces are reordered among the gaps\n- `--move` single-pace mode: no change needed (already works correctly)\n- Add test coverage for mixed-status reordering",
+              "silks": "jjk-spook-rail-full-list-scope",
+              "commit": "bfa08fe"
+            }
+          ]
+        },
+        "₢AbAAD": {
+          "tacks": [
+            {
+              "ts": "260216-0829",
+              "state": "rough",
+              "text": "Fix jjx_notch and jjx_record to handle deleted files.\n\n## Problem\nBoth `jjx_notch` and `jjx_record` reject files that have been `git rm`'d. The file validation logic checks filesystem existence, then falls back to `git ls-files --error-unmatch` for files not on disk. But for staged deletions, the file is removed from both disk AND the index, so both checks fail:\n\n    jjx_notch: error: file does not exist and is not tracked by git: <path>\n\n`jjx_record` has the same issue — passing a `git rm`'d path fails validation entirely. As a side effect, already-staged deletions slip into commits when other files are committed, but produce misleading \"uncommitted changes outside file list\" warnings.\n\n## Root Cause\n`git ls-files` queries the index. `git rm` removes from the index. The existing check covers unstaged deletions (file gone from disk but still in index) but not staged deletions.\n\n## Solution\nAdd a third check: `git diff --cached --name-only --diff-filter=D -- <file>`. If this produces output, the file is a staged deletion and should be accepted.\n\nValidation chain becomes:\n1. `path.exists()` — file on disk (additions/modifications)\n2. `git ls-files --error-unmatch` — file in index (unstaged deletions)\n3. `git diff --cached --name-only --diff-filter=D` — file is staged deletion\n\nThis fix applies to the shared validation logic used by both commands.\n\n## Files to modify\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` — add staged-deletion check after the ls-files fallback\n- `Tools/jjk/vov_veiled/JJSCNC-notch.adoc` — update validation prose to cover all three cases\n- Check if `jjx_record` shares the same validation path or needs a parallel fix\n\n## Verification\n1. `tt/vow-b.Build.sh`\n2. `tt/vow-t.Test.sh`\n3. Manual: `git rm` a file, run notch with that file — should succeed\n4. Manual: `git rm` a file, run record with that file — should succeed",
+              "silks": "fix-notch-staged-deletion",
+              "commit": "ef5c022"
+            },
+            {
+              "ts": "260215-0835",
+              "state": "rough",
+              "text": "Fix jjx_notch to handle staged deletions (git rm'd files).\n\n## Problem\n₢AHAAQ added a fallback check via `git ls-files --error-unmatch` for files that don't exist on disk. But for staged deletions (`D` in column 1 of `git status --porcelain`), the file is removed from both disk AND the index. So `git ls-files --error-unmatch` also fails, producing:\n\n    jjx_notch: error: file does not exist and is not tracked by git: lenses/RBRR-RegimeRepo.adoc\n\n## Root Cause\n`git ls-files` queries the index. `git rm` removes from the index. The existing check covers unstaged deletions (file gone from disk but still in index) but not staged deletions.\n\n## Solution\nAdd a third check: `git diff --cached --name-only --diff-filter=D -- <file>`. If this produces output, the file is a staged deletion and should be accepted.\n\nValidation chain becomes:\n1. `path.exists()` — file on disk (additions/modifications)\n2. `git ls-files --error-unmatch` — file in index (unstaged deletions)\n3. `git diff --cached --name-only --diff-filter=D` — file is staged deletion\n\n## Files to modify\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` — add staged-deletion check after the ls-files fallback\n- `Tools/jjk/vov_veiled/JJSCNC-notch.adoc` — update validation prose to cover all three cases\n\n## Verification\n1. `tt/vow-b.Build.sh`\n2. `tt/vow-t.Test.sh`\n3. Manual: `git rm` a file, run notch with that file — should succeed",
+              "silks": "fix-notch-staged-deletion",
+              "commit": "fca76d9"
+            }
+          ]
+        },
+        "₢AbAAE": {
+          "tacks": [
+            {
+              "ts": "260216-0502",
+              "state": "rough",
+              "text": "## Feature\n\nExtend the `mount` quick verb (currently `/jjc-heat-mount`) so it can accept a coronet argument to start a specific pace, potentially asynchronously.\n\n## Current Behavior\n\n- `mount` maps to `/jjc-heat-mount`, which finds and executes the next actionable pace in a heat.\n- No way to target a specific pace by coronet.\n\n## Desired Behavior\n\n- `mount` with no coronet: unchanged — finds and executes next actionable pace.\n- `mount ₢XXXXX`: mounts the specified pace directly. If the pace is bridled, it may be dispatched asynchronously (background Task agent). If rough/unbridled, it mounts interactively.\n\n## Scope\n\n- Update `/jjc-heat-mount` slash command to accept an optional coronet argument.\n- Update the quick verb table in CLAUDE.md to document the coronet-accepting variant.\n- Handle edge cases: coronet not found, pace already complete, pace not bridled (interactive fallback).\n- Async dispatch for bridled paces uses Task tool with `run_in_background: true`.\n\n## Open Questions\n\n- Should unbridled paces error or fall through to interactive mount?\n- Does async dispatch need a new slash command or is it a mode within mount?\n\n## Files Likely Touched\n\n- `.claude/commands/jjc-heat-mount.md` — slash command definition\n- `CLAUDE.md` — quick verb table update",
+              "silks": "mount-accept-coronet",
+              "commit": "67d5c86"
+            }
+          ]
+        },
+        "₢AbAAF": {
+          "tacks": [
+            {
+              "ts": "260216-0829",
+              "state": "abandoned",
+              "text": "`jjx_record` cannot commit deleted files. It validates that every file in the file list exists on disk, rejecting with \"file does not exist and is not tracked by git\" for `git rm`'d paths.\n\n## Observed behavior\n\nWhen files are staged for deletion via `git rm`, passing them to `jjx_record` fails:\n```\njjx_record APAAj Tools/rbw/rbw.workbench.mk  # already git rm'd\n# error: file does not exist and is not tracked by git: Tools/rbw/rbw.workbench.mk\n```\n\n## Workaround discovered\n\nCommitting only the surviving modified file caused `jjx_record` to include the already-staged deletions as a side effect (they were in the index). But this produced a misleading \"uncommitted changes outside file list\" warning for all 22 deletions, suggesting they weren't committed — when they actually were.\n\n## Expected behavior\n\n`jjx_record` should accept deleted files in its file list. A file that is tracked by git but deleted from disk is a valid commit target. The validation should check `git ls-files` (tracked) OR filesystem existence, not just filesystem existence.\n\n## Affected code\n\n`Tools/vvk/` — likely in the file validation logic of `jjx_record` / `jjx_notch`.",
+              "silks": "jjk-spook-record-deleted-files",
+              "commit": "f418139"
+            },
+            {
+              "ts": "260216-0757",
+              "state": "rough",
+              "text": "`jjx_record` cannot commit deleted files. It validates that every file in the file list exists on disk, rejecting with \"file does not exist and is not tracked by git\" for `git rm`'d paths.\n\n## Observed behavior\n\nWhen files are staged for deletion via `git rm`, passing them to `jjx_record` fails:\n```\njjx_record APAAj Tools/rbw/rbw.workbench.mk  # already git rm'd\n# error: file does not exist and is not tracked by git: Tools/rbw/rbw.workbench.mk\n```\n\n## Workaround discovered\n\nCommitting only the surviving modified file caused `jjx_record` to include the already-staged deletions as a side effect (they were in the index). But this produced a misleading \"uncommitted changes outside file list\" warning for all 22 deletions, suggesting they weren't committed — when they actually were.\n\n## Expected behavior\n\n`jjx_record` should accept deleted files in its file list. A file that is tracked by git but deleted from disk is a valid commit target. The validation should check `git ls-files` (tracked) OR filesystem existence, not just filesystem existence.\n\n## Affected code\n\n`Tools/vvk/` — likely in the file validation logic of `jjx_record` / `jjx_notch`.",
+              "silks": "jjk-spook-record-deleted-files",
+              "commit": "1f3d70f"
+            }
+          ]
+        }
+      }
+    },
     "₣AT": {
       "silks": "rbw-regime-consolidation",
       "creation_time": "260131",
@@ -5537,103 +5634,6 @@
               "text": "Decide whether regime validators should reject non-empty variables belonging to inactive gates.\n\n## Context\n\nDuring the ATAAp regime voicing audit, we aligned RBRV with the AXLA gated-group pattern\n(axhrgc_gate). The current implementation (matching RBRN) is permissive: variables from\ninactive gates are kindled and listed in z_known but not validated. For example,\nRBRV_VESSEL_MODE=bind with RBRV_CONJURE_DOCKERFILE set would silently carry the conjure\nvalue without error.\n\nThe AXLA spec defines activation semantics for groups but does not mandate rejection of\ncompeting groups' members.\n\n## Options\n\n1. **Permissive (status quo):** Inactive gate vars are silently ignored. Simple, forgiving,\n   matches current RBRN behavior.\n2. **Warn:** Log a warning for non-empty vars in inactive gates, but do not die.\n3. **Strict:** Die if non-empty vars belong to an inactive gate. Catches misconfiguration\n   but may break workflows that template all vars and select mode separately.\n\n## Scope\n\nIf we decide to add strictness:\n- Define the behavior in AXLA (normative spec)\n- Implement in RBRN and RBRV validators as the pattern\n- Audit other regimes with conditional groups\n\n## Decision criteria\n- Does silent carriage of inactive vars cause real bugs?\n- Would strictness break reasonable workflows (e.g., template files with all vars)?\n- Is the complexity of enforcement worth the safety gain?",
               "silks": "decide-inactive-gate-strictness",
               "commit": "6ca040f"
-            }
-          ]
-        }
-      }
-    },
-    "₣Ab": {
-      "silks": "jjk-cleanups-02",
-      "creation_time": "260211",
-      "status": "stabled",
-      "order": [
-        "₢AbAAE",
-        "₢AbAAA",
-        "₢AbAAB",
-        "₢AbAAC",
-        "₢AbAAD",
-        "₢AbAAF"
-      ],
-      "next_pace_seed": "AAG",
-      "paddock_file": ".claude/jjm/jjp_Ab.md",
-      "paces": {
-        "₢AbAAA": {
-          "tacks": [
-            {
-              "ts": "260211-0738",
-              "state": "rough",
-              "text": "## Problem\n\nA Claude Code officium exhibited two failures:\n\n1. **Used `cd` in Bash commands** — violating the CLAUDE.md rule \"Never cd in Bash commands — it persists and breaks subsequent tabtarget calls.\" The shell cwd got reset to `pb_paneboard02` after the cd, corrupting all subsequent commands.\n\n2. **Invented `jjx_slate`** — a non-existent subcommand. The slash command `/jjc-pace-slate` loaded successfully but Claude ignored its instructions and guessed at a CLI verb instead of using `jjx_enroll` as documented.\n\n## Investigation Scope\n\n- Why did the officium use `cd` despite clear prohibition? Is the CLAUDE.md instruction insufficiently prominent or poorly worded?\n- Why did the officium invent `jjx_slate` instead of reading the loaded slash command content? Is the slash command output being lost or ignored?\n- What repairs to CLAUDE.md, slash commands, or kit documentation would prevent recurrence?\n\n## Deliverable\n\nA memo with findings and concrete recommended changes (file paths, diff-style edits) to prevent both failure modes.",
-              "silks": "jjk-spook-cd-cwd-corruption",
-              "commit": "691945d"
-            }
-          ]
-        },
-        "₢AbAAB": {
-          "tacks": [
-            {
-              "ts": "260211-1404",
-              "state": "rough",
-              "text": "## Task\n\nIntroduce the concept of \"spook\" into JJSA (Gallops data model specification) as a formal JJ vocabulary\nterm.\n\n## Definition\n\nA **spook** is a failure of a slash command or other Job Jockey interaction to function correctly. Named by\nanalogy to an equestrian spook — the horse (Claude) shies away from the correct path despite clear guidance.\n\n## Scope\n\n- Add spook as a linked term in JJSA with proper MCM attribute, anchor, and definition\n- Ensure it fits the existing vocabulary categories and naming conventions\n- Consider whether spook warrants subcategories (e.g., cd-spook, phantom-verb-spook) or remains a single\numbrella term\n\n## Deliverable\n\nUpdated JJSA with spook concept properly integrated following MCM linked term patterns.",
-              "silks": "jjk-spook-concept-jjsa",
-              "commit": "b82ac65"
-            }
-          ]
-        },
-        "₢AbAAC": {
-          "tacks": [
-            {
-              "ts": "260215-0724",
-              "state": "rough",
-              "text": "## Spook\n\nFull-list `jjx_reorder` requires ALL paces (including complete) to be listed, making it unusable for mature heats. Error: \"Order count mismatch: got 12, expected 38\" when only listing actionable paces.\n\n## Design Decision\n\nRedefine full-list reorder to operate on **non-complete paces only**. Complete paces retain their positions implicitly (historical record, order reflects execution sequence).\n\nAbandoned paces are treated as **moveable** — they're decision markers, not completed actions, and their position relative to rough paces may matter.\n\nRule: complete = frozen, everything else (rough, bridled, in_progress, abandoned) = reorderable.\n\n## Implementation\n\n- `jjx_reorder` full-list mode: count validation uses non-complete paces only\n- Complete paces keep their current indices unchanged\n- Non-complete paces are reordered among the gaps\n- `--move` single-pace mode: no change needed (already works correctly)\n- Add test coverage for mixed-status reordering",
-              "silks": "jjk-spook-rail-full-list-scope",
-              "commit": "bfa08fe"
-            }
-          ]
-        },
-        "₢AbAAD": {
-          "tacks": [
-            {
-              "ts": "260216-0829",
-              "state": "rough",
-              "text": "Fix jjx_notch and jjx_record to handle deleted files.\n\n## Problem\nBoth `jjx_notch` and `jjx_record` reject files that have been `git rm`'d. The file validation logic checks filesystem existence, then falls back to `git ls-files --error-unmatch` for files not on disk. But for staged deletions, the file is removed from both disk AND the index, so both checks fail:\n\n    jjx_notch: error: file does not exist and is not tracked by git: <path>\n\n`jjx_record` has the same issue — passing a `git rm`'d path fails validation entirely. As a side effect, already-staged deletions slip into commits when other files are committed, but produce misleading \"uncommitted changes outside file list\" warnings.\n\n## Root Cause\n`git ls-files` queries the index. `git rm` removes from the index. The existing check covers unstaged deletions (file gone from disk but still in index) but not staged deletions.\n\n## Solution\nAdd a third check: `git diff --cached --name-only --diff-filter=D -- <file>`. If this produces output, the file is a staged deletion and should be accepted.\n\nValidation chain becomes:\n1. `path.exists()` — file on disk (additions/modifications)\n2. `git ls-files --error-unmatch` — file in index (unstaged deletions)\n3. `git diff --cached --name-only --diff-filter=D` — file is staged deletion\n\nThis fix applies to the shared validation logic used by both commands.\n\n## Files to modify\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` — add staged-deletion check after the ls-files fallback\n- `Tools/jjk/vov_veiled/JJSCNC-notch.adoc` — update validation prose to cover all three cases\n- Check if `jjx_record` shares the same validation path or needs a parallel fix\n\n## Verification\n1. `tt/vow-b.Build.sh`\n2. `tt/vow-t.Test.sh`\n3. Manual: `git rm` a file, run notch with that file — should succeed\n4. Manual: `git rm` a file, run record with that file — should succeed",
-              "silks": "fix-notch-staged-deletion",
-              "commit": "ef5c022"
-            },
-            {
-              "ts": "260215-0835",
-              "state": "rough",
-              "text": "Fix jjx_notch to handle staged deletions (git rm'd files).\n\n## Problem\n₢AHAAQ added a fallback check via `git ls-files --error-unmatch` for files that don't exist on disk. But for staged deletions (`D` in column 1 of `git status --porcelain`), the file is removed from both disk AND the index. So `git ls-files --error-unmatch` also fails, producing:\n\n    jjx_notch: error: file does not exist and is not tracked by git: lenses/RBRR-RegimeRepo.adoc\n\n## Root Cause\n`git ls-files` queries the index. `git rm` removes from the index. The existing check covers unstaged deletions (file gone from disk but still in index) but not staged deletions.\n\n## Solution\nAdd a third check: `git diff --cached --name-only --diff-filter=D -- <file>`. If this produces output, the file is a staged deletion and should be accepted.\n\nValidation chain becomes:\n1. `path.exists()` — file on disk (additions/modifications)\n2. `git ls-files --error-unmatch` — file in index (unstaged deletions)\n3. `git diff --cached --name-only --diff-filter=D` — file is staged deletion\n\n## Files to modify\n- `Tools/jjk/vov_veiled/src/jjrnc_notch.rs` — add staged-deletion check after the ls-files fallback\n- `Tools/jjk/vov_veiled/JJSCNC-notch.adoc` — update validation prose to cover all three cases\n\n## Verification\n1. `tt/vow-b.Build.sh`\n2. `tt/vow-t.Test.sh`\n3. Manual: `git rm` a file, run notch with that file — should succeed",
-              "silks": "fix-notch-staged-deletion",
-              "commit": "fca76d9"
-            }
-          ]
-        },
-        "₢AbAAE": {
-          "tacks": [
-            {
-              "ts": "260216-0502",
-              "state": "rough",
-              "text": "## Feature\n\nExtend the `mount` quick verb (currently `/jjc-heat-mount`) so it can accept a coronet argument to start a specific pace, potentially asynchronously.\n\n## Current Behavior\n\n- `mount` maps to `/jjc-heat-mount`, which finds and executes the next actionable pace in a heat.\n- No way to target a specific pace by coronet.\n\n## Desired Behavior\n\n- `mount` with no coronet: unchanged — finds and executes next actionable pace.\n- `mount ₢XXXXX`: mounts the specified pace directly. If the pace is bridled, it may be dispatched asynchronously (background Task agent). If rough/unbridled, it mounts interactively.\n\n## Scope\n\n- Update `/jjc-heat-mount` slash command to accept an optional coronet argument.\n- Update the quick verb table in CLAUDE.md to document the coronet-accepting variant.\n- Handle edge cases: coronet not found, pace already complete, pace not bridled (interactive fallback).\n- Async dispatch for bridled paces uses Task tool with `run_in_background: true`.\n\n## Open Questions\n\n- Should unbridled paces error or fall through to interactive mount?\n- Does async dispatch need a new slash command or is it a mode within mount?\n\n## Files Likely Touched\n\n- `.claude/commands/jjc-heat-mount.md` — slash command definition\n- `CLAUDE.md` — quick verb table update",
-              "silks": "mount-accept-coronet",
-              "commit": "67d5c86"
-            }
-          ]
-        },
-        "₢AbAAF": {
-          "tacks": [
-            {
-              "ts": "260216-0829",
-              "state": "abandoned",
-              "text": "`jjx_record` cannot commit deleted files. It validates that every file in the file list exists on disk, rejecting with \"file does not exist and is not tracked by git\" for `git rm`'d paths.\n\n## Observed behavior\n\nWhen files are staged for deletion via `git rm`, passing them to `jjx_record` fails:\n```\njjx_record APAAj Tools/rbw/rbw.workbench.mk  # already git rm'd\n# error: file does not exist and is not tracked by git: Tools/rbw/rbw.workbench.mk\n```\n\n## Workaround discovered\n\nCommitting only the surviving modified file caused `jjx_record` to include the already-staged deletions as a side effect (they were in the index). But this produced a misleading \"uncommitted changes outside file list\" warning for all 22 deletions, suggesting they weren't committed — when they actually were.\n\n## Expected behavior\n\n`jjx_record` should accept deleted files in its file list. A file that is tracked by git but deleted from disk is a valid commit target. The validation should check `git ls-files` (tracked) OR filesystem existence, not just filesystem existence.\n\n## Affected code\n\n`Tools/vvk/` — likely in the file validation logic of `jjx_record` / `jjx_notch`.",
-              "silks": "jjk-spook-record-deleted-files",
-              "commit": "f418139"
-            },
-            {
-              "ts": "260216-0757",
-              "state": "rough",
-              "text": "`jjx_record` cannot commit deleted files. It validates that every file in the file list exists on disk, rejecting with \"file does not exist and is not tracked by git\" for `git rm`'d paths.\n\n## Observed behavior\n\nWhen files are staged for deletion via `git rm`, passing them to `jjx_record` fails:\n```\njjx_record APAAj Tools/rbw/rbw.workbench.mk  # already git rm'd\n# error: file does not exist and is not tracked by git: Tools/rbw/rbw.workbench.mk\n```\n\n## Workaround discovered\n\nCommitting only the surviving modified file caused `jjx_record` to include the already-staged deletions as a side effect (they were in the index). But this produced a misleading \"uncommitted changes outside file list\" warning for all 22 deletions, suggesting they weren't committed — when they actually were.\n\n## Expected behavior\n\n`jjx_record` should accept deleted files in its file list. A file that is tracked by git but deleted from disk is a valid commit target. The validation should check `git ls-files` (tracked) OR filesystem existence, not just filesystem existence.\n\n## Affected code\n\n`Tools/vvk/` — likely in the file validation logic of `jjx_record` / `jjx_notch`.",
-              "silks": "jjk-spook-record-deleted-files",
-              "commit": "1f3d70f"
             }
           ]
         }
