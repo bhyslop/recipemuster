@@ -83,13 +83,19 @@ zrbrv_validate_fields() {
   buv_env_xname       RBRV_SIGIL                   1     64  # Must match directory name
   buv_env_string      RBRV_DESCRIPTION             0    512  # Optional description
 
-  # Binding Configuration (for copying from registry)
-  if test -n "${RBRV_BIND_IMAGE}"; then
+  # Vessel Mode (required enumeration: bind or conjure)
+  case "${RBRV_VESSEL_MODE}" in
+    bind|conjure) : ;;
+    *) buc_die "Invalid RBRV_VESSEL_MODE: '${RBRV_VESSEL_MODE}' (must be 'bind' or 'conjure')" ;;
+  esac
+
+  # Binding Configuration (conditional: RBRV_VESSEL_MODE=bind)
+  if [[ ${RBRV_VESSEL_MODE} == bind ]]; then
     buv_env_fqin      RBRV_BIND_IMAGE              1    512  # Source image to copy
   fi
 
-  # Conjuring Configuration (for building from source)
-  if test -n "${RBRV_CONJURE_DOCKERFILE}"; then
+  # Conjuring Configuration (conditional: RBRV_VESSEL_MODE=conjure)
+  if [[ ${RBRV_VESSEL_MODE} == conjure ]]; then
     buv_env_string    RBRV_CONJURE_DOCKERFILE      1    512  # Path relative to repo root
     buv_env_string    RBRV_CONJURE_BLDCONTEXT      1    512  # Build context relative to repo root
     buv_env_string    RBRV_CONJURE_PLATFORMS       1    512  # Space-separated platforms
@@ -98,11 +104,6 @@ zrbrv_validate_fields() {
       allow|forbid) : ;;
       *) buc_die "Invalid RBRV_CONJURE_BINFMT_POLICY: '${RBRV_CONJURE_BINFMT_POLICY}' (must be 'allow' or 'forbid')" ;;
     esac
-  fi
-
-  # Validate at least one operation mode is configured
-  if test -z "${RBRV_BIND_IMAGE}" && test -z "${RBRV_CONJURE_DOCKERFILE}"; then
-    buc_die "Vessel must define either RBRV_BIND_IMAGE (for binding) or RBRV_CONJURE_DOCKERFILE (for conjuring)"
   fi
 }
 

@@ -189,5 +189,5 @@ placeholder concept that was never implemented and does not fit the regime patte
 
 1. ~~**RBRR_PAYOR_RBRA_FILE**~~: RESOLVED — Removed from RBSA mapping, anchor, and RBSRR subdocument. Payor uses OAuth (RBRO), never RBRA.
 2. ~~**RBRP_DEPOT_PROJECT_IDS**~~: RESOLVED — Removed from RBSA mapping, anchor, and RBSDC reference. Cleaned dead export from rbgp_Payor.sh. Dynamic query suffices.
-3. **RBRV_VESSEL_MODE**: Needs separate attention — computed concept (inferred from RBRV_BIND_IMAGE vs RBRV_CONJURE_DOCKERFILE), not an explicit env var.
+3. ~~**RBRV_VESSEL_MODE**~~: RESOLVED — Aligned code to spec. Added explicit RBRV_VESSEL_MODE enum (bind/conjure) to rbrv_regime.sh kindle+validate+rollup, gated binding/conjuring sections in rbrv_cli.sh renderer, added RBRV_VESSEL_MODE to all 9 rbrv.env files. Replaces content-sniffing inference with proper enum gating per AXLA axhrgc_gate pattern (matching RBRN).
 4. ~~**RBRR_GCB_MIN_CONCURRENT_BUILDS**~~: RESOLVED — Added `buv_env_decimal` validation (1–999) to rbrr_regime.sh, fixed CLI type from string to decimal.
