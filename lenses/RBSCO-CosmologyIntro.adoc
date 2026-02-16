@@ -99,7 +99,6 @@ This dual approach - building custom images and importing vetted external ones -
 Small teams can maintain a curated registry combining custom-built tools with carefully selected upstream images, all traceable through GAR's unified storage.
 
 The system uses only
-`gcloud`,
 `curl`,
 `jq`,
 and
@@ -110,6 +109,9 @@ to orchestrate both remote
 construction and registry-to-registry replication, enabling small teams to maintain enterprise-grade
 {st_image}
 management practices without complex tooling.
+`gcloud` is never required on the
+{at_workstation};
+it appears only inside Google-managed Cloud Build step containers (e.g. `gcr.io/cloud-builders/gcloud`) where it runs server-side during remote builds.
 
 Auxiliary provenance data, including the SBOM (`syft_analysis.json`), build transcript, build configuration snapshot, and key package summaries, is bundled into a compressed archive and uploaded to GAR as a **Generic Artifact** using the image tag as the package name and a fixed `metadata` version identifier.
 This design keeps the primary image minimal and broadly usable while making rich build history available to those who need it.
