@@ -9,11 +9,9 @@ Full read and edit access is pre-approved for all files in:
 ## File Acronym Mappings
 
 ### Lenses Directory (`lenses/`)
-- **RBAGS** → `RBAGS-AdminGoogleSpec.adoc`
 - **RBRN**  → `RBRN-RegimeNameplate.adoc`
 - **RBRR**  → `RBRR-RegimeRepo.adoc`
 - **RBSA**  → `RBSA-SpecTop.adoc`
-- **RBS**   → `RBS-Specification.adoc`
 - **RBSRV** → `RBSRV-RegimeVessel.adoc`
 - **CRR**   → `CRR-ConfigRegimeRequirements.adoc`
 - **RBSDC** → `RBSDC-depot_create.adoc`
@@ -193,7 +191,7 @@ When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-
 | Domain | Pattern | Example |
 |--------|---------|---------|
 | Code files | `prefix_Word.ext` | `rbga_ArtifactRegistry.sh` |
-| Doc files | `ACRONYM-Words.ext` | `RBAGS-AdminGoogleSpec.adoc` |
+| Doc files | `ACRONYM-Words.ext` | `RBSA-SpecTop.adoc` |
 | Functions (public) | `prefix_name()` | `buc_log_args()` |
 | Functions (private) | `zprefix_name()` | `zbuc_color()` |
 | Variables | `PREFIX_NAME` | `BURC_PROJECT_ROOT` |
