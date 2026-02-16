@@ -30,11 +30,11 @@ ZBUZ_SOURCED=1
 zbuz_kindle() {
   test -z "${ZBUZ_KINDLED:-}" || buc_die "buz already kindled"
 
-  # Registry arrays (populated by coordinator kindle, same-process only)
-  zbuz_colophons=()
-  zbuz_modules=()
-  zbuz_commands=()
-  zbuz_tabtargets=()
+  # Registry rolls (populated by buz_enroll in consumer kindle, same-process only)
+  z_buz_colophon_roll=()
+  z_buz_module_roll=()
+  z_buz_command_roll=()
+  z_buz_tabtarget_roll=()
 
   ZBUZ_KINDLED=1
 }
@@ -69,34 +69,40 @@ zbuz_resolve_tabtarget_capture() {
 }
 
 ######################################################################
-# Public registry operations
+# Public enroll (kindle-only registry population)
 
-# buz_register() - Register colophon tuple in parallel arrays
-# Args: colophon, module, command
-# Sets: z_buz_register_colophon (colophon string for caller to store as constant)
-# Side effects: populates registry arrays (must be called in same process, NOT inside $())
-buz_register() {
+# buz_enroll() - Register colophon tuple in parallel rolls
+# Args: varname, colophon, module, command
+# Assigns colophon string to caller's variable via printf -v
+# Side effects: populates registry rolls (must be called in same process, NOT inside $())
+buz_enroll() {
   zbuz_sentinel
 
-  local z_colophon="${1:-}"
-  local z_module="${2:-}"
-  local z_command="${3:-}"
-  test -n "${z_colophon}" || return 1
-  test -n "${z_module}"   || return 1
-  test -n "${z_command}"  || return 1
+  local z_varname="${1:-}"
+  local z_colophon="${2:-}"
+  local z_module="${3:-}"
+  local z_command="${4:-}"
+  test -n "${z_varname}"  || buc_die "buz_enroll: varname required"
+  test -n "${z_colophon}" || buc_die "buz_enroll: colophon required"
+  test -n "${z_module}"   || buc_die "buz_enroll: module required"
+  test -n "${z_command}"  || buc_die "buz_enroll: command required"
+
+  # Validate variable name
+  echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' \
+    || buc_die "buz_enroll: invalid variable name: ${z_varname}"
 
   # Validate at least one tabtarget exists (imprinted colophons may have multiple)
   local z_tabtarget
   z_tabtarget=$(zbuz_resolve_tabtarget_capture "${z_colophon}") || buc_die "No tabtarget for colophon '${z_colophon}' in ${BURC_TABTARGET_DIR}/"
 
-  # Registry population (only persists in same-process context, lost in $() subshell)
-  zbuz_colophons+=("${z_colophon}")
-  zbuz_modules+=("${z_module}")
-  zbuz_commands+=("${z_command}")
-  zbuz_tabtargets+=("${z_tabtarget}")
+  # Roll population (only persists in same-process context, lost in $() subshell)
+  z_buz_colophon_roll+=("${z_colophon}")
+  z_buz_module_roll+=("${z_module}")
+  z_buz_command_roll+=("${z_command}")
+  z_buz_tabtarget_roll+=("${z_tabtarget}")
 
-  # shellcheck disable=SC2034
-  z_buz_register_colophon="${z_colophon}"
+  # Assign colophon to caller's variable
+  printf -v "${z_varname}" '%s' "${z_colophon}" || buc_die "buz_enroll: printf -v failed for ${z_varname}"
 }
 
 ######################################################################
@@ -116,9 +122,9 @@ zbuz_exec_lookup() {
   shift 2
 
   local z_i
-  for z_i in "${!zbuz_colophons[@]}"; do
-    if [ "${zbuz_colophons[z_i]}" = "${z_colophon}" ]; then
-      exec "${z_base_dir}/${zbuz_modules[z_i]}" "${zbuz_commands[z_i]}" "$@"
+  for z_i in "${!z_buz_colophon_roll[@]}"; do
+    if [ "${z_buz_colophon_roll[z_i]}" = "${z_colophon}" ]; then
+      exec "${z_base_dir}/${z_buz_module_roll[z_i]}" "${z_buz_command_roll[z_i]}" "$@"
     fi
   done
 

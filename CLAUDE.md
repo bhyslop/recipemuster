@@ -352,6 +352,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - **Pace**: Discrete action within a heat; can be bridled for autonomous execution via `/jjc-pace-bridle`
 - **Itch**: Future work (any detail level), lives in jji_itch.md
 - **Scar**: Closed work with lessons learned, lives in jjs_scar.md
+- **Spook**: Team infrastructure stumble — any workflow failure improvable with deft attention. Capture as a pace when encountered, don't lose the current thread.
 
 **Identities vs Display Names:**
 - **Firemark**: Heat identity (`₣AA` or `AA`). Used in CLI args and JSON keys.
