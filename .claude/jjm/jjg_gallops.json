@@ -2249,6 +2249,14 @@
         "₢ATAAv": {
           "tacks": [
             {
+              "ts": "260216-0557",
+              "state": "bridled",
+              "text": "Audit that every regime consumption point is guarded by validation.\n\nThree audit vectors:\n\n1. **Direct .env sourcing** — grep for scripts that `source` a regime .env file\n   without going through the canonical `*_load()` function. Any direct source\n   bypasses the atomic source→kindle→validate chain.\n\n2. **Regime variable usage outside load→furnish chain** — find consumption of\n   RBRR_*, RBRN_*, RBRP_*, RBRO_*, RBRS_*, RBRA_*, RBRV_* variables in scripts\n   that do not call the corresponding `*_load()` in their furnish function.\n\n3. **CLI furnish pattern completeness** — verify every `*_cli.sh` uses the\n   buc_execute furnish pattern. Known concern: `rbga_cli.sh` uses an older\n   pattern without furnish. Newer CLIs (rbre_cli.sh, rbrg_cli.sh) need\n   verification.\n\nDeliverable: a list of gaps (if any) and fixes applied, or confirmation that\nall consumption paths are gated.",
+              "silks": "audit-regime-validation-gates",
+              "commit": "11a2c82",
+              "direction": "Agent: sonnet | Cardinality: 1 sequential | Files: Tools/rbw/*_cli.sh, Tools/rbw/*_regime.sh, Tools/rbw/rbrr.validator.sh, Tools/rbw/rbgd_DepotConstants.sh, Tools/buk/bud_dispatch.sh, Tools/buk/buv_validation.sh (all regime CLIs and consumers) | Steps: 1. Grep for direct .env sourcing that bypasses *_load functions 2. Grep for regime variable consumption RBRR_/RBRN_/RBRP_/RBRO_/RBRS_/RBRA_/RBRV_ in scripts lacking corresponding *_load in furnish 3. Verify every *_cli.sh uses buc_execute furnish pattern, flag rbga_cli.sh and rbre_cli.sh and rbrg_cli.sh 4. Fix any gaps by adding furnish functions or replacing direct sourcing with *_load calls 5. Report findings and fixes | Verify: tt/rbw-trg.TestRegimeSmoke.sh"
+            },
+            {
               "ts": "260216-0554",
               "state": "rough",
               "text": "Audit that every regime consumption point is guarded by validation.\n\nThree audit vectors:\n\n1. **Direct .env sourcing** — grep for scripts that `source` a regime .env file\n   without going through the canonical `*_load()` function. Any direct source\n   bypasses the atomic source→kindle→validate chain.\n\n2. **Regime variable usage outside load→furnish chain** — find consumption of\n   RBRR_*, RBRN_*, RBRP_*, RBRO_*, RBRS_*, RBRA_*, RBRV_* variables in scripts\n   that do not call the corresponding `*_load()` in their furnish function.\n\n3. **CLI furnish pattern completeness** — verify every `*_cli.sh` uses the\n   buc_execute furnish pattern. Known concern: `rbga_cli.sh` uses an older\n   pattern without furnish. Newer CLIs (rbre_cli.sh, rbrg_cli.sh) need\n   verification.\n\nDeliverable: a list of gaps (if any) and fixes applied, or confirmation that\nall consumption paths are gated.",
