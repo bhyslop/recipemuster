@@ -76,6 +76,7 @@ ALWAYS read the corresponding slash command before attempting multistep operatio
 **CRITICAL**: JJK CLI syntax is non-standard. Do NOT guess based on common CLI conventions.
 - Dockets go via stdin, not `--docket`
 - Positioning uses `--move X --first`, not `--position first`
+- **Verb names are NOT jjx_ subcommands**: there is no `jjx_slate`, `jjx_mount`, `jjx_bridle`, `jjx_notch`, `jjx_groom`, etc. Slash commands wrap differently-named jjx_ commands. Read the slash command to find the actual CLI invocation.
 - Read the slash command to see the exact `./tt/vvw-r.RunVVX.sh jjx_*` invocation pattern.
 
 **Heredoc for stdin**: Use `cat <<'DELIM' | jjx_*` pattern with quoted delimiter. The delimiter must not appear alone on any line in the content — if content shows heredoc examples with `EOF`, use a different delimiter like `DOCKET` or `PACESPEC`.

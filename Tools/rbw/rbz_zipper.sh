@@ -143,6 +143,18 @@ zrbz_kindle() {
   buz_register "rbw-nv" "rbrn_cli.sh" "audit"
   RBZ_AUDIT_NAMEPLATES="${z_buz_register_colophon}"
 
+  # Bottle operations (imprint-translated by workbench case arm, not zbuz_exec_lookup)
+  buz_register "rbw-s" "rbob_cli.sh" "rbob_start"
+  RBZ_BOTTLE_START="${z_buz_register_colophon}"
+  buz_register "rbw-S" "rbob_cli.sh" "rbob_connect_sentry"
+  RBZ_BOTTLE_SENTRY="${z_buz_register_colophon}"
+  buz_register "rbw-C" "rbob_cli.sh" "rbob_connect_censer"
+  RBZ_BOTTLE_CENSER="${z_buz_register_colophon}"
+  buz_register "rbw-B" "rbob_cli.sh" "rbob_connect_bottle"
+  RBZ_BOTTLE_CONNECT="${z_buz_register_colophon}"
+  buz_register "rbw-o" "rbob_cli.sh" "rbob_observe"
+  RBZ_BOTTLE_OBSERVE="${z_buz_register_colophon}"
+
   # Qualification operations
   buz_register "rbw-qa" "rbq_cli.sh" "qualify_all"
   RBZ_QUALIFY_ALL="${z_buz_register_colophon}"

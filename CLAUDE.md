@@ -158,6 +158,18 @@ When working with .adoc files using MCM patterns:
 - Maintain consistent prefix categories (e.g., `mcm_`, `rbw_`, `gad_`)
 - Use snake_case for anchors, match attribute to anchor
 
+### Forbidden Shell Operations
+
+**Never use `cd` in Bash commands — NO exceptions.**
+
+The working directory persists between Bash tool calls. A single `cd` corrupts ALL subsequent commands that use relative paths, including every `./tt/` tabtarget.
+
+- Use absolute paths instead of cd'ing
+- Use `--manifest-path` or equivalent flags
+- This applies to ALL work — not just Rust builds
+
+**There is no safe cd.** Do not reason that "I'll cd back" — the next tool call may be yours or another officium's, and it will break.
+
 ### Rust Build Discipline
 
 Tabtargets for Rust operations (run from project root):
@@ -165,7 +177,7 @@ Tabtargets for Rust operations (run from project root):
 - `tt/vvw-r.RunVVX.sh <cmd>` → runs vvx binary with arguments
 - `tt/vow-t.Test.sh` → `cargo test --manifest-path Tools/vok/Cargo.toml`
 
-Never `cd` in Bash commands — it persists and breaks subsequent tabtarget calls.
+See **Forbidden Shell Operations** above — never `cd`, use `--manifest-path` instead.
 When running cargo directly, use `--manifest-path` to stay at project root.
 
 ## Prefix Naming Discipline ("mint")
@@ -358,6 +370,7 @@ ALWAYS read the corresponding slash command before attempting JJ operations.
 **CRITICAL**: JJK CLI syntax is non-standard. Do NOT guess based on common CLI conventions.
 - Dockets go via stdin, not `--docket`
 - Positioning uses `--move X --first`, not `--position first`
+- **Verb names are NOT jjx_ subcommands**: there is no `jjx_slate`, `jjx_mount`, `jjx_bridle`, `jjx_notch`, `jjx_groom`, etc. Slash commands wrap differently-named jjx_ commands. Read the slash command to find the actual CLI invocation.
 - Read the slash command to see the exact `./tt/vvw-r.RunVVX.sh jjx_*` invocation pattern.
 
 **Heredoc for stdin**: Use `cat <<'DELIM' | jjx_*` pattern with quoted delimiter. The delimiter must not appear alone on any line in the content — if content shows heredoc examples with `EOF`, use a different delimiter like `DOCKET` or `PACESPEC`.
