@@ -6,7 +6,7 @@ quota settings for a
 {rbtgi_depot_project}
 to verify that the
 {rbrr_gcb_machine_type}
-and the *Concurrent Build CPUs* quota permit the desired level of parallel build execution.
+and the *Concurrent Build CPUs* quota support the desired level of parallel build execution.
 
 The default *Concurrent Build CPUs* quota is 10 per region.
 Each
@@ -14,7 +14,7 @@ Each
 invocation consumes vCPUs according to the configured machine type.
 If the machine type consumes most of the CPU quota (e.g., `E2_HIGHCPU_8` uses 8 of 10 CPUs), builds serialize because a second invocation cannot acquire enough CPUs.
 
-The primary remedy is selecting a machine type whose vCPU count divides evenly into the available CPU quota:
+The primary control for concurrent build capacity is selecting a machine type whose vCPU count divides evenly into the available CPU quota:
 
 * `UNSPECIFIED` (2 vCPUs): 5 concurrent builds in 10-CPU quota
 * `E2_HIGHCPU_8` (8 vCPUs): 1 concurrent build in 10-CPU quota
@@ -53,13 +53,13 @@ current
 {rbrr_gcb_machine_type}
 from the regime configuration
 .. Compute maximum concurrent builds: `«CPU_QUOTA»` ÷ vCPUs per machine type
-.. If maximum concurrent builds is less than desired:
-... *Option A (preferred)*: Reduce machine type in regime configuration to fit more builds in existing quota.
-Set
+.. Machine type is the primary lever to control concurrent capacity.
+Reduce the machine type in the regime configuration to fit more builds in existing quota:
+... Set
 {rbrr_gcb_machine_type}
 to `UNSPECIFIED` (2 vCPUs) for 5 concurrent builds in a 10-CPU quota.
-... *Option B*: Request a CPU quota increase via *Edit Quotas* to accommodate the current machine type.
-Google reviews quota increase requests; small increases are typically granted without friction.
+.. If machine type adjustment alone cannot satisfy capacity requirements, a CPU quota increase can be requested via *Edit Quotas*.
+This is a last resort and rarely necessary.
 
 . *Confirm Quota Headroom*:
 .. After changing machine type or receiving quota increase, return to *IAM & Admin > Quotas & System Limits*

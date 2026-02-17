@@ -324,13 +324,13 @@ rbgm_payor_refresh() {
 rbgm_quota_build() {
   zrbgm_sentinel
 
-  buc_doc_brief "Display the Cloud Build CPU quota and machine type concurrency guide"
+  buc_doc_brief "Display the Cloud Build capacity review procedure to verify machine type and quota settings"
   buc_doc_shown || return 0
 
   bug_section  "Cloud Build Concurrent Build Capacity"
+  bug_t        "Review your build capacity settings to ensure sufficient concurrent build execution."
   bug_t        "The Concurrent Build CPUs quota (default 10 per region) limits parallel builds."
   bug_t        "Each build consumes vCPUs according to the configured machine type."
-  bug_t        "If the machine type uses most of the CPU quota, builds serialize."
   bug_e
   bug_t        "   Machine type vs concurrency at 10-CPU quota:"
   bug_tc       "     UNSPECIFIED    " "(2 vCPU)  → 5 concurrent builds"
@@ -356,15 +356,14 @@ rbgm_quota_build() {
   bug_t        "   4. Note the quota value and current usage percentage"
   bug_t        "      If usage is near 100% with one build, the machine type is too large for the quota"
   bug_e
-  bug_section  "3. Adjust Machine Type or Request CPU Quota Increase:"
-  bug_t        "   Option A (preferred): Reduce machine type in regime configuration."
+  bug_section  "3. Adjust Machine Type for Capacity:"
+  bug_t        "   Machine type is the primary control for concurrent build capacity."
+  bug_t        "   Reduce machine type in regime configuration to fit more builds in existing quota."
   bug_tc       "     Set RBRR_GCB_MACHINE_TYPE=" "UNSPECIFIED"
   bug_t        "     This uses 2 vCPUs per build, allowing 5 concurrent in a 10-CPU quota."
   bug_e
-  bug_t        "   Option B: Request CPU quota increase via Console."
-  bug_tu       "     Select the " "Concurrent Build CPUs" " row checkbox"
-  bug_tu       "     Click " "Edit Quotas" " and enter the desired CPU count"
-  bug_t        "     For N concurrent E2_HIGHCPU_8 builds, request N × 8 CPUs"
+  bug_t        "   If machine type adjustment cannot meet your capacity needs, a CPU quota increase"
+  bug_t        "   can be requested via Console Edit Quotas. This is a last resort and rarely necessary."
   bug_e
   bug_section  "4. Confirm Quota Headroom:"
   bug_link     "   Return to: " "Quotas & System Limits" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"

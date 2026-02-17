@@ -666,7 +666,7 @@ The nameplate audit (`rbw-nv`) and build preflight both query the Service Usage 
 and hard-fail if quota is insufficient.
 See
 {rbtgo_quota_build}
-for the manual Console procedure to request a quota increase.
+for the manual Console procedure to review build capacity settings.
 
 == {rbtr_payor} Operations
 
