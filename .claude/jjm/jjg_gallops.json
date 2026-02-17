@@ -4783,9 +4783,10 @@
         "₢AOAAG",
         "₢AOAAH",
         "₢AOAAJ",
+        "₢AOAAL",
         "₢AOAAK"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -4937,6 +4938,17 @@
               "text": "Interactively modernize rbrs_cli.sh to full BCG compliance.\n\n## Approach\n\n- Work through rbrs_cli.sh with human, applying BCG patterns\n- Keep a running list of every cleanup applied (pattern name + before/after)\n- This list becomes the spec for a follow-on pace that applies the same cleanups to all config regime CLI files\n\n## Acceptance\n\n- rbrs_cli.sh fully BCG-compliant\n- Cleanup list captured (for follow-on pace)\n- Follow-on pace slated with the cleanup list as its docket",
               "silks": "bcg-modernize-rbrs-cli",
               "commit": "1291b43"
+            }
+          ]
+        },
+        "₢AOAAL": {
+          "tacks": [
+            {
+              "ts": "260217-0803",
+              "state": "rough",
+              "text": "Fix BCG doc-mode so furnish functions bail cleanly in doc mode.\n\n## Problem\n\n`buc_execute` calls `buc_set_doc_mode` then `zbuc_show_help`, which calls the furnish function. The `buc_doc_env` lines print correctly, but furnish continues into kindle/validation/sourcing and dies because env vars aren't set. Doc mode can never display a complete help screen unless all runtime env vars are present.\n\n## Fix\n\nAdd a doc-mode early-exit gate after the `buc_doc_env` block in furnish functions. Either:\n- Reuse existing `buc_doc_shown || return 0` after the env doc lines\n- Or add a dedicated `buc_doc_env_done || return 0` if semantics differ\n\nThen verify by invoking `rbf_cli.sh` with no command and no env vars — it should print the full help (env vars + all commands with briefs/params) and exit cleanly.\n\n## Scope\n\n1. Determine correct BCG gate pattern for furnish\n2. Apply to `rbf_cli.sh` as the reference specimen\n3. Verify doc-mode works end-to-end: `bash Tools/rbw/rbf_cli.sh` prints full help\n4. Update BCG template if the pattern is new\n5. Apply to all other furnish functions that use `buc_execute`\n\n## Acceptance\n\n- `bash Tools/rbw/rbf_cli.sh` (no args, no env) prints complete help and exits 1\n- All CLIs using `buc_execute` have the gate in their furnish\n- BCG template updated if pattern changed",
+              "silks": "fix-bcg-docmode-furnish",
+              "commit": "1c5a50c"
             }
           ]
         }
