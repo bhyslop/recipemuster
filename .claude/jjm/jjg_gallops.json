@@ -4782,9 +4782,10 @@
         "₢AOAAF",
         "₢AOAAG",
         "₢AOAAH",
-        "₢AOAAJ"
+        "₢AOAAJ",
+        "₢AOAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -4925,6 +4926,17 @@
               "text": "Investigate _cli_kindle functions across the codebase. Determine if they serve a purpose or are dead code. If dead, remove them.\n\n## Scope\n\n- Find all *_cli_kindle function definitions\n- Trace callers — are they invoked anywhere?\n- If unused, delete the functions and any related scaffolding\n- If used, document what they do and close as no-op\n\n## Acceptance\n\n- Every _cli_kindle function either has a documented caller or is deleted\n- Qualification passes",
               "silks": "audit-cli-kindle-functions",
               "commit": "5085d11"
+            }
+          ]
+        },
+        "₢AOAAK": {
+          "tacks": [
+            {
+              "ts": "260217-0750",
+              "state": "rough",
+              "text": "Interactively modernize rbrs_cli.sh to full BCG compliance.\n\n## Approach\n\n- Work through rbrs_cli.sh with human, applying BCG patterns\n- Keep a running list of every cleanup applied (pattern name + before/after)\n- This list becomes the spec for a follow-on pace that applies the same cleanups to all config regime CLI files\n\n## Acceptance\n\n- rbrs_cli.sh fully BCG-compliant\n- Cleanup list captured (for follow-on pace)\n- Follow-on pace slated with the cleanup list as its docket",
+              "silks": "bcg-modernize-rbrs-cli",
+              "commit": "1291b43"
             }
           ]
         }
