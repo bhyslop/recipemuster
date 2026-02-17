@@ -1,0 +1,316 @@
+==== Multi-Architecture Strategy Caveat
+
+All tiers below assume Google Cloud Build (GCB) remains the sole builder.
+GCB provides only x86 workers — default and private pools alike.
+Multi-platform builds currently use QEMU emulation via the binfmt setup step (rbgjb04).
+
+The vessel regime's `RBRV_CONJURE_BINFMT_POLICY` field ("allow" / "forbid") is the canary for this assumption.
+As long as all vessels tolerate emulation, GCB-specific investment is sound.
+If a vessel requires native ARM builds, the builder strategy must expand beyond GCB,
+and the GCB-specific tiers (3, 4, 5) should be re-evaluated before further investment.
+
+Tiers 3-5 represent deep GCB lock-in.
+If native ARM builds become necessary, builder-agnostic controls (cosign signing, portable SLSA provenance)
+become more valuable than GCB-specific infrastructure (private pools, VPC Service Controls).
+See the Decision Log entry on cosign deferral.
+
+==== Tier 0: Current Baseline
+
+What exists and is verified working as of 2026-02.
+
+**Builder step image pinning.**
+All seven `RBRR_GCB_*_IMAGE_REF` regime variables are validated by `buv_val_odref()`,
+which regex-enforces `@sha256:<64hex>` digest pinning.
+A pin-refresh command (`RBZ_REFRESH_GCB_PINS`) resolves latest digests and updates the regime.
+This is stronger than most pipelines.
+
+**Artifact Registry storage.**
+Built images are stored in Google Artifact Registry (GAR),
+not Docker Hub or other external registries.
+Regime variables configure project, region, and repository.
+
+**Dedicated Mason service account.**
+The Mason SA is explicitly specified in the build request JSON via the `serviceAccount` field.
+It has scoped permissions on the depot project.
+
+**SBOM generation.**
+Syft generates both JSON and table-format SBOMs from the OCI layout directory (rbgjb08).
+These are packaged into the metadata container (rbgjb09).
+SBOM remains recommended: CISA updated minimum elements in 2025, EU Cyber Resilience Act requires machine-readable SBOMs.
+The main criticism (static SBOMs are noisy, inflating vulnerability counts) does not argue for removal — it argues for eventual upgrade to runtime-aware analysis.
+See References: CISA 2025, Dark Reading 2026, RapidFort RBOM.
+
+**OCI Layout Bridge pattern.**
+Multi-platform builds export to OCI tarball (rbgjb06), push via crane (rbgjb07).
+This cleanly separates the build phase (no credentials needed) from the push phase (GAR auth via gcloud).
+Documented in trade study RBSOB.
+
+**Cloud Build logging.**
+Build requests set `options.logging: CLOUD_LOGGING_ONLY`.
+
+**Binfmt policy.**
+Vessel regime supports `RBRV_CONJURE_BINFMT_POLICY` to gate cross-platform emulation.
+
+==== Tier 1: Baseline Hardening
+
+Small, independent improvements requiring no architectural changes.
+Each can be implemented as individual paces.
+
+**Dockerfile base image digest validation.**
+Builder step images are digest-pinned (Tier 0), but user-authored Dockerfiles in vessel build contexts are not validated.
+A vessel with `FROM ubuntu:22.04` passes today — mutable tag, supply-chain risk.
+Provenance does not address this: it records _that_ a build happened, not _whether the inputs were stable_.
+Add a pre-build validation step or Foundry check that parses the Dockerfile and rejects non-digest `FROM` references.
+This constrains vessel authors, so it is a policy decision with documentation implications for RBSRV.
+
+**BuildKit provenance flag.**
+Add `--provenance=true` to the `docker buildx build` invocation in rbgjb06.
+BuildKit 0.11+ can generate build provenance, but it is not explicitly requested today.
+This is a single flag addition.
+Note: this is BuildKit-level provenance (builder internals), distinct from Google's trigger-level SLSA provenance (Tier 2).
+
+**Build log hygiene.**
+Build steps should not echo OAuth tokens or credentials to stdout/stderr.
+The current pipeline obtains tokens in rbgjb02 and uses them in rbgjb03.
+Ensure `set +x` discipline in sensitive steps and that token variables are never passed through `echo` or `buc_step` equivalents.
+Low effort, prevents accidental leakage via Cloud Logging.
+
+==== Tier 2: Trigger Migration
+
+Switch from ad-hoc `cloudbuild.builds.create` API calls to Cloud Build trigger-based builds.
+Primary motivation: Google automatically generates SLSA v1.0 provenance for trigger-invoked builds stored in Artifact Registry.
+
+**Current state.**
+The Foundry (`rbf_Foundry.sh`) reads rbgjb/*.sh step scripts, stitches them into a JSON build request,
+uploads a source tarball to GCS, and POSTs to the builds.create REST API.
+All step parameterization flows through 13+ `_RBGY_*` Cloud Build substitution variables.
+
+**Proposed approach: generated-artifact-must-be-committed.**
+A generator (refactored from `zrbf_stitch_build_json`) reads rbgjb/*.sh scripts plus current regime pins
+and emits a static `cloudbuild.yaml` per vessel.
+This yaml is committed to the repository.
+Before building, the Foundry regenerates to a temp location and diffs against the committed yaml — stale means "regenerate and commit before building."
+The Foundry invokes `triggers.run` with per-vessel substitution overrides instead of `builds.create`.
+
+**What moves into the yaml (static, committed):**
+
+* Step structure, script bodies, step IDs, entrypoints
+* Builder image digest references (currently baked by string replacement; become part of the static yaml)
+
+**What remains dynamic (substitution overrides at trigger.run time):**
+
+* `_RBGY_MONIKER`, `_RBGY_PLATFORMS`, `_RBGY_DOCKERFILE`
+* `_RBGY_GIT_COMMIT`, `_RBGY_GIT_BRANCH`, `_RBGY_GIT_REPO`
+* `_RBGY_GAR_LOCATION`, `_RBGY_GAR_PROJECT`, `_RBGY_GAR_REPOSITORY`
+* Other per-invocation values
+
+**One yaml per vessel.**
+Different vessels may have different Dockerfiles and build contexts.
+One shared yaml with substitutions is possible but one-per-vessel is clearest.
+
+**Consequences:**
+
+* GCS source tarball upload is eliminated — triggers fetch from the connected repository
+* The entire stitching/escaping mechanism (`zrbf_stitch_build_json`) is eliminated from the hot path
+* Pin-refresh naturally ends with "regenerate cloudbuild.yaml and commit" — pin update and build definition update become a single atomic commit
+* Google SLSA provenance is generated automatically — no DIY provenance needed
+* Build context scope widens: trigger checks out the entire repo, not a minimal tarball. The builder sees more files. Acceptable since the repo contains no secrets, and Dockerfile/context paths are parameterized.
+
+**Prerequisite:** Cloud Build trigger resource must be created (once, via gcloud or API) and connected to the repository.
+
+See References: Google SLSA provenance docs.
+
+==== Tier 3: Private Pools
+
+Replace GCB default (shared, public) workers with a Private Pool.
+This tier retains public egress — no dependency mirroring cascade.
+
+**What Private Pools provide:**
+
+* Workers peered into your VPC (access to internal resources)
+* Static external IPs (useful for allowlisting)
+* More machine type options (64 vs 5)
+* Higher concurrent build limits (100+ vs 30)
+* Foundation for Tiers 4 and 5
+
+**What Private Pools do NOT provide:**
+
+* ARM workers (x86 only — see Multi-Architecture Caveat)
+* Automatic egress restriction (must be configured separately in Tier 4)
+
+**Required changes:**
+
+* Create Private Pool resource in depot project
+* Add `options.pool.name` to the build request (or `cloudbuild.yaml` if Tier 2 is complete)
+* Add regime variables: `RBRR_GCB_PRIVATE_POOL_NAME` (and region if distinct)
+* Expand `rbgc_gcb_machine_vcpus_capture()` for additional machine types
+* Pricing: expect roughly 1.5-2x default pool per-minute rates
+
+**Infrastructure note:**
+Private Pools are fully managed by Google — they scale to zero, no VMs to maintain.
+They reside in a Google-owned service producer network and connect to your VPC through private peering.
+
+See References: Private Pools overview, Private Pool configuration schema.
+
+==== Tier 4: Egress Lockdown
+
+Set `egressOption: NO_PUBLIC_EGRESS` on the Private Pool.
+Workers lose all public internet access.
+This is the largest cascading change in the roadmap.
+
+**Dependency mirroring required.**
+Every external resource fetched during build must be pre-staged in GAR or GCS:
+
+[cols="1,2,1",options="header"]
+|===
+|Build Step
+|External Dependency
+|Mitigation
+
+|rbgjb04 (binfmt)
+|`tonistiigi/binfmt` from Docker Hub
+|Mirror to GAR
+
+|rbgjb06 (build)
+|Base images from Docker Hub (per vessel Dockerfile)
+|Mirror to GAR; enforce GAR-only `FROM` refs
+
+|rbgjb07 (crane)
+|Crane tarball from GitHub Releases
+|Host in GCS or bake into custom builder image
+
+|rbgjb08 (SBOM)
+|`anchore/syft` from Docker Hub
+|Mirror to GAR
+|===
+
+**Ongoing maintenance cost.**
+Mirror refresh becomes a recurring operation.
+The existing pin-refresh workflow (`RBZ_REFRESH_GCB_PINS`) expands to include mirroring.
+Every tool image security update requires a mirror-refresh-and-commit cycle.
+
+**Additional infrastructure:**
+
+* Private Cloud DNS zone for internal hostname resolution
+* NAT/proxy if any exception egress paths are needed (treat as security event)
+* All `RBRR_GCB_*_IMAGE_REF` pins must point to GAR mirrors, not upstream registries
+
+**Prerequisite:** Tier 3 (Private Pools) must be in place.
+
+See References: Cloud Build in a private network.
+
+==== Tier 5: VPC Service Controls Perimeter
+
+Wrap the depot project in a VPC Service Controls (VPC-SC) perimeter.
+This restricts which GCP APIs can be called and from where, reducing data exfiltration risk.
+
+**Required infrastructure:**
+
+* VPC-SC perimeter around the depot project (organizational policy — may require org-level admin)
+* Access levels for operator workstations (so builds can still be submitted from outside the perimeter)
+* Ingress/egress rules for the perimeter (which services may cross the boundary)
+* Testing: every GCP API call in the pipeline must be verified inside the perimeter — Cloud Logging writes, GCS uploads, Artifact Registry pushes, Cloud Build API calls can break subtly
+
+**Prerequisite:** Tier 4 (Egress Lockdown) should be in place for the perimeter to be meaningful.
+
+See References: VPC Service Controls with Cloud Build.
+
+==== Deferred Items
+
+**Binary Authorization.**
+Deploy-time policy enforcement: only attested images can be deployed.
+Relevant for GKE and Cloud Run deployment targets.
+Recipe Bottle currently deploys to Podman on workstations — Binary Authorization does not apply.
+Revisit if deployment targets change.
+See References: Binary Authorization docs.
+
+**Cosign image signing.**
+Cryptographic signatures attached to images in the registry, verifiable by downstream consumers.
+Two modes: keyless (Sigstore/Fulcio — requires public internet, conflicts with Tier 4) and keyed (Cloud KMS — no external dependency).
+With Google SLSA provenance from Tier 2, cosign signing is redundant for the current threat model (building and consuming within own GCP project).
+Cosign becomes valuable if: (a) images are distributed to external consumers, (b) trust verification is needed outside GCP, or (c) the builder strategy expands beyond GCB (see Multi-Architecture Caveat).
+If adopted, prefer KMS-backed keyed signing for compatibility with egress lockdown.
+
+**Reproducibility verification.**
+Periodically rebuild images independently and compare digests.
+Useful for detecting non-determinism in builds.
+Requires reproducible toolchains (Go, Rust, Nix-based builds) — a vessel-author discipline, not a pipeline control.
+Not actionable until vessel ecosystem matures.
+
+==== Decision Log
+
+**Trigger-based builds over DIY SLSA provenance.**
+The Foundry already parameterizes all build configuration through `_RBGY_*` substitutions.
+Converting to a static `cloudbuild.yaml` is mechanical, not architectural.
+Google generates SLSA provenance automatically for trigger-invoked builds, eliminating the need for a custom provenance generation step.
+The generated-artifact-must-be-committed pattern preserves the Foundry's generation logic while producing a trigger-compatible yaml.
+One yaml per vessel chosen over a shared yaml for clarity.
+(2026-02)
+
+**KMS-keyed signing over Sigstore keyless, if signing is adopted.**
+Keyless signing (Sigstore/Fulcio) requires build workers to reach public Sigstore infrastructure.
+This conflicts with Tier 4 (NO_PUBLIC_EGRESS).
+KMS-backed signing stays inside the GCP boundary.
+Decision: if cosign is adopted, use `cosign sign --key gcpkms://...`.
+(2026-02)
+
+**Cosign deferred, not rejected.**
+With Google SLSA provenance (Tier 2), cosign is redundant for the current threat model.
+It re-enters the picture if: multi-arch strategy requires non-GCB builders (losing Google's provenance), or images are distributed externally.
+The binfmt policy canary (`RBRV_CONJURE_BINFMT_POLICY`) signals when this decision needs revisiting.
+(2026-02)
+
+**SBOM retained despite noise criticism.**
+CISA 2025 raised minimum SBOM elements (not reduced).
+EU CRA requires machine-readable SBOMs.
+The criticism that static SBOMs inflate vulnerability counts is valid but argues for augmentation (runtime analysis), not removal.
+Current Syft-based generation (rbgjb08) is aligned with industry direction.
+(2026-02)
+
+**Private Pools as incremental tiers, not all-or-nothing.**
+Tier 3 (pool creation with public egress) is independently valuable.
+Tier 4 (egress lockdown) triggers a dependency mirroring cascade with ongoing maintenance.
+Tier 5 (VPC-SC) requires org-level policy.
+Each tier is a separate heat decision.
+(2026-02)
+
+**Binary Authorization deferred — deployment target mismatch.**
+BinAuth gates GKE/Cloud Run deployments.
+Recipe Bottle deploys to Podman on workstations.
+No benefit until deployment targets change.
+(2026-02)
+
+==== References
+
+**Google Cloud documentation:**
+
+* https://docs.google.com/build/docs/securing-builds/generate-validate-build-provenance[Generate and validate build provenance (SLSA)]
+* https://docs.google.com/build/docs/private-pools/private-pools-overview[Private Pools overview]
+* https://docs.google.com/build/docs/private-pools/private-pool-config-file-schema[Private Pool configuration schema]
+* https://docs.google.com/build/docs/private-pools/use-in-private-network[Cloud Build in a private network (NO_PUBLIC_EGRESS)]
+* https://docs.google.com/build/docs/private-pools/using-vpc-service-controls[VPC Service Controls with Cloud Build]
+* https://cloud.google.com/binary-authorization/docs/deploy-cloud-build[Deploy only images built by Cloud Build (Binary Authorization)]
+* https://cloud.google.com/binary-authorization/docs/cloud-build[Create Binary Authorization attestation in Cloud Build]
+* https://cloud.google.com/build/pricing-update[Cloud Build pricing update (2025)]
+
+**SBOM and supply chain:**
+
+* https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom[CISA 2025 Minimum Elements for SBOM]
+* https://www.cisa.gov/sbom[CISA SBOM overview]
+* https://www.cisa.gov/news-events/alerts/2025/09/03/cisa-nsa-and-global-partners-release-shared-vision-software-bill-materials-sbom-guidance[CISA/NSA Shared Vision of SBOM (Sep 2025)]
+* https://openssf.org/blog/2025/06/05/choosing-an-sbom-generation-tool/[OpenSSF: Choosing an SBOM Generation Tool]
+* https://www.darkreading.com/application-security/sboms-in-2026-some-love-some-hate-much-ambivalence[SBOMs in 2026: Some Love Some Hate Much Ambivalence (Dark Reading)]
+* https://www.rapidfort.com/blog/sbom-vs-rbom-tm-why-runtime-bill-of-materials-is-the-future-of-container-security[SBOM vs RBOM: Runtime Bill of Materials (RapidFort)]
+
+**Signing and attestation:**
+
+* https://docs.sigstore.dev/cosign/signing/signing_with_containers/[Cosign container signing]
+* https://slsa.dev/provenance/v1[SLSA Provenance v1.0 specification]
+
+**Internal references:**
+
+* RBSOB: OCI Layout Bridge trade study
+* RBWMBX: Buildx Multi-Platform Authentication research memo
+* rbf_Foundry.sh: `zrbf_stitch_build_json()` — current build stitching mechanism
+* buv_validation.sh: `buv_val_odref()` — digest-pinned image reference validator
+* RBRV vessel regime: `RBRV_CONJURE_BINFMT_POLICY` — multi-arch emulation canary
