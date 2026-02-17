@@ -75,7 +75,7 @@ zbuut_write_tabtarget() {
     echo "${z_flag_lines}" >> "${z_tabtarget_file}"
   fi
 
-  echo 'exec "$(dirname "${BASH_SOURCE[0]}")/../${BURD_LAUNCHER}" "${0##*/}" "${@}"' >> "${z_tabtarget_file}"
+  echo 'exec "${BASH_SOURCE[0]%/*}/../${BURD_LAUNCHER}" "${0##*/}" "${@}"' >> "${z_tabtarget_file}"
 
   chmod +x "${z_tabtarget_file}" || buc_die "Failed to make tabtarget executable: ${z_tabtarget_file}"
 }
