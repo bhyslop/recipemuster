@@ -468,6 +468,14 @@ buv_qualify_tabtargets() {
   local z_fail_reasons=()
   local z_count=0
 
+  # Prescribed tabtarget form (from buut_tabtarget.sh generator):
+  #   Line 1:      #!/bin/bash
+  #   Line 2:      export BURD_LAUNCHER="<launcher_path>"
+  #   Lines 3..N-1: optional export BURD_*=* flag lines
+  #   Last line:   exec "${BASH_SOURCE[0]%/*}/../${BURD_LAUNCHER}" "${0##*/}" "${@}"
+  local z_prescribed_shebang='#!/bin/bash'
+  local z_prescribed_exec='exec "${BASH_SOURCE[0]%/*}/../${BURD_LAUNCHER}" "${0##*/}" "${@}"'
+
   local z_file=""
   for z_file in "${z_tt_dir}"/*.sh; do
     test -e "${z_file}" || continue
@@ -475,65 +483,73 @@ buv_qualify_tabtargets() {
 
     local z_basename="${z_file##*/}"
 
+    # Load file lines (load-then-iterate per BCG)
     local z_lines=()
     local z_line=""
     while IFS= read -r z_line || test -n "${z_line}"; do
       z_lines+=("${z_line}")
     done < "${z_file}"
 
-    local z_has_shebang=0
-    if (( ${#z_lines[@]} )); then
-      case "${z_lines[0]}" in
-        '#!/bin/bash') z_has_shebang=1 ;;
-        '#!/bin/sh')   z_has_shebang=1 ;;
-      esac
-    fi
-    test "${z_has_shebang}" = "1" || {
+    local z_num_lines=${#z_lines[@]}
+
+    # Must have at least 3 lines: shebang, BURD_LAUNCHER, exec
+    test "${z_num_lines}" -ge 3 || {
       z_fail_files+=("${z_basename}")
-      z_fail_reasons+=("missing or invalid shebang")
+      z_fail_reasons+=("too few lines: ${z_num_lines} (minimum 3)")
       continue
     }
 
-    local z_has_dispatch=0
-    local z_launcher_path=""
-    local z_i=0
-    for z_i in "${!z_lines[@]}"; do
-      case "${z_lines[$z_i]}" in
-        *'BURD_LAUNCHER='*)
-          z_has_dispatch=1
-          local z_rhs="${z_lines[$z_i]#*BURD_LAUNCHER=}"
-          z_launcher_path="${z_rhs#\"}"
-          z_launcher_path="${z_launcher_path%\"}"
-          ;;
-        *'launcher.'*'.sh'*)
-          z_has_dispatch=1
-          ;;
-        *'bud_dispatch.sh'*)
-          z_has_dispatch=1
-          ;;
-        *'tabtarget-dispatch.sh'*)
-          z_has_dispatch=1
-          ;;
-        *'_cli.sh'*)
-          z_has_dispatch=1
-          ;;
-        'exit '*)
-          z_has_dispatch=1
-          ;;
-      esac
-    done
-    test "${z_has_dispatch}" = "1" || {
+    # Line 1: prescribed shebang
+    test "${z_lines[0]}" = "${z_prescribed_shebang}" || {
       z_fail_files+=("${z_basename}")
-      z_fail_reasons+=("no dispatch mechanism found")
+      z_fail_reasons+=("line 1: expected '${z_prescribed_shebang}', got '${z_lines[0]}'")
       continue
     }
 
-    test -z "${z_launcher_path}" || {
-      test -f "${z_project_root}/${z_launcher_path}" || {
+    # Line 2: must be export BURD_LAUNCHER="..."
+    case "${z_lines[1]}" in
+      'export BURD_LAUNCHER="'*'"') ;;
+      *)
         z_fail_files+=("${z_basename}")
-        z_fail_reasons+=("launcher not found: ${z_launcher_path}")
+        z_fail_reasons+=("line 2: expected 'export BURD_LAUNCHER=\"...\"', got '${z_lines[1]}'")
         continue
-      }
+        ;;
+    esac
+
+    # Extract launcher path for existence check
+    local z_launcher_rhs="${z_lines[1]#export BURD_LAUNCHER=\"}"
+    local z_launcher_path="${z_launcher_rhs%\"}"
+
+    # Middle lines (3..N-1): must be export BURD_*=*
+    local z_middle_ok=1
+    local z_i=2
+    local z_last_idx=$((z_num_lines - 1))
+    while test "${z_i}" -lt "${z_last_idx}"; do
+      case "${z_lines[$z_i]}" in
+        'export BURD_'*'='*) ;;
+        *)
+          z_fail_files+=("${z_basename}")
+          z_fail_reasons+=("line $((z_i + 1)): expected 'export BURD_*=*', got '${z_lines[$z_i]}'")
+          z_middle_ok=0
+          break
+          ;;
+      esac
+      z_i=$((z_i + 1))
+    done
+    test "${z_middle_ok}" = "1" || continue
+
+    # Last line: prescribed exec (parameter expansion, not dirname)
+    test "${z_lines[$z_last_idx]}" = "${z_prescribed_exec}" || {
+      z_fail_files+=("${z_basename}")
+      z_fail_reasons+=("last line: expected prescribed exec, got '${z_lines[$z_last_idx]}'")
+      continue
+    }
+
+    # Launcher file must exist
+    test -f "${z_project_root}/${z_launcher_path}" || {
+      z_fail_files+=("${z_basename}")
+      z_fail_reasons+=("launcher not found: ${z_launcher_path}")
+      continue
     }
   done
 
