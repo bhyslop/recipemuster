@@ -1,4 +1,3 @@
 #!/bin/bash
-# TabTarget - delegates to vow workbench via launcher
-exec "$(dirname "${BASH_SOURCE[0]}")/../.buk/launcher.vow_workbench.sh" \
-  "${0##*/}" "${@}"
+export BURD_LAUNCHER=".buk/launcher.vow_workbench.sh"
+exec "${BASH_SOURCE[0]%/*}/../${BURD_LAUNCHER}" "${0##*/}" "${@}"

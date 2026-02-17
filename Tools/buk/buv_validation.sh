@@ -461,12 +461,17 @@ buv_qualify_tabtargets() {
   test -n "${z_tt_dir}"       || buc_die "buv_qualify_tabtargets: tabtarget directory required"
   test -n "${z_project_root}" || buc_die "buv_qualify_tabtargets: project root required"
   test -d "${z_tt_dir}"       || buc_die "buv_qualify_tabtargets: directory not found: ${z_tt_dir}"
+  shift 2
+
+  # Remaining arguments are glob patterns for exempt tabtargets
+  local z_exemptions=("$@")
 
   buc_step "Qualifying tabtarget structure in ${z_tt_dir}"
 
   local z_fail_files=()
   local z_fail_reasons=()
   local z_count=0
+  local z_exempt_count=0
 
   # Prescribed tabtarget form (from buut_tabtarget.sh generator):
   #   Line 1:      #!/bin/bash
@@ -482,6 +487,19 @@ buv_qualify_tabtargets() {
     z_count=$((z_count + 1))
 
     local z_basename="${z_file##*/}"
+
+    # Check exemption patterns
+    local z_is_exempt=0
+    local z_exempt_pattern=""
+    for z_exempt_pattern in "${z_exemptions[@]+"${z_exemptions[@]}"}"; do
+      case "${z_basename}" in
+        ${z_exempt_pattern}) z_is_exempt=1; break ;;
+      esac
+    done
+    if test "${z_is_exempt}" = "1"; then
+      z_exempt_count=$((z_exempt_count + 1))
+      continue
+    fi
 
     # Load file lines (load-then-iterate per BCG)
     local z_lines=()
@@ -553,17 +571,20 @@ buv_qualify_tabtargets() {
     }
   done
 
-  buc_log_args "Checked ${z_count} tabtargets"
+  local z_checked=$((z_count - z_exempt_count))
+  local z_summary="Checked ${z_checked} tabtargets"
+  test "${z_exempt_count}" = "0" || z_summary="${z_summary} (${z_exempt_count} exempt)"
+  buc_log_args "${z_summary}"
 
   if (( ${#z_fail_files[@]} )); then
     local z_j=0
     for z_j in "${!z_fail_files[@]}"; do
       buc_warn "${z_fail_files[$z_j]}: ${z_fail_reasons[$z_j]}" || buc_die "Failed to warn"
     done
-    buc_die "Tabtarget qualification failed: ${#z_fail_files[@]} of ${z_count} tabtargets"
+    buc_die "Tabtarget qualification failed: ${#z_fail_files[@]} of ${z_checked} tabtargets"
   fi
 
-  buc_log_args "All ${z_count} tabtargets structurally valid"
+  buc_log_args "All ${z_checked} tabtargets structurally valid"
 }
 
 # eof
