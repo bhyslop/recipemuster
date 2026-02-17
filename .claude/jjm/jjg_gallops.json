@@ -4781,9 +4781,10 @@
         "₢AOAAE",
         "₢AOAAF",
         "₢AOAAG",
-        "₢AOAAH"
+        "₢AOAAH",
+        "₢AOAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -4913,6 +4914,17 @@
               "text": "Regenerate all tabtargets to match the prescribed form enforced by buv_qualify_tabtargets.\n\n## Context\n\nThe qualifier now enforces strict tabtarget structure:\n- Line 1: `#!/bin/bash`\n- Line 2: `export BURD_LAUNCHER=\"<path>\"`\n- Middle lines: optional `export BURD_*=*` flags\n- Last line: `exec \"${BASH_SOURCE[0]%/*}/../${BURD_LAUNCHER}\" \"${0##*/}\" \"${@}\"`\n\nAll ~80 existing tabtargets use `$(dirname ...)` instead of parameter expansion in the exec line. Several use hardcoded launcher paths instead of BURD_LAUNCHER. Two legacy tabtargets (oga, machine_setup_PROTOTYPE_rule) use entirely different patterns.\n\n## Work\n\n1. Fix the generator: `Tools/buk/buut_tabtarget.sh` line 78 — change `$(dirname \"${BASH_SOURCE[0]}\")` to `${BASH_SOURCE[0]%/*}` in the emitted exec line.\n\n2. Classify all tabtargets by launcher path and mode (batch-logging, batch-nolog, interactive-logging, interactive-nolog) by inspecting their current BURD_* exports.\n\n3. Regenerate each group using the appropriate creator tabtarget:\n   - `tt/buw-tt-cbl.CreateTabTargetBatchLogging.sh <launcher> <name1> <name2> ...`\n   - `tt/buw-tt-cbn.CreateTabTargetBatchNolog.sh <launcher> <name1> <name2> ...`\n   - `tt/buw-tt-cil.CreateTabTargetInteractiveLogging.sh <launcher> <name1> <name2> ...`\n   - `tt/buw-tt-cin.CreateTabTargetInteractiveNolog.sh <launcher> <name1> <name2> ...`\n\n4. The four creator tabtargets themselves must also be regenerated (they currently use dirname). Bootstrap: fix the generator first, then regenerate the creators, then use them for everything else.\n\n5. Handle legacy tabtargets (oga.OpenGithubAction.sh, machine_setup_PROTOTYPE_rule.sh) — convert to BURD_LAUNCHER form or remove if obsolete.\n\n6. Run `tt/rbw-qa.QualifyAll.sh` to verify all tabtargets pass.\n\n## Acceptance\n\n- `tt/rbw-qa.QualifyAll.sh` passes (zero tabtarget failures)\n- No `dirname` or `basename` in any tabtarget\n- All tabtargets use BURD_LAUNCHER pattern",
               "silks": "repair-tabtarget-prescribed-form",
               "commit": "cda4f1a"
+            }
+          ]
+        },
+        "₢AOAAJ": {
+          "tacks": [
+            {
+              "ts": "260217-0748",
+              "state": "rough",
+              "text": "Investigate _cli_kindle functions across the codebase. Determine if they serve a purpose or are dead code. If dead, remove them.\n\n## Scope\n\n- Find all *_cli_kindle function definitions\n- Trace callers — are they invoked anywhere?\n- If unused, delete the functions and any related scaffolding\n- If used, document what they do and close as no-op\n\n## Acceptance\n\n- Every _cli_kindle function either has a documented caller or is deleted\n- Qualification passes",
+              "silks": "audit-cli-kindle-functions",
+              "commit": "5085d11"
             }
           ]
         }
