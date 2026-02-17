@@ -4882,6 +4882,13 @@
         "₢AOAAG": {
           "tacks": [
             {
+              "ts": "260217-1545",
+              "state": "complete",
+              "text": "Fix OS-specific link instructions and redundant text in rbgm_ManualProcedures.sh.\n\n## Issues (from orphaned heat triage)\n\n1. Line 143: Remove redundant \"Default text is this color.\" line — adds no value\n2. Line 144: \"(often, Ctrl + mouse click)\" is wrong on macOS (should be Cmd+click). Replace with OS-detected instruction.\n3. The Key section (lines 140-144) appears in both rbgm_payor_establish and rbgm_quota_build — fix in both places.\n\n## Approach\n\nDetect OS via `uname` and set the click modifier accordingly (Ctrl on Linux, Cmd on macOS). Apply to all bug_link calls that mention the modifier.\n\n## Files\n- `Tools/rbw/rbgm_ManualProcedures.sh` — primary edit target (lines 140-144 in payor_establish, similar block in quota_build around line 340-343)",
+              "silks": "fix-rbgm-os-specific-link-instructions",
+              "commit": "8a66187"
+            },
+            {
               "ts": "260216-1031",
               "state": "rough",
               "text": "Fix OS-specific link instructions and redundant text in rbgm_ManualProcedures.sh.\n\n## Issues (from orphaned heat triage)\n\n1. Line 143: Remove redundant \"Default text is this color.\" line — adds no value\n2. Line 144: \"(often, Ctrl + mouse click)\" is wrong on macOS (should be Cmd+click). Replace with OS-detected instruction.\n3. The Key section (lines 140-144) appears in both rbgm_payor_establish and rbgm_quota_build — fix in both places.\n\n## Approach\n\nDetect OS via `uname` and set the click modifier accordingly (Ctrl on Linux, Cmd on macOS). Apply to all bug_link calls that mention the modifier.\n\n## Files\n- `Tools/rbw/rbgm_ManualProcedures.sh` — primary edit target (lines 140-144 in payor_establish, similar block in quota_build around line 340-343)",
