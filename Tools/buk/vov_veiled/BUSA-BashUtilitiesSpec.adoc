@@ -15,6 +15,7 @@
 // burc_:  Configuration Regime (project-level settings)
 // burs_:  Station Regime (developer-level settings)
 // burd_:  Dispatch Runtime (ephemeral state assembled during dispatch)
+// bure_:  Environment Regime (ambient caller-supplied behavioral overrides)
 //
 // Variant patterns:
 //   _s: plural form
@@ -113,6 +114,11 @@
 :burd_token_3:                     <<burd_token_3,BURD_TOKEN_3>>
 :burd_token_4:                     <<burd_token_4,BURD_TOKEN_4>>
 :burd_token_5:                     <<burd_token_5,BURD_TOKEN_5>>
+
+// BURE Regime: Environment (ambient caller-supplied behavioral overrides)
+:bure_prefix:                      <<bure_prefix,BURE_>>
+:bure_regime:                      <<bure_regime,BURE Regime>>
+:bure_countdown:                   <<bure_countdown,BURE_COUNTDOWN>>
 
 // end::mapping-section[]
 
@@ -349,6 +355,11 @@ Bash Utility Configuration Regime
 // ⟦axl_voices axrg_prefix⟧
 {burs_prefix}::
 Bash Utility Station Regime
+
+[[bure_prefix]]
+// ⟦axl_voices axrg_prefix⟧
+{bure_prefix}::
+Bash Utility Environment Regime
 
 === Kit Regime Operations
 
@@ -616,5 +627,22 @@ Positional token 4 from tabtarget split.
 // ⟦axl_voices axrg_variable axtu_string⟧
 {burd_token_5}::
 Positional token 5 from tabtarget split.
+
+=== BURE Regime
+
+[[bure_regime]]
+// ⟦axvr_regime axf_bash axrd_constructed axrd_singleton⟧
+{bure_regime}::
+Ambient regime for caller-supplied behavioral overrides to BUK primitives.
+Unlike file-sourced regimes, BURE variables are set directly in the caller's environment.
+Kindled and validated when buc_command.sh is sourced.
+
+[[bure_countdown]]
+// ⟦axvr_variable axtu_string axd_optional⟧
+{bure_countdown}::
+Countdown behavior override.
+When set to `skip`, buc_countdown bypasses interactive countdown and tty output.
+When unset, countdown proceeds normally with interactive tty cancel window.
+Any other value fails validation.
 
 include::BUSD-DispatchRuntime.adoc[]

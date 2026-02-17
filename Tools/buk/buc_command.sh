@@ -287,6 +287,14 @@ zbuc_show_help() {
 buc_countdown() {
   local z_seconds="$1"
   local z_prompt="$2"
+
+  if test "${BURE_COUNTDOWN:-}" = "skip"; then
+    buc_step "Countdown: ${z_seconds}s (skipped — BURE_COUNTDOWN=skip)"
+    return 0
+  fi
+
+  test -z "${BURE_COUNTDOWN:-}" || buc_die "BURE_COUNTDOWN must be 'skip' or unset, got '${BURE_COUNTDOWN}'"
+
   buc_step "Countdown: ${z_seconds}s to cancel (Ctrl-C)"
   sleep 1
   printf '%b ' "${ZBUC_YELLOW}${z_prompt}${ZBUC_RESET}" >/dev/tty

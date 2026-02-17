@@ -55,6 +55,7 @@ buw_route() {
   local z_buut_cli="${BUW_SCRIPT_DIR}/buut_cli.sh"
   local z_burc_cli="${BUW_SCRIPT_DIR}/burc_cli.sh"
   local z_burs_cli="${BUW_SCRIPT_DIR}/burs_cli.sh"
+  local z_bure_cli="${BUW_SCRIPT_DIR}/bure_cli.sh"
 
   case "${z_command}" in
 
@@ -73,6 +74,10 @@ buw_route() {
     # Station Regime subsystem
     buw-rsv) exec "${z_burs_cli}" validate ;;
     buw-rsr) exec "${z_burs_cli}" render ;;
+
+    # Environment Regime subsystem
+    buw-rev) exec "${z_bure_cli}" validate ;;
+    buw-rer) exec "${z_bure_cli}" render ;;
 
     # Unknown command
     *)   buc_die "Unknown command: ${z_command}" ;;

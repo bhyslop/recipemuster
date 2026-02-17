@@ -227,6 +227,22 @@ buv_val_bool() {
   test "${z_val}" = "0" || test "${z_val}" = "1" || buc_die "${z_varname} must be 0 or 1, got: '${z_val}'"
 }
 
+# Enumeration validator — value must be one of the listed choices
+buv_val_enum() {
+  local z_varname="${1:-}"
+  local z_val="${2:-}"
+  shift 2
+
+  test -n "${z_varname}" || buc_die "varname parameter is required"
+  test -n "${z_val}" || buc_die "${z_varname} must not be empty"
+
+  local z_allowed
+  for z_allowed in "$@"; do
+    test "${z_val}" = "${z_allowed}" && return 0
+  done
+  buc_die "${z_varname} must be one of: $*, got '${z_val}'"
+}
+
 # Decimal range validator
 buv_val_decimal() {
   local z_varname="${1:-}"
@@ -414,6 +430,7 @@ buv_env_xname()              { buv_env_wrapper "buv_val_xname"            "$@"; 
 buv_env_gname()              { buv_env_wrapper "buv_val_gname"            "$@"; }
 buv_env_fqin()               { buv_env_wrapper "buv_val_fqin"             "$@"; }
 buv_env_bool()               { buv_env_wrapper "buv_val_bool"             "$@"; }
+buv_env_enum()               { buv_env_wrapper "buv_val_enum"             "$@"; }
 buv_env_decimal()            { buv_env_wrapper "buv_val_decimal"          "$@"; }
 buv_env_ipv4()               { buv_env_wrapper "buv_val_ipv4"             "$@"; }
 buv_env_cidr()               { buv_env_wrapper "buv_val_cidr"             "$@"; }
@@ -428,6 +445,7 @@ buv_env_list_domain()        { buv_env_wrapper "buv_val_list_domain"      "$@"; 
 
 # Optional validators
 buv_opt_bool()               { buv_opt_wrapper "buv_val_bool"             "$@"; }
+buv_opt_enum()               { buv_opt_wrapper "buv_val_enum"             "$@"; }
 buv_opt_range()              { buv_opt_wrapper "buv_val_decimal"          "$@"; }
 buv_opt_ipv4()               { buv_opt_wrapper "buv_val_ipv4"             "$@"; }
 buv_opt_cidr()               { buv_opt_wrapper "buv_val_cidr"             "$@"; }
