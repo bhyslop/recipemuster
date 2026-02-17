@@ -250,7 +250,6 @@
 :rbrr_gcb_machine_type:      <<rbrr_gcb_machine_type,RBRR_GCB_MACHINE_TYPE>>
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
-:rbrr_gcb_gcrane_image_ref:  <<rbrr_gcb_gcrane_image_ref,RBRR_GCB_GCRANE_IMAGE_REF>>
 :rbrr_gcb_oras_image_ref:    <<rbrr_gcb_oras_image_ref,RBRR_GCB_ORAS_IMAGE_REF>>
 :rbrr_gcb_gcloud_image_ref:  <<rbrr_gcb_gcloud_image_ref,RBRR_GCB_GCLOUD_IMAGE_REF>>
 :rbrr_gcb_docker_image_ref:  <<rbrr_gcb_docker_image_ref,RBRR_GCB_DOCKER_IMAGE_REF>>
@@ -1814,11 +1813,6 @@ Minimum concurrent Cloud Build execution count.
 {rbrr_gcb_timeout}::
 Maximum duration for Cloud Build operations.
 
-[[rbrr_gcb_gcrane_image_ref]]
-// ⟦axvr_variable axd_required rbst_image_ref⟧
-{rbrr_gcb_gcrane_image_ref}::
-Fully-qualified image reference for gcrane Cloud Build step.
-
 [[rbrr_gcb_oras_image_ref]]
 // ⟦axvr_variable axd_required rbst_image_ref⟧
 {rbrr_gcb_oras_image_ref}::
@@ -2906,3 +2900,15 @@ Each study presents constraints, evaluated alternatives, and the rationale for c
 === OCI Layout Bridge
 
 include::RBSOB-oci_layout_bridge.adoc[]
+
+=== Cloud Build Roadmap
+
+include::RBSCB-CloudBuildRoadmap.adoc[]
+
+== Cloud Build Roadmap
+
+Roadmap for hardening the Google Cloud Build pipeline across progressive tiers.
+Each tier builds on the previous and can be adopted independently as a heat.
+See the Multi-Architecture Strategy section for cross-cutting constraints.
+
+include::RBSCB-CloudBuildRoadmap.adoc[]

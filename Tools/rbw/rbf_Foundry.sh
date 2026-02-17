@@ -72,13 +72,10 @@ zrbf_kindle() {
   ZRBF_ACCEPT_MANIFEST_MTYPES="application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json"
 
   buc_log_args 'RBGJ files in same Tools directory as this implementation'
-  # Acronyms: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
-  #           rbgjm = Recipe Bottle Google Json Mirror
+  # Acronym: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
   local z_self_dir="${BASH_SOURCE[0]%/*}"
   ZRBF_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
-  ZRBF_RBGJM_MIRROR_FILE="${z_self_dir}/rbgjm_mirror.json"
   test -d "${ZRBF_RBGJB_STEPS_DIR}"   || buc_die "RBGJB steps directory not found: ${ZRBF_RBGJB_STEPS_DIR}"
-  test -f "${ZRBF_RBGJM_MIRROR_FILE}" || buc_die "RBGJM mirror file not found: ${ZRBF_RBGJM_MIRROR_FILE}"
 
   buc_log_args 'Define stitched build JSON temp file'
   ZRBF_STITCHED_BUILD_FILE="${BURD_TEMP_DIR}/rbf_stitched_build.json"
@@ -128,7 +125,6 @@ zrbf_kindle() {
   ZRBF_STITCH_PREFIX="${BURD_TEMP_DIR}/rbf_stitch_"
 
   buc_log_args 'For now lets double check these'
-  test -n "${RBRR_GCB_GCRANE_IMAGE_REF:-}" || buc_die "RBRR_GCB_GCRANE_IMAGE_REF not set"
   test -n "${RBRR_GCB_ORAS_IMAGE_REF:-}"   || buc_die "RBRR_GCB_ORAS_IMAGE_REF not set"
 
   ZRBF_KINDLED=1
@@ -501,11 +497,6 @@ zrbf_submit_build_json() {
 }
 
 
-zrbf_submit_mirror() {
-  zrbf_sentinel
-
-  buc_die 'ELIDED FOR NOW - use ZRBF_RBGJM_MIRROR_FILE for steps'
-}
 
 zrbf_wait_build_completion() {
   zrbf_sentinel

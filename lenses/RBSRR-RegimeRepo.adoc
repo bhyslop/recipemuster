@@ -155,12 +155,6 @@ Maximum duration for Cloud Build operations before timeout.
 Specified in seconds or duration format (e.g., `3600s`).
 
 // ⟦axhrgv_variable⟧
-{rbrr_gcb_gcrane_image_ref}
-
-Fully-qualified image reference for gcrane tool used in Cloud Build steps.
-Gcrane provides Google-authenticated OCI registry operations.
-
-// ⟦axhrgv_variable⟧
 {rbrr_gcb_oras_image_ref}
 
 Fully-qualified image reference for ORAS tool used in Cloud Build steps.

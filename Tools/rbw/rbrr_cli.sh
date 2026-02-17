@@ -102,7 +102,6 @@ rbrr_render() {
   rbcr_section_item RBRR_GCB_MACHINE_TYPE        string  req  "Machine type for Cloud Build"
   rbcr_section_item RBRR_GCB_TIMEOUT             string  req  "Build timeout (e.g., 1200s)"
   rbcr_section_item RBRR_GCB_MIN_CONCURRENT_BUILDS decimal req "Min concurrent builds required"
-  rbcr_section_item RBRR_GCB_GCRANE_IMAGE_REF    odref   req  "gcrane image reference (digest-pinned)"
   rbcr_section_item RBRR_GCB_ORAS_IMAGE_REF      odref   req  "oras image reference (digest-pinned)"
   rbcr_section_item RBRR_GCB_GCLOUD_IMAGE_REF    odref   req  "gcloud image reference (digest-pinned)"
   rbcr_section_item RBRR_GCB_DOCKER_IMAGE_REF    odref   req  "docker image reference (digest-pinned)"
@@ -192,11 +191,49 @@ rbrr_refresh_gcb_pins() {
     || buc_die "No stable oras semver tag found in GHCR tag list"
   buc_info "oras discovered tag: ${z_oras_tag}"
 
+  # Discover latest crane release from GitHub API.
+  # crane is distributed as a tarball (not a container image), so it needs
+  # its own freshening path separate from the image-pin loop below.
+  local z_crane_releases_file="${BURD_TEMP_DIR}/rbrr_crane_releases.json"
+  local z_crane_tag_file="${BURD_TEMP_DIR}/rbrr_crane_tag.txt"
+  local z_crane_old_url_file="${BURD_TEMP_DIR}/rbrr_crane_old_url.txt"
+  local z_crane_sed_file="${BURD_TEMP_DIR}/rbrr_crane_sed.sh"
+
+  buc_step "Discovering latest crane release from GitHub"
+
+  curl -sS \
+    "https://api.github.com/repos/google/go-containerregistry/releases/latest" \
+    -o "${z_crane_releases_file}" 2>/dev/null \
+    || buc_die "Failed to fetch crane releases from GitHub API"
+
+  buc_log_args "Extracting tag from latest release"
+  jq -r '.tag_name // empty' "${z_crane_releases_file}" > "${z_crane_tag_file}" \
+    || buc_die "Failed to extract tag from crane releases response"
+  local z_crane_tag=$(<"${z_crane_tag_file}")
+  test -n "${z_crane_tag}" || buc_die "No tag found in crane latest release"
+  buc_info "crane discovered tag: ${z_crane_tag}"
+
+  local z_crane_url="https://github.com/google/go-containerregistry/releases/download/${z_crane_tag}/go-containerregistry_Linux_x86_64.tar.gz"
+
+  buc_log_args "Reading current RBRR_CRANE_TAR_GZ from rbrr file"
+  grep "^RBRR_CRANE_TAR_GZ=" "${z_rbrr_file}" | cut -d'=' -f2- > "${z_crane_old_url_file}" \
+    || buc_die "No existing value for RBRR_CRANE_TAR_GZ in rbrr file"
+  local z_old_crane_url=$(<"${z_crane_old_url_file}")
+  test -n "${z_old_crane_url}" || buc_die "Empty RBRR_CRANE_TAR_GZ value in rbrr file"
+
+  if test "${z_old_crane_url}" = "${z_crane_url}"; then
+    buc_info "RBRR_CRANE_TAR_GZ: unchanged (${z_crane_tag})"
+  else
+    buc_info "RBRR_CRANE_TAR_GZ: -> ${z_crane_url}"
+    sed "s|^RBRR_CRANE_TAR_GZ=.*|RBRR_CRANE_TAR_GZ=${z_crane_url}|" "${z_rbrr_file}" > "${z_crane_sed_file}" \
+      || buc_die "Failed to sed value for RBRR_CRANE_TAR_GZ"
+    mv "${z_crane_sed_file}" "${z_rbrr_file}" || buc_die "Failed to update RBRR_CRANE_TAR_GZ in rbrr file"
+  fi
+
   # Image specifications: VARNAME|BASE_IMAGE|TAG
   # Most images use :latest which always points to newest version.
   # oras uses discovered semver tag above (no :latest published).
   local z_specs=(
-    "RBRR_GCB_GCRANE_IMAGE_REF|gcr.io/go-containerregistry/gcrane|latest"
     "RBRR_GCB_ORAS_IMAGE_REF|ghcr.io/oras-project/oras|${z_oras_tag}"
     "RBRR_GCB_GCLOUD_IMAGE_REF|gcr.io/cloud-builders/gcloud|latest"
     "RBRR_GCB_DOCKER_IMAGE_REF|gcr.io/cloud-builders/docker|latest"
