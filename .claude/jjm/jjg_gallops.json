@@ -4774,6 +4774,7 @@
       "creation_time": "260125",
       "status": "racing",
       "order": [
+        "₢AOAAI",
         "₢AOAAA",
         "₢AOAAC",
         "₢AOAAD",
@@ -4782,7 +4783,7 @@
         "₢AOAAG",
         "₢AOAAH"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -4887,6 +4888,17 @@
               "text": "Simplify path resolution in rbgm_ManualProcedures.sh lines 60-63.\n\n## Issues (from orphaned heat triage)\n\n1. Line 60: `ITCH_LINK_TO_RBL` comment still present — resolve or remove\n2. Lines 61-63: Use `cd \"${ZRBGM_SCRIPT_DIR}/../..\" && pwd` to compute paths — fragile indirection\n3. `ZRBGM_SCRIPT_DIR` is never defined in this file (comes from sourcing chain) — verify provenance\n\n## Approach\n\nReplace `cd .. && pwd` pattern with direct path resolution using BURC_PROJECT_ROOT or equivalent project-root variable that should already be available in the kindling context. Remove the ITCH comment once resolved.\n\n## Files\n- `Tools/rbw/rbgm_ManualProcedures.sh` — lines 60-63 in zrbgm_kindle()",
               "silks": "untangle-rbgm-path-indirections",
               "commit": "9b1899b"
+            }
+          ]
+        },
+        "₢AOAAI": {
+          "tacks": [
+            {
+              "ts": "260217-0702",
+              "state": "rough",
+              "text": "Regenerate all tabtargets to match the prescribed form enforced by buv_qualify_tabtargets.\n\n## Context\n\nThe qualifier now enforces strict tabtarget structure:\n- Line 1: `#!/bin/bash`\n- Line 2: `export BURD_LAUNCHER=\"<path>\"`\n- Middle lines: optional `export BURD_*=*` flags\n- Last line: `exec \"${BASH_SOURCE[0]%/*}/../${BURD_LAUNCHER}\" \"${0##*/}\" \"${@}\"`\n\nAll ~80 existing tabtargets use `$(dirname ...)` instead of parameter expansion in the exec line. Several use hardcoded launcher paths instead of BURD_LAUNCHER. Two legacy tabtargets (oga, machine_setup_PROTOTYPE_rule) use entirely different patterns.\n\n## Work\n\n1. Fix the generator: `Tools/buk/buut_tabtarget.sh` line 78 — change `$(dirname \"${BASH_SOURCE[0]}\")` to `${BASH_SOURCE[0]%/*}` in the emitted exec line.\n\n2. Classify all tabtargets by launcher path and mode (batch-logging, batch-nolog, interactive-logging, interactive-nolog) by inspecting their current BURD_* exports.\n\n3. Regenerate each group using the appropriate creator tabtarget:\n   - `tt/buw-tt-cbl.CreateTabTargetBatchLogging.sh <launcher> <name1> <name2> ...`\n   - `tt/buw-tt-cbn.CreateTabTargetBatchNolog.sh <launcher> <name1> <name2> ...`\n   - `tt/buw-tt-cil.CreateTabTargetInteractiveLogging.sh <launcher> <name1> <name2> ...`\n   - `tt/buw-tt-cin.CreateTabTargetInteractiveNolog.sh <launcher> <name1> <name2> ...`\n\n4. The four creator tabtargets themselves must also be regenerated (they currently use dirname). Bootstrap: fix the generator first, then regenerate the creators, then use them for everything else.\n\n5. Handle legacy tabtargets (oga.OpenGithubAction.sh, machine_setup_PROTOTYPE_rule.sh) — convert to BURD_LAUNCHER form or remove if obsolete.\n\n6. Run `tt/rbw-qa.QualifyAll.sh` to verify all tabtargets pass.\n\n## Acceptance\n\n- `tt/rbw-qa.QualifyAll.sh` passes (zero tabtarget failures)\n- No `dirname` or `basename` in any tabtarget\n- All tabtargets use BURD_LAUNCHER pattern",
+              "silks": "repair-tabtarget-prescribed-form",
+              "commit": "cda4f1a"
             }
           ]
         }
