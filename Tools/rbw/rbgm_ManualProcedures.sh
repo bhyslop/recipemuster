@@ -57,6 +57,12 @@ zrbgm_kindle() {
     ZRBGM_CR=""               # No color, or disabled
   fi
 
+  # Click modifier: Cmd on macOS, Ctrl elsewhere
+  case "$(uname -s)" in
+    Darwin) ZRBGM_CLICK_MOD="Cmd" ;;
+    *)      ZRBGM_CLICK_MOD="Ctrl" ;;
+  esac
+
   # ITCH_LINK_TO_RBL
   ZRBGM_RBRP_FILE="$(cd "${ZRBGM_SCRIPT_DIR}/../.." && pwd)/rbrp.env"
   ZRBGM_RBRP_FILE_BASENAME="${ZRBGM_RBRP_FILE##*/}"
@@ -140,8 +146,7 @@ rbgm_payor_establish() {
   bug_section  "Key:"
   bug_tu       "   Magenta text refers to " "precise words you see on the web page."
   bug_tc       "   Cyan text is " "something you might copy from here."
-  bug_t        "   Default text is this color."
-  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, Ctrl + mouse click)"
+  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
   bug_e
   bug_section  "1. Confirm Payor Regime:"
   bug_tc       "   File: " "${ZRBGM_RBRP_FILE}"
@@ -340,7 +345,7 @@ rbgm_quota_build() {
   bug_section  "Key:"
   bug_tu       "   Magenta text refers to " "precise words you see on the web page."
   bug_tc       "   Cyan text is " "something you might copy from here."
-  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, Ctrl + mouse click)"
+  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
   bug_e
   bug_section  "1. Current Regime Configuration:"
   bug_tc       "   RBRR_DEPOT_PROJECT_ID: " "${RBRR_DEPOT_PROJECT_ID}"
