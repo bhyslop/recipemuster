@@ -47,7 +47,7 @@ zrbz_kindle() {
 
   # General depot operations
   z_mod="rbgp_cli.sh"
-  buz_blazon RBZ_LIST_DEPOT "rbw-ld" "${z_mod}" "rbgp_depot_list"
+  buz_blazon RBZ_LIST_DEPOT  "rbw-ld" "${z_mod}" "rbgp_depot_list"
 
   # Governor commands
   z_mod="rbgg_cli.sh"
@@ -86,8 +86,8 @@ zrbz_kindle() {
 
   # Repo regime operations
   z_mod="rbrr_cli.sh"
-  buz_blazon RBZ_RENDER_REPO     "rbw-rrr" "${z_mod}" "render"
-  buz_blazon RBZ_VALIDATE_REPO   "rbw-rrv" "${z_mod}" "validate"
+  buz_blazon RBZ_RENDER_REPO      "rbw-rrr" "${z_mod}" "render"
+  buz_blazon RBZ_VALIDATE_REPO    "rbw-rrv" "${z_mod}" "validate"
   buz_blazon RBZ_REFRESH_GCB_PINS "rbw-rrg" "${z_mod}" "refresh_gcb_pins"
 
   # Payor regime operations
@@ -130,11 +130,11 @@ zrbz_kindle() {
 
   # Test operations (module is testbench, command is colophon)
   z_mod="rbtb_testbench.sh"
-  buz_blazon RBZ_TEST_ALL              "rbw-ta"  "${z_mod}" "rbw-ta"
-  buz_blazon RBZ_TEST_SUITE            "rbw-ts"  "${z_mod}" "rbw-ts"
-  buz_blazon RBZ_TEST_ONE              "rbw-to"  "${z_mod}" "rbw-to"
-  buz_blazon RBZ_TEST_NAMEPLATE        "rbw-tn"  "${z_mod}" "rbw-tn"
-  buz_blazon RBZ_TEST_REGIME           "rbw-trg" "${z_mod}" "rbw-trg"
+  buz_blazon RBZ_TEST_ALL                "rbw-ta"  "${z_mod}" "rbw-ta"
+  buz_blazon RBZ_TEST_SUITE              "rbw-ts"  "${z_mod}" "rbw-ts"
+  buz_blazon RBZ_TEST_ONE                "rbw-to"  "${z_mod}" "rbw-to"
+  buz_blazon RBZ_TEST_NAMEPLATE          "rbw-tn"  "${z_mod}" "rbw-tn"
+  buz_blazon RBZ_TEST_REGIME             "rbw-trg" "${z_mod}" "rbw-trg"
   buz_blazon RBZ_TEST_REGIME_CREDENTIALS "rbw-trc" "${z_mod}" "rbw-trc"
 
   ZRBZ_KINDLED=1
