@@ -33,11 +33,6 @@ source "${ZRBRA_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 ######################################################################
 # CLI Functions
 
-zrbra_cli_kindle() {
-  test -z "${ZRBRA_CLI_KINDLED:-}" || buc_die "RBRA CLI already kindled"
-  ZRBRA_CLI_KINDLED=1
-}
-
 # Command: validate - source file and validate (dies on first error)
 rbra_validate() {
   local z_file="${1:-}"
@@ -170,7 +165,6 @@ zrbra_cli_resolve_role() {
 ######################################################################
 # Main dispatch
 
-zrbra_cli_kindle
 zrbcc_kindle
 
 z_command="${1:-}"

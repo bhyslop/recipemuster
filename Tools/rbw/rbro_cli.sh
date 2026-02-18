@@ -32,11 +32,6 @@ source "${ZRBRO_CLI_SCRIPT_DIR}/rbcr_render.sh"
 ######################################################################
 # CLI Functions
 
-zrbro_cli_kindle() {
-  test -z "${ZRBRO_CLI_KINDLED:-}" || buc_die "RBRO CLI already kindled"
-  ZRBRO_CLI_KINDLED=1
-}
-
 # Command: validate - source file and validate (dies on first error)
 rbro_validate() {
   local z_file="${1:-}"
@@ -107,7 +102,6 @@ rbro_render() {
 ######################################################################
 # Main dispatch
 
-zrbro_cli_kindle
 zrbcc_kindle
 
 z_command="${1:-}"

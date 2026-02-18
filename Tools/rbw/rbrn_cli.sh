@@ -32,11 +32,6 @@ source "${ZRBRN_CLI_SCRIPT_DIR}/rbcr_render.sh"
 ######################################################################
 # CLI Functions
 
-zrbrn_cli_kindle() {
-  test -z "${ZRBRN_CLI_KINDLED:-}" || buc_die "RBRN CLI already kindled"
-  ZRBRN_CLI_KINDLED=1
-}
-
 # Command: validate - source file and validate (dies on first error)
 rbrn_validate() {
   local z_file="${1:-}"
@@ -138,7 +133,6 @@ rbrn_render() {
 ######################################################################
 # Main dispatch
 
-zrbrn_cli_kindle
 zrbcc_kindle
 
 z_command="${1:-}"

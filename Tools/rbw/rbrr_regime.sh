@@ -128,21 +128,21 @@ zrbrr_validate_fields() {
   buv_env_string      RBRR_CHOSEN_PODMAN_VERSION   1     16
   buv_env_fqin        RBRR_CHOSEN_VMIMAGE_ORIGIN   1    256
   buv_env_string      RBRR_CHOSEN_IDENTITY         1    128
-  buv_env_gname       RBRR_DEPOT_PROJECT_ID          6     63
+  buv_env_gname       RBRR_DEPOT_PROJECT_ID        6     63
   buv_env_gname       RBRR_GCP_REGION              1     32
 
   # Google Artifact Registry Configuration
   buv_env_gname       RBRR_GAR_REPOSITORY          1     63
 
   # Google Cloud Build Configuration
-  buv_env_string      RBRR_GCB_MACHINE_TYPE        3     64
-  buv_env_string      RBRR_GCB_TIMEOUT             2     10
+  buv_env_string      RBRR_GCB_MACHINE_TYPE           3     64
+  buv_env_string      RBRR_GCB_TIMEOUT                2     10
   buv_env_decimal     RBRR_GCB_MIN_CONCURRENT_BUILDS  1     999
 
   # Service Account Configuration Files
-  buv_env_string      RBRR_GOVERNOR_RBRA_FILE         1    512
-  buv_env_string      RBRR_RETRIEVER_RBRA_FILE     1    512
-  buv_env_string      RBRR_DIRECTOR_RBRA_FILE      1    512
+  buv_env_string      RBRR_GOVERNOR_RBRA_FILE    1    512
+  buv_env_string      RBRR_RETRIEVER_RBRA_FILE   1    512
+  buv_env_string      RBRR_DIRECTOR_RBRA_FILE    1    512
 
   # GCB image pins (digest-pinned)
   buv_env_odref       RBRR_GCB_ORAS_IMAGE_REF
