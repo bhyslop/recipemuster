@@ -158,7 +158,7 @@ zrbrr_validate_fields() {
   # Validate manifest platforms format (space-separated identifiers)
   local z_platform=""
   for z_platform in ${RBRR_MANIFEST_PLATFORMS}; do
-    if ! printf '%s' "${z_platform}" | grep -q '^[a-z0-9_]\+$'; then
+    if ! [[ "${z_platform}" =~ ^[a-z0-9_]+$ ]]; then
       buc_warn "Invalid platform format in RBRR_MANIFEST_PLATFORMS: ${z_platform}"
       buc_step "Expected format: lowercase alphanumeric with underscores"
       buc_die "Invalid RBRR_MANIFEST_PLATFORMS"
@@ -166,14 +166,14 @@ zrbrr_validate_fields() {
   done
 
   # Validate timeout format (number followed by 's' for seconds)
-  if ! printf '%s' "${RBRR_GCB_TIMEOUT}" | grep -q '^[0-9]\+s$'; then
+  if ! [[ "${RBRR_GCB_TIMEOUT}" =~ ^[0-9]+s$ ]]; then
     buc_warn "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT}"
     buc_step "Expected format: number followed by 's' (e.g., 1200s)"
     buc_die "Invalid RBRR_GCB_TIMEOUT"
   fi
 
   # Validate Podman version format (e.g., 5.5 or 5.5.1)
-  if ! printf '%s' "${RBRR_CHOSEN_PODMAN_VERSION}" | grep -q '^[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?$'; then
+  if ! [[ "${RBRR_CHOSEN_PODMAN_VERSION}" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
     buc_warn "Invalid RBRR_CHOSEN_PODMAN_VERSION format: ${RBRR_CHOSEN_PODMAN_VERSION}"
     buc_step "Expected format: semantic version like 5.5 or 5.5.1"
     buc_die "Invalid RBRR_CHOSEN_PODMAN_VERSION"
