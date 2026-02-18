@@ -4782,11 +4782,12 @@
         "₢AOAAF",
         "₢AOAAG",
         "₢AOAAH",
+        "₢AOAAM",
         "₢AOAAJ",
         "₢AOAAL",
         "₢AOAAK"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -4977,6 +4978,17 @@
               "text": "Fix BCG doc-mode so furnish functions bail cleanly in doc mode.\n\n## Problem\n\n`buc_execute` calls `buc_set_doc_mode` then `zbuc_show_help`, which calls the furnish function. The `buc_doc_env` lines print correctly, but furnish continues into kindle/validation/sourcing and dies because env vars aren't set. Doc mode can never display a complete help screen unless all runtime env vars are present.\n\n## Fix\n\nAdd a doc-mode early-exit gate after the `buc_doc_env` block in furnish functions. Either:\n- Reuse existing `buc_doc_shown || return 0` after the env doc lines\n- Or add a dedicated `buc_doc_env_done || return 0` if semantics differ\n\nThen verify by invoking `rbf_cli.sh` with no command and no env vars — it should print the full help (env vars + all commands with briefs/params) and exit cleanly.\n\n## Scope\n\n1. Determine correct BCG gate pattern for furnish\n2. Apply to `rbf_cli.sh` as the reference specimen\n3. Verify doc-mode works end-to-end: `bash Tools/rbw/rbf_cli.sh` prints full help\n4. Update BCG template if the pattern is new\n5. Apply to all other furnish functions that use `buc_execute`\n\n## Acceptance\n\n- `bash Tools/rbw/rbf_cli.sh` (no args, no env) prints complete help and exits 1\n- All CLIs using `buc_execute` have the gate in their furnish\n- BCG template updated if pattern changed",
               "silks": "fix-bcg-docmode-furnish",
               "commit": "1c5a50c"
+            }
+          ]
+        },
+        "₢AOAAM": {
+          "tacks": [
+            {
+              "ts": "260217-1621",
+              "state": "rough",
+              "text": "Create Tools/buk/burd_regime.sh following the pattern of burc_regime.sh, burs_regime.sh, and bure_regime.sh.\n\n## Context\n\nBURD (Dispatch Runtime) is fully specified in BUSA and BUSD-DispatchRuntime.adoc, but lacks a regime module file. Currently zburd_sentinel() lives orphaned inside bud_dispatch.sh. Ad-hoc BURD variable checks are scattered across CLI files (burc_cli.sh checks BURD_REGIME_FILE, burs_cli.sh checks BURD_STATION_FILE, buw_workbench.sh checks both).\n\n## Scope\n\n1. Create `Tools/buk/burd_regime.sh` with:\n   - `zburd_kindle()` — initialize/validate BURD regime state (or delegate to sentinel)\n   - `zburd_validate()` — verify all expected BURD_ variables are set and well-formed\n   - `zburd_render()` — diagnostic display of current BURD_ variable state\n   - Move `zburd_sentinel()` from bud_dispatch.sh into this file (source it from dispatch)\n\n2. Replace ad-hoc BURD variable checks with calls to burd_regime.sh functions:\n   - burc_cli.sh: replace BURD_REGIME_FILE check with zburd_validate or sentinel\n   - burs_cli.sh: replace BURD_STATION_FILE check with zburd_validate or sentinel\n   - buw_workbench.sh lines 33-34: replace both checks\n\n3. Source burd_regime.sh from bud_dispatch.sh so sentinel remains available\n\n## Acceptance\n\n- burd_regime.sh exists with kindle/validate/render following sibling regime patterns\n- zburd_sentinel() no longer defined inline in bud_dispatch.sh\n- All ad-hoc BURD_ variable checks consolidated into burd_regime.sh\n- Qualification passes",
+              "silks": "create-burd-regime-module",
+              "commit": "fda90f5"
             }
           ]
         }
