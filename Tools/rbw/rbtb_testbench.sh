@@ -115,7 +115,6 @@ zrbtb_setup_qualify() {
   buto_trace "Setup for qualify-all suite"
   zbuz_kindle
   zrbz_kindle
-  zrbcc_kindle
   source "${RBTB_SCRIPT_DIR}/rbq_Qualify.sh"
   zrbq_kindle
 }
