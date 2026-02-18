@@ -54,6 +54,8 @@ source "${RBTB_SCRIPT_DIR}/../buk/butcrg_RegimeCredentials.sh"
 buc_context "${0##*/}"
 zburd_kindle
 zrbcc_kindle
+zbuz_kindle
+zrbz_kindle
 
 ######################################################################
 # Shared test helpers (migrated from rbt_testbench.sh)
@@ -113,16 +115,12 @@ zrbtb_setup_kick() {
 
 zrbtb_setup_qualify() {
   buto_trace "Setup for qualify-all suite"
-  zbuz_kindle
-  zrbz_kindle
   source "${RBTB_SCRIPT_DIR}/rbq_Qualify.sh"
   zrbq_kindle
 }
 
 zrbtb_setup_ark() {
   buto_trace "Setup for ark-lifecycle suite"
-  zbuz_kindle
-  zrbz_kindle
   bute_init_dispatch
   bute_init_evidence
   ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
@@ -130,7 +128,6 @@ zrbtb_setup_ark() {
 
 zrbtb_setup_dispatch() {
   buto_trace "Setup for dispatch-exercise suite"
-  zbuz_kindle
   buz_blazon ZBUTCDE_TEST_COLOPHON "butctt" "butcde_DispatchExercise" "butcde_run"
 }
 
