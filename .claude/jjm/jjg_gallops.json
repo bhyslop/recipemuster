@@ -4775,6 +4775,7 @@
       "status": "racing",
       "order": [
         "₢AOAAP",
+        "₢AOAAQ",
         "₢AOAAI",
         "₢AOAAA",
         "₢AOAAC",
@@ -4790,7 +4791,7 @@
         "₢AOAAK",
         "₢AOAAN"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -5053,6 +5054,17 @@
               "text": "Add test execution vocabulary to BCG with the same rigor as kindle/sentinel and enroll/recite.\n\n## Problem\n\nBCG formalizes production bash patterns into named vocabulary with explicit contracts — kindle/sentinel for module initialization, enroll/recite for registries, capture for return values. Test execution has no equivalent formalization. The test infrastructure (bute, butd, butr, buto) works but its contracts are implicit, discoverable only by reading code.\n\nIn bash 3.2, isolation is discipline, not syntax. Discipline needs vocabulary to be teachable and auditable.\n\n## Vocabulary to Define\n\n**_tsuite** — the suite isolation boundary:\n- Runs in a subshell (state dies at boundary)\n- Setup runs inside (visible to cases, dies with suite)\n- Init/precondition runs outside (parent decides whether to enter)\n- Communicates only exit status to the runner\n- Kindle guards catch double-kindle within a suite; subshell boundary prevents cross-suite contamination\n\n**_tcase** — the verification unit:\n- Runs in a subshell within the suite subshell\n- Inherits setup state, cannot mutate sibling state\n- Communicates only exit status and stdio\n- Each case gets isolated temp dir and BURV root\n\n**Three-layer model with two subshell boundaries:**\n- Parent shell: init, precondition, suite iteration, reporting\n- Suite subshell: setup, kindle, module sourcing, case iteration\n- Case subshell: verification, assertions, tabtarget invocation\n\n## Scope\n\n- Add a \"Test Execution Patterns\" section to BCG\n- Define _tsuite and _tcase as BCG vocabulary alongside kindle/sentinel\n- Document what's allowed at each layer\n- Reference the subshell prohibition section — this is the principled counterpoint\n- Keep it tight: contracts and rules, not tutorial\n\n## Acceptance\n\n- BCG has a test execution section with _tsuite and _tcase vocabulary\n- The three-layer isolation model is documented with allowed operations per layer\n- Subshell prohibition section references the test isolation section (and vice versa)\n- A developer reading BCG understands why suites and cases use subshells without reading implementation code",
               "silks": "bcg-test-execution-vocabulary",
               "commit": "450889d"
+            }
+          ]
+        },
+        "₢AOAAQ": {
+          "tacks": [
+            {
+              "ts": "260217-1752",
+              "state": "rough",
+              "text": "Audit the BUT test infrastructure (bute/butd/butr/buto) against the new BCG test execution vocabulary.\n\n## Problem\n\nThe BCG test vocabulary (₢AOAAP) defines _tsuite and _tcase contracts. The existing test code predates this formalization. Need to verify conformance and fix any violations.\n\n## Scope\n\nReview these files against the new vocabulary:\n- `Tools/buk/bute_engine.sh` — case runner, dispatch engine\n- `Tools/buk/butd_dispatch.sh` — suite runner (now with subshell isolation)\n- `Tools/buk/butr_registry.sh` — suite/case enrollment\n- `Tools/buk/buto_operations.sh` — test operations (invoke, assertions)\n- `Tools/buk/but_test.sh` — test utilities\n\nCheck for:\n1. **Boundary violations** — does anything leak across suite or case subshell boundaries?\n2. **Contract violations** — does anything communicate outside exit-status/stdio from a case?\n3. **Naming conformance** — do function names follow the vocabulary patterns?\n4. **Documentation** — do file headers and function comments use the new vocabulary?\n\n## Acceptance\n\n- Each BUT file reviewed against BCG test vocabulary\n- Any violations documented and fixed\n- Function comments updated to use _tsuite/_tcase vocabulary where appropriate\n- No state leaks between suites or between cases confirmed by TestAll",
+              "silks": "audit-but-against-test-vocab",
+              "commit": "0e8d7c6"
             }
           ]
         }
