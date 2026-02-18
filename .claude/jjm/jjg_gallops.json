@@ -4783,12 +4783,13 @@
         "₢AOAAG",
         "₢AOAAH",
         "₢AOAAM",
+        "₢AOAAO",
         "₢AOAAJ",
         "₢AOAAL",
         "₢AOAAK",
         "₢AOAAN"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -5022,6 +5023,17 @@
               "text": "Relocate caller-intent BURD_ variables to BURE (ambient environment regime).\n\n## Context\n\nFive BURD_ \"input\" variables are actually ambient caller preferences, not dispatch infrastructure. They belong in BURE alongside BURE_COUNTDOWN.\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_NO_LOG → BURE_NO_LOG\n- BURD_INTERACTIVE → BURE_INTERACTIVE\n- BURD_COLOR → BURE_COLOR\n- BURD_TERM_COLS → BURE_TERM_COLS\n\n## Scope\n\n1. Add new variables to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSE-EnvironmentRuntime.adoc (or equivalent spec doc) with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove relocated variables\n4. Update BUSA mappings for both regimes\n5. Rename all usages across codebase (bud_dispatch.sh, bul_launcher.sh, bupr_PresentationRegime.sh, etc.)\n6. Remove old BURD_ names from zburd unexpected variable detection\n\n## Acceptance\n\n- All five variables use BURE_ prefix everywhere\n- BURD drops from 24 to 19 variables\n- BURE grows from 1 to 6 variables\n- Qualification passes",
               "silks": "relocate-ambient-burd-vars-to-bure",
               "commit": "ea5135a"
+            }
+          ]
+        },
+        "₢AOAAO": {
+          "tacks": [
+            {
+              "ts": "260217-1649",
+              "state": "rough",
+              "text": "Replace all ../buk/ path gymnastics with BURC_BUK_DIR constant.\n\n## Context\n\nBURC_BUK_DIR was introduced in ₢AOAAM to eliminate the magic \"buk\" directory name. Currently 41 occurrences of `../buk/` exist across 20 files. These should all use `${BURC_BUK_DIR}/` instead.\n\n## Scope\n\n20 files, 41 occurrences:\n\nTools/rbw/: rbrs_cli.sh(2) rbw_workbench.sh(2) rbq_cli.sh(3) rbob_cli.sh(2) rbcr_render.sh(1) rbrr_cli.sh(2) rbrp_cli.sh(2) rbro_cli.sh(2) rbra_cli.sh(2) rbtb_testbench.sh(10) rbrn_cli.sh(2) rbrv_cli.sh(2)\nTools/jjk/: jjw_workbench.sh(1) jja_arcanum.sh(1)\nTools/cmk/: cmw_workbench.sh(1)\nTools/vok/: vob_cli.sh(2) vow_workbench.sh(1)\nTools/vvk/: vvw_workbench.sh(1) vvb_cli.sh(1)\nTools/vslk/: vslw_workbench.sh(1)\n\n## Transformation\n\nReplace: `source \"${SCRIPT_DIR}/../buk/filename.sh\"`\nWith:    `source \"${BURC_BUK_DIR}/filename.sh\"`\n\nBURC_BUK_DIR is exported by burc_regime.sh and available in all dispatch contexts.\n\n## Acceptance\n\n- Zero occurrences of `../buk/` remain in .sh files\n- rbw-trg.TestRegimeSmoke.sh passes\n- Qualification passes",
+              "silks": "replace-dotdot-buk-with-burc-buk-dir",
+              "commit": "f6866fa"
             }
           ]
         }
