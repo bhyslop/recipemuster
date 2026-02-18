@@ -77,40 +77,48 @@ butd_run_suite() {
     fi
   fi
 
-  # Run setup function if specified
-  if test -n "${z_setup}"; then
-    buto_trace "Running setup: ${z_setup}"
-    declare -F "${z_setup}" >/dev/null || buto_fatal "Setup function not found: ${z_setup}"
-    "${z_setup}"
-  fi
+  # Subshell isolates suite state (setup kindles, module guards) from other suites.
+  # Init/precondition runs above in parent so it can skip via return.
+  (
+    set -e
 
-  # Create per-suite temp dir
-  local z_suite_dir="${ZBUTE_ROOT_TEMP_DIR}/${z_suite}"
-  mkdir -p "${z_suite_dir}"
+    # Run setup function if specified
+    if test -n "${z_setup}"; then
+      buto_trace "Running setup: ${z_setup}"
+      declare -F "${z_setup}" >/dev/null || buto_fatal "Setup function not found: ${z_setup}"
+      "${z_setup}"
+    fi
 
-  # Load case list into array before execution (BCG: load-then-iterate)
-  # Prevents stdin consumption by test commands (docker exec -i, etc.)
-  local z_cases=()
-  local z_case_fn=""
-  local z_case_count=0
-  local z_cases_temp
-  z_cases_temp=$(mktemp)
-  butr_cases_recite "${z_suite}" > "${z_cases_temp}" || buto_fatal "Failed to get cases for suite '${z_suite}'"
-  while IFS= read -r z_case_fn; do
-    z_cases+=("${z_case_fn}")
-  done < "${z_cases_temp}"
-  rm -f "${z_cases_temp}"
+    # Create per-suite temp dir
+    local z_suite_dir="${ZBUTE_ROOT_TEMP_DIR}/${z_suite}"
+    mkdir -p "${z_suite_dir}"
 
-  local z_ci
-  for z_ci in "${!z_cases[@]}"; do
-    test -n "${z_cases[$z_ci]}" || continue
-    zbute_case "${z_cases[$z_ci]}"
-    z_case_count=$((z_case_count + 1))
-  done
+    # Load case list into array before execution (BCG: load-then-iterate)
+    # Prevents stdin consumption by test commands (docker exec -i, etc.)
+    local z_cases=()
+    local z_case_fn=""
+    local z_case_count=0
+    local z_cases_temp
+    z_cases_temp=$(mktemp)
+    butr_cases_recite "${z_suite}" > "${z_cases_temp}" || buto_fatal "Failed to get cases for suite '${z_suite}'"
+    while IFS= read -r z_case_fn; do
+      z_cases+=("${z_case_fn}")
+    done < "${z_cases_temp}"
+    rm -f "${z_cases_temp}"
 
-  test "${z_case_count}" -gt 0 || buto_fatal "No test cases found for suite '${z_suite}'"
+    local z_ci
+    for z_ci in "${!z_cases[@]}"; do
+      test -n "${z_cases[$z_ci]}" || continue
+      zbute_case "${z_cases[$z_ci]}"
+      z_case_count=$((z_case_count + 1))
+    done
 
-  echo "${ZBUTO_GREEN}Suite passed: ${z_suite} (${z_case_count} case$(test "${z_case_count}" -eq 1 || echo 's'))${ZBUTO_RESET}" >&2
+    test "${z_case_count}" -gt 0 || buto_fatal "No test cases found for suite '${z_suite}'"
+
+    echo "${ZBUTO_GREEN}Suite passed: ${z_suite} (${z_case_count} case$(test "${z_case_count}" -eq 1 || echo 's'))${ZBUTO_RESET}" >&2
+  )
+  local z_sub_status=$?
+  return "${z_sub_status}"
 }
 
 # butd_run_one() - Run a single test function by name
@@ -159,21 +167,28 @@ butd_run_one() {
     fi
   fi
 
-  # Run setup function if specified
-  if test -n "${z_setup}"; then
-    buto_trace "Running setup: ${z_setup}"
-    declare -F "${z_setup}" >/dev/null || buto_fatal "Setup function not found: ${z_setup}"
-    "${z_setup}"
-  fi
+  # Subshell isolates suite state — same pattern as butd_run_suite
+  (
+    set -e
 
-  # Create per-suite temp dir
-  local z_suite_dir="${ZBUTE_ROOT_TEMP_DIR}/${z_suite}"
-  mkdir -p "${z_suite_dir}"
+    # Run setup function if specified
+    if test -n "${z_setup}"; then
+      buto_trace "Running setup: ${z_setup}"
+      declare -F "${z_setup}" >/dev/null || buto_fatal "Setup function not found: ${z_setup}"
+      "${z_setup}"
+    fi
 
-  # Run the single case
-  zbute_case "${z_func}"
+    # Create per-suite temp dir
+    local z_suite_dir="${ZBUTE_ROOT_TEMP_DIR}/${z_suite}"
+    mkdir -p "${z_suite_dir}"
 
-  echo "${ZBUTO_GREEN}Test passed: ${z_func}${ZBUTO_RESET}" >&2
+    # Run the single case
+    zbute_case "${z_func}"
+
+    echo "${ZBUTO_GREEN}Test passed: ${z_func}${ZBUTO_RESET}" >&2
+  )
+  local z_sub_status=$?
+  return "${z_sub_status}"
 }
 
 # butd_run_all() - Run all registered suites
