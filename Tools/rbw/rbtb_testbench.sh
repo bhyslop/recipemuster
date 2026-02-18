@@ -121,8 +121,6 @@ zrbtb_setup_qualify() {
 
 zrbtb_setup_ark() {
   buto_trace "Setup for ark-lifecycle suite"
-  bute_init_dispatch
-  bute_init_evidence
   ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
 }
 
