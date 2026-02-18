@@ -4775,6 +4775,7 @@
       "status": "racing",
       "order": [
         "₢AOAAP",
+        "₢AOAAS",
         "₢AOAAQ",
         "₢AOAAI",
         "₢AOAAA",
@@ -4792,7 +4793,7 @@
         "₢AOAAN",
         "₢AOAAR"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -5077,6 +5078,17 @@
               "text": "Remove the heat-level (`*`) commit swim lane from jjx_orient output.\n\n## Reasoning\n\nThe orient display shows commit swim lanes per pace, plus a `*` lane for heat-level (non-pace-affiliated) commits. The `*` lane is noise for these reasons:\n\n1. **Most heat-level commits are gallops bookkeeping** — jjx_enroll, jjx_mark, jjx_alter, jjx_close. These are infrastructure commits that record intentions, not work product. They don't help a developer understand what happened recently.\n\n2. **Genuinely useful heat-level commits are rare.** When they exist, they'd show up in `jjx_log` or `git log` anyway.\n\n3. **The lane is confusing.** It prompts \"what happened there?\" when the answer is usually \"nothing interesting.\" It dilutes attention from the pace-affiliated lanes which actually tell the story of work done.\n\n4. **The pace-affiliated lanes are sufficient.** They show which paces had work, how they interleaved, and the file-touch bitmap connects commits to files. The `*` lane adds no information that changes decisions.\n\n## Scope\n\n- Remove the `*` lane from the commit swim lane display in orient output\n- Keep pace-affiliated lanes unchanged\n- Keep the file-touch bitmap unchanged (it already has `*` for heat-level; evaluate whether to drop there too or leave it for completeness)\n\n## Acceptance\n\n- `jjx_orient` output shows only pace-affiliated swim lanes\n- No `*` row in swim lane display\n- File-touch bitmap decision documented (drop or keep `*` column)",
               "silks": "drop-heat-level-swim-lane",
               "commit": "7485390"
+            }
+          ]
+        },
+        "₢AOAAS": {
+          "tacks": [
+            {
+              "ts": "260217-1810",
+              "state": "rough",
+              "text": "Rename existing test infrastructure functions to follow BCG test execution vocabulary naming conventions.\n\n## Problem\n\nBCG now defines `_tsuite_init`, `_tsuite_setup`, and `_tcase` as named vocabulary with grep-able naming conventions. Existing test functions predate these conventions and use ad-hoc names that don't support compliance checking.\n\n## Scope\n\n**Setup functions** (in `Tools/rbw/rbtb_testbench.sh`):\nRename `zrbtb_setup_«name»` → `zrbtb_«name»_tsuite_setup` (10 functions):\n- `zrbtb_setup_kick` → `zrbtb_kick_tsuite_setup`\n- `zrbtb_setup_qualify` → `zrbtb_qualify_tsuite_setup`\n- `zrbtb_setup_ark` → `zrbtb_ark_tsuite_setup`\n- `zrbtb_setup_dispatch` → `zrbtb_dispatch_tsuite_setup`\n- `zrbtb_setup_nsproto` → `zrbtb_nsproto_tsuite_setup`\n- `zrbtb_setup_srjcl` → `zrbtb_srjcl_tsuite_setup`\n- `zrbtb_setup_pluml` → `zrbtb_pluml_tsuite_setup`\n- `zrbtb_setup_xname` → `zrbtb_xname_tsuite_setup`\n- `zrbtb_setup_regime` → `zrbtb_regime_tsuite_setup`\n- `zrbtb_setup_credentials` → `zrbtb_credentials_tsuite_setup`\n\n**Case functions** (~50 functions across ~10 files):\nAppend `_tcase` suffix to all case functions. Files:\n- `Tools/rbw/rbtckk_KickTires.sh` — `rbtckk_false`, `rbtckk_true`\n- `Tools/rbw/rbtcqa_QualifyAll.sh` — `rbtcqa_qualify_all`\n- `Tools/rbw/rbtcal_ArkLifecycle.sh` — `rbtcal_lifecycle`\n- `Tools/buk/butcde_DispatchExercise.sh` — `butcde_burv_isolation`, `butcde_evidence_created`, `butcde_exit_capture`\n- `Tools/rbw/rbtcns_NsproSecurity.sh` — all `rbtcns_*` functions\n- `Tools/rbw/rbtcsj_SrjclJupyter.sh` — all `rbtcsj_*` functions\n- `Tools/rbw/rbtcpl_PlumlDiagram.sh` — all `rbtcpl_*` functions\n- `Tools/buk/butcrg_RegimeSmoke.sh` — all `butcrg_*` case functions\n- `Tools/buk/butcrg_RegimeCredentials.sh` — all `butcrg_*` case functions\n- `Tools/buk/butcvu_XnameValidation.sh` — all `butcvu_*` case functions\n\n**Infrastructure** (`Tools/buk/bute_engine.sh`):\n- `zbute_case` → `zbute_tcase`\n\n**Enrollment sites** (`Tools/rbw/rbtb_testbench.sh`):\n- All `butr_suite_enroll` calls: update setup function references\n- All `butr_case_enroll` calls: update case function references\n\n## Acceptance\n\n- All setup functions use `_tsuite_setup` suffix\n- All case functions use `_tcase` suffix\n- Infrastructure boundary function uses `zbute_tcase`\n- `grep -rn '_tsuite_setup' Tools/` returns all setup functions\n- `grep -rn '_tcase' Tools/` returns all case functions\n- Test suite runs clean: `./tt/rbw-ta.TestAll.sh` passes (kick-tires + regime-smoke at minimum)",
+              "silks": "rename-test-functions-bcg-vocabulary",
+              "commit": "bb701d9"
             }
           ]
         }
