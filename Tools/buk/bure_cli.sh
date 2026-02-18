@@ -34,12 +34,6 @@ source "${ZBURE_CLI_SCRIPT_DIR}/bupr_PresentationRegime.sh"
 ######################################################################
 # CLI Functions
 
-zbure_cli_kindle() {
-  test -z "${ZBURE_CLI_KINDLED:-}" || buc_die "BURE CLI already kindled"
-
-  ZBURE_CLI_KINDLED=1
-}
-
 # Command: validate - kindle and validate ambient environment
 bure_validate() {
   buc_step "Validating BURE ambient environment"
@@ -82,8 +76,6 @@ bure_render() {
 
 ######################################################################
 # Main dispatch
-
-zbure_cli_kindle
 
 z_command="${1:-}"
 

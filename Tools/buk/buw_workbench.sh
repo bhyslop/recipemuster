@@ -25,13 +25,13 @@ BUW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${BUW_SCRIPT_DIR}/buc_command.sh"
+source "${BUW_SCRIPT_DIR}/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verify launcher provided regime environment
-test -n "${BURD_REGIME_FILE:-}"   || buc_die "BURD_REGIME_FILE not set - must be called via launcher"
-test -n "${BURD_STATION_FILE:-}"  || buc_die "BURD_STATION_FILE not set - must be called via launcher"
+# Verify dispatch completed
+zburd_kindle
 
 # Verbose output if BURD_VERBOSE is set
 buw_show() {
@@ -45,11 +45,9 @@ buw_route() {
 
   buw_show "Routing command: ${z_command} with args: $*"
 
-  # Verify BURD environment variables are present
-  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - must be called from BURD"
-  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BURD"
+  zburd_sentinel
 
-  buw_show "BDU environment verified"
+  buw_show "BURD environment verified"
 
   # Route based on command
   local z_buut_cli="${BUW_SCRIPT_DIR}/buut_cli.sh"
