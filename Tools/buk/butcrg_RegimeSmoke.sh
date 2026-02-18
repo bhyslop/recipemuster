@@ -49,14 +49,14 @@ zbutcrg_dispatch_ok() {
 ######################################################################
 # BUK regime cases
 
-butcrg_burc() {
+butcrg_burc_tcase() {
   zbutcrg_init
   zbutcrg_dispatch_ok "buw-rcr"
   zbutcrg_dispatch_ok "buw-rcv"
   buto_success "BURC regime render+validate passed"
 }
 
-butcrg_burs() {
+butcrg_burs_tcase() {
   zbutcrg_init
   zbutcrg_dispatch_ok "buw-rsr"
   zbutcrg_dispatch_ok "buw-rsv"
@@ -66,7 +66,7 @@ butcrg_burs() {
 ######################################################################
 # RBW regime cases
 
-butcrg_rbrn() {
+butcrg_rbrn_tcase() {
   zbutcrg_init
   zbutcrg_dispatch_ok "rbw-rnr"
   zbutcrg_dispatch_ok "rbw-rnv"
@@ -85,14 +85,14 @@ butcrg_rbrn() {
   buto_success "RBRN regime render+validate+list passed"
 }
 
-butcrg_rbrr() {
+butcrg_rbrr_tcase() {
   zbutcrg_init
   zbutcrg_dispatch_ok "rbw-rrr"
   zbutcrg_dispatch_ok "rbw-rrv"
   buto_success "RBRR regime render+validate passed"
 }
 
-butcrg_rbrv() {
+butcrg_rbrv_tcase() {
   zbutcrg_init
 
   # Load RBRR (needed for RBRR_VESSEL_DIR used by rbrv_list)
@@ -118,7 +118,7 @@ butcrg_rbrv() {
 ######################################################################
 # Payor regime case
 
-butcrg_rbrp() {
+butcrg_rbrp_tcase() {
   zbutcrg_init
   zbutcrg_dispatch_ok "rbw-rpr"
   zbutcrg_dispatch_ok "rbw-rpv"
@@ -128,7 +128,7 @@ butcrg_rbrp() {
 ######################################################################
 # BURD dispatch regime case
 
-butcrg_burd() {
+butcrg_burd_tcase() {
   zbutcrg_init
   buto_section "Verifying BURD dispatch environment"
   zburd_sentinel

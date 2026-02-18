@@ -26,18 +26,18 @@ set -euo pipefail
 zbutcvu_echo_bob() { echo "bob"; }
 
 ######################################################################
-# butcvu_debug - Test info output
+# butcvu_debug_tcase - Test info output
 
-butcvu_debug() {
+butcvu_debug_tcase() {
     buto_info "HERES AN INFO STRING"
 
     buto_unit_expect_ok_stdout "bob" zbutcvu_echo_bob
 }
 
 ######################################################################
-# butcvu_xname_valid - Valid xname test cases
+# butcvu_xname_valid_tcase - Valid xname test cases
 
-butcvu_xname_valid() {
+butcvu_xname_valid_tcase() {
     buto_unit_expect_ok buv_val_xname "var" "abc"        1 10
     buto_unit_expect_ok buv_val_xname "var" "Test123"    1 10
     buto_unit_expect_ok buv_val_xname "var" "my_var"     1 10
@@ -48,9 +48,9 @@ butcvu_xname_valid() {
 }
 
 ######################################################################
-# butcvu_xname_invalid_start - Invalid start character test cases
+# butcvu_xname_invalid_start_tcase - Invalid start character test cases
 
-butcvu_xname_invalid_start() {
+butcvu_xname_invalid_start_tcase() {
     buto_unit_expect_fatal buv_val_xname "var" "1abc"  1 10
     buto_unit_expect_fatal buv_val_xname "var" "_test" 1 10
     buto_unit_expect_fatal buv_val_xname "var" "-name" 1 10
@@ -59,9 +59,9 @@ butcvu_xname_invalid_start() {
 }
 
 ######################################################################
-# butcvu_xname_invalid_chars - Invalid character test cases
+# butcvu_xname_invalid_chars_tcase - Invalid character test cases
 
-butcvu_xname_invalid_chars() {
+butcvu_xname_invalid_chars_tcase() {
     buto_unit_expect_fatal buv_val_xname "var" "my.name"     1  10
     buto_unit_expect_fatal buv_val_xname "var" "test@var"    1  10
     buto_unit_expect_fatal buv_val_xname "var" "hello world" 1  10
@@ -71,9 +71,9 @@ butcvu_xname_invalid_chars() {
 }
 
 ######################################################################
-# butcvu_xname_length - Length boundary test cases
+# butcvu_xname_length_tcase - Length boundary test cases
 
-butcvu_xname_length() {
+butcvu_xname_length_tcase() {
     buto_info "Too short"
     buto_unit_expect_fatal buv_val_xname "var" "ab" 3 10
 
@@ -86,9 +86,9 @@ butcvu_xname_length() {
 }
 
 ######################################################################
-# butcvu_xname_defaults - Default value test cases
+# butcvu_xname_defaults_tcase - Default value test cases
 
-butcvu_xname_defaults() {
+butcvu_xname_defaults_tcase() {
     buto_info "Empty with default"
     buto_unit_expect_ok buv_val_xname "var" "" 1 10 "mydefault"
 
@@ -102,9 +102,9 @@ butcvu_xname_defaults() {
 }
 
 ######################################################################
-# butcvu_xname_empty_optional - Empty optional value test cases
+# butcvu_xname_empty_optional_tcase - Empty optional value test cases
 
-butcvu_xname_empty_optional() {
+butcvu_xname_empty_optional_tcase() {
     buto_info "Empty allowed when min=0"
     buto_unit_expect_ok buv_val_xname "var" "" 0 10
 
@@ -113,9 +113,9 @@ butcvu_xname_empty_optional() {
 }
 
 ######################################################################
-# butcvu_xname_env_wrapper - Environment variable wrapper test cases
+# butcvu_xname_env_wrapper_tcase - Environment variable wrapper test cases
 
-butcvu_xname_env_wrapper() {
+butcvu_xname_env_wrapper_tcase() {
     buto_info "Valid value"
     export TEST_VAR="myname"
     buto_unit_expect_ok buv_env_xname "TEST_VAR" 1 10

@@ -28,7 +28,7 @@ source "${ZBUTE_SCRIPT_DIR}/buto_operations.sh"
 # Test case execution
 
 # Run single test case in subshell
-zbute_case() {
+zbute_tcase() {
   set -e
 
   local z_case_name="${1}"

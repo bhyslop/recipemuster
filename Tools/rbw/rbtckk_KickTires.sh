@@ -23,12 +23,12 @@ set -euo pipefail
 ######################################################################
 # Kick-tires cases — trivial tests proving end-to-end framework works
 
-rbtckk_true() {
+rbtckk_true_tcase() {
   buto_trace "Kick-tires: verifying true returns success"
   buto_unit_expect_ok true
 }
 
-rbtckk_false() {
+rbtckk_false_tcase() {
   buto_trace "Kick-tires: verifying false returns failure"
   buto_unit_expect_fatal false
 }

@@ -50,7 +50,7 @@ zbutcrg_cred_dispatch_ok() {
 ######################################################################
 # RBRA credential cases (requires RBRR with RBRA file paths)
 
-butcrg_rbra() {
+butcrg_rbra_tcase() {
   zbutcrg_cred_init
 
   # Load RBRR to get RBRA file paths
@@ -78,7 +78,7 @@ butcrg_rbra() {
 ######################################################################
 # RBRO OAuth credential case
 
-butcrg_rbro() {
+butcrg_rbro_tcase() {
   zbutcrg_cred_init
 
   local z_file="${HOME}/.rbw/rbro.env"
@@ -93,7 +93,7 @@ butcrg_rbro() {
 ######################################################################
 # RBRS station credential case
 
-butcrg_rbrs() {
+butcrg_rbrs_tcase() {
   zbutcrg_cred_init
 
   local z_file="../station-files/rbrs.env"

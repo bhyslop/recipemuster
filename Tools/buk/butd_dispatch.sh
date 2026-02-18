@@ -109,7 +109,7 @@ butd_run_suite() {
     local z_ci
     for z_ci in "${!z_cases[@]}"; do
       test -n "${z_cases[$z_ci]}" || continue
-      zbute_case "${z_cases[$z_ci]}"
+      zbute_tcase "${z_cases[$z_ci]}"
       z_case_count=$((z_case_count + 1))
     done
 
@@ -183,7 +183,7 @@ butd_run_one() {
     mkdir -p "${z_suite_dir}"
 
     # Run the single case
-    zbute_case "${z_func}"
+    zbute_tcase "${z_func}"
 
     echo "${ZBUTO_GREEN}Test passed: ${z_func}${ZBUTO_RESET}" >&2
   )

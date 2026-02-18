@@ -109,50 +109,50 @@ rbtb_exec_bottle_i() {
 ######################################################################
 # Setup functions
 
-zrbtb_setup_kick() {
+zrbtb_kick_tsuite_setup() {
   buto_trace "Setup for kick-tires suite (no-op)"
 }
 
-zrbtb_setup_qualify() {
+zrbtb_qualify_tsuite_setup() {
   buto_trace "Setup for qualify-all suite"
   source "${RBTB_SCRIPT_DIR}/rbq_Qualify.sh"
   zrbq_kindle
 }
 
-zrbtb_setup_ark() {
+zrbtb_ark_tsuite_setup() {
   buto_trace "Setup for ark-lifecycle suite"
   ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
 }
 
-zrbtb_setup_dispatch() {
+zrbtb_dispatch_tsuite_setup() {
   buto_trace "Setup for dispatch-exercise suite"
   buz_blazon ZBUTCDE_TEST_COLOPHON "butctt" "butcde_DispatchExercise" "butcde_run"
 }
 
-zrbtb_setup_nsproto() {
+zrbtb_nsproto_tsuite_setup() {
   buto_trace "Setup for nsproto-security suite"
   rbtb_load_nameplate "nsproto"
 }
 
-zrbtb_setup_srjcl() {
+zrbtb_srjcl_tsuite_setup() {
   buto_trace "Setup for srjcl-jupyter suite"
   rbtb_load_nameplate "srjcl"
 }
 
-zrbtb_setup_pluml() {
+zrbtb_pluml_tsuite_setup() {
   buto_trace "Setup for pluml-diagram suite"
   rbtb_load_nameplate "pluml"
 }
 
-zrbtb_setup_xname() {
+zrbtb_xname_tsuite_setup() {
   buto_trace "Setup for xname-validation suite (no-op)"
 }
 
-zrbtb_setup_regime() {
+zrbtb_regime_tsuite_setup() {
   buto_trace "Setup for regime-smoke suite (no-op)"
 }
 
-zrbtb_setup_credentials() {
+zrbtb_credentials_tsuite_setup() {
   buto_trace "Setup for regime-credentials suite (no-op)"
 }
 
@@ -164,89 +164,89 @@ rbtb_kindle() {
   butr_kindle
 
   # kick-tires suite
-  butr_suite_enroll "kick-tires" "" "zrbtb_setup_kick"
-  butr_case_enroll "kick-tires" rbtckk_false
-  butr_case_enroll "kick-tires" rbtckk_true
+  butr_suite_enroll "kick-tires" "" "zrbtb_kick_tsuite_setup"
+  butr_case_enroll "kick-tires" rbtckk_false_tcase
+  butr_case_enroll "kick-tires" rbtckk_true_tcase
 
   # qualify-all suite
-  butr_suite_enroll "qualify-all" "" "zrbtb_setup_qualify"
-  butr_case_enroll "qualify-all" rbtcqa_qualify_all
+  butr_suite_enroll "qualify-all" "" "zrbtb_qualify_tsuite_setup"
+  butr_case_enroll "qualify-all" rbtcqa_qualify_all_tcase
 
   # ark-lifecycle suite
-  butr_suite_enroll "ark-lifecycle" "" "zrbtb_setup_ark"
-  butr_case_enroll "ark-lifecycle" rbtcal_lifecycle
+  butr_suite_enroll "ark-lifecycle" "" "zrbtb_ark_tsuite_setup"
+  butr_case_enroll "ark-lifecycle" rbtcal_lifecycle_tcase
 
   # dispatch-exercise suite
-  butr_suite_enroll "dispatch-exercise" "" "zrbtb_setup_dispatch"
-  butr_case_enroll "dispatch-exercise" butcde_burv_isolation
-  butr_case_enroll "dispatch-exercise" butcde_evidence_created
-  butr_case_enroll "dispatch-exercise" butcde_exit_capture
+  butr_suite_enroll "dispatch-exercise" "" "zrbtb_dispatch_tsuite_setup"
+  butr_case_enroll "dispatch-exercise" butcde_burv_isolation_tcase
+  butr_case_enroll "dispatch-exercise" butcde_evidence_created_tcase
+  butr_case_enroll "dispatch-exercise" butcde_exit_capture_tcase
 
   # nsproto-security suite
-  butr_suite_enroll "nsproto-security" "" "zrbtb_setup_nsproto"
-  butr_case_enroll "nsproto-security" rbtcns_basic_dnsmasq
-  butr_case_enroll "nsproto-security" rbtcns_basic_iptables
-  butr_case_enroll "nsproto-security" rbtcns_basic_ping_sentry
-  butr_case_enroll "nsproto-security" rbtcns_block_packages
-  butr_case_enroll "nsproto-security" rbtcns_dns_allow_anthropic
-  butr_case_enroll "nsproto-security" rbtcns_dns_block_altport
-  butr_case_enroll "nsproto-security" rbtcns_dns_block_cloudflare
-  butr_case_enroll "nsproto-security" rbtcns_dns_block_direct
-  butr_case_enroll "nsproto-security" rbtcns_dns_block_google
-  butr_case_enroll "nsproto-security" rbtcns_dns_block_ipv6
-  butr_case_enroll "nsproto-security" rbtcns_dns_block_multicast
-  butr_case_enroll "nsproto-security" rbtcns_dns_block_quad9
-  butr_case_enroll "nsproto-security" rbtcns_dns_block_spoofing
-  butr_case_enroll "nsproto-security" rbtcns_dns_block_tunneling
-  butr_case_enroll "nsproto-security" rbtcns_dns_block_zonetransfer
-  butr_case_enroll "nsproto-security" rbtcns_dns_nonexist
-  butr_case_enroll "nsproto-security" rbtcns_dns_notcp
-  butr_case_enroll "nsproto-security" rbtcns_dns_tcp
-  butr_case_enroll "nsproto-security" rbtcns_icmp_block_beyond
-  butr_case_enroll "nsproto-security" rbtcns_icmp_sentry_only
-  butr_case_enroll "nsproto-security" rbtcns_tcp443_allow_anthropic
-  butr_case_enroll "nsproto-security" rbtcns_tcp443_block_google
+  butr_suite_enroll "nsproto-security" "" "zrbtb_nsproto_tsuite_setup"
+  butr_case_enroll "nsproto-security" rbtcns_basic_dnsmasq_tcase
+  butr_case_enroll "nsproto-security" rbtcns_basic_iptables_tcase
+  butr_case_enroll "nsproto-security" rbtcns_basic_ping_sentry_tcase
+  butr_case_enroll "nsproto-security" rbtcns_block_packages_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_allow_anthropic_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_altport_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_cloudflare_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_direct_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_google_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_ipv6_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_multicast_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_quad9_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_spoofing_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_tunneling_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_block_zonetransfer_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_nonexist_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_notcp_tcase
+  butr_case_enroll "nsproto-security" rbtcns_dns_tcp_tcase
+  butr_case_enroll "nsproto-security" rbtcns_icmp_block_beyond_tcase
+  butr_case_enroll "nsproto-security" rbtcns_icmp_sentry_only_tcase
+  butr_case_enroll "nsproto-security" rbtcns_tcp443_allow_anthropic_tcase
+  butr_case_enroll "nsproto-security" rbtcns_tcp443_block_google_tcase
 
   # srjcl-jupyter suite
-  butr_suite_enroll "srjcl-jupyter" "" "zrbtb_setup_srjcl"
-  butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_connectivity
-  butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_running
-  butr_case_enroll "srjcl-jupyter" rbtcsj_websocket_kernel
+  butr_suite_enroll "srjcl-jupyter" "" "zrbtb_srjcl_tsuite_setup"
+  butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_connectivity_tcase
+  butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_running_tcase
+  butr_case_enroll "srjcl-jupyter" rbtcsj_websocket_kernel_tcase
 
   # pluml-diagram suite
-  butr_suite_enroll "pluml-diagram" "" "zrbtb_setup_pluml"
-  butr_case_enroll "pluml-diagram" rbtcpl_http_headers
-  butr_case_enroll "pluml-diagram" rbtcpl_invalid_hash
-  butr_case_enroll "pluml-diagram" rbtcpl_local_diagram
-  butr_case_enroll "pluml-diagram" rbtcpl_malformed_diagram
-  butr_case_enroll "pluml-diagram" rbtcpl_text_rendering
+  butr_suite_enroll "pluml-diagram" "" "zrbtb_pluml_tsuite_setup"
+  butr_case_enroll "pluml-diagram" rbtcpl_http_headers_tcase
+  butr_case_enroll "pluml-diagram" rbtcpl_invalid_hash_tcase
+  butr_case_enroll "pluml-diagram" rbtcpl_local_diagram_tcase
+  butr_case_enroll "pluml-diagram" rbtcpl_malformed_diagram_tcase
+  butr_case_enroll "pluml-diagram" rbtcpl_text_rendering_tcase
 
   # regime-smoke suite
-  butr_suite_enroll "regime-smoke" "" "zrbtb_setup_regime"
-  butr_case_enroll "regime-smoke" butcrg_burc
-  butr_case_enroll "regime-smoke" butcrg_burs
-  butr_case_enroll "regime-smoke" butcrg_rbrn
-  butr_case_enroll "regime-smoke" butcrg_rbrr
-  butr_case_enroll "regime-smoke" butcrg_rbrv
-  butr_case_enroll "regime-smoke" butcrg_rbrp
-  butr_case_enroll "regime-smoke" butcrg_burd
+  butr_suite_enroll "regime-smoke" "" "zrbtb_regime_tsuite_setup"
+  butr_case_enroll "regime-smoke" butcrg_burc_tcase
+  butr_case_enroll "regime-smoke" butcrg_burs_tcase
+  butr_case_enroll "regime-smoke" butcrg_rbrn_tcase
+  butr_case_enroll "regime-smoke" butcrg_rbrr_tcase
+  butr_case_enroll "regime-smoke" butcrg_rbrv_tcase
+  butr_case_enroll "regime-smoke" butcrg_rbrp_tcase
+  butr_case_enroll "regime-smoke" butcrg_burd_tcase
 
   # regime-credentials suite (requires workstation credentials)
-  butr_suite_enroll "regime-credentials" "" "zrbtb_setup_credentials"
-  butr_case_enroll "regime-credentials" butcrg_rbra
-  butr_case_enroll "regime-credentials" butcrg_rbro
-  butr_case_enroll "regime-credentials" butcrg_rbrs
+  butr_suite_enroll "regime-credentials" "" "zrbtb_credentials_tsuite_setup"
+  butr_case_enroll "regime-credentials" butcrg_rbra_tcase
+  butr_case_enroll "regime-credentials" butcrg_rbro_tcase
+  butr_case_enroll "regime-credentials" butcrg_rbrs_tcase
 
   # xname-validation suite
-  butr_suite_enroll "xname-validation" "" "zrbtb_setup_xname"
-  butr_case_enroll "xname-validation" butcvu_debug
-  butr_case_enroll "xname-validation" butcvu_xname_defaults
-  butr_case_enroll "xname-validation" butcvu_xname_empty_optional
-  butr_case_enroll "xname-validation" butcvu_xname_env_wrapper
-  butr_case_enroll "xname-validation" butcvu_xname_invalid_chars
-  butr_case_enroll "xname-validation" butcvu_xname_invalid_start
-  butr_case_enroll "xname-validation" butcvu_xname_length
-  butr_case_enroll "xname-validation" butcvu_xname_valid
+  butr_suite_enroll "xname-validation" "" "zrbtb_xname_tsuite_setup"
+  butr_case_enroll "xname-validation" butcvu_debug_tcase
+  butr_case_enroll "xname-validation" butcvu_xname_defaults_tcase
+  butr_case_enroll "xname-validation" butcvu_xname_empty_optional_tcase
+  butr_case_enroll "xname-validation" butcvu_xname_env_wrapper_tcase
+  butr_case_enroll "xname-validation" butcvu_xname_invalid_chars_tcase
+  butr_case_enroll "xname-validation" butcvu_xname_invalid_start_tcase
+  butr_case_enroll "xname-validation" butcvu_xname_length_tcase
+  butr_case_enroll "xname-validation" butcvu_xname_valid_tcase
 
 }
 

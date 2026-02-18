@@ -26,7 +26,7 @@ set -euo pipefail
 ######################################################################
 # Test Cases
 
-rbtcpl_text_rendering() {
+rbtcpl_text_rendering_tcase() {
   buto_trace "Testing PlantUML text rendering endpoint with known diagram hash"
   # Test PlantUML text rendering endpoint with known diagram hash
   local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40"
@@ -38,7 +38,7 @@ rbtcpl_text_rendering() {
   echo "${z_output}" | grep -q "boo"         || buto_fatal "Expected 'boo' in response"
 }
 
-rbtcpl_local_diagram() {
+rbtcpl_local_diagram_tcase() {
   buto_trace "Testing PlantUML server with local diagram POST to /txt/uml"
   # Test PlantUML server with local diagram POST to /txt/uml
   local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/uml"
@@ -51,7 +51,7 @@ rbtcpl_local_diagram() {
   echo "${z_output}" | grep -q "boo"         || buto_fatal "Expected 'boo' in response"
 }
 
-rbtcpl_http_headers() {
+rbtcpl_http_headers_tcase() {
   buto_trace "Testing server handles basic HTTP headers"
   # Test server handles basic HTTP headers
   local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40"
@@ -64,7 +64,7 @@ rbtcpl_http_headers() {
   test "${z_status}" = "200" || buto_fatal "Expected HTTP 200, got: ${z_status}"
 }
 
-rbtcpl_invalid_hash() {
+rbtcpl_invalid_hash_tcase() {
   buto_trace "Testing server response with invalid diagram hash returns no content"
   # Test server response with invalid diagram hash returns no content
   local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/invalid_hash"
@@ -75,7 +75,7 @@ rbtcpl_invalid_hash() {
   test "${z_count}" -eq 0 || buto_fatal "Expected no 'Bob' in invalid hash response"
 }
 
-rbtcpl_malformed_diagram() {
+rbtcpl_malformed_diagram_tcase() {
   buto_trace "Testing server response with malformed diagram returns no valid content"
   # Test server response with malformed diagram returns no valid content
   local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/uml"

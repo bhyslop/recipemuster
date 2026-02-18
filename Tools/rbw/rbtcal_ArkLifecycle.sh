@@ -37,7 +37,7 @@ zrbtcal_count_locators() {
 #
 # Expects ZRBTB_ARK_VESSEL_SIGIL to contain vessel sigil (set by setup function).
 
-rbtcal_lifecycle() {
+rbtcal_lifecycle_tcase() {
   # Resolve vessel directory from global setup variable
   local z_vessel_sigil="${ZRBTB_ARK_VESSEL_SIGIL:-}"
   test -n "${z_vessel_sigil}" || buto_fatal "No vessel sigil - ZRBTB_ARK_VESSEL_SIGIL empty (setup function must set this)"

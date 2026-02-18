@@ -23,7 +23,7 @@ set -euo pipefail
 ######################################################################
 # Qualification cases
 
-rbtcqa_qualify_all() {
+rbtcqa_qualify_all_tcase() {
   buto_trace "Qualify-all: running full qualification via rbq"
   buto_unit_expect_ok rbq_qualify_all
 }

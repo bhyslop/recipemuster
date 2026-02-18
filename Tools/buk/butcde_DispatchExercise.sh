@@ -22,7 +22,7 @@ set -euo pipefail
 
 ######################################################################
 # Private helper: init dispatch and evidence scoped to this test case
-# Uses BUT_TEMP_DIR (set per-case by zbute_case) for isolated evidence
+# Uses BUT_TEMP_DIR (set per-case by zbute_tcase) for isolated evidence
 
 zbutcde_init() {
   bute_init_dispatch
@@ -31,10 +31,10 @@ zbutcde_init() {
 }
 
 ######################################################################
-# butcde_evidence_created - Dispatch butctt colophon, verify step
+# butcde_evidence_created_tcase - Dispatch butctt colophon, verify step
 # arrays populated and evidence directory exists
 
-butcde_evidence_created() {
+butcde_evidence_created_tcase() {
   zbutcde_init
   buto_section "Dispatching test target colophon"
   bute_dispatch "${ZBUTCDE_TEST_COLOPHON}"
@@ -53,9 +53,9 @@ butcde_evidence_created() {
 }
 
 ######################################################################
-# butcde_burv_isolation - Verify BURV temp dirs created by inner dispatch
+# butcde_burv_isolation_tcase - Verify BURV temp dirs created by inner dispatch
 
-butcde_burv_isolation() {
+butcde_burv_isolation_tcase() {
   zbutcde_init
   buto_section "Dispatching test target colophon"
   bute_dispatch "${ZBUTCDE_TEST_COLOPHON}"
@@ -72,10 +72,10 @@ butcde_burv_isolation() {
 }
 
 ######################################################################
-# butcde_exit_capture - Verify bute_get_step_exit_capture returns
+# butcde_exit_capture_tcase - Verify bute_get_step_exit_capture returns
 # correct status after successful dispatch
 
-butcde_exit_capture() {
+butcde_exit_capture_tcase() {
   zbutcde_init
   buto_section "Dispatching test target colophon"
   bute_dispatch "${ZBUTCDE_TEST_COLOPHON}"

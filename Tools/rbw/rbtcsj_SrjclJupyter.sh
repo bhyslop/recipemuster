@@ -29,14 +29,14 @@ RBTCSJ_TEST_IMAGE="ghcr.io/bhyslop/recipemuster:rbtest_python_networking.2025021
 ######################################################################
 # Test Cases
 
-rbtcsj_jupyter_running() {
+rbtcsj_jupyter_running_tcase() {
   buto_trace "Verifying Jupyter process is running in bottle"
   # Verify Jupyter process is running in bottle
   buto_unit_expect_ok rbtb_exec_bottle ps aux
   rbtb_exec_bottle ps aux | grep -q jupyter || buto_fatal "jupyter not running in bottle"
 }
 
-rbtcsj_jupyter_connectivity() {
+rbtcsj_jupyter_connectivity_tcase() {
   buto_trace "Testing basic HTTP connectivity to Jupyter from host"
   # Test basic HTTP connectivity to Jupyter from host
   # Uses curl with browser-like headers to access JupyterLab
@@ -50,7 +50,7 @@ rbtcsj_jupyter_connectivity() {
   test "${z_output}" = "200" || buto_fatal "Expected HTTP 200 from Jupyter, got: ${z_output}"
 }
 
-rbtcsj_websocket_kernel() {
+rbtcsj_websocket_kernel_tcase() {
   buto_trace "Running full Python test (WebSocket, session creation, kernel execution)"
   # Run the full Python test (WebSocket, session creation, kernel execution)
   # This test container runs on host network and connects to Jupyter
