@@ -4789,9 +4789,10 @@
         "₢AOAAJ",
         "₢AOAAL",
         "₢AOAAK",
-        "₢AOAAN"
+        "₢AOAAN",
+        "₢AOAAR"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -5065,6 +5066,17 @@
               "text": "Audit the BUT test infrastructure (bute/butd/butr/buto) against the new BCG test execution vocabulary.\n\n## Problem\n\nThe BCG test vocabulary (₢AOAAP) defines _tsuite and _tcase contracts. The existing test code predates this formalization. Need to verify conformance and fix any violations.\n\n## Scope\n\nReview these files against the new vocabulary:\n- `Tools/buk/bute_engine.sh` — case runner, dispatch engine\n- `Tools/buk/butd_dispatch.sh` — suite runner (now with subshell isolation)\n- `Tools/buk/butr_registry.sh` — suite/case enrollment\n- `Tools/buk/buto_operations.sh` — test operations (invoke, assertions)\n- `Tools/buk/but_test.sh` — test utilities\n\nCheck for:\n1. **Boundary violations** — does anything leak across suite or case subshell boundaries?\n2. **Contract violations** — does anything communicate outside exit-status/stdio from a case?\n3. **Naming conformance** — do function names follow the vocabulary patterns?\n4. **Documentation** — do file headers and function comments use the new vocabulary?\n\n## Acceptance\n\n- Each BUT file reviewed against BCG test vocabulary\n- Any violations documented and fixed\n- Function comments updated to use _tsuite/_tcase vocabulary where appropriate\n- No state leaks between suites or between cases confirmed by TestAll",
               "silks": "audit-but-against-test-vocab",
               "commit": "0e8d7c6"
+            }
+          ]
+        },
+        "₢AOAAR": {
+          "tacks": [
+            {
+              "ts": "260217-1758",
+              "state": "rough",
+              "text": "Remove the heat-level (`*`) commit swim lane from jjx_orient output.\n\n## Reasoning\n\nThe orient display shows commit swim lanes per pace, plus a `*` lane for heat-level (non-pace-affiliated) commits. The `*` lane is noise for these reasons:\n\n1. **Most heat-level commits are gallops bookkeeping** — jjx_enroll, jjx_mark, jjx_alter, jjx_close. These are infrastructure commits that record intentions, not work product. They don't help a developer understand what happened recently.\n\n2. **Genuinely useful heat-level commits are rare.** When they exist, they'd show up in `jjx_log` or `git log` anyway.\n\n3. **The lane is confusing.** It prompts \"what happened there?\" when the answer is usually \"nothing interesting.\" It dilutes attention from the pace-affiliated lanes which actually tell the story of work done.\n\n4. **The pace-affiliated lanes are sufficient.** They show which paces had work, how they interleaved, and the file-touch bitmap connects commits to files. The `*` lane adds no information that changes decisions.\n\n## Scope\n\n- Remove the `*` lane from the commit swim lane display in orient output\n- Keep pace-affiliated lanes unchanged\n- Keep the file-touch bitmap unchanged (it already has `*` for heat-level; evaluate whether to drop there too or leave it for completeness)\n\n## Acceptance\n\n- `jjx_orient` output shows only pace-affiliated swim lanes\n- No `*` row in swim lane display\n- File-touch bitmap decision documented (drop or keep `*` column)",
+              "silks": "drop-heat-level-swim-lane",
+              "commit": "7485390"
             }
           ]
         }
