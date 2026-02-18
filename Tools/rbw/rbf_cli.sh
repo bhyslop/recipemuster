@@ -25,6 +25,7 @@ ZRBF_BUK_DIR="${ZRBF_CLI_SCRIPT_DIR}/../buk"
 # Source all dependencies
 source "${ZRBF_BUK_DIR}/buc_command.sh"
 source "${ZRBF_BUK_DIR}/buv_validation.sh"
+source "${ZRBF_BUK_DIR}/burd_regime.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
@@ -37,8 +38,7 @@ zrbf_furnish() {
   buc_doc_env "BURD_NOW_STAMP " "Bash Dispatch Utility provided string unique between invocations"
 
   buc_log_args 'Validate BUD environment'
-  buv_dir_exists "${BURD_TEMP_DIR}"
-  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP is unset or empty"
+  zburd_kindle
 
   buc_log_args 'Validate required tools'
   command -v git >/dev/null 2>&1 || buc_die "git not found - required for assuring controlled build context"

@@ -40,8 +40,7 @@ zrbgo_kindle() {
   zrbgc_sentinel
 
   buc_log_args "Check environment"
-  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set"
-  test -d "${BURD_TEMP_DIR}"   || buc_die "BURD_TEMP_DIR not a directory"
+  zburd_sentinel
 
   buc_log_args "Set Module Variables (ZRBGO_*)"
   ZRBGO_JWT_HEADER_FILE="${BURD_TEMP_DIR}/rbgo_jwt_header.json"

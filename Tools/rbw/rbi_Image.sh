@@ -35,7 +35,7 @@ zrbi_kindle() {
 
   # Check required environment
   test -n "${RBRR_GAR_REPOSITORY:-}" || buc_die "RBRR_GAR_REPOSITORY not set"
-  test -n "${BURD_TEMP_DIR:-}"        || buc_die "BURD_TEMP_DIR not set"
+  zburd_sentinel
 
   # Verify GAR service account file is configured
   test -n "${RBRR_RETRIEVER_RBRA_FILE:-}"   || buc_die "RBRR_RETRIEVER_RBRA_FILE not set"

@@ -25,13 +25,13 @@ VOW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${VOW_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${VOW_SCRIPT_DIR}/../buk/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verify launcher provided regime environment
-test -n "${BURD_REGIME_FILE:-}"   || buc_die "BURD_REGIME_FILE not set - must be called via launcher"
-test -n "${BURD_STATION_FILE:-}"  || buc_die "BURD_STATION_FILE not set - must be called via launcher"
+# Verify dispatch completed
+zburd_kindle
 
 # Verbose output if BURD_VERBOSE is set
 vow_show() {
@@ -45,9 +45,7 @@ vow_route() {
 
   vow_show "Routing command: ${z_command} with args: $*"
 
-  # Verify BUD environment variables are present
-  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BUD"
+  zburd_sentinel
 
   vow_show "BUD environment verified"
 

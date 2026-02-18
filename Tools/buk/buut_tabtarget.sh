@@ -34,7 +34,7 @@ zbuut_kindle() {
   test -z "${ZBUUT_KINDLED:-}" || buc_die "Module buut already kindled"
 
   # Validate BURD environment
-  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR is unset"
+  zburd_sentinel
 
   # Validate BURC environment (needed for paths)
   test -n "${BURC_TABTARGET_DIR:-}" || buc_die "BURC_TABTARGET_DIR is unset"

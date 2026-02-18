@@ -35,7 +35,7 @@ zvob_kindle() {
   test -z "${ZVOB_KINDLED:-}" || buc_die "Module vob already kindled"
 
   # Validate BUD environment
-  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR is unset"
+  zburd_sentinel
 
   # Validate BURC environment
   test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR is unset"

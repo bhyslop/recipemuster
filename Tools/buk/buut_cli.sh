@@ -25,6 +25,7 @@ ZBUUT_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source all dependencies
 source "${ZBUUT_CLI_SCRIPT_DIR}/buc_command.sh"
 source "${ZBUUT_CLI_SCRIPT_DIR}/buv_validation.sh"
+source "${ZBUUT_CLI_SCRIPT_DIR}/burd_regime.sh"
 source "${ZBUUT_CLI_SCRIPT_DIR}/buut_tabtarget.sh"
 
 zbuut_furnish() {
@@ -32,6 +33,8 @@ zbuut_furnish() {
   buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
   buc_doc_env "BURC_TABTARGET_DIR   " "Directory for tabtarget scripts"
   buc_doc_env "BURC_TOOLS_DIR       " "Directory for tools"
+
+  zburd_kindle
 
   # Load BURC configuration
   local z_burc_file="${PWD}/.buk/burc.env"

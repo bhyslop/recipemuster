@@ -91,7 +91,7 @@ zbute_resolve_tabtarget_capture() {
 # bute_init_evidence() - Create evidence root dir under testbench temp
 bute_init_evidence() {
   zbute_dispatch_sentinel
-  test -n "${BURD_TEMP_DIR:-}" || buto_fatal "BURD_TEMP_DIR not set - bute_init_evidence requires BURD context"
+  zburd_sentinel
 
   ZBUTE_EVIDENCE_ROOT="${BURD_TEMP_DIR}/evidence"
   mkdir -p "${ZBUTE_EVIDENCE_ROOT}"

@@ -25,9 +25,13 @@ VSLW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${VSLW_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${VSLW_SCRIPT_DIR}/../buk/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
+
+# Verify dispatch completed
+zburd_kindle
 
 # Verbose output if BURD_VERBOSE is set
 vslw_show() {
@@ -56,9 +60,7 @@ vslw_route() {
 
   vslw_show "Routing command: ${z_command} with args: $*"
 
-  # Verify BUD environment variables are present
-  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BUD"
+  zburd_sentinel
 
   test -n "${VSLW_TEMPLATE_DIR:-}" || buc_die "VSLW_TEMPLATE_DIR not set - must be set by launcher"
 

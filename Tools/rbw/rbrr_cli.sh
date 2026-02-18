@@ -25,6 +25,7 @@ ZRBRR_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source dependencies
 source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
+source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/burd_regime.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbcr_render.sh"
@@ -92,29 +93,29 @@ rbrr_render() {
 
   # GCP Infrastructure
   rbcr_section_begin "GCP Infrastructure"
-  rbcr_section_item RBRR_DEPOT_PROJECT_ID        gname   req  "GCP project ID for depot"
-  rbcr_section_item RBRR_GCP_REGION              gname   req  "GCP region"
-  rbcr_section_item RBRR_GAR_REPOSITORY          gname   req  "Google Artifact Registry repository name"
+  rbcr_section_item RBRR_DEPOT_PROJECT_ID      gname   req  "GCP project ID for depot"
+  rbcr_section_item RBRR_GCP_REGION            gname   req  "GCP region"
+  rbcr_section_item RBRR_GAR_REPOSITORY        gname   req  "Google Artifact Registry repository name"
   rbcr_section_end
 
   # Google Cloud Build Configuration
   rbcr_section_begin "Google Cloud Build Configuration"
-  rbcr_section_item RBRR_GCB_MACHINE_TYPE        string  req  "Machine type for Cloud Build"
-  rbcr_section_item RBRR_GCB_TIMEOUT             string  req  "Build timeout (e.g., 1200s)"
-  rbcr_section_item RBRR_GCB_MIN_CONCURRENT_BUILDS decimal req "Min concurrent builds required"
-  rbcr_section_item RBRR_GCB_ORAS_IMAGE_REF      odref   req  "oras image reference (digest-pinned)"
-  rbcr_section_item RBRR_GCB_GCLOUD_IMAGE_REF    odref   req  "gcloud image reference (digest-pinned)"
-  rbcr_section_item RBRR_GCB_DOCKER_IMAGE_REF    odref   req  "docker image reference (digest-pinned)"
-  rbcr_section_item RBRR_GCB_ALPINE_IMAGE_REF    odref   req  "alpine image reference (digest-pinned)"
-  rbcr_section_item RBRR_GCB_SYFT_IMAGE_REF      odref   req  "syft image reference (digest-pinned)"
-  rbcr_section_item RBRR_GCB_BINFMT_IMAGE_REF    odref   req  "binfmt image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_MACHINE_TYPE            string  req  "Machine type for Cloud Build"
+  rbcr_section_item RBRR_GCB_TIMEOUT                 string  req  "Build timeout (e.g., 1200s)"
+  rbcr_section_item RBRR_GCB_MIN_CONCURRENT_BUILDS   decimal req "Min concurrent builds required"
+  rbcr_section_item RBRR_GCB_ORAS_IMAGE_REF          odref   req  "oras image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_GCLOUD_IMAGE_REF        odref   req  "gcloud image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_DOCKER_IMAGE_REF        odref   req  "docker image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_ALPINE_IMAGE_REF        odref   req  "alpine image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_SYFT_IMAGE_REF          odref   req  "syft image reference (digest-pinned)"
+  rbcr_section_item RBRR_GCB_BINFMT_IMAGE_REF        odref   req  "binfmt image reference (digest-pinned)"
   rbcr_section_end
 
   # Service Account Configuration
   rbcr_section_begin "Service Account Configuration"
-  rbcr_section_item RBRR_GOVERNOR_RBRA_FILE      string  req  "Governor service account key file"
-  rbcr_section_item RBRR_RETRIEVER_RBRA_FILE     string  req  "Retriever service account key file"
-  rbcr_section_item RBRR_DIRECTOR_RBRA_FILE      string  req  "Director service account key file"
+  rbcr_section_item RBRR_GOVERNOR_RBRA_FILE    string  req  "Governor service account key file"
+  rbcr_section_item RBRR_RETRIEVER_RBRA_FILE   string  req  "Retriever service account key file"
+  rbcr_section_item RBRR_DIRECTOR_RBRA_FILE    string  req  "Director service account key file"
   rbcr_section_end
 
   # Unexpected variables (from kindle, not gated)
@@ -138,8 +139,7 @@ rbrr_render() {
 rbrr_refresh_gcb_pins() {
   local z_rbrr_file="${RBCC_RBRR_FILE}"
   test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
-  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BURD"
-  test -d "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set or not a directory"
+  zburd_sentinel
 
   buc_countdown 5 "NOTE: Docker anonymous login is heavily rate limited.  Try again in 6 hours if you see that fail.  Continuing in:"
 
@@ -322,6 +322,7 @@ rbrr_refresh_gcb_pins() {
 # Main dispatch
 
 zrbrr_cli_kindle
+zburd_kindle
 zrbcc_kindle
 
 z_command="${1:-}"

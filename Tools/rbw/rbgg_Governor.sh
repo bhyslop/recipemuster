@@ -487,7 +487,7 @@ rbgg_create_retriever() {
   buc_doc_shown || return 0
 
   test -n "${z_instance}" || buc_die "Instance name required"
-  test -n "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR not set"
+  zburd_sentinel
   test -d "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR does not exist: ${BURD_OUTPUT_DIR}"
 
   local z_account_name="${RBGC_RETRIEVER_PREFIX}-${z_instance}"
@@ -532,7 +532,7 @@ rbgg_create_director() {
   buc_doc_shown || return 0
 
   test -n "${z_instance}"     || buc_die "Instance name required"
-  test -n "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR not set"
+  zburd_sentinel
   test -d "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR does not exist: ${BURD_OUTPUT_DIR}"
 
   local z_account_name="${RBGC_DIRECTOR_PREFIX}-${z_instance}"

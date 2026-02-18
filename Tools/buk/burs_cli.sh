@@ -29,6 +29,7 @@ ZBURS_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZBURS_CLI_SCRIPT_DIR}/buc_command.sh"
 source "${ZBURS_CLI_SCRIPT_DIR}/buv_validation.sh"
 source "${ZBURS_CLI_SCRIPT_DIR}/burs_regime.sh"
+source "${ZBURS_CLI_SCRIPT_DIR}/burd_regime.sh"
 source "${ZBURS_CLI_SCRIPT_DIR}/bupr_PresentationRegime.sh"
 
 ######################################################################
@@ -37,8 +38,8 @@ source "${ZBURS_CLI_SCRIPT_DIR}/bupr_PresentationRegime.sh"
 zburs_cli_kindle() {
   test -z "${ZBURS_CLI_KINDLED:-}" || buc_die "BURS CLI already kindled"
 
-  # Verify environment
-  test -n "${BURD_STATION_FILE:-}" || buc_die "BURD_STATION_FILE not set - must be called via launcher"
+  # Verify dispatch environment
+  zburd_kindle
 
   ZBURS_CLI_KINDLED=1
 }

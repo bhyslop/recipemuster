@@ -22,9 +22,13 @@ set -euo pipefail
 zccck_kit_dir="${BASH_SOURCE[0]%/*}"
 zccck_buk_directory="${zccck_kit_dir}/../buk"
 source "${zccck_buk_directory}/buc_command.sh"
+source "${zccck_buk_directory}/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
+
+# Verify dispatch completed
+zburd_kindle
 
 
 zccck_docker_compose() {
@@ -50,9 +54,7 @@ zccck_route() {
 
   buc_step "Routing command: $z_command with args: $*"
 
-  # Verify BDU environment variables are present
-  test -n "${BURD_TEMP_DIR:-}"  || buc_die "BURD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BUD"
+  zburd_sentinel
 
   source "${zccck_kit_dir}/../cccr.env"
 

@@ -31,8 +31,7 @@ zrbf_kindle() {
   test -z "${ZRBF_KINDLED:-}" || buc_die "Module rbf already kindled"
 
   # Validate environment
-  buv_dir_exists "${BURD_TEMP_DIR}"
-  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP is unset or empty"
+  zburd_sentinel
 
   buc_log_args 'Check required GCB/GAR environment variables'
   zrbgc_sentinel
