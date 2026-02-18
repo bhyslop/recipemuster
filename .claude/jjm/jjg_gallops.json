@@ -4774,6 +4774,7 @@
       "creation_time": "260125",
       "status": "racing",
       "order": [
+        "₢AOAAP",
         "₢AOAAI",
         "₢AOAAA",
         "₢AOAAC",
@@ -4789,7 +4790,7 @@
         "₢AOAAK",
         "₢AOAAN"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_AO.md",
       "paces": {
         "₢AOAAA": {
@@ -5041,6 +5042,17 @@
               "text": "Replace all ../buk/ path gymnastics with BURC_BUK_DIR constant.\n\n## Context\n\nBURC_BUK_DIR was introduced in ₢AOAAM to eliminate the magic \"buk\" directory name. Currently 41 occurrences of `../buk/` exist across 20 files. These should all use `${BURC_BUK_DIR}/` instead.\n\n## Scope\n\n20 files, 41 occurrences:\n\nTools/rbw/: rbrs_cli.sh(2) rbw_workbench.sh(2) rbq_cli.sh(3) rbob_cli.sh(2) rbcr_render.sh(1) rbrr_cli.sh(2) rbrp_cli.sh(2) rbro_cli.sh(2) rbra_cli.sh(2) rbtb_testbench.sh(10) rbrn_cli.sh(2) rbrv_cli.sh(2)\nTools/jjk/: jjw_workbench.sh(1) jja_arcanum.sh(1)\nTools/cmk/: cmw_workbench.sh(1)\nTools/vok/: vob_cli.sh(2) vow_workbench.sh(1)\nTools/vvk/: vvw_workbench.sh(1) vvb_cli.sh(1)\nTools/vslk/: vslw_workbench.sh(1)\n\n## Transformation\n\nReplace: `source \"${SCRIPT_DIR}/../buk/filename.sh\"`\nWith:    `source \"${BURC_BUK_DIR}/filename.sh\"`\n\nBURC_BUK_DIR is exported by burc_regime.sh and available in all dispatch contexts.\n\n## Acceptance\n\n- Zero occurrences of `../buk/` remain in .sh files\n- rbw-trg.TestRegimeSmoke.sh passes\n- Qualification passes",
               "silks": "replace-dotdot-buk-with-burc-buk-dir",
               "commit": "f6866fa"
+            }
+          ]
+        },
+        "₢AOAAP": {
+          "tacks": [
+            {
+              "ts": "260217-1752",
+              "state": "rough",
+              "text": "Add test execution vocabulary to BCG with the same rigor as kindle/sentinel and enroll/recite.\n\n## Problem\n\nBCG formalizes production bash patterns into named vocabulary with explicit contracts — kindle/sentinel for module initialization, enroll/recite for registries, capture for return values. Test execution has no equivalent formalization. The test infrastructure (bute, butd, butr, buto) works but its contracts are implicit, discoverable only by reading code.\n\nIn bash 3.2, isolation is discipline, not syntax. Discipline needs vocabulary to be teachable and auditable.\n\n## Vocabulary to Define\n\n**_tsuite** — the suite isolation boundary:\n- Runs in a subshell (state dies at boundary)\n- Setup runs inside (visible to cases, dies with suite)\n- Init/precondition runs outside (parent decides whether to enter)\n- Communicates only exit status to the runner\n- Kindle guards catch double-kindle within a suite; subshell boundary prevents cross-suite contamination\n\n**_tcase** — the verification unit:\n- Runs in a subshell within the suite subshell\n- Inherits setup state, cannot mutate sibling state\n- Communicates only exit status and stdio\n- Each case gets isolated temp dir and BURV root\n\n**Three-layer model with two subshell boundaries:**\n- Parent shell: init, precondition, suite iteration, reporting\n- Suite subshell: setup, kindle, module sourcing, case iteration\n- Case subshell: verification, assertions, tabtarget invocation\n\n## Scope\n\n- Add a \"Test Execution Patterns\" section to BCG\n- Define _tsuite and _tcase as BCG vocabulary alongside kindle/sentinel\n- Document what's allowed at each layer\n- Reference the subshell prohibition section — this is the principled counterpoint\n- Keep it tight: contracts and rules, not tutorial\n\n## Acceptance\n\n- BCG has a test execution section with _tsuite and _tcase vocabulary\n- The three-layer isolation model is documented with allowed operations per layer\n- Subshell prohibition section references the test isolation section (and vice versa)\n- A developer reading BCG understands why suites and cases use subshells without reading implementation code",
+              "silks": "bcg-test-execution-vocabulary",
+              "commit": "450889d"
             }
           ]
         }
