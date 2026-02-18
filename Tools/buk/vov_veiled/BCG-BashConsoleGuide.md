@@ -375,6 +375,9 @@ This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
 | Capture   | `[z]«prefix»_«name»_capture`   | `z«prefix»_sentinel` | stdout once at end or exit 1 | No (use buc_log_«source») | Clean error handling, single return |
 | Enroll    | `[z]«prefix»_[«scope»_]enroll` | `z«prefix»_sentinel` | `z_«funcname»_«retval»` vars | No (use buc_log_«source») | Mutates rolls (parallel arrays) in kindle only; returns via variables |
 | Recite    | `[z]«prefix»_«what»_recite`    | `z«prefix»_sentinel` | stdout or exit 1             | No (use buc_log_«source») | Read-only access to rolls; never mutates |
+| Tsuite init | `z«tb»_«name»_tsuite_init`  | —                    | 0=proceed, non-zero=skip     | No                        | Parent layer; no kindle, no source  |
+| Tsuite setup | `z«tb»_«name»_tsuite_setup` | —                   | — (side effects only)        | Optional                  | Suite subshell; kindle, source, configure |
+| Tcase     | `«tc»_«name»_tcase`           | —                    | — (exit status to suite)     | No                        | Case subshell; assertions, verification |
 
 ---
 
@@ -556,6 +559,9 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 - **_predicate**: Need true/false for conditional logic without dying
 - **_enroll**: Populate parallel-array registries (rolls) during kindle with validated inputs and return values
 - **_recite**: Read-only access to roll arrays populated by enroll functions
+- **_tsuite_init**: Suite precondition check in parent shell (return non-zero to skip)
+- **_tsuite_setup**: Suite initialization inside `_tsuite` subshell (kindle, source, configure)
+- **_tcase**: Test case verification function inside `_tcase` subshell
 - **Neither**: Use temp files for multi-step pipelines, direct `|| buc_die` for simple failures
 
 ## Naming Convention Patterns
@@ -582,6 +588,11 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 | Recite functions             | `[z]«prefix»_«what»_recite`  | `«prefix»_target_recite`     | Impl     | read-only, never mutates      |
 | Roll arrays                  | `z_«prefix»_«name»_roll`     | `z_rbv_target_roll`          | Impl     | snake_case, kindle-only       |
 | Enroll return vars           | `z_«funcname»_«retval»`      | `z_«prefix»_enroll_name`     | Impl     | snake_case (func name verbatim)|
+| Testbench file               | `«prefix»tb_testbench.sh`    | `rbtb_testbench.sh`          | N/A      | fixed name                    |
+| Test case file               | `«prefix»tc«xx»_«Name».sh`  | `rbtckk_KickTires.sh`        | N/A      | PascalCase name               |
+| Suite init function          | `z«tb»_«name»_tsuite_init`  | `zrbtb_kick_tsuite_init`     | Testbench| snake_case, parent layer      |
+| Suite setup function         | `z«tb»_«name»_tsuite_setup` | `zrbtb_kick_tsuite_setup`    | Testbench| snake_case, suite layer       |
+| Case function                | `«tc»_«name»_tcase`         | `rbtckk_false_tcase`         | Test case| snake_case, case layer        |
 
 ---
 
@@ -667,6 +678,8 @@ some_cmd || { echo "ERROR" >&2; exit 1; }
 ```
 
 **Rule**: Error blocks must use `{ ...; }` not `( ... )` when intending to exit or return. The `(subshell)` creates a new process — `exit` terminates only that subshell, not the calling script.
+
+**Counterpoint**: Test execution uses subshells for principled isolation — see **Test Execution Patterns**. Subshells are also present in `$()` command substitution (`_capture` functions) and status capture patterns (`( ... ) || z_status=$?`). The prohibition is specific to error-handling blocks where `exit`/`return` must reach the calling shell.
 
 ---
 
@@ -1056,6 +1069,118 @@ buv_val_xname "name" "${z_input_name}" 3 50
 - [ ] Temp files make failures visible and debuggable
 - [ ] Every potential error explicitly handled
 - [ ] Abstraction layers used (BCU/BVU utilities)
+
+---
+
+## Test Execution Patterns
+
+### Principled Subshell Use
+
+BCG prohibits subshells for error handling (see **Subshell Exit vs Brace-Group**). Test execution is the principled counterpoint: subshells provide **isolation boundaries** that prevent state leakage between suites and cases.
+
+In bash 3.2, there is no module system, no scope isolation, and no cleanup-on-exit guarantee. When suite A kindles modules and suite B kindles the same modules, the kindle guards (`Z«PREFIX»_KINDLED`) from suite A block suite B. Subshells solve this: all state — kindle guards, sourced functions, variables — dies at the `)` boundary.
+
+This is discipline encoded as structure.
+
+### Three-Layer Model
+
+Test execution uses three layers separated by two subshell boundaries:
+
+```
+Parent Shell (runner layer)
+ ├─ _tsuite_init — precondition check (return non-zero to skip)
+ ├─ Suite iteration and status tracking
+ └─ Reporting (pass/fail/skip counts)
+     │
+     └─ Suite Subshell (_tsuite boundary)
+         ├─ _tsuite_setup — kindle, source, configure
+         ├─ Suite temp dir creation
+         └─ Case iteration
+             │
+             └─ Case Subshell (_tcase boundary)
+                 ├─ Per-case BUT_TEMP_DIR and BUTE_BURV_ROOT
+                 ├─ Assertions and verification
+                 └─ Exit status communicated to suite
+```
+
+### Vocabulary
+
+**`_tsuite`** — the suite isolation boundary:
+- Runs in a subshell (state dies at boundary)
+- Setup runs inside (visible to cases, dies with suite)
+- Init/precondition runs outside (parent decides whether to enter)
+- Communicates only exit status to the runner
+- Kindle guards catch double-kindle within a suite; subshell boundary prevents cross-suite contamination
+
+**`_tcase`** — the case isolation boundary:
+- Runs in a subshell within the `_tsuite` subshell
+- Inherits setup state, cannot mutate sibling state
+- Communicates only exit status and stdio
+- Each case gets isolated temp dir and BURV root
+
+**`_tsuite_init`** — precondition function (parent layer):
+- Runs in parent shell, outside the `_tsuite` boundary
+- Returns 0 to proceed, non-zero to skip suite
+- Must not kindle or source modules — state would persist to next suite
+- Registered as second argument to `butr_suite_enroll`
+
+**`_tsuite_setup`** — suite initialization function (suite layer):
+- Runs inside the `_tsuite` subshell
+- Kindles modules, sources dependencies, sets configuration
+- State visible to all cases within this suite, dies at suite boundary
+- Registered as third argument to `butr_suite_enroll`
+
+### Allowed Operations by Layer
+
+| Operation | Parent | `_tsuite` | `_tcase` |
+|-----------|--------|-----------|----------|
+| Init / precondition check | ✅ | — | — |
+| `z«prefix»_kindle` | — | ✅ | — |
+| `source` module files | — | ✅ | — |
+| Setup configuration | — | ✅ | — |
+| Case iteration | — | ✅ | — |
+| Assertions (`buto_*_expect_*`) | — | — | ✅ |
+| `zbuto_invoke` (capture) | — | — | ✅ |
+| Tabtarget invocation | — | — | ✅ |
+| Status tracking (pass/fail/skip) | ✅ | — | — |
+
+### Communication Across Boundaries
+
+| Boundary | Crosses | Does Not Cross |
+|----------|---------|----------------|
+| `_tsuite` → parent | Exit status (0=pass, non-zero=fail, 2=skip), stdout/stderr | Variables, kindle state, sourced functions |
+| `_tcase` → `_tsuite` | Exit status (0=pass, non-zero=fail), stdout/stderr | Variable mutations, BURV roots, temp dirs |
+
+### Naming Conventions
+
+| Element | Pattern | Example |
+|---------|---------|---------|
+| Testbench file | `«prefix»tb_testbench.sh` | `rbtb_testbench.sh` |
+| Test case file | `«prefix»tc«xx»_«Name».sh` | `rbtckk_KickTires.sh` |
+| Init function | `z«tb»_«name»_tsuite_init` | `zrbtb_kick_tsuite_init` |
+| Setup function | `z«tb»_«name»_tsuite_setup` | `zrbtb_kick_tsuite_setup` |
+| Case function | `«tc»_«name»_tcase` | `rbtckk_false_tcase` |
+| Suite enrollment | `butr_suite_enroll` | — |
+| Case enrollment | `butr_case_enroll` | — |
+
+### Compliance Checking
+
+The naming conventions enable grep-based auditing:
+
+```bash
+# Find all suite init functions
+grep -rn '_tsuite_init' Tools/
+
+# Find all suite setup functions
+grep -rn '_tsuite_setup' Tools/
+
+# Find all case functions
+grep -rn '_tcase' Tools/
+
+# Verify enrollment matches naming — init/setup/case functions should
+# appear both in enrollment calls and as function definitions
+grep -rn 'butr_suite_enroll\|butr_case_enroll' Tools/
+```
 
 ---
 
