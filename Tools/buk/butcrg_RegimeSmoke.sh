@@ -131,10 +131,8 @@ butcrg_rbrp() {
 butcrg_burd() {
   zbutcrg_init
   buto_section "Verifying BURD dispatch environment"
-  test -n "${BURD_TEMP_DIR:-}"    || buto_fatal "BURD_TEMP_DIR not set"
-  test -n "${BURD_NOW_STAMP:-}"   || buto_fatal "BURD_NOW_STAMP not set"
-  test -n "${BURD_OUTPUT_DIR:-}"  || buto_fatal "BURD_OUTPUT_DIR not set"
-  test -n "${BURD_GIT_CONTEXT:-}" || buto_fatal "BURD_GIT_CONTEXT not set"
+  zburd_sentinel
+  zburd_validate_fields
   test -d "${BURD_TEMP_DIR}"      || buto_fatal "BURD_TEMP_DIR does not exist: ${BURD_TEMP_DIR}"
   buto_success "BURD dispatch environment verified"
 }

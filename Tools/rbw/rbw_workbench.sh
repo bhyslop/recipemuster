@@ -36,13 +36,15 @@ RBW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${RBW_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${BURC_BUK_DIR}/burd_regime.sh"
 source "${RBW_SCRIPT_DIR}/../buk/buz_zipper.sh"
 source "${RBW_SCRIPT_DIR}/rbz_zipper.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Kindle zipper registry
+# Kindle dispatch and zipper registry
+zburd_kindle
 zbuz_kindle
 zrbz_kindle
 
@@ -60,11 +62,9 @@ rbw_route() {
 
   rbw_show "Routing command: ${z_command} with args: $*"
 
-  # Verify BUD environment
-  test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - must be called from BUD"
-  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set - must be called from BUD"
+  zburd_sentinel
 
-  rbw_show "BUD environment verified"
+  rbw_show "BURD environment verified"
 
   # Route based on colophon
   case "${z_command}" in

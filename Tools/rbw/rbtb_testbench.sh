@@ -24,6 +24,7 @@ RBTB_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${RBTB_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${BURC_BUK_DIR}/burd_regime.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/bute_engine.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butr_registry.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butd_dispatch.sh"
@@ -51,6 +52,7 @@ source "${RBTB_SCRIPT_DIR}/../buk/butcrg_RegimeSmoke.sh"
 source "${RBTB_SCRIPT_DIR}/../buk/butcrg_RegimeCredentials.sh"
 
 buc_context "${0##*/}"
+zburd_kindle
 zrbcc_kindle
 
 ######################################################################
@@ -261,8 +263,7 @@ rbtb_route() {
   local z_command="${1:-}"
   shift || true
 
-  test -n "${BURD_TEMP_DIR:-}"   || buc_die "BURD_TEMP_DIR not set - must be called from BURD"
-  test -n "${BURD_NOW_STAMP:-}"  || buc_die "BURD_NOW_STAMP not set - must be called from BURD"
+  zburd_sentinel
 
   rbtb_kindle
 

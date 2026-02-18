@@ -92,8 +92,10 @@ zburd_validate_fields() {
 
   # BURD_CLI_ARGS is an array — skip validation (no buv_ for arrays)
 
-  # Conditional: if logging is active (BURD_NO_LOG is empty), validate log paths
-  if test -z "${BURD_NO_LOG:-}"; then
+  # Conditional: log paths are set by dispatch but NOT exported, so they're only
+  # available in the dispatch process itself (not exec'd children).
+  # Validate only when both logging is active AND the variables are present.
+  if test -z "${BURD_NO_LOG:-}" && test -n "${BURD_LOG_LAST:-}"; then
     buv_env_string BURD_LOG_LAST            1 256
     buv_env_string BURD_LOG_SAME            1 256
     buv_env_string BURD_LOG_HIST            1 256
