@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# BUK Test Engine - Test case execution, dispatch, and evidence machinery
+# BUK Test Engine - _tcase boundary runner, dispatch, and evidence machinery
 
 set -euo pipefail
 
@@ -25,9 +25,9 @@ ZBUTE_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZBUTE_SCRIPT_DIR}/buto_operations.sh"
 
 ######################################################################
-# Test case execution
+# _tcase boundary — case isolation subshell
 
-# Run single test case in subshell
+# _tcase boundary runner: execute case function in isolation subshell
 zbute_tcase() {
   set -e
 

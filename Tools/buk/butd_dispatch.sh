@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# BUK Test Dispatch - Suite runner and reporting
+# BUK Test Dispatch - _tsuite boundary runner and reporting
 
 set -euo pipefail
 
@@ -29,9 +29,9 @@ test -z "${ZBUTD_INCLUDED:-}" || buto_fatal "butd_dispatch multiply sourced"
 ZBUTD_INCLUDED=1
 
 ######################################################################
-# Suite execution
+# _tsuite boundary — suite isolation and execution
 
-# butd_run_suite() - Run a single registered suite by name
+# butd_run_suite() - _tsuite boundary: run registered suite with init/setup/case layers
 # Args: suite_name
 butd_run_suite() {
   local z_suite="${1:-}"
@@ -77,7 +77,7 @@ butd_run_suite() {
     fi
   fi
 
-  # Subshell isolates suite state (setup kindles, module guards) from other suites.
+  # _tsuite subshell boundary: isolates suite state (setup kindles, module guards) from other suites.
   # Init/precondition runs above in parent so it can skip via return.
   (
     set -e
@@ -121,7 +121,7 @@ butd_run_suite() {
   return "${z_sub_status}"
 }
 
-# butd_run_one() - Run a single test function by name
+# butd_run_one() - Run single _tcase with its parent _tsuite setup
 # Args: function_name
 butd_run_one() {
   local z_func="${1:-}"
@@ -167,7 +167,7 @@ butd_run_one() {
     fi
   fi
 
-  # Subshell isolates suite state — same pattern as butd_run_suite
+  # _tsuite subshell boundary — same isolation pattern as butd_run_suite
   (
     set -e
 

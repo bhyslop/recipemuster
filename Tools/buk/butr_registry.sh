@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# BUK Test Registry - Suite registration via explicit enrollment following BCG enroll/recite patterns
+# BUK Test Registry - _tsuite/_tcase enrollment following BCG enroll/recite patterns
 
 set -euo pipefail
 
@@ -52,11 +52,11 @@ zbutr_sentinel() {
 ######################################################################
 # Public enrollment functions
 
-# butr_suite_enroll() - Register a test suite with init and setup functions
+# butr_suite_enroll() - Register a _tsuite with init and setup functions
 # Args: suite_name, init_fn, setup_fn
 #   suite_name: unique name for the suite
-#   init_fn: function to check readiness ("" for always ready)
-#   setup_fn: function to call before running suite ("" for none)
+#   init_fn: _tsuite_init function — precondition in parent shell ("" for always ready)
+#   setup_fn: _tsuite_setup function — kindle/source/configure inside suite subshell ("" for none)
 butr_suite_enroll() {
   zbutr_sentinel
 
@@ -87,7 +87,7 @@ butr_suite_enroll() {
   z_butr_setup_roll+=("${z_setup}")
 }
 
-# butr_case_enroll() - Register a single test case for a suite
+# butr_case_enroll() - Register a _tcase function for a suite
 # Args: suite_name, case_function
 butr_case_enroll() {
   zbutr_sentinel
