@@ -6004,10 +6004,24 @@
       "silks": "rbk-regime-second-pass",
       "creation_time": "260219",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AfAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_Af.md",
-      "paces": {}
+      "paces": {
+        "₢AfAAA": {
+          "tacks": [
+            {
+              "ts": "260219-0827",
+              "state": "rough",
+              "text": "Remove RBRG (GitHub Regime) from active codebase.\n\nScope:\n- Remove RBRG voicings from RBSA mapping section (rbrg_prefix, rbrg_regime, rbrg_username, rbrg_pat)\n- Remove the === GitHub Regime (RBRG) section from RBSA\n- Remove the include::RBSRG-RegimeGithub.adoc[] directive from RBSA\n- Delete lenses/RBSRG-RegimeGithub.adoc\n- Remove RBRG_PAT and RBRG_USERNAME references from Tools/rbw/rbv_PodmanVM.sh\n  - This includes the zrbv_kindle_github() function and its call site\n  - Also the RBRG_USERNAME/RBRG_PAT usage in the GitHub registry login\n- Remove rbrg_prefix from the Configuration Regimes prefix list in RBSA\n\nDO NOT touch:\n- Tools/ABANDONED-github/ — legacy references stay as-is\n- Study/ directory files — historical analysis stays\n- Memos/ — historical records stay\n\nAfter removal, verify no live code references remain (excluding ABANDONED/Study/Memos).",
+              "silks": "remove-rbrg-regime",
+              "commit": "ac741e2"
+            }
+          ]
+        }
+      }
     }
   }
 }
