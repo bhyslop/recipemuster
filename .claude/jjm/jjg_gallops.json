@@ -5995,13 +5995,14 @@
       "order": [
         "₢AfAAA",
         "₢AfAAB",
+        "₢AfAAH",
         "₢AfAAC",
         "₢AfAAD",
         "₢AfAAE",
         "₢AfAAF",
         "₢AfAAG"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6092,6 +6093,17 @@
               "text": "Mechanical application of documented transformation patterns to all remaining regimes.\n\n## Target Regimes\n\n### RBW Domain (singletons)\n- RBRP — Payor Regime (3 grep→regex sites)\n- RBRO — OAuth Regime (no validator exists — may need creation)\n- RBRE — ECR Regime (needs audit)\n- RBRS — Station Regime (appears near-compliant)\n\n### RBW Domain (manifold)\n- RBRV — Vessel Regime (2 [[ == ]] sites, unquoted array, channel declaration needed)\n- RBRA — Authentication Regime (2 grep→regex sites, unquoted array, channel declaration needed)\n\n### BUK Domain (singletons)\n- BURC — Configuration Regime (unquoted array)\n- BURS — Station Regime (unquoted array)\n- BURE — Environment Regime (unquoted array)\n\n## Approach\n\nApply transformation checklist from ₢AfAAF to each regime. This pace is likely splittable into per-regime sub-paces once the checklist is reviewed — the human review gate will determine if these should be individual bridled paces or batched.\n\n## Acceptance\n\n- All regime CLIs use buc_execute pattern\n- All _load functions eliminated\n- All public functions have buc_doc_* blocks\n- All manifold regimes use RBR0_FOLIO via buz channel\n- No [[ == ]], no grep for validation, no unquoted arrays\n- Qualification passes\n- All previously-passing test suites still pass",
               "silks": "apply-to-remaining-regimes",
               "commit": "5888991"
+            }
+          ]
+        },
+        "₢AfAAH": {
+          "tacks": [
+            {
+              "ts": "260219-0909",
+              "state": "rough",
+              "text": "Add `z«prefix»_enforce` to BCG as a standard boilerplate function.\n\n## Context\n\nThe enforce function is the post-kindle invariant gate. It verifies kindled state meets field contracts and dies on first violation. Currently this role is filled by ad-hoc `_validate_fields` functions — \"enforce\" gives it a first-class name distinct from the human-facing \"validate\" CLI command.\n\n## Key Design Point\n\nNot all CLI paths call enforce. A CLI that receives no folio (manifold) or no subcommand may choose to list valid options and exit gracefully rather than enforcing. The furnish→kindle→enforce sequence is the *happy path*, not the only path. The CLI owns presentation logic including \"here are your valid choices.\"\n\n## Scope\n\n1. **BCG boilerplate table** — Add enforce row:\n   - Location: Implementation\n   - First line: `z«prefix»_sentinel` (kindle must be complete)\n   - Purpose: Verify kindled state meets field contracts, die on failure\n   - Can source: No\n   - buc_step: No (use buc_log_*)\n\n2. **BCG furnish template** — Update to show enforce call after kindle:\n   ```\n   z«prefix»_furnish() {\n     buc_doc_env ...\n     source config\n     z«prefix»_kindle\n     z«prefix»_enforce\n   }\n   ```\n\n3. **BCG naming table** — Add enforce row to naming conventions\n\n4. **Module maturity checklist** — Add enforce checkpoint\n\n## NOT in scope\n\n- AXLA voicings (enforce is a BCG pattern, not a domain concept)\n- Renaming existing _validate_fields functions (that happens in the exemplar paces)\n\n## Acceptance\n\n- BCG documents enforce as standard boilerplate alongside kindle/sentinel/furnish\n- Templates updated\n- Checklist updated",
+              "silks": "bcg-add-enforce-pattern",
+              "commit": "77618e6"
             }
           ]
         }
