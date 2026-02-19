@@ -5996,9 +5996,10 @@
         "₢AfAAA",
         "₢AfAAB",
         "₢AfAAC",
-        "₢AfAAD"
+        "₢AfAAD",
+        "₢AfAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6056,6 +6057,17 @@
               "text": "Add RBR0_FOLIO regime-selection channel to the zipper infrastructure.\n\n## Concepts\n\n- **RBR0_FOLIO**: Environment variable holding the selected manifold instance identifier. The `0` in `RBR0_` guarantees no collision with alphabetic regime prefixes (rbrr, rbrn, rbrv...).\n- **Channel**: Per-colophon declaration of how folio arrives: `\"\"` (singleton, no selection), `\"imprint\"` (from tabtarget filename suffix), `\"param1\"` (from first positional arg, consumed/shifted by decode).\n\n## Scope\n\n1. **buz_zipper.sh** — Extend blazon registration:\n   - `buz_blazon` gains optional 5th parameter: channel (`\"\"`, `\"imprint\"`, `\"param1\"`)\n   - New roll: `z_buz_channel_roll`\n   - Default to `\"\"` when 5th param omitted (backward compatible)\n\n2. **zbuz_decode_folio** — New internal function:\n   - Reads channel from roll for the matched colophon\n   - `\"imprint\"`: sets `RBR0_FOLIO` from `BURD_IMPRINT`\n   - `\"param1\"`: sets `RBR0_FOLIO` from `$1`, eats the arg (shifts remaining args)\n   - `\"\"`: no-op\n   - Decode and eat are atomic — single function, single responsibility\n\n3. **zbuz_exec_lookup** — Call `zbuz_decode_folio` before exec'ing CLI\n\n4. **rbz_zipper.sh** — No changes yet (channels added when RBRN scrub lands)\n\n## Acceptance\n\n- `buz_blazon` accepts 5 args, backward compatible with 4\n- `zbuz_decode_folio` sets RBR0_FOLIO and shifts correctly\n- Existing dispatch unchanged (all current colophons have empty channel)\n- Qualification passes",
               "silks": "buz-channel-infrastructure",
               "commit": "66e76fb"
+            }
+          ]
+        },
+        "₢AfAAE": {
+          "tacks": [
+            {
+              "ts": "260219-0901",
+              "state": "rough",
+              "text": "Full BCG scrub of RBRN (Nameplate Regime) as the manifold exemplar.\n\n## Context\n\nRBRN is manifold with instances: nsproto, srjcl, pluml. Currently selected via `rbrn_load_moniker()` which is the manifold equivalent of the `rbrr_load()` anti-pattern. After buz channel infrastructure lands, manifold selection flows through RBR0_FOLIO.\n\n## Scope\n\n1. **rbrn_cli.sh** — Restructure to proper BCG CLI template:\n   - Add `zrbrn_furnish()` with `buc_doc_env` (including RBR0_FOLIO)\n   - Furnish reads RBR0_FOLIO to resolve nameplate file, sources it, kindles\n   - Use `buc_execute rbrn_ \"Recipe Bottle Nameplate Regime\" zrbrn_furnish \"$@\"`\n   - All public commands get buc_doc_* blocks\n\n2. **rbrn_regime.sh** — Clean up:\n   - Eliminate `rbrn_load_moniker()` (manifold surrogate furnish)\n   - Clean naming confusion between public/internal validate functions\n   - Fix BCG violations from paddock audit: 8+ `[[ == ]]` sites, unquoted array, spec-validator drift\n\n3. **rbz_zipper.sh** — Declare channels on RBRN colophons:\n   - Nameplate operations (rbw-rnr, rbw-rnv): channel = `\"imprint\"` or `\"param1\"` as appropriate\n   - Bottle operations (rbw-s, rbw-S, rbw-C, rbw-B, rbw-o): channel = `\"imprint\"`\n   - Remove ad-hoc workbench case arms that currently do imprint translation\n\n4. **Consuming CLIs** — Update any CLI that loaded RBRN via `rbrn_load_moniker`\n\n5. **Test harnesses** — Update nameplate test suites\n\n## Acceptance\n\n- `rbrn_load_moniker` deleted from codebase\n- RBR0_FOLIO flows through buz channel mechanism\n- Bottle operations no longer need ad-hoc workbench imprint translation\n- rbrn_cli.sh uses buc_execute pattern with buc_doc_* throughout\n- All nameplate test suites still pass\n- Qualification passes",
+              "silks": "scrub-rbrn-manifold-exemplar",
+              "commit": "6f97efa"
             }
           ]
         }
