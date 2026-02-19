@@ -5998,9 +5998,10 @@
         "₢AfAAC",
         "₢AfAAD",
         "₢AfAAE",
-        "₢AfAAF"
+        "₢AfAAF",
+        "₢AfAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6080,6 +6081,17 @@
               "text": "Catalog all transformation patterns from the RBRR (singleton) and RBRN (manifold) exemplars. This is the human review gate — user judges both exemplars before mechanical application proceeds.\n\n## Before Anchor\n\nCommit `57b1ff99` is the baseline before any regime second-pass work began.\n\n## Scope\n\n1. **Diff analysis**: Compare before-anchor to post-exemplar state for both RBRR and RBRN\n2. **Catalog transformations**: Document each change pattern as a repeatable recipe:\n   - CLI restructure: case dispatch → buc_execute + furnish\n   - Eliminate _load/_load_moniker → inline source + kindle in furnish\n   - Naming cleanup: resolve duplicate validate functions\n   - BCG violations: [[ == ]] → test, grep → [[ =~ ]], unquoted arrays, etc.\n   - buc_doc_* addition to all public functions\n   - Channel declaration for manifold regimes in rbz\n3. **Produce checklist**: Per-regime checklist suitable for bridled paces\n\n## Acceptance\n\n- Transformation catalog reviewed and approved by human\n- Checklist covers singleton and manifold cases\n- Remaining regimes can be mechanically transformed using the catalog",
               "silks": "document-regime-transformations",
               "commit": "9cde96d"
+            }
+          ]
+        },
+        "₢AfAAG": {
+          "tacks": [
+            {
+              "ts": "260219-0902",
+              "state": "rough",
+              "text": "Mechanical application of documented transformation patterns to all remaining regimes.\n\n## Target Regimes\n\n### RBW Domain (singletons)\n- RBRP — Payor Regime (3 grep→regex sites)\n- RBRO — OAuth Regime (no validator exists — may need creation)\n- RBRE — ECR Regime (needs audit)\n- RBRS — Station Regime (appears near-compliant)\n\n### RBW Domain (manifold)\n- RBRV — Vessel Regime (2 [[ == ]] sites, unquoted array, channel declaration needed)\n- RBRA — Authentication Regime (2 grep→regex sites, unquoted array, channel declaration needed)\n\n### BUK Domain (singletons)\n- BURC — Configuration Regime (unquoted array)\n- BURS — Station Regime (unquoted array)\n- BURE — Environment Regime (unquoted array)\n\n## Approach\n\nApply transformation checklist from ₢AfAAF to each regime. This pace is likely splittable into per-regime sub-paces once the checklist is reviewed — the human review gate will determine if these should be individual bridled paces or batched.\n\n## Acceptance\n\n- All regime CLIs use buc_execute pattern\n- All _load functions eliminated\n- All public functions have buc_doc_* blocks\n- All manifold regimes use RBR0_FOLIO via buz channel\n- No [[ == ]], no grep for validation, no unquoted arrays\n- Qualification passes\n- All previously-passing test suites still pass",
+              "silks": "apply-to-remaining-regimes",
+              "commit": "5888991"
             }
           ]
         }
