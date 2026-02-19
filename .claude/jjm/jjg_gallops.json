@@ -5997,9 +5997,10 @@
         "₢AfAAB",
         "₢AfAAC",
         "₢AfAAD",
-        "₢AfAAE"
+        "₢AfAAE",
+        "₢AfAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6068,6 +6069,17 @@
               "text": "Full BCG scrub of RBRN (Nameplate Regime) as the manifold exemplar.\n\n## Context\n\nRBRN is manifold with instances: nsproto, srjcl, pluml. Currently selected via `rbrn_load_moniker()` which is the manifold equivalent of the `rbrr_load()` anti-pattern. After buz channel infrastructure lands, manifold selection flows through RBR0_FOLIO.\n\n## Scope\n\n1. **rbrn_cli.sh** — Restructure to proper BCG CLI template:\n   - Add `zrbrn_furnish()` with `buc_doc_env` (including RBR0_FOLIO)\n   - Furnish reads RBR0_FOLIO to resolve nameplate file, sources it, kindles\n   - Use `buc_execute rbrn_ \"Recipe Bottle Nameplate Regime\" zrbrn_furnish \"$@\"`\n   - All public commands get buc_doc_* blocks\n\n2. **rbrn_regime.sh** — Clean up:\n   - Eliminate `rbrn_load_moniker()` (manifold surrogate furnish)\n   - Clean naming confusion between public/internal validate functions\n   - Fix BCG violations from paddock audit: 8+ `[[ == ]]` sites, unquoted array, spec-validator drift\n\n3. **rbz_zipper.sh** — Declare channels on RBRN colophons:\n   - Nameplate operations (rbw-rnr, rbw-rnv): channel = `\"imprint\"` or `\"param1\"` as appropriate\n   - Bottle operations (rbw-s, rbw-S, rbw-C, rbw-B, rbw-o): channel = `\"imprint\"`\n   - Remove ad-hoc workbench case arms that currently do imprint translation\n\n4. **Consuming CLIs** — Update any CLI that loaded RBRN via `rbrn_load_moniker`\n\n5. **Test harnesses** — Update nameplate test suites\n\n## Acceptance\n\n- `rbrn_load_moniker` deleted from codebase\n- RBR0_FOLIO flows through buz channel mechanism\n- Bottle operations no longer need ad-hoc workbench imprint translation\n- rbrn_cli.sh uses buc_execute pattern with buc_doc_* throughout\n- All nameplate test suites still pass\n- Qualification passes",
               "silks": "scrub-rbrn-manifold-exemplar",
               "commit": "6f97efa"
+            }
+          ]
+        },
+        "₢AfAAF": {
+          "tacks": [
+            {
+              "ts": "260219-0902",
+              "state": "rough",
+              "text": "Catalog all transformation patterns from the RBRR (singleton) and RBRN (manifold) exemplars. This is the human review gate — user judges both exemplars before mechanical application proceeds.\n\n## Before Anchor\n\nCommit `57b1ff99` is the baseline before any regime second-pass work began.\n\n## Scope\n\n1. **Diff analysis**: Compare before-anchor to post-exemplar state for both RBRR and RBRN\n2. **Catalog transformations**: Document each change pattern as a repeatable recipe:\n   - CLI restructure: case dispatch → buc_execute + furnish\n   - Eliminate _load/_load_moniker → inline source + kindle in furnish\n   - Naming cleanup: resolve duplicate validate functions\n   - BCG violations: [[ == ]] → test, grep → [[ =~ ]], unquoted arrays, etc.\n   - buc_doc_* addition to all public functions\n   - Channel declaration for manifold regimes in rbz\n3. **Produce checklist**: Per-regime checklist suitable for bridled paces\n\n## Acceptance\n\n- Transformation catalog reviewed and approved by human\n- Checklist covers singleton and manifold cases\n- Remaining regimes can be mechanically transformed using the catalog",
+              "silks": "document-regime-transformations",
+              "commit": "9cde96d"
             }
           ]
         }
