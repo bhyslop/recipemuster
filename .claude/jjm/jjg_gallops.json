@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Af",
+  "next_heat_seed": "Ag",
   "heats": {
     "₣AT": {
       "silks": "rbw-regime-consolidation",
@@ -5998,6 +5998,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_Ae.md",
+      "paces": {}
+    },
+    "₣Af": {
+      "silks": "rbk-regime-second-pass",
+      "creation_time": "260219",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {}
     }
   }
