@@ -1,6 +1,189 @@
 {
   "next_heat_seed": "Ag",
   "heats": {
+    "₣Af": {
+      "silks": "rbk-regime-second-pass",
+      "creation_time": "260219",
+      "status": "racing",
+      "order": [
+        "₢AfAAA",
+        "₢AfAAB",
+        "₢AfAAH",
+        "₢AfAAC",
+        "₢AfAAD",
+        "₢AfAAE",
+        "₢AfAAK",
+        "₢AfAAF",
+        "₢AfAAI",
+        "₢AfAAG",
+        "₢AfAAJ",
+        "₢AfAAL"
+      ],
+      "next_pace_seed": "AAM",
+      "paddock_file": ".claude/jjm/jjp_Af.md",
+      "paces": {
+        "₢AfAAA": {
+          "tacks": [
+            {
+              "ts": "260219-0827",
+              "state": "rough",
+              "text": "Remove RBRG (GitHub Regime) from active codebase.\n\nScope:\n- Remove RBRG voicings from RBSA mapping section (rbrg_prefix, rbrg_regime, rbrg_username, rbrg_pat)\n- Remove the === GitHub Regime (RBRG) section from RBSA\n- Remove the include::RBSRG-RegimeGithub.adoc[] directive from RBSA\n- Delete lenses/RBSRG-RegimeGithub.adoc\n- Remove RBRG_PAT and RBRG_USERNAME references from Tools/rbw/rbv_PodmanVM.sh\n  - This includes the zrbv_kindle_github() function and its call site\n  - Also the RBRG_USERNAME/RBRG_PAT usage in the GitHub registry login\n- Remove rbrg_prefix from the Configuration Regimes prefix list in RBSA\n\nDO NOT touch:\n- Tools/ABANDONED-github/ — legacy references stay as-is\n- Study/ directory files — historical analysis stays\n- Memos/ — historical records stay\n\nAfter removal, verify no live code references remain (excluding ABANDONED/Study/Memos).",
+              "silks": "remove-rbrg-regime",
+              "commit": "ac741e2"
+            }
+          ]
+        },
+        "₢AfAAB": {
+          "tacks": [
+            {
+              "ts": "260219-0918",
+              "state": "rough",
+              "text": "Relocate two ambient caller-override BURD_ variables to BURE (environment regime).\n\n## Context\n\nTwo BURD_ variables are ambient caller preferences that can be set before dispatch.\nThey belong in BURE alongside BURE_COUNTDOWN, not in BURD which is dispatch infrastructure.\n\nThree variables from the original scope do NOT move:\n- BURD_NO_LOG — set by tabtarget (buut_tabtarget.sh), not caller\n- BURD_INTERACTIVE — set by tabtarget (buut_tabtarget.sh), not caller\n- BURD_TERM_COLS — set by launcher (bul_launcher.sh), not caller\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_COLOR → BURE_COLOR\n\n## AsciiDoc changes (MCM linked terms)\n\n### BUSA mapping section\n\nRemove from BURD mapping block (~line 88, 92):\n- `:burd_verbose:  <<burd_verbose,BURD_VERBOSE>>`\n- `:burd_color:    <<burd_color,BURD_COLOR>>`\n\nAdd to BURE mapping block (after line 121, before `// end::mapping-section[]`):\n- `:bure_verbose:  <<bure_verbose,BURE_VERBOSE>>`\n- `:bure_color:    <<bure_color,BURE_COLOR>>`\n\n### BUSA BURD regime section (inline, ~line 485–513)\n\nRemove the `[[burd_verbose]]` anchor+annotation+definition block (lines 487–491).\nRemove the `[[burd_color]]` anchor+annotation+definition block (lines 508–513).\n\n### BUSA BURE regime section (inline, ~line 631+)\n\nAdd two new anchor+annotation+definition blocks:\n\n```\n[[bure_verbose]]\n// ⟦axl_voices axrg_variable axtu_integer⟧\n{bure_verbose}::\nVerbosity level controlling diagnostic output.\n0=silent, 1=show messages, 2=enable bash trace.\n\n[[bure_color]]\n// ⟦axl_voices axrg_variable axtu_string⟧\n{bure_color}::\nColor output policy.\nInput as auto/0/1; resolved to 0 or 1 during dispatch.\nRespects NO_COLOR environment convention.\n```\n\n### BUSD-DispatchRuntime.adoc\n\nRemove the `{burd_verbose}` variable entry (lines 14–19).\nRemove the `{burd_color}` variable entry (lines 38–43).\nUpdate the group_input description (line 12) to note that ambient overrides moved to BURE.\n\n## Bash changes\n\n1. Add BURE_VERBOSE and BURE_COLOR to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Rename all usages across codebase (bud_dispatch.sh, buc_command.sh, workbenches, etc.)\n3. Remove old BURD_VERBOSE and BURD_COLOR from zburd unexpected variable detection (z_known list)\n4. Remove from burd_regime.sh validate and render sections\n\n## Acceptance\n\n- Both variables use BURE_ prefix everywhere in active code\n- BURE grows from 1 to 3 variables (COUNTDOWN, VERBOSE, COLOR)\n- BURD shrinks by 2\n- All BUSA/BUSD linked terms updated (no dangling attribute references or anchors)\n- Qualification passes",
+              "silks": "relocate-ambient-burd-vars-to-bure",
+              "commit": "b638da9"
+            },
+            {
+              "ts": "260219-0847",
+              "state": "rough",
+              "text": "Relocate two ambient caller-override BURD_ variables to BURE (environment regime).\n\n## Context\n\nTwo BURD_ variables are ambient caller preferences that can be set before dispatch.\nThey belong in BURE alongside BURE_COUNTDOWN, not in BURD which is dispatch infrastructure.\n\nThree variables from the original scope do NOT move:\n- BURD_NO_LOG — set by tabtarget (buut_tabtarget.sh), not caller\n- BURD_INTERACTIVE — set by tabtarget (buut_tabtarget.sh), not caller\n- BURD_TERM_COLS — set by launcher (bul_launcher.sh), not caller\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_COLOR → BURE_COLOR\n\n## Scope\n\n1. Add BURE_VERBOSE and BURE_COLOR to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSA inline BURE section with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove VERBOSE and COLOR from BURD variable list\n4. Update BUSA inline BURD section to remove these two\n5. Rename all usages across codebase (bud_dispatch.sh, buc_command.sh, workbenches, etc.)\n6. Remove old BURD_VERBOSE and BURD_COLOR from zburd unexpected variable detection\n7. Update burd_regime.sh render section to remove these two\n\n## Acceptance\n\n- Both variables use BURE_ prefix everywhere in active code\n- BURE grows from 1 to 3 variables (COUNTDOWN, VERBOSE, COLOR)\n- BURD shrinks by 2\n- Qualification passes",
+              "silks": "relocate-ambient-burd-vars-to-bure",
+              "commit": "0ced339"
+            },
+            {
+              "ts": "260219-0842",
+              "state": "rough",
+              "text": "Drafted from ₢AOAAN in ₣AO.\n\nRelocate caller-intent BURD_ variables to BURE (ambient environment regime).\n\n## Context\n\nFive BURD_ \"input\" variables are actually ambient caller preferences, not dispatch infrastructure. They belong in BURE alongside BURE_COUNTDOWN.\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_NO_LOG → BURE_NO_LOG\n- BURD_INTERACTIVE → BURE_INTERACTIVE\n- BURD_COLOR → BURE_COLOR\n- BURD_TERM_COLS → BURE_TERM_COLS\n\n## Scope\n\n1. Add new variables to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSE-EnvironmentRuntime.adoc (or equivalent spec doc) with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove relocated variables\n4. Update BUSA mappings for both regimes\n5. Rename all usages across codebase (bud_dispatch.sh, bul_launcher.sh, bupr_PresentationRegime.sh, etc.)\n6. Remove old BURD_ names from zburd unexpected variable detection\n\n## Acceptance\n\n- All five variables use BURE_ prefix everywhere\n- BURD drops from 24 to 19 variables\n- BURE grows from 1 to 6 variables\n- Qualification passes",
+              "silks": "relocate-ambient-burd-vars-to-bure",
+              "commit": "b6591b1"
+            },
+            {
+              "ts": "260217-1625",
+              "state": "rough",
+              "text": "Relocate caller-intent BURD_ variables to BURE (ambient environment regime).\n\n## Context\n\nFive BURD_ \"input\" variables are actually ambient caller preferences, not dispatch infrastructure. They belong in BURE alongside BURE_COUNTDOWN.\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_NO_LOG → BURE_NO_LOG\n- BURD_INTERACTIVE → BURE_INTERACTIVE\n- BURD_COLOR → BURE_COLOR\n- BURD_TERM_COLS → BURE_TERM_COLS\n\n## Scope\n\n1. Add new variables to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSE-EnvironmentRuntime.adoc (or equivalent spec doc) with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove relocated variables\n4. Update BUSA mappings for both regimes\n5. Rename all usages across codebase (bud_dispatch.sh, bul_launcher.sh, bupr_PresentationRegime.sh, etc.)\n6. Remove old BURD_ names from zburd unexpected variable detection\n\n## Acceptance\n\n- All five variables use BURE_ prefix everywhere\n- BURD drops from 24 to 19 variables\n- BURE grows from 1 to 6 variables\n- Qualification passes",
+              "silks": "relocate-ambient-burd-vars-to-bure",
+              "commit": "ea5135a"
+            }
+          ]
+        },
+        "₢AfAAC": {
+          "tacks": [
+            {
+              "ts": "260219-0900",
+              "state": "rough",
+              "text": "Full BCG scrub of RBRR (Repository Regime) as the singleton exemplar.\n\n## Before Anchor\n\nCommit `57b1ff99` is the baseline before any regime second-pass work.\n\n## Scope\n\n1. **rbrr_cli.sh** — Restructure to proper BCG CLI template:\n   - Add `zrbrr_furnish()` with `buc_doc_env` for all required env vars\n   - Furnish sources config, calls `zrbrr_kindle`, calls validation\n   - Use `buc_execute rbrr_ \"Recipe Bottle Repository Regime\" zrbrr_furnish \"$@\"`\n   - All public command functions get `buc_doc_brief`/`buc_doc_param`/`buc_doc_shown` blocks\n\n2. **rbrr_regime.sh** — Clean up word cancer:\n   - Eliminate `rbrr_load()` entirely (surrogate furnish anti-pattern)\n   - Resolve `rbrr_validate` vs `zrbrr_validate_fields` naming confusion\n   - Review kindle constants — are defaults (lines 34-57) still needed or can validation handle missing fields?\n   - Fix any remaining BCG violations (comments-as-runtime-info, etc.)\n\n3. **Consuming CLIs** — Inline the kindle sequence in each furnish:\n   - rbgg_cli.sh, rbf_cli.sh, rbgm_cli.sh, rbgp_cli.sh, rbob_cli.sh, rbrn_cli.sh, rbrv_cli.sh\n   - Replace `rbrr_load` with: source config + `zrbrr_kindle` + validation call\n   - Remove redundant `test -f` guards (kindle handles this)\n\n4. **Test harnesses** — Update butcrg_RegimeSmoke.sh, butcrg_RegimeCredentials.sh, rbtb_testbench.sh\n   - BCG grants test harness latitude for direct kindle calls\n   - Still eliminate `rbrr_load` in favor of explicit source + kindle\n\n## Acceptance\n\n- `rbrr_load` deleted from codebase\n- rbrr_cli.sh uses buc_execute pattern\n- All public functions have buc_doc_* blocks\n- Qualification passes\n- All test suites that were passing still pass",
+              "silks": "scrub-rbrr-singleton-exemplar",
+              "commit": "57b1ff9"
+            }
+          ]
+        },
+        "₢AfAAD": {
+          "tacks": [
+            {
+              "ts": "260219-0901",
+              "state": "rough",
+              "text": "Add RBR0_FOLIO regime-selection channel to the zipper infrastructure.\n\n## Concepts\n\n- **RBR0_FOLIO**: Environment variable holding the selected manifold instance identifier. The `0` in `RBR0_` guarantees no collision with alphabetic regime prefixes (rbrr, rbrn, rbrv...).\n- **Channel**: Per-colophon declaration of how folio arrives: `\"\"` (singleton, no selection), `\"imprint\"` (from tabtarget filename suffix), `\"param1\"` (from first positional arg, consumed/shifted by decode).\n\n## Scope\n\n1. **buz_zipper.sh** — Extend blazon registration:\n   - `buz_blazon` gains optional 5th parameter: channel (`\"\"`, `\"imprint\"`, `\"param1\"`)\n   - New roll: `z_buz_channel_roll`\n   - Default to `\"\"` when 5th param omitted (backward compatible)\n\n2. **zbuz_decode_folio** — New internal function:\n   - Reads channel from roll for the matched colophon\n   - `\"imprint\"`: sets `RBR0_FOLIO` from `BURD_IMPRINT`\n   - `\"param1\"`: sets `RBR0_FOLIO` from `$1`, eats the arg (shifts remaining args)\n   - `\"\"`: no-op\n   - Decode and eat are atomic — single function, single responsibility\n\n3. **zbuz_exec_lookup** — Call `zbuz_decode_folio` before exec'ing CLI\n\n4. **rbz_zipper.sh** — No changes yet (channels added when RBRN scrub lands)\n\n## Acceptance\n\n- `buz_blazon` accepts 5 args, backward compatible with 4\n- `zbuz_decode_folio` sets RBR0_FOLIO and shifts correctly\n- Existing dispatch unchanged (all current colophons have empty channel)\n- Qualification passes",
+              "silks": "buz-channel-infrastructure",
+              "commit": "66e76fb"
+            }
+          ]
+        },
+        "₢AfAAE": {
+          "tacks": [
+            {
+              "ts": "260219-0919",
+              "state": "rough",
+              "text": "Full BCG scrub of RBRN (Nameplate Regime) as the manifold exemplar.\n\n## Context\n\nRBRN is manifold with instances: nsproto, srjcl, pluml. Currently selected via `rbrn_load_moniker()` which is the manifold equivalent of the `rbrr_load()` anti-pattern. After buz channel infrastructure lands, manifold selection flows through RBR0_FOLIO.\n\n## Known Consumers of rbrn_load_moniker\n\n- `rbob_cli.sh:113` — loads nameplate for bottle operations\n- `rbtb_testbench.sh:72` — loads nameplate for test suites\n- Definition: `rbrn_regime.sh:203`\n\n## Scope\n\n1. **rbrn_cli.sh** — Restructure to proper BCG CLI template:\n   - Add `zrbrn_furnish()` with `buc_doc_env` (including RBR0_FOLIO)\n   - Furnish reads RBR0_FOLIO to resolve nameplate file, sources it, kindles\n   - Use `buc_execute rbrn_ \"Recipe Bottle Nameplate Regime\" zrbrn_furnish \"$@\"`\n   - All public commands get buc_doc_* blocks\n\n2. **rbrn_regime.sh** — Clean up:\n   - Eliminate `rbrn_load_moniker()` (manifold surrogate furnish)\n   - Clean naming confusion between public/internal validate functions\n   - Rename `_validate_fields` to `_enforce`\n   - Fix BCG violations from paddock audit: multiple `[[ == ]]` sites, unquoted array, spec-validator drift\n\n3. **rbz_zipper.sh** — Declare channels on RBRN colophons:\n   - Nameplate operations (rbw-rnr, rbw-rnv): channel = `\"imprint\"` or `\"param1\"` as appropriate\n   - Bottle operations (rbw-s, rbw-S, rbw-C, rbw-B, rbw-o): channel = `\"imprint\"`\n   - Remove ad-hoc workbench case arms that currently do imprint translation\n\n4. **Consuming CLIs** — Inline kindle sequence in furnish:\n   - `rbob_cli.sh` — currently calls `rbrn_load_moniker \"${z_moniker}\"`, must use RBR0_FOLIO instead\n   - `rbtb_testbench.sh` — test harness, BCG latitude applies but still eliminate _load_moniker\n\n5. **Test harnesses** — Update nameplate test suites\n\n## Acceptance\n\n- `rbrn_load_moniker` deleted from codebase\n- RBR0_FOLIO flows through buz channel mechanism\n- Bottle operations no longer need ad-hoc workbench imprint translation\n- rbrn_cli.sh uses buc_execute pattern with buc_doc_* throughout\n- All nameplate test suites still pass\n- Qualification passes",
+              "silks": "scrub-rbrn-manifold-exemplar",
+              "commit": "de2fcca"
+            },
+            {
+              "ts": "260219-0901",
+              "state": "rough",
+              "text": "Full BCG scrub of RBRN (Nameplate Regime) as the manifold exemplar.\n\n## Context\n\nRBRN is manifold with instances: nsproto, srjcl, pluml. Currently selected via `rbrn_load_moniker()` which is the manifold equivalent of the `rbrr_load()` anti-pattern. After buz channel infrastructure lands, manifold selection flows through RBR0_FOLIO.\n\n## Scope\n\n1. **rbrn_cli.sh** — Restructure to proper BCG CLI template:\n   - Add `zrbrn_furnish()` with `buc_doc_env` (including RBR0_FOLIO)\n   - Furnish reads RBR0_FOLIO to resolve nameplate file, sources it, kindles\n   - Use `buc_execute rbrn_ \"Recipe Bottle Nameplate Regime\" zrbrn_furnish \"$@\"`\n   - All public commands get buc_doc_* blocks\n\n2. **rbrn_regime.sh** — Clean up:\n   - Eliminate `rbrn_load_moniker()` (manifold surrogate furnish)\n   - Clean naming confusion between public/internal validate functions\n   - Fix BCG violations from paddock audit: 8+ `[[ == ]]` sites, unquoted array, spec-validator drift\n\n3. **rbz_zipper.sh** — Declare channels on RBRN colophons:\n   - Nameplate operations (rbw-rnr, rbw-rnv): channel = `\"imprint\"` or `\"param1\"` as appropriate\n   - Bottle operations (rbw-s, rbw-S, rbw-C, rbw-B, rbw-o): channel = `\"imprint\"`\n   - Remove ad-hoc workbench case arms that currently do imprint translation\n\n4. **Consuming CLIs** — Update any CLI that loaded RBRN via `rbrn_load_moniker`\n\n5. **Test harnesses** — Update nameplate test suites\n\n## Acceptance\n\n- `rbrn_load_moniker` deleted from codebase\n- RBR0_FOLIO flows through buz channel mechanism\n- Bottle operations no longer need ad-hoc workbench imprint translation\n- rbrn_cli.sh uses buc_execute pattern with buc_doc_* throughout\n- All nameplate test suites still pass\n- Qualification passes",
+              "silks": "scrub-rbrn-manifold-exemplar",
+              "commit": "6f97efa"
+            }
+          ]
+        },
+        "₢AfAAF": {
+          "tacks": [
+            {
+              "ts": "260219-0902",
+              "state": "rough",
+              "text": "Catalog all transformation patterns from the RBRR (singleton) and RBRN (manifold) exemplars. This is the human review gate — user judges both exemplars before mechanical application proceeds.\n\n## Before Anchor\n\nCommit `57b1ff99` is the baseline before any regime second-pass work began.\n\n## Scope\n\n1. **Diff analysis**: Compare before-anchor to post-exemplar state for both RBRR and RBRN\n2. **Catalog transformations**: Document each change pattern as a repeatable recipe:\n   - CLI restructure: case dispatch → buc_execute + furnish\n   - Eliminate _load/_load_moniker → inline source + kindle in furnish\n   - Naming cleanup: resolve duplicate validate functions\n   - BCG violations: [[ == ]] → test, grep → [[ =~ ]], unquoted arrays, etc.\n   - buc_doc_* addition to all public functions\n   - Channel declaration for manifold regimes in rbz\n3. **Produce checklist**: Per-regime checklist suitable for bridled paces\n\n## Acceptance\n\n- Transformation catalog reviewed and approved by human\n- Checklist covers singleton and manifold cases\n- Remaining regimes can be mechanically transformed using the catalog",
+              "silks": "document-regime-transformations",
+              "commit": "9cde96d"
+            }
+          ]
+        },
+        "₢AfAAG": {
+          "tacks": [
+            {
+              "ts": "260219-0902",
+              "state": "rough",
+              "text": "Mechanical application of documented transformation patterns to all remaining regimes.\n\n## Target Regimes\n\n### RBW Domain (singletons)\n- RBRP — Payor Regime (3 grep→regex sites)\n- RBRO — OAuth Regime (no validator exists — may need creation)\n- RBRE — ECR Regime (needs audit)\n- RBRS — Station Regime (appears near-compliant)\n\n### RBW Domain (manifold)\n- RBRV — Vessel Regime (2 [[ == ]] sites, unquoted array, channel declaration needed)\n- RBRA — Authentication Regime (2 grep→regex sites, unquoted array, channel declaration needed)\n\n### BUK Domain (singletons)\n- BURC — Configuration Regime (unquoted array)\n- BURS — Station Regime (unquoted array)\n- BURE — Environment Regime (unquoted array)\n\n## Approach\n\nApply transformation checklist from ₢AfAAF to each regime. This pace is likely splittable into per-regime sub-paces once the checklist is reviewed — the human review gate will determine if these should be individual bridled paces or batched.\n\n## Acceptance\n\n- All regime CLIs use buc_execute pattern\n- All _load functions eliminated\n- All public functions have buc_doc_* blocks\n- All manifold regimes use RBR0_FOLIO via buz channel\n- No [[ == ]], no grep for validation, no unquoted arrays\n- Qualification passes\n- All previously-passing test suites still pass",
+              "silks": "apply-to-remaining-regimes",
+              "commit": "5888991"
+            }
+          ]
+        },
+        "₢AfAAH": {
+          "tacks": [
+            {
+              "ts": "260219-0909",
+              "state": "rough",
+              "text": "Add `z«prefix»_enforce` to BCG as a standard boilerplate function.\n\n## Context\n\nThe enforce function is the post-kindle invariant gate. It verifies kindled state meets field contracts and dies on first violation. Currently this role is filled by ad-hoc `_validate_fields` functions — \"enforce\" gives it a first-class name distinct from the human-facing \"validate\" CLI command.\n\n## Key Design Point\n\nNot all CLI paths call enforce. A CLI that receives no folio (manifold) or no subcommand may choose to list valid options and exit gracefully rather than enforcing. The furnish→kindle→enforce sequence is the *happy path*, not the only path. The CLI owns presentation logic including \"here are your valid choices.\"\n\n## Scope\n\n1. **BCG boilerplate table** — Add enforce row:\n   - Location: Implementation\n   - First line: `z«prefix»_sentinel` (kindle must be complete)\n   - Purpose: Verify kindled state meets field contracts, die on failure\n   - Can source: No\n   - buc_step: No (use buc_log_*)\n\n2. **BCG furnish template** — Update to show enforce call after kindle:\n   ```\n   z«prefix»_furnish() {\n     buc_doc_env ...\n     source config\n     z«prefix»_kindle\n     z«prefix»_enforce\n   }\n   ```\n\n3. **BCG naming table** — Add enforce row to naming conventions\n\n4. **Module maturity checklist** — Add enforce checkpoint\n\n## NOT in scope\n\n- AXLA voicings (enforce is a BCG pattern, not a domain concept)\n- Renaming existing _validate_fields functions (that happens in the exemplar paces)\n\n## Acceptance\n\n- BCG documents enforce as standard boilerplate alongside kindle/sentinel/furnish\n- Templates updated\n- Checklist updated",
+              "silks": "bcg-add-enforce-pattern",
+              "commit": "77618e6"
+            }
+          ]
+        },
+        "₢AfAAI": {
+          "tacks": [
+            {
+              "ts": "260219-0918",
+              "state": "rough",
+              "text": "Full BCG scrub of RBRV (Vessel Regime) as a second manifold exemplar with structural repair.\n\n## Why Separate From apply-to-remaining\n\nrbrv_cli.sh has deeper structural debt than other consuming CLIs:\n- No `furnish()` function at all\n- No `buc_execute` — uses ad-hoc `case` dispatch at module level\n- `zrbcc_kindle` called at module level (line 111), outside any furnish\n- `rbrr_load` called conditionally inside case branches instead of in furnish\n- Direct `source` and `zrbrv_kindle` calls inside command functions (rbrv_validate, rbrv_render)\n\nThis is not a mechanical transform from the checklist — it needs structural redesign of the CLI to separate the presentation layer (render, validate commands) from the regime module, and to properly route RBR0_FOLIO for vessel selection.\n\n## Scope\n\n1. **rbrv_cli.sh** — Full restructure to BCG CLI template:\n   - Proper `zrbrv_furnish()` with buc_doc_env\n   - `buc_execute` dispatch replacing the case statement\n   - Furnish reads RBR0_FOLIO for vessel selection\n   - Render and validate as proper buc_doc_* documented commands\n\n2. **rbrv_regime.sh** — Clean up BCG violations:\n   - Fix `[[ == ]]` sites (lines ~93, ~98 per paddock audit)\n   - Fix unquoted `${#ARRAY[@]}` (line ~78)\n   - Rename `_validate_fields` to `_enforce`\n\n3. **rbz_zipper.sh** — Declare channel for vessel colophons (rbw-rvr, rbw-rvv)\n\n## Acceptance\n\n- rbrv_cli.sh uses buc_execute with proper furnish\n- No ad-hoc case dispatch or module-level kindle\n- RBR0_FOLIO flows through buz channel for vessel selection\n- All vessel test suites still pass\n- Qualification passes",
+              "silks": "scrub-rbrv-manifold-structural",
+              "commit": "0b66a6b"
+            }
+          ]
+        },
+        "₢AfAAJ": {
+          "tacks": [
+            {
+              "ts": "260219-0918",
+              "state": "rough",
+              "text": "Consider whether the CLI-vs-regime-module split rule and the graceful-list-options path belong in BCG.\n\n## Context\n\nDuring ₣Af planning, we established design principles that guided the exemplar work:\n\n1. **Regime module** (`_regime.sh`) = reusable data/state layer: kindle, enforce, sentinel, state readers. Sourced by multiple CLIs.\n2. **CLI** (`_cli.sh`) = human-facing presentation layer: render, list valid options, validate-as-command. Only used at the terminal.\n3. **Graceful path**: When a CLI receives no folio or no subcommand, it may list valid options and exit without calling enforce. Not all paths kindle→enforce.\n\nBy the time this pace executes, we'll have applied these principles across all regimes and will have real experience with how well they hold up.\n\n## Scope\n\n1. Review how the split rule played out across singleton and manifold regimes\n2. Decide if these principles are general enough for BCG or specific to the regime pattern\n3. If BCG-worthy: draft additions to the Module Architecture section\n4. If not: document as an RBW convention in the paddock or a memo\n\n## Acceptance\n\n- Explicit decision recorded: BCG update, RBW convention, or memo\n- If BCG: changes drafted (may become a follow-on pace)",
+              "silks": "consider-cli-regime-split-for-bcg",
+              "commit": "81d7634"
+            }
+          ]
+        },
+        "₢AfAAK": {
+          "tacks": [
+            {
+              "ts": "260219-0919",
+              "state": "rough",
+              "text": "Add a tabtarget that lists all available nameplates, plumbed through to rbrn_cli.\n\n## Context\n\nThis exercises the \"no folio → list valid options\" graceful path. When a manifold CLI receives no RBR0_FOLIO (or an invalid one), it should list the available instances and exit cleanly WITHOUT calling enforce. This is a presentation-layer concern owned by the CLI.\n\n## Design Rule\n\nThe enforce call is gated on having a valid folio. The flow is:\n- Furnish kindles RBRR (to get RBRR_VESSEL_DIR and nameplate paths)\n- If RBR0_FOLIO is empty/missing: list available nameplates, exit 0\n- If RBR0_FOLIO is present: resolve file, source, kindle RBRN, enforce, dispatch command\n\nThis establishes the pattern for all manifold CLIs: the \"list what's available\" path is a first-class CLI feature, not an error.\n\n## Scope\n\n1. Add `rbrn_list` (or similar) command function in rbrn_cli.sh\n2. Create tabtarget (colophon TBD — possibly `rbw-nl` for nameplate-list)\n3. Register in rbz_zipper.sh (singleton channel — no folio needed to list)\n4. Wire through workbench dispatch\n\n## Acceptance\n\n- `tt/rbw-nl.ListNameplates.sh` (or similar) works from terminal\n- Lists available nameplate monikers from RBRR_VESSEL_DIR\n- Does not require RBR0_FOLIO\n- Does not call enforce\n- Qualification passes",
+              "silks": "add-nameplate-list-tabtarget",
+              "commit": "fcc71d0"
+            }
+          ]
+        },
+        "₢AfAAL": {
+          "tacks": [
+            {
+              "ts": "260219-0919",
+              "state": "rough",
+              "text": "Final review of paddock and docket content for stale references.\n\n## Context\n\nThe paddock was written with specific line numbers from an initial audit. As paces execute and code changes, these line references become stale. Additionally, some concerns listed in the paddock will have been resolved by earlier paces.\n\n## Scope\n\n1. Review paddock per-regime concern lists — remove resolved items, update stale references\n2. Replace any remaining specific line numbers with \"search for pattern X\" guidance\n3. Verify all regimes in the paddock inventory are accounted for in completed paces\n4. Clean up any other staleness from the planning phase\n\n## Acceptance\n\n- No stale line numbers in paddock\n- All resolved concerns marked as such\n- Paddock reflects actual post-work state",
+              "silks": "final-paddock-hygiene-review",
+              "commit": "59f1953"
+            }
+          ]
+        }
+      }
+    },
     "₣AT": {
       "silks": "rbw-regime-consolidation",
       "creation_time": "260131",
@@ -5987,189 +6170,6 @@
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_Ae.md",
       "paces": {}
-    },
-    "₣Af": {
-      "silks": "rbk-regime-second-pass",
-      "creation_time": "260219",
-      "status": "stabled",
-      "order": [
-        "₢AfAAA",
-        "₢AfAAB",
-        "₢AfAAH",
-        "₢AfAAC",
-        "₢AfAAD",
-        "₢AfAAE",
-        "₢AfAAK",
-        "₢AfAAF",
-        "₢AfAAI",
-        "₢AfAAG",
-        "₢AfAAJ",
-        "₢AfAAL"
-      ],
-      "next_pace_seed": "AAM",
-      "paddock_file": ".claude/jjm/jjp_Af.md",
-      "paces": {
-        "₢AfAAA": {
-          "tacks": [
-            {
-              "ts": "260219-0827",
-              "state": "rough",
-              "text": "Remove RBRG (GitHub Regime) from active codebase.\n\nScope:\n- Remove RBRG voicings from RBSA mapping section (rbrg_prefix, rbrg_regime, rbrg_username, rbrg_pat)\n- Remove the === GitHub Regime (RBRG) section from RBSA\n- Remove the include::RBSRG-RegimeGithub.adoc[] directive from RBSA\n- Delete lenses/RBSRG-RegimeGithub.adoc\n- Remove RBRG_PAT and RBRG_USERNAME references from Tools/rbw/rbv_PodmanVM.sh\n  - This includes the zrbv_kindle_github() function and its call site\n  - Also the RBRG_USERNAME/RBRG_PAT usage in the GitHub registry login\n- Remove rbrg_prefix from the Configuration Regimes prefix list in RBSA\n\nDO NOT touch:\n- Tools/ABANDONED-github/ — legacy references stay as-is\n- Study/ directory files — historical analysis stays\n- Memos/ — historical records stay\n\nAfter removal, verify no live code references remain (excluding ABANDONED/Study/Memos).",
-              "silks": "remove-rbrg-regime",
-              "commit": "ac741e2"
-            }
-          ]
-        },
-        "₢AfAAB": {
-          "tacks": [
-            {
-              "ts": "260219-0918",
-              "state": "rough",
-              "text": "Relocate two ambient caller-override BURD_ variables to BURE (environment regime).\n\n## Context\n\nTwo BURD_ variables are ambient caller preferences that can be set before dispatch.\nThey belong in BURE alongside BURE_COUNTDOWN, not in BURD which is dispatch infrastructure.\n\nThree variables from the original scope do NOT move:\n- BURD_NO_LOG — set by tabtarget (buut_tabtarget.sh), not caller\n- BURD_INTERACTIVE — set by tabtarget (buut_tabtarget.sh), not caller\n- BURD_TERM_COLS — set by launcher (bul_launcher.sh), not caller\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_COLOR → BURE_COLOR\n\n## AsciiDoc changes (MCM linked terms)\n\n### BUSA mapping section\n\nRemove from BURD mapping block (~line 88, 92):\n- `:burd_verbose:  <<burd_verbose,BURD_VERBOSE>>`\n- `:burd_color:    <<burd_color,BURD_COLOR>>`\n\nAdd to BURE mapping block (after line 121, before `// end::mapping-section[]`):\n- `:bure_verbose:  <<bure_verbose,BURE_VERBOSE>>`\n- `:bure_color:    <<bure_color,BURE_COLOR>>`\n\n### BUSA BURD regime section (inline, ~line 485–513)\n\nRemove the `[[burd_verbose]]` anchor+annotation+definition block (lines 487–491).\nRemove the `[[burd_color]]` anchor+annotation+definition block (lines 508–513).\n\n### BUSA BURE regime section (inline, ~line 631+)\n\nAdd two new anchor+annotation+definition blocks:\n\n```\n[[bure_verbose]]\n// ⟦axl_voices axrg_variable axtu_integer⟧\n{bure_verbose}::\nVerbosity level controlling diagnostic output.\n0=silent, 1=show messages, 2=enable bash trace.\n\n[[bure_color]]\n// ⟦axl_voices axrg_variable axtu_string⟧\n{bure_color}::\nColor output policy.\nInput as auto/0/1; resolved to 0 or 1 during dispatch.\nRespects NO_COLOR environment convention.\n```\n\n### BUSD-DispatchRuntime.adoc\n\nRemove the `{burd_verbose}` variable entry (lines 14–19).\nRemove the `{burd_color}` variable entry (lines 38–43).\nUpdate the group_input description (line 12) to note that ambient overrides moved to BURE.\n\n## Bash changes\n\n1. Add BURE_VERBOSE and BURE_COLOR to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Rename all usages across codebase (bud_dispatch.sh, buc_command.sh, workbenches, etc.)\n3. Remove old BURD_VERBOSE and BURD_COLOR from zburd unexpected variable detection (z_known list)\n4. Remove from burd_regime.sh validate and render sections\n\n## Acceptance\n\n- Both variables use BURE_ prefix everywhere in active code\n- BURE grows from 1 to 3 variables (COUNTDOWN, VERBOSE, COLOR)\n- BURD shrinks by 2\n- All BUSA/BUSD linked terms updated (no dangling attribute references or anchors)\n- Qualification passes",
-              "silks": "relocate-ambient-burd-vars-to-bure",
-              "commit": "b638da9"
-            },
-            {
-              "ts": "260219-0847",
-              "state": "rough",
-              "text": "Relocate two ambient caller-override BURD_ variables to BURE (environment regime).\n\n## Context\n\nTwo BURD_ variables are ambient caller preferences that can be set before dispatch.\nThey belong in BURE alongside BURE_COUNTDOWN, not in BURD which is dispatch infrastructure.\n\nThree variables from the original scope do NOT move:\n- BURD_NO_LOG — set by tabtarget (buut_tabtarget.sh), not caller\n- BURD_INTERACTIVE — set by tabtarget (buut_tabtarget.sh), not caller\n- BURD_TERM_COLS — set by launcher (bul_launcher.sh), not caller\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_COLOR → BURE_COLOR\n\n## Scope\n\n1. Add BURE_VERBOSE and BURE_COLOR to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSA inline BURE section with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove VERBOSE and COLOR from BURD variable list\n4. Update BUSA inline BURD section to remove these two\n5. Rename all usages across codebase (bud_dispatch.sh, buc_command.sh, workbenches, etc.)\n6. Remove old BURD_VERBOSE and BURD_COLOR from zburd unexpected variable detection\n7. Update burd_regime.sh render section to remove these two\n\n## Acceptance\n\n- Both variables use BURE_ prefix everywhere in active code\n- BURE grows from 1 to 3 variables (COUNTDOWN, VERBOSE, COLOR)\n- BURD shrinks by 2\n- Qualification passes",
-              "silks": "relocate-ambient-burd-vars-to-bure",
-              "commit": "0ced339"
-            },
-            {
-              "ts": "260219-0842",
-              "state": "rough",
-              "text": "Drafted from ₢AOAAN in ₣AO.\n\nRelocate caller-intent BURD_ variables to BURE (ambient environment regime).\n\n## Context\n\nFive BURD_ \"input\" variables are actually ambient caller preferences, not dispatch infrastructure. They belong in BURE alongside BURE_COUNTDOWN.\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_NO_LOG → BURE_NO_LOG\n- BURD_INTERACTIVE → BURE_INTERACTIVE\n- BURD_COLOR → BURE_COLOR\n- BURD_TERM_COLS → BURE_TERM_COLS\n\n## Scope\n\n1. Add new variables to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSE-EnvironmentRuntime.adoc (or equivalent spec doc) with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove relocated variables\n4. Update BUSA mappings for both regimes\n5. Rename all usages across codebase (bud_dispatch.sh, bul_launcher.sh, bupr_PresentationRegime.sh, etc.)\n6. Remove old BURD_ names from zburd unexpected variable detection\n\n## Acceptance\n\n- All five variables use BURE_ prefix everywhere\n- BURD drops from 24 to 19 variables\n- BURE grows from 1 to 6 variables\n- Qualification passes",
-              "silks": "relocate-ambient-burd-vars-to-bure",
-              "commit": "b6591b1"
-            },
-            {
-              "ts": "260217-1625",
-              "state": "rough",
-              "text": "Relocate caller-intent BURD_ variables to BURE (ambient environment regime).\n\n## Context\n\nFive BURD_ \"input\" variables are actually ambient caller preferences, not dispatch infrastructure. They belong in BURE alongside BURE_COUNTDOWN.\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_NO_LOG → BURE_NO_LOG\n- BURD_INTERACTIVE → BURE_INTERACTIVE\n- BURD_COLOR → BURE_COLOR\n- BURD_TERM_COLS → BURE_TERM_COLS\n\n## Scope\n\n1. Add new variables to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSE-EnvironmentRuntime.adoc (or equivalent spec doc) with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove relocated variables\n4. Update BUSA mappings for both regimes\n5. Rename all usages across codebase (bud_dispatch.sh, bul_launcher.sh, bupr_PresentationRegime.sh, etc.)\n6. Remove old BURD_ names from zburd unexpected variable detection\n\n## Acceptance\n\n- All five variables use BURE_ prefix everywhere\n- BURD drops from 24 to 19 variables\n- BURE grows from 1 to 6 variables\n- Qualification passes",
-              "silks": "relocate-ambient-burd-vars-to-bure",
-              "commit": "ea5135a"
-            }
-          ]
-        },
-        "₢AfAAC": {
-          "tacks": [
-            {
-              "ts": "260219-0900",
-              "state": "rough",
-              "text": "Full BCG scrub of RBRR (Repository Regime) as the singleton exemplar.\n\n## Before Anchor\n\nCommit `57b1ff99` is the baseline before any regime second-pass work.\n\n## Scope\n\n1. **rbrr_cli.sh** — Restructure to proper BCG CLI template:\n   - Add `zrbrr_furnish()` with `buc_doc_env` for all required env vars\n   - Furnish sources config, calls `zrbrr_kindle`, calls validation\n   - Use `buc_execute rbrr_ \"Recipe Bottle Repository Regime\" zrbrr_furnish \"$@\"`\n   - All public command functions get `buc_doc_brief`/`buc_doc_param`/`buc_doc_shown` blocks\n\n2. **rbrr_regime.sh** — Clean up word cancer:\n   - Eliminate `rbrr_load()` entirely (surrogate furnish anti-pattern)\n   - Resolve `rbrr_validate` vs `zrbrr_validate_fields` naming confusion\n   - Review kindle constants — are defaults (lines 34-57) still needed or can validation handle missing fields?\n   - Fix any remaining BCG violations (comments-as-runtime-info, etc.)\n\n3. **Consuming CLIs** — Inline the kindle sequence in each furnish:\n   - rbgg_cli.sh, rbf_cli.sh, rbgm_cli.sh, rbgp_cli.sh, rbob_cli.sh, rbrn_cli.sh, rbrv_cli.sh\n   - Replace `rbrr_load` with: source config + `zrbrr_kindle` + validation call\n   - Remove redundant `test -f` guards (kindle handles this)\n\n4. **Test harnesses** — Update butcrg_RegimeSmoke.sh, butcrg_RegimeCredentials.sh, rbtb_testbench.sh\n   - BCG grants test harness latitude for direct kindle calls\n   - Still eliminate `rbrr_load` in favor of explicit source + kindle\n\n## Acceptance\n\n- `rbrr_load` deleted from codebase\n- rbrr_cli.sh uses buc_execute pattern\n- All public functions have buc_doc_* blocks\n- Qualification passes\n- All test suites that were passing still pass",
-              "silks": "scrub-rbrr-singleton-exemplar",
-              "commit": "57b1ff9"
-            }
-          ]
-        },
-        "₢AfAAD": {
-          "tacks": [
-            {
-              "ts": "260219-0901",
-              "state": "rough",
-              "text": "Add RBR0_FOLIO regime-selection channel to the zipper infrastructure.\n\n## Concepts\n\n- **RBR0_FOLIO**: Environment variable holding the selected manifold instance identifier. The `0` in `RBR0_` guarantees no collision with alphabetic regime prefixes (rbrr, rbrn, rbrv...).\n- **Channel**: Per-colophon declaration of how folio arrives: `\"\"` (singleton, no selection), `\"imprint\"` (from tabtarget filename suffix), `\"param1\"` (from first positional arg, consumed/shifted by decode).\n\n## Scope\n\n1. **buz_zipper.sh** — Extend blazon registration:\n   - `buz_blazon` gains optional 5th parameter: channel (`\"\"`, `\"imprint\"`, `\"param1\"`)\n   - New roll: `z_buz_channel_roll`\n   - Default to `\"\"` when 5th param omitted (backward compatible)\n\n2. **zbuz_decode_folio** — New internal function:\n   - Reads channel from roll for the matched colophon\n   - `\"imprint\"`: sets `RBR0_FOLIO` from `BURD_IMPRINT`\n   - `\"param1\"`: sets `RBR0_FOLIO` from `$1`, eats the arg (shifts remaining args)\n   - `\"\"`: no-op\n   - Decode and eat are atomic — single function, single responsibility\n\n3. **zbuz_exec_lookup** — Call `zbuz_decode_folio` before exec'ing CLI\n\n4. **rbz_zipper.sh** — No changes yet (channels added when RBRN scrub lands)\n\n## Acceptance\n\n- `buz_blazon` accepts 5 args, backward compatible with 4\n- `zbuz_decode_folio` sets RBR0_FOLIO and shifts correctly\n- Existing dispatch unchanged (all current colophons have empty channel)\n- Qualification passes",
-              "silks": "buz-channel-infrastructure",
-              "commit": "66e76fb"
-            }
-          ]
-        },
-        "₢AfAAE": {
-          "tacks": [
-            {
-              "ts": "260219-0919",
-              "state": "rough",
-              "text": "Full BCG scrub of RBRN (Nameplate Regime) as the manifold exemplar.\n\n## Context\n\nRBRN is manifold with instances: nsproto, srjcl, pluml. Currently selected via `rbrn_load_moniker()` which is the manifold equivalent of the `rbrr_load()` anti-pattern. After buz channel infrastructure lands, manifold selection flows through RBR0_FOLIO.\n\n## Known Consumers of rbrn_load_moniker\n\n- `rbob_cli.sh:113` — loads nameplate for bottle operations\n- `rbtb_testbench.sh:72` — loads nameplate for test suites\n- Definition: `rbrn_regime.sh:203`\n\n## Scope\n\n1. **rbrn_cli.sh** — Restructure to proper BCG CLI template:\n   - Add `zrbrn_furnish()` with `buc_doc_env` (including RBR0_FOLIO)\n   - Furnish reads RBR0_FOLIO to resolve nameplate file, sources it, kindles\n   - Use `buc_execute rbrn_ \"Recipe Bottle Nameplate Regime\" zrbrn_furnish \"$@\"`\n   - All public commands get buc_doc_* blocks\n\n2. **rbrn_regime.sh** — Clean up:\n   - Eliminate `rbrn_load_moniker()` (manifold surrogate furnish)\n   - Clean naming confusion between public/internal validate functions\n   - Rename `_validate_fields` to `_enforce`\n   - Fix BCG violations from paddock audit: multiple `[[ == ]]` sites, unquoted array, spec-validator drift\n\n3. **rbz_zipper.sh** — Declare channels on RBRN colophons:\n   - Nameplate operations (rbw-rnr, rbw-rnv): channel = `\"imprint\"` or `\"param1\"` as appropriate\n   - Bottle operations (rbw-s, rbw-S, rbw-C, rbw-B, rbw-o): channel = `\"imprint\"`\n   - Remove ad-hoc workbench case arms that currently do imprint translation\n\n4. **Consuming CLIs** — Inline kindle sequence in furnish:\n   - `rbob_cli.sh` — currently calls `rbrn_load_moniker \"${z_moniker}\"`, must use RBR0_FOLIO instead\n   - `rbtb_testbench.sh` — test harness, BCG latitude applies but still eliminate _load_moniker\n\n5. **Test harnesses** — Update nameplate test suites\n\n## Acceptance\n\n- `rbrn_load_moniker` deleted from codebase\n- RBR0_FOLIO flows through buz channel mechanism\n- Bottle operations no longer need ad-hoc workbench imprint translation\n- rbrn_cli.sh uses buc_execute pattern with buc_doc_* throughout\n- All nameplate test suites still pass\n- Qualification passes",
-              "silks": "scrub-rbrn-manifold-exemplar",
-              "commit": "de2fcca"
-            },
-            {
-              "ts": "260219-0901",
-              "state": "rough",
-              "text": "Full BCG scrub of RBRN (Nameplate Regime) as the manifold exemplar.\n\n## Context\n\nRBRN is manifold with instances: nsproto, srjcl, pluml. Currently selected via `rbrn_load_moniker()` which is the manifold equivalent of the `rbrr_load()` anti-pattern. After buz channel infrastructure lands, manifold selection flows through RBR0_FOLIO.\n\n## Scope\n\n1. **rbrn_cli.sh** — Restructure to proper BCG CLI template:\n   - Add `zrbrn_furnish()` with `buc_doc_env` (including RBR0_FOLIO)\n   - Furnish reads RBR0_FOLIO to resolve nameplate file, sources it, kindles\n   - Use `buc_execute rbrn_ \"Recipe Bottle Nameplate Regime\" zrbrn_furnish \"$@\"`\n   - All public commands get buc_doc_* blocks\n\n2. **rbrn_regime.sh** — Clean up:\n   - Eliminate `rbrn_load_moniker()` (manifold surrogate furnish)\n   - Clean naming confusion between public/internal validate functions\n   - Fix BCG violations from paddock audit: 8+ `[[ == ]]` sites, unquoted array, spec-validator drift\n\n3. **rbz_zipper.sh** — Declare channels on RBRN colophons:\n   - Nameplate operations (rbw-rnr, rbw-rnv): channel = `\"imprint\"` or `\"param1\"` as appropriate\n   - Bottle operations (rbw-s, rbw-S, rbw-C, rbw-B, rbw-o): channel = `\"imprint\"`\n   - Remove ad-hoc workbench case arms that currently do imprint translation\n\n4. **Consuming CLIs** — Update any CLI that loaded RBRN via `rbrn_load_moniker`\n\n5. **Test harnesses** — Update nameplate test suites\n\n## Acceptance\n\n- `rbrn_load_moniker` deleted from codebase\n- RBR0_FOLIO flows through buz channel mechanism\n- Bottle operations no longer need ad-hoc workbench imprint translation\n- rbrn_cli.sh uses buc_execute pattern with buc_doc_* throughout\n- All nameplate test suites still pass\n- Qualification passes",
-              "silks": "scrub-rbrn-manifold-exemplar",
-              "commit": "6f97efa"
-            }
-          ]
-        },
-        "₢AfAAF": {
-          "tacks": [
-            {
-              "ts": "260219-0902",
-              "state": "rough",
-              "text": "Catalog all transformation patterns from the RBRR (singleton) and RBRN (manifold) exemplars. This is the human review gate — user judges both exemplars before mechanical application proceeds.\n\n## Before Anchor\n\nCommit `57b1ff99` is the baseline before any regime second-pass work began.\n\n## Scope\n\n1. **Diff analysis**: Compare before-anchor to post-exemplar state for both RBRR and RBRN\n2. **Catalog transformations**: Document each change pattern as a repeatable recipe:\n   - CLI restructure: case dispatch → buc_execute + furnish\n   - Eliminate _load/_load_moniker → inline source + kindle in furnish\n   - Naming cleanup: resolve duplicate validate functions\n   - BCG violations: [[ == ]] → test, grep → [[ =~ ]], unquoted arrays, etc.\n   - buc_doc_* addition to all public functions\n   - Channel declaration for manifold regimes in rbz\n3. **Produce checklist**: Per-regime checklist suitable for bridled paces\n\n## Acceptance\n\n- Transformation catalog reviewed and approved by human\n- Checklist covers singleton and manifold cases\n- Remaining regimes can be mechanically transformed using the catalog",
-              "silks": "document-regime-transformations",
-              "commit": "9cde96d"
-            }
-          ]
-        },
-        "₢AfAAG": {
-          "tacks": [
-            {
-              "ts": "260219-0902",
-              "state": "rough",
-              "text": "Mechanical application of documented transformation patterns to all remaining regimes.\n\n## Target Regimes\n\n### RBW Domain (singletons)\n- RBRP — Payor Regime (3 grep→regex sites)\n- RBRO — OAuth Regime (no validator exists — may need creation)\n- RBRE — ECR Regime (needs audit)\n- RBRS — Station Regime (appears near-compliant)\n\n### RBW Domain (manifold)\n- RBRV — Vessel Regime (2 [[ == ]] sites, unquoted array, channel declaration needed)\n- RBRA — Authentication Regime (2 grep→regex sites, unquoted array, channel declaration needed)\n\n### BUK Domain (singletons)\n- BURC — Configuration Regime (unquoted array)\n- BURS — Station Regime (unquoted array)\n- BURE — Environment Regime (unquoted array)\n\n## Approach\n\nApply transformation checklist from ₢AfAAF to each regime. This pace is likely splittable into per-regime sub-paces once the checklist is reviewed — the human review gate will determine if these should be individual bridled paces or batched.\n\n## Acceptance\n\n- All regime CLIs use buc_execute pattern\n- All _load functions eliminated\n- All public functions have buc_doc_* blocks\n- All manifold regimes use RBR0_FOLIO via buz channel\n- No [[ == ]], no grep for validation, no unquoted arrays\n- Qualification passes\n- All previously-passing test suites still pass",
-              "silks": "apply-to-remaining-regimes",
-              "commit": "5888991"
-            }
-          ]
-        },
-        "₢AfAAH": {
-          "tacks": [
-            {
-              "ts": "260219-0909",
-              "state": "rough",
-              "text": "Add `z«prefix»_enforce` to BCG as a standard boilerplate function.\n\n## Context\n\nThe enforce function is the post-kindle invariant gate. It verifies kindled state meets field contracts and dies on first violation. Currently this role is filled by ad-hoc `_validate_fields` functions — \"enforce\" gives it a first-class name distinct from the human-facing \"validate\" CLI command.\n\n## Key Design Point\n\nNot all CLI paths call enforce. A CLI that receives no folio (manifold) or no subcommand may choose to list valid options and exit gracefully rather than enforcing. The furnish→kindle→enforce sequence is the *happy path*, not the only path. The CLI owns presentation logic including \"here are your valid choices.\"\n\n## Scope\n\n1. **BCG boilerplate table** — Add enforce row:\n   - Location: Implementation\n   - First line: `z«prefix»_sentinel` (kindle must be complete)\n   - Purpose: Verify kindled state meets field contracts, die on failure\n   - Can source: No\n   - buc_step: No (use buc_log_*)\n\n2. **BCG furnish template** — Update to show enforce call after kindle:\n   ```\n   z«prefix»_furnish() {\n     buc_doc_env ...\n     source config\n     z«prefix»_kindle\n     z«prefix»_enforce\n   }\n   ```\n\n3. **BCG naming table** — Add enforce row to naming conventions\n\n4. **Module maturity checklist** — Add enforce checkpoint\n\n## NOT in scope\n\n- AXLA voicings (enforce is a BCG pattern, not a domain concept)\n- Renaming existing _validate_fields functions (that happens in the exemplar paces)\n\n## Acceptance\n\n- BCG documents enforce as standard boilerplate alongside kindle/sentinel/furnish\n- Templates updated\n- Checklist updated",
-              "silks": "bcg-add-enforce-pattern",
-              "commit": "77618e6"
-            }
-          ]
-        },
-        "₢AfAAI": {
-          "tacks": [
-            {
-              "ts": "260219-0918",
-              "state": "rough",
-              "text": "Full BCG scrub of RBRV (Vessel Regime) as a second manifold exemplar with structural repair.\n\n## Why Separate From apply-to-remaining\n\nrbrv_cli.sh has deeper structural debt than other consuming CLIs:\n- No `furnish()` function at all\n- No `buc_execute` — uses ad-hoc `case` dispatch at module level\n- `zrbcc_kindle` called at module level (line 111), outside any furnish\n- `rbrr_load` called conditionally inside case branches instead of in furnish\n- Direct `source` and `zrbrv_kindle` calls inside command functions (rbrv_validate, rbrv_render)\n\nThis is not a mechanical transform from the checklist — it needs structural redesign of the CLI to separate the presentation layer (render, validate commands) from the regime module, and to properly route RBR0_FOLIO for vessel selection.\n\n## Scope\n\n1. **rbrv_cli.sh** — Full restructure to BCG CLI template:\n   - Proper `zrbrv_furnish()` with buc_doc_env\n   - `buc_execute` dispatch replacing the case statement\n   - Furnish reads RBR0_FOLIO for vessel selection\n   - Render and validate as proper buc_doc_* documented commands\n\n2. **rbrv_regime.sh** — Clean up BCG violations:\n   - Fix `[[ == ]]` sites (lines ~93, ~98 per paddock audit)\n   - Fix unquoted `${#ARRAY[@]}` (line ~78)\n   - Rename `_validate_fields` to `_enforce`\n\n3. **rbz_zipper.sh** — Declare channel for vessel colophons (rbw-rvr, rbw-rvv)\n\n## Acceptance\n\n- rbrv_cli.sh uses buc_execute with proper furnish\n- No ad-hoc case dispatch or module-level kindle\n- RBR0_FOLIO flows through buz channel for vessel selection\n- All vessel test suites still pass\n- Qualification passes",
-              "silks": "scrub-rbrv-manifold-structural",
-              "commit": "0b66a6b"
-            }
-          ]
-        },
-        "₢AfAAJ": {
-          "tacks": [
-            {
-              "ts": "260219-0918",
-              "state": "rough",
-              "text": "Consider whether the CLI-vs-regime-module split rule and the graceful-list-options path belong in BCG.\n\n## Context\n\nDuring ₣Af planning, we established design principles that guided the exemplar work:\n\n1. **Regime module** (`_regime.sh`) = reusable data/state layer: kindle, enforce, sentinel, state readers. Sourced by multiple CLIs.\n2. **CLI** (`_cli.sh`) = human-facing presentation layer: render, list valid options, validate-as-command. Only used at the terminal.\n3. **Graceful path**: When a CLI receives no folio or no subcommand, it may list valid options and exit without calling enforce. Not all paths kindle→enforce.\n\nBy the time this pace executes, we'll have applied these principles across all regimes and will have real experience with how well they hold up.\n\n## Scope\n\n1. Review how the split rule played out across singleton and manifold regimes\n2. Decide if these principles are general enough for BCG or specific to the regime pattern\n3. If BCG-worthy: draft additions to the Module Architecture section\n4. If not: document as an RBW convention in the paddock or a memo\n\n## Acceptance\n\n- Explicit decision recorded: BCG update, RBW convention, or memo\n- If BCG: changes drafted (may become a follow-on pace)",
-              "silks": "consider-cli-regime-split-for-bcg",
-              "commit": "81d7634"
-            }
-          ]
-        },
-        "₢AfAAK": {
-          "tacks": [
-            {
-              "ts": "260219-0919",
-              "state": "rough",
-              "text": "Add a tabtarget that lists all available nameplates, plumbed through to rbrn_cli.\n\n## Context\n\nThis exercises the \"no folio → list valid options\" graceful path. When a manifold CLI receives no RBR0_FOLIO (or an invalid one), it should list the available instances and exit cleanly WITHOUT calling enforce. This is a presentation-layer concern owned by the CLI.\n\n## Design Rule\n\nThe enforce call is gated on having a valid folio. The flow is:\n- Furnish kindles RBRR (to get RBRR_VESSEL_DIR and nameplate paths)\n- If RBR0_FOLIO is empty/missing: list available nameplates, exit 0\n- If RBR0_FOLIO is present: resolve file, source, kindle RBRN, enforce, dispatch command\n\nThis establishes the pattern for all manifold CLIs: the \"list what's available\" path is a first-class CLI feature, not an error.\n\n## Scope\n\n1. Add `rbrn_list` (or similar) command function in rbrn_cli.sh\n2. Create tabtarget (colophon TBD — possibly `rbw-nl` for nameplate-list)\n3. Register in rbz_zipper.sh (singleton channel — no folio needed to list)\n4. Wire through workbench dispatch\n\n## Acceptance\n\n- `tt/rbw-nl.ListNameplates.sh` (or similar) works from terminal\n- Lists available nameplate monikers from RBRR_VESSEL_DIR\n- Does not require RBR0_FOLIO\n- Does not call enforce\n- Qualification passes",
-              "silks": "add-nameplate-list-tabtarget",
-              "commit": "fcc71d0"
-            }
-          ]
-        },
-        "₢AfAAL": {
-          "tacks": [
-            {
-              "ts": "260219-0919",
-              "state": "rough",
-              "text": "Final review of paddock and docket content for stale references.\n\n## Context\n\nThe paddock was written with specific line numbers from an initial audit. As paces execute and code changes, these line references become stale. Additionally, some concerns listed in the paddock will have been resolved by earlier paces.\n\n## Scope\n\n1. Review paddock per-regime concern lists — remove resolved items, update stale references\n2. Replace any remaining specific line numbers with \"search for pattern X\" guidance\n3. Verify all regimes in the paddock inventory are accounted for in completed paces\n4. Clean up any other staleness from the planning phase\n\n## Acceptance\n\n- No stale line numbers in paddock\n- All resolved concerns marked as such\n- Paddock reflects actual post-work state",
-              "silks": "final-paddock-hygiene-review",
-              "commit": "59f1953"
-            }
-          ]
-        }
-      }
     }
   }
 }
