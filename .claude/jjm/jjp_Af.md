@@ -1,28 +1,29 @@
 # Regime Second-Pass Inventory
 
 Complete regime list with per-regime concerns for BCG compliance, spec-validator alignment, and inventory sync.
+Each regime annotated with AXLA cardinality: Singleton (one assignment source) or Manifold (multiple instances).
 
 ## BUK Domain
 
-### BURC — Configuration Regime
+### BURC — Configuration Regime [Singleton]
 - Spec: inline in BUSA
 - Validator: burc_regime.sh
 - Concerns:
   - Unquoted ${#ARRAY[@]} (line 75)
 
-### BURS — Station Regime
+### BURS — Station Regime [Singleton]
 - Spec: inline in BUSA
 - Validator: burs_regime.sh
 - Concerns:
   - Unquoted ${#ARRAY[@]} (line 60)
 
-### BURD — Dispatch Runtime
+### BURD — Dispatch Runtime [Singleton]
 - Spec: BUSD-DispatchRuntime.adoc (included from BUSA)
 - Validator: none (runtime-only, by design)
 - Concerns:
   - Confirm runtime-only status is intentional and documented
 
-### BURE — Environment Regime
+### BURE — Environment Regime [Singleton]
 - Spec: inline in BUSA
 - Validator: bure_regime.sh
 - Concerns:
@@ -31,14 +32,14 @@ Complete regime list with per-regime concerns for BCG compliance, spec-validator
 
 ## RBW Domain
 
-### RBRR — Repository Regime
+### RBRR — Repository Regime [Singleton]
 - Spec: RBSRR-RegimeRepo.adoc (included from RBSA)
 - Validator: rbrr_regime.sh
 - Concerns:
   - Unquoted ${#ARRAY[@]} (line 115)
   - [[ == ]] without =~ (lines 161, 169, 176) — should use test
 
-### RBRN — Nameplate Regime
+### RBRN — Nameplate Regime [Manifold: nsproto, srjcl, pluml]
 - Spec: RBRN-RegimeNameplate.adoc (included from RBSA)
 - Validator: rbrn_regime.sh
 - Concerns:
@@ -48,38 +49,40 @@ Complete regime list with per-regime concerns for BCG compliance, spec-validator
   - [[ ]] for arithmetic comparison (line 267)
   - Spec-validator drift: spec documents boolean flags but validator uses tri-state MODE enums
 
-### RBRP — Payor Regime
+### RBRP — Payor Regime [Singleton]
 - Spec: RBSRP-RegimePayor.adoc (included from RBSA)
 - Validator: rbrp_regime.sh
 - Concerns:
   - grep -qE instead of [[ =~ ]] at 3 sites (lines 48, 58, 67)
 
-### RBRO — OAuth Regime
+### RBRO — OAuth Regime [Singleton]
 - Spec: RBSRO-RegimeOauth.adoc (included from RBSA)
 - Validator: NO rbro_regime.sh exists
 - Concerns:
   - Fully spec'd (voicings, include file, kindle/validate/render ops) but no validator implementation
   - Missing from AT paddock inventory
 
-### RBRE — ECR Regime
+### RBRE — ECR Regime [Singleton]
 - Spec: RBSRE-RegimeEcr.adoc (included from RBSA)
 - Validator: rbre_regime.sh
 - Concerns:
   - Audit for BCG compliance (not yet checked in detail)
 
-### RBRG — GitHub Regime
+### RBRG — GitHub Regime [Singleton] — CANDIDATE FOR REMOVAL
 - Spec: RBSRG-RegimeGithub.adoc (included from RBSA)
-- Validator: rbrg_regime.sh
-- Concerns:
-  - Audit for BCG compliance (not yet checked in detail)
+- Validator: NO rbrg_regime.sh exists (never implemented)
+- Status: Ghost regime. Spec'd but never got a proper implementation.
+- Live consumer: rbv_PodmanVM.sh (lines 134–135, 204) does ad-hoc RBRG_PAT/RBRG_USERNAME checks
+- Legacy consumers: Tools/ABANDONED-github/ (leave these alone)
+- Decision: REMOVE from active codebase. First pace.
 
-### RBRS — Station Regime
+### RBRS — Station Regime [Singleton]
 - Spec: RBSRS-RegimeStation.adoc (included from RBSA)
 - Validator: rbrs_regime.sh
 - Concerns:
   - Appears BCG-compliant per initial audit
 
-### RBRV — Vessel Regime
+### RBRV — Vessel Regime [Manifold: 6 vessels in rbev-vessels/]
 - Spec: RBSRV-RegimeVessel.adoc (included from RBSA)
 - Validator: rbrv_regime.sh
 - Concerns:
@@ -87,7 +90,7 @@ Complete regime list with per-regime concerns for BCG compliance, spec-validator
   - [[ == ]] without =~ (lines 93, 98)
   - No explicit mode enum (bind vs conjure mutual-presence pattern)
 
-### RBRA — Authentication/Credential Regime
+### RBRA — Authentication/Credential Regime [Manifold: governor, retriever, director]
 - Spec: RBSRA-CredentialFormat.adoc (included from RBSA)
 - Validator: rbra_regime.sh
 - Concerns:
