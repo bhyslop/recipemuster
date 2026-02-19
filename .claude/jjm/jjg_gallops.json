@@ -6000,9 +6000,10 @@
         "₢AfAAD",
         "₢AfAAE",
         "₢AfAAF",
+        "₢AfAAI",
         "₢AfAAG"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6104,6 +6105,17 @@
               "text": "Add `z«prefix»_enforce` to BCG as a standard boilerplate function.\n\n## Context\n\nThe enforce function is the post-kindle invariant gate. It verifies kindled state meets field contracts and dies on first violation. Currently this role is filled by ad-hoc `_validate_fields` functions — \"enforce\" gives it a first-class name distinct from the human-facing \"validate\" CLI command.\n\n## Key Design Point\n\nNot all CLI paths call enforce. A CLI that receives no folio (manifold) or no subcommand may choose to list valid options and exit gracefully rather than enforcing. The furnish→kindle→enforce sequence is the *happy path*, not the only path. The CLI owns presentation logic including \"here are your valid choices.\"\n\n## Scope\n\n1. **BCG boilerplate table** — Add enforce row:\n   - Location: Implementation\n   - First line: `z«prefix»_sentinel` (kindle must be complete)\n   - Purpose: Verify kindled state meets field contracts, die on failure\n   - Can source: No\n   - buc_step: No (use buc_log_*)\n\n2. **BCG furnish template** — Update to show enforce call after kindle:\n   ```\n   z«prefix»_furnish() {\n     buc_doc_env ...\n     source config\n     z«prefix»_kindle\n     z«prefix»_enforce\n   }\n   ```\n\n3. **BCG naming table** — Add enforce row to naming conventions\n\n4. **Module maturity checklist** — Add enforce checkpoint\n\n## NOT in scope\n\n- AXLA voicings (enforce is a BCG pattern, not a domain concept)\n- Renaming existing _validate_fields functions (that happens in the exemplar paces)\n\n## Acceptance\n\n- BCG documents enforce as standard boilerplate alongside kindle/sentinel/furnish\n- Templates updated\n- Checklist updated",
               "silks": "bcg-add-enforce-pattern",
               "commit": "77618e6"
+            }
+          ]
+        },
+        "₢AfAAI": {
+          "tacks": [
+            {
+              "ts": "260219-0918",
+              "state": "rough",
+              "text": "Full BCG scrub of RBRV (Vessel Regime) as a second manifold exemplar with structural repair.\n\n## Why Separate From apply-to-remaining\n\nrbrv_cli.sh has deeper structural debt than other consuming CLIs:\n- No `furnish()` function at all\n- No `buc_execute` — uses ad-hoc `case` dispatch at module level\n- `zrbcc_kindle` called at module level (line 111), outside any furnish\n- `rbrr_load` called conditionally inside case branches instead of in furnish\n- Direct `source` and `zrbrv_kindle` calls inside command functions (rbrv_validate, rbrv_render)\n\nThis is not a mechanical transform from the checklist — it needs structural redesign of the CLI to separate the presentation layer (render, validate commands) from the regime module, and to properly route RBR0_FOLIO for vessel selection.\n\n## Scope\n\n1. **rbrv_cli.sh** — Full restructure to BCG CLI template:\n   - Proper `zrbrv_furnish()` with buc_doc_env\n   - `buc_execute` dispatch replacing the case statement\n   - Furnish reads RBR0_FOLIO for vessel selection\n   - Render and validate as proper buc_doc_* documented commands\n\n2. **rbrv_regime.sh** — Clean up BCG violations:\n   - Fix `[[ == ]]` sites (lines ~93, ~98 per paddock audit)\n   - Fix unquoted `${#ARRAY[@]}` (line ~78)\n   - Rename `_validate_fields` to `_enforce`\n\n3. **rbz_zipper.sh** — Declare channel for vessel colophons (rbw-rvr, rbw-rvv)\n\n## Acceptance\n\n- rbrv_cli.sh uses buc_execute with proper furnish\n- No ad-hoc case dispatch or module-level kindle\n- RBR0_FOLIO flows through buz channel for vessel selection\n- All vessel test suites still pass\n- Qualification passes",
+              "silks": "scrub-rbrv-manifold-structural",
+              "commit": "0b66a6b"
             }
           ]
         }
