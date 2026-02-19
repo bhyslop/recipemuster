@@ -5995,9 +5995,10 @@
       "order": [
         "₢AfAAA",
         "₢AfAAB",
-        "₢AfAAC"
+        "₢AfAAC",
+        "₢AfAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6044,6 +6045,17 @@
               "text": "Full BCG scrub of RBRR (Repository Regime) as the singleton exemplar.\n\n## Before Anchor\n\nCommit `57b1ff99` is the baseline before any regime second-pass work.\n\n## Scope\n\n1. **rbrr_cli.sh** — Restructure to proper BCG CLI template:\n   - Add `zrbrr_furnish()` with `buc_doc_env` for all required env vars\n   - Furnish sources config, calls `zrbrr_kindle`, calls validation\n   - Use `buc_execute rbrr_ \"Recipe Bottle Repository Regime\" zrbrr_furnish \"$@\"`\n   - All public command functions get `buc_doc_brief`/`buc_doc_param`/`buc_doc_shown` blocks\n\n2. **rbrr_regime.sh** — Clean up word cancer:\n   - Eliminate `rbrr_load()` entirely (surrogate furnish anti-pattern)\n   - Resolve `rbrr_validate` vs `zrbrr_validate_fields` naming confusion\n   - Review kindle constants — are defaults (lines 34-57) still needed or can validation handle missing fields?\n   - Fix any remaining BCG violations (comments-as-runtime-info, etc.)\n\n3. **Consuming CLIs** — Inline the kindle sequence in each furnish:\n   - rbgg_cli.sh, rbf_cli.sh, rbgm_cli.sh, rbgp_cli.sh, rbob_cli.sh, rbrn_cli.sh, rbrv_cli.sh\n   - Replace `rbrr_load` with: source config + `zrbrr_kindle` + validation call\n   - Remove redundant `test -f` guards (kindle handles this)\n\n4. **Test harnesses** — Update butcrg_RegimeSmoke.sh, butcrg_RegimeCredentials.sh, rbtb_testbench.sh\n   - BCG grants test harness latitude for direct kindle calls\n   - Still eliminate `rbrr_load` in favor of explicit source + kindle\n\n## Acceptance\n\n- `rbrr_load` deleted from codebase\n- rbrr_cli.sh uses buc_execute pattern\n- All public functions have buc_doc_* blocks\n- Qualification passes\n- All test suites that were passing still pass",
               "silks": "scrub-rbrr-singleton-exemplar",
               "commit": "57b1ff9"
+            }
+          ]
+        },
+        "₢AfAAD": {
+          "tacks": [
+            {
+              "ts": "260219-0901",
+              "state": "rough",
+              "text": "Add RBR0_FOLIO regime-selection channel to the zipper infrastructure.\n\n## Concepts\n\n- **RBR0_FOLIO**: Environment variable holding the selected manifold instance identifier. The `0` in `RBR0_` guarantees no collision with alphabetic regime prefixes (rbrr, rbrn, rbrv...).\n- **Channel**: Per-colophon declaration of how folio arrives: `\"\"` (singleton, no selection), `\"imprint\"` (from tabtarget filename suffix), `\"param1\"` (from first positional arg, consumed/shifted by decode).\n\n## Scope\n\n1. **buz_zipper.sh** — Extend blazon registration:\n   - `buz_blazon` gains optional 5th parameter: channel (`\"\"`, `\"imprint\"`, `\"param1\"`)\n   - New roll: `z_buz_channel_roll`\n   - Default to `\"\"` when 5th param omitted (backward compatible)\n\n2. **zbuz_decode_folio** — New internal function:\n   - Reads channel from roll for the matched colophon\n   - `\"imprint\"`: sets `RBR0_FOLIO` from `BURD_IMPRINT`\n   - `\"param1\"`: sets `RBR0_FOLIO` from `$1`, eats the arg (shifts remaining args)\n   - `\"\"`: no-op\n   - Decode and eat are atomic — single function, single responsibility\n\n3. **zbuz_exec_lookup** — Call `zbuz_decode_folio` before exec'ing CLI\n\n4. **rbz_zipper.sh** — No changes yet (channels added when RBRN scrub lands)\n\n## Acceptance\n\n- `buz_blazon` accepts 5 args, backward compatible with 4\n- `zbuz_decode_folio` sets RBR0_FOLIO and shifts correctly\n- Existing dispatch unchanged (all current colophons have empty channel)\n- Qualification passes",
+              "silks": "buz-channel-infrastructure",
+              "commit": "66e76fb"
             }
           ]
         }
