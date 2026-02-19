@@ -9,13 +9,13 @@ Each regime annotated with AXLA cardinality: Singleton (one assignment source) o
 - Spec: inline in BUSA
 - Validator: burc_regime.sh
 - Concerns:
-  - Unquoted ${#ARRAY[@]} (line 75)
+  - Unquoted ${#ARRAY[@]} — search for `ZBURC_UNEXPECTED`
 
 ### BURS — Station Regime [Singleton]
 - Spec: inline in BUSA
 - Validator: burs_regime.sh
 - Concerns:
-  - Unquoted ${#ARRAY[@]} (line 60)
+  - Unquoted ${#ARRAY[@]} — search for `ZBURS_UNEXPECTED`
 
 ### BURD — Dispatch Runtime [Singleton]
 - Spec: BUSD-DispatchRuntime.adoc (included from BUSA)
@@ -27,7 +27,7 @@ Each regime annotated with AXLA cardinality: Singleton (one assignment source) o
 - Spec: inline in BUSA
 - Validator: bure_regime.sh
 - Concerns:
-  - Unquoted ${#ARRAY[@]} (line 63)
+  - Unquoted ${#ARRAY[@]} — search for `ZBURE_UNEXPECTED`
   - Missing from AT paddock inventory — needs addition to any regime census
 
 ## RBW Domain
@@ -36,24 +36,25 @@ Each regime annotated with AXLA cardinality: Singleton (one assignment source) o
 - Spec: RBSRR-RegimeRepo.adoc (included from RBSA)
 - Validator: rbrr_regime.sh
 - Concerns:
-  - Unquoted ${#ARRAY[@]} (line 115)
-  - [[ == ]] without =~ (lines 161, 169, 176) — should use test
+  - Unquoted ${#ARRAY[@]} — search for `ZRBRR_UNEXPECTED`
+  - ~~[[ == ]] without =~ — FIXED in commit `3b745da8`~~
 
 ### RBRN — Nameplate Regime [Manifold: nsproto, srjcl, pluml]
 - Spec: RBRN-RegimeNameplate.adoc (included from RBSA)
 - Validator: rbrn_regime.sh
+- Consumers of `rbrn_load_moniker`: rbob_cli.sh, rbtb_testbench.sh
 - Concerns:
-  - Unquoted ${#ARRAY[@]} (line 126)
-  - [[ == ]] without =~ at 8+ sites (175, 186, 189, 305, 308, 316, 327, 335)
-  - Unquoted variables in test (lines 179–182)
-  - [[ ]] for arithmetic comparison (line 267)
+  - Unquoted ${#ARRAY[@]} — search for `ZRBRN_UNEXPECTED`
+  - `[[ == ]]` without =~ at 8+ sites — search for `\[\[ .* == ` in rbrn_regime.sh
+  - Unquoted variables in test — search for `test $` or `test ${` without quotes
+  - `[[ ]]` for arithmetic comparison — search for numeric comparisons using `[[ ]]`
   - Spec-validator drift: spec documents boolean flags but validator uses tri-state MODE enums
 
 ### RBRP — Payor Regime [Singleton]
 - Spec: RBSRP-RegimePayor.adoc (included from RBSA)
 - Validator: rbrp_regime.sh
 - Concerns:
-  - grep -qE instead of [[ =~ ]] at 3 sites (lines 48, 58, 67)
+  - `grep -qE` instead of `[[ =~ ]]` at 3 sites — search for `grep -qE` in rbrp_regime.sh
 
 ### RBRO — OAuth Regime [Singleton]
 - Spec: RBSRO-RegimeOauth.adoc (included from RBSA)
@@ -72,7 +73,7 @@ Each regime annotated with AXLA cardinality: Singleton (one assignment source) o
 - Spec: RBSRG-RegimeGithub.adoc (included from RBSA)
 - Validator: NO rbrg_regime.sh exists (never implemented)
 - Status: Ghost regime. Spec'd but never got a proper implementation.
-- Live consumer: rbv_PodmanVM.sh (lines 134–135, 204) does ad-hoc RBRG_PAT/RBRG_USERNAME checks
+- Live consumer: rbv_PodmanVM.sh — search for `RBRG_PAT` and `RBRG_USERNAME`
 - Legacy consumers: Tools/ABANDONED-github/ (leave these alone)
 - Decision: REMOVE from active codebase. First pace.
 
@@ -85,24 +86,36 @@ Each regime annotated with AXLA cardinality: Singleton (one assignment source) o
 ### RBRV — Vessel Regime [Manifold: 6 vessels in rbev-vessels/]
 - Spec: RBSRV-RegimeVessel.adoc (included from RBSA)
 - Validator: rbrv_regime.sh
+- CLI: rbrv_cli.sh — **structurally non-compliant** (no furnish, no buc_execute, module-level kindle, ad-hoc case dispatch)
 - Concerns:
-  - Unquoted ${#ARRAY[@]} (line 78)
-  - [[ == ]] without =~ (lines 93, 98)
+  - Unquoted ${#ARRAY[@]} — search for `ZRBRV_UNEXPECTED`
+  - `[[ == ]]` without =~ — search for `\[\[ .* == ` in rbrv_regime.sh
   - No explicit mode enum (bind vs conjure mutual-presence pattern)
 
 ### RBRA — Authentication/Credential Regime [Manifold: governor, retriever, director]
 - Spec: RBSRA-CredentialFormat.adoc (included from RBSA)
 - Validator: rbra_regime.sh
 - Concerns:
-  - Unquoted ${#ARRAY[@]} (line 71)
-  - grep -qE instead of [[ =~ ]] (lines 82, 87)
+  - Unquoted ${#ARRAY[@]} — search for `ZRBRA_UNEXPECTED`
+  - `grep -qE` instead of `[[ =~ ]]` — search for `grep -qE` in rbra_regime.sh
   - Not a formal CRR regime (credential format convention)
+
+## Workbench Ad-Hoc Imprint Translation
+
+The rbw workbench (`rbw_workbench.sh`) has explicit case arms for bottle operations that manually translate `BURD_TOKEN_3` (the imprint) to `RBOB_MONIKER`. This is the code that the buz channel mechanism (₢AfAAD) and RBRN scrub (₢AfAAE) will replace.
+
+- Location: `rbw_workbench.sh` — search for `BURD_TOKEN_3` and `RBOB_MONIKER`
+- Affected colophons: `rbw-s`, `rbw-z`, `rbw-S`, `rbw-C`, `rbw-B`, `rbw-o`
+- Comment in rbz_zipper.sh line 119: "imprint-translated by workbench case arm, not zbuz_exec_lookup"
+
+After buz channel lands, these case arms should collapse into the generic `zbuz_exec_lookup` path.
 
 ## Cross-Cutting Concerns
 
-- Unquoted ${#ARRAY[@]} is systemic — affects 8 of 10 validators
-- [[ == ]] misuse affects RBRN (8+ sites), RBRR (3 sites), RBRV (2 sites)
-- grep -qE misuse affects RBRP (3 sites), RBRA (2 sites)
+- Unquoted ${#ARRAY[@]} is systemic — affects 8 of 10 validators (search for `${#Z.*UNEXPECTED\[@\]}`)
+- `[[ == ]]` misuse affects RBRN (8+ sites), RBRV (2 sites) — search for `\[\[ .* == `
+- `grep -qE` misuse affects RBRP (3 sites), RBRA (2 sites) — search for `grep -qE`
+- RBRR `[[ == ]]` sites already fixed (commit `3b745da8`, replaced with `[[ =~ ]]`)
 - No regime has a CRR glossary document
 - RBRN spec-validator drift needs reconciliation
 - RBRO has spec but no implementation
