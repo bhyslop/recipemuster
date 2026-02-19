@@ -4790,7 +4790,6 @@
         "₢AOAAJ",
         "₢AOAAL",
         "₢AOAAK",
-        "₢AOAAN",
         "₢AOAAR"
       ],
       "next_pace_seed": "AAT",
@@ -5023,17 +5022,6 @@
               "text": "Create Tools/buk/burd_regime.sh following the pattern of burc_regime.sh, burs_regime.sh, and bure_regime.sh.\n\n## Context\n\nBURD (Dispatch Runtime) is fully specified in BUSA and BUSD-DispatchRuntime.adoc, but lacks a regime module file. Currently zburd_sentinel() lives orphaned inside bud_dispatch.sh. Ad-hoc BURD variable checks are scattered across CLI files (burc_cli.sh checks BURD_REGIME_FILE, burs_cli.sh checks BURD_STATION_FILE, buw_workbench.sh checks both).\n\n## Scope\n\n1. Create `Tools/buk/burd_regime.sh` with:\n   - `zburd_kindle()` — initialize/validate BURD regime state (or delegate to sentinel)\n   - `zburd_validate()` — verify all expected BURD_ variables are set and well-formed\n   - `zburd_render()` — diagnostic display of current BURD_ variable state\n   - Move `zburd_sentinel()` from bud_dispatch.sh into this file (source it from dispatch)\n\n2. Replace ad-hoc BURD variable checks with calls to burd_regime.sh functions:\n   - burc_cli.sh: replace BURD_REGIME_FILE check with zburd_validate or sentinel\n   - burs_cli.sh: replace BURD_STATION_FILE check with zburd_validate or sentinel\n   - buw_workbench.sh lines 33-34: replace both checks\n\n3. Source burd_regime.sh from bud_dispatch.sh so sentinel remains available\n\n## Acceptance\n\n- burd_regime.sh exists with kindle/validate/render following sibling regime patterns\n- zburd_sentinel() no longer defined inline in bud_dispatch.sh\n- All ad-hoc BURD_ variable checks consolidated into burd_regime.sh\n- Qualification passes",
               "silks": "create-burd-regime-module",
               "commit": "fda90f5"
-            }
-          ]
-        },
-        "₢AOAAN": {
-          "tacks": [
-            {
-              "ts": "260217-1625",
-              "state": "rough",
-              "text": "Relocate caller-intent BURD_ variables to BURE (ambient environment regime).\n\n## Context\n\nFive BURD_ \"input\" variables are actually ambient caller preferences, not dispatch infrastructure. They belong in BURE alongside BURE_COUNTDOWN.\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_NO_LOG → BURE_NO_LOG\n- BURD_INTERACTIVE → BURE_INTERACTIVE\n- BURD_COLOR → BURE_COLOR\n- BURD_TERM_COLS → BURE_TERM_COLS\n\n## Scope\n\n1. Add new variables to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSE-EnvironmentRuntime.adoc (or equivalent spec doc) with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove relocated variables\n4. Update BUSA mappings for both regimes\n5. Rename all usages across codebase (bud_dispatch.sh, bul_launcher.sh, bupr_PresentationRegime.sh, etc.)\n6. Remove old BURD_ names from zburd unexpected variable detection\n\n## Acceptance\n\n- All five variables use BURE_ prefix everywhere\n- BURD drops from 24 to 19 variables\n- BURE grows from 1 to 6 variables\n- Qualification passes",
-              "silks": "relocate-ambient-burd-vars-to-bure",
-              "commit": "ea5135a"
             }
           ]
         },
@@ -6005,9 +5993,10 @@
       "creation_time": "260219",
       "status": "stabled",
       "order": [
-        "₢AfAAA"
+        "₢AfAAA",
+        "₢AfAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6018,6 +6007,24 @@
               "text": "Remove RBRG (GitHub Regime) from active codebase.\n\nScope:\n- Remove RBRG voicings from RBSA mapping section (rbrg_prefix, rbrg_regime, rbrg_username, rbrg_pat)\n- Remove the === GitHub Regime (RBRG) section from RBSA\n- Remove the include::RBSRG-RegimeGithub.adoc[] directive from RBSA\n- Delete lenses/RBSRG-RegimeGithub.adoc\n- Remove RBRG_PAT and RBRG_USERNAME references from Tools/rbw/rbv_PodmanVM.sh\n  - This includes the zrbv_kindle_github() function and its call site\n  - Also the RBRG_USERNAME/RBRG_PAT usage in the GitHub registry login\n- Remove rbrg_prefix from the Configuration Regimes prefix list in RBSA\n\nDO NOT touch:\n- Tools/ABANDONED-github/ — legacy references stay as-is\n- Study/ directory files — historical analysis stays\n- Memos/ — historical records stay\n\nAfter removal, verify no live code references remain (excluding ABANDONED/Study/Memos).",
               "silks": "remove-rbrg-regime",
               "commit": "ac741e2"
+            }
+          ]
+        },
+        "₢AfAAB": {
+          "tacks": [
+            {
+              "ts": "260219-0842",
+              "state": "rough",
+              "text": "Drafted from ₢AOAAN in ₣AO.\n\nRelocate caller-intent BURD_ variables to BURE (ambient environment regime).\n\n## Context\n\nFive BURD_ \"input\" variables are actually ambient caller preferences, not dispatch infrastructure. They belong in BURE alongside BURE_COUNTDOWN.\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_NO_LOG → BURE_NO_LOG\n- BURD_INTERACTIVE → BURE_INTERACTIVE\n- BURD_COLOR → BURE_COLOR\n- BURD_TERM_COLS → BURE_TERM_COLS\n\n## Scope\n\n1. Add new variables to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSE-EnvironmentRuntime.adoc (or equivalent spec doc) with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove relocated variables\n4. Update BUSA mappings for both regimes\n5. Rename all usages across codebase (bud_dispatch.sh, bul_launcher.sh, bupr_PresentationRegime.sh, etc.)\n6. Remove old BURD_ names from zburd unexpected variable detection\n\n## Acceptance\n\n- All five variables use BURE_ prefix everywhere\n- BURD drops from 24 to 19 variables\n- BURE grows from 1 to 6 variables\n- Qualification passes",
+              "silks": "relocate-ambient-burd-vars-to-bure",
+              "commit": "b6591b1"
+            },
+            {
+              "ts": "260217-1625",
+              "state": "rough",
+              "text": "Relocate caller-intent BURD_ variables to BURE (ambient environment regime).\n\n## Context\n\nFive BURD_ \"input\" variables are actually ambient caller preferences, not dispatch infrastructure. They belong in BURE alongside BURE_COUNTDOWN.\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_NO_LOG → BURE_NO_LOG\n- BURD_INTERACTIVE → BURE_INTERACTIVE\n- BURD_COLOR → BURE_COLOR\n- BURD_TERM_COLS → BURE_TERM_COLS\n\n## Scope\n\n1. Add new variables to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSE-EnvironmentRuntime.adoc (or equivalent spec doc) with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove relocated variables\n4. Update BUSA mappings for both regimes\n5. Rename all usages across codebase (bud_dispatch.sh, bul_launcher.sh, bupr_PresentationRegime.sh, etc.)\n6. Remove old BURD_ names from zburd unexpected variable detection\n\n## Acceptance\n\n- All five variables use BURE_ prefix everywhere\n- BURD drops from 24 to 19 variables\n- BURE grows from 1 to 6 variables\n- Qualification passes",
+              "silks": "relocate-ambient-burd-vars-to-bure",
+              "commit": "ea5135a"
             }
           ]
         }
