@@ -5994,9 +5994,10 @@
       "status": "stabled",
       "order": [
         "₢AfAAA",
-        "₢AfAAB"
+        "₢AfAAB",
+        "₢AfAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6032,6 +6033,17 @@
               "text": "Relocate caller-intent BURD_ variables to BURE (ambient environment regime).\n\n## Context\n\nFive BURD_ \"input\" variables are actually ambient caller preferences, not dispatch infrastructure. They belong in BURE alongside BURE_COUNTDOWN.\n\n## Variables to relocate\n\n- BURD_VERBOSE → BURE_VERBOSE\n- BURD_NO_LOG → BURE_NO_LOG\n- BURD_INTERACTIVE → BURE_INTERACTIVE\n- BURD_COLOR → BURE_COLOR\n- BURD_TERM_COLS → BURE_TERM_COLS\n\n## Scope\n\n1. Add new variables to bure_regime.sh (kindle defaults, unexpected detection, validation)\n2. Update BUSE-EnvironmentRuntime.adoc (or equivalent spec doc) with variable voicings\n3. Update BUSD-DispatchRuntime.adoc to remove relocated variables\n4. Update BUSA mappings for both regimes\n5. Rename all usages across codebase (bud_dispatch.sh, bul_launcher.sh, bupr_PresentationRegime.sh, etc.)\n6. Remove old BURD_ names from zburd unexpected variable detection\n\n## Acceptance\n\n- All five variables use BURE_ prefix everywhere\n- BURD drops from 24 to 19 variables\n- BURE grows from 1 to 6 variables\n- Qualification passes",
               "silks": "relocate-ambient-burd-vars-to-bure",
               "commit": "ea5135a"
+            }
+          ]
+        },
+        "₢AfAAC": {
+          "tacks": [
+            {
+              "ts": "260219-0900",
+              "state": "rough",
+              "text": "Full BCG scrub of RBRR (Repository Regime) as the singleton exemplar.\n\n## Before Anchor\n\nCommit `57b1ff99` is the baseline before any regime second-pass work.\n\n## Scope\n\n1. **rbrr_cli.sh** — Restructure to proper BCG CLI template:\n   - Add `zrbrr_furnish()` with `buc_doc_env` for all required env vars\n   - Furnish sources config, calls `zrbrr_kindle`, calls validation\n   - Use `buc_execute rbrr_ \"Recipe Bottle Repository Regime\" zrbrr_furnish \"$@\"`\n   - All public command functions get `buc_doc_brief`/`buc_doc_param`/`buc_doc_shown` blocks\n\n2. **rbrr_regime.sh** — Clean up word cancer:\n   - Eliminate `rbrr_load()` entirely (surrogate furnish anti-pattern)\n   - Resolve `rbrr_validate` vs `zrbrr_validate_fields` naming confusion\n   - Review kindle constants — are defaults (lines 34-57) still needed or can validation handle missing fields?\n   - Fix any remaining BCG violations (comments-as-runtime-info, etc.)\n\n3. **Consuming CLIs** — Inline the kindle sequence in each furnish:\n   - rbgg_cli.sh, rbf_cli.sh, rbgm_cli.sh, rbgp_cli.sh, rbob_cli.sh, rbrn_cli.sh, rbrv_cli.sh\n   - Replace `rbrr_load` with: source config + `zrbrr_kindle` + validation call\n   - Remove redundant `test -f` guards (kindle handles this)\n\n4. **Test harnesses** — Update butcrg_RegimeSmoke.sh, butcrg_RegimeCredentials.sh, rbtb_testbench.sh\n   - BCG grants test harness latitude for direct kindle calls\n   - Still eliminate `rbrr_load` in favor of explicit source + kindle\n\n## Acceptance\n\n- `rbrr_load` deleted from codebase\n- rbrr_cli.sh uses buc_execute pattern\n- All public functions have buc_doc_* blocks\n- Qualification passes\n- All test suites that were passing still pass",
+              "silks": "scrub-rbrr-singleton-exemplar",
+              "commit": "57b1ff9"
             }
           ]
         }
