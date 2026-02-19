@@ -6003,9 +6003,10 @@
         "₢AfAAF",
         "₢AfAAI",
         "₢AfAAG",
-        "₢AfAAJ"
+        "₢AfAAJ",
+        "₢AfAAL"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6147,6 +6148,17 @@
               "text": "Add a tabtarget that lists all available nameplates, plumbed through to rbrn_cli.\n\n## Context\n\nThis exercises the \"no folio → list valid options\" graceful path. When a manifold CLI receives no RBR0_FOLIO (or an invalid one), it should list the available instances and exit cleanly WITHOUT calling enforce. This is a presentation-layer concern owned by the CLI.\n\n## Design Rule\n\nThe enforce call is gated on having a valid folio. The flow is:\n- Furnish kindles RBRR (to get RBRR_VESSEL_DIR and nameplate paths)\n- If RBR0_FOLIO is empty/missing: list available nameplates, exit 0\n- If RBR0_FOLIO is present: resolve file, source, kindle RBRN, enforce, dispatch command\n\nThis establishes the pattern for all manifold CLIs: the \"list what's available\" path is a first-class CLI feature, not an error.\n\n## Scope\n\n1. Add `rbrn_list` (or similar) command function in rbrn_cli.sh\n2. Create tabtarget (colophon TBD — possibly `rbw-nl` for nameplate-list)\n3. Register in rbz_zipper.sh (singleton channel — no folio needed to list)\n4. Wire through workbench dispatch\n\n## Acceptance\n\n- `tt/rbw-nl.ListNameplates.sh` (or similar) works from terminal\n- Lists available nameplate monikers from RBRR_VESSEL_DIR\n- Does not require RBR0_FOLIO\n- Does not call enforce\n- Qualification passes",
               "silks": "add-nameplate-list-tabtarget",
               "commit": "fcc71d0"
+            }
+          ]
+        },
+        "₢AfAAL": {
+          "tacks": [
+            {
+              "ts": "260219-0919",
+              "state": "rough",
+              "text": "Final review of paddock and docket content for stale references.\n\n## Context\n\nThe paddock was written with specific line numbers from an initial audit. As paces execute and code changes, these line references become stale. Additionally, some concerns listed in the paddock will have been resolved by earlier paces.\n\n## Scope\n\n1. Review paddock per-regime concern lists — remove resolved items, update stale references\n2. Replace any remaining specific line numbers with \"search for pattern X\" guidance\n3. Verify all regimes in the paddock inventory are accounted for in completed paces\n4. Clean up any other staleness from the planning phase\n\n## Acceptance\n\n- No stale line numbers in paddock\n- All resolved concerns marked as such\n- Paddock reflects actual post-work state",
+              "silks": "final-paddock-hygiene-review",
+              "commit": "59f1953"
             }
           ]
         }
