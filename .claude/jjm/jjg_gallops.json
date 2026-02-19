@@ -6001,9 +6001,10 @@
         "₢AfAAE",
         "₢AfAAF",
         "₢AfAAI",
-        "₢AfAAG"
+        "₢AfAAG",
+        "₢AfAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6123,6 +6124,17 @@
               "text": "Full BCG scrub of RBRV (Vessel Regime) as a second manifold exemplar with structural repair.\n\n## Why Separate From apply-to-remaining\n\nrbrv_cli.sh has deeper structural debt than other consuming CLIs:\n- No `furnish()` function at all\n- No `buc_execute` — uses ad-hoc `case` dispatch at module level\n- `zrbcc_kindle` called at module level (line 111), outside any furnish\n- `rbrr_load` called conditionally inside case branches instead of in furnish\n- Direct `source` and `zrbrv_kindle` calls inside command functions (rbrv_validate, rbrv_render)\n\nThis is not a mechanical transform from the checklist — it needs structural redesign of the CLI to separate the presentation layer (render, validate commands) from the regime module, and to properly route RBR0_FOLIO for vessel selection.\n\n## Scope\n\n1. **rbrv_cli.sh** — Full restructure to BCG CLI template:\n   - Proper `zrbrv_furnish()` with buc_doc_env\n   - `buc_execute` dispatch replacing the case statement\n   - Furnish reads RBR0_FOLIO for vessel selection\n   - Render and validate as proper buc_doc_* documented commands\n\n2. **rbrv_regime.sh** — Clean up BCG violations:\n   - Fix `[[ == ]]` sites (lines ~93, ~98 per paddock audit)\n   - Fix unquoted `${#ARRAY[@]}` (line ~78)\n   - Rename `_validate_fields` to `_enforce`\n\n3. **rbz_zipper.sh** — Declare channel for vessel colophons (rbw-rvr, rbw-rvv)\n\n## Acceptance\n\n- rbrv_cli.sh uses buc_execute with proper furnish\n- No ad-hoc case dispatch or module-level kindle\n- RBR0_FOLIO flows through buz channel for vessel selection\n- All vessel test suites still pass\n- Qualification passes",
               "silks": "scrub-rbrv-manifold-structural",
               "commit": "0b66a6b"
+            }
+          ]
+        },
+        "₢AfAAJ": {
+          "tacks": [
+            {
+              "ts": "260219-0918",
+              "state": "rough",
+              "text": "Consider whether the CLI-vs-regime-module split rule and the graceful-list-options path belong in BCG.\n\n## Context\n\nDuring ₣Af planning, we established design principles that guided the exemplar work:\n\n1. **Regime module** (`_regime.sh`) = reusable data/state layer: kindle, enforce, sentinel, state readers. Sourced by multiple CLIs.\n2. **CLI** (`_cli.sh`) = human-facing presentation layer: render, list valid options, validate-as-command. Only used at the terminal.\n3. **Graceful path**: When a CLI receives no folio or no subcommand, it may list valid options and exit without calling enforce. Not all paths kindle→enforce.\n\nBy the time this pace executes, we'll have applied these principles across all regimes and will have real experience with how well they hold up.\n\n## Scope\n\n1. Review how the split rule played out across singleton and manifold regimes\n2. Decide if these principles are general enough for BCG or specific to the regime pattern\n3. If BCG-worthy: draft additions to the Module Architecture section\n4. If not: document as an RBW convention in the paddock or a memo\n\n## Acceptance\n\n- Explicit decision recorded: BCG update, RBW convention, or memo\n- If BCG: changes drafted (may become a follow-on pace)",
+              "silks": "consider-cli-regime-split-for-bcg",
+              "commit": "81d7634"
             }
           ]
         }
