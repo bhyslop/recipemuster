@@ -5999,12 +5999,13 @@
         "₢AfAAC",
         "₢AfAAD",
         "₢AfAAE",
+        "₢AfAAK",
         "₢AfAAF",
         "₢AfAAI",
         "₢AfAAG",
         "₢AfAAJ"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -6135,6 +6136,17 @@
               "text": "Consider whether the CLI-vs-regime-module split rule and the graceful-list-options path belong in BCG.\n\n## Context\n\nDuring ₣Af planning, we established design principles that guided the exemplar work:\n\n1. **Regime module** (`_regime.sh`) = reusable data/state layer: kindle, enforce, sentinel, state readers. Sourced by multiple CLIs.\n2. **CLI** (`_cli.sh`) = human-facing presentation layer: render, list valid options, validate-as-command. Only used at the terminal.\n3. **Graceful path**: When a CLI receives no folio or no subcommand, it may list valid options and exit without calling enforce. Not all paths kindle→enforce.\n\nBy the time this pace executes, we'll have applied these principles across all regimes and will have real experience with how well they hold up.\n\n## Scope\n\n1. Review how the split rule played out across singleton and manifold regimes\n2. Decide if these principles are general enough for BCG or specific to the regime pattern\n3. If BCG-worthy: draft additions to the Module Architecture section\n4. If not: document as an RBW convention in the paddock or a memo\n\n## Acceptance\n\n- Explicit decision recorded: BCG update, RBW convention, or memo\n- If BCG: changes drafted (may become a follow-on pace)",
               "silks": "consider-cli-regime-split-for-bcg",
               "commit": "81d7634"
+            }
+          ]
+        },
+        "₢AfAAK": {
+          "tacks": [
+            {
+              "ts": "260219-0919",
+              "state": "rough",
+              "text": "Add a tabtarget that lists all available nameplates, plumbed through to rbrn_cli.\n\n## Context\n\nThis exercises the \"no folio → list valid options\" graceful path. When a manifold CLI receives no RBR0_FOLIO (or an invalid one), it should list the available instances and exit cleanly WITHOUT calling enforce. This is a presentation-layer concern owned by the CLI.\n\n## Design Rule\n\nThe enforce call is gated on having a valid folio. The flow is:\n- Furnish kindles RBRR (to get RBRR_VESSEL_DIR and nameplate paths)\n- If RBR0_FOLIO is empty/missing: list available nameplates, exit 0\n- If RBR0_FOLIO is present: resolve file, source, kindle RBRN, enforce, dispatch command\n\nThis establishes the pattern for all manifold CLIs: the \"list what's available\" path is a first-class CLI feature, not an error.\n\n## Scope\n\n1. Add `rbrn_list` (or similar) command function in rbrn_cli.sh\n2. Create tabtarget (colophon TBD — possibly `rbw-nl` for nameplate-list)\n3. Register in rbz_zipper.sh (singleton channel — no folio needed to list)\n4. Wire through workbench dispatch\n\n## Acceptance\n\n- `tt/rbw-nl.ListNameplates.sh` (or similar) works from terminal\n- Lists available nameplate monikers from RBRR_VESSEL_DIR\n- Does not require RBR0_FOLIO\n- Does not call enforce\n- Qualification passes",
+              "silks": "add-nameplate-list-tabtarget",
+              "commit": "fcc71d0"
             }
           ]
         }
