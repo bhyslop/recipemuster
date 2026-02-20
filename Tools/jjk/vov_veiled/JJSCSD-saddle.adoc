@@ -76,7 +76,7 @@ File-touch bitmap (x = pace commit touched file):
 
 BD*
 xxx jjrg_gallops.rs, jjrt_types.rs
-··x JJSA-GallopsData.adoc
+··x JJS0-GallopsData.adoc
 x·· jjro_ops.rs
 
 Commit swim lanes (x = commit affiliated with pace):

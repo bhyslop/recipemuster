@@ -84,7 +84,7 @@ Agent: {tier} | Cardinality: {card} | Files: {list} ({N} files) | Steps: 1. {fir
 
 **Example (sequential):**
 ```
-Agent: sonnet | Cardinality: 1 sequential | Files: vvcc_commit.rs, jjrx_cli.rs, JJSA-GallopsData.adoc (3 files) | Steps: 1. Add size_limit field to vvcc_CommitArgs 2. Add --size-limit CLI arg to NotchArgs 3. Document in JJSA | Verify: tt/vow-b.Build.sh
+Agent: sonnet | Cardinality: 1 sequential | Files: vvcc_commit.rs, jjrx_cli.rs, JJS0-GallopsData.adoc (3 files) | Steps: 1. Add size_limit field to vvcc_CommitArgs 2. Add --size-limit CLI arg to NotchArgs 3. Document in JJS0 | Verify: tt/vow-b.Build.sh
 ```
 
 **Example (parallel):**
@@ -94,7 +94,7 @@ Agent: haiku | Cardinality: 14 parallel | Files: jjrc_core.rs, jjrf_favor.rs, ..
 
 **Example (mixed — code + docs in parallel):**
 ```
-Agent: haiku+sonnet | Cardinality: 2 parallel then build | Files: jjrx_cli.rs, jjrq_query.rs, JJSA-GallopsData.adoc (3 files) | Steps: 1. Agent A haiku adds --remaining to ParadeArgs 2. Agent B sonnet documents --remaining in JJSA 3. Sequential build | Verify: tt/vvw-b.Build.sh
+Agent: haiku+sonnet | Cardinality: 2 parallel then build | Files: jjrx_cli.rs, jjrq_query.rs, JJS0-GallopsData.adoc (3 files) | Steps: 1. Agent A haiku adds --remaining to ParadeArgs 2. Agent B sonnet documents --remaining in JJS0 3. Sequential build | Verify: tt/vvw-b.Build.sh
 ```
 
 Run:

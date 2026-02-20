@@ -1549,7 +1549,7 @@ Heat-level action codes:
 * `D` — Draft: move pace between heats (uppercase, rare)
 * `R` — Retire: archive heat (uppercase)
 
-NOTE: Officium markers migrated to VVC INVITATORY (vvb:...:i:), see VOS-VoxObscuraSpec.adoc
+NOTE: Officium markers migrated to VVC INVITATORY (vvb:...:i:), see VOS0-VoxObscuraSpec.adoc
 
 [[jjdo_log]]
 // ⟦axl_voices axi_cli_subcommand⟧

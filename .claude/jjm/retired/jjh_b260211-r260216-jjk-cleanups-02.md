@@ -5,6 +5,8 @@
 **Retired:** 260216
 **Status:** retired
 
+> NOTE: JJSA renamed to JJS0 (top-level spec '0' suffix convention). Filename references in this trophy are historical.
+
 ## Paddock
 
 # Paddock: jjk-cleanups-02

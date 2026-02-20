@@ -8,7 +8,7 @@
 // ANCESTRY: Renamed from index.adoc (last committed 84323c31, 2025-08-18).
 // Full git lineage: 31 commits from 2642121c through 84323c31.
 //
-// DEPENDENCY: Requires RBSA-SpecTop.adoc mapping section for attribute resolution.
+// DEPENDENCY: Requires RBS0-SpecTop.adoc mapping section for attribute resolution.
 
 == Overview
 

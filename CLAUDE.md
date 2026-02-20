@@ -11,7 +11,7 @@ Full read and edit access is pre-approved for all files in:
 ### Lenses Directory (`lenses/`)
 - **RBRN**  → `RBRN-RegimeNameplate.adoc`
 - **RBRR**  → `RBRR-RegimeRepo.adoc`
-- **RBSA**  → `RBSA-SpecTop.adoc`
+- **RBS0**  → `RBS0-SpecTop.adoc`
 - **RBSRV** → `RBSRV-RegimeVessel.adoc`
 - **CRR**   → `CRR-ConfigRegimeRequirements.adoc`
 - **RBSDC** → `RBSDC-depot_create.adoc`
@@ -58,7 +58,7 @@ Full read and edit access is pre-approved for all files in:
 
 #### BUK Subdirectory (`Tools/buk/`)
 - **BCG**  → `buk/vov_veiled/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
-- **BUSA** → `buk/vov_veiled/BUSA-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
+- **BUS0** → `buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
 - **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
 - **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)
 - **BUG**  → `buk/bug_guide.sh` (guide utilities, bug_* functions - always-visible user interaction)
@@ -81,7 +81,7 @@ Full read and edit access is pre-approved for all files in:
 - **AXMCM** → `cmk/AXMCM-ClaudeMarkConceptMemo.md`
 
 #### JJK Subdirectory (`Tools/jjk/`)
-- **JJSA** → `jjk/vov_veiled/JJSA-GallopsData.adoc` (Gallops data model specification - main file)
+- **JJS0** → `jjk/vov_veiled/JJS0-GallopsData.adoc` (Gallops data model specification - main file)
 - **JJSCCH** → `jjk/vov_veiled/JJSCCH-chalk.adoc`
 - **JJSCDR** → `jjk/vov_veiled/JJSCDR-draft.adoc`
 - **JJSCFU** → `jjk/vov_veiled/JJSCFU-furlough.adoc`
@@ -107,7 +107,7 @@ Full read and edit access is pre-approved for all files in:
 #### VOK Subdirectory (`Tools/vok/`)
 - **RCG**  → `vok/vov_veiled/RCG-RustCodingGuide.md` (Rust Coding Guide - project Rust conventions)
 - **VLS**  → `vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc` (Vox Liturgical Specification - universal naming vocabulary)
-- **VOS**  → `vok/vov_veiled/VOS-VoxObscuraSpec.adoc` (Vox Obscura specification)
+- **VOS0**  → `vok/vov_veiled/VOS0-VoxObscuraSpec.adoc` (Vox Obscura specification)
 
 #### Other Tools
 - **RGBS** → `rgbs_ServiceAccounts.sh`
@@ -204,7 +204,7 @@ When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-
 | Domain | Pattern | Example |
 |--------|---------|---------|
 | Code files | `prefix_Word.ext` | `rbga_ArtifactRegistry.sh` |
-| Doc files | `ACRONYM-Words.ext` | `RBSA-SpecTop.adoc` |
+| Doc files | `ACRONYM-Words.ext` | `RBS0-SpecTop.adoc` |
 | Functions (public) | `prefix_name()` | `buc_log_args()` |
 | Functions (private) | `zprefix_name()` | `zbuc_color()` |
 | Variables | `PREFIX_NAME` | `BURC_PROJECT_ROOT` |

@@ -5,6 +5,8 @@
 **Retired:** 260216
 **Status:** retired
 
+> NOTE: RBSA renamed to RBS0, BUSA renamed to BUS0 (top-level spec '0' suffix convention). Filename references in this trophy are historical.
+
 ## Paddock
 
 # Paddock: rbw-spec-axla-coherence

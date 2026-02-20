@@ -244,7 +244,7 @@ enabling rapid iteration during development.
 **Related Specifications:**
 
 * **VLS-VoxLiturgicalSpec.adoc** — Universal naming vocabulary (Cipher, Signet, Epithet, Inscription, Vesture)
-* **BUSA-BashUtilitiesSpec.adoc** — Tabtarget dispatch vocabulary (Colophon, Frontispiece, Imprint, Formulary, Launcher)
+* **BUS0-BashUtilitiesSpec.adoc** — Tabtarget dispatch vocabulary (Colophon, Frontispiece, Imprint, Formulary, Launcher)
 
 == Key Premises
 
@@ -509,7 +509,7 @@ Whisper::for_kit("jjk")
     .display_name("Job Jockey")
     .managed_section("vocjjmc_core.md", "JJK")
     .managed_section("vocjjmc_gallops.md", "JJK_GALLOPS")
-    .concept_model("JJSA-GallopsData.adoc")
+    .concept_model("JJS0-GallopsData.adoc")
     .register(&mut conclave)
 ----
 +
@@ -849,7 +849,7 @@ Indexed by
 {vose_conclave}
 for acronym registry and uniqueness validation.
 +
-Naming: Keeps existing acronym (e.g., `JJSA-GallopsData.adoc`).
+Naming: Keeps existing acronym (e.g., `JJS0-GallopsData.adoc`).
 Registered in
 {vose_whisper}
 via `.concept_model()` builder method.
@@ -1529,7 +1529,7 @@ vvb:1000::R: release parcel 1000
 **Cross-reference:**
 The
 {vost_hallmark}
-concept is shared with Job Jockey's `jjb:` commit format (documented in JJSA-GallopsData.adoc).
+concept is shared with Job Jockey's `jjb:` commit format (documented in JJS0-GallopsData.adoc).
 Both systems use the same resolution logic for sourcing
 {vost_hallmark_s},
 but Job Jockey includes heat/pace identity in the third field while VOK leaves it empty.

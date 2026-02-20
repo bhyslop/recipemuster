@@ -6,25 +6,25 @@ Each regime annotated with AXLA cardinality: Singleton (one assignment source) o
 ## BUK Domain
 
 ### BURC — Configuration Regime [Singleton]
-- Spec: inline in BUSA
+- Spec: inline in BUS0
 - Validator: burc_regime.sh
 - Concerns:
   - Unquoted ${#ARRAY[@]} — search for `ZBURC_UNEXPECTED`
 
 ### BURS — Station Regime [Singleton]
-- Spec: inline in BUSA
+- Spec: inline in BUS0
 - Validator: burs_regime.sh
 - Concerns:
   - Unquoted ${#ARRAY[@]} — search for `ZBURS_UNEXPECTED`
 
 ### BURD — Dispatch Runtime [Singleton]
-- Spec: BUSD-DispatchRuntime.adoc (included from BUSA)
+- Spec: BUSD-DispatchRuntime.adoc (included from BUS0)
 - Validator: none (runtime-only, by design)
 - Concerns:
   - Confirm runtime-only status is intentional and documented
 
 ### BURE — Environment Regime [Singleton]
-- Spec: inline in BUSA
+- Spec: inline in BUS0
 - Validator: bure_regime.sh
 - Concerns:
   - Unquoted ${#ARRAY[@]} — search for `ZBURE_UNEXPECTED`
@@ -33,14 +33,14 @@ Each regime annotated with AXLA cardinality: Singleton (one assignment source) o
 ## RBW Domain
 
 ### RBRR — Repository Regime [Singleton]
-- Spec: RBSRR-RegimeRepo.adoc (included from RBSA)
+- Spec: RBSRR-RegimeRepo.adoc (included from RBS0)
 - Validator: rbrr_regime.sh
 - Concerns:
   - Unquoted ${#ARRAY[@]} — search for `ZRBRR_UNEXPECTED`
   - ~~[[ == ]] without =~ — FIXED in commit `3b745da8`~~
 
 ### RBRN — Nameplate Regime [Manifold: nsproto, srjcl, pluml]
-- Spec: RBRN-RegimeNameplate.adoc (included from RBSA)
+- Spec: RBRN-RegimeNameplate.adoc (included from RBS0)
 - Validator: rbrn_regime.sh
 - Consumers of `rbrn_load_moniker`: rbob_cli.sh, rbtb_testbench.sh
 - Concerns:
@@ -51,26 +51,26 @@ Each regime annotated with AXLA cardinality: Singleton (one assignment source) o
   - Spec-validator drift: spec documents boolean flags but validator uses tri-state MODE enums
 
 ### RBRP — Payor Regime [Singleton]
-- Spec: RBSRP-RegimePayor.adoc (included from RBSA)
+- Spec: RBSRP-RegimePayor.adoc (included from RBS0)
 - Validator: rbrp_regime.sh
 - Concerns:
   - `grep -qE` instead of `[[ =~ ]]` at 3 sites — search for `grep -qE` in rbrp_regime.sh
 
 ### RBRO — OAuth Regime [Singleton]
-- Spec: RBSRO-RegimeOauth.adoc (included from RBSA)
+- Spec: RBSRO-RegimeOauth.adoc (included from RBS0)
 - Validator: NO rbro_regime.sh exists
 - Concerns:
   - Fully spec'd (voicings, include file, kindle/validate/render ops) but no validator implementation
   - Missing from AT paddock inventory
 
 ### RBRE — ECR Regime [Singleton]
-- Spec: RBSRE-RegimeEcr.adoc (included from RBSA)
+- Spec: RBSRE-RegimeEcr.adoc (included from RBS0)
 - Validator: rbre_regime.sh
 - Concerns:
   - Audit for BCG compliance (not yet checked in detail)
 
 ### RBRG — GitHub Regime [Singleton] — CANDIDATE FOR REMOVAL
-- Spec: RBSRG-RegimeGithub.adoc (included from RBSA)
+- Spec: RBSRG-RegimeGithub.adoc (included from RBS0)
 - Validator: NO rbrg_regime.sh exists (never implemented)
 - Status: Ghost regime. Spec'd but never got a proper implementation.
 - Live consumer: rbv_PodmanVM.sh — search for `RBRG_PAT` and `RBRG_USERNAME`
@@ -78,13 +78,13 @@ Each regime annotated with AXLA cardinality: Singleton (one assignment source) o
 - Decision: REMOVE from active codebase. First pace.
 
 ### RBRS — Station Regime [Singleton]
-- Spec: RBSRS-RegimeStation.adoc (included from RBSA)
+- Spec: RBSRS-RegimeStation.adoc (included from RBS0)
 - Validator: rbrs_regime.sh
 - Concerns:
   - Appears BCG-compliant per initial audit
 
 ### RBRV — Vessel Regime [Manifold: 6 vessels in rbev-vessels/]
-- Spec: RBSRV-RegimeVessel.adoc (included from RBSA)
+- Spec: RBSRV-RegimeVessel.adoc (included from RBS0)
 - Validator: rbrv_regime.sh
 - CLI: rbrv_cli.sh — **structurally non-compliant** (no furnish, no buc_execute, module-level kindle, ad-hoc case dispatch)
 - Concerns:
@@ -93,7 +93,7 @@ Each regime annotated with AXLA cardinality: Singleton (one assignment source) o
   - No explicit mode enum (bind vs conjure mutual-presence pattern)
 
 ### RBRA — Authentication/Credential Regime [Manifold: governor, retriever, director]
-- Spec: RBSRA-CredentialFormat.adoc (included from RBSA)
+- Spec: RBSRA-CredentialFormat.adoc (included from RBS0)
 - Validator: rbra_regime.sh
 - Concerns:
   - Unquoted ${#ARRAY[@]} — search for `ZRBRA_UNEXPECTED`

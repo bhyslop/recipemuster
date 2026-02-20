@@ -5,6 +5,8 @@
 **Retired:** 260124
 **Status:** retired
 
+> NOTE: JJSA renamed to JJS0, VOS renamed to VOS0 (top-level spec '0' suffix convention). Filename references in this trophy are historical.
+
 ## Paddock
 
 # Paddock: jjk-garland-feature

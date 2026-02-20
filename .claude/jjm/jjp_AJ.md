@@ -20,7 +20,7 @@ These AsciiDoc documents define the vocabulary and rules the linter must enforce
 | Document | Path | Defines |
 |----------|------|---------|
 | **VLS** | `Tools/vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc` | Universal naming vocabulary: Cipher, Signet, Epithet, Inscription, Vesture. Defines the six domain vestures (Rust, Bash, AsciiDoc, Publication, Git, Slash). |
-| **VOS** | `Tools/vok/vov_veiled/VOS-VoxObscuraSpec.adoc` | Kit distribution infrastructure. Defines `vosk_prefix_validation` premise — all assets must have signets derived from their kit's cipher. |
+| **VOS0** | `Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc` | Kit distribution infrastructure. Defines `vosk_prefix_validation` premise — all assets must have signets derived from their kit's cipher. |
 | **BUS** | `Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc` | Tabtarget dispatch vocabulary: Colophon, Frontispiece, Imprint, Formulary, Launcher. Defines the tabtarget vesture pattern. |
 
 ## Domains to Lint

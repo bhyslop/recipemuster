@@ -12,6 +12,6 @@ Prepare Recipe Bottle for MVP release by resolving structural debt and open ques
 
 ## References
 
-- VOS-VoxObscuraSpec.adoc `vosp_veiled` (veiled concept)
+- VOS0-VoxObscuraSpec.adoc `vosp_veiled` (veiled concept)
 - Existing kit veiled dirs: `Tools/jjk/vov_veiled/`, `Tools/buk/vov_veiled/`, `Tools/vok/vov_veiled/`, `Tools/cmk/vov_veiled/`
 - 37 RBS* files currently in `lenses/`

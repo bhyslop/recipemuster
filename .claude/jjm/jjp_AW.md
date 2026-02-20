@@ -87,7 +87,7 @@ jjx_revise_docket C < docket && jjx_arm C < warrant
 
 ## References
 
-- Tools/jjk/vov_veiled/JJSA-GallopsData.adoc — operation definitions
+- Tools/jjk/vov_veiled/JJS0-GallopsData.adoc — operation definitions
 - Tools/jjk/vov_veiled/src/jjrx_cli.rs — CLI registration
 - Tools/jjk/vov_veiled/vocjjmc_core.md — CLAUDE.md managed source
 - .claude/commands/jjc-*.md — slash command definitions

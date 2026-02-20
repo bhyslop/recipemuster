@@ -37,6 +37,6 @@ CLAUDE.md CLI reference shows `jjx_alter FIREMARK [--status racing|stabled]` but
 
 ## References
 
-- Tools/jjk/vov_veiled/JJSA-GallopsData.adoc — JJK data model
+- Tools/jjk/vov_veiled/JJS0-GallopsData.adoc — JJK data model
 - .claude/commands/ — Slash command definitions
 - Task tool `model` parameter — mechanism for model selection in subagents
