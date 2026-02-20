@@ -290,11 +290,6 @@
 :rbre_regime:                <<rbre_regime,RBRE Regime>>
 :rbre_repository_name:       <<rbre_repository_name,RBRE_REPOSITORY_NAME>>
 
-// Recipe Bottle Regime: GitHub (GitHub authentication)
-:rbrg_pat:                   <<rbrg_pat,RBRG_PAT>>
-:rbrg_regime:                <<rbrg_regime,RBRG Regime>>
-:rbrg_username:              <<rbrg_username,RBRG_USERNAME>>
-
 // Recipe Bottle Regime: Station (workstation Podman configuration)
 :rbrs_podman_root_dir:       <<rbrs_podman_root_dir,RBRS_PODMAN_ROOT_DIR>>
 :rbrs_regime:                <<rbrs_regime,RBRS Regime>>
@@ -325,7 +320,6 @@
 // Recipe Bottle Regime Prefixes
 :rbre_prefix:                <<rbre_prefix,RBRE_>>
 :rbra_prefix:                <<rbra_prefix,RBRA_>>
-:rbrg_prefix:                <<rbrg_prefix,RBRG_>>
 :rbrn_prefix:                <<rbrn_prefix,RBRN_>>
 :rbro_prefix:                <<rbro_prefix,RBRO_>>
 :rbrp_prefix:                <<rbrp_prefix,RBRP_>>
@@ -1662,11 +1656,6 @@ Recipe Bottle Authentication Regime
 {rbre_prefix}::
 Recipe Bottle ECR Regime
 
-[[rbrg_prefix]]
-// ⟦axl_voices axrg_prefix⟧
-{rbrg_prefix}::
-Recipe Bottle GitHub Regime
-
 [[rbrn_prefix]]
 // ⟦axl_voices axrg_prefix⟧
 {rbrn_prefix}::
@@ -2000,30 +1989,6 @@ AWS region where the ECR registry is hosted.
 ECR repository name for container image storage.
 
 include::RBSRE-RegimeEcr.adoc[]
-
-=== GitHub Regime (RBRG)
-
-The GitHub regime defines authentication credentials for GitHub repository operations and container registry access.
-
-[[rbrg_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
-{rbrg_regime}::
-An
-regime
-that contains GitHub authentication credentials for repository operations and container registry access.
-
-[[rbrg_username]]
-// ⟦axl_voices axrg_variable axtu_xname⟧
-{rbrg_username}::
-GitHub username for repository and registry authentication.
-
-[[rbrg_pat]]
-// ⟦axl_voices axrg_variable axtu_string⟧
-{rbrg_pat}::
-GitHub Personal Access Token for API and registry authentication.
-Security-sensitive; masked in render output, never logged.
-
-include::RBSRG-RegimeGithub.adoc[]
 
 === Station Regime (RBRS)
 

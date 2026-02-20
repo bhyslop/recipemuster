@@ -127,14 +127,6 @@ zrbv_is_different_predicate() {
   fi
 }
 
-# Validate GitHub PAT environment
-zrbv_validate_pat() {
-  test -f "${RBRR_GITHUB_PAT_ENV}" || buc_die "GitHub PAT env file not found at ${RBRR_GITHUB_PAT_ENV}"
-
-  test -n "${RBRG_PAT:-}"      || buc_die "RBRG_PAT missing from ${RBRR_GITHUB_PAT_ENV}"
-  test -n "${RBRG_USERNAME:-}" || buc_die "RBRG_USERNAME missing from ${RBRR_GITHUB_PAT_ENV}"
-}
-
 # Stop and remove a VM if it exists
 zrbv_remove_vm() {
   local z_vm_name="$1"
@@ -194,14 +186,6 @@ zrbv_ignite_bootstrap() {
   fi
 
   buc_step "Ignite machine ready with crane installed"
-}
-
-# Login podman to github container registry in podman VM
-zrbv_login_ghcr() {
-  local z_vm_name="$1"
-
-  buc_step "Login with podman..."
-  podman -c "${z_vm_name}" login "${ZRBV_GIT_REGISTRY}" -u "${RBRG_USERNAME}" -p "${RBRG_PAT}"
 }
 
 # Helper function to process one image type
@@ -360,9 +344,6 @@ rbv_mirror() {
       "rm -rf ${ZRBV_VM_TEMP_DIR} && mkdir -p ${ZRBV_VM_TEMP_DIR}" \
     || buc_die "Failed to create VM temp directory"
 
-  zrbv_validate_pat || buc_die "PAT validation failed"
-  zrbv_login_ghcr "${RBRR_IGNITE_MACHINE_NAME}" || buc_die "Podman login failed"
-
   buc_step "Building container images..."
   for z_needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
     buc_step "Processing: ${z_needed_image}"
@@ -469,10 +450,6 @@ rbv_fetch() {
 
   buc_step "Starting ignite VM to access podman image cache..."
   zrbv_ignite_bootstrap false || buc_die "Failed to start ignite machine"
-
-  buc_step "Login to GitHub Container Registry..."
-  zrbv_validate_pat || buc_die "PAT validation failed"
-  zrbv_login_ghcr "${RBRR_IGNITE_MACHINE_NAME}" || buc_die "GHCR login failed"
 
   local z_platform_tag="${ZRBV_VMIMAGE_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}-${RBRS_VM_PLATFORM}"
 
