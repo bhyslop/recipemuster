@@ -452,5 +452,425 @@ buv_opt_cidr()               { buv_opt_wrapper "buv_val_cidr"             "$@"; 
 buv_opt_domain()             { buv_opt_wrapper "buv_val_domain"           "$@"; }
 buv_opt_port()               { buv_opt_wrapper "buv_val_port"             "$@"; }
 
+
+# ---------------------------------------------------------------------------
+# Enrollment infrastructure
+# ---------------------------------------------------------------------------
+
+zbuv_kindle() {
+  test -z "${ZBUV_KINDLED:-}" || buc_die "Module buv already kindled"
+
+  # Enrollment rolls (7 parallel arrays)
+  z_buv_scope_roll=()
+  z_buv_varname_roll=()
+  z_buv_type_roll=()
+  z_buv_gate_var_roll=()
+  z_buv_gate_val_roll=()
+  z_buv_p1_roll=()
+  z_buv_p2_roll=()
+
+  ZBUV_KINDLED=1
+}
+
+zbuv_sentinel() {
+  test "${ZBUV_KINDLED:-}" = "1" || buc_die "Module buv not kindled - call zbuv_kindle first"
+}
+
+# Internal enrollment helper — all public enroll functions delegate here
+# Usage: zbuv_enroll SCOPE VARNAME TYPE GATE_VAR GATE_VAL P1 P2
+zbuv_enroll() {
+  zbuv_sentinel
+
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_type="${3:-}"
+  local z_gate_var="${4:-}"
+  local z_gate_val="${5:-}"
+  local z_p1="${6:-}"
+  local z_p2="${7:-}"
+
+  test -n "${z_scope}"   || buc_die "zbuv_enroll: scope required"
+  echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' || buc_die "zbuv_enroll: invalid variable name: '${z_varname}'"
+
+  z_buv_scope_roll+=("${z_scope}")
+  z_buv_varname_roll+=("${z_varname}")
+  z_buv_type_roll+=("${z_type}")
+  z_buv_gate_var_roll+=("${z_gate_var}")
+  z_buv_gate_val_roll+=("${z_gate_val}")
+  z_buv_p1_roll+=("${z_p1}")
+  z_buv_p2_roll+=("${z_p2}")
+}
+
+# Public enrollment functions — scalar types
+
+buv_string_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  local z_p1="${5:-}"
+  local z_p2="${6:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "string" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+}
+
+buv_xname_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  local z_p1="${5:-}"
+  local z_p2="${6:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "xname" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+}
+
+buv_gname_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  local z_p1="${5:-}"
+  local z_p2="${6:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "gname" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+}
+
+buv_fqin_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  local z_p1="${5:-}"
+  local z_p2="${6:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "fqin" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+}
+
+buv_bool_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "bool" "${z_gate_var}" "${z_gate_val}" "" ""
+}
+
+buv_enum_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  shift 4
+  zbuv_enroll "${z_scope}" "${z_varname}" "enum" "${z_gate_var}" "${z_gate_val}" "$*" ""
+}
+
+buv_decimal_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  local z_p1="${5:-}"
+  local z_p2="${6:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "decimal" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+}
+
+buv_odref_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "odref" "${z_gate_var}" "${z_gate_val}" "" ""
+}
+
+# Public enrollment functions — list types
+
+buv_list_string_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  local z_p1="${5:-}"
+  local z_p2="${6:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "list_string" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+}
+
+buv_list_ipv4_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "list_ipv4" "${z_gate_var}" "${z_gate_val}" "" ""
+}
+
+buv_list_gname_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  local z_p1="${5:-}"
+  local z_p2="${6:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "list_gname" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+}
+
+# Internal check predicate — validates a single enrolled variable by roll index.
+# Returns 0 on pass (or gated-out), 1 on fail.
+# Sets ZBUV_CHECK_ERROR with detail on fail (or "gated-out" when gate doesn't match).
+zbuv_check_predicate() {
+  zbuv_sentinel
+
+  local z_idx="${1:-}"
+  local z_varname="${z_buv_varname_roll[$z_idx]}"
+  local z_type="${z_buv_type_roll[$z_idx]}"
+  local z_gate_var="${z_buv_gate_var_roll[$z_idx]}"
+  local z_gate_val="${z_buv_gate_val_roll[$z_idx]}"
+  local z_p1="${z_buv_p1_roll[$z_idx]}"
+  local z_p2="${z_buv_p2_roll[$z_idx]}"
+
+  ZBUV_CHECK_ERROR=""
+
+  # Gating check — if gated and gate doesn't match, skip (pass)
+  if test -n "${z_gate_var}"; then
+    local z_gate_actual="${!z_gate_var:-}"
+    if test "${z_gate_actual}" != "${z_gate_val}"; then
+      ZBUV_CHECK_ERROR="gated-out"
+      return 0
+    fi
+  fi
+
+  local z_val="${!z_varname:-}"
+
+  case "${z_type}" in
+
+    string)
+      if test "${z_p1}" = "0" && test -z "${z_val}"; then
+        return 0
+      fi
+      if test -z "${z_val}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+        return 1
+      fi
+      if test "${#z_val}" -lt "${z_p1}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
+        return 1
+      fi
+      if test "${#z_val}" -gt "${z_p2}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
+        return 1
+      fi
+      ;;
+
+    xname)
+      if test -z "${z_val}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+        return 1
+      fi
+      if test "${#z_val}" -lt "${z_p1}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
+        return 1
+      fi
+      if test "${#z_val}" -gt "${z_p2}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
+        return 1
+      fi
+      echo "${z_val}" | grep -qE '^[a-zA-Z][a-zA-Z0-9_-]*$' || {
+        ZBUV_CHECK_ERROR="${z_varname} must start with letter and contain only letters, numbers, underscore, hyphen, got '${z_val}'"
+        return 1
+      }
+      ;;
+
+    gname)
+      if test -z "${z_val}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+        return 1
+      fi
+      if test "${#z_val}" -lt "${z_p1}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
+        return 1
+      fi
+      if test "${#z_val}" -gt "${z_p2}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
+        return 1
+      fi
+      echo "${z_val}" | grep -qE '^[a-z][a-z0-9-]*[a-z0-9]$' || {
+        ZBUV_CHECK_ERROR="${z_varname} must match ^[a-z][a-z0-9-]*[a-z0-9]$ (lowercase letters, digits, hyphens; start with a letter; end with letter/digit), got '${z_val}'"
+        return 1
+      }
+      ;;
+
+    fqin)
+      if test -z "${z_val}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+        return 1
+      fi
+      if test "${#z_val}" -lt "${z_p1}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
+        return 1
+      fi
+      if test "${#z_val}" -gt "${z_p2}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
+        return 1
+      fi
+      echo "${z_val}" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$' || {
+        ZBUV_CHECK_ERROR="${z_varname} must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, got '${z_val}'"
+        return 1
+      }
+      ;;
+
+    bool)
+      if test -z "${z_val}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+        return 1
+      fi
+      if test "${z_val}" != "0" && test "${z_val}" != "1"; then
+        ZBUV_CHECK_ERROR="${z_varname} must be 0 or 1, got: '${z_val}'"
+        return 1
+      fi
+      ;;
+
+    enum)
+      if test -z "${z_val}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+        return 1
+      fi
+      local z_choice
+      local z_found=0
+      for z_choice in ${z_p1}; do
+        if test "${z_val}" = "${z_choice}"; then
+          z_found=1
+          break
+        fi
+      done
+      if test "${z_found}" = "0"; then
+        ZBUV_CHECK_ERROR="${z_varname} must be one of: ${z_p1}, got '${z_val}'"
+        return 1
+      fi
+      ;;
+
+    decimal)
+      if test -z "${z_val}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+        return 1
+      fi
+      if test "${z_val}" -ge "${z_p1}" && test "${z_val}" -le "${z_p2}"; then
+        return 0
+      fi
+      ZBUV_CHECK_ERROR="${z_varname} value '${z_val}' must be between ${z_p1} and ${z_p2}"
+      return 1
+      ;;
+
+    odref)
+      if test -z "${z_val}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+        return 1
+      fi
+      local z_re='^[a-z0-9.-]+(:[0-9]{2,5})?/([a-z0-9._-]+/)*[a-z0-9._-]+@sha256:[0-9a-f]{64}$'
+      echo "${z_val}" | grep -Eq "${z_re}" || {
+        ZBUV_CHECK_ERROR="${z_varname} has invalid image reference format (require host[:port]/repo@sha256:<64hex>), got '${z_val}'"
+        return 1
+      }
+      ;;
+
+    list_string)
+      local z_item
+      local z_item_num=0
+      for z_item in ${z_val}; do
+        z_item_num=$((z_item_num + 1))
+        if test "${#z_item}" -lt "${z_p1}"; then
+          ZBUV_CHECK_ERROR="${z_varname} item #${z_item_num} must be at least ${z_p1} chars, got '${z_item}' (${#z_item})"
+          return 1
+        fi
+        if test "${#z_item}" -gt "${z_p2}"; then
+          ZBUV_CHECK_ERROR="${z_varname} item #${z_item_num} must be no more than ${z_p2} chars, got '${z_item}' (${#z_item})"
+          return 1
+        fi
+      done
+      ;;
+
+    list_ipv4)
+      local z_item
+      local z_item_num=0
+      for z_item in ${z_val}; do
+        z_item_num=$((z_item_num + 1))
+        echo "${z_item}" | grep -qE '^([0-9]{1,3}\.){3}[0-9]{1,3}$' || {
+          ZBUV_CHECK_ERROR="${z_varname} item #${z_item_num} has invalid IPv4 format: '${z_item}'"
+          return 1
+        }
+      done
+      ;;
+
+    list_gname)
+      local z_item
+      local z_item_num=0
+      for z_item in ${z_val}; do
+        z_item_num=$((z_item_num + 1))
+        if test "${#z_item}" -lt "${z_p1}"; then
+          ZBUV_CHECK_ERROR="${z_varname} item #${z_item_num} must be at least ${z_p1} chars, got '${z_item}' (${#z_item})"
+          return 1
+        fi
+        if test "${#z_item}" -gt "${z_p2}"; then
+          ZBUV_CHECK_ERROR="${z_varname} item #${z_item_num} must be no more than ${z_p2} chars, got '${z_item}' (${#z_item})"
+          return 1
+        fi
+        echo "${z_item}" | grep -qE '^[a-z][a-z0-9-]*[a-z0-9]$' || {
+          ZBUV_CHECK_ERROR="${z_varname} item #${z_item_num} must match ^[a-z][a-z0-9-]*[a-z0-9]$, got '${z_item}'"
+          return 1
+        }
+      done
+      ;;
+
+    *)
+      ZBUV_CHECK_ERROR="unknown type: ${z_type}"
+      return 1
+      ;;
+
+  esac
+}
+
+# buv_enforce SCOPE — iterate all enrolled vars in scope; die on first failure
+buv_enforce() {
+  zbuv_sentinel
+
+  local z_scope="${1:-}"
+  test -n "${z_scope}" || buc_die "buv_enforce: scope required"
+
+  local z_i
+  for z_i in "${!z_buv_scope_roll[@]}"; do
+    test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
+    zbuv_check_predicate "${z_i}" || buc_die "${z_buv_varname_roll[$z_i]}: ${ZBUV_CHECK_ERROR}"
+  done
+}
+
+# buv_report SCOPE "Label" — rich per-variable display; returns non-zero if any failed
+buv_report() {
+  zbuv_sentinel
+
+  local z_scope="${1:-}"
+  local z_label="${2:-}"
+  test -n "${z_scope}" || buc_die "buv_report: scope required"
+  test -n "${z_label}" || buc_die "buv_report: label required"
+
+  local z_any_failed=0
+
+  buc_step "${z_label}"
+
+  local z_i
+  for z_i in "${!z_buv_scope_roll[@]}"; do
+    test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
+
+    local z_varname="${z_buv_varname_roll[$z_i]}"
+    local z_type="${z_buv_type_roll[$z_i]}"
+    local z_val="${!z_varname:-}"
+
+    if zbuv_check_predicate "${z_i}"; then
+      if test "${ZBUV_CHECK_ERROR}" = "gated-out"; then
+        buc_step "  SKIP  ${z_varname} (gated)"
+      else
+        buc_step "  PASS  ${z_varname}=${z_val} [${z_type}]"
+      fi
+    else
+      buc_step "  FAIL  ${z_varname}=${z_val} [${z_type}]: ${ZBUV_CHECK_ERROR}"
+      z_any_failed=1
+    fi
+  done
+
+  return "${z_any_failed}"
+}
+
 # eof
 
