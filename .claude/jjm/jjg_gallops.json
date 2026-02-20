@@ -21,9 +21,10 @@
         "₢AfAAO",
         "₢AfAAP",
         "₢AfAAJ",
-        "₢AfAAL"
+        "₢AfAAL",
+        "₢AfAAQ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -339,6 +340,17 @@
               "text": "Delete legacy buv_val_*, buv_env_*, buv_opt_* functions from buv_validation.sh.\n\n## Context\n\nAfter enrollment system is complete and all callers migrated (audit-legacy-buv-callers pace), the old stateless validator functions are dead code. Remove them.\n\n## Scope\n\n1. Delete all buv_val_* function definitions from buv_validation.sh\n2. Delete all buv_env_* function definitions\n3. Delete all buv_opt_* function definitions\n4. Delete any internal helper functions only used by the above (zbuv_env_wrapper, etc.)\n5. Keep buv_validation.sh as the enrollment system module\n6. Update any documentation references\n\n## Acceptance\n\n- buv_validation.sh contains only enrollment infrastructure (kindle, enroll, enforce, report)\n- No buv_val_*, buv_env_*, buv_opt_* functions exist\n- Qualification passes",
               "silks": "delete-legacy-buv-functions",
               "commit": "f367890"
+            }
+          ]
+        },
+        "₢AfAAQ": {
+          "tacks": [
+            {
+              "ts": "260220-0833",
+              "state": "rough",
+              "text": "Build test suite for buv_ enrollment infrastructure: kindle, enroll, check predicate, enforce, report, gating.\n\n## Organization\n\n7 test case files, grouped by test shape:\n\n### Type-group files (5)\n\n| File | Types | Test shape |\n|------|-------|-----------|\n| butcev_LengthTypes.sh | string, xname, gname, fqin | empty, length bounds, pattern valid/invalid per type |\n| butcev_ChoiceTypes.sh | bool, enum | valid/invalid choices, empty |\n| butcev_NumericTypes.sh | decimal | range bounds, non-integer, empty |\n| butcev_RefTypes.sh | odref | digest-pinned format, malformed refs, empty |\n| butcev_ListTypes.sh | list_string, list_ipv4, list_gname | element validation, empty list, mixed good/bad elements |\n\n### Integration files (2)\n\n| File | Concern |\n|------|---------|\n| butcev_GateEnroll.sh | gated-in passes, gated-out skips, gate var mismatch |\n| butcev_EnforceReport.sh | enforce dies on first bad, report returns status with rich output, multi-scope filtering, mixed pass/fail |\n\n## Test pattern\n\nEach _tcase runs in a subshell (clean state). Every case does its own:\n1. zbuv_kindle (init rolls)\n2. buv_*_enroll calls (register variables)\n3. Set environment variables to test values\n4. buv_enforce or buv_report (consume)\n\nUse buto_unit_expect_ok for positive cases, buto_unit_expect_fatal for negative cases (expected failures).\n\nConsider a small helper function to reduce kindle+enroll boilerplate across cases.\n\n## Suite registration\n\nAdd an \"enrollment-validation\" suite to rbtb_testbench.sh:\n- Source all 7 butcev_*.sh files\n- Add setup function zrbtb_enrollment_tsuite_setup (likely no-op or just trace)\n- Enroll all _tcase functions under the suite\n\n## Acceptance\n\n- All positive cases pass (valid data, enforce succeeds)\n- All negative cases pass (invalid data, enforce/report correctly rejects)\n- Gating: gated-out vars skipped, gated-in vars checked\n- Report: shows PASS/FAIL/SKIP per variable, returns correct status\n- Suite runs via: ./tt/rbw-ta.TestAll.sh (or rbw-ts enrollment-validation)",
+              "silks": "buv-enrollment-tests",
+              "commit": "6557920"
             }
           ]
         }
