@@ -9,6 +9,7 @@
         "₢AfAAA",
         "₢AfAAB",
         "₢AfAAM",
+        "₢AfAAN",
         "₢AfAAH",
         "₢AfAAC",
         "₢AfAAD",
@@ -20,7 +21,7 @@
         "₢AfAAJ",
         "₢AfAAL"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -191,6 +192,17 @@
               "text": "Exfiltrate buv_qualify_tabtargets to new buq_ (qualification) module.\n\n## Context\n\nbuv_validation.sh is being restructured from a bag of stateless validators into a kindle-aware enrollment registry. The buv_qualify_tabtargets function validates tabtarget file structure (shebangs, BURD_LAUNCHER lines) — a different concern from variable validation. Moving it to its own module clears the way for clean buv_ restructuring.\n\n## Scope\n\n1. Create Tools/buk/buq_qualify.sh\n2. Move buv_qualify_tabtargets → buq_qualify_tabtargets\n3. Add sourcing/kindle boilerplate as needed\n4. Update all callers (likely rbq_Qualify.sh and test harnesses)\n5. Remove the function from buv_validation.sh\n\n## Acceptance\n\n- buv_qualify_tabtargets no longer exists\n- buq_qualify_tabtargets works identically\n- All callers updated\n- Qualification passes",
               "silks": "buq-exfiltrate-qualify",
               "commit": "fb03a02"
+            }
+          ]
+        },
+        "₢AfAAN": {
+          "tacks": [
+            {
+              "ts": "260219-1853",
+              "state": "rough",
+              "text": "Create the buv_ enrollment system: declarative regime variable registration with dual consumption paths.\n\n## Design\n\nRegime variables are enrolled during kindle with type-specific functions. Two consumption paths read the same enrolled data:\n\n- buv_enforce SCOPE — silent, dies on first failure (internal gate)\n- buv_report SCOPE \"Label\" — rich per-variable display, returns non-zero if any failed (CLI validate command)\n\n## Enrollment Functions (kindle-only, BCG _enroll suffix)\n\nParameter shape: SCOPE VARNAME GATE_VAR GATE_VAL [type-specific-params...]\n\nScalar types:\n  buv_string_enroll   RBRR  RBRR_PROJECT_ID    \"\"  \"\"  3 50\n  buv_xname_enroll    RBRR  RBRR_SA_NAME       \"\"  \"\"  3 50\n  buv_gname_enroll    RBRR  RBRR_REGION        \"\"  \"\"  3 30\n  buv_fqin_enroll     RBRR  RBRR_IMAGE_REF     \"\"  \"\"  5 200\n  buv_bool_enroll     RBRR  RBRR_ENABLED       \"\"  \"\"\n  buv_enum_enroll     RBRR  RBRR_MODE          \"\"  \"\"  create delete\n  buv_decimal_enroll  RBRR  RBRR_TIMEOUT       \"\"  \"\"  1 3600\n  buv_odref_enroll    RBRR  RBRR_PINNED_IMAGE  \"\"  \"\"\n\nGated (conditionally required):\n  buv_gname_enroll  RBRR  RBRR_BUCKET  RBRR_MODE  create  3 50\n\nList variants (space-separated elements, each element validated as scalar type):\n  buv_list_string_enroll  RBRN  RBRN_TAGS          \"\"  \"\"  1 20\n  buv_list_ipv4_enroll    RBRN  RBRN_DNS_SERVERS   \"\"  \"\"\n  buv_list_gname_enroll   RBRN  RBRN_ZONES         \"\"  \"\"  3 30\n\nNo value parameter — variable name is enrolled, value read via ${!varname} at check time.\n\n## Gating\n\nGATE_VAR and GATE_VAL follow SCOPE and VARNAME:\n- \"\" \"\" = ungated (always required)\n- GATE_VAR GATE_VAL = only check when ${!GATE_VAR} equals GATE_VAL\n- Report shows gated-out items as \"skipped\"\n- Enforce silently skips gated-out items\n\n## Infrastructure\n\n1. zbuv_kindle — initializes empty enrollment rolls (following buz/rbz precedent)\n2. 7 parallel rolls: scope, varname, type, gate_var, gate_val, p1, p2\n3. Internal predicate for type checking — returns 0/1, sets error detail variable\n4. Both enforce and report call predicate, diverge on behavior\n5. Enum choices packed space-separated in p1 (safe: regime values have no spaces)\n\n## Consumption\n\nbuv_enforce SCOPE — iterates enrolled variables for SCOPE, calls internal predicate, buc_die on first failure.\n\nbuv_report SCOPE \"Label\" — iterates enrolled variables for SCOPE, prints rich diagnostics per variable (name, value, type, constraint, pass/fail), returns non-zero if any failed.\n\n## Acceptance\n\n- All enrollment functions store correctly into rolls\n- buv_enforce dies on bad data, passes silently on good data\n- buv_report shows readable per-variable diagnostics\n- Gating works (skips when gate does not match)\n- List variants validate each element\n- zbuv_kindle initializes rolls properly\n- No dependency on legacy buv_val_* functions (self-contained checking)",
+              "silks": "buv-enrollment-infrastructure",
+              "commit": "d3ce797"
             }
           ]
         }
