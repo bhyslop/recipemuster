@@ -273,6 +273,13 @@
         "₢AfAAM": {
           "tacks": [
             {
+              "ts": "260220-0805",
+              "state": "rough",
+              "text": "Exfiltrate buv_qualify_tabtargets to new buq_ (qualification) module.\n\n## Context\n\nbuv_validation.sh is being restructured from a bag of stateless validators into a kindle-aware enrollment registry. The buv_qualify_tabtargets function validates tabtarget file structure (shebangs, BURD_LAUNCHER lines) — a different concern from variable validation. Moving it to its own module clears the way for clean buv_ restructuring.\n\n## Pre-flight\n\nRun `./tt/rbw-qa.QualifyAll.sh` and capture output. This is the baseline — the post-flight must match.\n\n## Scope\n\n1. Create Tools/buk/buq_qualify.sh\n2. Move buv_qualify_tabtargets → buq_qualify_tabtargets\n3. Add sourcing/kindle boilerplate as needed\n4. Update caller in Tools/rbw/rbq_Qualify.sh (line 131)\n5. Ensure rbq_Qualify.sh sources the new module\n6. Remove the function from buv_validation.sh\n\n## Post-flight\n\nRun `./tt/rbw-qa.QualifyAll.sh` again. Output must match pre-flight exactly.\n\n## Acceptance\n\n- buv_qualify_tabtargets no longer exists in buv_validation.sh\n- buq_qualify_tabtargets works identically in new buq_qualify.sh\n- All callers updated\n- `./tt/rbw-qa.QualifyAll.sh` produces identical output before and after",
+              "silks": "buq-exfiltrate-qualify",
+              "commit": "fa32077"
+            },
+            {
               "ts": "260219-1852",
               "state": "rough",
               "text": "Exfiltrate buv_qualify_tabtargets to new buq_ (qualification) module.\n\n## Context\n\nbuv_validation.sh is being restructured from a bag of stateless validators into a kindle-aware enrollment registry. The buv_qualify_tabtargets function validates tabtarget file structure (shebangs, BURD_LAUNCHER lines) — a different concern from variable validation. Moving it to its own module clears the way for clean buv_ restructuring.\n\n## Scope\n\n1. Create Tools/buk/buq_qualify.sh\n2. Move buv_qualify_tabtargets → buq_qualify_tabtargets\n3. Add sourcing/kindle boilerplate as needed\n4. Update all callers (likely rbq_Qualify.sh and test harnesses)\n5. Remove the function from buv_validation.sh\n\n## Acceptance\n\n- buv_qualify_tabtargets no longer exists\n- buq_qualify_tabtargets works identically\n- All callers updated\n- Qualification passes",
