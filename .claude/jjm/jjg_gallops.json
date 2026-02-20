@@ -248,6 +248,13 @@
         "₢AfAAL": {
           "tacks": [
             {
+              "ts": "260219-1911",
+              "state": "rough",
+              "text": "Final review of paddock and docket content for stale references.\n\n## Context\n\nThe paddock was written before the buv_ enrollment transformation and with specific line numbers from an initial audit. As paces execute and code changes, references become stale and resolved concerns accumulate.\n\n## Scope\n\n1. **Enrollment era update** — Add cross-cutting documentation about the enrollment transformation:\n   - buv_ enrollment replaces per-module validate_fields/validate patterns\n   - buv_enforce (ironclad gate) and buv_report (explained display) replace hand-written checking\n   - Gating replaces optional variable handling\n   - Cross-cutting concerns like \"Unquoted ${#ARRAY[@]}\" are subsumed by enrollment (buv_ handles all type checking internally)\n\n2. **Stale references** — Review paddock per-regime concern lists:\n   - Remove resolved items (mark with strikethrough or delete)\n   - Replace any remaining specific line numbers with \"search for pattern X\" guidance\n   - Update \"Consumers of rbrn_load_moniker\" — should be eliminated by now\n\n3. **Regime inventory** — Verify all regimes are accounted for in completed paces:\n   - RBRO should now have rbro_regime.sh\n   - BURE should have enrollment for VERBOSE, COLOR, COUNTDOWN\n   - All regimes should use enrollment\n\n4. **Docket staleness** — Spot-check remaining docket content against actual state\n\n## Acceptance\n\n- No stale line numbers in paddock\n- All resolved concerns marked as such\n- Enrollment transformation documented in cross-cutting section\n- Paddock reflects actual post-work state",
+              "silks": "final-paddock-hygiene-review",
+              "commit": "f257149"
+            },
+            {
               "ts": "260219-0919",
               "state": "rough",
               "text": "Final review of paddock and docket content for stale references.\n\n## Context\n\nThe paddock was written with specific line numbers from an initial audit. As paces execute and code changes, these line references become stale. Additionally, some concerns listed in the paddock will have been resolved by earlier paces.\n\n## Scope\n\n1. Review paddock per-regime concern lists — remove resolved items, update stale references\n2. Replace any remaining specific line numbers with \"search for pattern X\" guidance\n3. Verify all regimes in the paddock inventory are accounted for in completed paces\n4. Clean up any other staleness from the planning phase\n\n## Acceptance\n\n- No stale line numbers in paddock\n- All resolved concerns marked as such\n- Paddock reflects actual post-work state",
