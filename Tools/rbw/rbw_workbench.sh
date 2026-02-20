@@ -48,9 +48,9 @@ zburd_kindle
 zbuz_kindle
 zrbz_kindle
 
-# Verbose output if BURD_VERBOSE is set
+# Verbose output if BURE_VERBOSE is set
 rbw_show() {
-  test "${BURD_VERBOSE:-0}" != "1" || echo "RBWSHOW: $*"
+  test "${BURE_VERBOSE:-0}" != "1" || echo "RBWSHOW: $*"
 }
 
 ######################################################################

@@ -9,14 +9,8 @@ Variables arrive via three phases: input (caller-set), computed (derived during 
 {burd_group_input}
 
 Variables set by the caller before dispatch invocation.
-These configure dispatch behavior (verbosity, logging, interactivity) and identify the regime and coordinator to use.
-
-// ⟦axhrv_variable⟧
-{burd_verbose}
-
-Verbosity level controlling diagnostic output.
-0=silent, 1=show messages, 2=enable bash trace (set -x).
-Defaults to 0 if unset.
+These configure dispatch behavior (logging, interactivity) and identify the regime and coordinator to use.
+Ambient overrides (VERBOSE, COLOR) have moved to BURE.
 
 // ⟦axhrv_variable⟧
 {burd_regime_file}
@@ -34,13 +28,6 @@ Used for lightweight dispatch where logging overhead is unwanted.
 {burd_interactive}
 
 When non-empty, enables interactive mode: output goes to terminal via tee rather than curated log pipeline.
-
-// ⟦axhrv_variable⟧
-{burd_color}
-
-Color output policy.
-Input as auto/0/1; resolved to 0 or 1 during dispatch.
-Respects NO_COLOR environment convention.
 
 // ⟦axhrv_variable⟧
 {burd_coordinator_script}

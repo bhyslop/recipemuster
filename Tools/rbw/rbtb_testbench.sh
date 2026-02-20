@@ -61,7 +61,7 @@ zrbz_kindle
 # Shared test helpers (migrated from rbt_testbench.sh)
 
 rbtb_show() {
-  test "${BURD_VERBOSE:-0}" != "1" || echo "RBTSHOW: $*"
+  test "${BURE_VERBOSE:-0}" != "1" || echo "RBTSHOW: $*"
 }
 
 rbtb_load_nameplate() {

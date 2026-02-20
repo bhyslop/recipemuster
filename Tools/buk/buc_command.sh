@@ -202,8 +202,8 @@ zbuc_print() {
   local min_verbosity="$1"
   shift
 
-  # Always print if min_verbosity is -1, otherwise check BURD_VERBOSE
-  if [ "${min_verbosity}" -eq -1 ] || [ "${BURD_VERBOSE:-0}" -ge "${min_verbosity}" ]; then
+  # Always print if min_verbosity is -1, otherwise check BURE_VERBOSE
+  if [ "${min_verbosity}" -eq -1 ] || [ "${BURE_VERBOSE:-0}" -ge "${min_verbosity}" ]; then
     while [ $# -gt 0 ]; do
       if [ -n "${ZBUC_CONTEXT}" ]; then
         printf '%b%s%b %s\n' "${ZBUC_GRAY}" "${ZBUC_CONTEXT}" "${ZBUC_RESET}" "$1" >&2

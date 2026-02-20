@@ -56,7 +56,9 @@ bure_render() {
 
   # Behavioral Overrides
   bupr_section_begin "Behavioral Overrides"
-  bupr_section_item BURE_COUNTDOWN  enum  opt  "Countdown behavior override (skip)"
+  bupr_section_item BURE_COUNTDOWN  enum    opt  "Countdown behavior override (skip)"
+  bupr_section_item BURE_VERBOSE   integer opt  "Verbose output flag (default: 0)"
+  bupr_section_item BURE_COLOR     string  opt  "Color mode flag for output rendering"
   bupr_section_end
 
   # Unexpected variables

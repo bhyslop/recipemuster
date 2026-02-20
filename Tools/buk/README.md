@@ -567,7 +567,7 @@ This mirrors MBC's `MBC_TTPARAM__FIRST` through `MBC_TTPARAM__FIFTH` pattern.
 
 | Variable | Values | Description |
 |----------|--------|-------------|
-| `BURD_COLOR` | `0` or `1` | Color policy after terminal detection; respects `NO_COLOR` |
+| `BURE_COLOR` | `0` or `1` | Color policy after terminal detection; respects `NO_COLOR` |
 
 #### Control Variables
 
@@ -575,7 +575,7 @@ Set these *before* invoking a tabtarget to modify dispatch behavior:
 
 | Variable | Values | Effect |
 |----------|--------|--------|
-| `BURD_VERBOSE` | `0`, `1`, `2` | `0`=quiet, `1`=debug output, `2`=bash trace (`set -x`) |
+| `BURE_VERBOSE` | `0`, `1`, `2`, `3` | `0`=quiet, `1`=debug output, `2`=bash trace (`set -x`), `3`=trace + deep diagnostics |
 | `BURD_NO_LOG` | any value | Disables all logging |
 | `BURD_INTERACTIVE` | any value | Line-buffered output mode for interactive commands |
 

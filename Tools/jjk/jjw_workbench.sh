@@ -33,9 +33,9 @@ buc_context "${0##*/}"
 # Verify dispatch completed
 zburd_kindle
 
-# Verbose output if BURD_VERBOSE is set
+# Verbose output if BURE_VERBOSE is set
 jjw_show() {
-  test "${BURD_VERBOSE:-0}" != "1" || echo "JJWSHOW: $*"
+  test "${BURE_VERBOSE:-0}" != "1" || echo "JJWSHOW: $*"
 }
 
 # Simple routing function

@@ -85,11 +85,9 @@
 :burd_group_parsed:                <<burd_group_parsed,Parsed Variables>>
 
 // BURD Input Variables
-:burd_verbose:                     <<burd_verbose,BURD_VERBOSE>>
 :burd_regime_file:                 <<burd_regime_file,BURD_REGIME_FILE>>
 :burd_no_log:                      <<burd_no_log,BURD_NO_LOG>>
 :burd_interactive:                 <<burd_interactive,BURD_INTERACTIVE>>
-:burd_color:                       <<burd_color,BURD_COLOR>>
 :burd_coordinator_script:          <<burd_coordinator_script,BURD_COORDINATOR_SCRIPT>>
 :burd_launcher:                    <<burd_launcher,BURD_LAUNCHER>>
 :burd_station_file:                <<burd_station_file,BURD_STATION_FILE>>
@@ -119,6 +117,8 @@
 :bure_prefix:                      <<bure_prefix,BURE_>>
 :bure_regime:                      <<bure_regime,BURE Regime>>
 :bure_countdown:                   <<bure_countdown,BURE_COUNTDOWN>>
+:bure_verbose:                     <<bure_verbose,BURE_VERBOSE>>
+:bure_color:                       <<bure_color,BURE_COLOR>>
 
 // end::mapping-section[]
 
@@ -484,12 +484,6 @@ The dispatch main function IS the kindle: zbud_setup sources configuration and d
 {burd_group_input}::
 Variables set by the caller before dispatch invocation.
 
-[[burd_verbose]]
-// ⟦axl_voices axrg_variable axtu_integer⟧
-{burd_verbose}::
-Verbosity level controlling diagnostic output.
-0=silent, 1=show messages, 2=enable bash trace.
-
 [[burd_regime_file]]
 // ⟦axl_voices axrg_variable axtu_path⟧
 {burd_regime_file}::
@@ -504,13 +498,6 @@ When non-empty, suppresses all log file creation and output.
 // ⟦axl_voices axrg_variable axtu_string axd_optional⟧
 {burd_interactive}::
 When non-empty, enables interactive mode with uncurated tee logging.
-
-[[burd_color]]
-// ⟦axl_voices axrg_variable axtu_string⟧
-{burd_color}::
-Color output policy.
-Input as auto/0/1; resolved to 0 or 1 during dispatch.
-Respects NO_COLOR environment convention.
 
 [[burd_coordinator_script]]
 // ⟦axl_voices axrg_variable axtu_path axd_required⟧
@@ -644,5 +631,18 @@ Countdown behavior override.
 When set to `skip`, buc_countdown bypasses interactive countdown and tty output.
 When unset, countdown proceeds normally with interactive tty cancel window.
 Any other value fails validation.
+
+[[bure_verbose]]
+// ⟦axl_voices axrg_variable axtu_integer⟧
+{bure_verbose}::
+Verbosity level controlling diagnostic output.
+0=silent, 1=show messages, 2=enable bash trace.
+
+[[bure_color]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{bure_color}::
+Color output policy.
+Input as auto/0/1; resolved to 0 or 1 during dispatch.
+Respects NO_COLOR environment convention.
 
 include::BUSD-DispatchRuntime.adoc[]

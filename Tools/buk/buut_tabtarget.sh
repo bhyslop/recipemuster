@@ -47,9 +47,9 @@ zbuut_sentinel() {
   test "${ZBUUT_KINDLED:-}" = "1" || buc_die "Module buut not kindled - call zbuut_kindle first"
 }
 
-# Verbose output if BURD_VERBOSE is set
+# Verbose output if BURE_VERBOSE is set
 zbuut_show() {
-  test "${BURD_VERBOSE:-0}" != "1" || echo "BUUTSHOW: $*"
+  test "${BURE_VERBOSE:-0}" != "1" || echo "BUUTSHOW: $*"
 }
 
 # Write a tabtarget file with specified flags

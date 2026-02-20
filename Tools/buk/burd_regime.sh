@@ -34,7 +34,6 @@ zburd_kindle() {
   test -z "${ZBURD_KINDLED:-}" || buc_die "Module burd already kindled"
 
   # Set defaults for all optional fields only (required ones are set by dispatch — don't overwrite)
-  BURD_VERBOSE="${BURD_VERBOSE:-0}"
   BURD_NO_LOG="${BURD_NO_LOG:-}"
   BURD_INTERACTIVE="${BURD_INTERACTIVE:-}"
   BURD_TOKEN_3="${BURD_TOKEN_3:-}"
@@ -42,7 +41,7 @@ zburd_kindle() {
   BURD_TOKEN_5="${BURD_TOKEN_5:-}"
 
   # Detect unexpected BURD_ variables
-  local z_known="BURD_REGIME_FILE BURD_STATION_FILE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_TERM_COLS BURD_NOW_STAMP BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_COLOR BURD_TARGET BURD_COMMAND BURD_TOKEN_1 BURD_TOKEN_2 BURD_CLI_ARGS BURD_VERBOSE BURD_NO_LOG BURD_INTERACTIVE BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST"
+  local z_known="BURD_REGIME_FILE BURD_STATION_FILE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_TERM_COLS BURD_NOW_STAMP BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_TARGET BURD_COMMAND BURD_TOKEN_1 BURD_TOKEN_2 BURD_CLI_ARGS BURD_NO_LOG BURD_INTERACTIVE BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST"
   ZBURD_UNEXPECTED=()
   local z_var
   for z_var in $(compgen -v BURD_); do
@@ -82,8 +81,6 @@ zburd_validate_fields() {
   buv_env_string BURD_OUTPUT_DIR            1 256
   buv_env_string BURD_TRANSCRIPT            1 256
   buv_env_string BURD_GIT_CONTEXT           1 128
-  buv_env_string BURD_COLOR                 1   4
-
   # Parsed Tabtarget
   buv_env_string BURD_TARGET                1 256
   buv_env_string BURD_COMMAND               1  64
@@ -101,7 +98,7 @@ zburd_validate_fields() {
     buv_env_string BURD_LOG_HIST            1 256
   fi
 
-  # BURD_VERBOSE, BURD_NO_LOG, BURD_INTERACTIVE, BURD_TOKEN_3-5 are optional — not validated as required
+  # BURD_NO_LOG, BURD_INTERACTIVE, BURD_TOKEN_3-5 are optional — not validated as required
 }
 
 # Render BURD regime state for diagnostic display
@@ -130,7 +127,6 @@ zburd_render() {
   bupr_section_item BURD_OUTPUT_DIR            path   req  "Output directory for this invocation"
   bupr_section_item BURD_TRANSCRIPT            path   req  "Path to transcript file for this invocation"
   bupr_section_item BURD_GIT_CONTEXT           string req  "Git context string at dispatch time"
-  bupr_section_item BURD_COLOR                 string req  "Color mode flag for output rendering"
   bupr_section_end
 
   # Parsed Tabtarget
@@ -146,7 +142,6 @@ zburd_render() {
 
   # Caller Options
   bupr_section_begin "Caller Options"
-  bupr_section_item BURD_VERBOSE               string opt  "Verbose output flag (default: 0)"
   bupr_section_item BURD_NO_LOG                string opt  "Disable logging when set (empty means logging active)"
   bupr_section_item BURD_INTERACTIVE           string opt  "Interactive mode flag when set"
   bupr_section_end

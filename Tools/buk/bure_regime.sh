@@ -35,9 +35,11 @@ zbure_kindle() {
 
   # Set default for all fields (validate enforces required-ness)
   BURE_COUNTDOWN="${BURE_COUNTDOWN:-}"
+  BURE_VERBOSE="${BURE_VERBOSE:-0}"
+  BURE_COLOR="${BURE_COLOR:-auto}"
 
   # Detect unexpected BURE_ variables
-  local z_known="BURE_COUNTDOWN"
+  local z_known="BURE_COUNTDOWN BURE_VERBOSE BURE_COLOR"
   ZBURE_UNEXPECTED=()
   local z_var
   for z_var in $(compgen -v BURE_); do
@@ -66,6 +68,8 @@ zbure_validate_fields() {
 
   # Validate fields (BURE_COUNTDOWN is optional; if set must be "skip")
   buv_opt_enum        BURE_COUNTDOWN             skip
+  buv_env_enum        BURE_VERBOSE               0 1 2 3
+  buv_env_string      BURE_COLOR                 1   4
 }
 
 # eof

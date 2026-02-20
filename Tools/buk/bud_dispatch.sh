@@ -20,15 +20,15 @@
 
 set -euo pipefail
 
-BURD_VERBOSE=${BURD_VERBOSE:-0}
+BURE_VERBOSE=${BURE_VERBOSE:-0}
 
 BURD_REGIME_FILE=${BURD_REGIME_FILE:-"__MISSING_BURD_REGIME_FILE__"}
 
 # Utility function for verbose output
-zbud_show() { test "$BURD_VERBOSE" != "1" || echo "BURDSHOW: $*"; }
+zbud_show() { test "$BURE_VERBOSE" != "1" || echo "BURDSHOW: $*"; }
 
 # Enable trace mode if verbose level is 2
-if [[ "$BURD_VERBOSE" == "2" ]]; then
+if [[ "$BURE_VERBOSE" == "2" ]]; then
   set -x
 fi
 
@@ -233,21 +233,21 @@ zbud_generate_checksum() {
   return 0
 }
 
-# Resolve color policy once at dispatch time and export BURD_COLOR (0/1)
+# Resolve color policy once at dispatch time and export BURE_COLOR (0/1)
 zbud_resolve_color() {
   if [ -n "${NO_COLOR:-}" ]; then
-    export BURD_COLOR=0
+    export BURE_COLOR=0
     return 0
   fi
-  case "${BURD_COLOR:-auto}" in
+  case "${BURE_COLOR:-auto}" in
     0|1)
-      export BURD_COLOR
+      export BURE_COLOR
       ;;
     auto|*)
       if [ -t 1 ] && [ "${TERM:-}" != "dumb" ] && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -gt 0 ]; then
-          export BURD_COLOR=1
+          export BURE_COLOR=1
       else
-          export BURD_COLOR=0
+          export BURE_COLOR=0
       fi
       ;;
   esac
@@ -268,7 +268,7 @@ zbud_main() {
   zbud_show "Arguments processed"
 
   # Detect unexpected BURD_ variables
-  local z_known="BURD_VERBOSE BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COLOR BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5"
+  local z_known="BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5"
   ZBURD_UNEXPECTED=()
   local z_var
   for z_var in $(compgen -v BURD_); do

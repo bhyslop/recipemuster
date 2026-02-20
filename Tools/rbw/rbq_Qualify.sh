@@ -20,6 +20,10 @@
 
 set -euo pipefail
 
+ZRBQ_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+
+source "${ZRBQ_SCRIPT_DIR}/../buk/buq_qualify.sh"
+
 # Multiple inclusion detection
 test -z "${ZRBQ_SOURCED:-}" || buc_die "Module rbq multiply sourced - check sourcing hierarchy"
 ZRBQ_SOURCED=1
@@ -128,7 +132,7 @@ rbq_qualify_all() {
 
   buc_step "Running full qualification"
 
-  buv_qualify_tabtargets "${ZRBQ_TT_DIR}" "${ZRBQ_PROJECT_ROOT}" \
+  buq_qualify_tabtargets "${ZRBQ_TT_DIR}" "${ZRBQ_PROJECT_ROOT}" \
     "butctt.*.sh" \
     # End of exempt list
   rbq_qualify_colophons

@@ -37,7 +37,7 @@ zrbgm_kindle() {
   zrbgc_sentinel
 
   local z_use_color=0
-  if [ -z "${NO_COLOR:-}" ] && [ "${BURD_COLOR:-0}" = "1" ]; then
+  if [ -z "${NO_COLOR:-}" ] && [ "${BURE_COLOR:-0}" = "1" ]; then
     z_use_color=1
   fi
 
