@@ -19,10 +19,11 @@
         "₢AfAAI",
         "₢AfAAG",
         "₢AfAAO",
+        "₢AfAAP",
         "₢AfAAJ",
         "₢AfAAL"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -215,6 +216,17 @@
               "text": "Audit for surviving callers of legacy buv_val_*, buv_env_*, buv_opt_* functions.\n\n## Context\n\nAfter regime scrubs convert all validation to the buv_ enrollment system, some straggler callers of the old buv_val_*/buv_env_*/buv_opt_* functions may remain. This pace audits and migrates them before deletion.\n\n## Scope\n\n1. grep for buv_val_, buv_env_, buv_opt_ across active codebase (excluding ABANDONED/, Study/, Memos/)\n2. For each surviving caller: migrate to enrollment pattern or inline test/buc_die equivalent\n3. Verify no runtime references remain\n\n## Acceptance\n\n- Zero active callers of buv_val_*, buv_env_*, buv_opt_* functions\n- All validation uses enrollment or inline patterns",
               "silks": "audit-legacy-buv-callers",
               "commit": "1aa7eb7"
+            }
+          ]
+        },
+        "₢AfAAP": {
+          "tacks": [
+            {
+              "ts": "260219-1854",
+              "state": "rough",
+              "text": "Delete legacy buv_val_*, buv_env_*, buv_opt_* functions from buv_validation.sh.\n\n## Context\n\nAfter enrollment system is complete and all callers migrated (audit-legacy-buv-callers pace), the old stateless validator functions are dead code. Remove them.\n\n## Scope\n\n1. Delete all buv_val_* function definitions from buv_validation.sh\n2. Delete all buv_env_* function definitions\n3. Delete all buv_opt_* function definitions\n4. Delete any internal helper functions only used by the above (zbuv_env_wrapper, etc.)\n5. Keep buv_validation.sh as the enrollment system module\n6. Update any documentation references\n\n## Acceptance\n\n- buv_validation.sh contains only enrollment infrastructure (kindle, enroll, enforce, report)\n- No buv_val_*, buv_env_*, buv_opt_* functions exist\n- Qualification passes",
+              "silks": "delete-legacy-buv-functions",
+              "commit": "f367890"
             }
           ]
         }
