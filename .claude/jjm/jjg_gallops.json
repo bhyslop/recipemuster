@@ -1,6 +1,15 @@
 {
   "next_heat_seed": "Ah",
   "heats": {
+    "₣Ag": {
+      "silks": "jjk-heat-priority-ordering",
+      "creation_time": "260221",
+      "status": "racing",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_Ag.md",
+      "paces": {}
+    },
     "₣Af": {
       "silks": "rbk-regime-second-pass",
       "creation_time": "260219",
@@ -6474,15 +6483,6 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_Ae.md",
-      "paces": {}
-    },
-    "₣Ag": {
-      "silks": "jjk-heat-priority-ordering",
-      "creation_time": "260221",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paddock_file": ".claude/jjm/jjp_Ag.md",
       "paces": {}
     }
   }
