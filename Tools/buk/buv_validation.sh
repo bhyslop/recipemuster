@@ -578,6 +578,14 @@ buv_odref_enroll() {
   zbuv_enroll "${z_scope}" "${z_varname}" "odref" "${z_gate_var}" "${z_gate_val}" "" ""
 }
 
+buv_ipv4_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "ipv4" "${z_gate_var}" "${z_gate_val}" "" ""
+}
+
 # Public enrollment functions — list types
 
 buv_list_string_enroll() {
@@ -766,6 +774,17 @@ zbuv_check_predicate() {
       }
       ;;
 
+    ipv4)
+      if test -z "${z_val}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+        return 1
+      fi
+      echo "${z_val}" | grep -qE '^([0-9]{1,3}\.){3}[0-9]{1,3}$' || {
+        ZBUV_CHECK_ERROR="${z_varname} has invalid IPv4 format: '${z_val}'"
+        return 1
+      }
+      ;;
+
     list_string)
       local z_item
       local z_item_num=0
@@ -822,12 +841,12 @@ zbuv_check_predicate() {
   esac
 }
 
-# buv_enforce SCOPE — iterate all enrolled vars in scope; die on first failure
-buv_enforce() {
+# buv_vet SCOPE — iterate all enrolled vars in scope; die on first failure
+buv_vet() {
   zbuv_sentinel
 
   local z_scope="${1:-}"
-  test -n "${z_scope}" || buc_die "buv_enforce: scope required"
+  test -n "${z_scope}" || buc_die "buv_vet: scope required"
 
   local z_i
   for z_i in "${!z_buv_scope_roll[@]}"; do

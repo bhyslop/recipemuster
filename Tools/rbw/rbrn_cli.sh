@@ -146,7 +146,7 @@ case "${z_command}" in
         echo "  ${z_m}"
       done
     else
-      z_file="${RBCC_KIT_DIR}/${RBCC_RBRN_PREFIX}${z_moniker}${RBCC_RBRN_EXT}"
+      z_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
       test -f "${z_file}" || buc_die "Nameplate not found: ${z_file}"
       case "${z_command}" in
         validate) rbrn_validate "${z_file}" ;;
@@ -159,9 +159,12 @@ case "${z_command}" in
     source "${ZRBRN_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
     source "${ZRBRN_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
     source "${ZRBRN_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+    source "${RBCC_rbrr_file}"
     source "${ZRBRN_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
+    zbuv_kindle
     zrbgc_kindle
-    rbrr_load
+    zrbrr_kindle
+    zrbrr_enforce
     zrbgo_kindle
     zrbgd_kindle
     case "${z_command}" in

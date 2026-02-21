@@ -38,7 +38,9 @@ set -euo pipefail
 # rbtcap_jwt_governor_tcase - JWT SA access probe for Governor role
 rbtcap_jwt_governor_tcase() {
   buto_info "JWT access probe: Governor"
-  rbrr_load
+  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
+  zrbrr_kindle
+  zrbrr_enforce
   zrbgc_kindle
   zrbgo_kindle
   zrbgu_kindle
@@ -53,7 +55,9 @@ rbtcap_jwt_governor_tcase() {
 # rbtcap_jwt_director_tcase - JWT SA access probe for Director role
 rbtcap_jwt_director_tcase() {
   buto_info "JWT access probe: Director"
-  rbrr_load
+  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
+  zrbrr_kindle
+  zrbrr_enforce
   zrbgc_kindle
   zrbgo_kindle
   zrbgu_kindle
@@ -68,7 +72,9 @@ rbtcap_jwt_director_tcase() {
 # rbtcap_jwt_retriever_tcase - JWT SA access probe for Retriever role
 rbtcap_jwt_retriever_tcase() {
   buto_info "JWT access probe: Retriever"
-  rbrr_load
+  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
+  zrbrr_kindle
+  zrbrr_enforce
   zrbgc_kindle
   zrbgo_kindle
   zrbgu_kindle
@@ -83,7 +89,9 @@ rbtcap_jwt_retriever_tcase() {
 # rbtcap_payor_oauth_tcase - Payor OAuth access probe
 rbtcap_payor_oauth_tcase() {
   buto_info "Payor OAuth access probe"
-  rbrr_load
+  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
+  zrbrr_kindle
+  zrbrr_enforce
   zrbgc_kindle
   rbrp_load
   zrbgo_kindle

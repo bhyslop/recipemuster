@@ -36,8 +36,9 @@ ZRBOB_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZRBOB_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbrn_regime.sh"
-source "${ZRBOB_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
+source "${ZRBOB_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBCC_rbrr_file}"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbob_bottle.sh"
@@ -107,13 +108,14 @@ zrbob_furnish() {
   local z_moniker="${RBOB_MONIKER:-}"
   test -n "${z_moniker}" || buc_die "RBOB_MONIKER environment variable required"
 
+  zbuv_kindle
   zrbcc_kindle
 
   # Load nameplate
   rbrn_load_moniker "${z_moniker}"
 
-  # Load RBRR - config loading belongs in furnish per BCG pattern
-  rbrr_load
+  zrbrr_kindle
+  zrbrr_enforce
 
   # Kindle depot constants (provides RBGD_GAR_LOCATION, RBGD_GAR_PROJECT_ID for image URLs)
   zrbgc_kindle

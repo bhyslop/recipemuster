@@ -30,7 +30,7 @@ ZRBRR_SOURCED=1
 zrbrr_kindle() {
   test -z "${ZRBRR_KINDLED:-}" || buc_die "Module rbrr already kindled"
 
-  # Set defaults for all fields (validate enforces required-ness)
+  # Set defaults for all fields (enrollment enforces required-ness)
   RBRR_VESSEL_DIR="${RBRR_VESSEL_DIR:-}"
   RBRR_DNS_SERVER="${RBRR_DNS_SERVER:-}"
   RBRR_IGNITE_MACHINE_NAME="${RBRR_IGNITE_MACHINE_NAME:-}"
@@ -67,31 +67,48 @@ zrbrr_kindle() {
     esac
   done
 
-  # Build rollup of all RBRR_ variables for passing to scripts/containers
-  ZRBRR_ROLLUP=""
-  ZRBRR_ROLLUP+="RBRR_VESSEL_DIR='${RBRR_VESSEL_DIR}' "
-  ZRBRR_ROLLUP+="RBRR_DNS_SERVER='${RBRR_DNS_SERVER}' "
-  ZRBRR_ROLLUP+="RBRR_IGNITE_MACHINE_NAME='${RBRR_IGNITE_MACHINE_NAME}' "
-  ZRBRR_ROLLUP+="RBRR_DEPLOY_MACHINE_NAME='${RBRR_DEPLOY_MACHINE_NAME}' "
-  ZRBRR_ROLLUP+="RBRR_CRANE_TAR_GZ='${RBRR_CRANE_TAR_GZ}' "
-  ZRBRR_ROLLUP+="RBRR_MANIFEST_PLATFORMS='${RBRR_MANIFEST_PLATFORMS}' "
-  ZRBRR_ROLLUP+="RBRR_CHOSEN_PODMAN_VERSION='${RBRR_CHOSEN_PODMAN_VERSION}' "
-  ZRBRR_ROLLUP+="RBRR_CHOSEN_VMIMAGE_ORIGIN='${RBRR_CHOSEN_VMIMAGE_ORIGIN}' "
-  ZRBRR_ROLLUP+="RBRR_CHOSEN_IDENTITY='${RBRR_CHOSEN_IDENTITY}' "
-  ZRBRR_ROLLUP+="RBRR_DEPOT_PROJECT_ID='${RBRR_DEPOT_PROJECT_ID}' "
-  ZRBRR_ROLLUP+="RBRR_GCP_REGION='${RBRR_GCP_REGION}' "
-  ZRBRR_ROLLUP+="RBRR_GAR_REPOSITORY='${RBRR_GAR_REPOSITORY}' "
-  ZRBRR_ROLLUP+="RBRR_GCB_MACHINE_TYPE='${RBRR_GCB_MACHINE_TYPE}' "
-  ZRBRR_ROLLUP+="RBRR_GCB_TIMEOUT='${RBRR_GCB_TIMEOUT}' "
-  ZRBRR_ROLLUP+="RBRR_GOVERNOR_RBRA_FILE='${RBRR_GOVERNOR_RBRA_FILE}' "
-  ZRBRR_ROLLUP+="RBRR_RETRIEVER_RBRA_FILE='${RBRR_RETRIEVER_RBRA_FILE}' "
-  ZRBRR_ROLLUP+="RBRR_DIRECTOR_RBRA_FILE='${RBRR_DIRECTOR_RBRA_FILE}' "
-  ZRBRR_ROLLUP+="RBRR_GCB_ORAS_IMAGE_REF='${RBRR_GCB_ORAS_IMAGE_REF}' "
-  ZRBRR_ROLLUP+="RBRR_GCB_GCLOUD_IMAGE_REF='${RBRR_GCB_GCLOUD_IMAGE_REF}' "
-  ZRBRR_ROLLUP+="RBRR_GCB_DOCKER_IMAGE_REF='${RBRR_GCB_DOCKER_IMAGE_REF}' "
-  ZRBRR_ROLLUP+="RBRR_GCB_ALPINE_IMAGE_REF='${RBRR_GCB_ALPINE_IMAGE_REF}' "
-  ZRBRR_ROLLUP+="RBRR_GCB_SYFT_IMAGE_REF='${RBRR_GCB_SYFT_IMAGE_REF}' "
-  ZRBRR_ROLLUP+="RBRR_GCB_BINFMT_IMAGE_REF='${RBRR_GCB_BINFMT_IMAGE_REF}'"
+  # Die on unexpected variables
+  if test ${#ZRBRR_UNEXPECTED[@]} -gt 0; then
+    buc_die "Unexpected RBRR_ variables: ${ZRBRR_UNEXPECTED[*]}"
+  fi
+
+  # Enroll all RBRR variables for validation via buv_vet/buv_report
+
+  # Container Registry Configuration
+  buv_string_enroll  RBRR  RBRR_VESSEL_DIR              "" ""  1  255
+  buv_ipv4_enroll    RBRR  RBRR_DNS_SERVER              "" ""
+
+  # Machine Configuration
+  buv_xname_enroll   RBRR  RBRR_IGNITE_MACHINE_NAME     "" ""  1   64
+  buv_xname_enroll   RBRR  RBRR_DEPLOY_MACHINE_NAME     "" ""  1   64
+  buv_string_enroll  RBRR  RBRR_CRANE_TAR_GZ            "" ""  1  512
+  buv_string_enroll  RBRR  RBRR_MANIFEST_PLATFORMS       "" ""  1  512
+  buv_string_enroll  RBRR  RBRR_CHOSEN_PODMAN_VERSION    "" ""  1   16
+  buv_fqin_enroll    RBRR  RBRR_CHOSEN_VMIMAGE_ORIGIN    "" ""  1  256
+  buv_string_enroll  RBRR  RBRR_CHOSEN_IDENTITY          "" ""  1  128
+  buv_gname_enroll   RBRR  RBRR_DEPOT_PROJECT_ID         "" ""  6   63
+  buv_gname_enroll   RBRR  RBRR_GCP_REGION               "" ""  1   32
+
+  # Google Artifact Registry Configuration
+  buv_gname_enroll   RBRR  RBRR_GAR_REPOSITORY           "" ""  1   63
+
+  # Google Cloud Build Configuration
+  buv_string_enroll  RBRR  RBRR_GCB_MACHINE_TYPE         "" ""  3   64
+  buv_string_enroll  RBRR  RBRR_GCB_TIMEOUT              "" ""  2   10
+  buv_decimal_enroll RBRR  RBRR_GCB_MIN_CONCURRENT_BUILDS "" "" 1  999
+
+  # Service Account Configuration Files
+  buv_string_enroll  RBRR  RBRR_GOVERNOR_RBRA_FILE       "" ""  1  512
+  buv_string_enroll  RBRR  RBRR_RETRIEVER_RBRA_FILE      "" ""  1  512
+  buv_string_enroll  RBRR  RBRR_DIRECTOR_RBRA_FILE       "" ""  1  512
+
+  # GCB image pins (digest-pinned)
+  buv_odref_enroll   RBRR  RBRR_GCB_ORAS_IMAGE_REF      "" ""
+  buv_odref_enroll   RBRR  RBRR_GCB_GCLOUD_IMAGE_REF    "" ""
+  buv_odref_enroll   RBRR  RBRR_GCB_DOCKER_IMAGE_REF    "" ""
+  buv_odref_enroll   RBRR  RBRR_GCB_ALPINE_IMAGE_REF    "" ""
+  buv_odref_enroll   RBRR  RBRR_GCB_SYFT_IMAGE_REF      "" ""
+  buv_odref_enroll   RBRR  RBRR_GCB_BINFMT_IMAGE_REF    "" ""
 
   # Build docker env args array for container injection
   # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
@@ -106,93 +123,25 @@ zrbrr_sentinel() {
   test "${ZRBRR_KINDLED:-}" = "1" || buc_die "Module rbrr not kindled - call zrbrr_kindle first"
 }
 
-# Validate RBRR variables via buv_env_* (dies on first error)
-# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
-zrbrr_validate_fields() {
+# Enforce all RBRR enrollment validations and custom format checks
+zrbrr_enforce() {
   zrbrr_sentinel
 
-  # Die on unexpected variables
-  if test ${#ZRBRR_UNEXPECTED[@]} -gt 0; then
-    buc_die "Unexpected RBRR_ variables: ${ZRBRR_UNEXPECTED[*]}"
-  fi
+  buv_vet RBRR
 
-  # Container Registry Configuration
-  buv_env_string      RBRR_VESSEL_DIR              1    255
-  buv_env_ipv4        RBRR_DNS_SERVER
-
-  # Machine Configuration
-  buv_env_xname       RBRR_IGNITE_MACHINE_NAME     1     64
-  buv_env_xname       RBRR_DEPLOY_MACHINE_NAME     1     64
-  buv_env_string      RBRR_CRANE_TAR_GZ            1    512
-  buv_env_string      RBRR_MANIFEST_PLATFORMS      1    512
-  buv_env_string      RBRR_CHOSEN_PODMAN_VERSION   1     16
-  buv_env_fqin        RBRR_CHOSEN_VMIMAGE_ORIGIN   1    256
-  buv_env_string      RBRR_CHOSEN_IDENTITY         1    128
-  buv_env_gname       RBRR_DEPOT_PROJECT_ID        6     63
-  buv_env_gname       RBRR_GCP_REGION              1     32
-
-  # Google Artifact Registry Configuration
-  buv_env_gname       RBRR_GAR_REPOSITORY          1     63
-
-  # Google Cloud Build Configuration
-  buv_env_string      RBRR_GCB_MACHINE_TYPE           3     64
-  buv_env_string      RBRR_GCB_TIMEOUT                2     10
-  buv_env_decimal     RBRR_GCB_MIN_CONCURRENT_BUILDS  1     999
-
-  # Service Account Configuration Files
-  buv_env_string      RBRR_GOVERNOR_RBRA_FILE    1    512
-  buv_env_string      RBRR_RETRIEVER_RBRA_FILE   1    512
-  buv_env_string      RBRR_DIRECTOR_RBRA_FILE    1    512
-
-  # GCB image pins (digest-pinned)
-  buv_env_odref       RBRR_GCB_ORAS_IMAGE_REF
-  buv_env_odref       RBRR_GCB_GCLOUD_IMAGE_REF
-  buv_env_odref       RBRR_GCB_DOCKER_IMAGE_REF
-  buv_env_odref       RBRR_GCB_ALPINE_IMAGE_REF
-  buv_env_odref       RBRR_GCB_SYFT_IMAGE_REF
-  buv_env_odref       RBRR_GCB_BINFMT_IMAGE_REF
-
-  # Validate directories exist
   buv_dir_exists "${RBRR_VESSEL_DIR}"
 
-  # Validate manifest platforms format (space-separated identifiers)
   local z_platform=""
   for z_platform in ${RBRR_MANIFEST_PLATFORMS}; do
-    if ! [[ "${z_platform}" =~ ^[a-z0-9_]+$ ]]; then
-      buc_warn "Invalid platform format in RBRR_MANIFEST_PLATFORMS: ${z_platform}"
-      buc_step "Expected format: lowercase alphanumeric with underscores"
-      buc_die "Invalid RBRR_MANIFEST_PLATFORMS"
-    fi
+    [[ "${z_platform}" =~ ^[a-z0-9_]+$ ]] \
+      || buc_die "Invalid platform format in RBRR_MANIFEST_PLATFORMS: ${z_platform}"
   done
 
-  # Validate timeout format (number followed by 's' for seconds)
-  if ! [[ "${RBRR_GCB_TIMEOUT}" =~ ^[0-9]+s$ ]]; then
-    buc_warn "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT}"
-    buc_step "Expected format: number followed by 's' (e.g., 1200s)"
-    buc_die "Invalid RBRR_GCB_TIMEOUT"
-  fi
+  [[ "${RBRR_GCB_TIMEOUT}" =~ ^[0-9]+s$ ]] \
+    || buc_die "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT} (expected NNNs)"
 
-  # Validate Podman version format (e.g., 5.5 or 5.5.1)
-  if ! [[ "${RBRR_CHOSEN_PODMAN_VERSION}" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
-    buc_warn "Invalid RBRR_CHOSEN_PODMAN_VERSION format: ${RBRR_CHOSEN_PODMAN_VERSION}"
-    buc_step "Expected format: semantic version like 5.5 or 5.5.1"
-    buc_die "Invalid RBRR_CHOSEN_PODMAN_VERSION"
-  fi
-}
-
-######################################################################
-# Public Functions (rbrr_*)
-
-# Load RBRR regime
-# Usage: rbrr_load
-# Uses RBCC_RBRR_FILE to locate rbrr.env, verifies exists, sources, kindles, and validates
-rbrr_load() {
-  local z_rbrr_file="${RBCC_RBRR_FILE}"
-  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
-
-  source "${z_rbrr_file}" || buc_die "Failed to source RBRR config: ${z_rbrr_file}"
-  zrbrr_kindle
-  zrbrr_validate_fields
+  [[ "${RBRR_CHOSEN_PODMAN_VERSION}" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] \
+    || buc_die "Invalid RBRR_CHOSEN_PODMAN_VERSION format: ${RBRR_CHOSEN_PODMAN_VERSION} (expected N.N or N.N.N)"
 }
 
 # eof

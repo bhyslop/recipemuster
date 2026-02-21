@@ -35,7 +35,8 @@ zrbv_furnish() {
   buc_doc_env "RBV_RBRR_FILE " "File containing the RBRR constants"
   buc_doc_env "RBV_RBRS_FILE " "File containing the RBRS constants"
 
-  # Validate environment
+  # Initialize enrollment and validate environment
+  zbuv_kindle
   buv_dir_exists  "${RBV_TEMP_DIR}"
   buv_dir_empty   "${RBV_TEMP_DIR}"
   buv_file_exists "${RBV_RBRR_FILE}"
@@ -44,6 +45,7 @@ zrbv_furnish() {
   # Source config files (CLI handles all sourcing)
   source              "${RBV_RBRR_FILE}" || buc_die "Failed to source RBRR config"
   zrbrr_kindle
+  zrbrr_enforce
 
   source              "${RBV_RBRS_FILE}" || buc_die "Failed to source RBRS config"
   zrbrs_kindle

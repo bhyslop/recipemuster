@@ -62,6 +62,7 @@ source "${RBTB_BUTS_DIR}/butcrg_RegimeCredentials.sh"
 
 buc_context "${0##*/}"
 zburd_kindle
+zbuv_kindle
 zrbcc_kindle
 zbuz_kindle
 zrbz_kindle
@@ -82,8 +83,10 @@ rbtb_load_nameplate() {
 
   rbtb_show "Nameplate loaded: RBRN_MONIKER=${RBRN_MONIKER}, RBRN_RUNTIME=${RBRN_RUNTIME}"
 
-  rbtb_show "Loading RBRR"
-  rbrr_load
+  rbtb_show "Loading RBRR via enrollment"
+  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
+  zrbrr_kindle
+  zrbrr_enforce
 
   rbtb_show "Kindling RBGC/RBGD/RBOB"
   zrbgc_kindle

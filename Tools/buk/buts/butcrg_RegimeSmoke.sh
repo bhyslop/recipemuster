@@ -95,8 +95,9 @@ butcrg_rbrr_tcase() {
 butcrg_rbrv_tcase() {
   zbutcrg_init
 
-  # Load RBRR (needed for RBRR_VESSEL_DIR used by rbrv_list)
-  rbrr_load
+  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
+  zrbrr_kindle
+  zrbrr_enforce
 
   zbutcrg_dispatch_ok "rbw-rvr"
   zbutcrg_dispatch_ok "rbw-rvv"

@@ -28,6 +28,7 @@ source "${ZRBRV_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBRV_CLI_SCRIPT_DIR}/rbrv_regime.sh"
 source "${ZRBRV_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBRV_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBCC_rbrr_file}"
 source "${ZRBRV_CLI_SCRIPT_DIR}/rbcr_render.sh"
 
 ######################################################################
@@ -115,18 +116,15 @@ z_sigil="${2:-}"
 
 case "${z_command}" in
   validate|render)
+    zbuv_kindle
+    zrbrr_kindle
+    zrbrr_enforce
     if test -z "${z_sigil}"; then
-      # Load RBRR to get RBRR_VESSEL_DIR
-      test -f "${RBCC_RBRR_FILE}" || buc_die "RBRR regime file not found: ${RBCC_RBRR_FILE}"
-      rbrr_load
       buc_step "Available vessels:"
       rbrv_list | while read -r z_s; do
         echo "  ${z_s}"
       done
     else
-      # Load RBRR to get RBRR_VESSEL_DIR for path resolution
-      test -f "${RBCC_RBRR_FILE}" || buc_die "RBRR regime file not found: ${RBCC_RBRR_FILE}"
-      rbrr_load
       z_file="${RBRR_VESSEL_DIR}/${z_sigil}/rbrv.env"
       test -f "${z_file}" || buc_die "Vessel not found: ${z_file}"
       case "${z_command}" in

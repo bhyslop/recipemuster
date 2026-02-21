@@ -97,12 +97,12 @@ z_command="${1:-}"
 
 case "${z_command}" in
   validate)
-    z_file="${RBCC_RBRP_FILE}"
+    z_file="${RBCC_rbrp_file}"
     test -f "${z_file}" || buc_die "RBRP payor file not found: ${z_file}"
     rbrp_validate "${z_file}"
     ;;
   render)
-    z_file="${RBCC_RBRP_FILE}"
+    z_file="${RBCC_rbrp_file}"
     test -f "${z_file}" || buc_die "RBRP payor file not found: ${z_file}"
     rbrp_render "${z_file}"
     ;;

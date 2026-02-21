@@ -81,7 +81,9 @@ exec "${TOOLS_DIR}/rbob_cli.sh" rbob_start "$@"
 | Module header        | Implementation | `test -z "${Z«PREFIX»_SOURCED:-}" \|\| buc_die`    | No                | N/A               | Prevent multiple inclusion                       |
 | CLI header           | CLI            | `set -euo pipefail`                                | Yes (all deps)    | N/A               | Source all dependencies                          |
 
-**Kindle constant**: Any variable — internal (`Z«PREFIX»_*`) or public (`«PREFIX»_*`) — defined exclusively within the kindle function. No other function — including enroll, setup, or helper functions — may assign to kindle constants. This ensures module state is fully determined at kindle time and visible in one place.
+**Kindle constant**: Any variable — internal (`Z«PREFIX»_SCREAMING_NAME`) or public (`«PREFIX»_SCREAMING_NAME`) — defined exclusively within the kindle function. No other function — including enroll, setup, or helper functions — may assign to kindle constants. This ensures module state is fully determined at kindle time and visible in one place.
+
+**Literal constant**: A public variable (`«PREFIX»_lower_name`) defined at module top level, immediately after the `Z«PREFIX»_SOURCED=1` guard. Literal constants must be pure string literals with **no variable expansion, no computation, and no runtime dependency**. They are available immediately after sourcing — no kindle required. Use `SCREAMING` case for the prefix (module identity) and `lower_snake` case for the name to visually distinguish from kindle constants. This enables sourcing chains where a literal constant from module A provides the path for sourcing module B's config in the same CLI header block.
 
 **KINDLED must be last**: `Z«PREFIX»_KINDLED=1` must be the final statement in kindle. Since sentinel checks this variable, setting it last guarantees all kindle constants, roll arrays, and enroll calls are complete before the module is considered operational. Any function calling sentinel before kindle finishes will correctly fail.
 
@@ -173,6 +175,10 @@ set -euo pipefail
 test -z "${Z«PREFIX»_SOURCED:-}" || buc_die "Module «prefix» multiply sourced - check sourcing hierarchy"
 Z«PREFIX»_SOURCED=1
 
+# Literal constants (pure string literals, no variable expansion — available at source time)
+# «PREFIX»_some_path="fixed-filename.env"
+# «PREFIX»_some_prefix="prefix_"
+
 ######################################################################
 # Internal Functions (z«prefix»_*)
 
@@ -250,6 +256,19 @@ z«prefix»_kindle() {
   Z«PREFIX»_CACHED_PATH="${BURD_TEMP_DIR}/cache"
   Z«PREFIX»_KINDLED=1
 }
+```
+
+**Literal vs kindle constant — choosing correctly:**
+
+```bash
+# ✅ Literal constant: pure string, no variable expansion, available at source time
+«PREFIX»_config_file="config.env"        # lower_snake name — no kindle needed
+
+# ✅ Kindle constant: depends on runtime state, requires kindle
+«PREFIX»_CONFIG_DIR="${BURD_TEMP_DIR}/config"  # SCREAMING name — kindle required
+
+# ❌ Wrong: variable expansion in literal constant position
+«PREFIX»_config_dir="${BURD_TEMP_DIR}/config"  # VIOLATION: uses ${}, must be in kindle
 ```
 
 ## Variable Handling (General Rules)
@@ -583,6 +602,7 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 | Capture Public functions     | `«prefix»_«name»_capture`    | `rbv_get_token_capture`      | Impl     | snake_case                    |
 | Kindle constant (internal)   | `Z«PREFIX»_«NAME»`           | `ZRBV_TEMP_FILE`             | Impl     | SCREAMING_SNAKE (multi-word)  |
 | Kindle constant (public)     | `«PREFIX»_«NAME»`            | `RBV_REGIME_FILE`            | Both     | SCREAMING_SNAKE (multi-word)  |
+| Literal constant (public)    | `«PREFIX»_«name»`            | `RBCC_rbrr_file`             | Impl     | lower_snake (multi-word)      |
 | Local parameters             | `z_«name»`                   | `z_vm_name`, `z_force_flag`  | Both     | snake_case (multi-word)       |
 | Enroll functions             | `[z]«prefix»_[«scope»_]enroll` | `«prefix»_enroll`          | Impl     | kindle-only                   |
 | Recite functions             | `[z]«prefix»_«what»_recite`  | `«prefix»_target_recite`     | Impl     | read-only, never mutates      |
@@ -986,8 +1006,9 @@ buv_val_xname "name" "${z_input_name}" 3 50
 - [ ] All internal helpers prefixed with `z«prefix»_`
 
 ### Variable Management
-- [ ] All kindle constants (internal `Z«PREFIX»_*` and public `«PREFIX»_*`) defined exclusively in kindle
+- [ ] All kindle constants (internal `Z«PREFIX»_SCREAMING` and public `«PREFIX»_SCREAMING`) defined exclusively in kindle
 - [ ] No kindle constant assignments outside kindle function
+- [ ] Literal constants (`«PREFIX»_lower_name`) are pure string literals with no `${}` expansion, placed after `SOURCED` guard
 - [ ] All local variables use `z_` prefix
 - [ ] All expansions use `"${var}"` pattern (braced, quoted)
 - [ ] Parameters use `"${1:-}"` pattern for defensive programming

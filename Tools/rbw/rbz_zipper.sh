@@ -86,9 +86,9 @@ zrbz_kindle() {
 
   # Repo regime operations
   z_mod="rbrr_cli.sh"
-  buz_blazon RBZ_RENDER_REPO      "rbw-rrr" "${z_mod}" "render"
-  buz_blazon RBZ_VALIDATE_REPO    "rbw-rrv" "${z_mod}" "validate"
-  buz_blazon RBZ_REFRESH_GCB_PINS "rbw-rrg" "${z_mod}" "refresh_gcb_pins"
+  buz_blazon RBZ_RENDER_REPO      "rbw-rrr" "${z_mod}" "rbrr_render"
+  buz_blazon RBZ_VALIDATE_REPO    "rbw-rrv" "${z_mod}" "rbrr_validate"
+  buz_blazon RBZ_REFRESH_GCB_PINS "rbw-rrg" "${z_mod}" "rbrr_refresh_gcb_pins"
 
   # Payor regime operations
   z_mod="rbrp_cli.sh"

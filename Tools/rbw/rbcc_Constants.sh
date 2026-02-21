@@ -24,6 +24,12 @@ set -euo pipefail
 test -z "${ZRBCC_SOURCED:-}" || buc_die "Module rbcc multiply sourced - check sourcing hierarchy"
 ZRBCC_SOURCED=1
 
+# Literal constants (pure string literals, no variable expansion — available at source time)
+RBCC_rbrr_file="rbrr.env"
+RBCC_rbrp_file="rbrp.env"
+RBCC_rbrn_prefix="rbrn_"
+RBCC_rbrn_ext=".env"
+
 ######################################################################
 # Internal Functions (zrbcc_*)
 
@@ -31,18 +37,8 @@ zrbcc_kindle() {
   test -z "${ZRBCC_KINDLED:-}" || buc_die "Module rbcc already kindled"
   test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR not set - rbcc requires BURC environment"
 
-  # Kit directory (rbw tooling lives here)
+  # Kindle constants (depend on runtime state)
   RBCC_KIT_DIR="${BURC_TOOLS_DIR}/rbw"
-
-  # Nameplate file conventions
-  RBCC_RBRN_PREFIX="rbrn_"
-  RBCC_RBRN_EXT=".env"
-
-  # RBRR assignment file at project root
-  RBCC_RBRR_FILE="rbrr.env"
-
-  # RBRP payor regime file at project root
-  RBCC_RBRP_FILE="rbrp.env"
 
   ZRBCC_KINDLED=1
 }

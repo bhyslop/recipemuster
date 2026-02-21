@@ -30,6 +30,7 @@ source "${ZRBF_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBCC_rbrr_file}"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBF_CLI_SCRIPT_DIR}/rbf_Foundry.sh"
 
@@ -47,13 +48,11 @@ zrbf_furnish() {
   RBG_RUNTIME="${RBG_RUNTIME:-podman}"
   RBG_RUNTIME_ARG="${RBG_RUNTIME_ARG:-}"
 
+  zbuv_kindle
   zrbcc_kindle
 
-  buc_log_args 'Load RBRR using canonical loader'
-  rbrr_load
-
-  buc_log_args 'Validate RBRR variables using validator'
-  source "${ZRBF_CLI_SCRIPT_DIR}/rbrr.validator.sh" || buc_die "Failed to validate RBRR variables"
+  zrbrr_kindle
+  zrbrr_enforce
 
   buc_log_args 'Kindle modules in dependency order'
   zrbgc_kindle

@@ -26,12 +26,13 @@ ZRBRR_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/burd_regime.sh"
-source "${ZRBRR_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
+source "${ZRBRR_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBCC_rbrr_file}"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbcr_render.sh"
 
 ######################################################################
-# CLI Functions
+# Internal Functions
 
 zrbrr_cli_kindle() {
   test -z "${ZRBRR_CLI_KINDLED:-}" || buc_die "RBRR CLI already kindled"
@@ -43,35 +44,30 @@ zrbrr_cli_kindle() {
   ZRBRR_CLI_KINDLED=1
 }
 
-# Command: validate - source file and validate (dies on first error)
+######################################################################
+# Command Functions
+
+# Command: validate - enrollment-based validation report
 rbrr_validate() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrr_validate: file argument required"
-  test -f "${z_file}" || buc_die "rbrr_validate: file not found: ${z_file}"
+  buc_doc_brief "Validate RBRR repo regime configuration via enrollment report"
+  buc_doc_shown || return 0
 
-  buc_step "Validating RBRR repo regime file: ${z_file}"
-
-  # Use rbrr_load for standardized loading
-  rbrr_load
-
+  buc_step "Validating RBRR repo regime file: ${RBCC_rbrr_file}"
+  buv_report RBRR "Repository Regime"
   buc_step "RBRR repo regime valid"
 }
 
-# Command: render - diagnostic display then validate
+# Command: render - diagnostic display of all RBRR fields
 rbrr_render() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrr_render: file argument required"
-  test -f "${z_file}" || buc_die "rbrr_render: file not found: ${z_file}"
+  buc_doc_brief "Display diagnostic view of RBRR repo regime configuration"
+  buc_doc_shown || return 0
 
-  # Source and kindle (no dying — show all fields before validation)
-  source "${z_file}" || buc_die "rbrr_render: failed to source ${z_file}"
-  zrbrr_kindle
   zrbcr_kindle
 
   # Display header
   echo ""
   echo "${ZBUC_WHITE}RBRR - Recipe Bottle Regime Repo${ZBUC_RESET}"
-  echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
+  echo "${ZBUC_WHITE}File: ${RBCC_rbrr_file}${ZBUC_RESET}"
   echo ""
 
   # Vessel and Local Configuration
@@ -118,26 +114,17 @@ rbrr_render() {
   rbcr_section_item RBRR_DIRECTOR_RBRA_FILE    string  req  "Director service account key file"
   rbcr_section_end
 
-  # Unexpected variables (from kindle, not gated)
-  if test ${#ZRBRR_UNEXPECTED[@]} -gt 0; then
-    echo "${ZBUC_RED}Unexpected RBRR_ variables:${ZBUC_RESET}"
-    local z_var
-    for z_var in "${ZRBRR_UNEXPECTED[@]}"; do
-      printf "  ${ZBUC_RED}%-30s${ZBUC_RESET} = %s\n" "${z_var}" "${!z_var:-}"
-    done
-    echo ""
-  fi
-
-  # Validate (dies on first error, after full display)
-  zrbrr_validate_fields
   echo "${ZBUC_GREEN}RBRR repo regime valid${ZBUC_RESET}"
 }
 
 # Command: refresh_gcb_pins - resolve image tags to digests and update RBRR file
 # Every step must succeed or the function dies — no partial updates.
-# Requires: docker, jq, curl, RBCC_RBRR_FILE set, BURD_NOW_STAMP set, BURD_TEMP_DIR set
+# Requires: docker, jq, curl, BURD_NOW_STAMP set, BURD_TEMP_DIR set
 rbrr_refresh_gcb_pins() {
-  local z_rbrr_file="${RBCC_RBRR_FILE}"
+  buc_doc_brief "Resolve image tags to digests and update RBRR configuration file"
+  buc_doc_shown || return 0
+
+  local z_rbrr_file="${RBCC_rbrr_file}"
   test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
   zburd_sentinel
 
@@ -319,29 +306,19 @@ rbrr_refresh_gcb_pins() {
 }
 
 ######################################################################
-# Main dispatch
+# Furnish and Main
 
-zrbrr_cli_kindle
-zburd_kindle
-zrbcc_kindle
+zrbrr_furnish() {
+  zbuv_kindle
+  zburd_kindle
+  zrbcc_kindle
 
-z_command="${1:-}"
+  zrbrr_kindle
+  zrbrr_enforce
 
-case "${z_command}" in
-  validate|render)
-    z_file="${RBCC_RBRR_FILE}"
-    test -f "${z_file}" || buc_die "RBRR regime file not found: ${z_file}"
-    case "${z_command}" in
-      validate) rbrr_validate "${z_file}" ;;
-      render)   rbrr_render "${z_file}" ;;
-    esac
-    ;;
-  refresh_gcb_pins)
-    rbrr_refresh_gcb_pins
-    ;;
-  *)
-    buc_die "Unknown command: ${z_command}. Usage: rbrr_cli.sh {validate|render|refresh_gcb_pins}"
-    ;;
-esac
+  zrbrr_cli_kindle
+}
+
+buc_execute rbrr_ "Recipe Bottle Repository Regime" zrbrr_furnish "$@"
 
 # eof

@@ -34,6 +34,7 @@ source "${ZRBGG_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgi_IAM.sh"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBCC_rbrr_file}"
 source "${ZRBGG_CLI_SCRIPT_DIR}/rbgg_Governor.sh"
 
 zrbgg_furnish() {
@@ -41,9 +42,12 @@ zrbgg_furnish() {
   buc_doc_env "BURD_TEMP_DIR   " "Temporary directory for intermediate files"
   buc_doc_env "BURD_OUTPUT_DIR " "Directory for command outputs"
 
+  zbuv_kindle
   zburd_kindle
   zrbcc_kindle
-  rbrr_load
+
+  zrbrr_kindle
+  zrbrr_enforce
 
   zrbgc_kindle
   zrbgd_kindle

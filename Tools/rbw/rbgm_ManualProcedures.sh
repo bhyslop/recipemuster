@@ -63,9 +63,9 @@ zrbgm_kindle() {
     *)      ZRBGM_CLICK_MOD="Ctrl" ;;
   esac
 
-  ZRBGM_RBRP_FILE="${RBCC_RBRP_FILE}"
+  ZRBGM_RBRP_FILE="${RBCC_rbrp_file}"
   ZRBGM_RBRP_FILE_BASENAME="${ZRBGM_RBRP_FILE##*/}"
-  ZRBGM_RBRR_FILE="${RBCC_RBRR_FILE}"
+  ZRBGM_RBRR_FILE="${RBCC_rbrr_file}"
 
 
   ZRBGM_PREFIX="${BURD_TEMP_DIR}/rbgm_"

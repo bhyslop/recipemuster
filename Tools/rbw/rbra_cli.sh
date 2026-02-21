@@ -29,6 +29,7 @@ source "${ZRBRA_CLI_SCRIPT_DIR}/rbra_regime.sh"
 source "${ZRBRA_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBRA_CLI_SCRIPT_DIR}/rbcr_render.sh"
 source "${ZRBRA_CLI_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBCC_rbrr_file}"
 
 ######################################################################
 # CLI Functions
@@ -108,12 +109,7 @@ rbra_render() {
 
 # Command: list - show all RBRA file paths from RBRR
 rbra_list() {
-  # Kindle constants and load RBRR
-  zrbcc_sentinel
-  local z_rbrr_file="${RBCC_RBRR_FILE}"
-  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
-  source "${z_rbrr_file}" || buc_die "Failed to source RBRR: ${z_rbrr_file}"
-  zrbrr_kindle
+  zrbrr_sentinel
 
   echo ""
   echo "${ZBUC_WHITE}RBRA Credential Files (from RBRR)${ZBUC_RESET}"
@@ -147,12 +143,7 @@ zrbra_cli_resolve_role() {
   local z_role="${1:-}"
   test -n "${z_role}" || buc_die "rbra_cli.sh: role argument required (governor|retriever|director)"
 
-  # Load RBRR to get file paths
-  zrbcc_sentinel
-  local z_rbrr_file="${RBCC_RBRR_FILE}"
-  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
-  source "${z_rbrr_file}" || buc_die "Failed to source RBRR: ${z_rbrr_file}"
-  zrbrr_kindle
+  zrbrr_sentinel
 
   case "${z_role}" in
     governor)  echo "${RBRR_GOVERNOR_RBRA_FILE}" ;;
@@ -165,7 +156,10 @@ zrbra_cli_resolve_role() {
 ######################################################################
 # Main dispatch
 
+zbuv_kindle
 zrbcc_kindle
+zrbrr_kindle
+zrbrr_enforce
 
 z_command="${1:-}"
 z_role="${2:-}"

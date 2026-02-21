@@ -204,7 +204,7 @@ rbrn_load_moniker() {
   local z_moniker="${1:-}"
   test -n "${z_moniker}" || buc_die "rbrn_load_moniker: moniker argument required"
 
-  local z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_RBRN_PREFIX}${z_moniker}${RBCC_RBRN_EXT}"
+  local z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
   test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
 
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
@@ -229,13 +229,13 @@ rbrn_load_file() {
 # Usage: rbrn_list
 # Returns list of concrete nameplate monikers by globbing rbrn_*.env files
 rbrn_list() {
-  local z_nameplate_files=("${RBCC_KIT_DIR}/${RBCC_RBRN_PREFIX}"*"${RBCC_RBRN_EXT}")
+  local z_nameplate_files=("${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
 
   for z_file in "${z_nameplate_files[@]}"; do
     test -f "${z_file}" || continue
     local z_basename="${z_file##*/}"
-    local z_moniker="${z_basename#${RBCC_RBRN_PREFIX}}"
-    z_moniker="${z_moniker%${RBCC_RBRN_EXT}}"
+    local z_moniker="${z_basename#${RBCC_rbrn_prefix}}"
+    z_moniker="${z_moniker%${RBCC_rbrn_ext}}"
     echo "${z_moniker}"
   done
 }
@@ -278,7 +278,7 @@ rbrn_preflight() {
   local z_data
   z_data=$(
     for z_m in $(rbrn_list); do
-      z_f="${RBCC_KIT_DIR}/${RBCC_RBRN_PREFIX}${z_m}${RBCC_RBRN_EXT}"
+      z_f="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_m}${RBCC_rbrn_ext}"
       (
         source "${z_f}"
         echo "${RBRN_MONIKER}|${RBRN_ENTRY_MODE}|${RBRN_ENTRY_PORT_WORKSTATION:-0}|${RBRN_ENTRY_PORT_ENCLAVE:-0}|${RBRN_ENCLAVE_BASE_IP}|${RBRN_ENCLAVE_NETMASK}|${RBRN_ENCLAVE_SENTRY_IP}|${RBRN_ENCLAVE_BOTTLE_IP}"
@@ -377,7 +377,7 @@ rbrn_survey() {
 
   local z_moniker z_file
   for z_moniker in $(rbrn_list); do
-    z_file="${RBCC_KIT_DIR}/${RBCC_RBRN_PREFIX}${z_moniker}${RBCC_RBRN_EXT}"
+    z_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
     (
       source "${z_file}"
 

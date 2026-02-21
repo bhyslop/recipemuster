@@ -83,9 +83,9 @@ zrbrp_sentinel() {
 
 # Load RBRP regime
 # Usage: rbrp_load
-# Prerequisite: RBCC must be kindled (needs RBCC_RBRP_FILE), RBGC must be kindled (zrbrp_kindle uses RBGC patterns)
+# Prerequisite: RBCC must be kindled (needs RBCC_rbrp_file), RBGC must be kindled (zrbrp_kindle uses RBGC patterns)
 rbrp_load() {
-  local z_rbrp_file="${RBCC_RBRP_FILE}"
+  local z_rbrp_file="${RBCC_rbrp_file}"
   test -f "${z_rbrp_file}" || buc_die "RBRP config not found: ${z_rbrp_file}"
   source "${z_rbrp_file}" || buc_die "Failed to source RBRP config: ${z_rbrp_file}"
   zrbrp_kindle
