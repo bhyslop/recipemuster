@@ -1,16 +1,9 @@
-# Paddock: jjk-post-alpha-breaking
+# Paddock: jjk-heat-priority-ordering
 
 ## Context
 
-Backlog for JJK changes that require JSON schema modifications. Parked until post-alpha release to maintain data compatibility.
-
-**Candidates** (may restring from other heats):
-- Steeplechase version tracking (brand field)
-- Direction merge into tack_text
-- Silks migration to Tack + commit SHA tracking
+(Describe the initiative's background and goals)
 
 ## References
 
-- JJS0: Tools/jjk/vov_veiled/JJS0-GallopsData.adoc
-- RCG: Tools/vok/vov_veiled/RCG-RustCodingGuide.md
-- VOS0: Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc
+(List relevant files, docs, or prior work)
