@@ -417,6 +417,13 @@
         "₢AfAAT": {
           "tacks": [
             {
+              "ts": "260221-0636",
+              "state": "rough",
+              "text": "Move all rbtc* test case files from Tools/rbw/ to Tools/rbw/rbtd/ subdirectory.\n\n## Scope\n\n- Create `Tools/rbw/rbtd/` directory\n- Move all `rbtc*` files: rbtcap_AccessProbe.sh, rbtcal_ArkLifecycle.sh, rbtckk_KickTires.sh, rbtcqa_QualifyAll.sh, rbtcns_NsproSecurity.sh, rbtcsj_SrjclJupyter.sh, rbtcpl_PlumlDiagram.sh\n- Update all `source \"${RBTB_SCRIPT_DIR}/rbtc*\"` lines in rbtb_testbench.sh to `source \"${RBTB_SCRIPT_DIR}/rbtd/rbtc*\"`\n- BUK test cases (butcde_, butcrg_, butcvu_) stay in Tools/buk/ — not in scope\n- Testbench itself (rbtb_testbench.sh) stays in Tools/rbw/\n\n## Verification\n\n- Run `./tt/rbw-ts.TestSuite.sh access-probe` to confirm test suite still passes after move\n- Run `./tt/rbw-ts.TestSuite.sh kick-tires` as a quick smoke test\n\n## NOT in scope\n\n- Renaming any files or functions\n- Moving BUK test case files\n- Moving the testbench router itself",
+              "silks": "rbts-test-suites",
+              "commit": "c51236d"
+            },
+            {
               "ts": "260221-0626",
               "state": "rough",
               "text": "Move all rbtc* test case files from Tools/rbw/ to Tools/rbw/rbtd/ subdirectory.\n\n## Scope\n\n- Create `Tools/rbw/rbtd/` directory\n- Move all `rbtc*` files: rbtcap_AccessProbe.sh, rbtcal_ArkLifecycle.sh, rbtckk_KickTires.sh, rbtcqa_QualifyAll.sh, rbtcns_NsproSecurity.sh, rbtcsj_SrjclJupyter.sh, rbtcpl_PlumlDiagram.sh\n- Update all `source \"${RBTB_SCRIPT_DIR}/rbtc*\"` lines in rbtb_testbench.sh to `source \"${RBTB_SCRIPT_DIR}/rbtd/rbtc*\"`\n- BUK test cases (butcde_, butcrg_, butcvu_) stay in Tools/buk/ — not in scope\n- Testbench itself (rbtb_testbench.sh) stays in Tools/rbw/\n\n## Verification\n\n- Run `./tt/rbw-ts.TestSuite.sh access-probe` to confirm test suite still passes after move\n- Run `./tt/rbw-ts.TestSuite.sh kick-tires` as a quick smoke test\n\n## NOT in scope\n\n- Renaming any files or functions\n- Moving BUK test case files\n- Moving the testbench router itself",
