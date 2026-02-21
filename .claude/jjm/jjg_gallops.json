@@ -6,10 +6,11 @@
       "creation_time": "260221",
       "status": "racing",
       "order": [
+        "₢AgAAC",
         "₢AgAAB",
         "₢AgAAA"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAlg.md",
       "paces": {
         "₢AgAAA": {
@@ -38,6 +39,17 @@
               "text": "Implement case-safe paddock filename encoding for macOS compatibility.\n\n## Problem\n\nmacOS HFS+/APFS is case-insensitive by default. Paddock files named `jjp_{firemark}.md`\nsilently collide when firemark pairs like `AG`/`Ag` are both active. The collision\ncauses one heat's paddock to overwrite the other's with no error.\n\n## Encoding Scheme\n\nPrefix each firemark character with `u` (uppercase) or `l` (lowercase):\n\n- `AG` → `jjp_uAuG.md`\n- `Ag` → `jjp_uAlg.md`\n- `ag` → `jjp_lalg.md`\n\nThe `u`/`l` prefix chars are always lowercase, so case-folding never collapses\ntwo distinct encoded strings to the same value.\n\n## Detection and Recovery\n\nOn gallops load, iterate all heats and compare each `paddock_file` value against\nthe expected encoded name. If any mismatch is found, **fatal immediately** with:\n\n```\nERROR: Legacy paddock names detected. Repair required:\n\n  mv .claude/jjm/jjp_AG.md .claude/jjm/jjp_uAuG.md\n  # update gallops.json: heat \"AG\" paddock_file -> \"jjp_uAuG.md\"\n```\n\nReport ALL mismatches at once (do not stop at first). No built-in migration — the\nerror message IS the repair instruction for the Claude Code instance.\n\n## New Paddock Creation\n\nUpdate `jjx_nominate` (and anywhere else paddock files are created) to use the\nencoded name from day one. No legacy names ever written after this change.\n\n## Files\n\njjri_io.rs (load-time detection), jjrno_nominate.rs or jjro_ops.rs (new paddock creation),\njjrrt_retire.rs (paddock cleanup on retire)",
               "silks": "paddock-filename-encoding",
               "commit": "740b97c"
+            }
+          ]
+        },
+        "₢AgAAC": {
+          "tacks": [
+            {
+              "ts": "260221-1325",
+              "state": "rough",
+              "text": "Update JJS0 specification to reflect the ul-prefix paddock filename encoding\nscheme introduced in this heat.\n\n## Changes needed\n\n1. **Paddock filename encoding** — Document the `ul`-prefix scheme:\n   - Each firemark character prefixed with `u` (uppercase) or `l` (lowercase)\n   - Examples: `AG` → `jjp_uAuG.md`, `Ag` → `jjp_uAlg.md`\n   - Rationale: macOS HFS+/APFS is case-insensitive by default; raw firemark\n     names collide silently when both upper and lowercase variants are active\n\n2. **paddock_file ownership** — Document that `paddock_file` in `jjrg_Heat` is\n   computed by `jjdr_load` from the firemark and never stored meaningfully.\n   The stored value in JSON is overwritten on load; correct value written back\n   on next save. External tools must not rely on the stored value.\n\n3. **Legacy detection behavior** — Document the existence-check + fatal pattern:\n   on load, if any encoded paddock file is absent, JJK fatals with `mv`\n   instructions covering all missing files. No gallops.json editing required.\n\n4. **Migration note** — Any project importing a new JJK binary will immediately\n   see the fatal if legacy raw-firemark paddock files are present. The error\n   message is fully self-contained.\n\n## Files\n\nJJS0-GallopsData.adoc (lenses/ or jjk/vov_veiled/)",
+              "silks": "jjs0-paddock-encoding-update",
+              "commit": "b5736a8"
             }
           ]
         }
