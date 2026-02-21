@@ -103,16 +103,19 @@ rbob_observe() {
 # Furnish and Main
 
 zrbob_furnish() {
-  buc_doc_env "RBOB_MONIKER        " "Nameplate moniker (e.g., nsproto)"
-
-  local z_moniker="${RBOB_MONIKER:-}"
-  test -n "${z_moniker}" || buc_die "RBOB_MONIKER environment variable required"
+  buc_doc_env "RBR0_FOLIO" "Nameplate moniker (e.g., nsproto)"
 
   zbuv_kindle
   zrbcc_kindle
 
-  # Load nameplate
-  rbrn_load_moniker "${z_moniker}"
+  # Load nameplate from RBR0_FOLIO
+  local z_folio="${RBR0_FOLIO:-}"
+  test -n "${z_folio}" || buc_die "RBR0_FOLIO must be set to a nameplate moniker"
+  local z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_folio}${RBCC_rbrn_ext}"
+  test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
+  source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
+  zrbrn_kindle
+  zrbrn_enforce
 
   zrbrr_kindle
   zrbrr_enforce

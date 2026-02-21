@@ -76,8 +76,8 @@ zrbz_kindle() {
 
   # Nameplate regime operations
   z_mod="rbrn_cli.sh"
-  buz_blazon RBZ_RENDER_NAMEPLATE   "rbw-rnr" "${z_mod}" "render"
-  buz_blazon RBZ_VALIDATE_NAMEPLATE "rbw-rnv" "${z_mod}" "validate"
+  buz_blazon RBZ_RENDER_NAMEPLATE   "rbw-rnr" "${z_mod}" "rbrn_render"
+  buz_blazon RBZ_VALIDATE_NAMEPLATE "rbw-rnv" "${z_mod}" "rbrn_validate"
 
   # Vessel regime operations
   z_mod="rbrv_cli.sh"
@@ -113,16 +113,17 @@ zrbz_kindle() {
 
   # Cross-nameplate operations
   z_mod="rbrn_cli.sh"
-  buz_blazon RBZ_SURVEY_NAMEPLATES "rbw-ni" "${z_mod}" "survey"
-  buz_blazon RBZ_AUDIT_NAMEPLATES  "rbw-nv" "${z_mod}" "audit"
+  buz_blazon RBZ_SURVEY_NAMEPLATES "rbw-ni" "${z_mod}" "rbrn_survey"
+  buz_blazon RBZ_AUDIT_NAMEPLATES  "rbw-nv" "${z_mod}" "rbrn_audit"
 
-  # Bottle operations (imprint-translated by workbench case arm, not zbuz_exec_lookup)
+  # Bottle operations (imprint channel sets RBR0_FOLIO from BURD_TOKEN_3)
   z_mod="rbob_cli.sh"
-  buz_blazon RBZ_BOTTLE_START   "rbw-s" "${z_mod}" "rbob_start"
-  buz_blazon RBZ_BOTTLE_SENTRY  "rbw-S" "${z_mod}" "rbob_connect_sentry"
-  buz_blazon RBZ_BOTTLE_CENSER  "rbw-C" "${z_mod}" "rbob_connect_censer"
-  buz_blazon RBZ_BOTTLE_CONNECT "rbw-B" "${z_mod}" "rbob_connect_bottle"
-  buz_blazon RBZ_BOTTLE_OBSERVE "rbw-o" "${z_mod}" "rbob_observe"
+  buz_blazon RBZ_BOTTLE_START   "rbw-s" "${z_mod}" "rbob_start"          "imprint"
+  buz_blazon RBZ_BOTTLE_STOP    "rbw-z" "${z_mod}" "rbob_stop"           "imprint"
+  buz_blazon RBZ_BOTTLE_SENTRY  "rbw-S" "${z_mod}" "rbob_connect_sentry" "imprint"
+  buz_blazon RBZ_BOTTLE_CENSER  "rbw-C" "${z_mod}" "rbob_connect_censer" "imprint"
+  buz_blazon RBZ_BOTTLE_CONNECT "rbw-B" "${z_mod}" "rbob_connect_bottle" "imprint"
+  buz_blazon RBZ_BOTTLE_OBSERVE "rbw-o" "${z_mod}" "rbob_observe"        "imprint"
 
   # Qualification operations
   z_mod="rbq_cli.sh"

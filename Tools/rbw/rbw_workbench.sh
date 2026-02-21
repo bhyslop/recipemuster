@@ -69,23 +69,10 @@ rbw_route() {
   # Route based on colophon
   case "${z_command}" in
 
-    # Bottle operations (non-degenerate: translate imprint to RBOB_MONIKER)
-    rbw-s|rbw-z|rbw-S|rbw-C|rbw-B|rbw-o)
-      local z_rbob_cli="${RBW_SCRIPT_DIR}/rbob_cli.sh"
-      test -n "${BURD_TOKEN_3:-}" || buc_die "${z_command} requires moniker imprint (BURD_TOKEN_3)"
-      export RBOB_MONIKER="${BURD_TOKEN_3}"
-      # Qualification gate: die before starting services
-      test "${z_command}" != "rbw-s" || {
-        "${RBW_SCRIPT_DIR}/rbq_cli.sh" qualify_all || buc_die "Qualification gate failed for service start"
-      }
-      case "${z_command}" in
-        rbw-s)  exec "${z_rbob_cli}" rbob_start          ;;
-        rbw-z)  exec "${z_rbob_cli}" rbob_stop           ;;
-        rbw-S)  exec "${z_rbob_cli}" rbob_connect_sentry ;;
-        rbw-C)  exec "${z_rbob_cli}" rbob_connect_censer ;;
-        rbw-B)  exec "${z_rbob_cli}" rbob_connect_bottle ;;
-        rbw-o)  exec "${z_rbob_cli}" rbob_observe        ;;
-      esac
+    # Bottle start: qualification gate then dispatch via zipper (imprint channel sets RBR0_FOLIO)
+    rbw-s)
+      "${RBW_SCRIPT_DIR}/rbq_cli.sh" qualify_all || buc_die "Qualification gate failed for service start"
+      zbuz_exec_lookup "${z_command}" "${RBW_SCRIPT_DIR}" "$@" || buc_die "Failed to dispatch ${z_command}"
       ;;
 
     # Cloud build with qualification gate

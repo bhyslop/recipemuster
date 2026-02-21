@@ -79,7 +79,12 @@ rbtb_load_nameplate() {
   test -n "${z_moniker}" || buc_die "rbtb_load_nameplate: moniker argument required"
 
   rbtb_show "Loading nameplate: ${z_moniker}"
-  rbrn_load_moniker "${z_moniker}"
+
+  local z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
+  test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
+  source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
+  zrbrn_kindle
+  zrbrn_enforce
 
   rbtb_show "Nameplate loaded: RBRN_MONIKER=${RBRN_MONIKER}, RBRN_RUNTIME=${RBRN_RUNTIME}"
 

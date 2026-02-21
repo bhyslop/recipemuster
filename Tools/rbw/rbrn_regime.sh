@@ -30,7 +30,7 @@ ZRBRN_SOURCED=1
 zrbrn_kindle() {
   test -z "${ZRBRN_KINDLED:-}" || buc_die "Module rbrn already kindled"
 
-  # Set defaults for all fields (validate enforces required-ness)
+  # Set defaults for all fields (enrollment enforces required-ness)
   RBRN_MONIKER="${RBRN_MONIKER:-}"
   RBRN_DESCRIPTION="${RBRN_DESCRIPTION:-}"
   RBRN_RUNTIME="${RBRN_RUNTIME:-}"
@@ -63,28 +63,48 @@ zrbrn_kindle() {
     esac
   done
 
-  # Build rollup of all RBRN_ variables for passing to scripts/containers
-  ZRBRN_ROLLUP=""
-  ZRBRN_ROLLUP+="RBRN_MONIKER='${RBRN_MONIKER}' "
-  ZRBRN_ROLLUP+="RBRN_DESCRIPTION='${RBRN_DESCRIPTION}' "
-  ZRBRN_ROLLUP+="RBRN_RUNTIME='${RBRN_RUNTIME}' "
-  ZRBRN_ROLLUP+="RBRN_SENTRY_VESSEL='${RBRN_SENTRY_VESSEL}' "
-  ZRBRN_ROLLUP+="RBRN_BOTTLE_VESSEL='${RBRN_BOTTLE_VESSEL}' "
-  ZRBRN_ROLLUP+="RBRN_SENTRY_CONSECRATION='${RBRN_SENTRY_CONSECRATION}' "
-  ZRBRN_ROLLUP+="RBRN_BOTTLE_CONSECRATION='${RBRN_BOTTLE_CONSECRATION}' "
-  ZRBRN_ROLLUP+="RBRN_ENTRY_MODE='${RBRN_ENTRY_MODE}' "
-  ZRBRN_ROLLUP+="RBRN_ENTRY_PORT_WORKSTATION='${RBRN_ENTRY_PORT_WORKSTATION}' "
-  ZRBRN_ROLLUP+="RBRN_ENTRY_PORT_ENCLAVE='${RBRN_ENTRY_PORT_ENCLAVE}' "
-  ZRBRN_ROLLUP+="RBRN_ENCLAVE_BASE_IP='${RBRN_ENCLAVE_BASE_IP}' "
-  ZRBRN_ROLLUP+="RBRN_ENCLAVE_NETMASK='${RBRN_ENCLAVE_NETMASK}' "
-  ZRBRN_ROLLUP+="RBRN_ENCLAVE_SENTRY_IP='${RBRN_ENCLAVE_SENTRY_IP}' "
-  ZRBRN_ROLLUP+="RBRN_ENCLAVE_BOTTLE_IP='${RBRN_ENCLAVE_BOTTLE_IP}' "
-  ZRBRN_ROLLUP+="RBRN_UPLINK_PORT_MIN='${RBRN_UPLINK_PORT_MIN}' "
-  ZRBRN_ROLLUP+="RBRN_UPLINK_DNS_MODE='${RBRN_UPLINK_DNS_MODE}' "
-  ZRBRN_ROLLUP+="RBRN_UPLINK_ACCESS_MODE='${RBRN_UPLINK_ACCESS_MODE}' "
-  ZRBRN_ROLLUP+="RBRN_UPLINK_ALLOWED_CIDRS='${RBRN_UPLINK_ALLOWED_CIDRS}' "
-  ZRBRN_ROLLUP+="RBRN_UPLINK_ALLOWED_DOMAINS='${RBRN_UPLINK_ALLOWED_DOMAINS}' "
-  ZRBRN_ROLLUP+="RBRN_VOLUME_MOUNTS='${RBRN_VOLUME_MOUNTS}'"
+  # Die on unexpected variables
+  if test ${#ZRBRN_UNEXPECTED[@]} -gt 0; then
+    buc_die "Unexpected RBRN_ variables: ${ZRBRN_UNEXPECTED[*]}"
+  fi
+
+  # Enroll all RBRN variables for validation via buv_vet/buv_report
+
+  # Core nameplate identification
+  buv_xname_enroll   RBRN  RBRN_MONIKER                 "" ""  2  12
+  buv_string_enroll  RBRN  RBRN_DESCRIPTION              "" ""  0  120
+  buv_string_enroll  RBRN  RBRN_VOLUME_MOUNTS            "" ""  0  240
+
+  # Container runtime
+  buv_enum_enroll    RBRN  RBRN_RUNTIME                  "" ""  docker podman
+
+  # Entry mode
+  buv_enum_enroll    RBRN  RBRN_ENTRY_MODE               "" ""  disabled enabled
+
+  # Container image configuration
+  buv_fqin_enroll    RBRN  RBRN_SENTRY_VESSEL            "" ""  1  128
+  buv_fqin_enroll    RBRN  RBRN_BOTTLE_VESSEL            "" ""  1  128
+  buv_fqin_enroll    RBRN  RBRN_SENTRY_CONSECRATION      "" ""  1  128
+  buv_fqin_enroll    RBRN  RBRN_BOTTLE_CONSECRATION      "" ""  1  128
+
+  # Enclave network configuration
+  buv_ipv4_enroll    RBRN  RBRN_ENCLAVE_BASE_IP          "" ""
+  buv_ipv4_enroll    RBRN  RBRN_ENCLAVE_SENTRY_IP        "" ""
+  buv_ipv4_enroll    RBRN  RBRN_ENCLAVE_BOTTLE_IP        "" ""
+  buv_decimal_enroll RBRN  RBRN_ENCLAVE_NETMASK          "" ""  8  30
+
+  # Uplink configuration
+  buv_port_enroll    RBRN  RBRN_UPLINK_PORT_MIN          "" ""
+  buv_enum_enroll    RBRN  RBRN_UPLINK_DNS_MODE          "" ""  disabled global allowlist
+  buv_enum_enroll    RBRN  RBRN_UPLINK_ACCESS_MODE       "" ""  disabled global allowlist
+
+  # Gated: entry ports (only when ENTRY_MODE=enabled)
+  buv_port_enroll    RBRN  RBRN_ENTRY_PORT_WORKSTATION   RBRN_ENTRY_MODE  enabled
+  buv_port_enroll    RBRN  RBRN_ENTRY_PORT_ENCLAVE       RBRN_ENTRY_MODE  enabled
+
+  # Gated: allowlist variables
+  buv_list_cidr_enroll   RBRN  RBRN_UPLINK_ALLOWED_CIDRS    RBRN_UPLINK_ACCESS_MODE  allowlist
+  buv_list_domain_enroll RBRN  RBRN_UPLINK_ALLOWED_DOMAINS  RBRN_UPLINK_DNS_MODE     allowlist
 
   # Build docker env args array for container injection
   # Usage: docker run "${ZRBRN_DOCKER_ENV[@]}" ...
@@ -117,113 +137,27 @@ zrbrn_sentinel() {
   test "${ZRBRN_KINDLED:-}" = "1" || buc_die "Module rbrn not kindled - call zrbrn_kindle first"
 }
 
-# Validate RBRN variables via buv_env_* (dies on first error)
-# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
-zrbrn_validate_fields() {
+# Enforce all RBRN enrollment validations and custom format checks
+zrbrn_enforce() {
   zrbrn_sentinel
 
-  # Die on unexpected variables
-  if test ${#ZRBRN_UNEXPECTED[@]} -gt 0; then
-    buc_die "Unexpected RBRN_ variables: ${ZRBRN_UNEXPECTED[*]}"
-  fi
-
-  # Core nameplate identification
-  buv_env_xname       RBRN_MONIKER                 2     12
-  buv_env_string      RBRN_DESCRIPTION             0    120
-  buv_env_string      RBRN_RUNTIME                 1     16
-
-  # Validate runtime is docker or podman
-  case "${RBRN_RUNTIME}" in
-    docker|podman) : ;;
-    *) buc_die "Invalid RBRN_RUNTIME: '${RBRN_RUNTIME}' (must be 'docker' or 'podman')" ;;
-  esac
-
-  # Container image configuration
-  buv_env_fqin        RBRN_SENTRY_VESSEL        1    128
-  buv_env_fqin        RBRN_BOTTLE_VESSEL        1    128
-  buv_env_fqin        RBRN_SENTRY_CONSECRATION        1    128
-  buv_env_fqin        RBRN_BOTTLE_CONSECRATION        1    128
-
-  # Entry point configuration
-  case "${RBRN_ENTRY_MODE}" in
-    disabled|enabled) : ;;
-    *) buc_die "Invalid RBRN_ENTRY_MODE: '${RBRN_ENTRY_MODE}' (must be 'disabled' or 'enabled')" ;;
-  esac
-
-  # Enclave network configuration
-  buv_env_ipv4        RBRN_ENCLAVE_BASE_IP
-  buv_env_decimal     RBRN_ENCLAVE_NETMASK         8     30
-  buv_env_ipv4        RBRN_ENCLAVE_SENTRY_IP
-  buv_env_ipv4        RBRN_ENCLAVE_BOTTLE_IP
+  buv_vet RBRN
 
   # Verify IPs fall within declared subnet
   zrbrn_ip_in_subnet RBRN_ENCLAVE_SENTRY_IP "${RBRN_ENCLAVE_SENTRY_IP}" "${RBRN_ENCLAVE_BASE_IP}" "${RBRN_ENCLAVE_NETMASK}"
   zrbrn_ip_in_subnet RBRN_ENCLAVE_BOTTLE_IP "${RBRN_ENCLAVE_BOTTLE_IP}" "${RBRN_ENCLAVE_BASE_IP}" "${RBRN_ENCLAVE_NETMASK}"
 
-  # Uplink configuration
-  buv_env_port        RBRN_UPLINK_PORT_MIN
-  case "${RBRN_UPLINK_DNS_MODE}" in
-    disabled|global|allowlist) : ;;
-    *) buc_die "Invalid RBRN_UPLINK_DNS_MODE: '${RBRN_UPLINK_DNS_MODE}' (must be 'disabled', 'global', or 'allowlist')" ;;
-  esac
-  case "${RBRN_UPLINK_ACCESS_MODE}" in
-    disabled|global|allowlist) : ;;
-    *) buc_die "Invalid RBRN_UPLINK_ACCESS_MODE: '${RBRN_UPLINK_ACCESS_MODE}' (must be 'disabled', 'global', or 'allowlist')" ;;
-  esac
-
-  # Conditional entry port validation (Required: When ENTRY_MODE=enabled)
-  if [[ $RBRN_ENTRY_MODE == enabled ]]; then
-    buv_env_port    RBRN_ENTRY_PORT_WORKSTATION
-    buv_env_port    RBRN_ENTRY_PORT_ENCLAVE
-
-    test ${RBRN_ENTRY_PORT_WORKSTATION} -lt ${RBRN_UPLINK_PORT_MIN} || \
+  # Cross-port check (entry ports must be less than uplink port min)
+  if test "${RBRN_ENTRY_MODE}" = "enabled"; then
+    test "${RBRN_ENTRY_PORT_WORKSTATION}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
       buc_die "RBRN_ENTRY_PORT_WORKSTATION must be less than RBRN_UPLINK_PORT_MIN"
-    test ${RBRN_ENTRY_PORT_ENCLAVE} -lt ${RBRN_UPLINK_PORT_MIN} || \
+    test "${RBRN_ENTRY_PORT_ENCLAVE}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
       buc_die "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
   fi
-
-  # Conditional allowlist validation (Required: When *_MODE=allowlist)
-  if [[ ${RBRN_UPLINK_ACCESS_MODE} == allowlist ]]; then
-    buv_env_list_cidr RBRN_UPLINK_ALLOWED_CIDRS
-  fi
-  if [[ ${RBRN_UPLINK_DNS_MODE} == allowlist ]]; then
-    buv_env_list_domain RBRN_UPLINK_ALLOWED_DOMAINS
-  fi
-
-  # Volume mount configuration (Required: No)
-  buv_env_string      RBRN_VOLUME_MOUNTS           0    240
 }
 
 ######################################################################
 # Public Functions (rbrn_*)
-
-# Load nameplate regime by moniker
-# Usage: rbrn_load_moniker <moniker>
-# Constructs path, verifies file exists, sources, kindles, and validates
-rbrn_load_moniker() {
-  local z_moniker="${1:-}"
-  test -n "${z_moniker}" || buc_die "rbrn_load_moniker: moniker argument required"
-
-  local z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
-  test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
-
-  source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
-  zrbrn_kindle
-  zrbrn_validate_fields
-}
-
-# Load nameplate regime by file path
-# Usage: rbrn_load_file <path>
-# Takes explicit file path, sources, kindles, and validates
-rbrn_load_file() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrn_load_file: file argument required"
-  test -f "${z_file}" || buc_die "rbrn_load_file: file not found: ${z_file}"
-
-  source "${z_file}" || buc_die "Failed to source nameplate: ${z_file}"
-  zrbrn_kindle
-  zrbrn_validate_fields
-}
 
 # List available nameplate monikers
 # Usage: rbrn_list
@@ -246,9 +180,9 @@ rbrn_list() {
 # These iterate all nameplates by direct-sourcing .env files in
 # subshells to avoid kindle-once guard conflicts.
 #
-# rbrn_preflight: Requires RBCC kindled
-# rbrn_survey:    Requires RBCC, RBGC, RBGD kindled + RBRR loaded
-# rbrn_audit:     Requires RBCC, RBGC, RBGD kindled + RBRR loaded
+# rbrn_preflight:       Requires RBCC kindled
+# zrbrn_fleet_survey:   Requires RBCC, RBGC, RBGD kindled + RBRR loaded (call from CLI rbrn_survey)
+# zrbrn_fleet_audit:    Requires RBCC, RBGC, RBGD kindled + RBRR loaded (call from CLI rbrn_audit)
 
 # Convert dotted-quad IPv4 to integer for subnet arithmetic
 zrbrn_ip_to_int() {
@@ -361,7 +295,7 @@ rbrn_preflight() {
 
 # Fleet info table — non-opinionated display of all nameplate configuration
 # Requires: RBCC, RBGC, RBGD kindled + RBRR loaded
-rbrn_survey() {
+zrbrn_fleet_survey() {
   zrbcc_sentinel
   zrbgc_sentinel
   zrbgd_sentinel
@@ -412,8 +346,8 @@ rbrn_survey() {
 }
 
 # Audit — survey display then preflight validation
-rbrn_audit() {
-  rbrn_survey
+zrbrn_fleet_audit() {
+  zrbrn_fleet_survey
   rbrn_preflight
   buc_step "Cross-nameplate audit passed"
 }

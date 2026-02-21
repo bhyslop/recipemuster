@@ -586,6 +586,14 @@ buv_ipv4_enroll() {
   zbuv_enroll "${z_scope}" "${z_varname}" "ipv4" "${z_gate_var}" "${z_gate_val}" "" ""
 }
 
+buv_port_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "port" "${z_gate_var}" "${z_gate_val}" "" ""
+}
+
 # Public enrollment functions — list types
 
 buv_list_string_enroll() {
@@ -614,6 +622,22 @@ buv_list_gname_enroll() {
   local z_p1="${5:-}"
   local z_p2="${6:-}"
   zbuv_enroll "${z_scope}" "${z_varname}" "list_gname" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+}
+
+buv_list_cidr_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "list_cidr" "${z_gate_var}" "${z_gate_val}" "" ""
+}
+
+buv_list_domain_enroll() {
+  local z_scope="${1:-}"
+  local z_varname="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  zbuv_enroll "${z_scope}" "${z_varname}" "list_domain" "${z_gate_var}" "${z_gate_val}" "" ""
 }
 
 # Internal check predicate — validates a single enrolled variable by roll index.
@@ -785,6 +809,18 @@ zbuv_check_predicate() {
       }
       ;;
 
+    port)
+      if test -z "${z_val}"; then
+        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+        return 1
+      fi
+      if test "${z_val}" -ge 1 && test "${z_val}" -le 65535; then
+        return 0
+      fi
+      ZBUV_CHECK_ERROR="${z_varname} value '${z_val}' must be between 1 and 65535"
+      return 1
+      ;;
+
     list_string)
       local z_item
       local z_item_num=0
@@ -828,6 +864,30 @@ zbuv_check_predicate() {
         fi
         echo "${z_item}" | grep -qE '^[a-z][a-z0-9-]*[a-z0-9]$' || {
           ZBUV_CHECK_ERROR="${z_varname} item #${z_item_num} must match ^[a-z][a-z0-9-]*[a-z0-9]$, got '${z_item}'"
+          return 1
+        }
+      done
+      ;;
+
+    list_cidr)
+      local z_item
+      local z_item_num=0
+      for z_item in ${z_val}; do
+        z_item_num=$((z_item_num + 1))
+        echo "${z_item}" | grep -qE '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$' || {
+          ZBUV_CHECK_ERROR="${z_varname} item #${z_item_num} has invalid CIDR format: '${z_item}'"
+          return 1
+        }
+      done
+      ;;
+
+    list_domain)
+      local z_item
+      local z_item_num=0
+      for z_item in ${z_val}; do
+        z_item_num=$((z_item_num + 1))
+        echo "${z_item}" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$' || {
+          ZBUV_CHECK_ERROR="${z_varname} item #${z_item_num} has invalid domain format: '${z_item}'"
           return 1
         }
       done
