@@ -13,10 +13,10 @@
 //! (orchestrating or test-subject) from seeing the experiment design.
 //!
 //! Usage:
-//!   smpt plan          Show trial matrix with full prompt text
-//!   smpt trial N       Run single trial (1-based), verbose output
-//!   smpt run           Run all trials sequentially, verbose output
-//!   smpt smoke         Run 1 trial (haiku+minimal) as connectivity check
+//!   smpt plan            Show trial matrix with full prompt text
+//!   smpt trial N [R]     Run single trial (1-based), R repeats (default 1)
+//!   smpt run [R]         Run all trials, R repeats each (default 1)
+//!   smpt smoke           Run 1 trial (haiku+minimal) as connectivity check
 
 use std::io::Write as IoWrite;
 use std::time::Instant;
@@ -131,6 +131,24 @@ fn trial_params(n: usize) -> Option<(usize, usize)> {
     let model_idx = idx / SYSTEM_PROMPTS.len();
     let prompt_idx = idx % SYSTEM_PROMPTS.len();
     Some((model_idx, prompt_idx))
+}
+
+// =========================================================================
+// Statistics
+// =========================================================================
+
+fn median(values: &[f64]) -> f64 {
+    let mut sorted = values.to_vec();
+    sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    let n = sorted.len();
+    if n == 0 {
+        return 0.0;
+    }
+    if n % 2 == 1 {
+        sorted[n / 2]
+    } else {
+        (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
+    }
 }
 
 // =========================================================================
@@ -262,22 +280,88 @@ fn build_claude_args(model: &str, system_prompt: &str, user_message: &str) -> (V
     (args, display_parts.join(" "))
 }
 
+// =========================================================================
+// Core invocation — no printing, returns structured result
+// =========================================================================
+
+/// Result of a single claude invocation.
+struct InvokeResult {
+    passed: bool,
+    elapsed: f64,
+    detail: String,
+    response: String,
+}
+
+/// Invoke claude subprocess and evaluate response. No output printed.
+async fn invoke_trial(model: &str, system_prompt: &str) -> InvokeResult {
+    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
+    let (args, _display_cmd) = build_claude_args(model, system_prompt, &user_message);
+
+    let mut cmd = Command::from(vvc::vvce_claude_command());
+    cmd.env_remove("CLAUDE_CODE_ENTRYPOINT");
+    cmd.env_remove("CLAUDE_CODE_DISABLE_AUTO_MEMORY");
+    cmd.args(&args);
+
+    let start = Instant::now();
+
+    let output = tokio::time::timeout(
+        std::time::Duration::from_secs(SUBPROCESS_TIMEOUT_SECS),
+        cmd.output(),
+    )
+    .await;
+
+    let elapsed = start.elapsed().as_secs_f64();
+
+    match output {
+        Err(_) => InvokeResult {
+            passed: false,
+            elapsed,
+            detail: format!("TIMEOUT after {}s", SUBPROCESS_TIMEOUT_SECS),
+            response: String::new(),
+        },
+        Ok(Err(e)) => InvokeResult {
+            passed: false,
+            elapsed,
+            detail: format!("SPAWN ERROR: {}", e),
+            response: String::new(),
+        },
+        Ok(Ok(output)) => {
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+            if !output.status.success() {
+                return InvokeResult {
+                    passed: false,
+                    elapsed,
+                    detail: format!("EXIT {}", output.status),
+                    response: stdout,
+                };
+            }
+
+            let (passed, detail) = evaluate(&stdout, TEST_TABLE);
+            InvokeResult {
+                passed,
+                elapsed,
+                detail,
+                response: stdout,
+            }
+        }
+    }
+}
 
 // =========================================================================
-// Verbose trial execution — shows everything
+// Verbose trial execution — shows everything (single invocation)
 // =========================================================================
 
 /// Run a single trial with full verbose output. Returns (passed, elapsed_secs).
 async fn run_trial_verbose(n: usize, model: &str, prompt_name: &str, system_prompt: &str) -> (bool, f64) {
     let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
-    let (args, display_cmd) = build_claude_args(model, system_prompt, &user_message);
+    let (_args, display_cmd) = build_claude_args(model, system_prompt, &user_message);
 
     separator();
     println!("TRIAL {}: model={} prompt={}", n, model, prompt_name);
     separator();
 
     print_boxed("SYSTEM PROMPT", system_prompt);
-
     print_boxed("USER MESSAGE", &user_message);
 
     thin_separator();
@@ -289,90 +373,132 @@ async fn run_trial_verbose(n: usize, model: &str, prompt_name: &str, system_prom
     println!("[INVOKING claude... timeout={}s]", SUBPROCESS_TIMEOUT_SECS);
     flush();
 
-    // Match vvcp_probe.rs pattern: no explicit Stdio settings.
-    // .output() defaults: stdin=null, stdout=piped, stderr=piped.
-    // This avoids the stdin-inheritance hang.
-    //
-    // Strip ALL claude-related env vars to prevent nesting detection.
-    // vvce_claude_command() only strips CLAUDECODE; we also need to
-    // remove CLAUDE_CODE_ENTRYPOINT and CLAUDE_CODE_DISABLE_AUTO_MEMORY.
-    let mut cmd = Command::from(vvc::vvce_claude_command());
-    cmd.env_remove("CLAUDE_CODE_ENTRYPOINT");
-    cmd.env_remove("CLAUDE_CODE_DISABLE_AUTO_MEMORY");
-    cmd.args(&args);
+    let result = invoke_trial(model, system_prompt).await;
 
-    let start = Instant::now();
-
-    // Apply timeout via tokio
-    let output = tokio::time::timeout(
-        std::time::Duration::from_secs(SUBPROCESS_TIMEOUT_SECS),
-        cmd.output(),
-    )
-    .await;
-
-    let elapsed = start.elapsed().as_secs_f64();
-
-    println!("[ELAPSED] {:.1}s", elapsed);
+    println!("[ELAPSED] {:.1}s", result.elapsed);
     flush();
 
-    match output {
-        Err(_) => {
-            // Timeout
-            println!("[TIMEOUT] subprocess exceeded {}s limit", SUBPROCESS_TIMEOUT_SECS);
-            println!();
-            flush();
-            (false, elapsed)
+    if result.response.is_empty() {
+        println!("[{}]", result.detail);
+        println!();
+        flush();
+    } else {
+        println!("[EXIT] 0 (success)");
+        flush();
+
+        print_boxed("RAW RESPONSE", &result.response);
+
+        thin_separator();
+        println!("[RESPONSE STATS]");
+        println!("  bytes: {}", result.response.len());
+        println!("  lines: {}", result.response.lines().count());
+        println!(
+            "  has code fences: {}",
+            result.response.trim().starts_with("```")
+        );
+        println!("  has pipe chars: {}", result.response.contains('|'));
+        println!("  has horiz rules: {}", result.response.contains("---"));
+        flush();
+
+        thin_separator();
+        println!("[EVALUATION] {}", result.detail);
+        println!();
+        flush();
+    }
+
+    (result.passed, result.elapsed)
+}
+
+// =========================================================================
+// Repeat trial execution — condensed per-repeat output
+// =========================================================================
+
+/// Per-trial aggregate across repeats.
+struct TrialAggregate {
+    trial_n: usize,
+    model: String,
+    prompt_name: String,
+    pass_count: usize,
+    repeat_count: usize,
+    median_secs: f64,
+    min_secs: f64,
+    max_secs: f64,
+    times: Vec<f64>,
+}
+
+/// Run a trial R times with condensed output per repeat.
+async fn run_trial_repeats(
+    n: usize,
+    model: &str,
+    prompt_name: &str,
+    system_prompt: &str,
+    repeats: usize,
+) -> TrialAggregate {
+    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
+    let (_args, display_cmd) = build_claude_args(model, system_prompt, &user_message);
+
+    separator();
+    println!(
+        "TRIAL {}: model={} prompt={} repeats={}",
+        n, model, prompt_name, repeats
+    );
+    separator();
+
+    print_boxed("SYSTEM PROMPT", system_prompt);
+
+    thin_separator();
+    println!("[COMMAND]");
+    println!("  {}", display_cmd);
+    flush();
+
+    println!();
+
+    let mut pass_count: usize = 0;
+    let mut times: Vec<f64> = Vec::new();
+
+    for r in 1..=repeats {
+        print!("  [rep {}/{}] ", r, repeats);
+        flush();
+
+        let result = invoke_trial(model, system_prompt).await;
+        times.push(result.elapsed);
+
+        if result.passed {
+            pass_count += 1;
+            println!("PASS  {:.2}s", result.elapsed);
+        } else {
+            // Show compact failure reason
+            let reason = result
+                .detail
+                .strip_prefix("FAIL: ")
+                .unwrap_or(&result.detail);
+            println!("FAIL  {:.2}s  ({})", result.elapsed, reason);
         }
-        Ok(Err(e)) => {
-            println!("[SPAWN ERROR] {}", e);
-            println!();
-            flush();
-            (false, elapsed)
-        }
-        Ok(Ok(output)) => {
-            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        flush();
+    }
 
-            if !stderr.trim().is_empty() {
-                print_boxed("STDERR", stderr.trim());
-            }
+    let median_secs = median(&times);
+    let min_secs = times.iter().cloned().fold(f64::INFINITY, f64::min);
+    let max_secs = times.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
 
-            if !output.status.success() {
-                println!("[EXIT] {} (FAILURE)", output.status);
-                print_boxed("STDOUT (on failure)", &stdout);
-                println!();
-                flush();
-                return (false, elapsed);
-            }
+    println!();
+    println!(
+        "  RESULT: {}/{} pass | median {:.2}s | range {:.2}s - {:.2}s",
+        pass_count, repeats, median_secs, min_secs, max_secs
+    );
+    println!();
+    flush();
 
-            println!("[EXIT] 0 (success)");
-            flush();
-
-            // Always show the raw response
-            print_boxed("RAW RESPONSE", &stdout);
-
-            // Show the response length stats
-            thin_separator();
-            println!("[RESPONSE STATS]");
-            println!("  bytes: {}", stdout.len());
-            println!("  lines: {}", stdout.lines().count());
-            println!(
-                "  has code fences: {}",
-                stdout.trim().starts_with("```")
-            );
-            println!("  has pipe chars: {}", stdout.contains('|'));
-            println!("  has horiz rules: {}", stdout.contains("---"));
-            flush();
-
-            // Evaluate
-            let (passed, detail) = evaluate(&stdout, TEST_TABLE);
-            thin_separator();
-            println!("[EVALUATION] {}", detail);
-            println!();
-            flush();
-
-            (passed, elapsed)
-        }
+    TrialAggregate {
+        trial_n: n,
+        model: model.to_string(),
+        prompt_name: prompt_name.to_string(),
+        pass_count,
+        repeat_count: repeats,
+        median_secs,
+        min_secs,
+        max_secs,
+        times,
     }
 }
 
@@ -388,17 +514,24 @@ async fn main() {
         Some("plan") => cmd_plan(),
         Some("trial") => {
             let n = parse_trial_number(&args);
-            cmd_trial(n).await;
+            let repeats = parse_repeat_count(&args, 3);
+            cmd_trial(n, repeats).await;
         }
-        Some("run") => cmd_run().await,
+        Some("run") => {
+            let repeats = parse_repeat_count(&args, 2);
+            cmd_run(repeats).await;
+        }
         Some("smoke") => cmd_smoke().await,
         _ => {
-            eprintln!("Usage: smpt <plan|trial N|run|smoke>");
+            eprintln!("Usage: smpt <plan|trial N [R]|run [R]|smoke>");
             eprintln!();
-            eprintln!("  plan      Show trial matrix with full prompt text");
-            eprintln!("  trial N   Run single trial (1-{}), verbose", trial_count());
-            eprintln!("  run       Run all trials sequentially, verbose");
-            eprintln!("  smoke     Run 1 trial (haiku+minimal) as connectivity check");
+            eprintln!("  plan        Show trial matrix with full prompt text");
+            eprintln!(
+                "  trial N [R] Run single trial (1-{}), R repeats (default 1)",
+                trial_count()
+            );
+            eprintln!("  run [R]     All trials, R repeats each (default 1)");
+            eprintln!("  smoke       Run 1 trial (haiku+minimal) as connectivity check");
             std::process::exit(1);
         }
     }
@@ -453,12 +586,22 @@ fn parse_trial_number(args: &[String]) -> usize {
     args.get(2)
         .and_then(|s| s.parse().ok())
         .unwrap_or_else(|| {
-            eprintln!("Usage: smpt trial <N>  (1-{})", trial_count());
+            eprintln!("Usage: smpt trial <N> [R]  (N: 1-{}, R: repeats)", trial_count());
             std::process::exit(1);
         })
 }
 
-async fn cmd_trial(n: usize) {
+/// Parse optional repeat count from args at given position.
+/// For `trial N R`: repeat is at index 3.
+/// For `run R`: repeat is at index 2.
+fn parse_repeat_count(args: &[String], pos: usize) -> usize {
+    args.get(pos)
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(1)
+        .max(1)
+}
+
+async fn cmd_trial(n: usize, repeats: usize) {
     let (mi, pi) = trial_params(n).unwrap_or_else(|| {
         eprintln!("Trial {} out of range (1-{})", n, trial_count());
         std::process::exit(1);
@@ -467,21 +610,26 @@ async fn cmd_trial(n: usize) {
     let model = MODELS[mi];
     let (prompt_name, system_prompt) = SYSTEM_PROMPTS[pi];
 
-    let (passed, _elapsed) = run_trial_verbose(n, model, prompt_name, system_prompt).await;
-
-    if !passed {
-        std::process::exit(1);
+    if repeats == 1 {
+        // Single run: full verbose output (backward compatible)
+        let (passed, _elapsed) = run_trial_verbose(n, model, prompt_name, system_prompt).await;
+        if !passed {
+            std::process::exit(1);
+        }
+    } else {
+        let agg = run_trial_repeats(n, model, prompt_name, system_prompt, repeats).await;
+        if agg.pass_count == 0 {
+            std::process::exit(1);
+        }
     }
 }
 
 /// Smoke test: run just 1 trial (haiku + minimal) to verify connectivity.
-/// Cheapest and fastest possible invocation.
 async fn cmd_smoke() {
     println!("SMOKE TEST: single trial to verify claude -p connectivity");
     println!();
     flush();
 
-    // Trial 2 = haiku + minimal (cheapest model, simplest custom prompt)
     let model = "haiku";
     let prompt_name = "minimal";
     let system_prompt = "You are a helpful assistant.";
@@ -497,36 +645,62 @@ async fn cmd_smoke() {
     println!();
 }
 
-async fn cmd_run() {
+async fn cmd_run(repeats: usize) {
     separator();
     println!("STUDY: Model Prompt Tuning — Table Rendering");
-    println!("Running {} trials sequentially...", trial_count());
+    if repeats > 1 {
+        println!(
+            "Running {} trials x {} repeats = {} invocations...",
+            trial_count(),
+            repeats,
+            trial_count() * repeats
+        );
+    } else {
+        println!("Running {} trials sequentially...", trial_count());
+    }
     separator();
     println!();
 
-    let mut results: Vec<(usize, String, String, bool, f64)> = Vec::new();
     let run_start = Instant::now();
 
-    for n in 1..=trial_count() {
-        let (mi, pi) = trial_params(n).unwrap();
-        let model = MODELS[mi];
-        let (prompt_name, system_prompt) = SYSTEM_PROMPTS[pi];
+    if repeats == 1 {
+        // Single repeat: use verbose output (backward compatible)
+        let mut results: Vec<(usize, String, String, bool, f64)> = Vec::new();
 
-        let (passed, elapsed) =
-            run_trial_verbose(n, model, prompt_name, system_prompt).await;
+        for n in 1..=trial_count() {
+            let (mi, pi) = trial_params(n).unwrap();
+            let model = MODELS[mi];
+            let (prompt_name, system_prompt) = SYSTEM_PROMPTS[pi];
+            let (passed, elapsed) =
+                run_trial_verbose(n, model, prompt_name, system_prompt).await;
+            results.push((n, model.to_string(), prompt_name.to_string(), passed, elapsed));
+        }
 
-        results.push((
-            n,
-            model.to_string(),
-            prompt_name.to_string(),
-            passed,
-            elapsed,
-        ));
+        let total_elapsed = run_start.elapsed().as_secs_f64();
+        print_summary_single(&results, total_elapsed);
+    } else {
+        // Multiple repeats: condensed output + statistical summary
+        let mut aggregates: Vec<TrialAggregate> = Vec::new();
+
+        for n in 1..=trial_count() {
+            let (mi, pi) = trial_params(n).unwrap();
+            let model = MODELS[mi];
+            let (prompt_name, system_prompt) = SYSTEM_PROMPTS[pi];
+            let agg =
+                run_trial_repeats(n, model, prompt_name, system_prompt, repeats).await;
+            aggregates.push(agg);
+        }
+
+        let total_elapsed = run_start.elapsed().as_secs_f64();
+        print_summary_repeats(&aggregates, repeats, total_elapsed);
     }
+}
 
-    let total_elapsed = run_start.elapsed().as_secs_f64();
+// =========================================================================
+// Summary display
+// =========================================================================
 
-    // Summary matrix
+fn print_summary_single(results: &[(usize, String, String, bool, f64)], total_elapsed: f64) {
     separator();
     println!("SUMMARY");
     separator();
@@ -566,8 +740,84 @@ async fn cmd_run() {
         "Results: {} pass, {} fail out of {} trials in {:.1}s total",
         pass_count,
         fail_count,
-        trial_count(),
+        results.len(),
         total_elapsed
     );
+    println!();
+}
+
+fn print_summary_repeats(aggregates: &[TrialAggregate], repeats: usize, total_elapsed: f64) {
+    separator();
+    println!("SUMMARY ({} repeats per trial, times are median)", repeats);
+    separator();
+    println!();
+
+    // Header row — wider columns for "N/N Xs" format
+    print!("{:<10}", "");
+    for (name, _) in SYSTEM_PROMPTS {
+        print!("{:<14}", name);
+    }
+    println!();
+
+    // Data rows
+    for (mi, model) in MODELS.iter().enumerate() {
+        print!("{:<10}", model);
+        for pi in 0..SYSTEM_PROMPTS.len() {
+            let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
+            if let Some(agg) = aggregates.iter().find(|a| a.trial_n == n) {
+                let cell = format!(
+                    "{}/{} {:.1}s",
+                    agg.pass_count, agg.repeat_count, agg.median_secs
+                );
+                print!("{:<14}", cell);
+            } else {
+                print!("{:<14}", "---");
+            }
+        }
+        println!();
+    }
+
+    // Timing detail table
+    println!();
+    println!("Timing detail (median / min / max):");
+    println!();
+    print!("{:<10}", "");
+    for (name, _) in SYSTEM_PROMPTS {
+        print!("{:<22}", name);
+    }
+    println!();
+
+    for (mi, model) in MODELS.iter().enumerate() {
+        print!("{:<10}", model);
+        for pi in 0..SYSTEM_PROMPTS.len() {
+            let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
+            if let Some(agg) = aggregates.iter().find(|a| a.trial_n == n) {
+                let cell = format!(
+                    "{:.2} / {:.2} / {:.2}",
+                    agg.median_secs, agg.min_secs, agg.max_secs
+                );
+                print!("{:<22}", cell);
+            } else {
+                print!("{:<22}", "---");
+            }
+        }
+        println!();
+    }
+
+    // Totals
+    let total_invocations: usize = aggregates.iter().map(|a| a.repeat_count).sum();
+    let total_passes: usize = aggregates.iter().map(|a| a.pass_count).sum();
+    let total_fails = total_invocations - total_passes;
+
+    // All individual times for grand median
+    let all_times: Vec<f64> = aggregates.iter().flat_map(|a| a.times.clone()).collect();
+    let grand_median = median(&all_times);
+
+    println!();
+    println!(
+        "Totals: {} pass, {} fail across {} invocations in {:.1}s",
+        total_passes, total_fails, total_invocations, total_elapsed
+    );
+    println!("Grand median per invocation: {:.2}s", grand_median);
     println!();
 }

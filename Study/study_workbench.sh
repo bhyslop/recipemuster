@@ -68,7 +68,7 @@ studyw_route() {
 
       case "${z_imprint}" in
         smoke)  exec "${z_binary}" smoke ;;
-        FULL)   exec "${z_binary}" run   ;;
+        FULL)   exec "${z_binary}" run "$@" ;;
         *)      exec "${z_binary}" "$@"  ;;
       esac
       ;;
