@@ -21,6 +21,8 @@
 set -euo pipefail
 
 RBTB_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+RBTB_RBTS_DIR="${RBTB_SCRIPT_DIR}/rbts"
+RBTB_BUTS_DIR="${RBTB_SCRIPT_DIR}/../buk/buts"
 
 # Source dependencies
 source "${RBTB_SCRIPT_DIR}/../buk/buc_command.sh"
@@ -34,22 +36,29 @@ source "${RBTB_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${RBTB_SCRIPT_DIR}/rbrn_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbrr_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbrv_regime.sh"
+source "${RBTB_SCRIPT_DIR}/rbrp_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${RBTB_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${RBTB_SCRIPT_DIR}/rbgd_DepotConstants.sh"
 source "${RBTB_SCRIPT_DIR}/rbob_bottle.sh"
+source "${RBTB_SCRIPT_DIR}/rbgo_OAuth.sh"
+source "${RBTB_SCRIPT_DIR}/rbgu_Utility.sh"
+source "${RBTB_SCRIPT_DIR}/rbgi_IAM.sh"
+source "${RBTB_SCRIPT_DIR}/rbgp_Payor.sh"
+source "${RBTB_SCRIPT_DIR}/rbap_AccessProbe.sh"
 
 # Source test case files
-source "${RBTB_SCRIPT_DIR}/rbtckk_KickTires.sh"
-source "${RBTB_SCRIPT_DIR}/rbtcqa_QualifyAll.sh"
-source "${RBTB_SCRIPT_DIR}/rbtcal_ArkLifecycle.sh"
-source "${RBTB_SCRIPT_DIR}/../buk/butcde_DispatchExercise.sh"
-source "${RBTB_SCRIPT_DIR}/rbtcns_NsproSecurity.sh"
-source "${RBTB_SCRIPT_DIR}/rbtcsj_SrjclJupyter.sh"
-source "${RBTB_SCRIPT_DIR}/rbtcpl_PlumlDiagram.sh"
-source "${RBTB_SCRIPT_DIR}/../buk/butcvu_XnameValidation.sh"
-source "${RBTB_SCRIPT_DIR}/../buk/butcrg_RegimeSmoke.sh"
-source "${RBTB_SCRIPT_DIR}/../buk/butcrg_RegimeCredentials.sh"
+source "${RBTB_RBTS_DIR}/rbtckk_KickTires.sh"
+source "${RBTB_RBTS_DIR}/rbtcqa_QualifyAll.sh"
+source "${RBTB_RBTS_DIR}/rbtcap_AccessProbe.sh"
+source "${RBTB_RBTS_DIR}/rbtcal_ArkLifecycle.sh"
+source "${RBTB_BUTS_DIR}/butcde_DispatchExercise.sh"
+source "${RBTB_RBTS_DIR}/rbtcns_NsproSecurity.sh"
+source "${RBTB_RBTS_DIR}/rbtcsj_SrjclJupyter.sh"
+source "${RBTB_RBTS_DIR}/rbtcpl_PlumlDiagram.sh"
+source "${RBTB_BUTS_DIR}/butcvu_XnameValidation.sh"
+source "${RBTB_BUTS_DIR}/butcrg_RegimeSmoke.sh"
+source "${RBTB_BUTS_DIR}/butcrg_RegimeCredentials.sh"
 
 buc_context "${0##*/}"
 zburd_kindle
@@ -119,6 +128,14 @@ zrbtb_qualify_tsuite_setup() {
   zrbq_kindle
 }
 
+zrbtb_access_probe_tsuite_setup() {
+  buto_trace "Setup for access-probe suite"
+  # 5 iterations with 1500ms delay between calls
+  # Total runtime: ~4 roles × 5 × 1.5s ≈ 30 seconds
+  ZRBTCAP_ITERATIONS=5
+  ZRBTCAP_DELAY_MS=1500
+}
+
 zrbtb_ark_tsuite_setup() {
   buto_trace "Setup for ark-lifecycle suite"
   ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
@@ -171,6 +188,14 @@ rbtb_kindle() {
   # qualify-all suite
   butr_suite_enroll "qualify-all" "" "zrbtb_qualify_tsuite_setup"
   butr_case_enroll "qualify-all" rbtcqa_qualify_all_tcase
+
+  # access-probe suite (runs before ark-lifecycle; ~30s smoke test for OAuth/credential issues)
+  # Regression tests for rbgo_OAuth.sh stderr-capture fix (pace AfAAR)
+  butr_suite_enroll "access-probe" "" "zrbtb_access_probe_tsuite_setup"
+  butr_case_enroll "access-probe" rbtcap_jwt_governor_tcase
+  butr_case_enroll "access-probe" rbtcap_jwt_director_tcase
+  butr_case_enroll "access-probe" rbtcap_jwt_retriever_tcase
+  butr_case_enroll "access-probe" rbtcap_payor_oauth_tcase
 
   # ark-lifecycle suite
   butr_suite_enroll "ark-lifecycle" "" "zrbtb_ark_tsuite_setup"
@@ -277,6 +302,7 @@ rbtb_route() {
         *)      buc_die "rbw-tn: unknown nameplate imprint '${z_imprint}' (expected: nsproto, srjcl, pluml)" ;;
       esac
       ;;
+    rbw-tap) butd_run_suite "access-probe" ;;
     rbw-trg) butd_run_suite "regime-smoke" ;;
     rbw-trc) butd_run_suite "regime-credentials" ;;
     *)
@@ -288,6 +314,7 @@ rbtb_route() {
       buc_info "  rbw-ts   Run single suite (pass suite name)"
       buc_info "  rbw-to   Run single test function (pass function name)"
       buc_info "  rbw-tn   Run nameplate suite (imprint: nsproto, srjcl, pluml)"
+      buc_info "  rbw-tap  Run access-probe suite (OAuth/credential smoke test)"
       buc_info "  rbw-trg  Run regime-smoke suite"
       buc_info "  rbw-trc  Run regime-credentials suite"
       return 0
