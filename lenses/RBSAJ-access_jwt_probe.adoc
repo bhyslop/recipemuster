@@ -1,0 +1,116 @@
+NOTE: This operation probes
+{gar_service}
+read access for a specified
+{rbtr_role}
+by performing a JWT-to-OAuth token exchange and then calling the Artifact Registry packages.list API.
+It may repeat for a configured number of iterations with a configurable delay, enabling sustained access verification and token lifecycle testing.
+
+The operation accepts a role parameter selecting among
+{rbtr_governor},
+{rbtr_director},
+and
+{rbtr_retriever},
+each with Owner, repoAdmin, and reader permissions respectively.
+All three roles have Artifact Registry read access, so a successful response confirms both token validity and role-specific permission.
+
+// ⟦axs_inputs⟧
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«INPUT_ROLE»` provided as first argument: one of `governor`, `director`, or `retriever`
+.. {rbbc_fatal}
+if role missing: "Role parameter required (governor|director|retriever)"
+.. {rbbc_fatal}
+if role unrecognized: "Unknown role: «INPUT_ROLE» — must be governor, director, or retriever"
+.. {rbbc_store}
+`«ITERATION_COUNT»` from `--count` flag (default: 1)
+.. {rbbc_store}
+`«DELAY_MS»` from `--delay_ms` flag (default: 0)
+.. {rbbc_fatal}
+if `«ITERATION_COUNT»` is not a positive integer: "Count must be a positive integer"
+.. {rbbc_fatal}
+if `«DELAY_MS»` is not a non-negative integer: "Delay must be a non-negative integer"
+
+. *Resolve Role Configuration*:
+.. If `«INPUT_ROLE»` is `governor`:
+... {rbbc_store}
+`«ROLE_DISPLAY»` as `Governor`
+... {rbbc_store}
+`«RBRA_FILE»` from
+{rbrr_governor_rbra_file}
+.. If `«INPUT_ROLE»` is `director`:
+... {rbbc_store}
+`«ROLE_DISPLAY»` as `Director`
+... {rbbc_store}
+`«RBRA_FILE»` from
+{rbrr_director_rbra_file}
+.. If `«INPUT_ROLE»` is `retriever`:
+... {rbbc_store}
+`«ROLE_DISPLAY»` as `Retriever`
+... {rbbc_store}
+`«RBRA_FILE»` from
+{rbrr_retriever_rbra_file}
+.. {rbbc_require}
+`«RBRA_FILE»` exists on the filesystem
+.. {rbbc_fatal}
+if file missing: "«ROLE_DISPLAY» RBRA file missing at «RBRA_FILE»"
+
+// ⟦axs_behavior⟧
+. *Construct Verification Endpoint*:
+.. {rbbc_store}
+`«VERIFY_URL»` as:
++
+`https://artifactregistry.googleapis.com/v1/projects/{rbrr_depot_project_id}/locations/{rbrr_gcp_region}/repositories/{rbrr_gar_repository}/packages`
+
+. *Execute Probe Iterations*:
+.. For each iteration `«I»` from 1 to `«ITERATION_COUNT»`:
+
+... *Acquire «ROLE_DISPLAY» Token*:
+.... Execute
+{rbtoe_jwt_oauth_exchange}
+with `«RBRA_FILE»`
+.... {rbbc_store}
+`«ROLE_TOKEN»` from exchange result
+.... {rbbc_fatal}
+if token exchange fails: "Iteration «I»: JWT-to-OAuth exchange failed for «ROLE_DISPLAY»"
+
+... *Call Artifact Registry Packages API*:
+.... {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[artifactregistry.projects.locations.repositories.packages.list] with:
+..... method: `GET`
+..... endpoint: `«VERIFY_URL»`
+..... header: `Authorization: Bearer «ROLE_TOKEN»`
+.... {rbbc_store}
+`«HTTP_STATUS»` from response status code
+.... {rbbc_store}
+`«RESPONSE_BODY»` from response body
+
+... *Evaluate Response*:
+.... If `«HTTP_STATUS»` is 200:
+..... {rbbc_show}
+`Iteration «I»/«ITERATION_COUNT»: «ROLE_DISPLAY» OK — packages.list HTTP 200`
+.... If `«HTTP_STATUS»` is 403:
+..... {rbbc_fatal}
+"Iteration «I»: «ROLE_DISPLAY» access denied — HTTP 403 (token valid but role lacks Artifact Registry read permission)"
+.... If `«HTTP_STATUS»` is 401:
+..... {rbbc_fatal}
+"Iteration «I»: «ROLE_DISPLAY» token rejected — HTTP 401 (token exchange succeeded but token is invalid)"
+.... Otherwise:
+..... {rbbc_fatal}
+"Iteration «I»: «ROLE_DISPLAY» unexpected HTTP «HTTP_STATUS»: «RESPONSE_BODY»"
+
+... *Apply Inter-Iteration Delay* (if not final iteration):
+.... If `«DELAY_MS»` is greater than 0 and `«I»` is less than `«ITERATION_COUNT»`:
+..... {rbbc_show}
+`Sleeping «DELAY_MS»ms before next iteration`
+..... Sleep `«DELAY_MS»` milliseconds
+
+// ⟦axs_outputs⟧
+. *Display Summary*:
+.. {rbbc_show}
+`«ROLE_DISPLAY» JWT access probe complete: «ITERATION_COUNT»/«ITERATION_COUNT» iterations passed`
+
+// ⟦axs_completion⟧
+Procedure completes successfully when all iterations confirm that the selected role's JWT-derived OAuth token grants read access to the
+{gar_service}
+packages list endpoint.
+Completion demonstrates both that JWT-to-OAuth token exchange is operational for the role and that the resulting token carries the expected Artifact Registry read permissions.

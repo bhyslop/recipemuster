@@ -1,0 +1,89 @@
+NOTE: This operation probes
+{rbtr_payor}
+OAuth access by refreshing the stored OAuth token and then calling the Cloud Resource Manager projects.get API on the payor project.
+It may repeat for a configured number of iterations with a configurable delay, enabling sustained access verification and OAuth token lifecycle testing.
+
+The
+{rbtr_payor}
+role uses an OAuth 2.0 refresh token rather than a service account key, so this probe exercises the distinct authentication path through
+{rbtoe_payor_authenticate}.
+A successful response confirms both that the refresh token remains valid and that the payor project is accessible via CRM.
+
+// ⟦axs_inputs⟧
+. *Validate Input Parameters*:
+.. {rbbc_store}
+`«ITERATION_COUNT»` from `--count` flag (default: 1)
+.. {rbbc_store}
+`«DELAY_MS»` from `--delay_ms` flag (default: 0)
+.. {rbbc_fatal}
+if `«ITERATION_COUNT»` is not a positive integer: "Count must be a positive integer"
+.. {rbbc_fatal}
+if `«DELAY_MS»` is not a non-negative integer: "Delay must be a non-negative integer"
+
+// ⟦axs_behavior⟧
+. *Construct Verification Endpoint*:
+.. {rbbc_store}
+`«VERIFY_URL»` as:
++
+`https://cloudresourcemanager.googleapis.com/v1/projects/{rbrp_payor_project_id}`
+
+. *Execute Probe Iterations*:
+.. For each iteration `«I»` from 1 to `«ITERATION_COUNT»`:
+
+... *Acquire Payor Token*:
+.... Execute
+{rbtoe_payor_authenticate}
+.... {rbbc_store}
+`«PAYOR_TOKEN»` from authentication result
+.... {rbbc_fatal}
+if authentication fails: "Iteration «I»: Payor OAuth authentication failed — run
+{rbtgo_payor_refresh}
+to renew credentials"
+
+... *Call Cloud Resource Manager Projects API*:
+.... {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v1/projects/get[cloudresourcemanager.projects.get] with:
+..... method: `GET`
+..... endpoint: `«VERIFY_URL»`
+..... header: `Authorization: Bearer «PAYOR_TOKEN»`
+.... {rbbc_store}
+`«HTTP_STATUS»` from response status code
+.... {rbbc_store}
+`«RESPONSE_BODY»` from response body
+
+... *Evaluate Response*:
+.... If `«HTTP_STATUS»` is 200:
+..... {rbbc_show}
+`Iteration «I»/«ITERATION_COUNT»: Payor OK — projects.get HTTP 200`
+.... If `«HTTP_STATUS»` is 403:
+..... {rbbc_fatal}
+"Iteration «I»: Payor access denied — HTTP 403 (token valid but lacks CRM project read permission)"
+.... If `«HTTP_STATUS»` is 401:
+..... {rbbc_fatal}
+"Iteration «I»: Payor token rejected — HTTP 401 (OAuth credentials expired — run
+{rbtgo_payor_refresh})"
+.... If `«HTTP_STATUS»` is 404:
+..... {rbbc_fatal}
+"Iteration «I»: Payor project not found — HTTP 404 (verify
+{rbrp_payor_project_id}
+in rbrp.env)"
+.... Otherwise:
+..... {rbbc_fatal}
+"Iteration «I»: Payor unexpected HTTP «HTTP_STATUS»: «RESPONSE_BODY»"
+
+... *Apply Inter-Iteration Delay* (if not final iteration):
+.... If `«DELAY_MS»` is greater than 0 and `«I»` is less than `«ITERATION_COUNT»`:
+..... {rbbc_show}
+`Sleeping «DELAY_MS»ms before next iteration`
+..... Sleep `«DELAY_MS»` milliseconds
+
+// ⟦axs_outputs⟧
+. *Display Summary*:
+.. {rbbc_show}
+`Payor OAuth access probe complete: «ITERATION_COUNT»/«ITERATION_COUNT» iterations passed`
+
+// ⟦axs_completion⟧
+Procedure completes successfully when all iterations confirm that the
+{rbtr_payor}
+OAuth refresh token grants access to the Cloud Resource Manager payor project endpoint.
+Completion demonstrates both that the OAuth refresh flow is operational and that the payor project remains accessible under current credentials.

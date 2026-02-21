@@ -95,6 +95,8 @@
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbgm_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_build>>
+:rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
+:rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbap_payor_oauth_probe>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
 :rbtoe_director_authenticate:     <<rbtoe_director_authenticate,Director Authentication Pattern>>
 :rbtoe_governor_authenticate:     <<rbtoe_governor_authenticate,Governor Authentication Pattern>>
@@ -684,6 +686,14 @@ include::RBSPI-payor_install.adoc[]
 
 include::RBSPR-payor_refresh.adoc[]
 
+[[rbtgo_access_oauth_probe]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_access_oauth_probe}
+
+Probes Payor OAuth access by refreshing the stored OAuth token and calling the Cloud Resource Manager projects.get API, with optional iteration and delay for sustained verification.
+
+include::RBSAO-access_oauth_probe.adoc[]
+
 [[rbtgo_depot_create]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_depot_create}
@@ -809,6 +819,14 @@ include::RBSSL-sa_list.adoc[]
 === {rbtgo_sa_delete}
 
 include::RBSSD-sa_delete.adoc[]
+
+[[rbtgo_access_jwt_probe]]
+// ⟦axl_voices axo_command axe_bash_interactive⟧
+=== {rbtgo_access_jwt_probe}
+
+Probes Artifact Registry read access for a specified role by performing a JWT-to-OAuth token exchange and calling the packages.list API, with optional iteration and delay for sustained verification.
+
+include::RBSAJ-access_jwt_probe.adoc[]
 
 == Local Operations
 
