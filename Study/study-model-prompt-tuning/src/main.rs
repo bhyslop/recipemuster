@@ -667,17 +667,22 @@ async fn main() {
         }
         Some("smoke") => cmd_smoke().await,
         Some("api-smoke") => cmd_api_smoke().await,
+        Some("api-run") => {
+            let repeats = parse_repeat_count(&args, 2);
+            cmd_api_run(repeats).await;
+        }
         _ => {
-            eprintln!("Usage: smpt <plan|trial N [R]|run [R]|smoke|api-smoke>");
+            eprintln!("Usage: smpt <plan|trial N [R]|run [R]|smoke|api-smoke|api-run [R]>");
             eprintln!();
-            eprintln!("  plan        Show trial matrix with full prompt text");
+            eprintln!("  plan          Show trial matrix with full prompt text");
             eprintln!(
-                "  trial N [R] Run single trial (1-{}), R repeats (default 1)",
+                "  trial N [R]   Run single trial (1-{}), R repeats (default 1)",
                 trial_count()
             );
-            eprintln!("  run [R]     All trials, R repeats each (default 1)");
-            eprintln!("  smoke       Run 1 trial (haiku+minimal) via claude CLI");
-            eprintln!("  api-smoke   Direct API connectivity check (requires ANTHROPIC_API_KEY)");
+            eprintln!("  run [R]       All trials via claude CLI, R repeats each");
+            eprintln!("  smoke         Run 1 trial (haiku+minimal) via claude CLI");
+            eprintln!("  api-smoke     Direct API connectivity check (requires ANTHROPIC_API_KEY)");
+            eprintln!("  api-run [R]   All trials via direct API, R repeats each");
             std::process::exit(1);
         }
     }
@@ -798,15 +803,22 @@ async fn cmd_smoke() {
 const ANTHROPIC_API_URL: &str = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_API_VERSION: &str = "2023-06-01";
 const API_MODEL_HAIKU: &str = "claude-haiku-4-5-20251001";
+const API_MODEL_SONNET: &str = "claude-sonnet-4-6";
+const API_MODEL_OPUS: &str = "claude-opus-4-6";
 
-/// Direct API smoke test. Proves ANTHROPIC_API_KEY works, shows raw response.
-async fn cmd_api_smoke() {
-    println!("API-SMOKE: direct Anthropic API connectivity check");
-    println!();
-    flush();
+/// Map short model name to full API model ID.
+fn api_model_id(model: &str) -> &'static str {
+    match model {
+        "haiku"  => API_MODEL_HAIKU,
+        "sonnet" => API_MODEL_SONNET,
+        "opus"   => API_MODEL_OPUS,
+        _        => API_MODEL_HAIKU,
+    }
+}
 
-    // Fail fast if no API key
-    let api_key = match std::env::var("ANTHROPIC_API_KEY") {
+/// Require ANTHROPIC_API_KEY from environment or exit immediately.
+fn require_api_key() -> String {
+    match std::env::var("ANTHROPIC_API_KEY") {
         Ok(key) if !key.is_empty() => key,
         _ => {
             eprintln!("ERROR: ANTHROPIC_API_KEY environment variable not set or empty");
@@ -815,7 +827,228 @@ async fn cmd_api_smoke() {
             eprintln!("  export ANTHROPIC_API_KEY=sk-ant-...");
             std::process::exit(1);
         }
+    }
+}
+
+/// Result of a single direct API invocation.
+struct ApiInvokeResult {
+    passed: bool,
+    elapsed: f64,
+    detail: String,
+    #[allow(dead_code)]
+    response: String,
+    input_tokens: u64,
+    output_tokens: u64,
+    cache_read_tokens: u64,
+}
+
+/// Invoke the Anthropic API directly (no claude CLI subprocess).
+/// `system_prompt`: empty string means omit the system field entirely.
+async fn invoke_api_trial(
+    client: &reqwest::Client,
+    api_key: &str,
+    model: &str,
+    system_prompt: &str,
+) -> ApiInvokeResult {
+    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
+    let model_id = api_model_id(model);
+
+    let mut body = serde_json::json!({
+        "model": model_id,
+        "max_tokens": 1024,
+        "messages": [{"role": "user", "content": user_message}]
+    });
+
+    // Omit system field entirely when empty — true zero-system-prompt test
+    if !system_prompt.is_empty() {
+        body["system"] = serde_json::Value::String(system_prompt.to_string());
+    }
+
+    let start = std::time::Instant::now();
+
+    let response = tokio::time::timeout(
+        std::time::Duration::from_secs(SUBPROCESS_TIMEOUT_SECS),
+        client
+            .post(ANTHROPIC_API_URL)
+            .header("x-api-key", api_key)
+            .header("anthropic-version", ANTHROPIC_API_VERSION)
+            .header("content-type", "application/json")
+            .json(&body)
+            .send(),
+    )
+    .await;
+
+    let elapsed = start.elapsed().as_secs_f64();
+
+    let fail = |detail: String| ApiInvokeResult {
+        passed: false, elapsed, detail,
+        response: String::new(),
+        input_tokens: 0, output_tokens: 0, cache_read_tokens: 0,
     };
+
+    match response {
+        Err(_) => fail(format!("TIMEOUT after {}s", SUBPROCESS_TIMEOUT_SECS)),
+        Ok(Err(e)) => fail(format!("HTTP ERROR: {}", e)),
+        Ok(Ok(resp)) => {
+            if !resp.status().is_success() {
+                return fail(format!("HTTP {}", resp.status()));
+            }
+            let body_text = match resp.text().await {
+                Ok(t) => t,
+                Err(e) => return fail(format!("BODY READ ERROR: {}", e)),
+            };
+            let json: serde_json::Value = match serde_json::from_str(&body_text) {
+                Ok(v) => v,
+                Err(e) => return fail(format!("JSON PARSE ERROR: {}", e)),
+            };
+
+            let result_text = json.get("content")
+                .and_then(|c| c.as_array())
+                .and_then(|arr| arr.first())
+                .and_then(|b| b.get("text"))
+                .and_then(|t| t.as_str())
+                .unwrap_or("")
+                .to_string();
+
+            let usage = json.get("usage");
+            let input_tokens = usage.and_then(|u| u.get("input_tokens")).and_then(|v| v.as_u64()).unwrap_or(0);
+            let output_tokens = usage.and_then(|u| u.get("output_tokens")).and_then(|v| v.as_u64()).unwrap_or(0);
+            let cache_read_tokens = usage.and_then(|u| u.get("cache_read_input_tokens")).and_then(|v| v.as_u64()).unwrap_or(0);
+
+            let (passed, detail) = evaluate(&result_text, TEST_TABLE);
+            ApiInvokeResult { passed, elapsed, detail, response: result_text, input_tokens, output_tokens, cache_read_tokens }
+        }
+    }
+}
+
+/// Run one trial via direct API, R times, condensed output.
+async fn run_api_trial_repeats(
+    n: usize,
+    model: &str,
+    prompt_name: &str,
+    system_prompt: &str,
+    repeats: usize,
+    client: &reqwest::Client,
+    api_key: &str,
+) -> TrialAggregate {
+    separator();
+    println!(
+        "API TRIAL {}: model={} ({}) prompt={} repeats={}",
+        n, model, api_model_id(model), prompt_name, repeats
+    );
+    separator();
+
+    if system_prompt.is_empty() {
+        println!("  [SYSTEM PROMPT] (none — zero system prompt)");
+    } else {
+        print_boxed("SYSTEM PROMPT", system_prompt);
+    }
+    println!();
+
+    let mut pass_count = 0usize;
+    let mut times: Vec<f64> = Vec::new();
+    let mut input_tokens_vec: Vec<u64> = Vec::new();
+    let mut output_tokens_vec: Vec<u64> = Vec::new();
+    let mut cache_read_vec: Vec<u64> = Vec::new();
+
+    for r in 1..=repeats {
+        print!("  [rep {}/{}] ", r, repeats);
+        flush();
+
+        let result = invoke_api_trial(client, api_key, model, system_prompt).await;
+        times.push(result.elapsed);
+        input_tokens_vec.push(result.input_tokens);
+        output_tokens_vec.push(result.output_tokens);
+        cache_read_vec.push(result.cache_read_tokens);
+
+        if result.passed {
+            pass_count += 1;
+            println!("PASS  {:.2}s  in:{} cache:{} out:{}", result.elapsed, result.input_tokens, result.cache_read_tokens, result.output_tokens);
+        } else {
+            let reason = result.detail.strip_prefix("FAIL: ").unwrap_or(&result.detail);
+            println!("FAIL  {:.2}s  in:{} cache:{} out:{}  ({})", result.elapsed, result.input_tokens, result.cache_read_tokens, result.output_tokens, reason);
+        }
+        flush();
+    }
+
+    let median_secs = median(&times);
+    let min_secs = times.iter().cloned().fold(f64::INFINITY, f64::min);
+    let max_secs = times.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    let median_input = median_u64(&input_tokens_vec);
+    let median_output = median_u64(&output_tokens_vec);
+    let median_cache = median_u64(&cache_read_vec);
+
+    println!();
+    println!(
+        "  RESULT: {}/{} pass | median {:.2}s | range {:.2}s - {:.2}s",
+        pass_count, repeats, median_secs, min_secs, max_secs
+    );
+    println!(
+        "  TOKENS: in:{} cache:{} out:{}",
+        median_input, median_cache, median_output
+    );
+    println!();
+    flush();
+
+    TrialAggregate {
+        trial_n: n,
+        model: model.to_string(),
+        prompt_name: prompt_name.to_string(),
+        pass_count,
+        repeat_count: repeats,
+        median_secs,
+        min_secs,
+        max_secs,
+        times,
+        median_input_tokens: median_input,
+        median_output_tokens: median_output,
+        median_cache_read_tokens: median_cache,
+        total_cost_usd: 0.0,  // API direct path does not report cost in response
+        median_api_ms: 0,
+    }
+}
+
+/// Run full trial matrix via direct API.
+async fn cmd_api_run(repeats: usize) {
+    let api_key = require_api_key();
+    let client = reqwest::Client::new();
+
+    separator();
+    println!("STUDY: Model Prompt Tuning — Table Rendering (DIRECT API)");
+    if repeats > 1 {
+        println!(
+            "Running {} trials x {} repeats = {} invocations...",
+            trial_count(), repeats, trial_count() * repeats
+        );
+    } else {
+        println!("Running {} trials sequentially...", trial_count());
+    }
+    println!("NOTE: 'default' prompt variant = zero system prompt (no system field)");
+    separator();
+    println!();
+
+    let run_start = std::time::Instant::now();
+    let mut aggregates: Vec<TrialAggregate> = Vec::new();
+
+    for n in 1..=trial_count() {
+        let (mi, pi) = trial_params(n).unwrap();
+        let model = MODELS[mi];
+        let (prompt_name, system_prompt) = SYSTEM_PROMPTS[pi];
+        let agg = run_api_trial_repeats(n, model, prompt_name, system_prompt, repeats, &client, &api_key).await;
+        aggregates.push(agg);
+    }
+
+    let total_elapsed = run_start.elapsed().as_secs_f64();
+    print_summary_repeats(&aggregates, repeats, total_elapsed);
+}
+
+/// Direct API smoke test. Proves ANTHROPIC_API_KEY works, shows raw response.
+async fn cmd_api_smoke() {
+    println!("API-SMOKE: direct Anthropic API connectivity check");
+    println!();
+    flush();
+
+    let api_key = require_api_key();
 
     let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
     let system_prompt = "You are a helpful assistant.";

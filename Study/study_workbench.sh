@@ -67,9 +67,10 @@ studyw_route() {
       z_binary=$(studyw_build "${z_study_dir}")
 
       case "${z_imprint}" in
-        smoke)  exec "${z_binary}" smoke ;;
-        FULL)   exec "${z_binary}" run "$@" ;;
-        *)      exec "${z_binary}" "$@"  ;;
+        smoke)    exec "${z_binary}" smoke ;;
+        FULL)     exec "${z_binary}" run "$@" ;;
+        api-FULL) exec "${z_binary}" api-run "$@" ;;
+        *)        exec "${z_binary}" "$@"  ;;
       esac
       ;;
 
