@@ -10,6 +10,7 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX};
+use crate::jjri_io::jjri_paddock_path;
 use crate::jjrpd_parade::{jjrpd_format_file_bitmap, jjrpd_format_commit_swimlanes};
 use crate::jjrs_steeplechase::jjrs_SteeplechaseEntry as SteeplechaseEntry;
 use crate::jjrt_types::*;
@@ -35,7 +36,7 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
     let heat_id = gallops.next_heat_seed.clone();
 
     // Compute paddock path
-    let paddock_file = format!(".claude/jjm/jjp_{}.md", heat_id);
+    let paddock_file = jjri_paddock_path(&heat_id);
 
     // Create paddock file with template
     let paddock_path = base_path.join(&paddock_file);

@@ -49,6 +49,27 @@ fn zjjdr_find_first_diff(a: &[u8], b: &[u8]) -> usize {
         .unwrap_or_else(|| a.len().min(b.len()))
 }
 
+/// Encode a firemark string into a case-safe paddock filename path.
+///
+/// Each character is prefixed with 'u' (uppercase) or 'l' (lowercase),
+/// ensuring the resulting filename is unambiguous on case-insensitive
+/// filesystems (macOS HFS+/APFS).
+///
+/// Examples:
+///   "AG" → ".claude/jjm/jjp_uAuG.md"
+///   "Ag" → ".claude/jjm/jjp_uAlg.md"
+///   "ag" → ".claude/jjm/jjp_lalg.md"
+pub fn jjri_paddock_path(firemark: &str) -> String {
+    let encoded: String = firemark.chars().map(|c| {
+        if c.is_uppercase() {
+            format!("u{}", c)
+        } else {
+            format!("l{}", c)
+        }
+    }).collect();
+    format!(".claude/jjm/jjp_{}.md", encoded)
+}
+
 /// Load and validate Gallops from a file
 ///
 /// Performs three validation steps:
@@ -65,6 +86,35 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     // Deserialize
     let gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
+
+    // Legacy paddock detection: check for pre-encoding filenames
+    {
+        let mut repairs: Vec<String> = Vec::new();
+        for (firemark_key, heat) in &gallops.heats {
+            // Strip the ₣ prefix to get the bare firemark string
+            let bare = firemark_key.trim_start_matches('₣');
+            let expected_path = jjri_paddock_path(bare);
+            if heat.paddock_file != expected_path {
+                let expected_filename = expected_path
+                    .rsplit('/')
+                    .next()
+                    .unwrap_or(&expected_path);
+                repairs.push(format!(
+                    "  mv {} {}\n  # update gallops.json: heat \"{}\" paddock_file → \"{}\"",
+                    heat.paddock_file,
+                    expected_path,
+                    bare,
+                    expected_filename,
+                ));
+            }
+        }
+        if !repairs.is_empty() {
+            return Err(format!(
+                "Legacy paddock names detected. Repair required before proceeding:\n\n{}",
+                repairs.join("\n\n")
+            ));
+        }
+    }
 
     // Round-trip validation: ensure canonical representation
     let reserialized = serde_json::to_string_pretty(&gallops)
@@ -140,7 +190,7 @@ pub fn jjri_persist(
 
     // Construct paths for commit
     let gallops_path = file.to_string_lossy().to_string();
-    let paddock_path = format!(".claude/jjm/jjp_{}.md", firemark.jjrf_as_str());
+    let paddock_path = jjri_paddock_path(firemark.jjrf_as_str());
 
     // Commit using machine_commit with explicit file list
     let commit_args = vvc::vvcm_CommitArgs {
