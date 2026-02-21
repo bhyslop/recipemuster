@@ -11,6 +11,7 @@ use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::jjrg_Gallops as Gallops;
+use crate::jjri_io::jjri_paddock_path;
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
 
 /// Arguments for jjx_draft command
@@ -87,8 +88,8 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> i32 {
             let dest_fm = Firemark::jjrf_parse(&to).expect("draft given invalid destination firemark");
 
             let gallops_path = args.file.to_string_lossy().to_string();
-            let src_paddock_path = format!(".claude/jjm/jjp_{}.md", src_fm.jjrf_as_str());
-            let dest_paddock_path = format!(".claude/jjm/jjp_{}.md", dest_fm.jjrf_as_str());
+            let src_paddock_path = jjri_paddock_path(src_fm.jjrf_as_str());
+            let dest_paddock_path = jjri_paddock_path(dest_fm.jjrf_as_str());
 
             let commit_args = vvc::vvcm_CommitArgs {
                 files: vec![

@@ -14,6 +14,7 @@ use std::path::PathBuf;
 
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_GarlandArgs as LibGarlandArgs};
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
+use crate::jjri_io::jjri_paddock_path;
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
 
 /// Arguments for jjx_garland command
@@ -83,8 +84,8 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> i32 {
     let new_fm = Firemark::jjrf_parse(&result.new_firemark).expect("garland returned invalid new firemark");
 
     let gallops_path = args.file.to_string_lossy().to_string();
-    let old_paddock_path = format!(".claude/jjm/jjp_{}.md", old_fm.jjrf_as_str());
-    let new_paddock_path = format!(".claude/jjm/jjp_{}.md", new_fm.jjrf_as_str());
+    let old_paddock_path = jjri_paddock_path(old_fm.jjrf_as_str());
+    let new_paddock_path = jjri_paddock_path(new_fm.jjrf_as_str());
 
     // Build commit message using heat-level Garland action
     let commit_message = format_heat_message(
