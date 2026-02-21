@@ -72,10 +72,15 @@ pub fn jjri_paddock_path(firemark: &str) -> String {
 
 /// Load and validate Gallops from a file
 ///
-/// Performs three validation steps:
+/// Performs these steps in order:
 /// 1. Deserialize JSON to Gallops struct
-/// 2. Round-trip validation: reserialize and compare bytes
-/// 3. Semantic validation via jjrg_validate
+/// 2. Round-trip validation: reserialize and compare bytes (validates stored format)
+/// 3. Recompute paddock_file from firemark for every heat (JJK owns this field)
+/// 4. Paddock existence check: fatal with mv instructions if files are at legacy paths
+/// 5. Semantic validation via jjrg_validate
+///
+/// Step 3 means the stored paddock_file value is ignored — JJK always derives it from
+/// the firemark. After migration, the next save writes the encoded value back to disk.
 ///
 /// Returns ValidatedGallops wrapper that guarantees the data has passed all checks.
 pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
@@ -83,46 +88,53 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     let original_bytes = fs::read(path)
         .map_err(|e| format!("Failed to read file '{}': {}", path.display(), e))?;
 
-    // Deserialize
-    let gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
+    // Deserialize (mut: paddock_file will be recomputed below)
+    let mut gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-    // Legacy paddock detection: check for pre-encoding filenames
-    {
-        let mut repairs: Vec<String> = Vec::new();
-        for (firemark_key, heat) in &gallops.heats {
-            // Strip the ₣ prefix to get the bare firemark string
-            let bare = firemark_key.trim_start_matches('₣');
-            let expected_path = jjri_paddock_path(bare);
-            if heat.paddock_file != expected_path {
-                let expected_filename = expected_path
-                    .rsplit('/')
-                    .next()
-                    .unwrap_or(&expected_path);
-                repairs.push(format!(
-                    "  mv {} {}\n  # update gallops.json: heat \"{}\" paddock_file → \"{}\"",
-                    heat.paddock_file,
-                    expected_path,
-                    bare,
-                    expected_filename,
-                ));
-            }
-        }
-        if !repairs.is_empty() {
-            return Err(format!(
-                "Legacy paddock names detected. Repair required before proceeding:\n\n{}",
-                repairs.join("\n\n")
-            ));
-        }
-    }
-
-    // Round-trip validation: ensure canonical representation
+    // Round-trip validation: run before recomputation to validate the stored format
     let reserialized = serde_json::to_string_pretty(&gallops)
         .map_err(|e| format!("Failed to reserialize JSON: {}", e))?;
 
     if reserialized.as_bytes() != original_bytes {
         let diff_pos = zjjdr_find_first_diff(&original_bytes, reserialized.as_bytes());
         return Err(format!("Round-trip validation failed at byte {}", diff_pos));
+    }
+
+    // Recompute paddock_file from firemark for every heat.
+    // JJK owns this field exclusively; whatever is stored in JSON is overwritten.
+    // This allows old gallops files (with raw-firemark paths) to load transparently —
+    // the correct encoded path is used in memory, and written back on the next save.
+    for (firemark_key, heat) in &mut gallops.heats {
+        let bare = firemark_key.trim_start_matches('₣');
+        heat.paddock_file = jjri_paddock_path(bare);
+    }
+
+    // Paddock existence check: verify each encoded paddock file exists on disk.
+    // If missing, compute the legacy raw-firemark path and emit mv instructions.
+    // Reports ALL missing files at once so a single repair pass suffices.
+    {
+        let mut repairs: Vec<String> = Vec::new();
+        for (firemark_key, heat) in &gallops.heats {
+            if !Path::new(&heat.paddock_file).exists() {
+                let bare = firemark_key.trim_start_matches('₣');
+                let legacy_path = format!(".claude/jjm/jjp_{}.md", bare);
+                if Path::new(&legacy_path).exists() {
+                    repairs.push(format!("  mv {} {}", legacy_path, heat.paddock_file));
+                } else {
+                    repairs.push(format!(
+                        "  # WARNING: paddock missing for heat \"{}\", expected: {}",
+                        bare, heat.paddock_file
+                    ));
+                }
+            }
+        }
+        if !repairs.is_empty() {
+            return Err(format!(
+                "Paddock files need renaming before proceeding:\n\n{}",
+                repairs.join("\n")
+            ));
+        }
     }
 
     // Semantic validation
