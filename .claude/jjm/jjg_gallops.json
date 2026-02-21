@@ -25,9 +25,10 @@
         "₢AfAAP",
         "₢AfAAJ",
         "₢AfAAL",
-        "₢AfAAQ"
+        "₢AfAAQ",
+        "₢AfAAU"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_Af.md",
       "paces": {
         "₢AfAAA": {
@@ -450,6 +451,17 @@
               "text": "Move all rbtc* test case files from Tools/rbw/ to Tools/rbw/rbtd/ subdirectory.\n\n## Scope\n\n- Create `Tools/rbw/rbtd/` directory\n- Move all `rbtc*` files: rbtcap_AccessProbe.sh, rbtcal_ArkLifecycle.sh, rbtckk_KickTires.sh, rbtcqa_QualifyAll.sh, rbtcns_NsproSecurity.sh, rbtcsj_SrjclJupyter.sh, rbtcpl_PlumlDiagram.sh\n- Update all `source \"${RBTB_SCRIPT_DIR}/rbtc*\"` lines in rbtb_testbench.sh to `source \"${RBTB_SCRIPT_DIR}/rbtd/rbtc*\"`\n- BUK test cases (butcde_, butcrg_, butcvu_) stay in Tools/buk/ — not in scope\n- Testbench itself (rbtb_testbench.sh) stays in Tools/rbw/\n\n## Verification\n\n- Run `./tt/rbw-ts.TestSuite.sh access-probe` to confirm test suite still passes after move\n- Run `./tt/rbw-ts.TestSuite.sh kick-tires` as a quick smoke test\n\n## NOT in scope\n\n- Renaming any files or functions\n- Moving BUK test case files\n- Moving the testbench router itself",
               "silks": "rbtd-test-directory",
               "commit": "4eaee1f"
+            }
+          ]
+        },
+        "₢AfAAU": {
+          "tacks": [
+            {
+              "ts": "260221-0825",
+              "state": "rough",
+              "text": "Diagnose why the ark-lifecycle test suite fails with exit 1 and produces no output.\n\n## Symptoms\n\n- `./tt/rbw-ts.TestSuite.sh ark-lifecycle` exits 1 with zero stdout/stderr\n- Evidence directory is empty (no files produced)\n- In full test run (rbw-ta), transcript shows only: `Suite 'ark-lifecycle' failed with status 1`\n- No buto_trace, buto_section, or buto_fatal output appears\n- All other 10 suites pass\n\n## Context\n\n- Suite setup: `zrbtb_ark_tsuite_setup` sets `ZRBTB_ARK_VESSEL_SIGIL=\"trbim-macos\"`\n- Single case: `rbtcal_lifecycle_tcase` in `Tools/rbw/rbts/rbtcal_ArkLifecycle.sh`\n- First action in test: `buto_tt_expect_ok \"${RBZ_LIST_IMAGES}\"` (colophon rbw-il)\n- Suite runs inside nested subshells with `set -e` — silent exit if any command fails before output functions\n- Pre-existing issue (pace ₢AfAAR \"debug-ark-lifecycle-oauth-failure\" already exists with 3 commits)\n\n## Investigation approach\n\n1. Run suite with BUT_VERBOSE=2 to enable trace output\n2. Check if failure is in suite setup, case setup, or within the test case itself\n3. Check if `RBZ_LIST_IMAGES` / `rbw-il` tabtarget resolves correctly in test context\n4. Check if the `set -e` + subshell combination swallows the actual error\n5. Cross-reference with existing pace ₢AfAAR work\n\n## Acceptance\n\n- Root cause identified\n- Fix implemented or clear explanation of external dependency (e.g., expired OAuth token)",
+              "silks": "debug-ark-lifecycle-silent-failure",
+              "commit": "fa168ac"
             }
           ]
         }
