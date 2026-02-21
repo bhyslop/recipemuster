@@ -697,9 +697,17 @@ Incremented by
 is the path to the paddock file containing
 {jjdhr_heat}
 context and background.
-Format: `.claude/jjm/jjp_XX.md` where XX is the base64-encoded
+Format: `.claude/jjm/jjp_{encoded}.md` where `{encoded}` is the
 {jjdt_firemark}
-(without `₣` prefix).
+(without `₣` prefix) with each character prefixed by `u` (uppercase) or `l`
+(lowercase) to ensure uniqueness on case-insensitive filesystems (macOS
+HFS+/APFS).
+Examples: firemark `AG` → `jjp_uAuG.md`; firemark `Ag` → `jjp_uAlg.md`.
+This field is recomputed from the firemark on every load; the stored value
+is authoritative only as a cross-check and will be overwritten on the next
+save.
+On load, if the encoded paddock file does not exist on disk, JJK fatals with
+`mv` instructions for all missing files before proceeding.
 Created by
 {jjdo_create}.
 
