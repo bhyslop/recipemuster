@@ -141,6 +141,7 @@ zrbtb_access_probe_tsuite_setup() {
 
 zrbtb_ark_tsuite_setup() {
   buto_trace "Setup for ark-lifecycle suite"
+  git diff-index --quiet HEAD -- || buto_fatal "ark-lifecycle requires a clean git working tree (rbf_build will reject dirty state)"
   ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
 }
 

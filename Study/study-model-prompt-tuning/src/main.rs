@@ -17,6 +17,7 @@
 //!   smpt trial N [R]     Run single trial (1-based), R repeats (default 1)
 //!   smpt run [R]         Run all trials, R repeats each (default 1)
 //!   smpt smoke           Run 1 trial (haiku+minimal) as connectivity check
+//!   smpt api-smoke       Direct API connectivity check (requires ANTHROPIC_API_KEY)
 
 use std::io::Write as IoWrite;
 use std::time::Instant;
@@ -665,8 +666,9 @@ async fn main() {
             cmd_run(repeats).await;
         }
         Some("smoke") => cmd_smoke().await,
+        Some("api-smoke") => cmd_api_smoke().await,
         _ => {
-            eprintln!("Usage: smpt <plan|trial N [R]|run [R]|smoke>");
+            eprintln!("Usage: smpt <plan|trial N [R]|run [R]|smoke|api-smoke>");
             eprintln!();
             eprintln!("  plan        Show trial matrix with full prompt text");
             eprintln!(
@@ -674,7 +676,8 @@ async fn main() {
                 trial_count()
             );
             eprintln!("  run [R]     All trials, R repeats each (default 1)");
-            eprintln!("  smoke       Run 1 trial (haiku+minimal) as connectivity check");
+            eprintln!("  smoke       Run 1 trial (haiku+minimal) via claude CLI");
+            eprintln!("  api-smoke   Direct API connectivity check (requires ANTHROPIC_API_KEY)");
             std::process::exit(1);
         }
     }
@@ -786,6 +789,166 @@ async fn cmd_smoke() {
         println!("SMOKE: FAILED ({:.1}s) — see output above for diagnosis", elapsed);
     }
     println!();
+}
+
+// =========================================================================
+// Direct API invocation — bypasses claude CLI entirely
+// =========================================================================
+
+const ANTHROPIC_API_URL: &str = "https://api.anthropic.com/v1/messages";
+const ANTHROPIC_API_VERSION: &str = "2023-06-01";
+const API_MODEL_HAIKU: &str = "claude-haiku-4-5-20251001";
+
+/// Direct API smoke test. Proves ANTHROPIC_API_KEY works, shows raw response.
+async fn cmd_api_smoke() {
+    println!("API-SMOKE: direct Anthropic API connectivity check");
+    println!();
+    flush();
+
+    // Fail fast if no API key
+    let api_key = match std::env::var("ANTHROPIC_API_KEY") {
+        Ok(key) if !key.is_empty() => key,
+        _ => {
+            eprintln!("ERROR: ANTHROPIC_API_KEY environment variable not set or empty");
+            eprintln!();
+            eprintln!("Set it with:");
+            eprintln!("  export ANTHROPIC_API_KEY=sk-ant-...");
+            std::process::exit(1);
+        }
+    };
+
+    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
+    let system_prompt = "You are a helpful assistant.";
+
+    separator();
+    println!("API-SMOKE: model={} prompt=minimal", API_MODEL_HAIKU);
+    separator();
+
+    print_boxed("SYSTEM PROMPT", system_prompt);
+
+    thin_separator();
+    println!("[USER MESSAGE]");
+    println!("  (same test table as CLI smoke)");
+    flush();
+
+    thin_separator();
+    println!("[INVOKING direct API... timeout={}s]", SUBPROCESS_TIMEOUT_SECS);
+    flush();
+
+    let request_body = serde_json::json!({
+        "model": API_MODEL_HAIKU,
+        "max_tokens": 1024,
+        "system": system_prompt,
+        "messages": [
+            {
+                "role": "user",
+                "content": user_message
+            }
+        ]
+    });
+
+    let client = reqwest::Client::new();
+    let start = Instant::now();
+
+    let response = tokio::time::timeout(
+        std::time::Duration::from_secs(SUBPROCESS_TIMEOUT_SECS),
+        client
+            .post(ANTHROPIC_API_URL)
+            .header("x-api-key", &api_key)
+            .header("anthropic-version", ANTHROPIC_API_VERSION)
+            .header("content-type", "application/json")
+            .json(&request_body)
+            .send(),
+    )
+    .await;
+
+    let elapsed = start.elapsed().as_secs_f64();
+
+    println!("[ELAPSED] {:.1}s", elapsed);
+    flush();
+
+    match response {
+        Err(_) => {
+            println!("[TIMEOUT] API request exceeded {}s limit", SUBPROCESS_TIMEOUT_SECS);
+            std::process::exit(1);
+        }
+        Ok(Err(e)) => {
+            println!("[HTTP ERROR] {}", e);
+            std::process::exit(1);
+        }
+        Ok(Ok(resp)) => {
+            let status = resp.status();
+            println!("[HTTP STATUS] {}", status);
+            flush();
+
+            let body = resp.text().await.unwrap_or_else(|e| format!("(body read error: {})", e));
+
+            if !status.is_success() {
+                print_boxed("ERROR RESPONSE", &body);
+                separator();
+                println!("API-SMOKE: FAILED — HTTP {}", status);
+                println!();
+                std::process::exit(1);
+            }
+
+            // Parse JSON response
+            let json: serde_json::Value = match serde_json::from_str(&body) {
+                Ok(v) => v,
+                Err(e) => {
+                    println!("[JSON PARSE ERROR] {}", e);
+                    print_boxed("RAW BODY", &body);
+                    std::process::exit(1);
+                }
+            };
+
+            // Extract text from content[0].text
+            let result_text = json.get("content")
+                .and_then(|c| c.as_array())
+                .and_then(|arr| arr.first())
+                .and_then(|block| block.get("text"))
+                .and_then(|t| t.as_str())
+                .unwrap_or("(no text in response)");
+
+            let input_tokens = json.get("usage")
+                .and_then(|u| u.get("input_tokens"))
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+            let output_tokens = json.get("usage")
+                .and_then(|u| u.get("output_tokens"))
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+            let cache_read = json.get("usage")
+                .and_then(|u| u.get("cache_read_input_tokens"))
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
+
+            print_boxed("RESPONSE TEXT", result_text);
+
+            thin_separator();
+            println!("[RESPONSE STATS]");
+            println!("  input_tokens: {}", input_tokens);
+            println!("  cache_read_tokens: {}", cache_read);
+            println!("  output_tokens: {}", output_tokens);
+            flush();
+
+            // Show full JSON
+            print_boxed("JSON RESPONSE", &serde_json::to_string_pretty(&json).unwrap_or_default());
+
+            // Evaluate
+            let (passed, detail) = evaluate(result_text, TEST_TABLE);
+            thin_separator();
+            println!("[EVALUATION] {}", detail);
+            println!();
+
+            separator();
+            if passed {
+                println!("API-SMOKE: OK ({:.1}s) — direct API works", elapsed);
+            } else {
+                println!("API-SMOKE: FAILED ({:.1}s) — see output above", elapsed);
+            }
+            println!();
+        }
+    }
 }
 
 async fn cmd_run(repeats: usize) {
