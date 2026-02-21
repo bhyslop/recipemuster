@@ -48,8 +48,6 @@ rbrn_render() {
   buc_doc_brief "Display diagnostic view of RBRN nameplate regime configuration"
   buc_doc_shown || return 0
 
-  zrbcr_kindle
-
   # Display header
   echo ""
   echo "${ZBUC_WHITE}RBRN - Recipe Bottle Regime Nameplate${ZBUC_RESET}"
@@ -166,6 +164,7 @@ zrbrn_furnish() {
   zbuv_kindle
   zburd_kindle
   zrbcc_kindle
+  zrbcr_kindle
 
   # If RBR0_FOLIO is set, load and kindle the specified nameplate
   if test -n "${RBR0_FOLIO:-}"; then

@@ -62,8 +62,6 @@ rbrr_render() {
   buc_doc_brief "Display diagnostic view of RBRR repo regime configuration"
   buc_doc_shown || return 0
 
-  zrbcr_kindle
-
   # Display header
   echo ""
   echo "${ZBUC_WHITE}RBRR - Recipe Bottle Regime Repo${ZBUC_RESET}"
@@ -317,6 +315,7 @@ zrbrr_furnish() {
   zrbrr_enforce
 
   zrbrr_cli_kindle
+  zrbcr_kindle
 }
 
 buc_execute rbrr_ "Recipe Bottle Repository Regime" zrbrr_furnish "$@"

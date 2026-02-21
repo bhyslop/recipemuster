@@ -901,6 +901,60 @@ zbuv_check_predicate() {
   esac
 }
 
+# buv_scope_sentinel SCOPE PREFIX — die if any PREFIX_ vars exist that are not enrolled in SCOPE
+# Usage: buv_scope_sentinel RBRN RBRN_
+buv_scope_sentinel() {
+  zbuv_sentinel
+
+  local z_scope="${1:-}"
+  local z_prefix="${2:-}"
+  test -n "${z_scope}"  || buc_die "buv_scope_sentinel: scope required"
+  test -n "${z_prefix}" || buc_die "buv_scope_sentinel: prefix required"
+
+  # Build lookup string from enrolled varnames for this scope
+  local z_known=" "
+  local z_i
+  for z_i in "${!z_buv_scope_roll[@]}"; do
+    test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
+    z_known="${z_known}${z_buv_varname_roll[$z_i]} "
+  done
+
+  # Scan environment for unexpected vars with this prefix
+  local z_unexpected=()
+  local z_var
+  for z_var in $(compgen -v "${z_prefix}"); do
+    case "${z_known}" in
+      *" ${z_var} "*) : ;;
+      *) z_unexpected+=("${z_var}") ;;
+    esac
+  done
+
+  if test "${#z_unexpected[@]}" -gt 0; then
+    buc_die "Unexpected ${z_prefix}* variables not enrolled in ${z_scope}: ${z_unexpected[*]}"
+  fi
+}
+
+# buv_docker_env SCOPE ARRAY_VAR — populate ARRAY_VAR with -e VARNAME=val pairs for all enrolled vars in SCOPE
+# Usage: buv_docker_env RBRN ZRBRN_DOCKER_ENV
+buv_docker_env() {
+  zbuv_sentinel
+
+  local z_scope="${1:-}"
+  local z_array_var="${2:-}"
+  test -n "${z_scope}"     || buc_die "buv_docker_env: scope required"
+  test -n "${z_array_var}" || buc_die "buv_docker_env: array variable name required"
+
+  eval "${z_array_var}=()"
+
+  local z_i
+  for z_i in "${!z_buv_scope_roll[@]}"; do
+    test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
+    local z_varname="${z_buv_varname_roll[$z_i]}"
+    local z_val="${!z_varname:-}"
+    eval "${z_array_var}+=(\"-e\" \"${z_varname}=${z_val}\")"
+  done
+}
+
 # buv_vet SCOPE — iterate all enrolled vars in scope; die on first failure
 buv_vet() {
   zbuv_sentinel
