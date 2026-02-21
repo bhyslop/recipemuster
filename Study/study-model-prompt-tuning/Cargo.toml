@@ -8,6 +8,9 @@ description = "Study: Model Prompt Tuning - discover minimal effective prompts p
 name = "smpt"
 path = "src/main.rs"
 
+[lints.rust]
+warnings = "deny"
+
 [dependencies]
 vvc = { path = "../../Tools/vvc" }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "process", "time"] }

@@ -151,6 +151,20 @@ fn median(values: &[f64]) -> f64 {
     }
 }
 
+fn median_u64(values: &[u64]) -> u64 {
+    let mut sorted = values.to_vec();
+    sorted.sort();
+    let n = sorted.len();
+    if n == 0 {
+        return 0;
+    }
+    if n % 2 == 1 {
+        sorted[n / 2]
+    } else {
+        (sorted[n / 2 - 1] + sorted[n / 2]) / 2
+    }
+}
+
 // =========================================================================
 // Evaluation
 // =========================================================================
@@ -236,11 +250,9 @@ fn build_claude_args(model: &str, system_prompt: &str, user_message: &str) -> (V
         "--model".to_string(),
         model.to_string(),
         "--no-session-persistence".to_string(),
+        "--output-format".to_string(),
+        "json".to_string(),
     ];
-
-    // NOTE: --tools "" removed — was likely causing hangs.
-    // The --system-prompt replacement already strips Claude Code's default context.
-    // Revisit tool disabling once basic invocation is confirmed working.
 
     // Custom system prompt replaces Claude Code default;
     // empty string means use default (don't pass the flag)
@@ -290,6 +302,66 @@ struct InvokeResult {
     elapsed: f64,
     detail: String,
     response: String,
+    input_tokens: u64,
+    output_tokens: u64,
+    cache_read_tokens: u64,
+    cost_usd: f64,
+    duration_api_ms: u64,
+    raw_json: Option<serde_json::Value>,
+}
+
+/// Parsed token/cost data from JSON response.
+struct JsonParsed {
+    result_text: String,
+    input_tokens: u64,
+    output_tokens: u64,
+    cache_read_tokens: u64,
+    cost_usd: f64,
+    duration_api_ms: u64,
+    json: serde_json::Value,
+}
+
+/// Parse JSON response from `claude --output-format json`.
+/// Falls back to raw stdout if JSON parsing fails.
+fn parse_json_response(stdout: &str) -> Result<JsonParsed, String> {
+    let json: serde_json::Value = serde_json::from_str(stdout)
+        .map_err(|e| format!("JSON parse error: {}", e))?;
+
+    let result_text = json.get("result")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+
+    let usage = json.get("usage");
+
+    let input_tokens = usage
+        .and_then(|u| u.get("input_tokens"))
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0);
+    let output_tokens = usage
+        .and_then(|u| u.get("output_tokens"))
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0);
+    let cache_read_tokens = usage
+        .and_then(|u| u.get("cache_read_input_tokens"))
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0);
+    let duration_api_ms = json.get("duration_api_ms")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0);
+    let cost_usd = json.get("total_cost_usd")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
+
+    Ok(JsonParsed {
+        result_text,
+        input_tokens,
+        output_tokens,
+        cache_read_tokens,
+        cost_usd,
+        duration_api_ms,
+        json,
+    })
 }
 
 /// Invoke claude subprocess and evaluate response. No output printed.
@@ -312,37 +384,61 @@ async fn invoke_trial(model: &str, system_prompt: &str) -> InvokeResult {
 
     let elapsed = start.elapsed().as_secs_f64();
 
+    let empty_result = |detail: String| InvokeResult {
+        passed: false,
+        elapsed,
+        detail,
+        response: String::new(),
+        input_tokens: 0,
+        output_tokens: 0,
+        cache_read_tokens: 0,
+        cost_usd: 0.0,
+        duration_api_ms: 0,
+        raw_json: None,
+    };
+
     match output {
-        Err(_) => InvokeResult {
-            passed: false,
-            elapsed,
-            detail: format!("TIMEOUT after {}s", SUBPROCESS_TIMEOUT_SECS),
-            response: String::new(),
-        },
-        Ok(Err(e)) => InvokeResult {
-            passed: false,
-            elapsed,
-            detail: format!("SPAWN ERROR: {}", e),
-            response: String::new(),
-        },
+        Err(_) => empty_result(format!("TIMEOUT after {}s", SUBPROCESS_TIMEOUT_SECS)),
+        Ok(Err(e)) => empty_result(format!("SPAWN ERROR: {}", e)),
         Ok(Ok(output)) => {
             let stdout = String::from_utf8_lossy(&output.stdout).to_string();
 
             if !output.status.success() {
-                return InvokeResult {
-                    passed: false,
-                    elapsed,
-                    detail: format!("EXIT {}", output.status),
-                    response: stdout,
-                };
+                return empty_result(format!("EXIT {}", output.status));
             }
 
-            let (passed, detail) = evaluate(&stdout, TEST_TABLE);
-            InvokeResult {
-                passed,
-                elapsed,
-                detail,
-                response: stdout,
+            match parse_json_response(&stdout) {
+                Ok(parsed) => {
+                    let (passed, detail) = evaluate(&parsed.result_text, TEST_TABLE);
+                    InvokeResult {
+                        passed,
+                        elapsed,
+                        detail,
+                        response: parsed.result_text,
+                        input_tokens: parsed.input_tokens,
+                        output_tokens: parsed.output_tokens,
+                        cache_read_tokens: parsed.cache_read_tokens,
+                        cost_usd: parsed.cost_usd,
+                        duration_api_ms: parsed.duration_api_ms,
+                        raw_json: Some(parsed.json),
+                    }
+                }
+                Err(e) => {
+                    // JSON parse failed — evaluate raw stdout
+                    let (passed, detail) = evaluate(&stdout, TEST_TABLE);
+                    InvokeResult {
+                        passed,
+                        elapsed,
+                        detail: format!("{} ({})", detail, e),
+                        response: stdout,
+                        input_tokens: 0,
+                        output_tokens: 0,
+                        cache_read_tokens: 0,
+                        cost_usd: 0.0,
+                        duration_api_ms: 0,
+                        raw_json: None,
+                    }
+                }
             }
         }
     }
@@ -398,7 +494,17 @@ async fn run_trial_verbose(n: usize, model: &str, prompt_name: &str, system_prom
         );
         println!("  has pipe chars: {}", result.response.contains('|'));
         println!("  has horiz rules: {}", result.response.contains("---"));
+        println!("  input_tokens: {}", result.input_tokens);
+        println!("  cache_read_tokens: {}", result.cache_read_tokens);
+        println!("  output_tokens: {}", result.output_tokens);
+        println!("  cost_usd: ${:.6}", result.cost_usd);
+        println!("  duration_api_ms: {}", result.duration_api_ms);
         flush();
+
+        // Show full JSON envelope if available
+        if let Some(ref json) = result.raw_json {
+            print_boxed("JSON ENVELOPE", &serde_json::to_string_pretty(json).unwrap_or_default());
+        }
 
         thin_separator();
         println!("[EVALUATION] {}", result.detail);
@@ -416,7 +522,9 @@ async fn run_trial_verbose(n: usize, model: &str, prompt_name: &str, system_prom
 /// Per-trial aggregate across repeats.
 struct TrialAggregate {
     trial_n: usize,
+    #[allow(dead_code)]
     model: String,
+    #[allow(dead_code)]
     prompt_name: String,
     pass_count: usize,
     repeat_count: usize,
@@ -424,6 +532,11 @@ struct TrialAggregate {
     min_secs: f64,
     max_secs: f64,
     times: Vec<f64>,
+    median_input_tokens: u64,
+    median_output_tokens: u64,
+    median_cache_read_tokens: u64,
+    total_cost_usd: f64,
+    median_api_ms: u64,
 }
 
 /// Run a trial R times with condensed output per repeat.
@@ -455,6 +568,11 @@ async fn run_trial_repeats(
 
     let mut pass_count: usize = 0;
     let mut times: Vec<f64> = Vec::new();
+    let mut input_tokens_vec: Vec<u64> = Vec::new();
+    let mut output_tokens_vec: Vec<u64> = Vec::new();
+    let mut cache_read_vec: Vec<u64> = Vec::new();
+    let mut api_ms_vec: Vec<u64> = Vec::new();
+    let mut total_cost: f64 = 0.0;
 
     for r in 1..=repeats {
         print!("  [rep {}/{}] ", r, repeats);
@@ -462,17 +580,29 @@ async fn run_trial_repeats(
 
         let result = invoke_trial(model, system_prompt).await;
         times.push(result.elapsed);
+        input_tokens_vec.push(result.input_tokens);
+        output_tokens_vec.push(result.output_tokens);
+        cache_read_vec.push(result.cache_read_tokens);
+        api_ms_vec.push(result.duration_api_ms);
+        total_cost += result.cost_usd;
 
         if result.passed {
             pass_count += 1;
-            println!("PASS  {:.2}s", result.elapsed);
+            println!(
+                "PASS  {:.2}s  in:{} cache:{} out:{} ${:.4}",
+                result.elapsed, result.input_tokens, result.cache_read_tokens,
+                result.output_tokens, result.cost_usd
+            );
         } else {
-            // Show compact failure reason
             let reason = result
                 .detail
                 .strip_prefix("FAIL: ")
                 .unwrap_or(&result.detail);
-            println!("FAIL  {:.2}s  ({})", result.elapsed, reason);
+            println!(
+                "FAIL  {:.2}s  in:{} cache:{} out:{} ${:.4}  ({})",
+                result.elapsed, result.input_tokens, result.cache_read_tokens,
+                result.output_tokens, result.cost_usd, reason
+            );
         }
         flush();
     }
@@ -480,11 +610,19 @@ async fn run_trial_repeats(
     let median_secs = median(&times);
     let min_secs = times.iter().cloned().fold(f64::INFINITY, f64::min);
     let max_secs = times.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+    let median_input = median_u64(&input_tokens_vec);
+    let median_output = median_u64(&output_tokens_vec);
+    let median_cache = median_u64(&cache_read_vec);
+    let median_api = median_u64(&api_ms_vec);
 
     println!();
     println!(
-        "  RESULT: {}/{} pass | median {:.2}s | range {:.2}s - {:.2}s",
-        pass_count, repeats, median_secs, min_secs, max_secs
+        "  RESULT: {}/{} pass | median {:.2}s (api {}ms) | range {:.2}s - {:.2}s",
+        pass_count, repeats, median_secs, median_api, min_secs, max_secs
+    );
+    println!(
+        "  TOKENS: in:{} cache:{} out:{} | total cost ${:.4}",
+        median_input, median_cache, median_output, total_cost
     );
     println!();
     flush();
@@ -499,6 +637,11 @@ async fn run_trial_repeats(
         min_secs,
         max_secs,
         times,
+        median_input_tokens: median_input,
+        median_output_tokens: median_output,
+        median_cache_read_tokens: median_cache,
+        total_cost_usd: total_cost,
+        median_api_ms: median_api,
     }
 }
 
@@ -804,6 +947,82 @@ fn print_summary_repeats(aggregates: &[TrialAggregate], repeats: usize, total_el
         println!();
     }
 
+    // Token usage table
+    println!();
+    println!("Token usage (median: input + cache_read / output):");
+    println!();
+    print!("{:<10}", "");
+    for (name, _) in SYSTEM_PROMPTS {
+        print!("{:<22}", name);
+    }
+    println!();
+
+    for (mi, model) in MODELS.iter().enumerate() {
+        print!("{:<10}", model);
+        for pi in 0..SYSTEM_PROMPTS.len() {
+            let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
+            if let Some(agg) = aggregates.iter().find(|a| a.trial_n == n) {
+                let cell = format!(
+                    "{}+{} / {}",
+                    agg.median_input_tokens, agg.median_cache_read_tokens,
+                    agg.median_output_tokens
+                );
+                print!("{:<22}", cell);
+            } else {
+                print!("{:<22}", "---");
+            }
+        }
+        println!();
+    }
+
+    // Cost table
+    println!();
+    println!("Cost per trial (total across {} repeats):", repeats);
+    println!();
+    print!("{:<10}", "");
+    for (name, _) in SYSTEM_PROMPTS {
+        print!("{:<14}", name);
+    }
+    println!();
+
+    for (mi, model) in MODELS.iter().enumerate() {
+        print!("{:<10}", model);
+        for pi in 0..SYSTEM_PROMPTS.len() {
+            let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
+            if let Some(agg) = aggregates.iter().find(|a| a.trial_n == n) {
+                let cell = format!("${:.4}", agg.total_cost_usd);
+                print!("{:<14}", cell);
+            } else {
+                print!("{:<14}", "---");
+            }
+        }
+        println!();
+    }
+
+    // API latency table
+    println!();
+    println!("API latency (median ms, excludes CLI overhead):");
+    println!();
+    print!("{:<10}", "");
+    for (name, _) in SYSTEM_PROMPTS {
+        print!("{:<14}", name);
+    }
+    println!();
+
+    for (mi, model) in MODELS.iter().enumerate() {
+        print!("{:<10}", model);
+        for pi in 0..SYSTEM_PROMPTS.len() {
+            let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
+            if let Some(agg) = aggregates.iter().find(|a| a.trial_n == n) {
+                let cell = format!("{}ms", agg.median_api_ms);
+                print!("{:<14}", cell);
+            } else {
+                print!("{:<14}", "---");
+            }
+        }
+        println!();
+    }
+
     // Totals
     let total_invocations: usize = aggregates.iter().map(|a| a.repeat_count).sum();
     let total_passes: usize = aggregates.iter().map(|a| a.pass_count).sum();
@@ -813,11 +1032,14 @@ fn print_summary_repeats(aggregates: &[TrialAggregate], repeats: usize, total_el
     let all_times: Vec<f64> = aggregates.iter().flat_map(|a| a.times.clone()).collect();
     let grand_median = median(&all_times);
 
+    let total_cost: f64 = aggregates.iter().map(|a| a.total_cost_usd).sum();
+
     println!();
     println!(
         "Totals: {} pass, {} fail across {} invocations in {:.1}s",
         total_passes, total_fails, total_invocations, total_elapsed
     );
     println!("Grand median per invocation: {:.2}s", grand_median);
+    println!("Total cost: ${:.4}", total_cost);
     println!();
 }
