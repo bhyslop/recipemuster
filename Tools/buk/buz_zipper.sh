@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# BUK Zipper - Colophon registry via parallel arrays
+# BUK Zipper - Colophon registry via parallel arrays with regime-selection channels
 
 set -euo pipefail
 
@@ -35,6 +35,7 @@ zbuz_kindle() {
   z_buz_module_roll=()
   z_buz_command_roll=()
   z_buz_tabtarget_roll=()
+  z_buz_channel_roll=()
 
   ZBUZ_KINDLED=1
 }
@@ -72,7 +73,8 @@ zbuz_resolve_tabtarget_capture() {
 # Public enroll (kindle-only registry population)
 
 # buz_blazon() - Register colophon tuple in parallel rolls
-# Args: varname, colophon, module, command
+# Args: varname, colophon, module, command [, channel]
+# Optional channel: "" (default), "imprint", or "param1"
 # Assigns colophon string to caller's variable via printf -v
 # Side effects: populates registry rolls (must be called in same process, NOT inside $())
 buz_blazon() {
@@ -82,10 +84,17 @@ buz_blazon() {
   local z_colophon="${2:-}"
   local z_module="${3:-}"
   local z_command="${4:-}"
+  local z_channel="${5:-}"
   test -n "${z_varname}"  || buc_die "buz_blazon: varname required"
   test -n "${z_colophon}" || buc_die "buz_blazon: colophon required"
   test -n "${z_module}"   || buc_die "buz_blazon: module required"
   test -n "${z_command}"  || buc_die "buz_blazon: command required"
+
+  # Validate channel value
+  case "${z_channel}" in
+    ""|"imprint"|"param1") ;;
+    *) buc_die "buz_blazon: invalid channel: ${z_channel}" ;;
+  esac
 
   # Validate variable name
   echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' \
@@ -100,9 +109,40 @@ buz_blazon() {
   z_buz_module_roll+=("${z_module}")
   z_buz_command_roll+=("${z_command}")
   z_buz_tabtarget_roll+=("${z_tabtarget}")
+  z_buz_channel_roll+=("${z_channel}")
 
   # Assign colophon to caller's variable
   printf -v "${z_varname}" '%s' "${z_colophon}" || buc_die "buz_blazon: printf -v failed for ${z_varname}"
+}
+
+######################################################################
+# Internal folio decoder
+
+# zbuz_decode_folio() - Decode regime-selection folio from channel
+# Args: channel, [extra args to pass through]
+# Side effects: exports RBR0_FOLIO, sets z_buz_folio_args with remaining args
+zbuz_decode_folio() {
+  local z_channel="${1:-}"
+  shift
+
+  z_buz_folio_args=("$@")
+
+  case "${z_channel}" in
+    "")
+      # No-op: args pass through unchanged
+      ;;
+    "imprint")
+      export RBR0_FOLIO="${BURD_TOKEN_3}"
+      ;;
+    "param1")
+      test "${#z_buz_folio_args[@]}" -ge 1 || buc_die "zbuz_decode_folio: param1 channel requires at least 1 arg"
+      export RBR0_FOLIO="${z_buz_folio_args[0]}"
+      z_buz_folio_args=("${z_buz_folio_args[@]:1}")
+      ;;
+    *)
+      buc_die "zbuz_decode_folio: unknown channel: ${z_channel}"
+      ;;
+  esac
 }
 
 ######################################################################
@@ -124,7 +164,8 @@ zbuz_exec_lookup() {
   local z_i
   for z_i in "${!z_buz_colophon_roll[@]}"; do
     if [ "${z_buz_colophon_roll[z_i]}" = "${z_colophon}" ]; then
-      exec "${z_base_dir}/${z_buz_module_roll[z_i]}" "${z_buz_command_roll[z_i]}" "$@"
+      zbuz_decode_folio "${z_buz_channel_roll[z_i]}" "$@"
+      exec "${z_base_dir}/${z_buz_module_roll[z_i]}" "${z_buz_command_roll[z_i]}" ${z_buz_folio_args[@]+"${z_buz_folio_args[@]}"}
     fi
   done
 
