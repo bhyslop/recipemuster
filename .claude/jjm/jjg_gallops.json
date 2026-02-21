@@ -6,6 +6,7 @@
       "creation_time": "260219",
       "status": "racing",
       "order": [
+        "₢AfAAS",
         "₢AfAAR",
         "₢AfAAA",
         "₢AfAAB",
@@ -23,8 +24,7 @@
         "₢AfAAP",
         "₢AfAAJ",
         "₢AfAAL",
-        "₢AfAAQ",
-        "₢AfAAS"
+        "₢AfAAQ"
       ],
       "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_Af.md",
