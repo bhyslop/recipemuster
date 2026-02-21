@@ -49,6 +49,9 @@ zrbgo_kindle() {
   ZRBGO_JWT_SIGNATURE_FILE="${BURD_TEMP_DIR}/rbgo_jwt_signature.txt"
   ZRBGO_OAUTH_RESPONSE_FILE="${BURD_TEMP_DIR}/rbgo_oauth_response.json"
   ZRBGO_PRIVATE_KEY_FILE="${BURD_TEMP_DIR}/rbgo_private_key.pem"
+  ZRBGO_OPENSSL_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_openssl_stderr.txt"
+  ZRBGO_CURL_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_curl_stderr.txt"
+  ZRBGO_JQ_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_jq_stderr.txt"
 
   ZRBGO_KINDLED=1
 }
@@ -115,7 +118,7 @@ zrbgo_build_jwt_capture() {
   openssl dgst -sha256 \
     -sign <(printf '%b' "${RBRA_PRIVATE_KEY}\n") \
     -out "${ZRBGO_JWT_SIGNATURE_FILE}" \
-    "${ZRBGO_JWT_UNSIGNED_FILE}" 2>/dev/null || return 1
+    "${ZRBGO_JWT_UNSIGNED_FILE}" 2>"${ZRBGO_OPENSSL_STDERR_FILE}" || return 1
 
   buc_log_args "Base64url encode signature"
   local z_signature
@@ -134,12 +137,12 @@ zrbgo_exchange_jwt_capture() {
   curl -s -X POST "${RBGC_OAUTH_TOKEN_URL}"                                        \
     -H "Content-Type: application/x-www-form-urlencoded"                           \
     -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
-    > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null || return 1
+    > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_CURL_STDERR_FILE}" || return 1
 
   buc_log_args "Debug: Show the actual response (minus secrets)"
   jq 'del(.access_token, .refresh_token)
       | with_entries(select(.key | test("token|secret|key|password"; "i") | not))' \
-    "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null | buc_log_pipe || buc_log_args "OAuth response parsing failed"
+    "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_JQ_STDERR_FILE}" | buc_log_pipe || buc_log_args "OAuth response parsing failed"
 
   buc_log_args "OAuth token exchange completed"
 
