@@ -7317,6 +7317,13 @@
         "₢AiAAO": {
           "tacks": [
             {
+              "ts": "260222-1527",
+              "state": "rough",
+              "text": "Rewrite RBSTB-trigger_build.adoc for the trigger-based build flow:\n- Remove: tarball packaging, GCS upload, stitching, builds.create\n- Add: prepare step (verify yaml committed, push to origin)\n- Add: triggers.run dispatch with substitution overrides\n- Add: pin staleness check as precondition\n- Add: SLSA provenance as output\n- Update API references from builds.create to triggers.run\n- Maintain MCM concept model patterns and linked terms",
+              "silks": "update-rbstb-spec",
+              "commit": "005b5a1"
+            },
+            {
               "ts": "260222-1455",
               "state": "rough",
               "text": "Rewrite RBSTB-trigger_build.adoc for the trigger-based build flow:\n- Remove: tarball packaging, GCS upload, stitching, builds.create\n- Add: prepare step (publish to vessel repo), triggers.run dispatch\n- Add: pin staleness check as precondition\n- Add: SLSA provenance as output\n- Update API references from builds.create to triggers.run\n- Maintain MCM concept model patterns and linked terms",
