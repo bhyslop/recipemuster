@@ -841,6 +841,7 @@ Inside the subshell, `buc_die` calls `exit` which terminates only the subshell �
 - The outer boundary must have `|| buc_die` or `|| z_status=$?` — never leave the subshell exit status unchecked
 - Sourcing inside the subshell is permitted (this is a primary use case — isolation prevents sourced variables from leaking)
 - Keep subshell bodies short and focused — if the body grows complex, delegate to a CLI script via `exec`
+- `$( ... ) || buc_die` is legitimate when you need both isolation and output capture — `$()` is a subshell, so isolation holds and the two-line capture pattern applies
 
 **Use cases:**
 - Iterating config files that define overlapping variables (e.g., sourcing each nameplate `.env` in a loop)

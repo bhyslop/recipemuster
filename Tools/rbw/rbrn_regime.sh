@@ -184,17 +184,19 @@ zrbrn_ip_in_subnet() {
 rbrn_preflight() {
   zrbcc_sentinel
 
-  # Collect structured data from all nameplates via subshell sourcing
-  local z_data
-  z_data=$(
-    for z_m in $(zrbrn_list_monikers); do
-      z_f="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_m}${RBCC_rbrn_ext}"
-      (
-        source "${z_f}"
-        echo "${RBRN_MONIKER}|${RBRN_ENTRY_MODE}|${RBRN_ENTRY_PORT_WORKSTATION:-0}|${RBRN_ENTRY_PORT_ENCLAVE:-0}|${RBRN_ENCLAVE_BASE_IP}|${RBRN_ENCLAVE_NETMASK}|${RBRN_ENCLAVE_SENTRY_IP}|${RBRN_ENCLAVE_BOTTLE_IP}"
-      )
-    done
-  )
+  # Collect structured data from all nameplates via isolation subshells
+  local z_nameplate_files=("${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
+  local z_data_lines=()
+  local z_nf_i=""
+  for z_nf_i in "${!z_nameplate_files[@]}"; do
+    test -f "${z_nameplate_files[$z_nf_i]}" || continue
+    local z_line
+    z_line=$(
+      source "${z_nameplate_files[$z_nf_i]}" || buc_die "Failed to source: ${z_nameplate_files[$z_nf_i]}"
+      echo "${RBRN_MONIKER}|${RBRN_ENTRY_MODE}|${RBRN_ENTRY_PORT_WORKSTATION:-0}|${RBRN_ENTRY_PORT_ENCLAVE:-0}|${RBRN_ENCLAVE_BASE_IP}|${RBRN_ENCLAVE_NETMASK}|${RBRN_ENCLAVE_SENTRY_IP}|${RBRN_ENCLAVE_BOTTLE_IP}" || buc_die "Failed to echo nameplate data"
+    ) || buc_die "Preflight isolation failed for: ${z_nameplate_files[$z_nf_i]}"
+    z_data_lines+=("${z_line}")
+  done
 
   # Parallel arrays for conflict detection (bash 3.2 compatible)
   local z_ws_port_keys=()
@@ -207,8 +209,17 @@ rbrn_preflight() {
   local z_net_ends=()
   local z_net_owners=()
 
-  local z_mon z_entry z_ws z_enc z_base z_mask z_sentry z_bottle
-  while IFS='|' read -r z_mon z_entry z_ws z_enc z_base z_mask z_sentry z_bottle; do
+  local z_mon=""
+  local z_entry=""
+  local z_ws=""
+  local z_enc=""
+  local z_base=""
+  local z_mask=""
+  local z_sentry=""
+  local z_bottle=""
+  for z_nf_i in "${!z_data_lines[@]}"; do
+    IFS='|' read -r z_mon z_entry z_ws z_enc z_base z_mask z_sentry z_bottle <<< "${z_data_lines[$z_nf_i]}" \
+      || buc_die "Failed to parse nameplate data line"
     test -n "${z_mon}" || continue
 
     # Workstation and enclave port uniqueness (enabled entries only)
@@ -266,7 +277,7 @@ rbrn_preflight() {
     z_net_ends+=("${z_net_end}")
     z_net_owners+=("${z_mon}")
 
-  done <<< "${z_data}"
+  done
 }
 
 # Fleet info table — non-opinionated display of all nameplate configuration
@@ -278,18 +289,20 @@ zrbrn_fleet_survey() {
   zrbrr_sentinel
 
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local z_row_fmt="%-10s %-8s %6s %6s  %-17s %-14s %-14s  %3s %3s\n"
 
   echo ""
-  printf "%-10s %-8s %6s %6s  %-17s %-14s %-14s  %3s %3s\n" \
+  printf "${z_row_fmt}" \
     "Moniker" "Entry" "WS" "Enc" "Subnet" "Sentry IP" "Bottle IP" "Snt" "Btl"
-  printf "%-10s %-8s %6s %6s  %-17s %-14s %-14s  %3s %3s\n" \
+  printf "${z_row_fmt}" \
     "--------" "-----" "------" "------" "-----------------" "--------------" "--------------" "---" "---"
 
-  local z_moniker z_file
-  for z_moniker in $(zrbrn_list_monikers); do
-    z_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
+  local z_sv_files=("${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
+  local z_sv_i=""
+  for z_sv_i in "${!z_sv_files[@]}"; do
+    test -f "${z_sv_files[$z_sv_i]}" || continue
     (
-      source "${z_file}"
+      source "${z_sv_files[$z_sv_i]}" || buc_die "Failed to source: ${z_sv_files[$z_sv_i]}"
 
       local z_sentry_img="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
       local z_bottle_img="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
@@ -311,12 +324,12 @@ zrbrn_fleet_survey() {
         z_enc_port="-"
       fi
 
-      printf "%-10s %-8s %6s %6s  %-17s %-14s %-14s  %3s %3s\n" \
+      printf "${z_row_fmt}" \
         "${RBRN_MONIKER}" "${RBRN_ENTRY_MODE}" "${z_ws_port}" "${z_enc_port}" \
         "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
         "${RBRN_ENCLAVE_SENTRY_IP}" "${RBRN_ENCLAVE_BOTTLE_IP}" \
-        "${z_sentry_local}" "${z_bottle_local}"
-    )
+        "${z_sentry_local}" "${z_bottle_local}" || buc_die "Failed to printf survey row"
+    ) || buc_die "Survey isolation failed for: ${z_sv_files[$z_sv_i]}"
   done
   echo ""
 }
