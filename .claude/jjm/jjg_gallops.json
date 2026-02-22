@@ -7148,6 +7148,13 @@
         "₢AiAAM": {
           "tacks": [
             {
+              "ts": "260222-1503",
+              "state": "rough",
+              "text": "Migrate all remaining conjure-mode vessels to trigger-based builds:\n- Enumerate conjure vessels from rbev-vessels/ (skip non-conjure like trbim-macos)\n- For each conjure vessel:\n  1. Create GitHub repo via REST API (pattern from ₢AiAAE)\n  2. Author cloudbuild.yaml with inline scripts and baked pins (pattern from ₢AiAAD)\n  3. Link repo to existing Developer Connect connection via REST API (pattern from ₢AiAAG)\n  4. Create Cloud Build trigger via REST API (pattern from ₢AiAAH)\n  5. Run prepare + dispatch cycle to verify build succeeds\n- BCG compliance for all scripting\n\nThis is mechanical repetition of the busybox pattern — bridleable once busybox is proven.",
+              "silks": "migrate-remaining-conjure-vessels",
+              "commit": "4682063"
+            },
+            {
               "ts": "260222-1455",
               "state": "rough",
               "text": "Migrate all remaining conjure-mode vessels to trigger-based builds:\n- For each conjure vessel: create GitHub repo, author cloudbuild.yaml, create trigger\n- Reuse patterns established in busybox paces (₢AiAAD, ₢AiAAE, ₢AiAAH)\n- Verify each vessel builds successfully via trigger path\n- Enumerate conjure vessels from rbev-vessels/ (skip non-conjure like trbim-macos)\n\nThis is mechanical repetition of the busybox pattern — bridleable once busybox is proven.",
