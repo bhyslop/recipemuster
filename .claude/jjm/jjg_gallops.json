@@ -6691,6 +6691,13 @@
         "₢AfAAb": {
           "tacks": [
             {
+              "ts": "260222-1138",
+              "state": "complete",
+              "text": "Bring buz_zipper.sh into BCG compliance and simplify.\n\n## Context\n\nbuz_zipper.sh provides colophon registry and folio decode infrastructure for workbench dispatch.\nIt currently has BCG violations and unnecessary complexity for what is fundamentally a simple\nregistry-and-lookup module.\n\n## Work\n\n- Audit buz_zipper.sh against BCG module maturity checklist\n- Fix violations: sentinel guards, variable quoting, function patterns, naming\n- Simplify zbuz_decode_folio — the param1/imprint/empty channel dispatch is overengineered\n- Ensure all consumers (rbz_zipper.sh, buw_workbench.sh) still work after cleanup\n- Run existing tests to validate\n\n## Acceptance\n\n- buz_zipper.sh passes BCG module maturity checklist\n- All workbench dispatch paths functional (render, validate, bottle ops, test ops)\n- No behavioral changes to consumers",
+              "silks": "buz-zipper-bcg-compliance",
+              "commit": "5060d7f"
+            },
+            {
               "ts": "260222-1027",
               "state": "rough",
               "text": "Bring buz_zipper.sh into BCG compliance and simplify.\n\n## Context\n\nbuz_zipper.sh provides colophon registry and folio decode infrastructure for workbench dispatch.\nIt currently has BCG violations and unnecessary complexity for what is fundamentally a simple\nregistry-and-lookup module.\n\n## Work\n\n- Audit buz_zipper.sh against BCG module maturity checklist\n- Fix violations: sentinel guards, variable quoting, function patterns, naming\n- Simplify zbuz_decode_folio — the param1/imprint/empty channel dispatch is overengineered\n- Ensure all consumers (rbz_zipper.sh, buw_workbench.sh) still work after cleanup\n- Run existing tests to validate\n\n## Acceptance\n\n- buz_zipper.sh passes BCG module maturity checklist\n- All workbench dispatch paths functional (render, validate, bottle ops, test ops)\n- No behavioral changes to consumers",
