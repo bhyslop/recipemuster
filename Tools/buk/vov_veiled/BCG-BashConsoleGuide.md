@@ -213,6 +213,53 @@ buc_execute «prefix»_ "«module_description_phrase»" z«prefix»_furnish "$@"
 # eof
 ```
 
+### Differential Furnish (conditional dependency sourcing)
+
+The furnish function receives the **command name** as `$1`, enabling conditional sourcing based on which command will execute. This allows heavy dependencies (e.g., GCP client libraries, OAuth flows) to be loaded only for commands that need them.
+
+**Pattern**: Light dependencies always loaded; heavy dependencies conditionally sourced per command.
+
+```bash
+z«prefix»_furnish() {
+  local z_command="${1:-}"
+
+  # Document environment variables
+  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
+  buc_doc_env "«PREFIX»_REGIME_FILE " "Module configuration file"
+
+  # Always source light dependencies
+  source "${«PREFIX»_REGIME_FILE}" || buc_die "Failed to source regime"
+  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die "Failed to source validation"
+
+  # Conditionally source heavy dependencies based on command
+  case "${z_command}" in
+    «prefix»_survey|«prefix»_audit)
+      # These commands need GCP and OAuth infrastructure
+      source "${BURD_TOOLS_DIR}/some/heavy_dep.sh" || buc_die "Failed to source heavy deps"
+      zheavy_kindle
+      ;;
+    «prefix»_validate|«prefix»_render)
+      # These commands work with config only
+      ;;
+  esac
+
+  z«prefix»_kindle
+}
+```
+
+**Key points:**
+- The furnish function receives the command name (e.g., "«prefix»_validate") as `$1`
+- Existing furnish functions that don't use `$1` are unaffected (extra arg ignored in bash)
+- Light, always-needed dependencies are sourced unconditionally
+- Heavy dependencies are sourced only for the commands that need them (avoiding startup overhead)
+- The `case` statement can be omitted if a module has no conditional dependencies
+
+**Benefits:**
+- Faster startup for lightweight commands (validate, render, list)
+- Heavy infrastructure (GCP SDKs, OAuth flows) loaded only when actually needed
+- Reduced memory footprint for simple operations
+- Clear visibility of which commands depend on what infrastructure
+
 ### Template 3: Implementation Module
 
 ```bash

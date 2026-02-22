@@ -339,7 +339,7 @@ buc_execute() {
     declare -F  "${command}" >/dev/null   &&\
     echo        "${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
     buc_context "${command}"
-    [ -n "${env_func}" ] && "${env_func}"
+    [ -n "${env_func}" ] && "${env_func}" "${command}"
     "${command}" "$@"
   else
     test -z "${command}" || buc_warn "Unknown command: ${command}"
