@@ -6078,6 +6078,7 @@
         "₢AfAAI",
         "₢AfAAQ",
         "₢AfAAF",
+        "₢AfAAh",
         "₢AfAAg",
         "₢AfAAf",
         "₢AfAAe",
@@ -6091,7 +6092,7 @@
         "₢AfAAW",
         "₢AfAAX"
       ],
-      "next_pace_seed": "AAh",
+      "next_pace_seed": "AAi",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -6812,6 +6813,17 @@
               "text": "Apply T1-T13 transformation recipes to RBRE (ECR Regime).\n\n## Catalog Reference\n\nRead `.claude/jjm/jjp_uAlf_catalog.md` Part 2, RBRE section.\n\n## Current State\n\n- `Tools/rbw/rbre_regime.sh` (93 lines) — 7 variables, UNEXPECTED array, separate validate_fields, rbre_load()\n- `Tools/rbw/rbre_cli.sh` (106 lines) — SCRIPT_DIR pattern, manual case dispatch, 2 rbcr_section groups\n\n## Variables (7, two groups)\n\n| Variable | Enrollment | Notes |\n|----------|-----------|-------|\n| RBRE_AWS_ACCOUNT_ID | buv_string_enroll req | |\n| RBRE_AWS_REGION | buv_string_enroll req | |\n| RBRE_ECR_REGISTRY | buv_string_enroll req | |\n| RBRE_ECR_REPOSITORY_PREFIX | buv_string_enroll req | |\n| RBRE_AWS_ACCESS_KEY_ID | buv_string_enroll req | |\n| RBRE_AWS_SECRET_ACCESS_KEY | buv_string_enroll req | |\n| RBRE_AWS_SESSION_TOKEN | buv_string_enroll 0 (opt) | Optional STS token |\n\nGroups: \"ECR Identity\" (first 4), \"ECR Access\" (last 3).\n\n## Transformations\n\n- T1: CLI restructure — buc_execute + furnish. Furnish sources buv, burd, rbcc, rbre_regime, bupr, then `source \"${RBCC_rbre_file}\"` + kindle + enforce.\n- T2: Delete `rbre_load()` from regime module. Furnish inlines source + kindle + enforce.\n- T3: buv enrollment — 7 variables, 2 groups, all buv_string_enroll. SESSION_TOKEN uses min=0.\n- T5: buv_report / buv_render\n- T6: buv_scope_sentinel replaces ZRBRE_UNEXPECTED\n- T9: buc_doc_* on validate, render\n- T12/T13: furnish receives command, bupr replaces rbcr\n\nNo T4 (gating), T7 (rollup), T8 (no grep or [[ == ]]), T10 (channel), T11 (list) needed.\n\nCaution: RBRE contains AWS secrets. Render displaying them is existing behavior — no change in security posture.\n\n## Verification\n\n1. `./tt/rbw-trg.RegimeSmoke.sh`\n\n## Acceptance\n\n- rbre_regime.sh uses enrollment + scope_sentinel + enforce, no rbre_load()\n- rbre_cli.sh uses buc_execute + furnish + buv_report/buv_render\n- Regime smoke tests pass",
               "silks": "scrub-rbre-singleton",
               "commit": "3ca6132"
+            }
+          ]
+        },
+        "₢AfAAh": {
+          "tacks": [
+            {
+              "ts": "260222-1410",
+              "state": "rough",
+              "text": "Apply T1-T13 transformation recipes to RBRP (Payor Regime).\n\n## Catalog Reference\n\nRead `.claude/jjm/jjp_uAlf_catalog.md` Part 2, RBRP section.\n\n## Current State\n\n- `Tools/rbw/rbrp_regime.sh` (75 lines) — 4 variables, validation inline in kindle via grep -qE, rbrp_load()\n- `Tools/rbw/rbrp_cli.sh` (112 lines) — SCRIPT_DIR pattern, manual case dispatch, 3 rbcr_section groups\n\n## Variables (4 total)\n\n| Variable | Enrollment | Notes |\n|----------|-----------|-------|\n| RBRP_PAYOR_PROJECT_ID | buv_string_enroll 1 128 req | Custom enforce: must match RBGC_GLOBAL_PAYOR_REGEX |\n| RBRP_BILLING_ACCOUNT_ID | buv_string_enroll 0 18 opt | Custom enforce: if non-empty, ^[A-Z0-9]{6}-[A-Z0-9]{6}-[A-Z0-9]{6}$ |\n| RBRP_OAUTH_CLIENT_ID | buv_string_enroll 0 256 opt | Custom enforce: if non-empty, must end .apps.googleusercontent.com |\n| RBRP_OAUTH_REDIRECT_URI | buv_string_enroll 0 512 opt | Currently in render but NOT validated — enroll it |\n\nGroups: \"Payor Project Identity\" (PROJECT_ID), \"Billing Configuration\" (BILLING_ACCOUNT_ID), \"OAuth Configuration\" (CLIENT_ID, REDIRECT_URI).\n\n## Transformations\n\n- T1: CLI restructure — buc_execute + furnish. Furnish sources buv, burd, rbcc, rbgc, rbrp_regime, bupr, then `source \"${RBCC_rbrp_file}\"` + kindle + enforce.\n- T2: Delete `rbrp_load()` from regime module.\n- T3: buv enrollment — 4 variables, 3 groups. Optionals use min=0.\n- T5: buv_report / buv_render\n- T6: buv_scope_sentinel (no UNEXPECTED array currently — this is new)\n- T8b: Replace 3 `printf | grep -qE` sites with [[ =~ ]] in zrbrp_enforce():\n  ```bash\n  zrbrp_enforce() {\n    zrbrp_sentinel\n    buv_vet RBRP\n    zrbgc_sentinel\n    [[ \"${RBRP_PAYOR_PROJECT_ID}\" =~ ${RBGC_GLOBAL_PAYOR_REGEX} ]] \\\n      || buc_die \"RBRP_PAYOR_PROJECT_ID format invalid\"\n    if test -n \"${RBRP_BILLING_ACCOUNT_ID}\"; then\n      [[ \"${RBRP_BILLING_ACCOUNT_ID}\" =~ ^[A-Z0-9]{6}-[A-Z0-9]{6}-[A-Z0-9]{6}$ ]] \\\n        || buc_die \"RBRP_BILLING_ACCOUNT_ID format invalid\"\n    fi\n    if test -n \"${RBRP_OAUTH_CLIENT_ID}\"; then\n      [[ \"${RBRP_OAUTH_CLIENT_ID}\" =~ \\.apps\\.googleusercontent\\.com$ ]] \\\n        || buc_die \"RBRP_OAUTH_CLIENT_ID format invalid\"\n    fi\n  }\n  ```\n- T9: buc_doc_* on validate, render\n- T12/T13: furnish receives command, bupr replaces rbcr\n\n**Dependency:** RBGC must be kindled before enforce (provides RBGC_GLOBAL_PAYOR_REGEX). Furnish must kindle rbgc before rbrp.\n\n## Verification\n\n1. `./tt/rbw-trg.RegimeSmoke.sh`\n2. `./tt/rbw-rpv.ValidatePayor.sh` and `./tt/rbw-rpr.RenderPayor.sh`\n\n## Acceptance\n\n- rbrp_regime.sh uses enrollment + scope_sentinel + enforce with [[ =~ ]] custom checks\n- rbrp_cli.sh uses buc_execute + furnish + buv_report/buv_render\n- No grep -qE in regime module\n- RBRP_OAUTH_REDIRECT_URI is now enrolled (was missing from validation)\n- Regime smoke tests pass",
+              "silks": "scrub-rbrp-singleton",
+              "commit": "8fdaac5"
             }
           ]
         }
