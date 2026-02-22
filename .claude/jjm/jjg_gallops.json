@@ -7108,6 +7108,13 @@
         "₢AiAAJ": {
           "tacks": [
             {
+              "ts": "260222-1503",
+              "state": "rough",
+              "text": "Implement the \"dispatch\" step in the Foundry (replaces builds.create):\n- Call triggers.run via REST API with substitution overrides\n- Substitutions include: _RBGY_MONIKER, _RBGY_PLATFORMS, _RBGY_GAR_*, _RBGY_GIT_*, etc.\n- Adapt polling/completion logic for trigger-based build responses\n  (triggers.run returns an Operation; polling mechanism may differ from builds.create)\n- Keep existing vessel loading and quota check\n- BCG compliance for all scripting\n\nGit verification change: the current flow verifies the PARENT repo is clean/pushed\n(zrbf_verify_git_clean). With triggers, Cloud Build checks out the VESSEL repo.\nParent-repo cleanliness is still desirable (ensures consistent state) but the\nsemantic meaning shifts. The prepare step (₢AiAAI) already committed+pushed the\nvessel repo, so the dispatch step can trust the vessel repo is current.\nDecide what parent-repo verification still makes sense in this context.\n\nReference: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/run\nThe prepare step (₢AiAAI) must complete before dispatch can run.",
+              "silks": "implement-dispatch-step",
+              "commit": "e950123"
+            },
+            {
               "ts": "260222-1454",
               "state": "rough",
               "text": "Implement the \"dispatch\" step in the Foundry (replaces builds.create):\n- Call triggers.run via REST API with substitution overrides\n- Substitutions include: _RBGY_MONIKER, _RBGY_PLATFORMS, _RBGY_GAR_*, _RBGY_GIT_*, etc.\n- Adapt polling/completion logic for trigger-based build responses\n- Keep existing vessel loading, git verification, quota check\n- BCG compliance for all scripting\n\nReference: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/run\nThe prepare step (₢AiAAI) must complete before dispatch can run.",
