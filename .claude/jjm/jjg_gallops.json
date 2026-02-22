@@ -6965,9 +6965,10 @@
         "₢AiAAF",
         "₢AiAAG",
         "₢AiAAH",
-        "₢AiAAI"
+        "₢AiAAI",
+        "₢AiAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7066,6 +7067,17 @@
               "text": "Implement the \"prepare\" step in the Foundry (new phase before dispatch):\n- Clone vessel repo to .rbk/ if not already present\n- Copy Dockerfile + build context from parent repo (rbev-vessels/{sigil}/) to vessel repo clone\n- Copy/update cloudbuild.yaml in vessel repo clone\n- Pin staleness check: balk if pins are older than 1 day\n- Commit and push changes to vessel repo on GitHub via REST API\n- BCG compliance for all scripting\n\nThis is the \"publish ceremony\" — changes flow from parent repo to vessel repo.\nDockerfiles live in parent repo (source of truth). Vessel repo is a derived artifact.\nThe .rbk/ directory is gitignored in parent repo, parallels .buk/ pattern.",
               "silks": "implement-prepare-step",
               "commit": "ad74677"
+            }
+          ]
+        },
+        "₢AiAAJ": {
+          "tacks": [
+            {
+              "ts": "260222-1454",
+              "state": "rough",
+              "text": "Implement the \"dispatch\" step in the Foundry (replaces builds.create):\n- Call triggers.run via REST API with substitution overrides\n- Substitutions include: _RBGY_MONIKER, _RBGY_PLATFORMS, _RBGY_GAR_*, _RBGY_GIT_*, etc.\n- Adapt polling/completion logic for trigger-based build responses\n- Keep existing vessel loading, git verification, quota check\n- BCG compliance for all scripting\n\nReference: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/run\nThe prepare step (₢AiAAI) must complete before dispatch can run.",
+              "silks": "implement-dispatch-step",
+              "commit": "1729138"
             }
           ]
         }
