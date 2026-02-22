@@ -49,6 +49,10 @@ zrbrr_kindle() {
   RBRR_GOVERNOR_RBRA_FILE="${RBRR_GOVERNOR_RBRA_FILE:-}"
   RBRR_RETRIEVER_RBRA_FILE="${RBRR_RETRIEVER_RBRA_FILE:-}"
   RBRR_DIRECTOR_RBRA_FILE="${RBRR_DIRECTOR_RBRA_FILE:-}"
+  RBRR_GDC_CONNECTION_NAME="${RBRR_GDC_CONNECTION_NAME:-}"
+  RBRR_GDC_REGION="${RBRR_GDC_REGION:-}"
+  RBRR_GDC_REPO_LINK="${RBRR_GDC_REPO_LINK:-}"
+  RBRR_GCB_TRIGGER_PATTERN="${RBRR_GCB_TRIGGER_PATTERN:-}"
   RBRR_GCB_ORAS_IMAGE_REF="${RBRR_GCB_ORAS_IMAGE_REF:-}"
   RBRR_GCB_GCLOUD_IMAGE_REF="${RBRR_GCB_GCLOUD_IMAGE_REF:-}"
   RBRR_GCB_DOCKER_IMAGE_REF="${RBRR_GCB_DOCKER_IMAGE_REF:-}"
@@ -78,7 +82,13 @@ zrbrr_kindle() {
   buv_gname_enroll   RBRR_GCP_REGION               1   32  "GCP region"
   buv_gname_enroll   RBRR_GAR_REPOSITORY           1   63  "Google Artifact Registry repository name"
 
+  buv_group_enroll "Google Developer Connect"
+  buv_gname_enroll   RBRR_GDC_CONNECTION_NAME       1   63  "Developer Connect connection resource name"
+  buv_gname_enroll   RBRR_GDC_REGION                1   32  "Developer Connect region"
+  buv_gname_enroll   RBRR_GDC_REPO_LINK             1   63  "Git repository link resource name"
+
   buv_group_enroll "Google Cloud Build Configuration"
+  buv_string_enroll  RBRR_GCB_TRIGGER_PATTERN        1  128  "Naming pattern for per-vessel triggers"
   buv_string_enroll  RBRR_GCB_MACHINE_TYPE          3   64  "Machine type for Cloud Build"
   buv_string_enroll  RBRR_GCB_TIMEOUT               2   10  "Build timeout (e.g., 1200s)"
   buv_decimal_enroll RBRR_GCB_MIN_CONCURRENT_BUILDS 1  999  "Min concurrent builds required"
@@ -133,6 +143,9 @@ zrbrr_enforce() {
 
   [[ "${RBRR_CHOSEN_PODMAN_VERSION}" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] \
     || buc_die "Invalid RBRR_CHOSEN_PODMAN_VERSION format: ${RBRR_CHOSEN_PODMAN_VERSION} (expected N.N or N.N.N)"
+
+  [[ "${RBRR_GCB_TRIGGER_PATTERN}" == *"{vessel}"* ]] \
+    || buc_die "RBRR_GCB_TRIGGER_PATTERN must contain {vessel} placeholder: ${RBRR_GCB_TRIGGER_PATTERN}"
 }
 
 # eof
