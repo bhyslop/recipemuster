@@ -7075,6 +7075,13 @@
         "₢AiAAG": {
           "tacks": [
             {
+              "ts": "260222-1507",
+              "state": "rough",
+              "text": "Script Developer Connect connection setup:\n- Create ONE connection via REST API: POST to developerconnect.googleapis.com\n  (this single connection serves all vessel repos — not per-vessel connections)\n- Extract authorization URI from response\n- Present URI to user for one-time GitHub OAuth consent (manual browser step)\n- Poll/verify connection is authorized\n- Link the busybox vessel repo to the connection via REST API\n  (remaining vessel repos are linked in ₢AiAAM during migration)\n- All curl/REST — no gcloud CLI dependency\n- BCG compliance for all scripting\n\nUses RBRR_GDC_CONNECTION_NAME, RBRR_GDC_REGION, RBRR_GDC_SECRET_NAME.\nOne-time setup for the connection; per-vessel linking is incremental.",
+              "silks": "script-developer-connect-setup",
+              "commit": "3b350f8"
+            },
+            {
               "ts": "260222-1454",
               "state": "rough",
               "text": "Script Developer Connect connection setup:\n- Create connection via REST API: POST to developerconnect.googleapis.com\n- Extract authorization URI from response\n- Present URI to user for one-time GitHub OAuth consent (manual browser step)\n- Poll/verify connection is authorized\n- Link vessel repo to connection via REST API\n- All curl/REST — no gcloud CLI dependency\n- BCG compliance for all scripting\n\nUses RBRR_GDC_CONNECTION_NAME, RBRR_GDC_REGION, RBRR_GDC_SECRET_NAME.\nOne-time setup, but must be scripted for reproducibility.",
