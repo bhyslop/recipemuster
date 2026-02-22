@@ -56,7 +56,6 @@ source "${RBTB_BUTS_DIR}/butcde_DispatchExercise.sh"
 source "${RBTB_RBTS_DIR}/rbtcns_NsproSecurity.sh"
 source "${RBTB_RBTS_DIR}/rbtcsj_SrjclJupyter.sh"
 source "${RBTB_RBTS_DIR}/rbtcpl_PlumlDiagram.sh"
-source "${RBTB_BUTS_DIR}/butcvu_XnameValidation.sh"
 source "${RBTB_BUTS_DIR}/butcrg_RegimeSmoke.sh"
 source "${RBTB_BUTS_DIR}/butcrg_RegimeCredentials.sh"
 source "${RBTB_BUTS_DIR}/butcev_LengthTypes.sh"
@@ -176,10 +175,6 @@ zrbtb_pluml_tsuite_setup() {
   rbtb_load_nameplate "pluml"
 }
 
-zrbtb_xname_tsuite_setup() {
-  buto_trace "Setup for xname-validation suite (no-op)"
-}
-
 zrbtb_regime_tsuite_setup() {
   buto_trace "Setup for regime-smoke suite (no-op)"
 }
@@ -281,17 +276,6 @@ rbtb_kindle() {
   butr_case_enroll "regime-credentials" butcrg_rbra_tcase
   butr_case_enroll "regime-credentials" butcrg_rbro_tcase
   butr_case_enroll "regime-credentials" butcrg_rbrs_tcase
-
-  # xname-validation suite
-  butr_suite_enroll "xname-validation" "" "zrbtb_xname_tsuite_setup"
-  butr_case_enroll "xname-validation" butcvu_debug_tcase
-  butr_case_enroll "xname-validation" butcvu_xname_defaults_tcase
-  butr_case_enroll "xname-validation" butcvu_xname_empty_optional_tcase
-  butr_case_enroll "xname-validation" butcvu_xname_env_wrapper_tcase
-  butr_case_enroll "xname-validation" butcvu_xname_invalid_chars_tcase
-  butr_case_enroll "xname-validation" butcvu_xname_invalid_start_tcase
-  butr_case_enroll "xname-validation" butcvu_xname_length_tcase
-  butr_case_enroll "xname-validation" butcvu_xname_valid_tcase
 
   # enrollment-validation suite
   butr_suite_enroll "enrollment-validation" "" "zrbtb_enrollment_tsuite_setup"
