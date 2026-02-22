@@ -440,9 +440,10 @@
         "₢AGAAI",
         "₢AGAAM",
         "₢AGAAO",
-        "₢AGAAP"
+        "₢AGAAP",
+        "₢AGAAQ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAuG.md",
       "paces": {
         "₢AGAAA": {
@@ -620,6 +621,17 @@
               "text": "Remove legacy paddock filename detection shim; make ul-encoded names mandatory.\n\n## Context\n\nThis pace is the breaking-change cleanup that follows ₣Ag's `paddock-filename-encoding`\nimplementation. Once all gallops files have been migrated (ul-encoded paddock names\nwritten, legacy names absent), this shim is dead weight.\n\n## What to remove\n\nIn jjri_io.rs: delete the load-time legacy detection loop that fatals with repair\ninstructions. After this change, JJK will simply fail to find/open a paddock file\nif it doesn't exist at the expected ul-encoded path — no special error message, no\nrecovery guidance. The assumption is that legacy files no longer exist.\n\nIn jjro_ops.rs: no change needed (nominate already writes ul-encoded names after ₣Ag).\n\n## Prerequisite\n\n₣Ag `paddock-filename-encoding` pace must be complete and all live gallops files\nmust have been migrated through the fatal-out repair cycle.\n\n## Files\n\njjri_io.rs (remove legacy detection block)",
               "silks": "harden-paddock-encoding",
               "commit": "0bd195e"
+            }
+          ]
+        },
+        "₢AGAAQ": {
+          "tacks": [
+            {
+              "ts": "260222-0855",
+              "state": "rough",
+              "text": "File Token Registry — stable handles for files referenced in pace dockets.\n\n## Problem\n\nFiles get renamed during paces, silently rotting references in downstream pace dockets\nand paddocks. A pace that says \"modify jjrt_types.rs\" breaks when an earlier pace\nrenames it. This is a recurring friction point.\n\n## Concept\n\nIntroduce a heat-level file token registry: a table mapping stable tokens to current\nfilenames, with alternate-name history.\n\n### Registry structure (per heat)\n\nEach entry:\n- **Token**: short, stable, memorable identifier (e.g., `TYPES`, `IO`, `CLI`)\n- **Current path**: the file's current name/path\n- **Alternates**: previous names this file has had\n\n### Usage in dockets and paddocks\n\nPace dockets and paddock text reference files by token, e.g. `{F:TYPES}` or similar\nsyntax. During mount/render, tokens expand to current filenames. If a token's file\nwas recently renamed, a footnote or annotation surfaces the change.\n\n### Update discipline\n\nWhen a pace renames a file:\n- The old name moves to alternates\n- Current path updates to the new name\n- Downstream paces automatically see the correct filename on next render\n\nThe notch or wrap flow could prompt for registry updates when touched files don't\nmatch known tokens.\n\n## Design Questions\n\n- **Token minting**: Explicit (runner assigns) vs auto-suggested on first file mention?\n- **Scope**: Heat-level registry seems right. Global registry across heats?\n- **Schema location**: New field in gallops Heat struct? Separate file?\n- **Render syntax**: `{F:TOKEN}` in docket text? Or simpler approach?\n- **Split/merge**: Track only renames initially? Or also file splits/merges?\n- **Retroactive**: Can existing paces be updated to use tokens, or only new ones?\n\n## Schema Changes\n\nLikely additions to gallops.json Heat struct:\n- `file_registry`: map of token → { current_path, alternates[] }\n\nRendering changes:\n- mount display expands tokens in docket text\n- show/parade surfaces the registry\n\n## Acceptance\n\n- Heat-level file registry can be created and updated\n- Pace dockets can reference files by token\n- Mount/show renders tokens to current filenames\n- Renames update the registry, downstream paces see correct names\n- Alternate names visible for forensic context",
+              "silks": "file-token-registry",
+              "commit": "ba16fea"
             }
           ]
         }
