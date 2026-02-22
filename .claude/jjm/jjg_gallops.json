@@ -6969,9 +6969,10 @@
         "₢AiAAJ",
         "₢AiAAK",
         "₢AiAAL",
-        "₢AiAAM"
+        "₢AiAAM",
+        "₢AiAAN"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7114,6 +7115,17 @@
               "text": "Migrate all remaining conjure-mode vessels to trigger-based builds:\n- For each conjure vessel: create GitHub repo, author cloudbuild.yaml, create trigger\n- Reuse patterns established in busybox paces (₢AiAAD, ₢AiAAE, ₢AiAAH)\n- Verify each vessel builds successfully via trigger path\n- Enumerate conjure vessels from rbev-vessels/ (skip non-conjure like trbim-macos)\n\nThis is mechanical repetition of the busybox pattern — bridleable once busybox is proven.",
               "silks": "migrate-remaining-conjure-vessels",
               "commit": "d7a7789"
+            }
+          ]
+        },
+        "₢AiAAN": {
+          "tacks": [
+            {
+              "ts": "260222-1455",
+              "state": "rough",
+              "text": "Final cleanup: remove the builds.create code path entirely:\n- All conjure vessels now on triggers (₢AiAAM complete)\n- Remove remaining builds.create submission logic\n- Remove GCS staging bucket usage from build hot path\n- Remove all rbgjb/*.sh files\n- Clean up all stitch/tarball temp variables and functions\n- Verify no remaining references to builds.create in codebase",
+              "silks": "remove-builds-create-path",
+              "commit": "a112dd6"
             }
           ]
         }
