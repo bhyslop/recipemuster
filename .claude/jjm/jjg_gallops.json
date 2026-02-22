@@ -6047,9 +6047,10 @@
         "₢AfAAL",
         "₢AfAAQ",
         "₢AfAAW",
-        "₢AfAAX"
+        "₢AfAAX",
+        "₢AfAAY"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -6566,6 +6567,17 @@
               "text": "One-line change to buc_execute: pass command name as $1 to furnish function.\n\n## Context\n\nCurrently buc_execute calls furnish with no arguments (buc_command.sh:342). Furnish cannot know which command is about to run, forcing CLIs with differential kindling needs (light vs heavy deps) to split into separate files (e.g., rbcnc_cli.sh vs rbcnx_cli.sh).\n\nPassing the command name to furnish enables conditional source/kindle based on which command will execute.\n\n## Scope\n\n1. In buc_command.sh buc_execute(), change line 342 from:\n   [ -n \"${env_func}\" ] && \"${env_func}\"\n   to:\n   [ -n \"${env_func}\" ] && \"${env_func}\" \"${command}\"\n\n2. Update BCG to document that furnish receives the command name as $1\n\n3. Existing furnish functions that don't use $1 are unaffected (extra arg is ignored in bash)\n\n## Acceptance\n\n- buc_execute passes command name to furnish as $1\n- BCG documents the furnish($1) convention\n- All existing CLIs continue to work (backward compatible — unused $1 is harmless)",
               "silks": "buc-execute-differential-furnish",
               "commit": "5eb1b56"
+            }
+          ]
+        },
+        "₢AfAAY": {
+          "tacks": [
+            {
+              "ts": "260222-0738",
+              "state": "rough",
+              "text": "Move top-level source commands into furnish across all CLIs, using BURD_BUK_DIR/BURD_TOOLS_DIR.\n\n## Context\n\nAfter burd-export-consolidation (₢AfAAW), BURD_BUK_DIR and BURD_TOOLS_DIR are available in CLI processes. After buc-execute-differential-furnish (₢AfAAX), furnish receives the command name. CLIs can now move all source commands (except buc_command.sh bootstrap) into furnish, eliminating all ../buk/ relative paths.\n\n## Pattern\n\nBefore:\n```bash\nZFOO_CLI_SCRIPT_DIR=\"${BASH_SOURCE[0]%/*}\"\nsource \"${ZFOO_CLI_SCRIPT_DIR}/../buk/buc_command.sh\"\nsource \"${ZFOO_CLI_SCRIPT_DIR}/../buk/buv_validation.sh\"\nsource \"${ZFOO_CLI_SCRIPT_DIR}/../buk/burd_regime.sh\"\nsource \"${ZFOO_CLI_SCRIPT_DIR}/rbcc_Constants.sh\"\n\nzfoo_furnish() {\n  zbuv_kindle\n  zburd_kindle\n  zrbcc_kindle\n}\n```\n\nAfter:\n```bash\nsource \"${BURD_BUK_DIR}/buc_command.sh\"\n\nzfoo_furnish() {\n  # Sources\n  source \"${BURD_BUK_DIR}/buv_validation.sh\"\n  source \"${BURD_BUK_DIR}/burd_regime.sh\"\n  source \"${BURD_TOOLS_DIR}/rbw/rbcc_Constants.sh\"\n\n  # Kindles\n  zbuv_kindle\n  zburd_kindle\n  zrbcc_kindle\n}\n```\n\n## Scope\n\nAll 22 CLI/workbench files across 6 kits that use ../buk/ paths:\n- Tools/rbw/ (14 files): rbcnc, rbcnx, rbrr, rbrp, rbro, rbrs, rbra, rbrv, rbob, rbq, rbq_cli, rbcr, rbw_workbench, rbtb_testbench\n- Tools/vok/ (2): vob_cli, vow_workbench\n- Tools/vvk/ (2): vvb_cli, vvw_workbench\n- Tools/jjk/ (2): jjw_workbench, jja_arcanum\n- Tools/vslk/ (1): vslw_workbench\n- Tools/cmk/ (1): cmw_workbench\n\nSources sorted separately from kindles within furnish. SCRIPT_DIR variables eliminated where BURD_TOOLS_DIR suffices.\n\n## Acceptance\n\n- Zero ../buk/ paths remain in CLI files\n- All tabtargets still work\n- Qualification passes",
+              "silks": "sources-in-furnish-migration",
+              "commit": "7faa33d"
             }
           ]
         }
