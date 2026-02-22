@@ -315,6 +315,16 @@ orthogonal to the trigger migration. It constrains vessel authors (policy decisi
 and does not depend on Tier 2 infrastructure. Tracked as a separate future heat, not a Tier 2 prerequisite.
 (2026-02)
 
+**Main repo triggers over per-vessel repos.**
+The original Tier 2 design used per-vessel GitHub repos for provenance isolation (one commit = one vessel's
+build definition). This required a Courier PAT regime, N repo creation/management scripts, a publish ceremony,
+and per-vessel pin-refresh integration — substantial infrastructure for alpha. With main repo triggers:
+Developer Connect uses an OAuth GitHub App (one-time browser auth, no PAT lifecycle), `triggers.run` dispatches
+against the main repo commit, and Google still generates SLSA v1.0 provenance recording the exact commit hash.
+The provenance commit may include non-vessel changes, but for a single-author alpha project this is acceptable.
+Per-vessel repos remain a future option if provenance isolation becomes a real requirement.
+(2026-02)
+
 ==== References
 
 **Google Cloud documentation:**
