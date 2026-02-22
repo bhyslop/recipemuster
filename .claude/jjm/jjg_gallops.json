@@ -7077,6 +7077,13 @@
         "₢AiAAD": {
           "tacks": [
             {
+              "ts": "260222-1527",
+              "state": "rough",
+              "text": "Author cloudbuild.yaml for rbev-busybox (the test mule vessel):\n- Inline all 9 rbgjb step script bodies into YAML block scalars\n- Bake current pinned image refs directly into YAML\n- Declare _RBGY_* substitutions (dynamic values passed at triggers.run time)\n- Set options: logging, machine type, timeout, service account\n- Audit log hygiene during inlining: ensure no token echo, set +x discipline in sensitive steps\n- Handle Cloud Build YAML substitution syntax (single $ not $$)\n\nBuild context: Cloud Build checks out the entire main repo. The Dockerfile and build\ncontext live in the vessel directory (rbev-vessels/busybox/). The cloudbuild.yaml lives\nalongside the Dockerfile in that same directory. Step scripts must use paths relative to\nrepo root — the _RBGY_VESSEL_DIR substitution is still needed to locate the Dockerfile\nand context within the checked-out repo tree.\n\nFile location: rbev-vessels/busybox/cloudbuild.yaml\n\nReference: current step definitions in zrbf_stitch_build_json() and rbgjb/*.sh scripts.\nBCG compliance required for all inline bash.",
+              "silks": "author-cloudbuild-yaml-busybox",
+              "commit": "a5e5b11"
+            },
+            {
               "ts": "260222-1502",
               "state": "rough",
               "text": "Author cloudbuild.yaml for rbev-busybox (the test mule vessel):\n- Inline all 9 rbgjb step script bodies into YAML block scalars\n- Bake current pinned image refs directly into YAML\n- Declare _RBGY_* substitutions (dynamic values passed at triggers.run time)\n- Set options: logging, machine type, timeout, service account\n- Audit log hygiene during inlining: ensure no token echo, set +x discipline in sensitive steps\n- Handle Cloud Build YAML substitution syntax (single $ not $$)\n\nContext path note: with per-vessel repos, the build context IS the repo root.\nThe Dockerfile and build context live at the top level of the vessel repo,\nnot in a subdirectory. The _RBGY_VESSEL_DIR substitution from the shared-repo\ndesign is no longer needed. Adjust Dockerfile and context references accordingly\n(e.g., -f Dockerfile . instead of -f {vessel_dir}/Dockerfile {vessel_dir}).\n\nReference: current step definitions in zrbf_stitch_build_json() and rbgjb/*.sh scripts.\nBCG compliance required for all inline bash.",
