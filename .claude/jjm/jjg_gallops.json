@@ -7177,6 +7177,13 @@
         "₢AiAAH": {
           "tacks": [
             {
+              "ts": "260222-1527",
+              "state": "rough",
+              "text": "Script Cloud Build trigger creation for rbev-busybox:\n- Create manual trigger via REST API: POST to cloudbuild.googleapis.com\n- Trigger references the Developer Connect connection (RBRR_GDC_CONNECTION_NAME)\n  and repo link (RBRR_GDC_REPO_LINK) to connect to the main GitHub repo\n- Trigger points to cloudbuild.yaml at the vessel's path within the main repo\n  (e.g., rbev-vessels/busybox/cloudbuild.yaml)\n- Declare substitution variables that will be overridden at triggers.run time\n- Trigger name follows RBRR_GCB_TRIGGER_PATTERN\n- Script as repeatable operation (will be reused for each vessel)\n- All curl/REST — no gcloud CLI dependency\n- BCG compliance for all scripting\n\nReference: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/create",
+              "silks": "script-trigger-creation-busybox",
+              "commit": "305c293"
+            },
+            {
               "ts": "260222-1454",
               "state": "rough",
               "text": "Script Cloud Build trigger creation for rbev-busybox:\n- Create manual trigger via REST API: POST to cloudbuild.googleapis.com\n- Trigger points to cloudbuild.yaml in the vessel repo\n- Declare substitution variables that will be overridden at triggers.run time\n- Trigger name follows RBRR_GCB_TRIGGER_PATTERN\n- Script as repeatable operation (will be reused for each vessel)\n- All curl/REST — no gcloud CLI dependency\n- BCG compliance for all scripting\n\nReference: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/create",
