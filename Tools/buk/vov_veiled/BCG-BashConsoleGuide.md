@@ -67,6 +67,44 @@ exec "${TOOLS_DIR}/rbob_cli.sh" rbob_start "$@"
 - Another CLI's `furnish()` (when CLI A depends on module B, A's furnish kindles B)
 - Test harnesses that explicitly isolate module behavior
 
+### Module-CLI Prefix Unity: Convention, Not Requirement
+
+**Convention**: A module and its CLI typically share a prefix (`rbrn_regime.sh` + `rbrn_cli.sh`).
+This is a readability convention — not an architectural rule.
+
+**When it breaks down**: A module may need two CLIs with structurally different furnish
+functions. Naively forcing both into one CLI would require sourcing heavy dependencies inside
+command function bodies — a BCG violation.
+
+**Rule**: A module may be served by multiple CLIs under independent prefixes when furnish
+requirements differ structurally. Each CLI owns its own furnish graph.
+
+#### Two-Tier CLI Pattern
+
+Split by furnish scope:
+
+| Tier | Suffix | Furnish loads | Typical commands |
+|------|--------|---------------|-----------------|
+| Common | `rbc«r»c_cli.sh` | Regime file only | validate, render, list |
+| Extended | `rbc«r»x_cli.sh` | Heavy dep stack (GCP/OAuth/etc.) | survey, audit |
+
+Where `«r»` is the single-letter regime identifier. The `rbr` namespace holds regime
+**definitions**; the `rbc` namespace holds regime **CLIs**:
+
+| Regime     | Definition           | Common CLI        | Extended CLI      |
+|------------|----------------------|-------------------|-------------------|
+| Nameplate  | `rbrn_regime.sh`     | `rbcnc_cli.sh`    | `rbcnx_cli.sh`    |
+| Repository | `rbrr_regime.sh`     | `rbcrc_cli.sh`    | `rbcrx_cli.sh`    |
+| Payor      | `rbrp_regime.sh`     | `rbcpc_cli.sh`    | `rbcpx_cli.sh`    |
+| OAuth      | `rbro_regime.sh`     | `rbcoc_cli.sh`    | `rbcox_cli.sh`    |
+| Station    | `rbrs_regime.sh`     | `rbcsc_cli.sh`    | `rbcsx_cli.sh`    |
+| Vessel     | `rbrv_regime.sh`     | `rbcvc_cli.sh`    | `rbcvx_cli.sh`    |
+| Auth/Cred  | `rbra_regime.sh`     | `rbcac_cli.sh`    | `rbcax_cli.sh`    |
+
+**Cross-module CLI utilities**: A CLI need not belong to any single module. `rbcr_render.sh`
+(a presentation utility sourced by seven regime CLIs) is a precedent — it serves multiple
+modules and carries its own prefix independent of any regime.
+
 ---
 
 ## Function Patterns
