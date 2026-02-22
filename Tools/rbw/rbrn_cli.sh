@@ -78,7 +78,15 @@ rbrn_list() {
   buc_doc_shown || return 0
 
   buc_step "Available nameplates:"
-  zrbrn_list_monikers
+  local z_files=("${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
+  local z_i=""
+  for z_i in "${!z_files[@]}"; do
+    test -f "${z_files[$z_i]}" || continue
+    local z_basename="${z_files[$z_i]##*/}"
+    local z_moniker="${z_basename#${RBCC_rbrn_prefix}}"
+    z_moniker="${z_moniker%${RBCC_rbrn_ext}}"
+    buc_step "  ${z_moniker}"
+  done
 }
 
 ######################################################################

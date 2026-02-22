@@ -133,24 +133,6 @@ zrbrn_enforce() {
 }
 
 ######################################################################
-# Public Functions (rbrn_*)
-
-# List available nameplate monikers
-# Usage: zrbrn_list_monikers
-# Returns list of concrete nameplate monikers by globbing rbrn_*.env files
-zrbrn_list_monikers() {
-  local z_nameplate_files=("${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
-
-  for z_file in "${z_nameplate_files[@]}"; do
-    test -f "${z_file}" || continue
-    local z_basename="${z_file##*/}"
-    local z_moniker="${z_basename#${RBCC_rbrn_prefix}}"
-    z_moniker="${z_moniker%${RBCC_rbrn_ext}}"
-    echo "${z_moniker}"
-  done
-}
-
-######################################################################
 # Cross-Nameplate Functions
 #
 # These iterate all nameplates by direct-sourcing .env files in
