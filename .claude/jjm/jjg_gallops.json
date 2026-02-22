@@ -7106,6 +7106,13 @@
         "₢AiAAF": {
           "tacks": [
             {
+              "ts": "260222-1522",
+              "state": "abandoned",
+              "text": "Script the Courier credential establishment ceremony:\n- Guide user to create GitHub PAT with required scopes (repo read/write)\n- Store PAT in local credential file (new format, NOT RBRA)\n- Store PAT in Google Secret Manager via REST API (for Developer Connect)\n- Create manual procedure spec lens (like RBSPE for Payor)\n- All API calls via curl/REST — no gh or gcloud CLI dependency\n- BCG compliance for all scripting\n\nPattern: similar to existing rbgp_Payor.sh establishment ceremonies but for GitHub provider.",
+              "silks": "script-courier-credential-ceremony",
+              "commit": "4885c21"
+            },
+            {
               "ts": "260222-1454",
               "state": "rough",
               "text": "Script the Courier credential establishment ceremony:\n- Guide user to create GitHub PAT with required scopes (repo read/write)\n- Store PAT in local credential file (new format, NOT RBRA)\n- Store PAT in Google Secret Manager via REST API (for Developer Connect)\n- Create manual procedure spec lens (like RBSPE for Payor)\n- All API calls via curl/REST — no gh or gcloud CLI dependency\n- BCG compliance for all scripting\n\nPattern: similar to existing rbgp_Payor.sh establishment ceremonies but for GitHub provider.",
