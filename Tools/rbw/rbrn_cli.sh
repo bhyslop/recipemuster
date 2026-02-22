@@ -154,8 +154,6 @@ rbrn_list() {
 zrbrn_furnish() {
   local z_command="${1:-}"
 
-  buc_doc_env "BUZ_FOLIO" "Nameplate moniker (e.g., nsproto); empty for list/survey/audit"
-
   # Light sources (always)
   local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
   source "${BURD_BUK_DIR}/buv_validation.sh"
