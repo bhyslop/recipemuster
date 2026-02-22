@@ -22,15 +22,8 @@
 
 set -euo pipefail
 
-ZRBCNC_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
 # Source dependencies
-source "${ZRBCNC_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${ZRBCNC_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
-source "${ZRBCNC_CLI_SCRIPT_DIR}/../buk/burd_regime.sh"
-source "${ZRBCNC_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBCNC_CLI_SCRIPT_DIR}/rbrn_regime.sh"
-source "${ZRBCNC_CLI_SCRIPT_DIR}/../buk/bupr_PresentationRegime.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
 # Command Functions
@@ -63,10 +56,20 @@ rbrn_render() {
 zrbrn_furnish() {
   buc_doc_env "BUZ_FOLIO" "Nameplate moniker (e.g., nsproto); empty for list"
 
+  # Sources
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbrn_regime.sh"
+
+  # Kindles
   zbuv_kindle
   zburd_kindle
-  zrbcc_kindle
   zbupr_kindle
+  zrbcc_kindle
+  test "${z_rbw_kit_dir}" = "${RBCC_KIT_DIR}" || buc_die "z_rbw_kit_dir mismatch: ${z_rbw_kit_dir} != ${RBCC_KIT_DIR}"
 
   # If BUZ_FOLIO is set, load and kindle the specified nameplate
   if test -n "${BUZ_FOLIO:-}"; then

@@ -27,9 +27,9 @@ set -euo pipefail
 RBW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${RBW_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${BURC_BUK_DIR}/burd_regime.sh"
-source "${RBW_SCRIPT_DIR}/../buk/buz_zipper.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/burd_regime.sh"
+source "${BURD_BUK_DIR}/buz_zipper.sh"
 source "${RBW_SCRIPT_DIR}/rbz_zipper.sh"
 
 # Show filename on each displayed line

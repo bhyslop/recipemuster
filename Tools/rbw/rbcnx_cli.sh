@@ -22,18 +22,7 @@
 
 set -euo pipefail
 
-ZRBCNX_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-# Source dependencies
-source "${ZRBCNX_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${ZRBCNX_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
-source "${ZRBCNX_CLI_SCRIPT_DIR}/../buk/burd_regime.sh"
-source "${ZRBCNX_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBCNX_CLI_SCRIPT_DIR}/rbrn_regime.sh"
-source "${ZRBCNX_CLI_SCRIPT_DIR}/../buk/bupr_PresentationRegime.sh"
-source "${ZRBCNX_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
-source "${ZRBCNX_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
-source "${ZRBCNX_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
 # Command Functions
@@ -67,10 +56,24 @@ rbrn_audit() {
 zrbcnx_furnish() {
   buc_doc_env "BUZ_FOLIO" "Nameplate moniker (e.g., nsproto); empty for survey/audit"
 
+  # Sources
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbrn_regime.sh"
+  source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${z_rbw_kit_dir}/rbgc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
+  source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
+
+  # Kindles
   zbuv_kindle
   zburd_kindle
-  zrbcc_kindle
   zbupr_kindle
+  zrbcc_kindle
+  test "${z_rbw_kit_dir}" = "${RBCC_KIT_DIR}" || buc_die "z_rbw_kit_dir mismatch: ${z_rbw_kit_dir} != ${RBCC_KIT_DIR}"
   source "${RBCC_rbrr_file}"
   zrbgc_kindle
   zrbrr_kindle
