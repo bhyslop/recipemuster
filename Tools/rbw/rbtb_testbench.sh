@@ -152,7 +152,6 @@ zrbtb_ark_tsuite_setup() {
 
 zrbtb_dispatch_tsuite_setup() {
   buto_trace "Setup for dispatch-exercise suite"
-  buz_enroll ZBUTCDE_TEST_COLOPHON "butctt" "butcde_DispatchExercise" "butcde_run"
 }
 
 zrbtb_nsproto_tsuite_setup() {
@@ -211,6 +210,7 @@ rbtb_kindle() {
   butr_case_enroll "ark-lifecycle" rbtcal_lifecycle_tcase
 
   # dispatch-exercise suite
+  buz_enroll ZBUTCDE_TEST_COLOPHON "butctt" "butcde_DispatchExercise" "butcde_run"
   butr_suite_enroll "dispatch-exercise" "" "zrbtb_dispatch_tsuite_setup"
   butr_case_enroll "dispatch-exercise" butcde_burv_isolation_tcase
   butr_case_enroll "dispatch-exercise" butcde_evidence_created_tcase
