@@ -91,7 +91,10 @@ rbrn_validate() {
   buc_doc_brief "Validate RBRN nameplate regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  test -n "${BUZ_FOLIO:-}" || buc_die "Nameplate moniker required (e.g., nsproto, srjcl, pluml)"
+  if test -z "${BUZ_FOLIO:-}"; then
+    rbrn_list
+    buc_die "Nameplate moniker required"
+  fi
   buc_step "Validating RBRN nameplate regime"
   buv_report RBRN "Nameplate Regime"
   buc_step "RBRN nameplate valid"
@@ -102,7 +105,10 @@ rbrn_render() {
   buc_doc_brief "Display diagnostic view of RBRN nameplate regime configuration"
   buc_doc_shown || return 0
 
-  test -n "${BUZ_FOLIO:-}" || buc_die "Nameplate moniker required (e.g., nsproto, srjcl, pluml)"
+  if test -z "${BUZ_FOLIO:-}"; then
+    rbrn_list
+    buc_die "Nameplate moniker required"
+  fi
   buv_render RBRN "RBRN - Recipe Bottle Regime Nameplate"
 }
 
