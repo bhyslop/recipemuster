@@ -6078,6 +6078,7 @@
         "₢AfAAI",
         "₢AfAAQ",
         "₢AfAAF",
+        "₢AfAAf",
         "₢AfAAe",
         "₢AfAAG",
         "₢AfAAc",
@@ -6089,7 +6090,7 @@
         "₢AfAAW",
         "₢AfAAX"
       ],
-      "next_pace_seed": "AAf",
+      "next_pace_seed": "AAg",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -6788,6 +6789,17 @@
               "text": "Apply T1-T13 transformation recipes to RBRS (Station Regime).\n\n## Catalog Reference\n\nRead `.claude/jjm/jjp_uAlf_catalog.md` Part 2, RBRS section.\n\n## Current State\n\n- `Tools/rbw/rbrs_regime.sh` (45 lines) — 3 variables, UNEXPECTED array, validation inside kindle\n- `Tools/rbw/rbrs_cli.sh` (98 lines) — SCRIPT_DIR pattern, manual case dispatch, rbcr_section_* render\n\n## Variables (3, single group)\n\n| Variable | Enrollment | Notes |\n|----------|-----------|-------|\n| RBRS_PODMAN_ROOT_DIR | buv_string_enroll 1 64 | |\n| RBRS_VMIMAGE_CACHE_DIR | buv_string_enroll 1 64 | |\n| RBRS_VM_PLATFORM | buv_string_enroll 1 64 | |\n\n## Transformations\n\n- T1: CLI restructure — buc_execute + furnish. Verify RBCC_rbrs_file constant exists (CLI currently hardcodes `../station-files/rbrs.env`).\n- T3: buv enrollment — single group \"Station Paths\", 3 string enrollments\n- T3 special: Current kindle calls buv_env_string directly (validation inside kindle). Must split: kindle sets defaults + enrolls, new enforce calls buv_vet.\n- T5: buv_report / buv_render replace manual render\n- T6: buv_scope_sentinel replaces UNEXPECTED array\n- T9: buc_doc_* preamble on validate, render\n- T12: furnish receives command name\n- T13: bupr replaces rbcr\n\nNo T2 (_load), T4 (gating), T7 (rollup), T8 (grep/[[==]]), T10 (channel), T11 (list_capture) needed.\n\n## Verification\n\n1. `./tt/rbw-trg.RegimeSmoke.sh`\n2. `./tt/rbw-rsv.ValidateStation.sh` and `./tt/rbw-rsr.RenderStation.sh` (if these tabtargets exist; check first)\n\n## Acceptance\n\n- rbrs_regime.sh uses enrollment + scope_sentinel + enforce\n- rbrs_cli.sh uses buc_execute + furnish + buv_report/buv_render\n- No manual rbcr_section_* calls\n- Regime smoke tests pass",
               "silks": "scrub-rbrs-singleton",
               "commit": "80f5735"
+            }
+          ]
+        },
+        "₢AfAAf": {
+          "tacks": [
+            {
+              "ts": "260222-1410",
+              "state": "rough",
+              "text": "Apply T1-T13 transformation recipes to BURS (Station Regime, BUK domain).\n\n## Catalog Reference\n\nRead `.claude/jjm/jjp_uAlf_catalog.md` Part 2, BURS section.\n\n## Current State\n\n- `Tools/buk/burs_regime.sh` (66 lines) — 1 variable, UNEXPECTED array, separate validate_fields\n- `Tools/buk/burs_cli.sh` (108 lines) — SCRIPT_DIR pattern, manual case dispatch, 1 rbcr_section group\n\n## Variables (1, single group)\n\n| Variable | Enrollment | Notes |\n|----------|-----------|-------|\n| BURS_LOG_DIR | buv_string_enroll 1 512 | |\n\n## Transformations\n\n- T1: CLI restructure — BUK-domain. Source `\"${BURD_BUK_DIR}/buc_command.sh\"`. Furnish sources buv, burd, burs_regime, bupr.\n- T3: buv enrollment — single group \"Developer Logging\", 1 string enrollment\n- T5: buv_report / buv_render\n- T6: buv_scope_sentinel replaces ZBURS_UNEXPECTED array\n- T9: buc_doc_* preamble on validate, render\n- T12/T13: furnish receives command, bupr replaces rbcr\n\nBURS values are already in environment from burd dispatch — no file to source in furnish, just kindle + enforce.\n\n## Verification\n\n1. `./tt/rbw-trg.RegimeSmoke.sh`\n\n## Acceptance\n\n- burs_regime.sh uses enrollment + scope_sentinel + enforce\n- burs_cli.sh uses buc_execute + furnish + buv_report/buv_render\n- Regime smoke tests pass",
+              "silks": "scrub-burs-singleton",
+              "commit": "d50866e"
             }
           ]
         }
