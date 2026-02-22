@@ -6962,9 +6962,10 @@
         "₢AiAAC",
         "₢AiAAD",
         "₢AiAAE",
-        "₢AiAAF"
+        "₢AiAAF",
+        "₢AiAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7030,6 +7031,17 @@
               "text": "Script the Courier credential establishment ceremony:\n- Guide user to create GitHub PAT with required scopes (repo read/write)\n- Store PAT in local credential file (new format, NOT RBRA)\n- Store PAT in Google Secret Manager via REST API (for Developer Connect)\n- Create manual procedure spec lens (like RBSPE for Payor)\n- All API calls via curl/REST — no gh or gcloud CLI dependency\n- BCG compliance for all scripting\n\nPattern: similar to existing rbgp_Payor.sh establishment ceremonies but for GitHub provider.",
               "silks": "script-courier-credential-ceremony",
               "commit": "c39fef1"
+            }
+          ]
+        },
+        "₢AiAAG": {
+          "tacks": [
+            {
+              "ts": "260222-1454",
+              "state": "rough",
+              "text": "Script Developer Connect connection setup:\n- Create connection via REST API: POST to developerconnect.googleapis.com\n- Extract authorization URI from response\n- Present URI to user for one-time GitHub OAuth consent (manual browser step)\n- Poll/verify connection is authorized\n- Link vessel repo to connection via REST API\n- All curl/REST — no gcloud CLI dependency\n- BCG compliance for all scripting\n\nUses RBRR_GDC_CONNECTION_NAME, RBRR_GDC_REGION, RBRR_GDC_SECRET_NAME.\nOne-time setup, but must be scripted for reproducibility.",
+              "silks": "script-developer-connect-setup",
+              "commit": "d19e484"
             }
           ]
         }
