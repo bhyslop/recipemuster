@@ -7314,6 +7314,13 @@
               "ts": "260222-1523",
               "state": "rough",
               "text": "Integrate pin-refresh workflow with trigger-based builds:\n- When GCB tool image pins are refreshed, regenerate all vessel cloudbuild.yaml files\n- Commit updated yamls to the main repo (single commit with all vessel yamls)\n- No vessel repo push needed — yamls live in the main repo\n- Update the RBZ_REFRESH_GCB_PINS workflow to include yaml regeneration step",
+              "silks": "integrate-pin-refresh-with-yaml-regen",
+              "commit": "b9989f9"
+            },
+            {
+              "ts": "260222-1523",
+              "state": "rough",
+              "text": "Integrate pin-refresh workflow with trigger-based builds:\n- When GCB tool image pins are refreshed, regenerate all vessel cloudbuild.yaml files\n- Commit updated yamls to the main repo (single commit with all vessel yamls)\n- No vessel repo push needed — yamls live in the main repo\n- Update the RBZ_REFRESH_GCB_PINS workflow to include yaml regeneration step",
               "silks": "integrate-pin-refresh-with-vessel-repos",
               "commit": "44f4fd1"
             },
