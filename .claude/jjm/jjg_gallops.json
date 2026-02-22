@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Ah",
+  "next_heat_seed": "Ai",
   "heat_order": [
     "₣AD",
     "₣AG",
@@ -21,7 +21,8 @@
     "₣Ac",
     "₣Ad",
     "₣Ae",
-    "₣Af"
+    "₣Af",
+    "₣Ah"
   ],
   "heats": {
     "₣AD": {
@@ -6628,6 +6629,15 @@
           ]
         }
       }
+    },
+    "₣Ah": {
+      "silks": "jjk-v4-vision",
+      "creation_time": "260222",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlh.md",
+      "paces": {}
     }
   }
 }
