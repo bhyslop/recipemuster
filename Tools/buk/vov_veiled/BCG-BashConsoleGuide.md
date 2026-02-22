@@ -444,8 +444,8 @@ test -n "${z_result}" || buc_die "Failed to read or empty: ${Z«PREFIX»_TEMP2}"
 "${z_string#prefix}"               # Instead of: sed 's/^prefix//'
 "${z_string%suffix}"               # Instead of: sed 's/suffix$//'
 
-# ✅ Reading lines with 'read'
-while IFS= read -r z_line; do
+# ✅ Reading lines with 'read' — guard handles missing trailing newline
+while IFS= read -r z_line || test -n "${z_line}"; do
   echo "Processing: ${z_line}" || buc_die "Failed to echo line"
 done < "${Z_MODULE_INPUT_FILE}"
 
@@ -468,6 +468,42 @@ read -r z_result < "${Z_MODULE_TEMP2}" || buc_die "No result"
 ```
 
 **Temp file lifecycle**: Temp files under `BURD_TEMP_DIR` are **preserved after execution** for forensic debugging. Never delete temp files in module code — their persistence is intentional. Cleanup is handled by infrastructure outside BCG's scope.
+
+### Stderr Capture — Never Suppress
+
+Never use `2>/dev/null` on external commands. Redirect stderr to a temp file so forensic evidence is preserved when commands fail. Include the stderr file path in the `buc_die` message so the user can inspect it.
+
+```bash
+# ❌ Anti-pattern: stderr suppressed — failure cause invisible
+curl -sS "${z_url}" -o "${z_output_file}" 2>/dev/null \
+  || buc_die "Failed to fetch ${z_url}"
+
+# ✅ Correct: stderr captured to temp file, referenced in die message
+curl -sS "${z_url}" -o "${z_output_file}" 2>"${z_stderr_file}" \
+  || buc_die "Failed to fetch ${z_url} — see ${z_stderr_file}"
+```
+
+**Stderr file naming**: Use a kindle `_PREFIX` constant (grouped with other temp file prefixes for collision visibility) and append a discriminator at the usage site.
+
+**In loops**, use an auto-incrementing integer for uniqueness rather than trusting loop data values to be unique:
+
+```bash
+# In kindle — grouped with sibling temp file prefixes
+Z«PREFIX»_«COMMAND»_PREFIX="${BURD_TEMP_DIR}/«prefix»_«command»_"
+
+# In command function — integer discriminator ensures uniqueness
+local z_index=0
+while IFS='|' read -r z_varname z_image z_tag || test -n "${z_varname}"; do
+  local z_manifest_file="${Z«PREFIX»_«COMMAND»_PREFIX}${z_index}_manifest.json"
+  local z_stderr_file="${Z«PREFIX»_«COMMAND»_PREFIX}${z_index}_inspect_stderr.txt"
+
+  docker manifest inspect "${z_image}:${z_tag}" \
+    > "${z_manifest_file}" 2>"${z_stderr_file}" \
+    || buc_die "Failed to inspect ${z_image}:${z_tag} — see ${z_stderr_file}"
+
+  z_index=$((z_index + 1))
+done
+```
 
 ### String Usage
 
@@ -914,7 +950,7 @@ The failure is **silent and partial**: the loop processes some iterations correc
 
 ```bash
 # ❌ File held open on stdin for entire loop — child processes can consume it
-while IFS= read -r z_item; do
+while IFS= read -r z_item || test -n "${z_item}"; do
     complex_function "${z_item}"    # If this touches stdin, remaining items vanish
 done < "${z_temp_file}"
 ```
@@ -926,7 +962,7 @@ done < "${z_temp_file}"
 ```bash
 # ✅ Load phase — file consumed and closed
 local z_items=()
-while IFS= read -r z_line; do
+while IFS= read -r z_line || test -n "${z_line}"; do
     z_items+=("${z_line}")
 done < "${z_temp_file}"
 rm -f "${z_temp_file}"
@@ -1137,6 +1173,7 @@ buv_val_xname "name" "${z_input_name}" 3 50
 
 ### Loop Safety
 - [ ] All while-read loops use load-then-iterate pattern
+- [ ] All `while read` conditions include trailing-newline guard: `|| test -n "${z_var}"`
 - [ ] No file descriptor held open across function calls that may touch stdin
 
 ### Bash Compatibility
@@ -1178,6 +1215,7 @@ buv_val_xname "name" "${z_input_name}" 3 50
 - [ ] Consistent error messages (specific and actionable)
 - [ ] Proper temp file naming with module prefix
 - [ ] No silent failures or ignored conditions
+- [ ] No `2>/dev/null` — stderr redirected to temp file, path included in `buc_die` message
 - [ ] Temp files never deleted in module code — preserved for forensics
 
 ### Enterprise Safety

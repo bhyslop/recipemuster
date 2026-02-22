@@ -34,16 +34,6 @@ source "${ZRBRR_CLI_SCRIPT_DIR}/rbcr_render.sh"
 ######################################################################
 # Internal Functions
 
-zrbrr_cli_kindle() {
-  test -z "${ZRBRR_CLI_KINDLED:-}" || buc_die "RBRR CLI already kindled"
-
-  # GCB runs on linux/amd64 — pin digests must match this platform
-  ZRBRR_CLI_PIN_OS="linux"
-  ZRBRR_CLI_PIN_ARCH="amd64"
-
-  ZRBRR_CLI_KINDLED=1
-}
-
 ######################################################################
 # Command Functions
 
@@ -242,6 +232,9 @@ rbrr_refresh_gcb_pins() {
   local z_digest=""
   local z_full_ref=""
   local z_old_ref=""
+  # GCB runs on linux/amd64 — pin digests must match this platform
+  local z_pin_os="linux"
+  local z_pin_arch="amd64"
   local z_sed_value_file=""
   local z_sed_vintage_file=""
   for z_spec in "${z_specs[@]}"; do
@@ -258,8 +251,8 @@ rbrr_refresh_gcb_pins() {
     docker manifest inspect --verbose "${z_image}:${z_tag}" > "${z_manifest_file}" 2>/dev/null \
       || buc_die "Failed to fetch manifest for ${z_image}:${z_tag}"
 
-    buc_log_args "Extracting ${ZRBRR_CLI_PIN_OS}/${ZRBRR_CLI_PIN_ARCH} digest from manifest"
-    jq -r --arg os "${ZRBRR_CLI_PIN_OS}" --arg arch "${ZRBRR_CLI_PIN_ARCH}" '
+    buc_log_args "Extracting ${z_pin_os}/${z_pin_arch} digest from manifest"
+    jq -r --arg os "${z_pin_os}" --arg arch "${z_pin_arch}" '
       if type == "array" then
         [.[] | select(.Descriptor.platform.architecture == $arch
                   and .Descriptor.platform.os == $os)][0].Descriptor.digest
@@ -314,7 +307,6 @@ zrbrr_furnish() {
   zrbrr_kindle
   zrbrr_enforce
 
-  zrbrr_cli_kindle
   zrbcr_kindle
 }
 
