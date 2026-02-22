@@ -6959,9 +6959,10 @@
       "order": [
         "₢AiAAA",
         "₢AiAAB",
-        "₢AiAAC"
+        "₢AiAAC",
+        "₢AiAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6994,6 +6995,17 @@
               "text": "Mint and implement new RBRR regime variables for Tier 2 infrastructure:\n\nGoogle Developer Connect (GDC prefix):\n- RBRR_GDC_CONNECTION_NAME — Developer Connect connection resource name\n- RBRR_GDC_REGION — Developer Connect region\n- RBRR_GDC_SECRET_NAME — Secret Manager secret holding GitHub PAT\n\nGoogle Cloud Build trigger:\n- RBRR_GCB_TRIGGER_PATTERN — Naming convention for per-vessel triggers\n\nGitHub (GITHUB prefix):\n- RBRR_GITHUB_ACCOUNT — GitHub user or org owning vessel repos\n- RBRR_GITHUB_REPO_PATTERN — Template for vessel repo names\n\nAdd to rbrr.env with documentation comments. Update rbrr_regime.sh validator.\nDepends on outcome of courier credential regime design (₢AiAAB).",
               "silks": "design-rbrr-variable-additions",
               "commit": "a70c36a"
+            }
+          ]
+        },
+        "₢AiAAD": {
+          "tacks": [
+            {
+              "ts": "260222-1453",
+              "state": "rough",
+              "text": "Author cloudbuild.yaml for rbev-busybox (the test mule vessel):\n- Inline all 9 rbgjb step script bodies into YAML block scalars\n- Bake current pinned image refs directly into YAML\n- Declare _RBGY_* substitutions (dynamic values passed at triggers.run time)\n- Add _RBGY_VESSEL_DIR or equivalent for repo-rooted context paths\n- Set options: logging, machine type, timeout, service account\n- Audit log hygiene during inlining: ensure no token echo, set +x discipline in sensitive steps\n- Handle Cloud Build YAML substitution syntax (single $ not $$)\n\nReference: current step definitions in zrbf_stitch_build_json() and rbgjb/*.sh scripts.\nBCG compliance required for all inline bash.",
+              "silks": "author-cloudbuild-yaml-busybox",
+              "commit": "1fecbb6"
             }
           ]
         }
