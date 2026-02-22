@@ -6046,9 +6046,10 @@
         "₢AfAAJ",
         "₢AfAAL",
         "₢AfAAQ",
-        "₢AfAAW"
+        "₢AfAAW",
+        "₢AfAAX"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -6554,6 +6555,17 @@
               "text": "Add BURD_TOOLS_DIR and BURD_BUK_DIR to dispatch; remove the 3 BURC exports.\n\n## Context\n\nCLIs are exec'd (buz_zipper.sh:168), so exported env vars cross the exec boundary but in-process state does not. Currently BURC exports 3 variables (BURC_TABTARGET_DIR, BURC_TOOLS_DIR, BURC_BUK_DIR) solely to survive this exec. Architecturally, BURD is the exec-crossing contract — BURC should stay in-process.\n\n## Scope\n\n1. In bud_dispatch.sh zbud_setup(): after sourcing burc.env and validating BURC_TOOLS_DIR, set and export:\n   - BURD_TOOLS_DIR=\"${BURC_TOOLS_DIR}\"\n   - BURD_BUK_DIR=\"${BURC_TOOLS_DIR}/buk\"\n\n2. In burd_regime.sh: add BURD_TOOLS_DIR and BURD_BUK_DIR to z_known list in zburd_kindle() and zburd_validate_fields()\n\n3. In burc_regime.sh: remove the 3 export statements (lines 58-60)\n\n4. In bul_launcher.sh: the launcher runs BEFORE exec, so it still uses BURC_TOOLS_DIR directly (lines 44-45, 51, 70) — no change needed there\n\n5. Update BCG to document BURD_TOOLS_DIR and BURD_BUK_DIR as dispatch-provided variables\n\n6. Update any code that references BURC_BUK_DIR or BURC_TOOLS_DIR after the exec boundary to use BURD_ prefix instead\n\n## Acceptance\n\n- BURD_TOOLS_DIR and BURD_BUK_DIR available in CLI processes after exec\n- BURC exports nothing\n- All tabtargets still work (qualification passes)",
               "silks": "burd-export-consolidation",
               "commit": "62f63ad"
+            }
+          ]
+        },
+        "₢AfAAX": {
+          "tacks": [
+            {
+              "ts": "260222-0738",
+              "state": "rough",
+              "text": "One-line change to buc_execute: pass command name as $1 to furnish function.\n\n## Context\n\nCurrently buc_execute calls furnish with no arguments (buc_command.sh:342). Furnish cannot know which command is about to run, forcing CLIs with differential kindling needs (light vs heavy deps) to split into separate files (e.g., rbcnc_cli.sh vs rbcnx_cli.sh).\n\nPassing the command name to furnish enables conditional source/kindle based on which command will execute.\n\n## Scope\n\n1. In buc_command.sh buc_execute(), change line 342 from:\n   [ -n \"${env_func}\" ] && \"${env_func}\"\n   to:\n   [ -n \"${env_func}\" ] && \"${env_func}\" \"${command}\"\n\n2. Update BCG to document that furnish receives the command name as $1\n\n3. Existing furnish functions that don't use $1 are unaffected (extra arg is ignored in bash)\n\n## Acceptance\n\n- buc_execute passes command name to furnish as $1\n- BCG documents the furnish($1) convention\n- All existing CLIs continue to work (backward compatible — unused $1 is harmless)",
+              "silks": "buc-execute-differential-furnish",
+              "commit": "5eb1b56"
             }
           ]
         }
