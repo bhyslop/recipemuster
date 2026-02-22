@@ -41,7 +41,7 @@ zburd_kindle() {
   BURD_TOKEN_5="${BURD_TOKEN_5:-}"
 
   # Detect unexpected BURD_ variables
-  local z_known="BURD_REGIME_FILE BURD_STATION_FILE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_TERM_COLS BURD_NOW_STAMP BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_TARGET BURD_COMMAND BURD_TOKEN_1 BURD_TOKEN_2 BURD_CLI_ARGS BURD_NO_LOG BURD_INTERACTIVE BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST"
+  local z_known="BURD_REGIME_FILE BURD_STATION_FILE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_TERM_COLS BURD_NOW_STAMP BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_TARGET BURD_COMMAND BURD_TOKEN_1 BURD_TOKEN_2 BURD_CLI_ARGS BURD_NO_LOG BURD_INTERACTIVE BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR"
   ZBURD_UNEXPECTED=()
   local z_var
   for z_var in $(compgen -v BURD_); do
@@ -74,6 +74,11 @@ zburd_validate_fields() {
   buv_env_string BURD_COORDINATOR_SCRIPT    1 256
   buv_env_string BURD_LAUNCHER              1 256
   buv_env_string BURD_TERM_COLS             1   8
+
+  # Directory paths (dispatch-provided, survive exec boundary)
+  buv_env_string BURD_TOOLS_DIR            1 256
+  buv_env_string BURD_BUK_DIR              1 256
+  buv_env_string BURD_TABTARGET_DIR        1 256
 
   # Computed State
   buv_env_string BURD_NOW_STAMP             1  64
@@ -118,6 +123,13 @@ zburd_render() {
   bupr_section_item BURD_COORDINATOR_SCRIPT    path   req  "Path to the coordinator script for this tabtarget"
   bupr_section_item BURD_LAUNCHER              path   req  "Path to the tabtarget launcher script"
   bupr_section_item BURD_TERM_COLS             string req  "Terminal column width at dispatch time"
+  bupr_section_end
+
+  # Directory Paths
+  bupr_section_begin "Directory Paths"
+  bupr_section_item BURD_TOOLS_DIR            path   req  "Tools directory path (from BURC)"
+  bupr_section_item BURD_BUK_DIR              path   req  "BUK directory path (derived)"
+  bupr_section_item BURD_TABTARGET_DIR        path   req  "Tabtarget directory path (from BURC)"
   bupr_section_end
 
   # Computed State

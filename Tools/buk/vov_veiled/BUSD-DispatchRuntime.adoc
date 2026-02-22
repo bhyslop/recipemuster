@@ -108,6 +108,25 @@ Curated (colors stripped, temp paths normalized, VOLATILE lines removed).
 Path to the timestamped historical log file for the command+target combination.
 Includes timestamps on each line.
 
+// ⟦axhrv_variable⟧
+{burd_tools_dir}
+
+Path to the project tools root directory, derived from BURC_TOOLS_DIR during dispatch setup.
+Exported by bud_dispatch.sh and survives the exec boundary into CLI processes.
+CLIs use this to locate utilities without re-sourcing BURC.
+
+// ⟦axhrv_variable⟧
+{burd_buk_dir}
+
+Path to the BUK subdirectory, derived as BURC_TOOLS_DIR/buk during dispatch setup.
+Exported by bud_dispatch.sh and survives the exec boundary into CLI processes.
+
+// ⟦axhrv_variable⟧
+{burd_tabtarget_dir}
+
+Path to the tabtarget directory, derived from BURC_TABTARGET_DIR during dispatch setup.
+Exported by bud_dispatch.sh and survives the exec boundary into CLI processes.
+
 // ⟦axhrgb_group⟧
 {burd_group_parsed}
 

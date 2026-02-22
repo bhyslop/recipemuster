@@ -161,6 +161,18 @@ This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
 #
 ```
 
+### Dispatch-Provided Directory Variables
+
+Three BURD variables carry directory paths across the exec boundary into CLI processes. These are derived from BURC configuration and exported by bud_dispatch.sh during zbud_setup():
+
+| Variable | Source | Value |
+|----------|--------|-------|
+| `BURD_TOOLS_DIR` | `BURC_TOOLS_DIR` | Project tools root directory |
+| `BURD_BUK_DIR` | Derived from `BURC_TOOLS_DIR` | BUK subdirectory (`$BURC_TOOLS_DIR/buk`) |
+| `BURD_TABTARGET_DIR` | `BURC_TABTARGET_DIR` | Tabtarget directory |
+
+These variables are available in exec'd CLI processes without requiring the CLI to re-source BURC. CLIs that need stable paths to tools or utilities should use these variables rather than reconstructing paths from `BASH_SOURCE`.
+
 ### Template 2: CLI Entry Point
 
 BUD variables are provided by dispatch. Validate and document only those used by the implementation.
