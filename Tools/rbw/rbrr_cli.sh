@@ -52,57 +52,7 @@ rbrr_render() {
   buc_doc_brief "Display diagnostic view of RBRR repo regime configuration"
   buc_doc_shown || return 0
 
-  # Display header
-  echo ""
-  echo "${ZBUC_WHITE}RBRR - Recipe Bottle Regime Repo${ZBUC_RESET}"
-  echo "${ZBUC_WHITE}File: ${RBCC_rbrr_file}${ZBUC_RESET}"
-  echo ""
-
-  # Vessel and Local Configuration
-  rbcr_section_begin "Vessel and Local Configuration"
-  rbcr_section_item RBRR_VESSEL_DIR              string  req  "Vessel definitions directory"
-  rbcr_section_item RBRR_DNS_SERVER              ipv4    req  "DNS server for containers"
-  rbcr_section_item RBRR_IGNITE_MACHINE_NAME     xname   req  "Podman machine for ignite operations"
-  rbcr_section_item RBRR_DEPLOY_MACHINE_NAME     xname   req  "Podman machine for deploy operations"
-  rbcr_section_end
-
-  # Build Tool Configuration
-  rbcr_section_begin "Build Tool Configuration"
-  rbcr_section_item RBRR_CRANE_TAR_GZ            string  req  "Crane binary archive path"
-  rbcr_section_item RBRR_MANIFEST_PLATFORMS      string  req  "Target platforms for manifests"
-  rbcr_section_item RBRR_CHOSEN_PODMAN_VERSION   string  req  "Podman version (semantic version)"
-  rbcr_section_item RBRR_CHOSEN_VMIMAGE_ORIGIN   fqin    req  "VM image origin reference"
-  rbcr_section_item RBRR_CHOSEN_IDENTITY         string  req  "Identity for operations"
-  rbcr_section_end
-
-  # GCP Infrastructure
-  rbcr_section_begin "GCP Infrastructure"
-  rbcr_section_item RBRR_DEPOT_PROJECT_ID      gname   req  "GCP project ID for depot"
-  rbcr_section_item RBRR_GCP_REGION            gname   req  "GCP region"
-  rbcr_section_item RBRR_GAR_REPOSITORY        gname   req  "Google Artifact Registry repository name"
-  rbcr_section_end
-
-  # Google Cloud Build Configuration
-  rbcr_section_begin "Google Cloud Build Configuration"
-  rbcr_section_item RBRR_GCB_MACHINE_TYPE            string  req  "Machine type for Cloud Build"
-  rbcr_section_item RBRR_GCB_TIMEOUT                 string  req  "Build timeout (e.g., 1200s)"
-  rbcr_section_item RBRR_GCB_MIN_CONCURRENT_BUILDS   decimal req "Min concurrent builds required"
-  rbcr_section_item RBRR_GCB_ORAS_IMAGE_REF          odref   req  "oras image reference (digest-pinned)"
-  rbcr_section_item RBRR_GCB_GCLOUD_IMAGE_REF        odref   req  "gcloud image reference (digest-pinned)"
-  rbcr_section_item RBRR_GCB_DOCKER_IMAGE_REF        odref   req  "docker image reference (digest-pinned)"
-  rbcr_section_item RBRR_GCB_ALPINE_IMAGE_REF        odref   req  "alpine image reference (digest-pinned)"
-  rbcr_section_item RBRR_GCB_SYFT_IMAGE_REF          odref   req  "syft image reference (digest-pinned)"
-  rbcr_section_item RBRR_GCB_BINFMT_IMAGE_REF        odref   req  "binfmt image reference (digest-pinned)"
-  rbcr_section_end
-
-  # Service Account Configuration
-  rbcr_section_begin "Service Account Configuration"
-  rbcr_section_item RBRR_GOVERNOR_RBRA_FILE    string  req  "Governor service account key file"
-  rbcr_section_item RBRR_RETRIEVER_RBRA_FILE   string  req  "Retriever service account key file"
-  rbcr_section_item RBRR_DIRECTOR_RBRA_FILE    string  req  "Director service account key file"
-  rbcr_section_end
-
-  echo "${ZBUC_GREEN}RBRR repo regime valid${ZBUC_RESET}"
+  buv_render RBRR "RBRR - Recipe Bottle Regime Repo"
 }
 
 # Command: refresh_gcb_pins - resolve image tags to digests and update RBRR file

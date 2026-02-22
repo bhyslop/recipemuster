@@ -52,43 +52,49 @@ zrbrn_kindle() {
   RBRN_UPLINK_ALLOWED_DOMAINS="${RBRN_UPLINK_ALLOWED_DOMAINS:-}"
   RBRN_VOLUME_MOUNTS="${RBRN_VOLUME_MOUNTS:-}"
 
-  # Enroll all RBRN variables for validation via buv_vet/buv_report
+  # Enroll all RBRN variables — single source of truth for validation and rendering
 
-  # Core nameplate identification
-  buv_xname_enroll   RBRN  RBRN_MONIKER                 "" ""  2  12
-  buv_string_enroll  RBRN  RBRN_DESCRIPTION              "" ""  0  120
-  buv_string_enroll  RBRN  RBRN_VOLUME_MOUNTS            "" ""  0  240
+  buv_regime_start RBRN
 
-  # Container runtime
-  buv_enum_enroll    RBRN  RBRN_RUNTIME                  "" ""  docker podman
+  buv_regime_section "Core Service Identity"
+  buv_xname_enroll   RBRN_MONIKER                 "" ""  2   12  "Unique identifier for Bottle Service"
+  buv_string_enroll  RBRN_DESCRIPTION              "" ""  0  120  "Human-readable description"
+  buv_enum_enroll    RBRN_RUNTIME                  "" ""              "Container runtime: docker or podman" \
+                     docker podman
 
-  # Entry mode
-  buv_enum_enroll    RBRN  RBRN_ENTRY_MODE               "" ""  disabled enabled
+  buv_regime_section "Container Image Configuration"
+  buv_fqin_enroll    RBRN_SENTRY_VESSEL            "" ""  1  128  "Vessel identifier for Sentry Image"
+  buv_fqin_enroll    RBRN_BOTTLE_VESSEL            "" ""  1  128  "Vessel identifier for Bottle Image"
+  buv_fqin_enroll    RBRN_SENTRY_CONSECRATION      "" ""  1  128  "Consecration tag for Sentry Image"
+  buv_fqin_enroll    RBRN_BOTTLE_CONSECRATION      "" ""  1  128  "Consecration tag for Bottle Image"
 
-  # Container image configuration
-  buv_fqin_enroll    RBRN  RBRN_SENTRY_VESSEL            "" ""  1  128
-  buv_fqin_enroll    RBRN  RBRN_BOTTLE_VESSEL            "" ""  1  128
-  buv_fqin_enroll    RBRN  RBRN_SENTRY_CONSECRATION      "" ""  1  128
-  buv_fqin_enroll    RBRN  RBRN_BOTTLE_CONSECRATION      "" ""  1  128
+  buv_regime_section "Entry Service Configuration" RBRN_ENTRY_MODE enabled
+  buv_enum_enroll    RBRN_ENTRY_MODE               "" ""              "Entry functionality: disabled or enabled" \
+                     disabled enabled
+  buv_port_enroll    RBRN_ENTRY_PORT_WORKSTATION   RBRN_ENTRY_MODE  enabled  "External port on Transit Network"
+  buv_port_enroll    RBRN_ENTRY_PORT_ENCLAVE       RBRN_ENTRY_MODE  enabled  "Enclave port between Sentry and Bottle"
 
-  # Enclave network configuration
-  buv_ipv4_enroll    RBRN  RBRN_ENCLAVE_BASE_IP          "" ""
-  buv_ipv4_enroll    RBRN  RBRN_ENCLAVE_SENTRY_IP        "" ""
-  buv_ipv4_enroll    RBRN  RBRN_ENCLAVE_BOTTLE_IP        "" ""
-  buv_decimal_enroll RBRN  RBRN_ENCLAVE_NETMASK          "" ""  8  30
+  buv_regime_section "Enclave Network Configuration"
+  buv_ipv4_enroll    RBRN_ENCLAVE_BASE_IP          "" ""           "Base IPv4 for enclave network"
+  buv_decimal_enroll RBRN_ENCLAVE_NETMASK          "" ""  8   30  "Network mask width (8-30)"
+  buv_ipv4_enroll    RBRN_ENCLAVE_SENTRY_IP        "" ""           "IP address for Sentry Container"
+  buv_ipv4_enroll    RBRN_ENCLAVE_BOTTLE_IP        "" ""           "IP address for Bottle Container"
 
-  # Uplink configuration
-  buv_port_enroll    RBRN  RBRN_UPLINK_PORT_MIN          "" ""
-  buv_enum_enroll    RBRN  RBRN_UPLINK_DNS_MODE          "" ""  disabled global allowlist
-  buv_enum_enroll    RBRN  RBRN_UPLINK_ACCESS_MODE       "" ""  disabled global allowlist
+  buv_regime_section "Uplink Core"
+  buv_port_enroll    RBRN_UPLINK_PORT_MIN          "" ""           "Minimum port for outbound connections"
+  buv_enum_enroll    RBRN_UPLINK_DNS_MODE          "" ""              "DNS mode: disabled, global, or allowlist" \
+                     disabled global allowlist
+  buv_enum_enroll    RBRN_UPLINK_ACCESS_MODE       "" ""              "IP access mode: disabled, global, or allowlist" \
+                     disabled global allowlist
 
-  # Gated: entry ports (only when ENTRY_MODE=enabled)
-  buv_port_enroll    RBRN  RBRN_ENTRY_PORT_WORKSTATION   RBRN_ENTRY_MODE  enabled
-  buv_port_enroll    RBRN  RBRN_ENTRY_PORT_ENCLAVE       RBRN_ENTRY_MODE  enabled
+  buv_regime_section "Uplink DNS Allowlist" RBRN_UPLINK_DNS_MODE allowlist
+  buv_list_domain_enroll RBRN_UPLINK_ALLOWED_DOMAINS  RBRN_UPLINK_DNS_MODE  allowlist  "Allowed DNS domains"
 
-  # Gated: allowlist variables
-  buv_list_cidr_enroll   RBRN  RBRN_UPLINK_ALLOWED_CIDRS    RBRN_UPLINK_ACCESS_MODE  allowlist
-  buv_list_domain_enroll RBRN  RBRN_UPLINK_ALLOWED_DOMAINS  RBRN_UPLINK_DNS_MODE     allowlist
+  buv_regime_section "Uplink Access Allowlist" RBRN_UPLINK_ACCESS_MODE allowlist
+  buv_list_cidr_enroll   RBRN_UPLINK_ALLOWED_CIDRS    RBRN_UPLINK_ACCESS_MODE  allowlist  "Allowed CIDR ranges"
+
+  buv_regime_section "Volume Mount Configuration"
+  buv_string_enroll  RBRN_VOLUME_MOUNTS            "" ""  0  240  "Volume mount arguments for Bottle"
 
   # Guard against unexpected RBRN_ variables not in enrollment
   buv_scope_sentinel RBRN RBRN_

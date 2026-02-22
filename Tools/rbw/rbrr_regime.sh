@@ -56,59 +56,46 @@ zrbrr_kindle() {
   RBRR_GCB_SYFT_IMAGE_REF="${RBRR_GCB_SYFT_IMAGE_REF:-}"
   RBRR_GCB_BINFMT_IMAGE_REF="${RBRR_GCB_BINFMT_IMAGE_REF:-}"
 
-  # Detect unexpected RBRR_ variables
-  local z_known="RBRR_VESSEL_DIR RBRR_DNS_SERVER RBRR_IGNITE_MACHINE_NAME RBRR_DEPLOY_MACHINE_NAME RBRR_CRANE_TAR_GZ RBRR_MANIFEST_PLATFORMS RBRR_CHOSEN_PODMAN_VERSION RBRR_CHOSEN_VMIMAGE_ORIGIN RBRR_CHOSEN_IDENTITY RBRR_DEPOT_PROJECT_ID RBRR_GCP_REGION RBRR_GAR_REPOSITORY RBRR_GCB_MACHINE_TYPE RBRR_GCB_TIMEOUT RBRR_GCB_MIN_CONCURRENT_BUILDS RBRR_GOVERNOR_RBRA_FILE RBRR_RETRIEVER_RBRA_FILE RBRR_DIRECTOR_RBRA_FILE RBRR_GCB_ORAS_IMAGE_REF RBRR_GCB_GCLOUD_IMAGE_REF RBRR_GCB_DOCKER_IMAGE_REF RBRR_GCB_ALPINE_IMAGE_REF RBRR_GCB_SYFT_IMAGE_REF RBRR_GCB_BINFMT_IMAGE_REF"
-  ZRBRR_UNEXPECTED=()
-  local z_var
-  for z_var in $(compgen -v RBRR_); do
-    case " ${z_known} " in
-      *" ${z_var} "*) : ;;
-      *) ZRBRR_UNEXPECTED+=("${z_var}") ;;
-    esac
-  done
+  # Enroll all RBRR variables — single source of truth for validation and rendering
 
-  # Die on unexpected variables
-  if test ${#ZRBRR_UNEXPECTED[@]} -gt 0; then
-    buc_die "Unexpected RBRR_ variables: ${ZRBRR_UNEXPECTED[*]}"
-  fi
+  buv_regime_start RBRR
 
-  # Enroll all RBRR variables for validation via buv_vet/buv_report
+  buv_regime_section "Vessel and Local Configuration"
+  buv_string_enroll  RBRR_VESSEL_DIR              "" ""  1  255  "Vessel definitions directory"
+  buv_ipv4_enroll    RBRR_DNS_SERVER              "" ""           "DNS server for containers"
 
-  # Container Registry Configuration
-  buv_string_enroll  RBRR  RBRR_VESSEL_DIR              "" ""  1  255
-  buv_ipv4_enroll    RBRR  RBRR_DNS_SERVER              "" ""
+  buv_regime_section "Build Tool Configuration"
+  buv_xname_enroll   RBRR_IGNITE_MACHINE_NAME     "" ""  1   64  "Podman machine for ignite operations"
+  buv_xname_enroll   RBRR_DEPLOY_MACHINE_NAME     "" ""  1   64  "Podman machine for deploy operations"
+  buv_string_enroll  RBRR_CRANE_TAR_GZ            "" ""  1  512  "Crane binary archive path"
+  buv_string_enroll  RBRR_MANIFEST_PLATFORMS       "" ""  1  512  "Target platforms for manifests"
+  buv_string_enroll  RBRR_CHOSEN_PODMAN_VERSION    "" ""  1   16  "Podman version (semantic version)"
+  buv_fqin_enroll    RBRR_CHOSEN_VMIMAGE_ORIGIN    "" ""  1  256  "VM image origin reference"
+  buv_string_enroll  RBRR_CHOSEN_IDENTITY          "" ""  1  128  "Identity for operations"
 
-  # Machine Configuration
-  buv_xname_enroll   RBRR  RBRR_IGNITE_MACHINE_NAME     "" ""  1   64
-  buv_xname_enroll   RBRR  RBRR_DEPLOY_MACHINE_NAME     "" ""  1   64
-  buv_string_enroll  RBRR  RBRR_CRANE_TAR_GZ            "" ""  1  512
-  buv_string_enroll  RBRR  RBRR_MANIFEST_PLATFORMS       "" ""  1  512
-  buv_string_enroll  RBRR  RBRR_CHOSEN_PODMAN_VERSION    "" ""  1   16
-  buv_fqin_enroll    RBRR  RBRR_CHOSEN_VMIMAGE_ORIGIN    "" ""  1  256
-  buv_string_enroll  RBRR  RBRR_CHOSEN_IDENTITY          "" ""  1  128
-  buv_gname_enroll   RBRR  RBRR_DEPOT_PROJECT_ID         "" ""  6   63
-  buv_gname_enroll   RBRR  RBRR_GCP_REGION               "" ""  1   32
+  buv_regime_section "GCP Infrastructure"
+  buv_gname_enroll   RBRR_DEPOT_PROJECT_ID         "" ""  6   63  "GCP project ID for depot"
+  buv_gname_enroll   RBRR_GCP_REGION               "" ""  1   32  "GCP region"
+  buv_gname_enroll   RBRR_GAR_REPOSITORY           "" ""  1   63  "Google Artifact Registry repository name"
 
-  # Google Artifact Registry Configuration
-  buv_gname_enroll   RBRR  RBRR_GAR_REPOSITORY           "" ""  1   63
+  buv_regime_section "Google Cloud Build Configuration"
+  buv_string_enroll  RBRR_GCB_MACHINE_TYPE         "" ""  3   64  "Machine type for Cloud Build"
+  buv_string_enroll  RBRR_GCB_TIMEOUT              "" ""  2   10  "Build timeout (e.g., 1200s)"
+  buv_decimal_enroll RBRR_GCB_MIN_CONCURRENT_BUILDS "" "" 1  999  "Min concurrent builds required"
+  buv_odref_enroll   RBRR_GCB_ORAS_IMAGE_REF       "" ""          "oras image reference (digest-pinned)"
+  buv_odref_enroll   RBRR_GCB_GCLOUD_IMAGE_REF     "" ""          "gcloud image reference (digest-pinned)"
+  buv_odref_enroll   RBRR_GCB_DOCKER_IMAGE_REF     "" ""          "docker image reference (digest-pinned)"
+  buv_odref_enroll   RBRR_GCB_ALPINE_IMAGE_REF     "" ""          "alpine image reference (digest-pinned)"
+  buv_odref_enroll   RBRR_GCB_SYFT_IMAGE_REF       "" ""          "syft image reference (digest-pinned)"
+  buv_odref_enroll   RBRR_GCB_BINFMT_IMAGE_REF     "" ""          "binfmt image reference (digest-pinned)"
 
-  # Google Cloud Build Configuration
-  buv_string_enroll  RBRR  RBRR_GCB_MACHINE_TYPE         "" ""  3   64
-  buv_string_enroll  RBRR  RBRR_GCB_TIMEOUT              "" ""  2   10
-  buv_decimal_enroll RBRR  RBRR_GCB_MIN_CONCURRENT_BUILDS "" "" 1  999
+  buv_regime_section "Service Account Configuration"
+  buv_string_enroll  RBRR_GOVERNOR_RBRA_FILE       "" ""  1  512  "Governor service account key file"
+  buv_string_enroll  RBRR_RETRIEVER_RBRA_FILE      "" ""  1  512  "Retriever service account key file"
+  buv_string_enroll  RBRR_DIRECTOR_RBRA_FILE       "" ""  1  512  "Director service account key file"
 
-  # Service Account Configuration Files
-  buv_string_enroll  RBRR  RBRR_GOVERNOR_RBRA_FILE       "" ""  1  512
-  buv_string_enroll  RBRR  RBRR_RETRIEVER_RBRA_FILE      "" ""  1  512
-  buv_string_enroll  RBRR  RBRR_DIRECTOR_RBRA_FILE       "" ""  1  512
-
-  # GCB image pins (digest-pinned)
-  buv_odref_enroll   RBRR  RBRR_GCB_ORAS_IMAGE_REF      "" ""
-  buv_odref_enroll   RBRR  RBRR_GCB_GCLOUD_IMAGE_REF    "" ""
-  buv_odref_enroll   RBRR  RBRR_GCB_DOCKER_IMAGE_REF    "" ""
-  buv_odref_enroll   RBRR  RBRR_GCB_ALPINE_IMAGE_REF    "" ""
-  buv_odref_enroll   RBRR  RBRR_GCB_SYFT_IMAGE_REF      "" ""
-  buv_odref_enroll   RBRR  RBRR_GCB_BINFMT_IMAGE_REF    "" ""
+  # Guard against unexpected RBRR_ variables not in enrollment
+  buv_scope_sentinel RBRR RBRR_
 
   # Build docker env args array for container injection
   # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...

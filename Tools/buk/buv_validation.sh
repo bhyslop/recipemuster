@@ -460,7 +460,7 @@ buv_opt_port()               { buv_opt_wrapper "buv_val_port"             "$@"; 
 zbuv_kindle() {
   test -z "${ZBUV_KINDLED:-}" || buc_die "Module buv already kindled"
 
-  # Enrollment rolls (7 parallel arrays)
+  # Enrollment rolls (9 parallel arrays)
   z_buv_scope_roll=()
   z_buv_varname_roll=()
   z_buv_type_roll=()
@@ -468,6 +468,18 @@ zbuv_kindle() {
   z_buv_gate_val_roll=()
   z_buv_p1_roll=()
   z_buv_p2_roll=()
+  z_buv_section_roll=()
+  z_buv_desc_roll=()
+
+  # Section registry rolls (4 parallel arrays, foreign-keyed by section title)
+  z_buv_sec_scope_roll=()
+  z_buv_sec_title_roll=()
+  z_buv_sec_gate_var_roll=()
+  z_buv_sec_gate_val_roll=()
+
+  # Regime context state (set by buv_regime_start / buv_regime_section)
+  ZBUV_CURRENT_SCOPE=""
+  ZBUV_CURRENT_SECTION=""
 
   ZBUV_KINDLED=1
 }
@@ -476,168 +488,210 @@ zbuv_sentinel() {
   test "${ZBUV_KINDLED:-}" = "1" || buc_die "Module buv not kindled - call zbuv_kindle first"
 }
 
-# Internal enrollment helper — all public enroll functions delegate here
-# Usage: zbuv_enroll SCOPE VARNAME TYPE GATE_VAR GATE_VAL P1 P2
-zbuv_enroll() {
+# Regime context setters — called during kindle to establish enrollment scope
+
+# buv_regime_start SCOPE — set current enrollment scope
+# Validates that SCOPE is non-empty. All subsequent enroll calls use this scope
+# until another buv_regime_start is called.
+buv_regime_start() {
   zbuv_sentinel
 
   local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_type="${3:-}"
-  local z_gate_var="${4:-}"
-  local z_gate_val="${5:-}"
-  local z_p1="${6:-}"
-  local z_p2="${7:-}"
+  test -n "${z_scope}" || buc_die "buv_regime_start: scope required"
+  ZBUV_CURRENT_SCOPE="${z_scope}"
+  ZBUV_CURRENT_SECTION=""
+}
 
-  test -n "${z_scope}"   || buc_die "zbuv_enroll: scope required"
+# buv_regime_section TITLE [GATE_VAR GATE_VALUE] — set current section context
+# Creates a section registry entry. All subsequent enroll calls are tagged with
+# this section title until the next buv_regime_section call.
+# Optional gate controls render display (collapsed when gate not satisfied).
+buv_regime_section() {
+  zbuv_sentinel
+
+  test -n "${ZBUV_CURRENT_SCOPE}" || buc_die "buv_regime_section: call buv_regime_start first"
+
+  local z_title="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  test -n "${z_title}" || buc_die "buv_regime_section: title required"
+
+  z_buv_sec_scope_roll+=("${ZBUV_CURRENT_SCOPE}")
+  z_buv_sec_title_roll+=("${z_title}")
+  z_buv_sec_gate_var_roll+=("${z_gate_var}")
+  z_buv_sec_gate_val_roll+=("${z_gate_val}")
+
+  ZBUV_CURRENT_SECTION="${z_title}"
+}
+
+# Internal enrollment helper — all public enroll functions delegate here
+# Usage: zbuv_enroll VARNAME TYPE GATE_VAR GATE_VAL P1 P2 DESC
+zbuv_enroll() {
+  zbuv_sentinel
+
+  local z_varname="${1:-}"
+  local z_type="${2:-}"
+  local z_gate_var="${3:-}"
+  local z_gate_val="${4:-}"
+  local z_p1="${5:-}"
+  local z_p2="${6:-}"
+  local z_desc="${7:-}"
+
+  test -n "${ZBUV_CURRENT_SCOPE}" || buc_die "zbuv_enroll: call buv_regime_start first"
   echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' || buc_die "zbuv_enroll: invalid variable name: '${z_varname}'"
 
-  z_buv_scope_roll+=("${z_scope}")
+  z_buv_scope_roll+=("${ZBUV_CURRENT_SCOPE}")
   z_buv_varname_roll+=("${z_varname}")
   z_buv_type_roll+=("${z_type}")
   z_buv_gate_var_roll+=("${z_gate_var}")
   z_buv_gate_val_roll+=("${z_gate_val}")
   z_buv_p1_roll+=("${z_p1}")
   z_buv_p2_roll+=("${z_p2}")
+  z_buv_section_roll+=("${ZBUV_CURRENT_SECTION}")
+  z_buv_desc_roll+=("${z_desc}")
 }
 
 # Public enrollment functions — scalar types
+#
+# New signature: buv_TYPE_enroll VARNAME [GATE_VAR GATE_VAL] P1 P2 "description"
+# Scope comes from buv_regime_start; section from buv_regime_section.
+# Gate args are optional — omit for unconditional variables.
 
 buv_string_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  local z_p1="${5:-}"
-  local z_p2="${6:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "string" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_p1="${4:-}"
+  local z_p2="${5:-}"
+  local z_desc="${6:-}"
+  zbuv_enroll "${z_varname}" "string" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}" "${z_desc}"
 }
 
 buv_xname_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  local z_p1="${5:-}"
-  local z_p2="${6:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "xname" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_p1="${4:-}"
+  local z_p2="${5:-}"
+  local z_desc="${6:-}"
+  zbuv_enroll "${z_varname}" "xname" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}" "${z_desc}"
 }
 
 buv_gname_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  local z_p1="${5:-}"
-  local z_p2="${6:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "gname" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_p1="${4:-}"
+  local z_p2="${5:-}"
+  local z_desc="${6:-}"
+  zbuv_enroll "${z_varname}" "gname" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}" "${z_desc}"
 }
 
 buv_fqin_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  local z_p1="${5:-}"
-  local z_p2="${6:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "fqin" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_p1="${4:-}"
+  local z_p2="${5:-}"
+  local z_desc="${6:-}"
+  zbuv_enroll "${z_varname}" "fqin" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}" "${z_desc}"
 }
 
 buv_bool_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "bool" "${z_gate_var}" "${z_gate_val}" "" ""
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_desc="${4:-}"
+  zbuv_enroll "${z_varname}" "bool" "${z_gate_var}" "${z_gate_val}" "" "" "${z_desc}"
 }
 
 buv_enum_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_desc="${4:-}"
   shift 4
-  zbuv_enroll "${z_scope}" "${z_varname}" "enum" "${z_gate_var}" "${z_gate_val}" "$*" ""
+  zbuv_enroll "${z_varname}" "enum" "${z_gate_var}" "${z_gate_val}" "$*" "" "${z_desc}"
 }
 
 buv_decimal_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  local z_p1="${5:-}"
-  local z_p2="${6:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "decimal" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_p1="${4:-}"
+  local z_p2="${5:-}"
+  local z_desc="${6:-}"
+  zbuv_enroll "${z_varname}" "decimal" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}" "${z_desc}"
 }
 
 buv_odref_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "odref" "${z_gate_var}" "${z_gate_val}" "" ""
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_desc="${4:-}"
+  zbuv_enroll "${z_varname}" "odref" "${z_gate_var}" "${z_gate_val}" "" "" "${z_desc}"
 }
 
 buv_ipv4_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "ipv4" "${z_gate_var}" "${z_gate_val}" "" ""
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_desc="${4:-}"
+  zbuv_enroll "${z_varname}" "ipv4" "${z_gate_var}" "${z_gate_val}" "" "" "${z_desc}"
 }
 
 buv_port_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "port" "${z_gate_var}" "${z_gate_val}" "" ""
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_desc="${4:-}"
+  zbuv_enroll "${z_varname}" "port" "${z_gate_var}" "${z_gate_val}" "" "" "${z_desc}"
 }
 
 # Public enrollment functions — list types
 
 buv_list_string_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  local z_p1="${5:-}"
-  local z_p2="${6:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "list_string" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_p1="${4:-}"
+  local z_p2="${5:-}"
+  local z_desc="${6:-}"
+  zbuv_enroll "${z_varname}" "list_string" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}" "${z_desc}"
 }
 
 buv_list_ipv4_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "list_ipv4" "${z_gate_var}" "${z_gate_val}" "" ""
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_desc="${4:-}"
+  zbuv_enroll "${z_varname}" "list_ipv4" "${z_gate_var}" "${z_gate_val}" "" "" "${z_desc}"
 }
 
 buv_list_gname_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  local z_p1="${5:-}"
-  local z_p2="${6:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "list_gname" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}"
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_p1="${4:-}"
+  local z_p2="${5:-}"
+  local z_desc="${6:-}"
+  zbuv_enroll "${z_varname}" "list_gname" "${z_gate_var}" "${z_gate_val}" "${z_p1}" "${z_p2}" "${z_desc}"
 }
 
 buv_list_cidr_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "list_cidr" "${z_gate_var}" "${z_gate_val}" "" ""
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_desc="${4:-}"
+  zbuv_enroll "${z_varname}" "list_cidr" "${z_gate_var}" "${z_gate_val}" "" "" "${z_desc}"
 }
 
 buv_list_domain_enroll() {
-  local z_scope="${1:-}"
-  local z_varname="${2:-}"
-  local z_gate_var="${3:-}"
-  local z_gate_val="${4:-}"
-  zbuv_enroll "${z_scope}" "${z_varname}" "list_domain" "${z_gate_var}" "${z_gate_val}" "" ""
+  local z_varname="${1:-}"
+  local z_gate_var="${2:-}"
+  local z_gate_val="${3:-}"
+  local z_desc="${4:-}"
+  zbuv_enroll "${z_varname}" "list_domain" "${z_gate_var}" "${z_gate_val}" "" "" "${z_desc}"
 }
 
 # Internal check predicate — validates a single enrolled variable by roll index.
@@ -1003,6 +1057,76 @@ buv_report() {
   done
 
   return "${z_any_failed}"
+}
+
+# buv_render SCOPE "Label" — render all enrolled vars via bupr_ presentation
+# Walks enrollment rolls grouped by section, applying section-level gates.
+# Requires bupr (PresentationRegime) to be kindled.
+buv_render() {
+  zbuv_sentinel
+  zbupr_sentinel
+
+  local z_scope="${1:-}"
+  local z_label="${2:-}"
+  test -n "${z_scope}" || buc_die "buv_render: scope required"
+  test -n "${z_label}" || buc_die "buv_render: label required"
+
+  echo ""
+  echo "${ZBUC_WHITE}${z_label}${ZBUC_RESET}"
+  echo ""
+
+  local z_current_section=""
+  local z_i
+
+  for z_i in "${!z_buv_scope_roll[@]}"; do
+    test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
+
+    local z_section="${z_buv_section_roll[$z_i]}"
+    local z_varname="${z_buv_varname_roll[$z_i]}"
+    local z_type="${z_buv_type_roll[$z_i]}"
+    local z_desc="${z_buv_desc_roll[$z_i]}"
+    local z_gate_var="${z_buv_gate_var_roll[$z_i]}"
+
+    # Derive req status from gate
+    local z_req="req"
+    if test -n "${z_gate_var}"; then
+      z_req="cond"
+    fi
+
+    # Section transition — close previous, open new
+    if test "${z_section}" != "${z_current_section}"; then
+      if test -n "${z_current_section}"; then
+        bupr_section_end
+      fi
+      z_current_section="${z_section}"
+
+      # Look up section gate from section registry
+      local z_sec_gate_var=""
+      local z_sec_gate_val=""
+      local z_s
+      for z_s in "${!z_buv_sec_scope_roll[@]}"; do
+        if test "${z_buv_sec_scope_roll[$z_s]}" = "${z_scope}" \
+          && test "${z_buv_sec_title_roll[$z_s]}" = "${z_section}"; then
+          z_sec_gate_var="${z_buv_sec_gate_var_roll[$z_s]}"
+          z_sec_gate_val="${z_buv_sec_gate_val_roll[$z_s]}"
+          break
+        fi
+      done
+
+      if test -n "${z_sec_gate_var}"; then
+        bupr_section_begin "${z_section}" "${z_sec_gate_var}" "${z_sec_gate_val}"
+      else
+        bupr_section_begin "${z_section}"
+      fi
+    fi
+
+    bupr_section_item "${z_varname}" "${z_type}" "${z_req}" "${z_desc}"
+  done
+
+  # Close final section
+  if test -n "${z_current_section}"; then
+    bupr_section_end
+  fi
 }
 
 # eof

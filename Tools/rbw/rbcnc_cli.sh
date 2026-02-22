@@ -50,64 +50,7 @@ rbrn_render() {
   buc_doc_brief "Display diagnostic view of RBRN nameplate regime configuration"
   buc_doc_shown || return 0
 
-  # Display header
-  echo ""
-  echo "${ZBUC_WHITE}RBRN - Recipe Bottle Regime Nameplate${ZBUC_RESET}"
-  echo ""
-
-  # Core Service Identity
-  bupr_section_begin "Core Service Identity"
-  bupr_section_item RBRN_MONIKER              xname   req  "Unique identifier for Bottle Service"
-  bupr_section_item RBRN_DESCRIPTION          string  opt  "Human-readable description"
-  bupr_section_item RBRN_RUNTIME              enum    req  "Container runtime: docker or podman"
-  bupr_section_end
-
-  # Container Image Configuration
-  bupr_section_begin "Container Image Configuration"
-  bupr_section_item RBRN_SENTRY_VESSEL        fqin    req  "Vessel identifier for Sentry Image"
-  bupr_section_item RBRN_BOTTLE_VESSEL        fqin    req  "Vessel identifier for Bottle Image"
-  bupr_section_item RBRN_SENTRY_CONSECRATION  fqin    req  "Consecration tag for Sentry Image"
-  bupr_section_item RBRN_BOTTLE_CONSECRATION  fqin    req  "Consecration tag for Bottle Image"
-  bupr_section_end
-
-  # Entry Service Configuration (gated by ENTRY_MODE)
-  bupr_section_begin "Entry Service Configuration" RBRN_ENTRY_MODE enabled
-  bupr_section_item RBRN_ENTRY_MODE              enum  req   "Entry functionality: disabled or enabled"
-  bupr_section_item RBRN_ENTRY_PORT_WORKSTATION  port  cond  "External port on Transit Network"
-  bupr_section_item RBRN_ENTRY_PORT_ENCLAVE      port  cond  "Enclave port between Sentry and Bottle"
-  bupr_section_end
-
-  # Enclave Network Configuration
-  bupr_section_begin "Enclave Network Configuration"
-  bupr_section_item RBRN_ENCLAVE_BASE_IP      ipv4     req  "Base IPv4 for enclave network"
-  bupr_section_item RBRN_ENCLAVE_NETMASK      decimal  req  "Network mask width (8-30)"
-  bupr_section_item RBRN_ENCLAVE_SENTRY_IP    ipv4     req  "IP address for Sentry Container"
-  bupr_section_item RBRN_ENCLAVE_BOTTLE_IP    ipv4     req  "IP address for Bottle Container"
-  bupr_section_end
-
-  # Uplink Core
-  bupr_section_begin "Uplink Core"
-  bupr_section_item RBRN_UPLINK_PORT_MIN      port  req  "Minimum port for outbound connections"
-  bupr_section_item RBRN_UPLINK_DNS_MODE      enum  req  "DNS mode: disabled, global, or allowlist"
-  bupr_section_item RBRN_UPLINK_ACCESS_MODE   enum  req  "IP access mode: disabled, global, or allowlist"
-  bupr_section_end
-
-  # Uplink DNS Allowlist (gated by DNS_MODE)
-  bupr_section_begin "Uplink DNS Allowlist" RBRN_UPLINK_DNS_MODE allowlist
-  bupr_section_item RBRN_UPLINK_ALLOWED_DOMAINS  domain_list  cond  "Allowed DNS domains"
-  bupr_section_end
-
-  # Uplink Access Allowlist (gated by ACCESS_MODE)
-  bupr_section_begin "Uplink Access Allowlist" RBRN_UPLINK_ACCESS_MODE allowlist
-  bupr_section_item RBRN_UPLINK_ALLOWED_CIDRS  cidr_list  cond  "Allowed CIDR ranges"
-  bupr_section_end
-
-  # Volume Mount Configuration
-  bupr_section_begin "Volume Mount Configuration"
-  bupr_section_item RBRN_VOLUME_MOUNTS  string  opt  "Volume mount arguments for Bottle"
-  bupr_section_end
-
-  echo "${ZBUC_GREEN}RBRN nameplate valid${ZBUC_RESET}"
+  buv_render RBRN "RBRN - Recipe Bottle Regime Nameplate"
 }
 
 ######################################################################
