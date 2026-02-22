@@ -6045,9 +6045,10 @@
         "₢AfAAP",
         "₢AfAAJ",
         "₢AfAAL",
-        "₢AfAAQ"
+        "₢AfAAQ",
+        "₢AfAAW"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -6542,6 +6543,17 @@
               "text": "Update BCG to weaken the module-CLI prefix-unity rule: make it a convention, not a requirement.\n\n## Background\n\nBCG currently implies a 1:1 relationship between a module and its CLI: `rbrn_regime.sh`\nand `rbrn_cli.sh` share a prefix. This assumption breaks down when a module needs two CLIs\nwith structurally different furnish functions — e.g., one light (regime file only) and one\nheavy (GCP + OAuth + RBRR stack). Forcing both into a single CLI requires sourcing/kindling\nheavy deps inside command function bodies, which is itself a BCG violation.\n\n## Rule Change\n\nWeaken the module-CLI unity rule from required to optional:\n\n> A module's CLI typically shares its prefix (convention). But a module may be served by\n> additional CLIs under independent prefixes when furnish requirements differ structurally.\n\n## Implications\n\n- Auxiliary CLIs choose their prefix for what they ARE, not which module they serve\n- Cross-module CLIs become legitimate (one heavy-furnish CLI spanning multiple regimes)\n- Minting: auxiliary CLIs are minted independently, no terminal exclusivity conflict with\n  the module prefix\n- Retroactively explains rbcr_render.sh: a cross-module utility used by seven CLIs,\n  owned by none\n\n## Scope\n\n- Update BCG-BashConsoleGuide.md: add section or amend module-CLI relationship language\n- Document the two-tier pattern (primary CLI / auxiliary CLI) with RBRN as the exemplar\n- Note that rbcr_render.sh is a precedent for cross-module CLI utilities\n\n## Acceptance\n\n- BCG text clearly states prefix-unity is a convention, not a requirement\n- Two-tier pattern is documented with exemplar\n- No existing BCG rules contradicted",
               "silks": "bcg-weaken-module-cli-unity",
               "commit": "98c1e41"
+            }
+          ]
+        },
+        "₢AfAAW": {
+          "tacks": [
+            {
+              "ts": "260222-0738",
+              "state": "rough",
+              "text": "Add BURD_TOOLS_DIR and BURD_BUK_DIR to dispatch; remove the 3 BURC exports.\n\n## Context\n\nCLIs are exec'd (buz_zipper.sh:168), so exported env vars cross the exec boundary but in-process state does not. Currently BURC exports 3 variables (BURC_TABTARGET_DIR, BURC_TOOLS_DIR, BURC_BUK_DIR) solely to survive this exec. Architecturally, BURD is the exec-crossing contract — BURC should stay in-process.\n\n## Scope\n\n1. In bud_dispatch.sh zbud_setup(): after sourcing burc.env and validating BURC_TOOLS_DIR, set and export:\n   - BURD_TOOLS_DIR=\"${BURC_TOOLS_DIR}\"\n   - BURD_BUK_DIR=\"${BURC_TOOLS_DIR}/buk\"\n\n2. In burd_regime.sh: add BURD_TOOLS_DIR and BURD_BUK_DIR to z_known list in zburd_kindle() and zburd_validate_fields()\n\n3. In burc_regime.sh: remove the 3 export statements (lines 58-60)\n\n4. In bul_launcher.sh: the launcher runs BEFORE exec, so it still uses BURC_TOOLS_DIR directly (lines 44-45, 51, 70) — no change needed there\n\n5. Update BCG to document BURD_TOOLS_DIR and BURD_BUK_DIR as dispatch-provided variables\n\n6. Update any code that references BURC_BUK_DIR or BURC_TOOLS_DIR after the exec boundary to use BURD_ prefix instead\n\n## Acceptance\n\n- BURD_TOOLS_DIR and BURD_BUK_DIR available in CLI processes after exec\n- BURC exports nothing\n- All tabtargets still work (qualification passes)",
+              "silks": "burd-export-consolidation",
+              "commit": "62f63ad"
             }
           ]
         }
