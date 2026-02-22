@@ -6078,6 +6078,7 @@
         "₢AfAAI",
         "₢AfAAQ",
         "₢AfAAF",
+        "₢AfAAj",
         "₢AfAAi",
         "₢AfAAh",
         "₢AfAAg",
@@ -6093,7 +6094,7 @@
         "₢AfAAW",
         "₢AfAAX"
       ],
-      "next_pace_seed": "AAj",
+      "next_pace_seed": "AAk",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -6836,6 +6837,17 @@
               "text": "Apply T1-T13 transformation recipes to BURC (Configuration Regime, BUK domain).\n\n## Catalog Reference\n\nRead `.claude/jjm/jjp_uAlf_catalog.md` Part 2, BURC section.\n\n## Current State\n\n- `Tools/buk/burc_regime.sh` (90 lines) — 11 variables (9 validated + 2 derived), UNEXPECTED array, exports 3 vars\n- `Tools/buk/burc_cli.sh` (133 lines) — SCRIPT_DIR pattern, manual case dispatch, 5 rbcr_section groups\n\n## Variables (11 total, 5 groups)\n\n| Variable | Enrollment | Notes |\n|----------|-----------|-------|\n| BURC_STATION_FILE | buv_string_enroll 1 512 | |\n| BURC_TABTARGET_DIR | buv_string_enroll 1 128 | Exported |\n| BURC_TABTARGET_DELIMITER | buv_string_enroll 1 1 | Single char |\n| BURC_TOOLS_DIR | buv_string_enroll 1 128 | Exported |\n| BURC_PROJECT_ROOT | buv_string_enroll 1 512 | |\n| BURC_MANAGED_KITS | buv_string_enroll 1 512 | |\n| BURC_TEMP_ROOT_DIR | buv_string_enroll 1 512 | |\n| BURC_OUTPUT_ROOT_DIR | buv_string_enroll 1 512 | |\n| BURC_LOG_LAST | buv_xname_enroll 1 64 | |\n| BURC_LOG_EXT | buv_xname_enroll 1 16 | |\n| BURC_BUK_DIR | DERIVED | = ${BURC_TOOLS_DIR}/buk, exported |\n\nGroups: \"Station Reference\", \"Tabtarget Infrastructure\", \"Project Structure\", \"Build Output\", \"Logging\".\n\n## Design Decision: BURC_BUK_DIR\n\n`BURC_BUK_DIR` is derived (`${BURC_TOOLS_DIR}/buk`), not user-configured, but has the `BURC_` prefix. `buv_scope_sentinel` would flag it as unexpected unless handled.\n\n**Decision:** Enroll BURC_BUK_DIR as `buv_string_enroll BURC_BUK_DIR 1 256 \"Derived: BUK directory\"` in the Logging group (or a new \"Derived Paths\" group). It will be set in kindle before enrollment. This way scope_sentinel sees it as known, and render/report display it. The value is always derived — the enrollment just acknowledges its existence.\n\nThe `export` lines for BURC_TABTARGET_DIR, BURC_TOOLS_DIR, BURC_BUK_DIR must be preserved in kindle after enrollment. Enrollment doesn't handle export.\n\n## Transformations\n\n- T1: CLI restructure — BUK-domain. `source \"${BURD_BUK_DIR}/buc_command.sh\"`. Furnish sources buv, burd, burc_regime, bupr. BURC values already in environment from burd dispatch.\n- T3: buv enrollment — 11 variables including derived BURC_BUK_DIR, 5-6 groups\n- T5: buv_report / buv_render\n- T6: buv_scope_sentinel replaces ZBURC_UNEXPECTED\n- T9: buc_doc_* on validate, render\n- T12/T13: furnish receives command, bupr replaces rbcr\n\n## Verification\n\n1. `./tt/rbw-trg.RegimeSmoke.sh`\n2. `./tt/buw-rcv.ValidateConfig.sh` (if exists)\n\n## Acceptance\n\n- burc_regime.sh uses enrollment + scope_sentinel + enforce\n- BURC_BUK_DIR enrolled as derived, export preserved\n- burc_cli.sh uses buc_execute + furnish + buv_report/buv_render\n- Regime smoke tests pass",
               "silks": "scrub-burc-singleton",
               "commit": "fbd116a"
+            }
+          ]
+        },
+        "₢AfAAj": {
+          "tacks": [
+            {
+              "ts": "260222-1410",
+              "state": "rough",
+              "text": "Apply T1-T13 transformation recipes to BURE (Environment Regime, BUK domain, ambient).\n\n## Catalog Reference\n\nRead `.claude/jjm/jjp_uAlf_catalog.md` Part 2, BURE section.\n\n## Current State\n\n- `Tools/buk/bure_regime.sh` (73 lines) — 3 variables, UNEXPECTED array, uses buv_opt_enum and buv_env_enum\n- `Tools/buk/bure_cli.sh` (94 lines) — SCRIPT_DIR pattern, manual case dispatch, 1 rbcr_section group\n\n## Variables (3 total, 1 group)\n\n| Variable | Enrollment | Notes |\n|----------|-----------|-------|\n| BURE_COUNTDOWN | buv_string_enroll 0 4 opt | Custom enforce: if non-empty, must be \"skip\" |\n| BURE_VERBOSE | buv_enum_enroll req | Values: 0 1 2 3 |\n| BURE_COLOR | buv_string_enroll 1 4 req | Check if valid values are \"auto\", \"on\", \"off\" — if so, use buv_enum_enroll instead |\n\nGroup: \"Behavioral Overrides\".\n\n## Design Decision: Optional Enum (BURE_COUNTDOWN)\n\nThe enrollment system has no `buv_opt_enum`. Currently validated by `buv_opt_enum BURE_COUNTDOWN skip`.\n\n**Decision:** Enroll as `buv_string_enroll BURE_COUNTDOWN 0 4 \"Countdown override (skip to disable)\"`. The min=0 makes it optional. Add custom enforce:\n```bash\nif test -n \"${BURE_COUNTDOWN}\"; then\n  test \"${BURE_COUNTDOWN}\" = \"skip\" \\\n    || buc_die \"BURE_COUNTDOWN must be 'skip' or empty, got '${BURE_COUNTDOWN}'\"\nfi\n```\n\n## Transformations\n\n- T1: CLI restructure — BUK-domain ambient. `source \"${BURD_BUK_DIR}/buc_command.sh\"`. Furnish sources buv, burd, bure_regime, bupr. No env file to source — BURE is ambient (caller environment). Furnish just calls kindle + enforce.\n- T3: buv enrollment — 3 variables, 1 group. See design decision above for COUNTDOWN.\n- T5: buv_report / buv_render. Render header should still say \"ambient (caller environment)\" — handle in furnish or command function.\n- T6: buv_scope_sentinel replaces ZBURE_UNEXPECTED\n- T9: buc_doc_* on validate, render\n- T12/T13: furnish receives command, bupr replaces rbcr\n\n## Verification\n\n1. `./tt/rbw-trg.RegimeSmoke.sh`\n\n## Acceptance\n\n- bure_regime.sh uses enrollment + scope_sentinel + enforce\n- BURE_COUNTDOWN handled as optional string with custom enforce check\n- bure_cli.sh uses buc_execute + furnish + buv_report/buv_render\n- Regime smoke tests pass",
+              "silks": "scrub-bure-ambient",
+              "commit": "c699b42"
             }
           ]
         }
