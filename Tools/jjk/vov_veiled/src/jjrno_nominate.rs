@@ -106,6 +106,10 @@ mod tests {
 
     #[test]
     fn test_nominate_appends_to_heat_order() {
+        let temp_dir = std::env::temp_dir().join("jjk_test_nominate_appends_to_heat_order");
+        let _ = std::fs::remove_dir_all(&temp_dir);
+        std::fs::create_dir_all(&temp_dir).unwrap();
+
         let mut gallops = jjrg_Gallops {
             next_heat_seed: "AA".to_string(),
             heat_order: vec![],
@@ -115,9 +119,10 @@ mod tests {
             silks: "test-heat".to_string(),
             created: "260101".to_string(),
         };
-        let base_path = std::path::Path::new(".");
-        let result = gallops.jjrg_nominate(args, base_path).unwrap();
+        let result = gallops.jjrg_nominate(args, &temp_dir).unwrap();
         assert!(gallops.heat_order.contains(&result.firemark),
             "heat_order should contain the new firemark after nominate");
+
+        let _ = std::fs::remove_dir_all(&temp_dir);
     }
 }
