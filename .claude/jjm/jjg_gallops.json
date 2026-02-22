@@ -7335,6 +7335,13 @@
         "₢AiAAP": {
           "tacks": [
             {
+              "ts": "260222-1527",
+              "state": "rough",
+              "text": "Update RBS0-SpecTop.adoc and related lenses for trigger-based architecture:\n- Update top-level spec references to build pipeline\n- Update any lenses referencing builds.create, GCS tarball, or stitching mechanism\n- Add Developer Connect and trigger concepts where appropriate\n- Update RBSCB-CloudBuildRoadmap.adoc Tier 0/Tier 2 sections to reflect new baseline\n  once migration is complete\n- Maintain MCM patterns throughout\n\nNote: Courier role is dead (no GitHub PAT needed) — do NOT add it to role vocabulary.",
+              "silks": "update-rbs0-and-related-lenses",
+              "commit": "a4b9237"
+            },
+            {
               "ts": "260222-1455",
               "state": "rough",
               "text": "Update RBS0-SpecTop.adoc and related lenses for trigger-based architecture:\n- Update top-level spec references to build pipeline\n- Update any lenses referencing builds.create, GCS tarball, or stitching mechanism\n- Add Courier role to role vocabulary alongside Payor/Director/Mason/Retriever\n- Add Developer Connect and trigger concepts where appropriate\n- Update RBSCB-CloudBuildRoadmap.adoc Tier 0 section to reflect new baseline\n- Maintain MCM patterns throughout",
