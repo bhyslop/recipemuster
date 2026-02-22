@@ -92,8 +92,8 @@ zrbz_kindle() {
 
   # Payor regime operations
   z_mod="rbrp_cli.sh"
-  buz_enroll RBZ_RENDER_PAYOR   "rbw-rpr" "${z_mod}" "render"
-  buz_enroll RBZ_VALIDATE_PAYOR "rbw-rpv" "${z_mod}" "validate"
+  buz_enroll RBZ_RENDER_PAYOR   "rbw-rpr" "${z_mod}" "rbrp_render"
+  buz_enroll RBZ_VALIDATE_PAYOR "rbw-rpv" "${z_mod}" "rbrp_validate"
 
   # OAuth regime operations
   z_mod="rbro_cli.sh"

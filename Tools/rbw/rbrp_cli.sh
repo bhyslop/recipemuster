@@ -20,95 +20,52 @@
 
 set -euo pipefail
 
-ZRBRP_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-# Source dependencies
-source "${ZRBRP_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${ZRBRP_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
-source "${ZRBRP_CLI_SCRIPT_DIR}/rbrp_regime.sh"
-source "${ZRBRP_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBRP_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
-source "${ZRBRP_CLI_SCRIPT_DIR}/rbcr_render.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
-# CLI Functions
+# Command Functions
 
-# Command: validate - source file and validate (dies on first error)
 rbrp_validate() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrp_validate: file argument required"
-  test -f "${z_file}" || buc_die "rbrp_validate: file not found: ${z_file}"
+  buc_doc_brief "Validate RBRP payor regime configuration via enrollment report"
+  buc_doc_shown || return 0
 
-  buc_step "Validating RBRP payor file: ${z_file}"
-
-  # Source the assignment file
-  source "${z_file}" || buc_die "rbrp_validate: failed to source ${z_file}"
-
-  # Kindle (requires RBGC)
-  zrbgc_kindle
-  zrbrp_kindle
-
+  buc_step "Validating RBRP payor file: ${RBCC_rbrp_file}"
+  buv_report RBRP "Payor Regime"
   buc_step "RBRP payor valid"
 }
 
-# Command: render - diagnostic display then validate
 rbrp_render() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrp_render: file argument required"
-  test -f "${z_file}" || buc_die "rbrp_render: file not found: ${z_file}"
+  buc_doc_brief "Display diagnostic view of RBRP payor regime configuration"
+  buc_doc_shown || return 0
 
-  # Source and kindle (no dying — show all fields before validation)
-  source "${z_file}" || buc_die "rbrp_render: failed to source ${z_file}"
-  zrbgc_kindle
-  zrbrp_kindle
-  zrbcr_kindle
-
-  # Display header
-  echo ""
-  echo "${ZBUC_WHITE}RBRP - Recipe Bottle Regime Payor${ZBUC_RESET}"
-  echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
-  echo ""
-
-  # Payor Project Identity
-  rbcr_section_begin "Payor Project Identity"
-  rbcr_section_item RBRP_PAYOR_PROJECT_ID  string  req  "GCP project hosting OAuth client"
-  rbcr_section_end
-
-  # Billing Configuration
-  rbcr_section_begin "Billing Configuration"
-  rbcr_section_item RBRP_BILLING_ACCOUNT_ID  string  opt  "Billing account for depot projects"
-  rbcr_section_end
-
-  # OAuth Configuration
-  rbcr_section_begin "OAuth Configuration"
-  rbcr_section_item RBRP_OAUTH_CLIENT_ID  string  opt  "OAuth 2.0 client identifier"
-  rbcr_section_end
-
-  # Validate after full render
-  echo "${ZBUC_GREEN}RBRP payor valid${ZBUC_RESET}"
+  buv_render RBRP "RBRP - Recipe Bottle Regime Payor"
 }
 
 ######################################################################
-# Main dispatch
+# Furnish and Main
 
-zrbcc_kindle
+zrbrp_furnish() {
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbgc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbrp_regime.sh"
 
-z_command="${1:-}"
+  zbuv_kindle
+  zburd_kindle
+  zrbcc_kindle
+  zrbgc_kindle
 
-case "${z_command}" in
-  validate)
-    z_file="${RBCC_rbrp_file}"
-    test -f "${z_file}" || buc_die "RBRP payor file not found: ${z_file}"
-    rbrp_validate "${z_file}"
-    ;;
-  render)
-    z_file="${RBCC_rbrp_file}"
-    test -f "${z_file}" || buc_die "RBRP payor file not found: ${z_file}"
-    rbrp_render "${z_file}"
-    ;;
-  *)
-    buc_die "Unknown command: ${z_command}. Usage: rbrp_cli.sh {validate|render}"
-    ;;
-esac
+  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+
+  zrbrp_kindle
+  zrbrp_enforce
+
+  zbupr_kindle
+}
+
+buc_execute rbrp_ "Recipe Bottle Payor Regime" zrbrp_furnish "$@"
 
 # eof
