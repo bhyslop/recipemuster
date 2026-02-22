@@ -6509,6 +6509,13 @@
         "₢AfAAO": {
           "tacks": [
             {
+              "ts": "260222-1529",
+              "state": "complete",
+              "text": "Audit for surviving callers of legacy buv_val_*, buv_env_*, buv_opt_* functions.\n\n## Context\n\nAfter regime scrubs convert all validation to the buv_ enrollment system, some straggler callers of the old buv_val_*/buv_env_*/buv_opt_* functions may remain. This pace audits and migrates them before deletion.\n\n## Scope\n\n1. grep for buv_val_, buv_env_, buv_opt_ across active codebase (excluding ABANDONED/, Study/, Memos/)\n2. For each surviving caller: migrate to enrollment pattern or inline test/buc_die equivalent\n3. Verify no runtime references remain\n\n## Acceptance\n\n- Zero active callers of buv_val_*, buv_env_*, buv_opt_* functions\n- All validation uses enrollment or inline patterns",
+              "silks": "audit-legacy-buv-callers",
+              "commit": "16594b0"
+            },
+            {
               "ts": "260219-1853",
               "state": "rough",
               "text": "Audit for surviving callers of legacy buv_val_*, buv_env_*, buv_opt_* functions.\n\n## Context\n\nAfter regime scrubs convert all validation to the buv_ enrollment system, some straggler callers of the old buv_val_*/buv_env_*/buv_opt_* functions may remain. This pace audits and migrates them before deletion.\n\n## Scope\n\n1. grep for buv_val_, buv_env_, buv_opt_ across active codebase (excluding ABANDONED/, Study/, Memos/)\n2. For each surviving caller: migrate to enrollment pattern or inline test/buc_die equivalent\n3. Verify no runtime references remain\n\n## Acceptance\n\n- Zero active callers of buv_val_*, buv_env_*, buv_opt_* functions\n- All validation uses enrollment or inline patterns",
