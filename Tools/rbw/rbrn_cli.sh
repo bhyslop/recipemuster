@@ -27,6 +27,63 @@ set -euo pipefail
 source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
+# Internal Helpers
+
+# Fleet info table — non-opinionated display of all nameplate configuration
+# Requires: RBCC, RBGC, RBGD kindled + RBRR loaded (via differential furnish)
+zrbrn_fleet_survey() {
+  zrbcc_sentinel
+  zrbgc_sentinel
+  zrbgd_sentinel
+  zrbrr_sentinel
+
+  local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local z_row_fmt="%-10s %-8s %6s %6s  %-17s %-14s %-14s  %3s %3s\n"
+
+  echo ""
+  printf "${z_row_fmt}" \
+    "Moniker" "Entry" "WS" "Enc" "Subnet" "Sentry IP" "Bottle IP" "Snt" "Btl"
+  printf "${z_row_fmt}" \
+    "--------" "-----" "------" "------" "-----------------" "--------------" "--------------" "---" "---"
+
+  local z_sv_files=("${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
+  local z_sv_i=""
+  for z_sv_i in "${!z_sv_files[@]}"; do
+    test -f "${z_sv_files[$z_sv_i]}" || continue
+    (
+      source "${z_sv_files[$z_sv_i]}" || buc_die "Failed to source: ${z_sv_files[$z_sv_i]}"
+
+      local z_sentry_img="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
+      local z_bottle_img="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
+
+      local z_sentry_local="--"
+      local z_bottle_local="--"
+      if command -v "${RBRN_RUNTIME}" >/dev/null 2>&1; then
+        ${RBRN_RUNTIME} image inspect "${z_sentry_img}" >/dev/null 2>&1 && z_sentry_local="ok"
+        ${RBRN_RUNTIME} image inspect "${z_bottle_img}" >/dev/null 2>&1 && z_bottle_local="ok"
+      else
+        z_sentry_local="??"
+        z_bottle_local="??"
+      fi
+
+      local z_ws_port="${RBRN_ENTRY_PORT_WORKSTATION:-}"
+      local z_enc_port="${RBRN_ENTRY_PORT_ENCLAVE:-}"
+      if [[ "${RBRN_ENTRY_MODE}" != "enabled" ]]; then
+        z_ws_port="-"
+        z_enc_port="-"
+      fi
+
+      printf "${z_row_fmt}" \
+        "${RBRN_MONIKER}" "${RBRN_ENTRY_MODE}" "${z_ws_port}" "${z_enc_port}" \
+        "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
+        "${RBRN_ENCLAVE_SENTRY_IP}" "${RBRN_ENCLAVE_BOTTLE_IP}" \
+        "${z_sentry_local}" "${z_bottle_local}" || buc_die "Failed to printf survey row"
+    ) || buc_die "Survey isolation failed for: ${z_sv_files[$z_sv_i]}"
+  done
+  echo ""
+}
+
+######################################################################
 # Command Functions
 
 # Command: validate - enrollment-based validation report
@@ -62,7 +119,9 @@ rbrn_audit() {
   buc_doc_brief "Survey all nameplates and run cross-nameplate preflight validation"
   buc_doc_shown || return 0
 
-  zrbrn_fleet_audit
+  zrbrn_fleet_survey
+  rbrn_preflight
+  buc_step "Cross-nameplate audit passed"
 
   # GCB quota headroom check (requires Director SA token)
   local z_token
