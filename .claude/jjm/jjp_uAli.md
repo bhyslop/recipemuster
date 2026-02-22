@@ -8,17 +8,15 @@ Roadmap, selected as MVP-required for SLSA v1.0 provenance.
 
 ### Key Design Decisions
 
-- **Per-vessel GitHub repos** for build definitions (strong 1:1 provenance: commit = build definition version)
-- **GitHub as host** (Developer Connect + REST API, no CLI dependencies)
-- **Courier role** (`rbhk` prefix) — new GitHub-backed identity, distinct from Google RBRA credentials
-- **Hardcoded YAML** — cloudbuild.yaml is the artifact, not generated at build time
-- **Two-phase build**: prepare (publish to vessel repo) then dispatch (triggers.run)
-- **Dockerfiles stay in parent repo** — vessel repos are derived artifacts, never hand-edited
-- **`.rbk/` directory** at project root (gitignored) holds cloned vessel repos, parallels `.buk/`
+- **Main repo as trigger source** — triggers connect to the existing GitHub repo via Developer Connect, not per-vessel repos. Eliminates Courier PAT, vessel repo management, and publish ceremony. SLSA provenance records the main repo commit hash — acceptable for alpha (the commit contains the vessel's build definition even if it also contains other changes).
+- **GitHub as host** (Developer Connect + OAuth GitHub App, no CLI dependencies, no PAT)
+- **Hardcoded YAML** — per-vessel cloudbuild.yaml committed to the main repo is the build artifact
+- **Single-phase build**: Foundry verifies yaml is committed, then dispatches via `triggers.run`
+- **Dockerfiles stay in parent repo** — alongside their cloudbuild.yaml in vessel directories
 - **Phased rollout** — rbev-busybox first, verify SLSA provenance, then migrate remaining conjure vessels
 - **Tier 1 log hygiene** folded into YAML authoring (audit during script inlining)
 - **All API calls via curl/REST** — consistent with existing Foundry pattern, no gcloud/gh dependency
-- **One Developer Connect connection** serves all vessel repos (not per-vessel connections)
+- **One Developer Connect connection** to the main repo serves all vessel triggers
 - **GDC prefix** for Developer Connect RBRR variables (Google service, like GCB/GAR/GCP)
 - **OCI Layout Bridge pattern** survives unchanged (build/push/SBOM phase split)
 
@@ -31,19 +29,15 @@ enterprise pricing, non-starter. GitLab was more automatable (PAT-only, no OAuth
 but GitHub was chosen because the project already lives there. GitLab remains a viable
 future migration if GitHub relationship deteriorates.
 
-**Why per-vessel repos (not one shared repo)?**
-SLSA provenance records the source commit that produced an image. With a shared repo,
-that commit may include changes to other vessels — the commit hash doesn't isolate the
-vessel's build definition. With per-vessel repos, the provenance commit IS the vessel's
-build definition version. Clean 1:1 mapping. The management overhead (N repos, N triggers,
-N pin-refresh commits) is scriptable and justified by provenance clarity.
-
-**Why NOT RBRA for Courier credentials?**
-RBRA is specifically Google service account credentials: CLIENT_EMAIL, PRIVATE_KEY,
-PROJECT_ID, TOKEN_LIFETIME_SEC. A GitHub PAT is a single opaque token — fundamentally
-different provider, different trust boundary, different format. Needs its own credential
-regime design (₢AiAAB). Also note: GitHub PATs expire and need refresh/rotation — the
-credential regime must account for this lifecycle.
+**Why main repo triggers (not per-vessel repos)?**
+The original design used per-vessel GitHub repos for provenance isolation: one commit = one
+vessel's build definition. But this requires a Courier PAT regime, N repo creation/management
+scripts, a publish ceremony, and pin-refresh integration per vessel — substantial infrastructure
+for alpha. With main repo triggers: Developer Connect uses OAuth GitHub App (one-time browser
+auth, no PAT lifecycle), `triggers.run` dispatches against the main repo commit, and Google
+still generates SLSA v1.0 provenance recording the exact commit hash. The provenance commit
+may include non-vessel changes, but for a single-author alpha project this is acceptable.
+Per-vessel repos remain a future option if provenance isolation becomes a real requirement.
 
 **Why GDC prefix for Developer Connect variables?**
 Developer Connect is a Google service, not a GitHub concept. Existing RBRR pattern uses
@@ -52,15 +46,14 @@ Developer Connect gets GDC to maintain this convention.
 
 ### Constraints
 
-**Build context isolation**: Vessel repos contain ONLY that vessel's Dockerfile, build
-context, and cloudbuild.yaml. If a Dockerfile in the parent repo references files outside
-its vessel directory (e.g., shared base configs), the trigger build will fail because those
-files won't exist in the vessel repo. Vessel Dockerfiles must be self-contained within
-their build context.
+**Build context scope**: With main repo triggers, Cloud Build checks out the entire repo,
+not a minimal tarball. The builder sees all files. Acceptable since the repo contains no
+secrets and Dockerfile/context paths are parameterized via substitution variables.
 
-**Courier PAT scope**: GitHub PATs with `repo` scope grant read/write to ALL repos under
-the account — broader than needed for individual vessel repos. Fine-grained PATs (per-repo)
-exist but add complexity. Scope decision is part of ₢AiAAB (credential regime design).
+**Developer Connect setup**: Requires one-time interactive browser OAuth to authorize the
+Google Developer Connect GitHub App on the main repo. Not scriptable end-to-end — the
+human must complete the GitHub authorization flow once. Subsequent trigger operations are
+fully automated via REST API.
 
 ### What Dies
 
@@ -68,14 +61,14 @@ exist but add complexity. Scope decision is part of ₢AiAAB (credential regime 
 - GCS tarball upload chain (package, compose name, upload)
 - `zrbf_compose_build_request_json()` and `builds.create` API path
 - The `$$` dollar-escaping dance for Cloud Build substitutions
+- Per-vessel GitHub repos concept (no vessel repos needed)
+- Courier credential regime concept (no GitHub PAT needed)
 
 ### What's Born
 
-- Per-vessel cloudbuild.yaml files with inline step scripts
-- Per-vessel GitHub repos (e.g., `rbk-build-rbev-busybox`)
-- Courier credential regime (GitHub PAT, distinct from RBRA)
-- Developer Connect connection (Google-side GitHub bridge)
-- Prepare step in Foundry (publish ceremony with pin staleness check)
+- Per-vessel cloudbuild.yaml files with inline step scripts (committed to main repo)
+- Developer Connect connection to main GitHub repo (OAuth GitHub App)
+- Per-vessel Cloud Build triggers pointing to main repo
 - Dispatch step via `triggers.run` API
 - SLSA v1.0 provenance on all trigger-built images
 
@@ -102,5 +95,4 @@ BCG compliance is mandatory for all new bash code — enterprise-grade orchestra
 - `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md` — BCG patterns (mandatory)
 - Developer Connect REST API: https://docs.google.com/developer-connect/docs/api/reference/rest
 - Cloud Build triggers REST API: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers
-- GitHub repos REST API: https://docs.github.com/en/rest/repos/repos
 - SLSA provenance on Cloud Build: https://docs.google.com/build/docs/securing-builds/generate-validate-build-provenance
