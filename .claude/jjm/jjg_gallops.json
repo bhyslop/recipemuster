@@ -6569,6 +6569,13 @@
         "₢AfAAX": {
           "tacks": [
             {
+              "ts": "260222-0756",
+              "state": "complete",
+              "text": "One-line change to buc_execute: pass command name as $1 to furnish function.\n\n## Context\n\nCurrently buc_execute calls furnish with no arguments (buc_command.sh:342). Furnish cannot know which command is about to run, forcing CLIs with differential kindling needs (light vs heavy deps) to split into separate files (e.g., rbcnc_cli.sh vs rbcnx_cli.sh).\n\nPassing the command name to furnish enables conditional source/kindle based on which command will execute.\n\n## Scope\n\n1. In buc_command.sh buc_execute(), change line 342 from:\n   [ -n \"${env_func}\" ] && \"${env_func}\"\n   to:\n   [ -n \"${env_func}\" ] && \"${env_func}\" \"${command}\"\n\n2. Update BCG to document that furnish receives the command name as $1\n\n3. Existing furnish functions that don't use $1 are unaffected (extra arg is ignored in bash)\n\n## Acceptance\n\n- buc_execute passes command name to furnish as $1\n- BCG documents the furnish($1) convention\n- All existing CLIs continue to work (backward compatible — unused $1 is harmless)",
+              "silks": "buc-execute-differential-furnish",
+              "commit": "abcaff1"
+            },
+            {
               "ts": "260222-0738",
               "state": "rough",
               "text": "One-line change to buc_execute: pass command name as $1 to furnish function.\n\n## Context\n\nCurrently buc_execute calls furnish with no arguments (buc_command.sh:342). Furnish cannot know which command is about to run, forcing CLIs with differential kindling needs (light vs heavy deps) to split into separate files (e.g., rbcnc_cli.sh vs rbcnx_cli.sh).\n\nPassing the command name to furnish enables conditional source/kindle based on which command will execute.\n\n## Scope\n\n1. In buc_command.sh buc_execute(), change line 342 from:\n   [ -n \"${env_func}\" ] && \"${env_func}\"\n   to:\n   [ -n \"${env_func}\" ] && \"${env_func}\" \"${command}\"\n\n2. Update BCG to document that furnish receives the command name as $1\n\n3. Existing furnish functions that don't use $1 are unaffected (extra arg is ignored in bash)\n\n## Acceptance\n\n- buc_execute passes command name to furnish as $1\n- BCG documents the furnish($1) convention\n- All existing CLIs continue to work (backward compatible — unused $1 is harmless)",
