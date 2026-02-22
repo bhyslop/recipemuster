@@ -6958,9 +6958,10 @@
       "status": "racing",
       "order": [
         "₢AiAAA",
-        "₢AiAAB"
+        "₢AiAAB",
+        "₢AiAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6982,6 +6983,17 @@
               "text": "Design the Courier (rbhk) credential regime:\n- Decide: new regime file (rbhk.env) vs RBRR expansion\n- Define credential format for GitHub PAT (NOT RBRA — different provider, different trust boundary)\n- Design Secret Manager bridge: GitHub issues PAT, Google stores it for Developer Connect\n- Determine validation rules (buv validators for new credential type)\n- Document in a new spec lens or memo\n\nContext: RBRA is specifically Google service account credentials (CLIENT_EMAIL, PRIVATE_KEY, PROJECT_ID, TOKEN_LIFETIME_SEC). GitHub PAT is a single opaque token — fundamentally different format.",
               "silks": "design-courier-credential-regime",
               "commit": "15fda02"
+            }
+          ]
+        },
+        "₢AiAAC": {
+          "tacks": [
+            {
+              "ts": "260222-1453",
+              "state": "rough",
+              "text": "Mint and implement new RBRR regime variables for Tier 2 infrastructure:\n\nGoogle Developer Connect (GDC prefix):\n- RBRR_GDC_CONNECTION_NAME — Developer Connect connection resource name\n- RBRR_GDC_REGION — Developer Connect region\n- RBRR_GDC_SECRET_NAME — Secret Manager secret holding GitHub PAT\n\nGoogle Cloud Build trigger:\n- RBRR_GCB_TRIGGER_PATTERN — Naming convention for per-vessel triggers\n\nGitHub (GITHUB prefix):\n- RBRR_GITHUB_ACCOUNT — GitHub user or org owning vessel repos\n- RBRR_GITHUB_REPO_PATTERN — Template for vessel repo names\n\nAdd to rbrr.env with documentation comments. Update rbrr_regime.sh validator.\nDepends on outcome of courier credential regime design (₢AiAAB).",
+              "silks": "design-rbrr-variable-additions",
+              "commit": "a70c36a"
             }
           ]
         }
