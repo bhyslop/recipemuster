@@ -75,7 +75,7 @@ zrbz_kindle() {
   buz_enroll RBZ_RETRIEVE_IMAGE "rbw-ir" "${z_mod}" "rbf_retrieve"
 
   # Nameplate regime operations
-  z_mod="rbcnc_cli.sh"
+  z_mod="rbrn_cli.sh"
   buz_enroll RBZ_RENDER_NAMEPLATE   "rbw-rnr" "${z_mod}" "rbrn_render"   "param1"
   buz_enroll RBZ_VALIDATE_NAMEPLATE "rbw-rnv" "${z_mod}" "rbrn_validate" "param1"
 
@@ -112,7 +112,7 @@ zrbz_kindle() {
   buz_enroll RBZ_LIST_AUTH     "rbw-ral" "${z_mod}" "list"
 
   # Cross-nameplate operations
-  z_mod="rbcnx_cli.sh"
+  z_mod="rbrn_cli.sh"
   buz_enroll RBZ_SURVEY_NAMEPLATES "rbw-ni" "${z_mod}" "rbrn_survey"
   buz_enroll RBZ_AUDIT_NAMEPLATES  "rbw-nv" "${z_mod}" "rbrn_audit"
 
