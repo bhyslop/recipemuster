@@ -65,7 +65,7 @@ rbrn_audit() {
 # Furnish and Main
 
 zrbcnx_furnish() {
-  buc_doc_env "RBR0_FOLIO" "Nameplate moniker (e.g., nsproto); empty for survey/audit"
+  buc_doc_env "BUZ_FOLIO" "Nameplate moniker (e.g., nsproto); empty for survey/audit"
 
   zbuv_kindle
   zburd_kindle

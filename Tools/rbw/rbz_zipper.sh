@@ -116,7 +116,7 @@ zrbz_kindle() {
   buz_enroll RBZ_SURVEY_NAMEPLATES "rbw-ni" "${z_mod}" "rbrn_survey"
   buz_enroll RBZ_AUDIT_NAMEPLATES  "rbw-nv" "${z_mod}" "rbrn_audit"
 
-  # Bottle operations (imprint channel sets RBR0_FOLIO from BURD_TOKEN_3)
+  # Bottle operations (imprint channel sets BUZ_FOLIO from BURD_TOKEN_3)
   z_mod="rbob_cli.sh"
   buz_enroll RBZ_BOTTLE_START   "rbw-s" "${z_mod}" "rbob_start"          "imprint"
   buz_enroll RBZ_BOTTLE_STOP    "rbw-z" "${z_mod}" "rbob_stop"           "imprint"

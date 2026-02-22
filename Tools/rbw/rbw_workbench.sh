@@ -26,7 +26,7 @@
 #   rbw-B   Connect to bottle container
 #   rbw-o   Observe network traffic (tcpdump)
 #
-# All other commands dispatch via zipper registry (zbuz_exec_lookup).
+# All other commands dispatch via zipper registry (buz_exec_lookup).
 # See rbz_zipper.sh for the complete colophon→CLI→command mapping.
 
 set -euo pipefail
@@ -69,21 +69,21 @@ rbw_route() {
   # Route based on colophon
   case "${z_command}" in
 
-    # Bottle start: qualification gate then dispatch via zipper (imprint channel sets RBR0_FOLIO)
+    # Bottle start: qualification gate then dispatch via zipper (imprint channel sets BUZ_FOLIO)
     rbw-s)
       "${RBW_SCRIPT_DIR}/rbq_cli.sh" qualify_all || buc_die "Qualification gate failed for service start"
-      zbuz_exec_lookup "${z_command}" "${RBW_SCRIPT_DIR}" "$@" || buc_die "Failed to dispatch ${z_command}"
+      buz_exec_lookup "${z_command}" "${RBW_SCRIPT_DIR}" "$@" || buc_die "Failed to dispatch ${z_command}"
       ;;
 
     # Cloud build with qualification gate
     rbw-iB)
       "${RBW_SCRIPT_DIR}/rbq_cli.sh" qualify_all || buc_die "Qualification gate failed for cloud build"
-      zbuz_exec_lookup "${z_command}" "${RBW_SCRIPT_DIR}" "$@" || buc_die "Failed to dispatch ${z_command}"
+      buz_exec_lookup "${z_command}" "${RBW_SCRIPT_DIR}" "$@" || buc_die "Failed to dispatch ${z_command}"
       ;;
 
     # All other commands: resolve via zipper registry
     *)
-      zbuz_exec_lookup "${z_command}" "${RBW_SCRIPT_DIR}" "$@" || {
+      buz_exec_lookup "${z_command}" "${RBW_SCRIPT_DIR}" "$@" || {
         if [ -n "${z_command}" ]; then
           buc_warn "Unknown command: ${z_command}"
         fi

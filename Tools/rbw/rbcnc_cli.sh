@@ -41,7 +41,7 @@ rbrn_validate() {
   buc_doc_brief "Validate RBRN nameplate regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  test -n "${RBR0_FOLIO:-}" || buc_die "Nameplate moniker required (e.g., nsproto, srjcl, pluml)"
+  test -n "${BUZ_FOLIO:-}" || buc_die "Nameplate moniker required (e.g., nsproto, srjcl, pluml)"
   buc_step "Validating RBRN nameplate regime"
   buv_report RBRN "Nameplate Regime"
   buc_step "RBRN nameplate valid"
@@ -53,7 +53,7 @@ rbrn_render() {
   buc_doc_brief "Display diagnostic view of RBRN nameplate regime configuration"
   buc_doc_shown || return 0
 
-  test -n "${RBR0_FOLIO:-}" || buc_die "Nameplate moniker required (e.g., nsproto, srjcl, pluml)"
+  test -n "${BUZ_FOLIO:-}" || buc_die "Nameplate moniker required (e.g., nsproto, srjcl, pluml)"
   buv_render RBRN "RBRN - Recipe Bottle Regime Nameplate"
 }
 
@@ -61,16 +61,16 @@ rbrn_render() {
 # Furnish and Main
 
 zrbrn_furnish() {
-  buc_doc_env "RBR0_FOLIO" "Nameplate moniker (e.g., nsproto); empty for list"
+  buc_doc_env "BUZ_FOLIO" "Nameplate moniker (e.g., nsproto); empty for list"
 
   zbuv_kindle
   zburd_kindle
   zrbcc_kindle
   zbupr_kindle
 
-  # If RBR0_FOLIO is set, load and kindle the specified nameplate
-  if test -n "${RBR0_FOLIO:-}"; then
-    local z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${RBR0_FOLIO}${RBCC_rbrn_ext}"
+  # If BUZ_FOLIO is set, load and kindle the specified nameplate
+  if test -n "${BUZ_FOLIO:-}"; then
+    local z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${BUZ_FOLIO}${RBCC_rbrn_ext}"
     test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
     source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
     zrbrn_kindle

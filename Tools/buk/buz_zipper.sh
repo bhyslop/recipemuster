@@ -116,61 +116,52 @@ buz_enroll() {
 }
 
 ######################################################################
-# Internal folio decoder
-
-# zbuz_decode_folio() - Decode regime-selection folio from channel
-# Args: channel, [extra args to pass through]
-# Side effects: exports RBR0_FOLIO, sets z_buz_folio_args with remaining args
-zbuz_decode_folio() {
-  local z_channel="${1:-}"
-  shift
-
-  z_buz_folio_args=("$@")
-
-  case "${z_channel}" in
-    "")
-      # No-op: args pass through unchanged
-      ;;
-    "imprint")
-      export RBR0_FOLIO="${BURD_TOKEN_3}"
-      ;;
-    "param1")
-      export RBR0_FOLIO=""
-      if (( ${#z_buz_folio_args[@]} )); then
-        export RBR0_FOLIO="${z_buz_folio_args[0]}"
-        z_buz_folio_args=("${z_buz_folio_args[@]:1}")
-      fi
-      ;;
-    *)
-      buc_die "zbuz_decode_folio: unknown channel: ${z_channel}"
-      ;;
-  esac
-}
-
-######################################################################
 # Lookup dispatch
 
-# zbuz_exec_lookup() - Resolve colophon via registry and exec
+# buz_exec_lookup() - Resolve colophon via registry and exec
 # Args: colophon, base_dir [, extra args passed through to exec]
-# Execs: ${base_dir}/${module} ${command} [extra args]
-# Returns: 1 if colophon not found (does not exec)
-zbuz_exec_lookup() {
+# Execs: BUZ_FOLIO=<folio> ${base_dir}/${module} ${command} [extra args]
+# Dies if colophon not found
+buz_exec_lookup() {
   zbuz_sentinel
 
   local z_colophon="${1:-}"
   local z_base_dir="${2:-}"
-  test -n "${z_colophon}" || buc_die "zbuz_exec_lookup: colophon required"
-  test -n "${z_base_dir}" || buc_die "zbuz_exec_lookup: base_dir required"
+  test -n "${z_colophon}" || buc_die "buz_exec_lookup: colophon required"
+  test -n "${z_base_dir}" || buc_die "buz_exec_lookup: base_dir required"
   shift 2
 
-  local z_i
+  # Find colophon in registry
+  local z_found=""
+  local z_i=""
   for z_i in "${!z_buz_colophon_roll[@]}"; do
     test "${z_buz_colophon_roll[z_i]}" = "${z_colophon}" || continue
-    zbuz_decode_folio "${z_buz_channel_roll[z_i]}" "$@"
-    exec "${z_base_dir}/${z_buz_module_roll[z_i]}" "${z_buz_command_roll[z_i]}" ${z_buz_folio_args[@]+"${z_buz_folio_args[@]}"}
+    z_found="${z_i}"
+    break
   done
+  test -n "${z_found}" || buc_die "buz_exec_lookup: colophon not found: ${z_colophon}"
 
-  return 1
+  # Decode folio from channel
+  local z_folio=""
+  local z_args=("$@")
+  case "${z_buz_channel_roll[z_found]}" in
+    "") ;;
+    "imprint")
+      z_folio="${BURD_TOKEN_3}"
+      ;;
+    "param1")
+      if (( ${#z_args[@]} )); then
+        z_folio="${z_args[0]}"
+        z_args=("${z_args[@]:1}")
+      fi
+      ;;
+    *)
+      buc_die "buz_exec_lookup: unknown channel: ${z_buz_channel_roll[z_found]}"
+      ;;
+  esac
+
+  # Dispatch with folio in exec environment
+  BUZ_FOLIO="${z_folio}" exec "${z_base_dir}/${z_buz_module_roll[z_found]}" "${z_buz_command_roll[z_found]}" ${z_args[@]+"${z_args[@]}"}
 }
 
 # eof
