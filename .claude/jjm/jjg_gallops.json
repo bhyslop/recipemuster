@@ -6037,7 +6037,6 @@
         "₢AfAAU",
         "₢AfAAE",
         "₢AfAAV",
-        "₢AfAAK",
         "₢AfAAF",
         "₢AfAAI",
         "₢AfAAG",
@@ -6049,7 +6048,8 @@
         "₢AfAAW",
         "₢AfAAX",
         "₢AfAAY",
-        "₢AfAAZ"
+        "₢AfAAZ",
+        "₢AfAAK"
       ],
       "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
