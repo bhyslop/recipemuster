@@ -1059,6 +1059,42 @@ buv_report() {
   return "${z_any_failed}"
 }
 
+# zbuv_section_gate_recite SCOPE TITLE — look up section gate from registry
+# Sets ZBUV_SEC_GATE_VAR and ZBUV_SEC_GATE_VAL (empty if ungated).
+zbuv_section_gate_recite() {
+  local z_scope="${1:-}"
+  local z_title="${2:-}"
+
+  ZBUV_SEC_GATE_VAR=""
+  ZBUV_SEC_GATE_VAL=""
+
+  local z_s
+  for z_s in "${!z_buv_sec_scope_roll[@]}"; do
+    if test "${z_buv_sec_scope_roll[$z_s]}" = "${z_scope}" \
+      && test "${z_buv_sec_title_roll[$z_s]}" = "${z_title}"; then
+      ZBUV_SEC_GATE_VAR="${z_buv_sec_gate_var_roll[$z_s]}"
+      ZBUV_SEC_GATE_VAL="${z_buv_sec_gate_val_roll[$z_s]}"
+      return 0
+    fi
+  done
+}
+
+# zbuv_req_status INDEX — derive req/opt/cond from enrollment data
+# Sets ZBUV_REQ_STATUS.
+zbuv_req_status() {
+  local z_idx="${1:-}"
+  local z_gate_var="${z_buv_gate_var_roll[$z_idx]}"
+  local z_p1="${z_buv_p1_roll[$z_idx]}"
+
+  if test -n "${z_gate_var}"; then
+    ZBUV_REQ_STATUS="cond"
+  elif test "${z_p1}" = "0"; then
+    ZBUV_REQ_STATUS="opt"
+  else
+    ZBUV_REQ_STATUS="req"
+  fi
+}
+
 # buv_render SCOPE "Label" — render all enrolled vars via bupr_ presentation
 # Walks enrollment rolls grouped by section, applying section-level gates.
 # Requires bupr (PresentationRegime) to be kindled.
@@ -1071,27 +1107,24 @@ buv_render() {
   test -n "${z_scope}" || buc_die "buv_render: scope required"
   test -n "${z_label}" || buc_die "buv_render: label required"
 
+  local z_current_section=""
+  local z_i
+  local z_section=""
+  local z_varname=""
+  local z_type=""
+  local z_desc=""
+
   echo ""
   echo "${ZBUC_WHITE}${z_label}${ZBUC_RESET}"
   echo ""
 
-  local z_current_section=""
-  local z_i
-
   for z_i in "${!z_buv_scope_roll[@]}"; do
     test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
 
-    local z_section="${z_buv_section_roll[$z_i]}"
-    local z_varname="${z_buv_varname_roll[$z_i]}"
-    local z_type="${z_buv_type_roll[$z_i]}"
-    local z_desc="${z_buv_desc_roll[$z_i]}"
-    local z_gate_var="${z_buv_gate_var_roll[$z_i]}"
-
-    # Derive req status from gate
-    local z_req="req"
-    if test -n "${z_gate_var}"; then
-      z_req="cond"
-    fi
+    z_section="${z_buv_section_roll[$z_i]}"
+    z_varname="${z_buv_varname_roll[$z_i]}"
+    z_type="${z_buv_type_roll[$z_i]}"
+    z_desc="${z_buv_desc_roll[$z_i]}"
 
     # Section transition — close previous, open new
     if test "${z_section}" != "${z_current_section}"; then
@@ -1100,27 +1133,16 @@ buv_render() {
       fi
       z_current_section="${z_section}"
 
-      # Look up section gate from section registry
-      local z_sec_gate_var=""
-      local z_sec_gate_val=""
-      local z_s
-      for z_s in "${!z_buv_sec_scope_roll[@]}"; do
-        if test "${z_buv_sec_scope_roll[$z_s]}" = "${z_scope}" \
-          && test "${z_buv_sec_title_roll[$z_s]}" = "${z_section}"; then
-          z_sec_gate_var="${z_buv_sec_gate_var_roll[$z_s]}"
-          z_sec_gate_val="${z_buv_sec_gate_val_roll[$z_s]}"
-          break
-        fi
-      done
-
-      if test -n "${z_sec_gate_var}"; then
-        bupr_section_begin "${z_section}" "${z_sec_gate_var}" "${z_sec_gate_val}"
+      zbuv_section_gate_recite "${z_scope}" "${z_section}"
+      if test -n "${ZBUV_SEC_GATE_VAR}"; then
+        bupr_section_begin "${z_section}" "${ZBUV_SEC_GATE_VAR}" "${ZBUV_SEC_GATE_VAL}"
       else
         bupr_section_begin "${z_section}"
       fi
     fi
 
-    bupr_section_item "${z_varname}" "${z_type}" "${z_req}" "${z_desc}"
+    zbuv_req_status "${z_i}"
+    bupr_section_item "${z_varname}" "${z_type}" "${ZBUV_REQ_STATUS}" "${z_desc}"
   done
 
   # Close final section

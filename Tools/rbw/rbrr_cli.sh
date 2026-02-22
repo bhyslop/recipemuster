@@ -29,7 +29,7 @@ source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/burd_regime.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${RBCC_rbrr_file}"
-source "${ZRBRR_CLI_SCRIPT_DIR}/rbcr_render.sh"
+source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/bupr_PresentationRegime.sh"
 
 ######################################################################
 # Internal Functions
@@ -262,7 +262,7 @@ zrbrr_furnish() {
   zrbrr_kindle
   zrbrr_enforce
 
-  zrbcr_kindle
+  zbupr_kindle
 }
 
 buc_execute rbrr_ "Recipe Bottle Repository Regime" zrbrr_furnish "$@"
