@@ -39,7 +39,7 @@ source "${BURD_REGIME_FILE}" || exit 1
 BURC_OUTPUT_ROOT_DIR="${BURV_OUTPUT_ROOT_DIR:-${BURC_OUTPUT_ROOT_DIR}}"
 BURC_TEMP_ROOT_DIR="${BURV_TEMP_ROOT_DIR:-${BURC_TEMP_ROOT_DIR}}"
 
-# Source BUK modules — buv first (enrollment infrastructure needed by regime kindle)
+# Source BUK modules
 export BURD_STATION_FILE="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
 source "${BURC_TOOLS_DIR}/buk/buc_command.sh"
 source "${BURC_TOOLS_DIR}/buk/buv_validation.sh"

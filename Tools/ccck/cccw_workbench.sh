@@ -28,7 +28,7 @@ source "${zccck_buk_directory}/burd_regime.sh"
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verify dispatch completed — buv must kindle before burd (enrollment infrastructure)
+# Verify dispatch completed
 zbuv_kindle
 zburd_kindle
 
