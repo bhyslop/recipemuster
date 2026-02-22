@@ -6964,9 +6964,10 @@
         "₢AiAAE",
         "₢AiAAF",
         "₢AiAAG",
-        "₢AiAAH"
+        "₢AiAAH",
+        "₢AiAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7054,6 +7055,17 @@
               "text": "Script Cloud Build trigger creation for rbev-busybox:\n- Create manual trigger via REST API: POST to cloudbuild.googleapis.com\n- Trigger points to cloudbuild.yaml in the vessel repo\n- Declare substitution variables that will be overridden at triggers.run time\n- Trigger name follows RBRR_GCB_TRIGGER_PATTERN\n- Script as repeatable operation (will be reused for each vessel)\n- All curl/REST — no gcloud CLI dependency\n- BCG compliance for all scripting\n\nReference: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/create",
               "silks": "script-trigger-creation-busybox",
               "commit": "dbd2a42"
+            }
+          ]
+        },
+        "₢AiAAI": {
+          "tacks": [
+            {
+              "ts": "260222-1454",
+              "state": "rough",
+              "text": "Implement the \"prepare\" step in the Foundry (new phase before dispatch):\n- Clone vessel repo to .rbk/ if not already present\n- Copy Dockerfile + build context from parent repo (rbev-vessels/{sigil}/) to vessel repo clone\n- Copy/update cloudbuild.yaml in vessel repo clone\n- Pin staleness check: balk if pins are older than 1 day\n- Commit and push changes to vessel repo on GitHub via REST API\n- BCG compliance for all scripting\n\nThis is the \"publish ceremony\" — changes flow from parent repo to vessel repo.\nDockerfiles live in parent repo (source of truth). Vessel repo is a derived artifact.\nThe .rbk/ directory is gitignored in parent repo, parallels .buk/ pattern.",
+              "silks": "implement-prepare-step",
+              "commit": "ad74677"
             }
           ]
         }
