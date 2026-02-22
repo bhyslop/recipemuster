@@ -423,7 +423,7 @@ jjx_show [TARGET] [--detail] [--remaining]
 jjx_list [--status racing|stabled|retired]
 jjx_create --silks SILKS
 jjx_enroll FIREMARK --silks SILKS [--first|--before C|--after C] <stdin
-jjx_reorder FIREMARK [--move C --first|--last|--before C|--after C | CORONET...]
+jjx_reorder FIREMARK --move C --first|--last|--before C|--after C
 jjx_alter FIREMARK [--racing|--stabled] [--silks SILKS]
 jjx_record CORONET FILE [FILE...] [--intent "msg"]
 jjx_close CORONET

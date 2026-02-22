@@ -1,16 +1,10 @@
 ---
-argument-hint: [<coronet>...] | --move <coronet> --before|--after|--first|--last
+argument-hint: --move <coronet> --before|--after|--first|--last
 description: Reorder paces within a heat
 ---
 
-Reorder paces within a Job Jockey heat. Supports two modes:
+Relocate a single pace within a Job Jockey heat.
 
-**Order mode** — replace entire sequence:
-```bash
-/jjc-heat-rail ₢AAAAC ₢AAAAD ₢AAAAE
-```
-
-**Move mode** — relocate a single pace:
 ```bash
 /jjc-heat-rail --move ₢AAAAE --first
 /jjc-heat-rail --move ₢AAAAE --last
@@ -20,40 +14,7 @@ Reorder paces within a Job Jockey heat. Supports two modes:
 
 Arguments: $ARGUMENTS
 
-## Mode Detection
-
-**If $ARGUMENTS contains `--move`:** Use move mode
-**Otherwise:** Use order mode
-
-## Order Mode
-
-### Step 1: Parse Coronets
-
-Extract Coronets from $ARGUMENTS (space-separated list like `₢AAAAC ₢AAAAD ₢AAAAE`).
-
-**If fewer than 2 Coronets:**
-- Error: "Usage: /jjc-heat-rail <coronet> <coronet> [coronet...]"
-
-### Step 2: Get heat context
-
-Extract Firemark from first Coronet (e.g., `₢AAAAC` → `₣AA`).
-
-### Step 3: Reorder
-
-Run:
-```bash
-./tt/vvw-r.RunVVX.sh jjx_reorder <FIREMARK> <CORONET1> <CORONET2> [CORONET3...]
-```
-
-**Validation:**
-- Count must match current pace count
-- No duplicates
-- All Coronets must exist in the heat
-- All Coronets must belong to the specified heat
-
-## Move Mode
-
-### Step 1: Parse arguments
+## Step 1: Parse arguments
 
 Extract from $ARGUMENTS:
 - `--move <CORONET>` — the pace to relocate
@@ -61,13 +22,12 @@ Extract from $ARGUMENTS:
 
 **Validation:**
 - `--move` requires exactly one positioning flag
-- Cannot combine with positional Coronets
 
-### Step 2: Get heat context
+## Step 2: Get heat context
 
 Extract Firemark from the move Coronet.
 
-### Step 3: Relocate
+## Step 3: Relocate
 
 Run:
 ```bash
@@ -106,11 +66,8 @@ On failure, report the error from vvx.
 Common errors:
 - "Heat not found" — invalid Firemark
 - "Pace not found" — Coronet doesn't exist in heat
-- "Cannot combine --move with positional coronets" — mode conflict
 - "Move mode requires exactly one positioning flag" — missing position
 - "Cannot position pace relative to itself" — self-reference
-- "Order count mismatch" — order mode must include all paces
-- "Order contains duplicate Coronets" — each pace listed once
 
 ## Available Operations
 
