@@ -1,122 +1,101 @@
 # Regime Second-Pass Inventory
 
-Complete regime list with per-regime concerns for BCG compliance, spec-validator alignment, and inventory sync.
+Complete regime list with per-regime outcomes from the second-pass transformation.
 Each regime annotated with AXLA cardinality: Singleton (one assignment source) or Manifold (multiple instances).
+
+All regimes now use buv enrollment infrastructure: `buv_*_enroll` for field contracts, `buv_scope_sentinel` for stray detection, `z*_enforce` (buv_vet + custom checks) as ironclad gate in furnish, and `buv_report`/`buv_render` for CLI validate/render commands.
 
 ## BUK Domain
 
 ### BURC — Configuration Regime [Singleton]
 - Spec: inline in BUS0
-- Validator: burc_regime.sh
-- Concerns:
-  - Unquoted ${#ARRAY[@]} — search for `ZBURC_UNEXPECTED`
+- Module: burc_regime.sh / burc_cli.sh
+- Scrubbed: ₢AfAAi — enrollment, enforce, scope_sentinel
 
 ### BURS — Station Regime [Singleton]
 - Spec: inline in BUS0
-- Validator: burs_regime.sh
-- Concerns:
-  - Unquoted ${#ARRAY[@]} — search for `ZBURS_UNEXPECTED`
+- Module: burs_regime.sh / burs_cli.sh
+- Scrubbed: ₢AfAAf — enrollment, enforce, scope_sentinel
 
 ### BURD — Dispatch Runtime [Singleton]
 - Spec: BUSD-DispatchRuntime.adoc (included from BUS0)
-- Validator: none (runtime-only, by design)
-- Concerns:
-  - Confirm runtime-only status is intentional and documented
+- Module: burd_regime.sh (runtime-only, no CLI — by design)
+- Scrubbed: ₢AfAAc — enrollment applied to runtime variables
 
 ### BURE — Environment Regime [Singleton]
 - Spec: inline in BUS0
-- Validator: bure_regime.sh
-- Concerns:
-  - Unquoted ${#ARRAY[@]} — search for `ZBURE_UNEXPECTED`
-  - Missing from AT paddock inventory — needs addition to any regime census
+- Module: bure_regime.sh / bure_cli.sh
+- Scrubbed: ₢AfAAj — enrollment for VERBOSE, COLOR, COUNTDOWN; ambient vars relocated from BURD (₢AfAAB)
 
 ## RBW Domain
 
 ### RBRR — Repository Regime [Singleton]
 - Spec: RBSRR-RegimeRepo.adoc (included from RBS0)
-- Validator: rbrr_regime.sh
-- Concerns:
-  - Unquoted ${#ARRAY[@]} — search for `ZRBRR_UNEXPECTED`
-  - ~~[[ == ]] without =~ — FIXED in commit `3b745da8`~~
+- Module: rbrr_regime.sh / rbrr_cli.sh
+- Scrubbed: ₢AfAAC — exemplar singleton; enrollment, enforce, scope_sentinel, validate, render
 
 ### RBRN — Nameplate Regime [Manifold: nsproto, srjcl, pluml]
 - Spec: RBRN-RegimeNameplate.adoc (included from RBS0)
-- Validator: rbrn_regime.sh
-- Consumers of `rbrn_load_moniker`: rbob_cli.sh, rbtb_testbench.sh
-- Concerns:
-  - Unquoted ${#ARRAY[@]} — search for `ZRBRN_UNEXPECTED`
-  - `[[ == ]]` without =~ at 8+ sites — search for `\[\[ .* == ` in rbrn_regime.sh
-  - Unquoted variables in test — search for `test $` or `test ${` without quotes
-  - `[[ ]]` for arithmetic comparison — search for numeric comparisons using `[[ ]]`
-  - Spec-validator drift: spec documents boolean flags but validator uses tri-state MODE enums
+- Module: rbrn_regime.sh / rbrn_cli.sh
+- Scrubbed: ₢AfAAE — exemplar manifold; enrollment, enforce, differential furnish with folio-conditional kindle
 
 ### RBRP — Payor Regime [Singleton]
 - Spec: RBSRP-RegimePayor.adoc (included from RBS0)
-- Validator: rbrp_regime.sh
-- Concerns:
-  - `grep -qE` instead of `[[ =~ ]]` at 3 sites — search for `grep -qE` in rbrp_regime.sh
+- Module: rbrp_regime.sh / rbrp_cli.sh
+- Scrubbed: ₢AfAAh — enrollment, enforce, grep -qE replaced
 
 ### RBRO — OAuth Regime [Singleton]
 - Spec: RBSRO-RegimeOauth.adoc (included from RBS0)
-- Validator: NO rbro_regime.sh exists
-- Concerns:
-  - Fully spec'd (voicings, include file, kindle/validate/render ops) but no validator implementation
-  - Missing from AT paddock inventory
+- Module: rbro_regime.sh / rbro_cli.sh
+- Scrubbed: ₢AfAAO — new module created (previously spec-only), enrollment, enforce, consumers validated
 
 ### RBRE — ECR Regime [Singleton]
 - Spec: RBSRE-RegimeEcr.adoc (included from RBS0)
-- Validator: rbre_regime.sh
-- Concerns:
-  - Audit for BCG compliance (not yet checked in detail)
+- Module: rbre_regime.sh
+- Scrubbed: ₢AfAAg — enrollment, enforce
 
-### RBRG — GitHub Regime [Singleton] — CANDIDATE FOR REMOVAL
-- Spec: RBSRG-RegimeGithub.adoc (included from RBS0)
-- Validator: NO rbrg_regime.sh exists (never implemented)
-- Status: Ghost regime. Spec'd but never got a proper implementation.
-- Live consumer: rbv_PodmanVM.sh — search for `RBRG_PAT` and `RBRG_USERNAME`
-- Legacy consumers: Tools/ABANDONED-github/ (leave these alone)
-- Decision: REMOVE from active codebase. First pace.
+### ~~RBRG — GitHub Regime [Singleton]~~ REMOVED
+- Removed: ₢AfAAA — ghost regime (spec'd, never implemented), consumers migrated
 
 ### RBRS — Station Regime [Singleton]
 - Spec: RBSRS-RegimeStation.adoc (included from RBS0)
-- Validator: rbrs_regime.sh
-- Concerns:
-  - Appears BCG-compliant per initial audit
+- Module: rbrs_regime.sh / rbrs_cli.sh
+- Scrubbed: ₢AfAAe — enrollment, enforce
 
 ### RBRV — Vessel Regime [Manifold: 6 vessels in rbev-vessels/]
 - Spec: RBSRV-RegimeVessel.adoc (included from RBS0)
-- Validator: rbrv_regime.sh
-- CLI: rbrv_cli.sh — **structurally non-compliant** (no furnish, no buc_execute, module-level kindle, ad-hoc case dispatch)
-- Concerns:
-  - Unquoted ${#ARRAY[@]} — search for `ZRBRV_UNEXPECTED`
-  - `[[ == ]]` without =~ — search for `\[\[ .* == ` in rbrv_regime.sh
-  - No explicit mode enum (bind vs conjure mutual-presence pattern)
+- Module: rbrv_regime.sh / rbrv_cli.sh
+- Scrubbed: ₢AfAAI — structural rebuild; enrollment, enforce, buc_execute, differential furnish
 
 ### RBRA — Authentication/Credential Regime [Manifold: governor, retriever, director]
 - Spec: RBSRA-CredentialFormat.adoc (included from RBS0)
-- Validator: rbra_regime.sh
-- Concerns:
-  - Unquoted ${#ARRAY[@]} — search for `ZRBRA_UNEXPECTED`
-  - `grep -qE` instead of `[[ =~ ]]` — search for `grep -qE` in rbra_regime.sh
-  - Not a formal CRR regime (credential format convention)
+- Module: rbra_regime.sh / rbra_cli.sh
+- Scrubbed: ₢AfAAk — enrollment, enforce, grep -qE replaced
 
-## Workbench Ad-Hoc Imprint Translation
+## Workbench Ad-Hoc Imprint Translation — RESOLVED
 
-The rbw workbench (`rbw_workbench.sh`) has explicit case arms for bottle operations that manually translate `BURD_TOKEN_3` (the imprint) to `RBOB_MONIKER`. This is the code that the buz channel mechanism (₢AfAAD) and RBRN scrub (₢AfAAE) will replace.
+The rbw workbench ad-hoc case arms for `BURD_TOKEN_3` → `RBOB_MONIKER` translation have been eliminated by the buz channel mechanism (₢AfAAD) and RBRN scrub (₢AfAAE). All bottle colophons now route through `zbuz_exec_lookup`.
 
-- Location: `rbw_workbench.sh` — search for `BURD_TOKEN_3` and `RBOB_MONIKER`
-- Affected colophons: `rbw-s`, `rbw-z`, `rbw-S`, `rbw-C`, `rbw-B`, `rbw-o`
-- Comment in rbz_zipper.sh line 119: "imprint-translated by workbench case arm, not zbuz_exec_lookup"
+## Cross-Cutting Concerns — RESOLVED
 
-After buz channel lands, these case arms should collapse into the generic `zbuz_exec_lookup` path.
+All cross-cutting concerns from the initial audit have been resolved by the enrollment transformation:
 
-## Cross-Cutting Concerns
+- ~~Unquoted ${#ARRAY[@]}~~ — eliminated; buv_scope_sentinel handles array safety internally
+- ~~`[[ == ]]` misuse~~ — replaced with `[[ =~ ]]` or `test =` in all regime scrubs
+- ~~`grep -qE` misuse~~ — replaced with `[[ =~ ]]` in RBRP and RBRA scrubs
+- ~~RBRO has spec but no implementation~~ — rbro_regime.sh created (₢AfAAO)
+- ~~BURE missing from regime census~~ — added and scrubbed (₢AfAAj)
+- ~~`rbrn_load_moniker` consumers~~ — eliminated; RBRN uses standard enrollment pattern
+- ~~Spec-validator drift~~ — enrollment declarations are the single source of truth
+- CRR glossary documents — not created (out of scope for this heat)
 
-- Unquoted ${#ARRAY[@]} is systemic — affects 8 of 10 validators (search for `${#Z.*UNEXPECTED\[@\]}`)
-- `[[ == ]]` misuse affects RBRN (8+ sites), RBRV (2 sites) — search for `\[\[ .* == `
-- `grep -qE` misuse affects RBRP (3 sites), RBRA (2 sites) — search for `grep -qE`
-- RBRR `[[ == ]]` sites already fixed (commit `3b745da8`, replaced with `[[ =~ ]]`)
-- No regime has a CRR glossary document
-- RBRN spec-validator drift needs reconciliation
-- RBRO has spec but no implementation
-- BURE missing from regime census documents
+## Infrastructure Paces
+
+Key non-regime paces that enabled the transformation:
+
+- ₢AfAAN — buv enrollment infrastructure (buv_*_enroll, buv_vet, buv_report, buv_scope_sentinel)
+- ₢AfAAD — buz channel infrastructure (imprint translation)
+- ₢AfAAQ — buv enrollment tests
+- ₢AfAAO — audit legacy buv callers
+- ₢AfAAP — delete legacy buv_val_*/buv_env_*/buv_opt_* functions
+- ₢AfAAJ — BCG updates (regime archetype section, enforce boilerplate, stale buv references removed)
