@@ -11,13 +11,13 @@ discussion before implementation planning begins.
 
 ## Origin Chat
 
-**gallops-at-dawn-260222** — Two-session design conversation (2026-02-21 evening
+**cchat-20260222-gallops-at-dawn** — Two-session design conversation (2026-02-21 evening
 through 2026-02-22 morning). Sonnet drove session one; Opus drove session two.
 Model switch was undetected mid-conversation.
 
 ## References
 
-- `Memos/memo-20260222-jjk-v4-vision.md` — Full design seeds from gallops-at-dawn-260222
+- `Memos/memo-20260222-jjk-v4-vision.md` — Full design seeds from cchat-20260222-gallops-at-dawn
 - `Tools/jjk/vov_veiled/JJS0-GallopsData.adoc` — Current V3 data model (what V4 replaces)
 
 ## Key Design Seeds

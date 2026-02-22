@@ -1,4 +1,4 @@
-# JJK V4 Vision: gallops-at-dawn-260222
+# JJK V4 Vision: cchat-20260222-gallops-at-dawn
 
 Design seeds from a two-session conversation (2026-02-21 evening through 2026-02-22 morning).
 Sonnet drove the first session; Opus drove the second. The model switch was undetected,
