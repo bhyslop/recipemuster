@@ -72,6 +72,15 @@ rbrn_audit() {
   buc_step "Full audit passed (nameplates + GCB quota)"
 }
 
+# Command: list - show available nameplate monikers
+rbrn_list() {
+  buc_doc_brief "List available nameplate monikers"
+  buc_doc_shown || return 0
+
+  buc_step "Available nameplates:"
+  zrbrn_list_monikers
+}
+
 ######################################################################
 # Furnish and Main
 

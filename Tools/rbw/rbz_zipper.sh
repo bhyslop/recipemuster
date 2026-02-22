@@ -111,8 +111,11 @@ zrbz_kindle() {
   buz_enroll RBZ_VALIDATE_AUTH "rbw-rav" "${z_mod}" "validate"
   buz_enroll RBZ_LIST_AUTH     "rbw-ral" "${z_mod}" "list"
 
-  # Cross-nameplate operations
+  # Nameplate regime list
   z_mod="rbrn_cli.sh"
+  buz_enroll RBZ_LIST_NAMEPLATES "rbw-rnl" "${z_mod}" "rbrn_list"
+
+  # Cross-nameplate operations
   buz_enroll RBZ_SURVEY_NAMEPLATES "rbw-ni" "${z_mod}" "rbrn_survey"
   buz_enroll RBZ_AUDIT_NAMEPLATES  "rbw-nv" "${z_mod}" "rbrn_audit"
 

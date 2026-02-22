@@ -136,9 +136,9 @@ zrbrn_enforce() {
 # Public Functions (rbrn_*)
 
 # List available nameplate monikers
-# Usage: rbrn_list
+# Usage: zrbrn_list_monikers
 # Returns list of concrete nameplate monikers by globbing rbrn_*.env files
-rbrn_list() {
+zrbrn_list_monikers() {
   local z_nameplate_files=("${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
 
   for z_file in "${z_nameplate_files[@]}"; do
@@ -187,7 +187,7 @@ rbrn_preflight() {
   # Collect structured data from all nameplates via subshell sourcing
   local z_data
   z_data=$(
-    for z_m in $(rbrn_list); do
+    for z_m in $(zrbrn_list_monikers); do
       z_f="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_m}${RBCC_rbrn_ext}"
       (
         source "${z_f}"
@@ -286,7 +286,7 @@ zrbrn_fleet_survey() {
     "--------" "-----" "------" "------" "-----------------" "--------------" "--------------" "---" "---"
 
   local z_moniker z_file
-  for z_moniker in $(rbrn_list); do
+  for z_moniker in $(zrbrn_list_monikers); do
     z_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
     (
       source "${z_file}"

@@ -803,7 +803,66 @@ some_cmd || { echo "ERROR" >&2; exit 1; }
 
 **Rule**: Error blocks must use `{ ...; }` not `( ... )` when intending to exit or return. The `(subshell)` creates a new process — `exit` terminates only that subshell, not the calling script.
 
-**Counterpoint**: Test execution uses subshells for principled isolation — see **Test Execution Patterns**. Subshells are also present in `$()` command substitution (`_capture` functions) and status capture patterns (`( ... ) || z_status=$?`). The prohibition is specific to error-handling blocks where `exit`/`return` must reach the calling shell.
+### ✅ Legitimate Subshell Uses
+
+The prohibition above is specific to error-handling blocks where `exit`/`return` must reach the calling shell. Subshells are legitimate in these contexts:
+
+- **Test execution** — principled isolation between suites and cases; see **Test Execution Patterns**
+- **`$()` command substitution** — inside `_capture` functions only; see **Capture Functions**
+- **Isolation subshells** — environment containment with exit-status propagation (below)
+
+#### Isolation Subshells (environment containment)
+
+When a sequence of commands mutates the shell environment (sourcing files, `cd`, venv activation, `export`), a subshell prevents those mutations from leaking into subsequent commands. The exit status propagates across the `)` boundary, so the caller can detect and handle failures.
+
+**Rarely needed.** Most code operates within a single kindled environment. Use isolation subshells only when you must execute commands that change the environment and those changes must not persist.
+
+**Two variants** — same principle, different caller handling:
+
+```bash
+# Variant 1: Error propagation — die on any internal failure
+(
+  source "${z_config_file}" || buc_die "Failed to source: ${z_config_file}"
+  «prefix»_operation || buc_die "Operation failed"
+) || buc_die "Isolation subshell failed"
+
+# Variant 2: Status capture — caller inspects and decides
+local z_status=0
+(
+  source "${z_config_file}" || buc_die "Failed to source: ${z_config_file}"
+  «prefix»_operation || buc_die "Operation failed"
+) || z_status=$?
+```
+
+Inside the subshell, `buc_die` calls `exit` which terminates only the subshell — producing a non-zero exit status that the outer `|| buc_die` or `|| z_status=$?` catches. Failure propagates through exit status, not through `exit` reaching the parent.
+
+**Constraints:**
+- Every command inside must have explicit `|| buc_die` — `set -e` is suppressed inside `( ... ) ||` (as with all BCG code, never rely on it)
+- The outer boundary must have `|| buc_die` or `|| z_status=$?` — never leave the subshell exit status unchecked
+- Sourcing inside the subshell is permitted (this is a primary use case — isolation prevents sourced variables from leaking)
+- Keep subshell bodies short and focused — if the body grows complex, delegate to a CLI script via `exec`
+
+**Use cases:**
+- Iterating config files that define overlapping variables (e.g., sourcing each nameplate `.env` in a loop)
+- Running commands that require `cd` to a different directory
+- Activating a virtual environment for a single operation
+- Any sequence where environment mutations must not outlive the block
+
+**Anti-pattern — no internal error handling:**
+
+```bash
+# ❌ Failures inside subshell are silent — source or echo can fail undetected
+(
+  source "${z_file}"
+  echo "${SOME_VAR}"
+) || buc_die "Subshell failed"
+
+# ✅ Every command explicitly handled
+(
+  source "${z_file}" || buc_die "Failed to source: ${z_file}"
+  echo "${SOME_VAR}" || buc_die "Failed to echo"
+) || buc_die "Subshell failed"
+```
 
 ---
 
@@ -1135,6 +1194,7 @@ buv_val_xname "name" "${z_input_name}" 3 50
 - [ ] No `test $(command)` — use `grep -q` or `case` for validation
 - [ ] Only `_predicate` functions in `if`/`while` conditions — no regular/enroll functions in conditionals
 - [ ] Error blocks use `{ ...; }` not `( ... )` — no `|| (... exit ...)` patterns
+- [ ] Isolation subshells (`( ... ) || buc_die`) have `|| buc_die` on every internal command and on the outer boundary
 
 ### Command Substitution Rules
 - [ ] NO command substitution except `$(<file)` builtin and `_capture` functions
