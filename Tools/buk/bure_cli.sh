@@ -23,74 +23,46 @@
 
 set -euo pipefail
 
-ZBURE_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-# Source dependencies
-source "${ZBURE_CLI_SCRIPT_DIR}/buc_command.sh"
-source "${ZBURE_CLI_SCRIPT_DIR}/buv_validation.sh"
-source "${ZBURE_CLI_SCRIPT_DIR}/bure_regime.sh"
-source "${ZBURE_CLI_SCRIPT_DIR}/bupr_PresentationRegime.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
-# CLI Functions
+# Command Functions
 
-# Command: validate - kindle and validate ambient environment
 bure_validate() {
+  buc_doc_brief "Validate BURE environment regime via enrollment report"
+  buc_doc_shown || return 0
+
   buc_step "Validating BURE ambient environment"
-
-  zbure_kindle
-  zbure_validate_fields
-
-  buc_success "BURE configuration valid"
+  buv_report BURE "Environment Regime"
+  buc_step "BURE configuration valid"
 }
 
-# Command: render - diagnostic display then validate
 bure_render() {
-  zbure_kindle
-  zbupr_kindle
+  buc_doc_brief "Display diagnostic view of BURE environment regime"
+  buc_doc_shown || return 0
 
-  echo ""
-  echo "${ZBUC_WHITE}BURE - Bash Utility Environment Regime${ZBUC_RESET}"
-  echo "${ZBUC_WHITE}Source: ambient (caller environment)${ZBUC_RESET}"
-  echo ""
-
-  # Behavioral Overrides
-  bupr_section_begin "Behavioral Overrides"
-  bupr_section_item BURE_COUNTDOWN  enum    opt  "Countdown behavior override (skip)"
-  bupr_section_item BURE_VERBOSE   integer opt  "Verbose output flag (default: 0)"
-  bupr_section_item BURE_COLOR     string  opt  "Color mode flag for output rendering"
-  bupr_section_end
-
-  # Unexpected variables
-  if test ${#ZBURE_UNEXPECTED[@]} -gt 0; then
-    echo "${ZBUC_RED}Unexpected BURE_ variables:${ZBUC_RESET}"
-    local z_var
-    for z_var in "${ZBURE_UNEXPECTED[@]}"; do
-      printf "  ${ZBUC_RED}%-30s${ZBUC_RESET} = %s\n" "${z_var}" "${!z_var:-}"
-    done
-    echo ""
-  fi
-
-  # Validate after full display
-  zbure_validate_fields
-  echo "${ZBUC_GREEN}BURE configuration valid${ZBUC_RESET}"
+  buv_render BURE "BURE - Bash Utility Environment Regime (ambient)"
 }
 
 ######################################################################
-# Main dispatch
+# Furnish and Main
 
-z_command="${1:-}"
+zbure_furnish() {
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/bure_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
 
-case "${z_command}" in
-  validate)
-    bure_validate
-    ;;
-  render)
-    bure_render
-    ;;
-  *)
-    buc_die "Unknown command: ${z_command}. Usage: bure_cli.sh {validate|render}"
-    ;;
-esac
+  zbuv_kindle
+  zburd_kindle
+
+  # BURE is ambient — no env file to source, variables already in environment
+  zbure_kindle
+  zbure_enforce
+
+  zbupr_kindle
+}
+
+buc_execute bure_ "Bash Utility Environment Regime" zbure_furnish "$@"
 
 # eof

@@ -33,21 +33,22 @@ ZBURE_SOURCED=1
 zbure_kindle() {
   test -z "${ZBURE_KINDLED:-}" || buc_die "Module bure already kindled"
 
-  # Set default for all fields (validate enforces required-ness)
+  # Set defaults for all fields (enrollment enforces required-ness)
   BURE_COUNTDOWN="${BURE_COUNTDOWN:-}"
   BURE_VERBOSE="${BURE_VERBOSE:-0}"
   BURE_COLOR="${BURE_COLOR:-auto}"
 
-  # Detect unexpected BURE_ variables
-  local z_known="BURE_COUNTDOWN BURE_VERBOSE BURE_COLOR"
-  ZBURE_UNEXPECTED=()
-  local z_var
-  for z_var in $(compgen -v BURE_); do
-    case " ${z_known} " in
-      *" ${z_var} "*) : ;;
-      *) ZBURE_UNEXPECTED+=("${z_var}") ;;
-    esac
-  done
+  # Enroll all BURE variables — single source of truth for validation and rendering
+
+  buv_regime_enroll BURE
+
+  buv_group_enroll "Behavioral Overrides"
+  buv_string_enroll  BURE_COUNTDOWN   0  4  "Countdown override (skip to disable)"
+  buv_enum_enroll    BURE_VERBOSE     "Verbosity level" 0 1 2 3
+  buv_enum_enroll    BURE_COLOR       "Color mode" auto 0 1
+
+  # Guard against unexpected BURE_ variables not in enrollment
+  buv_scope_sentinel BURE BURE_
 
   ZBURE_KINDLED=1
 }
@@ -56,20 +57,17 @@ zbure_sentinel() {
   test "${ZBURE_KINDLED:-}" = "1" || buc_die "Module bure not kindled - call zbure_kindle first"
 }
 
-# Validate BURE variables via buv_* (dies on first error)
-# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
-zbure_validate_fields() {
+# Enforce all BURE enrollment validations
+zbure_enforce() {
   zbure_sentinel
 
-  # Die on unexpected variables
-  if test ${#ZBURE_UNEXPECTED[@]} -gt 0; then
-    buc_die "Unexpected BURE_ variables: ${ZBURE_UNEXPECTED[*]}"
-  fi
+  buv_vet BURE
 
-  # Validate fields (BURE_COUNTDOWN is optional; if set must be "skip")
-  buv_opt_enum        BURE_COUNTDOWN             skip
-  buv_env_enum        BURE_VERBOSE               0 1 2 3
-  buv_env_string      BURE_COLOR                 1   4
+  # Custom enforce: BURE_COUNTDOWN must be empty or "skip"
+  if test -n "${BURE_COUNTDOWN}"; then
+    test "${BURE_COUNTDOWN}" = "skip" \
+      || buc_die "BURE_COUNTDOWN must be 'skip' or empty, got '${BURE_COUNTDOWN}'"
+  fi
 }
 
 # eof

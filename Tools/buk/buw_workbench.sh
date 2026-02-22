@@ -74,8 +74,8 @@ buw_route() {
     buw-rsr) exec "${z_burs_cli}" burs_render ;;
 
     # Environment Regime subsystem
-    buw-rev) exec "${z_bure_cli}" validate ;;
-    buw-rer) exec "${z_bure_cli}" render ;;
+    buw-rev) exec "${z_bure_cli}" bure_validate ;;
+    buw-rer) exec "${z_bure_cli}" bure_render ;;
 
     # Unknown command
     *)   buc_die "Unknown command: ${z_command}" ;;
