@@ -17,119 +17,50 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # BURC CLI - Command line interface for BURC regime operations
-#
-# Requires BURD_REGIME_FILE environment variable (path to burc.env).
-# This CLI sources the file and validates/renders/displays BURC configuration.
 
 set -euo pipefail
 
-ZBURC_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-# Source dependencies
-source "${ZBURC_CLI_SCRIPT_DIR}/buc_command.sh"
-source "${ZBURC_CLI_SCRIPT_DIR}/buv_validation.sh"
-source "${ZBURC_CLI_SCRIPT_DIR}/burc_regime.sh"
-source "${ZBURC_CLI_SCRIPT_DIR}/burd_regime.sh"
-source "${ZBURC_CLI_SCRIPT_DIR}/bupr_PresentationRegime.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
-# CLI Functions
+# Command Functions
 
-zburc_cli_kindle() {
-  test -z "${ZBURC_CLI_KINDLED:-}" || buc_die "BURC CLI already kindled"
+burc_validate() {
+  buc_doc_brief "Validate BURC configuration regime via enrollment report"
+  buc_doc_shown || return 0
 
-  # Verify dispatch environment
+  buc_step "Validating BURC configuration regime: ${BURD_REGIME_FILE}"
+  buv_report BURC "Configuration Regime"
+  buc_step "BURC configuration valid"
+}
+
+burc_render() {
+  buc_doc_brief "Display diagnostic view of BURC configuration regime"
+  buc_doc_shown || return 0
+
+  buv_render BURC "BURC - Bash Utility Configuration Regime"
+}
+
+######################################################################
+# Furnish and Main
+
+zburc_furnish() {
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/burc_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+
+  zbuv_kindle
   zburd_kindle
 
-  ZBURC_CLI_KINDLED=1
-}
+  source "${BURD_REGIME_FILE}" || buc_die "Failed to source BURC: ${BURD_REGIME_FILE}"
 
-# Command: validate - source file and validate
-burc_validate() {
-  buc_step "Validating BURC: ${BURD_REGIME_FILE}"
-
-  source "${BURD_REGIME_FILE}" || buc_die "Failed to source BURC"
   zburc_kindle
-  zburc_validate_fields
+  zburc_enforce
 
-  buc_success "BURC configuration valid"
-}
-
-# Command: render - diagnostic display then validate
-burc_render() {
-  local z_file="${BURD_REGIME_FILE}"
-
-  source "${z_file}" || buc_die "burc_render: failed to source ${z_file}"
-  zburc_kindle
   zbupr_kindle
-
-  echo ""
-  echo "${ZBUC_WHITE}BURC - Bash Utility Configuration Regime${ZBUC_RESET}"
-  echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
-  echo ""
-
-  # Station Reference
-  bupr_section_begin "Station Reference"
-  bupr_section_item BURC_STATION_FILE       path    req  "Path to developer's BURS station file"
-  bupr_section_end
-
-  # Tabtarget Infrastructure
-  bupr_section_begin "Tabtarget Infrastructure"
-  bupr_section_item BURC_TABTARGET_DIR       path    req  "Directory containing launcher scripts"
-  bupr_section_item BURC_TABTARGET_DELIMITER string  req  "Token separator in tabtarget filenames"
-  bupr_section_end
-
-  # Project Structure
-  bupr_section_begin "Project Structure"
-  bupr_section_item BURC_TOOLS_DIR           path    req  "Directory containing tool scripts"
-  bupr_section_item BURC_PROJECT_ROOT        path    req  "Path from burc.env to project root"
-  bupr_section_item BURC_MANAGED_KITS        string  req  "Comma-separated kit list for vvx"
-  bupr_section_end
-
-  # Build Output
-  bupr_section_begin "Build Output"
-  bupr_section_item BURC_TEMP_ROOT_DIR       path    req  "Root directory for temporary files"
-  bupr_section_item BURC_OUTPUT_ROOT_DIR     path    req  "Root directory for command output"
-  bupr_section_end
-
-  # Logging
-  bupr_section_begin "Logging"
-  bupr_section_item BURC_LOG_LAST            xname   req  "Filename stem for last-run log"
-  bupr_section_item BURC_LOG_EXT             xname   req  "Log file extension (without dot)"
-  bupr_section_end
-
-  # Unexpected variables
-  if test ${#ZBURC_UNEXPECTED[@]} -gt 0; then
-    echo "${ZBUC_RED}Unexpected BURC_ variables:${ZBUC_RESET}"
-    local z_var
-    for z_var in "${ZBURC_UNEXPECTED[@]}"; do
-      printf "  ${ZBUC_RED}%-30s${ZBUC_RESET} = %s\n" "${z_var}" "${!z_var:-}"
-    done
-    echo ""
-  fi
-
-  # Validate after full display
-  zburc_validate_fields
-  echo "${ZBUC_GREEN}BURC configuration valid${ZBUC_RESET}"
 }
 
-######################################################################
-# Main dispatch
-
-zburc_cli_kindle
-
-z_command="${1:-}"
-
-case "${z_command}" in
-  validate)
-    burc_validate
-    ;;
-  render)
-    burc_render
-    ;;
-  *)
-    buc_die "Unknown command: ${z_command}. Usage: burc_cli.sh {validate|render}"
-    ;;
-esac
+buc_execute burc_ "Bash Utility Configuration Regime" zburc_furnish "$@"
 
 # eof

@@ -66,8 +66,8 @@ buw_route() {
     buw-tt-cl)  exec "${z_buut_cli}" buut_launcher                       "$@" ;;
 
     # Config Regime subsystem
-    buw-rcv) exec "${z_burc_cli}" validate ;;
-    buw-rcr) exec "${z_burc_cli}" render ;;
+    buw-rcv) exec "${z_burc_cli}" burc_validate ;;
+    buw-rcr) exec "${z_burc_cli}" burc_render ;;
 
     # Station Regime subsystem
     buw-rsv) exec "${z_burs_cli}" burs_validate ;;

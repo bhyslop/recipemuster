@@ -30,7 +30,7 @@ ZBURC_SOURCED=1
 zburc_kindle() {
   test -z "${ZBURC_KINDLED:-}" || buc_die "Module burc already kindled"
 
-  # Set defaults for all fields (validate enforces required-ness)
+  # Set defaults for all fields (enrollment enforces required-ness)
   BURC_STATION_FILE="${BURC_STATION_FILE:-}"
   BURC_TABTARGET_DIR="${BURC_TABTARGET_DIR:-}"
   BURC_TABTARGET_DELIMITER="${BURC_TABTARGET_DELIMITER:-}"
@@ -43,16 +43,33 @@ zburc_kindle() {
   BURC_LOG_LAST="${BURC_LOG_LAST:-}"
   BURC_LOG_EXT="${BURC_LOG_EXT:-}"
 
-  # Detect unexpected BURC_ variables
-  local z_known="BURC_STATION_FILE BURC_TABTARGET_DIR BURC_TABTARGET_DELIMITER BURC_TOOLS_DIR BURC_BUK_DIR BURC_PROJECT_ROOT BURC_MANAGED_KITS BURC_TEMP_ROOT_DIR BURC_OUTPUT_ROOT_DIR BURC_LOG_LAST BURC_LOG_EXT"
-  ZBURC_UNEXPECTED=()
-  local z_var
-  for z_var in $(compgen -v BURC_); do
-    case " ${z_known} " in
-      *" ${z_var} "*) : ;;
-      *) ZBURC_UNEXPECTED+=("${z_var}") ;;
-    esac
-  done
+  # Enroll all BURC variables — single source of truth for validation and rendering
+
+  buv_regime_enroll BURC
+
+  buv_group_enroll "Station Reference"
+  buv_string_enroll  BURC_STATION_FILE          1  512  "Path to developer's BURS station file"
+
+  buv_group_enroll "Tabtarget Infrastructure"
+  buv_string_enroll  BURC_TABTARGET_DIR         1  128  "Directory containing launcher scripts"
+  buv_string_enroll  BURC_TABTARGET_DELIMITER   1    1  "Token separator in tabtarget filenames"
+
+  buv_group_enroll "Project Structure"
+  buv_string_enroll  BURC_TOOLS_DIR             1  128  "Directory containing tool scripts"
+  buv_string_enroll  BURC_PROJECT_ROOT          1  512  "Path from burc.env to project root"
+  buv_string_enroll  BURC_MANAGED_KITS          1  512  "Comma-separated kit list for vvx"
+
+  buv_group_enroll "Build Output"
+  buv_string_enroll  BURC_TEMP_ROOT_DIR         1  512  "Root directory for temporary files"
+  buv_string_enroll  BURC_OUTPUT_ROOT_DIR       1  512  "Root directory for command output"
+
+  buv_group_enroll "Logging"
+  buv_xname_enroll   BURC_LOG_LAST              1   64  "Filename stem for last-run log"
+  buv_xname_enroll   BURC_LOG_EXT               1   16  "Log file extension (without dot)"
+  buv_string_enroll  BURC_BUK_DIR               1  256  "Derived: BUK directory"
+
+  # Guard against unexpected BURC_ variables not in enrollment
+  buv_scope_sentinel BURC BURC_
 
   # Export variables needed by child processes (exec'd dispatch, workbenches)
   export BURC_TABTARGET_DIR
@@ -66,27 +83,11 @@ zburc_sentinel() {
   test "${ZBURC_KINDLED:-}" = "1" || buc_die "Module burc not kindled - call zburc_kindle first"
 }
 
-# Validate BURC variables via buv_env_* (dies on first error)
-# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
-zburc_validate_fields() {
+# Enforce all BURC enrollment validations
+zburc_enforce() {
   zburc_sentinel
 
-  # Die on unexpected variables
-  if test ${#ZBURC_UNEXPECTED[@]} -gt 0; then
-    buc_die "Unexpected BURC_ variables: ${ZBURC_UNEXPECTED[*]}"
-  fi
-
-  # Validate each field
-  buv_env_string      BURC_STATION_FILE          1    512
-  buv_env_string      BURC_TABTARGET_DIR         1    128
-  buv_env_string      BURC_TABTARGET_DELIMITER   1      1
-  buv_env_string      BURC_TOOLS_DIR             1    128
-  buv_env_string      BURC_PROJECT_ROOT          1    512
-  buv_env_string      BURC_MANAGED_KITS          1    512
-  buv_env_string      BURC_TEMP_ROOT_DIR         1    512
-  buv_env_string      BURC_OUTPUT_ROOT_DIR       1    512
-  buv_env_xname       BURC_LOG_LAST              1     64
-  buv_env_xname       BURC_LOG_EXT               1     16
+  buv_vet BURC
 }
 
 # eof
