@@ -94,6 +94,9 @@ mod jjtpd_parade;
 #[cfg(test)]
 mod jjtnm_markers;
 
+#[cfg(test)]
+mod jjtu_testdir;
+
 // Re-export commonly used types (with RCG prefixes)
 pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark};
 pub use jjrn_notch::{jjrn_ChalkMarker, jjrn_HeatAction, jjrn_format_notch_prefix, jjrn_format_chalk_message, jjrn_format_heat_message, jjrn_format_heat_discussion};

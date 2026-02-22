@@ -102,13 +102,12 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> i32 {
 mod tests {
     use super::*;
     use crate::jjrg_gallops::*;
+    use crate::jjtu_testdir::JjkTestDir;
     use std::collections::BTreeMap;
 
     #[test]
     fn test_nominate_appends_to_heat_order() {
-        let temp_dir = std::env::temp_dir().join("jjk_test_nominate_appends_to_heat_order");
-        let _ = std::fs::remove_dir_all(&temp_dir);
-        std::fs::create_dir_all(&temp_dir).unwrap();
+        let td = JjkTestDir::new("jjk_test_nominate_appends_to_heat_order");
 
         let mut gallops = jjrg_Gallops {
             next_heat_seed: "AA".to_string(),
@@ -119,10 +118,8 @@ mod tests {
             silks: "test-heat".to_string(),
             created: "260101".to_string(),
         };
-        let result = gallops.jjrg_nominate(args, &temp_dir).unwrap();
+        let result = gallops.jjrg_nominate(args, td.path()).unwrap();
         assert!(gallops.heat_order.contains(&result.firemark),
             "heat_order should contain the new firemark after nominate");
-
-        let _ = std::fs::remove_dir_all(&temp_dir);
     }
 }

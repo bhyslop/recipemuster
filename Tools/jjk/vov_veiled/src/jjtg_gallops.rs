@@ -5,6 +5,7 @@
 use super::jjrg_gallops::*;
 use super::jjrv_validate::{zjjrg_is_base64, zjjrg_is_kebab_case, zjjrg_is_yymmdd, zjjrg_is_yymmdd_hhmm};
 use super::jjru_util::zjjrg_increment_seed;
+use super::jjtu_testdir::JjkTestDir;
 use std::collections::BTreeMap;
 
 #[test]
@@ -415,16 +416,14 @@ fn jjtg_zjjrg_increment_seed_three_chars() {
 #[test]
 fn jjtg_nominate_creates_heat() {
     let mut gallops = make_valid_gallops();
-    let temp_dir = std::env::temp_dir().join("jjk_test_nominate");
-    let _ = std::fs::remove_dir_all(&temp_dir);
-    std::fs::create_dir_all(&temp_dir).unwrap();
+    let td = JjkTestDir::new("jjk_test_nominate");
 
     let args = jjrg_NominateArgs {
         silks: "test-heat".to_string(),
         created: "260113".to_string(),
     };
 
-    let result = gallops.jjrg_nominate(args, &temp_dir).unwrap();
+    let result = gallops.jjrg_nominate(args, td.path()).unwrap();
 
     // Check result
     assert!(result.firemark.starts_with('₣'));
@@ -440,9 +439,6 @@ fn jjtg_nominate_creates_heat() {
 
     // Check seed was incremented
     assert_eq!(gallops.next_heat_seed, "AC");
-
-    // Cleanup
-    let _ = std::fs::remove_dir_all(&temp_dir);
 }
 
 #[test]

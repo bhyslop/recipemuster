@@ -10,6 +10,7 @@
 use super::jjro_ops::jjrg_garland;
 use super::jjrt_types::{jjrg_PaceState, jjrg_HeatStatus, jjrg_Tack, jjrg_Pace, jjrg_Heat, jjrg_Gallops, jjrg_GarlandArgs, JJRG_UNKNOWN_BASIS};
 use super::jjrq_query::{jjrq_parse_silks_sequence, jjrq_build_garlanded_silks, jjrq_build_continuation_silks};
+use super::jjtu_testdir::JjkTestDir;
 use std::collections::BTreeMap;
 
 // Helper to create a minimal valid Gallops structure
@@ -69,27 +70,21 @@ fn make_heat_with_paces(heat_id: &str, silks: &str, pace_states: Vec<jjrg_PaceSt
 #[test]
 fn jjtgl_garland_heat_not_found() {
     let mut gallops = make_valid_gallops();
-    let temp_dir = std::env::temp_dir().join("jjk_test_garland_not_found");
-    let _ = std::fs::remove_dir_all(&temp_dir);
-    std::fs::create_dir_all(&temp_dir).unwrap();
+    let td = JjkTestDir::new("jjk_test_garland_not_found");
 
     let args = jjrg_GarlandArgs {
         firemark: "CD".to_string(),
     };
 
-    let result = jjrg_garland(&mut gallops, args, &temp_dir);
+    let result = jjrg_garland(&mut gallops, args, td.path());
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("not found"));
-
-    let _ = std::fs::remove_dir_all(&temp_dir);
 }
 
 #[test]
 fn jjtgl_garland_no_actionable_paces() {
     let mut gallops = make_valid_gallops();
-    let temp_dir = std::env::temp_dir().join("jjk_test_garland_no_actionable");
-    let _ = std::fs::remove_dir_all(&temp_dir);
-    std::fs::create_dir_all(&temp_dir).unwrap();
+    let td = JjkTestDir::new("jjk_test_garland_no_actionable");
 
     // Create heat with only complete and abandoned paces
     let (heat_key, heat) = make_heat_with_paces(
@@ -99,7 +94,7 @@ fn jjtgl_garland_no_actionable_paces() {
     );
 
     // Create paddock file
-    let paddock_path = temp_dir.join(&heat.paddock_file);
+    let paddock_path = td.path().join(&heat.paddock_file);
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Test paddock content").unwrap();
 
@@ -109,19 +104,15 @@ fn jjtgl_garland_no_actionable_paces() {
         firemark: "AB".to_string(),
     };
 
-    let result = jjrg_garland(&mut gallops, args, &temp_dir);
+    let result = jjrg_garland(&mut gallops, args, td.path());
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("no actionable paces"));
-
-    let _ = std::fs::remove_dir_all(&temp_dir);
 }
 
 #[test]
 fn jjtgl_garland_successful_with_rough_paces() {
     let mut gallops = make_valid_gallops();
-    let temp_dir = std::env::temp_dir().join("jjk_test_garland_success_rough");
-    let _ = std::fs::remove_dir_all(&temp_dir);
-    std::fs::create_dir_all(&temp_dir).unwrap();
+    let td = JjkTestDir::new("jjk_test_garland_success_rough");
 
     // Create heat with mixed paces: 2 complete, 2 rough
     let (heat_key, heat) = make_heat_with_paces(
@@ -136,7 +127,7 @@ fn jjtgl_garland_successful_with_rough_paces() {
     );
 
     // Create paddock file
-    let paddock_path = temp_dir.join(&heat.paddock_file);
+    let paddock_path = td.path().join(&heat.paddock_file);
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Original paddock content\n\nMore details here.").unwrap();
 
@@ -146,7 +137,7 @@ fn jjtgl_garland_successful_with_rough_paces() {
         firemark: "AB".to_string(),
     };
 
-    let result = jjrg_garland(&mut gallops, args, &temp_dir).unwrap();
+    let result = jjrg_garland(&mut gallops, args, td.path()).unwrap();
 
     // Verify result structure
     assert_eq!(result.old_firemark, "₣AB");
@@ -173,23 +164,19 @@ fn jjtgl_garland_successful_with_rough_paces() {
     assert_eq!(&gallops.heat_order[0], &result.new_firemark);
 
     // Verify paddock marker was added to old heat
-    let old_paddock_content = std::fs::read_to_string(temp_dir.join(&old_heat.paddock_file)).unwrap();
+    let old_paddock_content = std::fs::read_to_string(td.path().join(&old_heat.paddock_file)).unwrap();
     assert!(old_paddock_content.contains("Garlanded at pace 2"));
 
     // Verify paddock content was copied to new heat (without marker)
-    let new_paddock_content = std::fs::read_to_string(temp_dir.join(&new_heat.paddock_file)).unwrap();
+    let new_paddock_content = std::fs::read_to_string(td.path().join(&new_heat.paddock_file)).unwrap();
     assert!(new_paddock_content.contains("Original paddock content"));
     assert!(!new_paddock_content.contains("Garlanded at pace"));
-
-    let _ = std::fs::remove_dir_all(&temp_dir);
 }
 
 #[test]
 fn jjtgl_garland_successful_with_bridled_paces() {
     let mut gallops = make_valid_gallops();
-    let temp_dir = std::env::temp_dir().join("jjk_test_garland_success_bridled");
-    let _ = std::fs::remove_dir_all(&temp_dir);
-    std::fs::create_dir_all(&temp_dir).unwrap();
+    let td = JjkTestDir::new("jjk_test_garland_success_bridled");
 
     // Create heat with complete and bridled paces
     let heat_key = "₣AB".to_string();
@@ -225,7 +212,7 @@ fn jjtgl_garland_successful_with_bridled_paces() {
     };
 
     // Create paddock file
-    let paddock_path = temp_dir.join(&heat.paddock_file);
+    let paddock_path = td.path().join(&heat.paddock_file);
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Paddock content").unwrap();
 
@@ -235,7 +222,7 @@ fn jjtgl_garland_successful_with_bridled_paces() {
         firemark: "AB".to_string(),
     };
 
-    let result = jjrg_garland(&mut gallops, args, &temp_dir).unwrap();
+    let result = jjrg_garland(&mut gallops, args, td.path()).unwrap();
 
     // Verify bridled pace was transferred
     assert_eq!(result.paces_transferred, 1);
@@ -247,8 +234,6 @@ fn jjtgl_garland_successful_with_bridled_paces() {
     let new_pace = new_heat.paces.values().next().unwrap();
     assert_eq!(new_pace.tacks[0].state, jjrg_PaceState::Bridled);
     assert!(new_pace.tacks[0].direction.is_some());
-
-    let _ = std::fs::remove_dir_all(&temp_dir);
 }
 
 #[test]
@@ -282,9 +267,7 @@ fn jjtgl_garland_silks_sequence_parsing_numbered() {
 #[test]
 fn jjtgl_garland_preserves_pace_order() {
     let mut gallops = make_valid_gallops();
-    let temp_dir = std::env::temp_dir().join("jjk_test_garland_order");
-    let _ = std::fs::remove_dir_all(&temp_dir);
-    std::fs::create_dir_all(&temp_dir).unwrap();
+    let td = JjkTestDir::new("jjk_test_garland_order");
 
     // Create heat with specific order: complete, rough, rough, complete
     let (heat_key, heat) = make_heat_with_paces(
@@ -299,7 +282,7 @@ fn jjtgl_garland_preserves_pace_order() {
     );
 
     // Create paddock file
-    let paddock_path = temp_dir.join(&heat.paddock_file);
+    let paddock_path = td.path().join(&heat.paddock_file);
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Paddock").unwrap();
 
@@ -309,7 +292,7 @@ fn jjtgl_garland_preserves_pace_order() {
         firemark: "AB".to_string(),
     };
 
-    let result = jjrg_garland(&mut gallops, args, &temp_dir).unwrap();
+    let result = jjrg_garland(&mut gallops, args, td.path()).unwrap();
 
     // Verify new heat has rough paces in original order
     let new_heat = gallops.heats.get(&result.new_firemark).unwrap();
@@ -321,16 +304,12 @@ fn jjtgl_garland_preserves_pace_order() {
     let new_pace_1 = new_heat.paces.get(&new_heat.order[1]).unwrap();
     assert_eq!(new_pace_0.tacks[0].silks, "pace-1"); // From original position 1
     assert_eq!(new_pace_1.tacks[0].silks, "pace-2"); // From original position 2
-
-    let _ = std::fs::remove_dir_all(&temp_dir);
 }
 
 #[test]
 fn jjtgl_garland_all_actionable_paces() {
     let mut gallops = make_valid_gallops();
-    let temp_dir = std::env::temp_dir().join("jjk_test_garland_all_actionable");
-    let _ = std::fs::remove_dir_all(&temp_dir);
-    std::fs::create_dir_all(&temp_dir).unwrap();
+    let td = JjkTestDir::new("jjk_test_garland_all_actionable");
 
     // Create heat with only rough paces
     let (heat_key, heat) = make_heat_with_paces(
@@ -340,7 +319,7 @@ fn jjtgl_garland_all_actionable_paces() {
     );
 
     // Create paddock file
-    let paddock_path = temp_dir.join(&heat.paddock_file);
+    let paddock_path = td.path().join(&heat.paddock_file);
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Paddock").unwrap();
 
@@ -350,7 +329,7 @@ fn jjtgl_garland_all_actionable_paces() {
         firemark: "AB".to_string(),
     };
 
-    let result = jjrg_garland(&mut gallops, args, &temp_dir).unwrap();
+    let result = jjrg_garland(&mut gallops, args, td.path()).unwrap();
 
     // All paces transferred
     assert_eq!(result.paces_transferred, 3);
@@ -364,16 +343,12 @@ fn jjtgl_garland_all_actionable_paces() {
     // New heat should have all paces
     let new_heat = gallops.heats.get(&result.new_firemark).unwrap();
     assert_eq!(new_heat.paces.len(), 3);
-
-    let _ = std::fs::remove_dir_all(&temp_dir);
 }
 
 #[test]
 fn jjtgl_garland_abandoned_paces_not_transferred() {
     let mut gallops = make_valid_gallops();
-    let temp_dir = std::env::temp_dir().join("jjk_test_garland_abandoned");
-    let _ = std::fs::remove_dir_all(&temp_dir);
-    std::fs::create_dir_all(&temp_dir).unwrap();
+    let td = JjkTestDir::new("jjk_test_garland_abandoned");
 
     // Create heat with abandoned and rough paces
     let (heat_key, heat) = make_heat_with_paces(
@@ -387,7 +362,7 @@ fn jjtgl_garland_abandoned_paces_not_transferred() {
     );
 
     // Create paddock file
-    let paddock_path = temp_dir.join(&heat.paddock_file);
+    let paddock_path = td.path().join(&heat.paddock_file);
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Paddock").unwrap();
 
@@ -397,7 +372,7 @@ fn jjtgl_garland_abandoned_paces_not_transferred() {
         firemark: "AB".to_string(),
     };
 
-    let result = jjrg_garland(&mut gallops, args, &temp_dir).unwrap();
+    let result = jjrg_garland(&mut gallops, args, td.path()).unwrap();
 
     // Only rough pace transferred
     assert_eq!(result.paces_transferred, 1);
@@ -409,16 +384,12 @@ fn jjtgl_garland_abandoned_paces_not_transferred() {
     for pace in old_heat.paces.values() {
         assert_eq!(pace.tacks[0].state, jjrg_PaceState::Abandoned);
     }
-
-    let _ = std::fs::remove_dir_all(&temp_dir);
 }
 
 #[test]
 fn jjtgl_garland_complete_count_in_marker() {
     let mut gallops = make_valid_gallops();
-    let temp_dir = std::env::temp_dir().join("jjk_test_garland_marker");
-    let _ = std::fs::remove_dir_all(&temp_dir);
-    std::fs::create_dir_all(&temp_dir).unwrap();
+    let td = JjkTestDir::new("jjk_test_garland_marker");
 
     // Create heat with 3 complete paces and 1 rough
     let (heat_key, heat) = make_heat_with_paces(
@@ -433,7 +404,7 @@ fn jjtgl_garland_complete_count_in_marker() {
     );
 
     // Create paddock file
-    let paddock_path = temp_dir.join(&heat.paddock_file);
+    let paddock_path = td.path().join(&heat.paddock_file);
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Original content").unwrap();
 
@@ -443,12 +414,10 @@ fn jjtgl_garland_complete_count_in_marker() {
         firemark: "AB".to_string(),
     };
 
-    let result = jjrg_garland(&mut gallops, args, &temp_dir).unwrap();
+    let result = jjrg_garland(&mut gallops, args, td.path()).unwrap();
 
     // Check paddock marker shows count of 3 complete paces
     let old_heat = gallops.heats.get(&result.old_firemark).unwrap();
-    let paddock_content = std::fs::read_to_string(temp_dir.join(&old_heat.paddock_file)).unwrap();
+    let paddock_content = std::fs::read_to_string(td.path().join(&old_heat.paddock_file)).unwrap();
     assert!(paddock_content.contains("Garlanded at pace 3 — magnificent service"));
-
-    let _ = std::fs::remove_dir_all(&temp_dir);
 }
