@@ -6078,6 +6078,7 @@
         "₢AfAAI",
         "₢AfAAQ",
         "₢AfAAF",
+        "₢AfAAi",
         "₢AfAAh",
         "₢AfAAg",
         "₢AfAAf",
@@ -6092,7 +6093,7 @@
         "₢AfAAW",
         "₢AfAAX"
       ],
-      "next_pace_seed": "AAi",
+      "next_pace_seed": "AAj",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -6824,6 +6825,17 @@
               "text": "Apply T1-T13 transformation recipes to RBRP (Payor Regime).\n\n## Catalog Reference\n\nRead `.claude/jjm/jjp_uAlf_catalog.md` Part 2, RBRP section.\n\n## Current State\n\n- `Tools/rbw/rbrp_regime.sh` (75 lines) — 4 variables, validation inline in kindle via grep -qE, rbrp_load()\n- `Tools/rbw/rbrp_cli.sh` (112 lines) — SCRIPT_DIR pattern, manual case dispatch, 3 rbcr_section groups\n\n## Variables (4 total)\n\n| Variable | Enrollment | Notes |\n|----------|-----------|-------|\n| RBRP_PAYOR_PROJECT_ID | buv_string_enroll 1 128 req | Custom enforce: must match RBGC_GLOBAL_PAYOR_REGEX |\n| RBRP_BILLING_ACCOUNT_ID | buv_string_enroll 0 18 opt | Custom enforce: if non-empty, ^[A-Z0-9]{6}-[A-Z0-9]{6}-[A-Z0-9]{6}$ |\n| RBRP_OAUTH_CLIENT_ID | buv_string_enroll 0 256 opt | Custom enforce: if non-empty, must end .apps.googleusercontent.com |\n| RBRP_OAUTH_REDIRECT_URI | buv_string_enroll 0 512 opt | Currently in render but NOT validated — enroll it |\n\nGroups: \"Payor Project Identity\" (PROJECT_ID), \"Billing Configuration\" (BILLING_ACCOUNT_ID), \"OAuth Configuration\" (CLIENT_ID, REDIRECT_URI).\n\n## Transformations\n\n- T1: CLI restructure — buc_execute + furnish. Furnish sources buv, burd, rbcc, rbgc, rbrp_regime, bupr, then `source \"${RBCC_rbrp_file}\"` + kindle + enforce.\n- T2: Delete `rbrp_load()` from regime module.\n- T3: buv enrollment — 4 variables, 3 groups. Optionals use min=0.\n- T5: buv_report / buv_render\n- T6: buv_scope_sentinel (no UNEXPECTED array currently — this is new)\n- T8b: Replace 3 `printf | grep -qE` sites with [[ =~ ]] in zrbrp_enforce():\n  ```bash\n  zrbrp_enforce() {\n    zrbrp_sentinel\n    buv_vet RBRP\n    zrbgc_sentinel\n    [[ \"${RBRP_PAYOR_PROJECT_ID}\" =~ ${RBGC_GLOBAL_PAYOR_REGEX} ]] \\\n      || buc_die \"RBRP_PAYOR_PROJECT_ID format invalid\"\n    if test -n \"${RBRP_BILLING_ACCOUNT_ID}\"; then\n      [[ \"${RBRP_BILLING_ACCOUNT_ID}\" =~ ^[A-Z0-9]{6}-[A-Z0-9]{6}-[A-Z0-9]{6}$ ]] \\\n        || buc_die \"RBRP_BILLING_ACCOUNT_ID format invalid\"\n    fi\n    if test -n \"${RBRP_OAUTH_CLIENT_ID}\"; then\n      [[ \"${RBRP_OAUTH_CLIENT_ID}\" =~ \\.apps\\.googleusercontent\\.com$ ]] \\\n        || buc_die \"RBRP_OAUTH_CLIENT_ID format invalid\"\n    fi\n  }\n  ```\n- T9: buc_doc_* on validate, render\n- T12/T13: furnish receives command, bupr replaces rbcr\n\n**Dependency:** RBGC must be kindled before enforce (provides RBGC_GLOBAL_PAYOR_REGEX). Furnish must kindle rbgc before rbrp.\n\n## Verification\n\n1. `./tt/rbw-trg.RegimeSmoke.sh`\n2. `./tt/rbw-rpv.ValidatePayor.sh` and `./tt/rbw-rpr.RenderPayor.sh`\n\n## Acceptance\n\n- rbrp_regime.sh uses enrollment + scope_sentinel + enforce with [[ =~ ]] custom checks\n- rbrp_cli.sh uses buc_execute + furnish + buv_report/buv_render\n- No grep -qE in regime module\n- RBRP_OAUTH_REDIRECT_URI is now enrolled (was missing from validation)\n- Regime smoke tests pass",
               "silks": "scrub-rbrp-singleton",
               "commit": "8fdaac5"
+            }
+          ]
+        },
+        "₢AfAAi": {
+          "tacks": [
+            {
+              "ts": "260222-1410",
+              "state": "rough",
+              "text": "Apply T1-T13 transformation recipes to BURC (Configuration Regime, BUK domain).\n\n## Catalog Reference\n\nRead `.claude/jjm/jjp_uAlf_catalog.md` Part 2, BURC section.\n\n## Current State\n\n- `Tools/buk/burc_regime.sh` (90 lines) — 11 variables (9 validated + 2 derived), UNEXPECTED array, exports 3 vars\n- `Tools/buk/burc_cli.sh` (133 lines) — SCRIPT_DIR pattern, manual case dispatch, 5 rbcr_section groups\n\n## Variables (11 total, 5 groups)\n\n| Variable | Enrollment | Notes |\n|----------|-----------|-------|\n| BURC_STATION_FILE | buv_string_enroll 1 512 | |\n| BURC_TABTARGET_DIR | buv_string_enroll 1 128 | Exported |\n| BURC_TABTARGET_DELIMITER | buv_string_enroll 1 1 | Single char |\n| BURC_TOOLS_DIR | buv_string_enroll 1 128 | Exported |\n| BURC_PROJECT_ROOT | buv_string_enroll 1 512 | |\n| BURC_MANAGED_KITS | buv_string_enroll 1 512 | |\n| BURC_TEMP_ROOT_DIR | buv_string_enroll 1 512 | |\n| BURC_OUTPUT_ROOT_DIR | buv_string_enroll 1 512 | |\n| BURC_LOG_LAST | buv_xname_enroll 1 64 | |\n| BURC_LOG_EXT | buv_xname_enroll 1 16 | |\n| BURC_BUK_DIR | DERIVED | = ${BURC_TOOLS_DIR}/buk, exported |\n\nGroups: \"Station Reference\", \"Tabtarget Infrastructure\", \"Project Structure\", \"Build Output\", \"Logging\".\n\n## Design Decision: BURC_BUK_DIR\n\n`BURC_BUK_DIR` is derived (`${BURC_TOOLS_DIR}/buk`), not user-configured, but has the `BURC_` prefix. `buv_scope_sentinel` would flag it as unexpected unless handled.\n\n**Decision:** Enroll BURC_BUK_DIR as `buv_string_enroll BURC_BUK_DIR 1 256 \"Derived: BUK directory\"` in the Logging group (or a new \"Derived Paths\" group). It will be set in kindle before enrollment. This way scope_sentinel sees it as known, and render/report display it. The value is always derived — the enrollment just acknowledges its existence.\n\nThe `export` lines for BURC_TABTARGET_DIR, BURC_TOOLS_DIR, BURC_BUK_DIR must be preserved in kindle after enrollment. Enrollment doesn't handle export.\n\n## Transformations\n\n- T1: CLI restructure — BUK-domain. `source \"${BURD_BUK_DIR}/buc_command.sh\"`. Furnish sources buv, burd, burc_regime, bupr. BURC values already in environment from burd dispatch.\n- T3: buv enrollment — 11 variables including derived BURC_BUK_DIR, 5-6 groups\n- T5: buv_report / buv_render\n- T6: buv_scope_sentinel replaces ZBURC_UNEXPECTED\n- T9: buc_doc_* on validate, render\n- T12/T13: furnish receives command, bupr replaces rbcr\n\n## Verification\n\n1. `./tt/rbw-trg.RegimeSmoke.sh`\n2. `./tt/buw-rcv.ValidateConfig.sh` (if exists)\n\n## Acceptance\n\n- burc_regime.sh uses enrollment + scope_sentinel + enforce\n- BURC_BUK_DIR enrolled as derived, export preserved\n- burc_cli.sh uses buc_execute + furnish + buv_report/buv_render\n- Regime smoke tests pass",
+              "silks": "scrub-burc-singleton",
+              "commit": "fbd116a"
             }
           ]
         }
