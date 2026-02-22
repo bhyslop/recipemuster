@@ -36,20 +36,24 @@ source "${ZRBCNC_CLI_SCRIPT_DIR}/../buk/bupr_PresentationRegime.sh"
 # Command Functions
 
 # Command: validate - enrollment-based validation report
+# Future: rbrn-cli-reunification (₢AfAAZ) will add dynamic nameplate listing on no-arg
 rbrn_validate() {
   buc_doc_brief "Validate RBRN nameplate regime configuration via enrollment report"
   buc_doc_shown || return 0
 
+  test -n "${RBR0_FOLIO:-}" || buc_die "Nameplate moniker required (e.g., nsproto, srjcl, pluml)"
   buc_step "Validating RBRN nameplate regime"
   buv_report RBRN "Nameplate Regime"
   buc_step "RBRN nameplate valid"
 }
 
-# Command: render - diagnostic display then validate
+# Command: render - diagnostic display
+# Future: rbrn-cli-reunification (₢AfAAZ) will add dynamic nameplate listing on no-arg
 rbrn_render() {
   buc_doc_brief "Display diagnostic view of RBRN nameplate regime configuration"
   buc_doc_shown || return 0
 
+  test -n "${RBR0_FOLIO:-}" || buc_die "Nameplate moniker required (e.g., nsproto, srjcl, pluml)"
   buv_render RBRN "RBRN - Recipe Bottle Regime Nameplate"
 }
 

@@ -58,41 +58,41 @@ zrbrr_kindle() {
 
   # Enroll all RBRR variables — single source of truth for validation and rendering
 
-  buv_regime_start RBRR
+  buv_regime_enroll RBRR
 
-  buv_regime_section "Vessel and Local Configuration"
-  buv_string_enroll  RBRR_VESSEL_DIR              "" ""  1  255  "Vessel definitions directory"
-  buv_ipv4_enroll    RBRR_DNS_SERVER              "" ""           "DNS server for containers"
+  buv_group_enroll "Vessel and Local Configuration"
+  buv_string_enroll  RBRR_VESSEL_DIR              1  255  "Vessel definitions directory"
+  buv_ipv4_enroll    RBRR_DNS_SERVER                      "DNS server for containers"
 
-  buv_regime_section "Build Tool Configuration"
-  buv_xname_enroll   RBRR_IGNITE_MACHINE_NAME     "" ""  1   64  "Podman machine for ignite operations"
-  buv_xname_enroll   RBRR_DEPLOY_MACHINE_NAME     "" ""  1   64  "Podman machine for deploy operations"
-  buv_string_enroll  RBRR_CRANE_TAR_GZ            "" ""  1  512  "Crane binary archive path"
-  buv_string_enroll  RBRR_MANIFEST_PLATFORMS       "" ""  1  512  "Target platforms for manifests"
-  buv_string_enroll  RBRR_CHOSEN_PODMAN_VERSION    "" ""  1   16  "Podman version (semantic version)"
-  buv_fqin_enroll    RBRR_CHOSEN_VMIMAGE_ORIGIN    "" ""  1  256  "VM image origin reference"
-  buv_string_enroll  RBRR_CHOSEN_IDENTITY          "" ""  1  128  "Identity for operations"
+  buv_group_enroll "Build Tool Configuration"
+  buv_xname_enroll   RBRR_IGNITE_MACHINE_NAME     1   64  "Podman machine for ignite operations"
+  buv_xname_enroll   RBRR_DEPLOY_MACHINE_NAME     1   64  "Podman machine for deploy operations"
+  buv_string_enroll  RBRR_CRANE_TAR_GZ            1  512  "Crane binary archive path"
+  buv_string_enroll  RBRR_MANIFEST_PLATFORMS       1  512  "Target platforms for manifests"
+  buv_string_enroll  RBRR_CHOSEN_PODMAN_VERSION    1   16  "Podman version (semantic version)"
+  buv_fqin_enroll    RBRR_CHOSEN_VMIMAGE_ORIGIN    1  256  "VM image origin reference"
+  buv_string_enroll  RBRR_CHOSEN_IDENTITY          1  128  "Identity for operations"
 
-  buv_regime_section "GCP Infrastructure"
-  buv_gname_enroll   RBRR_DEPOT_PROJECT_ID         "" ""  6   63  "GCP project ID for depot"
-  buv_gname_enroll   RBRR_GCP_REGION               "" ""  1   32  "GCP region"
-  buv_gname_enroll   RBRR_GAR_REPOSITORY           "" ""  1   63  "Google Artifact Registry repository name"
+  buv_group_enroll "GCP Infrastructure"
+  buv_gname_enroll   RBRR_DEPOT_PROJECT_ID         6   63  "GCP project ID for depot"
+  buv_gname_enroll   RBRR_GCP_REGION               1   32  "GCP region"
+  buv_gname_enroll   RBRR_GAR_REPOSITORY           1   63  "Google Artifact Registry repository name"
 
-  buv_regime_section "Google Cloud Build Configuration"
-  buv_string_enroll  RBRR_GCB_MACHINE_TYPE         "" ""  3   64  "Machine type for Cloud Build"
-  buv_string_enroll  RBRR_GCB_TIMEOUT              "" ""  2   10  "Build timeout (e.g., 1200s)"
-  buv_decimal_enroll RBRR_GCB_MIN_CONCURRENT_BUILDS "" "" 1  999  "Min concurrent builds required"
-  buv_odref_enroll   RBRR_GCB_ORAS_IMAGE_REF       "" ""          "oras image reference (digest-pinned)"
-  buv_odref_enroll   RBRR_GCB_GCLOUD_IMAGE_REF     "" ""          "gcloud image reference (digest-pinned)"
-  buv_odref_enroll   RBRR_GCB_DOCKER_IMAGE_REF     "" ""          "docker image reference (digest-pinned)"
-  buv_odref_enroll   RBRR_GCB_ALPINE_IMAGE_REF     "" ""          "alpine image reference (digest-pinned)"
-  buv_odref_enroll   RBRR_GCB_SYFT_IMAGE_REF       "" ""          "syft image reference (digest-pinned)"
-  buv_odref_enroll   RBRR_GCB_BINFMT_IMAGE_REF     "" ""          "binfmt image reference (digest-pinned)"
+  buv_group_enroll "Google Cloud Build Configuration"
+  buv_string_enroll  RBRR_GCB_MACHINE_TYPE         3   64  "Machine type for Cloud Build"
+  buv_string_enroll  RBRR_GCB_TIMEOUT              2   10  "Build timeout (e.g., 1200s)"
+  buv_decimal_enroll RBRR_GCB_MIN_CONCURRENT_BUILDS 1  999  "Min concurrent builds required"
+  buv_odref_enroll   RBRR_GCB_ORAS_IMAGE_REF              "oras image reference (digest-pinned)"
+  buv_odref_enroll   RBRR_GCB_GCLOUD_IMAGE_REF            "gcloud image reference (digest-pinned)"
+  buv_odref_enroll   RBRR_GCB_DOCKER_IMAGE_REF            "docker image reference (digest-pinned)"
+  buv_odref_enroll   RBRR_GCB_ALPINE_IMAGE_REF            "alpine image reference (digest-pinned)"
+  buv_odref_enroll   RBRR_GCB_SYFT_IMAGE_REF              "syft image reference (digest-pinned)"
+  buv_odref_enroll   RBRR_GCB_BINFMT_IMAGE_REF            "binfmt image reference (digest-pinned)"
 
-  buv_regime_section "Service Account Configuration"
-  buv_string_enroll  RBRR_GOVERNOR_RBRA_FILE       "" ""  1  512  "Governor service account key file"
-  buv_string_enroll  RBRR_RETRIEVER_RBRA_FILE      "" ""  1  512  "Retriever service account key file"
-  buv_string_enroll  RBRR_DIRECTOR_RBRA_FILE       "" ""  1  512  "Director service account key file"
+  buv_group_enroll "Service Account Configuration"
+  buv_string_enroll  RBRR_GOVERNOR_RBRA_FILE       1  512  "Governor service account key file"
+  buv_string_enroll  RBRR_RETRIEVER_RBRA_FILE      1  512  "Retriever service account key file"
+  buv_string_enroll  RBRR_DIRECTOR_RBRA_FILE       1  512  "Director service account key file"
 
   # Guard against unexpected RBRR_ variables not in enrollment
   buv_scope_sentinel RBRR RBRR_

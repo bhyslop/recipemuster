@@ -135,9 +135,11 @@ zbuz_decode_folio() {
       export RBR0_FOLIO="${BURD_TOKEN_3}"
       ;;
     "param1")
-      test "${#z_buz_folio_args[@]}" -ge 1 || buc_die "zbuz_decode_folio: param1 channel requires at least 1 arg"
-      export RBR0_FOLIO="${z_buz_folio_args[0]}"
-      z_buz_folio_args=("${z_buz_folio_args[@]:1}")
+      export RBR0_FOLIO=""
+      if (( ${#z_buz_folio_args[@]} )); then
+        export RBR0_FOLIO="${z_buz_folio_args[0]}"
+        z_buz_folio_args=("${z_buz_folio_args[@]:1}")
+      fi
       ;;
     *)
       buc_die "zbuz_decode_folio: unknown channel: ${z_channel}"

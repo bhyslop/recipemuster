@@ -76,8 +76,8 @@ zrbz_kindle() {
 
   # Nameplate regime operations
   z_mod="rbcnc_cli.sh"
-  buz_blazon RBZ_RENDER_NAMEPLATE   "rbw-rnr" "${z_mod}" "rbrn_render"
-  buz_blazon RBZ_VALIDATE_NAMEPLATE "rbw-rnv" "${z_mod}" "rbrn_validate"
+  buz_blazon RBZ_RENDER_NAMEPLATE   "rbw-rnr" "${z_mod}" "rbrn_render"   "param1"
+  buz_blazon RBZ_VALIDATE_NAMEPLATE "rbw-rnv" "${z_mod}" "rbrn_validate" "param1"
 
   # Vessel regime operations
   z_mod="rbrv_cli.sh"
