@@ -7134,6 +7134,13 @@
               "ts": "260222-1523",
               "state": "rough",
               "text": "Document the one-time Developer Connect setup procedure for the main repo:\n- Create Developer Connect connection via console or gcloud (requires interactive OAuth)\n- Authorize the Google Developer Connect GitHub App on the main repo\n- Record the connection name and git-repository-link resource in RBRR\n- This is a manual procedure (human browser auth) — document steps, don't script end-to-end\n- Add RBRR variables for GDC_CONNECTION_NAME and GDC_REPO_LINK\n- Validate connection is active via REST API health check",
+              "silks": "document-developer-connect-setup",
+              "commit": "0788e56"
+            },
+            {
+              "ts": "260222-1523",
+              "state": "rough",
+              "text": "Document the one-time Developer Connect setup procedure for the main repo:\n- Create Developer Connect connection via console or gcloud (requires interactive OAuth)\n- Authorize the Google Developer Connect GitHub App on the main repo\n- Record the connection name and git-repository-link resource in RBRR\n- This is a manual procedure (human browser auth) — document steps, don't script end-to-end\n- Add RBRR variables for GDC_CONNECTION_NAME and GDC_REPO_LINK\n- Validate connection is active via REST API health check",
               "silks": "script-developer-connect-setup",
               "commit": "d87ce9a"
             },
