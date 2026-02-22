@@ -6764,6 +6764,13 @@
         "₢AfAAd": {
           "tacks": [
             {
+              "ts": "260222-1405",
+              "state": "abandoned",
+              "text": "Apply buv enrollment pattern to BURC, BURS, and BURE regimes.\n\n## Context\n\nThese three BUK regimes all have the same cross-cutting concern: unquoted ${#ARRAY[@]}\nand lack of enrollment-based validation. Follow the proven pattern from RBRN/RBRV/RBRR.\n\n## Scope\n\n1. **burc_regime.sh** — Add buv_*_enroll calls in zburc_kindle, buv_scope_sentinel,\n   zburc_enforce() with buv_vet. Fix unquoted ${#ZBURC_UNEXPECTED[@]}.\n\n2. **burs_regime.sh** — Same treatment as BURC.\n\n3. **bure_regime.sh** — Same treatment as BURC. Also add to regime census\n   (paddock notes BURE is missing from census documents).\n\n4. **butcrg_RegimeSmoke.sh** — Verify existing BURC/BURS tests still pass;\n   add BURE test case if missing.\n\n## Acceptance\n\n- All three regimes use buv enrollment pattern\n- No unquoted ${#ARRAY[@]} in any BUK validator\n- BURE appears in regime census\n- Regime smoke tests pass",
+              "silks": "apply-enrollment-to-buk-regimes",
+              "commit": "7790735"
+            },
+            {
               "ts": "260222-1301",
               "state": "rough",
               "text": "Apply buv enrollment pattern to BURC, BURS, and BURE regimes.\n\n## Context\n\nThese three BUK regimes all have the same cross-cutting concern: unquoted ${#ARRAY[@]}\nand lack of enrollment-based validation. Follow the proven pattern from RBRN/RBRV/RBRR.\n\n## Scope\n\n1. **burc_regime.sh** — Add buv_*_enroll calls in zburc_kindle, buv_scope_sentinel,\n   zburc_enforce() with buv_vet. Fix unquoted ${#ZBURC_UNEXPECTED[@]}.\n\n2. **burs_regime.sh** — Same treatment as BURC.\n\n3. **bure_regime.sh** — Same treatment as BURC. Also add to regime census\n   (paddock notes BURE is missing from census documents).\n\n4. **butcrg_RegimeSmoke.sh** — Verify existing BURC/BURS tests still pass;\n   add BURE test case if missing.\n\n## Acceptance\n\n- All three regimes use buv enrollment pattern\n- No unquoted ${#ARRAY[@]} in any BUK validator\n- BURE appears in regime census\n- Regime smoke tests pass",
