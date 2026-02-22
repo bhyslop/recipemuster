@@ -76,6 +76,24 @@ only the regime file, `audit` needs GCP/OAuth), use **differential furnish**: th
 function receives the command name as `$1` and conditionally sources/kindles heavy
 dependencies based on which command is being invoked.
 
+### Regime Module Archetype
+
+A **regime** is a sourced `.env` file containing typed configuration fields — the contract between human-authored configuration and the modules that consume it. When a module's purpose is validating a regime, it follows the regime archetype:
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `buv_*_enroll` calls | kindle | Declare field contracts (type, range, description) |
+| `buv_scope_sentinel` | kindle (last, before KINDLED) | Catch undeclared `PREFIX_*` variables |
+| `z«prefix»_enforce` | regime module | `buv_vet SCOPE` + custom format checks |
+| `*_validate` command | CLI | `buv_report` — explained per-field display |
+| `*_render` command | CLI | `buv_render` — diagnostic dump |
+
+Furnish sequence: kindle → enforce (ironclad gate before any command runs).
+
+**Singleton** regimes source config unconditionally in furnish. **Manifold** regimes (multiple instances, e.g. nameplates) source conditionally when a folio identifies the instance.
+
+Enrollment types and gating API: see `buv_validation.sh`.
+
 ---
 
 ## Function Patterns
@@ -86,6 +104,7 @@ dependencies based on which command is being invoked.
 |----------------------|----------------|----------------------------------------------------|-------------------|-------------------|--------------------------------------------------|
 | `z«prefix»_kindle`   | Implementation | `test -z "${Z«PREFIX»_KINDLED:-}" \|\| buc_die`    | Yes (credentials) | No (use buc_log_*)| Define all kindle constants, set module state    |
 | `z«prefix»_sentinel` | Implementation | `test "${Z«PREFIX»_KINDLED:-}" = "1" \|\| buc_die` | No                | No                | Guard all other functions                        |
+| `z«prefix»_enforce`  | Implementation | `z«prefix»_sentinel`                               | No                | No                | Validate sourced config (regime archetype only)  |
 | `z«prefix»_furnish`  | CLI only       | `buc_doc_env...`                                   | Yes (configs)     | No                | Document env vars, source configs, call kindle   |
 | Module header        | Implementation | `test -z "${Z«PREFIX»_SOURCED:-}" \|\| buc_die`    | No                | N/A               | Prevent multiple inclusion                       |
 | CLI header           | CLI            | `set -euo pipefail`                                | Yes (all deps)    | N/A               | Source all dependencies                          |
@@ -177,6 +196,7 @@ z«prefix»_furnish() {
   source "${«PREFIX»_REGIME_FILE}" || buc_die "Failed to source regime file"
 
   z«prefix»_kindle
+  z«prefix»_enforce  # Regime archetype: ironclad gate after kindle (omit if no regime)
 }
 
 buc_execute «prefix»_ "«module_description_phrase»" z«prefix»_furnish "$@"
@@ -1106,18 +1126,6 @@ buc_die     # Instead of echo + exit
 buc_warn    # Instead of echo >&2
 ```
 
-### Using BVU Validators
-
-```bash
-# Validate environment variables
-buv_env_string "VAR_NAME" 1 100 "default"
-buv_env_bool   "FLAG_VAR" "0"
-buv_env_ipv4   "IP_VAR"
-
-# Validate parameters (dies on failure, no return value)
-buv_val_xname "name" "${z_input_name}" 3 50
-```
-
 ---
 
 ## Quick Reference Decision Matrix
@@ -1127,7 +1135,7 @@ buv_val_xname "name" "${z_input_name}" 3 50
 | Module structure    | Always split: implementation + CLI                               |
 | Need return value   | Check error handling decision tree                               |
 | Simple validation   | `test ... \|\| buc_die`                                          |
-| Complex validation  | `buv_val_*` functions                                            |
+| Config validation   | Regime archetype: enrollment → enforce → report                  |
 | User feedback       | `buc_step` for major milestones, `buc_log_«source»` for forensic trail    |
 | Runtime information | `buc_log_«source»` for details, `buc_step` for milestones, never comments |
 | Show commands       | `buc_code`                                                       |
@@ -1166,6 +1174,7 @@ buv_val_xname "name" "${z_input_name}" 3 50
 - [ ] `z«prefix»_kindle` - first line: `test -z "${Z«PREFIX»_KINDLED:-}" || buc_die`
 - [ ] `z«prefix»_sentinel` - first line: `test "${Z«PREFIX»_KINDLED:-}" = "1" || buc_die`
 - [ ] `z«prefix»_furnish` (CLI only) - documents env vars, sources configs, calls kindle
+- [ ] `z«prefix»_enforce` (regime archetype only) - `buv_vet` + custom format checks after kindle
 - [ ] All public functions start with sentinel check
 - [ ] All internal helpers prefixed with `z«prefix»_`
 
@@ -1243,7 +1252,7 @@ buv_val_xname "name" "${z_input_name}" 3 50
 ### Code Quality
 - [ ] Prefer bash builtins over external tools (parameter expansion vs sed/awk)
 - [ ] Use BCU utilities instead of raw bash (buc_die vs echo+exit)
-- [ ] Use BVU validators for input validation
+- [ ] Use enrollment for config validation, `buv_dir_exists`/`buv_file_exists` for path checks
 - [ ] Consistent error messages (specific and actionable)
 - [ ] Proper temp file naming with module prefix
 - [ ] No silent failures or ignored conditions
@@ -1256,7 +1265,15 @@ buv_val_xname "name" "${z_input_name}" 3 50
 - [ ] Secrets never written to disk (use `_capture` functions)
 - [ ] Temp files make failures visible and debuggable
 - [ ] Every potential error explicitly handled
-- [ ] Abstraction layers used (BCU/BVU utilities)
+- [ ] Abstraction layers used (BCU utilities, enrollment infrastructure)
+
+### Regime Archetype (when applicable)
+- [ ] Kindle calls `buv_*_enroll` for each config field
+- [ ] Kindle calls `buv_scope_sentinel` after all enrollments, before `KINDLED=1`
+- [ ] `z«prefix»_enforce` calls `buv_vet SCOPE` then custom format checks
+- [ ] Furnish calls kindle → enforce (ironclad gate)
+- [ ] CLI provides `*_validate` command using `buv_report`
+- [ ] CLI provides `*_render` command using `buv_render`
 
 ---
 
