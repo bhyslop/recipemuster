@@ -59,6 +59,13 @@ source "${RBTB_RBTS_DIR}/rbtcpl_PlumlDiagram.sh"
 source "${RBTB_BUTS_DIR}/butcvu_XnameValidation.sh"
 source "${RBTB_BUTS_DIR}/butcrg_RegimeSmoke.sh"
 source "${RBTB_BUTS_DIR}/butcrg_RegimeCredentials.sh"
+source "${RBTB_BUTS_DIR}/butcev_LengthTypes.sh"
+source "${RBTB_BUTS_DIR}/butcev_ChoiceTypes.sh"
+source "${RBTB_BUTS_DIR}/butcev_NumericTypes.sh"
+source "${RBTB_BUTS_DIR}/butcev_RefTypes.sh"
+source "${RBTB_BUTS_DIR}/butcev_ListTypes.sh"
+source "${RBTB_BUTS_DIR}/butcev_GateEnroll.sh"
+source "${RBTB_BUTS_DIR}/butcev_EnforceReport.sh"
 
 buc_context "${0##*/}"
 zburd_kindle
@@ -181,6 +188,10 @@ zrbtb_credentials_tsuite_setup() {
   buto_trace "Setup for regime-credentials suite (no-op)"
 }
 
+zrbtb_enrollment_tsuite_setup() {
+  buto_trace "Setup for enrollment-validation suite (no-op)"
+}
+
 
 ######################################################################
 # Registration
@@ -281,6 +292,56 @@ rbtb_kindle() {
   butr_case_enroll "xname-validation" butcvu_xname_invalid_start_tcase
   butr_case_enroll "xname-validation" butcvu_xname_length_tcase
   butr_case_enroll "xname-validation" butcvu_xname_valid_tcase
+
+  # enrollment-validation suite
+  butr_suite_enroll "enrollment-validation" "" "zrbtb_enrollment_tsuite_setup"
+  butr_case_enroll "enrollment-validation" butcev_string_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_string_empty_optional_tcase
+  butr_case_enroll "enrollment-validation" butcev_string_too_short_tcase
+  butr_case_enroll "enrollment-validation" butcev_string_too_long_tcase
+  butr_case_enroll "enrollment-validation" butcev_string_empty_required_tcase
+  butr_case_enroll "enrollment-validation" butcev_xname_enrolled_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_xname_enrolled_invalid_tcase
+  butr_case_enroll "enrollment-validation" butcev_gname_enrolled_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_gname_enrolled_invalid_tcase
+  butr_case_enroll "enrollment-validation" butcev_fqin_enrolled_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_fqin_enrolled_invalid_tcase
+  butr_case_enroll "enrollment-validation" butcev_bool_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_bool_invalid_tcase
+  butr_case_enroll "enrollment-validation" butcev_bool_empty_tcase
+  butr_case_enroll "enrollment-validation" butcev_enum_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_enum_invalid_tcase
+  butr_case_enroll "enrollment-validation" butcev_enum_empty_tcase
+  butr_case_enroll "enrollment-validation" butcev_decimal_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_decimal_below_tcase
+  butr_case_enroll "enrollment-validation" butcev_decimal_above_tcase
+  butr_case_enroll "enrollment-validation" butcev_decimal_empty_tcase
+  butr_case_enroll "enrollment-validation" butcev_ipv4_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_ipv4_invalid_tcase
+  butr_case_enroll "enrollment-validation" butcev_port_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_port_invalid_tcase
+  butr_case_enroll "enrollment-validation" butcev_odref_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_odref_no_digest_tcase
+  butr_case_enroll "enrollment-validation" butcev_odref_malformed_tcase
+  butr_case_enroll "enrollment-validation" butcev_odref_empty_tcase
+  butr_case_enroll "enrollment-validation" butcev_list_string_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_list_string_empty_tcase
+  butr_case_enroll "enrollment-validation" butcev_list_string_bad_item_tcase
+  butr_case_enroll "enrollment-validation" butcev_list_ipv4_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_list_ipv4_invalid_tcase
+  butr_case_enroll "enrollment-validation" butcev_list_ipv4_empty_tcase
+  butr_case_enroll "enrollment-validation" butcev_list_gname_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_list_gname_invalid_tcase
+  butr_case_enroll "enrollment-validation" butcev_gate_active_valid_tcase
+  butr_case_enroll "enrollment-validation" butcev_gate_active_invalid_tcase
+  butr_case_enroll "enrollment-validation" butcev_gate_inactive_tcase
+  butr_case_enroll "enrollment-validation" butcev_gate_multi_tcase
+  butr_case_enroll "enrollment-validation" butcev_enforce_all_pass_tcase
+  butr_case_enroll "enrollment-validation" butcev_enforce_first_bad_tcase
+  butr_case_enroll "enrollment-validation" butcev_report_all_pass_tcase
+  butr_case_enroll "enrollment-validation" butcev_report_mixed_tcase
+  butr_case_enroll "enrollment-validation" butcev_report_gated_tcase
+  butr_case_enroll "enrollment-validation" butcev_multiscope_tcase
 
 }
 
