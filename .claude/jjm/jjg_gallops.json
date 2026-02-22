@@ -7066,6 +7066,13 @@
         "₢AiAAC": {
           "tacks": [
             {
+              "ts": "260222-1530",
+              "state": "complete",
+              "text": "Mint and implement new RBRR regime variables for Tier 2 infrastructure:\n\nGoogle Developer Connect (GDC prefix):\n- RBRR_GDC_CONNECTION_NAME — Developer Connect connection resource name\n- RBRR_GDC_REGION — Developer Connect region (may differ from GCP_REGION)\n- RBRR_GDC_REPO_LINK — git-repository-link resource name for the main repo\n\nGoogle Cloud Build trigger:\n- RBRR_GCB_TRIGGER_PATTERN — Naming convention for per-vessel triggers (e.g., \"rbw-build-{vessel}\")\n\nAdd to rbrr.env with documentation comments. Update rbrr_regime.sh validator\n(buv enrollment, scope sentinel). No GitHub account/repo variables needed —\ntriggers connect to the main repo via Developer Connect, not to separate vessel repos.",
+              "silks": "design-rbrr-variable-additions",
+              "commit": "d426545"
+            },
+            {
               "ts": "260222-1527",
               "state": "rough",
               "text": "Mint and implement new RBRR regime variables for Tier 2 infrastructure:\n\nGoogle Developer Connect (GDC prefix):\n- RBRR_GDC_CONNECTION_NAME — Developer Connect connection resource name\n- RBRR_GDC_REGION — Developer Connect region (may differ from GCP_REGION)\n- RBRR_GDC_REPO_LINK — git-repository-link resource name for the main repo\n\nGoogle Cloud Build trigger:\n- RBRR_GCB_TRIGGER_PATTERN — Naming convention for per-vessel triggers (e.g., \"rbw-build-{vessel}\")\n\nAdd to rbrr.env with documentation comments. Update rbrr_regime.sh validator\n(buv enrollment, scope sentinel). No GitHub account/repo variables needed —\ntriggers connect to the main repo via Developer Connect, not to separate vessel repos.",
