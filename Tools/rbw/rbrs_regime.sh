@@ -30,15 +30,35 @@ ZRBRS_SOURCED=1
 zrbrs_kindle() {
   test -z "${ZRBRS_KINDLED:-}" || buc_die "Module rbrs already kindled"
 
-  buv_env_string      RBRS_PODMAN_ROOT_DIR         1     64
-  buv_env_string      RBRS_VMIMAGE_CACHE_DIR       1     64
-  buv_env_string      RBRS_VM_PLATFORM             1     64
+  # Set defaults for all fields (enrollment enforces required-ness)
+  RBRS_PODMAN_ROOT_DIR="${RBRS_PODMAN_ROOT_DIR:-}"
+  RBRS_VMIMAGE_CACHE_DIR="${RBRS_VMIMAGE_CACHE_DIR:-}"
+  RBRS_VM_PLATFORM="${RBRS_VM_PLATFORM:-}"
+
+  # Enroll all RBRS variables — single source of truth for validation and rendering
+
+  buv_regime_enroll RBRS
+
+  buv_group_enroll "Station Paths"
+  buv_string_enroll  RBRS_PODMAN_ROOT_DIR     1  64  "Podman machine root directory"
+  buv_string_enroll  RBRS_VMIMAGE_CACHE_DIR   1  64  "VM image cache directory"
+  buv_string_enroll  RBRS_VM_PLATFORM         1  64  "VM platform architecture"
+
+  # Guard against unexpected RBRS_ variables not in enrollment
+  buv_scope_sentinel RBRS RBRS_
 
   ZRBRS_KINDLED=1
 }
 
 zrbrs_sentinel() {
   test "${ZRBRS_KINDLED:-}" = "1" || buc_die "Module rbrs not kindled - call zrbrs_kindle first"
+}
+
+# Enforce all RBRS enrollment validations
+zrbrs_enforce() {
+  zrbrs_sentinel
+
+  buv_vet RBRS
 }
 
 # eof

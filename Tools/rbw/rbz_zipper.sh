@@ -102,8 +102,8 @@ zrbz_kindle() {
 
   # Station regime operations
   z_mod="rbrs_cli.sh"
-  buz_enroll RBZ_RENDER_STATION   "rbw-rsr" "${z_mod}" "render"
-  buz_enroll RBZ_VALIDATE_STATION "rbw-rsv" "${z_mod}" "validate"
+  buz_enroll RBZ_RENDER_STATION   "rbw-rsr" "${z_mod}" "rbrs_render"
+  buz_enroll RBZ_VALIDATE_STATION "rbw-rsv" "${z_mod}" "rbrs_validate"
 
   # Auth regime operations
   z_mod="rbra_cli.sh"

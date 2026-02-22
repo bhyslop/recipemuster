@@ -20,78 +20,50 @@
 
 set -euo pipefail
 
-ZRBRS_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-# Source dependencies
-source "${ZRBRS_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${ZRBRS_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
-source "${ZRBRS_CLI_SCRIPT_DIR}/rbrs_regime.sh"
-source "${ZRBRS_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBRS_CLI_SCRIPT_DIR}/rbcr_render.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
-# CLI Functions
+# Command Functions
 
-# Command: validate - source file and validate (dies on first error)
 rbrs_validate() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrs_validate: file argument required"
-  test -f "${z_file}" || buc_die "rbrs_validate: file not found: ${z_file}"
+  buc_doc_brief "Validate RBRS station regime configuration via enrollment report"
+  buc_doc_shown || return 0
 
-  buc_step "Validating RBRS station config file: ${z_file}"
-
-  source "${z_file}" || buc_die "rbrs_validate: failed to source ${z_file}"
-  zrbrs_kindle
-
-  buc_step "RBRS station config valid"
+  buc_step "Validating RBRS station regime file: ${RBCC_rbrs_file}"
+  buv_report RBRS "Station Regime"
+  buc_step "RBRS station regime valid"
 }
 
-# Command: render - diagnostic display then validate
 rbrs_render() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrs_render: file argument required"
-  test -f "${z_file}" || buc_die "rbrs_render: file not found: ${z_file}"
+  buc_doc_brief "Display diagnostic view of RBRS station regime configuration"
+  buc_doc_shown || return 0
 
-  source "${z_file}" || buc_die "rbrs_render: failed to source ${z_file}"
-  zrbrs_kindle
-  zrbcr_kindle
-
-  echo ""
-  echo "${ZBUC_WHITE}RBRS - Recipe Bottle Station Regime${ZBUC_RESET}"
-  echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
-  echo ""
-
-  rbcr_section_begin "Podman Configuration"
-  rbcr_section_item RBRS_PODMAN_ROOT_DIR    string  req  "Podman machine root directory"
-  rbcr_section_item RBRS_VMIMAGE_CACHE_DIR  string  req  "VM image cache directory"
-  rbcr_section_item RBRS_VM_PLATFORM        string  req  "VM platform architecture"
-  rbcr_section_end
-
-  echo "${ZBUC_GREEN}RBRS station config valid${ZBUC_RESET}"
+  buv_render RBRS "RBRS - Recipe Bottle Station Regime"
 }
 
 ######################################################################
-# Main dispatch
+# Furnish and Main
 
-zrbcc_kindle
+zrbrs_furnish() {
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbrs_regime.sh"
 
-z_command="${1:-}"
-ZRBRS_CLI_DEFAULT_FILE="../station-files/rbrs.env"
+  zbuv_kindle
+  zburd_kindle
+  zrbcc_kindle
 
-case "${z_command}" in
-  validate)
-    z_file="${2:-${ZRBRS_CLI_DEFAULT_FILE}}"
-    test -f "${z_file}" || buc_die "RBRS file not found: ${z_file}"
-    rbrs_validate "${z_file}"
-    ;;
-  render)
-    z_file="${2:-${ZRBRS_CLI_DEFAULT_FILE}}"
-    test -f "${z_file}" || buc_die "RBRS file not found: ${z_file}"
-    rbrs_render "${z_file}"
-    ;;
-  *)
-    buc_die "Unknown command: ${z_command}. Usage: rbrs_cli.sh {validate|render} [file]"
-    ;;
-esac
+  source "${RBCC_rbrs_file}" || buc_die "Failed to source RBRS: ${RBCC_rbrs_file}"
+
+  zrbrs_kindle
+  zrbrs_enforce
+
+  zbupr_kindle
+}
+
+buc_execute rbrs_ "Recipe Bottle Station Regime" zrbrs_furnish "$@"
 
 # eof
