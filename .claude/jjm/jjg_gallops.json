@@ -7060,6 +7060,13 @@
         "₢AiAAE": {
           "tacks": [
             {
+              "ts": "260222-1507",
+              "state": "rough",
+              "text": "Create rbk-build-rbev-busybox GitHub repository via REST API:\n- Use GitHub REST API (curl, not gh CLI) with Courier PAT\n- Create repo under RBRR_GITHUB_ACCOUNT\n- Repo name derived from RBRR_GITHUB_REPO_PATTERN with vessel sigil substituted\n- Initialize with README or .gitignore\n- Establish directory structure for vessel build definition\n- Include vessel mode metadata (RBRV_VESSEL_MODE=conjure)\n- Script this as a repeatable Foundry operation (not one-off manual)\n- BCG compliance for all scripting\n\nAlso in this pace: add .rbk/ to the PARENT repo's .gitignore\n(the .rbk/ directory holds cloned vessel repos, must not be tracked).\n\nThis is the first vessel repo — pattern established here will be followed for all subsequent vessels.",
+              "silks": "create-busybox-vessel-repo",
+              "commit": "a5069e0"
+            },
+            {
               "ts": "260222-1454",
               "state": "rough",
               "text": "Create rbk-build-rbev-busybox GitHub repository via REST API:\n- Use GitHub REST API (curl, not gh CLI) with Courier PAT\n- Create repo under RBRR_GITHUB_ACCOUNT\n- Initialize with README or .gitignore\n- Establish directory structure for vessel build definition\n- Include vessel mode metadata (RBRV_VESSEL_MODE=conjure)\n- Script this as a repeatable Foundry operation (not one-off manual)\n- BCG compliance for all scripting\n\nThis is the first vessel repo — pattern established here will be followed for all subsequent vessels.",
