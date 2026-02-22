@@ -7090,6 +7090,13 @@
         "₢AiAAI": {
           "tacks": [
             {
+              "ts": "260222-1503",
+              "state": "rough",
+              "text": "Implement the \"prepare\" step in the Foundry (new phase before dispatch):\n- Clone vessel repo to .rbk/ if not already present (git clone over HTTPS with Courier PAT)\n- Copy Dockerfile + build context from parent repo (rbev-vessels/{sigil}/) to vessel repo clone\n- Generate/update cloudbuild.yaml with current RBRR pin values baked in\n  (pins are regime-level, so YAML regeneration reads RBRR and writes updated refs)\n- Pin staleness check: balk if pins are older than 1 day\n- Commit and push changes via local git operations (git commit + git push over HTTPS)\n  Note: this is git protocol, not GitHub REST API — REST API is for repo management only\n- BCG compliance for all scripting\n\nThis is the \"publish ceremony\" — changes flow from parent repo to vessel repo.\nDockerfiles live in parent repo (source of truth). Vessel repo is a derived artifact.\nThe .rbk/ directory is gitignored in parent repo, parallels .buk/ pattern.\n\nTwo outputs committed to vessel repo:\n1. Dockerfile + build context (copied from parent)\n2. cloudbuild.yaml (generated with current pins baked in)",
+              "silks": "implement-prepare-step",
+              "commit": "2649cc6"
+            },
+            {
               "ts": "260222-1454",
               "state": "rough",
               "text": "Implement the \"prepare\" step in the Foundry (new phase before dispatch):\n- Clone vessel repo to .rbk/ if not already present\n- Copy Dockerfile + build context from parent repo (rbev-vessels/{sigil}/) to vessel repo clone\n- Copy/update cloudbuild.yaml in vessel repo clone\n- Pin staleness check: balk if pins are older than 1 day\n- Commit and push changes to vessel repo on GitHub via REST API\n- BCG compliance for all scripting\n\nThis is the \"publish ceremony\" — changes flow from parent repo to vessel repo.\nDockerfiles live in parent repo (source of truth). Vessel repo is a derived artifact.\nThe .rbk/ directory is gitignored in parent repo, parallels .buk/ pattern.",
