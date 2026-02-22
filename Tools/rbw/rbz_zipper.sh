@@ -107,9 +107,9 @@ zrbz_kindle() {
 
   # Auth regime operations
   z_mod="rbra_cli.sh"
-  buz_enroll RBZ_RENDER_AUTH   "rbw-rar" "${z_mod}" "render"
-  buz_enroll RBZ_VALIDATE_AUTH "rbw-rav" "${z_mod}" "validate"
-  buz_enroll RBZ_LIST_AUTH     "rbw-ral" "${z_mod}" "list"
+  buz_enroll RBZ_RENDER_AUTH   "rbw-rar" "${z_mod}" "rbra_render"   "param1"
+  buz_enroll RBZ_VALIDATE_AUTH "rbw-rav" "${z_mod}" "rbra_validate" "param1"
+  buz_enroll RBZ_LIST_AUTH     "rbw-ral" "${z_mod}" "rbra_list"
 
   # Nameplate regime list
   z_mod="rbrn_cli.sh"

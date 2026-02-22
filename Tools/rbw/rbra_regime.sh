@@ -30,30 +30,24 @@ ZRBRA_SOURCED=1
 zrbra_kindle() {
   test -z "${ZRBRA_KINDLED:-}" || buc_die "Module rbra already kindled"
 
-  # Set defaults for all fields (validate enforces required-ness)
+  # Set defaults for all fields (enrollment enforces required-ness)
   RBRA_CLIENT_EMAIL="${RBRA_CLIENT_EMAIL:-}"
   RBRA_PRIVATE_KEY="${RBRA_PRIVATE_KEY:-}"
   RBRA_PROJECT_ID="${RBRA_PROJECT_ID:-}"
   RBRA_TOKEN_LIFETIME_SEC="${RBRA_TOKEN_LIFETIME_SEC:-}"
 
-  # Detect unexpected RBRA_ variables
-  local z_known="RBRA_CLIENT_EMAIL RBRA_PRIVATE_KEY RBRA_PROJECT_ID RBRA_TOKEN_LIFETIME_SEC"
-  ZRBRA_UNEXPECTED=()
-  local z_var
-  for z_var in $(compgen -v RBRA_); do
-    case " ${z_known} " in
-      *" ${z_var} "*) : ;;
-      *) ZRBRA_UNEXPECTED+=("${z_var}") ;;
-    esac
-  done
+  # Enroll all RBRA variables — single source of truth for validation and rendering
 
-  # Build rollup of all RBRA_ variables for passing to scripts/containers
-  # CRITICAL SECURITY: mask RBRA_PRIVATE_KEY
-  ZRBRA_ROLLUP=""
-  ZRBRA_ROLLUP+="RBRA_CLIENT_EMAIL='${RBRA_CLIENT_EMAIL}' "
-  ZRBRA_ROLLUP+="RBRA_PRIVATE_KEY='[REDACTED]' "
-  ZRBRA_ROLLUP+="RBRA_PROJECT_ID='${RBRA_PROJECT_ID}' "
-  ZRBRA_ROLLUP+="RBRA_TOKEN_LIFETIME_SEC='${RBRA_TOKEN_LIFETIME_SEC}'"
+  buv_regime_enroll RBRA
+
+  buv_group_enroll "Service Account Credentials"
+  buv_string_enroll   RBRA_CLIENT_EMAIL        1   256  "Service account email address"
+  buv_string_enroll   RBRA_PRIVATE_KEY         1  4096  "PEM-encoded private key material"
+  buv_string_enroll   RBRA_PROJECT_ID          1    64  "GCP project owning the service account"
+  buv_decimal_enroll  RBRA_TOKEN_LIFETIME_SEC  300  3600  "OAuth token lifetime in seconds"
+
+  # Guard against unexpected RBRA_ variables not in enrollment
+  buv_scope_sentinel RBRA RBRA_
 
   ZRBRA_KINDLED=1
 }
@@ -62,37 +56,19 @@ zrbra_sentinel() {
   test "${ZRBRA_KINDLED:-}" = "1" || buc_die "Module rbra not kindled - call zrbra_kindle first"
 }
 
-# Validate RBRA variables via buv_env_* (dies on first error)
-# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
-zrbra_validate_fields() {
+# Enforce all RBRA enrollment validations plus custom format checks
+zrbra_enforce() {
   zrbra_sentinel
 
-  # Die on unexpected variables
-  if test ${#ZRBRA_UNEXPECTED[@]} -gt 0; then
-    buc_die "Unexpected RBRA_ variables: ${ZRBRA_UNEXPECTED[*]}"
-  fi
+  buv_vet RBRA
 
-  # Core credential fields
-  buv_env_string RBRA_CLIENT_EMAIL 1 256
-  buv_env_string RBRA_PRIVATE_KEY 1 4096
-  buv_env_string RBRA_PROJECT_ID 1 64
-  buv_env_decimal RBRA_TOKEN_LIFETIME_SEC 300 3600
+  # Client email must match service account pattern
+  [[ "${RBRA_CLIENT_EMAIL}" =~ \.iam\.gserviceaccount\.com$ ]] \
+    || buc_die "RBRA_CLIENT_EMAIL does not match service account pattern (*.iam.gserviceaccount.com): '${RBRA_CLIENT_EMAIL}'"
 
-  # Additional format validation: client email must match service account pattern
-  if ! printf '%s' "${RBRA_CLIENT_EMAIL}" | grep -qE '\.iam\.gserviceaccount\.com$'; then
-    buc_die "RBRA_CLIENT_EMAIL does not match service account pattern (*.iam.gserviceaccount.com): '${RBRA_CLIENT_EMAIL}'"
-  fi
-
-  # Additional format validation: private key must contain PEM key material
-  if ! printf '%s' "${RBRA_PRIVATE_KEY}" | grep -q 'BEGIN'; then
-    buc_die "RBRA_PRIVATE_KEY does not contain PEM key material"
-  fi
+  # Private key must contain PEM key material
+  [[ "${RBRA_PRIVATE_KEY}" =~ BEGIN ]] \
+    || buc_die "RBRA_PRIVATE_KEY does not contain PEM key material"
 }
-
-######################################################################
-# Public Functions (rbra_*)
-
-# NO rbra_load() function - RBRA is multi-instance (manifold)
-# Loading happens through RBRR references; CLI handles per-file operations
 
 # eof
