@@ -22,12 +22,14 @@ set -euo pipefail
 zccck_kit_dir="${BASH_SOURCE[0]%/*}"
 zccck_buk_directory="${zccck_kit_dir}/../buk"
 source "${zccck_buk_directory}/buc_command.sh"
+source "${zccck_buk_directory}/buv_validation.sh"
 source "${zccck_buk_directory}/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verify dispatch completed
+# Verify dispatch completed — buv must kindle before burd (enrollment infrastructure)
+zbuv_kindle
 zburd_kindle
 
 

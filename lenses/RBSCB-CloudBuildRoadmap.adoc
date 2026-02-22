@@ -280,6 +280,41 @@ Recipe Bottle deploys to Podman on workstations.
 No benefit until deployment targets change.
 (2026-02)
 
+**Tier 2 (trigger migration) is MVP-required.**
+Google automatically generates SLSA v1.0 provenance for trigger-invoked builds.
+This is the single highest-value security improvement available before alpha release.
+The mechanical cost is justified: the Foundry already parameterizes builds through substitution variables,
+so converting to static cloudbuild.yaml per vessel is refactoring, not redesign.
+(2026-02)
+
+**Tier 1 log hygiene folded into Tier 2.**
+Build step scripts are being inlined into cloudbuild.yaml during trigger migration.
+Log hygiene (ensuring tokens and credentials are not echoed) is audited naturally during this inlining —
+each rbgjb script is reviewed as its content moves into YAML step blocks.
+A separate Tier 1 log hygiene effort would duplicate this audit.
+(2026-02)
+
+**BuildKit --provenance flag deferred.**
+Google trigger-level SLSA v1.0 provenance (Tier 2) covers the primary use case:
+attesting that a specific build produced a specific image from a specific source commit.
+BuildKit-level provenance (`--provenance=true` on `docker buildx build`) records builder internals —
+useful for deeper forensics but redundant for the current threat model.
+Revisit if build reproducibility verification becomes a priority.
+(2026-02)
+
+**Tiers 3-5 deferred to post-MVP.**
+Private Pools (Tier 3), Egress Lockdown (Tier 4), and VPC Service Controls (Tier 5) represent
+progressive GCB infrastructure investment with increasing lock-in and maintenance cost.
+None provide security properties required for an alpha release consumed by the project author.
+Each tier remains a separate future heat decision, ordered by the dependency chain documented above.
+(2026-02)
+
+**Dockerfile base image digest validation — independent, future heat.**
+Validating that vessel Dockerfiles use digest-pinned `FROM` references is a supply-chain hygiene measure
+orthogonal to the trigger migration. It constrains vessel authors (policy decision with RBSRV implications)
+and does not depend on Tier 2 infrastructure. Tracked as a separate future heat, not a Tier 2 prerequisite.
+(2026-02)
+
 ==== References
 
 **Google Cloud documentation:**

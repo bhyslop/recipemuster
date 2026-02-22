@@ -178,6 +178,7 @@ zrbrn_furnish() {
   # Light kindles (always)
   zbuv_kindle
   zburd_kindle
+  zburd_enforce
   zbupr_kindle
   zrbcc_kindle
   test "${z_rbw_kit_dir}" = "${RBCC_KIT_DIR}" || buc_die "z_rbw_kit_dir mismatch: ${z_rbw_kit_dir} != ${RBCC_KIT_DIR}"

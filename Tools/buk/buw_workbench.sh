@@ -25,12 +25,14 @@ BUW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${BUW_SCRIPT_DIR}/buc_command.sh"
+source "${BUW_SCRIPT_DIR}/buv_validation.sh"
 source "${BURC_BUK_DIR}/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
 # Verify dispatch completed
+zbuv_kindle
 zburd_kindle
 
 # Verbose output if BURE_VERBOSE is set

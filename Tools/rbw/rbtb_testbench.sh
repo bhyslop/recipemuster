@@ -68,8 +68,8 @@ source "${RBTB_BUTS_DIR}/butcev_GateEnroll.sh"
 source "${RBTB_BUTS_DIR}/butcev_EnforceReport.sh"
 
 buc_context "${0##*/}"
-zburd_kindle
 zbuv_kindle
+zburd_kindle
 zrbcc_kindle
 zbuz_kindle
 zrbz_kindle

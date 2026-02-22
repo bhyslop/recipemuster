@@ -25,12 +25,14 @@ VSLW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${VSLW_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${VSLW_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${VSLW_SCRIPT_DIR}/../buk/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
 # Verify dispatch completed
+zbuv_kindle
 zburd_kindle
 
 # Verbose output if BURE_VERBOSE is set

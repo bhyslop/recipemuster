@@ -257,6 +257,7 @@ rbrr_refresh_gcb_pins() {
 zrbrr_furnish() {
   zbuv_kindle
   zburd_kindle
+  zburd_enforce
   zrbcc_kindle
 
   zrbrr_kindle

@@ -40,16 +40,52 @@ zburd_kindle() {
   BURD_TOKEN_4="${BURD_TOKEN_4:-}"
   BURD_TOKEN_5="${BURD_TOKEN_5:-}"
 
-  # Detect unexpected BURD_ variables
-  local z_known="BURD_REGIME_FILE BURD_STATION_FILE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_TERM_COLS BURD_NOW_STAMP BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_TARGET BURD_COMMAND BURD_TOKEN_1 BURD_TOKEN_2 BURD_CLI_ARGS BURD_NO_LOG BURD_INTERACTIVE BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR"
-  ZBURD_UNEXPECTED=()
-  local z_var
-  for z_var in $(compgen -v BURD_); do
-    case " ${z_known} " in
-      *" ${z_var} "*) : ;;
-      *) ZBURD_UNEXPECTED+=("${z_var}") ;;
-    esac
-  done
+  # Enroll all BURD variables — single source of truth for validation and rendering
+
+  buv_regime_enroll BURD
+
+  buv_group_enroll "Launcher Configuration"
+  buv_string_enroll  BURD_REGIME_FILE           1  256  "Path to the BURC regime configuration file"
+  buv_string_enroll  BURD_STATION_FILE          1  256  "Path to the developer's BURS station file"
+  buv_string_enroll  BURD_COORDINATOR_SCRIPT    1  256  "Path to the coordinator script for this tabtarget"
+  buv_string_enroll  BURD_LAUNCHER              1  256  "Path to the tabtarget launcher script"
+  buv_string_enroll  BURD_TERM_COLS             1    8  "Terminal column width at dispatch time"
+
+  buv_group_enroll "Directory Paths"
+  buv_string_enroll  BURD_TOOLS_DIR             1  256  "Tools directory path (from BURC)"
+  buv_string_enroll  BURD_BUK_DIR               1  256  "BUK directory path (derived)"
+  buv_string_enroll  BURD_TABTARGET_DIR         1  256  "Tabtarget directory path (from BURC)"
+
+  buv_group_enroll "Computed State"
+  buv_string_enroll  BURD_NOW_STAMP             1   64  "Timestamp string computed at dispatch time"
+  buv_string_enroll  BURD_TEMP_DIR              1  256  "Temporary directory for this invocation"
+  buv_string_enroll  BURD_OUTPUT_DIR            1  256  "Output directory for this invocation"
+  buv_string_enroll  BURD_TRANSCRIPT            1  256  "Path to transcript file for this invocation"
+  buv_string_enroll  BURD_GIT_CONTEXT           1  128  "Git context string at dispatch time"
+
+  buv_group_enroll "Parsed Tabtarget"
+  buv_string_enroll  BURD_TARGET                1  256  "Target parsed from tabtarget filename"
+  buv_string_enroll  BURD_COMMAND               1   64  "Command parsed from tabtarget filename"
+  buv_string_enroll  BURD_TOKEN_1               1   64  "First token parsed from tabtarget filename"
+  buv_string_enroll  BURD_TOKEN_2               1  128  "Second token parsed from tabtarget filename"
+  buv_string_enroll  BURD_TOKEN_3               0   64  "Third token (optional)"
+  buv_string_enroll  BURD_TOKEN_4               0   64  "Fourth token (optional)"
+  buv_string_enroll  BURD_TOKEN_5               0   64  "Fifth token (optional)"
+
+  buv_group_enroll "Caller Options"
+  buv_string_enroll  BURD_NO_LOG                0   16  "Disable logging when set"
+  buv_string_enroll  BURD_INTERACTIVE           0   16  "Interactive mode flag when set"
+
+  buv_group_enroll "Log Paths"
+  buv_string_enroll  BURD_LOG_LAST              0  256  "Path to last-run log file"
+  buv_string_enroll  BURD_LOG_SAME              0  256  "Path to same-command log file"
+  buv_string_enroll  BURD_LOG_HIST              0  256  "Path to historical log file"
+
+  # BURD_CLI_ARGS is an array — enroll as optional string for scope_sentinel awareness
+  buv_string_enroll  BURD_CLI_ARGS              0 9999  "CLI arguments (array, validated separately)"
+
+  # Guard against unexpected BURD_ variables not in enrollment
+  buv_scope_sentinel BURD BURD_
 
   ZBURD_KINDLED=1
 }
@@ -58,123 +94,16 @@ zburd_sentinel() {
   test "${ZBURD_KINDLED:-}" = "1" || buc_die "Module burd not kindled - call zburd_kindle first"
 }
 
-# Validate BURD variables via buv_* (dies on first error)
-# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
-zburd_validate_fields() {
+# Enforce all BURD enrollment validations
+zburd_enforce() {
   zburd_sentinel
 
-  # Die on unexpected variables
-  if test ${#ZBURD_UNEXPECTED[@]} -gt 0; then
-    buc_die "Unexpected BURD_ variables: ${ZBURD_UNEXPECTED[*]}"
-  fi
+  buv_vet BURD
 
-  # Launcher Configuration
-  buv_env_string BURD_REGIME_FILE           1 256
-  buv_env_string BURD_STATION_FILE          1 256
-  buv_env_string BURD_COORDINATOR_SCRIPT    1 256
-  buv_env_string BURD_LAUNCHER              1 256
-  buv_env_string BURD_TERM_COLS             1   8
-
-  # Directory paths (dispatch-provided, survive exec boundary)
-  buv_env_string BURD_TOOLS_DIR            1 256
-  buv_env_string BURD_BUK_DIR              1 256
-  buv_env_string BURD_TABTARGET_DIR        1 256
-
-  # Computed State
-  buv_env_string BURD_NOW_STAMP             1  64
-  buv_env_string BURD_TEMP_DIR              1 256
-  buv_env_string BURD_OUTPUT_DIR            1 256
-  buv_env_string BURD_TRANSCRIPT            1 256
-  buv_env_string BURD_GIT_CONTEXT           1 128
-  # Parsed Tabtarget
-  buv_env_string BURD_TARGET                1 256
-  buv_env_string BURD_COMMAND               1  64
-  buv_env_string BURD_TOKEN_1               1  64
-  buv_env_string BURD_TOKEN_2               1 128
-
-  # BURD_CLI_ARGS is an array — skip validation (no buv_ for arrays)
-
-  # Conditional: log paths are set by dispatch but NOT exported, so they're only
-  # available in the dispatch process itself (not exec'd children).
-  # Validate only when both logging is active AND the variables are present.
+  # Custom enforce: log paths must be set when logging is active
   if test -z "${BURD_NO_LOG:-}" && test -n "${BURD_LOG_LAST:-}"; then
-    buv_env_string BURD_LOG_LAST            1 256
-    buv_env_string BURD_LOG_SAME            1 256
-    buv_env_string BURD_LOG_HIST            1 256
-  fi
-
-  # BURD_NO_LOG, BURD_INTERACTIVE, BURD_TOKEN_3-5 are optional — not validated as required
-}
-
-# Render BURD regime state for diagnostic display
-# Prerequisite: zburd_kindle must have been called; bupr (PresentationRegime) must be sourced
-zburd_render() {
-  zburd_sentinel
-  type bupr_section_begin >/dev/null 2>&1 || buc_die "zburd_render requires bupr (PresentationRegime) to be sourced"
-
-  echo ""
-  echo "${ZBUC_WHITE}BURD - Dispatch Runtime Regime${ZBUC_RESET}"
-  echo ""
-
-  # Launcher Configuration
-  bupr_section_begin "Launcher Configuration"
-  bupr_section_item BURD_REGIME_FILE           path   req  "Path to the BURC regime configuration file"
-  bupr_section_item BURD_STATION_FILE          path   req  "Path to the developer's BURS station file"
-  bupr_section_item BURD_COORDINATOR_SCRIPT    path   req  "Path to the coordinator script for this tabtarget"
-  bupr_section_item BURD_LAUNCHER              path   req  "Path to the tabtarget launcher script"
-  bupr_section_item BURD_TERM_COLS             string req  "Terminal column width at dispatch time"
-  bupr_section_end
-
-  # Directory Paths
-  bupr_section_begin "Directory Paths"
-  bupr_section_item BURD_TOOLS_DIR            path   req  "Tools directory path (from BURC)"
-  bupr_section_item BURD_BUK_DIR              path   req  "BUK directory path (derived)"
-  bupr_section_item BURD_TABTARGET_DIR        path   req  "Tabtarget directory path (from BURC)"
-  bupr_section_end
-
-  # Computed State
-  bupr_section_begin "Computed State"
-  bupr_section_item BURD_NOW_STAMP             string req  "Timestamp string computed at dispatch time"
-  bupr_section_item BURD_TEMP_DIR              path   req  "Temporary directory for this invocation"
-  bupr_section_item BURD_OUTPUT_DIR            path   req  "Output directory for this invocation"
-  bupr_section_item BURD_TRANSCRIPT            path   req  "Path to transcript file for this invocation"
-  bupr_section_item BURD_GIT_CONTEXT           string req  "Git context string at dispatch time"
-  bupr_section_end
-
-  # Parsed Tabtarget
-  bupr_section_begin "Parsed Tabtarget"
-  bupr_section_item BURD_COMMAND               string req  "Command parsed from tabtarget filename"
-  bupr_section_item BURD_TARGET                string req  "Target parsed from tabtarget filename"
-  bupr_section_item BURD_TOKEN_1               string req  "First token parsed from tabtarget filename"
-  bupr_section_item BURD_TOKEN_2               string req  "Second token parsed from tabtarget filename"
-  bupr_section_item BURD_TOKEN_3               string opt  "Third token parsed from tabtarget filename (optional)"
-  bupr_section_item BURD_TOKEN_4               string opt  "Fourth token parsed from tabtarget filename (optional)"
-  bupr_section_item BURD_TOKEN_5               string opt  "Fifth token parsed from tabtarget filename (optional)"
-  bupr_section_end
-
-  # Caller Options
-  bupr_section_begin "Caller Options"
-  bupr_section_item BURD_NO_LOG                string opt  "Disable logging when set (empty means logging active)"
-  bupr_section_item BURD_INTERACTIVE           string opt  "Interactive mode flag when set"
-  bupr_section_end
-
-  # Log Paths (conditional: only when logging is active)
-  if test -z "${BURD_NO_LOG:-}"; then
-    bupr_section_begin "Log Paths"
-    bupr_section_item BURD_LOG_LAST            path   req  "Path to last-run log file"
-    bupr_section_item BURD_LOG_SAME            path   req  "Path to same-command log file"
-    bupr_section_item BURD_LOG_HIST            path   req  "Path to historical log file"
-    bupr_section_end
-  fi
-
-  # Unexpected variables
-  if test ${#ZBURD_UNEXPECTED[@]} -gt 0; then
-    echo "${ZBUC_RED}Unexpected BURD_ variables:${ZBUC_RESET}"
-    local z_var
-    for z_var in "${ZBURD_UNEXPECTED[@]}"; do
-      printf "  ${ZBUC_RED}%-30s${ZBUC_RESET} = %s\n" "${z_var}" "${!z_var:-}"
-    done
-    echo ""
+    test -n "${BURD_LOG_SAME:-}" || buc_die "BURD_LOG_SAME required when logging is active"
+    test -n "${BURD_LOG_HIST:-}" || buc_die "BURD_LOG_HIST required when logging is active"
   fi
 }
 

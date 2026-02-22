@@ -52,6 +52,7 @@ zburc_furnish() {
 
   zbuv_kindle
   zburd_kindle
+  zburd_enforce
 
   source "${BURD_REGIME_FILE}" || buc_die "Failed to source BURC: ${BURD_REGIME_FILE}"
 

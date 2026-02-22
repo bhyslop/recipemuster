@@ -54,6 +54,7 @@ zrbrs_furnish() {
 
   zbuv_kindle
   zburd_kindle
+  zburd_enforce
   zrbcc_kindle
 
   source "${RBCC_rbrs_file}" || buc_die "Failed to source RBRS: ${RBCC_rbrs_file}"

@@ -25,12 +25,14 @@ VOW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${VOW_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${VOW_SCRIPT_DIR}/../buk/buv_validation.sh"
 source "${VOW_SCRIPT_DIR}/../buk/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verify dispatch completed
+# Verify dispatch completed — buv must kindle before burd (enrollment infrastructure)
+zbuv_kindle
 zburd_kindle
 
 # Verbose output if BURE_VERBOSE is set

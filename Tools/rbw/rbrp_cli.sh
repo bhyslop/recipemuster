@@ -55,6 +55,7 @@ zrbrp_furnish() {
 
   zbuv_kindle
   zburd_kindle
+  zburd_enforce
   zrbcc_kindle
   zrbgc_kindle
 
