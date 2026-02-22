@@ -6048,9 +6048,10 @@
         "₢AfAAQ",
         "₢AfAAW",
         "₢AfAAX",
-        "₢AfAAY"
+        "₢AfAAY",
+        "₢AfAAZ"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -6578,6 +6579,17 @@
               "text": "Move top-level source commands into furnish across all CLIs, using BURD_BUK_DIR/BURD_TOOLS_DIR.\n\n## Context\n\nAfter burd-export-consolidation (₢AfAAW), BURD_BUK_DIR and BURD_TOOLS_DIR are available in CLI processes. After buc-execute-differential-furnish (₢AfAAX), furnish receives the command name. CLIs can now move all source commands (except buc_command.sh bootstrap) into furnish, eliminating all ../buk/ relative paths.\n\n## Pattern\n\nBefore:\n```bash\nZFOO_CLI_SCRIPT_DIR=\"${BASH_SOURCE[0]%/*}\"\nsource \"${ZFOO_CLI_SCRIPT_DIR}/../buk/buc_command.sh\"\nsource \"${ZFOO_CLI_SCRIPT_DIR}/../buk/buv_validation.sh\"\nsource \"${ZFOO_CLI_SCRIPT_DIR}/../buk/burd_regime.sh\"\nsource \"${ZFOO_CLI_SCRIPT_DIR}/rbcc_Constants.sh\"\n\nzfoo_furnish() {\n  zbuv_kindle\n  zburd_kindle\n  zrbcc_kindle\n}\n```\n\nAfter:\n```bash\nsource \"${BURD_BUK_DIR}/buc_command.sh\"\n\nzfoo_furnish() {\n  # Sources\n  source \"${BURD_BUK_DIR}/buv_validation.sh\"\n  source \"${BURD_BUK_DIR}/burd_regime.sh\"\n  source \"${BURD_TOOLS_DIR}/rbw/rbcc_Constants.sh\"\n\n  # Kindles\n  zbuv_kindle\n  zburd_kindle\n  zrbcc_kindle\n}\n```\n\n## Scope\n\nAll 22 CLI/workbench files across 6 kits that use ../buk/ paths:\n- Tools/rbw/ (14 files): rbcnc, rbcnx, rbrr, rbrp, rbro, rbrs, rbra, rbrv, rbob, rbq, rbq_cli, rbcr, rbw_workbench, rbtb_testbench\n- Tools/vok/ (2): vob_cli, vow_workbench\n- Tools/vvk/ (2): vvb_cli, vvw_workbench\n- Tools/jjk/ (2): jjw_workbench, jja_arcanum\n- Tools/vslk/ (1): vslw_workbench\n- Tools/cmk/ (1): cmw_workbench\n\nSources sorted separately from kindles within furnish. SCRIPT_DIR variables eliminated where BURD_TOOLS_DIR suffices.\n\n## Acceptance\n\n- Zero ../buk/ paths remain in CLI files\n- All tabtargets still work\n- Qualification passes",
               "silks": "sources-in-furnish-migration",
               "commit": "7faa33d"
+            }
+          ]
+        },
+        "₢AfAAZ": {
+          "tacks": [
+            {
+              "ts": "260222-0739",
+              "state": "rough",
+              "text": "Merge rbcnx_cli.sh back into rbrn_cli.sh using differential furnish.\n\n## Context\n\nrbcnc_cli.sh and rbcnx_cli.sh were split because survey/audit commands need heavy deps (GCP/OAuth/RBRR) while validate/render/list need only light deps. With differential furnish (₢AfAAX), a single furnish function can conditionally source/kindle based on command name.\n\n## Scope\n\n1. Create unified rbrn_cli.sh containing all commands from both rbcnc and rbcnx:\n   - Light: rbrn_validate, rbrn_render (from rbcnc)\n   - Heavy: rbrn_survey, rbrn_audit (from rbcnx)\n   - New: rbrn_list_nameplates (from ₢AfAAK, may already exist)\n\n2. Furnish uses $1 (command name) to gate heavy sourcing/kindling:\n   ```bash\n   zrbrn_furnish() {\n     local z_command=\"${1:-}\"\n     # Light sources (always)\n     ...\n     # Heavy sources (survey/audit only)\n     case \"${z_command}\" in\n       rbrn_survey|rbrn_audit) ... ;;\n     esac\n     # Light kindles (always)\n     ...\n     # Heavy kindles (conditional)\n     case \"${z_command}\" in\n       rbrn_survey|rbrn_audit) ... ;;\n     esac\n   }\n   ```\n\n3. Update rbz_zipper.sh: change module references from rbcnc_cli.sh/rbcnx_cli.sh to rbrn_cli.sh\n\n4. Delete rbcnc_cli.sh and rbcnx_cli.sh\n\n## Acceptance\n\n- Single rbrn_cli.sh handles all nameplate commands\n- Light commands (validate, render) don't load GCP/OAuth deps\n- Heavy commands (survey, audit) still work\n- All tabtargets function correctly\n- Qualification passes",
+              "silks": "rbrn-cli-reunification",
+              "commit": "d18baf7"
             }
           ]
         }
