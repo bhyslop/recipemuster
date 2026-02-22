@@ -7,7 +7,7 @@
 //! This module provides the Args struct and handler for the jjx_nominate command.
 
 use std::path::PathBuf;
-use indexmap::IndexMap;
+use std::collections::BTreeMap;
 
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_NominateArgs as LibNominateArgs};
@@ -56,7 +56,8 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> i32 {
         }
         Gallops {
             next_heat_seed: "AA".to_string(),
-            heats: IndexMap::new(),
+            heat_order: vec![],
+            heats: BTreeMap::new(),
         }
     };
 
@@ -95,4 +96,28 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> i32 {
         }
     }
     // lock released here
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::jjrg_gallops::*;
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn test_nominate_appends_to_heat_order() {
+        let mut gallops = jjrg_Gallops {
+            next_heat_seed: "AA".to_string(),
+            heat_order: vec![],
+            heats: BTreeMap::new(),
+        };
+        let args = jjrg_NominateArgs {
+            silks: "test-heat".to_string(),
+            created: "260101".to_string(),
+        };
+        let base_path = std::path::Path::new(".");
+        let result = gallops.jjrg_nominate(args, base_path).unwrap();
+        assert!(gallops.heat_order.contains(&result.firemark),
+            "heat_order should contain the new firemark after nominate");
+    }
 }

@@ -43,6 +43,7 @@
 
 // Gallops record and members
 :jjdgm_seed:        <<jjdgm_seed,next_heat_seed>>
+:jjdgm_order:       <<jjdgm_order,heat_order>>
 :jjdgr_gallops:     <<jjdgr_gallops,Gallops>>
 :jjdgr_gallops_p:   <<jjdgr_gallops,Gallops'>>
 
@@ -293,6 +294,17 @@ For `heats` and `paces` objects, use sorted key order (e.g., Rust `BTreeMap` ins
 This ensures that reordering paces via
 {jjdo_reorder}
 produces minimal diffs — only the `order` array changes, not the entire `paces` object.
++
+The `heats` object uses BTreeMap (alphabetical key order).
+{jjdgm_order}
+is the authoritative source for heat display and selection order.
+Operations that need heat order (
+{jjdo_list},
+default heat selection in
+{jjdo_orient})
+iterate
+{jjdgm_order},
+not the `heats` object directly.
 
 === Identity Encoding
 
@@ -619,6 +631,25 @@ is the next
 to allocate, stored as 2 base64 characters.
 Incremented by
 {jjdo_create}.
+
+* [[jjdgm_order]]
+// ⟦axl_voices axr_member axd_required axd_repeated⟧
+{jjdgm_order}
+is the ordered list of
+{jjdt_firemark_s}
+defining heat display and selection order.
+Populated from sorted `heats` keys on first load of old-format files (migration);
+thereafter maintained explicitly.
+Updated by:
+{jjdo_create}
+(append new firemark),
+{jjdo_archive}
+(remove firemark via retain),
+{jjdo_continue}
+(move new firemark to position 0).
+The `heats` object uses BTreeMap (sorted key order) for deterministic serialization;
+{jjdgm_order}
+is the authoritative source for display and selection order, not `heats` key order.
 
 === {jjdhr_heat}
 

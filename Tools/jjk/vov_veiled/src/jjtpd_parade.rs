@@ -6,14 +6,14 @@
 use super::jjrpd_parade::{zjjrpd_pace_state_str, zjjrpd_resolve_default_heat};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
 use std::collections::BTreeMap;
-use indexmap::IndexMap;
 
 // ===== Helper functions =====
 
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
-        heats: IndexMap::new(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
     }
 }
 

@@ -36,14 +36,12 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
         }
     };
 
-    // Collect racing heats and display summary table
+    // Collect racing heats in heat_order priority sequence for display table
     {
-        let mut racing_heats: Vec<(&String, &crate::jjrg_gallops::jjrg_Heat)> = gallops.heats.iter()
+        let racing_heats: Vec<(&String, &crate::jjrg_gallops::jjrg_Heat)> = gallops.heat_order.iter()
+            .filter_map(|fm| gallops.heats.get(fm).map(|h| (fm, h)))
             .filter(|(_, heat)| heat.status == HeatStatus::Racing)
             .collect();
-
-        // Sort by key for stability
-        racing_heats.sort_by(|a, b| a.0.cmp(b.0));
 
         if !racing_heats.is_empty() {
             let mut table = jjrp_Table::jjrp_new(vec![

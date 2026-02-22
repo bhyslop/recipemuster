@@ -6,7 +6,6 @@ use super::jjrg_gallops::*;
 use super::jjrv_validate::{zjjrg_is_base64, zjjrg_is_kebab_case, zjjrg_is_yymmdd, zjjrg_is_yymmdd_hhmm};
 use super::jjru_util::zjjrg_increment_seed;
 use std::collections::BTreeMap;
-use indexmap::IndexMap;
 
 #[test]
 fn jjtg_pace_state_serialization() {
@@ -19,7 +18,8 @@ fn jjtg_pace_state_serialization() {
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
-        heats: IndexMap::new(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
     }
 }
 
@@ -373,7 +373,8 @@ fn jjtg_serialize_deserialize_roundtrip() {
 fn jjtg_multiple_errors_collected() {
     let mut gallops = jjrg_Gallops {
         next_heat_seed: "!!!".to_string(), // Wrong length and chars
-        heats: IndexMap::new(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
     };
     let (_, mut heat) = make_valid_heat("AB", "my-heat");
     heat.silks = "Invalid_Silks".to_string(); // Has underscore

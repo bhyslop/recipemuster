@@ -39,7 +39,9 @@ file does not exist:
 {jjdgr_gallops}
 with
 {jjdgm_seed}
-`AA` and empty `heats`
+`AA`, empty
+{jjdgm_order},
+and empty `heats`
 . Read current
 {jjdgm_seed}
 as
@@ -79,6 +81,10 @@ computed paddock path
 . Increment
 {jjdgm_seed}
 (base64 arithmetic with carry)
+. Append new
+{jjdt_firemark}
+to
+{jjdgm_order}
 .
 {jjdr_save}
 {jjdgr_gallops}

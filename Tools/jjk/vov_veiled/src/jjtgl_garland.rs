@@ -11,14 +11,14 @@ use super::jjro_ops::jjrg_garland;
 use super::jjrt_types::{jjrg_PaceState, jjrg_HeatStatus, jjrg_Tack, jjrg_Pace, jjrg_Heat, jjrg_Gallops, jjrg_GarlandArgs, JJRG_UNKNOWN_BASIS};
 use super::jjrq_query::{jjrq_parse_silks_sequence, jjrq_build_garlanded_silks, jjrq_build_continuation_silks};
 use std::collections::BTreeMap;
-use indexmap::IndexMap;
 
 // Helper to create a minimal valid Gallops structure
 // Sets next_heat_seed to "AC" so that manually-created "AB" heat doesn't conflict
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AC".to_string(),
-        heats: IndexMap::new(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
     }
 }
 
@@ -169,9 +169,8 @@ fn jjtgl_garland_successful_with_rough_paces() {
     assert_eq!(new_heat.status, jjrg_HeatStatus::Racing);
     assert_eq!(new_heat.paces.len(), 2); // Only transferred paces
 
-    // Verify new heat is at front of heats map
-    let first_key = gallops.heats.keys().next().unwrap();
-    assert_eq!(first_key, &result.new_firemark);
+    // Verify new heat is at front of heat_order
+    assert_eq!(&gallops.heat_order[0], &result.new_firemark);
 
     // Verify paddock marker was added to old heat
     let old_paddock_content = std::fs::read_to_string(temp_dir.join(&old_heat.paddock_file)).unwrap();

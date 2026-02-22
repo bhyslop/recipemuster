@@ -5,7 +5,6 @@
 use super::jjrq_query::*;
 use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_BASIS};
 use std::collections::BTreeMap;
-use indexmap::IndexMap;
 
 fn create_test_gallops() -> Gallops {
     let mut paces = BTreeMap::new();
@@ -36,7 +35,7 @@ fn create_test_gallops() -> Gallops {
         },
     );
 
-    let mut heats = IndexMap::new();
+    let mut heats = BTreeMap::new();
     heats.insert(
         "₣AB".to_string(),
         Heat {
@@ -52,6 +51,7 @@ fn create_test_gallops() -> Gallops {
 
     Gallops {
         next_heat_seed: "AC".to_string(),
+        heat_order: vec![],
         heats,
     }
 }
@@ -265,7 +265,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
         },
     );
 
-    let mut heats = IndexMap::new();
+    let mut heats = BTreeMap::new();
     heats.insert(
         "₣AC".to_string(),
         Heat {
@@ -286,6 +286,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
 
     Gallops {
         next_heat_seed: "AD".to_string(),
+        heat_order: vec![],
         heats,
     }
 }

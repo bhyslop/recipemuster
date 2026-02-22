@@ -92,13 +92,22 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     let mut gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-    // Round-trip validation: run before recomputation to validate the stored format
-    let reserialized = serde_json::to_string_pretty(&gallops)
-        .map_err(|e| format!("Failed to reserialize JSON: {}", e))?;
+    // Detect old-format files: heat_order absent in JSON → serde default → empty vec.
+    // Old-format files cannot pass round-trip check because BTreeMap serializes heats
+    // in sorted key order, which differs from original furlough-shuffled order.
+    let is_migration_mode = gallops.heat_order.is_empty();
 
-    if reserialized.as_bytes() != original_bytes {
-        let diff_pos = zjjdr_find_first_diff(&original_bytes, reserialized.as_bytes());
-        return Err(format!("Round-trip validation failed at byte {}", diff_pos));
+    // Round-trip validation: run before recomputation to validate the stored format.
+    // Skipped for old-format files (heat_order empty) — BTreeMap key order differs from
+    // original IndexMap insertion order, so round-trip will always fail for these files.
+    if !is_migration_mode {
+        let reserialized = serde_json::to_string_pretty(&gallops)
+            .map_err(|e| format!("Failed to reserialize JSON: {}", e))?;
+
+        if reserialized.as_bytes() != original_bytes {
+            let diff_pos = zjjdr_find_first_diff(&original_bytes, reserialized.as_bytes());
+            return Err(format!("Round-trip validation failed at byte {}", diff_pos));
+        }
     }
 
     // Recompute paddock_file from firemark for every heat.
@@ -108,6 +117,12 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     for (firemark_key, heat) in &mut gallops.heats {
         let bare = firemark_key.trim_start_matches('₣');
         heat.paddock_file = jjri_paddock_path(bare);
+    }
+
+    // Populate heat_order from sorted heats keys on first load of old-format file.
+    // BTreeMap guarantees sorted key order here.
+    if is_migration_mode {
+        gallops.heat_order = gallops.heats.keys().cloned().collect();
     }
 
     // Paddock existence check: verify each encoded paddock file exists on disk.

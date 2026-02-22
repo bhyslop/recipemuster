@@ -33,36 +33,25 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> i32 {
         }
     };
 
-    // Collect heats with status info for sorting
-    let mut heats_by_status: Vec<(&String, &crate::jjrg_gallops::jjrg_Heat)> = gallops.heats.iter().collect();
+    // Collect heats in heat_order sequence (explicit user-defined priority order)
+    let ordered_heats: Vec<(&String, &crate::jjrg_gallops::jjrg_Heat)> = gallops.heat_order.iter()
+        .filter_map(|fm| gallops.heats.get(fm).map(|h| (fm, h)))
+        .collect();
 
     // Apply status filter if specified
-    if let Some(ref filter_status) = args.status {
+    let heats_by_status: Vec<(&String, &crate::jjrg_gallops::jjrg_Heat)> = if let Some(ref filter_status) = args.status {
         let filter_lowercase = filter_status.to_lowercase();
-        heats_by_status.retain(|(_, heat)| {
+        ordered_heats.into_iter().filter(|(_, heat)| {
             let heat_status_str = match heat.status {
                 HeatStatus::Racing => "racing",
                 HeatStatus::Stabled => "stabled",
                 HeatStatus::Retired => "retired",
             };
             heat_status_str == filter_lowercase
-        });
-    }
-
-    // Sort: racing first, then stabled, then retired
-    heats_by_status.sort_by(|a, b| {
-        let a_status_order = match a.1.status {
-            HeatStatus::Racing => 0,
-            HeatStatus::Stabled => 1,
-            HeatStatus::Retired => 2,
-        };
-        let b_status_order = match b.1.status {
-            HeatStatus::Racing => 0,
-            HeatStatus::Stabled => 1,
-            HeatStatus::Retired => 2,
-        };
-        a_status_order.cmp(&b_status_order)
-    });
+        }).collect()
+    } else {
+        ordered_heats
+    };
 
     // Set up table with column definitions
     let mut table = jjrp_Table::jjrp_new(vec![

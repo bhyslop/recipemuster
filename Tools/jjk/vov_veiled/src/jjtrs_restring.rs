@@ -5,14 +5,15 @@
 
 use super::jjrg_gallops::*;
 use super::jjro_ops::jjrg_restring;
-use indexmap::IndexMap;
+use std::collections::BTreeMap;
 
 // ===== Helper functions (following jjtg_gallops.rs patterns) =====
 
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
-        heats: IndexMap::new(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
     }
 }
 

@@ -66,6 +66,7 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
 
     // Insert Heat
     gallops.heats.insert(firemark_str.clone(), heat);
+    gallops.heat_order.push(firemark_str.clone());
 
     // Increment next_heat_seed
     gallops.next_heat_seed = zjjrg_increment_seed(&gallops.next_heat_seed);
@@ -555,8 +556,8 @@ pub fn jjrg_retire(
     let paddock_file = heat.paddock_file.clone();
 
     // Remove heat from gallops (do NOT change next_heat_seed)
-    // Use shift_remove to preserve order of remaining heats
-    gallops.heats.shift_remove(&firemark_key);
+    gallops.heats.remove(&firemark_key);
+    gallops.heat_order.retain(|f| f != &firemark_key);
 
     // Delete paddock file
     if paddock_path.exists() {
@@ -794,21 +795,14 @@ pub fn jjrg_furlough(gallops: &mut jjrg_Gallops, args: jjrg_FurloughArgs) -> Res
             return Err(format!("Heat '{}' is retired (terminal state)", firemark_key));
         }
 
-        // Note: requesting the same status is allowed — it promotes the heat
-        // to the top of its list (racing or stabled) for reordering purposes.
+        // Note: requesting the same status is allowed (idempotent).
     }
 
-    // Apply status change if requested — also promotes heat to top of list
+    // Apply status change if requested — status only, no reordering
     if args.racing {
         gallops.heats.get_mut(&firemark_key).unwrap().status = jjrg_HeatStatus::Racing;
-        if let Some(heat_entry) = gallops.heats.shift_remove(&firemark_key) {
-            gallops.heats.shift_insert(0, firemark_key.clone(), heat_entry);
-        }
     } else if args.stabled {
         gallops.heats.get_mut(&firemark_key).unwrap().status = jjrg_HeatStatus::Stabled;
-        if let Some(heat_entry) = gallops.heats.shift_remove(&firemark_key) {
-            gallops.heats.shift_insert(0, firemark_key.clone(), heat_entry);
-        }
     }
 
     // Apply silks change if requested
@@ -952,12 +946,11 @@ pub fn jjrg_garland(gallops: &mut jjrg_Gallops, args: jjrg_GarlandArgs, base_pat
     source_heat_mut.silks = garlanded_silks.clone();
     source_heat_mut.status = jjrg_HeatStatus::Stabled;
 
-    // Set new heat status to racing and move to front
+    // Set new heat status to racing and move to front of heat_order
     let new_heat_mut = gallops.heats.get_mut(&new_firemark_key).unwrap();
     new_heat_mut.status = jjrg_HeatStatus::Racing;
-    if let Some(heat_entry) = gallops.heats.shift_remove(&new_firemark_key) {
-        gallops.heats.shift_insert(0, new_firemark_key.clone(), heat_entry);
-    }
+    gallops.heat_order.retain(|f| f != &new_firemark_key);
+    gallops.heat_order.insert(0, new_firemark_key.clone());
 
     Ok(jjrg_GarlandResult {
         old_firemark: firemark_key,

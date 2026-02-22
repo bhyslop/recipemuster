@@ -98,6 +98,11 @@ with computed
 {jjdhm_silks},
 status
 {jjdhe_racing}
+. Move continuation
+{jjdt_firemark}
+to position 0 of
+{jjdgm_order}
+(continuation becomes the primary racing heat)
 . Copy source
 {jjdhm_paddock}
 to continuation

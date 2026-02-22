@@ -8,7 +8,6 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use indexmap::IndexMap;
 
 /// Unknown/default basis SHA (7 zeros)
 ///
@@ -74,7 +73,9 @@ pub struct jjrg_Heat {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct jjrg_Gallops {
     pub next_heat_seed: String,
-    pub heats: IndexMap<String, jjrg_Heat>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub heat_order: Vec<String>,
+    pub heats: BTreeMap<String, jjrg_Heat>,
 }
 
 /// Arguments for the nominate operation

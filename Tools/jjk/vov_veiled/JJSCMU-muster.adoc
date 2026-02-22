@@ -23,13 +23,18 @@ Where:
 . Read
 {jjdgr_gallops}
 from file
-. Sort heats by status:
-.. {{jjdhe_racing}} heats first
-.. {{jjdhe_stabled}} heats second
-.. {{jjdhe_retired}} heats third (if any)
+. Iterate
+{jjdgm_order}
+array in sequence (
+{jjdgm_order}
+is the authoritative display order; no status-based sort)
 . For each
+{jjdt_firemark}
+in
+{jjdgm_order},
+look up corresponding
 {jjdhr_heat}
-in sorted order, output TSV line:
+and output TSV line:
 {jjdt_firemark},
 {jjdhm_silks},
 {jjdhm_status},

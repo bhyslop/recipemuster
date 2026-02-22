@@ -19,13 +19,32 @@ only after all checks pass.
 . Deserialize bytes into
 {jjdgr_gallops}
 structure
+. If
+{jjdgm_order}
+is empty (old-format file without `heat_order`): mark as migration mode.
+Old-format files skip the round-trip check (step 4) because BTreeMap serializes
+`heats` keys in sorted order, which differs from the original IndexMap insertion order.
 . Reserialize
 {jjdgr_gallops}
-structure to JSON string
-. Compare reserialized bytes against original bytes
-. If different:
+structure to JSON string (skipped if migration mode)
+. Compare reserialized bytes against original bytes (skipped if migration mode).
+If different:
 {axc_fatal}
 with diagnostic showing first difference location
+. Recompute
+{jjdhm_paddock}
+from
+{jjdt_firemark}
+for every
+{jjdhr_heat}
+using ul-encoding (overrides stored value; see
+{jjdhm_paddock}
+definition)
+. If migration mode: populate
+{jjdgm_order}
+from sorted `heats` keys.
+Next save writes new-format file; subsequent loads use strict round-trip check.
+. Verify encoded paddock files exist on disk; if missing, fatal with `mv` instructions for all missing files before proceeding
 . Validate semantic constraints (timestamps, kebab-case silks, invariants)
 . If validation fails:
 {axc_fatal}
@@ -43,5 +62,6 @@ is the ONLY way to obtain a
 {jjdgr_gallops}
 from disk.
 This makes validation bypass architecturally impossible.
-The round-trip check (steps 3-5) ensures the file is in canonical form.
-The semantic validation (steps 6-7) ensures business rules are satisfied.
+The round-trip check (steps 4-5) ensures the file is in canonical form.
+It is skipped for old-format files to allow seamless migration.
+The semantic validation (steps 9-10) ensures business rules are satisfied.

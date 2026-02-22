@@ -52,13 +52,12 @@ exists with given
 .. Error if heat is
 {jjdhe_retired}
 (terminal state)
-.. Error if `--racing` and heat already
-{jjdhe_racing}
-.. Error if `--stabled` and heat already
-{jjdhe_stabled}
 .. Update
 {jjdhm_status}
-to new value
+to new value (same-status request is allowed; idempotent no-op)
+.. Note:
+{jjdgm_order}
+position is unchanged — furlough is a status-only operation
 . If {jjda_silks} provided:
 .. Update
 {jjdhm_silks}
@@ -80,10 +79,4 @@ to
 
 | Heat is retired
 | "Cannot furlough retired heat {firemark}"
-
-| `--racing` when already racing
-| "Heat {firemark} is already racing"
-
-| `--stabled` when already stabled
-| "Heat {firemark} is already stabled"
 |===

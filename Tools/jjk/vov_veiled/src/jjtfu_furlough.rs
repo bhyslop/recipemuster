@@ -5,13 +5,13 @@
 
 use super::jjrg_gallops::*;
 use std::collections::BTreeMap;
-use indexmap::IndexMap;
 
 // Helper to create a minimal valid Gallops structure
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
-        heats: IndexMap::new(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
     }
 }
 
@@ -146,50 +146,6 @@ fn jjtfu_retired_heat_error() {
     assert!(result.unwrap_err().contains("retired (terminal state)"));
 }
 
-#[test]
-fn jjtfu_already_racing_promotes_to_top() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key_a, heat_a) = make_valid_heat("AA", "first-heat", jjrg_HeatStatus::Racing);
-    let (heat_key_b, heat_b) = make_valid_heat("AB", "second-heat", jjrg_HeatStatus::Racing);
-    gallops.heats.insert(heat_key_a, heat_a);
-    gallops.heats.insert(heat_key_b, heat_b);
-
-    let args = jjrg_FurloughArgs {
-        firemark: "AB".to_string(),
-        racing: true,
-        stabled: false,
-        silks: None,
-    };
-
-    let result = gallops.jjrg_furlough(args);
-    assert!(result.is_ok());
-    // AB should now be first
-    let keys: Vec<&String> = gallops.heats.keys().collect();
-    assert_eq!(keys[0], "₣AB");
-}
-
-#[test]
-fn jjtfu_already_stabled_promotes_to_top() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key_a, heat_a) = make_valid_heat("AA", "first-heat", jjrg_HeatStatus::Stabled);
-    let (heat_key_b, heat_b) = make_valid_heat("AB", "second-heat", jjrg_HeatStatus::Stabled);
-    gallops.heats.insert(heat_key_a, heat_a);
-    gallops.heats.insert(heat_key_b, heat_b);
-
-    let args = jjrg_FurloughArgs {
-        firemark: "AB".to_string(),
-        racing: false,
-        stabled: true,
-        silks: None,
-    };
-
-    let result = gallops.jjrg_furlough(args);
-    assert!(result.is_ok());
-    // AB should now be first
-    let keys: Vec<&String> = gallops.heats.keys().collect();
-    assert_eq!(keys[0], "₣AB");
-}
-
 // ===== Happy path cases =====
 
 #[test]
@@ -277,35 +233,6 @@ fn jjtfu_change_status_and_rename() {
     let heat = gallops.heats.get(&heat_key).unwrap();
     assert_eq!(heat.status, jjrg_HeatStatus::Racing);
     assert_eq!(heat.silks, "new-heat-name");
-}
-
-#[test]
-fn jjtfu_racing_moves_heat_to_front() {
-    let mut gallops = make_valid_gallops();
-
-    // Create three heats with valid base64 firemarks (A-Z, a-z, 0-9, -, _)
-    let (key_ab, heat_ab) = make_valid_heat("AB", "first-heat", jjrg_HeatStatus::Stabled);
-    let (key_cd, heat_cd) = make_valid_heat("CD", "second-heat", jjrg_HeatStatus::Stabled); // Note: start as Stabled
-    let (key_ef, heat_ef) = make_valid_heat("EF", "third-heat", jjrg_HeatStatus::Stabled);
-
-    gallops.heats.insert(key_ab.clone(), heat_ab);
-    gallops.heats.insert(key_cd.clone(), heat_cd);
-    gallops.heats.insert(key_ef.clone(), heat_ef);
-
-    // Move second heat (CD) to racing - should move to front
-    let args = jjrg_FurloughArgs {
-        firemark: "CD".to_string(),
-        racing: true,
-        stabled: false,
-        silks: None,
-    };
-
-    let result = gallops.jjrg_furlough(args);
-    assert!(result.is_ok(), "Furlough failed: {:?}", result);
-
-    // Verify ordering: CD should be first now
-    let keys: Vec<_> = gallops.heats.keys().collect();
-    assert_eq!(*keys[0], key_cd, "Heat CD should be moved to front");
 }
 
 #[test]

@@ -124,6 +124,11 @@ where `{today}` is current date in YYMMDD format
 entry from
 {jjdgr_gallops}
 `heats` object
+. Remove
+{jjdt_firemark}
+from
+{jjdgm_order}
+array
 .
 {jjdr_save}
 {jjdgr_gallops}
