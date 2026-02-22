@@ -116,6 +116,10 @@ zrbrr_kindle() {
   ZRBRR_DOCKER_ENV=()
   ZRBRR_DOCKER_ENV+=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")
 
+  # Temp file prefixes for rbrr_refresh_gcb_pins
+  ZRBRR_REFRESH_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_"
+  ZRBRR_REFRESH_SED_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_sed_"
+
   ZRBRR_KINDLED=1
 }
 

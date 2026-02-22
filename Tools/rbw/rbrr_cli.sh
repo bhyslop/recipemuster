@@ -119,12 +119,12 @@ rbrr_refresh_gcb_pins() {
   buc_countdown 5 "NOTE: Docker anonymous login is heavily rate limited.  Try again in 6 hours if you see that fail.  Continuing in:"
 
   local z_vintage="${BURD_NOW_STAMP}"
-  local z_oras_token_file="${BURD_TEMP_DIR}/rbrr_oras_token.json"
-  local z_oras_tags_file="${BURD_TEMP_DIR}/rbrr_oras_tags.json"
-  local z_oras_token_value_file="${BURD_TEMP_DIR}/rbrr_oras_token_value.txt"
-  local z_oras_tag_file="${BURD_TEMP_DIR}/rbrr_oras_tag.txt"
-  local z_refresh_prefix="${BURD_TEMP_DIR}/rbrr_refresh_"
-  local z_refresh_sed_prefix="${BURD_TEMP_DIR}/rbrr_refresh_sed_"
+  local z_oras_token_file="${ZRBRR_REFRESH_PREFIX}oras_token.json"
+  local z_oras_tags_file="${ZRBRR_REFRESH_PREFIX}oras_tags.json"
+  local z_oras_token_value_file="${ZRBRR_REFRESH_PREFIX}oras_token_value.txt"
+  local z_oras_tag_file="${ZRBRR_REFRESH_PREFIX}oras_tag.txt"
+  local z_oras_token_stderr="${ZRBRR_REFRESH_PREFIX}oras_token_stderr.txt"
+  local z_oras_tags_stderr="${ZRBRR_REFRESH_PREFIX}oras_tags_stderr.txt"
 
   # Discover latest oras stable version from GHCR API.
   # oras doesn't publish a :latest tag, so we must find the newest semver release.
@@ -134,8 +134,8 @@ rbrr_refresh_gcb_pins() {
   buc_log_args "Obtaining GHCR bearer token (anonymous, scoped to oras repo)"
   curl -sS \
     "https://ghcr.io/token?scope=repository:oras-project/oras:pull&service=ghcr.io" \
-    -o "${z_oras_token_file}" 2>/dev/null \
-    || buc_die "Failed to fetch GHCR bearer token"
+    -o "${z_oras_token_file}" 2>"${z_oras_token_stderr}" \
+    || buc_die "Failed to fetch GHCR bearer token — see ${z_oras_token_stderr}"
 
   jq -r '.token // empty' "${z_oras_token_file}" > "${z_oras_token_value_file}" \
     || buc_die "Failed to extract token from GHCR response"
@@ -147,8 +147,8 @@ rbrr_refresh_gcb_pins() {
   curl -sS \
     -H "Authorization: Bearer ${z_oras_token}" \
     "https://ghcr.io/v2/oras-project/oras/tags/list?n=1000" \
-    -o "${z_oras_tags_file}" 2>/dev/null \
-    || buc_die "Failed to fetch oras tags from GHCR"
+    -o "${z_oras_tags_file}" 2>"${z_oras_tags_stderr}" \
+    || buc_die "Failed to fetch oras tags from GHCR — see ${z_oras_tags_stderr}"
 
   buc_log_args "Extracting newest stable semver tag"
   # Filters to exact vN.N.N (no pre-release suffixes), sorts numerically, takes last
@@ -169,17 +169,18 @@ rbrr_refresh_gcb_pins() {
   # Discover latest crane release from GitHub API.
   # crane is distributed as a tarball (not a container image), so it needs
   # its own freshening path separate from the image-pin loop below.
-  local z_crane_releases_file="${BURD_TEMP_DIR}/rbrr_crane_releases.json"
-  local z_crane_tag_file="${BURD_TEMP_DIR}/rbrr_crane_tag.txt"
-  local z_crane_old_url_file="${BURD_TEMP_DIR}/rbrr_crane_old_url.txt"
-  local z_crane_sed_file="${BURD_TEMP_DIR}/rbrr_crane_sed.sh"
+  local z_crane_releases_file="${ZRBRR_REFRESH_PREFIX}crane_releases.json"
+  local z_crane_tag_file="${ZRBRR_REFRESH_PREFIX}crane_tag.txt"
+  local z_crane_old_url_file="${ZRBRR_REFRESH_PREFIX}crane_old_url.txt"
+  local z_crane_sed_file="${ZRBRR_REFRESH_SED_PREFIX}crane.sh"
+  local z_crane_stderr="${ZRBRR_REFRESH_PREFIX}crane_stderr.txt"
 
   buc_step "Discovering latest crane release from GitHub"
 
   curl -sS \
     "https://api.github.com/repos/google/go-containerregistry/releases/latest" \
-    -o "${z_crane_releases_file}" 2>/dev/null \
-    || buc_die "Failed to fetch crane releases from GitHub API"
+    -o "${z_crane_releases_file}" 2>"${z_crane_stderr}" \
+    || buc_die "Failed to fetch crane releases from GitHub API — see ${z_crane_stderr}"
 
   buc_log_args "Extracting tag from latest release"
   jq -r '.tag_name // empty' "${z_crane_releases_file}" > "${z_crane_tag_file}" \
@@ -237,19 +238,22 @@ rbrr_refresh_gcb_pins() {
   local z_pin_arch="amd64"
   local z_sed_value_file=""
   local z_sed_vintage_file=""
+  local z_inspect_stderr=""
+  local z_index=0
   for z_spec in "${z_specs[@]}"; do
     IFS='|' read -r z_varname z_image z_tag <<< "${z_spec}"
 
-    z_manifest_file="${z_refresh_prefix}${z_varname}_manifest.json"
-    z_digest_file="${z_refresh_prefix}${z_varname}_digest.txt"
-    z_oldref_file="${z_refresh_prefix}${z_varname}_oldref.txt"
-    z_sed_value_file="${z_refresh_sed_prefix}${z_varname}_value.sh"
-    z_sed_vintage_file="${z_refresh_sed_prefix}${z_varname}_vintage.sh"
+    z_manifest_file="${ZRBRR_REFRESH_PREFIX}${z_index}_manifest.json"
+    z_digest_file="${ZRBRR_REFRESH_PREFIX}${z_index}_digest.txt"
+    z_oldref_file="${ZRBRR_REFRESH_PREFIX}${z_index}_oldref.txt"
+    z_sed_value_file="${ZRBRR_REFRESH_SED_PREFIX}${z_index}_value.sh"
+    z_sed_vintage_file="${ZRBRR_REFRESH_SED_PREFIX}${z_index}_vintage.sh"
+    z_inspect_stderr="${ZRBRR_REFRESH_PREFIX}${z_index}_inspect_stderr.txt"
 
     buc_step "Inspecting ${z_image}:${z_tag}"
 
-    docker manifest inspect --verbose "${z_image}:${z_tag}" > "${z_manifest_file}" 2>/dev/null \
-      || buc_die "Failed to fetch manifest for ${z_image}:${z_tag}"
+    docker manifest inspect --verbose "${z_image}:${z_tag}" > "${z_manifest_file}" 2>"${z_inspect_stderr}" \
+      || buc_die "Failed to fetch manifest for ${z_image}:${z_tag} — see ${z_inspect_stderr}"
 
     buc_log_args "Extracting ${z_pin_os}/${z_pin_arch} digest from manifest"
     jq -r --arg os "${z_pin_os}" --arg arch "${z_pin_arch}" '
@@ -291,6 +295,7 @@ rbrr_refresh_gcb_pins() {
 
       z_updated=$((z_updated + 1))
     fi
+    z_index=$((z_index + 1))
   done
 
   buc_step "Refresh complete: ${z_updated} updated, ${z_unchanged} unchanged"
