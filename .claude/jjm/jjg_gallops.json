@@ -6966,9 +6966,10 @@
         "₢AiAAG",
         "₢AiAAH",
         "₢AiAAI",
-        "₢AiAAJ"
+        "₢AiAAJ",
+        "₢AiAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7078,6 +7079,17 @@
               "text": "Implement the \"dispatch\" step in the Foundry (replaces builds.create):\n- Call triggers.run via REST API with substitution overrides\n- Substitutions include: _RBGY_MONIKER, _RBGY_PLATFORMS, _RBGY_GAR_*, _RBGY_GIT_*, etc.\n- Adapt polling/completion logic for trigger-based build responses\n- Keep existing vessel loading, git verification, quota check\n- BCG compliance for all scripting\n\nReference: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/run\nThe prepare step (₢AiAAI) must complete before dispatch can run.",
               "silks": "implement-dispatch-step",
               "commit": "1729138"
+            }
+          ]
+        },
+        "₢AiAAK": {
+          "tacks": [
+            {
+              "ts": "260222-1454",
+              "state": "rough",
+              "text": "End-to-end verification of trigger-based build for rbev-busybox:\n- Run full prepare → dispatch cycle\n- Verify build completes successfully in Cloud Build\n- Verify image lands in GAR with correct tags (ark pattern: -image + -about)\n- Verify SLSA v1.0 provenance is generated (gcloud artifacts docker images describe --show-provenance equivalent via REST API)\n- Verify metadata container still works\n- Document any issues found\n\nThis is the gate before migrating remaining vessels.",
+              "silks": "e2e-verify-busybox-trigger",
+              "commit": "78320c6"
             }
           ]
         }
