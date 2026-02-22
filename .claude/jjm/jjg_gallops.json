@@ -7013,6 +7013,13 @@
         "₢AiAAB": {
           "tacks": [
             {
+              "ts": "260222-1507",
+              "state": "rough",
+              "text": "Design the Courier (rbhk) credential regime:\n- Decide: new regime file (rbhk.env) vs RBRR expansion\n- Define credential format for GitHub PAT (NOT RBRA — different provider, different trust boundary)\n  RBRA is specifically Google SA credentials (CLIENT_EMAIL, PRIVATE_KEY, PROJECT_ID,\n  TOKEN_LIFETIME_SEC). GitHub PAT is a single opaque token — fundamentally different.\n- Design Secret Manager bridge: GitHub issues PAT, Google stores it for Developer Connect\n- Determine validation rules (buv validators for new credential type)\n- PAT scope decision: classic PAT with broad `repo` scope vs fine-grained PAT (per-repo).\n  Fine-grained is tighter security but more management overhead per vessel repo.\n- PAT lifecycle: GitHub PATs expire. Design refresh/rotation ceremony and document\n  expected lifetime. The credential regime must account for expiration.\n- Document in a new spec lens or memo",
+              "silks": "design-courier-credential-regime",
+              "commit": "3f5aa71"
+            },
+            {
               "ts": "260222-1452",
               "state": "rough",
               "text": "Design the Courier (rbhk) credential regime:\n- Decide: new regime file (rbhk.env) vs RBRR expansion\n- Define credential format for GitHub PAT (NOT RBRA — different provider, different trust boundary)\n- Design Secret Manager bridge: GitHub issues PAT, Google stores it for Developer Connect\n- Determine validation rules (buv validators for new credential type)\n- Document in a new spec lens or memo\n\nContext: RBRA is specifically Google service account credentials (CLIENT_EMAIL, PRIVATE_KEY, PROJECT_ID, TOKEN_LIFETIME_SEC). GitHub PAT is a single opaque token — fundamentally different format.",
