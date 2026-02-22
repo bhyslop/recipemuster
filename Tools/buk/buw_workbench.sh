@@ -70,8 +70,8 @@ buw_route() {
     buw-rcr) exec "${z_burc_cli}" render ;;
 
     # Station Regime subsystem
-    buw-rsv) exec "${z_burs_cli}" validate ;;
-    buw-rsr) exec "${z_burs_cli}" render ;;
+    buw-rsv) exec "${z_burs_cli}" burs_validate ;;
+    buw-rsr) exec "${z_burs_cli}" burs_render ;;
 
     # Environment Regime subsystem
     buw-rev) exec "${z_bure_cli}" validate ;;

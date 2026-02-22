@@ -30,19 +30,18 @@ ZBURS_SOURCED=1
 zburs_kindle() {
   test -z "${ZBURS_KINDLED:-}" || buc_die "Module burs already kindled"
 
-  # Set default for all fields (validate enforces required-ness)
+  # Set defaults for all fields (enrollment enforces required-ness)
   BURS_LOG_DIR="${BURS_LOG_DIR:-}"
 
-  # Detect unexpected BURS_ variables
-  local z_known="BURS_LOG_DIR"
-  ZBURS_UNEXPECTED=()
-  local z_var
-  for z_var in $(compgen -v BURS_); do
-    case " ${z_known} " in
-      *" ${z_var} "*) : ;;
-      *) ZBURS_UNEXPECTED+=("${z_var}") ;;
-    esac
-  done
+  # Enroll all BURS variables — single source of truth for validation and rendering
+
+  buv_regime_enroll BURS
+
+  buv_group_enroll "Developer Logging"
+  buv_string_enroll  BURS_LOG_DIR  1  512  "Directory for BUK operation logs"
+
+  # Guard against unexpected BURS_ variables not in enrollment
+  buv_scope_sentinel BURS BURS_
 
   ZBURS_KINDLED=1
 }
@@ -51,18 +50,11 @@ zburs_sentinel() {
   test "${ZBURS_KINDLED:-}" = "1" || buc_die "Module burs not kindled - call zburs_kindle first"
 }
 
-# Validate BURS variables via buv_env_* (dies on first error)
-# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
-zburs_validate_fields() {
+# Enforce all BURS enrollment validations
+zburs_enforce() {
   zburs_sentinel
 
-  # Die on unexpected variables
-  if test ${#ZBURS_UNEXPECTED[@]} -gt 0; then
-    buc_die "Unexpected BURS_ variables: ${ZBURS_UNEXPECTED[*]}"
-  fi
-
-  # Validate field
-  buv_env_string      BURS_LOG_DIR               1    512
+  buv_vet BURS
 }
 
 # eof
