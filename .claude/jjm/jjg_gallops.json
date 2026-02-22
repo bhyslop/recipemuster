@@ -3209,6 +3209,13 @@
         "₢APAAr": {
           "tacks": [
             {
+              "ts": "260222-1514",
+              "state": "complete",
+              "text": "Select which RBSCB Cloud Build Roadmap tier(s) to target for initial MVP release.\n\n## Context\n\nRBSCB-CloudBuildRoadmap.adoc defines progressive hardening tiers (0-5) for the GCB pipeline.\nTier 0 (current baseline) is already in place. The question is which tier(s) must be\ncomplete before the first public release of Recipe Bottle.\n\n## Considerations\n\n- Tier 1 (baseline hardening) is small and independent — base image validation, --provenance flag, log hygiene\n- Tier 2 (trigger migration) gives free Google SLSA provenance but is a moderate refactor\n- Tiers 3-5 are significant infrastructure investment with GCB lock-in implications\n- Multi-architecture strategy (binfmt canary) affects how deep to invest in GCB-specific tiers\n- The decision should balance \"good enough for alpha\" vs \"security debt we accept knowingly\"\n\n## Outcome\n\nA decision recorded in the RBSCB Decision Log specifying:\n- Which tiers are MVP-required\n- Which tiers are post-MVP\n- Any tier ordering changes based on the decision",
+              "silks": "select-gcb-roadmap-mvp-tier",
+              "commit": "a4c0593"
+            },
+            {
               "ts": "260216-1144",
               "state": "rough",
               "text": "Select which RBSCB Cloud Build Roadmap tier(s) to target for initial MVP release.\n\n## Context\n\nRBSCB-CloudBuildRoadmap.adoc defines progressive hardening tiers (0-5) for the GCB pipeline.\nTier 0 (current baseline) is already in place. The question is which tier(s) must be\ncomplete before the first public release of Recipe Bottle.\n\n## Considerations\n\n- Tier 1 (baseline hardening) is small and independent — base image validation, --provenance flag, log hygiene\n- Tier 2 (trigger migration) gives free Google SLSA provenance but is a moderate refactor\n- Tiers 3-5 are significant infrastructure investment with GCB lock-in implications\n- Multi-architecture strategy (binfmt canary) affects how deep to invest in GCB-specific tiers\n- The decision should balance \"good enough for alpha\" vs \"security debt we accept knowingly\"\n\n## Outcome\n\nA decision recorded in the RBSCB Decision Log specifying:\n- Which tiers are MVP-required\n- Which tiers are post-MVP\n- Any tier ordering changes based on the decision",
