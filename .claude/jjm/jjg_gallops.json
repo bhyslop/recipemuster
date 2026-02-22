@@ -6527,6 +6527,13 @@
         "₢AfAAP": {
           "tacks": [
             {
+              "ts": "260222-1532",
+              "state": "complete",
+              "text": "Delete legacy buv_val_*, buv_env_*, buv_opt_* functions from buv_validation.sh.\n\n## Context\n\nAfter enrollment system is complete and all callers migrated (audit-legacy-buv-callers pace), the old stateless validator functions are dead code. Remove them.\n\n## Scope\n\n1. Delete all buv_val_* function definitions from buv_validation.sh\n2. Delete all buv_env_* function definitions\n3. Delete all buv_opt_* function definitions\n4. Delete any internal helper functions only used by the above (zbuv_env_wrapper, etc.)\n5. Keep buv_validation.sh as the enrollment system module\n6. Update any documentation references\n\n## Acceptance\n\n- buv_validation.sh contains only enrollment infrastructure (kindle, enroll, enforce, report)\n- No buv_val_*, buv_env_*, buv_opt_* functions exist\n- Qualification passes",
+              "silks": "delete-legacy-buv-functions",
+              "commit": "0a12217"
+            },
+            {
               "ts": "260219-1854",
               "state": "rough",
               "text": "Delete legacy buv_val_*, buv_env_*, buv_opt_* functions from buv_validation.sh.\n\n## Context\n\nAfter enrollment system is complete and all callers migrated (audit-legacy-buv-callers pace), the old stateless validator functions are dead code. Remove them.\n\n## Scope\n\n1. Delete all buv_val_* function definitions from buv_validation.sh\n2. Delete all buv_env_* function definitions\n3. Delete all buv_opt_* function definitions\n4. Delete any internal helper functions only used by the above (zbuv_env_wrapper, etc.)\n5. Keep buv_validation.sh as the enrollment system module\n6. Update any documentation references\n\n## Acceptance\n\n- buv_validation.sh contains only enrollment infrastructure (kindle, enroll, enforce, report)\n- No buv_val_*, buv_env_*, buv_opt_* functions exist\n- Qualification passes",
