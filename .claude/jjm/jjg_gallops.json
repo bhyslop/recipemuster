@@ -6967,9 +6967,10 @@
         "₢AiAAH",
         "₢AiAAI",
         "₢AiAAJ",
-        "₢AiAAK"
+        "₢AiAAK",
+        "₢AiAAL"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7090,6 +7091,17 @@
               "text": "End-to-end verification of trigger-based build for rbev-busybox:\n- Run full prepare → dispatch cycle\n- Verify build completes successfully in Cloud Build\n- Verify image lands in GAR with correct tags (ark pattern: -image + -about)\n- Verify SLSA v1.0 provenance is generated (gcloud artifacts docker images describe --show-provenance equivalent via REST API)\n- Verify metadata container still works\n- Document any issues found\n\nThis is the gate before migrating remaining vessels.",
               "silks": "e2e-verify-busybox-trigger",
               "commit": "78320c6"
+            }
+          ]
+        },
+        "₢AiAAL": {
+          "tacks": [
+            {
+              "ts": "260222-1455",
+              "state": "rough",
+              "text": "Remove dead code from the builds.create path (busybox now on triggers):\n- Remove zrbf_stitch_build_json() from rbf_Foundry.sh\n- Remove zrbf_upload_context_to_gcs(), zrbf_compose_tarball_name(), zrbf_package_context()\n- Remove zrbf_compose_build_request_json()\n- Clean up stitch/GCS-related temp file variables from zrbf_kindle()\n- Retire rbgjb/*.sh script files (content now in cloudbuild.yaml)\n- Keep builds.create path functional for non-migrated vessels during phased rollout\n\nWait: only remove code that is exclusively used by the migrated path.\nNon-migrated vessels still need builds.create until pace ₢AiAAM completes.",
+              "silks": "retire-stitcher-gcs-upload",
+              "commit": "d861f4c"
             }
           ]
         }
