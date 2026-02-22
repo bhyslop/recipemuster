@@ -114,7 +114,7 @@ rbrn_render() {
 # Furnish and Main
 
 zrbrn_furnish() {
-  buc_doc_env "RBR0_FOLIO" "Nameplate moniker (e.g., nsproto); empty for list/survey/audit"
+  buc_doc_env "RBR0_FOLIO" "Nameplate moniker (e.g., nsproto); empty for list"
 
   zbuv_kindle
   zburd_kindle
