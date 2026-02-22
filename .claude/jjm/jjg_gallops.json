@@ -7016,6 +7016,13 @@
         "₢AiAAA": {
           "tacks": [
             {
+              "ts": "260222-1515",
+              "state": "complete",
+              "text": "Record Decision Log entry in RBSCB-CloudBuildRoadmap.adoc:\n- Tier 1 log hygiene folded into Tier 2 work (audit during YAML inlining)\n- Tier 2 (trigger migration) is MVP-required\n- BuildKit --provenance flag deferred (Google SLSA v1.0 provenance sufficient)\n- Tiers 3-5 post-MVP\n- Dockerfile base image digest validation independent, future heat\n\nAlso close ₢APAAr (select-gcb-roadmap-mvp-tier) in ₣AP as resolved by this decision.",
+              "silks": "record-rbscb-tier-decision",
+              "commit": "301b845"
+            },
+            {
               "ts": "260222-1452",
               "state": "rough",
               "text": "Record Decision Log entry in RBSCB-CloudBuildRoadmap.adoc:\n- Tier 1 log hygiene folded into Tier 2 work (audit during YAML inlining)\n- Tier 2 (trigger migration) is MVP-required\n- BuildKit --provenance flag deferred (Google SLSA v1.0 provenance sufficient)\n- Tiers 3-5 post-MVP\n- Dockerfile base image digest validation independent, future heat\n\nAlso close ₢APAAr (select-gcb-roadmap-mvp-tier) in ₣AP as resolved by this decision.",
