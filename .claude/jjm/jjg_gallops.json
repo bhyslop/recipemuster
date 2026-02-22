@@ -6970,9 +6970,10 @@
         "₢AiAAK",
         "₢AiAAL",
         "₢AiAAM",
-        "₢AiAAN"
+        "₢AiAAN",
+        "₢AiAAO"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7126,6 +7127,17 @@
               "text": "Final cleanup: remove the builds.create code path entirely:\n- All conjure vessels now on triggers (₢AiAAM complete)\n- Remove remaining builds.create submission logic\n- Remove GCS staging bucket usage from build hot path\n- Remove all rbgjb/*.sh files\n- Clean up all stitch/tarball temp variables and functions\n- Verify no remaining references to builds.create in codebase",
               "silks": "remove-builds-create-path",
               "commit": "a112dd6"
+            }
+          ]
+        },
+        "₢AiAAO": {
+          "tacks": [
+            {
+              "ts": "260222-1455",
+              "state": "rough",
+              "text": "Rewrite RBSTB-trigger_build.adoc for the trigger-based build flow:\n- Remove: tarball packaging, GCS upload, stitching, builds.create\n- Add: prepare step (publish to vessel repo), triggers.run dispatch\n- Add: pin staleness check as precondition\n- Add: SLSA provenance as output\n- Update API references from builds.create to triggers.run\n- Maintain MCM concept model patterns and linked terms",
+              "silks": "update-rbstb-spec",
+              "commit": "2c9e73c"
             }
           ]
         }
