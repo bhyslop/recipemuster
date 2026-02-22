@@ -6971,9 +6971,10 @@
         "₢AiAAL",
         "₢AiAAM",
         "₢AiAAN",
-        "₢AiAAO"
+        "₢AiAAO",
+        "₢AiAAP"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7138,6 +7139,17 @@
               "text": "Rewrite RBSTB-trigger_build.adoc for the trigger-based build flow:\n- Remove: tarball packaging, GCS upload, stitching, builds.create\n- Add: prepare step (publish to vessel repo), triggers.run dispatch\n- Add: pin staleness check as precondition\n- Add: SLSA provenance as output\n- Update API references from builds.create to triggers.run\n- Maintain MCM concept model patterns and linked terms",
               "silks": "update-rbstb-spec",
               "commit": "2c9e73c"
+            }
+          ]
+        },
+        "₢AiAAP": {
+          "tacks": [
+            {
+              "ts": "260222-1455",
+              "state": "rough",
+              "text": "Update RBS0-SpecTop.adoc and related lenses for trigger-based architecture:\n- Update top-level spec references to build pipeline\n- Update any lenses referencing builds.create, GCS tarball, or stitching mechanism\n- Add Courier role to role vocabulary alongside Payor/Director/Mason/Retriever\n- Add Developer Connect and trigger concepts where appropriate\n- Update RBSCB-CloudBuildRoadmap.adoc Tier 0 section to reflect new baseline\n- Maintain MCM patterns throughout",
+              "silks": "update-rbs0-and-related-lenses",
+              "commit": "b5344a1"
             }
           ]
         }
