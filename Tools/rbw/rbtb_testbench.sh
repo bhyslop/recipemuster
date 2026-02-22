@@ -152,7 +152,7 @@ zrbtb_ark_tsuite_setup() {
 
 zrbtb_dispatch_tsuite_setup() {
   buto_trace "Setup for dispatch-exercise suite"
-  buz_blazon ZBUTCDE_TEST_COLOPHON "butctt" "butcde_DispatchExercise" "butcde_run"
+  buz_enroll ZBUTCDE_TEST_COLOPHON "butctt" "butcde_DispatchExercise" "butcde_run"
 }
 
 zrbtb_nsproto_tsuite_setup() {

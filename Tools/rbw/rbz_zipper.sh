@@ -36,107 +36,107 @@ zrbz_kindle() {
 
   # Payor commands
   local z_mod="rbgp_cli.sh"
-  buz_blazon RBZ_CREATE_DEPOT   "rbw-PC" "${z_mod}" "rbgp_depot_create"
-  buz_blazon RBZ_PAYOR_INSTALL  "rbw-PI" "${z_mod}" "rbgp_payor_install"
-  buz_blazon RBZ_DESTROY_DEPOT  "rbw-PD" "${z_mod}" "rbgp_depot_destroy"
-  buz_blazon RBZ_GOVERNOR_RESET "rbw-PG" "${z_mod}" "rbgp_governor_reset"
+  buz_enroll RBZ_CREATE_DEPOT   "rbw-PC" "${z_mod}" "rbgp_depot_create"
+  buz_enroll RBZ_PAYOR_INSTALL  "rbw-PI" "${z_mod}" "rbgp_payor_install"
+  buz_enroll RBZ_DESTROY_DEPOT  "rbw-PD" "${z_mod}" "rbgp_depot_destroy"
+  buz_enroll RBZ_GOVERNOR_RESET "rbw-PG" "${z_mod}" "rbgp_governor_reset"
   z_mod="rbgm_cli.sh"
-  buz_blazon RBZ_PAYOR_ESTABLISH "rbw-PE" "${z_mod}" "rbgm_payor_establish"
-  buz_blazon RBZ_PAYOR_REFRESH   "rbw-PR" "${z_mod}" "rbgm_payor_refresh"
-  buz_blazon RBZ_QUOTA_BUILD     "rbw-QB" "${z_mod}" "rbgm_quota_build"
+  buz_enroll RBZ_PAYOR_ESTABLISH "rbw-PE" "${z_mod}" "rbgm_payor_establish"
+  buz_enroll RBZ_PAYOR_REFRESH   "rbw-PR" "${z_mod}" "rbgm_payor_refresh"
+  buz_enroll RBZ_QUOTA_BUILD     "rbw-QB" "${z_mod}" "rbgm_quota_build"
 
   # General depot operations
   z_mod="rbgp_cli.sh"
-  buz_blazon RBZ_LIST_DEPOT  "rbw-ld" "${z_mod}" "rbgp_depot_list"
+  buz_enroll RBZ_LIST_DEPOT  "rbw-ld" "${z_mod}" "rbgp_depot_list"
 
   # Governor commands
   z_mod="rbgg_cli.sh"
-  buz_blazon RBZ_CREATE_RETRIEVER "rbw-GR" "${z_mod}" "rbgg_create_retriever"
-  buz_blazon RBZ_CREATE_DIRECTOR  "rbw-GD" "${z_mod}" "rbgg_create_director"
+  buz_enroll RBZ_CREATE_RETRIEVER "rbw-GR" "${z_mod}" "rbgg_create_retriever"
+  buz_enroll RBZ_CREATE_DIRECTOR  "rbw-GD" "${z_mod}" "rbgg_create_director"
 
   # Admin commands
   z_mod="rbgm_cli.sh"
-  buz_blazon RBZ_ADMIN_ESTABLISH "rbw-ps" "${z_mod}" "rbgm_payor_establish"
+  buz_enroll RBZ_ADMIN_ESTABLISH "rbw-ps" "${z_mod}" "rbgm_payor_establish"
   z_mod="rbgg_cli.sh"
-  buz_blazon RBZ_LIST_SERVICE_ACCOUNTS  "rbw-Gl" "${z_mod}" "rbgg_list_service_accounts"
-  buz_blazon RBZ_DELETE_SERVICE_ACCOUNT "rbw-GS" "${z_mod}" "rbgg_delete_service_account"
+  buz_enroll RBZ_LIST_SERVICE_ACCOUNTS  "rbw-Gl" "${z_mod}" "rbgg_list_service_accounts"
+  buz_enroll RBZ_DELETE_SERVICE_ACCOUNT "rbw-GS" "${z_mod}" "rbgg_delete_service_account"
 
   # Ark commands (paired -image + -about artifacts)
   z_mod="rbf_cli.sh"
-  buz_blazon RBZ_ABJURE_ARK  "rbw-aA" "${z_mod}" "rbf_abjure"
-  buz_blazon RBZ_BESEECH_ARK "rbw-ab" "${z_mod}" "rbf_beseech"
-  buz_blazon RBZ_CONJURE_ARK "rbw-aC" "${z_mod}" "rbf_build"
-  buz_blazon RBZ_SUMMON_ARK  "rbw-as" "${z_mod}" "rbf_summon"
+  buz_enroll RBZ_ABJURE_ARK  "rbw-aA" "${z_mod}" "rbf_abjure"
+  buz_enroll RBZ_BESEECH_ARK "rbw-ab" "${z_mod}" "rbf_beseech"
+  buz_enroll RBZ_CONJURE_ARK "rbw-aC" "${z_mod}" "rbf_build"
+  buz_enroll RBZ_SUMMON_ARK  "rbw-as" "${z_mod}" "rbf_summon"
 
   # Image commands (single artifact)
-  buz_blazon RBZ_BUILD_IMAGE    "rbw-iB" "${z_mod}" "rbf_build"
-  buz_blazon RBZ_DELETE_IMAGE   "rbw-iD" "${z_mod}" "rbf_delete"
-  buz_blazon RBZ_LIST_IMAGES    "rbw-il" "${z_mod}" "rbf_list"
-  buz_blazon RBZ_RETRIEVE_IMAGE "rbw-ir" "${z_mod}" "rbf_retrieve"
+  buz_enroll RBZ_BUILD_IMAGE    "rbw-iB" "${z_mod}" "rbf_build"
+  buz_enroll RBZ_DELETE_IMAGE   "rbw-iD" "${z_mod}" "rbf_delete"
+  buz_enroll RBZ_LIST_IMAGES    "rbw-il" "${z_mod}" "rbf_list"
+  buz_enroll RBZ_RETRIEVE_IMAGE "rbw-ir" "${z_mod}" "rbf_retrieve"
 
   # Nameplate regime operations
   z_mod="rbcnc_cli.sh"
-  buz_blazon RBZ_RENDER_NAMEPLATE   "rbw-rnr" "${z_mod}" "rbrn_render"   "param1"
-  buz_blazon RBZ_VALIDATE_NAMEPLATE "rbw-rnv" "${z_mod}" "rbrn_validate" "param1"
+  buz_enroll RBZ_RENDER_NAMEPLATE   "rbw-rnr" "${z_mod}" "rbrn_render"   "param1"
+  buz_enroll RBZ_VALIDATE_NAMEPLATE "rbw-rnv" "${z_mod}" "rbrn_validate" "param1"
 
   # Vessel regime operations
   z_mod="rbrv_cli.sh"
-  buz_blazon RBZ_RENDER_VESSEL   "rbw-rvr" "${z_mod}" "render"
-  buz_blazon RBZ_VALIDATE_VESSEL "rbw-rvv" "${z_mod}" "validate"
+  buz_enroll RBZ_RENDER_VESSEL   "rbw-rvr" "${z_mod}" "render"
+  buz_enroll RBZ_VALIDATE_VESSEL "rbw-rvv" "${z_mod}" "validate"
 
   # Repo regime operations
   z_mod="rbrr_cli.sh"
-  buz_blazon RBZ_RENDER_REPO      "rbw-rrr" "${z_mod}" "rbrr_render"
-  buz_blazon RBZ_VALIDATE_REPO    "rbw-rrv" "${z_mod}" "rbrr_validate"
-  buz_blazon RBZ_REFRESH_GCB_PINS "rbw-rrg" "${z_mod}" "rbrr_refresh_gcb_pins"
+  buz_enroll RBZ_RENDER_REPO      "rbw-rrr" "${z_mod}" "rbrr_render"
+  buz_enroll RBZ_VALIDATE_REPO    "rbw-rrv" "${z_mod}" "rbrr_validate"
+  buz_enroll RBZ_REFRESH_GCB_PINS "rbw-rrg" "${z_mod}" "rbrr_refresh_gcb_pins"
 
   # Payor regime operations
   z_mod="rbrp_cli.sh"
-  buz_blazon RBZ_RENDER_PAYOR   "rbw-rpr" "${z_mod}" "render"
-  buz_blazon RBZ_VALIDATE_PAYOR "rbw-rpv" "${z_mod}" "validate"
+  buz_enroll RBZ_RENDER_PAYOR   "rbw-rpr" "${z_mod}" "render"
+  buz_enroll RBZ_VALIDATE_PAYOR "rbw-rpv" "${z_mod}" "validate"
 
   # OAuth regime operations
   z_mod="rbro_cli.sh"
-  buz_blazon RBZ_RENDER_OAUTH   "rbw-ror" "${z_mod}" "render"
-  buz_blazon RBZ_VALIDATE_OAUTH "rbw-rov" "${z_mod}" "validate"
+  buz_enroll RBZ_RENDER_OAUTH   "rbw-ror" "${z_mod}" "render"
+  buz_enroll RBZ_VALIDATE_OAUTH "rbw-rov" "${z_mod}" "validate"
 
   # Station regime operations
   z_mod="rbrs_cli.sh"
-  buz_blazon RBZ_RENDER_STATION   "rbw-rsr" "${z_mod}" "render"
-  buz_blazon RBZ_VALIDATE_STATION "rbw-rsv" "${z_mod}" "validate"
+  buz_enroll RBZ_RENDER_STATION   "rbw-rsr" "${z_mod}" "render"
+  buz_enroll RBZ_VALIDATE_STATION "rbw-rsv" "${z_mod}" "validate"
 
   # Auth regime operations
   z_mod="rbra_cli.sh"
-  buz_blazon RBZ_RENDER_AUTH   "rbw-rar" "${z_mod}" "render"
-  buz_blazon RBZ_VALIDATE_AUTH "rbw-rav" "${z_mod}" "validate"
-  buz_blazon RBZ_LIST_AUTH     "rbw-ral" "${z_mod}" "list"
+  buz_enroll RBZ_RENDER_AUTH   "rbw-rar" "${z_mod}" "render"
+  buz_enroll RBZ_VALIDATE_AUTH "rbw-rav" "${z_mod}" "validate"
+  buz_enroll RBZ_LIST_AUTH     "rbw-ral" "${z_mod}" "list"
 
   # Cross-nameplate operations
   z_mod="rbcnx_cli.sh"
-  buz_blazon RBZ_SURVEY_NAMEPLATES "rbw-ni" "${z_mod}" "rbrn_survey"
-  buz_blazon RBZ_AUDIT_NAMEPLATES  "rbw-nv" "${z_mod}" "rbrn_audit"
+  buz_enroll RBZ_SURVEY_NAMEPLATES "rbw-ni" "${z_mod}" "rbrn_survey"
+  buz_enroll RBZ_AUDIT_NAMEPLATES  "rbw-nv" "${z_mod}" "rbrn_audit"
 
   # Bottle operations (imprint channel sets RBR0_FOLIO from BURD_TOKEN_3)
   z_mod="rbob_cli.sh"
-  buz_blazon RBZ_BOTTLE_START   "rbw-s" "${z_mod}" "rbob_start"          "imprint"
-  buz_blazon RBZ_BOTTLE_STOP    "rbw-z" "${z_mod}" "rbob_stop"           "imprint"
-  buz_blazon RBZ_BOTTLE_SENTRY  "rbw-S" "${z_mod}" "rbob_connect_sentry" "imprint"
-  buz_blazon RBZ_BOTTLE_CENSER  "rbw-C" "${z_mod}" "rbob_connect_censer" "imprint"
-  buz_blazon RBZ_BOTTLE_CONNECT "rbw-B" "${z_mod}" "rbob_connect_bottle" "imprint"
-  buz_blazon RBZ_BOTTLE_OBSERVE "rbw-o" "${z_mod}" "rbob_observe"        "imprint"
+  buz_enroll RBZ_BOTTLE_START   "rbw-s" "${z_mod}" "rbob_start"          "imprint"
+  buz_enroll RBZ_BOTTLE_STOP    "rbw-z" "${z_mod}" "rbob_stop"           "imprint"
+  buz_enroll RBZ_BOTTLE_SENTRY  "rbw-S" "${z_mod}" "rbob_connect_sentry" "imprint"
+  buz_enroll RBZ_BOTTLE_CENSER  "rbw-C" "${z_mod}" "rbob_connect_censer" "imprint"
+  buz_enroll RBZ_BOTTLE_CONNECT "rbw-B" "${z_mod}" "rbob_connect_bottle" "imprint"
+  buz_enroll RBZ_BOTTLE_OBSERVE "rbw-o" "${z_mod}" "rbob_observe"        "imprint"
 
   # Qualification operations
   z_mod="rbq_cli.sh"
-  buz_blazon RBZ_QUALIFY_ALL "rbw-qa" "${z_mod}" "qualify_all"
+  buz_enroll RBZ_QUALIFY_ALL "rbw-qa" "${z_mod}" "qualify_all"
 
   # Test operations (module is testbench, command is colophon)
   z_mod="rbtb_testbench.sh"
-  buz_blazon RBZ_TEST_ALL                "rbw-ta"  "${z_mod}" "rbw-ta"
-  buz_blazon RBZ_TEST_SUITE              "rbw-ts"  "${z_mod}" "rbw-ts"
-  buz_blazon RBZ_TEST_ONE                "rbw-to"  "${z_mod}" "rbw-to"
-  buz_blazon RBZ_TEST_NAMEPLATE          "rbw-tn"  "${z_mod}" "rbw-tn"
-  buz_blazon RBZ_TEST_REGIME             "rbw-trg" "${z_mod}" "rbw-trg"
-  buz_blazon RBZ_TEST_REGIME_CREDENTIALS "rbw-trc" "${z_mod}" "rbw-trc"
+  buz_enroll RBZ_TEST_ALL                "rbw-ta"  "${z_mod}" "rbw-ta"
+  buz_enroll RBZ_TEST_SUITE              "rbw-ts"  "${z_mod}" "rbw-ts"
+  buz_enroll RBZ_TEST_ONE                "rbw-to"  "${z_mod}" "rbw-to"
+  buz_enroll RBZ_TEST_NAMEPLATE          "rbw-tn"  "${z_mod}" "rbw-tn"
+  buz_enroll RBZ_TEST_REGIME             "rbw-trg" "${z_mod}" "rbw-trg"
+  buz_enroll RBZ_TEST_REGIME_CREDENTIALS "rbw-trc" "${z_mod}" "rbw-trc"
 
   ZRBZ_KINDLED=1
 }

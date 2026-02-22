@@ -20,8 +20,8 @@
 
 set -euo pipefail
 
-# Multiple inclusion guard
-test -z "${ZBUZ_SOURCED:-}" || return 0
+# Multiple inclusion detection
+test -z "${ZBUZ_SOURCED:-}" || buc_die "Module buz multiply sourced - check sourcing hierarchy"
 ZBUZ_SOURCED=1
 
 ######################################################################
@@ -30,7 +30,7 @@ ZBUZ_SOURCED=1
 zbuz_kindle() {
   test -z "${ZBUZ_KINDLED:-}" || buc_die "buz already kindled"
 
-  # Registry rolls (populated by buz_blazon in consumer kindle, same-process only)
+  # Registry rolls (populated by buz_enroll in consumer kindle, same-process only)
   z_buz_colophon_roll=()
   z_buz_module_roll=()
   z_buz_command_roll=()
@@ -72,12 +72,12 @@ zbuz_resolve_tabtarget_capture() {
 ######################################################################
 # Public enroll (kindle-only registry population)
 
-# buz_blazon() - Register colophon tuple in parallel rolls
+# buz_enroll() - Register colophon tuple in parallel rolls
 # Args: varname, colophon, module, command [, channel]
 # Optional channel: "" (default), "imprint", or "param1"
 # Assigns colophon string to caller's variable via printf -v
 # Side effects: populates registry rolls (must be called in same process, NOT inside $())
-buz_blazon() {
+buz_enroll() {
   zbuz_sentinel
 
   local z_varname="${1:-}"
@@ -85,20 +85,20 @@ buz_blazon() {
   local z_module="${3:-}"
   local z_command="${4:-}"
   local z_channel="${5:-}"
-  test -n "${z_varname}"  || buc_die "buz_blazon: varname required"
-  test -n "${z_colophon}" || buc_die "buz_blazon: colophon required"
-  test -n "${z_module}"   || buc_die "buz_blazon: module required"
-  test -n "${z_command}"  || buc_die "buz_blazon: command required"
+  test -n "${z_varname}"  || buc_die "buz_enroll: varname required"
+  test -n "${z_colophon}" || buc_die "buz_enroll: colophon required"
+  test -n "${z_module}"   || buc_die "buz_enroll: module required"
+  test -n "${z_command}"  || buc_die "buz_enroll: command required"
 
   # Validate channel value
   case "${z_channel}" in
     ""|"imprint"|"param1") ;;
-    *) buc_die "buz_blazon: invalid channel: ${z_channel}" ;;
+    *) buc_die "buz_enroll: invalid channel: ${z_channel}" ;;
   esac
 
   # Validate variable name
-  echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' \
-    || buc_die "buz_blazon: invalid variable name: ${z_varname}"
+  [[ "${z_varname}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] \
+    || buc_die "buz_enroll: invalid variable name: ${z_varname}"
 
   # Validate at least one tabtarget exists (imprinted colophons may have multiple)
   local z_tabtarget
@@ -112,7 +112,7 @@ buz_blazon() {
   z_buz_channel_roll+=("${z_channel}")
 
   # Assign colophon to caller's variable
-  printf -v "${z_varname}" '%s' "${z_colophon}" || buc_die "buz_blazon: printf -v failed for ${z_varname}"
+  printf -v "${z_varname}" '%s' "${z_colophon}" || buc_die "buz_enroll: printf -v failed for ${z_varname}"
 }
 
 ######################################################################
@@ -165,10 +165,9 @@ zbuz_exec_lookup() {
 
   local z_i
   for z_i in "${!z_buz_colophon_roll[@]}"; do
-    if [ "${z_buz_colophon_roll[z_i]}" = "${z_colophon}" ]; then
-      zbuz_decode_folio "${z_buz_channel_roll[z_i]}" "$@"
-      exec "${z_base_dir}/${z_buz_module_roll[z_i]}" "${z_buz_command_roll[z_i]}" ${z_buz_folio_args[@]+"${z_buz_folio_args[@]}"}
-    fi
+    test "${z_buz_colophon_roll[z_i]}" = "${z_colophon}" || continue
+    zbuz_decode_folio "${z_buz_channel_roll[z_i]}" "$@"
+    exec "${z_base_dir}/${z_buz_module_roll[z_i]}" "${z_buz_command_roll[z_i]}" ${z_buz_folio_args[@]+"${z_buz_folio_args[@]}"}
   done
 
   return 1
