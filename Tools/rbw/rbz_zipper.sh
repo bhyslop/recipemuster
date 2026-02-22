@@ -97,8 +97,8 @@ zrbz_kindle() {
 
   # OAuth regime operations
   z_mod="rbro_cli.sh"
-  buz_enroll RBZ_RENDER_OAUTH   "rbw-ror" "${z_mod}" "render"
-  buz_enroll RBZ_VALIDATE_OAUTH "rbw-rov" "${z_mod}" "validate"
+  buz_enroll RBZ_RENDER_OAUTH   "rbw-ror" "${z_mod}" "rbro_render"
+  buz_enroll RBZ_VALIDATE_OAUTH "rbw-rov" "${z_mod}" "rbro_validate"
 
   # Station regime operations
   z_mod="rbrs_cli.sh"

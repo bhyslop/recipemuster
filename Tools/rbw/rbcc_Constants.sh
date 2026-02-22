@@ -27,6 +27,7 @@ ZRBCC_SOURCED=1
 # Literal constants (pure string literals, no variable expansion — available at source time)
 RBCC_rbrr_file="rbrr.env"
 RBCC_rbrp_file="rbrp.env"
+RBCC_rbro_file="${HOME}/.rbw/rbro.env"
 RBCC_rbrs_file="../station-files/rbrs.env"
 RBCC_rbrn_prefix="rbrn_"
 RBCC_rbrn_ext=".env"

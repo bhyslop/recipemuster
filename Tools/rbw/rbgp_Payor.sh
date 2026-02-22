@@ -74,22 +74,8 @@ zrbgp_sentinel() {
 zrbgp_refresh_capture() {
   zrbgp_sentinel
 
-  buc_log_args "Loading RBRO credentials for OAuth token refresh"
-  local z_rbro_file="${HOME}/.rbw/rbro.env"
-  test -d "${HOME}/.rbw" || buc_die "RBRO directory missing - run rbgp_payor_install"
-  test -f "${z_rbro_file}" || buc_die "RBRO credentials missing - run rbgp_payor_install"
-  
-  # Check file permissions (readable and writable by owner)
-  if [ ! -r "${z_rbro_file}" ] || [ ! -w "${z_rbro_file}" ]; then
-    buc_die "RBRO file not readable/writable - check permissions and ownership"
-  fi
-  
-  # Source RBRO credentials
-  # shellcheck source=/dev/null
-  source "${z_rbro_file}" || buc_die "Failed to source RBRO credentials"
-  
-  test -n "${RBRO_CLIENT_SECRET:-}" || buc_die "RBRO_CLIENT_SECRET missing from ${z_rbro_file}"
-  test -n "${RBRO_REFRESH_TOKEN:-}" || buc_die "RBRO_REFRESH_TOKEN missing from ${z_rbro_file}"
+  # RBRO credentials already loaded and validated by caller (rbgu_rbro_load)
+  zrbro_sentinel
   test -n "${RBRP_OAUTH_CLIENT_ID:-}" || buc_die "RBRP_OAUTH_CLIENT_ID not set in environment"
 
   buc_log_args "Exchanging refresh token for access token"

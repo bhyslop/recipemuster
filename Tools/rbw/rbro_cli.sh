@@ -20,107 +20,64 @@
 
 set -euo pipefail
 
-ZRBRO_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-# Source dependencies
-source "${ZRBRO_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${ZRBRO_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
-source "${ZRBRO_CLI_SCRIPT_DIR}/rbro_regime.sh"
-source "${ZRBRO_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBRO_CLI_SCRIPT_DIR}/rbcr_render.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
-# CLI Functions
+# Command Functions
 
-# Command: validate - source file and validate (dies on first error)
+# Command: validate - enrollment-based validation (dies on first error)
+# SECURITY: buv_report shows raw values — use enforce + manual report for secrets
 rbro_validate() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbro_validate: file argument required"
-  test -f "${z_file}" || buc_die "rbro_validate: file not found: ${z_file}"
+  buc_doc_brief "Validate RBRO OAuth credential file via enrollment enforcement"
+  buc_doc_shown || return 0
 
-  buc_step "Validating RBRO OAuth credential file: ${z_file}"
-
-  source "${z_file}" || buc_die "rbro_validate: failed to source ${z_file}"
-  zrbro_kindle
-  zrbro_validate_fields
-
+  buc_step "Validating RBRO OAuth credential file: ${RBCC_rbro_file}"
+  buc_step "  PASS  RBRO_CLIENT_SECRET=[REDACTED - ${#RBRO_CLIENT_SECRET} chars] [string]"
+  buc_step "  PASS  RBRO_REFRESH_TOKEN=[REDACTED - ${#RBRO_REFRESH_TOKEN} chars] [string]"
   buc_step "RBRO OAuth credential file valid"
 }
 
-# Command: render - diagnostic display then validate
+# Command: render - diagnostic display with secret masking
+# SECURITY: Temporarily masks secret values before calling buv_render
 rbro_render() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbro_render: file argument required"
-  test -f "${z_file}" || buc_die "rbro_render: file not found: ${z_file}"
+  buc_doc_brief "Display diagnostic view of RBRO OAuth regime configuration"
+  buc_doc_shown || return 0
 
-  source "${z_file}" || buc_die "rbro_render: failed to source ${z_file}"
-  zrbro_kindle
-  zrbcr_kindle
+  local z_real_secret="${RBRO_CLIENT_SECRET}"
+  local z_real_token="${RBRO_REFRESH_TOKEN}"
+  RBRO_CLIENT_SECRET="[REDACTED - ${#z_real_secret} chars]"
+  RBRO_REFRESH_TOKEN="[REDACTED - ${#z_real_token} chars]"
 
-  echo ""
-  echo "${ZBUC_WHITE}RBRO - Recipe Bottle OAuth Regime${ZBUC_RESET}"
-  echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
-  echo ""
+  buv_render RBRO "RBRO - Recipe Bottle OAuth Regime"
 
-  rbcr_section_begin "OAuth Credentials"
-
-  # SECURITY: Mask client secret - never display the actual value
-  local z_secret_status="[NOT SET]"
-  local z_secret_color="${ZBUC_RED}"
-  if test -n "${RBRO_CLIENT_SECRET:-}"; then
-    z_secret_status="[REDACTED - ${#RBRO_CLIENT_SECRET} chars]"
-    z_secret_color="${ZBUC_GREEN}"
-  fi
-  printf "  ${z_secret_color}%-30s${ZBUC_RESET} %s\n" "RBRO_CLIENT_SECRET" "${z_secret_status}"
-
-  # SECURITY: Mask refresh token - never display the actual value
-  local z_token_status="[NOT SET]"
-  local z_token_color="${ZBUC_RED}"
-  if test -n "${RBRO_REFRESH_TOKEN:-}"; then
-    z_token_status="[REDACTED - ${#RBRO_REFRESH_TOKEN} chars]"
-    z_token_color="${ZBUC_GREEN}"
-  fi
-  printf "  ${z_token_color}%-30s${ZBUC_RESET} %s\n" "RBRO_REFRESH_TOKEN" "${z_token_status}"
-
-  rbcr_section_end
-
-  # Display unexpected RBRO_ variables if present
-  if test ${#ZRBRO_UNEXPECTED[@]} -gt 0; then
-    echo ""
-    echo "${ZBUC_RED}Unexpected RBRO_ variables:${ZBUC_RESET}"
-    local z_var
-    for z_var in "${ZRBRO_UNEXPECTED[@]}"; do
-      printf "  ${ZBUC_RED}%-30s${ZBUC_RESET} = %s\n" "${z_var}" "${!z_var:-}"
-    done
-    echo ""
-  fi
-
-  zrbro_validate_fields
-  echo "${ZBUC_GREEN}RBRO OAuth credential file valid${ZBUC_RESET}"
+  RBRO_CLIENT_SECRET="${z_real_secret}"
+  RBRO_REFRESH_TOKEN="${z_real_token}"
 }
 
 ######################################################################
-# Main dispatch
+# Furnish and Main
 
-zrbcc_kindle
+zrbro_furnish() {
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbro_regime.sh"
 
-z_command="${1:-}"
-ZRBRO_CLI_DEFAULT_FILE="${HOME}/.rbw/rbro.env"
+  zbuv_kindle
+  zburd_kindle
+  zburd_enforce
+  zrbcc_kindle
 
-case "${z_command}" in
-  validate)
-    z_file="${2:-${ZRBRO_CLI_DEFAULT_FILE}}"
-    test -f "${z_file}" || buc_die "RBRO file not found: ${z_file}"
-    rbro_validate "${z_file}"
-    ;;
-  render)
-    z_file="${2:-${ZRBRO_CLI_DEFAULT_FILE}}"
-    test -f "${z_file}" || buc_die "RBRO file not found: ${z_file}"
-    rbro_render "${z_file}"
-    ;;
-  *)
-    buc_die "Unknown command: ${z_command}. Usage: rbro_cli.sh {validate|render} [file]"
-    ;;
-esac
+  source "${RBCC_rbro_file}" || buc_die "Failed to source RBRO: ${RBCC_rbro_file}"
+
+  zrbro_kindle
+  zrbro_enforce
+
+  zbupr_kindle
+}
+
+buc_execute rbro_ "Recipe Bottle OAuth Regime" zrbro_furnish "$@"
 
 # eof

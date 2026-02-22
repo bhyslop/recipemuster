@@ -30,26 +30,19 @@ ZRBRO_SOURCED=1
 zrbro_kindle() {
   test -z "${ZRBRO_KINDLED:-}" || buc_die "Module rbro already kindled"
 
-  # Set defaults for all fields (validate enforces required-ness)
+  # Set defaults for all fields (enrollment enforces required-ness)
   RBRO_CLIENT_SECRET="${RBRO_CLIENT_SECRET:-}"
   RBRO_REFRESH_TOKEN="${RBRO_REFRESH_TOKEN:-}"
 
-  # Detect unexpected RBRO_ variables
-  local z_known="RBRO_CLIENT_SECRET RBRO_REFRESH_TOKEN"
-  ZRBRO_UNEXPECTED=()
-  local z_var
-  for z_var in $(compgen -v RBRO_); do
-    case " ${z_known} " in
-      *" ${z_var} "*) : ;;
-      *) ZRBRO_UNEXPECTED+=("${z_var}") ;;
-    esac
-  done
+  # Enroll all RBRO variables — single source of truth for validation and rendering
+  buv_regime_enroll RBRO
 
-  # Build rollup of all RBRO_ variables for passing to scripts/containers
-  # CRITICAL SECURITY: mask both secret values
-  ZRBRO_ROLLUP=""
-  ZRBRO_ROLLUP+="RBRO_CLIENT_SECRET='[REDACTED]' "
-  ZRBRO_ROLLUP+="RBRO_REFRESH_TOKEN='[REDACTED]'"
+  buv_group_enroll "OAuth Credentials"
+  buv_string_enroll  RBRO_CLIENT_SECRET  1  512  "OAuth client secret"
+  buv_string_enroll  RBRO_REFRESH_TOKEN  1  512  "OAuth refresh token"
+
+  # Guard against unexpected RBRO_ variables not in enrollment
+  buv_scope_sentinel RBRO RBRO_
 
   ZRBRO_KINDLED=1
 }
@@ -58,19 +51,10 @@ zrbro_sentinel() {
   test "${ZRBRO_KINDLED:-}" = "1" || buc_die "Module rbro not kindled - call zrbro_kindle first"
 }
 
-# Validate RBRO variables via buv_env_* (dies on first error)
-# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
-zrbro_validate_fields() {
+# Enforce all RBRO enrollment validations
+zrbro_enforce() {
   zrbro_sentinel
-
-  # Die on unexpected variables
-  if test ${#ZRBRO_UNEXPECTED[@]} -gt 0; then
-    buc_die "Unexpected RBRO_ variables: ${ZRBRO_UNEXPECTED[*]}"
-  fi
-
-  # Both credentials are required strings
-  buv_env_string RBRO_CLIENT_SECRET 1 512
-  buv_env_string RBRO_REFRESH_TOKEN 1 512
+  buv_vet RBRO
 }
 
 ######################################################################
@@ -89,7 +73,7 @@ rbro_load() {
   # Source and validate
   source "${z_rbro_file}" || buc_die "Failed to source RBRO credentials"
   zrbro_kindle
-  zrbro_validate_fields
+  zrbro_enforce
 }
 
 # eof
