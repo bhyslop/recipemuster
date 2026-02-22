@@ -6646,6 +6646,13 @@
         "₢AgAAD": {
           "tacks": [
             {
+              "ts": "260222-0734",
+              "state": "complete",
+              "text": "Replace manual std::env::temp_dir() pre/post cleanup in JJK Rust tests with a RAII\nDrop-based TempDir guard that auto-cleans on panic.\n\nCurrent pattern (in jjtgl_garland.rs, jjtg_gallops.rs, jjrno_nominate.rs, etc.):\n  let temp_dir = std::env::temp_dir().join(\"jjk_test_name\");\n  let _ = std::fs::remove_dir_all(&temp_dir);  // pre-clean\n  std::fs::create_dir_all(&temp_dir).unwrap();\n  // ... test body ...\n  let _ = std::fs::remove_dir_all(&temp_dir);  // post-clean (skipped on panic!)\n\nProblem: post-clean never runs if the test panics, leaving stale directories in /tmp.\n\nDesired: a jjk-internal RAII struct (no new crate dependency) that removes itself on Drop:\n  struct JjkTestDir(PathBuf);\n  impl Drop for JjkTestDir { fn drop(&mut self) { let _ = fs::remove_dir_all(&self.0); } }\n\nLive in a new test utility module (e.g., jjtu_testdir.rs with #[cfg(test)]).\nUpdate all existing tests that use the manual pattern.",
+              "silks": "jjk-test-raii-tempdir",
+              "commit": "94ba043"
+            },
+            {
               "ts": "260221-1828",
               "state": "rough",
               "text": "Replace manual std::env::temp_dir() pre/post cleanup in JJK Rust tests with a RAII\nDrop-based TempDir guard that auto-cleans on panic.\n\nCurrent pattern (in jjtgl_garland.rs, jjtg_gallops.rs, jjrno_nominate.rs, etc.):\n  let temp_dir = std::env::temp_dir().join(\"jjk_test_name\");\n  let _ = std::fs::remove_dir_all(&temp_dir);  // pre-clean\n  std::fs::create_dir_all(&temp_dir).unwrap();\n  // ... test body ...\n  let _ = std::fs::remove_dir_all(&temp_dir);  // post-clean (skipped on panic!)\n\nProblem: post-clean never runs if the test panics, leaving stale directories in /tmp.\n\nDesired: a jjk-internal RAII struct (no new crate dependency) that removes itself on Drop:\n  struct JjkTestDir(PathBuf);\n  impl Drop for JjkTestDir { fn drop(&mut self) { let _ = fs::remove_dir_all(&self.0); } }\n\nLive in a new test utility module (e.g., jjtu_testdir.rs with #[cfg(test)]).\nUpdate all existing tests that use the manual pattern.",
