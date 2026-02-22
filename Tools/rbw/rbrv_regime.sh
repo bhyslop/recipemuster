@@ -47,7 +47,7 @@ zrbrv_kindle() {
   buv_group_enroll "Core Vessel Identity"
   buv_xname_enroll  RBRV_SIGIL             1   64  "Unique identifier (must match directory name)"
   buv_string_enroll RBRV_DESCRIPTION       0  512  "Human-readable description"
-  buv_enum_enroll   RBRV_VESSEL_MODE                 "Operation mode: bind or conjure" \
+  buv_enum_enroll   RBRV_VESSEL_MODE               "Operation mode: bind or conjure" \
                     bind conjure
 
   buv_group_enroll "Binding Configuration"
@@ -59,7 +59,7 @@ zrbrv_kindle() {
   buv_string_enroll RBRV_CONJURE_DOCKERFILE    1  512  "Dockerfile path relative to repo root"
   buv_string_enroll RBRV_CONJURE_BLDCONTEXT    1  512  "Build context relative to repo root"
   buv_string_enroll RBRV_CONJURE_PLATFORMS     1  512  "Space-separated target platforms"
-  buv_enum_enroll   RBRV_CONJURE_BINFMT_POLICY       "Cross-platform policy: allow or forbid" \
+  buv_enum_enroll   RBRV_CONJURE_BINFMT_POLICY         "Cross-platform policy: allow or forbid" \
                     allow forbid
 
   # Guard against unexpected RBRV_ variables not in enrollment

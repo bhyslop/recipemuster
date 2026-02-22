@@ -90,7 +90,7 @@ zrbrv_furnish() {
   if test -n "${BUZ_FOLIO:-}"; then
     local z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/rbrv.env"
     test -f "${z_vessel_file}" || buc_die "Vessel not found: ${z_vessel_file}"
-    source "${z_vessel_file}" || buc_die "Failed to source vessel: ${z_vessel_file}"
+    source "${z_vessel_file}"  || buc_die "Failed to source vessel: ${z_vessel_file}"
     zrbrv_kindle
     zrbrv_enforce
   fi
