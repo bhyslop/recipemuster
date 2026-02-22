@@ -7138,6 +7138,13 @@
         "₢AiAAN": {
           "tacks": [
             {
+              "ts": "260222-1502",
+              "state": "rough",
+              "text": "Final cleanup: remove the builds.create code path entirely.\nAll conjure vessels are now on triggers (₢AiAAM complete).\n\nRemove from rbf_Foundry.sh:\n- zrbf_stitch_build_json() and all stitching logic\n- zrbf_compose_build_request_json()\n- zrbf_upload_context_to_gcs(), zrbf_compose_tarball_name()\n- zrbf_package_context(), zrbf_package_mirror_context()\n- GCS staging bucket usage from build hot path\n- All stitch/GCS/tarball temp file variables from zrbf_kindle()\n- builds.create submission logic (zrbf_submit_build_json)\n\nRemove from repository:\n- All rbgjb/*.sh script files (content now in per-vessel cloudbuild.yaml)\n\nVerify no remaining references to builds.create, GCS tarball upload, or stitching in codebase.\n\n(Absorbs former ₢AiAAL — retirement deferred until all vessels migrated to avoid breaking phased rollout.)",
+              "silks": "remove-builds-create-path",
+              "commit": "f38e0cf"
+            },
+            {
               "ts": "260222-1455",
               "state": "rough",
               "text": "Final cleanup: remove the builds.create code path entirely:\n- All conjure vessels now on triggers (₢AiAAM complete)\n- Remove remaining builds.create submission logic\n- Remove GCS staging bucket usage from build hot path\n- Remove all rbgjb/*.sh files\n- Clean up all stitch/tarball temp variables and functions\n- Verify no remaining references to builds.create in codebase",
