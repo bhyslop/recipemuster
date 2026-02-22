@@ -6036,6 +6036,7 @@
       "creation_time": "260219",
       "status": "racing",
       "order": [
+        "₢AfAAa",
         "₢AfAAT",
         "₢AfAAS",
         "₢AfAAR",
@@ -6063,7 +6064,7 @@
         "₢AfAAW",
         "₢AfAAX"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -6637,6 +6638,17 @@
               "text": "Merge rbcnx_cli.sh back into rbrn_cli.sh using differential furnish.\n\n## Context\n\nrbcnc_cli.sh and rbcnx_cli.sh were split because survey/audit commands need heavy deps (GCP/OAuth/RBRR) while validate/render/list need only light deps. With differential furnish (₢AfAAX), a single furnish function can conditionally source/kindle based on command name.\n\n## Scope\n\n1. Create unified rbrn_cli.sh containing all commands from both rbcnc and rbcnx:\n   - Light: rbrn_validate, rbrn_render (from rbcnc)\n   - Heavy: rbrn_survey, rbrn_audit (from rbcnx)\n   - New: rbrn_list_nameplates (from ₢AfAAK, may already exist)\n\n2. Furnish uses $1 (command name) to gate heavy sourcing/kindling:\n   ```bash\n   zrbrn_furnish() {\n     local z_command=\"${1:-}\"\n     # Light sources (always)\n     ...\n     # Heavy sources (survey/audit only)\n     case \"${z_command}\" in\n       rbrn_survey|rbrn_audit) ... ;;\n     esac\n     # Light kindles (always)\n     ...\n     # Heavy kindles (conditional)\n     case \"${z_command}\" in\n       rbrn_survey|rbrn_audit) ... ;;\n     esac\n   }\n   ```\n\n3. Update rbz_zipper.sh: change module references from rbcnc_cli.sh/rbcnx_cli.sh to rbrn_cli.sh\n\n4. Delete rbcnc_cli.sh and rbcnx_cli.sh\n\n## Acceptance\n\n- Single rbrn_cli.sh handles all nameplate commands\n- Light commands (validate, render) don't load GCP/OAuth deps\n- Heavy commands (survey, audit) still work\n- All tabtargets function correctly\n- Qualification passes",
               "silks": "rbrn-cli-reunification",
               "commit": "d18baf7"
+            }
+          ]
+        },
+        "₢AfAAa": {
+          "tacks": [
+            {
+              "ts": "260222-0855",
+              "state": "rough",
+              "text": "Unify regime variable enrollment and rendering so that enrollment carries description and section context, eliminating the duplicated render specifications in CLI files.\n\n## Design\n\n1. **buv_regime_start SCOPE** — sets current enrollment scope (read by subsequent enrolls)\n2. **buv_regime_section \"Title\" [GATE_VAR GATE_VALUE]** — sets current section context, with optional gate for conditional sections (maps to axhrgc_gate)\n3. **buv_*_enroll** calls gain a trailing description string parameter; scope is read from buv_regime_start state rather than passed as $1\n4. **buv_render SCOPE \"Label\"** — new function that walks enrollment rolls, groups by section, applies gates, and outputs via bupr_ formatting\n\n## Roll Changes\n\n- New columns: z_buv_section_roll (section title), z_buv_desc_roll (description)\n- Section-level gate info in a separate section registry (two-level registry with foreign-key, per BCG line 664)\n\n## Regime Updates\n\n- **RBRR** (singleton exemplar): convert kindle enrollments to new API, collapse rbrr_render to one-line buv_render call\n- **RBRN** (manifold exemplar): convert kindle enrollments to new API, collapse rbrn_render similarly\n\n## Acceptance\n\n- buv_regime_start / buv_regime_section / buv_render implemented and working\n- RBRR and RBRN kindles use new enrollment API\n- rbrr_render and rbrn_render collapse to buv_render calls\n- buv_report (validate) continues to work unchanged\n- No BCG amendment needed for context-setters (they are normal kindle state, not _enroll functions)",
+              "silks": "buv-enrollment-render-unification",
+              "commit": "316f7c6"
             }
           ]
         }
