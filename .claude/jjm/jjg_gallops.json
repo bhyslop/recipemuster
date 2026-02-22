@@ -6775,6 +6775,13 @@
         "₢AfAAc": {
           "tacks": [
             {
+              "ts": "260222-1515",
+              "state": "complete",
+              "text": "Enroll BURD dispatch runtime variables in buv enrollment and add enforce.\n\n## Context\n\nBURD is a runtime regime — values come from the dispatch environment, not a file.env.\nThe paddock incorrectly says \"runtime-only, by design\" with no validator. It needs\nenrollment so buv_vet/buv_report can validate variables are properly populated at runtime.\n\n## Scope\n\n1. **burd_regime.sh** — Add buv_*_enroll calls in zburd_kindle for all BURD_ variables\n   - buv_regime_enroll BURD\n   - Enroll all BURD_ variables with appropriate types\n   - buv_scope_sentinel BURD BURD_\n   - Add zburd_enforce() calling buv_vet BURD\n\n2. **Paddock** — Update BURD entry to remove \"no validator\" annotation, mark as done\n\n## Acceptance\n\n- zburd_kindle enrolls all BURD_ variables\n- zburd_enforce validates via buv_vet\n- Regime smoke tests pass\n- Paddock updated",
+              "silks": "apply-enrollment-to-burd-runtime",
+              "commit": "5c85bad"
+            },
+            {
               "ts": "260222-1301",
               "state": "rough",
               "text": "Enroll BURD dispatch runtime variables in buv enrollment and add enforce.\n\n## Context\n\nBURD is a runtime regime — values come from the dispatch environment, not a file.env.\nThe paddock incorrectly says \"runtime-only, by design\" with no validator. It needs\nenrollment so buv_vet/buv_report can validate variables are properly populated at runtime.\n\n## Scope\n\n1. **burd_regime.sh** — Add buv_*_enroll calls in zburd_kindle for all BURD_ variables\n   - buv_regime_enroll BURD\n   - Enroll all BURD_ variables with appropriate types\n   - buv_scope_sentinel BURD BURD_\n   - Add zburd_enforce() calling buv_vet BURD\n\n2. **Paddock** — Update BURD entry to remove \"no validator\" annotation, mark as done\n\n## Acceptance\n\n- zburd_kindle enrolls all BURD_ variables\n- zburd_enforce validates via buv_vet\n- Regime smoke tests pass\n- Paddock updated",
