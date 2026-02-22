@@ -30,7 +30,7 @@ ZRBRV_SOURCED=1
 zrbrv_kindle() {
   test -z "${ZRBRV_KINDLED:-}" || buc_die "Module rbrv already kindled"
 
-  # Set defaults for all fields (validate enforces required-ness)
+  # Set defaults for all fields (enrollment enforces required-ness)
   RBRV_SIGIL="${RBRV_SIGIL:-}"
   RBRV_DESCRIPTION="${RBRV_DESCRIPTION:-}"
   RBRV_VESSEL_MODE="${RBRV_VESSEL_MODE:-}"
@@ -40,27 +40,30 @@ zrbrv_kindle() {
   RBRV_CONJURE_PLATFORMS="${RBRV_CONJURE_PLATFORMS:-}"
   RBRV_CONJURE_BINFMT_POLICY="${RBRV_CONJURE_BINFMT_POLICY:-}"
 
-  # Detect unexpected RBRV_ variables
-  local z_known="RBRV_SIGIL RBRV_DESCRIPTION RBRV_VESSEL_MODE RBRV_BIND_IMAGE RBRV_CONJURE_DOCKERFILE RBRV_CONJURE_BLDCONTEXT RBRV_CONJURE_PLATFORMS RBRV_CONJURE_BINFMT_POLICY"
-  ZRBRV_UNEXPECTED=()
-  local z_var
-  for z_var in $(compgen -v RBRV_); do
-    case " ${z_known} " in
-      *" ${z_var} "*) : ;;
-      *) ZRBRV_UNEXPECTED+=("${z_var}") ;;
-    esac
-  done
+  # Enroll all RBRV variables — single source of truth for validation and rendering
 
-  # Build rollup of all RBRV_ variables for passing to scripts/containers
-  ZRBRV_ROLLUP=""
-  ZRBRV_ROLLUP+="RBRV_SIGIL='${RBRV_SIGIL}' "
-  ZRBRV_ROLLUP+="RBRV_DESCRIPTION='${RBRV_DESCRIPTION}' "
-  ZRBRV_ROLLUP+="RBRV_VESSEL_MODE='${RBRV_VESSEL_MODE}' "
-  ZRBRV_ROLLUP+="RBRV_BIND_IMAGE='${RBRV_BIND_IMAGE}' "
-  ZRBRV_ROLLUP+="RBRV_CONJURE_DOCKERFILE='${RBRV_CONJURE_DOCKERFILE}' "
-  ZRBRV_ROLLUP+="RBRV_CONJURE_BLDCONTEXT='${RBRV_CONJURE_BLDCONTEXT}' "
-  ZRBRV_ROLLUP+="RBRV_CONJURE_PLATFORMS='${RBRV_CONJURE_PLATFORMS}' "
-  ZRBRV_ROLLUP+="RBRV_CONJURE_BINFMT_POLICY='${RBRV_CONJURE_BINFMT_POLICY}'"
+  buv_regime_enroll RBRV
+
+  buv_group_enroll "Core Vessel Identity"
+  buv_xname_enroll  RBRV_SIGIL             1   64  "Unique identifier (must match directory name)"
+  buv_string_enroll RBRV_DESCRIPTION       0  512  "Human-readable description"
+  buv_enum_enroll   RBRV_VESSEL_MODE                 "Operation mode: bind or conjure" \
+                    bind conjure
+
+  buv_group_enroll "Binding Configuration"
+  buv_gate_enroll   RBRV_VESSEL_MODE  bind
+  buv_fqin_enroll   RBRV_BIND_IMAGE  1  512  "Source image to copy from registry"
+
+  buv_group_enroll "Conjuring Configuration"
+  buv_gate_enroll   RBRV_VESSEL_MODE  conjure
+  buv_string_enroll RBRV_CONJURE_DOCKERFILE    1  512  "Dockerfile path relative to repo root"
+  buv_string_enroll RBRV_CONJURE_BLDCONTEXT    1  512  "Build context relative to repo root"
+  buv_string_enroll RBRV_CONJURE_PLATFORMS     1  512  "Space-separated target platforms"
+  buv_enum_enroll   RBRV_CONJURE_BINFMT_POLICY       "Cross-platform policy: allow or forbid" \
+                    allow forbid
+
+  # Guard against unexpected RBRV_ variables not in enrollment
+  buv_scope_sentinel RBRV RBRV_
 
   ZRBRV_KINDLED=1
 }
@@ -69,58 +72,33 @@ zrbrv_sentinel() {
   test "${ZRBRV_KINDLED:-}" = "1" || buc_die "Module rbrv not kindled - call zrbrv_kindle first"
 }
 
-# Validate RBRV variables via buv_env_* (dies on first error)
-# Prerequisite: kindle must have been called; buv_validation.sh must be sourced
-zrbrv_validate_fields() {
+# Enforce all RBRV enrollment validations
+zrbrv_enforce() {
   zrbrv_sentinel
 
-  # Die on unexpected variables
-  if test ${#ZRBRV_UNEXPECTED[@]} -gt 0; then
-    buc_die "Unexpected RBRV_ variables: ${ZRBRV_UNEXPECTED[*]}"
-  fi
-
-  # Core Vessel Identity
-  buv_env_xname       RBRV_SIGIL                   1     64  # Must match directory name
-  buv_env_string      RBRV_DESCRIPTION             0    512  # Optional description
-
-  # Vessel Mode (required enumeration: bind or conjure)
-  case "${RBRV_VESSEL_MODE}" in
-    bind|conjure) : ;;
-    *) buc_die "Invalid RBRV_VESSEL_MODE: '${RBRV_VESSEL_MODE}' (must be 'bind' or 'conjure')" ;;
-  esac
-
-  # Binding Configuration (conditional: RBRV_VESSEL_MODE=bind)
-  if [[ ${RBRV_VESSEL_MODE} == bind ]]; then
-    buv_env_fqin      RBRV_BIND_IMAGE              1    512  # Source image to copy
-  fi
-
-  # Conjuring Configuration (conditional: RBRV_VESSEL_MODE=conjure)
-  if [[ ${RBRV_VESSEL_MODE} == conjure ]]; then
-    buv_env_string    RBRV_CONJURE_DOCKERFILE      1    512  # Path relative to repo root
-    buv_env_string    RBRV_CONJURE_BLDCONTEXT      1    512  # Build context relative to repo root
-    buv_env_string    RBRV_CONJURE_PLATFORMS       1    512  # Space-separated platforms
-    buv_env_string    RBRV_CONJURE_BINFMT_POLICY   1     16  # Either "allow" or "forbid"
-    case "${RBRV_CONJURE_BINFMT_POLICY}" in
-      allow|forbid) : ;;
-      *) buc_die "Invalid RBRV_CONJURE_BINFMT_POLICY: '${RBRV_CONJURE_BINFMT_POLICY}' (must be 'allow' or 'forbid')" ;;
-    esac
-  fi
+  buv_vet RBRV
 }
 
 ######################################################################
 # Public Functions (rbrv_*)
 
-# List available vessel sigils
-# Usage: rbrv_list
-# Prerequisite: RBRR must be loaded (needs RBRR_VESSEL_DIR)
-rbrv_list() {
+# List available vessel sigils as space-separated tokens
+# Prerequisite: RBRR kindled (needs RBRR_VESSEL_DIR)
+rbrv_list_capture() {
   zrbrr_sentinel
-  for z_d in "${RBRR_VESSEL_DIR}"/*/; do
+
+  local z_result=""
+  local z_dirs=("${RBRR_VESSEL_DIR}"/*)
+  local z_i=""
+  for z_i in "${!z_dirs[@]}"; do
+    local z_d="${z_dirs[$z_i]}"
     test -d "${z_d}" || continue
     test -f "${z_d}/rbrv.env" || continue
     local z_s="${z_d%/}"
-    echo "${z_s##*/}"
+    z_result="${z_result}${z_result:+ }${z_s##*/}"
   done
+  test -n "${z_result}" || return 1
+  echo "${z_result}"
 }
 
 # eof

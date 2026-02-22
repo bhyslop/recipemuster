@@ -133,6 +133,28 @@ zrbrn_enforce() {
 }
 
 ######################################################################
+# Public Functions (rbrn_*)
+
+# List available nameplate monikers as space-separated tokens
+# Prerequisite: RBCC kindled (needs RBCC_KIT_DIR, RBCC_rbrn_prefix, RBCC_rbrn_ext)
+rbrn_list_capture() {
+  zrbcc_sentinel
+
+  local z_result=""
+  local z_files=("${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
+  local z_i=""
+  for z_i in "${!z_files[@]}"; do
+    test -f "${z_files[$z_i]}" || continue
+    local z_basename="${z_files[$z_i]##*/}"
+    local z_moniker="${z_basename#${RBCC_rbrn_prefix}}"
+    z_moniker="${z_moniker%${RBCC_rbrn_ext}}"
+    z_result="${z_result}${z_result:+ }${z_moniker}"
+  done
+  test -n "${z_result}" || return 1
+  echo "${z_result}"
+}
+
+######################################################################
 # Cross-Nameplate Functions
 #
 # rbrn_preflight:  Requires RBCC kindled (called from CLI rbrn_audit)

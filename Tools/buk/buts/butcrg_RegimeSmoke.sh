@@ -68,21 +68,19 @@ butcrg_burs_tcase() {
 
 butcrg_rbrn_tcase() {
   zbutcrg_init
-  zbutcrg_dispatch_ok "rbw-rnr"
-  zbutcrg_dispatch_ok "rbw-rnv"
 
-  # List operation: verify rbrn_list returns non-empty, validate each moniker
-  buto_section "RBRN list operation"
   local z_monikers
-  z_monikers=$(rbrn_list) || buto_fatal "rbrn_list failed"
-  test -n "${z_monikers}" || buto_fatal "rbrn_list returned empty"
-  local z_moniker
-  while read -r z_moniker; do
-    buto_info "Validating moniker: ${z_moniker}"
-    zbutcrg_dispatch_ok "rbw-rnv" "${z_moniker}"
-  done <<< "${z_monikers}"
+  z_monikers=$(rbrn_list_capture) || buto_fatal "No nameplates found"
 
-  buto_success "RBRN regime render+validate+list passed"
+  buto_section "RBRN nameplate iteration"
+  local z_moniker=""
+  for z_moniker in ${z_monikers}; do
+    buto_info "Render+validate nameplate: ${z_moniker}"
+    zbutcrg_dispatch_ok "rbw-rnr" "${z_moniker}"
+    zbutcrg_dispatch_ok "rbw-rnv" "${z_moniker}"
+  done
+
+  buto_success "RBRN regime render+validate passed"
 }
 
 butcrg_rbrr_tcase() {
@@ -95,25 +93,23 @@ butcrg_rbrr_tcase() {
 butcrg_rbrv_tcase() {
   zbutcrg_init
 
+  # Load RBRR for rbrv_list_capture (needs RBRR_VESSEL_DIR)
   source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
 
-  zbutcrg_dispatch_ok "rbw-rvr"
-  zbutcrg_dispatch_ok "rbw-rvv"
-
-  # List operation: verify rbrv_list returns non-empty, validate each sigil
-  buto_section "RBRV list operation"
   local z_sigils
-  z_sigils=$(rbrv_list) || buto_fatal "rbrv_list failed"
-  test -n "${z_sigils}" || buto_fatal "rbrv_list returned empty"
-  local z_sigil
-  while read -r z_sigil; do
-    buto_info "Validating sigil: ${z_sigil}"
-    zbutcrg_dispatch_ok "rbw-rvv" "${z_sigil}"
-  done <<< "${z_sigils}"
+  z_sigils=$(rbrv_list_capture) || buto_fatal "No vessels found"
 
-  buto_success "RBRV regime render+validate+list passed"
+  buto_section "RBRV vessel iteration"
+  local z_sigil=""
+  for z_sigil in ${z_sigils}; do
+    buto_info "Render+validate vessel: ${z_sigil}"
+    zbutcrg_dispatch_ok "rbw-rvr" "${z_sigil}"
+    zbutcrg_dispatch_ok "rbw-rvv" "${z_sigil}"
+  done
+
+  buto_success "RBRV regime render+validate passed"
 }
 
 ######################################################################

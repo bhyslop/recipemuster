@@ -16,126 +16,86 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBRV CLI - Command line interface for RBRV vessel operations
+# RBRV CLI - Command line interface for RBRV vessel regime operations
 
 set -euo pipefail
 
-ZRBRV_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
 # Source dependencies
-source "${ZRBRV_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${ZRBRV_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
-source "${ZRBRV_CLI_SCRIPT_DIR}/rbrv_regime.sh"
-source "${ZRBRV_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBRV_CLI_SCRIPT_DIR}/rbrr_regime.sh"
-source "${RBCC_rbrr_file}"
-source "${ZRBRV_CLI_SCRIPT_DIR}/rbcr_render.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
-# CLI Functions
+# Command Functions
 
-# Command: validate - source file and validate (dies on first error)
+# Command: validate - enrollment-based validation report
 rbrv_validate() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrv_validate: file argument required"
-  test -f "${z_file}" || buc_die "rbrv_validate: file not found: ${z_file}"
+  buc_doc_brief "Validate RBRV vessel regime configuration via enrollment report"
+  buc_doc_shown || return 0
 
-  buc_step "Validating RBRV vessel file: ${z_file}"
-
-  # Source the assignment file
-  source "${z_file}" || buc_die "rbrv_validate: failed to source ${z_file}"
-
-  # Prepare state (no dying)
-  zrbrv_kindle
-
-  # Strict validation (dies on error)
-  zrbrv_validate_fields
-
+  test -n "${BUZ_FOLIO:-}" || buc_die "Vessel sigil required (e.g., nsproto-sentry)"
+  buc_step "Validating RBRV vessel regime"
+  buv_report RBRV "Vessel Regime"
   buc_step "RBRV vessel valid"
 }
 
-# Command: render - diagnostic display then validate
+# Command: render - diagnostic display
 rbrv_render() {
-  local z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrv_render: file argument required"
-  test -f "${z_file}" || buc_die "rbrv_render: file not found: ${z_file}"
+  buc_doc_brief "Display diagnostic view of RBRV vessel regime configuration"
+  buc_doc_shown || return 0
 
-  # Source and kindle (no dying — show all fields before validation)
-  source "${z_file}" || buc_die "rbrv_render: failed to source ${z_file}"
-  zrbrv_kindle
-  zrbcr_kindle
+  test -n "${BUZ_FOLIO:-}" || buc_die "Vessel sigil required (e.g., nsproto-sentry)"
+  buv_render RBRV "RBRV - Recipe Bottle Regime Vessel"
+}
 
-  # Display header
-  echo ""
-  echo "${ZBUC_WHITE}RBRV - Recipe Bottle Regime Vessel${ZBUC_RESET}"
-  echo "${ZBUC_WHITE}File: ${z_file}${ZBUC_RESET}"
-  echo ""
+# Command: list - show available vessel sigils
+rbrv_list() {
+  buc_doc_brief "List available vessel sigils"
+  buc_doc_shown || return 0
 
-  # Core Vessel Identity
-  rbcr_section_begin "Core Vessel Identity"
-  rbcr_section_item RBRV_SIGIL        xname   req  "Unique identifier (must match directory name)"
-  rbcr_section_item RBRV_DESCRIPTION  string  opt  "Human-readable description"
-  rbcr_section_item RBRV_VESSEL_MODE  enum    req  "Operation mode: bind or conjure"
-  rbcr_section_end
-
-  # Binding Configuration (conditional: RBRV_VESSEL_MODE=bind)
-  rbcr_section_begin "Binding Configuration" RBRV_VESSEL_MODE bind
-  rbcr_section_item RBRV_BIND_IMAGE  fqin  req  "Source image to copy from registry"
-  rbcr_section_end
-
-  # Conjuring Configuration (conditional: RBRV_VESSEL_MODE=conjure)
-  rbcr_section_begin "Conjuring Configuration" RBRV_VESSEL_MODE conjure
-  rbcr_section_item RBRV_CONJURE_DOCKERFILE     string  req  "Dockerfile path relative to repo root"
-  rbcr_section_item RBRV_CONJURE_BLDCONTEXT     string  req  "Build context relative to repo root"
-  rbcr_section_item RBRV_CONJURE_PLATFORMS      string  req  "Space-separated target platforms"
-  rbcr_section_item RBRV_CONJURE_BINFMT_POLICY  enum    req  "Cross-platform policy: allow or forbid"
-  rbcr_section_end
-
-  # Unexpected variables (from kindle, not gated)
-  if test ${#ZRBRV_UNEXPECTED[@]} -gt 0; then
-    echo "${ZBUC_RED}Unexpected RBRV_ variables:${ZBUC_RESET}"
-    local z_var
-    for z_var in "${ZRBRV_UNEXPECTED[@]}"; do
-      printf "  ${ZBUC_RED}%-30s${ZBUC_RESET} = %s\n" "${z_var}" "${!z_var:-}"
-    done
-    echo ""
-  fi
-
-  # Validate (dies on first error, after full display)
-  zrbrv_validate_fields
-  echo "${ZBUC_GREEN}RBRV vessel valid${ZBUC_RESET}"
+  local z_sigils
+  z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+  buc_step "Available vessels:"
+  local z_sigil=""
+  for z_sigil in ${z_sigils}; do
+    buc_step "  ${z_sigil}"
+  done
 }
 
 ######################################################################
-# Main dispatch
+# Furnish and Main
 
-zrbcc_kindle
+zrbrv_furnish() {
+  buc_doc_env "BUZ_FOLIO" "Vessel sigil (e.g., nsproto-sentry); empty for list"
 
-z_command="${1:-}"
-z_sigil="${2:-}"
+  # Sources (always)
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${z_rbw_kit_dir}/rbrv_regime.sh"
 
-case "${z_command}" in
-  validate|render)
-    zbuv_kindle
-    zrbrr_kindle
-    zrbrr_enforce
-    if test -z "${z_sigil}"; then
-      buc_step "Available vessels:"
-      rbrv_list | while read -r z_s; do
-        echo "  ${z_s}"
-      done
-    else
-      z_file="${RBRR_VESSEL_DIR}/${z_sigil}/rbrv.env"
-      test -f "${z_file}" || buc_die "Vessel not found: ${z_file}"
-      case "${z_command}" in
-        validate) rbrv_validate "${z_file}" ;;
-        render)   rbrv_render "${z_file}" ;;
-      esac
-    fi
-    ;;
-  *)
-    buc_die "Unknown command: ${z_command}. Usage: rbrv_cli.sh {validate|render} [sigil]"
-    ;;
-esac
+  # Kindles (always)
+  zbuv_kindle
+  zburd_kindle
+  zbupr_kindle
+  zrbcc_kindle
+
+  # Load and kindle repo regime (needed for RBRR_VESSEL_DIR)
+  source "${RBCC_rbrr_file}"
+  zrbrr_kindle
+  zrbrr_enforce
+
+  # If BUZ_FOLIO is set, load and kindle the specified vessel
+  if test -n "${BUZ_FOLIO:-}"; then
+    local z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/rbrv.env"
+    test -f "${z_vessel_file}" || buc_die "Vessel not found: ${z_vessel_file}"
+    source "${z_vessel_file}" || buc_die "Failed to source vessel: ${z_vessel_file}"
+    zrbrv_kindle
+    zrbrv_enforce
+  fi
+}
+
+buc_execute rbrv_ "Recipe Bottle Vessel Regime" zrbrv_furnish "$@"
 
 # eof
