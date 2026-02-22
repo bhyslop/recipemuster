@@ -7195,6 +7195,13 @@
         "₢AiAAI": {
           "tacks": [
             {
+              "ts": "260222-1528",
+              "state": "rough",
+              "text": "Implement the prepare step in the Foundry for trigger-based builds:\n- Verify the vessel's cloudbuild.yaml exists in the vessel directory\n- Regenerate cloudbuild.yaml to a temp location and diff against committed version\n- If stale: fail with message to regenerate and commit before building\n- Verify main repo working tree is clean (no uncommitted changes)\n- Push current HEAD to origin (so Cloud Build checks out the right commit from GitHub)\n- If HEAD already matches origin: skip push. If diverged: push and report.\n- The prepare step replaces the old GCS tarball upload chain\n- Adapts existing zrbf_verify_git_clean to also verify/ensure origin is current\n\nThis is the key workflow change from builds.create: the old flow uploaded a tarball\ndirectly, so the repo didn't need to be pushed. Now Cloud Build fetches from GitHub,\nso the Foundry must ensure the commit is on origin before dispatching.",
+              "silks": "implement-prepare-step",
+              "commit": "249beea"
+            },
+            {
               "ts": "260222-1523",
               "state": "rough",
               "text": "Implement the prepare step in the Foundry for trigger-based builds:\n- Verify the vessel's cloudbuild.yaml exists and is committed (not dirty)\n- Regenerate cloudbuild.yaml to a temp location and diff against committed version\n- If stale: fail with message to regenerate and commit before building\n- No publish ceremony — yaml lives in the main repo, not a vessel repo\n- The prepare step replaces the old GCS tarball upload chain",
