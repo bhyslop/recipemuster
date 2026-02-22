@@ -6963,9 +6963,10 @@
         "₢AiAAD",
         "₢AiAAE",
         "₢AiAAF",
-        "₢AiAAG"
+        "₢AiAAG",
+        "₢AiAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7042,6 +7043,17 @@
               "text": "Script Developer Connect connection setup:\n- Create connection via REST API: POST to developerconnect.googleapis.com\n- Extract authorization URI from response\n- Present URI to user for one-time GitHub OAuth consent (manual browser step)\n- Poll/verify connection is authorized\n- Link vessel repo to connection via REST API\n- All curl/REST — no gcloud CLI dependency\n- BCG compliance for all scripting\n\nUses RBRR_GDC_CONNECTION_NAME, RBRR_GDC_REGION, RBRR_GDC_SECRET_NAME.\nOne-time setup, but must be scripted for reproducibility.",
               "silks": "script-developer-connect-setup",
               "commit": "d19e484"
+            }
+          ]
+        },
+        "₢AiAAH": {
+          "tacks": [
+            {
+              "ts": "260222-1454",
+              "state": "rough",
+              "text": "Script Cloud Build trigger creation for rbev-busybox:\n- Create manual trigger via REST API: POST to cloudbuild.googleapis.com\n- Trigger points to cloudbuild.yaml in the vessel repo\n- Declare substitution variables that will be overridden at triggers.run time\n- Trigger name follows RBRR_GCB_TRIGGER_PATTERN\n- Script as repeatable operation (will be reused for each vessel)\n- All curl/REST — no gcloud CLI dependency\n- BCG compliance for all scripting\n\nReference: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/create",
+              "silks": "script-trigger-creation-busybox",
+              "commit": "dbd2a42"
             }
           ]
         }
