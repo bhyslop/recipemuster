@@ -35,6 +35,7 @@ zvob_furnish() {
   buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
   buc_doc_env "BURC_TOOLS_DIR       " "Directory for tools"
 
+  zbuv_kindle
   zburd_kindle
 
   # Load BURC configuration

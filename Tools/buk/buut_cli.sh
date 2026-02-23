@@ -34,6 +34,7 @@ zbuut_furnish() {
   buc_doc_env "BURC_TABTARGET_DIR   " "Directory for tabtarget scripts"
   buc_doc_env "BURC_TOOLS_DIR       " "Directory for tools"
 
+  zbuv_kindle
   zburd_kindle
 
   # Load BURC configuration
