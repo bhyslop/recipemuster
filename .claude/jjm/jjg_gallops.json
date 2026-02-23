@@ -7046,6 +7046,13 @@
         "₢AfAAn": {
           "tacks": [
             {
+              "ts": "260223-0735",
+              "state": "complete",
+              "text": "DECISION NEEDED: ZBUV_CHECK_ERROR naming and BCG function taxonomy.\n\n## Issue\n\nzbuv_check_predicate in buv_validation.sh returns 0/1 (predicate) but also sets ZBUV_CHECK_ERROR as a side-channel detail string. ZBUV_CHECK_ERROR uses kindle constant naming (Z«PREFIX»_SCREAMING) but is assigned in ~40 branches inside zbuv_check_predicate, not in kindle.\n\n## Options identified\n\n1. **Simple rename** — z_zbuv_check_predicate_error (enroll return-var convention, though this isn't enroll)\n2. **Convert to capture** — return error on stdout, lose predicate-in-conditional usage\n3. **New BCG pattern** — \"predicate with detail\" is a legitimate taxonomy gap; define naming convention for it\n4. **Accept as-is** — document as an intentional exception\n\n## Context\n\n- All ~40 assignments are inside one function (case branches), not scattered\n- Consumers: buv_vet (line 613) and buv_report (lines 639, 645)\n- Similar pattern may exist elsewhere: ZBUV_GRP_GATE_VAR/ZBUV_GRP_GATE_VAL in zbuv_group_gate_recite\n\n## Acceptance\n\n- Explicit decision recorded\n- If BCG update: new pattern documented\n- If rename: mechanical change applied",
+              "silks": "decide-zbuv-check-error-pattern",
+              "commit": "9fae3e6"
+            },
+            {
               "ts": "260222-1632",
               "state": "rough",
               "text": "DECISION NEEDED: ZBUV_CHECK_ERROR naming and BCG function taxonomy.\n\n## Issue\n\nzbuv_check_predicate in buv_validation.sh returns 0/1 (predicate) but also sets ZBUV_CHECK_ERROR as a side-channel detail string. ZBUV_CHECK_ERROR uses kindle constant naming (Z«PREFIX»_SCREAMING) but is assigned in ~40 branches inside zbuv_check_predicate, not in kindle.\n\n## Options identified\n\n1. **Simple rename** — z_zbuv_check_predicate_error (enroll return-var convention, though this isn't enroll)\n2. **Convert to capture** — return error on stdout, lose predicate-in-conditional usage\n3. **New BCG pattern** — \"predicate with detail\" is a legitimate taxonomy gap; define naming convention for it\n4. **Accept as-is** — document as an intentional exception\n\n## Context\n\n- All ~40 assignments are inside one function (case branches), not scattered\n- Consumers: buv_vet (line 613) and buv_report (lines 639, 645)\n- Similar pattern may exist elsewhere: ZBUV_GRP_GATE_VAR/ZBUV_GRP_GATE_VAL in zbuv_group_gate_recite\n\n## Acceptance\n\n- Explicit decision recorded\n- If BCG update: new pattern documented\n- If rename: mechanical change applied",
