@@ -7451,6 +7451,13 @@
         "₢AiAAM": {
           "tacks": [
             {
+              "ts": "260223-0812",
+              "state": "rough",
+              "text": "Migrate remaining conjure vessels from builds.create to {rbtgr_rubric}-based builds:\n\nFor each vessel beyond busybox:\n1. {rbtgo_rubric_inscribe} — generate and commit {rbtgr_build_yaml}\n2. {rbtgo_rubric_enshrine} — create {rbtgr_vessel_trigger} via REST API\n3. Verify build dispatches successfully and {rbtgr_provenance} is generated\n\nFollow the pattern established by busybox (₢AiAAD yaml, ₢AiAAH enshrine).\nNo vessel repo creation needed — all {rbtgr_build_yaml} files committed to main repo.",
+              "silks": "migrate-remaining-conjure-vessels",
+              "commit": "38bec06"
+            },
+            {
               "ts": "260222-1523",
               "state": "rough",
               "text": "Migrate remaining conjure vessels from builds.create to trigger-based builds:\n- For each vessel beyond busybox: author cloudbuild.yaml, create trigger\n- Follow the pattern established by busybox (₢AiAAD yaml, ₢AiAAH trigger)\n- No vessel repo creation needed — all yamls committed to main repo\n- Verify SLSA provenance on each migrated vessel",
