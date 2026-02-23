@@ -46,7 +46,10 @@ zrbgp_furnish() {
   zrbrr_enforce
 
   zrbgc_kindle
-  rbrp_load
+
+  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+  zrbrp_kindle
+  zrbrp_enforce
 
   zrbgo_kindle
   zrbgu_kindle
