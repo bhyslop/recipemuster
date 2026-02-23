@@ -6101,9 +6101,10 @@
         "₢AfAAJ",
         "₢AfAAL",
         "₢AfAAW",
-        "₢AfAAX"
+        "₢AfAAX",
+        "₢AfAAl"
       ],
-      "next_pace_seed": "AAl",
+      "next_pace_seed": "AAm",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -7001,6 +7002,17 @@
               "text": "Apply T1-T13 transformation recipes to RBRA (Authentication/Credential Regime, manifold: governor, retriever, director).\n\n## Catalog Reference\n\nRead `.claude/jjm/jjp_uAlf_catalog.md` Part 2, RBRA section.\n\n## Current State\n\n- `Tools/rbw/rbra_regime.sh` (92 lines) — 4 variables, UNEXPECTED array, ZRBRA_ROLLUP with [REDACTED] key, 2 grep -qE sites\n- `Tools/rbw/rbra_cli.sh` (189 lines) — SCRIPT_DIR pattern, manual case dispatch (validate|render|list), role resolution via case arms\n\n## Variables (4 total, 1 group)\n\n| Variable | Enrollment | Notes |\n|----------|-----------|-------|\n| RBRA_CLIENT_EMAIL | buv_string_enroll 1 256 | Custom enforce: must end .iam.gserviceaccount.com |\n| RBRA_PRIVATE_KEY | buv_string_enroll 1 4096 | Custom enforce: must contain PEM BEGIN marker |\n| RBRA_PROJECT_ID | buv_string_enroll 1 64 | |\n| RBRA_TOKEN_LIFETIME_SEC | buv_decimal_enroll 300 3600 | |\n\nGroup: \"Service Account Credentials\".\n\n## Manifold Mechanics\n\nRBRA is manifold but NOT glob-discovered (unlike RBRN/RBRV). Three fixed roles: governor, retriever, director. Each role's file path comes from RBRR: RBRR_GOVERNOR_RBRA_FILE, RBRR_RETRIEVER_RBRA_FILE, RBRR_DIRECTOR_RBRA_FILE.\n\n**BUZ_FOLIO carries role name.** Furnish resolves folio→RBRR variable→file path:\n```bash\nzrbra_resolve_role() {\n  local z_role=\"${1:-}\"\n  case \"${z_role}\" in\n    governor)  echo \"${RBRR_GOVERNOR_RBRA_FILE}\" ;;\n    retriever) echo \"${RBRR_RETRIEVER_RBRA_FILE}\" ;;\n    director)  echo \"${RBRR_DIRECTOR_RBRA_FILE}\" ;;\n    *) buc_die \"Unknown RBRA role: ${z_role}\" ;;\n  esac\n}\n```\n\n## Design Decisions\n\n### RBRA_PRIVATE_KEY in render\nbuv_render will display the raw private key value. Current render shows length + [REDACTED].\n\n**Decision:** Accept raw display. This is a local-only diagnostic tool. The key is already on disk. If redaction is desired later, add a `redacted` enrollment type — but not in this pace.\n\n### ZRBRA_ROLLUP\nCurrently builds `ZRBRA_ROLLUP` with `RBRA_PRIVATE_KEY='[REDACTED]'`. Check if consumed anywhere outside regime/cli. If dead code, delete. If consumed, replace with buv_docker_env or keep manually for the redaction.\n\n**Search:** `grep -r ZRBRA_ROLLUP` in Tools/ to determine consumers before deleting.\n\n### Channel wiring\nZipper currently registers RBRA commands without channel. After restructure: `buz_enroll RBZ_RENDER_AUTH \"rbw-rar\" \"${z_mod}\" \"rbra_render\" \"param1\"` — BUZ_FOLIO carries role name.\n\n## Transformations\n\n- T1: CLI restructure — manifold. Furnish sources buv, burd, rbcc, rbrr_regime, rbra_regime, bupr. Loads RBRR, then if BUZ_FOLIO set, resolves role→file→source→kindle→enforce.\n- T2: No _load exists. Keep role-resolution function (refactored).\n- T3: buv enrollment — 4 variables, 1 group\n- T5: buv_report / buv_render\n- T6: buv_scope_sentinel replaces ZRBRA_UNEXPECTED\n- T7: Delete ZRBRA_ROLLUP if dead code; replace with buv_docker_env if consumed\n- T8b: Replace 2 grep -qE + 1 grep -q sites with [[ =~ ]] in enforce:\n  ```bash\n  zrbra_enforce() {\n    zrbra_sentinel\n    buv_vet RBRA\n    [[ \"${RBRA_CLIENT_EMAIL}\" =~ \\.iam\\.gserviceaccount\\.com$ ]] \\\n      || buc_die \"RBRA_CLIENT_EMAIL must end with .iam.gserviceaccount.com\"\n    [[ \"${RBRA_PRIVATE_KEY}\" =~ BEGIN ]] \\\n      || buc_die \"RBRA_PRIVATE_KEY must contain PEM BEGIN marker\"\n  }\n  ```\n- T9: buc_doc_* on validate, render, list\n- T10: Update rbz_zipper.sh — add \"param1\" channel to RBRA colophon registrations\n- T11: rbra_list stays as explicit function (3 fixed roles, not glob-discovered)\n- T12/T13: furnish receives command, bupr replaces rbcr\n\n## Verification\n\n1. `./tt/rbw-trg.RegimeSmoke.sh`\n2. `./tt/rbw-trc.RegimeCredentials.sh` (credential test suite)\n3. Verify `./tt/rbw-rar.RenderAuth.sh governor` still works after channel wiring\n\n## Acceptance\n\n- rbra_regime.sh uses enrollment + scope_sentinel + enforce with [[ =~ ]]\n- rbra_cli.sh uses buc_execute + furnish + buv_report/buv_render\n- BUZ_FOLIO carries role name; channel wired in rbz_zipper.sh\n- ZRBRA_ROLLUP eliminated or replaced\n- No grep in regime module\n- Regime smoke and credential tests pass",
               "silks": "scrub-rbra-manifold",
               "commit": "f823f8a"
+            }
+          ]
+        },
+        "₢AfAAl": {
+          "tacks": [
+            {
+              "ts": "260222-1629",
+              "state": "rough",
+              "text": "Rename ZBUV_CHECK_ERROR to z_zbuv_check_predicate_error in buv_validation.sh.\n\n## Context\n\nZBUV_CHECK_ERROR uses kindle constant naming (Z«PREFIX»_SCREAMING) but is assigned in ~40 places outside kindle — it's a mutable return variable from zbuv_check_predicate. Per BCG, kindle constants must be defined exclusively in kindle.\n\n## Scope\n\n1. Rename ZBUV_CHECK_ERROR → z_zbuv_check_predicate_error throughout buv_validation.sh\n2. Check for any external consumers of this variable\n\n## Acceptance\n\n- No ZBUV_CHECK_ERROR references remain\n- All consumers use the new name\n- Regime smoke tests pass",
+              "silks": "fix-zbuv-check-error-naming",
+              "commit": "9676206"
             }
           ]
         }
