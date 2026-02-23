@@ -3,29 +3,34 @@
 # Copyright 2026 Scale Invariant, Inc.
 # Licensed under the Apache License, Version 2.0
 #
-# This file is the build artifact for trigger-based builds (Tier 2).
-# It is committed to the main repo and referenced by a Cloud Build trigger
+# Maximally-baked build definition for trigger-based builds (Tier 2).
+# Committed to the main repo and referenced by a Cloud Build trigger
 # via Developer Connect. The Foundry dispatches builds via triggers.run
-# with substitution overrides for dynamic values.
+# with substitution overrides for the 4 dynamic values below.
 #
-# Generated from rbgjb/*.sh step scripts. Do not hand-edit step scripts
-# without regenerating this file.
+# All static values (GAR coordinates, image pins, vessel identity) are
+# baked from rbrr.env at authoring time. When rbrr.env values change,
+# this file must be updated to match.
 #
-# Pinned image refs are baked at generation time from RBRR regime variables.
-# When pins are refreshed (RBZ_REFRESH_GCB_PINS), this file must be regenerated.
+# Baked values (source: rbrr.env):
+#   GAR location:   us-central1 (RBRR_GCP_REGION)
+#   GAR project:    rbwg-d-proto-251230080456 (RBRR_DEPOT_PROJECT_ID)
+#   GAR repository: rbw-proto-repository (RBRR_GAR_REPOSITORY)
+#   Vessel moniker: rbev-busybox
+#   Platforms:      linux/amd64,linux/arm64,linux/arm/v7
+#   Dockerfile:     rbev-vessels/rbev-busybox/Dockerfile
+#
+# Builder image pins (baked from RBRR_GCB_*_IMAGE_REF):
+#   gcloud: gcr.io/cloud-builders/gcloud@sha256:54bcf51d...
+#   docker: gcr.io/cloud-builders/docker@sha256:80e36415...
+#   alpine: docker.io/library/alpine@sha256:59855d3d...
+#   syft:   docker.io/anchore/syft@sha256:d0b19da0...
+#   binfmt: docker.io/tonistiigi/binfmt@sha256:e25e3b94...
 
 substitutions:
   # Dynamic values — overridden at triggers.run dispatch time
-  _RBGY_MONIKER: 'rbev-busybox'
-  _RBGY_PLATFORMS: 'linux/amd64,linux/arm64,linux/arm/v7'
-  _RBGY_DOCKERFILE: 'rbev-vessels/rbev-busybox/Dockerfile'
-  _RBGY_GAR_LOCATION: ''
-  _RBGY_GAR_PROJECT: ''
-  _RBGY_GAR_REPOSITORY: ''
-  _RBGY_GAR_HOST_SUFFIX: '-docker.pkg.dev'
-  _RBGY_ARK_SUFFIX_IMAGE: '-image'
-  _RBGY_ARK_SUFFIX_ABOUT: '-about'
-  _RBGY_CRANE_TAR_GZ: ''
+  # _RBGY_TAG_BASE carries BURD_NOW_STAMP from Foundry tabtarget dispatch
+  _RBGY_TAG_BASE: ''
   _RBGY_GIT_COMMIT: ''
   _RBGY_GIT_BRANCH: ''
   _RBGY_GIT_REPO: ''
@@ -37,20 +42,7 @@ options:
 timeout: 1200s
 
 steps:
-  # Step 01: Derive timestamp-based tag
-  # Builder: gcloud (~Feb 2026)
-  - name: 'gcr.io/cloud-builders/gcloud@sha256:54bcf51d601ff370171bba523099424765c6f2aadabbc30bab2e2779978da6cd'
-    id: derive-tag-base
-    entrypoint: /bin/bash
-    args:
-      - '-lc'
-      - |
-        set -euo pipefail
-        TAG_BASE="$(date -u +%Y%m%dT%H%M%SZ)"
-        test -n "$${TAG_BASE}" || (echo "TAG_BASE empty" >&2; exit 1)
-        echo "$${TAG_BASE}" > .tag_base
-
-  # Step 02: Get Docker access token from gcloud
+  # Step 01: Get Docker access token from gcloud
   # Builder: gcloud (~Feb 2026)
   # Log hygiene: token written to file, never echoed
   - name: 'gcr.io/cloud-builders/gcloud@sha256:54bcf51d601ff370171bba523099424765c6f2aadabbc30bab2e2779978da6cd'
@@ -63,7 +55,7 @@ steps:
         set +x
         gcloud auth print-access-token > /workspace/.docker-token
 
-  # Step 03: Docker login to Google Artifact Registry
+  # Step 02: Docker login to Google Artifact Registry
   # Builder: docker (~Feb 2026)
   # Log hygiene: token piped via stdin, rm after use, set +x around sensitive ops
   - name: 'gcr.io/cloud-builders/docker@sha256:80e36415eeda32a4e2fda4c551f6cf7a450afcaa2e91bf4eafaabf942cf69bcc'
@@ -74,10 +66,10 @@ steps:
       - |
         set -euo pipefail
         set +x
-        cat /workspace/.docker-token | docker login -u oauth2accesstoken --password-stdin "https://${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}"
+        cat /workspace/.docker-token | docker login -u oauth2accesstoken --password-stdin "https://us-central1-docker.pkg.dev"
         rm /workspace/.docker-token
 
-  # Step 04: Register QEMU for cross-platform builds (arm64, arm/v7)
+  # Step 03: Register QEMU for cross-platform builds (arm64, arm/v7)
   # Builder: docker (~Feb 2026)
   # binfmt image pinned: tonistiigi/binfmt (~Feb 2026)
   - name: 'gcr.io/cloud-builders/docker@sha256:80e36415eeda32a4e2fda4c551f6cf7a450afcaa2e91bf4eafaabf942cf69bcc'
@@ -91,9 +83,10 @@ steps:
           "docker.io/tonistiigi/binfmt@sha256:e25e3b94b42cbb4f46f2c4f84ee2f21456cc428251aeb81a6a184a0ed0364ad2" \
           --install arm64,arm
 
-  # Step 06: Multi-arch build and export to OCI layout tarball
+  # Step 04: Multi-arch build and export to OCI layout tarball
   # Builder: docker (~Feb 2026)
   # OCI Layout Bridge Phase 1: export to /workspace/oci-layout.tar (no push credentials needed)
+  # Validates all 4 dynamic substitutions for fail-fast before expensive buildx
   - name: 'gcr.io/cloud-builders/docker@sha256:80e36415eeda32a4e2fda4c551f6cf7a450afcaa2e91bf4eafaabf942cf69bcc'
     id: build-and-export
     entrypoint: /bin/bash
@@ -102,19 +95,12 @@ steps:
       - |
         set -euo pipefail
 
-        test -n "${_RBGY_DOCKERFILE}"     || (echo "_RBGY_DOCKERFILE missing"     >&2; exit 1)
-        test -n "${_RBGY_MONIKER}"        || (echo "_RBGY_MONIKER missing"        >&2; exit 1)
-        test -n "${_RBGY_PLATFORMS}"      || (echo "_RBGY_PLATFORMS missing"      >&2; exit 1)
-        test -n "${_RBGY_GAR_LOCATION}"   || (echo "_RBGY_GAR_LOCATION missing"   >&2; exit 1)
-        test -n "${_RBGY_GAR_PROJECT}"    || (echo "_RBGY_GAR_PROJECT missing"    >&2; exit 1)
-        test -n "${_RBGY_GAR_REPOSITORY}" || (echo "_RBGY_GAR_REPOSITORY missing" >&2; exit 1)
-        test -s .tag_base                  || (echo "tag base not derived"         >&2; exit 1)
-        test -n "${_RBGY_GIT_COMMIT}"     || (echo "_RBGY_GIT_COMMIT missing"     >&2; exit 1)
-        test -n "${_RBGY_GIT_BRANCH}"     || (echo "_RBGY_GIT_BRANCH missing"     >&2; exit 1)
-        test -n "${_RBGY_GIT_REPO}"       || (echo "_RBGY_GIT_REPO missing"       >&2; exit 1)
+        test -n "${_RBGY_TAG_BASE}"   || { echo "_RBGY_TAG_BASE missing"   >&2; exit 1; }
+        test -n "${_RBGY_GIT_COMMIT}" || { echo "_RBGY_GIT_COMMIT missing" >&2; exit 1; }
+        test -n "${_RBGY_GIT_BRANCH}" || { echo "_RBGY_GIT_BRANCH missing" >&2; exit 1; }
+        test -n "${_RBGY_GIT_REPO}"   || { echo "_RBGY_GIT_REPO missing"   >&2; exit 1; }
 
-        TAG_BASE="$$(cat .tag_base)"
-        IMAGE_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:$${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}"
+        IMAGE_URI="us-central1-docker.pkg.dev/rbwg-d-proto-251230080456/rbw-proto-repository/rbev-busybox:${_RBGY_TAG_BASE}-image"
 
         docker buildx version
         docker version
@@ -122,16 +108,16 @@ steps:
         docker buildx create --driver docker-container --name rb-builder --use
 
         docker buildx build \
-          --platform="${_RBGY_PLATFORMS}" \
+          --platform="linux/amd64,linux/arm64,linux/arm/v7" \
           --tag "$${IMAGE_URI}" \
           --output type=oci,dest=/workspace/oci-layout.tar \
-          --label "moniker=${_RBGY_MONIKER}" \
+          --label "moniker=rbev-busybox" \
           --label "git.commit=${_RBGY_GIT_COMMIT}" \
           --label "git.branch=${_RBGY_GIT_BRANCH}" \
-          -f "${_RBGY_DOCKERFILE}" \
+          -f "rbev-vessels/rbev-busybox/Dockerfile" \
           .
 
-  # Step 07: Push OCI layout to GAR using crane
+  # Step 05: Push OCI layout to GAR using crane
   # Builder: alpine (~Feb 2026)
   # OCI Layout Bridge Phase 2: push from /workspace/oci-layout to registry
   - name: 'docker.io/library/alpine@sha256:59855d3dceb3ae53991193bd03301e082b2a7faa56a514b03527ae0ec2ce3a95'
@@ -142,19 +128,13 @@ steps:
       - |
         set -eu
 
-        test -n "${_RBGY_GAR_LOCATION}"   || { echo "_RBGY_GAR_LOCATION missing"   >&2; exit 1; }
-        test -n "${_RBGY_GAR_PROJECT}"    || { echo "_RBGY_GAR_PROJECT missing"    >&2; exit 1; }
-        test -n "${_RBGY_GAR_REPOSITORY}" || { echo "_RBGY_GAR_REPOSITORY missing" >&2; exit 1; }
-        test -n "${_RBGY_MONIKER}"        || { echo "_RBGY_MONIKER missing"        >&2; exit 1; }
-        test -s .tag_base                  || { echo "tag base not derived"         >&2; exit 1; }
-        test -f /workspace/oci-layout.tar  || { echo "OCI archive not found"        >&2; exit 1; }
+        test -f /workspace/oci-layout.tar || { echo "OCI archive not found" >&2; exit 1; }
 
         echo "Installing crane..."
-        wget -qO- "${_RBGY_CRANE_TAR_GZ}" | tar xz -C /usr/local/bin crane
+        wget -qO- "https://github.com/google/go-containerregistry/releases/download/v0.20.7/go-containerregistry_Linux_x86_64.tar.gz" | tar xz -C /usr/local/bin crane
         crane version
 
-        TAG_BASE="$$(cat .tag_base)"
-        IMAGE_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:$${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}"
+        IMAGE_URI="us-central1-docker.pkg.dev/rbwg-d-proto-251230080456/rbw-proto-repository/rbev-busybox:${_RBGY_TAG_BASE}-image"
 
         mkdir -p /workspace/oci-layout
         tar xf /workspace/oci-layout.tar -C /workspace/oci-layout
@@ -165,7 +145,7 @@ steps:
         echo "$${IMAGE_URI}" > .image_uri
         echo "Done. Image available at: $${IMAGE_URI}"
 
-  # Step 08: Generate SBOM with Syft
+  # Step 06: Generate SBOM with Syft
   # Builder: docker (~Feb 2026)
   # OCI Layout Bridge Phase 3: Syft analyzes oci-layout directly
   # syft image pinned: anchore/syft (~Feb 2026)
@@ -179,7 +159,7 @@ steps:
 
         SYFT_IMAGE="docker.io/anchore/syft@sha256:d0b19da0182bc17145379ccb3434b3f7eae540676a2b5e6bdae67152f1fae892"
 
-        test -d /workspace/oci-layout || (echo "/workspace/oci-layout not found" >&2; exit 1)
+        test -d /workspace/oci-layout || { echo "/workspace/oci-layout not found" >&2; exit 1; }
 
         echo "Generating SBOM with $${SYFT_IMAGE}..."
         docker run --rm -v /workspace:/workspace \
@@ -189,9 +169,8 @@ steps:
 
         echo "SBOM generation complete"
 
-  # Step 10: Assemble build metadata JSON
+  # Step 07: Assemble build metadata JSON
   # Builder: alpine (~Feb 2026)
-  # Runs BEFORE step 09 (metadata container needs build_info.json)
   - name: 'docker.io/library/alpine@sha256:59855d3dceb3ae53991193bd03301e082b2a7faa56a514b03527ae0ec2ce3a95'
     id: assemble-metadata
     entrypoint: /bin/sh
@@ -202,21 +181,19 @@ steps:
 
         apk add --no-cache jq >/dev/null
 
-        test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
-        TAG_BASE="$$(cat .tag_base)"
         IMG_URI="$$(cat .image_uri)"
-        cp "${_RBGY_DOCKERFILE}" recipe.txt
+        cp "rbev-vessels/rbev-busybox/Dockerfile" recipe.txt
         TS="$$(date -u +%FT%TZ)"
 
         jq -n \
-          --arg tag_base  "$${TAG_BASE}" \
+          --arg tag_base  "${_RBGY_TAG_BASE}" \
           --arg image_uri "$${IMG_URI}" \
-          --arg moniker   "${_RBGY_MONIKER}" \
+          --arg moniker   "rbev-busybox" \
           --arg repo      "${_RBGY_GIT_REPO}" \
           --arg branch    "${_RBGY_GIT_BRANCH}" \
           --arg commit    "${_RBGY_GIT_COMMIT}" \
           --arg ts        "$${TS}" \
-          --arg platforms "${_RBGY_PLATFORMS}" \
+          --arg platforms "linux/amd64,linux/arm64,linux/arm/v7" \
           '{
             tag_base: $$tag_base,
             image: { uri: $$image_uri },
@@ -226,7 +203,7 @@ steps:
             platforms: $$platforms
           }' > build_info.json
 
-  # Step 09: Build and push metadata container
+  # Step 08: Build and push metadata container
   # Builder: docker (~Feb 2026)
   # Depends on: assemble-metadata (needs build_info.json)
   - name: 'gcr.io/cloud-builders/docker@sha256:80e36415eeda32a4e2fda4c551f6cf7a450afcaa2e91bf4eafaabf942cf69bcc'
@@ -237,9 +214,7 @@ steps:
       - |
         set -euo pipefail
 
-        test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
-        TAG_BASE="$$(cat .tag_base)"
-        META_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:$${TAG_BASE}${_RBGY_ARK_SUFFIX_ABOUT}"
+        META_URI="us-central1-docker.pkg.dev/rbwg-d-proto-251230080456/rbw-proto-repository/rbev-busybox:${_RBGY_TAG_BASE}-about"
 
         {
           echo 'FROM scratch'
