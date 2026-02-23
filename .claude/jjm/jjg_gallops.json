@@ -7415,6 +7415,13 @@
         "₢AiAAK": {
           "tacks": [
             {
+              "ts": "260223-0812",
+              "state": "rough",
+              "text": "End-to-end verification of the full {rbtgr_rubric} lifecycle for rbev-busybox:\n\n- Run full prepare ({rbtgo_rubric_assay} + push) → dispatch ({rbtgo_trigger_build}) cycle\n- Verify build completes successfully in Cloud Build\n- Verify image lands in GAR with correct tags (ark pattern: -image + -about)\n- Verify {rbtgr_provenance} is generated — SLSA v1.0 attestation present on the built image\n  (gcloud artifacts docker images describe --show-provenance equivalent via REST API)\n- Verify metadata container ({rbtga_ark_about}) still works\n- Document any issues found\n\nThis is the gate before migrating remaining vessels. The full rubric lifecycle must\nwork end-to-end: {rbtgr_build_yaml} committed, {rbtgr_vessel_trigger} enshrined,\ndispatch succeeds, {rbtgr_provenance} generated.",
+              "silks": "e2e-verify-busybox-trigger",
+              "commit": "65cb148"
+            },
+            {
               "ts": "260222-1454",
               "state": "rough",
               "text": "End-to-end verification of trigger-based build for rbev-busybox:\n- Run full prepare → dispatch cycle\n- Verify build completes successfully in Cloud Build\n- Verify image lands in GAR with correct tags (ark pattern: -image + -about)\n- Verify SLSA v1.0 provenance is generated (gcloud artifacts docker images describe --show-provenance equivalent via REST API)\n- Verify metadata container still works\n- Document any issues found\n\nThis is the gate before migrating remaining vessels.",
