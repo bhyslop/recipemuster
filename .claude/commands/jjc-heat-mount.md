@@ -18,7 +18,8 @@ Run:
 ./tt/vvw-r.RunVVX.sh jjx_orient $ARGUMENTS
 ```
 
-If $ARGUMENTS is empty, orient auto-selects the first racing heat.
+If $ARGUMENTS is empty but you have a current FIREMARK from this session's context, use that firemark.
+If $ARGUMENTS is empty and no session context exists, orient auto-selects the first racing heat.
 If $ARGUMENTS contains a Firemark (e.g., `AA` or `₣AA`), orient uses that heat.
 If $ARGUMENTS contains a Coronet (e.g., `AbAAE` or `₢AbAAE`), orient targets that specific pace within its parent heat.
 
