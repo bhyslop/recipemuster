@@ -7028,6 +7028,13 @@
         "₢AfAAm": {
           "tacks": [
             {
+              "ts": "260222-1637",
+              "state": "rough",
+              "text": "Fix 3 callers of removed rbrp_load() function.\n\n## Context\n\n₢AfAAh (scrub-rbrp-singleton) removed rbrp_load() from rbrp_regime.sh during enrollment migration but left 3 callers behind. These CLIs will die at runtime when they try to call the missing function.\n\n## BLOCKER NOTE\n\n₢AiAAS on ₣Ai (gcb-trigger-migration-tier2) is blocked by this fix. That pace needs rbw-gpe.PayorEstablishment.sh and rbw-gge.GdcEstablishment.sh to work, which both route through rbgp_cli.sh and rbgm_cli.sh — the broken callers.\n\n## Callers to fix\n\n- Tools/rbw/rbgp_cli.sh:49\n- Tools/rbw/rbgm_cli.sh:49\n- Tools/rbw/rbts/rbtcap_AccessProbe.sh:96\n\n## Pattern\n\nReplace rbrp_load with the standard regime archetype furnish sequence: source the regime file, then call zrbrp_kindle + zrbrp_enforce. Follow the pattern established in rbrp_cli.sh furnish.\n\n## Acceptance\n\n- No references to rbrp_load remain in codebase\n- All 3 callers use kindle+enforce pattern\n- Regime smoke tests pass\n- Notify ₣Ai engineer that blocker is cleared",
+              "silks": "fix-rbrp-load-callers",
+              "commit": "96596b1"
+            },
+            {
               "ts": "260222-1630",
               "state": "rough",
               "text": "Fix 3 callers of removed rbrp_load() function.\n\n## Context\n\n₢AfAAh (scrub-rbrp-singleton) removed rbrp_load() from rbrp_regime.sh during enrollment migration but left 3 callers behind. These CLIs will die at runtime when they try to call the missing function.\n\n## Callers to fix\n\n- Tools/rbw/rbgp_cli.sh:49\n- Tools/rbw/rbgm_cli.sh:49\n- Tools/rbw/rbts/rbtcap_AccessProbe.sh:96\n\n## Pattern\n\nReplace `rbrp_load` with the standard regime archetype furnish sequence: source the regime file, then call zrbrp_kindle + zrbrp_enforce. Follow the pattern established in rbrp_cli.sh furnish.\n\n## Acceptance\n\n- No references to rbrp_load remain in codebase\n- All 3 callers use kindle+enforce pattern\n- Regime smoke tests pass",
