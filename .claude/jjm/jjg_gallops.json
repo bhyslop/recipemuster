@@ -7068,6 +7068,7 @@
         "₢AiAAC",
         "₢AiAAG",
         "₢AiAAD",
+        "₢AiAAS",
         "₢AiAAR",
         "₢AiAAF",
         "₢AiAAE",
@@ -7082,7 +7083,7 @@
         "₢AiAAO",
         "₢AiAAP"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7504,6 +7505,17 @@
               "text": "Execute the RBSGD Developer Connect setup procedure against the live GCP project.\n\nThis is a human-interactive pace: walk through the RBSGD-gdc_establish.adoc manual\nprocedure step by step, complete the OAuth browser authorization, and record the\nreal resource names in rbrr.env.\n\n## Objectives\n\n1. Follow RBSGD procedure to create Developer Connect connection and repo link\n2. Revise RBSGD spec where steps are incorrect or unclear (iterate until it works)\n3. Replace PLACEHOLDER values in rbrr.env with real GDC resource names:\n   - RBRR_GDC_CONNECTION_NAME\n   - RBRR_GDC_REGION\n   - RBRR_GDC_REPO_LINK\n4. Verify regime smoke test passes with real values (./tt/rbw-trg.TestRegimeSmoke.sh)\n5. Verify Developer Connect health check via REST API (as documented in RBSGD)\n\n## Why now\n\n- PLACEHOLDER values in rbrr.env break the regime smoke test (gname validation)\n- ₢AiAAH (trigger creation) needs real GDC_CONNECTION_NAME and GDC_REPO_LINK\n- ₢AiAAK (e2e verify) needs a working Developer Connect connection\n\n## References\n\n- lenses/RBSGD-gdc_establish.adoc — the procedure to execute\n- rbrr.env — where real values get recorded\n- Tools/rbw/rbrr_regime.sh — regime validator (must pass after update)",
               "silks": "execute-developer-connect-setup",
               "commit": "0ae5cc2"
+            }
+          ]
+        },
+        "₢AiAAS": {
+          "tacks": [
+            {
+              "ts": "260222-1634",
+              "state": "rough",
+              "text": "Fix missing `rbrp_load` function in rbgm_cli.sh furnish chain.\n\n`rbrp_load` is called in three places (rbgm_cli.sh:49, rbgp_cli.sh:49,\nrbtcap_AccessProbe.sh:96) but defined nowhere. This blocks ALL rbgm_cli.sh\ncommands including the new rbw-gge.GdcEstablishment tabtarget.\n\nLikely removed or renamed during a regime reorganization. Investigate what\nreplaced it and fix the furnish chain.\n\n## Acceptance\n\n- `./tt/rbw-gge.GdcEstablishment.sh` runs and displays the procedure\n- `./tt/rbw-gpe.PayorEstablishment.sh` also works (same CLI)\n- No new regime test failures",
+              "silks": "fix-rbrp-load-missing",
+              "commit": "7089a33"
             }
           ]
         }
