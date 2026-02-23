@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Aj",
+  "next_heat_seed": "Ak",
   "heat_order": [
     "₣AD",
     "₣AG",
@@ -23,7 +23,8 @@
     "₣Ae",
     "₣Af",
     "₣Ah",
-    "₣Ai"
+    "₣Ai",
+    "₣Aj"
   ],
   "heats": {
     "₣AD": {
@@ -7534,6 +7535,15 @@
           ]
         }
       }
+    },
+    "₣Aj": {
+      "silks": "rbk-axla-term-voicing-scrub",
+      "creation_time": "260223",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlj.md",
+      "paces": {}
     }
   }
 }
