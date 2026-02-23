@@ -6106,9 +6106,10 @@
         "₢AfAAW",
         "₢AfAAX",
         "₢AfAAl",
-        "₢AfAAo"
+        "₢AfAAo",
+        "₢AfAAp"
       ],
-      "next_pace_seed": "AAp",
+      "next_pace_seed": "AAq",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -7078,6 +7079,17 @@
               "text": "Remove RBRE (ECR Regime) ghost — spec exists with zero implementation or consumers.\n\n## Files to remove/edit\n\n- DELETE `lenses/RBSRE-RegimeEcr.adoc` — the regime spec\n- EDIT `lenses/RBS0-SpecTop.adoc` — remove all RBRE linked terms (attributes, anchors, definitions) from mapping section and ECR Regime section\n- EDIT paddock `jjp_uAlf.md` — update RBRE entry to note removal (like RBRG)\n\n## Context\n\nSame situation as RBRG (₢AfAAA): spec'd, never implemented, no shell code, no consumers.\nSix RBRE_ variables defined in spec, zero references in Tools/.\n\n## Acceptance\n\n- RBSRE-RegimeEcr.adoc deleted\n- No rbre_ attributes or anchors remain in RBS0\n- Paddock updated\n- cma-validate passes on RBS0",
               "silks": "remove-rbre-ghost-regime",
               "commit": "da84e7d"
+            }
+          ]
+        },
+        "₢AfAAp": {
+          "tacks": [
+            {
+              "ts": "260223-0813",
+              "state": "rough",
+              "text": "Add missing zrbrs_enforce call in rbv_cli.sh after zrbrs_kindle on line 51.\n\n## Context\n\nrbv_cli.sh sources RBRS station file and calls zrbrs_kindle but never calls zrbrs_enforce.\nRBRS variables are then consumed without validation. rbrs_cli.sh does this correctly — rbv_cli.sh missed it.\n\n## Fix\n\nAdd `zrbrs_enforce` after line 51 in Tools/rbw/rbv_cli.sh, following the pattern in rbrs_cli.sh.\n\n## Acceptance\n\n- zrbrs_enforce called after zrbrs_kindle in rbv_cli.sh\n- Regime smoke tests pass",
+              "silks": "fix-rbv-cli-missing-rbrs-enforce",
+              "commit": "2d51f04"
             }
           ]
         }
