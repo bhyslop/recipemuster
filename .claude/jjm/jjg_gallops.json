@@ -7009,6 +7009,13 @@
         "₢AfAAl": {
           "tacks": [
             {
+              "ts": "260222-1632",
+              "state": "abandoned",
+              "text": "Rename ZBUV_CHECK_ERROR to z_zbuv_check_predicate_error in buv_validation.sh.\n\n## Context\n\nZBUV_CHECK_ERROR uses kindle constant naming (Z«PREFIX»_SCREAMING) but is assigned in ~40 places outside kindle — it's a mutable return variable from zbuv_check_predicate. Per BCG, kindle constants must be defined exclusively in kindle.\n\n## Scope\n\n1. Rename ZBUV_CHECK_ERROR → z_zbuv_check_predicate_error throughout buv_validation.sh\n2. Check for any external consumers of this variable\n\n## Acceptance\n\n- No ZBUV_CHECK_ERROR references remain\n- All consumers use the new name\n- Regime smoke tests pass",
+              "silks": "fix-zbuv-check-error-naming",
+              "commit": "4d872c7"
+            },
+            {
               "ts": "260222-1629",
               "state": "rough",
               "text": "Rename ZBUV_CHECK_ERROR to z_zbuv_check_predicate_error in buv_validation.sh.\n\n## Context\n\nZBUV_CHECK_ERROR uses kindle constant naming (Z«PREFIX»_SCREAMING) but is assigned in ~40 places outside kindle — it's a mutable return variable from zbuv_check_predicate. Per BCG, kindle constants must be defined exclusively in kindle.\n\n## Scope\n\n1. Rename ZBUV_CHECK_ERROR → z_zbuv_check_predicate_error throughout buv_validation.sh\n2. Check for any external consumers of this variable\n\n## Acceptance\n\n- No ZBUV_CHECK_ERROR references remain\n- All consumers use the new name\n- Regime smoke tests pass",
