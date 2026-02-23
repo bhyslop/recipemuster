@@ -6065,6 +6065,7 @@
       "creation_time": "260219",
       "status": "racing",
       "order": [
+        "₢AfAAn",
         "₢AfAAa",
         "₢AfAAT",
         "₢AfAAS",
@@ -6105,7 +6106,7 @@
         "₢AfAAl",
         "₢AfAAm"
       ],
-      "next_pace_seed": "AAn",
+      "next_pace_seed": "AAo",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -7032,6 +7033,17 @@
               "text": "Fix 3 callers of removed rbrp_load() function.\n\n## Context\n\n₢AfAAh (scrub-rbrp-singleton) removed rbrp_load() from rbrp_regime.sh during enrollment migration but left 3 callers behind. These CLIs will die at runtime when they try to call the missing function.\n\n## Callers to fix\n\n- Tools/rbw/rbgp_cli.sh:49\n- Tools/rbw/rbgm_cli.sh:49\n- Tools/rbw/rbts/rbtcap_AccessProbe.sh:96\n\n## Pattern\n\nReplace `rbrp_load` with the standard regime archetype furnish sequence: source the regime file, then call zrbrp_kindle + zrbrp_enforce. Follow the pattern established in rbrp_cli.sh furnish.\n\n## Acceptance\n\n- No references to rbrp_load remain in codebase\n- All 3 callers use kindle+enforce pattern\n- Regime smoke tests pass",
               "silks": "fix-rbrp-load-callers",
               "commit": "12c09c4"
+            }
+          ]
+        },
+        "₢AfAAn": {
+          "tacks": [
+            {
+              "ts": "260222-1632",
+              "state": "rough",
+              "text": "DECISION NEEDED: ZBUV_CHECK_ERROR naming and BCG function taxonomy.\n\n## Issue\n\nzbuv_check_predicate in buv_validation.sh returns 0/1 (predicate) but also sets ZBUV_CHECK_ERROR as a side-channel detail string. ZBUV_CHECK_ERROR uses kindle constant naming (Z«PREFIX»_SCREAMING) but is assigned in ~40 branches inside zbuv_check_predicate, not in kindle.\n\n## Options identified\n\n1. **Simple rename** — z_zbuv_check_predicate_error (enroll return-var convention, though this isn't enroll)\n2. **Convert to capture** — return error on stdout, lose predicate-in-conditional usage\n3. **New BCG pattern** — \"predicate with detail\" is a legitimate taxonomy gap; define naming convention for it\n4. **Accept as-is** — document as an intentional exception\n\n## Context\n\n- All ~40 assignments are inside one function (case branches), not scattered\n- Consumers: buv_vet (line 613) and buv_report (lines 639, 645)\n- Similar pattern may exist elsewhere: ZBUV_GRP_GATE_VAR/ZBUV_GRP_GATE_VAL in zbuv_group_gate_recite\n\n## Acceptance\n\n- Explicit decision recorded\n- If BCG update: new pattern documented\n- If rename: mechanical change applied",
+              "silks": "decide-zbuv-check-error-pattern",
+              "commit": "694c99b"
             }
           ]
         }
