@@ -6102,9 +6102,10 @@
         "₢AfAAL",
         "₢AfAAW",
         "₢AfAAX",
-        "₢AfAAl"
+        "₢AfAAl",
+        "₢AfAAm"
       ],
-      "next_pace_seed": "AAm",
+      "next_pace_seed": "AAn",
       "paddock_file": ".claude/jjm/jjp_uAlf.md",
       "paces": {
         "₢AfAAA": {
@@ -7013,6 +7014,17 @@
               "text": "Rename ZBUV_CHECK_ERROR to z_zbuv_check_predicate_error in buv_validation.sh.\n\n## Context\n\nZBUV_CHECK_ERROR uses kindle constant naming (Z«PREFIX»_SCREAMING) but is assigned in ~40 places outside kindle — it's a mutable return variable from zbuv_check_predicate. Per BCG, kindle constants must be defined exclusively in kindle.\n\n## Scope\n\n1. Rename ZBUV_CHECK_ERROR → z_zbuv_check_predicate_error throughout buv_validation.sh\n2. Check for any external consumers of this variable\n\n## Acceptance\n\n- No ZBUV_CHECK_ERROR references remain\n- All consumers use the new name\n- Regime smoke tests pass",
               "silks": "fix-zbuv-check-error-naming",
               "commit": "9676206"
+            }
+          ]
+        },
+        "₢AfAAm": {
+          "tacks": [
+            {
+              "ts": "260222-1630",
+              "state": "rough",
+              "text": "Fix 3 callers of removed rbrp_load() function.\n\n## Context\n\n₢AfAAh (scrub-rbrp-singleton) removed rbrp_load() from rbrp_regime.sh during enrollment migration but left 3 callers behind. These CLIs will die at runtime when they try to call the missing function.\n\n## Callers to fix\n\n- Tools/rbw/rbgp_cli.sh:49\n- Tools/rbw/rbgm_cli.sh:49\n- Tools/rbw/rbts/rbtcap_AccessProbe.sh:96\n\n## Pattern\n\nReplace `rbrp_load` with the standard regime archetype furnish sequence: source the regime file, then call zrbrp_kindle + zrbrp_enforce. Follow the pattern established in rbrp_cli.sh furnish.\n\n## Acceptance\n\n- No references to rbrp_load remain in codebase\n- All 3 callers use kindle+enforce pattern\n- Regime smoke tests pass",
+              "silks": "fix-rbrp-load-callers",
+              "commit": "12c09c4"
             }
           ]
         }
