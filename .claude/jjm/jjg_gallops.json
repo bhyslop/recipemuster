@@ -7025,6 +7025,7 @@
         "₢AiAAC",
         "₢AiAAG",
         "₢AiAAD",
+        "₢AiAAR",
         "₢AiAAF",
         "₢AiAAE",
         "₢AiAAH",
@@ -7038,7 +7039,7 @@
         "₢AiAAO",
         "₢AiAAP"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7428,6 +7429,17 @@
               "text": "Integrate pin refresh workflow with per-vessel repos:\n- Current pin refresh (RBZ_REFRESH_GCB_PINS) resolves latest digests and updates RBRR\n- Extend to also update pinned image refs in each vessel repo's cloudbuild.yaml\n- The cycle becomes: resolve digests → update RBRR → update YAML in each .rbk/ clone → commit + push all vessel repos\n- Script as a loop over all conjure-mode vessel repos\n- BCG compliance for all scripting\n\nThis is ongoing maintenance tooling, not one-time setup.\nPin staleness check in the prepare step (₢AiAAI) depends on this being in place.",
               "silks": "integrate-pin-refresh-with-vessel-repos",
               "commit": "e5131cc"
+            }
+          ]
+        },
+        "₢AiAAR": {
+          "tacks": [
+            {
+              "ts": "260222-1603",
+              "state": "rough",
+              "text": "Execute the RBSGD Developer Connect setup procedure against the live GCP project.\n\nThis is a human-interactive pace: walk through the RBSGD-gdc_establish.adoc manual\nprocedure step by step, complete the OAuth browser authorization, and record the\nreal resource names in rbrr.env.\n\n## Objectives\n\n1. Follow RBSGD procedure to create Developer Connect connection and repo link\n2. Revise RBSGD spec where steps are incorrect or unclear (iterate until it works)\n3. Replace PLACEHOLDER values in rbrr.env with real GDC resource names:\n   - RBRR_GDC_CONNECTION_NAME\n   - RBRR_GDC_REGION\n   - RBRR_GDC_REPO_LINK\n4. Verify regime smoke test passes with real values (./tt/rbw-trg.TestRegimeSmoke.sh)\n5. Verify Developer Connect health check via REST API (as documented in RBSGD)\n\n## Why now\n\n- PLACEHOLDER values in rbrr.env break the regime smoke test (gname validation)\n- ₢AiAAH (trigger creation) needs real GDC_CONNECTION_NAME and GDC_REPO_LINK\n- ₢AiAAK (e2e verify) needs a working Developer Connect connection\n\n## References\n\n- lenses/RBSGD-gdc_establish.adoc — the procedure to execute\n- rbrr.env — where real values get recorded\n- Tools/rbw/rbrr_regime.sh — regime validator (must pass after update)",
+              "silks": "execute-developer-connect-setup",
+              "commit": "0ae5cc2"
             }
           ]
         }
