@@ -350,8 +350,11 @@ zbuv_check_predicate() {
 
     gname)
       if test -z "${z_val}"; then
-        ZBUV_CHECK_ERROR="${z_varname} must not be empty"
-        return 1
+        if test "${z_p1}" -gt 0; then
+          ZBUV_CHECK_ERROR="${z_varname} must not be empty"
+          return 1
+        fi
+        return 0
       fi
       if test "${#z_val}" -lt "${z_p1}"; then
         ZBUV_CHECK_ERROR="${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"

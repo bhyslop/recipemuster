@@ -40,10 +40,12 @@ zrbz_kindle() {
   buz_enroll RBZ_PAYOR_INSTALL  "rbw-PI" "${z_mod}" "rbgp_payor_install"
   buz_enroll RBZ_DESTROY_DEPOT  "rbw-PD" "${z_mod}" "rbgp_depot_destroy"
   buz_enroll RBZ_GOVERNOR_RESET "rbw-PG" "${z_mod}" "rbgp_governor_reset"
+  # Manual/guide procedures (rbw-g* colophon family → rbgm_cli.sh)
   z_mod="rbgm_cli.sh"
-  buz_enroll RBZ_PAYOR_ESTABLISH "rbw-PE" "${z_mod}" "rbgm_payor_establish"
-  buz_enroll RBZ_PAYOR_REFRESH   "rbw-PR" "${z_mod}" "rbgm_payor_refresh"
-  buz_enroll RBZ_QUOTA_BUILD     "rbw-QB" "${z_mod}" "rbgm_quota_build"
+  buz_enroll RBZ_PAYOR_ESTABLISH "rbw-gpe" "${z_mod}" "rbgm_payor_establish"
+  buz_enroll RBZ_PAYOR_REFRESH   "rbw-gpr" "${z_mod}" "rbgm_payor_refresh"
+  buz_enroll RBZ_QUOTA_BUILD     "rbw-gqb" "${z_mod}" "rbgm_quota_build"
+  buz_enroll RBZ_GDC_ESTABLISH   "rbw-gge" "${z_mod}" "rbgm_gdc_establish"
 
   # General depot operations
   z_mod="rbgp_cli.sh"
@@ -56,7 +58,7 @@ zrbz_kindle() {
 
   # Admin commands
   z_mod="rbgm_cli.sh"
-  buz_enroll RBZ_ADMIN_ESTABLISH "rbw-ps" "${z_mod}" "rbgm_payor_establish"
+  buz_enroll RBZ_ADMIN_ESTABLISH "rbw-gps" "${z_mod}" "rbgm_payor_establish"
   z_mod="rbgg_cli.sh"
   buz_enroll RBZ_LIST_SERVICE_ACCOUNTS  "rbw-Gl" "${z_mod}" "rbgg_list_service_accounts"
   buz_enroll RBZ_DELETE_SERVICE_ACCOUNT "rbw-GS" "${z_mod}" "rbgg_delete_service_account"

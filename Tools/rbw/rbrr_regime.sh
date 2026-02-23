@@ -83,9 +83,9 @@ zrbrr_kindle() {
   buv_gname_enroll   RBRR_GAR_REPOSITORY           1   63  "Google Artifact Registry repository name"
 
   buv_group_enroll "Google Developer Connect"
-  buv_gname_enroll   RBRR_GDC_CONNECTION_NAME       1   63  "Developer Connect connection resource name"
-  buv_gname_enroll   RBRR_GDC_REGION                1   32  "Developer Connect region"
-  buv_gname_enroll   RBRR_GDC_REPO_LINK             1   63  "Git repository link resource name"
+  buv_gname_enroll   RBRR_GDC_CONNECTION_NAME       0   63  "Developer Connect connection resource name"
+  buv_gname_enroll   RBRR_GDC_REGION                0   32  "Developer Connect region"
+  buv_gname_enroll   RBRR_GDC_REPO_LINK             0   63  "Git repository link resource name"
 
   buv_group_enroll "Google Cloud Build Configuration"
   buv_string_enroll  RBRR_GCB_TRIGGER_PATTERN        1  128  "Naming pattern for per-vessel triggers"

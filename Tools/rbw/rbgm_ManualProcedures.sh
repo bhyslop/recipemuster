@@ -479,5 +479,123 @@ rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   buc_success "Manual setup procedure displayed"
 }
 
+rbgm_gdc_establish() {
+  zrbgm_sentinel
+
+  buc_doc_brief "Display the manual Developer Connect establishment procedure for GitHub integration"
+  buc_doc_shown || return 0
+
+  local z_gdc_conn="${RBRR_GDC_CONNECTION_NAME}"
+  local z_gdc_region="${RBRR_GDC_REGION}"
+  local z_gdc_repo_link="${RBRR_GDC_REPO_LINK}"
+  local z_project="${RBRR_DEPOT_PROJECT_ID}"
+  local z_api_base="https://developerconnect.googleapis.com/v1"
+  local z_conn_path="projects/${z_project}/locations/${z_gdc_region}/connections/${z_gdc_conn}"
+
+  bug_section  "Manual Developer Connect Establishment Procedure"
+  bug_t        "One-time setup to link the main GitHub repository to Google Cloud Build"
+  bug_t        "via Developer Connect. Uses OAuth GitHub App — no GitHub PAT required."
+  bug_t        "This creates the connection and repository link; triggers are created separately."
+  bug_e
+  bug_section  "Key:"
+  bug_tu       "   Magenta text refers to " "precise words you see on the web page."
+  bug_tc       "   Cyan text is " "something you might copy from here."
+  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
+  bug_e
+  bug_section  "0. Confirm Regime Configuration:"
+  bug_tc       "   RBRR_DEPOT_PROJECT_ID:    " "${z_project}"
+  bug_tc       "   RBRR_GDC_CONNECTION_NAME: " "${z_gdc_conn}"
+  bug_tc       "   RBRR_GDC_REGION:          " "${z_gdc_region}"
+  bug_tc       "   RBRR_GDC_REPO_LINK:       " "${z_gdc_repo_link}"
+  bug_e
+  if [ "${z_gdc_conn}" = "PLACEHOLDER" ] || [ "${z_gdc_repo_link}" = "PLACEHOLDER" ]; then
+    bug_critical "PLACEHOLDER values detected — choose real names before proceeding"
+    bug_t        "   Connection names must be lowercase alphanumeric with hyphens."
+    bug_tc       "   Suggested connection name: " "rbw-github-connection"
+    bug_tc       "   Suggested repo link name:  " "rbw-main-repo"
+    bug_t        "   Update rbrr.env and re-run this procedure."
+    bug_e
+  fi
+  bug_section  "1. Preconditions:"
+  bug_t        "   Ensure the following before proceeding:"
+  bug_tu       "   - Google Cloud project " "${z_project}" " exists with billing enabled"
+  bug_t        "   - You have Owner or Editor role on the project"
+  bug_t        "   - You have owner or admin access on the GitHub repository"
+  bug_e
+  bug_section  "2. Enable Required APIs:"
+  bug_link     "   Go to: " "APIs & Services" "https://console.cloud.google.com/apis/dashboard?project=${z_project}"
+  bug_tu       "   1. Click " "+ ENABLE APIS AND SERVICES"
+  bug_t        "   2. Search for and enable:"
+  bug_tc       "      - " "Developer Connect API"
+  bug_tc       "      - " "Secret Manager API"
+  bug_t        "   (Secret Manager stores the OAuth token that Developer Connect uses)"
+  bug_e
+  bug_section  "3. Create Developer Connect Connection:"
+  bug_t        "   Run in an authenticated gcloud session:"
+  bug_c        "   gcloud developer-connect connections create ${z_gdc_conn} \\"
+  bug_c        "       --location=${z_gdc_region} \\"
+  bug_c        "       --github-config-app=DEVELOPER-CONNECT"
+  bug_e
+  bug_t        "   The connection is created in a pending state — OAuth is not yet complete."
+  bug_e
+  bug_section  "4. Complete GitHub OAuth Authorization:"
+  bug_t        "   Retrieve the authorization URI:"
+  bug_c        "   gcloud developer-connect connections describe ${z_gdc_conn} \\"
+  bug_c        "       --location=${z_gdc_region} \\"
+  bug_c        "       --format=\"value(installationState.actionUri)\""
+  bug_e
+  bug_t        "   1. Copy the returned URI and open it in a browser"
+  bug_tu       "   2. GitHub shows the OAuth authorization page for " "Google Developer Connect"
+  bug_tu       "   3. Click " "Authorize"
+  bug_t        "   4. GitHub redirects back to Google; OAuth token stored in Secret Manager"
+  bug_e
+  bug_section  "5. Verify Connection Is Active:"
+  bug_t        "   Poll until installationState.stage reaches COMPLETE:"
+  bug_c        "   gcloud developer-connect connections describe ${z_gdc_conn} \\"
+  bug_c        "       --location=${z_gdc_region} \\"
+  bug_c        "       --format=\"value(installationState.stage)\""
+  bug_e
+  bug_tc       "   Expected output: " "COMPLETE"
+  bug_tut      "   If still " "PENDING_USER_OAUTH" " or PENDING_INSTALL_APP, re-open the actionUri from step 4"
+  bug_e
+  bug_section  "6. Create Git Repository Link:"
+  bug_t        "   Link the main GitHub repository to the connection:"
+  bug_c        "   gcloud developer-connect connections git-repository-links create ${z_gdc_repo_link} \\"
+  bug_c        "       --clone-uri=https://github.com/scaleinv/recipebottle.git \\"
+  bug_c        "       --connection=${z_gdc_conn} \\"
+  bug_c        "       --location=${z_gdc_region}"
+  bug_e
+  bug_section  "7. Record Resource Names in RBRR:"
+  bug_t        "   Update rbrr.env with the actual values used above:"
+  bug_tc       "   RBRR_GDC_CONNECTION_NAME=" "${z_gdc_conn}"
+  bug_tc       "   RBRR_GDC_REGION="          "${z_gdc_region}"
+  bug_tc       "   RBRR_GDC_REPO_LINK="       "${z_gdc_repo_link}"
+  bug_t        "   (If you used the suggested names and pre-configured rbrr.env, these are already set)"
+  bug_e
+  bug_section  "8. Validate via REST API Health Check:"
+  bug_t        "   Verify the connection is healthy:"
+  bug_c        "   curl -s -H \"Authorization: Bearer \\$(gcloud auth print-access-token)\" \\"
+  bug_c        "     \"${z_api_base}/${z_conn_path}\" \\"
+  bug_c        "     | jq '.installationState.stage'"
+  bug_e
+  bug_tc       "   Expected: " "\"COMPLETE\""
+  bug_e
+  bug_t        "   Verify the repository link exists:"
+  bug_c        "   curl -s -H \"Authorization: Bearer \\$(gcloud auth print-access-token)\" \\"
+  bug_c        "     \"${z_api_base}/${z_conn_path}/gitRepositoryLinks/${z_gdc_repo_link}\" \\"
+  bug_c        "     | jq '.cloneUri'"
+  bug_e
+  bug_tc       "   Expected: " "\"https://github.com/scaleinv/recipebottle.git\""
+  bug_e
+  bug_section  "9. Verify Regime Smoke Test:"
+  bug_t        "   Run the regime smoke test to confirm RBRR values pass validation:"
+  bug_c        "   ./tt/rbw-trg.TestRegimeSmoke.sh"
+  bug_e
+  bug_tc       "   Expected: " "all tests pass"
+  bug_e
+
+  buc_success "Developer Connect establishment procedure displayed"
+}
+
 
 # eof
