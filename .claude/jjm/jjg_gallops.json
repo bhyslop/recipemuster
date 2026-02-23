@@ -7551,6 +7551,13 @@
         "₢AiAAQ": {
           "tacks": [
             {
+              "ts": "260223-0812",
+              "state": "rough",
+              "text": "Integrate pin-refresh workflow with {rbtgo_rubric_inscribe}:\n\n- When GCB tool image pins are refreshed, invoke {rbtgo_rubric_inscribe} for all vessels\n  to regenerate their {rbtgr_build_yaml} files with updated pin references\n- Commit updated yamls to the main repo (single commit with all vessel yamls)\n- No vessel repo push needed — {rbtgr_build_yaml} files live in the main repo\n- Update the RBZ_REFRESH_GCB_PINS workflow to include yaml regeneration step\n- Pin update and {rbtgr_build_yaml} update become a single atomic commit\n\nThis ensures that pin refresh naturally ends with \"inscribe all rubrics and commit\" —\nthe {rbtgr_rubric} stays in sync with regime pins automatically.",
+              "silks": "integrate-pin-refresh-with-yaml-regen",
+              "commit": "af7c973"
+            },
+            {
               "ts": "260222-1523",
               "state": "rough",
               "text": "Integrate pin-refresh workflow with trigger-based builds:\n- When GCB tool image pins are refreshed, regenerate all vessel cloudbuild.yaml files\n- Commit updated yamls to the main repo (single commit with all vessel yamls)\n- No vessel repo push needed — yamls live in the main repo\n- Update the RBZ_REFRESH_GCB_PINS workflow to include yaml regeneration step",
