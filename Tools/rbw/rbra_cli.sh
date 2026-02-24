@@ -113,6 +113,7 @@ zrbra_furnish() {
   zbuv_kindle
   zburd_kindle
   zburd_enforce
+  zburd_lock
   zbupr_kindle
   zrbcc_kindle
 
@@ -130,6 +131,7 @@ zrbra_furnish() {
     source "${z_rbra_file}" || buc_die "Failed to source RBRA: ${z_rbra_file}"
     zrbra_kindle
     zrbra_enforce
+    zrbra_lock
   fi
 }
 

@@ -38,13 +38,13 @@ zrbgu_kindle() {
   zrbgo_sentinel
 
   # Module prefix for temp files
-  ZRBGU_PREFIX="${BURD_TEMP_DIR}/rbgu_"
-  ZRBGU_EMPTY_JSON="${ZRBGU_PREFIX}empty.json"
+  readonly ZRBGU_PREFIX="${BURD_TEMP_DIR}/rbgu_"
+  readonly ZRBGU_EMPTY_JSON="${ZRBGU_PREFIX}empty.json"
   printf '{}' > "${ZRBGU_EMPTY_JSON}"
 
   # Infix values for HTTP operations
-  ZRBGU_POSTFIX_JSON="_u_resp.json"
-  ZRBGU_POSTFIX_CODE="_u_code.txt"
+  readonly ZRBGU_POSTFIX_JSON="_u_resp.json"
+  readonly ZRBGU_POSTFIX_CODE="_u_code.txt"
 
   # Validate eventual consistency settings from rbgc
   test -n "${RBGC_EVENTUAL_CONSISTENCY_SEC:-}" || buc_die "RBGC_EVENTUAL_CONSISTENCY_SEC unset"

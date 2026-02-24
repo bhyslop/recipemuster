@@ -33,8 +33,9 @@ ZBURE_SOURCED=1
 zbure_kindle() {
   test -z "${ZBURE_KINDLED:-}" || buc_die "Module bure already kindled"
 
-  # Set defaults for all fields (enrollment enforces required-ness)
-  BURE_COUNTDOWN="${BURE_COUNTDOWN:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
+  # Exception: ambient regime defaults for optional behavioral overrides.
   BURE_VERBOSE="${BURE_VERBOSE:-0}"
   BURE_COLOR="${BURE_COLOR:-auto}"
 
@@ -68,6 +69,14 @@ zbure_enforce() {
     test "${BURE_COUNTDOWN}" = "skip" \
       || buc_die "BURE_COUNTDOWN must be 'skip' or empty, got '${BURE_COUNTDOWN}'"
   fi
+}
+
+# Lock step — lock enrolled variables against mutation after enforcement
+zbure_lock() {
+  zbure_sentinel
+
+  # Lock all enrolled BURE_ variables against mutation
+  buv_lock BURE
 }
 
 # eof

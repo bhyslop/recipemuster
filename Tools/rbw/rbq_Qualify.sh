@@ -41,10 +41,10 @@ zrbq_kindle() {
   test -n "${BURC_TABTARGET_DIR:-}" || buc_die "BURC_TABTARGET_DIR not set"
   test -n "${BURC_TOOLS_DIR:-}"     || buc_die "BURC_TOOLS_DIR not set"
 
-  ZRBQ_TT_DIR="${BURC_TABTARGET_DIR}"
-  ZRBQ_PROJECT_ROOT="${BURC_TOOLS_DIR}/.."
-  ZRBQ_RBW_DIR="${BURC_TOOLS_DIR}/rbw"
-  ZRBQ_RBW_LAUNCHER=".buk/launcher.rbw_workbench.sh"
+  readonly ZRBQ_TT_DIR="${BURC_TABTARGET_DIR}"
+  readonly ZRBQ_PROJECT_ROOT="${BURC_TOOLS_DIR}/.."
+  readonly ZRBQ_RBW_DIR="${BURC_TOOLS_DIR}/rbw"
+  readonly ZRBQ_RBW_LAUNCHER=".buk/launcher.rbw_workbench.sh"
 
   ZRBQ_KINDLED=1
 }

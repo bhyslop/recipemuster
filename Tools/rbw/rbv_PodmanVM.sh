@@ -38,42 +38,42 @@ zrbv_kindle() {
   # Build module variables from furnished environment (already validated by CLI)
 
   # Module Variables (ZRBV_*)
-  ZRBV_GIT_REGISTRY="ghcr.io"
+  readonly ZRBV_GIT_REGISTRY="ghcr.io"
 
-  ZRBV_IGNITE_INIT_STDOUT="${RBV_TEMP_DIR}/ignite_init_stdout.txt"
-  ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
-  ZRBV_DEPLOY_INIT_STDOUT="${RBV_TEMP_DIR}/deploy_init_stdout.txt"
-  ZRBV_DEPLOY_INIT_STDERR="${RBV_TEMP_DIR}/deploy_init_stderr.txt"
+  readonly ZRBV_IGNITE_INIT_STDOUT="${RBV_TEMP_DIR}/ignite_init_stdout.txt"
+  readonly ZRBV_IGNITE_INIT_STDERR="${RBV_TEMP_DIR}/ignite_init_stderr.txt"
+  readonly ZRBV_DEPLOY_INIT_STDOUT="${RBV_TEMP_DIR}/deploy_init_stdout.txt"
+  readonly ZRBV_DEPLOY_INIT_STDERR="${RBV_TEMP_DIR}/deploy_init_stderr.txt"
 
-  ZRBV_FACT_DIGEST_PREFIX="${RBV_TEMP_DIR}/fact-digest-"
-  ZRBV_FACT_SOURCE_PREFIX="${RBV_TEMP_DIR}/fact-source-"
-  ZRBV_FACT_EXTENSION_PREFIX="${RBV_TEMP_DIR}/fact-extension-"
-  ZRBV_FACT_ARCH_PREFIX="${RBV_TEMP_DIR}/fact-arch-"
-  ZRBV_FACT_DISKTYPE_PREFIX="${RBV_TEMP_DIR}/fact-disktype-"
+  readonly ZRBV_FACT_DIGEST_PREFIX="${RBV_TEMP_DIR}/fact-digest-"
+  readonly ZRBV_FACT_SOURCE_PREFIX="${RBV_TEMP_DIR}/fact-source-"
+  readonly ZRBV_FACT_EXTENSION_PREFIX="${RBV_TEMP_DIR}/fact-extension-"
+  readonly ZRBV_FACT_ARCH_PREFIX="${RBV_TEMP_DIR}/fact-arch-"
+  readonly ZRBV_FACT_DISKTYPE_PREFIX="${RBV_TEMP_DIR}/fact-disktype-"
 
-  ZRBV_EMPLACED_BRAND_FILE="${RBV_TEMP_DIR}/emplaced_brand_file.txt"
-  ZRBV_GENERATED_BRAND_FILE="${RBV_TEMP_DIR}/generated_brand_file.txt"
-  ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
+  readonly ZRBV_EMPLACED_BRAND_FILE="${RBV_TEMP_DIR}/emplaced_brand_file.txt"
+  readonly ZRBV_GENERATED_BRAND_FILE="${RBV_TEMP_DIR}/generated_brand_file.txt"
+  readonly ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
 
-  ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
-  ZRBV_MOW_MANIFEST_JSON="${RBV_TEMP_DIR}/mow_manifest.json"
-  ZRBV_MOS_MANIFEST_JSON="${RBV_TEMP_DIR}/mos_manifest.json"
-  ZRBV_MOW_ENTRIES_JSON="${RBV_TEMP_DIR}/mow_entries.json"
-  ZRBV_MOS_ENTRIES_JSON="${RBV_TEMP_DIR}/mos_entries.json"
-  ZRBV_MOW_DECODED_PREFIX="${RBV_TEMP_DIR}/mow_decoded_"
-  ZRBV_MOS_DECODED_PREFIX="${RBV_TEMP_DIR}/mos_decoded_"
+  readonly ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
+  readonly ZRBV_MOW_MANIFEST_JSON="${RBV_TEMP_DIR}/mow_manifest.json"
+  readonly ZRBV_MOS_MANIFEST_JSON="${RBV_TEMP_DIR}/mos_manifest.json"
+  readonly ZRBV_MOW_ENTRIES_JSON="${RBV_TEMP_DIR}/mow_entries.json"
+  readonly ZRBV_MOS_ENTRIES_JSON="${RBV_TEMP_DIR}/mos_entries.json"
+  readonly ZRBV_MOW_DECODED_PREFIX="${RBV_TEMP_DIR}/mow_decoded_"
+  readonly ZRBV_MOS_DECODED_PREFIX="${RBV_TEMP_DIR}/mos_decoded_"
 
-  ZRBV_VM_TEMP_DIR="/tmp/rbv-upload"
-  ZRBV_VM_MANIFEST_PREFIX="${ZRBV_VM_TEMP_DIR}/manifest_"
-  ZRBV_VM_BLOB_PREFIX="${ZRBV_VM_TEMP_DIR}/blob_"
+  readonly ZRBV_VM_TEMP_DIR="/tmp/rbv-upload"
+  readonly ZRBV_VM_MANIFEST_PREFIX="${ZRBV_VM_TEMP_DIR}/manifest_"
+  readonly ZRBV_VM_BLOB_PREFIX="${ZRBV_VM_TEMP_DIR}/blob_"
 
-  ZRBV_BLOB_INFO="${RBV_TEMP_DIR}/blob_info.txt"
-  ZRBV_LAYERS_JSON="${RBV_TEMP_DIR}/layers.json"
+  readonly ZRBV_BLOB_INFO="${RBV_TEMP_DIR}/blob_info.txt"
+  readonly ZRBV_LAYERS_JSON="${RBV_TEMP_DIR}/layers.json"
 
-  ZRBV_VMIMAGE_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_PODMAN_VERSION}-"
+  readonly ZRBV_VMIMAGE_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_PODMAN_VERSION}-"
 
   # Additional temp file paths
-  ZRBV_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+  readonly ZRBV_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
   ZRBV_KINDLED=1
 }

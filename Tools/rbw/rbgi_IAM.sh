@@ -51,22 +51,22 @@ zrbgi_kindle() {
   zrbgu_sentinel
 
   # Module prefix for temp files
-  ZRBGI_PREFIX="${BURD_TEMP_DIR}/rbgi_"
-  ZRBGI_EMPTY_JSON="${ZRBGI_PREFIX}empty.json"
+  readonly ZRBGI_PREFIX="${BURD_TEMP_DIR}/rbgi_"
+  readonly ZRBGI_EMPTY_JSON="${ZRBGI_PREFIX}empty.json"
   printf '{}' > "${ZRBGI_EMPTY_JSON}"
 
   # Infix values for IAM operations
-  ZRBGI_INFIX_ROLE="role"
-  ZRBGI_INFIX_ROLE_SET="role_set"
-  ZRBGI_INFIX_REPO_ROLE="repo_role"
-  ZRBGI_INFIX_REPO_ROLE_SET="repo_role_set"
-  ZRBGI_INFIX_SA_IAM_VERIFY="sa_iamverify"
-  ZRBGI_INFIX_REPO_POLICY="repo_policy"
-  ZRBGI_INFIX_RPOLICY_SET="repo_policy_set"
-  ZRBGI_INFIX_BUCKET_IAM="bucket_iam"
-  ZRBGI_INFIX_BUCKET_IAM_SET="bucket_iam_set"
+  readonly ZRBGI_INFIX_ROLE="role"
+  readonly ZRBGI_INFIX_ROLE_SET="role_set"
+  readonly ZRBGI_INFIX_REPO_ROLE="repo_role"
+  readonly ZRBGI_INFIX_REPO_ROLE_SET="repo_role_set"
+  readonly ZRBGI_INFIX_SA_IAM_VERIFY="sa_iamverify"
+  readonly ZRBGI_INFIX_REPO_POLICY="repo_policy"
+  readonly ZRBGI_INFIX_RPOLICY_SET="repo_policy_set"
+  readonly ZRBGI_INFIX_BUCKET_IAM="bucket_iam"
+  readonly ZRBGI_INFIX_BUCKET_IAM_SET="bucket_iam_set"
 
-  ZRBGI_POSTFIX_JSON="_i_resp.json"
+  readonly ZRBGI_POSTFIX_JSON="_i_resp.json"
 
   ZRBGI_KINDLED=1
 }

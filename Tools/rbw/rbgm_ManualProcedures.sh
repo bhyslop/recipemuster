@@ -42,46 +42,46 @@ zrbgm_kindle() {
   fi
 
   if [ "$z_use_color" = "1" ]; then
-    ZRBGM_R="\033[0m"         # Reset
-    ZRBGM_S="\033[1;37m"      # Section (bright white)
-    ZRBGM_C="\033[36m"        # Command (cyan)
-    ZRBGM_W="\033[35m"        # Website (magenta)
-    ZRBGM_Y="\033[1;33m"      # Warning (bright yellow)
-    ZRBGM_CR="\033[1;31m"     # Critical (bright red)
+    readonly ZRBGM_R="\033[0m"         # Reset
+    readonly ZRBGM_S="\033[1;37m"      # Section (bright white)
+    readonly ZRBGM_C="\033[36m"        # Command (cyan)
+    readonly ZRBGM_W="\033[35m"        # Website (magenta)
+    readonly ZRBGM_Y="\033[1;33m"      # Warning (bright yellow)
+    readonly ZRBGM_CR="\033[1;31m"     # Critical (bright red)
   else
-    ZRBGM_R=""                # No color, or disabled
-    ZRBGM_S=""                # No color, or disabled
-    ZRBGM_C=""                # No color, or disabled
-    ZRBGM_W=""                # No color, or disabled
-    ZRBGM_Y=""                # No color, or disabled
-    ZRBGM_CR=""               # No color, or disabled
+    readonly ZRBGM_R=""                # No color, or disabled
+    readonly ZRBGM_S=""                # No color, or disabled
+    readonly ZRBGM_C=""                # No color, or disabled
+    readonly ZRBGM_W=""                # No color, or disabled
+    readonly ZRBGM_Y=""                # No color, or disabled
+    readonly ZRBGM_CR=""               # No color, or disabled
   fi
 
   # Click modifier: Cmd on macOS, Ctrl elsewhere
   case "$(uname -s)" in
-    Darwin) ZRBGM_CLICK_MOD="Cmd" ;;
-    *)      ZRBGM_CLICK_MOD="Ctrl" ;;
+    Darwin) readonly ZRBGM_CLICK_MOD="Cmd" ;;
+    *)      readonly ZRBGM_CLICK_MOD="Ctrl" ;;
   esac
 
-  ZRBGM_RBRP_FILE="${RBCC_rbrp_file}"
-  ZRBGM_RBRP_FILE_BASENAME="${ZRBGM_RBRP_FILE##*/}"
-  ZRBGM_RBRR_FILE="${RBCC_rbrr_file}"
+  readonly ZRBGM_RBRP_FILE="${RBCC_rbrp_file}"
+  readonly ZRBGM_RBRP_FILE_BASENAME="${ZRBGM_RBRP_FILE##*/}"
+  readonly ZRBGM_RBRR_FILE="${RBCC_rbrr_file}"
 
 
-  ZRBGM_PREFIX="${BURD_TEMP_DIR}/rbgm_"
-  ZRBGM_LIST_RESPONSE="${ZRBGM_PREFIX}list_response.json"
-  ZRBGM_LIST_CODE="${ZRBGM_PREFIX}list_code.txt"
-  ZRBGM_CREATE_REQUEST="${ZRBGM_PREFIX}create_request.json"
-  ZRBGM_CREATE_RESPONSE="${ZRBGM_PREFIX}create_response.json"
-  ZRBGM_CREATE_CODE="${ZRBGM_PREFIX}create_code.txt"
-  ZRBGM_DELETE_RESPONSE="${ZRBGM_PREFIX}delete_response.json"
-  ZRBGM_DELETE_CODE="${ZRBGM_PREFIX}delete_code.txt"
-  ZRBGM_KEY_RESPONSE="${ZRBGM_PREFIX}key_response.json"
-  ZRBGM_KEY_CODE="${ZRBGM_PREFIX}key_code.txt"
-  ZRBGM_ROLE_RESPONSE="${ZRBGM_PREFIX}role_response.json"
-  ZRBGM_ROLE_CODE="${ZRBGM_PREFIX}role_code.txt"
-  ZRBGM_REPO_ROLE_RESPONSE="${ZRBGM_PREFIX}repo_role_response.json"
-  ZRBGM_REPO_ROLE_CODE="${ZRBGM_PREFIX}repo_role_code.txt"
+  readonly ZRBGM_PREFIX="${BURD_TEMP_DIR}/rbgm_"
+  readonly ZRBGM_LIST_RESPONSE="${ZRBGM_PREFIX}list_response.json"
+  readonly ZRBGM_LIST_CODE="${ZRBGM_PREFIX}list_code.txt"
+  readonly ZRBGM_CREATE_REQUEST="${ZRBGM_PREFIX}create_request.json"
+  readonly ZRBGM_CREATE_RESPONSE="${ZRBGM_PREFIX}create_response.json"
+  readonly ZRBGM_CREATE_CODE="${ZRBGM_PREFIX}create_code.txt"
+  readonly ZRBGM_DELETE_RESPONSE="${ZRBGM_PREFIX}delete_response.json"
+  readonly ZRBGM_DELETE_CODE="${ZRBGM_PREFIX}delete_code.txt"
+  readonly ZRBGM_KEY_RESPONSE="${ZRBGM_PREFIX}key_response.json"
+  readonly ZRBGM_KEY_CODE="${ZRBGM_PREFIX}key_code.txt"
+  readonly ZRBGM_ROLE_RESPONSE="${ZRBGM_PREFIX}role_response.json"
+  readonly ZRBGM_ROLE_CODE="${ZRBGM_PREFIX}role_code.txt"
+  readonly ZRBGM_REPO_ROLE_RESPONSE="${ZRBGM_PREFIX}repo_role_response.json"
+  readonly ZRBGM_REPO_ROLE_CODE="${ZRBGM_PREFIX}repo_role_code.txt"
 
   ZRBGM_KINDLED=1
 }
@@ -495,6 +495,7 @@ rbgm_depot_initialize() {
   source "${z_governor_rbra}" || buc_die "Failed to source Governor RBRA: ${z_governor_rbra}"
   zrbra_kindle
   zrbra_enforce
+  zrbra_lock
 
   buc_step 'Load GitHub PAT'
   local z_github_pat="${RBRA_RUBRIC_GITHUB_PAT:-}"

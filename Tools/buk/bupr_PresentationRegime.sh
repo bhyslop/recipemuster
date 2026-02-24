@@ -37,11 +37,11 @@ zbupr_kindle() {
   test -z "${ZBUPR_KINDLED:-}" || buc_die "Module bupr already kindled"
 
   # Terminal layout from BURD dispatch (set in bul_launcher before pipe)
-  ZBUPR_TERM_COLS=${BURD_TERM_COLS:-80}
+  readonly ZBUPR_TERM_COLS=${BURD_TERM_COLS:-80}
   if test "${ZBUPR_TERM_COLS}" -ge 120; then
-    ZBUPR_LAYOUT=single
+    readonly ZBUPR_LAYOUT=single
   else
-    ZBUPR_LAYOUT=double
+    readonly ZBUPR_LAYOUT=double
   fi
 
 

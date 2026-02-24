@@ -30,10 +30,8 @@ ZRBRS_SOURCED=1
 zrbrs_kindle() {
   test -z "${ZRBRS_KINDLED:-}" || buc_die "Module rbrs already kindled"
 
-  # Set defaults for all fields (enrollment enforces required-ness)
-  RBRS_PODMAN_ROOT_DIR="${RBRS_PODMAN_ROOT_DIR:-}"
-  RBRS_VMIMAGE_CACHE_DIR="${RBRS_VMIMAGE_CACHE_DIR:-}"
-  RBRS_VM_PLATFORM="${RBRS_VM_PLATFORM:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
   # Enroll all RBRS variables — single source of truth for validation and rendering
 
@@ -59,6 +57,14 @@ zrbrs_enforce() {
   zrbrs_sentinel
 
   buv_vet RBRS
+}
+
+# Lock step — lock enrolled variables against mutation after enforcement
+zrbrs_lock() {
+  zrbrs_sentinel
+
+  # Lock all enrolled RBRS_ variables against mutation
+  buv_lock RBRS
 }
 
 # eof

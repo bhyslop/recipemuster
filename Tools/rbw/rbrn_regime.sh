@@ -30,27 +30,8 @@ ZRBRN_SOURCED=1
 zrbrn_kindle() {
   test -z "${ZRBRN_KINDLED:-}" || buc_die "Module rbrn already kindled"
 
-  # Set defaults for all fields (enrollment enforces required-ness)
-  RBRN_MONIKER="${RBRN_MONIKER:-}"
-  RBRN_DESCRIPTION="${RBRN_DESCRIPTION:-}"
-  RBRN_RUNTIME="${RBRN_RUNTIME:-}"
-  RBRN_SENTRY_VESSEL="${RBRN_SENTRY_VESSEL:-}"
-  RBRN_BOTTLE_VESSEL="${RBRN_BOTTLE_VESSEL:-}"
-  RBRN_SENTRY_CONSECRATION="${RBRN_SENTRY_CONSECRATION:-}"
-  RBRN_BOTTLE_CONSECRATION="${RBRN_BOTTLE_CONSECRATION:-}"
-  RBRN_ENTRY_MODE="${RBRN_ENTRY_MODE:-}"
-  RBRN_ENTRY_PORT_WORKSTATION="${RBRN_ENTRY_PORT_WORKSTATION:-}"
-  RBRN_ENTRY_PORT_ENCLAVE="${RBRN_ENTRY_PORT_ENCLAVE:-}"
-  RBRN_ENCLAVE_BASE_IP="${RBRN_ENCLAVE_BASE_IP:-}"
-  RBRN_ENCLAVE_NETMASK="${RBRN_ENCLAVE_NETMASK:-}"
-  RBRN_ENCLAVE_SENTRY_IP="${RBRN_ENCLAVE_SENTRY_IP:-}"
-  RBRN_ENCLAVE_BOTTLE_IP="${RBRN_ENCLAVE_BOTTLE_IP:-}"
-  RBRN_UPLINK_PORT_MIN="${RBRN_UPLINK_PORT_MIN:-}"
-  RBRN_UPLINK_DNS_MODE="${RBRN_UPLINK_DNS_MODE:-}"
-  RBRN_UPLINK_ACCESS_MODE="${RBRN_UPLINK_ACCESS_MODE:-}"
-  RBRN_UPLINK_ALLOWED_CIDRS="${RBRN_UPLINK_ALLOWED_CIDRS:-}"
-  RBRN_UPLINK_ALLOWED_DOMAINS="${RBRN_UPLINK_ALLOWED_DOMAINS:-}"
-  RBRN_VOLUME_MOUNTS="${RBRN_VOLUME_MOUNTS:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
   # Enroll all RBRN variables — single source of truth for validation and rendering
 
@@ -102,10 +83,6 @@ zrbrn_kindle() {
   # Guard against unexpected RBRN_ variables not in enrollment
   buv_scope_sentinel RBRN RBRN_
 
-  # Build docker env args array from enrollment roll
-  # Usage: docker run "${ZRBRN_DOCKER_ENV[@]}" ...
-  buv_docker_env RBRN ZRBRN_DOCKER_ENV
-
   ZRBRN_KINDLED=1
 }
 
@@ -130,6 +107,18 @@ zrbrn_enforce() {
     test "${RBRN_ENTRY_PORT_ENCLAVE}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
       buc_die "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
   fi
+}
+
+# Lock step — build derived state from validated values, then lock enrolled variables
+zrbrn_lock() {
+  zrbrn_sentinel
+
+  # Build docker env args array from validated values
+  # Usage: docker run "${ZRBRN_DOCKER_ENV[@]}" ...
+  buv_docker_env RBRN ZRBRN_DOCKER_ENV
+
+  # Lock all enrolled RBRN_ variables against mutation
+  buv_lock RBRN
 }
 
 ######################################################################

@@ -33,12 +33,8 @@ ZBURD_SOURCED=1
 zburd_kindle() {
   test -z "${ZBURD_KINDLED:-}" || buc_die "Module burd already kindled"
 
-  # Set defaults for all optional fields only (required ones are set by dispatch — don't overwrite)
-  BURD_NO_LOG="${BURD_NO_LOG:-}"
-  BURD_INTERACTIVE="${BURD_INTERACTIVE:-}"
-  BURD_TOKEN_3="${BURD_TOKEN_3:-}"
-  BURD_TOKEN_4="${BURD_TOKEN_4:-}"
-  BURD_TOKEN_5="${BURD_TOKEN_5:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
   # Enroll all BURD variables — single source of truth for validation and rendering
 
@@ -105,6 +101,14 @@ zburd_enforce() {
     test -n "${BURD_LOG_SAME:-}" || buc_die "BURD_LOG_SAME required when logging is active"
     test -n "${BURD_LOG_HIST:-}" || buc_die "BURD_LOG_HIST required when logging is active"
   fi
+}
+
+# Lock step — lock enrolled variables against mutation after enforcement
+zburd_lock() {
+  zburd_sentinel
+
+  # Lock all enrolled BURD_ variables against mutation
+  buv_lock BURD
 }
 
 # eof

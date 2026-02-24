@@ -131,6 +131,7 @@ butcrg_burd_tcase() {
   buto_section "Verifying BURD dispatch environment"
   zburd_sentinel
   zburd_enforce
+  zburd_lock
   test -d "${BURD_TEMP_DIR}"      || buto_fatal "BURD_TEMP_DIR does not exist: ${BURD_TEMP_DIR}"
   buto_success "BURD dispatch environment verified"
 }

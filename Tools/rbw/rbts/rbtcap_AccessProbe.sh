@@ -101,6 +101,7 @@ rbtcap_payor_oauth_tcase() {
   source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrp_kindle
   zrbrp_enforce
+  zrbrp_lock
   zrbgo_kindle
   zrbgu_kindle
   zrbgi_kindle

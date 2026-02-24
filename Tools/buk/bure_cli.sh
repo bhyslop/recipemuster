@@ -59,10 +59,12 @@ zbure_furnish() {
   zbuv_kindle
   zburd_kindle
   zburd_enforce
+  zburd_lock
 
   # BURE is ambient — no env file to source, variables already in environment
   zbure_kindle
   zbure_enforce
+  zbure_lock
 
   zbupr_kindle
 }

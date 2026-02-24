@@ -40,7 +40,7 @@ zrbcc_kindle() {
   test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR not set - rbcc requires BURC environment"
 
   # Kindle constants (depend on runtime state)
-  RBCC_KIT_DIR="${BURC_TOOLS_DIR}/rbw"
+  readonly RBCC_KIT_DIR="${BURC_TOOLS_DIR}/rbw"
 
   ZRBCC_KINDLED=1
 }

@@ -30,18 +30,10 @@ ZBURC_SOURCED=1
 zburc_kindle() {
   test -z "${ZBURC_KINDLED:-}" || buc_die "Module burc already kindled"
 
-  # Set defaults for all fields (enrollment enforces required-ness)
-  BURC_STATION_FILE="${BURC_STATION_FILE:-}"
-  BURC_TABTARGET_DIR="${BURC_TABTARGET_DIR:-}"
-  BURC_TABTARGET_DELIMITER="${BURC_TABTARGET_DELIMITER:-}"
-  BURC_TOOLS_DIR="${BURC_TOOLS_DIR:-}"
-  BURC_BUK_DIR="${BURC_TOOLS_DIR}/buk"
-  BURC_PROJECT_ROOT="${BURC_PROJECT_ROOT:-}"
-  BURC_MANAGED_KITS="${BURC_MANAGED_KITS:-}"
-  BURC_TEMP_ROOT_DIR="${BURC_TEMP_ROOT_DIR:-}"
-  BURC_OUTPUT_ROOT_DIR="${BURC_OUTPUT_ROOT_DIR:-}"
-  BURC_LOG_LAST="${BURC_LOG_LAST:-}"
-  BURC_LOG_EXT="${BURC_LOG_EXT:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
+  # Exception: BURC_BUK_DIR is derived from BURC_TOOLS_DIR at kindle time (before vet).
+  BURC_BUK_DIR="${BURC_TOOLS_DIR:-}/buk"
 
   # Enroll all BURC variables — single source of truth for validation and rendering
 
@@ -88,6 +80,14 @@ zburc_enforce() {
   zburc_sentinel
 
   buv_vet BURC
+}
+
+# Lock step — lock enrolled variables against mutation after enforcement
+zburc_lock() {
+  zburc_sentinel
+
+  # Lock all enrolled BURC_ variables against mutation
+  buv_lock BURC
 }
 
 # eof

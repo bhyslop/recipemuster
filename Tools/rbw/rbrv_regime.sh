@@ -30,15 +30,8 @@ ZRBRV_SOURCED=1
 zrbrv_kindle() {
   test -z "${ZRBRV_KINDLED:-}" || buc_die "Module rbrv already kindled"
 
-  # Set defaults for all fields (enrollment enforces required-ness)
-  RBRV_SIGIL="${RBRV_SIGIL:-}"
-  RBRV_DESCRIPTION="${RBRV_DESCRIPTION:-}"
-  RBRV_VESSEL_MODE="${RBRV_VESSEL_MODE:-}"
-  RBRV_BIND_IMAGE="${RBRV_BIND_IMAGE:-}"
-  RBRV_CONJURE_DOCKERFILE="${RBRV_CONJURE_DOCKERFILE:-}"
-  RBRV_CONJURE_BLDCONTEXT="${RBRV_CONJURE_BLDCONTEXT:-}"
-  RBRV_CONJURE_PLATFORMS="${RBRV_CONJURE_PLATFORMS:-}"
-  RBRV_CONJURE_BINFMT_POLICY="${RBRV_CONJURE_BINFMT_POLICY:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
   # Enroll all RBRV variables — single source of truth for validation and rendering
 
@@ -77,6 +70,14 @@ zrbrv_enforce() {
   zrbrv_sentinel
 
   buv_vet RBRV
+}
+
+# Lock step — lock enrolled variables against mutation after enforcement
+zrbrv_lock() {
+  zrbrv_sentinel
+
+  # Lock all enrolled RBRV_ variables against mutation
+  buv_lock RBRV
 }
 
 ######################################################################

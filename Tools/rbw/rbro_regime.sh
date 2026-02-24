@@ -30,9 +30,8 @@ ZRBRO_SOURCED=1
 zrbro_kindle() {
   test -z "${ZRBRO_KINDLED:-}" || buc_die "Module rbro already kindled"
 
-  # Set defaults for all fields (enrollment enforces required-ness)
-  RBRO_CLIENT_SECRET="${RBRO_CLIENT_SECRET:-}"
-  RBRO_REFRESH_TOKEN="${RBRO_REFRESH_TOKEN:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
   # Enroll all RBRO variables — single source of truth for validation and rendering
   buv_regime_enroll RBRO
@@ -57,6 +56,14 @@ zrbro_enforce() {
   buv_vet RBRO
 }
 
+# Lock step — lock enrolled variables against mutation after enforcement
+zrbro_lock() {
+  zrbro_sentinel
+
+  # Lock all enrolled RBRO_ variables against mutation
+  buv_lock RBRO
+}
+
 ######################################################################
 # Public Functions (rbro_*)
 
@@ -74,6 +81,7 @@ rbro_load() {
   source "${z_rbro_file}" || buc_die "Failed to source RBRO credentials"
   zrbro_kindle
   zrbro_enforce
+  zrbro_lock
 }
 
 # eof

@@ -51,21 +51,21 @@ zbug_kindle() {
   fi
 
   if [ "$z_use_color" = "1" ]; then
-    ZBUG_R="\033[0m"          # Reset
-    ZBUG_T=""                 # Text (default - no color change)
-    ZBUG_C="\033[36m"         # Command (cyan)
-    ZBUG_U="\033[35m"         # UI element (magenta)
-    ZBUG_W="\033[1;33m"       # Warning (bright yellow)
-    ZBUG_E="\033[1;31m"       # Error (bright red)
-    ZBUG_S="\033[1;37m"       # Section (bright white)
+    readonly ZBUG_R="\033[0m"          # Reset
+    readonly ZBUG_T=""                 # Text (default - no color change)
+    readonly ZBUG_C="\033[36m"         # Command (cyan)
+    readonly ZBUG_U="\033[35m"         # UI element (magenta)
+    readonly ZBUG_W="\033[1;33m"       # Warning (bright yellow)
+    readonly ZBUG_E="\033[1;31m"       # Error (bright red)
+    readonly ZBUG_S="\033[1;37m"       # Section (bright white)
   else
-    ZBUG_R=""
-    ZBUG_T=""
-    ZBUG_C=""
-    ZBUG_U=""
-    ZBUG_W=""
-    ZBUG_E=""
-    ZBUG_S=""
+    readonly ZBUG_R=""
+    readonly ZBUG_T=""
+    readonly ZBUG_C=""
+    readonly ZBUG_U=""
+    readonly ZBUG_W=""
+    readonly ZBUG_E=""
+    readonly ZBUG_S=""
   fi
 
   ZBUG_KINDLED=1

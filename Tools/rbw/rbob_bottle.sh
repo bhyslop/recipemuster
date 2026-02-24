@@ -49,34 +49,34 @@ zrbob_kindle() {
 
   # Runtime command (docker or podman)
   case "${RBRN_RUNTIME}" in
-    docker) ZRBOB_RUNTIME="docker" ;;
-    podman) ZRBOB_RUNTIME="podman" ;;
+    docker) readonly ZRBOB_RUNTIME="docker" ;;
+    podman) readonly ZRBOB_RUNTIME="podman" ;;
     *) buc_die "Unknown RBRN_RUNTIME: ${RBRN_RUNTIME}" ;;
   esac
 
   # Container names
-  ZRBOB_SENTRY="${RBRN_MONIKER}-sentry"
-  ZRBOB_CENSER="${RBRN_MONIKER}-censer"
-  ZRBOB_BOTTLE="${RBRN_MONIKER}-bottle"
+  readonly ZRBOB_SENTRY="${RBRN_MONIKER}-sentry"
+  readonly ZRBOB_CENSER="${RBRN_MONIKER}-censer"
+  readonly ZRBOB_BOTTLE="${RBRN_MONIKER}-bottle"
 
   # Network name
-  ZRBOB_NETWORK="${RBRN_MONIKER}-enclave"
+  readonly ZRBOB_NETWORK="${RBRN_MONIKER}-enclave"
 
   # Sentry configuration script
-  ZRBOB_SENTRY_SCRIPT="${ZRBOB_SCRIPT_DIR}/rbss.sentry.sh"
+  readonly ZRBOB_SENTRY_SCRIPT="${ZRBOB_SCRIPT_DIR}/rbss.sentry.sh"
   test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
 
   # Runtime-specific censer network args
   # Docker uses --ip separately, Podman uses network:ip= syntax
   case "${RBRN_RUNTIME}" in
-    docker) ZRBOB_CENSER_NETWORK_ARGS="--network ${ZRBOB_NETWORK} --ip ${RBRN_ENCLAVE_BOTTLE_IP}" ;;
-    podman) ZRBOB_CENSER_NETWORK_ARGS="--network ${ZRBOB_NETWORK}:ip=${RBRN_ENCLAVE_BOTTLE_IP}" ;;
+    docker) readonly ZRBOB_CENSER_NETWORK_ARGS="--network ${ZRBOB_NETWORK} --ip ${RBRN_ENCLAVE_BOTTLE_IP}" ;;
+    podman) readonly ZRBOB_CENSER_NETWORK_ARGS="--network ${ZRBOB_NETWORK}:ip=${RBRN_ENCLAVE_BOTTLE_IP}" ;;
   esac
 
   # GAR image references (computed once, used by launch and preflight)
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
-  ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
+  readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
+  readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
 
   ZRBOB_KINDLED=1
 }

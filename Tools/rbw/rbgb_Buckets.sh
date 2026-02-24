@@ -39,19 +39,19 @@ zrbgb_kindle() {
   zrbgu_sentinel
   zrbgi_sentinel
 
-  ZRBGB_PREFIX="${BURD_TEMP_DIR}/rbgb_"
-  ZRBGB_EMPTY_JSON="${ZRBGB_PREFIX}empty.json"
+  readonly ZRBGB_PREFIX="${BURD_TEMP_DIR}/rbgb_"
+  readonly ZRBGB_EMPTY_JSON="${ZRBGB_PREFIX}empty.json"
   printf '{}' > "${ZRBGB_EMPTY_JSON}"
 
   # Infix values for HTTP operations
-  ZRBGB_INFIX_CREATE="bucket_create"
-  ZRBGB_INFIX_GET="bucket_get"
-  ZRBGB_INFIX_DELETE="bucket_delete"
-  ZRBGB_INFIX_LIST="bucket_list"
-  ZRBGB_INFIX_OBJECT_DELETE="object_delete"
-  ZRBGB_INFIX_IAM_GET="bucket_iam_get"
-  ZRBGB_INFIX_IAM_SET="bucket_iam_set"
-  ZRBGB_INFIX_LIFECYCLE_SET="bucket_lifecycle_set"
+  readonly ZRBGB_INFIX_CREATE="bucket_create"
+  readonly ZRBGB_INFIX_GET="bucket_get"
+  readonly ZRBGB_INFIX_DELETE="bucket_delete"
+  readonly ZRBGB_INFIX_LIST="bucket_list"
+  readonly ZRBGB_INFIX_OBJECT_DELETE="object_delete"
+  readonly ZRBGB_INFIX_IAM_GET="bucket_iam_get"
+  readonly ZRBGB_INFIX_IAM_SET="bucket_iam_set"
+  readonly ZRBGB_INFIX_LIFECYCLE_SET="bucket_lifecycle_set"
 
   ZRBGB_KINDLED=1
 }

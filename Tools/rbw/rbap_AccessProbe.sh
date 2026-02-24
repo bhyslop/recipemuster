@@ -37,12 +37,12 @@ zrbap_kindle() {
   zrbgp_sentinel
 
   # Kindle-constant temp file paths for forensic visibility
-  ZRBAP_AR_RESP_FILE="${BURD_TEMP_DIR}/rbap_ar_resp.json"
-  ZRBAP_AR_CODE_FILE="${BURD_TEMP_DIR}/rbap_ar_code.txt"
-  ZRBAP_AR_STDERR_FILE="${BURD_TEMP_DIR}/rbap_ar_stderr.txt"
-  ZRBAP_CRM_RESP_FILE="${BURD_TEMP_DIR}/rbap_crm_resp.json"
-  ZRBAP_CRM_CODE_FILE="${BURD_TEMP_DIR}/rbap_crm_code.txt"
-  ZRBAP_CRM_STDERR_FILE="${BURD_TEMP_DIR}/rbap_crm_stderr.txt"
+  readonly ZRBAP_AR_RESP_FILE="${BURD_TEMP_DIR}/rbap_ar_resp.json"
+  readonly ZRBAP_AR_CODE_FILE="${BURD_TEMP_DIR}/rbap_ar_code.txt"
+  readonly ZRBAP_AR_STDERR_FILE="${BURD_TEMP_DIR}/rbap_ar_stderr.txt"
+  readonly ZRBAP_CRM_RESP_FILE="${BURD_TEMP_DIR}/rbap_crm_resp.json"
+  readonly ZRBAP_CRM_CODE_FILE="${BURD_TEMP_DIR}/rbap_crm_code.txt"
+  readonly ZRBAP_CRM_STDERR_FILE="${BURD_TEMP_DIR}/rbap_crm_stderr.txt"
 
   ZRBAP_KINDLED=1
 }

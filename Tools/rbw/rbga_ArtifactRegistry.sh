@@ -39,17 +39,17 @@ zrbga_kindle() {
   zrbgu_sentinel
   zrbgi_sentinel
 
-  ZRBGA_PREFIX="${BURD_TEMP_DIR}/rbga_"
-  ZRBGA_EMPTY_JSON="${ZRBGA_PREFIX}empty.json"
+  readonly ZRBGA_PREFIX="${BURD_TEMP_DIR}/rbga_"
+  readonly ZRBGA_EMPTY_JSON="${ZRBGA_PREFIX}empty.json"
   printf '{}' > "${ZRBGA_EMPTY_JSON}"
 
   # Infix values for HTTP operations
-  ZRBGA_INFIX_CREATE_REPO="create_repo"
-  ZRBGA_INFIX_VERIFY_REPO="verify_repo"
-  ZRBGA_INFIX_DELETE_REPO="delete_repo"
-  ZRBGA_INFIX_GET_REPO="get_repo"
-  ZRBGA_INFIX_REPO_IAM_GET="repo_iam_get"
-  ZRBGA_INFIX_REPO_IAM_SET="repo_iam_set"
+  readonly ZRBGA_INFIX_CREATE_REPO="create_repo"
+  readonly ZRBGA_INFIX_VERIFY_REPO="verify_repo"
+  readonly ZRBGA_INFIX_DELETE_REPO="delete_repo"
+  readonly ZRBGA_INFIX_GET_REPO="get_repo"
+  readonly ZRBGA_INFIX_REPO_IAM_GET="repo_iam_get"
+  readonly ZRBGA_INFIX_REPO_IAM_SET="repo_iam_set"
 
   ZRBGA_KINDLED=1
 }

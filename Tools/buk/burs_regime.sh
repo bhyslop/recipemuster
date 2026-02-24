@@ -30,8 +30,8 @@ ZBURS_SOURCED=1
 zburs_kindle() {
   test -z "${ZBURS_KINDLED:-}" || buc_die "Module burs already kindled"
 
-  # Set defaults for all fields (enrollment enforces required-ness)
-  BURS_LOG_DIR="${BURS_LOG_DIR:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
   # Enroll all BURS variables — single source of truth for validation and rendering
 
@@ -55,6 +55,14 @@ zburs_enforce() {
   zburs_sentinel
 
   buv_vet BURS
+}
+
+# Lock step — lock enrolled variables against mutation after enforcement
+zburs_lock() {
+  zburs_sentinel
+
+  # Lock all enrolled BURS_ variables against mutation
+  buv_lock BURS
 }
 
 # eof

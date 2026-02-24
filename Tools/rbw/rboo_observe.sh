@@ -38,14 +38,14 @@ zrboo_kindle() {
   zrbob_sentinel
 
   # Terminal control sequences for colored output
-  ZRBOO_BOLD=$(tput bold 2>/dev/null || echo "")
-  ZRBOO_YELLOW=$(tput setaf 3 2>/dev/null || echo "")
-  ZRBOO_BLUE=$(tput setaf 4 2>/dev/null || echo "")
-  ZRBOO_WHITE=$(tput setaf 7 2>/dev/null || echo "")
-  ZRBOO_RESET=$(tput sgr0 2>/dev/null || echo "")
+  readonly ZRBOO_BOLD=$(tput bold 2>/dev/null || echo "")
+  readonly ZRBOO_YELLOW=$(tput setaf 3 2>/dev/null || echo "")
+  readonly ZRBOO_BLUE=$(tput setaf 4 2>/dev/null || echo "")
+  readonly ZRBOO_WHITE=$(tput setaf 7 2>/dev/null || echo "")
+  readonly ZRBOO_RESET=$(tput sgr0 2>/dev/null || echo "")
 
   # Common tcpdump options: unbuffered, line-buffered, no name resolution, verbose
-  ZRBOO_TCPDUMP_OPTS="-U -l -nn -vvv"
+  readonly ZRBOO_TCPDUMP_OPTS="-U -l -nn -vvv"
 
   # Bridge interface (only for podman, discovered at observe time)
   ZRBOO_BRIDGE_INTERFACE=""

@@ -183,6 +183,7 @@ zrbrn_furnish() {
   zbuv_kindle
   zburd_kindle
   zburd_enforce
+  zburd_lock
   zbupr_kindle
   zrbcc_kindle
   test "${z_rbw_kit_dir}" = "${RBCC_KIT_DIR}" || buc_die "z_rbw_kit_dir mismatch: ${z_rbw_kit_dir} != ${RBCC_KIT_DIR}"
@@ -207,6 +208,7 @@ zrbrn_furnish() {
     source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
     zrbrn_kindle
     zrbrn_enforce
+    zrbrn_lock
   fi
 }
 

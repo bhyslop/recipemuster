@@ -30,12 +30,8 @@ ZRBRA_SOURCED=1
 zrbra_kindle() {
   test -z "${ZRBRA_KINDLED:-}" || buc_die "Module rbra already kindled"
 
-  # Set defaults for all fields (enrollment enforces required-ness)
-  RBRA_CLIENT_EMAIL="${RBRA_CLIENT_EMAIL:-}"
-  RBRA_PRIVATE_KEY="${RBRA_PRIVATE_KEY:-}"
-  RBRA_PROJECT_ID="${RBRA_PROJECT_ID:-}"
-  RBRA_TOKEN_LIFETIME_SEC="${RBRA_TOKEN_LIFETIME_SEC:-}"
-  RBRA_RUBRIC_GITHUB_PAT="${RBRA_RUBRIC_GITHUB_PAT:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
   # Enroll all RBRA variables — single source of truth for validation and rendering
 
@@ -79,6 +75,14 @@ zrbra_enforce() {
     [[ "${RBRA_RUBRIC_GITHUB_PAT}" =~ ^(ghp_|github_pat_) ]] \
       || buc_die "RBRA_RUBRIC_GITHUB_PAT must start with 'ghp_' or 'github_pat_' prefix: '${RBRA_RUBRIC_GITHUB_PAT:0:10}...'"
   fi
+}
+
+# Lock step — lock enrolled variables against mutation after enforcement
+zrbra_lock() {
+  zrbra_sentinel
+
+  # Lock all enrolled RBRA_ variables against mutation
+  buv_lock RBRA
 }
 
 # eof

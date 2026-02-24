@@ -56,11 +56,13 @@ zburc_furnish() {
   zbuv_kindle
   zburd_kindle
   zburd_enforce
+  zburd_lock
 
   source "${BURD_REGIME_FILE}" || buc_die "Failed to source BURC: ${BURD_REGIME_FILE}"
 
   zburc_kindle
   zburc_enforce
+  zburc_lock
 
   zbupr_kindle
 }

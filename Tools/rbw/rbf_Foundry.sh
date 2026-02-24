@@ -41,87 +41,87 @@ zrbf_kindle() {
   test -f "${RBRR_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBRR_DIRECTOR_RBRA_FILE}"
 
   buc_log_args 'Module Variables (ZRBF_*)'
-  ZRBF_GCB_API_BASE="https://cloudbuild.googleapis.com/v1"
-  ZRBF_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
-  ZRBF_CLOUD_QUERY_BASE="https://console.cloud.google.com/cloud-build/builds"
+  readonly ZRBF_GCB_API_BASE="https://cloudbuild.googleapis.com/v1"
+  readonly ZRBF_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
+  readonly ZRBF_CLOUD_QUERY_BASE="https://console.cloud.google.com/cloud-build/builds"
 
-  ZRBF_GCB_API_BASE_UPLOAD="https://cloudbuild.googleapis.com/upload/v1"
+  readonly ZRBF_GCB_API_BASE_UPLOAD="https://cloudbuild.googleapis.com/upload/v1"
 
   # GCS endpoints (build-source uploads)
-  ZRBF_GCS_API_BASE="https://storage.googleapis.com/storage/v1"
-  ZRBF_GCS_UPLOAD_BASE="https://storage.googleapis.com/upload/storage/v1"
+  readonly ZRBF_GCS_API_BASE="https://storage.googleapis.com/storage/v1"
+  readonly ZRBF_GCS_UPLOAD_BASE="https://storage.googleapis.com/upload/storage/v1"
 
   # Temp files for object naming and requests
-  ZRBF_TARBALL_NAME_FILE="${BURD_TEMP_DIR}/rbf_tarball_name.txt"
-  ZRBF_GCS_OBJECT_FILE="${BURD_TEMP_DIR}/rbf_gcs_object.txt"
-  ZRBF_BUILD_REQUEST_FILE="${BURD_TEMP_DIR}/rbf_build_request.json"
-  ZRBF_GCS_UPLOAD_RESP="${BURD_TEMP_DIR}/rbf_gcs_upload_resp.json"
-  ZRBF_GCS_UPLOAD_HTTP="${BURD_TEMP_DIR}/rbf_gcs_upload_http.txt"
+  readonly ZRBF_TARBALL_NAME_FILE="${BURD_TEMP_DIR}/rbf_tarball_name.txt"
+  readonly ZRBF_GCS_OBJECT_FILE="${BURD_TEMP_DIR}/rbf_gcs_object.txt"
+  readonly ZRBF_BUILD_REQUEST_FILE="${BURD_TEMP_DIR}/rbf_build_request.json"
+  readonly ZRBF_GCS_UPLOAD_RESP="${BURD_TEMP_DIR}/rbf_gcs_upload_resp.json"
+  readonly ZRBF_GCS_UPLOAD_HTTP="${BURD_TEMP_DIR}/rbf_gcs_upload_http.txt"
 
-  ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
-  ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
-  ZRBF_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+  readonly ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
+  readonly ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
+  readonly ZRBF_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   buc_log_args 'Registry API endpoints for delete'
-  ZRBF_REGISTRY_HOST="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  ZRBF_REGISTRY_PATH="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  ZRBF_REGISTRY_API_BASE="https://${ZRBF_REGISTRY_HOST}/v2/${ZRBF_REGISTRY_PATH}"
+  readonly ZRBF_REGISTRY_HOST="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  readonly ZRBF_REGISTRY_PATH="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  readonly ZRBF_REGISTRY_API_BASE="https://${ZRBF_REGISTRY_HOST}/v2/${ZRBF_REGISTRY_PATH}"
 
   buc_log_args 'Media types for delete operation'
-  ZRBF_ACCEPT_MANIFEST_MTYPES="application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json"
+  readonly ZRBF_ACCEPT_MANIFEST_MTYPES="application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json"
 
   buc_log_args 'RBGJ files in same Tools directory as this implementation'
   # Acronym: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
   local z_self_dir="${BASH_SOURCE[0]%/*}"
-  ZRBF_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
+  readonly ZRBF_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
   test -d "${ZRBF_RBGJB_STEPS_DIR}"   || buc_die "RBGJB steps directory not found: ${ZRBF_RBGJB_STEPS_DIR}"
 
   buc_log_args 'Define stitched build JSON temp file'
-  ZRBF_STITCHED_BUILD_FILE="${BURD_TEMP_DIR}/rbf_stitched_build.json"
+  readonly ZRBF_STITCHED_BUILD_FILE="${BURD_TEMP_DIR}/rbf_stitched_build.json"
 
   buc_log_args 'Define temp files for build operations'
-  ZRBF_BUILD_CONTEXT_TAR="${BURD_TEMP_DIR}/rbf_build_context.tar.gz"
-  ZRBF_BUILD_CONFIG_FILE="${BURD_TEMP_DIR}/rbf_build_config.json"
-  ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
-  ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
-  ZRBF_BUILD_LOG_FILE="${BURD_TEMP_DIR}/rbf_build_log.txt"
-  ZRBF_BUILD_RESPONSE_FILE="${BURD_TEMP_DIR}/rbf_build_response.json"
-  ZRBF_BUILD_HTTP_CODE="${BURD_TEMP_DIR}/rbf_build_http_code.txt"
+  readonly ZRBF_BUILD_CONTEXT_TAR="${BURD_TEMP_DIR}/rbf_build_context.tar.gz"
+  readonly ZRBF_BUILD_CONFIG_FILE="${BURD_TEMP_DIR}/rbf_build_config.json"
+  readonly ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
+  readonly ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
+  readonly ZRBF_BUILD_LOG_FILE="${BURD_TEMP_DIR}/rbf_build_log.txt"
+  readonly ZRBF_BUILD_RESPONSE_FILE="${BURD_TEMP_DIR}/rbf_build_response.json"
+  readonly ZRBF_BUILD_HTTP_CODE="${BURD_TEMP_DIR}/rbf_build_http_code.txt"
 
   buc_log_args 'Define copy staging files'
-  ZRBF_COPY_STAGING_DIR="${BURD_TEMP_DIR}/rbf_copy_staging"
-  ZRBF_COPY_CONTEXT_TAR="${BURD_TEMP_DIR}/rbf_copy_context.tar.gz"
+  readonly ZRBF_COPY_STAGING_DIR="${BURD_TEMP_DIR}/rbf_copy_staging"
+  readonly ZRBF_COPY_CONTEXT_TAR="${BURD_TEMP_DIR}/rbf_copy_context.tar.gz"
 
   buc_log_args 'Define git info files'
-  ZRBF_GIT_INFO_FILE="${BURD_TEMP_DIR}/rbf_git_info.json"
-  ZRBF_GIT_COMMIT_FILE="${BURD_TEMP_DIR}/rbf_git_commit.txt"
-  ZRBF_GIT_BRANCH_FILE="${BURD_TEMP_DIR}/rbf_git_branch.txt"
-  ZRBF_GIT_REPO_FILE="${BURD_TEMP_DIR}/rbf_git_repo_url.txt"
-  ZRBF_GIT_UNTRACKED_FILE="${BURD_TEMP_DIR}/rbf_git_untracked.txt"
-  ZRBF_GIT_REMOTE_FILE="${BURD_TEMP_DIR}/rbf_git_remote.txt"
+  readonly ZRBF_GIT_INFO_FILE="${BURD_TEMP_DIR}/rbf_git_info.json"
+  readonly ZRBF_GIT_COMMIT_FILE="${BURD_TEMP_DIR}/rbf_git_commit.txt"
+  readonly ZRBF_GIT_BRANCH_FILE="${BURD_TEMP_DIR}/rbf_git_branch.txt"
+  readonly ZRBF_GIT_REPO_FILE="${BURD_TEMP_DIR}/rbf_git_repo_url.txt"
+  readonly ZRBF_GIT_UNTRACKED_FILE="${BURD_TEMP_DIR}/rbf_git_untracked.txt"
+  readonly ZRBF_GIT_REMOTE_FILE="${BURD_TEMP_DIR}/rbf_git_remote.txt"
 
   buc_log_args 'Define staging and size files'
-  ZRBF_STAGING_DIR="${BURD_TEMP_DIR}/rbf_staging"
-  ZRBF_CONTEXT_SIZE_FILE="${BURD_TEMP_DIR}/rbf_context_size_bytes.txt"
+  readonly ZRBF_STAGING_DIR="${BURD_TEMP_DIR}/rbf_staging"
+  readonly ZRBF_CONTEXT_SIZE_FILE="${BURD_TEMP_DIR}/rbf_context_size_bytes.txt"
 
   buc_log_args 'Define validation files'
-  ZRBF_STATUS_CHECK_FILE="${BURD_TEMP_DIR}/rbf_status_check.txt"
-  ZRBF_BUILD_ID_TMP_FILE="${BURD_TEMP_DIR}/rbf_build_id_tmp.txt"
+  readonly ZRBF_STATUS_CHECK_FILE="${BURD_TEMP_DIR}/rbf_status_check.txt"
+  readonly ZRBF_BUILD_ID_TMP_FILE="${BURD_TEMP_DIR}/rbf_build_id_tmp.txt"
 
   buc_log_args 'Define delete operation files'
-  ZRBF_DELETE_PREFIX="${BURD_TEMP_DIR}/rbf_delete_"
-  ZRBF_TOKEN_FILE="${BURD_TEMP_DIR}/rbf_token.txt"
+  readonly ZRBF_DELETE_PREFIX="${BURD_TEMP_DIR}/rbf_delete_"
+  readonly ZRBF_TOKEN_FILE="${BURD_TEMP_DIR}/rbf_token.txt"
 
   buc_log_args 'Define copy operation files'
-  ZRBF_COPY_CONFIG_FILE="${BURD_TEMP_DIR}/rbf_copy_config.json"
-  ZRBF_COPY_RESPONSE_FILE="${BURD_TEMP_DIR}/rbf_copy_response.json"
+  readonly ZRBF_COPY_CONFIG_FILE="${BURD_TEMP_DIR}/rbf_copy_config.json"
+  readonly ZRBF_COPY_RESPONSE_FILE="${BURD_TEMP_DIR}/rbf_copy_response.json"
 
   buc_log_args 'Vessel-related files'
-  ZRBF_VESSEL_ENV_FILE="${BURD_TEMP_DIR}/rbf_vessel_env.txt"
-  ZRBF_VESSEL_SIGIL_FILE="${BURD_TEMP_DIR}/rbf_vessel_sigil.txt"
+  readonly ZRBF_VESSEL_ENV_FILE="${BURD_TEMP_DIR}/rbf_vessel_env.txt"
+  readonly ZRBF_VESSEL_SIGIL_FILE="${BURD_TEMP_DIR}/rbf_vessel_sigil.txt"
 
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
-  ZRBF_STITCH_PREFIX="${BURD_TEMP_DIR}/rbf_stitch_"
+  readonly ZRBF_STITCH_PREFIX="${BURD_TEMP_DIR}/rbf_stitch_"
 
   buc_log_args 'For now lets double check these'
   test -n "${RBRR_GCB_ORAS_IMAGE_REF:-}"   || buc_die "RBRR_GCB_ORAS_IMAGE_REF not set"

@@ -30,12 +30,8 @@ ZRBRP_SOURCED=1
 zrbrp_kindle() {
   test -z "${ZRBRP_KINDLED:-}" || buc_die "Module rbrp already kindled"
 
-  # Set defaults for all fields (enrollment enforces required-ness)
-  RBRP_PAYOR_PROJECT_ID="${RBRP_PAYOR_PROJECT_ID:-}"
-  RBRP_PARENT_TYPE="${RBRP_PARENT_TYPE:-}"
-  RBRP_PARENT_ID="${RBRP_PARENT_ID:-}"
-  RBRP_BILLING_ACCOUNT_ID="${RBRP_BILLING_ACCOUNT_ID:-}"
-  RBRP_OAUTH_CLIENT_ID="${RBRP_OAUTH_CLIENT_ID:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
   # Enroll all RBRP variables — single source of truth for validation and rendering
 
@@ -82,6 +78,14 @@ zrbrp_enforce() {
     [[ "${RBRP_OAUTH_CLIENT_ID}" =~ \.apps\.googleusercontent\.com$ ]] \
       || buc_die "RBRP_OAUTH_CLIENT_ID must end with .apps.googleusercontent.com"
   fi
+}
+
+# Lock step — lock enrolled variables against mutation after enforcement
+zrbrp_lock() {
+  zrbrp_sentinel
+
+  # Lock all enrolled RBRP_ variables against mutation
+  buv_lock RBRP
 }
 
 # eof
