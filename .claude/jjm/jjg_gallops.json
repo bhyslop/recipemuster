@@ -5554,9 +5554,10 @@
         "₢AkAAB",
         "₢AkAAA",
         "₢AkAAC",
-        "₢AkAAF"
+        "₢AkAAF",
+        "₢AkAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5650,6 +5651,17 @@
               "text": "Audit and fix kindle functions that initialize mutable state (counters, accumulators) alongside constants.\n\n## Problem\n\n`ZRBI_FILE_INDEX=0` in `zrbi_kindle()` is module-level mutable state initialized in kindle among readonly constants. The uppercase `Z`-prefixed name follows kindle constant convention but the variable is mutated post-kindle. This pattern likely exists in other modules.\n\n## Scope\n\n1. **Audit**: Scan all kindle functions for variables that are initialized in kindle but mutated after kindle returns. Identify the pattern across modules.\n2. **Naming convention**: Establish a BCG convention distinguishing kindle mutable state from kindle constants — likely a lowercase `z` prefix or similar marker so the name signals mutability.\n3. **Apply**: Rename identified variables to the new convention.\n4. **BCG update**: Document the convention in the Readonly Patterns section (mutable kindle state as an exception to the \"every kindle constant\" rule, with naming discipline).\n\n## Acceptance\n\n- All kindle-initialized mutable state uses the new naming convention\n- BCG documents the pattern and naming rule\n- No functional changes — rename only",
               "silks": "kindle-mutable-state-naming",
               "commit": "122393f"
+            }
+          ]
+        },
+        "₢AkAAG": {
+          "tacks": [
+            {
+              "ts": "260224-1247",
+              "state": "rough",
+              "text": "Consolidate all credential file paths to a single `RBRR_SECRETS_DIR` enrolled variable with kindle constants for individual files.\n\n## Changes\n\n1. **`rbrr_regime.sh`** — Remove three `buv_string_enroll` for `RBRR_GOVERNOR_RBRA_FILE`, `RBRR_RETRIEVER_RBRA_FILE`, `RBRR_DIRECTOR_RBRA_FILE`. Add `buv_dir_enroll RBRR_SECRETS_DIR`. Add four `readonly` kindle constants computed from `RBRR_SECRETS_DIR`:\n   - `RBRR_GOVERNOR_RBRA_FILE=\"${RBRR_SECRETS_DIR}/rbra-governor.env\"`\n   - `RBRR_RETRIEVER_RBRA_FILE=\"${RBRR_SECRETS_DIR}/rbra-retriever.env\"`\n   - `RBRR_DIRECTOR_RBRA_FILE=\"${RBRR_SECRETS_DIR}/rbra-director.env\"`\n   - `RBRR_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/rbro-payor.env\"`\n\n2. **`rbrr.env`** — Remove three `RBRR_*_RBRA_FILE=` lines. Add `RBRR_SECRETS_DIR=../station-files/secrets`.\n\n3. **`rbro_regime.sh`** — Rewrite `rbro_load()` to use `RBRR_PAYOR_RBRO_FILE` instead of hardcoded `${HOME}/.rbw`. Remove directory check. Update comments and error messages.\n\n4. **`rbro_cli.sh`** — Replace `RBCC_rbro_file` reference with `RBRR_PAYOR_RBRO_FILE`.\n\n5. **`rbgp_Payor.sh`** — Write to `RBRR_PAYOR_RBRO_FILE` instead of `${HOME}/.rbw/rbro.env`. Create parent dir via `dirname`.\n\n6. **`rbcc_Constants.sh`** — Remove dead `RBCC_rbro_file` constant.\n\n7. **`butcrg_RegimeCredentials.sh`** — Replace hardcoded `${HOME}/.rbw/rbro.env` with `RBRR_PAYOR_RBRO_FILE`.\n\n8. **`rbgm_ManualProcedures.sh`** — Update user-facing text referencing `~/.rbw/rbro.env`.\n\n9. **Copy credentials** — `cp ~/.rbw/rbro.env ../station-files/secrets/rbro-payor.env`\n\n## Acceptance\n\n- `RBRR_SECRETS_DIR` is the single enrolled path for all credential files\n- All four credential file paths are kindle constants derived from it\n- No remaining hardcoded `~/.rbw` references in Tools/\n- Existing operations (payor install, OAuth flow, credential validation) work unchanged",
+              "silks": "consolidate-secrets-dir",
+              "commit": "8ce2916"
             }
           ]
         }
