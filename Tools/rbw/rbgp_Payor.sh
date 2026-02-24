@@ -547,16 +547,14 @@ rbgp_depot_create() {
   zrbgp_sentinel
 
   local z_depot_name="${1:-}"
-  local z_region="${2:-}"
+  local z_region="${RBRR_GCP_REGION}"
 
   buc_doc_brief "Create new depot infrastructure following RBAGS specification"
   buc_doc_param "depot_name" "Depot name (lowercase/numbers/hyphens, max ${RBGC_GLOBAL_DEPOT_NAME_MAX} chars)"
-  buc_doc_param "region" "GCP region for depot resources"
   buc_doc_shown || return 0
 
   buc_step 'Validate input parameters'
   test -n "${z_depot_name}" || buc_die "Depot name required as first argument"
-  test -n "${z_region}" || buc_die "Region required as second argument"
   
   if ! printf '%s' "${z_depot_name}" | grep -qE '^[a-z0-9-]+$'; then
     buc_die "Depot name must contain only lowercase letters, numbers, and hyphens"
