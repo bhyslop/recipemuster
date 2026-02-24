@@ -8003,6 +8003,13 @@
         "₢AiAAW": {
           "tacks": [
             {
+              "ts": "260224-0705",
+              "state": "rough",
+              "text": "Modify rbf_build() to dispatch via triggers.run instead of builds.create,\nper the rewritten RBSTB spec (from AiAAO) and paddock session decisions.\n\n## Remove from rbf_build()\n\nEverything in paddock \"What Dies\": tarball packaging, GCS upload, JSON build\nrequest composition, builds.create submission, git-clean verification.\n\n## Add to rbf_build()\n\n- Always-fresh-clone: delete .rbk/{vessel}/, git clone --depth 1 the {rbtgr_vessel_repo}\n  (same pattern as inscribe — eliminates stale state, no dependency on inscribe having\n  been run locally)\n- Read HEAD commit from fresh clone: git -C .rbk/{vessel}/ rev-parse HEAD\n- Derive trigger name from RBGC_RUBRIC_TRIGGER_PREFIX + vessel sigil\n- POST triggers.run with source.commitSha — zero substitution overrides\n- Parse response for build ID\n\n## Keep in rbf_build()\n\nzrbf_load_vessel(), quota check, zrbf_wait_build_completion(), OAuth, reporting.\n\n## Simplify zrbf_kindle()\n\nRemove tarball/GCS/JSON temp variables. Keep API endpoint base and polling variables.\n\nReferences: rewritten RBSTB spec (from AiAAO), paddock session decisions, RBSRI spec.",
+              "silks": "modify-rbf-build-for-trigger-dispatch",
+              "commit": "7f64095"
+            },
+            {
               "ts": "260224-0657",
               "state": "rough",
               "text": "Modify rbf_build() to dispatch via triggers.run instead of builds.create,\nper the rewritten RBSTB spec (from AiAAO) and paddock session decisions.\n\n## Remove from rbf_build()\n\nEverything in paddock \"What Dies\": tarball packaging, GCS upload, JSON build\nrequest composition, builds.create submission, git-clean verification.\n\n## Add to rbf_build()\n\n- Derive trigger name from RBGC_RUBRIC_TRIGGER_PREFIX + vessel sigil\n- Read mini-repo HEAD commit from ZRBF_RUBRIC_CLONE_PATH\n- POST triggers.run with source.commitSha — zero substitution overrides\n- Parse response for build ID\n\n## Keep in rbf_build()\n\nzrbf_load_vessel(), quota check, zrbf_wait_build_completion(), OAuth, reporting.\n\n## Simplify zrbf_kindle()\n\nRemove tarball/GCS/JSON temp variables. Keep API endpoint base and polling variables.\n\nReferences: rewritten RBSTB spec (from AiAAO), paddock session decisions.",
