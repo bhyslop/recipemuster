@@ -5627,6 +5627,13 @@
         "₢AkAAE": {
           "tacks": [
             {
+              "ts": "260224-1152",
+              "state": "complete",
+              "text": "Apply `readonly` patterns across all regimes and modules, following patterns proven in ₢AkAAD trial.\n\n## Scope\n\n1. **All regime kindle functions**: Remove defaults, add post-enforce `readonly` locking, move docker-env construction to post-enforce. Apply to:\n   - RBRN (`rbrn_regime.sh`) — all three nameplates (nsproto, srjcl, pluml)\n   - RBRA if applicable\n   - Any other regime modules\n\n2. **All module literal constants**: Convert appropriate literal constants to `readonly` across all modules in `Tools/rbw/`, `Tools/buk/`, and other kit directories.\n\n3. **Script-local constants**: Apply `readonly VAR=value` pattern to script-local constants in CLI entry points and install/uninstall scripts (extending the pattern already used in VVK's `vvi_install.sh` and `vvu_uninstall.sh`).\n\n## Acceptance\n\n- All regime variables are readonly after enforcement\n- All identified literal constants are readonly\n- Full test suite passes\n- No regressions in any tabtarget",
+              "silks": "readonly-widespread",
+              "commit": "60ad7e0"
+            },
+            {
               "ts": "260224-0843",
               "state": "rough",
               "text": "Apply `readonly` patterns across all regimes and modules, following patterns proven in ₢AkAAD trial.\n\n## Scope\n\n1. **All regime kindle functions**: Remove defaults, add post-enforce `readonly` locking, move docker-env construction to post-enforce. Apply to:\n   - RBRN (`rbrn_regime.sh`) — all three nameplates (nsproto, srjcl, pluml)\n   - RBRA if applicable\n   - Any other regime modules\n\n2. **All module literal constants**: Convert appropriate literal constants to `readonly` across all modules in `Tools/rbw/`, `Tools/buk/`, and other kit directories.\n\n3. **Script-local constants**: Apply `readonly VAR=value` pattern to script-local constants in CLI entry points and install/uninstall scripts (extending the pattern already used in VVK's `vvi_install.sh` and `vvu_uninstall.sh`).\n\n## Acceptance\n\n- All regime variables are readonly after enforcement\n- All identified literal constants are readonly\n- Full test suite passes\n- No regressions in any tabtarget",
