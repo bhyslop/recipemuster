@@ -75,6 +75,7 @@ zrbgc_kindle() {
   RBGC_API_ROOT_CLOUDBUILD="https://cloudbuild.googleapis.com"
   RBGC_API_ROOT_CLOUDBILLING="https://cloudbilling.googleapis.com"
   RBGC_API_ROOT_STORAGE="https://storage.googleapis.com"
+  RBGC_API_ROOT_DEVELOPERCONNECT="https://developerconnect.googleapis.com"
   RBGC_CONSOLE_URL="https://console.cloud.google.com/"
   RBGC_SIGNUP_URL="https://cloud.google.com/free"
 
@@ -100,6 +101,7 @@ zrbgc_kindle() {
   RBGC_CLOUDBILLING_V1="/v1"
   RBGC_STORAGE_JSON_V1="/storage/v1"
   RBGC_STORAGE_JSON_UPLOAD="/upload/storage/v1"
+  RBGC_DEVELOPERCONNECT_V1="/v1"
 
   # REST Path Fragments
   RBGC_PATH_PROJECTS="/projects"

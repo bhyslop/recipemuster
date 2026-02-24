@@ -35,6 +35,7 @@ zrbra_kindle() {
   RBRA_PRIVATE_KEY="${RBRA_PRIVATE_KEY:-}"
   RBRA_PROJECT_ID="${RBRA_PROJECT_ID:-}"
   RBRA_TOKEN_LIFETIME_SEC="${RBRA_TOKEN_LIFETIME_SEC:-}"
+  RBRA_RUBRIC_GITHUB_PAT="${RBRA_RUBRIC_GITHUB_PAT:-}"
 
   # Enroll all RBRA variables — single source of truth for validation and rendering
 
@@ -45,6 +46,9 @@ zrbra_kindle() {
   buv_string_enroll   RBRA_PRIVATE_KEY         1  4096  "PEM-encoded private key material"
   buv_string_enroll   RBRA_PROJECT_ID          1    64  "GCP project owning the service account"
   buv_decimal_enroll  RBRA_TOKEN_LIFETIME_SEC  300  3600  "OAuth token lifetime in seconds"
+
+  buv_group_enroll "GitHub Credentials (optional)"
+  buv_string_enroll   RBRA_RUBRIC_GITHUB_PAT   0   256  "GitHub PAT for rubric repo management"
 
   # Guard against unexpected RBRA_ variables not in enrollment
   buv_scope_sentinel RBRA RBRA_
@@ -69,6 +73,12 @@ zrbra_enforce() {
   # Private key must contain PEM key material
   [[ "${RBRA_PRIVATE_KEY}" =~ BEGIN ]] \
     || buc_die "RBRA_PRIVATE_KEY does not contain PEM key material"
+
+  # GitHub PAT format check (optional — only validate if non-empty)
+  if test -n "${RBRA_RUBRIC_GITHUB_PAT}"; then
+    [[ "${RBRA_RUBRIC_GITHUB_PAT}" =~ ^(ghp_|github_pat_) ]] \
+      || buc_die "RBRA_RUBRIC_GITHUB_PAT must start with 'ghp_' or 'github_pat_' prefix: '${RBRA_RUBRIC_GITHUB_PAT:0:10}...'"
+  fi
 }
 
 # eof

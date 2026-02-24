@@ -647,7 +647,7 @@ rbgp_depot_create() {
   test -n "${z_project_number}" || buc_die "Project number is empty"
 
   buc_step 'Enable depot project APIs'
-  local z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis storage iam serviceusage"
+  local z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis developerconnect iam secretmanager serviceusage storage"
   for z_service in ${z_api_services}; do
     rbgu_api_enable "${z_service}" "${z_depot_project_id}" "${z_token}"
   done
@@ -755,6 +755,32 @@ rbgp_depot_create() {
   local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
+  buc_step 'Create Developer Connect connection (PENDING state)'
+  local z_gdc_connection_name="rbw-${z_depot_name}-github"
+  local z_gdc_parent="projects/${z_depot_project_id}/locations/${z_region}"
+  local z_gdc_create_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/${z_gdc_parent}/connections?connectionId=${z_gdc_connection_name}"
+  local z_gdc_create_body="${BURD_TEMP_DIR}/rbgp_gdc_connection.json"
+
+  jq -n '{githubConfig: {githubApp: "DEVELOPER_CONNECT"}}' > "${z_gdc_create_body}" \
+    || buc_die "Failed to build Developer Connect connection body"
+
+  rbgu_http_json_lro_ok \
+    "Create Developer Connect connection" \
+    "${z_token}" \
+    "${z_gdc_create_url}" \
+    "depot_gdc_create" \
+    "${z_gdc_create_body}" \
+    ".name" \
+    "${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}" \
+    "${RBGC_OP_PREFIX_GLOBAL}" \
+    "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
+    "${RBGC_MAX_CONSISTENCY_SEC}"
+
+  # Verify connection exists in pending state
+  local z_gdc_get_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/${z_gdc_parent}/connections/${z_gdc_connection_name}"
+  rbgu_http_json "GET" "${z_gdc_get_url}" "${z_token}" "depot_gdc_verify"
+  rbgu_http_require_ok "Verify Developer Connect connection" "depot_gdc_verify"
+
   buc_step 'Update depot tracking'
   zrbgp_depot_list_update || buc_die "Failed to update depot tracking after creation"
 
@@ -765,8 +791,11 @@ rbgp_depot_create() {
   buc_info "  RBRR_DEPOT_PROJECT_ID=${z_depot_project_id}"
   buc_info "  RBRR_GCP_REGION=${z_region}"
   buc_info "  RBRR_GAR_REPOSITORY=${z_repository_name}"
+  buc_info "  RBRR_GDC_CONNECTION_NAME=${z_gdc_connection_name}"
+  buc_info "  RBRR_GDC_REGION=${z_region}"
   buc_info "Mason service account: ${z_mason_sa_email}"
-  buc_info "Depot ready for Governor creation"
+  buc_info "Developer Connect connection '${z_gdc_connection_name}' created in PENDING state"
+  buc_info "Next: rbgm_depot_initialize to complete GitHub OAuth authorization"
 }
 
 rbgp_depot_destroy() {
