@@ -13,7 +13,7 @@ Arguments: $ARGUMENTS (optional Firemark to select specific heat)
 
 Run:
 ```bash
-./tt/vvw-r.RunVVX.sh jjx_show $ARGUMENTS --remaining
+./tt/vvw-r.RunVVX.sh jjx_show $ARGUMENTS --detail --remaining
 ```
 
 If $ARGUMENTS is empty, show defaults to the newest racing heat.
@@ -30,8 +30,6 @@ If heat status is "stabled", note: "⚠ This heat is stabled (paused). Use `/jjc
 
 Summarize progress:
 - Complete: X | Abandoned: Y | Remaining: Z (rough: A, bridled: B)
-
-If user needs full dockets or paddock content, they can request it or use `jjx_show --full`.
 
 ## Step 3: Enter planning mode
 
