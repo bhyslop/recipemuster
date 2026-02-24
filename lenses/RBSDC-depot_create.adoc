@@ -63,7 +63,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[pr
 valid numeric project number after extracting from name
 
 . *Enable Depot Project APIs*:
-.. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `storage`, `iam`, `serviceusage`]:
+.. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `developerconnect`, `iam`, `secretmanager`, `serviceusage`, `storage`]:
 ... Execute
 {rbtoe_api_enable}
 with service name and `«DEPOT_PROJECT_ID»`
@@ -140,6 +140,24 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 .. {rbbc_require}
 IAM binding successful (enables Cloud Build to execute as Mason)
 
+. *Create Developer Connect Connection*:
+.. NOTE: The connection is created in PENDING state. The
+{at_operator}
+completes GitHub OAuth authorization later via
+{rbtgo_depot_initialize}.
+.. Construct connection name: `rbw-«INPUT_DEPOT_NAME»-github`
+.. {rbbc_call}
+link:https://cloud.google.com/developer-connect/docs/reference/rest/v1/projects.locations.connections/create[developerconnect.connections.create] with:
+... parent: `projects/«DEPOT_PROJECT_ID»/locations/«INPUT_REGION»`
+... connectionId: `rbw-«INPUT_DEPOT_NAME»-github`
+... body: `{"githubConfig": {"githubApp": "DEVELOPER_CONNECT"}}`
+.. {rbbc_await}
+returned {gcp_lro}
+.. {rbbc_store}
+`«GDC_CONNECTION_NAME»` as `rbw-«INPUT_DEPOT_NAME»-github`
+.. {rbbc_require}
+connection exists (HTTP 200 on GET) with `installationState.stage` of `PENDING_CREATE_APP` or similar pending state
+
 // ⟦axs_outputs⟧
 . *Display Depot Configuration*:
 .. {rbbc_show}
@@ -149,12 +167,16 @@ required RBRR configuration values:
 ... `RBRR_DEPOT_PROJECT_ID=«DEPOT_PROJECT_ID»`
 ... `RBRR_GCP_REGION=«INPUT_REGION»`
 ... `RBRR_GAR_REPOSITORY=«GAR_REPOSITORY»`
+... `RBRR_GDC_CONNECTION_NAME=«GDC_CONNECTION_NAME»`
+... `RBRR_GDC_REGION=«INPUT_REGION»`
 .. {rbbc_show}
 Mason service account: `«MASON_SERVICE_ACCOUNT»`
 .. {rbbc_show}
+Developer Connect connection `«GDC_CONNECTION_NAME»` created in PENDING state
+.. {rbbc_show}
 depot ready for
-{rbtr_governor}
-creation
+{rbtgo_depot_initialize}
+to complete GitHub OAuth authorization
 
 . *Update Depot Tracking*:
 .. Execute
@@ -162,4 +184,8 @@ creation
 to refresh depot project tracking
 
 // ⟦axs_completion⟧
-Successful execution creates depot infrastructure with configured build bucket, container repository, and Mason service account ready for governor creation.
+Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and Developer Connect connection (PENDING state) ready for
+{rbtgo_depot_initialize}
+and
+{rbtr_governor}
+creation.

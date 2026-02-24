@@ -1,0 +1,127 @@
+The
+{at_operator}
+completes one-time depot initialization after
+{rbtgo_depot_create}
+has provisioned infrastructure.
+This procedure validates the
+{rbra_rubric_github_pat}
+for mini-repo management and completes the GitHub OAuth authorization for the
+{rbtgi_source_connection}
+created by
+{rbtgo_depot_create}
+in PENDING state.
+
+This procedure is idempotent — safe to re-run.
+Steps already complete (PAT already valid, connection already COMPLETE) are skipped.
+
+// ⟦axs_inputs axd_none⟧
+
+// ⟦axs_preconditions⟧
+
+* {rbtgi_depot}
+exists (completed
+{rbtgo_depot_create})
+* {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in RBRR
+* {rbrr_director_rbra_file} contains {rbra_rubric_github_pat}
+* Operator has browser access for GitHub OAuth authorization
+
+// ⟦axs_behavior⟧
+
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+
+. *Load GitHub PAT*:
+.. {rbbc_call}
+{rbtoe_rbra_load}
+for
+{rbrr_director_rbra_file}
+.. {rbbc_store}
+`«GITHUB_PAT»` from {rbra_rubric_github_pat}
+.. If `«GITHUB_PAT»` is empty:
+... {rbbc_show}
+"RBRA_RUBRIC_GITHUB_PAT is not set in Director RBRA file"
+... {rbbc_show}
+guidance: "Create a GitHub fine-grained PAT at https://github.com/settings/personal-access-tokens/new with Repository permissions: Contents (Read and write), Administration (Read and write). Scope to the organization that will host vessel mini-repos."
+... {rbbc_fatal}
+"Set RBRA_RUBRIC_GITHUB_PAT in Director RBRA file and re-run"
+
+. *Validate GitHub PAT*:
+.. {rbbc_call}
+link:https://docs.github.com/en/rest/users/users#get-the-authenticated-user[GET /user] via `https://api.github.com/user` with header `Authorization: Bearer «GITHUB_PAT»`
+.. If HTTP 401:
+... {rbbc_fatal}
+"GitHub PAT is invalid or expired — regenerate and update Director RBRA file"
+.. {rbbc_store}
+`«GITHUB_USER»` from response `.login`
+.. {rbbc_show}
+"GitHub PAT valid for user: «GITHUB_USER»"
+
+. *Check Developer Connect Connection Status*:
+.. Construct connection path: `projects/{rbrr_depot_project_id}/locations/{rbrr_gdc_region}/connections/{rbrr_gdc_connection_name}`
+.. {rbbc_call}
+link:https://cloud.google.com/developer-connect/docs/reference/rest/v1/projects.locations.connections/get[developerconnect.connections.get] for `«CONNECTION_PATH»`
+.. {rbbc_require}
+HTTP 200 — connection exists
+.. {rbbc_store}
+`«CONNECTION_STAGE»` from `.installationState.stage`
+.. If `«CONNECTION_STAGE»` is `COMPLETE`:
+... {rbbc_show}
+"Developer Connect connection already active — skipping OAuth step"
+... Go to step 7
+
+. *Guide GitHub OAuth Authorization*:
+.. {rbbc_store}
+`«ACTION_URI»` from `.installationState.actionUri` of the connection response
+.. {rbbc_require}
+`«ACTION_URI»` is present and non-empty
+.. {rbbc_show}
+"Developer Connect connection requires GitHub OAuth authorization"
+.. {rbbc_show}
+"Open this URL in your browser to authorize the Google Developer Connect app:"
+.. {rbbc_show}
+`«ACTION_URI»`
+.. {rbbc_show}
+"After clicking 'Authorize' on the GitHub consent page, return here and press Enter"
+.. Wait for operator confirmation
+
+. *Poll Connection Until Active*:
+.. {rbbc_poll}
+link:https://cloud.google.com/developer-connect/docs/reference/rest/v1/projects.locations.connections/get[developerconnect.connections.get] for `«CONNECTION_PATH»`
+.. Extract `.installationState.stage` from each response
+.. Poll at `RBGC_EVENTUAL_CONSISTENCY_SEC` intervals until stage reaches `COMPLETE` or `RBGC_MAX_CONSISTENCY_SEC` timeout
+.. {rbbc_require}
+`installationState.stage` is `COMPLETE`
+.. {rbbc_fatal}
+if timeout: "Developer Connect OAuth did not complete — re-open the authorization URI and try again"
+
+. *Final Validation*:
+.. {rbbc_show}
+"Running final validation..."
+.. Verify GitHub PAT: repeat GET /user call — {rbbc_require} HTTP 200
+.. Verify Developer Connect: repeat connections.get call — {rbbc_require} `installationState.stage` is `COMPLETE`
+.. {rbbc_show}
+"Depot initialization complete"
+
+// ⟦axs_outputs⟧
+
+The outputs of depot initialization are:
+
+- Validated {rbra_rubric_github_pat} — confirmed working against GitHub API
+- Active {rbtgi_source_connection} — `installationState.stage` is `COMPLETE`
+- OAuth token automatically stored in Secret Manager (managed by Developer Connect, not by operator)
+
+// ⟦axs_completion⟧
+
+Successful execution confirms the depot is fully initialized for
+{rbtgo_rubric_inscribe}
+operations.
+The
+{rbra_rubric_github_pat}
+enables mini-repo management and the
+{rbtgi_source_connection}
+enables Cloud Build to access vessel mini-repos.
+Proceed to
+{rbtgo_rubric_inscribe}
+to set up per-vessel build infrastructure.

@@ -710,6 +710,18 @@ Creates depot infrastructure (project, bucket, repository, Mason service account
 
 include::RBSDC-depot_create.adoc[]
 
+[[rbtgo_depot_initialize]]
+// ⟦axl_voices axo_guide axe_human_guide⟧
+=== {rbtgo_depot_initialize}
+
+Completes one-time depot initialization: validates the
+{rbra_rubric_github_pat}
+and guides the
+{at_operator}
+through Developer Connect GitHub OAuth authorization.
+
+include::RBSDN-depot_initialize.adoc[]
+
 [[rbtgo_depot_destroy]]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_depot_destroy}
@@ -756,9 +768,13 @@ include::RBSDI-director_create.adoc[]
 // ⟦axl_voices axo_guide axe_human_guide⟧
 === {rbtgo_gdc_establish}
 
-Establishes the
+Legacy reference for
 {rbtgi_source_connection}
-by walking the operator through the Developer Connect OAuth browser authorization flow.
+establishment.
+This operation has been split: connection creation is automated in
+{rbtgo_depot_create},
+OAuth authorization is guided by
+{rbtgo_depot_initialize}.
 
 include::RBSGD-gdc_establish.adoc[]
 
@@ -1267,8 +1283,10 @@ Records build inputs, environment, and outputs as a cryptographically signed att
 // ⟦axl_voices axig_developer_connect⟧
 {rbtgi_source_connection}::
 The Developer Connect connection providing an OAuth-authenticated bridge from GCP to a GitHub organization.
-One per project. Established manually via
-{rbtgo_gdc_establish}.
+One per project. Created automatically by
+{rbtgo_depot_create}
+in PENDING state, then activated via
+{rbtgo_depot_initialize}.
 
 [[rbtgi_source_link]]
 // ⟦axl_voices axig_repo_link⟧

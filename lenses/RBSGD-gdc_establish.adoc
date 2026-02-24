@@ -1,99 +1,49 @@
-The
-{at_operator}
-performs one-time manual setup to establish the
-{rbtgi_source_connection}
-linking GCP to GitHub via Developer Connect.
-Developer Connect uses an OAuth GitHub App — no GitHub PAT is required.
-This procedure creates the connection but does NOT create per-vessel
-{rbtgi_source_link}
-bindings or build triggers — those are created by
-{rbtgo_rubric_inscribe}.
+NOTE: This operation has been split into two steps:
+
+* *Connection creation* — automated within
+{rbtgo_depot_create}.
+The Developer Connect connection is created in PENDING state as part of depot provisioning.
+
+* *OAuth authorization* — guided by
+{rbtgo_depot_initialize}.
+The operator opens the GitHub OAuth authorization URI in a browser and completes the consent flow.
+The procedure also validates the
+{rbra_rubric_github_pat}
+required for mini-repo management.
+
+This standalone guide is retained for reference.
+New installations should follow the
+{rbtgo_depot_create}
+then
+{rbtgo_depot_initialize}
+sequence.
 
 // ⟦axs_inputs axd_none⟧
 
 // ⟦axs_preconditions⟧
 
-* Google Cloud project exists with billing enabled ({rbrr_depot_project_id})
-* Developer Connect API enabled: `developerconnect.googleapis.com`
-* Secret Manager API enabled: `secretmanager.googleapis.com`
-* Operator has `Developer Connect Admin` IAM role on depot project
-* GitHub account has owner or admin access on the main repository
+* {rbtgi_depot}
+exists (completed
+{rbtgo_depot_create})
+with Developer Connect connection in PENDING state
+* {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in RBRR
 
 // ⟦axs_behavior⟧
 
-. *Enable Required APIs*:
-.. Using an authenticated gcloud session or Console:
-... Enable Developer Connect API
-... Enable Secret Manager API (Developer Connect stores OAuth token here)
+. See
+{rbtgo_depot_initialize}
+for the complete procedure.
 
-. *Create Developer Connect Connection*:
-.. Run:
-+
-----
-gcloud developer-connect connections create CONNECTION_NAME \
-    --location=REGION \
-    --github-config-app=DEVELOPER-CONNECT
-----
-+
-.. Replace `CONNECTION_NAME` with chosen name (e.g., `rbw-github-connection`)
-.. Replace `REGION` with Developer Connect region (e.g., `us-central1`)
-.. The connection is created in a *pending* state — OAuth authorization is not yet complete
-
-. *Complete GitHub OAuth Authorization*:
-.. Retrieve the authorization URI:
-+
-----
-gcloud developer-connect connections describe CONNECTION_NAME \
-    --location=REGION \
-    --format="value(installationState.actionUri)"
-----
-+
-.. Open the returned URI in a browser
-.. GitHub presents the standard OAuth authorization page for the "Google Developer Connect" app
-.. Click *Authorize* to grant access
-.. GitHub redirects back to Google; Developer Connect stores the OAuth token as a Secret Manager secret
-
-. *Verify Connection Is Active*:
-.. Poll until `installationState.stage` reaches `COMPLETE`:
-+
-----
-gcloud developer-connect connections describe CONNECTION_NAME \
-    --location=REGION \
-    --format="value(installationState.stage)"
-----
-+
-.. Expected output: `COMPLETE`
-.. If still `PENDING_USER_OAUTH` or `PENDING_INSTALL_APP`, re-open the `actionUri`
-
-. *Record Resource Names in RBRR*:
-.. Update `rbrr.env` with the actual values:
-... {rbrr_gdc_connection_name} = the CONNECTION_NAME used in step 2
-... {rbrr_gdc_region} = the REGION used in step 2
-.. These are short names, not full resource paths — the Foundry constructs full paths from
-   `RBRR_DEPOT_PROJECT_ID` + region + connection name
-.. Per-vessel
-{rbtgi_source_link}
-bindings are created later by
-{rbtgo_rubric_inscribe}
-
-. *Validate via REST API Health Check*:
-.. Verify the connection is healthy using curl (consistent with Foundry's REST-only pattern):
-+
-----
-curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-  "https://developerconnect.googleapis.com/v1/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GDC_REGION}/connections/${RBRR_GDC_CONNECTION_NAME}" \
-  | jq '.installationState.stage'
-----
-+
-.. Expected: `"COMPLETE"`
 // ⟦axs_outputs⟧
 
 The outputs of GDC establishment are:
 
 - {rbrr_gdc_connection_name} — the
 {rbtgi_source_connection}
-resource name
-- {rbrr_gdc_region} — regional location of the connection
+resource name (set by
+{rbtgo_depot_create})
+- {rbrr_gdc_region} — regional location of the connection (set by
+{rbtgo_depot_create})
 - OAuth token automatically stored in Secret Manager (managed by Developer Connect, not by operator)
 
 Full resource path constructed as:
