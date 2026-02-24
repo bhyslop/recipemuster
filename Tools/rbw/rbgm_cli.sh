@@ -37,6 +37,9 @@ zrbgm_furnish() {
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
   source "${RBCC_rbrr_file}"
   source "${z_rbw_kit_dir}/rbrp_regime.sh"
+  source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
+  source "${z_rbw_kit_dir}/rbgu_Utility.sh"
+  source "${z_rbw_kit_dir}/rbra_regime.sh"
   source "${z_rbw_kit_dir}/rbgm_ManualProcedures.sh"
 
   zbuv_kindle
@@ -51,6 +54,8 @@ zrbgm_furnish() {
   zrbrp_kindle
   zrbrp_enforce
 
+  zrbgo_kindle
+  zrbgu_kindle
   zrbgm_kindle
 }
 

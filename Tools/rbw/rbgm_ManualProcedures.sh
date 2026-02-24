@@ -479,105 +479,148 @@ rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   buc_success "Manual setup procedure displayed"
 }
 
-rbgm_gdc_establish() {
+rbgm_depot_initialize() {
   zrbgm_sentinel
 
-  buc_doc_brief "Display the manual Developer Connect establishment procedure for GitHub integration"
+  buc_doc_brief "Validate GitHub PAT and complete Developer Connect OAuth authorization"
   buc_doc_shown || return 0
 
+  local z_project="${RBRR_DEPOT_PROJECT_ID}"
   local z_gdc_conn="${RBRR_GDC_CONNECTION_NAME}"
   local z_gdc_region="${RBRR_GDC_REGION}"
-  local z_project="${RBRR_DEPOT_PROJECT_ID}"
-  local z_api_base="https://developerconnect.googleapis.com/v1"
-  local z_conn_path="projects/${z_project}/locations/${z_gdc_region}/connections/${z_gdc_conn}"
+  local z_director_rbra="${RBRR_DIRECTOR_RBRA_FILE}"
 
-  bug_section  "Manual Developer Connect Establishment Procedure"
-  bug_t        "One-time setup to link the main GitHub repository to Google Cloud Build"
-  bug_t        "via Developer Connect. Uses OAuth GitHub App — no GitHub PAT required."
-  bug_t        "This creates the connection and repository link; triggers are created separately."
-  bug_e
-  bug_section  "Key:"
-  bug_tu       "   Magenta text refers to " "precise words you see on the web page."
-  bug_tc       "   Cyan text is " "something you might copy from here."
-  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
-  bug_e
-  bug_section  "0. Confirm Regime Configuration:"
-  bug_tc       "   RBRR_DEPOT_PROJECT_ID:    " "${z_project}"
-  bug_tc       "   RBRR_GDC_CONNECTION_NAME: " "${z_gdc_conn}"
-  bug_tc       "   RBRR_GDC_REGION:          " "${z_gdc_region}"
-  bug_e
-  if [ "${z_gdc_conn}" = "PLACEHOLDER" ]; then
-    bug_critical "PLACEHOLDER values detected — choose real names before proceeding"
-    bug_t        "   Connection names must be lowercase alphanumeric with hyphens."
-    bug_tc       "   Suggested connection name: " "rbw-github-connection"
-    bug_t        "   Update rbrr.env and re-run this procedure."
+  buc_step 'Authenticate as Director'
+  test -f "${z_director_rbra}" || buc_die "Director RBRA file not found: ${z_director_rbra}"
+  source "${z_director_rbra}" || buc_die "Failed to source Director RBRA: ${z_director_rbra}"
+  zrbra_kindle
+  zrbra_enforce
+
+  buc_step 'Load GitHub PAT'
+  local z_github_pat="${RBRA_RUBRIC_GITHUB_PAT:-}"
+  if test -z "${z_github_pat}"; then
+    buc_info ""
+    buc_info "RBRA_RUBRIC_GITHUB_PAT is not set in Director RBRA file."
+    buc_info ""
+    bug_section "Create a GitHub Fine-Grained PAT:"
+    bug_link     "   1. Go to: " "GitHub Personal Access Tokens" "https://github.com/settings/personal-access-tokens/new"
+    bug_t        "   2. Configure:"
+    bug_tc       "      - Token name: " "recipebottle-rubric"
+    bug_t        "      - Expiration: choose appropriate duration"
+    bug_t        "      - Resource owner: your GitHub organization"
+    bug_tu       "      - Repository access: " "All repositories" " (or select the org)"
+    bug_t        "      - Repository permissions:"
+    bug_tc       "        Contents: " "Read and write"
+    bug_tc       "        Administration: " "Read and write"
+    bug_tu       "   3. Click " "Generate token"
+    bug_t        "   4. Copy the token and add to Director RBRA file:"
+    bug_tc       "      RBRA_RUBRIC_GITHUB_PAT=" "ghp_xxxxxxxxxxxxxxxxxxxx"
     bug_e
+    buc_die "Set RBRA_RUBRIC_GITHUB_PAT in Director RBRA file and re-run"
   fi
-  bug_section  "1. Preconditions:"
-  bug_t        "   Ensure the following before proceeding:"
-  bug_tu       "   - Google Cloud project " "${z_project}" " exists with billing enabled"
-  bug_t        "   - You have Owner or Editor role on the project"
-  bug_t        "   - You have owner or admin access on the GitHub repository"
-  bug_e
-  bug_section  "2. Enable Required APIs:"
-  bug_link     "   Go to: " "APIs & Services" "https://console.cloud.google.com/apis/dashboard?project=${z_project}"
-  bug_tu       "   1. Click " "+ ENABLE APIS AND SERVICES"
-  bug_t        "   2. Search for and enable:"
-  bug_tc       "      - " "Developer Connect API"
-  bug_tc       "      - " "Secret Manager API"
-  bug_t        "   (Secret Manager stores the OAuth token that Developer Connect uses)"
-  bug_e
-  bug_section  "3. Create Developer Connect Connection:"
-  bug_t        "   Run in an authenticated gcloud session:"
-  bug_c        "   gcloud developer-connect connections create ${z_gdc_conn} \\"
-  bug_c        "       --location=${z_gdc_region} \\"
-  bug_c        "       --github-config-app=DEVELOPER-CONNECT"
-  bug_e
-  bug_t        "   The connection is created in a pending state — OAuth is not yet complete."
-  bug_e
-  bug_section  "4. Complete GitHub OAuth Authorization:"
-  bug_t        "   Retrieve the authorization URI:"
-  bug_c        "   gcloud developer-connect connections describe ${z_gdc_conn} \\"
-  bug_c        "       --location=${z_gdc_region} \\"
-  bug_c        "       --format=\"value(installationState.actionUri)\""
-  bug_e
-  bug_t        "   1. Copy the returned URI and open it in a browser"
-  bug_tu       "   2. GitHub shows the OAuth authorization page for " "Google Developer Connect"
-  bug_tu       "   3. Click " "Authorize"
-  bug_t        "   4. GitHub redirects back to Google; OAuth token stored in Secret Manager"
-  bug_e
-  bug_section  "5. Verify Connection Is Active:"
-  bug_t        "   Poll until installationState.stage reaches COMPLETE:"
-  bug_c        "   gcloud developer-connect connections describe ${z_gdc_conn} \\"
-  bug_c        "       --location=${z_gdc_region} \\"
-  bug_c        "       --format=\"value(installationState.stage)\""
-  bug_e
-  bug_tc       "   Expected output: " "COMPLETE"
-  bug_tut      "   If still " "PENDING_USER_OAUTH" " or PENDING_INSTALL_APP, re-open the actionUri from step 4"
-  bug_e
-  bug_section  "6. Record Resource Names in RBRR:"
-  bug_t        "   Update rbrr.env with the actual values used above:"
-  bug_tc       "   RBRR_GDC_CONNECTION_NAME=" "${z_gdc_conn}"
-  bug_tc       "   RBRR_GDC_REGION="          "${z_gdc_region}"
-  bug_t        "   (If you used the suggested names and pre-configured rbrr.env, these are already set)"
-  bug_t        "   Per-vessel repo links are created later by inscribe — not configured here."
-  bug_e
-  bug_section  "7. Validate via REST API Health Check:"
-  bug_t        "   Verify the connection is healthy:"
-  bug_c        "   curl -s -H \"Authorization: Bearer \\$(gcloud auth print-access-token)\" \\"
-  bug_c        "     \"${z_api_base}/${z_conn_path}\" \\"
-  bug_c        "     | jq '.installationState.stage'"
-  bug_e
-  bug_tc       "   Expected: " "\"COMPLETE\""
-  bug_e
-  bug_section  "8. Verify Regime Smoke Test:"
-  bug_t        "   Run the regime smoke test to confirm RBRR values pass validation:"
-  bug_c        "   ./tt/rbw-trg.TestRegimeSmoke.sh"
-  bug_e
-  bug_tc       "   Expected: " "all tests pass"
-  bug_e
 
-  buc_success "Developer Connect establishment procedure displayed"
+  buc_step 'Validate GitHub PAT'
+  local z_github_response="${BURD_TEMP_DIR}/rbgm_github_user.json"
+  local z_github_code="${BURD_TEMP_DIR}/rbgm_github_user_code.txt"
+  curl -s -o "${z_github_response}" -w '%{http_code}' \
+    -H "Authorization: Bearer ${z_github_pat}" \
+    -H "Accept: application/vnd.github+json" \
+    "https://api.github.com/user" > "${z_github_code}" 2>/dev/null
+
+  local z_gh_code
+  z_gh_code=$(cat "${z_github_code}") || buc_die "Failed to read GitHub response code"
+  if [ "${z_gh_code}" != "200" ]; then
+    buc_die "GitHub PAT is invalid or expired (HTTP ${z_gh_code}) — regenerate and update Director RBRA file"
+  fi
+
+  local z_github_user
+  z_github_user=$(jq -r '.login // "unknown"' "${z_github_response}") || buc_die "Failed to parse GitHub user"
+  buc_info "GitHub PAT valid for user: ${z_github_user}"
+
+  buc_step 'Check Developer Connect connection status'
+  local z_token
+  z_token=$(rbgo_get_token_capture "${z_director_rbra}") || buc_die "Failed to get Director OAuth token"
+
+  local z_conn_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/projects/${z_project}/locations/${z_gdc_region}/connections/${z_gdc_conn}"
+  rbgu_http_json "GET" "${z_conn_url}" "${z_token}" "depot_init_conn_get"
+  rbgu_http_require_ok "Get Developer Connect connection" "depot_init_conn_get"
+
+  local z_stage
+  z_stage=$(rbgu_json_field_capture "depot_init_conn_get" '.installationState.stage // "UNKNOWN"') \
+    || buc_die "Failed to parse connection stage"
+
+  if [ "${z_stage}" = "COMPLETE" ]; then
+    buc_info "Developer Connect connection already active — skipping OAuth step"
+  else
+    buc_step 'Guide GitHub OAuth authorization'
+    local z_action_uri
+    z_action_uri=$(rbgu_json_field_capture "depot_init_conn_get" '.installationState.actionUri // ""') \
+      || buc_die "Failed to parse authorization URI"
+    test -n "${z_action_uri}" || buc_die "No authorization URI available — connection stage: ${z_stage}"
+
+    buc_info ""
+    buc_info "Developer Connect connection requires GitHub OAuth authorization."
+    buc_info ""
+    bug_section "Complete GitHub OAuth:"
+    bug_t        "   Open this URL in your browser to authorize the Google Developer Connect app:"
+    bug_e
+    bug_link     "   " "Authorize Developer Connect" "${z_action_uri}"
+    bug_e
+    bug_tu       "   1. GitHub shows the OAuth authorization page for " "Google Developer Connect"
+    bug_tu       "   2. Click " "Authorize"
+    bug_t        "   3. GitHub redirects back to Google; OAuth token stored in Secret Manager"
+    bug_e
+    buc_info "After clicking 'Authorize', press Enter to continue..."
+    read -r
+
+    buc_step 'Poll connection until active'
+    local z_poll_count=0
+    local z_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
+
+    while true; do
+      z_token=$(rbgo_get_token_capture "${z_director_rbra}") || buc_die "Failed to refresh OAuth token"
+      rbgu_http_json "GET" "${z_conn_url}" "${z_token}" "depot_init_conn_poll"
+      rbgu_http_require_ok "Poll Developer Connect connection" "depot_init_conn_poll"
+
+      z_stage=$(rbgu_json_field_capture "depot_init_conn_poll" '.installationState.stage // "UNKNOWN"') \
+        || buc_die "Failed to parse connection stage"
+
+      if [ "${z_stage}" = "COMPLETE" ]; then
+        buc_info "Developer Connect connection is now active"
+        break
+      fi
+
+      z_poll_count=$((z_poll_count + 1))
+      if [ "${z_poll_count}" -ge "${z_max_polls}" ]; then
+        buc_die "Developer Connect OAuth did not complete after ${RBGC_MAX_CONSISTENCY_SEC}s — re-open the authorization URI and try again"
+      fi
+
+      buc_log_args "Connection stage: ${z_stage} (poll ${z_poll_count}/${z_max_polls})"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    done
+  fi
+
+  buc_step 'Final validation'
+  # Re-verify GitHub PAT
+  curl -s -o "${z_github_response}" -w '%{http_code}' \
+    -H "Authorization: Bearer ${z_github_pat}" \
+    -H "Accept: application/vnd.github+json" \
+    "https://api.github.com/user" > "${z_github_code}" 2>/dev/null
+  z_gh_code=$(cat "${z_github_code}") || buc_die "Failed to read GitHub response code"
+  test "${z_gh_code}" = "200" || buc_die "GitHub PAT validation failed on final check (HTTP ${z_gh_code})"
+
+  # Re-verify connection
+  z_token=$(rbgo_get_token_capture "${z_director_rbra}") || buc_die "Failed to refresh OAuth token"
+  rbgu_http_json "GET" "${z_conn_url}" "${z_token}" "depot_init_conn_final"
+  rbgu_http_require_ok "Final Developer Connect check" "depot_init_conn_final"
+  z_stage=$(rbgu_json_field_capture "depot_init_conn_final" '.installationState.stage // "UNKNOWN"') \
+    || buc_die "Failed to parse connection stage"
+  test "${z_stage}" = "COMPLETE" || buc_die "Developer Connect connection not COMPLETE: ${z_stage}"
+
+  buc_success "Depot initialization complete"
+  buc_info "GitHub PAT: valid (user: ${z_github_user})"
+  buc_info "Developer Connect: active (${z_gdc_conn})"
+  buc_info "Ready for rubric inscribe operations"
 }
 
 
