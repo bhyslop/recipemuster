@@ -2,7 +2,7 @@
 
 ## Current Design
 
-**Authoritative**: `Memos/memo-20260224-jjk-v4-gaits.md` — Gaits, branches, and the breeze pipeline. Decisions from 2026-02-24 design session (Opus).
+**Authoritative**: `Memos/memo-20260224-jjk-v4-gaits.md` — Gaits, branches, and the breeze pipeline. Decisions from cchat-20260224-gaits-and-breezes (Opus).
 
 Key decisions: no leg layer, branches instead of worktrees, composable gaits in gallops registry, three-phase pipeline (school → breeze → prance), warrant as LLM-to-LLM communication, bridled/quarter/chalk eliminated.
 
