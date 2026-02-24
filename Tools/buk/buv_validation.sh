@@ -78,8 +78,8 @@ zbuv_kindle() {
   ZBUV_CURRENT_GATE_VAL=""
 
   # Check capture output constants
-  ZBUV_CHECK_GATED="gated"
-  ZBUV_CHECK_FAIL="fail:"
+  readonly ZBUV_CHECK_GATED="gated"
+  readonly ZBUV_CHECK_FAIL="fail:"
 
   ZBUV_KINDLED=1
 }

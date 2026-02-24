@@ -545,20 +545,37 @@ local z_current_group=""
 
 **Why not `local -i`?** `local -i` silently coerces non-integers to 0 — it hides bugs. `local -r` does the opposite — it surfaces mutation bugs loudly. Same flag syntax, opposite safety properties.
 
-#### `readonly VAR=value` — Script-Local Literal Constants
+#### `readonly` — Every Kindle Constant
 
-For values that are true constants within a module (not derived from configuration), use `readonly` at the module level:
+Every variable assigned in a kindle function is a constant. Apply `readonly` to every assignment — whether the value is a literal, computed from other variables, or composed from prior assignments:
 
 ```bash
-# ✅ Module-level literal constants — known at source time
-readonly Z«PREFIX»_API_VERSION="v2"
-readonly Z«PREFIX»_MAX_RETRIES=3
+z«prefix»_kindle() {
+  test -z "${Z«PREFIX»_KINDLED:-}" || buc_die "Module «prefix» already kindled"
 
-# ❌ NEVER in sourceable .env files — the re-source trap
+  # Literal constants
+  readonly Z«PREFIX»_API_VERSION="v2"
+  readonly Z«PREFIX»_MAX_RETRIES=3
+
+  # Computed from already-set values
+  readonly Z«PREFIX»_REGISTRY_HOST="${RBGD_LOCATION}${RBGC_HOST_SUFFIX}"
+  readonly Z«PREFIX»_TEMP_PREFIX="${BURD_TEMP_DIR}/«prefix»_"
+
+  # Composed from prior kindle assignments
+  readonly Z«PREFIX»_ACCEPT_TYPES="${Z«PREFIX»_TYPE_A},${Z«PREFIX»_TYPE_B}"
+
+  Z«PREFIX»_KINDLED=1
+}
+```
+
+If a kindle function uses intermediate variables to build up a result (e.g., composing array elements), the final assignment is still `readonly`. Intermediates that are truly local to the build-up should use `local -r`.
+
+**The re-source trap** — `readonly` belongs in code, never in sourceable `.env` files:
+```bash
+# ❌ NEVER in sourceable .env files
 # If a .env file contains `readonly FOO=bar`, sourcing it a second time
 # (e.g., regime reload, test re-initialization) dies with:
 #   bash: FOO: readonly variable
-# Readonly belongs in code, never in configuration files.
 ```
 
 #### `readonly VAR` — Lock After Enforce

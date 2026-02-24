@@ -42,34 +42,34 @@ zrbi_kindle() {
   test -f "${RBRR_RETRIEVER_RBRA_FILE}"     || buc_die "GAR service env file not found: ${RBRR_RETRIEVER_RBRA_FILE}"
 
   # Module Variables (ZRBI_*)
-  ZRBI_REGISTRY_HOST="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  ZRBI_REGISTRY_PATH="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  ZRBI_REGISTRY_API_BASE="https://${ZRBI_REGISTRY_HOST}/v2/${ZRBI_REGISTRY_PATH}"
-  ZRBI_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
-  ZRBI_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+  readonly ZRBI_REGISTRY_HOST="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  readonly ZRBI_REGISTRY_PATH="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  readonly ZRBI_REGISTRY_API_BASE="https://${ZRBI_REGISTRY_HOST}/v2/${ZRBI_REGISTRY_PATH}"
+  readonly ZRBI_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
+  readonly ZRBI_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   # Media types
-  ZRBI_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
-  ZRBI_MTYPE_OCI="application/vnd.oci.image.index.v1+json"
-  ZRBI_MTYPE_DV2="application/vnd.docker.distribution.manifest.v2+json"
-  ZRBI_MTYPE_OCM="application/vnd.oci.image.manifest.v1+json"
-  ZRBI_ACCEPT_MANIFEST_MTYPES="${ZRBI_MTYPE_DV2},${ZRBI_MTYPE_DLIST},${ZRBI_MTYPE_OCI},${ZRBI_MTYPE_OCM}"
+  readonly ZRBI_MTYPE_DLIST="application/vnd.docker.distribution.manifest.list.v2+json"
+  readonly ZRBI_MTYPE_OCI="application/vnd.oci.image.index.v1+json"
+  readonly ZRBI_MTYPE_DV2="application/vnd.docker.distribution.manifest.v2+json"
+  readonly ZRBI_MTYPE_OCM="application/vnd.oci.image.manifest.v1+json"
+  readonly ZRBI_ACCEPT_MANIFEST_MTYPES="${ZRBI_MTYPE_DV2},${ZRBI_MTYPE_DLIST},${ZRBI_MTYPE_OCI},${ZRBI_MTYPE_OCM}"
 
   # File prefixes for all operations
-  ZRBI_MANIFEST_PREFIX="${BURD_TEMP_DIR}/rbi_manifest_"
-  ZRBI_CONFIG_PREFIX="${BURD_TEMP_DIR}/rbi_config_"
-  ZRBI_DETAIL_PREFIX="${BURD_TEMP_DIR}/rbi_detail_"
-  ZRBI_TOKEN_PREFIX="${BURD_TEMP_DIR}/rbi_token_"
-  ZRBI_TAGS_PREFIX="${BURD_TEMP_DIR}/rbi_tags_"
-  ZRBI_METADATA_PREFIX="${BURD_TEMP_DIR}/rbi_metadata_"
+  readonly ZRBI_MANIFEST_PREFIX="${BURD_TEMP_DIR}/rbi_manifest_"
+  readonly ZRBI_CONFIG_PREFIX="${BURD_TEMP_DIR}/rbi_config_"
+  readonly ZRBI_DETAIL_PREFIX="${BURD_TEMP_DIR}/rbi_detail_"
+  readonly ZRBI_TOKEN_PREFIX="${BURD_TEMP_DIR}/rbi_token_"
+  readonly ZRBI_TAGS_PREFIX="${BURD_TEMP_DIR}/rbi_tags_"
+  readonly ZRBI_METADATA_PREFIX="${BURD_TEMP_DIR}/rbi_metadata_"
 
   # Output files
-  ZRBI_IMAGE_RECORDS_FILE="${BURD_TEMP_DIR}/rbi_IMAGE_RECORDS.json"
-  ZRBI_IMAGE_DETAIL_FILE="${BURD_TEMP_DIR}/rbi_IMAGE_DETAILS.json"
-  ZRBI_IMAGE_STATS_FILE="${BURD_TEMP_DIR}/rbi_IMAGE_STATS.json"
-  ZRBI_FQIN_FILE="${BURD_TEMP_DIR}/rbi_FQIN.txt"
-  ZRBI_TOKEN_FILE="${ZRBI_TOKEN_PREFIX}access.txt"
-  ZRBI_METADATA_ARCHIVE="${BURD_TEMP_DIR}/rbi_metadata.tgz"
+  readonly ZRBI_IMAGE_RECORDS_FILE="${BURD_TEMP_DIR}/rbi_IMAGE_RECORDS.json"
+  readonly ZRBI_IMAGE_DETAIL_FILE="${BURD_TEMP_DIR}/rbi_IMAGE_DETAILS.json"
+  readonly ZRBI_IMAGE_STATS_FILE="${BURD_TEMP_DIR}/rbi_IMAGE_STATS.json"
+  readonly ZRBI_FQIN_FILE="${BURD_TEMP_DIR}/rbi_FQIN.txt"
+  readonly ZRBI_TOKEN_FILE="${ZRBI_TOKEN_PREFIX}access.txt"
+  readonly ZRBI_METADATA_ARCHIVE="${BURD_TEMP_DIR}/rbi_metadata.tgz"
 
   # File index counter
   ZRBI_FILE_INDEX=0
