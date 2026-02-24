@@ -1,5 +1,9 @@
 // ⟦axs_inputs axd_none⟧
 
+// ⟦axs_prerequisites⟧
+. Execute {rbtoe_check_rubric_pat} using {rbtr_governor} RBRA credentials
+. Execute {rbtoe_check_devconnect} to verify {rbtgi_source_connection} authorization
+
 // ⟦axs_behavior⟧
 The
 {rbtr_governor}

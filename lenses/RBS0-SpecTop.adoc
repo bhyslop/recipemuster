@@ -110,6 +110,8 @@
 :rbtgo_rubric_inscribe:          <<rbtgo_rubric_inscribe,rbf_inscribe>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbap_payor_oauth_probe>>
+:rbtoe_check_rubric_pat:          <<rbtoe_check_rubric_pat,Rubric PAT Check>>
+:rbtoe_check_devconnect:          <<rbtoe_check_devconnect,Developer Connect Check>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
 :rbtoe_director_authenticate:     <<rbtoe_director_authenticate,Director Authentication Pattern>>
 :rbtoe_governor_authenticate:     <<rbtoe_governor_authenticate,Governor Authentication Pattern>>
@@ -2754,6 +2756,44 @@ Provides context or expected outcomes without requiring action.
 == Orchestration Patterns
 
 Recipe Bottle orchestration patterns define reusable implementation sequences for system operations.
+
+[[rbtoe_check_rubric_pat]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_check_rubric_pat}::
+A non-interactive gate that validates
+`RBRA_RUBRIC_GITHUB_PAT`
+is present and authentic:
+
+. {rbbc_require} PAT argument is non-empty or {rbbc_fatal} with guidance to set it in the appropriate RBRA file and run {rbtgo_depot_initialize},
+. {rbbc_call} link:https://docs.github.com/en/rest/users/users#get-the-authenticated-user[GET /user] at `https://api.github.com/user` with Bearer token,
+. {rbbc_require} HTTP 200 response or {rbbc_fatal} "PAT is invalid or expired",
+. logs authenticated GitHub username for confirmation.
+
+No side effects.
+Callable from any CLI context via `rbgu_check_rubric_pat`.
+PAT may reside in
+{rbtr_governor}
+RBRA (for depot setup and role creation) or
+{rbtr_director}
+RBRA (for
+{rbtgo_rubric_inscribe}
+operations).
+
+[[rbtoe_check_devconnect]]
+// ⟦axl_voices axo_routine axe_bash_interactive⟧
+{rbtoe_check_devconnect}::
+A non-interactive gate that validates
+{rbtgi_source_connection}
+has completed GitHub OAuth authorization:
+
+. {rbbc_require} OAuth token, project ID, region, and connection name arguments,
+. {rbbc_call} link:https://cloud.google.com/developer-connect/docs/reference/rest/v1/projects.locations.connections/get[connections.get] for the specified connection,
+. {rbbc_require} HTTP 200 response,
+. extracts `.installationState.stage` from response,
+. {rbbc_require} stage equals `COMPLETE` or {rbbc_fatal} with guidance to run {rbtgo_depot_initialize} to complete GitHub OAuth.
+
+No side effects, no polling.
+Callable from any CLI context via `rbgu_check_devconnect`.
 
 [[rbtoe_rbra_generate]]
 // ⟦axl_voices axo_routine axe_bash_interactive⟧

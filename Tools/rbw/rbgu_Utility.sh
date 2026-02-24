@@ -678,5 +678,68 @@ rbgu_rbro_load() {
   buc_log_args "RBRO validation successful"
 }
 
+######################################################################
+# Rubric Infrastructure Checks
+
+rbgu_check_rubric_pat() {
+  zrbgu_sentinel
+
+  local z_pat="${1:-}"
+  test -n "${z_pat}" || buc_die "RBRA_RUBRIC_GITHUB_PAT is empty — set it in the appropriate RBRA file and run rbgm_depot_initialize"
+
+  local z_infix="rubric_pat_check"
+  local z_resp_file="${ZRBGU_PREFIX}${z_infix}_resp.json"
+  local z_code_file="${ZRBGU_PREFIX}${z_infix}_code.txt"
+
+  local z_curl_status=0
+  curl -sS \
+    -H "Authorization: Bearer ${z_pat}" \
+    -H "Accept: application/vnd.github+json" \
+    -o "${z_resp_file}" \
+    -w "%{http_code}" \
+    "https://api.github.com/user" > "${z_code_file}" \
+                                  2>/dev/null \
+    || z_curl_status=$?
+
+  test "${z_curl_status}" -eq 0 || buc_die "GitHub PAT check failed (network/DNS error)"
+
+  local z_code
+  z_code=$(<"${z_code_file}") || buc_die "Failed to read GitHub response code"
+  test "${z_code}" = "200" || buc_die "GitHub PAT is invalid or expired (HTTP ${z_code}) — regenerate and update RBRA file, then run rbgm_depot_initialize"
+
+  local z_user
+  z_user=$(jq -r '.login // "unknown"' "${z_resp_file}") || buc_die "Failed to parse GitHub user response"
+  buc_log_args "GitHub PAT valid for user: ${z_user}"
+}
+
+rbgu_check_devconnect() {
+  zrbgu_sentinel
+
+  local z_token="${1:-}"
+  local z_project="${2:-}"
+  local z_region="${3:-}"
+  local z_connection="${4:-}"
+
+  test -n "${z_token}"      || buc_die "OAuth token required for Developer Connect check"
+  test -n "${z_project}"    || buc_die "Project ID required for Developer Connect check"
+  test -n "${z_region}"     || buc_die "Region required for Developer Connect check"
+  test -n "${z_connection}" || buc_die "Connection name required for Developer Connect check"
+
+  local z_infix="devconnect_check"
+  local z_conn_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/projects/${z_project}/locations/${z_region}/connections/${z_connection}"
+
+  rbgu_http_json "GET" "${z_conn_url}" "${z_token}" "${z_infix}"
+  rbgu_http_require_ok "Developer Connect connection check" "${z_infix}"
+
+  local z_stage
+  z_stage=$(rbgu_json_field_capture "${z_infix}" '.installationState.stage // "UNKNOWN"') \
+    || buc_die "Failed to parse Developer Connect connection stage"
+
+  test "${z_stage}" = "COMPLETE" \
+    || buc_die "Developer Connect connection not authorized (stage: ${z_stage}) — run rbgm_depot_initialize to complete GitHub OAuth"
+
+  buc_log_args "Developer Connect connection active (${z_connection})"
+}
+
 # eof
 

@@ -5,6 +5,10 @@ creates a
 {giam_service_account}
 with build management permissions:
 
+// ⟦axs_prerequisites⟧
+. Execute {rbtoe_check_rubric_pat} using {rbtr_governor} RBRA credentials
+. Execute {rbtoe_check_devconnect} to verify {rbtgi_source_connection} authorization
+
 // ⟦axs_inputs⟧
 . *Validate Input Parameters*:
 .. {rbbc_require}

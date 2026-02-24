@@ -96,6 +96,37 @@ zrbgg_sentinel() {
 }
 
 ######################################################################
+# Rubric infrastructure preflight — sources Governor RBRA, checks PAT + DevConnect
+
+zrbgg_rubric_preflight() {
+  zrbgg_sentinel
+
+  local z_gov_rbra="${RBRR_GOVERNOR_RBRA_FILE}"
+  test -f "${z_gov_rbra}" || buc_die "Governor RBRA file not found: ${z_gov_rbra} — run rbgp_governor_reset"
+
+  if test -z "${ZRBRA_SOURCED:-}"; then
+    source "${BASH_SOURCE[0]%/*}/rbra_regime.sh"
+  fi
+
+  source "${z_gov_rbra}" || buc_die "Failed to source Governor RBRA: ${z_gov_rbra}"
+  zrbra_kindle
+  zrbra_enforce
+
+  rbgu_check_rubric_pat "${RBRA_RUBRIC_GITHUB_PAT:-}"
+
+  local z_token
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get Governor OAuth token for DevConnect check"
+
+  rbgu_check_devconnect \
+    "${z_token}" \
+    "${RBRR_DEPOT_PROJECT_ID}" \
+    "${RBRR_GDC_REGION}" \
+    "${RBRR_GDC_CONNECTION_NAME}"
+
+  buc_log_args "Rubric infrastructure preflight passed"
+}
+
+######################################################################
 # Capture: list required services that are NOT enabled (blank = all enabled)
 zrbgg_required_apis_missing_capture() {
   zrbgg_sentinel
@@ -490,6 +521,9 @@ rbgg_create_retriever() {
   zburd_sentinel
   test -d "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR does not exist: ${BURD_OUTPUT_DIR}"
 
+  buc_step 'Rubric infrastructure preflight'
+  zrbgg_rubric_preflight
+
   local z_account_name="${RBGC_RETRIEVER_PREFIX}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
@@ -534,6 +568,9 @@ rbgg_create_director() {
   test -n "${z_instance}"     || buc_die "Instance name required"
   zburd_sentinel
   test -d "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR does not exist: ${BURD_OUTPUT_DIR}"
+
+  buc_step 'Rubric infrastructure preflight'
+  zrbgg_rubric_preflight
 
   local z_account_name="${RBGC_DIRECTOR_PREFIX}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"

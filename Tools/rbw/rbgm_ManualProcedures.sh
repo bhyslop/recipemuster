@@ -488,11 +488,11 @@ rbgm_depot_initialize() {
   local z_project="${RBRR_DEPOT_PROJECT_ID}"
   local z_gdc_conn="${RBRR_GDC_CONNECTION_NAME}"
   local z_gdc_region="${RBRR_GDC_REGION}"
-  local z_director_rbra="${RBRR_DIRECTOR_RBRA_FILE}"
+  local z_governor_rbra="${RBRR_GOVERNOR_RBRA_FILE}"
 
-  buc_step 'Authenticate as Director'
-  test -f "${z_director_rbra}" || buc_die "Director RBRA file not found: ${z_director_rbra}"
-  source "${z_director_rbra}" || buc_die "Failed to source Director RBRA: ${z_director_rbra}"
+  buc_step 'Authenticate as Governor'
+  test -f "${z_governor_rbra}" || buc_die "Governor RBRA file not found: ${z_governor_rbra} — run rbgp_governor_reset"
+  source "${z_governor_rbra}" || buc_die "Failed to source Governor RBRA: ${z_governor_rbra}"
   zrbra_kindle
   zrbra_enforce
 
@@ -500,7 +500,7 @@ rbgm_depot_initialize() {
   local z_github_pat="${RBRA_RUBRIC_GITHUB_PAT:-}"
   if test -z "${z_github_pat}"; then
     buc_info ""
-    buc_info "RBRA_RUBRIC_GITHUB_PAT is not set in Director RBRA file."
+    buc_info "RBRA_RUBRIC_GITHUB_PAT is not set in Governor RBRA file."
     buc_info ""
     bug_section "Create a GitHub Fine-Grained PAT:"
     bug_link     "   1. Go to: " "GitHub Personal Access Tokens" "https://github.com/settings/personal-access-tokens/new"
@@ -513,10 +513,10 @@ rbgm_depot_initialize() {
     bug_tc       "        Contents: " "Read and write"
     bug_tc       "        Administration: " "Read and write"
     bug_tu       "   3. Click " "Generate token"
-    bug_t        "   4. Copy the token and add to Director RBRA file:"
+    bug_t        "   4. Copy the token and add to Governor RBRA file:"
     bug_tc       "      RBRA_RUBRIC_GITHUB_PAT=" "ghp_xxxxxxxxxxxxxxxxxxxx"
     bug_e
-    buc_die "Set RBRA_RUBRIC_GITHUB_PAT in Director RBRA file and re-run"
+    buc_die "Set RBRA_RUBRIC_GITHUB_PAT in Governor RBRA file and re-run"
   fi
 
   buc_step 'Validate GitHub PAT'
@@ -530,7 +530,7 @@ rbgm_depot_initialize() {
   local z_gh_code
   z_gh_code=$(cat "${z_github_code}") || buc_die "Failed to read GitHub response code"
   if [ "${z_gh_code}" != "200" ]; then
-    buc_die "GitHub PAT is invalid or expired (HTTP ${z_gh_code}) — regenerate and update Director RBRA file"
+    buc_die "GitHub PAT is invalid or expired (HTTP ${z_gh_code}) — regenerate and update Governor RBRA file"
   fi
 
   local z_github_user
@@ -539,7 +539,7 @@ rbgm_depot_initialize() {
 
   buc_step 'Check Developer Connect connection status'
   local z_token
-  z_token=$(rbgo_get_token_capture "${z_director_rbra}") || buc_die "Failed to get Director OAuth token"
+  z_token=$(rbgo_get_token_capture "${z_governor_rbra}") || buc_die "Failed to get Governor OAuth token"
 
   local z_conn_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/projects/${z_project}/locations/${z_gdc_region}/connections/${z_gdc_conn}"
   rbgu_http_json "GET" "${z_conn_url}" "${z_token}" "depot_init_conn_get"
@@ -578,7 +578,7 @@ rbgm_depot_initialize() {
     local z_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
 
     while true; do
-      z_token=$(rbgo_get_token_capture "${z_director_rbra}") || buc_die "Failed to refresh OAuth token"
+      z_token=$(rbgo_get_token_capture "${z_governor_rbra}") || buc_die "Failed to refresh Governor OAuth token"
       rbgu_http_json "GET" "${z_conn_url}" "${z_token}" "depot_init_conn_poll"
       rbgu_http_require_ok "Poll Developer Connect connection" "depot_init_conn_poll"
 
@@ -610,7 +610,7 @@ rbgm_depot_initialize() {
   test "${z_gh_code}" = "200" || buc_die "GitHub PAT validation failed on final check (HTTP ${z_gh_code})"
 
   # Re-verify connection
-  z_token=$(rbgo_get_token_capture "${z_director_rbra}") || buc_die "Failed to refresh OAuth token"
+  z_token=$(rbgo_get_token_capture "${z_governor_rbra}") || buc_die "Failed to refresh Governor OAuth token"
   rbgu_http_json "GET" "${z_conn_url}" "${z_token}" "depot_init_conn_final"
   rbgu_http_require_ok "Final Developer Connect check" "depot_init_conn_final"
   z_stage=$(rbgu_json_field_capture "depot_init_conn_final" '.installationState.stage // "UNKNOWN"') \

@@ -21,14 +21,6 @@
 set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_TOOLS_DIR}/rbw/rbcc_Constants.sh"
-source "${BURD_TOOLS_DIR}/rbw/rbgc_Constants.sh"
-source "${BURD_TOOLS_DIR}/rbw/rbgd_DepotConstants.sh"
-source "${BURD_TOOLS_DIR}/rbw/rbgo_OAuth.sh"
-source "${BURD_TOOLS_DIR}/rbw/rbgu_Utility.sh"
-source "${BURD_TOOLS_DIR}/rbw/rbgi_IAM.sh"
-source "${BURD_TOOLS_DIR}/rbw/rbrr_regime.sh"
-source "${BURD_TOOLS_DIR}/rbw/rbgg_Governor.sh"
 
 zrbgg_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
@@ -40,8 +32,15 @@ zrbgg_furnish() {
   local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbgc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
+  source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
+  source "${z_rbw_kit_dir}/rbgu_Utility.sh"
+  source "${z_rbw_kit_dir}/rbgi_IAM.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
   source "${RBCC_rbrr_file}"
+  source "${z_rbw_kit_dir}/rbgg_Governor.sh"
 
   zbuv_kindle
   zburd_kindle
