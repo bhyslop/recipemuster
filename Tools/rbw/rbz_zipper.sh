@@ -36,10 +36,10 @@ zrbz_kindle() {
 
   # Payor commands
   local z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_CREATE_DEPOT   "rbw-PC" "${z_mod}" "rbgp_depot_create"
-  buz_enroll RBZ_PAYOR_INSTALL  "rbw-PI" "${z_mod}" "rbgp_payor_install"
-  buz_enroll RBZ_DESTROY_DEPOT  "rbw-PD" "${z_mod}" "rbgp_depot_destroy"
-  buz_enroll RBZ_GOVERNOR_RESET "rbw-PG" "${z_mod}" "rbgp_governor_reset"
+  buz_enroll RBZ_CREATE_DEPOT   "rbw-pCD" "${z_mod}" "rbgp_depot_create"
+  buz_enroll RBZ_PAYOR_INSTALL  "rbw-pip" "${z_mod}" "rbgp_payor_install"
+  buz_enroll RBZ_DESTROY_DEPOT  "rbw-pDD" "${z_mod}" "rbgp_depot_destroy"
+  buz_enroll RBZ_GOVERNOR_RESET "rbw-pRG" "${z_mod}" "rbgp_governor_reset"
   # Manual/guide procedures (rbw-g* colophon family → rbgm_cli.sh)
   z_mod="rbgm_cli.sh"
   buz_enroll RBZ_PAYOR_ESTABLISH "rbw-gpe" "${z_mod}" "rbgm_payor_establish"
