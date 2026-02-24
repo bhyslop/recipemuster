@@ -1795,6 +1795,13 @@
         "₢AOAAK": {
           "tacks": [
             {
+              "ts": "260224-0555",
+              "state": "complete",
+              "text": "Interactively modernize rbrs_cli.sh to full BCG compliance.\n\n## Approach\n\n- Work through rbrs_cli.sh with human, applying BCG patterns\n- Keep a running list of every cleanup applied (pattern name + before/after)\n- This list becomes the spec for a follow-on pace that applies the same cleanups to all config regime CLI files\n\n## Acceptance\n\n- rbrs_cli.sh fully BCG-compliant\n- Cleanup list captured (for follow-on pace)\n- Follow-on pace slated with the cleanup list as its docket",
+              "silks": "bcg-modernize-rbrs-cli",
+              "commit": "88a81fb"
+            },
+            {
               "ts": "260217-0750",
               "state": "rough",
               "text": "Interactively modernize rbrs_cli.sh to full BCG compliance.\n\n## Approach\n\n- Work through rbrs_cli.sh with human, applying BCG patterns\n- Keep a running list of every cleanup applied (pattern name + before/after)\n- This list becomes the spec for a follow-on pace that applies the same cleanups to all config regime CLI files\n\n## Acceptance\n\n- rbrs_cli.sh fully BCG-compliant\n- Cleanup list captured (for follow-on pace)\n- Follow-on pace slated with the cleanup list as its docket",
