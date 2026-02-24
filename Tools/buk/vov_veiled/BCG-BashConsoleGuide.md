@@ -85,10 +85,11 @@ A **regime** is a sourced `.env` file containing typed configuration fields — 
 | `buv_*_enroll` calls | kindle | Declare field contracts (type, range, description) |
 | `buv_scope_sentinel` | kindle (last, before KINDLED) | Catch undeclared `PREFIX_*` variables |
 | `z«prefix»_enforce` | regime module | `buv_vet SCOPE` + custom format checks |
+| `readonly` lock | after enforce | Lock enrolled variables against mutation |
 | `*_validate` command | CLI | `buv_report` — explained per-field display |
 | `*_render` command | CLI | `buv_render` — diagnostic dump |
 
-Furnish sequence: kindle → enforce (ironclad gate before any command runs).
+Furnish sequence: kindle → enforce → lock (ironclad gate before any command runs). After enforce succeeds, lock all enrolled `PREFIX_*` variables with `readonly` to prevent accidental mutation by downstream code. Any derived state (e.g., docker env arrays) must be built from validated values after enforce, before or during the lock step.
 
 **Singleton** regimes source config unconditionally in furnish. **Manifold** regimes (multiple instances, e.g. nameplates) source conditionally when a folio identifies the instance.
 
@@ -502,6 +503,84 @@ grep "pattern" <<<"${z_content}"
 
 # Multi-line HERE-strings and HERE-docs prohibited
 ```
+
+### Readonly Patterns
+
+Readonly enforcement makes mutation bugs loud at the point of violation rather than silent cascades downstream. Three patterns at different scopes:
+
+#### `local -r` — Default for Local Variables
+
+Use `local -r` for every local variable that is assigned once and never modified. This is the majority of locals in a typical BCG function.
+
+```bash
+# ✅ Default: readonly locals
+local -r z_filepath="${1:-}"
+local -r z_varname="${z_buv_varname_roll[$z_idx]}"
+local -r z_full_ref="${z_image}@${z_digest}"
+local -r z_content=$(<"${z_file}")    # $(<file) is a builtin — safe on one line
+```
+
+**Four exceptions** where `local` (mutable) is required:
+
+```bash
+# Exception 1: Loop counters
+local z_index=0
+z_index=$((z_index + 1))
+
+# Exception 2: Per-iteration synthesized variables (reassigned each pass)
+local z_manifest_file=""
+for z_spec in "${z_specs[@]}"; do
+  z_manifest_file="${Z_PREFIX}${z_index}_manifest.json"
+  ...
+done
+
+# Exception 3: Two-line capture pattern (readonly would lock empty value)
+local z_token
+z_token=$(zauth_get_token_capture) || buc_die "Failed to capture token"
+
+# Exception 4: Accumulators and state-tracking flags
+local z_any_failed=0
+local z_current_group=""
+```
+
+**Why not `local -i`?** `local -i` silently coerces non-integers to 0 — it hides bugs. `local -r` does the opposite — it surfaces mutation bugs loudly. Same flag syntax, opposite safety properties.
+
+#### `readonly VAR=value` — Script-Local Literal Constants
+
+For values that are true constants within a module (not derived from configuration), use `readonly` at the module level:
+
+```bash
+# ✅ Module-level literal constants — known at source time
+readonly Z«PREFIX»_API_VERSION="v2"
+readonly Z«PREFIX»_MAX_RETRIES=3
+
+# ❌ NEVER in sourceable .env files — the re-source trap
+# If a .env file contains `readonly FOO=bar`, sourcing it a second time
+# (e.g., regime reload, test re-initialization) dies with:
+#   bash: FOO: readonly variable
+# Readonly belongs in code, never in configuration files.
+```
+
+#### `readonly VAR` — Lock After Enforce
+
+For regime variables loaded from `.env` files, lock them *after* validation succeeds. This is the regime archetype's lock step (see Regime Module Archetype above):
+
+```bash
+z«prefix»_enforce() {
+  z«prefix»_sentinel
+  buv_vet «SCOPE»
+  # ... custom format checks ...
+}
+
+# In the lock step (called after enforce succeeds):
+# Lock all enrolled variables — any downstream mutation is now a loud error
+readonly REGI_FIELD_ONE REGI_FIELD_TWO REGI_FIELD_THREE
+
+# Derived state built from validated values:
+Z«PREFIX»_DOCKER_ENV=("-e" "REGI_FIELD_ONE=${REGI_FIELD_ONE}")
+```
+
+**Ordering matters**: Build derived state (docker env arrays, rollup strings) *after* enforce but *before* or *during* the lock call. Once variables are readonly, derived state captures validated, immutable values.
 
 ## Special Function Definitions
 
