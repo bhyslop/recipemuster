@@ -5546,9 +5546,10 @@
         "₢AkAAE",
         "₢AkAAB",
         "₢AkAAA",
-        "₢AkAAC"
+        "₢AkAAC",
+        "₢AkAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5617,6 +5618,17 @@
               "text": "Apply `readonly` patterns across all regimes and modules, following patterns proven in ₢AkAAD trial.\n\n## Scope\n\n1. **All regime kindle functions**: Remove defaults, add post-enforce `readonly` locking, move docker-env construction to post-enforce. Apply to:\n   - RBRN (`rbrn_regime.sh`) — all three nameplates (nsproto, srjcl, pluml)\n   - RBRA if applicable\n   - Any other regime modules\n\n2. **All module literal constants**: Convert appropriate literal constants to `readonly` across all modules in `Tools/rbw/`, `Tools/buk/`, and other kit directories.\n\n3. **Script-local constants**: Apply `readonly VAR=value` pattern to script-local constants in CLI entry points and install/uninstall scripts (extending the pattern already used in VVK's `vvi_install.sh` and `vvu_uninstall.sh`).\n\n## Acceptance\n\n- All regime variables are readonly after enforcement\n- All identified literal constants are readonly\n- Full test suite passes\n- No regressions in any tabtarget",
               "silks": "readonly-widespread",
               "commit": "29251e4"
+            }
+          ]
+        },
+        "₢AkAAF": {
+          "tacks": [
+            {
+              "ts": "260224-1124",
+              "state": "rough",
+              "text": "Audit and fix kindle functions that initialize mutable state (counters, accumulators) alongside constants.\n\n## Problem\n\n`ZRBI_FILE_INDEX=0` in `zrbi_kindle()` is module-level mutable state initialized in kindle among readonly constants. The uppercase `Z`-prefixed name follows kindle constant convention but the variable is mutated post-kindle. This pattern likely exists in other modules.\n\n## Scope\n\n1. **Audit**: Scan all kindle functions for variables that are initialized in kindle but mutated after kindle returns. Identify the pattern across modules.\n2. **Naming convention**: Establish a BCG convention distinguishing kindle mutable state from kindle constants — likely a lowercase `z` prefix or similar marker so the name signals mutability.\n3. **Apply**: Rename identified variables to the new convention.\n4. **BCG update**: Document the convention in the Readonly Patterns section (mutable kindle state as an exception to the \"every kindle constant\" rule, with naming discipline).\n\n## Acceptance\n\n- All kindle-initialized mutable state uses the new naming convention\n- BCG documents the pattern and naming rule\n- No functional changes — rename only",
+              "silks": "kindle-mutable-state-naming",
+              "commit": "122393f"
             }
           ]
         }
