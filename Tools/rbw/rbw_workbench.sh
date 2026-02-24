@@ -63,7 +63,7 @@ rbw_route() {
   # Qualification gate for commands that need it
   case "${z_command}" in
     rbw-s|rbw-iB)
-      "${RBW_SCRIPT_DIR}/rbq_cli.sh" qualify_all || buc_die "Qualification gate failed"
+      "${RBW_SCRIPT_DIR}/rbq_cli.sh" rbq_qualify_all || buc_die "Qualification gate failed"
       ;;
   esac
 
