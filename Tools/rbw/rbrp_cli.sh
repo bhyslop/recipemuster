@@ -29,7 +29,7 @@ rbrp_validate() {
   buc_doc_brief "Validate RBRP payor regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  buc_step "Validating RBRP payor file: ${RBCC_rbrp_file}"
+  buc_step "Validating RBRP payor file: ${RBBC_rbrp_file}"
   buv_report RBRP "Payor Regime"
   buc_step "RBRP payor valid"
 }
@@ -64,7 +64,7 @@ zrbrp_furnish() {
   zrbcc_kindle
   zrbgc_kindle
 
-  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+  source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
 
   zrbrp_kindle
   zrbrp_enforce

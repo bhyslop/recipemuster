@@ -35,7 +35,7 @@ zrbgm_furnish() {
   source "${z_rbw_kit_dir}/rbgc_Constants.sh"
   source "${z_rbw_kit_dir}/rbcc_Constants.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
-  source "${RBCC_rbrr_file}"
+  source "${RBBC_rbrr_file}"
   source "${z_rbw_kit_dir}/rbrp_regime.sh"
   source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbw_kit_dir}/rbgu_Utility.sh"
@@ -51,7 +51,7 @@ zrbgm_furnish() {
 
   zrbgc_kindle
 
-  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+  source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
   zrbrp_kindle
   zrbrp_enforce
   zrbrp_lock

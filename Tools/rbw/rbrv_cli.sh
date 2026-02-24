@@ -87,7 +87,7 @@ zrbrv_furnish() {
   zrbcc_kindle
 
   # Load and kindle repo regime (needed for RBRR_VESSEL_DIR)
-  source "${RBCC_rbrr_file}"
+  source "${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock

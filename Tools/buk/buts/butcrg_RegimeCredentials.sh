@@ -53,7 +53,7 @@ zbutcrg_cred_dispatch_ok() {
 butcrg_rbra_tcase() {
   zbutcrg_cred_init
 
-  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
+  source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock

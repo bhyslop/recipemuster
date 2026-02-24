@@ -31,8 +31,11 @@ ZBUL_LAUNCHER_SOURCED=1
 ZBUL_PROJECT_ROOT="${BASH_SOURCE[1]%/*}/.."
 cd "${ZBUL_PROJECT_ROOT}" || exit 1 # buc_die not available yet
 
+# Establish config directory — canonical locator for .buk/
+export BURD_CONFIG_DIR="${ZBUL_PROJECT_ROOT}/.buk"
+
 # Load BURC configuration
-export BURD_REGIME_FILE="${ZBUL_PROJECT_ROOT}/.buk/burc.env"
+export BURD_REGIME_FILE="${BURD_CONFIG_DIR}/burc.env"
 source "${BURD_REGIME_FILE}" || exit 1 # buc_die not available yet
 
 # Apply BURV (Bash Utility Regime Verification) overrides if set

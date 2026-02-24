@@ -41,6 +41,7 @@ zburd_kindle() {
   buv_regime_enroll BURD
 
   buv_group_enroll "Launcher Configuration"
+  buv_string_enroll  BURD_CONFIG_DIR            1  256  "Path to the .buk/ configuration directory"
   buv_string_enroll  BURD_REGIME_FILE           1  256  "Path to the BURC regime configuration file"
   buv_string_enroll  BURD_STATION_FILE          1  256  "Path to the developer's BURS station file"
   buv_string_enroll  BURD_COORDINATOR_SCRIPT    1  256  "Path to the coordinator script for this tabtarget"

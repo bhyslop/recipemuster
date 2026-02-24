@@ -118,7 +118,7 @@ zrbra_furnish() {
   zrbcc_kindle
 
   # Load RBRR (needed for role resolution and list)
-  source "${RBCC_rbrr_file}"
+  source "${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock

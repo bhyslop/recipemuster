@@ -24,9 +24,11 @@ set -euo pipefail
 test -z "${ZRBCC_SOURCED:-}" || buc_die "Module rbcc multiply sourced - check sourcing hierarchy"
 ZRBCC_SOURCED=1
 
+# Source RBBC bootstrap constants (source-time, before kindle)
+test -n "${BURD_CONFIG_DIR:-}" || buc_die "BURD_CONFIG_DIR not set - rbcc requires launcher environment"
+source "${BURD_CONFIG_DIR}/rbbc_constants.sh" || buc_die "Failed to source rbbc_constants.sh"
+
 # Literal constants (pure string literals, no variable expansion — available at source time)
-RBCC_rbrr_file="rbrr.env"
-RBCC_rbrp_file="rbrp.env"
 RBCC_rbro_file="${HOME}/.rbw/rbro.env"
 RBCC_rbrs_file="../station-files/rbrs.env"
 RBCC_rbrn_prefix="rbrn_"

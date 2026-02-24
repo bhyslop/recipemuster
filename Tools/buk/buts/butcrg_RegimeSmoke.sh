@@ -94,7 +94,7 @@ butcrg_rbrv_tcase() {
   zbutcrg_init
 
   # Load RBRR for rbrv_list_capture (needs RBRR_VESSEL_DIR)
-  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
+  source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock

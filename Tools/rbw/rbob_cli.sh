@@ -101,7 +101,7 @@ zrbob_furnish() {
   source "${z_rbw_kit_dir}/rbrn_regime.sh"
   source "${z_rbw_kit_dir}/rbcc_Constants.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
-  source "${RBCC_rbrr_file}"
+  source "${RBBC_rbrr_file}"
   source "${z_rbw_kit_dir}/rbgc_Constants.sh"
   source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
   source "${z_rbw_kit_dir}/rbob_bottle.sh"

@@ -39,7 +39,7 @@ zrbgg_furnish() {
   source "${z_rbw_kit_dir}/rbgu_Utility.sh"
   source "${z_rbw_kit_dir}/rbgi_IAM.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
-  source "${RBCC_rbrr_file}"
+  source "${RBBC_rbrr_file}"
   source "${z_rbw_kit_dir}/rbgg_Governor.sh"
 
   zbuv_kindle

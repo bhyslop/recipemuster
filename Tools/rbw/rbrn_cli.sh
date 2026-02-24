@@ -191,7 +191,7 @@ zrbrn_furnish() {
   # Heavy kindles (survey/audit only)
   case "${z_command}" in
     rbrn_survey|rbrn_audit)
-      source "${RBCC_rbrr_file}"
+      source "${RBBC_rbrr_file}"
       zrbgc_kindle
       zrbrr_kindle
       zrbrr_enforce

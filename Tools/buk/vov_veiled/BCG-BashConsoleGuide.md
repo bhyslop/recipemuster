@@ -819,7 +819,7 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 | Capture Public functions     | `«prefix»_«name»_capture`    | `rbv_get_token_capture`      | Impl     | snake_case                    |
 | Kindle constant (internal)   | `Z«PREFIX»_«NAME»`           | `ZRBV_TEMP_FILE`             | Impl     | SCREAMING_SNAKE (multi-word)  |
 | Kindle constant (public)     | `«PREFIX»_«NAME»`            | `RBV_REGIME_FILE`            | Both     | SCREAMING_SNAKE (multi-word)  |
-| Literal constant (public)    | `«PREFIX»_«name»`            | `RBCC_rbrr_file`             | Impl     | lower_snake (multi-word)      |
+| Literal constant (public)    | `«PREFIX»_«name»`            | `RBBC_rbrr_file`             | Impl     | lower_snake (multi-word)      |
 | Local parameters             | `z_«name»`                   | `z_vm_name`, `z_force_flag`  | Both     | snake_case (multi-word)       |
 | Enroll functions             | `[z]«prefix»_[«scope»_]enroll` | `«prefix»_enroll`          | Impl     | kindle-only                   |
 | Recite functions             | `[z]«prefix»_«what»_recite`  | `«prefix»_target_recite`     | Impl     | read-only, never mutates      |

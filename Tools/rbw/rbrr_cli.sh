@@ -33,7 +33,7 @@ rbrr_validate() {
   buc_doc_brief "Validate RBRR repo regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  buc_step "Validating RBRR repo regime file: ${RBCC_rbrr_file}"
+  buc_step "Validating RBRR repo regime file: ${RBBC_rbrr_file}"
   buv_report RBRR "Repository Regime"
   buc_step "RBRR repo regime valid"
 }
@@ -53,7 +53,7 @@ rbrr_refresh_gcb_pins() {
   buc_doc_brief "Resolve image tags to digests and update RBRR configuration file"
   buc_doc_shown || return 0
 
-  local z_rbrr_file="${RBCC_rbrr_file}"
+  local z_rbrr_file="${RBBC_rbrr_file}"
   test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
   zburd_sentinel
 
@@ -255,7 +255,7 @@ zrbrr_furnish() {
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${z_rbw_kit_dir}/rbcc_Constants.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
-  source "${RBCC_rbrr_file}"
+  source "${RBBC_rbrr_file}"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
 
   zbuv_kindle
