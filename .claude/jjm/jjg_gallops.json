@@ -1776,6 +1776,13 @@
         "₢AOAAJ": {
           "tacks": [
             {
+              "ts": "260223-1903",
+              "state": "complete",
+              "text": "Investigate _cli_kindle functions across the codebase. Determine if they serve a purpose or are dead code. If dead, remove them.\n\n## Scope\n\n- Find all *_cli_kindle function definitions\n- Trace callers — are they invoked anywhere?\n- If unused, delete the functions and any related scaffolding\n- If used, document what they do and close as no-op\n\n## Acceptance\n\n- Every _cli_kindle function either has a documented caller or is deleted\n- Qualification passes",
+              "silks": "audit-cli-kindle-functions",
+              "commit": "3a7351e"
+            },
+            {
               "ts": "260217-0748",
               "state": "rough",
               "text": "Investigate _cli_kindle functions across the codebase. Determine if they serve a purpose or are dead code. If dead, remove them.\n\n## Scope\n\n- Find all *_cli_kindle function definitions\n- Trace callers — are they invoked anywhere?\n- If unused, delete the functions and any related scaffolding\n- If used, document what they do and close as no-op\n\n## Acceptance\n\n- Every _cli_kindle function either has a documented caller or is deleted\n- Qualification passes",
