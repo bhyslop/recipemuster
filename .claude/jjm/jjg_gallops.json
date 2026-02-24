@@ -7157,6 +7157,7 @@
         "₢AiAAP",
         "₢AiAAU",
         "₢AiAAV",
+        "₢AiAAW",
         "₢AiAAF",
         "₢AiAAE",
         "₢AiAAH",
@@ -7170,7 +7171,7 @@
         "₢AiAAN",
         "₢AiAAO"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7748,6 +7749,17 @@
               "text": "Implement the inscribe command as a new tabtarget. This is the single rubric\nlifecycle operation — it ensures a vessel's build definition is fully set up\nand synced. Reuses existing functions (vessel loading, modified stitch) and\nadds genuinely new orchestration (mini-repo management, trigger creation).\n\n## New tabtarget\n\nMint colophon per prefix discipline. Wire through rbz_zipper.sh and\nrbw_workbench.sh. Takes vessel directory as argument.\n\n## Inscribe flow\n\n1. zrbf_check_pin_freshness() — fail if RBRR_GCB_PINS_REFRESHED_AT too old\n2. zrbf_load_vessel() (existing) — load vessel config from rbrv.env\n3. Modified stitch (from ₢AiAAU) — generate cloudbuild.yaml to vessel dir\n4. Verify generated yaml matches what is committed and pushed in main repo\n   - If different: STOP, tell user to review diff, commit, and push\n   - On rerun: deterministic generation produces identical yaml → matches → proceed\n5. Clone/pull vessel mini-repo to .rbk/{vessel}/\n   - Mini-repo is a small GitHub repo per vessel, not the main repo\n   - Cloud Build sees only the mini-repo via Developer Connect (security boundary)\n6. Sync main repo → mini-repo: copy cloudbuild.yaml + Dockerfile + build context\n   - Adjust paths in yaml for mini-repo structure (flat, not nested under rbev-vessels/)\n7. Create Cloud Build trigger via REST API if it doesn't exist\n   - Uses RBRR_GDC_CONNECTION_NAME, RBRR_GDC_REPO_LINK keying material\n   - Trigger points to cloudbuild.yaml in the mini-repo\n   - Trigger name follows RBRR_GCB_TRIGGER_PATTERN\n8. Git commit + push mini-repo (fully orchestrated — no human review needed,\n   main repo is the reviewed source of truth)\n\n## Genuinely new code\n\n- Mini-repo management: clone, sync files, commit, push (new orchestration)\n- Trigger creation: REST API POST to cloudbuild.googleapis.com (new, small)\n- Pin freshness gate wiring\n- Tabtarget + zipper + workbench wiring\n\n## Reused existing code\n\n- zrbf_load_vessel() — unchanged\n- Modified stitch from ₢AiAAU — yaml generation\n- rbgo_get_token_capture() — OAuth for GCP API calls\n\n## Design notes\n\n- Fresh vessel (no trigger, no mini-repo): inscribe creates both\n- Existing vessel (trigger exists, mini-repo exists): inscribe updates yaml + syncs\n- Same command handles both cases\n- .rbk/ is gitignored in main repo (parallels .buk/ pattern)\n\n## References\n\n- Tools/rbw/rbf_Foundry.sh — modified stitch, vessel loading\n- Tools/rbw/rbz_zipper.sh — enrollment wiring\n- Tools/rbw/rbw_workbench.sh — command routing\n- rbrr.env — GDC keying material, pin timestamp",
               "silks": "implement-inscribe-tabtarget",
               "commit": "67191cf"
+            }
+          ]
+        },
+        "₢AiAAW": {
+          "tacks": [
+            {
+              "ts": "260223-1823",
+              "state": "rough",
+              "text": "Modify the existing rbf_build() to dispatch via triggers.run instead of\nbuilds.create. This is surgery on an existing function, not a new implementation.\n\n## Remove from rbf_build()\n\n- zrbf_package_context() call and all tarball logic\n- zrbf_compose_tarball_name() call\n- zrbf_upload_context_to_gcs() call\n- zrbf_compose_build_request_json() call\n- zrbf_submit_build_json() call\n- zrbf_verify_git_clean() call (inscribe already synced mini-repo)\n- Build config JSON composition (substitutions block)\n- All ZRBF_BUILD_CONTEXT_TAR, ZRBF_BUILD_CONFIG_FILE references\n\n## Add to rbf_build()\n\n- Trigger lookup: find trigger ID for this vessel by sigil/pattern\n  (query cloudbuild.googleapis.com triggers list, or store in vessel config)\n- POST triggers.run with source.commitSha (from mini-repo HEAD)\n  - Endpoint: cloudbuild.googleapis.com/v1/projects/{project}/locations/{location}/triggers/{id}:run\n  - Zero custom substitution overrides — yaml is fully baked\n  - Only specify which commit to build from\n- Parse response to get build ID (triggers.run returns Operation)\n\n## Keep in rbf_build()\n\n- zrbf_load_vessel() — still need vessel config\n- Quota check (rbgd_check_gcb_quota) — still valuable\n- zrbf_wait_build_completion() — polling logic unchanged\n- OAuth token acquisition — still needed for API calls\n- Success/failure reporting\n\n## Also remove from zrbf_kindle()\n\n- Temp file variables for tarball, build config, build request\n  (ZRBF_BUILD_CONTEXT_TAR, ZRBF_BUILD_CONFIG_FILE, etc.)\n- GCS staging bucket references\n- Keep: API endpoint base, build status polling variables\n\n## References\n\n- Tools/rbw/rbf_Foundry.sh — rbf_build() (modify), zrbf_kindle() (simplify)\n- https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/run",
+              "silks": "modify-rbf-build-for-trigger-dispatch",
+              "commit": "7fb54fa"
             }
           ]
         }
