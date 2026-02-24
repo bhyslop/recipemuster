@@ -96,7 +96,7 @@ zrbgg_sentinel() {
 }
 
 ######################################################################
-# Rubric infrastructure preflight — sources Governor RBRA, checks PAT + DevConnect
+# Rubric infrastructure preflight — sources Governor RBRA, checks repo URL + DevConnect
 
 zrbgg_rubric_preflight() {
   zrbgg_sentinel
@@ -113,7 +113,7 @@ zrbgg_rubric_preflight() {
   zrbra_enforce
   zrbra_lock
 
-  rbgu_check_rubric_pat "${RBRA_RUBRIC_GITHUB_PAT:-}"
+  rbgu_check_rubric_repo_url "${RBRA_RUBRIC_REPO_URL:-}"
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get Governor OAuth token for DevConnect check"

@@ -6,7 +6,7 @@ creates a
 with build management permissions:
 
 // ⟦axs_prerequisites⟧
-. Execute {rbtoe_check_rubric_pat} using {rbtr_governor} RBRA credentials
+. Execute {rbtoe_check_rubric_repo_url} using {rbtr_governor} RBRA credentials
 . Execute {rbtoe_check_devconnect} to verify {rbtgi_source_connection} authorization
 
 // ⟦axs_inputs⟧

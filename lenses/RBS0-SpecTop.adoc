@@ -110,7 +110,7 @@
 :rbtgo_rubric_inscribe:          <<rbtgo_rubric_inscribe,rbf_inscribe>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbap_payor_oauth_probe>>
-:rbtoe_check_rubric_pat:          <<rbtoe_check_rubric_pat,Rubric PAT Check>>
+:rbtoe_check_rubric_repo_url:     <<rbtoe_check_rubric_repo_url,Rubric Repo URL Check>>
 :rbtoe_check_devconnect:          <<rbtoe_check_devconnect,Developer Connect Check>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
 :rbtoe_director_authenticate:     <<rbtoe_director_authenticate,Director Authentication Pattern>>
@@ -294,7 +294,7 @@
 :rbra_private_key:           <<rbra_private_key,RBRA_PRIVATE_KEY>>
 :rbra_project_id:            <<rbra_project_id,RBRA_PROJECT_ID>>
 :rbra_token_lifetime_sec:    <<rbra_token_lifetime_sec,RBRA_TOKEN_LIFETIME_SEC>>
-:rbra_rubric_github_pat:     <<rbra_rubric_github_pat,RBRA_RUBRIC_GITHUB_PAT>>
+:rbra_rubric_repo_url:       <<rbra_rubric_repo_url,RBRA_RUBRIC_REPO_URL>>
 
 // Recipe Bottle Regime: Payor
 :rbrp_billing_account_id:    <<rbrp_billing_account_id,RBRP_BILLING_ACCOUNT_ID>>
@@ -719,7 +719,7 @@ include::RBSDC-depot_create.adoc[]
 === {rbtgo_depot_initialize}
 
 Completes one-time depot initialization: validates the
-{rbra_rubric_github_pat}
+{rbra_rubric_repo_url}
 and guides the
 {at_operator}
 through Developer Connect GitHub OAuth authorization.
@@ -2085,20 +2085,16 @@ OAuth token lifetime in seconds for JWT token exchange with
 {gcp_service}
 APIs.
 
-[[rbra_rubric_github_pat]]
+[[rbra_rubric_repo_url]]
 // ⟦axl_voices axrg_variable axtu_string⟧
-{rbra_rubric_github_pat}::
-GitHub fine-grained personal access token for
-{rbtgr_vessel_repo}
-management.
+{rbra_rubric_repo_url}::
+Authenticated git URL for the rubric repository.
+Encodes credentials directly in the URL (e.g., `https://x-access-token:<PAT>@<host>/<org>/<repo>.git`).
 Used by
 {rbtgo_rubric_inscribe}
-to create mini-repos via GitHub REST API and push build material via git.
-Optional — only populated in
-{rbtr_director}
-RBRA files.
-Cloud Build does not need this token; it accesses mini-repos via the
-{rbtgi_source_connection}.
+to push build material via git.
+Optional — only populated in RBRA files for roles that manage the rubric repo.
+Validated via `git ls-remote` to confirm reachability and credential validity.
 
 include::RBSRA-CredentialFormat.adoc[]
 
@@ -2787,21 +2783,21 @@ Provides context or expected outcomes without requiring action.
 
 Recipe Bottle orchestration patterns define reusable implementation sequences for system operations.
 
-[[rbtoe_check_rubric_pat]]
+[[rbtoe_check_rubric_repo_url]]
 // ⟦axl_voices axo_routine axe_bash_interactive⟧
-{rbtoe_check_rubric_pat}::
+{rbtoe_check_rubric_repo_url}::
 A non-interactive gate that validates
-`RBRA_RUBRIC_GITHUB_PAT`
-is present and authentic:
+`RBRA_RUBRIC_REPO_URL`
+is present and reachable:
 
-. {rbbc_require} PAT argument is non-empty or {rbbc_fatal} with guidance to set it in the appropriate RBRA file and run {rbtgo_depot_initialize},
-. {rbbc_call} link:https://docs.github.com/en/rest/users/users#get-the-authenticated-user[GET /user] at `https://api.github.com/user` with Bearer token,
-. {rbbc_require} HTTP 200 response or {rbbc_fatal} "PAT is invalid or expired",
-. logs authenticated GitHub username for confirmation.
+. {rbbc_require} URL argument is non-empty or {rbbc_fatal} with guidance to set it in the appropriate RBRA file and run {rbtgo_depot_initialize},
+. {rbbc_call} `git ls-remote <URL> HEAD` to verify the URL is reachable and credentials are valid,
+. {rbbc_require} successful exit from `git ls-remote` or {rbbc_fatal} "URL is unreachable or credentials are invalid",
+. logs confirmation that the rubric repo URL is validated.
 
 No side effects.
-Callable from any CLI context via `rbgu_check_rubric_pat`.
-PAT may reside in
+Callable from any CLI context via `rbgu_check_rubric_repo_url`.
+URL may reside in
 {rbtr_governor}
 RBRA (for depot setup and role creation) or
 {rbtr_director}

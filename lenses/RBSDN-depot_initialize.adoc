@@ -4,15 +4,15 @@ completes one-time depot initialization after
 {rbtgo_depot_create}
 has provisioned infrastructure.
 This procedure validates the
-{rbra_rubric_github_pat}
-for mini-repo management and completes the GitHub OAuth authorization for the
+{rbra_rubric_repo_url}
+for rubric repo management and completes the GitHub OAuth authorization for the
 {rbtgi_source_connection}
 created by
 {rbtgo_depot_create}
 in PENDING state.
 
 This procedure is idempotent — safe to re-run.
-Steps already complete (PAT already valid, connection already COMPLETE) are skipped.
+Steps already complete (URL already valid, connection already COMPLETE) are skipped.
 
 // ⟦axs_inputs axd_none⟧
 
@@ -22,7 +22,7 @@ Steps already complete (PAT already valid, connection already COMPLETE) are skip
 exists (completed
 {rbtgo_depot_create})
 * {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in RBRR
-* {rbrr_director_rbra_file} contains {rbra_rubric_github_pat}
+* {rbrr_director_rbra_file} contains {rbra_rubric_repo_url}
 * Operator has browser access for GitHub OAuth authorization
 
 // ⟦axs_behavior⟧
@@ -32,31 +32,29 @@ exists (completed
 .. Execute
 {rbtoe_director_authenticate}
 
-. *Load GitHub PAT*:
+. *Load Rubric Repo URL*:
 .. {rbbc_call}
 {rbtoe_rbra_load}
 for
 {rbrr_director_rbra_file}
 .. {rbbc_store}
-`«GITHUB_PAT»` from {rbra_rubric_github_pat}
-.. If `«GITHUB_PAT»` is empty:
+`«RUBRIC_REPO_URL»` from {rbra_rubric_repo_url}
+.. If `«RUBRIC_REPO_URL»` is empty:
 ... {rbbc_show}
-"RBRA_RUBRIC_GITHUB_PAT is not set in Director RBRA file"
+"RBRA_RUBRIC_REPO_URL is not set in Director RBRA file"
 ... {rbbc_show}
-guidance: "Create a GitHub fine-grained PAT at https://github.com/settings/personal-access-tokens/new with Repository permissions: Contents (Read and write), Administration (Read and write). Scope to the organization that will host vessel mini-repos."
+guidance: "Create a repository, generate a PAT with Contents:write, construct the authenticated URL as https://x-access-token:<PAT>@<host>/<org>/<repo>.git, and add RBRA_RUBRIC_REPO_URL to the Director RBRA file."
 ... {rbbc_fatal}
-"Set RBRA_RUBRIC_GITHUB_PAT in Director RBRA file and re-run"
+"Set RBRA_RUBRIC_REPO_URL in Director RBRA file and re-run"
 
-. *Validate GitHub PAT*:
+. *Validate Rubric Repo URL*:
 .. {rbbc_call}
-link:https://docs.github.com/en/rest/users/users#get-the-authenticated-user[GET /user] via `https://api.github.com/user` with header `Authorization: Bearer «GITHUB_PAT»`
-.. If HTTP 401:
+`git ls-remote «RUBRIC_REPO_URL» HEAD` to verify reachability and credential validity
+.. If `git ls-remote` fails:
 ... {rbbc_fatal}
-"GitHub PAT is invalid or expired — regenerate and update Director RBRA file"
-.. {rbbc_store}
-`«GITHUB_USER»` from response `.login`
+"Rubric repo URL is unreachable or credentials are invalid — check RBRA_RUBRIC_REPO_URL and ensure PAT has Contents:write permission"
 .. {rbbc_show}
-"GitHub PAT valid for user: «GITHUB_USER»"
+"Rubric repo URL validated"
 
 . *Check Developer Connect Connection Status*:
 .. Construct connection path: `projects/{rbrr_depot_project_id}/locations/{rbrr_gdc_region}/connections/{rbrr_gdc_connection_name}`
@@ -99,7 +97,7 @@ if timeout: "Developer Connect OAuth did not complete — re-open the authorizat
 . *Final Validation*:
 .. {rbbc_show}
 "Running final validation..."
-.. Verify GitHub PAT: repeat GET /user call — {rbbc_require} HTTP 200
+.. Verify rubric repo URL: repeat `git ls-remote` call — {rbbc_require} successful exit
 .. Verify Developer Connect: repeat connections.get call — {rbbc_require} `installationState.stage` is `COMPLETE`
 .. {rbbc_show}
 "Depot initialization complete"
@@ -108,7 +106,7 @@ if timeout: "Developer Connect OAuth did not complete — re-open the authorizat
 
 The outputs of depot initialization are:
 
-- Validated {rbra_rubric_github_pat} — confirmed working against GitHub API
+- Validated {rbra_rubric_repo_url} — confirmed reachable via `git ls-remote`
 - Active {rbtgi_source_connection} — `installationState.stage` is `COMPLETE`
 - OAuth token automatically stored in Secret Manager (managed by Developer Connect, not by operator)
 
@@ -118,8 +116,8 @@ Successful execution confirms the depot is fully initialized for
 {rbtgo_rubric_inscribe}
 operations.
 The
-{rbra_rubric_github_pat}
-enables mini-repo management and the
+{rbra_rubric_repo_url}
+enables rubric repo management and the
 {rbtgi_source_connection}
 enables Cloud Build to access vessel mini-repos.
 Proceed to

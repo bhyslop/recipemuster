@@ -681,35 +681,17 @@ rbgu_rbro_load() {
 ######################################################################
 # Rubric Infrastructure Checks
 
-rbgu_check_rubric_pat() {
+rbgu_check_rubric_repo_url() {
   zrbgu_sentinel
 
-  local z_pat="${1:-}"
-  test -n "${z_pat}" || buc_die "RBRA_RUBRIC_GITHUB_PAT is empty — set it in the appropriate RBRA file and run rbgm_depot_initialize"
+  local z_url="${1:-}"
+  test -n "${z_url}" || buc_die "RBRA_RUBRIC_REPO_URL is empty — set it in the appropriate RBRA file and run rbgm_depot_initialize"
 
-  local z_infix="rubric_pat_check"
-  local z_resp_file="${ZRBGU_PREFIX}${z_infix}_resp.json"
-  local z_code_file="${ZRBGU_PREFIX}${z_infix}_code.txt"
+  buc_log_args "Validating rubric repo URL reachability"
+  git ls-remote "${z_url}" HEAD >/dev/null 2>&1 \
+    || buc_die "Rubric repo URL is unreachable or credentials are invalid — check RBRA_RUBRIC_REPO_URL and ensure PAT has Contents:write permission"
 
-  local z_curl_status=0
-  curl -sS \
-    -H "Authorization: Bearer ${z_pat}" \
-    -H "Accept: application/vnd.github+json" \
-    -o "${z_resp_file}" \
-    -w "%{http_code}" \
-    "https://api.github.com/user" > "${z_code_file}" \
-                                  2>/dev/null \
-    || z_curl_status=$?
-
-  test "${z_curl_status}" -eq 0 || buc_die "GitHub PAT check failed (network/DNS error)"
-
-  local z_code
-  z_code=$(<"${z_code_file}") || buc_die "Failed to read GitHub response code"
-  test "${z_code}" = "200" || buc_die "GitHub PAT is invalid or expired (HTTP ${z_code}) — regenerate and update RBRA file, then run rbgm_depot_initialize"
-
-  local z_user
-  z_user=$(jq -r '.login // "unknown"' "${z_resp_file}") || buc_die "Failed to parse GitHub user response"
-  buc_log_args "GitHub PAT valid for user: ${z_user}"
+  buc_log_args "Rubric repo URL validated"
 }
 
 rbgu_check_devconnect() {

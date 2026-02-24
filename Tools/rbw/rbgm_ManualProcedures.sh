@@ -497,46 +497,28 @@ rbgm_depot_initialize() {
   zrbra_enforce
   zrbra_lock
 
-  buc_step 'Load GitHub PAT'
-  local z_github_pat="${RBRA_RUBRIC_GITHUB_PAT:-}"
-  if test -z "${z_github_pat}"; then
+  buc_step 'Load Rubric Repo URL'
+  local z_rubric_repo_url="${RBRA_RUBRIC_REPO_URL:-}"
+  if test -z "${z_rubric_repo_url}"; then
     buc_info ""
-    buc_info "RBRA_RUBRIC_GITHUB_PAT is not set in Governor RBRA file."
+    buc_info "RBRA_RUBRIC_REPO_URL is not set in Governor RBRA file."
     buc_info ""
-    bug_section "Create a GitHub Fine-Grained PAT:"
-    bug_link     "   1. Go to: " "GitHub Personal Access Tokens" "https://github.com/settings/personal-access-tokens/new"
-    bug_t        "   2. Configure:"
-    bug_tc       "      - Token name: " "recipebottle-rubric"
-    bug_t        "      - Expiration: choose appropriate duration"
-    bug_t        "      - Resource owner: your GitHub organization"
-    bug_tu       "      - Repository access: " "All repositories" " (or select the org)"
-    bug_t        "      - Repository permissions:"
-    bug_tc       "        Contents: " "Read and write"
-    bug_tc       "        Administration: " "Read and write"
-    bug_tu       "   3. Click " "Generate token"
-    bug_t        "   4. Copy the token and add to Governor RBRA file:"
-    bug_tc       "      RBRA_RUBRIC_GITHUB_PAT=" "ghp_xxxxxxxxxxxxxxxxxxxx"
+    bug_section "Set up a rubric repository:"
+    bug_t        "   1. Create a repository on your git hosting service"
+    bug_tc       "      (e.g., " "rb-rubric" " on GitHub, GitLab, or Bitbucket)"
+    bug_t        "   2. Create a Personal Access Token with Contents:write on that repo"
+    bug_t        "   3. Construct the authenticated URL:"
+    bug_tc       "      https://x-access-token:<PAT>@<host>/<org>/<repo>.git"
+    bug_t        "   4. Add to Governor RBRA file:"
+    bug_tc       "      RBRA_RUBRIC_REPO_URL=" "https://x-access-token:ghp_xxx@github.com/org/rb-rubric.git"
     bug_e
-    buc_die "Set RBRA_RUBRIC_GITHUB_PAT in Governor RBRA file and re-run"
+    buc_die "Set RBRA_RUBRIC_REPO_URL in Governor RBRA file and re-run"
   fi
 
-  buc_step 'Validate GitHub PAT'
-  local z_github_response="${BURD_TEMP_DIR}/rbgm_github_user.json"
-  local z_github_code="${BURD_TEMP_DIR}/rbgm_github_user_code.txt"
-  curl -s -o "${z_github_response}" -w '%{http_code}' \
-    -H "Authorization: Bearer ${z_github_pat}" \
-    -H "Accept: application/vnd.github+json" \
-    "https://api.github.com/user" > "${z_github_code}" 2>/dev/null
-
-  local z_gh_code
-  z_gh_code=$(cat "${z_github_code}") || buc_die "Failed to read GitHub response code"
-  if [ "${z_gh_code}" != "200" ]; then
-    buc_die "GitHub PAT is invalid or expired (HTTP ${z_gh_code}) — regenerate and update Governor RBRA file"
-  fi
-
-  local z_github_user
-  z_github_user=$(jq -r '.login // "unknown"' "${z_github_response}") || buc_die "Failed to parse GitHub user"
-  buc_info "GitHub PAT valid for user: ${z_github_user}"
+  buc_step 'Validate Rubric Repo URL'
+  git ls-remote "${z_rubric_repo_url}" HEAD >/dev/null 2>&1 \
+    || buc_die "Rubric repo URL is unreachable or credentials are invalid — check RBRA_RUBRIC_REPO_URL"
+  buc_info "Rubric repo URL validated"
 
   buc_step 'Check Developer Connect connection status'
   local z_token
