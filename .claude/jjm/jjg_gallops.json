@@ -7497,6 +7497,13 @@
         "₢AiAAK": {
           "tacks": [
             {
+              "ts": "260223-1823",
+              "state": "rough",
+              "text": "End-to-end verification of the full rubric lifecycle for rbev-busybox.\nGate before migrating remaining vessels.\n\n## Verify inscribe\n\n- Run inscribe for busybox — should generate yaml, sync to mini-repo, create trigger\n- Verify trigger exists in GCP and points to mini-repo via Developer Connect\n- Verify mini-repo contains correct cloudbuild.yaml + Dockerfile + build context\n\n## Verify build dispatch\n\n- Run rbf_build for busybox (modified triggers.run path)\n- Zero custom substitution overrides — all values baked\n- Verify build completes successfully in Cloud Build\n\n## Verify outputs\n\n- Image lands in GAR with inscribe-timestamp + BUILD_ID tag pattern\n  (e.g., rbev-busybox:i20260223.143022.f7e2a91b-image)\n- SLSA v1.0 provenance present on the built image\n- Metadata container (-about) works\n- Build same commit twice → distinct but related tags (shared inscribe prefix,\n  different BUILD_ID suffix)\n\n## Verify SLSA provenance chain\n\n- Provenance records mini-repo as source (not main repo)\n- Provenance records correct commit hash\n- No custom substitutions recorded in provenance (clean)\n\n## Document any issues found\n\n- Iterate on inscribe/build if problems are discovered\n- This pace may require multiple rounds",
+              "silks": "e2e-verify-busybox-trigger",
+              "commit": "f0202bd"
+            },
+            {
               "ts": "260223-0812",
               "state": "rough",
               "text": "End-to-end verification of the full {rbtgr_rubric} lifecycle for rbev-busybox:\n\n- Run full prepare ({rbtgo_rubric_assay} + push) → dispatch ({rbtgo_trigger_build}) cycle\n- Verify build completes successfully in Cloud Build\n- Verify image lands in GAR with correct tags (ark pattern: -image + -about)\n- Verify {rbtgr_provenance} is generated — SLSA v1.0 attestation present on the built image\n  (gcloud artifacts docker images describe --show-provenance equivalent via REST API)\n- Verify metadata container ({rbtga_ark_about}) still works\n- Document any issues found\n\nThis is the gate before migrating remaining vessels. The full rubric lifecycle must\nwork end-to-end: {rbtgr_build_yaml} committed, {rbtgr_vessel_trigger} enshrined,\ndispatch succeeds, {rbtgr_provenance} generated.",
