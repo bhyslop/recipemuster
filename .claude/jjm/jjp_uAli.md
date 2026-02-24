@@ -98,6 +98,47 @@ The build definition per vessel needed a name. The metaphor chain is Vessel → 
 A rubric is "the written instructions that tell the Foundry how to transform a vessel into
 an ark." Inscribe is the natural verb for writing/updating a rubric.
 
+### Session Decisions (2026-02-24)
+
+**Spec-code mismatch: RBRR_GDC_REPO_LINK**
+Spec correctly omits this (repo links are per-vessel, created by inscribe). Code still has it
+in `rbrr.env`, `rbrr_regime.sh`, `rbgm_ManualProcedures.sh`. ₢AiAAR will remove from code.
+
+**RBRR_GCB_TRIGGER_PATTERN demoted to RBGC constant**
+No justification for per-installation configurability. Trigger naming is deterministic from
+a constant prefix + vessel sigil. Demote to `RBGC_RUBRIC_TRIGGER_PREFIX` in `rbgc_Constants.sh`.
+Remove `RBRR_GCB_TRIGGER_PATTERN` from `rbrr.env`, regime enrollment, and validation.
+
+**rbgjb/*.sh: flat bash source material, consumed at inscribe time**
+Step scripts stay as editable flat bash files — never deleted. Inscribe reads them, inlines
+their content into YAML `script:` fields. All `_RBGY_*` values baked into the YAML's
+`substitutions:` block at inscribe time. Zero dispatch-time substitution overrides.
+Cloud Build resolves `_RBGY_*` from the committed YAML, not from triggers.run request.
+Rationale: flat bash is easier for both humans and models to edit than YAML-embedded scripts.
+
+**Bake main repo AND rubric repo metadata into YAML substitutions**
+Inscribe captures at inscribe time and bakes into `substitutions:` block:
+- `_RBGY_GIT_COMMIT`, `_RBGY_GIT_BRANCH`, `_RBGY_GIT_REPO` — main repo (as today)
+- `_RBGY_RUBRIC_REPO`, `_RBGY_RUBRIC_COMMIT` — mini-repo URL and HEAD after push
+- `_RBGY_INSCRIBE_TIMESTAMP` — inscribe timestamp for tag construction
+`rbgjb10-assemble-metadata.sh` picks these up unchanged; `build_info.json` extended with
+rubric repo facts and inscribe timestamp.
+
+**Dual-timestamp consecration tag format**
+Format: `i{date}_{time}-b{date}_{time}-{suffix}`
+Example: `i20260224_153022-b20260224_160530-image`
+- Inscribe timestamp prefix (`iYYYYMMDD_HHMMSS`) — baked as `_RBGY_INSCRIBE_TIMESTAMP`
+- Build timestamp (`bYYYYMMDD_HHMMSS`) — derived at build time by `rbgjb01`
+- Hyphen delimits major concepts (inscribe, build, suffix); underscore within timestamps
+- No dependency on undocumented BUILD_ID format
+- Multiple builds of same inscribed YAML sort together by inscribe prefix
+- `rbgjb01` modified to: `TAG_BASE="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"`
+- Consecration = full tag base (both timestamps)
+
+**₢AiAAN scope: remove builds.create path only**
+Keep `rbgjb/*.sh` (inscribe source material). Only remove: builds.create submission functions,
+GCS tarball chain, JSON build request assembly, tarball temp variables from kindle.
+
 ### Constraints
 
 **Build context scope**: With mini-repo triggers, Cloud Build checks out only the mini-repo
@@ -115,7 +156,7 @@ fully automated via REST API.
 - `zrbf_compose_build_request_json()` and `zrbf_submit_build_json()`
 - Runtime stitching from the build hot path (stitch is now at inscribe time, not build time)
 - The `$$` dollar-escaping dance for Cloud Build substitutions
-- Custom `_RBGY_*` substitution overrides at dispatch time
+- Dispatch-time `_RBGY_*` substitution overrides (values now baked in committed YAML)
 - Courier credential regime concept (no GitHub PAT needed)
 
 ### What Survives (modified)
