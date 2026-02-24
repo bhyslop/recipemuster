@@ -152,11 +152,11 @@ It's org-level infrastructure, like billing account setup. Connection creation m
 `rbgp_depot_create()` (automated). OAuth completion moves into a new `rbgm_depot_initialize()`
 (human-guided with orchestration).
 
-**GitHub PAT needed for inscribe — `RBRA_RUBRIC_GITHUB_PAT`**
-Inscribe manages mini-repos locally: create repos via GitHub REST API, git clone, git push.
+**GitHub PAT needed for rubric operations — `RBRA_RUBRIC_GITHUB_PAT`**
+Rubric mini-repo management requires GitHub PAT: create repos via REST API, git clone, push.
 Cloud Build does NOT need the PAT (uses Developer Connect). The PAT is local-only.
-Added as an optional field in the RBRA regime (only Director populates it).
-Name: `RBRA_RUBRIC_GITHUB_PAT` (not `RBRA_GITHUB_PAT` — scoped to rubric management).
+Added as an optional field in the RBRA regime. Both Governor and Director populate it
+(see session 3 decisions). Name: `RBRA_RUBRIC_GITHUB_PAT` (not `RBRA_GITHUB_PAT`).
 
 **`rbgm_gdc_establish()` replaced by depot_create + depot_initialize**
 The standalone manual guide is deleted. Its responsibilities split:
@@ -173,6 +173,30 @@ No history-adaptive steps. Test against a fresh depot created with the updated `
 Keep `rbgjb/*.sh` (inscribe source material). Only remove: builds.create submission functions,
 GCS tarball chain, JSON build request assembly, tarball temp variables from kindle.
 
+### Session Decisions (2026-02-24, session 3)
+
+**RBRA_RUBRIC_GITHUB_PAT lives in both Governor and Director RBRA**
+In multi-person orgs, Governor and Director may be different people on different machines.
+Governor needs the PAT during depot setup (depot_initialize) and as a gate before creating
+roles (create_retriever, create_director). Director needs the PAT for inscribe operations
+(mini-repo management). These may be different PATs with different scopes. RBRA regime
+already accepts PAT as optional in any RBRA file.
+
+**depot_initialize sources Governor RBRA (not Director)**
+Director SA doesn't exist at depot setup time — it's created later by create_director.
+Fixed: depot_initialize now sources RBRR_GOVERNOR_RBRA_FILE. PAT is configured in
+Governor RBRA before running depot_initialize.
+
+**Two atomic rubric check routines, no wrapper**
+`rbgu_check_rubric_pat(pat)` and `rbgu_check_devconnect(token, project, region, conn)`
+live in rbgu_Utility.sh. Both are buc_die gates — succeed or die, no side effects.
+Governor's create_retriever and create_director call both via `zrbgg_rubric_preflight()`.
+Inscribe (future) calls only PAT check via Director RBRA. No standalone preflight command.
+
+**rbgg_cli.sh BCG sourcing violation fixed**
+Top-level sources moved into furnish (only buc_command.sh at top level per BCG pattern).
+This fixed a pre-existing "rbrr multiply sourced" error that blocked all Governor commands.
+
 ### Constraints
 
 **Build context scope**: With mini-repo triggers, Cloud Build checks out only the mini-repo
@@ -183,10 +207,10 @@ GCS tarball chain, JSON build request assembly, tarball temp variables from kind
 authorization via `rbgm_depot_initialize()` (open browser, click Authorize). Subsequent
 trigger operations are fully automated via REST API.
 
-**GitHub PAT for inscribe**: Inscribe manages mini-repos locally (create via GitHub REST API,
-clone, push). This requires `RBRA_RUBRIC_GITHUB_PAT` in the Director RBRA file — a
-fine-grained PAT scoped to repo creation and push. Cloud Build does NOT need this PAT;
-it accesses mini-repos via Developer Connect.
+**GitHub PAT for rubric operations**: `RBRA_RUBRIC_GITHUB_PAT` lives in both Governor and
+Director RBRA files. Governor needs it at depot_initialize time and as a preflight gate
+before role creation. Director needs it for inscribe (mini-repo management). Cloud Build
+does NOT need the PAT (uses Developer Connect). May be different PATs in multi-person orgs.
 
 **No gcloud dependency**: All GCP operations use curl/REST. The platform does not have
 gcloud installed. All GitHub operations use the PAT + REST API or git CLI with PAT auth.
