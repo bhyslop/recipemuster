@@ -146,8 +146,11 @@
 :axtg_service_account:                <<axtg_service_account,GCP Service Account>>
 
 // Axial Infrastructure Google Terms (GCP infrastructure resources)
+:axig_build_config:                   <<axig_build_config,Build Configuration File>>
 :axig_build:                          <<axig_build,Cloud Build>>
+:axig_build_trigger:                  <<axig_build_trigger,Cloud Build Trigger>>
 :axig_container_image:                <<axig_container_image,Container Image>>
+:axig_developer_connect:              <<axig_developer_connect,Developer Connect>>
 :axig_artifact_repository:            <<axig_artifact_repository,GAR Repository>>
 :axig_artifact_registry:              <<axig_artifact_registry,GCP Artifact Registry>>
 :axig_cloud_build:                    <<axig_cloud_build,GCP Cloud Build>>
@@ -160,12 +163,14 @@
 :axig_resource_manager:               <<axig_resource_manager,GCP Resource Manager>>
 :axig_bucket:                         <<axig_bucket,GCS Bucket>>
 :axig_generic_artifact:               <<axig_generic_artifact,Generic Artifact>>
+:axig_repo_link:                      <<axig_repo_link,Git Repository Link>>
 :axig_binding:                        <<axig_binding,IAM Binding>>
 :axig_role:                           <<axig_role,IAM Role>>
 :axig_lro:                            <<axig_lro,Long Running Operation>>
 :axig_project_state:                  <<axig_project_state,Project State>>
 :axig_service_account:                <<axig_service_account,Service Account>>
 :axig_service_account_key:            <<axig_service_account_key,Service Account Key>>
+:axig_slsa_provenance:                <<axig_slsa_provenance,SLSA Provenance>>
 
 // Axial Control Terms
 :axc_await:                           <<axc_await,AWAIT>>
@@ -2503,6 +2508,45 @@ A
 {axl_motif}
 representing a Cloud Build execution.
 Instance-level: a particular build processing instructions to create artifacts.
+
+[[axig_build_trigger]]
+{axig_build_trigger}::
+A
+{axl_motif}
+representing a Cloud Build trigger.
+Instance-level: a configured trigger that dispatches builds in response to events or API calls.
+
+[[axig_build_config]]
+{axig_build_config}::
+A
+{axl_motif}
+representing a build configuration file.
+Instance-level: a committed YAML or JSON file defining build steps, images, and artifacts.
+
+=== Instance-Level: Developer Connect
+
+[[axig_developer_connect]]
+{axig_developer_connect}::
+A
+{axl_motif}
+representing a Developer Connect connection.
+Instance-level: an OAuth-authenticated bridge between GCP and an external source code host.
+
+[[axig_repo_link]]
+{axig_repo_link}::
+A
+{axl_motif}
+representing a git repository link within a Developer Connect connection.
+Instance-level: a binding that grants Cloud Build access to a specific external repository.
+
+=== Instance-Level: Build Provenance
+
+[[axig_slsa_provenance]]
+{axig_slsa_provenance}::
+A
+{axl_motif}
+representing SLSA build provenance.
+Instance-level: a cryptographically signed attestation recording build inputs, environment, and outputs per the SLSA framework.
 
 === Instance-Level: IAM
 
