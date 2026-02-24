@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Ak",
+  "next_heat_seed": "Al",
   "heat_order": [
     "₣AD",
     "₣AG",
@@ -22,7 +22,8 @@
     "₣Ae",
     "₣Ah",
     "₣Ai",
-    "₣Aj"
+    "₣Aj",
+    "₣Ak"
   ],
   "heats": {
     "₣AD": {
@@ -6598,6 +6599,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
+      "paces": {}
+    },
+    "₣Ak": {
+      "silks": "rbk-mvp-verification",
+      "creation_time": "260224",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {}
     }
   }
