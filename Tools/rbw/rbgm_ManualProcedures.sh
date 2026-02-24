@@ -309,7 +309,7 @@ rbgm_payor_refresh() {
   zrbgm_dc     "      " "rbgp_payor_install ~/Downloads/client_secret_*.json"
   zrbgm_d      "   This will:"
   zrbgm_d      "   - Guide you through OAuth authorization flow"
-  zrbgm_d      "   - Store secure credentials in ~/.rbw/rbro.env"
+  zrbgm_d      "   - Store secure credentials in RBRR_SECRETS_DIR/rbro-payor.env"
   zrbgm_d      "   - Update RBRP_OAUTH_CLIENT_ID in rbrp.env"
   zrbgm_d      "   - Test the authentication"
   zrbgm_d      "   - Initialize depot tracking"

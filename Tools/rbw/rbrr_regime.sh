@@ -70,10 +70,8 @@ zrbrr_kindle() {
   buv_odref_enroll   RBRR_GCB_SYFT_IMAGE_REF                 "syft image reference (digest-pinned)"
   buv_odref_enroll   RBRR_GCB_BINFMT_IMAGE_REF               "binfmt image reference (digest-pinned)"
 
-  buv_group_enroll "Service Account Configuration"
-  buv_string_enroll  RBRR_GOVERNOR_RBRA_FILE       1  512  "Governor service account key file"
-  buv_string_enroll  RBRR_RETRIEVER_RBRA_FILE      1  512  "Retriever service account key file"
-  buv_string_enroll  RBRR_DIRECTOR_RBRA_FILE       1  512  "Director service account key file"
+  buv_group_enroll "Secrets Directory"
+  buv_string_enroll  RBRR_SECRETS_DIR              1  512  "Directory containing credential files"
 
   # Guard against unexpected RBRR_ variables not in enrollment
   buv_scope_sentinel RBRR RBRR_
@@ -96,6 +94,7 @@ zrbrr_enforce() {
   buv_vet RBRR
 
   buv_dir_exists "${RBRR_VESSEL_DIR}"
+  buv_dir_exists "${RBRR_SECRETS_DIR}"
 
   local z_platform=""
   for z_platform in ${RBRR_MANIFEST_PLATFORMS}; do
@@ -114,6 +113,12 @@ zrbrr_enforce() {
 # Lock step — build derived state from validated values, then lock enrolled variables
 zrbrr_lock() {
   zrbrr_sentinel
+
+  # Derive credential file paths from RBRR_SECRETS_DIR
+  readonly RBRR_GOVERNOR_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-governor.env"
+  readonly RBRR_RETRIEVER_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-retriever.env"
+  readonly RBRR_DIRECTOR_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-director.env"
+  readonly RBRR_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/rbro-payor.env"
 
   # Build docker env args array from validated values
   # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...

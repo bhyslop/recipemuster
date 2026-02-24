@@ -257,7 +257,9 @@
 :rbrr_gar_repository:        <<rbrr_gar_repository,RBRR_GAR_REPOSITORY>>
 :rbrr_gcp_region:            <<rbrr_gcp_region,RBRR_GCP_REGION>>
 :rbrr_governor_rbra_file:    <<rbrr_governor_rbra_file,RBRR_GOVERNOR_RBRA_FILE>>
+:rbrr_payor_rbro_file:       <<rbrr_payor_rbro_file,RBRR_PAYOR_RBRO_FILE>>
 :rbrr_regime:                <<rbrr_regime,RBRR Regime>>
+:rbrr_secrets_dir:           <<rbrr_secrets_dir,RBRR_SECRETS_DIR>>
 :rbrr_group_build_configuration:    <<rbrr_group_build_configuration,Build Configuration Group>>
 :rbrr_group_container_runtime:      <<rbrr_group_container_runtime,Container Runtime Group>>
 :rbrr_group_service_accounts:       <<rbrr_group_service_accounts,Service Accounts Group>>
@@ -1855,24 +1857,36 @@ for
 and
 {rbtgi_metadata_s}.
 
-[[rbrr_retriever_rbra_file]]
+[[rbrr_secrets_dir]]
 // ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
+{rbrr_secrets_dir}::
+Directory containing service account credential files for all operational roles.
+Validated to exist before credential file paths are derived.
+
+[[rbrr_retriever_rbra_file]]
+// ⟦axl_voices axrd_constructed axtu_path⟧
 {rbrr_retriever_rbra_file}::
 Path to the
 {rbtr_retriever}
 {rbtgi_rbra_file}
 for container image operations.
+Derived from
+{rbrr_secrets_dir}
+as `rbra-retriever.env`.
 
 [[rbrr_director_rbra_file]]
-// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
+// ⟦axl_voices axrd_constructed axtu_path⟧
 {rbrr_director_rbra_file}::
 Path to the
 {rbtr_director}
 {rbtgi_rbra_file}
 for build submission and image management.
+Derived from
+{rbrr_secrets_dir}
+as `rbra-director.env`.
 
 [[rbrr_governor_rbra_file]]
-// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
+// ⟦axl_voices axrd_constructed axtu_path⟧
 {rbrr_governor_rbra_file}::
 Path to the
 {rbtr_governor}
@@ -1880,6 +1894,20 @@ Path to the
 for
 {gcp_project_id}
 administration.
+Derived from
+{rbrr_secrets_dir}
+as `rbra-governor.env`.
+
+[[rbrr_payor_rbro_file]]
+// ⟦axl_voices axrd_constructed axtu_path⟧
+{rbrr_payor_rbro_file}::
+Path to the
+{rbtr_payor}
+{rbro_regime}
+credentials file for OAuth operations.
+Derived from
+{rbrr_secrets_dir}
+as `rbro-payor.env`.
 
 [[rbrr_vessel_dir]]
 // ⟦axvr_variable axd_required rbst_path⟧
@@ -1983,7 +2011,9 @@ ensuring builds use current builder images.
 [[rbrr_group_service_accounts]]
 // ⟦axvr_group⟧
 {rbrr_group_service_accounts}::
-Service account credential file paths for operational roles.
+Credential file paths derived from
+{rbrr_secrets_dir}
+for each operational role.
 
 [[rbrr_group_container_runtime]]
 // ⟦axvr_group⟧

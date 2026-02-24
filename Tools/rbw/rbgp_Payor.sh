@@ -426,7 +426,7 @@ rbgp_payor_install() {
   test -n "${z_project_id}" || buc_die "OAuth JSON file missing project_id field"
 
   buc_step 'Check existing credentials'
-  local z_rbro_file="${HOME}/.rbw/rbro.env"
+  local z_rbro_file="${RBRR_PAYOR_RBRO_FILE}"
   if test -f "${z_rbro_file}"; then
     buc_log_args "Existing RBRO credentials will be replaced"
   fi
@@ -483,9 +483,11 @@ rbgp_payor_install() {
   z_refresh_token=$(jq -r '.refresh_token // empty' <<<"${z_response}")
   test -n "${z_refresh_token}" || buc_die "OAuth response missing refresh_token field"
 
-  buc_step 'Create local credentials directory'
-  mkdir -p "${HOME}/.rbw" || buc_die "Failed to create ~/.rbw directory"
-  chmod 700 "${HOME}/.rbw" || buc_die "Failed to set ~/.rbw directory permissions"
+  buc_step 'Create credentials directory'
+  local z_rbro_dir
+  z_rbro_dir="$(dirname "${z_rbro_file}")"
+  mkdir -p "${z_rbro_dir}" || buc_die "Failed to create credentials directory: ${z_rbro_dir}"
+  chmod 700 "${z_rbro_dir}" || buc_die "Failed to set credentials directory permissions"
 
   buc_step 'Store OAuth credentials'
   cat > "${z_rbro_file}" <<-EOF || buc_die "Failed to write RBRO credentials file"

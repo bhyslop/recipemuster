@@ -41,30 +41,55 @@ that stores all bottle images and metadata.
 // ⟦axhrgb_group⟧
 {rbrr_group_service_accounts}
 
-Service account credential file paths that enable different operational roles.
+Credential file paths derived from a single enrolled directory for each operational role.
 Each RBRA file contains the minimum identity and signing material needed for authentication to
 {gcp_service}
 via service account.
+The payor RBRO file contains OAuth refresh credentials for
+{rbtr_payor}
+operations.
+
+// ⟦axhrgv_variable⟧
+{rbrr_secrets_dir}
+
+Directory on the operator's local filesystem outside the source repository that contains all credential files.
+Enrolled and validated to exist; individual file paths are derived from this directory at lock time.
 
 // ⟦axhrgv_variable⟧
 {rbrr_retriever_rbra_file}
 
-Path to an RBRA file stored in the operator's local filesystem outside the source repository.
-This file enables the operator to assume the retriever role for container image operations.
+Path derived from
+{rbrr_secrets_dir}
+as `rbra-retriever.env`.
+Enables the operator to assume the retriever role for container image operations.
 
 // ⟦axhrgv_variable⟧
 {rbrr_director_rbra_file}
 
-Path to an RBRA file stored in the operator's local filesystem outside the source repository.
-This file enables the operator to assume the director role for build submission and image management operations.
+Path derived from
+{rbrr_secrets_dir}
+as `rbra-director.env`.
+Enables the operator to assume the director role for build submission and image management operations.
 
 // ⟦axhrgv_variable⟧
 {rbrr_governor_rbra_file}
 
-Path to an RBRA file stored in the operator's local filesystem outside the source repository.
-This file enables the operator to assume the governor role for
+Path derived from
+{rbrr_secrets_dir}
+as `rbra-governor.env`.
+Enables the operator to assume the governor role for
 {gcp_project_id}
 administration operations.
+
+// ⟦axhrgv_variable⟧
+{rbrr_payor_rbro_file}
+
+Path derived from
+{rbrr_secrets_dir}
+as `rbro-payor.env`.
+Enables the operator to perform
+{rbtr_payor}
+OAuth operations using locally stored refresh credentials.
 
 // ⟦axhrgb_group⟧
 {rbrr_group_container_runtime}
@@ -231,7 +256,7 @@ Builds ZRBRR_ROLLUP serialization string and ZRBRR_DOCKER_ENV injection array.
 
 Validates fields via buv_env_* type checkers.
 Checks required fields: DEPOT_PROJECT_ID, GCP_REGION, GAR_REPOSITORY.
-Validates path existence for RBRA credential files.
+Validates directory existence for RBRR_SECRETS_DIR.
 Validates machine type and timeout format constraints.
 
 // ⟦axhro_render⟧

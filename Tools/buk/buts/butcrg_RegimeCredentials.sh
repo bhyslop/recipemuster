@@ -83,7 +83,12 @@ butcrg_rbra_tcase() {
 butcrg_rbro_tcase() {
   zbutcrg_cred_init
 
-  local z_file="${HOME}/.rbw/rbro.env"
+  source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
+  zrbrr_kindle
+  zrbrr_enforce
+  zrbrr_lock
+
+  local z_file="${RBRR_PAYOR_RBRO_FILE}"
   test -f "${z_file}" || buto_fatal "RBRO credential file not found: ${z_file}. This suite requires a fully configured workstation."
 
   zbutcrg_cred_dispatch_ok "rbw-rov"

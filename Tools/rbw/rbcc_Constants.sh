@@ -29,7 +29,6 @@ test -n "${BURD_CONFIG_DIR:-}" || buc_die "BURD_CONFIG_DIR not set - rbcc requir
 source "${BURD_CONFIG_DIR}/rbbc_constants.sh" || buc_die "Failed to source rbbc_constants.sh"
 
 # Literal constants (pure string literals, no variable expansion — available at source time)
-RBCC_rbro_file="${HOME}/.rbw/rbro.env"
 RBCC_rbrs_file="../station-files/rbrs.env"
 RBCC_rbrn_prefix="rbrn_"
 RBCC_rbrn_ext=".env"

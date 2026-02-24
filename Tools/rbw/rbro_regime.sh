@@ -67,14 +67,12 @@ zrbro_lock() {
 ######################################################################
 # Public Functions (rbro_*)
 
-# Load RBRO from the canonical location (~/.rbw/rbro.env)
+# Load RBRO from RBRR_PAYOR_RBRO_FILE (kindle constant from RBRR_SECRETS_DIR)
+# Requires: RBRR kindled+enforced+locked (RBRR_PAYOR_RBRO_FILE is a lock-step constant)
 rbro_load() {
-  local z_rbro_dir="${HOME}/.rbw"
-  local z_rbro_file="${z_rbro_dir}/rbro.env"
+  local z_rbro_file="${RBRR_PAYOR_RBRO_FILE}"
 
-  # Check directory and file exist
-  test -d "${z_rbro_dir}" || buc_die "RBRO directory missing (~/.rbw) - run rbgp_payor_install"
-  test -f "${z_rbro_file}" || buc_die "RBRO credentials missing (~/.rbw/rbro.env) - run rbgp_payor_install"
+  test -f "${z_rbro_file}" || buc_die "RBRO credentials missing (${z_rbro_file}) - run rbgp_payor_install"
   test -r "${z_rbro_file}" || buc_die "RBRO file not readable - check permissions"
 
   # Source and validate
