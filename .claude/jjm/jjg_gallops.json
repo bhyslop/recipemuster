@@ -5768,6 +5768,7 @@
         "₢AiAAP",
         "₢AiAAO",
         "₢AiAAR",
+        "₢AiAAX",
         "₢AiAAU",
         "₢AiAAV",
         "₢AiAAW",
@@ -5783,7 +5784,7 @@
         "₢AiAAM",
         "₢AiAAN"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6596,6 +6597,17 @@
               "text": "Modify the existing rbf_build() to dispatch via triggers.run instead of\nbuilds.create. This is surgery on an existing function, not a new implementation.\n\n## Remove from rbf_build()\n\n- zrbf_package_context() call and all tarball logic\n- zrbf_compose_tarball_name() call\n- zrbf_upload_context_to_gcs() call\n- zrbf_compose_build_request_json() call\n- zrbf_submit_build_json() call\n- zrbf_verify_git_clean() call (inscribe already synced mini-repo)\n- Build config JSON composition (substitutions block)\n- All ZRBF_BUILD_CONTEXT_TAR, ZRBF_BUILD_CONFIG_FILE references\n\n## Add to rbf_build()\n\n- Trigger lookup: find trigger ID for this vessel by sigil/pattern\n  (query cloudbuild.googleapis.com triggers list, or store in vessel config)\n- POST triggers.run with source.commitSha (from mini-repo HEAD)\n  - Endpoint: cloudbuild.googleapis.com/v1/projects/{project}/locations/{location}/triggers/{id}:run\n  - Zero custom substitution overrides — yaml is fully baked\n  - Only specify which commit to build from\n- Parse response to get build ID (triggers.run returns Operation)\n\n## Keep in rbf_build()\n\n- zrbf_load_vessel() — still need vessel config\n- Quota check (rbgd_check_gcb_quota) — still valuable\n- zrbf_wait_build_completion() — polling logic unchanged\n- OAuth token acquisition — still needed for API calls\n- Success/failure reporting\n\n## Also remove from zrbf_kindle()\n\n- Temp file variables for tarball, build config, build request\n  (ZRBF_BUILD_CONTEXT_TAR, ZRBF_BUILD_CONFIG_FILE, etc.)\n- GCS staging bucket references\n- Keep: API endpoint base, build status polling variables\n\n## References\n\n- Tools/rbw/rbf_Foundry.sh — rbf_build() (modify), zrbf_kindle() (simplify)\n- https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/run",
               "silks": "modify-rbf-build-for-trigger-dispatch",
               "commit": "7fb54fa"
+            }
+          ]
+        },
+        "₢AiAAX": {
+          "tacks": [
+            {
+              "ts": "260224-0757",
+              "state": "rough",
+              "text": "Implement RBRA GitHub PAT extension and depot_create connection creation.\n\n## RBRA Regime Extension\n\nIn Tools/rbw/rbra_regime.sh:\n- kindle: add RBRA_RUBRIC_GITHUB_PAT default\n- enroll: buv_string_enroll RBRA_RUBRIC_GITHUB_PAT 0 256 \"GitHub PAT for rubric repo management\"\n- enforce: if non-empty, validate format (ghp_ or github_pat_ prefix)\n\n## depot_create Changes\n\nIn Tools/rbw/rbgp_Payor.sh rbgp_depot_create():\n- Add developerconnect and secretmanager to API enablement list (step \"Enable depot project APIs\")\n- After IAM propagation and resource creation, create Developer Connect connection via REST:\n  POST to developerconnect.googleapis.com/v1/projects/{project}/locations/{region}/connections\n  with github-config-app=DEVELOPER-CONNECT\n  Connection left in PENDING state — OAuth completed later by depot_initialize\n\n## Regime smoke test\n\nVerify regime smoke test passes with optional empty RBRA_RUBRIC_GITHUB_PAT.\n\nReferences: RBSDC spec (updated in prior pace), rbra_regime.sh, rbgp_Payor.sh",
+              "silks": "code-rbra-pat-and-depot-create",
+              "commit": "234780c"
             }
           ]
         }
