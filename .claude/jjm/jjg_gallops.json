@@ -6230,6 +6230,13 @@
         "₢AiAAO": {
           "tacks": [
             {
+              "ts": "260224-0723",
+              "state": "complete",
+              "text": "Rewrite RBSTB-trigger_build.adoc to match the current spec architecture.\n\nDelete the builds.create procedure (steps 5-10: package context, GCS upload,\nstitch JSON, submit builds.create). Replace with triggers.run dispatch per\nthe paddock session decisions and rubric vocabulary.\n\nThe rewritten RBSTB must specify:\n1. Substitution variable inventory — complete _RBGY_* list baked into YAML\n   (including new: _RBGY_RUBRIC_REPO, _RBGY_RUBRIC_COMMIT, _RBGY_INSCRIBE_TIMESTAMP)\n2. Dispatch parameter — triggers.run with source.commitSha from {rbtgr_vessel_repo} HEAD\n3. Script inlining mechanism — step scripts (rbgjb/*.sh) inlined into YAML script: fields\n4. Tag construction formula — dual-timestamp consecration per RBS0 definition\n   (rbgjb01 assembles TAG_BASE from _RBGY_INSCRIBE_TIMESTAMP + build timestamp)\n\nUse rubric linked terms throughout. Maintain MCM patterns.\n\nInputs: the current RBS0 definitions, RBSRI, paddock session decisions.\nKeep: vessel loading (steps 1-3), authenticate, wait/poll, display results.",
+              "silks": "update-rbstb-spec",
+              "commit": "04cc50a"
+            },
+            {
               "ts": "260224-0657",
               "state": "rough",
               "text": "Rewrite RBSTB-trigger_build.adoc to match the current spec architecture.\n\nDelete the builds.create procedure (steps 5-10: package context, GCS upload,\nstitch JSON, submit builds.create). Replace with triggers.run dispatch per\nthe paddock session decisions and rubric vocabulary.\n\nThe rewritten RBSTB must specify:\n1. Substitution variable inventory — complete _RBGY_* list baked into YAML\n   (including new: _RBGY_RUBRIC_REPO, _RBGY_RUBRIC_COMMIT, _RBGY_INSCRIBE_TIMESTAMP)\n2. Dispatch parameter — triggers.run with source.commitSha from {rbtgr_vessel_repo} HEAD\n3. Script inlining mechanism — step scripts (rbgjb/*.sh) inlined into YAML script: fields\n4. Tag construction formula — dual-timestamp consecration per RBS0 definition\n   (rbgjb01 assembles TAG_BASE from _RBGY_INSCRIBE_TIMESTAMP + build timestamp)\n\nUse rubric linked terms throughout. Maintain MCM patterns.\n\nInputs: the current RBS0 definitions, RBSRI, paddock session decisions.\nKeep: vessel loading (steps 1-3), authenticate, wait/poll, display results.",
