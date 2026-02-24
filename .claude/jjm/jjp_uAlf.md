@@ -49,10 +49,8 @@ All regimes now use buv enrollment infrastructure: `buv_*_enroll` for field cont
 - Module: rbro_regime.sh / rbro_cli.sh
 - Scrubbed: ₢AfAAO — new module created (previously spec-only), enrollment, enforce, consumers validated
 
-### RBRE — ECR Regime [Singleton]
-- Spec: RBSRE-RegimeEcr.adoc (included from RBS0)
-- Module: rbre_regime.sh
-- Scrubbed: ₢AfAAg — enrollment, enforce
+### ~~RBRE — ECR Regime [Singleton]~~ REMOVED
+- Removed: ₢AfAAo — ghost regime (spec'd, never implemented), spec and linked terms deleted
 
 ### ~~RBRG — GitHub Regime [Singleton]~~ REMOVED
 - Removed: ₢AfAAA — ghost regime (spec'd, never implemented), consumers migrated
