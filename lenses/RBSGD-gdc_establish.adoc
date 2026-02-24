@@ -9,7 +9,7 @@ The Developer Connect connection is created in PENDING state as part of depot pr
 The operator opens the GitHub OAuth authorization URI in a browser and completes the consent flow.
 The procedure also validates the
 {rbra_rubric_repo_url}
-required for rubric repo management.
+required for {rbtgr_rubric_repo} management.
 
 This standalone guide is retained for reference.
 New installations should follow the

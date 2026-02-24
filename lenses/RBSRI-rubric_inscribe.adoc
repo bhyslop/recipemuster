@@ -2,7 +2,9 @@ The single
 {rbtgr_rubric}
 lifecycle command.
 Ensures a vessel's build definition is fully set up and synced to its
-{rbtgr_vessel_repo}.
+{rbtgr_vessel_dir}
+in the
+{rbtgr_rubric_repo}.
 
 // ⟦axs_inputs⟧
 
@@ -26,7 +28,7 @@ Ensures a vessel's build definition is fully set up and synced to its
 {rbtgr_build_yaml}
 from step scripts (`rbgjb/*.sh`) and regime pins
 .. All values baked: GAR coordinates, builder image pins (digest-pinned), vessel identity, platforms, inscribe timestamp
-.. Substitutions block includes `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` as placeholders — filled after mini-repo push (step 5)
+.. Substitutions block includes `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` as placeholders — filled after {rbtgr_rubric_repo} push (step 5)
 .. All other values deterministic: same inputs produce byte-identical output
 
 . *Verify Committed*:
@@ -34,32 +36,29 @@ from step scripts (`rbgjb/*.sh`) and regime pins
 .. If different: STOP and instruct operator to review diff, commit, and push
 .. On re-run: deterministic generation matches committed copy — proceed
 
-. *Ensure GitHub Repo Exists*:
-.. If
-{rbtgr_vessel_repo}
-does not exist on GitHub: create via REST API
-
-. *Fresh Clone and Sync*:
-.. Delete local clone at `.rbk/{vessel}/` if it exists
+. *Fresh Clone and Sync to Rubric Repo*:
+.. Delete local clone at `.rbk/rubric/` if it exists
 .. `git clone --depth 1` the
-{rbtgr_vessel_repo}
+{rbtgr_rubric_repo}
+using
+{rbra_rubric_repo_url}
 .. Copy
 {rbtgr_build_yaml},
-Dockerfile, and build context from main repo to clone
+Dockerfile, and build context from main repo to per-vessel directory in clone
 .. Fill `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` in the clone's copy of
 {rbtgr_build_yaml}
-with the actual mini-repo URL and the commit hash after push
+with the actual {rbtgr_rubric_repo} URL and the commit hash after push
 .. Commit and push (fully orchestrated — main repo is the reviewed source of truth)
 
 NOTE: Always-fresh-clone eliminates stale state.
 The
-{rbtgr_vessel_repo}
-is small (Dockerfile + build context + YAML) — shallow clone is sub-second.
+{rbtgr_rubric_repo}
+is small (per-vessel directories with Dockerfile + build context + YAML) — shallow clone is sub-second.
 
 . *Create Infrastructure (if needed)*:
 .. Create
 {rbtgi_source_link}
-for this vessel's repo if it does not exist (via Developer Connect REST API using
+for the {rbtgr_rubric_repo} if it does not exist (via Developer Connect REST API using
 {rbtgi_source_connection})
 .. Create
 {rbtgr_vessel_trigger}
@@ -68,17 +67,17 @@ if it does not exist (via Cloud Build REST API)
 
 // ⟦axs_outputs⟧
 
-* {rbtgr_vessel_repo} synced with current build material (including filled rubric repo metadata)
-* {rbtgi_source_link} binding the connection to this vessel's repo
+* {rbtgr_vessel_dir} synced with current build material (including filled {rbtgr_rubric_repo} metadata)
+* {rbtgi_source_link} binding the connection to the {rbtgr_rubric_repo}
 * {rbtgr_vessel_trigger} pointing to the
 {rbtgr_build_yaml}
 in the
-{rbtgr_vessel_repo}
+{rbtgr_vessel_dir}
 
 // ⟦axs_completion⟧
 
 NOTE: Inscribe is idempotent.
-A fresh vessel (no mini-repo, no trigger, no repo link) gets all three created.
+A fresh vessel (no {rbtgr_vessel_dir}, no trigger, no repo link) gets all created.
 An existing vessel gets its YAML synced — infrastructure resources are left in place.
 Proceed to
 {rbtgo_trigger_build}

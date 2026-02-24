@@ -81,7 +81,8 @@
 :rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
 :rbtgr_build_yaml:          <<rbtgr_build_yaml,Rubric YAML>>
 :rbtgr_vessel_trigger:      <<rbtgr_vessel_trigger,Vessel Trigger>>
-:rbtgr_vessel_repo:         <<rbtgr_vessel_repo,Vessel Repo>>
+:rbtgr_rubric_repo:         <<rbtgr_rubric_repo,Rubric Repo>>
+:rbtgr_vessel_dir:          <<rbtgr_vessel_dir,Vessel Directory>>
 :rbtgr_provenance:          <<rbtgr_provenance,Rubric Provenance>>
 
 // Recipe Bottle Term Google Operations
@@ -789,7 +790,7 @@ include::RBSGD-gdc_establish.adoc[]
 The single rubric lifecycle command: checks pin freshness, generates
 {rbtgr_build_yaml}
 from step scripts and regime pins, verifies committed in main repo, syncs to
-{rbtgr_vessel_repo},
+{rbtgr_vessel_dir},
 and creates
 {rbtgr_vessel_trigger}
 if it does not exist.
@@ -1250,7 +1251,7 @@ The composite per-vessel build definition comprising a committed
 a
 {rbtgr_vessel_trigger},
 and a
-{rbtgr_vessel_repo}.
+{rbtgr_vessel_dir}.
 Created and maintained by
 {rbtgo_rubric_inscribe}.
 
@@ -1267,11 +1268,24 @@ The per-vessel Cloud Build trigger resource in GCP.
 Dispatches builds via `triggers.run` when invoked by
 {rbtgo_trigger_build}.
 
-[[rbtgr_vessel_repo]]
+[[rbtgr_rubric_repo]]
 // ⟦axl_voices axig_repo_link⟧
-{rbtgr_vessel_repo}::
-The per-vessel mini-repo on GitHub containing only the build material (cloudbuild.yaml, Dockerfile, build context).
+{rbtgr_rubric_repo}::
+Single shared git repository containing per-vessel directories, each with build material
+(cloudbuild.yaml, Dockerfile, build context).
+Pre-created by the operator on any git hosting service.
 Cloud Build sees only this repo via Developer Connect — the main repo is never exposed.
+Accessed via
+{rbra_rubric_repo_url}.
+Managed by
+{rbtgo_rubric_inscribe}.
+
+[[rbtgr_vessel_dir]]
+// ⟦axl_voices axig_repo_link⟧
+{rbtgr_vessel_dir}::
+The per-vessel directory within
+{rbtgr_rubric_repo}
+containing that vessel's build material (cloudbuild.yaml, Dockerfile, build context).
 Managed by
 {rbtgo_rubric_inscribe}.
 
@@ -1297,9 +1311,9 @@ in PENDING state, then activated via
 {rbtgi_source_link}::
 A git repository link within the
 {rbtgi_source_connection},
-binding it to a specific
-{rbtgr_vessel_repo}.
-Per-vessel, created programmatically by
+binding it to the
+{rbtgr_rubric_repo}.
+Created programmatically by
 {rbtgo_rubric_inscribe}.
 
 === Support Infrastructure Definitions
@@ -2088,12 +2102,14 @@ APIs.
 [[rbra_rubric_repo_url]]
 // ⟦axl_voices axrg_variable axtu_string⟧
 {rbra_rubric_repo_url}::
-Authenticated git URL for the rubric repository.
+Authenticated git URL for the
+{rbtgr_rubric_repo}.
 Encodes credentials directly in the URL (e.g., `https://x-access-token:<PAT>@<host>/<org>/<repo>.git`).
 Used by
 {rbtgo_rubric_inscribe}
 to push build material via git.
-Optional — only populated in RBRA files for roles that manage the rubric repo.
+Optional — only populated in RBRA files for roles that manage the
+{rbtgr_rubric_repo}.
 Validated via `git ls-remote` to confirm reachability and credential validity.
 
 include::RBSRA-CredentialFormat.adoc[]
@@ -2793,7 +2809,7 @@ is present and reachable:
 . {rbbc_require} URL argument is non-empty or {rbbc_fatal} with guidance to set it in the appropriate RBRA file and run {rbtgo_depot_initialize},
 . {rbbc_call} `git ls-remote <URL> HEAD` to verify the URL is reachable and credentials are valid,
 . {rbbc_require} successful exit from `git ls-remote` or {rbbc_fatal} "URL is unreachable or credentials are invalid",
-. logs confirmation that the rubric repo URL is validated.
+. logs confirmation that the {rbtgr_rubric_repo} URL is validated.
 
 No side effects.
 Callable from any CLI context via `rbgu_check_rubric_repo_url`.

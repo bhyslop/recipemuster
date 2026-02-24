@@ -5,7 +5,7 @@ completes one-time depot initialization after
 has provisioned infrastructure.
 This procedure validates the
 {rbra_rubric_repo_url}
-for rubric repo management and completes the GitHub OAuth authorization for the
+for {rbtgr_rubric_repo} management and completes the GitHub OAuth authorization for the
 {rbtgi_source_connection}
 created by
 {rbtgo_depot_create}
@@ -97,7 +97,7 @@ if timeout: "Developer Connect OAuth did not complete — re-open the authorizat
 . *Final Validation*:
 .. {rbbc_show}
 "Running final validation..."
-.. Verify rubric repo URL: repeat `git ls-remote` call — {rbbc_require} successful exit
+.. Verify {rbtgr_rubric_repo} URL: repeat `git ls-remote` call — {rbbc_require} successful exit
 .. Verify Developer Connect: repeat connections.get call — {rbbc_require} `installationState.stage` is `COMPLETE`
 .. {rbbc_show}
 "Depot initialization complete"
@@ -117,9 +117,9 @@ Successful execution confirms the depot is fully initialized for
 operations.
 The
 {rbra_rubric_repo_url}
-enables rubric repo management and the
+enables {rbtgr_rubric_repo} management and the
 {rbtgi_source_connection}
-enables Cloud Build to access vessel mini-repos.
+enables Cloud Build to access the {rbtgr_rubric_repo}.
 Proceed to
 {rbtgo_rubric_inscribe}
 to set up per-vessel build infrastructure.

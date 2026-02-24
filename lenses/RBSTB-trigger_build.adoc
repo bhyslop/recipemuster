@@ -3,7 +3,7 @@ NOTE: This operation dispatches a container build via the vessel's
 using the committed
 {rbtgr_build_yaml}
 in its
-{rbtgr_vessel_repo}.
+{rbtgr_vessel_dir}.
 All substitution values are baked at inscribe time — zero custom overrides at dispatch.
 
 NOTE: This operation supports concurrent execution per the Concurrent Session Safety invariant.
@@ -74,8 +74,8 @@ if not found: "Vessel trigger not found — run {rbtgo_rubric_inscribe} first"
 
 . *Dispatch Build via Trigger*:
 .. {rbbc_store}
-`«RUBRIC_COMMIT»` as HEAD of vessel's
-{rbtgr_vessel_repo}
+`«RUBRIC_COMMIT»` as HEAD of
+{rbtgr_rubric_repo}
 (recorded by most recent
 {rbtgo_rubric_inscribe})
 .. {rbbc_submit}
@@ -186,8 +186,8 @@ Cloud Build resolves these from the committed YAML — no values are overridden 
 | `_RBGY_GIT_COMMIT` | Main repo HEAD SHA at inscribe time.
 | `_RBGY_GIT_BRANCH` | Main repo branch at inscribe time.
 | `_RBGY_GIT_REPO` | Main repo identifier (owner/repo).
-| `_RBGY_RUBRIC_REPO` | {rbtgr_vessel_repo} URL. Filled after mini-repo push.
-| `_RBGY_RUBRIC_COMMIT` | {rbtgr_vessel_repo} HEAD SHA after push. Filled after mini-repo push.
+| `_RBGY_RUBRIC_REPO` | {rbtgr_rubric_repo} URL. Filled after {rbtgr_rubric_repo} push.
+| `_RBGY_RUBRIC_COMMIT` | {rbtgr_rubric_repo} HEAD SHA after push. Filled after {rbtgr_rubric_repo} push.
 | `_RBGY_INSCRIBE_TIMESTAMP` | Inscribe timestamp (`YYYYMMDD_HHMMSS`). Used by rbgjb01 to construct {rbtga_consecration}.
 |===
 
@@ -207,7 +207,7 @@ to regenerate
 {rbtgr_build_yaml}
 with the updated content.
 The committed YAML in the main repo is the reviewed artifact;
-the mini-repo copy is synced by inscribe.
+the {rbtgr_rubric_repo} copy is synced by inscribe.
 
 ==== Tag Construction
 
