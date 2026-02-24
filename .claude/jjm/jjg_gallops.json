@@ -7964,6 +7964,13 @@
         "₢AiAAV": {
           "tacks": [
             {
+              "ts": "260224-0705",
+              "state": "rough",
+              "text": "Implement the inscribe command as a new tabtarget per RBSRI spec.\n\nMint colophon per prefix discipline. Wire through rbz_zipper.sh and rbw_workbench.sh.\nTakes vessel directory as argument.\n\nImplements the full RBSRI behavior:\n- Pin freshness gate (zrbf_check_pin_freshness from AiAAU)\n- Load vessel, generate YAML (modified stitch from AiAAU)\n- Verify committed in main repo\n- Always-fresh-clone: delete .rbk/{vessel}/, git clone --depth 1 the {rbtgr_vessel_repo}\n- Sync build material to clone, fill _RBGY_RUBRIC_REPO/_RUBRIC_COMMIT placeholders\n- Commit+push mini-repo\n- Create GitHub mini-repo if needed (REST API)\n- Create {rbtgi_source_link} if needed (Developer Connect REST API)\n- Create {rbtgr_vessel_trigger} if needed (Cloud Build REST API)\n  Trigger name: RBGC_RUBRIC_TRIGGER_PREFIX + vessel sigil\n\nAlways-fresh-clone eliminates stale state — mini-repo is tiny, shallow clone is sub-second.\nIdempotent: fresh vessel gets all infrastructure created; existing vessel gets YAML synced.\nAll API calls via curl/REST per paddock constraint. .rbk/ gitignored for local clones.\n\nReuses: zrbf_load_vessel(), modified stitch, kindle constants (all from AiAAU),\nrbgo_get_token_capture() for OAuth.\n\nReferences: RBSRI spec (authoritative behavior), paddock session decisions.",
+              "silks": "implement-inscribe-tabtarget",
+              "commit": "348a1d3"
+            },
+            {
               "ts": "260224-0657",
               "state": "rough",
               "text": "Implement the inscribe command as a new tabtarget per RBSRI spec.\n\nMint colophon per prefix discipline. Wire through rbz_zipper.sh and rbw_workbench.sh.\nTakes vessel directory as argument.\n\nImplements the full RBSRI behavior:\n- Pin freshness gate (zrbf_check_pin_freshness from AiAAU)\n- Load vessel, generate YAML (modified stitch from AiAAU)\n- Verify committed in main repo\n- Clone/pull {rbtgr_vessel_repo}, sync build material, commit+push\n- Create GitHub mini-repo if needed (REST API)\n- Create {rbtgi_source_link} if needed (Developer Connect REST API)\n- Create {rbtgr_vessel_trigger} if needed (Cloud Build REST API)\n  Trigger name: RBGC_RUBRIC_TRIGGER_PREFIX + vessel sigil\n\nIdempotent: fresh vessel gets all infrastructure created; existing vessel gets YAML synced.\nAll API calls via curl/REST per paddock constraint. .rbk/ gitignored for local clones.\n\nReuses: zrbf_load_vessel(), modified stitch, kindle constants (all from AiAAU),\nrbgo_get_token_capture() for OAuth.\n\nReferences: RBSRI spec (authoritative behavior), paddock session decisions.",
