@@ -787,15 +787,15 @@ rbgp_depot_create() {
   # Display Depot Configuration
   buc_step 'Display depot configuration'
   buc_success 'Depot creation successful'
-  buc_info "Required RBRR configuration values:"
-  buc_info "  RBRR_DEPOT_PROJECT_ID=${z_depot_project_id}"
-  buc_info "  RBRR_GCP_REGION=${z_region}"
-  buc_info "  RBRR_GAR_REPOSITORY=${z_repository_name}"
-  buc_info "  RBRR_GDC_CONNECTION_NAME=${z_gdc_connection_name}"
-  buc_info "  RBRR_GDC_REGION=${z_region}"
   buc_info "Mason service account: ${z_mason_sa_email}"
   buc_info "Developer Connect connection '${z_gdc_connection_name}' created in PENDING state"
-  buc_info "Next: rbgm_depot_initialize to complete GitHub OAuth authorization"
+  buc_info "Update RBRR configuration:"
+  buc_bare "  RBRR_DEPOT_PROJECT_ID=${z_depot_project_id}"
+  buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
+  buc_bare "  RBRR_GDC_CONNECTION_NAME=${z_gdc_connection_name}"
+  buc_bare "  RBRR_GDC_REGION=${z_region}"
+  buc_info "Complete GitHub OAuth authorization:"
+  buc_next "rbw-gdi"
 }
 
 rbgp_depot_destroy() {

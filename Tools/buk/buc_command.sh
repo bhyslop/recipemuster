@@ -100,6 +100,21 @@ buc_die() {
   exit 1
 }
 
+# Display unprefixed cyan text for typeable guidance (commands, config values)
+buc_bare() { zbuc_tag_args 3 "buc_bare     " "$@"; printf '%b\n' "${ZBUC_CYAN}$*${ZBUC_RESET}" >&2; }
+
+# Display tabtarget hint: resolves colophon to tabtarget filename
+# Args: colophon [extra_args...]
+buc_next() {
+  local z_colophon="$1"
+  shift
+  local z_extra="${*:+ $*}"
+  local z_match
+  z_match=$(set +o pipefail; ls "${BURD_TABTARGET_DIR}/${z_colophon}."* 2>/dev/null | head -1) || true
+  test -n "${z_match}" || buc_die "buc_next: no tabtarget found for colophon '${z_colophon}'"
+  buc_bare "        ${z_match##*/}${z_extra}"
+}
+
 buc_context() {
   ZBUC_CONTEXT="$1"
 }
