@@ -23,13 +23,13 @@ set -euo pipefail
 ZRBRR_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
-source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/burd_regime.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buv_validation.sh"
+source "${BURD_BUK_DIR}/burd_regime.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBRR_CLI_SCRIPT_DIR}/rbrr_regime.sh"
 source "${RBCC_rbrr_file}"
-source "${ZRBRR_CLI_SCRIPT_DIR}/../buk/bupr_PresentationRegime.sh"
+source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
 
 ######################################################################
 # Internal Functions

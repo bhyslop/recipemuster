@@ -24,9 +24,9 @@ set -euo pipefail
 VOW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${VOW_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${VOW_SCRIPT_DIR}/../buk/buv_validation.sh"
-source "${VOW_SCRIPT_DIR}/../buk/burd_regime.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buv_validation.sh"
+source "${BURD_BUK_DIR}/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"

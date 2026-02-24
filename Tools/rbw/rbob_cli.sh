@@ -33,8 +33,8 @@ set -euo pipefail
 ZRBOB_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZRBOB_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${ZRBOB_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buv_validation.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbrn_regime.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBOB_CLI_SCRIPT_DIR}/rbrr_regime.sh"

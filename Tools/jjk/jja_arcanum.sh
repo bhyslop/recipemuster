@@ -28,7 +28,7 @@ set -euo pipefail
 ZJJW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${ZJJW_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"

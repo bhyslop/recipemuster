@@ -22,7 +22,7 @@ set -euo pipefail
 
 ZRBQ_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
-source "${ZRBQ_SCRIPT_DIR}/../buk/buq_qualify.sh"
+source "${BURD_BUK_DIR}/buq_qualify.sh"
 
 # Multiple inclusion detection
 test -z "${ZRBQ_SOURCED:-}" || buc_die "Module rbq multiply sourced - check sourcing hierarchy"

@@ -25,7 +25,7 @@ set -euo pipefail
 
 # Source the actual module from BUK
 ZRBCR_WRAPPER_DIR="${BASH_SOURCE[0]%/*}"
-source "${ZRBCR_WRAPPER_DIR}/../buk/bupr_PresentationRegime.sh"
+source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
 
 # Backward-compatible function aliases
 zrbcr_kindle()       { zbupr_kindle "$@"; }

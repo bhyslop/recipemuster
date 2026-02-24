@@ -23,7 +23,7 @@ set -euo pipefail
 ZVVB_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${ZVVB_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 source "${ZVVB_CLI_SCRIPT_DIR}/vvb_bash.sh"
 
 zvvb_furnish() {

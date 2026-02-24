@@ -23,9 +23,9 @@ set -euo pipefail
 ZVOB_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source all dependencies
-source "${ZVOB_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${ZVOB_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
-source "${ZVOB_CLI_SCRIPT_DIR}/../buk/burd_regime.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buv_validation.sh"
+source "${BURD_BUK_DIR}/burd_regime.sh"
 source "${ZVOB_CLI_SCRIPT_DIR}/vof_features.sh"
 source "${ZVOB_CLI_SCRIPT_DIR}/../vvk/vvb_bash.sh"
 source "${ZVOB_CLI_SCRIPT_DIR}/vob_build.sh"

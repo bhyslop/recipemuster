@@ -23,9 +23,9 @@ set -euo pipefail
 ZRBQ_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${ZRBQ_CLI_SCRIPT_DIR}/../buk/buc_command.sh"
-source "${ZRBQ_CLI_SCRIPT_DIR}/../buk/buv_validation.sh"
-source "${ZRBQ_CLI_SCRIPT_DIR}/../buk/buz_zipper.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buv_validation.sh"
+source "${BURD_BUK_DIR}/buz_zipper.sh"
 source "${ZRBQ_CLI_SCRIPT_DIR}/rbz_zipper.sh"
 source "${ZRBQ_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${ZRBQ_CLI_SCRIPT_DIR}/rbrn_regime.sh"
