@@ -487,7 +487,6 @@ rbgm_gdc_establish() {
 
   local z_gdc_conn="${RBRR_GDC_CONNECTION_NAME}"
   local z_gdc_region="${RBRR_GDC_REGION}"
-  local z_gdc_repo_link="${RBRR_GDC_REPO_LINK}"
   local z_project="${RBRR_DEPOT_PROJECT_ID}"
   local z_api_base="https://developerconnect.googleapis.com/v1"
   local z_conn_path="projects/${z_project}/locations/${z_gdc_region}/connections/${z_gdc_conn}"
@@ -506,13 +505,11 @@ rbgm_gdc_establish() {
   bug_tc       "   RBRR_DEPOT_PROJECT_ID:    " "${z_project}"
   bug_tc       "   RBRR_GDC_CONNECTION_NAME: " "${z_gdc_conn}"
   bug_tc       "   RBRR_GDC_REGION:          " "${z_gdc_region}"
-  bug_tc       "   RBRR_GDC_REPO_LINK:       " "${z_gdc_repo_link}"
   bug_e
-  if [ "${z_gdc_conn}" = "PLACEHOLDER" ] || [ "${z_gdc_repo_link}" = "PLACEHOLDER" ]; then
+  if [ "${z_gdc_conn}" = "PLACEHOLDER" ]; then
     bug_critical "PLACEHOLDER values detected — choose real names before proceeding"
     bug_t        "   Connection names must be lowercase alphanumeric with hyphens."
     bug_tc       "   Suggested connection name: " "rbw-github-connection"
-    bug_tc       "   Suggested repo link name:  " "rbw-main-repo"
     bug_t        "   Update rbrr.env and re-run this procedure."
     bug_e
   fi
@@ -558,21 +555,14 @@ rbgm_gdc_establish() {
   bug_tc       "   Expected output: " "COMPLETE"
   bug_tut      "   If still " "PENDING_USER_OAUTH" " or PENDING_INSTALL_APP, re-open the actionUri from step 4"
   bug_e
-  bug_section  "6. Create Git Repository Link:"
-  bug_t        "   Link the main GitHub repository to the connection:"
-  bug_c        "   gcloud developer-connect connections git-repository-links create ${z_gdc_repo_link} \\"
-  bug_c        "       --clone-uri=https://github.com/scaleinv/recipebottle.git \\"
-  bug_c        "       --connection=${z_gdc_conn} \\"
-  bug_c        "       --location=${z_gdc_region}"
-  bug_e
-  bug_section  "7. Record Resource Names in RBRR:"
+  bug_section  "6. Record Resource Names in RBRR:"
   bug_t        "   Update rbrr.env with the actual values used above:"
   bug_tc       "   RBRR_GDC_CONNECTION_NAME=" "${z_gdc_conn}"
   bug_tc       "   RBRR_GDC_REGION="          "${z_gdc_region}"
-  bug_tc       "   RBRR_GDC_REPO_LINK="       "${z_gdc_repo_link}"
   bug_t        "   (If you used the suggested names and pre-configured rbrr.env, these are already set)"
+  bug_t        "   Per-vessel repo links are created later by inscribe — not configured here."
   bug_e
-  bug_section  "8. Validate via REST API Health Check:"
+  bug_section  "7. Validate via REST API Health Check:"
   bug_t        "   Verify the connection is healthy:"
   bug_c        "   curl -s -H \"Authorization: Bearer \\$(gcloud auth print-access-token)\" \\"
   bug_c        "     \"${z_api_base}/${z_conn_path}\" \\"
@@ -580,14 +570,7 @@ rbgm_gdc_establish() {
   bug_e
   bug_tc       "   Expected: " "\"COMPLETE\""
   bug_e
-  bug_t        "   Verify the repository link exists:"
-  bug_c        "   curl -s -H \"Authorization: Bearer \\$(gcloud auth print-access-token)\" \\"
-  bug_c        "     \"${z_api_base}/${z_conn_path}/gitRepositoryLinks/${z_gdc_repo_link}\" \\"
-  bug_c        "     | jq '.cloneUri'"
-  bug_e
-  bug_tc       "   Expected: " "\"https://github.com/scaleinv/recipebottle.git\""
-  bug_e
-  bug_section  "9. Verify Regime Smoke Test:"
+  bug_section  "8. Verify Regime Smoke Test:"
   bug_t        "   Run the regime smoke test to confirm RBRR values pass validation:"
   bug_c        "   ./tt/rbw-trg.TestRegimeSmoke.sh"
   bug_e
