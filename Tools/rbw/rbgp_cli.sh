@@ -28,6 +28,7 @@ zrbgp_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/bug_guide.sh"
   source "${z_rbw_kit_dir}/rbgc_Constants.sh"
@@ -42,6 +43,7 @@ zrbgp_furnish() {
 
   buc_log_args 'Initialize modules'
   zbuv_kindle
+  zburd_kindle
   zrbcc_kindle
 
   zrbrr_kindle
