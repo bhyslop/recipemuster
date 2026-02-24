@@ -434,14 +434,14 @@ jjx_transfer FIREMARK --to FIREMARK <stdin
 jjx_continue FIREMARK
 jjx_mark CORONET --marker M --description "text"
 jjx_paddock FIREMARK [<stdin for set]
-jjx_relocate CORONET --to FIREMARK
+jjx_relocate CORONET --to FIREMARK [--first|--before C|--after C]
 jjx_orient [FIREMARK]
 jjx_revise_docket CORONET <stdin
 jjx_arm CORONET <stdin
 jjx_relabel CORONET --silks "name"
 jjx_drop CORONET
 jjx_get_brief CORONET
-jjx_get_coronets FIREMARK [--rough]
+jjx_get_coronets FIREMARK [--remaining] [--rough]
 jjx_landing CORONET AGENT <stdin
 jjx_validate [--file PATH]
 ```
