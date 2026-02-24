@@ -7584,6 +7584,13 @@
         "₢AiAAK": {
           "tacks": [
             {
+              "ts": "260224-0658",
+              "state": "rough",
+              "text": "End-to-end verification of the full rubric lifecycle for rbev-busybox.\nGate before migrating remaining vessels.\n\n## Verify inscribe\n\nRun inscribe for busybox — should generate YAML, sync to mini-repo, create trigger.\nVerify {rbtgr_vessel_trigger} exists and points to {rbtgr_vessel_repo} via Developer Connect.\nVerify mini-repo contains correct cloudbuild.yaml + Dockerfile + build context.\n\n## Verify build dispatch\n\nRun rbf_build for busybox (modified triggers.run path).\nZero substitution overrides — all values baked.\nVerify build completes successfully.\n\n## Verify outputs\n\n- Image in GAR with dual-timestamp consecration tag (i{ts}-b{ts}-image)\n- {rbtgr_provenance} present on built image (SLSA v1.0 attestation)\n- {rbtga_ark_about} works (build_info.json extended with rubric repo metadata)\n- Multiple builds of same inscribed YAML produce distinct but related tags\n\n## Verify SLSA provenance chain\n\n- Provenance records mini-repo as source (not main repo)\n- Provenance records correct commit hash\n- No custom substitution overrides recorded\n\nDocument any issues found. This pace may require multiple rounds.",
+              "silks": "e2e-verify-busybox-trigger",
+              "commit": "40c68f9"
+            },
+            {
               "ts": "260223-1823",
               "state": "rough",
               "text": "End-to-end verification of the full rubric lifecycle for rbev-busybox.\nGate before migrating remaining vessels.\n\n## Verify inscribe\n\n- Run inscribe for busybox — should generate yaml, sync to mini-repo, create trigger\n- Verify trigger exists in GCP and points to mini-repo via Developer Connect\n- Verify mini-repo contains correct cloudbuild.yaml + Dockerfile + build context\n\n## Verify build dispatch\n\n- Run rbf_build for busybox (modified triggers.run path)\n- Zero custom substitution overrides — all values baked\n- Verify build completes successfully in Cloud Build\n\n## Verify outputs\n\n- Image lands in GAR with inscribe-timestamp + BUILD_ID tag pattern\n  (e.g., rbev-busybox:i20260223.143022.f7e2a91b-image)\n- SLSA v1.0 provenance present on the built image\n- Metadata container (-about) works\n- Build same commit twice → distinct but related tags (shared inscribe prefix,\n  different BUILD_ID suffix)\n\n## Verify SLSA provenance chain\n\n- Provenance records mini-repo as source (not main repo)\n- Provenance records correct commit hash\n- No custom substitutions recorded in provenance (clean)\n\n## Document any issues found\n\n- Iterate on inscribe/build if problems are discovered\n- This pace may require multiple rounds",
