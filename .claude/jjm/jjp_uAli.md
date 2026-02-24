@@ -42,7 +42,7 @@ Developer Connect provides the bridge from GitHub to GCB:
 - **Zero custom substitution overrides** — all values baked into committed yaml at inscribe
   time (GAR coordinates, pins, platforms, vessel identity, inscribe timestamp in tag).
   Per-build uniqueness comes from Cloud Build built-in `$BUILD_ID`. Maximum SLSA purity.
-- **GitHub as host** (Developer Connect + OAuth GitHub App, no CLI dependencies, no PAT)
+- **GitHub as host** (Developer Connect + OAuth GitHub App, no gcloud/gh CLI dependency)
 - **Per-vessel {rbtgr_build_yaml}** — master copy committed to main repo (user-reviewed),
   synced to mini-repo by inscribe
 - **Inscribe timestamp in tags** — baked at inscribe time (e.g., `i20260223.143022`),
@@ -135,6 +135,40 @@ Example: `i20260224_153022-b20260224_160530-image`
 - `rbgjb01` modified to: `TAG_BASE="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"`
 - Consecration = full tag base (both timestamps)
 
+### Session Decisions (2026-02-24, session 2)
+
+**gcloud is not available on the platform**
+The `rbgm_gdc_establish()` guide was fundamentally wrong — it used gcloud commands throughout.
+The platform does not have gcloud installed and it is not on the approved tools list. All GCP
+operations must use curl/REST, consistent with the existing Foundry pattern.
+
+**Most of Developer Connect setup is automatable**
+API enablement, connection creation, and status polling are all REST API calls. The ONLY
+human-interactive step is opening the OAuth authorization URI in a browser and clicking
+Authorize on the GitHub app consent page. This is one-time per GitHub org.
+
+**Developer Connect OAuth belongs at payor/depot level**
+It's org-level infrastructure, like billing account setup. Connection creation moves into
+`rbgp_depot_create()` (automated). OAuth completion moves into a new `rbgm_depot_initialize()`
+(human-guided with orchestration).
+
+**GitHub PAT needed for inscribe — `RBRA_RUBRIC_GITHUB_PAT`**
+Inscribe manages mini-repos locally: create repos via GitHub REST API, git clone, git push.
+Cloud Build does NOT need the PAT (uses Developer Connect). The PAT is local-only.
+Added as an optional field in the RBRA regime (only Director populates it).
+Name: `RBRA_RUBRIC_GITHUB_PAT` (not `RBRA_GITHUB_PAT` — scoped to rubric management).
+
+**`rbgm_gdc_establish()` replaced by depot_create + depot_initialize**
+The standalone manual guide is deleted. Its responsibilities split:
+- Automated: API enablement + connection creation → `rbgp_depot_create()`
+- Human-guided: PAT validation + OAuth browser step → `rbgm_depot_initialize()`
+
+**`rbgm_depot_initialize()` must be idempotent**
+Safe to re-run. Skips steps already complete (PAT already valid, connection already COMPLETE).
+
+**Will delete and recreate depot for testing**
+No history-adaptive steps. Test against a fresh depot created with the updated `rbgp_depot_create()`.
+
 **₢AiAAN scope: remove builds.create path only**
 Keep `rbgjb/*.sh` (inscribe source material). Only remove: builds.create submission functions,
 GCS tarball chain, JSON build request assembly, tarball temp variables from kindle.
@@ -144,10 +178,18 @@ GCS tarball chain, JSON build request assembly, tarball temp variables from kind
 **Build context scope**: With mini-repo triggers, Cloud Build checks out only the mini-repo
 (Dockerfile + build context + cloudbuild.yaml). The main repo is never exposed.
 
-**Developer Connect setup**: Requires one-time interactive browser OAuth to authorize the
-Google Developer Connect GitHub App on the mini-repos. Not scriptable end-to-end — the
-human must complete the GitHub authorization flow once. Subsequent trigger operations are
-fully automated via REST API.
+**Developer Connect setup**: One-time per GitHub org. Connection creation is automated in
+`rbgp_depot_create()` (left in PENDING state). The human completes the GitHub OAuth
+authorization via `rbgm_depot_initialize()` (open browser, click Authorize). Subsequent
+trigger operations are fully automated via REST API.
+
+**GitHub PAT for inscribe**: Inscribe manages mini-repos locally (create via GitHub REST API,
+clone, push). This requires `RBRA_RUBRIC_GITHUB_PAT` in the Director RBRA file — a
+fine-grained PAT scoped to repo creation and push. Cloud Build does NOT need this PAT;
+it accesses mini-repos via Developer Connect.
+
+**No gcloud dependency**: All GCP operations use curl/REST. The platform does not have
+gcloud installed. All GitHub operations use the PAT + REST API or git CLI with PAT auth.
 
 ### What Dies
 
@@ -157,7 +199,8 @@ fully automated via REST API.
 - Runtime stitching from the build hot path (stitch is now at inscribe time, not build time)
 - The `$$` dollar-escaping dance for Cloud Build substitutions
 - Dispatch-time `_RBGY_*` substitution overrides (values now baked in committed YAML)
-- Courier credential regime concept (no GitHub PAT needed)
+- Courier credential regime concept (replaced by RBRA_RUBRIC_GITHUB_PAT + Developer Connect)
+- `rbgm_gdc_establish()` standalone manual guide and `tt/rbw-gge.GdcEstablishment.sh`
 
 ### What Survives (modified)
 
@@ -177,6 +220,9 @@ fully automated via REST API.
 - Inscribe tabtarget + mini-repo management orchestration
 - Pin freshness gate (RBRR_GCB_PINS_REFRESHED_AT)
 - AXLA motifs: axig_developer_connect, axig_build_trigger, axig_repo_link, axig_build_config, axig_slsa_provenance
+- `RBRA_RUBRIC_GITHUB_PAT` — optional RBRA field for GitHub mini-repo management (Director only)
+- `rbgm_depot_initialize()` — human procedure: validate PAT, guide Developer Connect OAuth, verify
+- Developer Connect connection creation step in `rbgp_depot_create()` (automated, PENDING state)
 
 ### Vessel Modes
 
