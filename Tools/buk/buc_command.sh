@@ -131,13 +131,23 @@ buc_doc_env() {
   # Trim trailing spaces from variable name
   env_var_name="${env_var_name%% *}"
 
-  # In doc mode, show documentation first
+  # In doc mode, show documentation only (no validation — env vars may not be set)
   if zbuc_do_execute; then
     echo "  ${ZBUC_MAGENTA}${1}${ZBUC_RESET}:  ${env_var_info}"
+    return 0
   fi
 
-  # Always check if variable is set (using trimmed name)
+  # In execute mode, validate variable is set
   eval "test -n \"\${${env_var_name}:-}\"" || buc_warn "${env_var_name} is not set"
+}
+
+# Idiomatic last step of environment documentation in furnish.
+# In doc mode, signals furnish to return early (sourcing/kindle not needed for help).
+# Usage:
+#    buc_doc_env_done || return 0
+buc_doc_env_done() {
+  zbuc_do_execute || return 0
+  return 1
 }
 
 ZBUC_USAGE_STRING="UNFILLED"
