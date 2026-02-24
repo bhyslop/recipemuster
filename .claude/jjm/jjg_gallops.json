@@ -7208,6 +7208,7 @@
         "₢AiAAD",
         "₢AiAAS",
         "₢AiAAP",
+        "₢AiAAO",
         "₢AiAAR",
         "₢AiAAU",
         "₢AiAAV",
@@ -7222,8 +7223,7 @@
         "₢AiAAQ",
         "₢AiAAL",
         "₢AiAAM",
-        "₢AiAAN",
-        "₢AiAAO"
+        "₢AiAAN"
       ],
       "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
