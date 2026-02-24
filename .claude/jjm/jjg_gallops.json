@@ -4596,6 +4596,7 @@
       "creation_time": "260222",
       "status": "racing",
       "order": [
+        "₢AiAAb",
         "₢AiAAA",
         "₢AiAAB",
         "₢AiAAC",
@@ -4624,7 +4625,7 @@
         "₢AiAAM",
         "₢AiAAN"
       ],
-      "next_pace_seed": "AAb",
+      "next_pace_seed": "AAc",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5530,6 +5531,17 @@
               "text": "Implement rbtgo_rubric_preflight: a non-interactive, no-side-effect gate that\nvalidates rubric infrastructure readiness. Dies on failure (BCG buc_die pattern).\n\n## Spec (RBS0)\n\nAdd new section defining {rbtgo_rubric_preflight} operation:\n- Linked term: rbtgo_rubric_preflight\n- Validates GitHub PAT (RBRA_RUBRIC_GITHUB_PAT) via GET https://api.github.com/user\n- Validates Developer Connect connection stage == COMPLETE via REST API\n- Returns success or buc_die — no side effects, no browser, no polling\n- Called as prerequisite gate, not as standalone user command\n\nAdd prerequisite requirement in Governor Operations section:\n- {rbtgo_retriever_create} must call {rbtgo_rubric_preflight} before any work\n- {rbtgo_director_create} must call {rbtgo_rubric_preflight} before any work\n\nAdd final validation call at end of {rbtgo_depot_initialize} sequence.\n\n## Code\n\nImplement function (likely in rbgm_ManualProcedures.sh or Governor):\n- Load RBRA_RUBRIC_GITHUB_PAT from director RBRA\n- curl GET https://api.github.com/user with Bearer token, check HTTP 200 || buc_die\n- Get GCP OAuth token, GET DevConnect connection endpoint, extract .installationState.stage\n- test stage == COMPLETE || buc_die\n- No user prompts, no browser, no polling — instant pass/die\n\nWire into rbgg_create_retriever() and rbgg_create_director() as early gate\n(after zrbgg_sentinel, before any work).\n\nWire into rbgm_depot_initialize() as final health confirmation.\n\n## Verify\n\nAttempt retriever creation without valid PAT/DevConnect — should die cleanly\nwith actionable error message.\n\n## References\n\n- Tools/rbw/rbgg_Governor.sh — rbgg_create_retriever(), rbgg_create_director()\n- Tools/rbw/rbgm_ManualProcedures.sh — rbgm_depot_initialize() lines 522-620\n- Tools/rbw/rbgc_Constants.sh — RBGC_API_ROOT_DEVELOPERCONNECT\n- Tools/buk/vov_veiled/BCG-BashConsoleGuide.md — buc_die gate pattern",
               "silks": "rbtgo-rubric-preflight",
               "commit": "cd899f7"
+            }
+          ]
+        },
+        "₢AiAAb": {
+          "tacks": [
+            {
+              "ts": "260224-1525",
+              "state": "rough",
+              "text": "Implement single rubric repo model replacing per-vessel mini-repos.\n\n## Changes\n\n1. **RBRA regime**: Drop `RBRA_RUBRIC_GITHUB_PAT`, add `RBRA_RUBRIC_REPO_URL` (optional, 0-512 chars)\n   - Authenticated git URL: `https://x-access-token:<PAT>@github.com/org/repo.git`\n   - Host-agnostic — works with GitHub, GitLab, Bitbucket, any git service\n\n2. **Preflight checks**: Replace `rbtoe_check_rubric_pat` (GitHub API call) with\n   `git ls-remote \"${RBRA_RUBRIC_REPO_URL}\"` validation — universal, host-agnostic\n\n3. **`zrbgg_rubric_preflight()`**: Update to check URL reachability instead of PAT format\n\n4. **`rbgm_depot_initialize()`**: Simplify PAT guidance section:\n   - \"Create a repo on your git hosting service\"\n   - \"Create a PAT with Contents:write on that repo\"\n   - \"Provide the authenticated URL as RBRA_RUBRIC_REPO_URL\"\n   - Validate with `git ls-remote`\n\n5. **Developer Connect source link**: Points to single rubric repo (not per-vessel)\n\n## Files touched\n- `Tools/rbw/rbra_regime.sh` — enrollment change\n- `Tools/rbw/rbgu_Utility.sh` — check routine replacement\n- `Tools/rbw/rbgg_Governor.sh` — preflight update\n- `Tools/rbw/rbgm_ManualProcedures.sh` — depot_initialize guide rewrite\n- `lenses/RBS0-SpecTop.adoc` — spec updates for new linked terms\n\n## Acceptance\n- `depot_initialize` runs and validates rubric repo URL via `git ls-remote`\n- Preflight gates pass with valid authenticated URL\n- Preflight gates fail cleanly with missing/invalid URL",
+              "silks": "rubric-repo-redesign",
+              "commit": "951555d"
             }
           ]
         }
