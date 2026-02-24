@@ -7105,6 +7105,13 @@
         "₢AfAAp": {
           "tacks": [
             {
+              "ts": "260223-1801",
+              "state": "complete",
+              "text": "Add missing zrbrs_enforce call in rbv_cli.sh after zrbrs_kindle on line 51.\n\n## Context\n\nrbv_cli.sh sources RBRS station file and calls zrbrs_kindle but never calls zrbrs_enforce.\nRBRS variables are then consumed without validation. rbrs_cli.sh does this correctly — rbv_cli.sh missed it.\n\n## Fix\n\nAdd `zrbrs_enforce` after line 51 in Tools/rbw/rbv_cli.sh, following the pattern in rbrs_cli.sh.\n\n## Acceptance\n\n- zrbrs_enforce called after zrbrs_kindle in rbv_cli.sh\n- Regime smoke tests pass",
+              "silks": "fix-rbv-cli-missing-rbrs-enforce",
+              "commit": "4a8f26d"
+            },
+            {
               "ts": "260223-0813",
               "state": "rough",
               "text": "Add missing zrbrs_enforce call in rbv_cli.sh after zrbrs_kindle on line 51.\n\n## Context\n\nrbv_cli.sh sources RBRS station file and calls zrbrs_kindle but never calls zrbrs_enforce.\nRBRS variables are then consumed without validation. rbrs_cli.sh does this correctly — rbv_cli.sh missed it.\n\n## Fix\n\nAdd `zrbrs_enforce` after line 51 in Tools/rbw/rbv_cli.sh, following the pattern in rbrs_cli.sh.\n\n## Acceptance\n\n- zrbrs_enforce called after zrbrs_kindle in rbv_cli.sh\n- Regime smoke tests pass",
