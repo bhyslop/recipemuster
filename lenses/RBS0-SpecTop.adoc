@@ -635,9 +635,7 @@ Concurrency safety is achieved through:
 Each command invocation creates a unique temporary directory using `BURD_NOW_STAMP` (timestamp + process ID + random component), ensuring intermediate files never collide.
 
 * *Unique Artifact Naming*:
-Cloud resources (source tarballs, build IDs) incorporate the invocation timestamp, preventing overwrite conflicts in
-{rbtgi_build_bucket}
-and
+Cloud resources (build IDs, inscribe timestamps) incorporate unique identifiers, preventing overwrite conflicts in
 {rbtgi_repository}.
 
 * *Read-Only Git Queries*:
@@ -1205,8 +1203,10 @@ Contains the executable container layers built by
 The metadata artifact within an
 {rbtga_ark},
 tagged with the `-about` suffix.
-Contains build provenance, SBOM (Software Bill of Materials), and build transcript assembled during
+Contains build transcript and SBOM (Software Bill of Materials) assembled during
 {rbtgo_trigger_build}.
+{rbtgr_provenance}
+is generated separately by Google as a signed attestation on the built image.
 
 === Rubric Definitions
 

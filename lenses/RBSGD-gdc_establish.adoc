@@ -1,10 +1,13 @@
 The
 {at_operator}
-performs one-time manual setup to establish
-Google Developer Connect (GDC) infrastructure linking the main GitHub repository
-to Google Cloud Build for trigger-based builds.
+performs one-time manual setup to establish the
+{rbtgi_source_connection}
+linking GCP to GitHub via Developer Connect.
 Developer Connect uses an OAuth GitHub App — no GitHub PAT is required.
-This procedure creates the connection and repository link but does NOT create build triggers.
+This procedure creates the connection but does NOT create per-vessel
+{rbtgi_source_link}
+bindings or build triggers — those are created by
+{rbtgo_rubric_inscribe}.
 
 // ⟦axs_inputs axd_none⟧
 
@@ -62,26 +65,16 @@ gcloud developer-connect connections describe CONNECTION_NAME \
 .. Expected output: `COMPLETE`
 .. If still `PENDING_USER_OAUTH` or `PENDING_INSTALL_APP`, re-open the `actionUri`
 
-. *Create Git Repository Link*:
-.. Link the main GitHub repository to the connection:
-+
-----
-gcloud developer-connect connections git-repository-links create REPO_LINK_NAME \
-    --clone-uri=https://github.com/OWNER/REPO.git \
-    --connection=CONNECTION_NAME \
-    --location=REGION
-----
-+
-.. Replace `REPO_LINK_NAME` with chosen name (e.g., `rbw-main-repo`)
-.. Replace `OWNER/REPO` with the actual GitHub owner and repository name
-
 . *Record Resource Names in RBRR*:
 .. Update `rbrr.env` with the actual values:
-... `RBRR_GDC_CONNECTION_NAME` = the CONNECTION_NAME used in step 2
-... `RBRR_GDC_REGION` = the REGION used in step 2
-... `RBRR_GDC_REPO_LINK` = the REPO_LINK_NAME used in step 5
+... {rbrr_gdc_connection_name} = the CONNECTION_NAME used in step 2
+... {rbrr_gdc_region} = the REGION used in step 2
 .. These are short names, not full resource paths — the Foundry constructs full paths from
-   `RBRR_DEPOT_PROJECT_ID` + `RBRR_GDC_REGION` + connection/link names
+   `RBRR_DEPOT_PROJECT_ID` + region + connection name
+.. Per-vessel
+{rbtgi_source_link}
+bindings are created later by
+{rbtgo_rubric_inscribe}
 
 . *Validate via REST API Health Check*:
 .. Verify the connection is healthy using curl (consistent with Foundry's REST-only pattern):
@@ -93,34 +86,32 @@ curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 ----
 +
 .. Expected: `"COMPLETE"`
-.. Verify the repository link exists:
-+
-----
-curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-  "https://developerconnect.googleapis.com/v1/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GDC_REGION}/connections/${RBRR_GDC_CONNECTION_NAME}/gitRepositoryLinks/${RBRR_GDC_REPO_LINK}" \
-  | jq '.cloneUri'
-----
-+
-.. Expected: the GitHub clone URI of the main repository
-
 // ⟦axs_outputs⟧
 
 The outputs of GDC establishment are:
 
-- Connection name (`RBRR_GDC_CONNECTION_NAME`) — Developer Connect connection resource
-- Region (`RBRR_GDC_REGION`) — regional location of the connection
-- Repository link name (`RBRR_GDC_REPO_LINK`) — git-repository-link resource for the main repo
+- {rbrr_gdc_connection_name} — the
+{rbtgi_source_connection}
+resource name
+- {rbrr_gdc_region} — regional location of the connection
 - OAuth token automatically stored in Secret Manager (managed by Developer Connect, not by operator)
 
-Full resource paths constructed as:
+Full resource path constructed as:
 
 ----
 projects/{RBRR_DEPOT_PROJECT_ID}/locations/{RBRR_GDC_REGION}/connections/{RBRR_GDC_CONNECTION_NAME}
-projects/{RBRR_DEPOT_PROJECT_ID}/locations/{RBRR_GDC_REGION}/connections/{RBRR_GDC_CONNECTION_NAME}/gitRepositoryLinks/{RBRR_GDC_REPO_LINK}
 ----
 
 // ⟦axs_completion⟧
 
-NOTE: GDC establishment creates the GitHub-to-GCP bridge but does not create build triggers.
-Proceed to trigger creation (per-vessel) to complete the build pipeline setup.
-The connection serves all vessel triggers — this procedure is performed once, not per vessel.
+NOTE: GDC establishment creates the
+{rbtgi_source_connection}
+but does not create per-vessel
+{rbtgi_source_link}
+bindings or
+{rbtgr_vessel_trigger}
+resources.
+Proceed to
+{rbtgo_rubric_inscribe}
+to set up per-vessel build infrastructure.
+The connection serves all vessels — this procedure is performed once, not per vessel.

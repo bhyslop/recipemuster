@@ -1,0 +1,71 @@
+The single
+{rbtgr_rubric}
+lifecycle command.
+Ensures a vessel's build definition is fully set up and synced to its
+{rbtgr_vessel_repo}.
+
+// ⟦axs_inputs⟧
+
+. *Vessel directory* — path to the vessel under `rbev-vessels/`
+
+// ⟦axs_preconditions⟧
+
+* {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in regime
+* Builder image pins refreshed within freshness window (`RBRR_GCB_PINS_REFRESHED_AT`)
+* Vessel configuration loaded ({rbrv_regime})
+
+// ⟦axs_behavior⟧
+
+. *Check Pin Freshness*:
+.. Verify `RBRR_GCB_PINS_REFRESHED_AT` is within acceptable window (~2 days)
+.. {rbbc_fatal} if pins are stale — operator must run pin refresh first
+
+. *Generate Rubric YAML*:
+.. Load vessel configuration via existing `zrbf_load_vessel()`
+.. Generate
+{rbtgr_build_yaml}
+from step scripts (`rbgjb/*.sh`) and regime pins
+.. All values baked: GAR coordinates, builder image pins (digest-pinned), vessel identity, platforms, inscribe timestamp
+.. Deterministic: same inputs produce byte-identical output
+
+. *Verify Committed*:
+.. Compare generated YAML against what is committed in main repo
+.. If different: STOP and instruct operator to review diff, commit, and push
+.. On re-run: deterministic generation matches committed copy — proceed
+
+. *Sync to Vessel Repo*:
+.. Clone or pull
+{rbtgr_vessel_repo}
+.. Copy
+{rbtgr_build_yaml},
+Dockerfile, and build context from main repo to
+{rbtgr_vessel_repo}
+.. Commit and push (fully orchestrated — main repo is the reviewed source of truth)
+
+. *Create Infrastructure (if needed)*:
+.. Create GitHub mini-repo if it does not exist
+.. Create
+{rbtgi_source_link}
+for this vessel's repo if it does not exist (via Developer Connect REST API using
+{rbtgi_source_connection})
+.. Create
+{rbtgr_vessel_trigger}
+if it does not exist (via Cloud Build REST API)
+
+// ⟦axs_outputs⟧
+
+* {rbtgr_vessel_repo} synced with current build material
+* {rbtgi_source_link} binding the connection to this vessel's repo
+* {rbtgr_vessel_trigger} pointing to the
+{rbtgr_build_yaml}
+in the
+{rbtgr_vessel_repo}
+
+// ⟦axs_completion⟧
+
+NOTE: Inscribe is idempotent.
+A fresh vessel (no mini-repo, no trigger, no repo link) gets all three created.
+An existing vessel gets its YAML synced — infrastructure resources are left in place.
+Proceed to
+{rbtgo_trigger_build}
+to dispatch a build.

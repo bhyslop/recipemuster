@@ -190,6 +190,28 @@ Generates software bill of materials (SBOM) for built images.
 Fully-qualified image reference for binfmt tool used in Cloud Build steps.
 Configures QEMU binary format support for cross-platform builds.
 
+// ⟦axhrgb_group⟧
+{rbrr_group_developer_connect}
+
+Developer Connect configuration for GitHub-to-GCP source connections used by
+{rbtgo_rubric_inscribe}.
+
+// ⟦axhrgv_variable⟧
+{rbrr_gdc_connection_name}
+
+Short name of the
+{rbtgi_source_connection}
+in Developer Connect.
+Shared across all vessels in the project.
+
+// ⟦axhrgv_variable⟧
+{rbrr_gdc_region}
+
+{gcp_service}
+region where the
+{rbtgi_source_connection}
+and vessel triggers are created.
+
 // ⟦axhro_kindle⟧
 {rbkro_kindle}
 
