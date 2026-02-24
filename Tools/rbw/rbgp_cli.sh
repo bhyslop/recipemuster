@@ -20,24 +20,26 @@
 
 set -euo pipefail
 
-ZRBGP_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-ZRBGP_BUK_DIR="${ZRBGP_CLI_SCRIPT_DIR}/../buk"
-
-# Source all dependencies
-source "${ZRBGP_BUK_DIR}/buc_command.sh"
-source "${ZRBGP_BUK_DIR}/buv_validation.sh"
-source "${ZRBGP_BUK_DIR}/bug_guide.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbrr_regime.sh"
-source "${RBCC_rbrr_file}"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbgi_IAM.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbrp_regime.sh"
-source "${ZRBGP_CLI_SCRIPT_DIR}/rbgp_Payor.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 zrbgp_furnish() {
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env_done || return 0
+
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/bug_guide.sh"
+  source "${z_rbw_kit_dir}/rbgc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${RBCC_rbrr_file}"
+  source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
+  source "${z_rbw_kit_dir}/rbgu_Utility.sh"
+  source "${z_rbw_kit_dir}/rbgi_IAM.sh"
+  source "${z_rbw_kit_dir}/rbrp_regime.sh"
+  source "${z_rbw_kit_dir}/rbgp_Payor.sh"
+
   buc_log_args 'Initialize modules'
   zbuv_kindle
   zrbcc_kindle

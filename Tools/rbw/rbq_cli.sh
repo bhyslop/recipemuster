@@ -20,21 +20,24 @@
 
 set -euo pipefail
 
-ZRBQ_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-# Source dependencies
 source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buv_validation.sh"
-source "${BURD_BUK_DIR}/buz_zipper.sh"
-source "${ZRBQ_CLI_SCRIPT_DIR}/rbz_zipper.sh"
-source "${ZRBQ_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBQ_CLI_SCRIPT_DIR}/rbrn_regime.sh"
-source "${ZRBQ_CLI_SCRIPT_DIR}/rbq_Qualify.sh"
 
 ######################################################################
 # Furnish and Main
 
 zrbq_furnish() {
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env_done || return 0
+
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${z_rbw_kit_dir}/rbz_zipper.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbrn_regime.sh"
+  source "${z_rbw_kit_dir}/rbq_Qualify.sh"
+
   zbuz_kindle
   zrbz_kindle
   zrbcc_kindle

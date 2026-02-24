@@ -64,7 +64,10 @@ rbrv_list() {
 # Furnish and Main
 
 zrbrv_furnish() {
-  buc_doc_env "BUZ_FOLIO" "Vessel sigil (e.g., nsproto-sentry); empty for list"
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env "BUZ_FOLIO             " "Vessel sigil (e.g., nsproto-sentry); empty for list"
+  buc_doc_env_done || return 0
 
   # Sources (always)
   local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"

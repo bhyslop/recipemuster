@@ -30,19 +30,7 @@
 
 set -euo pipefail
 
-ZRBOB_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-# Source all dependencies
 source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buv_validation.sh"
-source "${ZRBOB_CLI_SCRIPT_DIR}/rbrn_regime.sh"
-source "${ZRBOB_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBOB_CLI_SCRIPT_DIR}/rbrr_regime.sh"
-source "${RBCC_rbrr_file}"
-source "${ZRBOB_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
-source "${ZRBOB_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
-source "${ZRBOB_CLI_SCRIPT_DIR}/rbob_bottle.sh"
-source "${ZRBOB_CLI_SCRIPT_DIR}/rboo_observe.sh"
 
 ######################################################################
 # CLI Commands
@@ -103,7 +91,21 @@ rbob_observe() {
 # Furnish and Main
 
 zrbob_furnish() {
-  buc_doc_env "BUZ_FOLIO" "Nameplate moniker (e.g., nsproto)"
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env "BUZ_FOLIO             " "Nameplate moniker (e.g., nsproto)"
+  buc_doc_env_done || return 0
+
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${z_rbw_kit_dir}/rbrn_regime.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${RBCC_rbrr_file}"
+  source "${z_rbw_kit_dir}/rbgc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
+  source "${z_rbw_kit_dir}/rbob_bottle.sh"
+  source "${z_rbw_kit_dir}/rboo_observe.sh"
 
   zbuv_kindle
   zrbcc_kindle

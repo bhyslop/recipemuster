@@ -19,21 +19,23 @@
 
 set -euo pipefail
 
-ZRBV_CLI_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-
-# Source all dependencies (CLI files handle all sourcing)
-source "${ZRBV_CLI_SCRIPT_DIR}/buc_command.sh"
-source "${ZRBV_CLI_SCRIPT_DIR}/buv_validation.sh"
-source "${ZRBV_CLI_SCRIPT_DIR}/rbrr_regime.sh"
-source "${ZRBV_CLI_SCRIPT_DIR}/rbrs_regime.sh"
-source "${ZRBV_CLI_SCRIPT_DIR}/rbv_PodmanVM.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 # CLI-specific environment function
 zrbv_furnish() {
   # Handle documentation mode
-  buc_doc_env "RBV_TEMP_DIR  " "Empty temporary directory"
-  buc_doc_env "RBV_RBRR_FILE " "File containing the RBRR constants"
-  buc_doc_env "RBV_RBRS_FILE " "File containing the RBRS constants"
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env "RBV_TEMP_DIR          " "Empty temporary directory"
+  buc_doc_env "RBV_RBRR_FILE         " "File containing the RBRR constants"
+  buc_doc_env "RBV_RBRS_FILE         " "File containing the RBRS constants"
+  buc_doc_env_done || return 0
+
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${z_rbw_kit_dir}/rbrs_regime.sh"
+  source "${z_rbw_kit_dir}/rbv_PodmanVM.sh"
 
   # Initialize enrollment and validate environment
   zbuv_kindle
@@ -59,4 +61,3 @@ zrbv_furnish() {
 buc_execute rbv_ "Recipe Bottle VM - Podman Virtual Machine Management" zrbv_furnish "$@"
 
 # eof
-

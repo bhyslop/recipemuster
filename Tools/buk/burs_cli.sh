@@ -45,6 +45,9 @@ burs_render() {
 # Furnish and Main
 
 zburs_furnish() {
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_done || return 0
+
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/burs_regime.sh"

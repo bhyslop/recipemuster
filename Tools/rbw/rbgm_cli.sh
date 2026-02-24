@@ -20,24 +20,24 @@
 
 set -euo pipefail
 
-ZRBGM_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-ZRBGM_BUK_DIR="${ZRBGM_SCRIPT_DIR}/../buk"
-
-# Source all dependencies
-source "${ZRBGM_BUK_DIR}/buc_command.sh"
-source "${ZRBGM_BUK_DIR}/buv_validation.sh"
-source "${ZRBGM_BUK_DIR}/bug_guide.sh"
-source "${ZRBGM_SCRIPT_DIR}/rbgc_Constants.sh"
-source "${ZRBGM_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBGM_SCRIPT_DIR}/rbrr_regime.sh"
-source "${RBCC_rbrr_file}"
-source "${ZRBGM_SCRIPT_DIR}/rbrp_regime.sh"
-source "${ZRBGM_SCRIPT_DIR}/rbgm_ManualProcedures.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 zrbgm_furnish() {
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
+  buc_doc_env "BURD_OUTPUT_DIR       " "Directory for command outputs"
+  buc_doc_env_done || return 0
 
-  buc_doc_env "BURD_TEMP_DIR   " "Temporary directory for intermediate files"
-  buc_doc_env "BURD_OUTPUT_DIR " "Directory for command outputs"
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/bug_guide.sh"
+  source "${z_rbw_kit_dir}/rbgc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${RBCC_rbrr_file}"
+  source "${z_rbw_kit_dir}/rbrp_regime.sh"
+  source "${z_rbw_kit_dir}/rbgm_ManualProcedures.sh"
 
   zbuv_kindle
   zrbcc_kindle
@@ -58,4 +58,3 @@ buc_execute rbgm_ "Manual Procedures" zrbgm_furnish "$@"
 
 
 # eof
-

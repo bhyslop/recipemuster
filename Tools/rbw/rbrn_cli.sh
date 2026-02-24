@@ -155,6 +155,10 @@ rbrn_list() {
 # Furnish and Main
 
 zrbrn_furnish() {
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env_done || return 0
+
   local z_command="${1:-}"
 
   # Light sources (always)

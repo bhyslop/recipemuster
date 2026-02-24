@@ -344,12 +344,11 @@ buc_execute() {
     fi
   fi
 
-  # Validate and execute command if named, else show help
-  if [ -n       "${command}" ]            &&\
-    declare -F  "${command}" >/dev/null   &&\
-    echo        "${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
+  # Validate prefix pattern, furnish deps, then dispatch command
+  if [ -n "${command}" ] && echo "${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
     buc_context "${command}"
     [ -n "${env_func}" ] && "${env_func}" "${command}"
+    declare -F "${command}" >/dev/null || buc_die "Function not found: ${command}"
     "${command}" "$@"
   else
     test -z "${command}" || buc_warn "Unknown command: ${command}"

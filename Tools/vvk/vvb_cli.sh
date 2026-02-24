@@ -20,13 +20,14 @@
 
 set -euo pipefail
 
-ZVVB_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-# Source dependencies
 source "${BURD_BUK_DIR}/buc_command.sh"
-source "${ZVVB_CLI_SCRIPT_DIR}/vvb_bash.sh"
+source "${BURD_TOOLS_DIR}/vvk/vvb_bash.sh"
 
 zvvb_furnish() {
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env_done || return 0
+
   zvvb_kindle
 }
 

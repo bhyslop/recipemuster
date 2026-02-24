@@ -20,27 +20,28 @@
 
 set -euo pipefail
 
-ZRBGG_CLI_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-ZRBGG_BUK_DIR="${ZRBGG_CLI_SCRIPT_DIR}/../buk"
-
-# Source all dependencies
-source "${ZRBGG_BUK_DIR}/buc_command.sh"
-source "${ZRBGG_BUK_DIR}/buv_validation.sh"
-source "${ZRBGG_BUK_DIR}/burd_regime.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbcc_Constants.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbgc_Constants.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbgd_DepotConstants.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbgo_OAuth.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbgu_Utility.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbgi_IAM.sh"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbrr_regime.sh"
-source "${RBCC_rbrr_file}"
-source "${ZRBGG_CLI_SCRIPT_DIR}/rbgg_Governor.sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_TOOLS_DIR}/rbw/rbcc_Constants.sh"
+source "${BURD_TOOLS_DIR}/rbw/rbgc_Constants.sh"
+source "${BURD_TOOLS_DIR}/rbw/rbgd_DepotConstants.sh"
+source "${BURD_TOOLS_DIR}/rbw/rbgo_OAuth.sh"
+source "${BURD_TOOLS_DIR}/rbw/rbgu_Utility.sh"
+source "${BURD_TOOLS_DIR}/rbw/rbgi_IAM.sh"
+source "${BURD_TOOLS_DIR}/rbw/rbrr_regime.sh"
+source "${BURD_TOOLS_DIR}/rbw/rbgg_Governor.sh"
 
 zrbgg_furnish() {
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
+  buc_doc_env "BURD_OUTPUT_DIR       " "Directory for command outputs"
+  buc_doc_env_done || return 0
 
-  buc_doc_env "BURD_TEMP_DIR   " "Temporary directory for intermediate files"
-  buc_doc_env "BURD_OUTPUT_DIR " "Directory for command outputs"
+  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${RBCC_rbrr_file}"
 
   zbuv_kindle
   zburd_kindle
@@ -60,4 +61,3 @@ zrbgg_furnish() {
 buc_execute rbgg_ "Governor Procedures" zrbgg_furnish "$@"
 
 # eof
-
