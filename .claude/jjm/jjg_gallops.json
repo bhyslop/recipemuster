@@ -7448,6 +7448,13 @@
         "₢AiAAJ": {
           "tacks": [
             {
+              "ts": "260223-1820",
+              "state": "abandoned",
+              "text": "Implement the dispatch step in the Foundry — the revised {rbtgo_trigger_build}.\n\n- Call triggers.run via REST API to dispatch build through {rbtgr_vessel_trigger}\n- Pass substitution overrides: _RBGY_MONIKER, _RBGY_PLATFORMS, _RBGY_GAR_*, _RBGY_GIT_*, etc.\n- Adapt polling/completion logic for trigger-based build responses\n  (triggers.run returns an Operation; polling mechanism may differ from builds.create)\n- Keep existing vessel loading and quota check\n- BCG compliance for all scripting\n\nThe prepare step (₢AiAAI) ensures the {rbtgr_build_yaml} is committed and fresh\n({rbtgo_rubric_assay} passed) and the commit is pushed to origin. The dispatch step\ntrusts that the commit Cloud Build checks out from GitHub via {rbtgi_source_connection}\nmatches the local state.\n\nOn success, Google auto-generates {rbtgr_provenance} (SLSA v1.0 attestation) for the\ntrigger-invoked build — no DIY provenance step needed.\n\nReference: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/run",
+              "silks": "implement-dispatch-step",
+              "commit": "0f75087"
+            },
+            {
               "ts": "260223-0812",
               "state": "rough",
               "text": "Implement the dispatch step in the Foundry — the revised {rbtgo_trigger_build}.\n\n- Call triggers.run via REST API to dispatch build through {rbtgr_vessel_trigger}\n- Pass substitution overrides: _RBGY_MONIKER, _RBGY_PLATFORMS, _RBGY_GAR_*, _RBGY_GIT_*, etc.\n- Adapt polling/completion logic for trigger-based build responses\n  (triggers.run returns an Operation; polling mechanism may differ from builds.create)\n- Keep existing vessel loading and quota check\n- BCG compliance for all scripting\n\nThe prepare step (₢AiAAI) ensures the {rbtgr_build_yaml} is committed and fresh\n({rbtgo_rubric_assay} passed) and the commit is pushed to origin. The dispatch step\ntrusts that the commit Cloud Build checks out from GitHub via {rbtgi_source_connection}\nmatches the local state.\n\nOn success, Google auto-generates {rbtgr_provenance} (SLSA v1.0 attestation) for the\ntrigger-invoked build — no DIY provenance step needed.\n\nReference: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers/run",
