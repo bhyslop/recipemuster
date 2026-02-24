@@ -5449,6 +5449,13 @@
         "₢AiAAX": {
           "tacks": [
             {
+              "ts": "260224-0823",
+              "state": "complete",
+              "text": "Implement RBRA GitHub PAT extension and depot_create connection creation.\n\n## RBRA Regime Extension\n\nIn Tools/rbw/rbra_regime.sh:\n- kindle: add RBRA_RUBRIC_GITHUB_PAT default\n- enroll: buv_string_enroll RBRA_RUBRIC_GITHUB_PAT 0 256 \"GitHub PAT for rubric repo management\"\n- enforce: if non-empty, validate format (ghp_ or github_pat_ prefix)\n\n## depot_create Changes\n\nIn Tools/rbw/rbgp_Payor.sh rbgp_depot_create():\n- Add developerconnect and secretmanager to API enablement list (step \"Enable depot project APIs\")\n- After IAM propagation and resource creation, create Developer Connect connection via REST:\n  POST to developerconnect.googleapis.com/v1/projects/{project}/locations/{region}/connections\n  with github-config-app=DEVELOPER-CONNECT\n  Connection left in PENDING state — OAuth completed later by depot_initialize\n\n## Regime smoke test\n\nVerify regime smoke test passes with optional empty RBRA_RUBRIC_GITHUB_PAT.\n\nReferences: RBSDC spec (updated in prior pace), rbra_regime.sh, rbgp_Payor.sh",
+              "silks": "code-rbra-pat-and-depot-create",
+              "commit": "43777a4"
+            },
+            {
               "ts": "260224-0757",
               "state": "rough",
               "text": "Implement RBRA GitHub PAT extension and depot_create connection creation.\n\n## RBRA Regime Extension\n\nIn Tools/rbw/rbra_regime.sh:\n- kindle: add RBRA_RUBRIC_GITHUB_PAT default\n- enroll: buv_string_enroll RBRA_RUBRIC_GITHUB_PAT 0 256 \"GitHub PAT for rubric repo management\"\n- enforce: if non-empty, validate format (ghp_ or github_pat_ prefix)\n\n## depot_create Changes\n\nIn Tools/rbw/rbgp_Payor.sh rbgp_depot_create():\n- Add developerconnect and secretmanager to API enablement list (step \"Enable depot project APIs\")\n- After IAM propagation and resource creation, create Developer Connect connection via REST:\n  POST to developerconnect.googleapis.com/v1/projects/{project}/locations/{region}/connections\n  with github-config-app=DEVELOPER-CONNECT\n  Connection left in PENDING state — OAuth completed later by depot_initialize\n\n## Regime smoke test\n\nVerify regime smoke test passes with optional empty RBRA_RUBRIC_GITHUB_PAT.\n\nReferences: RBSDC spec (updated in prior pace), rbra_regime.sh, rbgp_Payor.sh",
