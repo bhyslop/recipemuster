@@ -32,35 +32,15 @@ source "${ZRBQ_CLI_SCRIPT_DIR}/rbrn_regime.sh"
 source "${ZRBQ_CLI_SCRIPT_DIR}/rbq_Qualify.sh"
 
 ######################################################################
-# CLI Functions
+# Furnish and Main
 
-zrbq_cli_kindle() {
-  test -z "${ZRBQ_CLI_KINDLED:-}" || buc_die "RBQ CLI already kindled"
-
+zrbq_furnish() {
   zbuz_kindle
   zrbz_kindle
   zrbcc_kindle
-
   zrbq_kindle
-
-  ZRBQ_CLI_KINDLED=1
 }
 
-######################################################################
-# Main dispatch
-
-buc_context "${0##*/}"
-
-z_command="${1:-}"
-
-case "${z_command}" in
-  qualify_all)
-    zrbq_cli_kindle
-    rbq_qualify_all
-    ;;
-  *)
-    buc_die "Unknown command: ${z_command}. Usage: rbq_cli.sh {qualify_all}"
-    ;;
-esac
+buc_execute rbq_ "Recipe Bottle Qualification" zrbq_furnish "$@"
 
 # eof
