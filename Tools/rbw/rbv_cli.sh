@@ -48,6 +48,7 @@ zrbv_furnish() {
   source              "${RBV_RBRR_FILE}" || buc_die "Failed to source RBRR config"
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
 
   source              "${RBV_RBRS_FILE}" || buc_die "Failed to source RBRS config"
   zrbrs_kindle

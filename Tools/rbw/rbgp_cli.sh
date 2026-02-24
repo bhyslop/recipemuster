@@ -46,6 +46,7 @@ zrbgp_furnish() {
 
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
 
   zrbgc_kindle
 

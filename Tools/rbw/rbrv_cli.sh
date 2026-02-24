@@ -89,6 +89,7 @@ zrbrv_furnish() {
   source "${RBCC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
 
   # If BUZ_FOLIO is set, load and kindle the specified vessel
   if test -n "${BUZ_FOLIO:-}"; then

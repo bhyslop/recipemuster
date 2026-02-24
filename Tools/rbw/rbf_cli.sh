@@ -54,6 +54,7 @@ zrbf_furnish() {
 
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
 
   buc_log_args 'Kindle modules in dependency order'
   zrbgc_kindle

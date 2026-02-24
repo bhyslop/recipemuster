@@ -97,6 +97,7 @@ butcrg_rbrv_tcase() {
   source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
 
   local z_sigils
   z_sigils=$(rbrv_list_capture) || buto_fatal "No vessels found"

@@ -98,6 +98,7 @@ rbtb_load_nameplate() {
   source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
 
   rbtb_show "Kindling RBGC/RBGD/RBOB"
   zrbgc_kindle

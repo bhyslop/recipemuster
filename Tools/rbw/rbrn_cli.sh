@@ -194,6 +194,7 @@ zrbrn_furnish() {
       zrbgc_kindle
       zrbrr_kindle
       zrbrr_enforce
+      zrbrr_lock
       zrbgo_kindle
       zrbgd_kindle
       ;;

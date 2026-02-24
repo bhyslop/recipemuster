@@ -41,6 +41,7 @@ rbtcap_jwt_governor_tcase() {
   source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
   zrbgc_kindle
   zrbgo_kindle
   zrbgu_kindle
@@ -58,6 +59,7 @@ rbtcap_jwt_director_tcase() {
   source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
   zrbgc_kindle
   zrbgo_kindle
   zrbgu_kindle
@@ -75,6 +77,7 @@ rbtcap_jwt_retriever_tcase() {
   source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
   zrbgc_kindle
   zrbgo_kindle
   zrbgu_kindle
@@ -92,6 +95,7 @@ rbtcap_payor_oauth_tcase() {
   source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
   zrbgc_kindle
 
   source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
