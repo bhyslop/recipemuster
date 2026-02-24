@@ -104,7 +104,7 @@
 :rbtgo_sa_delete:                 <<rbtgo_sa_delete,rbgg_delete_service_account>>
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbgm_quota_build>>
-:rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_trigger>>
+:rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_build>>
 :rbtgo_gdc_establish:            <<rbtgo_gdc_establish,rbgm_gdc_establish>>
 :rbtgo_rubric_inscribe:          <<rbtgo_rubric_inscribe,rbf_inscribe>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
@@ -1183,9 +1183,18 @@ and abjured atomically by
 [[rbtga_consecration]]
 // ⟦axl_voices axtg_timestamp⟧
 {rbtga_consecration}::
-The timestamp-based identifier marking when a vessel was consecrated into an
+The dual-timestamp identifier marking when a vessel was consecrated into an
 {rbtga_ark}.
-Format: `YYYYMMDDTHHMMSSZ` or similar timestamp pattern.
+Format: `i«INSCRIBE»-b«BUILD»` where each timestamp is `YYYYMMDD_HHMMSS`.
+Example: `i20260224_153022-b20260224_160530`.
+The inscribe timestamp records when
+{rbtgo_rubric_inscribe}
+generated the
+{rbtgr_build_yaml};
+the build timestamp records when
+{gcb_service}
+executed the build.
+Hyphen delimits major concepts; underscore separates date from time within each timestamp.
 Combined with vessel to form complete artifact tags: `«VESSEL»:«CONSECRATION»-image` and `«VESSEL»:«CONSECRATION»-about`.
 
 [[rbtga_ark_image]]
