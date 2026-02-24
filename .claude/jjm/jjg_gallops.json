@@ -7,6 +7,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣Ah",
     "₣AP",
     "₣AQ",
     "₣AR",
@@ -19,7 +20,6 @@
     "₣Ac",
     "₣Ad",
     "₣Ae",
-    "₣Ah",
     "₣Ai",
     "₣Aj",
     "₣Ak"
@@ -4585,7 +4585,7 @@
     "₣Ah": {
       "silks": "jjk-v4-vision",
       "creation_time": "260222",
-      "status": "stabled",
+      "status": "racing",
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
