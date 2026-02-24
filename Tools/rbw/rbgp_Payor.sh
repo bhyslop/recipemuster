@@ -810,47 +810,9 @@ rbgp_depot_destroy() {
   buc_doc_shown || return 0
 
   buc_step 'Safety confirmation required'
-  test -n "${z_depot_project_id}" || buc_die "Depot project ID required as first argument"
+  test -n "${z_depot_project_id}" || buc_die "Depot project ID required as first argument (current RBRR: ${RBRR_DEPOT_PROJECT_ID})"
 
-  # Check for non-interactive confirmation via environment variable
-  if [[ -n "${RBGP_CONFIRM_DESTROY:-}" ]]; then
-    if [[ "${RBGP_CONFIRM_DESTROY}" != "${z_depot_project_id}" ]]; then
-      buc_die "RBGP_CONFIRM_DESTROY='${RBGP_CONFIRM_DESTROY}' does not match argument '${z_depot_project_id}'"
-    fi
-    buc_step "Confirmed via RBGP_CONFIRM_DESTROY: ${z_depot_project_id}"
-  else
-    # Interactive confirmation required
-    buc_info ""
-    buc_info "==============================================="
-    buc_info "           DANGER: DEPOT DESTRUCTION"
-    buc_info "==============================================="
-    buc_info "Target depot: ${z_depot_project_id}"
-    buc_info ""
-    buc_info "This operation will PERMANENTLY DESTROY:"
-    buc_info "  • Depot project and ALL contained resources"
-    buc_info "  • Mason service account and credentials"
-    buc_info "  • Container repository and ALL images"
-    buc_info "  • Build bucket and ALL artifacts"
-    buc_info "  • Governor, Director, Retriever service accounts"
-    buc_info "  • ALL IAM bindings and permissions"
-    buc_info ""
-    buc_info "Project will enter 30-day retention period."
-    buc_info "Billing will be immediately stopped."
-    buc_info ""
-    buc_info "==============================================="
-    buc_info ""
-
-    printf "To confirm destruction, type the exact depot project ID: "
-    read -r z_confirmation
-
-    if [[ "${z_confirmation}" != "${z_depot_project_id}" ]]; then
-      buc_die "Confirmation failed. Expected '${z_depot_project_id}', got '${z_confirmation}'"
-    fi
-    buc_info "Confirmation received."
-  fi
-
-  buc_info "Proceeding with depot destruction."
-  buc_info ""
+  buc_require "DANGER: Permanently destroy depot ${z_depot_project_id} and ALL resources" "${z_depot_project_id}"
 
   buc_step 'Authenticate as Payor'
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die "RBRP_PAYOR_PROJECT_ID is not set"

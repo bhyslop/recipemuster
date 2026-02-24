@@ -317,12 +317,21 @@ buc_countdown() {
 }
 
 buc_require() {
-  local prompt="$1"
-  local required_value="$2"
+  local z_prompt="$1"
+  local z_required_value="$2"
 
-  echo -e "${ZBUC_YELLOW}${prompt}${ZBUC_RESET}"
-  read -p "Type ${required_value}: " input
-  test "$input" = "$required_value" || buc_die "prompt not confirmed."
+  if test "${BURE_CONFIRM:-}" = "skip"; then
+    buc_step "Confirm: (skipped — BURE_CONFIRM=skip)"
+    return 0
+  fi
+
+  test -z "${BURE_CONFIRM:-}" || buc_die "BURE_CONFIRM must be 'skip' or unset, got '${BURE_CONFIRM}'"
+
+  printf '%b\n' "${ZBUC_YELLOW}${z_prompt}${ZBUC_RESET}" >/dev/tty
+  printf 'Type %s to confirm: ' "${z_required_value}" >/dev/tty
+  local z_input
+  read -r z_input </dev/tty
+  test "${z_input}" = "${z_required_value}" || buc_die "Confirmation failed — expected '${z_required_value}', got '${z_input}'"
 }
 
 buc_execute() {
