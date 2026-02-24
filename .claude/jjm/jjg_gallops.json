@@ -5552,12 +5552,13 @@
         "₢AkAAD",
         "₢AkAAE",
         "₢AkAAG",
+        "₢AkAAH",
         "₢AkAAB",
         "₢AkAAA",
         "₢AkAAC",
         "₢AkAAF"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5704,6 +5705,17 @@
               "text": "Consolidate all credential file paths to a single `RBRR_SECRETS_DIR` enrolled variable with kindle constants for individual files.\n\n## Changes\n\n1. **`rbrr_regime.sh`** — Remove three `buv_string_enroll` for `RBRR_GOVERNOR_RBRA_FILE`, `RBRR_RETRIEVER_RBRA_FILE`, `RBRR_DIRECTOR_RBRA_FILE`. Add `buv_dir_enroll RBRR_SECRETS_DIR`. Add four `readonly` kindle constants computed from `RBRR_SECRETS_DIR`:\n   - `RBRR_GOVERNOR_RBRA_FILE=\"${RBRR_SECRETS_DIR}/rbra-governor.env\"`\n   - `RBRR_RETRIEVER_RBRA_FILE=\"${RBRR_SECRETS_DIR}/rbra-retriever.env\"`\n   - `RBRR_DIRECTOR_RBRA_FILE=\"${RBRR_SECRETS_DIR}/rbra-director.env\"`\n   - `RBRR_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/rbro-payor.env\"`\n\n2. **`rbrr.env`** — Remove three `RBRR_*_RBRA_FILE=` lines. Add `RBRR_SECRETS_DIR=../station-files/secrets`.\n\n3. **`rbro_regime.sh`** — Rewrite `rbro_load()` to use `RBRR_PAYOR_RBRO_FILE` instead of hardcoded `${HOME}/.rbw`. Remove directory check. Update comments and error messages.\n\n4. **`rbro_cli.sh`** — Replace `RBCC_rbro_file` reference with `RBRR_PAYOR_RBRO_FILE`.\n\n5. **`rbgp_Payor.sh`** — Write to `RBRR_PAYOR_RBRO_FILE` instead of `${HOME}/.rbw/rbro.env`. Create parent dir via `dirname`.\n\n6. **`rbcc_Constants.sh`** — Remove dead `RBCC_rbro_file` constant.\n\n7. **`butcrg_RegimeCredentials.sh`** — Replace hardcoded `${HOME}/.rbw/rbro.env` with `RBRR_PAYOR_RBRO_FILE`.\n\n8. **`rbgm_ManualProcedures.sh`** — Update user-facing text referencing `~/.rbw/rbro.env`.\n\n9. **Copy credentials** — `cp ~/.rbw/rbro.env ../station-files/secrets/rbro-payor.env`\n\n## Acceptance\n\n- `RBRR_SECRETS_DIR` is the single enrolled path for all credential files\n- All four credential file paths are kindle constants derived from it\n- No remaining hardcoded `~/.rbw` references in Tools/\n- Existing operations (payor install, OAuth flow, credential validation) work unchanged",
               "silks": "consolidate-secrets-dir",
               "commit": "8ce2916"
+            }
+          ]
+        },
+        "₢AkAAH": {
+          "tacks": [
+            {
+              "ts": "260224-1352",
+              "state": "rough",
+              "text": "Consolidate credential file paths under `RBRR_SECRETS_DIR` and eliminate all hardcoded `~/.rbw` references.\n\nDepends on ₢AkAAG (BURD_CONFIG_DIR, RBBC, .rbk/ infrastructure).\n\n## RBRR Regime Changes\n\n1. **`rbrr_regime.sh`** — Remove three `buv_string_enroll` for `RBRR_GOVERNOR_RBRA_FILE`, `RBRR_RETRIEVER_RBRA_FILE`, `RBRR_DIRECTOR_RBRA_FILE`. Add `buv_string_enroll RBRR_SECRETS_DIR` (validated via `buv_dir_exists` in enforce step). Add four readonly kindle constants in the lock step, derived from `RBRR_SECRETS_DIR`:\n   - `RBRR_GOVERNOR_RBRA_FILE=\"${RBRR_SECRETS_DIR}/rbra-governor.env\"`\n   - `RBRR_RETRIEVER_RBRA_FILE=\"${RBRR_SECRETS_DIR}/rbra-retriever.env\"`\n   - `RBRR_DIRECTOR_RBRA_FILE=\"${RBRR_SECRETS_DIR}/rbra-director.env\"`\n   - `RBRR_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/rbro-payor.env\"`\n\n2. **`.rbk/rbrr.env`** — Remove three `RBRR_*_RBRA_FILE=` lines. Add `RBRR_SECRETS_DIR=../station-files/secrets`.\n\n## RBRO/Payor Changes\n\n3. **`rbro_regime.sh`** — Rewrite `rbro_load()` to use `RBRR_PAYOR_RBRO_FILE` instead of hardcoded `${HOME}/.rbw`. Remove directory check. RBRR must be kindled before rbro_load is called.\n\n4. **`rbro_cli.sh`** — Replace `RBCC_rbro_file` with `RBRR_PAYOR_RBRO_FILE`. Ensure RBRR is sourced and kindled before RBRO load.\n\n5. **`rbgp_Payor.sh`** — Write to `RBRR_PAYOR_RBRO_FILE` instead of `${HOME}/.rbw/rbro.env`. Create parent dir via `dirname`.\n\n## RBCC Cleanup\n\n6. **`rbcc_Constants.sh`** — Remove `RBCC_rbro_file=\"${HOME}/.rbw/rbro.env\"`.\n\n## Consumer Updates\n\n7. **`butcrg_RegimeCredentials.sh`** — Replace hardcoded `${HOME}/.rbw/rbro.env` with `RBRR_PAYOR_RBRO_FILE`.\n\n8. **`rbgm_ManualProcedures.sh`** — Update user-facing text referencing `~/.rbw/rbro.env`.\n\n## Manual Step\n\n9. **Copy credentials** — `cp ~/.rbw/rbro.env ../station-files/secrets/rbro-payor.env`\n\n## Acceptance\n\n- `RBRR_SECRETS_DIR` is the single enrolled variable; four credential paths derived as kindle constants\n- No remaining `RBCC_rbro_file` references\n- No remaining hardcoded `~/.rbw` references in Tools/\n- All existing operations (payor install, OAuth flow, credential validation) work unchanged\n- Smoke tests pass",
+              "silks": "secrets-dir-credential-consolidation",
+              "commit": "961d848"
             }
           ]
         }
