@@ -26,24 +26,37 @@ Ensures a vessel's build definition is fully set up and synced to its
 {rbtgr_build_yaml}
 from step scripts (`rbgjb/*.sh`) and regime pins
 .. All values baked: GAR coordinates, builder image pins (digest-pinned), vessel identity, platforms, inscribe timestamp
-.. Deterministic: same inputs produce byte-identical output
+.. Substitutions block includes `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` as placeholders — filled after mini-repo push (step 5)
+.. All other values deterministic: same inputs produce byte-identical output
 
 . *Verify Committed*:
 .. Compare generated YAML against what is committed in main repo
 .. If different: STOP and instruct operator to review diff, commit, and push
 .. On re-run: deterministic generation matches committed copy — proceed
 
-. *Sync to Vessel Repo*:
-.. Clone or pull
+. *Ensure GitHub Repo Exists*:
+.. If
+{rbtgr_vessel_repo}
+does not exist on GitHub: create via REST API
+
+. *Fresh Clone and Sync*:
+.. Delete local clone at `.rbk/{vessel}/` if it exists
+.. `git clone --depth 1` the
 {rbtgr_vessel_repo}
 .. Copy
 {rbtgr_build_yaml},
-Dockerfile, and build context from main repo to
-{rbtgr_vessel_repo}
+Dockerfile, and build context from main repo to clone
+.. Fill `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` in the clone's copy of
+{rbtgr_build_yaml}
+with the actual mini-repo URL and the commit hash after push
 .. Commit and push (fully orchestrated — main repo is the reviewed source of truth)
 
+NOTE: Always-fresh-clone eliminates stale state.
+The
+{rbtgr_vessel_repo}
+is small (Dockerfile + build context + YAML) — shallow clone is sub-second.
+
 . *Create Infrastructure (if needed)*:
-.. Create GitHub mini-repo if it does not exist
 .. Create
 {rbtgi_source_link}
 for this vessel's repo if it does not exist (via Developer Connect REST API using
@@ -51,10 +64,11 @@ for this vessel's repo if it does not exist (via Developer Connect REST API usin
 .. Create
 {rbtgr_vessel_trigger}
 if it does not exist (via Cloud Build REST API)
+.. Trigger name derived from constant prefix + vessel sigil
 
 // ⟦axs_outputs⟧
 
-* {rbtgr_vessel_repo} synced with current build material
+* {rbtgr_vessel_repo} synced with current build material (including filled rubric repo metadata)
 * {rbtgi_source_link} binding the connection to this vessel's repo
 * {rbtgr_vessel_trigger} pointing to the
 {rbtgr_build_yaml}
