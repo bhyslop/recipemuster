@@ -7156,6 +7156,7 @@
         "₢AiAAR",
         "₢AiAAP",
         "₢AiAAU",
+        "₢AiAAV",
         "₢AiAAF",
         "₢AiAAE",
         "₢AiAAH",
@@ -7169,7 +7170,7 @@
         "₢AiAAN",
         "₢AiAAO"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -7736,6 +7737,17 @@
               "text": "Adapt existing Foundry internals to support trigger-based builds. This is\nmodification of existing functions, not new implementations.\n\n## Modify rbrr_refresh_gcb_pins\n\nAdd RBRR_GCB_PINS_REFRESHED_AT timestamp to rbrr.env when pins are refreshed.\nSingle line addition to existing function in rbrr_cli.sh. Add corresponding\nregime variable enrollment in rbrr_regime.sh.\n\n## Modify zrbf_stitch_build_json → yaml output\n\nAdapt the existing stitch function to emit cloudbuild.yaml instead of JSON.\nSame inputs: step scripts (rbgjb/*.sh) + pins (RBRR_GCB_*_IMAGE_REF) + vessel\nconfig (RBRV_*). Different output format: static YAML with all values baked.\n\nKey changes:\n- Output YAML structure matching rbev-busybox/cloudbuild.yaml reference\n- Bake inscribe timestamp into tag template (e.g., i20260223.143022)\n- Use $BUILD_ID (Cloud Build built-in) for per-build uniqueness — zero custom substitutions\n- Bake all GAR coordinates, vessel identity, platforms, ark suffixes\n- Bake all builder image pins (digest-pinned refs from RBRR)\n- Deterministic: same inputs → byte-identical output\n\n## Add zrbf_check_pin_freshness()\n\nTrivial date comparison: read RBRR_GCB_PINS_REFRESHED_AT, fail if older than\n~2 days. Called by inscribe before generating yaml.\n\n## References\n\n- Tools/rbw/rbf_Foundry.sh — zrbf_stitch_build_json() (modify)\n- Tools/rbw/rbrr_cli.sh — rbrr_refresh_gcb_pins (modify)\n- Tools/rbw/rbrr_regime.sh — add RBRR_GCB_PINS_REFRESHED_AT enrollment\n- rbev-vessels/rbev-busybox/cloudbuild.yaml — reference output format\n- Tools/rbw/rbgjb/*.sh — step script inputs (unchanged)",
               "silks": "adapt-foundry-for-yaml-generation",
               "commit": "e01ee5d"
+            }
+          ]
+        },
+        "₢AiAAV": {
+          "tacks": [
+            {
+              "ts": "260223-1822",
+              "state": "rough",
+              "text": "Implement the inscribe command as a new tabtarget. This is the single rubric\nlifecycle operation — it ensures a vessel's build definition is fully set up\nand synced. Reuses existing functions (vessel loading, modified stitch) and\nadds genuinely new orchestration (mini-repo management, trigger creation).\n\n## New tabtarget\n\nMint colophon per prefix discipline. Wire through rbz_zipper.sh and\nrbw_workbench.sh. Takes vessel directory as argument.\n\n## Inscribe flow\n\n1. zrbf_check_pin_freshness() — fail if RBRR_GCB_PINS_REFRESHED_AT too old\n2. zrbf_load_vessel() (existing) — load vessel config from rbrv.env\n3. Modified stitch (from ₢AiAAU) — generate cloudbuild.yaml to vessel dir\n4. Verify generated yaml matches what is committed and pushed in main repo\n   - If different: STOP, tell user to review diff, commit, and push\n   - On rerun: deterministic generation produces identical yaml → matches → proceed\n5. Clone/pull vessel mini-repo to .rbk/{vessel}/\n   - Mini-repo is a small GitHub repo per vessel, not the main repo\n   - Cloud Build sees only the mini-repo via Developer Connect (security boundary)\n6. Sync main repo → mini-repo: copy cloudbuild.yaml + Dockerfile + build context\n   - Adjust paths in yaml for mini-repo structure (flat, not nested under rbev-vessels/)\n7. Create Cloud Build trigger via REST API if it doesn't exist\n   - Uses RBRR_GDC_CONNECTION_NAME, RBRR_GDC_REPO_LINK keying material\n   - Trigger points to cloudbuild.yaml in the mini-repo\n   - Trigger name follows RBRR_GCB_TRIGGER_PATTERN\n8. Git commit + push mini-repo (fully orchestrated — no human review needed,\n   main repo is the reviewed source of truth)\n\n## Genuinely new code\n\n- Mini-repo management: clone, sync files, commit, push (new orchestration)\n- Trigger creation: REST API POST to cloudbuild.googleapis.com (new, small)\n- Pin freshness gate wiring\n- Tabtarget + zipper + workbench wiring\n\n## Reused existing code\n\n- zrbf_load_vessel() — unchanged\n- Modified stitch from ₢AiAAU — yaml generation\n- rbgo_get_token_capture() — OAuth for GCP API calls\n\n## Design notes\n\n- Fresh vessel (no trigger, no mini-repo): inscribe creates both\n- Existing vessel (trigger exists, mini-repo exists): inscribe updates yaml + syncs\n- Same command handles both cases\n- .rbk/ is gitignored in main repo (parallels .buk/ pattern)\n\n## References\n\n- Tools/rbw/rbf_Foundry.sh — modified stitch, vessel loading\n- Tools/rbw/rbz_zipper.sh — enrollment wiring\n- Tools/rbw/rbw_workbench.sh — command routing\n- rbrr.env — GDC keying material, pin timestamp",
+              "silks": "implement-inscribe-tabtarget",
+              "commit": "67191cf"
             }
           ]
         }
