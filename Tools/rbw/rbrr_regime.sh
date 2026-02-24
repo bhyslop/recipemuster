@@ -30,33 +30,8 @@ ZRBRR_SOURCED=1
 zrbrr_kindle() {
   test -z "${ZRBRR_KINDLED:-}" || buc_die "Module rbrr already kindled"
 
-  # Set defaults for all fields (enrollment enforces required-ness)
-  RBRR_VESSEL_DIR="${RBRR_VESSEL_DIR:-}"
-  RBRR_DNS_SERVER="${RBRR_DNS_SERVER:-}"
-  RBRR_IGNITE_MACHINE_NAME="${RBRR_IGNITE_MACHINE_NAME:-}"
-  RBRR_DEPLOY_MACHINE_NAME="${RBRR_DEPLOY_MACHINE_NAME:-}"
-  RBRR_CRANE_TAR_GZ="${RBRR_CRANE_TAR_GZ:-}"
-  RBRR_MANIFEST_PLATFORMS="${RBRR_MANIFEST_PLATFORMS:-}"
-  RBRR_CHOSEN_PODMAN_VERSION="${RBRR_CHOSEN_PODMAN_VERSION:-}"
-  RBRR_CHOSEN_VMIMAGE_ORIGIN="${RBRR_CHOSEN_VMIMAGE_ORIGIN:-}"
-  RBRR_CHOSEN_IDENTITY="${RBRR_CHOSEN_IDENTITY:-}"
-  RBRR_DEPOT_PROJECT_ID="${RBRR_DEPOT_PROJECT_ID:-}"
-  RBRR_GCP_REGION="${RBRR_GCP_REGION:-}"
-  RBRR_GAR_REPOSITORY="${RBRR_GAR_REPOSITORY:-}"
-  RBRR_GCB_MACHINE_TYPE="${RBRR_GCB_MACHINE_TYPE:-}"
-  RBRR_GCB_TIMEOUT="${RBRR_GCB_TIMEOUT:-}"
-  RBRR_GCB_MIN_CONCURRENT_BUILDS="${RBRR_GCB_MIN_CONCURRENT_BUILDS:-}"
-  RBRR_GOVERNOR_RBRA_FILE="${RBRR_GOVERNOR_RBRA_FILE:-}"
-  RBRR_RETRIEVER_RBRA_FILE="${RBRR_RETRIEVER_RBRA_FILE:-}"
-  RBRR_DIRECTOR_RBRA_FILE="${RBRR_DIRECTOR_RBRA_FILE:-}"
-  RBRR_GDC_CONNECTION_NAME="${RBRR_GDC_CONNECTION_NAME:-}"
-  RBRR_GDC_REGION="${RBRR_GDC_REGION:-}"
-  RBRR_GCB_ORAS_IMAGE_REF="${RBRR_GCB_ORAS_IMAGE_REF:-}"
-  RBRR_GCB_GCLOUD_IMAGE_REF="${RBRR_GCB_GCLOUD_IMAGE_REF:-}"
-  RBRR_GCB_DOCKER_IMAGE_REF="${RBRR_GCB_DOCKER_IMAGE_REF:-}"
-  RBRR_GCB_ALPINE_IMAGE_REF="${RBRR_GCB_ALPINE_IMAGE_REF:-}"
-  RBRR_GCB_SYFT_IMAGE_REF="${RBRR_GCB_SYFT_IMAGE_REF:-}"
-  RBRR_GCB_BINFMT_IMAGE_REF="${RBRR_GCB_BINFMT_IMAGE_REF:-}"
+  # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
+  # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
   # Enroll all RBRR variables — single source of truth for validation and rendering
 
@@ -103,12 +78,6 @@ zrbrr_kindle() {
   # Guard against unexpected RBRR_ variables not in enrollment
   buv_scope_sentinel RBRR RBRR_
 
-  # Build docker env args array for container injection
-  # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
-  # Currently only RBRR_DNS_SERVER is needed by sentry; add others as needed
-  ZRBRR_DOCKER_ENV=()
-  ZRBRR_DOCKER_ENV+=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")
-
   # Temp file prefixes for rbrr_refresh_gcb_pins
   ZRBRR_REFRESH_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_"
   ZRBRR_REFRESH_SED_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_sed_"
@@ -140,6 +109,18 @@ zrbrr_enforce() {
   [[ "${RBRR_CHOSEN_PODMAN_VERSION}" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] \
     || buc_die "Invalid RBRR_CHOSEN_PODMAN_VERSION format: ${RBRR_CHOSEN_PODMAN_VERSION} (expected N.N or N.N.N)"
 
+}
+
+# Lock step — build derived state from validated values, then lock enrolled variables
+zrbrr_lock() {
+  zrbrr_sentinel
+
+  # Build docker env args array from validated values
+  # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
+  ZRBRR_DOCKER_ENV=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")
+
+  # Lock all enrolled RBRR_ variables against mutation
+  buv_lock RBRR
 }
 
 # eof

@@ -310,6 +310,18 @@ zbuv_check_capture() {
     fi
   fi
 
+  # Unset detection — distinguish "not set" from "set but empty"
+  if test -z "${!z_varname+x}"; then
+    case "${z_type}" in
+      string|gname)
+        if test "${z_p1}" = "0"; then return 0; fi ;;
+      list_string|list_ipv4|list_gname|list_cidr|list_domain)
+        return 0 ;;
+    esac
+    echo "${ZBUV_CHECK_FAIL}${z_varname} is not set (missing from .env?)"
+    return 0
+  fi
+
   local z_val="${!z_varname:-}"
 
   case "${z_type}" in
@@ -616,6 +628,21 @@ buv_vet() {
     test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
     z_err=$(zbuv_check_capture "${z_i}")
     test -z "${z_err}" || test "${z_err}" = "${ZBUV_CHECK_GATED}" || buc_die "${z_buv_varname_roll[$z_i]}: ${z_err#"${ZBUV_CHECK_FAIL}"}"
+  done
+}
+
+# buv_lock SCOPE — make all enrolled variables in scope readonly
+# Call after enforce succeeds. Prevents downstream mutation of validated config.
+buv_lock() {
+  zbuv_sentinel
+
+  local -r z_scope="${1:-}"
+  test -n "${z_scope}" || buc_die "buv_lock: scope required"
+
+  local z_i
+  for z_i in "${!z_buv_scope_roll[@]}"; do
+    test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
+    readonly "${z_buv_varname_roll[$z_i]}"
   done
 }
 

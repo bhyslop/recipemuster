@@ -265,6 +265,7 @@ zrbrr_furnish() {
 
   zrbrr_kindle
   zrbrr_enforce
+  zrbrr_lock
 
   zbupr_kindle
 }
