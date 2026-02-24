@@ -7123,6 +7123,13 @@
         "₢AfAAq": {
           "tacks": [
             {
+              "ts": "260223-1823",
+              "state": "complete",
+              "text": "Add missing zburc_enforce and zburs_enforce calls in bul_launcher.sh.\n\n## Context\n\nbul_launcher.sh kindles BURC (line 50) and BURS (line 56) but skips enforce for both.\nBURC_* and BURS_* variables are consumed without validation (lines 39-45, 68-74).\nCurrently documented as \"bootstrap exception\" but variables are used unchecked.\n\n## Fix\n\nAdd `zburc_enforce` after zburc_kindle and `zburs_enforce` after zburs_kindle in Tools/buk/bul_launcher.sh.\n\n## Acceptance\n\n- zburc_enforce called after zburc_kindle\n- zburs_enforce called after zburs_kindle\n- Tabtarget dispatch still works (kick-tires test passes)",
+              "silks": "fix-bul-launcher-missing-enforce",
+              "commit": "10e3c20"
+            },
+            {
               "ts": "260223-0813",
               "state": "rough",
               "text": "Add missing zburc_enforce and zburs_enforce calls in bul_launcher.sh.\n\n## Context\n\nbul_launcher.sh kindles BURC (line 50) and BURS (line 56) but skips enforce for both.\nBURC_* and BURS_* variables are consumed without validation (lines 39-45, 68-74).\nCurrently documented as \"bootstrap exception\" but variables are used unchecked.\n\n## Fix\n\nAdd `zburc_enforce` after zburc_kindle and `zburs_enforce` after zburs_kindle in Tools/buk/bul_launcher.sh.\n\n## Acceptance\n\n- zburc_enforce called after zburc_kindle\n- zburs_enforce called after zburs_kindle\n- Tabtarget dispatch still works (kick-tires test passes)",
