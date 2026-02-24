@@ -7,6 +7,16 @@ Align linked terms across RBS0 (and propagate to BUS0, JJS0, VOS0) so that:
 2. Google infrastructure concepts are voiced through AXLA motifs, not re-exported as google-prefixed terms
 3. Operation/command/routine voicing annotations follow the structural hierarchy pattern established by regimes, not the older axl_voices lineage pattern
 
+## Prerequisite: ₣Ai ₢AiAAP
+
+₣Ai pace ₢AiAAP (introduce-rubric-vocabulary-fix-paddock) adds the trigger-migration
+AXLA motifs (axig_developer_connect, axig_build_trigger, axig_repo_link,
+axig_slsa_provenance, axig_build_config) and rbtgr_*/rbtgi_*/rbtgo_* linked terms.
+This heat should NOT re-add those motifs — they are already landed by the time ₣Aj starts.
+
+Work Area 1 below should focus on the REMAINING motifs needed beyond what ₢AiAAP provides,
+plus the hierarchy marker design for operations.
+
 ## Background
 
 RBS0 currently has ~30 google-domain-prefixed linked terms (gcb_*, gar_*, gcs_*, giam_*, gcp_*) that predate AXLA's voicing infrastructure. These were minted when RBS0 had to carry the burden of explaining Google concepts directly. Now that AXLA has axig_* (Infrastructure Google), axtg_* (Type Google), and related motifs, these terms should be refactored to rb*-prefixed voicings.
@@ -15,15 +25,14 @@ Additionally, the operation/command sections in RBS0 use `// ⟦axl_voices axo_c
 
 ## Scope
 
-### Work Area 1: AXLA motif additions
+### Work Area 1: AXLA motif additions (beyond ₢AiAAP)
 
-AXLA needs new motifs to support voicings that don't yet exist:
-- axig_developer_connect (Developer Connect service)
-- axig_build_trigger (Cloud Build trigger resource)
-- axig_repo_link (repository reference within a connection)
-- axig_slsa_provenance (build provenance attestation)
-- axig_build_config (build configuration file — cloudbuild.yaml concept)
-- Possibly others discovered during inventory
+₢AiAAP already adds: axig_developer_connect, axig_build_trigger, axig_repo_link,
+axig_slsa_provenance, axig_build_config. Do NOT duplicate these.
+
+Additional AXLA motifs still needed for the google-prefix migration:
+- Motifs for generic Google services (Cloud Build, Artifact Registry, IAM, etc.)
+- Possibly others discovered during inventory of the ~30 google-prefixed terms
 
 Also: design and add hierarchy markers for operations/commands/procedures parallel to the axhr* regime markers. The regime pattern (axhrb_regime, axhrgb_group, axhrgv_variable, axhro_kindle/render/validate) needs an operations equivalent so that RBS0 operation sections can use structural annotations instead of axl_voices lineage.
 
@@ -34,7 +43,7 @@ Rename existing google-domain terms to rb*-prefixed terms:
 Current prefixes to migrate:
 - gcb_build, gcb_service, gcb_service_p, gcb_service_s → rbtgi_* or rbw_* voicings
 - gar_registry, gar_registry_s, gar_service → rbtgi_* voicings
-- gcs_bucket, gcs_bucket_s, gcs_service → rbtgi_* voicings  
+- gcs_bucket, gcs_bucket_s, gcs_service → rbtgi_* voicings
 - giam_binding, giam_binding_s, giam_role, giam_role_s, giam_service_account, giam_service_account_s → rbtgi_* voicings
 - gcp_billing_enabled, gcp_delete_requested, gcp_folder, gcp_organization, gcp_project_id, gcp_project_number, gcp_lro, gcp_lien, gcp_service → rbtgi_* or appropriate rb* voicings
 - oauth_token → appropriate rb* voicing
