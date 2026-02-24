@@ -1609,10 +1609,11 @@
         "₢AOAAO",
         "₢AOAAJ",
         "₢AOAAK",
+        "₢AOAAT",
         "₢AOAAR",
         "₢AOAAL"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_uAuO.md",
       "paces": {
         "₢AOAAA": {
@@ -1953,6 +1954,17 @@
               "text": "Rename existing test infrastructure functions to follow BCG test execution vocabulary naming conventions.\n\n## Problem\n\nBCG now defines `_tsuite_init`, `_tsuite_setup`, and `_tcase` as named vocabulary with grep-able naming conventions. Existing test functions predate these conventions and use ad-hoc names that don't support compliance checking.\n\n## Scope\n\n**Setup functions** (in `Tools/rbw/rbtb_testbench.sh`):\nRename `zrbtb_setup_«name»` → `zrbtb_«name»_tsuite_setup` (10 functions):\n- `zrbtb_setup_kick` → `zrbtb_kick_tsuite_setup`\n- `zrbtb_setup_qualify` → `zrbtb_qualify_tsuite_setup`\n- `zrbtb_setup_ark` → `zrbtb_ark_tsuite_setup`\n- `zrbtb_setup_dispatch` → `zrbtb_dispatch_tsuite_setup`\n- `zrbtb_setup_nsproto` → `zrbtb_nsproto_tsuite_setup`\n- `zrbtb_setup_srjcl` → `zrbtb_srjcl_tsuite_setup`\n- `zrbtb_setup_pluml` → `zrbtb_pluml_tsuite_setup`\n- `zrbtb_setup_xname` → `zrbtb_xname_tsuite_setup`\n- `zrbtb_setup_regime` → `zrbtb_regime_tsuite_setup`\n- `zrbtb_setup_credentials` → `zrbtb_credentials_tsuite_setup`\n\n**Case functions** (~50 functions across ~10 files):\nAppend `_tcase` suffix to all case functions. Files:\n- `Tools/rbw/rbtckk_KickTires.sh` — `rbtckk_false`, `rbtckk_true`\n- `Tools/rbw/rbtcqa_QualifyAll.sh` — `rbtcqa_qualify_all`\n- `Tools/rbw/rbtcal_ArkLifecycle.sh` — `rbtcal_lifecycle`\n- `Tools/buk/butcde_DispatchExercise.sh` — `butcde_burv_isolation`, `butcde_evidence_created`, `butcde_exit_capture`\n- `Tools/rbw/rbtcns_NsproSecurity.sh` — all `rbtcns_*` functions\n- `Tools/rbw/rbtcsj_SrjclJupyter.sh` — all `rbtcsj_*` functions\n- `Tools/rbw/rbtcpl_PlumlDiagram.sh` — all `rbtcpl_*` functions\n- `Tools/buk/butcrg_RegimeSmoke.sh` — all `butcrg_*` case functions\n- `Tools/buk/butcrg_RegimeCredentials.sh` — all `butcrg_*` case functions\n- `Tools/buk/butcvu_XnameValidation.sh` — all `butcvu_*` case functions\n\n**Infrastructure** (`Tools/buk/bute_engine.sh`):\n- `zbute_case` → `zbute_tcase`\n\n**Enrollment sites** (`Tools/rbw/rbtb_testbench.sh`):\n- All `butr_suite_enroll` calls: update setup function references\n- All `butr_case_enroll` calls: update case function references\n\n## Acceptance\n\n- All setup functions use `_tsuite_setup` suffix\n- All case functions use `_tcase` suffix\n- Infrastructure boundary function uses `zbute_tcase`\n- `grep -rn '_tsuite_setup' Tools/` returns all setup functions\n- `grep -rn '_tcase' Tools/` returns all case functions\n- Test suite runs clean: `./tt/rbw-ta.TestAll.sh` passes (kick-tires + regime-smoke at minimum)",
               "silks": "rename-test-functions-bcg-vocabulary",
               "commit": "bb701d9"
+            }
+          ]
+        },
+        "₢AOAAT": {
+          "tacks": [
+            {
+              "ts": "260223-1924",
+              "state": "rough",
+              "text": "Reconcile BCG sourcing rules with the furnish-sources-everything pattern.\n\n## Context\n\nTwo living patterns exist for CLI dependency sourcing:\n\n**Pattern A (header-sources):** CLI header sources all modules; furnish only kindles.\nExamples: rbob_cli.sh, rbf_cli.sh, rbrr_cli.sh\n\n**Pattern B (furnish-sources):** CLI header sources only buc_command.sh; furnish sources all modules + kindles.\nExamples: rbrs_cli.sh, rbrn_cli.sh (differential furnish)\n\nBCG currently prescribes Pattern A (\"CLI file header → All dependencies → Module loading\"). Pattern B emerged naturally from differential furnish (rbrn) and has been adopted by newer CLIs.\n\n## Analysis Needed\n\n1. Inventory all CLIs: which use Pattern A vs Pattern B?\n2. Does Pattern B enable doc-mode help display? (furnish can gate after buc_doc_env before sourcing fails)\n3. Does Pattern A have advantages Pattern B lacks?\n4. Should BCG bless both patterns, or converge on one?\n5. If converging: what's the migration scope?\n\n## Key BCG locations to update if converging\n\n- Boilerplate Functions table (furnish row, CLI header row)\n- Template 2: CLI Entry Point\n- Sourcing Rules table\n- Module Maturity Checklist (Module Structure, Required Functions, Sourcing Restrictions)\n- Literal constant note (references \"CLI header block\")\n\n## Acceptance\n\n- BCG sourcing rules reflect the chosen pattern(s)\n- All affected checklist items updated\n- No code changes in this pace — BCG spec only",
+              "silks": "bcg-reconcile-sourcing-in-furnish",
+              "commit": "580ecbc"
             }
           ]
         }
