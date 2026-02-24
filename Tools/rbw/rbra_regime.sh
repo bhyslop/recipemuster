@@ -71,7 +71,7 @@ zrbra_enforce() {
     || buc_die "RBRA_PRIVATE_KEY does not contain PEM key material"
 
   # GitHub PAT format check (optional — only validate if non-empty)
-  if test -n "${RBRA_RUBRIC_GITHUB_PAT}"; then
+  if test -n "${RBRA_RUBRIC_GITHUB_PAT:-}"; then
     [[ "${RBRA_RUBRIC_GITHUB_PAT}" =~ ^(ghp_|github_pat_) ]] \
       || buc_die "RBRA_RUBRIC_GITHUB_PAT must start with 'ghp_' or 'github_pat_' prefix: '${RBRA_RUBRIC_GITHUB_PAT:0:10}...'"
   fi
