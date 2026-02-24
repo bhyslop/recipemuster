@@ -49,6 +49,7 @@ zrbv_furnish() {
 
   source              "${RBV_RBRS_FILE}" || buc_die "Failed to source RBRS config"
   zrbrs_kindle
+  zrbrs_enforce
 
   # Start implementation module
   zrbv_kindle
