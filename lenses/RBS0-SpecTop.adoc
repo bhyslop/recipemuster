@@ -91,6 +91,7 @@
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbf_summon>>
 :rbtgo_depot_create:              <<rbtgo_depot_create,rbgp_depot_create>>
 :rbtgo_depot_destroy:             <<rbtgo_depot_destroy,rbgp_depot_destroy>>
+:rbtgo_depot_initialize:         <<rbtgo_depot_initialize,rbgm_depot_initialize>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
 :rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
 :rbtgo_governor_reset:            <<rbtgo_governor_reset,rbgp_governor_reset>>
@@ -289,6 +290,7 @@
 :rbra_private_key:           <<rbra_private_key,RBRA_PRIVATE_KEY>>
 :rbra_project_id:            <<rbra_project_id,RBRA_PROJECT_ID>>
 :rbra_token_lifetime_sec:    <<rbra_token_lifetime_sec,RBRA_TOKEN_LIFETIME_SEC>>
+:rbra_rubric_github_pat:     <<rbra_rubric_github_pat,RBRA_RUBRIC_GITHUB_PAT>>
 
 // Recipe Bottle Regime: Payor
 :rbrp_billing_account_id:    <<rbrp_billing_account_id,RBRP_BILLING_ACCOUNT_ID>>
@@ -2032,6 +2034,21 @@ that owns the
 OAuth token lifetime in seconds for JWT token exchange with
 {gcp_service}
 APIs.
+
+[[rbra_rubric_github_pat]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbra_rubric_github_pat}::
+GitHub fine-grained personal access token for
+{rbtgr_vessel_repo}
+management.
+Used by
+{rbtgo_rubric_inscribe}
+to create mini-repos via GitHub REST API and push build material via git.
+Optional — only populated in
+{rbtr_director}
+RBRA files.
+Cloud Build does not need this token; it accesses mini-repos via the
+{rbtgi_source_connection}.
 
 include::RBSRA-CredentialFormat.adoc[]
 

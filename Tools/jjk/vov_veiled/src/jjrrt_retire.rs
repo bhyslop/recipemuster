@@ -7,7 +7,7 @@
 //! Handles retire operation: optionally dry-run (preview trophy) or execute
 //! (write trophy, remove from gallops, delete paddock, commit).
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_RetireArgs as LibRetireArgs};
@@ -28,6 +28,10 @@ pub struct jjrrt_RetireArgs {
     /// Execute the retire (write trophy, remove from gallops, delete paddock, commit)
     #[arg(long)]
     pub execute: bool,
+
+    /// Override size limit for commit guard (bytes)
+    #[arg(long)]
+    pub size_limit: Option<u64>,
 }
 
 /// Run the retire command
@@ -141,6 +145,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
     // Commit using vvcm_commit with explicit file list
     // Files: gallops.json, trophy file (created), paddock file (deleted - git add handles this)
     let gallops_path = args.file.to_string_lossy().to_string();
+    let effective_size_limit = args.size_limit.unwrap_or(200000);
     let commit_args = vvc::vvcm_CommitArgs {
         files: vec![
             gallops_path,
@@ -148,8 +153,8 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
             result.paddock_path.clone(),
         ],
         message: jjrn_format_heat_message(&firemark, jjrn_HeatAction::Retire, &result.silks),
-        size_limit: 200000,  // 200KB - trophy files can be large
-        warn_limit: 100000,
+        size_limit: effective_size_limit,
+        warn_limit: effective_size_limit / 2,
     };
 
     match vvc::machine_commit(&lock, &commit_args) {
@@ -157,7 +162,19 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
             eprintln!("jjx_retire: committed {}", &hash[..8]);
         }
         Err(e) => {
-            eprintln!("jjx_retire: commit warning: {}", e);
+            eprintln!("jjx_retire: error: commit failed: {}", e);
+            // Rollback: restore gallops and paddock from HEAD, remove trophy
+            let gp = args.file.to_string_lossy().to_string();
+            let _ = std::process::Command::new("git")
+                .args(["checkout", "HEAD", "--", &gp, &result.paddock_path])
+                .status();
+            let _ = std::process::Command::new("git")
+                .args(["rm", "-f", "--cached", &result.trophy_path])
+                .status();
+            let _ = std::fs::remove_file(&result.trophy_path);
+            eprintln!("jjx_retire: rolled back file changes");
+            eprintln!("jjx_retire: retry with --size-limit <bytes> to override guard");
+            return 1;
         }
     }
 

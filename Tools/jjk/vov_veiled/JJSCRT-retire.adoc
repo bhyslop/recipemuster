@@ -19,6 +19,10 @@ This is a destructive operation that permanently removes the heat from active tr
 * `--execute` — perform the retire operation.
 Without this flag, outputs trophy markdown to stdout as a dry-run preview.
 
+// ⟦axd_optional⟧
+* `--size-limit <bytes>` — override the commit size guard limit (default 200KB).
+Use when a large trophy exceeds the default guard.
+
 {jjds_stdout}
 Without `--execute`: trophy markdown content (dry-run preview).
 With `--execute`: path to the written trophy file.
@@ -137,7 +141,12 @@ to
 . Delete paddock file at
 {jjdhm_paddock}
 . Stage exactly three paths: trophy file, gallops.json, paddock file (as deletion)
-. Run size guard with 200KB limit (trophy files can be large for big heats)
-. Commit with message per steeplechase conventions (format TBD by unify-commit-format)
+. Run size guard with limit from `--size-limit` (default 200KB)
+. Commit with message per steeplechase conventions
+. If commit fails (size guard or other):
+.. Roll back file changes: restore gallops and paddock from HEAD, remove trophy
+.. Report error clearly with measured size
+.. Advise retry with `--size-limit` override
+.. Exit non-zero (working copy is clean for retry)
 . Release lock
 . Output trophy file path to stdout

@@ -429,7 +429,7 @@ jjx_record CORONET FILE [FILE...] [--intent "msg"]
 jjx_close CORONET
 jjx_log FIREMARK [--limit N]
 jjx_search PATTERN [--actionable]
-jjx_archive FIREMARK [--execute]
+jjx_archive FIREMARK [--execute] [--size-limit BYTES]
 jjx_transfer FIREMARK --to FIREMARK <stdin
 jjx_continue FIREMARK
 jjx_mark CORONET --marker M --description "text"
