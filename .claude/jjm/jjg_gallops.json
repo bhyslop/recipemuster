@@ -4607,6 +4607,7 @@
         "₢AiAAR",
         "₢AiAAX",
         "₢AiAAY",
+        "₢AiAAa",
         "₢AiAAZ",
         "₢AiAAU",
         "₢AiAAV",
@@ -4623,7 +4624,7 @@
         "₢AiAAM",
         "₢AiAAN"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5490,6 +5491,17 @@
               "text": "Delete and recreate depot, then execute depot_initialize live.\n\n## Sequence\n\n1. Delete existing depot (rbgp_depot_destroy)\n2. Recreate depot (rbgp_depot_create) — now includes connection creation\n3. Run depot_initialize:\n   - Configure RBRA_RUBRIC_GITHUB_PAT in director RBRA file\n   - Complete GitHub OAuth browser authorization for Developer Connect\n   - Verify connection reaches COMPLETE\n4. Set RBRR_GDC_CONNECTION_NAME in rbrr.env with real value\n5. Verify regime smoke test passes\n6. Verify PAT + connection health checks\n\nHuman-interactive — requires browser for OAuth authorization.",
               "silks": "live-depot-initialize",
               "commit": "7ce5bdb"
+            }
+          ]
+        },
+        "₢AiAAa": {
+          "tacks": [
+            {
+              "ts": "260224-1030",
+              "state": "rough",
+              "text": "Implement rbtgo_rubric_preflight: a non-interactive, no-side-effect gate that\nvalidates rubric infrastructure readiness. Dies on failure (BCG buc_die pattern).\n\n## Spec (RBS0)\n\nAdd new section defining {rbtgo_rubric_preflight} operation:\n- Linked term: rbtgo_rubric_preflight\n- Validates GitHub PAT (RBRA_RUBRIC_GITHUB_PAT) via GET https://api.github.com/user\n- Validates Developer Connect connection stage == COMPLETE via REST API\n- Returns success or buc_die — no side effects, no browser, no polling\n- Called as prerequisite gate, not as standalone user command\n\nAdd prerequisite requirement in Governor Operations section:\n- {rbtgo_retriever_create} must call {rbtgo_rubric_preflight} before any work\n- {rbtgo_director_create} must call {rbtgo_rubric_preflight} before any work\n\nAdd final validation call at end of {rbtgo_depot_initialize} sequence.\n\n## Code\n\nImplement function (likely in rbgm_ManualProcedures.sh or Governor):\n- Load RBRA_RUBRIC_GITHUB_PAT from director RBRA\n- curl GET https://api.github.com/user with Bearer token, check HTTP 200 || buc_die\n- Get GCP OAuth token, GET DevConnect connection endpoint, extract .installationState.stage\n- test stage == COMPLETE || buc_die\n- No user prompts, no browser, no polling — instant pass/die\n\nWire into rbgg_create_retriever() and rbgg_create_director() as early gate\n(after zrbgg_sentinel, before any work).\n\nWire into rbgm_depot_initialize() as final health confirmation.\n\n## Verify\n\nAttempt retriever creation without valid PAT/DevConnect — should die cleanly\nwith actionable error message.\n\n## References\n\n- Tools/rbw/rbgg_Governor.sh — rbgg_create_retriever(), rbgg_create_director()\n- Tools/rbw/rbgm_ManualProcedures.sh — rbgm_depot_initialize() lines 522-620\n- Tools/rbw/rbgc_Constants.sh — RBGC_API_ROOT_DEVELOPERCONNECT\n- Tools/buk/vov_veiled/BCG-BashConsoleGuide.md — buc_die gate pattern",
+              "silks": "rbtgo-rubric-preflight",
+              "commit": "cd899f7"
             }
           ]
         }
