@@ -11,13 +11,13 @@ Ensures a vessel's build definition is fully set up and synced to its
 // ⟦axs_preconditions⟧
 
 * {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in regime
-* Builder image pins refreshed within freshness window (`RBRR_GCB_PINS_REFRESHED_AT`)
+* Builder image pins refreshed within freshness window ({rbrr_gcb_pins_refreshed_at})
 * Vessel configuration loaded ({rbrv_regime})
 
 // ⟦axs_behavior⟧
 
 . *Check Pin Freshness*:
-.. Verify `RBRR_GCB_PINS_REFRESHED_AT` is within acceptable window (~2 days)
+.. Verify {rbrr_gcb_pins_refreshed_at} is within acceptable window (~2 days)
 .. {rbbc_fatal} if pins are stale — operator must run pin refresh first
 
 . *Generate Rubric YAML*:

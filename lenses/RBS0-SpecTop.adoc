@@ -270,6 +270,7 @@
 :rbrr_gcb_alpine_image_ref:  <<rbrr_gcb_alpine_image_ref,RBRR_GCB_ALPINE_IMAGE_REF>>
 :rbrr_gcb_syft_image_ref:    <<rbrr_gcb_syft_image_ref,RBRR_GCB_SYFT_IMAGE_REF>>
 :rbrr_gcb_binfmt_image_ref:  <<rbrr_gcb_binfmt_image_ref,RBRR_GCB_BINFMT_IMAGE_REF>>
+:rbrr_gcb_pins_refreshed_at: <<rbrr_gcb_pins_refreshed_at,RBRR_GCB_PINS_REFRESHED_AT>>
 :rbrr_chosen_identity:       <<rbrr_chosen_identity,RBRR_CHOSEN_IDENTITY>>
 :rbrr_chosen_podman_version: <<rbrr_chosen_podman_version,RBRR_CHOSEN_PODMAN_VERSION>>
 :rbrr_chosen_vmimage_origin: <<rbrr_chosen_vmimage_origin,RBRR_CHOSEN_VMIMAGE_ORIGIN>>
@@ -1948,6 +1949,14 @@ Fully-qualified image reference for Syft SBOM Cloud Build step.
 // ⟦axvr_variable axd_required rbst_image_ref⟧
 {rbrr_gcb_binfmt_image_ref}::
 Fully-qualified image reference for binfmt Cloud Build step.
+
+[[rbrr_gcb_pins_refreshed_at]]
+// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp⟧
+{rbrr_gcb_pins_refreshed_at}::
+Timestamp recording when builder image pins were last refreshed.
+{rbtgo_rubric_inscribe}
+checks this value and fails if pins are stale (older than ~2 days),
+ensuring builds use current builder images.
 
 [[rbrr_group_service_accounts]]
 // ⟦axvr_group⟧
