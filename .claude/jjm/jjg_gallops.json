@@ -5510,11 +5510,12 @@
       "status": "racing",
       "order": [
         "₢AkAAD",
+        "₢AkAAE",
         "₢AkAAB",
         "₢AkAAA",
         "₢AkAAC"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5572,6 +5573,17 @@
               "text": "Add `readonly` pattern to BCG and trial on selected modules/regime.\n\n## Scope\n\n1. **BCG update**: Add a new section to BCG covering `readonly` patterns:\n   - `readonly VAR` (lock after assignment)\n   - `readonly VAR=value` (assign-and-lock for script-local constants)\n   - The re-source trap (why `readonly` cannot go in sourceable .env files)\n   - The \"lock after kindle\" pattern for validated configuration\n\n2. **Remove kindle defaults**: Eliminate the `RBRR_FOO=\"${RBRR_FOO:-}\"` default-setting pattern from `zrbrr_kindle()`. These destroy information (unset vs empty) and are unnecessary because buv already uses `${!z_varname:-}` for safe indirect expansion under `set -u`.\n\n3. **buv enhancement**: In `zbuv_check_capture`, add an unset-detection check using `${!z_varname+x}` before the type-switch. Unset required variables should produce a distinct error: \"VARNAME is not set (missing from .env?)\" rather than \"must not be empty\".\n\n4. **Post-enforce readonly**: After `zrbrr_enforce()` succeeds, lock all enrolled RBRR_ variables with `readonly`. Move `ZRBRR_DOCKER_ENV` construction to after enforcement (don't build from unvalidated values).\n\n5. **Trial targets**: Apply to:\n   - One regime: RBRR (`rbrr_regime.sh` + `rbrr.env`)\n   - One or two modules: candidates TBD (look for modules with literal constants suitable for `readonly VAR=value`)\n\n6. **Literal constants**: Identify and convert appropriate literal constants in trial modules to `readonly`.\n\n## Acceptance\n\n- BCG documents `readonly` patterns with rationale and anti-patterns\n- `zrbrr_kindle()` no longer sets defaults; buv detects unset vs empty\n- RBRR variables are readonly after enforcement\n- Trial module literal constants are readonly\n- All existing tests pass (regime-smoke, xname-validation, etc.)\n- Attempting to reassign a locked RBRR_ variable after kindle produces a clear bash error",
               "silks": "readonly-bcg-trial",
               "commit": "a530991"
+            }
+          ]
+        },
+        "₢AkAAE": {
+          "tacks": [
+            {
+              "ts": "260224-0843",
+              "state": "rough",
+              "text": "Apply `readonly` patterns across all regimes and modules, following patterns proven in ₢AkAAD trial.\n\n## Scope\n\n1. **All regime kindle functions**: Remove defaults, add post-enforce `readonly` locking, move docker-env construction to post-enforce. Apply to:\n   - RBRN (`rbrn_regime.sh`) — all three nameplates (nsproto, srjcl, pluml)\n   - RBRA if applicable\n   - Any other regime modules\n\n2. **All module literal constants**: Convert appropriate literal constants to `readonly` across all modules in `Tools/rbw/`, `Tools/buk/`, and other kit directories.\n\n3. **Script-local constants**: Apply `readonly VAR=value` pattern to script-local constants in CLI entry points and install/uninstall scripts (extending the pattern already used in VVK's `vvi_install.sh` and `vvu_uninstall.sh`).\n\n## Acceptance\n\n- All regime variables are readonly after enforcement\n- All identified literal constants are readonly\n- Full test suite passes\n- No regressions in any tabtarget",
+              "silks": "readonly-widespread",
+              "commit": "29251e4"
             }
           ]
         }
