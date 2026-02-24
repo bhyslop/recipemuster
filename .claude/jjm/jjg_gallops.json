@@ -5509,11 +5509,12 @@
       "creation_time": "260224",
       "status": "racing",
       "order": [
+        "₢AkAAD",
         "₢AkAAB",
         "₢AkAAA",
         "₢AkAAC"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5560,6 +5561,17 @@
               "text": "Rework BUK test registry to support cross-cutting test suites (N:M case-to-suite).\n\n## Design decisions (settled)\n\n- **Suite** = cross-cutting selection group (fast, service, complete). A case can be in multiple suites.\n- **Fixture** = init/setup execution context (renamed from old \"suite\"). Each case has exactly one fixture.\n- `butr_suite_enroll BUTR_SUITE_FAST BUTR_SUITE_COMPLETE` — replacement (not additive), sets current suite context for subsequent case enrollments. At least one suite required.\n- `butr_case_enroll \"fixture-name\" case_fn` — assigns case to fixture + inherits current suite set.\n- Suite constants are kindle `readonly` strings, defined in testbench. `set -u` catches typos.\n- Dispatch by suite: collect cases, group by owning fixture, run each fixture's init/setup with only the selected cases.\n\n## Open design question\n\n- Rename existing `butr_suite_enroll` to `butr_fixture_enroll` (or other name for the init/setup grouping). \"Fixture\" is standard testing vocabulary for setup/teardown context.\n\n## Files to change\n\n1. `Tools/buk/butr_registry.sh` — Rename suite→fixture internally, add suite enrollment (sets current suite context), add `z_butr_case_suites_roll[]` parallel array, add `butr_suite_cases_recite`, `butr_suites_recite` query functions.\n2. `Tools/buk/butd_dispatch.sh` — Refactor `butd_run_suite` to accept optional case list (default=all). Add `butd_run_sweep` entry point that queries by suite, groups by fixture, runs filtered.\n3. `Tools/buk/bute_engine.sh` — No changes expected (runs individual cases).\n4. `Tools/rbw/rbtb_testbench.sh` — Define suite constants (BUTR_SUITE_FAST, BUTR_SUITE_SERVICE, BUTR_SUITE_COMPLETE). Rename suite_enroll→fixture_enroll. Add suite_enroll calls before case groups. Categorize all 98 cases.\n5. Tabtargets — New `rbw-tw.TestSweep.sh` for suite-based runs. Existing `rbw-ts.TestSuite.sh` renamed to fixture-based or kept as alias.\n6. `Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` — Document suite/fixture model.\n\n## Acceptance\n\n- `butr_case_enroll` fatals if no `butr_suite_enroll` has been called\n- All 98 cases assigned to at least one suite\n- `butd_run_sweep \"fast\"` runs only fast-tagged cases, grouped by fixture\n- `butd_run_all` unchanged (runs all fixtures)\n- Existing tabtargets (TestAll, TestSuite, TestOne) still work\n- New TestSweep tabtarget works",
               "silks": "add-test-sweep-suites",
               "commit": "4f7052b"
+            }
+          ]
+        },
+        "₢AkAAD": {
+          "tacks": [
+            {
+              "ts": "260224-0843",
+              "state": "rough",
+              "text": "Add `readonly` pattern to BCG and trial on selected modules/regime.\n\n## Scope\n\n1. **BCG update**: Add a new section to BCG covering `readonly` patterns:\n   - `readonly VAR` (lock after assignment)\n   - `readonly VAR=value` (assign-and-lock for script-local constants)\n   - The re-source trap (why `readonly` cannot go in sourceable .env files)\n   - The \"lock after kindle\" pattern for validated configuration\n\n2. **Remove kindle defaults**: Eliminate the `RBRR_FOO=\"${RBRR_FOO:-}\"` default-setting pattern from `zrbrr_kindle()`. These destroy information (unset vs empty) and are unnecessary because buv already uses `${!z_varname:-}` for safe indirect expansion under `set -u`.\n\n3. **buv enhancement**: In `zbuv_check_capture`, add an unset-detection check using `${!z_varname+x}` before the type-switch. Unset required variables should produce a distinct error: \"VARNAME is not set (missing from .env?)\" rather than \"must not be empty\".\n\n4. **Post-enforce readonly**: After `zrbrr_enforce()` succeeds, lock all enrolled RBRR_ variables with `readonly`. Move `ZRBRR_DOCKER_ENV` construction to after enforcement (don't build from unvalidated values).\n\n5. **Trial targets**: Apply to:\n   - One regime: RBRR (`rbrr_regime.sh` + `rbrr.env`)\n   - One or two modules: candidates TBD (look for modules with literal constants suitable for `readonly VAR=value`)\n\n6. **Literal constants**: Identify and convert appropriate literal constants in trial modules to `readonly`.\n\n## Acceptance\n\n- BCG documents `readonly` patterns with rationale and anti-patterns\n- `zrbrr_kindle()` no longer sets defaults; buv detects unset vs empty\n- RBRR variables are readonly after enforcement\n- Trial module literal constants are readonly\n- All existing tests pass (regime-smoke, xname-validation, etc.)\n- Attempting to reassign a locked RBRR_ variable after kindle produces a clear bash error",
+              "silks": "readonly-bcg-trial",
+              "commit": "a530991"
             }
           ]
         }
