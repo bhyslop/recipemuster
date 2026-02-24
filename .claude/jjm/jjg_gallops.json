@@ -7087,6 +7087,13 @@
         "₢AfAAo": {
           "tacks": [
             {
+              "ts": "260223-1750",
+              "state": "complete",
+              "text": "Remove RBRE (ECR Regime) ghost — spec exists with zero implementation or consumers.\n\n## Files to remove/edit\n\n- DELETE `lenses/RBSRE-RegimeEcr.adoc` — the regime spec\n- EDIT `lenses/RBS0-SpecTop.adoc` — remove all RBRE linked terms (attributes, anchors, definitions) from mapping section and ECR Regime section\n- EDIT paddock `jjp_uAlf.md` — update RBRE entry to note removal (like RBRG)\n\n## Context\n\nSame situation as RBRG (₢AfAAA): spec'd, never implemented, no shell code, no consumers.\nSix RBRE_ variables defined in spec, zero references in Tools/.\n\n## Acceptance\n\n- RBSRE-RegimeEcr.adoc deleted\n- No rbre_ attributes or anchors remain in RBS0\n- Paddock updated\n- cma-validate passes on RBS0",
+              "silks": "remove-rbre-ghost-regime",
+              "commit": "6d0e3b9"
+            },
+            {
               "ts": "260223-0808",
               "state": "rough",
               "text": "Remove RBRE (ECR Regime) ghost — spec exists with zero implementation or consumers.\n\n## Files to remove/edit\n\n- DELETE `lenses/RBSRE-RegimeEcr.adoc` — the regime spec\n- EDIT `lenses/RBS0-SpecTop.adoc` — remove all RBRE linked terms (attributes, anchors, definitions) from mapping section and ECR Regime section\n- EDIT paddock `jjp_uAlf.md` — update RBRE entry to note removal (like RBRG)\n\n## Context\n\nSame situation as RBRG (₢AfAAA): spec'd, never implemented, no shell code, no consumers.\nSix RBRE_ variables defined in spec, zero references in Tools/.\n\n## Acceptance\n\n- RBSRE-RegimeEcr.adoc deleted\n- No rbre_ attributes or anchors remain in RBS0\n- Paddock updated\n- cma-validate passes on RBS0",
