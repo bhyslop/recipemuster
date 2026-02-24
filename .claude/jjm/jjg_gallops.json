@@ -5769,6 +5769,7 @@
         "₢AiAAO",
         "₢AiAAR",
         "₢AiAAX",
+        "₢AiAAY",
         "₢AiAAU",
         "₢AiAAV",
         "₢AiAAW",
@@ -5784,7 +5785,7 @@
         "₢AiAAM",
         "₢AiAAN"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6608,6 +6609,17 @@
               "text": "Implement RBRA GitHub PAT extension and depot_create connection creation.\n\n## RBRA Regime Extension\n\nIn Tools/rbw/rbra_regime.sh:\n- kindle: add RBRA_RUBRIC_GITHUB_PAT default\n- enroll: buv_string_enroll RBRA_RUBRIC_GITHUB_PAT 0 256 \"GitHub PAT for rubric repo management\"\n- enforce: if non-empty, validate format (ghp_ or github_pat_ prefix)\n\n## depot_create Changes\n\nIn Tools/rbw/rbgp_Payor.sh rbgp_depot_create():\n- Add developerconnect and secretmanager to API enablement list (step \"Enable depot project APIs\")\n- After IAM propagation and resource creation, create Developer Connect connection via REST:\n  POST to developerconnect.googleapis.com/v1/projects/{project}/locations/{region}/connections\n  with github-config-app=DEVELOPER-CONNECT\n  Connection left in PENDING state — OAuth completed later by depot_initialize\n\n## Regime smoke test\n\nVerify regime smoke test passes with optional empty RBRA_RUBRIC_GITHUB_PAT.\n\nReferences: RBSDC spec (updated in prior pace), rbra_regime.sh, rbgp_Payor.sh",
               "silks": "code-rbra-pat-and-depot-create",
               "commit": "234780c"
+            }
+          ]
+        },
+        "₢AiAAY": {
+          "tacks": [
+            {
+              "ts": "260224-0757",
+              "state": "rough",
+              "text": "Author rbgm_depot_initialize() — the human-interactive procedure that validates\nGitHub PAT and completes Developer Connect OAuth authorization.\n\n## Function: rbgm_depot_initialize()\n\nIn Tools/rbw/rbgm_ManualProcedures.sh, following rbgm_payor_establish() pattern:\n\n1. Source Director RBRA file, check RBRA_RUBRIC_GITHUB_PAT\n2. If empty/missing: guide user through fine-grained PAT creation\n   - Scopes needed: repo (create, push to mini-repos)\n   - Instruct to add RBRA_RUBRIC_GITHUB_PAT=ghp_xxx to director RBRA file\n   - Re-source and validate\n3. Test PAT: GET https://api.github.com/user with Authorization: token header\n4. Retrieve Developer Connect authorization URI:\n   GET connection resource, extract installationState.actionUri\n5. Display URI — human opens browser, authorizes Google Developer Connect app\n6. Poll until installationState.stage == COMPLETE\n7. Final summary: PAT valid, connection active, ready for inscribe\n\nMust be idempotent — safe to re-run (skip steps already complete).\n\n## Tabtarget + Wiring\n\n- Create tt/rbw-gdi.DepotInitialize.sh (or appropriate colophon)\n- Wire through rbz_zipper.sh\n- Delete old rbgm_gdc_establish() and tt/rbw-gge.GdcEstablishment.sh\n- Remove RBZ_GDC_ESTABLISH from zipper\n\n## References\n\n- RBSDN spec (authored in prior pace)\n- Tools/rbw/rbgm_ManualProcedures.sh\n- Tools/rbw/rbz_zipper.sh",
+              "silks": "author-depot-initialize",
+              "commit": "ab7360b"
             }
           ]
         }
