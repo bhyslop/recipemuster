@@ -370,8 +370,6 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
 pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<String, String> {
     let touches = jjrq_file_touches_for_heat(firemark.jjrf_as_str())?;
 
-    let has_heat_level = !touches.heat_files.is_empty();
-
     // Build pace columns: only paces with commits, in heat order
     let mut pace_columns: Vec<(char, String, String)> = Vec::new();
     for coronet_key in &heat.order {
@@ -394,8 +392,7 @@ pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<Stri
         coronet_to_col.insert(coronet_display.clone(), idx);
     }
 
-    let heat_col_idx = pace_columns.len();
-    let total_cols = if has_heat_level { heat_col_idx + 1 } else { heat_col_idx };
+    let total_cols = pace_columns.len();
 
     // Build file -> touch vector from the shared query result
     let mut file_touches_map: BTreeMap<String, Vec<bool>> = BTreeMap::new();
@@ -407,15 +404,6 @@ pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<Stri
                 if col_idx < row.len() {
                     row[col_idx] = true;
                 }
-            }
-        }
-    }
-
-    if has_heat_level {
-        for filename in &touches.heat_files {
-            let row = file_touches_map.entry(filename.clone()).or_insert_with(|| vec![false; total_cols]);
-            if heat_col_idx < row.len() {
-                row[heat_col_idx] = true;
             }
         }
     }
@@ -445,16 +433,10 @@ pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<Stri
     for (i, (ch, _coronet, silks)) in pace_columns.iter().enumerate() {
         writeln!(output, "  {} {} {}", i + 1, ch, silks).unwrap();
     }
-    if has_heat_level {
-        writeln!(output, "  {} * heat-level", pace_columns.len() + 1).unwrap();
-    }
     writeln!(output).unwrap();
 
     // Column header line (terminal chars aligned with bitmap positions)
-    let mut header_chars: Vec<char> = pace_columns.iter().map(|(ch, _, _)| *ch).collect();
-    if has_heat_level {
-        header_chars.push('*');
-    }
+    let header_chars: Vec<char> = pace_columns.iter().map(|(ch, _, _)| *ch).collect();
     let header_line: String = header_chars.iter().collect();
     writeln!(output, "{}", header_line).unwrap();
 
@@ -542,7 +524,6 @@ pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result
     // Build pace rows: ordered by first chronological appearance
     let mut pace_order: Vec<(String, char, String)> = Vec::new(); // (coronet_display, term_char, silks)
     let mut pace_index: BTreeMap<String, usize> = BTreeMap::new();
-    let mut has_heat_level = false;
 
     for entry in &display_entries {
         if let Some(ref coronet) = entry.coronet {
@@ -557,13 +538,11 @@ pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result
                 pace_index.insert(coronet.clone(), idx);
                 pace_order.push((coronet.clone(), ch, silks));
             }
-        } else {
-            has_heat_level = true;
         }
+        // heat-level entries (no coronet) are intentionally excluded from swim lanes
     }
 
-    let total_rows = pace_order.len() + if has_heat_level { 1 } else { 0 };
-    let heat_row_idx = pace_order.len();
+    let total_rows = pace_order.len();
 
     if total_rows == 0 {
         return Ok(String::new());
@@ -580,10 +559,8 @@ pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result
                 bitmap[row][col] = true;
                 row_commit_counts[row] += 1;
             }
-        } else if has_heat_level {
-            bitmap[heat_row_idx][col] = true;
-            row_commit_counts[heat_row_idx] += 1;
         }
+        // heat-level entries (no coronet) are intentionally excluded from swim lanes
     }
 
     let mut output = String::new();
@@ -601,9 +578,6 @@ pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result
     for (i, (_, ch, silks)) in pace_order.iter().enumerate() {
         writeln!(output, "  {} {} {}", i + 1, ch, silks).unwrap();
     }
-    if has_heat_level {
-        writeln!(output, "  {} * heat-level", pace_order.len() + 1).unwrap();
-    }
     writeln!(output).unwrap();
 
     // Column header line
@@ -613,11 +587,7 @@ pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result
     // Bitmap rows
     for row in 0..total_rows {
         let bits: String = bitmap[row].iter().map(|&b| if b { 'x' } else { '·' }).collect();
-        let (term_char, count) = if row < pace_order.len() {
-            (pace_order[row].1, row_commit_counts[row])
-        } else {
-            ('*', row_commit_counts[row])
-        };
+        let (term_char, count) = (pace_order[row].1, row_commit_counts[row]);
         writeln!(output, "{}  {}  {}c", bits, term_char, count).unwrap();
     }
 
