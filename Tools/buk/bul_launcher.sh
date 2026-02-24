@@ -29,11 +29,11 @@ ZBUL_LAUNCHER_SOURCED=1
 
 # Establish project root from the sourcing launcher's location
 ZBUL_PROJECT_ROOT="${BASH_SOURCE[1]%/*}/.."
-cd "${ZBUL_PROJECT_ROOT}" || exit 1
+cd "${ZBUL_PROJECT_ROOT}" || exit 1 # buc_die not available yet
 
 # Load BURC configuration
 export BURD_REGIME_FILE="${ZBUL_PROJECT_ROOT}/.buk/burc.env"
-source "${BURD_REGIME_FILE}" || exit 1
+source "${BURD_REGIME_FILE}" || exit 1 # buc_die not available yet
 
 # Apply BURV (Bash Utility Regime Verification) overrides if set
 BURC_OUTPUT_ROOT_DIR="${BURV_OUTPUT_ROOT_DIR:-${BURC_OUTPUT_ROOT_DIR}}"
@@ -41,19 +41,21 @@ BURC_TEMP_ROOT_DIR="${BURV_TEMP_ROOT_DIR:-${BURC_TEMP_ROOT_DIR}}"
 
 # Source BUK modules
 export BURD_STATION_FILE="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
-source "${BURC_TOOLS_DIR}/buk/buc_command.sh"
-source "${BURC_TOOLS_DIR}/buk/buv_validation.sh"
+source "${BURC_TOOLS_DIR}/buk/buc_command.sh" || exit 1 # buc_die not available yet
+source "${BURC_TOOLS_DIR}/buk/buv_validation.sh" || buc_die "Failed to source buv_validation.sh"
 zbuv_kindle
 
 # Load and kindle BURC
-source "${BURC_TOOLS_DIR}/buk/burc_regime.sh"
+source "${BURC_TOOLS_DIR}/buk/burc_regime.sh" || buc_die "Failed to source burc_regime.sh"
 zburc_kindle
+zburc_enforce
 
 # Load BURS configuration and kindle
 z_station_file="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
-source "${z_station_file}" || exit 1
-source "${BURC_TOOLS_DIR}/buk/burs_regime.sh"
+source "${z_station_file}" || buc_die "Failed to source: ${z_station_file}"
+source "${BURC_TOOLS_DIR}/buk/burs_regime.sh" || buc_die "Failed to source burs_regime.sh"
 zburs_kindle
+zburs_enforce
 
 # Helper function to delegate to BURD
 # Usage: bul_launch "path/to/workbench.sh" "$@"
