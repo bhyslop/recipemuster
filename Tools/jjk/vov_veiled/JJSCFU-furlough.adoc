@@ -55,9 +55,11 @@ exists with given
 .. Update
 {jjdhm_status}
 to new value (same-status request is allowed; idempotent no-op)
-.. Note:
+.. Move
+{jjdhr_heat}
+to just before the first heat with the target status in
 {jjdgm_order}
-position is unchanged — furlough is a status-only operation
+(if no heats of that status exist, append to end)
 . If {jjda_silks} provided:
 .. Update
 {jjdhm_silks}

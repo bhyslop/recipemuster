@@ -798,11 +798,27 @@ pub fn jjrg_furlough(gallops: &mut jjrg_Gallops, args: jjrg_FurloughArgs) -> Res
         // Note: requesting the same status is allowed (idempotent).
     }
 
-    // Apply status change if requested — status only, no reordering
-    if args.racing {
+    // Apply status change if requested, then reorder to front of target status group
+    let target_status = if args.racing {
         gallops.heats.get_mut(&firemark_key).unwrap().status = jjrg_HeatStatus::Racing;
+        Some(jjrg_HeatStatus::Racing)
     } else if args.stabled {
         gallops.heats.get_mut(&firemark_key).unwrap().status = jjrg_HeatStatus::Stabled;
+        Some(jjrg_HeatStatus::Stabled)
+    } else {
+        None
+    };
+
+    // Reorder: move heat to just before the first heat with the target status
+    if let Some(target) = target_status {
+        gallops.heat_order.retain(|f| f != &firemark_key);
+        let insert_idx = gallops.heat_order.iter().position(|f| {
+            gallops.heats.get(f).map_or(false, |h| h.status == target)
+        });
+        match insert_idx {
+            Some(idx) => gallops.heat_order.insert(idx, firemark_key.clone()),
+            None => gallops.heat_order.push(firemark_key.clone()),
+        }
     }
 
     // Apply silks change if requested
