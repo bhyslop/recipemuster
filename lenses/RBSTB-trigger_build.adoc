@@ -1,17 +1,20 @@
-NOTE: This operation builds a container image from a
-{rbrv_regime}
-vessel specification using
-{gcb_service}
-and stores the result in
-{rbtgi_repository}.
+NOTE: This operation dispatches a container build via the vessel's
+{rbtgr_vessel_trigger}
+using the committed
+{rbtgr_build_yaml}
+in its
+{rbtgr_vessel_repo}.
+All substitution values are baked at inscribe time — zero custom overrides at dispatch.
 
 NOTE: This operation supports concurrent execution per the Concurrent Session Safety invariant.
-Multiple sessions can invoke this command simultaneously against the same repository without collision.
-Each invocation uses isolated temporary directories and uniquely-named cloud artifacts.
+Each invocation dispatches an independent trigger execution with a unique `BUILD_ID`.
+Concurrent builds of the same vessel produce independent images with different
+{rbtga_consecration}
+timestamps.
 
 The
 {rbtr_director}
-triggers a remote container build:
+dispatches a trigger-based remote container build:
 
 // ⟦axs_inputs⟧
 . *Validate Input Parameters*:
@@ -42,50 +45,8 @@ if mismatch: "Vessel sigil does not match directory name"
 {rbrv_conjure_dockerfile} defined
 .. {rbbc_require}
 {rbrv_conjure_bldcontext} defined
-.. {rbbc_store}
-`«DOCKERFILE_PATH»` from {rbrv_conjure_dockerfile}
-.. {rbbc_store}
-`«BUILD_CONTEXT_DIR»` from {rbrv_conjure_bldcontext}
-.. {rbbc_require}
-`«DOCKERFILE_PATH»` file exists
-.. {rbbc_require}
-`«BUILD_CONTEXT_DIR»` directory exists
 .. {rbbc_fatal}
 if missing: "Vessel not configured for conjuring"
-
-. *Enforce Binfmt Policy*:
-.. {rbbc_store}
-`«BINFMT_POLICY»` from {rbrv_conjure_binfmt_policy} (default: "allow")
-.. {rbbc_store}
-`«TARGET_PLATFORMS»` from {rbrv_conjure_platforms}
-.. If `«BINFMT_POLICY»` is "forbid":
-... Detect native platform (os/arch)
-... {rbbc_require}
-native platform in `«TARGET_PLATFORMS»`
-... {rbbc_fatal}
-if cross-platform forbidden: "Vessel forbids binfmt but platforms require it"
-
-. *Verify Git Repository State*:
-.. {rbbc_require}
-no uncommitted changes (staged or unstaged)
-.. {rbbc_require}
-no untracked files in working directory
-.. {rbbc_call}
-`git fetch` to synchronize with remote
-.. {rbbc_require}
-no unpushed commits (local is not ahead of remote)
-.. {rbbc_store}
-`«GIT_COMMIT»` as current HEAD commit SHA
-.. {rbbc_store}
-`«GIT_BRANCH»` as current branch name
-.. {rbbc_store}
-`«GIT_REPO»` as repository identifier (owner/repo)
-.. {rbbc_fatal}
-if uncommitted: "Uncommitted changes detected - commit or stash first"
-.. {rbbc_fatal}
-if untracked: "Untracked files present - commit or clean first"
-.. {rbbc_fatal}
-if unpushed: "Local commits not pushed"
 
 . *Authenticate as
 {rbtr_director}*:
@@ -94,82 +55,45 @@ if unpushed: "Local commits not pushed"
 .. {rbbc_store}
 `«DIRECTOR_TOKEN»` for subsequent API calls
 
-. *Package Build Context*:
-.. Create staging directory for context assembly
-.. Copy `«BUILD_CONTEXT_DIR»` contents to staging
-.. Copy `«DOCKERFILE_PATH»` to staging root
-.. Create gzip tarball from staging directory (source only; build steps inlined in API request)
+. *Resolve Trigger Identity*:
 .. {rbbc_store}
-`«CONTEXT_SIZE»` as tarball size in bytes
-.. {rbbc_require}
-`«CONTEXT_SIZE»` ≤ 10MB
-.. {rbbc_warn}
-if `«CONTEXT_SIZE»` > 1MB
-.. {rbbc_fatal}
-if too large: "Context tarball too large (>10MB limit)"
-
-. *Generate Build Configuration*:
-.. {rbbc_store}
-`«BUILD_TAG»` as `«VESSEL_SIGIL».«TIMESTAMP»`
-.. {rbbc_store}
-`«TARBALL_NAME»` as `«VESSEL_SIGIL».«TIMESTAMP».source.tar.gz`
-.. Construct RBGY substitutions JSON with:
-... _RBGY_DOCKERFILE: Dockerfile filename
-... _RBGY_MONIKER: `«VESSEL_SIGIL»`
-... _RBGY_PLATFORMS: `«TARGET_PLATFORMS»`
-... _RBGY_GAR_LOCATION: {rbrr_gcp_region}
-... _RBGY_GAR_PROJECT: {rbrr_depot_project_id}
-... _RBGY_GAR_REPOSITORY: {rbrr_gar_repository}
-... _RBGY_GIT_COMMIT: `«GIT_COMMIT»`
-... _RBGY_GIT_BRANCH: `«GIT_BRANCH»`
-... _RBGY_GIT_REPO: `«GIT_REPO»`
-
-. *Upload Build Source to
-{rbtgi_build_bucket}*:
+`«TRIGGER_NAME»` from `RBGC_RUBRIC_TRIGGER_PREFIX` + `«VESSEL_SIGIL»`
 .. {rbbc_call}
-link:https://cloud.google.com/storage/docs/json_api/v1/objects/insert[storage.objects.insert] with:
-... bucket:
-{rbtgi_build_bucket}
-name
-... uploadType: `media`
-... name: `«TARBALL_NAME»`
-... Content-Type: `application/gzip`
-... body: tarball binary content
-.. {rbbc_require}
-HTTP 200 response
-.. {rbbc_store}
-`«GCS_OBJECT»` as uploaded object path
-.. {rbbc_fatal}
-if upload fails: "GCS upload failed"
-
-. *Submit Build Request*:
-.. Stitch build steps from RBGJB step scripts (rbgjb/*.sh) into JSON array
-.. Construct build request JSON with:
-... source.storageSource.bucket:
-{rbtgi_build_bucket}
-name
-... source.storageSource.object: `«TARBALL_NAME»`
-... steps: stitched build steps array
-... substitutions: RBGY substitutions from step 8
-... options.logging: `CLOUD_LOGGING_ONLY`
-... options.machineType: machine type from regime
-... serviceAccount:
-{rbtr_mason}
-email
-... timeout: build timeout from regime
-.. {rbbc_submit}
-link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/create[cloudbuild.builds.create] with:
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.triggers/list[cloudbuild.triggers.list] with:
 ... project:
 {rbrr_depot_project_id}
 ... location:
 {rbrr_gcp_region}
-... body: build request JSON
+... filter matching `«TRIGGER_NAME»`
 .. {rbbc_require}
-HTTP 200 or 201 response
+exactly one trigger matches
 .. {rbbc_store}
-`«BUILD_ID»` from response `.metadata.build.id` or `.id`
+`«TRIGGER_ID»` from matching trigger resource
+.. {rbbc_fatal}
+if not found: "Vessel trigger not found — run {rbtgo_rubric_inscribe} first"
+
+. *Dispatch Build via Trigger*:
+.. {rbbc_store}
+`«RUBRIC_COMMIT»` as HEAD of vessel's
+{rbtgr_vessel_repo}
+(recorded by most recent
+{rbtgo_rubric_inscribe})
+.. {rbbc_submit}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.triggers/run[cloudbuild.triggers.run] with:
+... project:
+{rbrr_depot_project_id}
+... location:
+{rbrr_gcp_region}
+... triggerId: `«TRIGGER_ID»`
+... source.repoSource.commitSha: `«RUBRIC_COMMIT»`
+.. Zero custom substitution overrides — all `_RBGY_*` values baked in
+{rbtgr_build_yaml}
+.. {rbbc_require}
+HTTP 200 response
+.. {rbbc_store}
+`«BUILD_ID»` from response `.metadata.build.id`
 .. {rbbc_show}
-build submitted with `«BUILD_ID»`
+build dispatched with `«BUILD_ID»`
 .. {rbbc_show}
 Cloud Console URL for build monitoring
 
@@ -177,7 +101,8 @@ Cloud Console URL for build monitoring
 . *Cloud Build Execution*:
 .. NOTE: Build executes via OCI Layout Bridge pattern to solve BuildKit credential isolation. See Trade Study RBSOB for design rationale.
 .. {gcb_service}
-executes the following phases within `«DEPOT_PROJECT_ID»`:
+executes the following phases within the
+{rbtgi_depot_project}:
 ... *Build Phase*: Multi-platform container compilation produces OCI Image Layout artifact in shared workspace. No registry credentials required.
 ... *Push Phase*: OCI artifact copied to
 {rbtgi_repository}
@@ -216,10 +141,93 @@ if final status is not `SUCCESS`: "Build failed with status: «BUILD_STATUS»"
 .. {rbbc_show}
 build completed successfully
 .. {rbbc_show}
-image tag: `«BUILD_TAG»`
+{rbtga_consecration}
+tag (dual-timestamp: inscribe + build)
 .. {rbbc_show}
 image available in
 {rbtgi_repository}
 
 // ⟦axs_completion⟧
 Successful execution builds container image and stores it in the repository.
+{rbtgr_provenance}
+is auto-generated by Google as a signed SLSA v1.0 attestation on the built image.
+
+==== Substitution Variable Inventory
+
+All `_RBGY_*` substitution variables are baked into
+{rbtgr_build_yaml}
+at inscribe time by
+{rbtgo_rubric_inscribe}.
+Cloud Build resolves these from the committed YAML — no values are overridden at dispatch.
+
+*Vessel identity*::
+[cols="1,2"]
+|===
+| `_RBGY_MONIKER` | Vessel sigil. Source: {rbrv_sigil}.
+| `_RBGY_DOCKERFILE` | Dockerfile path relative to build context. Source: {rbrv_conjure_dockerfile}.
+| `_RBGY_PLATFORMS` | Target platforms. Source: {rbrv_conjure_platforms}.
+|===
+
+*Registry coordinates*::
+[cols="1,2"]
+|===
+| `_RBGY_GAR_LOCATION` | Artifact Registry region. Source: {rbrr_gcp_region}.
+| `_RBGY_GAR_PROJECT` | Depot project ID. Source: {rbrr_depot_project_id}.
+| `_RBGY_GAR_REPOSITORY` | GAR repository name. Source: {rbrr_gar_repository}.
+| `_RBGY_GAR_HOST_SUFFIX` | GAR Docker host suffix. Source: RBGC constant.
+| `_RBGY_ARK_SUFFIX_IMAGE` | Image artifact tag suffix. Source: RBGC constant.
+| `_RBGY_ARK_SUFFIX_ABOUT` | Metadata artifact tag suffix. Source: RBGC constant.
+| `_RBGY_CRANE_TAR_GZ` | Crane release tarball URL. Source: RBGC constant.
+|===
+
+*Provenance*::
+[cols="1,2"]
+|===
+| `_RBGY_GIT_COMMIT` | Main repo HEAD SHA at inscribe time.
+| `_RBGY_GIT_BRANCH` | Main repo branch at inscribe time.
+| `_RBGY_GIT_REPO` | Main repo identifier (owner/repo).
+| `_RBGY_RUBRIC_REPO` | {rbtgr_vessel_repo} URL. Filled after mini-repo push.
+| `_RBGY_RUBRIC_COMMIT` | {rbtgr_vessel_repo} HEAD SHA after push. Filled after mini-repo push.
+| `_RBGY_INSCRIBE_TIMESTAMP` | Inscribe timestamp (`YYYYMMDD_HHMMSS`). Used by rbgjb01 to construct {rbtga_consecration}.
+|===
+
+Builder image references (step `name:` fields) are resolved to digest-pinned URIs from regime pins at inscribe time.
+These are inlined directly into YAML — not expressed as substitution variables.
+
+==== Script Inlining
+
+Step scripts (`rbgjb/*.sh`) are the source of truth for build logic.
+At inscribe time,
+{rbtgo_rubric_inscribe}
+reads each script and inlines its content into the corresponding YAML `script:` field.
+
+Developers edit `rbgjb/*.sh` in the main repo, then run
+{rbtgo_rubric_inscribe}
+to regenerate
+{rbtgr_build_yaml}
+with the updated content.
+The committed YAML in the main repo is the reviewed artifact;
+the mini-repo copy is synced by inscribe.
+
+==== Tag Construction
+
+Each build produces a
+{rbtga_consecration}
+with dual timestamps:
+
+`i«INSCRIBE»-b«BUILD»`
+
+* `i«YYYYMMDD_HHMMSS»` — inscribe timestamp, baked as `_RBGY_INSCRIBE_TIMESTAMP`
+* `b«YYYYMMDD_HHMMSS»` — build timestamp, derived at build time by `rbgjb01-derive-tag-base.sh`
+
+Example: `i20260224_153022-b20260224_160530`
+
+Step `rbgjb01` constructs: `TAG_BASE="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"`
+
+Complete artifact tags combine vessel moniker with consecration:
+
+* {rbtga_ark_image}: `«MONIKER»:«TAG_BASE»«ARK_SUFFIX_IMAGE»`
+* {rbtga_ark_about}: `«MONIKER»:«TAG_BASE»«ARK_SUFFIX_ABOUT»`
+
+Multiple builds of the same inscribed YAML sort together by inscribe prefix,
+each distinguished by its build timestamp.
