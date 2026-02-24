@@ -4647,9 +4647,10 @@
         "₢AWAAI",
         "₢AWAAU",
         "₢AWAAV",
-        "₢AWAAW"
+        "₢AWAAW",
+        "₢AWAAX"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uAuW.md",
       "paces": {
         "₢AWAAA": {
@@ -5297,6 +5298,17 @@
               "text": "Add heat reordering to furlough: when status changes, move the heat to the first position of its target status group in heat_order.\n\n## Behavior\n\n- `--racing`: move firemark to just before the first racing heat in heat_order\n- `--stabled`: move firemark to just before the first stabled heat in heat_order\n- Rename-only (no status flag): no reorder\n- If no heats of target status exist yet, move to end of heat_order\n\n## Files\n\n- `Tools/jjk/vov_veiled/src/jjro_ops.rs` — `jjrg_furlough`: after status change, reposition firemark in `gallops.heat_order`\n- `Tools/jjk/vov_veiled/JJSCFU-furlough.adoc` — update spec to document reorder behavior (remove \"position is unchanged\" note)\n\n## Implementation\n\nheat_order is a Vec<String> of firemark display strings. The reorder logic:\n1. Remove the firemark from its current position in heat_order\n2. Find the index of the first heat with the target status\n3. Insert at that index (or push to end if none found)\n\nThis mirrors the existing pace reorder logic in jjrg_rail.\n\n## Acceptance\n\n- Furloughing to racing moves heat before first racing heat in muster\n- Furloughing to stabled moves heat before first stabled heat in muster\n- Rename-only does not reorder\n- Existing furlough tests still pass\n- Build passes",
               "silks": "furlough-reorder-heat",
               "commit": "0232dbd"
+            }
+          ]
+        },
+        "₢AWAAX": {
+          "tacks": [
+            {
+              "ts": "260224-0710",
+              "state": "rough",
+              "text": "Fix jjx_archive size guard failure mode (spook from ₣AO retirement).\n\n## Problem\n\nWhen `jjx_archive --execute` produces a trophy that exceeds the vvc size guard:\n1. Files are written (trophy created, gallops modified, paddock deleted) but commit is blocked\n2. Command reports \"Heat retired successfully\" — misleading, commit didn't happen\n3. No `--size-limit` flag on archive to override\n4. No clear recovery path — user must fall back to raw git\n\n## Fix (two parts)\n\n### A. Atomic failure reporting\n`jjx_archive` must not report success if the commit fails. Either:\n- Propagate the error clearly (\"Archive files written but commit blocked by size guard — use X to complete\")\n- Or roll back file changes on commit failure\n\n### B. Human-approved size limit override\nDo NOT silently exempt trophies from the guard. Instead, add a human approval step:\n\n1. Add `--size-limit <bytes>` to `jjx_archive` (pass through to commit layer)\n2. Update `/jjc-heat-retire-FINAL` slash command (or CLAUDE.md retire instructions) to:\n   - Attempt archive normally\n   - If size guard blocks: display the measured size, ask user for approval\n   - On approval: retry with `--size-limit` set to the measured size (or a comfortable margin above)\n3. This keeps the guard as a checkpoint while giving the human the final say\n\n## Acceptance\n\n- `jjx_archive` fails clearly when commit is blocked (no false \"success\")\n- `--size-limit` flag available on `jjx_archive`\n- Slash command or CLAUDE.md handles the approval loop\n- Large heat retirements (like 39-pace ₣Af) complete without raw git fallback",
+              "silks": "archive-size-guard-spook",
+              "commit": "288465d"
             }
           ]
         }
