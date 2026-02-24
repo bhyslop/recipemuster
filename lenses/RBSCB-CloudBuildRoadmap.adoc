@@ -85,38 +85,47 @@ The Foundry (`rbf_Foundry.sh`) reads rbgjb/*.sh step scripts, stitches them into
 uploads a source tarball to GCS, and POSTs to the builds.create REST API.
 All step parameterization flows through 13+ `_RBGY_*` Cloud Build substitution variables.
 
-**Proposed approach: generated-artifact-must-be-committed.**
-A generator (refactored from `zrbf_stitch_build_json`) reads rbgjb/*.sh scripts plus current regime pins
-and emits a static `cloudbuild.yaml` per vessel.
-This yaml is committed to the repository.
-Before building, the Foundry regenerates to a temp location and diffs against the committed yaml — stale means "regenerate and commit before building."
-The Foundry invokes `triggers.run` with per-vessel substitution overrides instead of `builds.create`.
+**Approach: per-vessel mini-repos with fully-baked yaml.**
+A generator (adapted from `zrbf_stitch_build_json`) reads rbgjb/*.sh scripts plus current regime pins
+and emits a static `cloudbuild.yaml` per vessel with ALL values baked — zero custom substitution overrides.
+The master copy is committed to the main repo. The inscribe command syncs it to a per-vessel mini-repo
+on GitHub that Cloud Build sees via Developer Connect.
 
-**What moves into the yaml (static, committed):**
+**Per-vessel mini-repos (security boundary).**
+Each vessel has a small GitHub repo containing only cloudbuild.yaml + Dockerfile + build context.
+Cloud Build sees ONLY the mini-repo via Developer Connect — the main repo is never exposed to Google.
+SLSA provenance records the mini-repo commit, which maps directly to the build material.
+Mini-repo management is fully orchestrated by inscribe (clone/sync/commit/push).
+
+**Everything is baked into the yaml (static, committed):**
 
 * Step structure, script bodies, step IDs, entrypoints
-* Builder image digest references (currently baked by string replacement; become part of the static yaml)
+* Builder image digest references (digest-pinned from RBRR_GCB_*_IMAGE_REF)
+* GAR coordinates, vessel identity, platforms, Dockerfile path, ark suffixes
+* Inscribe timestamp in tag template (e.g., `i20260223.143022`)
+* Per-build uniqueness via Cloud Build built-in `$BUILD_ID` (not a custom substitution)
 
-**What remains dynamic (substitution overrides at trigger.run time):**
-
-* `_RBGY_MONIKER`, `_RBGY_PLATFORMS`, `_RBGY_DOCKERFILE`
-* `_RBGY_GIT_COMMIT`, `_RBGY_GIT_BRANCH`, `_RBGY_GIT_REPO`
-* `_RBGY_GAR_LOCATION`, `_RBGY_GAR_PROJECT`, `_RBGY_GAR_REPOSITORY`
-* Other per-invocation values
+**Zero custom substitution overrides at dispatch time.**
+Maximum SLSA purity: the build is fully determined by the committed yaml at a specific commit.
+The Foundry invokes `triggers.run` specifying only which commit to build — no `_RBGY_*` overrides.
 
 **One yaml per vessel.**
-Different vessels may have different Dockerfiles and build contexts.
-One shared yaml with substitutions is possible but one-per-vessel is clearest.
+Different vessels have different Dockerfiles, build contexts, and platforms.
+One yaml per vessel is the natural unit.
 
 **Consequences:**
 
-* GCS source tarball upload is eliminated — triggers fetch from the connected repository
-* The entire stitching/escaping mechanism (`zrbf_stitch_build_json`) is eliminated from the hot path
-* Pin-refresh naturally ends with "regenerate cloudbuild.yaml and commit" — pin update and build definition update become a single atomic commit
+* GCS source tarball upload is eliminated — triggers fetch from the mini-repo via Developer Connect
+* The stitch function (`zrbf_stitch_build_json`) is adapted to emit YAML instead of JSON; step scripts (rbgjb/*.sh) remain as source of truth, consumed at inscribe time
+* Pin updates are per-vessel: operator runs inscribe for a specific vessel after refreshing pins
 * Google SLSA provenance is generated automatically — no DIY provenance needed
-* Build context scope widens: trigger checks out the entire repo, not a minimal tarball. The builder sees more files. Acceptable since the repo contains no secrets, and Dockerfile/context paths are parameterized.
+* Build context scope narrows: trigger checks out only the mini-repo (Dockerfile + context + yaml), not the entire project. Cleaner than the old tarball approach.
 
-**Prerequisite:** Cloud Build trigger resource must be created (once, via gcloud or API) and connected to the repository.
+**Prerequisites:**
+
+* Developer Connect setup (one-time interactive browser OAuth) — see RBSGD-gdc_establish.adoc
+* Per-vessel mini-repo created on GitHub (inscribe creates if absent)
+* Cloud Build trigger resource created per vessel (inscribe creates if absent)
 
 See References: Google SLSA provenance docs.
 
