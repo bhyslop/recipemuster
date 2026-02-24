@@ -7857,6 +7857,13 @@
         "₢AiAAR": {
           "tacks": [
             {
+              "ts": "260224-0705",
+              "state": "rough",
+              "text": "Execute the RBSGD Developer Connect setup procedure against the live GCP project.\nHuman-interactive pace with two deliverables:\n\n## Deliverable 1: Wire RBSGD into bug_* guide infrastructure\n\nAuthor rbgm_gdc_establish() in Tools/rbw/rbgm_ManualProcedures.sh following\nthe rbgm_payor_establish() pattern. Create/complete tabtarget wiring.\nPartially done (2 commits landed) — check what remains.\n\nNote: RBSGD spec already updated for connection-only scope (done in ₢AiAAP).\nThe guide function should match — no repo link steps.\n\n## Deliverable 2: Execute procedure and record real values\n\nWalk through the guide, complete OAuth browser auth, record real values in rbrr.env:\n- RBRR_GDC_CONNECTION_NAME, RBRR_GDC_REGION\n\n## Code cleanup (this pace owns all RBRR variable removal)\n\n- Remove RBRR_GDC_REPO_LINK from rbrr.env, rbrr_regime.sh, rbgm_ManualProcedures.sh\n- Remove RBRR_GCB_TRIGGER_PATTERN from rbrr.env, rbrr_regime.sh\n  (₢AiAAU will create RBGC_RUBRIC_TRIGGER_PREFIX as the replacement constant)\n- Verify regime smoke test passes after cleanup\n\nReferences: RBSGD spec (already connection-only), paddock session decisions.",
+              "silks": "execute-developer-connect-setup",
+              "commit": "c753aa6"
+            },
+            {
               "ts": "260224-0657",
               "state": "rough",
               "text": "Execute the RBSGD Developer Connect setup procedure against the live GCP project.\nHuman-interactive pace with two deliverables:\n\n## Deliverable 1: Wire RBSGD into bug_* guide infrastructure\n\nAuthor rbgm_gdc_establish() in Tools/rbw/rbgm_ManualProcedures.sh following\nthe rbgm_payor_establish() pattern. Create/complete tabtarget wiring.\nPartially done (2 commits landed) — check what remains.\n\n## Deliverable 2: Execute procedure and record real values\n\nWalk through the guide, complete OAuth browser auth, record real values in rbrr.env:\n- RBRR_GDC_CONNECTION_NAME, RBRR_GDC_REGION\n\n## Code cleanup (per paddock session decisions)\n\n- Remove RBRR_GDC_REPO_LINK from rbrr.env, rbrr_regime.sh, rbgm_ManualProcedures.sh\n- Demote RBRR_GCB_TRIGGER_PATTERN to RBGC_RUBRIC_TRIGGER_PREFIX in rbgc_Constants.sh\n  (remove from rbrr.env, regime enrollment, validation)\n- Verify regime smoke test passes after cleanup\n\nReferences: RBSGD spec (already updated for connection-only scope), paddock session decisions.",
