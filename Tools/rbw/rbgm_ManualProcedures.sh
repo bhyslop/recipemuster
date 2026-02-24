@@ -503,14 +503,25 @@ rbgm_depot_initialize() {
     buc_info ""
     buc_info "RBRA_RUBRIC_REPO_URL is not set in Governor RBRA file."
     buc_info ""
-    bug_section "Set up a rubric repository:"
-    bug_t        "   1. Create a repository on your git hosting service"
-    bug_tc       "      (e.g., " "rb-rubric" " on GitHub, GitLab, or Bitbucket)"
-    bug_t        "   2. Create a Personal Access Token with Contents:write on that repo"
+    bug_section "Set up a rubric repository"
+    bug_e
+    bug_t        "   The rubric repository stores Recipe Bottle build manifests."
+    bug_t        "   Any git host works; GitHub instructions shown as reference."
+    bug_e
+    bug_link     "   1. " "Create a new repository" "https://github.com/new" " on GitHub"
+    bug_tut      "      (e.g., " "rb-rubric" " — can be private, initialize empty)"
+    bug_e
+    bug_t        "   2. Create a fine-grained Personal Access Token (PAT):"
+    bug_link     "      " "GitHub Fine-Grained Tokens" "https://github.com/settings/personal-access-tokens/new"
+    bug_t        "      • Resource owner: your org or personal account"
+    bug_t        "      • Repository access: Only select repositories → the rubric repo"
+    bug_tu       "      • Repository permissions: Contents → " "Read and write"
+    bug_e
     bug_t        "   3. Construct the authenticated URL:"
-    bug_tc       "      https://x-access-token:<PAT>@<host>/<org>/<repo>.git"
+    bug_c        "      https://x-access-token:<PAT>@github.com/<org>/<repo>.git"
+    bug_e
     bug_t        "   4. Add to Governor RBRA file:"
-    bug_tc       "      RBRA_RUBRIC_REPO_URL=" "https://x-access-token:ghp_xxx@github.com/org/rb-rubric.git"
+    bug_c        "      RBRA_RUBRIC_REPO_URL=https://x-access-token:<YOUR-PAT>@github.com/<org>/rb-rubric.git"
     bug_e
     buc_die "Set RBRA_RUBRIC_REPO_URL in Governor RBRA file and re-run"
   fi
@@ -584,13 +595,9 @@ rbgm_depot_initialize() {
   fi
 
   buc_step 'Final validation'
-  # Re-verify GitHub PAT
-  curl -s -o "${z_github_response}" -w '%{http_code}' \
-    -H "Authorization: Bearer ${z_github_pat}" \
-    -H "Accept: application/vnd.github+json" \
-    "https://api.github.com/user" > "${z_github_code}" 2>/dev/null
-  z_gh_code=$(cat "${z_github_code}") || buc_die "Failed to read GitHub response code"
-  test "${z_gh_code}" = "200" || buc_die "GitHub PAT validation failed on final check (HTTP ${z_gh_code})"
+  buc_info "Running final validation..."
+  git ls-remote "${z_rubric_repo_url}" HEAD >/dev/null 2>&1 \
+    || buc_die "Rubric repo URL validation failed on final check"
 
   # Re-verify connection
   z_token=$(rbgo_get_token_capture "${z_governor_rbra}") || buc_die "Failed to refresh Governor OAuth token"
@@ -601,7 +608,7 @@ rbgm_depot_initialize() {
   test "${z_stage}" = "COMPLETE" || buc_die "Developer Connect connection not COMPLETE: ${z_stage}"
 
   buc_success "Depot initialization complete"
-  buc_info "GitHub PAT: valid (user: ${z_github_user})"
+  buc_info "Rubric repo: validated via git ls-remote"
   buc_info "Developer Connect: active (${z_gdc_conn})"
   buc_info "Ready for rubric inscribe operations"
 }

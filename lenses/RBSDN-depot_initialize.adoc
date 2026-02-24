@@ -41,11 +41,11 @@ for
 `«RUBRIC_REPO_URL»` from {rbra_rubric_repo_url}
 .. If `«RUBRIC_REPO_URL»` is empty:
 ... {rbbc_show}
-"RBRA_RUBRIC_REPO_URL is not set in Director RBRA file"
+"RBRA_RUBRIC_REPO_URL is not set in Governor RBRA file"
 ... {rbbc_show}
-guidance: "Create a repository, generate a PAT with Contents:write, construct the authenticated URL as https://x-access-token:<PAT>@<host>/<org>/<repo>.git, and add RBRA_RUBRIC_REPO_URL to the Director RBRA file."
+guidance for creating a rubric repository: create a repo on a git host (GitHub as reference example), generate a fine-grained PAT with Contents read/write, construct the authenticated URL as `https://x-access-token:<PAT>@<host>/<org>/<repo>.git`, and add `RBRA_RUBRIC_REPO_URL` to the Governor RBRA file
 ... {rbbc_fatal}
-"Set RBRA_RUBRIC_REPO_URL in Director RBRA file and re-run"
+"Set RBRA_RUBRIC_REPO_URL in Governor RBRA file and re-run"
 
 . *Validate Rubric Repo URL*:
 .. {rbbc_call}
