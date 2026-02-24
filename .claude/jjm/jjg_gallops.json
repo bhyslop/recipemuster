@@ -5770,6 +5770,7 @@
         "₢AiAAR",
         "₢AiAAX",
         "₢AiAAY",
+        "₢AiAAZ",
         "₢AiAAU",
         "₢AiAAV",
         "₢AiAAW",
@@ -5785,7 +5786,7 @@
         "₢AiAAM",
         "₢AiAAN"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6620,6 +6621,17 @@
               "text": "Author rbgm_depot_initialize() — the human-interactive procedure that validates\nGitHub PAT and completes Developer Connect OAuth authorization.\n\n## Function: rbgm_depot_initialize()\n\nIn Tools/rbw/rbgm_ManualProcedures.sh, following rbgm_payor_establish() pattern:\n\n1. Source Director RBRA file, check RBRA_RUBRIC_GITHUB_PAT\n2. If empty/missing: guide user through fine-grained PAT creation\n   - Scopes needed: repo (create, push to mini-repos)\n   - Instruct to add RBRA_RUBRIC_GITHUB_PAT=ghp_xxx to director RBRA file\n   - Re-source and validate\n3. Test PAT: GET https://api.github.com/user with Authorization: token header\n4. Retrieve Developer Connect authorization URI:\n   GET connection resource, extract installationState.actionUri\n5. Display URI — human opens browser, authorizes Google Developer Connect app\n6. Poll until installationState.stage == COMPLETE\n7. Final summary: PAT valid, connection active, ready for inscribe\n\nMust be idempotent — safe to re-run (skip steps already complete).\n\n## Tabtarget + Wiring\n\n- Create tt/rbw-gdi.DepotInitialize.sh (or appropriate colophon)\n- Wire through rbz_zipper.sh\n- Delete old rbgm_gdc_establish() and tt/rbw-gge.GdcEstablishment.sh\n- Remove RBZ_GDC_ESTABLISH from zipper\n\n## References\n\n- RBSDN spec (authored in prior pace)\n- Tools/rbw/rbgm_ManualProcedures.sh\n- Tools/rbw/rbz_zipper.sh",
               "silks": "author-depot-initialize",
               "commit": "ab7360b"
+            }
+          ]
+        },
+        "₢AiAAZ": {
+          "tacks": [
+            {
+              "ts": "260224-0758",
+              "state": "rough",
+              "text": "Delete and recreate depot, then execute depot_initialize live.\n\n## Sequence\n\n1. Delete existing depot (rbgp_depot_destroy)\n2. Recreate depot (rbgp_depot_create) — now includes connection creation\n3. Run depot_initialize:\n   - Configure RBRA_RUBRIC_GITHUB_PAT in director RBRA file\n   - Complete GitHub OAuth browser authorization for Developer Connect\n   - Verify connection reaches COMPLETE\n4. Set RBRR_GDC_CONNECTION_NAME in rbrr.env with real value\n5. Verify regime smoke test passes\n6. Verify PAT + connection health checks\n\nHuman-interactive — requires browser for OAuth authorization.",
+              "silks": "live-depot-initialize",
+              "commit": "7ce5bdb"
             }
           ]
         }
