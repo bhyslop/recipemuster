@@ -7540,6 +7540,13 @@
         "₢AiAAM": {
           "tacks": [
             {
+              "ts": "260223-1823",
+              "state": "rough",
+              "text": "Migrate remaining conjure vessels from builds.create to rubric-based builds.\nMechanical application of the pattern proven by busybox in ₢AiAAK.\n\nFor each vessel beyond busybox:\n1. Create GitHub mini-repo via REST API\n2. Run inscribe — generates yaml, syncs to mini-repo, creates trigger\n3. Run build — verify dispatch succeeds and SLSA provenance is generated\n\nEnumerate conjure vessels from rbev-vessels/ (skip non-conjure like trbim-macos).\nReuse inscribe tabtarget from ₢AiAAV — no new code, just execution per vessel.\n\nBridleable once ₢AiAAK proves the pattern works end-to-end.",
+              "silks": "migrate-remaining-conjure-vessels",
+              "commit": "e63ab72"
+            },
+            {
               "ts": "260223-0812",
               "state": "rough",
               "text": "Migrate remaining conjure vessels from builds.create to {rbtgr_rubric}-based builds:\n\nFor each vessel beyond busybox:\n1. {rbtgo_rubric_inscribe} — generate and commit {rbtgr_build_yaml}\n2. {rbtgo_rubric_enshrine} — create {rbtgr_vessel_trigger} via REST API\n3. Verify build dispatches successfully and {rbtgr_provenance} is generated\n\nFollow the pattern established by busybox (₢AiAAD yaml, ₢AiAAH enshrine).\nNo vessel repo creation needed — all {rbtgr_build_yaml} files committed to main repo.",
