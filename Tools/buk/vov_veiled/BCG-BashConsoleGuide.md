@@ -105,13 +105,13 @@ Enrollment types and gating API: see `buv_validation.sh`.
 | `z«prefix»_kindle`   | Implementation | `test -z "${Z«PREFIX»_KINDLED:-}" \|\| buc_die`    | Yes (credentials) | No (use buc_log_*)| Define all kindle constants, set module state    |
 | `z«prefix»_sentinel` | Implementation | `test "${Z«PREFIX»_KINDLED:-}" = "1" \|\| buc_die` | No                | No                | Guard all other functions                        |
 | `z«prefix»_enforce`  | Implementation | `z«prefix»_sentinel`                               | No                | No                | Validate sourced config (regime archetype only)  |
-| `z«prefix»_furnish`  | CLI only       | `buc_doc_env...`                                   | Yes (configs)     | No                | Document env vars, source configs, call kindle   |
+| `z«prefix»_furnish`  | CLI only       | `buc_doc_env...`                                   | Yes (all deps)    | No                | Document env vars, source all deps, kindle       |
 | Module header        | Implementation | `test -z "${Z«PREFIX»_SOURCED:-}" \|\| buc_die`    | No                | N/A               | Prevent multiple inclusion                       |
-| CLI header           | CLI            | `set -euo pipefail`                                | Yes (all deps)    | N/A               | Source all dependencies                          |
+| CLI header           | CLI            | `set -euo pipefail`                                | Yes (buc_command)  | N/A               | Source buc_command.sh only                       |
 
 **Kindle constant**: Any variable — internal (`Z«PREFIX»_SCREAMING_NAME`) or public (`«PREFIX»_SCREAMING_NAME`) — defined exclusively within the kindle function. No other function — including enroll, setup, or helper functions — may assign to kindle constants. This ensures module state is fully determined at kindle time and visible in one place.
 
-**Literal constant**: A public variable (`«PREFIX»_lower_name`) defined at module top level, immediately after the `Z«PREFIX»_SOURCED=1` guard. Literal constants must be pure string literals with **no variable expansion, no computation, and no runtime dependency**. They are available immediately after sourcing — no kindle required. Use `SCREAMING` case for the prefix (module identity) and `lower_snake` case for the name to visually distinguish from kindle constants. This enables sourcing chains where a literal constant from module A provides the path for sourcing module B's config in the same CLI header block.
+**Literal constant**: A public variable (`«PREFIX»_lower_name`) defined at module top level, immediately after the `Z«PREFIX»_SOURCED=1` guard. Literal constants must be pure string literals with **no variable expansion, no computation, and no runtime dependency**. They are available immediately after sourcing — no kindle required. Use `SCREAMING` case for the prefix (module identity) and `lower_snake` case for the name to visually distinguish from kindle constants. This enables sourcing chains where a literal constant from module A provides the path for sourcing module B's config in the furnish function.
 
 **KINDLED must be last**: `Z«PREFIX»_KINDLED=1` must be the final statement in kindle. Since sentinel checks this variable, setting it last guarantees all kindle constants, roll arrays, and enroll calls are complete before the module is considered operational. Any function calling sentinel before kindle finishes will correctly fail.
 
@@ -165,7 +165,7 @@ These variables are available in exec'd CLI processes without requiring the CLI 
 
 ### Template 2: CLI Entry Point
 
-BUD variables are provided by dispatch. Validate and document only those used by the implementation.
+BUD variables are provided by dispatch. The CLI header sources only `buc_command.sh`; all other dependencies are sourced inside the furnish function. This enables doc-mode help display without runtime env vars — furnish gates after `buc_doc_env` calls before any sourcing that might fail.
 
 ```bash
 # «shebang»
@@ -173,24 +173,19 @@ BUD variables are provided by dispatch. Validate and document only those used by
 
 set -euo pipefail
 
-Z«PREFIX»_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-
-# Source all dependencies
-source "${Z«PREFIX»_CLI_SCRIPT_DIR}/buc_command.sh"
-source "${Z«PREFIX»_CLI_SCRIPT_DIR}/buv_validation.sh"
-source "${Z«PREFIX»_CLI_SCRIPT_DIR}/«prefix»_«name».sh"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 z«prefix»_furnish() {
-  
-  # Document only the BUD variables actually used
-  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
-  buc_doc_env "BURD_NOW_STAMP        " "Unique string between invocations"
-  buc_doc_env "BURD_OUTPUT_DIR       " "Directory for command outputs"
 
-  # Document module specific environment variables needed
-  buc_doc_env "«PREFIX»_XXX         " "Module specific environment variable"
-  buc_doc_env "«PREFIX»_YYY         " "Module specific environment variable"
+  # Document only the BUD variables actually used
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env "«PREFIX»_REGIME_FILE " "Module specific configuration file"
+  buc_doc_env_done || return 0
+
+  # Source all dependencies
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/«prefix»_«name».sh"
 
   # Source regime files, if any
   source "${«PREFIX»_REGIME_FILE}" || buc_die "Failed to source regime file"
@@ -215,8 +210,10 @@ z«prefix»_furnish() {
   local z_command="${1:-}"
 
   # Document environment variables
-  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env "«PREFIX»_REGIME_FILE " "Module configuration file"
+  buc_doc_env_done || return 0
 
   # Always source light dependencies
   source "${«PREFIX»_REGIME_FILE}" || buc_die "Failed to source regime"
@@ -1034,9 +1031,11 @@ Sourcing is restricted because it breaks error handling. Only three locations ma
 
 | Location             | Can Source                 | Purpose                                              |
 |----------------------|----------------------------|------------------------------------------------------|
-| CLI file header      | All dependencies           | Module loading                                       |
-| CLI Furnish Function | Config files               | Environment setup                                    |
+| CLI file header      | `buc_command.sh` only      | Bootstrap command infrastructure                     |
+| CLI Furnish Function | All deps + config files    | Module loading, environment setup                    |
 | Internal functions   | Credentials when necessary | Context-specific secrets (with documented rationale) |
+
+The CLI header sources only `buc_command.sh` (via `BURD_BUK_DIR`). All other module and config sourcing happens inside the furnish function, after the `buc_doc_env` / `buc_doc_env_done` gate. This enables doc-mode help display without runtime dependencies.
 
 ## Eval Policy
 
@@ -1167,13 +1166,13 @@ buc_warn    # Instead of echo >&2
 - [ ] Implementation has multiple inclusion detection guard (`Z«PREFIX»_SOURCED`)
 - [ ] CLI starts with `set -euo pipefail`
 - [ ] Implementation file sources nothing (except within kindle function)
-- [ ] CLI file sources all dependencies in header
+- [ ] CLI header sources only `buc_command.sh`; all other deps sourced in furnish
 - [ ] External code accesses module through CLI only (no direct `z*_kindle()` calls from outside)
 
 ### Required Functions
 - [ ] `z«prefix»_kindle` - first line: `test -z "${Z«PREFIX»_KINDLED:-}" || buc_die`
 - [ ] `z«prefix»_sentinel` - first line: `test "${Z«PREFIX»_KINDLED:-}" = "1" || buc_die`
-- [ ] `z«prefix»_furnish` (CLI only) - documents env vars, sources configs, calls kindle
+- [ ] `z«prefix»_furnish` (CLI only) - documents env vars, sources all deps, calls kindle; gates with `buc_doc_env_done`
 - [ ] `z«prefix»_enforce` (regime archetype only) - `buv_vet` + custom format checks after kindle
 - [ ] All public functions start with sentinel check
 - [ ] All internal helpers prefixed with `z«prefix»_`
@@ -1244,8 +1243,9 @@ buc_warn    # Instead of echo >&2
 - [ ] Major operations use `buc_step` (always visible)
 
 ### Sourcing Restrictions
-- [ ] Only CLI header sources dependencies
-- [ ] Only `z«prefix»_furnish` sources config files
+- [ ] CLI header sources only `buc_command.sh`
+- [ ] `z«prefix»_furnish` sources all other dependencies and config files
+- [ ] Furnish gates with `buc_doc_env_done || return 0` before any sourcing
 - [ ] Credential sourcing documented and never writes to disk
 - [ ] No other sourcing anywhere
 
