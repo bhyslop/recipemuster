@@ -158,6 +158,16 @@ returned {gcp_lro}
 .. {rbbc_require}
 connection exists (HTTP 200 on GET) with `installationState.stage` of `PENDING_CREATE_APP` or similar pending state
 
+. *Grant Developer Connect Service Agent Secret Manager Access*:
+.. NOTE: The Developer Connect service agent needs Secret Manager permissions to store the GitHub OAuth token during
+{rbtgo_depot_initialize}.
+.. Construct service agent: `service-«PROJECT_NUMBER»@gcp-sa-devconnect.iam.gserviceaccount.com`
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
+.. Add Developer Connect service agent with `roles/secretmanager.admin`
+.. {rbbc_require}
+IAM binding successful
+
 // ⟦axs_outputs⟧
 . *Display Depot Configuration*:
 .. {rbbc_show}

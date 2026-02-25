@@ -568,15 +568,23 @@ rbgm_depot_initialize() {
     buc_info "Developer Connect connection requires GitHub OAuth authorization."
     buc_info ""
     bug_section "Complete GitHub OAuth:"
-    bug_t        "   Open this URL in your browser to authorize the Google Developer Connect app:"
+    bug_t        "   Open this URL in your browser:"
     bug_e
     bug_link     "   " "Authorize Developer Connect" "${z_action_uri}"
     bug_e
-    bug_tu       "   1. GitHub shows the OAuth authorization page for " "Google Developer Connect"
-    bug_tu       "   2. Click " "Authorize"
-    bug_t        "   3. GitHub redirects back to Google; OAuth token stored in Secret Manager"
+    bug_t        "   GCP Console:"
+    bug_tut      "   1. " "Request GitHub OAuth token" " page appears"
+    bug_tu       "   2. Click " "I understand and continue"
     bug_e
-    buc_info "After clicking 'Authorize', press Enter to continue..."
+    bug_t        "   GitHub:"
+    bug_tut      "   3. " "Install Google Cloud Developer Connect" " — select account/org hosting rubric repo"
+    bug_tu       "   4. Repository access: select " "Only select repositories"
+    bug_t        "   5. Pick the rubric repo from the dropdown"
+    bug_tu       "   6. Click " "Install"
+    bug_e
+    bug_t        "   GitHub redirects back to GCP; OAuth token stored in Secret Manager."
+    bug_e
+    buc_info "After completing the flow above, press Enter to continue..."
     read -r
 
     buc_step 'Poll connection until active'

@@ -786,6 +786,11 @@ rbgp_depot_create() {
     "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
+  buc_step 'Grant Developer Connect service agent Secret Manager access'
+  local z_devconnect_service_agent="service-${z_project_number}@gcp-sa-devconnect.iam.gserviceaccount.com"
+  rbgi_add_project_iam_role "${z_token}" "Grant DevConnect Secret Manager Admin" "projects/${z_depot_project_id}" \
+    "roles/secretmanager.admin" "serviceAccount:${z_devconnect_service_agent}" "devconnect-secretmgr"
+
   # Verify connection exists in pending state
   local z_gdc_get_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/${z_gdc_parent}/connections/${z_gdc_connection_name}"
   rbgu_http_json "GET" "${z_gdc_get_url}" "${z_token}" "depot_gdc_verify"

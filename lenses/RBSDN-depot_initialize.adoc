@@ -89,12 +89,14 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 .. {rbbc_show}
 "Developer Connect connection requires GitHub OAuth authorization"
 .. {rbbc_show}
-"Open this URL in your browser to authorize the Google Developer Connect app:"
-.. {rbbc_show}
-`«ACTION_URI»`
-.. {rbbc_show}
-"After clicking 'Authorize' on the GitHub consent page, return here and press Enter"
-.. Wait for operator confirmation
+`«ACTION_URI»` for {at_operator} to open in browser
+.. Guide {at_operator} through the OAuth flow:
+... GCP Console shows "Request GitHub OAuth token" — click "I understand and continue"
+... GitHub shows "Install Google Cloud Developer Connect" — select the account/org hosting the {rbtgr_rubric_repo}
+... Repository access: select "Only select repositories" and pick the {rbtgr_rubric_repo}
+... Click "Install"
+... GitHub redirects back to GCP; OAuth token stored in Secret Manager
+.. Wait for {at_operator} confirmation
 
 . *Poll Connection Until Active*:
 .. {rbbc_poll}
