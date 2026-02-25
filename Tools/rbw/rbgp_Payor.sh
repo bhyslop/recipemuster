@@ -794,7 +794,8 @@ rbgp_depot_create() {
   buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
   buc_bare "  RBRR_GDC_CONNECTION_NAME=${z_gdc_connection_name}"
   buc_bare "  RBRR_GDC_REGION=${z_region}"
-  buc_info "Complete GitHub OAuth authorization:"
+  buc_info "Next: create Governor for this depot, then complete depot initialization:"
+  buc_next "rbw-pRG"
   buc_next "rbw-gdi"
 }
 
@@ -1066,15 +1067,15 @@ rbgp_payor_oauth_refresh() {
 rbgp_governor_reset() {
   zrbgp_sentinel
 
-  local z_depot_project_id="${1:-}"
+  local z_depot_project_id="${RBRR_DEPOT_PROJECT_ID}"
 
   buc_doc_brief "Create or replace Governor service account in a depot"
-  buc_doc_param "depot_project_id" "The depot project ID (obtain via rbgp_depot_list)"
   buc_doc_lines "This operation is idempotent: existing governor-* SAs are deleted before creating a new one"
+  buc_doc_lines "Uses RBRR_DEPOT_PROJECT_ID from regime configuration"
   buc_doc_shown || return 0
 
   buc_step 'Validate input parameters'
-  test -n "${z_depot_project_id}" || buc_die "Depot project ID required as first argument"
+  test -n "${z_depot_project_id}" || buc_die "RBRR_DEPOT_PROJECT_ID is not set in regime configuration"
 
   if ! printf '%s' "${z_depot_project_id}" | grep -qE "${RBGC_GLOBAL_DEPOT_REGEX}"; then
     buc_die "Depot project ID must match pattern ${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-{name}-{timestamp}"

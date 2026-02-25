@@ -21,8 +21,11 @@ Steps already complete (URL already valid, connection already COMPLETE) are skip
 * {rbtgi_depot}
 exists (completed
 {rbtgo_depot_create})
+* {rbtr_governor}
+created for this depot (completed
+{rbtgo_governor_reset})
 * {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in RBRR
-* {rbrr_director_rbra_file} contains {rbra_rubric_repo_url}
+* {rbrr_governor_rbra_file} contains {rbra_rubric_repo_url}
 * Operator has browser access for GitHub OAuth authorization
 
 // ⟦axs_behavior⟧

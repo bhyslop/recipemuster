@@ -15,12 +15,12 @@ resets the
 for a specified
 {rbtgi_depot_project}:
 
-// ⟦axs_inputs⟧
+// ⟦axs_inputs axd_none⟧
 . *Validate Input Parameters*:
+.. {rbbc_store}
+`«DEPOT_PROJECT_ID»` from {rbrr_depot_project_id}
 .. {rbbc_require}
-`«INPUT_DEPOT_PROJECT_ID»` provided as first argument
-.. {rbbc_require}
-`«INPUT_DEPOT_PROJECT_ID»` matches pattern `rbw-*-[0-9]{12}`
+`«DEPOT_PROJECT_ID»` matches pattern `rbw-*-[0-9]{12}`
 
 // ⟦axs_behavior⟧
 . *Authenticate as

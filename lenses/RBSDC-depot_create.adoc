@@ -184,8 +184,11 @@ to complete GitHub OAuth authorization
 to refresh depot project tracking
 
 // ⟦axs_completion⟧
-Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and Developer Connect connection (PENDING state) ready for
-{rbtgo_depot_initialize}
-and
+Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and Developer Connect connection (PENDING state).
+Proceed to
+{rbtgo_governor_reset}
+to create the
 {rbtr_governor}
-creation.
+for this depot, then
+{rbtgo_depot_initialize}
+to complete GitHub OAuth authorization.
