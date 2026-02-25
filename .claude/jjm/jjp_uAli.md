@@ -18,12 +18,12 @@ A **Rubric** (`rbtgr_rubric`) is the composite per-vessel build definition compr
 
 The rubric lifecycle has one user-facing operation:
 - **Inscribe** (`rbtgo_rubric_inscribe`) — the single rubric lifecycle command: check pin
-  freshness, generate yaml (modified stitch), verify committed in main repo, sync to
+  freshness, generate JSON (modified stitch), verify committed in main repo, sync to
   rubric repo per-vessel directory (orchestrated git), create trigger if it doesn't exist
 
 And one existing operation adapted:
 - **Dispatch** (`rbtgo_trigger_build`, revised) — execute triggers.run with zero custom
-  substitution overrides; all values baked into committed yaml
+  substitution overrides; all values baked into committed JSON
 
 There is no separate assay or enshrine operation. Inscribe handles freshness checking
 and trigger creation internally.
@@ -48,18 +48,18 @@ Developer Connect provides the bridge from GitHub to GCB:
 - **Per-vessel {rbtgr_build_json}** — master copy committed to main repo (user-reviewed),
   synced to rubric repo by inscribe
 - **Inscribe timestamp in tags** — baked at inscribe time (e.g., `i20260223.143022`),
-  `$BUILD_ID` prefix for per-build uniqueness. Multiple builds of same inscribed yaml
+  `$BUILD_ID` prefix for per-build uniqueness. Multiple builds of same inscribed JSON
   produce distinct but related tags.
 - **Pin freshness gate** — inscribe checks RBRR_GCB_PINS_REFRESHED_AT; fails if stale (>2 days).
   Pin refresh (existing `rbrr_refresh_gcb_pins`) writes the timestamp.
 - **Separate inscribe and build commands** — inscribe updates the rubric; build dispatches.
-  Build does NOT verify main repo git state (inscribe already synced mini-repo).
-- **Modify existing functions, not recreate** — `zrbf_stitch_build_json()` is adapted to
-  emit YAML (same inputs, different output format). `rbf_build()` is simplified (remove
+  Build does NOT verify main repo git state (inscribe already synced rubric repo).
+- **Modify existing functions, not recreate** — `zrbf_stitch_build_json()` is extended to
+  emit complete trigger-compatible JSON (same inputs, fuller output). `rbf_build()` is simplified (remove
   tarball/GCS chain, add triggers.run). Step scripts (rbgjb/*.sh) are kept as source of
   truth for build logic, consumed at inscribe time.
 - **Phased rollout** — rbev-busybox first, verify {rbtgr_provenance}, then migrate remaining vessels
-- **Tier 1 log hygiene** folded into YAML authoring (audit during script inlining)
+- **Tier 1 log hygiene** folded into JSON authoring (audit during script inlining)
 - **All API calls via curl/REST** — consistent with existing Foundry pattern, no gcloud/gh dependency
 - **One {rbtgi_source_connection}** to the git host org; one source link to the rubric repo via Developer Connect
 - **rb*-prefixed linked terms** with AXLA voicing annotations — not google-domain prefixes
@@ -85,11 +85,11 @@ to a single rubric repo with per-vessel directories (session 4) to avoid broad P
 and enable git-host-agnostic operation.
 
 **Why zero custom substitution overrides?**
-For maximum SLSA purity. If the build is fully determined by the committed yaml at a
-specific commit, the provenance chain is clean: commit → yaml → image. No runtime parameters
+For maximum SLSA purity. If the build is fully determined by the committed JSON at a
+specific commit, the provenance chain is clean: commit → JSON → image. No runtime parameters
 can influence the build. Per-build uniqueness uses Cloud Build's built-in `$BUILD_ID`
 (the API resource key, guaranteed unique). The inscribe timestamp in the tag provides
-human-readable context about which pin generation produced the yaml.
+human-readable context about which pin generation produced the JSON.
 
 **Why GDC prefix for Developer Connect regime variables?**
 Developer Connect is a Google service, not a GitHub concept. RBRR regime variables use
@@ -114,15 +114,15 @@ Remove `RBRR_GCB_TRIGGER_PATTERN` from `rbrr.env`, regime enrollment, and valida
 
 **rbgjb/*.sh: flat bash source material, consumed at inscribe time**
 Step scripts stay as editable flat bash files — never deleted. Inscribe reads them, inlines
-their content into YAML `script:` fields. All `_RBGY_*` values baked into the YAML's
-`substitutions:` block at inscribe time. Zero dispatch-time substitution overrides.
-Cloud Build resolves `_RBGY_*` from the committed YAML, not from triggers.run request.
-Rationale: flat bash is easier for both humans and models to edit than YAML-embedded scripts.
+their content into JSON `args` arrays. All `_RBGY_*` values baked into the JSON
+`substitutions` object at inscribe time. Zero dispatch-time substitution overrides.
+Cloud Build resolves `_RBGY_*` from the committed JSON, not from triggers.run request.
+Rationale: flat bash is easier for both humans and models to edit than config-embedded scripts.
 
-**Bake main repo AND rubric repo metadata into YAML substitutions**
-Inscribe captures at inscribe time and bakes into `substitutions:` block:
+**Bake main repo AND rubric repo metadata into JSON substitutions**
+Inscribe captures at inscribe time and bakes into `substitutions` object:
 - `_RBGY_GIT_COMMIT`, `_RBGY_GIT_BRANCH`, `_RBGY_GIT_REPO` — main repo (as today)
-- `_RBGY_RUBRIC_REPO`, `_RBGY_RUBRIC_COMMIT` — mini-repo URL and HEAD after push
+- `_RBGY_RUBRIC_REPO`, `_RBGY_RUBRIC_COMMIT` — rubric repo URL and HEAD after push
 - `_RBGY_INSCRIBE_TIMESTAMP` — inscribe timestamp for tag construction
 `rbgjb10-assemble-metadata.sh` picks these up unchanged; `build_info.json` extended with
 rubric repo facts and inscribe timestamp.
@@ -134,7 +134,7 @@ Example: `i20260224_153022-b20260224_160530-image`
 - Build timestamp (`bYYYYMMDD_HHMMSS`) — derived at build time by `rbgjb01`
 - Hyphen delimits major concepts (inscribe, build, suffix); underscore within timestamps
 - No dependency on undocumented BUILD_ID format
-- Multiple builds of same inscribed YAML sort together by inscribe prefix
+- Multiple builds of same inscribed JSON sort together by inscribe prefix
 - `rbgjb01` modified to: `TAG_BASE="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"`
 - Consecration = full tag base (both timestamps)
 
@@ -281,7 +281,7 @@ the new RBSCJ Cloud Build JSON trade study.
 
 ### Constraints
 
-**Build context scope**: With mini-repo triggers, Cloud Build checks out only the mini-repo
+**Build context scope**: With rubric repo triggers, Cloud Build checks out only the rubric repo
 (Dockerfile + build context + cloudbuild.json). The main repo is never exposed.
 
 **Developer Connect setup**: One-time per GitHub org. Connection creation is automated in
@@ -304,7 +304,7 @@ gcloud installed. All git operations use authenticated URLs (PAT-in-URL).
 - `zrbf_compose_build_request_json()` and `zrbf_submit_build_json()`
 - Runtime stitching from the build hot path (stitch is now at inscribe time, not build time)
 - The `$$` dollar-escaping dance for Cloud Build substitutions
-- Dispatch-time `_RBGY_*` substitution overrides (values now baked in committed YAML)
+- Dispatch-time `_RBGY_*` substitution overrides (values now baked in committed JSON)
 - Courier credential regime concept (replaced by RBRA_RUBRIC_REPO_URL + Developer Connect)
 - `RBRA_RUBRIC_GITHUB_PAT` — replaced by `RBRA_RUBRIC_REPO_URL` (host-agnostic)
 - `rbtoe_check_rubric_pat` — replaced by `git ls-remote` validation
@@ -313,7 +313,7 @@ gcloud installed. All git operations use authenticated URLs (PAT-in-URL).
 
 ### What Survives (modified)
 
-- `zrbf_stitch_build_json()` → adapted to emit YAML instead of JSON (same inputs)
+- `zrbf_stitch_build_json()` → extended to emit complete trigger-compatible JSON (same inputs, fuller output)
 - `rbf_build()` → simplified to trigger dispatch (remove tarball/GCS/JSON chain)
 - `zrbf_wait_build_completion()` → polling logic unchanged
 - `zrbf_load_vessel()` → unchanged
@@ -322,7 +322,7 @@ gcloud installed. All git operations use authenticated URLs (PAT-in-URL).
 
 ### What's Born
 
-- {rbtgr_rubric} — per-vessel build definition (yaml + trigger + rubric repo directory + provenance)
+- {rbtgr_rubric} — per-vessel build definition (cloudbuild.json + trigger + rubric repo directory + provenance)
 - {rbtgr_rubric_repo} — single shared rubric repo with per-vessel directories (security boundary)
 - {rbtgi_source_connection} — Developer Connect connection (OAuth GitHub App)
 - {rbtgo_rubric_inscribe} — single rubric lifecycle command (pin check → generate → verify → sync → trigger)
