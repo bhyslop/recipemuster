@@ -48,6 +48,9 @@ zrbrp_kindle() {
   buv_group_enroll "OAuth Configuration"
   buv_string_enroll  RBRP_OAUTH_CLIENT_ID  0  256  "OAuth 2.0 client identifier"
 
+  buv_group_enroll "Operator Identity"
+  buv_string_enroll  RBRP_OPERATOR_EMAIL  0  256  "Operator Google account email for console access"
+
   # Guard against unexpected RBRP_ variables not in enrollment
   buv_scope_sentinel RBRP RBRP_
 

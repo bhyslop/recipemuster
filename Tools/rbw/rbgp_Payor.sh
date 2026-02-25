@@ -522,6 +522,15 @@ EOF
   z_access_token=$(zrbgp_authenticate_capture) || buc_die "Failed to test OAuth authentication"
   test -n "${z_access_token}" || buc_die "OAuth authentication test returned empty token"
   
+  buc_step 'Discover operator email'
+  rbgu_http_json "GET" "https://www.googleapis.com/oauth2/v3/userinfo" "${z_access_token}" "payor_userinfo"
+  rbgu_http_require_ok "Discover operator email" "payor_userinfo"
+  local z_operator_email
+  z_operator_email=$(rbgu_json_field_capture "payor_userinfo" '.email') \
+    || buc_die "Userinfo response missing email — ensure OAuth scope includes email"
+  test -n "${z_operator_email}" || buc_die "Userinfo response missing email"
+  buc_info "Operator email: ${z_operator_email}"
+
   buc_step 'Verify payor project access'
   local z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_project_id}"
   rbgu_http_json "GET" "${z_project_info_url}" "${z_access_token}" "payor_verify" 
@@ -537,6 +546,7 @@ EOF
   buc_info "Configuration required in rbrp.env:"
   buc_info "  RBRP_PAYOR_PROJECT_ID=${z_project_id}"
   buc_info "  RBRP_OAUTH_CLIENT_ID=${z_client_id}"
+  buc_info "  RBRP_OPERATOR_EMAIL=${z_operator_email}"
   buc_info "  RBRP_BILLING_ACCOUNT_ID=<obtain from Cloud Console Billing>"
   buc_info ""
   buc_info "Next: rbgp_depot_create <depot-name> <region>"

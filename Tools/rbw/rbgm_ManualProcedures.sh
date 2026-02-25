@@ -546,6 +546,18 @@ rbgm_depot_initialize() {
   if [ "${z_stage}" = "COMPLETE" ]; then
     buc_info "Developer Connect connection already active — skipping OAuth step"
   else
+    buc_step 'Grant operator console access for Developer Connect'
+    local z_operator_email="${RBRP_OPERATOR_EMAIL:-}"
+    test -n "${z_operator_email}" || buc_die "RBRP_OPERATOR_EMAIL not set — run payor_install to discover operator email"
+    rbgi_add_project_iam_role \
+      "${z_token}" \
+      "Grant Operator Developer Connect Admin" \
+      "projects/${z_project}" \
+      "roles/developerconnect.admin" \
+      "user:${z_operator_email}" \
+      "operator-devconnect"
+    buc_info "Granted ${z_operator_email} Developer Connect admin on ${z_project}"
+
     buc_step 'Guide GitHub OAuth authorization'
     local z_action_uri
     z_action_uri=$(rbgu_json_field_capture "depot_init_conn_get" '.installationState.actionUri // ""') \

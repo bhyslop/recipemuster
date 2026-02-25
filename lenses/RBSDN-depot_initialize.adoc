@@ -72,6 +72,15 @@ HTTP 200 — connection exists
 "Developer Connect connection already active — skipping OAuth step"
 ... Go to step 7
 
+. *Grant Operator Console Access for Developer Connect*:
+.. {rbbc_require}
+{rbrp_operator_email} is set
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
+.. Add `{rbrp_operator_email}` with `roles/developerconnect.admin`
+.. {rbbc_show}
+"Granted operator Developer Connect admin on depot project"
+
 . *Guide GitHub OAuth Authorization*:
 .. {rbbc_store}
 `«ACTION_URI»` from `.installationState.actionUri` of the connection response

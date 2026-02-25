@@ -40,6 +40,7 @@ zrbgm_furnish() {
   source "${z_rbw_kit_dir}/rbrp_regime.sh"
   source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbw_kit_dir}/rbgu_Utility.sh"
+  source "${z_rbw_kit_dir}/rbgi_IAM.sh"
   source "${z_rbw_kit_dir}/rbra_regime.sh"
   source "${z_rbw_kit_dir}/rbgm_ManualProcedures.sh"
 
@@ -60,6 +61,7 @@ zrbgm_furnish() {
 
   zrbgo_kindle
   zrbgu_kindle
+  zrbgi_kindle
   zrbgm_kindle
 }
 
