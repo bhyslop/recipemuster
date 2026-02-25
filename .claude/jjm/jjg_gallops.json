@@ -5487,6 +5487,13 @@
         "₢AiAAZ": {
           "tacks": [
             {
+              "ts": "260224-1654",
+              "state": "complete",
+              "text": "Delete and recreate depot, then execute depot_initialize live.\n\n## Sequence\n\n1. Delete existing depot (rbgp_depot_destroy)\n2. Recreate depot (rbgp_depot_create) — now includes connection creation\n3. Configure RBRA_RUBRIC_GITHUB_PAT in **Governor RBRA file**\n   (depot_initialize sources Governor RBRA — Director doesn't exist yet)\n4. Run depot_initialize:\n   - Validates Governor RBRA PAT via GitHub API\n   - Complete GitHub OAuth browser authorization for Developer Connect\n   - Verify connection reaches COMPLETE\n5. Set RBRR_GDC_CONNECTION_NAME in rbrr.env with real value\n6. Verify regime smoke test passes\n7. Verify preflight gates work:\n   - Run retriever create — should pass preflight (PAT + DevConnect valid)\n   - Or intentionally omit PAT to confirm preflight dies cleanly\n\n## Notes\n\n- depot_initialize now sources RBRR_GOVERNOR_RBRA_FILE (not Director)\n  per session 3 paddock decision\n- PAT will also go in Director RBRA later when Director is created\n- Human-interactive — requires browser for OAuth authorization",
+              "silks": "live-depot-initialize",
+              "commit": "c526946"
+            },
+            {
               "ts": "260224-1144",
               "state": "rough",
               "text": "Delete and recreate depot, then execute depot_initialize live.\n\n## Sequence\n\n1. Delete existing depot (rbgp_depot_destroy)\n2. Recreate depot (rbgp_depot_create) — now includes connection creation\n3. Configure RBRA_RUBRIC_GITHUB_PAT in **Governor RBRA file**\n   (depot_initialize sources Governor RBRA — Director doesn't exist yet)\n4. Run depot_initialize:\n   - Validates Governor RBRA PAT via GitHub API\n   - Complete GitHub OAuth browser authorization for Developer Connect\n   - Verify connection reaches COMPLETE\n5. Set RBRR_GDC_CONNECTION_NAME in rbrr.env with real value\n6. Verify regime smoke test passes\n7. Verify preflight gates work:\n   - Run retriever create — should pass preflight (PAT + DevConnect valid)\n   - Or intentionally omit PAT to confirm preflight dies cleanly\n\n## Notes\n\n- depot_initialize now sources RBRR_GOVERNOR_RBRA_FILE (not Director)\n  per session 3 paddock decision\n- PAT will also go in Director RBRA later when Director is created\n- Human-interactive — requires browser for OAuth authorization",
