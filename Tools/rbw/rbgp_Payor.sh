@@ -1159,6 +1159,8 @@ rbgp_governor_reset() {
   buc_step 'Wait for Governor SA propagation'
   local z_verify_url="${z_sa_list_url}/${z_governor_email}"
   rbgu_poll_get_until_ok "Governor SA" "${z_verify_url}" "${z_token}" "gov_verify"
+  buc_step 'Wait for cross-service propagation'
+  sleep 15
 
   buc_step 'Grant roles/owner on depot project'
   rbgi_add_project_iam_role \
@@ -1220,8 +1222,8 @@ rbgp_governor_reset() {
   buc_info "Governor service account: ${z_governor_email}"
   buc_info "RBRA file written: ${z_rbra_file}"
   buc_info ""
-  buc_info "To install the RBRA file, copy it to the path specified by RBRR_GOVERNOR_RBRA_FILE:"
-  buc_code "  cp \"${z_rbra_file}\" \"\${RBRR_GOVERNOR_RBRA_FILE}\""
+  buc_info "Install the RBRA file:"
+  buc_bare "        cp ${z_rbra_file} ${RBRR_GOVERNOR_RBRA_FILE}"
 }
 
 # eof
