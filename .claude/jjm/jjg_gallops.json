@@ -4623,9 +4623,10 @@
         "₢AiAAQ",
         "₢AiAAL",
         "₢AiAAM",
-        "₢AiAAN"
+        "₢AiAAN",
+        "₢AiAAc"
       ],
-      "next_pace_seed": "AAc",
+      "next_pace_seed": "AAd",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5565,6 +5566,24 @@
               "commit": "951555d"
             }
           ]
+        },
+        "₢AiAAc": {
+          "tacks": [
+            {
+              "ts": "260224-1654",
+              "state": "rough",
+              "text": "Drafted from ₢AkAAJ in ₣Ak.\n\nUpdate RBS0-SpecTop.adoc to align with depot_initialize and governor_reset changes:\n- Add rbrp_operator_email linked term (attribute, anchor, definition)\n- Add rbtgo_governor_reset linked term if missing\n- Verify rbtgo_depot_initialize definition reflects updated preconditions (governor_reset required)\n- Verify depot_create completion section references match updated RBSDC spec\n- Check that Developer Connect console access grant is reflected in relevant operation summaries",
+              "silks": "align-rbs0-depot-init-changes",
+              "commit": "de87c83"
+            },
+            {
+              "ts": "260224-1632",
+              "state": "rough",
+              "text": "Update RBS0-SpecTop.adoc to align with depot_initialize and governor_reset changes:\n- Add rbrp_operator_email linked term (attribute, anchor, definition)\n- Add rbtgo_governor_reset linked term if missing\n- Verify rbtgo_depot_initialize definition reflects updated preconditions (governor_reset required)\n- Verify depot_create completion section references match updated RBSDC spec\n- Check that Developer Connect console access grant is reflected in relevant operation summaries",
+              "silks": "align-rbs0-depot-init-changes",
+              "commit": "008e19f"
+            }
+          ]
         }
       }
     },
@@ -5590,8 +5609,7 @@
         "₢AkAAB",
         "₢AkAAA",
         "₢AkAAC",
-        "₢AkAAF",
-        "₢AkAAJ"
+        "₢AkAAF"
       ],
       "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
@@ -5804,17 +5822,6 @@
               "text": "Add `rbrr_load()` public function to `rbrr_regime.sh` that wraps the 4-line RBRR chain (source RBBC_rbrr_file + kindle + enforce + lock) into a single call. Then replace all furnish functions that manually perform this chain with a call to `rbrr_load()`.\n\n## Changes\n\n1. **`rbrr_regime.sh`** — Add public function:\n   ```\n   rbrr_load() {\n     source \"${RBBC_rbrr_file}\" || buc_die \"Failed to source RBRR: ${RBBC_rbrr_file}\"\n     zrbrr_kindle\n     zrbrr_enforce\n     zrbrr_lock\n   }\n   ```\n\n2. **All CLI furnish functions** that currently do the manual chain — replace with `rbrr_load()`:\n   - `rbgm_cli.sh`\n   - `rbgp_cli.sh`\n   - `rbro_cli.sh`\n   - `butcrg_RegimeCredentials.sh` (rbra and rbro test cases)\n   - Any others found via grep for `zrbrr_kindle`\n\n## Acceptance\n\n- `rbrr_load()` exists in `rbrr_regime.sh`\n- No remaining manual `source RBBC_rbrr_file` + `zrbrr_kindle` + `zrbrr_enforce` + `zrbrr_lock` sequences outside `rbrr_load()`\n- Smoke tests pass",
               "silks": "rbrr-load-helper",
               "commit": "76f7d43"
-            }
-          ]
-        },
-        "₢AkAAJ": {
-          "tacks": [
-            {
-              "ts": "260224-1632",
-              "state": "rough",
-              "text": "Update RBS0-SpecTop.adoc to align with depot_initialize and governor_reset changes:\n- Add rbrp_operator_email linked term (attribute, anchor, definition)\n- Add rbtgo_governor_reset linked term if missing\n- Verify rbtgo_depot_initialize definition reflects updated preconditions (governor_reset required)\n- Verify depot_create completion section references match updated RBSDC spec\n- Check that Developer Connect console access grant is reflected in relevant operation summaries",
-              "silks": "align-rbs0-depot-init-changes",
-              "commit": "008e19f"
             }
           ]
         }
