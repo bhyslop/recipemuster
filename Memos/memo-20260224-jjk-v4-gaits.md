@@ -318,39 +318,73 @@ All observations from the original memo remain valid:
 
 ## Open Items for Implementation Discussion
 
-These must be resolved before slating paces on ₣Ah:
+### Decided — Captured from cchat-20260224 (groom session)
 
-1. **Gait CRUD commands**: What `jjx_` verbs manage the gait registry? Naming,
-   argument patterns, interaction with existing command structure.
+**#1 Tack elimination / Pace schema flattening:**
+The tack append-only history pattern is retired. After-action reports from tack
+history never proved useful, and the duplication bloated gallops. V4 paces carry
+mutable fields directly:
+- `state` — mutable in place
+- `silks` — mutable in place
+- `gaits` — list of gait keys (composable)
+- `docket` — plan text (renamed from V3's `text`)
+- `warrant` — execution guidance (renamed from V3's `direction`). Present when ready+.
+- `chain` — optional coronet of upstream dependency. Written by school, cleared on prance accept/reject.
 
-2. **Tack schema changes**: New fields needed — gait list (composable gaits per
-   pace), branch name (when candidate). Exact field names and conditional
-   presence rules.
+History lives in git commits of gallops.json. No tack array.
+
+**Branch names: derived, not stored.** Convention `jj/{firemark}/{coronet}` is
+computed from pace identity. Pace state determines whether the branch is valid.
+No `branch` field in the pace record.
+
+**#4 Dependency analysis moved to school, not breeze.** School (opus-tier,
+human-in-loop) sets `chain` links when promoting paces. Breeze is mechanical:
+skip non-ready, hold if chain points to non-complete, run otherwise. School is
+the dependency planner, not just a docket refiner.
+
+**State enum — zero actionable overlap with V3:**
+- V3 actionable: `rough`, `bridled`
+- V4 actionable: `green` (unrefined, replaces rough), `ready` (autonomous-eligible),
+  `reined` (interactive-required, human must be in the loop), `candidate` (branch exists)
+- V4 terminal: `complete`, `abandoned` (overlap with V3 fine — inert states)
+
+New state: `reined` — school promotes green paces to either `ready` (breeze can
+handle it) or `reined` (human judgment required, mount only). Reined paces
+naturally block downstream chain dependents without special logic.
+
+**Gaits registry:** New top-level key in gallops. Silks-keyed (human-readable
+keys like `"rust-vok"`). Slow-moving, simple IDs sufficient.
+
+**Markers/steeplechase:** Aggressively eliminated for V4. Can restore on need.
+Gallops/paddock updates still produce main-branch commits.
+
+### Remaining — Decide Now
+
+These still need resolution before slating paces on ₣Ah:
+
+2. **School mechanics**: How does the Q&A refinement work? Batch all questions
+   then promote? One-pace-at-a-time? How does it decide a docket is "clear enough"?
+   Now also: how does school determine chain dependencies and ready-vs-reined
+   promotion? The centerpiece command.
 
 3. **Candidate rejection flow**: When prance rejects a candidate, does it go back
-   to ready (same docket, re-breezable) or to rough (needs rethinking)? Probably
+   to ready (same docket, re-breezable) or to green (needs rethinking)? Probably
    the human decides per-rejection. What's the UI?
-
-4. **Breeze dependency analysis**: How does breeze classify compound vs standalone?
-   Pure docket analysis (LLM reads all dockets)? File-touch heuristics? Explicit
-   pace metadata? Likely docket analysis for v1.
 
 5. **Prance merge conflict handling**: When a candidate branch conflicts with
    current main, what does prance do? Present the conflict for human resolution?
    Attempt automatic rebase? Flag for re-breeze?
 
-6. **Migration path from V3**: Schema version bump, state migration (bridled →
-   ready), new gallops fields (gaits registry). What breaks, what's backward
-   compatible?
+### Work Out Later — Mechanical (fall out of the above decisions)
 
-7. **Mount rendering**: What does the new orientation-only mount display? State
-   summary, actionable suggestions, gait assignments, branch status?
+6. **Gait CRUD commands**: Minting exercise once the schema is decided.
 
-8. **School mechanics**: How does the Q&A refinement work? Batch all questions
-   then promote? One-pace-at-a-time? How does it decide a docket is "clear enough"?
+7. **Mount rendering**: Presentation; follows from state machine decisions.
 
-9. **Gait switching command**: The "cheap way to switch" a pace's gait assignment.
-   Dedicated verb or option on existing command?
+8. **Gait switching command**: Tiny UI call.
 
-10. **Orient changes**: Orient currently finds the next actionable pace. Needs to
-    understand the new state machine and present appropriate next actions.
+9. **Orient changes**: Mechanical once states are locked.
+
+10. **Migration path from V3**: Blocked by schema decisions (now mostly resolved).
+    Key note: V3 `text` → V4 `docket`, V3 `direction` → V4 `warrant`,
+    tack array → flat fields, `rough` → `green`, `bridled` → eliminated.
