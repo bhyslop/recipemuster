@@ -22,17 +22,17 @@ in the
 .. Verify {rbrr_gcb_pins_refreshed_at} is within acceptable window (~2 days)
 .. {rbbc_fatal} if pins are stale — operator must run pin refresh first
 
-. *Generate Rubric YAML*:
+. *Generate Rubric JSON*:
 .. Load vessel configuration via existing `zrbf_load_vessel()`
 .. Generate
-{rbtgr_build_yaml}
+{rbtgr_build_json}
 from step scripts (`rbgjb/*.sh`) and regime pins
 .. All values baked: GAR coordinates, builder image pins (digest-pinned), vessel identity, platforms, inscribe timestamp
 .. Substitutions block includes `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` as placeholders — filled after {rbtgr_rubric_repo} push (step 5)
 .. All other values deterministic: same inputs produce byte-identical output
 
 . *Verify Committed*:
-.. Compare generated YAML against what is committed in main repo
+.. Compare generated JSON against what is committed in main repo
 .. If different: STOP and instruct operator to review diff, commit, and push
 .. On re-run: deterministic generation matches committed copy — proceed
 
@@ -43,17 +43,17 @@ from step scripts (`rbgjb/*.sh`) and regime pins
 using
 {rbra_rubric_repo_url}
 .. Copy
-{rbtgr_build_yaml},
+{rbtgr_build_json},
 Dockerfile, and build context from main repo to per-vessel directory in clone
 .. Fill `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` in the clone's copy of
-{rbtgr_build_yaml}
+{rbtgr_build_json}
 with the actual {rbtgr_rubric_repo} URL and the commit hash after push
 .. Commit and push (fully orchestrated — main repo is the reviewed source of truth)
 
 NOTE: Always-fresh-clone eliminates stale state.
 The
 {rbtgr_rubric_repo}
-is small (per-vessel directories with Dockerfile + build context + YAML) — shallow clone is sub-second.
+is small (per-vessel directories with Dockerfile + build context + JSON) — shallow clone is sub-second.
 
 . *Create Infrastructure (if needed)*:
 .. Create
@@ -70,7 +70,7 @@ if it does not exist (via Cloud Build REST API)
 * {rbtgr_vessel_dir} synced with current build material (including filled {rbtgr_rubric_repo} metadata)
 * {rbtgi_source_link} binding the connection to the {rbtgr_rubric_repo}
 * {rbtgr_vessel_trigger} pointing to the
-{rbtgr_build_yaml}
+{rbtgr_build_json}
 in the
 {rbtgr_vessel_dir}
 
@@ -78,7 +78,7 @@ in the
 
 NOTE: Inscribe is idempotent.
 A fresh vessel (no {rbtgr_vessel_dir}, no trigger, no repo link) gets all created.
-An existing vessel gets its YAML synced — infrastructure resources are left in place.
+An existing vessel gets its JSON synced — infrastructure resources are left in place.
 Proceed to
 {rbtgo_trigger_build}
 to dispatch a build.

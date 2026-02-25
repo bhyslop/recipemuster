@@ -79,7 +79,7 @@
 // Recipe Bottle Term Google Rubric (per-vessel build definition)
 :rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
 :rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
-:rbtgr_build_yaml:          <<rbtgr_build_yaml,Rubric YAML>>
+:rbtgr_build_json:          <<rbtgr_build_json,cloudbuild.json>>
 :rbtgr_vessel_trigger:      <<rbtgr_vessel_trigger,Vessel Trigger>>
 :rbtgr_rubric_repo:         <<rbtgr_rubric_repo,Rubric Repo>>
 :rbtgr_vessel_dir:          <<rbtgr_vessel_dir,Vessel Directory>>
@@ -788,7 +788,7 @@ include::RBSGD-gdc_establish.adoc[]
 === {rbtgo_rubric_inscribe}
 
 The single rubric lifecycle command: checks pin freshness, generates
-{rbtgr_build_yaml}
+{rbtgr_build_json}
 from step scripts and regime pins, verifies committed in main repo, syncs to
 {rbtgr_vessel_dir},
 and creates
@@ -804,7 +804,7 @@ include::RBSRI-rubric_inscribe.adoc[]
 Dispatches a build via `triggers.run` using the vessel's
 {rbtgr_vessel_trigger}.
 All values baked in
-{rbtgr_build_yaml}
+{rbtgr_build_json}
 — zero custom substitution overrides.
 
 include::RBSTB-trigger_build.adoc[]
@@ -1214,7 +1214,7 @@ Example: `i20260224_153022-b20260224_160530`.
 The inscribe timestamp records when
 {rbtgo_rubric_inscribe}
 generated the
-{rbtgr_build_yaml};
+{rbtgr_build_json};
 the build timestamp records when
 {gcb_service}
 executed the build.
@@ -1247,7 +1247,7 @@ is generated separately by Google as a signed attestation on the built image.
 // ⟦axl_voices axig_build_config axig_build_trigger⟧
 {rbtgr_rubric}::
 The composite per-vessel build definition comprising a committed
-{rbtgr_build_yaml},
+{rbtgr_build_json},
 a
 {rbtgr_vessel_trigger},
 and a
@@ -1255,11 +1255,12 @@ and a
 Created and maintained by
 {rbtgo_rubric_inscribe}.
 
-[[rbtgr_build_yaml]]
+[[rbtgr_build_json]]
 // ⟦axl_voices axig_build_config⟧
-{rbtgr_build_yaml}::
-The committed `cloudbuild.yaml` file for a vessel, generated from step scripts and regime pins by the modified stitch function.
+{rbtgr_build_json}::
+The committed `cloudbuild.json` file for a vessel, generated from step scripts and regime pins by the stitch function.
 All values baked at inscribe time — zero custom substitution overrides at dispatch.
+See <<rbscj_trade_study>>.
 
 [[rbtgr_vessel_trigger]]
 // ⟦axl_voices axig_build_trigger⟧
@@ -1272,7 +1273,7 @@ Dispatches builds via `triggers.run` when invoked by
 // ⟦axl_voices axig_repo_link⟧
 {rbtgr_rubric_repo}::
 Single shared git repository containing per-vessel directories, each with build material
-(cloudbuild.yaml, Dockerfile, build context).
+(cloudbuild.json, Dockerfile, build context).
 Pre-created by the operator on any git hosting service.
 Cloud Build sees only this repo via Developer Connect — the main repo is never exposed.
 Accessed via
@@ -1285,7 +1286,7 @@ Managed by
 {rbtgr_vessel_dir}::
 The per-vessel directory within
 {rbtgr_rubric_repo}
-containing that vessel's build material (cloudbuild.yaml, Dockerfile, build context).
+containing that vessel's build material (cloudbuild.json, Dockerfile, build context).
 Managed by
 {rbtgo_rubric_inscribe}.
 
@@ -3090,10 +3091,7 @@ include::RBSOB-oci_layout_bridge.adoc[]
 
 include::RBSCB-CloudBuildRoadmap.adoc[]
 
-== Cloud Build Roadmap
+[[rbscj_trade_study]]
+=== Cloud Build JSON
 
-Roadmap for hardening the Google Cloud Build pipeline across progressive tiers.
-Each tier builds on the previous and can be adopted independently as a heat.
-See the Multi-Architecture Strategy section for cross-cutting constraints.
-
-include::RBSCB-CloudBuildRoadmap.adoc[]
+include::RBSCJ-CloudBuildJson.adoc[]

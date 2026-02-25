@@ -1,0 +1,69 @@
+==== Decision
+
+Cloud Build configuration files for trigger-based builds use `cloudbuild.json` format,
+generated programmatically via `jq`.
+YAML is not used.
+
+==== Rationale
+
+JSON is the Cloud Build REST API's native wire format.
+The `projects.builds.create` and `projects.triggers.run` endpoints accept JSON request bodies
+modeled on the API's `Build` resource.
+YAML is a file-authoring convenience that gets parsed into the same `Build` structure before submission.
+
+Programmatic generation via `jq` produces correct JSON directly — no YAML indentation
+fragility, no multiline string quoting hazards, no dependency on `yq` or custom emitters.
+The stitch function (`zrbf_stitch_build_json`) already generates JSON;
+converting to YAML would add complexity with zero functional benefit.
+
+==== Evidence
+
+[cols="1,3",options="header"]
+|===
+|Claim
+|Source
+
+|REST API is natively JSON
+|https://docs.google.com/build/docs/api/reference/rest/v1/projects.builds/create[projects.builds.create API reference] — request body is a `Build` resource in JSON
+
+|YAML and JSON are equivalent serializations
+|https://docs.google.com/build/docs/build-config-file-schema[Build configuration file schema] — "You can write the build config file using the YAML or the JSON syntax"
+
+|Triggers accept both formats
+|https://docs.google.com/build/docs/automating-builds/create-manage-triggers[Create and manage build triggers] — "Cloud Build configuration file (yaml or json)"
+
+|Trigger autodetect precedence includes JSON
+|https://docs.google.com/build/docs/api/reference/rest/v1/projects.triggers[projects.triggers REST resource] — precedence: `cloudbuild.yaml`, `cloudbuild.yml`, `cloudbuild.json`, `Dockerfile`
+
+|No deprecation signals through Feb 2026
+|https://docs.google.com/build/docs/release-notes[Cloud Build release notes] — no mention of reducing JSON support
+
+|SLSA provenance does not differ by format
+|https://docs.google.com/build/docs/securing-builds/generate-validate-build-provenance[Generate and validate build provenance] — provenance records `buildConfigSource.path` (file name), not format-specific fields
+|===
+
+==== What Dies
+
+* Any assumption that `cloudbuild.yaml` is required for triggers or SLSA provenance
+* The linked term `rbtgr_build_yaml` — replaced by
+{rbtgr_build_json}
+* YAML-specific concerns: multiline string quoting, indentation sensitivity, `$$` escaping conventions
+
+==== What Survives
+
+* `zrbf_stitch_build_json()` — continues to emit JSON via `jq`, adapted for trigger structure
+* `rbgjb/*.sh` step scripts — inlined into JSON `args` arrays at inscribe time
+* All `_RBGY_*` substitution variables — baked into JSON `substitutions` object
+* OCI Layout Bridge pattern — unchanged
+
+==== Provenance Note
+
+SLSA v1.0 provenance records `buildConfigSource.path` which will contain `cloudbuild.json`.
+This is a cosmetic difference from `cloudbuild.yaml` — the structured provenance fields
+(build inputs, parameters, outputs) are identical regardless of config file format.
+
+==== References
+
+* Research conducted: 2026-02-24 (web search + API documentation review)
+* Google docs consistently present YAML examples by convention, not by requirement
+* The `gcloud builds submit` CLI internally converts any config format to JSON for API submission

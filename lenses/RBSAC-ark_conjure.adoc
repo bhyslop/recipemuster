@@ -26,7 +26,7 @@ vessel contains conjuring configuration (RBRV_CONJURE_DOCKERFILE, RBRV_CONJURE_B
 which dispatches via the vessel's
 {rbtgr_vessel_trigger}
 .. All build parameters baked in
-{rbtgr_build_yaml}
+{rbtgr_build_json}
 — zero custom substitution overrides
 .. Waits for build completion
 .. On success, both
