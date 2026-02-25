@@ -85,19 +85,19 @@ The Foundry (`rbf_Foundry.sh`) reads rbgjb/*.sh step scripts, stitches them into
 uploads a source tarball to GCS, and POSTs to the builds.create REST API.
 All step parameterization flows through 13+ `_RBGY_*` Cloud Build substitution variables.
 
-**Approach: per-vessel mini-repos with fully-baked yaml.**
+**Approach: single rubric repo with fully-baked JSON.**
 A generator (adapted from `zrbf_stitch_build_json`) reads rbgjb/*.sh scripts plus current regime pins
-and emits a static `cloudbuild.yaml` per vessel with ALL values baked — zero custom substitution overrides.
-The master copy is committed to the main repo. The inscribe command syncs it to a per-vessel mini-repo
-on GitHub that Cloud Build sees via Developer Connect.
+and emits a static `cloudbuild.json` per vessel with ALL values baked — zero custom substitution overrides.
+The master copy is committed to the main repo. The inscribe command syncs it to a per-vessel directory
+in the shared rubric repo that Cloud Build sees via Developer Connect.
 
-**Per-vessel mini-repos (security boundary).**
-Each vessel has a small GitHub repo containing only cloudbuild.yaml + Dockerfile + build context.
-Cloud Build sees ONLY the mini-repo via Developer Connect — the main repo is never exposed to Google.
-SLSA provenance records the mini-repo commit, which maps directly to the build material.
-Mini-repo management is fully orchestrated by inscribe (clone/sync/commit/push).
+**Single rubric repo (security boundary).**
+One shared rubric repo on GitHub contains per-vessel directories, each holding cloudbuild.json + Dockerfile + build context.
+Cloud Build sees ONLY the rubric repo via Developer Connect — the main repo is never exposed to Google.
+SLSA provenance records the rubric repo commit, which maps directly to the build material.
+Rubric repo management is fully orchestrated by inscribe (clone/sync/commit/push).
 
-**Everything is baked into the yaml (static, committed):**
+**Everything is baked into the JSON (static, committed):**
 
 * Step structure, script bodies, step IDs, entrypoints
 * Builder image digest references (digest-pinned from RBRR_GCB_*_IMAGE_REF)
@@ -106,25 +106,25 @@ Mini-repo management is fully orchestrated by inscribe (clone/sync/commit/push).
 * Per-build uniqueness via Cloud Build built-in `$BUILD_ID` (not a custom substitution)
 
 **Zero custom substitution overrides at dispatch time.**
-Maximum SLSA purity: the build is fully determined by the committed yaml at a specific commit.
+Maximum SLSA purity: the build is fully determined by the committed JSON at a specific commit.
 The Foundry invokes `triggers.run` specifying only which commit to build — no `_RBGY_*` overrides.
 
-**One yaml per vessel.**
+**One JSON per vessel.**
 Different vessels have different Dockerfiles, build contexts, and platforms.
-One yaml per vessel is the natural unit.
+One `cloudbuild.json` per vessel is the natural unit.
 
 **Consequences:**
 
-* GCS source tarball upload is eliminated — triggers fetch from the mini-repo via Developer Connect
-* The stitch function (`zrbf_stitch_build_json`) is adapted to emit YAML instead of JSON; step scripts (rbgjb/*.sh) remain as source of truth, consumed at inscribe time
+* GCS source tarball upload is eliminated — triggers fetch from the rubric repo via Developer Connect
+* The stitch function (`zrbf_stitch_build_json`) is adapted to emit the full trigger-compatible JSON structure; step scripts (rbgjb/*.sh) remain as source of truth, consumed at inscribe time
 * Pin updates are per-vessel: operator runs inscribe for a specific vessel after refreshing pins
 * Google SLSA provenance is generated automatically — no DIY provenance needed
-* Build context scope narrows: trigger checks out only the mini-repo (Dockerfile + context + yaml), not the entire project. Cleaner than the old tarball approach.
+* Build context scope narrows: trigger checks out the rubric repo (per-vessel directories with Dockerfile + context + JSON), not the entire project. Cleaner than the old tarball approach.
 
 **Prerequisites:**
 
 * Developer Connect setup (one-time interactive browser OAuth) — see RBSGD-gdc_establish.adoc
-* Per-vessel mini-repo created on GitHub (inscribe creates if absent)
+* Rubric repo created on GitHub with per-vessel directories (inscribe creates if absent)
 * Cloud Build trigger resource created per vessel (inscribe creates if absent)
 
 See References: Google SLSA provenance docs.
@@ -150,7 +150,7 @@ This tier retains public egress — no dependency mirroring cascade.
 **Required changes:**
 
 * Create Private Pool resource in depot project
-* Add `options.pool.name` to the build request (or `cloudbuild.yaml` if Tier 2 is complete)
+* Add `options.pool.name` to the build request (or `cloudbuild.json` if Tier 2 is complete)
 * Add regime variables: `RBRR_GCB_PRIVATE_POOL_NAME` (and region if distinct)
 * Expand `rbgc_gcb_machine_vcpus_capture()` for additional machine types
 * Pricing: expect roughly 1.5-2x default pool per-minute rates
@@ -250,10 +250,10 @@ Not actionable until vessel ecosystem matures.
 
 **Trigger-based builds over DIY SLSA provenance.**
 The Foundry already parameterizes all build configuration through `_RBGY_*` substitutions.
-Converting to a static `cloudbuild.yaml` is mechanical, not architectural.
+Converting to a static `cloudbuild.json` is mechanical, not architectural.
 Google generates SLSA provenance automatically for trigger-invoked builds, eliminating the need for a custom provenance generation step.
-The generated-artifact-must-be-committed pattern preserves the Foundry's generation logic while producing a trigger-compatible yaml.
-One yaml per vessel chosen over a shared yaml for clarity.
+The generated-artifact-must-be-committed pattern preserves the Foundry's generation logic while producing a trigger-compatible JSON.
+One `cloudbuild.json` per vessel chosen over a shared config for clarity.
 (2026-02)
 
 **KMS-keyed signing over Sigstore keyless, if signing is adopted.**
@@ -293,13 +293,13 @@ No benefit until deployment targets change.
 Google automatically generates SLSA v1.0 provenance for trigger-invoked builds.
 This is the single highest-value security improvement available before alpha release.
 The mechanical cost is justified: the Foundry already parameterizes builds through substitution variables,
-so converting to static cloudbuild.yaml per vessel is refactoring, not redesign.
+so converting to static cloudbuild.json per vessel is refactoring, not redesign.
 (2026-02)
 
 **Tier 1 log hygiene folded into Tier 2.**
-Build step scripts are being inlined into cloudbuild.yaml during trigger migration.
+Build step scripts are being inlined into cloudbuild.json during trigger migration.
 Log hygiene (ensuring tokens and credentials are not echoed) is audited naturally during this inlining —
-each rbgjb script is reviewed as its content moves into YAML step blocks.
+each rbgjb script is reviewed as its content moves into JSON step blocks.
 A separate Tier 1 log hygiene effort would duplicate this audit.
 (2026-02)
 
@@ -324,14 +324,15 @@ orthogonal to the trigger migration. It constrains vessel authors (policy decisi
 and does not depend on Tier 2 infrastructure. Tracked as a separate future heat, not a Tier 2 prerequisite.
 (2026-02)
 
-**Main repo triggers over per-vessel repos.**
+**Single rubric repo over per-vessel repos.**
 The original Tier 2 design used per-vessel GitHub repos for provenance isolation (one commit = one vessel's
 build definition). This required a Courier PAT regime, N repo creation/management scripts, a publish ceremony,
-and per-vessel pin-refresh integration — substantial infrastructure for alpha. With main repo triggers:
-Developer Connect uses an OAuth GitHub App (one-time browser auth, no PAT lifecycle), `triggers.run` dispatches
-against the main repo commit, and Google still generates SLSA v1.0 provenance recording the exact commit hash.
-The provenance commit may include non-vessel changes, but for a single-author alpha project this is acceptable.
-Per-vessel repos remain a future option if provenance isolation becomes a real requirement.
+and per-vessel pin-refresh integration — substantial infrastructure for alpha. A single shared rubric repo
+with per-vessel directories provides the same security boundary (Cloud Build sees only the rubric repo, not
+the main repo) with one repo to manage instead of N. Developer Connect uses an OAuth GitHub App (one-time
+browser auth, no PAT lifecycle), `triggers.run` dispatches against the rubric repo commit, and Google still
+generates SLSA v1.0 provenance recording the exact commit hash. Per-vessel repos remain a future option if
+stricter provenance isolation becomes a real requirement.
 (2026-02)
 
 ==== References
