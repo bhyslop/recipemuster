@@ -142,6 +142,7 @@ zrbz_kindle() {
   buz_enroll RBZ_TEST_NAMEPLATE          "rbw-tn"  "${z_mod}" "rbw-tn"
   buz_enroll RBZ_TEST_REGIME             "rbw-trg" "${z_mod}" "rbw-trg"
   buz_enroll RBZ_TEST_REGIME_CREDENTIALS "rbw-trc" "${z_mod}" "rbw-trc"
+  buz_enroll RBZ_TEST_SWEEP              "rbw-tw"  "${z_mod}" "rbw-tw"
 
   ZRBZ_KINDLED=1
 }

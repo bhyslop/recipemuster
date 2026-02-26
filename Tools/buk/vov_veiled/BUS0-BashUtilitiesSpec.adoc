@@ -323,6 +323,34 @@ Testbenches follow the same pattern but route to test functions:
 }
 ----
 
+=== Test Registry Model
+
+The test registry (`butr_registry.sh`) uses two orthogonal enrollment dimensions:
+
+**Fixture** — init/setup execution context.
+Each test case belongs to exactly one fixture.
+Fixtures provide isolation via `_tsuite` subshell boundaries.
+Registered with `butr_fixture_enroll(name, init_fn, setup_fn)`.
+
+**Suite** — cross-cutting selection group (N:M with cases).
+A case can belong to multiple suites.
+Suites enable sweep dispatch: run a cross-cutting subset of cases grouped by their owning fixtures.
+Suite context is set with `butr_suite_enroll(SUITE1 [SUITE2...])` before case enrollments.
+Queried by `butd_run_sweep(suite_name)`.
+
+Standard suite constants (defined as `readonly` in testbench kindle):
+
+* `BUTR_SUITE_FAST` — no external dependencies, CI-safe
+* `BUTR_SUITE_SERVICE` — needs credentials, no container runtime
+* `BUTR_SUITE_COMPLETE` — full test matrix including container runtime
+
+Dispatch entry points:
+
+* `butd_run_all()` — all fixtures, all cases
+* `butd_run_fixture(name [case...])` — single fixture, optional case filter
+* `butd_run_one(fn)` — single case with its fixture setup
+* `butd_run_sweep(suite)` — cross-cutting suite, grouped by fixture
+
 === Colophon Conventions
 
 {busdc_colophon_s}

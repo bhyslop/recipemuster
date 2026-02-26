@@ -22,6 +22,10 @@
 test -n "${ZBUV_INCLUDED:-}" && return 0
 ZBUV_INCLUDED=1
 
+# Literal constants — check capture output protocol markers
+BUV_check_gated="gated"
+BUV_check_fail="fail:"
+
 # Source the console utility library
 ZBUV_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZBUV_SCRIPT_DIR}/buc_command.sh"
@@ -76,10 +80,6 @@ zbuv_kindle() {
   ZBUV_CURRENT_GROUP_IDX=-1
   ZBUV_CURRENT_GATE_VAR=""
   ZBUV_CURRENT_GATE_VAL=""
-
-  # Check capture output constants
-  readonly ZBUV_CHECK_GATED="gated"
-  readonly ZBUV_CHECK_FAIL="fail:"
 
   ZBUV_KINDLED=1
 }
@@ -288,8 +288,8 @@ buv_list_domain_enroll() {
 
 # Internal check capture — validates a single enrolled variable by roll index.
 # Returns error detail on stdout (empty = pass).
-# Echo "${ZBUV_CHECK_GATED}" when gate doesn't match (caller decides skip behavior).
-# Echo "${ZBUV_CHECK_FAIL}<detail>" on validation failure.
+# Echo "${BUV_check_gated}" when gate doesn't match (caller decides skip behavior).
+# Echo "${BUV_check_fail}<detail>" on validation failure.
 zbuv_check_capture() {
   zbuv_sentinel
 
@@ -305,7 +305,7 @@ zbuv_check_capture() {
   if test -n "${z_gate_var}"; then
     local z_gate_actual="${!z_gate_var:-}"
     if test "${z_gate_actual}" != "${z_gate_val}"; then
-      echo "${ZBUV_CHECK_GATED}"
+      echo "${BUV_check_gated}"
       return 0
     fi
   fi
@@ -318,7 +318,7 @@ zbuv_check_capture() {
       list_string|list_ipv4|list_gname|list_cidr|list_domain)
         return 0 ;;
     esac
-    echo "${ZBUV_CHECK_FAIL}${z_varname} is not set (missing from .env?)"
+    echo "${BUV_check_fail}${z_varname} is not set (missing from .env?)"
     return 0
   fi
 
@@ -331,34 +331,34 @@ zbuv_check_capture() {
         return 0
       fi
       if test -z "${z_val}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must not be empty"
+        echo "${BUV_check_fail}${z_varname} must not be empty"
         return 0
       fi
       if test "${#z_val}" -lt "${z_p1}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
+        echo "${BUV_check_fail}${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
       if test "${#z_val}" -gt "${z_p2}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
+        echo "${BUV_check_fail}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
       ;;
 
     xname)
       if test -z "${z_val}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must not be empty"
+        echo "${BUV_check_fail}${z_varname} must not be empty"
         return 0
       fi
       if test "${#z_val}" -lt "${z_p1}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
+        echo "${BUV_check_fail}${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
       if test "${#z_val}" -gt "${z_p2}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
+        echo "${BUV_check_fail}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
       echo "${z_val}" | grep -qE '^[a-zA-Z][a-zA-Z0-9_-]*$' || {
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must start with letter and contain only letters, numbers, underscore, hyphen, got '${z_val}'"
+        echo "${BUV_check_fail}${z_varname} must start with letter and contain only letters, numbers, underscore, hyphen, got '${z_val}'"
         return 0
       }
       ;;
@@ -366,58 +366,58 @@ zbuv_check_capture() {
     gname)
       if test -z "${z_val}"; then
         if test "${z_p1}" -gt 0; then
-          echo "${ZBUV_CHECK_FAIL}${z_varname} must not be empty"
+          echo "${BUV_check_fail}${z_varname} must not be empty"
           return 0
         fi
         return 0
       fi
       if test "${#z_val}" -lt "${z_p1}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
+        echo "${BUV_check_fail}${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
       if test "${#z_val}" -gt "${z_p2}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
+        echo "${BUV_check_fail}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
       echo "${z_val}" | grep -qE '^[a-z][a-z0-9-]*[a-z0-9]$' || {
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must match ^[a-z][a-z0-9-]*[a-z0-9]$ (lowercase letters, digits, hyphens; start with a letter; end with letter/digit), got '${z_val}'"
+        echo "${BUV_check_fail}${z_varname} must match ^[a-z][a-z0-9-]*[a-z0-9]$ (lowercase letters, digits, hyphens; start with a letter; end with letter/digit), got '${z_val}'"
         return 0
       }
       ;;
 
     fqin)
       if test -z "${z_val}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must not be empty"
+        echo "${BUV_check_fail}${z_varname} must not be empty"
         return 0
       fi
       if test "${#z_val}" -lt "${z_p1}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
+        echo "${BUV_check_fail}${z_varname} must be at least ${z_p1} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
       if test "${#z_val}" -gt "${z_p2}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
+        echo "${BUV_check_fail}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
       echo "${z_val}" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$' || {
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, got '${z_val}'"
+        echo "${BUV_check_fail}${z_varname} must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, got '${z_val}'"
         return 0
       }
       ;;
 
     bool)
       if test -z "${z_val}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must not be empty"
+        echo "${BUV_check_fail}${z_varname} must not be empty"
         return 0
       fi
       if test "${z_val}" != "0" && test "${z_val}" != "1"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must be 0 or 1, got: '${z_val}'"
+        echo "${BUV_check_fail}${z_varname} must be 0 or 1, got: '${z_val}'"
         return 0
       fi
       ;;
 
     enum)
       if test -z "${z_val}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must not be empty"
+        echo "${BUV_check_fail}${z_varname} must not be empty"
         return 0
       fi
       local z_choice
@@ -429,55 +429,55 @@ zbuv_check_capture() {
         fi
       done
       if test "${z_found}" = "0"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must be one of: ${z_p1}, got '${z_val}'"
+        echo "${BUV_check_fail}${z_varname} must be one of: ${z_p1}, got '${z_val}'"
         return 0
       fi
       ;;
 
     decimal)
       if test -z "${z_val}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must not be empty"
+        echo "${BUV_check_fail}${z_varname} must not be empty"
         return 0
       fi
       if test "${z_val}" -ge "${z_p1}" && test "${z_val}" -le "${z_p2}"; then
         return 0
       fi
-      echo "${ZBUV_CHECK_FAIL}${z_varname} value '${z_val}' must be between ${z_p1} and ${z_p2}"
+      echo "${BUV_check_fail}${z_varname} value '${z_val}' must be between ${z_p1} and ${z_p2}"
       return 0
       ;;
 
     odref)
       if test -z "${z_val}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must not be empty"
+        echo "${BUV_check_fail}${z_varname} must not be empty"
         return 0
       fi
       local z_re='^[a-z0-9.-]+(:[0-9]{2,5})?/([a-z0-9._-]+/)*[a-z0-9._-]+@sha256:[0-9a-f]{64}$'
       echo "${z_val}" | grep -Eq "${z_re}" || {
-        echo "${ZBUV_CHECK_FAIL}${z_varname} has invalid image reference format (require host[:port]/repo@sha256:<64hex>), got '${z_val}'"
+        echo "${BUV_check_fail}${z_varname} has invalid image reference format (require host[:port]/repo@sha256:<64hex>), got '${z_val}'"
         return 0
       }
       ;;
 
     ipv4)
       if test -z "${z_val}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must not be empty"
+        echo "${BUV_check_fail}${z_varname} must not be empty"
         return 0
       fi
       echo "${z_val}" | grep -qE '^([0-9]{1,3}\.){3}[0-9]{1,3}$' || {
-        echo "${ZBUV_CHECK_FAIL}${z_varname} has invalid IPv4 format: '${z_val}'"
+        echo "${BUV_check_fail}${z_varname} has invalid IPv4 format: '${z_val}'"
         return 0
       }
       ;;
 
     port)
       if test -z "${z_val}"; then
-        echo "${ZBUV_CHECK_FAIL}${z_varname} must not be empty"
+        echo "${BUV_check_fail}${z_varname} must not be empty"
         return 0
       fi
       if test "${z_val}" -ge 1 && test "${z_val}" -le 65535; then
         return 0
       fi
-      echo "${ZBUV_CHECK_FAIL}${z_varname} value '${z_val}' must be between 1 and 65535"
+      echo "${BUV_check_fail}${z_varname} value '${z_val}' must be between 1 and 65535"
       return 0
       ;;
 
@@ -487,11 +487,11 @@ zbuv_check_capture() {
       for z_item in ${z_val}; do
         z_item_num=$((z_item_num + 1))
         if test "${#z_item}" -lt "${z_p1}"; then
-          echo "${ZBUV_CHECK_FAIL}${z_varname} item #${z_item_num} must be at least ${z_p1} chars, got '${z_item}' (${#z_item})"
+          echo "${BUV_check_fail}${z_varname} item #${z_item_num} must be at least ${z_p1} chars, got '${z_item}' (${#z_item})"
           return 0
         fi
         if test "${#z_item}" -gt "${z_p2}"; then
-          echo "${ZBUV_CHECK_FAIL}${z_varname} item #${z_item_num} must be no more than ${z_p2} chars, got '${z_item}' (${#z_item})"
+          echo "${BUV_check_fail}${z_varname} item #${z_item_num} must be no more than ${z_p2} chars, got '${z_item}' (${#z_item})"
           return 0
         fi
       done
@@ -503,7 +503,7 @@ zbuv_check_capture() {
       for z_item in ${z_val}; do
         z_item_num=$((z_item_num + 1))
         echo "${z_item}" | grep -qE '^([0-9]{1,3}\.){3}[0-9]{1,3}$' || {
-          echo "${ZBUV_CHECK_FAIL}${z_varname} item #${z_item_num} has invalid IPv4 format: '${z_item}'"
+          echo "${BUV_check_fail}${z_varname} item #${z_item_num} has invalid IPv4 format: '${z_item}'"
           return 0
         }
       done
@@ -515,15 +515,15 @@ zbuv_check_capture() {
       for z_item in ${z_val}; do
         z_item_num=$((z_item_num + 1))
         if test "${#z_item}" -lt "${z_p1}"; then
-          echo "${ZBUV_CHECK_FAIL}${z_varname} item #${z_item_num} must be at least ${z_p1} chars, got '${z_item}' (${#z_item})"
+          echo "${BUV_check_fail}${z_varname} item #${z_item_num} must be at least ${z_p1} chars, got '${z_item}' (${#z_item})"
           return 0
         fi
         if test "${#z_item}" -gt "${z_p2}"; then
-          echo "${ZBUV_CHECK_FAIL}${z_varname} item #${z_item_num} must be no more than ${z_p2} chars, got '${z_item}' (${#z_item})"
+          echo "${BUV_check_fail}${z_varname} item #${z_item_num} must be no more than ${z_p2} chars, got '${z_item}' (${#z_item})"
           return 0
         fi
         echo "${z_item}" | grep -qE '^[a-z][a-z0-9-]*[a-z0-9]$' || {
-          echo "${ZBUV_CHECK_FAIL}${z_varname} item #${z_item_num} must match ^[a-z][a-z0-9-]*[a-z0-9]$, got '${z_item}'"
+          echo "${BUV_check_fail}${z_varname} item #${z_item_num} must match ^[a-z][a-z0-9-]*[a-z0-9]$, got '${z_item}'"
           return 0
         }
       done
@@ -535,7 +535,7 @@ zbuv_check_capture() {
       for z_item in ${z_val}; do
         z_item_num=$((z_item_num + 1))
         echo "${z_item}" | grep -qE '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$' || {
-          echo "${ZBUV_CHECK_FAIL}${z_varname} item #${z_item_num} has invalid CIDR format: '${z_item}'"
+          echo "${BUV_check_fail}${z_varname} item #${z_item_num} has invalid CIDR format: '${z_item}'"
           return 0
         }
       done
@@ -547,14 +547,14 @@ zbuv_check_capture() {
       for z_item in ${z_val}; do
         z_item_num=$((z_item_num + 1))
         echo "${z_item}" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$' || {
-          echo "${ZBUV_CHECK_FAIL}${z_varname} item #${z_item_num} has invalid domain format: '${z_item}'"
+          echo "${BUV_check_fail}${z_varname} item #${z_item_num} has invalid domain format: '${z_item}'"
           return 0
         }
       done
       ;;
 
     *)
-      echo "${ZBUV_CHECK_FAIL}unknown type: ${z_type}"
+      echo "${BUV_check_fail}unknown type: ${z_type}"
       return 0
       ;;
 
@@ -627,7 +627,7 @@ buv_vet() {
   for z_i in "${!z_buv_scope_roll[@]}"; do
     test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
     z_err=$(zbuv_check_capture "${z_i}")
-    test -z "${z_err}" || test "${z_err}" = "${ZBUV_CHECK_GATED}" || buc_die "${z_buv_varname_roll[$z_i]}: ${z_err#"${ZBUV_CHECK_FAIL}"}"
+    test -z "${z_err}" || test "${z_err}" = "${BUV_check_gated}" || buc_die "${z_buv_varname_roll[$z_i]}: ${z_err#"${BUV_check_fail}"}"
   done
 }
 
@@ -671,10 +671,10 @@ buv_report() {
     z_err=$(zbuv_check_capture "${z_i}")
     if test -z "${z_err}"; then
       buc_step "  PASS  ${z_varname}=${z_val} [${z_type}]"
-    elif test "${z_err}" = "${ZBUV_CHECK_GATED}"; then
+    elif test "${z_err}" = "${BUV_check_gated}"; then
       buc_step "  SKIP  ${z_varname} (gated)"
     else
-      buc_step "  FAIL  ${z_varname}=${z_val} [${z_type}]: ${z_err#"${ZBUV_CHECK_FAIL}"}"
+      buc_step "  FAIL  ${z_varname}=${z_val} [${z_type}]: ${z_err#"${BUV_check_fail}"}"
       z_any_failed=1
     fi
   done

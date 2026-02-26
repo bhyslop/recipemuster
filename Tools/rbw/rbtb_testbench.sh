@@ -81,12 +81,12 @@ rbtb_show() {
 }
 
 rbtb_load_nameplate() {
-  local z_moniker="${1:-}"
+  local -r z_moniker="${1:-}"
   test -n "${z_moniker}" || buc_die "rbtb_load_nameplate: moniker argument required"
 
   rbtb_show "Loading nameplate: ${z_moniker}"
 
-  local z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
+  local -r z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
   test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
   zrbrn_kindle
@@ -135,17 +135,17 @@ rbtb_exec_bottle_i() {
 # Setup functions
 
 zrbtb_kick_tsuite_setup() {
-  buto_trace "Setup for kick-tires suite (no-op)"
+  buto_trace "Setup for kick-tires fixture (no-op)"
 }
 
 zrbtb_qualify_tsuite_setup() {
-  buto_trace "Setup for qualify-all suite"
+  buto_trace "Setup for qualify-all fixture"
   source "${RBTB_SCRIPT_DIR}/rbq_Qualify.sh"
   zrbq_kindle
 }
 
 zrbtb_access_probe_tsuite_setup() {
-  buto_trace "Setup for access-probe suite"
+  buto_trace "Setup for access-probe fixture"
   # 5 iterations with 1500ms delay between calls
   # Total runtime: ~4 roles × 5 × 1.5s ≈ 30 seconds
   ZRBTCAP_ITERATIONS=5
@@ -153,40 +153,40 @@ zrbtb_access_probe_tsuite_setup() {
 }
 
 zrbtb_ark_tsuite_setup() {
-  buto_trace "Setup for ark-lifecycle suite"
+  buto_trace "Setup for ark-lifecycle fixture"
   git diff-index --quiet HEAD -- || buto_fatal "ark-lifecycle requires a clean git working tree (rbf_build will reject dirty state)"
   ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
 }
 
 zrbtb_dispatch_tsuite_setup() {
-  buto_trace "Setup for dispatch-exercise suite"
+  buto_trace "Setup for dispatch-exercise fixture"
 }
 
 zrbtb_nsproto_tsuite_setup() {
-  buto_trace "Setup for nsproto-security suite"
+  buto_trace "Setup for nsproto-security fixture"
   rbtb_load_nameplate "nsproto"
 }
 
 zrbtb_srjcl_tsuite_setup() {
-  buto_trace "Setup for srjcl-jupyter suite"
+  buto_trace "Setup for srjcl-jupyter fixture"
   rbtb_load_nameplate "srjcl"
 }
 
 zrbtb_pluml_tsuite_setup() {
-  buto_trace "Setup for pluml-diagram suite"
+  buto_trace "Setup for pluml-diagram fixture"
   rbtb_load_nameplate "pluml"
 }
 
 zrbtb_regime_tsuite_setup() {
-  buto_trace "Setup for regime-smoke suite (no-op)"
+  buto_trace "Setup for regime-smoke fixture (no-op)"
 }
 
 zrbtb_credentials_tsuite_setup() {
-  buto_trace "Setup for regime-credentials suite (no-op)"
+  buto_trace "Setup for regime-credentials fixture (no-op)"
 }
 
 zrbtb_enrollment_tsuite_setup() {
-  buto_trace "Setup for enrollment-validation suite (no-op)"
+  buto_trace "Setup for enrollment-validation fixture (no-op)"
 }
 
 
@@ -194,38 +194,58 @@ zrbtb_enrollment_tsuite_setup() {
 # Registration
 
 rbtb_kindle() {
+  # Sweep suite constants
+  readonly BUTR_SUITE_FAST="fast"
+  readonly BUTR_SUITE_SERVICE="service"
+  readonly BUTR_SUITE_COMPLETE="complete"
+
   butr_kindle
 
-  # kick-tires suite
-  butr_suite_enroll "kick-tires" "" "zrbtb_kick_tsuite_setup"
+  # -- FAST + COMPLETE: no external dependencies --
+  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
+
+  # kick-tires fixture
+  butr_fixture_enroll "kick-tires" "" "zrbtb_kick_tsuite_setup"
   butr_case_enroll "kick-tires" rbtckk_false_tcase
   butr_case_enroll "kick-tires" rbtckk_true_tcase
 
-  # qualify-all suite
-  butr_suite_enroll "qualify-all" "" "zrbtb_qualify_tsuite_setup"
+  # qualify-all fixture
+  butr_fixture_enroll "qualify-all" "" "zrbtb_qualify_tsuite_setup"
   butr_case_enroll "qualify-all" rbtcqa_qualify_all_tcase
 
-  # access-probe suite (runs before ark-lifecycle; ~30s smoke test for OAuth/credential issues)
+  # -- SERVICE + COMPLETE: needs credentials, no containers --
+  butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
+
+  # access-probe fixture (runs before ark-lifecycle; ~30s smoke test for OAuth/credential issues)
   # Regression tests for rbgo_OAuth.sh stderr-capture fix (pace AfAAR)
-  butr_suite_enroll "access-probe" "" "zrbtb_access_probe_tsuite_setup"
+  butr_fixture_enroll "access-probe" "" "zrbtb_access_probe_tsuite_setup"
   butr_case_enroll "access-probe" rbtcap_jwt_governor_tcase
   butr_case_enroll "access-probe" rbtcap_jwt_director_tcase
   butr_case_enroll "access-probe" rbtcap_jwt_retriever_tcase
   butr_case_enroll "access-probe" rbtcap_payor_oauth_tcase
 
-  # ark-lifecycle suite
-  butr_suite_enroll "ark-lifecycle" "" "zrbtb_ark_tsuite_setup"
+  # -- COMPLETE only: needs container runtime --
+  butr_suite_enroll "${BUTR_SUITE_COMPLETE}"
+
+  # ark-lifecycle fixture
+  butr_fixture_enroll "ark-lifecycle" "" "zrbtb_ark_tsuite_setup"
   butr_case_enroll "ark-lifecycle" rbtcal_lifecycle_tcase
 
-  # dispatch-exercise suite
+  # -- FAST + COMPLETE: no external dependencies --
+  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
+
+  # dispatch-exercise fixture
   buz_enroll ZBUTCDE_TEST_COLOPHON "butctt" "butcde_DispatchExercise" "butcde_run"
-  butr_suite_enroll "dispatch-exercise" "" "zrbtb_dispatch_tsuite_setup"
+  butr_fixture_enroll "dispatch-exercise" "" "zrbtb_dispatch_tsuite_setup"
   butr_case_enroll "dispatch-exercise" butcde_burv_isolation_tcase
   butr_case_enroll "dispatch-exercise" butcde_evidence_created_tcase
   butr_case_enroll "dispatch-exercise" butcde_exit_capture_tcase
 
-  # nsproto-security suite
-  butr_suite_enroll "nsproto-security" "" "zrbtb_nsproto_tsuite_setup"
+  # -- COMPLETE only: needs container runtime --
+  butr_suite_enroll "${BUTR_SUITE_COMPLETE}"
+
+  # nsproto-security fixture
+  butr_fixture_enroll "nsproto-security" "" "zrbtb_nsproto_tsuite_setup"
   butr_case_enroll "nsproto-security" rbtcns_basic_dnsmasq_tcase
   butr_case_enroll "nsproto-security" rbtcns_basic_iptables_tcase
   butr_case_enroll "nsproto-security" rbtcns_basic_ping_sentry_tcase
@@ -249,22 +269,25 @@ rbtb_kindle() {
   butr_case_enroll "nsproto-security" rbtcns_tcp443_allow_anthropic_tcase
   butr_case_enroll "nsproto-security" rbtcns_tcp443_block_google_tcase
 
-  # srjcl-jupyter suite
-  butr_suite_enroll "srjcl-jupyter" "" "zrbtb_srjcl_tsuite_setup"
+  # srjcl-jupyter fixture
+  butr_fixture_enroll "srjcl-jupyter" "" "zrbtb_srjcl_tsuite_setup"
   butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_connectivity_tcase
   butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_running_tcase
   butr_case_enroll "srjcl-jupyter" rbtcsj_websocket_kernel_tcase
 
-  # pluml-diagram suite
-  butr_suite_enroll "pluml-diagram" "" "zrbtb_pluml_tsuite_setup"
+  # pluml-diagram fixture
+  butr_fixture_enroll "pluml-diagram" "" "zrbtb_pluml_tsuite_setup"
   butr_case_enroll "pluml-diagram" rbtcpl_http_headers_tcase
   butr_case_enroll "pluml-diagram" rbtcpl_invalid_hash_tcase
   butr_case_enroll "pluml-diagram" rbtcpl_local_diagram_tcase
   butr_case_enroll "pluml-diagram" rbtcpl_malformed_diagram_tcase
   butr_case_enroll "pluml-diagram" rbtcpl_text_rendering_tcase
 
-  # regime-smoke suite
-  butr_suite_enroll "regime-smoke" "" "zrbtb_regime_tsuite_setup"
+  # -- FAST + COMPLETE: no external dependencies --
+  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
+
+  # regime-smoke fixture
+  butr_fixture_enroll "regime-smoke" "" "zrbtb_regime_tsuite_setup"
   butr_case_enroll "regime-smoke" butcrg_burc_tcase
   butr_case_enroll "regime-smoke" butcrg_burs_tcase
   butr_case_enroll "regime-smoke" butcrg_rbrn_tcase
@@ -273,14 +296,20 @@ rbtb_kindle() {
   butr_case_enroll "regime-smoke" butcrg_rbrp_tcase
   butr_case_enroll "regime-smoke" butcrg_burd_tcase
 
-  # regime-credentials suite (requires workstation credentials)
-  butr_suite_enroll "regime-credentials" "" "zrbtb_credentials_tsuite_setup"
+  # -- SERVICE + COMPLETE: needs credentials, no containers --
+  butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
+
+  # regime-credentials fixture (requires workstation credentials)
+  butr_fixture_enroll "regime-credentials" "" "zrbtb_credentials_tsuite_setup"
   butr_case_enroll "regime-credentials" butcrg_rbra_tcase
   butr_case_enroll "regime-credentials" butcrg_rbro_tcase
   butr_case_enroll "regime-credentials" butcrg_rbrs_tcase
 
-  # enrollment-validation suite
-  butr_suite_enroll "enrollment-validation" "" "zrbtb_enrollment_tsuite_setup"
+  # -- FAST + COMPLETE: no external dependencies --
+  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
+
+  # enrollment-validation fixture
+  butr_fixture_enroll "enrollment-validation" "" "zrbtb_enrollment_tsuite_setup"
   butr_case_enroll "enrollment-validation" butcev_string_valid_tcase
   butr_case_enroll "enrollment-validation" butcev_string_empty_optional_tcase
   butr_case_enroll "enrollment-validation" butcev_string_too_short_tcase
@@ -335,7 +364,7 @@ rbtb_kindle() {
 # Routing
 
 rbtb_route() {
-  local z_command="${1:-}"
+  local -r z_command="${1:-}"
   shift || true
 
   zburd_sentinel
@@ -347,39 +376,41 @@ rbtb_route() {
 
   case "${z_command}" in
     rbw-ta) butd_run_all ;;
-    rbw-ts) butd_run_suite "${1:-}" ;;
+    rbw-ts) butd_run_fixture "${1:-}" ;;
     rbw-to) butd_run_one "${1:-}" ;;
+    rbw-tw) butd_run_sweep "${1:-}" ;;
     rbw-tn)
-      local z_imprint="${BURD_TOKEN_3:-}"
+      local -r z_imprint="${BURD_TOKEN_3:-}"
       case "${z_imprint}" in
-        nsproto) butd_run_suite "nsproto-security" ;;
-        srjcl)  butd_run_suite "srjcl-jupyter" ;;
-        pluml)  butd_run_suite "pluml-diagram" ;;
+        nsproto) butd_run_fixture "nsproto-security" ;;
+        srjcl)  butd_run_fixture "srjcl-jupyter" ;;
+        pluml)  butd_run_fixture "pluml-diagram" ;;
         *)      buc_die "rbw-tn: unknown nameplate imprint '${z_imprint}' (expected: nsproto, srjcl, pluml)" ;;
       esac
       ;;
-    rbw-tap) butd_run_suite "access-probe" ;;
-    rbw-trg) butd_run_suite "regime-smoke" ;;
-    rbw-trc) butd_run_suite "regime-credentials" ;;
+    rbw-tap) butd_run_fixture "access-probe" ;;
+    rbw-trg) butd_run_fixture "regime-smoke" ;;
+    rbw-trc) butd_run_fixture "regime-credentials" ;;
     *)
       if [ -n "${z_command}" ]; then
         buc_warn "Unknown command: ${z_command}"
       fi
       buc_info "Available test commands:"
-      buc_info "  rbw-ta   Run all suites"
-      buc_info "  rbw-ts   Run single suite (pass suite name)"
+      buc_info "  rbw-ta   Run all fixtures"
+      buc_info "  rbw-ts   Run single fixture (pass fixture name)"
       buc_info "  rbw-to   Run single test function (pass function name)"
-      buc_info "  rbw-tn   Run nameplate suite (imprint: nsproto, srjcl, pluml)"
-      buc_info "  rbw-tap  Run access-probe suite (OAuth/credential smoke test)"
-      buc_info "  rbw-trg  Run regime-smoke suite"
-      buc_info "  rbw-trc  Run regime-credentials suite"
+      buc_info "  rbw-tw   Run sweep suite (pass sweep name: fast, service, complete)"
+      buc_info "  rbw-tn   Run nameplate fixture (imprint: nsproto, srjcl, pluml)"
+      buc_info "  rbw-tap  Run access-probe fixture (OAuth/credential smoke test)"
+      buc_info "  rbw-trg  Run regime-smoke fixture"
+      buc_info "  rbw-trc  Run regime-credentials fixture"
       return 0
       ;;
   esac
 }
 
 rbtb_main() {
-  local z_command="${1:-}"
+  local -r z_command="${1:-}"
   shift || true
   test -n "${z_command}" || buc_die "No command specified"
   rbtb_route "${z_command}" "$@"

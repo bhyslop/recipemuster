@@ -1377,9 +1377,9 @@ buc_warn    # Instead of echo >&2
 
 ### Principled Subshell Use
 
-BCG prohibits subshells for error handling (see **Subshell Exit vs Brace-Group**). Test execution is the principled counterpoint: subshells provide **isolation boundaries** that prevent state leakage between suites and cases.
+BCG prohibits subshells for error handling (see **Subshell Exit vs Brace-Group**). Test execution is the principled counterpoint: subshells provide **isolation boundaries** that prevent state leakage between fixtures and cases.
 
-In bash 3.2, there is no module system, no scope isolation, and no cleanup-on-exit guarantee. When suite A kindles modules and suite B kindles the same modules, the kindle guards (`Z«PREFIX»_KINDLED`) from suite A block suite B. Subshells solve this: all state — kindle guards, sourced functions, variables — dies at the `)` boundary.
+In bash 3.2, there is no module system, no scope isolation, and no cleanup-on-exit guarantee. When fixture A kindles modules and fixture B kindles the same modules, the kindle guards (`Z«PREFIX»_KINDLED`) from fixture A block fixture B. Subshells solve this: all state — kindle guards, sourced functions, variables — dies at the `)` boundary.
 
 This is discipline encoded as structure.
 
@@ -1390,28 +1390,28 @@ Test execution uses three layers separated by two subshell boundaries:
 ```
 Parent Shell (runner layer)
  ├─ _tsuite_init — precondition check (return non-zero to skip)
- ├─ Suite iteration and status tracking
+ ├─ Fixture iteration and status tracking
  └─ Reporting (pass/fail/skip counts)
      │
-     └─ Suite Subshell (_tsuite boundary)
+     └─ Fixture Subshell (_tsuite boundary)
          ├─ _tsuite_setup — kindle, source, configure
-         ├─ Suite temp dir creation
+         ├─ Fixture temp dir creation
          └─ Case iteration
              │
              └─ Case Subshell (_tcase boundary)
                  ├─ Per-case BUT_TEMP_DIR and BUTE_BURV_ROOT
                  ├─ Assertions and verification
-                 └─ Exit status communicated to suite
+                 └─ Exit status communicated to fixture
 ```
 
 ### Vocabulary
 
-**`_tsuite`** — the suite isolation boundary:
+**`_tsuite`** — the fixture isolation boundary:
 - Runs in a subshell (state dies at boundary)
-- Setup runs inside (visible to cases, dies with suite)
+- Setup runs inside (visible to cases, dies with fixture)
 - Init/precondition runs outside (parent decides whether to enter)
 - Communicates only exit status to the runner
-- Kindle guards catch double-kindle within a suite; subshell boundary prevents cross-suite contamination
+- Kindle guards catch double-kindle within a fixture; subshell boundary prevents cross-fixture contamination
 
 **`_tcase`** — the case isolation boundary:
 - Runs in a subshell within the `_tsuite` subshell
@@ -1421,15 +1421,15 @@ Parent Shell (runner layer)
 
 **`_tsuite_init`** — precondition function (parent layer):
 - Runs in parent shell, outside the `_tsuite` boundary
-- Returns 0 to proceed, non-zero to skip suite
-- Must not kindle or source modules — state would persist to next suite
-- Registered as second argument to `butr_suite_enroll`
+- Returns 0 to proceed, non-zero to skip fixture
+- Must not kindle or source modules — state would persist to next fixture
+- Registered as second argument to `butr_fixture_enroll`
 
-**`_tsuite_setup`** — suite initialization function (suite layer):
+**`_tsuite_setup`** — fixture initialization function (fixture layer):
 - Runs inside the `_tsuite` subshell
 - Kindles modules, sources dependencies, sets configuration
-- State visible to all cases within this suite, dies at suite boundary
-- Registered as third argument to `butr_suite_enroll`
+- State visible to all cases within this fixture, dies at fixture boundary
+- Registered as third argument to `butr_fixture_enroll`
 
 ### Allowed Operations by Layer
 
@@ -1449,8 +1449,8 @@ Parent Shell (runner layer)
 
 | Boundary | Crosses | Does Not Cross |
 |----------|---------|----------------|
-| `_tsuite` → parent | Exit status (0=pass, non-zero=fail, 2=skip), stdout/stderr | Variables, kindle state, sourced functions |
-| `_tcase` → `_tsuite` | Exit status (0=pass, non-zero=fail), stdout/stderr | Variable mutations, BURV roots, temp dirs |
+| `_tsuite` (fixture) → parent | Exit status (0=pass, non-zero=fail, 2=skip), stdout/stderr | Variables, kindle state, sourced functions |
+| `_tcase` → `_tsuite` (fixture) | Exit status (0=pass, non-zero=fail), stdout/stderr | Variable mutations, BURV roots, temp dirs |
 
 ### Naming Conventions
 
@@ -1461,7 +1461,8 @@ Parent Shell (runner layer)
 | Init function | `z«tb»_«name»_tsuite_init` | `zrbtb_kick_tsuite_init` |
 | Setup function | `z«tb»_«name»_tsuite_setup` | `zrbtb_kick_tsuite_setup` |
 | Case function | `«tc»_«name»_tcase` | `rbtckk_false_tcase` |
-| Suite enrollment | `butr_suite_enroll` | — |
+| Fixture enrollment | `butr_fixture_enroll` | — |
+| Suite enrollment | `butr_suite_enroll` | Sets sweep suite context |
 | Case enrollment | `butr_case_enroll` | — |
 
 ### Compliance Checking
@@ -1480,7 +1481,7 @@ grep -rn '_tcase' Tools/
 
 # Verify enrollment matches naming — init/setup/case functions should
 # appear both in enrollment calls and as function definitions
-grep -rn 'butr_suite_enroll\|butr_case_enroll' Tools/
+grep -rn 'butr_fixture_enroll\|butr_case_enroll' Tools/
 ```
 
 ---
