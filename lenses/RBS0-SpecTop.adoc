@@ -787,13 +787,15 @@ include::RBSGD-gdc_establish.adoc[]
 // ⟦axl_voices axo_command axe_bash_interactive⟧
 === {rbtgo_rubric_inscribe}
 
-The single rubric lifecycle command: checks pin freshness, generates
+The batch-all-vessels rubric lifecycle command: refreshes pins (rate-limited to 1/day),
+generates all
 {rbtgr_build_json}
-from step scripts and regime pins, verifies committed in main repo, syncs to
-{rbtgr_vessel_dir},
-and creates
+files from step scripts and regime pins, copies all build contexts,
+verifies committed in main repo, syncs all to
+{rbtgr_rubric_repo},
+and ensures all
 {rbtgr_vessel_trigger}
-if it does not exist.
+resources exist.
 
 include::RBSRI-rubric_inscribe.adoc[]
 
@@ -2019,9 +2021,10 @@ Fully-qualified image reference for binfmt Cloud Build step.
 // ⟦axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp⟧
 {rbrr_gcb_pins_refreshed_at}::
 Timestamp recording when builder image pins were last refreshed.
+Written by `rbrr_refresh_gcb_pins` on successful completion.
 {rbtgo_rubric_inscribe}
-checks this value and fails if pins are stale (older than ~2 days),
-ensuring builds use current builder images.
+checks this value and skips pin refresh if less than 1 day old,
+otherwise refreshes automatically before proceeding.
 
 [[rbrr_group_service_accounts]]
 // ⟦axvr_group⟧

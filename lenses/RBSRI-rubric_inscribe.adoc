@@ -1,40 +1,45 @@
 The single
 {rbtgr_rubric}
 lifecycle command.
-Ensures a vessel's build definition is fully set up and synced to its
-{rbtgr_vessel_dir}
-in the
-{rbtgr_rubric_repo}.
+Batch-processes all conjure vessels: refreshes pins, generates all
+{rbtgr_build_json}
+files, copies all build contexts, syncs everything to the
+{rbtgr_rubric_repo},
+and ensures all triggers exist.
 
 // ⟦axs_inputs⟧
 
-. *Vessel directory* — path to the vessel under `rbev-vessels/`
+. *None* — inscribe always processes all conjure vessels in `rbev-vessels/`.
+Non-conjure vessels (no `RBRV_CONJURE_DOCKERFILE` in {rbrv_regime}) are skipped.
 
 // ⟦axs_preconditions⟧
 
 * {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in regime
-* Builder image pins refreshed within freshness window ({rbrr_gcb_pins_refreshed_at})
-* Vessel configuration loaded ({rbrv_regime})
+* {rbra_rubric_repo_url} configured and reachable
+* Vessel configurations loadable ({rbrv_regime})
 
 // ⟦axs_behavior⟧
 
-. *Check Pin Freshness*:
-.. Verify {rbrr_gcb_pins_refreshed_at} is within acceptable window (~2 days)
-.. {rbbc_fatal} if pins are stale — operator must run pin refresh first
+. *Refresh Pins*:
+.. Call `rbrr_refresh_gcb_pins` to resolve builder image tags to current digests
+.. Rate-limited: skip if last successful refresh was less than 1 day ago
+.. `rbrr_refresh_gcb_pins` remains independently callable for manual inspection
 
-. *Generate Rubric JSON*:
-.. Load vessel configuration via existing `zrbf_load_vessel()`
-.. Generate
+. *Generate All Rubric JSON*:
+.. For each conjure vessel in `rbev-vessels/`:
+... Load vessel configuration via existing `zrbf_load_vessel()`
+... Generate
 {rbtgr_build_json}
 from step scripts (`rbgjb/*.sh`) and regime pins
-.. All values baked: GAR coordinates, builder image pins (digest-pinned), vessel identity, platforms, inscribe timestamp
-.. Substitutions block includes `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` as placeholders — filled after {rbtgr_rubric_repo} push (step 5)
-.. All other values deterministic: same inputs produce byte-identical output
+... All values baked: GAR coordinates, builder image pins (digest-pinned), vessel identity, platforms, inscribe timestamp
+... Substitutions block includes `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` as placeholders — filled after {rbtgr_rubric_repo} push (step 4)
+... All other values deterministic: same inputs produce byte-identical output
 
-. *Verify Committed*:
-.. Compare generated JSON against what is committed in main repo
-.. If different: STOP and instruct operator to review diff, commit, and push
-.. On re-run: deterministic generation matches committed copy — proceed
+. *Verify All Committed*:
+.. Compare each generated JSON against its committed copy in main repo
+.. If any differ: STOP and list which vessels have stale committed JSON
+.. Operator reviews diffs, commits, and pushes; re-run proceeds
+.. All-or-nothing: all vessels must match before sync proceeds
 
 . *Fresh Clone and Sync to Rubric Repo*:
 .. Delete local clone at `.rbk/rubric/` if it exists
@@ -42,20 +47,21 @@ from step scripts (`rbgjb/*.sh`) and regime pins
 {rbtgr_rubric_repo}
 using
 {rbra_rubric_repo_url}
-.. Copy
+.. For each conjure vessel:
+... Copy
 {rbtgr_build_json},
 Dockerfile, and build context from main repo to per-vessel directory in clone
-.. Fill `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` in the clone's copy of
+.. Fill `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` in each clone copy of
 {rbtgr_build_json}
 with the actual {rbtgr_rubric_repo} URL and the commit hash after push
-.. Commit and push (fully orchestrated — main repo is the reviewed source of truth)
+.. One commit and push for all vessels (fully orchestrated — main repo is the reviewed source of truth)
 
 NOTE: Always-fresh-clone eliminates stale state.
 The
 {rbtgr_rubric_repo}
 is small (per-vessel directories with Dockerfile + build context + JSON) — shallow clone is sub-second.
 
-. *Create Infrastructure (if needed)*:
+. *Ensure Infrastructure (for each vessel)*:
 .. Create
 {rbtgi_source_link}
 for the {rbtgr_rubric_repo} if it does not exist (via Developer Connect REST API using
@@ -67,18 +73,19 @@ if it does not exist (via Cloud Build REST API)
 
 // ⟦axs_outputs⟧
 
-* {rbtgr_vessel_dir} synced with current build material (including filled {rbtgr_rubric_repo} metadata)
+* All conjure vessel directories synced in {rbtgr_rubric_repo} with current build material (including filled rubric repo metadata)
 * {rbtgi_source_link} binding the connection to the {rbtgr_rubric_repo}
-* {rbtgr_vessel_trigger} pointing to the
+* {rbtgr_vessel_trigger} for each conjure vessel pointing to its
 {rbtgr_build_json}
 in the
-{rbtgr_vessel_dir}
+{rbtgr_rubric_repo}
 
 // ⟦axs_completion⟧
 
 NOTE: Inscribe is idempotent.
-A fresh vessel (no {rbtgr_vessel_dir}, no trigger, no repo link) gets all created.
-An existing vessel gets its JSON synced — infrastructure resources are left in place.
+A fresh vessel (no directory in rubric repo, no trigger) gets all created.
+An existing vessel gets its JSON and build context synced — infrastructure resources are left in place.
+One rubric repo commit covers all vessels at their current pin state.
 Proceed to
 {rbtgo_trigger_build}
-to dispatch a build.
+to dispatch a build for any individual vessel.

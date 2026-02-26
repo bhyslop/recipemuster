@@ -220,7 +220,8 @@ Configures QEMU binary format support for cross-platform builds.
 
 Timestamp recording when builder image pins were last refreshed via `rbrr_refresh_gcb_pins`.
 {rbtgo_rubric_inscribe}
-checks this value and fails if pins are stale (older than ~2 days).
+checks this value and skips pin refresh if less than 1 day old,
+otherwise refreshes automatically before proceeding.
 
 // ⟦axhrgb_group⟧
 {rbrr_group_developer_connect}
