@@ -24,7 +24,7 @@ set -euo pipefail
 # butcev_gate_active_valid_tcase - Gate matches, valid value passes
 
 butcev_gate_active_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Gated Features"
     buv_enum_enroll TEST_MODE "Feature mode" enabled disabled
@@ -40,7 +40,7 @@ butcev_gate_active_valid_tcase() {
 # butcev_gate_active_invalid_tcase - Gate matches, invalid value fails
 
 butcev_gate_active_invalid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Gated Features"
     buv_enum_enroll TEST_MODE "Feature mode" enabled disabled
@@ -56,7 +56,7 @@ butcev_gate_active_invalid_tcase() {
 # butcev_gate_inactive_tcase - Gate doesn't match, bad value still passes (skipped)
 
 butcev_gate_inactive_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Gated Features"
     buv_enum_enroll TEST_MODE "Feature mode" enabled disabled
@@ -72,7 +72,7 @@ butcev_gate_inactive_tcase() {
 # butcev_gate_multi_tcase - Multiple groups, mixed gate states
 
 butcev_gate_multi_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
 
     buv_group_enroll "Core"

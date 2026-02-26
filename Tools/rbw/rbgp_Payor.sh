@@ -60,7 +60,7 @@ zrbgp_kindle() {
   readonly ZRBGP_INFIX_GOV_KEY="gov_key"
   readonly ZRBGP_INFIX_GOV_IAM="gov_iam"
 
-  ZRBGP_KINDLED=1
+  readonly ZRBGP_KINDLED=1
 }
 
 zrbgp_sentinel() {

@@ -43,7 +43,7 @@ zrbcc_kindle() {
   # Kindle constants (depend on runtime state)
   readonly RBCC_KIT_DIR="${BURC_TOOLS_DIR}/rbw"
 
-  ZRBCC_KINDLED=1
+  readonly ZRBCC_KINDLED=1
 }
 
 zrbcc_sentinel() {

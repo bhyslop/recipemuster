@@ -46,7 +46,7 @@ zrbq_kindle() {
   readonly ZRBQ_RBW_DIR="${BURC_TOOLS_DIR}/rbw"
   readonly ZRBQ_RBW_LAUNCHER=".buk/launcher.rbw_workbench.sh"
 
-  ZRBQ_KINDLED=1
+  readonly ZRBQ_KINDLED=1
 }
 
 zrbq_sentinel() {

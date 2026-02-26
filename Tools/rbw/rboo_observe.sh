@@ -48,9 +48,9 @@ zrboo_kindle() {
   readonly ZRBOO_TCPDUMP_OPTS="-U -l -nn -vvv"
 
   # Bridge interface (only for podman, discovered at observe time)
-  ZRBOO_BRIDGE_INTERFACE=""
+  z_rboo_bridge_interface=""
 
-  ZRBOO_KINDLED=1
+  readonly ZRBOO_KINDLED=1
 }
 
 zrboo_sentinel() {
@@ -106,9 +106,9 @@ rboo_observe() {
   # Bridge capture: only for podman (requires podman machine ssh)
   if [[ "${RBRN_RUNTIME}" == "podman" ]]; then
     # Discover bridge interface for enclave network
-    ZRBOO_BRIDGE_INTERFACE=$(${ZRBOB_RUNTIME} network inspect "${ZRBOB_NETWORK}" --format '{{.NetworkInterface}}')
-    buc_info "Starting bridge capture (${ZRBOO_BRIDGE_INTERFACE}) via podman machine ssh"
-    ${ZRBOB_RUNTIME} machine ssh "sudo -n tcpdump ${ZRBOO_TCPDUMP_OPTS} -i ${ZRBOO_BRIDGE_INTERFACE}" 2>&1 | zrboo_prefix_bridge &
+    z_rboo_bridge_interface=$(${ZRBOB_RUNTIME} network inspect "${ZRBOB_NETWORK}" --format '{{.NetworkInterface}}')
+    buc_info "Starting bridge capture (${z_rboo_bridge_interface}) via podman machine ssh"
+    ${ZRBOB_RUNTIME} machine ssh "sudo -n tcpdump ${ZRBOO_TCPDUMP_OPTS} -i ${z_rboo_bridge_interface}" 2>&1 | zrboo_prefix_bridge &
   else
     buc_info "Bridge capture not available for Docker runtime (requires podman machine ssh)"
   fi

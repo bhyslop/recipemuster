@@ -51,7 +51,7 @@ zrbga_kindle() {
   readonly ZRBGA_INFIX_REPO_IAM_GET="repo_iam_get"
   readonly ZRBGA_INFIX_REPO_IAM_SET="repo_iam_set"
 
-  ZRBGA_KINDLED=1
+  readonly ZRBGA_KINDLED=1
 }
 
 zrbga_sentinel() {

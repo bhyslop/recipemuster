@@ -44,7 +44,7 @@ zrbap_kindle() {
   readonly ZRBAP_CRM_CODE_FILE="${BURD_TEMP_DIR}/rbap_crm_code.txt"
   readonly ZRBAP_CRM_STDERR_FILE="${BURD_TEMP_DIR}/rbap_crm_stderr.txt"
 
-  ZRBAP_KINDLED=1
+  readonly ZRBAP_KINDLED=1
 }
 
 zrbap_sentinel() {

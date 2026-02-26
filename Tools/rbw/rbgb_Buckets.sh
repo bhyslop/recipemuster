@@ -53,7 +53,7 @@ zrbgb_kindle() {
   readonly ZRBGB_INFIX_IAM_SET="bucket_iam_set"
   readonly ZRBGB_INFIX_LIFECYCLE_SET="bucket_lifecycle_set"
 
-  ZRBGB_KINDLED=1
+  readonly ZRBGB_KINDLED=1
 }
 
 zrbgb_sentinel() {

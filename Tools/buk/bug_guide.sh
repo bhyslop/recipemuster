@@ -68,7 +68,7 @@ zbug_kindle() {
     readonly ZBUG_S=""
   fi
 
-  ZBUG_KINDLED=1
+  readonly ZBUG_KINDLED=1
 }
 
 zbug_sentinel() {

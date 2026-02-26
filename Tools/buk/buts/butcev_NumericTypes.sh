@@ -24,7 +24,7 @@ set -euo pipefail
 # butcev_decimal_valid_tcase - Decimal enrollment within range
 
 butcev_decimal_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Numerics"
     buv_decimal_enroll TEST_COUNT 1 100 "Item count"
@@ -46,7 +46,7 @@ butcev_decimal_valid_tcase() {
 # butcev_decimal_below_tcase - Decimal below minimum fails
 
 butcev_decimal_below_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Numerics"
     buv_decimal_enroll TEST_COUNT 1 100 "Item count"
@@ -59,7 +59,7 @@ butcev_decimal_below_tcase() {
 # butcev_decimal_above_tcase - Decimal above maximum fails
 
 butcev_decimal_above_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Numerics"
     buv_decimal_enroll TEST_COUNT 1 100 "Item count"
@@ -72,7 +72,7 @@ butcev_decimal_above_tcase() {
 # butcev_decimal_empty_tcase - Decimal empty value fails
 
 butcev_decimal_empty_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Numerics"
     buv_decimal_enroll TEST_COUNT 1 100 "Item count"
@@ -85,7 +85,7 @@ butcev_decimal_empty_tcase() {
 # butcev_ipv4_valid_tcase - IPv4 enrollment with valid address
 
 butcev_ipv4_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Network"
     buv_ipv4_enroll TEST_ADDR "Server address"
@@ -98,7 +98,7 @@ butcev_ipv4_valid_tcase() {
 # butcev_ipv4_invalid_tcase - IPv4 enrollment with invalid address
 
 butcev_ipv4_invalid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Network"
     buv_ipv4_enroll TEST_ADDR "Server address"
@@ -116,7 +116,7 @@ butcev_ipv4_invalid_tcase() {
 # butcev_port_valid_tcase - Port enrollment with valid values
 
 butcev_port_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Network"
     buv_port_enroll TEST_PORT "Service port"
@@ -138,7 +138,7 @@ butcev_port_valid_tcase() {
 # butcev_port_invalid_tcase - Port enrollment with invalid values
 
 butcev_port_invalid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Network"
     buv_port_enroll TEST_PORT "Service port"

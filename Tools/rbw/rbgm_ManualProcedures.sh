@@ -83,7 +83,7 @@ zrbgm_kindle() {
   readonly ZRBGM_REPO_ROLE_RESPONSE="${ZRBGM_PREFIX}repo_role_response.json"
   readonly ZRBGM_REPO_ROLE_CODE="${ZRBGM_PREFIX}repo_role_code.txt"
 
-  ZRBGM_KINDLED=1
+  readonly ZRBGM_KINDLED=1
 }
 
 zrbgm_sentinel() {

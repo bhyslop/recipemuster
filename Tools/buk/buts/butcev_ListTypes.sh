@@ -24,7 +24,7 @@ set -euo pipefail
 # butcev_list_string_valid_tcase - List string with valid items
 
 butcev_list_string_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Lists"
     buv_list_string_enroll TEST_TAGS 2 10 "Tags"
@@ -37,7 +37,7 @@ butcev_list_string_valid_tcase() {
 # butcev_list_string_empty_tcase - Empty list passes (no items to validate)
 
 butcev_list_string_empty_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Lists"
     buv_list_string_enroll TEST_TAGS 2 10 "Tags"
@@ -50,7 +50,7 @@ butcev_list_string_empty_tcase() {
 # butcev_list_string_bad_item_tcase - List with item too short fails
 
 butcev_list_string_bad_item_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Lists"
     buv_list_string_enroll TEST_TAGS 3 10 "Tags"
@@ -68,7 +68,7 @@ butcev_list_string_bad_item_tcase() {
 # butcev_list_ipv4_valid_tcase - List IPv4 with valid addresses
 
 butcev_list_ipv4_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Lists"
     buv_list_ipv4_enroll TEST_SERVERS "Server addresses"
@@ -81,7 +81,7 @@ butcev_list_ipv4_valid_tcase() {
 # butcev_list_ipv4_invalid_tcase - List IPv4 with bad address fails
 
 butcev_list_ipv4_invalid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Lists"
     buv_list_ipv4_enroll TEST_SERVERS "Server addresses"
@@ -94,7 +94,7 @@ butcev_list_ipv4_invalid_tcase() {
 # butcev_list_ipv4_empty_tcase - Empty IPv4 list passes
 
 butcev_list_ipv4_empty_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Lists"
     buv_list_ipv4_enroll TEST_SERVERS "Server addresses"
@@ -107,7 +107,7 @@ butcev_list_ipv4_empty_tcase() {
 # butcev_list_gname_valid_tcase - List gname with valid names
 
 butcev_list_gname_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Lists"
     buv_list_gname_enroll TEST_PROJECTS 3 20 "Project IDs"
@@ -120,7 +120,7 @@ butcev_list_gname_valid_tcase() {
 # butcev_list_gname_invalid_tcase - List gname with bad name fails
 
 butcev_list_gname_invalid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Lists"
     buv_list_gname_enroll TEST_PROJECTS 3 20 "Project IDs"

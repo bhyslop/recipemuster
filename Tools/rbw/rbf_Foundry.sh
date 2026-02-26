@@ -126,7 +126,7 @@ zrbf_kindle() {
   buc_log_args 'For now lets double check these'
   test -n "${RBRR_GCB_ORAS_IMAGE_REF:-}"   || buc_die "RBRR_GCB_ORAS_IMAGE_REF not set"
 
-  ZRBF_KINDLED=1
+  readonly ZRBF_KINDLED=1
 }
 
 zrbf_sentinel() {

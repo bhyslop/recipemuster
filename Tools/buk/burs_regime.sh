@@ -43,7 +43,7 @@ zburs_kindle() {
   # Guard against unexpected BURS_ variables not in enrollment
   buv_scope_sentinel BURS BURS_
 
-  ZBURS_KINDLED=1
+  readonly ZBURS_KINDLED=1
 }
 
 zburs_sentinel() {

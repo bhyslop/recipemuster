@@ -39,7 +39,7 @@ zvof_kindle() {
   test -n "${BURC_MANAGED_KITS:-}" || buc_die "BURC_MANAGED_KITS is unset"
 
   # Public exports - VOK is special (integrator crate, gets features)
-  VOF_VOK_MANIFEST="${BURC_TOOLS_DIR}/vok/Cargo.toml"
+  readonly VOF_VOK_MANIFEST="${BURC_TOOLS_DIR}/vok/Cargo.toml"
   VOF_VOK_FEATURES=""
 
   # Other test manifests - space-separated list of Cargo.toml paths (no features)
@@ -56,8 +56,10 @@ zvof_kindle() {
       VOF_TEST_MANIFESTS="${VOF_TEST_MANIFESTS} ${z_manifest}"
     fi
   done
+  readonly VOF_VOK_FEATURES
+  readonly VOF_TEST_MANIFESTS
 
-  ZVOF_KINDLED=1
+  readonly ZVOF_KINDLED=1
 }
 
 zvof_sentinel() {

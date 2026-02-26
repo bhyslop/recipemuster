@@ -53,7 +53,7 @@ zrbgo_kindle() {
   readonly ZRBGO_CURL_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_curl_stderr.txt"
   readonly ZRBGO_JQ_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_jq_stderr.txt"
 
-  ZRBGO_KINDLED=1
+  readonly ZRBGO_KINDLED=1
 }
 
 zrbgo_sentinel() {

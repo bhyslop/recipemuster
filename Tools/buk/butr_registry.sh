@@ -48,7 +48,7 @@ butr_kindle() {
   z_butr_case_suites_roll=()
   z_butr_known_suites=()
 
-  ZBUTR_KINDLED=1
+  readonly ZBUTR_KINDLED=1
 }
 
 ######################################################################

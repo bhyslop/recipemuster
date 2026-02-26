@@ -45,12 +45,12 @@ zbupr_kindle() {
   fi
 
 
-  # Section state
-  ZBUPR_SECTION_ACTIVE=1
-  ZBUPR_SECTION_GATE_DESC=""
-  ZBUPR_SECTION_SUPPRESSED=()
+  # Mutable kindle state: section render tracking
+  z_bupr_section_active=1
+  z_bupr_section_gate_desc=""
+  z_bupr_section_suppressed=()
 
-  ZBUPR_KINDLED=1
+  readonly ZBUPR_KINDLED=1
 }
 
 zbupr_sentinel() {
@@ -72,22 +72,22 @@ bupr_section_begin() {
   local z_gate_var=${2:-}
   local z_gate_value=${3:-}
 
-  ZBUPR_SECTION_SUPPRESSED=()
-  ZBUPR_SECTION_GATE_DESC=""
+  z_bupr_section_suppressed=()
+  z_bupr_section_gate_desc=""
 
   if test -n "${z_gate_var}"; then
     local z_actual=${!z_gate_var:-}
     if test "${z_actual}" = "${z_gate_value}"; then
-      ZBUPR_SECTION_ACTIVE=1
+      z_bupr_section_active=1
     else
-      ZBUPR_SECTION_ACTIVE=0
-      ZBUPR_SECTION_GATE_DESC="${z_gate_var}=${z_actual}"
+      z_bupr_section_active=0
+      z_bupr_section_gate_desc="${z_gate_var}=${z_actual}"
     fi
   else
-    ZBUPR_SECTION_ACTIVE=1
+    z_bupr_section_active=1
   fi
 
-  if test "${ZBUPR_SECTION_ACTIVE}" = 1; then
+  if test "${z_bupr_section_active}" = 1; then
     if test -n "${z_gate_var}"; then
       printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_GREEN}(since %s=%s)${ZBUC_RESET}\n" \
         "${z_title}" "${z_gate_var}" "${z_gate_value}"
@@ -95,7 +95,7 @@ bupr_section_begin() {
       printf "${ZBUC_YELLOW}%s${ZBUC_RESET}\n" "${z_title}"
     fi
   else
-    printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_GREEN}(%s)${ZBUC_RESET}\n" "${z_title}" "${ZBUPR_SECTION_GATE_DESC}"
+    printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_GREEN}(%s)${ZBUC_RESET}\n" "${z_title}" "${z_bupr_section_gate_desc}"
   fi
 }
 
@@ -104,9 +104,9 @@ bupr_section_begin() {
 # End a render section.  Resets section state for next section.
 bupr_section_end() {
   zbupr_sentinel
-  ZBUPR_SECTION_ACTIVE=1
-  ZBUPR_SECTION_GATE_DESC=""
-  ZBUPR_SECTION_SUPPRESSED=()
+  z_bupr_section_active=1
+  z_bupr_section_gate_desc=""
+  z_bupr_section_suppressed=()
 }
 
 # bupr_item VARNAME TYPE REQ_STATUS DESCRIPTION
@@ -132,8 +132,8 @@ bupr_section_item() {
   zbupr_sentinel
 
   # Collapsed section — track and skip
-  if test "${ZBUPR_SECTION_ACTIVE}" = 0; then
-    ZBUPR_SECTION_SUPPRESSED+=("$1")
+  if test "${z_bupr_section_active}" = 0; then
+    z_bupr_section_suppressed+=("$1")
     return 0
   fi
 

@@ -37,7 +37,7 @@ zbuz_kindle() {
   z_buz_tabtarget_roll=()
   z_buz_channel_roll=()
 
-  ZBUZ_KINDLED=1
+  readonly ZBUZ_KINDLED=1
 }
 
 ######################################################################

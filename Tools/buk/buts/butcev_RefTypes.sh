@@ -29,7 +29,7 @@ ZBUTCEV_VALID_DIGEST="sha256:abcdef0123456789abcdef0123456789abcdef0123456789abc
 # butcev_odref_valid_tcase - OCI digest-pinned ref with valid values
 
 butcev_odref_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "References"
     buv_odref_enroll TEST_IMAGE "Container image"
@@ -51,7 +51,7 @@ butcev_odref_valid_tcase() {
 # butcev_odref_no_digest_tcase - OCI ref without digest fails
 
 butcev_odref_no_digest_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "References"
     buv_odref_enroll TEST_IMAGE "Container image"
@@ -65,7 +65,7 @@ butcev_odref_no_digest_tcase() {
 # butcev_odref_malformed_tcase - OCI ref with malformed digest fails
 
 butcev_odref_malformed_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "References"
     buv_odref_enroll TEST_IMAGE "Container image"
@@ -87,7 +87,7 @@ butcev_odref_malformed_tcase() {
 # butcev_odref_empty_tcase - OCI ref empty fails
 
 butcev_odref_empty_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "References"
     buv_odref_enroll TEST_IMAGE "Container image"

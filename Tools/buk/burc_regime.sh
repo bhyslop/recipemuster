@@ -33,7 +33,7 @@ zburc_kindle() {
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
   # Exception: BURC_BUK_DIR is derived from BURC_TOOLS_DIR at kindle time (before vet).
-  BURC_BUK_DIR="${BURC_TOOLS_DIR:-}/buk"
+  readonly BURC_BUK_DIR="${BURC_TOOLS_DIR:-}/buk"
 
   # Enroll all BURC variables — single source of truth for validation and rendering
 
@@ -68,7 +68,7 @@ zburc_kindle() {
   export BURC_TOOLS_DIR
   export BURC_BUK_DIR
 
-  ZBURC_KINDLED=1
+  readonly ZBURC_KINDLED=1
 }
 
 zburc_sentinel() {

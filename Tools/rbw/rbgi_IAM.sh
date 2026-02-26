@@ -68,7 +68,7 @@ zrbgi_kindle() {
 
   readonly ZRBGI_POSTFIX_JSON="_i_resp.json"
 
-  ZRBGI_KINDLED=1
+  readonly ZRBGI_KINDLED=1
 }
 
 zrbgi_sentinel() {

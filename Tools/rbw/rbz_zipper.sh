@@ -144,7 +144,7 @@ zrbz_kindle() {
   buz_enroll RBZ_TEST_REGIME_CREDENTIALS "rbw-trc" "${z_mod}" "rbw-trc"
   buz_enroll RBZ_TEST_SWEEP              "rbw-tw"  "${z_mod}" "rbw-tw"
 
-  ZRBZ_KINDLED=1
+  readonly ZRBZ_KINDLED=1
 }
 
 ######################################################################

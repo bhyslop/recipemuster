@@ -50,7 +50,7 @@ zrbgu_kindle() {
   test -n "${RBGC_EVENTUAL_CONSISTENCY_SEC:-}" || buc_die "RBGC_EVENTUAL_CONSISTENCY_SEC unset"
   test -n "${RBGC_MAX_CONSISTENCY_SEC:-}"      || buc_die "RBGC_MAX_CONSISTENCY_SEC unset"
 
-  ZRBGU_KINDLED=1
+  readonly ZRBGU_KINDLED=1
 }
 
 zrbgu_sentinel() {

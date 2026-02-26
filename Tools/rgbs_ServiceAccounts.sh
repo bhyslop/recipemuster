@@ -38,19 +38,19 @@ zrgbs_kindle() {
   zrbgo_sentinel
   zrbgu_sentinel
 
-  ZRGBS_PREFIX="${BURD_TEMP_DIR}/rgbs_"
-  ZRGBS_EMPTY_JSON="${ZRGBS_PREFIX}empty.json"
+  readonly ZRGBS_PREFIX="${BURD_TEMP_DIR}/rgbs_"
+  readonly ZRGBS_EMPTY_JSON="${ZRGBS_PREFIX}empty.json"
   printf '{}' > "${ZRGBS_EMPTY_JSON}"
 
   # Infix values for HTTP operations
-  ZRGBS_INFIX_CREATE="create"
-  ZRGBS_INFIX_VERIFY="verify"
-  ZRGBS_INFIX_KEY="key"
-  ZRGBS_INFIX_LIST="list"
-  ZRGBS_INFIX_LIST_KEYS="list_keys"
-  ZRGBS_INFIX_DELETE="delete"
+  readonly ZRGBS_INFIX_CREATE="create"
+  readonly ZRGBS_INFIX_VERIFY="verify"
+  readonly ZRGBS_INFIX_KEY="key"
+  readonly ZRGBS_INFIX_LIST="list"
+  readonly ZRGBS_INFIX_LIST_KEYS="list_keys"
+  readonly ZRGBS_INFIX_DELETE="delete"
 
-  ZRGBS_KINDLED=1
+  readonly ZRGBS_KINDLED=1
 }
 
 zrgbs_sentinel() {

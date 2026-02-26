@@ -84,7 +84,7 @@ zburd_kindle() {
   # Guard against unexpected BURD_ variables not in enrollment
   buv_scope_sentinel BURD BURD_
 
-  ZBURD_KINDLED=1
+  readonly ZBURD_KINDLED=1
 }
 
 zburd_sentinel() {

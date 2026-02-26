@@ -40,7 +40,7 @@ zbuut_kindle() {
   test -n "${BURC_TABTARGET_DIR:-}" || buc_die "BURC_TABTARGET_DIR is unset"
   test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR is unset"
 
-  ZBUUT_KINDLED=1
+  readonly ZBUUT_KINDLED=1
 }
 
 zbuut_sentinel() {

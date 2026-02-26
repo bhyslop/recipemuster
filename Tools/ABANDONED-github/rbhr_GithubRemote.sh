@@ -29,7 +29,7 @@ zrbhr_kindle() {
   ZRBHR_DELETE_RESULT_FILE="${BURD_TEMP_DIR}/rbhr_delete_result.txt"
   ZRBHR_HTTP_CODE_FILE="${BURD_TEMP_DIR}/rbhr_delete_http_code.txt"
 
-  ZRBHR_KINDLED=1
+  readonly ZRBHR_KINDLED=1
 }
 
 zrbhr_sentinel() {

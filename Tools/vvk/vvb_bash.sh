@@ -51,19 +51,20 @@ zvvb_kindle() {
   test -z "${ZVVB_KINDLED:-}" || buc_die "Module vvb already kindled"
 
   # Locate VVK directory (parent of this script)
-  ZVVB_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
+  readonly ZVVB_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
   # Public export - binary directory (may not exist until first build)
-  VVB_BIN_DIR="${ZVVB_SCRIPT_DIR}/bin"
+  readonly VVB_BIN_DIR="${ZVVB_SCRIPT_DIR}/bin"
 
   # Public export - platform identifier (use capture function)
   VVB_PLATFORM=""
   VVB_PLATFORM=$(zvvb_platform_capture) || buc_die "Failed to detect platform"
+  readonly VVB_PLATFORM
 
   # Public export - full path to platform-specific VVX binary
-  VVB_VVX_BINARY="${VVB_BIN_DIR}/vvx-${VVB_PLATFORM}"
+  readonly VVB_VVX_BINARY="${VVB_BIN_DIR}/vvx-${VVB_PLATFORM}"
 
-  ZVVB_KINDLED=1
+  readonly ZVVB_KINDLED=1
 }
 
 zvvb_sentinel() {

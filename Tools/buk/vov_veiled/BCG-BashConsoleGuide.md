@@ -110,11 +110,13 @@ Enrollment types and gating API: see `buv_validation.sh`.
 | Module header        | Implementation | `test -z "${Z«PREFIX»_SOURCED:-}" \|\| buc_die`    | No                | N/A               | Prevent multiple inclusion                       |
 | CLI header           | CLI            | `set -euo pipefail`                                | Yes (buc_command)  | N/A               | Source buc_command.sh only                       |
 
-**Kindle constant**: Any variable — internal (`Z«PREFIX»_SCREAMING_NAME`) or public (`«PREFIX»_SCREAMING_NAME`) — defined exclusively within the kindle function. No other function — including enroll, setup, or helper functions — may assign to kindle constants. This ensures module state is fully determined at kindle time and visible in one place.
+**Kindle constant**: Any variable — internal (`Z«PREFIX»_SCREAMING_NAME`) or public (`«PREFIX»_SCREAMING_NAME`) — defined exclusively within the kindle function with `readonly`. No other function — including enroll, setup, or helper functions — may assign to kindle constants. This ensures module state is fully determined at kindle time and visible in one place.
+
+**Mutable kindle state**: A variable initialized in kindle but intentionally mutated after kindle returns (counters, accumulators, registry rolls, builder state). Uses **lowercase** `z_«prefix»_name` to visually distinguish from `readonly` kindle constants. Never apply `readonly` to mutable kindle state.
 
 **Literal constant**: A public variable (`«PREFIX»_lower_name`) defined at module top level, immediately after the `Z«PREFIX»_SOURCED=1` guard. Literal constants must be pure string literals with **no variable expansion, no computation, and no runtime dependency**. They are available immediately after sourcing — no kindle required. Use `SCREAMING` case for the prefix (module identity) and `lower_snake` case for the name to visually distinguish from kindle constants. This enables sourcing chains where a literal constant from module A provides the path for sourcing module B's config in the furnish function.
 
-**KINDLED must be last**: `Z«PREFIX»_KINDLED=1` must be the final statement in kindle. Since sentinel checks this variable, setting it last guarantees all kindle constants, roll arrays, and enroll calls are complete before the module is considered operational. Any function calling sentinel before kindle finishes will correctly fail.
+**KINDLED must be last**: `readonly Z«PREFIX»_KINDLED=1` must be the final statement in kindle. Since sentinel checks this variable, setting it last guarantees all kindle constants, roll arrays, and enroll calls are complete before the module is considered operational. Any function calling sentinel before kindle finishes will correctly fail. The `readonly` makes re-kindling a loud error.
 
 ### Regular Functions (output via printouts/temp files)
 
@@ -564,11 +566,53 @@ z«prefix»_kindle() {
   # Composed from prior kindle assignments
   readonly Z«PREFIX»_ACCEPT_TYPES="${Z«PREFIX»_TYPE_A},${Z«PREFIX»_TYPE_B}"
 
-  Z«PREFIX»_KINDLED=1
+  readonly Z«PREFIX»_KINDLED=1
 }
 ```
 
 If a kindle function uses intermediate variables to build up a result (e.g., composing array elements), the final assignment is still `readonly`. Intermediates that are truly local to the build-up should use `local -r`.
+
+**The KINDLED sentinel** is a kindle constant — it gets `readonly` like every other kindle assignment. The `test -z` guard at the top of kindle fires before any reassignment attempt, so `readonly` is belt-and-suspenders: the guard gives a friendly error message, `readonly` is the backstop.
+
+#### Mutable Kindle State
+
+Some kindle functions initialize mutable state alongside constants — counters, accumulators, registry rolls, and builder state that are modified after kindle returns. These variables **must not** be `readonly`, but they must be visually distinguishable from kindle constants.
+
+**Convention**: Mutable kindle state uses **lowercase** `z_«prefix»_name`. Constants use **UPPERCASE** `readonly Z«PREFIX»_NAME`. Case alone signals mutability.
+
+```bash
+z«prefix»_kindle() {
+  test -z "${Z«PREFIX»_KINDLED:-}" || buc_die "Module «prefix» already kindled"
+
+  # ✅ Kindle constants — UPPERCASE, readonly
+  readonly Z«PREFIX»_TEMP_PREFIX="${BURD_TEMP_DIR}/«prefix»_"
+
+  # ✅ Mutable kindle state — lowercase, NO readonly
+  z_«prefix»_file_index=0              # counter incremented post-kindle
+  z_«prefix»_name_roll=()              # registry populated by enroll calls
+  z_«prefix»_current_scope=""           # builder state set during enrollment
+
+  readonly Z«PREFIX»_KINDLED=1
+}
+```
+
+**Rules**:
+- Mutable kindle state follows the same `z_` internal prefix as roll arrays
+- Never apply `readonly` to mutable kindle state
+- If a variable is initialized in kindle and never mutated afterward, it is a constant — use `readonly Z«PREFIX»_NAME`
+- The `_roll` suffix is conventional for parallel-array registries but not required for all mutable state (counters, flags, builder state use descriptive names)
+
+**Test reset**: When tests need fresh enrollment state, provide an internal reset function that clears mutable kindle state without touching `KINDLED`. Re-kindling a module is never correct — the sentinel is `readonly`.
+
+```bash
+# ✅ Test support: reset mutable state, module stays kindled
+z«prefix»_reset_enrollment() {
+  z«prefix»_sentinel
+  z_«prefix»_name_roll=()
+  z_«prefix»_current_scope=""
+  # ... clear all mutable kindle state ...
+}
+```
 
 **The re-source trap** — `readonly` belongs in code, never in sourceable `.env` files:
 ```bash
@@ -1274,13 +1318,14 @@ buc_warn    # Instead of echo >&2
 - [ ] All internal helpers prefixed with `z«prefix»_`
 
 ### Variable Management
-- [ ] All kindle constants (internal `Z«PREFIX»_SCREAMING` and public `«PREFIX»_SCREAMING`) defined exclusively in kindle
+- [ ] All kindle constants (internal `Z«PREFIX»_SCREAMING` and public `«PREFIX»_SCREAMING`) defined exclusively in kindle with `readonly`
 - [ ] No kindle constant assignments outside kindle function
+- [ ] Mutable kindle state (counters, rolls, builder state) uses lowercase `z_«prefix»_name` — no `readonly`
 - [ ] Literal constants (`«PREFIX»_lower_name`) are pure string literals with no `${}` expansion, placed after `SOURCED` guard
 - [ ] All local variables use `z_` prefix
 - [ ] All expansions use `"${var}"` pattern (braced, quoted)
 - [ ] Parameters use `"${1:-}"` pattern for defensive programming
-- [ ] Module state variable `Z«PREFIX»_KINDLED=1` is the last statement in kindle
+- [ ] Module state variable `readonly Z«PREFIX»_KINDLED=1` is the last statement in kindle
 - [ ] No bare `$var` or unbraced `"$var"` expansions
 - [ ] No `local -i` — use plain local with explicit validation
 - [ ] No raw `eval` for value assignment — use `printf -v` after name validation; `${!name}` for reading

@@ -88,7 +88,7 @@ zrbgg_kindle() {
   readonly ZRBGG_INFIX_PROJECT_STATE="project_state"
   readonly ZRBGG_INFIX_PROJECT_RESTORE="project_restore"
 
-  ZRBGG_KINDLED=1
+  readonly ZRBGG_KINDLED=1
 }
 
 zrbgg_sentinel() {

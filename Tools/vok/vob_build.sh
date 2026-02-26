@@ -42,14 +42,14 @@ zvob_kindle() {
   test -n "${BURC_MANAGED_KITS:-}" || buc_die "BURC_MANAGED_KITS is unset"
 
   # Paths (VVB_BIN_DIR and VVB_PLATFORM come from vvb_bash.sh)
-  ZVOB_CARGO_DIR="${BURC_TOOLS_DIR}/vok"
-  ZVOB_TARGET_BINARY="${ZVOB_CARGO_DIR}/target/release/vvr"
-  ZVOB_RELEASE_DIR="${ZVOB_CARGO_DIR}/release"
-  ZVOB_LEDGER_FILE="${ZVOB_CARGO_DIR}/vol_ledger.json"
+  readonly ZVOB_CARGO_DIR="${BURC_TOOLS_DIR}/vok"
+  readonly ZVOB_TARGET_BINARY="${ZVOB_CARGO_DIR}/target/release/vvr"
+  readonly ZVOB_RELEASE_DIR="${ZVOB_CARGO_DIR}/release"
+  readonly ZVOB_LEDGER_FILE="${ZVOB_CARGO_DIR}/vol_ledger.json"
 
-  ZVOB_RELEASE_BINARY="${ZVOB_RELEASE_DIR}/${VVB_PLATFORM}/vvr"
+  readonly ZVOB_RELEASE_BINARY="${ZVOB_RELEASE_DIR}/${VVB_PLATFORM}/vvr"
 
-  ZVOB_KINDLED=1
+  readonly ZVOB_KINDLED=1
 }
 
 zvob_sentinel() {

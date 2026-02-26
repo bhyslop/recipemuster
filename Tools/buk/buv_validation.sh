@@ -74,18 +74,47 @@ zbuv_kindle() {
   z_buv_grp_gate_var_roll=()
   z_buv_grp_gate_val_roll=()
 
-  # Regime context state (set by buv_regime_enroll / buv_group_enroll / buv_gate_enroll)
-  ZBUV_CURRENT_SCOPE=""
-  ZBUV_CURRENT_GROUP=""
-  ZBUV_CURRENT_GROUP_IDX=-1
-  ZBUV_CURRENT_GATE_VAR=""
-  ZBUV_CURRENT_GATE_VAL=""
+  # Mutable kindle state: regime context (set by buv_regime_enroll / buv_group_enroll / buv_gate_enroll)
+  z_buv_current_scope=""
+  z_buv_current_group=""
+  z_buv_current_group_idx=-1
+  z_buv_current_gate_var=""
+  z_buv_current_gate_val=""
 
-  ZBUV_KINDLED=1
+  readonly ZBUV_KINDLED=1
 }
 
 zbuv_sentinel() {
   test "${ZBUV_KINDLED:-}" = "1" || buc_die "Module buv not kindled - call zbuv_kindle first"
+}
+
+# Test support: reset enrollment state without re-kindling
+zbuv_reset_enrollment() {
+  zbuv_sentinel
+
+  # Clear enrollment rolls
+  z_buv_scope_roll=()
+  z_buv_varname_roll=()
+  z_buv_type_roll=()
+  z_buv_gate_var_roll=()
+  z_buv_gate_val_roll=()
+  z_buv_p1_roll=()
+  z_buv_p2_roll=()
+  z_buv_group_roll=()
+  z_buv_desc_roll=()
+
+  # Clear group registry rolls
+  z_buv_grp_scope_roll=()
+  z_buv_grp_title_roll=()
+  z_buv_grp_gate_var_roll=()
+  z_buv_grp_gate_val_roll=()
+
+  # Reset regime context state
+  z_buv_current_scope=""
+  z_buv_current_group=""
+  z_buv_current_group_idx=-1
+  z_buv_current_gate_var=""
+  z_buv_current_gate_val=""
 }
 
 # Regime context setters — called during kindle to establish enrollment scope
@@ -98,11 +127,11 @@ buv_regime_enroll() {
 
   local z_scope="${1:-}"
   test -n "${z_scope}" || buc_die "buv_regime_enroll: scope required"
-  ZBUV_CURRENT_SCOPE="${z_scope}"
-  ZBUV_CURRENT_GROUP=""
-  ZBUV_CURRENT_GROUP_IDX=-1
-  ZBUV_CURRENT_GATE_VAR=""
-  ZBUV_CURRENT_GATE_VAL=""
+  z_buv_current_scope="${z_scope}"
+  z_buv_current_group=""
+  z_buv_current_group_idx=-1
+  z_buv_current_gate_var=""
+  z_buv_current_gate_val=""
 }
 
 # buv_group_enroll TITLE — set current group context
@@ -112,20 +141,20 @@ buv_regime_enroll() {
 buv_group_enroll() {
   zbuv_sentinel
 
-  test -n "${ZBUV_CURRENT_SCOPE}" || buc_die "buv_group_enroll: call buv_regime_enroll first"
+  test -n "${z_buv_current_scope}" || buc_die "buv_group_enroll: call buv_regime_enroll first"
 
   local z_title="${1:-}"
   test -n "${z_title}" || buc_die "buv_group_enroll: title required"
 
-  z_buv_grp_scope_roll+=("${ZBUV_CURRENT_SCOPE}")
+  z_buv_grp_scope_roll+=("${z_buv_current_scope}")
   z_buv_grp_title_roll+=("${z_title}")
   z_buv_grp_gate_var_roll+=("")
   z_buv_grp_gate_val_roll+=("")
 
-  ZBUV_CURRENT_GROUP="${z_title}"
-  ZBUV_CURRENT_GROUP_IDX=$(( ${#z_buv_grp_scope_roll[@]} - 1 ))
-  ZBUV_CURRENT_GATE_VAR=""
-  ZBUV_CURRENT_GATE_VAL=""
+  z_buv_current_group="${z_title}"
+  z_buv_current_group_idx=$(( ${#z_buv_grp_scope_roll[@]} - 1 ))
+  z_buv_current_gate_var=""
+  z_buv_current_gate_val=""
 }
 
 # buv_gate_enroll GATE_VAR GATE_VAL — set gate context within current group
@@ -134,18 +163,18 @@ buv_group_enroll() {
 buv_gate_enroll() {
   zbuv_sentinel
 
-  test -n "${ZBUV_CURRENT_GROUP}" || buc_die "buv_gate_enroll: call buv_group_enroll first"
+  test -n "${z_buv_current_group}" || buc_die "buv_gate_enroll: call buv_group_enroll first"
 
   local z_gate_var="${1:-}"
   local z_gate_val="${2:-}"
   test -n "${z_gate_var}" || buc_die "buv_gate_enroll: gate variable required"
   test -n "${z_gate_val}" || buc_die "buv_gate_enroll: gate value required"
 
-  ZBUV_CURRENT_GATE_VAR="${z_gate_var}"
-  ZBUV_CURRENT_GATE_VAL="${z_gate_val}"
+  z_buv_current_gate_var="${z_gate_var}"
+  z_buv_current_gate_val="${z_gate_val}"
 
-  z_buv_grp_gate_var_roll[$ZBUV_CURRENT_GROUP_IDX]="${z_gate_var}"
-  z_buv_grp_gate_val_roll[$ZBUV_CURRENT_GROUP_IDX]="${z_gate_val}"
+  z_buv_grp_gate_var_roll[$z_buv_current_group_idx]="${z_gate_var}"
+  z_buv_grp_gate_val_roll[$z_buv_current_group_idx]="${z_gate_val}"
 }
 
 # Internal enrollment helper — all public enroll functions delegate here
@@ -160,17 +189,17 @@ zbuv_enroll() {
   local z_p2="${4:-}"
   local z_desc="${5:-}"
 
-  test -n "${ZBUV_CURRENT_SCOPE}" || buc_die "zbuv_enroll: call buv_regime_enroll first"
+  test -n "${z_buv_current_scope}" || buc_die "zbuv_enroll: call buv_regime_enroll first"
   echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' || buc_die "zbuv_enroll: invalid variable name: '${z_varname}'"
 
-  z_buv_scope_roll+=("${ZBUV_CURRENT_SCOPE}")
+  z_buv_scope_roll+=("${z_buv_current_scope}")
   z_buv_varname_roll+=("${z_varname}")
   z_buv_type_roll+=("${z_type}")
-  z_buv_gate_var_roll+=("${ZBUV_CURRENT_GATE_VAR}")
-  z_buv_gate_val_roll+=("${ZBUV_CURRENT_GATE_VAL}")
+  z_buv_gate_var_roll+=("${z_buv_current_gate_var}")
+  z_buv_gate_val_roll+=("${z_buv_current_gate_val}")
   z_buv_p1_roll+=("${z_p1}")
   z_buv_p2_roll+=("${z_p2}")
-  z_buv_group_roll+=("${ZBUV_CURRENT_GROUP}")
+  z_buv_group_roll+=("${z_buv_current_group}")
   z_buv_desc_roll+=("${z_desc}")
 }
 

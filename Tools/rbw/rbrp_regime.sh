@@ -54,7 +54,7 @@ zrbrp_kindle() {
   # Guard against unexpected RBRP_ variables not in enrollment
   buv_scope_sentinel RBRP RBRP_
 
-  ZRBRP_KINDLED=1
+  readonly ZRBRP_KINDLED=1
 }
 
 zrbrp_sentinel() {

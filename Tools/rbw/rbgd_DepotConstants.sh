@@ -99,7 +99,7 @@ zrbgd_kindle() {
   # Service Usage - Quota Metrics (v1beta1 — quota API not yet in v1)
   readonly RBGD_API_QUOTA_GCB="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}${RBGC_PATH_PROJECTS}/${RBRR_DEPOT_PROJECT_ID}/services/cloudbuild.googleapis.com/consumerQuotaMetrics"
 
-  ZRBGD_KINDLED=1
+  readonly ZRBGD_KINDLED=1
 }
 
 zrbgd_sentinel() {

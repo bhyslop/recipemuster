@@ -24,7 +24,7 @@ set -euo pipefail
 # butcev_enforce_all_pass_tcase - Vet succeeds when all vars valid
 
 butcev_enforce_all_pass_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Core"
     buv_xname_enroll TEST_NAME 2 12 "Name"
@@ -41,7 +41,7 @@ butcev_enforce_all_pass_tcase() {
 # butcev_enforce_first_bad_tcase - Vet dies on first invalid var
 
 butcev_enforce_first_bad_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Core"
     buv_xname_enroll TEST_NAME 2 12 "Name"
@@ -71,7 +71,7 @@ butcev_enforce_first_bad_tcase() {
 # butcev_report_all_pass_tcase - Report returns 0 when all valid
 
 butcev_report_all_pass_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Core"
     buv_xname_enroll TEST_NAME 2 12 "Name"
@@ -86,7 +86,7 @@ butcev_report_all_pass_tcase() {
 # butcev_report_mixed_tcase - Report returns non-zero with failures
 
 butcev_report_mixed_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Core"
     buv_xname_enroll TEST_NAME 2 12 "Name"
@@ -101,7 +101,7 @@ butcev_report_mixed_tcase() {
 # butcev_report_gated_tcase - Report shows SKIP for gated-out vars
 
 butcev_report_gated_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Gated"
     buv_enum_enroll TEST_MODE "Mode" on off
@@ -118,7 +118,7 @@ butcev_report_gated_tcase() {
 # butcev_multiscope_tcase - Report filters by scope
 
 butcev_multiscope_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
 
     buv_regime_enroll "ALPHA"
     buv_group_enroll "Alpha Vars"

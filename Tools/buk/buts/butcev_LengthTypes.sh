@@ -21,18 +21,17 @@
 set -euo pipefail
 
 ######################################################################
-# Private helper: fresh kindle for enrollment tests
+# Private helper: reset enrollment state for each test case
 
-zbutcev_fresh_kindle() {
-  ZBUV_KINDLED=""
-  zbuv_kindle
+zbutcev_fresh_enrollment() {
+  zbuv_reset_enrollment
 }
 
 ######################################################################
 # butcev_string_valid_tcase - String enrollment with valid values
 
 butcev_string_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Strings"
     buv_string_enroll TEST_NAME 1 20 "Test name"
@@ -47,7 +46,7 @@ butcev_string_valid_tcase() {
 # butcev_string_empty_optional_tcase - String with min=0 allows empty
 
 butcev_string_empty_optional_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Strings"
     buv_string_enroll TEST_OPT 0 20 "Optional field"
@@ -60,7 +59,7 @@ butcev_string_empty_optional_tcase() {
 # butcev_string_too_short_tcase - String below min length fails
 
 butcev_string_too_short_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Strings"
     buv_string_enroll TEST_NAME 5 20 "Test name"
@@ -73,7 +72,7 @@ butcev_string_too_short_tcase() {
 # butcev_string_too_long_tcase - String above max length fails
 
 butcev_string_too_long_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Strings"
     buv_string_enroll TEST_NAME 1 5 "Test name"
@@ -86,7 +85,7 @@ butcev_string_too_long_tcase() {
 # butcev_string_empty_required_tcase - Required string empty fails
 
 butcev_string_empty_required_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Strings"
     buv_string_enroll TEST_NAME 1 20 "Test name"
@@ -99,7 +98,7 @@ butcev_string_empty_required_tcase() {
 # butcev_xname_enrolled_valid_tcase - Xname enrollment with valid values
 
 butcev_xname_enrolled_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Xnames"
     buv_xname_enroll TEST_IDENT 2 12 "Identifier"
@@ -117,7 +116,7 @@ butcev_xname_enrolled_valid_tcase() {
 # butcev_xname_enrolled_invalid_tcase - Xname enrollment with invalid values
 
 butcev_xname_enrolled_invalid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Xnames"
     buv_xname_enroll TEST_IDENT 2 12 "Identifier"
@@ -143,7 +142,7 @@ butcev_xname_enrolled_invalid_tcase() {
 # butcev_gname_enrolled_valid_tcase - Gname enrollment with valid values
 
 butcev_gname_enrolled_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Gnames"
     buv_gname_enroll TEST_PROJECT 3 20 "Project ID"
@@ -156,7 +155,7 @@ butcev_gname_enrolled_valid_tcase() {
 # butcev_gname_enrolled_invalid_tcase - Gname enrollment with invalid values
 
 butcev_gname_enrolled_invalid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Gnames"
     buv_gname_enroll TEST_PROJECT 3 20 "Project ID"
@@ -178,7 +177,7 @@ butcev_gname_enrolled_invalid_tcase() {
 # butcev_fqin_enrolled_valid_tcase - FQIN enrollment with valid values
 
 butcev_fqin_enrolled_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "FQINs"
     buv_fqin_enroll TEST_IMAGE 5 100 "Image reference"
@@ -191,7 +190,7 @@ butcev_fqin_enrolled_valid_tcase() {
 # butcev_fqin_enrolled_invalid_tcase - FQIN enrollment with invalid values
 
 butcev_fqin_enrolled_invalid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "FQINs"
     buv_fqin_enroll TEST_IMAGE 5 100 "Image reference"

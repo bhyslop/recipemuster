@@ -26,7 +26,7 @@ zrbha_kindle() {
   ZRBHA_WORKFLOW_RUN_ID_FILE="${BURD_TEMP_DIR}/workflow_run_id__${BURD_NOW_STAMP}.txt"
   ZRBHA_WORKFLOW_LOGS_FILE="${BURD_TEMP_DIR}/workflow_logs__${BURD_NOW_STAMP}.txt"
 
-  ZRBHA_KINDLED=1
+  readonly ZRBHA_KINDLED=1
 }
 
 zrbha_sentinel() {

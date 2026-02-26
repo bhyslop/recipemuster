@@ -72,7 +72,7 @@ zrbi_kindle() {
   readonly ZRBI_METADATA_ARCHIVE="${BURD_TEMP_DIR}/rbi_metadata.tgz"
 
   # File index counter
-  ZRBI_FILE_INDEX=0
+  z_rbi_file_index=0
 
   # Initialize detail file
   echo "[]" > "${ZRBI_IMAGE_DETAIL_FILE}" || buc_die "Failed to initialize detail file"
@@ -80,7 +80,7 @@ zrbi_kindle() {
   # Obtain initial OAuth token
   zrbi_refresh_token || buc_die "Cannot proceed without OAuth token"
 
-  ZRBI_KINDLED=1
+  readonly ZRBI_KINDLED=1
 }
 
 zrbi_sentinel() {
@@ -98,8 +98,8 @@ zrbi_refresh_token() {
 zrbi_get_next_index_capture() {
   zrbi_sentinel
 
-  ZRBI_FILE_INDEX=$((ZRBI_FILE_INDEX + 1))
-  printf "%03d" "${ZRBI_FILE_INDEX}"
+  z_rbi_file_index=$((z_rbi_file_index + 1))
+  printf "%03d" "${z_rbi_file_index}"
 }
 
 zrbi_curl_registry() {

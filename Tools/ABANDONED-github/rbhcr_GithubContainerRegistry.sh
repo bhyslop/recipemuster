@@ -88,7 +88,7 @@ zrbhcr_kindle() {
   buc_step "Log in to container registry"
   ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} login "${ZRBHCR_REGISTRY_HOST}" -u "${ZRBHCR_REGISTRY_USERNAME}" -p "${ZRBHCR_GITHUB_TOKEN}"
 
-  ZRBHCR_KINDLED=1
+  readonly ZRBHCR_KINDLED=1
 }
 
 zrbhcr_sentinel() {

@@ -15,7 +15,7 @@ ZRBHIM_INCLUDED=1
 
 zrbhim_kindle() {
   # Module variables
-  ZRBHIM_KINDLED=1
+  readonly ZRBHIM_KINDLED=1
 }
 
 zrbhim_sentinel() {

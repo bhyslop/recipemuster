@@ -23,7 +23,7 @@ zrbhh_kindle() {
   # Module Variables (ZRBHH_*)
   ZRBHH_BUILD_DIR_LATEST_FILE="${BURD_TEMP_DIR}/latest_build_dir.txt"
 
-  ZRBHH_KINDLED=1
+  readonly ZRBHH_KINDLED=1
 }
 
 zrbhh_sentinel() {

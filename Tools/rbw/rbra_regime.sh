@@ -49,7 +49,7 @@ zrbra_kindle() {
   # Guard against unexpected RBRA_ variables not in enrollment
   buv_scope_sentinel RBRA RBRA_
 
-  ZRBRA_KINDLED=1
+  readonly ZRBRA_KINDLED=1
 }
 
 zrbra_sentinel() {

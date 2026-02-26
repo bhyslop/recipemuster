@@ -24,7 +24,7 @@ set -euo pipefail
 # butcev_bool_valid_tcase - Bool enrollment with valid values
 
 butcev_bool_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Booleans"
     buv_bool_enroll TEST_ENABLED "Feature enabled"
@@ -42,7 +42,7 @@ butcev_bool_valid_tcase() {
 # butcev_bool_invalid_tcase - Bool enrollment with invalid values
 
 butcev_bool_invalid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Booleans"
     buv_bool_enroll TEST_ENABLED "Feature enabled"
@@ -64,7 +64,7 @@ butcev_bool_invalid_tcase() {
 # butcev_bool_empty_tcase - Bool enrollment with empty value fails
 
 butcev_bool_empty_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Booleans"
     buv_bool_enroll TEST_ENABLED "Feature enabled"
@@ -77,7 +77,7 @@ butcev_bool_empty_tcase() {
 # butcev_enum_valid_tcase - Enum enrollment with valid choice
 
 butcev_enum_valid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Enums"
     buv_enum_enroll TEST_MODE "Operating mode" debug release test
@@ -95,7 +95,7 @@ butcev_enum_valid_tcase() {
 # butcev_enum_invalid_tcase - Enum enrollment with invalid choice
 
 butcev_enum_invalid_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Enums"
     buv_enum_enroll TEST_MODE "Operating mode" debug release test
@@ -113,7 +113,7 @@ butcev_enum_invalid_tcase() {
 # butcev_enum_empty_tcase - Enum enrollment with empty value fails
 
 butcev_enum_empty_tcase() {
-    zbutcev_fresh_kindle
+    zbutcev_fresh_enrollment
     buv_regime_enroll "TEST"
     buv_group_enroll "Enums"
     buv_enum_enroll TEST_MODE "Operating mode" debug release test

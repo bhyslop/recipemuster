@@ -75,7 +75,7 @@ zrbv_kindle() {
   # Additional temp file paths
   readonly ZRBV_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 
-  ZRBV_KINDLED=1
+  readonly ZRBV_KINDLED=1
 }
 
 zrbv_sentinel() {

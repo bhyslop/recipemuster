@@ -51,7 +51,7 @@ zbure_kindle() {
   # Guard against unexpected BURE_ variables not in enrollment
   buv_scope_sentinel BURE BURE_
 
-  ZBURE_KINDLED=1
+  readonly ZBURE_KINDLED=1
 }
 
 zbure_sentinel() {

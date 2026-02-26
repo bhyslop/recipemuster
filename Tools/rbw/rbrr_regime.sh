@@ -77,10 +77,10 @@ zrbrr_kindle() {
   buv_scope_sentinel RBRR RBRR_
 
   # Temp file prefixes for rbrr_refresh_gcb_pins
-  ZRBRR_REFRESH_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_"
-  ZRBRR_REFRESH_SED_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_sed_"
+  readonly ZRBRR_REFRESH_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_"
+  readonly ZRBRR_REFRESH_SED_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_sed_"
 
-  ZRBRR_KINDLED=1
+  readonly ZRBRR_KINDLED=1
 }
 
 zrbrr_sentinel() {
