@@ -357,3 +357,45 @@ BCG compliance is mandatory for all new bash code — enterprise-grade orchestra
 - Developer Connect REST API: https://docs.google.com/developer-connect/docs/api/reference/rest
 - Cloud Build triggers REST API: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.triggers
 - SLSA provenance on Cloud Build: https://docs.google.com/build/docs/securing-builds/generate-validate-build-provenance
+- Cloud Build workerPools API: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.workerPools
+
+### Session Decisions (2026-02-25)
+
+**Inscribe batches all vessels in one rubric repo commit.**
+With a single rubric repo, there is no reason to inscribe per-vessel. Inscribe becomes:
+refresh pins → generate all cloudbuild.json files → copy all build contexts (Dockerfile + context
+per vessel directory) → one rubric repo clone/commit/push → ensure all triggers exist.
+One command, one rubric repo commit, one main-repo commit to review. This eliminates the
+per-vessel inscribe ceremony and the temporal gap between vessel updates.
+
+**Pin refresh folded into inscribe front-matter.**
+If inscribe always refreshes pins first, the freshness gate is unnecessary — staleness is
+impossible by construction. Eliminates: `RBRR_GCB_PINS_REFRESHED_AT` timestamp, regime
+enrollment for that variable, `zrbf_check_pin_freshness()` function, and the two-command
+ceremony (refresh then inscribe). Pin refresh remains rate-limited to once per day (short
+enough for security, long enough to avoid Docker Hub rate limits).
+
+**Build context explicitly copied to rubric repo.**
+Each vessel's Dockerfile and build context directory are copied to the per-vessel directory
+in the rubric repo at inscribe time. This makes the rubric repo commit a complete snapshot
+of all build material. Clear step in the inscribe flow, not implicit.
+
+**SLSA v1.0 does not require base image digest pinning.**
+Verified against slsa.dev/spec/v1.0/requirements. SLSA v1.0 Build L1-L3 requires provenance
+existence, builder-generated provenance, and hardened build platform. It does NOT require
+hermetic builds, input pinning, or base image digest validation. Dockerfile base image pinning
+is deferred to a separate future heat — a policy decision for vessel authors, not a trigger
+migration prerequisite.
+
+**Tier 3 (Private Pools) folded into this heat.**
+Private Pool pricing is essentially identical to default pool pricing (~$0.003/vCPU-min,
+1.0-1.13x ratio depending on region, as of Nov 2025 repricing). The stitch function is
+already being modified for Tier 2, so adding conditional `options.pool.name` is minimal
+incremental work. Two paces added: depot lifecycle (create/destroy pool) and build JSON
+wiring (conditional pool reference, machine type expansion).
+
+**RBSCB roadmap reconciliation deferred to end of heat.**
+The roadmap document has accumulated contradictions between tier body text and decision log
+entries. A reconciliation pace (₢AiAAd) will re-read the document fresh after all implementation
+paces land and rewrite it as a coherent plan — eliminating the decision log in favor of
+authoritative tier descriptions.
