@@ -5012,6 +5012,13 @@
         "₢AiAAM": {
           "tacks": [
             {
+              "ts": "260225-1852",
+              "state": "abandoned",
+              "text": "Migrate remaining conjure vessels from builds.create to rubric-based builds.\nMechanical application of the pattern proven by busybox in ₢AiAAK.\n\nFor each vessel beyond busybox:\n1. Run inscribe tabtarget (from ₢AiAAV) — this handles everything:\n   - Generates yaml, verifies committed in main repo\n   - Creates GitHub mini-repo if it doesn't exist\n   - Creates Developer Connect repo link if it doesn't exist\n   - Creates Cloud Build trigger if it doesn't exist\n   - Syncs and pushes to mini-repo\n2. Run build — verify dispatch succeeds and SLSA provenance is generated\n\nEnumerate conjure vessels from rbev-vessels/ (skip non-conjure like trbim-macos).\nNo new code — inscribe already handles fresh-vessel and existing-vessel cases.\n\nNote: user must commit each vessel's generated cloudbuild.yaml to the main repo\nbetween inscribe's generation step and its sync step (inscribe gates on this).\nBatch workflow: generate all yamls, review diffs, commit all, then run inscribe\nfor each vessel to complete the sync/trigger creation.\n\nBridleable once ₢AiAAK proves the pattern works end-to-end.",
+              "silks": "migrate-remaining-conjure-vessels",
+              "commit": "bffe2a1"
+            },
+            {
               "ts": "260223-1900",
               "state": "rough",
               "text": "Migrate remaining conjure vessels from builds.create to rubric-based builds.\nMechanical application of the pattern proven by busybox in ₢AiAAK.\n\nFor each vessel beyond busybox:\n1. Run inscribe tabtarget (from ₢AiAAV) — this handles everything:\n   - Generates yaml, verifies committed in main repo\n   - Creates GitHub mini-repo if it doesn't exist\n   - Creates Developer Connect repo link if it doesn't exist\n   - Creates Cloud Build trigger if it doesn't exist\n   - Syncs and pushes to mini-repo\n2. Run build — verify dispatch succeeds and SLSA provenance is generated\n\nEnumerate conjure vessels from rbev-vessels/ (skip non-conjure like trbim-macos).\nNo new code — inscribe already handles fresh-vessel and existing-vessel cases.\n\nNote: user must commit each vessel's generated cloudbuild.yaml to the main repo\nbetween inscribe's generation step and its sync step (inscribe gates on this).\nBatch workflow: generate all yamls, review diffs, commit all, then run inscribe\nfor each vessel to complete the sync/trigger creation.\n\nBridleable once ₢AiAAK proves the pattern works end-to-end.",
