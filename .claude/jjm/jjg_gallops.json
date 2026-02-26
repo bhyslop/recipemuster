@@ -4625,9 +4625,10 @@
         "₢AiAAM",
         "₢AiAAN",
         "₢AiAAc",
-        "₢AiAAd"
+        "₢AiAAd",
+        "₢AiAAe"
       ],
-      "next_pace_seed": "AAe",
+      "next_pace_seed": "AAf",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5644,6 +5645,17 @@
               "text": "Reconcile RBSCB-CloudBuildRoadmap.adoc with implemented reality after all\npreceding paces have landed. This is a document-only pace.\n\n## Goals\n\n1. **Eliminate the Decision Log section.** Fold each decision into the relevant\n   tier body text as crisp, authoritative statements. The roadmap should read as\n   a coherent plan, not a plan plus a changelog.\n\n2. **Align Tier 2 with implementation.** The body should reflect:\n   - Single rubric repo with per-vessel directories (not main-repo triggers)\n   - Fully-baked cloudbuild.json (not yaml, not dynamic substitution overrides)\n   - Inscribe as the lifecycle command (batch all vessels, refresh pins, sync rubric repo)\n   - Build context copied to rubric repo (Dockerfile + context per vessel directory)\n   - Developer Connect + OAuth (not gcloud)\n   - Context scope *narrows* (rubric repo only) — this is better for Tiers 3-5\n\n3. **Fix stale Tier 1 references.** Build log hygiene was folded into Tier 2\n   (audit during script inlining). Dockerfile base image digest validation is\n   deferred (not SLSA v1.0 required, separate future heat). BuildKit provenance\n   flag deferred. Update body text to match.\n\n4. **Verify Tiers 3-5 still hold.** Premises were not broken by implementation\n   changes, but descriptions may reference stale details (e.g., \"trigger checks\n   out the entire repo\" — now false, rubric repo narrows scope).\n\n5. **Verify RBSCB include in RBS0.** Session 5 fixed a duplicate include\n   (replaced with RBSCJ). Confirm still clean.\n\n## Scope\n\n- Touch: lenses/RBSCB-CloudBuildRoadmap.adoc, include-references in RBS0\n- Do NOT touch: paddock, implementation specs (RBSRI, RBSTB, etc.)\n\n## Approach\n\nRe-read RBSCB fresh. Do not apply a mechanical diff list — by the time this\npace runs, earlier paces will have changed other things. Rebuild confidence\nin the roadmap by reading it as a newcomer would and fixing what doesn't\nmatch reality.",
               "silks": "reconcile-rbscb-roadmap",
               "commit": "2d56cd2"
+            }
+          ]
+        },
+        "₢AiAAe": {
+          "tacks": [
+            {
+              "ts": "260225-1836",
+              "state": "rough",
+              "text": "Add Private Pool creation and deletion to the depot lifecycle.\n\n## Regime variable\n\nAdd `RBRR_GCB_PRIVATE_POOL_NAME` to regime (optional, 0-64 chars).\nEmpty means default pool (no private pool). When set, depot_create\ncreates the pool and depot_destroy deletes it.\n\n## Constants\n\nAdd `RBGC_API_WORKER_POOLS` endpoint template to rbgc_Constants.sh.\nFormat: `projects/{project}/locations/{region}/workerPools/{pool}`\n\n## depot_create\n\nAfter API enablement, if RBRR_GCB_PRIVATE_POOL_NAME is non-empty:\n- POST to workerPools API to create the pool\n- Use e2 machine config from RBRR_GCB_MACHINE_TYPE\n- Pool scales to zero (no idle cost)\n- Idempotent: skip if pool already exists (409 CONFLICT = success)\n\n## depot_destroy\n\nBefore project deletion, if RBRR_GCB_PRIVATE_POOL_NAME is non-empty:\n- DELETE the worker pool\n- Tolerate 404 (already gone)\n\n## Quota check\n\nrbgd_DepotConstants.sh currently checks `concurrent_public_pool_build_cpus`.\nWhen private pool is configured, check `concurrent_private_pool_build_cpus`\ninstead. The metric name changes based on pool type.\n\n## Files\n\n- Tools/rbw/rbrr_regime.sh — add optional enrollment\n- Tools/rbw/rbrr.env — add variable with comment\n- Tools/rbw/rbgp_Payor.sh — pool create in depot_create, pool delete in depot_destroy\n- Tools/rbw/rbgc_Constants.sh — API endpoint constant\n- Tools/rbw/rbgd_DepotConstants.sh — conditional quota metric\n- lenses/RBSDC-depot_create.adoc — document pool creation step\n- lenses/RBSDD-depot_destroy.adoc — document pool deletion step\n\n## References\n\n- Cloud Build workerPools API: https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.workerPools\n- RBSCB Tier 3 section in lenses/RBSCB-CloudBuildRoadmap.adoc",
+              "silks": "private-pool-depot-lifecycle",
+              "commit": "f258960"
             }
           ]
         }
