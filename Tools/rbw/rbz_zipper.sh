@@ -70,6 +70,9 @@ zrbz_kindle() {
   buz_enroll RBZ_CONJURE_ARK "rbw-aC" "${z_mod}" "rbf_build"
   buz_enroll RBZ_SUMMON_ARK  "rbw-as" "${z_mod}" "rbf_summon"
 
+  # Rubric operations (trigger migration)
+  buz_enroll RBZ_RUBRIC_INSCRIBE "rbw-RI" "${z_mod}" "rbf_rubric_inscribe"
+
   # Image commands (single artifact)
   buz_enroll RBZ_BUILD_IMAGE    "rbw-iB" "${z_mod}" "rbf_build"
   buz_enroll RBZ_DELETE_IMAGE   "rbw-iD" "${z_mod}" "rbf_delete"

@@ -37,6 +37,7 @@ zrbf_furnish() {
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
   source "${RBBC_rbrr_file}"
   source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
+  source "${z_rbw_kit_dir}/rbgu_Utility.sh"
   source "${z_rbw_kit_dir}/rbf_Foundry.sh"
 
   buc_log_args 'Validate BUD environment'
@@ -60,6 +61,7 @@ zrbf_furnish() {
   zrbgc_kindle
   zrbgd_kindle
   zrbgo_kindle
+  zrbgu_kindle
   zrbf_kindle
 }
 
