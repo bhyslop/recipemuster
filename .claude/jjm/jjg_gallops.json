@@ -7,6 +7,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣Aj",
     "₣Ai",
     "₣Ah",
     "₣AP",
@@ -21,7 +22,6 @@
     "₣Ac",
     "₣Ad",
     "₣Ae",
-    "₣Aj",
     "₣Ak"
   ],
   "heats": {
@@ -5803,7 +5803,7 @@
     "₣Aj": {
       "silks": "rbk-axla-term-voicing-scrub",
       "creation_time": "260223",
-      "status": "stabled",
+      "status": "racing",
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
