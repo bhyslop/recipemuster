@@ -4628,9 +4628,10 @@
         "₢AiAAc",
         "₢AiAAd",
         "₢AiAAe",
-        "₢AiAAf"
+        "₢AiAAf",
+        "₢AiAAh"
       ],
-      "next_pace_seed": "AAh",
+      "next_pace_seed": "AAi",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5738,6 +5739,31 @@
               "commit": "3fe7b69"
             }
           ]
+        },
+        "₢AiAAh": {
+          "tacks": [
+            {
+              "ts": "260225-1922",
+              "state": "rough",
+              "text": "Drafted from ₢AkAAB in ₣Ak.\n\nRename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)\n4. Rename `z_rbw_kit_dir` → `z_rbk_kit_dir` across all cli files (14 files use this local variable pattern with `\"${BURD_TOOLS_DIR}/rbw\"` — both the variable name and path string need updating)",
+              "silks": "rename-rbw-to-rbk-move-lenses",
+              "commit": "3297136"
+            },
+            {
+              "ts": "260224-1458",
+              "state": "rough",
+              "text": "Rename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)\n4. Rename `z_rbw_kit_dir` → `z_rbk_kit_dir` across all cli files (14 files use this local variable pattern with `\"${BURD_TOOLS_DIR}/rbw\"` — both the variable name and path string need updating)",
+              "silks": "rename-rbw-to-rbk-move-lenses",
+              "commit": "f8de471"
+            },
+            {
+              "ts": "260224-0821",
+              "state": "rough",
+              "text": "Rename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)",
+              "silks": "rename-rbw-to-rbk-move-lenses",
+              "commit": "c3a4021"
+            }
+          ]
         }
       }
     },
@@ -5762,7 +5788,6 @@
         "₢AkAAI",
         "₢AkAAC",
         "₢AkAAF",
-        "₢AkAAB",
         "₢AkAAA"
       ],
       "next_pace_seed": "AAK",
@@ -5790,24 +5815,6 @@
               "text": "Prevent test-all from failing fast when infrastructure prerequisites are missing.\n\n## Problem\n\n`rbw-ta` (TestAll) stops at the first suite failure. Suites like ark-lifecycle fail immediately when the Podman VM isn't running, blocking all downstream suites (including CI-safe ones like regime-smoke and xname-validation) from executing.\n\nAdditionally, some test cases hang indefinitely when they issue a docker/podman command and the daemon isn't available (first-time startup or VM not running).\n\n## Solution\n\nAdd infrastructure precondition checks to suites that require container runtime:\n\n1. **Suite-level precondition**: In setup functions for infrastructure-dependent suites (e.g., `zrbtb_setup_ark`), verify the container runtime is available before running cases. If unavailable, mark the suite as **inconclusive** (not failed) using the existing BUT inconclusive mechanism from the ₣Ac test overhaul.\n\n2. **Timeout protection**: Ensure docker/podman commands in test cases have timeouts so they cannot hang indefinitely when the daemon is unresponsive.\n\n3. **Scope**: ark-lifecycle, nameplate suites (nsproto, srjcl, pluml), and any other suite that dispatches container operations.\n\n## Acceptance\n\n- `rbw-ta` completes all CI-safe suites even when Podman VM is not running\n- Infrastructure-dependent suites report inconclusive (not failed) when preconditions unmet\n- No test case can hang indefinitely on a missing container runtime",
               "silks": "suite-infrastructure-preconditions",
               "commit": "7031bcb"
-            }
-          ]
-        },
-        "₢AkAAB": {
-          "tacks": [
-            {
-              "ts": "260224-1458",
-              "state": "rough",
-              "text": "Rename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)\n4. Rename `z_rbw_kit_dir` → `z_rbk_kit_dir` across all cli files (14 files use this local variable pattern with `\"${BURD_TOOLS_DIR}/rbw\"` — both the variable name and path string need updating)",
-              "silks": "rename-rbw-to-rbk-move-lenses",
-              "commit": "f8de471"
-            },
-            {
-              "ts": "260224-0821",
-              "state": "rough",
-              "text": "Rename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)",
-              "silks": "rename-rbw-to-rbk-move-lenses",
-              "commit": "c3a4021"
             }
           ]
         },
