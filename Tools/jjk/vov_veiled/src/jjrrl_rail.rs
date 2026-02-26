@@ -88,6 +88,13 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> i32 {
     let move_after = args.after.clone();
     let move_first = args.first;
     let move_last = args.last;
+
+    // Capture old order for no-op detection
+    let fm = Firemark::jjrf_parse(&firemark).expect("rail given invalid firemark");
+    let old_order: Vec<String> = gallops.heats.get(&fm.jjrf_display())
+        .map(|h| h.order.clone())
+        .unwrap_or_default();
+
     let rail_args = LibRailArgs {
         firemark: args.firemark,
         order,
@@ -100,6 +107,21 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> i32 {
 
     match gallops.jjrg_rail(rail_args) {
         Ok(new_order) => {
+            // No-op detection: if order unchanged, exit 0 with message
+            if new_order == old_order {
+                let position = if move_first { "first" }
+                    else if move_last { "last" }
+                    else if move_before.is_some() { "requested position" }
+                    else if move_after.is_some() { "requested position" }
+                    else { "requested position" };
+                let coronet_display = move_coronet.as_deref().unwrap_or("pace");
+                eprintln!("jjx_rail: no change — {} is already {}", coronet_display, position);
+                for coronet in new_order {
+                    println!("{}", coronet);
+                }
+                return 0;
+            }
+
             // Compute descriptive subject for commit message
             let subject = if let Some(ref moved) = move_coronet {
                 // Move mode: describe where the pace was moved
@@ -114,7 +136,6 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> i32 {
                 format!("order: {}", new_order.join(", "))
             };
 
-            let fm = Firemark::jjrf_parse(&firemark).expect("rail given invalid firemark");
             let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Rail, &subject);
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {

@@ -143,6 +143,10 @@ zrbgc_kindle() {
   # Google Cloud Storage (GCS) APIs (project-independent)
   readonly RBGC_API_GCS_BUCKETS="${RBGC_API_BASE_GCS}/b"
 
+  # Rubric infrastructure (demoted from RBRR per trigger migration paddock)
+  readonly RBGC_RUBRIC_CLONE_DIR=".rbk/rubric"
+  readonly RBGC_RUBRIC_TRIGGER_PREFIX="rbw-trigger-"
+
   readonly ZRBGC_KINDLED=1
 }
 

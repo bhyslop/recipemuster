@@ -40,7 +40,7 @@ array, one
 {jjdt_coronet}
 per line, in new sequence.
 
-{jjds_exit_uniform} 0 success, non-zero error.
+{jjds_exit_uniform} 0 success (including no-op when pace is already in requested position), non-zero error.
 
 {jjds_behavior}
 
@@ -89,7 +89,10 @@ insert immediately before target
 {jjda_after}:
 insert immediately after target
 {jjdt_coronet}
-.
+. Compare new
+{jjdhm_order}
+against original. If identical (pace is already in requested position), output order and exit 0 with no commit: `jjx_rail: no change — {coronet} is already {position}`
+. Otherwise,
 {jjdr_save}
 {jjdgr_gallops}
 to

@@ -123,6 +123,10 @@ zrbf_kindle() {
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
   readonly ZRBF_STITCH_PREFIX="${BURD_TEMP_DIR}/rbf_stitch_"
 
+  buc_log_args 'Rubric infrastructure derived constants'
+  readonly ZRBF_RUBRIC_CLONE_PATH="${RBGC_RUBRIC_CLONE_DIR}"
+  readonly ZRBF_RUBRIC_TRIGGER_PREFIX="${RBGC_RUBRIC_TRIGGER_PREFIX}"
+
   buc_log_args 'For now lets double check these'
   test -n "${RBRR_GCB_ORAS_IMAGE_REF:-}"   || buc_die "RBRR_GCB_ORAS_IMAGE_REF not set"
 

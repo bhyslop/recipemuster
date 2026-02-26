@@ -69,6 +69,7 @@ zrbrr_kindle() {
   buv_odref_enroll   RBRR_GCB_ALPINE_IMAGE_REF               "alpine image reference (digest-pinned)"
   buv_odref_enroll   RBRR_GCB_SYFT_IMAGE_REF                 "syft image reference (digest-pinned)"
   buv_odref_enroll   RBRR_GCB_BINFMT_IMAGE_REF               "binfmt image reference (digest-pinned)"
+  buv_decimal_enroll RBRR_GCB_PINS_REFRESHED_AT  0  9999999999  "Epoch seconds of last successful pin refresh (0=never)"
 
   buv_group_enroll "Secrets Directory"
   buv_string_enroll  RBRR_SECRETS_DIR              1  512  "Directory containing credential files"

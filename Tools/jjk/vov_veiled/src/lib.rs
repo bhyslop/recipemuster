@@ -86,6 +86,9 @@ mod jjtsc_scout;
 mod jjtfu_furlough;
 
 #[cfg(test)]
+mod jjtrl_rail;
+
+#[cfg(test)]
 mod jjtrn_rein;
 
 #[cfg(test)]
