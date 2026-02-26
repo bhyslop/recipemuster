@@ -17,16 +17,16 @@ A **Rubric** (`rbtgr_rubric`) is the composite per-vessel build definition compr
   for trigger-invoked builds
 
 The rubric lifecycle has one user-facing operation:
-- **Inscribe** (`rbtgo_rubric_inscribe`) — the single rubric lifecycle command: check pin
-  freshness, generate JSON (modified stitch), verify committed in main repo, sync to
-  rubric repo per-vessel directory (orchestrated git), create trigger if it doesn't exist
+- **Inscribe** (`rbtgo_rubric_inscribe`) — batch-all-vessels lifecycle command: refresh pins,
+  generate all JSONs, copy all build contexts, verify committed in main repo, sync all to
+  rubric repo (one clone/commit/push), ensure all triggers exist
 
 And one existing operation adapted:
 - **Dispatch** (`rbtgo_trigger_build`, revised) — execute triggers.run with zero custom
   substitution overrides; all values baked into committed JSON
 
-There is no separate assay or enshrine operation. Inscribe handles freshness checking
-and trigger creation internally.
+There is no separate assay or enshrine operation. Inscribe handles pin refresh,
+generation, verification, and trigger creation internally.
 
 Developer Connect provides the bridge from GitHub to GCB:
 - **Source Connection** (`rbtgi_source_connection`) — the Developer Connect connection
@@ -50,8 +50,8 @@ Developer Connect provides the bridge from GitHub to GCB:
 - **Inscribe timestamp in tags** — baked at inscribe time (e.g., `i20260223.143022`),
   `$BUILD_ID` prefix for per-build uniqueness. Multiple builds of same inscribed JSON
   produce distinct but related tags.
-- **Pin freshness gate** — inscribe checks RBRR_GCB_PINS_REFRESHED_AT; fails if stale (>2 days).
-  Pin refresh (existing `rbrr_refresh_gcb_pins`) writes the timestamp.
+- **Pin refresh integrated** — inscribe calls `rbrr_refresh_gcb_pins` as its first step
+  (rate-limited to 1/day). No separate freshness gate or timestamp variable.
 - **Separate inscribe and build commands** — inscribe updates the rubric; build dispatches.
   Build does NOT verify main repo git state (inscribe already synced rubric repo).
 - **Modify existing functions, not recreate** — `zrbf_stitch_build_json()` is extended to
@@ -318,16 +318,15 @@ gcloud installed. All git operations use authenticated URLs (PAT-in-URL).
 - `zrbf_wait_build_completion()` → polling logic unchanged
 - `zrbf_load_vessel()` → unchanged
 - `rbgjb/*.sh` step scripts — still the source of truth, consumed at inscribe time
-- `rbrr_refresh_gcb_pins` → adds RBRR_GCB_PINS_REFRESHED_AT timestamp
+- `rbrr_refresh_gcb_pins` → unchanged (no timestamp write, called by inscribe)
 
 ### What's Born
 
 - {rbtgr_rubric} — per-vessel build definition (cloudbuild.json + trigger + rubric repo directory + provenance)
 - {rbtgr_rubric_repo} — single shared rubric repo with per-vessel directories (security boundary)
 - {rbtgi_source_connection} — Developer Connect connection (OAuth GitHub App)
-- {rbtgo_rubric_inscribe} — single rubric lifecycle command (pin check → generate → verify → sync → trigger)
+- {rbtgo_rubric_inscribe} — batch-all-vessels command (pin refresh → generate all → copy all contexts → verify committed → sync rubric repo → ensure triggers)
 - Inscribe tabtarget + rubric repo management orchestration
-- Pin freshness gate (RBRR_GCB_PINS_REFRESHED_AT)
 - AXLA motifs: axig_developer_connect, axig_build_trigger, axig_repo_link, axig_build_config, axig_slsa_provenance
 - `RBRA_RUBRIC_REPO_URL` — optional RBRA field, authenticated git URL for rubric repo (host-agnostic)
 - `rbgm_depot_initialize()` — human procedure: validate rubric repo URL, guide Developer Connect OAuth, verify
