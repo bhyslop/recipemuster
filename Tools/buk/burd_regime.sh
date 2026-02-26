@@ -55,6 +55,7 @@ zburd_kindle() {
 
   buv_group_enroll "Computed State"
   buv_string_enroll  BURD_NOW_STAMP             1   64  "Timestamp string computed at dispatch time"
+  buv_string_enroll  BURD_NOW_EPOCH             1   16  "UTC epoch seconds from same date invocation as BURD_NOW_STAMP"
   buv_string_enroll  BURD_TEMP_DIR              1  256  "Temporary directory for this invocation"
   buv_string_enroll  BURD_OUTPUT_DIR            1  256  "Output directory for this invocation"
   buv_string_enroll  BURD_TRANSCRIPT            1  256  "Path to transcript file for this invocation"

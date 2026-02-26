@@ -95,6 +95,7 @@
 
 // BURD Computed Variables
 :burd_now_stamp:                   <<burd_now_stamp,BURD_NOW_STAMP>>
+:burd_now_epoch:                   <<burd_now_epoch,BURD_NOW_EPOCH>>
 :burd_temp_dir:                    <<burd_temp_dir,BURD_TEMP_DIR>>
 :burd_output_dir:                  <<burd_output_dir,BURD_OUTPUT_DIR>>
 :burd_transcript:                  <<burd_transcript,BURD_TRANSCRIPT>>
@@ -560,6 +561,11 @@ Variables derived during dispatch setup.
 // ⟦axl_voices axrg_variable axtu_string⟧
 {burd_now_stamp}::
 Unique timestamp combining date, time, PID, and random component.
+
+[[burd_now_epoch]]
+// ⟦axl_voices axrg_variable axtu_integer⟧
+{burd_now_epoch}::
+UTC epoch seconds captured from same `date` invocation as {burd_now_stamp}.
 
 [[burd_temp_dir]]
 // ⟦axl_voices axrg_variable axtu_path⟧
