@@ -4149,6 +4149,13 @@
         "₢AWAAY": {
           "tacks": [
             {
+              "ts": "260225-1935",
+              "state": "complete",
+              "text": "jjx_reorder should exit 0 with a message when pace is already in requested position.\n\n## Problem\n\n`jjx_reorder Ai --move AiAAh --last` fails with `jjx_rail: error: git commit failed:` (empty stderr) when AiAAh is already last. The reorder produces no gallops diff, the git commit has nothing to commit, and the error path treats this as a failure.\n\n## Fix\n\n1. After computing the new order, compare against current order. If identical, exit 0 with message: `jjx_rail: no change — {coronet} is already {position}`\n2. No commit attempted for no-op.\n\n## Spec\n\nUpdate JJS0 rail ceremony to document: \"If the pace is already in the requested position, rail succeeds with no commit.\"\n\n## Files\n\n- Rust source for jjx_reorder (rail verb)\n- Tools/jjk/vov_veiled/JJSCRL-rail.adoc",
+              "silks": "rail-noop-graceful-exit",
+              "commit": "6adc3c1"
+            },
+            {
               "ts": "260225-1928",
               "state": "rough",
               "text": "jjx_reorder should exit 0 with a message when pace is already in requested position.\n\n## Problem\n\n`jjx_reorder Ai --move AiAAh --last` fails with `jjx_rail: error: git commit failed:` (empty stderr) when AiAAh is already last. The reorder produces no gallops diff, the git commit has nothing to commit, and the error path treats this as a failure.\n\n## Fix\n\n1. After computing the new order, compare against current order. If identical, exit 0 with message: `jjx_rail: no change — {coronet} is already {position}`\n2. No commit attempted for no-op.\n\n## Spec\n\nUpdate JJS0 rail ceremony to document: \"If the pace is already in the requested position, rail succeeds with no commit.\"\n\n## Files\n\n- Rust source for jjx_reorder (rail verb)\n- Tools/jjk/vov_veiled/JJSCRL-rail.adoc",
