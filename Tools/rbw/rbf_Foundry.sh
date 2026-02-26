@@ -81,7 +81,6 @@ zrbf_kindle() {
 
   buc_log_args 'Define temp files for build operations'
   readonly ZRBF_BUILD_CONTEXT_TAR="${BURD_TEMP_DIR}/rbf_build_context.tar.gz"
-  readonly ZRBF_BUILD_CONFIG_FILE="${BURD_TEMP_DIR}/rbf_build_config.json"
   readonly ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
   readonly ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
   readonly ZRBF_BUILD_LOG_FILE="${BURD_TEMP_DIR}/rbf_build_log.txt"
@@ -123,10 +122,6 @@ zrbf_kindle() {
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
   readonly ZRBF_STITCH_PREFIX="${BURD_TEMP_DIR}/rbf_stitch_"
 
-  buc_log_args 'Rubric infrastructure derived constants'
-  readonly ZRBF_RUBRIC_CLONE_PATH="${RBGC_RUBRIC_CLONE_DIR}"
-  readonly ZRBF_RUBRIC_TRIGGER_PREFIX="${RBGC_RUBRIC_TRIGGER_PREFIX}"
-
   buc_log_args 'For now lets double check these'
   test -n "${RBRR_GCB_ORAS_IMAGE_REF:-}"   || buc_die "RBRR_GCB_ORAS_IMAGE_REF not set"
 
@@ -140,7 +135,37 @@ zrbf_sentinel() {
 zrbf_stitch_build_json() {
   zrbf_sentinel
 
-  buc_log_args 'Stitching build JSON from step scripts'
+  buc_log_args 'Stitching trigger-compatible build JSON from step scripts'
+
+  # Preconditions: vessel loaded and git state captured
+  test -s "${ZRBF_VESSEL_SIGIL_FILE}" || buc_die "Vessel not loaded — call zrbf_load_vessel first"
+  test -s "${ZRBF_GIT_INFO_FILE}"     || buc_die "Git info not captured — call zrbf_verify_git_clean first"
+
+  buc_log_args 'Read vessel state for substitutions'
+  local -r z_sigil=$(<"${ZRBF_VESSEL_SIGIL_FILE}")
+  test -n "${z_sigil}" || buc_die "Empty vessel sigil"
+  local -r z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
+  local -r z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
+
+  buc_log_args 'Extract git state for substitutions'
+  local -r z_stitch_git_commit_file="${ZRBF_STITCH_PREFIX}git_commit.txt"
+  local -r z_stitch_git_branch_file="${ZRBF_STITCH_PREFIX}git_branch.txt"
+  local -r z_stitch_git_repo_file="${ZRBF_STITCH_PREFIX}git_repo.txt"
+
+  jq -r '.commit' "${ZRBF_GIT_INFO_FILE}" > "${z_stitch_git_commit_file}" \
+    || buc_die "Failed to extract git commit from info file"
+  jq -r '.branch' "${ZRBF_GIT_INFO_FILE}" > "${z_stitch_git_branch_file}" \
+    || buc_die "Failed to extract git branch from info file"
+  jq -r '.repo'   "${ZRBF_GIT_INFO_FILE}" > "${z_stitch_git_repo_file}" \
+    || buc_die "Failed to extract git repo from info file"
+
+  local -r z_git_commit=$(<"${z_stitch_git_commit_file}")
+  local -r z_git_branch=$(<"${z_stitch_git_branch_file}")
+  local -r z_git_repo=$(<"${z_stitch_git_repo_file}")
+
+  test -n "${z_git_commit}" || buc_die "Git commit is empty"
+  test -n "${z_git_branch}" || buc_die "Git branch is empty"
+  test -n "${z_git_repo}"   || buc_die "Git repo is empty"
 
   # Step definitions: script|builder|entrypoint|id
   # Entrypoint 'bash' uses args ["-lc", script], 'sh' uses ["-c", script]
@@ -225,9 +250,63 @@ zrbf_stitch_build_json() {
       || buc_die "Failed to update steps JSON for ${z_id}"
   done
 
-  buc_log_args "Writing final stitched build structure"
-  jq '{steps: .}' "${z_accumulator_file}" > "${ZRBF_STITCHED_BUILD_FILE}" \
-    || buc_die "Failed to write stitched build JSON"
+  # Compose complete trigger-compatible Build resource
+  # Steps from accumulator, substitutions from module state, options/timeout from RBRR
+  # _RBGY_RUBRIC_REPO, _RBGY_RUBRIC_COMMIT, _RBGY_INSCRIBE_TIMESTAMP are placeholders
+  # in the main-repo copy; inscribe fills them in the rubric repo copy after push
+  buc_log_args "Composing complete trigger-compatible Build resource"
+  local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
+
+  jq -n \
+    --slurpfile zjq_steps  "${z_accumulator_file}" \
+    --arg zjq_dockerfile     "${z_dockerfile_name}" \
+    --arg zjq_moniker        "${z_sigil}" \
+    --arg zjq_platforms      "${z_platforms}" \
+    --arg zjq_gar_location   "${RBGD_GAR_LOCATION}" \
+    --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}" \
+    --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}" \
+    --arg zjq_git_commit     "${z_git_commit}" \
+    --arg zjq_git_branch     "${z_git_branch}" \
+    --arg zjq_git_repo       "${z_git_repo}" \
+    --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
+    --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
+    --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
+    --arg zjq_crane_tar_gz     "${RBRR_CRANE_TAR_GZ}" \
+    --arg zjq_rubric_repo      "__INSCRIBE_RUBRIC_REPO__" \
+    --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
+    --arg zjq_inscribe_ts      "i${BURD_NOW_STAMP:0:8}_${BURD_NOW_STAMP:9:6}" \
+    --arg zjq_mtype  "${RBRR_GCB_MACHINE_TYPE}" \
+    --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
+    '{
+      steps: $zjq_steps[0],
+      substitutions: {
+        _RBGY_DOCKERFILE:          $zjq_dockerfile,
+        _RBGY_MONIKER:             $zjq_moniker,
+        _RBGY_PLATFORMS:           $zjq_platforms,
+        _RBGY_GAR_LOCATION:        $zjq_gar_location,
+        _RBGY_GAR_PROJECT:         $zjq_gar_project,
+        _RBGY_GAR_REPOSITORY:      $zjq_gar_repository,
+        _RBGY_GIT_COMMIT:          $zjq_git_commit,
+        _RBGY_GIT_BRANCH:          $zjq_git_branch,
+        _RBGY_GIT_REPO:            $zjq_git_repo,
+        _RBGY_GAR_HOST_SUFFIX:     $zjq_gar_host_suffix,
+        _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
+        _RBGY_ARK_SUFFIX_ABOUT:    $zjq_ark_suffix_about,
+        _RBGY_CRANE_TAR_GZ:        $zjq_crane_tar_gz,
+        _RBGY_RUBRIC_REPO:         $zjq_rubric_repo,
+        _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
+        _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
+      },
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+        machineType: $zjq_mtype
+      },
+      timeout: $zjq_timeout
+    }' > "${z_build_file}" \
+    || buc_die "Failed to compose trigger-compatible build JSON"
+
+  mv "${z_build_file}" "${ZRBF_STITCHED_BUILD_FILE}" \
+    || buc_die "Failed to write final stitched build JSON"
 
   buc_log_args "Stitched ${#z_step_defs[@]} steps to ${ZRBF_STITCHED_BUILD_FILE}"
 }
@@ -437,34 +516,31 @@ zrbf_upload_context_to_gcs() {
 zrbf_compose_build_request_json() {
   zrbf_sentinel
 
-  # Stitch step scripts into build JSON
+  # Stitch produces complete trigger-compatible Build resource (steps + subs + options + timeout)
   zrbf_stitch_build_json
 
-  jq empty "${ZRBF_BUILD_CONFIG_FILE}"    || buc_die "Build config is not valid JSON"
-  jq empty "${ZRBF_STITCHED_BUILD_FILE}"  || buc_die "Stitched build file is not valid JSON"
+  jq empty "${ZRBF_STITCHED_BUILD_FILE}" || buc_die "Stitched build file is not valid JSON"
 
-  local z_obj_name=""
-  z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}") || buc_die "Missing tarball name"
+  local -r z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}")
+  test -n "${z_obj_name}" || buc_die "Missing tarball name"
 
-  # Merge steps from stitched build JSON with runtime substitutions and config
-  # Service account must be in projects/{project}/serviceAccounts/{email} format
-  local z_sa_resource="projects/${RBGD_GAR_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
-  jq -n \
-    --slurpfile sub   "${ZRBF_BUILD_CONFIG_FILE}"    \
-    --slurpfile build "${ZRBF_STITCHED_BUILD_FILE}"  \
-    --arg bucket "${RBGD_GCS_BUCKET}"                \
-    --arg object "${z_obj_name}"                     \
-    --arg sa     "${z_sa_resource}"                  \
-    --arg mtype  "${RBRR_GCB_MACHINE_TYPE}"          \
-    --arg to     "${RBRR_GCB_TIMEOUT}"               \
-    '{
+  # Add builds.create-specific fields (source + serviceAccount) to stitch output
+  # These are NOT part of the trigger-compatible cloudbuild.json — only needed for direct API submission
+  local -r z_sa_resource="projects/${RBGD_GAR_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+  local -r z_request_file="${BURD_TEMP_DIR}/rbf_build_request_tmp.json"
+
+  jq \
+    --arg bucket "${RBGD_GCS_BUCKET}" \
+    --arg object "${z_obj_name}" \
+    --arg sa     "${z_sa_resource}" \
+    '. + {
       source: { storageSource: { bucket: $bucket, object: $object } },
-      steps: $build[0].steps,
-      substitutions: ($sub[0].substitutions),
-      options: { logging: "CLOUD_LOGGING_ONLY", machineType: $mtype },
-      serviceAccount: $sa,
-      timeout: $to
-    }' > "${ZRBF_BUILD_REQUEST_FILE}" || buc_die "Failed to compose build request json"
+      serviceAccount: $sa
+    }' "${ZRBF_STITCHED_BUILD_FILE}" > "${z_request_file}" \
+    || buc_die "Failed to compose build request json"
+
+  mv "${z_request_file}" "${ZRBF_BUILD_REQUEST_FILE}" \
+    || buc_die "Failed to write build request file"
 }
 
 zrbf_submit_build_json() {
@@ -601,60 +677,7 @@ rbf_build() {
   # Package build context (source code only; build config inlined in API request)
   zrbf_package_context "${RBRV_CONJURE_DOCKERFILE}" "${RBRV_CONJURE_BLDCONTEXT}"
 
-  # Prepare build substitutions (variable names kept as _RBGY_* for template compatibility)
-  local z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
-
-  buc_log_args 'Read git info from file'
-  jq -r '.commit' "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_COMMIT_FILE}" || buc_die "Failed to extract git commit"
-  jq -r '.branch' "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_BRANCH_FILE}" || buc_die "Failed to extract git branch"
-  jq -r '.repo'   "${ZRBF_GIT_INFO_FILE}" > "${ZRBF_GIT_REPO_FILE}"   || buc_die "Failed to extract git repo"
-
-  local z_git_commit=""
-  local z_git_branch=""
-  local z_git_repo=""
-  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}") || buc_die "Failed to read git commit"
-  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}") || buc_die "Failed to read git branch"
-  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")     || buc_die "Failed to read git repo"
-
-  test -n "${z_git_commit}" || buc_die "Git commit is empty"
-  test -n "${z_git_branch}" || buc_die "Git branch is empty"
-  test -n "${z_git_repo}"   || buc_die "Git repo is empty"
-
-  buc_log_args 'Create build config with substitutions for RBGJB template'
-  # Note: _RBGY_MACHINE_TYPE and _RBGY_TIMEOUT are set directly in API request,
-  # not via substitution, so they are omitted here to avoid Cloud Build errors.
-  jq -n                                                       \
-    --arg zjq_dockerfile     "${z_dockerfile_name}"             \
-    --arg zjq_moniker        "${RBRV_SIGIL}"                    \
-    --arg zjq_platforms      "${RBRV_CONJURE_PLATFORMS// /,}"   \
-    --arg zjq_gar_location   "${RBGD_GAR_LOCATION}"             \
-    --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}"           \
-    --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}"           \
-    --arg zjq_git_commit     "${z_git_commit}"                  \
-    --arg zjq_git_branch     "${z_git_branch}"                  \
-    --arg zjq_git_repo       "${z_git_repo}"                    \
-    --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}"         \
-    --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}"        \
-    --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}"        \
-    --arg zjq_crane_tar_gz     "${RBRR_CRANE_TAR_GZ}"             \
-    '{
-      substitutions: {
-        _RBGY_DOCKERFILE:     $zjq_dockerfile,
-        _RBGY_MONIKER:        $zjq_moniker,
-        _RBGY_PLATFORMS:      $zjq_platforms,
-        _RBGY_GAR_LOCATION:   $zjq_gar_location,
-        _RBGY_GAR_PROJECT:    $zjq_gar_project,
-        _RBGY_GAR_REPOSITORY: $zjq_gar_repository,
-        _RBGY_GIT_COMMIT:     $zjq_git_commit,
-        _RBGY_GIT_BRANCH:     $zjq_git_branch,
-        _RBGY_GIT_REPO:       $zjq_git_repo,
-        _RBGY_GAR_HOST_SUFFIX:   $zjq_gar_host_suffix,
-        _RBGY_ARK_SUFFIX_IMAGE:  $zjq_ark_suffix_image,
-        _RBGY_ARK_SUFFIX_ABOUT:  $zjq_ark_suffix_about,
-        _RBGY_CRANE_TAR_GZ:     $zjq_crane_tar_gz
-      }
-    }' >  "${ZRBF_BUILD_CONFIG_FILE}" || buc_die "Failed to create build config"
-
+  # Substitutions now composed inside zrbf_stitch_build_json() from module state
   # Stage & submit new flow
   zrbf_compose_tarball_name
   zrbf_upload_context_to_gcs

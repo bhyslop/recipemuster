@@ -240,7 +240,7 @@ rbrr_refresh_gcb_pins() {
   done
 
   buc_step "Writing RBRR_GCB_PINS_REFRESHED_AT epoch to rbrr file"
-  local z_sed_epoch_file="${ZRBRR_REFRESH_SED_PREFIX}epoch.sh"
+  local -r z_sed_epoch_file="${ZRBRR_REFRESH_SED_PREFIX}epoch.sh"
   sed "s|^RBRR_GCB_PINS_REFRESHED_AT=.*|RBRR_GCB_PINS_REFRESHED_AT=${BURD_NOW_EPOCH}|" "${z_rbrr_file}" > "${z_sed_epoch_file}" \
     || buc_die "Failed to sed RBRR_GCB_PINS_REFRESHED_AT"
   mv "${z_sed_epoch_file}" "${z_rbrr_file}" || buc_die "Failed to update RBRR_GCB_PINS_REFRESHED_AT in rbrr file"
