@@ -4596,6 +4596,7 @@
       "creation_time": "260222",
       "status": "racing",
       "order": [
+        "₢AiAAg",
         "₢AiAAb",
         "₢AiAAA",
         "₢AiAAB",
@@ -4629,7 +4630,7 @@
         "₢AiAAe",
         "₢AiAAf"
       ],
-      "next_pace_seed": "AAg",
+      "next_pace_seed": "AAh",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5710,6 +5711,17 @@
               "text": "Wire Private Pool into build JSON generation and expand machine type support.\n\n## Stitch function\n\nIn zrbf_stitch_build_json(), conditionally add `options.pool.name` when\nRBRR_GCB_PRIVATE_POOL_NAME is non-empty. The pool resource name format:\n`projects/{project}/locations/{region}/workerPools/{pool}`\n\nWhen pool is set:\n```json\n\"options\": {\n  \"logging\": \"CLOUD_LOGGING_ONLY\",\n  \"pool\": { \"name\": \"projects/.../workerPools/...\" }\n}\n```\n\nWhen pool is empty (default pool, current behavior):\n```json\n\"options\": {\n  \"logging\": \"CLOUD_LOGGING_ONLY\",\n  \"machineType\": \"...\"\n}\n```\n\nNote: machineType goes in options for default pool but is configured on the\npool resource itself for private pools. The JSON structure differs.\n\n## Machine type expansion\n\nPrivate pools unlock E2_STANDARD_* types not available on default pool.\nAdd to rbgc_gcb_machine_vcpus_capture() in rbgc_Constants.sh:\n- E2_STANDARD_2 → 2\n- E2_STANDARD_4 → 4\n- E2_STANDARD_8 → 8\n- E2_STANDARD_16 → 16\n- E2_STANDARD_32 → 32\n\n## Manual procedures\n\nUpdate rbgm_ManualProcedures.sh quota guidance to mention private pool\nquota metric name when applicable.\n\n## Files\n\n- Tools/rbw/rbf_Foundry.sh — conditional pool in stitch options\n- Tools/rbw/rbgc_Constants.sh — E2_STANDARD_* in vCPU mapping\n- Tools/rbw/rbgm_ManualProcedures.sh — quota guidance update\n\n## Verify\n\n- bash -n Tools/rbw/rbf_Foundry.sh\n- bash -n Tools/rbw/rbgc_Constants.sh\n- Inspect generated cloudbuild.json with and without pool name set",
               "silks": "private-pool-wire-build-json",
               "commit": "e4c7039"
+            }
+          ]
+        },
+        "₢AiAAg": {
+          "tacks": [
+            {
+              "ts": "260225-1907",
+              "state": "rough",
+              "text": "Add BURD_NOW_EPOCH to BUK dispatch infrastructure.\n\n## Motivation\n\nInscribe needs epoch arithmetic to rate-limit pin refresh (skip if < 1 day old).\nBCG prohibits command substitution at point of use. All true time should come from\ndispatch for consistency — BURD_NOW_EPOCH provides UTC epoch seconds synchronized\nwith the existing BURD_NOW_STAMP from a single `date` invocation.\n\n## Single date invocation\n\nReplace the existing `date` call in bud_dispatch.sh:\n\n```bash\n# Before:\nBURD_NOW_STAMP=$(date +'%Y%m%d-%H%M%S')-$$-$((RANDOM % 1000))\n\n# After:\nz_datetime=$(date +'%Y%m%d-%H%M%S %s')\nBURD_NOW_STAMP=\"${z_datetime% *}-$$-$((RANDOM % 1000))\"\nBURD_NOW_EPOCH=\"${z_datetime#* }\"\n```\n\nBash parameter expansion splits on the space — no subshell, no temp file.\n`%s` is always UTC epoch regardless of timezone. The existing local-time\nstamp format is preserved.\n\n## Changes\n\n1. bud_dispatch.sh — modify date call, add BURD_NOW_EPOCH\n2. bud_dispatch.sh — add BURD_NOW_EPOCH to z_known list (line ~277)\n3. bud_dispatch.sh — add `export BURD_NOW_EPOCH` alongside existing exports\n4. BUS0-BashUtilitiesSpec.adoc — document BURD_NOW_EPOCH if BURD vars are listed\n\n## Files\n\n- Tools/buk/bud_dispatch.sh\n- Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc (if BURD vars documented)\n\n## Verify\n\n- Run any tabtarget and confirm BURD_NOW_EPOCH is set to a valid epoch\n- Confirm BURD_NOW_STAMP format is unchanged",
+              "silks": "add-burd-now-epoch",
+              "commit": "3fe7b69"
             }
           ]
         }
