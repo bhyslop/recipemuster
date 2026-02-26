@@ -502,7 +502,7 @@ Always run these after Rust code changes:
 - `tt/vvw-r.RunVVX.sh` — Run VVX
 
 **JJX Commands Are Self-Committing:**
-`jjx_enroll`, `jjx_close`, `jjx_record`, and other state-mutating jjx commands commit gallops changes internally. Do NOT follow them with a separate `vvx_commit` — the tree will already be clean. If a commit command says "Nothing to commit", check `git status --short` and accept the result.
+`jjx_enroll`, `jjx_close`, `jjx_record`, and other state-mutating jjx commands create git commits internally. **`jjx_close` (wrap) commits ALL uncommitted changes** — code files and gallops state together in one commit. Do NOT follow any jjx_ command with `/jjc-pace-notch` or `vvx_commit` — the tree will already be clean. If a commit command says "Nothing to commit", check `git status --short` and accept the result.
 
 **Diagnose Before Escalating:**
 When a command fails, check the simplest explanation first. "Nothing to commit" means the tree is clean — verify with `git status`, don't try creative workarounds. "Unexpected argument" means wrong CLI syntax — read `--help`, don't guess. One diagnostic command beats three speculative retries.
@@ -545,6 +545,8 @@ When work is complete, report outcomes and ask. Do not wrap.
 When wrapping (after user confirms), always pipe a one-line summary of the work via stdin:
 `echo "Added bitmap displays to orient output" | jjx_close CORONET`
 The agent always has context about what was accomplished — include it.
+
+**Wrap commits everything.** `jjx_close` stages and commits all dirty files (code edits + gallops state) in one commit. Do NOT notch before or after wrapping — the wrap IS the final commit. If you want separate commits for intermediate code milestones, notch during work; remaining uncommitted changes are captured by wrap.
 
 <!-- MANAGED:JJK:END -->
 
