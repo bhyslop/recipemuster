@@ -5910,9 +5910,10 @@
         "₢AjAAU",
         "₢AjAAV",
         "₢AjAAW",
-        "₢AjAAX"
+        "₢AjAAX",
+        "₢AjAAY"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6176,6 +6177,17 @@
               "text": "Convert RBSRC-retriever_create.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-rbsrc-retriever-create",
               "commit": "c14a317"
+            }
+          ]
+        },
+        "₢AjAAY": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "Verify BUS0-BashUtilitiesSpec.adoc uses only axo_entity and axrg_* regime voicings with no operation voicings needing transformation. Quick verification.",
+              "silks": "verify-bus0-unaffected",
+              "commit": "5b44b86"
             }
           ]
         }
