@@ -4652,9 +4652,10 @@
         "₢AiAAe",
         "₢AiAAh",
         "₢AiAAk",
-        "₢AiAAl"
+        "₢AiAAl",
+        "₢AiAAm"
       ],
-      "next_pace_seed": "AAm",
+      "next_pace_seed": "AAn",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5934,6 +5935,17 @@
               "text": "BUK transcripts capture all buc_log_args output verbatim. Commands that\nhandle RBRA files (depot_initialize, rubric_preflight, inscribe) may log\nsecret-bearing values like RBRA_RUBRIC_REPO_URL (contains embedded PAT)\nor RBRA_PRIVATE_KEY fragments.\n\n## Problem\n\nThe transcript at BURD_TRANSCRIPT and the log files at BURD_LOG_HIST\npersist after command completion. Any buc_log_args call that includes\na secret value writes it to disk in plaintext.\n\n## Fix\n\nIdentify all code paths where secret-bearing RBRA values pass through\nlogging. Options:\n\n1. **Redaction at log time**: A buc utility that masks known secret\n   patterns (PATs, private keys, authenticated URLs) before writing\n   to transcript. E.g., `https://x-access-token:ghp_****@github.com/...`\n\n2. **Caller discipline**: Ensure callers never pass raw secret values\n   to buc_log_args — log only the non-secret portion (e.g., repo URL\n   without the credential).\n\n3. **Transcript cleanup**: Scrub transcripts on command completion.\n\nEvaluate which approach fits BCG patterns best. Option 2 is simplest\nbut relies on every caller getting it right. Option 1 is more robust.\n\n## Scope\n\n- Audit rbgm_ManualProcedures.sh (depot_initialize)\n- Audit rbgu_Utility.sh (rbra_load, http calls with auth tokens)\n- Audit rbf_Foundry.sh (inscribe path)\n- Check if OAuth bearer tokens appear in HTTP logging\n\n## Acceptance\n\n- No PATs, private keys, or bearer tokens in transcript files\n- Validated by grep on transcript after a depot_initialize run",
               "silks": "sanitize-secrets-from-transcripts",
               "commit": "ccf90bd"
+            }
+          ]
+        },
+        "₢AiAAm": {
+          "tacks": [
+            {
+              "ts": "260227-1533",
+              "state": "rough",
+              "text": "Rename tabtarget tt/rbw-RI.RubricInscribe.sh. New name TBD — requires minting decision when pace is worked. Current colophon rbw-RI with frontispiece RubricInscribe.",
+              "silks": "rename-rubric-inscribe-tabtarget",
+              "commit": "96b6de6"
             }
           ]
         }
