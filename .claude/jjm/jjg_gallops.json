@@ -5987,6 +5987,13 @@
         "₢AjAAD": {
           "tacks": [
             {
+              "ts": "260227-1427",
+              "state": "complete",
+              "text": "The ~13 rbtoe_* routines in RBS0 need group affiliation decisions.\n\nProposed split:\n- Role-specific routines (rbtoe_payor_authenticate, rbtoe_director_authenticate, etc.)\n  → axvo_method axd_transient axd_internal, affiliated with their role's group\n- Cross-cutting utilities (rbtoe_jwt_oauth_exchange, rbtoe_rbra_load, rbtoe_oauth_refresh)\n  → axvo_procedure axd_transient axd_internal (standalone, no entity)\n\nTransform their annotations from `// ⟦axl_voices axo_routine axe_bash_interactive⟧`\nto new voicings. Each routine needs individual assessment for entity affiliation.\nVerify no legacy axo_routine annotations remain in RBS0.",
+              "silks": "design-rbtoe-internal-routines",
+              "commit": "7147206"
+            },
+            {
               "ts": "260227-1054",
               "state": "rough",
               "text": "The ~13 rbtoe_* routines in RBS0 need group affiliation decisions.\n\nProposed split:\n- Role-specific routines (rbtoe_payor_authenticate, rbtoe_director_authenticate, etc.)\n  → axvo_method axd_transient axd_internal, affiliated with their role's group\n- Cross-cutting utilities (rbtoe_jwt_oauth_exchange, rbtoe_rbra_load, rbtoe_oauth_refresh)\n  → axvo_procedure axd_transient axd_internal (standalone, no entity)\n\nTransform their annotations from `// ⟦axl_voices axo_routine axe_bash_interactive⟧`\nto new voicings. Each routine needs individual assessment for entity affiliation.\nVerify no legacy axo_routine annotations remain in RBS0.",
