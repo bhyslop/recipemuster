@@ -5916,9 +5916,10 @@
         "₢AjAAa",
         "₢AjAAb",
         "₢AjAAc",
-        "₢AjAAd"
+        "₢AjAAd",
+        "₢AjAAe"
       ],
-      "next_pace_seed": "AAe",
+      "next_pace_seed": "AAf",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6248,6 +6249,17 @@
               "text": "Transform VOS0-VoxObscuraSpec.adoc: 4 axo_command (with axe_rust_impl — drop language), 5 axo_routine, 3 ghost axo_operation (allocate, invitatory, release — determine correct voicing). Also review voss_* section motifs that voice deprecated axs_* terms.",
               "silks": "transform-vos0-operations",
               "commit": "943caa7"
+            }
+          ]
+        },
+        "₢AjAAe": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "Remove all deprecated terms listed in AXLA deprecation appendix. Remove the deprecation appendix itself. Remove legacy Procedure Hierarchy section and old completeness checklists. Verify no remaining references to deleted terms across all specs.",
+              "silks": "delete-legacy-terms",
+              "commit": "597864f"
             }
           ]
         }
