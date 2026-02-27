@@ -2346,7 +2346,9 @@ between anchor and definition, declaring the operation role of the term being de
 
 [[axvo_procedure]]
 {axvo_procedure}::
-Voices a standalone procedure definition.
+Voices an
+{axo_procedure}
+definition.
 The annotated term defines an executable operation with defined inputs, behavior, outputs, and completion semantics.
 No entity affiliation required.
 +
@@ -2369,7 +2371,9 @@ in definition text must be an
 
 [[axvo_method]]
 {axvo_method}::
-Voices an entity-affiliated procedure definition.
+Voices an
+{axo_method}
+definition.
 The annotated term defines an executable operation belonging to an entity's interface.
 The definition text must include, as its second
 {mcm_attribute_reference},
@@ -2395,7 +2399,9 @@ in definition text must be an
 
 [[axvo_group]]
 {axvo_group}::
-Voices an operation group definition.
+Voices an
+{axo_group}
+definition.
 The annotated term defines a named collection of related operations that share an affiliated entity.
 The definition text must include, as its second
 {mcm_attribute_reference},
@@ -2491,9 +2497,9 @@ A
 {axl_motif}
 representing an executable operation affiliated with a specific
 {axo_entity}.
-{axl_voices}
-{axo_procedure}
-with mandatory entity affiliation.
+Peer to
+{axo_procedure};
+both are kinds of operation, neither voices the other.
 The entity must appear as the second
 {mcm_attribute_reference}
 in the definition text.
@@ -3422,8 +3428,16 @@ markers at the
 |===
 
 {axo_procedure}
-itself survives but is no longer the superset — it becomes one of two primary voicings alongside
-{axo_method}.
+and
+{axo_method}
+are peer motifs representing standalone and entity-affiliated operations respectively.
+{axvo_procedure},
+{axvo_method},
+and
+{axvo_group}
+are the definition-site voicings.
+{axo_method}
+is a new motif representing entity-affiliated operations.
 
 ==== Environment Dimension (language dropped)
 
