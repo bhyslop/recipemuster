@@ -630,6 +630,67 @@ rbgu_api_enable() {
   buc_log_args "API ${z_api_service} confirmed enabled"
 }
 
+# Provision service agent (Google-managed service account) for an enabled API.
+# Uses serviceusage.googleapis.com generateServiceIdentity to deterministically
+# ensure the service agent exists before granting it IAM roles.
+# Prints the service agent email to stdout.
+rbgu_provision_service_agent() {
+  zrbgu_sentinel
+
+  local z_api_service="${1}"
+  local z_project_id="${2}"
+  local z_token="${3}"
+
+  test -n "${z_api_service}" || buc_die "rbgu_provision_service_agent: API service name required"
+  test -n "${z_project_id}" || buc_die "rbgu_provision_service_agent: project ID required"
+  test -n "${z_token}" || buc_die "rbgu_provision_service_agent: access token required"
+
+  buc_log_args "Provisioning service agent for ${z_api_service} in ${z_project_id}"
+
+  local z_infix="provision-sa-${z_api_service}"
+  local z_url="https://serviceusage.googleapis.com/v1beta1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:generateServiceIdentity"
+
+  rbgu_http_json "POST" "${z_url}" "${z_token}" "${z_infix}" ""
+  rbgu_http_require_ok "Provision service agent ${z_api_service}" "${z_infix}"
+
+  local z_done
+  z_done=$(rbgu_json_field_capture "${z_infix}" ".done") || z_done=""
+
+  local z_final_infix="${z_infix}"
+  if test "${z_done}" != "true"; then
+    local z_op_name
+    z_op_name=$(rbgu_json_field_capture "${z_infix}" ".name") || buc_die "Provision ${z_api_service}: no operation name"
+    local z_poll_url="https://serviceusage.googleapis.com/v1beta1/${z_op_name}"
+
+    local z_elapsed=0
+    while :; do
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+
+      z_final_infix="${z_infix}-poll-${z_elapsed}s"
+      rbgu_http_json "GET" "${z_poll_url}" "${z_token}" "${z_final_infix}"
+
+      local z_code
+      z_code=$(rbgu_http_code_capture "${z_final_infix}") || z_code=""
+      test "${z_code}" = "200" || buc_die "Provision ${z_api_service}: poll failed (HTTP ${z_code})"
+
+      z_done=$(rbgu_json_field_capture "${z_final_infix}" ".done") || z_done=""
+      test "${z_done}" = "true" && break
+
+      test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" \
+        && buc_die "Provision ${z_api_service}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
+      buc_log_args "Provision ${z_api_service}: still running at ${z_elapsed}s..."
+    done
+  fi
+
+  local z_email
+  z_email=$(rbgu_json_field_capture "${z_final_infix}" ".response.email") || z_email=""
+  test -n "${z_email}" || buc_die "Provision service agent ${z_api_service}: no email in response"
+
+  buc_log_args "Service agent provisioned: ${z_email}"
+  printf '%s' "${z_email}"
+}
+
 # RBTOE: RBRA Load Pattern
 # Sources an RBRA file and validates required fields
 rbgu_rbra_load() {

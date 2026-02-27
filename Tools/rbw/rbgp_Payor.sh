@@ -761,9 +761,22 @@ rbgp_depot_create() {
   rbgi_add_project_iam_role "${z_token}" "Grant Mason Logs Writer" "projects/${z_depot_project_id}" \
     "roles/logging.logWriter" "serviceAccount:${z_mason_sa_email}" "mason-logs-writer"
 
+  buc_step 'Provision Cloud Build service agent'
+  local z_cb_service_agent
+  z_cb_service_agent=$(rbgu_provision_service_agent "cloudbuild" "${z_depot_project_id}" "${z_token}") \
+    || buc_die "Failed to provision Cloud Build service agent"
+
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
-  local z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
+
+  buc_step 'Provision Developer Connect service agent'
+  local z_devconnect_service_agent
+  z_devconnect_service_agent=$(rbgu_provision_service_agent "developerconnect" "${z_depot_project_id}" "${z_token}") \
+    || buc_die "Failed to provision Developer Connect service agent"
+
+  buc_step 'Grant Developer Connect service agent Secret Manager access'
+  rbgi_add_project_iam_role "${z_token}" "Grant DevConnect Secret Manager Admin" "projects/${z_depot_project_id}" \
+    "roles/secretmanager.admin" "serviceAccount:${z_devconnect_service_agent}" "devconnect-secretmgr"
 
   buc_step 'Create Developer Connect connection (PENDING state)'
   local z_gdc_connection_name="rbw-${z_depot_name}-github"
@@ -785,11 +798,6 @@ rbgp_depot_create() {
     "${RBGC_OP_PREFIX_GLOBAL}" \
     "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
     "${RBGC_MAX_CONSISTENCY_SEC}"
-
-  buc_step 'Grant Developer Connect service agent Secret Manager access'
-  local z_devconnect_service_agent="service-${z_project_number}@gcp-sa-devconnect.iam.gserviceaccount.com"
-  rbgi_add_project_iam_role "${z_token}" "Grant DevConnect Secret Manager Admin" "projects/${z_depot_project_id}" \
-    "roles/secretmanager.admin" "serviceAccount:${z_devconnect_service_agent}" "devconnect-secretmgr"
 
   # Verify connection exists in pending state
   local z_gdc_get_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/${z_gdc_parent}/connections/${z_gdc_connection_name}"

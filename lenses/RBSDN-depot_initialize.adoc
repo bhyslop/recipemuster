@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_depot_initialize}
+
 The
 {at_operator}
 completes one-time depot initialization after
@@ -14,27 +17,46 @@ in PENDING state.
 This procedure is idempotent — safe to re-run.
 Steps already complete (URL already valid, connection already COMPLETE) are skipped.
 
-// ⟦axs_inputs axd_none⟧
-
-// ⟦axs_preconditions⟧
-
+//axhoq_precondition
+[[rbtgo_depot_initialize_depot_exists]]
+{rbtgo_depot_initialize_depot_exists}
 * {rbtgi_depot}
 exists (completed
 {rbtgo_depot_create})
+
+//axhoq_precondition
+[[rbtgo_depot_initialize_governor_exists]]
+{rbtgo_depot_initialize_governor_exists}
 * {rbtr_governor}
 created for this depot (completed
 {rbtgo_governor_reset})
+
+//axhoq_precondition
+[[rbtgo_depot_initialize_gdc_configured]]
+{rbtgo_depot_initialize_gdc_configured}
 * {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in RBRR
+
+//axhoq_precondition
+[[rbtgo_depot_initialize_rubric_url_configured]]
+{rbtgo_depot_initialize_rubric_url_configured}
 * {rbrr_governor_rbra_file} contains {rbra_rubric_repo_url}
+
+//axhoq_precondition
+[[rbtgo_depot_initialize_operator_browser]]
+{rbtgo_depot_initialize_operator_browser}
 * Operator has browser access for GitHub OAuth authorization
 
-// ⟦axs_behavior⟧
-
+//axhos_step
+[[rbtgo_depot_initialize_authenticate]]
+{rbtgo_depot_initialize_authenticate}
 . *Authenticate as
 {rbtr_director}*:
 .. Execute
 {rbtoe_director_authenticate}
 
+//axhos_step
+[[rbtgo_depot_initialize_load_rubric_url]]
+{rbtgo_depot_initialize_load_rubric_url}
 . *Load Rubric Repo URL*:
 .. {rbbc_call}
 {rbtoe_rbra_load}
@@ -50,6 +72,9 @@ guidance for creating a rubric repository: create a repo on a git host (GitHub a
 ... {rbbc_fatal}
 "Set RBRA_RUBRIC_REPO_URL in Governor RBRA file and re-run"
 
+//axhos_step
+[[rbtgo_depot_initialize_validate_rubric_url]]
+{rbtgo_depot_initialize_validate_rubric_url}
 . *Validate Rubric Repo URL*:
 .. {rbbc_call}
 `git ls-remote «RUBRIC_REPO_URL» HEAD` to verify reachability and credential validity
@@ -59,6 +84,9 @@ guidance for creating a rubric repository: create a repo on a git host (GitHub a
 .. {rbbc_show}
 "Rubric repo URL validated"
 
+//axhos_step
+[[rbtgo_depot_initialize_check_devconnect]]
+{rbtgo_depot_initialize_check_devconnect}
 . *Check Developer Connect Connection Status*:
 .. Construct connection path: `projects/{rbrr_depot_project_id}/locations/{rbrr_gdc_region}/connections/{rbrr_gdc_connection_name}`
 .. {rbbc_call}
@@ -70,8 +98,12 @@ HTTP 200 — connection exists
 .. If `«CONNECTION_STAGE»` is `COMPLETE`:
 ... {rbbc_show}
 "Developer Connect connection already active — skipping OAuth step"
-... Go to step 7
+... Go to
+{rbtgo_depot_initialize_poll_connection}
 
+//axhos_step
+[[rbtgo_depot_initialize_grant_console]]
+{rbtgo_depot_initialize_grant_console}
 . *Grant Operator Console Access for Developer Connect*:
 .. {rbbc_require}
 {rbrp_operator_email} is set
@@ -81,6 +113,9 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 .. {rbbc_show}
 "Granted operator Developer Connect admin on depot project"
 
+//axhos_step
+[[rbtgo_depot_initialize_guide_oauth]]
+{rbtgo_depot_initialize_guide_oauth}
 . *Guide GitHub OAuth Authorization*:
 .. {rbbc_store}
 `«ACTION_URI»` from `.installationState.actionUri` of the connection response
@@ -98,6 +133,9 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 ... GitHub redirects back to GCP; OAuth token stored in Secret Manager
 .. Wait for {at_operator} confirmation
 
+//axhos_step
+[[rbtgo_depot_initialize_poll_connection]]
+{rbtgo_depot_initialize_poll_connection}
 . *Poll Connection Until Active*:
 .. {rbbc_poll}
 link:https://cloud.google.com/developer-connect/docs/reference/rest/v1/projects.locations.connections/get[developerconnect.connections.get] for `«CONNECTION_PATH»`
@@ -108,6 +146,9 @@ link:https://cloud.google.com/developer-connect/docs/reference/rest/v1/projects.
 .. {rbbc_fatal}
 if timeout: "Developer Connect OAuth did not complete — re-open the authorization URI and try again"
 
+//axhos_step
+[[rbtgo_depot_initialize_final_validation]]
+{rbtgo_depot_initialize_final_validation}
 . *Final Validation*:
 .. {rbbc_show}
 "Running final validation..."
@@ -116,16 +157,22 @@ if timeout: "Developer Connect OAuth did not complete — re-open the authorizat
 .. {rbbc_show}
 "Depot initialization complete"
 
-// ⟦axs_outputs⟧
+//axhoo_output
+[[rbtgo_depot_initialize_validated_url]]
+{rbtgo_depot_initialize_validated_url}
+* Validated {rbra_rubric_repo_url} — confirmed reachable via `git ls-remote`
 
-The outputs of depot initialization are:
+//axhoo_output
+[[rbtgo_depot_initialize_active_connection]]
+{rbtgo_depot_initialize_active_connection}
+* Active {rbtgi_source_connection} — `installationState.stage` is `COMPLETE`
 
-- Validated {rbra_rubric_repo_url} — confirmed reachable via `git ls-remote`
-- Active {rbtgi_source_connection} — `installationState.stage` is `COMPLETE`
-- OAuth token automatically stored in Secret Manager (managed by Developer Connect, not by operator)
+//axhoo_output
+[[rbtgo_depot_initialize_oauth_token]]
+{rbtgo_depot_initialize_oauth_token}
+* OAuth token automatically stored in Secret Manager (managed by Developer Connect, not by operator)
 
-// ⟦axs_completion⟧
-
+//axhoc_completion
 Successful execution confirms the depot is fully initialized for
 {rbtgo_rubric_inscribe}
 operations.

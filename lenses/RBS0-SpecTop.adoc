@@ -142,6 +142,24 @@
 :rbtgo_depot_create_config_display:      <<rbtgo_depot_create_config_display,Display Configuration>>
 :rbtgo_depot_create_tracking_update:     <<rbtgo_depot_create_tracking_update,Update Depot Tracking>>
 
+// Recipe Bottle Term Google Operations — depot_initialize detail site
+:rbtgo_depot_initialize_depot_exists:        <<rbtgo_depot_initialize_depot_exists,Depot Exists>>
+:rbtgo_depot_initialize_governor_exists:     <<rbtgo_depot_initialize_governor_exists,Governor Exists>>
+:rbtgo_depot_initialize_gdc_configured:      <<rbtgo_depot_initialize_gdc_configured,GDC Configured>>
+:rbtgo_depot_initialize_rubric_url_configured: <<rbtgo_depot_initialize_rubric_url_configured,Rubric URL Configured>>
+:rbtgo_depot_initialize_operator_browser:    <<rbtgo_depot_initialize_operator_browser,Operator Browser Access>>
+:rbtgo_depot_initialize_authenticate:        <<rbtgo_depot_initialize_authenticate,Authenticate Director>>
+:rbtgo_depot_initialize_load_rubric_url:     <<rbtgo_depot_initialize_load_rubric_url,Load Rubric URL>>
+:rbtgo_depot_initialize_validate_rubric_url: <<rbtgo_depot_initialize_validate_rubric_url,Validate Rubric URL>>
+:rbtgo_depot_initialize_check_devconnect:    <<rbtgo_depot_initialize_check_devconnect,Check DevConnect Status>>
+:rbtgo_depot_initialize_grant_console:       <<rbtgo_depot_initialize_grant_console,Grant Console Access>>
+:rbtgo_depot_initialize_guide_oauth:         <<rbtgo_depot_initialize_guide_oauth,Guide OAuth Authorization>>
+:rbtgo_depot_initialize_poll_connection:     <<rbtgo_depot_initialize_poll_connection,Poll Connection>>
+:rbtgo_depot_initialize_final_validation:    <<rbtgo_depot_initialize_final_validation,Final Validation>>
+:rbtgo_depot_initialize_validated_url:       <<rbtgo_depot_initialize_validated_url,Validated Rubric URL>>
+:rbtgo_depot_initialize_active_connection:   <<rbtgo_depot_initialize_active_connection,Active Source Connection>>
+:rbtgo_depot_initialize_oauth_token:         <<rbtgo_depot_initialize_oauth_token,OAuth Token>>
+
 :rbtoe_check_rubric_repo_url:     <<rbtoe_check_rubric_repo_url,Rubric Repo URL Check>>
 :rbtoe_check_devconnect:          <<rbtoe_check_devconnect,Developer Connect Check>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
