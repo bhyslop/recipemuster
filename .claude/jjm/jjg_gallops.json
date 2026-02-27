@@ -5895,9 +5895,10 @@
         "₢AjAAF",
         "₢AjAAG",
         "₢AjAAH",
-        "₢AjAAI"
+        "₢AjAAI",
+        "₢AjAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -5996,6 +5997,17 @@
               "text": "Convert RBSRC-retriever_create.adoc from legacy axs_* to axho_* markers.",
               "silks": "transform-rbsrc-retriever-create",
               "commit": "240321b"
+            }
+          ]
+        },
+        "₢AjAAJ": {
+          "tacks": [
+            {
+              "ts": "260227-1057",
+              "state": "rough",
+              "text": "Convert RBSDI-director_create.adoc from legacy axs_* to axho_* markers.",
+              "silks": "transform-rbsdi-director-create",
+              "commit": "d1126b5"
             }
           ]
         }
