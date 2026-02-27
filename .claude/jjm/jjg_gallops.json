@@ -5902,9 +5902,10 @@
         "₢AjAAM",
         "₢AjAAN",
         "₢AjAAO",
-        "₢AjAAP"
+        "₢AjAAP",
+        "₢AjAAQ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6080,6 +6081,17 @@
               "text": "Convert RBSPE-payor_establish.adoc, RBSPI-payor_install.adoc, RBSPR-payor_refresh.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern. Payor establish and refresh are attended.",
               "silks": "transform-payor-subdocs",
               "commit": "b193d51"
+            }
+          ]
+        },
+        "₢AjAAQ": {
+          "tacks": [
+            {
+              "ts": "260227-1057",
+              "state": "rough",
+              "text": "Transform JJS0-GallopsData.adoc: 4 axo_routine (load, save, persist, wrap) to axvo_procedure or axvo_method. Determine entity affiliation for each.",
+              "silks": "transform-jjs0-routines",
+              "commit": "db4eda6"
             }
           ]
         }
