@@ -144,7 +144,7 @@ zrbf_stitch_build_json() {
 
   # Preconditions: vessel loaded and git state captured
   test -s "${ZRBF_VESSEL_SIGIL_FILE}" || buc_die "Vessel not loaded — call zrbf_load_vessel first"
-  test -s "${ZRBF_GIT_INFO_FILE}"     || buc_die "Git info not captured — call zrbf_verify_git_clean first"
+  test -s "${ZRBF_GIT_INFO_FILE}"     || buc_die "Git info not captured — ensure git metadata is captured before stitch"
 
   buc_log_args 'Read vessel state for substitutions'
   local -r z_sigil=$(<"${ZRBF_VESSEL_SIGIL_FILE}")
@@ -1175,6 +1175,16 @@ rbf_rubric_inscribe() {
   local z_rubric_url_clean
   z_rubric_url_clean=$(printf '%s' "${RBRA_RUBRIC_REPO_URL}" | sed 's|://[^@]*@|://|')
 
+  # Extract hostname from rubric repo URL for Developer Connect repoType
+  local z_rubric_host="${z_rubric_url_clean#*://}"
+  z_rubric_host="${z_rubric_host%%/*}"
+  local z_repo_type=""
+  case "${z_rubric_host}" in
+    *github.com) z_repo_type="GITHUB" ;;
+    *gitlab.com) z_repo_type="GITLAB" ;;
+    *)           buc_die "Unsupported rubric repo host '${z_rubric_host}' — Developer Connect supports github.com and gitlab.com" ;;
+  esac
+
   # Phase 0: Pin staleness gate
   buc_step "Checking GCB pin freshness"
   local -r z_now_epoch="${BURD_NOW_EPOCH}"
@@ -1216,10 +1226,10 @@ rbf_rubric_inscribe() {
   local z_vessel_dirs=()
   local z_vessel_sigils=()
 
+  local z_grep_stderr="${ZRBF_INSCRIBE_PREFIX}grep_stderr.txt"
   for z_vessel_dir in "${RBRR_VESSEL_DIR}"/*/; do
     test -f "${z_vessel_dir}rbrv.env" || continue
     # Check for conjure mode by scanning for RBRV_CONJURE_DOCKERFILE
-    local z_grep_stderr="${ZRBF_INSCRIBE_PREFIX}grep_stderr.txt"
     grep -q "^RBRV_CONJURE_DOCKERFILE=" "${z_vessel_dir}rbrv.env" 2>"${z_grep_stderr}" || {
       buc_info "Skipping non-conjure vessel: ${z_vessel_dir##*/}"
       continue
@@ -1230,6 +1240,7 @@ rbf_rubric_inscribe() {
   buc_info "Found ${#z_vessel_dirs[@]} conjure vessel(s)"
 
   buc_step "Generating rubric JSON for all conjure vessels"
+  local z_target=""
   for z_vessel_dir in "${z_vessel_dirs[@]}"; do
     zrbf_load_vessel "${z_vessel_dir}"
     z_vessel_sigils+=("${RBRV_SIGIL}")
@@ -1237,7 +1248,7 @@ rbf_rubric_inscribe() {
     buc_step "Stitching build JSON for ${RBRV_SIGIL}"
     zrbf_stitch_build_json
 
-    local z_target="${z_vessel_dir}/cloudbuild.json"
+    z_target="${z_vessel_dir}/cloudbuild.json"
     cp "${ZRBF_STITCHED_BUILD_FILE}" "${z_target}" \
       || buc_die "Failed to copy stitched JSON to ${z_target}"
     buc_info "Generated: ${z_target}"
@@ -1248,19 +1259,19 @@ rbf_rubric_inscribe() {
   local z_stale_vessels=""
   local z_sigil=""
   local z_json_path=""
+  local z_idx=0
+  local z_ls_stderr="${ZRBF_INSCRIBE_PREFIX}ls_stderr.txt"
+  local z_diff_stderr="${ZRBF_INSCRIBE_PREFIX}diff_stderr.txt"
 
-  for z_vessel_dir in "${z_vessel_dirs[@]}"; do
-    z_sigil="${z_vessel_dir##*/}"
-    z_json_path="${z_vessel_dir}/cloudbuild.json"
+  for ((z_idx=0; z_idx<${#z_vessel_dirs[@]}; z_idx++)); do
+    z_json_path="${z_vessel_dirs[z_idx]}/cloudbuild.json"
 
     # Check if file is tracked by git
-    local z_ls_stderr="${ZRBF_INSCRIBE_PREFIX}ls_stderr.txt"
     if ! git ls-files --error-unmatch "${z_json_path}" >/dev/null 2>"${z_ls_stderr}"; then
       z_stale_vessels="${z_stale_vessels}  ${z_json_path} (NEW — not yet committed)\n"
       continue
     fi
     # Compare working copy against HEAD
-    local z_diff_stderr="${ZRBF_INSCRIBE_PREFIX}diff_stderr.txt"
     if ! git diff --quiet HEAD -- "${z_json_path}" 2>"${z_diff_stderr}"; then
       z_stale_vessels="${z_stale_vessels}  ${z_json_path} (modified — not committed)\n"
     fi
@@ -1283,42 +1294,35 @@ rbf_rubric_inscribe() {
   buc_info "Rubric repo cloned to ${ZRBF_INSCRIBE_CLONE_DIR}"
 
   # Copy per-vessel directories to rubric clone
+  # Rubric per-vessel dir = vessel dir minus rbrv.env (regime config, not build material)
   buc_step "Syncing vessel build material to rubric repo clone"
   local z_rubric_vessel_dir=""
-  for z_vessel_dir in "${z_vessel_dirs[@]}"; do
-    z_sigil="${z_vessel_dir##*/}"
+  for ((z_idx=0; z_idx<${#z_vessel_dirs[@]}; z_idx++)); do
+    z_vessel_dir="${z_vessel_dirs[z_idx]}"
+    z_sigil="${z_vessel_sigils[z_idx]}"
     z_rubric_vessel_dir="${ZRBF_INSCRIBE_CLONE_DIR}/${z_sigil}"
 
     rm -rf "${z_rubric_vessel_dir}"
-    mkdir -p "${z_rubric_vessel_dir}" || buc_die "Failed to create ${z_rubric_vessel_dir}"
+    cp -R "${z_vessel_dir}" "${z_rubric_vessel_dir}" \
+      || buc_die "Failed to copy vessel directory for ${z_sigil}"
+    rm -f "${z_rubric_vessel_dir}/rbrv.env"
 
-    # Copy cloudbuild.json
-    cp "${z_vessel_dir}/cloudbuild.json" "${z_rubric_vessel_dir}/cloudbuild.json" \
-      || buc_die "Failed to copy cloudbuild.json for ${z_sigil}"
-
-    # Re-source vessel config to get Dockerfile and context paths
-    source "${z_vessel_dir}/rbrv.env" || buc_die "Failed to re-source vessel config: ${z_vessel_dir}/rbrv.env"
-    test -f "${RBRV_CONJURE_DOCKERFILE}" || buc_die "Dockerfile not found: ${RBRV_CONJURE_DOCKERFILE}"
-    cp "${RBRV_CONJURE_DOCKERFILE}" "${z_rubric_vessel_dir}/Dockerfile" \
-      || buc_die "Failed to copy Dockerfile for ${z_sigil}"
-
-    # Copy build context (everything in vessel dir except rbrv.env and cloudbuild.json)
-    test -d "${RBRV_CONJURE_BLDCONTEXT}" || buc_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
-    local z_tar_stderr="${ZRBF_INSCRIBE_PREFIX}tar_stderr_${z_sigil}.txt"
-    tar -cf - -C "${RBRV_CONJURE_BLDCONTEXT}" \
-      --exclude='rbrv.env' --exclude='cloudbuild.json' . 2>"${z_tar_stderr}" \
-      | tar -xf - -C "${z_rubric_vessel_dir}" 2>>"${z_tar_stderr}" \
-      || buc_die "Failed to copy build context for ${z_sigil} — see ${z_tar_stderr}"
+    test -f "${z_rubric_vessel_dir}/cloudbuild.json" \
+      || buc_die "cloudbuild.json missing after copy for ${z_sigil}"
+    test -f "${z_rubric_vessel_dir}/Dockerfile" \
+      || buc_die "Dockerfile missing after copy for ${z_sigil}"
 
     buc_info "Synced: ${z_sigil}"
   done
 
   # Fill URL placeholder in rubric clone copies (commit placeholder stays for now)
   buc_step "Filling rubric repo URL in clone copies"
-  for z_vessel_dir in "${z_vessel_dirs[@]}"; do
-    z_sigil="${z_vessel_dir##*/}"
-    local z_rubric_json="${ZRBF_INSCRIBE_CLONE_DIR}/${z_sigil}/cloudbuild.json"
-    local z_filled_file="${ZRBF_INSCRIBE_PREFIX}${z_sigil}_url_filled.json"
+  local z_rubric_json=""
+  local z_filled_file=""
+  for ((z_idx=0; z_idx<${#z_vessel_dirs[@]}; z_idx++)); do
+    z_sigil="${z_vessel_sigils[z_idx]}"
+    z_rubric_json="${ZRBF_INSCRIBE_CLONE_DIR}/${z_sigil}/cloudbuild.json"
+    z_filled_file="${ZRBF_INSCRIBE_PREFIX}${z_sigil}_url_filled.json"
 
     jq --arg repo "${z_rubric_url_clean}" \
       '.substitutions._RBGY_RUBRIC_REPO = $repo' \
@@ -1338,10 +1342,6 @@ rbf_rubric_inscribe() {
 
   if git -C "${ZRBF_INSCRIBE_CLONE_DIR}" diff --cached --quiet; then
     buc_info "Rubric repo already up to date — no changes to commit"
-    # Still need to fill commit placeholder and ensure infra
-    local z_rubric_commit
-    z_rubric_commit=$(git -C "${ZRBF_INSCRIBE_CLONE_DIR}" rev-parse HEAD) \
-      || buc_die "Failed to get rubric HEAD"
   else
     git -C "${ZRBF_INSCRIBE_CLONE_DIR}" \
       commit -m "inscribe: ${z_inscribe_ts} — ${#z_vessel_dirs[@]} vessel(s)" \
@@ -1353,10 +1353,11 @@ rbf_rubric_inscribe() {
       || buc_die "Failed to get content commit hash"
 
     buc_step "Filling rubric commit hash in clone copies"
-    for z_vessel_dir in "${z_vessel_dirs[@]}"; do
-      z_sigil="${z_vessel_dir##*/}"
-      local z_rubric_json="${ZRBF_INSCRIBE_CLONE_DIR}/${z_sigil}/cloudbuild.json"
-      local z_commit_filled="${ZRBF_INSCRIBE_PREFIX}${z_sigil}_commit_filled.json"
+    local z_commit_filled=""
+    for ((z_idx=0; z_idx<${#z_vessel_dirs[@]}; z_idx++)); do
+      z_sigil="${z_vessel_sigils[z_idx]}"
+      z_rubric_json="${ZRBF_INSCRIBE_CLONE_DIR}/${z_sigil}/cloudbuild.json"
+      z_commit_filled="${ZRBF_INSCRIBE_PREFIX}${z_sigil}_commit_filled.json"
 
       jq --arg commit "${z_content_commit}" \
         '.substitutions._RBGY_RUBRIC_COMMIT = $commit' \
@@ -1434,68 +1435,61 @@ rbf_rubric_inscribe() {
     buc_die "Source link check failed (HTTP ${z_link_code})"
   fi
 
-  # Ensure per-vessel triggers exist
-  # List all triggers once and check for each vessel's trigger by name
+  # Ensure per-vessel triggers exist (direct GET per trigger, not list-and-search)
   local z_triggers_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GDC_REGION}/triggers"
-
-  buc_step "Listing existing Cloud Build triggers"
-  rbgu_http_json "GET" "${z_triggers_url}" "${z_token}" "inscribe_trigger_list"
-  rbgu_http_require_ok "List Cloud Build triggers" "inscribe_trigger_list"
-
-  # Copy trigger list to our own temp file for repeated jq queries
-  local z_trigger_list_file="${ZRBF_INSCRIBE_PREFIX}trigger_list.json"
-  cp "${ZRBGU_PREFIX}inscribe_trigger_list${ZRBGU_POSTFIX_JSON}" "${z_trigger_list_file}" \
-    || buc_die "Failed to copy trigger list response"
+  local z_trigger_name=""
+  local z_trigger_check_infix=""
+  local z_trigger_code=""
+  local z_trigger_body=""
+  local z_trigger_create_url=""
+  local z_trigger_create_infix=""
+  local z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   for z_sigil in "${z_vessel_sigils[@]}"; do
-    local z_trigger_name="${RBGC_RUBRIC_TRIGGER_PREFIX}${z_sigil}"
-
+    z_trigger_name="${RBGC_RUBRIC_TRIGGER_PREFIX}${z_sigil}"
     buc_step "Ensuring trigger: ${z_trigger_name}"
 
-    # Check if trigger exists by searching the list response for matching name
-    local z_trigger_match_file="${ZRBF_INSCRIBE_PREFIX}trigger_match_${z_sigil}.txt"
-    jq -r --arg tname "${z_trigger_name}" \
-      '[.triggers // [] | .[] | select(.name == $tname) | .id] | length' \
-      "${z_trigger_list_file}" > "${z_trigger_match_file}" \
-      || buc_die "Failed to search trigger list for ${z_trigger_name}"
-    local z_trigger_exists=""
-    z_trigger_exists=$(<"${z_trigger_match_file}")
+    # Check if trigger exists by direct GET using triggerId
+    z_trigger_check_infix="inscribe_trigger_check_${z_sigil}"
+    rbgu_http_json "GET" "${z_triggers_url}/${z_trigger_name}" "${z_token}" "${z_trigger_check_infix}"
+    z_trigger_code=$(rbgu_http_code_capture "${z_trigger_check_infix}") || z_trigger_code=""
 
-    if test "${z_trigger_exists:-0}" != "0"; then
+    if test "${z_trigger_code}" = "200"; then
       buc_info "Trigger already exists: ${z_trigger_name}"
       continue
+    elif test "${z_trigger_code}" != "404"; then
+      buc_die "Trigger check failed for ${z_trigger_name} (HTTP ${z_trigger_code})"
     fi
 
     buc_step "Creating trigger: ${z_trigger_name}"
-    local z_trigger_body="${ZRBF_INSCRIBE_PREFIX}trigger_${z_sigil}.json"
+    z_trigger_body="${ZRBF_INSCRIBE_PREFIX}trigger_${z_sigil}.json"
+    z_trigger_create_url="${z_triggers_url}?triggerId=${z_trigger_name}"
 
-    local z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
     jq -n \
-      --arg name    "${z_trigger_name}" \
       --arg sigil   "${z_sigil}" \
       --arg repo    "${z_link_resource}" \
       --arg sa      "${z_mason_sa}" \
+      --arg rtype   "${z_repo_type}" \
       '{
-        name: $name,
         description: ("Recipe Bottle rubric trigger for " + $sigil),
         sourceToBuild: {
           repository: $repo,
           ref: "refs/heads/main",
-          repoType: "GITHUB"
+          repoType: $rtype
         },
         gitFileSource: {
           path: ($sigil + "/cloudbuild.json"),
           repository: $repo,
           revision: "refs/heads/main",
-          repoType: "GITHUB"
+          repoType: $rtype
         },
         serviceAccount: $sa
       }' > "${z_trigger_body}" || buc_die "Failed to compose trigger body for ${z_sigil}"
 
-    local z_trigger_create_infix="inscribe_trigger_create_${z_sigil}"
-    rbgu_http_json "POST" "${z_triggers_url}" "${z_token}" \
+    z_trigger_create_infix="inscribe_trigger_create_${z_sigil}"
+    rbgu_http_json "POST" "${z_trigger_create_url}" "${z_token}" \
       "${z_trigger_create_infix}" "${z_trigger_body}"
-    rbgu_http_require_ok "Create trigger ${z_trigger_name}" "${z_trigger_create_infix}" "409" "already exists"
+    rbgu_http_require_ok "Create trigger ${z_trigger_name}" "${z_trigger_create_infix}"
 
     buc_info "Trigger created: ${z_trigger_name}"
   done

@@ -50,9 +50,9 @@ Developer Connect provides the bridge from GitHub to GCB:
 - **Inscribe timestamp in tags** — baked at inscribe time (e.g., `i20260223.143022`),
   `$BUILD_ID` prefix for per-build uniqueness. Multiple builds of same inscribed JSON
   produce distinct but related tags.
-- **Pin refresh integrated** — inscribe calls `rbrr_refresh_gcb_pins` as its first step,
-  skipping if RBRR_GCB_PINS_REFRESHED_AT is less than 1 day old. Not a blocking gate —
-  inscribe refreshes automatically when stale, never fails on staleness.
+- **Pin staleness is a blocking gate** — inscribe verifies `RBRR_GCB_PINS_REFRESHED_AT`
+  is less than 1 day old and dies if stale, directing the operator to refresh pins
+  manually, commit, and re-run inscribe. Deliberate: inscribe never silently refreshes.
 - **Separate inscribe and build commands** — inscribe updates the rubric; build dispatches.
   Build does NOT verify main repo git state (inscribe already synced rubric repo).
 - **Modify existing functions, not recreate** — `zrbf_stitch_build_json()` is extended to
@@ -368,14 +368,14 @@ per vessel directory) → one rubric repo clone/commit/push → ensure all trigg
 One command, one rubric repo commit, one main-repo commit to review. This eliminates the
 per-vessel inscribe ceremony and the temporal gap between vessel updates.
 
-**Pin refresh folded into inscribe front-matter.**
-Inscribe calls `rbrr_refresh_gcb_pins` as its first step, skipping if
-`RBRR_GCB_PINS_REFRESHED_AT` is less than 1 day old (shortened from 2 days).
-Not a blocking gate — inscribe refreshes automatically when stale, never fails on
-staleness. The standalone `rbrr_refresh_gcb_pins` command remains callable for manual
-inspection. Eliminates: `zrbf_check_pin_freshness()` blocking gate function and the
-two-command ceremony (refresh then inscribe). `RBRR_GCB_PINS_REFRESHED_AT` survives
-as a rate-limiting timestamp, written by pin refresh on success.
+**Pin staleness is a blocking gate in inscribe.**
+Inscribe verifies `RBRR_GCB_PINS_REFRESHED_AT` is less than 1 day old (shortened
+from 2 days). If stale, inscribe dies with guidance to run pin refresh manually,
+commit, and re-run. Deliberate design: inscribe never silently refreshes — the
+operator sees and commits pin updates explicitly. The standalone
+`rbrr_refresh_gcb_pins` command remains callable for manual inspection.
+`RBRR_GCB_PINS_REFRESHED_AT` survives as a staleness timestamp, written by pin
+refresh on success.
 
 **Build context explicitly copied to rubric repo.**
 Each vessel's Dockerfile and build context directory are copied to the per-vessel directory

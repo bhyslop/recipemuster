@@ -20,9 +20,9 @@ Non-conjure vessels (no `RBRV_CONJURE_DOCKERFILE` in {rbrv_regime}) are skipped.
 
 // ⟦axs_behavior⟧
 
-. *Refresh Pins*:
-.. Call `rbrr_refresh_gcb_pins` to resolve builder image tags to current digests
-.. Rate-limited: skip if last successful refresh was less than 1 day ago
+. *Pin Staleness Gate*:
+.. Verify `RBRR_GCB_PINS_REFRESHED_AT` is less than 1 day old
+.. If stale: die with guidance to run pin refresh manually, commit, and re-run inscribe
 .. `rbrr_refresh_gcb_pins` remains independently callable for manual inspection
 
 . *Generate All Rubric JSON*:
@@ -48,9 +48,7 @@ from step scripts (`rbgjb/*.sh`) and regime pins
 using
 {rbra_rubric_repo_url}
 .. For each conjure vessel:
-... Copy
-{rbtgr_build_json},
-Dockerfile, and build context from main repo to per-vessel directory in clone
+... Copy vessel directory to per-vessel directory in clone, excluding `rbrv.env` (regime config is not build material)
 .. Fill `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` in each clone copy of
 {rbtgr_build_json}
 with the actual {rbtgr_rubric_repo} URL and the commit hash after push
