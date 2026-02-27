@@ -300,6 +300,7 @@
 // Recipe Bottle Regime: Payor
 :rbrp_billing_account_id:    <<rbrp_billing_account_id,RBRP_BILLING_ACCOUNT_ID>>
 :rbrp_oauth_client_id:       <<rbrp_oauth_client_id,RBRP_OAUTH_CLIENT_ID>>
+:rbrp_operator_email:        <<rbrp_operator_email,RBRP_OPERATOR_EMAIL>>
 :rbrp_payor_project_id:      <<rbrp_payor_project_id,RBRP_PAYOR_PROJECT_ID>>
 :rbrp_regime:                <<rbrp_regime,RBRP Regime>>
 
@@ -719,7 +720,9 @@ include::RBSDC-depot_create.adoc[]
 // ⟦axl_voices axo_guide axe_human_guide⟧
 === {rbtgo_depot_initialize}
 
-Completes one-time depot initialization: validates the
+Completes one-time depot initialization (after
+{rbtgo_governor_reset}
+has been run): validates the
 {rbra_rubric_repo_url}
 and guides the
 {at_operator}
@@ -2152,6 +2155,13 @@ instances.
 The public OAuth 2.0 client identifier for the
 {rbtr_payor}
 desktop application.
+
+[[rbrp_operator_email]]
+// ⟦axl_voices axrg_variable axtu_string⟧
+{rbrp_operator_email}::
+Email address of the human operator performing depot initialization.
+Used to grant Developer Connect administrator access on the depot project during
+{rbtgo_depot_initialize}.
 
 include::RBSRP-RegimePayor.adoc[]
 

@@ -19,7 +19,9 @@
 // axf_: Axial Format (serialization/carriage formats) → mcm_form_deflist
 // axrg_: Axial Regime (configuration system patterns) → mcm_form_deflist
 // axvr_: Axial Voicing Regime (definition-site regime annotations) → mcm_form_deflist
+// axvo_: Axial Voicing Operation (definition-site operation annotations) → mcm_form_deflist
 // axhr*_: Axial Hierarchy Regime (standalone hierarchy markers) → mcm_form_deflist
+// axho*_: Axial Hierarchy Operation (standalone operation hierarchy markers) → mcm_form_deflist
 // xref_: External specification references
 //
 // Extended Type Categories (domain-specific type subcategories):
@@ -55,6 +57,10 @@
 :axl_voicing:                         <<axl_voicing,Voicing>>
 :axl_voicing_s:                       <<axl_voicing,Voicings>>
 :axl_voices:                          <<axl_voices,Voices>>
+:axl_definition_site:                 <<axl_definition_site,Definition Site>>
+:axl_definition_site_s:               <<axl_definition_site,Definition Sites>>
+:axl_detail_site:                     <<axl_detail_site,Detail Site>>
+:axl_detail_site_s:                   <<axl_detail_site,Detail Sites>>
 
 // Axial Dimension Terms
 :axd_conditional:                     <<axd_conditional,Conditional>>
@@ -71,6 +77,11 @@
 :axd_periodic:                        <<axd_periodic,Periodic>>
 :axd_repeated:                        <<axd_repeated,Repeated>>
 :axd_required:                        <<axd_required,Required>>
+:axd_attended:                        <<axd_attended,Attended>>
+:axd_grouped:                         <<axd_grouped,Grouped>>
+:axd_internal:                        <<axd_internal,Internal>>
+:axd_slash_command:                   <<axd_slash_command,Slash Command>>
+:axd_tabtarget:                       <<axd_tabtarget,Tabtarget>>
 :axd_transient:                       <<axd_transient,Transient>>
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_xml_form:                        <<axd_xml_form,XML Form>>
@@ -119,6 +130,20 @@
 :axvr_list:                           <<axvr_list,List Voicing>>
 :axvr_survey:                         <<axvr_survey,Survey Voicing>>
 :axvr_audit:                          <<axvr_audit,Audit Voicing>>
+
+// Axial Voicing Operation Terms (definition-site annotations)
+:axvo_group:                          <<axvo_group,Group Voicing>>
+:axvo_method:                         <<axvo_method,Method Voicing>>
+:axvo_procedure:                      <<axvo_procedure,Procedure Voicing>>
+
+// Axial Hierarchy Operation Terms (standalone hierarchy markers)
+:axhob_operation:                     <<axhob_operation,Hierarchy Operation>>
+:axhoc_completion:                    <<axhoc_completion,Hierarchy Completion>>
+:axhog_guarantee:                     <<axhog_guarantee,Hierarchy Guarantee>>
+:axhoo_output:                        <<axhoo_output,Hierarchy Output>>
+:axhop_parameter:                     <<axhop_parameter,Hierarchy Parameter>>
+:axhoq_precondition:                  <<axhoq_precondition,Hierarchy Precondition>>
+:axhos_step:                          <<axhos_step,Hierarchy Step>>
 
 // Axial Hierarchy Regime Operation Markers (subdocument)
 :axhro_kindle:                        <<axhro_kindle,Hierarchy Kindle>>
@@ -204,9 +229,13 @@
 :axo_command_s:                       <<axo_command,Commands>>
 :axo_entity:                          <<axo_entity,Entity>>
 :axo_entity_s:                        <<axo_entity,Entities>>
+:axo_group:                           <<axo_group,Operation Group>>
+:axo_group_s:                         <<axo_group,Operation Groups>>
 :axo_guide:                           <<axo_guide,Guide>>
 :axo_identity:                        <<axo_identity,Identity>>
 :axo_identity_s:                      <<axo_identity,Identities>>
+:axo_method:                          <<axo_method,Method>>
+:axo_method_s:                        <<axo_method,Methods>>
 :axo_procedure:                       <<axo_procedure,Procedure>>
 :axo_procedure_s:                     <<axo_procedure,Procedures>>
 :axo_role:                            <<axo_role,Role>>
@@ -2278,6 +2307,352 @@ second must be an
 {axt_enum_value}
 of that specific enumeration type
 
+== Axial Lexicon Structural Terms
+
+[[axl_definition_site]]
+{axl_definition_site}::
+The location in a parent document where a linked term is defined: anchor, voicing annotation, and definition text.
+The
+{axl_definition_site}
+establishes the term's identity, role, and architectural relationships.
+Voicing annotations at the
+{axl_definition_site}
+may impose positional requirements on linked terms in the definition text that follows.
+
+[[axl_detail_site]]
+{axl_detail_site}::
+The location where a linked term's details are elaborated through hierarchy markers and prose.
+Typically a subdocument included from the parent, but may be inline within the parent document for compact definitions.
+The
+{axl_detail_site}
+is opened by a hierarchy block marker (e.g.,
+{axhob_operation},
+{axhrb_regime})
+and contains subordinate markers for parameters, steps, variables, or other structural elements.
+
+== Axial Voicing Operation Terms
+
+Two annotation families enable operation specification across
+{axl_definition_site_s}
+and
+{axl_detail_site_s},
+paralleling the regime annotation pattern.
+
+=== Definition-Site Voicing Annotations (axvo_*)
+
+{axvo_*} annotations appear at the
+{axl_definition_site}
+between anchor and definition, declaring the operation role of the term being defined.
+
+[[axvo_procedure]]
+{axvo_procedure}::
+Voices a standalone procedure definition.
+The annotated term defines an executable operation with defined inputs, behavior, outputs, and completion semantics.
+No entity affiliation required.
++
+{axd_dimension_s}:
+exactly one lifecycle
+({axd_transient},
+{axd_longrunning},
+or
+{axd_periodic}).
+Optional
+{axd_attended}.
+Optional
+{axd_internal}.
+Optional
+{axd_grouped}
+(second
+{mcm_attribute_reference}
+in definition text must be an
+{axo_group}).
+
+[[axvo_method]]
+{axvo_method}::
+Voices an entity-affiliated procedure definition.
+The annotated term defines an executable operation belonging to an entity's interface.
+The definition text must include, as its second
+{mcm_attribute_reference},
+the affiliated entity (an anchor that voices
+{axo_entity}).
++
+{axd_dimension_s}:
+exactly one lifecycle
+({axd_transient},
+{axd_longrunning},
+or
+{axd_periodic}).
+Optional
+{axd_attended}.
+Optional
+{axd_internal}.
+Optional
+{axd_grouped}
+(third
+{mcm_attribute_reference}
+in definition text must be an
+{axo_group}).
+
+[[axvo_group]]
+{axvo_group}::
+Voices an operation group definition.
+The annotated term defines a named collection of related operations that share an affiliated entity.
+The definition text must include, as its second
+{mcm_attribute_reference},
+the affiliated entity (an anchor that voices
+{axo_entity}).
++
+{axd_dimension_s}:
+optional
+{axd_tabtarget},
+{axd_slash_command},
+or other exposure mechanism specifying the default interface for external members.
+
+=== New Operation Dimension Terms
+
+[[axd_attended]]
+{axd_attended}::
+A
+{axd_dimension}
+indicating that a procedure or method requires human interaction during execution.
+Absence means unattended (fully automated).
+Valid on
+{axvo_procedure}
+and
+{axvo_method}.
+
+[[axd_internal]]
+{axd_internal}::
+A
+{axd_dimension}
+indicating that a procedure or method is an implementation building block, not a consumer-facing interface.
+Absence means external (published interface).
+Valid on
+{axvo_procedure}
+and
+{axvo_method}.
+
+[[axd_grouped]]
+{axd_grouped}::
+A
+{axd_dimension}
+indicating that a procedure or method belongs to a named operation group.
+Imposes a positional requirement on the definition text: the next
+{mcm_attribute_reference}
+after any prior positional requirements must be an
+{axo_group}.
+For
+{axvo_procedure}:
+the second linked term must be the group.
+For
+{axvo_method}:
+the third linked term must be the group (second is the entity).
+Valid on
+{axvo_procedure}
+and
+{axvo_method}.
+
+[[axd_tabtarget]]
+{axd_tabtarget}::
+A
+{axd_dimension}
+indicating that external members of an operation group are exposed as tabtargets.
+Valid on
+{axvo_group}.
+
+[[axd_slash_command]]
+{axd_slash_command}::
+A
+{axd_dimension}
+indicating that external members of an operation group are exposed as
+{axi_cc_slash_command_s}.
+Valid on
+{axvo_group}.
+
+=== New Operation Terms
+
+[[axo_group]]
+{axo_group}::
+A
+{axl_motif}
+representing a named collection of related
+{axo_procedure_s}
+or
+{axo_method_s}
+that share an affiliated
+{axo_entity}.
+The group provides a formal identity at the
+{axl_definition_site}
+for operation clustering that would otherwise be implicit in naming conventions.
+
+[[axo_method]]
+{axo_method}::
+A
+{axl_motif}
+representing an executable operation affiliated with a specific
+{axo_entity}.
+{axl_voices}
+{axo_procedure}
+with mandatory entity affiliation.
+The entity must appear as the second
+{mcm_attribute_reference}
+in the definition text.
+This is a grammar constraint: the voicing demands the relationship be stated.
+
+== Axial Hierarchy Operation Markers
+
+{axho*} markers appear at the
+{axl_detail_site}
+as standalone annotations, paralleling the
+{axhr*}
+regime hierarchy markers.
+Each marker uses the prefix-discriminated form and reads ahead a specified number of
+{mcm_attribute_reference_s}
+from the following text.
+
+=== Marker Terms and Lookahead Arities
+
+[cols="<,^,<",options="header"]
+|===
+|Marker |Lookahead |Reads
+
+|{axhob_operation}    |1 {mcm_attribute_reference}  |The operation this detail site describes (no dimensions — dimensions are at {axl_definition_site} only)
+|{axhoc_completion}   |0                            |Introduces the signaling contract section (exit codes, status)
+|{axhop_parameter}    |1 {mcm_attribute_reference}  |A named input parameter
+|{axhoo_output}       |1 {mcm_attribute_reference}  |A named output
+|{axhoq_precondition} |1 {mcm_attribute_reference}  |A required condition before execution
+|{axhog_guarantee}    |1 {mcm_attribute_reference}  |A promised condition after execution
+|{axhos_step}         |1 {mcm_attribute_reference}  |A named behavioral step
+|===
+
+[[axhob_operation]]
+{axhob_operation}::
+Opens the operation hierarchy block at the
+{axl_detail_site}.
+Lookahead: 1
+{mcm_attribute_reference}
+— the operation this detail site describes.
+The referenced attribute must correspond to an anchor annotated with
+{axvo_procedure}
+or
+{axvo_method}
+at the
+{axl_definition_site}.
+No dimensions on this marker — all dimensions are authoritative at the
+{axl_definition_site}
+only.
+
+The surface syntax:
+
+[source,asciidoc]
+----
+//axhob_operation
+{rbtgo_depot_create}
+
+//axhop_parameter
+{rbtgo_depot_create_name}
+----
+
+[[axhoc_completion]]
+{axhoc_completion}::
+Marks the signaling contract section in an operation
+{axl_detail_site}.
+Lookahead: 0 — no linked term follows.
+Documents how the operation communicates success or failure: exit codes for CLI, HTTP status for REST, return values for functions.
+Distinct from
+{axhog_guarantee}
+which describes state promises, and
+{axhoo_output}
+which describes produced data.
+One per operation.
+
+[[axhop_parameter]]
+{axhop_parameter}::
+Marks a named input parameter in an operation
+{axl_detail_site}.
+Lookahead: 1
+{mcm_attribute_reference}
+— the parameter being detailed.
+Individual markers per parameter; no section wrapper needed.
+
+[[axhoo_output]]
+{axhoo_output}::
+Marks a named output in an operation
+{axl_detail_site}.
+Lookahead: 1
+{mcm_attribute_reference}
+— the output being detailed.
+Individual markers per output; no section wrapper needed.
+
+[[axhoq_precondition]]
+{axhoq_precondition}::
+Marks a required precondition in an operation
+{axl_detail_site}.
+Lookahead: 1
+{mcm_attribute_reference}
+— the precondition being detailed.
+Each precondition is a statement about required environmental state before execution.
+
+[[axhog_guarantee]]
+{axhog_guarantee}::
+Marks a postcondition guarantee in an operation
+{axl_detail_site}.
+Lookahead: 1
+{mcm_attribute_reference}
+— the guarantee being detailed.
+Each guarantee is a promise about environmental state after successful execution.
+
+[[axhos_step]]
+{axhos_step}::
+Marks a named behavioral step in an operation
+{axl_detail_site}.
+Lookahead: 1
+{mcm_attribute_reference}
+— the step being detailed.
+Steps are individually addressable for lectionary extraction.
+Branching between steps is expressed in prose using cross-references to step linked terms.
+
+=== Nesting Rules
+
+Operation hierarchy markers establish implicit scope through document order:
+
+* {axhob_operation}
+opens the operation block; all subsequent markers belong to it until document end or next
+{axhob_operation}
+* {axhoc_completion},
+{axhop_parameter},
+{axhoo_output},
+{axhoq_precondition},
+{axhog_guarantee},
+and
+{axhos_step}
+must appear within
+{axhob_operation}
+scope
+* No required ordering among completion, parameter, output, precondition, guarantee, and step markers
+* At most one
+{axhoc_completion}
+per operation
+
+=== Cross-Document Validation
+
+* {axhob_operation}
+attribute reference must match an operation defined with
+{axvo_procedure}
+or
+{axvo_method}
+at the
+{axl_definition_site}
+* {axhob_operation}
+carries no dimensions — all dimensions are authoritative at the
+{axl_definition_site}
+only
+* When a
+{axvo_method}
+uses
+{axd_grouped},
+the method's affiliated entity must equal the group's affiliated entity
+
 == Axial Type Universal Terms
 
 {axtu_*} types represent generic infrastructure patterns that are not specific to any cloud provider or platform.
@@ -2924,3 +3299,225 @@ under a regime should appear as either
 or
 {axhrgv_variable}
 in the subdocument
+
+=== Operation Voicing Annotation Completeness
+
+{axvo_procedure}
+requires:
+
+* Exactly one lifecycle dimension:
+{axd_transient},
+{axd_longrunning},
+or
+{axd_periodic}
+
+* If
+{axd_grouped}:
+second
+{mcm_attribute_reference}
+in definition text must be an
+{axo_group}
+
+{axvo_method}
+requires:
+
+* Second
+{mcm_attribute_reference}
+in definition text must be the affiliated
+{axo_entity}
+
+* Exactly one lifecycle dimension:
+{axd_transient},
+{axd_longrunning},
+or
+{axd_periodic}
+
+* If
+{axd_grouped}:
+third
+{mcm_attribute_reference}
+in definition text must be an
+{axo_group}
+
+{axvo_group}
+requires:
+
+* Second
+{mcm_attribute_reference}
+in definition text must be the affiliated
+{axo_entity}
+
+* Optional exposure dimension:
+{axd_tabtarget},
+{axd_slash_command},
+or other interface mechanism specifying the default exposure for external members
+
+=== Operation Hierarchy Consistency
+
+* {axhob_operation}
+attribute reference must match a term voiced
+{axvo_procedure}
+or
+{axvo_method}
+at the
+{axl_definition_site}
+
+* Every
+{axhoc_completion},
+{axhop_parameter},
+{axhoo_output},
+{axhoq_precondition},
+{axhog_guarantee},
+and
+{axhos_step}
+must appear within
+{axhob_operation}
+scope
+
+== Operation Vocabulary Migration Plan
+
+This section documents the transformation from legacy operation voicing patterns to the new
+{axvo_*}
+and
+{axho_*}
+system.
+Terms listed here will be deleted from AXLA after all specifications have been transformed.
+
+=== Legacy Patterns Replaced
+
+==== Procedure Type Hierarchy (collapse to axo_procedure + axo_method)
+
+The legacy four-type hierarchy is replaced by two primary voicings:
+
+[cols="<,<,<",options="header"]
+|===
+|Legacy Term |Replacement |Notes
+
+|{axo_command}
+|{axvo_procedure} or {axvo_method}
+|The machine-executor constraint is dropped.
+Lifecycle dimension
+({axd_transient})
+carries the relevant behavioral characteristic.
+
+|{axo_guide}
+|{axvo_procedure} or {axvo_method} with {axd_attended}
+|The human-executor constraint becomes the
+{axd_attended}
+dimension.
+
+|{axo_routine}
+|{axvo_procedure} or {axvo_method} with {axd_internal}
+|The reusability/subsequence constraint becomes the
+{axd_internal}
+dimension.
+
+|{axo_sequence}
+|No replacement needed
+|Was already documented as NOT a procedure type.
+Step ordering is expressed through
+{axhos_step}
+markers at the
+{axl_detail_site}.
+|===
+
+{axo_procedure}
+itself survives but is no longer the superset — it becomes one of two primary voicings alongside
+{axo_method}.
+
+==== Environment Dimension (language dropped)
+
+[cols="<,<",options="header"]
+|===
+|Legacy Term |Replacement
+
+|{axe_bash_interactive}
+|Dropped. Implementation language is not a behavioral characteristic.
+
+|{axe_bash_scripted}
+|Dropped.
+
+|{axe_bash_unattended}
+|Dropped. The relevant distinction (attended vs unattended) is captured by
+{axd_attended}.
+
+|{axe_human_guide}
+|Dropped. Replaced by
+{axd_attended}.
+
+|{axe_rest_api}
+|Under review. May survive as an interface term rather than environment.
+
+|{axe_daemon_runtime}
+|Under review. The
+{axd_longrunning}
+lifecycle dimension may subsume this.
+|===
+
+==== Section Motifs (replaced by hierarchy markers)
+
+[cols="<,<",options="header"]
+|===
+|Legacy Term |Replacement
+
+|{axs_inputs}
+|{axhop_parameter} (individual markers per parameter)
+
+|{axs_preconditions}
+|{axhoq_precondition} (individual markers per precondition)
+
+|{axs_behavior}
+|{axhos_step} (individual markers per step)
+
+|{axs_outputs}
+|{axhoo_output} (individual markers per output)
+
+|{axs_postconditions}
+|{axhog_guarantee} (individual markers per guarantee)
+
+|{axs_completion}
+|{axhoc_completion} (signaling contract marker)
+
+|{axs_errors}
+|Under review. May become individual markers or fold into step prose.
+|===
+
+==== Annotation Pattern
+
+[cols="<,<",options="header"]
+|===
+|Legacy Pattern |Replacement
+
+|`// ⟦axl_voices axo_command axe_bash_interactive⟧`
+|`//axvo_procedure axd_transient` or `//axvo_method axd_transient` at
+{axl_definition_site}
+
+|`// ⟦axs_inputs⟧` / `// ⟦axs_behavior⟧` / etc.
+|`//axhop_parameter` / `//axhos_step` / etc. at
+{axl_detail_site}
+|===
+
+=== Terms Pending Deletion
+
+After all specifications are transformed, the following terms will be removed:
+
+* {axo_command}, {axo_command_s} — replaced by {axvo_procedure}/{axvo_method}
+* {axo_guide} — replaced by {axd_attended}
+* {axo_routine}, {axo_routine_s} — replaced by {axd_internal}
+* {axo_sequence}, {axo_sequence_s} — structural role replaced by {axhos_step}
+* {axe_bash_interactive}, {axe_bash_scripted}, {axe_bash_unattended} — language dimension dropped
+* {axe_human_guide} — replaced by {axd_attended}
+* {axs_inputs}, {axs_behavior}, {axs_outputs}, {axs_preconditions}, {axs_postconditions} — replaced by {axho_*} markers
+* {axs_completion} — replaced by {axhoc_completion}
+* {axs_errors} — under review, may become individual markers or fold into step prose
+
+The Procedure Hierarchy section, Procedure Documentation Completeness section, Command Documentation Completeness section, Guide Documentation Completeness section, and related completeness checklists will be rewritten to reference the new voicings once migration is complete.
+
+=== Transformation Sequence
+
+. Add new terms to AXLA (this section) — *complete*
+. Transform RBS0 operation subdocuments (highest usage)
+. Transform VOS0 (has ghost `axo_operation` references)
+. Transform BUS0, JJS0
+. Rewrite completeness checklists for new model
+. Delete legacy terms from AXLA
