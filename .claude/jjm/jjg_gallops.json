@@ -5969,6 +5969,13 @@
         "₢AjAAC": {
           "tacks": [
             {
+              "ts": "260227-1424",
+              "state": "complete",
+              "text": "Convert all ~25 rbtgo_* operation annotations in RBS0-SpecTop.adoc from legacy\n`// ⟦axl_voices axo_command axe_bash_interactive⟧` pattern to new voicings.\n\nFor each operation:\n- Determine axvo_method (entity-affiliated) vs axvo_procedure (standalone)\n- Assign lifecycle dimension (axd_transient for most)\n- Add axd_attended where applicable (depot_initialize, payor_establish, payor_refresh, gdc_establish, quota_build)\n- Add axd_grouped referencing the group from prior pace\n- Ensure 2nd linked term in definition text is entity (for methods) or group (for grouped procedures)\n\nAlso convert ~5 guide annotations and ~8 sequence annotations.\nVerify no legacy `axl_voices axo_command` or `axl_voices axo_guide` patterns remain.",
+              "silks": "transform-s0-definition-sites",
+              "commit": "3c82087"
+            },
+            {
               "ts": "260227-1054",
               "state": "rough",
               "text": "Convert all ~25 rbtgo_* operation annotations in RBS0-SpecTop.adoc from legacy\n`// ⟦axl_voices axo_command axe_bash_interactive⟧` pattern to new voicings.\n\nFor each operation:\n- Determine axvo_method (entity-affiliated) vs axvo_procedure (standalone)\n- Assign lifecycle dimension (axd_transient for most)\n- Add axd_attended where applicable (depot_initialize, payor_establish, payor_refresh, gdc_establish, quota_build)\n- Add axd_grouped referencing the group from prior pace\n- Ensure 2nd linked term in definition text is entity (for methods) or group (for grouped procedures)\n\nAlso convert ~5 guide annotations and ~8 sequence annotations.\nVerify no legacy `axl_voices axo_command` or `axl_voices axo_guide` patterns remain.",
