@@ -28,70 +28,135 @@ Summary of what landed:
 
 Full design rationale is in AXLA itself (term definitions + deprecation appendix).
 
-## Remaining Work
+## Annotation Line Purity Rule
 
-### Phase 1: Define RBS0 operation groups at S0 level
+Annotation lines contain ONLY AXLA terms. Project-specific linked terms appear in
+the definition text via positional requirements imposed by voicings:
+- axvo_method: 2nd linked term in definition text = entity
+- axvo_group: 2nd linked term in definition text = entity
+- axd_grouped: next available position = group
 
-Identify and create linked terms for operation groups in RBS0-SpecTop.adoc:
-- rbtgog_depot (create, initialize, destroy, list)
-- rbtgog_ark (conjure, summon, abjure, beseech)
-- rbtgog_image (list, retrieve, delete)
-- rbtgog_payor (establish, install, refresh)
-- rbtgog_governor (reset)
-- rbtgog_sa (create_retriever, create_director, list, delete)
-- Others as discovered during transformation
+This matches the established regime pattern (axvr_variable requires parent regime
+as 2nd linked term in definition text).
 
-Each group needs: linked term, axvo_group voicing, entity reference.
+## Proposed Pace Plan
 
-### Phase 2: Transform RBS0 definition-site annotations
+### Phase 1: RBS0 S0-level work
 
-Convert all `// ⟦axl_voices axo_command axe_bash_interactive⟧` annotations in
-RBS0-SpecTop.adoc to new `// ⟦axvo_method axd_transient⟧` (or axvo_procedure)
-form. Assign each operation to its group. Add axd_attended / axd_internal where
-appropriate.
+1. **define-operation-groups-in-s0**
+   Create rbtgog_* group linked terms with axvo_group voicings in RBS0-SpecTop.adoc.
+   Groups to define: rbtgog_depot, rbtgog_ark, rbtgog_image, rbtgog_payor,
+   rbtgog_governor, rbtgog_sa, rbtgog_rubric, rbtgog_access, others as discovered.
+   Each group: linked term + axvo_group voicing + entity reference in definition.
 
-~25 command annotations + ~13 routine annotations + ~5 guide annotations + ~8 sequence
-annotations in RBS0.
+2. **transform-s0-definition-sites**
+   Convert all ~25 rbtgo_* command annotations and ~5 guide annotations from
+   `// ⟦axl_voices axo_command axe_bash_interactive⟧` to
+   `// ⟦axvo_method axd_transient⟧` (or axvo_procedure). Assign each to its group
+   via definition text. Add axd_attended where applicable (depot_initialize,
+   payor_establish, payor_refresh, gdc_establish, quota_build).
 
-### Phase 3: Transform RBS0 operation subdocuments
+3. **design-rbtoe-internal-routines**
+   The ~13 rbtoe_* routines need group affiliation decisions. Proposal:
+   role-specific routines (rbtoe_payor_authenticate etc.) affiliate with their
+   role's group as axvo_method axd_internal. Cross-cutting utilities
+   (rbtoe_jwt_oauth_exchange, rbtoe_rbra_load, rbtoe_oauth_refresh) become
+   axvo_procedure axd_internal (standalone, no entity). Transform annotations.
 
-Convert all operation subdocuments (RBSDC, RBSDN, RBSAC, etc.) from old
-`// ⟦axs_inputs⟧` / `// ⟦axs_behavior⟧` section markers to new axho_* individual
-markers. Each subdocument needs:
-- axhob_operation opener
-- axhop_parameter for each parameter
-- axhos_step for each behavioral step
-- axhoo_output for each output
-- axhoq_precondition / axhog_guarantee where applicable
-- axhoc_completion for signaling contract
+### Phase 2: Regime subdocument bracket repair
 
-**ALSO**: When processing each subdocument, repair any Strachey bracket usage on
-regime hierarchy markers. Regime subdocuments currently use `// ⟦axhrb_regime⟧`
-but should use bare prefix form `//axhrb_regime` per the AXLA spec. Fix both
-operation voicings AND regime marker syntax in the same pass.
+4. **repair-regime-subdoc-bracket-syntax**
+   Convert all 7 regime subdocuments from Strachey bracket form
+   `// ⟦axhrb_regime⟧` to bare prefix form `//axhrb_regime` per AXLA spec.
+   Files: RBSRR, RBSRA, RBSRP, RBSRO, RBSRS, RBSRV, RBRN.
+   Mechanical, bridleable.
 
-### Phase 4: Transform other specifications
+### Phase 3: RBS0 operation subdocuments
 
-- **VOS0** — Has ghost `axo_operation` references (used on voscaa_allocate,
-  voscai_invitatory, voscar_release) that were NEVER defined in AXLA. These need
-  careful treatment: determine what these action codes actually are in the new
-  model (likely axo_procedure or axo_method), then transform. Do NOT assume they
-  map 1:1 with any legacy term — `axo_operation` was undeclared vocabulary.
-- **BUS0** — Uses axo_entity voicings (likely unaffected, but verify)
-- **JJS0** — Uses axo_routine voicings that need transformation
+Convert from old axs_* section markers to new axho_* individual markers.
+Each subdocument needs: axhob_operation opener, axhop_parameter per parameter,
+axhos_step per step, axhoo_output per output, axhoq_precondition / axhog_guarantee
+where applicable, axhoc_completion for signaling contract.
 
-### Phase 5: Finalize AXLA
+Complex subdocuments (one pace each):
+5. **transform-RBSDC-depot-create** — exemplar, largest subdoc (~205 lines)
+6. **transform-RBSDN-depot-initialize** — attended exemplar (~140 lines)
+7. **transform-RBSPE-payor-establish**
+8. **transform-RBSPI-payor-install**
+9. **transform-RBSPR-payor-refresh**
+10. **transform-RBSGR-governor-reset**
+11. **transform-RBSRC-retriever-create**
+12. **transform-RBSDI-director-create**
+13. **transform-RBSGD-gdc-establish**
+14. **transform-RBSRI-rubric-inscribe**
+15. **transform-RBSTB-trigger-build**
+16. **transform-RBSQB-quota-build**
 
-- Rewrite completeness checklists for new model
-- Delete all legacy terms listed in deprecation appendix
-- Remove deprecation appendix itself
+Smaller subdocuments (batched):
+17. **transform-RBSDD-depot-destroy**
+18. **transform-RBSDL-depot-list**
+19. **transform-ark-subdocs** — RBSAA, RBSAB, RBSAC, RBSAS (4 files)
+20. **transform-image-subdocs** — RBSIL, RBSID, RBSIR (3 files)
+21. **transform-sa-subdocs** — RBSSL, RBSSD (2 files)
+22. **transform-probe-subdocs** — RBSAO, RBSAJ (2 files)
 
-## Open Questions (resolve during pacing/execution)
+### Phase 4: Other specifications
+
+23. **transform-VOS0-operations**
+    4 axo_command (release, install, uninstall, freshen — note axe_rust_impl dropped),
+    5 axo_routine (lock, commit, guard, probe, init),
+    3 ghost axo_operation (allocate, invitatory, release — never defined in AXLA,
+    determine correct voicing in new model).
+    Also review VOS0's own voss_* section motifs that voice the deprecated axs_* terms.
+
+24. **transform-JJS0-routines**
+    4 axo_routine (load, save, persist, wrap) → axvo_procedure or axvo_method.
+
+25. **transform-JJS0-interface-layer**
+    ~18 axi_cc_claudemd_verb, ~15 axi_cc_slash_command, ~25 axi_cli_subcommand,
+    plus axa_cli_option/flag terms. Review against new model. These are interface
+    voicings not operation voicings — may be unaffected, but verify and decide.
+
+26. **verify-BUS0-unaffected**
+    BUS0 uses axo_entity and axrg_* regime voicings. Confirm no operation voicings
+    need transformation. Quick verification pace.
+
+### Phase 5: Finalize
+
+27. **rewrite-completeness-checklists**
+    Replace Procedure/Command/Guide/Lifecycle completeness sections in AXLA with
+    new model checklists based on axvo_procedure, axvo_method, axvo_group, and
+    axho_* markers.
+
+28. **delete-legacy-terms**
+    Remove all deprecated terms listed in AXLA deprecation appendix:
+    axo_command, axo_guide, axo_routine, axo_sequence, axs_inputs, axs_behavior,
+    axs_outputs, axs_completion, axs_preconditions, axs_postconditions, axs_errors,
+    axe_bash_interactive, axe_bash_scripted, axe_bash_unattended, axe_human_guide,
+    and the old completeness checklists. Remove deprecation appendix itself.
+
+29. **note-future-heat-mkr-opss-scr**
+    The mkr_*, opss_*, opbs_*, opbr_*, scr_* operations in RBS0 (bottle, network,
+    sentry, security) have non-rbtgo prefixes and were out of scope. Slate an itch
+    or future heat to bring them up to the standards established in this heat.
+
+## Pacing Notes
+
+- Paces 1-3 must be sequential (groups before definition-sites before internals)
+- Pace 4 (regime bracket repair) is independent, can run anytime
+- Paces 5-6 are interactive exemplars establishing the pattern
+- Paces 7-22 are likely bridleable once exemplars prove the pattern
+- Paces 23-26 are independent of each other and of RBS0 subdocument work
+- Phase 5 depends on all prior phases completing
+
+## Remaining Open Questions
 
 - Exact RBS0 operation group inventory (Phase 1 will discover the full list)
 - Whether axhob_operation should carry entity/group reference or rely on
   definition-site voicing having established it
 - axs_errors disposition: individual markers or fold into step prose?
+- VOS0 voss_* section motif disposition (voices deprecated axs_* terms)
+- JJS0 interface layer: are axi_cc_claudemd_verb / axi_cc_slash_command affected?
 
 ## Deferred (separate heats)
 
@@ -109,4 +174,7 @@ operation voicings AND regime marker syntax in the same pass.
 - `lenses/RBSDC-depot_create.adoc` — exemplar operation subdocument
 - `lenses/RBSDN-depot_initialize.adoc` — exemplar attended operation
 - `lenses/RBSRR-RegimeRepo.adoc` — regime subdoc pattern (the precedent)
+- `Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc` — ghost axo_operation, axe_rust_impl
+- `Tools/jjk/vov_veiled/JJS0-GallopsData.adoc` — routines + interface layer
+- `Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` — verify-only
 - ₣AZ `cmk-diptych-prototype` — adjacent heat
