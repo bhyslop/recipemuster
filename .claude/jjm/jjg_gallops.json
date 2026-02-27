@@ -4651,9 +4651,10 @@
         "₢AiAAN",
         "₢AiAAe",
         "₢AiAAh",
-        "₢AiAAk"
+        "₢AiAAk",
+        "₢AiAAl"
       ],
-      "next_pace_seed": "AAl",
+      "next_pace_seed": "AAm",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5915,6 +5916,17 @@
               "text": "Depot create generates its project ID timestamp via a second `date` call\n(rbgp_Payor.sh line 602-603) instead of using the dispatch-provided\n`BURD_NOW_STAMP` or `BURD_NOW_EPOCH`. This causes a 1-second skew between\nthe tabtarget log filename and the GCP project ID, making it impossible to\nreliably derive the project ID from the log timestamp.\n\n## Fix\n\nReplace the independent `date` call in `zrbgp_depot_create()` with the\ndispatch timestamp `BURD_NOW_STAMP` (or derive the needed format from\n`BURD_NOW_EPOCH`). Verify that `RBGC_GLOBAL_TIMESTAMP_FORMAT` is\ncompatible with the dispatch timestamp format; adapt if needed.\n\n## Also check\n\n- `zrbgp_governor_reset()` (line 1158-1159) has the same pattern —\n  independent `date +%Y%m%d%H%M` for Governor account ID. Consider\n  whether this should also use the dispatch timestamp.\n- The bucket name at line 673 reuses `z_timestamp` from the same\n  independent call, so fixing the project ID also fixes the bucket.\n\n## Acceptance\n\n- Project ID timestamp matches tabtarget log filename timestamp\n- No independent `date` calls for resource naming in depot_create\n- Governor reset evaluated and fixed if applicable",
               "silks": "fix-depot-create-timestamp-smell",
               "commit": "6709d97"
+            }
+          ]
+        },
+        "₢AiAAl": {
+          "tacks": [
+            {
+              "ts": "260227-1527",
+              "state": "rough",
+              "text": "BUK transcripts capture all buc_log_args output verbatim. Commands that\nhandle RBRA files (depot_initialize, rubric_preflight, inscribe) may log\nsecret-bearing values like RBRA_RUBRIC_REPO_URL (contains embedded PAT)\nor RBRA_PRIVATE_KEY fragments.\n\n## Problem\n\nThe transcript at BURD_TRANSCRIPT and the log files at BURD_LOG_HIST\npersist after command completion. Any buc_log_args call that includes\na secret value writes it to disk in plaintext.\n\n## Fix\n\nIdentify all code paths where secret-bearing RBRA values pass through\nlogging. Options:\n\n1. **Redaction at log time**: A buc utility that masks known secret\n   patterns (PATs, private keys, authenticated URLs) before writing\n   to transcript. E.g., `https://x-access-token:ghp_****@github.com/...`\n\n2. **Caller discipline**: Ensure callers never pass raw secret values\n   to buc_log_args — log only the non-secret portion (e.g., repo URL\n   without the credential).\n\n3. **Transcript cleanup**: Scrub transcripts on command completion.\n\nEvaluate which approach fits BCG patterns best. Option 2 is simplest\nbut relies on every caller getting it right. Option 1 is more robust.\n\n## Scope\n\n- Audit rbgm_ManualProcedures.sh (depot_initialize)\n- Audit rbgu_Utility.sh (rbra_load, http calls with auth tokens)\n- Audit rbf_Foundry.sh (inscribe path)\n- Check if OAuth bearer tokens appear in HTTP logging\n\n## Acceptance\n\n- No PATs, private keys, or bearer tokens in transcript files\n- Validated by grep on transcript after a depot_initialize run",
+              "silks": "sanitize-secrets-from-transcripts",
+              "commit": "ccf90bd"
             }
           ]
         }
