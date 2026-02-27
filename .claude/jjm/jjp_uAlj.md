@@ -6,159 +6,94 @@ Redesign AXLA's operation vocabulary to replace the fragmented procedure hierarc
 (axo_command, axo_guide, axo_routine, axo_sequence) with a clean model based on
 two primary voicings, operation groups, and hierarchy markers for subdocuments.
 
-## Design Decisions (sessions: 2026-02-27 axla-procedure-repair, 2026-03-02 operations-for-the-win)
+## Design Decisions — LANDED IN AXLA
 
-### 1. Collapse procedure hierarchy to two primary voicings
+All design decisions from sessions 2026-02-27 (axla-procedure-repair) and
+2026-03-02 (operations-for-the-win) have been implemented in AXLA-Lexicon.adoc.
 
-**`axo_procedure`** — standalone executable operation. No entity affiliation required.
-**`axo_method`** — entity-affiliated executable operation. Grammar rule: the definition
-text's second linked term must identify the affiliated entity (or group, if axd_grouped).
+Summary of what landed:
+- `axo_procedure` / `axo_method` duality (method = grammar rule requiring entity)
+- `axo_group` / `axvo_group` for named operation groups with entity affiliation
+- `axd_attended`, `axd_internal`, `axd_grouped` dimensions
+- `axd_tabtarget`, `axd_slash_command` as group-only dimensions
+- `axvo_procedure`, `axvo_method`, `axvo_group` definition-site voicings
+- `axhob_operation`, `axhop_parameter`, `axhoo_output`, `axhoq_precondition`,
+  `axhog_guarantee`, `axhos_step`, `axhoc_completion` detail-site markers
+- `axl_definition_site`, `axl_detail_site` structural locale terms
+- Deprecation appendix mapping old→new with deletion plan
+- Lifecycle dimensions (`axd_transient`, `axd_longrunning`, `axd_periodic`) retained unchanged
 
-These replace: axo_command, axo_guide, axo_routine. axo_sequence was already "not a
-procedure type" per AXLA but was used as one — it gets retired too.
+Full design rationale is in AXLA itself (term definitions + deprecation appendix).
 
-The method voicing is a **syntactic constraint** (grammar production rule), not just
-a classification. A linter enforces that methods declare their entity.
+## Remaining Work
 
-### 2. Drop language/environment dimension
+### Phase 1: Define RBS0 operation groups at S0 level
 
-axe_bash_interactive, axe_bash_scripted, axe_bash_unattended are retired. Implementation
-language is not a behavioral characteristic. Projects live in steady state where languages
-don't change. The voicing should not know "this is bash."
+Identify and create linked terms for operation groups in RBS0-SpecTop.adoc:
+- rbtgog_depot (create, initialize, destroy, list)
+- rbtgog_ark (conjure, summon, abjure, beseech)
+- rbtgog_image (list, retrieve, delete)
+- rbtgog_payor (establish, install, refresh)
+- rbtgog_governor (reset)
+- rbtgog_sa (create_retriever, create_director, list, delete)
+- Others as discovered during transformation
 
-### 3. Two surviving dimensions from the old hierarchy
+Each group needs: linked term, axvo_group voicing, entity reference.
 
-**`axd_attended`** (optional) — human presence required during execution. Absence means
-unattended. This is the real kernel of the old command/guide split.
+### Phase 2: Transform RBS0 definition-site annotations
 
-**`axd_internal`** (optional) — implementation building block, not consumer-facing.
-Absence means external. This is BCG's external/internal contract surface distinction.
+Convert all `// ⟦axl_voices axo_command axe_bash_interactive⟧` annotations in
+RBS0-SpecTop.adoc to new `// ⟦axvo_method axd_transient⟧` (or axvo_procedure)
+form. Assign each operation to its group. Add axd_attended / axd_internal where
+appropriate.
 
-### 4. Lifecycle dimensions retained
+~25 command annotations + ~13 routine annotations + ~5 guide annotations + ~8 sequence
+annotations in RBS0.
 
-`axd_transient`, `axd_longrunning`, `axd_periodic` — exactly one required on any
-procedure or method. Orthogonal to the new model, unchanged.
+### Phase 3: Transform RBS0 operation subdocuments
 
-### 5. Operation groups (`axo_group`)
+Convert all operation subdocuments (RBSDC, RBSDN, RBSAC, etc.) from old
+`// ⟦axs_inputs⟧` / `// ⟦axs_behavior⟧` section markers to new axho_* individual
+markers. Each subdocument needs:
+- axhob_operation opener
+- axhop_parameter for each parameter
+- axhos_step for each behavioral step
+- axhoo_output for each output
+- axhoq_precondition / axhog_guarantee where applicable
+- axhoc_completion for signaling contract
 
-A new primary voicing. Groups are named collections of operations sharing an affiliated
-entity. Defined at S0 level as linked terms.
+### Phase 4: Transform other specifications
 
-Definition-site voicing: `axvo_group`
-- 1st linked term: self
-- 2nd linked term: affiliated entity (must voice axo_entity)
+- VOS0 — also has ghost `axo_operation` references to clean up
+- BUS0
+- JJS0
 
-Groups can carry dimensions that apply to their members:
-- `axd_tabtarget` — members exposed as tabtargets
-- `axd_slash_command` — members exposed as slash commands
-- `axd_rest_endpoint` — members exposed as REST endpoints
+### Phase 5: Finalize AXLA
 
-These are group-only dimensions (valid only on axvo_group). Precedent: axd_conditional
-is valid only on axvr_group; axf_bash valid only on axvr_regime.
+- Rewrite completeness checklists for new model
+- Delete all legacy terms listed in deprecation appendix
+- Remove deprecation appendix itself
 
-### 6. axd_grouped dimension
+## Open Questions (resolve during pacing/execution)
 
-A dimension applicable to both procedure and method. Imposes a positional requirement
-on the definition text, but the position shifts based on the base voicing:
+- Exact RBS0 operation group inventory (Phase 1 will discover the full list)
+- Whether axhob_operation should carry entity/group reference or rely on
+  definition-site voicing having established it
+- axs_errors disposition: individual markers or fold into step prose?
 
-- On `axvo_procedure`: 2nd linked term must be an operation group
-- On `axvo_method`: 3rd linked term must be an operation group
-  (because 2nd is already the entity, required by the method voicing itself)
+## Deferred (separate heats)
 
-Absence of axd_grouped means the operation is not in a named group. Methods without
-axd_grouped simply have entity in 2nd position, no group.
-
-### 7. Definition-site voicing annotations (axvo_*)
-
-Parallel to axvr_* for regimes. Pure AXLA terms on annotation line — NO mixing with
-project-specific linked terms. Project terms appear via lookahead in definition text.
-
-```
-// ⟦axvo_group⟧
-{rbtgog_depot}:: Operations on the {rbtge_depot} lifecycle.
-
-// ⟦axvo_method axd_transient⟧
-{rbtgo_depot_create}:: A {rbtgog_depot} operation that creates...
-
-// ⟦axvo_method axd_transient axd_attended⟧
-{rbtgo_depot_initialize}:: A {rbtgog_depot} operation that completes...
-
-// ⟦axvo_method axd_transient axd_internal⟧
-{rbtoe_payor_authenticate}:: A {rbtgog_payor} operation that authenticates...
-
-// ⟦axvo_procedure axd_transient⟧
-{rbtgo_backup_all}:: Backs up all depot state...
-```
-
-### 8. Detail-site hierarchy markers (axho_*)
-
-Parallel to axhr* for regimes. Bare prefix form (no Strachey brackets — though note
-regime subdocs currently still USE brackets; the bare form is AXLA's specified form).
-
-| Marker | Purpose | Lookahead |
-|---|---|---|
-| axhob_operation | Opens detail block, identifies which operation | 1 linked term + dimensions on marker line |
-| axhop_parameter | A named input parameter | 1 linked term |
-| axhoo_output | A named output | 1 linked term |
-| axhoq_precondition | Required state before execution | 1 linked term |
-| axhog_guarantee | Promised state after execution | 1 linked term |
-| axhos_step | A behavioral step (addressable) | 1 linked term |
-
-axhob_operation carries lifecycle and attended dimensions:
-```
-//axhob_operation axd_transient
-{rbtgo_depot_create}
-```
-
-These replace the old axs_* section motifs (axs_inputs, axs_behavior, axs_outputs,
-axs_completion, axs_preconditions, axs_postconditions, axs_errors). Individual markers
-per item instead of section wrappers.
-
-### 9. New AXLA linked terms for structural locales
-
-`axl_definition_site` — where a linked term is defined (anchor + voicing annotation +
-definition text) in the parent document.
-
-`axl_detail_site` — where a linked term's details are elaborated (hierarchy markers +
-prose). Typically a subdocument but not necessarily.
-
-These replace informal language ("parent document", "subdocument", "between anchor
-and definition") with precise, referenceable vocabulary.
-
-### 10. Migration strategy
-
-1. Add new terms to AXLA (purely additive, no existing content changes)
-2. Write mapping appendix in AXLA (old→new, obsolescence plan)
-3. Transform RBS0 operation subdocuments from old to new
-4. Transform BUS0, JJS0, VOS0
-5. Delete obsoleted terms from AXLA
-
-## Deferred
-
-- **Regime operation markers** (axhro_kindle etc.) — leave as-is. Whether regime
-  operations are axo_methods on a regime entity is a future reconciliation.
-- **Control terms** (axc_*/rbbc_*: call, require, store, fatal, etc.) — step-level
-  vocabulary, orthogonal to this structural redesign. Separate heat.
-- **Step labels / branching / goto** — prose handles branching for now.
-  Step linked terms provide cross-reference targets.
-- **Diptych syntax** (₣AZ) — ₣Aj designs voicing semantics, ₣AZ designs syntax.
-  Connection noted in ₣AZ paddock.
-- **Ghost axo_operation in VOS0** — clean up during VOS0 transformation pass.
-- **axe_human_guide** — absorbed into axd_attended; remove during transformation.
-
-## Open Questions (resolve during execution)
-
-- Exact RBS0 operation groups to define (depot, ark, image, payor, governor, sa, etc.)
-- Whether axhob_operation should carry the entity/group reference or rely on the
-  definition-site voicing having already established it
-- Naming for the grouping dimension if axd_grouped proves awkward
+- **Regime operation markers** (axhro_kindle etc.) — whether regime operations
+  are axo_methods on a regime entity is a future reconciliation
+- **Control terms** (axc_*/rbbc_*) — step-level vocabulary, separate heat
+- **Step labels / branching** — prose handles branching for now
+- **Diptych syntax** (₣AZ) — designs syntax layer; connection noted in ₣AZ paddock
 
 ## References
 
-- `Tools/cmk/vov_veiled/AXLA-Lexicon.adoc` — target document for new terms
-- `lenses/RBS0-SpecTop.adoc` — primary consumer, ~25 operations to transform
+- `Tools/cmk/vov_veiled/AXLA-Lexicon.adoc` — new terms and deprecation appendix
+- `lenses/RBS0-SpecTop.adoc` — primary consumer, highest transformation volume
 - `lenses/RBSDC-depot_create.adoc` — exemplar operation subdocument
 - `lenses/RBSDN-depot_initialize.adoc` — exemplar attended operation
-- `lenses/RBSRR-RegimeRepo.adoc` — regime subdoc pattern to parallel
-- `Memos/memo-20260209-diptych-format-study.md` — adjacent ₣AZ vision
-- ₣AZ `cmk-diptych-prototype` — adjacent heat, syntax layer
+- `lenses/RBSRR-RegimeRepo.adoc` — regime subdoc pattern (the precedent)
+- ₣AZ `cmk-diptych-prototype` — adjacent heat
