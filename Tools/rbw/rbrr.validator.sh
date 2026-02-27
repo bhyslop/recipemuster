@@ -24,4 +24,9 @@ test -n "${RBRR_GCP_REGION:-}"               || buc_die "RBRR_GCP_REGION not set
 test -n "${RBRR_GCB_MACHINE_TYPE:-}"         || buc_die "RBRR_GCB_MACHINE_TYPE not set"
 test -n "${RBRR_GCB_MIN_CONCURRENT_BUILDS:-}" || buc_die "RBRR_GCB_MIN_CONCURRENT_BUILDS not set"
 
+if test -n "${RBRR_GCB_WORKER_POOL:-}"; then
+  [[ "${RBRR_GCB_WORKER_POOL}" =~ ^projects/[^/]+/locations/[^/]+/workerPools/[^/]+$ ]] \
+    || buc_die "RBRR_GCB_WORKER_POOL must match projects/{P}/locations/{L}/workerPools/{W}: '${RBRR_GCB_WORKER_POOL}'"
+fi
+
 # eof

@@ -259,6 +259,7 @@ zrbf_stitch_build_json() {
     --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
     --arg zjq_inscribe_ts      "i${BURD_NOW_STAMP:0:8}_${BURD_NOW_STAMP:9:6}" \
     --arg zjq_mtype  "${RBRR_GCB_MACHINE_TYPE}" \
+    --arg zjq_pool   "${RBRR_GCB_WORKER_POOL:-}" \
     --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
@@ -280,10 +281,13 @@ zrbf_stitch_build_json() {
         _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
         _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
       },
-      options: {
-        logging: "CLOUD_LOGGING_ONLY",
-        machineType: $zjq_mtype
-      },
+      options: (
+          if $zjq_pool != "" then
+            { logging: "CLOUD_LOGGING_ONLY", pool: { name: $zjq_pool } }
+          else
+            { logging: "CLOUD_LOGGING_ONLY", machineType: $zjq_mtype }
+          end
+      ),
       timeout: $zjq_timeout
     }' > "${z_build_file}" \
     || buc_die "Failed to compose trigger-compatible build JSON"

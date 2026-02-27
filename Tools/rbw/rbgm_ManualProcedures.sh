@@ -350,8 +350,12 @@ rbgm_quota_build() {
   bug_tc       "   RBRR_DEPOT_PROJECT_ID: " "${RBRR_DEPOT_PROJECT_ID}"
   bug_tc       "   RBRR_GCP_REGION:       " "${RBRR_GCP_REGION}"
   bug_tc       "   RBRR_GCB_MACHINE_TYPE: " "${RBRR_GCB_MACHINE_TYPE}"
+  bug_tc       "   RBRR_GCB_WORKER_POOL:  " "${RBRR_GCB_WORKER_POOL:-<default pool>}"
   bug_e
   bug_section  "2. Check CPU Quota:"
+  bug_t        "   NOTE: If RBRR_GCB_WORKER_POOL is set, quota is managed on the private pool's host"
+  bug_t        "   project — the checks below apply only to the default (public) pool."
+  bug_e
   bug_link     "   Go to: " "Quotas & System Limits" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
   bug_tu       "   1. Verify project " "${RBRR_DEPOT_PROJECT_ID}" " is selected in the project picker"
   bug_t        "   2. In the filter bar, enter:"

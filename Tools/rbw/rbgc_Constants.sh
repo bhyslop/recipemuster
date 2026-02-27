@@ -188,6 +188,11 @@ rbgc_gcb_machine_vcpus_capture() {
     E2_HIGHCPU_32)  echo 32 ;;
     N1_HIGHCPU_8)   echo 8  ;;
     N1_HIGHCPU_32)  echo 32 ;;
+    E2_STANDARD_2)  echo 2  ;;
+    E2_STANDARD_4)  echo 4  ;;
+    E2_STANDARD_8)  echo 8  ;;
+    E2_STANDARD_16) echo 16 ;;
+    E2_STANDARD_32) echo 32 ;;
     *) buc_die "Unknown GCB machine type: ${z_machine_type} — update rbgc_gcb_machine_vcpus_capture" ;;
   esac
 }

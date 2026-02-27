@@ -269,6 +269,7 @@
 :rbrr_dns_server:            <<rbrr_dns_server,RBRR_DNS_SERVER>>
 :rbrr_gcb_machine_type:      <<rbrr_gcb_machine_type,RBRR_GCB_MACHINE_TYPE>>
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
+:rbrr_gcb_worker_pool:       <<rbrr_gcb_worker_pool,RBRR_GCB_WORKER_POOL>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
 :rbrr_gcb_oras_image_ref:    <<rbrr_gcb_oras_image_ref,RBRR_GCB_ORAS_IMAGE_REF>>
 :rbrr_gcb_gcloud_image_ref:  <<rbrr_gcb_gcloud_image_ref,RBRR_GCB_GCLOUD_IMAGE_REF>>
@@ -674,6 +675,10 @@ regime variable declares the operator's minimum concurrency requirement.
 The nameplate audit (`rbw-nv`) and build preflight both query the Service Usage API to verify that `CPU_QUOTA ÷ vCPUs_per_build ≥`
 {rbrr_gcb_min_concurrent_builds}
 and hard-fail if quota is insufficient.
+When
+{rbrr_gcb_worker_pool}
+is set, the relevant quota metric is `concurrent_private_pool_build_cpus` on the pool's host project,
+and machine type is determined by the pool configuration rather than the build request.
 See
 {rbtgo_quota_build}
 for the manual Console procedure to review build capacity settings.
@@ -1978,7 +1983,20 @@ Identity specification for VM or build environment.
 [[rbrr_gcb_machine_type]]
 // ⟦axvr_variable axd_required rbst_string⟧
 {rbrr_gcb_machine_type}::
-Cloud Build machine type for build workers.
+Cloud Build machine type for default pool build workers.
+Applies only when
+{rbrr_gcb_worker_pool}
+is empty; private pools configure machine type on the pool resource.
+
+[[rbrr_gcb_worker_pool]]
+// ⟦axvr_variable axd_optional rbst_string⟧
+{rbrr_gcb_worker_pool}::
+Full resource name of the Cloud Build Private Pool for build execution.
+Format: `projects/{project}/locations/{region}/workerPools/{pool}`.
+When set, builds use this pool and `options.machineType` is omitted from the build JSON
+(machine type is a property of the pool resource).
+When empty, builds use the default shared pool with
+{rbrr_gcb_machine_type}.
 
 [[rbrr_gcb_min_concurrent_builds]]
 // ⟦axvr_variable axd_required rbst_integer⟧

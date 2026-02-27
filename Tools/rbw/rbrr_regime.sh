@@ -61,6 +61,7 @@ zrbrr_kindle() {
 
   buv_group_enroll "Google Cloud Build Configuration"
   buv_string_enroll  RBRR_GCB_MACHINE_TYPE           3   64  "Machine type for Cloud Build"
+  buv_string_enroll  RBRR_GCB_WORKER_POOL            0  512  "Private Pool resource name (empty=default pool)"
   buv_string_enroll  RBRR_GCB_TIMEOUT                2   10  "Build timeout (e.g., 1200s)"
   buv_decimal_enroll RBRR_GCB_MIN_CONCURRENT_BUILDS  1  999  "Min concurrent builds required"
   buv_odref_enroll   RBRR_GCB_ORAS_IMAGE_REF                 "oras image reference (digest-pinned)"

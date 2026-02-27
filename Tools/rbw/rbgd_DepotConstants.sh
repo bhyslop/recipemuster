@@ -121,6 +121,12 @@ rbgd_check_gcb_quota() {
   local z_token="$1"
   test -n "${z_token}" || buc_die "rbgd_check_gcb_quota: bearer token required"
 
+  # Private pools have their own quota management — skip default pool quota check
+  if test -n "${RBRR_GCB_WORKER_POOL:-}"; then
+    buc_log_args "Skipping default pool quota check — using private pool: ${RBRR_GCB_WORKER_POOL}"
+    return 0
+  fi
+
   buc_log_args "Look up vCPUs for machine type: ${RBRR_GCB_MACHINE_TYPE}"
   local z_vcpus=""
   z_vcpus=$(rbgc_gcb_machine_vcpus_capture "${RBRR_GCB_MACHINE_TYPE}") \
