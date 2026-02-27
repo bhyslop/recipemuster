@@ -158,7 +158,7 @@ zrbgc_sentinel() {
 ######################################################################
 # External Functions (rbgc_*)
 
-# GCB default pool machine type to vCPU mapping.
+# GCB machine type to vCPU mapping (default pool and private pool types).
 #
 # Provenance (verified 2026-02-13):
 #   Enum names from Cloud Build API BuildOptions.MachineType:

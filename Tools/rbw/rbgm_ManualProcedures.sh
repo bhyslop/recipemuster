@@ -336,10 +336,12 @@ rbgm_quota_build() {
   bug_t        "The Concurrent Build CPUs quota (default 10 per region) limits parallel builds."
   bug_t        "Each build consumes vCPUs according to the configured machine type."
   bug_e
-  bug_t        "   Machine type vs concurrency at 10-CPU quota:"
+  bug_t        "   Default pool machine types vs concurrency at 10-CPU quota:"
   bug_tc       "     UNSPECIFIED    " "(2 vCPU)  → 5 concurrent builds"
   bug_tc       "     E2_HIGHCPU_8   " "(8 vCPU)  → 1 concurrent build"
   bug_tc       "     E2_HIGHCPU_32  " "(32 vCPU) → needs 32+ CPU quota"
+  bug_t        "   Private pool adds E2_STANDARD types (machine type configured on pool resource):"
+  bug_tc       "     E2_STANDARD_2  " "(2 vCPU)   E2_STANDARD_8  (8 vCPU)   E2_STANDARD_32 (32 vCPU)"
   bug_e
   bug_section  "Key:"
   bug_tu       "   Magenta text refers to " "precise words you see on the web page."
@@ -355,6 +357,8 @@ rbgm_quota_build() {
   bug_section  "2. Check CPU Quota:"
   bug_t        "   NOTE: If RBRR_GCB_WORKER_POOL is set, quota is managed on the private pool's host"
   bug_t        "   project — the checks below apply only to the default (public) pool."
+  bug_t        "   For private pools, filter for the metric:"
+  bug_tc       "      " "concurrent_private_pool_build_cpus"
   bug_e
   bug_link     "   Go to: " "Quotas & System Limits" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
   bug_tu       "   1. Verify project " "${RBRR_DEPOT_PROJECT_ID}" " is selected in the project picker"
