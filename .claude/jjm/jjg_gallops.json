@@ -5844,6 +5844,13 @@
         "₢AiAAi": {
           "tacks": [
             {
+              "ts": "260227-0955",
+              "state": "complete",
+              "text": "Fix binfmt policy check in rbf_build() to validate against Cloud Build\nrunner architecture instead of the local machine.\n\nCurrent code compares RBRV_CONJURE_PLATFORMS against `uname -m` (the\nMac running the CLI). With trigger dispatch, builds execute on Cloud\nBuild (linux/amd64), so the local architecture is irrelevant.\n\n## What to change\n\n- In rbf_build(), replace the `uname -s`/`uname -m` binfmt check with\n  a check against the Cloud Build runner platform (linux/amd64)\n- The RBRV_CONJURE_BINFMT_POLICY=\"forbid\" gate should die if the vessel\n  requests platforms beyond linux/amd64 (the Cloud Build default pool arch)\n- If private pools land with different architectures, this check will\n  need to account for the pool's machine type\n\n## References\n\n- Tools/rbw/rbf_Foundry.sh — rbf_build() binfmt policy block (~line 658)\n- rbrv.env RBRV_CONJURE_BINFMT_POLICY, RBRV_CONJURE_PLATFORMS",
+              "silks": "fix-binfmt-policy-for-remote-build",
+              "commit": "10eeb6a"
+            },
+            {
               "ts": "260227-0923",
               "state": "rough",
               "text": "Fix binfmt policy check in rbf_build() to validate against Cloud Build\nrunner architecture instead of the local machine.\n\nCurrent code compares RBRV_CONJURE_PLATFORMS against `uname -m` (the\nMac running the CLI). With trigger dispatch, builds execute on Cloud\nBuild (linux/amd64), so the local architecture is irrelevant.\n\n## What to change\n\n- In rbf_build(), replace the `uname -s`/`uname -m` binfmt check with\n  a check against the Cloud Build runner platform (linux/amd64)\n- The RBRV_CONJURE_BINFMT_POLICY=\"forbid\" gate should die if the vessel\n  requests platforms beyond linux/amd64 (the Cloud Build default pool arch)\n- If private pools land with different architectures, this check will\n  need to account for the pool's machine type\n\n## References\n\n- Tools/rbw/rbf_Foundry.sh — rbf_build() binfmt policy block (~line 658)\n- rbrv.env RBRV_CONJURE_BINFMT_POLICY, RBRV_CONJURE_PLATFORMS",
