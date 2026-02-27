@@ -5911,9 +5911,10 @@
         "₢AjAAV",
         "₢AjAAW",
         "₢AjAAX",
-        "₢AjAAY"
+        "₢AjAAY",
+        "₢AjAAZ"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6188,6 +6189,17 @@
               "text": "Verify BUS0-BashUtilitiesSpec.adoc uses only axo_entity and axrg_* regime voicings with no operation voicings needing transformation. Quick verification.",
               "silks": "verify-bus0-unaffected",
               "commit": "5b44b86"
+            }
+          ]
+        },
+        "₢AjAAZ": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "Convert RBSAO-access_oauth_probe.adoc, RBSAJ-access_jwt_probe.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-probe-subdocs",
+              "commit": "f9add4e"
             }
           ]
         }
