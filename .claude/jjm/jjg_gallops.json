@@ -5899,9 +5899,10 @@
         "₢AjAAJ",
         "₢AjAAK",
         "₢AjAAL",
-        "₢AjAAM"
+        "₢AjAAM",
+        "₢AjAAN"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6044,6 +6045,17 @@
               "text": "Convert RBSGD-gdc_establish.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-rbsgd-gdc-establish",
               "commit": "eeecd98"
+            }
+          ]
+        },
+        "₢AjAAN": {
+          "tacks": [
+            {
+              "ts": "260227-1057",
+              "state": "rough",
+              "text": "Convert RBSAA-ark_abjure.adoc, RBSAB-ark_beseech.adoc, RBSAC-ark_conjure.adoc, RBSAS-ark_summon.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-ark-subdocs",
+              "commit": "d95e146"
             }
           ]
         }
