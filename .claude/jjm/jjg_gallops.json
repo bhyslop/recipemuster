@@ -6065,6 +6065,13 @@
         "₢AjAAM": {
           "tacks": [
             {
+              "ts": "260227-1058",
+              "state": "abandoned",
+              "text": "Convert RBSGD-gdc_establish.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsgd-gdc-establish",
+              "commit": "b8d1966"
+            },
+            {
               "ts": "260227-1057",
               "state": "rough",
               "text": "Convert RBSGD-gdc_establish.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
