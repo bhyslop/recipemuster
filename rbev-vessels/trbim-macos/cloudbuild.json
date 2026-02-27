@@ -89,7 +89,7 @@
     "_RBGY_GAR_LOCATION": "us-central1",
     "_RBGY_GAR_PROJECT": "rbwg-d-proto2-260224144107",
     "_RBGY_GAR_REPOSITORY": "rbw-proto2-repository",
-    "_RBGY_GIT_COMMIT": "fd8cf9f2dc20f9ee2b26cea8473352dd15000c17",
+    "_RBGY_GIT_COMMIT": "__INSCRIBE_GIT_COMMIT__",
     "_RBGY_GIT_BRANCH": "main",
     "_RBGY_GIT_REPO": "bhyslop/recipemuster",
     "_RBGY_GAR_HOST_SUFFIX": "-docker.pkg.dev",
@@ -98,7 +98,7 @@
     "_RBGY_CRANE_TAR_GZ": "https://github.com/google/go-containerregistry/releases/download/v0.21.1/go-containerregistry_Linux_x86_64.tar.gz",
     "_RBGY_RUBRIC_REPO": "__INSCRIBE_RUBRIC_REPO__",
     "_RBGY_RUBRIC_COMMIT": "__INSCRIBE_RUBRIC_COMMIT__",
-    "_RBGY_INSCRIBE_TIMESTAMP": "i20260227_142452"
+    "_RBGY_INSCRIBE_TIMESTAMP": "__INSCRIBE_TIMESTAMP__"
   },
   "options": {
     "logging": "CLOUD_LOGGING_ONLY",

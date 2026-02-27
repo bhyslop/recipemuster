@@ -235,8 +235,8 @@ zrbf_stitch_build_json() {
 
   # Compose complete trigger-compatible Build resource
   # Steps from accumulator, substitutions from module state, options/timeout from RBRR
-  # _RBGY_RUBRIC_REPO, _RBGY_RUBRIC_COMMIT, _RBGY_INSCRIBE_TIMESTAMP are placeholders
-  # in the main-repo copy; inscribe fills them in the rubric repo copy after push
+  # _RBGY_RUBRIC_REPO, _RBGY_RUBRIC_COMMIT, _RBGY_INSCRIBE_TIMESTAMP, _RBGY_GIT_COMMIT
+  # are placeholders in the main-repo copy; inscribe fills them in the rubric repo copy
   buc_log_args "Composing complete trigger-compatible Build resource"
   local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
 
@@ -248,7 +248,7 @@ zrbf_stitch_build_json() {
     --arg zjq_gar_location   "${RBGD_GAR_LOCATION}" \
     --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}" \
     --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}" \
-    --arg zjq_git_commit     "${z_git_commit}" \
+    --arg zjq_git_commit     "__INSCRIBE_GIT_COMMIT__" \
     --arg zjq_git_branch     "${z_git_branch}" \
     --arg zjq_git_repo       "${z_git_repo}" \
     --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
@@ -257,7 +257,7 @@ zrbf_stitch_build_json() {
     --arg zjq_crane_tar_gz     "${RBRR_CRANE_TAR_GZ}" \
     --arg zjq_rubric_repo      "__INSCRIBE_RUBRIC_REPO__" \
     --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
-    --arg zjq_inscribe_ts      "i${BURD_NOW_STAMP:0:8}_${BURD_NOW_STAMP:9:6}" \
+    --arg zjq_inscribe_ts      "__INSCRIBE_TIMESTAMP__" \
     --arg zjq_mtype  "${RBRR_GCB_MACHINE_TYPE}" \
     --arg zjq_pool   "${RBRR_GCB_WORKER_POOL:-}" \
     --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
@@ -1122,21 +1122,28 @@ rbf_rubric_inscribe() {
     buc_info "Synced: ${z_sigil}"
   done
 
-  # Fill URL placeholder in rubric clone copies (commit placeholder stays for now)
-  buc_step "Filling rubric repo URL in clone copies"
+  # Fill pre-commit placeholders in rubric clone copies
+  # _RBGY_RUBRIC_REPO, _RBGY_GIT_COMMIT, _RBGY_INSCRIBE_TIMESTAMP filled now;
+  # _RBGY_RUBRIC_COMMIT filled after rubric repo commit (needs content hash)
+  buc_step "Filling pre-commit placeholders in clone copies"
   local z_rubric_json=""
   local z_filled_file=""
+  local z_inscribe_ts="i${BURD_NOW_STAMP:0:8}_${BURD_NOW_STAMP:9:6}"
   for ((z_idx=0; z_idx<${#z_vessel_dirs[@]}; z_idx++)); do
     z_sigil="${z_vessel_sigils[z_idx]}"
     z_rubric_json="${ZRBF_INSCRIBE_CLONE_DIR}/${z_sigil}/cloudbuild.json"
-    z_filled_file="${ZRBF_INSCRIBE_PREFIX}${z_sigil}_url_filled.json"
+    z_filled_file="${ZRBF_INSCRIBE_PREFIX}${z_sigil}_precommit_filled.json"
 
     jq --arg repo "${z_rubric_url_clean}" \
-      '.substitutions._RBGY_RUBRIC_REPO = $repo' \
+       --arg git_commit "${z_git_commit}" \
+       --arg inscribe_ts "${z_inscribe_ts}" \
+      '.substitutions._RBGY_RUBRIC_REPO = $repo
+       | .substitutions._RBGY_GIT_COMMIT = $git_commit
+       | .substitutions._RBGY_INSCRIBE_TIMESTAMP = $inscribe_ts' \
       "${z_rubric_json}" > "${z_filled_file}" \
-      || buc_die "Failed to fill URL placeholder for ${z_sigil}"
+      || buc_die "Failed to fill pre-commit placeholders for ${z_sigil}"
     mv "${z_filled_file}" "${z_rubric_json}" \
-      || buc_die "Failed to write URL-filled JSON for ${z_sigil}"
+      || buc_die "Failed to write pre-commit-filled JSON for ${z_sigil}"
   done
 
   # Commit (not pushed yet) to get a content hash
