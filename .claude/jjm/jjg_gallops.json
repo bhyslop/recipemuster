@@ -6208,6 +6208,13 @@
           "tacks": [
             {
               "ts": "260227-1058",
+              "state": "abandoned",
+              "text": "Convert RBSRC-retriever_create.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsrc-retriever-create",
+              "commit": "e81b590"
+            },
+            {
+              "ts": "260227-1058",
               "state": "rough",
               "text": "Convert RBSRC-retriever_create.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-rbsrc-retriever-create",
