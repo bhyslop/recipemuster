@@ -5888,9 +5888,10 @@
       "status": "racing",
       "order": [
         "₢AjAAA",
-        "₢AjAAB"
+        "₢AjAAB",
+        "₢AjAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -5912,6 +5913,17 @@
               "text": "Create rbtgog_* operation group linked terms in RBS0-SpecTop.adoc using axvo_group voicings.\n\nGroups to define (discover full list by scanning existing rbtgo_* definitions):\n- rbtgog_depot — operations on {rbtge_depot}\n- rbtgog_ark — operations on {rbtga_ark}\n- rbtgog_image — operations on container images\n- rbtgog_payor — operations by {rbtr_payor}\n- rbtgog_governor — operations by {rbtr_governor}\n- rbtgog_sa — service account operations\n- rbtgog_rubric — rubric lifecycle operations\n- rbtgog_access — authentication/probe operations\n- Others as discovered during inventory\n\nEach group: anchor + `//axvo_group` voicing (with axd_tabtarget where applicable) +\ndefinition text with entity as 2nd linked term.\n\nPlace group definitions before their member operations in the S0 document structure.",
               "silks": "define-operation-groups-in-s0",
               "commit": "59f68d4"
+            }
+          ]
+        },
+        "₢AjAAC": {
+          "tacks": [
+            {
+              "ts": "260227-1054",
+              "state": "rough",
+              "text": "Convert all ~25 rbtgo_* operation annotations in RBS0-SpecTop.adoc from legacy\n`// ⟦axl_voices axo_command axe_bash_interactive⟧` pattern to new voicings.\n\nFor each operation:\n- Determine axvo_method (entity-affiliated) vs axvo_procedure (standalone)\n- Assign lifecycle dimension (axd_transient for most)\n- Add axd_attended where applicable (depot_initialize, payor_establish, payor_refresh, gdc_establish, quota_build)\n- Add axd_grouped referencing the group from prior pace\n- Ensure 2nd linked term in definition text is entity (for methods) or group (for grouped procedures)\n\nAlso convert ~5 guide annotations and ~8 sequence annotations.\nVerify no legacy `axl_voices axo_command` or `axl_voices axo_guide` patterns remain.",
+              "silks": "transform-s0-definition-sites",
+              "commit": "9443ab2"
             }
           ]
         }
