@@ -5914,9 +5914,10 @@
         "₢AjAAY",
         "₢AjAAZ",
         "₢AjAAa",
-        "₢AjAAb"
+        "₢AjAAb",
+        "₢AjAAc"
       ],
-      "next_pace_seed": "AAc",
+      "next_pace_seed": "AAd",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6224,6 +6225,17 @@
               "text": "Convert RBSDI-director_create.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-rbsdi-director-create",
               "commit": "b8fc640"
+            }
+          ]
+        },
+        "₢AjAAc": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "Replace Procedure/Command/Guide/Lifecycle Documentation Completeness sections in AXLA with new checklists based on axvo_procedure, axvo_method, axvo_group, and axho_* markers.",
+              "silks": "rewrite-completeness-checklists",
+              "commit": "110d796"
             }
           ]
         }
