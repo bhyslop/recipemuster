@@ -5913,9 +5913,10 @@
         "₢AjAAX",
         "₢AjAAY",
         "₢AjAAZ",
-        "₢AjAAa"
+        "₢AjAAa",
+        "₢AjAAb"
       ],
-      "next_pace_seed": "AAb",
+      "next_pace_seed": "AAc",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6212,6 +6213,17 @@
               "text": "Convert RBSDD-depot_destroy.adoc and RBSDL-depot_list.adoc from legacy axs_* to axho_* markers. Small subdocs, batch together.",
               "silks": "transform-depot-minor-subdocs",
               "commit": "c3f38cf"
+            }
+          ]
+        },
+        "₢AjAAb": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "Convert RBSDI-director_create.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsdi-director-create",
+              "commit": "b8fc640"
             }
           ]
         }
