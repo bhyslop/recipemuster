@@ -5904,9 +5904,10 @@
         "₢AjAAO",
         "₢AjAAP",
         "₢AjAAQ",
-        "₢AjAAR"
+        "₢AjAAR",
+        "₢AjAAS"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6104,6 +6105,17 @@
               "text": "Convert RBSIL-image_list.adoc, RBSID-image_delete.adoc, RBSIR-image_retrieve.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-image-subdocs",
               "commit": "718eca4"
+            }
+          ]
+        },
+        "₢AjAAS": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "Convert RBSTB-trigger_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbstb-trigger-build",
+              "commit": "1ae2c08"
             }
           ]
         }
