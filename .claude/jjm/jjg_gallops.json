@@ -5898,9 +5898,10 @@
         "₢AjAAI",
         "₢AjAAJ",
         "₢AjAAK",
-        "₢AjAAL"
+        "₢AjAAL",
+        "₢AjAAM"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6032,6 +6033,17 @@
               "text": "Exemplar transformation: convert RBSDN-depot_initialize.adoc (~140 lines) from legacy axs_* section markers to new axho_* hierarchy markers. Attended exemplar (axd_attended). Follow pattern from transform-rbsdc-depot-create. Has axs_preconditions, human-interactive OAuth flow, \"Go to step 7\" branching. Mint linked terms for steps, preconditions, outputs.",
               "silks": "transform-rbsdn-depot-initialize",
               "commit": "3b7eff9"
+            }
+          ]
+        },
+        "₢AjAAM": {
+          "tacks": [
+            {
+              "ts": "260227-1057",
+              "state": "rough",
+              "text": "Convert RBSGD-gdc_establish.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsgd-gdc-establish",
+              "commit": "eeecd98"
             }
           ]
         }
