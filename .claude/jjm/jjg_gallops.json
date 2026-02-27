@@ -5893,9 +5893,10 @@
         "₢AjAAD",
         "₢AjAAE",
         "₢AjAAF",
-        "₢AjAAG"
+        "₢AjAAG",
+        "₢AjAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -5972,6 +5973,17 @@
               "text": "Convert RBSPE-payor_establish.adoc, RBSPI-payor_install.adoc, RBSPR-payor_refresh.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern. Payor establish and refresh are attended.",
               "silks": "transform-payor-subdocs",
               "commit": "0d9fdb3"
+            }
+          ]
+        },
+        "₢AjAAH": {
+          "tacks": [
+            {
+              "ts": "260227-1056",
+              "state": "rough",
+              "text": "Convert RBSGR-governor_reset.adoc from legacy axs_* to axho_* markers.",
+              "silks": "transform-rbsgr-governor-reset",
+              "commit": "13d9f38"
             }
           ]
         }
