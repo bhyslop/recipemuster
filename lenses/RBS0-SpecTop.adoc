@@ -3012,7 +3012,7 @@ Provides context or expected outcomes without requiring action.
 Recipe Bottle orchestration patterns define reusable implementation sequences for system operations.
 
 [[rbtoe_check_rubric_repo_url]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {rbtoe_check_rubric_repo_url}::
 A non-interactive gate that validates
 `RBRA_RUBRIC_REPO_URL`
@@ -3034,7 +3034,7 @@ RBRA (for
 operations).
 
 [[rbtoe_check_devconnect]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {rbtoe_check_devconnect}::
 A non-interactive gate that validates
 {rbtgi_source_connection}
@@ -3050,7 +3050,7 @@ No side effects, no polling.
 Callable from any CLI context via `rbgu_check_devconnect`.
 
 [[rbtoe_rbra_generate]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {rbtoe_rbra_generate}::
 A pattern that converts Google
 {giam_service_account}
@@ -3062,7 +3062,7 @@ converts to RBRA environment variables (`RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`,
 and writes to specified file path with 600 permissions (owner read/write only).
 
 [[rbtoe_rbra_load]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {rbtoe_rbra_load}::
 A pattern that sources an
 {rbtgi_rbra_file}
@@ -3074,7 +3074,7 @@ and triggers
 with standardized error message if any field is missing or invalid.
 
 [[rbtoe_jwt_oauth_exchange]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {rbtoe_jwt_oauth_exchange}::
 A pattern that exchanges
 {giam_service_account}
@@ -3089,7 +3089,7 @@ triggers
 on non-200 HTTP response.
 
 [[rbtoe_api_enable]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {rbtoe_api_enable}::
 A pattern that ensures a specified Google Cloud API is enabled in a project with idempotent behavior:
 
@@ -3106,7 +3106,7 @@ on unexpected errors (409 conflicts, permission denied, etc.),
 
 
 [[rbtoe_oauth_refresh]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {rbtoe_oauth_refresh}::
 A pattern that exchanges OAuth refresh token for access token:
 
@@ -3130,7 +3130,7 @@ with "OAuth credentials expired or invalid - run
 ".
 
 [[rbtoe_payor_authenticate]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_internal⟧
 {rbtoe_payor_authenticate}::
 A pattern that establishes
 {rbtr_payor}
@@ -3146,7 +3146,7 @@ to obtain access token,
 . stores token as `«PAYOR_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_governor_authenticate]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_internal⟧
 {rbtoe_governor_authenticate}::
 A pattern that establishes
 {rbtr_governor}
@@ -3164,7 +3164,7 @@ exists or
 . stores token as `«GOVERNOR_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_director_authenticate]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_internal⟧
 {rbtoe_director_authenticate}::
 A pattern that establishes
 {rbtr_director}
@@ -3182,7 +3182,7 @@ exists or
 . stores token as `«DIRECTOR_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_retriever_authenticate]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_internal⟧
 {rbtoe_retriever_authenticate}::
 A pattern that establishes
 {rbtr_retriever}
@@ -3200,7 +3200,7 @@ exists or
 . stores token as `«RETRIEVER_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_rbro_load]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {rbtoe_rbro_load}::
 A pattern that loads and validates RBRO credentials:
 
@@ -3223,9 +3223,11 @@ A pattern that loads and validates RBRO credentials:
 . returns success when all RBRO variables are loaded and validated.
 
 [[rbtoe_depot_list_update]]
-// ⟦axl_voices axo_routine axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_internal⟧
 {rbtoe_depot_list_update}::
-A pattern that synchronizes depot project tracking:
+A pattern that synchronizes
+{rbtgi_depot}
+project tracking:
 
 . executes
 {rbtoe_payor_authenticate}
