@@ -12,16 +12,19 @@ All design decisions from sessions 2026-02-27 (axla-procedure-repair) and
 2026-03-02 (operations-for-the-win) have been implemented in AXLA-Lexicon.adoc.
 
 Summary of what landed:
-- `axo_procedure` / `axo_method` duality (method = grammar rule requiring entity)
-- `axo_group` / `axvo_group` for named operation groups with entity affiliation
-- `axd_attended`, `axd_internal`, `axd_grouped` dimensions
-- `axd_tabtarget`, `axd_slash_command` as group-only dimensions
-- `axvo_procedure`, `axvo_method`, `axvo_group` definition-site voicings
-- `axhob_operation`, `axhop_parameter`, `axhoo_output`, `axhoq_precondition`,
-  `axhog_guarantee`, `axhos_step`, `axhoc_completion` detail-site markers
-- `axl_definition_site`, `axl_detail_site` structural locale terms
-- Deprecation appendix mapping old→new with deletion plan
-- Lifecycle dimensions (`axd_transient`, `axd_longrunning`, `axd_periodic`) retained unchanged
+
+- **axo_procedure / axo_method** — peer motifs under the "operation" umbrella
+  (neither voices the other)
+- **axvo_procedure / axvo_method / axvo_group** — definition-site voicings
+- **axhob_operation, axhop_parameter, axhoo_output, axhoq_precondition,
+  axhog_guarantee, axhos_step, axhoc_completion** — detail-site hierarchy markers
+- **axd_attended** — optional dimension (absence = unattended)
+- **axd_internal** — optional dimension (absence = external)
+- **axd_grouped** — dimension imposing positional requirement on definition text
+  (2nd linked term for procedure, 3rd for method)
+- **axd_tabtarget / axd_slash_command** — group-only exposure dimensions
+- **axl_definition_site / axl_detail_site** — structural terms for the two locales
+- Lifecycle dimensions (axd_transient, axd_longrunning, axd_periodic) retained unchanged
 
 Full design rationale is in AXLA itself (term definitions + deprecation appendix).
 
@@ -62,11 +65,20 @@ markers. Each subdocument needs:
 - axhoq_precondition / axhog_guarantee where applicable
 - axhoc_completion for signaling contract
 
+**ALSO**: When processing each subdocument, repair any Strachey bracket usage on
+regime hierarchy markers. Regime subdocuments currently use `// ⟦axhrb_regime⟧`
+but should use bare prefix form `//axhrb_regime` per the AXLA spec. Fix both
+operation voicings AND regime marker syntax in the same pass.
+
 ### Phase 4: Transform other specifications
 
-- VOS0 — also has ghost `axo_operation` references to clean up
-- BUS0
-- JJS0
+- **VOS0** — Has ghost `axo_operation` references (used on voscaa_allocate,
+  voscai_invitatory, voscar_release) that were NEVER defined in AXLA. These need
+  careful treatment: determine what these action codes actually are in the new
+  model (likely axo_procedure or axo_method), then transform. Do NOT assume they
+  map 1:1 with any legacy term — `axo_operation` was undeclared vocabulary.
+- **BUS0** — Uses axo_entity voicings (likely unaffected, but verify)
+- **JJS0** — Uses axo_routine voicings that need transformation
 
 ### Phase 5: Finalize AXLA
 
@@ -88,6 +100,7 @@ markers. Each subdocument needs:
 - **Control terms** (axc_*/rbbc_*) — step-level vocabulary, separate heat
 - **Step labels / branching** — prose handles branching for now
 - **Diptych syntax** (₣AZ) — designs syntax layer; connection noted in ₣AZ paddock
+- **axe_rest_api / axe_daemon_runtime** — under review, not resolved in this heat
 
 ## References
 
