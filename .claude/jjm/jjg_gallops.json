@@ -5743,6 +5743,13 @@
         "₢AiAAc": {
           "tacks": [
             {
+              "ts": "260227-1019",
+              "state": "complete",
+              "text": "Drafted from ₢AkAAJ in ₣Ak.\n\nUpdate RBS0-SpecTop.adoc to align with depot_initialize and governor_reset changes:\n- Add rbrp_operator_email linked term (attribute, anchor, definition)\n- Add rbtgo_governor_reset linked term if missing\n- Verify rbtgo_depot_initialize definition reflects updated preconditions (governor_reset required)\n- Verify depot_create completion section references match updated RBSDC spec\n- Check that Developer Connect console access grant is reflected in relevant operation summaries",
+              "silks": "align-rbs0-depot-init-changes",
+              "commit": "afdb47c"
+            },
+            {
               "ts": "260224-1654",
               "state": "rough",
               "text": "Drafted from ₢AkAAJ in ₣Ak.\n\nUpdate RBS0-SpecTop.adoc to align with depot_initialize and governor_reset changes:\n- Add rbrp_operator_email linked term (attribute, anchor, definition)\n- Add rbtgo_governor_reset linked term if missing\n- Verify rbtgo_depot_initialize definition reflects updated preconditions (governor_reset required)\n- Verify depot_create completion section references match updated RBSDC spec\n- Check that Developer Connect console access grant is reflected in relevant operation summaries",
