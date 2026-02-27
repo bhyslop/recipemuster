@@ -5915,9 +5915,10 @@
         "₢AjAAZ",
         "₢AjAAa",
         "₢AjAAb",
-        "₢AjAAc"
+        "₢AjAAc",
+        "₢AjAAd"
       ],
-      "next_pace_seed": "AAd",
+      "next_pace_seed": "AAe",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6236,6 +6237,17 @@
               "text": "Replace Procedure/Command/Guide/Lifecycle Documentation Completeness sections in AXLA with new checklists based on axvo_procedure, axvo_method, axvo_group, and axho_* markers.",
               "silks": "rewrite-completeness-checklists",
               "commit": "110d796"
+            }
+          ]
+        },
+        "₢AjAAd": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "Transform VOS0-VoxObscuraSpec.adoc: 4 axo_command (with axe_rust_impl — drop language), 5 axo_routine, 3 ghost axo_operation (allocate, invitatory, release — determine correct voicing). Also review voss_* section motifs that voice deprecated axs_* terms.",
+              "silks": "transform-vos0-operations",
+              "commit": "943caa7"
             }
           ]
         }
