@@ -5905,9 +5905,10 @@
         "₢AjAAP",
         "₢AjAAQ",
         "₢AjAAR",
-        "₢AjAAS"
+        "₢AjAAS",
+        "₢AjAAT"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6116,6 +6117,17 @@
               "text": "Convert RBSTB-trigger_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-rbstb-trigger-build",
               "commit": "1ae2c08"
+            }
+          ]
+        },
+        "₢AjAAT": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "Convert RBSGR-governor_reset.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsgr-governor-reset",
+              "commit": "c2e82c5"
             }
           ]
         }
