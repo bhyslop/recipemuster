@@ -4650,9 +4650,10 @@
         "₢AiAAM",
         "₢AiAAN",
         "₢AiAAe",
-        "₢AiAAh"
+        "₢AiAAh",
+        "₢AiAAk"
       ],
-      "next_pace_seed": "AAk",
+      "next_pace_seed": "AAl",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5903,6 +5904,17 @@
               "text": "Destroy current depot and recreate from scratch to exercise all updated\ninitialization code paths added during this heat.\n\n## Destroy existing depot\n\nRun depot destroy to tear down the current proto2 depot cleanly.\n\n## Create fresh depot\n\nRun depot create — this now includes Developer Connect connection creation\n(automated, leaves connection in PENDING state).\n\n## Run depot_initialize\n\nComplete the Developer Connect OAuth authorization (browser step).\nValidate rubric repo URL reachability.\nVerify connection reaches COMPLETE state.\n\n## Configure Director RBRA\n\nEnsure RBRA_RUBRIC_REPO_URL is set in Director RBRA (station secrets).\nThis was a manual step discovered during e2e verification — the Governor\nhad it but the Director did not.\n\n## Verify readiness\n\nConfirm all prerequisites for inscribe are met:\n- Developer Connect connection COMPLETE\n- Rubric repo URL reachable from Director RBRA\n- GCB pins fresh\n- All triggers can be created (inscribe infrastructure phase)",
               "silks": "recreate-depot-fresh-devconnect",
               "commit": "489a6eb"
+            }
+          ]
+        },
+        "₢AiAAk": {
+          "tacks": [
+            {
+              "ts": "260227-1519",
+              "state": "rough",
+              "text": "Depot create generates its project ID timestamp via a second `date` call\n(rbgp_Payor.sh line 602-603) instead of using the dispatch-provided\n`BURD_NOW_STAMP` or `BURD_NOW_EPOCH`. This causes a 1-second skew between\nthe tabtarget log filename and the GCP project ID, making it impossible to\nreliably derive the project ID from the log timestamp.\n\n## Fix\n\nReplace the independent `date` call in `zrbgp_depot_create()` with the\ndispatch timestamp `BURD_NOW_STAMP` (or derive the needed format from\n`BURD_NOW_EPOCH`). Verify that `RBGC_GLOBAL_TIMESTAMP_FORMAT` is\ncompatible with the dispatch timestamp format; adapt if needed.\n\n## Also check\n\n- `zrbgp_governor_reset()` (line 1158-1159) has the same pattern —\n  independent `date +%Y%m%d%H%M` for Governor account ID. Consider\n  whether this should also use the dispatch timestamp.\n- The bucket name at line 673 reuses `z_timestamp` from the same\n  independent call, so fixing the project ID also fixes the bucket.\n\n## Acceptance\n\n- Project ID timestamp matches tabtarget log filename timestamp\n- No independent `date` calls for resource naming in depot_create\n- Governor reset evaluated and fixed if applicable",
+              "silks": "fix-depot-create-timestamp-smell",
+              "commit": "6709d97"
             }
           ]
         }
