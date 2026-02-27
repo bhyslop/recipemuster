@@ -6259,6 +6259,13 @@
           "tacks": [
             {
               "ts": "260227-1058",
+              "state": "abandoned",
+              "text": "Convert RBSDI-director_create.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsdi-director-create",
+              "commit": "d420902"
+            },
+            {
+              "ts": "260227-1058",
               "state": "rough",
               "text": "Convert RBSDI-director_create.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-rbsdi-director-create",
