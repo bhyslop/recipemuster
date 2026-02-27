@@ -5896,9 +5896,10 @@
         "₢AjAAG",
         "₢AjAAH",
         "₢AjAAI",
-        "₢AjAAJ"
+        "₢AjAAJ",
+        "₢AjAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6008,6 +6009,17 @@
               "text": "Convert RBSDI-director_create.adoc from legacy axs_* to axho_* markers.",
               "silks": "transform-rbsdi-director-create",
               "commit": "d1126b5"
+            }
+          ]
+        },
+        "₢AjAAK": {
+          "tacks": [
+            {
+              "ts": "260227-1057",
+              "state": "rough",
+              "text": "Convert RBSGD-gdc_establish.adoc from legacy axs_* to axho_* markers.",
+              "silks": "transform-rbsgd-gdc-establish",
+              "commit": "ffd6359"
             }
           ]
         }
