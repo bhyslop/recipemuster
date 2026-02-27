@@ -5900,6 +5900,13 @@
         "₢AiAAj": {
           "tacks": [
             {
+              "ts": "260227-1532",
+              "state": "complete",
+              "text": "Destroy current depot and recreate from scratch to exercise all updated\ninitialization code paths added during this heat.\n\n## Destroy existing depot\n\nRun depot destroy to tear down the current proto2 depot cleanly.\n\n## Create fresh depot\n\nRun depot create — this now includes Developer Connect connection creation\n(automated, leaves connection in PENDING state).\n\n## Run depot_initialize\n\nComplete the Developer Connect OAuth authorization (browser step).\nValidate rubric repo URL reachability.\nVerify connection reaches COMPLETE state.\n\n## Configure Director RBRA\n\nEnsure RBRA_RUBRIC_REPO_URL is set in Director RBRA (station secrets).\nThis was a manual step discovered during e2e verification — the Governor\nhad it but the Director did not.\n\n## Verify readiness\n\nConfirm all prerequisites for inscribe are met:\n- Developer Connect connection COMPLETE\n- Rubric repo URL reachable from Director RBRA\n- GCB pins fresh\n- All triggers can be created (inscribe infrastructure phase)",
+              "silks": "recreate-depot-fresh-devconnect",
+              "commit": "3127c17"
+            },
+            {
               "ts": "260227-1440",
               "state": "rough",
               "text": "Destroy current depot and recreate from scratch to exercise all updated\ninitialization code paths added during this heat.\n\n## Destroy existing depot\n\nRun depot destroy to tear down the current proto2 depot cleanly.\n\n## Create fresh depot\n\nRun depot create — this now includes Developer Connect connection creation\n(automated, leaves connection in PENDING state).\n\n## Run depot_initialize\n\nComplete the Developer Connect OAuth authorization (browser step).\nValidate rubric repo URL reachability.\nVerify connection reaches COMPLETE state.\n\n## Configure Director RBRA\n\nEnsure RBRA_RUBRIC_REPO_URL is set in Director RBRA (station secrets).\nThis was a manual step discovered during e2e verification — the Governor\nhad it but the Director did not.\n\n## Verify readiness\n\nConfirm all prerequisites for inscribe are met:\n- Developer Connect connection COMPLETE\n- Rubric repo URL reachable from Director RBRA\n- GCB pins fresh\n- All triggers can be created (inscribe infrastructure phase)",
