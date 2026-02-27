@@ -5887,9 +5887,10 @@
       "creation_time": "260223",
       "status": "racing",
       "order": [
-        "₢AjAAA"
+        "₢AjAAA",
+        "₢AjAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -5900,6 +5901,17 @@
               "text": "Convert all 7 regime subdocuments from Strachey bracket form\n`// ⟦axhrb_regime⟧` to bare prefix form `//axhrb_regime` per AXLA spec.\n\nFiles: RBSRR-RegimeRepo.adoc, RBSRA-CredentialFormat.adoc, RBSRP-RegimePayor.adoc,\nRBSRO-RegimeOauth.adoc, RBSRS-RegimeStation.adoc, RBSRV-RegimeVessel.adoc,\nRBRN-RegimeNameplate.adoc.\n\nAll markers: axhrb_regime, axhrgb_group, axhrgv_variable, axhrv_variable,\naxhrgc_gate, axhro_kindle, axhro_validate, axhro_render, axhro_list,\naxhro_survey, axhro_audit.\n\nMechanical find-and-replace: `// ⟦axhrX_Y⟧` → `//axhrX_Y` (remove space, Strachey brackets).\nVerify with grep that no Strachey bracket forms remain in any regime subdoc.",
               "silks": "repair-regime-subdoc-brackets",
               "commit": "d4e7f8f"
+            }
+          ]
+        },
+        "₢AjAAB": {
+          "tacks": [
+            {
+              "ts": "260227-1054",
+              "state": "rough",
+              "text": "Create rbtgog_* operation group linked terms in RBS0-SpecTop.adoc using axvo_group voicings.\n\nGroups to define (discover full list by scanning existing rbtgo_* definitions):\n- rbtgog_depot — operations on {rbtge_depot}\n- rbtgog_ark — operations on {rbtga_ark}\n- rbtgog_image — operations on container images\n- rbtgog_payor — operations by {rbtr_payor}\n- rbtgog_governor — operations by {rbtr_governor}\n- rbtgog_sa — service account operations\n- rbtgog_rubric — rubric lifecycle operations\n- rbtgog_access — authentication/probe operations\n- Others as discovered during inventory\n\nEach group: anchor + `//axvo_group` voicing (with axd_tabtarget where applicable) +\ndefinition text with entity as 2nd linked term.\n\nPlace group definitions before their member operations in the S0 document structure.",
+              "silks": "define-operation-groups-in-s0",
+              "commit": "59f68d4"
             }
           ]
         }
