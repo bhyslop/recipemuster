@@ -5917,9 +5917,10 @@
         "₢AjAAb",
         "₢AjAAc",
         "₢AjAAd",
-        "₢AjAAe"
+        "₢AjAAe",
+        "₢AjAAf"
       ],
-      "next_pace_seed": "AAf",
+      "next_pace_seed": "AAg",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6260,6 +6261,17 @@
               "text": "Remove all deprecated terms listed in AXLA deprecation appendix. Remove the deprecation appendix itself. Remove legacy Procedure Hierarchy section and old completeness checklists. Verify no remaining references to deleted terms across all specs.",
               "silks": "delete-legacy-terms",
               "commit": "597864f"
+            }
+          ]
+        },
+        "₢AjAAf": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "The mkr_*, opss_*, opbs_*, opbr_*, scr_* operations in RBS0 (bottle, network, sentry, security) have non-rbtgo prefixes and were out of scope. Slate an itch or create a note for a future heat to bring them up to standards established in this heat.",
+              "silks": "note-future-heat-bottle-ops",
+              "commit": "df09826"
             }
           ]
         }
