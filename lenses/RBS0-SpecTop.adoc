@@ -111,6 +111,17 @@
 :rbtgo_rubric_inscribe:          <<rbtgo_rubric_inscribe,rbf_inscribe>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbap_payor_oauth_probe>>
+
+// Recipe Bottle Term Google Operation Groups
+:rbtgog_access:                   <<rbtgog_access,Access Probe Group>>
+:rbtgog_ark:                      <<rbtgog_ark,Ark Group>>
+:rbtgog_depot:                    <<rbtgog_depot,Depot Group>>
+:rbtgog_governor:                 <<rbtgog_governor,Governor Group>>
+:rbtgog_image:                    <<rbtgog_image,Image Group>>
+:rbtgog_payor:                    <<rbtgog_payor,Payor Group>>
+:rbtgog_rubric:                   <<rbtgog_rubric,Rubric Group>>
+:rbtgog_sa:                       <<rbtgog_sa,Service Account Group>>
+
 :rbtoe_check_rubric_repo_url:     <<rbtoe_check_rubric_repo_url,Rubric Repo URL Check>>
 :rbtoe_check_devconnect:          <<rbtoe_check_devconnect,Developer Connect Check>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
@@ -682,6 +693,64 @@ and machine type is determined by the pool configuration rather than the build r
 See
 {rbtgo_quota_build}
 for the manual Console procedure to review build capacity settings.
+
+== Operation Groups
+
+[[rbtgog_payor]]
+// ⟦axvo_group axd_tabtarget⟧
+{rbtgog_payor}::
+Operations managing
+{rbtr_payor}
+lifecycle: credential establishment, payor installation, and OAuth refresh.
+
+[[rbtgog_depot]]
+// ⟦axvo_group axd_tabtarget⟧
+{rbtgog_depot}::
+Operations on
+{rbtgi_depot}
+infrastructure: project creation, initialization, destruction, listing, and quota management.
+
+[[rbtgog_governor]]
+// ⟦axvo_group axd_tabtarget⟧
+{rbtgog_governor}::
+Operations by
+{rbtr_governor}
+role: configuration reset and subordinate service account creation.
+
+[[rbtgog_rubric]]
+// ⟦axvo_group axd_tabtarget⟧
+{rbtgog_rubric}::
+Operations on
+{rbtgr_rubric}
+lifecycle: vessel inscription and triggered builds.
+
+[[rbtgog_image]]
+// ⟦axvo_group axd_tabtarget⟧
+{rbtgog_image}::
+Operations on
+{rbtgi_image}
+artifacts: listing, deletion, and retrieval.
+
+[[rbtgog_ark]]
+// ⟦axvo_group axd_tabtarget⟧
+{rbtgog_ark}::
+Operations on
+{rbtga_ark}
+units: abjuration, beseeching, conjuring, and summoning.
+
+[[rbtgog_sa]]
+// ⟦axvo_group axd_tabtarget⟧
+{rbtgog_sa}::
+Operations on
+{giam_service_account}
+resources: listing and deletion across roles.
+
+[[rbtgog_access]]
+// ⟦axvo_group axd_tabtarget⟧
+{rbtgog_access}::
+Diagnostic operations verifying
+{rbtr_role}
+authentication and registry access via OAuth and JWT probes.
 
 == {rbtr_payor} Operations
 

@@ -40,6 +40,8 @@ zrbf_furnish() {
   source "${z_rbw_kit_dir}/rbgu_Utility.sh"
   source "${z_rbw_kit_dir}/rbf_Foundry.sh"
 
+  zbuv_kindle
+
   buc_log_args 'Validate BUD environment'
   zburd_kindle
 
@@ -50,7 +52,6 @@ zrbf_furnish() {
   RBG_RUNTIME="${RBG_RUNTIME:-podman}"
   RBG_RUNTIME_ARG="${RBG_RUNTIME_ARG:-}"
 
-  zbuv_kindle
   zrbcc_kindle
 
   zrbrr_kindle
