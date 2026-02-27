@@ -425,11 +425,9 @@ rbf_build() {
 
   buc_log_args "Enforce vessel binfmt policy"
   if test "${RBRV_CONJURE_BINFMT_POLICY}" = "forbid"; then
-    local z_native="$(uname -s | tr A-Z a-z)/$(uname -m)"
-    case " ${RBRV_CONJURE_PLATFORMS} " in
-      *"${z_native}"*) : ;;  # native arch allowed
-      *) buc_die "Vessel '${RBRV_SIGIL}' forbids binfmt but RBRV_CONJURE_PLATFORMS='${RBRV_CONJURE_PLATFORMS}'" ;;
-    esac
+    if test "${RBRV_CONJURE_PLATFORMS}" != "${RBGC_DEFAULT_POOL_PLATFORM}"; then
+      buc_die "Vessel '${RBRV_SIGIL}' forbids binfmt but RBRV_CONJURE_PLATFORMS='${RBRV_CONJURE_PLATFORMS}' extends beyond Cloud Build runner platform (${RBGC_DEFAULT_POOL_PLATFORM})"
+    fi
   fi
 
   buc_info "Building vessel image: ${RBRV_SIGIL}"

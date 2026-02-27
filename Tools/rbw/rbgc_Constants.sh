@@ -146,6 +146,7 @@ zrbgc_kindle() {
   # Rubric infrastructure (demoted from RBRR per trigger migration paddock)
   readonly RBGC_RUBRIC_CLONE_DIR=".rbk/rubric"
   readonly RBGC_RUBRIC_TRIGGER_PREFIX="rbw-trigger-"
+  readonly RBGC_DEFAULT_POOL_PLATFORM="linux/amd64"
 
   readonly ZRBGC_KINDLED=1
 }
