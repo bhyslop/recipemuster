@@ -1,0 +1,108 @@
+{
+  "steps": [
+    {
+      "name": "gcr.io/cloud-builders/gcloud@sha256:4a58b9883e286608d1084cf21e5aed1cbb0817ac6adf41b1293cf2ef46c4942e",
+      "id": "derive-tag-base",
+      "entrypoint": "/bin/bash",
+      "args": [
+        "-lc",
+        "# RBGJB Step 01: Derive TAG_BASE from inscribe + build timestamps\n# Builder: gcr.io/cloud-builders/gcloud\n#\n# Dual-timestamp format: i20260224_153022-b20260224_160530\n# - Inscribe timestamp (iYYYYMMDD_HHMMSS) baked at inscribe time via _RBGY_INSCRIBE_TIMESTAMP\n# - Build timestamp (bYYYYMMDD_HHMMSS) derived at build time\n# Multiple builds of same inscribed JSON sort together by inscribe prefix\n\nset -euo pipefail\n\nTAG_BASE=\"${_RBGY_INSCRIBE_TIMESTAMP}-b$$(date -u +%Y%m%d_%H%M%S)\"\ntest -n \"$${TAG_BASE}\" || { echo \"TAG_BASE empty\" >&2; exit 1; }\necho \"$${TAG_BASE}\" > .tag_base"
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/gcloud@sha256:4a58b9883e286608d1084cf21e5aed1cbb0817ac6adf41b1293cf2ef46c4942e",
+      "id": "get-docker-token",
+      "entrypoint": "/bin/bash",
+      "args": [
+        "-lc",
+        "# RBGJB Step 02: Get Docker access token from gcloud\n# Builder: gcr.io/cloud-builders/gcloud\n\nset -euo pipefail\n\n# Write access token to workspace for docker login step\ngcloud auth print-access-token > /workspace/.docker-token"
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "docker-login-gar",
+      "entrypoint": "/bin/bash",
+      "args": [
+        "-lc",
+        "# RBGJB Step 03: Docker login to Google Artifact Registry\n# Builder: gcr.io/cloud-builders/docker\n# Substitutions: _RBGY_GAR_LOCATION\n\nset -euo pipefail\n\n# Login using token from previous step (works with buildx docker-container driver)\ncat /workspace/.docker-token | docker login -u oauth2accesstoken --password-stdin \"https://${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}\"\nrm /workspace/.docker-token"
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "qemu-binfmt",
+      "entrypoint": "/bin/bash",
+      "args": [
+        "-lc",
+        "# RBGJB Step 04: Register QEMU for cross-platform builds\n# Builder: gcr.io/cloud-builders/docker\n\nset -euo pipefail\n\n# Register QEMU for cross-platform builds (arm64, arm/v7)\ndocker run --privileged --rm docker.io/tonistiigi/binfmt@sha256:8db0f28060565399642110b798c6c35efcac7c5b3b48c56d36503d3b4d8f93c8 --install arm64,arm"
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "build-and-export",
+      "entrypoint": "/bin/bash",
+      "args": [
+        "-lc",
+        "# RBGJB Step 06: Build multi-arch OCI layout\n# Builder: gcr.io/cloud-builders/docker\n# Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,\n#                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,\n#                _RBGY_GIT_COMMIT, _RBGY_GIT_BRANCH, _RBGY_GIT_REPO\n#\n# OCI Layout Bridge Phase 1: Export multi-platform build to /workspace/oci-layout\n# instead of pushing directly to registry. This avoids the BuildKit credential\n# isolation problem. Phase 2 (rbgjb07) will push the OCI layout using Skopeo.\n\nset -euo pipefail\n\n# Required inputs\ntest -n \"${_RBGY_DOCKERFILE}\"     || (echo \"_RBGY_DOCKERFILE missing\"     >&2; exit 1)\ntest -n \"${_RBGY_MONIKER}\"        || (echo \"_RBGY_MONIKER missing\"        >&2; exit 1)\ntest -n \"${_RBGY_PLATFORMS}\"      || (echo \"_RBGY_PLATFORMS missing\"      >&2; exit 1)\ntest -n \"${_RBGY_GAR_LOCATION}\"   || (echo \"_RBGY_GAR_LOCATION missing\"   >&2; exit 1)\ntest -n \"${_RBGY_GAR_PROJECT}\"    || (echo \"_RBGY_GAR_PROJECT missing\"    >&2; exit 1)\ntest -n \"${_RBGY_GAR_REPOSITORY}\" || (echo \"_RBGY_GAR_REPOSITORY missing\" >&2; exit 1)\ntest -s .tag_base                  || (echo \"tag base not derived\"         >&2; exit 1)\ntest -n \"${_RBGY_GIT_COMMIT}\"     || (echo \"_RBGY_GIT_COMMIT missing\"     >&2; exit 1)\ntest -n \"${_RBGY_GIT_BRANCH}\"     || (echo \"_RBGY_GIT_BRANCH missing\"     >&2; exit 1)\ntest -n \"${_RBGY_GIT_REPO}\"       || (echo \"_RBGY_GIT_REPO missing\"       >&2; exit 1)\n\nTAG_BASE=\"$$(cat .tag_base)\"\nIMAGE_URI=\"${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:$${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}\"\n\ndocker buildx version\ndocker version\n\n# Create docker-container driver for multi-platform + OCI export support\n# The default docker driver supports neither OCI exporter nor multi-platform builds\n# See RBWMBX memo \"OCI Output Path Research\" section for details\ndocker buildx create --driver docker-container --name rb-builder --use\n\n# Build multi-platform image and export to OCI archive tarball\n# - Output goes to CLIENT filesystem (Cloud Build step container), not BuildKit container\n# - BuildKit transfers results back via gRPC\n# - Using tar=true (default) because tar=false has known annotation bugs (moby/buildkit#5572)\n# - Skopeo can read tarball via oci-archive: transport\n# - /workspace persists across Cloud Build steps for Phase 2 (Skopeo push)\n\ndocker buildx build \\\n  --platform=\"${_RBGY_PLATFORMS}\" \\\n  --tag \"$${IMAGE_URI}\" \\\n  --output type=oci,dest=/workspace/oci-layout.tar \\\n  --label \"moniker=${_RBGY_MONIKER}\" \\\n  --label \"git.commit=${_RBGY_GIT_COMMIT}\" \\\n  --label \"git.branch=${_RBGY_GIT_BRANCH}\" \\\n  -f \"${_RBGY_DOCKERFILE}\" \\\n  ."
+      ]
+    },
+    {
+      "name": "docker.io/library/alpine@sha256:59855d3dceb3ae53991193bd03301e082b2a7faa56a514b03527ae0ec2ce3a95",
+      "id": "push-with-crane",
+      "entrypoint": "/bin/sh",
+      "args": [
+        "-c",
+        "# RBGJB Step 07: Push OCI layout to GAR using crane\n# Builder: alpine (via RBRR_GCB_ALPINE_IMAGE_REF)\n# Substitutions: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY, _RBGY_MONIKER\n#\n# OCI Layout Bridge Phase 2: Push the multi-platform OCI archive from /workspace/oci-layout.tar\n# to Artifact Registry using crane. Auth provided by gcloud auth configure-docker (step 03).\n#\n# Crane is installed from the go-containerregistry release tarball because the gcrane\n# container image (gcr.io/go-containerregistry/gcrane) is distroless with no shell.\n\nset -eu\n\ntest -n \"${_RBGY_GAR_LOCATION}\"   || { echo \"_RBGY_GAR_LOCATION missing\"   >&2; exit 1; }\ntest -n \"${_RBGY_GAR_PROJECT}\"    || { echo \"_RBGY_GAR_PROJECT missing\"    >&2; exit 1; }\ntest -n \"${_RBGY_GAR_REPOSITORY}\" || { echo \"_RBGY_GAR_REPOSITORY missing\" >&2; exit 1; }\ntest -n \"${_RBGY_MONIKER}\"        || { echo \"_RBGY_MONIKER missing\"        >&2; exit 1; }\ntest -s .tag_base                  || { echo \"tag base not derived\"         >&2; exit 1; }\ntest -f /workspace/oci-layout.tar  || { echo \"OCI archive not found\"        >&2; exit 1; }\n\necho \"Installing crane...\"\nwget -qO- \"${_RBGY_CRANE_TAR_GZ}\" | tar xz -C /usr/local/bin crane\ncrane version\n\nTAG_BASE=\"$$(cat .tag_base)\"\nIMAGE_URI=\"${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:$${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}\"\n\nmkdir -p /workspace/oci-layout\ntar xf /workspace/oci-layout.tar -C /workspace/oci-layout\n\necho \"Pushing OCI layout to $${IMAGE_URI}...\"\ncrane push /workspace/oci-layout \"$${IMAGE_URI}\" --index\n\necho \"$${IMAGE_URI}\" > .image_uri\necho \"Done. Image available at: $${IMAGE_URI}\""
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "sbom-and-summary",
+      "entrypoint": "/bin/bash",
+      "args": [
+        "-lc",
+        "# RBGJB Step 08: Generate SBOM and package summary with Syft\n# Builder: gcr.io/cloud-builders/docker\n#\n# OCI Layout Bridge Phase 3: Generate SBOM from OCI layout directory.\n# Syft analyzes /workspace/oci-layout directly via oci-dir: scheme,\n# avoiding platform mismatch when build arch differs from GCB worker arch.\n\nset -euo pipefail\n\n# Syft image pinned via RBRR regime variable\nSYFT_IMAGE=\"docker.io/anchore/syft@sha256:d775ca26ef52914830e6db70ad17381d15acaed7507e3c1b70e8c1af2b95d861\"\n\ntest -d /workspace/oci-layout || (echo \"/workspace/oci-layout not found\" >&2; exit 1)\n\necho \"Generating SBOM with $${SYFT_IMAGE}...\"\ndocker run --rm -v /workspace:/workspace \\\n  \"$${SYFT_IMAGE}\" \"oci-dir:/workspace/oci-layout\" -o json  > syft_analysis.json\ndocker run --rm -v /workspace:/workspace \\\n  \"$${SYFT_IMAGE}\" \"oci-dir:/workspace/oci-layout\" -o table > package_summary.txt\n\necho \"SBOM generation complete\""
+      ]
+    },
+    {
+      "name": "docker.io/library/alpine@sha256:59855d3dceb3ae53991193bd03301e082b2a7faa56a514b03527ae0ec2ce3a95",
+      "id": "assemble-metadata",
+      "entrypoint": "/bin/sh",
+      "args": [
+        "-c",
+        "# RBGJB Step 07: Assemble build metadata JSON\n# Builder: alpine:latest (with jq installed at runtime)\n# Entrypoint: sh (not bash)\n# Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,\n#                _RBGY_GIT_REPO, _RBGY_GIT_BRANCH, _RBGY_GIT_COMMIT\n\nset -euo pipefail\n\n# Install jq (alpine is minimal, jqlang/jq distroless has no shell)\napk add --no-cache jq >/dev/null\n\ntest -s .tag_base || (echo \"tag base not derived\" >&2; exit 1)\nTAG_BASE=\"$$(cat .tag_base)\"\nIMG_URI=\"$$(cat .image_uri)\"\ncp \"${_RBGY_DOCKERFILE}\" recipe.txt\nTS=\"$$(date -u +%FT%TZ)\"\n\njq -n \\\n  --arg tag_base  \"$${TAG_BASE}\" \\\n  --arg image_uri \"$${IMG_URI}\" \\\n  --arg moniker   \"${_RBGY_MONIKER}\" \\\n  --arg repo      \"${_RBGY_GIT_REPO}\" \\\n  --arg branch    \"${_RBGY_GIT_BRANCH}\" \\\n  --arg commit    \"${_RBGY_GIT_COMMIT}\" \\\n  --arg ts        \"$${TS}\" \\\n  --arg platforms \"${_RBGY_PLATFORMS}\" \\\n  '{\n    tag_base: $$tag_base,\n    image: { uri: $$image_uri },\n    moniker: $$moniker,\n    git: { repo: $$repo, branch: $$branch, commit: $$commit },\n    build: { timestamp: $$ts },\n    platforms: $$platforms\n  }' > build_info.json"
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "build-and-push-metadata",
+      "entrypoint": "/bin/bash",
+      "args": [
+        "-lc",
+        "# RBGJB Step 09: Build and push metadata container\n# Builder: gcr.io/cloud-builders/docker\n# Substitutions: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY, _RBGY_MONIKER\n\nset -euo pipefail\n\ntest -s .tag_base || (echo \"tag base not derived\" >&2; exit 1)\nTAG_BASE=\"$$(cat .tag_base)\"\nMETA_URI=\"${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:$${TAG_BASE}${_RBGY_ARK_SUFFIX_ABOUT}\"\n\n{\n  echo 'FROM scratch'\n  echo 'LABEL org.opencontainers.image.title=\"rbia-metadata\"'\n  echo 'ADD build_info.json /build_info.json'\n  echo 'ADD syft_analysis.json /syft_analysis.json'\n  echo 'ADD package_summary.txt /package_summary.txt'\n  echo 'ADD recipe.txt /recipe.txt'\n} > Dockerfile.meta\n\ndocker build -f Dockerfile.meta -t \"$${META_URI}\" .\ndocker push \"$${META_URI}\""
+      ]
+    }
+  ],
+  "substitutions": {
+    "_RBGY_DOCKERFILE": "Dockerfile",
+    "_RBGY_MONIKER": "rbev-busybox",
+    "_RBGY_PLATFORMS": "linux/amd64,linux/arm64,linux/arm/v7",
+    "_RBGY_GAR_LOCATION": "us-central1",
+    "_RBGY_GAR_PROJECT": "rbwg-d-proto2-260224144107",
+    "_RBGY_GAR_REPOSITORY": "rbw-proto2-repository",
+    "_RBGY_GIT_COMMIT": "b1f808dc9539e7b59d10e5aee015b22292f771b5",
+    "_RBGY_GIT_BRANCH": "main",
+    "_RBGY_GIT_REPO": "bhyslop/recipemuster",
+    "_RBGY_GAR_HOST_SUFFIX": "-docker.pkg.dev",
+    "_RBGY_ARK_SUFFIX_IMAGE": "-image",
+    "_RBGY_ARK_SUFFIX_ABOUT": "-about",
+    "_RBGY_CRANE_TAR_GZ": "https://github.com/google/go-containerregistry/releases/download/v0.21.1/go-containerregistry_Linux_x86_64.tar.gz",
+    "_RBGY_RUBRIC_REPO": "__INSCRIBE_RUBRIC_REPO__",
+    "_RBGY_RUBRIC_COMMIT": "__INSCRIBE_RUBRIC_COMMIT__",
+    "_RBGY_INSCRIBE_TIMESTAMP": "i20260227_142140"
+  },
+  "options": {
+    "logging": "CLOUD_LOGGING_ONLY",
+    "machineType": "UNSPECIFIED"
+  },
+  "timeout": "1200s"
+}

@@ -755,48 +755,76 @@ authentication and registry access via OAuth and JWT probes.
 == {rbtr_payor} Operations
 
 [[rbtgo_payor_establish]]
-// ⟦axl_voices axo_guide axe_human_guide⟧
+// ⟦axvo_method axd_transient axd_attended axd_grouped⟧
 === {rbtgo_payor_establish}
+
+Establishes
+{rbtr_payor}
+credentials and project configuration
+({rbtgog_payor}).
 
 include::RBSPE-payor_establish.adoc[]
 
 [[rbtgo_payor_install]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_payor_install}
 
-Completes OAuth credential installation by performing authorization flow, storing credentials, and validating payor project access.
+Completes
+{rbtr_payor}
+OAuth credential installation
+({rbtgog_payor})
+by performing authorization flow, storing credentials, and validating payor project access.
 
 include::RBSPI-payor_install.adoc[]
 
 [[rbtgo_payor_refresh]]
-// ⟦axl_voices axo_guide axe_human_guide⟧
+// ⟦axvo_method axd_transient axd_attended axd_grouped⟧
 === {rbtgo_payor_refresh}
+
+Refreshes
+{rbtr_payor}
+OAuth credentials
+({rbtgog_payor}).
 
 include::RBSPR-payor_refresh.adoc[]
 
 [[rbtgo_access_oauth_probe]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_access_oauth_probe}
 
-Probes Payor OAuth access by refreshing the stored OAuth token and calling the Cloud Resource Manager projects.get API, with optional iteration and delay for sustained verification.
+Probes
+{rbtr_payor}
+OAuth access
+({rbtgog_access})
+by refreshing the stored OAuth token and calling the Cloud Resource Manager projects.get API, with optional iteration and delay for sustained verification.
 
 include::RBSAO-access_oauth_probe.adoc[]
 
 [[rbtgo_depot_create]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_depot_create}
 
-Creates depot infrastructure (project, bucket, repository, Mason service account).
+Creates
+{rbtgi_depot}
+infrastructure
+({rbtgog_depot}):
+project, bucket, repository, and
+{rbtr_mason}
+service account.
 
 include::RBSDC-depot_create.adoc[]
 
 [[rbtgo_depot_initialize]]
-// ⟦axl_voices axo_guide axe_human_guide⟧
+// ⟦axvo_method axd_transient axd_attended axd_grouped⟧
 === {rbtgo_depot_initialize}
 
-Completes one-time depot initialization (after
+Completes one-time
+{rbtgi_depot}
+initialization
+({rbtgog_depot}),
+after
 {rbtgo_governor_reset}
-has been run): validates the
+has been run: validates the
 {rbra_rubric_repo_url}
 and guides the
 {at_operator}
@@ -805,54 +833,84 @@ through Developer Connect GitHub OAuth authorization.
 include::RBSDN-depot_initialize.adoc[]
 
 [[rbtgo_depot_destroy]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_depot_destroy}
+
+Destroys
+{rbtgi_depot}
+infrastructure
+({rbtgog_depot}).
 
 include::RBSDD-depot_destroy.adoc[]
 
 [[rbtgo_depot_list]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_depot_list}
+
+Lists
+{rbtgi_depot}
+instances
+({rbtgog_depot}).
 
 include::RBSDL-depot_list.adoc[]
 
 [[rbtgo_quota_build]]
-// ⟦axl_voices axo_guide axe_human_guide⟧
+// ⟦axvo_method axd_transient axd_attended axd_grouped⟧
 === {rbtgo_quota_build}
 
-Reviews machine type and CPU quota alignment to enable the desired level of parallel build execution.
+Reviews
+{rbtgi_depot}
+machine type and CPU quota alignment
+({rbtgog_depot})
+to enable the desired level of parallel build execution.
 
 include::RBSQB-quota_build.adoc[]
 
 [[rbtgo_governor_reset]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_governor_reset}
+
+Resets
+{rbtr_governor}
+configuration
+({rbtgog_governor}).
 
 include::RBSGR-governor_reset.adoc[]
 
 == {rbtr_governor} Operations
 
 [[rbtgo_retriever_create]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_retriever_create}
+
+Creates a
+{rbtr_retriever}
+service account
+({rbtgog_governor}).
 
 include::RBSRC-retriever_create.adoc[]
 
 [[rbtgo_director_create]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_director_create}
+
+Creates a
+{rbtr_director}
+service account
+({rbtgog_governor}).
 
 include::RBSDI-director_create.adoc[]
 
 == {rbtr_director} Operations
 
 [[rbtgo_gdc_establish]]
-// ⟦axl_voices axo_guide axe_human_guide⟧
+// ⟦axvo_method axd_transient axd_attended axd_grouped⟧
 === {rbtgo_gdc_establish}
 
-Legacy reference for
+Legacy
 {rbtgi_source_connection}
-establishment.
+establishment reference
+({rbtgog_depot}).
 This operation has been split: connection creation is automated in
 {rbtgo_depot_create},
 OAuth authorization is guided by
@@ -861,10 +919,14 @@ OAuth authorization is guided by
 include::RBSGD-gdc_establish.adoc[]
 
 [[rbtgo_rubric_inscribe]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_rubric_inscribe}
 
-The batch-all-vessels rubric lifecycle command: refreshes pins (rate-limited to 1/day),
+The batch-all-vessels
+{rbtgr_rubric}
+lifecycle command
+({rbtgog_rubric}):
+refreshes pins (rate-limited to 1/day),
 generates all
 {rbtgr_build_json}
 files from step scripts and regime pins, copies all build contexts,
@@ -877,10 +939,14 @@ resources exist.
 include::RBSRI-rubric_inscribe.adoc[]
 
 [[rbtgo_trigger_build]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_trigger_build}
 
-Dispatches a build via `triggers.run` using the vessel's
+Dispatches a
+{rbtgr_rubric}
+build
+({rbtgog_rubric})
+via `triggers.run` using the vessel's
 {rbtgr_vessel_trigger}.
 All values baked in
 {rbtgr_build_json}
@@ -891,76 +957,121 @@ include::RBSTB-trigger_build.adoc[]
 NOTE: For multi-platform build authentication challenges and research findings, see link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
 
 [[rbtgo_image_list]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_image_list}
+
+Lists
+{rbtgi_image}
+artifacts
+({rbtgog_image}).
 
 include::RBSIL-image_list.adoc[]
 
 [[rbtgo_image_delete]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_image_delete}
+
+Deletes
+{rbtgi_image}
+artifacts
+({rbtgog_image}).
 
 include::RBSID-image_delete.adoc[]
 
 [[rbtgo_ark_abjure]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_ark_abjure}
 
-Formally renounces an ark from the repository, removing both its image and about artifacts as a coherent unit.
+Formally renounces an
+{rbtga_ark}
+from the repository
+({rbtgog_ark}),
+removing both its image and about artifacts as a coherent unit.
 
 include::RBSAA-ark_abjure.adoc[]
 
 [[rbtgo_ark_beseech]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_ark_beseech}
 
-Petitions the registry to reveal its consecrated arks, correlating artifact pairs by shared consecration timestamp.
+Petitions the registry to reveal
+{rbtga_ark}
+consecrations
+({rbtgog_ark}),
+correlating artifact pairs by shared consecration timestamp.
 
 include::RBSAB-ark_beseech.adoc[]
 
 [[rbtgo_ark_conjure]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_ark_conjure}
 
-Conjures an ark by building a container image from a vessel specification and storing both image and about artifacts in the repository.
+Conjures an
+{rbtga_ark}
+by building a container image
+({rbtgog_ark})
+from a vessel specification and storing both image and about artifacts in the repository.
 
 include::RBSAC-ark_conjure.adoc[]
 
 == {rbtr_retriever} Operations
 
 [[rbtgo_image_retrieve]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_image_retrieve}
+
+Retrieves
+{rbtgi_image}
+artifacts
+({rbtgog_image}).
 
 include::RBSIR-image_retrieve.adoc[]
 
 [[rbtgo_ark_summon]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_ark_summon}
 
-Summons an ark from the repository, retrieving both its image and about artifacts to the local container runtime.
+Summons an
+{rbtga_ark}
+from the repository
+({rbtgog_ark}),
+retrieving both its image and about artifacts to the local container runtime.
 
 include::RBSAS-ark_summon.adoc[]
 
 == Multi Role Operations
 
 [[rbtgo_sa_list]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_sa_list}
+
+Lists
+{giam_service_account}
+resources
+({rbtgog_sa}).
 
 include::RBSSL-sa_list.adoc[]
 
 [[rbtgo_sa_delete]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_sa_delete}
+
+Deletes
+{giam_service_account}
+resources
+({rbtgog_sa}).
 
 include::RBSSD-sa_delete.adoc[]
 
 [[rbtgo_access_jwt_probe]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_method axd_transient axd_grouped⟧
 === {rbtgo_access_jwt_probe}
 
-Probes Artifact Registry read access for a specified role by performing a JWT-to-OAuth token exchange and calling the packages.list API, with optional iteration and delay for sustained verification.
+Probes
+{rbtr_role}
+Artifact Registry read access
+({rbtgog_access})
+by performing a JWT-to-OAuth token exchange and calling the packages.list API, with optional iteration and delay for sustained verification.
 
 include::RBSAJ-access_jwt_probe.adoc[]
 

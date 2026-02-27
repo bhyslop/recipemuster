@@ -1041,12 +1041,19 @@ rbf_rubric_inscribe() {
 
   buc_step "Generating rubric JSON for all conjure vessels"
   local z_target=""
+  local z_loaded_sigil=""
   for z_vessel_dir in "${z_vessel_dirs[@]}"; do
-    zrbf_load_vessel "${z_vessel_dir}"
-    z_vessel_sigils+=("${RBRV_SIGIL}")
+    # Isolation subshell: rbrv_regime.sh has a multiply-sourced guard that fires
+    # on the second iteration. Subshell isolates sourced state per BCG §Isolation Subshells.
+    # Outputs survive via filesystem: ZRBF_VESSEL_SIGIL_FILE and ZRBF_STITCHED_BUILD_FILE.
+    (
+      zrbf_load_vessel "${z_vessel_dir}" || buc_die "Failed to load vessel: ${z_vessel_dir}"
+      buc_step "Stitching build JSON for ${RBRV_SIGIL}"
+      zrbf_stitch_build_json || buc_die "Failed to stitch build JSON for ${RBRV_SIGIL}"
+    ) || buc_die "Isolation subshell failed for vessel: ${z_vessel_dir}"
 
-    buc_step "Stitching build JSON for ${RBRV_SIGIL}"
-    zrbf_stitch_build_json
+    z_loaded_sigil=$(<"${ZRBF_VESSEL_SIGIL_FILE}") || buc_die "Failed to read vessel sigil after isolation subshell"
+    z_vessel_sigils+=("${z_loaded_sigil}")
 
     z_target="${z_vessel_dir}/cloudbuild.json"
     cp "${ZRBF_STITCHED_BUILD_FILE}" "${z_target}" \
