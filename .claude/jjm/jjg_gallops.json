@@ -5903,9 +5903,10 @@
         "₢AjAAN",
         "₢AjAAO",
         "₢AjAAP",
-        "₢AjAAQ"
+        "₢AjAAQ",
+        "₢AjAAR"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6092,6 +6093,17 @@
               "text": "Transform JJS0-GallopsData.adoc: 4 axo_routine (load, save, persist, wrap) to axvo_procedure or axvo_method. Determine entity affiliation for each.",
               "silks": "transform-jjs0-routines",
               "commit": "db4eda6"
+            }
+          ]
+        },
+        "₢AjAAR": {
+          "tacks": [
+            {
+              "ts": "260227-1057",
+              "state": "rough",
+              "text": "Convert RBSIL-image_list.adoc, RBSID-image_delete.adoc, RBSIR-image_retrieve.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-image-subdocs",
+              "commit": "718eca4"
             }
           ]
         }
