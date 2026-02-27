@@ -45,22 +45,13 @@ zrbf_kindle() {
   readonly ZRBF_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
   readonly ZRBF_CLOUD_QUERY_BASE="https://console.cloud.google.com/cloud-build/builds"
 
-  readonly ZRBF_GCB_API_BASE_UPLOAD="https://cloudbuild.googleapis.com/upload/v1"
-
-  # GCS endpoints (build-source uploads)
-  readonly ZRBF_GCS_API_BASE="https://storage.googleapis.com/storage/v1"
-  readonly ZRBF_GCS_UPLOAD_BASE="https://storage.googleapis.com/upload/storage/v1"
-
-  # Temp files for object naming and requests
-  readonly ZRBF_TARBALL_NAME_FILE="${BURD_TEMP_DIR}/rbf_tarball_name.txt"
-  readonly ZRBF_GCS_OBJECT_FILE="${BURD_TEMP_DIR}/rbf_gcs_object.txt"
-  readonly ZRBF_BUILD_REQUEST_FILE="${BURD_TEMP_DIR}/rbf_build_request.json"
-  readonly ZRBF_GCS_UPLOAD_RESP="${BURD_TEMP_DIR}/rbf_gcs_upload_resp.json"
-  readonly ZRBF_GCS_UPLOAD_HTTP="${BURD_TEMP_DIR}/rbf_gcs_upload_http.txt"
-
   readonly ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
-  readonly ZRBF_GCB_PROJECT_BUILDS_UPLOAD_URL="${ZRBF_GCB_API_BASE_UPLOAD}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
   readonly ZRBF_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+
+  buc_log_args 'Trigger dispatch endpoints'
+  test "${RBRR_GDC_REGION:-}" = "${RBGD_GCB_REGION}" \
+    || buc_die "RBRR_GDC_REGION (${RBRR_GDC_REGION:-unset}) must equal GCB region (${RBGD_GCB_REGION}) — build polling and trigger dispatch share the region"
+  readonly ZRBF_TRIGGERS_URL="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GDC_REGION}/triggers"
 
   buc_log_args 'Registry API endpoints for delete'
   readonly ZRBF_REGISTRY_HOST="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -80,32 +71,20 @@ zrbf_kindle() {
   readonly ZRBF_STITCHED_BUILD_FILE="${BURD_TEMP_DIR}/rbf_stitched_build.json"
 
   buc_log_args 'Define temp files for build operations'
-  readonly ZRBF_BUILD_CONTEXT_TAR="${BURD_TEMP_DIR}/rbf_build_context.tar.gz"
   readonly ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
   readonly ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
-  readonly ZRBF_BUILD_LOG_FILE="${BURD_TEMP_DIR}/rbf_build_log.txt"
-  readonly ZRBF_BUILD_RESPONSE_FILE="${BURD_TEMP_DIR}/rbf_build_response.json"
-  readonly ZRBF_BUILD_HTTP_CODE="${BURD_TEMP_DIR}/rbf_build_http_code.txt"
+  readonly ZRBF_BUILD_RUBRIC_LS="${BURD_TEMP_DIR}/rbf_rubric_ls_remote.txt"
+  readonly ZRBF_BUILD_TRIGGER_BODY="${BURD_TEMP_DIR}/rbf_trigger_run_body.json"
 
   buc_log_args 'Define copy staging files'
   readonly ZRBF_COPY_STAGING_DIR="${BURD_TEMP_DIR}/rbf_copy_staging"
   readonly ZRBF_COPY_CONTEXT_TAR="${BURD_TEMP_DIR}/rbf_copy_context.tar.gz"
 
-  buc_log_args 'Define git info files'
+  buc_log_args 'Define git info file (used by inscribe -> stitch)'
   readonly ZRBF_GIT_INFO_FILE="${BURD_TEMP_DIR}/rbf_git_info.json"
-  readonly ZRBF_GIT_COMMIT_FILE="${BURD_TEMP_DIR}/rbf_git_commit.txt"
-  readonly ZRBF_GIT_BRANCH_FILE="${BURD_TEMP_DIR}/rbf_git_branch.txt"
-  readonly ZRBF_GIT_REPO_FILE="${BURD_TEMP_DIR}/rbf_git_repo_url.txt"
-  readonly ZRBF_GIT_UNTRACKED_FILE="${BURD_TEMP_DIR}/rbf_git_untracked.txt"
-  readonly ZRBF_GIT_REMOTE_FILE="${BURD_TEMP_DIR}/rbf_git_remote.txt"
-
-  buc_log_args 'Define staging and size files'
-  readonly ZRBF_STAGING_DIR="${BURD_TEMP_DIR}/rbf_staging"
-  readonly ZRBF_CONTEXT_SIZE_FILE="${BURD_TEMP_DIR}/rbf_context_size_bytes.txt"
 
   buc_log_args 'Define validation files'
   readonly ZRBF_STATUS_CHECK_FILE="${BURD_TEMP_DIR}/rbf_status_check.txt"
-  readonly ZRBF_BUILD_ID_TMP_FILE="${BURD_TEMP_DIR}/rbf_build_id_tmp.txt"
 
   buc_log_args 'Define delete operation files'
   readonly ZRBF_DELETE_PREFIX="${BURD_TEMP_DIR}/rbf_delete_"
@@ -116,7 +95,6 @@ zrbf_kindle() {
   readonly ZRBF_COPY_RESPONSE_FILE="${BURD_TEMP_DIR}/rbf_copy_response.json"
 
   buc_log_args 'Vessel-related files'
-  readonly ZRBF_VESSEL_ENV_FILE="${BURD_TEMP_DIR}/rbf_vessel_env.txt"
   readonly ZRBF_VESSEL_SIGIL_FILE="${BURD_TEMP_DIR}/rbf_vessel_sigil.txt"
 
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
@@ -356,109 +334,6 @@ zrbf_load_vessel() {
   buc_info "Loaded vessel: ${RBRV_SIGIL}"
 }
 
-zrbf_verify_git_clean() {
-  zrbf_sentinel
-
-  buc_step "Verifying git repository state"
-
-  buc_log_args 'Check for uncommitted changes'
-  git diff-index --quiet HEAD -- || buc_die "Uncommitted changes detected - commit or stash first"
-
-  buc_log_args 'Check for untracked files'
-  git ls-files --others --exclude-standard > "${ZRBF_GIT_UNTRACKED_FILE}" || buc_die "Failed to check untracked files"
-  local z_untracked=""
-  z_untracked=$(<"${ZRBF_GIT_UNTRACKED_FILE}") || buc_die "Failed to read untracked list"
-  test -z "${z_untracked}" || buc_die "Untracked files present - commit or clean first"
-
-  buc_log_args 'Check if all commits are pushed'
-  git fetch --quiet || buc_die "git fetch failed"
-  git rev-list @{u}..HEAD --count > "${ZRBF_GIT_UNTRACKED_FILE}" 2>/dev/null || echo "0" > "${ZRBF_GIT_UNTRACKED_FILE}"
-  local z_unpushed=""
-  z_unpushed=$(<"${ZRBF_GIT_UNTRACKED_FILE}") || buc_die "Failed to read ahead count"
-  test "${z_unpushed}" -eq 0 || buc_die "Local commits not pushed (${z_unpushed} commits ahead)"
-
-  buc_log_args 'Get git metadata'
-  git rev-parse HEAD              > "${ZRBF_GIT_COMMIT_FILE}" || buc_die "Failed to get commit SHA"
-  git rev-parse --abbrev-ref HEAD > "${ZRBF_GIT_BRANCH_FILE}" || buc_die "Failed to get branch name"
-
-  buc_log_args 'Get first available remote'
-  git remote | head -1 > "${ZRBF_GIT_REMOTE_FILE}" || buc_die "No git remotes configured"
-  local z_remote=""
-  z_remote=$(<"${ZRBF_GIT_REMOTE_FILE}") || buc_die "Failed to read remote name"
-  test -n "${z_remote}" || buc_die "No git remotes found"
-
-  buc_log_args 'Get repo URL from remote: ${z_remote}'
-  git config --get "remote.${z_remote}.url" > "${ZRBF_GIT_REPO_FILE}" || buc_die "Failed to get repo URL"
-
-  local z_commit=""
-  local z_branch=""
-  local z_repo_url=""
-  z_commit=$(<"${ZRBF_GIT_COMMIT_FILE}") || buc_die "Failed to read commit"
-  z_branch=$(<"${ZRBF_GIT_BRANCH_FILE}") || buc_die "Failed to read branch"
-  z_repo_url=$(<"${ZRBF_GIT_REPO_FILE}") || buc_die "Failed to read repo url"
-
-  test -n "${z_commit}"   || buc_die "Git commit is empty"
-  test -n "${z_branch}"   || buc_die "Git branch is empty"
-  test -n "${z_repo_url}" || buc_die "Git repo URL is empty"
-
-  buc_log_args 'Extract owner/repo from URL (handles both HTTPS and SSH)'
-  # Example HTTPS: https://github.com/owner/repo.git
-  # Example SSH  : git@github.com:owner/repo.git
-  local z_repo="${z_repo_url#*github.com[:/]}"
-  z_repo="${z_repo%.git}"
-
-  buc_log_args 'Write git info JSON'
-  jq -n                        \
-    --arg commit "${z_commit}" \
-    --arg branch "${z_branch}" \
-    --arg repo   "${z_repo}"   \
-    '{"commit": $commit, "branch": $branch, "repo": $repo}' \
-    > "${ZRBF_GIT_INFO_FILE}" || buc_die "Failed to write git info"
-
-  buc_info "Git state clean - commit: ${z_commit:0:8} on ${z_branch}"
-}
-
-zrbf_package_context() {
-  zrbf_sentinel
-
-  local z_dockerfile="$1"
-  local z_context_dir="$2"
-
-  buc_step 'Packaging build context (source only, no build config)'
-
-  buc_log_args 'Create temp directory for context'
-  rm -rf "${ZRBF_STAGING_DIR}" || buc_warn "Failed to clean existing staging directory"
-  mkdir -p "${ZRBF_STAGING_DIR}" || buc_die "Failed to create staging directory"
-
-  buc_log_args 'Copy context to staging'
-  cp -r "${z_context_dir}/." "${ZRBF_STAGING_DIR}/" || buc_die "Failed to copy context"
-
-  buc_log_args 'Copy Dockerfile to context root if not already there'
-  local z_dockerfile_name="${z_dockerfile##*/}"
-  cp "${z_dockerfile}" "${ZRBF_STAGING_DIR}/${z_dockerfile_name}" || buc_die "Failed to copy Dockerfile"
-
-  buc_log_args "Create tarball"
-  tar -czf "${ZRBF_BUILD_CONTEXT_TAR}" -C "${ZRBF_STAGING_DIR}" . || buc_die "Failed to create context archive"
-
-  buc_log_args "Clean up staging"
-  rm -rf "${ZRBF_STAGING_DIR}" || buc_warn "Failed to cleanup staging directory"
-
-  buc_log_args 'Compute archive size (bytes) using temp file'
-  wc -c < "${ZRBF_BUILD_CONTEXT_TAR}" > "${ZRBF_CONTEXT_SIZE_FILE}" || buc_die "Failed to compute context size"
-  local z_size_bytes=""
-  z_size_bytes=$(<"${ZRBF_CONTEXT_SIZE_FILE}") || buc_die "Failed to read context size"
-  test -n "${z_size_bytes}" || buc_die "Context size is empty"
-
-  # Size policy: warn >1MB; die >10MB
-  if test "${z_size_bytes}" -gt 10485760; then
-    buc_die  "Context tarball too large: ${z_size_bytes} bytes (>10MB limit)"
-  elif test "${z_size_bytes}" -gt 1048576; then
-    buc_warn "Context tarball large: ${z_size_bytes} bytes (>1MB warning)"
-  fi
-
-  buc_info "Build context packaged: ${z_size_bytes} bytes"
-}
-
 zrbf_package_mirror_context() {
   zrbf_sentinel
   buc_step 'Packaging mirror context'
@@ -474,113 +349,6 @@ zrbf_package_mirror_context() {
 
   rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to cleanup mirror staging directory"
 }
-
-zrbf_compose_tarball_name() {
-  zrbf_sentinel
-  test -s "${ZRBF_VESSEL_SIGIL_FILE}" || buc_die "Vessel sigil file missing"
-  local z_sigil=""
-  z_sigil=$(<"${ZRBF_VESSEL_SIGIL_FILE}") || buc_die "Failed to read vessel sigil"
-  test -n "${z_sigil}" || buc_die "Empty vessel sigil"
-
-  # Flat namespace (no subdirectories), BURD_NOW_STAMP for source artifact
-  local z_name="${z_sigil}.${BURD_NOW_STAMP}.source.tar.gz"
-  echo "${z_name}" > "${ZRBF_TARBALL_NAME_FILE}"      || buc_die "Failed to write tarball name"
-  echo "${RBGD_GCS_BUCKET}/${z_name}" > "${ZRBF_GCS_OBJECT_FILE}" || buc_die "Failed to write bucket/object"
-  buc_log_args "Tarball object: ${z_name}"
-}
-
-zrbf_upload_context_to_gcs() {
-  zrbf_sentinel
-  buc_step "Uploading build context tarball to GCS staging bucket"
-
-  local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
-
-  local z_obj_name=""
-  z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}") || buc_die "Missing tarball name"
-  test -s "${ZRBF_BUILD_CONTEXT_TAR}" || buc_die "Context tar is empty"
-
-  local z_url="${ZRBF_GCS_UPLOAD_BASE}/b/${RBGD_GCS_BUCKET}/o?uploadType=media&name=${z_obj_name}"
-
-  curl -sS -X POST                                 \
-    -H "Authorization: Bearer ${z_token}"          \
-    -H "Content-Type: application/gzip"            \
-    -H "Accept: application/json"                  \
-    --data-binary @"${ZRBF_BUILD_CONTEXT_TAR}"     \
-    -o "${ZRBF_GCS_UPLOAD_RESP}"                   \
-    -w "%{http_code}"                              \
-    "${z_url}" > "${ZRBF_GCS_UPLOAD_HTTP}" || buc_die "Upload request failed"
-
-  local z_http=""
-  z_http=$(<"${ZRBF_GCS_UPLOAD_HTTP}") || buc_die "No HTTP status from GCS upload"
-  test "${z_http}" = "200" || buc_die "GCS upload failed (HTTP ${z_http})"
-
-  buc_success "Uploaded: gs://${RBGD_GCS_BUCKET}/${z_obj_name}"
-}
-
-zrbf_compose_build_request_json() {
-  zrbf_sentinel
-
-  # Stitch produces complete trigger-compatible Build resource (steps + subs + options + timeout)
-  zrbf_stitch_build_json
-
-  jq empty "${ZRBF_STITCHED_BUILD_FILE}" || buc_die "Stitched build file is not valid JSON"
-
-  local -r z_obj_name=$(<"${ZRBF_TARBALL_NAME_FILE}")
-  test -n "${z_obj_name}" || buc_die "Missing tarball name"
-
-  # Add builds.create-specific fields (source + serviceAccount) to stitch output
-  # These are NOT part of the trigger-compatible cloudbuild.json — only needed for direct API submission
-  local -r z_sa_resource="projects/${RBGD_GAR_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
-  local -r z_request_file="${BURD_TEMP_DIR}/rbf_build_request_tmp.json"
-
-  jq \
-    --arg bucket "${RBGD_GCS_BUCKET}" \
-    --arg object "${z_obj_name}" \
-    --arg sa     "${z_sa_resource}" \
-    '. + {
-      source: { storageSource: { bucket: $bucket, object: $object } },
-      serviceAccount: $sa
-    }' "${ZRBF_STITCHED_BUILD_FILE}" > "${z_request_file}" \
-    || buc_die "Failed to compose build request json"
-
-  mv "${z_request_file}" "${ZRBF_BUILD_REQUEST_FILE}" \
-    || buc_die "Failed to write build request file"
-}
-
-zrbf_submit_build_json() {
-  zrbf_sentinel
-  buc_step 'Submitting build (JSON) to Google Cloud Build'
-
-  local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get GCB OAuth token"
-
-  curl -sS -X POST                              \
-    -H "Authorization: Bearer ${z_token}"       \
-    -H "Content-Type: application/json"         \
-    -H "Accept: application/json"               \
-    --data-binary @"${ZRBF_BUILD_REQUEST_FILE}" \
-    -o "${ZRBF_BUILD_RESPONSE_FILE}"            \
-    -w "%{http_code}"                           \
-    "${ZRBF_GCB_PROJECT_BUILDS_URL}" > "${ZRBF_BUILD_HTTP_CODE}" || buc_die "Build create request failed"
-
-  local z_http=""
-  z_http=$(<"${ZRBF_BUILD_HTTP_CODE}") || buc_die "No HTTP status from Cloud Build create"
-  test "${z_http}" = "200" -o "${z_http}" = "201" || buc_die "Cloud Build create failed (HTTP ${z_http})"
-  test -s "${ZRBF_BUILD_RESPONSE_FILE}" || buc_die "Empty Cloud Build response"
-
-  # Accept Operation or Build; prefer metadata.build.id else .id
-  local z_build_id=""
-  z_build_id=$(jq -r '(.metadata.build.id // .id // empty)' "${ZRBF_BUILD_RESPONSE_FILE}") || z_build_id=""
-  test -n "${z_build_id}" || buc_die "Build id not found in response"
-  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build id"
-
-  local z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
-  buc_info "Build submitted: ${z_build_id}"
-  buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
-}
-
-
 
 zrbf_wait_build_completion() {
   zrbf_sentinel
@@ -634,10 +402,10 @@ zrbf_wait_build_completion() {
 rbf_build() {
   zrbf_sentinel
 
-  local z_vessel_dir="${1:-}"
+  local -r z_vessel_dir="${1:-}"
 
   # Documentation block
-  buc_doc_brief "Build container image from vessel using Google Cloud Build"
+  buc_doc_brief "Build container image from vessel via trigger dispatch"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_shown || return 0
 
@@ -664,35 +432,65 @@ rbf_build() {
     esac
   fi
 
-  buc_log_args "Generate build tag using vessel sigil"
-  local z_tag="${RBRV_SIGIL}.${BURD_NOW_STAMP}"
+  buc_info "Building vessel image: ${RBRV_SIGIL}"
 
-  buc_info "Building vessel image: ${RBRV_SIGIL} -> ${z_tag}"
+  # Source Director RBRA for rubric repo URL
+  buc_step "Loading Director RBRA credentials"
+  source "${RBRR_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
+  rbgu_check_rubric_repo_url "${RBRA_RUBRIC_REPO_URL:-}"
 
-  # Verify GCB quota headroom before expensive packaging
+  # Authenticate as Director
+  buc_step "Authenticating as Director"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  # Verify GCB quota headroom before dispatch
   buc_log_args "Check GCB quota headroom"
-  local z_quota_token=""
-  z_quota_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
-    || buc_die "Failed to get token for GCB quota check"
-  rbgd_check_gcb_quota "${z_quota_token}"
+  rbgd_check_gcb_quota "${z_token}"
 
-  # Verify git state + capture metadata
-  zrbf_verify_git_clean
+  # Resolve rubric repo HEAD via ls-remote (no clone needed — build only needs commit hash)
+  buc_step "Resolving rubric repo HEAD commit"
+  git ls-remote "${RBRA_RUBRIC_REPO_URL}" HEAD > "${ZRBF_BUILD_RUBRIC_LS}" \
+    || buc_die "Failed to reach rubric repo — check RBRA_RUBRIC_REPO_URL"
+  local z_rubric_commit=$(<"${ZRBF_BUILD_RUBRIC_LS}")
+  test -n "${z_rubric_commit}" || buc_die "Rubric repo HEAD is empty — has inscribe been run?"
+  z_rubric_commit="${z_rubric_commit%%	*}"
+  buc_info "Rubric repo HEAD: ${z_rubric_commit:0:8}"
 
-  # Package build context (source code only; build config inlined in API request)
-  zrbf_package_context "${RBRV_CONJURE_DOCKERFILE}" "${RBRV_CONJURE_BLDCONTEXT}"
+  # Resolve trigger identity by direct GET (trigger name = trigger ID, set at create time)
+  buc_step "Resolving vessel trigger"
+  local -r z_trigger_name="${RBGC_RUBRIC_TRIGGER_PREFIX}${RBRV_SIGIL}"
+  rbgu_http_json "GET" "${ZRBF_TRIGGERS_URL}/${z_trigger_name}" "${z_token}" "build_trigger_check"
+  local z_trigger_code=""
+  z_trigger_code=$(rbgu_http_code_capture "build_trigger_check") || z_trigger_code=""
+  test "${z_trigger_code}" = "200" \
+    || buc_die "Vessel trigger '${z_trigger_name}' not found (HTTP ${z_trigger_code}) — run rubric inscribe first"
+  buc_info "Trigger resolved: ${z_trigger_name}"
 
-  # Substitutions now composed inside zrbf_stitch_build_json() from module state
-  # Stage & submit new flow
-  zrbf_compose_tarball_name
-  zrbf_upload_context_to_gcs
-  zrbf_compose_build_request_json
-  zrbf_submit_build_json
+  # Dispatch build via triggers.run — zero substitution overrides
+  buc_step "Dispatching trigger build for ${RBRV_SIGIL}"
+  local -r z_run_url="${ZRBF_TRIGGERS_URL}/${z_trigger_name}:run"
+  jq -n --arg sha "${z_rubric_commit}" '{"source": {"commitSha": $sha}}' \
+    > "${ZRBF_BUILD_TRIGGER_BODY}" || buc_die "Failed to compose triggers.run body"
 
-  # Wait for completion (5s x 960 = 80m, no backoff)
+  rbgu_http_json "POST" "${z_run_url}" "${z_token}" "build_trigger_run" "${ZRBF_BUILD_TRIGGER_BODY}"
+  rbgu_http_require_ok "Trigger dispatch" "build_trigger_run"
+
+  # Extract build ID from Operation response
+  local z_build_id=""
+  z_build_id=$(rbgu_json_field_capture "build_trigger_run" '.metadata.build.id') || z_build_id=""
+  test -n "${z_build_id}" || buc_die "Build ID not found in triggers.run response"
+  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+
+  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  buc_info "Build dispatched: ${z_build_id}"
+  buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
+
+  # Wait for completion (5s intervals, up to 80 minutes)
   zrbf_wait_build_completion
 
-  buc_success "Vessel image built: ${z_tag}"
+  buc_success "Vessel image built: ${RBRV_SIGIL}"
 }
 
 rbf_mirror() {
