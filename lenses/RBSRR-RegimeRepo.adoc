@@ -1,4 +1,4 @@
-// ⟦axhrb_regime⟧
+//axhrb_regime
 {rbrr_regime}
 
 This regime specifies variables that define repository-wide configuration and installation-wide settings within the Recipe Bottle system.
@@ -7,7 +7,7 @@ Each
 instance represents foundational infrastructure configuration that rarely changes and is shared across all Recipe Bottle operations.
 RBRR assignment files are found in the operator's local filesystem (typically `../station-files/rbrr.env`) and configure depot project identifiers, regional settings, repository locations, and service account credential file paths.
 
-// ⟦axhrv_variable⟧
+//axhrv_variable
 {rbrr_depot_project_id}
 
 The
@@ -18,7 +18,7 @@ Used as the target
 {gcp_project_id}
 in API calls and as the audience claim in OAuth token exchange.
 
-// ⟦axhrv_variable⟧
+//axhrv_variable
 {rbrr_gcp_region}
 
 The default
@@ -29,7 +29,7 @@ and
 {gcb_service}.
 Applied when creating repositories and submitting builds unless overridden by operation-specific configuration.
 
-// ⟦axhrv_variable⟧
+//axhrv_variable
 {rbrr_gar_repository}
 
 The
@@ -38,7 +38,7 @@ repository name within
 {rbrr_depot_project_id}
 that stores all bottle images and metadata.
 
-// ⟦axhrgb_group⟧
+//axhrgb_group
 {rbrr_group_service_accounts}
 
 Credential file paths derived from a single enrolled directory for each operational role.
@@ -49,13 +49,13 @@ The payor RBRO file contains OAuth refresh credentials for
 {rbtr_payor}
 operations.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_secrets_dir}
 
 Directory on the operator's local filesystem outside the source repository that contains all credential files.
 Enrolled and validated to exist; individual file paths are derived from this directory at lock time.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_retriever_rbra_file}
 
 Path derived from
@@ -63,7 +63,7 @@ Path derived from
 as `rbra-retriever.env`.
 Enables the operator to assume the retriever role for container image operations.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_director_rbra_file}
 
 Path derived from
@@ -71,7 +71,7 @@ Path derived from
 as `rbra-director.env`.
 Enables the operator to assume the director role for build submission and image management operations.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_governor_rbra_file}
 
 Path derived from
@@ -81,7 +81,7 @@ Enables the operator to assume the governor role for
 {gcp_project_id}
 administration operations.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_payor_rbro_file}
 
 Path derived from
@@ -91,37 +91,37 @@ Enables the operator to perform
 {rbtr_payor}
 OAuth operations using locally stored refresh credentials.
 
-// ⟦axhrgb_group⟧
+//axhrgb_group
 {rbrr_group_container_runtime}
 
 Variables that configure container runtime and deployment environment settings.
 These settings control local Podman VM configuration, DNS resolution, and build machine selection.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_vessel_dir}
 
 Directory path containing vessel configuration subdirectories.
 Each subdirectory defines a vessel image source (bind or conjure mode).
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_dns_server}
 
 DNS server IP address used by sentry containers for name resolution.
 Injected into container environment to control DNS behavior.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_ignite_machine_name}
 
 Podman machine name for bottle ignition (startup) operations.
 Identifies which Podman VM to use for local image building and testing.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_deploy_machine_name}
 
 Podman machine name for bottle deployment operations.
 Identifies which Podman VM to use for production deployments.
 
-// ⟦axhrgb_group⟧
+//axhrgb_group
 {rbrr_group_build_configuration}
 
 Variables that control container image build processes.
@@ -129,93 +129,93 @@ These settings define build tooling, platform targets, timeout constraints, and 
 {gcb_service}
 operations.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_crane_tar_gz}
 
 Path to crane tool tarball archive.
 Crane is used for OCI image manipulation and registry operations.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_manifest_platforms}
 
 Space-separated list of platforms for multi-platform manifest creation.
 Example: `linux/amd64 linux/arm64`.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_chosen_podman_version}
 
 Podman version string for VM provisioning and build operations.
 Must match a valid Podman release version.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_chosen_vmimage_origin}
 
 Podman VM image origin specification.
 Determines which VM base image to use for machine creation.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_chosen_identity}
 
 Identity specification for VM or build environment.
 Used to configure authentication and authorization context.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gcb_machine_type}
 
 Google Cloud Build machine type specification.
 Determines CPU, memory, and performance characteristics for build workers.
 Examples: `E2_HIGHCPU_8`, `E2_HIGHCPU_32`.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gcb_min_concurrent_builds}
 
 Minimum number of concurrent Cloud Build executions required.
 The nameplate audit and build preflight query the depot project's *Concurrent Build CPUs* quota via the Service Usage API and verify that `CPU_QUOTA ÷ vCPUs_per_build ≥` this value.
 Hard-fails if quota headroom is insufficient.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gcb_timeout}
 
 Maximum duration for Cloud Build operations before timeout.
 Specified in seconds or duration format (e.g., `3600s`).
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gcb_oras_image_ref}
 
 Fully-qualified image reference for ORAS tool used in Cloud Build steps.
 ORAS handles OCI artifact operations beyond container images.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gcb_gcloud_image_ref}
 
 Fully-qualified image reference for gcloud tool used in Cloud Build steps.
 Provides Google Cloud CLI for project and service operations.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gcb_docker_image_ref}
 
 Fully-qualified image reference for Docker tool used in Cloud Build steps.
 Provides container image building and pushing capabilities.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gcb_alpine_image_ref}
 
 Fully-qualified image reference for Alpine base image used in Cloud Build steps.
 Provides lightweight shell environment for scripting steps.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gcb_syft_image_ref}
 
 Fully-qualified image reference for Syft tool used in Cloud Build steps.
 Generates software bill of materials (SBOM) for built images.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gcb_binfmt_image_ref}
 
 Fully-qualified image reference for binfmt tool used in Cloud Build steps.
 Configures QEMU binary format support for cross-platform builds.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gcb_pins_refreshed_at}
 
 Timestamp recording when builder image pins were last refreshed via `rbrr_refresh_gcb_pins`.
@@ -223,13 +223,13 @@ Timestamp recording when builder image pins were last refreshed via `rbrr_refres
 checks this value and skips pin refresh if less than 1 day old,
 otherwise refreshes automatically before proceeding.
 
-// ⟦axhrgb_group⟧
+//axhrgb_group
 {rbrr_group_developer_connect}
 
 Developer Connect configuration for GitHub-to-GCP source connections used by
 {rbtgo_rubric_inscribe}.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gdc_connection_name}
 
 Short name of the
@@ -237,7 +237,7 @@ Short name of the
 in Developer Connect.
 Shared across all vessels in the project.
 
-// ⟦axhrgv_variable⟧
+//axhrgv_variable
 {rbrr_gdc_region}
 
 {gcp_service}
@@ -245,14 +245,14 @@ region where the
 {rbtgi_source_connection}
 and vessel triggers are created.
 
-// ⟦axhro_kindle⟧
+//axhro_kindle
 {rbkro_kindle}
 
 Sets defaults for all RBRR_ variables via `VAR="${VAR:-}"` pattern.
 Detects unexpected RBRR_ variables via compgen prefix scan.
 Builds ZRBRR_ROLLUP serialization string and ZRBRR_DOCKER_ENV injection array.
 
-// ⟦axhro_validate⟧
+//axhro_validate
 {rbkro_validate}
 
 Validates fields via buv_env_* type checkers.
@@ -260,7 +260,7 @@ Checks required fields: DEPOT_PROJECT_ID, GCP_REGION, GAR_REPOSITORY.
 Validates directory existence for RBRR_SECRETS_DIR.
 Validates machine type and timeout format constraints.
 
-// ⟦axhro_render⟧
+//axhro_render
 {rbkro_render}
 
 Renders via rbcr_* shared module.
