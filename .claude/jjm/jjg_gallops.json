@@ -5909,9 +5909,10 @@
         "₢AjAAT",
         "₢AjAAU",
         "₢AjAAV",
-        "₢AjAAW"
+        "₢AjAAW",
+        "₢AjAAX"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6164,6 +6165,17 @@
               "text": "Convert RBSQB-quota_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-rbsqb-quota-build",
               "commit": "25c1a22"
+            }
+          ]
+        },
+        "₢AjAAX": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "Convert RBSRC-retriever_create.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsrc-retriever-create",
+              "commit": "c14a317"
             }
           ]
         }
