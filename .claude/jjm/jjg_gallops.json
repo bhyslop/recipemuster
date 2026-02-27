@@ -6157,6 +6157,13 @@
           "tacks": [
             {
               "ts": "260227-1058",
+              "state": "abandoned",
+              "text": "Convert RBSGR-governor_reset.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsgr-governor-reset",
+              "commit": "a291788"
+            },
+            {
+              "ts": "260227-1058",
               "state": "rough",
               "text": "Convert RBSGR-governor_reset.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-rbsgr-governor-reset",
