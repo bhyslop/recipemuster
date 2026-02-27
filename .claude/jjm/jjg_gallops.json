@@ -5894,9 +5894,10 @@
         "₢AjAAE",
         "₢AjAAF",
         "₢AjAAG",
-        "₢AjAAH"
+        "₢AjAAH",
+        "₢AjAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -5984,6 +5985,17 @@
               "text": "Convert RBSGR-governor_reset.adoc from legacy axs_* to axho_* markers.",
               "silks": "transform-rbsgr-governor-reset",
               "commit": "13d9f38"
+            }
+          ]
+        },
+        "₢AjAAI": {
+          "tacks": [
+            {
+              "ts": "260227-1056",
+              "state": "rough",
+              "text": "Convert RBSRC-retriever_create.adoc from legacy axs_* to axho_* markers.",
+              "silks": "transform-rbsrc-retriever-create",
+              "commit": "240321b"
             }
           ]
         }
