@@ -5901,9 +5901,10 @@
         "₢AjAAL",
         "₢AjAAM",
         "₢AjAAN",
-        "₢AjAAO"
+        "₢AjAAO",
+        "₢AjAAP"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6068,6 +6069,17 @@
               "text": "Convert RBSRI-rubric_inscribe.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-rbsri-rubric-inscribe",
               "commit": "fb81ddb"
+            }
+          ]
+        },
+        "₢AjAAP": {
+          "tacks": [
+            {
+              "ts": "260227-1057",
+              "state": "rough",
+              "text": "Convert RBSPE-payor_establish.adoc, RBSPI-payor_install.adoc, RBSPR-payor_refresh.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern. Payor establish and refresh are attended.",
+              "silks": "transform-payor-subdocs",
+              "commit": "b193d51"
             }
           ]
         }
