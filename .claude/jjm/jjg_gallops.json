@@ -5943,6 +5943,7 @@
         "₢AjAAD",
         "₢AjAAE",
         "₢AjAAF",
+        "₢AjAAg",
         "₢AjAAG",
         "₢AjAAH",
         "₢AjAAI",
@@ -5970,7 +5971,7 @@
         "₢AjAAX",
         "₢AjAAb"
       ],
-      "next_pace_seed": "AAg",
+      "next_pace_seed": "AAh",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6399,6 +6400,17 @@
               "text": "The mkr_*, opss_*, opbs_*, opbr_*, scr_* operations in RBS0 (bottle, network, sentry, security) have non-rbtgo prefixes and were out of scope. Slate an itch or create a note for a future heat to bring them up to standards established in this heat.",
               "silks": "note-future-heat-bottle-ops",
               "commit": "df09826"
+            }
+          ]
+        },
+        "₢AjAAg": {
+          "tacks": [
+            {
+              "ts": "260227-1529",
+              "state": "rough",
+              "text": "Resume design clarification for axho_* marker lookahead policy. Captures\nlearning from ₢AjAAE and ₢AjAAF exemplar work.\n\n## Resolved so far\n\n- Parameters: DO need S0-level terms, but via two AXLA marker variants:\n  - axhop_parameter_from_type — lookahead reuses existing domain type term (zero new terms)\n  - axhop_parameter_from_arg — lookahead points at shared CLI argument term (JJ precedent: jjda_* pattern; small vocabulary per spec)\n- Steps: do NOT need lookaheads (no current customer for lectionary extraction)\n- Preconditions: do NOT need operation-specific S0 terms (dead weight)\n\n## Still to resolve\n\n- Outputs: same question as preconditions — do they need lookaheads?\n- Guarantees: same question\n- Completion: currently no lookahead (0 arity) — confirm this stays\n- Branch targets: if steps don't get lookaheads, how do cross-references\n  like \"Go to step 7\" work? Local anchors? Inline labels? Different marker?\n- What to do with the 34 wrong-elevation terms from AAE/AAF — repair pace\n  scope and timing\n- Paddock update: revise \"minting linked terms for parameters, steps, and\n  outputs\" premise once policy is settled\n- AXLA spec update: define new parameter marker variants, remove lookahead\n  requirement from step/precondition markers — separate pace or same pace?\n\n## Method\n\nInteractive discussion to complete the resolution list, then hand off to\nan AXLA update pace and a repair pace for AAE/AAF.",
+              "silks": "clarify-detail-site-lookahead-policy",
+              "commit": "474d2ad"
             }
           ]
         }
