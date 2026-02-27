@@ -6105,6 +6105,13 @@
         "₢AjAAP": {
           "tacks": [
             {
+              "ts": "260227-1058",
+              "state": "abandoned",
+              "text": "Convert RBSPE-payor_establish.adoc, RBSPI-payor_install.adoc, RBSPR-payor_refresh.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern. Payor establish and refresh are attended.",
+              "silks": "transform-payor-subdocs",
+              "commit": "5c3f49d"
+            },
+            {
               "ts": "260227-1057",
               "state": "rough",
               "text": "Convert RBSPE-payor_establish.adoc, RBSPI-payor_install.adoc, RBSPR-payor_refresh.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern. Payor establish and refresh are attended.",
