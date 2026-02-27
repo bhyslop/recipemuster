@@ -5906,9 +5906,10 @@
         "₢AjAAQ",
         "₢AjAAR",
         "₢AjAAS",
-        "₢AjAAT"
+        "₢AjAAT",
+        "₢AjAAU"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6128,6 +6129,17 @@
               "text": "Convert RBSGR-governor_reset.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
               "silks": "transform-rbsgr-governor-reset",
               "commit": "c2e82c5"
+            }
+          ]
+        },
+        "₢AjAAU": {
+          "tacks": [
+            {
+              "ts": "260227-1058",
+              "state": "rough",
+              "text": "Review JJS0 interface terms: ~18 axi_cc_claudemd_verb, ~15 axi_cc_slash_command, ~25 axi_cli_subcommand, plus axa_cli_option/flag terms. Determine if these are affected by the new model or remain as-is.",
+              "silks": "review-jjs0-interface-layer",
+              "commit": "065b1c7"
             }
           ]
         }
