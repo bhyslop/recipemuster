@@ -6005,6 +6005,13 @@
         "₢AjAAE": {
           "tacks": [
             {
+              "ts": "260227-1437",
+              "state": "complete",
+              "text": "Exemplar transformation: convert RBSDC-depot_create.adoc from legacy axs_* section\nmarkers to new axho_* individual hierarchy markers.\n\nThis is the largest operation subdocument (~205 lines) and serves as the pattern\nfor all subsequent subdocument transformations.\n\nTransform:\n- Add //axhob_operation opener with {rbtgo_depot_create} lookahead\n- Replace `// ⟦axs_inputs⟧` with individual //axhop_parameter markers per parameter\n- Replace `// ⟦axs_behavior⟧` with individual //axhos_step markers per step\n- Replace `// ⟦axs_outputs⟧` with individual //axhoo_output markers per output\n- Replace `// ⟦axs_completion⟧` with //axhoc_completion\n- Add //axhoq_precondition and //axhog_guarantee where applicable\n\nEach parameter, step, and output needs a project-specific linked term minted\n(e.g., rbtgo_depot_create_name, rbtgo_depot_create_link_billing).\nThese linked terms must also be added to S0 or the subdoc mapping section.\n\nDocument the transformation pattern for subsequent paces to follow.",
+              "silks": "transform-rbsdc-depot-create",
+              "commit": "fe1f265"
+            },
+            {
               "ts": "260227-1054",
               "state": "rough",
               "text": "Exemplar transformation: convert RBSDC-depot_create.adoc from legacy axs_* section\nmarkers to new axho_* individual hierarchy markers.\n\nThis is the largest operation subdocument (~205 lines) and serves as the pattern\nfor all subsequent subdocument transformations.\n\nTransform:\n- Add //axhob_operation opener with {rbtgo_depot_create} lookahead\n- Replace `// ⟦axs_inputs⟧` with individual //axhop_parameter markers per parameter\n- Replace `// ⟦axs_behavior⟧` with individual //axhos_step markers per step\n- Replace `// ⟦axs_outputs⟧` with individual //axhoo_output markers per output\n- Replace `// ⟦axs_completion⟧` with //axhoc_completion\n- Add //axhoq_precondition and //axhog_guarantee where applicable\n\nEach parameter, step, and output needs a project-specific linked term minted\n(e.g., rbtgo_depot_create_name, rbtgo_depot_create_link_billing).\nThese linked terms must also be added to S0 or the subdoc mapping section.\n\nDocument the transformation pattern for subsequent paces to follow.",
