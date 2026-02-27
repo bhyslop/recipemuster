@@ -183,12 +183,12 @@ Cloud Build resolves these from the committed JSON — no values are overridden 
 *Provenance*::
 [cols="1,2"]
 |===
-| `_RBGY_GIT_COMMIT` | Main repo HEAD SHA at inscribe time.
+| `_RBGY_GIT_COMMIT` | Main repo HEAD SHA. Placeholder in committed copy; filled at inscribe time in {rbtgr_rubric_repo} clone.
 | `_RBGY_GIT_BRANCH` | Main repo branch at inscribe time.
 | `_RBGY_GIT_REPO` | Main repo identifier (owner/repo).
-| `_RBGY_RUBRIC_REPO` | {rbtgr_rubric_repo} URL. Filled after {rbtgr_rubric_repo} push.
-| `_RBGY_RUBRIC_COMMIT` | {rbtgr_rubric_repo} HEAD SHA after push. Filled after {rbtgr_rubric_repo} push.
-| `_RBGY_INSCRIBE_TIMESTAMP` | Inscribe timestamp (`YYYYMMDD_HHMMSS`). Used by rbgjb01 to construct {rbtga_consecration}.
+| `_RBGY_RUBRIC_REPO` | {rbtgr_rubric_repo} URL. Placeholder in committed copy; filled at inscribe time in {rbtgr_rubric_repo} clone.
+| `_RBGY_RUBRIC_COMMIT` | {rbtgr_rubric_repo} HEAD SHA after push. Placeholder in committed copy; filled at inscribe time in {rbtgr_rubric_repo} clone.
+| `_RBGY_INSCRIBE_TIMESTAMP` | Inscribe timestamp (`iYYYYMMDD_HHMMSS`). Placeholder in committed copy; filled at inscribe time in {rbtgr_rubric_repo} clone. Used by rbgjb01 to construct {rbtga_consecration}.
 |===
 
 Builder image references (step `name:` fields) are resolved to digest-pinned URIs from regime pins at inscribe time.

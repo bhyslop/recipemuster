@@ -32,8 +32,8 @@ Non-conjure vessels (no `RBRV_CONJURE_DOCKERFILE` in {rbrv_regime}) are skipped.
 {rbtgr_build_json}
 from step scripts (`rbgjb/*.sh`) and regime pins
 ... All values baked: GAR coordinates, builder image pins (digest-pinned), vessel identity, platforms, inscribe timestamp
-... Substitutions block includes `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` as placeholders — filled after {rbtgr_rubric_repo} push (step 4)
-... All other values deterministic: same inputs produce byte-identical output
+... Substitutions block includes four placeholders in the committed main-repo copy: `_RBGY_RUBRIC_REPO`, `_RBGY_RUBRIC_COMMIT`, `_RBGY_GIT_COMMIT`, and `_RBGY_INSCRIBE_TIMESTAMP` — filled at inscribe time in the {rbtgr_rubric_repo} clone (step 4)
+... All other values deterministic: same inputs produce byte-identical output (placeholders ensure the committed copy is stable across commits)
 
 . *Verify All Committed*:
 .. Compare each generated JSON against its committed copy in main repo
@@ -49,9 +49,9 @@ using
 {rbra_rubric_repo_url}
 .. For each conjure vessel:
 ... Copy vessel directory to per-vessel directory in clone, excluding `rbrv.env` (regime config is not build material)
-.. Fill `_RBGY_RUBRIC_REPO` and `_RBGY_RUBRIC_COMMIT` in each clone copy of
-{rbtgr_build_json}
-with the actual {rbtgr_rubric_repo} URL and the commit hash after push
+.. Fill all four placeholders in each clone copy of
+{rbtgr_build_json}:
+`_RBGY_RUBRIC_REPO` (actual URL), `_RBGY_GIT_COMMIT` (main repo HEAD), `_RBGY_INSCRIBE_TIMESTAMP` (current invocation) before commit; `_RBGY_RUBRIC_COMMIT` (rubric repo HEAD) after commit
 .. One commit and push for all vessels (fully orchestrated — main repo is the reviewed source of truth)
 
 NOTE: Always-fresh-clone eliminates stale state.
