@@ -6190,6 +6190,13 @@
         "₢AjAAK": {
           "tacks": [
             {
+              "ts": "260301-0932",
+              "state": "complete",
+              "text": "Convert RBSGD-gdc_establish.adoc from legacy axs_* to axho_* markers.",
+              "silks": "transform-rbsgd-gdc-establish",
+              "commit": "42d2489"
+            },
+            {
               "ts": "260227-1057",
               "state": "rough",
               "text": "Convert RBSGD-gdc_establish.adoc from legacy axs_* to axho_* markers.",
