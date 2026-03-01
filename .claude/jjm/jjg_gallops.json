@@ -6336,6 +6336,13 @@
         "₢AjAAR": {
           "tacks": [
             {
+              "ts": "260301-0954",
+              "state": "complete",
+              "text": "Convert RBSIL-image_list.adoc, RBSID-image_delete.adoc, RBSIR-image_retrieve.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-image-subdocs",
+              "commit": "c020095"
+            },
+            {
               "ts": "260301-0941",
               "state": "bridled",
               "text": "Convert RBSIL-image_list.adoc, RBSID-image_delete.adoc, RBSIR-image_retrieve.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
