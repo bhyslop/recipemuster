@@ -6329,6 +6329,13 @@
         "₢AjAAS": {
           "tacks": [
             {
+              "ts": "260301-0944",
+              "state": "complete",
+              "text": "Convert RBSTB-trigger_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbstb-trigger-build",
+              "commit": "ad98f64"
+            },
+            {
               "ts": "260301-0939",
               "state": "bridled",
               "text": "Convert RBSTB-trigger_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
