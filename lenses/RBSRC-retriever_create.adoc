@@ -1,10 +1,13 @@
-// ⟦axs_inputs axd_none⟧
+//axhob_operation
+{rbtgo_retriever_create}
 
-// ⟦axs_prerequisites⟧
-. Execute {rbtoe_check_rubric_repo_url} using {rbtr_governor} RBRA credentials
-. Execute {rbtoe_check_devconnect} to verify {rbtgi_source_connection} authorization
+//axhoq_precondition
+* Execute {rbtoe_check_rubric_repo_url} using {rbtr_governor} RBRA credentials
 
-// ⟦axs_behavior⟧
+//axhoq_precondition
+* Execute {rbtoe_check_devconnect} to verify {rbtgi_source_connection} authorization
+
+//axhos_step
 The
 {rbtr_governor}
 creates a
@@ -17,12 +20,13 @@ access and generates credentials using
 to create
 {rbrr_retriever_rbra_file}.
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbtgi_rbra_file}
 NOTE: Script outputs copy command for RBRA file installation.
 {rbbc_warn}
 if
 {rbrr_retriever_rbra_file}
 already exists.
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Successful execution generates retriever credentials and provides RBRA file installation command.
