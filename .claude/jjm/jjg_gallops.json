@@ -6244,6 +6244,14 @@
         "₢AjAAN": {
           "tacks": [
             {
+              "ts": "260301-0941",
+              "state": "bridled",
+              "text": "Convert RBSAA-ark_abjure.adoc, RBSAB-ark_beseech.adoc, RBSAC-ark_conjure.adoc, RBSAS-ark_summon.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-ark-subdocs",
+              "commit": "5e7597d",
+              "direction": "Agent: sonnet\n\n## Context\nRead the paddock at .claude/jjm/jjp_uAlj.md for transformation rules.\nRead exemplar: lenses/RBSDC-depot_create.adoc (fully transformed subdoc with parameters, steps, outputs).\nRead exemplar: lenses/RBSPI-payor_install.adoc (transformed subdoc with preconditions).\n\n## Steps\n1. Read all 4 ark subdocs: lenses/RBSAA-ark_abjure.adoc, lenses/RBSAB-ark_beseech.adoc, lenses/RBSAC-ark_conjure.adoc, lenses/RBSAS-ark_summon.adoc\n2. Grep RBS0-SpecTop.adoc for rbtgo_ark_abjure, rbtgo_ark_beseech, rbtgo_ark_conjure, rbtgo_ark_summon to find operation linked terms\n3. Apply transformation to all 4 files per paddock policy\n4. Write all 4 transformed files\n\n## Verification\nGrep all 4 transformed files for '⟦axs_' — must return zero matches."
+            },
+            {
               "ts": "260227-1057",
               "state": "rough",
               "text": "Convert RBSAA-ark_abjure.adoc, RBSAB-ark_beseech.adoc, RBSAC-ark_conjure.adoc, RBSAS-ark_summon.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
