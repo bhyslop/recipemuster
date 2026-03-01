@@ -6958,6 +6958,13 @@
         "₢AjAAk": {
           "tacks": [
             {
+              "ts": "260301-1534",
+              "state": "complete",
+              "text": "Convert VOS0 operation subdocuments (VOSRL-lock.adoc, VOSRC-commit.adoc, VOSRG-guard.adoc, VOSRP-probe.adoc, VOSRI-init.adoc, and the inline vosor_release detail) from voss_* section headers to bare //axho_* detail-site markers, matching the pattern established in RBS0 subdocuments. Remove voss_* term definitions from VOS0 mapping section once all usage is eliminated.",
+              "silks": "convert-vos0-subdocs-bare-markers",
+              "commit": "471f5c8"
+            },
+            {
               "ts": "260301-1030",
               "state": "rough",
               "text": "Convert VOS0 operation subdocuments (VOSRL-lock.adoc, VOSRC-commit.adoc, VOSRG-guard.adoc, VOSRP-probe.adoc, VOSRI-init.adoc, and the inline vosor_release detail) from voss_* section headers to bare //axho_* detail-site markers, matching the pattern established in RBS0 subdocuments. Remove voss_* term definitions from VOS0 mapping section once all usage is eliminated.",
