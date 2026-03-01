@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_director_create}
+
 The
 {rbtr_governor}
 creates a
@@ -5,22 +8,27 @@ creates a
 {giam_service_account}
 with build management permissions:
 
-// ⟦axs_prerequisites⟧
-. Execute {rbtoe_check_rubric_repo_url} using {rbtr_governor} RBRA credentials
-. Execute {rbtoe_check_devconnect} to verify {rbtgi_source_connection} authorization
+//axhoq_precondition
+* Execute {rbtoe_check_rubric_repo_url} using {rbtr_governor} RBRA credentials
 
-// ⟦axs_inputs⟧
+//axhoq_precondition
+* Execute {rbtoe_check_devconnect} to verify {rbtgi_source_connection} authorization
+
+//axhop_parameter_from_type
+{rbtr_director}
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_INSTANCE»` provided as first argument
-.. {rbbc_require}
-`BURD_OUTPUT_DIR` environment variable set and directory exists
 .. {rbbc_store}
 `«DIRECTOR_ACCOUNT_NAME»` as `rb-director-«INPUT_INSTANCE»`
 .. {rbbc_store}
 `«DIRECTOR_EMAIL»` as `«DIRECTOR_ACCOUNT_NAME»@{rbrr_depot_project_id}.iam.gserviceaccount.com`
 
-// ⟦axs_behavior⟧
+//axhoq_precondition
+* {rbbc_require}
+`BURD_OUTPUT_DIR` environment variable set and directory exists
+
+//axhos_step
 . *Authenticate as
 {rbtr_governor}*:
 .. Execute
@@ -28,6 +36,7 @@ with build management permissions:
 .. {rbbc_store}
 `«GOVERNOR_TOKEN»` for subsequent API calls
 
+//axhos_step
 . *Create
 {rbtr_director}
 Service Account*:
@@ -43,12 +52,14 @@ HTTP 200 response
 .. {rbbc_poll}
 with 3-5 second intervals for up to 15 seconds for propagation
 
+//axhos_step
 . *Verify Service Account Creation*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `«DIRECTOR_EMAIL»`
 .. {rbbc_require}
 service account accessible
 
+//axhos_step
 . *Preflight: Ensure Pristine Key State*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/list[serviceAccounts.keys.list] for `«DIRECTOR_EMAIL»`
@@ -59,6 +70,7 @@ no keys with `keyType: USER_MANAGED` exist
 .. {rbbc_fatal}
 if USER_MANAGED keys found: "Manual cleanup required via Console"
 
+//axhos_step
 . *Generate Service Account Key*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/create[serviceAccounts.keys.create] for `«DIRECTOR_EMAIL»` with:
@@ -68,6 +80,7 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 .. {rbtoe_rbra_generate}
 converts `«DIRECTOR_PRIVATE_KEY_DATA»` to `«DIRECTOR_RBRA_FILE»`
 
+//axhos_step
 . *Get Depot Project Number*:
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for
@@ -75,6 +88,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[pr
 .. {rbbc_store}
 `«PROJECT_NUMBER»` from `.projectNumber` field
 
+//axhos_step
 . *Grant Project-Level Permissions*:
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for
@@ -86,6 +100,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 .. {rbbc_require}
 IAM policy update successful
 
+//axhos_step
 . *Grant
 {rbtr_mason}
 Impersonation*:
@@ -103,6 +118,7 @@ service account
 .. {rbbc_require}
 IAM binding successful
 
+//axhos_step
 . *Grant
 {rbtgi_build_bucket}
 Access*:
@@ -120,7 +136,8 @@ link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buck
 .. {rbbc_require}
 bucket IAM update successful
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbtgi_rbra_file}
 . *Display Installation Instructions*:
 .. {rbbc_show}
 Director created successfully
@@ -134,5 +151,5 @@ if
 {rbrr_director_rbra_file}
 already exists
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Successful execution creates director service account.
