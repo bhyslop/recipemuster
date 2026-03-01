@@ -814,7 +814,7 @@ rbgp_depot_create() {
   buc_bare "  RBRR_GDC_REGION=${z_region}"
   buc_info "Next: create Governor for this depot, then complete depot initialization:"
   buc_next "rbw-pRG"
-  buc_next "rbw-gdi"
+  buc_next "rbw-GI"
 }
 
 rbgp_depot_destroy() {
