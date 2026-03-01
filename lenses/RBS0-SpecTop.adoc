@@ -370,7 +370,7 @@
 :bukro_validate:             <<bukro_validate,BUK Validate>>
 :bukro_render:               <<bukro_render,BUK Render>>
 
-// RB Bash Console Control Terms (rbbc_* - voices axc_* in axe_bash_interactive)
+// RB Bash Console Control Terms (rbbc_* - voices axc_*)
 :rbbc_await:                 <<rbbc_await,AWAIT>>
 :rbbc_call:                  <<rbbc_call,CALL>>
 :rbbc_fatal:                 <<rbbc_fatal,FATAL>>
@@ -384,7 +384,7 @@
 :rbbc_warn:                  <<rbbc_warn,WARN>>
 :rbbc_prompt:                <<rbbc_prompt,PROMPT>>
 
-// RB Human Guide Control Terms (rbhg_* - voices axc_* in axe_human_guide)
+// RB Human Guide Control Terms (rbhg_* - voices axc_*)
 :rbhg_warn:                  <<rbhg_warn,CAUTION>>
 :rbhg_show:                  <<rbhg_show,NOTE>>
 :rbhg_store:                 <<rbhg_store,RECORD>>
@@ -451,10 +451,6 @@
 
 // Cross-references to companion specifications
 :xref_AXLA:                  Axial Lexicon Specification
-
-// AXLA environment terms (text references)
-:axe_bash_interactive:       bash interactive
-:axe_human_guide:            human guide
 
 // end::mapping-section[]
 
@@ -1087,7 +1083,7 @@ include::RBSAJ-access_jwt_probe.adoc[]
 == Local Operations
 
 [[opss_sentry_start]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient⟧
 === {opss_sentry_start}
 
 The precisely ordered sequence of steps needed to start a
@@ -1098,13 +1094,13 @@ that enforces network policy for a new
 include::RBSSS-sentry_start.adoc[]
 
 [[mkr_network_create]]
-// ⟦axl_voices axo_sequence axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 === {mkr_network_create}
 
 include::RBSNC-network_create.adoc[]
 
 [[mkr_sentry_run]]
-// ⟦axl_voices axo_sequence axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 === {mkr_sentry_run}
 
 Operation that launches the
@@ -1112,13 +1108,13 @@ Operation that launches the
 with required privileges and initial network configuration.
 
 [[mkr_network_connect]]
-// ⟦axl_voices axo_sequence axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 === {mkr_network_connect}
 
 include::RBSNX-network_connect.adoc[]
 
 [[opbs_bottle_start]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient⟧
 === {opbs_bottle_start}
 
 Establishes a new
@@ -1128,19 +1124,19 @@ through controlled container instantiation and configuration.
 include::RBSBS-bottle_start.adoc[]
 
 [[mkr_bottle_cleanup]]
-// ⟦axl_voices axo_sequence axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 === {mkr_bottle_cleanup}
 
 include::RBSBK-bottle_cleanup.adoc[]
 
 [[mkr_bottle_launch]]
-// ⟦axl_voices axo_sequence axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 === {mkr_bottle_launch}
 
 include::RBSBL-bottle_launch.adoc[]
 
 [[opbr_bottle_run]]
-// ⟦axl_voices axo_command axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient⟧
 === {opbr_bottle_run}
 
 Creates and executes a new
@@ -1150,13 +1146,13 @@ instance through controlled container instantiation and command execution.
 include::RBSBR-bottle_run.adoc[]
 
 [[mkr_bottle_create]]
-// ⟦axl_voices axo_sequence axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 === {mkr_bottle_create}
 
 include::RBSBC-bottle_create.adoc[]
 
 [[mkr_command_exec]]
-// ⟦axl_voices axo_sequence axe_bash_interactive⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 === {mkr_command_exec}
 
 include::RBSCE-command_exec.adoc[]
@@ -1166,7 +1162,7 @@ include::RBSCE-command_exec.adoc[]
 include::RBSPV-PodmanVmSupplyChain.adoc[]
 
 [[mkc_interface_check]]
-// ⟦axl_voices axo_routine axe_bash_scripted⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 ==== {mkc_interface_check}
 
 A utility that verifies network interface presence and configuration within a container context:
@@ -2892,37 +2888,35 @@ Format: `XXXXXX-XXXXXX-XXXXXX`.
 Control terms for Recipe Bottle operations executing in a bash shell with human operator present.
 Each term voices the corresponding
 {xref_AXLA}
-control motif in the
-{axe_bash_interactive}
-environment.
+control motif.
 
 [[rbbc_variable]]
-// ⟦axl_voices axc_variable axe_bash_interactive⟧
+// ⟦axl_voices axc_variable⟧
 {rbbc_variable}::
 A shell variable denoted by guillemets `«NAME»` storing intermediate results.
 Implemented as bash variables or associative array entries.
 
 [[rbbc_fatal]]
-// ⟦axl_voices axc_fatal axe_bash_interactive⟧
+// ⟦axl_voices axc_fatal⟧
 {rbbc_fatal}::
 Red console text followed by `exit 1`.
 Script terminates immediately. Human operator must intervene.
 
 [[rbbc_warn]]
-// ⟦axl_voices axc_warn axe_bash_interactive⟧
+// ⟦axl_voices axc_warn⟧
 {rbbc_warn}::
 Yellow console text indicating non-blocking concern.
 Script continues execution. Human operator may note for later.
 
 [[rbbc_store]]
-// ⟦axl_voices axc_store axe_bash_interactive⟧
+// ⟦axl_voices axc_store⟧
 {rbbc_store}::
 Capture of a value from command output or API response into a
 {rbbc_variable}.
 Typically via bash assignment or jq extraction.
 
 [[rbbc_use]]
-// ⟦axl_voices axc_use axe_bash_interactive⟧
+// ⟦axl_voices axc_use⟧
 {rbbc_use}::
 Reference to a previously stored
 {rbbc_variable}
@@ -2930,7 +2924,7 @@ value.
 Expanded via bash variable substitution.
 
 [[rbbc_require]]
-// ⟦axl_voices axc_require axe_bash_interactive⟧
+// ⟦axl_voices axc_require⟧
 {rbbc_require}::
 Validation check that confirms an expected condition.
 Triggers
@@ -2938,38 +2932,38 @@ Triggers
 if condition not met.
 
 [[rbbc_poll]]
-// ⟦axl_voices axc_poll axe_bash_interactive⟧
+// ⟦axl_voices axc_poll⟧
 {rbbc_poll}::
 Repeated execution of a command at defined intervals until condition satisfied or timeout.
 Implemented as bash while loop with sleep.
 
 [[rbbc_call]]
-// ⟦axl_voices axc_call axe_bash_interactive⟧
+// ⟦axl_voices axc_call⟧
 {rbbc_call}::
 Synchronous invocation of a REST API endpoint via curl.
 Captures HTTP status code and response body. Returns when response received.
 
 [[rbbc_submit]]
-// ⟦axl_voices axc_submit axe_bash_interactive⟧
+// ⟦axl_voices axc_submit⟧
 {rbbc_submit}::
 Asynchronous invocation of a REST API that returns an LRO operation handle.
 Returns immediately with operation ID for later
 {rbbc_await}.
 
 [[rbbc_await]]
-// ⟦axl_voices axc_await axe_bash_interactive⟧
+// ⟦axl_voices axc_await⟧
 {rbbc_await}::
 Blocking wait on a submitted LRO operation until completion.
 Polls operation endpoint until done=true, then returns result.
 
 [[rbbc_show]]
-// ⟦axl_voices axc_show axe_bash_interactive⟧
+// ⟦axl_voices axc_show⟧
 {rbbc_show}::
 Presentation of operational facts to the console.
 Formatted output via echo or printf to stdout.
 
 [[rbbc_prompt]]
-// ⟦axl_voices axc_prompt axe_bash_interactive⟧
+// ⟦axl_voices axc_prompt⟧
 {rbbc_prompt}::
 Interactive request for human operator confirmation before proceeding.
 Displays message and waits for user input (typically y/N).
@@ -2982,36 +2976,34 @@ on decline or timeout.
 Control terms for Recipe Bottle procedures executed by a human operator following a rendered document while interacting with external systems (web console, GUI).
 Each term voices the corresponding
 {xref_AXLA}
-control motif in the
-{axe_human_guide}
-environment.
+control motif.
 
 [[rbhg_fatal]]
-// ⟦axl_voices axc_fatal axe_human_guide⟧
+// ⟦axl_voices axc_fatal⟧
 {rbhg_fatal}::
 Instruction to abort the procedure immediately.
 Human must not proceed. May require rollback or support contact.
 
 [[rbhg_warn]]
-// ⟦axl_voices axc_warn axe_human_guide⟧
+// ⟦axl_voices axc_warn⟧
 {rbhg_warn}::
 Cautionary note requiring human acknowledgment before proceeding.
 Highlights potential issues or irreversible actions.
 
 [[rbhg_store]]
-// ⟦axl_voices axc_store axe_human_guide⟧
+// ⟦axl_voices axc_store⟧
 {rbhg_store}::
 Instruction for human to record a value for later use.
 Typically written down, copied to clipboard, or saved to a file.
 
 [[rbhg_require]]
-// ⟦axl_voices axc_require axe_human_guide⟧
+// ⟦axl_voices axc_require⟧
 {rbhg_require}::
 Verification checkpoint where human confirms a condition before proceeding.
 May involve visual inspection or testing in external UI.
 
 [[rbhg_show]]
-// ⟦axl_voices axc_show axe_human_guide⟧
+// ⟦axl_voices axc_show⟧
 {rbhg_show}::
 Informational note presented to the human during procedure.
 Provides context or expected outcomes without requiring action.
@@ -3259,7 +3251,7 @@ Detailed implementation reference for security enforcement internals within the
 {at_sentry_container}.
 
 [[scr_security_config]]
-// ⟦axl_voices axo_command axe_bash_scripted⟧
+// ⟦axvo_procedure axd_transient⟧
 === {scr_security_config}
 
 Establishes security controls through four phases executed in sequence, halting early if any command has a nonzero unix status.
@@ -3267,7 +3259,7 @@ Establishes security controls through four phases executed in sequence, halting 
 include::RBSSC-security_config.adoc[]
 
 [[scr_iptables_init]]
-// ⟦axl_voices axo_sequence axe_bash_scripted⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 ==== {scr_iptables_init}
 
 Establishes the basic IPTables rules and chains within a
@@ -3276,7 +3268,7 @@ Establishes the basic IPTables rules and chains within a
 include::RBSIP-iptables_init.adoc[]
 
 [[scr_port_setup]]
-// ⟦axl_voices axo_sequence axe_bash_scripted⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 ==== {scr_port_setup}
 
 Establishes port mapping and service exposure rules within a
@@ -3285,7 +3277,7 @@ Establishes port mapping and service exposure rules within a
 include::RBSPT-port_setup.adoc[]
 
 [[scr_access_setup]]
-// ⟦axl_voices axo_sequence axe_bash_scripted⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 ==== {scr_access_setup}
 
 Configures network access controls including NAT rules and connection tracking.
@@ -3293,7 +3285,7 @@ Configures network access controls including NAT rules and connection tracking.
 include::RBSAX-access_setup.adoc[]
 
 [[scr_dns_step]]
-// ⟦axl_voices axo_sequence axe_bash_scripted⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 ==== {scr_dns_step}
 
 Configures DNS resolution controls and domain access restrictions.
