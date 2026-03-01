@@ -6477,6 +6477,13 @@
         "₢AjAAa": {
           "tacks": [
             {
+              "ts": "260301-0948",
+              "state": "complete",
+              "text": "Convert RBSDD-depot_destroy.adoc and RBSDL-depot_list.adoc from legacy axs_* to axho_* markers. Small subdocs, batch together.",
+              "silks": "transform-depot-minor-subdocs",
+              "commit": "071ee09"
+            },
+            {
               "ts": "260301-0940",
               "state": "bridled",
               "text": "Convert RBSDD-depot_destroy.adoc and RBSDL-depot_list.adoc from legacy axs_* to axho_* markers. Small subdocs, batch together.",
