@@ -1259,32 +1259,37 @@ rbf_rubric_inscribe() {
   local z_trigger_create_infix=""
   local z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
+  # List all existing triggers once (avoid per-vessel API call)
+  local z_trigger_list_infix="inscribe_trigger_list"
+  rbgu_http_json "GET" "${z_triggers_url}" "${z_token}" "${z_trigger_list_infix}"
+  rbgu_http_require_ok "List existing triggers" "${z_trigger_list_infix}"
+
+  local z_existing_trigger_names
+  z_existing_trigger_names=$(rbgu_json_field_capture "${z_trigger_list_infix}" \
+    '[.triggers[]?.name // empty] | join("\n")') || z_existing_trigger_names=""
+
   for z_sigil in "${z_vessel_sigils[@]}"; do
     z_trigger_name="${RBGC_RUBRIC_TRIGGER_PREFIX}${z_sigil}"
     buc_step "Ensuring trigger: ${z_trigger_name}"
 
-    # Check if trigger exists by direct GET using triggerId
-    z_trigger_check_infix="inscribe_trigger_check_${z_sigil}"
-    rbgu_http_json "GET" "${z_triggers_url}/${z_trigger_name}" "${z_token}" "${z_trigger_check_infix}"
-    z_trigger_code=$(rbgu_http_code_capture "${z_trigger_check_infix}") || z_trigger_code=""
-
-    if test "${z_trigger_code}" = "200"; then
+    # Check if trigger already exists by name in cached list
+    if printf '%s\n' "${z_existing_trigger_names}" | grep -qx "${z_trigger_name}"; then
       buc_info "Trigger already exists: ${z_trigger_name}"
       continue
-    elif test "${z_trigger_code}" != "404"; then
-      buc_die "Trigger check failed for ${z_trigger_name} (HTTP ${z_trigger_code})"
     fi
 
     buc_step "Creating trigger: ${z_trigger_name}"
     z_trigger_body="${ZRBF_INSCRIBE_PREFIX}trigger_${z_sigil}.json"
-    z_trigger_create_url="${z_triggers_url}?triggerId=${z_trigger_name}"
+    z_trigger_create_url="${z_triggers_url}"
 
     jq -n \
+      --arg name    "${z_trigger_name}" \
       --arg sigil   "${z_sigil}" \
       --arg repo    "${z_link_resource}" \
       --arg sa      "${z_mason_sa}" \
       --arg rtype   "${z_repo_type}" \
       '{
+        name: $name,
         description: ("Recipe Bottle rubric trigger for " + $sigil),
         sourceToBuild: {
           repository: $repo,
