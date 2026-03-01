@@ -6464,6 +6464,13 @@
         "₢AjAAh": {
           "tacks": [
             {
+              "ts": "260301-0900",
+              "state": "complete",
+              "text": "Define new marker variants and codify the settled lookahead policy in AXLA-Lexicon.adoc.\n\n## New markers to define\n- axhop_parameter_from_type — parameter lookahead reuses existing domain type term\n- axhop_parameter_from_arg — parameter lookahead reuses shared CLI argument term\n- axhos_waymark — branch-targetable step with local anchor (no S0 elevation)\n- axhoo_output_of_type — output lookahead reuses existing domain type term\n\n## Policy changes to codify\n- axhos_step: no lookahead (bare marker)\n- axhoq_precondition: no lookahead\n- axhog_guarantee: no lookahead\n- axhoc_completion: no lookahead\n- Remove any existing lookahead requirement from step/precondition/guarantee/completion marker definitions\n\n## Design authority\n- Settled in ₢AjAAg (clarify-detail-site-lookahead-policy)\n- Paddock lookahead policy table is the source of truth",
+              "silks": "update-axla-lookahead-spec",
+              "commit": "cc9605c"
+            },
+            {
               "ts": "260301-0838",
               "state": "rough",
               "text": "Define new marker variants and codify the settled lookahead policy in AXLA-Lexicon.adoc.\n\n## New markers to define\n- axhop_parameter_from_type — parameter lookahead reuses existing domain type term\n- axhop_parameter_from_arg — parameter lookahead reuses shared CLI argument term\n- axhos_waymark — branch-targetable step with local anchor (no S0 elevation)\n- axhoo_output_of_type — output lookahead reuses existing domain type term\n\n## Policy changes to codify\n- axhos_step: no lookahead (bare marker)\n- axhoq_precondition: no lookahead\n- axhog_guarantee: no lookahead\n- axhoc_completion: no lookahead\n- Remove any existing lookahead requirement from step/precondition/guarantee/completion marker definitions\n\n## Design authority\n- Settled in ₢AjAAg (clarify-detail-site-lookahead-policy)\n- Paddock lookahead policy table is the source of truth",
