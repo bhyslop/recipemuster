@@ -74,8 +74,7 @@ zrbf_kindle() {
   readonly ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
   readonly ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
   readonly ZRBF_BUILD_RUBRIC_LS="${BURD_TEMP_DIR}/rbf_rubric_ls_remote.txt"
-  readonly ZRBF_BUILD_RUBRIC_CLONE="${BURD_TEMP_DIR}/rbf_rubric_clone"
-  readonly ZRBF_BUILD_CREATE_BODY="${BURD_TEMP_DIR}/rbf_builds_create_body.json"
+  readonly ZRBF_BUILD_TRIGGER_BODY="${BURD_TEMP_DIR}/rbf_trigger_run_body.json"
 
   buc_log_args 'Define copy staging files'
   readonly ZRBF_COPY_STAGING_DIR="${BURD_TEMP_DIR}/rbf_copy_staging"
@@ -471,76 +470,14 @@ rbf_build() {
     || buc_die "Vessel trigger '${z_trigger_name}' not found (HTTP ${z_trigger_code}) — run rubric inscribe first"
   buc_info "Trigger resolved: ${z_trigger_name}"
 
-  # DIAGNOSTIC: Try multiple triggers.run body formats to find what works with 2nd gen Developer Connect
+  # Dispatch build via triggers.run — zero substitution overrides
+  buc_step "Dispatching trigger build for ${RBRV_SIGIL}"
   local -r z_run_url="${ZRBF_TRIGGERS_URL}/${z_trigger_name}:run"
-  local z_diag_code=""
+  jq -n --arg sha "${z_rubric_commit}" '{"source": {"commitSha": $sha}}' \
+    > "${ZRBF_BUILD_TRIGGER_BODY}" || buc_die "Failed to compose triggers.run body"
 
-  # Experiment 1: Empty body
-  buc_step "DIAG Experiment 1: Empty body {}"
-  echo '{}' > "${ZRBF_BUILD_TRIGGER_BODY}"
-  rbgu_http_json "POST" "${z_run_url}" "${z_token}" "diag_exp1" "${ZRBF_BUILD_TRIGGER_BODY}"
-  z_diag_code=$(rbgu_http_code_capture "diag_exp1") || z_diag_code="ERR"
-  buc_info "Exp1 empty body: HTTP ${z_diag_code}"
-  cat "${ZRBGU_PREFIX}diag_exp1${ZRBGU_POSTFIX_JSON}" >&2
-
-  # Experiment 2: branchName only
-  buc_step "DIAG Experiment 2: branchName=main"
-  jq -n '{"source": {"branchName": "main"}}' > "${ZRBF_BUILD_TRIGGER_BODY}"
-  rbgu_http_json "POST" "${z_run_url}" "${z_token}" "diag_exp2" "${ZRBF_BUILD_TRIGGER_BODY}"
-  z_diag_code=$(rbgu_http_code_capture "diag_exp2") || z_diag_code="ERR"
-  buc_info "Exp2 branchName=main: HTTP ${z_diag_code}"
-  cat "${ZRBGU_PREFIX}diag_exp2${ZRBGU_POSTFIX_JSON}" >&2
-
-  # Experiment 3: Original commitSha
-  buc_step "DIAG Experiment 3: commitSha=${z_rubric_commit:0:8}"
-  jq -n --arg sha "${z_rubric_commit}" '{"source": {"commitSha": $sha}}' > "${ZRBF_BUILD_TRIGGER_BODY}"
-  rbgu_http_json "POST" "${z_run_url}" "${z_token}" "diag_exp3" "${ZRBF_BUILD_TRIGGER_BODY}"
-  z_diag_code=$(rbgu_http_code_capture "diag_exp3") || z_diag_code="ERR"
-  buc_info "Exp3 commitSha: HTTP ${z_diag_code}"
-  cat "${ZRBGU_PREFIX}diag_exp3${ZRBGU_POSTFIX_JSON}" >&2
-
-  # Experiment 4: builds.create with developerConnectConfig
-  buc_step "DIAG Experiment 4: builds.create + developerConnectConfig"
-  local z_gdc_parent="projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GDC_REGION}"
-  local z_gdc_conn="${z_gdc_parent}/connections/${RBRR_GDC_CONNECTION_NAME}"
-  # Derive link ID from trigger's gitFileSource.uri (already fetched)
-  local z_link_id=""
-  z_link_id=$(rbgu_json_field_capture "build_trigger_check" '.gitFileSource.uri' \
-    | sed 's|.*/gitRepositoryLinks/||') || z_link_id=""
-  local z_git_repo_link="${z_gdc_conn}/gitRepositoryLinks/${z_link_id}"
-  local z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
-  buc_info "gitRepositoryLink: ${z_git_repo_link}"
-  buc_info "serviceAccount: ${z_mason_sa}"
-  buc_info "vessel dir in rubric repo: ${RBRV_SIGIL}"
-  buc_info "rubric commit: ${z_rubric_commit:0:8}"
-
-  # Read the committed cloudbuild.json and add source + serviceAccount
-  local z_vessel_cbj="${RBRR_VESSEL_DIR}/${RBRV_SIGIL}/cloudbuild.json"
-  local z_builds_body="${BURD_TEMP_DIR}/rbf_diag_builds_create.json"
-  jq --arg link "${z_git_repo_link}" \
-     --arg rev  "${z_rubric_commit}" \
-     --arg dir  "${RBRV_SIGIL}" \
-     --arg sa   "${z_mason_sa}" \
-     '. + {
-       source: {
-         developerConnectConfig: {
-           gitRepositoryLink: $link,
-           revision: $rev,
-           dir: $dir
-         }
-       },
-       serviceAccount: $sa
-     } | .options.substitutionOption = "ALLOW_LOOSE"' "${z_vessel_cbj}" > "${z_builds_body}" || buc_die "Failed to compose builds.create body"
-
-  buc_info "builds.create body:"
-  jq . "${z_builds_body}" >&2
-
-  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" "diag_exp4" "${z_builds_body}"
-  z_diag_code=$(rbgu_http_code_capture "diag_exp4") || z_diag_code="ERR"
-  buc_info "Exp4 builds.create+developerConnectConfig: HTTP ${z_diag_code}"
-  cat "${ZRBGU_PREFIX}diag_exp4${ZRBGU_POSTFIX_JSON}" >&2
-
-  buc_die "DIAGNOSTIC COMPLETE — review all experiment results above"
+  rbgu_http_json "POST" "${z_run_url}" "${z_token}" "build_trigger_run" "${ZRBF_BUILD_TRIGGER_BODY}"
+  rbgu_http_require_ok "Trigger dispatch" "build_trigger_run"
 
   # Extract build ID from Operation response
   local z_build_id=""
