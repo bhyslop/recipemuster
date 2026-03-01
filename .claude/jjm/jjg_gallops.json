@@ -6256,6 +6256,13 @@
         "₢AjAAN": {
           "tacks": [
             {
+              "ts": "260301-0950",
+              "state": "complete",
+              "text": "Convert RBSAA-ark_abjure.adoc, RBSAB-ark_beseech.adoc, RBSAC-ark_conjure.adoc, RBSAS-ark_summon.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-ark-subdocs",
+              "commit": "451d60d"
+            },
+            {
               "ts": "260301-0941",
               "state": "bridled",
               "text": "Convert RBSAA-ark_abjure.adoc, RBSAB-ark_beseech.adoc, RBSAC-ark_conjure.adoc, RBSAS-ark_summon.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
