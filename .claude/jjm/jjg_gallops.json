@@ -6467,6 +6467,13 @@
         "₢AjAAU": {
           "tacks": [
             {
+              "ts": "260301-1039",
+              "state": "complete",
+              "text": "Review JJS0 interface terms: ~18 axi_cc_claudemd_verb, ~15 axi_cc_slash_command, ~25 axi_cli_subcommand, plus axa_cli_option/flag terms. Determine if these are affected by the new model or remain as-is.",
+              "silks": "review-jjs0-interface-layer",
+              "commit": "429f238"
+            },
+            {
               "ts": "260227-1058",
               "state": "rough",
               "text": "Review JJS0 interface terms: ~18 axi_cc_claudemd_verb, ~15 axi_cc_slash_command, ~25 axi_cli_subcommand, plus axa_cli_option/flag terms. Determine if these are affected by the new model or remain as-is.",
