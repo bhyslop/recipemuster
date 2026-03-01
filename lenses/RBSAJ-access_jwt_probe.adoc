@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_access_jwt_probe}
+
 NOTE: This operation probes
 {gar_service}
 read access for a specified
@@ -13,7 +16,7 @@ and
 each with Owner, repoAdmin, and reader permissions respectively.
 All three roles have Artifact Registry read access, so a successful response confirms both token validity and role-specific permission.
 
-// ⟦axs_inputs⟧
+//axhos_step
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_ROLE»` provided as first argument: one of `governor`, `director`, or `retriever`
@@ -30,6 +33,7 @@ if `«ITERATION_COUNT»` is not a positive integer: "Count must be a positive in
 .. {rbbc_fatal}
 if `«DELAY_MS»` is not a non-negative integer: "Delay must be a non-negative integer"
 
+//axhos_step
 . *Resolve Role Configuration*:
 .. If `«INPUT_ROLE»` is `governor`:
 ... {rbbc_store}
@@ -54,13 +58,14 @@ if `«DELAY_MS»` is not a non-negative integer: "Delay must be a non-negative i
 .. {rbbc_fatal}
 if file missing: "«ROLE_DISPLAY» RBRA file missing at «RBRA_FILE»"
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Construct Verification Endpoint*:
 .. {rbbc_store}
 `«VERIFY_URL»` as:
 +
 `https://artifactregistry.googleapis.com/v1/projects/{rbrr_depot_project_id}/locations/{rbrr_gcp_region}/repositories/{rbrr_gar_repository}/packages`
 
+//axhos_step
 . *Execute Probe Iterations*:
 .. For each iteration `«I»` from 1 to `«ITERATION_COUNT»`:
 
@@ -104,12 +109,12 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 `Sleeping «DELAY_MS»ms before next iteration`
 ..... Sleep `«DELAY_MS»` milliseconds
 
-// ⟦axs_outputs⟧
+//axhos_step
 . *Display Summary*:
 .. {rbbc_show}
 `«ROLE_DISPLAY» JWT access probe complete: «ITERATION_COUNT»/«ITERATION_COUNT» iterations passed`
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Procedure completes successfully when all iterations confirm that the selected role's JWT-derived OAuth token grants read access to the
 {gar_service}
 packages list endpoint.
