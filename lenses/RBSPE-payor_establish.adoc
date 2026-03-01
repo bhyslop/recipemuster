@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_payor_establish}
+
 The
 {at_operator}
 performs one-time manual setup via Google Cloud Console to establish
@@ -6,10 +9,7 @@ OAuth infrastructure.
 No API path exists for initial bootstrap - OAuth client creation requires human Console interaction.
 This procedure creates the project and OAuth client but does NOT install credentials.
 
-// ⟦axs_inputs axd_none⟧
-
-// ⟦axs_behavior⟧
-
+//axhos_step
 . *Create Payor Project*:
 .. Navigate to project creation in Console
 .. Set project name: `Recipe Bottle Payor`
@@ -20,6 +20,7 @@ actual project ID as `«PAYOR_PROJECT_ID»` for subsequent operations
 .. If Console displays "You need additional access" error after project creation, wait a few minutes and refresh the page.
 GCP IAM changes are https://cloud.google.com/iam/docs/access-change-propagation[eventually consistent] and may take time to propagate.
 
+//axhos_step
 . *Configure Billing*:
 .. Access billing management in Console
 .. Select or create billing account
@@ -30,11 +31,13 @@ GCP IAM changes are https://cloud.google.com/iam/docs/access-change-propagation[
 .. {rbhg_require}
 billing linkage for API operations
 
+//axhos_step
 . *Enable Required APIs*:
 .. Navigate to APIs & Services > Enable APIs
 .. Enable: Cloud Resource Manager, Cloud Billing, Service Usage, IAM, Artifact Registry
 .. These enable programmatic depot management
 
+//axhos_step
 . *Configure OAuth Consent Screen*:
 .. Navigate to APIs & Services > OAuth consent screen
 .. Click "Get started" to launch Project Configuration wizard
@@ -44,6 +47,7 @@ billing linkage for API operations
 ... Step 3 - Contact Information: Provide email for notifications
 ... Step 4 - Finish: Accept User Data Policy and create
 
+//axhos_step
 . *Create OAuth 2.0 Client ID*:
 .. Navigate to APIs & Services > Credentials
 .. Create credentials > OAuth client ID
@@ -55,14 +59,15 @@ billing linkage for API operations
 .. {rbhg_warn}
 Client secret visible only in this popup; June 2025 onwards, Google will not display it after closing
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbtgi_payor_project}
+* Project ID (`«PAYOR_PROJECT_ID»`) recorded from step 1
 
-The outputs of payor establishment are:
-- Project ID (`«PAYOR_PROJECT_ID»`) recorded from step 1
-- OAuth client credentials: client ID and secret from the downloaded JSON file
+//axhoo_output_of_type
+{oauth_token}
+* OAuth client credentials: client ID and secret from the downloaded JSON file
 
-// ⟦axs_completion⟧
-
+//axhoc_completion
 NOTE: Payor establishment creates the OAuth client configuration but does not perform credential installation.
 Proceed to
 {rbtgo_payor_install}

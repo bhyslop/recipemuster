@@ -1,9 +1,12 @@
+//axhob_operation
+{rbtgo_payor_refresh}
+
 Manual procedure to install OAuth credentials for new setup or refresh expired/compromised credentials.
 Use this for both initial credential installation after
 {rbtgo_payor_establish}
 and for renewal operations.
 
-// ⟦axs_inputs⟧
+//axhos_step
 . *Obtain OAuth Credentials*:
 .. For initial setup: Use JSON file downloaded during
 {rbtgo_payor_establish}
@@ -16,7 +19,7 @@ and for renewal operations.
 .... Click "Disable" on secret with older creation date
 .... Click trash icon to delete that disabled secret
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Install/Refresh Credentials*:
 .. Run: `rbgp_payor_install ~/Downloads/client_secret_*.json`
 .. This will:
@@ -26,12 +29,10 @@ and for renewal operations.
 ... Initialize depot tracking
 ... Update `RBRP_OAUTH_CLIENT_ID` in `rbrp.env`
 
-// ⟦axs_outputs⟧
-. *Verify Installation*:
-.. Test with: `rbgp_depot_list`
-.. Should display current depots without authentication errors
+//axhog_guarantee
+* `rbgp_depot_list` successfully displays current depots without authentication errors
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Procedure is complete when `rbgp_depot_list` successfully displays current depots without authentication errors.
 
 NOTE: OAuth refresh tokens in testing mode expire after 6 months of non-use.
