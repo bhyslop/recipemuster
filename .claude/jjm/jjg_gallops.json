@@ -4643,6 +4643,7 @@
         "₢AiAAd",
         "₢AiAAf",
         "₢AiAAj",
+        "₢AiAAn",
         "₢AiAAK",
         "₢AiAAT",
         "₢AiAAQ",
@@ -4655,7 +4656,7 @@
         "₢AiAAl",
         "₢AiAAm"
       ],
-      "next_pace_seed": "AAn",
+      "next_pace_seed": "AAo",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5946,6 +5947,17 @@
               "text": "Rename tabtarget tt/rbw-RI.RubricInscribe.sh. New name TBD — requires minting decision when pace is worked. Current colophon rbw-RI with frontispiece RubricInscribe.",
               "silks": "rename-rubric-inscribe-tabtarget",
               "commit": "96b6de6"
+            }
+          ]
+        },
+        "₢AiAAn": {
+          "tacks": [
+            {
+              "ts": "260301-0847",
+              "state": "rough",
+              "text": "Fix Cloud Build trigger creation in inscribe Phase 5.\n\n## Problem\n\n`rbf_rubric_inscribe()` trigger creation fails with HTTP 403:\n\"failed to get service account gaia id\" when specifying the Mason SA\nin the trigger's `serviceAccount` field.\n\nThe Mason SA was just created during depot provisioning. Cloud Build's\ninternal lookup of the SA's gaia ID hasn't propagated yet. The inscribe\ncode has no propagation check for this — it assumes the Mason SA is\nimmediately resolvable by Cloud Build.\n\n## Context from this session\n\n- Source link creation now works (roles/developerconnect.admin granted to Director)\n- Trigger API parameter fixed (name in body, not triggerId query param)\n- Trigger list-and-check for idempotency uses BCG-compliant bash builtins\n- All 7 trigger creates fail with the same gaia id error\n\n## Investigation needed\n\n1. Determine if this is a propagation delay or a missing IAM binding\n   - The Cloud Build service agent has `roles/iam.serviceAccountTokenCreator`\n     on Mason SA (granted in depot_create)\n   - The Director SA has `roles/iam.serviceAccountUser` on Mason SA\n     (granted in create_director)\n   - Check if Cloud Build triggers.create needs a different permission path\n2. Research the Cloud Build trigger serviceAccount field requirements\n   - Does it need just the email, not the full resource path?\n   - Is there a specific propagation pattern for trigger SA resolution?\n3. Look at how existing codebase handles SA propagation delays\n   (e.g., `zrbgp_*` verification loops, LRO polling patterns)\n\n## Acceptance criteria\n\n- Inscribe creates all 7 triggers successfully on a fresh depot\n- Propagation is handled with verification, not sleep-and-pray\n- BCG compliant: temp files, stderr capture, buc_step visibility\n\n## Key files\n\n- `Tools/rbw/rbf_Foundry.sh` (inscribe trigger creation, ~line 1252-1310)\n- `Tools/rbw/rbgp_Payor.sh` (depot_create Mason SA + CB agent setup, ~line 747-779)\n- `Tools/rbw/rbgg_Governor.sh` (create_director SA permissions, ~line 599-625)\n- `Tools/rbw/rbgd_DepotConstants.sh` (RBGD_MASON_EMAIL derivation)",
+              "silks": "fix-trigger-create-propagation",
+              "commit": "be0c8b5"
             }
           ]
         }
