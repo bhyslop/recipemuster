@@ -6643,6 +6643,13 @@
         "₢AjAAc": {
           "tacks": [
             {
+              "ts": "260301-1042",
+              "state": "complete",
+              "text": "Replace Procedure/Command/Guide/Lifecycle Documentation Completeness sections in AXLA with new checklists based on axvo_procedure, axvo_method, axvo_group, and axho_* markers.",
+              "silks": "rewrite-completeness-checklists",
+              "commit": "3acf2a2"
+            },
+            {
               "ts": "260227-1058",
               "state": "rough",
               "text": "Replace Procedure/Command/Guide/Lifecycle Documentation Completeness sections in AXLA with new checklists based on axvo_procedure, axvo_method, axvo_group, and axho_* markers.",
