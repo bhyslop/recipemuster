@@ -6372,6 +6372,14 @@
         "₢AjAAW": {
           "tacks": [
             {
+              "ts": "260301-0939",
+              "state": "bridled",
+              "text": "Convert RBSQB-quota_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsqb-quota-build",
+              "commit": "5c368cc",
+              "direction": "Agent: sonnet\n\n## Context\nRead the paddock at .claude/jjm/jjp_uAlj.md for transformation rules.\nRead exemplar: lenses/RBSDC-depot_create.adoc (fully transformed subdoc with parameters, steps, outputs).\nRead exemplar: lenses/RBSPI-payor_install.adoc (transformed subdoc with preconditions).\n\n## Steps\n1. Read lenses/RBSQB-quota_build.adoc\n2. Grep RBS0-SpecTop.adoc for rbtgo_quota_build to find the operation linked term\n3. Apply transformation per paddock policy\n4. Write the transformed file\n\n## Verification\nGrep the transformed file for '⟦axs_' — must return zero matches."
+            },
+            {
               "ts": "260227-1058",
               "state": "rough",
               "text": "Convert RBSQB-quota_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
