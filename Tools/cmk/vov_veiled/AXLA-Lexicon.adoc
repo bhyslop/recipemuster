@@ -3048,123 +3048,37 @@ Specifies external requirements for functionality.
 This section specifies compositional requirements between motifs.
 When a term voices a particular motif, these rules define what companion elements are required.
 
-=== Procedure Documentation Completeness
+=== Operation Detail-Site Completeness
 
-Voicing as
-{axo_procedure}
-requires documentation sections for:
+A term voiced
+{axvo_procedure}
+or
+{axvo_method}
+with a detail-site subdocument requires:
 
-* {axs_inputs}
-— what the procedure requires to execute
+* {axhob_operation}
+— opens the hierarchy block, with lookahead to the operation's linked term
 
-* {axs_behavior}
-— what the procedure does
+* At least one
+{axhos_step}
+— what the operation does
 
-* {axs_outputs}
-— what the procedure produces
+* {axhoc_completion}
+— how the operation signals success or failure
 
-* {axs_completion}
-— how the procedure signals success or failure
+Optional markers that MAY be included:
 
-Optional sections that MAY be included:
+* {axhop_parameter}
+— input parameters (with lookahead to existing domain type or CLI argument term)
 
-* {axs_preconditions}
+* {axhoo_output}
+— produced artifacts (with lookahead to existing domain type term)
+
+* {axhoq_precondition}
 — environmental state requirements before execution
 
-* {axs_postconditions}
+* {axhog_guarantee}
 — environmental state guarantees after success
-
-* {axs_errors}
-— failure modes and recovery guidance
-
-=== Command Documentation Completeness
-
-Voicing as
-{axo_command}
-requires all
-{axo_procedure}
-sections plus:
-
-* {axe_environment}
-dimension specifying execution context (e.g.,
-{axe_bash_interactive},
-{axe_bash_unattended})
-
-=== Guide Documentation Completeness
-
-Voicing as
-{axo_guide}
-requires all
-{axo_procedure}
-sections plus:
-
-* {axs_behavior}
-steps use
-{axe_human_guide}
-control voicings
-
-* Steps describe actions the human performs in external systems
-
-=== Lifecycle Dimension Requirement
-
-Every
-{axo_procedure}
-voicing requires exactly one lifecycle dimension:
-
-* {axd_transient}
-— executes and completes (most common)
-
-* {axd_longrunning}
-— runs until stopped
-
-* {axd_periodic}
-— runs on schedule
-
-Lifecycle dimensions are mutually exclusive.
-
-=== Long-running Procedure Completeness
-
-Voicing with
-{axd_longrunning}
-requires all
-{axo_procedure}
-sections plus:
-
-* {axs_startup}
-— initialization behavior and readiness criteria
-
-* {axs_shutdown}
-— graceful termination and cleanup
-
-Optional sections:
-
-* {axs_health}
-— liveness and readiness probes
-
-* {axs_signals}
-— Unix signal handling
-
-* {axs_recovery}
-— crash recovery behavior
-
-=== Periodic Procedure Completeness
-
-Voicing with
-{axd_periodic}
-requires all
-{axo_procedure}
-sections plus:
-
-* {axs_schedule}
-— timing specification
-
-Optional sections:
-
-* {axs_idempotency}
-— re-run safety guarantees
-
-* {axs_overlap}
-— concurrent execution handling
 
 === CLI Subcommand Completeness
 
