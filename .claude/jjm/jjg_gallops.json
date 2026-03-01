@@ -6785,6 +6785,13 @@
         "₢AjAAl": {
           "tacks": [
             {
+              "ts": "260301-1049",
+              "state": "complete",
+              "text": "Transform remaining legacy annotations in RBS0-SpecTop.adoc that block deprecated term deletion:\n\n1. Non-rbtgo operation voicings (~16 instances):\n   - 3 axo_command (lines 1090, 1121, 1143)\n   - 11 axo_sequence (lines 1101-1159, 3270-3296)\n   - 1 axo_routine (line 1169)\n   - 1 axo_command axe_bash_scripted (line 3262)\n   Apply same transformation patterns as rbtgo operations (axvo_method/axvo_procedure with appropriate dimensions).\n\n2. Control term environment annotations (~19 instances):\n   - ~14 axc_* with axe_bash_interactive (lines 2896-2972)\n   - ~5 axc_* with axe_human_guide (lines 2986-3014)\n   Determine correct handling: these are step-level vocabulary with environment context. May need new pattern or may simply drop the axe_* dimension.\n\n3. Mapping entries: axe_bash_interactive and axe_human_guide attribute references (lines 456-457)\n\nRead RBS0 context around each cluster to determine correct voicing. Consult paddock for transformation patterns.",
+              "silks": "transform-rbs0-non-rbtgo-operations",
+              "commit": "5d99e80"
+            },
+            {
               "ts": "260301-1046",
               "state": "rough",
               "text": "Transform remaining legacy annotations in RBS0-SpecTop.adoc that block deprecated term deletion:\n\n1. Non-rbtgo operation voicings (~16 instances):\n   - 3 axo_command (lines 1090, 1121, 1143)\n   - 11 axo_sequence (lines 1101-1159, 3270-3296)\n   - 1 axo_routine (line 1169)\n   - 1 axo_command axe_bash_scripted (line 3262)\n   Apply same transformation patterns as rbtgo operations (axvo_method/axvo_procedure with appropriate dimensions).\n\n2. Control term environment annotations (~19 instances):\n   - ~14 axc_* with axe_bash_interactive (lines 2896-2972)\n   - ~5 axc_* with axe_human_guide (lines 2986-3014)\n   Determine correct handling: these are step-level vocabulary with environment context. May need new pattern or may simply drop the axe_* dimension.\n\n3. Mapping entries: axe_bash_interactive and axe_human_guide attribute references (lines 456-457)\n\nRead RBS0 context around each cluster to determine correct voicing. Consult paddock for transformation patterns.",
