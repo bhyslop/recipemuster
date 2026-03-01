@@ -56,7 +56,7 @@ HTTP 200 response
 . *Verify Service Account Creation*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `projects/-/serviceAccounts/«DIRECTOR_UNIQUE_ID»`
-.. NOTE: Uses numeric ID URL — immediately resolvable, no propagation delay.
+.. NOTE: Numeric ID is valid in API URL paths (immediately resolvable). Not valid in IAM policy `members` — see RBS0 IAM Member Format.
 .. {rbbc_require}
 service account accessible
 
@@ -91,11 +91,10 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[pr
 
 //axhos_step
 . *Grant Project-Level Permissions*:
-.. NOTE: All member bindings use `serviceAccount:«DIRECTOR_UNIQUE_ID»` (numeric ID) to avoid GAIA propagation race.
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for
 {rbrr_depot_project_id}
-.. Add `serviceAccount:«DIRECTOR_UNIQUE_ID»` with roles:
+.. Add `serviceAccount:«DIRECTOR_EMAIL»` with roles:
 ... `roles/cloudbuild.builds.editor` (submit and manage builds)
 ... `roles/viewer` (read project resources)
 ... `roles/developerconnect.admin` (source link and trigger infrastructure)
@@ -117,8 +116,7 @@ This requires `serviceAccountUser` permission on
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for
 {rbtr_mason}
 service account
-.. Add `«DIRECTOR_EMAIL»` with `roles/iam.serviceAccountUser`
-.. NOTE: Uses email, not numeric ID — Mason is the IAM resource target, not the newly-created member.
+.. Add `serviceAccount:«DIRECTOR_EMAIL»` with `roles/iam.serviceAccountUser`
 .. {rbbc_require}
 IAM binding successful
 
@@ -129,7 +127,7 @@ Access*:
 .. {rbbc_call}
 link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] for
 {rbtgi_build_bucket}
-.. Add `serviceAccount:«DIRECTOR_UNIQUE_ID»` with roles:
+.. Add `serviceAccount:«DIRECTOR_EMAIL»` with roles:
 ... `roles/storage.objectCreator` (upload sources)
 ... `roles/storage.objectViewer` (verify uploads)
 .. {rbbc_require}
@@ -142,7 +140,7 @@ Admin Access*:
 .. {rbbc_call}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy] for
 {rbtgi_repository}
-.. Add `serviceAccount:«DIRECTOR_UNIQUE_ID»` with `roles/artifactregistry.repoAdmin`
+.. Add `serviceAccount:«DIRECTOR_EMAIL»` with `roles/artifactregistry.repoAdmin`
 .. {rbbc_require}
 repository IAM update successful
 

@@ -134,24 +134,21 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 ... project: `«DEPOT_PROJECT_ID»`
 .. {rbbc_store}
 `«MASON_EMAIL»` from response `.email` field
-.. {rbbc_store}
-`«MASON_UNIQUE_ID»` from response `.uniqueId` field
 
 //axhos_step
 . *Configure
 {rbtr_mason}
 Permissions*:
-.. NOTE: All member bindings use `serviceAccount:«MASON_UNIQUE_ID»` (numeric ID) to avoid GAIA propagation race.
 .. {rbbc_call}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy] for `«GAR_REPOSITORY»`
-... Add `serviceAccount:«MASON_UNIQUE_ID»` with `roles/artifactregistry.writer`
+... Add `serviceAccount:«MASON_EMAIL»` with `roles/artifactregistry.writer`
 .. {rbbc_call}
 link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] for `«BUILD_BUCKET»`
-... Add `serviceAccount:«MASON_UNIQUE_ID»` with `roles/storage.objectViewer`
+... Add `serviceAccount:«MASON_EMAIL»` with `roles/storage.objectViewer`
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
-... Add `serviceAccount:«MASON_UNIQUE_ID»` with `roles/viewer`
-... Add `serviceAccount:«MASON_UNIQUE_ID»` with `roles/logging.logWriter`
+... Add `serviceAccount:«MASON_EMAIL»` with `roles/viewer`
+... Add `serviceAccount:«MASON_EMAIL»` with `roles/logging.logWriter`
 
 //axhos_step
 . *Enable Cloud Build service agent to impersonate
@@ -160,7 +157,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for `«MASON_EMAIL»`
 .. Add member: `serviceAccount:service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
 .. Grant role: `roles/iam.serviceAccountTokenCreator`
-.. NOTE: Uses email, not numeric ID — Cloud Build service agent is Google-provisioned, not newly created.
+.. NOTE: Cloud Build service agent is Google-provisioned, not newly created.
 .. {rbbc_require}
 IAM binding successful (enables Cloud Build to execute as Mason)
 

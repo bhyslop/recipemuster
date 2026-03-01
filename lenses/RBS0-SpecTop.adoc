@@ -638,14 +638,17 @@ All IAM policy modifications enforce version 3 to ensure conditional role bindin
 {gcp_service}
 resources.
 
-* *Numeric ID for Newly-Created Service Accounts*:
-When a
-{giam_service_account}
-is created via the IAM API, cross-service identity resolution (IAM to Artifact Registry, IAM to Cloud Storage) takes seconds to minutes due to GAIA propagation.
-The `serviceAccount:NUMERIC_ID` member form is immediately resolvable.
-All IAM member bindings for newly-created service accounts use `serviceAccount:«UNIQUE_ID»` (from the `.uniqueId` field of the creation response) instead of `serviceAccount:«EMAIL»`.
-This eliminates propagation polls, hard sleeps, and retry-on-400 loops after service account creation.
-Google-provisioned service agents (Cloud Build, Developer Connect) are not affected — they are managed by Google, not newly created, and have no propagation race.
+* *IAM Member Format*:
+All IAM member bindings use `serviceAccount:«EMAIL»` format.
++
+GCP IAM policy `members` fields only accept email-format identifiers (`serviceAccount:name@project.iam.gserviceaccount.com`).
+The numeric `uniqueId` returned by `serviceAccounts.create` is valid for *API URL paths* (e.g., `projects/-/serviceAccounts/«UNIQUE_ID»` for GET/verification) but *not* for policy binding members.
+`serviceAccount:«NUMERIC_ID»` returns HTTP 400 "Invalid service account" on all setIamPolicy endpoints — project, repository, and bucket alike.
++
+Google's documentation recommends numeric IDs "to identify a service account just after it is created" (link:https://docs.google.com/iam/docs/manage-access-service-accounts[Manage access to service accounts]), but this applies to API resource addressing, not to IAM policy member strings.
+The internal IAM system resolves email→numeric transparently; callers must use email.
++
+Google-provisioned service agents (Cloud Build, Developer Connect) are not affected — they are managed by Google, not newly created.
 
 == Operational Invariants
 

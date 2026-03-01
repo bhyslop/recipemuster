@@ -497,12 +497,11 @@ rbgg_create_retriever() {
 
   buc_step "Creating Retriever service account: ${z_account_name}"
 
-  local z_sa_uid
-  z_sa_uid=$(zrbgg_create_service_account_with_key                               \
+  zrbgg_create_service_account_with_key                                          \
     "${z_account_name}"                                                        \
     "Recipe Bottle Retriever (${z_instance})"                                  \
     "Read-only access to Google Artifact Registry - instance: ${z_instance}"   \
-    "${z_instance}") || buc_die "Failed to create Retriever SA"
+    "${z_instance}" > /dev/null || buc_die "Failed to create Retriever SA"
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
@@ -513,7 +512,7 @@ rbgg_create_retriever() {
     "Grant Artifact Registry Reader"        \
     "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"  \
-    "serviceAccount:${z_sa_uid}"            \
+    "serviceAccount:${z_account_email}"     \
     "retriever-reader"
 
   local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
@@ -546,12 +545,11 @@ rbgg_create_director() {
 
   buc_step "Creating Director service account: ${z_account_name}"
 
-  local z_sa_uid
-  z_sa_uid=$(zrbgg_create_service_account_with_key           \
+  zrbgg_create_service_account_with_key                      \
     "${z_account_name}"                                    \
     "Recipe Bottle Director (${z_instance})"               \
     "Create/destroy container images for ${z_instance}"    \
-    "${z_instance}") || buc_die "Failed to create Director SA"
+    "${z_instance}" > /dev/null || buc_die "Failed to create Director SA"
 
   buc_step 'Get OAuth token from admin'
   local z_token
@@ -571,7 +569,7 @@ rbgg_create_director() {
     "Grant Cloud Build Editor"              \
     "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" \
-    "serviceAccount:${z_sa_uid}"            \
+    "serviceAccount:${z_account_email}"     \
     "director-cb"
 
   rbgi_add_project_iam_role                 \
@@ -579,7 +577,7 @@ rbgg_create_director() {
     "Grant Project Viewer"                  \
     "${RBGD_PROJECT_RESOURCE}"              \
     "roles/viewer"                          \
-    "serviceAccount:${z_sa_uid}"            \
+    "serviceAccount:${z_account_email}"     \
     "director-viewer"
 
   buc_step 'Grant Developer Connect Admin (source link + trigger infrastructure)'
@@ -588,7 +586,7 @@ rbgg_create_director() {
     "Grant Developer Connect Admin"         \
     "${RBGD_PROJECT_RESOURCE}"              \
     "roles/developerconnect.admin"          \
-    "serviceAccount:${z_sa_uid}"            \
+    "serviceAccount:${z_account_email}"     \
     "director-devconnect"
 
   buc_step 'Grant serviceAccountUser on Mason'

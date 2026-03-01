@@ -740,9 +740,6 @@ rbgp_depot_create() {
   local z_mason_sa_email
   z_mason_sa_email=$(rbgu_json_field_capture "depot_mason_create" '.email') || buc_die "Failed to get Mason email"
 
-  local z_mason_sa_uid
-  z_mason_sa_uid=$(rbgu_json_field_capture "depot_mason_create" '.uniqueId') || buc_die "Failed to get Mason uniqueId"
-
   buc_step 'Configure Mason permissions'
   # Repository admin (AR repo IAM requires email, not numeric ID)
   rbgi_add_repo_iam_role "${z_token}" "${z_depot_project_id}" "${z_mason_sa_email}" "${z_region}" "${z_repository_name}" \
@@ -753,11 +750,11 @@ rbgp_depot_create() {
 
   # Project viewer
   rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "projects/${z_depot_project_id}" \
-    "roles/viewer" "serviceAccount:${z_mason_sa_uid}" "mason-viewer"
+    "roles/viewer" "serviceAccount:${z_mason_sa_email}" "mason-viewer"
 
   # Logs writer (for Cloud Build logs to Cloud Logging)
   rbgi_add_project_iam_role "${z_token}" "Grant Mason Logs Writer" "projects/${z_depot_project_id}" \
-    "roles/logging.logWriter" "serviceAccount:${z_mason_sa_uid}" "mason-logs-writer"
+    "roles/logging.logWriter" "serviceAccount:${z_mason_sa_email}" "mason-logs-writer"
 
   buc_step 'Provision Cloud Build service agent'
   local z_cb_service_agent
