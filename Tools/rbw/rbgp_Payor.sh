@@ -740,26 +740,24 @@ rbgp_depot_create() {
   local z_mason_sa_email
   z_mason_sa_email=$(rbgu_json_field_capture "depot_mason_create" '.email') || buc_die "Failed to get Mason email"
 
-  buc_step 'Verify Mason service account propagation'
-  local z_mason_get_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts/${z_mason_sa_email}"
-  rbgu_poll_get_until_ok "Mason SA propagation" "${z_mason_get_url}" "${z_token}" "mason_sa_get"
+  local z_mason_sa_uid
+  z_mason_sa_uid=$(rbgu_json_field_capture "depot_mason_create" '.uniqueId') || buc_die "Failed to get Mason uniqueId"
 
   buc_step 'Configure Mason permissions'
   # Repository admin
-  local z_repo_resource="${z_parent}/repositories/${z_repository_name}"
-  rbgi_add_repo_iam_role "${z_token}" "${z_depot_project_id}" "${z_mason_sa_email}" "${z_region}" "${z_repository_name}" \
+  rbgi_add_repo_iam_role "${z_token}" "${z_depot_project_id}" "${z_mason_sa_uid}" "${z_region}" "${z_repository_name}" \
     "roles/artifactregistry.writer"
-  
+
   # Bucket viewer
-  rbgi_add_bucket_iam_role "${z_token}" "${z_build_bucket}" "${z_mason_sa_email}" "roles/storage.objectViewer"
-  
+  rbgi_add_bucket_iam_role "${z_token}" "${z_build_bucket}" "${z_mason_sa_uid}" "roles/storage.objectViewer"
+
   # Project viewer
   rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "projects/${z_depot_project_id}" \
-    "roles/viewer" "serviceAccount:${z_mason_sa_email}" "mason-viewer"
+    "roles/viewer" "serviceAccount:${z_mason_sa_uid}" "mason-viewer"
 
   # Logs writer (for Cloud Build logs to Cloud Logging)
   rbgi_add_project_iam_role "${z_token}" "Grant Mason Logs Writer" "projects/${z_depot_project_id}" \
-    "roles/logging.logWriter" "serviceAccount:${z_mason_sa_email}" "mason-logs-writer"
+    "roles/logging.logWriter" "serviceAccount:${z_mason_sa_uid}" "mason-logs-writer"
 
   buc_step 'Provision Cloud Build service agent'
   local z_cb_service_agent

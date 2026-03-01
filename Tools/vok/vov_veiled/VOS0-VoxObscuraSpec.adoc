@@ -368,25 +368,25 @@ Progress message indicating completion of a processing stage.
 
 == Section Headers
 
-VOS section headers voice `axs_*` motifs for procedure documentation structure.
+VOS section headers voice `axho_*` motifs for procedure documentation structure.
 
 [[voss_inputs]]
-// ⟦axl_voices axs_inputs⟧
+// ⟦axl_voices axhop_parameter⟧
 {voss_inputs}::
 Section header for operation input parameters.
 
 [[voss_behavior]]
-// ⟦axl_voices axs_behavior⟧
+// ⟦axl_voices axhos_step⟧
 {voss_behavior}::
 Section header for operation behavior steps.
 
 [[voss_outputs]]
-// ⟦axl_voices axs_outputs⟧
+// ⟦axl_voices axhoo_output⟧
 {voss_outputs}::
 Section header for operation outputs and artifacts.
 
 [[voss_completion]]
-// ⟦axl_voices axs_completion⟧
+// ⟦axl_voices axhoc_completion⟧
 {voss_completion}::
 Section header for operation completion criteria.
 
@@ -857,7 +857,7 @@ via `.concept_model()` builder method.
 == Operations
 
 [[vosor_release]]
-// ⟦axl_voices axo_command axe_bash_scripted axd_transient⟧
+// ⟦axvo_procedure axd_transient⟧
 === {vosor_release}
 
 Creates a
@@ -995,7 +995,7 @@ assets and platform binaries.
 
 
 [[vosoi_install]]
-// ⟦axl_voices axo_command axe_rust_impl axd_transient⟧
+// ⟦axvo_procedure axd_transient⟧
 === {vosoi_install}
 
 Deploys a
@@ -1153,7 +1153,7 @@ Clean git history with single install commit.
 
 
 [[vosou_uninstall]]
-// ⟦axl_voices axo_command axe_rust_impl axd_transient⟧
+// ⟦axvo_procedure axd_transient⟧
 === {vosou_uninstall}
 
 Removes Claude Code integration from
@@ -1297,7 +1297,7 @@ preserve section positions for future reinstall.
 
 
 [[vosof_freshen]]
-// ⟦axl_voices axo_command axe_rust_impl axd_transient⟧
+// ⟦axvo_procedure axd_transient⟧
 === {vosof_freshen}
 
 Updates CLAUDE.md
@@ -1404,31 +1404,31 @@ Routines are internal reusable procedures invoked by operations.
 They encapsulate common logic for consistent behavior across the codebase.
 
 [[vosr_lock]]
-// ⟦axl_voices axo_routine⟧
+// ⟦axvo_procedure axd_internal⟧
 === {vosr_lock}
 
 include::VOSRL-lock.adoc[]
 
 [[vosr_commit]]
-// ⟦axl_voices axo_routine⟧
+// ⟦axvo_procedure axd_internal⟧
 === {vosr_commit}
 
 include::VOSRC-commit.adoc[]
 
 [[vosr_guard]]
-// ⟦axl_voices axo_routine⟧
+// ⟦axvo_procedure axd_internal⟧
 === {vosr_guard}
 
 include::VOSRG-guard.adoc[]
 
 [[vosr_probe]]
-// ⟦axl_voices axo_routine⟧
+// ⟦axvo_procedure axd_internal⟧
 === {vosr_probe}
 
 include::VOSRP-probe.adoc[]
 
 [[vosr_init]]
-// ⟦axl_voices axo_routine⟧
+// ⟦axvo_procedure axd_internal⟧
 === {vosr_init}
 
 include::VOSRI-init.adoc[]
@@ -1482,7 +1482,7 @@ Literal string "vvb" appearing as the first field in the
 === Action Codes
 
 [[voscaa_allocate]]
-// ⟦axl_voices axo_operation⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {voscaa_allocate}::
 Action code `A`.
 Allocates a new
@@ -1497,7 +1497,7 @@ vvb:1000::A: allocated hallmark for initial release
 ----
 
 [[voscai_invitatory]]
-// ⟦axl_voices axo_operation⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {voscai_invitatory}::
 Action code `i` (lowercase).
 Opens a new
@@ -1513,7 +1513,7 @@ vvb:1011::i: OFFICIUM 260207-0701
 ----
 
 [[voscar_release]]
-// ⟦axl_voices axo_operation⟧
+// ⟦axvo_procedure axd_transient axd_internal⟧
 {voscar_release}::
 Action code `R`.
 Creates a

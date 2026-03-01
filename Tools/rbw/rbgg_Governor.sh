@@ -202,10 +202,13 @@ zrbgg_create_service_account_with_key() {
   rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRBGG_INFIX_CREATE}" "${ZRBGG_PREFIX}create_request.json"
   rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}"
-  rbgu_newly_created_delay                      "${ZRBGG_INFIX_CREATE}" "service account" 15
-  buc_info "Service account created: ${z_account_email}"
 
-  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" \
+  local z_sa_uid
+  z_sa_uid=$(rbgu_json_field_capture "${ZRBGG_INFIX_CREATE}" '.uniqueId') \
+    || buc_die "Failed to get uniqueId from SA creation response"
+  buc_info "Service account created: ${z_account_email} (uid: ${z_sa_uid})"
+
+  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_sa_uid}" \
                                    "${z_token}" "${ZRBGG_INFIX_VERIFY}"
   rbgu_http_require_ok "Verify service account" "${ZRBGG_INFIX_VERIFY}"
 
@@ -279,45 +282,9 @@ zrbgg_create_service_account_with_key() {
 
   rm -f "${z_key_json}"
   buc_info "RBRA file written: ${z_rbra_file}"
-}
 
-zrbgg_create_service_account_no_key() {
-  zrbgg_sentinel
-
-  local z_account_name="${1:-}"
-  local z_display_name="${2:-}"
-
-  test -n "${z_account_name}" || buc_die "Service account name required"
-  test -n "${z_display_name}" || buc_die "Display name required"
-
-  buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
-
-  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
-
-  buc_step "Create service account (no key): ${z_account_name}"
-  # write body FIRST
-  local z_body="${BURD_TEMP_DIR}/rbgg_sa_create_nokey.json"
-  jq -n --arg account_id   "${z_account_name}" \
-        --arg display_name "${z_display_name}" '
-    { accountId: $account_id, serviceAccount: { displayName: $display_name } }
-  ' > "${z_body}" || buc_die "Failed to build SA create body"
-
-  # correct endpoint (no trailing slash)
-  rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_CREATE}" "${z_body}"
-  rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}"
-
-  buc_log_args 'Allow IAM propagation, then verify using URL-encoded email'
-  rbgu_newly_created_delay "${ZRBGG_INFIX_CREATE}" "service account" 15
-
-  buc_log_args 'Verify service account'
-  local z_account_email_enc
-  z_account_email_enc=$(rbgu_urlencode_capture "${z_account_email}") || buc_die "Failed to encode SA email"
-  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email_enc}" "${z_token}" "${ZRBGG_INFIX_VERIFY}"
-  rbgu_http_require_ok "Verify service account" "${ZRBGG_INFIX_VERIFY}"
-
-  buc_success "Service account ensured (no keys): ${z_account_email}"
+  # Echo uniqueId to stdout for callers (all logging goes to stderr per BCG)
+  printf '%s' "${z_sa_uid}"
 }
 
 zrbgg_create_gcs_bucket() {
@@ -530,11 +497,12 @@ rbgg_create_retriever() {
 
   buc_step "Creating Retriever service account: ${z_account_name}"
 
-  zrbgg_create_service_account_with_key                                        \
+  local z_sa_uid
+  z_sa_uid=$(zrbgg_create_service_account_with_key                               \
     "${z_account_name}"                                                        \
     "Recipe Bottle Retriever (${z_instance})"                                  \
     "Read-only access to Google Artifact Registry - instance: ${z_instance}"   \
-    "${z_instance}"
+    "${z_instance}") || buc_die "Failed to create Retriever SA"
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
@@ -545,7 +513,7 @@ rbgg_create_retriever() {
     "Grant Artifact Registry Reader"        \
     "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"  \
-    "serviceAccount:${z_account_email}"     \
+    "serviceAccount:${z_sa_uid}"            \
     "retriever-reader"
 
   local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
@@ -578,11 +546,12 @@ rbgg_create_director() {
 
   buc_step "Creating Director service account: ${z_account_name}"
 
-  zrbgg_create_service_account_with_key                    \
+  local z_sa_uid
+  z_sa_uid=$(zrbgg_create_service_account_with_key           \
     "${z_account_name}"                                    \
     "Recipe Bottle Director (${z_instance})"               \
     "Create/destroy container images for ${z_instance}"    \
-    "${z_instance}"
+    "${z_instance}") || buc_die "Failed to create Director SA"
 
   buc_step 'Get OAuth token from admin'
   local z_token
@@ -602,7 +571,7 @@ rbgg_create_director() {
     "Grant Cloud Build Editor"              \
     "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" \
-    "serviceAccount:${z_account_email}"     \
+    "serviceAccount:${z_sa_uid}"            \
     "director-cb"
 
   rbgi_add_project_iam_role                 \
@@ -610,7 +579,7 @@ rbgg_create_director() {
     "Grant Project Viewer"                  \
     "${RBGD_PROJECT_RESOURCE}"              \
     "roles/viewer"                          \
-    "serviceAccount:${z_account_email}"     \
+    "serviceAccount:${z_sa_uid}"            \
     "director-viewer"
 
   buc_step 'Grant Developer Connect Admin (source link + trigger infrastructure)'
@@ -619,18 +588,18 @@ rbgg_create_director() {
     "Grant Developer Connect Admin"         \
     "${RBGD_PROJECT_RESOURCE}"              \
     "roles/developerconnect.admin"          \
-    "serviceAccount:${z_account_email}"     \
+    "serviceAccount:${z_sa_uid}"            \
     "director-devconnect"
 
   buc_step 'Grant serviceAccountUser on Mason'
   rbgi_add_sa_iam_role "${z_token}" "${RBGD_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
 
   buc_step 'Grant Storage Object Creator on artifacts bucket (only if pre-upload used)'
-  rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"
-  rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectViewer"
+  rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_sa_uid}" "roles/storage.objectCreator"
+  rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_sa_uid}" "roles/storage.objectViewer"
 
   buc_step 'Grant Artifact Registry repoAdmin (for image delete/manage)'
-  rbgi_add_repo_iam_role "${z_token}" "${RBGD_GAR_PROJECT_ID}" "${z_account_email}" \
+  rbgi_add_repo_iam_role "${z_token}" "${RBGD_GAR_PROJECT_ID}" "${z_sa_uid}" \
     "${RBGD_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "roles/artifactregistry.repoAdmin"
 
   local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
