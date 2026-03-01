@@ -4657,9 +4657,10 @@
         "₢AiAAh",
         "₢AiAAk",
         "₢AiAAl",
-        "₢AiAAm"
+        "₢AiAAm",
+        "₢AiAAr"
       ],
-      "next_pace_seed": "AAr",
+      "next_pace_seed": "AAs",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6036,6 +6037,17 @@
               "text": "Review and update RBS0 specification sections for depot lifecycle operations.\n\n## Problem\n\nRecent implementation paces on ₣Ai have made code changes to depot_create,\ncreate_director, create_retriever, and related IAM infrastructure that are\nnot yet reflected in the specification document.\n\n## Scope\n\nRead the following RBS0 sections and compare against current code:\n\n1. **depot_create** — verify spec matches `rbgp_Payor.sh` depot_create flow,\n   including numeric ID for IAM bindings (from ₢AiAAp), Developer Connect\n   connection creation, API enablement list, resource creation sequence\n2. **create_director** — verify spec matches `rbgg_Governor.sh` rbgg_create_director,\n   including IAM role grants, SA creation flow, numeric ID usage\n3. **create_retriever** — verify spec matches `rbgg_Governor.sh` rbgg_create_retriever\n4. **depot_initialize** — verify spec matches `rbgm_ManualProcedures.sh`\n   rbgm_depot_initialize, including rubric repo URL validation, Developer\n   Connect OAuth flow\n5. **IAM binding pattern** — document the numeric ID policy as a design\n   decision (why, what Google says, what we do)\n\nAlso check for any other spec sections that reference SA propagation delays,\nretry loops, or email-based member bindings that should be updated.\n\n## Key files\n\n- lenses/RBS0-SpecTop.adoc\n- Tools/rbw/rbgp_Payor.sh\n- Tools/rbw/rbgg_Governor.sh\n- Tools/rbw/rbgm_ManualProcedures.sh\n- Tools/rbw/rbgi_IAM.sh",
               "silks": "rbs0-depot-spec-alignment",
               "commit": "9ffb00a"
+            }
+          ]
+        },
+        "₢AiAAr": {
+          "tacks": [
+            {
+              "ts": "260301-1136",
+              "state": "rough",
+              "text": "Auto-populate RBRA_RUBRIC_REPO_URL during SA creation flows.\n\n## Problem\n\nWhen Governor creates a Director (or resets itself), the generated RBRA file\ncontains only SA credentials. The operator must manually append\nRBRA_RUBRIC_REPO_URL to both Governor and Director RBRA files. This is\nerror-prone and caused a block during e2e testing (₢AiAAo).\n\n## Proposed Changes\n\n1. **Director creation** (`rbgg_create_director`): Governor already has the\n   rubric URL in its own RBRA. After writing the Director RBRA file, append\n   RBRA_RUBRIC_REPO_URL from the Governor's environment.\n\n2. **Governor reset** (`rbgp_governor_reset`): Consider whether the rubric URL\n   should be preserved across resets. The Payor doesn't have it, but the\n   outgoing Governor RBRA does. May need a \"carry forward\" or prompt.\n\n3. **Validation**: Add a post-write validation step that sources the new RBRA\n   and confirms RBRA_RUBRIC_REPO_URL is present and reachable (git ls-remote)\n   before declaring success.\n\n## Design Questions\n\n- Should RBRA files carry installation context beyond SA credentials?\n- Should Governor reset preserve rubric URL from the previous Governor RBRA?\n- Should depot_initialize auto-append to Governor RBRA instead of requiring\n  manual edit?",
+              "silks": "auto-populate-rubric-url-in-rbra",
+              "commit": "4e94d06"
             }
           ]
         }
