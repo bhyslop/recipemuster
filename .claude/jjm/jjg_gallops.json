@@ -6555,6 +6555,13 @@
         "₢AjAAY": {
           "tacks": [
             {
+              "ts": "260301-1039",
+              "state": "complete",
+              "text": "Verify BUS0-BashUtilitiesSpec.adoc uses only axo_entity and axrg_* regime voicings with no operation voicings needing transformation. Quick verification.",
+              "silks": "verify-bus0-unaffected",
+              "commit": "40386ee"
+            },
+            {
               "ts": "260227-1058",
               "state": "rough",
               "text": "Verify BUS0-BashUtilitiesSpec.adoc uses only axo_entity and axrg_* regime voicings with no operation voicings needing transformation. Quick verification.",
