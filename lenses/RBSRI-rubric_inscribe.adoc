@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_rubric_inscribe}
+
 The single
 {rbtgr_rubric}
 lifecycle command.
@@ -7,24 +10,22 @@ files, copies all build contexts, syncs everything to the
 {rbtgr_rubric_repo},
 and ensures all triggers exist.
 
-// ⟦axs_inputs⟧
-
-. *None* — inscribe always processes all conjure vessels in `rbev-vessels/`.
-Non-conjure vessels (no `RBRV_CONJURE_DOCKERFILE` in {rbrv_regime}) are skipped.
-
-// ⟦axs_preconditions⟧
-
+//axhoq_precondition
 * {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in regime
+
+//axhoq_precondition
 * {rbra_rubric_repo_url} configured and reachable
+
+//axhoq_precondition
 * Vessel configurations loadable ({rbrv_regime})
 
-// ⟦axs_behavior⟧
-
+//axhos_step
 . *Pin Staleness Gate*:
 .. Verify `RBRR_GCB_PINS_REFRESHED_AT` is less than 1 day old
 .. If stale: die with guidance to run pin refresh manually, commit, and re-run inscribe
 .. `rbrr_refresh_gcb_pins` remains independently callable for manual inspection
 
+//axhos_step
 . *Generate All Rubric JSON*:
 .. For each conjure vessel in `rbev-vessels/`:
 ... Load vessel configuration via existing `zrbf_load_vessel()`
@@ -35,12 +36,14 @@ from step scripts (`rbgjb/*.sh`) and regime pins
 ... Substitutions block includes four placeholders in the committed main-repo copy: `_RBGY_RUBRIC_REPO`, `_RBGY_RUBRIC_COMMIT`, `_RBGY_GIT_COMMIT`, and `_RBGY_INSCRIBE_TIMESTAMP` — filled at inscribe time in the {rbtgr_rubric_repo} clone (step 4)
 ... All other values deterministic: same inputs produce byte-identical output (placeholders ensure the committed copy is stable across commits)
 
+//axhos_step
 . *Verify All Committed*:
 .. Compare each generated JSON against its committed copy in main repo
 .. If any differ: STOP and list which vessels have stale committed JSON
 .. Operator reviews diffs, commits, and pushes; re-run proceeds
 .. All-or-nothing: all vessels must match before sync proceeds
 
+//axhos_step
 . *Fresh Clone and Sync to Rubric Repo*:
 .. Delete local clone at `.rbk/rubric/` if it exists
 .. `git clone --depth 1` the
@@ -59,6 +62,7 @@ The
 {rbtgr_rubric_repo}
 is small (per-vessel directories with Dockerfile + build context + JSON) — shallow clone is sub-second.
 
+//axhos_step
 . *Ensure Infrastructure (for each vessel)*:
 .. Create
 {rbtgi_source_link}
@@ -69,8 +73,8 @@ for the {rbtgr_rubric_repo} if it does not exist (via Developer Connect REST API
 if it does not exist (via Cloud Build REST API)
 .. Trigger name derived from constant prefix + vessel sigil
 
-// ⟦axs_outputs⟧
-
+//axhoo_output_of_type
+{rbtgr_rubric_repo}
 * All conjure vessel directories synced in {rbtgr_rubric_repo} with current build material (including filled rubric repo metadata)
 * {rbtgi_source_link} binding the connection to the {rbtgr_rubric_repo}
 * {rbtgr_vessel_trigger} for each conjure vessel pointing to its
@@ -78,8 +82,7 @@ if it does not exist (via Cloud Build REST API)
 in the
 {rbtgr_rubric_repo}
 
-// ⟦axs_completion⟧
-
+//axhoc_completion
 NOTE: Inscribe is idempotent.
 A fresh vessel (no directory in rubric repo, no trigger) gets all created.
 An existing vessel gets its JSON and build context synced — infrastructure resources are left in place.
