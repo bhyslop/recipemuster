@@ -5,7 +5,7 @@ JSON conforms to schema.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
 {jjds_stdout} None

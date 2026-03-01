@@ -16,34 +16,34 @@ Use positioning flags to insert at a specific location.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_firemark}
 (positional) — target
 {jjdhr_heat}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_silks}
 
-// ⟦axd_required⟧
+//axd_required
 * stdin —
 {jjdkm_text}
 content for the initial
 {jjdkr_tack}
 
-// ⟦axd_optional⟧
+//axd_optional
 * {jjda_before}
 — insert before specified
 {jjdt_coronet}
 
-// ⟦axd_optional⟧
+//axd_optional
 * {jjda_after}
 — insert after specified
 {jjdt_coronet}
 
-// ⟦axd_optional⟧
+//axd_optional
 * {jjda_first}
 — insert at beginning of
 {jjdhm_order}

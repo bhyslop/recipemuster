@@ -2,16 +2,16 @@ Create a JJ-aware git commit with heat/pace context prefix.
 
 {jjds_arguments}
 
-// ⟦axd_required⟧
+//axd_required
 * identity (positional) — {jjdt_coronet} for pace-affiliated commit, or {jjdt_firemark} for heat-only commit
 
-// ⟦axd_required⟧
+//axd_required
 * files (positional, repeated) — paths to commit (at least one required)
 
-// ⟦axd_optional⟧
+//axd_optional
 * `--intent` — commit subject provided by opus (if omitted, falls back to haiku diff description)
 
-// ⟦axd_optional⟧
+//axd_optional
 * `--size-limit` — size limit in bytes for the commit guard (default: 50KB)
 
 {jjds_stdout} Commit hash

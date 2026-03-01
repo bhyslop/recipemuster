@@ -4,11 +4,11 @@ Used by `/jjc-pace-wrap` to provide a single-command wrap experience.
 
 {jjds_arguments}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_coronet}
 (positional) — pace to wrap
 
-// ⟦axd_optional⟧
+//axd_optional
 * stdin — wrap summary text (used as chalk description; if absent, uses "pace {silks} complete")
 * `--size-limit` — maximum commit size in bytes (default: 50KB)
 

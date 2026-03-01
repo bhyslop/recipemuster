@@ -249,7 +249,7 @@ enabling rapid iteration during development.
 == Key Premises
 
 [[vosk_prefix_validation]]
-// ⟦axl_voices axk_premise⟧
+//axl_voices axk_premise
 {vosk_prefix_validation}::
 All
 {vosa_command_s},
@@ -279,7 +279,7 @@ Internal content (function names, variable names within scripts) is not validate
 {vosor_release}.
 
 [[vosk_all_or_none]]
-// ⟦axl_voices axk_premise⟧
+//axl_voices axk_premise
 {vosk_all_or_none}::
 {vosoi_install}
 is atomic.
@@ -291,7 +291,7 @@ No selective installation of individual
 or assets.
 
 [[vosk_parcel_self_contained]]
-// ⟦axl_voices axk_premise⟧
+//axl_voices axk_premise
 {vosk_parcel_self_contained}::
 A
 {vose_parcel}
@@ -303,7 +303,7 @@ The
 can function from its extracted directory.
 
 [[vosk_burc_prerequisite]]
-// ⟦axl_voices axk_premise⟧
+//axl_voices axk_premise
 {vosk_burc_prerequisite}::
 {vosoi_install}
 requires BURC (BUK Regime Configuration) in the
@@ -315,7 +315,7 @@ The install script reads `.buk/burc.env` for required variables:
 Install fails immediately if any required variable is missing — no bootstrap, no prompts.
 
 [[vosk_default_routing]]
-// ⟦axl_voices axk_premise⟧
+//axl_voices axk_premise
 {vosk_default_routing}::
 Assets without special routing rules copy in place, preserving directory structure relative to
 {vose_kit}
@@ -333,36 +333,36 @@ VOS control terms voice `axc_*` motifs for bash scripted execution context.
 These terms appear inline within procedure steps to classify actions.
 
 [[vosc_require]]
-// ⟦axl_voices axc_require⟧
+//axl_voices axc_require
 {vosc_require}::
 Validation check that confirms an expected condition.
 Script exits with error if condition not met.
 
 [[vosc_fatal]]
-// ⟦axl_voices axc_fatal⟧
+//axl_voices axc_fatal
 {vosc_fatal}::
 Immediate termination with error status.
 Displays error message and exits non-zero.
 
 [[vosc_store]]
-// ⟦axl_voices axc_store⟧
+//axl_voices axc_store
 {vosc_store}::
 Capture a value into a shell variable for later use.
 
 [[vosc_call]]
-// ⟦axl_voices axc_call⟧
+//axl_voices axc_call
 {vosc_call}::
 Invoke an external command or function.
 Captures exit status for processing.
 
 [[vosc_show]]
-// ⟦axl_voices axc_show⟧
+//axl_voices axc_show
 {vosc_show}::
 Display information to stdout.
 Progress messages or results.
 
 [[vosc_step]]
-// ⟦axl_voices axc_step⟧
+//axl_voices axc_step
 {vosc_step}::
 Progress message indicating completion of a processing stage.
 
@@ -371,29 +371,29 @@ Progress message indicating completion of a processing stage.
 VOS section headers voice `axho_*` motifs for procedure documentation structure.
 
 [[voss_inputs]]
-// ⟦axl_voices axhop_parameter⟧
+//axl_voices axhop_parameter
 {voss_inputs}::
 Section header for operation input parameters.
 
 [[voss_behavior]]
-// ⟦axl_voices axhos_step⟧
+//axl_voices axhos_step
 {voss_behavior}::
 Section header for operation behavior steps.
 
 [[voss_outputs]]
-// ⟦axl_voices axhoo_output⟧
+//axl_voices axhoo_output
 {voss_outputs}::
 Section header for operation outputs and artifacts.
 
 [[voss_completion]]
-// ⟦axl_voices axhoc_completion⟧
+//axl_voices axhoc_completion
 {voss_completion}::
 Section header for operation completion criteria.
 
 == Types
 
 [[vost_hallmark]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {vost_hallmark}::
 A 4-digit version identifier starting at 1000.
 {vost_hallmark_s}
@@ -409,7 +409,7 @@ represents content identity — same content always produces same
 Examples: `1000`, `1001`, `1042`.
 
 [[vost_sigil]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {vost_sigil}::
 A version identifier in YYMMDD-HHMM format.
 Generated at
@@ -422,7 +422,7 @@ filenames and manifests.
 Example: `260115-1430` for January 15, 2026 at 14:30.
 
 [[vost_officium]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {vost_officium}::
 A bounded work period opened by the
 {voscai_invitatory}
@@ -439,7 +439,7 @@ commit was created within the gap threshold (1 hour by default).
 == Entities
 
 [[vose_parcel]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vose_parcel}::
 The distribution archive for
 {vose_kit_s}.
@@ -487,7 +487,7 @@ like any other — it just happens to contain binaries.
 * `vvu_uninstall.sh` — Lives in `kits/vvk/`, installs to `${BURC_TOOLS_DIR}/vvk/`.
 
 [[vose_whisper]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vose_whisper}::
 A
 {vose_kit_p}
@@ -516,7 +516,7 @@ Whisper::for_kit("jjk")
 File location: `Tools/{kit}/vov_veiled/vo{cipher}w_whisper.rs`
 
 [[vose_conclave]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vose_conclave}::
 The central API that
 {vose_kit_s}
@@ -545,7 +545,7 @@ and
 {vosou_uninstall}
 
 [[vose_kit]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vose_kit}::
 A distributable Claude Code extension.
 Lives in `Tools/{kit}/` in the
@@ -584,7 +584,7 @@ becomes `Tools/vvk/` in target
 * Uses cipher `vv` (Voce Viva)
 
 [[vose_managed_section]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vose_managed_section}::
 A block of content in the target CLAUDE.md file bounded by
 {vose_marker_s}.
@@ -597,19 +597,19 @@ for distinct feature groups.
 Members:
 
 [[vosem_file]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 * {vosem_file} - Template file path relative to
 {vosp_veiled}
 (e.g., `vocjjmc_core.md`)
 
 [[vosem_tag]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 * {vosem_tag} - Identifier used in
 {vose_marker_s}
 (e.g., `JJK`, `JJK_GALLOPS`)
 
 [[vose_marker]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {vose_marker}::
 Delimiters bounding a
 {vose_managed_section}
@@ -626,7 +626,7 @@ Content outside
 is preserved.
 
 [[vose_uninstalled_marker]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {vose_uninstalled_marker}::
 Placeholder preserving position of a removed
 {vose_managed_section}.
@@ -648,7 +648,7 @@ are collapsed to a single
 preserving user's chosen section ordering for future reinstall.
 
 [[vose_brand_file]]
-// ⟦axl_voices axj_structure⟧
+//axl_voices axj_structure
 {vose_brand_file}::
 Runtime identity file at
 {vose_parcel}
@@ -663,29 +663,29 @@ Installed to `.vvk/vvbf_brand.json` in target.
 Members:
 
 [[vosem_hallmark]]
-// ⟦axl_voices axj_field axd_required⟧
+//axl_voices axj_field axd_required
 * {vosem_hallmark} — {axj_field_tag}: `vvbh_hallmark`.
 4-digit version identifier (
 {vost_hallmark}
 ).
 
 [[vosem_brand_date]]
-// ⟦axl_voices axj_field axd_required⟧
+//axl_voices axj_field axd_required
 * {vosem_brand_date} — {axj_field_tag}: `vvbd_date`.
 Minted timestamp in YYMMDD-HHMM format.
 
 [[vosem_brand_sha]]
-// ⟦axl_voices axj_field axd_required⟧
+//axl_voices axj_field axd_required
 * {vosem_brand_sha} — {axj_field_tag}: `vvbs_sha`.
 Content super-SHA (order-independent hash of all parcel files).
 
 [[vosem_brand_commit]]
-// ⟦axl_voices axj_field axd_required⟧
+//axl_voices axj_field axd_required
 * {vosem_brand_commit} — {axj_field_tag}: `vvbc_commit`.
 Git commit SHA of source repo at release time.
 
 [[vosem_brand_kits]]
-// ⟦axl_voices axj_field axd_required⟧
+//axl_voices axj_field axd_required
 * {vosem_brand_kits} — {axj_field_tag}: `vvbk_kits`.
 Array of kit identifiers included in this release.
 Used by
@@ -693,7 +693,7 @@ Used by
 to enumerate installed kits.
 
 [[vose_registry]]
-// ⟦axl_voices axj_structure⟧
+//axl_voices axj_structure
 {vose_registry}::
 {vosp_veiled}
 mapping of
@@ -719,7 +719,7 @@ otherwise allocate next sequential value.
 == Places
 
 [[vosp_kit_forge]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosp_kit_forge}::
 The source repository where
 {vose_kit_s}
@@ -732,7 +732,7 @@ runs from the
 {vosp_kit_forge}.
 
 [[vosp_target_repo]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosp_target_repo}::
 A consumer repository where
 {vose_kit_s}
@@ -745,7 +745,7 @@ deploys to the
 {vosp_target_repo}.
 
 [[vosp_veiled]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosp_veiled}::
 Content that never leaves the
 {vosp_kit_forge}.
@@ -781,7 +781,7 @@ All assets must comply with
 {vosk_prefix_validation}.
 
 [[vosa_command]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosa_command}::
 A slash command file.
 Located in `.claude/commands/` in
@@ -797,7 +797,7 @@ Naming: `{cipher}c-{name}.md`
 Example: `jjc-heat-mount.md` for JJK.
 
 [[vosa_hook]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosa_hook}::
 A hook definition.
 Located in `.claude/hooks/` in
@@ -813,7 +813,7 @@ Naming: `{cipher}h-{name}.md`
 [Reserved for future implementation]
 
 [[vosa_skill]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosa_skill}::
 A skill declaration.
 +
@@ -826,7 +826,7 @@ must derive from
 [Reserved for future implementation]
 
 [[vosa_subagent]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosa_subagent}::
 A subagent declaration.
 +
@@ -839,7 +839,7 @@ must derive from
 [Reserved for future implementation]
 
 [[vosa_concept_model]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosa_concept_model}::
 An AsciiDoc specification file following MCM patterns.
 Lives in
@@ -857,7 +857,7 @@ via `.concept_model()` builder method.
 == Operations
 
 [[vosor_release]]
-// ⟦axvo_procedure axd_transient⟧
+//axvo_procedure axd_transient
 === {vosor_release}
 
 Creates a
@@ -867,7 +867,7 @@ from the
 
 {voss_inputs}
 
-// ⟦axd_none⟧
+//axd_none
 No external inputs. Operates on current
 {vosp_kit_forge}
 state.
@@ -995,7 +995,7 @@ assets and platform binaries.
 
 
 [[vosoi_install]]
-// ⟦axvo_procedure axd_transient⟧
+//axvo_procedure axd_transient
 === {vosoi_install}
 
 Deploys a
@@ -1016,7 +1016,7 @@ All logic is implemented in Rust for path safety and testability.
 
 {voss_inputs}
 
-// ⟦axd_required⟧
+//axd_required
 * Path to target repository's `burc.env` file (positional argument)
 
 {voss_behavior}
@@ -1153,7 +1153,7 @@ Clean git history with single install commit.
 
 
 [[vosou_uninstall]]
-// ⟦axvo_procedure axd_transient⟧
+//axvo_procedure axd_transient
 === {vosou_uninstall}
 
 Removes Claude Code integration from
@@ -1175,7 +1175,7 @@ All logic is implemented in Rust.
 
 {voss_inputs}
 
-// ⟦axd_none⟧
+//axd_none
 No arguments. Operates on current repository using `.buk/burc.env`.
 
 {voss_behavior}
@@ -1297,7 +1297,7 @@ preserve section positions for future reinstall.
 
 
 [[vosof_freshen]]
-// ⟦axvo_procedure axd_transient⟧
+//axvo_procedure axd_transient
 === {vosof_freshen}
 
 Updates CLAUDE.md
@@ -1335,7 +1335,7 @@ vvx_freshen --burc .buk/burc.env
 
 {voss_inputs}
 
-// ⟦axd_required⟧
+//axd_required
 * Path to `burc.env` file (`--burc` argument)
 
 {voss_behavior}
@@ -1404,31 +1404,31 @@ Routines are internal reusable procedures invoked by operations.
 They encapsulate common logic for consistent behavior across the codebase.
 
 [[vosr_lock]]
-// ⟦axvo_procedure axd_internal⟧
+//axvo_procedure axd_internal
 === {vosr_lock}
 
 include::VOSRL-lock.adoc[]
 
 [[vosr_commit]]
-// ⟦axvo_procedure axd_internal⟧
+//axvo_procedure axd_internal
 === {vosr_commit}
 
 include::VOSRC-commit.adoc[]
 
 [[vosr_guard]]
-// ⟦axvo_procedure axd_internal⟧
+//axvo_procedure axd_internal
 === {vosr_guard}
 
 include::VOSRG-guard.adoc[]
 
 [[vosr_probe]]
-// ⟦axvo_procedure axd_internal⟧
+//axvo_procedure axd_internal
 === {vosr_probe}
 
 include::VOSRP-probe.adoc[]
 
 [[vosr_init]]
-// ⟦axvo_procedure axd_internal⟧
+//axvo_procedure axd_internal
 === {vosr_init}
 
 include::VOSRI-init.adoc[]
@@ -1443,7 +1443,7 @@ that shares the
 concept with Job Jockey but omits identity nesting (no heat/pace hierarchy).
 
 [[voscf_format]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {voscf_format}::
 The canonical structure for VVK commits:
 +
@@ -1473,7 +1473,7 @@ first check `.vvk/vvbf_brand.json` in the target repo; if absent or operation is
 plus `HEAD`.
 
 [[vosca_vvb]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {vosca_vvb}::
 Voce Viva brand prefix.
 Literal string "vvb" appearing as the first field in the
@@ -1482,7 +1482,7 @@ Literal string "vvb" appearing as the first field in the
 === Action Codes
 
 [[voscaa_allocate]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {voscaa_allocate}::
 Action code `A`.
 Allocates a new
@@ -1497,7 +1497,7 @@ vvb:1000::A: allocated hallmark for initial release
 ----
 
 [[voscai_invitatory]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {voscai_invitatory}::
 Action code `i` (lowercase).
 Opens a new
@@ -1513,7 +1513,7 @@ vvb:1011::i: OFFICIUM 260207-0701
 ----
 
 [[voscar_release]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {voscar_release}::
 Action code `R`.
 Creates a

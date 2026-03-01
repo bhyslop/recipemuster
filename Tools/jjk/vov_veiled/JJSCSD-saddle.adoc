@@ -14,10 +14,10 @@ details.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjdt_firemark}
 (positional) — target
 {jjdhr_heat}.

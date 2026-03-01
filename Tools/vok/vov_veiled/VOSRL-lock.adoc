@@ -8,7 +8,7 @@ Lock reference: `refs/vvg/locks/vvx`.
 
 {voss_inputs}
 
-// ⟦axd_none⟧
+//axd_none
 None.
 
 {voss_behavior}

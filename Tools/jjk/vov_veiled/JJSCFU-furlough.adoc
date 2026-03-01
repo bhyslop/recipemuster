@@ -9,23 +9,23 @@ or rename its
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_firemark}
 (positional) — target
 {jjdhr_heat}
 
-// ⟦axd_optional⟧
+//axd_optional
 * `--racing` — set status to
 {jjdhe_racing}
 
-// ⟦axd_optional⟧
+//axd_optional
 * `--stabled` — set status to
 {jjdhe_stabled}
 
-// ⟦axd_optional⟧
+//axd_optional
 * {jjda_silks}
 — new display name
 

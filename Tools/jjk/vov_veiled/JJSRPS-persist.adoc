@@ -10,28 +10,28 @@ mutation is tracked in git history.
 
 {jjds_arguments}
 
-// ⟦axd_required⟧
+//axd_required
 * lock (lock handle) — acquired lock from `vvg_lock_acquire`
 
-// ⟦axd_required⟧
+//axd_required
 *
 {jjdgr_gallops}
 (in-memory structure to persist)
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * identity —
 {jjdt_firemark}
 for heat-level operations or
 {jjdt_coronet}
 for pace-level operations
 
-// ⟦axd_required⟧
+//axd_required
 * message — commit message subject (without JJ prefix or Co-Authored-By)
 
-// ⟦axd_required⟧
+//axd_required
 * size_limit — maximum commit size in bytes for size guard check
 
 {jjds_behavior}

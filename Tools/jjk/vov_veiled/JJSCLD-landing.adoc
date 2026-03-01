@@ -2,13 +2,13 @@ Create an L (landing) commit recording agent return from autonomous execution.
 
 {jjds_arguments}
 
-// ⟦axd_required⟧
+//axd_required
 * coronet (positional) — {jjdt_coronet} of the pace that was executed
 
-// ⟦axd_required⟧
+//axd_required
 * agent (positional) — agent tier that executed (haiku, sonnet, opus)
 
-// ⟦axd_stdin⟧
+//axd_stdin
 * stdin — agent completion report (body content)
 
 {jjds_stdout} Commit hash

@@ -32,20 +32,20 @@ with no additional ceremony.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_firemark}
 (positional) — source
 {jjdhr_heat}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_to}
 — destination
 {jjdt_firemark}
 
-// ⟦axd_required⟧
+//axd_required
 * stdin — JSON array of
 {jjdt_coronet_s}
 to draft (order preserved in destination)

@@ -10,7 +10,7 @@ only after all checks pass.
 
 {jjds_arguments}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_file}
 
 {jjds_behavior}

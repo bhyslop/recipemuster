@@ -7,13 +7,13 @@ using regex patterns.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * pattern (positional) — regex pattern to search for (case insensitive)
 
-// ⟦axd_optional⟧
+//axd_optional
 * `--actionable` — limit results to
 {jjdpe_rough}
 or

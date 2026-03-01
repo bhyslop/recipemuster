@@ -7,10 +7,10 @@ Output varies by target type.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * TARGET (positional) —
 {jjdt_firemark}
 (heat view) or
@@ -22,10 +22,10 @@ If omitted, uses first
 heat.
 Returns error if no racing heats exist.
 
-// ⟦axd_optional⟧
+//axd_optional
 * `--detail` — Show paddock and full pace dockets (heat mode only)
 
-// ⟦axd_optional⟧
+//axd_optional
 * `--remaining` — Show only remaining paces (exclude
 {jjdpe_complete}
 and

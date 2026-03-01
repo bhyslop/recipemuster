@@ -14,13 +14,13 @@ Update the {jjdkm_text} content of a {jjdpr_pace}. State and {jjdkm_silks} carry
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_coronet} (positional)
 
-// ⟦axd_required⟧
+//axd_required
 * stdin — New {jjdkm_text} content
 
 {jjds_stdout} None
@@ -50,13 +50,13 @@ Set a {jjdpr_pace} state to {jjdpe_bridled} with an execution {jjdkm_warrant}. T
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_coronet} (positional)
 
-// ⟦axd_required⟧
+//axd_required
 * stdin — {jjdkm_warrant} content
 
 {jjds_stdout} None
@@ -86,13 +86,13 @@ Change the {jjdkm_silks} (display name) of a {jjdpr_pace}. {jjdkm_text} and stat
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_coronet} (positional)
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_silks}
 
 {jjds_stdout} None
@@ -122,10 +122,10 @@ Mark a {jjdpr_pace} as {jjdpe_abandoned}. The {jjdpr_pace} is removed from activ
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_coronet} (positional)
 
 {jjds_stdout} None

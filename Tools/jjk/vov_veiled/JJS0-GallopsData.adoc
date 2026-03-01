@@ -357,79 +357,79 @@ Each direct verb maps to exactly one {jjdx_cli} operation.
 The slash command or {jjsuc_insert} may add context gathering around the invocation, but the core action is singular.
 
 [[jjsud_slate]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_slate}::
 Add a {jjdpr_pace} to a {jjdhr_heat}.
 Maps to {jjdo_enroll}.
 
 [[jjsud_reslate]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_reslate}::
 Revise a {jjdpr_pace_p} docket.
 Maps to {jjdo_revise_docket}.
 
 [[jjsud_wrap]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_wrap}::
 Mark a {jjdpr_pace} complete.
 Maps to {jjdo_close}.
 
 [[jjsud_bridle]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_bridle}::
 Set a {jjdpr_pace} to {jjdpe_bridled} state with warrant.
 Maps to {jjdo_arm}.
 
 [[jjsud_rail]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_rail}::
 Reorder {jjdpr_pace_s} within a {jjdhr_heat}.
 Maps to {jjdo_reorder}.
 
 [[jjsud_furlough]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_furlough}::
 Pause or resume a {jjdhr_heat}.
 Maps to {jjdo_alter}.
 
 [[jjsud_retire]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_retire}::
 Archive a completed {jjdhr_heat}.
 Maps to {jjdo_archive}.
 
 [[jjsud_garland]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_garland}::
 Create a continuation {jjdhr_heat} from an existing one.
 Maps to {jjdo_continue}.
 
 [[jjsud_restring]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_restring}::
 Transfer {jjdpr_pace_s} in bulk between {jjdhr_heat_s}.
 Maps to {jjdo_transfer}.
 
 [[jjsud_muster]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_muster}::
 List all {jjdhr_heat_s}.
 Maps to {jjdo_list}.
 
 [[jjsud_parade]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_parade}::
 View a {jjdhr_heat} or {jjdpr_pace}.
 Maps to {jjdo_show}.
 
 [[jjsud_scout]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_scout}::
 Search across {jjdhr_heat_s} and {jjdpr_pace_s}.
 Maps to {jjdo_search}.
 
 [[jjsud_nominate]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsud_nominate}::
 Create a new {jjdhr_heat}.
 Maps to {jjdo_create}.
@@ -440,35 +440,35 @@ A {jjsum_mount} verb requires orchestration across multiple {jjdx_cli} operation
 These are implemented as slash command skills that coordinate the workflow.
 
 [[jjsum_mount]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsum_mount}::
 Engage the next {jjdpr_pace} for execution.
 Orchestrates {jjdo_orient} to obtain context, reads the docket, executes the work, and records outcomes via {jjdo_record}.
 Implemented by {jjsus_mount}.
 
 [[jjsum_groom]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsum_groom}::
 Review and refine a {jjdhr_heat_p} plan.
 Orchestrates {jjdo_show} with remaining view, then enters planning mode for structural edits.
 Implemented by {jjsus_groom}.
 
 [[jjsum_quarter]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsum_quarter}::
 Evaluate remaining {jjdpr_pace_s} and identify candidates for bridling.
 Orchestrates {jjdo_get_coronets}, assesses bridleability, and optionally invokes {jjdo_arm}.
 Implemented by {jjsus_quarter}.
 
 [[jjsum_notch]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsum_notch}::
 JJ-aware git commit with heat and pace affiliation.
 Detects context (pace-affiliated or heat-affiliated), then invokes {jjdo_record} with appropriate identity.
 Implemented by {jjsus_notch}.
 
 [[jjsum_braid]]
-// ⟦axl_voices axi_cc_claudemd_verb⟧
+//axl_voices axi_cc_claudemd_verb
 {jjsum_braid}::
 Consolidate overlapping {jjdpr_pace_s} between two {jjdhr_heat_s}.
 Compares dockets, identifies overlap, and orchestrates {jjdo_relocate} to merge.
@@ -480,79 +480,79 @@ Slash commands are skill artifacts that implement upper API verbs.
 Each is a Claude Code skill file in `.claude/commands/` that contains the orchestration logic.
 
 [[jjsus_mount]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_mount}::
 Implements {jjsum_mount}.
 
 [[jjsus_groom]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_groom}::
 Implements {jjsum_groom}.
 
 [[jjsus_quarter]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_quarter}::
 Implements {jjsum_quarter}.
 
 [[jjsus_rail]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_rail}::
 Implements {jjsud_rail}.
 
 [[jjsus_furlough]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_furlough}::
 Implements {jjsud_furlough}.
 
 [[jjsus_restring]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_restring}::
 Implements {jjsud_restring}.
 
 [[jjsus_braid]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_braid}::
 Implements {jjsum_braid}.
 
 [[jjsus_garland]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_garland}::
 Implements {jjsud_garland}.
 
 [[jjsus_retire_dryrun]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_retire_dryrun}::
 Implements {jjsud_retire} in preview mode.
 
 [[jjsus_retire_final]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_retire_final}::
 Implements {jjsud_retire} with permanent archival.
 
 [[jjsus_slate]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_slate}::
 Implements {jjsud_slate}.
 
 [[jjsus_reslate]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_reslate}::
 Implements {jjsud_reslate}.
 
 [[jjsus_bridle]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_bridle}::
 Implements {jjsud_bridle}.
 
 [[jjsus_notch]]
-// ⟦axl_voices axi_cc_slash_command⟧
+//axl_voices axi_cc_slash_command
 {jjsus_notch}::
 Implements {jjsum_notch}.
 
 === Context Artifact
 
 [[jjsuc_insert]]
-// ⟦axl_voices axi_cc_claudemd_section⟧
+//axl_voices axi_cc_claudemd_section
 {jjsuc_insert}::
 The `MANAGED:JJK` section of the project CLAUDE.md file.
 Contains the quick verb mapping table, CLI command reference, and operational guidance that enables the LLM to translate upper API verbs into {jjdx_cli} invocations.
@@ -561,7 +561,7 @@ This section is the primary mechanism by which the upper and lower API layers ar
 == Types
 
 [[jjdt_firemark]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {jjdt_firemark}::
 The identity of a
 {jjdhr_heat}.
@@ -571,7 +571,7 @@ Used as JSON keys and in CLI arguments.
 Input may omit the `₣` prefix; output always includes it.
 
 [[jjdt_coronet]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {jjdt_coronet}::
 The identity of a
 {jjdpr_pace}.
@@ -602,7 +602,7 @@ history is preserved, with a note recording the original
 {jjdt_coronet}.
 
 [[jjdt_silks]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {jjdt_silks}::
 A case-insensitive kebab display name.
 Used for human-readable identification of
@@ -616,7 +616,7 @@ Pattern: `[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*`
 === {jjdgr_gallops}
 
 [[jjdgr_gallops]]
-// ⟦axl_voices axr_record_json⟧
+//axl_voices axr_record_json
 {jjdgr_gallops}::
 The root JSON structure containing all Job Jockey data.
 Singleton record persisted at `.claude/jjm/jjg_gallops.json`.
@@ -624,7 +624,7 @@ Singleton record persisted at `.claude/jjm/jjg_gallops.json`.
 ==== Members
 
 * [[jjdgm_seed]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdgm_seed}
 is the next
 {jjdt_firemark}
@@ -633,7 +633,7 @@ Incremented by
 {jjdo_create}.
 
 * [[jjdgm_order]]
-// ⟦axl_voices axr_member axd_required axd_repeated⟧
+//axl_voices axr_member axd_required axd_repeated
 {jjdgm_order}
 is the ordered list of
 {jjdt_firemark_s}
@@ -654,7 +654,7 @@ is the authoritative source for display and selection order, not `heats` key ord
 === {jjdhr_heat}
 
 [[jjdhr_heat]]
-// ⟦axl_voices axr_record_json⟧
+//axl_voices axr_record_json
 {jjdhr_heat}::
 A bounded initiative with coherent goals.
 Contains zero or more
@@ -666,7 +666,7 @@ Keyed in JSON by
 ==== Members
 
 * [[jjdhm_firemark]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdhm_firemark}
 is the
 {jjdhr_heat_p}
@@ -676,7 +676,7 @@ Type:
 Implicit from JSON key; not stored as separate field.
 
 * [[jjdhm_silks]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdhm_silks}
 is the
 {jjdhr_heat_p}
@@ -685,7 +685,7 @@ Type:
 {jjdt_silks}.
 
 * [[jjdhm_created]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdhm_created}
 records when the
 {jjdhr_heat}
@@ -693,7 +693,7 @@ was nominated.
 Format: YYMMDD.
 
 * [[jjdhm_status]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdhm_status}
 indicates the
 {jjdhr_heat_p}
@@ -705,7 +705,7 @@ or
 {jjdhe_retired}.
 
 * [[jjdhm_order]]
-// ⟦axl_voices axr_member axd_required axd_repeated⟧
+//axl_voices axr_member axd_required axd_repeated
 {jjdhm_order}
 lists
 {jjdt_coronet_s}
@@ -714,7 +714,7 @@ May be reordered via
 {jjdo_reorder}.
 
 * [[jjdhm_seed]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdhm_seed}
 is the next
 {jjdt_coronet}
@@ -723,7 +723,7 @@ Incremented by
 {jjdo_enroll}.
 
 * [[jjdhm_paddock]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdhm_paddock}
 is the path to the paddock file containing
 {jjdhr_heat}
@@ -745,21 +745,21 @@ Created by
 ==== Status Values
 
 [[jjdhe_racing]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {jjdhe_racing}::
 The
 {jjdhr_heat}
 is actively being worked.
 
 [[jjdhe_stabled]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {jjdhe_stabled}::
 The
 {jjdhr_heat}
 is paused, not actively worked.
 
 [[jjdhe_retired]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {jjdhe_retired}::
 The
 {jjdhr_heat}
@@ -768,7 +768,7 @@ is complete and archived.
 === {jjdpr_pace}
 
 [[jjdpr_pace]]
-// ⟦axl_voices axr_record_json⟧
+//axl_voices axr_record_json
 {jjdpr_pace}::
 A discrete action within a
 {jjdhr_heat}.
@@ -783,7 +783,7 @@ Keyed in JSON by
 ==== Members
 
 * [[jjdpm_coronet]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdpm_coronet}
 is the
 {jjdpr_pace_p}
@@ -795,7 +795,7 @@ Implicit from JSON key; not stored as separate field.
 === {jjdkr_tack}
 
 [[jjdkr_tack]]
-// ⟦axl_voices axr_record_json⟧
+//axl_voices axr_record_json
 {jjdkr_tack}::
 A snapshot of
 {jjdpr_pace}
@@ -816,7 +816,7 @@ state is always
 ==== Members
 
 * [[jjdkm_refined]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdkm_refined}
 records when this
 {jjdkr_tack}
@@ -824,7 +824,7 @@ was added.
 Format: YYMMDD-HHMM.
 
 * [[jjdkm_state]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdkm_state}
 indicates the
 {jjdpr_pace_p}
@@ -837,7 +837,7 @@ or
 {jjdpe_abandoned}.
 
 * [[jjdkm_text]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdkm_text}
 contains the plan specification.
 Non-empty string describing what the
@@ -845,7 +845,7 @@ Non-empty string describing what the
 should accomplish.
 
 * [[jjdkm_silks]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdkm_silks}
 is the
 {jjdpr_pace_p}
@@ -855,7 +855,7 @@ Type:
 Enables rename history; current pace silks is derived from `tacks[0].silks`.
 
 * [[jjdkm_commit]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdkm_commit}
 is the commit SHA at
 {jjdkr_tack}
@@ -865,7 +865,7 @@ Captures repo state when plan was written.
 Value `0000000` indicates commit was unavailable at creation time.
 
 * [[jjdkm_warrant]]
-// ⟦axl_voices axr_member axd_conditional⟧
+//axl_voices axr_member axd_conditional
 {jjdkm_warrant}
 contains execution guidance for autonomous operation.
 Required when
@@ -878,7 +878,7 @@ Describes which agent to dispatch, parallelism strategy, or other execution para
 ==== State Values
 
 [[jjdpe_rough]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {jjdpe_rough}::
 The
 {jjdpr_pace}
@@ -888,7 +888,7 @@ When context is assembled for a
 pace, the model is guided to refine the specification rather than begin execution.
 
 [[jjdpe_bridled]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {jjdpe_bridled}::
 The
 {jjdpr_pace}
@@ -901,14 +901,14 @@ When context is assembled for a
 pace, the model proceeds without human confirmation.
 
 [[jjdpe_complete]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {jjdpe_complete}::
 The
 {jjdpr_pace}
 has been successfully finished.
 
 [[jjdpe_abandoned]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {jjdpe_abandoned}::
 The
 {jjdpr_pace}
@@ -935,7 +935,7 @@ Future states declare their predicate values when added. Query logic uses predic
 === {jjdyr_table}
 
 [[jjdyr_table]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {jjdyr_table}::
 A structured column layout for formatted output.
 Provides single source of truth for headers, widths, and alignment.
@@ -944,18 +944,18 @@ Eliminates magic numbers and strings from output code.
 ==== Members
 
 * [[jjdym_column]]
-// ⟦axl_voices axr_member⟧
+//axl_voices axr_member
 {jjdym_column}
 is a column definition with header, width, and alignment.
 
 * [[jjdym_header]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdym_header}
 is the column header text.
 Single source of truth for display.
 
 * [[jjdym_align]]
-// ⟦axl_voices axr_member axd_required⟧
+//axl_voices axr_member axd_required
 {jjdym_align}
 specifies the column alignment.
 Values:
@@ -966,12 +966,12 @@ or
 ==== Alignment Values
 
 [[jjdye_left]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {jjdye_left}::
 Left-align column content.
 
 [[jjdye_right]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {jjdye_right}::
 Right-align column content.
 
@@ -1017,10 +1017,10 @@ Output always includes the prefix (`₣` or `₢`).
 == Arguments
 
 *Note:* {jjda_file} appears as the first argument on all operations.
-It is annotated `// ⟦axd_optional axd_defaulted⟧` and uses the default value when not explicitly provided.
+It is annotated `//axd_optional axd_defaulted` and uses the default value when not explicitly provided.
 
 [[jjda_file]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_file}::
 Path to the
 {jjdgr_gallops}
@@ -1030,14 +1030,14 @@ Short: none.
 Default: `.claude/jjm/jjg_gallops.json`.
 
 [[jjda_silks]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_silks}::
 Kebab-case display name for the target entity.
 Long: `--silks`.
 Short: `-s`.
 
 [[jjda_state]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_state}::
 Target state for the
 {jjdkr_tack}.
@@ -1050,7 +1050,7 @@ Values:
 {jjdpe_abandoned}.
 
 [[jjda_direction]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_direction}::
 Execution guidance for autonomous operation.
 Long: `--direction`.
@@ -1062,14 +1062,14 @@ is
 forbidden otherwise.
 
 [[jjda_pace]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_pace}::
 Pace silks for context in commit messages.
 Long: `--pace`.
 Short: `-p`.
 
 [[jjda_intent]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_intent}::
 Commit subject provided by opus.
 Long: `--intent`.
@@ -1079,14 +1079,14 @@ If provided, used as commit subject in
 if omitted, falls back to haiku diff description.
 
 [[jjda_created]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_created}::
 Creation date in YYMMDD format.
 Long: `--created`.
 Short: `-c`.
 
 [[jjda_before]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_before}::
 {jjdt_coronet}
 to insert before.
@@ -1098,7 +1098,7 @@ and
 {jjda_first}.
 
 [[jjda_after]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_after}::
 {jjdt_coronet}
 to insert after.
@@ -1110,7 +1110,7 @@ and
 {jjda_first}.
 
 [[jjda_first]]
-// ⟦axl_voices axa_cli_flag⟧
+//axl_voices axa_cli_flag
 {jjda_first}::
 Position at first actionable slot in
 {jjdhm_order}
@@ -1129,7 +1129,7 @@ and
 {jjda_after}.
 
 [[jjda_last]]
-// ⟦axl_voices axa_cli_flag⟧
+//axl_voices axa_cli_flag
 {jjda_last}::
 Move to end of
 {jjdhm_order}.
@@ -1146,7 +1146,7 @@ and
 {jjda_first}.
 
 [[jjda_move]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_move}::
 {jjdt_coronet}
 to relocate within
@@ -1163,7 +1163,7 @@ or
 {jjda_last}.
 
 [[jjda_status]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_status}::
 Filter by
 {jjdhr_heat}
@@ -1176,7 +1176,7 @@ Values:
 {jjdhe_retired}.
 
 [[jjda_to]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_to}::
 Destination
 {jjdt_firemark}
@@ -1188,7 +1188,7 @@ Short: none.
 == Section Headers
 
 [[jjds_arguments]]
-// ⟦axl_voices axa_argument_list⟧
+//axl_voices axa_argument_list
 {jjds_arguments}::
 Section header introducing operation arguments.
 
@@ -1197,12 +1197,12 @@ Section header introducing operation arguments.
 Section header introducing operation standard output.
 
 [[jjds_exit_uniform]]
-// ⟦axl_voices axa_exit_uniform⟧
+//axl_voices axa_exit_uniform
 {jjds_exit_uniform}::
 Section header for operations with standard exit semantics.
 
 [[jjds_exit_enumerated]]
-// ⟦axl_voices axa_exit_enumerated⟧
+//axl_voices axa_exit_enumerated
 {jjds_exit_enumerated}::
 Section header for operations with distinct exit codes.
 
@@ -1213,13 +1213,13 @@ Section header introducing operation behavior steps.
 == CLI
 
 [[jjdx_vvx]]
-// ⟦axl_voices axi_cli_program⟧
+//axl_voices axi_cli_program
 {jjdx_vvx}::
 The Voce Viva executor.
 Local reference to the VVK-defined CLI program that hosts Job Jockey.
 
 [[jjdx_cli]]
-// ⟦axl_voices axi_cli_command_group⟧
+//axl_voices axi_cli_command_group
 {jjdx_cli}::
 The Job Jockey command group within
 {jjdx_vvx}.
@@ -1241,25 +1241,25 @@ Routines are internal reusable procedures invoked by operations.
 They encapsulate common logic for consistent behavior across the codebase.
 
 [[jjdr_load]]
-// ⟦axvo_procedure axd_internal⟧
+//axvo_procedure axd_internal
 === {jjdr_load}
 
 include::JJSRLD-load.adoc[]
 
 [[jjdr_save]]
-// ⟦axvo_procedure axd_internal⟧
+//axvo_procedure axd_internal
 === {jjdr_save}
 
 include::JJSRSV-save.adoc[]
 
 [[jjdr_persist]]
-// ⟦axvo_procedure axd_internal⟧
+//axvo_procedure axd_internal
 === {jjdr_persist}
 
 include::JJSRPS-persist.adoc[]
 
 [[jjdr_wrap]]
-// ⟦axvo_procedure axd_internal⟧
+//axvo_procedure axd_internal
 === {jjdr_wrap}
 
 include::JJSRWP-wrap.adoc[]
@@ -1279,31 +1279,31 @@ Bash handles locking via `git update-ref` and invokes {jjdx_cli} with
 === Write Operations
 
 [[jjdo_create]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_create}
 
 include::JJSCNO-nominate.adoc[]
 
 [[jjdo_enroll]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_enroll}
 
 include::JJSCSL-slate.adoc[]
 
 [[jjdo_reorder]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_reorder}
 
 include::JJSCRL-rail.adoc[]
 
 [[jjdo_relocate]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_relocate}
 
 include::JJSCDR-draft.adoc[]
 
 [[jjdo_revise_docket]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_revise_docket}
 
 Update a {jjdpr_pace_p} docket text.
@@ -1312,7 +1312,7 @@ Carries forward current state and silks.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
 * {jjdt_coronet} (positional) — target {jjdpr_pace}.
@@ -1331,14 +1331,14 @@ Carries forward current state and silks.
 . {jjdr_save}
 
 [[jjdo_arm]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_arm}
 
 Set a {jjdpr_pace_p} state to {jjdpe_bridled} with warrant from stdin.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
 * {jjdt_coronet} (positional) — target {jjdpr_pace}.
@@ -1356,7 +1356,7 @@ Set a {jjdpr_pace_p} state to {jjdpe_bridled} with warrant from stdin.
 . {jjdr_save}
 
 [[jjdo_relabel]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_relabel}
 
 Rename a {jjdpr_pace_p} silks.
@@ -1364,7 +1364,7 @@ Carries forward current docket and state.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
 * {jjdt_coronet} (positional) — target {jjdpr_pace}.
@@ -1381,14 +1381,14 @@ Carries forward current docket and state.
 . {jjdr_save}
 
 [[jjdo_drop]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_drop}
 
 Set a {jjdpr_pace_p} state to {jjdpe_abandoned}.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
 * {jjdt_coronet} (positional) — target {jjdpr_pace}.
@@ -1403,25 +1403,25 @@ Set a {jjdpr_pace_p} state to {jjdpe_abandoned}.
 . {jjdr_save}
 
 [[jjdo_alter]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_alter}
 
 include::JJSCFU-furlough.adoc[]
 
 [[jjdo_continue]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_continue}
 
 include::JJSCGL-garland.adoc[]
 
 [[jjdo_transfer]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_transfer}
 
 include::JJSCRS-restring.adoc[]
 
 [[jjdo_archive]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_archive}
 
 include::JJSCRT-retire.adoc[]
@@ -1429,49 +1429,49 @@ include::JJSCRT-retire.adoc[]
 === Read Operations
 
 [[jjdo_validate]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_validate}
 
 include::JJSCVL-validate.adoc[]
 
 [[jjdo_list]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_list}
 
 include::JJSCMU-muster.adoc[]
 
 [[jjdo_get_brief]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_get_brief}
 
 include::JJSCGS-get-spec.adoc[]
 
 [[jjdo_get_coronets]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_get_coronets}
 
 include::JJSCGC-get-coronets.adoc[]
 
 [[jjdo_landing]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_landing}
 
 include::JJSCLD-landing.adoc[]
 
 [[jjdo_orient]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_orient}
 
 include::JJSCSD-saddle.adoc[]
 
 [[jjdo_search]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_search}
 
 include::JJSCSC-scout.adoc[]
 
 [[jjdo_show]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_show}
 
 include::JJSCPD-parade.adoc[]
@@ -1591,19 +1591,19 @@ Heat-level action codes:
 NOTE: Officium markers migrated to VVC INVITATORY (vvb:...:i:), see VOS0-VoxObscuraSpec.adoc
 
 [[jjdo_log]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_log}
 
 include::JJSCRN-rein.adoc[]
 
 [[jjdo_record]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_record}
 
 include::JJSCNC-notch.adoc[]
 
 [[jjdo_mark]]
-// ⟦axl_voices axi_cli_subcommand⟧
+//axl_voices axi_cli_subcommand
 ==== {jjdo_mark}
 
 include::JJSCCH-chalk.adoc[]

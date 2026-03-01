@@ -4,10 +4,10 @@ Get raw docket text for a
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * `CORONET` — positional, the
 {jjdt_coronet}
 to query

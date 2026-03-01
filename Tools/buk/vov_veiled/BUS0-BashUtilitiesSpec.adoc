@@ -134,7 +134,7 @@ For universal naming vocabulary (Cipher, Signet, Epithet, Inscription, Vesture),
 == Tabtarget Vesture
 
 [[bust_tabtarget]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {bust_tabtarget}::
 Vesture for tabtarget launcher identifiers.
 Defines how launcher scripts in `tt/` are named.
@@ -171,7 +171,7 @@ the
 embeds target parameters.
 
 [[busdc_colophon]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {busdc_colophon}::
 The routing identifier in a tabtarget inscription.
 A
@@ -192,7 +192,7 @@ Examples:
 * `buw-tt-` routes to BUK tabtarget testbench
 
 [[busdf_frontispiece]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {busdf_frontispiece}::
 The human-readable description in a tabtarget inscription.
 A
@@ -206,7 +206,7 @@ and dot separator.
 Examples: `Build`, `ConnectBottle`, `RunVVX`, `HeatMount`.
 
 [[busdi_imprint]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {busdi_imprint}::
 An optional embedded parameter in a tabtarget inscription.
 An
@@ -222,7 +222,7 @@ Examples:
 * `srjcl` in `rbw-B.ConnectBottle.srjcl.sh`
 
 [[busdm_formulary]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {busdm_formulary}::
 A component that routes
 {busdc_colophon_s}
@@ -245,7 +245,7 @@ is sourced by the
 and provides the dispatch function.
 
 [[busdl_launcher]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {busdl_launcher}::
 A bootstrap script in the `tt/` directory that validates arguments and delegates to a
 {busdm_formulary}.
@@ -376,38 +376,38 @@ format (shell variable assignment files that are sourced).
 === Regime Prefixes
 
 [[burc_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {burc_prefix}::
 Bash Utility Configuration Regime
 
 [[burs_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {burs_prefix}::
 Bash Utility Station Regime
 
 [[bure_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {bure_prefix}::
 Bash Utility Environment Regime
 
 === Kit Regime Operations
 
 [[bukro_kindle]]
-// ⟦axvr_kindle⟧
+//axvr_kindle
 {bukro_kindle}::
 Silent initialization of Bash Utility Kit regime state from
 {axrg_assignment_s}.
 Sets defaults, detects unexpected variables, builds derived structures.
 
 [[bukro_validate]]
-// ⟦axvr_validate⟧
+//axvr_validate
 {bukro_validate}::
 Strict field validation for Bash Utility Kit
 {axrg_regime_s}.
 Checks all type and constraint requirements via buv_env_* validators.
 
 [[bukro_render]]
-// ⟦axvr_render⟧
+//axvr_render
 {bukro_render}::
 Diagnostic display of Bash Utility Kit
 {axrg_regime}
@@ -416,91 +416,91 @@ state.
 === BURC Regime
 
 [[burc_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
+//axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {burc_regime}::
 Configuration regime for project-level BUK settings.
 BURC assignment files in `.buk/burc.env` define repository structure and tabtarget infrastructure.
 
 [[burc_station_file]]
-// ⟦axvr_variable axd_required axtu_path⟧
+//axvr_variable axd_required axtu_path
 {burc_station_file}::
 Path to the developer's personal
 {burs_regime}
 assignment file.
 
 [[burc_tabtarget_dir]]
-// ⟦axvr_variable axd_required axtu_path⟧
+//axvr_variable axd_required axtu_path
 {burc_tabtarget_dir}::
 Directory containing
 {busdl_launcher}
 scripts.
 
 [[burc_tabtarget_delimiter]]
-// ⟦axvr_variable axd_required axtu_string⟧
+//axvr_variable axd_required axtu_string
 {burc_tabtarget_delimiter}::
 Single-character token separator in
 {bust_tabtarget}
 inscriptions.
 
 [[burc_tools_dir]]
-// ⟦axvr_variable axd_required axtu_path⟧
+//axvr_variable axd_required axtu_path
 {burc_tools_dir}::
 Directory containing BUK utilities and project tool scripts.
 
 [[burc_project_root]]
-// ⟦axvr_variable axd_required axtu_path⟧
+//axvr_variable axd_required axtu_path
 {burc_project_root}::
 Path from assignment file location to the project root directory.
 
 [[burc_managed_kits]]
-// ⟦axvr_variable axd_required axtu_string⟧
+//axvr_variable axd_required axtu_string
 {burc_managed_kits}::
 Comma-separated list of kits managed by vvx.
 At release time, determines which kits are built into the binary.
 At install time, must exactly match the parcel's kit list.
 
 [[burc_temp_root_dir]]
-// ⟦axvr_variable axd_required axtu_path⟧
+//axvr_variable axd_required axtu_path
 {burc_temp_root_dir}::
 Root directory for BUK temporary files.
 
 [[burc_output_root_dir]]
-// ⟦axvr_variable axd_required axtu_path⟧
+//axvr_variable axd_required axtu_path
 {burc_output_root_dir}::
 Root directory for BUK command output files.
 
 [[burc_log_last]]
-// ⟦axvr_variable axd_required axtu_xname⟧
+//axvr_variable axd_required axtu_xname
 {burc_log_last}::
 Filename stem for the most recent command execution log.
 
 [[burc_log_ext]]
-// ⟦axvr_variable axd_required axtu_xname⟧
+//axvr_variable axd_required axtu_xname
 {burc_log_ext}::
 File extension for log files, without leading dot.
 
 === BURS Regime
 
 [[burs_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
+//axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {burs_regime}::
 Configuration regime for developer-level BUK settings.
 BURS assignment files are personal to each developer and not committed to version control.
 
 [[burs_log_dir]]
-// ⟦axvr_variable axd_required axtu_path⟧
+//axvr_variable axd_required axtu_path
 {burs_log_dir}::
 Directory where this developer stores BUK operation logs.
 
 === BURD Regime
 
 [[burd_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {burd_prefix}::
 Bash Utility Dispatch Runtime
 
 [[burd_regime]]
-// ⟦axvr_regime axf_bash axrd_constructed axrd_singleton⟧
+//axvr_regime axf_bash axrd_constructed axrd_singleton
 {burd_regime}::
 Ephemeral runtime state assembled by bud_dispatch.sh during tabtarget execution.
 Unlike file-sourced regimes, BURD variables are constructed inline — no assignment file exists.
@@ -509,43 +509,43 @@ The dispatch main function IS the kindle: zbud_setup sources configuration and d
 ==== Input Variables
 
 [[burd_group_input]]
-// ⟦axl_voices axhrgb_group⟧
+//axl_voices axhrgb_group
 {burd_group_input}::
 Variables set by the caller before dispatch invocation.
 
 [[burd_regime_file]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+//axl_voices axrg_variable axtu_path
 {burd_regime_file}::
 Path to the BURC regime assignment file to source during setup.
 
 [[burd_no_log]]
-// ⟦axl_voices axrg_variable axtu_string axd_optional⟧
+//axl_voices axrg_variable axtu_string axd_optional
 {burd_no_log}::
 When non-empty, suppresses all log file creation and output.
 
 [[burd_interactive]]
-// ⟦axl_voices axrg_variable axtu_string axd_optional⟧
+//axl_voices axrg_variable axtu_string axd_optional
 {burd_interactive}::
 When non-empty, enables interactive mode with uncurated tee logging.
 
 [[burd_coordinator_script]]
-// ⟦axl_voices axrg_variable axtu_path axd_required⟧
+//axl_voices axrg_variable axtu_path axd_required
 {burd_coordinator_script}::
 Path to the coordinator script (workbench/testbench) that handles the dispatched command.
 
 [[burd_launcher]]
-// ⟦axl_voices axrg_variable axtu_path axd_required⟧
+//axl_voices axrg_variable axtu_path axd_required
 {burd_launcher}::
 Path to the launcher bootstrap script, set by the tabtarget before exec.
 
 [[burd_station_file]]
-// ⟦axl_voices axrg_variable axtu_path axd_required⟧
+//axl_voices axrg_variable axtu_path axd_required
 {burd_station_file}::
 Absolute path to the developer's station regime assignment file.
 Set by the launcher from BURC_STATION_FILE.
 
 [[burd_term_cols]]
-// ⟦axl_voices axrg_variable axtu_integer⟧
+//axl_voices axrg_variable axtu_integer
 {burd_term_cols}::
 Terminal column width at dispatch time.
 Detected from stty if available, defaults to 80.
@@ -553,113 +553,113 @@ Detected from stty if available, defaults to 80.
 ==== Computed Variables
 
 [[burd_group_computed]]
-// ⟦axl_voices axhrgb_group⟧
+//axl_voices axhrgb_group
 {burd_group_computed}::
 Variables derived during dispatch setup.
 
 [[burd_now_stamp]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {burd_now_stamp}::
 Unique timestamp combining date, time, PID, and random component.
 
 [[burd_now_epoch]]
-// ⟦axl_voices axrg_variable axtu_integer⟧
+//axl_voices axrg_variable axtu_integer
 {burd_now_epoch}::
 UTC epoch seconds captured from same `date` invocation as {burd_now_stamp}.
 
 [[burd_temp_dir]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+//axl_voices axrg_variable axtu_path
 {burd_temp_dir}::
 Ephemeral directory for this dispatch invocation.
 
 [[burd_output_dir]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+//axl_voices axrg_variable axtu_path
 {burd_output_dir}::
 Fixed output directory cleared and recreated on each dispatch.
 
 [[burd_transcript]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+//axl_voices axrg_variable axtu_path
 {burd_transcript}::
 Path to the transcript file within the temporary directory.
 
 [[burd_git_context]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {burd_git_context}::
 Git describe output capturing repository state at dispatch time.
 
 [[burd_log_last]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+//axl_voices axrg_variable axtu_path
 {burd_log_last}::
 Path to the "last" log file, overwritten each dispatch.
 
 [[burd_log_same]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+//axl_voices axrg_variable axtu_path
 {burd_log_same}::
 Path to the curated "same" log file for the command+target combination.
 
 [[burd_log_hist]]
-// ⟦axl_voices axrg_variable axtu_path⟧
+//axl_voices axrg_variable axtu_path
 {burd_log_hist}::
 Path to the timestamped historical log file.
 
 ==== Parsed Variables
 
 [[burd_group_parsed]]
-// ⟦axl_voices axhrgb_group⟧
+//axl_voices axhrgb_group
 {burd_group_parsed}::
 Variables extracted from the tabtarget filename during argument processing.
 
 [[burd_command]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {burd_command}::
 Primary command token (first token from tabtarget split).
 
 [[burd_target]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {burd_target}::
 Complete tabtarget string as received by dispatch.
 
 [[burd_cli_args]]
-// ⟦axl_voices axrg_variable axtu_string axd_repeated⟧
+//axl_voices axrg_variable axtu_string axd_repeated
 {burd_cli_args}::
 Array of additional CLI arguments passed after the tabtarget.
 
 [[burd_token_1]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {burd_token_1}::
 Positional token 1 from tabtarget split (the colophon).
 
 [[burd_token_2]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {burd_token_2}::
 Positional token 2 from tabtarget split (the frontispiece).
 
 [[burd_token_3]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {burd_token_3}::
 Positional token 3 from tabtarget split (the imprint, if present).
 
 [[burd_token_4]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {burd_token_4}::
 Positional token 4 from tabtarget split.
 
 [[burd_token_5]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {burd_token_5}::
 Positional token 5 from tabtarget split.
 
 === BURE Regime
 
 [[bure_regime]]
-// ⟦axvr_regime axf_bash axrd_constructed axrd_singleton⟧
+//axvr_regime axf_bash axrd_constructed axrd_singleton
 {bure_regime}::
 Ambient regime for caller-supplied behavioral overrides to BUK primitives.
 Unlike file-sourced regimes, BURE variables are set directly in the caller's environment.
 Kindled and validated when buc_command.sh is sourced.
 
 [[bure_countdown]]
-// ⟦axvr_variable axtu_string axd_optional⟧
+//axvr_variable axtu_string axd_optional
 {bure_countdown}::
 Countdown behavior override.
 When set to `skip`, buc_countdown bypasses interactive countdown and tty output.
@@ -667,13 +667,13 @@ When unset, countdown proceeds normally with interactive tty cancel window.
 Any other value fails validation.
 
 [[bure_verbose]]
-// ⟦axl_voices axrg_variable axtu_integer⟧
+//axl_voices axrg_variable axtu_integer
 {bure_verbose}::
 Verbosity level controlling diagnostic output.
 0=silent, 1=show messages, 2=enable bash trace.
 
 [[bure_color]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {bure_color}::
 Color output policy.
 Input as auto/0/1; resolved to 0 or 1 during dispatch.

@@ -13,20 +13,20 @@ vvx jjx_reorder <FIREMARK> --move <CORONET> [--before <TARGET> | --after <TARGET
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_firemark}
 (positional) — target
 {jjdhr_heat}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_move}
 — {jjdt_coronet}
 to relocate
 
-// ⟦axd_required⟧
+//axd_required
 * Exactly one positioning flag:
 {jjda_before},
 {jjda_after},

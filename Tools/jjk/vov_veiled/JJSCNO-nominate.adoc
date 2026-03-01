@@ -7,13 +7,13 @@ structure.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_silks}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_created}
 
 {jjds_stdout} New

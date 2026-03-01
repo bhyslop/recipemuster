@@ -409,8 +409,8 @@ being voiced
 +
 Examples:
 +
-* `// ⟦axl_voices axc_call⟧` - simple voicing
-* `// ⟦axl_voices axr_member axd_required axd_nullable⟧` - voicing with dimensions
+* `//axl_voices axc_call` - simple voicing
+* `//axl_voices axr_member axd_required axd_nullable` - voicing with dimensions
 +
 Category prefixes carry semantic meaning, eliminating need for punctuation.
 Position determines role: relationship first, primary second, dimensions following.
@@ -463,7 +463,7 @@ During type-scheme linting, these expectations guide validation of definition st
 
 These expectations support the
 {axl_annotation}
-pattern where documents include `// ⟦axl_voices motif ...⟧` markers that are validated when AXL is in context.
+pattern where documents include `//axl_voices motif ...` markers that are validated when AXL is in context.
 
 == Axial Control Terms
 
@@ -814,7 +814,7 @@ Qualified by
 {axd_dimension_s}
 in
 {axl_annotation}:
-`// ⟦axl_voices axr_member axd_required axd_nullable⟧`
+`//axl_voices axr_member axd_required axd_nullable`
 
 == Axial JSON Terms
 
@@ -1001,7 +1001,7 @@ Example section header definition:
 [source,asciidoc]
 ----
 [[jjds_arguments]]
-// ⟦axl_voices axa_argument_list⟧
+//axl_voices axa_argument_list
 {jjds_arguments}::
 Section header introducing operation arguments.
 ----
@@ -1012,10 +1012,10 @@ Example usage in an operation:
 ----
 {jjds_arguments}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_silks}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 ----
 
@@ -1035,7 +1035,7 @@ Example:
 [source,asciidoc]
 ----
 [[jjda_file]]
-// ⟦axl_voices axa_cli_option⟧
+//axl_voices axa_cli_option
 {jjda_file}::
 Path to the Gallops JSON file.
 Long: `--file`.
@@ -1062,7 +1062,7 @@ Example section header definition:
 [source,asciidoc]
 ----
 [[jjds_exit_uniform]]
-// ⟦axl_voices axa_exit_uniform⟧
+//axl_voices axa_exit_uniform
 {jjds_exit_uniform}::
 Section header for operations with standard exit semantics.
 ----
@@ -1092,7 +1092,7 @@ Example section header definition:
 [source,asciidoc]
 ----
 [[jjds_exit_enumerated]]
-// ⟦axl_voices axa_exit_enumerated⟧
+//axl_voices axa_exit_enumerated
 {jjds_exit_enumerated}::
 Section header for operations with distinct exit codes.
 ----
@@ -1292,7 +1292,7 @@ A characteristic modifier that qualifies a member or argument in an
 {axd_dimension_s}
 appear after the primary
 {axl_motif}
-in annotation format: `// ⟦axl_voices primary dimension ...⟧`
+in annotation format: `//axl_voices primary dimension ...`
 
 === Value Dimensions
 

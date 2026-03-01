@@ -5,7 +5,7 @@ Returns structured data suitable for officium markers or diagnostics.
 
 {voss_inputs}
 
-// ⟦axd_none⟧
+//axd_none
 None.
 
 {voss_behavior}

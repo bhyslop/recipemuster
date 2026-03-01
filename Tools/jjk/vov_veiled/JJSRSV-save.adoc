@@ -9,12 +9,12 @@ Validates output by loading it back before finalizing.
 
 {jjds_arguments}
 
-// ⟦axd_required⟧
+//axd_required
 *
 {jjdgr_gallops}
 (in-memory structure to persist)
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_file}
 
 {jjds_behavior}

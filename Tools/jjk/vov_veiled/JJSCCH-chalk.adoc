@@ -2,13 +2,13 @@ Create an empty commit marking a steeplechase event.
 
 {jjds_arguments}
 
-// ⟦axd_required⟧
+//axd_required
 * identity (positional) — {jjdt_coronet} for pace-level, {jjdt_firemark} for heat-level discussion
 
-// ⟦axd_required⟧
+//axd_required
 * `--marker` — marker type: `A`, `W`, `F`, or `d` (single letter codes)
 
-// ⟦axd_required⟧
+//axd_required
 * `--description` — marker description text
 
 {jjds_stdout} Commit hash

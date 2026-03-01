@@ -75,7 +75,7 @@ For tabtarget dispatch vocabulary (Colophon, Frontispiece, Imprint, Formulary, L
 == Core Liturgy Terms
 
 [[voslc_cipher]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {voslc_cipher}::
 A 2-5 character project root that seeds the namespace.
 The
@@ -91,7 +91,7 @@ Single source of truth: `Tools/vok/vof/src/vofc_registry.rs`
 See <<cipher_registry>> for declaration pattern and the complete list.
 
 [[vosls_signet]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {vosls_signet}::
 The complete prefix before the separator in an
 {vosli_inscription}.
@@ -117,7 +117,7 @@ using either an
 (epithet-initial binding).
 
 [[vosln_ensign]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {vosln_ensign}::
 A
 {vosls_signet}
@@ -137,7 +137,7 @@ enable hierarchical categorization within a
 namespace.
 
 [[voslm_monogram]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {voslm_monogram}::
 A
 {vosls_signet}
@@ -159,7 +159,7 @@ Examples:
 create tight signet-epithet binding but limit each terminal letter to one artifact.
 
 [[vosle_epithet]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {vosle_epithet}::
 The descriptive word after the separator in an
 {vosli_inscription}.
@@ -170,7 +170,7 @@ provides machine-parseable identity.
 Examples: `cipher` in `voslc_cipher`, `heat` in `jjc-heat-mount`.
 
 [[vosli_inscription]]
-// ⟦axl_voices axt_string⟧
+//axl_voices axt_string
 {vosli_inscription}::
 The full artifact name combining
 {vosls_signet},
@@ -188,7 +188,7 @@ Domain
 may specify additional completion rules (see individual domain definitions).
 
 [[voslv_vesture]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {voslv_vesture}::
 Domain-specific construction rules for
 {vosli_inscription_s}.
@@ -204,7 +204,7 @@ is like clothing for a domain — it dresses the abstract naming concepts in dom
 == Liturgy Domains
 
 [[vosldr_rust]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosldr_rust}::
 {voslv_vesture}
 for Rust source identifiers.
@@ -215,7 +215,7 @@ for Rust source identifiers.
 * envelope: none
 
 [[vosldb_bash]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosldb_bash}::
 {voslv_vesture}
 for Bash source identifiers.
@@ -226,7 +226,7 @@ for Bash source identifiers.
 * envelope: `.sh` for files
 
 [[voslda_asciidoc]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {voslda_asciidoc}::
 {voslv_vesture}
 for AsciiDoc attribute identifiers.
@@ -237,7 +237,7 @@ for AsciiDoc attribute identifiers.
 * envelope: none (attributes), `[[` `]]` for anchors
 
 [[vosldp_publication]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosldp_publication}::
 {voslv_vesture}
 for publication and specification files.
@@ -248,7 +248,7 @@ for publication and specification files.
 * envelope: `.adoc`, `.md`
 
 [[vosldg_git]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {vosldg_git}::
 {voslv_vesture}
 for git refs.
@@ -259,7 +259,7 @@ for git refs.
 * envelope: none
 
 [[voslds_slash]]
-// ⟦axl_voices axo_entity⟧
+//axl_voices axo_entity
 {voslds_slash}::
 {voslv_vesture}
 for slash command identifiers.

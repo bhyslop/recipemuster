@@ -4,7 +4,7 @@ Called as the first action in main(), before argument parsing.
 
 {voss_inputs}
 
-// ⟦axd_none⟧
+//axd_none
 None.
 
 {voss_behavior}

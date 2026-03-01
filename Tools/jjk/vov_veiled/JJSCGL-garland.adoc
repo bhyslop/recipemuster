@@ -30,10 +30,10 @@ remain with the garlanded source.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_firemark}
 (positional) —
 {jjdhr_heat}

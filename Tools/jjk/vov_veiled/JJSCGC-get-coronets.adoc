@@ -7,22 +7,22 @@ in order, one per line.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * `FIREMARK` — positional, the
 {jjdt_firemark}
 to query
 
-// ⟦axd_optional⟧
+//axd_optional
 * `--remaining` — Exclude
 {jjdpe_complete}
 and
 {jjdpe_abandoned}
 paces
 
-// ⟦axd_optional⟧
+//axd_optional
 * `--rough` — Include only
 {jjdpe_rough}
 paces

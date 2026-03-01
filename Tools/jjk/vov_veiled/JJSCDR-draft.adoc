@@ -32,33 +32,33 @@ state is preserved through the move.
 
 {jjds_arguments}
 
-// ⟦axd_optional axd_defaulted⟧
+//axd_optional axd_defaulted
 * {jjda_file}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_coronet}
 (positional) —
 {jjdpr_pace}
 to move
 
-// ⟦axd_required⟧
+//axd_required
 * {jjda_to}
 — destination
 {jjdt_firemark}
 
-// ⟦axd_optional⟧
+//axd_optional
 * {jjda_before}
 — insert before specified
 {jjdt_coronet}
 in destination
 
-// ⟦axd_optional⟧
+//axd_optional
 * {jjda_after}
 — insert after specified
 {jjdt_coronet}
 in destination
 
-// ⟦axd_optional⟧
+//axd_optional
 * {jjda_first}
 — insert at beginning of destination
 {jjdhm_order}

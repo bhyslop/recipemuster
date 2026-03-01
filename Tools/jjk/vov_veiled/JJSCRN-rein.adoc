@@ -3,12 +3,12 @@ Parse git history for steeplechase entries belonging to a
 
 {jjds_arguments}
 
-// ⟦axd_required⟧
+//axd_required
 * {jjdt_firemark}
 (positional) — target
 {jjdhr_heat}
 
-// ⟦axd_optional⟧
+//axd_optional
 * `--limit` — maximum entries to return (default: 50)
 
 {jjds_stdout} Column-aligned plain text table of steeplechase entries (newest first):

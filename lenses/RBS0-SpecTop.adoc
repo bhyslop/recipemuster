@@ -705,56 +705,56 @@ for the manual Console procedure to review build capacity settings.
 == Operation Groups
 
 [[rbtgog_payor]]
-// ⟦axvo_group axd_tabtarget⟧
+//axvo_group axd_tabtarget
 {rbtgog_payor}::
 Operations managing
 {rbtr_payor}
 lifecycle: credential establishment, payor installation, and OAuth refresh.
 
 [[rbtgog_depot]]
-// ⟦axvo_group axd_tabtarget⟧
+//axvo_group axd_tabtarget
 {rbtgog_depot}::
 Operations on
 {rbtgi_depot}
 infrastructure: project creation, initialization, destruction, listing, and quota management.
 
 [[rbtgog_governor]]
-// ⟦axvo_group axd_tabtarget⟧
+//axvo_group axd_tabtarget
 {rbtgog_governor}::
 Operations by
 {rbtr_governor}
 role: configuration reset and subordinate service account creation.
 
 [[rbtgog_rubric]]
-// ⟦axvo_group axd_tabtarget⟧
+//axvo_group axd_tabtarget
 {rbtgog_rubric}::
 Operations on
 {rbtgr_rubric}
 lifecycle: vessel inscription and triggered builds.
 
 [[rbtgog_image]]
-// ⟦axvo_group axd_tabtarget⟧
+//axvo_group axd_tabtarget
 {rbtgog_image}::
 Operations on
 {rbtgi_image}
 artifacts: listing, deletion, and retrieval.
 
 [[rbtgog_ark]]
-// ⟦axvo_group axd_tabtarget⟧
+//axvo_group axd_tabtarget
 {rbtgog_ark}::
 Operations on
 {rbtga_ark}
 units: abjuration, beseeching, conjuring, and summoning.
 
 [[rbtgog_sa]]
-// ⟦axvo_group axd_tabtarget⟧
+//axvo_group axd_tabtarget
 {rbtgog_sa}::
 Operations on
 {giam_service_account}
 resources: listing and deletion across roles.
 
 [[rbtgog_access]]
-// ⟦axvo_group axd_tabtarget⟧
+//axvo_group axd_tabtarget
 {rbtgog_access}::
 Diagnostic operations verifying
 {rbtr_role}
@@ -763,7 +763,7 @@ authentication and registry access via OAuth and JWT probes.
 == {rbtr_payor} Operations
 
 [[rbtgo_payor_establish]]
-// ⟦axvo_method axd_transient axd_attended axd_grouped⟧
+//axvo_method axd_transient axd_attended axd_grouped
 === {rbtgo_payor_establish}
 
 Establishes
@@ -774,7 +774,7 @@ credentials and project configuration
 include::RBSPE-payor_establish.adoc[]
 
 [[rbtgo_payor_install]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_payor_install}
 
 Completes
@@ -786,7 +786,7 @@ by performing authorization flow, storing credentials, and validating payor proj
 include::RBSPI-payor_install.adoc[]
 
 [[rbtgo_payor_refresh]]
-// ⟦axvo_method axd_transient axd_attended axd_grouped⟧
+//axvo_method axd_transient axd_attended axd_grouped
 === {rbtgo_payor_refresh}
 
 Refreshes
@@ -797,7 +797,7 @@ OAuth credentials
 include::RBSPR-payor_refresh.adoc[]
 
 [[rbtgo_access_oauth_probe]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_access_oauth_probe}
 
 Probes
@@ -809,7 +809,7 @@ by refreshing the stored OAuth token and calling the Cloud Resource Manager proj
 include::RBSAO-access_oauth_probe.adoc[]
 
 [[rbtgo_depot_create]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_depot_create}
 
 Creates
@@ -823,7 +823,7 @@ service account.
 include::RBSDC-depot_create.adoc[]
 
 [[rbtgo_depot_initialize]]
-// ⟦axvo_method axd_transient axd_attended axd_grouped⟧
+//axvo_method axd_transient axd_attended axd_grouped
 === {rbtgo_depot_initialize}
 
 Completes one-time
@@ -841,7 +841,7 @@ through Developer Connect GitHub OAuth authorization.
 include::RBSDN-depot_initialize.adoc[]
 
 [[rbtgo_depot_destroy]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_depot_destroy}
 
 Destroys
@@ -852,7 +852,7 @@ infrastructure
 include::RBSDD-depot_destroy.adoc[]
 
 [[rbtgo_depot_list]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_depot_list}
 
 Lists
@@ -863,7 +863,7 @@ instances
 include::RBSDL-depot_list.adoc[]
 
 [[rbtgo_quota_build]]
-// ⟦axvo_method axd_transient axd_attended axd_grouped⟧
+//axvo_method axd_transient axd_attended axd_grouped
 === {rbtgo_quota_build}
 
 Reviews
@@ -875,7 +875,7 @@ to enable the desired level of parallel build execution.
 include::RBSQB-quota_build.adoc[]
 
 [[rbtgo_governor_reset]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_governor_reset}
 
 Resets
@@ -888,7 +888,7 @@ include::RBSGR-governor_reset.adoc[]
 == {rbtr_governor} Operations
 
 [[rbtgo_retriever_create]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_retriever_create}
 
 Creates a
@@ -899,7 +899,7 @@ service account
 include::RBSRC-retriever_create.adoc[]
 
 [[rbtgo_director_create]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_director_create}
 
 Creates a
@@ -912,7 +912,7 @@ include::RBSDI-director_create.adoc[]
 == {rbtr_director} Operations
 
 [[rbtgo_gdc_establish]]
-// ⟦axvo_method axd_transient axd_attended axd_grouped⟧
+//axvo_method axd_transient axd_attended axd_grouped
 === {rbtgo_gdc_establish}
 
 Legacy
@@ -927,7 +927,7 @@ OAuth authorization is guided by
 include::RBSGD-gdc_establish.adoc[]
 
 [[rbtgo_rubric_inscribe]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_rubric_inscribe}
 
 The batch-all-vessels
@@ -947,7 +947,7 @@ resources exist.
 include::RBSRI-rubric_inscribe.adoc[]
 
 [[rbtgo_trigger_build]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_trigger_build}
 
 Dispatches a
@@ -965,7 +965,7 @@ include::RBSTB-trigger_build.adoc[]
 NOTE: For multi-platform build authentication challenges and research findings, see link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
 
 [[rbtgo_image_list]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_image_list}
 
 Lists
@@ -976,7 +976,7 @@ artifacts
 include::RBSIL-image_list.adoc[]
 
 [[rbtgo_image_delete]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_image_delete}
 
 Deletes
@@ -987,7 +987,7 @@ artifacts
 include::RBSID-image_delete.adoc[]
 
 [[rbtgo_ark_abjure]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_ark_abjure}
 
 Formally renounces an
@@ -999,7 +999,7 @@ removing both its image and about artifacts as a coherent unit.
 include::RBSAA-ark_abjure.adoc[]
 
 [[rbtgo_ark_beseech]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_ark_beseech}
 
 Petitions the registry to reveal
@@ -1011,7 +1011,7 @@ correlating artifact pairs by shared consecration timestamp.
 include::RBSAB-ark_beseech.adoc[]
 
 [[rbtgo_ark_conjure]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_ark_conjure}
 
 Conjures an
@@ -1025,7 +1025,7 @@ include::RBSAC-ark_conjure.adoc[]
 == {rbtr_retriever} Operations
 
 [[rbtgo_image_retrieve]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_image_retrieve}
 
 Retrieves
@@ -1036,7 +1036,7 @@ artifacts
 include::RBSIR-image_retrieve.adoc[]
 
 [[rbtgo_ark_summon]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_ark_summon}
 
 Summons an
@@ -1050,7 +1050,7 @@ include::RBSAS-ark_summon.adoc[]
 == Multi Role Operations
 
 [[rbtgo_sa_list]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_sa_list}
 
 Lists
@@ -1061,7 +1061,7 @@ resources
 include::RBSSL-sa_list.adoc[]
 
 [[rbtgo_sa_delete]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_sa_delete}
 
 Deletes
@@ -1072,7 +1072,7 @@ resources
 include::RBSSD-sa_delete.adoc[]
 
 [[rbtgo_access_jwt_probe]]
-// ⟦axvo_method axd_transient axd_grouped⟧
+//axvo_method axd_transient axd_grouped
 === {rbtgo_access_jwt_probe}
 
 Probes
@@ -1086,7 +1086,7 @@ include::RBSAJ-access_jwt_probe.adoc[]
 == Local Operations
 
 [[opss_sentry_start]]
-// ⟦axvo_procedure axd_transient⟧
+//axvo_procedure axd_transient
 === {opss_sentry_start}
 
 The precisely ordered sequence of steps needed to start a
@@ -1097,25 +1097,25 @@ that enforces network policy for a new
 include::RBSSS-sentry_start.adoc[]
 
 [[mkr_network_create]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 === {mkr_network_create}
 
 include::RBSNC-network_create.adoc[]
 
 [[mkr_sentry_run]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 === {mkr_sentry_run}
 
 include::RBSSR-sentry_run.adoc[]
 
 [[mkr_network_connect]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 === {mkr_network_connect}
 
 include::RBSNX-network_connect.adoc[]
 
 [[opbs_bottle_start]]
-// ⟦axvo_procedure axd_transient⟧
+//axvo_procedure axd_transient
 === {opbs_bottle_start}
 
 Establishes a new
@@ -1125,19 +1125,19 @@ through controlled container instantiation and configuration.
 include::RBSBS-bottle_start.adoc[]
 
 [[mkr_bottle_cleanup]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 === {mkr_bottle_cleanup}
 
 include::RBSBK-bottle_cleanup.adoc[]
 
 [[mkr_bottle_launch]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 === {mkr_bottle_launch}
 
 include::RBSBL-bottle_launch.adoc[]
 
 [[opbr_bottle_run]]
-// ⟦axvo_procedure axd_transient⟧
+//axvo_procedure axd_transient
 === {opbr_bottle_run}
 
 Creates and executes a new
@@ -1147,13 +1147,13 @@ instance through controlled container instantiation and command execution.
 include::RBSBR-bottle_run.adoc[]
 
 [[mkr_bottle_create]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 === {mkr_bottle_create}
 
 include::RBSBC-bottle_create.adoc[]
 
 [[mkr_command_exec]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 === {mkr_command_exec}
 
 include::RBSCE-command_exec.adoc[]
@@ -1163,7 +1163,7 @@ include::RBSCE-command_exec.adoc[]
 include::RBSPV-PodmanVmSupplyChain.adoc[]
 
 [[mkc_interface_check]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 ==== {mkc_interface_check}
 
 A utility that verifies network interface presence and configuration within a container context:
@@ -1197,7 +1197,7 @@ infrastructure.
 === RB Role Infrastructure
 
 [[rbtr_role]]
-// ⟦axl_voices axo_identity⟧
+//axl_voices axo_identity
 {rbtr_role}::
 An operational identity within the
 {at_recipe_bottle}
@@ -1218,7 +1218,7 @@ which operates exclusively within cloud infrastructure.
 === {giam_service_account} Definitions
 
 [[rbtr_payor]]
-// ⟦axl_voices axo_actor⟧
+//axl_voices axo_actor
 {rbtr_payor}::
 An
 {rbtr_role}
@@ -1230,7 +1230,7 @@ The
 operates through OAuth 2.0 desktop application flow, enabling individual developers to manage Recipe Bottle infrastructure without requiring organization-level permissions.
 
 [[rbtr_governor]]
-// ⟦axl_voices axo_actor⟧
+//axl_voices axo_actor
 {rbtr_governor}::
 An
 {rbtr_role}
@@ -1240,7 +1240,7 @@ that grants an
 -scope Owner permissions without billing authority, designed for automation-friendly operations.
 
 [[rbtr_retriever]]
-// ⟦axl_voices axo_actor⟧
+//axl_voices axo_actor
 {rbtr_retriever}::
 An
 {rbtr_role}
@@ -1252,7 +1252,7 @@ for pulling
 {rbtgi_image_s}.
 
 [[rbtr_mason]]
-// ⟦axl_voices axo_actor⟧
+//axl_voices axo_actor
 {rbtr_mason}::
 A cloud-native
 {giam_service_account}
@@ -1284,7 +1284,7 @@ without requiring a local
 since it operates entirely within the cloud infrastructure.
 
 [[rbtr_director]]
-// ⟦axl_voices axo_actor⟧
+//axl_voices axo_actor
 {rbtr_director}::
 An
 {rbtr_role}
@@ -1297,7 +1297,7 @@ management.
 === {gcp_service} Definitions
 
 [[rbtgi_depot_project]]
-// ⟦axl_voices axig_project⟧
+//axl_voices axig_project
 {rbtgi_depot_project}::
 The dedicated
 {gcp_service}
@@ -1321,7 +1321,7 @@ and destroyed as a unit by
 {rbtgo_depot_destroy}.
 
 [[rbtgi_payor_project]]
-// ⟦axl_voices axig_project⟧
+//axl_voices axig_project
 {rbtgi_payor_project}::
 The administrative
 {gcp_service}
@@ -1336,7 +1336,7 @@ instances.
 
 
 [[rbtgi_build_bucket]]
-// ⟦axl_voices axig_bucket⟧
+//axl_voices axig_bucket
 {rbtgi_build_bucket}::
 The dedicated
 {gcs_bucket}
@@ -1349,7 +1349,7 @@ build artifacts with configured lifecycle policies.
 === {gar_service} Definitions
 
 [[rbtgi_repository]]
-// ⟦axl_voices axig_artifact_repository⟧
+//axl_voices axig_artifact_repository
 {rbtgi_repository}::
 The managed
 {gar_service}
@@ -1361,7 +1361,7 @@ that stores
 and metadata.
 
 [[rbtgi_image]]
-// ⟦axl_voices axig_container_image⟧
+//axl_voices axig_container_image
 {rbtgi_image}::
 A
 {at_recipe_bottle}
@@ -1370,7 +1370,7 @@ container image stored in the
 with associated tags and digest.
 
 [[rbtgi_metadata]]
-// ⟦axl_voices axig_generic_artifact⟧
+//axl_voices axig_generic_artifact
 {rbtgi_metadata}::
 A compressed archive containing
 {at_recipe_bottle}
@@ -1381,7 +1381,7 @@ as a Generic Artifact.
 === Ark Definitions
 
 [[rbtga_ark]]
-// ⟦axl_voices axig_artifact_group⟧
+//axl_voices axig_artifact_group
 {rbtga_ark}::
 The coherent unit of a
 {at_recipe_bottle}
@@ -1401,7 +1401,7 @@ and abjured atomically by
 {rbtgo_ark_abjure}.
 
 [[rbtga_consecration]]
-// ⟦axl_voices axtg_timestamp⟧
+//axl_voices axtg_timestamp
 {rbtga_consecration}::
 The dual-timestamp identifier marking when a vessel was consecrated into an
 {rbtga_ark}.
@@ -1418,7 +1418,7 @@ Hyphen delimits major concepts; underscore separates date from time within each 
 Combined with vessel to form complete artifact tags: `«VESSEL»:«CONSECRATION»-image` and `«VESSEL»:«CONSECRATION»-about`.
 
 [[rbtga_ark_image]]
-// ⟦axl_voices axig_container_image⟧
+//axl_voices axig_container_image
 {rbtga_ark_image}::
 The container image artifact within an
 {rbtga_ark},
@@ -1427,7 +1427,7 @@ Contains the executable container layers built by
 {gcb_service}.
 
 [[rbtga_ark_about]]
-// ⟦axl_voices axig_generic_artifact⟧
+//axl_voices axig_generic_artifact
 {rbtga_ark_about}::
 The metadata artifact within an
 {rbtga_ark},
@@ -1440,7 +1440,7 @@ is generated separately by Google as a signed attestation on the built image.
 === Rubric Definitions
 
 [[rbtgr_rubric]]
-// ⟦axl_voices axig_build_config axig_build_trigger⟧
+//axl_voices axig_build_config axig_build_trigger
 {rbtgr_rubric}::
 The composite per-vessel build definition comprising a committed
 {rbtgr_build_json},
@@ -1452,21 +1452,21 @@ Created and maintained by
 {rbtgo_rubric_inscribe}.
 
 [[rbtgr_build_json]]
-// ⟦axl_voices axig_build_config⟧
+//axl_voices axig_build_config
 {rbtgr_build_json}::
 The committed `cloudbuild.json` file for a vessel, generated from step scripts and regime pins by the stitch function.
 All values baked at inscribe time — zero custom substitution overrides at dispatch.
 See <<rbscj_trade_study>>.
 
 [[rbtgr_vessel_trigger]]
-// ⟦axl_voices axig_build_trigger⟧
+//axl_voices axig_build_trigger
 {rbtgr_vessel_trigger}::
 The per-vessel Cloud Build trigger resource in GCP.
 Dispatches builds via `triggers.run` when invoked by
 {rbtgo_trigger_build}.
 
 [[rbtgr_rubric_repo]]
-// ⟦axl_voices axig_repo_link⟧
+//axl_voices axig_repo_link
 {rbtgr_rubric_repo}::
 Single shared git repository containing per-vessel directories, each with build material
 (cloudbuild.json, Dockerfile, build context).
@@ -1478,7 +1478,7 @@ Managed by
 {rbtgo_rubric_inscribe}.
 
 [[rbtgr_vessel_dir]]
-// ⟦axl_voices axig_repo_link⟧
+//axl_voices axig_repo_link
 {rbtgr_vessel_dir}::
 The per-vessel directory within
 {rbtgr_rubric_repo}
@@ -1487,7 +1487,7 @@ Managed by
 {rbtgo_rubric_inscribe}.
 
 [[rbtgr_provenance]]
-// ⟦axl_voices axig_slsa_provenance⟧
+//axl_voices axig_slsa_provenance
 {rbtgr_provenance}::
 SLSA v1.0 build provenance attestation auto-generated by Google for trigger-invoked builds.
 Records build inputs, environment, and outputs as a cryptographically signed attestation on the built image.
@@ -1495,7 +1495,7 @@ Records build inputs, environment, and outputs as a cryptographically signed att
 === Developer Connect Definitions
 
 [[rbtgi_source_connection]]
-// ⟦axl_voices axig_developer_connect⟧
+//axl_voices axig_developer_connect
 {rbtgi_source_connection}::
 The Developer Connect connection providing an OAuth-authenticated bridge from GCP to a GitHub organization.
 One per project. Created automatically by
@@ -1504,7 +1504,7 @@ in PENDING state, then activated via
 {rbtgo_depot_initialize}.
 
 [[rbtgi_source_link]]
-// ⟦axl_voices axig_repo_link⟧
+//axl_voices axig_repo_link
 {rbtgi_source_link}::
 A git repository link within the
 {rbtgi_source_connection},
@@ -1516,7 +1516,7 @@ Created programmatically by
 === Support Infrastructure Definitions
 
 [[giam_binding]]
-// ⟦axl_voices axig_binding⟧
+//axl_voices axig_binding
 {giam_binding}::
 An association between a
 {giam_service_account}
@@ -1530,7 +1530,7 @@ keys for API authentication.
 
 
 [[rbtgi_rbra_file]]
-// ⟦axl_voices axig_service_account_key⟧
+//axl_voices axig_service_account_key
 {rbtgi_rbra_file}::
 A bash-sourceable environment file containing Google
 {giam_service_account}
@@ -1545,7 +1545,7 @@ Loaded via
 with validation of all required fields.
 
 [[rbtgi_json_key_file]]
-// ⟦axl_voices axig_service_account_key⟧
+//axl_voices axig_service_account_key
 {rbtgi_json_key_file}::
 A Google
 {giam_service_account}
@@ -1554,14 +1554,14 @@ JSON key file in its native format as downloaded from the Google Cloud Console, 
 === {gcp_service} Core Definitions
 
 [[gcp_organization]]
-// ⟦axl_voices axig_organization⟧
+//axl_voices axig_organization
 {gcp_organization}::
 The top-level administrative entity in
 {gcp_service}
 that contains projects and folders.
 
 [[gcp_folder]]
-// ⟦axl_voices axig_folder⟧
+//axl_voices axig_folder
 {gcp_folder}::
 An organizational unit within a
 {gcp_organization}
@@ -1570,14 +1570,14 @@ that groups
 for management purposes.
 
 [[gcp_project_number]]
-// ⟦axl_voices axtg_project_number⟧
+//axl_voices axtg_project_number
 {gcp_project_number}::
 A globally unique numeric identifier automatically assigned to every
 {gcp_service}
 {gcp_project_id}.
 
 [[gcp_project_id]]
-// ⟦axl_voices axtg_project_id⟧
+//axl_voices axtg_project_id
 {gcp_project_id}::
 A globally unique string identifier chosen during
 {gcp_project_id}
@@ -1586,14 +1586,14 @@ creation that serves as the
 's primary reference.
 
 [[gcp_lro]]
-// ⟦axl_voices axig_lro⟧
+//axl_voices axig_lro
 {gcp_lro}::
 A Long Running Operation, an asynchronous operation in
 {gcp_service}
 that returns immediately but continues processing in the background.
 
 [[gcp_delete_requested]]
-// ⟦axl_voices axig_project_state⟧
+//axl_voices axig_project_state
 {gcp_delete_requested}::
 A
 {gcp_project_id}
@@ -1602,7 +1602,7 @@ lifecycle state indicating deletion has been initiated but the
 remains recoverable for 30 days.
 
 [[gcp_billing_enabled]]
-// ⟦axl_voices axig_project_state⟧
+//axl_voices axig_project_state
 {gcp_billing_enabled}::
 A
 {gcp_project_id}
@@ -1613,26 +1613,26 @@ can incur charges.
 === Google Service Definitions
 
 [[gar_registry]]
-// ⟦axl_voices axig_artifact_registry⟧
+//axl_voices axig_artifact_registry
 {gar_registry}::
 Google's managed service for storing and managing container images and other software artifacts.
 
 [[gcs_bucket]]
-// ⟦axl_voices axig_bucket⟧
+//axl_voices axig_bucket
 {gcs_bucket}::
 A container for storing objects in
 {gcs_service}
 with configurable access controls and lifecycle policies.
 
 [[gcb_build]]
-// ⟦axl_voices axig_build⟧
+//axl_voices axig_build
 {gcb_build}::
 An execution instance of
 {gcb_service}
 that processes build instructions to create artifacts.
 
 [[giam_role]]
-// ⟦axl_voices axig_role⟧
+//axl_voices axig_role
 {giam_role}::
 A collection of permissions that can be granted to users,
 {giam_service_account_s},
@@ -1640,14 +1640,14 @@ or groups in
 {gcp_service}.
 
 [[gcp_lien]]
-// ⟦axl_voices axig_lien⟧
+//axl_voices axig_lien
 {gcp_lien}::
 A restriction placed on a
 {gcp_service}
 resource to prevent accidental deletion or modification.
 
 [[giam_service_account]]
-// ⟦axl_voices axig_service_account⟧
+//axl_voices axig_service_account
 {giam_service_account}::
 A
 {gcp_service}
@@ -1662,12 +1662,12 @@ The complete
 system enabling secure container management.
 
 [[at_bottle_image]]
-// ⟦axl_voices axig_container_image⟧
+//axl_voices axig_container_image
 {at_bottle_image}::
 A container image built or replicated through the Google build infrastructure.
 
 [[rbtr_consumer]]
-// ⟦axl_voices axo_actor⟧
+//axl_voices axo_actor
 {rbtr_consumer}::
 An
 {rbtr_role}
@@ -1682,7 +1682,7 @@ The
 interacts with bottle and sentry containers to accomplish work, distinct from roles that build and deploy the system.
 
 [[at_operator]]
-// ⟦axl_voices axo_actor⟧
+//axl_voices axo_actor
 {at_operator}::
 An individual who maintains a local installation of the
 {at_recipe_bottle}
@@ -1702,7 +1702,7 @@ execute
 commands.
 
 [[at_base_utilities]]
-// ⟦axl_voices axo_dependency⟧
+//axl_voices axo_dependency
 {at_base_utilities}::
 The minimal set of command-line tools
 (`bash`, `git`, `curl`, `openssh`, `jq`)
@@ -1985,37 +1985,37 @@ A network node that serves as the entry point between two networks.
 == Configuration Regimes
 
 [[rbrr_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {rbrr_prefix}::
 Recipe Bottle Repository Regime
 
 [[rbrp_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {rbrp_prefix}::
 Recipe Bottle Payor Regime
 
 [[rbro_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {rbro_prefix}::
 Recipe Bottle OAuth Regime
 
 [[rbrv_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {rbrv_prefix}::
 Recipe Bottle Vessel Regime
 
 [[rbra_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {rbra_prefix}::
 Recipe Bottle Authentication Regime
 
 [[rbrn_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {rbrn_prefix}::
 Recipe Bottle Nameplate Regime
 
 [[rbrs_prefix]]
-// ⟦axl_voices axrg_prefix⟧
+//axl_voices axrg_prefix
 {rbrs_prefix}::
 Recipe Bottle Station Regime
 
@@ -2031,14 +2031,14 @@ This specification documents only the subset of RBRR variables relevant to
 operations.
 
 [[rbrr_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
+//axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {rbrr_regime}::
 Repository-wide configuration and installation-wide settings shared across all
 {at_recipe_bottle}
 operations.
 
 [[rbrr_depot_project_id]]
-// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_project_id⟧
+//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_project_id
 {rbrr_depot_project_id}::
 {gcp_service}
 {gcp_project_id}
@@ -2047,7 +2047,7 @@ where all
 resources are created and managed.
 
 [[rbrr_gcp_region]]
-// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_region⟧
+//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_region
 {rbrr_gcp_region}::
 Default
 {gcp_service}
@@ -2057,7 +2057,7 @@ and
 {gcb_service}.
 
 [[rbrr_gar_repository]]
-// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_project_id⟧
+//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_project_id
 {rbrr_gar_repository}::
 {gar_service}
 {rbtgi_repository}
@@ -2069,13 +2069,13 @@ and
 {rbtgi_metadata_s}.
 
 [[rbrr_secrets_dir]]
-// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path⟧
+//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path
 {rbrr_secrets_dir}::
 Directory containing service account credential files for all operational roles.
 Validated to exist before credential file paths are derived.
 
 [[rbrr_retriever_rbra_file]]
-// ⟦axl_voices axrd_constructed axtu_path⟧
+//axl_voices axrd_constructed axtu_path
 {rbrr_retriever_rbra_file}::
 Path to the
 {rbtr_retriever}
@@ -2086,7 +2086,7 @@ Derived from
 as `rbra-retriever.env`.
 
 [[rbrr_director_rbra_file]]
-// ⟦axl_voices axrd_constructed axtu_path⟧
+//axl_voices axrd_constructed axtu_path
 {rbrr_director_rbra_file}::
 Path to the
 {rbtr_director}
@@ -2097,7 +2097,7 @@ Derived from
 as `rbra-director.env`.
 
 [[rbrr_governor_rbra_file]]
-// ⟦axl_voices axrd_constructed axtu_path⟧
+//axl_voices axrd_constructed axtu_path
 {rbrr_governor_rbra_file}::
 Path to the
 {rbtr_governor}
@@ -2110,7 +2110,7 @@ Derived from
 as `rbra-governor.env`.
 
 [[rbrr_payor_rbro_file]]
-// ⟦axl_voices axrd_constructed axtu_path⟧
+//axl_voices axrd_constructed axtu_path
 {rbrr_payor_rbro_file}::
 Path to the
 {rbtr_payor}
@@ -2121,53 +2121,53 @@ Derived from
 as `rbro-payor.env`.
 
 [[rbrr_vessel_dir]]
-// ⟦axvr_variable axd_required rbst_path⟧
+//axvr_variable axd_required rbst_path
 {rbrr_vessel_dir}::
 Directory containing vessel configuration subdirectories for
 {rbrr_regime}.
 
 [[rbrr_dns_server]]
-// ⟦axvr_variable axd_required rbst_ipv4⟧
+//axvr_variable axd_required rbst_ipv4
 {rbrr_dns_server}::
 DNS server IP address for sentry container name resolution.
 
 [[rbrr_ignite_machine_name]]
-// ⟦axvr_variable axd_required rbst_xname⟧
+//axvr_variable axd_required rbst_xname
 {rbrr_ignite_machine_name}::
 Podman machine name for bottle ignition operations.
 
 [[rbrr_deploy_machine_name]]
-// ⟦axvr_variable axd_required rbst_xname⟧
+//axvr_variable axd_required rbst_xname
 {rbrr_deploy_machine_name}::
 Podman machine name for bottle deployment operations.
 
 [[rbrr_crane_tar_gz]]
-// ⟦axvr_variable axd_required rbst_path⟧
+//axvr_variable axd_required rbst_path
 {rbrr_crane_tar_gz}::
 Path to crane tool tarball for OCI registry operations.
 
 [[rbrr_manifest_platforms]]
-// ⟦axvr_variable axd_required rbst_platform_list⟧
+//axvr_variable axd_required rbst_platform_list
 {rbrr_manifest_platforms}::
 Space-separated target platforms for multi-platform manifest creation.
 
 [[rbrr_chosen_podman_version]]
-// ⟦axvr_variable axd_required rbst_version⟧
+//axvr_variable axd_required rbst_version
 {rbrr_chosen_podman_version}::
 Podman version string for VM provisioning.
 
 [[rbrr_chosen_vmimage_origin]]
-// ⟦axvr_variable axd_required rbst_string⟧
+//axvr_variable axd_required rbst_string
 {rbrr_chosen_vmimage_origin}::
 Podman VM image origin specification.
 
 [[rbrr_chosen_identity]]
-// ⟦axvr_variable axd_required rbst_string⟧
+//axvr_variable axd_required rbst_string
 {rbrr_chosen_identity}::
 Identity specification for VM or build environment.
 
 [[rbrr_gcb_machine_type]]
-// ⟦axvr_variable axd_required rbst_string⟧
+//axvr_variable axd_required rbst_string
 {rbrr_gcb_machine_type}::
 Cloud Build machine type for default pool build workers.
 Applies only when
@@ -2175,7 +2175,7 @@ Applies only when
 is empty; private pools configure machine type on the pool resource.
 
 [[rbrr_gcb_worker_pool]]
-// ⟦axvr_variable axd_optional rbst_string⟧
+//axvr_variable axd_optional rbst_string
 {rbrr_gcb_worker_pool}::
 Full resource name of the Cloud Build Private Pool for build execution.
 Format: `projects/{project}/locations/{region}/workerPools/{pool}`.
@@ -2185,47 +2185,47 @@ When empty, builds use the default shared pool with
 {rbrr_gcb_machine_type}.
 
 [[rbrr_gcb_min_concurrent_builds]]
-// ⟦axvr_variable axd_required rbst_integer⟧
+//axvr_variable axd_required rbst_integer
 {rbrr_gcb_min_concurrent_builds}::
 Minimum concurrent Cloud Build execution count.
 
 [[rbrr_gcb_timeout]]
-// ⟦axvr_variable axd_required rbst_duration⟧
+//axvr_variable axd_required rbst_duration
 {rbrr_gcb_timeout}::
 Maximum duration for Cloud Build operations.
 
 [[rbrr_gcb_oras_image_ref]]
-// ⟦axvr_variable axd_required rbst_image_ref⟧
+//axvr_variable axd_required rbst_image_ref
 {rbrr_gcb_oras_image_ref}::
 Fully-qualified image reference for ORAS Cloud Build step.
 
 [[rbrr_gcb_gcloud_image_ref]]
-// ⟦axvr_variable axd_required rbst_image_ref⟧
+//axvr_variable axd_required rbst_image_ref
 {rbrr_gcb_gcloud_image_ref}::
 Fully-qualified image reference for gcloud Cloud Build step.
 
 [[rbrr_gcb_docker_image_ref]]
-// ⟦axvr_variable axd_required rbst_image_ref⟧
+//axvr_variable axd_required rbst_image_ref
 {rbrr_gcb_docker_image_ref}::
 Fully-qualified image reference for Docker Cloud Build step.
 
 [[rbrr_gcb_alpine_image_ref]]
-// ⟦axvr_variable axd_required rbst_image_ref⟧
+//axvr_variable axd_required rbst_image_ref
 {rbrr_gcb_alpine_image_ref}::
 Fully-qualified image reference for Alpine Cloud Build step.
 
 [[rbrr_gcb_syft_image_ref]]
-// ⟦axvr_variable axd_required rbst_image_ref⟧
+//axvr_variable axd_required rbst_image_ref
 {rbrr_gcb_syft_image_ref}::
 Fully-qualified image reference for Syft SBOM Cloud Build step.
 
 [[rbrr_gcb_binfmt_image_ref]]
-// ⟦axvr_variable axd_required rbst_image_ref⟧
+//axvr_variable axd_required rbst_image_ref
 {rbrr_gcb_binfmt_image_ref}::
 Fully-qualified image reference for binfmt Cloud Build step.
 
 [[rbrr_gcb_pins_refreshed_at]]
-// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp⟧
+//axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp
 {rbrr_gcb_pins_refreshed_at}::
 Timestamp recording when builder image pins were last refreshed.
 Written by `rbrr_refresh_gcb_pins` on successful completion.
@@ -2234,29 +2234,29 @@ checks this value and skips pin refresh if less than 1 day old,
 otherwise refreshes automatically before proceeding.
 
 [[rbrr_group_service_accounts]]
-// ⟦axvr_group⟧
+//axvr_group
 {rbrr_group_service_accounts}::
 Credential file paths derived from
 {rbrr_secrets_dir}
 for each operational role.
 
 [[rbrr_group_container_runtime]]
-// ⟦axvr_group⟧
+//axvr_group
 {rbrr_group_container_runtime}::
 Container runtime and deployment environment settings.
 
 [[rbrr_group_build_configuration]]
-// ⟦axvr_group⟧
+//axvr_group
 {rbrr_group_build_configuration}::
 Container image build process configuration.
 
 [[rbrr_group_developer_connect]]
-// ⟦axvr_group⟧
+//axvr_group
 {rbrr_group_developer_connect}::
 Developer Connect configuration for GitHub-to-GCP source connections.
 
 [[rbrr_gdc_connection_name]]
-// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_string⟧
+//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_string
 {rbrr_gdc_connection_name}::
 Name of the
 {rbtgi_source_connection}
@@ -2264,7 +2264,7 @@ in Developer Connect.
 Shared across all vessels in the project.
 
 [[rbrr_gdc_region]]
-// ⟦axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_region⟧
+//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_region
 {rbrr_gdc_region}::
 {gcp_service}
 region where the
@@ -2276,7 +2276,7 @@ include::RBSRR-RegimeRepo.adoc[]
 === Authentication Regime (RBRA)
 
 [[rbra_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced axrd_manifold⟧
+//axvr_regime axf_bash axrd_file_sourced axrd_manifold
 {rbra_regime}::
 {giam_service_account}
 credentials and authentication material for secure access to
@@ -2284,19 +2284,19 @@ credentials and authentication material for secure access to
 APIs.
 
 [[rbra_client_email]]
-// ⟦axl_voices axrg_variable axtg_service_account⟧
+//axl_voices axrg_variable axtg_service_account
 {rbra_client_email}::
 {giam_service_account}
 email address used as JWT issuer for OAuth2 token exchange.
 
 [[rbra_private_key]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {rbra_private_key}::
 PEM-encoded RSA private key for the
 {giam_service_account}.
 
 [[rbra_project_id]]
-// ⟦axl_voices axrg_variable axtg_project_id⟧
+//axl_voices axrg_variable axtg_project_id
 {rbra_project_id}::
 {gcp_service}
 {gcp_project_id}
@@ -2304,14 +2304,14 @@ that owns the
 {giam_service_account}.
 
 [[rbra_token_lifetime_sec]]
-// ⟦axl_voices axrg_variable axtu_integer⟧
+//axl_voices axrg_variable axtu_integer
 {rbra_token_lifetime_sec}::
 OAuth token lifetime in seconds for JWT token exchange with
 {gcp_service}
 APIs.
 
 [[rbra_rubric_repo_url]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {rbra_rubric_repo_url}::
 Authenticated git URL for the
 {rbtgr_rubric_repo}.
@@ -2328,7 +2328,7 @@ include::RBSRA-CredentialFormat.adoc[]
 === Payor Regime (RBRP)
 
 [[rbrp_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
+//axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {rbrp_regime}::
 Administrative
 {rbtr_payor}
@@ -2337,7 +2337,7 @@ configuration for managing
 infrastructure.
 
 [[rbrp_payor_project_id]]
-// ⟦axl_voices axrg_variable axtg_project_id⟧
+//axl_voices axrg_variable axtg_project_id
 {rbrp_payor_project_id}::
 {gcp_service}
 {gcp_project_id}
@@ -2346,7 +2346,7 @@ hosting the OAuth 2.0 client configuration for
 operations.
 
 [[rbrp_billing_account_id]]
-// ⟦axl_voices axrg_variable axtg_billing_account⟧
+//axl_voices axrg_variable axtg_billing_account
 {rbrp_billing_account_id}::
 {gcp_service}
 billing account linked to newly created
@@ -2354,14 +2354,14 @@ billing account linked to newly created
 instances.
 
 [[rbrp_oauth_client_id]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {rbrp_oauth_client_id}::
 The public OAuth 2.0 client identifier for the
 {rbtr_payor}
 desktop application.
 
 [[rbrp_operator_email]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {rbrp_operator_email}::
 Email address of the human operator performing depot initialization.
 Used to grant Developer Connect administrator access on the depot project during
@@ -2372,19 +2372,19 @@ include::RBSRP-RegimePayor.adoc[]
 === OAuth Regime (RBRO)
 
 [[rbro_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
+//axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {rbro_regime}::
 OAuth client credentials and refresh tokens for
 {rbtr_payor}
 operations.
 
 [[rbro_client_secret]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {rbro_client_secret}::
 The OAuth 2.0 client secret from the Google Cloud Console OAuth client configuration.
 
 [[rbro_refresh_token]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {rbro_refresh_token}::
 The long-lived OAuth refresh token obtained during the authorization flow, used to obtain fresh access tokens.
 
@@ -2395,24 +2395,24 @@ include::RBSRO-RegimeOauth.adoc[]
 The station regime defines workstation-specific Podman VM configuration for the local development environment.
 
 [[rbrs_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced axrd_singleton⟧
+//axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {rbrs_regime}::
 An
 regime
 that contains workstation-specific Podman VM configuration for the local development environment.
 
 [[rbrs_podman_root_dir]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {rbrs_podman_root_dir}::
 Root directory for Podman machine storage on the local workstation.
 
 [[rbrs_vmimage_cache_dir]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {rbrs_vmimage_cache_dir}::
 Directory for caching VM images used by Podman machine initialization.
 
 [[rbrs_vm_platform]]
-// ⟦axl_voices axrg_variable axtu_string⟧
+//axl_voices axrg_variable axtu_string
 {rbrs_vm_platform}::
 Platform architecture identifier for the Podman VM.
 
@@ -2421,21 +2421,21 @@ include::RBSRS-RegimeStation.adoc[]
 === Kit Regime Operations (RBK)
 
 [[rbkro_kindle]]
-// ⟦axvr_kindle⟧
+//axvr_kindle
 {rbkro_kindle}::
 Silent initialization of Recipe Bottle regime state from
 {axrg_assignment_s}.
 Sets defaults, detects unexpected variables, builds derived structures.
 
 [[rbkro_validate]]
-// ⟦axvr_validate⟧
+//axvr_validate
 {rbkro_validate}::
 Strict field validation for Recipe Bottle
 {axrg_regime_s}.
 Checks all type and constraint requirements via buv_env_* validators.
 
 [[rbkro_render]]
-// ⟦axvr_render⟧
+//axvr_render
 {rbkro_render}::
 Diagnostic display of Recipe Bottle
 {axrg_regime}
@@ -2443,7 +2443,7 @@ state.
 Renders all fields before validation so complete state is visible on failure.
 
 [[rbkro_list]]
-// ⟦axvr_list⟧
+//axvr_list
 {rbkro_list}::
 Enumeration of available instances for Recipe Bottle
 {axrg_regime_s}
@@ -2452,7 +2452,7 @@ with
 cardinality.
 
 [[rbkro_survey]]
-// ⟦axvr_survey⟧
+//axvr_survey
 {rbkro_survey}::
 Read-only cross-instance summary for Recipe Bottle
 {axrg_regime_s}
@@ -2461,7 +2461,7 @@ with
 cardinality.
 
 [[rbkro_audit]]
-// ⟦axvr_audit⟧
+//axvr_audit
 {rbkro_audit}::
 Cross-instance validation plus external verification for Recipe Bottle
 {axrg_regime_s}
@@ -2472,21 +2472,21 @@ cardinality.
 === Kit Regime Operations (BUK)
 
 [[bukro_kindle]]
-// ⟦axvr_kindle⟧
+//axvr_kindle
 {bukro_kindle}::
 Silent initialization of Bash Utility Kit regime state from
 {axrg_assignment_s}.
 Sets defaults, detects unexpected variables, builds derived structures.
 
 [[bukro_validate]]
-// ⟦axvr_validate⟧
+//axvr_validate
 {bukro_validate}::
 Strict field validation for Bash Utility Kit
 {axrg_regime_s}.
 Checks all type and constraint requirements via buv_env_* validators.
 
 [[bukro_render]]
-// ⟦axvr_render⟧
+//axvr_render
 {bukro_render}::
 Diagnostic display of Bash Utility Kit
 {axrg_regime}
@@ -2496,82 +2496,82 @@ Renders all fields before validation so complete state is visible on failure.
 === Vessel Regime (RBRV)
 
 [[rbrv_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced axrd_manifold⟧
+//axvr_regime axf_bash axrd_file_sourced axrd_manifold
 {rbrv_regime}::
 Configuration regime for container image build specifications.
 
 [[rbrv_sigil]]
-// ⟦axvr_variable axd_required rbst_xname⟧
+//axvr_variable axd_required rbst_xname
 {rbrv_sigil}::
 Vessel identifier for
 {rbrv_regime};
 basis for directory and ark naming.
 
 [[rbrv_description]]
-// ⟦axvr_variable axd_optional rbst_description⟧
+//axvr_variable axd_optional rbst_description
 {rbrv_description}::
 Human-readable documentation for
 {rbrv_regime}.
 
 [[rbrv_vessel_mode]]
-// ⟦axvr_variable axd_required axt_enumeration⟧
+//axvr_variable axd_required axt_enumeration
 {rbrv_vessel_mode}::
 Build mode for
 {rbrv_regime}.
 Determines which variable group is active.
 
 [[rbrv_vessel_mode_bind]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrv_vessel_mode_bind}::
 Selects binding configuration: vessel uses an existing upstream image.
 
 [[rbrv_vessel_mode_conjure]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrv_vessel_mode_conjure}::
 Selects conjuring configuration: vessel is built from a Dockerfile.
 
 [[rbrv_group_binding]]
-// ⟦axvr_group axd_conditional⟧
+//axvr_group axd_conditional
 {rbrv_group_binding}::
 Variables for binding vessels within
 {rbrv_regime}.
 
 [[rbrv_group_conjuring]]
-// ⟦axvr_group axd_conditional⟧
+//axvr_group axd_conditional
 {rbrv_group_conjuring}::
 Variables for conjuring vessels within
 {rbrv_regime}.
 
 [[rbrv_bind_image]]
-// ⟦axvr_variable axd_conditional rbst_image_ref⟧
+//axvr_variable axd_conditional rbst_image_ref
 {rbrv_bind_image}::
 Container image reference for
 {rbrv_regime}
 binding vessels.
 
 [[rbrv_conjure_dockerfile]]
-// ⟦axvr_variable axd_conditional rbst_path⟧
+//axvr_variable axd_conditional rbst_path
 {rbrv_conjure_dockerfile}::
 Dockerfile path for
 {rbrv_regime}
 conjuring vessels.
 
 [[rbrv_conjure_bldcontext]]
-// ⟦axvr_variable axd_conditional rbst_path⟧
+//axvr_variable axd_conditional rbst_path
 {rbrv_conjure_bldcontext}::
 Build context directory for
 {rbrv_regime}
 conjuring.
 
 [[rbrv_conjure_platforms]]
-// ⟦axvr_variable axd_conditional rbst_platform_list⟧
+//axvr_variable axd_conditional rbst_platform_list
 {rbrv_conjure_platforms}::
 Target platform architectures for
 {rbrv_regime}
 multi-platform builds.
 
 [[rbrv_conjure_binfmt_policy]]
-// ⟦axvr_variable axd_conditional rbst_binfmt_policy⟧
+//axvr_variable axd_conditional rbst_binfmt_policy
 {rbrv_conjure_binfmt_policy}::
 Qemu binary format policy for
 {rbrv_regime}
@@ -2590,178 +2590,178 @@ include::RBSRV-RegimeVessel.adoc[]
 === Nameplate Regime (RBRN)
 
 [[rbrn_regime]]
-// ⟦axvr_regime axf_bash axrd_file_sourced axrd_manifold⟧
+//axvr_regime axf_bash axrd_file_sourced axrd_manifold
 {rbrn_regime}::
 Configuration regime for bottle service deployment.
 RBRN assignment files in `Tools/rbw/rbrn_*.env` define container deployment and network security settings.
 
 [[rbrn_moniker]]
-// ⟦axvr_variable axd_required rbst_xname⟧
+//axvr_variable axd_required rbst_xname
 {rbrn_moniker}::
 Unique moniker for the bottle service instance; 2-12 characters.
 
 [[rbrn_description]]
-// ⟦axvr_variable axd_optional rbst_description⟧
+//axvr_variable axd_optional rbst_description
 {rbrn_description}::
 Human-readable description of the service purpose; 0-120 characters.
 
 [[rbrn_runtime]]
-// ⟦axvr_variable axd_required axt_enumeration⟧
+//axvr_variable axd_required axt_enumeration
 {rbrn_runtime}::
 Container runtime for service deployment.
 
 [[rbrn_runtime_docker]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrn_runtime_docker}::
 Use Docker container runtime.
 
 [[rbrn_runtime_podman]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrn_runtime_podman}::
 Use Podman container runtime.
 
 [[rbrn_sentry_vessel]]
-// ⟦axvr_variable axd_required rbst_xname⟧
+//axvr_variable axd_required rbst_xname
 {rbrn_sentry_vessel}::
 Vessel identifier for the sentry container image.
 
 [[rbrn_sentry_consecration]]
-// ⟦axvr_variable axd_required rbst_consecration⟧
+//axvr_variable axd_required rbst_consecration
 {rbrn_sentry_consecration}::
 Consecration timestamp for the sentry container image.
 
 [[rbrn_bottle_vessel]]
-// ⟦axvr_variable axd_required rbst_xname⟧
+//axvr_variable axd_required rbst_xname
 {rbrn_bottle_vessel}::
 Vessel identifier for the bottle container image.
 
 [[rbrn_bottle_consecration]]
-// ⟦axvr_variable axd_required rbst_consecration⟧
+//axvr_variable axd_required rbst_consecration
 {rbrn_bottle_consecration}::
 Consecration timestamp for the bottle container image.
 
 [[rbrn_entry_mode]]
-// ⟦axvr_variable axd_required axt_enumeration⟧
+//axvr_variable axd_required axt_enumeration
 {rbrn_entry_mode}::
 Mode for user-initiated entry functionality.
 
 [[rbrn_entry_mode_disabled]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrn_entry_mode_disabled}::
 Entry functionality is disabled; no user-initiated connections.
 
 [[rbrn_entry_mode_enabled]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrn_entry_mode_enabled}::
 Entry functionality is enabled; user-initiated connections accepted.
 
 [[rbrn_entry_port_workstation]]
-// ⟦axvr_variable axd_conditional rbst_port⟧
+//axvr_variable axd_conditional rbst_port
 {rbrn_entry_port_workstation}::
 External port exposed on the transit network for user entry.
 
 [[rbrn_entry_port_enclave]]
-// ⟦axvr_variable axd_conditional rbst_port⟧
+//axvr_variable axd_conditional rbst_port
 {rbrn_entry_port_enclave}::
 Port used between sentry and bottle containers for entry traffic.
 
 [[rbrn_enclave_base_ip]]
-// ⟦axvr_variable axd_required rbst_ipv4⟧
+//axvr_variable axd_required rbst_ipv4
 {rbrn_enclave_base_ip}::
 Base IPv4 address defining the enclave network range.
 
 [[rbrn_enclave_netmask]]
-// ⟦axvr_variable axd_required rbst_netmask⟧
+//axvr_variable axd_required rbst_netmask
 {rbrn_enclave_netmask}::
 Network mask width for enclave network addressing; 8-30.
 
 [[rbrn_enclave_sentry_ip]]
-// ⟦axvr_variable axd_required rbst_ipv4⟧
+//axvr_variable axd_required rbst_ipv4
 {rbrn_enclave_sentry_ip}::
 IP address assigned to the sentry container within the enclave.
 
 [[rbrn_enclave_bottle_ip]]
-// ⟦axvr_variable axd_required rbst_ipv4⟧
+//axvr_variable axd_required rbst_ipv4
 {rbrn_enclave_bottle_ip}::
 IP address assigned to the bottle container within the enclave.
 
 [[rbrn_uplink_port_min]]
-// ⟦axvr_variable axd_required rbst_port⟧
+//axvr_variable axd_required rbst_port
 {rbrn_uplink_port_min}::
 Minimum port number for bottle-initiated outbound connections.
 
 [[rbrn_uplink_dns_mode]]
-// ⟦axvr_variable axd_required axt_enumeration⟧
+//axvr_variable axd_required axt_enumeration
 {rbrn_uplink_dns_mode}::
 DNS resolution mode for bottle-initiated requests.
 
 [[rbrn_uplink_dns_mode_disabled]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrn_uplink_dns_mode_disabled}::
 DNS resolution disabled; no bottle-initiated DNS queries.
 
 [[rbrn_uplink_dns_mode_global]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrn_uplink_dns_mode_global}::
 DNS resolution globally enabled; all domains resolvable.
 
 [[rbrn_uplink_dns_mode_allowlist]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrn_uplink_dns_mode_allowlist}::
 DNS resolution restricted to allowed domains.
 
 [[rbrn_uplink_access_mode]]
-// ⟦axvr_variable axd_required axt_enumeration⟧
+//axvr_variable axd_required axt_enumeration
 {rbrn_uplink_access_mode}::
 IP access mode for bottle-initiated connections.
 
 [[rbrn_uplink_access_mode_disabled]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrn_uplink_access_mode_disabled}::
 IP access disabled; no bottle-initiated outbound connections.
 
 [[rbrn_uplink_access_mode_global]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrn_uplink_access_mode_global}::
 IP access globally enabled; all destinations reachable.
 
 [[rbrn_uplink_access_mode_allowlist]]
-// ⟦axl_voices axt_enum_value⟧
+//axl_voices axt_enum_value
 {rbrn_uplink_access_mode_allowlist}::
 IP access restricted to allowed CIDR ranges.
 
 [[rbrn_uplink_allowed_cidrs]]
-// ⟦axvr_variable axd_conditional rbst_cidr_list⟧
+//axvr_variable axd_conditional rbst_cidr_list
 {rbrn_uplink_allowed_cidrs}::
 CIDR ranges for allowed bottle-initiated outbound traffic.
 
 [[rbrn_uplink_allowed_domains]]
-// ⟦axvr_variable axd_conditional rbst_domain_list⟧
+//axvr_variable axd_conditional rbst_domain_list
 {rbrn_uplink_allowed_domains}::
 Domain names allowed for bottle-initiated DNS resolution.
 
 [[rbrn_volume_mounts]]
-// ⟦axvr_variable axd_optional rbst_description⟧
+//axvr_variable axd_optional rbst_description
 {rbrn_volume_mounts}::
 Podman volume mount arguments for the bottle container; 0-240 characters.
 
 [[rbrn_group_ark_reference]]
-// ⟦axvr_group⟧
+//axvr_group
 {rbrn_group_ark_reference}::
 Ark reference variables identifying which vessel consecration to deploy.
 
 [[rbrn_group_entry]]
-// ⟦axvr_group axd_conditional⟧
+//axvr_group axd_conditional
 {rbrn_group_entry}::
 Entry service variables for user-initiated connections.
 
 [[rbrn_group_access_allowlist]]
-// ⟦axvr_group axd_conditional⟧
+//axvr_group axd_conditional
 {rbrn_group_access_allowlist}::
 Access allowlist variables for IP-restricted outbound traffic.
 
 [[rbrn_group_dns_allowlist]]
-// ⟦axvr_group axd_conditional⟧
+//axvr_group axd_conditional
 {rbrn_group_dns_allowlist}::
 DNS allowlist variables for domain-restricted resolution.
 
@@ -2772,25 +2772,25 @@ include::RBRN-RegimeNameplate.adoc[]
 Recipe Bottle type voicings define constrained data formats used throughout the system.
 
 [[rbst_xname]]
-// ⟦axl_voices axtu_xname⟧
+//axl_voices axtu_xname
 {rbst_xname}::
 Cross-context safe identifier, 1-64 characters.
 Forms basis for directory names, monikers, and artifact naming.
 
 [[rbst_description]]
-// ⟦axl_voices axtu_string⟧
+//axl_voices axtu_string
 {rbst_description}::
 Human-readable documentation text.
 0-240 characters; used for identification in logs, messages, and documentation contexts.
 
 [[rbst_image_ref]]
-// ⟦axl_voices axtu_string⟧
+//axl_voices axtu_string
 {rbst_image_ref}::
 Fully-qualified container image reference.
 1-256 characters; format: `registry/namespace/image:tag` (e.g., `docker.io/library/nginx:1.27-alpine`).
 
 [[rbst_locator]]
-// ⟦axl_voices axtu_string⟧
+//axl_voices axtu_string
 {rbst_locator}::
 Repository-local image identifier combining
 {at_moniker}
@@ -2801,54 +2801,54 @@ Identifies a single artifact within the
 without repeating registry host or path.
 
 [[rbst_consecration]]
-// ⟦axl_voices axtu_string⟧
+//axl_voices axtu_string
 {rbst_consecration}::
 Build timestamp marking when a vessel image was consecrated.
 ISO 8601 basic format (e.g., `20260209T235622Z`); 1-128 characters.
 
 [[rbst_path]]
-// ⟦axl_voices axtu_path⟧
+//axl_voices axtu_path
 {rbst_path}::
 Repository-context path, typically constructed from regime variables.
 
 [[rbst_platform_list]]
-// ⟦axl_voices axtu_string axd_list⟧
+//axl_voices axtu_string axd_list
 {rbst_platform_list}::
 Space-delimited list of container platform identifiers.
 Each element follows `os/arch[/variant]` format (e.g., `linux/amd64 linux/arm64 linux/arm/v7`).
 
 [[rbst_binfmt_policy]]
-// ⟦axl_voices axt_enumeration⟧
+//axl_voices axt_enumeration
 {rbst_binfmt_policy}::
 QEMU binary format policy for cross-platform builds.
 Valid values: `allow` (permit execution), `warn` (emit warning), `forbid` (block cross-platform).
 
 [[rbst_port]]
-// ⟦axl_voices axtu_xname⟧
+//axl_voices axtu_xname
 {rbst_port}::
 Network port number.
 Valid range: 1-65535.
 
 [[rbst_ipv4]]
-// ⟦axl_voices axtu_xname⟧
+//axl_voices axtu_xname
 {rbst_ipv4}::
 IPv4 address in dotted-decimal notation.
 Example: `192.168.1.1`.
 
 [[rbst_netmask]]
-// ⟦axl_voices axtu_xname⟧
+//axl_voices axtu_xname
 {rbst_netmask}::
 Network mask width as decimal integer.
 Valid range: 0-32.
 
 [[rbst_cidr_list]]
-// ⟦axl_voices axtu_string axd_list⟧
+//axl_voices axtu_string axd_list
 {rbst_cidr_list}::
 Space-delimited list of CIDR range specifications.
 Each element follows `address/prefix` format (e.g., `10.0.0.0/8 172.16.0.0/12`).
 
 [[rbst_domain_list]]
-// ⟦axl_voices axtu_string axd_list⟧
+//axl_voices axtu_string axd_list
 {rbst_domain_list}::
 Space-delimited list of fully-qualified domain names.
 Each element is a valid DNS domain (e.g., `api.example.com registry.example.com`).
@@ -2859,25 +2859,25 @@ Google-specific type voicings define constrained data formats for Google Cloud P
 Each voices the corresponding `axtg_*` type motif from {xref_AXLA}.
 
 [[rbgt_project_id]]
-// ⟦axl_voices axtg_project_id⟧
+//axl_voices axtg_project_id
 {rbgt_project_id}::
 GCP project identifier.
 6-30 lowercase letters, digits, and hyphens; must start with letter, end with letter or digit.
 
 [[rbgt_region]]
-// ⟦axl_voices axtg_region⟧
+//axl_voices axtg_region
 {rbgt_region}::
 GCP region identifier.
 Format: `continent-direction[N]` (e.g., `us-central1`, `europe-west1`).
 
 [[rbgt_service_account]]
-// ⟦axl_voices axtg_service_account⟧
+//axl_voices axtg_service_account
 {rbgt_service_account}::
 GCP service account email address.
 Format: `name@project.iam.gserviceaccount.com`.
 
 [[rbgt_billing_account]]
-// ⟦axl_voices axtg_billing_account⟧
+//axl_voices axtg_billing_account
 {rbgt_billing_account}::
 GCP billing account identifier.
 Format: `XXXXXX-XXXXXX-XXXXXX`.
@@ -2892,32 +2892,32 @@ Each term voices the corresponding
 control motif.
 
 [[rbbc_variable]]
-// ⟦axl_voices axc_variable⟧
+//axl_voices axc_variable
 {rbbc_variable}::
 A shell variable denoted by guillemets `«NAME»` storing intermediate results.
 Implemented as bash variables or associative array entries.
 
 [[rbbc_fatal]]
-// ⟦axl_voices axc_fatal⟧
+//axl_voices axc_fatal
 {rbbc_fatal}::
 Red console text followed by `exit 1`.
 Script terminates immediately. Human operator must intervene.
 
 [[rbbc_warn]]
-// ⟦axl_voices axc_warn⟧
+//axl_voices axc_warn
 {rbbc_warn}::
 Yellow console text indicating non-blocking concern.
 Script continues execution. Human operator may note for later.
 
 [[rbbc_store]]
-// ⟦axl_voices axc_store⟧
+//axl_voices axc_store
 {rbbc_store}::
 Capture of a value from command output or API response into a
 {rbbc_variable}.
 Typically via bash assignment or jq extraction.
 
 [[rbbc_use]]
-// ⟦axl_voices axc_use⟧
+//axl_voices axc_use
 {rbbc_use}::
 Reference to a previously stored
 {rbbc_variable}
@@ -2925,7 +2925,7 @@ value.
 Expanded via bash variable substitution.
 
 [[rbbc_require]]
-// ⟦axl_voices axc_require⟧
+//axl_voices axc_require
 {rbbc_require}::
 Validation check that confirms an expected condition.
 Triggers
@@ -2933,38 +2933,38 @@ Triggers
 if condition not met.
 
 [[rbbc_poll]]
-// ⟦axl_voices axc_poll⟧
+//axl_voices axc_poll
 {rbbc_poll}::
 Repeated execution of a command at defined intervals until condition satisfied or timeout.
 Implemented as bash while loop with sleep.
 
 [[rbbc_call]]
-// ⟦axl_voices axc_call⟧
+//axl_voices axc_call
 {rbbc_call}::
 Synchronous invocation of a REST API endpoint via curl.
 Captures HTTP status code and response body. Returns when response received.
 
 [[rbbc_submit]]
-// ⟦axl_voices axc_submit⟧
+//axl_voices axc_submit
 {rbbc_submit}::
 Asynchronous invocation of a REST API that returns an LRO operation handle.
 Returns immediately with operation ID for later
 {rbbc_await}.
 
 [[rbbc_await]]
-// ⟦axl_voices axc_await⟧
+//axl_voices axc_await
 {rbbc_await}::
 Blocking wait on a submitted LRO operation until completion.
 Polls operation endpoint until done=true, then returns result.
 
 [[rbbc_show]]
-// ⟦axl_voices axc_show⟧
+//axl_voices axc_show
 {rbbc_show}::
 Presentation of operational facts to the console.
 Formatted output via echo or printf to stdout.
 
 [[rbbc_prompt]]
-// ⟦axl_voices axc_prompt⟧
+//axl_voices axc_prompt
 {rbbc_prompt}::
 Interactive request for human operator confirmation before proceeding.
 Displays message and waits for user input (typically y/N).
@@ -2980,31 +2980,31 @@ Each term voices the corresponding
 control motif.
 
 [[rbhg_fatal]]
-// ⟦axl_voices axc_fatal⟧
+//axl_voices axc_fatal
 {rbhg_fatal}::
 Instruction to abort the procedure immediately.
 Human must not proceed. May require rollback or support contact.
 
 [[rbhg_warn]]
-// ⟦axl_voices axc_warn⟧
+//axl_voices axc_warn
 {rbhg_warn}::
 Cautionary note requiring human acknowledgment before proceeding.
 Highlights potential issues or irreversible actions.
 
 [[rbhg_store]]
-// ⟦axl_voices axc_store⟧
+//axl_voices axc_store
 {rbhg_store}::
 Instruction for human to record a value for later use.
 Typically written down, copied to clipboard, or saved to a file.
 
 [[rbhg_require]]
-// ⟦axl_voices axc_require⟧
+//axl_voices axc_require
 {rbhg_require}::
 Verification checkpoint where human confirms a condition before proceeding.
 May involve visual inspection or testing in external UI.
 
 [[rbhg_show]]
-// ⟦axl_voices axc_show⟧
+//axl_voices axc_show
 {rbhg_show}::
 Informational note presented to the human during procedure.
 Provides context or expected outcomes without requiring action.
@@ -3014,7 +3014,7 @@ Provides context or expected outcomes without requiring action.
 Recipe Bottle orchestration patterns define reusable implementation sequences for system operations.
 
 [[rbtoe_check_rubric_repo_url]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {rbtoe_check_rubric_repo_url}::
 A non-interactive gate that validates
 `RBRA_RUBRIC_REPO_URL`
@@ -3036,7 +3036,7 @@ RBRA (for
 operations).
 
 [[rbtoe_check_devconnect]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {rbtoe_check_devconnect}::
 A non-interactive gate that validates
 {rbtgi_source_connection}
@@ -3052,7 +3052,7 @@ No side effects, no polling.
 Callable from any CLI context via `rbgu_check_devconnect`.
 
 [[rbtoe_rbra_generate]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {rbtoe_rbra_generate}::
 A pattern that converts Google
 {giam_service_account}
@@ -3064,7 +3064,7 @@ converts to RBRA environment variables (`RBRA_CLIENT_EMAIL`, `RBRA_PRIVATE_KEY`,
 and writes to specified file path with 600 permissions (owner read/write only).
 
 [[rbtoe_rbra_load]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {rbtoe_rbra_load}::
 A pattern that sources an
 {rbtgi_rbra_file}
@@ -3076,7 +3076,7 @@ and triggers
 with standardized error message if any field is missing or invalid.
 
 [[rbtoe_jwt_oauth_exchange]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {rbtoe_jwt_oauth_exchange}::
 A pattern that exchanges
 {giam_service_account}
@@ -3091,7 +3091,7 @@ triggers
 on non-200 HTTP response.
 
 [[rbtoe_api_enable]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {rbtoe_api_enable}::
 A pattern that ensures a specified Google Cloud API is enabled in a project with idempotent behavior:
 
@@ -3108,7 +3108,7 @@ on unexpected errors (409 conflicts, permission denied, etc.),
 
 
 [[rbtoe_oauth_refresh]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {rbtoe_oauth_refresh}::
 A pattern that exchanges OAuth refresh token for access token:
 
@@ -3132,7 +3132,7 @@ with "OAuth credentials expired or invalid - run
 ".
 
 [[rbtoe_payor_authenticate]]
-// ⟦axvo_method axd_transient axd_internal⟧
+//axvo_method axd_transient axd_internal
 {rbtoe_payor_authenticate}::
 A pattern that establishes
 {rbtr_payor}
@@ -3148,7 +3148,7 @@ to obtain access token,
 . stores token as `«PAYOR_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_governor_authenticate]]
-// ⟦axvo_method axd_transient axd_internal⟧
+//axvo_method axd_transient axd_internal
 {rbtoe_governor_authenticate}::
 A pattern that establishes
 {rbtr_governor}
@@ -3166,7 +3166,7 @@ exists or
 . stores token as `«GOVERNOR_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_director_authenticate]]
-// ⟦axvo_method axd_transient axd_internal⟧
+//axvo_method axd_transient axd_internal
 {rbtoe_director_authenticate}::
 A pattern that establishes
 {rbtr_director}
@@ -3184,7 +3184,7 @@ exists or
 . stores token as `«DIRECTOR_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_retriever_authenticate]]
-// ⟦axvo_method axd_transient axd_internal⟧
+//axvo_method axd_transient axd_internal
 {rbtoe_retriever_authenticate}::
 A pattern that establishes
 {rbtr_retriever}
@@ -3202,7 +3202,7 @@ exists or
 . stores token as `«RETRIEVER_ACCESS_TOKEN»` for subsequent API calls.
 
 [[rbtoe_rbro_load]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 {rbtoe_rbro_load}::
 A pattern that loads and validates RBRO credentials:
 
@@ -3225,7 +3225,7 @@ A pattern that loads and validates RBRO credentials:
 . returns success when all RBRO variables are loaded and validated.
 
 [[rbtoe_depot_list_update]]
-// ⟦axvo_method axd_transient axd_internal⟧
+//axvo_method axd_transient axd_internal
 {rbtoe_depot_list_update}::
 A pattern that synchronizes
 {rbtgi_depot}
@@ -3252,7 +3252,7 @@ Detailed implementation reference for security enforcement internals within the
 {at_sentry_container}.
 
 [[scr_security_config]]
-// ⟦axvo_procedure axd_transient⟧
+//axvo_procedure axd_transient
 === {scr_security_config}
 
 Establishes security controls through four phases executed in sequence, halting early if any command has a nonzero unix status.
@@ -3260,7 +3260,7 @@ Establishes security controls through four phases executed in sequence, halting 
 include::RBSSC-security_config.adoc[]
 
 [[scr_iptables_init]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 ==== {scr_iptables_init}
 
 Establishes the basic IPTables rules and chains within a
@@ -3269,7 +3269,7 @@ Establishes the basic IPTables rules and chains within a
 include::RBSIP-iptables_init.adoc[]
 
 [[scr_port_setup]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 ==== {scr_port_setup}
 
 Establishes port mapping and service exposure rules within a
@@ -3278,7 +3278,7 @@ Establishes port mapping and service exposure rules within a
 include::RBSPT-port_setup.adoc[]
 
 [[scr_access_setup]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 ==== {scr_access_setup}
 
 Configures network access controls including NAT rules and connection tracking.
@@ -3286,7 +3286,7 @@ Configures network access controls including NAT rules and connection tracking.
 include::RBSAX-access_setup.adoc[]
 
 [[scr_dns_step]]
-// ⟦axvo_procedure axd_transient axd_internal⟧
+//axvo_procedure axd_transient axd_internal
 ==== {scr_dns_step}
 
 Configures DNS resolution controls and domain access restrictions.
