@@ -1,10 +1,14 @@
+//axhob_operation
+{rbtgo_depot_destroy}
+
 The
 {rbtr_payor}
 destroys an
 {rbtgi_depot}
 and all contained resources:
 
-// ⟦axs_inputs⟧
+//axhop_parameter_from_type
+{rbtgi_depot_project}
 . *Safety Confirmation*:
 .. If `RBGP_CONFIRM_DESTROY` environment variable is set:
 ... {rbbc_require}
@@ -15,7 +19,7 @@ value matches the depot project ID argument
 ... {rbbc_require}
 operator confirmation with exact depot project ID (interactive)
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Authenticate as
 {rbtr_payor}*:
 .. Execute
@@ -23,6 +27,7 @@ operator confirmation with exact depot project ID (interactive)
 .. {rbbc_require}
 authentication successful
 
+//axhos_step
 . *Validate Target Depot*:
 .. {rbbc_require}
 depot project ID provided as first argument
@@ -35,6 +40,7 @@ project exists and state is `ACTIVE`
 .. {rbbc_fatal}
 if state is already `DELETE_REQUESTED`: "Project already marked for deletion"
 
+//axhos_step
 . *Check for and remove
 {gcp_lien_s}*:
 .. {rbbc_call}
@@ -49,6 +55,7 @@ HTTP 200 response for each lien deletion
 .. {rbbc_require}
 all liens removed before proceeding
 
+//axhos_step
 . *Unlink billing account*:
 .. {rbbc_call}
 link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] with body `{"billingAccountName":""}` for `projects/«DEPOT_PROJECT_ID»`
@@ -56,6 +63,7 @@ link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBill
 billing unlink successful (HTTP 200)
 .. Note: Unlinking BEFORE deletion releases billing quota immediately; deletion without unlink leaves quota consumed for 30-day retention period
 
+//axhos_step
 . *Initiate depot deletion*:
 .. {rbbc_submit}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/delete[projects.delete] to execute project deletion for `projects/«DEPOT_PROJECT_ID»`
@@ -66,7 +74,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/delete
 .. {rbbc_require}
 deletion initiated successfully
 
-// ⟦axs_outputs⟧
+//axhos_step
 . *Verify deletion transition*:
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] to query project state for `projects/«DEPOT_PROJECT_ID»`
@@ -75,7 +83,7 @@ project state with 5-second intervals for up to 60 seconds
 .. {rbbc_require}
 project state equals `DELETE_REQUESTED`
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Successful execution destroys depot infrastructure.
 
 NOTE: Depot deletion automatically removes all infrastructure created by
