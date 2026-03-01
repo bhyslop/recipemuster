@@ -1268,15 +1268,20 @@ rbf_rubric_inscribe() {
     > "${z_trigger_names_file}" 2>"${z_trigger_jq_stderr}" \
     || buc_die "Failed to extract trigger names from list response"
 
-  local z_trigger_grep_stderr="${ZRBF_INSCRIBE_PREFIX}trigger_grep_stderr.txt"
   for z_sigil in "${z_vessel_sigils[@]}"; do
     z_trigger_name="${RBGC_RUBRIC_TRIGGER_PREFIX}${z_sigil}"
     buc_step "Ensuring trigger: ${z_trigger_name}"
 
-    if grep -qx "${z_trigger_name}" "${z_trigger_names_file}" 2>"${z_trigger_grep_stderr}"; then
+    local z_trigger_found=""
+    local z_line=""
+    while IFS= read -r z_line; do
+      test "${z_line}" = "${z_trigger_name}" && { z_trigger_found=1; break; }
+    done < "${z_trigger_names_file}"
+
+    test -z "${z_trigger_found}" || {
       buc_info "Trigger already exists: ${z_trigger_name}"
       continue
-    fi
+    }
 
     buc_step "Creating trigger: ${z_trigger_name}"
     z_trigger_body="${ZRBF_INSCRIBE_PREFIX}trigger_${z_sigil}.json"
