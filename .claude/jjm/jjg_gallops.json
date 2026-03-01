@@ -6379,6 +6379,13 @@
         "₢AjAAQ": {
           "tacks": [
             {
+              "ts": "260301-1037",
+              "state": "complete",
+              "text": "Transform JJS0-GallopsData.adoc: 4 axo_routine (load, save, persist, wrap) to axvo_procedure or axvo_method. Determine entity affiliation for each.",
+              "silks": "transform-jjs0-routines",
+              "commit": "7c3f1dc"
+            },
+            {
               "ts": "260227-1057",
               "state": "rough",
               "text": "Transform JJS0-GallopsData.adoc: 4 axo_routine (load, save, persist, wrap) to axvo_procedure or axvo_method. Determine entity affiliation for each.",
