@@ -2,33 +2,108 @@
 
 ## Current Design
 
-**Authoritative**: `Memos/memo-20260224-jjk-v4-gaits.md` — Gaits, branches, and the breeze pipeline.
+**Authoritative design seeds**: `Memos/memo-20260224-jjk-v4-gaits.md` — Gaits, branches, and the breeze pipeline. Partially superseded by cchat-20260301 sessions (corral replaces prance, warrant evolves from prose to structured beat map, volte naming, quirt identity).
 
-Key decisions: no leg layer, worktrees for isolation (branches persist after worktree disposal), composable gaits, three-phase pipeline (school → breeze → corral), warrant-as-beat-map.
+Key decisions: no leg layer, worktrees for isolation (branches persist after worktree disposal), composable gaits, three-phase pipeline (school → breeze → corral), warrant-as-beat-map, jjx as LLM orchestrator.
 
-## Vocabulary (cchat-20260301 dreaming session)
+## Identity System
+
+| Symbol | Name | Digits | Namespace | Slots |
+|--------|------|--------|-----------|-------|
+| `₣` | Firemark | 2 | Heats | 4,096 |
+| `₢` | Coronet | 5 | Paces | ~268M |
+| `Ꝗ` | Quirt | 3 | Gaits | 262,144 |
+
+Quirt `ꝖABC` identifies a gait. If the gait evolves, it gets a new quirt — version history lives in gallops and git, not in the identifier.
+
+Beats do not have global identities. They are positional within a warrant (local IDs like `1a`, `1b`, `2`). Their output is commits on branches — the commits are the identity.
+
+## Vocabulary
 
 | Term | Definition |
 |------|------------|
-| **Beat** | Atomic unit: one prompt, one response. Pure. The indivisible footfall within a gait. |
-| **Gait** | Reusable recipe of beats — single, sequential, parallel, or a DAG. Gaits can compose other gaits (practical depth limit: ~2 levels). Stored as data in gallops, evolve over time. |
-| **Warrant** | School's output: the beat map for a pace. Selects and composes gaits, assigns models and file scopes per beat. The warrant *is* the structured plan, not prose. |
-| **Volte** | An attempt at executing a pace. Branch namespace: `jj/{firemark}/volte-N/{coronet}`. Multiple voltes enable parallax — different approaches to the same problem, compared at corral. Dressage term: a precise, controlled circle back to the same point with refined intent. |
-| **School** | Planning phase. Has memory of prior voltes. Reads pace docket, selects gaits from library, produces warrant. High human attention. |
-| **Breeze** | Execution phase. Pure — each beat gets a worktree, executes its prompt, produces commits on its branch. Zero human attention. |
+| **Beat** | Atomic unit: single dispatch, autonomous execution, no human interaction. The model may use tools freely (read files, search, etc.) but there is no multi-turn dialogue. The indivisible footfall within a gait. |
+| **Gait** | Reusable recipe of beats — single, sequential, parallel, or a DAG. Gaits can compose other gaits (practical depth limit: ~2 levels). Stored as data in gallops with quirt identity. School-time resource: school reads gaits for inspiration and structure, but warrants are fully resolved with no gait references to look up at runtime. |
+| **Warrant** | School's output: a fully resolved JSON beat map. Contains concrete prompts, model assignments, file scopes, and dependency DAG. No indirections — breeze/jjx need not look up gait definitions. Each beat cites its source quirt for audit. Stored as an empty first commit on the volte branch (self-documenting). |
+| **Volte** | An attempt at executing a pace (or batch of paces). Branch namespace: `jj/{firemark}/volte-N/{coronet}`. Multiple voltes enable parallax — different approaches to the same problem, compared at corral. Dressage term: a precise, controlled circle back to the same point with refined intent. |
+| **Quirt** | Gait identity. `Ꝗ` + 3 base64 characters. Named after a short riding whip — the thing that sets a gait in motion. |
+| **School** | Planning phase. Reads pace docket, selects gaits from library, produces warrant. Incremental — schools forward until ambiguity is too thick, then stops. Opus-tier work. High human attention. |
+| **Breeze** | Execution phase. jjx reads the warrant, creates worktrees, dispatches beats per the DAG. Each beat is a bare prompt issued to the specified model in its worktree. jjx manages sequencing, parallelism, and merge. Zero human attention. |
 | **Corral** | Review phase. Evaluates candidates, accepts/rejects/synthesizes. Medium human attention. Can see all voltes for parallax comparison. Replaces V3 "prance." |
 
 ### Type/Instance Note
 
 "Beat" and "gait" serve as both type (in gait library templates) and instance (in warrants and execution). Context disambiguates: gait library → types, warrant → instantiation plan, volte commits → concrete history. If ambiguity ever bites, retrofit instance-specific words; don't premint vocabulary for it.
 
-## Execution Model (cchat-20260301)
+## Execution Model
 
 ### Three Phases
 
-1. **School** — reads pace docket, selects gaits, produces warrant (beat map). Slash command primes LLM; jjx emits directive output that LLM interprets as instructions. Human Q&A refines the warrant.
-2. **Breeze** — executes warrant. Each beat gets its own worktree and branch. Parallel beats run concurrently. At completion, beat branches merge together into a single candidate branch for this pace in this volte.
-3. **Corral** — reviews candidate. Accept, reject (school produces new volte with revised warrant), or synthesize across voltes.
+1. **School** (opus, conversational) — reads pace docket, selects gaits, produces warrant JSON. Incremental: proposes per pace, human approves, includes ambiguity/malformation assessment to decide when to stop schooling further paces. Slash command primes LLM; jjx emits directive output that LLM interprets as instructions. Human Q&A refines the warrant.
+2. **Breeze** (jjx-orchestrated) — jjx reads warrant, creates worktrees per beat, dispatches bare prompts to specified models per the dependency DAG. Parallel beats run concurrently. jjx collects results and merges beat branches into a single candidate branch for this pace in this volte. Haiku can dispatch — just following instructions, no judgment needed.
+3. **Corral** (human + LLM) — reviews candidate. Accept, reject (school produces new volte with revised warrant), or synthesize across voltes.
+
+### Warrant Structure
+
+The warrant is JSON, consumed by jjx for orchestration. Fully resolved — no gait references to dereference at runtime. Each beat cites its source quirt for process improvement audit.
+
+```json
+{
+  "beats": [
+    {
+      "id": "1a",
+      "quirt": "ꝖABC",
+      "model": "sonnet",
+      "depends": [],
+      "files": ["lenses/RBSDC-depot_create.adoc"],
+      "prompt": "You are writing AsciiDoc specifications..."
+    },
+    {
+      "id": "1b",
+      "quirt": "ꝖDEF",
+      "model": "sonnet",
+      "depends": [],
+      "files": ["Tools/rbw/rbga_ArtifactRegistry.sh"],
+      "prompt": "You are implementing bash functions..."
+    },
+    {
+      "id": "2",
+      "quirt": "ꝖGHI",
+      "model": "haiku",
+      "depends": ["1a", "1b"],
+      "files": [],
+      "prompt": "Review the following changes for correctness..."
+    }
+  ]
+}
+```
+
+- `depends` defines the DAG. Empty = can run immediately. jjx dispatches in topological order, parallelizes where the DAG allows.
+- `files` is write scope — files this beat is expected to modify. Empty = read-only beat (reviewer, produces commentary not code).
+- `prompt` is the fully resolved text. The LLM reads additional files as needed via tool calls during execution.
+- `quirt` cites which gait template this beat was expanded from. Audit/process-improvement metadata.
+
+### Warrant Storage
+
+The warrant is stored as an **empty commit** (first commit on the volte branch) containing the full warrant JSON in the commit message. The branch tells its own story: first commit is the plan, subsequent commits are the execution. Anyone reading branch history sees intent followed by action.
+
+### School is Incremental
+
+School doesn't plan the whole heat at once. It schools forward until the fog gets too thick:
+
+1. School presents pace A: "clear docket, here's the warrant." Human approves.
+2. School presents pace B: "clear, two parallel gaits." Human approves.
+3. School presents pace C: "ambiguous docket, depends on B's outcome. I'd stop here."
+4. Human agrees. Breeze executes A and B.
+5. After corral, school can see results and C's fog may have lifted.
+
+School's primary value-add is the **ambiguity/malformation assessment** — not just "here's a warrant" but "here's my confidence level, and here's why we should stop."
+
+### Volte Scope
+
+A volte is **whatever school and the human agreed to execute in this pass.** Could be one pace, could be five. The volte boundary is set by the schooling conversation, not by a fixed rule.
+
+Volte-1 might cover paces A and B. Volte-2 covers C and D after seeing volte-1's results. Volte-3 redoes B and ripples through C-D because corral found a flaw.
 
 ### Parallax
 
@@ -49,25 +124,51 @@ Lifecycle: create worktree → create branch → do work → commit → remove w
 Every beat stores its prompt/warrant context in the git commit. This enables:
 - **Replay**: re-run a beat with a better prompt or different model
 - **Audit**: trace flaws back to the prompt that produced them
-- **Merge intelligence**: semantic merge conflict resolution (know *why* each side changed, not just *what* changed)
-- **Process improvement**: compare prompts that led to good vs bad outcomes
+- **Merge intelligence**: semantic merge conflict resolution — corral knows *why* each side changed, not just *what* changed. A reconciler beat can read both warrants and produce an intelligent merge.
+- **Process improvement**: compare prompts that led to good vs bad outcomes, traced back to specific quirt versions
 
 ### jjx as LLM Orchestrator
 
 V4 jjx doesn't just manage JSON — it emits prompts, directives, and context that shape what the LLM does next. Slash commands establish the interpretation contract (LLM treats jjx output as imperative, not advisory). jjx output design becomes a first-class concern: quality of directive text matters as much as correctness of JSON mutations.
 
-Pattern: jjx handles state/sequencing, LLM handles git operations and judgment. Co-routine.
+Pattern: jjx handles state/sequencing, LLM handles git operations and judgment. Co-routine. jjx is the conductor — it never interprets the prompts, just routes them.
 
-## Schema Decisions (cchat-20260224 groom session)
+### Attention Model
+
+V4 is designed around human attention as the bottleneck:
+- **School**: high attention — shaping warrants, making stop/go judgments on ambiguous paces
+- **Breeze**: zero attention — pure execution, go do something else
+- **Corral**: medium attention — reviewing diffs, not co-piloting. Parallax (multiple voltes) gives intuition something to triangulate against
+
+The system optimizes for the serial path being frictionless, not for raw parallelism.
+
+## Warrant Evolution (from V3)
+
+V3 "warrant" (the `direction` field) was prose execution guidance for a bridled pace — manually written, hoping the LLM interprets it correctly. V4 warrant is a structured JSON beat map produced by school. The V3 meaning is a degenerate special case (single beat, prose prompt).
+
+**Bridling is eliminated.** School/breeze/corral replaces the manual arm-and-fly pattern entirely. The `jjdo_arm` operation and `direction` field on tack are V3-only concepts.
+
+## Gait Library
+
+Gaits live in gallops as data, identified by quirt (`ꝖABC`). They are a **school-time resource** — school reads them for template patterns and prompt structures, but warrants are fully resolved. Breeze never looks up a gait.
+
+The gait library is like a playbook a coach consults before writing the game plan. The game plan doesn't say "run play #47" — it says exactly what each player does.
+
+Gaits evolve through practice: start with a few simple single-beat gaits, use them, see what works, crystallize recurring compositions as named gaits. The library grows from practice, not from design.
+
+**Gait record fields (TBD)**: at minimum needs prompt template content, default model preference, and whatever structure school needs to compose them. Exact schema deferred until first gaits are built.
+
+## Schema Decisions (cchat-20260224 groom session, updated cchat-20260301)
 
 - **Tack eliminated**: Flat mutable fields on pace (state, silks, gaits, docket, warrant, chain). No append-only history.
 - **Branch names derived**: `jj/{firemark}/volte-N/{coronet}`, not stored. State determines validity.
 - **Dependencies via school**: `chain` field (optional coronet) set by school, not breeze. Breeze is mechanical.
 - **New state enum**: green → ready/reined → candidate → complete/abandoned. Zero actionable overlap with V3.
 - **Reined state**: Interactive-required. School decides ready (autonomous) vs reined (human-in-loop).
-- **Gaits registry**: New top-level gallops key, stored as data. Fields TBD — table named but columns not yet defined.
+- **Gaits registry**: New top-level gallops key, keyed by quirt. Stored as data. Fields TBD.
+- **Bridling eliminated**: School/breeze/corral replaces arm-and-fly. No bridled state in V4.
 - **Markers eliminated**: Restore on need.
-- **Field renames**: V3 `text` → `docket`, V3 `direction` → `warrant`.
+- **Field renames**: V3 `text` → `docket`, V3 `direction` → `warrant` (now structured JSON, not prose).
 
 ## Slash Command Reduction (cchat-20260224 groom session)
 
@@ -95,17 +196,30 @@ V4 aggressively reduces slash commands. Most become CLAUDE.md verb table entries
 
 - **Git-as-mutex for gallops.json**: Proven under genuine concurrent pressure. V4 extends this — git protects not just metadata but work product (branches) and process artifacts (warrants in commits).
 
+## Memory Design (serious open challenge)
+
+Memory is context. Context is tokens. "School has memory of prior voltes" requires externalized memory — stored in git, in gallops, in structured artifacts — not assumed to live in an LLM context window. Different school sessions may be different LLM invocations.
+
+jjx is the memory. It reads volte history, rejection notes, prior warrants, and **curates what to include** in the school prompt. The curation logic — what to include, how much, in what form — is the critical design challenge:
+- Too little context: school repeats mistakes
+- Too much: token bloat, confusion, cost
+- Must evolve through practice
+
+Volte branches and warrant commits are the raw material. jjx's job is to summarize and present the relevant subset.
+
 ## Still Open
 
-- **Gait data model fields**: The gaits registry table is named but its columns/fields are undefined. What does a gait record contain?
-- **Beat merge ceremony**: Merging beat branches into candidate branch after breeze — is this mechanical (automatic) or does it need a final beat in the warrant?
+- **Gait data model fields**: What does a gait record contain? Prompt template, default model, beat structure — exact schema deferred.
+- **Beat merge ceremony**: Merging beat branches into candidate branch after breeze — mechanical (automatic) or does it need a final beat in the warrant?
+- **Memory curation**: How does jjx decide what prior-volte context to feed into school? This is the hardest design problem.
 - **Groom's fate**: Slash command or verb table entry in V4?
-- **Ready vs reined distinction**: Both in the state enum — is the distinction clear enough? School decides which.
+- **Ready vs reined distinction**: Both in the state enum — is the distinction clear enough? School decides which. (Note: bridled is eliminated, but reined may still be meaningful as "needs human interaction during execution.")
 
 ## References
 
-- `Memos/memo-20260224-jjk-v4-gaits.md` — Gaits, branches, and the breeze pipeline
+- `Memos/memo-20260224-jjk-v4-gaits.md` — Gaits, branches, and the breeze pipeline (partially superseded)
 - `Memos/memo-20260222-jjk-v4-vision.md` — Superseded original design seeds
 - `Tools/jjk/vov_veiled/JJS0-GallopsData.adoc` — V3 data model (what V4 replaces)
 - cchat-20260224 — Groom session: schema decisions, slash command reduction
-- cchat-20260301 — Dreaming session: beats, voltes, corral, execution model
+- cchat-20260301 — Dreaming session: beats, voltes, corral, execution model, attention model
+- cchat-20260301b — Continuation: quirt identity, warrant structure (JSON), warrant evolution from V3, school incrementalism, memory challenge, gait library as school-time resource
