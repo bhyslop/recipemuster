@@ -63,21 +63,18 @@ zrbz_kindle() {
   buz_enroll RBZ_LIST_SERVICE_ACCOUNTS  "rbw-Gl" "${z_mod}" "rbgg_list_service_accounts"
   buz_enroll RBZ_DELETE_SERVICE_ACCOUNT "rbw-GS" "${z_mod}" "rbgg_delete_service_account"
 
-  # Ark commands (paired -image + -about artifacts)
+  # Director commands (rbw-D* colophon family → rbf_cli.sh)
   z_mod="rbf_cli.sh"
-  buz_enroll RBZ_ABJURE_ARK  "rbw-aA" "${z_mod}" "rbf_abjure"
-  buz_enroll RBZ_BESEECH_ARK "rbw-ab" "${z_mod}" "rbf_beseech"
-  buz_enroll RBZ_CONJURE_ARK "rbw-aC" "${z_mod}" "rbf_build"
-  buz_enroll RBZ_SUMMON_ARK  "rbw-as" "${z_mod}" "rbf_summon"
-
-  # Rubric operations (trigger migration)
-  buz_enroll RBZ_RUBRIC_INSCRIBE "rbw-RI" "${z_mod}" "rbf_rubric_inscribe"
-
-  # Image commands (single artifact)
-  buz_enroll RBZ_BUILD_IMAGE    "rbw-iB" "${z_mod}" "rbf_build"
-  buz_enroll RBZ_DELETE_IMAGE   "rbw-iD" "${z_mod}" "rbf_delete"
-  buz_enroll RBZ_LIST_IMAGES    "rbw-il" "${z_mod}" "rbf_list"
-  buz_enroll RBZ_RETRIEVE_IMAGE "rbw-ir" "${z_mod}" "rbf_retrieve"
+  buz_enroll RBZ_CONJURE_ARK     "rbw-DC" "${z_mod}" "rbf_build"
+  buz_enroll RBZ_ABJURE_ARK      "rbw-DA" "${z_mod}" "rbf_abjure"
+  buz_enroll RBZ_BESEECH_ARK     "rbw-DB" "${z_mod}" "rbf_beseech"
+  buz_enroll RBZ_SUMMON_ARK      "rbw-DS" "${z_mod}" "rbf_summon"
+  buz_enroll RBZ_RUBRIC_INSCRIBE "rbw-DI" "${z_mod}" "rbf_rubric_inscribe"
+  buz_enroll RBZ_DELETE_IMAGE    "rbw-DD" "${z_mod}" "rbf_delete"
+  buz_enroll RBZ_LIST_IMAGES     "rbw-Dl" "${z_mod}" "rbf_list"
+  buz_enroll RBZ_RETRIEVE_IMAGE  "rbw-Dr" "${z_mod}" "rbf_retrieve"
+  z_mod="rbrr_cli.sh"
+  buz_enroll RBZ_REFRESH_GCB_PINS "rbw-DP" "${z_mod}" "rbrr_refresh_gcb_pins"
 
   # Nameplate regime operations
   z_mod="rbrn_cli.sh"
@@ -93,7 +90,6 @@ zrbz_kindle() {
   z_mod="rbrr_cli.sh"
   buz_enroll RBZ_RENDER_REPO      "rbw-rrr" "${z_mod}" "rbrr_render"
   buz_enroll RBZ_VALIDATE_REPO    "rbw-rrv" "${z_mod}" "rbrr_validate"
-  buz_enroll RBZ_REFRESH_GCB_PINS "rbw-rrg" "${z_mod}" "rbrr_refresh_gcb_pins"
 
   # Payor regime operations
   z_mod="rbrp_cli.sh"

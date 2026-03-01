@@ -1931,7 +1931,7 @@ Add `RBRV_VESSEL_ROLE` to vessel regime (`rbev-vessels/*/rbrv.env`):
 - (No 'both' option — vessels should be purpose-built)
 
 The `-meta` artifact would carry this role through to GAR, enabling:
-- `rbw-il` list output grouped by role
+- `rbw-Dl` list output grouped by role
 - Validation that nameplate doesn't assign sentry image to bottle role
 - Role-based image filtering in queries
 
@@ -1951,7 +1951,7 @@ These are speculative — may not be worth the complexity.
 
 ### Report Format Vision
 
-With role attribute, `rbw-il` could show:
+With role attribute, `rbw-Dl` could show:
 
 ```
 RBRR Registry Context:
@@ -1968,7 +1968,7 @@ bottle              bottle_ubuntu_test     (not set)               (none)
 
 ### Context
 
-Identified 2026-01-28 during `rbw-il` output improvement discussion. The list shows images but can't map them to nameplate roles without explicit vessel role metadata.
+Identified 2026-01-28 during `rbw-Dl` output improvement discussion. The list shows images but can't map them to nameplate roles without explicit vessel role metadata.
 
 ## axla-xref-macro-migration
 Convert AXLA attribute entries from shorthand cross-references to xref macro form.

@@ -1,15 +1,15 @@
+//axhob_operation
+{vosr_probe}
+
 Probe Claude Code environment for model IDs and platform information.
 Spawns minimal claude invocations to discover actual model versions.
 
 Returns structured data suitable for officium markers or diagnostics.
 
-{voss_inputs}
-
 //axd_none
 None.
 
-{voss_behavior}
-
+//axhos_step
 . Spawn three claude invocations in parallel (via tokio):
 +
 ----
@@ -17,15 +17,18 @@ claude -p --model haiku --system-prompt "Report only your exact model ID string.
 claude -p --model sonnet --system-prompt "Report only your exact model ID string." --tools "" "go"
 claude -p --model opus --system-prompt "Report only your exact model ID string." --tools "" "go"
 ----
+//axhos_step
 . For each invocation:
 .. On success: capture trimmed stdout as model ID
 .. On failure: use string "unavailable"
+//axhos_step
 . Collect hostname via `std::env` or `hostname` command
+//axhos_step
 . Collect platform via `uname -s` and `uname -m` (e.g., `darwin-arm64`)
+//axhos_step
 . Format output as 5-line string
 
-{voss_outputs}
-
+//axhoo_output
 Five-line string in `key: value` format:
 
 ----
@@ -42,8 +45,7 @@ If a model tier is unavailable, that line shows:
 haiku: unavailable
 ----
 
-{voss_completion}
-
+//axhoc_completion
 Returns the formatted string on success.
 Individual probe failures are captured as "unavailable" rather than failing the routine.
 

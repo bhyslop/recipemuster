@@ -13,7 +13,6 @@
 // vosr_:  Routines (internal reusable procedures)
 // vosk_:  Key premises (design constraints)
 // vosc_:  Control terms (voices axc_* in bash scripted context)
-// voss_:  Section headers (voices axs_*)
 //
 // vosl:   Liturgy (non-terminal, naming system umbrella)
 // voslc_: Liturgy Cipher (project root prefix)
@@ -168,12 +167,6 @@
 :voscai_invitatory:     <<voscai_invitatory,Invitatory>>
 :voscar_release:        <<voscar_release,Release>>
 :vost_officium:         <<vost_officium,Officium>>
-
-// Section headers (voice axs_*)
-:voss_inputs:           <<voss_inputs,Inputs:>>
-:voss_behavior:         <<voss_behavior,Behavior:>>
-:voss_outputs:          <<voss_outputs,Outputs:>>
-:voss_completion:       <<voss_completion,Completion:>>
 
 // Key premises
 :vosk_prefix_validation: <<vosk_prefix_validation,Prefix Validation>>
@@ -367,28 +360,6 @@ Progress messages or results.
 Progress message indicating completion of a processing stage.
 
 == Section Headers
-
-VOS section headers voice `axho_*` motifs for procedure documentation structure.
-
-[[voss_inputs]]
-//axl_voices axhop_parameter
-{voss_inputs}::
-Section header for operation input parameters.
-
-[[voss_behavior]]
-//axl_voices axhos_step
-{voss_behavior}::
-Section header for operation behavior steps.
-
-[[voss_outputs]]
-//axl_voices axhoo_output
-{voss_outputs}::
-Section header for operation outputs and artifacts.
-
-[[voss_completion]]
-//axl_voices axhoc_completion
-{voss_completion}::
-Section header for operation completion criteria.
 
 == Types
 
@@ -865,15 +836,12 @@ Creates a
 from the
 {vosp_kit_forge}.
 
-{voss_inputs}
-
 //axd_none
 No external inputs. Operates on current
 {vosp_kit_forge}
 state.
 
-{voss_behavior}
-
+//axhos_step
 . *Collect kit declarations*:
 .. {vosc_call}
 read `BURC_MANAGED_KITS` from kit forge's `.buk/burc.env`
@@ -882,6 +850,7 @@ if missing or empty: "burc.env missing required variable: BURC_MANAGED_KITS"
 .. {vosc_store}
 kit list for processing (only kits in BURC_MANAGED_KITS)
 
+//axhos_step
 . *Validate prefix compliance*:
 .. For each
 {vose_kit}:
@@ -894,18 +863,21 @@ derive from
 if any violations: list non-compliant
 {vosli_inscription_s}
 
+//axhos_step
 . *Run testbenches*:
 .. {vosc_call}
 each kit's testbench
 .. {vosc_fatal}
 if any tests fail
 
+//axhos_step
 . *Build binaries*:
 .. {vosc_call}
 cargo build for each target platform
 .. {vosc_store}
 binary paths
 
+//axhos_step
 . *Collect assets*:
 .. For each
 {vose_kit}:
@@ -920,11 +892,13 @@ from kit list:
 .. {vosc_step}
 "Claude config assets collected by cipher pattern"
 
+//axhos_step
 . *Generate sigil*:
 .. {vosc_store}
 {vost_sigil}
 as current timestamp (YYMMDD-HHMM)
 
+//axhos_step
 . *Compute brand identity*:
 .. {vosc_call}
 compute order-independent super-SHA:
@@ -937,6 +911,7 @@ from computation
 .. {vosc_store}
 super-SHA for registry lookup
 
+//axhos_step
 . *Allocate hallmark*:
 .. {vosc_call}
 read
@@ -957,6 +932,7 @@ with new entry
 ... {vosc_call}
 commit registry change
 
+//axhos_step
 . *Write brand file*:
 .. {vosc_call}
 create
@@ -970,6 +946,7 @@ at parcel root with
 {vosem_brand_kits}
 (list of kit identifiers)
 
+//axhos_step
 . *Package parcel*:
 .. Create `vvk-parcel-{hallmark}.tar.gz` with structure:
 ... `vvi_install.sh` — install script (bootstrap, not installed)
@@ -979,15 +956,13 @@ at parcel root
 ... `kits/` — all kit assets by directory (including VVK with binaries)
 ... `claude/` — commands and hooks collected by cipher pattern
 
-{voss_outputs}
-
+//axhoo_output
 * {vose_parcel}
 archive: `vvk-parcel-{hallmark}.tar.gz`
 * {vose_brand_file}
 at parcel root
 
-{voss_completion}
-
+//axhoc_completion
 {vose_parcel}
 created with all validated
 {vose_kit}
@@ -1014,13 +989,10 @@ Invocation (from extracted parcel):
 The bash script is a thin bootstrap: detect platform, exec `vvx_emplace`.
 All logic is implemented in Rust for path safety and testability.
 
-{voss_inputs}
-
 //axd_required
 * Path to target repository's `burc.env` file (positional argument)
 
-{voss_behavior}
-
+//axhos_step
 . *Validate burc.env*:
 .. {vosc_require}
 burc.env exists and is readable
@@ -1041,6 +1013,7 @@ resolve `BURC_TOOLS_DIR` relative to resolved project_root (per BURC spec)
 .. {vosc_store}
 absolute paths for tools_dir and project_root, kit list from BURC_MANAGED_KITS
 
+//axhos_step
 . *Validate git state*:
 .. {vosc_require}
 project_root is a git repository
@@ -1051,6 +1024,7 @@ working tree is clean (no uncommitted changes)
 .. {vosc_fatal}
 if dirty: "Target repo has uncommitted changes. Commit or stash before install."
 
+//axhos_step
 . *Read brand identity*:
 .. {vosc_call}
 parse
@@ -1061,6 +1035,7 @@ from parcel root
 and
 {vosem_brand_kits}
 
+//axhos_step
 . *Validate kit match*:
 .. {vosc_require}
 `BURC_MANAGED_KITS` exactly matches
@@ -1069,6 +1044,7 @@ and
 .. {vosc_fatal}
 if mismatch: "Target requests kits [{target_kits}] but parcel contains [{parcel_kits}]"
 
+//axhos_step
 . *Nuclear cleanup*:
 .. If `.vvk/` exists:
 {vosc_call}
@@ -1082,6 +1058,7 @@ delete recursively
 .. {vosc_step}
 "Previous installation removed" or "Clean target (first-time install)"
 
+//axhos_step
 . *Create brand directory*:
 .. {vosc_call}
 create `.vvk/` directory
@@ -1090,6 +1067,7 @@ copy
 {vose_brand_file}
 to `.vvk/vvbf_brand.json`
 
+//axhos_step
 . *Install kits*:
 .. For each kit in `BURC_MANAGED_KITS`:
 ... {vosc_call}
@@ -1097,6 +1075,7 @@ copy `kits/{kit}/` to `${BURC_TOOLS_DIR}/{kit}/`
 .. {vosc_step}
 "{n} kits installed"
 
+//axhos_step
 . *Install Claude config assets*:
 .. {vosc_call}
 copy `claude/commands/*` to `.claude/commands/`
@@ -1105,6 +1084,7 @@ copy `claude/hooks/*` to `.claude/hooks/`
 .. {vosc_step}
 "{m} commands installed, {p} hooks installed"
 
+//axhos_step
 . *Freshen CLAUDE.md*:
 .. If CLAUDE.md absent:
 {vosc_call}
@@ -1126,6 +1106,7 @@ exists: expand at that location
 NOTE: This is a deterministic text transformation implemented in Rust.
 No LLM assistance required for marker manipulation.
 
+//axhos_step
 . *Commit installation*:
 .. {vosc_call}
 `git add -A`
@@ -1134,8 +1115,7 @@ No LLM assistance required for marker manipulation.
 .. {vosc_step}
 "Installation committed"
 
-{voss_outputs}
-
+//axhoo_output
 * Kit assets under `${BURC_TOOLS_DIR}/`
 * Commands in `.claude/commands/`
 * Hooks in `.claude/hooks/`
@@ -1144,8 +1124,7 @@ No LLM assistance required for marker manipulation.
 {vose_managed_section_s}
 * Single git commit
 
-{voss_completion}
-
+//axhoc_completion
 All
 {vose_kit_s}
 installed atomically.
@@ -1173,13 +1152,10 @@ Invocation (from target repo root):
 The bash script is a thin bootstrap: exec `vvx_vacate`.
 All logic is implemented in Rust.
 
-{voss_inputs}
-
 //axd_none
 No arguments. Operates on current repository using `.buk/burc.env`.
 
-{voss_behavior}
-
+//axhos_step
 . *Validate burc.env*:
 .. {vosc_require}
 `.buk/burc.env` exists and is readable
@@ -1200,12 +1176,14 @@ resolve `BURC_TOOLS_DIR` relative to resolved project_root (per BURC spec)
 +
 NOTE: `BURC_MANAGED_KITS` is required for defense in depth; any VVK-managed repo should declare its kit inventory.
 
+//axhos_step
 . *Validate git state*:
 .. {vosc_require}
 working tree is clean
 .. {vosc_fatal}
 if dirty: "Repo has uncommitted changes. Commit or stash before uninstall."
 
+//axhos_step
 . *Read brand file*:
 .. {vosc_require}
 `.vvk/vvbf_brand.json` exists
@@ -1222,6 +1200,7 @@ if malformed: "Brand file malformed: {details}"
 kit list and their
 {voslc_cipher_s}
 
+//axhos_step
 . *Remove commands and hooks*:
 .. For each
 {voslc_cipher}
@@ -1233,6 +1212,7 @@ remove files matching `{cipher}h-*.md` from `.claude/hooks/`
 .. {vosc_step}
 "{n} commands removed, {m} hooks removed"
 
+//axhos_step
 . *Collapse CLAUDE.md sections*:
 .. If CLAUDE.md exists:
 ... For each
@@ -1248,6 +1228,7 @@ exist: replace with single
 +
 NOTE: Preserves user's chosen section ordering for future reinstall.
 
+//axhos_step
 . *Remove vvx binary*:
 .. {vosc_call}
 enumerate files in `${BURC_TOOLS_DIR}/vvk/bin/`
@@ -1261,6 +1242,7 @@ NOTE: Kit directories (`buk/`, `jjk/`, etc.) are intentionally *preserved*.
 Unveiled kit content is typically open-source and remains functional outside Claude Code.
 Vacate removes Claude-specific integration while retaining underlying functionality.
 
+//axhos_step
 . *Remove brand infrastructure*:
 .. {vosc_call}
 delete `.vvk/vvbf_brand.json`
@@ -1269,6 +1251,7 @@ delete `.vvk/` directory if empty
 .. {vosc_step}
 "Brand file removed"
 
+//axhos_step
 . *Commit uninstallation*:
 .. {vosc_call}
 `git add -A`
@@ -1277,8 +1260,7 @@ delete `.vvk/` directory if empty
 .. {vosc_step}
 "Uninstallation committed"
 
-{voss_outputs}
-
+//axhoo_output
 * vvx binaries removed from `${BURC_TOOLS_DIR}/vvk/bin/`
 * Commands removed from `.claude/commands/`
 * Hooks removed from `.claude/hooks/`
@@ -1288,8 +1270,7 @@ delete `.vvk/` directory if empty
 * Kit directories *preserved* (unveiled content remains functional)
 * Single git commit
 
-{voss_completion}
-
+//axhoc_completion
 Claude Code integration cleanly removed.
 Kit directories remain for continued use outside Claude Code.
 {vose_uninstalled_marker_s}
@@ -1333,19 +1314,17 @@ Or directly:
 vvx_freshen --burc .buk/burc.env
 ----
 
-{voss_inputs}
-
 //axd_required
 * Path to `burc.env` file (`--burc` argument)
 
-{voss_behavior}
-
+//axhos_step
 . *Parse burc.env*:
 .. {vosc_call}
 parse burc.env for `BURC_PROJECT_ROOT`, `BURC_TOOLS_DIR`, `BURC_MANAGED_KITS`
 .. {vosc_fatal}
 if missing or empty: "burc.env missing required variable: {name}"
 
+//axhos_step
 . *Read forge templates*:
 .. For each kit in `BURC_MANAGED_KITS`:
 ... {vosc_call}
@@ -1363,6 +1342,7 @@ read template from `${BURC_TOOLS_DIR}/{kit}/vov_veiled/{template_path}`
 ... {vosc_fatal}
 if template not found: "Template not found in forge: {path}"
 
+//axhos_step
 . *Freshen CLAUDE.md*:
 .. If CLAUDE.md absent:
 {vosc_call}
@@ -1384,14 +1364,12 @@ The caller decides when to commit, enabling
 {vosof_freshen}
 to be composed with other operations.
 
-{voss_outputs}
-
+//axhoo_output
 * Updated CLAUDE.md with
 {vose_managed_section_s}
 from forge templates
 
-{voss_completion}
-
+//axhoc_completion
 CLAUDE.md
 {vose_managed_section_s}
 reflect current forge template content.

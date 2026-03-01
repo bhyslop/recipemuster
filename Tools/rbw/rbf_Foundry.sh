@@ -991,7 +991,7 @@ rbf_rubric_inscribe() {
   local -r z_pins_epoch="${RBRR_GCB_PINS_REFRESHED_AT:-0}"
   local -r z_age=$((z_now_epoch - z_pins_epoch))
   if test "${z_age}" -gt "${ZRBF_INSCRIBE_STALENESS_SEC}"; then
-    buc_die "GCB pins are stale (${z_age}s old, limit ${ZRBF_INSCRIBE_STALENESS_SEC}s) — run ./tt/rbw-rrg.RefreshGcbPins.sh first, commit, then re-run inscribe"
+    buc_die "GCB pins are stale (${z_age}s old, limit ${ZRBF_INSCRIBE_STALENESS_SEC}s) — run ./tt/rbw-DP.DirectorRefreshesPins.sh first, commit, then re-run inscribe"
   fi
   buc_info "Pin freshness verified (${z_age}s old)"
 

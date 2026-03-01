@@ -1,3 +1,6 @@
+//axhob_operation
+{vosr_guard}
+
 Validate staged content size against storage cost limits.
 Prevents accidental commits of release tarballs, build artifacts,
 node_modules, or large binaries.
@@ -9,14 +12,12 @@ The cost model approximates incremental storage impact:
 * Modified binary (M): blob size (no delta)
 * Deleted file (D): 0
 
-{voss_inputs}
-
 * `limit` — Maximum allowed size in bytes (standard: 50000)
 * `warn` — Warning threshold in bytes (standard: 30000)
 
-{voss_behavior}
-
+//axhos_step
 . Get list of staged files via `git diff --cached --name-only`
+//axhos_step
 . For each staged file:
 .. Determine change status via `git diff --cached --name-status`
 .. If deleted: size = 0
@@ -25,19 +26,21 @@ The cost model approximates incremental storage impact:
 ... Check if binary via `git diff --cached --numstat` (binary shows `-\t-\t<path>`)
 ... If binary: size = blob size
 ... If text: size = diff output size via `git diff --cached -- <path>`
+//axhos_step
 . Sum all file sizes
+//axhos_step
 . If total > `limit`: emit blocked message with breakdown, return 1
+//axhos_step
 . If total > `warn`: emit warning message, return 2
+//axhos_step
 . Otherwise: return 0
 
-{voss_outputs}
-
+//axhoo_output
 * Exit 0: under limit (OK to commit)
 * Exit 1: over limit (commit blocked)
 * Exit 2: over warning threshold (commit allowed with warning)
 
-{voss_completion}
-
+//axhoc_completion
 Returns exit code indicating status.
 On blocked (exit 1), emits breakdown of largest files to stderr.
 
