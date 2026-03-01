@@ -6172,6 +6172,13 @@
         "₢AjAAJ": {
           "tacks": [
             {
+              "ts": "260301-0931",
+              "state": "complete",
+              "text": "Convert RBSDI-director_create.adoc from legacy axs_* to axho_* markers.",
+              "silks": "transform-rbsdi-director-create",
+              "commit": "d5977a4"
+            },
+            {
               "ts": "260227-1057",
               "state": "rough",
               "text": "Convert RBSDI-director_create.adoc from legacy axs_* to axho_* markers.",
