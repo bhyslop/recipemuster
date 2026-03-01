@@ -5995,6 +5995,13 @@
         "₢AiAAo": {
           "tacks": [
             {
+              "ts": "260301-1254",
+              "state": "abandoned",
+              "text": "End-to-end verification of trigger fix on a clean depot.\n\n## Sequence\n\n1. Destroy depot 260301-01 (tt/rbw-pDD.PayorDestroysDepot.sh)\n2. Create fresh depot (tt/rbw-pCD.PayorCreatesDepot.sh)\n3. Governor reset (tt/rbw-pRG.PayorResetsGovernor.sh)\n4. Create director (tt/rbw-GD.GovernorDirectorCreate.sh)\n5. Depot initialize (tt/rbw-gdi.DepotInitialize.sh)\n6. Update rbrr.env with new depot coordinates\n7. Refresh GCB pins (tt/rbw-rrg.RefreshGcbPins.sh)\n8. Regenerate all cloudbuild.json, commit\n9. Inscribe (tt/rbw-RI.RubricInscribe.sh) — must create all 7 triggers\n10. Build busybox (tt/rbw-iB.BuildImageRemotely.sh rbev-vessels/rbev-busybox)\n\n## Acceptance criteria\n\n- Inscribe creates all 7 triggers on first attempt (no retry needed)\n- Busybox build completes successfully via trigger dispatch\n- No diagnostic IAM grants — only depot_create/create_director provisioning\n\n## Key file\n\n- Tools/rbw/rbf_Foundry.sh (contains the repository→uri fix from ₢AiAAn)",
+              "silks": "e2e-clean-depot-verify",
+              "commit": "6fb221b"
+            },
+            {
               "ts": "260301-0949",
               "state": "rough",
               "text": "End-to-end verification of trigger fix on a clean depot.\n\n## Sequence\n\n1. Destroy depot 260301-01 (tt/rbw-pDD.PayorDestroysDepot.sh)\n2. Create fresh depot (tt/rbw-pCD.PayorCreatesDepot.sh)\n3. Governor reset (tt/rbw-pRG.PayorResetsGovernor.sh)\n4. Create director (tt/rbw-GD.GovernorDirectorCreate.sh)\n5. Depot initialize (tt/rbw-gdi.DepotInitialize.sh)\n6. Update rbrr.env with new depot coordinates\n7. Refresh GCB pins (tt/rbw-rrg.RefreshGcbPins.sh)\n8. Regenerate all cloudbuild.json, commit\n9. Inscribe (tt/rbw-RI.RubricInscribe.sh) — must create all 7 triggers\n10. Build busybox (tt/rbw-iB.BuildImageRemotely.sh rbev-vessels/rbev-busybox)\n\n## Acceptance criteria\n\n- Inscribe creates all 7 triggers on first attempt (no retry needed)\n- Busybox build completes successfully via trigger dispatch\n- No diagnostic IAM grants — only depot_create/create_director provisioning\n\n## Key file\n\n- Tools/rbw/rbf_Foundry.sh (contains the repository→uri fix from ₢AiAAn)",
