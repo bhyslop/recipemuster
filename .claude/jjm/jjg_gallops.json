@@ -6255,6 +6255,13 @@
         "₢AjAAO": {
           "tacks": [
             {
+              "ts": "260301-0938",
+              "state": "complete",
+              "text": "Convert RBSRI-rubric_inscribe.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsri-rubric-inscribe",
+              "commit": "0e7bfbb"
+            },
+            {
               "ts": "260227-1057",
               "state": "rough",
               "text": "Convert RBSRI-rubric_inscribe.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
