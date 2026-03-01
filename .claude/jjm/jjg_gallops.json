@@ -4658,9 +4658,10 @@
         "₢AiAAk",
         "₢AiAAl",
         "₢AiAAm",
-        "₢AiAAr"
+        "₢AiAAr",
+        "₢AiAAs"
       ],
-      "next_pace_seed": "AAs",
+      "next_pace_seed": "AAt",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6048,6 +6049,17 @@
               "text": "Auto-populate RBRA_RUBRIC_REPO_URL during SA creation flows.\n\n## Problem\n\nWhen Governor creates a Director (or resets itself), the generated RBRA file\ncontains only SA credentials. The operator must manually append\nRBRA_RUBRIC_REPO_URL to both Governor and Director RBRA files. This is\nerror-prone and caused a block during e2e testing (₢AiAAo).\n\n## Proposed Changes\n\n1. **Director creation** (`rbgg_create_director`): Governor already has the\n   rubric URL in its own RBRA. After writing the Director RBRA file, append\n   RBRA_RUBRIC_REPO_URL from the Governor's environment.\n\n2. **Governor reset** (`rbgp_governor_reset`): Consider whether the rubric URL\n   should be preserved across resets. The Payor doesn't have it, but the\n   outgoing Governor RBRA does. May need a \"carry forward\" or prompt.\n\n3. **Validation**: Add a post-write validation step that sources the new RBRA\n   and confirms RBRA_RUBRIC_REPO_URL is present and reachable (git ls-remote)\n   before declaring success.\n\n## Design Questions\n\n- Should RBRA files carry installation context beyond SA credentials?\n- Should Governor reset preserve rubric URL from the previous Governor RBRA?\n- Should depot_initialize auto-append to Governor RBRA instead of requiring\n  manual edit?",
               "silks": "auto-populate-rubric-url-in-rbra",
               "commit": "4e94d06"
+            }
+          ]
+        },
+        "₢AiAAs": {
+          "tacks": [
+            {
+              "ts": "260301-1145",
+              "state": "rough",
+              "text": "Reorganize Director-affiliated tabtargets under rbw-D* colophon prefix.\n\n## Context\n\nGovernor operations use rbw-G* prefix consistently. Director operations are\nscattered across rbw-i* (image), rbw-a* (ark), rbw-RI (inscribe), and\nrbw-rrg (pins). This pace consolidates Director-affiliated tabtargets under\nrbw-D* for consistency.\n\n## Inventory\n\nCurrent Director-affiliated tabtargets:\n\nArk operations (high-level, vessel-scoped):\n- rbw-aC ConjureArk → rbf_build (build image from vessel)\n- rbw-aA AbjureArk → rbf_abjure (delete ark, vessel-scoped)\n- rbw-as SummonArk → rbf_summon (pull ark)\n- rbw-ab BeseechArk → rbf_beseech (list arks with correlation)\n\nImage operations (low-level, locator-scoped):\n- rbw-iB BuildImageRemotely → rbf_build (DUPLICATE of rbw-aC)\n- rbw-iD DeleteImage → rbf_delete (delete by moniker:tag)\n- rbw-il ImageList → rbf_list (raw list of locators)\n- rbw-ir RetrieveImage → rbf_retrieve (pull by moniker:tag)\n\nRubric/build infrastructure:\n- rbw-RI RubricInscribe → rbf_inscribe\n- rbw-rrg RefreshGcbPins → rbrr_refresh_gcb_pins\n\n## Proposed Mapping (requires human review)\n\nCandidate rbw-D* colophons — present to user for approval before executing:\n\n| Proposed   | Description                  | Replaces       |\n|------------|------------------------------|----------------|\n| rbw-DC     | DirectorConjuresArk          | rbw-aC, rbw-iB |\n| rbw-DA     | DirectorAbjuresArk           | rbw-aA         |\n| rbw-DS     | DirectorSummonsArk           | rbw-as         |\n| rbw-DB     | DirectorBeseechesArk         | rbw-ab         |\n| rbw-DI     | DirectorInscribesRubric      | rbw-RI         |\n| rbw-DP     | DirectorRefreshesPins        | rbw-rrg        |\n| rbw-Dd     | DirectorDeletesImage         | rbw-iD         |\n| rbw-Dl     | DirectorListsImages          | rbw-il         |\n| rbw-Dr     | DirectorRetrievesImage       | rbw-ir         |\n\n## CRITICAL: Human review gate\n\nDo NOT proceed with renames without presenting the full mapping to the user\nand getting explicit approval. The colophon choices affect tab-completion\nergonomics, terminal exclusivity rules, and muscle memory. This is a design\ndecision, not a mechanical transformation.\n\n## Execution (after approval)\n\n1. Rename tabtarget files in tt/\n2. Update rbz_zipper.sh colophon strings\n3. Update any buc_next references in code\n4. Retire rbw-iB (duplicate of conjure)\n5. Verify no stale colophon references remain",
+              "silks": "director-colophon-reorg",
+              "commit": "edc4066"
             }
           ]
         }
