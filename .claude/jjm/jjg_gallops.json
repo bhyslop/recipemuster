@@ -4648,6 +4648,7 @@
         "₢AiAAq",
         "₢AiAAt",
         "₢AiAAu",
+        "₢AiAAv",
         "₢AiAAo",
         "₢AiAAK",
         "₢AiAAT",
@@ -4663,7 +4664,7 @@
         "₢AiAAr",
         "₢AiAAs"
       ],
-      "next_pace_seed": "AAv",
+      "next_pace_seed": "AAw",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6091,6 +6092,17 @@
               "text": "Create lenses document RBSCTD-CloudBuildTriggerDispatch.adoc capturing:\n\n## Content\n\n1. **Root cause**: triggers.run REST API only accepts RepoSource (1st gen CSR type) in\n   its protobuf schema (RunBuildTriggerRequest.source). Structural limitation, not a bug.\n   Confirmed via Go GAPIC proto surface (Dec 2025) and live experiments.\n\n2. **Two resource hierarchies**: Developer Connect gitRepositoryLinks\n   (developerconnect.googleapis.com) vs Cloud Build v2 repositories\n   (cloudbuild.googleapis.com/v2). Separate APIs, not interchangeable.\n   Triggers only work with CB v2 repositories.\n\n3. **Provenance implications**: SLSA v1.0 requires trigger-invoked builds.\n   builds.create only produces v0.1. Trigger-based dispatch is mandatory for Tier 2.\n\n4. **Decision**: Replace Developer Connect entirely with Cloud Build v2\n   connections/repositories. triggers.run + RepoSource is the supported path\n   for CB v2 repository-backed triggers.\n\n5. **Experimental evidence**: 3 triggers.run body formats all HTTP 400;\n   builds.create + developerConnectConfig HTTP 200 but only v0.1 provenance.\n\n6. **Web research references** (all URLs with context):\n   - Go GAPIC proto: pkg.go.dev/cloud.google.com/go/cloudbuild/apiv1/v2/cloudbuildpb\n   - googleapis/google-cloud-go#9029\n   - Google provenance guide: cloud.google.com/build/docs/securing-builds/generate-validate-build-provenance\n   - CB v2 repos API: cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections.repositories\n   - Developer forums: discuss.google.dev/t/gcp-cloudbuild-failed-to-trigger-build-couldnt-read-commit/100578\n   - Cloud Build buildType v1: cloud.google.com/build/gcb-buildtypes/google-worker/v1\n\n## Acceptance Criteria\n\n- New lenses document authored with proper AsciiDoc structure\n- All web research URLs preserved with context\n- Experimental results documented\n- Decision rationale clear for future readers",
               "silks": "document-triggers-run-research",
               "commit": "4a6db38"
+            }
+          ]
+        },
+        "₢AiAAv": {
+          "tacks": [
+            {
+              "ts": "260301-1243",
+              "state": "rough",
+              "text": "Research Cloud Build v2 connection infrastructure to plan the Developer Connect replacement.\n\n## Questions to Answer\n\n1. Does a CB v2 connection require a SEPARATE GitHub OAuth authorization from\n   Developer Connect, or can the same GitHub App installation be reused?\n2. What does the CB v2 connection creation REST API look like?\n   (POST cloudbuild.googleapis.com/v2/projects/{p}/locations/{r}/connections)\n3. What OAuth flow is needed for CB v2 connections? Browser-based like DC?\n4. What IAM permissions/roles are needed? (cloudbuild.connectionAdmin?)\n5. What service agents need provisioning? Does CB v2 use the same\n   cloudbuild service agent already provisioned, or a separate one?\n6. Can we reuse RBRA_RUBRIC_REPO_URL (PAT-in-URL) for git operations\n   alongside the CB v2 connection (for trigger source binding)?\n\n## Approach\n\n- Read CB v2 REST API docs via web research\n- Compare with existing Developer Connect setup in rbgp_Payor.sh and\n  rbgm_ManualProcedures.sh\n- Document findings in paddock addendum or pace docket update\n\n## Acceptance Criteria\n\n- All 6 questions answered with citations\n- Clear mapping: what replaces what in depot_create and depot_initialize\n- Regime variable plan: which RBRR_GDC_* vars to delete/rename",
+              "silks": "investigate-cbv2-connection-setup",
+              "commit": "4b6b6dd"
             }
           ]
         }
