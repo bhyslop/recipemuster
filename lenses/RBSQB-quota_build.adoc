@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_quota_build}
+
 The
 {at_operator}
 reviews
@@ -20,20 +23,23 @@ The primary control for concurrent build capacity is selecting a machine type wh
 * `E2_HIGHCPU_8` (8 vCPUs): 1 concurrent build in 10-CPU quota
 * `E2_HIGHCPU_32` (32 vCPUs): requires 32+ CPU quota for even 1 build
 
-// ⟦axs_inputs⟧
-. *Prerequisites*:
-.. {rbhg_require}
+//axhoq_precondition
+* {rbhg_require}
 {rbtgi_depot}
 exists (completed
 {rbtgo_depot_create})
-.. {rbhg_require}
+
+//axhoq_precondition
+* {rbhg_require}
 `«DEPOT_PROJECT_ID»` known from
 {rbtgo_depot_create}
 output
-.. {rbhg_require}
+
+//axhoq_precondition
+* {rbhg_require}
 Console access to the depot project with Owner or Quota Administrator IAM role
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Navigate to Cloud Build Quotas*:
 .. Open Google Cloud Console
 .. Select the depot project (`«DEPOT_PROJECT_ID»`) from the project selector
@@ -47,6 +53,7 @@ current CPU quota value as `«CPU_QUOTA»`
 .. {rbhg_store}
 current usage percentage — if near 100% with one build running, the machine type is consuming most of the quota
 
+//axhos_step
 . *Evaluate Machine Type vs CPU Quota*:
 .. {rbhg_store}
 current
@@ -61,13 +68,15 @@ to `UNSPECIFIED` (2 vCPUs) for 5 concurrent builds in a 10-CPU quota.
 .. If machine type adjustment alone cannot satisfy capacity requirements, a CPU quota increase can be requested via *Edit Quotas*.
 This is a last resort and rarely necessary.
 
+//axhos_step
 . *Confirm Quota Headroom*:
 .. After changing machine type or receiving quota increase, return to *IAM & Admin > Quotas & System Limits*
 .. Filter for `cloudbuild.googleapis.com` and verify the *Concurrent Build CPUs* row
 .. {rbhg_require}
 quota headroom supports the desired number of concurrent builds: `«CPU_QUOTA»` ≥ (desired concurrency × vCPUs per machine type)
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbtgi_depot_project}
 
 The
 {rbtgi_depot_project}
@@ -75,8 +84,7 @@ is configured for the desired level of concurrent build execution through alignm
 {rbrr_gcb_machine_type}
 and CPU quota.
 
-// ⟦axs_completion⟧
-
+//axhoc_completion
 NOTE: If the desired concurrency exceeds what the default pool CPU quota permits even after machine type adjustment, a
 {gcb_service}
 private worker pool with explicit concurrency settings is an alternative.
