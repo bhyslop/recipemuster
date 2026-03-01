@@ -4652,6 +4652,7 @@
         "₢AiAAw",
         "₢AiAAx",
         "₢AiAAy",
+        "₢AiAAz",
         "₢AiAAo",
         "₢AiAAK",
         "₢AiAAT",
@@ -4667,7 +4668,7 @@
         "₢AiAAr",
         "₢AiAAs"
       ],
-      "next_pace_seed": "AAz",
+      "next_pace_seed": "AA0",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6139,6 +6140,17 @@
               "text": "Revert rbf_build dispatch from builds.create experiment back to triggers.run + RepoSource.\n\n## Scope\n\n1. **Remove diagnostic/experiment code from rbf_Foundry.sh**:\n   - Remove: builds.create + developerConnectConfig dispatch path\n   - Remove: rubric repo shallow clone for build config\n   - Remove: ZRBF_BUILD_RUBRIC_CLONE, ZRBF_BUILD_CREATE_BODY kindle constants\n   - Remove: ALLOW_LOOSE substitution option\n\n2. **Restore triggers.run dispatch**:\n   - Restore: trigger resolution via GET (verify trigger exists)\n   - Restore: triggers.run POST with RepoSource body\n   - Use commitSha from rubric repo HEAD (existing ls-remote logic)\n\n3. **Restore ZRBF_BUILD_TRIGGER_BODY kindle constant**\n\n4. **Clean up any leftover ZRBF_TRIGGERS_URL references if needed**\n\n## Dependencies\n\n- ₢AiAAx (triggers now reference CB v2 repositories, so triggers.run should work)\n\n## Acceptance Criteria\n\n- rbf_build uses triggers.run + RepoSource for dispatch\n- No builds.create code remains in dispatch path\n- No rubric repo clone in build path\n- Code compiles (no dangling references to removed constants)",
               "silks": "revert-dispatch-to-triggers-run",
               "commit": "95e47f6"
+            }
+          ]
+        },
+        "₢AiAAz": {
+          "tacks": [
+            {
+              "ts": "260301-1244",
+              "state": "rough",
+              "text": "Update specification documents to reflect CB v2 migration.\n\n## Scope\n\n1. **RBS0-SpecTop.adoc**: Update Developer Connect references to Cloud Build v2.\n   Replace gitRepositoryLinks vocabulary with CB v2 repositories vocabulary.\n   Update linked terms: rbtgi_source_connection, rbtgi_source_link.\n\n2. **RBSRI-rubric_inscribe.adoc**: Update inscribe flow to reference CB v2\n   repository creation instead of gitRepositoryLinks creation.\n\n3. **RBSDC-depot_create.adoc**: Update depot creation to show CB v2 connection\n   creation instead of Developer Connect connection.\n\n4. **RBSDN-depot_initialize.adoc**: Update OAuth flow for CB v2 connections.\n\n5. **AXLA-Lexicon.adoc**: Update or replace axig_developer_connect motif.\n   Add CB v2 connection/repository terms if needed.\n\n6. **Paddock (.claude/jjm/jjp_uAli.md)**: Add session decisions documenting\n   the DC → CB v2 migration rationale, referencing RBSCTD memo.\n\n## Acceptance Criteria\n\n- No Developer Connect references remain in active specs (except historical context)\n- CB v2 resource types correctly documented\n- Linked terms updated consistently\n- Paddock records the decision",
+              "silks": "update-specs-cbv2-migration",
+              "commit": "82542d6"
             }
           ]
         }
