@@ -133,29 +133,34 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 ... displayName: `Mason for RB Depot: «INPUT_DEPOT_NAME»`
 ... project: `«DEPOT_PROJECT_ID»`
 .. {rbbc_store}
-`«MASON_SERVICE_ACCOUNT»` from response `.email` field
+`«MASON_EMAIL»` from response `.email` field
+.. {rbbc_store}
+`«MASON_UNIQUE_ID»` from response `.uniqueId` field
 
 //axhos_step
 . *Configure
 {rbtr_mason}
 Permissions*:
+.. NOTE: All member bindings use `serviceAccount:«MASON_UNIQUE_ID»` (numeric ID) to avoid GAIA propagation race.
 .. {rbbc_call}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy] for `«GAR_REPOSITORY»`
-... Add `«MASON_SERVICE_ACCOUNT»` with `roles/artifactregistry.admin`
+... Add `serviceAccount:«MASON_UNIQUE_ID»` with `roles/artifactregistry.writer`
 .. {rbbc_call}
 link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] for `«BUILD_BUCKET»`
-... Add `«MASON_SERVICE_ACCOUNT»` with `roles/storage.objectViewer`
+... Add `serviceAccount:«MASON_UNIQUE_ID»` with `roles/storage.objectViewer`
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
-... Add `«MASON_SERVICE_ACCOUNT»` with `roles/viewer`
+... Add `serviceAccount:«MASON_UNIQUE_ID»` with `roles/viewer`
+... Add `serviceAccount:«MASON_UNIQUE_ID»` with `roles/logging.logWriter`
 
 //axhos_step
 . *Enable Cloud Build service agent to impersonate
 {rbtr_mason}*:
 .. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for `«MASON_SERVICE_ACCOUNT»`
-.. Add member: `service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for `«MASON_EMAIL»`
+.. Add member: `serviceAccount:service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
 .. Grant role: `roles/iam.serviceAccountTokenCreator`
+.. NOTE: Uses email, not numeric ID — Cloud Build service agent is Google-provisioned, not newly created.
 .. {rbbc_require}
 IAM binding successful (enables Cloud Build to execute as Mason)
 
@@ -202,7 +207,7 @@ required RBRR configuration values:
 ... `RBRR_GDC_CONNECTION_NAME=«GDC_CONNECTION_NAME»`
 ... `RBRR_GDC_REGION=«INPUT_REGION»`
 .. {rbbc_show}
-Mason service account: `«MASON_SERVICE_ACCOUNT»`
+Mason service account: `«MASON_EMAIL»`
 .. {rbbc_show}
 Developer Connect connection `«GDC_CONNECTION_NAME»` created in PENDING state
 .. {rbbc_show}

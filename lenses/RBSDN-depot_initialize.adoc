@@ -38,16 +38,16 @@ created for this depot (completed
 
 //axhos_step
 . *Authenticate as
-{rbtr_director}*:
+{rbtr_governor}*:
 .. Execute
-{rbtoe_director_authenticate}
+{rbtoe_governor_authenticate}
 
 //axhos_step
 . *Load Rubric Repo URL*:
 .. {rbbc_call}
 {rbtoe_rbra_load}
 for
-{rbrr_director_rbra_file}
+{rbrr_governor_rbra_file}
 .. {rbbc_store}
 `«RUBRIC_REPO_URL»` from {rbra_rubric_repo_url}
 .. If `«RUBRIC_REPO_URL»` is empty:

@@ -49,13 +49,14 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 {rbrr_depot_project_id}
 .. {rbbc_require}
 HTTP 200 response
-.. {rbbc_poll}
-with 3-5 second intervals for up to 15 seconds for propagation
+.. {rbbc_store}
+`«DIRECTOR_UNIQUE_ID»` from response `.uniqueId` field
 
 //axhos_step
 . *Verify Service Account Creation*:
 .. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `«DIRECTOR_EMAIL»`
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `projects/-/serviceAccounts/«DIRECTOR_UNIQUE_ID»`
+.. NOTE: Uses numeric ID URL — immediately resolvable, no propagation delay.
 .. {rbbc_require}
 service account accessible
 
@@ -90,12 +91,14 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[pr
 
 //axhos_step
 . *Grant Project-Level Permissions*:
+.. NOTE: All member bindings use `serviceAccount:«DIRECTOR_UNIQUE_ID»` (numeric ID) to avoid GAIA propagation race.
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for
 {rbrr_depot_project_id}
-.. Add `«DIRECTOR_EMAIL»` with roles:
+.. Add `serviceAccount:«DIRECTOR_UNIQUE_ID»` with roles:
 ... `roles/cloudbuild.builds.editor` (submit and manage builds)
 ... `roles/viewer` (read project resources)
+... `roles/developerconnect.admin` (source link and trigger infrastructure)
 .. Policy version: 3
 .. {rbbc_require}
 IAM policy update successful
@@ -115,6 +118,7 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 {rbtr_mason}
 service account
 .. Add `«DIRECTOR_EMAIL»` with `roles/iam.serviceAccountUser`
+.. NOTE: Uses email, not numeric ID — Mason is the IAM resource target, not the newly-created member.
 .. {rbbc_require}
 IAM binding successful
 
@@ -122,19 +126,25 @@ IAM binding successful
 . *Grant
 {rbtgi_build_bucket}
 Access*:
-.. NOTE:
-{rbtr_director}
-uploads build sources to
-{rbtgi_build_bucket}
-before triggering builds.
 .. {rbbc_call}
 link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] for
 {rbtgi_build_bucket}
-.. Add `«DIRECTOR_EMAIL»` with roles:
+.. Add `serviceAccount:«DIRECTOR_UNIQUE_ID»` with roles:
 ... `roles/storage.objectCreator` (upload sources)
 ... `roles/storage.objectViewer` (verify uploads)
 .. {rbbc_require}
 bucket IAM update successful
+
+//axhos_step
+. *Grant
+{rbtgi_repository}
+Admin Access*:
+.. {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy] for
+{rbtgi_repository}
+.. Add `serviceAccount:«DIRECTOR_UNIQUE_ID»` with `roles/artifactregistry.repoAdmin`
+.. {rbbc_require}
+repository IAM update successful
 
 //axhoo_output_of_type
 {rbtgi_rbra_file}

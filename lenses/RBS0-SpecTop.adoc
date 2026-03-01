@@ -642,6 +642,15 @@ All IAM policy modifications enforce version 3 to ensure conditional role bindin
 {gcp_service}
 resources.
 
+* *Numeric ID for Newly-Created Service Accounts*:
+When a
+{giam_service_account}
+is created via the IAM API, cross-service identity resolution (IAM to Artifact Registry, IAM to Cloud Storage) takes seconds to minutes due to GAIA propagation.
+The `serviceAccount:NUMERIC_ID` member form is immediately resolvable.
+All IAM member bindings for newly-created service accounts use `serviceAccount:«UNIQUE_ID»` (from the `.uniqueId` field of the creation response) instead of `serviceAccount:«EMAIL»`.
+This eliminates propagation polls, hard sleeps, and retry-on-400 loops after service account creation.
+Google-provisioned service agents (Cloud Build, Developer Connect) are not affected — they are managed by Google, not newly created, and have no propagation race.
+
 == Operational Invariants
 
 === Concurrent Session Safety
