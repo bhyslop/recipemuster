@@ -6431,6 +6431,14 @@
         "₢AjAAa": {
           "tacks": [
             {
+              "ts": "260301-0940",
+              "state": "bridled",
+              "text": "Convert RBSDD-depot_destroy.adoc and RBSDL-depot_list.adoc from legacy axs_* to axho_* markers. Small subdocs, batch together.",
+              "silks": "transform-depot-minor-subdocs",
+              "commit": "f9560f9",
+              "direction": "Agent: sonnet\n\n## Context\nRead the paddock at .claude/jjm/jjp_uAlj.md for transformation rules.\nRead exemplar: lenses/RBSDC-depot_create.adoc (fully transformed subdoc).\nRead exemplar: lenses/RBSRC-retriever_create.adoc (small transformed subdoc).\n\n## Steps\n1. Read lenses/RBSDD-depot_destroy.adoc and lenses/RBSDL-depot_list.adoc\n2. Grep RBS0-SpecTop.adoc for rbtgo_depot_destroy and rbtgo_depot_list to find operation linked terms\n3. Apply transformation to both files per paddock policy\n4. Write both transformed files\n\n## Verification\nGrep both transformed files for '⟦axs_' — must return zero matches."
+            },
+            {
               "ts": "260227-1058",
               "state": "rough",
               "text": "Convert RBSDD-depot_destroy.adoc and RBSDL-depot_list.adoc from legacy axs_* to axho_* markers. Small subdocs, batch together.",
