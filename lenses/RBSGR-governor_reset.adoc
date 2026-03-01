@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_governor_reset}
+
 NOTE: This operation creates or replaces a
 {rbtr_governor}
 within a
@@ -15,19 +18,21 @@ resets the
 for a specified
 {rbtgi_depot_project}:
 
-// ⟦axs_inputs axd_none⟧
+//axhop_parameter_from_type
+{rbtgi_depot_project}
 . *Validate Input Parameters*:
 .. {rbbc_store}
 `«DEPOT_PROJECT_ID»` from {rbrr_depot_project_id}
 .. {rbbc_require}
 `«DEPOT_PROJECT_ID»` matches pattern `rbw-*-[0-9]{12}`
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Authenticate as
 {rbtr_payor}*:
 .. Execute
 {rbtoe_payor_authenticate}
 
+//axhos_step
 . *Depot Project Validation*:
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] to verify
@@ -38,6 +43,7 @@ exists and is ACTIVE
 !=
 {rbrp_payor_project_id}
 
+//axhos_step
 . *Find and Delete Existing
 {rbtr_governor}
 Service Accounts*:
@@ -56,12 +62,14 @@ deletion successful (HTTP 200) or already deleted (HTTP 404)
 .. {rbbc_show}
 count of deleted governor service accounts
 
+//axhos_step
 . *Generate Governor Timestamp*:
 .. {rbbc_store}
 `«TIMESTAMP»` as current time in YYYYMMDDHHmm format
 .. {rbbc_store}
 `«GOVERNOR_ACCOUNT_ID»` as `governor-«TIMESTAMP»`
 
+//axhos_step
 . *Create the
 {rbtr_governor}
 {giam_service_account}*:
@@ -76,6 +84,7 @@ to create service account in
 .. {rbbc_require}
 service account creation successful (HTTP 200)
 
+//axhos_step
 . *Verify
 {giam_service_account}
 Propagation*:
@@ -88,6 +97,7 @@ with 3-5 second intervals for up to 30 seconds if service account not immediatel
 .. {rbbc_require}
 service account accessible before proceeding
 
+//axhos_step
 . *Grant
 {gcp_project_id}
 -level Permissions*:
@@ -103,6 +113,7 @@ to update IAM policy on
 .. {rbbc_require}
 IAM policy update successful
 
+//axhos_step
 . *Generate
 {rbtgi_rbra_file}*:
 .. {rbbc_call}
@@ -125,7 +136,8 @@ already exists (will be overwritten)
 .. {rbbc_require}
 RBRA file creation successful
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbtr_governor}
 . *Display Result*:
 .. {rbbc_show}
 governor reset successful
@@ -135,5 +147,5 @@ governor service account: `«GOVERNOR_SERVICE_ACCOUNT»`
 RBRA file path:
 {rbrr_governor_rbra_file}
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Successful execution resets governor state.
