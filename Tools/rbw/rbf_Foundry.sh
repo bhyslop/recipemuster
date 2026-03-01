@@ -1297,13 +1297,13 @@ rbf_rubric_inscribe() {
         name: $name,
         description: ("Recipe Bottle rubric trigger for " + $sigil),
         sourceToBuild: {
-          repository: $repo,
+          uri: $repo,
           ref: "refs/heads/main",
           repoType: $rtype
         },
         gitFileSource: {
           path: ($sigil + "/cloudbuild.json"),
-          repository: $repo,
+          uri: $repo,
           revision: "refs/heads/main",
           repoType: $rtype
         },
