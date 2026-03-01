@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_ark_beseech}
+
 NOTE: This operation petitions
 {rbtgi_repository}
 to reveal its consecrated
@@ -14,12 +17,13 @@ The
 {rbtr_director}
 beseeches the registry:
 
-// ⟦axs_inputs⟧
+//axhop_parameter_from_type
+{rbtga_ark}
 . *Accept Optional Vessel Filter*:
 .. If `«INPUT_VESSEL»` provided as first argument, restrict enumeration to that vessel
 .. If omitted, enumerate all vessels
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Authenticate as
 {rbtr_director}*:
 .. Execute
@@ -27,6 +31,7 @@ beseeches the registry:
 .. {rbbc_store}
 `«DIRECTOR_TOKEN»` for subsequent API calls
 
+//axhos_step
 . *Enumerate Packages*:
 .. {rbbc_call}
 Google Artifact Registry API to fetch all packages from
@@ -35,6 +40,7 @@ Google Artifact Registry API to fetch all packages from
 `«PACKAGES»` as list of package names
 .. If `«INPUT_VESSEL»` specified, filter to matching package only
 
+//axhos_step
 . *Fetch Tags Per Package*:
 .. For each package in `«PACKAGES»`:
 ... {rbbc_call}
@@ -46,13 +52,15 @@ Docker Registry HTTP API V2 tag list endpoint
 ... {rbbc_store}
 consecration base by stripping suffix from ark tags
 
+//axhos_step
 . *Correlate Ark Pairs*:
 .. Group artifacts by vessel + consecration
 .. Track presence of each artifact type per group
 .. {rbbc_store}
 correlation results showing which artifacts exist for each ark
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbtga_ark}
 . *Present Tabular Results*:
 .. Sort by vessel (alphabetically), then by consecration (newest first within vessel)
 .. {rbbc_show}
@@ -64,6 +72,6 @@ vessel name, consecration timestamp
 `✓` for present artifacts, `✗` for absent artifacts
 .. Display reveals orphaned arks (only one artifact present) and complete arks (both artifacts)
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Procedure completes successfully when all arks have been enumerated and the tabular display presents the correlation state of each consecration's artifact pair.
 The beseech reveals the registry's ark inventory without modifying any resources.

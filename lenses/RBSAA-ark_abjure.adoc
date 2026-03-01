@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_ark_abjure}
+
 NOTE: This operation formally renounces an
 {rbtga_ark}
 from
@@ -22,7 +25,8 @@ The
 {rbtr_director}
 abjures an ark:
 
-// ⟦axs_inputs⟧
+//axhop_parameter_from_type
+{rbtga_ark}
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_VESSEL»` provided as first argument
@@ -33,13 +37,15 @@ if vessel missing: "Vessel parameter required"
 .. {rbbc_fatal}
 if consecration missing: "Consecration parameter required"
 
+//axhop_parameter_from_type
+{rbtga_consecration}
 . *Validate Consecration Format*:
 .. {rbbc_require}
 `«INPUT_CONSECRATION»` matches pattern `YYYYMMDDTHHMMSSZ` or similar timestamp format
 .. {rbbc_fatal}
 if malformed: "Consecration format invalid"
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Authenticate as
 {rbtr_director}*:
 .. Execute
@@ -47,6 +53,7 @@ if malformed: "Consecration format invalid"
 .. {rbbc_store}
 `«DIRECTOR_TOKEN»` for subsequent API calls
 
+//axhos_step
 . *Construct Registry Endpoint*:
 .. {rbbc_store}
 `«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
@@ -55,12 +62,14 @@ if malformed: "Consecration format invalid"
 .. {rbbc_store}
 `«REGISTRY_BASE»` as `https://«REGISTRY_HOST»/v2/«REGISTRY_PATH»`
 
+//axhos_step
 . *Construct Ark Tags*:
 .. {rbbc_store}
 `«IMAGE_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-image`
 .. {rbbc_store}
 `«ABOUT_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-about`
 
+//axhos_step
 . *Verify Ark Existence*:
 .. {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: HEAD manifests] for `«IMAGE_TAG»`:
@@ -76,6 +85,7 @@ same HEAD request for `«ABOUT_TAG»`:
 .. {rbbc_store}
 `«ABOUT_EXISTS»` as true if HTTP 200, false if HTTP 404
 
+//axhos_step
 . *Evaluate Ark State*:
 .. If both `«IMAGE_EXISTS»` and `«ABOUT_EXISTS»` are false:
 ... {rbbc_fatal}
@@ -88,6 +98,7 @@ which artifact exists and which is missing
 .. {rbbc_store}
 `«ARTIFACTS_TO_DELETE»` as list of existing artifacts
 
+//axhos_step
 . *Confirm Abjuration*:
 .. Unless `--force` flag provided:
 ... {rbbc_show}
@@ -97,6 +108,7 @@ user types `yes` to confirm
 ... {rbbc_fatal}
 if not confirmed: "prompt not confirmed."
 
+//axhos_step
 . *Delete Image Artifact* (if exists):
 .. If `«IMAGE_EXISTS»`:
 ... {rbbc_call}
@@ -109,6 +121,7 @@ HTTP 202 (Accepted) or 204 (No Content) response
 ... {rbbc_fatal}
 if delete fails: "Failed to delete -image artifact (HTTP «STATUS_CODE»)"
 
+//axhos_step
 . *Delete About Artifact* (if exists):
 .. If `«ABOUT_EXISTS»`:
 ... {rbbc_call}
@@ -121,7 +134,8 @@ HTTP 202 (Accepted) or 204 (No Content) response
 ... {rbbc_fatal}
 if delete fails: "Failed to delete -about artifact (HTTP «STATUS_CODE»)"
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbtga_ark}
 . *Display Results*:
 .. {rbbc_show}
 "Ark abjured: «INPUT_VESSEL»/«INPUT_CONSECRATION»"
@@ -129,6 +143,6 @@ if delete fails: "Failed to delete -about artifact (HTTP «STATUS_CODE»)"
 ... {rbbc_show}
 `  - «TAG» deleted`
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Procedure completes successfully when all existing ark artifacts have been deleted from the registry and the abjuration confirmation is displayed.
 The ark is now formally renounced and no longer part of the repository corpus.
