@@ -1,0 +1,40 @@
+//axhob_operation
+{mkr_sentry_run}
+
+NOTE: This sequence within
+{opss_sentry_start}
+launches the
+{at_sentry_container}
+with required privileges and initial network configuration.
+
+//axhos_step
+. *Launch Sentry Container*:
+.. {rbbc_call}
+podman run to create and start
+{at_sentry_container}
+with:
+... name:
+{at_sentry_container_name}
+... network:
+{at_transit_network_name}
+... privileged mode for network namespace management
+... required capabilities for eBPF and routing
+.. {rbbc_require}
+container started successfully
+
+//axhos_step
+. *Verify Sentry Container Running*:
+.. {rbbc_call}
+podman inspect to confirm
+{at_sentry_container}
+is in running state
+.. {rbbc_require}
+container status is running
+
+//axhoc_completion
+After this sequence completes, the
+{at_sentry_container}
+is running and connected to the
+{at_transit_network},
+ready for secondary network attachment via
+{mkr_network_connect}.

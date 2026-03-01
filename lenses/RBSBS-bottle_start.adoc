@@ -1,8 +1,11 @@
+//axhob_operation
+{opbs_bottle_start}
+
 NOTE: This operation removes any previous container instance and instantiates and configures the service container, thereby establishing a new
 {at_sessile_service}
 instance.
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Clean Previous Instance*:
 .. {rbbc_call}
 {mkr_bottle_cleanup}
@@ -11,6 +14,7 @@ to remove any existing
 .. {rbbc_require}
 cleanup completed successfully
 
+//axhos_step
 . *Launch Service Container*:
 .. {rbbc_call}
 {mkr_bottle_launch}
@@ -19,7 +23,7 @@ to instantiate and configure new
 .. {rbbc_require}
 container launched and network configured
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Successful execution establishes a new
 {at_sessile_service}
 instance with proper network configuration, ready for operation.

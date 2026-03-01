@@ -1,6 +1,10 @@
+//axhob_operation
+{scr_port_setup}
+
 If {rbrn_entry_mode} is disabled, this sequence is skipped.
 If {rbrn_entry_mode} is enabled, this sequence configures service port mapping:
 
+//axhos_step
 . Socat Proxy Configuration:
 * Launch socat proxy process in background:
 ** Listen on TCP port {rbrn_entry_port_workstation}
@@ -9,6 +13,7 @@ If {rbrn_entry_mode} is enabled, this sequence configures service port mapping:
 ** Log output to `/var/log/socat-proxy.log`
 * Verify socat process started successfully
 
+//axhos_step
 . Filter Configuration:
 * Add rule to RBM-INGRESS accepting incoming traffic from bridge network:
 ** Interface eth0

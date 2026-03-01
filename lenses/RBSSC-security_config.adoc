@@ -1,8 +1,15 @@
+//axhob_operation
+{scr_security_config}
+
 One unified script executes these commands
 in sequence, halting early if any command
 has a nonzero unix status:
 
+//axhos_step
 1. {scr_iptables_init}
+//axhos_step
 2. {scr_port_setup}
+//axhos_step
 3. {scr_access_setup}
+//axhos_step
 4. {scr_dns_step}

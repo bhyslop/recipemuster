@@ -1,9 +1,12 @@
+//axhob_operation
+{mkr_bottle_launch}
+
 NOTE: This sequence within
 {opbs_bottle_start}
 instantiates and configures the service container for the
 {at_bottle_service}.
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Launch
 {at_bottle_container}*:
 .. {rbbc_call}
@@ -21,6 +24,7 @@ specifications
 .. {rbbc_require}
 container launched successfully
 
+//axhos_step
 . *Verify Network Configuration*:
 .. Allow container initialization with podman's default network configuration
 .. {rbbc_call}

@@ -1,9 +1,12 @@
+//axhob_operation
+{mkr_bottle_cleanup}
+
 NOTE: This sequence within
 {opbs_bottle_start}
 removes any previous container instance to ensure a clean state before launching a new
 {at_bottle_container}.
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Query Container Existence*:
 .. {rbbc_call}
 podman container exists for
@@ -11,6 +14,7 @@ podman container exists for
 .. {rbbc_store}
 `«CONTAINER_EXISTS»` as result
 
+//axhos_step
 . *Remove Previous Container* (conditional):
 .. If `«CONTAINER_EXISTS»` is true:
 ... {rbbc_call}

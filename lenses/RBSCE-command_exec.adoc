@@ -1,10 +1,13 @@
+//axhob_operation
+{mkr_command_exec}
+
 NOTE: This sequence within
 {opbr_bottle_run}
 executes a specified command within the
 {at_bottle_container},
 running the operation in the configured container environment.
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Execute Command*:
 .. {rbbc_require}
 `«CONTAINER_ID»` available from container creation
@@ -15,5 +18,5 @@ podman exec for `«CONTAINER_ID»` with `«COMMAND_ARGS»`
 .. {rbbc_require}
 command execution completes
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Successful execution runs the requested command within the container, with output returned to caller.

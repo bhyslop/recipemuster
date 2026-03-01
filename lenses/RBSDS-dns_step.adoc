@@ -1,3 +1,6 @@
+//axhob_operation
+{scr_dns_step}
+
 If {rbrn_uplink_dns_mode} is disabled, the {at_sentry_container}:
 
 * Blocks all DNS traffic in RBM-FORWARD from eth1
@@ -6,6 +9,7 @@ If {rbrn_uplink_dns_mode} is disabled, the {at_sentry_container}:
 
 If {rbrn_uplink_dns_mode} is global or allowlist, the {at_sentry_container} executes this sequence:
 
+//axhos_step
 . DNS Server Validation:
 +
 --
@@ -15,6 +19,7 @@ If {rbrn_uplink_dns_mode} is global or allowlist, the {at_sentry_container} exec
 * Fail if either test unsuccessful
 --
 
+//axhos_step
 . Dnsmasq Configuration:
 +
 --
@@ -53,6 +58,7 @@ If {rbrn_uplink_dns_mode} is global or allowlist, the {at_sentry_container} exec
 ***** log-async=20 (for better performance)
 --
 
+//axhos_step
 . Filter Rules:
 +
 --
@@ -64,6 +70,7 @@ If {rbrn_uplink_dns_mode} is global or allowlist, the {at_sentry_container} exec
 ** Or to host resolver if no server specified
 --
 
+//axhos_step
 . NAT Configuration:
 +
 --

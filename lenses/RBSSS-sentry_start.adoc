@@ -1,9 +1,12 @@
+//axhob_operation
+{opss_sentry_start}
+
 NOTE: This operation orchestrates the precisely ordered sequence of steps needed to start a
 {at_sentry_container}
 that enforces network policy for a new
 {at_bottle_service}.
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Create Network Infrastructure*:
 .. {rbbc_call}
 {mkr_network_create}
@@ -14,6 +17,7 @@ and
 .. {rbbc_require}
 both networks created successfully
 
+//axhos_step
 . *Launch Sentry*:
 .. {rbbc_call}
 {mkr_sentry_run}
@@ -23,6 +27,7 @@ with required privileges and initial network configuration
 .. {rbbc_require}
 sentry container running
 
+//axhos_step
 . *Connect Sentry to Enclave*:
 .. {rbbc_call}
 {mkr_network_connect}
@@ -34,7 +39,7 @@ with proper IP configuration
 .. {rbbc_require}
 sentry has connectivity on both networks
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Successful execution establishes the
 {at_sentry_container}
 with dual network connectivity, ready to enforce network policy for the

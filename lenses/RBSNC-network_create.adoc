@@ -1,9 +1,12 @@
+//axhob_operation
+{mkr_network_create}
+
 NOTE: This sequence within
 {opss_sentry_start}
 establishes required networks for the
 {at_bottle_service}.
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Remove Existing
 {at_transit_network}*:
 .. {rbbc_call}
@@ -12,6 +15,7 @@ podman network remove for
 ignoring errors
 .. NOTE: This ensures a clean state before creating the new transit network
 
+//axhos_step
 . *Create New
 {at_transit_network}*:
 .. {rbbc_call}
@@ -27,6 +31,7 @@ definition
 .. {rbbc_require}
 transit network created successfully
 
+//axhos_step
 . *Remove Existing
 {at_enclave_network}*:
 .. {rbbc_call}
@@ -35,6 +40,7 @@ podman network remove for
 ignoring errors
 .. NOTE: This ensures a clean state before creating the new enclave network
 
+//axhos_step
 . *Create New
 {at_enclave_network}*:
 .. {rbbc_call}
@@ -49,6 +55,7 @@ podman network create with:
 .. {rbbc_require}
 enclave network created successfully
 
+//axhoc_completion
 After this sequence completes, both networks exist in standard Podman configuration. The
 {at_sentry_container}
 will connect to both networks, while the

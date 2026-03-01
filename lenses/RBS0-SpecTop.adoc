@@ -1106,9 +1106,7 @@ include::RBSNC-network_create.adoc[]
 // ⟦axvo_procedure axd_transient axd_internal⟧
 === {mkr_sentry_run}
 
-Operation that launches the
-{at_sentry_container}
-with required privileges and initial network configuration.
+include::RBSSR-sentry_run.adoc[]
 
 [[mkr_network_connect]]
 // ⟦axvo_procedure axd_transient axd_internal⟧

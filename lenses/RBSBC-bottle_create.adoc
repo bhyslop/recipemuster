@@ -1,10 +1,13 @@
+//axhob_operation
+{mkr_bottle_create}
+
 NOTE: This sequence within
 {opbr_bottle_run}
 creates a transient
 {at_bottle_container}
 from the configured image, establishing network connectivity and volume mounts without persisting the container after execution.
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Configure Container Parameters*:
 .. {rbbc_use}
 {rbrn_bottle_vessel}:{rbrn_bottle_consecration} as source image
@@ -15,6 +18,7 @@ from the configured image, establishing network connectivity and volume mounts w
 .. {rbbc_use}
 {rbrn_volume_mounts} specifications for filesystem access
 
+//axhos_step
 . *Create Container*:
 .. {rbbc_call}
 podman create with:
@@ -29,5 +33,5 @@ container created successfully
 .. {rbbc_store}
 `«CONTAINER_ID»` from creation response
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Successful execution creates a configured transient container ready for command execution.
