@@ -1249,31 +1249,31 @@ rbf_rubric_inscribe() {
     buc_die "Source link check failed (HTTP ${z_link_code})"
   fi
 
-  # Ensure per-vessel triggers exist (direct GET per trigger, not list-and-search)
+  buc_step "Listing existing triggers (batch pre-fetch)"
   local z_triggers_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GDC_REGION}/triggers"
   local z_trigger_name=""
-  local z_trigger_check_infix=""
-  local z_trigger_code=""
   local z_trigger_body=""
-  local z_trigger_create_url=""
   local z_trigger_create_infix=""
   local z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
-  # List all existing triggers once (avoid per-vessel API call)
   local z_trigger_list_infix="inscribe_trigger_list"
   rbgu_http_json "GET" "${z_triggers_url}" "${z_token}" "${z_trigger_list_infix}"
   rbgu_http_require_ok "List existing triggers" "${z_trigger_list_infix}"
 
-  local z_existing_trigger_names
-  z_existing_trigger_names=$(rbgu_json_field_capture "${z_trigger_list_infix}" \
-    '[.triggers[]?.name // empty] | join("\n")') || z_existing_trigger_names=""
+  local z_trigger_names_file="${ZRBF_INSCRIBE_PREFIX}trigger_names.txt"
+  local z_trigger_list_json="${ZRBGU_PREFIX}${z_trigger_list_infix}${ZRBGU_POSTFIX_JSON}"
+  local z_trigger_jq_stderr="${ZRBF_INSCRIBE_PREFIX}trigger_jq_stderr.txt"
+  jq -r '[.triggers[]?.name // empty] | .[]' \
+    "${z_trigger_list_json}" \
+    > "${z_trigger_names_file}" 2>"${z_trigger_jq_stderr}" \
+    || buc_die "Failed to extract trigger names from list response"
 
+  local z_trigger_grep_stderr="${ZRBF_INSCRIBE_PREFIX}trigger_grep_stderr.txt"
   for z_sigil in "${z_vessel_sigils[@]}"; do
     z_trigger_name="${RBGC_RUBRIC_TRIGGER_PREFIX}${z_sigil}"
     buc_step "Ensuring trigger: ${z_trigger_name}"
 
-    # Check if trigger already exists by name in cached list
-    if printf '%s\n' "${z_existing_trigger_names}" | grep -qx "${z_trigger_name}"; then
+    if grep -qx "${z_trigger_name}" "${z_trigger_names_file}" 2>"${z_trigger_grep_stderr}"; then
       buc_info "Trigger already exists: ${z_trigger_name}"
       continue
     fi
