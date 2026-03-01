@@ -4653,6 +4653,7 @@
         "₢AiAAx",
         "₢AiAAy",
         "₢AiAAz",
+        "₢AiAA0",
         "₢AiAAo",
         "₢AiAAK",
         "₢AiAAT",
@@ -4668,9 +4669,20 @@
         "₢AiAAr",
         "₢AiAAs"
       ],
-      "next_pace_seed": "AA0",
+      "next_pace_seed": "AA1",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
+        "₢AiAA0": {
+          "tacks": [
+            {
+              "ts": "260301-1244",
+              "state": "rough",
+              "text": "End-to-end verification: fresh depot lifecycle with CB v2 and SLSA v1.0 provenance check.\n\n## Scope\n\nFull sequential e2e: destroy → create → initialize → pins → inscribe → dispatch → verify.\n\n1. Destroy existing depot (if any)\n2. Create depot with CB v2 connection\n3. Initialize depot (CB v2 OAuth)\n4. Create director, refresh pins\n5. Inscribe (creates CB v2 repository, triggers)\n6. Dispatch busybox build via triggers.run + RepoSource\n7. Wait for build success\n8. **Verify SLSA v1.0 provenance on produced artifact**:\n   - Query Container Analysis API for occurrences on image digest\n   - Confirm inTotoSlsaProvenanceV1 exists\n   - Confirm builder.id, source metadata, trigger URI present\n   - Compare with provenance guide expectations\n\n## Key Verification\n\nThe provenance check is the critical gate. If SLSA v1.0 provenance is NOT\ngenerated for the trigger-invoked build, the entire Tier 2 value proposition\nfails and we need to escalate.\n\n## Acceptance Criteria\n\n- Busybox build succeeds via triggers.run dispatch\n- SLSA v1.0 provenance confirmed on produced artifact\n- All 7 vessels inscribe + at least busybox dispatches successfully\n- Provenance content matches Google's documented structure",
+              "silks": "e2e-verify-cbv2-provenance",
+              "commit": "725ba22"
+            }
+          ]
+        },
         "₢AiAAA": {
           "tacks": [
             {
