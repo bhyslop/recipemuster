@@ -122,44 +122,6 @@
 :rbtgog_rubric:                   <<rbtgog_rubric,Rubric Group>>
 :rbtgog_sa:                       <<rbtgog_sa,Service Account Group>>
 
-// Recipe Bottle Term Google Operations — depot_create detail site
-:rbtgo_depot_create_name:                <<rbtgo_depot_create_name,Depot Name>>
-:rbtgo_depot_create_region:              <<rbtgo_depot_create_region,Depot Region>>
-:rbtgo_depot_create_authenticate:        <<rbtgo_depot_create_authenticate,Authenticate Payor>>
-:rbtgo_depot_create_generate_project_id: <<rbtgo_depot_create_generate_project_id,Generate Project ID>>
-:rbtgo_depot_create_project:             <<rbtgo_depot_create_project,Create Depot Project>>
-:rbtgo_depot_create_link_billing:        <<rbtgo_depot_create_link_billing,Link Billing Account>>
-:rbtgo_depot_create_get_project_number:  <<rbtgo_depot_create_get_project_number,Get Project Number>>
-:rbtgo_depot_create_enable_apis:         <<rbtgo_depot_create_enable_apis,Enable APIs>>
-:rbtgo_depot_create_verify_iam:          <<rbtgo_depot_create_verify_iam,Verify IAM Propagation>>
-:rbtgo_depot_create_bucket:              <<rbtgo_depot_create_bucket,Create Build Bucket>>
-:rbtgo_depot_create_repository:          <<rbtgo_depot_create_repository,Create Container Repository>>
-:rbtgo_depot_create_mason:               <<rbtgo_depot_create_mason,Create Mason Account>>
-:rbtgo_depot_create_mason_permissions:   <<rbtgo_depot_create_mason_permissions,Configure Mason Permissions>>
-:rbtgo_depot_create_mason_impersonation: <<rbtgo_depot_create_mason_impersonation,Enable Mason Impersonation>>
-:rbtgo_depot_create_devconnect:          <<rbtgo_depot_create_devconnect,Create DevConnect Connection>>
-:rbtgo_depot_create_devconnect_secrets:  <<rbtgo_depot_create_devconnect_secrets,Grant DevConnect Secrets>>
-:rbtgo_depot_create_config_display:      <<rbtgo_depot_create_config_display,Display Configuration>>
-:rbtgo_depot_create_tracking_update:     <<rbtgo_depot_create_tracking_update,Update Depot Tracking>>
-
-// Recipe Bottle Term Google Operations — depot_initialize detail site
-:rbtgo_depot_initialize_depot_exists:        <<rbtgo_depot_initialize_depot_exists,Depot Exists>>
-:rbtgo_depot_initialize_governor_exists:     <<rbtgo_depot_initialize_governor_exists,Governor Exists>>
-:rbtgo_depot_initialize_gdc_configured:      <<rbtgo_depot_initialize_gdc_configured,GDC Configured>>
-:rbtgo_depot_initialize_rubric_url_configured: <<rbtgo_depot_initialize_rubric_url_configured,Rubric URL Configured>>
-:rbtgo_depot_initialize_operator_browser:    <<rbtgo_depot_initialize_operator_browser,Operator Browser Access>>
-:rbtgo_depot_initialize_authenticate:        <<rbtgo_depot_initialize_authenticate,Authenticate Director>>
-:rbtgo_depot_initialize_load_rubric_url:     <<rbtgo_depot_initialize_load_rubric_url,Load Rubric URL>>
-:rbtgo_depot_initialize_validate_rubric_url: <<rbtgo_depot_initialize_validate_rubric_url,Validate Rubric URL>>
-:rbtgo_depot_initialize_check_devconnect:    <<rbtgo_depot_initialize_check_devconnect,Check DevConnect Status>>
-:rbtgo_depot_initialize_grant_console:       <<rbtgo_depot_initialize_grant_console,Grant Console Access>>
-:rbtgo_depot_initialize_guide_oauth:         <<rbtgo_depot_initialize_guide_oauth,Guide OAuth Authorization>>
-:rbtgo_depot_initialize_poll_connection:     <<rbtgo_depot_initialize_poll_connection,Poll Connection>>
-:rbtgo_depot_initialize_final_validation:    <<rbtgo_depot_initialize_final_validation,Final Validation>>
-:rbtgo_depot_initialize_validated_url:       <<rbtgo_depot_initialize_validated_url,Validated Rubric URL>>
-:rbtgo_depot_initialize_active_connection:   <<rbtgo_depot_initialize_active_connection,Active Source Connection>>
-:rbtgo_depot_initialize_oauth_token:         <<rbtgo_depot_initialize_oauth_token,OAuth Token>>
-
 :rbtoe_check_rubric_repo_url:     <<rbtoe_check_rubric_repo_url,Rubric Repo URL Check>>
 :rbtoe_check_devconnect:          <<rbtoe_check_devconnect,Developer Connect Check>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>

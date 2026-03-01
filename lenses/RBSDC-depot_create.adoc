@@ -10,17 +10,15 @@ The
 creates a new depot infrastructure from the
 {rbtgi_payor_project}:
 
-//axhop_parameter
-[[rbtgo_depot_create_name]]
-{rbtgo_depot_create_name}
+//axhop_parameter_from_type
+{rbtgi_depot}
 . *Depot Name*:
 .. {rbbc_require}
 `«INPUT_DEPOT_NAME»` provided as first argument
 .. Validate depot name: lowercase letters, numbers, hyphens only, max 20 chars
 
-//axhop_parameter
-[[rbtgo_depot_create_region]]
-{rbtgo_depot_create_region}
+//axhop_parameter_from_arg
+{rbrr_gcp_region}
 . *Depot Region*:
 .. {rbbc_require}
 `«INPUT_REGION»` provided as second argument
@@ -32,16 +30,12 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 if invalid: "Invalid region. Valid regions: [list]"
 
 //axhos_step
-[[rbtgo_depot_create_authenticate]]
-{rbtgo_depot_create_authenticate}
 . *Authenticate as
 {rbtr_payor}*:
 .. Execute
 {rbtoe_payor_authenticate}
 
 //axhos_step
-[[rbtgo_depot_create_generate_project_id]]
-{rbtgo_depot_create_generate_project_id}
 . *Generate Depot Project ID*:
 .. {rbbc_store}
 `«TIMESTAMP»` as current time in YYYYMMDDHHmm format
@@ -52,8 +46,6 @@ as `«DEPOT_PROJECT_ID»`
 total length ≤ 30 characters
 
 //axhos_step
-[[rbtgo_depot_create_project]]
-{rbtgo_depot_create_project}
 . *Create Depot Project*:
 .. {rbbc_submit}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/create[projects.create] with:
@@ -66,8 +58,6 @@ returned operation
 project creation successful
 
 //axhos_step
-[[rbtgo_depot_create_link_billing]]
-{rbtgo_depot_create_link_billing}
 . *Link Billing Account*:
 .. {rbbc_call}
 link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[cloudbilling.projects.updateBillingInfo] for `«DEPOT_PROJECT_ID»`
@@ -76,8 +66,6 @@ link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBill
 HTTP 200 response confirming billing linkage
 
 //axhos_step
-[[rbtgo_depot_create_get_project_number]]
-{rbtgo_depot_create_get_project_number}
 . *Get Depot Project Number*:
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for `«DEPOT_PROJECT_ID»`
@@ -87,8 +75,6 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[pr
 valid numeric project number after extracting from name
 
 //axhos_step
-[[rbtgo_depot_create_enable_apis]]
-{rbtgo_depot_create_enable_apis}
 . *Enable Depot Project APIs*:
 .. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `developerconnect`, `iam`, `secretmanager`, `serviceusage`, `storage`]:
 ... Execute
@@ -98,8 +84,6 @@ with service name and `«DEPOT_PROJECT_ID»`
 all APIs enabled successfully
 
 //axhos_step
-[[rbtgo_depot_create_verify_iam]]
-{rbtgo_depot_create_verify_iam}
 . *Verify IAM Propagation*:
 .. NOTE: After API enablement, IAM permissions may not be immediately available due to eventual consistency.
 .. {rbbc_poll}
@@ -111,8 +95,6 @@ HTTP 200 response confirming IAM propagation complete
 if timeout: "IAM propagation timeout - artifactregistry API not accessible"
 
 //axhos_step
-[[rbtgo_depot_create_bucket]]
-{rbtgo_depot_create_bucket}
 . *Create Build Bucket*:
 .. Construct bucket name: `rbw-«INPUT_DEPOT_NAME»-bucket`
 .. {rbbc_call}
@@ -125,8 +107,6 @@ link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[storage.bu
 `«BUILD_BUCKET»` as created bucket name
 
 //axhos_step
-[[rbtgo_depot_create_repository]]
-{rbtgo_depot_create_repository}
 . *Create Container Repository*:
 .. Construct repository name: `rbw-«INPUT_DEPOT_NAME»-repository`
 .. {rbbc_submit}
@@ -141,8 +121,6 @@ returned operation
 `«GAR_REPOSITORY»` as created repository name
 
 //axhos_step
-[[rbtgo_depot_create_mason]]
-{rbtgo_depot_create_mason}
 . *Create
 {rbtr_mason}
 Service Account*:
@@ -158,8 +136,6 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 `«MASON_SERVICE_ACCOUNT»` from response `.email` field
 
 //axhos_step
-[[rbtgo_depot_create_mason_permissions]]
-{rbtgo_depot_create_mason_permissions}
 . *Configure
 {rbtr_mason}
 Permissions*:
@@ -174,8 +150,6 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 ... Add `«MASON_SERVICE_ACCOUNT»` with `roles/viewer`
 
 //axhos_step
-[[rbtgo_depot_create_mason_impersonation]]
-{rbtgo_depot_create_mason_impersonation}
 . *Enable Cloud Build service agent to impersonate
 {rbtr_mason}*:
 .. {rbbc_call}
@@ -186,8 +160,6 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 IAM binding successful (enables Cloud Build to execute as Mason)
 
 //axhos_step
-[[rbtgo_depot_create_devconnect]]
-{rbtgo_depot_create_devconnect}
 . *Create Developer Connect Connection*:
 .. NOTE: The connection is created in PENDING state. The
 {at_operator}
@@ -207,8 +179,6 @@ returned {gcp_lro}
 connection exists (HTTP 200 on GET) with `installationState.stage` of `PENDING_CREATE_APP` or similar pending state
 
 //axhos_step
-[[rbtgo_depot_create_devconnect_secrets]]
-{rbtgo_depot_create_devconnect_secrets}
 . *Grant Developer Connect Service Agent Secret Manager Access*:
 .. NOTE: The Developer Connect service agent needs Secret Manager permissions to store the GitHub OAuth token during
 {rbtgo_depot_initialize}.
@@ -219,9 +189,8 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 .. {rbbc_require}
 IAM binding successful
 
-//axhoo_output
-[[rbtgo_depot_create_config_display]]
-{rbtgo_depot_create_config_display}
+//axhoo_output_of_type
+{rbtgi_depot}
 . *Display Depot Configuration*:
 .. {rbbc_show}
 depot creation successful
@@ -241,9 +210,8 @@ depot ready for
 {rbtgo_depot_initialize}
 to complete GitHub OAuth authorization
 
-//axhoo_output
-[[rbtgo_depot_create_tracking_update]]
-{rbtgo_depot_create_tracking_update}
+//axhoo_output_of_type
+{rbtgi_depot}
 . *Update Depot Tracking*:
 .. Execute
 {rbtoe_depot_list_update}
