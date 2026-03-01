@@ -6417,6 +6417,13 @@
         "₢AjAAV": {
           "tacks": [
             {
+              "ts": "260301-1002",
+              "state": "complete",
+              "text": "Convert RBSSL-sa_list.adoc, RBSSD-sa_delete.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-sa-subdocs",
+              "commit": "33a8d38"
+            },
+            {
               "ts": "260301-0941",
               "state": "bridled",
               "text": "Convert RBSSL-sa_list.adoc, RBSSD-sa_delete.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
