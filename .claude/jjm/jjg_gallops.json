@@ -4659,9 +4659,10 @@
         "₢AiAAl",
         "₢AiAAm",
         "₢AiAAr",
-        "₢AiAAs"
+        "₢AiAAs",
+        "₢AiAAt"
       ],
-      "next_pace_seed": "AAt",
+      "next_pace_seed": "AAu",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6060,6 +6061,17 @@
               "text": "Reorganize Director-affiliated tabtargets under rbw-D* colophon prefix.\n\n## Context\n\nGovernor operations use rbw-G* prefix consistently. Director operations are\nscattered across rbw-i* (image), rbw-a* (ark), rbw-RI (inscribe), and\nrbw-rrg (pins). This pace consolidates Director-affiliated tabtargets under\nrbw-D* for consistency.\n\n## Inventory\n\nCurrent Director-affiliated tabtargets:\n\nArk operations (high-level, vessel-scoped):\n- rbw-aC ConjureArk → rbf_build (build image from vessel)\n- rbw-aA AbjureArk → rbf_abjure (delete ark, vessel-scoped)\n- rbw-as SummonArk → rbf_summon (pull ark)\n- rbw-ab BeseechArk → rbf_beseech (list arks with correlation)\n\nImage operations (low-level, locator-scoped):\n- rbw-iB BuildImageRemotely → rbf_build (DUPLICATE of rbw-aC)\n- rbw-iD DeleteImage → rbf_delete (delete by moniker:tag)\n- rbw-il ImageList → rbf_list (raw list of locators)\n- rbw-ir RetrieveImage → rbf_retrieve (pull by moniker:tag)\n\nRubric/build infrastructure:\n- rbw-RI RubricInscribe → rbf_inscribe\n- rbw-rrg RefreshGcbPins → rbrr_refresh_gcb_pins\n\n## Proposed Mapping (requires human review)\n\nCandidate rbw-D* colophons — present to user for approval before executing:\n\n| Proposed   | Description                  | Replaces       |\n|------------|------------------------------|----------------|\n| rbw-DC     | DirectorConjuresArk          | rbw-aC, rbw-iB |\n| rbw-DA     | DirectorAbjuresArk           | rbw-aA         |\n| rbw-DS     | DirectorSummonsArk           | rbw-as         |\n| rbw-DB     | DirectorBeseechesArk         | rbw-ab         |\n| rbw-DI     | DirectorInscribesRubric      | rbw-RI         |\n| rbw-DP     | DirectorRefreshesPins        | rbw-rrg        |\n| rbw-Dd     | DirectorDeletesImage         | rbw-iD         |\n| rbw-Dl     | DirectorListsImages          | rbw-il         |\n| rbw-Dr     | DirectorRetrievesImage       | rbw-ir         |\n\n## CRITICAL: Human review gate\n\nDo NOT proceed with renames without presenting the full mapping to the user\nand getting explicit approval. The colophon choices affect tab-completion\nergonomics, terminal exclusivity rules, and muscle memory. This is a design\ndecision, not a mechanical transformation.\n\n## Execution (after approval)\n\n1. Rename tabtarget files in tt/\n2. Update rbz_zipper.sh colophon strings\n3. Update any buc_next references in code\n4. Retire rbw-iB (duplicate of conjure)\n5. Verify no stale colophon references remain",
               "silks": "director-colophon-reorg",
               "commit": "edc4066"
+            }
+          ]
+        },
+        "₢AiAAt": {
+          "tacks": [
+            {
+              "ts": "260301-1151",
+              "state": "rough",
+              "text": "Diagnose and fix: trigger dispatch returns HTTP 400 \"Couldn't read commit\".\n\n## Symptoms\n\n- Inscribe succeeded: rubric repo pushed (31881d91), source link created\n  (bhyslop-rb-rubric), all 7 triggers created\n- Build dispatch immediately fails: \"Couldn't read commit\"\n- The commit hash (31881d91) was resolved via git ls-remote seconds earlier\n- Trigger name resolved correctly (rbw-trigger-rbev-busybox)\n\n## Investigation Areas\n\n1. **Source link configuration**: Does the source link point to the correct\n   rubric repo? Does it reference the right Developer Connect connection?\n   Verify via REST API: GET the source link resource and inspect its fields.\n\n2. **Trigger→source link binding**: Does the trigger's sourceToBuild or\n   repoSource reference the correct source link and repo? GET the trigger\n   resource and inspect.\n\n3. **Developer Connect repo access**: Can Developer Connect actually read the\n   rubric repo? The OAuth was just completed for this depot — verify the\n   connection's installationState and the repo link's cloneUri.\n\n4. **Commit reference format**: Is the commit hash being passed correctly in\n   the triggers.run request? Check the dispatch JSON body in the transcript.\n\n5. **Timing vs configuration**: This should NOT be treated as a propagation\n   delay. The error \"Couldn't read commit\" suggests a configuration or access\n   problem, not eventual consistency. Diagnose root cause before retrying.\n\n## Key Files\n\n- Tools/rbw/rbf_Foundry.sh (rbf_build, trigger dispatch logic)\n- Transcript from failed build: check temp-buk for dispatch request/response\n\n## Acceptance Criteria\n\n- Root cause identified and documented\n- Fix implemented (not a retry/delay workaround)\n- Busybox build succeeds via trigger dispatch",
+              "silks": "diagnose-trigger-dispatch-commit-read",
+              "commit": "8168393"
             }
           ]
         }
