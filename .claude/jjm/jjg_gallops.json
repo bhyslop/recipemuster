@@ -6313,6 +6313,14 @@
         "₢AjAAS": {
           "tacks": [
             {
+              "ts": "260301-0939",
+              "state": "bridled",
+              "text": "Convert RBSTB-trigger_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbstb-trigger-build",
+              "commit": "4afca3c",
+              "direction": "Agent: sonnet\n\n## Context\nRead the paddock at .claude/jjm/jjp_uAlj.md for transformation rules.\nRead exemplar: lenses/RBSDC-depot_create.adoc (fully transformed subdoc with parameters, steps, outputs).\nRead exemplar: lenses/RBSPI-payor_install.adoc (transformed subdoc with preconditions).\n\n## Steps\n1. Read lenses/RBSTB-trigger_build.adoc\n2. Grep RBS0-SpecTop.adoc for rbtgo_trigger_build to find the operation linked term\n3. Apply transformation: add //axhob_operation + {rbtgo_trigger_build} header, convert axs_* Strachey brackets to axho_* bare markers per paddock policy (inputs→parameters, preconditions→axhoq_precondition, behavior→axhos_step, outputs→axhoo_output_of_type with domain terms, completion→axhoc_completion). Remove empty axs_inputs if axd_none.\n4. Write the transformed file\n\n## Verification\nGrep the transformed file for '⟦axs_' — must return zero matches."
+            },
+            {
               "ts": "260227-1058",
               "state": "rough",
               "text": "Convert RBSTB-trigger_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
