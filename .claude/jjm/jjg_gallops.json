@@ -20,7 +20,6 @@
     "₣AZ",
     "₣Aa",
     "₣Ac",
-    "₣Ae",
     "₣Ak"
   ],
   "heats": {
@@ -4581,15 +4580,6 @@
           ]
         }
       }
-    },
-    "₣Ae": {
-      "silks": "rbw-stash-builder-images-in-gar",
-      "creation_time": "260213",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paddock_file": ".claude/jjm/jjp_uAle.md",
-      "paces": {}
     },
     "₣Ah": {
       "silks": "jjk-v4-vision",

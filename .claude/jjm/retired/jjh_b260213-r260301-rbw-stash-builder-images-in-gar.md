@@ -1,3 +1,12 @@
+# Heat Trophy: rbw-stash-builder-images-in-gar
+
+**Firemark:** ₣Ae
+**Created:** 260213
+**Retired:** 260301
+**Status:** retired
+
+## Paddock
+
 ## Intent
 
 Eliminate external registry fragility by mirroring all GCB builder images into project-controlled GAR (Google Artifact Registry) within the depot.
@@ -37,3 +46,22 @@ Podman VM mirroring is already prototyped — see `tt/rbw-m.MirrorLatestPodmanVM
 ## Post-MVP
 
 This heat is post-MVP. The immediate skopeo→gcrane substitution (₣AP) removes the acute risk. This heat addresses the structural fragility for all remaining third-party images.
+
+## Paces
+
+## Commit Activity
+
+```
+File-touch bitmap: (no work file changes)
+```
+
+## Steeplechase
+
+### 2026-02-13 10:00 - Heat - d
+
+paddock curried
+
+### 2026-02-13 09:59 - Heat - N
+
+rbw-stash-builder-images-in-gar
+
