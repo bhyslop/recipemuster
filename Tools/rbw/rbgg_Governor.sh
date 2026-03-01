@@ -613,6 +613,15 @@ rbgg_create_director() {
     "serviceAccount:${z_account_email}"     \
     "director-viewer"
 
+  buc_step 'Grant Developer Connect Admin (source link + trigger infrastructure)'
+  rbgi_add_project_iam_role                 \
+    "${z_token}"                            \
+    "Grant Developer Connect Admin"         \
+    "${RBGD_PROJECT_RESOURCE}"              \
+    "roles/developerconnect.admin"          \
+    "serviceAccount:${z_account_email}"     \
+    "director-devconnect"
+
   buc_step 'Grant serviceAccountUser on Mason'
   rbgi_add_sa_iam_role "${z_token}" "${RBGD_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
 
