@@ -6154,6 +6154,13 @@
         "₢AjAAI": {
           "tacks": [
             {
+              "ts": "260301-0928",
+              "state": "complete",
+              "text": "Convert RBSRC-retriever_create.adoc from legacy axs_* to axho_* markers.",
+              "silks": "transform-rbsrc-retriever-create",
+              "commit": "e817be8"
+            },
+            {
               "ts": "260227-1056",
               "state": "rough",
               "text": "Convert RBSRC-retriever_create.adoc from legacy axs_* to axho_* markers.",
