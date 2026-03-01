@@ -6136,6 +6136,13 @@
         "₢AjAAH": {
           "tacks": [
             {
+              "ts": "260301-0925",
+              "state": "complete",
+              "text": "Convert RBSGR-governor_reset.adoc from legacy axs_* to axho_* markers.",
+              "silks": "transform-rbsgr-governor-reset",
+              "commit": "7972ee3"
+            },
+            {
               "ts": "260227-1056",
               "state": "rough",
               "text": "Convert RBSGR-governor_reset.adoc from legacy axs_* to axho_* markers.",
