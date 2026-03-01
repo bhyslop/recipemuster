@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_image_list}
+
 NOTE: This operation lists container images in
 {rbtgi_repository}
 using the Artifact Registry REST API for package enumeration and the Docker Registry HTTP API V2 for tag listing.
@@ -10,12 +13,13 @@ The
 {rbtr_director}
 lists all images:
 
-// ⟦axs_inputs⟧
+//axhop_parameter_from_type
+{rbtgi_repository}
 . *Validate Input Parameters*:
 .. {rbbc_require}
 no arguments provided
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Authenticate as
 {rbtr_director}*:
 .. Execute
@@ -23,6 +27,7 @@ no arguments provided
 .. {rbbc_store}
 `«DIRECTOR_TOKEN»` for subsequent API calls
 
+//axhos_step
 . *Fetch Package List*:
 .. {rbbc_call}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[Artifact Registry API: List Packages] with:
@@ -36,6 +41,7 @@ HTTP 200 response
 .. {rbbc_fatal}
 if request fails: "Failed to fetch package list"
 
+//axhos_step
 . *Fetch Tags per Package*:
 .. For each package in `«PACKAGES»`:
 ... Extract {at_moniker} from package name (last path component)
@@ -47,12 +53,13 @@ link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#conte
 ... {rbbc_store}
 `«TAGS»` array from response JSON field `tags`
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbtgi_repository}
 . *Display Results*:
 .. {rbbc_show}
 `Repository: «REGISTRY_HOST»/«REGISTRY_PATH»` as first line
 .. {rbbc_show}
 one {rbst_locator} per line in `moniker:tag` format, sorted by {at_moniker} then tag
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Procedure completes successfully when all {rbst_locator} values have been displayed.

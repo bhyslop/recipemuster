@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_image_retrieve}
+
 NOTE: This operation retrieves a container image from
 {rbtgi_repository}
 to the local container runtime. The
@@ -8,7 +11,8 @@ The
 {rbtr_retriever}
 pulls an image by {rbst_locator}:
 
-// ⟦axs_inputs⟧
+//axhop_parameter_from_type
+{rbst_locator}
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_LOCATOR»` provided as first argument in `moniker:tag` format
@@ -21,7 +25,7 @@ if malformed (no colon): "Invalid locator format. Expected moniker:tag"
 .. {rbbc_store}
 `«TAG»` as portion after first colon
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Authenticate as
 {rbtr_retriever}*:
 .. Execute
@@ -29,12 +33,14 @@ if malformed (no colon): "Invalid locator format. Expected moniker:tag"
 .. {rbbc_store}
 `«RETRIEVER_TOKEN»` for subsequent operations
 
+//axhos_step
 . *Construct Registry Reference*:
 .. {rbbc_store}
 `«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
 .. {rbbc_store}
 `«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/{rbrr_depot_project_id}/{rbrr_gar_repository}/«INPUT_LOCATOR»`
 
+//axhos_step
 . *Configure Container Runtime Authentication*:
 .. {rbbc_call}
 container runtime login with:
@@ -46,6 +52,7 @@ login successful
 .. {rbbc_fatal}
 if login fails: "Container runtime authentication failed"
 
+//axhos_step
 . *Pull Image*:
 .. {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: pull] via container runtime:
@@ -57,12 +64,13 @@ pull completes successfully
 .. {rbbc_fatal}
 if pull fails: "Image pull failed"
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbtgi_image}
 . *Display Results*:
 .. {rbbc_show}
 image retrieved: `«FULL_IMAGE_REF»`
 .. {rbbc_show}
 local image ID: `«IMAGE_ID»`
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Successful execution retrieves the image and displays the local image ID.

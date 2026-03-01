@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_image_delete}
+
 NOTE: This operation deletes a container image from
 {rbtgi_repository}
 using the Docker Registry HTTP API V2 implemented by
@@ -9,7 +12,8 @@ The
 {rbtr_director}
 deletes an image by {rbst_locator}:
 
-// ⟦axs_inputs⟧
+//axhop_parameter_from_type
+{rbst_locator}
 . *Validate Input Parameters*:
 .. {rbbc_require}
 `«INPUT_LOCATOR»` provided as first argument in `moniker:tag` format
@@ -22,7 +26,7 @@ if malformed (no colon): "Invalid locator format. Expected moniker:tag"
 .. {rbbc_store}
 `«TAG»` as portion after first colon
 
-// ⟦axs_behavior⟧
+//axhos_step
 . *Authenticate as
 {rbtr_director}*:
 .. Execute
@@ -30,6 +34,7 @@ if malformed (no colon): "Invalid locator format. Expected moniker:tag"
 .. {rbbc_store}
 `«DIRECTOR_TOKEN»` for subsequent API calls
 
+//axhos_step
 . *Confirm Deletion*:
 .. Unless `--force` flag is provided:
 ... {rbbc_show}
@@ -39,6 +44,7 @@ user types `yes` to confirm
 ... {rbbc_fatal}
 if not confirmed: "prompt not confirmed."
 
+//axhos_step
 . *Delete Tag*:
 .. {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#deleting-tags[Docker Registry API: DELETE manifests] with:
@@ -50,10 +56,11 @@ HTTP 202 (Accepted) or 204 (No Content) response
 .. {rbbc_fatal}
 if delete fails: "Delete failed with HTTP «STATUS_CODE»"
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbst_locator}
 . *Display Results*:
 .. {rbbc_show}
 `Deleted or nonexistent: «INPUT_LOCATOR»`
 
-// ⟦axs_completion⟧
+//axhoc_completion
 Procedure completes successfully when the tag has been deleted from the registry and the deleted message is displayed.
