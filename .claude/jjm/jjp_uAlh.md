@@ -99,6 +99,10 @@ School doesn't plan the whole heat at once. It schools forward until the fog get
 
 School's primary value-add is the **ambiguity/malformation assessment** — not just "here's a warrant" but "here's my confidence level, and here's why we should stop."
 
+### Multi-Gait Decomposition
+
+A single pace docket often commingles concerns (e.g., "update the spec and implement the feature"). School's intelligence lies in decomposing this into parallel gaits — a spec-writer gait on the adoc files AND a bash-coder gait on the shell files, running concurrently, followed by a reviewer beat that reads both outputs. The warrant captures this as a DAG of beats drawn from different gaits. For well-understood changes, parallel is safe; for exploratory work, school serializes and adds a reconciliation step.
+
 ### Volte Scope
 
 A volte is **whatever school and the human agreed to execute in this pass.** Could be one pace, could be five. The volte boundary is set by the schooling conversation, not by a fixed rule.
