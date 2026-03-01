@@ -48,6 +48,6 @@ Tools/vvk/bin/vvx-*
 Tools/vvc/target/
 
 # Rubric repo clone (inscribe workspace)
-.rbk/
+.rbk/rubric/
 
 # JJK release directory (parcels ignored via .jjk/.gitignore)
