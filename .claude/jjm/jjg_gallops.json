@@ -6687,6 +6687,13 @@
         "₢AjAAe": {
           "tacks": [
             {
+              "ts": "260301-1057",
+              "state": "complete",
+              "text": "Remove all deprecated terms listed in AXLA deprecation appendix. Remove the deprecation appendix itself. Remove legacy Procedure Hierarchy section and old completeness checklists. Verify no remaining references to deleted terms across all specs.",
+              "silks": "delete-legacy-terms",
+              "commit": "d5df35a"
+            },
+            {
               "ts": "260227-1058",
               "state": "rough",
               "text": "Remove all deprecated terms listed in AXLA deprecation appendix. Remove the deprecation appendix itself. Remove legacy Procedure Hierarchy section and old completeness checklists. Verify no remaining references to deleted terms across all specs.",
