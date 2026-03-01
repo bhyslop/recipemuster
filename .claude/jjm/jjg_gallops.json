@@ -6482,6 +6482,13 @@
         "₢AjAAi": {
           "tacks": [
             {
+              "ts": "260301-0908",
+              "state": "complete",
+              "text": "Remove 34 wrong-elevation terms from AAE (depot_create) and AAF (depot_initialize)\nexemplar subdocuments and their S0 mappings. Apply the settled lookahead policy.\n\n## Scope\n- RBSDC-depot_create.adoc: ~18 wrong-elevation terms (step + output terms)\n- RBSDN-depot_initialize.adoc: ~16 wrong-elevation terms (step + precondition + output terms)\n- RBS0-SpecTop.adoc: remove corresponding attribute mappings\n\n## Transformations\n- Steps: remove [[anchor]] and {attribute} lines, leave bare //axhos_step + content\n- Preconditions: remove [[anchor]] and {attribute} lines, leave bare //axhoq_precondition + content\n- Waymark steps (branch targets in RBSDN): convert to //axhos_waymark with local anchor, no S0 mapping\n- Parameters: convert to axhop_parameter_from_type or axhop_parameter_from_arg with existing domain terms\n- Outputs: convert to axhoo_output_of_type with existing domain terms\n- Completion: remove any [[anchor]] and {attribute} lines if present\n\n## Dependencies\n- Requires ₢AjAAh (update-axla-lookahead-spec) to be complete first",
+              "silks": "repair-exemplar-wrong-elevation-terms",
+              "commit": "fe1d3b2"
+            },
+            {
               "ts": "260301-0839",
               "state": "rough",
               "text": "Remove 34 wrong-elevation terms from AAE (depot_create) and AAF (depot_initialize)\nexemplar subdocuments and their S0 mappings. Apply the settled lookahead policy.\n\n## Scope\n- RBSDC-depot_create.adoc: ~18 wrong-elevation terms (step + output terms)\n- RBSDN-depot_initialize.adoc: ~16 wrong-elevation terms (step + precondition + output terms)\n- RBS0-SpecTop.adoc: remove corresponding attribute mappings\n\n## Transformations\n- Steps: remove [[anchor]] and {attribute} lines, leave bare //axhos_step + content\n- Preconditions: remove [[anchor]] and {attribute} lines, leave bare //axhoq_precondition + content\n- Waymark steps (branch targets in RBSDN): convert to //axhos_waymark with local anchor, no S0 mapping\n- Parameters: convert to axhop_parameter_from_type or axhop_parameter_from_arg with existing domain terms\n- Outputs: convert to axhoo_output_of_type with existing domain terms\n- Completion: remove any [[anchor]] and {attribute} lines if present\n\n## Dependencies\n- Requires ₢AjAAh (update-axla-lookahead-spec) to be complete first",
