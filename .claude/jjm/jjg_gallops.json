@@ -6498,6 +6498,13 @@
         "₢AjAAZ": {
           "tacks": [
             {
+              "ts": "260301-1013",
+              "state": "complete",
+              "text": "Convert RBSAO-access_oauth_probe.adoc, RBSAJ-access_jwt_probe.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-probe-subdocs",
+              "commit": "7814bb3"
+            },
+            {
               "ts": "260301-0942",
               "state": "bridled",
               "text": "Convert RBSAO-access_oauth_probe.adoc, RBSAJ-access_jwt_probe.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
