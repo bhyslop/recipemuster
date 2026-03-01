@@ -6403,6 +6403,13 @@
         "₢AjAAW": {
           "tacks": [
             {
+              "ts": "260301-0945",
+              "state": "complete",
+              "text": "Convert RBSQB-quota_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-rbsqb-quota-build",
+              "commit": "45cfba5"
+            },
+            {
               "ts": "260301-0939",
               "state": "bridled",
               "text": "Convert RBSQB-quota_build.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
