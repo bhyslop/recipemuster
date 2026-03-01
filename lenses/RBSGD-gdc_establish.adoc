@@ -1,3 +1,6 @@
+//axhob_operation
+{rbtgo_gdc_establish}
+
 NOTE: This operation has been split into two steps:
 
 * *Connection creation* — automated within
@@ -18,23 +21,22 @@ then
 {rbtgo_depot_initialize}
 sequence.
 
-// ⟦axs_inputs axd_none⟧
-
-// ⟦axs_preconditions⟧
-
+//axhoq_precondition
 * {rbtgi_depot}
 exists (completed
 {rbtgo_depot_create})
 with Developer Connect connection in PENDING state
+
+//axhoq_precondition
 * {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in RBRR
 
-// ⟦axs_behavior⟧
-
+//axhos_step
 . See
 {rbtgo_depot_initialize}
 for the complete procedure.
 
-// ⟦axs_outputs⟧
+//axhoo_output_of_type
+{rbtgi_source_connection}
 
 The outputs of GDC establishment are:
 
@@ -52,8 +54,7 @@ Full resource path constructed as:
 projects/{RBRR_DEPOT_PROJECT_ID}/locations/{RBRR_GDC_REGION}/connections/{RBRR_GDC_CONNECTION_NAME}
 ----
 
-// ⟦axs_completion⟧
-
+//axhoc_completion
 NOTE: GDC establishment creates the
 {rbtgi_source_connection}
 but does not create per-vessel
