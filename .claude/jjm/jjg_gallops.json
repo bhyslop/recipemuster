@@ -6748,6 +6748,13 @@
         "₢AjAAf": {
           "tacks": [
             {
+              "ts": "260301-1217",
+              "state": "complete",
+              "text": "The mkr_*, opss_*, opbs_*, opbr_*, scr_* operations in RBS0 (bottle, network, sentry, security) have non-rbtgo prefixes and were out of scope. Slate an itch or create a note for a future heat to bring them up to standards established in this heat.",
+              "silks": "note-future-heat-non-rbtgo-ops",
+              "commit": "a68b161"
+            },
+            {
               "ts": "260301-1200",
               "state": "rough",
               "text": "The mkr_*, opss_*, opbs_*, opbr_*, scr_* operations in RBS0 (bottle, network, sentry, security) have non-rbtgo prefixes and were out of scope. Slate an itch or create a note for a future heat to bring them up to standards established in this heat.",
