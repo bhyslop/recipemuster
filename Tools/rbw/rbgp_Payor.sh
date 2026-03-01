@@ -744,12 +744,12 @@ rbgp_depot_create() {
   z_mason_sa_uid=$(rbgu_json_field_capture "depot_mason_create" '.uniqueId') || buc_die "Failed to get Mason uniqueId"
 
   buc_step 'Configure Mason permissions'
-  # Repository admin
-  rbgi_add_repo_iam_role "${z_token}" "${z_depot_project_id}" "${z_mason_sa_uid}" "${z_region}" "${z_repository_name}" \
+  # Repository admin (AR repo IAM requires email, not numeric ID)
+  rbgi_add_repo_iam_role "${z_token}" "${z_depot_project_id}" "${z_mason_sa_email}" "${z_region}" "${z_repository_name}" \
     "roles/artifactregistry.writer"
 
-  # Bucket viewer
-  rbgi_add_bucket_iam_role "${z_token}" "${z_build_bucket}" "${z_mason_sa_uid}" "roles/storage.objectViewer"
+  # Bucket viewer (GCS bucket IAM requires email, not numeric ID)
+  rbgi_add_bucket_iam_role "${z_token}" "${z_build_bucket}" "${z_mason_sa_email}" "roles/storage.objectViewer"
 
   # Project viewer
   rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "projects/${z_depot_project_id}" \

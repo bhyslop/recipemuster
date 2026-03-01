@@ -216,26 +216,17 @@
 :axc_variable_s:                      <<axc_variable,VARIABLES>>
 :axc_warn:                            <<axc_warn,WARN>>
 
-// Axial Environment Terms
-:axe_bash_interactive:                <<axe_bash_interactive,Bash Interactive>>
-:axe_bash_scripted:                   <<axe_bash_scripted,Bash Scripted>>
-:axe_bash_unattended:                 <<axe_bash_unattended,Bash Unattended>>
+// Axial Environment Terms (retained: rest_api, daemon_runtime under review)
 :axe_daemon_runtime:                  <<axe_daemon_runtime,Daemon Runtime>>
-:axe_environment:                     <<axe_environment,Environment>>
-:axe_environment_s:                   <<axe_environment,Environments>>
-:axe_human_guide:                     <<axe_human_guide,Human Guide>>
 :axe_rest_api:                        <<axe_rest_api,REST API>>
 
 // Axial Operation Terms
 :axo_actor:                           <<axo_actor,Actor>>
 :axo_actor_s:                         <<axo_actor,Actors>>
-:axo_command:                         <<axo_command,Command>>
-:axo_command_s:                       <<axo_command,Commands>>
 :axo_entity:                          <<axo_entity,Entity>>
 :axo_entity_s:                        <<axo_entity,Entities>>
 :axo_group:                           <<axo_group,Operation Group>>
 :axo_group_s:                         <<axo_group,Operation Groups>>
-:axo_guide:                           <<axo_guide,Guide>>
 :axo_identity:                        <<axo_identity,Identity>>
 :axo_identity_s:                      <<axo_identity,Identities>>
 :axo_method:                          <<axo_method,Method>>
@@ -244,27 +235,6 @@
 :axo_procedure_s:                     <<axo_procedure,Procedures>>
 :axo_role:                            <<axo_role,Role>>
 :axo_role_s:                          <<axo_role,Roles>>
-:axo_routine:                         <<axo_routine,Routine>>
-:axo_routine_s:                       <<axo_routine,Routines>>
-:axo_sequence:                        <<axo_sequence,Sequence>>
-:axo_sequence_s:                      <<axo_sequence,Sequences>>
-
-// Axial Section Terms
-:axs_behavior:                        <<axs_behavior,Behavior>>
-:axs_completion:                      <<axs_completion,Completion>>
-:axs_errors:                          <<axs_errors,Errors>>
-:axs_health:                          <<axs_health,Health>>
-:axs_idempotency:                     <<axs_idempotency,Idempotency>>
-:axs_inputs:                          <<axs_inputs,Inputs>>
-:axs_outputs:                         <<axs_outputs,Outputs>>
-:axs_overlap:                         <<axs_overlap,Overlap>>
-:axs_postconditions:                  <<axs_postconditions,Postconditions>>
-:axs_preconditions:                   <<axs_preconditions,Preconditions>>
-:axs_recovery:                        <<axs_recovery,Recovery>>
-:axs_schedule:                        <<axs_schedule,Schedule>>
-:axs_shutdown:                        <<axs_shutdown,Shutdown>>
-:axs_signals:                         <<axs_signals,Signals>>
-:axs_startup:                         <<axs_startup,Startup>>
 
 // Axial Type Terms
 :axt_array:                           <<axt_array,Array Type>>
@@ -478,9 +448,6 @@ During type-scheme linting, these expectations guide validation of definition st
 * {axc_*} control terms expect
 {xref_MCM}
 `mcm_form_deflist`
-* {axo_sequence} operations expect
-{xref_MCM}
-`mcm_form_section` with nested steps
 * {axj_structure} definitions expect
 {xref_MCM}
 `mcm_form_section`
@@ -490,9 +457,6 @@ During type-scheme linting, these expectations guide validation of definition st
 * {axk_premise} definitions expect
 {xref_MCM}
 `mcm_form_deflist`
-* {axs_*} section terms expect
-{xref_MCM}
-`mcm_form_section` for section headers
 * Most other categories expect
 {xref_MCM}
 `mcm_form_deflist`
@@ -604,59 +568,7 @@ of
 {axc_call},
 {axc_warn},
 {axc_fatal}
-and similar control motifs should include an appropriate
-{axe_environment}
-as a dimension to clarify how the control term manifests in that context.
-
-[[axe_environment]]
-{axe_environment}::
-A
-{axl_motif}
-representing an execution context that determines how control terms manifest.
-{axe_environment_s}
-appear as dimensions in
-{axl_voicing_s}
-to bind abstract control semantics to concrete operational behavior.
-
-[[axe_bash_interactive]]
-{axe_bash_interactive}::
-A
-{axl_motif}
-representing a bash shell session with human operator present at an interactive terminal.
-Feedback via stdout/stderr is immediate.
-Operator can interrupt (Ctrl-C) or respond to prompts.
-Warnings display as yellow text; fatals exit with non-zero status.
-
-[[axe_bash_unattended]]
-{axe_bash_unattended}::
-A
-{axl_motif}
-representing a bash script executing without human presence.
-Output captured to logs.
-No interactive prompts possible.
-Failures must be self-documenting for later analysis.
-
-[[axe_bash_scripted]]
-{axe_bash_scripted}::
-A
-{axl_motif}
-representing a bash script deliberately invoked to run to completion.
-No human interaction during execution.
-Succeeds atomically or fails with error status.
-Output may go to stdout/stderr for capture or display.
-Distinct from
-{axe_bash_unattended}
-which implies background/scheduled execution with log capture.
-
-[[axe_human_guide]]
-{axe_human_guide}::
-A
-{axl_motif}
-representing a human executing a specific rendered procedure document while interacting with an external system (web console, GUI application).
-The procedure document presents numbered steps; the human performs each in the external system.
-Feedback is visual confirmation in the external UI.
-Human judges success or failure of each step.
-Warnings are cautionary notes; fatals mean abort procedure.
+and similar control motifs describe step-level behavior within operations.
 
 [[axe_rest_api]]
 {axe_rest_api}::
@@ -676,308 +588,18 @@ Errors are logged, not displayed.
 Fatal means graceful shutdown with cleanup.
 No human in immediate feedback loop.
 
-== Axial Section Terms
-
-{axs_*} terms represent documentation sections for
-{axo_procedure}
-specifications.
-Each section motif captures a standard aspect of procedure documentation.
-{axl_voicing_s}
-adapt these abstract sections to interface-specific forms.
-
-[[axs_inputs]]
-{axs_inputs}::
-A
-{axl_motif}
-representing a section documenting what an
-{axo_procedure}
-requires to execute.
-Covers arguments, parameters, configuration, and input data.
-{axl_voicing_s}
-specify interface-appropriate input documentation:
-{axa_argument_list}
-for CLI,
-{axi_request_body}
-for REST APIs.
-
-[[axs_preconditions]]
-{axs_preconditions}::
-A
-{axl_motif}
-representing a section documenting environmental state requirements before
-{axo_procedure}
-execution.
-Optional section for procedures with significant prerequisites.
-Covers required services, authentication state, file system conditions, or resource availability.
-Distinct from
-{axs_inputs}
-which documents explicit parameters.
-
-[[axs_behavior]]
-{axs_behavior}::
-A
-{axl_motif}
-representing a section documenting what an
-{axo_procedure}
-does during execution.
-Describes the steps, actions, or transformations performed.
-{axl_voicing_s}
-may use
-{axo_sequence}
-patterns for ordered steps or prose for atomic operations.
-
-[[axs_outputs]]
-{axs_outputs}::
-A
-{axl_motif}
-representing a section documenting what an
-{axo_procedure}
-produces upon completion.
-Covers return values, created artifacts, modified state, or emitted data.
-{axl_voicing_s}
-specify interface-appropriate output documentation:
-{axi_response_body}
-for REST APIs, stdout/stderr patterns for CLI.
-
-[[axs_postconditions]]
-{axs_postconditions}::
-A
-{axl_motif}
-representing a section documenting environmental state guarantees after successful
-{axo_procedure}
-execution.
-Optional section for procedures with significant side effects.
-Covers created resources, modified permissions, or system state changes.
-Distinct from
-{axs_outputs}
-which documents explicit return values.
-
-[[axs_completion]]
-{axs_completion}::
-A
-{axl_motif}
-representing a section documenting how an
-{axo_procedure}
-signals success or failure.
-Covers exit codes, return status, completion indicators, or success criteria.
-{axl_voicing_s}
-specify interface-appropriate completion documentation:
-{axa_exit_uniform}
-or
-{axa_exit_enumerated}
-for CLI,
-HTTP status codes for REST APIs.
-
-[[axs_errors]]
-{axs_errors}::
-A
-{axl_motif}
-representing a section documenting failure modes of an
-{axo_procedure}.
-Optional section for procedures with non-obvious failure conditions.
-Covers error categories, recovery actions, or diagnostic guidance.
-Distinct from
-{axs_completion}
-which documents the signaling mechanism rather than failure semantics.
-
-=== Lifecycle Section Motifs
-
-These
-{axs_*}
-sections apply to specific lifecycle dimensions.
-
-[[axs_startup]]
-{axs_startup}::
-A
-{axl_motif}
-representing a section documenting initialization behavior for an
-{axd_longrunning}
-{axo_procedure}.
-Covers startup sequence, readiness criteria, and initialization dependencies.
-Required for
-{axd_longrunning}
-procedures.
-
-[[axs_shutdown]]
-{axs_shutdown}::
-A
-{axl_motif}
-representing a section documenting graceful termination for an
-{axd_longrunning}
-{axo_procedure}.
-Covers cleanup behavior, in-flight request handling, and resource release.
-Required for
-{axd_longrunning}
-procedures.
-
-[[axs_health]]
-{axs_health}::
-A
-{axl_motif}
-representing a section documenting health check semantics for an
-{axd_longrunning}
-{axo_procedure}.
-Covers liveness probes (is it running?), readiness probes (can it serve?), and health endpoints.
-Optional for
-{axd_longrunning}
-procedures.
-
-[[axs_signals]]
-{axs_signals}::
-A
-{axl_motif}
-representing a section documenting Unix signal handling for an
-{axo_procedure}.
-Covers SIGTERM (graceful stop), SIGHUP (reload config), SIGUSR1/2 (custom actions).
-Optional; most relevant for
-{axd_longrunning}
-but available to any
-{axo_command}.
-
-[[axs_recovery]]
-{axs_recovery}::
-A
-{axl_motif}
-representing a section documenting crash recovery behavior for an
-{axd_longrunning}
-{axo_procedure}.
-Covers restart behavior, state recovery, and failure mode handling.
-Optional for
-{axd_longrunning}
-procedures.
-
-[[axs_schedule]]
-{axs_schedule}::
-A
-{axl_motif}
-representing a section documenting timing specification for an
-{axd_periodic}
-{axo_procedure}.
-Covers cron expressions, intervals, or calendar-based triggers.
-Required for
-{axd_periodic}
-procedures.
-
-[[axs_idempotency]]
-{axs_idempotency}::
-A
-{axl_motif}
-representing a section documenting re-run safety for an
-{axd_periodic}
-{axo_procedure}.
-Covers duplicate handling, safe re-execution, and state management across runs.
-Optional for
-{axd_periodic}
-procedures.
-
-[[axs_overlap]]
-{axs_overlap}::
-A
-{axl_motif}
-representing a section documenting concurrent execution behavior for an
-{axd_periodic}
-{axo_procedure}.
-Covers what happens when a new run triggers while previous run is still executing.
-Options include: skip, queue, terminate previous, or allow parallel.
-Optional for
-{axd_periodic}
-procedures.
-
 == Axial Operation Terms
-
-=== Procedure Hierarchy
-
-{axo_procedure}
-is the superset
-{axl_motif}
-for procedural articulations.
-{axo_command},
-{axo_guide},
-and
-{axo_routine}
-are specialized forms that voice
-{axo_procedure}
-with additional constraints.
-
-{axo_sequence}
-is a structural characteristic describing HOW behavior is organized, not a procedure type.
-Most procedures ARE sequential.
-
-The following
-{axo_*}
-terms are NOT procedures and remain outside the hierarchy:
-{axo_entity},
-{axo_role},
-{axo_identity},
-{axo_actor},
-{axo_dependency}.
 
 [[axo_procedure]]
 {axo_procedure}::
 A
 {axl_motif}
 representing an executable operation with defined inputs, behavior, outputs, and completion semantics.
-{axo_procedure}
-is the superset for all procedural articulations.
-{axl_voicing_s}
-specialize by executor (machine vs human), reusability (terminal vs composite), and interface (CLI, REST, console).
-Documentation follows
-{axs_*}
-section patterns.
-
-[[axo_command]]
-{axo_command}::
-A
-{axl_motif}
-representing an
-{axo_procedure}
-executed by machine without human intervention.
-{axl_voices}
-{axo_procedure}
-with machine executor constraint.
-Requires
-{axe_environment}
-dimension specifying execution context.
-
-[[axo_guide]]
-{axo_guide}::
-A
-{axl_motif}
-representing an
-{axo_procedure}
-executed by a human operator following system-presented steps.
-{axl_voices}
-{axo_procedure}
-with human executor constraint.
-The system displays steps; the human performs them in external systems or consoles.
-Behavior steps use
-{axe_human_guide}
-control voicings.
-
-[[axo_routine]]
-{axo_routine}::
-A
-{axl_motif}
-representing a reusable
-{axo_procedure}
-invoked as a subsequence within other procedures.
-{axl_voices}
-{axo_procedure}
-with composite reusability constraint.
-Encapsulates common logic for consistent reuse across specifications.
-
-[[axo_sequence]]
-{axo_sequence}::
-A
-{axl_motif}
-representing a structural characteristic: ordered processing steps executed in defined progression.
-NOT a procedure type—describes HOW behavior is organized, not WHAT kind of procedure something is.
-Most
-{axo_procedure}
-voicings ARE sequential.
-Use within
-{axs_behavior}
-sections to document step ordering.
+Standalone operations not affiliated with an entity.
+Voiced at the
+{axl_definition_site}
+via
+{axvo_procedure}.
 
 [[axo_role]]
 {axo_role}::
@@ -1365,7 +987,7 @@ A
 {axl_motif}
 representing a structured section documenting an operation's arguments.
 {axl_voices}
-{axs_inputs}
+{axhop_parameter}
 in CLI context.
 Within an
 {axa_argument_list},
@@ -1427,7 +1049,7 @@ A
 {axl_motif}
 representing an Exit Status section that follows standard Unix conventions.
 {axl_voices}
-{axs_completion}
+{axhoc_completion}
 in CLI context.
 Exit 0 indicates success; any non-zero exit indicates error.
 {axl_voicing_s}
@@ -1458,7 +1080,7 @@ A
 {axl_motif}
 representing an Exit Status section with distinct exit codes carrying specific meanings.
 {axl_voices}
-{axs_completion}
+{axhoc_completion}
 in CLI context.
 {axl_voicing_s}
 require the definition text to list each exit code and its meaning.
@@ -1770,38 +1392,35 @@ Lifecycle dimensions are mutually exclusive.
 {axo_procedure}
 executes and completes.
 The default lifecycle for most procedures.
-{axs_completion}
+{axhoc_completion}
 documents exit status or return value.
 
 [[axd_longrunning]]
 {axd_longrunning}::
 {axo_procedure}
 runs continuously until explicitly stopped.
-{axs_completion}
+{axhoc_completion}
 documents startup success criteria, not termination.
 Requires
-{axs_startup}
+{axhos_step} (startup)
 and
-{axs_shutdown}
+{axhos_step} (shutdown)
 sections.
 May include
-{axs_health},
-{axs_signals},
-{axs_recovery}
+{axhos_step} (health, signals, recovery)
 sections.
 
 [[axd_periodic]]
 {axd_periodic}::
 {axo_procedure}
 executes on a schedule.
-{axs_completion}
+{axhoc_completion}
 applies per-run.
 Requires
-{axs_schedule}
+{axhos_step} (schedule)
 section.
 May include
-{axs_idempotency},
-{axs_overlap}
+{axhos_step} (idempotency, overlap)
 sections.
 
 === Regime Dimensions
@@ -3091,13 +2710,13 @@ requires:
 or
 {axa_exit_enumerated}
 (which voice
-{axs_completion}
+{axhoc_completion}
 in CLI context)
 
 * Arguments section voiced as
 {axa_argument_list}
 (which voices
-{axs_inputs}
+{axhop_parameter}
 in CLI context; may list zero arguments if operation takes none)
 
 === CLI Option Completeness
@@ -3344,158 +2963,3 @@ must appear within
 {axhob_operation}
 scope
 
-== Operation Vocabulary Migration Plan
-
-This section documents the transformation from legacy operation voicing patterns to the new
-{axvo_*}
-and
-{axho_*}
-system.
-Terms listed here will be deleted from AXLA after all specifications have been transformed.
-
-=== Legacy Patterns Replaced
-
-==== Procedure Type Hierarchy (collapse to axo_procedure + axo_method)
-
-The legacy four-type hierarchy is replaced by two primary voicings:
-
-[cols="<,<,<",options="header"]
-|===
-|Legacy Term |Replacement |Notes
-
-|{axo_command}
-|{axvo_procedure} or {axvo_method}
-|The machine-executor constraint is dropped.
-Lifecycle dimension
-({axd_transient})
-carries the relevant behavioral characteristic.
-
-|{axo_guide}
-|{axvo_procedure} or {axvo_method} with {axd_attended}
-|The human-executor constraint becomes the
-{axd_attended}
-dimension.
-
-|{axo_routine}
-|{axvo_procedure} or {axvo_method} with {axd_internal}
-|The reusability/subsequence constraint becomes the
-{axd_internal}
-dimension.
-
-|{axo_sequence}
-|No replacement needed
-|Was already documented as NOT a procedure type.
-Step ordering is expressed through
-{axhos_step}
-markers at the
-{axl_detail_site}.
-|===
-
-{axo_procedure}
-and
-{axo_method}
-are peer motifs representing standalone and entity-affiliated operations respectively.
-{axvo_procedure},
-{axvo_method},
-and
-{axvo_group}
-are the definition-site voicings.
-{axo_method}
-is a new motif representing entity-affiliated operations.
-
-==== Environment Dimension (language dropped)
-
-[cols="<,<",options="header"]
-|===
-|Legacy Term |Replacement
-
-|{axe_bash_interactive}
-|Dropped. Implementation language is not a behavioral characteristic.
-
-|{axe_bash_scripted}
-|Dropped.
-
-|{axe_bash_unattended}
-|Dropped. The relevant distinction (attended vs unattended) is captured by
-{axd_attended}.
-
-|{axe_human_guide}
-|Dropped. Replaced by
-{axd_attended}.
-
-|{axe_rest_api}
-|Under review. May survive as an interface term rather than environment.
-
-|{axe_daemon_runtime}
-|Under review. The
-{axd_longrunning}
-lifecycle dimension may subsume this.
-|===
-
-==== Section Motifs (replaced by hierarchy markers)
-
-[cols="<,<",options="header"]
-|===
-|Legacy Term |Replacement
-
-|{axs_inputs}
-|{axhop_parameter} (individual markers per parameter)
-
-|{axs_preconditions}
-|{axhoq_precondition} (individual markers per precondition)
-
-|{axs_behavior}
-|{axhos_step} (individual markers per step)
-
-|{axs_outputs}
-|{axhoo_output} (individual markers per output)
-
-|{axs_postconditions}
-|{axhog_guarantee} (individual markers per guarantee)
-
-|{axs_completion}
-|{axhoc_completion} (signaling contract marker)
-
-|{axs_errors}
-|Under review. May become individual markers or fold into step prose.
-|===
-
-==== Annotation Pattern
-
-[cols="<,<",options="header"]
-|===
-|Legacy Pattern |Replacement
-
-|`// ⟦axl_voices axo_command axe_bash_interactive⟧`
-|`//axvo_procedure axd_transient` or `//axvo_method axd_transient` at
-{axl_definition_site}
-
-|`// ⟦axs_inputs⟧` / `// ⟦axs_behavior⟧` / etc.
-|`//axhop_parameter` / `//axhos_step` / etc. at
-{axl_detail_site}
-|===
-
-=== Terms Pending Deletion
-
-After all specifications are transformed, the following terms will be removed:
-
-* {axo_command}, {axo_command_s} — replaced by {axvo_procedure}/{axvo_method}
-* {axo_guide} — replaced by {axd_attended}
-* {axo_routine}, {axo_routine_s} — replaced by {axd_internal}
-* {axo_sequence}, {axo_sequence_s} — structural role replaced by {axhos_step}
-* {axe_bash_interactive}, {axe_bash_scripted}, {axe_bash_unattended} — language dimension dropped
-* {axe_human_guide} — replaced by {axd_attended}
-* {axs_inputs}, {axs_behavior}, {axs_outputs}, {axs_preconditions}, {axs_postconditions} — replaced by {axho_*} markers
-* {axs_completion} — replaced by {axhoc_completion}
-* {axs_errors} — under review, may become individual markers or fold into step prose
-
-The Procedure Hierarchy section, Procedure Documentation Completeness section, Command Documentation Completeness section, Guide Documentation Completeness section, and related completeness checklists will be rewritten to reference the new voicings once migration is complete.
-
-=== Transformation Sequence
-
-. Add new terms to AXLA (this section) — *complete*
-. Transform RBS0 operation subdocuments (highest usage)
-. Transform VOS0 (has ghost `axo_operation` references)
-. Transform BUS0, JJS0
-. Rewrite completeness checklists for new model
-. Delete legacy terms from AXLA
