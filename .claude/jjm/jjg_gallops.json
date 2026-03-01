@@ -6310,6 +6310,14 @@
         "₢AjAAR": {
           "tacks": [
             {
+              "ts": "260301-0941",
+              "state": "bridled",
+              "text": "Convert RBSIL-image_list.adoc, RBSID-image_delete.adoc, RBSIR-image_retrieve.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
+              "silks": "transform-image-subdocs",
+              "commit": "e2b53f6",
+              "direction": "Agent: sonnet\n\n## Context\nRead the paddock at .claude/jjm/jjp_uAlj.md for transformation rules.\nRead exemplar: lenses/RBSDC-depot_create.adoc (fully transformed subdoc).\nRead exemplar: lenses/RBSRC-retriever_create.adoc (small transformed subdoc).\n\n## Steps\n1. Read all 3 image subdocs: lenses/RBSIL-image_list.adoc, lenses/RBSID-image_delete.adoc, lenses/RBSIR-image_retrieve.adoc\n2. Grep RBS0-SpecTop.adoc for rbtgo_image_list, rbtgo_image_delete, rbtgo_image_retrieve to find operation linked terms\n3. Apply transformation to all 3 files per paddock policy\n4. Write all 3 transformed files\n\n## Verification\nGrep all 3 transformed files for '⟦axs_' — must return zero matches."
+            },
+            {
               "ts": "260227-1057",
               "state": "rough",
               "text": "Convert RBSIL-image_list.adoc, RBSID-image_delete.adoc, RBSIR-image_retrieve.adoc from legacy axs_* to axho_* markers. Follow established exemplar pattern.",
