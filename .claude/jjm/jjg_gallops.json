@@ -4649,6 +4649,7 @@
         "₢AiAAt",
         "₢AiAAu",
         "₢AiAAv",
+        "₢AiAAw",
         "₢AiAAo",
         "₢AiAAK",
         "₢AiAAT",
@@ -4664,7 +4665,7 @@
         "₢AiAAr",
         "₢AiAAs"
       ],
-      "next_pace_seed": "AAw",
+      "next_pace_seed": "AAx",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -6103,6 +6104,17 @@
               "text": "Research Cloud Build v2 connection infrastructure to plan the Developer Connect replacement.\n\n## Questions to Answer\n\n1. Does a CB v2 connection require a SEPARATE GitHub OAuth authorization from\n   Developer Connect, or can the same GitHub App installation be reused?\n2. What does the CB v2 connection creation REST API look like?\n   (POST cloudbuild.googleapis.com/v2/projects/{p}/locations/{r}/connections)\n3. What OAuth flow is needed for CB v2 connections? Browser-based like DC?\n4. What IAM permissions/roles are needed? (cloudbuild.connectionAdmin?)\n5. What service agents need provisioning? Does CB v2 use the same\n   cloudbuild service agent already provisioned, or a separate one?\n6. Can we reuse RBRA_RUBRIC_REPO_URL (PAT-in-URL) for git operations\n   alongside the CB v2 connection (for trigger source binding)?\n\n## Approach\n\n- Read CB v2 REST API docs via web research\n- Compare with existing Developer Connect setup in rbgp_Payor.sh and\n  rbgm_ManualProcedures.sh\n- Document findings in paddock addendum or pace docket update\n\n## Acceptance Criteria\n\n- All 6 questions answered with citations\n- Clear mapping: what replaces what in depot_create and depot_initialize\n- Regime variable plan: which RBRR_GDC_* vars to delete/rename",
               "silks": "investigate-cbv2-connection-setup",
               "commit": "4b6b6dd"
+            }
+          ]
+        },
+        "₢AiAAw": {
+          "tacks": [
+            {
+              "ts": "260301-1243",
+              "state": "rough",
+              "text": "Replace Developer Connect with Cloud Build v2 in depot lifecycle (create + initialize).\n\n## Scope\n\nBased on findings from ₢AiAAv (investigate-cbv2-connection-setup):\n\n1. **depot_create (rbgp_Payor.sh)**:\n   - Remove: Developer Connect connection creation, DC service agent provisioning,\n     DC Secret Manager grant\n   - Add: Cloud Build v2 connection creation (cloudbuild.googleapis.com/v2)\n   - Add: any new IAM grants needed for CB v2 connections\n\n2. **depot_initialize (rbgm_ManualProcedures.sh)**:\n   - Remove: Developer Connect OAuth browser flow\n   - Add: CB v2 connection OAuth browser flow (if different)\n   - Keep: rubric repo URL validation (PAT-in-URL, independent of connection type)\n\n3. **Regime variables (.rbk/rbrr.env, rbrr_regime.sh)**:\n   - Delete: RBRR_GDC_CONNECTION_NAME, RBRR_GDC_REGION (if not needed)\n   - Add: replacement variables for CB v2 connection identity (if needed)\n   - Update validation in rbrr_regime.sh\n\n4. **Constants (rbgc_Constants.sh)**:\n   - Remove: RBGC_API_ROOT_DEVELOPERCONNECT, RBGC_DEVELOPERCONNECT_V1\n   - Add: CB v2 API root/version constants\n\n## Acceptance Criteria\n\n- depot_create creates CB v2 connection instead of DC connection\n- depot_initialize completes CB v2 OAuth authorization\n- All DC-specific regime variables and constants removed\n- Regime validation passes with new variables",
+              "silks": "replace-devconnect-with-cbv2-depot",
+              "commit": "9d95a98"
             }
           ]
         }
