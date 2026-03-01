@@ -4644,6 +4644,7 @@
         "₢AiAAf",
         "₢AiAAj",
         "₢AiAAn",
+        "₢AiAAp",
         "₢AiAAo",
         "₢AiAAK",
         "₢AiAAT",
@@ -4657,7 +4658,7 @@
         "₢AiAAl",
         "₢AiAAm"
       ],
-      "next_pace_seed": "AAp",
+      "next_pace_seed": "AAq",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAAA": {
@@ -5977,6 +5978,17 @@
               "text": "End-to-end verification of trigger fix on a clean depot.\n\n## Sequence\n\n1. Destroy depot 260301-01 (tt/rbw-pDD.PayorDestroysDepot.sh)\n2. Create fresh depot (tt/rbw-pCD.PayorCreatesDepot.sh)\n3. Governor reset (tt/rbw-pRG.PayorResetsGovernor.sh)\n4. Create director (tt/rbw-GD.GovernorDirectorCreate.sh)\n5. Depot initialize (tt/rbw-gdi.DepotInitialize.sh)\n6. Update rbrr.env with new depot coordinates\n7. Refresh GCB pins (tt/rbw-rrg.RefreshGcbPins.sh)\n8. Regenerate all cloudbuild.json, commit\n9. Inscribe (tt/rbw-RI.RubricInscribe.sh) — must create all 7 triggers\n10. Build busybox (tt/rbw-iB.BuildImageRemotely.sh rbev-vessels/rbev-busybox)\n\n## Acceptance criteria\n\n- Inscribe creates all 7 triggers on first attempt (no retry needed)\n- Busybox build completes successfully via trigger dispatch\n- No diagnostic IAM grants — only depot_create/create_director provisioning\n\n## Key file\n\n- Tools/rbw/rbf_Foundry.sh (contains the repository→uri fix from ₢AiAAn)",
               "silks": "e2e-clean-depot-verify",
               "commit": "99a5341"
+            }
+          ]
+        },
+        "₢AiAAp": {
+          "tacks": [
+            {
+              "ts": "260301-1018",
+              "state": "rough",
+              "text": "Eliminate GAIA propagation race in IAM bindings by using SA numeric ID.\n\n## Problem\n\nWhen a service account is created via IAM API, cross-service identity resolution\n(IAM→Artifact Registry, IAM→Cloud Storage) takes seconds to minutes. Using\n`serviceAccount:EMAIL` as the member in setIamPolicy calls on other services\nraces against GAIA propagation. The `serviceAccount:NUMERIC_ID` form is\nimmediately resolvable per Google's own documentation.\n\n## Changes\n\n### rbgp_Payor.sh (depot_create)\n\n1. Capture `uniqueId` from Mason SA creation response (in addition to email)\n2. Remove the `rbgu_poll_get_until_ok` propagation poll — no longer needed\n3. Use `serviceAccount:NUMERIC_ID` in all four Mason IAM member bindings:\n   - `rbgi_add_repo_iam_role` (AR writer)\n   - `rbgi_add_bucket_iam_role` (GCS viewer)\n   - `rbgi_add_project_iam_role` × 2 (project viewer, logs writer)\n4. Keep email for `rbgi_add_sa_iam_role` target URL (Mason is the resource,\n   not the member; IAM→IAM is fast; 4 API calls elapsed by that point)\n5. Keep email for display output\n\n### rbgg_Governor.sh (create_retriever, create_director)\n\n1. Modify `zrbgg_create_service_account_with_key` to capture and surface\n   `uniqueId` from SA creation response\n2. Remove the 15-second hard sleep (`rbgu_newly_created_delay`)\n3. Use `serviceAccount:NUMERIC_ID` in all IAM member bindings for the\n   newly-created SA in both `rbgg_create_retriever` and `rbgg_create_director`\n\n### rbgi_IAM.sh (dead code elimination)\n\n1. Remove the HTTP 400 \"does not exist\" retry loop from\n   `rbgi_add_bucket_iam_role` — with numeric ID, the SA is immediately\n   resolvable; this retry infrastructure is dead code\n2. Simplify to match `rbgi_add_repo_iam_role` pattern (single setIamPolicy call)\n\n### RBS0-SpecTop.adoc (spec alignment)\n\nReview and update depot_create, create_director, create_retriever specification\nsections to reflect:\n- Numeric ID usage for IAM bindings (new pattern)\n- Removal of propagation polling/delays\n- Any other recent implementation changes not yet in spec\n\n## Acceptance criteria\n\n- depot_create uses numeric ID for all Mason member bindings\n- Governor create_retriever/create_director use numeric ID for all member bindings\n- No propagation polls or hard sleeps after SA creation\n- No retry-on-400 \"does not exist\" loop in bucket IAM function\n- RBS0 sections for depot_create, create_director, create_retriever are current\n- Existing tests pass (if any)\n\n## Key files\n\n- Tools/rbw/rbgp_Payor.sh\n- Tools/rbw/rbgg_Governor.sh\n- Tools/rbw/rbgi_IAM.sh\n- lenses/RBS0-SpecTop.adoc",
+              "silks": "numeric-id-iam-bindings",
+              "commit": "ff196d0"
             }
           ]
         }
