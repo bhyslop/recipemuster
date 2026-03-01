@@ -6067,9 +6067,10 @@
         "₢AjAAT",
         "₢AjAAX",
         "₢AjAAb",
-        "₢AjAAj"
+        "₢AjAAj",
+        "₢AjAAk"
       ],
-      "next_pace_seed": "AAk",
+      "next_pace_seed": "AAl",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6717,6 +6718,17 @@
               "text": "Explore converting definition-site voicing annotations from Strachey bracket syntax (// ⟦axvo_method axd_transient⟧) to bare marker syntax (//axvo_method axd_transient) for consistency with detail-site hierarchy markers. Assess impact across all transformed documents, AXLA spec changes needed, and whether this unification is desirable or whether the syntactic distinction between definition-site and detail-site serves a useful purpose.",
               "silks": "explore-definition-site-bare-markers",
               "commit": "e0e0ad6"
+            }
+          ]
+        },
+        "₢AjAAk": {
+          "tacks": [
+            {
+              "ts": "260301-1030",
+              "state": "rough",
+              "text": "Convert VOS0 operation subdocuments (VOSRL-lock.adoc, VOSRC-commit.adoc, VOSRG-guard.adoc, VOSRP-probe.adoc, VOSRI-init.adoc, and the inline vosor_release detail) from voss_* section headers to bare //axho_* detail-site markers, matching the pattern established in RBS0 subdocuments. Remove voss_* term definitions from VOS0 mapping section once all usage is eliminated.",
+              "silks": "convert-vos0-subdocs-bare-markers",
+              "commit": "9db1e43"
             }
           ]
         }
