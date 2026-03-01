@@ -1,0 +1,172 @@
+==== Summary
+
+The `triggers.run` REST API cannot dispatch builds against Developer Connect
+repositories. The API's `RunBuildTriggerRequest.source` field only accepts
+`RepoSource` — a 1st generation Cloud Source Repositories type. This is a
+structural limitation in the protobuf schema, not a bug or misconfiguration.
+
+The solution is to replace Developer Connect connections with Cloud Build v2
+connections and repositories, which are the supported path for trigger-based
+dispatch via `triggers.run` + `RepoSource`.
+
+==== Root Cause
+
+The `projects.triggers.run` REST API accepts a `RunBuildTriggerRequest` whose
+`source` field is typed as `RepoSource`. This type belongs to the 1st generation
+Cloud Source Repositories (CSR) resource model. It cannot reference Developer
+Connect `gitRepositoryLinks` or any 2nd generation repository type.
+
+When a trigger is configured with a Developer Connect repository and invoked via
+`triggers.run`, the API ignores all `RepoSource` fields in the request body.
+The result is an HTTP 400 error: `"Couldn't read commit "` (empty commit string)
+— the API received no usable source reference.
+
+This is confirmed by the Go GAPIC protobuf surface (Dec 2025), which shows
+`RunBuildTriggerRequest.source` typed as `RepoSource` with no alternative.
+
+==== Two Resource Hierarchies
+
+Google Cloud has two separate, non-interchangeable repository connection systems:
+
+[cols="1,1,1",options="header"]
+|===
+|Aspect
+|Developer Connect
+|Cloud Build v2
+
+|API
+|`developerconnect.googleapis.com`
+|`cloudbuild.googleapis.com/v2`
+
+|Resource
+|`gitRepositoryLinks`
+|`repositories`
+
+|Connection type
+|Developer Connect connection
+|CB v2 connection
+
+|Trigger compatibility
+|Cannot be used with `triggers.run`
+|Works with `triggers.run` + `RepoSource`
+|===
+
+Developer Connect connections and Cloud Build v2 connections are separate APIs
+with separate resource models. A trigger must be backed by a CB v2 repository
+for `triggers.run` dispatch to function.
+
+==== Provenance Implications
+
+SLSA v1.0 provenance generation on Cloud Build is tied to the build invocation
+method:
+
+* **Trigger-invoked builds** (`triggers.run` or webhook/push events) produce
+  SLSA v1.0 provenance attestations automatically
+* **Manual builds** (`builds.create`) produce only v0.1 provenance — insufficient
+  for SLSA v1.0 compliance
+
+Since Tier 2 of the Cloud Build migration requires SLSA v1.0 provenance,
+trigger-based dispatch is mandatory. The `builds.create` path cannot be used
+as a fallback.
+
+==== Decision
+
+Replace Developer Connect with Cloud Build v2 connections and repositories.
+
+The `triggers.run` + `RepoSource` combination is the supported path for
+programmatic trigger dispatch against CB v2 repository-backed triggers.
+Developer Connect `gitRepositoryLinks` are not usable for this purpose.
+
+This changes the paddock's infrastructure design:
+
+* **Delete**: Developer Connect connection creation from `rbgp_depot_create()`
+* **Delete**: Developer Connect OAuth flow from `rbgm_depot_initialize()`
+* **Add**: CB v2 connection and repository creation
+* **Update**: Linked terms from `rbtgi_source_connection` (Developer Connect)
+  to CB v2 equivalents
+* **Retain**: The rubric repo concept and `RBRA_RUBRIC_REPO_URL` — unchanged,
+  CB v2 repositories point to the same git URL
+
+==== Experimental Evidence
+
+Three `triggers.run` request body formats were tested against a trigger
+configured with a Developer Connect repository. All produced HTTP 400.
+
+[cols="1,2,1",options="header"]
+|===
+|Format
+|Body
+|Result
+
+|RepoSource with branch
+|`{"source": {"repoSource": {"branchName": "main"}}}`
+|HTTP 400: `"Couldn't read commit "`
+
+|RepoSource with commit
+|`{"source": {"repoSource": {"commitSha": "<sha>"}}}`
+|HTTP 400: `"Couldn't read commit "`
+
+|Empty source
+|`{}`
+|HTTP 400: `"Couldn't read commit "`
+|===
+
+In all cases, the error message contains an empty commit string — the API
+received the `RepoSource` fields but could not resolve them against the
+Developer Connect repository backing the trigger.
+
+For comparison, `builds.create` with `developerConnectConfig` succeeded
+(HTTP 200) but produced only v0.1 provenance — confirming that Developer
+Connect itself works, but only via the non-trigger path that lacks SLSA v1.0.
+
+==== Web Research References
+
+[cols="1,3",options="header"]
+|===
+|Topic
+|Source
+
+|RunBuildTriggerRequest.source is RepoSource (Go GAPIC proto)
+|https://pkg.go.dev/cloud.google.com/go/cloudbuild/apiv1/v2/cloudbuildpb#RunBuildTriggerRequest[RunBuildTriggerRequest protobuf definition]
+
+|Source type supports connected_repository and git_source (Go GAPIC proto)
+|https://pkg.go.dev/cloud.google.com/go/cloudbuild/apiv1/v2/cloudbuildpb#Source[Source protobuf definition — shows alternatives not available in RunBuildTriggerRequest]
+
+|Feature request for 2nd gen support in trigger/build requests
+|https://github.com/googleapis/google-cloud-go/issues/9029[googleapis/google-cloud-go#9029]
+
+|Provenance tied to trigger-invoked builds (v1.0 vs v0.1)
+|https://cloud.google.com/build/docs/securing-builds/generate-validate-build-provenance[Generate and validate build provenance]
+
+|Triggered vs inline provenance structure (buildType v1)
+|https://cloud.google.com/build/gcb-buildtypes/google-worker/v1[Cloud Build buildType v1]
+
+|CB v2 repositories API reference
+|https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections.repositories[CB v2 repositories REST API]
+
+|CB v2 repositories create
+|https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections.repositories/create[CB v2 repositories create method]
+
+|Developer Connect gitRepositoryLinks API (the path that does NOT work with triggers)
+|https://cloud.google.com/developer-connect/docs/api/reference/rest/v1/projects.locations.connections.gitRepositoryLinks[Developer Connect gitRepositoryLinks API]
+
+|Developer forums — "Couldn't read commit" error thread
+|https://discuss.google.dev/t/gcp-cloudbuild-failed-to-trigger-build-couldnt-read-commit/100578[GCP CloudBuild Failed to trigger build — Couldn't read commit]
+
+|1st gen vs 2nd gen repository connections
+|https://cloud.google.com/build/docs/automating-builds/github/connect-repo-github[Connect a GitHub repository — 1st vs 2nd gen]
+
+|Cloud Build release notes (provenance tied to triggered builds)
+|https://cloud.google.com/build/docs/release-notes[Cloud Build release notes]
+
+|Artifact Analysis occurrences (provenance verification)
+|https://cloud.google.com/artifact-analysis/docs/reference/rest/v1/projects.locations.occurrences[Artifact Analysis occurrences API]
+|===
+
+==== References
+
+* Research conducted: 2026-02-28 (live API experiments + web research + Go GAPIC proto review)
+* Related: `RBSCJ-CloudBuildJson.adoc` (JSON format decision)
+* Related: `RBSCB-CloudBuildRoadmap.adoc` (tier definitions)
+* Paddock impact: `rbtgi_source_connection` linked term and all Developer Connect
+  infrastructure paces require revision to CB v2
