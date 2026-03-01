@@ -48,8 +48,25 @@ in definition text).
 // ⟦axs_completion⟧      →  //axhoc_completion
 ```
 
-Each individual marker requires a project-specific linked term on the next line (lookahead).
 Subdocuments open with //axhob_operation + operation linked term.
+
+### Detail-site lookahead policy (settled in ₢AjAAg)
+
+| Marker | Lookahead | Notes |
+|--------|-----------|-------|
+| `axhob_operation` | Yes | Operation linked term |
+| `axhop_parameter_from_type` | Yes | Reuses existing domain type term (zero new terms) |
+| `axhop_parameter_from_arg` | Yes | Reuses shared CLI argument term (small vocabulary per spec) |
+| `axhos_step` | No | Bare marker, straight to content |
+| `axhos_waymark` | Local anchor only | Rare; branch-targetable step. No S0 elevation |
+| `axhoq_precondition` | No | |
+| `axhoo_output_of_type` | Yes | Reuses existing domain type term (parallel to parameter pattern) |
+| `axhog_guarantee` | No | |
+| `axhoc_completion` | No | |
+
+Markers with lookahead reference existing domain terms — they do NOT mint
+operation-specific S0 terms. The exemplar paces (AAE/AAF) pre-date this
+policy and have 34 wrong-elevation terms that require a repair pace.
 
 ### Regime subdocument bracket repair
 
@@ -69,22 +86,23 @@ legacy term deletion.
 **Out of scope (separate heats)**:
 - Regime operation markers (axhro_kindle etc.) — future reconciliation
 - Control terms (axc_*/rbbc_*) — step-level vocabulary
-- Step labels / branching — prose handles branching
+- Step labels / branching — handled via axhos_waymark (settled in ₢AjAAg)
 - Diptych syntax (₣AZ) — adjacent heat, connection noted in ₣AZ paddock
 - Non-rbtgo operations in RBS0 (mkr_*, opss_*, opbs_*, opbr_*, scr_*)
 
 ## Subdocument Transformation Notes
 
-The exemplar paces (₢AjAAE depot_create, ₢AjAAF depot_initialize) establish the
-pattern. Subsequent subdocument transformations follow that pattern.
+The exemplar paces (₢AjAAE depot_create, ₢AjAAF depot_initialize) pre-date the
+settled lookahead policy and contain 34 wrong-elevation terms. A repair pace
+will apply the corrected policy to these two subdocuments.
 
-Each subdocument transformation requires minting linked terms for parameters, steps,
-and outputs. These are new vocabulary — not mechanical replacement. The exemplar
-paces are interactive (rough); later paces may be bridleable once the pattern is proven.
+Subsequent subdocument transformations follow the settled policy above:
+parameters and outputs get lookaheads referencing existing domain terms;
+steps, preconditions, guarantees, and completion do not. This makes most
+transformations more mechanical — later paces may be bridleable.
 
 Depot_initialize is the attended exemplar: it has preconditions, human-interactive
-OAuth flow, and "go to step N" branching (handled as prose cross-references to
-step linked terms).
+OAuth flow, and branch targets (handled via `axhos_waymark` with local anchors).
 
 ## Cross-cutting Decisions
 

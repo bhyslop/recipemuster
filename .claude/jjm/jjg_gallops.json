@@ -5963,6 +5963,7 @@
         "₢AjAAE",
         "₢AjAAF",
         "₢AjAAg",
+        "₢AjAAh",
         "₢AjAAG",
         "₢AjAAH",
         "₢AjAAI",
@@ -5990,7 +5991,7 @@
         "₢AjAAX",
         "₢AjAAb"
       ],
-      "next_pace_seed": "AAh",
+      "next_pace_seed": "AAi",
       "paddock_file": ".claude/jjm/jjp_uAlj.md",
       "paces": {
         "₢AjAAA": {
@@ -6437,6 +6438,17 @@
               "text": "Resume design clarification for axho_* marker lookahead policy. Captures\nlearning from ₢AjAAE and ₢AjAAF exemplar work.\n\n## Resolved so far\n\n- Parameters: DO need S0-level terms, but via two AXLA marker variants:\n  - axhop_parameter_from_type — lookahead reuses existing domain type term (zero new terms)\n  - axhop_parameter_from_arg — lookahead points at shared CLI argument term (JJ precedent: jjda_* pattern; small vocabulary per spec)\n- Steps: do NOT need lookaheads (no current customer for lectionary extraction)\n- Preconditions: do NOT need operation-specific S0 terms (dead weight)\n\n## Still to resolve\n\n- Outputs: same question as preconditions — do they need lookaheads?\n- Guarantees: same question\n- Completion: currently no lookahead (0 arity) — confirm this stays\n- Branch targets: if steps don't get lookaheads, how do cross-references\n  like \"Go to step 7\" work? Local anchors? Inline labels? Different marker?\n- What to do with the 34 wrong-elevation terms from AAE/AAF — repair pace\n  scope and timing\n- Paddock update: revise \"minting linked terms for parameters, steps, and\n  outputs\" premise once policy is settled\n- AXLA spec update: define new parameter marker variants, remove lookahead\n  requirement from step/precondition markers — separate pace or same pace?\n\n## Method\n\nInteractive discussion to complete the resolution list, then hand off to\nan AXLA update pace and a repair pace for AAE/AAF.",
               "silks": "clarify-detail-site-lookahead-policy",
               "commit": "474d2ad"
+            }
+          ]
+        },
+        "₢AjAAh": {
+          "tacks": [
+            {
+              "ts": "260301-0838",
+              "state": "rough",
+              "text": "Define new marker variants and codify the settled lookahead policy in AXLA-Lexicon.adoc.\n\n## New markers to define\n- axhop_parameter_from_type — parameter lookahead reuses existing domain type term\n- axhop_parameter_from_arg — parameter lookahead reuses shared CLI argument term\n- axhos_waymark — branch-targetable step with local anchor (no S0 elevation)\n- axhoo_output_of_type — output lookahead reuses existing domain type term\n\n## Policy changes to codify\n- axhos_step: no lookahead (bare marker)\n- axhoq_precondition: no lookahead\n- axhog_guarantee: no lookahead\n- axhoc_completion: no lookahead\n- Remove any existing lookahead requirement from step/precondition/guarantee/completion marker definitions\n\n## Design authority\n- Settled in ₢AjAAg (clarify-detail-site-lookahead-policy)\n- Paddock lookahead policy table is the source of truth",
+              "silks": "update-axla-lookahead-spec",
+              "commit": "f64c763"
             }
           ]
         }
