@@ -1241,25 +1241,25 @@ Routines are internal reusable procedures invoked by operations.
 They encapsulate common logic for consistent behavior across the codebase.
 
 [[jjdr_load]]
-// ⟦axl_voices axo_routine⟧
+// ⟦axvo_procedure axd_internal⟧
 === {jjdr_load}
 
 include::JJSRLD-load.adoc[]
 
 [[jjdr_save]]
-// ⟦axl_voices axo_routine⟧
+// ⟦axvo_procedure axd_internal⟧
 === {jjdr_save}
 
 include::JJSRSV-save.adoc[]
 
 [[jjdr_persist]]
-// ⟦axl_voices axo_routine⟧
+// ⟦axvo_procedure axd_internal⟧
 === {jjdr_persist}
 
 include::JJSRPS-persist.adoc[]
 
 [[jjdr_wrap]]
-// ⟦axl_voices axo_routine⟧
+// ⟦axvo_procedure axd_internal⟧
 === {jjdr_wrap}
 
 include::JJSRWP-wrap.adoc[]
