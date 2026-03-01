@@ -401,3 +401,117 @@ The roadmap document has accumulated contradictions between tier body text and d
 entries. A reconciliation pace (₢AiAAd) will re-read the document fresh after all implementation
 paces land and rewrite it as a coherent plan — eliminating the decision log in favor of
 authoritative tier descriptions.
+
+### Session Decisions (2026-03-01) — CB v2 Connection Research
+
+**Developer Connect replaced by Cloud Build v2 connections — separate GitHub App.**
+CB v2 connections use the "Google Cloud Build" GitHub App (github.com/apps/google-cloud-build),
+which is entirely separate from the Developer Connect GitHub App. A new GitHub App installation
+is required. The existing Developer Connect connection cannot be reused.
+
+**CB v2 connection creation is fully programmatic (no browser OAuth consent).**
+Unlike Developer Connect (which required a browser-based OAuth authorization flow), CB v2
+connections can be created entirely via REST API when an existing GitHub App installation ID
+and classic PAT are provided. Google's docs confirm: "When using an existing token and
+installation ID to create a connection, no manual intervention using a web browser is required."
+The one-time browser steps are: (1) install the Google Cloud Build GitHub App on the org,
+(2) generate a classic PAT with `repo`, `read:user`, `read:org` scopes.
+
+**CB v2 connection REST API:**
+```
+POST cloudbuild.googleapis.com/v2/projects/{p}/locations/{r}/connections?connectionId={id}
+Body: {
+  "githubConfig": {
+    "authorizerCredential": {
+      "oauthTokenSecretVersion": "projects/P/secrets/S/versions/1"
+    },
+    "appInstallationId": "INSTALLATION_ID"
+  }
+}
+```
+The PAT is stored in Secret Manager; the API references the secret version.
+Returns a long-running operation. Connection goes through stages:
+PENDING_CREATE_APP → PENDING_USER_OAUTH → PENDING_INSTALL_APP → COMPLETE.
+
+**CB v2 repository creation REST API:**
+```
+POST cloudbuild.googleapis.com/v2/projects/{p}/locations/{r}/connections/{c}/repositories?repositoryId={id}
+Body: { "remoteUri": "https://github.com/org/repo.git" }
+```
+The `remoteUri` is a plain HTTPS URL (no embedded credentials). Authentication is
+handled by the parent connection's Secret Manager reference. CB v2 auto-creates a
+GitHub webhook on the repository.
+
+**IAM: `roles/cloudbuild.connectionAdmin` for connection CRUD.**
+Grants `cloudbuild.connections.create/get/list/update/delete` and
+`cloudbuild.repositories.create/get/list/delete`. This is a new role not
+previously used in the depot lifecycle.
+
+**Same Cloud Build service agent, needs Secret Manager access.**
+The service agent `service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com` is the
+same one already provisioned when Cloud Build API is enabled. During connection
+setup, it needs `roles/secretmanager.admin` (can be scoped down to
+`roles/secretmanager.secretAccessor` on the specific secret after COMPLETE).
+
+**RBRA_RUBRIC_REPO_URL coexists with CB v2 connection.**
+Two separate credential paths:
+- `RBRA_RUBRIC_REPO_URL` (PAT-in-URL): used by inscribe for git clone/commit/push
+  to the rubric repo. Local git operations only.
+- CB v2 connection (PAT in Secret Manager + GitHub App): used by Cloud Build triggers
+  for source checkout. The `remoteUri` on the CB v2 repository is the plain URL
+  (no credentials). These can use the same PAT or different PATs.
+
+**Fine-grained PATs NOT supported for CB v2 connections.**
+Google Issue Tracker #343223837 confirms: fine-grained tokens cause
+"the user token does not have access to installations". Classic PATs required
+with `repo`, `read:user`, `read:org` scopes.
+
+**Trigger repositoryEventConfig references CB v2 repository:**
+```json
+{
+  "repositoryEventConfig": {
+    "repository": "projects/P/locations/R/connections/C/repositories/REPO_ID",
+    "push": { "branch": "^main$" }
+  }
+}
+```
+
+**Regime variable plan:**
+- `RBRR_GDC_CONNECTION_NAME` → rename to `RBRR_CBV2_CONNECTION_NAME`
+- `RBRR_GDC_REGION` → rename to `RBRR_CBV2_REGION` (or reuse `RBGD_GCB_REGION`
+  since CB v2 region must match trigger region, which already equals GCB region)
+- New: Secret Manager secret name for the GitHub PAT (used by CB v2 connection)
+- New: GitHub App installation ID (used by CB v2 connection creation)
+- Delete: all `developerconnect.googleapis.com` API references
+- Delete: Developer Connect API enablement from depot_create
+
+**What replaces what in depot_create:**
+- Delete: `developerconnect.googleapis.com` API enable
+- Delete: Developer Connect connection creation (POST .../connections)
+- Add: `secretmanager.googleapis.com` API enable (if not already)
+- Add: Store PAT in Secret Manager
+- Add: Grant service agent Secret Manager access
+- Add: CB v2 connection creation (POST cloudbuild.googleapis.com/v2/.../connections)
+- Add: CB v2 repository creation (POST .../connections/{c}/repositories)
+
+**What replaces what in depot_initialize:**
+- Delete: Developer Connect OAuth browser flow (installAuthorizationUri)
+- Delete: Console IAM grant for Developer Connect OAuth
+- Simplify: CB v2 connection with existing App installation + PAT is fully programmatic
+- The rubric repo URL validation (git ls-remote) survives unchanged
+- The one-time browser step (install Google Cloud Build GitHub App) becomes part of
+  a setup guide, not the depot_initialize flow
+
+**What replaces what in inscribe (rbf_Foundry.sh):**
+- Delete: Developer Connect source link (gitRepositoryLinks) creation/check
+- Add: CB v2 repository check (already created by depot_create)
+- Trigger creation body: use `repositoryEventConfig.repository` (CB v2 path)
+  instead of Developer Connect source link reference
+
+**Sources:**
+- CB v2 connections API: https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections
+- CB v2 repositories API: https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections.repositories
+- Connect repo (2nd gen): https://cloud.google.com/build/docs/automating-builds/github/connect-repo-github?generation=2nd-gen
+- IAM roles: https://cloud.google.com/build/docs/iam-roles-permissions
+- Fine-grained PAT limitation: https://issuetracker.google.com/issues/343223837
+- Google Cloud Build GitHub App: https://github.com/apps/google-cloud-build
