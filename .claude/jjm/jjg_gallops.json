@@ -6940,6 +6940,13 @@
         "₢AjAAj": {
           "tacks": [
             {
+              "ts": "260301-1517",
+              "state": "complete",
+              "text": "Explore converting definition-site voicing annotations from Strachey bracket syntax (// ⟦axvo_method axd_transient⟧) to bare marker syntax (//axvo_method axd_transient) for consistency with detail-site hierarchy markers. Assess impact across all transformed documents, AXLA spec changes needed, and whether this unification is desirable or whether the syntactic distinction between definition-site and detail-site serves a useful purpose.",
+              "silks": "explore-definition-site-bare-markers",
+              "commit": "5d24c18"
+            },
+            {
               "ts": "260301-1028",
               "state": "rough",
               "text": "Explore converting definition-site voicing annotations from Strachey bracket syntax (// ⟦axvo_method axd_transient⟧) to bare marker syntax (//axvo_method axd_transient) for consistency with detail-site hierarchy markers. Assess impact across all transformed documents, AXLA spec changes needed, and whether this unification is desirable or whether the syntactic distinction between definition-site and detail-site serves a useful purpose.",
