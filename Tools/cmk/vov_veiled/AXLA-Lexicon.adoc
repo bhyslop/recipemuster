@@ -141,9 +141,13 @@
 :axhoc_completion:                    <<axhoc_completion,Hierarchy Completion>>
 :axhog_guarantee:                     <<axhog_guarantee,Hierarchy Guarantee>>
 :axhoo_output:                        <<axhoo_output,Hierarchy Output>>
+:axhoo_output_of_type:                <<axhoo_output_of_type,Hierarchy Output Of Type>>
 :axhop_parameter:                     <<axhop_parameter,Hierarchy Parameter>>
+:axhop_parameter_from_arg:            <<axhop_parameter_from_arg,Hierarchy Parameter From Arg>>
+:axhop_parameter_from_type:           <<axhop_parameter_from_type,Hierarchy Parameter From Type>>
 :axhoq_precondition:                  <<axhoq_precondition,Hierarchy Precondition>>
 :axhos_step:                          <<axhos_step,Hierarchy Step>>
+:axhos_waymark:                       <<axhos_waymark,Hierarchy Waymark>>
 
 // Axial Hierarchy Regime Operation Markers (subdocument)
 :axhro_kindle:                        <<axhro_kindle,Hierarchy Kindle>>
@@ -2522,13 +2526,15 @@ from the following text.
 |===
 |Marker |Lookahead |Reads
 
-|{axhob_operation}    |1 {mcm_attribute_reference}  |The operation this detail site describes (no dimensions — dimensions are at {axl_definition_site} only)
-|{axhoc_completion}   |0                            |Introduces the signaling contract section (exit codes, status)
-|{axhop_parameter}    |1 {mcm_attribute_reference}  |A named input parameter
-|{axhoo_output}       |1 {mcm_attribute_reference}  |A named output
-|{axhoq_precondition} |1 {mcm_attribute_reference}  |A required condition before execution
-|{axhog_guarantee}    |1 {mcm_attribute_reference}  |A promised condition after execution
-|{axhos_step}         |1 {mcm_attribute_reference}  |A named behavioral step
+|{axhob_operation}          |1 {mcm_attribute_reference}  |The operation this detail site describes (no dimensions — dimensions are at {axl_definition_site} only)
+|{axhoc_completion}         |0                            |Introduces the signaling contract section (exit codes, status); bare marker, no lookahead
+|{axhop_parameter_from_type}|1 {mcm_attribute_reference}  |A named input parameter whose identity reuses an existing domain type term (zero new terms minted)
+|{axhop_parameter_from_arg} |1 {mcm_attribute_reference}  |A named input parameter whose identity reuses a shared CLI argument term (small vocabulary per spec)
+|{axhoo_output_of_type}     |1 {mcm_attribute_reference}  |A named output whose identity reuses an existing domain type term (parallel to parameter_from_type pattern)
+|{axhoq_precondition}       |0                            |A required condition before execution; bare marker, no lookahead
+|{axhog_guarantee}          |0                            |A promised condition after execution; bare marker, no lookahead
+|{axhos_step}               |0                            |A named behavioral step; bare marker, no lookahead
+|{axhos_waymark}            |0                            |A branch-targetable step with a local AsciiDoc anchor; bare marker, no lookahead
 |===
 
 [[axhob_operation]]
@@ -2563,7 +2569,7 @@ The surface syntax:
 {axhoc_completion}::
 Marks the signaling contract section in an operation
 {axl_detail_site}.
-Lookahead: 0 — no linked term follows.
+0-arity bare marker — no lookahead required; content follows directly.
 Documents how the operation communicates success or failure: exit codes for CLI, HTTP status for REST, return values for functions.
 Distinct from
 {axhog_guarantee}
@@ -2574,49 +2580,93 @@ One per operation.
 
 [[axhop_parameter]]
 {axhop_parameter}::
-Marks a named input parameter in an operation
+Abstract parent for parameter markers in an operation
 {axl_detail_site}.
+Do not use directly — use one of the concrete variants:
+{axhop_parameter_from_type}
+or
+{axhop_parameter_from_arg}.
+Individual markers per parameter; no section wrapper needed.
+
+[[axhop_parameter_from_type]]
+{axhop_parameter_from_type}::
+Variant of
+{axhop_parameter}
+whose lookahead reuses an existing domain type term.
+No new term is minted — the attribute reference on the following line names a type already defined elsewhere in the lexicon.
+Used when the parameter's identity is fully captured by the type (e.g., a parameter that is simply a CIDR block or a domain name).
 Lookahead: 1
 {mcm_attribute_reference}
-— the parameter being detailed.
+— must resolve to an existing type anchor; zero new terms minted.
+Individual markers per parameter; no section wrapper needed.
+
+[[axhop_parameter_from_arg]]
+{axhop_parameter_from_arg}::
+Variant of
+{axhop_parameter}
+whose lookahead reuses a shared CLI argument term.
+The attribute reference on the following line names a shared argument from the small CLI argument vocabulary defined per spec; no new term is minted.
+Used when the parameter is a well-known CLI argument that appears across multiple operations.
+Lookahead: 1
+{mcm_attribute_reference}
+— must resolve to an existing shared CLI argument anchor; small vocabulary per spec.
 Individual markers per parameter; no section wrapper needed.
 
 [[axhoo_output]]
 {axhoo_output}::
-Marks a named output in an operation
+Abstract parent for output markers in an operation
 {axl_detail_site}.
+Do not use directly — use
+{axhoo_output_of_type}.
+Individual markers per output; no section wrapper needed.
+
+[[axhoo_output_of_type]]
+{axhoo_output_of_type}::
+Variant of
+{axhoo_output}
+whose lookahead reuses an existing domain type term.
+Parallel to the
+{axhop_parameter_from_type}
+pattern: no new term is minted — the attribute reference on the following line names a type already defined elsewhere in the lexicon.
+Used when the output's identity is fully captured by the type (e.g., an output that is simply a list of names or a CIDR block).
 Lookahead: 1
 {mcm_attribute_reference}
-— the output being detailed.
+— must resolve to an existing type anchor; zero new terms minted.
 Individual markers per output; no section wrapper needed.
 
 [[axhoq_precondition]]
 {axhoq_precondition}::
 Marks a required precondition in an operation
 {axl_detail_site}.
-Lookahead: 1
-{mcm_attribute_reference}
-— the precondition being detailed.
+No lookahead required — bare marker; content follows directly.
 Each precondition is a statement about required environmental state before execution.
 
 [[axhog_guarantee]]
 {axhog_guarantee}::
 Marks a postcondition guarantee in an operation
 {axl_detail_site}.
-Lookahead: 1
-{mcm_attribute_reference}
-— the guarantee being detailed.
+No lookahead required — bare marker; content follows directly.
 Each guarantee is a promise about environmental state after successful execution.
 
 [[axhos_step]]
 {axhos_step}::
 Marks a named behavioral step in an operation
 {axl_detail_site}.
-Lookahead: 1
-{mcm_attribute_reference}
-— the step being detailed.
-Steps are individually addressable for lectionary extraction.
-Branching between steps is expressed in prose using cross-references to step linked terms.
+No lookahead required — bare marker; content follows directly.
+Steps carry their identity through position and prose; no linked term is expected on the following line.
+Branching between steps is expressed in prose using cross-references or by directing to a
+{axhos_waymark}
+anchor.
+
+[[axhos_waymark]]
+{axhos_waymark}::
+Variant of
+{axhos_step}
+for steps that must be branch-targetable from other steps.
+No lookahead required — bare marker; content follows directly.
+Rare; used when prose in another step says "go to step X" and needs a concrete anchor target.
+Carries a local AsciiDoc anchor following the `operation_waymarkname` naming convention (e.g., `[[depot_create_retry]]`).
+The anchor enables intra-document cross-references without S0 elevation — the step remains at the detail site level.
 
 === Nesting Rules
 
