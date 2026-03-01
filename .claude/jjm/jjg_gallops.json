@@ -6626,6 +6626,13 @@
         "₢AjAAd": {
           "tacks": [
             {
+              "ts": "260301-1034",
+              "state": "complete",
+              "text": "Transform VOS0-VoxObscuraSpec.adoc: 4 axo_command (with axe_rust_impl — drop language), 5 axo_routine, 3 ghost axo_operation (allocate, invitatory, release — determine correct voicing). Also review voss_* section motifs that voice deprecated axs_* terms.",
+              "silks": "transform-vos0-operations",
+              "commit": "e89ed93"
+            },
+            {
               "ts": "260227-1058",
               "state": "rough",
               "text": "Transform VOS0-VoxObscuraSpec.adoc: 4 axo_command (with axe_rust_impl — drop language), 5 axo_routine, 3 ghost axo_operation (allocate, invitatory, release — determine correct voicing). Also review voss_* section motifs that voice deprecated axs_* terms.",
