@@ -193,7 +193,6 @@
 :axig_resource_manager:               <<axig_resource_manager,GCP Resource Manager>>
 :axig_bucket:                         <<axig_bucket,GCS Bucket>>
 :axig_generic_artifact:               <<axig_generic_artifact,Generic Artifact>>
-:axig_repo_link:                      <<axig_repo_link,Git Repository Link>>
 :axig_binding:                        <<axig_binding,IAM Binding>>
 :axig_role:                           <<axig_role,IAM Role>>
 :axig_lro:                            <<axig_lro,Long Running Operation>>
@@ -2590,12 +2589,7 @@ A
 representing a Cloud Build v2 repository resource within a connection.
 Instance-level: a binding that grants Cloud Build access to a specific external repository.
 
-[[axig_repo_link]]
-{axig_repo_link}::
-A
-{axl_motif}
-representing a git repository link within a Cloud Build v2 connection.
-Instance-level: a binding that grants Cloud Build access to a specific external repository.
+// RETIRED: axig_repo_link — replaced by axig_cbv2_repository (2026-03-02)
 
 === Instance-Level: Build Provenance
 

@@ -1430,7 +1430,7 @@ Dispatches builds via `triggers.run` when invoked by
 {rbtgo_trigger_build}.
 
 [[rbtgr_rubric_repo]]
-//axl_voices axig_repo_link
+//axl_voices axig_cbv2_repository
 {rbtgr_rubric_repo}::
 Single shared git repository containing per-vessel directories, each with build material
 (cloudbuild.json, Dockerfile, build context).
@@ -1444,7 +1444,7 @@ Managed by
 {rbtgo_rubric_inscribe}.
 
 [[rbtgr_vessel_dir]]
-//axl_voices axig_repo_link
+//axl_voices axig_cbv2_repository
 {rbtgr_vessel_dir}::
 The per-vessel directory within
 {rbtgr_rubric_repo}

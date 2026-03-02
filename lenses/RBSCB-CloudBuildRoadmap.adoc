@@ -32,8 +32,8 @@ Provenance chain: rubric repo commit → committed JSON → image digest.
 No DIY provenance tooling.
 
 **Security boundary: rubric repo.**
-Cloud Build sees only the rubric repo via Developer Connect (one-time OAuth setup,
-no ad-hoc credential management) — a single shared repo
+Cloud Build sees only the rubric repo via a CB v2 connection (GitHub App + PAT in Secret Manager,
+fully programmatic setup) — a single shared repo
 with per-vessel directories (cloudbuild.json + Dockerfile + build context).
 The main repo (tooling, specs, regime files) is never exposed to Google.
 SLSA provenance records the rubric repo commit, which maps directly to the build material.
