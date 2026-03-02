@@ -599,8 +599,13 @@ rbgp_depot_create() {
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
   buc_step 'Generate depot project ID'
-  local z_timestamp
-  z_timestamp=$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}") || buc_die "Failed to generate timestamp"
+  # Derive from dispatch timestamp to match tabtarget log filename
+  # BURD_NOW_STAMP = YYYYMMDD-HHMMSS-PID-RANDOM
+  # RBGC_GLOBAL_TIMESTAMP_FORMAT produces YYMMDDHHMMSS
+  local z_datepart="${BURD_NOW_STAMP%%-*}"
+  local z_rest="${BURD_NOW_STAMP#*-}"
+  local z_timepart="${z_rest%%-*}"
+  local z_timestamp="${z_datepart:2}${z_timepart}"
   local z_depot_project_id="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-${z_depot_name}-${z_timestamp}"
   
   if [ "${#z_depot_project_id}" -gt 30 ]; then
@@ -1150,8 +1155,13 @@ rbgp_governor_reset() {
   buc_info "Deleted ${z_deleted_count} existing governor service account(s)"
 
   buc_step 'Generate Governor timestamp and account ID'
-  local z_timestamp
-  z_timestamp=$(date +%Y%m%d%H%M) || buc_die "Failed to generate timestamp"
+  # Derive from dispatch timestamp to match tabtarget log filename
+  # BURD_NOW_STAMP = YYYYMMDD-HHMMSS-PID-RANDOM
+  # Governor format: YYYYMMDDHHMM (no seconds)
+  local z_datepart="${BURD_NOW_STAMP%%-*}"
+  local z_rest="${BURD_NOW_STAMP#*-}"
+  local z_timepart="${z_rest%%-*}"
+  local z_timestamp="${z_datepart}${z_timepart:0:4}"
   local z_governor_account_id="${RBGC_GOVERNOR_PREFIX}-${z_timestamp}"
   local z_governor_email="${z_governor_account_id}@${z_depot_project_id}.iam.gserviceaccount.com"
 
