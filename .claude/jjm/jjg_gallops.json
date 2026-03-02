@@ -3452,9 +3452,10 @@
         "₢AWAAW",
         "₢AWAAX",
         "₢AWAAY",
-        "₢AWAAV"
+        "₢AWAAV",
+        "₢AWAAZ"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAuW.md",
       "paces": {
         "₢AWAAA": {
@@ -4159,6 +4160,17 @@
               "text": "jjx_reorder should exit 0 with a message when pace is already in requested position.\n\n## Problem\n\n`jjx_reorder Ai --move AiAAh --last` fails with `jjx_rail: error: git commit failed:` (empty stderr) when AiAAh is already last. The reorder produces no gallops diff, the git commit has nothing to commit, and the error path treats this as a failure.\n\n## Fix\n\n1. After computing the new order, compare against current order. If identical, exit 0 with message: `jjx_rail: no change — {coronet} is already {position}`\n2. No commit attempted for no-op.\n\n## Spec\n\nUpdate JJS0 rail ceremony to document: \"If the pace is already in the requested position, rail succeeds with no commit.\"\n\n## Files\n\n- Rust source for jjx_reorder (rail verb)\n- Tools/jjk/vov_veiled/JJSCRL-rail.adoc",
               "silks": "rail-noop-graceful-exit",
               "commit": "9a54646"
+            }
+          ]
+        },
+        "₢AWAAZ": {
+          "tacks": [
+            {
+              "ts": "260302-0800",
+              "state": "rough",
+              "text": "Spook: jjx_show pace view obscures current state, causing agents to\nmisread wrapped paces as rough.\n\n## Root Cause\n\nThe pace parade view in jjrpd_parade.rs has three issues:\n\n1. **Header omits pace state** (line 101):\n   `println!(\"Pace: {} ({})\", current_tack.silks, coronet_key);`\n   prints silks and coronet from tacks[0] (latest) but never prints\n   `current_tack.state`. A wrapped pace looks identical to a rough pace.\n\n2. **All tacks displayed reversed** (line 114):\n   `pace.tacks.iter().rev().enumerate()` reverses storage order so [0]\n   in display is the oldest tack (always rough). The complete tack from\n   wrap only appears as the last [N] entry — invisible when truncated.\n\n3. **Spec inconsistency** (JJSCPD-parade.adoc):\n   Line 163 says \"oldest first, index 0\" for display. Line 204 says\n   \"Print full tack text from tacks[0]\" meaning storage index (latest).\n   Same notation, different meanings.\n\n## Repairs\n\n1. Add state to header line:\n   `Pace: remove-builds-create-path (₢AiAAN) [complete]`\n\n2. Default view shows only latest docket. `--detail` shows full tack\n   history. This eliminates the \"all revisions are noise\" problem.\n\n3. Fix JJSCPD spec to disambiguate storage vs display indexing.\n\n## Key Files\n\n- Tools/jjk/vov_veiled/src/jjrpd_parade.rs (lines 99-130)\n- Tools/jjk/vov_veiled/JJSCPD-parade.adoc (lines 163, 204)\n\n## Impact\n\nAny agent or human truncating jjx_show output will misread pace state.\nCritical reliability issue for multi-officium workflows.",
+              "silks": "fix-parade-pace-state-visibility",
+              "commit": "8870dcc"
             }
           ]
         }
