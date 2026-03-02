@@ -179,7 +179,8 @@
 :axig_build:                          <<axig_build,Cloud Build>>
 :axig_build_trigger:                  <<axig_build_trigger,Cloud Build Trigger>>
 :axig_container_image:                <<axig_container_image,Container Image>>
-:axig_developer_connect:              <<axig_developer_connect,Developer Connect>>
+:axig_cbv2_connection:                <<axig_cbv2_connection,CB v2 Connection>>
+:axig_cbv2_repository:               <<axig_cbv2_repository,CB v2 Repository>>
 :axig_artifact_repository:            <<axig_artifact_repository,GAR Repository>>
 :axig_artifact_registry:              <<axig_artifact_registry,GCP Artifact Registry>>
 :axig_cloud_build:                    <<axig_cloud_build,GCP Cloud Build>>
@@ -2573,20 +2574,27 @@ A
 representing a build configuration file.
 Instance-level: a committed YAML or JSON file defining build steps, images, and artifacts.
 
-=== Instance-Level: Developer Connect
+=== Instance-Level: Cloud Build v2
 
-[[axig_developer_connect]]
-{axig_developer_connect}::
+[[axig_cbv2_connection]]
+{axig_cbv2_connection}::
 A
 {axl_motif}
-representing a Developer Connect connection.
-Instance-level: an OAuth-authenticated bridge between GCP and an external source code host.
+representing a Cloud Build v2 connection.
+Instance-level: an authenticated bridge from GCP to a GitHub organization via the "Google Cloud Build" GitHub App, with credentials stored in Secret Manager.
+
+[[axig_cbv2_repository]]
+{axig_cbv2_repository}::
+A
+{axl_motif}
+representing a Cloud Build v2 repository resource within a connection.
+Instance-level: a binding that grants Cloud Build access to a specific external repository.
 
 [[axig_repo_link]]
 {axig_repo_link}::
 A
 {axl_motif}
-representing a git repository link within a Developer Connect connection.
+representing a git repository link within a Cloud Build v2 connection.
 Instance-level: a binding that grants Cloud Build access to a specific external repository.
 
 === Instance-Level: Build Provenance

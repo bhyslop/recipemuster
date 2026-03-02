@@ -12,7 +12,7 @@ with build management permissions:
 * Execute {rbtoe_check_rubric_repo_url} using {rbtr_governor} RBRA credentials
 
 //axhoq_precondition
-* Execute {rbtoe_check_devconnect} to verify {rbtgi_source_connection} authorization
+* Execute {rbtoe_check_cbv2_connection} to verify {rbtgi_cbv2_connection} is active
 
 //axhop_parameter_from_type
 {rbtr_director}
@@ -97,10 +97,23 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 .. Add `serviceAccount:«DIRECTOR_EMAIL»` with roles:
 ... `roles/cloudbuild.builds.editor` (submit and manage builds)
 ... `roles/viewer` (read project resources)
-... `roles/developerconnect.admin` (source link and trigger infrastructure)
+... `roles/cloudbuild.connectionAdmin` (CB v2 connection and repository management)
 .. Policy version: 3
 .. {rbbc_require}
 IAM policy update successful
+
+//axhos_step
+. *Grant Secret Manager Access for Inscribe*:
+.. NOTE:
+{rbtr_director}
+needs to fetch the GitHub PAT from Secret Manager during
+{rbtgo_rubric_inscribe}
+to construct authenticated git URLs.
+.. {rbbc_call}
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy] for `projects/{rbrr_depot_project_id}/secrets/RBGC_CBV2_PAT_SECRET_NAME`
+.. Add `serviceAccount:«DIRECTOR_EMAIL»` with `roles/secretmanager.secretAccessor`
+.. {rbbc_require}
+IAM binding successful
 
 //axhos_step
 . *Grant

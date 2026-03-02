@@ -1,68 +1,14 @@
-//axhob_operation
-{rbtgo_gdc_establish}
+// RETIRED: 2026-03-02
+//
+// Developer Connect establishment is obsolete. Cloud Build v2 connections
+// replace Developer Connect entirely. CB v2 connection setup is fully
+// automated within depot_create using a classic GitHub PAT (stored in
+// Secret Manager) and the GitHub App installation ID.
+//
+// No browser-based OAuth consent flow is needed with CB v2.
+//
+// See paddock session decisions 2026-03-02 for rationale.
 
-NOTE: This operation has been split into two steps:
-
-* *Connection creation* — automated within
+NOTE: *This operation is retired.* Cloud Build v2 connections replace Developer Connect.
+Connection setup is fully automated within
 {rbtgo_depot_create}.
-The Developer Connect connection is created in PENDING state as part of depot provisioning.
-
-* *OAuth authorization* — guided by
-{rbtgo_depot_initialize}.
-The operator opens the GitHub OAuth authorization URI in a browser and completes the consent flow.
-The procedure also validates the
-{rbra_rubric_repo_url}
-required for {rbtgr_rubric_repo} management.
-
-This standalone guide is retained for reference.
-New installations should follow the
-{rbtgo_depot_create}
-then
-{rbtgo_depot_initialize}
-sequence.
-
-//axhoq_precondition
-* {rbtgi_depot}
-exists (completed
-{rbtgo_depot_create})
-with Developer Connect connection in PENDING state
-
-//axhoq_precondition
-* {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in RBRR
-
-//axhos_step
-. See
-{rbtgo_depot_initialize}
-for the complete procedure.
-
-//axhoo_output_of_type
-{rbtgi_source_connection}
-
-The outputs of GDC establishment are:
-
-- {rbrr_gdc_connection_name} — the
-{rbtgi_source_connection}
-resource name (set by
-{rbtgo_depot_create})
-- {rbrr_gdc_region} — regional location of the connection (set by
-{rbtgo_depot_create})
-- OAuth token automatically stored in Secret Manager (managed by Developer Connect, not by operator)
-
-Full resource path constructed as:
-
-----
-projects/{RBRR_DEPOT_PROJECT_ID}/locations/{RBRR_GDC_REGION}/connections/{RBRR_GDC_CONNECTION_NAME}
-----
-
-//axhoc_completion
-NOTE: GDC establishment creates the
-{rbtgi_source_connection}
-but does not create per-vessel
-{rbtgi_source_link}
-bindings or
-{rbtgr_vessel_trigger}
-resources.
-Proceed to
-{rbtgo_rubric_inscribe}
-to set up per-vessel build infrastructure.
-The connection serves all vessels — this procedure is performed once, not per vessel.

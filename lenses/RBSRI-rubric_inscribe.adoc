@@ -11,10 +11,13 @@ files, copies all build contexts, syncs everything to the
 and ensures all triggers exist.
 
 //axhoq_precondition
-* {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in regime
+* {rbrr_cbv2_connection_name} configured in regime
 
 //axhoq_precondition
-* {rbra_rubric_repo_url} configured and reachable
+* {rbrr_rubric_repo_url} configured in regime
+
+//axhoq_precondition
+* GitHub PAT accessible in Secret Manager (`RBGC_CBV2_PAT_SECRET_NAME`)
 
 //axhoq_precondition
 * Vessel configurations loadable ({rbrv_regime})
@@ -26,6 +29,19 @@ and ensures all triggers exist.
 .. `rbrr_refresh_gcb_pins` remains independently callable for manual inspection
 
 //axhos_step
+. *Fetch PAT from Secret Manager*:
+.. {rbbc_call}
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/access[secrets.versions.access] for `projects/{rbrr_depot_project_id}/secrets/RBGC_CBV2_PAT_SECRET_NAME/versions/latest`
+.. {rbbc_store}
+`«GITHUB_PAT»` from response `.payload.data` (base64-decoded)
+.. {rbbc_require}
+PAT retrieved successfully or {rbbc_fatal} "Cannot access GitHub PAT in Secret Manager — verify Director SA has secretAccessor role"
+.. Construct authenticated URL: combine
+{rbrr_rubric_repo_url}
+with `«GITHUB_PAT»` in memory
+.. NOTE: Authenticated URL is ephemeral — constructed in memory, used for git operations, discarded after use. Never persisted.
+
+//axhos_step
 . *Generate All Rubric JSON*:
 .. For each conjure vessel in `rbev-vessels/`:
 ... Load vessel configuration via existing `zrbf_load_vessel()`
@@ -33,7 +49,7 @@ and ensures all triggers exist.
 {rbtgr_build_json}
 from step scripts (`rbgjb/*.sh`) and regime pins
 ... All values baked: GAR coordinates, builder image pins (digest-pinned), vessel identity, platforms, inscribe timestamp
-... Substitutions block includes four placeholders in the committed main-repo copy: `_RBGY_RUBRIC_REPO`, `_RBGY_RUBRIC_COMMIT`, `_RBGY_GIT_COMMIT`, and `_RBGY_INSCRIBE_TIMESTAMP` — filled at inscribe time in the {rbtgr_rubric_repo} clone (step 4)
+... Substitutions block includes four placeholders in the committed main-repo copy: `_RBGY_RUBRIC_REPO`, `_RBGY_RUBRIC_COMMIT`, `_RBGY_GIT_COMMIT`, and `_RBGY_INSCRIBE_TIMESTAMP` — filled at inscribe time in the {rbtgr_rubric_repo} clone (step 5)
 ... All other values deterministic: same inputs produce byte-identical output (placeholders ensure the committed copy is stable across commits)
 
 //axhos_step
@@ -48,14 +64,14 @@ from step scripts (`rbgjb/*.sh`) and regime pins
 .. Delete local clone at `.rbk/rubric/` if it exists
 .. `git clone --depth 1` the
 {rbtgr_rubric_repo}
-using
-{rbra_rubric_repo_url}
+using the ephemeral authenticated URL
 .. For each conjure vessel:
 ... Copy vessel directory to per-vessel directory in clone, excluding `rbrv.env` (regime config is not build material)
 .. Fill all four placeholders in each clone copy of
 {rbtgr_build_json}:
 `_RBGY_RUBRIC_REPO` (actual URL), `_RBGY_GIT_COMMIT` (main repo HEAD), `_RBGY_INSCRIBE_TIMESTAMP` (current invocation) before commit; `_RBGY_RUBRIC_COMMIT` (rubric repo HEAD) after commit
 .. One commit and push for all vessels (fully orchestrated — main repo is the reviewed source of truth)
+.. Discard authenticated URL from memory
 
 NOTE: Always-fresh-clone eliminates stale state.
 The
@@ -64,19 +80,24 @@ is small (per-vessel directories with Dockerfile + build context + JSON) — sha
 
 //axhos_step
 . *Ensure Infrastructure (for each vessel)*:
-.. Create
-{rbtgi_source_link}
-for the {rbtgr_rubric_repo} if it does not exist (via Developer Connect REST API using
-{rbtgi_source_connection})
+.. Verify
+{rbtgi_cbv2_repository}
+exists within the
+{rbtgi_cbv2_connection}
+(created by
+{rbtgo_depot_create})
 .. Create
 {rbtgr_vessel_trigger}
 if it does not exist (via Cloud Build REST API)
+.. Trigger references the
+{rbtgi_cbv2_repository}
+via `repositoryEventConfig.repository`
 .. Trigger name derived from constant prefix + vessel sigil
 
 //axhoo_output_of_type
 {rbtgr_rubric_repo}
 * All conjure vessel directories synced in {rbtgr_rubric_repo} with current build material (including filled rubric repo metadata)
-* {rbtgi_source_link} binding the connection to the {rbtgr_rubric_repo}
+* {rbtgi_cbv2_repository} verified within the {rbtgi_cbv2_connection}
 * {rbtgr_vessel_trigger} for each conjure vessel pointing to its
 {rbtgr_build_json}
 in the

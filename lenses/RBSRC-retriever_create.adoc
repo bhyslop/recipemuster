@@ -5,7 +5,7 @@
 * Execute {rbtoe_check_rubric_repo_url} using {rbtr_governor} RBRA credentials
 
 //axhoq_precondition
-* Execute {rbtoe_check_devconnect} to verify {rbtgi_source_connection} authorization
+* Execute {rbtoe_check_cbv2_connection} to verify {rbtgi_cbv2_connection} is active
 
 //axhos_step
 The

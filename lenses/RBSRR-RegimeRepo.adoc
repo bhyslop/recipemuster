@@ -224,26 +224,25 @@ checks this value and skips pin refresh if less than 1 day old,
 otherwise refreshes automatically before proceeding.
 
 //axhrgb_group
-{rbrr_group_developer_connect}
+{rbrr_group_cbv2}
 
-Developer Connect configuration for GitHub-to-GCP source connections used by
+Cloud Build v2 connection configuration for GitHub-to-GCP source access used by
 {rbtgo_rubric_inscribe}.
 
 //axhrgv_variable
-{rbrr_gdc_connection_name}
+{rbrr_cbv2_connection_name}
 
 Short name of the
-{rbtgi_source_connection}
-in Developer Connect.
-Shared across all vessels in the project.
+{rbtgi_cbv2_connection}
+resource in Cloud Build v2.
+Shared across all vessels in the depot project.
 
 //axhrgv_variable
-{rbrr_gdc_region}
+{rbrr_rubric_repo_url}
 
-{gcp_service}
-region where the
-{rbtgi_source_connection}
-and vessel triggers are created.
+Plain HTTPS URL identifying the
+{rbtgr_rubric_repo}.
+No embedded credentials — the GitHub PAT is stored exclusively in Secret Manager.
 
 //axhro_kindle
 {rbkro_kindle}

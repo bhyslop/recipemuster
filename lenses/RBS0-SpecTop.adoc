@@ -66,8 +66,8 @@
 :rbtgi_payor_project:        <<rbtgi_payor_project,RB Payor Project>>
 :rbtgi_rbra_file:            <<rbtgi_rbra_file,RBRA File>>
 :rbtgi_rbra_file_s:          <<rbtgi_rbra_file,RBRA Files>>
-:rbtgi_source_connection:   <<rbtgi_source_connection,Source Connection>>
-:rbtgi_source_link:         <<rbtgi_source_link,Source Link>>
+:rbtgi_cbv2_connection:   <<rbtgi_cbv2_connection,CB v2 Connection>>
+:rbtgi_cbv2_repository:  <<rbtgi_cbv2_repository,CB v2 Repository>>
 
 // Recipe Bottle Term Google Ark (coherent build output unit)
 :rbtga_ark:                  <<rbtga_ark,RB Ark>>
@@ -92,7 +92,6 @@
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbf_summon>>
 :rbtgo_depot_create:              <<rbtgo_depot_create,rbgp_depot_create>>
 :rbtgo_depot_destroy:             <<rbtgo_depot_destroy,rbgp_depot_destroy>>
-:rbtgo_depot_initialize:         <<rbtgo_depot_initialize,rbgm_depot_initialize>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
 :rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
 :rbtgo_governor_reset:            <<rbtgo_governor_reset,rbgp_governor_reset>>
@@ -107,7 +106,6 @@
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbgm_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_build>>
-:rbtgo_gdc_establish:            <<rbtgo_gdc_establish,rbgm_gdc_establish>>
 :rbtgo_rubric_inscribe:          <<rbtgo_rubric_inscribe,rbf_inscribe>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbap_payor_oauth_probe>>
@@ -123,7 +121,7 @@
 :rbtgog_sa:                       <<rbtgog_sa,Service Account Group>>
 
 :rbtoe_check_rubric_repo_url:     <<rbtoe_check_rubric_repo_url,Rubric Repo URL Check>>
-:rbtoe_check_devconnect:          <<rbtoe_check_devconnect,Developer Connect Check>>
+:rbtoe_check_cbv2_connection:     <<rbtoe_check_cbv2_connection,CB v2 Connection Check>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
 :rbtoe_director_authenticate:     <<rbtoe_director_authenticate,Director Authentication Pattern>>
 :rbtoe_governor_authenticate:     <<rbtoe_governor_authenticate,Governor Authentication Pattern>>
@@ -297,17 +295,16 @@
 :rbrr_ignite_machine_name:   <<rbrr_ignite_machine_name,RBRR_IGNITE_MACHINE_NAME>>
 :rbrr_manifest_platforms:    <<rbrr_manifest_platforms,RBRR_MANIFEST_PLATFORMS>>
 
-// Recipe Bottle Regime: Developer Connect
-:rbrr_group_developer_connect:  <<rbrr_group_developer_connect,Developer Connect Group>>
-:rbrr_gdc_connection_name:      <<rbrr_gdc_connection_name,RBRR_GDC_CONNECTION_NAME>>
-:rbrr_gdc_region:               <<rbrr_gdc_region,RBRR_GDC_REGION>>
+// Recipe Bottle Regime: Cloud Build v2
+:rbrr_group_cbv2:               <<rbrr_group_cbv2,Cloud Build v2 Group>>
+:rbrr_cbv2_connection_name:     <<rbrr_cbv2_connection_name,RBRR_CBV2_CONNECTION_NAME>>
+:rbrr_rubric_repo_url:          <<rbrr_rubric_repo_url,RBRR_RUBRIC_REPO_URL>>
 
 // Recipe Bottle Regime: Account (service account credentials)
 :rbra_client_email:          <<rbra_client_email,RBRA_CLIENT_EMAIL>>
 :rbra_private_key:           <<rbra_private_key,RBRA_PRIVATE_KEY>>
 :rbra_project_id:            <<rbra_project_id,RBRA_PROJECT_ID>>
 :rbra_token_lifetime_sec:    <<rbra_token_lifetime_sec,RBRA_TOKEN_LIFETIME_SEC>>
-:rbra_rubric_repo_url:       <<rbra_rubric_repo_url,RBRA_RUBRIC_REPO_URL>>
 
 // Recipe Bottle Regime: Payor
 :rbrp_billing_account_id:    <<rbrp_billing_account_id,RBRP_BILLING_ACCOUNT_ID>>
@@ -648,7 +645,7 @@ The numeric `uniqueId` returned by `serviceAccounts.create` is valid for *API UR
 Google's documentation recommends numeric IDs "to identify a service account just after it is created" (link:https://docs.google.com/iam/docs/manage-access-service-accounts[Manage access to service accounts]), but this applies to API resource addressing, not to IAM policy member strings.
 The internal IAM system resolves email→numeric transparently; callers must use email.
 +
-Google-provisioned service agents (Cloud Build, Developer Connect) are not affected — they are managed by Google, not newly created.
+Google-provisioned service agents (Cloud Build) are not affected — they are managed by Google, not newly created.
 
 == Operational Invariants
 
@@ -822,24 +819,6 @@ service account.
 
 include::RBSDC-depot_create.adoc[]
 
-[[rbtgo_depot_initialize]]
-//axvo_method axd_transient axd_attended axd_grouped
-=== {rbtgo_depot_initialize}
-
-Completes one-time
-{rbtgi_depot}
-initialization
-({rbtgog_depot}),
-after
-{rbtgo_governor_reset}
-has been run: validates the
-{rbra_rubric_repo_url}
-and guides the
-{at_operator}
-through Developer Connect GitHub OAuth authorization.
-
-include::RBSDN-depot_initialize.adoc[]
-
 [[rbtgo_depot_destroy]]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_depot_destroy}
@@ -910,21 +889,6 @@ service account
 include::RBSDI-director_create.adoc[]
 
 == {rbtr_director} Operations
-
-[[rbtgo_gdc_establish]]
-//axvo_method axd_transient axd_attended axd_grouped
-=== {rbtgo_gdc_establish}
-
-Legacy
-{rbtgi_source_connection}
-establishment reference
-({rbtgog_depot}).
-This operation has been split: connection creation is automated in
-{rbtgo_depot_create},
-OAuth authorization is guided by
-{rbtgo_depot_initialize}.
-
-include::RBSGD-gdc_establish.adoc[]
 
 [[rbtgo_rubric_inscribe]]
 //axvo_method axd_transient axd_grouped
@@ -1471,9 +1435,11 @@ Dispatches builds via `triggers.run` when invoked by
 Single shared git repository containing per-vessel directories, each with build material
 (cloudbuild.json, Dockerfile, build context).
 Pre-created by the operator on any git hosting service.
-Cloud Build sees only this repo via Developer Connect — the main repo is never exposed.
-Accessed via
-{rbra_rubric_repo_url}.
+Cloud Build sees only this repo via the
+{rbtgi_cbv2_connection}
+— the main repo is never exposed.
+Identified by
+{rbrr_rubric_repo_url}.
 Managed by
 {rbtgo_rubric_inscribe}.
 
@@ -1492,26 +1458,29 @@ Managed by
 SLSA v1.0 build provenance attestation auto-generated by Google for trigger-invoked builds.
 Records build inputs, environment, and outputs as a cryptographically signed attestation on the built image.
 
-=== Developer Connect Definitions
+=== Cloud Build v2 Definitions
 
-[[rbtgi_source_connection]]
-//axl_voices axig_developer_connect
-{rbtgi_source_connection}::
-The Developer Connect connection providing an OAuth-authenticated bridge from GCP to a GitHub organization.
-One per project. Created automatically by
+[[rbtgi_cbv2_connection]]
+//axl_voices axig_cbv2_connection
+{rbtgi_cbv2_connection}::
+A Cloud Build v2 connection providing authenticated access from GCP to a GitHub organization via the "Google Cloud Build" GitHub App.
+One per depot project. Created fully programmatically by
 {rbtgo_depot_create}
-in PENDING state, then activated via
-{rbtgo_depot_initialize}.
+using a classic GitHub PAT (stored in Secret Manager) and the GitHub App installation ID (both provided via stdin).
+No browser-based OAuth consent required.
 
-[[rbtgi_source_link]]
-//axl_voices axig_repo_link
-{rbtgi_source_link}::
-A git repository link within the
-{rbtgi_source_connection},
+[[rbtgi_cbv2_repository]]
+//axl_voices axig_cbv2_repository
+{rbtgi_cbv2_repository}::
+A Cloud Build v2 repository resource within the
+{rbtgi_cbv2_connection},
 binding it to the
 {rbtgr_rubric_repo}.
 Created programmatically by
-{rbtgo_rubric_inscribe}.
+{rbtgo_depot_create}.
+Referenced by
+{rbtgr_vessel_trigger}
+resources via `repositoryEventConfig.repository`.
 
 === Support Infrastructure Definitions
 
@@ -2250,26 +2219,31 @@ Container runtime and deployment environment settings.
 {rbrr_group_build_configuration}::
 Container image build process configuration.
 
-[[rbrr_group_developer_connect]]
+[[rbrr_group_cbv2]]
 //axvr_group
-{rbrr_group_developer_connect}::
-Developer Connect configuration for GitHub-to-GCP source connections.
+{rbrr_group_cbv2}::
+Cloud Build v2 connection configuration for GitHub-to-GCP source access.
 
-[[rbrr_gdc_connection_name]]
+[[rbrr_cbv2_connection_name]]
 //axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_string
-{rbrr_gdc_connection_name}::
+{rbrr_cbv2_connection_name}::
 Name of the
-{rbtgi_source_connection}
-in Developer Connect.
-Shared across all vessels in the project.
+{rbtgi_cbv2_connection}
+resource in Cloud Build v2.
+Shared across all vessels in the depot project.
 
-[[rbrr_gdc_region]]
-//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_region
-{rbrr_gdc_region}::
-{gcp_service}
-region where the
-{rbtgi_source_connection}
-and vessel triggers are created.
+[[rbrr_rubric_repo_url]]
+//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_string
+{rbrr_rubric_repo_url}::
+Plain HTTPS URL identifying the
+{rbtgr_rubric_repo}
+(e.g., `https://github.com/org/rb-rubric.git`).
+No embedded credentials — the GitHub PAT is stored exclusively in Secret Manager.
+Set in `rbrr.env` before running
+{rbtgo_depot_create}.
+Used by
+{rbtgo_rubric_inscribe}
+to construct an authenticated git URL at runtime (combining with PAT fetched from Secret Manager).
 
 include::RBSRR-RegimeRepo.adoc[]
 
@@ -2310,18 +2284,6 @@ OAuth token lifetime in seconds for JWT token exchange with
 {gcp_service}
 APIs.
 
-[[rbra_rubric_repo_url]]
-//axl_voices axrg_variable axtu_string
-{rbra_rubric_repo_url}::
-Authenticated git URL for the
-{rbtgr_rubric_repo}.
-Encodes credentials directly in the URL (e.g., `https://x-access-token:<PAT>@<host>/<org>/<repo>.git`).
-Used by
-{rbtgo_rubric_inscribe}
-to push build material via git.
-Optional — only populated in RBRA files for roles that manage the
-{rbtgr_rubric_repo}.
-Validated via `git ls-remote` to confirm reachability and credential validity.
 
 include::RBSRA-CredentialFormat.adoc[]
 
@@ -2363,9 +2325,7 @@ desktop application.
 [[rbrp_operator_email]]
 //axl_voices axrg_variable axtu_string
 {rbrp_operator_email}::
-Email address of the human operator performing depot initialization.
-Used to grant Developer Connect administrator access on the depot project during
-{rbtgo_depot_initialize}.
+Email address of the human operator managing depot infrastructure.
 
 include::RBSRP-RegimePayor.adoc[]
 
@@ -3017,39 +2977,33 @@ Recipe Bottle orchestration patterns define reusable implementation sequences fo
 //axvo_procedure axd_transient axd_internal
 {rbtoe_check_rubric_repo_url}::
 A non-interactive gate that validates
-`RBRA_RUBRIC_REPO_URL`
-is present and reachable:
+{rbrr_rubric_repo_url}
+is present and reachable using a PAT fetched from Secret Manager:
 
-. {rbbc_require} URL argument is non-empty or {rbbc_fatal} with guidance to set it in the appropriate RBRA file and run {rbtgo_depot_initialize},
-. {rbbc_call} `git ls-remote <URL> HEAD` to verify the URL is reachable and credentials are valid,
+. {rbbc_require} URL argument is non-empty or {rbbc_fatal} with guidance to set `RBRR_RUBRIC_REPO_URL` in `rbrr.env`,
+. fetches PAT from Secret Manager (`RBGC_CBV2_PAT_SECRET_NAME`),
+. {rbbc_call} `git ls-remote <authenticated-URL> HEAD` to verify reachability and credential validity,
 . {rbbc_require} successful exit from `git ls-remote` or {rbbc_fatal} "URL is unreachable or credentials are invalid",
 . logs confirmation that the {rbtgr_rubric_repo} URL is validated.
 
-No side effects.
+No persistent side effects — authenticated URL constructed in memory and discarded.
 Callable from any CLI context via `rbgu_check_rubric_repo_url`.
-URL may reside in
-{rbtr_governor}
-RBRA (for depot setup and role creation) or
-{rbtr_director}
-RBRA (for
-{rbtgo_rubric_inscribe}
-operations).
 
-[[rbtoe_check_devconnect]]
+[[rbtoe_check_cbv2_connection]]
 //axvo_procedure axd_transient axd_internal
-{rbtoe_check_devconnect}::
-A non-interactive gate that validates
-{rbtgi_source_connection}
-has completed GitHub OAuth authorization:
+{rbtoe_check_cbv2_connection}::
+A non-interactive gate that validates the
+{rbtgi_cbv2_connection}
+is in COMPLETE state:
 
-. {rbbc_require} OAuth token, project ID, region, and connection name arguments,
-. {rbbc_call} link:https://cloud.google.com/developer-connect/docs/reference/rest/v1/projects.locations.connections/get[connections.get] for the specified connection,
+. {rbbc_require} project ID, region, and connection name arguments,
+. {rbbc_call} link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/get[connections.get] for the specified connection,
 . {rbbc_require} HTTP 200 response,
 . extracts `.installationState.stage` from response,
-. {rbbc_require} stage equals `COMPLETE` or {rbbc_fatal} with guidance to run {rbtgo_depot_initialize} to complete GitHub OAuth.
+. {rbbc_require} stage equals `COMPLETE` or {rbbc_fatal} with guidance to check CB v2 connection status.
 
 No side effects, no polling.
-Callable from any CLI context via `rbgu_check_devconnect`.
+Callable from any CLI context via `rbgu_check_cbv2_connection`.
 
 [[rbtoe_rbra_generate]]
 //axvo_procedure axd_transient axd_internal

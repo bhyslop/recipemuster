@@ -3,7 +3,9 @@
 
 NOTE: This operation creates an
 {rbtgi_depot}
-- a cohesive unit of Recipe Bottle infrastructure including the depot project, build bucket, container repository, and Mason service account that share their productive lifecycle.
+- a cohesive unit of Recipe Bottle infrastructure including the depot project, build bucket, container repository, Mason service account, and
+{rbtgi_cbv2_connection}
+that share their productive lifecycle.
 
 The
 {rbtr_payor}
@@ -17,23 +19,35 @@ creates a new depot infrastructure from the
 `«INPUT_DEPOT_NAME»` provided as first argument
 .. Validate depot name: lowercase letters, numbers, hyphens only, max 20 chars
 
-//axhop_parameter_from_arg
-{rbrr_gcp_region}
-. *Depot Region*:
-.. {rbbc_require}
-`«INPUT_REGION»` provided as second argument
-.. {rbbc_call}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations/list[artifactregistry.locations.list] to retrieve valid regions
-.. {rbbc_require}
-`«INPUT_REGION»` exists in valid regions list
-.. {rbbc_fatal}
-if invalid: "Invalid region. Valid regions: [list]"
+//axhop_parameter_from_stdin
+. *GitHub Credentials (stdin)*:
+.. Read two lines from stdin: `«GITHUB_PAT»` (line 1), `«GITHUB_APP_INSTALLATION_ID»` (line 2)
+.. If stdin is empty or missing either value:
+... {rbbc_show}
+inline guide: install the "Google Cloud Build" GitHub App on the target GitHub org (via `github.com/apps/google-cloud-build`), create a classic PAT with scopes `repo`, `read:user`, `read:org`, and provide both the PAT and the numeric installation ID
+... {rbbc_show}
+"Note: other git hosting services are supported — GitHub is the reference implementation"
+... {rbbc_fatal}
+"Provide PAT and installation ID via stdin and re-run"
 
 //axhos_step
 . *Authenticate as
 {rbtr_payor}*:
 .. Execute
 {rbtoe_payor_authenticate}
+
+//axhos_step
+. *Validate Rubric Repo URL*:
+.. {rbbc_require}
+{rbrr_rubric_repo_url}
+is set in regime (`RBRR_RUBRIC_REPO_URL` in `rbrr.env`)
+.. Construct authenticated URL: `https://x-access-token:«GITHUB_PAT»@<host>/<path>` from
+{rbrr_rubric_repo_url}
+.. {rbbc_call}
+`git ls-remote «AUTHENTICATED_URL» HEAD` to verify reachability and credential validity
+.. {rbbc_require}
+successful exit or {rbbc_fatal} "Rubric repo URL unreachable or PAT invalid — check RBRR_RUBRIC_REPO_URL and PAT scopes"
+.. Discard `«AUTHENTICATED_URL»` from memory (PAT must not persist)
 
 //axhos_step
 . *Generate Depot Project ID*:
@@ -76,7 +90,7 @@ valid numeric project number after extracting from name
 
 //axhos_step
 . *Enable Depot Project APIs*:
-.. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `developerconnect`, `iam`, `secretmanager`, `serviceusage`, `storage`]:
+.. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `iam`, `secretmanager`, `serviceusage`, `storage`]:
 ... Execute
 {rbtoe_api_enable}
 with service name and `«DEPOT_PROJECT_ID»`
@@ -87,7 +101,7 @@ all APIs enabled successfully
 . *Verify IAM Propagation*:
 .. NOTE: After API enablement, IAM permissions may not be immediately available due to eventual consistency.
 .. {rbbc_poll}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/list[artifactregistry.repositories.list] for `«DEPOT_PROJECT_ID»` in `«INPUT_REGION»`
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/list[artifactregistry.repositories.list] for `«DEPOT_PROJECT_ID»` in `{rbrr_gcp_region}`
 .. Poll at `RBGC_EVENTUAL_CONSISTENCY_SEC` intervals until HTTP 200 or `RBGC_MAX_CONSISTENCY_SEC` timeout
 .. {rbbc_require}
 HTTP 200 response confirming IAM propagation complete
@@ -100,7 +114,7 @@ if timeout: "IAM propagation timeout - artifactregistry API not accessible"
 .. {rbbc_call}
 link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[storage.buckets.insert] with:
 ... name: `rbw-«INPUT_DEPOT_NAME»-bucket`
-... location: `«INPUT_REGION»`
+... location: `{rbrr_gcp_region}`
 ... project: `«DEPOT_PROJECT_ID»`
 ... lifecycle rule: delete objects after 1 day
 .. {rbbc_store}
@@ -113,8 +127,8 @@ link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[storage.bu
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/create[artifactregistry.repositories.create] with:
 ... repositoryId: `rbw-«INPUT_DEPOT_NAME»-repository`
 ... format: `DOCKER`
-... location: `«INPUT_REGION»`
-... parent: `projects/«DEPOT_PROJECT_ID»/locations/«INPUT_REGION»`
+... location: `{rbrr_gcp_region}`
+... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
 .. {rbbc_await}
 returned operation
 .. {rbbc_store}
@@ -162,34 +176,78 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 IAM binding successful (enables Cloud Build to execute as Mason)
 
 //axhos_step
-. *Create Developer Connect Connection*:
-.. NOTE: The connection is created in PENDING state. The
-{at_operator}
-completes GitHub OAuth authorization later via
-{rbtgo_depot_initialize}.
+. *Store GitHub PAT in Secret Manager*:
+.. Construct secret name from `RBGC_CBV2_PAT_SECRET_NAME` constant
+.. {rbbc_call}
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/create[secrets.create] with:
+... parent: `projects/«DEPOT_PROJECT_ID»`
+... secretId: `RBGC_CBV2_PAT_SECRET_NAME`
+... body: `{"replication": {"automatic": {}}}`
+.. {rbbc_call}
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/add[secrets.versions.add] with:
+... parent: `projects/«DEPOT_PROJECT_ID»/secrets/RBGC_CBV2_PAT_SECRET_NAME`
+... body: `{"payload": {"data": "<base64-encoded PAT>"}}`
+.. {rbbc_store}
+`«SECRET_VERSION»` from response `.name` field (e.g., `projects/P/secrets/S/versions/1`)
+.. {rbbc_require}
+secret version created successfully
+
+//axhos_step
+. *Grant Cloud Build service agent Secret Manager access*:
+.. Construct service agent: `service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
+.. {rbbc_call}
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy] for `projects/«DEPOT_PROJECT_ID»/secrets/RBGC_CBV2_PAT_SECRET_NAME`
+.. Add Cloud Build service agent with `roles/secretmanager.secretAccessor`
+.. {rbbc_require}
+IAM binding successful
+
+//axhos_step
+. *Grant Cloud Build service agent connection admin*:
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
+.. Add `serviceAccount:service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com` with `roles/cloudbuild.connectionAdmin`
+.. {rbbc_require}
+IAM binding successful
+
+//axhos_step
+. *Create CB v2 Connection*:
 .. Construct connection name: `rbw-«INPUT_DEPOT_NAME»-github`
 .. {rbbc_call}
-link:https://cloud.google.com/developer-connect/docs/reference/rest/v1/projects.locations.connections/create[developerconnect.connections.create] with:
-... parent: `projects/«DEPOT_PROJECT_ID»/locations/«INPUT_REGION»`
+link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/create[connections.create] with:
+... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
 ... connectionId: `rbw-«INPUT_DEPOT_NAME»-github`
-... body: `{"githubConfig": {"githubApp": "DEVELOPER_CONNECT"}}`
+... body:
++
+----
+{
+  "githubConfig": {
+    "authorizerCredential": {
+      "oauthTokenSecretVersion": "«SECRET_VERSION»"
+    },
+    "appInstallationId": "«GITHUB_APP_INSTALLATION_ID»"
+  }
+}
+----
 .. {rbbc_await}
 returned {gcp_lro}
 .. {rbbc_store}
-`«GDC_CONNECTION_NAME»` as `rbw-«INPUT_DEPOT_NAME»-github`
+`«CBV2_CONNECTION_NAME»` as `rbw-«INPUT_DEPOT_NAME»-github`
+.. {rbbc_poll}
+link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/get[connections.get] until `installationState.stage` reaches `COMPLETE`
 .. {rbbc_require}
-connection exists (HTTP 200 on GET) with `installationState.stage` of `PENDING_CREATE_APP` or similar pending state
+connection is COMPLETE or {rbbc_fatal} "CB v2 connection failed — check PAT scopes and GitHub App installation"
 
 //axhos_step
-. *Grant Developer Connect Service Agent Secret Manager Access*:
-.. NOTE: The Developer Connect service agent needs Secret Manager permissions to store the GitHub OAuth token during
-{rbtgo_depot_initialize}.
-.. Construct service agent: `service-«PROJECT_NUMBER»@gcp-sa-devconnect.iam.gserviceaccount.com`
+. *Create CB v2 Repository*:
 .. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
-.. Add Developer Connect service agent with `roles/secretmanager.admin`
+link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections.repositories/create[repositories.create] with:
+... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}/connections/«CBV2_CONNECTION_NAME»`
+... repositoryId: `RBGC_CBV2_REPOSITORY_ID`
+... body: `{"remoteUri": "RBRR_RUBRIC_REPO_URL"}`
+.. {rbbc_await}
+returned {gcp_lro}
 .. {rbbc_require}
-IAM binding successful
+repository created successfully
 
 //axhoo_output_of_type
 {rbtgi_depot}
@@ -199,18 +257,15 @@ depot creation successful
 .. {rbbc_show}
 required RBRR configuration values:
 ... `RBRR_DEPOT_PROJECT_ID=«DEPOT_PROJECT_ID»`
-... `RBRR_GCP_REGION=«INPUT_REGION»`
+... `RBRR_GCP_REGION={rbrr_gcp_region}`
 ... `RBRR_GAR_REPOSITORY=«GAR_REPOSITORY»`
-... `RBRR_GDC_CONNECTION_NAME=«GDC_CONNECTION_NAME»`
-... `RBRR_GDC_REGION=«INPUT_REGION»`
+... `RBRR_CBV2_CONNECTION_NAME=«CBV2_CONNECTION_NAME»`
 .. {rbbc_show}
 Mason service account: `«MASON_EMAIL»`
 .. {rbbc_show}
-Developer Connect connection `«GDC_CONNECTION_NAME»` created in PENDING state
+CB v2 connection `«CBV2_CONNECTION_NAME»` active with GitHub App
 .. {rbbc_show}
-depot ready for
-{rbtgo_depot_initialize}
-to complete GitHub OAuth authorization
+GitHub PAT stored in Secret Manager (`RBGC_CBV2_PAT_SECRET_NAME`)
 
 //axhoo_output_of_type
 {rbtgi_depot}
@@ -220,11 +275,10 @@ to complete GitHub OAuth authorization
 to refresh depot project tracking
 
 //axhoc_completion
-Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and Developer Connect connection (PENDING state).
+Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, CB v2 connection (COMPLETE), and CB v2 repository linking to the
+{rbtgr_rubric_repo}.
 Proceed to
 {rbtgo_governor_reset}
 to create the
 {rbtr_governor}
-for this depot, then
-{rbtgo_depot_initialize}
-to complete GitHub OAuth authorization.
+for this depot.

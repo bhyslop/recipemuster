@@ -1,158 +1,20 @@
-//axhob_operation
-{rbtgo_depot_initialize}
+// RETIRED: 2026-03-02
+//
+// depot_initialize is dead. CB v2 connection creation is fully programmatic
+// (GitHub App installation ID + classic PAT via stdin), eliminating the
+// Developer Connect OAuth browser flow that was the sole reason this
+// operation existed.
+//
+// All former depot_initialize responsibilities are now handled by
+// depot_create:
+//   - Rubric repo URL validation (moved to depot_create)
+//   - GitHub PAT storage in Secret Manager (depot_create stdin)
+//   - CB v2 connection creation (fully automated in depot_create)
+//   - CB v2 repository creation (fully automated in depot_create)
+//
+// See paddock session decisions 2026-03-02 for rationale.
 
-The
-{at_operator}
-completes one-time depot initialization after
-{rbtgo_depot_create}
-has provisioned infrastructure.
-This procedure validates the
-{rbra_rubric_repo_url}
-for {rbtgr_rubric_repo} management and completes the GitHub OAuth authorization for the
-{rbtgi_source_connection}
-created by
-{rbtgo_depot_create}
-in PENDING state.
-
-This procedure is idempotent — safe to re-run.
-Steps already complete (URL already valid, connection already COMPLETE) are skipped.
-
-//axhoq_precondition
-* {rbtgi_depot}
-exists (completed
-{rbtgo_depot_create})
-
-//axhoq_precondition
-* {rbtr_governor}
-created for this depot (completed
-{rbtgo_governor_reset})
-
-//axhoq_precondition
-* {rbrr_gdc_connection_name} and {rbrr_gdc_region} configured in RBRR
-
-//axhoq_precondition
-* {rbrr_governor_rbra_file} contains {rbra_rubric_repo_url}
-
-//axhoq_precondition
-* Operator has browser access for GitHub OAuth authorization
-
-//axhos_step
-. *Authenticate as
-{rbtr_governor}*:
-.. Execute
-{rbtoe_governor_authenticate}
-
-//axhos_step
-. *Load Rubric Repo URL*:
-.. {rbbc_call}
-{rbtoe_rbra_load}
-for
-{rbrr_governor_rbra_file}
-.. {rbbc_store}
-`«RUBRIC_REPO_URL»` from {rbra_rubric_repo_url}
-.. If `«RUBRIC_REPO_URL»` is empty:
-... {rbbc_show}
-"RBRA_RUBRIC_REPO_URL is not set in Governor RBRA file"
-... {rbbc_show}
-guidance for creating a rubric repository: create a repo on a git host (GitHub as reference example), generate a fine-grained PAT with Contents read/write, construct the authenticated URL as `https://x-access-token:<PAT>@<host>/<org>/<repo>.git`, and add `RBRA_RUBRIC_REPO_URL` to the Governor RBRA file
-... {rbbc_fatal}
-"Set RBRA_RUBRIC_REPO_URL in Governor RBRA file and re-run"
-
-//axhos_step
-. *Validate Rubric Repo URL*:
-.. {rbbc_call}
-`git ls-remote «RUBRIC_REPO_URL» HEAD` to verify reachability and credential validity
-.. If `git ls-remote` fails:
-... {rbbc_fatal}
-"Rubric repo URL is unreachable or credentials are invalid — check RBRA_RUBRIC_REPO_URL and ensure PAT has Contents:write permission"
-.. {rbbc_show}
-"Rubric repo URL validated"
-
-//axhos_step
-. *Check Developer Connect Connection Status*:
-.. Construct connection path: `projects/{rbrr_depot_project_id}/locations/{rbrr_gdc_region}/connections/{rbrr_gdc_connection_name}`
-.. {rbbc_call}
-link:https://cloud.google.com/developer-connect/docs/reference/rest/v1/projects.locations.connections/get[developerconnect.connections.get] for `«CONNECTION_PATH»`
-.. {rbbc_require}
-HTTP 200 — connection exists
-.. {rbbc_store}
-`«CONNECTION_STAGE»` from `.installationState.stage`
-.. If `«CONNECTION_STAGE»` is `COMPLETE`:
-... {rbbc_show}
-"Developer Connect connection already active — skipping OAuth step"
-... Go to
-<<rbtgo_depot_initialize_poll,Poll Connection>>
-
-//axhos_step
-. *Grant Operator Console Access for Developer Connect*:
-.. {rbbc_require}
-{rbrp_operator_email} is set
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`
-.. Add `{rbrp_operator_email}` with `roles/developerconnect.admin`
-.. {rbbc_show}
-"Granted operator Developer Connect admin on depot project"
-
-//axhos_step
-. *Guide GitHub OAuth Authorization*:
-.. {rbbc_store}
-`«ACTION_URI»` from `.installationState.actionUri` of the connection response
-.. {rbbc_require}
-`«ACTION_URI»` is present and non-empty
-.. {rbbc_show}
-"Developer Connect connection requires GitHub OAuth authorization"
-.. {rbbc_show}
-`«ACTION_URI»` for {at_operator} to open in browser
-.. Guide {at_operator} through the OAuth flow:
-... GCP Console shows "Request GitHub OAuth token" — click "I understand and continue"
-... GitHub shows "Install Google Cloud Developer Connect" — select the account/org hosting the {rbtgr_rubric_repo}
-... Repository access: select "Only select repositories" and pick the {rbtgr_rubric_repo}
-... Click "Install"
-... GitHub redirects back to GCP; OAuth token stored in Secret Manager
-.. Wait for {at_operator} confirmation
-
-//axhos_waymark
-[[rbtgo_depot_initialize_poll]]
-. *Poll Connection Until Active*:
-.. {rbbc_poll}
-link:https://cloud.google.com/developer-connect/docs/reference/rest/v1/projects.locations.connections/get[developerconnect.connections.get] for `«CONNECTION_PATH»`
-.. Extract `.installationState.stage` from each response
-.. Poll at `RBGC_EVENTUAL_CONSISTENCY_SEC` intervals until stage reaches `COMPLETE` or `RBGC_MAX_CONSISTENCY_SEC` timeout
-.. {rbbc_require}
-`installationState.stage` is `COMPLETE`
-.. {rbbc_fatal}
-if timeout: "Developer Connect OAuth did not complete — re-open the authorization URI and try again"
-
-//axhos_step
-. *Final Validation*:
-.. {rbbc_show}
-"Running final validation..."
-.. Verify {rbtgr_rubric_repo} URL: repeat `git ls-remote` call — {rbbc_require} successful exit
-.. Verify Developer Connect: repeat connections.get call — {rbbc_require} `installationState.stage` is `COMPLETE`
-.. {rbbc_show}
-"Depot initialization complete"
-
-//axhoo_output_of_type
-{rbra_rubric_repo_url}
-* Validated {rbra_rubric_repo_url} — confirmed reachable via `git ls-remote`
-
-//axhoo_output_of_type
-{rbtgi_source_connection}
-* Active {rbtgi_source_connection} — `installationState.stage` is `COMPLETE`
-
-//axhoo_output_of_type
-{oauth_token}
-* OAuth token automatically stored in Secret Manager (managed by Developer Connect, not by operator)
-
-//axhoc_completion
-Successful execution confirms the depot is fully initialized for
-{rbtgo_rubric_inscribe}
-operations.
-The
-{rbra_rubric_repo_url}
-enables {rbtgr_rubric_repo} management and the
-{rbtgi_source_connection}
-enables Cloud Build to access the {rbtgr_rubric_repo}.
-Proceed to
-{rbtgo_rubric_inscribe}
-to set up per-vessel build infrastructure.
+NOTE: *This operation is retired.* All depot initialization is now completed by
+{rbtgo_depot_create},
+which handles CB v2 connection setup fully programmatically.
+No separate initialization step is required.
