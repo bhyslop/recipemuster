@@ -2,7 +2,7 @@
 {rbtgo_retriever_create}
 
 //axhoq_precondition
-* Execute {rbtoe_check_rubric_repo_url} using {rbtr_governor} RBRA credentials
+* Execute {rbtoe_check_rubric_repo_url} (validates {rbrr_rubric_repo_url} using PAT from Secret Manager)
 
 //axhoq_precondition
 * Execute {rbtoe_check_cbv2_connection} to verify {rbtgi_cbv2_connection} is active

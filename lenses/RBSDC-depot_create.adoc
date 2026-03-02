@@ -242,8 +242,8 @@ connection is COMPLETE or {rbbc_fatal} "CB v2 connection failed — check PAT sc
 .. {rbbc_call}
 link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections.repositories/create[repositories.create] with:
 ... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}/connections/«CBV2_CONNECTION_NAME»`
-... repositoryId: `RBGC_CBV2_REPOSITORY_ID`
-... body: `{"remoteUri": "RBRR_RUBRIC_REPO_URL"}`
+... repositoryId: `«RBGC_CBV2_REPOSITORY_ID»` (constant, currently `rubric`)
+... body: `{"remoteUri": "«RBRR_RUBRIC_REPO_URL»"}`
 .. {rbbc_await}
 returned {gcp_lro}
 .. {rbbc_require}
