@@ -76,10 +76,6 @@ zrbf_kindle() {
   readonly ZRBF_BUILD_RUBRIC_LS="${BURD_TEMP_DIR}/rbf_rubric_ls_remote.txt"
   readonly ZRBF_BUILD_TRIGGER_BODY="${BURD_TEMP_DIR}/rbf_trigger_run_body.json"
 
-  buc_log_args 'Define copy staging files'
-  readonly ZRBF_COPY_STAGING_DIR="${BURD_TEMP_DIR}/rbf_copy_staging"
-  readonly ZRBF_COPY_CONTEXT_TAR="${BURD_TEMP_DIR}/rbf_copy_context.tar.gz"
-
   buc_log_args 'Define git info file (used by inscribe -> stitch)'
   readonly ZRBF_GIT_INFO_FILE="${BURD_TEMP_DIR}/rbf_git_info.json"
 
@@ -89,10 +85,6 @@ zrbf_kindle() {
   buc_log_args 'Define delete operation files'
   readonly ZRBF_DELETE_PREFIX="${BURD_TEMP_DIR}/rbf_delete_"
   readonly ZRBF_TOKEN_FILE="${BURD_TEMP_DIR}/rbf_token.txt"
-
-  buc_log_args 'Define copy operation files'
-  readonly ZRBF_COPY_CONFIG_FILE="${BURD_TEMP_DIR}/rbf_copy_config.json"
-  readonly ZRBF_COPY_RESPONSE_FILE="${BURD_TEMP_DIR}/rbf_copy_response.json"
 
   buc_log_args 'Vessel-related files'
   readonly ZRBF_VESSEL_SIGIL_FILE="${BURD_TEMP_DIR}/rbf_vessel_sigil.txt"
@@ -338,22 +330,6 @@ zrbf_load_vessel() {
   buc_info "Loaded vessel: ${RBRV_SIGIL}"
 }
 
-zrbf_package_mirror_context() {
-  zrbf_sentinel
-  buc_step 'Packaging mirror context'
-
-  # NOTE: When rbf_mirror is implemented, this should use inline steps like rbf_build.
-  # For now, this packages a minimal context for the mirror operation.
-  rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to clean existing mirror staging directory"
-  mkdir -p "${ZRBF_COPY_STAGING_DIR}" || buc_die "Failed to create mirror staging directory"
-
-  # Mirror operation needs no source files - steps will be inlined in API request
-  tar -czf "${ZRBF_COPY_CONTEXT_TAR}" -C "${ZRBF_COPY_STAGING_DIR}" . \
-    || buc_die "Failed to create mirror context archive"
-
-  rm -rf "${ZRBF_COPY_STAGING_DIR}" || buc_warn "Failed to cleanup mirror staging directory"
-}
-
 zrbf_wait_build_completion() {
   zrbf_sentinel
 
@@ -493,36 +469,6 @@ rbf_build() {
   zrbf_wait_build_completion
 
   buc_success "Vessel image built: ${RBRV_SIGIL}"
-}
-
-rbf_mirror() {
-  zrbf_sentinel
-
-  buc_die 'ELIDED FOR NOW - mirror public images to depot registry'
-}
-
-rbf_study() {
-  zrbf_sentinel
-
-  buc_doc_brief "Run minimal Cloud Build multipart study in-place"
-  buc_doc_shown || return 0
-
-  buc_step "Mint Cloud Build OAuth token (Director)"
-  local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get GCB OAuth token"
-
-  zrbgc_sentinel
-
-  buc_step "Execute study script from its own directory with parameters"
-  local z_tools_dir="${BASH_SOURCE[0]%/*}"
-  local z_repo_root="${z_tools_dir%/*}"
-  local z_study_dir="${z_repo_root}/Study/study-gcb-build-submit-debug"
-  local z_script="${z_study_dir}/sgbs-debug.sh"
-  test -f "${z_script}" || buc_die "Study script not found: ${z_script}"
-
-  ( cd "${z_study_dir}" && ./sgbs-debug.sh "${z_token}" ) || buc_die "Study script failed"
-
-  buc_success "Study run completed"
 }
 
 rbf_delete() {
