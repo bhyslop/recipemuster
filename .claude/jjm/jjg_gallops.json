@@ -4642,7 +4642,6 @@
         "₢AiAAM",
         "₢AiAAN",
         "₢AiAAe",
-        "₢AiAAh",
         "₢AiAAk",
         "₢AiAAl",
         "₢AiAAm",
@@ -5872,31 +5871,6 @@
             }
           ]
         },
-        "₢AiAAh": {
-          "tacks": [
-            {
-              "ts": "260225-1922",
-              "state": "rough",
-              "text": "Drafted from ₢AkAAB in ₣Ak.\n\nRename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)\n4. Rename `z_rbw_kit_dir` → `z_rbk_kit_dir` across all cli files (14 files use this local variable pattern with `\"${BURD_TOOLS_DIR}/rbw\"` — both the variable name and path string need updating)",
-              "silks": "rename-rbw-to-rbk-move-lenses",
-              "commit": "3297136"
-            },
-            {
-              "ts": "260224-1458",
-              "state": "rough",
-              "text": "Rename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)\n4. Rename `z_rbw_kit_dir` → `z_rbk_kit_dir` across all cli files (14 files use this local variable pattern with `\"${BURD_TOOLS_DIR}/rbw\"` — both the variable name and path string need updating)",
-              "silks": "rename-rbw-to-rbk-move-lenses",
-              "commit": "f8de471"
-            },
-            {
-              "ts": "260224-0821",
-              "state": "rough",
-              "text": "Rename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)",
-              "silks": "rename-rbw-to-rbk-move-lenses",
-              "commit": "c3a4021"
-            }
-          ]
-        },
         "₢AiAAi": {
           "tacks": [
             {
@@ -7038,9 +7012,10 @@
         "₢AkAAI",
         "₢AkAAC",
         "₢AkAAF",
-        "₢AkAAA"
+        "₢AkAAA",
+        "₢AkAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -7254,6 +7229,38 @@
               "text": "Add `rbrr_load()` public function to `rbrr_regime.sh` that wraps the 4-line RBRR chain (source RBBC_rbrr_file + kindle + enforce + lock) into a single call. Then replace all furnish functions that manually perform this chain with a call to `rbrr_load()`.\n\n## Changes\n\n1. **`rbrr_regime.sh`** — Add public function:\n   ```\n   rbrr_load() {\n     source \"${RBBC_rbrr_file}\" || buc_die \"Failed to source RBRR: ${RBBC_rbrr_file}\"\n     zrbrr_kindle\n     zrbrr_enforce\n     zrbrr_lock\n   }\n   ```\n\n2. **All CLI furnish functions** that currently do the manual chain — replace with `rbrr_load()`:\n   - `rbgm_cli.sh`\n   - `rbgp_cli.sh`\n   - `rbro_cli.sh`\n   - `butcrg_RegimeCredentials.sh` (rbra and rbro test cases)\n   - Any others found via grep for `zrbrr_kindle`\n\n## Acceptance\n\n- `rbrr_load()` exists in `rbrr_regime.sh`\n- No remaining manual `source RBBC_rbrr_file` + `zrbrr_kindle` + `zrbrr_enforce` + `zrbrr_lock` sequences outside `rbrr_load()`\n- Smoke tests pass",
               "silks": "rbrr-load-helper",
               "commit": "76f7d43"
+            }
+          ]
+        },
+        "₢AkAAK": {
+          "tacks": [
+            {
+              "ts": "260302-0713",
+              "state": "rough",
+              "text": "Drafted from ₢AiAAh in ₣Ai.\n\nDrafted from ₢AkAAB in ₣Ak.\n\nRename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)\n4. Rename `z_rbw_kit_dir` → `z_rbk_kit_dir` across all cli files (14 files use this local variable pattern with `\"${BURD_TOOLS_DIR}/rbw\"` — both the variable name and path string need updating)",
+              "silks": "rename-rbw-to-rbk-move-lenses",
+              "commit": "832097d"
+            },
+            {
+              "ts": "260225-1922",
+              "state": "rough",
+              "text": "Drafted from ₢AkAAB in ₣Ak.\n\nRename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)\n4. Rename `z_rbw_kit_dir` → `z_rbk_kit_dir` across all cli files (14 files use this local variable pattern with `\"${BURD_TOOLS_DIR}/rbw\"` — both the variable name and path string need updating)",
+              "silks": "rename-rbw-to-rbk-move-lenses",
+              "commit": "3297136"
+            },
+            {
+              "ts": "260224-1458",
+              "state": "rough",
+              "text": "Rename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)\n4. Rename `z_rbw_kit_dir` → `z_rbk_kit_dir` across all cli files (14 files use this local variable pattern with `\"${BURD_TOOLS_DIR}/rbw\"` — both the variable name and path string need updating)",
+              "silks": "rename-rbw-to-rbk-move-lenses",
+              "commit": "f8de471"
+            },
+            {
+              "ts": "260224-0821",
+              "state": "rough",
+              "text": "Rename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)",
+              "silks": "rename-rbw-to-rbk-move-lenses",
+              "commit": "c3a4021"
             }
           ]
         }
