@@ -4644,7 +4644,6 @@
         "₢AiAAe",
         "₢AiAAk",
         "₢AiAAl",
-        "₢AiAAm",
         "₢AiAAr",
         "₢AiAAs",
         "₢AiAA1"
@@ -5936,17 +5935,6 @@
             }
           ]
         },
-        "₢AiAAm": {
-          "tacks": [
-            {
-              "ts": "260227-1533",
-              "state": "rough",
-              "text": "Rename tabtarget tt/rbw-RI.RubricInscribe.sh. New name TBD — requires minting decision when pace is worked. Current colophon rbw-RI with frontispiece RubricInscribe.",
-              "silks": "rename-rubric-inscribe-tabtarget",
-              "commit": "96b6de6"
-            }
-          ]
-        },
         "₢AiAAn": {
           "tacks": [
             {
@@ -7013,9 +7001,10 @@
         "₢AkAAC",
         "₢AkAAF",
         "₢AkAAA",
-        "₢AkAAK"
+        "₢AkAAK",
+        "₢AkAAL"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -7261,6 +7250,24 @@
               "text": "Rename the `Tools/rbw/` directory to `Tools/rbk/` and move all lens files from `lenses/` to their correct veiled directories within the kit structure.\n\n## Deliverables\n\n1. Rename `Tools/rbw/` → `Tools/rbk/`\n2. Move lens .adoc files from `lenses/` to their appropriate `vov_veiled/` directories\n3. Update all references (CLAUDE.md, imports, tabtargets, etc.)",
               "silks": "rename-rbw-to-rbk-move-lenses",
               "commit": "c3a4021"
+            }
+          ]
+        },
+        "₢AkAAL": {
+          "tacks": [
+            {
+              "ts": "260302-0713",
+              "state": "rough",
+              "text": "Drafted from ₢AiAAm in ₣Ai.\n\nRename tabtarget tt/rbw-RI.RubricInscribe.sh. New name TBD — requires minting decision when pace is worked. Current colophon rbw-RI with frontispiece RubricInscribe.",
+              "silks": "rename-rubric-inscribe-tabtarget",
+              "commit": "00935f9"
+            },
+            {
+              "ts": "260227-1533",
+              "state": "rough",
+              "text": "Rename tabtarget tt/rbw-RI.RubricInscribe.sh. New name TBD — requires minting decision when pace is worked. Current colophon rbw-RI with frontispiece RubricInscribe.",
+              "silks": "rename-rubric-inscribe-tabtarget",
+              "commit": "96b6de6"
             }
           ]
         }
