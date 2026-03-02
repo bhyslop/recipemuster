@@ -43,6 +43,9 @@ zrbra_kindle() {
   buv_string_enroll   RBRA_PROJECT_ID          1    64  "GCP project owning the service account"
   buv_decimal_enroll  RBRA_TOKEN_LIFETIME_SEC  300  3600  "OAuth token lifetime in seconds"
 
+  buv_group_enroll "Deprecated (transitional — remove after RBRA files updated)"
+  buv_string_enroll   RBRA_RUBRIC_REPO_URL     0   512  "DEPRECATED: moved to RBRR_RUBRIC_REPO_URL — remove from RBRA files"
+
   # Guard against unexpected RBRA_ variables not in enrollment
   buv_scope_sentinel RBRA RBRA_
 

@@ -593,7 +593,7 @@ rbgg_create_director() {
 
   buc_step 'Grant Secret Manager access on PAT secret'
   local z_director_secret_resource="projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
-  local z_director_secret_iam_get_url="https://secretmanager.googleapis.com/v1/${z_director_secret_resource}:getIamPolicy"
+  local z_director_secret_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_director_secret_resource}:getIamPolicy"
   rbgu_http_json "POST" "${z_director_secret_iam_get_url}" "${z_token}" "director_secret_get_iam"
   local z_director_secret_get_code
   z_director_secret_get_code=$(rbgu_http_code_capture "director_secret_get_iam") || z_director_secret_get_code=""
@@ -606,7 +606,7 @@ rbgg_create_director() {
     "roles/secretmanager.secretAccessor" "serviceAccount:${z_account_email}" "") \
     || buc_die "Failed to build director secret IAM policy"
 
-  local z_director_secret_set_url="https://secretmanager.googleapis.com/v1/${z_director_secret_resource}:setIamPolicy"
+  local z_director_secret_set_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_director_secret_resource}:setIamPolicy"
   local z_director_secret_set_body="${BURD_TEMP_DIR}/rbgg_director_secret_iam.json"
   printf '{"policy":%s}\n' "${z_director_secret_updated_policy}" > "${z_director_secret_set_body}" \
     || buc_die "Failed to write director secret IAM policy body"

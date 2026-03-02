@@ -574,6 +574,41 @@ rbgp_depot_create() {
     buc_die "Depot name must be ${RBGC_GLOBAL_DEPOT_NAME_MAX} characters or less"
   fi
 
+  buc_step 'Read GitHub credentials from stdin'
+  local z_github_pat=""
+  local z_github_app_installation_id=""
+  if ! read -r z_github_pat 2>/dev/null || test -z "${z_github_pat}"; then
+    buc_info ""
+    buc_info "GitHub credentials required via stdin (two lines: PAT, then installation ID)."
+    buc_info ""
+    buc_info "Setup:"
+    buc_info "  1. Install the 'Google Cloud Build' GitHub App on your org:"
+    buc_bare "     https://github.com/apps/google-cloud-build"
+    buc_info "  2. Create a classic PAT with scopes: repo, read:user, read:org"
+    buc_info "  3. Note the numeric installation ID from the App settings page"
+    buc_info ""
+    buc_info "Note: other git hosting services are supported — GitHub is the reference implementation"
+    buc_die "Provide PAT and installation ID via stdin and re-run"
+  fi
+  if ! read -r z_github_app_installation_id 2>/dev/null || test -z "${z_github_app_installation_id}"; then
+    buc_die "Second stdin line (GitHub App installation ID) is missing or empty"
+  fi
+  buc_log_args "GitHub credentials read from stdin"
+
+  buc_step 'Validate Rubric Repo URL'
+  local z_rubric_repo_url="${RBRR_RUBRIC_REPO_URL:-}"
+  test -n "${z_rubric_repo_url}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
+
+  # Construct authenticated URL for validation (PAT must not persist beyond this check)
+  local z_auth_url
+  z_auth_url=$(printf '%s' "${z_rubric_repo_url}" | sed "s|https://|https://x-access-token:${z_github_pat}@|") \
+    || buc_die "Failed to construct authenticated rubric repo URL"
+
+  git ls-remote "${z_auth_url}" HEAD >/dev/null 2>&1 \
+    || buc_die "Rubric repo URL unreachable or PAT invalid — check RBRR_RUBRIC_REPO_URL and PAT scopes"
+  unset z_auth_url
+  buc_log_args "Rubric repo URL validated"
+
   # Validate region exists in Artifact Registry locations
   buc_log_args 'Validating region exists in Artifact Registry locations'
   local z_token
@@ -764,44 +799,9 @@ rbgp_depot_create() {
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
-  buc_step 'Read GitHub credentials from stdin'
-  local z_github_pat=""
-  local z_github_app_installation_id=""
-  if ! read -r z_github_pat 2>/dev/null || test -z "${z_github_pat}"; then
-    buc_info ""
-    buc_info "GitHub credentials required via stdin (two lines: PAT, then installation ID)."
-    buc_info ""
-    buc_info "Setup:"
-    buc_info "  1. Install the 'Google Cloud Build' GitHub App on your org:"
-    buc_bare "     https://github.com/apps/google-cloud-build"
-    buc_info "  2. Create a classic PAT with scopes: repo, read:user, read:org"
-    buc_info "  3. Note the numeric installation ID from the App settings page"
-    buc_info ""
-    buc_info "Note: other git hosting services are supported — GitHub is the reference implementation"
-    buc_die "Provide PAT and installation ID via stdin and re-run"
-  fi
-  if ! read -r z_github_app_installation_id 2>/dev/null || test -z "${z_github_app_installation_id}"; then
-    buc_die "Second stdin line (GitHub App installation ID) is missing or empty"
-  fi
-  buc_log_args "GitHub credentials read from stdin"
-
-  buc_step 'Validate Rubric Repo URL'
-  local z_rubric_repo_url="${RBRR_RUBRIC_REPO_URL:-}"
-  test -n "${z_rubric_repo_url}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
-
-  # Construct authenticated URL for validation (PAT must not persist beyond this check)
-  local z_auth_url
-  z_auth_url=$(printf '%s' "${z_rubric_repo_url}" | sed "s|https://|https://x-access-token:${z_github_pat}@|") \
-    || buc_die "Failed to construct authenticated rubric repo URL"
-
-  git ls-remote "${z_auth_url}" HEAD >/dev/null 2>&1 \
-    || buc_die "Rubric repo URL unreachable or PAT invalid — check RBRR_RUBRIC_REPO_URL and PAT scopes"
-  unset z_auth_url
-  buc_log_args "Rubric repo URL validated"
-
   buc_step 'Store GitHub PAT in Secret Manager'
   local z_secret_parent="projects/${z_depot_project_id}"
-  local z_secret_create_url="https://secretmanager.googleapis.com/v1/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_PAT_SECRET_NAME}"
+  local z_secret_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_PAT_SECRET_NAME}"
   local z_secret_create_body="${BURD_TEMP_DIR}/rbgp_secret_create.json"
 
   jq -n '{"replication": {"automatic": {}}}' > "${z_secret_create_body}" \
@@ -813,7 +813,7 @@ rbgp_depot_create() {
   # Add secret version with PAT data
   local z_pat_b64
   z_pat_b64=$(printf '%s' "${z_github_pat}" | base64) || buc_die "Failed to base64-encode PAT"
-  local z_secret_version_url="https://secretmanager.googleapis.com/v1/${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}:addVersion"
+  local z_secret_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}:addVersion"
   local z_secret_version_body="${BURD_TEMP_DIR}/rbgp_secret_version.json"
 
   jq -n --arg data "${z_pat_b64}" '{"payload": {"data": $data}}' > "${z_secret_version_body}" \
@@ -829,7 +829,7 @@ rbgp_depot_create() {
 
   buc_step 'Grant Cloud Build service agent Secret Manager access'
   local z_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
-  local z_secret_iam_get_url="https://secretmanager.googleapis.com/v1/${z_secret_resource}:getIamPolicy"
+  local z_secret_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_resource}:getIamPolicy"
   rbgu_http_json "POST" "${z_secret_iam_get_url}" "${z_token}" "depot_secret_get_iam"
   local z_secret_iam_get_code
   z_secret_iam_get_code=$(rbgu_http_code_capture "depot_secret_get_iam") || z_secret_iam_get_code=""
@@ -842,7 +842,7 @@ rbgp_depot_create() {
     "roles/secretmanager.secretAccessor" "serviceAccount:${z_cb_service_agent}" "") \
     || buc_die "Failed to build updated secret IAM policy"
 
-  local z_secret_set_iam_url="https://secretmanager.googleapis.com/v1/${z_secret_resource}:setIamPolicy"
+  local z_secret_set_iam_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_resource}:setIamPolicy"
   local z_secret_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam.json"
   printf '{"policy":%s}\n' "${z_secret_updated_policy}" > "${z_secret_set_iam_body}" \
     || buc_die "Failed to write secret IAM policy body"
@@ -868,7 +868,7 @@ rbgp_depot_create() {
         authorizerCredential: {
           oauthTokenSecretVersion: $secretVersion
         },
-        appInstallationId: ($installationId | tonumber)
+        appInstallationId: $installationId
       }
     }' > "${z_cbv2_create_body}" \
     || buc_die "Failed to build CB v2 connection body"
@@ -942,6 +942,7 @@ rbgp_depot_create() {
   buc_info "GitHub PAT stored in Secret Manager (${RBGC_CBV2_PAT_SECRET_NAME})"
   buc_info "Update RBRR configuration:"
   buc_bare "  RBRR_DEPOT_PROJECT_ID=${z_depot_project_id}"
+  buc_bare "  RBRR_GCP_REGION=${z_region}"
   buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
   buc_bare "  RBRR_CBV2_CONNECTION_NAME=${z_cbv2_connection_name}"
   buc_info "Next: create Governor for this depot:"
@@ -1053,7 +1054,7 @@ rbgp_depot_destroy() {
   fi
 
   buc_step 'Delete Secret Manager secret (if exists)'
-  local z_secret_del_url="https://secretmanager.googleapis.com/v1/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
+  local z_secret_del_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
   rbgu_http_json "DELETE" "${z_secret_del_url}" "${z_token}" "depot_destroy_secret"
   local z_secret_del_code
   z_secret_del_code=$(rbgu_http_code_capture "depot_destroy_secret") || z_secret_del_code=""
