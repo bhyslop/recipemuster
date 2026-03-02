@@ -55,9 +55,11 @@ zrbrr_kindle() {
   buv_gname_enroll   RBRR_GCP_REGION               1   32  "GCP region"
   buv_gname_enroll   RBRR_GAR_REPOSITORY           1   63  "Google Artifact Registry repository name"
 
-  buv_group_enroll "Google Developer Connect"
-  buv_gname_enroll   RBRR_GDC_CONNECTION_NAME       0   63  "Developer Connect connection resource name"
-  buv_gname_enroll   RBRR_GDC_REGION                0   32  "Developer Connect region"
+  buv_group_enroll "Cloud Build v2 Connection"
+  buv_gname_enroll   RBRR_CBV2_CONNECTION_NAME      0   63  "Cloud Build v2 connection resource name"
+
+  buv_group_enroll "Rubric Repository"
+  buv_string_enroll  RBRR_RUBRIC_REPO_URL           0  512  "Rubric repository URL (https, no credentials)"
 
   buv_group_enroll "Google Cloud Build Configuration"
   buv_string_enroll  RBRR_GCB_MACHINE_TYPE           3   64  "Machine type for Cloud Build"

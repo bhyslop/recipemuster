@@ -43,9 +43,6 @@ zrbra_kindle() {
   buv_string_enroll   RBRA_PROJECT_ID          1    64  "GCP project owning the service account"
   buv_decimal_enroll  RBRA_TOKEN_LIFETIME_SEC  300  3600  "OAuth token lifetime in seconds"
 
-  buv_group_enroll "Rubric Repository (optional)"
-  buv_string_enroll   RBRA_RUBRIC_REPO_URL     0   512  "Authenticated git URL for rubric repo"
-
   # Guard against unexpected RBRA_ variables not in enrollment
   buv_scope_sentinel RBRA RBRA_
 
@@ -69,12 +66,6 @@ zrbra_enforce() {
   # Private key must contain PEM key material
   [[ "${RBRA_PRIVATE_KEY}" =~ BEGIN ]] \
     || buc_die "RBRA_PRIVATE_KEY does not contain PEM key material"
-
-  # Rubric repo URL format check (optional — only validate if non-empty)
-  if test -n "${RBRA_RUBRIC_REPO_URL:-}"; then
-    [[ "${RBRA_RUBRIC_REPO_URL}" =~ ^https:// ]] \
-      || buc_die "RBRA_RUBRIC_REPO_URL must start with 'https://' prefix: '${RBRA_RUBRIC_REPO_URL:0:20}...'"
-  fi
 }
 
 # Lock step — lock enrolled variables against mutation after enforcement

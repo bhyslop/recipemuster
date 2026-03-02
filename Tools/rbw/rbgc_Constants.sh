@@ -75,7 +75,6 @@ zrbgc_kindle() {
   readonly RBGC_API_ROOT_CLOUDBUILD="https://cloudbuild.googleapis.com"
   readonly RBGC_API_ROOT_CLOUDBILLING="https://cloudbilling.googleapis.com"
   readonly RBGC_API_ROOT_STORAGE="https://storage.googleapis.com"
-  readonly RBGC_API_ROOT_DEVELOPERCONNECT="https://developerconnect.googleapis.com"
   readonly RBGC_CONSOLE_URL="https://console.cloud.google.com/"
   readonly RBGC_SIGNUP_URL="https://cloud.google.com/free"
 
@@ -101,7 +100,6 @@ zrbgc_kindle() {
   readonly RBGC_CLOUDBILLING_V1="/v1"
   readonly RBGC_STORAGE_JSON_V1="/storage/v1"
   readonly RBGC_STORAGE_JSON_UPLOAD="/upload/storage/v1"
-  readonly RBGC_DEVELOPERCONNECT_V1="/v1"
 
   # REST Path Fragments
   readonly RBGC_PATH_PROJECTS="/projects"
@@ -147,6 +145,12 @@ zrbgc_kindle() {
   readonly RBGC_RUBRIC_CLONE_DIR=".rbk/rubric"
   readonly RBGC_RUBRIC_TRIGGER_PREFIX="rbw-trigger-"
   readonly RBGC_DEFAULT_POOL_PLATFORM="linux/amd64"
+
+  # Cloud Build v2 connection infrastructure
+  readonly RBGC_CBV2_PAT_SECRET_NAME="rbw-github-pat"
+  readonly RBGC_CBV2_REPOSITORY_ID="rubric"
+  readonly RBGC_API_ROOT_CLOUDBUILD_V2="https://cloudbuild.googleapis.com"
+  readonly RBGC_CLOUDBUILD_V2="/v2"
 
   readonly ZRBGC_KINDLED=1
 }

@@ -45,7 +45,6 @@ zrbz_kindle() {
   buz_enroll RBZ_PAYOR_ESTABLISH "rbw-gpe" "${z_mod}" "rbgm_payor_establish"
   buz_enroll RBZ_PAYOR_REFRESH   "rbw-gpr" "${z_mod}" "rbgm_payor_refresh"
   buz_enroll RBZ_QUOTA_BUILD     "rbw-gqb" "${z_mod}" "rbgm_quota_build"
-  buz_enroll RBZ_DEPOT_INITIALIZE "rbw-GI" "${z_mod}" "rbgm_depot_initialize"
 
   # General depot operations
   z_mod="rbgp_cli.sh"

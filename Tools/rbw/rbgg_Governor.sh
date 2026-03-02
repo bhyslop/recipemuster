@@ -113,16 +113,27 @@ zrbgg_rubric_preflight() {
   zrbra_enforce
   zrbra_lock
 
-  rbgu_check_rubric_repo_url "${RBRA_RUBRIC_REPO_URL:-}"
+  rbgu_check_rubric_repo_url "${RBRR_RUBRIC_REPO_URL:-}"
 
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get Governor OAuth token for DevConnect check"
+  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get Governor OAuth token for CB v2 check"
 
-  rbgu_check_devconnect \
-    "${z_token}" \
-    "${RBRR_DEPOT_PROJECT_ID}" \
-    "${RBRR_GDC_REGION}" \
-    "${RBRR_GDC_CONNECTION_NAME}"
+  # Verify CB v2 connection is active
+  local z_cbv2_conn="${RBRR_CBV2_CONNECTION_NAME:-}"
+  test -n "${z_cbv2_conn}" || buc_die "RBRR_CBV2_CONNECTION_NAME not set — run depot_create to establish CB v2 connection"
+
+  local z_cbv2_conn_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn}"
+  rbgu_http_json "GET" "${z_cbv2_conn_url}" "${z_token}" "rubric_cbv2_check"
+  rbgu_http_require_ok "CB v2 connection check" "rubric_cbv2_check"
+
+  local z_cbv2_stage
+  z_cbv2_stage=$(rbgu_json_field_capture "rubric_cbv2_check" '.installationState.stage // "UNKNOWN"') \
+    || buc_die "Failed to parse CB v2 connection stage"
+
+  test "${z_cbv2_stage}" = "COMPLETE" \
+    || buc_die "CB v2 connection not active (stage: ${z_cbv2_stage}) — re-run depot_create"
+
+  buc_log_args "CB v2 connection active (${z_cbv2_conn})"
 
   buc_log_args "Rubric infrastructure preflight passed"
 }
@@ -580,14 +591,28 @@ rbgg_create_director() {
     "serviceAccount:${z_account_email}"     \
     "director-viewer"
 
-  buc_step 'Grant Developer Connect Admin (source link + trigger infrastructure)'
-  rbgi_add_project_iam_role                 \
-    "${z_token}"                            \
-    "Grant Developer Connect Admin"         \
-    "${RBGD_PROJECT_RESOURCE}"              \
-    "roles/developerconnect.admin"          \
-    "serviceAccount:${z_account_email}"     \
-    "director-devconnect"
+  buc_step 'Grant Secret Manager access on PAT secret'
+  local z_director_secret_resource="projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
+  local z_director_secret_iam_get_url="https://secretmanager.googleapis.com/v1/${z_director_secret_resource}:getIamPolicy"
+  rbgu_http_json "POST" "${z_director_secret_iam_get_url}" "${z_token}" "director_secret_get_iam"
+  local z_director_secret_get_code
+  z_director_secret_get_code=$(rbgu_http_code_capture "director_secret_get_iam") || z_director_secret_get_code=""
+  if test "${z_director_secret_get_code}" != "200"; then
+    rbgu_write_vanilla_json "director_secret_get_iam"
+  fi
+
+  local z_director_secret_updated_policy
+  z_director_secret_updated_policy=$(rbgu_jq_add_member_to_role_capture "director_secret_get_iam" \
+    "roles/secretmanager.secretAccessor" "serviceAccount:${z_account_email}" "") \
+    || buc_die "Failed to build director secret IAM policy"
+
+  local z_director_secret_set_url="https://secretmanager.googleapis.com/v1/${z_director_secret_resource}:setIamPolicy"
+  local z_director_secret_set_body="${BURD_TEMP_DIR}/rbgg_director_secret_iam.json"
+  printf '{"policy":%s}\n' "${z_director_secret_updated_policy}" > "${z_director_secret_set_body}" \
+    || buc_die "Failed to write director secret IAM policy body"
+
+  rbgu_http_json "POST" "${z_director_secret_set_url}" "${z_token}" "director_secret_set_iam" "${z_director_secret_set_body}"
+  rbgu_http_require_ok "Grant director secret access" "director_secret_set_iam"
 
   buc_step 'Grant serviceAccountUser on Mason'
   rbgi_add_sa_iam_role "${z_token}" "${RBGD_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"

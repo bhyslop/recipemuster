@@ -599,13 +599,8 @@ rbgp_depot_create() {
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
   buc_step 'Generate depot project ID'
-  # Derive from dispatch timestamp to match tabtarget log filename
-  # BURD_NOW_STAMP = YYYYMMDD-HHMMSS-PID-RANDOM
-  # RBGC_GLOBAL_TIMESTAMP_FORMAT produces YYMMDDHHMMSS
-  local z_datepart="${BURD_NOW_STAMP%%-*}"
-  local z_rest="${BURD_NOW_STAMP#*-}"
-  local z_timepart="${z_rest%%-*}"
-  local z_timestamp="${z_datepart:2}${z_timepart}"
+  local z_timestamp
+  z_timestamp=$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}") || buc_die "Failed to generate timestamp"
   local z_depot_project_id="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-${z_depot_name}-${z_timestamp}"
   
   if [ "${#z_depot_project_id}" -gt 30 ]; then
@@ -662,7 +657,7 @@ rbgp_depot_create() {
   test -n "${z_project_number}" || buc_die "Project number is empty"
 
   buc_step 'Enable depot project APIs'
-  local z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis developerconnect iam secretmanager serviceusage storage"
+  local z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis iam secretmanager serviceusage storage"
   for z_service in ${z_api_services}; do
     rbgu_api_enable "${z_service}" "${z_depot_project_id}" "${z_token}"
   done
@@ -769,57 +764,188 @@ rbgp_depot_create() {
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
-  buc_step 'Provision Developer Connect service agent'
-  local z_devconnect_service_agent
-  z_devconnect_service_agent=$(rbgu_provision_service_agent "developerconnect" "${z_depot_project_id}" "${z_token}") \
-    || buc_die "Failed to provision Developer Connect service agent"
+  buc_step 'Read GitHub credentials from stdin'
+  local z_github_pat=""
+  local z_github_app_installation_id=""
+  if ! read -r z_github_pat 2>/dev/null || test -z "${z_github_pat}"; then
+    buc_info ""
+    buc_info "GitHub credentials required via stdin (two lines: PAT, then installation ID)."
+    buc_info ""
+    buc_info "Setup:"
+    buc_info "  1. Install the 'Google Cloud Build' GitHub App on your org:"
+    buc_bare "     https://github.com/apps/google-cloud-build"
+    buc_info "  2. Create a classic PAT with scopes: repo, read:user, read:org"
+    buc_info "  3. Note the numeric installation ID from the App settings page"
+    buc_info ""
+    buc_info "Note: other git hosting services are supported — GitHub is the reference implementation"
+    buc_die "Provide PAT and installation ID via stdin and re-run"
+  fi
+  if ! read -r z_github_app_installation_id 2>/dev/null || test -z "${z_github_app_installation_id}"; then
+    buc_die "Second stdin line (GitHub App installation ID) is missing or empty"
+  fi
+  buc_log_args "GitHub credentials read from stdin"
 
-  buc_step 'Grant Developer Connect service agent Secret Manager access'
-  rbgi_add_project_iam_role "${z_token}" "Grant DevConnect Secret Manager Admin" "projects/${z_depot_project_id}" \
-    "roles/secretmanager.admin" "serviceAccount:${z_devconnect_service_agent}" "devconnect-secretmgr"
+  buc_step 'Validate Rubric Repo URL'
+  local z_rubric_repo_url="${RBRR_RUBRIC_REPO_URL:-}"
+  test -n "${z_rubric_repo_url}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
 
-  buc_step 'Create Developer Connect connection (PENDING state)'
-  local z_gdc_connection_name="rbw-${z_depot_name}-github"
-  local z_gdc_parent="projects/${z_depot_project_id}/locations/${z_region}"
-  local z_gdc_create_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/${z_gdc_parent}/connections?connectionId=${z_gdc_connection_name}"
-  local z_gdc_create_body="${BURD_TEMP_DIR}/rbgp_gdc_connection.json"
+  # Construct authenticated URL for validation (PAT must not persist beyond this check)
+  local z_auth_url
+  z_auth_url=$(printf '%s' "${z_rubric_repo_url}" | sed "s|https://|https://x-access-token:${z_github_pat}@|") \
+    || buc_die "Failed to construct authenticated rubric repo URL"
 
-  jq -n '{githubConfig: {githubApp: "DEVELOPER_CONNECT"}}' > "${z_gdc_create_body}" \
-    || buc_die "Failed to build Developer Connect connection body"
+  git ls-remote "${z_auth_url}" HEAD >/dev/null 2>&1 \
+    || buc_die "Rubric repo URL unreachable or PAT invalid — check RBRR_RUBRIC_REPO_URL and PAT scopes"
+  unset z_auth_url
+  buc_log_args "Rubric repo URL validated"
+
+  buc_step 'Store GitHub PAT in Secret Manager'
+  local z_secret_parent="projects/${z_depot_project_id}"
+  local z_secret_create_url="https://secretmanager.googleapis.com/v1/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_PAT_SECRET_NAME}"
+  local z_secret_create_body="${BURD_TEMP_DIR}/rbgp_secret_create.json"
+
+  jq -n '{"replication": {"automatic": {}}}' > "${z_secret_create_body}" \
+    || buc_die "Failed to build secret creation body"
+
+  rbgu_http_json "POST" "${z_secret_create_url}" "${z_token}" "depot_secret_create" "${z_secret_create_body}"
+  rbgu_http_require_ok "Create Secret Manager secret" "depot_secret_create"
+
+  # Add secret version with PAT data
+  local z_pat_b64
+  z_pat_b64=$(printf '%s' "${z_github_pat}" | base64) || buc_die "Failed to base64-encode PAT"
+  local z_secret_version_url="https://secretmanager.googleapis.com/v1/${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}:addVersion"
+  local z_secret_version_body="${BURD_TEMP_DIR}/rbgp_secret_version.json"
+
+  jq -n --arg data "${z_pat_b64}" '{"payload": {"data": $data}}' > "${z_secret_version_body}" \
+    || buc_die "Failed to build secret version body"
+
+  rbgu_http_json "POST" "${z_secret_version_url}" "${z_token}" "depot_secret_version" "${z_secret_version_body}"
+  rbgu_http_require_ok "Add secret version" "depot_secret_version"
+
+  local z_secret_version
+  z_secret_version=$(rbgu_json_field_capture "depot_secret_version" '.name') \
+    || buc_die "Failed to get secret version name"
+  buc_log_args "PAT stored as ${z_secret_version}"
+
+  buc_step 'Grant Cloud Build service agent Secret Manager access'
+  local z_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
+  local z_secret_iam_get_url="https://secretmanager.googleapis.com/v1/${z_secret_resource}:getIamPolicy"
+  rbgu_http_json "POST" "${z_secret_iam_get_url}" "${z_token}" "depot_secret_get_iam"
+  local z_secret_iam_get_code
+  z_secret_iam_get_code=$(rbgu_http_code_capture "depot_secret_get_iam") || z_secret_iam_get_code=""
+  if test "${z_secret_iam_get_code}" != "200"; then
+    rbgu_write_vanilla_json "depot_secret_get_iam"
+  fi
+
+  local z_secret_updated_policy
+  z_secret_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam" \
+    "roles/secretmanager.secretAccessor" "serviceAccount:${z_cb_service_agent}" "") \
+    || buc_die "Failed to build updated secret IAM policy"
+
+  local z_secret_set_iam_url="https://secretmanager.googleapis.com/v1/${z_secret_resource}:setIamPolicy"
+  local z_secret_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam.json"
+  printf '{"policy":%s}\n' "${z_secret_updated_policy}" > "${z_secret_set_iam_body}" \
+    || buc_die "Failed to write secret IAM policy body"
+
+  rbgu_http_json "POST" "${z_secret_set_iam_url}" "${z_token}" "depot_secret_set_iam" "${z_secret_set_iam_body}"
+  rbgu_http_require_ok "Grant CB service agent secret access" "depot_secret_set_iam"
+
+  buc_step 'Grant Cloud Build service agent connection admin'
+  rbgi_add_project_iam_role "${z_token}" "Grant CB Connection Admin" "projects/${z_depot_project_id}" \
+    "roles/cloudbuild.connectionAdmin" "serviceAccount:${z_cb_service_agent}" "cb-conn-admin"
+
+  buc_step 'Create CB v2 connection'
+  local z_cbv2_connection_name="rbw-${z_depot_name}-github"
+  local z_cbv2_parent="projects/${z_depot_project_id}/locations/${z_region}"
+  local z_cbv2_create_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections?connectionId=${z_cbv2_connection_name}"
+  local z_cbv2_create_body="${BURD_TEMP_DIR}/rbgp_cbv2_connection.json"
+
+  jq -n \
+    --arg secretVersion "${z_secret_version}" \
+    --arg installationId "${z_github_app_installation_id}" \
+    '{
+      githubConfig: {
+        authorizerCredential: {
+          oauthTokenSecretVersion: $secretVersion
+        },
+        appInstallationId: ($installationId | tonumber)
+      }
+    }' > "${z_cbv2_create_body}" \
+    || buc_die "Failed to build CB v2 connection body"
 
   rbgu_http_json_lro_ok \
-    "Create Developer Connect connection" \
+    "Create CB v2 connection" \
     "${z_token}" \
-    "${z_gdc_create_url}" \
-    "depot_gdc_create" \
-    "${z_gdc_create_body}" \
+    "${z_cbv2_create_url}" \
+    "depot_cbv2_create" \
+    "${z_cbv2_create_body}" \
     ".name" \
-    "${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}" \
+    "${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}" \
     "${RBGC_OP_PREFIX_GLOBAL}" \
     "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
-  # Verify connection exists in pending state
-  local z_gdc_get_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/${z_gdc_parent}/connections/${z_gdc_connection_name}"
-  rbgu_http_json "GET" "${z_gdc_get_url}" "${z_token}" "depot_gdc_verify"
-  rbgu_http_require_ok "Verify Developer Connect connection" "depot_gdc_verify"
+  # Poll connection until COMPLETE
+  buc_step 'Verify CB v2 connection is active'
+  local z_cbv2_get_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}"
+  local z_cbv2_poll_count=0
+  local z_cbv2_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
+  local z_cbv2_stage=""
+
+  while true; do
+    rbgu_http_json "GET" "${z_cbv2_get_url}" "${z_token}" "depot_cbv2_poll"
+    rbgu_http_require_ok "Poll CB v2 connection" "depot_cbv2_poll"
+
+    z_cbv2_stage=$(rbgu_json_field_capture "depot_cbv2_poll" '.installationState.stage // "UNKNOWN"') \
+      || buc_die "Failed to parse CB v2 connection stage"
+
+    if [ "${z_cbv2_stage}" = "COMPLETE" ]; then
+      buc_log_args "CB v2 connection active"
+      break
+    fi
+
+    z_cbv2_poll_count=$((z_cbv2_poll_count + 1))
+    if [ "${z_cbv2_poll_count}" -ge "${z_cbv2_max_polls}" ]; then
+      buc_die "CB v2 connection failed — check PAT scopes and GitHub App installation (stage: ${z_cbv2_stage})"
+    fi
+
+    buc_log_args "CB v2 connection stage: ${z_cbv2_stage} (poll ${z_cbv2_poll_count}/${z_cbv2_max_polls})"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+  done
+
+  buc_step 'Create CB v2 repository'
+  local z_cbv2_repo_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}/repositories?repositoryId=${RBGC_CBV2_REPOSITORY_ID}"
+  local z_cbv2_repo_body="${BURD_TEMP_DIR}/rbgp_cbv2_repository.json"
+
+  jq -n --arg remoteUri "${z_rubric_repo_url}" '{"remoteUri": $remoteUri}' > "${z_cbv2_repo_body}" \
+    || buc_die "Failed to build CB v2 repository body"
+
+  rbgu_http_json_lro_ok \
+    "Create CB v2 repository" \
+    "${z_token}" \
+    "${z_cbv2_repo_url}" \
+    "depot_cbv2_repo_create" \
+    "${z_cbv2_repo_body}" \
+    ".name" \
+    "${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}" \
+    "${RBGC_OP_PREFIX_GLOBAL}" \
+    "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
+    "${RBGC_MAX_CONSISTENCY_SEC}"
 
   buc_step 'Update depot tracking'
   zrbgp_depot_list_update || buc_die "Failed to update depot tracking after creation"
 
-  # Display Depot Configuration
   buc_step 'Display depot configuration'
   buc_success 'Depot creation successful'
   buc_info "Mason service account: ${z_mason_sa_email}"
-  buc_info "Developer Connect connection '${z_gdc_connection_name}' created in PENDING state"
+  buc_info "CB v2 connection '${z_cbv2_connection_name}' active with GitHub App"
+  buc_info "GitHub PAT stored in Secret Manager (${RBGC_CBV2_PAT_SECRET_NAME})"
   buc_info "Update RBRR configuration:"
   buc_bare "  RBRR_DEPOT_PROJECT_ID=${z_depot_project_id}"
   buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
-  buc_bare "  RBRR_GDC_CONNECTION_NAME=${z_gdc_connection_name}"
-  buc_bare "  RBRR_GDC_REGION=${z_region}"
-  buc_info "Next: create Governor for this depot, then complete depot initialization:"
+  buc_bare "  RBRR_CBV2_CONNECTION_NAME=${z_cbv2_connection_name}"
+  buc_info "Next: create Governor for this depot:"
   buc_next "rbw-pRG"
-  buc_next "rbw-GI"
 }
 
 rbgp_depot_destroy() {
@@ -898,6 +1024,43 @@ rbgp_depot_destroy() {
   else
     buc_warn "Could not unlink billing (HTTP ${z_billing_unlink_code}) - proceeding with deletion anyway"
   fi
+
+  buc_step 'Delete CB v2 repository (if exists)'
+  local z_cbv2_conn="${RBRR_CBV2_CONNECTION_NAME:-}"
+  if test -n "${z_cbv2_conn}"; then
+    local z_cbv2_repo_res="projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn}/repositories/${RBGC_CBV2_REPOSITORY_ID}"
+    local z_cbv2_repo_del_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_repo_res}"
+    rbgu_http_json "DELETE" "${z_cbv2_repo_del_url}" "${z_token}" "depot_destroy_cbv2_repo"
+    local z_cbv2_repo_del_code
+    z_cbv2_repo_del_code=$(rbgu_http_code_capture "depot_destroy_cbv2_repo") || z_cbv2_repo_del_code=""
+    case "${z_cbv2_repo_del_code}" in
+      200|204|404) buc_log_args "CB v2 repository cleanup: HTTP ${z_cbv2_repo_del_code}" ;;
+      *) buc_warn "CB v2 repository cleanup failed: HTTP ${z_cbv2_repo_del_code} — proceeding" ;;
+    esac
+  fi
+
+  buc_step 'Delete CB v2 connection (if exists)'
+  if test -n "${z_cbv2_conn}"; then
+    local z_cbv2_conn_res="projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn}"
+    local z_cbv2_conn_del_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_conn_res}"
+    rbgu_http_json "DELETE" "${z_cbv2_conn_del_url}" "${z_token}" "depot_destroy_cbv2_conn"
+    local z_cbv2_conn_del_code
+    z_cbv2_conn_del_code=$(rbgu_http_code_capture "depot_destroy_cbv2_conn") || z_cbv2_conn_del_code=""
+    case "${z_cbv2_conn_del_code}" in
+      200|204|404) buc_log_args "CB v2 connection cleanup: HTTP ${z_cbv2_conn_del_code}" ;;
+      *) buc_warn "CB v2 connection cleanup failed: HTTP ${z_cbv2_conn_del_code} — proceeding" ;;
+    esac
+  fi
+
+  buc_step 'Delete Secret Manager secret (if exists)'
+  local z_secret_del_url="https://secretmanager.googleapis.com/v1/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
+  rbgu_http_json "DELETE" "${z_secret_del_url}" "${z_token}" "depot_destroy_secret"
+  local z_secret_del_code
+  z_secret_del_code=$(rbgu_http_code_capture "depot_destroy_secret") || z_secret_del_code=""
+  case "${z_secret_del_code}" in
+    200|204|404) buc_log_args "Secret Manager cleanup: HTTP ${z_secret_del_code}" ;;
+    *) buc_warn "Secret Manager cleanup failed: HTTP ${z_secret_del_code} — proceeding" ;;
+  esac
 
   buc_step 'Initiate depot deletion'
   local z_delete_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
@@ -1155,13 +1318,8 @@ rbgp_governor_reset() {
   buc_info "Deleted ${z_deleted_count} existing governor service account(s)"
 
   buc_step 'Generate Governor timestamp and account ID'
-  # Derive from dispatch timestamp to match tabtarget log filename
-  # BURD_NOW_STAMP = YYYYMMDD-HHMMSS-PID-RANDOM
-  # Governor format: YYYYMMDDHHMM (no seconds)
-  local z_datepart="${BURD_NOW_STAMP%%-*}"
-  local z_rest="${BURD_NOW_STAMP#*-}"
-  local z_timepart="${z_rest%%-*}"
-  local z_timestamp="${z_datepart}${z_timepart:0:4}"
+  local z_timestamp
+  z_timestamp=$(date +%Y%m%d%H%M) || buc_die "Failed to generate timestamp"
   local z_governor_account_id="${RBGC_GOVERNOR_PREFIX}-${z_timestamp}"
   local z_governor_email="${z_governor_account_id}@${z_depot_project_id}.iam.gserviceaccount.com"
 

@@ -746,42 +746,13 @@ rbgu_check_rubric_repo_url() {
   zrbgu_sentinel
 
   local z_url="${1:-}"
-  test -n "${z_url}" || buc_die "RBRA_RUBRIC_REPO_URL is empty — set it in the appropriate RBRA file and run rbgm_depot_initialize"
+  test -n "${z_url}" || buc_die "Rubric repo URL is empty — set RBRR_RUBRIC_REPO_URL in rbrr.env"
 
   buc_log_args "Validating rubric repo URL reachability"
   git ls-remote "${z_url}" HEAD >/dev/null 2>&1 \
-    || buc_die "Rubric repo URL is unreachable or credentials are invalid — check RBRA_RUBRIC_REPO_URL and ensure PAT has Contents:write permission"
+    || buc_die "Rubric repo URL is unreachable — check RBRR_RUBRIC_REPO_URL in rbrr.env"
 
   buc_log_args "Rubric repo URL validated"
-}
-
-rbgu_check_devconnect() {
-  zrbgu_sentinel
-
-  local z_token="${1:-}"
-  local z_project="${2:-}"
-  local z_region="${3:-}"
-  local z_connection="${4:-}"
-
-  test -n "${z_token}"      || buc_die "OAuth token required for Developer Connect check"
-  test -n "${z_project}"    || buc_die "Project ID required for Developer Connect check"
-  test -n "${z_region}"     || buc_die "Region required for Developer Connect check"
-  test -n "${z_connection}" || buc_die "Connection name required for Developer Connect check"
-
-  local z_infix="devconnect_check"
-  local z_conn_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/projects/${z_project}/locations/${z_region}/connections/${z_connection}"
-
-  rbgu_http_json "GET" "${z_conn_url}" "${z_token}" "${z_infix}"
-  rbgu_http_require_ok "Developer Connect connection check" "${z_infix}"
-
-  local z_stage
-  z_stage=$(rbgu_json_field_capture "${z_infix}" '.installationState.stage // "UNKNOWN"') \
-    || buc_die "Failed to parse Developer Connect connection stage"
-
-  test "${z_stage}" = "COMPLETE" \
-    || buc_die "Developer Connect connection not authorized (stage: ${z_stage}) — run rbgm_depot_initialize to complete GitHub OAuth"
-
-  buc_log_args "Developer Connect connection active (${z_connection})"
 }
 
 # eof
