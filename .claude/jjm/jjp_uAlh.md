@@ -219,6 +219,64 @@ Volte branches and warrant commits are the raw material. jjx's job is to summari
 - **Groom's fate**: Slash command or verb table entry in V4?
 - **Ready vs reined distinction**: Both in the state enum — is the distinction clear enough? School decides which. (Note: bridled is eliminated, but reined may still be meaningful as "needs human interaction during execution.")
 
+## Gait Working Concept (cchat-20260302)
+
+Derived from executing ₢AiAAz (update-specs-cbv2-migration) on ₣Ai and reflecting on what a gait would have needed to guide that work. The pace was a 9-file AsciiDoc vocabulary migration — term renames, spec rewrites, retirements, cascading reference fixes, multi-angle review.
+
+### Gaits are checklists for school, not plan templates for breeze
+
+A gait does not contain a plan. It contains the *structure school follows to produce a plan*:
+
+- **Beat shape**: the DAG pattern ("parallel file edits with a shared vocabulary table as input")
+- **Research steps**: bounded investigations school runs before committing to beat breakdown ("scan for all attribute references across includes," "classify files by change type: rename, rewrite, retire, cascade")
+- **Confidence gates**: conditions that should cause school to stop and flag rather than produce a warrant ("if blast radius exceeds docket's file list by >50%, flag," "if any file requires rewrite but paddock lacks explicit guidance for that rewrite, flag")
+
+Confidence gates are the most valuable part. They encode "where this kind of work goes wrong" — distilled experience from prior executions of this gait pattern.
+
+### Research is steps within a gait, not a separate category
+
+Early in the conversation we considered "research gaits" as a distinct type. Discarded. Research is steps that school follows within a gait's recipe before breaking beats. The outputs are structured artifacts (file manifests, translation tables, classification lists) that downstream beats consume. These artifacts are auditable — they're commits on the volte branch.
+
+### Gait selection belongs in school, not at slate time
+
+Considered attaching candidate gaits at pace slating. Rejected — dockets evolve through reslate and groom. Stale gait selections add coupling without meaningful savings. The gait library is small enough that school scans it alongside the docket. Gait selection is cheap relative to research and beat-breaking.
+
+A human *may* hint at a gait in docket prose ("this looks like a vocabulary migration"). School considers hints but isn't bound by them.
+
+### Review is multi-phase, not one beat
+
+The ₢AiAAz execution revealed review is richer than a single "consistency check" beat:
+
+1. **Self-review**: parallel agents examining different angles (mapping completeness, paddock fidelity, cross-file consistency)
+2. **Fix**: beats addressing self-review findings
+3. **Human review**: corral checkpoint — may happen in a separate session
+4. **Fix**: beats addressing human review findings
+
+A gait's beat shape should model review as a phase with its own internal structure, not a single terminal beat.
+
+### School's primary discipline is refusing to plan
+
+School's most valuable output may be "I cannot produce a warrant for this docket." A well-defined docket (refined through groom) should be plannable. When it isn't, that's a signal the docket has gaps — not a problem for school to paper over.
+
+The school slash command should be lightweight: jjx emits the docket + gait library, the LLM (sonnet or opus) follows the matched gait's recipe, commissions research as the gait prescribes, and either produces a warrant or stops with a specific concern. The human never reads the warrant — it's machine-consumed by breeze.
+
+### Concrete example: MCM vocabulary migration
+
+Beat shape observed in ₢AiAAz that could become a named gait:
+
+```
+Research R1 (sonnet): blast-radius-scan — grep term usage, produce affected-file manifest
+Research R2 (sonnet): vocabulary-table — extract old→new term mappings from paddock decisions
+Research R3 (sonnet): file-classify — classify each file as rename/rewrite/retire/cascade
+Edit 2a (sonnet): backbone spec (RBS0) — renames + definition rewrites (serial, one file)
+Edit 2b-2n (sonnet/haiku): operation specs — parallel per file, consuming R2+R3
+Review 3a-3c (sonnet): parallel review beats with different angles
+Fix 4 (sonnet/haiku): address review findings
+Corral: human review checkpoint
+```
+
+Confidence gate: "if R1 discovers files not in the docket, and R3 classifies any as 'rewrite' rather than 'cascade', stop — the docket underspecified the scope."
+
 ## References
 
 - `Memos/memo-20260224-jjk-v4-gaits.md` — Gaits, branches, and the breeze pipeline (partially superseded)
@@ -227,3 +285,4 @@ Volte branches and warrant commits are the raw material. jjx's job is to summari
 - cchat-20260224 — Groom session: schema decisions, slash command reduction
 - cchat-20260301 — Dreaming session: beats, voltes, corral, execution model, attention model
 - cchat-20260301b — Continuation: quirt identity, warrant structure (JSON), warrant evolution from V3, school incrementalism, memory challenge, gait library as school-time resource
+- cchat-20260302 — Gait working concept: gaits as school checklists, confidence gates, research steps, review phases, MCM vocabulary migration example (derived from ₣Ai ₢AiAAz execution)
