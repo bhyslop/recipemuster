@@ -596,7 +596,7 @@ rbgp_depot_create() {
   buc_log_args "GitHub credentials read from stdin"
 
   buc_step 'Validate Rubric Repo URL'
-  local z_rubric_repo_url="${RBRR_RUBRIC_REPO_URL:-}"
+  local -r z_rubric_repo_url="${RBRR_RUBRIC_REPO_URL:-}"
   test -n "${z_rubric_repo_url}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
 
   # Construct authenticated URL for validation (PAT must not persist beyond this check)
@@ -800,9 +800,9 @@ rbgp_depot_create() {
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
   buc_step 'Store GitHub PAT in Secret Manager'
-  local z_secret_parent="projects/${z_depot_project_id}"
-  local z_secret_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_PAT_SECRET_NAME}"
-  local z_secret_create_body="${BURD_TEMP_DIR}/rbgp_secret_create.json"
+  local -r z_secret_parent="projects/${z_depot_project_id}"
+  local -r z_secret_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_PAT_SECRET_NAME}"
+  local -r z_secret_create_body="${BURD_TEMP_DIR}/rbgp_secret_create.json"
 
   jq -n '{"replication": {"automatic": {}}}' > "${z_secret_create_body}" \
     || buc_die "Failed to build secret creation body"
@@ -813,8 +813,8 @@ rbgp_depot_create() {
   # Add secret version with PAT data
   local z_pat_b64
   z_pat_b64=$(printf '%s' "${z_github_pat}" | base64) || buc_die "Failed to base64-encode PAT"
-  local z_secret_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}:addVersion"
-  local z_secret_version_body="${BURD_TEMP_DIR}/rbgp_secret_version.json"
+  local -r z_secret_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}:addVersion"
+  local -r z_secret_version_body="${BURD_TEMP_DIR}/rbgp_secret_version.json"
 
   jq -n --arg data "${z_pat_b64}" '{"payload": {"data": $data}}' > "${z_secret_version_body}" \
     || buc_die "Failed to build secret version body"
@@ -828,8 +828,8 @@ rbgp_depot_create() {
   buc_log_args "PAT stored as ${z_secret_version}"
 
   buc_step 'Grant Cloud Build service agent Secret Manager access'
-  local z_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
-  local z_secret_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_resource}:getIamPolicy"
+  local -r z_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
+  local -r z_secret_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_resource}:getIamPolicy"
   rbgu_http_json "POST" "${z_secret_iam_get_url}" "${z_token}" "depot_secret_get_iam"
   local z_secret_iam_get_code
   z_secret_iam_get_code=$(rbgu_http_code_capture "depot_secret_get_iam") || z_secret_iam_get_code=""
@@ -842,8 +842,8 @@ rbgp_depot_create() {
     "roles/secretmanager.secretAccessor" "serviceAccount:${z_cb_service_agent}" "") \
     || buc_die "Failed to build updated secret IAM policy"
 
-  local z_secret_set_iam_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_resource}:setIamPolicy"
-  local z_secret_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam.json"
+  local -r z_secret_set_iam_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_resource}:setIamPolicy"
+  local -r z_secret_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam.json"
   printf '{"policy":%s}\n' "${z_secret_updated_policy}" > "${z_secret_set_iam_body}" \
     || buc_die "Failed to write secret IAM policy body"
 
@@ -855,10 +855,10 @@ rbgp_depot_create() {
     "roles/cloudbuild.connectionAdmin" "serviceAccount:${z_cb_service_agent}" "cb-conn-admin"
 
   buc_step 'Create CB v2 connection'
-  local z_cbv2_connection_name="rbw-${z_depot_name}-github"
-  local z_cbv2_parent="projects/${z_depot_project_id}/locations/${z_region}"
-  local z_cbv2_create_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections?connectionId=${z_cbv2_connection_name}"
-  local z_cbv2_create_body="${BURD_TEMP_DIR}/rbgp_cbv2_connection.json"
+  local -r z_cbv2_connection_name="rbw-${z_depot_name}-github"
+  local -r z_cbv2_parent="projects/${z_depot_project_id}/locations/${z_region}"
+  local -r z_cbv2_create_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections?connectionId=${z_cbv2_connection_name}"
+  local -r z_cbv2_create_body="${BURD_TEMP_DIR}/rbgp_cbv2_connection.json"
 
   jq -n \
     --arg secretVersion "${z_secret_version}" \
@@ -887,9 +887,9 @@ rbgp_depot_create() {
 
   # Poll connection until COMPLETE
   buc_step 'Verify CB v2 connection is active'
-  local z_cbv2_get_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}"
+  local -r z_cbv2_get_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}"
   local z_cbv2_poll_count=0
-  local z_cbv2_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
+  local -r z_cbv2_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
   local z_cbv2_stage=""
 
   while true; do
@@ -914,8 +914,8 @@ rbgp_depot_create() {
   done
 
   buc_step 'Create CB v2 repository'
-  local z_cbv2_repo_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}/repositories?repositoryId=${RBGC_CBV2_REPOSITORY_ID}"
-  local z_cbv2_repo_body="${BURD_TEMP_DIR}/rbgp_cbv2_repository.json"
+  local -r z_cbv2_repo_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}/repositories?repositoryId=${RBGC_CBV2_REPOSITORY_ID}"
+  local -r z_cbv2_repo_body="${BURD_TEMP_DIR}/rbgp_cbv2_repository.json"
 
   jq -n --arg remoteUri "${z_rubric_repo_url}" '{"remoteUri": $remoteUri}' > "${z_cbv2_repo_body}" \
     || buc_die "Failed to build CB v2 repository body"
@@ -1027,10 +1027,10 @@ rbgp_depot_destroy() {
   fi
 
   buc_step 'Delete CB v2 repository (if exists)'
-  local z_cbv2_conn="${RBRR_CBV2_CONNECTION_NAME:-}"
+  local -r z_cbv2_conn="${RBRR_CBV2_CONNECTION_NAME:-}"
   if test -n "${z_cbv2_conn}"; then
-    local z_cbv2_repo_res="projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn}/repositories/${RBGC_CBV2_REPOSITORY_ID}"
-    local z_cbv2_repo_del_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_repo_res}"
+    local -r z_cbv2_repo_res="projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn}/repositories/${RBGC_CBV2_REPOSITORY_ID}"
+    local -r z_cbv2_repo_del_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_repo_res}"
     rbgu_http_json "DELETE" "${z_cbv2_repo_del_url}" "${z_token}" "depot_destroy_cbv2_repo"
     local z_cbv2_repo_del_code
     z_cbv2_repo_del_code=$(rbgu_http_code_capture "depot_destroy_cbv2_repo") || z_cbv2_repo_del_code=""
@@ -1042,8 +1042,8 @@ rbgp_depot_destroy() {
 
   buc_step 'Delete CB v2 connection (if exists)'
   if test -n "${z_cbv2_conn}"; then
-    local z_cbv2_conn_res="projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn}"
-    local z_cbv2_conn_del_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_conn_res}"
+    local -r z_cbv2_conn_res="projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn}"
+    local -r z_cbv2_conn_del_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_conn_res}"
     rbgu_http_json "DELETE" "${z_cbv2_conn_del_url}" "${z_token}" "depot_destroy_cbv2_conn"
     local z_cbv2_conn_del_code
     z_cbv2_conn_del_code=$(rbgu_http_code_capture "depot_destroy_cbv2_conn") || z_cbv2_conn_del_code=""
@@ -1054,7 +1054,7 @@ rbgp_depot_destroy() {
   fi
 
   buc_step 'Delete Secret Manager secret (if exists)'
-  local z_secret_del_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
+  local -r z_secret_del_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
   rbgu_http_json "DELETE" "${z_secret_del_url}" "${z_token}" "depot_destroy_secret"
   local z_secret_del_code
   z_secret_del_code=$(rbgu_http_code_capture "depot_destroy_secret") || z_secret_del_code=""
