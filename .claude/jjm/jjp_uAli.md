@@ -515,3 +515,112 @@ with `repo`, `read:user`, `read:org` scopes.
 - IAM roles: https://cloud.google.com/build/docs/iam-roles-permissions
 - Fine-grained PAT limitation: https://issuetracker.google.com/issues/343223837
 - Google Cloud Build GitHub App: https://github.com/apps/google-cloud-build
+
+### Session Decisions (2026-03-02) — CB v2 Architecture Decisions
+
+**SUPERSEDES** portions of the CB v2 research section above. Where conflicts exist,
+this section is authoritative.
+
+**depot_initialize is dead.**
+CB v2 connection creation is fully programmatic when GitHub App installation and PAT
+are pre-existing. The Developer Connect OAuth browser flow was the sole reason
+depot_initialize existed. With CB v2, all connection setup is automated in depot_create.
+Delete: `rbgm_depot_initialize()`, spec RBSDN, tabtarget `rbw-gdi`, all "Next:
+depot_initialize" guidance. The rubric repo URL validation (formerly in depot_initialize)
+moves to depot_create.
+
+**One classic PAT for everything.**
+A single GitHub classic PAT (scopes: `repo`, `read:user`, `read:org`) serves both
+Cloud Build triggers (via Secret Manager) and local inscribe git operations (fetched
+at runtime). No fine-grained PAT option — CB v2 requires classic PATs.
+
+**PAT lives only in Secret Manager — never on disk.**
+The PAT enters the system once via stdin during depot_create, goes directly into
+Secret Manager, and is never stored in regime files, RBRA files, or any persistent
+local file. Inscribe fetches it from Secret Manager at runtime, constructs the
+authenticated git URL in memory, uses it, discards it.
+
+**RBRA_RUBRIC_REPO_URL is dead.**
+The old PAT-embedded URL in RBRA files is eliminated. No credentials in RBRA.
+No credentials in regime. The PAT has exactly one home: Secret Manager.
+
+**RBRR_RUBRIC_REPO_URL — new, plain URL, required regime variable.**
+`RBRR_RUBRIC_REPO_URL=https://github.com/org/rb-rubric.git` — no credentials.
+Infrastructure config identifying which repo is the rubric repo. Operator sets it
+in rbrr.env before running depot_create. depot_create validates it (git ls-remote
+using the PAT from stdin). Inscribe reads it to construct the authenticated URL
+at runtime (combining with PAT fetched from Secret Manager).
+
+**GitHub App installation ID is ephemeral — not stored in regime.**
+The operator provides the installation ID via stdin to depot_create alongside the PAT.
+It's baked into the CB v2 connection resource and never stored in regime or RBRA.
+If the connection is destroyed and recreated, the operator provides it again.
+
+**depot_create stdin input: PAT + installation ID.**
+Two values via stdin (avoids shell history and `ps` visibility). depot_create:
+1. Reads PAT and installation ID from stdin
+2. Validates rubric repo URL from regime using PAT (git ls-remote)
+3. Enables `secretmanager.googleapis.com` API
+4. Creates Secret Manager secret, stores PAT
+5. Grants Cloud Build service agent `secretAccessor` on the secret
+6. Creates CB v2 connection (referencing secret version + installation ID)
+7. Creates CB v2 repository (referencing `RBRR_RUBRIC_REPO_URL`)
+
+If PAT is not provided, depot_create displays inline guide (GitHub-focused with
+note that other git hosts work) and dies with "provide credentials via stdin and
+re-run." Guide covers: install Google Cloud Build GitHub App, create classic PAT,
+provide both values.
+
+**RBRR_GDC_REGION is dead — redundant.**
+CB v2 region must match trigger region, which already equals `RBGD_GCB_REGION`.
+No separate regime variable needed. All CB v2 API calls use `RBGD_GCB_REGION`.
+
+**Regime variable changes (complete):**
+- `RBRR_GDC_CONNECTION_NAME` → `RBRR_CBV2_CONNECTION_NAME` (rename)
+- `RBRR_GDC_REGION` → delete (use `RBGD_GCB_REGION`)
+- `RBRA_RUBRIC_REPO_URL` → delete (PAT-in-URL pattern eliminated)
+- New: `RBRR_RUBRIC_REPO_URL` (plain URL, no credentials, in rbrr.env)
+
+**Constants (new in rbgc_Constants.sh):**
+- `RBGC_CBV2_PAT_SECRET_NAME` = `rb-github-pat` — Secret Manager secret name
+  (internal to depot project, no cross-depot visibility)
+- `RBGC_CBV2_REPOSITORY_ID` = `rubric` — CB v2 repository local identifier
+  within the connection (one rubric repo per depot)
+
+**Director SA gets Secret Manager access during create_director.**
+`rbgg_create_director` grants `roles/secretmanager.secretAccessor` on the
+PAT secret to the Director SA. This enables inscribe to fetch the PAT at runtime.
+
+**depot_destroy deletes CB v2 resources.**
+depot_destroy deletes: CB v2 repository, CB v2 connection, Secret Manager secret.
+Tolerates 404 (already gone) for idempotency.
+
+**Git host dependency is acknowledged but not abstracted.**
+CB v2 connection config is host-specific (`githubConfig` vs `gitlabConfig`).
+The code is GitHub-focused (the project uses GitHub). The inline guide in
+depot_create references GitHub but notes other hosts are possible. A future
+host migration would swap the connection config shape — the architecture
+(Secret Manager + CB v2 connection + repository) is host-portable.
+
+### Pace Plan (2026-03-02)
+
+**Remaining paces after restructure (8 paces):**
+
+| Order | Coronet | Silks | Scope |
+|-------|---------|-------|-------|
+| 1 | ₢AiAAz | update-specs-cbv2-migration | Specs first: RBS0, RBSDC, RBSRI, AXLA; retire RBSDN, RBSGD |
+| 2 | ₢AiAAw | replace-devconnect-with-cbv2-depot | depot_create CB v2 + delete depot_initialize entirely |
+| 3 | ₢AiAAx | update-inscribe-cbv2-repositories | inscribe: PAT from Secret Manager, CB v2 repos, no DC |
+| 4 | ₢AiAAN | remove-builds-create-path | Delete builds.create code path from Foundry |
+| 5 | ₢AiAA0 | e2e-verify-cbv2-provenance | Full e2e: destroy → create → inscribe → dispatch → provenance |
+| 6 | ₢AiAAe | private-pool-depot-lifecycle | Private pool create/destroy in depot lifecycle |
+| 7 | ₢AiAAk | fix-depot-create-timestamp-smell | Timestamp alignment fix |
+| 8 | ₢AiAAl | sanitize-secrets-from-transcripts | Reduced scope: audit OAuth bearer tokens in HTTP logging |
+
+**Abandoned:**
+- ₢AiAAr (auto-populate rubric URL in RBRA) — RBRA_RUBRIC_REPO_URL is dead
+
+**Transferred to ₣Ak (rbk-mvp-finalization):**
+- ₢AiAAh (rename rbw→rbk + move lenses) — massive rename, lands cleaner post-stabilization
+- ₢AiAAm (rename inscribe tabtarget) — housekeeping
+- ₢AiAAs (director colophon reorg) — housekeeping
