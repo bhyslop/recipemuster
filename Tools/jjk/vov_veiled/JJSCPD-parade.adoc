@@ -160,8 +160,10 @@ Heat: ₣AA
     Final implementation complete.
 ----
 
-Tacks are displayed in chronological order (oldest first, index 0).
-Each tack shows its index, state, commit hash, silks (which may change over time), optional warrant (if bridled), and the full docket text.
+In `--detail` mode, tacks are displayed in chronological order (oldest first).
+Each tack is numbered with a display index starting from `[0]` (oldest) through `[N]` (most recent).
+Each tack shows its display index, state, commit hash, silks (which may change over time), optional warrant (if bridled), and the full docket text.
+Note: display indices are chronological position, not storage position.
 Commit hash displays "(no commit)" for placeholder value `0000000`.
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -201,6 +203,6 @@ extract parent
 .. Verify heat and pace exist
 .. Query steeplechase entries for parent heat, filter by coronet, run `git diff-tree` per commit, collect unique work file names (excluding `.claude/jjm/*`), display as "Work files:" line (bare filenames, sorted)
 .. Print pace header (silks, coronet, state, heat)
-.. Print full tack text from `tacks[0]`
-.. If bridled, print warrant from `tacks[0]`
+.. Print docket text from the latest tack (storage `tacks[0]`, i.e. most recent) as plain text, without display index prefix
+.. If bridled, print warrant from the latest tack
 .. After tack history, always append pace commits bitmap: query steeplechase entries for heat, filter by coronet, reverse for chronological order; run `git diff-tree` per commit to get work files (excluding `.claude/jjm/*`); group files by identical touch pattern; legend shows commit SHA and subject; column-header line above bitmap rows

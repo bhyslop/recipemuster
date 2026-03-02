@@ -94,11 +94,11 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             }
         };
 
-        // Display tack history - iterate in reverse order (oldest first)
+        // Display pace view
         if !pace.tacks.is_empty() {
             // Print header with current state from tacks[0]
             let current_tack = &pace.tacks[0];
-            println!("Pace: {} ({})", current_tack.silks, coronet_key);
+            println!("Pace: {} ({}) [{}]", current_tack.silks, coronet_key, zjjrpd_pace_state_str(&current_tack.state));
             println!("Heat: {}", heat_key);
 
             // Show work files touched by this pace's commits
@@ -110,24 +110,36 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             }
             println!();
 
-            // Iterate tacks in reverse order (oldest first)
-            for (index, tack) in pace.tacks.iter().rev().enumerate() {
-                let state_str = zjjrpd_pace_state_str(&tack.state);
-                let basis_str = if tack.basis == "0000000" {
-                    "(no basis)".to_string()
-                } else {
-                    tack.basis.clone()
-                };
+            if args.detail {
+                // Detail view: full tack history in reverse order (oldest first)
+                for (index, tack) in pace.tacks.iter().rev().enumerate() {
+                    let state_str = zjjrpd_pace_state_str(&tack.state);
+                    let basis_str = if tack.basis == "0000000" {
+                        "(no basis)".to_string()
+                    } else {
+                        tack.basis.clone()
+                    };
 
-                println!("[{}] {} (basis: {})", index, state_str, basis_str);
-                println!("    Silks: {}", tack.silks);
-                if let Some(ref direction) = tack.direction {
-                    println!("    Warrant: {}", direction);
+                    println!("[{}] {} (basis: {})", index, state_str, basis_str);
+                    println!("    Silks: {}", tack.silks);
+                    if let Some(ref direction) = tack.direction {
+                        println!("    Warrant: {}", direction);
+                    }
+                    println!();
+                    // Indent docket text
+                    for line in tack.text.lines() {
+                        println!("    {}", line);
+                    }
+                    println!();
                 }
-                println!();
-                // Indent docket text
-                for line in tack.text.lines() {
-                    println!("    {}", line);
+            } else {
+                // Default view: latest tack docket only
+                if let Some(ref direction) = current_tack.direction {
+                    println!("Warrant: {}", direction);
+                    println!();
+                }
+                for line in current_tack.text.lines() {
+                    println!("{}", line);
                 }
                 println!();
             }
