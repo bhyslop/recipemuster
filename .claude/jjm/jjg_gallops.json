@@ -4704,6 +4704,7 @@
         "₢AiAAx",
         "₢AiAAN",
         "₢AiAA0",
+        "₢AiAA6",
         "₢AiAA5",
         "₢AiAAe",
         "₢AiAAk",
@@ -4719,7 +4720,7 @@
         "₢AiAA1",
         "₢AiAA3"
       ],
-      "next_pace_seed": "AA6",
+      "next_pace_seed": "AA7",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA0": {
@@ -4855,6 +4856,17 @@
               "text": "Migrate rubric repo infrastructure from GitHub to GitLab.\n\n## Motivation\n\nGitHub classic PATs (required by CB v2 githubConfig) grant `repo` scope\nacross ALL repositories the token owner can access. Fine-grained PATs are\nnot supported by CB v2 (Google Issue Tracker #343223837). A machine account\nmitigates but adds 9-step identity management overhead.\n\nGitLab project access tokens are inherently repository-scoped — they cannot\naccess resources outside the associated project. This eliminates the PAT\nscope problem entirely with 3 setup steps.\n\n## Scope\n\n### Kill GitHub rubric support\n- Remove `githubConfig` connection creation from rbgp_Payor.sh depot_create\n- Remove GitHub App installation ID from stdin flow\n- Remove github.com URL gate from depot_create\n- Remove GitHub-specific variable names and comments\n\n### Implement GitLab rubric support\n- CB v2 connection body: `gitlabConfig` with two Secret Manager secrets\n  (api token + read_api token, or one token with both scopes)\n- Stdin flow: read GitLab project access token (one value, not two)\n- URL gate: require gitlab.com in RBRR_RUBRIC_REPO_URL\n- Update depot_destroy to clean up GitLab-flavored CB v2 resources\n\n### Update inline guide in depot_create\n- Terse GitLab account setup (create account, create project)\n- Detailed project access token creation steps\n- Explanation of why GitHub is not acceptable (PAT scope problem)\n- Updated invocation pattern (single token, not PAT + installation ID)\n\n### Update specs\n- RBSDC-depot_create.adoc: new stdin parameters, gitlabConfig, guide text\n- RBS0-SpecTop.adoc: rbtgr_rubric_repo definition (GitLab, not \"any host\")\n- RBS0-SpecTop.adoc: rbrr_rubric_repo_url example URL and description\n- RBS0-SpecTop.adoc: introductory/getting-started material explaining\n  why rubric repo lives on GitLab (PAT scope isolation)\n\n### Update inscribe\n- rbf_Foundry.sh: authenticated git URL construction for GitLab\n  (https://oauth2:TOKEN@gitlab.com/org/repo.git)\n- PAT fetch from Secret Manager — same pattern, different URL scheme\n\n### Update constants\n- RBGC_CBV2_PAT_SECRET_NAME may need renaming or a second secret\n- Connection name suffix: `-gitlab` instead of `-github`\n\n## Acceptance criteria\n- depot_create with GitLab rubric repo succeeds end to end\n- No GitHub references remain in rubric repo code path\n- Inline guide shows GitLab setup steps\n- RBS0 explains the GitLab choice with rationale",
               "silks": "migrate-rubric-repo-github-to-gitlab",
               "commit": "dbf0ec8"
+            }
+          ]
+        },
+        "₢AiAA6": {
+          "tacks": [
+            {
+              "ts": "260303-1313",
+              "state": "rough",
+              "text": "Author trade study RBSCIP-IamPropagation.adoc and implement retry-on-error\npatterns for two GCP IAM eventual consistency failures in depot_create.\n\n## Trade Study: RBSCIP-IamPropagation.adoc\n\nAuthor and include in RBS0 trade studies section. Document:\n\n- Problem: GCP IAM is eventually consistent (2-7+ min). No synchronous\n  guarantee, no testIamPermissions probe, no force-propagation API.\n- Failure mode 1: SA creation → setIamPolicy rejects \"does not exist\"\n- Failure mode 2: secretAccessor grant → CB v2 connection can't read secret\n- Decision: retry-on-error for SA bindings, impersonation readiness gate\n  for Secret Manager access before CB v2 connection creation\n- Evidence: Google docs confirm retry with backoff is the only option.\n  testIamPermissions tests caller's permissions only, not another SA's.\n  Impersonation via generateAccessToken + accessSecretVersion probes the\n  exact permission the connection creation needs.\n\n## Implementation 1: Retry setIamPolicy on transient \"does not exist\"\n\nModify rbgi_add_project_iam_role (and sibling IAM binding functions in\nrbgi_IAM.sh) to retry on HTTP 400 containing \"does not exist\":\n- Re-fetch getIamPolicy on each retry (fresh etag)\n- Backoff: 1s initial, 2x multiplier, 20s cap, 10min deadline\n- Only retry the specific \"does not exist\" error — all other 400s die fast\n- Remove the Mason SA propagation poll added in ₢AiAA0 (insufficient alone,\n  but the SA GET poll before it is harmless — keep as fast-path optimization)\n\n## Implementation 2: Impersonation readiness gate for Secret Manager\n\nAfter granting CB service agent secretAccessor on the 3 secrets:\n1. Grant Payor serviceAccountTokenCreator on CB service agent\n2. Use generateAccessToken to mint token as CB service agent\n3. Poll accessSecretVersion with that token until success\n4. Proceed to create CB v2 connection only after gate passes\n- Backoff: same profile as implementation 1\n- Remove the sleep-15 placeholder added in ₢AiAA0\n\nAlso: on CB v2 connection LRO failure, GET connection to check for zombie\nresource, DELETE if exists before retry (defense-in-depth).\n\n## Files\n\n- lenses/RBSCIP-IamPropagation.adoc (new trade study)\n- lenses/RBS0-SpecTop.adoc (add include)\n- Tools/rbw/rbgi_IAM.sh (retry on transient 400)\n- Tools/rbw/rbgp_Payor.sh (impersonation gate, remove sleep-15)\n\n## Acceptance Criteria\n\n- Trade study authored with evidence chain and references\n- setIamPolicy retries on \"does not exist\" with bounded backoff\n- CB v2 connection creation preceded by impersonation readiness gate\n- No fixed sleep delays in depot_create\n- depot_create succeeds on first run against a fresh depot",
+              "silks": "iam-propagation-resilience",
+              "commit": "d462e9f"
             }
           ]
         },
