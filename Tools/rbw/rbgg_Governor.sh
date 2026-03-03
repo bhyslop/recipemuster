@@ -528,11 +528,10 @@ rbgg_create_retriever() {
 
   local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
 
-  buc_step 'To install the RBRA file locally, run:'
-  buc_code ""
-  buc_code "    cp \"${z_actual_rbra_file}\" \"${RBRR_RETRIEVER_RBRA_FILE}\""
-  buc_code ""
-  buc_success "Retriever created successfully at -> ${z_actual_rbra_file}"
+  buc_info "RBRA file written: ${z_actual_rbra_file}"
+  buc_info ""
+  buc_info "Install the RBRA file:"
+  buc_bare "        cp ${z_actual_rbra_file} ${RBRR_RETRIEVER_RBRA_FILE}"
 }
 
 rbgg_create_director() {
@@ -627,11 +626,10 @@ rbgg_create_director() {
 
   local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
 
-  buc_step 'To install the RBRA file locally, run:'
-  buc_code ""
-  buc_code "    cp \"${z_actual_rbra_file}\" \"${RBRR_DIRECTOR_RBRA_FILE}\""
-  buc_code ""
-  buc_success "Director created successfully at -> ${z_actual_rbra_file}"
+  buc_info "RBRA file written: ${z_actual_rbra_file}"
+  buc_info ""
+  buc_info "Install the RBRA file:"
+  buc_bare "        cp ${z_actual_rbra_file} ${RBRR_DIRECTOR_RBRA_FILE}"
 }
 
 rbgg_delete_service_account() {
