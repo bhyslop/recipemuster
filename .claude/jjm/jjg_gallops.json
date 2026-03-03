@@ -4664,6 +4664,7 @@
       "status": "racing",
       "order": [
         "₢AiAA-",
+        "₢AiAA_",
         "₢AiAA9",
         "₢AiAA4",
         "₢AiAA2",
@@ -4724,7 +4725,7 @@
         "₢AiAA3",
         "₢AiAA8"
       ],
-      "next_pace_seed": "AA_",
+      "next_pace_seed": "ABA",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA-": {
@@ -5993,6 +5994,17 @@
               "text": "Delete and recreate depot, then execute depot_initialize live.\n\n## Sequence\n\n1. Delete existing depot (rbgp_depot_destroy)\n2. Recreate depot (rbgp_depot_create) — now includes connection creation\n3. Run depot_initialize:\n   - Configure RBRA_RUBRIC_GITHUB_PAT in director RBRA file\n   - Complete GitHub OAuth browser authorization for Developer Connect\n   - Verify connection reaches COMPLETE\n4. Set RBRR_GDC_CONNECTION_NAME in rbrr.env with real value\n5. Verify regime smoke test passes\n6. Verify PAT + connection health checks\n\nHuman-interactive — requires browser for OAuth authorization.",
               "silks": "live-depot-initialize",
               "commit": "7ce5bdb"
+            }
+          ]
+        },
+        "₢AiAA_": {
+          "tacks": [
+            {
+              "ts": "260303-1442",
+              "state": "rough",
+              "text": "Replace the impersonation readiness gate in depot_create with Pattern B:\nconnection-creation-as-probe with retry/backoff.\n\n## What to remove\n\nDelete from rbgp_Payor.sh (depot_create):\n- Step C: generateAccessToken polling loop (lines ~968-1012)\n- Step D: accessSecretVersion polling loop (lines ~1014-1050)\n- The entire \"Impersonation readiness gate\" buc_step block\n- The tokenCreator grant on the CB service agent (line ~812:\n  rbgi_add_sa_iam_role for roles/iam.serviceAccountTokenCreator on Mason)\n  NOTE: verify this grant's actual purpose — it grants tokenCreator on\n  Mason TO the CB service agent, which may serve a different purpose\n  (build-time impersonation). Only remove if it's solely for the gate.\n\n## What to add\n\nWrap the existing connection creation + poll in a retry loop:\n1. Attempt connection creation (POST connections.create LRO)\n2. Poll LRO to completion\n3. If LRO fails with secret-access-related error:\n   - Log diagnostic (which secret, what error)\n   - Delete zombie connection (existing cleanup code at lines ~1058-1076)\n   - Backoff sleep (exponential, capped at 20s, deadline 420s)\n   - Retry from step 1\n4. If LRO succeeds, poll installationState until COMPLETE (existing code)\n5. If deadline exceeded, die with diagnostic\n\n## Key design points\n\n- Reuse existing zombie connection cleanup logic\n- Reuse existing backoff pattern from the old gate\n- Connection creation LRO tests the ACTUAL operation (service agent\n  reading secrets), not a proxy\n- No new API calls, no new IAM grants needed\n\n## Files\n\n- Tools/rbw/rbgp_Payor.sh — primary changes\n- Possibly Tools/rbw/rbgu_Utility.sh if shared retry helpers are useful\n\n## Acceptance criteria\n\n- No generateAccessToken or accessSecretVersion calls in depot_create\n- Connection creation retries on secret-access failure with backoff\n- Zombie connection cleanup between retries\n- Successful depot creation when IAM propagation is slow\n- Clean failure message on timeout",
+              "silks": "implement-connection-retry-gate",
+              "commit": "ed5aba0"
             }
           ]
         },
