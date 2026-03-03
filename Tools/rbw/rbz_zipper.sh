@@ -146,6 +146,14 @@ zrbz_kindle() {
 }
 
 ######################################################################
+# Healthcheck (validates all enrolled tabtargets exist on disk)
+
+zrbz_healthcheck() {
+  zrbz_sentinel
+  buz_healthcheck
+}
+
+######################################################################
 # Internal sentinel
 
 zrbz_sentinel() {

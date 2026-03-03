@@ -34,7 +34,6 @@ zbuz_kindle() {
   z_buz_colophon_roll=()
   z_buz_module_roll=()
   z_buz_command_roll=()
-  z_buz_tabtarget_roll=()
   z_buz_channel_roll=()
 
   readonly ZBUZ_KINDLED=1
@@ -100,19 +99,29 @@ buz_enroll() {
   [[ "${z_varname}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] \
     || buc_die "buz_enroll: invalid variable name: ${z_varname}"
 
-  # Validate at least one tabtarget exists (imprinted colophons may have multiple)
-  local z_tabtarget
-  z_tabtarget=$(zbuz_resolve_tabtarget_capture "${z_colophon}") || buc_die "No tabtarget for colophon '${z_colophon}' in ${BURC_TABTARGET_DIR}/"
-
   # Roll population (only persists in same-process context, lost in $() subshell)
   z_buz_colophon_roll+=("${z_colophon}")
   z_buz_module_roll+=("${z_module}")
   z_buz_command_roll+=("${z_command}")
-  z_buz_tabtarget_roll+=("${z_tabtarget}")
   z_buz_channel_roll+=("${z_channel}")
 
   # Assign colophon to caller's variable
   printf -v "${z_varname}" '%s' "${z_colophon}" || buc_die "buz_enroll: printf -v failed for ${z_varname}"
+}
+
+######################################################################
+# Healthcheck (opt-in tabtarget validation — called by consumer, not by BUK)
+
+# buz_healthcheck() - Validate that all enrolled colophons have tabtargets on disk
+# Dies on first missing tabtarget. Call after enrollment is complete.
+buz_healthcheck() {
+  zbuz_sentinel
+
+  local z_i=""
+  for z_i in "${!z_buz_colophon_roll[@]}"; do
+    zbuz_resolve_tabtarget_capture "${z_buz_colophon_roll[z_i]}" >/dev/null \
+      || buc_die "buz_healthcheck: no tabtarget for colophon '${z_buz_colophon_roll[z_i]}' in ${BURC_TABTARGET_DIR}/"
+  done
 }
 
 ######################################################################
