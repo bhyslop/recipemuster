@@ -4663,6 +4663,7 @@
       "creation_time": "260222",
       "status": "racing",
       "order": [
+        "₢AiAA9",
         "₢AiAA4",
         "₢AiAA2",
         "₢AiAAg",
@@ -4722,7 +4723,7 @@
         "₢AiAA3",
         "₢AiAA8"
       ],
-      "next_pace_seed": "AA9",
+      "next_pace_seed": "AA-",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA0": {
@@ -4905,6 +4906,17 @@
               "text": "Extract SA domain suffix and email composition magic strings into constants/helper.\n\n## What\n\nTwo changes:\n1. Add `RBGC_IAM_SA_DOMAIN=\"iam.gserviceaccount.com\"` kindle constant to `rbgc_Constants.sh`\n2. Add `rbgu_sa_email_capture()` helper to `rbgu_Utility.sh` that composes `${name}@${project}.${RBGC_IAM_SA_DOMAIN}`\n\nThen replace all inline occurrences of `.iam.gserviceaccount.com` SA email construction across the depot call chain with the helper.\n\n## Target files\n\n- `Tools/rbw/rbgc_Constants.sh` — new kindle constant\n- `Tools/rbw/rbgu_Utility.sh` — new helper function\n- `Tools/rbw/rbgp_Payor.sh` — consumer\n- `Tools/rbw/rbgi_IAM.sh` — consumer\n- `Tools/rbw/rbgg_Governor.sh` — consumer (likely)\n\n## Out of scope\n\n- Path segment constants (`/projects/`, `/serviceAccounts/`) — readability tradeoff not justified\n- URL builder functions — inline URLs remain more readable\n\n## Acceptance criteria\n\n- Zero inline `.iam.gserviceaccount.com` strings outside the new constant\n- All SA email construction uses the helper\n- No behavioral change",
               "silks": "extract-sa-email-magic-strings",
               "commit": "99daa20"
+            }
+          ]
+        },
+        "₢AiAA9": {
+          "tacks": [
+            {
+              "ts": "260303-1411",
+              "state": "rough",
+              "text": "Fix impersonation readiness gate to match RBSCIP research.\n\n## Problem\n\nThe ₢AiAA0 implementation added two steps not in the RBSCIP trade study:\n- Step A: Get Payor email via userinfo (requires openid scope the token lacks)\n- Step B: Grant Payor serviceAccountTokenCreator on CB service agent (requires the email)\n\nThese break depot_create with HTTP 401 on the userinfo endpoint.\n\n## RBSCIP says\n\n\"The gate mints a short-lived token as the CB service agent via generateAccessToken,\nthen calls accessSecretVersion with that impersonated token, retrying on 403 until\nthe grant propagates.\"\n\nNo mention of Payor email. No mention of granting tokenCreator to the Payor.\n\n## Hypothesis\n\nThe Payor is the project owner (just created the project in step 5). Project owners\nhave iam.serviceAccounts.getAccessToken permission, which allows calling\ngenerateAccessToken without an explicit serviceAccountTokenCreator grant.\n\n## Required research\n\nVerify whether project owner can call generateAccessToken on Google-managed service\nagents (service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com). If yes, delete\nSteps A+B entirely. If no, find the correct approach that doesn't require scopes\nthe Payor token lacks.\n\n## Target files\n\n- `Tools/rbw/rbgp_Payor.sh` — impersonation gate section (~lines 961-1060)\n- `lenses/RBSDC-depot_create.adoc` — may need spec update if gate steps change\n- `lenses/RBSCIP-IamPropagation.adoc` — update if research findings change\n\n## Acceptance criteria\n\n- depot_create completes through CB v2 connection creation without 401\n- Impersonation gate verifies CB SA can access secrets per RBSCIP\n- No dependency on userinfo endpoint or openid/email scopes",
+              "silks": "fix-impersonation-gate-per-rbscip",
+              "commit": "f992ff4"
             }
           ]
         },
