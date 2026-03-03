@@ -905,9 +905,14 @@ rbgp_depot_create() {
     fi
 
     z_cbv2_poll_count=$((z_cbv2_poll_count + 1))
-    if [ "${z_cbv2_poll_count}" -ge "${z_cbv2_max_polls}" ]; then
-      buc_die "CB v2 connection failed — check PAT scopes and GitHub App installation (stage: ${z_cbv2_stage})"
-    fi
+    test "${z_cbv2_poll_count}" -lt "${z_cbv2_max_polls}" \
+      || {
+        buc_warn "CB v2 connection stuck at stage: ${z_cbv2_stage}"
+        buc_warn "Verify: Google Cloud Build app installed on org (not Developer Connect)"
+        buc_warn "Verify: installation ID matches that app"
+        buc_warn "Verify: PAT is classic with scopes repo, read:user, read:org"
+        buc_die  "CB v2 connection failed"
+      }
 
     buc_log_args "CB v2 connection stage: ${z_cbv2_stage} (poll ${z_cbv2_poll_count}/${z_cbv2_max_polls})"
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"

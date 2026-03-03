@@ -235,7 +235,10 @@ returned {gcp_lro}
 .. {rbbc_poll}
 link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/get[connections.get] until `installationState.stage` reaches `COMPLETE`
 .. {rbbc_require}
-connection is COMPLETE or {rbbc_fatal} "CB v2 connection failed — check PAT scopes and GitHub App installation"
+connection is COMPLETE or {rbbc_warn} diagnostic checklist ({rbbc_fatal} after):
+... Google Cloud Build app installed on org (not Developer Connect)
+... Installation ID matches that app
+... PAT is classic with scopes `repo`, `read:user`, `read:org`
 
 //axhos_step
 . *Create CB v2 Repository*:
