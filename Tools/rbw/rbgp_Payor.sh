@@ -958,11 +958,218 @@ rbgp_depot_create() {
   rbgi_add_project_iam_role "${z_token}" "Grant CB Connection Admin" "projects/${z_depot_project_id}" \
     "roles/cloudbuild.connectionAdmin" "serviceAccount:${z_cb_service_agent}" "cb-conn-admin"
 
+  buc_step 'Impersonation readiness gate: verify CB service agent can access secrets'
+
+  # Step A: Get Payor email via tokeninfo
+  buc_log_args 'Get Payor email from OAuth tokeninfo'
+  local z_tokeninfo_body="${BURD_TEMP_DIR}/rbgp_tokeninfo.json"
+  curl -sS \
+    "https://oauth2.googleapis.com/tokeninfo?access_token=${z_token}" \
+    -o "${z_tokeninfo_body}" \
+    || buc_die "Failed to call tokeninfo endpoint"
+  local z_payor_email=""
+  z_payor_email=$(jq -r '.email // empty' "${z_tokeninfo_body}") \
+    || buc_die "Failed to parse tokeninfo response"
+  test -n "${z_payor_email}" || buc_die "Payor email not found in tokeninfo response"
+  buc_log_args "Payor email: ${z_payor_email}"
+
+  # Step B: Grant Payor (OAuth user) serviceAccountTokenCreator on CB service agent SA
+  buc_log_args 'Grant Payor serviceAccountTokenCreator on CB service agent'
+  local z_cb_sa_encoded=""
+  z_cb_sa_encoded=$(rbgu_urlencode_capture "${z_cb_service_agent}") \
+    || buc_die "Failed to encode CB service agent email"
+  local z_cb_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_cb_sa_encoded}"
+
+  # Get current SA IAM policy (with propagation retry)
+  local z_imp_prop_delay=3
+  local z_imp_prop_elapsed=0
+  local z_imp_prop_deadline=420
+  local z_imp_prop_attempt=0
+
+  while :; do
+    z_imp_prop_attempt=$((z_imp_prop_attempt + 1))
+    local z_imp_get_infix="imp_gate_get-${z_imp_prop_elapsed}s"
+    local z_imp_set_infix="imp_gate_set-${z_imp_prop_elapsed}s"
+
+    buc_log_args "Get CB SA IAM policy for tokenCreator grant [attempt ${z_imp_prop_attempt}]"
+    rbgu_http_json "POST" "${z_cb_sa_resource}:getIamPolicy" "${z_token}" \
+      "${z_imp_get_infix}" "${ZRBGP_EMPTY_JSON}"
+
+    local z_imp_get_code=""
+    z_imp_get_code=$(rbgu_http_code_capture "${z_imp_get_infix}") || z_imp_get_code=""
+
+    # Check for propagation error on GET
+    local z_imp_get_err=""
+    z_imp_get_err=$(rbgu_error_message_capture "${z_imp_get_infix}") || z_imp_get_err=""
+    if test "${z_imp_get_code}" = "400" && test -n "${z_imp_get_err}"; then
+      case "${z_imp_get_err}" in
+        *"does not exist"*)
+          buc_log_args "CB SA getIamPolicy returned 400 'does not exist' (propagation delay)"
+          test "${z_imp_prop_elapsed}" -lt "${z_imp_prop_deadline}" \
+            || buc_die "Impersonation gate: propagation timeout after ${z_imp_prop_elapsed}s"
+          buc_log_args "Retry ${z_imp_prop_attempt} at ${z_imp_prop_elapsed}s (next delay ${z_imp_prop_delay}s)"
+          sleep "${z_imp_prop_delay}"
+          z_imp_prop_elapsed=$((z_imp_prop_elapsed + z_imp_prop_delay))
+          z_imp_prop_delay=$((z_imp_prop_delay * 2))
+          test "${z_imp_prop_delay}" -le 20 || z_imp_prop_delay=20
+          continue
+          ;;
+      esac
+    fi
+
+    if test "${z_imp_get_code}" != "200"; then
+      buc_log_args 'No IAM policy on CB SA yet, initializing empty'
+      rbgu_write_vanilla_json "${z_imp_get_infix}"
+    fi
+
+    # Add user:{payor_email} with serviceAccountTokenCreator
+    local z_imp_updated_policy=""
+    z_imp_updated_policy=$(rbgu_jq_add_member_to_role_capture "${z_imp_get_infix}" \
+      "roles/iam.serviceAccountTokenCreator" "user:${z_payor_email}" "") \
+      || buc_die "Failed to build tokenCreator policy"
+
+    local z_imp_set_body="${BURD_TEMP_DIR}/rbgp_imp_gate_set.json"
+    printf '{"policy":%s}\n' "${z_imp_updated_policy}" > "${z_imp_set_body}" \
+      || buc_die "Failed to write tokenCreator setIamPolicy body"
+
+    rbgu_http_json "POST" "${z_cb_sa_resource}:setIamPolicy" "${z_token}" \
+      "${z_imp_set_infix}" "${z_imp_set_body}"
+
+    local z_imp_set_code=""
+    z_imp_set_code=$(rbgu_http_code_capture "${z_imp_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+
+    # Check for propagation error on SET
+    local z_imp_set_err=""
+    z_imp_set_err=$(rbgu_error_message_capture "${z_imp_set_infix}") || z_imp_set_err=""
+    if test "${z_imp_set_code}" = "400" && test -n "${z_imp_set_err}"; then
+      case "${z_imp_set_err}" in
+        *"does not exist"*)
+          buc_log_args "CB SA setIamPolicy returned 400 'does not exist' (propagation delay)"
+          test "${z_imp_prop_elapsed}" -lt "${z_imp_prop_deadline}" \
+            || buc_die "Impersonation gate: propagation timeout after ${z_imp_prop_elapsed}s"
+          buc_log_args "Retry ${z_imp_prop_attempt} at ${z_imp_prop_elapsed}s (next delay ${z_imp_prop_delay}s)"
+          sleep "${z_imp_prop_delay}"
+          z_imp_prop_elapsed=$((z_imp_prop_elapsed + z_imp_prop_delay))
+          z_imp_prop_delay=$((z_imp_prop_delay * 2))
+          test "${z_imp_prop_delay}" -le 20 || z_imp_prop_delay=20
+          continue
+          ;;
+      esac
+    fi
+
+    rbgu_http_require_ok "Grant Payor tokenCreator on CB SA" "${z_imp_set_infix}"
+    break
+  done
+
+  # Step C: Mint token as CB service agent via generateAccessToken
+  buc_log_args 'Mint impersonated token as CB service agent'
+  local z_gen_token_url="https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${z_cb_sa_encoded}:generateAccessToken"
+  local z_gen_token_body="${BURD_TEMP_DIR}/rbgp_gen_access_token.json"
+  printf '{"scope":["https://www.googleapis.com/auth/cloud-platform"],"lifetime":"300s"}\n' \
+    > "${z_gen_token_body}" || buc_die "Failed to write generateAccessToken body"
+
+  # Retry generateAccessToken with backoff (the tokenCreator grant may not have propagated yet)
+  local z_gat_delay=3
+  local z_gat_elapsed=0
+  local z_gat_deadline=420
+  local z_gat_attempt=0
+  local z_impersonated_token=""
+
+  while :; do
+    z_gat_attempt=$((z_gat_attempt + 1))
+    local z_gat_infix="imp_gen_token-${z_gat_elapsed}s"
+
+    rbgu_http_json "POST" "${z_gen_token_url}" "${z_token}" "${z_gat_infix}" "${z_gen_token_body}"
+
+    local z_gat_code=""
+    z_gat_code=$(rbgu_http_code_capture "${z_gat_infix}") || buc_die "No HTTP code from generateAccessToken"
+
+    if test "${z_gat_code}" = "200"; then
+      z_impersonated_token=$(rbgu_json_field_capture "${z_gat_infix}" '.accessToken') \
+        || buc_die "Failed to extract impersonated access token"
+      test -n "${z_impersonated_token}" || buc_die "Empty impersonated access token"
+      buc_log_args "Successfully minted impersonated token for CB service agent"
+      break
+    fi
+
+    # Retry on 403 (tokenCreator grant not yet propagated) or 400 (SA not yet visible)
+    if test "${z_gat_code}" = "403" || test "${z_gat_code}" = "400"; then
+      test "${z_gat_elapsed}" -lt "${z_gat_deadline}" \
+        || buc_die "Impersonation gate: timeout after ${z_gat_elapsed}s waiting for generateAccessToken"
+      buc_log_args "generateAccessToken HTTP ${z_gat_code} at ${z_gat_elapsed}s; retry ${z_gat_attempt} (next delay ${z_gat_delay}s)"
+      sleep "${z_gat_delay}"
+      z_gat_elapsed=$((z_gat_elapsed + z_gat_delay))
+      z_gat_delay=$((z_gat_delay * 2))
+      test "${z_gat_delay}" -le 20 || z_gat_delay=20
+      continue
+    fi
+
+    rbgu_http_require_ok "generateAccessToken for CB service agent" "${z_gat_infix}"
+  done
+
+  # Step D: Poll accessSecretVersion with impersonated token until 200
+  buc_log_args 'Verify CB service agent can access secrets via impersonated token'
+  local z_access_secret_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_token_version}:access"
+
+  local z_asv_delay=3
+  local z_asv_elapsed=0
+  local z_asv_deadline=420
+  local z_asv_attempt=0
+
+  while :; do
+    z_asv_attempt=$((z_asv_attempt + 1))
+    local z_asv_infix="imp_secret_access-${z_asv_elapsed}s"
+
+    rbgu_http_json "GET" "${z_access_secret_url}" "${z_impersonated_token}" "${z_asv_infix}"
+
+    local z_asv_code=""
+    z_asv_code=$(rbgu_http_code_capture "${z_asv_infix}") || buc_die "No HTTP code from accessSecretVersion"
+
+    if test "${z_asv_code}" = "200"; then
+      buc_log_args "CB service agent confirmed access to secret after ${z_asv_elapsed}s"
+      break
+    fi
+
+    # Retry on 403 (secretAccessor grant not yet propagated)
+    if test "${z_asv_code}" = "403"; then
+      test "${z_asv_elapsed}" -lt "${z_asv_deadline}" \
+        || buc_die "Impersonation gate: timeout after ${z_asv_elapsed}s waiting for secret access"
+      buc_log_args "accessSecretVersion HTTP 403 at ${z_asv_elapsed}s; retry ${z_asv_attempt} (next delay ${z_asv_delay}s)"
+      sleep "${z_asv_delay}"
+      z_asv_elapsed=$((z_asv_elapsed + z_asv_delay))
+      z_asv_delay=$((z_asv_delay * 2))
+      test "${z_asv_delay}" -le 20 || z_asv_delay=20
+      continue
+    fi
+
+    rbgu_http_require_ok "accessSecretVersion via impersonation" "${z_asv_infix}"
+  done
+
   buc_step 'Create CB v2 GitLab connection'
   local -r z_cbv2_connection_name="rbw-${z_depot_name}${RBGC_CBV2_CONNECTION_SUFFIX}"
   local -r z_cbv2_parent="projects/${z_depot_project_id}/locations/${z_region}"
   local -r z_cbv2_create_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections?connectionId=${z_cbv2_connection_name}"
   local -r z_cbv2_create_body="${BURD_TEMP_DIR}/rbgp_cbv2_connection.json"
+
+  # Defense-in-depth: clean up zombie connection from a previous failed attempt
+  buc_log_args 'Check for zombie CB v2 connection'
+  local z_cbv2_zombie_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}"
+  rbgu_http_json "GET" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_check"
+  local z_zombie_code=""
+  z_zombie_code=$(rbgu_http_code_capture "depot_cbv2_zombie_check") || z_zombie_code=""
+  if test "${z_zombie_code}" = "200"; then
+    buc_log_args 'Zombie connection found — deleting before re-creation'
+    rbgu_http_json "DELETE" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_delete"
+    local z_zombie_del_code=""
+    z_zombie_del_code=$(rbgu_http_code_capture "depot_cbv2_zombie_delete") || z_zombie_del_code=""
+    if test "${z_zombie_del_code}" != "200" && test "${z_zombie_del_code}" != "404"; then
+      buc_log_args "Zombie connection DELETE returned HTTP ${z_zombie_del_code} (non-fatal, proceeding)"
+    fi
+    # Wait briefly for deletion to propagate
+    sleep 3
+  else
+    buc_log_args "No zombie connection (HTTP ${z_zombie_code})"
+  fi
 
   jq -n \
     --arg apiVersion "${z_api_token_version}" \
@@ -1492,8 +1699,9 @@ rbgp_governor_reset() {
   buc_step 'Wait for Governor SA propagation'
   local z_verify_url="${z_sa_list_url}/${z_governor_email}"
   rbgu_poll_get_until_ok "Governor SA" "${z_verify_url}" "${z_token}" "gov_verify"
-  buc_step 'Wait for cross-service propagation'
-  sleep 15
+
+  # No fixed sleep needed: rbgi_add_project_iam_role retries on "does not exist"
+  # propagation errors with exponential backoff (see RBSCIP trade study)
 
   buc_step 'Grant roles/owner on depot project'
   rbgi_add_project_iam_role \

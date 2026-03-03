@@ -3268,3 +3268,8 @@ include::RBSCB-CloudBuildRoadmap.adoc[]
 === Cloud Build JSON
 
 include::RBSCJ-CloudBuildJson.adoc[]
+
+[[rbscip_trade_study]]
+=== IAM Propagation Resilience
+
+include::RBSCIP-IamPropagation.adoc[]

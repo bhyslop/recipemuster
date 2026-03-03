@@ -1,0 +1,85 @@
+==== Decision
+
+IAM propagation delays are handled by retry-on-error patterns, not fixed sleep delays.
+
+* **SA binding propagation**: `setIamPolicy` and `getIamPolicy` calls that fail with HTTP 400 "does not exist"
+  (newly-created service account not yet visible to the IAM policy service) are retried with exponential backoff.
+* **Secret access readiness**: Before creating a Cloud Build v2 connection that depends on Secret Manager IAM grants,
+  an impersonation readiness gate verifies the CB service agent can actually access the secrets.
+  The gate mints a short-lived token as the CB service agent via `generateAccessToken`, then calls
+  `accessSecretVersion` with that impersonated token, retrying on 403 until the grant propagates.
+
+==== Rationale
+
+Fixed `sleep` delays ("sleep and pray") are unreliable:
+
+* Google's IAM propagation documentation states changes "typically take less than 2 minutes"
+  but provides no guaranteed upper bound.
+* A 15-second sleep is too short for worst-case propagation and wastefully long for the common case.
+* Retry-on-error tests the actual operation: if the grant has propagated, the retry succeeds immediately;
+  if not, the retry continues until the deadline.
+
+The `testIamPermissions` API cannot serve as a readiness gate because it only tests the caller's own
+permissions on a resource -- it cannot test whether a third-party service account (like the CB service agent)
+has been granted access to a secret.
+Impersonation via `generateAccessToken` creates a token that embodies the service agent's identity,
+enabling a direct `accessSecretVersion` call that proves end-to-end readiness.
+
+==== Evidence
+
+[cols="1,3",options="header"]
+|===
+|Claim
+|Source
+
+|IAM changes propagate eventually, typically < 2 minutes
+|https://docs.google.com/iam/docs/access-change-propagation[Access change propagation] -- "After you grant access, the access change takes effect after a period of time known as propagation delay"
+
+|Newly created SA may not be immediately usable
+|https://docs.google.com/iam/docs/service-accounts-create[Creating service accounts] -- "After you create a service account, you might need to wait 60 seconds or more before you use the service account"
+
+|testIamPermissions tests caller permissions only
+|https://docs.google.com/iam/docs/testing-permissions[Testing permissions] -- tests whether the caller has the specified permissions on a resource
+
+|generateAccessToken mints short-lived credentials for a service account
+|https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateAccessToken[generateAccessToken API reference]
+
+|accessSecretVersion retrieves a secret payload (proves end-to-end IAM grant)
+|https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/access[accessSecretVersion API reference]
+|===
+
+==== What Dies
+
+* Fixed `sleep 15` delays before CB v2 connection creation and after Governor SA creation
+* Standalone `rbgu_poll_get_until_ok` as a correctness gate for IAM propagation
+  (the SA GET poll remains as a fast-path existence check, not a grant propagation gate)
+* Any assumption that SA existence implies SA usability in IAM policy operations
+
+==== What Survives
+
+* SA GET poll via `rbgu_poll_get_until_ok` -- retained as a fast-path check that the SA resource itself
+  is readable, which typically resolves well before IAM policy propagation completes
+* The existing 429/5xx transient retry loop in `rbgi_add_project_iam_role` step 3 --
+  this handles a different failure class (rate limiting, server errors) and is preserved inside
+  the new outer propagation retry
+* All IAM grant functions (`rbgi_add_project_iam_role`, `rbgi_add_repo_iam_role`,
+  `rbgi_add_sa_iam_role`, `rbgi_add_bucket_iam_role`) -- enhanced with propagation retry,
+  not replaced
+
+==== Backoff Profile
+
+All propagation retries use the same profile:
+
+* Initial delay: 3 seconds
+* Multiplier: 2x
+* Cap: 20 seconds
+* Deadline: 420 seconds (7 minutes)
+
+This profile accommodates Google's documented "typically < 2 minutes" with margin for worst-case
+propagation while avoiding indefinite waits.
+
+==== References
+
+* Research conducted: 2026-03-03 (API documentation review)
+* Google IAM documentation consistently describes eventual consistency without hard SLA bounds
+* The `generateAccessToken` / `accessSecretVersion` gate pattern is original to Recipe Bottle
