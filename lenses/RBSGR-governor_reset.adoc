@@ -109,6 +109,7 @@ to update IAM policy on
 `«GOVERNOR_SERVICE_ACCOUNT»` as principal
 .. Add role: `roles/owner` (excluding billing permissions maintained by
 {rbtr_payor})
+.. Add role: `roles/cloudbuild.connectionViewer` (`roles/owner` does not include `cloudbuild.connections.*` permissions required for rubric preflight)
 .. Set policy version: 3 for conditional binding support
 .. {rbbc_require}
 IAM policy update successful

@@ -1577,6 +1577,17 @@ rbgp_governor_reset() {
     "serviceAccount:${z_governor_email}" \
     "governor-owner"
 
+  # roles/owner does not include cloudbuild.connections.* permissions (CB v2).
+  # Governor needs connectionViewer for rubric preflight in create_director/create_retriever.
+  buc_step 'Grant CB v2 connection viewer on depot project'
+  rbgi_add_project_iam_role \
+    "${z_token}" \
+    "Grant Governor CB Connection Viewer" \
+    "projects/${z_depot_project_id}" \
+    "roles/cloudbuild.connectionViewer" \
+    "serviceAccount:${z_governor_email}" \
+    "governor-cb-conn-viewer"
+
   buc_step 'Generate service account key'
   local -r z_key_req="${BURD_TEMP_DIR}/rbgp_governor_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
