@@ -191,7 +191,7 @@ link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.sec
 link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/add[secrets.versions.add] with appropriate base64 payload
 ... {rbbc_store}
 `«SECRET_VERSION»` from response `.name` field
-.. NOTE: api and read_api secrets store the same token value (GitLab `api` scope includes `read_api`). Webhook secret is auto-generated UUID.
+.. NOTE: api and read_api secrets store the same token value. Webhook secret is auto-generated UUID. The GitLab project access token must have both `api` and `read_api` scopes — CB v2 verifies `read_api` independently.
 
 //axhos_step
 . *Grant Cloud Build service agent Secret Manager access (all 3 secrets)*:
@@ -250,7 +250,7 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.location
 ... Retry `connections.create` from the top of this step
 .. {rbbc_require}
 connection is COMPLETE or {rbbc_warn} diagnostic checklist ({rbbc_fatal} after):
-... GitLab project access token has `api` scope
+... GitLab project access token has both `api` and `read_api` scopes
 ... Token is a project access token (not personal)
 ... RBRR_RUBRIC_REPO_URL points to correct GitLab project
 

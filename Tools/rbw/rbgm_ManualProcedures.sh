@@ -439,9 +439,8 @@ rbgm_gitlab_setup() {
   bug_tc       "      - Token name: " "rb-depot"
   bug_t        "      - Token description: (optional, skip)"
   bug_t        "      - Expiration date: default is 30 days (max 1 year); leave default or extend"
-  bug_tut      "      - Select a role: change dropdown from " "Guest" " to:"
-  bug_tu       "        " "Maintainer"
-  bug_tu       "      - Select scopes: check " "api" " (includes read_api)"
+  bug_tutu     "      - Select a role: change dropdown from " "Guest" " to " "Maintainer"
+  bug_tutu     "      - Select scopes: check both " "api" " and " "read_api"
   bug_tu       "   Click " "Create project access token"
   bug_tW       "   4. " "CRITICAL: Copy the token immediately — it won't be shown again"
   bug_e
