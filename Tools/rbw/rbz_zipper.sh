@@ -36,28 +36,25 @@ zrbz_kindle() {
 
   # Payor depot/governor commands
   local z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_CREATE_DEPOT   "rbw-Pcd" "${z_mod}" "rbgp_depot_create"
-  buz_enroll RBZ_PAYOR_INSTALL  "rbw-Pip" "${z_mod}" "rbgp_payor_install"
-  buz_enroll RBZ_DESTROY_DEPOT  "rbw-Pdd" "${z_mod}" "rbgp_depot_destroy"
-  buz_enroll RBZ_GOVERNOR_RESET "rbw-Prg" "${z_mod}" "rbgp_governor_reset"
+  buz_enroll RBZ_CREATE_DEPOT   "rbw-PC" "${z_mod}" "rbgp_depot_create"
+  buz_enroll RBZ_PAYOR_INSTALL  "rbw-PI" "${z_mod}" "rbgp_payor_install"
+  buz_enroll RBZ_DESTROY_DEPOT  "rbw-PD" "${z_mod}" "rbgp_depot_destroy"
+  buz_enroll RBZ_GOVERNOR_RESET "rbw-PG" "${z_mod}" "rbgp_governor_reset"
   # Payor guide/manual procedures (rbgm_cli.sh)
   z_mod="rbgm_cli.sh"
-  buz_enroll RBZ_PAYOR_ESTABLISH "rbw-Pes" "${z_mod}" "rbgm_payor_establish"
-  buz_enroll RBZ_PAYOR_REFRESH   "rbw-Pre" "${z_mod}" "rbgm_payor_refresh"
+  buz_enroll RBZ_PAYOR_ESTABLISH "rbw-Pg" "${z_mod}" "rbgm_payor_establish"
+  buz_enroll RBZ_PAYOR_REFRESH   "rbw-PR" "${z_mod}" "rbgm_payor_refresh"
   buz_enroll RBZ_QUOTA_BUILD     "rbw-gqb" "${z_mod}" "rbgm_quota_build"
 
   # Payor depot operations (rbgp_cli.sh)
   z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_LIST_DEPOT  "rbw-Pld" "${z_mod}" "rbgp_depot_list"
+  buz_enroll RBZ_LIST_DEPOT  "rbw-Pl" "${z_mod}" "rbgp_depot_list"
 
   # Governor commands
   z_mod="rbgg_cli.sh"
   buz_enroll RBZ_CREATE_RETRIEVER "rbw-GR" "${z_mod}" "rbgg_create_retriever"
   buz_enroll RBZ_CREATE_DIRECTOR  "rbw-GD" "${z_mod}" "rbgg_create_director"
 
-  # Payor admin/setup commands (rbgm_cli.sh)
-  z_mod="rbgm_cli.sh"
-  buz_enroll RBZ_ADMIN_ESTABLISH "rbw-Pse" "${z_mod}" "rbgm_payor_establish"
   z_mod="rbgg_cli.sh"
   buz_enroll RBZ_LIST_SERVICE_ACCOUNTS  "rbw-Gl" "${z_mod}" "rbgg_list_service_accounts"
   buz_enroll RBZ_DELETE_SERVICE_ACCOUNT "rbw-GS" "${z_mod}" "rbgg_delete_service_account"
@@ -70,8 +67,8 @@ zrbz_kindle() {
   buz_enroll RBZ_SUMMON_ARK      "rbw-DS" "${z_mod}" "rbf_summon"
   buz_enroll RBZ_RUBRIC_INSCRIBE "rbw-DI" "${z_mod}" "rbf_rubric_inscribe"
   buz_enroll RBZ_DELETE_IMAGE    "rbw-DD" "${z_mod}" "rbf_delete"
-  buz_enroll RBZ_LIST_IMAGES     "rbw-Rli" "${z_mod}" "rbf_list"
-  buz_enroll RBZ_RETRIEVE_IMAGE  "rbw-Rri" "${z_mod}" "rbf_retrieve"
+  buz_enroll RBZ_LIST_IMAGES     "rbw-Rl" "${z_mod}" "rbf_list"
+  buz_enroll RBZ_RETRIEVE_IMAGE  "rbw-Rr" "${z_mod}" "rbf_retrieve"
   z_mod="rbrr_cli.sh"
   buz_enroll RBZ_REFRESH_GCB_PINS "rbw-DP" "${z_mod}" "rbrr_refresh_gcb_pins"
 

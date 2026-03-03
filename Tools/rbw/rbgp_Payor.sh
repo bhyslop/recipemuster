@@ -946,7 +946,7 @@ rbgp_depot_create() {
   buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
   buc_bare "  RBRR_CBV2_CONNECTION_NAME=${z_cbv2_connection_name}"
   buc_info "Next: create Governor for this depot:"
-  buc_next "rbw-Prg"
+  buc_next "rbw-PG"
 }
 
 rbgp_depot_destroy() {
