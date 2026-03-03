@@ -560,10 +560,21 @@ rbf_list() {
   buc_doc_brief "List all locators (moniker:tag) in the Artifact Registry repository"
   buc_doc_shown || return 0
 
-  # Note: Ideally uses Retriever role, but Director also has read access
-  buc_step "Fetching OAuth token (Director)"
+  buc_step "Authenticating as Retriever"
+
+  # Prefer Retriever credentials, fallback to Director
+  local z_rbra_file=""
+  if test -n "${RBRR_RETRIEVER_RBRA_FILE:-}" && test -f "${RBRR_RETRIEVER_RBRA_FILE}"; then
+    z_rbra_file="${RBRR_RETRIEVER_RBRA_FILE}"
+    buc_info "Using Retriever credentials"
+  else
+    z_rbra_file="${RBRR_DIRECTOR_RBRA_FILE}"
+    buc_info "Retriever not configured, using Director credentials"
+  fi
+
+  # Get OAuth token
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token"
 
   buc_step "Listing all images in repository"
 
