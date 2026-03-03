@@ -4704,6 +4704,7 @@
         "₢AiAAx",
         "₢AiAAN",
         "₢AiAA6",
+        "₢AiAA7",
         "₢AiAA0",
         "₢AiAA5",
         "₢AiAAe",
@@ -4720,7 +4721,7 @@
         "₢AiAA1",
         "₢AiAA3"
       ],
-      "next_pace_seed": "AA7",
+      "next_pace_seed": "AA8",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA0": {
@@ -4881,6 +4882,17 @@
               "text": "Author trade study RBSCIP-IamPropagation.adoc and implement retry-on-error\npatterns for two GCP IAM eventual consistency failures in depot_create.\n\n## Trade Study: RBSCIP-IamPropagation.adoc\n\nAuthor and include in RBS0 trade studies section. Document:\n\n- Problem: GCP IAM is eventually consistent (2-7+ min). No synchronous\n  guarantee, no testIamPermissions probe, no force-propagation API.\n- Failure mode 1: SA creation → setIamPolicy rejects \"does not exist\"\n- Failure mode 2: secretAccessor grant → CB v2 connection can't read secret\n- Decision: retry-on-error for SA bindings, impersonation readiness gate\n  for Secret Manager access before CB v2 connection creation\n- Evidence: Google docs confirm retry with backoff is the only option.\n  testIamPermissions tests caller's permissions only, not another SA's.\n  Impersonation via generateAccessToken + accessSecretVersion probes the\n  exact permission the connection creation needs.\n\n## Implementation 1: Retry setIamPolicy on transient \"does not exist\"\n\nModify rbgi_add_project_iam_role (and sibling IAM binding functions in\nrbgi_IAM.sh) to retry on HTTP 400 containing \"does not exist\":\n- Re-fetch getIamPolicy on each retry (fresh etag)\n- Backoff: 1s initial, 2x multiplier, 20s cap, 10min deadline\n- Only retry the specific \"does not exist\" error — all other 400s die fast\n- Remove the Mason SA propagation poll added in ₢AiAA0 (insufficient alone,\n  but the SA GET poll before it is harmless — keep as fast-path optimization)\n\n## Implementation 2: Impersonation readiness gate for Secret Manager\n\nAfter granting CB service agent secretAccessor on the 3 secrets:\n1. Grant Payor serviceAccountTokenCreator on CB service agent\n2. Use generateAccessToken to mint token as CB service agent\n3. Poll accessSecretVersion with that token until success\n4. Proceed to create CB v2 connection only after gate passes\n- Backoff: same profile as implementation 1\n- Remove the sleep-15 placeholder added in ₢AiAA0\n\nAlso: on CB v2 connection LRO failure, GET connection to check for zombie\nresource, DELETE if exists before retry (defense-in-depth).\n\n## Files\n\n- lenses/RBSCIP-IamPropagation.adoc (new trade study)\n- lenses/RBS0-SpecTop.adoc (add include)\n- Tools/rbw/rbgi_IAM.sh (retry on transient 400)\n- Tools/rbw/rbgp_Payor.sh (impersonation gate, remove sleep-15)\n\n## Acceptance Criteria\n\n- Trade study authored with evidence chain and references\n- setIamPolicy retries on \"does not exist\" with bounded backoff\n- CB v2 connection creation preceded by impersonation readiness gate\n- No fixed sleep delays in depot_create\n- depot_create succeeds on first run against a fresh depot",
               "silks": "iam-propagation-resilience",
               "commit": "d462e9f"
+            }
+          ]
+        },
+        "₢AiAA7": {
+          "tacks": [
+            {
+              "ts": "260303-1344",
+              "state": "rough",
+              "text": "Apply BCG `local -r` discipline to all bash scripts in the depot_create call chain.\n\nBCG mandates `local -r` as the default for every local variable assigned once and\nnever modified. The four exceptions (loop counters, accumulators, two-line capture\npatterns, reassigned-before-use) keep `local` without `-r`.\n\n## Target files\n\n- `Tools/rbw/rbgp_Payor.sh` — primary target, largest file, depot_create + depot_destroy + depot_list\n- `Tools/rbw/rbgu_Utility.sh` — HTTP helpers, JSON helpers\n- `Tools/rbw/rbgi_IAM.sh` — IAM grant functions with propagation retry\n- `Tools/rbw/rbgo_OAuth.sh` — OAuth token exchange\n\n`rbgc_Constants.sh` is excluded — it uses `readonly` at kindle scope per BCG, not `local -r`.\n\n## Rules\n\nFor each `local z_*` declaration:\n- If assigned once and never modified → change to `local -r`\n- If loop counter or accumulator → leave as `local`\n- If two-line capture pattern (`local z_foo; z_foo=$(cmd) || die`) → leave as `local`\n- If reassigned later in function → leave as `local`\n\n## Acceptance criteria\n\n- Every single-assignment local in the four target files uses `local -r`\n- No behavioral change — purely declarative\n- No test failures (existing tabtargets still work)",
+              "silks": "bcg-local-readonly-depot-scripts",
+              "commit": "b20fab8"
             }
           ]
         },
