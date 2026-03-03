@@ -4663,6 +4663,7 @@
       "creation_time": "260222",
       "status": "racing",
       "order": [
+        "₢AiAA-",
         "₢AiAA9",
         "₢AiAA4",
         "₢AiAA2",
@@ -4723,9 +4724,20 @@
         "₢AiAA3",
         "₢AiAA8"
       ],
-      "next_pace_seed": "AA-",
+      "next_pace_seed": "AA_",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
+        "₢AiAA-": {
+          "tacks": [
+            {
+              "ts": "260303-1442",
+              "state": "rough",
+              "text": "Update RBS0 and RBSDC specs to replace the impersonation readiness gate with\nPattern B: connection-creation-as-probe with retry/backoff.\n\n## Rationale (record in spec)\n\nThe impersonation readiness gate (generateAccessToken + accessSecretVersion)\nwas designed to verify IAM propagation before creating the CB v2 connection.\nResearch (2026-03-03) revealed three problems:\n\n1. **roles/owner does NOT grant iam.serviceAccounts.getAccessToken** —\n   the explicit tokenCreator grant (Step B) was required, not optional.\n   Deleting Step B per RBSCIP caused persistent 403 on generateAccessToken.\n\n2. **Wrong SA identity** — the code impersonated the default build SA\n   ({PN}@cloudbuild.gserviceaccount.com) but CB v2 connections use the\n   Cloud Build Service Agent (service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com)\n   to access secrets.\n\n3. **No non-impersonation alternative exists** — Policy Analyzer and\n   testIamPermissions reflect policy intent, not enforcement state.\n   Only actual access as the principal proves propagation.\n\nPattern B: let the connection creation LRO itself be the propagation test.\nIf the service agent can't read secrets, the LRO fails cleanly. Retry with\nbackoff. This eliminates generateAccessToken, accessSecretVersion, and the\ntokenCreator grant entirely.\n\n## Spec changes\n\n- **RBS0**: Update depot_create sequence to remove impersonation gate steps,\n  add connection-creation retry language\n- **RBSDC**: Update depot_create operation spec — remove impersonation\n  readiness gate, document connection-retry pattern and rationale\n- **RBSCIP**: Add note that impersonation gate was replaced (if referenced)\n\n## Acceptance criteria\n\n- Specs accurately describe Pattern B (connection-creation retry)\n- Rationale for the change is recorded in RBSDC (why impersonation failed,\n  why Pattern B is correct)\n- No references to generateAccessToken or impersonation readiness gate\n  in the depot_create spec flow",
+              "silks": "spec-replace-impersonation-gate-with-connection-retry",
+              "commit": "11438fd"
+            }
+          ]
+        },
         "₢AiAA0": {
           "tacks": [
             {
