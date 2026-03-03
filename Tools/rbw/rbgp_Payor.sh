@@ -973,7 +973,7 @@ rbgp_depot_create() {
     > "${z_gen_token_body}" || buc_die "Failed to write generateAccessToken body"
 
   # Retry generateAccessToken with backoff (project-owner permission may not have propagated yet)
-  local -r z_gat_delay=3
+  local z_gat_delay=3
   local z_gat_elapsed=0
   local -r z_gat_deadline=420
   local z_gat_attempt=0
