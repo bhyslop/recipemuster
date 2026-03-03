@@ -804,9 +804,15 @@ rbgp_depot_create() {
     "roles/logging.logWriter" "serviceAccount:${z_mason_sa_email}" "mason-logs-writer"
 
   buc_step 'Provision Cloud Build service agent'
-  local z_cb_service_agent
-  z_cb_service_agent=$(rbgu_provision_service_agent "cloudbuild" "${z_depot_project_id}" "${z_token}") \
+  # generateServiceIdentity ensures the default build SA exists ({PN}@cloudbuild.gserviceaccount.com)
+  # but CB v2 connections, secret access, and connection admin use the Cloud Build Service Agent
+  # (service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com) — a different principal.
+  # The service agent is auto-created when the Cloud Build API is enabled; its email is
+  # deterministic from the project number. See RBSCIP for the two-SA distinction.
+  rbgu_provision_service_agent "cloudbuild" "${z_depot_project_id}" "${z_token}" > /dev/null \
     || buc_die "Failed to provision Cloud Build service agent"
+  local -r z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  buc_log_args "CB v2 service agent: ${z_cb_service_agent}"
 
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
