@@ -960,103 +960,10 @@ rbgp_depot_create() {
 
   buc_step 'Impersonation readiness gate: verify CB service agent can access secrets'
 
-  # Step A: Get Payor email via userinfo (tokeninfo requires email scope; Payor token has cloud-platform only)
-  buc_log_args 'Get Payor email from OAuth userinfo'
-  rbgu_http_json "GET" "https://www.googleapis.com/oauth2/v3/userinfo" "${z_token}" "depot_create_userinfo"
-  rbgu_http_require_ok "Get Payor email" "depot_create_userinfo"
-  local z_payor_email
-  z_payor_email=$(rbgu_json_field_capture "depot_create_userinfo" '.email') \
-    || buc_die "Userinfo response missing email"
-  test -n "${z_payor_email}" || buc_die "Payor email not found in userinfo response"
-  buc_log_args "Payor email: ${z_payor_email}"
-
-  # Step B: Grant Payor (OAuth user) serviceAccountTokenCreator on CB service agent SA
-  buc_log_args 'Grant Payor serviceAccountTokenCreator on CB service agent'
+  # Encode CB service agent email for use in generateAccessToken and accessSecretVersion URLs
   local z_cb_sa_encoded=""
   z_cb_sa_encoded=$(rbgu_urlencode_capture "${z_cb_service_agent}") \
     || buc_die "Failed to encode CB service agent email"
-  local -r z_cb_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_cb_sa_encoded}"
-
-  # Get current SA IAM policy (with propagation retry)
-  local -r z_imp_prop_delay=3
-  local z_imp_prop_elapsed=0
-  local -r z_imp_prop_deadline=420
-  local z_imp_prop_attempt=0
-
-  while :; do
-    z_imp_prop_attempt=$((z_imp_prop_attempt + 1))
-    local z_imp_get_infix="imp_gate_get-${z_imp_prop_elapsed}s"
-    local z_imp_set_infix="imp_gate_set-${z_imp_prop_elapsed}s"
-
-    buc_log_args "Get CB SA IAM policy for tokenCreator grant [attempt ${z_imp_prop_attempt}]"
-    rbgu_http_json "POST" "${z_cb_sa_resource}:getIamPolicy" "${z_token}" \
-      "${z_imp_get_infix}" "${ZRBGP_EMPTY_JSON}"
-
-    local z_imp_get_code=""
-    z_imp_get_code=$(rbgu_http_code_capture "${z_imp_get_infix}") || z_imp_get_code=""
-
-    # Check for propagation error on GET
-    local z_imp_get_err=""
-    z_imp_get_err=$(rbgu_error_message_capture "${z_imp_get_infix}") || z_imp_get_err=""
-    if test "${z_imp_get_code}" = "400" && test -n "${z_imp_get_err}"; then
-      case "${z_imp_get_err}" in
-        *"does not exist"*)
-          buc_log_args "CB SA getIamPolicy returned 400 'does not exist' (propagation delay)"
-          test "${z_imp_prop_elapsed}" -lt "${z_imp_prop_deadline}" \
-            || buc_die "Impersonation gate: propagation timeout after ${z_imp_prop_elapsed}s"
-          buc_log_args "Retry ${z_imp_prop_attempt} at ${z_imp_prop_elapsed}s (next delay ${z_imp_prop_delay}s)"
-          sleep "${z_imp_prop_delay}"
-          z_imp_prop_elapsed=$((z_imp_prop_elapsed + z_imp_prop_delay))
-          z_imp_prop_delay=$((z_imp_prop_delay * 2))
-          test "${z_imp_prop_delay}" -le 20 || z_imp_prop_delay=20
-          continue
-          ;;
-      esac
-    fi
-
-    if test "${z_imp_get_code}" != "200"; then
-      buc_log_args 'No IAM policy on CB SA yet, initializing empty'
-      rbgu_write_vanilla_json "${z_imp_get_infix}"
-    fi
-
-    # Add user:{payor_email} with serviceAccountTokenCreator
-    local z_imp_updated_policy=""
-    z_imp_updated_policy=$(rbgu_jq_add_member_to_role_capture "${z_imp_get_infix}" \
-      "roles/iam.serviceAccountTokenCreator" "user:${z_payor_email}" "") \
-      || buc_die "Failed to build tokenCreator policy"
-
-    local z_imp_set_body="${BURD_TEMP_DIR}/rbgp_imp_gate_set.json"
-    printf '{"policy":%s}\n' "${z_imp_updated_policy}" > "${z_imp_set_body}" \
-      || buc_die "Failed to write tokenCreator setIamPolicy body"
-
-    rbgu_http_json "POST" "${z_cb_sa_resource}:setIamPolicy" "${z_token}" \
-      "${z_imp_set_infix}" "${z_imp_set_body}"
-
-    local z_imp_set_code=""
-    z_imp_set_code=$(rbgu_http_code_capture "${z_imp_set_infix}") || buc_die "No HTTP code from setIamPolicy"
-
-    # Check for propagation error on SET
-    local z_imp_set_err=""
-    z_imp_set_err=$(rbgu_error_message_capture "${z_imp_set_infix}") || z_imp_set_err=""
-    if test "${z_imp_set_code}" = "400" && test -n "${z_imp_set_err}"; then
-      case "${z_imp_set_err}" in
-        *"does not exist"*)
-          buc_log_args "CB SA setIamPolicy returned 400 'does not exist' (propagation delay)"
-          test "${z_imp_prop_elapsed}" -lt "${z_imp_prop_deadline}" \
-            || buc_die "Impersonation gate: propagation timeout after ${z_imp_prop_elapsed}s"
-          buc_log_args "Retry ${z_imp_prop_attempt} at ${z_imp_prop_elapsed}s (next delay ${z_imp_prop_delay}s)"
-          sleep "${z_imp_prop_delay}"
-          z_imp_prop_elapsed=$((z_imp_prop_elapsed + z_imp_prop_delay))
-          z_imp_prop_delay=$((z_imp_prop_delay * 2))
-          test "${z_imp_prop_delay}" -le 20 || z_imp_prop_delay=20
-          continue
-          ;;
-      esac
-    fi
-
-    rbgu_http_require_ok "Grant Payor tokenCreator on CB SA" "${z_imp_set_infix}"
-    break
-  done
 
   # Step C: Mint token as CB service agent via generateAccessToken
   buc_log_args 'Mint impersonated token as CB service agent'
@@ -1065,7 +972,7 @@ rbgp_depot_create() {
   printf '{"scope":["https://www.googleapis.com/auth/cloud-platform"],"lifetime":"300s"}\n' \
     > "${z_gen_token_body}" || buc_die "Failed to write generateAccessToken body"
 
-  # Retry generateAccessToken with backoff (the tokenCreator grant may not have propagated yet)
+  # Retry generateAccessToken with backoff (project-owner permission may not have propagated yet)
   local -r z_gat_delay=3
   local z_gat_elapsed=0
   local -r z_gat_deadline=420
@@ -1089,7 +996,7 @@ rbgp_depot_create() {
       break
     fi
 
-    # Retry on 403 (tokenCreator grant not yet propagated) or 400 (SA not yet visible)
+    # Retry on 403 (owner permission not yet propagated) or 400 (SA not yet visible)
     if test "${z_gat_code}" = "403" || test "${z_gat_code}" = "400"; then
       test "${z_gat_elapsed}" -lt "${z_gat_deadline}" \
         || buc_die "Impersonation gate: timeout after ${z_gat_elapsed}s waiting for generateAccessToken"
