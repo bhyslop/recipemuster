@@ -106,11 +106,11 @@ IAM policy update successful
 . *Grant Secret Manager Access for Inscribe*:
 .. NOTE:
 {rbtr_director}
-needs to fetch the GitHub PAT from Secret Manager during
+needs to fetch the GitLab project access token from Secret Manager during
 {rbtgo_rubric_inscribe}
 to construct authenticated git URLs.
 .. {rbbc_call}
-link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy] for `projects/{rbrr_depot_project_id}/secrets/RBGC_CBV2_PAT_SECRET_NAME`
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy] for `projects/{rbrr_depot_project_id}/secrets/RBGC_CBV2_API_TOKEN_SECRET_NAME`
 .. Add `serviceAccount:«DIRECTOR_EMAIL»` with `roles/secretmanager.secretAccessor`
 .. {rbbc_require}
 IAM binding successful

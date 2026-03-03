@@ -17,7 +17,7 @@ and ensures all triggers exist.
 * {rbrr_rubric_repo_url} configured in regime
 
 //axhoq_precondition
-* GitHub PAT accessible in Secret Manager (`RBGC_CBV2_PAT_SECRET_NAME`)
+* GitLab project access token accessible in Secret Manager (`RBGC_CBV2_API_TOKEN_SECRET_NAME`)
 
 //axhoq_precondition
 * Vessel configurations loadable ({rbrv_regime})
@@ -29,16 +29,15 @@ and ensures all triggers exist.
 .. `rbrr_refresh_gcb_pins` remains independently callable for manual inspection
 
 //axhos_step
-. *Fetch PAT from Secret Manager*:
+. *Fetch GitLab token from Secret Manager*:
 .. {rbbc_call}
-link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/access[secrets.versions.access] for `projects/{rbrr_depot_project_id}/secrets/RBGC_CBV2_PAT_SECRET_NAME/versions/latest`
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/access[secrets.versions.access] for `projects/{rbrr_depot_project_id}/secrets/RBGC_CBV2_API_TOKEN_SECRET_NAME/versions/latest`
 .. {rbbc_store}
-`«GITHUB_PAT»` from response `.payload.data` (base64-decoded)
+`«GITLAB_TOKEN»` from response `.payload.data` (base64-decoded)
 .. {rbbc_require}
-PAT retrieved successfully or {rbbc_fatal} "Cannot access GitHub PAT in Secret Manager — verify Director SA has secretAccessor role"
-.. Construct authenticated URL: combine
+token retrieved successfully or {rbbc_fatal} "Cannot access GitLab token in Secret Manager — verify Director SA has secretAccessor role"
+.. Construct authenticated URL using bash builtin: `https://oauth2:«GITLAB_TOKEN»@` + URL path from
 {rbrr_rubric_repo_url}
-with `«GITHUB_PAT»` in memory
 .. NOTE: Authenticated URL is ephemeral — constructed in memory, used for git operations, discarded after use. Never persisted.
 
 //axhos_step

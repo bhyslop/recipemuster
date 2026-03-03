@@ -20,34 +20,34 @@ creates a new depot infrastructure from the
 .. Validate depot name: lowercase letters, numbers, hyphens only, max 20 chars
 
 //axhos_step
-. *Validate Rubric Repo URL and extract GitHub org*:
+. *Validate Rubric Repo URL (GitLab required)*:
 .. {rbbc_require}
 {rbrr_rubric_repo_url}
 is set in regime (`RBRR_RUBRIC_REPO_URL` in `rbrr.env`)
 .. {rbbc_require}
-URL begins with `https://github.com/` or {rbbc_fatal} "only GitHub is supported for CB v2 connections"
-.. Extract `«GITHUB_ORG»` from URL path
+URL begins with `https://gitlab.com/` or {rbbc_fatal} "only GitLab is supported for CB v2 connections (GitHub classic PATs grant repo scope across ALL repositories; GitLab project access tokens are inherently repository-scoped)"
 
 //axhop_parameter_from_stdin
-. *GitHub Credentials (stdin)*:
-.. Read two lines from stdin: `«GITHUB_PAT»` (line 1), `«GITHUB_APP_INSTALLATION_ID»` (line 2)
-.. If stdin is empty or missing either value, {rbbc_show} step-by-step inline guide:
-... Step 1: Create a classic PAT (NOT fine-grained — CB v2 rejects those) at `github.com/settings/tokens/new` with scopes `repo`, `read:user`, `read:org`
-... Step 2: Install the Google Cloud Build GitHub App on `«GITHUB_ORG»` at `github.com/apps/google-cloud-build`
-... Step 3: Find the numeric installation ID at `github.com/orgs/«GITHUB_ORG»/settings/installations` — click Configure next to Google Cloud Build, ID is in the URL
-... Show invocation pattern: `printf '%s\n%s\n' "$PAT" "$INSTALL_ID" | <tabtarget> <depot_name>`
+. *GitLab Project Access Token (stdin)*:
+.. Read one line from stdin: `«GITLAB_TOKEN»`
+.. If stdin is empty, {rbbc_show} inline setup guide:
+... Why GitLab (not GitHub): GitHub classic PATs grant `repo` scope across ALL repositories the token owner can access. Fine-grained PATs are not supported by CB v2 (Google Issue Tracker #343223837). GitLab project access tokens are inherently repository-scoped.
+... Step 1: Create a GitLab account at `gitlab.com` (if needed)
+... Step 2: Create a project for the rubric repo
+... Step 3: Create a project access token: Project Settings → Access Tokens → Add new token — Name: descriptive (e.g. `rb-depot`), Role: Maintainer, Scopes: `api` (includes `read_api`) — Click 'Create project access token' and copy immediately
+... Show invocation pattern: `printf '%s\n' "$TOKEN" | <tabtarget> <depot_name>`
 ... {rbbc_fatal}
-"Provide PAT and installation ID via stdin and re-run"
+"Provide GitLab project access token via stdin and re-run"
 
 //axhos_step
 . *Validate Rubric Repo URL reachability*:
-.. Construct authenticated URL: `https://x-access-token:«GITHUB_PAT»@github.com/«GITHUB_ORG»/«REPO»` from
+.. Construct authenticated URL using bash builtin: `https://oauth2:«GITLAB_TOKEN»@` + URL path from
 {rbrr_rubric_repo_url}
 .. {rbbc_call}
-`git ls-remote «AUTHENTICATED_URL» HEAD` to verify reachability and credential validity
+`git ls-remote «AUTHENTICATED_URL» HEAD` to verify reachability and credential validity, stderr captured to temp file
 .. {rbbc_require}
-successful exit or {rbbc_fatal} "Rubric repo URL unreachable or PAT invalid — check RBRR_RUBRIC_REPO_URL and PAT scopes"
-.. Discard `«AUTHENTICATED_URL»` from memory (PAT must not persist)
+successful exit or {rbbc_fatal} "Rubric repo URL unreachable or token invalid — see «stderr_file»"
+.. Discard `«AUTHENTICATED_URL»` from memory (token must not persist)
 
 //axhos_step
 . *Authenticate as
@@ -182,30 +182,31 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 IAM binding successful (enables Cloud Build to execute as Mason)
 
 //axhos_step
-. *Store GitHub PAT in Secret Manager*:
-.. Construct secret name from `RBGC_CBV2_PAT_SECRET_NAME` constant
-.. {rbbc_call}
+. *Store GitLab credentials in Secret Manager (3 secrets)*:
+.. Generate `«WEBHOOK_SECRET»` as random UUID via `uuidgen` (output to temp file, read with bash builtin)
+.. Base64-encode `«GITLAB_TOKEN»` (used for both api and read_api secrets)
+.. Base64-encode `«WEBHOOK_SECRET»`
+.. For each secret (`RBGC_CBV2_API_TOKEN_SECRET_NAME`, `RBGC_CBV2_READ_TOKEN_SECRET_NAME`, `RBGC_CBV2_WEBHOOK_SECRET_NAME`):
+... {rbbc_call}
 link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/create[secrets.create] with:
-... parent: `projects/«DEPOT_PROJECT_ID»`
-... secretId: `RBGC_CBV2_PAT_SECRET_NAME`
-... body: `{"replication": {"automatic": {}}}`
-.. {rbbc_call}
-link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/add[secrets.versions.add] with:
-... parent: `projects/«DEPOT_PROJECT_ID»/secrets/RBGC_CBV2_PAT_SECRET_NAME`
-... body: `{"payload": {"data": "<base64-encoded PAT>"}}`
-.. {rbbc_store}
-`«SECRET_VERSION»` from response `.name` field (e.g., `projects/P/secrets/S/versions/1`)
-.. {rbbc_require}
-secret version created successfully
+.... parent: `projects/«DEPOT_PROJECT_ID»`
+.... secretId: secret name constant
+.... body: `{"replication": {"automatic": {}}}`
+... {rbbc_call}
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/add[secrets.versions.add] with appropriate base64 payload
+... {rbbc_store}
+`«SECRET_VERSION»` from response `.name` field
+.. NOTE: api and read_api secrets store the same token value (GitLab `api` scope includes `read_api`). Webhook secret is auto-generated UUID.
 
 //axhos_step
-. *Grant Cloud Build service agent Secret Manager access*:
+. *Grant Cloud Build service agent Secret Manager access (all 3 secrets)*:
 .. Construct service agent: `service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
-.. {rbbc_call}
-link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy] for `projects/«DEPOT_PROJECT_ID»/secrets/RBGC_CBV2_PAT_SECRET_NAME`
-.. Add Cloud Build service agent with `roles/secretmanager.secretAccessor`
+.. For each of the 3 secrets:
+... {rbbc_call}
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy]
+... Add Cloud Build service agent with `roles/secretmanager.secretAccessor`
 .. {rbbc_require}
-IAM binding successful
+all IAM bindings successful
 
 //axhos_step
 . *Grant Cloud Build service agent connection admin*:
@@ -216,35 +217,38 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 IAM binding successful
 
 //axhos_step
-. *Create CB v2 Connection*:
-.. Construct connection name: `rbw-«INPUT_DEPOT_NAME»-github`
+. *Create CB v2 GitLab Connection*:
+.. Construct connection name: `rbw-«INPUT_DEPOT_NAME»«RBGC_CBV2_CONNECTION_SUFFIX»` (suffix is `-gitlab`)
 .. {rbbc_call}
 link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/create[connections.create] with:
 ... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
-... connectionId: `rbw-«INPUT_DEPOT_NAME»-github`
+... connectionId: `rbw-«INPUT_DEPOT_NAME»-gitlab`
 ... body:
 +
 ----
 {
-  "githubConfig": {
+  "gitlabConfig": {
     "authorizerCredential": {
-      "oauthTokenSecretVersion": "«SECRET_VERSION»"
+      "userTokenSecretVersion": "«API_TOKEN_SECRET_VERSION»"
     },
-    "appInstallationId": "«GITHUB_APP_INSTALLATION_ID»"
+    "readAuthorizerCredential": {
+      "userTokenSecretVersion": "«READ_TOKEN_SECRET_VERSION»"
+    },
+    "webhookSecretSecretVersion": "«WEBHOOK_SECRET_VERSION»"
   }
 }
 ----
 .. {rbbc_await}
 returned {gcp_lro}
 .. {rbbc_store}
-`«CBV2_CONNECTION_NAME»` as `rbw-«INPUT_DEPOT_NAME»-github`
+`«CBV2_CONNECTION_NAME»` as `rbw-«INPUT_DEPOT_NAME»-gitlab`
 .. {rbbc_poll}
 link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/get[connections.get] until `installationState.stage` reaches `COMPLETE`
 .. {rbbc_require}
 connection is COMPLETE or {rbbc_warn} diagnostic checklist ({rbbc_fatal} after):
-... Google Cloud Build app installed on org (not Developer Connect)
-... Installation ID matches that app
-... PAT is classic with scopes `repo`, `read:user`, `read:org`
+... GitLab project access token has `api` scope
+... Token is a project access token (not personal)
+... RBRR_RUBRIC_REPO_URL points to correct GitLab project
 
 //axhos_step
 . *Create CB v2 Repository*:
@@ -272,9 +276,9 @@ required RBRR configuration values:
 .. {rbbc_show}
 Mason service account: `«MASON_EMAIL»`
 .. {rbbc_show}
-CB v2 connection `«CBV2_CONNECTION_NAME»` active with GitHub App
+CB v2 connection `«CBV2_CONNECTION_NAME»` active with GitLab
 .. {rbbc_show}
-GitHub PAT stored in Secret Manager (`RBGC_CBV2_PAT_SECRET_NAME`)
+GitLab token stored in Secret Manager (3 secrets: api, read_api, webhook)
 
 //axhoo_output_of_type
 {rbtgi_depot}
@@ -284,7 +288,7 @@ GitHub PAT stored in Secret Manager (`RBGC_CBV2_PAT_SECRET_NAME`)
 to refresh depot project tracking
 
 //axhoc_completion
-Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, CB v2 connection (COMPLETE), and CB v2 repository linking to the
+Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, CB v2 GitLab connection (COMPLETE), and CB v2 repository linking to the
 {rbtgr_rubric_repo}.
 Proceed to
 {rbtgo_governor_reset}

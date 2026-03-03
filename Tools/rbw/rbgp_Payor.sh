@@ -574,63 +574,51 @@ rbgp_depot_create() {
     buc_die "Depot name must be ${RBGC_GLOBAL_DEPOT_NAME_MAX} characters or less"
   fi
 
-  buc_step 'Validate Rubric Repo URL and extract GitHub org'
+  buc_step 'Validate Rubric Repo URL (GitLab required)'
   local -r z_rubric_repo_url="${RBRR_RUBRIC_REPO_URL:-}"
   test -n "${z_rubric_repo_url}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
 
-  # Extract GitHub org — CB v2 connections require GitHub
-  local z_github_org=""
+  # Validate GitLab URL — CB v2 gitlabConfig requires gitlab.com
   case "${z_rubric_repo_url}" in
-    https://github.com/*)
-      z_github_org="${z_rubric_repo_url#https://github.com/}"
-      z_github_org="${z_github_org%%/*}"
-      ;;
-    *) buc_die "RBRR_RUBRIC_REPO_URL is not a github.com URL — only GitHub is supported for CB v2 connections" ;;
+    https://gitlab.com/*) ;;
+    *) buc_die "RBRR_RUBRIC_REPO_URL is not a gitlab.com URL — only GitLab is supported for CB v2 connections (GitHub classic PATs grant repo scope across ALL repositories; GitLab project access tokens are inherently repository-scoped)" ;;
   esac
-  test -n "${z_github_org}" || buc_die "Failed to extract GitHub org from RBRR_RUBRIC_REPO_URL"
 
-  buc_step 'Read GitHub credentials from stdin'
+  buc_step 'Read GitLab project access token from stdin'
   buc_info ""
-  buc_info "This command needs two values via stdin: a GitHub classic PAT and an App installation ID."
+  buc_info "This command needs one value via stdin: a GitLab project access token."
   buc_info ""
   buc_info "Rubric repo: ${z_rubric_repo_url}"
-  buc_info "GitHub org:  ${z_github_org}"
   buc_info ""
-  buc_info "Step 1: Create a classic PAT (NOT fine-grained — CB v2 rejects those)"
-  buc_bare "   https://github.com/settings/tokens/new"
-  buc_info "   - Note: give it a descriptive name (e.g. 'rb-depot')"
-  buc_info "   - Expiration: choose an appropriate lifetime"
-  buc_info "   - Select scopes: repo, read:user, read:org"
-  buc_info "   - Click 'Generate token' and copy immediately (shown only once)"
+  buc_info "Why GitLab (not GitHub)?"
+  buc_info "  GitHub classic PATs grant 'repo' scope across ALL repositories the token"
+  buc_info "  owner can access. Fine-grained PATs are not supported by CB v2 connections"
+  buc_info "  (Google Issue Tracker #343223837). GitLab project access tokens are inherently"
+  buc_info "  repository-scoped — they cannot access resources outside the associated project."
   buc_info ""
-  buc_info "Step 2: Install the Google Cloud Build GitHub App on your org"
-  buc_bare "   https://github.com/apps/google-cloud-build"
-  buc_info "   - Click 'Install', select the '${z_github_org}' org"
-  buc_info "   - Grant access to the rubric repo (or all repos)"
+  buc_info "Setup (if not already done):"
+  buc_info "  1. Create a GitLab account at gitlab.com (if needed)"
+  buc_info "  2. Create a project for the rubric repo"
+  buc_info "  3. Create a project access token:"
+  buc_bare "     Project Settings → Access Tokens → Add new token"
+  buc_info "     - Name: descriptive (e.g. 'rb-depot')"
+  buc_info "     - Role: Maintainer"
+  buc_info "     - Scopes: api (includes read_api)"
+  buc_info "     - Click 'Create project access token' and copy immediately"
   buc_info ""
-  buc_info "Step 3: Find the installation ID"
-  buc_bare "   https://github.com/orgs/${z_github_org}/settings/installations"
-  buc_info "   - Click 'Configure' next to 'Google Cloud Build'"
-  buc_info "   - The numeric ID is in the URL: .../installations/<ID>"
-  buc_info ""
-  local z_github_pat=""
-  buc_info "Paste classic PAT (from Step 1):"
-  read -r z_github_pat || buc_die "Failed to read PAT from stdin"
-  test -n "${z_github_pat}" || buc_die "PAT is empty"
+  local z_gitlab_token=""
+  buc_info "Paste GitLab project access token:"
+  read -r z_gitlab_token || buc_die "Failed to read token from stdin"
+  test -n "${z_gitlab_token}" || buc_die "Token is empty"
+  buc_log_args "GitLab project access token read from stdin"
 
-  local z_github_app_installation_id=""
-  buc_info "Paste installation ID (from Step 3):"
-  read -r z_github_app_installation_id || buc_die "Failed to read installation ID from stdin"
-  test -n "${z_github_app_installation_id}" || buc_die "Installation ID is empty"
-  buc_log_args "GitHub credentials read from stdin"
+  # Construct authenticated URL for validation (token must not persist beyond this check)
+  # Bash builtin substitution: https://gitlab.com/... → https://oauth2:TOKEN@gitlab.com/...
+  local z_auth_url="https://oauth2:${z_gitlab_token}@${z_rubric_repo_url#https://}"
 
-  # Construct authenticated URL for validation (PAT must not persist beyond this check)
-  local z_auth_url
-  z_auth_url=$(printf '%s' "${z_rubric_repo_url}" | sed "s|https://|https://x-access-token:${z_github_pat}@|") \
-    || buc_die "Failed to construct authenticated rubric repo URL"
-
-  git ls-remote "${z_auth_url}" HEAD >/dev/null 2>&1 \
-    || buc_die "Rubric repo URL unreachable or PAT invalid — check RBRR_RUBRIC_REPO_URL and PAT scopes"
+  local -r z_lsremote_stderr="${BURD_TEMP_DIR}/rbgp_lsremote_stderr.txt"
+  git ls-remote "${z_auth_url}" HEAD >/dev/null 2>"${z_lsremote_stderr}" \
+    || buc_die "Rubric repo URL unreachable or token invalid — see ${z_lsremote_stderr}"
   unset z_auth_url
   buc_log_args "Rubric repo URL validated"
 
@@ -824,82 +812,178 @@ rbgp_depot_create() {
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
-  buc_step 'Store GitHub PAT in Secret Manager'
+  buc_step 'Store GitLab credentials in Secret Manager (3 secrets)'
   local -r z_secret_parent="projects/${z_depot_project_id}"
-  local -r z_secret_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_PAT_SECRET_NAME}"
-  local -r z_secret_create_body="${BURD_TEMP_DIR}/rbgp_secret_create.json"
+  local -r z_secret_replication_body="${BURD_TEMP_DIR}/rbgp_secret_replication.json"
+  jq -n '{"replication": {"automatic": {}}}' > "${z_secret_replication_body}" \
+    || buc_die "Failed to build secret replication body"
 
-  jq -n '{"replication": {"automatic": {}}}' > "${z_secret_create_body}" \
-    || buc_die "Failed to build secret creation body"
+  # Base64-encode the GitLab token (same value for api and read_api secrets)
+  local z_token_b64
+  z_token_b64=$(printf '%s' "${z_gitlab_token}" | base64) || buc_die "Failed to base64-encode token"
 
-  rbgu_http_json "POST" "${z_secret_create_url}" "${z_token}" "depot_secret_create" "${z_secret_create_body}"
-  rbgu_http_require_ok "Create Secret Manager secret" "depot_secret_create"
+  # Generate webhook secret (random UUID) — uuidgen to temp file, read with builtin
+  local -r z_webhook_uuid_file="${BURD_TEMP_DIR}/rbgp_webhook_uuid.txt"
+  local -r z_webhook_uuid_stderr="${BURD_TEMP_DIR}/rbgp_webhook_uuid_stderr.txt"
+  uuidgen > "${z_webhook_uuid_file}" 2>"${z_webhook_uuid_stderr}" \
+    || buc_die "Failed to generate webhook UUID — see ${z_webhook_uuid_stderr}"
+  local z_webhook_secret
+  z_webhook_secret=$(<"${z_webhook_uuid_file}")
+  test -n "${z_webhook_secret}" || buc_die "Webhook UUID file is empty"
+  # Remove trailing whitespace with bash builtin
+  z_webhook_secret="${z_webhook_secret%"${z_webhook_secret##*[![:space:]]}"}"
 
-  # Add secret version with PAT data
-  local z_pat_b64
-  z_pat_b64=$(printf '%s' "${z_github_pat}" | base64) || buc_die "Failed to base64-encode PAT"
-  local -r z_secret_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}:addVersion"
-  local -r z_secret_version_body="${BURD_TEMP_DIR}/rbgp_secret_version.json"
+  local z_webhook_b64
+  z_webhook_b64=$(printf '%s' "${z_webhook_secret}" | base64) || buc_die "Failed to base64-encode webhook secret"
 
-  jq -n --arg data "${z_pat_b64}" '{"payload": {"data": $data}}' > "${z_secret_version_body}" \
-    || buc_die "Failed to build secret version body"
+  # --- Create api token secret ---
+  local -r z_api_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
+  rbgu_http_json "POST" "${z_api_create_url}" "${z_token}" "depot_secret_create_api" "${z_secret_replication_body}"
+  rbgu_http_require_ok "Create secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME}" "depot_secret_create_api"
 
-  rbgu_http_json "POST" "${z_secret_version_url}" "${z_token}" "depot_secret_version" "${z_secret_version_body}"
-  rbgu_http_require_ok "Add secret version" "depot_secret_version"
+  local -r z_api_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}:addVersion"
+  local -r z_api_version_body="${BURD_TEMP_DIR}/rbgp_secret_version_api.json"
+  jq -n --arg data "${z_token_b64}" '{"payload": {"data": $data}}' > "${z_api_version_body}" \
+    || buc_die "Failed to build api token secret version body"
+  rbgu_http_json "POST" "${z_api_version_url}" "${z_token}" "depot_secret_version_api" "${z_api_version_body}"
+  rbgu_http_require_ok "Add api token secret version" "depot_secret_version_api"
 
-  local z_secret_version
-  z_secret_version=$(rbgu_json_field_capture "depot_secret_version" '.name') \
-    || buc_die "Failed to get secret version name"
-  buc_log_args "PAT stored as ${z_secret_version}"
+  local z_api_token_version
+  z_api_token_version=$(rbgu_json_field_capture "depot_secret_version_api" '.name') \
+    || buc_die "Failed to get api token secret version name"
+  buc_log_args "Secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} stored as ${z_api_token_version}"
 
-  buc_step 'Grant Cloud Build service agent Secret Manager access'
-  local -r z_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
-  local -r z_secret_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_resource}:getIamPolicy"
-  rbgu_http_json "POST" "${z_secret_iam_get_url}" "${z_token}" "depot_secret_get_iam"
-  local z_secret_iam_get_code
-  z_secret_iam_get_code=$(rbgu_http_code_capture "depot_secret_get_iam") || z_secret_iam_get_code=""
-  if test "${z_secret_iam_get_code}" != "200"; then
-    rbgu_write_vanilla_json "depot_secret_get_iam"
+  # --- Create read_api token secret (same token value) ---
+  local -r z_read_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_READ_TOKEN_SECRET_NAME}"
+  rbgu_http_json "POST" "${z_read_create_url}" "${z_token}" "depot_secret_create_read" "${z_secret_replication_body}"
+  rbgu_http_require_ok "Create secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME}" "depot_secret_create_read"
+
+  local -r z_read_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_READ_TOKEN_SECRET_NAME}:addVersion"
+  local -r z_read_version_body="${BURD_TEMP_DIR}/rbgp_secret_version_read.json"
+  jq -n --arg data "${z_token_b64}" '{"payload": {"data": $data}}' > "${z_read_version_body}" \
+    || buc_die "Failed to build read token secret version body"
+  rbgu_http_json "POST" "${z_read_version_url}" "${z_token}" "depot_secret_version_read" "${z_read_version_body}"
+  rbgu_http_require_ok "Add read token secret version" "depot_secret_version_read"
+
+  local z_read_token_version
+  z_read_token_version=$(rbgu_json_field_capture "depot_secret_version_read" '.name') \
+    || buc_die "Failed to get read token secret version name"
+  buc_log_args "Secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME} stored as ${z_read_token_version}"
+
+  # --- Create webhook secret (auto-generated UUID) ---
+  local -r z_wh_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_WEBHOOK_SECRET_NAME}"
+  rbgu_http_json "POST" "${z_wh_create_url}" "${z_token}" "depot_secret_create_webhook" "${z_secret_replication_body}"
+  rbgu_http_require_ok "Create secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME}" "depot_secret_create_webhook"
+
+  local -r z_wh_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_WEBHOOK_SECRET_NAME}:addVersion"
+  local -r z_wh_version_body="${BURD_TEMP_DIR}/rbgp_secret_version_webhook.json"
+  jq -n --arg data "${z_webhook_b64}" '{"payload": {"data": $data}}' > "${z_wh_version_body}" \
+    || buc_die "Failed to build webhook secret version body"
+  rbgu_http_json "POST" "${z_wh_version_url}" "${z_token}" "depot_secret_version_webhook" "${z_wh_version_body}"
+  rbgu_http_require_ok "Add webhook secret version" "depot_secret_version_webhook"
+
+  local z_webhook_version
+  z_webhook_version=$(rbgu_json_field_capture "depot_secret_version_webhook" '.name') \
+    || buc_die "Failed to get webhook secret version name"
+  buc_log_args "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME} stored as ${z_webhook_version}"
+
+  buc_step 'Grant Cloud Build service agent Secret Manager access (all 3 secrets)'
+
+  # --- IAM for api token secret ---
+  local -r z_api_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
+  local -r z_api_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_secret_resource}:getIamPolicy"
+  rbgu_http_json "POST" "${z_api_iam_get_url}" "${z_token}" "depot_secret_get_iam_api"
+  local z_api_iam_code
+  z_api_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_api") || z_api_iam_code=""
+  if test "${z_api_iam_code}" != "200"; then
+    rbgu_write_vanilla_json "depot_secret_get_iam_api"
   fi
 
-  local z_secret_updated_policy
-  z_secret_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam" \
+  local z_api_updated_policy
+  z_api_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam_api" \
     "roles/secretmanager.secretAccessor" "serviceAccount:${z_cb_service_agent}" "") \
-    || buc_die "Failed to build updated secret IAM policy"
+    || buc_die "Failed to build updated secret IAM policy for api token"
 
-  local -r z_secret_set_iam_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_resource}:setIamPolicy"
-  local -r z_secret_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam.json"
-  printf '{"policy":%s}\n' "${z_secret_updated_policy}" > "${z_secret_set_iam_body}" \
-    || buc_die "Failed to write secret IAM policy body"
+  local -r z_api_set_iam_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_secret_resource}:setIamPolicy"
+  local -r z_api_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam_api.json"
+  printf '{"policy":%s}\n' "${z_api_updated_policy}" > "${z_api_set_iam_body}" \
+    || buc_die "Failed to write api token secret IAM policy body"
+  rbgu_http_json "POST" "${z_api_set_iam_url}" "${z_token}" "depot_secret_set_iam_api" "${z_api_set_iam_body}"
+  rbgu_http_require_ok "Grant CB service agent access to api token secret" "depot_secret_set_iam_api"
 
-  rbgu_http_json "POST" "${z_secret_set_iam_url}" "${z_token}" "depot_secret_set_iam" "${z_secret_set_iam_body}"
-  rbgu_http_require_ok "Grant CB service agent secret access" "depot_secret_set_iam"
+  # --- IAM for read_api token secret ---
+  local -r z_read_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_READ_TOKEN_SECRET_NAME}"
+  local -r z_read_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_read_secret_resource}:getIamPolicy"
+  rbgu_http_json "POST" "${z_read_iam_get_url}" "${z_token}" "depot_secret_get_iam_read"
+  local z_read_iam_code
+  z_read_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_read") || z_read_iam_code=""
+  if test "${z_read_iam_code}" != "200"; then
+    rbgu_write_vanilla_json "depot_secret_get_iam_read"
+  fi
+
+  local z_read_updated_policy
+  z_read_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam_read" \
+    "roles/secretmanager.secretAccessor" "serviceAccount:${z_cb_service_agent}" "") \
+    || buc_die "Failed to build updated secret IAM policy for read token"
+
+  local -r z_read_set_iam_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_read_secret_resource}:setIamPolicy"
+  local -r z_read_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam_read.json"
+  printf '{"policy":%s}\n' "${z_read_updated_policy}" > "${z_read_set_iam_body}" \
+    || buc_die "Failed to write read token secret IAM policy body"
+  rbgu_http_json "POST" "${z_read_set_iam_url}" "${z_token}" "depot_secret_set_iam_read" "${z_read_set_iam_body}"
+  rbgu_http_require_ok "Grant CB service agent access to read token secret" "depot_secret_set_iam_read"
+
+  # --- IAM for webhook secret ---
+  local -r z_wh_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_WEBHOOK_SECRET_NAME}"
+  local -r z_wh_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_wh_secret_resource}:getIamPolicy"
+  rbgu_http_json "POST" "${z_wh_iam_get_url}" "${z_token}" "depot_secret_get_iam_webhook"
+  local z_wh_iam_code
+  z_wh_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_webhook") || z_wh_iam_code=""
+  if test "${z_wh_iam_code}" != "200"; then
+    rbgu_write_vanilla_json "depot_secret_get_iam_webhook"
+  fi
+
+  local z_wh_updated_policy
+  z_wh_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam_webhook" \
+    "roles/secretmanager.secretAccessor" "serviceAccount:${z_cb_service_agent}" "") \
+    || buc_die "Failed to build updated secret IAM policy for webhook"
+
+  local -r z_wh_set_iam_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_wh_secret_resource}:setIamPolicy"
+  local -r z_wh_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam_webhook.json"
+  printf '{"policy":%s}\n' "${z_wh_updated_policy}" > "${z_wh_set_iam_body}" \
+    || buc_die "Failed to write webhook secret IAM policy body"
+  rbgu_http_json "POST" "${z_wh_set_iam_url}" "${z_token}" "depot_secret_set_iam_webhook" "${z_wh_set_iam_body}"
+  rbgu_http_require_ok "Grant CB service agent access to webhook secret" "depot_secret_set_iam_webhook"
 
   buc_step 'Grant Cloud Build service agent connection admin'
   rbgi_add_project_iam_role "${z_token}" "Grant CB Connection Admin" "projects/${z_depot_project_id}" \
     "roles/cloudbuild.connectionAdmin" "serviceAccount:${z_cb_service_agent}" "cb-conn-admin"
 
-  buc_step 'Create CB v2 connection'
-  local -r z_cbv2_connection_name="rbw-${z_depot_name}-github"
+  buc_step 'Create CB v2 GitLab connection'
+  local -r z_cbv2_connection_name="rbw-${z_depot_name}${RBGC_CBV2_CONNECTION_SUFFIX}"
   local -r z_cbv2_parent="projects/${z_depot_project_id}/locations/${z_region}"
   local -r z_cbv2_create_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections?connectionId=${z_cbv2_connection_name}"
   local -r z_cbv2_create_body="${BURD_TEMP_DIR}/rbgp_cbv2_connection.json"
 
   jq -n \
-    --arg secretVersion "${z_secret_version}" \
-    --arg installationId "${z_github_app_installation_id}" \
+    --arg apiVersion "${z_api_token_version}" \
+    --arg readVersion "${z_read_token_version}" \
+    --arg webhookVersion "${z_webhook_version}" \
     '{
-      githubConfig: {
+      gitlabConfig: {
         authorizerCredential: {
-          oauthTokenSecretVersion: $secretVersion
+          userTokenSecretVersion: $apiVersion
         },
-        appInstallationId: $installationId
+        readAuthorizerCredential: {
+          userTokenSecretVersion: $readVersion
+        },
+        webhookSecretSecretVersion: $webhookVersion
       }
     }' > "${z_cbv2_create_body}" \
     || buc_die "Failed to build CB v2 connection body"
 
   rbgu_http_json_lro_ok \
-    "Create CB v2 connection" \
+    "Create CB v2 GitLab connection" \
     "${z_token}" \
     "${z_cbv2_create_url}" \
     "depot_cbv2_create" \
@@ -933,9 +1017,9 @@ rbgp_depot_create() {
     test "${z_cbv2_poll_count}" -lt "${z_cbv2_max_polls}" \
       || {
         buc_warn "CB v2 connection stuck at stage: ${z_cbv2_stage}"
-        buc_warn "Verify: Google Cloud Build app installed on org (not Developer Connect)"
-        buc_warn "Verify: installation ID matches that app"
-        buc_warn "Verify: PAT is classic with scopes repo, read:user, read:org"
+        buc_warn "Verify: GitLab project access token has api scope"
+        buc_warn "Verify: Token is a project access token (not personal)"
+        buc_warn "Verify: RBRR_RUBRIC_REPO_URL points to correct GitLab project"
         buc_die  "CB v2 connection failed"
       }
 
@@ -968,8 +1052,8 @@ rbgp_depot_create() {
   buc_step 'Display depot configuration'
   buc_success 'Depot creation successful'
   buc_info "Mason service account: ${z_mason_sa_email}"
-  buc_info "CB v2 connection '${z_cbv2_connection_name}' active with GitHub App"
-  buc_info "GitHub PAT stored in Secret Manager (${RBGC_CBV2_PAT_SECRET_NAME})"
+  buc_info "CB v2 connection '${z_cbv2_connection_name}' active with GitLab"
+  buc_info "GitLab token stored in Secret Manager (3 secrets: api, read_api, webhook)"
   buc_info "Update RBRR configuration:"
   buc_bare "  RBRR_DEPOT_PROJECT_ID=${z_depot_project_id}"
   buc_bare "  RBRR_GCP_REGION=${z_region}"
@@ -1083,14 +1167,36 @@ rbgp_depot_destroy() {
     esac
   fi
 
-  buc_step 'Delete Secret Manager secret (if exists)'
-  local -r z_secret_del_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}"
-  rbgu_http_json "DELETE" "${z_secret_del_url}" "${z_token}" "depot_destroy_secret"
-  local z_secret_del_code
-  z_secret_del_code=$(rbgu_http_code_capture "depot_destroy_secret") || z_secret_del_code=""
-  case "${z_secret_del_code}" in
-    200|204|404) buc_log_args "Secret Manager cleanup: HTTP ${z_secret_del_code}" ;;
-    *) buc_warn "Secret Manager cleanup failed: HTTP ${z_secret_del_code} — proceeding" ;;
+  buc_step 'Delete Secret Manager secrets (3 GitLab secrets)'
+
+  # --- Delete api token secret ---
+  local -r z_api_del_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
+  rbgu_http_json "DELETE" "${z_api_del_url}" "${z_token}" "depot_destroy_secret_api"
+  local z_api_del_code
+  z_api_del_code=$(rbgu_http_code_capture "depot_destroy_secret_api") || z_api_del_code=""
+  case "${z_api_del_code}" in
+    200|204|404) buc_log_args "Secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} cleanup: HTTP ${z_api_del_code}" ;;
+    *) buc_warn "Secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} cleanup failed: HTTP ${z_api_del_code} — proceeding" ;;
+  esac
+
+  # --- Delete read_api token secret ---
+  local -r z_read_del_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_READ_TOKEN_SECRET_NAME}"
+  rbgu_http_json "DELETE" "${z_read_del_url}" "${z_token}" "depot_destroy_secret_read"
+  local z_read_del_code
+  z_read_del_code=$(rbgu_http_code_capture "depot_destroy_secret_read") || z_read_del_code=""
+  case "${z_read_del_code}" in
+    200|204|404) buc_log_args "Secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME} cleanup: HTTP ${z_read_del_code}" ;;
+    *) buc_warn "Secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME} cleanup failed: HTTP ${z_read_del_code} — proceeding" ;;
+  esac
+
+  # --- Delete webhook secret ---
+  local -r z_wh_del_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_WEBHOOK_SECRET_NAME}"
+  rbgu_http_json "DELETE" "${z_wh_del_url}" "${z_token}" "depot_destroy_secret_webhook"
+  local z_wh_del_code
+  z_wh_del_code=$(rbgu_http_code_capture "depot_destroy_secret_webhook") || z_wh_del_code=""
+  case "${z_wh_del_code}" in
+    200|204|404) buc_log_args "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME} cleanup: HTTP ${z_wh_del_code}" ;;
+    *) buc_warn "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME} cleanup failed: HTTP ${z_wh_del_code} — proceeding" ;;
   esac
 
   buc_step 'Initiate depot deletion'

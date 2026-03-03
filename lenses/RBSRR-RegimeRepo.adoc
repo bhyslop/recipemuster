@@ -242,7 +242,8 @@ Shared across all vessels in the depot project.
 
 Plain HTTPS URL identifying the
 {rbtgr_rubric_repo}.
-No embedded credentials — the GitHub PAT is stored exclusively in Secret Manager.
+Must be a `gitlab.com` URL.
+No embedded credentials — the GitLab project access token is stored exclusively in Secret Manager.
 
 //axhro_kindle
 {rbkro_kindle}

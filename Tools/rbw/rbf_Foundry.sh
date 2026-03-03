@@ -421,22 +421,20 @@ rbf_build() {
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  # Fetch PAT from Secret Manager
-  buc_step "Fetching rubric repo PAT from Secret Manager"
-  local -r z_secret_access_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}/versions/latest:access"
-  rbgu_http_json "GET" "${z_secret_access_url}" "${z_token}" "build_pat_fetch"
-  rbgu_http_require_ok "Fetch PAT from Secret Manager" "build_pat_fetch"
-  local z_pat_b64
-  z_pat_b64=$(rbgu_json_field_capture "build_pat_fetch" '.payload.data') \
-    || buc_die "Failed to extract PAT payload"
-  local z_pat_value
-  z_pat_value=$(printf '%s' "${z_pat_b64}" | base64 -d) \
-    || buc_die "Failed to decode PAT"
+  # Fetch GitLab token from Secret Manager (api token secret)
+  buc_step "Fetching rubric repo token from Secret Manager"
+  local -r z_secret_access_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}/versions/latest:access"
+  rbgu_http_json "GET" "${z_secret_access_url}" "${z_token}" "build_token_fetch"
+  rbgu_http_require_ok "Fetch token from Secret Manager" "build_token_fetch"
+  local z_token_b64
+  z_token_b64=$(rbgu_json_field_capture "build_token_fetch" '.payload.data') \
+    || buc_die "Failed to extract token payload"
+  local z_gitlab_token_value
+  z_gitlab_token_value=$(printf '%s' "${z_token_b64}" | base64 -d) \
+    || buc_die "Failed to decode token"
 
-  # Construct authenticated URL from non-authenticated RBRR_RUBRIC_REPO_URL + PAT
-  local z_rubric_auth_url
-  z_rubric_auth_url=$(printf '%s' "${RBRR_RUBRIC_REPO_URL}" | sed "s|://|://x-access-token:${z_pat_value}@|") \
-    || buc_die "Failed to construct authenticated rubric repo URL"
+  # Construct authenticated URL: https://gitlab.com/... → https://oauth2:TOKEN@gitlab.com/...
+  local -r z_rubric_auth_url="https://oauth2:${z_gitlab_token_value}@${RBRR_RUBRIC_REPO_URL#https://}"
 
   # Verify GCB quota headroom before dispatch
   buc_log_args "Check GCB quota headroom"
@@ -445,7 +443,7 @@ rbf_build() {
   # Resolve rubric repo HEAD via ls-remote (no clone needed — build only needs commit hash)
   buc_step "Resolving rubric repo HEAD commit"
   git ls-remote "${z_rubric_auth_url}" HEAD > "${ZRBF_BUILD_RUBRIC_LS}" \
-    || buc_die "Failed to reach rubric repo — check RBRR_RUBRIC_REPO_URL and PAT in Secret Manager"
+    || buc_die "Failed to reach rubric repo — check RBRR_RUBRIC_REPO_URL and GitLab token in Secret Manager"
   local z_rubric_commit=$(<"${ZRBF_BUILD_RUBRIC_LS}")
   test -n "${z_rubric_commit}" || buc_die "Rubric repo HEAD is empty — has inscribe been run?"
   z_rubric_commit="${z_rubric_commit%%	*}"
@@ -949,22 +947,20 @@ rbf_rubric_inscribe() {
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  # Fetch PAT from Secret Manager
-  buc_step "Fetching rubric repo PAT from Secret Manager"
-  local -r z_secret_access_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}/versions/latest:access"
-  rbgu_http_json "GET" "${z_secret_access_url}" "${z_token}" "inscribe_pat_fetch"
-  rbgu_http_require_ok "Fetch PAT from Secret Manager" "inscribe_pat_fetch"
-  local z_pat_b64
-  z_pat_b64=$(rbgu_json_field_capture "inscribe_pat_fetch" '.payload.data') \
-    || buc_die "Failed to extract PAT payload"
-  local z_pat_value
-  z_pat_value=$(printf '%s' "${z_pat_b64}" | base64 -d) \
-    || buc_die "Failed to decode PAT"
+  # Fetch GitLab token from Secret Manager (api token secret)
+  buc_step "Fetching rubric repo token from Secret Manager"
+  local -r z_secret_access_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}/versions/latest:access"
+  rbgu_http_json "GET" "${z_secret_access_url}" "${z_token}" "inscribe_token_fetch"
+  rbgu_http_require_ok "Fetch token from Secret Manager" "inscribe_token_fetch"
+  local z_token_b64
+  z_token_b64=$(rbgu_json_field_capture "inscribe_token_fetch" '.payload.data') \
+    || buc_die "Failed to extract token payload"
+  local z_gitlab_token_value
+  z_gitlab_token_value=$(printf '%s' "${z_token_b64}" | base64 -d) \
+    || buc_die "Failed to decode token"
 
-  # Construct authenticated URL from non-authenticated RBRR_RUBRIC_REPO_URL + PAT
-  local z_rubric_auth_url
-  z_rubric_auth_url=$(printf '%s' "${RBRR_RUBRIC_REPO_URL}" | sed "s|://|://x-access-token:${z_pat_value}@|") \
-    || buc_die "Failed to construct authenticated rubric repo URL"
+  # Construct authenticated URL: https://gitlab.com/... → https://oauth2:TOKEN@gitlab.com/...
+  local -r z_rubric_auth_url="https://oauth2:${z_gitlab_token_value}@${RBRR_RUBRIC_REPO_URL#https://}"
 
   # RBRR_RUBRIC_REPO_URL is already clean (no embedded PAT)
   local -r z_rubric_url_clean="${RBRR_RUBRIC_REPO_URL}"
@@ -993,7 +989,10 @@ rbf_rubric_inscribe() {
   z_git_remote=$(head -1 "${z_git_remote_file}")
   test -n "${z_git_remote}" || buc_die "No git remotes found"
   z_git_repo_url=$(git config --get "remote.${z_git_remote}.url") || buc_die "Failed to get repo URL"
-  z_git_repo="${z_git_repo_url#*github.com[:/]}"
+  # Extract repo path from remote URL (works for any git host: github.com, gitlab.com, etc.)
+  # Strip protocol + host: https://gitlab.com/org/repo.git → org/repo.git
+  # Then strip .git suffix
+  z_git_repo="${z_git_repo_url#*://*/}"
   z_git_repo="${z_git_repo%.git}"
 
   jq -n \
@@ -1244,18 +1243,18 @@ rbf_rubric_inscribe() {
         description: ("Recipe Bottle rubric trigger for " + $sigil),
         repositoryEventConfig: {
           repository: $repo,
-          repositoryType: "GITHUB"
+          repositoryType: "GITLAB"
         },
         sourceToBuild: {
           repository: $repo,
           ref: "refs/heads/main",
-          repositoryType: "GITHUB"
+          repositoryType: "GITLAB"
         },
         gitFileSource: {
           path: ($sigil + "/cloudbuild.json"),
           repository: $repo,
           revision: "refs/heads/main",
-          repositoryType: "GITHUB"
+          repositoryType: "GITLAB"
         },
         serviceAccount: $sa
       }' > "${z_trigger_body}" || buc_die "Failed to compose trigger body for ${z_sigil}"

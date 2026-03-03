@@ -1432,9 +1432,12 @@ Dispatches builds via `triggers.run` when invoked by
 [[rbtgr_rubric_repo]]
 //axl_voices axig_cbv2_repository
 {rbtgr_rubric_repo}::
-Single shared git repository containing per-vessel directories, each with build material
+Single shared GitLab repository containing per-vessel directories, each with build material
 (cloudbuild.json, Dockerfile, build context).
-Pre-created by the operator on any git hosting service.
+Pre-created by the operator on GitLab.
+GitLab was chosen over GitHub because GitLab project access tokens are inherently
+repository-scoped, while GitHub classic PATs grant `repo` scope across ALL repositories
+and fine-grained PATs are not supported by CB v2 (Google Issue Tracker #343223837).
 Cloud Build sees only this repo via the
 {rbtgi_cbv2_connection}
 — the main repo is never exposed.
@@ -1463,10 +1466,10 @@ Records build inputs, environment, and outputs as a cryptographically signed att
 [[rbtgi_cbv2_connection]]
 //axl_voices axig_cbv2_connection
 {rbtgi_cbv2_connection}::
-A Cloud Build v2 connection providing authenticated access from GCP to a GitHub organization via the "Google Cloud Build" GitHub App.
+A Cloud Build v2 connection providing authenticated access from GCP to a GitLab project via `gitlabConfig`.
 One per depot project. Created fully programmatically by
 {rbtgo_depot_create}
-using a classic GitHub PAT (stored in Secret Manager) and the GitHub App installation ID (both provided via stdin).
+using a single GitLab project access token (with `api` scope, stored in Secret Manager as 3 secrets: api token, read_api token, and auto-generated webhook secret).
 No browser-based OAuth consent required.
 
 [[rbtgi_cbv2_repository]]
@@ -2222,7 +2225,7 @@ Container image build process configuration.
 [[rbrr_group_cbv2]]
 //axvr_group
 {rbrr_group_cbv2}::
-Cloud Build v2 connection configuration for GitHub-to-GCP source access.
+Cloud Build v2 connection configuration for GitLab-to-GCP source access.
 
 [[rbrr_cbv2_connection_name]]
 //axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_string
@@ -2237,13 +2240,14 @@ Shared across all vessels in the depot project.
 {rbrr_rubric_repo_url}::
 Plain HTTPS URL identifying the
 {rbtgr_rubric_repo}
-(e.g., `https://github.com/org/rb-rubric.git`).
-No embedded credentials — the GitHub PAT is stored exclusively in Secret Manager.
+(e.g., `https://gitlab.com/org/rb-rubric.git`).
+Must be a `gitlab.com` URL.
+No embedded credentials — the GitLab project access token is stored exclusively in Secret Manager.
 Set in `rbrr.env` before running
 {rbtgo_depot_create}.
 Used by
 {rbtgo_rubric_inscribe}
-to construct an authenticated git URL at runtime (combining with PAT fetched from Secret Manager).
+to construct an authenticated git URL at runtime (combining with token fetched from Secret Manager via `https://oauth2:TOKEN@...`).
 
 include::RBSRR-RegimeRepo.adoc[]
 
@@ -2978,10 +2982,10 @@ Recipe Bottle orchestration patterns define reusable implementation sequences fo
 {rbtoe_check_rubric_repo_url}::
 A non-interactive gate that validates
 {rbrr_rubric_repo_url}
-is present and reachable using a PAT fetched from Secret Manager:
+is present and reachable using a GitLab token fetched from Secret Manager:
 
 . {rbbc_require} URL argument is non-empty or {rbbc_fatal} with guidance to set `RBRR_RUBRIC_REPO_URL` in `rbrr.env`,
-. fetches PAT from Secret Manager (`RBGC_CBV2_PAT_SECRET_NAME`),
+. fetches GitLab token from Secret Manager (`RBGC_CBV2_API_TOKEN_SECRET_NAME`),
 . {rbbc_call} `git ls-remote <authenticated-URL> HEAD` to verify reachability and credential validity,
 . {rbbc_require} successful exit from `git ls-remote` or {rbbc_fatal} "URL is unreachable or credentials are invalid",
 . logs confirmation that the {rbtgr_rubric_repo} URL is validated.
