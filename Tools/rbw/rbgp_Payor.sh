@@ -997,6 +997,17 @@ rbgp_depot_create() {
   local z_conn_succeeded=false
   local z_conn_start_epoch=""
   z_conn_start_epoch=$(date +%s) || buc_die "Failed to capture epoch for connection retry deadline"
+  local z_zombie_code=""
+  local z_zombie_del_code=""
+  local z_lro_infix=""
+  local z_lro_status=0
+  local z_cbv2_poll_count=0
+  local z_cbv2_max_polls=0
+  local z_cbv2_stage=""
+  local z_cbv2_poll_infix=""
+  local z_cbv2_poll_code=""
+  local z_conn_now_epoch=""
+  local z_conn_wall_elapsed=0
 
   while :; do
     z_conn_attempt=$((z_conn_attempt + 1))
@@ -1004,12 +1015,12 @@ rbgp_depot_create() {
     # Clean up zombie connection (failed prior attempt or previous depot_create run)
     buc_log_args "Connection attempt ${z_conn_attempt}: check for zombie connection"
     rbgu_http_json "GET" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_check"
-    local z_zombie_code=""
+    z_zombie_code=""
     z_zombie_code=$(rbgu_http_code_capture "depot_cbv2_zombie_check") || z_zombie_code=""
     if test "${z_zombie_code}" = "200"; then
       buc_log_args 'Zombie connection found — deleting before re-creation'
       rbgu_http_json "DELETE" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_delete"
-      local z_zombie_del_code=""
+      z_zombie_del_code=""
       z_zombie_del_code=$(rbgu_http_code_capture "depot_cbv2_zombie_delete") || z_zombie_del_code=""
       if test "${z_zombie_del_code}" != "200" && test "${z_zombie_del_code}" != "404"; then
         buc_log_args "Zombie connection DELETE returned HTTP ${z_zombie_del_code} (non-fatal, proceeding)"
@@ -1020,8 +1031,8 @@ rbgp_depot_create() {
     # Attempt connection creation (LRO) in isolation subshell (BCG Variant 2).
     # buc_die inside rbgu_http_json_lro_ok terminates the subshell, not the retry loop.
     buc_log_args "Connection attempt ${z_conn_attempt}: creating CB v2 GitLab connection"
-    local z_lro_infix="depot_cbv2_create_${z_conn_attempt}"
-    local z_lro_status=0
+    z_lro_infix="depot_cbv2_create_${z_conn_attempt}"
+    z_lro_status=0
     (
       rbgu_http_json_lro_ok \
         "Create CB v2 GitLab connection (attempt ${z_conn_attempt})" \
@@ -1040,15 +1051,15 @@ rbgp_depot_create() {
     if test "${z_lro_status}" = "0"; then
       # LRO succeeded — poll connection until installationState reaches COMPLETE
       buc_step 'Verify CB v2 connection is active'
-      local z_cbv2_poll_count=0
-      local -r z_cbv2_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
-      local z_cbv2_stage=""
+      z_cbv2_poll_count=0
+      z_cbv2_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
+      z_cbv2_stage=""
 
       while true; do
-        local z_cbv2_poll_infix="depot_cbv2_poll_${z_cbv2_poll_count}"
-        rbgu_http_json "GET" "${z_cbv2_zombie_url}" "${z_token}" "${z_cbv2_poll_infix}" || true
+        z_cbv2_poll_infix="depot_cbv2_poll_${z_cbv2_poll_count}"
+        rbgu_http_json "GET" "${z_cbv2_zombie_url}" "${z_token}" "${z_cbv2_poll_infix}"
 
-        local z_cbv2_poll_code=""
+        z_cbv2_poll_code=""
         z_cbv2_poll_code=$(rbgu_http_code_capture "${z_cbv2_poll_infix}") || z_cbv2_poll_code=""
 
         if test "${z_cbv2_poll_code}" = "200"; then
@@ -1086,9 +1097,9 @@ rbgp_depot_create() {
     fi
 
     # LRO failed — likely IAM propagation delay (service agent cannot read secrets yet)
-    local z_conn_now_epoch=""
+    z_conn_now_epoch=""
     z_conn_now_epoch=$(date +%s) || buc_die "Failed to capture epoch for elapsed time"
-    local z_conn_wall_elapsed=$((z_conn_now_epoch - z_conn_start_epoch))
+    z_conn_wall_elapsed=$((z_conn_now_epoch - z_conn_start_epoch))
     buc_log_args "Connection attempt ${z_conn_attempt} did not succeed (${z_conn_wall_elapsed}s elapsed) — retrying"
     buc_log_args "LRO details in: ${BURD_TEMP_DIR}/rbgp_cbv2_lro_stderr_${z_conn_attempt}"
 
@@ -1646,17 +1657,20 @@ rbgp_governor_reset() {
     local z_cbv2_verify_delay=3
     local z_cbv2_verify_elapsed=0
     local -r z_cbv2_verify_deadline=120
+    local z_gov_token=""
+    local z_cbv2_verify_code=""
+    local z_cbv2_verify_infix=""
 
     while :; do
       # Token acquisition may fail while SA key propagates to Google's OAuth endpoint.
       # Retry both token failure and permission denial within the same loop.
-      local z_gov_token=""
+      z_gov_token=""
       z_gov_token=$(rbgo_get_token_capture "${z_rbra_file}") || z_gov_token=""
 
-      local z_cbv2_verify_code="TOKEN_FAIL"
+      z_cbv2_verify_code="TOKEN_FAIL"
       if test -n "${z_gov_token}"; then
-        local z_cbv2_verify_infix="gov_cbv2_verify_${z_cbv2_verify_elapsed}s"
-        rbgu_http_json "GET" "${z_cbv2_verify_url}" "${z_gov_token}" "${z_cbv2_verify_infix}" || true
+        z_cbv2_verify_infix="gov_cbv2_verify_${z_cbv2_verify_elapsed}s"
+        rbgu_http_json "GET" "${z_cbv2_verify_url}" "${z_gov_token}" "${z_cbv2_verify_infix}"
         z_cbv2_verify_code=$(rbgu_http_code_capture "${z_cbv2_verify_infix}") || z_cbv2_verify_code="NO_CODE"
       fi
 
