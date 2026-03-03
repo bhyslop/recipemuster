@@ -53,10 +53,12 @@ HTTP 200 response
 `«DIRECTOR_UNIQUE_ID»` from response `.uniqueId` field
 
 //axhos_step
-. *Verify Service Account Creation*:
+. *Verify Service Account Propagation*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `projects/-/serviceAccounts/«DIRECTOR_UNIQUE_ID»`
-.. NOTE: Numeric ID is valid in API URL paths (immediately resolvable). Not valid in IAM policy `members` — see RBS0 IAM Member Format.
+.. {rbbc_poll}
+with backoff until HTTP 200 (newly-created SA may not be immediately resolvable by numeric ID)
+.. NOTE: Numeric ID is valid in API URL paths but subject to IAM propagation delay. Not valid in IAM policy `members` — see RBS0 IAM Member Format.
 .. {rbbc_require}
 service account accessible
 
