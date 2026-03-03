@@ -4704,6 +4704,7 @@
         "₢AiAAx",
         "₢AiAAN",
         "₢AiAA0",
+        "₢AiAA5",
         "₢AiAAe",
         "₢AiAAk",
         "₢AiAAl",
@@ -4718,7 +4719,7 @@
         "₢AiAA1",
         "₢AiAA3"
       ],
-      "next_pace_seed": "AA5",
+      "next_pace_seed": "AA6",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA0": {
@@ -4815,6 +4816,17 @@
               "text": "Rename payor and retriever tabtargets: fix colophons and epithets.\n\n## Renames (git mv + zipper update)\n\n| Current | New | Epithet |\n|---|---|---|\n| rbw-Pcd.PayorCreatesDepot.sh | rbw-PC.PayorCreatesDepot.sh | same |\n| rbw-Pdd.PayorDestroysDepot.sh | rbw-PD.PayorDestroysDepot.sh | same |\n| rbw-Pld.PayorListsDepots.sh | rbw-Pl.PayorListsDepots.sh | same |\n| rbw-Prg.PayorResetsGovernor.sh | rbw-PG.PayorResetsGovernor.sh | same |\n| rbw-Pes.PayorEstablishes.sh | rbw-Pg.PayorEstablishmentGuide.sh | renamed |\n| rbw-Pip.PayorInstallsProcedure.sh | rbw-PI.PayorInstallation.sh | renamed |\n| rbw-Pre.PayorRefreshes.sh | rbw-PR.PayorRefreshesOAuth.sh | renamed |\n| rbw-Rli.RetrieverListsImages.sh | rbw-Rl.RetrieverListsImages.sh | same |\n| rbw-Rri.RetrieverRetrievesImage.sh | rbw-Rr.RetrieverRetrievesImage.sh | same |\n\n## Delete (duplicate of rbw-Pes, both route to rbgm_payor_establish)\n\n| Delete | Reason |\n|---|---|\n| rbw-Pse.PayorShowsEstablishment.sh | Duplicate — same zipper target as rbw-Pes |\n\n## Colophon convention\n- Uppercase final char = lasting effect (create, destroy, reset, install, refresh)\n- Lowercase final char = read-only or guide (list, guide, retrieve)\n\n## Scope\n1. git mv each tabtarget in tt/\n2. Update zipper colophon constants in rbz_zipper.sh\n3. Delete rbw-Pse duplicate from tt/ and zipper\n4. Update any buc_next references or other colophon literals\n5. Verify buz_healthcheck passes after changes",
               "silks": "rename-payor-retriever-tabtargets",
               "commit": "0a9a36d"
+            }
+          ]
+        },
+        "₢AiAA5": {
+          "tacks": [
+            {
+              "ts": "260303-1143",
+              "state": "rough",
+              "text": "Migrate rubric repo infrastructure from GitHub to GitLab.\n\n## Motivation\n\nGitHub classic PATs (required by CB v2 githubConfig) grant `repo` scope\nacross ALL repositories the token owner can access. Fine-grained PATs are\nnot supported by CB v2 (Google Issue Tracker #343223837). A machine account\nmitigates but adds 9-step identity management overhead.\n\nGitLab project access tokens are inherently repository-scoped — they cannot\naccess resources outside the associated project. This eliminates the PAT\nscope problem entirely with 3 setup steps.\n\n## Scope\n\n### Kill GitHub rubric support\n- Remove `githubConfig` connection creation from rbgp_Payor.sh depot_create\n- Remove GitHub App installation ID from stdin flow\n- Remove github.com URL gate from depot_create\n- Remove GitHub-specific variable names and comments\n\n### Implement GitLab rubric support\n- CB v2 connection body: `gitlabConfig` with two Secret Manager secrets\n  (api token + read_api token, or one token with both scopes)\n- Stdin flow: read GitLab project access token (one value, not two)\n- URL gate: require gitlab.com in RBRR_RUBRIC_REPO_URL\n- Update depot_destroy to clean up GitLab-flavored CB v2 resources\n\n### Update inline guide in depot_create\n- Terse GitLab account setup (create account, create project)\n- Detailed project access token creation steps\n- Explanation of why GitHub is not acceptable (PAT scope problem)\n- Updated invocation pattern (single token, not PAT + installation ID)\n\n### Update specs\n- RBSDC-depot_create.adoc: new stdin parameters, gitlabConfig, guide text\n- RBS0-SpecTop.adoc: rbtgr_rubric_repo definition (GitLab, not \"any host\")\n- RBS0-SpecTop.adoc: rbrr_rubric_repo_url example URL and description\n- RBS0-SpecTop.adoc: introductory/getting-started material explaining\n  why rubric repo lives on GitLab (PAT scope isolation)\n\n### Update inscribe\n- rbf_Foundry.sh: authenticated git URL construction for GitLab\n  (https://oauth2:TOKEN@gitlab.com/org/repo.git)\n- PAT fetch from Secret Manager — same pattern, different URL scheme\n\n### Update constants\n- RBGC_CBV2_PAT_SECRET_NAME may need renaming or a second secret\n- Connection name suffix: `-gitlab` instead of `-github`\n\n## Acceptance criteria\n- depot_create with GitLab rubric repo succeeds end to end\n- No GitHub references remain in rubric repo code path\n- Inline guide shows GitLab setup steps\n- RBS0 explains the GitLab choice with rationale",
+              "silks": "migrate-rubric-repo-github-to-gitlab",
+              "commit": "dbf0ec8"
             }
           ]
         },
