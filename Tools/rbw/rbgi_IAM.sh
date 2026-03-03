@@ -135,8 +135,8 @@ rbgi_add_project_iam_role() {
 
     buc_log_args "1) GET policy (v3) [attempt ${z_prop_attempt}]"
     buc_log_args "GET_POLICY_URL_DEBUG z_resource:${z_resource} z_get_url:${z_get_url}"
-    local -r z_get_body="${ZRBGI_PREFIX}${z_parent_infix}_get_body.json"
-    local -r z_get_infix="${z_parent_infix}-get-${z_prop_elapsed}s"
+    local z_get_body="${ZRBGI_PREFIX}${z_parent_infix}_get_body.json"
+    local z_get_infix="${z_parent_infix}-get-${z_prop_elapsed}s"
     printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}"
     rbgu_http_json "POST" "${z_get_url}" "${z_token}" "${z_get_infix}" "${z_get_body}"
 
@@ -171,7 +171,7 @@ rbgi_add_project_iam_role() {
     z_new_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "${z_member}" "${z_etag}") \
       || buc_die "Failed to compose policy JSON"
 
-    local -r z_set_body="${ZRBGI_PREFIX}${z_parent_infix}_set_body.json"
+    local z_set_body="${ZRBGI_PREFIX}${z_parent_infix}_set_body.json"
     printf '{"policy":%s}\n' "${z_new_policy_json}" > "${z_set_body}"
 
     buc_log_args '3) setIamPolicy (fatal on 409/412 by policy)'
@@ -313,7 +313,7 @@ rbgi_add_repo_iam_role() {
       || buc_die "Failed to update policy JSON"
 
     buc_log_args 'Set updated repo IAM policy'
-    local -r z_repo_set_body="${BURD_TEMP_DIR}/rbgi_repo_set_policy_body.json"
+    local z_repo_set_body="${BURD_TEMP_DIR}/rbgi_repo_set_policy_body.json"
     printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_repo_set_body}" \
       || buc_die "Failed to build repo setIamPolicy body"
     rbgu_http_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_repo_set_body}"
@@ -417,7 +417,7 @@ rbgi_add_sa_iam_role() {
       || buc_die "Failed to update SA IAM policy"
 
     buc_log_args 'Set updated SA IAM policy'
-    local -r z_set_body="${BURD_TEMP_DIR}/rbgi_sa_set_policy_body.json"
+    local z_set_body="${BURD_TEMP_DIR}/rbgi_sa_set_policy_body.json"
     printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_set_body}" \
       || buc_die "Failed to build SA setIamPolicy body"
 
@@ -508,7 +508,7 @@ rbgi_add_bucket_iam_role() {
       || buc_die "Failed to update bucket IAM policy"
 
     buc_log_args 'Set updated bucket IAM policy'
-    local -r z_bucket_set_body="${BURD_TEMP_DIR}/rbgi_bucket_set_policy_body.json"
+    local z_bucket_set_body="${BURD_TEMP_DIR}/rbgi_bucket_set_policy_body.json"
     printf '%s\n' "${z_updated_policy_json}" > "${z_bucket_set_body}" \
       || buc_die "Failed to write bucket policy body"
 

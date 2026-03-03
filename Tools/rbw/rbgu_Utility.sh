@@ -398,7 +398,7 @@ rbgu_http_json_lro_ok() {
     local z_lro_error=""
     z_lro_error=$(rbgu_json_field_capture "${z_infix}" '.error.message // empty') || z_lro_error=""
     if test -n "${z_lro_error}"; then
-      local -r z_lro_resp_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+      local z_lro_resp_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
       buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
       buc_die "${z_label}: ${z_lro_error}"
     fi
@@ -436,7 +436,7 @@ rbgu_http_json_lro_ok() {
     sleep "${z_poll_interval}"
     z_elapsed=$((z_elapsed + z_poll_interval))
 
-    local -r z_poll_infix="${z_infix}-poll-${z_elapsed}s"
+    local z_poll_infix="${z_infix}-poll-${z_elapsed}s"
     rbgu_http_json "GET" "${z_poll_url}" "${z_token}" "${z_poll_infix}"
 
     local z_code=""
@@ -448,7 +448,7 @@ rbgu_http_json_lro_ok() {
       local z_lro_error=""
       z_lro_error=$(rbgu_json_field_capture "${z_poll_infix}" '.error.message // empty') || z_lro_error=""
       if test -n "${z_lro_error}"; then
-        local -r z_lro_resp_file="${ZRBGU_PREFIX}${z_poll_infix}${ZRBGU_POSTFIX_JSON}"
+        local z_lro_resp_file="${ZRBGU_PREFIX}${z_poll_infix}${ZRBGU_POSTFIX_JSON}"
         buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
         buc_die "${z_label}: ${z_lro_error}"
       fi
@@ -472,7 +472,7 @@ rbgu_poll_get_until_ok() {
 
   local z_elapsed=0
   while :; do
-    local -r z_poll_infix="${z_infix}-${z_elapsed}s"
+    local z_poll_infix="${z_infix}-${z_elapsed}s"
     rbgu_http_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}" || true
 
     local z_code

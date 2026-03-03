@@ -1025,7 +1025,7 @@ rbgp_depot_create() {
       "roles/iam.serviceAccountTokenCreator" "user:${z_payor_email}" "") \
       || buc_die "Failed to build tokenCreator policy"
 
-    local -r z_imp_set_body="${BURD_TEMP_DIR}/rbgp_imp_gate_set.json"
+    local z_imp_set_body="${BURD_TEMP_DIR}/rbgp_imp_gate_set.json"
     printf '{"policy":%s}\n' "${z_imp_updated_policy}" > "${z_imp_set_body}" \
       || buc_die "Failed to write tokenCreator setIamPolicy body"
 
@@ -1333,7 +1333,7 @@ rbgp_depot_destroy() {
     for z_lien_name in ${z_lien_names}; do
       if [ -n "${z_lien_name}" ]; then
         buc_log_args "Removing lien: ${z_lien_name}"
-        local -r z_delete_lien_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens/${z_lien_name}"
+        local z_delete_lien_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens/${z_lien_name}"
         rbgu_http_json "DELETE" "${z_delete_lien_url}" "${z_token}" "depot_destroy_lien_delete"
         rbgu_http_require_ok "Delete lien" "depot_destroy_lien_delete"
       fi
@@ -1516,9 +1516,9 @@ rbgp_depot_list() {
     local z_depot_name
     local z_depot_timestamp
     if printf '%s' "${z_project_id}" | grep -qE "${RBGC_GLOBAL_DEPOT_REGEX}"; then
-      local -r z_without_prefix="${z_project_id#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
-      local -r z_len=${#z_without_prefix}
-      local -r z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
+      local z_without_prefix="${z_project_id#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
+      local z_len=${#z_without_prefix}
+      local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
       z_depot_name="${z_without_prefix:0:$((z_len - z_suffix_len))}"
       z_depot_timestamp="${z_project_id:$((${#z_project_id} - RBGC_GLOBAL_TIMESTAMP_LEN))}"
     fi
@@ -1528,12 +1528,12 @@ rbgp_depot_list() {
     local z_region="unknown"
     
     # Try to detect region and validate components
-    local -r z_mason_expected="${RBGC_MASON_PREFIX}-${z_depot_name}"
-    local -r z_repo_expected="rbw-${z_depot_name}-repository"
-    local -r z_bucket_expected="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_depot_timestamp}"
+    local z_mason_expected="${RBGC_MASON_PREFIX}-${z_depot_name}"
+    local z_repo_expected="rbw-${z_depot_name}-repository"
+    local z_bucket_expected="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_depot_timestamp}"
 
     # Quick validation - check if Mason service account exists
-    local -r z_mason_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts/${z_mason_expected}@${z_project_id}.iam.gserviceaccount.com"
+    local z_mason_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts/${z_mason_expected}@${z_project_id}.iam.gserviceaccount.com"
     rbgu_http_json "GET" "${z_mason_url}" "${z_token}" "depot_list_mason_${z_depot_index}" || true
 
     local z_mason_code
