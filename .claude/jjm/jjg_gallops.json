@@ -1603,6 +1603,13 @@
         "₢ANAAE": {
           "tacks": [
             {
+              "ts": "260302-1842",
+              "state": "abandoned",
+              "text": "Store pre-rendered bitmap displays in trophy JSON.\n\n## What\n\nAdd the file-touch bitmap and commit swim lane ASCII displays\n(as seen in `jjx_show` output) to the trophy JSON as stored text strings.\n\n## Approach\n\n- Render the bitmaps at retirement time using existing display logic\n- Store as string fields in the trophy JSON (pre-rendered ASCII, not structured data)\n- Fields: `file_touch_bitmap` and `commit_swim_lanes` (or similar)\n\n## Depends on\n\n- ₢ANAAB (trophy-alpha-json-types) — need the Trophy struct to add fields\n- ₢ANAAD (trophy-alpha-generate) — retirement is where rendering happens",
+              "silks": "trophy-bitmap-displays",
+              "commit": "ce0e1ed"
+            },
+            {
               "ts": "260211-1656",
               "state": "rough",
               "text": "Store pre-rendered bitmap displays in trophy JSON.\n\n## What\n\nAdd the file-touch bitmap and commit swim lane ASCII displays\n(as seen in `jjx_show` output) to the trophy JSON as stored text strings.\n\n## Approach\n\n- Render the bitmaps at retirement time using existing display logic\n- Store as string fields in the trophy JSON (pre-rendered ASCII, not structured data)\n- Fields: `file_touch_bitmap` and `commit_swim_lanes` (or similar)\n\n## Depends on\n\n- ₢ANAAB (trophy-alpha-json-types) — need the Trophy struct to add fields\n- ₢ANAAD (trophy-alpha-generate) — retirement is where rendering happens",
