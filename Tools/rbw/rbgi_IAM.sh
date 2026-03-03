@@ -75,8 +75,10 @@ zrbgi_sentinel() {
   test "${ZRBGI_KINDLED:-}" = "1" || buc_die "Module rbgi not kindled - call zrbgi_kindle first"
 }
 
-# Check if an HTTP response is a 400 with "does not exist" in the error message.
-# This indicates IAM propagation delay for a newly-created service account.
+# Check if an HTTP response is a 400 with a transient IAM propagation error.
+# Two known patterns:
+#   - "does not exist": newly-created SA not yet visible to policy service
+#   - "is not deleted": recently-deleted SA still referenced in policy bindings
 # Returns 0 (true) if retryable propagation error, 1 otherwise.
 zrbgi_propagation_error_predicate() {
   local -r z_infix="${1}"
@@ -89,6 +91,7 @@ zrbgi_propagation_error_predicate() {
 
   case "${z_err_msg}" in
     *"does not exist"*) return 0 ;;
+    *"is not deleted"*) return 0 ;;
     *)                  return 1 ;;
   esac
 }
