@@ -4714,9 +4714,10 @@
         "₢AiAAL",
         "₢AiAAM",
         "₢AiAAr",
-        "₢AiAA1"
+        "₢AiAA1",
+        "₢AiAA3"
       ],
-      "next_pace_seed": "AA3",
+      "next_pace_seed": "AA4",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA0": {
@@ -4777,6 +4778,17 @@
               "text": "Rename rbw tabtargets to consistent rbw-<Role><Verb><Object> epithet pattern.\n\n## Role Prefixes\n\n- `D` — Director (write ops: build, inscribe, delete, abjure, beseech, conjure, summon)\n- `G` — Governor (SA lifecycle: create director, create retriever, delete SA, list SAs)\n- `P` — Payor (depot/billing: create depot, destroy depot, list depots, reset governor, establish, refresh)\n- `R` — Retriever (read ops: retrieve image, list images)\n\n## Renames\n\n| Current | New | Zipper const |\n|---------|-----|-------------|\n| `rbw-Dr.DirectorRetrievesImage.sh` | `rbw-Rri.RetrieverRetrievesImage.sh` | RBZ_RETRIEVE_IMAGE |\n| `rbw-Dl.DirectorListsImages.sh` | `rbw-Rli.RetrieverListsImages.sh` | RBZ_LIST_IMAGES |\n| `rbw-ld.ListDepots.sh` | `rbw-Pld.PayorListsDepots.sh` | RBZ_LIST_DEPOT |\n| `rbw-gpe.PayorEstablishment.sh` | `rbw-Pes.PayorEstablishes.sh` | RBZ_PAYOR_ESTABLISH |\n| `rbw-gpr.PayorRefresh.sh` | `rbw-Pre.PayorRefreshes.sh` | RBZ_PAYOR_REFRESH |\n| `rbw-gps.ShowPayorEstablishment.sh` | `rbw-Pse.PayorShowsEstablishment.sh` | RBZ_SHOW_PAYOR_ESTABLISH |\n| `rbw-pCD.PayorCreatesDepot.sh` | `rbw-Pcd.PayorCreatesDepot.sh` | RBZ_CREATE_DEPOT |\n| `rbw-pDD.PayorDestroysDepot.sh` | `rbw-Pdd.PayorDestroysDepot.sh` | RBZ_DESTROY_DEPOT |\n| `rbw-pRG.PayorResetsGovernor.sh` | `rbw-Prg.PayorResetsGovernor.sh` | RBZ_GOVERNOR_RESET |\n| `rbw-pip.PayorInstallProcedure.sh` | `rbw-Pip.PayorInstallsProcedure.sh` | RBZ_PAYOR_INSTALL |\n\n## Manual/Guide tabtargets (no role actor — keep lowercase or adopt new prefix)\n\n- `rbw-gqb.QuotaBuild.sh` — not an authenticated op, just a guide display. TBD prefix.\n\n## Also fix rbf_list() auth\n\n`rbf_list()` should use Retriever-prefer-Director-fallback pattern (matching `rbf_retrieve()`).\n\n## Files touched per rename\n\nEach rename touches:\n1. `tt/rbw-OLD.sh` → `tt/rbw-NEW.sh` (mv)\n2. `Tools/rbw/rbz_zipper.sh` — buz_enroll colophon string\n3. Any hardcoded colophon references in code/error messages\n\n## Acceptance Criteria\n\n- All role-actor tabtargets use consistent rbw-<Role> prefix\n- Zipper enrollments match new colophons\n- rbf_list uses Retriever credentials\n- Tab-completion works with new names\n- No broken dispatch paths",
               "silks": "rename-tabtargets-role-prefix",
               "commit": "a8578a8"
+            }
+          ]
+        },
+        "₢AiAA3": {
+          "tacks": [
+            {
+              "ts": "260302-1937",
+              "state": "rough",
+              "text": "Replace hardcoded colophon string literals in CLI consumer modules with\nzipper-enrolled constants.\n\n## Prerequisite\n\n₢AiAA1 (partition-zipper-kindle-from-healthcheck) must be complete —\nbuz_enroll no longer validates tabtargets, so CLI modules can kindle\nthe zipper cheaply.\n\n## Changes\n\n### Add zipper to CLI furnish chains\n\nBoth rbf_cli.sh and rbob_cli.sh need to source and kindle the zipper\nso their implementation modules can reference colophon constants:\n\n- Source `buz_zipper.sh` and `rbz_zipper.sh`\n- Call `zbuz_kindle` and `zrbz_kindle` in furnish (NO healthcheck —\n  these are dispatched modules, not the workbench)\n\n### Replace hardcoded strings\n\n**rbf_Foundry.sh** (line ~978):\n- `\"run ./tt/rbw-DP.DirectorRefreshesPins.sh\"` → use `${RBZ_REFRESH_GCB_PINS}`\n- The error message tells the operator what tabtarget to run; the colophon\n  is sufficient for tab-completion (`./tt/rbw-DP<TAB>`)\n\n**rbob_bottle.sh** (lines ~312, ~316):\n- `\"tt/rbw-DS.DirectorSummonsArk.sh\"` → use `${RBZ_SUMMON_ARK}`\n- Same rationale: colophon is sufficient for tab-completion\n\n### Error message format decision\n\nThe old messages included full tabtarget paths (colophon + frontispiece).\nThe colophon constant only provides the colophon portion. Options:\n1. Use colophon only: `\"run ./tt/${RBZ_REFRESH_GCB_PINS}.<TAB>\"`\n2. Use colophon in message: `\"run tabtarget ${RBZ_REFRESH_GCB_PINS}\"`\n3. Keep full path but construct from constant (not possible without frontispiece)\n\nRecommend option 2 — cleanest single-point-of-definition.\n\n## Acceptance\n\n- No hardcoded colophon string literals in rbf_Foundry.sh or rbob_bottle.sh\n- All existing tests still pass (same 5/11 fixture pass rate)\n- Error messages still guide operator to correct tabtarget",
+              "silks": "replace-hardcoded-colophons-in-cli-consumers",
+              "commit": "c283d42"
             }
           ]
         },
