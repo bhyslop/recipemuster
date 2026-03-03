@@ -4719,9 +4719,10 @@
         "₢AiAAM",
         "₢AiAAr",
         "₢AiAA1",
-        "₢AiAA3"
+        "₢AiAA3",
+        "₢AiAA8"
       ],
-      "next_pace_seed": "AA8",
+      "next_pace_seed": "AA9",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA0": {
@@ -4893,6 +4894,17 @@
               "text": "Apply BCG `local -r` discipline to all bash scripts in the depot_create call chain.\n\nBCG mandates `local -r` as the default for every local variable assigned once and\nnever modified. The four exceptions (loop counters, accumulators, two-line capture\npatterns, reassigned-before-use) keep `local` without `-r`.\n\n## Target files\n\n- `Tools/rbw/rbgp_Payor.sh` — primary target, largest file, depot_create + depot_destroy + depot_list\n- `Tools/rbw/rbgu_Utility.sh` — HTTP helpers, JSON helpers\n- `Tools/rbw/rbgi_IAM.sh` — IAM grant functions with propagation retry\n- `Tools/rbw/rbgo_OAuth.sh` — OAuth token exchange\n\n`rbgc_Constants.sh` is excluded — it uses `readonly` at kindle scope per BCG, not `local -r`.\n\n## Rules\n\nFor each `local z_*` declaration:\n- If assigned once and never modified → change to `local -r`\n- If loop counter or accumulator → leave as `local`\n- If two-line capture pattern (`local z_foo; z_foo=$(cmd) || die`) → leave as `local`\n- If reassigned later in function → leave as `local`\n\n## Acceptance criteria\n\n- Every single-assignment local in the four target files uses `local -r`\n- No behavioral change — purely declarative\n- No test failures (existing tabtargets still work)",
               "silks": "bcg-local-readonly-depot-scripts",
               "commit": "b20fab8"
+            }
+          ]
+        },
+        "₢AiAA8": {
+          "tacks": [
+            {
+              "ts": "260303-1400",
+              "state": "rough",
+              "text": "Extract SA domain suffix and email composition magic strings into constants/helper.\n\n## What\n\nTwo changes:\n1. Add `RBGC_IAM_SA_DOMAIN=\"iam.gserviceaccount.com\"` kindle constant to `rbgc_Constants.sh`\n2. Add `rbgu_sa_email_capture()` helper to `rbgu_Utility.sh` that composes `${name}@${project}.${RBGC_IAM_SA_DOMAIN}`\n\nThen replace all inline occurrences of `.iam.gserviceaccount.com` SA email construction across the depot call chain with the helper.\n\n## Target files\n\n- `Tools/rbw/rbgc_Constants.sh` — new kindle constant\n- `Tools/rbw/rbgu_Utility.sh` — new helper function\n- `Tools/rbw/rbgp_Payor.sh` — consumer\n- `Tools/rbw/rbgi_IAM.sh` — consumer\n- `Tools/rbw/rbgg_Governor.sh` — consumer (likely)\n\n## Out of scope\n\n- Path segment constants (`/projects/`, `/serviceAccounts/`) — readability tradeoff not justified\n- URL builder functions — inline URLs remain more readable\n\n## Acceptance criteria\n\n- Zero inline `.iam.gserviceaccount.com` strings outside the new constant\n- All SA email construction uses the helper\n- No behavioral change",
+              "silks": "extract-sa-email-magic-strings",
+              "commit": "99daa20"
             }
           ]
         },
