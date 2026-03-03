@@ -783,6 +783,10 @@ rbgp_depot_create() {
   local z_mason_sa_email
   z_mason_sa_email=$(rbgu_json_field_capture "depot_mason_create" '.email') || buc_die "Failed to get Mason email"
 
+  buc_step 'Verify Mason service account propagation'
+  local z_mason_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts/${z_mason_sa_email}"
+  rbgu_poll_get_until_ok "Mason SA" "${z_mason_sa_url}" "${z_token}" "mason_sa_preflight"
+
   buc_step 'Configure Mason permissions'
   # Repository admin (AR repo IAM requires email, not numeric ID)
   rbgi_add_repo_iam_role "${z_token}" "${z_depot_project_id}" "${z_mason_sa_email}" "${z_region}" "${z_repository_name}" \
