@@ -1001,21 +1001,32 @@ rbgp_depot_create() {
   local z_cbv2_stage=""
 
   while true; do
-    rbgu_http_json "GET" "${z_cbv2_get_url}" "${z_token}" "depot_cbv2_poll"
-    rbgu_http_require_ok "Poll CB v2 connection" "depot_cbv2_poll"
+    local z_cbv2_poll_infix="depot_cbv2_poll_${z_cbv2_poll_count}"
+    rbgu_http_json "GET" "${z_cbv2_get_url}" "${z_token}" "${z_cbv2_poll_infix}" || true
 
-    z_cbv2_stage=$(rbgu_json_field_capture "depot_cbv2_poll" '.installationState.stage // "UNKNOWN"') \
-      || buc_die "Failed to parse CB v2 connection stage"
+    local z_cbv2_poll_code=""
+    z_cbv2_poll_code=$(rbgu_http_code_capture "${z_cbv2_poll_infix}") || z_cbv2_poll_code=""
 
-    if [ "${z_cbv2_stage}" = "COMPLETE" ]; then
-      buc_log_args "CB v2 connection active"
-      break
+    if [ "${z_cbv2_poll_code}" = "200" ]; then
+      z_cbv2_stage=$(rbgu_json_field_capture "${z_cbv2_poll_infix}" '.installationState.stage // "UNKNOWN"') \
+        || buc_die "Failed to parse CB v2 connection stage"
+
+      if [ "${z_cbv2_stage}" = "COMPLETE" ]; then
+        buc_log_args "CB v2 connection active"
+        break
+      fi
+    elif [ "${z_cbv2_poll_code}" = "404" ]; then
+      z_cbv2_stage="NOT_FOUND"
+    else
+      buc_warn "Unexpected HTTP ${z_cbv2_poll_code} — check temp dir for infix: ${z_cbv2_poll_infix}"
+      buc_die "Poll CB v2 connection: unexpected HTTP ${z_cbv2_poll_code}"
     fi
 
     z_cbv2_poll_count=$((z_cbv2_poll_count + 1))
     test "${z_cbv2_poll_count}" -lt "${z_cbv2_max_polls}" \
       || {
         buc_warn "CB v2 connection stuck at stage: ${z_cbv2_stage}"
+        buc_warn "Diagnosis: check temp dir for infixes: depot_cbv2_create, ${z_cbv2_poll_infix}"
         buc_warn "Verify: GitLab project access token has api scope"
         buc_warn "Verify: Token is a project access token (not personal)"
         buc_warn "Verify: RBRR_RUBRIC_REPO_URL points to correct GitLab project"

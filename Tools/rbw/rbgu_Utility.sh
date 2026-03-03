@@ -395,6 +395,13 @@ rbgu_http_json_lro_ok() {
   local z_done=""
   z_done=$(rbgu_json_field_capture "${z_infix}" ".done") || z_done=""
   test "${z_done}" = "true" && {
+    local z_lro_error=""
+    z_lro_error=$(rbgu_json_field_capture "${z_infix}" '.error.message // empty') || z_lro_error=""
+    if test -n "${z_lro_error}"; then
+      local z_lro_resp_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+      buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
+      buc_die "${z_label}: ${z_lro_error}"
+    fi
     buc_log_args 'Immediate-done response -> success (no polling)'
     return 0
   }
@@ -438,6 +445,13 @@ rbgu_http_json_lro_ok() {
 
     z_done=$(rbgu_json_field_capture "${z_poll_infix}" ".done") || z_done=""
     test "${z_done}" = "true" && {
+      local z_lro_error=""
+      z_lro_error=$(rbgu_json_field_capture "${z_poll_infix}" '.error.message // empty') || z_lro_error=""
+      if test -n "${z_lro_error}"; then
+        local z_lro_resp_file="${ZRBGU_PREFIX}${z_poll_infix}${ZRBGU_POSTFIX_JSON}"
+        buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
+        buc_die "${z_label}: ${z_lro_error}"
+      fi
       buc_log_args "${z_label}: operation completed after ${z_elapsed}s"
       return 0
     }
