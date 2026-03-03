@@ -433,7 +433,7 @@ rbgp_payor_install() {
 
   local z_refresh_token=""
   buc_step 'OAuth authorization flow'
-  local z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
+  local z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=openid%20email%20https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
 
   bug_e
   bug_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
