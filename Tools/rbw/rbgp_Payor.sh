@@ -958,122 +958,15 @@ rbgp_depot_create() {
   rbgi_add_project_iam_role "${z_token}" "Grant CB Connection Admin" "projects/${z_depot_project_id}" \
     "roles/cloudbuild.connectionAdmin" "serviceAccount:${z_cb_service_agent}" "cb-conn-admin"
 
-  buc_step 'Impersonation readiness gate: verify CB service agent can access secrets'
-
-  # Encode CB service agent email for use in generateAccessToken and accessSecretVersion URLs
-  local z_cb_sa_encoded=""
-  z_cb_sa_encoded=$(rbgu_urlencode_capture "${z_cb_service_agent}") \
-    || buc_die "Failed to encode CB service agent email"
-
-  # Step C: Mint token as CB service agent via generateAccessToken
-  buc_log_args 'Mint impersonated token as CB service agent'
-  local -r z_gen_token_url="https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${z_cb_sa_encoded}:generateAccessToken"
-  local -r z_gen_token_body="${BURD_TEMP_DIR}/rbgp_gen_access_token.json"
-  printf '{"scope":["https://www.googleapis.com/auth/cloud-platform"],"lifetime":"300s"}\n' \
-    > "${z_gen_token_body}" || buc_die "Failed to write generateAccessToken body"
-
-  # Retry generateAccessToken with backoff (project-owner permission may not have propagated yet)
-  local z_gat_delay=3
-  local z_gat_elapsed=0
-  local -r z_gat_deadline=420
-  local z_gat_attempt=0
-  local z_impersonated_token=""
-
-  while :; do
-    z_gat_attempt=$((z_gat_attempt + 1))
-    local z_gat_infix="imp_gen_token-${z_gat_elapsed}s"
-
-    rbgu_http_json "POST" "${z_gen_token_url}" "${z_token}" "${z_gat_infix}" "${z_gen_token_body}"
-
-    local z_gat_code=""
-    z_gat_code=$(rbgu_http_code_capture "${z_gat_infix}") || buc_die "No HTTP code from generateAccessToken"
-
-    if test "${z_gat_code}" = "200"; then
-      z_impersonated_token=$(rbgu_json_field_capture "${z_gat_infix}" '.accessToken') \
-        || buc_die "Failed to extract impersonated access token"
-      test -n "${z_impersonated_token}" || buc_die "Empty impersonated access token"
-      buc_log_args "Successfully minted impersonated token for CB service agent"
-      break
-    fi
-
-    # Retry on 403 (owner permission not yet propagated) or 400 (SA not yet visible)
-    if test "${z_gat_code}" = "403" || test "${z_gat_code}" = "400"; then
-      test "${z_gat_elapsed}" -lt "${z_gat_deadline}" \
-        || buc_die "Impersonation gate: timeout after ${z_gat_elapsed}s waiting for generateAccessToken"
-      buc_log_args "generateAccessToken HTTP ${z_gat_code} at ${z_gat_elapsed}s; retry ${z_gat_attempt} (next delay ${z_gat_delay}s)"
-      sleep "${z_gat_delay}"
-      z_gat_elapsed=$((z_gat_elapsed + z_gat_delay))
-      z_gat_delay=$((z_gat_delay * 2))
-      test "${z_gat_delay}" -le 20 || z_gat_delay=20
-      continue
-    fi
-
-    rbgu_http_require_ok "generateAccessToken for CB service agent" "${z_gat_infix}"
-  done
-
-  # Step D: Poll accessSecretVersion with impersonated token until 200
-  buc_log_args 'Verify CB service agent can access secrets via impersonated token'
-  local -r z_access_secret_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_token_version}:access"
-
-  local -r z_asv_delay=3
-  local z_asv_elapsed=0
-  local -r z_asv_deadline=420
-  local z_asv_attempt=0
-
-  while :; do
-    z_asv_attempt=$((z_asv_attempt + 1))
-    local z_asv_infix="imp_secret_access-${z_asv_elapsed}s"
-
-    rbgu_http_json "GET" "${z_access_secret_url}" "${z_impersonated_token}" "${z_asv_infix}"
-
-    local z_asv_code=""
-    z_asv_code=$(rbgu_http_code_capture "${z_asv_infix}") || buc_die "No HTTP code from accessSecretVersion"
-
-    if test "${z_asv_code}" = "200"; then
-      buc_log_args "CB service agent confirmed access to secret after ${z_asv_elapsed}s"
-      break
-    fi
-
-    # Retry on 403 (secretAccessor grant not yet propagated)
-    if test "${z_asv_code}" = "403"; then
-      test "${z_asv_elapsed}" -lt "${z_asv_deadline}" \
-        || buc_die "Impersonation gate: timeout after ${z_asv_elapsed}s waiting for secret access"
-      buc_log_args "accessSecretVersion HTTP 403 at ${z_asv_elapsed}s; retry ${z_asv_attempt} (next delay ${z_asv_delay}s)"
-      sleep "${z_asv_delay}"
-      z_asv_elapsed=$((z_asv_elapsed + z_asv_delay))
-      z_asv_delay=$((z_asv_delay * 2))
-      test "${z_asv_delay}" -le 20 || z_asv_delay=20
-      continue
-    fi
-
-    rbgu_http_require_ok "accessSecretVersion via impersonation" "${z_asv_infix}"
-  done
-
-  buc_step 'Create CB v2 GitLab connection'
+  buc_step 'Create CB v2 GitLab connection with IAM propagation retry'
+  # Connection creation serves as the IAM propagation gate (see RBSCIP).
+  # If the CB Service Agent cannot yet access secrets, the LRO fails.
+  # Retry with backoff, deleting zombie connections between attempts.
   local -r z_cbv2_connection_name="rbw-${z_depot_name}${RBGC_CBV2_CONNECTION_SUFFIX}"
   local -r z_cbv2_parent="projects/${z_depot_project_id}/locations/${z_region}"
   local -r z_cbv2_create_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections?connectionId=${z_cbv2_connection_name}"
   local -r z_cbv2_create_body="${BURD_TEMP_DIR}/rbgp_cbv2_connection.json"
-
-  # Defense-in-depth: clean up zombie connection from a previous failed attempt
-  buc_log_args 'Check for zombie CB v2 connection'
   local -r z_cbv2_zombie_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}"
-  rbgu_http_json "GET" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_check"
-  local z_zombie_code=""
-  z_zombie_code=$(rbgu_http_code_capture "depot_cbv2_zombie_check") || z_zombie_code=""
-  if test "${z_zombie_code}" = "200"; then
-    buc_log_args 'Zombie connection found — deleting before re-creation'
-    rbgu_http_json "DELETE" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_delete"
-    local z_zombie_del_code=""
-    z_zombie_del_code=$(rbgu_http_code_capture "depot_cbv2_zombie_delete") || z_zombie_del_code=""
-    if test "${z_zombie_del_code}" != "200" && test "${z_zombie_del_code}" != "404"; then
-      buc_log_args "Zombie connection DELETE returned HTTP ${z_zombie_del_code} (non-fatal, proceeding)"
-    fi
-    # Wait briefly for deletion to propagate
-    sleep 3
-  else
-    buc_log_args "No zombie connection (HTTP ${z_zombie_code})"
-  fi
 
   jq -n \
     --arg apiVersion "${z_api_token_version}" \
@@ -1092,61 +985,122 @@ rbgp_depot_create() {
     }' > "${z_cbv2_create_body}" \
     || buc_die "Failed to build CB v2 connection body"
 
-  rbgu_http_json_lro_ok \
-    "Create CB v2 GitLab connection" \
-    "${z_token}" \
-    "${z_cbv2_create_url}" \
-    "depot_cbv2_create" \
-    "${z_cbv2_create_body}" \
-    ".name" \
-    "${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}" \
-    "${RBGC_OP_PREFIX_GLOBAL}" \
-    "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
-    "${RBGC_MAX_CONSISTENCY_SEC}"
+  local z_conn_delay=3
+  local -r z_conn_deadline=420
+  local z_conn_attempt=0
+  local z_conn_succeeded=false
+  local z_conn_start_epoch=""
+  z_conn_start_epoch=$(date +%s) || buc_die "Failed to capture epoch for connection retry deadline"
 
-  # Poll connection until COMPLETE
-  buc_step 'Verify CB v2 connection is active'
-  local -r z_cbv2_get_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}"
-  local z_cbv2_poll_count=0
-  local -r z_cbv2_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
-  local z_cbv2_stage
-  z_cbv2_stage=""
+  while :; do
+    z_conn_attempt=$((z_conn_attempt + 1))
 
-  while true; do
-    local z_cbv2_poll_infix="depot_cbv2_poll_${z_cbv2_poll_count}"
-    rbgu_http_json "GET" "${z_cbv2_get_url}" "${z_token}" "${z_cbv2_poll_infix}" || true
-
-    local z_cbv2_poll_code=""
-    z_cbv2_poll_code=$(rbgu_http_code_capture "${z_cbv2_poll_infix}") || z_cbv2_poll_code=""
-
-    if [ "${z_cbv2_poll_code}" = "200" ]; then
-      z_cbv2_stage=$(rbgu_json_field_capture "${z_cbv2_poll_infix}" '.installationState.stage // "UNKNOWN"') \
-        || buc_die "Failed to parse CB v2 connection stage"
-
-      if [ "${z_cbv2_stage}" = "COMPLETE" ]; then
-        buc_log_args "CB v2 connection active"
-        break
+    # Clean up zombie connection (failed prior attempt or previous depot_create run)
+    buc_log_args "Connection attempt ${z_conn_attempt}: check for zombie connection"
+    rbgu_http_json "GET" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_check"
+    local z_zombie_code=""
+    z_zombie_code=$(rbgu_http_code_capture "depot_cbv2_zombie_check") || z_zombie_code=""
+    if test "${z_zombie_code}" = "200"; then
+      buc_log_args 'Zombie connection found — deleting before re-creation'
+      rbgu_http_json "DELETE" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_delete"
+      local z_zombie_del_code=""
+      z_zombie_del_code=$(rbgu_http_code_capture "depot_cbv2_zombie_delete") || z_zombie_del_code=""
+      if test "${z_zombie_del_code}" != "200" && test "${z_zombie_del_code}" != "404"; then
+        buc_log_args "Zombie connection DELETE returned HTTP ${z_zombie_del_code} (non-fatal, proceeding)"
       fi
-    elif [ "${z_cbv2_poll_code}" = "404" ]; then
-      z_cbv2_stage="NOT_FOUND"
-    else
-      buc_warn "Unexpected HTTP ${z_cbv2_poll_code} — check temp dir for infix: ${z_cbv2_poll_infix}"
-      buc_die "Poll CB v2 connection: unexpected HTTP ${z_cbv2_poll_code}"
+      sleep 3
     fi
 
-    z_cbv2_poll_count=$((z_cbv2_poll_count + 1))
-    test "${z_cbv2_poll_count}" -lt "${z_cbv2_max_polls}" \
+    # Attempt connection creation (LRO) in isolation subshell (BCG Variant 2).
+    # buc_die inside rbgu_http_json_lro_ok terminates the subshell, not the retry loop.
+    buc_log_args "Connection attempt ${z_conn_attempt}: creating CB v2 GitLab connection"
+    local z_lro_infix="depot_cbv2_create_${z_conn_attempt}"
+    local z_lro_status=0
+    (
+      rbgu_http_json_lro_ok \
+        "Create CB v2 GitLab connection (attempt ${z_conn_attempt})" \
+        "${z_token}" \
+        "${z_cbv2_create_url}" \
+        "${z_lro_infix}" \
+        "${z_cbv2_create_body}" \
+        ".name" \
+        "${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}" \
+        "${RBGC_OP_PREFIX_GLOBAL}" \
+        "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
+        "${RBGC_MAX_CONSISTENCY_SEC}" \
+        || buc_die "LRO failed"
+    ) 2>"${BURD_TEMP_DIR}/rbgp_cbv2_lro_stderr_${z_conn_attempt}" || z_lro_status=$?
+
+    if test "${z_lro_status}" = "0"; then
+      # LRO succeeded — poll connection until installationState reaches COMPLETE
+      buc_step 'Verify CB v2 connection is active'
+      local z_cbv2_poll_count=0
+      local -r z_cbv2_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
+      local z_cbv2_stage=""
+
+      while true; do
+        local z_cbv2_poll_infix="depot_cbv2_poll_${z_cbv2_poll_count}"
+        rbgu_http_json "GET" "${z_cbv2_zombie_url}" "${z_token}" "${z_cbv2_poll_infix}" || true
+
+        local z_cbv2_poll_code=""
+        z_cbv2_poll_code=$(rbgu_http_code_capture "${z_cbv2_poll_infix}") || z_cbv2_poll_code=""
+
+        if test "${z_cbv2_poll_code}" = "200"; then
+          z_cbv2_stage=$(rbgu_json_field_capture "${z_cbv2_poll_infix}" '.installationState.stage // "UNKNOWN"') \
+            || buc_die "Failed to parse CB v2 connection stage"
+
+          if test "${z_cbv2_stage}" = "COMPLETE"; then
+            buc_log_args "CB v2 connection active"
+            z_conn_succeeded=true
+            break
+          fi
+        elif test "${z_cbv2_poll_code}" = "404"; then
+          z_cbv2_stage="NOT_FOUND"
+        else
+          buc_warn "Unexpected HTTP ${z_cbv2_poll_code} — check temp dir for infix: ${z_cbv2_poll_infix}"
+          buc_die "Poll CB v2 connection: unexpected HTTP ${z_cbv2_poll_code}"
+        fi
+
+        z_cbv2_poll_count=$((z_cbv2_poll_count + 1))
+        test "${z_cbv2_poll_count}" -lt "${z_cbv2_max_polls}" \
+          || {
+            buc_warn "CB v2 connection stuck at stage: ${z_cbv2_stage}"
+            buc_warn "Diagnosis: check temp dir for infixes: ${z_lro_infix}, ${z_cbv2_poll_infix}"
+            buc_warn "Verify: GitLab project access token has api scope"
+            buc_warn "Verify: Token is a project access token (not personal)"
+            buc_warn "Verify: RBRR_RUBRIC_REPO_URL points to correct GitLab project"
+            buc_die  "CB v2 connection failed to reach COMPLETE"
+          }
+
+        buc_log_args "CB v2 connection stage: ${z_cbv2_stage} (poll ${z_cbv2_poll_count}/${z_cbv2_max_polls})"
+        sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      done
+
+      test "${z_conn_succeeded}" = "true" && break
+    fi
+
+    # LRO failed — likely IAM propagation delay (service agent cannot read secrets yet)
+    local z_conn_now_epoch=""
+    z_conn_now_epoch=$(date +%s) || buc_die "Failed to capture epoch for elapsed time"
+    local z_conn_wall_elapsed=$((z_conn_now_epoch - z_conn_start_epoch))
+    buc_log_args "Connection attempt ${z_conn_attempt} did not succeed (${z_conn_wall_elapsed}s elapsed) — retrying"
+    buc_log_args "LRO details in: ${BURD_TEMP_DIR}/rbgp_cbv2_lro_stderr_${z_conn_attempt}"
+
+    test "${z_conn_wall_elapsed}" -lt "${z_conn_deadline}" \
       || {
-        buc_warn "CB v2 connection stuck at stage: ${z_cbv2_stage}"
-        buc_warn "Diagnosis: check temp dir for infixes: depot_cbv2_create, ${z_cbv2_poll_infix}"
+        buc_warn "Connection retry deadline exceeded after ${z_conn_wall_elapsed}s (${z_conn_attempt} attempts)"
+        buc_warn "LRO stderr captured in: ${BURD_TEMP_DIR}/rbgp_cbv2_lro_stderr_${z_conn_attempt}"
+        buc_warn "Verify: CB Service Agent has roles/secretmanager.secretAccessor on all 3 secrets"
         buc_warn "Verify: GitLab project access token has api scope"
         buc_warn "Verify: Token is a project access token (not personal)"
         buc_warn "Verify: RBRR_RUBRIC_REPO_URL points to correct GitLab project"
-        buc_die  "CB v2 connection failed"
+        buc_die  "CB v2 connection creation failed after retry deadline"
       }
 
-    buc_log_args "CB v2 connection stage: ${z_cbv2_stage} (poll ${z_cbv2_poll_count}/${z_cbv2_max_polls})"
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    buc_log_args "Backoff ${z_conn_delay}s before retry"
+    sleep "${z_conn_delay}"
+    z_conn_delay=$((z_conn_delay * 2))
+    test "${z_conn_delay}" -le 20 || z_conn_delay=20
   done
 
   buc_step 'Create CB v2 repository'
