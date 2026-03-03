@@ -386,6 +386,69 @@ rbgm_quota_build() {
   buc_success "Cloud Build quota guide displayed"
 }
 
+rbgm_gitlab_setup() {
+  zrbgm_sentinel
+
+  buc_doc_brief "Display GitLab rubric repo setup guide for CB v2 connections"
+  buc_doc_shown || return 0
+
+  bug_section  "GitLab Rubric Repo Setup Guide"
+  bug_t        "Recipe Bottle uses GitLab (not GitHub) for the rubric repo connection."
+  bug_t        "This is required before running depot_create."
+  bug_e
+  bug_section  "Why GitLab (not GitHub)?"
+  bug_t        "  GitHub classic PATs grant 'repo' scope across ALL repositories the token"
+  bug_t        "  owner can access. Fine-grained PATs are rejected by Cloud Build v2 connections"
+  bug_t        "  (Google Issue Tracker #343223837). Machine accounts are an alternative but add"
+  bug_t        "  organizational overhead."
+  bug_e
+  bug_t        "  GitLab project access tokens are inherently repository-scoped — they cannot"
+  bug_t        "  access resources outside the associated project. One token, one repo, minimal scope."
+  bug_e
+  bug_section  "Key:"
+  bug_tu       "   Magenta text refers to " "precise words you see on the web page."
+  bug_tc       "   Cyan text is " "something you might copy from here."
+  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
+  bug_e
+  bug_section  "1. Create GitLab Account (if needed):"
+  bug_link     "   Go to: " "GitLab Sign Up" "https://gitlab.com/users/sign_up"
+  bug_t        "   Create a free account if you don't already have one."
+  bug_e
+  bug_section  "2. Create a GitLab Project for the Rubric Repo:"
+  bug_link     "   Go to: " "GitLab New Project" "https://gitlab.com/projects/new#blank_project"
+  bug_t        "   Configure:"
+  bug_tc       "     - Project name: " "rb-rubric"
+  bug_tut      "     - Visibility Level: " "Private" " (recommended)"
+  bug_tut      "     - Check " "Initialize repository with a README" " (repo must not be empty)"
+  bug_tu       "   Click " "Create project"
+  bug_e
+  bug_section  "3. Set RBRR_RUBRIC_REPO_URL in rbrr.env:"
+  bug_t        "   After creation, copy the HTTPS clone URL from the project page."
+  bug_tc       "   Example: " "RBRR_RUBRIC_REPO_URL=https://gitlab.com/yourname/rb-rubric.git"
+  bug_t        "   Edit your rbrr.env file and set this value."
+  bug_e
+  bug_section  "4. Create a Project Access Token:"
+  bug_t        "   From your rubric repo project page:"
+  bug_link     "   Go to: " "Project Settings → Access Tokens" "https://gitlab.com/" " (navigate via left sidebar)"
+  bug_tu       "   1. Click " "Add new token"
+  bug_t        "   2. Configure:"
+  bug_tc       "      - Token name: " "rb-depot"
+  bug_tu       "      - Role: " "Maintainer"
+  bug_tu       "      - Scopes: check " "api" " (includes read_api)"
+  bug_t        "      - Expiration: set as needed (or leave default)"
+  bug_tu       "   3. Click " "Create project access token"
+  bug_tW       "   4. " "CRITICAL: Copy the token immediately — it won't be shown again"
+  bug_e
+  bug_section  "5. Run Depot Create:"
+  bug_t        "   Pipe the token to depot_create via stdin:"
+  bug_c        "   printf '%s\\n' \"YOUR_TOKEN\" | ./tt/${RBZ_CREATE_DEPOT}.PayorCreatesDepot.sh <depot-name>"
+  bug_e
+  bug_t        "   Next step:"
+  buc_next "${RBZ_CREATE_DEPOT}"
+
+  buc_success "GitLab rubric repo setup guide displayed"
+}
+
 rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   zrbgm_sentinel
 

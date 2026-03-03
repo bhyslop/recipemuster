@@ -23,21 +23,16 @@ creates a new depot infrastructure from the
 . *Validate Rubric Repo URL (GitLab required)*:
 .. {rbbc_require}
 {rbrr_rubric_repo_url}
-is set in regime (`RBRR_RUBRIC_REPO_URL` in `rbrr.env`)
+is set in regime (`RBRR_RUBRIC_REPO_URL` in `rbrr.env`) or {rbbc_show} tabtarget hint for `rbw-Pgl` then {rbbc_fatal} "Cannot proceed without GitLab rubric repo"
 .. {rbbc_require}
-URL begins with `https://gitlab.com/` or {rbbc_fatal} "only GitLab is supported for CB v2 connections (GitHub classic PATs grant repo scope across ALL repositories; GitLab project access tokens are inherently repository-scoped)"
+URL begins with `https://gitlab.com/` or {rbbc_show} tabtarget hint for `rbw-Pgl` (GitLab setup guide) then {rbbc_fatal} "Cannot proceed without GitLab rubric repo"
 
 //axhop_parameter_from_stdin
 . *GitLab Project Access Token (stdin)*:
+.. {rbbc_show}
+rubric repo URL
 .. Read one line from stdin: `«GITLAB_TOKEN»`
-.. If stdin is empty, {rbbc_show} inline setup guide:
-... Why GitLab (not GitHub): GitHub classic PATs grant `repo` scope across ALL repositories the token owner can access. Fine-grained PATs are not supported by CB v2 (Google Issue Tracker #343223837). GitLab project access tokens are inherently repository-scoped.
-... Step 1: Create a GitLab account at `gitlab.com` (if needed)
-... Step 2: Create a project for the rubric repo
-... Step 3: Create a project access token: Project Settings → Access Tokens → Add new token — Name: descriptive (e.g. `rb-depot`), Role: Maintainer, Scopes: `api` (includes `read_api`) — Click 'Create project access token' and copy immediately
-... Show invocation pattern: `printf '%s\n' "$TOKEN" | <tabtarget> <depot_name>`
-... {rbbc_fatal}
-"Provide GitLab project access token via stdin and re-run"
+.. If empty, {rbbc_show} tabtarget hint for `rbw-Pgl` (GitLab setup guide) then {rbbc_fatal} "Token is empty"
 
 //axhos_step
 . *Validate Rubric Repo URL reachability*:

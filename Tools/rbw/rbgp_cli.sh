@@ -40,6 +40,8 @@ zrbgp_furnish() {
   source "${z_rbw_kit_dir}/rbgi_IAM.sh"
   source "${z_rbw_kit_dir}/rbrp_regime.sh"
   source "${z_rbw_kit_dir}/rbgp_Payor.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${z_rbw_kit_dir}/rbz_zipper.sh"
 
   buc_log_args 'Initialize modules'
   zbuv_kindle
@@ -61,6 +63,9 @@ zrbgp_furnish() {
   zrbgu_kindle
   zrbgi_kindle
   zrbgp_kindle
+
+  zbuz_kindle
+  zrbz_kindle
 }
 
 buc_execute rbgp_ "Recipe Bottle Payor" zrbgp_furnish "$@"

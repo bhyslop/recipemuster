@@ -43,6 +43,8 @@ zrbgm_furnish() {
   source "${z_rbw_kit_dir}/rbgi_IAM.sh"
   source "${z_rbw_kit_dir}/rbra_regime.sh"
   source "${z_rbw_kit_dir}/rbgm_ManualProcedures.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${z_rbw_kit_dir}/rbz_zipper.sh"
 
   zbuv_kindle
   zburd_kindle
@@ -63,6 +65,9 @@ zrbgm_furnish() {
   zrbgu_kindle
   zrbgi_kindle
   zrbgm_kindle
+
+  zbuz_kindle
+  zrbz_kindle
 }
 
 buc_execute rbgm_ "Manual Procedures" zrbgm_furnish "$@"

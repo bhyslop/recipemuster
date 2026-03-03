@@ -307,13 +307,19 @@ rbob_start() {
   rbrn_preflight
 
   # Preflight: verify container images exist locally before touching anything
-  ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1 \
-    || buc_die "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}
-  Run: tt/rbw-DS.DirectorSummonsArk.sh ${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
+  if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1; then
+    buc_warn "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}"
+    buc_info "Summon it first:"
+    buc_next "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
+    buc_die "Cannot start without sentry image"
+  fi
 
-  ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_IMAGE}" >/dev/null 2>&1 \
-    || buc_die "Bottle image not found locally: ${ZRBOB_BOTTLE_IMAGE}
-  Run: tt/rbw-DS.DirectorSummonsArk.sh ${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
+  if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_IMAGE}" >/dev/null 2>&1; then
+    buc_warn "Bottle image not found locally: ${ZRBOB_BOTTLE_IMAGE}"
+    buc_info "Summon it first:"
+    buc_next "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
+    buc_die "Cannot start without bottle image"
+  fi
 
   # Cleanup any prior state
   zrbob_cleanup_containers

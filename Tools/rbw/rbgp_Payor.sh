@@ -576,40 +576,35 @@ rbgp_depot_create() {
 
   buc_step 'Validate Rubric Repo URL (GitLab required)'
   local -r z_rubric_repo_url="${RBRR_RUBRIC_REPO_URL:-}"
-  test -n "${z_rubric_repo_url}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
+  if test -z "${z_rubric_repo_url}"; then
+    buc_warn "RBRR_RUBRIC_REPO_URL is not set in rbrr.env"
+    buc_info "Set up a GitLab rubric repo first:"
+    buc_next "${RBZ_GITLAB_SETUP}"
+    buc_die "Cannot proceed without GitLab rubric repo"
+  fi
 
   # Validate GitLab URL — CB v2 gitlabConfig requires gitlab.com
   case "${z_rubric_repo_url}" in
     https://gitlab.com/*) ;;
-    *) buc_die "RBRR_RUBRIC_REPO_URL is not a gitlab.com URL — only GitLab is supported for CB v2 connections (GitHub classic PATs grant repo scope across ALL repositories; GitLab project access tokens are inherently repository-scoped)" ;;
+    *)
+      buc_warn "RBRR_RUBRIC_REPO_URL is not a gitlab.com URL"
+      buc_info "Only GitLab is supported for CB v2 connections."
+      buc_info "Set up a GitLab rubric repo:"
+      buc_next "${RBZ_GITLAB_SETUP}"
+      buc_die "Cannot proceed without GitLab rubric repo"
+      ;;
   esac
 
   buc_step 'Read GitLab project access token from stdin'
-  buc_info ""
-  buc_info "This command needs one value via stdin: a GitLab project access token."
-  buc_info ""
   buc_info "Rubric repo: ${z_rubric_repo_url}"
-  buc_info ""
-  buc_info "Why GitLab (not GitHub)?"
-  buc_info "  GitHub classic PATs grant 'repo' scope across ALL repositories the token"
-  buc_info "  owner can access. Fine-grained PATs are not supported by CB v2 connections"
-  buc_info "  (Google Issue Tracker #343223837). GitLab project access tokens are inherently"
-  buc_info "  repository-scoped — they cannot access resources outside the associated project."
-  buc_info ""
-  buc_info "Setup (if not already done):"
-  buc_info "  1. Create a GitLab account at gitlab.com (if needed)"
-  buc_info "  2. Create a project for the rubric repo"
-  buc_info "  3. Create a project access token:"
-  buc_bare "     Project Settings → Access Tokens → Add new token"
-  buc_info "     - Name: descriptive (e.g. 'rb-depot')"
-  buc_info "     - Role: Maintainer"
-  buc_info "     - Scopes: api (includes read_api)"
-  buc_info "     - Click 'Create project access token' and copy immediately"
-  buc_info ""
   local z_gitlab_token=""
   buc_info "Paste GitLab project access token:"
   read -r z_gitlab_token || buc_die "Failed to read token from stdin"
-  test -n "${z_gitlab_token}" || buc_die "Token is empty"
+  if test -z "${z_gitlab_token}"; then
+    buc_info "Need a token? Run the setup guide:"
+    buc_next "${RBZ_GITLAB_SETUP}"
+    buc_die "Token is empty"
+  fi
   buc_log_args "GitLab project access token read from stdin"
 
   # Construct authenticated URL for validation (token must not persist beyond this check)
@@ -1060,7 +1055,7 @@ rbgp_depot_create() {
   buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
   buc_bare "  RBRR_CBV2_CONNECTION_NAME=${z_cbv2_connection_name}"
   buc_info "Next: create Governor for this depot:"
-  buc_next "rbw-PG"
+  buc_next "${RBZ_GOVERNOR_RESET}"
 }
 
 rbgp_depot_destroy() {

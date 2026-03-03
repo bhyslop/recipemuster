@@ -106,6 +106,8 @@ zrbob_furnish() {
   source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
   source "${z_rbw_kit_dir}/rbob_bottle.sh"
   source "${z_rbw_kit_dir}/rboo_observe.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${z_rbw_kit_dir}/rbz_zipper.sh"
 
   zbuv_kindle
   zrbcc_kindle
@@ -130,6 +132,9 @@ zrbob_furnish() {
 
   # Kindle RBOB (validates RBRN and RBRR are ready)
   zrbob_kindle
+
+  zbuz_kindle
+  zrbz_kindle
 }
 
 buc_execute rbob_ "Recipe Bottle Orchestration" zrbob_furnish "$@"

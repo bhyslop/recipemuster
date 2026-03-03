@@ -39,6 +39,8 @@ zrbf_furnish() {
   source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbw_kit_dir}/rbgu_Utility.sh"
   source "${z_rbw_kit_dir}/rbf_Foundry.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${z_rbw_kit_dir}/rbz_zipper.sh"
 
   zbuv_kindle
 
@@ -64,6 +66,9 @@ zrbf_furnish() {
   zrbgo_kindle
   zrbgu_kindle
   zrbf_kindle
+
+  zbuz_kindle
+  zrbz_kindle
 }
 
 buc_execute rbf_ "Recipe Bottle Foundry" zrbf_furnish "$@"
