@@ -137,6 +137,19 @@ already exists (will be overwritten)
 .. {rbbc_require}
 RBRA file creation successful
 
+//axhos_step
+. *Verify CB v2 Connection Viewer Enforcement*:
+.. NOTE: Skipped if {rbrr_cbv2_connection_name} is not set (governor reset may precede depot creation).
+.. Authenticate as the newly-created {rbtr_governor} using the generated {rbtgi_rbra_file}
+.. {rbbc_call}
+link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/get[connections.get]
+on the CB v2 connection resource
+.. {rbbc_poll}
+with exponential backoff (3s initial, 2x multiplier, 20s cap, 120s deadline) on HTTP 403
+.. {rbbc_require}
+HTTP 200 — `roles/cloudbuild.connectionViewer` grant is enforced, not merely visible in policy
+.. NOTE: IAM policy visibility (binding appears in `getIamPolicy`) does not guarantee enforcement. Only exercising the actual permission confirms propagation is complete (see <<rbscip_trade_study>>).
+
 //axhoo_output_of_type
 {rbtr_governor}
 . *Display Result*:
