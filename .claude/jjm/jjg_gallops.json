@@ -4663,6 +4663,7 @@
       "creation_time": "260222",
       "status": "racing",
       "order": [
+        "₢AiAA4",
         "₢AiAA2",
         "₢AiAAg",
         "₢AiAAb",
@@ -4717,7 +4718,7 @@
         "₢AiAA1",
         "₢AiAA3"
       ],
-      "next_pace_seed": "AA4",
+      "next_pace_seed": "AA5",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA0": {
@@ -4796,6 +4797,17 @@
               "text": "Replace hardcoded colophon string literals in CLI consumer modules with\nzipper-enrolled constants.\n\n## Prerequisite\n\n₢AiAA1 (partition-zipper-kindle-from-healthcheck) must be complete —\nbuz_enroll no longer validates tabtargets, so CLI modules can kindle\nthe zipper cheaply.\n\n## Changes\n\n### Add zipper to CLI furnish chains\n\nBoth rbf_cli.sh and rbob_cli.sh need to source and kindle the zipper\nso their implementation modules can reference colophon constants:\n\n- Source `buz_zipper.sh` and `rbz_zipper.sh`\n- Call `zbuz_kindle` and `zrbz_kindle` in furnish (NO healthcheck —\n  these are dispatched modules, not the workbench)\n\n### Replace hardcoded strings\n\n**rbf_Foundry.sh** (line ~978):\n- `\"run ./tt/rbw-DP.DirectorRefreshesPins.sh\"` → use `${RBZ_REFRESH_GCB_PINS}`\n- The error message tells the operator what tabtarget to run; the colophon\n  is sufficient for tab-completion (`./tt/rbw-DP<TAB>`)\n\n**rbob_bottle.sh** (lines ~312, ~316):\n- `\"tt/rbw-DS.DirectorSummonsArk.sh\"` → use `${RBZ_SUMMON_ARK}`\n- Same rationale: colophon is sufficient for tab-completion\n\n### Error message format decision\n\nThe old messages included full tabtarget paths (colophon + frontispiece).\nThe colophon constant only provides the colophon portion. Options:\n1. Use colophon only: `\"run ./tt/${RBZ_REFRESH_GCB_PINS}.<TAB>\"`\n2. Use colophon in message: `\"run tabtarget ${RBZ_REFRESH_GCB_PINS}\"`\n3. Keep full path but construct from constant (not possible without frontispiece)\n\nRecommend option 2 — cleanest single-point-of-definition.\n\n## Acceptance\n\n- No hardcoded colophon string literals in rbf_Foundry.sh or rbob_bottle.sh\n- All existing tests still pass (same 5/11 fixture pass rate)\n- Error messages still guide operator to correct tabtarget",
               "silks": "replace-hardcoded-colophons-in-cli-consumers",
               "commit": "c283d42"
+            }
+          ]
+        },
+        "₢AiAA4": {
+          "tacks": [
+            {
+              "ts": "260303-1041",
+              "state": "rough",
+              "text": "Rename payor and retriever tabtargets: fix colophons and epithets.\n\n## Renames (git mv + zipper update)\n\n| Current | New | Epithet |\n|---|---|---|\n| rbw-Pcd.PayorCreatesDepot.sh | rbw-PC.PayorCreatesDepot.sh | same |\n| rbw-Pdd.PayorDestroysDepot.sh | rbw-PD.PayorDestroysDepot.sh | same |\n| rbw-Pld.PayorListsDepots.sh | rbw-Pl.PayorListsDepots.sh | same |\n| rbw-Prg.PayorResetsGovernor.sh | rbw-PG.PayorResetsGovernor.sh | same |\n| rbw-Pes.PayorEstablishes.sh | rbw-Pg.PayorEstablishmentGuide.sh | renamed |\n| rbw-Pip.PayorInstallsProcedure.sh | rbw-PI.PayorInstallation.sh | renamed |\n| rbw-Pre.PayorRefreshes.sh | rbw-PR.PayorRefreshesOAuth.sh | renamed |\n| rbw-Rli.RetrieverListsImages.sh | rbw-Rl.RetrieverListsImages.sh | same |\n| rbw-Rri.RetrieverRetrievesImage.sh | rbw-Rr.RetrieverRetrievesImage.sh | same |\n\n## Delete (duplicate of rbw-Pes, both route to rbgm_payor_establish)\n\n| Delete | Reason |\n|---|---|\n| rbw-Pse.PayorShowsEstablishment.sh | Duplicate — same zipper target as rbw-Pes |\n\n## Colophon convention\n- Uppercase final char = lasting effect (create, destroy, reset, install, refresh)\n- Lowercase final char = read-only or guide (list, guide, retrieve)\n\n## Scope\n1. git mv each tabtarget in tt/\n2. Update zipper colophon constants in rbz_zipper.sh\n3. Delete rbw-Pse duplicate from tt/ and zipper\n4. Update any buc_next references or other colophon literals\n5. Verify buz_healthcheck passes after changes",
+              "silks": "rename-payor-retriever-tabtargets",
+              "commit": "0a9a36d"
             }
           ]
         },
