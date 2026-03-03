@@ -1585,6 +1585,13 @@
         "₢ANAAD": {
           "tacks": [
             {
+              "ts": "260302-1842",
+              "state": "abandoned",
+              "text": "Rewrite jjx_retire to output JSON trophy.\n\n## Changes to jjx_retire\n\nReplace zjjrg_build_trophy_content markdown generation with JSON:\n1. Build jjrt_Trophy struct using compute functions\n2. Serialize to JSON with serde_json\n3. Write to .json file (not .md)\n\n## File Naming\n\nChange: `jjh_b{created}-r{retired}-{silks}.md`\nTo: `jjh_b{created}-r{retired}-{silks}.json`\n\n## Bug Fix\n\nFix steeplechase deduplication issue found during testing.\n\n## Dry Run\n\n`jjx_retire <firemark>` outputs JSON preview to stdout (no file write)\n\n## Execute\n\n`jjx_retire <firemark> --execute` writes JSON file, removes heat from gallops\n\n## Tack Serialization\n\nEach tack serialized as single-line JSON string in the tacks array.\nPreserves full history while keeping file scannable.\n\n## Depends on\n\ntrophy-alpha-compute (need computation functions)",
+              "silks": "trophy-alpha-generate",
+              "commit": "50a109f"
+            },
+            {
               "ts": "260124-1201",
               "state": "rough",
               "text": "Rewrite jjx_retire to output JSON trophy.\n\n## Changes to jjx_retire\n\nReplace zjjrg_build_trophy_content markdown generation with JSON:\n1. Build jjrt_Trophy struct using compute functions\n2. Serialize to JSON with serde_json\n3. Write to .json file (not .md)\n\n## File Naming\n\nChange: `jjh_b{created}-r{retired}-{silks}.md`\nTo: `jjh_b{created}-r{retired}-{silks}.json`\n\n## Bug Fix\n\nFix steeplechase deduplication issue found during testing.\n\n## Dry Run\n\n`jjx_retire <firemark>` outputs JSON preview to stdout (no file write)\n\n## Execute\n\n`jjx_retire <firemark> --execute` writes JSON file, removes heat from gallops\n\n## Tack Serialization\n\nEach tack serialized as single-line JSON string in the tacks array.\nPreserves full history while keeping file scannable.\n\n## Depends on\n\ntrophy-alpha-compute (need computation functions)",
