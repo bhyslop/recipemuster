@@ -1641,9 +1641,6 @@ rbgp_governor_reset() {
   local -r z_cbv2_conn_name="${RBRR_CBV2_CONNECTION_NAME:-}"
   if test -n "${z_cbv2_conn_name}"; then
     buc_step 'Verify CB v2 connection viewer enforcement'
-    local z_gov_token
-    z_gov_token=$(rbgo_get_token_capture "${z_rbra_file}") \
-      || buc_die "Failed to get Governor token for CB v2 verification"
 
     local -r z_cbv2_verify_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn_name}"
     local z_cbv2_verify_delay=3
@@ -1651,11 +1648,17 @@ rbgp_governor_reset() {
     local -r z_cbv2_verify_deadline=120
 
     while :; do
-      local z_cbv2_verify_infix="gov_cbv2_verify_${z_cbv2_verify_elapsed}s"
-      rbgu_http_json "GET" "${z_cbv2_verify_url}" "${z_gov_token}" "${z_cbv2_verify_infix}" || true
+      # Token acquisition may fail while SA key propagates to Google's OAuth endpoint.
+      # Retry both token failure and permission denial within the same loop.
+      local z_gov_token=""
+      z_gov_token=$(rbgo_get_token_capture "${z_rbra_file}") || z_gov_token=""
 
-      local z_cbv2_verify_code=""
-      z_cbv2_verify_code=$(rbgu_http_code_capture "${z_cbv2_verify_infix}") || z_cbv2_verify_code=""
+      local z_cbv2_verify_code="TOKEN_FAIL"
+      if test -n "${z_gov_token}"; then
+        local z_cbv2_verify_infix="gov_cbv2_verify_${z_cbv2_verify_elapsed}s"
+        rbgu_http_json "GET" "${z_cbv2_verify_url}" "${z_gov_token}" "${z_cbv2_verify_infix}" || true
+        z_cbv2_verify_code=$(rbgu_http_code_capture "${z_cbv2_verify_infix}") || z_cbv2_verify_code="NO_CODE"
+      fi
 
       if test "${z_cbv2_verify_code}" = "200"; then
         buc_log_args "CB v2 connectionViewer grant enforced after ${z_cbv2_verify_elapsed}s"
@@ -1664,9 +1667,9 @@ rbgp_governor_reset() {
 
       z_cbv2_verify_elapsed=$((z_cbv2_verify_elapsed + z_cbv2_verify_delay))
       test "${z_cbv2_verify_elapsed}" -lt "${z_cbv2_verify_deadline}" \
-        || buc_die "CB v2 connectionViewer grant not enforced after ${z_cbv2_verify_deadline}s — connections.get still returns HTTP ${z_cbv2_verify_code}"
+        || buc_die "CB v2 connectionViewer grant not enforced after ${z_cbv2_verify_deadline}s — last status: ${z_cbv2_verify_code}"
 
-      buc_log_args "CB v2 connectionViewer not yet enforced (HTTP ${z_cbv2_verify_code}, ${z_cbv2_verify_elapsed}s elapsed) — retrying"
+      buc_log_args "CB v2 verification not ready (${z_cbv2_verify_code}, ${z_cbv2_verify_elapsed}s elapsed) — retrying"
       sleep "${z_cbv2_verify_delay}"
       z_cbv2_verify_delay=$((z_cbv2_verify_delay * 2))
       test "${z_cbv2_verify_delay}" -le 20 || z_cbv2_verify_delay=20
