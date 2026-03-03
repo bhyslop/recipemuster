@@ -62,10 +62,10 @@ zrbgu_sentinel() {
 
 rbgu_json_valid_predicate() {
   zrbgu_sentinel
-  local z_infix="${1:-}"
+  local -r z_infix="${1:-}"
   test -n "${z_infix}" || return 1
 
-  local z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
   test -f "${z_json_file}" || return 1
 
   jq -e . "${z_json_file}" >/dev/null 2>&1
@@ -73,15 +73,15 @@ rbgu_json_valid_predicate() {
 
 rbgu_role_member_exists_predicate() {
   zrbgu_sentinel
-  local z_infix="${1:-}"
-  local z_role="${2:-}"
-  local z_member="${3:-}"
+  local -r z_infix="${1:-}"
+  local -r z_role="${2:-}"
+  local -r z_member="${3:-}"
 
   test -n "${z_infix}" || return 1
   test -n "${z_role}"  || return 1
   test -n "${z_member}" || return 1
 
-  local z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
   test -f "${z_json_file}" || return 1
 
   jq -e --arg r "${z_role}" --arg m "${z_member}" \
@@ -94,7 +94,7 @@ rbgu_role_member_exists_predicate() {
 
 rbgu_error_message_capture() {
   zrbgu_sentinel
-  local z_infix="${1:-}"
+  local -r z_infix="${1:-}"
   test -n "${z_infix}" || return 1
 
   if rbgu_json_valid_predicate "${z_infix}"; then
@@ -139,12 +139,12 @@ rbgu_urlencode_capture() {
 rbgu_jq_add_member_to_role_capture() {
   zrbgu_sentinel
 
-  local z_infix="${1:-}"
-  local z_role="${2:-}"
-  local z_member="${3:-}"
-  local z_etag_opt="${4:-}"
+  local -r z_infix="${1:-}"
+  local -r z_role="${2:-}"
+  local -r z_member="${3:-}"
+  local -r z_etag_opt="${4:-}"
 
-  local z_policy_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_policy_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
 
   test -n "${z_policy_file}" || return 1
   test -f "${z_policy_file}" || return 1
@@ -174,9 +174,9 @@ rbgu_jq_add_member_to_role_capture() {
 
 rbgu_json_field_capture() {
   zrbgu_sentinel
-  local z_infix="${1}"
-  local z_jq="${2}"
-  local z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_infix="${1}"
+  local -r z_jq="${2}"
+  local -r z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
   local z_result
   z_result=$(jq -r "${z_jq}" "${z_json_file}")          || return 1
   test -n "${z_result}" && test "${z_result}" != "null" || return 1
@@ -185,8 +185,8 @@ rbgu_json_field_capture() {
 
 rbgu_http_code_capture() {
   zrbgu_sentinel
-  local z_infix="${1}"
-  local z_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}"
+  local -r z_infix="${1}"
+  local -r z_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}"
   local z_code
   z_code=$(<"${z_file}") || return 1
   test -n "${z_code}"    || return 1
@@ -209,8 +209,8 @@ rbgu_get_governor_token_capture() {
 rbgu_authenticate_role_capture() {
   zrbgu_sentinel
 
-  local z_rbra_file="${1}"
-  
+  local -r z_rbra_file="${1}"
+
   test -n "${z_rbra_file}" || return 1
   test -f "${z_rbra_file}" || return 1
   
@@ -229,10 +229,10 @@ rbgu_authenticate_role_capture() {
 # JSON file writer helper (vanilla empty policy)
 rbgu_write_vanilla_json() {
   zrbgu_sentinel
-  local z_infix="${1:-}"
+  local -r z_infix="${1:-}"
   test -n "${z_infix}" || return 1
 
-  local z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
   printf '{"bindings":[]}\n' > "${z_json_file}" || return 1
   test -f                      "${z_json_file}" || return 1
 }
@@ -240,16 +240,16 @@ rbgu_write_vanilla_json() {
 # Apply jq filter to file, writing result to same or different file
 rbgu_jq_file_to_file_ok() {
   zrbgu_sentinel
-  local z_source_infix="${1:-}"
-  local z_target_infix="${2:-}"
-  local z_jq_filter="${3:-}"
+  local -r z_source_infix="${1:-}"
+  local -r z_target_infix="${2:-}"
+  local -r z_jq_filter="${3:-}"
 
   test -n "${z_source_infix}" || return 1
   test -n "${z_target_infix}" || return 1
   test -n "${z_jq_filter}"    || return 1
 
-  local z_source_file="${ZRBGU_PREFIX}${z_source_infix}${ZRBGU_POSTFIX_JSON}"
-  local z_target_file="${ZRBGU_PREFIX}${z_target_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_source_file="${ZRBGU_PREFIX}${z_source_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_target_file="${ZRBGU_PREFIX}${z_target_infix}${ZRBGU_POSTFIX_JSON}"
 
   test -f "${z_source_file}" || return 1
 
@@ -264,15 +264,15 @@ rbgu_jq_file_to_file_ok() {
 rbgu_http_json() {
   zrbgu_sentinel
 
-  local z_method="${1}"
-  local z_url="${2}"
-  local z_token="${3}"
-  local z_infix="${4}"
-  local z_body_file="${5:-}"
+  local -r z_method="${1}"
+  local -r z_url="${2}"
+  local -r z_token="${3}"
+  local -r z_infix="${4}"
+  local -r z_body_file="${5:-}"
 
-  local z_resp_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
-  local z_code_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}"
-  local z_code_errs="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}.stderr"
+  local -r z_resp_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_code_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}"
+  local -r z_code_errs="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}.stderr"
 
   local z_curl_status=0
 
@@ -317,10 +317,10 @@ rbgu_http_json() {
 
 rbgu_http_require_ok() {
   zrbgu_sentinel
-  local z_ctx="$1"
-  local z_infix="$2"
-  local z_warn_code="${3:-}"
-  local z_warn_message="${4:-already exists}"
+  local -r z_ctx="$1"
+  local -r z_infix="$2"
+  local -r z_warn_code="${3:-}"
+  local -r z_warn_message="${4:-already exists}"
 
   local z_code
   z_code=$(rbgu_http_code_capture "${z_infix}") \
@@ -336,7 +336,7 @@ rbgu_http_require_ok() {
   fi
 
   local z_err=""
-  local z_response_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_response_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
 
   if jq -e . "${z_response_file}" >/dev/null 2>&1; then
     z_err=$(rbgu_json_field_capture "${z_infix}" '.error.message') || z_err="Unknown error"
@@ -355,14 +355,14 @@ rbgu_http_require_ok() {
 rbgu_http_json_ok() {
   zrbgu_sentinel
 
-  local z_label="$1"
-  local z_token="$2"
-  local z_method="$3"
-  local z_url="$4"
-  local z_infix="$5"
-  local z_body_file="$6"
-  local z_warn_code="${7:-}"
-  local z_warn_message="${8:-}"
+  local -r z_label="$1"
+  local -r z_token="$2"
+  local -r z_method="$3"
+  local -r z_url="$4"
+  local -r z_infix="$5"
+  local -r z_body_file="$6"
+  local -r z_warn_code="${7:-}"
+  local -r z_warn_message="${8:-}"
 
   buc_log_args "${z_label}"
 
@@ -377,16 +377,16 @@ rbgu_http_json_ok() {
 rbgu_http_json_lro_ok() {
   zrbgu_sentinel
 
-  local z_label="${1}"
-  local z_token="${2}"
-  local z_post_url="${3}"
-  local z_infix="${4}"
-  local z_body="${5}"
-  local z_name_jq="${6}"
-  local z_poll_root="${7}"
-  local z_op_prefix="${8}"
-  local z_poll_interval="${9:-${RBGC_EVENTUAL_CONSISTENCY_SEC}}"
-  local z_timeout="${10:-${RBGC_MAX_CONSISTENCY_SEC}}"
+  local -r z_label="${1}"
+  local -r z_token="${2}"
+  local -r z_post_url="${3}"
+  local -r z_infix="${4}"
+  local -r z_body="${5}"
+  local -r z_name_jq="${6}"
+  local -r z_poll_root="${7}"
+  local -r z_op_prefix="${8}"
+  local -r z_poll_interval="${9:-${RBGC_EVENTUAL_CONSISTENCY_SEC}}"
+  local -r z_timeout="${10:-${RBGC_MAX_CONSISTENCY_SEC}}"
 
   buc_log_args '1) POST the request'
   rbgu_http_json "POST" "${z_post_url}" "${z_token}" "${z_infix}" "${z_body}"
@@ -398,7 +398,7 @@ rbgu_http_json_lro_ok() {
     local z_lro_error=""
     z_lro_error=$(rbgu_json_field_capture "${z_infix}" '.error.message // empty') || z_lro_error=""
     if test -n "${z_lro_error}"; then
-      local z_lro_resp_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+      local -r z_lro_resp_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
       buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
       buc_die "${z_label}: ${z_lro_error}"
     fi
@@ -414,7 +414,7 @@ rbgu_http_json_lro_ok() {
     return 0
   }
   buc_log_args '3) Build poll URL based on operation name format'
-  local z_poll_url=""
+  local z_poll_url
   if [[ "${z_name}" =~ ^projects/.*/locations/.*/operations/ ]]; then
     buc_log_args '  Regional operation with fully-qualified name'
     z_poll_url="${z_poll_root}/${z_name}"
@@ -436,7 +436,7 @@ rbgu_http_json_lro_ok() {
     sleep "${z_poll_interval}"
     z_elapsed=$((z_elapsed + z_poll_interval))
 
-    local z_poll_infix="${z_infix}-poll-${z_elapsed}s"
+    local -r z_poll_infix="${z_infix}-poll-${z_elapsed}s"
     rbgu_http_json "GET" "${z_poll_url}" "${z_token}" "${z_poll_infix}"
 
     local z_code=""
@@ -448,7 +448,7 @@ rbgu_http_json_lro_ok() {
       local z_lro_error=""
       z_lro_error=$(rbgu_json_field_capture "${z_poll_infix}" '.error.message // empty') || z_lro_error=""
       if test -n "${z_lro_error}"; then
-        local z_lro_resp_file="${ZRBGU_PREFIX}${z_poll_infix}${ZRBGU_POSTFIX_JSON}"
+        local -r z_lro_resp_file="${ZRBGU_PREFIX}${z_poll_infix}${ZRBGU_POSTFIX_JSON}"
         buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
         buc_die "${z_label}: ${z_lro_error}"
       fi
@@ -465,14 +465,14 @@ rbgu_http_json_lro_ok() {
 rbgu_poll_get_until_ok() {
   zrbgu_sentinel
 
-  local z_label="${1}"
-  local z_url="${2}"
-  local z_token="${3}"
-  local z_infix="${4}"
+  local -r z_label="${1}"
+  local -r z_url="${2}"
+  local -r z_token="${3}"
+  local -r z_infix="${4}"
 
   local z_elapsed=0
   while :; do
-    local z_poll_infix="${z_infix}-${z_elapsed}s"
+    local -r z_poll_infix="${z_infix}-${z_elapsed}s"
     rbgu_http_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}" || true
 
     local z_code
@@ -494,9 +494,9 @@ rbgu_poll_get_until_ok() {
 rbgu_newly_created_delay() {
   zrbgu_sentinel
 
-  local z_infix="${1}"
-  local z_resource="${2}"
-  local z_delay="${3}"
+  local -r z_infix="${1}"
+  local -r z_resource="${2}"
+  local -r z_delay="${3}"
 
   local z_code
   z_code=$(rbgu_http_code_capture "${z_infix}") || return 1
@@ -510,10 +510,10 @@ rbgu_newly_created_delay() {
 rbgu_extract_json_to_rbra() {
   zrbgu_sentinel
 
-  local z_json_path="$1"
-  local z_rbra_path="$2"
-  local z_lifetime_sec="$3"
-  local z_expected_project_id="${4:-}"
+  local -r z_json_path="$1"
+  local -r z_rbra_path="$2"
+  local -r z_lifetime_sec="$3"
+  local -r z_expected_project_id="${4:-}"
 
   test -f "${z_json_path}" || buc_die "Service account JSON not found: ${z_json_path}"
 
@@ -566,19 +566,19 @@ rbgu_extract_json_to_rbra() {
 # Ensures a specified Google Cloud API is enabled in a project with idempotent behavior
 rbgu_api_enable() {
   zrbgu_sentinel
-  
-  local z_api_service="${1}"
-  local z_project_id="${2}"
-  local z_token="${3}"
-  
+
+  local -r z_api_service="${1}"
+  local -r z_project_id="${2}"
+  local -r z_token="${3}"
+
   test -n "${z_api_service}" || buc_die "rbgu_api_enable: API service name required"
   test -n "${z_project_id}" || buc_die "rbgu_api_enable: project ID required"
   test -n "${z_token}" || buc_die "rbgu_api_enable: access token required"
-  
+
   buc_log_args "Enabling API ${z_api_service} in project ${z_project_id}"
-  
-  local z_infix="api-enable-${z_api_service}"
-  local z_enable_url="https://serviceusage.googleapis.com/v1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:enable"
+
+  local -r z_infix="api-enable-${z_api_service}"
+  local -r z_enable_url="https://serviceusage.googleapis.com/v1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:enable"
   
   # Attempt to enable the API
   rbgu_http_json "POST" "${z_enable_url}" "${z_token}" "${z_infix}" ""
@@ -611,11 +611,11 @@ rbgu_api_enable() {
   # Check if this returned an LRO that needs polling
   local z_operation_name
   z_operation_name=$(rbgu_json_field_capture "${z_infix}" ".name") || z_operation_name=""
-  
+
   if [ -n "${z_operation_name}" ]; then
     buc_log_args "API enable returned LRO, polling for completion"
     # Use the LRO polling mechanism
-    local z_poll_root="https://serviceusage.googleapis.com/v1"
+    local -r z_poll_root="https://serviceusage.googleapis.com/v1"
     rbgu_http_json_lro_ok \
       "API Enable ${z_api_service}" \
       "${z_token}" \
@@ -626,21 +626,21 @@ rbgu_api_enable() {
       "${z_poll_root}" \
       ""
   fi
-  
+
   # Verify API is enabled
-  local z_verify_infix="api-verify-${z_api_service}"
-  local z_verify_url="https://serviceusage.googleapis.com/v1/projects/${z_project_id}/services/${z_api_service}.googleapis.com"
+  local -r z_verify_infix="api-verify-${z_api_service}"
+  local -r z_verify_url="https://serviceusage.googleapis.com/v1/projects/${z_project_id}/services/${z_api_service}.googleapis.com"
   
   rbgu_http_json "GET" "${z_verify_url}" "${z_token}" "${z_verify_infix}" ""
   rbgu_http_require_ok "API Enable Verify ${z_api_service}" "${z_verify_infix}"
-  
+
   local z_state
   z_state=$(rbgu_json_field_capture "${z_verify_infix}" ".state") || buc_die "Failed to read API state"
-  
+
   if [ "${z_state}" != "ENABLED" ]; then
     buc_die "API ${z_api_service} not enabled after request (state: ${z_state})"
   fi
-  
+
   buc_log_args "API ${z_api_service} confirmed enabled"
 }
 
@@ -651,9 +651,9 @@ rbgu_api_enable() {
 rbgu_provision_service_agent() {
   zrbgu_sentinel
 
-  local z_api_service="${1}"
-  local z_project_id="${2}"
-  local z_token="${3}"
+  local -r z_api_service="${1}"
+  local -r z_project_id="${2}"
+  local -r z_token="${3}"
 
   test -n "${z_api_service}" || buc_die "rbgu_provision_service_agent: API service name required"
   test -n "${z_project_id}" || buc_die "rbgu_provision_service_agent: project ID required"
@@ -661,8 +661,8 @@ rbgu_provision_service_agent() {
 
   buc_log_args "Provisioning service agent for ${z_api_service} in ${z_project_id}"
 
-  local z_infix="provision-sa-${z_api_service}"
-  local z_url="https://serviceusage.googleapis.com/v1beta1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:generateServiceIdentity"
+  local -r z_infix="provision-sa-${z_api_service}"
+  local -r z_url="https://serviceusage.googleapis.com/v1beta1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:generateServiceIdentity"
 
   rbgu_http_json "POST" "${z_url}" "${z_token}" "${z_infix}" ""
   rbgu_http_require_ok "Provision service agent ${z_api_service}" "${z_infix}"
@@ -674,7 +674,7 @@ rbgu_provision_service_agent() {
   if test "${z_done}" != "true"; then
     local z_op_name
     z_op_name=$(rbgu_json_field_capture "${z_infix}" ".name") || buc_die "Provision ${z_api_service}: no operation name"
-    local z_poll_url="https://serviceusage.googleapis.com/v1beta1/${z_op_name}"
+    local -r z_poll_url="https://serviceusage.googleapis.com/v1beta1/${z_op_name}"
 
     local z_elapsed=0
     while :; do
@@ -709,28 +709,28 @@ rbgu_provision_service_agent() {
 # Sources an RBRA file and validates required fields
 rbgu_rbra_load() {
   zrbgu_sentinel
-  
-  local z_rbra_file="${1}"
-  
+
+  local -r z_rbra_file="${1}"
+
   test -n "${z_rbra_file}" || buc_die "rbgu_rbra_load: RBRA file path required"
   test -f "${z_rbra_file}" || buc_die "rbgu_rbra_load: RBRA file not found: ${z_rbra_file}"
-  
+
   buc_log_args "Loading and validating RBRA credentials from ${z_rbra_file}"
-  
+
   # Source the RBRA file
   # shellcheck source=/dev/null
   source "${z_rbra_file}" || buc_die "rbgu_rbra_load: failed to source RBRA file"
-  
+
   # Validate required fields
   test -n "${RBRA_CLIENT_EMAIL:-}" || buc_die "rbgu_rbra_load: RBRA_CLIENT_EMAIL missing from ${z_rbra_file}"
   test -n "${RBRA_PRIVATE_KEY:-}" || buc_die "rbgu_rbra_load: RBRA_PRIVATE_KEY missing from ${z_rbra_file}"
   test -n "${RBRA_PROJECT_ID:-}" || buc_die "rbgu_rbra_load: RBRA_PROJECT_ID missing from ${z_rbra_file}"
-  
+
   # Check for null values
   test "${RBRA_CLIENT_EMAIL}" != "null" || buc_die "rbgu_rbra_load: RBRA_CLIENT_EMAIL is null in ${z_rbra_file}"
   test "${RBRA_PRIVATE_KEY}" != "null" || buc_die "rbgu_rbra_load: RBRA_PRIVATE_KEY is null in ${z_rbra_file}"
   test "${RBRA_PROJECT_ID}" != "null" || buc_die "rbgu_rbra_load: RBRA_PROJECT_ID is null in ${z_rbra_file}"
-  
+
   buc_log_args "RBRA validation successful: ${RBRA_CLIENT_EMAIL} in project ${RBRA_PROJECT_ID}"
 }
 
@@ -759,7 +759,7 @@ rbgu_rbro_load() {
 rbgu_check_rubric_repo_url() {
   zrbgu_sentinel
 
-  local z_url="${1:-}"
+  local -r z_url="${1:-}"
   test -n "${z_url}" || buc_die "Rubric repo URL is empty — set RBRR_RUBRIC_REPO_URL in rbrr.env"
 
   buc_log_args "Validating rubric repo URL reachability"

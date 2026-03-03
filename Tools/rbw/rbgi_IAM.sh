@@ -79,8 +79,8 @@ zrbgi_sentinel() {
 # This indicates IAM propagation delay for a newly-created service account.
 # Returns 0 (true) if retryable propagation error, 1 otherwise.
 zrbgi_propagation_error_predicate() {
-  local z_infix="${1}"
-  local z_code="${2}"
+  local -r z_infix="${1}"
+  local -r z_code="${2}"
 
   test "${z_code}" = "400" || return 1
 
@@ -100,20 +100,20 @@ zrbgi_propagation_error_predicate() {
 rbgi_add_project_iam_role() {
   zrbgi_sentinel
 
-  local z_token="${1:-}"
-  local z_label="${2:-}"
-  local z_resource="${3:-}"  # resource_base: Base resource URL
-  local z_role="${4:-}"
-  local z_member="${5:-}"
-  local z_parent_infix="${6:-}"
+  local -r z_token="${1:-}"
+  local -r z_label="${2:-}"
+  local -r z_resource="${3:-}"  # resource_base: Base resource URL
+  local -r z_role="${4:-}"
+  local -r z_member="${5:-}"
+  local -r z_parent_infix="${6:-}"
 
   test -n "${z_token}" || buc_die "Token required"
   buc_log_args "Using admin token (value not logged)"
 
-  local z_resource_path="${z_resource#/}"  # strip leading slash if present
-  local z_base="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/${z_resource_path}"
-  local z_get_url="${z_base}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"
-  local z_set_url="${z_base}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}"
+  local -r z_resource_path="${z_resource#/}"  # strip leading slash if present
+  local -r z_base="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/${z_resource_path}"
+  local -r z_get_url="${z_base}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"
+  local -r z_set_url="${z_base}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}"
 
   test -n "${z_resource}" || buc_die "resource required"
   test -n "${z_role}"     || buc_die "role required"
@@ -135,8 +135,8 @@ rbgi_add_project_iam_role() {
 
     buc_log_args "1) GET policy (v3) [attempt ${z_prop_attempt}]"
     buc_log_args "GET_POLICY_URL_DEBUG z_resource:${z_resource} z_get_url:${z_get_url}"
-    local z_get_body="${ZRBGI_PREFIX}${z_parent_infix}_get_body.json"
-    local z_get_infix="${z_parent_infix}-get-${z_prop_elapsed}s"
+    local -r z_get_body="${ZRBGI_PREFIX}${z_parent_infix}_get_body.json"
+    local -r z_get_infix="${z_parent_infix}-get-${z_prop_elapsed}s"
     printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}"
     rbgu_http_json "POST" "${z_get_url}" "${z_token}" "${z_get_infix}" "${z_get_body}"
 
@@ -171,7 +171,7 @@ rbgi_add_project_iam_role() {
     z_new_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "${z_member}" "${z_etag}") \
       || buc_die "Failed to compose policy JSON"
 
-    local z_set_body="${ZRBGI_PREFIX}${z_parent_infix}_set_body.json"
+    local -r z_set_body="${ZRBGI_PREFIX}${z_parent_infix}_set_body.json"
     printf '{"policy":%s}\n' "${z_new_policy_json}" > "${z_set_body}"
 
     buc_log_args '3) setIamPolicy (fatal on 409/412 by policy)'
@@ -243,12 +243,12 @@ rbgi_add_project_iam_role() {
 rbgi_add_repo_iam_role() {
   zrbgi_sentinel
 
-  local z_token="${1:-}"
-  local z_project_id="${2:-}"
-  local z_account_email="${3:-}"
-  local z_location="${4:-}"
-  local z_repository="${5:-}"
-  local z_role="${6:-}"
+  local -r z_token="${1:-}"
+  local -r z_project_id="${2:-}"
+  local -r z_account_email="${3:-}"
+  local -r z_location="${4:-}"
+  local -r z_repository="${5:-}"
+  local -r z_role="${6:-}"
 
   test -n "${z_token}"         || buc_die "Token required"
   test -n "${z_project_id}"    || buc_die "Project ID required"
@@ -259,9 +259,9 @@ rbgi_add_repo_iam_role() {
 
   buc_log_args "Using admin token (value not logged)"
 
-  local z_resource="projects/${z_project_id}/locations/${z_location}/repositories/${z_repository}"
-  local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
-  local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
+  local -r z_resource="projects/${z_project_id}/locations/${z_location}/repositories/${z_repository}"
+  local -r z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
+  local -r z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
 
   buc_log_args 'Adding repo-scoped IAM role' \
                " ${z_role} to ${z_account_email} on ${z_location}/${z_repository}"
@@ -313,7 +313,7 @@ rbgi_add_repo_iam_role() {
       || buc_die "Failed to update policy JSON"
 
     buc_log_args 'Set updated repo IAM policy'
-    local z_repo_set_body="${BURD_TEMP_DIR}/rbgi_repo_set_policy_body.json"
+    local -r z_repo_set_body="${BURD_TEMP_DIR}/rbgi_repo_set_policy_body.json"
     printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_repo_set_body}" \
       || buc_die "Failed to build repo setIamPolicy body"
     rbgu_http_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_repo_set_body}"
@@ -344,10 +344,10 @@ rbgi_add_repo_iam_role() {
 rbgi_add_sa_iam_role() {
   zrbgi_sentinel
 
-  local z_token="${1:-}"
-  local z_target_sa_email="${2:-}"
-  local z_member_email="${3:-}"  # email only; function adds serviceAccount: prefix
-  local z_role="${4:-}"
+  local -r z_token="${1:-}"
+  local -r z_target_sa_email="${2:-}"
+  local -r z_member_email="${3:-}"  # email only; function adds serviceAccount: prefix
+  local -r z_role="${4:-}"
 
   test -n "${z_token}" || buc_die "Token required"
 
@@ -370,7 +370,7 @@ rbgi_add_sa_iam_role() {
   test "${z_verify_code}" = "200" || \
     buc_die "Target service account not accessible: ${z_target_sa_email} (HTTP ${z_verify_code})"
 
-  local z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
+  local -r z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
 
   # Propagation retry: get-modify-set may fail with HTTP 400 "does not exist"
   # when a newly-created SA hasn't propagated to the IAM policy service.
@@ -417,7 +417,7 @@ rbgi_add_sa_iam_role() {
       || buc_die "Failed to update SA IAM policy"
 
     buc_log_args 'Set updated SA IAM policy'
-    local z_set_body="${BURD_TEMP_DIR}/rbgi_sa_set_policy_body.json"
+    local -r z_set_body="${BURD_TEMP_DIR}/rbgi_sa_set_policy_body.json"
     printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_set_body}" \
       || buc_die "Failed to build SA setIamPolicy body"
 
@@ -450,17 +450,17 @@ rbgi_add_sa_iam_role() {
 rbgi_add_bucket_iam_role() {
   zrbgi_sentinel
 
-  local z_token="${1:-}"
-  local z_bucket_name="${2:-}"
-  local z_account_email="${3:-}"
-  local z_role="${4:-}"
+  local -r z_token="${1:-}"
+  local -r z_bucket_name="${2:-}"
+  local -r z_account_email="${3:-}"
+  local -r z_role="${4:-}"
 
   test -n "${z_token}" || buc_die "Token required"
 
   buc_log_args "Using admin token (value not logged)"
   buc_log_args "Adding bucket IAM role ${z_role} to ${z_account_email}"
 
-  local z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/iam"
+  local -r z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/iam"
 
   # Propagation retry: get-modify-set may fail with HTTP 400 "does not exist"
   # when a newly-created SA hasn't propagated to the IAM policy service.
@@ -508,7 +508,7 @@ rbgi_add_bucket_iam_role() {
       || buc_die "Failed to update bucket IAM policy"
 
     buc_log_args 'Set updated bucket IAM policy'
-    local z_bucket_set_body="${BURD_TEMP_DIR}/rbgi_bucket_set_policy_body.json"
+    local -r z_bucket_set_body="${BURD_TEMP_DIR}/rbgi_bucket_set_policy_body.json"
     printf '%s\n' "${z_updated_policy_json}" > "${z_bucket_set_body}" \
       || buc_die "Failed to write bucket policy body"
 

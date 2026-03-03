@@ -147,7 +147,7 @@ zrbgp_depot_list_update() {
 
   # Query active depot projects (CRM v1 allows listing accessible projects without parent)
   # Using v1 instead of v3 which requires parent parameter
-  local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects"
+  local -r z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects"
   rbgu_http_json "GET" "${z_list_url}" "${z_access_token}" "depot_list_tracking"
 
   # Non-blocking: if query fails, just log and continue (normal on first install with no projects)
@@ -192,7 +192,7 @@ zrbgp_depot_list_update() {
 zrbgp_billing_attach() {
   zrbgp_sentinel
 
-  local z_billing_account="${1:-}"
+  local -r z_billing_account="${1:-}"
 
   buc_doc_brief "Attach a billing account to the project"
   buc_doc_param "billing_account" "Billing account ID to attach"
@@ -204,7 +204,7 @@ zrbgp_billing_attach() {
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
-  local z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_attach.json"
+  local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_attach.json"
   jq -n --arg billingAccountName "billingAccounts/${z_billing_account}" \
     --arg projectId "${RBRR_DEPOT_PROJECT_ID}" \
     '{
@@ -213,7 +213,7 @@ zrbgp_billing_attach() {
       billingEnabled: true
     }' > "${z_billing_body}" || buc_die "Failed to build billing attach body"
 
-  local z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRR_DEPOT_PROJECT_ID}:setBillingInfo"
+  local -r z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRR_DEPOT_PROJECT_ID}:setBillingInfo"
   rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" \
                                   "${ZRBGP_INFIX_BILLING_ATTACH}" "${z_billing_body}"
   rbgu_http_require_ok "Attach billing account" "${ZRBGP_INFIX_BILLING_ATTACH}"
@@ -231,14 +231,14 @@ zrbgp_billing_detach() {
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
-  local z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_detach.json"
+  local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_detach.json"
   jq -n --arg projectId "${RBRR_DEPOT_PROJECT_ID}" \
     '{
       projectId: $projectId,
       billingEnabled: false
     }' > "${z_billing_body}" || buc_die "Failed to build billing detach body"
 
-  local z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRR_DEPOT_PROJECT_ID}:setBillingInfo"
+  local -r z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRR_DEPOT_PROJECT_ID}:setBillingInfo"
   rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" \
                                   "${ZRBGP_INFIX_BILLING_DETACH}" "${z_billing_body}"
   rbgu_http_require_ok "Detach billing account" "${ZRBGP_INFIX_BILLING_DETACH}"
@@ -279,7 +279,7 @@ zrbgp_liens_list() {
 zrbgp_lien_delete() {
   zrbgp_sentinel
 
-  local z_lien_name="${1:-}"
+  local -r z_lien_name="${1:-}"
 
   buc_doc_brief "Delete a specific lien from the project"
   buc_doc_param "lien_name" "Full resource name of the lien to delete"
@@ -303,7 +303,7 @@ zrbgp_lien_delete() {
 zrbgp_required_apis_missing_capture() {
   zrbgp_sentinel
 
-  local z_token="${1:-}"
+  local -r z_token="${1:-}"
   test -n "${z_token}" || { echo ""; return 1; }
 
   local z_missing=""
@@ -362,11 +362,11 @@ zrbgp_get_project_number_capture() {
 zrbgp_create_gcs_bucket() {
   zrbgp_sentinel
 
-  local z_token="${1}"
-  local z_bucket_name="${2}"
+  local -r z_token="${1}"
+  local -r z_bucket_name="${2}"
 
   buc_log_args 'Create bucket request JSON for '"${z_bucket_name}"
-  local z_bucket_req="${BURD_TEMP_DIR}/rbgp_bucket_create_req.json"
+  local -r z_bucket_req="${BURD_TEMP_DIR}/rbgp_bucket_create_req.json"
   jq -n --arg name "${z_bucket_name}" --arg location "${RBGC_GAR_LOCATION}" '
     {
       name: $name,
@@ -396,7 +396,7 @@ zrbgp_create_gcs_bucket() {
 rbgp_payor_install() {
   zrbgp_sentinel
 
-  local z_oauth_json_file="${1:-}"
+  local -r z_oauth_json_file="${1:-}"
 
   buc_doc_brief "Install Payor OAuth credentials from client JSON file following RBAGS specification"
   buc_doc_param "oauth_json_file" "Path to downloaded OAuth client JSON file from establish procedure"
@@ -426,14 +426,14 @@ rbgp_payor_install() {
   test -n "${z_project_id}" || buc_die "OAuth JSON file missing project_id field"
 
   buc_step 'Check existing credentials'
-  local z_rbro_file="${RBRR_PAYOR_RBRO_FILE}"
+  local -r z_rbro_file="${RBRR_PAYOR_RBRO_FILE}"
   if test -f "${z_rbro_file}"; then
     buc_log_args "Existing RBRO credentials will be replaced"
   fi
 
   local z_refresh_token=""
   buc_step 'OAuth authorization flow'
-  local z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=openid%20email%20https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
+  local -r z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=openid%20email%20https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
 
   bug_e
   bug_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
@@ -532,7 +532,7 @@ EOF
   buc_info "Operator email: ${z_operator_email}"
 
   buc_step 'Verify payor project access'
-  local z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_project_id}"
+  local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_project_id}"
   rbgu_http_json "GET" "${z_project_info_url}" "${z_access_token}" "payor_verify" 
   rbgu_http_require_ok "Verify payor project" "payor_verify"
   
@@ -556,8 +556,8 @@ EOF
 rbgp_depot_create() {
   zrbgp_sentinel
 
-  local z_depot_name="${1:-}"
-  local z_region="${RBRR_GCP_REGION}"
+  local -r z_depot_name="${1:-}"
+  local -r z_region="${RBRR_GCP_REGION}"
 
   buc_doc_brief "Create new depot infrastructure following RBAGS specification"
   buc_doc_param "depot_name" "Depot name (lowercase/numbers/hyphens, max ${RBGC_GLOBAL_DEPOT_NAME_MAX} chars)"
@@ -621,8 +621,8 @@ rbgp_depot_create() {
   buc_log_args 'Validating region exists in Artifact Registry locations'
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor for region validation"
-  
-  local z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
+
+  local -r z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
   rbgu_http_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
   rbgu_http_require_ok "Validate region" "region_validation"
   
@@ -644,7 +644,7 @@ rbgp_depot_create() {
   buc_step 'Generate depot project ID'
   local z_timestamp
   z_timestamp=$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}") || buc_die "Failed to generate timestamp"
-  local z_depot_project_id="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-${z_depot_name}-${z_timestamp}"
+  local -r z_depot_project_id="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-${z_depot_name}-${z_timestamp}"
   
   if [ "${#z_depot_project_id}" -gt 30 ]; then
     buc_die "Generated project ID too long (${#z_depot_project_id} > 30): ${z_depot_project_id}"
@@ -653,8 +653,8 @@ rbgp_depot_create() {
   buc_log_args "Generated depot project ID: ${z_depot_project_id}"
 
   buc_step 'Create depot project'
-  local z_create_project_body="${BURD_TEMP_DIR}/rbgp_create_project.json"
-  
+  local -r z_create_project_body="${BURD_TEMP_DIR}/rbgp_create_project.json"
+
   # OAuth users create projects without parent (per MPCR)
   jq -n \
     --arg projectId "${z_depot_project_id}" \
@@ -664,7 +664,7 @@ rbgp_depot_create() {
       displayName: $displayName
     }' > "${z_create_project_body}" || buc_die "Failed to build project creation body"
 
-  local z_create_project_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects"
+  local -r z_create_project_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects"
   rbgu_http_json_lro_ok \
     "Create depot project" \
     "${z_token}" \
@@ -678,19 +678,19 @@ rbgp_depot_create() {
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
   buc_step 'Link billing account'
-  local z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_link.json"
+  local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_link.json"
   jq -n \
     --arg billingAccountName "billingAccounts/${RBRP_BILLING_ACCOUNT_ID}" \
     '{
       billingAccountName: $billingAccountName
     }' > "${z_billing_body}" || buc_die "Failed to build billing link body"
 
-  local z_billing_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_depot_project_id}/billingInfo"
+  local -r z_billing_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_depot_project_id}/billingInfo"
   rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" "depot_billing_link" "${z_billing_body}"
   rbgu_http_require_ok "Link billing account" "depot_billing_link"
 
   buc_step 'Get depot project number'
-  local z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+  local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
   rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_project_info"
   rbgu_http_require_ok "Get project info" "depot_project_info"
   
@@ -700,7 +700,7 @@ rbgp_depot_create() {
   test -n "${z_project_number}" || buc_die "Project number is empty"
 
   buc_step 'Enable depot project APIs'
-  local z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis iam secretmanager serviceusage storage"
+  local -r z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis iam secretmanager serviceusage storage"
   for z_service in ${z_api_services}; do
     rbgu_api_enable "${z_service}" "${z_depot_project_id}" "${z_token}"
   done
@@ -709,12 +709,12 @@ rbgp_depot_create() {
   # Skip Payor permission grants - OAuth user context provides necessary access
 
   buc_step 'Verify IAM propagation before resource creation'
-  local z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${z_depot_project_id}/locations/${z_region}/repositories"
+  local -r z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${z_depot_project_id}/locations/${z_region}/repositories"
   rbgu_poll_get_until_ok "AR IAM propagation" "${z_preflight_url}" "${z_token}" "iam_preflight"
 
   buc_step 'Create build bucket'
-  local z_build_bucket="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_timestamp}"
-  local z_bucket_req="${BURD_TEMP_DIR}/rbgp_bucket_create_req.json"
+  local -r z_build_bucket="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_timestamp}"
+  local -r z_bucket_req="${BURD_TEMP_DIR}/rbgp_bucket_create_req.json"
   jq -n \
     --arg name "${z_build_bucket}" \
     --arg location "${z_region}" \
@@ -726,7 +726,7 @@ rbgp_depot_create() {
       lifecycle: { rule: [ { action: { type: "Delete" }, condition: { age: 1 } } ] }
     }' > "${z_bucket_req}" || buc_die "Failed to create bucket request JSON"
 
-  local z_bucket_create_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b?project=${z_depot_project_id}"
+  local -r z_bucket_create_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b?project=${z_depot_project_id}"
   rbgu_http_json "POST" "${z_bucket_create_url}" "${z_token}" "depot_bucket_create" "${z_bucket_req}"
   
   local z_bucket_code
@@ -738,10 +738,10 @@ rbgp_depot_create() {
   esac
 
   buc_step 'Create container repository'
-  local z_repository_name="rbw-${z_depot_name}-repository"
-  local z_parent="projects/${z_depot_project_id}/locations/${z_region}"
-  local z_create_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}/repositories?repositoryId=${z_repository_name}"
-  local z_create_repo_body="${BURD_TEMP_DIR}/rbgp_create_repo.json"
+  local -r z_repository_name="rbw-${z_depot_name}-repository"
+  local -r z_parent="projects/${z_depot_project_id}/locations/${z_region}"
+  local -r z_create_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}/repositories?repositoryId=${z_repository_name}"
+  local -r z_create_repo_body="${BURD_TEMP_DIR}/rbgp_create_repo.json"
   
   jq -n '{format:"DOCKER"}' > "${z_create_repo_body}" || buc_die "Failed to build create-repo body"
 
@@ -758,13 +758,13 @@ rbgp_depot_create() {
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
   buc_step 'Verify IAM API is ready for service account creation'
-  local z_iam_preflight_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
+  local -r z_iam_preflight_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
   rbgu_poll_get_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
-  local z_mason_name="${RBGC_MASON_PREFIX}-${z_depot_name}"
-  local z_mason_display_name="Mason for RB Depot: ${z_depot_name}"
-  local z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_mason.json"
+  local -r z_mason_name="${RBGC_MASON_PREFIX}-${z_depot_name}"
+  local -r z_mason_display_name="Mason for RB Depot: ${z_depot_name}"
+  local -r z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_mason.json"
   
   jq -n \
     --arg accountId "${z_mason_name}" \
@@ -776,7 +776,7 @@ rbgp_depot_create() {
       }
     }' > "${z_create_sa_body}" || buc_die "Failed to build Mason creation body"
 
-  local z_create_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
+  local -r z_create_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
   rbgu_http_json "POST" "${z_create_sa_url}" "${z_token}" "depot_mason_create" "${z_create_sa_body}"
   rbgu_http_require_ok "Create Mason service account" "depot_mason_create"
   
@@ -784,7 +784,7 @@ rbgp_depot_create() {
   z_mason_sa_email=$(rbgu_json_field_capture "depot_mason_create" '.email') || buc_die "Failed to get Mason email"
 
   buc_step 'Verify Mason service account propagation'
-  local z_mason_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts/${z_mason_sa_email}"
+  local -r z_mason_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts/${z_mason_sa_email}"
   rbgu_poll_get_until_ok "Mason SA" "${z_mason_sa_url}" "${z_token}" "mason_sa_preflight"
 
   buc_step 'Configure Mason permissions'
@@ -964,7 +964,7 @@ rbgp_depot_create() {
   buc_log_args 'Get Payor email from OAuth userinfo'
   rbgu_http_json "GET" "https://www.googleapis.com/oauth2/v3/userinfo" "${z_token}" "depot_create_userinfo"
   rbgu_http_require_ok "Get Payor email" "depot_create_userinfo"
-  local z_payor_email=""
+  local z_payor_email
   z_payor_email=$(rbgu_json_field_capture "depot_create_userinfo" '.email') \
     || buc_die "Userinfo response missing email"
   test -n "${z_payor_email}" || buc_die "Payor email not found in userinfo response"
@@ -975,12 +975,12 @@ rbgp_depot_create() {
   local z_cb_sa_encoded=""
   z_cb_sa_encoded=$(rbgu_urlencode_capture "${z_cb_service_agent}") \
     || buc_die "Failed to encode CB service agent email"
-  local z_cb_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_cb_sa_encoded}"
+  local -r z_cb_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_cb_sa_encoded}"
 
   # Get current SA IAM policy (with propagation retry)
-  local z_imp_prop_delay=3
+  local -r z_imp_prop_delay=3
   local z_imp_prop_elapsed=0
-  local z_imp_prop_deadline=420
+  local -r z_imp_prop_deadline=420
   local z_imp_prop_attempt=0
 
   while :; do
@@ -1025,7 +1025,7 @@ rbgp_depot_create() {
       "roles/iam.serviceAccountTokenCreator" "user:${z_payor_email}" "") \
       || buc_die "Failed to build tokenCreator policy"
 
-    local z_imp_set_body="${BURD_TEMP_DIR}/rbgp_imp_gate_set.json"
+    local -r z_imp_set_body="${BURD_TEMP_DIR}/rbgp_imp_gate_set.json"
     printf '{"policy":%s}\n' "${z_imp_updated_policy}" > "${z_imp_set_body}" \
       || buc_die "Failed to write tokenCreator setIamPolicy body"
 
@@ -1060,15 +1060,15 @@ rbgp_depot_create() {
 
   # Step C: Mint token as CB service agent via generateAccessToken
   buc_log_args 'Mint impersonated token as CB service agent'
-  local z_gen_token_url="https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${z_cb_sa_encoded}:generateAccessToken"
-  local z_gen_token_body="${BURD_TEMP_DIR}/rbgp_gen_access_token.json"
+  local -r z_gen_token_url="https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${z_cb_sa_encoded}:generateAccessToken"
+  local -r z_gen_token_body="${BURD_TEMP_DIR}/rbgp_gen_access_token.json"
   printf '{"scope":["https://www.googleapis.com/auth/cloud-platform"],"lifetime":"300s"}\n' \
     > "${z_gen_token_body}" || buc_die "Failed to write generateAccessToken body"
 
   # Retry generateAccessToken with backoff (the tokenCreator grant may not have propagated yet)
-  local z_gat_delay=3
+  local -r z_gat_delay=3
   local z_gat_elapsed=0
-  local z_gat_deadline=420
+  local -r z_gat_deadline=420
   local z_gat_attempt=0
   local z_impersonated_token=""
 
@@ -1106,11 +1106,11 @@ rbgp_depot_create() {
 
   # Step D: Poll accessSecretVersion with impersonated token until 200
   buc_log_args 'Verify CB service agent can access secrets via impersonated token'
-  local z_access_secret_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_token_version}:access"
+  local -r z_access_secret_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_token_version}:access"
 
-  local z_asv_delay=3
+  local -r z_asv_delay=3
   local z_asv_elapsed=0
-  local z_asv_deadline=420
+  local -r z_asv_deadline=420
   local z_asv_attempt=0
 
   while :; do
@@ -1150,7 +1150,7 @@ rbgp_depot_create() {
 
   # Defense-in-depth: clean up zombie connection from a previous failed attempt
   buc_log_args 'Check for zombie CB v2 connection'
-  local z_cbv2_zombie_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}"
+  local -r z_cbv2_zombie_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}"
   rbgu_http_json "GET" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_check"
   local z_zombie_code=""
   z_zombie_code=$(rbgu_http_code_capture "depot_cbv2_zombie_check") || z_zombie_code=""
@@ -1202,7 +1202,8 @@ rbgp_depot_create() {
   local -r z_cbv2_get_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}"
   local z_cbv2_poll_count=0
   local -r z_cbv2_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
-  local z_cbv2_stage=""
+  local z_cbv2_stage
+  z_cbv2_stage=""
 
   while true; do
     local z_cbv2_poll_infix="depot_cbv2_poll_${z_cbv2_poll_count}"
@@ -1280,7 +1281,7 @@ rbgp_depot_create() {
 rbgp_depot_destroy() {
   zrbgp_sentinel
 
-  local z_depot_project_id="${1:-}"
+  local -r z_depot_project_id="${1:-}"
 
   buc_doc_brief "DANGER: Permanently destroy an entire depot infrastructure"
   buc_doc_param "depot_project_id" "The depot project ID to destroy"
@@ -1300,8 +1301,8 @@ rbgp_depot_destroy() {
 
   buc_step 'Validate target depot'
   test -n "${z_depot_project_id}" || buc_die "Depot project ID required as first argument"
-  
-  local z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+
+  local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
   rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_validate"
   rbgu_http_require_ok "Validate depot project" "depot_destroy_validate"
   
@@ -1317,7 +1318,7 @@ rbgp_depot_destroy() {
   fi
 
   buc_step 'Check for and remove liens'
-  local z_liens_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects%2F${z_depot_project_id}"
+  local -r z_liens_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects%2F${z_depot_project_id}"
   rbgu_http_json "GET" "${z_liens_url}" "${z_token}" "depot_destroy_liens_list"
   rbgu_http_require_ok "List liens" "depot_destroy_liens_list"
   
@@ -1332,7 +1333,7 @@ rbgp_depot_destroy() {
     for z_lien_name in ${z_lien_names}; do
       if [ -n "${z_lien_name}" ]; then
         buc_log_args "Removing lien: ${z_lien_name}"
-        local z_delete_lien_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens/${z_lien_name}"
+        local -r z_delete_lien_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens/${z_lien_name}"
         rbgu_http_json "DELETE" "${z_delete_lien_url}" "${z_token}" "depot_destroy_lien_delete"
         rbgu_http_require_ok "Delete lien" "depot_destroy_lien_delete"
       fi
@@ -1340,10 +1341,10 @@ rbgp_depot_destroy() {
   fi
 
   buc_step 'Unlink billing account (releases quota immediately)'
-  local z_billing_unlink_body="${BURD_TEMP_DIR}/rbgp_billing_unlink.json"
+  local -r z_billing_unlink_body="${BURD_TEMP_DIR}/rbgp_billing_unlink.json"
   echo '{"billingAccountName":""}' > "${z_billing_unlink_body}" || buc_die "Failed to build billing unlink body"
 
-  local z_billing_unlink_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_depot_project_id}/billingInfo"
+  local -r z_billing_unlink_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_depot_project_id}/billingInfo"
   rbgu_http_json "PUT" "${z_billing_unlink_url}" "${z_token}" "depot_destroy_billing_unlink" "${z_billing_unlink_body}"
 
   local z_billing_unlink_code
@@ -1414,7 +1415,7 @@ rbgp_depot_destroy() {
   esac
 
   buc_step 'Initiate depot deletion'
-  local z_delete_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+  local -r z_delete_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
   rbgu_http_json "DELETE" "${z_delete_url}" "${z_token}" "depot_destroy_delete"
   
   local z_delete_response
@@ -1429,9 +1430,9 @@ rbgp_depot_destroy() {
   fi
 
   buc_step 'Verify deletion state transition'
-  local z_max_attempts=12
+  local -r z_max_attempts=12
   local z_attempt=1
-  local z_final_state=""
+  local z_final_state
   
   while [ "${z_attempt}" -le "${z_max_attempts}" ]; do
     sleep 5
@@ -1481,8 +1482,8 @@ rbgp_depot_list() {
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
   buc_step 'Query depot projects'
-  local z_filter="projectId:${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-* AND lifecycleState:ACTIVE"
-  local z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects?filter=${z_filter// /%20}"
+  local -r z_filter="projectId:${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-* AND lifecycleState:ACTIVE"
+  local -r z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects?filter=${z_filter// /%20}"
   rbgu_http_json "GET" "${z_list_url}" "${z_token}" "depot_list_projects"
   rbgu_http_require_ok "List depot projects" "depot_list_projects"
   
@@ -1512,12 +1513,12 @@ rbgp_depot_list() {
     
     # Extract depot name and timestamp from project ID pattern rbwg-d-NAME-TIMESTAMP
     # Using bash builtins per BCG
-    local z_depot_name=""
-    local z_depot_timestamp=""
+    local z_depot_name
+    local z_depot_timestamp
     if printf '%s' "${z_project_id}" | grep -qE "${RBGC_GLOBAL_DEPOT_REGEX}"; then
-      local z_without_prefix="${z_project_id#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
-      local z_len=${#z_without_prefix}
-      local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
+      local -r z_without_prefix="${z_project_id#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
+      local -r z_len=${#z_without_prefix}
+      local -r z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
       z_depot_name="${z_without_prefix:0:$((z_len - z_suffix_len))}"
       z_depot_timestamp="${z_project_id:$((${#z_project_id} - RBGC_GLOBAL_TIMESTAMP_LEN))}"
     fi
@@ -1527,12 +1528,12 @@ rbgp_depot_list() {
     local z_region="unknown"
     
     # Try to detect region and validate components
-    local z_mason_expected="${RBGC_MASON_PREFIX}-${z_depot_name}"
-    local z_repo_expected="rbw-${z_depot_name}-repository"
-    local z_bucket_expected="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_depot_timestamp}"
-    
+    local -r z_mason_expected="${RBGC_MASON_PREFIX}-${z_depot_name}"
+    local -r z_repo_expected="rbw-${z_depot_name}-repository"
+    local -r z_bucket_expected="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_depot_timestamp}"
+
     # Quick validation - check if Mason service account exists
-    local z_mason_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts/${z_mason_expected}@${z_project_id}.iam.gserviceaccount.com"
+    local -r z_mason_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts/${z_mason_expected}@${z_project_id}.iam.gserviceaccount.com"
     rbgu_http_json "GET" "${z_mason_url}" "${z_token}" "depot_list_mason_${z_depot_index}" || true
 
     local z_mason_code
@@ -1604,7 +1605,7 @@ rbgp_payor_oauth_refresh() {
 rbgp_governor_reset() {
   zrbgp_sentinel
 
-  local z_depot_project_id="${RBRR_DEPOT_PROJECT_ID}"
+  local -r z_depot_project_id="${RBRR_DEPOT_PROJECT_ID}"
 
   buc_doc_brief "Create or replace Governor service account in a depot"
   buc_doc_lines "This operation is idempotent: existing governor-* SAs are deleted before creating a new one"
@@ -1626,7 +1627,7 @@ rbgp_governor_reset() {
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
   buc_step 'Validate depot project exists and is active'
-  local z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+  local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
   rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
   rbgu_http_require_ok "Validate depot project" "${ZRBGP_INFIX_PROJECT_INFO}"
 
@@ -1637,7 +1638,7 @@ rbgp_governor_reset() {
   test "${z_depot_project_id}" != "${RBRP_PAYOR_PROJECT_ID}" || buc_die "Cannot create Governor in Payor project"
 
   buc_step 'List existing service accounts in depot'
-  local z_sa_list_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
+  local -r z_sa_list_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
   rbgu_http_json "GET" "${z_sa_list_url}" "${z_token}" "${ZRBGP_INFIX_GOV_LIST_SA}"
   rbgu_http_require_ok "List service accounts" "${ZRBGP_INFIX_GOV_LIST_SA}"
 
@@ -1653,7 +1654,7 @@ rbgp_governor_reset() {
       test -n "${z_email}" || continue
       buc_log_args "Deleting existing governor SA: ${z_email}"
 
-      local z_delete_url="${z_sa_list_url}/${z_email}"
+      local -r z_delete_url="${z_sa_list_url}/${z_email}"
       rbgu_http_json "DELETE" "${z_delete_url}" "${z_token}" "${ZRBGP_INFIX_GOV_DELETE_SA}"
 
       local z_delete_code
@@ -1671,13 +1672,13 @@ rbgp_governor_reset() {
   buc_step 'Generate Governor timestamp and account ID'
   local z_timestamp
   z_timestamp=$(date +%Y%m%d%H%M) || buc_die "Failed to generate timestamp"
-  local z_governor_account_id="${RBGC_GOVERNOR_PREFIX}-${z_timestamp}"
-  local z_governor_email="${z_governor_account_id}@${z_depot_project_id}.iam.gserviceaccount.com"
+  local -r z_governor_account_id="${RBGC_GOVERNOR_PREFIX}-${z_timestamp}"
+  local -r z_governor_email="${z_governor_account_id}@${z_depot_project_id}.iam.gserviceaccount.com"
 
   buc_log_args "Governor account ID: ${z_governor_account_id}"
 
   buc_step 'Create Governor service account'
-  local z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_governor.json"
+  local -r z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_governor.json"
   jq -n \
     --arg accountId "${z_governor_account_id}" \
     --arg displayName "Governor for RB Depot" \
@@ -1694,7 +1695,7 @@ rbgp_governor_reset() {
   buc_log_args "Governor service account created: ${z_governor_email}"
 
   buc_step 'Wait for Governor SA propagation'
-  local z_verify_url="${z_sa_list_url}/${z_governor_email}"
+  local -r z_verify_url="${z_sa_list_url}/${z_governor_email}"
   rbgu_poll_get_until_ok "Governor SA" "${z_verify_url}" "${z_token}" "gov_verify"
 
   # No fixed sleep needed: rbgi_add_project_iam_role retries on "does not exist"
@@ -1710,10 +1711,10 @@ rbgp_governor_reset() {
     "governor-owner"
 
   buc_step 'Generate service account key'
-  local z_key_req="${BURD_TEMP_DIR}/rbgp_governor_key_request.json"
+  local -r z_key_req="${BURD_TEMP_DIR}/rbgp_governor_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
 
-  local z_key_url="${z_sa_list_url}/${z_governor_email}/keys"
+  local -r z_key_url="${z_sa_list_url}/${z_governor_email}/keys"
   rbgu_http_json "POST" "${z_key_url}" "${z_token}" "${ZRBGP_INFIX_GOV_KEY}" "${z_key_req}"
   rbgu_http_require_ok "Generate Governor key" "${ZRBGP_INFIX_GOV_KEY}"
 
@@ -1722,7 +1723,7 @@ rbgp_governor_reset() {
   z_key_b64=$(rbgu_json_field_capture "${ZRBGP_INFIX_GOV_KEY}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
 
-  local z_key_json="${BURD_TEMP_DIR}/rbgp_governor_key.json"
+  local -r z_key_json="${BURD_TEMP_DIR}/rbgp_governor_key.json"
   buc_log_args 'Tolerate macos base64 difference'
   if ! printf '%s' "${z_key_b64}" | base64 -d > "${z_key_json}" 2>/dev/null; then
        printf '%s' "${z_key_b64}" | base64 -D > "${z_key_json}" 2>/dev/null \
@@ -1730,7 +1731,7 @@ rbgp_governor_reset() {
   fi
 
   buc_step 'Convert JSON key to RBRA format'
-  local z_rbra_file="${BURD_OUTPUT_DIR}/governor-${z_timestamp}.rbra"
+  local -r z_rbra_file="${BURD_OUTPUT_DIR}/governor-${z_timestamp}.rbra"
 
   local z_client_email
   z_client_email=$(jq -r '.client_email' "${z_key_json}") || buc_die "Failed to extract client_email"

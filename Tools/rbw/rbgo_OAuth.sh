@@ -63,7 +63,7 @@ zrbgo_sentinel() {
 zrbgo_base64url_encode_capture() {
   zrbgo_sentinel
 
-  local z_input="$1"
+  local -r z_input="$1"
 
   # Base64 encode (portable: no -w), strip newlines, then URL-safe transform and remove padding
   printf '%s' "${z_input}" | base64 | tr -d '\n' | tr '+/' '-_' | tr -d '='
@@ -72,7 +72,7 @@ zrbgo_base64url_encode_capture() {
 zrbgo_build_jwt_capture() {
   zrbgo_sentinel
 
-  local z_rbra_file="$1"
+  local -r z_rbra_file="$1"
 
   # RBRA_* expected: CLIENT_EMAIL, PRIVATE_KEY, TOKEN_LIFETIME_SEC
   # RBRA_PRIVATE_KEY contains \n sequences that must become real newlines for openssl
@@ -94,7 +94,7 @@ zrbgo_build_jwt_capture() {
   buc_log_args "Calculate timestamps"
   local z_now
   z_now=$(date +%s) || return 1
-  local z_exp=$((z_now + RBRA_TOKEN_LIFETIME_SEC))
+  local -r z_exp=$((z_now + RBRA_TOKEN_LIFETIME_SEC))
 
   buc_log_args "Build JWT claims"
   jq -n                                         \
@@ -134,7 +134,7 @@ zrbgo_build_jwt_capture() {
 zrbgo_exchange_jwt_capture() {
   zrbgo_sentinel
 
-  local z_jwt="$1"
+  local -r z_jwt="$1"
 
   buc_log_args "Exchange JWT for OAuth token"
   curl -s -X POST "${RBGC_OAUTH_TOKEN_URL}"                                        \
@@ -163,7 +163,7 @@ zrbgo_exchange_jwt_capture() {
 rbgo_get_token_capture() {
   zrbgo_sentinel
 
-  local z_rbra_file="$1"
+  local -r z_rbra_file="$1"
 
   # Documentation block
   buc_doc_brief "Exchange service account credentials for OAuth2 access token"
