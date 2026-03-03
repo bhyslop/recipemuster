@@ -19,35 +19,41 @@ creates a new depot infrastructure from the
 `«INPUT_DEPOT_NAME»` provided as first argument
 .. Validate depot name: lowercase letters, numbers, hyphens only, max 20 chars
 
+//axhos_step
+. *Validate Rubric Repo URL and extract GitHub org*:
+.. {rbbc_require}
+{rbrr_rubric_repo_url}
+is set in regime (`RBRR_RUBRIC_REPO_URL` in `rbrr.env`)
+.. {rbbc_require}
+URL begins with `https://github.com/` or {rbbc_fatal} "only GitHub is supported for CB v2 connections"
+.. Extract `«GITHUB_ORG»` from URL path
+
 //axhop_parameter_from_stdin
 . *GitHub Credentials (stdin)*:
 .. Read two lines from stdin: `«GITHUB_PAT»` (line 1), `«GITHUB_APP_INSTALLATION_ID»` (line 2)
-.. If stdin is empty or missing either value:
-... {rbbc_show}
-inline guide: install the "Google Cloud Build" GitHub App on the target GitHub org (via `github.com/apps/google-cloud-build`), create a classic PAT with scopes `repo`, `read:user`, `read:org`, and provide both the PAT and the numeric installation ID
-... {rbbc_show}
-"Note: other git hosting services are supported — GitHub is the reference implementation"
+.. If stdin is empty or missing either value, {rbbc_show} step-by-step inline guide:
+... Step 1: Create a classic PAT (NOT fine-grained — CB v2 rejects those) at `github.com/settings/tokens/new` with scopes `repo`, `read:user`, `read:org`
+... Step 2: Install the Google Cloud Build GitHub App on `«GITHUB_ORG»` at `github.com/apps/google-cloud-build`
+... Step 3: Find the numeric installation ID at `github.com/orgs/«GITHUB_ORG»/settings/installations` — click Configure next to Google Cloud Build, ID is in the URL
+... Show invocation pattern: `printf '%s\n%s\n' "$PAT" "$INSTALL_ID" | <tabtarget> <depot_name>`
 ... {rbbc_fatal}
 "Provide PAT and installation ID via stdin and re-run"
 
 //axhos_step
-. *Authenticate as
-{rbtr_payor}*:
-.. Execute
-{rbtoe_payor_authenticate}
-
-//axhos_step
-. *Validate Rubric Repo URL*:
-.. {rbbc_require}
-{rbrr_rubric_repo_url}
-is set in regime (`RBRR_RUBRIC_REPO_URL` in `rbrr.env`)
-.. Construct authenticated URL: `https://x-access-token:«GITHUB_PAT»@<host>/<path>` from
+. *Validate Rubric Repo URL reachability*:
+.. Construct authenticated URL: `https://x-access-token:«GITHUB_PAT»@github.com/«GITHUB_ORG»/«REPO»` from
 {rbrr_rubric_repo_url}
 .. {rbbc_call}
 `git ls-remote «AUTHENTICATED_URL» HEAD` to verify reachability and credential validity
 .. {rbbc_require}
 successful exit or {rbbc_fatal} "Rubric repo URL unreachable or PAT invalid — check RBRR_RUBRIC_REPO_URL and PAT scopes"
 .. Discard `«AUTHENTICATED_URL»` from memory (PAT must not persist)
+
+//axhos_step
+. *Authenticate as
+{rbtr_payor}*:
+.. Execute
+{rbtoe_payor_authenticate}
 
 //axhos_step
 . *Generate Depot Project ID*:

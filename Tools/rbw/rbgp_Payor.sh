@@ -574,30 +574,55 @@ rbgp_depot_create() {
     buc_die "Depot name must be ${RBGC_GLOBAL_DEPOT_NAME_MAX} characters or less"
   fi
 
-  buc_step 'Read GitHub credentials from stdin'
-  local z_github_pat=""
-  local z_github_app_installation_id=""
-  if ! read -r z_github_pat 2>/dev/null || test -z "${z_github_pat}"; then
-    buc_info ""
-    buc_info "GitHub credentials required via stdin (two lines: PAT, then installation ID)."
-    buc_info ""
-    buc_info "Setup:"
-    buc_info "  1. Install the 'Google Cloud Build' GitHub App on your org:"
-    buc_bare "     https://github.com/apps/google-cloud-build"
-    buc_info "  2. Create a classic PAT with scopes: repo, read:user, read:org"
-    buc_info "  3. Note the numeric installation ID from the App settings page"
-    buc_info ""
-    buc_info "Note: other git hosting services are supported — GitHub is the reference implementation"
-    buc_die "Provide PAT and installation ID via stdin and re-run"
-  fi
-  if ! read -r z_github_app_installation_id 2>/dev/null || test -z "${z_github_app_installation_id}"; then
-    buc_die "Second stdin line (GitHub App installation ID) is missing or empty"
-  fi
-  buc_log_args "GitHub credentials read from stdin"
-
-  buc_step 'Validate Rubric Repo URL'
+  buc_step 'Validate Rubric Repo URL and extract GitHub org'
   local -r z_rubric_repo_url="${RBRR_RUBRIC_REPO_URL:-}"
   test -n "${z_rubric_repo_url}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
+
+  # Extract GitHub org — CB v2 connections require GitHub
+  local z_github_org=""
+  case "${z_rubric_repo_url}" in
+    https://github.com/*)
+      z_github_org="${z_rubric_repo_url#https://github.com/}"
+      z_github_org="${z_github_org%%/*}"
+      ;;
+    *) buc_die "RBRR_RUBRIC_REPO_URL is not a github.com URL — only GitHub is supported for CB v2 connections" ;;
+  esac
+  test -n "${z_github_org}" || buc_die "Failed to extract GitHub org from RBRR_RUBRIC_REPO_URL"
+
+  buc_step 'Read GitHub credentials from stdin'
+  buc_info ""
+  buc_info "This command needs two values via stdin: a GitHub classic PAT and an App installation ID."
+  buc_info ""
+  buc_info "Rubric repo: ${z_rubric_repo_url}"
+  buc_info "GitHub org:  ${z_github_org}"
+  buc_info ""
+  buc_info "Step 1: Create a classic PAT (NOT fine-grained — CB v2 rejects those)"
+  buc_bare "   https://github.com/settings/tokens/new"
+  buc_info "   - Note: give it a descriptive name (e.g. 'rb-depot')"
+  buc_info "   - Expiration: choose an appropriate lifetime"
+  buc_info "   - Select scopes: repo, read:user, read:org"
+  buc_info "   - Click 'Generate token' and copy immediately (shown only once)"
+  buc_info ""
+  buc_info "Step 2: Install the Google Cloud Build GitHub App on your org"
+  buc_bare "   https://github.com/apps/google-cloud-build"
+  buc_info "   - Click 'Install', select the '${z_github_org}' org"
+  buc_info "   - Grant access to the rubric repo (or all repos)"
+  buc_info ""
+  buc_info "Step 3: Find the installation ID"
+  buc_bare "   https://github.com/orgs/${z_github_org}/settings/installations"
+  buc_info "   - Click 'Configure' next to 'Google Cloud Build'"
+  buc_info "   - The numeric ID is in the URL: .../installations/<ID>"
+  buc_info ""
+  local z_github_pat=""
+  buc_info "Paste classic PAT (from Step 1):"
+  read -r z_github_pat || buc_die "Failed to read PAT from stdin"
+  test -n "${z_github_pat}" || buc_die "PAT is empty"
+
+  local z_github_app_installation_id=""
+  buc_info "Paste installation ID (from Step 3):"
+  read -r z_github_app_installation_id || buc_die "Failed to read installation ID from stdin"
+  test -n "${z_github_app_installation_id}" || buc_die "Installation ID is empty"
+  buc_log_args "GitHub credentials read from stdin"
 
   # Construct authenticated URL for validation (PAT must not persist beyond this check)
   local z_auth_url
