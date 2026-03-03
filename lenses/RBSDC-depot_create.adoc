@@ -239,6 +239,15 @@ returned {gcp_lro}
 `«CBV2_CONNECTION_NAME»` as `rbw-«INPUT_DEPOT_NAME»-gitlab`
 .. {rbbc_poll}
 link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/get[connections.get] until `installationState.stage` reaches `COMPLETE`
+.. *Retry with backoff on IAM propagation failure*:
+The connection creation LRO serves as the IAM propagation gate (see RBSCIP).
+If the Cloud Build Service Agent cannot yet access the secrets (grant not propagated),
+the LRO fails.  On failure:
+... Delete the zombie connection resource via
+link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/delete[connections.delete]
+(a failed LRO leaves a non-functional connection that blocks re-creation with the same name)
+... Wait per backoff profile (initial 3s, 2x multiplier, cap 20s, deadline 420s)
+... Retry `connections.create` from the top of this step
 .. {rbbc_require}
 connection is COMPLETE or {rbbc_warn} diagnostic checklist ({rbbc_fatal} after):
 ... GitLab project access token has `api` scope

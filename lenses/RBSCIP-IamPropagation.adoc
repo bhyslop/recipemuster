@@ -1,15 +1,21 @@
 ==== Decision
 
-IAM propagation delays are handled by retry-on-error patterns, not fixed sleep delays.
+IAM propagation delays for Cloud Build v2 connection creation are handled by
+connection-creation retry with exponential backoff, not by an impersonation
+readiness gate or fixed sleep delays.
 
 * **SA binding propagation**: `setIamPolicy` and `getIamPolicy` calls that fail with HTTP 400 "does not exist"
   (newly-created service account not yet visible to the IAM policy service) are retried with exponential backoff.
-* **Secret access readiness**: Before creating a Cloud Build v2 connection that depends on Secret Manager IAM grants,
-  an impersonation readiness gate verifies the CB service agent can actually access the secrets.
-  The gate mints a short-lived token as the CB service agent via `generateAccessToken`, then calls
-  `accessSecretVersion` with that impersonated token, retrying on 403 until the grant propagates.
+* **Secret access readiness**: The CB v2 connection creation LRO itself serves as the propagation test.
+  If the Cloud Build Service Agent cannot yet access the secrets (IAM grant not propagated), the LRO fails.
+  The caller retries with exponential backoff, deleting the zombie connection resource between attempts.
 
 ==== Rationale
+
+The connection creation LRO tests the actual operation, not a proxy.
+When the Cloud Build Service Agent reads secrets to configure the GitLab connection,
+a successful LRO proves end-to-end readiness: the IAM grant on the secret has propagated,
+the service agent identity is active, and the secret content is valid.
 
 Fixed `sleep` delays ("sleep and pray") are unreliable:
 
@@ -22,8 +28,30 @@ Fixed `sleep` delays ("sleep and pray") are unreliable:
 The `testIamPermissions` API cannot serve as a readiness gate because it only tests the caller's own
 permissions on a resource -- it cannot test whether a third-party service account (like the CB service agent)
 has been granted access to a secret.
-Impersonation via `generateAccessToken` creates a token that embodies the service agent's identity,
-enabling a direct `accessSecretVersion` call that proves end-to-end readiness.
+
+==== Superseded: Impersonation Readiness Gate
+
+The prior approach used an impersonation readiness gate: mint a short-lived token as the CB service agent
+via `generateAccessToken`, then call `accessSecretVersion` with that impersonated token, retrying on 403
+until the grant propagates.  This approach was abandoned due to three problems discovered 2026-03-03:
+
+. **roles/owner does NOT grant iam.serviceAccounts.getAccessToken** --
+  The explicit `roles/iam.serviceAccountTokenCreator` grant (previously deleted as unnecessary per
+  an earlier RBSCIP revision) was in fact required for impersonation.  Without it,
+  `generateAccessToken` returns persistent 403.  roles/owner is a broad role but does not include
+  the `iam.serviceAccounts.getAccessToken` permission needed for impersonation.
+
+. **Wrong SA identity** -- The code impersonated the default build SA
+  (`{PN}@cloudbuild.gserviceaccount.com`) but CB v2 connections use the Cloud Build Service Agent
+  (`service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com`).  Even if impersonation worked,
+  it would have tested the wrong principal.
+
+. **No non-impersonation alternative exists** -- `testIamPermissions` and IAM Policy Analyzer
+  reflect policy intent (what the policy document says), not enforcement state (whether the grant
+  has actually propagated).  Only actual access as the principal proves propagation.
+
+Pattern B (connection-creation retry) eliminates `generateAccessToken`, `accessSecretVersion`,
+and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness gate.
 
 ==== Evidence
 
@@ -41,15 +69,15 @@ enabling a direct `accessSecretVersion` call that proves end-to-end readiness.
 |testIamPermissions tests caller permissions only
 |https://docs.google.com/iam/docs/testing-permissions[Testing permissions] -- tests whether the caller has the specified permissions on a resource
 
-|generateAccessToken mints short-lived credentials for a service account
-|https://cloud.google.com/iam/docs/reference/credentials/rest/v1/projects.serviceAccounts/generateAccessToken[generateAccessToken API reference]
-
-|accessSecretVersion retrieves a secret payload (proves end-to-end IAM grant)
-|https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/access[accessSecretVersion API reference]
+|CB v2 connection creation uses the Cloud Build Service Agent to read secrets
+|https://cloud.google.com/build/docs/automating-builds/github/connect-repo-github[Connect a GitHub host] -- the Cloud Build Service Agent must have `roles/secretmanager.secretAccessor` on the secrets used by the connection
 |===
 
 ==== What Dies
 
+* The impersonation readiness gate (`generateAccessToken` + `accessSecretVersion` as a pre-check)
+* Any `roles/iam.serviceAccountTokenCreator` grant solely for the readiness gate
+  (build-time Mason impersonation grants are unrelated and preserved)
 * Fixed `sleep 15` delays before CB v2 connection creation and after Governor SA creation
 * Standalone `rbgu_poll_get_until_ok` as a correctness gate for IAM propagation
   (the SA GET poll remains as a fast-path existence check, not a grant propagation gate)
@@ -65,6 +93,8 @@ enabling a direct `accessSecretVersion` call that proves end-to-end readiness.
 * All IAM grant functions (`rbgi_add_project_iam_role`, `rbgi_add_repo_iam_role`,
   `rbgi_add_sa_iam_role`, `rbgi_add_bucket_iam_role`) -- enhanced with propagation retry,
   not replaced
+* Cloud Build service agent `roles/iam.serviceAccountTokenCreator` grant on Mason SA --
+  this is for build-time impersonation (Cloud Build executing as Mason), unrelated to the readiness gate
 
 ==== Backoff Profile
 
@@ -80,6 +110,6 @@ propagation while avoiding indefinite waits.
 
 ==== References
 
-* Research conducted: 2026-03-03 (API documentation review)
+* Research conducted: 2026-03-03 (API documentation review, live 403 diagnosis)
 * Google IAM documentation consistently describes eventual consistency without hard SLA bounds
-* The `generateAccessToken` / `accessSecretVersion` gate pattern is original to Recipe Bottle
+* Pattern B (connection-creation-as-probe) replaces the original `generateAccessToken` / `accessSecretVersion` gate
