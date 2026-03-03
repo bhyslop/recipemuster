@@ -4724,9 +4724,10 @@
         "₢AiAA1",
         "₢AiAA3",
         "₢AiAA8",
-        "₢AiABA"
+        "₢AiABA",
+        "₢AiABB"
       ],
-      "next_pace_seed": "ABB",
+      "next_pace_seed": "ABC",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA-": {
@@ -6599,6 +6600,17 @@
               "text": "Audit the tokenCreator grant on Mason SA to the CB service agent.\n\nLine ~812 in rbgp_Payor.sh:\n  rbgi_add_sa_iam_role \"${z_token}\" \"${z_mason_sa_email}\" \"${z_cb_service_agent}\" \"roles/iam.serviceAccountTokenCreator\"\n\nThis grants tokenCreator on Mason TO the CB service agent, enabling CB to\nimpersonate Mason during builds. This is separate from the impersonation\nreadiness gate (which tested Payor→CB SA impersonation).\n\n## Questions to resolve\n\n1. Is this grant actually used at build time? (Does cloudbuild.yaml or\n   any build step require CB to call generateAccessToken on Mason?)\n2. Or does CB use Mason via actAs (serviceAccountUser) which is granted\n   elsewhere?\n3. If tokenCreator is not needed for builds, remove it (principle of\n   least privilege).\n4. If it IS needed, document why in RBSDC.\n\n## Files\n- Tools/rbw/rbgp_Payor.sh — the grant\n- Tools/rbw/rbgjb/ — build step scripts (do they reference Mason impersonation?)\n- lenses/RBSDC-depot_create.adoc — document finding",
               "silks": "audit-mason-tokencreator-grant-purpose",
               "commit": "019294e"
+            }
+          ]
+        },
+        "₢AiABB": {
+          "tacks": [
+            {
+              "ts": "260303-1547",
+              "state": "rough",
+              "text": "RBSRC-retriever_create.adoc is a high-level summary with no step-by-step\noperations, while RBSDI-director_create.adoc has detailed steps including\nSA creation, key generation, propagation verification, and role grants.\n\nBoth follow the same pattern (Governor creates a role SA with key + RBRA)\nand should be specified at the same level of detail.\n\nOptions:\n1. Flesh out RBSRC to match RBSDI's step-by-step detail\n2. Extract shared steps into a common pattern/template and have both\n   documents reference it\n\nAlso update RBSRC SA verification step to include poll-with-backoff\nlanguage matching the RBSDI fix from ₢AiAA0.\n\n## Target files\n- lenses/RBSRC-retriever_create.adoc\n- lenses/RBSDI-director_create.adoc (reference for pattern)\n\n## Acceptance criteria\n- Both specs describe operations at the same level of detail\n- SA propagation verification documented with poll/backoff in both",
+              "silks": "align-rbsrc-detail-with-rbsdi",
+              "commit": "dad35a9"
             }
           ]
         }
