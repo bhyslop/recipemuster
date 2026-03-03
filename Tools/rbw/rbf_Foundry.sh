@@ -49,9 +49,7 @@ zrbf_kindle() {
   readonly ZRBF_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   buc_log_args 'Trigger dispatch endpoints'
-  test "${RBRR_GDC_REGION:-}" = "${RBGD_GCB_REGION}" \
-    || buc_die "RBRR_GDC_REGION (${RBRR_GDC_REGION:-unset}) must equal GCB region (${RBGD_GCB_REGION}) — build polling and trigger dispatch share the region"
-  readonly ZRBF_TRIGGERS_URL="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GDC_REGION}/triggers"
+  readonly ZRBF_TRIGGERS_URL="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBGD_GCB_REGION}/triggers"
 
   buc_log_args 'Registry API endpoints for delete'
   readonly ZRBF_REGISTRY_HOST="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -412,10 +410,10 @@ rbf_build() {
 
   buc_info "Building vessel image: ${RBRV_SIGIL}"
 
-  # Source Director RBRA for rubric repo URL
+  # Source Director RBRA for credentials (still needed for OAuth token)
   buc_step "Loading Director RBRA credentials"
   source "${RBRR_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-  rbgu_check_rubric_repo_url "${RBRA_RUBRIC_REPO_URL:-}"
+  test -n "${RBRR_RUBRIC_REPO_URL:-}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
 
   # Authenticate as Director
   buc_step "Authenticating as Director"
@@ -423,14 +421,31 @@ rbf_build() {
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
+  # Fetch PAT from Secret Manager
+  buc_step "Fetching rubric repo PAT from Secret Manager"
+  local -r z_secret_access_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}/versions/latest:access"
+  rbgu_http_json "GET" "${z_secret_access_url}" "${z_token}" "build_pat_fetch"
+  rbgu_http_require_ok "Fetch PAT from Secret Manager" "build_pat_fetch"
+  local z_pat_b64
+  z_pat_b64=$(rbgu_json_field_capture "build_pat_fetch" '.payload.data') \
+    || buc_die "Failed to extract PAT payload"
+  local z_pat_value
+  z_pat_value=$(printf '%s' "${z_pat_b64}" | base64 -d) \
+    || buc_die "Failed to decode PAT"
+
+  # Construct authenticated URL from non-authenticated RBRR_RUBRIC_REPO_URL + PAT
+  local z_rubric_auth_url
+  z_rubric_auth_url=$(printf '%s' "${RBRR_RUBRIC_REPO_URL}" | sed "s|://|://x-access-token:${z_pat_value}@|") \
+    || buc_die "Failed to construct authenticated rubric repo URL"
+
   # Verify GCB quota headroom before dispatch
   buc_log_args "Check GCB quota headroom"
   rbgd_check_gcb_quota "${z_token}"
 
   # Resolve rubric repo HEAD via ls-remote (no clone needed — build only needs commit hash)
   buc_step "Resolving rubric repo HEAD commit"
-  git ls-remote "${RBRA_RUBRIC_REPO_URL}" HEAD > "${ZRBF_BUILD_RUBRIC_LS}" \
-    || buc_die "Failed to reach rubric repo — check RBRA_RUBRIC_REPO_URL"
+  git ls-remote "${z_rubric_auth_url}" HEAD > "${ZRBF_BUILD_RUBRIC_LS}" \
+    || buc_die "Failed to reach rubric repo — check RBRR_RUBRIC_REPO_URL and PAT in Secret Manager"
   local z_rubric_commit=$(<"${ZRBF_BUILD_RUBRIC_LS}")
   test -n "${z_rubric_commit}" || buc_die "Rubric repo HEAD is empty — has inscribe been run?"
   z_rubric_commit="${z_rubric_commit%%	*}"
@@ -912,24 +927,36 @@ rbf_rubric_inscribe() {
   buc_doc_brief "Inscribe all conjure vessel build definitions to rubric repo and ensure triggers"
   buc_doc_shown || return 0
 
-  # Source Director RBRA for rubric repo URL
+  # Source Director RBRA for credentials (still needed for OAuth token)
   buc_step "Loading Director RBRA credentials"
   source "${RBRR_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-  rbgu_check_rubric_repo_url "${RBRA_RUBRIC_REPO_URL:-}"
+  test -n "${RBRR_RUBRIC_REPO_URL:-}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
 
-  # Sanitize rubric repo URL (strip embedded PAT for metadata and API use)
-  local z_rubric_url_clean
-  z_rubric_url_clean=$(printf '%s' "${RBRA_RUBRIC_REPO_URL}" | sed 's|://[^@]*@|://|')
+  # Authenticate as Director early (needed for Secret Manager PAT retrieval)
+  buc_step "Authenticating as Director"
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
 
-  # Extract hostname from rubric repo URL for Developer Connect repoType
-  local z_rubric_host="${z_rubric_url_clean#*://}"
-  z_rubric_host="${z_rubric_host%%/*}"
-  local z_repo_type=""
-  case "${z_rubric_host}" in
-    *github.com) z_repo_type="GITHUB" ;;
-    *gitlab.com) z_repo_type="GITLAB" ;;
-    *)           buc_die "Unsupported rubric repo host '${z_rubric_host}' — Developer Connect supports github.com and gitlab.com" ;;
-  esac
+  # Fetch PAT from Secret Manager
+  buc_step "Fetching rubric repo PAT from Secret Manager"
+  local -r z_secret_access_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_PAT_SECRET_NAME}/versions/latest:access"
+  rbgu_http_json "GET" "${z_secret_access_url}" "${z_token}" "inscribe_pat_fetch"
+  rbgu_http_require_ok "Fetch PAT from Secret Manager" "inscribe_pat_fetch"
+  local z_pat_b64
+  z_pat_b64=$(rbgu_json_field_capture "inscribe_pat_fetch" '.payload.data') \
+    || buc_die "Failed to extract PAT payload"
+  local z_pat_value
+  z_pat_value=$(printf '%s' "${z_pat_b64}" | base64 -d) \
+    || buc_die "Failed to decode PAT"
+
+  # Construct authenticated URL from non-authenticated RBRR_RUBRIC_REPO_URL + PAT
+  local z_rubric_auth_url
+  z_rubric_auth_url=$(printf '%s' "${RBRR_RUBRIC_REPO_URL}" | sed "s|://|://x-access-token:${z_pat_value}@|") \
+    || buc_die "Failed to construct authenticated rubric repo URL"
+
+  # RBRR_RUBRIC_REPO_URL is already clean (no embedded PAT)
+  local -r z_rubric_url_clean="${RBRR_RUBRIC_REPO_URL}"
 
   # Phase 0: Pin staleness gate
   buc_step "Checking GCB pin freshness"
@@ -1042,7 +1069,7 @@ rbf_rubric_inscribe() {
   rm -rf "${ZRBF_INSCRIBE_CLONE_DIR}" || buc_die "Failed to remove old rubric clone"
   mkdir -p "${ZRBF_INSCRIBE_CLONE_DIR%/*}" || buc_die "Failed to create clone parent directory"
 
-  git clone --depth 1 "${RBRA_RUBRIC_REPO_URL}" "${ZRBF_INSCRIBE_CLONE_DIR}" \
+  git clone --depth 1 "${z_rubric_auth_url}" "${ZRBF_INSCRIBE_CLONE_DIR}" \
     || buc_die "Failed to clone rubric repo"
   buc_info "Rubric repo cloned to ${ZRBF_INSCRIBE_CLONE_DIR}"
 
@@ -1144,59 +1171,22 @@ rbf_rubric_inscribe() {
     buc_info "Rubric repo pushed: ${z_rubric_commit:0:8}"
   fi
 
-  # Phase 5: Ensure infrastructure (source link + triggers)
-  buc_step "Authenticating for infrastructure operations"
-  local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
-    || buc_die "Failed to get Director OAuth token"
+  # Phase 5: Verify CB v2 infrastructure
+  buc_step "Verifying CB v2 repository exists"
+  local -r z_cbv2_parent="projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBGD_GCB_REGION}"
+  local -r z_cbv2_conn="${z_cbv2_parent}/connections/${RBRR_CBV2_CONNECTION_NAME}"
+  local -r z_cbv2_repo_resource="${z_cbv2_conn}/repositories/${RBGC_CBV2_REPOSITORY_ID}"
+  local -r z_cbv2_repo_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_repo_resource}"
 
-  # Developer Connect resource paths
-  local -r z_gdc_parent="projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GDC_REGION}"
-  local -r z_gdc_conn="${z_gdc_parent}/connections/${RBRR_GDC_CONNECTION_NAME}"
-
-  # Derive source link ID from rubric repo URL
-  # Extract org/repo from URL, replace / with -
-  local z_link_id
-  z_link_id=$(echo "${z_rubric_url_clean}" | sed 's|.*://[^/]*/||; s|\.git$||; s|/|-|g')
-  test -n "${z_link_id}" || buc_die "Failed to derive source link ID from rubric repo URL"
-  local -r z_link_resource="${z_gdc_conn}/gitRepositoryLinks/${z_link_id}"
-
-  # Ensure source link exists
-  buc_step "Ensuring Developer Connect source link: ${z_link_id}"
-  local z_link_check_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/${z_link_resource}"
-
-  rbgu_http_json "GET" "${z_link_check_url}" "${z_token}" "inscribe_link_check"
-  local z_link_code
-  z_link_code=$(rbgu_http_code_capture "inscribe_link_check") || z_link_code=""
-
-  if test "${z_link_code}" = "200"; then
-    buc_info "Source link already exists: ${z_link_id}"
-  elif test "${z_link_code}" = "404"; then
-    buc_step "Creating source link: ${z_link_id}"
-    local z_link_create_url="${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}/${z_gdc_conn}/gitRepositoryLinks?gitRepositoryLinkId=${z_link_id}"
-    local z_link_body="${ZRBF_INSCRIBE_PREFIX}link_body.json"
-    jq -n --arg uri "${z_rubric_url_clean}" '{"cloneUri": $uri}' \
-      > "${z_link_body}" || buc_die "Failed to compose source link body"
-
-    rbgu_http_json_lro_ok \
-      "Create source link" \
-      "${z_token}" \
-      "${z_link_create_url}" \
-      "inscribe_link_create" \
-      "${z_link_body}" \
-      ".name" \
-      "${RBGC_API_ROOT_DEVELOPERCONNECT}${RBGC_DEVELOPERCONNECT_V1}" \
-      "" \
-      "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
-      "${RBGC_MAX_CONSISTENCY_SEC}"
-
-    buc_info "Source link created: ${z_link_id}"
-  else
-    buc_die "Source link check failed (HTTP ${z_link_code})"
-  fi
+  rbgu_http_json "GET" "${z_cbv2_repo_url}" "${z_token}" "inscribe_cbv2_repo_check"
+  local z_cbv2_repo_code
+  z_cbv2_repo_code=$(rbgu_http_code_capture "inscribe_cbv2_repo_check") || z_cbv2_repo_code=""
+  test "${z_cbv2_repo_code}" = "200" \
+    || buc_die "CB v2 repository '${RBGC_CBV2_REPOSITORY_ID}' not found (HTTP ${z_cbv2_repo_code}) — run depot_create to establish CB v2 connection"
+  buc_info "CB v2 repository verified: ${RBGC_CBV2_REPOSITORY_ID}"
 
   buc_step "Listing existing triggers (batch pre-fetch)"
-  local z_triggers_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GDC_REGION}/triggers"
+  local z_triggers_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBGD_GCB_REGION}/triggers"
   local z_trigger_name=""
   local z_trigger_body=""
   local z_trigger_create_infix=""
@@ -1236,22 +1226,25 @@ rbf_rubric_inscribe() {
     jq -n \
       --arg name    "${z_trigger_name}" \
       --arg sigil   "${z_sigil}" \
-      --arg repo    "${z_link_resource}" \
+      --arg repo    "${z_cbv2_repo_resource}" \
       --arg sa      "${z_mason_sa}" \
-      --arg rtype   "${z_repo_type}" \
       '{
         name: $name,
         description: ("Recipe Bottle rubric trigger for " + $sigil),
+        repositoryEventConfig: {
+          repository: $repo,
+          repositoryType: "GITHUB"
+        },
         sourceToBuild: {
-          uri: $repo,
+          repository: $repo,
           ref: "refs/heads/main",
-          repoType: $rtype
+          repositoryType: "GITHUB"
         },
         gitFileSource: {
           path: ($sigil + "/cloudbuild.json"),
-          uri: $repo,
+          repository: $repo,
           revision: "refs/heads/main",
-          repoType: $rtype
+          repositoryType: "GITHUB"
         },
         serviceAccount: $sa
       }' > "${z_trigger_body}" || buc_die "Failed to compose trigger body for ${z_sigil}"
