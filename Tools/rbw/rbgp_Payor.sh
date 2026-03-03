@@ -960,17 +960,14 @@ rbgp_depot_create() {
 
   buc_step 'Impersonation readiness gate: verify CB service agent can access secrets'
 
-  # Step A: Get Payor email via tokeninfo
-  buc_log_args 'Get Payor email from OAuth tokeninfo'
-  local z_tokeninfo_body="${BURD_TEMP_DIR}/rbgp_tokeninfo.json"
-  curl -sS \
-    "https://oauth2.googleapis.com/tokeninfo?access_token=${z_token}" \
-    -o "${z_tokeninfo_body}" \
-    || buc_die "Failed to call tokeninfo endpoint"
+  # Step A: Get Payor email via userinfo (tokeninfo requires email scope; Payor token has cloud-platform only)
+  buc_log_args 'Get Payor email from OAuth userinfo'
+  rbgu_http_json "GET" "https://www.googleapis.com/oauth2/v3/userinfo" "${z_token}" "depot_create_userinfo"
+  rbgu_http_require_ok "Get Payor email" "depot_create_userinfo"
   local z_payor_email=""
-  z_payor_email=$(jq -r '.email // empty' "${z_tokeninfo_body}") \
-    || buc_die "Failed to parse tokeninfo response"
-  test -n "${z_payor_email}" || buc_die "Payor email not found in tokeninfo response"
+  z_payor_email=$(rbgu_json_field_capture "depot_create_userinfo" '.email') \
+    || buc_die "Userinfo response missing email"
+  test -n "${z_payor_email}" || buc_die "Payor email not found in userinfo response"
   buc_log_args "Payor email: ${z_payor_email}"
 
   # Step B: Grant Payor (OAuth user) serviceAccountTokenCreator on CB service agent SA
