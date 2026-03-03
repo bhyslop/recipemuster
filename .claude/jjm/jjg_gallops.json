@@ -4723,9 +4723,10 @@
         "₢AiAAr",
         "₢AiAA1",
         "₢AiAA3",
-        "₢AiAA8"
+        "₢AiAA8",
+        "₢AiABA"
       ],
-      "next_pace_seed": "ABA",
+      "next_pace_seed": "ABB",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA-": {
@@ -6559,6 +6560,17 @@
               "text": "Update specification documents to reflect CB v2 migration.\n\n## Scope\n\n1. **RBS0-SpecTop.adoc**: Update Developer Connect references to Cloud Build v2.\n   Replace gitRepositoryLinks vocabulary with CB v2 repositories vocabulary.\n   Update linked terms: rbtgi_source_connection, rbtgi_source_link.\n\n2. **RBSRI-rubric_inscribe.adoc**: Update inscribe flow to reference CB v2\n   repository creation instead of gitRepositoryLinks creation.\n\n3. **RBSDC-depot_create.adoc**: Update depot creation to show CB v2 connection\n   creation instead of Developer Connect connection.\n\n4. **RBSDN-depot_initialize.adoc**: Update OAuth flow for CB v2 connections.\n\n5. **AXLA-Lexicon.adoc**: Update or replace axig_developer_connect motif.\n   Add CB v2 connection/repository terms if needed.\n\n6. **Paddock (.claude/jjm/jjp_uAli.md)**: Add session decisions documenting\n   the DC → CB v2 migration rationale, referencing RBSCTD memo.\n\n## Acceptance Criteria\n\n- No Developer Connect references remain in active specs (except historical context)\n- CB v2 resource types correctly documented\n- Linked terms updated consistently\n- Paddock records the decision",
               "silks": "update-specs-cbv2-migration",
               "commit": "82542d6"
+            }
+          ]
+        },
+        "₢AiABA": {
+          "tacks": [
+            {
+              "ts": "260303-1444",
+              "state": "rough",
+              "text": "Audit the tokenCreator grant on Mason SA to the CB service agent.\n\nLine ~812 in rbgp_Payor.sh:\n  rbgi_add_sa_iam_role \"${z_token}\" \"${z_mason_sa_email}\" \"${z_cb_service_agent}\" \"roles/iam.serviceAccountTokenCreator\"\n\nThis grants tokenCreator on Mason TO the CB service agent, enabling CB to\nimpersonate Mason during builds. This is separate from the impersonation\nreadiness gate (which tested Payor→CB SA impersonation).\n\n## Questions to resolve\n\n1. Is this grant actually used at build time? (Does cloudbuild.yaml or\n   any build step require CB to call generateAccessToken on Mason?)\n2. Or does CB use Mason via actAs (serviceAccountUser) which is granted\n   elsewhere?\n3. If tokenCreator is not needed for builds, remove it (principle of\n   least privilege).\n4. If it IS needed, document why in RBSDC.\n\n## Files\n- Tools/rbw/rbgp_Payor.sh — the grant\n- Tools/rbw/rbgjb/ — build step scripts (do they reference Mason impersonation?)\n- lenses/RBSDC-depot_create.adoc — document finding",
+              "silks": "audit-mason-tokencreator-grant-purpose",
+              "commit": "019294e"
             }
           ]
         }
