@@ -30,10 +30,6 @@ ZRBGD_SOURCED=1
 zrbgd_kindle() {
   test -z "${ZRBGD_KINDLED:-}" || buc_die "Module rbgd already kindled"
 
-  buc_log_args 'Validate RBRR variables using validator'
-  readonly ZRBGD_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-  source "${ZRBGD_SCRIPT_DIR}/rbrr.validator.sh" || buc_die "Failed to validate RBRR variables"
-
   # Depot-specific Constants (require RBRR variables)
   # Note: RBGD_GCS_BUCKET defined below after depot name extraction
 

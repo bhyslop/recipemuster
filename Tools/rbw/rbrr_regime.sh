@@ -62,7 +62,7 @@ zrbrr_kindle() {
   buv_string_enroll  RBRR_RUBRIC_REPO_URL           0  512  "Rubric repository URL (https, no credentials)"
 
   buv_group_enroll "Google Cloud Build Configuration"
-  buv_string_enroll  RBRR_GCB_MACHINE_TYPE           3   64  "Machine type for Cloud Build"
+  buv_gname_enroll   RBRR_GCB_MACHINE_TYPE           3   64  "Machine type for Cloud Build (CE format)"
   buv_string_enroll  RBRR_GCB_WORKER_POOL            1  512  "Private Pool resource name (required)"
   buv_string_enroll  RBRR_GCB_TIMEOUT                2   10  "Build timeout (e.g., 1200s)"
   buv_decimal_enroll RBRR_GCB_MIN_CONCURRENT_BUILDS  1  999  "Min concurrent builds required"
@@ -112,6 +112,9 @@ zrbrr_enforce() {
 
   [[ "${RBRR_CHOSEN_PODMAN_VERSION}" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] \
     || buc_die "Invalid RBRR_CHOSEN_PODMAN_VERSION format: ${RBRR_CHOSEN_PODMAN_VERSION} (expected N.N or N.N.N)"
+
+  [[ "${RBRR_GCB_WORKER_POOL}" =~ ^projects/[^/]+/locations/[^/]+/workerPools/[^/]+$ ]] \
+    || buc_die "Invalid RBRR_GCB_WORKER_POOL format: ${RBRR_GCB_WORKER_POOL} (expected projects/{P}/locations/{L}/workerPools/{W})"
 
 }
 
