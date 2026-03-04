@@ -521,6 +521,13 @@
         "₢AGAAF": {
           "tacks": [
             {
+              "ts": "260304-1503",
+              "state": "abandoned",
+              "text": "Change JSON schema field from \"commit\" to \"basis\" in tack records.\n\n## Context\n\nThe Rust code already uses `basis` as the field name (with `#[serde(rename = \"commit\")]` for backwards compatibility). This pace completes the rename by updating the JSON schema itself.\n\n## Changes\n\n1. Remove `#[serde(rename = \"commit\")]` from `jjrt_types.rs` — field serializes as `\"basis\"`\n2. Migrate existing gallops JSON files: `s/\"commit\":/\"basis\":/g`\n3. Update any documentation referencing the JSON schema\n\n## Breaking\n\nThis changes the JSON schema. All existing gallops files must be migrated.\n\n## Acceptance\n\n- JSON files use `\"basis\"` key instead of `\"commit\"`\n- Round-trip validation passes\n- All tests pass",
+              "silks": "json-schema-commit-to-basis",
+              "commit": "c4f5cf3"
+            },
+            {
               "ts": "260127-1133",
               "state": "rough",
               "text": "Change JSON schema field from \"commit\" to \"basis\" in tack records.\n\n## Context\n\nThe Rust code already uses `basis` as the field name (with `#[serde(rename = \"commit\")]` for backwards compatibility). This pace completes the rename by updating the JSON schema itself.\n\n## Changes\n\n1. Remove `#[serde(rename = \"commit\")]` from `jjrt_types.rs` — field serializes as `\"basis\"`\n2. Migrate existing gallops JSON files: `s/\"commit\":/\"basis\":/g`\n3. Update any documentation referencing the JSON schema\n\n## Breaking\n\nThis changes the JSON schema. All existing gallops files must be migrated.\n\n## Acceptance\n\n- JSON files use `\"basis\"` key instead of `\"commit\"`\n- Round-trip validation passes\n- All tests pass",
