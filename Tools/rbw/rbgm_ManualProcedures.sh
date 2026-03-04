@@ -429,9 +429,15 @@ rbgm_gitlab_setup() {
   bug_t        "   Edit your rbrr.env file and set this value."
   bug_e
   bug_section  "4. Create a Project Access Token:"
-  bug_t        "   From your rubric repo project page:"
-  bug_tu       "   Left sidebar: " "Settings" " → "
-  bug_tu       "                 " "Access tokens"
+  local z_tokens_url=""
+  z_tokens_url=$(zrbgu_gitlab_tokens_url_capture) || z_tokens_url=""
+  if test -n "${z_tokens_url}"; then
+    bug_link     "   Go to: " "Project Access Tokens" "${z_tokens_url}"
+  else
+    bug_t        "   From your rubric repo project page:"
+    bug_tu       "   Left sidebar: " "Settings" " → "
+    bug_tu       "                 " "Access tokens"
+  fi
   bug_t        "   The form is displayed directly on the page. Configure:"
   bug_tc       "      - Token name: " "rb-depot"
   bug_t        "      - Token description: (optional, skip)"

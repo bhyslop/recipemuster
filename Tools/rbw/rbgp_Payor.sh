@@ -597,12 +597,12 @@ rbgp_depot_create() {
 
   buc_step 'Read GitLab project access token from stdin'
   buc_info "Rubric repo: ${z_rubric_repo_url}"
+  buc_info "Need a token? Run the setup guide:"
+  buc_next "${RBZ_GITLAB_SETUP}"
   local z_gitlab_token=""
   buc_info "Paste GitLab project access token:"
   read -r z_gitlab_token || buc_die "Failed to read token from stdin"
   if test -z "${z_gitlab_token}"; then
-    buc_info "Need a token? Run the setup guide:"
-    buc_next "${RBZ_GITLAB_SETUP}"
     buc_die "Token is empty"
   fi
   buc_log_args "GitLab project access token read from stdin"

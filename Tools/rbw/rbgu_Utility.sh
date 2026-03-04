@@ -787,5 +787,17 @@ rbgu_check_rubric_repo_url() {
   buc_log_args "Rubric repo URL validated"
 }
 
+zrbgu_gitlab_tokens_url_capture() {
+  zrbgu_sentinel
+
+  local z_url="${RBRR_RUBRIC_REPO_URL:-}"
+  case "${z_url}" in
+    https://gitlab.com/*) ;;
+    *) return 1 ;;
+  esac
+
+  echo "${z_url%.git}/-/settings/access_tokens"
+}
+
 # eof
 
