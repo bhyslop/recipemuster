@@ -146,9 +146,10 @@ zrbf_stitch_build_json() {
   # steps run in isolated containers - builder state doesn't persist across steps
   #
   # OCI Layout Bridge pattern (steps 06-08):
-  # - Step 06: buildx exports to /workspace/oci-layout (no auth needed)
-  # - Step 07: crane pushes from oci-layout to GAR (with metadata auth)
-  # - Step 08: Syft analyzes from oci-layout (faster, more accurate)
+  # - Step 06: buildx exports to /workspace/oci-layout.tar (no auth needed)
+  # - Step 07: crane extracts tar to /workspace/oci-layout/ and pushes to GAR
+  # - Step 07b: skopeo splits multi-platform layout to /workspace/oci-amd64/
+  # - Step 08: Syft analyzes single-platform /workspace/oci-amd64/ for SBOM
   # - Step 10: Assembles metadata JSON from .image_uri
   # - Step 09: Builds and pushes metadata container (depends on step 10)
   # Delimiter is | because image refs contain colons (sha256 digests)
@@ -160,6 +161,7 @@ zrbf_stitch_build_json() {
     "rbgjb04-qemu-binfmt.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
     "rbgjb06-build-and-export.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-export"
     "rbgjb07-push-with-crane.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|push-with-crane"
+    "rbgjb07b-split-oci-platform.sh|${RBRR_GCB_SKOPEO_IMAGE_REF}|sh|split-oci-platform"
     "rbgjb08-sbom-and-summary.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|sbom-and-summary"
     "rbgjb10-assemble-metadata.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|assemble-metadata"
     "rbgjb09-build-and-push-metadata.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-push-metadata"
@@ -198,6 +200,7 @@ zrbf_stitch_build_json() {
     buc_log_args "Baking pinned image refs into script text (GCB containers lack RBRR vars)"
     z_body="${z_body//\$\{RBRR_GCB_SYFT_IMAGE_REF\}/${RBRR_GCB_SYFT_IMAGE_REF}}"
     z_body="${z_body//\$\{RBRR_GCB_BINFMT_IMAGE_REF\}/${RBRR_GCB_BINFMT_IMAGE_REF}}"
+    z_body="${z_body//\$\{RBRR_GCB_SKOPEO_IMAGE_REF\}/${RBRR_GCB_SKOPEO_IMAGE_REF}}"
 
     buc_log_args "Escaping dollars for Cloud Build, preserving RBGY substitutions"
     printf '%s' "${z_body}" | sed 's/\$/\$\$/g; s/\$\${_RBGY_/${_RBGY_/g' \

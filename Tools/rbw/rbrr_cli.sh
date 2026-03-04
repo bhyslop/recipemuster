@@ -157,6 +157,7 @@ rbrr_refresh_gcb_pins() {
     "RBRR_GCB_ALPINE_IMAGE_REF|docker.io/library/alpine|latest"
     "RBRR_GCB_SYFT_IMAGE_REF|docker.io/anchore/syft|latest"
     "RBRR_GCB_BINFMT_IMAGE_REF|docker.io/tonistiigi/binfmt|latest"
+    "RBRR_GCB_SKOPEO_IMAGE_REF|quay.io/skopeo/stable|latest"
   )
 
   buc_step "Refreshing GCB tool image pins (vintage: ~${z_vintage})"

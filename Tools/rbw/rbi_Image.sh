@@ -374,9 +374,9 @@ rbi_metadata() {
   mkdir -p "${z_extract_dir}" || buc_die "Failed to create extract directory"
   tar -xzf "${ZRBI_METADATA_ARCHIVE}" -C "${z_extract_dir}" || buc_die "Failed to extract metadata"
 
-  if test -f "${z_extract_dir}/package_summary.txt"; then
-    buc_info "Top packages in image:"
-    head -5 "${z_extract_dir}/package_summary.txt" || buc_warn "Failed to show package summary"
+  if test -f "${z_extract_dir}/package_summary.linux_amd64.txt"; then
+    buc_step "Package summary (linux/amd64)"
+    head -5 "${z_extract_dir}/package_summary.linux_amd64.txt" || buc_die "Failed to read package summary: ${z_extract_dir}/package_summary.linux_amd64.txt"
   fi
 
   buc_success "Metadata retrieved to ${z_extract_dir}"

@@ -13,8 +13,8 @@ META_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_
   echo 'FROM scratch'
   echo 'LABEL org.opencontainers.image.title="rbia-metadata"'
   echo 'ADD build_info.json /build_info.json'
-  echo 'ADD syft_analysis.json /syft_analysis.json'
-  echo 'ADD package_summary.txt /package_summary.txt'
+  echo 'ADD sbom.linux_amd64.spdx.json /sbom.linux_amd64.spdx.json'
+  echo 'ADD package_summary.linux_amd64.txt /package_summary.linux_amd64.txt'
   echo 'ADD recipe.txt /recipe.txt'
 } > Dockerfile.meta
 

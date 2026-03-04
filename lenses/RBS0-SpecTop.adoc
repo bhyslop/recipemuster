@@ -286,6 +286,7 @@
 :rbrr_gcb_alpine_image_ref:  <<rbrr_gcb_alpine_image_ref,RBRR_GCB_ALPINE_IMAGE_REF>>
 :rbrr_gcb_syft_image_ref:    <<rbrr_gcb_syft_image_ref,RBRR_GCB_SYFT_IMAGE_REF>>
 :rbrr_gcb_binfmt_image_ref:  <<rbrr_gcb_binfmt_image_ref,RBRR_GCB_BINFMT_IMAGE_REF>>
+:rbrr_gcb_skopeo_image_ref: <<rbrr_gcb_skopeo_image_ref,RBRR_GCB_SKOPEO_IMAGE_REF>>
 :rbrr_gcb_pins_refreshed_at: <<rbrr_gcb_pins_refreshed_at,RBRR_GCB_PINS_REFRESHED_AT>>
 :rbrr_chosen_identity:       <<rbrr_chosen_identity,RBRR_CHOSEN_IDENTITY>>
 :rbrr_chosen_podman_version: <<rbrr_chosen_podman_version,RBRR_CHOSEN_PODMAN_VERSION>>
@@ -2197,6 +2198,12 @@ Fully-qualified image reference for Syft SBOM Cloud Build step.
 //axvr_variable axd_required rbst_image_ref
 {rbrr_gcb_binfmt_image_ref}::
 Fully-qualified image reference for binfmt Cloud Build step.
+
+[[rbrr_gcb_skopeo_image_ref]]
+//axvr_variable axd_required rbst_image_ref
+{rbrr_gcb_skopeo_image_ref}::
+Fully-qualified image reference for skopeo Cloud Build step.
+Skopeo splits multi-platform OCI layouts to single-platform for Syft SBOM generation (anchore/syft#1545).
 
 [[rbrr_gcb_pins_refreshed_at]]
 //axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp
