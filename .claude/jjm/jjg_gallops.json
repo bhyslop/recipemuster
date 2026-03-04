@@ -5483,9 +5483,10 @@
         "₢AkAAL",
         "₢AkAAM",
         "₢AkAAN",
-        "₢AkAAO"
+        "₢AkAAO",
+        "₢AkAAP"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5796,6 +5797,17 @@
               "text": "Nucleate an RBS0 \"Release Compliance\" section and define rbbk_ key premises.\n\nREQUIRES HUMAN CONVERSATION — design decisions on vocabulary, scope, and inscription rules.\n\n## Context\n\nRecurring LLM failure modes in this codebase:\n- Proposing fixed sleeps instead of polling actual endpoints (delay-and-pray)\n- Creating silent fallback/repair paths instead of dying with diagnostics\n- Ignoring BCG patterns in favor of common (bad) bash idioms\n\n## Deliverables\n\n1. Define three rbbk_ premises as MCM linked terms (voiced axk_premise) in RBS0:\n   - Probe-not-pray: readiness proven by operation succeeding, not by fixed delays\n   - No-silent-fallback: unexpected failures die with diagnostics, no alternate repair paths\n   - BCG-compliance: all bash follows BCG patterns, LLM training data is adversarial\n\n2. Nucleate a \"Release Compliance\" section in RBS0 that specifies checkable rules,\n   starting with: functions governed by a premise MUST carry premise text in headerdoc\n\n3. Write the headerdoc inscription rule — what goes in the comment block, which files\n   require it, how release checks verify it\n\n4. Begin inscription on key files (rbgu_Utility.sh, rbgp_Payor.sh, rbgi_IAM.sh,\n   rbgg_Governor.sh) — not exhaustive, but enough to establish the pattern\n\n## Not in scope\n- Regime variable checking (separate pace)\n- Shellcheck integration (separate pace)\n- Inscribing every file (iterative annealing across future paces)",
               "silks": "rbs0-release-compliance-premises",
               "commit": "548cf22"
+            }
+          ]
+        },
+        "₢AkAAP": {
+          "tacks": [
+            {
+              "ts": "260304-1428",
+              "state": "rough",
+              "text": "Add a release compliance check that verifies every enrolled regime variable has complete spec treatment.\n\nREQUIRES HUMAN CONVERSATION — existing regime validation behaviors need discovery first.\n\n## Context\n\nMultiple regime files (rbrr_regime.sh, rbra_regime.sh, rbro_regime.sh, etc.) enroll\nvariables via buv_string_enroll and similar. Each enrolled variable should have:\n- Spec definition in the relevant .adoc\n- Validation rule (type, range, required/optional)\n- Documentation of who sets it and who reads it\n\n## Discovery step (FIRST)\n\nBefore designing the checker, survey existing regime validation infrastructure:\n- buv_* enrollment patterns across all regime files\n- Existing validators (rbrr.validator.sh, etc.)\n- How regime variables are currently documented in specs\n- Identify gaps between enrolled variables and spec coverage\n\n## Deliverables\n\n1. Survey of existing regime validation behaviors\n2. Design a completeness checker (possibly a tabtarget or rbq_Qualify.sh integration)\n3. Add the check to RBS0 Release Compliance section (nucleated by premises pace)\n4. Run the checker and catalogue any gaps found\n\n## Not in scope\n- Fixing all discovered gaps (those become their own paces)\n- Changing regime enrollment machinery",
+              "silks": "regime-variable-completeness-check",
+              "commit": "9666e89"
             }
           ]
         }
