@@ -57,28 +57,44 @@ The three-secret model (api-token + read-token + webhook) is GitLab CB v2 specif
 GitHub CB v2 needs only one secret (classic PAT). All consumers of the deleted
 constants (`rbgp_Payor.sh`, `rbf_Foundry.sh`) must be updated during depot rebuild.
 
+### Decision: Private Pool Always (2026-03-03)
+
+**Burn the default-pool bridge.** Every depot gets a private pool. No conditional
+path in stitch, no "optional" regime variable, no two configurations to debug.
+
+**Rationale:** Private pool pricing is essentially identical to default pool
+(~$0.003/vCPU-min, 1.0-1.13x ratio). The conditional in `zrbf_stitch_build_json`
+(`if pool != "" then pool.name else machineType end`) creates two code paths,
+two depot configurations, two things to debug. One path, well-tested, is better.
+
+**What changes:**
+- `RBRR_GCB_WORKER_POOL` becomes **required** in regime (1-512 chars, not 0-512)
+- `zrbf_stitch_build_json`: remove conditional, always emit `pool.name`
+- `rbgd_DepotConstants.sh`: remove default-pool quota check path
+- `depot_create`: always create worker pool (workerPools API)
+- `depot_destroy`: always delete worker pool
+- `RBRR_GCB_MACHINE_TYPE`: may become dead (pool config specifies machine type)
+  — verify during implementation
+
 ### Current State
 
 **Depot demo1015** exists with CB v2 GitLab connection. Rubric repo at
 `gitlab.com/bhyslop/rb-rubric.git`. 7 vessel triggers created.
+**Will be destroyed and rebuilt on GitHub with private pool.**
 
-**Known issues from ₣Ai e2e attempt (2026-03-03):**
-1. Push triggers fired on inscribe push (7-build burst) — **FIXED** (₢AiABC:
-   unmatchable `^MANUAL-DISPATCH-ONLY$` branch filter)
-2. IAM read-modify-write race destroys bindings — **fix pending** (₢AiABD in ₣Ai:
-   declarative policy writes)
-3. Syft multi-platform OCI layout failure — **FIXED** (₢AiABE: skopeo split)
-4. Build step `dir` field was missing from stitched JSON — **FIXED** in ₣Ai
-
-**Prerequisite from ₣Ai:** ₢AiABD (fix-iam-policy-declarative-assertions) must
-land before a clean e2e run. IAM stale-read overwrites cause binding loss during
-`create_director`.
+**All known issues from ₣Ai e2e (2026-03-03) are FIXED:**
+1. Push triggers fired on inscribe push — FIXED (₢AiABC: unmatchable branch filter)
+2. IAM read-modify-write race — FIXED (₢AiABD: declarative policy writes)
+3. Syft multi-platform OCI layout — FIXED (₢AiABE: skopeo split)
+4. Build step `dir` field missing — FIXED in ₣Ai
 
 ### What This Heat Verifies
 
-- Full lifecycle: destroy → create → roles → pins → inscribe → dispatch → provenance
+- Full lifecycle: destroy → create (with private pool) → roles → pins → inscribe → dispatch → provenance
+- GitHub CB v2 connection (replacing GitLab)
+- Private pool created by depot_create, used by all builds
 - SLSA v1.0 provenance exists on trigger-invoked builds
-- IAM bindings survive the full depot lifecycle (post-₢AiABD fix)
+- IAM bindings survive the full depot lifecycle (declarative policy writes)
 - Skopeo split + Syft SBOM succeeds on multi-platform builds
 - No auto-fired builds during inscribe (unmatchable push filter)
 - PAT never appears in logs or transcripts
