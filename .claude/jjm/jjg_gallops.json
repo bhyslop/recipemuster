@@ -4962,6 +4962,13 @@
         "₢AiAA8": {
           "tacks": [
             {
+              "ts": "260303-1852",
+              "state": "complete",
+              "text": "Extract SA domain suffix and email composition magic strings into constants/helper.\n\n## What\n\nTwo changes:\n1. Add `RBGC_IAM_SA_DOMAIN=\"iam.gserviceaccount.com\"` kindle constant to `rbgc_Constants.sh`\n2. Add `rbgu_sa_email_capture()` helper to `rbgu_Utility.sh` that composes `${name}@${project}.${RBGC_IAM_SA_DOMAIN}`\n\nThen replace all inline occurrences of `.iam.gserviceaccount.com` SA email construction across the depot call chain with the helper.\n\n## Target files\n\n- `Tools/rbw/rbgc_Constants.sh` — new kindle constant\n- `Tools/rbw/rbgu_Utility.sh` — new helper function\n- `Tools/rbw/rbgp_Payor.sh` — consumer\n- `Tools/rbw/rbgi_IAM.sh` — consumer\n- `Tools/rbw/rbgg_Governor.sh` — consumer (likely)\n\n## Out of scope\n\n- Path segment constants (`/projects/`, `/serviceAccounts/`) — readability tradeoff not justified\n- URL builder functions — inline URLs remain more readable\n\n## Acceptance criteria\n\n- Zero inline `.iam.gserviceaccount.com` strings outside the new constant\n- All SA email construction uses the helper\n- No behavioral change",
+              "silks": "extract-sa-email-magic-strings",
+              "commit": "f293d02"
+            },
+            {
               "ts": "260303-1400",
               "state": "rough",
               "text": "Extract SA domain suffix and email composition magic strings into constants/helper.\n\n## What\n\nTwo changes:\n1. Add `RBGC_IAM_SA_DOMAIN=\"iam.gserviceaccount.com\"` kindle constant to `rbgc_Constants.sh`\n2. Add `rbgu_sa_email_capture()` helper to `rbgu_Utility.sh` that composes `${name}@${project}.${RBGC_IAM_SA_DOMAIN}`\n\nThen replace all inline occurrences of `.iam.gserviceaccount.com` SA email construction across the depot call chain with the helper.\n\n## Target files\n\n- `Tools/rbw/rbgc_Constants.sh` — new kindle constant\n- `Tools/rbw/rbgu_Utility.sh` — new helper function\n- `Tools/rbw/rbgp_Payor.sh` — consumer\n- `Tools/rbw/rbgi_IAM.sh` — consumer\n- `Tools/rbw/rbgg_Governor.sh` — consumer (likely)\n\n## Out of scope\n\n- Path segment constants (`/projects/`, `/serviceAccounts/`) — readability tradeoff not justified\n- URL builder functions — inline URLs remain more readable\n\n## Acceptance criteria\n\n- Zero inline `.iam.gserviceaccount.com` strings outside the new constant\n- All SA email construction uses the helper\n- No behavioral change",
