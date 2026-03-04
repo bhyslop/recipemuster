@@ -737,7 +737,7 @@ rbgp_depot_create() {
 
   buc_step 'Verify IAM propagation before resource creation'
   local -r z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${z_depot_project_id}/locations/${z_region}/repositories"
-  rbgu_poll_get_until_ok "AR IAM propagation" "${z_preflight_url}" "${z_token}" "iam_preflight"
+  rbgu_poll_until_ok "GET" "AR IAM propagation" "${z_preflight_url}" "${z_token}" "iam_preflight"
 
   buc_step 'Create build bucket'
   local -r z_build_bucket="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_timestamp}"
@@ -786,7 +786,7 @@ rbgp_depot_create() {
 
   buc_step 'Verify IAM API is ready for service account creation'
   local -r z_iam_preflight_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
-  rbgu_poll_get_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
+  rbgu_poll_until_ok "GET" "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
   local -r z_mason_name="${RBGC_MASON_PREFIX}-${z_depot_name}"
@@ -812,7 +812,7 @@ rbgp_depot_create() {
 
   buc_step 'Verify Mason service account propagation'
   local -r z_mason_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts/${z_mason_sa_email}"
-  rbgu_poll_get_until_ok "Mason SA" "${z_mason_sa_url}" "${z_token}" "mason_sa_preflight"
+  rbgu_poll_until_ok "GET" "Mason SA" "${z_mason_sa_url}" "${z_token}" "mason_sa_preflight"
 
   buc_step 'Configure Mason permissions'
   # Repository admin (AR repo IAM requires email, not numeric ID)
@@ -913,10 +913,23 @@ rbgp_depot_create() {
     || buc_die "Failed to get webhook secret version name"
   buc_log_args "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME} stored as ${z_webhook_version}"
 
+  buc_step 'Verify secret propagation before IAM grants'
+  local -r z_api_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
+  local -r z_read_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_READ_TOKEN_SECRET_NAME}"
+  local -r z_wh_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_WEBHOOK_SECRET_NAME}"
+  rbgu_poll_until_ok "POST" "Secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME}" \
+    "${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_secret_resource}:getIamPolicy" \
+    "${z_token}" "secret_propagate_api"
+  rbgu_poll_until_ok "POST" "Secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME}" \
+    "${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_read_secret_resource}:getIamPolicy" \
+    "${z_token}" "secret_propagate_read"
+  rbgu_poll_until_ok "POST" "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME}" \
+    "${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_wh_secret_resource}:getIamPolicy" \
+    "${z_token}" "secret_propagate_webhook"
+
   buc_step 'Grant Cloud Build service agent Secret Manager access (all 3 secrets)'
 
   # --- IAM for api token secret ---
-  local -r z_api_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
   local -r z_api_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_secret_resource}:getIamPolicy"
   rbgu_http_json "POST" "${z_api_iam_get_url}" "${z_token}" "depot_secret_get_iam_api"
   local z_api_iam_code
@@ -937,7 +950,6 @@ rbgp_depot_create() {
   rbgu_http_require_ok "Grant CB service agent access to api token secret" "depot_secret_set_iam_api"
 
   # --- IAM for read_api token secret ---
-  local -r z_read_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_READ_TOKEN_SECRET_NAME}"
   local -r z_read_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_read_secret_resource}:getIamPolicy"
   rbgu_http_json "POST" "${z_read_iam_get_url}" "${z_token}" "depot_secret_get_iam_read"
   local z_read_iam_code
@@ -958,7 +970,6 @@ rbgp_depot_create() {
   rbgu_http_require_ok "Grant CB service agent access to read token secret" "depot_secret_set_iam_read"
 
   # --- IAM for webhook secret ---
-  local -r z_wh_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_WEBHOOK_SECRET_NAME}"
   local -r z_wh_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_wh_secret_resource}:getIamPolicy"
   rbgu_http_json "POST" "${z_wh_iam_get_url}" "${z_token}" "depot_secret_get_iam_webhook"
   local z_wh_iam_code
@@ -1615,7 +1626,7 @@ rbgp_governor_reset() {
 
   buc_step 'Wait for Governor SA propagation'
   local -r z_verify_url="${z_sa_list_url}/${z_governor_email}"
-  rbgu_poll_get_until_ok "Governor SA" "${z_verify_url}" "${z_token}" "gov_verify"
+  rbgu_poll_until_ok "GET" "Governor SA" "${z_verify_url}" "${z_token}" "gov_verify"
 
   # No fixed sleep needed: rbgi_add_project_iam_role retries on "does not exist"
   # propagation errors with exponential backoff (see RBSCIP trade study)

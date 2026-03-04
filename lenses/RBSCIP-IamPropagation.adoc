@@ -9,6 +9,12 @@ readiness gate or fixed sleep delays.
 * **Secret access readiness**: The CB v2 connection creation LRO itself serves as the propagation test.
   If the Cloud Build Service Agent cannot yet access the secrets (IAM grant not propagated), the LRO fails.
   The caller retries with exponential backoff, deleting the zombie connection resource between attempts.
+* **Secret resource propagation**: `getIamPolicy` on a newly created secret may return HTTP 404 while
+  the Secret Manager resource propagates across Google's control plane.  The API documents that
+  `getIamPolicy` returns an empty policy (HTTP 200) when no policy has been set — so 404 indicates
+  the resource itself is not yet visible, not that the policy is absent.  After creating secrets,
+  `rbgu_poll_until_ok` polls each secret's `getIamPolicy` endpoint until 200 before proceeding to
+  grant IAM bindings.
 
 ==== Rationale
 
@@ -79,13 +85,13 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 * Any `roles/iam.serviceAccountTokenCreator` grant solely for the readiness gate
   (build-time Mason impersonation grants are unrelated and preserved)
 * Fixed `sleep 15` delays before CB v2 connection creation and after Governor SA creation
-* Standalone `rbgu_poll_get_until_ok` as a correctness gate for IAM propagation
+* Standalone `rbgu_poll_until_ok` as a correctness gate for IAM propagation
   (the SA GET poll remains as a fast-path existence check, not a grant propagation gate)
 * Any assumption that SA existence implies SA usability in IAM policy operations
 
 ==== What Survives
 
-* SA GET poll via `rbgu_poll_get_until_ok` -- retained as a fast-path check that the SA resource itself
+* SA GET poll via `rbgu_poll_until_ok` -- retained as a fast-path check that the SA resource itself
   is readable, which typically resolves well before IAM policy propagation completes
 * The existing 429/5xx transient retry loop in `rbgi_add_project_iam_role` step 3 --
   this handles a different failure class (rate limiting, server errors) and is preserved inside
