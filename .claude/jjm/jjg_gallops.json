@@ -7833,9 +7833,10 @@
       "creation_time": "260303",
       "status": "racing",
       "order": [
-        "₢AlAAA"
+        "₢AlAAA",
+        "₢AlAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -7846,6 +7847,17 @@
               "text": "Full sequential e2e from clean state with SLSA v1.0 provenance verification.\n\n## Prerequisites\n\n- ₢AiABD (declarative IAM policy writes) landed in ₣Ai\n- All 7 vessel cloudbuild.json regenerated after skopeo split step addition\n- Pin refresh will occur during depot create\n\n## Procedure\n\nOperator-guided, phase-gated:\n\n**Phase 1: Destroy + Create**\n1. Destroy existing demo1015 depot\n2. Create depot with CB v2 connection (PAT + installation ID via stdin)\n3. Verify: Secret Manager secret, CB v2 connection COMPLETE, CB v2 repository exists\n\n**Phase 2: Roles + Pins**\n4. Governor reset, create director, create retriever\n5. Verify: Director SA has secretAccessor on PAT secret (₢AiABD fix)\n6. Refresh pins — verify RBRR_GCB_SKOPEO_IMAGE_REF gets real digest\n7. Commit updated pins\n\n**Phase 3: Inscribe + Dispatch**\n8. Inscribe — verify no auto-fired builds (₢AiABC fix)\n9. Dispatch busybox build via triggers.run\n10. Wait for build success — all steps including skopeo split + SBOM\n\n**Phase 4: Provenance**\n11. Query Container Analysis API for SLSA v1.0 provenance on image digest\n12. Confirm inTotoSlsaProvenanceV1 exists\n13. Confirm builder.id, source metadata, trigger URI present\n\n**Phase 5: Fleet**\n14. Dispatch additional vessels beyond busybox\n\n## Acceptance Criteria\n\n- Busybox build succeeds via triggers.run\n- SLSA v1.0 provenance confirmed on produced artifact\n- IAM bindings survive full lifecycle (no stale-read overwrites)\n- No auto-fired builds during inscribe\n- Skopeo split + Syft SBOM succeeds\n- PAT never appears in logs or transcripts",
               "silks": "e2e-full-depot-lifecycle-provenance",
               "commit": "c23fb69"
+            }
+          ]
+        },
+        "₢AlAAB": {
+          "tacks": [
+            {
+              "ts": "260303-1814",
+              "state": "rough",
+              "text": "Add Private Pool creation and deletion to the depot lifecycle.\n\n## Regime variable\n\nAdd RBRR_GCB_PRIVATE_POOL_NAME to regime (optional, 0-64 chars).\nEmpty means default pool (no private pool). When set, depot_create\ncreates the pool and depot_destroy deletes it.\n\n## Constants\n\nAdd RBGC_API_WORKER_POOLS endpoint template to rbgc_Constants.sh.\n\n## depot_create\n\nAfter API enablement, if RBRR_GCB_PRIVATE_POOL_NAME is non-empty:\n- POST to workerPools API to create the pool\n- Use e2 machine config from RBRR_GCB_MACHINE_TYPE\n- Pool scales to zero (no idle cost)\n- Idempotent: skip if pool already exists (409 CONFLICT = success)\n\n## depot_destroy\n\nBefore project deletion, if RBRR_GCB_PRIVATE_POOL_NAME is non-empty:\n- DELETE the worker pool\n- Tolerate 404 (already gone)\n\n## Quota check\n\nrbgd_DepotConstants.sh: when private pool configured, check\nconcurrent_private_pool_build_cpus instead of concurrent_public_pool_build_cpus.\n\n## Files\n\n- Tools/rbw/rbrr_regime.sh — add optional enrollment\n- Tools/rbw/rbrr.env — add variable\n- Tools/rbw/rbgp_Payor.sh — pool create/delete\n- Tools/rbw/rbgc_Constants.sh — API endpoint constant\n- Tools/rbw/rbgd_DepotConstants.sh — conditional quota metric\n- lenses/RBSDC-depot_create.adoc — document pool creation step\n- lenses/RBSDD-depot_destroy.adoc — document pool deletion step\n\n## Code Standards\n\nAll new bash code must be BCG-compliant.",
+              "silks": "private-pool-depot-lifecycle",
+              "commit": "2d652ab"
             }
           ]
         }
