@@ -4727,9 +4727,10 @@
         "₢AiAA8",
         "₢AiABA",
         "₢AiABB",
-        "₢AiABD"
+        "₢AiABD",
+        "₢AiABE"
       ],
-      "next_pace_seed": "ABE",
+      "next_pace_seed": "ABF",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA-": {
@@ -6656,6 +6657,17 @@
               "text": "Fix IAM read-modify-write race: make create_director assert all expected bindings.\n\n## Problem\n\n`depot_create` sets Mason's bindings on GAR repo and secret IAM policies.\n`create_director` later does read-modify-write on the same resources.\nIf `getIamPolicy` returns stale data (IAM eventual consistency — 200 but missing\nMason's binding), the `setIamPolicy` overwrites and destroys Mason's binding.\n\nThis is NOT fixable with delays/retries — a 200 with stale data is indistinguishable\nfrom a 200 with fresh data.\n\n## Approach: Declarative assertion\n\nEvery `setIamPolicy` call must assert the complete expected binding set, not just\nadd its own binding incrementally. When `create_director` modifies a policy, it\npositively asserts ALL bindings that should exist on that resource.\n\n## Changes Required\n\n### rbgg_Governor.sh — create_director\n\n**GAR repo IAM** (currently line ~622):\nAfter reading the policy and adding Director `repoAdmin`, also assert Mason `writer`.\nMason's email is available via `RBGD_MASON_EMAIL`. Apply both bindings to the policy\nJSON before the single `setIamPolicy` call:\n1. `rbgu_jq_add_member_to_role_capture` for Director repoAdmin\n2. Run the result through jq again (or a second add_member call) for Mason writer\n3. One `setIamPolicy` with the fully-asserted policy\n\n**Secret IAM** (currently line ~592):\nAfter reading the policy and adding Director `secretAccessor`, also assert CB service\nagent `secretAccessor`. CB service agent email: `service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com`.\nThe project number is available from RBGD constants or can be derived.\n\n### Specs\n- `lenses/RBSDI-director_create.adoc`: Document that create_director asserts both its\n  own bindings AND depot_create's bindings in every IAM policy write. Explain the\n  eventual-consistency rationale.\n- Paddock: Add session decision on declarative IAM assertion pattern.\n\n### Consider\n- Should `rbgu_jq_add_member_to_role_capture` gain a multi-binding variant? Or just\n  chain two calls (pipe JSON through jq twice)?\n- Should depot_create also assert Mason + CB service agent together in one write?\n  (Currently writes them separately — same stale-read risk between the two writes.)\n\n## Acceptance Criteria\n- create_director's GAR setIamPolicy includes both Director repoAdmin AND Mason writer\n- create_director's secret setIamPolicy includes both Director secretAccessor AND CB service agent secretAccessor\n- No IAM binding can be lost to stale reads\n- Specs document the declarative assertion pattern",
               "silks": "fix-iam-policy-declarative-assertions",
               "commit": "a46e005"
+            }
+          ]
+        },
+        "₢AiABE": {
+          "tacks": [
+            {
+              "ts": "260303-1735",
+              "state": "rough",
+              "text": "Fix SBOM generation for multi-platform builds: split OCI archive with skopeo before Syft.\n\n## Problem\n\nSyft cannot scan multi-platform OCI layouts (anchore/syft#1545, still open).\nStep 6 (sbom-and-summary) fails with:\n  \"unexpected media type: application/vnd.oci.image.index.v1+json\"\nThe OCI Layout Bridge produces a multi-platform index; Syft expects a single image.\n\n## Approach: Local skopeo split\n\nUse skopeo to extract a single-platform OCI layout from the multi-platform archive,\nthen point Syft at the single-platform layout. Fully local, no registry round-trip.\n\n### Pipeline changes (rbgjb step scripts)\n\n**New step (between push-with-crane and sbom-and-summary):**\n- skopeo copy with --override-os linux --override-arch amd64:\n  `skopeo --override-os linux --override-arch amd64 copy oci-archive:/workspace/oci-layout.tar oci:/workspace/oci-amd64`\n- Requires a pinned skopeo image (add RBRR_GCB_SKOPEO_IMAGE_REF to pin regime)\n\n**Modified rbgjb08-sbom-and-summary.sh:**\n- Point Syft at `oci-dir:/workspace/oci-amd64` instead of `oci-dir:/workspace/oci-layout`\n- Label SBOM output with platform: `sbom.linux_amd64.spdx.json`\n\n**Subject mapping file:**\n- Emit a small mapping of platform -> digest after the skopeo split\n- Aids audit/forensics, cheap to produce\n\n### Stitch function\n- Add the new skopeo step to z_step_defs in zrbf_stitch_build_json\n- Pin the skopeo image via RBRR regime variable\n\n### Specs\n- Update RBSRI or relevant spec to document SBOM is per-platform (amd64),\n  labeled with platform image digest, not the index digest\n- Note: per-platform SBOM is honest about scope — doesn't claim to cover\n  other platform variants. SLSA provenance requires attestation-to-subject-digest\n  correspondence.\n\n### Future work (not this pace)\n- Drift detector: periodic check that arm64/armv7 package inventory matches amd64\n- BuildKit SBOM attestations (--sbom=true) as architectural alternative\n- Per-platform SBOMs if drift is detected\n\n### Regeneration required\n- All 7 vessel cloudbuild.json need regeneration after stitch change\n- Rubric repo needs re-inscribe\n\n## Acceptance Criteria\n- SBOM step succeeds on multi-platform busybox build\n- SBOM labeled with platform and platform-specific image digest\n- No registry round-trip for SBOM generation\n- Skopeo image pinned by digest in RBRR regime",
+              "silks": "fix-sbom-multi-platform-skopeo-split",
+              "commit": "d7fc424"
             }
           ]
         }
