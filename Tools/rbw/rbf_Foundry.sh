@@ -215,8 +215,9 @@ zrbf_stitch_build_json() {
       --arg id "${z_id}" \
       --arg ep "${z_entrypoint}" \
       --arg flag "${z_arg_flag}" \
+      --arg dir "${z_sigil}" \
       --rawfile script "${z_escaped_file}" \
-      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+      '. + [{name: $name, id: $id, entrypoint: $ep, dir: $dir, args: [$flag, $script]}]' \
       "${z_accumulator_file}" > "${z_steps_file}" \
       || buc_die "Failed to append step ${z_id} to JSON"
     mv "${z_steps_file}" "${z_accumulator_file}" \
