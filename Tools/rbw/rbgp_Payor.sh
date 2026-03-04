@@ -811,7 +811,7 @@ rbgp_depot_create() {
   # deterministic from the project number. See RBSCIP for the two-SA distinction.
   rbgu_provision_service_agent "cloudbuild" "${z_depot_project_id}" "${z_token}" > /dev/null \
     || buc_die "Failed to provision Cloud Build service agent"
-  local -r z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  local -r z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.${RBGC_SA_EMAIL_DOMAIN}"
   buc_log_args "CB v2 service agent: ${z_cb_service_agent}"
 
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
@@ -1402,7 +1402,10 @@ rbgp_depot_list() {
     local z_bucket_expected="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_depot_timestamp}"
 
     # Quick validation - check if Mason service account exists
-    local z_mason_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts/${z_mason_expected}@${z_project_id}.iam.gserviceaccount.com"
+    local z_mason_email
+    z_mason_email=$(rbgu_sa_email_capture "${z_mason_expected}" "${z_project_id}") \
+      || buc_die "Failed to compose Mason email for depot ${z_depot_name}"
+    local z_mason_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts/${z_mason_email}"
     rbgu_http_json "GET" "${z_mason_url}" "${z_token}" "depot_list_mason_${z_depot_index}" || true
 
     local z_mason_code
@@ -1542,7 +1545,9 @@ rbgp_governor_reset() {
   local z_timestamp
   z_timestamp=$(date +%Y%m%d%H%M) || buc_die "Failed to generate timestamp"
   local -r z_governor_account_id="${RBGC_GOVERNOR_PREFIX}-${z_timestamp}"
-  local -r z_governor_email="${z_governor_account_id}@${z_depot_project_id}.iam.gserviceaccount.com"
+  local z_governor_email
+  z_governor_email=$(rbgu_sa_email_capture "${z_governor_account_id}" "${z_depot_project_id}") \
+    || buc_die "Failed to compose Governor email"
 
   buc_log_args "Governor account ID: ${z_governor_account_id}"
 

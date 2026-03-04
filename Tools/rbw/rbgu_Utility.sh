@@ -128,6 +128,21 @@ rbgu_urlencode_capture() {
   echo "${z_out}"
 }
 
+# Compose service account email from name and project ID.
+# Args: account_name project_id
+# Returns: name@project.iam.gserviceaccount.com
+rbgu_sa_email_capture() {
+  zrbgu_sentinel
+
+  local -r z_name="${1:-}"
+  local -r z_project="${2:-}"
+
+  test -n "${z_name}"    || return 1
+  test -n "${z_project}" || return 1
+
+  echo "${z_name}@${z_project}.${RBGC_SA_EMAIL_DOMAIN}"
+}
+
 # Add member to IAM policy role binding with version=3 enforcement
 #
 # RBGU IAM Policy Standard: All IAM policies are standardized to version=3

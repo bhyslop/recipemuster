@@ -601,7 +601,7 @@ rbgg_create_director() {
   # Complete policy: Director + CB service agent both need secretAccessor.
   # Writing all expected bindings in one setIamPolicy prevents the read-modify-write
   # race where a stale getIamPolicy could omit depot_create's CB service agent binding.
-  local -r z_cb_service_agent="serviceAccount:service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+  local -r z_cb_service_agent="serviceAccount:service-${z_project_number}@gcp-sa-cloudbuild.${RBGC_SA_EMAIL_DOMAIN}"
 
   local z_director_secret_partial_policy
   z_director_secret_partial_policy=$(rbgu_jq_add_member_to_role_capture "director_secret_get_iam" \
