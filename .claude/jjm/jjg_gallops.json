@@ -6671,6 +6671,13 @@
         "₢AiABB": {
           "tacks": [
             {
+              "ts": "260303-1925",
+              "state": "complete",
+              "text": "RBSRC-retriever_create.adoc is a high-level summary with no step-by-step\noperations, while RBSDI-director_create.adoc has detailed steps including\nSA creation, key generation, propagation verification, and role grants.\n\nBoth follow the same pattern (Governor creates a role SA with key + RBRA)\nand should be specified at the same level of detail.\n\nOptions:\n1. Flesh out RBSRC to match RBSDI's step-by-step detail\n2. Extract shared steps into a common pattern/template and have both\n   documents reference it\n\nAlso update RBSRC SA verification step to include poll-with-backoff\nlanguage matching the RBSDI fix from ₢AiAA0.\n\n## Target files\n- lenses/RBSRC-retriever_create.adoc\n- lenses/RBSDI-director_create.adoc (reference for pattern)\n\n## Acceptance criteria\n- Both specs describe operations at the same level of detail\n- SA propagation verification documented with poll/backoff in both",
+              "silks": "align-rbsrc-detail-with-rbsdi",
+              "commit": "bcb7494"
+            },
+            {
               "ts": "260303-1547",
               "state": "rough",
               "text": "RBSRC-retriever_create.adoc is a high-level summary with no step-by-step\noperations, while RBSDI-director_create.adoc has detailed steps including\nSA creation, key generation, propagation verification, and role grants.\n\nBoth follow the same pattern (Governor creates a role SA with key + RBRA)\nand should be specified at the same level of detail.\n\nOptions:\n1. Flesh out RBSRC to match RBSDI's step-by-step detail\n2. Extract shared steps into a common pattern/template and have both\n   documents reference it\n\nAlso update RBSRC SA verification step to include poll-with-backoff\nlanguage matching the RBSDI fix from ₢AiAA0.\n\n## Target files\n- lenses/RBSRC-retriever_create.adoc\n- lenses/RBSDI-director_create.adoc (reference for pattern)\n\n## Acceptance criteria\n- Both specs describe operations at the same level of detail\n- SA propagation verification documented with poll/backoff in both",
