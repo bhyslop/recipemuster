@@ -4709,6 +4709,7 @@
         "₢AiAA6",
         "₢AiAA7",
         "₢AiABC",
+        "₢AiABE",
         "₢AiAA0",
         "₢AiAA5",
         "₢AiAAe",
@@ -4727,8 +4728,7 @@
         "₢AiAA8",
         "₢AiABA",
         "₢AiABB",
-        "₢AiABD",
-        "₢AiABE"
+        "₢AiABD"
       ],
       "next_pace_seed": "ABF",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
