@@ -1246,19 +1246,9 @@ rbf_rubric_inscribe() {
         description: ("Recipe Bottle rubric trigger for " + $sigil),
         repositoryEventConfig: {
           repository: $repo,
-          repositoryType: "GITLAB"
+          push: { branch: "^main$" }
         },
-        sourceToBuild: {
-          repository: $repo,
-          ref: "refs/heads/main",
-          repositoryType: "GITLAB"
-        },
-        gitFileSource: {
-          path: ($sigil + "/cloudbuild.json"),
-          repository: $repo,
-          revision: "refs/heads/main",
-          repositoryType: "GITLAB"
-        },
+        filename: ($sigil + "/cloudbuild.json"),
         serviceAccount: $sa
       }' > "${z_trigger_body}" || buc_die "Failed to compose trigger body for ${z_sigil}"
 
