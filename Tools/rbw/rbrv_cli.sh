@@ -56,7 +56,7 @@ rbrv_list() {
   buc_step "Available vessels:"
   local z_sigil=""
   for z_sigil in ${z_sigils}; do
-    buc_step "  ${z_sigil}"
+    buc_bare "        ${z_sigil}"
   done
 }
 

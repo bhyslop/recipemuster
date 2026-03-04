@@ -60,6 +60,8 @@ zrbf_furnish() {
   zrbrr_enforce
   zrbrr_lock
 
+  source "${z_rbw_kit_dir}/rbrv_regime.sh"
+
   buc_log_args 'Kindle modules in dependency order'
   zrbgc_kindle
   zrbgd_kindle

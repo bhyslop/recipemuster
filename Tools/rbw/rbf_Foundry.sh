@@ -303,10 +303,6 @@ zrbf_load_vessel() {
   buc_log_args 'Source vessel configuration'
   source "${z_vessel_env}" || buc_die "Failed to source vessel config: ${z_vessel_env}"
 
-  buc_log_args 'Validate vessel configuration'
-  local z_validator_dir="${BASH_SOURCE[0]%/*}"
-  source "${z_validator_dir}/rbrv_regime.sh" || buc_die "Failed to validate vessel configuration"
-
   buc_log_args 'Validate vessel directory matches sigil'
   local z_vessel_dir_clean="${z_vessel_dir%/}"  # Strip any trailing slash
   local z_dir_name="${z_vessel_dir_clean##*/}"  # Extract directory name
@@ -388,7 +384,16 @@ rbf_build() {
   buc_doc_shown || return 0
 
   buc_log_args "Validate parameters"
-  test -n "${z_vessel_dir}" || buc_die "Vessel directory required"
+  if test -z "${z_vessel_dir}"; then
+    local z_sigils
+    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+    buc_step "Available vessels:"
+    local z_sigil=""
+    for z_sigil in ${z_sigils}; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    done
+    buc_die "Vessel directory required"
+  fi
 
   # Load and validate vessel
   zrbf_load_vessel "${z_vessel_dir}"
@@ -1029,9 +1034,9 @@ rbf_rubric_inscribe() {
   local z_target=""
   local z_loaded_sigil=""
   for z_vessel_dir in "${z_vessel_dirs[@]}"; do
-    # Isolation subshell: rbrv_regime.sh has a multiply-sourced guard that fires
-    # on the second iteration. Subshell isolates sourced state per BCG §Isolation Subshells.
-    # Outputs survive via filesystem: ZRBF_VESSEL_SIGIL_FILE and ZRBF_STITCHED_BUILD_FILE.
+    # Isolation subshell: each vessel's rbrv.env sets different RBRV_* values that
+    # would collide without isolation. Outputs survive via filesystem:
+    # ZRBF_VESSEL_SIGIL_FILE and ZRBF_STITCHED_BUILD_FILE.
     (
       zrbf_load_vessel "${z_vessel_dir}" || buc_die "Failed to load vessel: ${z_vessel_dir}"
       buc_step "Stitching build JSON for ${RBRV_SIGIL}"

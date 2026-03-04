@@ -80,6 +80,7 @@ zrbz_kindle() {
 
   # Vessel regime operations
   z_mod="rbrv_cli.sh"
+  buz_enroll RBZ_LIST_VESSELS    "rbw-rvl" "${z_mod}" "rbrv_list"
   buz_enroll RBZ_RENDER_VESSEL   "rbw-rvr" "${z_mod}" "rbrv_render"   "param1"
   buz_enroll RBZ_VALIDATE_VESSEL "rbw-rvv" "${z_mod}" "rbrv_validate" "param1"
 

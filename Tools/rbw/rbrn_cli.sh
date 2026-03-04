@@ -147,7 +147,7 @@ rbrn_list() {
   buc_step "Available nameplates:"
   local z_moniker=""
   for z_moniker in ${z_monikers}; do
-    buc_step "  ${z_moniker}"
+    buc_bare "        ${z_moniker}"
   done
 }
 
