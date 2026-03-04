@@ -7,6 +7,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣Al",
     "₣Aj",
     "₣Ai",
     "₣Ah",
@@ -20,8 +21,7 @@
     "₣AZ",
     "₣Aa",
     "₣Ac",
-    "₣Ak",
-    "₣Al"
+    "₣Ak"
   ],
   "heats": {
     "₣AD": {
@@ -7831,7 +7831,7 @@
     "₣Al": {
       "silks": "rbw-e2e-cbv2-provenance",
       "creation_time": "260303",
-      "status": "stabled",
+      "status": "racing",
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
