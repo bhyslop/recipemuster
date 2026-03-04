@@ -5661,9 +5661,10 @@
         "₢AlAAC",
         "₢AlAAB",
         "₢AlAAA",
-        "₢AlAAD"
+        "₢AlAAD",
+        "₢AlAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -5788,6 +5789,17 @@
               "text": "Retire rbrr.validator.sh by migrating its two regex checks into buv_* enrollment types.\n\n## Context\n\nrbrr.validator.sh is a pre-BCG legacy validator with 5 checks. Three are already\ncovered by buv_*_enroll in rbrr_regime.sh. Two regex checks remain:\n\n1. RBRR_GCB_MACHINE_TYPE: CE format ^[a-z][a-z0-9-]+$\n   FIX: Change from buv_string_enroll to buv_gname_enroll in rbrr_regime.sh.\n   buv_gname validates ^[a-z][a-z0-9-]*[a-z0-9]$ which is stricter (no trailing hyphen).\n\n2. RBRR_GCB_WORKER_POOL: resource path ^projects/[^/]+/locations/[^/]+/workerPools/[^/]+$\n   FIX: Needs either a new buv enroll type or a post-enrollment validation call.\n   Design decision: new buv type vs inline regex in rbrr_regime.sh.\n\n## Deliverables\n\n1. Change RBRR_GCB_MACHINE_TYPE to buv_gname_enroll in rbrr_regime.sh\n2. Add worker pool path validation (decide approach during pace)\n3. Delete rbrr.validator.sh\n4. Remove source call from rbgd_DepotConstants.sh\n5. Verify depot_create still works (the validator was a pre-operation gate)\n\n## Sequencing\n\nDo this BEFORE the next e2e test run (₢AlAAA).",
               "silks": "retire-rbrr-validator",
               "commit": "3f61345"
+            }
+          ]
+        },
+        "₢AlAAF": {
+          "tacks": [
+            {
+              "ts": "260304-1538",
+              "state": "rough",
+              "text": "Reconsider the rbgu_poll_until_ok method parameter factoring.\n\n## Context\n\nThe refactor in cf3406a6 changed rbgu_poll_get_until_ok (GET-only) to\nrbgu_poll_until_ok with a method parameter to support POST for Secret Manager\ngetIamPolicy. This turned out to be wrong — Secret Manager getIamPolicy uses\nGET, not POST (unlike CRM getIamPolicy which uses POST).\n\nThe method parameter made it easy to pass the wrong verb without any compile-time\nor structural safety. All existing callers use GET. The parameterization was\npremature — introduced for a use case that didn't exist.\n\n## Questions to resolve\n\n1. Should we revert to rbgu_poll_get_until_ok (GET-only)?\n2. Or keep the parameterization but document which GCP APIs use GET vs POST for\n   getIamPolicy? (CRM uses POST, Secret Manager uses GET, IAM uses POST)\n3. Consider whether rbgu_http_json callers should have a wrapper per GCP API\n   that encodes the correct method, rather than raw method strings at call sites.\n\n## Not in scope\n\n- Changing runtime behavior (the fix is already landed)\n- Refactoring rbgu_http_json itself",
+              "silks": "reconsider-poll-method-parameterization",
+              "commit": "1265570"
             }
           ]
         }
