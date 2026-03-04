@@ -15,9 +15,10 @@ never exposed to Google. Zero custom substitution overrides; all values baked
 at inscribe time.
 
 **CB v2 connections** (replaced Developer Connect): Fully programmatic setup via
-REST API. Uses "Google Cloud Build" GitHub/GitLab App + classic PAT stored in
-Secret Manager. No browser OAuth consent flow. Connection + repository created
-during `depot_create`.
+REST API. Uses GitLab `gitlabConfig` with project access token (3 secrets in
+Secret Manager). No browser OAuth consent flow. Connection + repository created
+during `depot_create`. GitLab chosen over GitHub for repository-scoped PAT
+security (see ₣Ai trophy, `rbgm_gitlab_setup()`).
 
 **Build pipeline (10 steps, stitched by `zrbf_stitch_build_json`):**
 1. derive-tag-base (gcloud)
@@ -40,32 +41,24 @@ OCI layout from the multi-platform archive so Syft can generate SBOMs
 - `RBRR_RUBRIC_REPO_URL` — plain HTTPS URL to rubric repo (no credentials)
 - `RBRR_CBV2_CONNECTION_NAME` — CB v2 connection identifier
 - `RBRR_GCB_SKOPEO_IMAGE_REF` — skopeo image pin (needs refresh on depot create)
-- PAT in Secret Manager (`RBGC_CBV2_PAT_SECRET_NAME = rb-github-pat`)
-
-### GitLab→GitHub Secret Constant Migration
-
-**WARNING (from ₣Ai ₢AiABB):** `rbgc_Constants.sh` lines 151-157 contain four
-GitLab-specific constants that must be restructured for GitHub CB v2:
-
-- `RBGC_CBV2_API_TOKEN_SECRET_NAME="rbw-gitlab-api-token"` → rename to `"rb-github-pat"` (single PAT)
-- `RBGC_CBV2_READ_TOKEN_SECRET_NAME="rbw-gitlab-read-token"` → **delete** (GitLab-only, GitHub uses one PAT)
-- `RBGC_CBV2_WEBHOOK_SECRET_NAME="rbw-gitlab-webhook-secret"` → **delete** (GitHub App handles webhooks)
-- `RBGC_CBV2_CONNECTION_SUFFIX="-gitlab"` → rename to `"-github"` (or remove suffix concept)
-- Comment on line 151 references "GitLab" → update
-
-The three-secret model (api-token + read-token + webhook) is GitLab CB v2 specific.
-GitHub CB v2 needs only one secret (classic PAT). All consumers of the deleted
-constants (`rbgp_Payor.sh`, `rbf_Foundry.sh`) must be updated during depot rebuild.
+- PAT in Secret Manager (3 secrets: `RBGC_CBV2_API_TOKEN_SECRET_NAME`,
+  `RBGC_CBV2_READ_TOKEN_SECRET_NAME`, `RBGC_CBV2_WEBHOOK_SECRET_NAME`)
 
 ### Decision: Private Pool Always (2026-03-03)
 
 **Burn the default-pool bridge.** Every depot gets a private pool. No conditional
 path in stitch, no "optional" regime variable, no two configurations to debug.
 
-**Rationale:** Private pool pricing is essentially identical to default pool
-(~$0.003/vCPU-min, 1.0-1.13x ratio). The conditional in `zrbf_stitch_build_json`
-(`if pool != "" then pool.name else machineType end`) creates two code paths,
-two depot configurations, two things to debug. One path, well-tested, is better.
+**Rationale:** Private pools are the prerequisite for higher security tiers.
+VPC Service Controls (data exfiltration perimeter) **only works with private pools**.
+NO_PUBLIC_EGRESS (build worker network isolation) **requires private pools**.
+The roadmap (RBSCB) treats private pools as current posture and both hardening
+tiers as future stages — every depot must be on private pools to keep that path open.
+
+Additionally, pricing is essentially identical (~$0.003/vCPU-min, 1.0-1.13x ratio),
+and the conditional in `zrbf_stitch_build_json` (`if pool != "" then pool.name else
+machineType end`) creates two code paths, two depot configurations, two things to
+debug. One path, well-tested, is better.
 
 **What changes:**
 - `RBRR_GCB_WORKER_POOL` becomes **required** in regime (1-512 chars, not 0-512)
@@ -80,7 +73,7 @@ two depot configurations, two things to debug. One path, well-tested, is better.
 
 **Depot demo1015** exists with CB v2 GitLab connection. Rubric repo at
 `gitlab.com/bhyslop/rb-rubric.git`. 7 vessel triggers created.
-**Will be destroyed and rebuilt on GitHub with private pool.**
+**Will be destroyed and rebuilt on GitLab with private pool.**
 
 **All known issues from ₣Ai e2e (2026-03-03) are FIXED:**
 1. Push triggers fired on inscribe push — FIXED (₢AiABC: unmatchable branch filter)
@@ -91,7 +84,7 @@ two depot configurations, two things to debug. One path, well-tested, is better.
 ### What This Heat Verifies
 
 - Full lifecycle: destroy → create (with private pool) → roles → pins → inscribe → dispatch → provenance
-- GitHub CB v2 connection (replacing GitLab)
+- GitLab CB v2 connection (validated, per ₣Ai migration)
 - Private pool created by depot_create, used by all builds
 - SLSA v1.0 provenance exists on trigger-invoked builds
 - IAM bindings survive the full depot lifecycle (declarative policy writes)

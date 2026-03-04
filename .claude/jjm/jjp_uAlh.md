@@ -40,7 +40,7 @@ Beats do not have global identities. They are positional within a warrant (local
 ### Three Phases
 
 1. **School** (opus, conversational) — reads pace docket, selects gaits, produces warrant JSON. Incremental: proposes per pace, human approves, includes ambiguity/malformation assessment to decide when to stop schooling further paces. Slash command primes LLM; jjx emits directive output that LLM interprets as instructions. Human Q&A refines the warrant.
-2. **Breeze** (jjx-orchestrated) — jjx reads warrant, creates worktrees per beat, dispatches bare prompts to specified models per the dependency DAG. Parallel beats run concurrently. jjx collects results and merges beat branches into a single candidate branch for this pace in this volte. Haiku can dispatch — just following instructions, no judgment needed.
+2. **Breeze** (jjx-orchestrated) — jjx reads warrant, creates worktrees per beat, dispatches bare prompts to specified models per the dependency DAG. Parallel beats run concurrently. jjx collects results and merges beat branches into a single candidate branch for this pace in this volte. Haiku can dispatch — just following instructions, no judgment needed. Practical constraint: concurrent bare-prompt dispatches share a single account's RPM and token-per-minute throttle. Staggering beat launches by 1-2 seconds and right-sizing models per beat mitigates throughput contention. Different models have independent rate limit pools — a warrant mixing haiku/sonnet/opus beats gets more effective throughput than one using a single model.
 3. **Corral** (human + LLM) — reviews candidate. Accept, reject (school produces new volte with revised warrant), or synthesize across voltes.
 
 ### Warrant Structure
@@ -82,6 +82,8 @@ The warrant is JSON, consumed by jjx for orchestration. Fully resolved — no ga
 - `files` is write scope — files this beat is expected to modify. Empty = read-only beat (reviewer, produces commentary not code).
 - `prompt` is the fully resolved text. The LLM reads additional files as needed via tool calls during execution.
 - `quirt` cites which gait template this beat was expanded from. Audit/process-improvement metadata.
+
+Bare prompts are reproducible. Same prompt + same model + same worktree state = comparable output. Multi-turn conversations are path-dependent and unreproducible; a bare prompt is a function call. This makes process improvement scientific: when a beat produces bad output, change one variable (the prompt, or the model) and rerun. The closed loop — prompt → output → evaluate → refine prompt — is what makes the gait library a learning system. Each quirt version encodes lessons from prior bare-prompt outcomes. Tool use during beat execution is expected (file reads, searches, etc.) but opaque to the orchestrator — jjx dispatches one prompt and collects commits. The internal tool-call chain is the model's problem, not the conductor's.
 
 ### Warrant Storage
 
@@ -136,6 +138,10 @@ Every beat stores its prompt/warrant context in the git commit. This enables:
 V4 jjx doesn't just manage JSON — it emits prompts, directives, and context that shape what the LLM does next. Slash commands establish the interpretation contract (LLM treats jjx output as imperative, not advisory). jjx output design becomes a first-class concern: quality of directive text matters as much as correctness of JSON mutations.
 
 Pattern: jjx handles state/sequencing, LLM handles git operations and judgment. Co-routine. jjx is the conductor — it never interprets the prompts, just routes them.
+
+jjx orchestration is haiku-tier work. The JJS0 lower/upper API split already implies this: lower-layer commands are deliberately boring and mechanical. Reading warrants, creating worktrees, dispatching beats per the DAG, collecting results — this requires precision, not judgment. Reserve opus for school and corral; haiku conducts.
+
+**Model-tier enforcement**: jjx requires a model-identity parameter on every invocation. The invoking model self-reports its identity (e.g., `claude-haiku-4-5`). jjx enforces tier constraints mechanically — breeze-phase orchestration commands refuse to execute unless invoked by haiku. No honor system; hard gate. Secondary benefit: commit history and execution logs carry a model-attribution trail, enabling process improvement queries ("which model tier produced better results on mechanical beats?").
 
 ### Attention Model
 
