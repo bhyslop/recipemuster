@@ -5796,9 +5796,10 @@
       "order": [
         "₢AlAAC",
         "₢AlAAB",
-        "₢AlAAA"
+        "₢AlAAA",
+        "₢AlAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -5887,6 +5888,17 @@
               "text": "Restructure CB v2 constants from GitLab three-secret model to GitHub single-PAT model.\n\n## What changes\n\nIn `rbgc_Constants.sh`:\n- `RBGC_CBV2_API_TOKEN_SECRET_NAME=\"rbw-gitlab-api-token\"` → `\"rb-github-pat\"`\n- `RBGC_CBV2_READ_TOKEN_SECRET_NAME` → **delete**\n- `RBGC_CBV2_WEBHOOK_SECRET_NAME` → **delete**\n- `RBGC_CBV2_CONNECTION_SUFFIX=\"-gitlab\"` → `\"-github\"`\n- Update comment block (line 151)\n\n## Consumers to update\n\nMechanical search-and-destroy for deleted constants across:\n- `rbgp_Payor.sh` — depot_create (3 secrets → 1), depot_destroy (3 deletes → 1)\n- `rbf_Foundry.sh` — inscribe secret access (verify only uses API_TOKEN)\n- `rbgg_Governor.sh` — create_director secret IAM (verify only uses API_TOKEN)\n- `rbrr_regime.sh` / `rbrr.validator.sh` — remove enrollment of deleted variables\n- `rbrr.env` — remove deleted variables\n- `rbgm_ManualProcedures.sh` — update display text\n\n## CB v2 connection body\n\n`depot_create` constructs the CB v2 connection JSON body. Currently uses\n`gitLabConfig` with `authorizerCredential`, `readAuthorizerCredential`, and\n`webhookSecretSecretVersion`. Must change to `githubConfig` with\n`authorizerCredential` and `appInstallationId`. The GitHub model is simpler\n(one secret, no webhook secret, no read token).\n\n## Acceptance criteria\n\n- No \"gitlab\" string remains in `rbgc_Constants.sh` CB v2 section\n- `depot_create` constructs `githubConfig` connection body\n- Only one secret created/deleted in depot lifecycle\n- Regime validates only the surviving variables\n- Build + existing tests pass",
               "silks": "gitlab-to-github-secret-constants",
               "commit": "e58f8ad"
+            }
+          ]
+        },
+        "₢AlAAD": {
+          "tacks": [
+            {
+              "ts": "260304-1157",
+              "state": "rough",
+              "text": "Consider replacing prose references to propagation functions in RBSCIP-IamPropagation.adoc with MCM linked terms.\n\nCurrently the document references `rbgu_poll_until_ok`, `rbgi_add_project_iam_role`, etc. as inline code literals. These could be linked terms with proper anchors and attribute references in RBS0, giving cross-reference integrity.\n\n## Scope\n\n- Review whether RBSCIP function references warrant linked terms or are fine as prose\n- If warranted: define anchors in RBS0, create attribute references, update RBSCIP\n- Consider whether the rbbc_* control flow terms (rbbc_poll, rbbc_call, etc.) should reference specific implementing functions\n\n## Not in scope\n\n- Changing any runtime behavior\n- Refactoring propagation code",
+              "silks": "rbscip-linked-term-consideration",
+              "commit": "875c07b"
             }
           ]
         }
