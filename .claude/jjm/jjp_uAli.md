@@ -683,4 +683,16 @@ depot destroy. Reslated to reflect this dependency chain.
 |-------|---------|-------|-------|
 | next | ₢AiABC | fix-trigger-push-filter-removes-auto-fire | Remove push filter from triggers |
 | next | ₢AiABD | fix-iam-policy-declarative-assertions | Complete policy construction in create_director |
+
+### Session Decision: Unmatchable push filter for manual-dispatch-only triggers (2026-03-03)
+
+Triggers were configured with `push: { branch: "^main$" }` in `repositoryEventConfig`.
+When inscribe pushes to the rubric repo's main branch, all 7 vessel triggers fire
+automatically. This is unintended — builds should only dispatch via explicit `triggers.run`
+calls from `rbf_build`. Changed push filter to `^MANUAL-DISPATCH-ONLY$` (unmatchable
+branch name) rather than removing `push` entirely, because `repositoryEventConfig`
+requires a `push` or `pullRequest` filter (union field per API docs). The alternative
+(`sourceToBuild` for true manual triggers) would change the trigger structure significantly
+and require live API testing — deferred. The unmatchable pattern is self-documenting and
+preserves the existing dispatch path unchanged.
 | then | ₢AiAA0 | e2e-verify-cbv2-provenance | Full e2e re-run from depot destroy (depends on ₢AiABC + ₢AiABD + Syft resolution) |

@@ -910,6 +910,8 @@ resources exist.
 
 include::RBSRI-rubric_inscribe.adoc[]
 
+NOTE: {rbtgr_vessel_trigger} resources use an unmatchable push branch filter (`^MANUAL-DISPATCH-ONLY$`) rather than no filter. The Cloud Build API requires `repositoryEventConfig` to include a `push` or `pullRequest` filter (union field); omitting both causes HTTP 400. The unmatchable pattern satisfies the API constraint while ensuring triggers never fire on push — builds dispatch only via explicit `triggers.run` calls from {rbtgo_trigger_build}. The proper API mechanism for manual-only triggers (`sourceToBuild`) would require restructuring the trigger body and has not been live-tested.
+
 [[rbtgo_trigger_build]]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_trigger_build}

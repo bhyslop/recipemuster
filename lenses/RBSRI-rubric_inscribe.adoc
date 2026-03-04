@@ -88,9 +88,8 @@ exists within the
 .. Create
 {rbtgr_vessel_trigger}
 if it does not exist (via Cloud Build v1 triggers REST API)
-.. Trigger body uses `repositoryEventConfig` (CB v2 repository reference + push branch filter) and `filename` (per-vessel path to {rbtgr_build_json})
+.. Trigger body uses `repositoryEventConfig` (CB v2 repository reference, unmatchable push branch filter for manual-dispatch-only semantics) and `filename` (per-vessel path to {rbtgr_build_json})
 .. `repositoryEventConfig.repositoryType` is server-inferred from the connection — never set by the client
-.. `sourceToBuild` and `gitFileSource` are NOT used — those are for non-SCM-event triggers (webhook, pubsub, manual)
 .. Trigger name derived from constant prefix + vessel sigil
 
 //axhoo_output_of_type

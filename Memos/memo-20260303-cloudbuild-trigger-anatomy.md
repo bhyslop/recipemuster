@@ -79,8 +79,9 @@ Despite Google's trigger documentation favoring `developerConnectEventConfig` ex
 Key points:
 - `repositoryEventConfig.repositoryType` is omitted (read-only, server-inferred)
 - `filename` specifies the build config path in the repository
-- `push` specifies the branch filter regex
+- `push` specifies the branch filter regex — **required** (`repositoryEventConfig` filter is a union requiring `push` or `pullRequest`)
 - `serviceAccount` must be the full resource name
+- For manual-dispatch-only triggers, use an unmatchable branch pattern (e.g., `^MANUAL-DISPATCH-ONLY$`) rather than omitting `push` — the API rejects triggers with no filter
 
 ## What Failed (Root Cause Analysis)
 

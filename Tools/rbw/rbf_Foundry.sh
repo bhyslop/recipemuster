@@ -1252,7 +1252,7 @@ rbf_rubric_inscribe() {
         description: ("Recipe Bottle rubric trigger for " + $sigil),
         repositoryEventConfig: {
           repository: $repo,
-          push: { branch: "^main$" }
+          push: { branch: "^MANUAL-DISPATCH-ONLY$" }
         },
         filename: ($sigil + "/cloudbuild.json"),
         serviceAccount: $sa
