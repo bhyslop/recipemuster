@@ -5484,10 +5484,11 @@
         "₢AkAAM",
         "₢AkAAN",
         "₢AkAAO",
+        "₢AkAAR",
         "₢AkAAP",
         "₢AkAAQ"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5841,6 +5842,17 @@
               "text": "Integrate shellcheck with a curated BCG exemption list for bash module checking.\n\nREQUIRES HUMAN CONVERSATION — BCG deviations from shellcheck need cataloguing.\n\n## Context\n\nBCG intentionally deviates from several shellcheck recommendations:\n- || buc_die pattern\n- Two-line capture pattern\n- Bash 3.2 compat constraints (no associative arrays, no mapfile, etc.)\n- Possibly others discovered during the survey\n\nRunning shellcheck naively produces noise that trains people and LLMs to ignore output.\nA curated disable list catches genuine errors without fighting BCG.\n\n## Discovery step (FIRST)\n\nRun shellcheck on one representative file (rbgu_Utility.sh recommended) and classify\nevery warning as:\n- BCG-intentional: document why, add to disable list\n- Genuine catch: these are the value — errors shellcheck finds that we want\n\nThe classification catalogue is the primary output of discovery. It documents WHY\neach suppression exists, which is valuable if BCG ever evolves.\n\n## Deliverables\n\n1. Shellcheck discovery run on rbgu_Utility.sh — full warning catalogue with BCG classification\n2. .shellcheckrc or equivalent config with curated disable list\n3. Tabtarget or qualification check that runs shellcheck across rbw modules\n4. Add the check to RBS0 Release Compliance section\n\n## Not in scope\n- Fixing all shellcheck findings (those become their own paces)\n- Changing BCG patterns to satisfy shellcheck",
               "silks": "shellcheck-bcg-exemption-catalogue",
               "commit": "eb1dc00"
+            }
+          ]
+        },
+        "₢AkAAR": {
+          "tacks": [
+            {
+              "ts": "260304-1446",
+              "state": "rough",
+              "text": "Inscribe rbbk_ premise text into source file headerdocs across rbw modules.\n\nMechanical work following the pattern established by ₢AkAAO exemplar.\n\n## Context\n\n₢AkAAO defines three rbbk_ premises and inscribes one exemplar file. This pace\nextends inscription to remaining files where premises are load-bearing.\n\n## Target files (not exhaustive — add as discovered)\n\nFiles with error-recovery or eventual-consistency logic:\n- rbgp_Payor.sh — probe-not-pray, no-silent-fallback\n- rbgi_IAM.sh — probe-not-pray, no-silent-fallback\n- rbgg_Governor.sh — probe-not-pray, no-silent-fallback\n- rbf_Foundry.sh — probe-not-pray, bcg-compliance\n\nFiles are candidates if they contain propagation loops, fallback paths,\nor error-recovery patterns. Constants files, guide display modules, and\npure-declaration files do not need inscription.\n\n## Deliverables\n\n1. Inscribe premise text in headerdocs per the rule defined in ₢AkAAO\n2. Verify inscription with the release compliance check (also from ₢AkAAO)\n\n## Sequencing\n\nDepends on ₢AkAAO (premises defined, rule written, exemplar established).\nBridleable once ₢AkAAO is complete — mechanical pattern application.",
+              "silks": "premise-headerdoc-inscription",
+              "commit": "f946651"
             }
           ]
         }
