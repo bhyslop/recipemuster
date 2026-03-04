@@ -293,38 +293,60 @@ rbgu_http_json() {
   local -r z_code_errs="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}.stderr"
 
   local z_curl_status=0
+  local z_attempt=0
+  local -r z_max_attempts=3
+  local -r z_retry_sleep=3
 
-  if test -n "${z_body_file}"; then
-    curl                                              \
-        -sS                                           \
-        -X "${z_method}"                              \
-        -H "Authorization: Bearer ${z_token}"         \
-        -H "Content-Type: application/json"           \
-        -H "Accept: application/json"                 \
-        -d @"${z_body_file}"                          \
-        -o "${z_resp_file}"                           \
-        -w "%{http_code}"                             \
-        "${z_url}" > "${z_code_file}"                 \
-                  2> "${z_code_errs}"                 \
-      || z_curl_status=$?
-  else
-    curl                                              \
-        -sS                                           \
-        -X "${z_method}"                              \
-        -H "Authorization: Bearer ${z_token}"         \
-        -H "Content-Type: application/json"           \
-        -H "Accept: application/json"                 \
-        -o "${z_resp_file}"                           \
-        -w "%{http_code}"                             \
-        "${z_url}" > "${z_code_file}"                 \
-                  2> "${z_code_errs}"                 \
-      || z_curl_status=$?
-  fi
+  while :; do
+    z_curl_status=0
+    z_attempt=$((z_attempt + 1))
 
-  buc_log_args 'Curl status' "${z_curl_status}"
-  buc_log_pipe < "${z_code_errs}"
+    if test -n "${z_body_file}"; then
+      curl                                              \
+          -sS                                           \
+          -X "${z_method}"                              \
+          -H "Authorization: Bearer ${z_token}"         \
+          -H "Content-Type: application/json"           \
+          -H "Accept: application/json"                 \
+          -d @"${z_body_file}"                          \
+          -o "${z_resp_file}"                           \
+          -w "%{http_code}"                             \
+          "${z_url}" > "${z_code_file}"                 \
+                    2> "${z_code_errs}"                 \
+        || z_curl_status=$?
+    else
+      curl                                              \
+          -sS                                           \
+          -X "${z_method}"                              \
+          -H "Authorization: Bearer ${z_token}"         \
+          -H "Content-Type: application/json"           \
+          -H "Accept: application/json"                 \
+          -o "${z_resp_file}"                           \
+          -w "%{http_code}"                             \
+          "${z_url}" > "${z_code_file}"                 \
+                    2> "${z_code_errs}"                 \
+        || z_curl_status=$?
+    fi
 
-  test "${z_curl_status}" -eq 0 || buc_die "HTTP request failed (network/SSL/DNS)"
+    buc_log_args 'Curl status' "${z_curl_status}"
+    buc_log_pipe < "${z_code_errs}"
+
+    # Success — break out of retry loop
+    test "${z_curl_status}" -ne 0 || break
+
+    # Retry on transient curl errors: 7=connection refused, 28=timeout,
+    # 35=SSL error, 56=recv failure. Die immediately on all others.
+    case "${z_curl_status}" in
+      7|28|35|56) ;;
+      *) buc_die "HTTP request failed (curl exit ${z_curl_status})" ;;
+    esac
+
+    test "${z_attempt}" -lt "${z_max_attempts}" \
+      || buc_die "HTTP request failed after ${z_max_attempts} attempts (curl exit ${z_curl_status})"
+
+    buc_log_args "Transient curl error (exit ${z_curl_status}), retry ${z_attempt}/${z_max_attempts} in ${z_retry_sleep}s"
+    sleep "${z_retry_sleep}"
+  done
 
   local z_code
   z_code=$(<"${z_code_file}") || buc_die "Failed to read code file"

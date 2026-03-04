@@ -2923,6 +2923,7 @@ Implemented as bash while loop with sleep.
 {rbbc_call}::
 Synchronous invocation of a REST API endpoint via curl.
 Captures HTTP status code and response body. Returns when response received.
+Retries up to 3 times on transient transport errors (connection refused, timeout, SSL, recv failure) with a short sleep between attempts.
 
 [[rbbc_submit]]
 //axl_voices axc_submit
