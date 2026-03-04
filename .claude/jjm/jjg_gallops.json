@@ -5484,9 +5484,10 @@
         "₢AkAAM",
         "₢AkAAN",
         "₢AkAAO",
-        "₢AkAAP"
+        "₢AkAAP",
+        "₢AkAAQ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5808,6 +5809,17 @@
               "text": "Add a release compliance check that verifies every enrolled regime variable has complete spec treatment.\n\nREQUIRES HUMAN CONVERSATION — existing regime validation behaviors need discovery first.\n\n## Context\n\nMultiple regime files (rbrr_regime.sh, rbra_regime.sh, rbro_regime.sh, etc.) enroll\nvariables via buv_string_enroll and similar. Each enrolled variable should have:\n- Spec definition in the relevant .adoc\n- Validation rule (type, range, required/optional)\n- Documentation of who sets it and who reads it\n\n## Discovery step (FIRST)\n\nBefore designing the checker, survey existing regime validation infrastructure:\n- buv_* enrollment patterns across all regime files\n- Existing validators (rbrr.validator.sh, etc.)\n- How regime variables are currently documented in specs\n- Identify gaps between enrolled variables and spec coverage\n\n## Deliverables\n\n1. Survey of existing regime validation behaviors\n2. Design a completeness checker (possibly a tabtarget or rbq_Qualify.sh integration)\n3. Add the check to RBS0 Release Compliance section (nucleated by premises pace)\n4. Run the checker and catalogue any gaps found\n\n## Not in scope\n- Fixing all discovered gaps (those become their own paces)\n- Changing regime enrollment machinery",
               "silks": "regime-variable-completeness-check",
               "commit": "9666e89"
+            }
+          ]
+        },
+        "₢AkAAQ": {
+          "tacks": [
+            {
+              "ts": "260304-1429",
+              "state": "rough",
+              "text": "Integrate shellcheck with a curated BCG exemption list for bash module checking.\n\nREQUIRES HUMAN CONVERSATION — BCG deviations from shellcheck need cataloguing.\n\n## Context\n\nBCG intentionally deviates from several shellcheck recommendations:\n- || buc_die pattern\n- Two-line capture pattern\n- Bash 3.2 compat constraints (no associative arrays, no mapfile, etc.)\n- Possibly others discovered during the survey\n\nRunning shellcheck naively produces noise that trains people and LLMs to ignore output.\nA curated disable list catches genuine errors without fighting BCG.\n\n## Discovery step (FIRST)\n\nRun shellcheck on one representative file (rbgu_Utility.sh recommended) and classify\nevery warning as:\n- BCG-intentional: document why, add to disable list\n- Genuine catch: these are the value — errors shellcheck finds that we want\n\nThe classification catalogue is the primary output of discovery. It documents WHY\neach suppression exists, which is valuable if BCG ever evolves.\n\n## Deliverables\n\n1. Shellcheck discovery run on rbgu_Utility.sh — full warning catalogue with BCG classification\n2. .shellcheckrc or equivalent config with curated disable list\n3. Tabtarget or qualification check that runs shellcheck across rbw modules\n4. Add the check to RBS0 Release Compliance section\n\n## Not in scope\n- Fixing all shellcheck findings (those become their own paces)\n- Changing BCG patterns to satisfy shellcheck",
+              "silks": "shellcheck-bcg-exemption-catalogue",
+              "commit": "eb1dc00"
             }
           ]
         }
