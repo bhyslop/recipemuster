@@ -276,6 +276,9 @@ rbgu_jq_file_to_file_ok() {
 # External Functions (rbgu_*)
 
 # JSON REST helper (hardcoded headers)
+# Args: method url token infix [body_file]
+# Pass "-" as body_file to read body from stdin (curl @- convention).
+# Use this for request bodies containing secrets to avoid disk persistence.
 rbgu_http_json() {
   zrbgu_sentinel
 
