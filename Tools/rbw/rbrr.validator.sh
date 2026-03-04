@@ -24,9 +24,14 @@ test -n "${RBRR_GCP_REGION:-}"               || buc_die "RBRR_GCP_REGION not set
 test -n "${RBRR_GCB_MACHINE_TYPE:-}"         || buc_die "RBRR_GCB_MACHINE_TYPE not set"
 test -n "${RBRR_GCB_MIN_CONCURRENT_BUILDS:-}" || buc_die "RBRR_GCB_MIN_CONCURRENT_BUILDS not set"
 
-if test -n "${RBRR_GCB_WORKER_POOL:-}"; then
-  [[ "${RBRR_GCB_WORKER_POOL}" =~ ^projects/[^/]+/locations/[^/]+/workerPools/[^/]+$ ]] \
-    || buc_die "RBRR_GCB_WORKER_POOL must match projects/{P}/locations/{L}/workerPools/{W}: '${RBRR_GCB_WORKER_POOL}'"
-fi
+# Machine type must be Compute Engine format (lowercase with hyphens) for private pool workerConfig
+# Reject default-pool enum format (uppercase with underscores like UNSPECIFIED, E2_HIGHCPU_8)
+[[ "${RBRR_GCB_MACHINE_TYPE}" =~ ^[a-z][a-z0-9-]+$ ]] \
+  || buc_die "RBRR_GCB_MACHINE_TYPE must be Compute Engine format (e.g., e2-standard-2), not default-pool enum: '${RBRR_GCB_MACHINE_TYPE}'"
+
+# Worker pool is required (private pool always — no default pool path)
+test -n "${RBRR_GCB_WORKER_POOL:-}" || buc_die "RBRR_GCB_WORKER_POOL not set (private pool is required)"
+[[ "${RBRR_GCB_WORKER_POOL}" =~ ^projects/[^/]+/locations/[^/]+/workerPools/[^/]+$ ]] \
+  || buc_die "RBRR_GCB_WORKER_POOL must match projects/{P}/locations/{L}/workerPools/{W}: '${RBRR_GCB_WORKER_POOL}'"
 
 # eof

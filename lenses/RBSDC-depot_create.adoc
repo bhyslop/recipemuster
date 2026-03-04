@@ -99,6 +99,33 @@ with service name and `«DEPOT_PROJECT_ID»`
 all APIs enabled successfully
 
 //axhos_step
+. *Create Private Worker Pool*:
+.. Construct pool ID: `rbw-«INPUT_DEPOT_NAME»-pool`
+.. {rbbc_call}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.workerPools/create[workerPools.create] with:
+... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
+... workerPoolId: `rbw-«INPUT_DEPOT_NAME»-pool`
+... body:
++
+----
+{
+  "privatePoolV1Config": {
+    "workerConfig": {
+      "machineType": "«RBRR_GCB_MACHINE_TYPE»"
+    }
+  }
+}
+----
+.. {rbbc_store}
+`«WORKER_POOL_NAME»` as full resource path returned in response `.name` field:
+`projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}/workerPools/rbw-«INPUT_DEPOT_NAME»-pool`
+.. NOTE:
+{rbrr_gcb_machine_type}
+is a Compute Engine machine type (e.g., `e2-standard-2`), consumed at pool creation time.
+Pool scales to zero workers when idle — no idle cost accrues.
+.. Treat HTTP 409 CONFLICT as success (pool already exists — idempotent)
+
+//axhos_step
 . *Verify IAM Propagation*:
 .. NOTE: After API enablement, IAM permissions may not be immediately available due to eventual consistency.
 .. {rbbc_poll}
@@ -279,6 +306,7 @@ required RBRR configuration values:
 ... `RBRR_GCP_REGION={rbrr_gcp_region}`
 ... `RBRR_GAR_REPOSITORY=«GAR_REPOSITORY»`
 ... `RBRR_CBV2_CONNECTION_NAME=«CBV2_CONNECTION_NAME»`
+... `RBRR_GCB_WORKER_POOL=«WORKER_POOL_NAME»`
 .. {rbbc_show}
 Mason service account: `«MASON_EMAIL»`
 .. {rbbc_show}
@@ -294,7 +322,7 @@ GitLab token stored in Secret Manager (3 secrets: api, read_api, webhook)
 to refresh depot project tracking
 
 //axhoc_completion
-Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, CB v2 GitLab connection (COMPLETE), and CB v2 repository linking to the
+Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, private worker pool, CB v2 GitLab connection (COMPLETE), and CB v2 repository linking to the
 {rbtgr_rubric_repo}.
 Proceed to
 {rbtgo_governor_reset}

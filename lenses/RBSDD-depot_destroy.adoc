@@ -64,6 +64,15 @@ billing unlink successful (HTTP 200)
 .. Note: Unlinking BEFORE deletion releases billing quota immediately; deletion without unlink leaves quota consumed for 30-day retention period
 
 //axhos_step
+. *Delete Private Worker Pool*:
+.. Construct pool resource name: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}/workerPools/rbw-«INPUT_DEPOT_NAME»-pool`
+.. {rbbc_call}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.workerPools/delete[workerPools.delete] for the pool resource name
+.. Treat HTTP 404 as success (pool already gone — tolerated)
+.. {rbbc_require}
+HTTP 200 or 404 response; any other status is {rbbc_fatal}
+
+//axhos_step
 . *Initiate depot deletion*:
 .. {rbbc_submit}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/delete[projects.delete] to execute project deletion for `projects/«DEPOT_PROJECT_ID»`
@@ -99,7 +108,7 @@ and any
 or
 {rbtr_retriever}
 service accounts created within the depot.
-No individual resource deletion required due to GCP's cascading deletion behavior.
+The private worker pool is explicitly deleted before project deletion.
 
 NOTE: Project enters 30-day retention period in
 {gcp_delete_requested}

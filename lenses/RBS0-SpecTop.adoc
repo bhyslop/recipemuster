@@ -2144,20 +2144,25 @@ Identity specification for VM or build environment.
 [[rbrr_gcb_machine_type]]
 //axvr_variable axd_required rbst_string
 {rbrr_gcb_machine_type}::
-Cloud Build machine type for default pool build workers.
-Applies only when
-{rbrr_gcb_worker_pool}
-is empty; private pools configure machine type on the pool resource.
+Compute Engine machine type for the private worker pool, consumed at pool creation time by
+{rbtgo_depot_create}.
+Default: `e2-standard-2`.
+The pool resource holds this value; individual build requests do not specify machine type.
 
 [[rbrr_gcb_worker_pool]]
-//axvr_variable axd_optional rbst_string
+//axvr_variable axd_required rbst_string
 {rbrr_gcb_worker_pool}::
 Full resource name of the Cloud Build Private Pool for build execution.
 Format: `projects/{project}/locations/{region}/workerPools/{pool}`.
-When set, builds use this pool and `options.machineType` is omitted from the build JSON
-(machine type is a property of the pool resource).
-When empty, builds use the default shared pool with
-{rbrr_gcb_machine_type}.
+Must be set to the pool created by
+{rbtgo_depot_create}
+for this depot.
+Builds always use a private pool; the default shared pool is not supported.
+`options.machineType` is omitted from the build JSON — machine type is a property of the pool resource.
+
+NOTE: *Private pool is always required.*
+Private pools are a prerequisite for VPC Service Controls and `NO_PUBLIC_EGRESS` hardening tiers.
+See heat ₣Al paddock for full decision rationale.
 
 [[rbrr_gcb_min_concurrent_builds]]
 //axvr_variable axd_required rbst_integer

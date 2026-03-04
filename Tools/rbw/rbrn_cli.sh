@@ -129,12 +129,7 @@ rbrn_audit() {
   rbrn_preflight
   buc_step "Cross-nameplate audit passed"
 
-  # GCB quota headroom check (requires Director SA token)
-  local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
-    || buc_die "Failed to get token for GCB quota check"
-  rbgd_check_gcb_quota "${z_token}"
-  buc_step "Full audit passed (nameplates + GCB quota)"
+  buc_step "Full audit passed (nameplates)"
 }
 
 # Command: list - show available nameplate monikers

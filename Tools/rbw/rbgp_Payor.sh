@@ -705,6 +705,33 @@ rbgp_depot_create() {
     rbgu_api_enable "${z_service}" "${z_depot_project_id}" "${z_token}"
   done
 
+  buc_step 'Create private worker pool'
+  local -r z_pool_id="rbw-${z_depot_name}${RBGC_WORKER_POOL_SUFFIX}"
+  local -r z_pool_parent="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_depot_project_id}/locations/${z_region}${RBGC_PATH_WORKER_POOLS}"
+  local -r z_pool_create_url="${z_pool_parent}?workerPoolId=${z_pool_id}"
+  local -r z_pool_create_body="${BURD_TEMP_DIR}/rbgp_pool_create.json"
+
+  jq -n --arg machineType "${RBRR_GCB_MACHINE_TYPE}" \
+    '{
+      privatePoolV1Config: {
+        workerConfig: {
+          machineType: $machineType
+        }
+      }
+    }' > "${z_pool_create_body}" || buc_die "Failed to build worker pool creation body"
+
+  rbgu_http_json "POST" "${z_pool_create_url}" "${z_token}" "depot_pool_create" "${z_pool_create_body}"
+  local z_pool_create_code
+  z_pool_create_code=$(rbgu_http_code_capture "depot_pool_create") || buc_die "Bad pool creation HTTP code"
+  case "${z_pool_create_code}" in
+    200|201) buc_log_args "Worker pool ${z_pool_id} created" ;;
+    409)     buc_log_args "Worker pool ${z_pool_id} already exists (idempotent)" ;;
+    *)       buc_die "Failed to create worker pool: HTTP ${z_pool_create_code}" ;;
+  esac
+
+  local -r z_pool_resource="projects/${z_depot_project_id}/locations/${z_region}/workerPools/${z_pool_id}"
+  buc_log_args "Pool resource: ${z_pool_resource}"
+
   # Note: OAuth Payor doesn't need explicit permissions on depot since it uses user identity
   # Skip Payor permission grants - OAuth user context provides necessary access
 
@@ -1143,6 +1170,7 @@ rbgp_depot_create() {
   buc_bare "  RBRR_GCP_REGION=${z_region}"
   buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
   buc_bare "  RBRR_CBV2_CONNECTION_NAME=${z_cbv2_connection_name}"
+  buc_bare "  RBRR_GCB_WORKER_POOL=${z_pool_resource}"
   buc_info "Next: create Governor for this depot:"
   buc_next "${RBZ_GOVERNOR_RESET}"
 }
@@ -1223,6 +1251,23 @@ rbgp_depot_destroy() {
   else
     buc_warn "Could not unlink billing (HTTP ${z_billing_unlink_code}) - proceeding with deletion anyway"
   fi
+
+  # Extract depot name from project ID for resource naming
+  local z_without_prefix="${z_depot_project_id#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
+  local z_name_len=${#z_without_prefix}
+  local z_ts_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
+  local -r z_depot_name="${z_without_prefix:0:$((z_name_len - z_ts_suffix_len))}"
+
+  buc_step 'Delete worker pool (if exists)'
+  local -r z_pool_id="rbw-${z_depot_name}${RBGC_WORKER_POOL_SUFFIX}"
+  local -r z_pool_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_pool_id}"
+  rbgu_http_json "DELETE" "${z_pool_del_url}" "${z_token}" "depot_destroy_pool"
+  local z_pool_del_code
+  z_pool_del_code=$(rbgu_http_code_capture "depot_destroy_pool") || z_pool_del_code=""
+  case "${z_pool_del_code}" in
+    200|204|404) buc_log_args "Worker pool ${z_pool_id} cleanup: HTTP ${z_pool_del_code}" ;;
+    *) buc_warn "Worker pool cleanup failed: HTTP ${z_pool_del_code} — proceeding" ;;
+  esac
 
   buc_step 'Delete CB v2 repository (if exists)'
   local -r z_cbv2_conn="${RBRR_CBV2_CONNECTION_NAME:-}"

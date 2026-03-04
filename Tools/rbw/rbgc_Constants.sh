@@ -146,7 +146,7 @@ zrbgc_kindle() {
   # Rubric infrastructure (demoted from RBRR per trigger migration paddock)
   readonly RBGC_RUBRIC_CLONE_DIR=".rbk/rubric"
   readonly RBGC_RUBRIC_TRIGGER_PREFIX="rbw-trigger-"
-  readonly RBGC_DEFAULT_POOL_PLATFORM="linux/amd64"
+  readonly RBGC_BUILD_RUNNER_PLATFORM="linux/amd64"
 
   # Cloud Build v2 connection infrastructure (GitLab)
   # Single project access token (api scope, includes read_api) stored in two secrets;
@@ -159,53 +159,15 @@ zrbgc_kindle() {
   readonly RBGC_API_ROOT_CLOUDBUILD_V2="https://cloudbuild.googleapis.com"
   readonly RBGC_CLOUDBUILD_V2="/v2"
 
+  # Worker pool infrastructure (private pool always)
+  readonly RBGC_WORKER_POOL_SUFFIX="-pool"
+  readonly RBGC_PATH_WORKER_POOLS="/workerPools"
+
   readonly ZRBGC_KINDLED=1
 }
 
 zrbgc_sentinel() {
   test "${ZRBGC_KINDLED:-}" = "1" || buc_die "Module rbgc not kindled - call zrbgc_kindle first"
-}
-
-######################################################################
-# External Functions (rbgc_*)
-
-# GCB machine type to vCPU mapping (default pool and private pool types).
-#
-# Provenance (verified 2026-02-13):
-#   Enum names from Cloud Build API BuildOptions.MachineType:
-#     https://cloud.google.com/dotnet/docs/reference/Google.Cloud.CloudBuild.V1/latest/Google.Cloud.CloudBuild.V1.BuildOptions.Types.MachineType
-#   That reference gives enum names and CPU counts for most types but
-#   describes UNSPECIFIED only as "Standard machine type" without a
-#   vCPU count.
-#
-#   The UNSPECIFIED=2 vCPU value was inferred from:
-#     1. Google web search result stating default is e2-standard-2 (2 vCPU)
-#     2. Empirical: with 10-CPU quota, two UNSPECIFIED builds started
-#        concurrently (impossible if >=6 vCPU each)
-#     3. Consistent with project's own RBRR comment and 5-concurrent
-#        builds observed at 10-CPU quota
-#   No single authoritative Google document was found that explicitly
-#   maps UNSPECIFIED to a vCPU count for the default pool.
-#
-# If Google adds new machine types, this function will hard-fail on
-# the unknown value, forcing an update here.
-rbgc_gcb_machine_vcpus_capture() {
-  zrbgc_sentinel
-  local z_machine_type="$1"
-  case "${z_machine_type}" in
-    UNSPECIFIED)    echo 2  ;;
-    E2_MEDIUM)      echo 1  ;;
-    E2_HIGHCPU_8)   echo 8  ;;
-    E2_HIGHCPU_32)  echo 32 ;;
-    N1_HIGHCPU_8)   echo 8  ;;
-    N1_HIGHCPU_32)  echo 32 ;;
-    E2_STANDARD_2)  echo 2  ;;
-    E2_STANDARD_4)  echo 4  ;;
-    E2_STANDARD_8)  echo 8  ;;
-    E2_STANDARD_16) echo 16 ;;
-    E2_STANDARD_32) echo 32 ;;
-    *) buc_die "Unknown GCB machine type: ${z_machine_type} — update rbgc_gcb_machine_vcpus_capture" ;;
-  esac
 }
 
 # eof

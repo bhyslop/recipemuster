@@ -252,8 +252,7 @@ zrbf_stitch_build_json() {
     --arg zjq_rubric_repo      "__INSCRIBE_RUBRIC_REPO__" \
     --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
     --arg zjq_inscribe_ts      "__INSCRIBE_TIMESTAMP__" \
-    --arg zjq_mtype  "${RBRR_GCB_MACHINE_TYPE}" \
-    --arg zjq_pool   "${RBRR_GCB_WORKER_POOL:-}" \
+    --arg zjq_pool   "${RBRR_GCB_WORKER_POOL}" \
     --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
@@ -275,13 +274,10 @@ zrbf_stitch_build_json() {
         _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
         _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
       },
-      options: (
-          if $zjq_pool != "" then
-            { logging: "CLOUD_LOGGING_ONLY", pool: { name: $zjq_pool } }
-          else
-            { logging: "CLOUD_LOGGING_ONLY", machineType: $zjq_mtype }
-          end
-      ),
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $zjq_pool }
+      },
       timeout: $zjq_timeout
     }' > "${z_build_file}" \
     || buc_die "Failed to compose trigger-compatible build JSON"
@@ -412,8 +408,8 @@ rbf_build() {
 
   buc_log_args "Enforce vessel binfmt policy"
   if test "${RBRV_CONJURE_BINFMT_POLICY}" = "forbid"; then
-    if test "${RBRV_CONJURE_PLATFORMS}" != "${RBGC_DEFAULT_POOL_PLATFORM}"; then
-      buc_die "Vessel '${RBRV_SIGIL}' forbids binfmt but RBRV_CONJURE_PLATFORMS='${RBRV_CONJURE_PLATFORMS}' extends beyond Cloud Build runner platform (${RBGC_DEFAULT_POOL_PLATFORM})"
+    if test "${RBRV_CONJURE_PLATFORMS}" != "${RBGC_BUILD_RUNNER_PLATFORM}"; then
+      buc_die "Vessel '${RBRV_SIGIL}' forbids binfmt but RBRV_CONJURE_PLATFORMS='${RBRV_CONJURE_PLATFORMS}' extends beyond Cloud Build runner platform (${RBGC_BUILD_RUNNER_PLATFORM})"
     fi
   fi
 
@@ -444,10 +440,6 @@ rbf_build() {
 
   # Construct authenticated URL: https://gitlab.com/... → https://oauth2:TOKEN@gitlab.com/...
   local -r z_rubric_auth_url="https://oauth2:${z_gitlab_token_value}@${RBRR_RUBRIC_REPO_URL#https://}"
-
-  # Verify GCB quota headroom before dispatch
-  buc_log_args "Check GCB quota headroom"
-  rbgd_check_gcb_quota "${z_token}"
 
   # Resolve rubric repo HEAD via ls-remote (no clone needed — build only needs commit hash)
   buc_step "Resolving rubric repo HEAD commit"
