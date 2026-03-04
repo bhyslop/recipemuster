@@ -598,10 +598,24 @@ rbgg_create_director() {
   test "${z_director_secret_get_code}" = "200" \
     || buc_die "Failed to read IAM policy on secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} (HTTP ${z_director_secret_get_code}) — cannot safely add Director binding without reading existing policy"
 
-  local z_director_secret_updated_policy
-  z_director_secret_updated_policy=$(rbgu_jq_add_member_to_role_capture "director_secret_get_iam" \
+  # Complete policy: Director + CB service agent both need secretAccessor.
+  # Writing all expected bindings in one setIamPolicy prevents the read-modify-write
+  # race where a stale getIamPolicy could omit depot_create's CB service agent binding.
+  local -r z_cb_service_agent="serviceAccount:service-${z_project_number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+
+  local z_director_secret_partial_policy
+  z_director_secret_partial_policy=$(rbgu_jq_add_member_to_role_capture "director_secret_get_iam" \
     "roles/secretmanager.secretAccessor" "serviceAccount:${z_account_email}" "") \
-    || buc_die "Failed to build director secret IAM policy"
+    || buc_die "Failed to add Director binding to secret IAM policy"
+
+  local -r z_secret_intermediate="${BURD_TEMP_DIR}/rbgu_director_secret_complete_iam_u_resp.json"
+  printf '%s\n' "${z_director_secret_partial_policy}" > "${z_secret_intermediate}" \
+    || buc_die "Failed to write intermediate secret IAM policy"
+
+  local z_director_secret_updated_policy
+  z_director_secret_updated_policy=$(rbgu_jq_add_member_to_role_capture "director_secret_complete_iam" \
+    "roles/secretmanager.secretAccessor" "${z_cb_service_agent}" "") \
+    || buc_die "Failed to add CB service agent binding to secret IAM policy"
 
   local -r z_director_secret_set_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_director_secret_resource}:setIamPolicy"
   local -r z_director_secret_set_body="${BURD_TEMP_DIR}/rbgg_director_secret_iam.json"
@@ -618,9 +632,97 @@ rbgg_create_director() {
   rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"
   rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectViewer"
 
-  buc_step 'Grant Artifact Registry repoAdmin (for image delete/manage)'
-  rbgi_add_repo_iam_role "${z_token}" "${RBGD_GAR_PROJECT_ID}" "${z_account_email}" \
-    "${RBGD_GAR_LOCATION}" "${RBRR_GAR_REPOSITORY}" "roles/artifactregistry.repoAdmin"
+  buc_step 'Grant Artifact Registry roles (complete expected policy)'
+  # Complete policy: Director repoAdmin + Mason writer in one setIamPolicy.
+  # Prevents read-modify-write race where stale getIamPolicy omits Mason's binding.
+  local -r z_gar_resource="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+  local -r z_gar_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_gar_resource}:getIamPolicy"
+  local -r z_gar_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_gar_resource}:setIamPolicy"
+  local -r z_gar_empty_body="${BURD_TEMP_DIR}/rbgg_gar_empty.json"
+  printf '{}' > "${z_gar_empty_body}"
+
+  local z_gar_prop_delay=3
+  local z_gar_prop_elapsed=0
+  local -r z_gar_prop_deadline=420
+  local z_gar_prop_attempt=0
+
+  while :; do
+    z_gar_prop_attempt=$((z_gar_prop_attempt + 1))
+    local z_gar_get_infix="director_gar_get_iam-${z_gar_prop_elapsed}s"
+    local z_gar_set_infix="director_gar_set_iam-${z_gar_prop_elapsed}s"
+
+    rbgu_http_json "POST" "${z_gar_get_url}" "${z_token}" "${z_gar_get_infix}" "${z_gar_empty_body}"
+    local z_gar_get_code
+    z_gar_get_code=$(rbgu_http_code_capture "${z_gar_get_infix}") || z_gar_get_code=""
+
+    # Propagation retry: newly-created Director SA may not be visible yet
+    if test "${z_gar_get_code}" = "400"; then
+      local z_gar_get_err=""
+      z_gar_get_err=$(rbgu_error_message_capture "${z_gar_get_infix}") || z_gar_get_err=""
+      case "${z_gar_get_err}" in
+        *"does not exist"*|*"is not deleted"*)
+          test "${z_gar_prop_elapsed}" -lt "${z_gar_prop_deadline}" \
+            || buc_die "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
+          buc_log_args "GAR getIamPolicy propagation delay (attempt ${z_gar_prop_attempt}, ${z_gar_prop_elapsed}s)"
+          sleep "${z_gar_prop_delay}"
+          z_gar_prop_elapsed=$((z_gar_prop_elapsed + z_gar_prop_delay))
+          z_gar_prop_delay=$((z_gar_prop_delay * 2))
+          test "${z_gar_prop_delay}" -le 20 || z_gar_prop_delay=20
+          continue
+          ;;
+      esac
+    fi
+
+    if test "${z_gar_get_code}" = "404"; then
+      rbgu_write_vanilla_json "${z_gar_get_infix}"
+    else
+      rbgu_http_require_ok "Get GAR repo IAM policy" "${z_gar_get_infix}"
+    fi
+
+    # Build complete expected policy: Director repoAdmin + Mason writer
+    local z_gar_partial
+    z_gar_partial=$(rbgu_jq_add_member_to_role_capture "${z_gar_get_infix}" \
+      "roles/artifactregistry.repoAdmin" "serviceAccount:${z_account_email}" "") \
+      || buc_die "Failed to add Director repoAdmin to GAR IAM policy"
+
+    local z_gar_intermediate="${BURD_TEMP_DIR}/rbgu_director_gar_complete_iam_u_resp.json"
+    printf '%s\n' "${z_gar_partial}" > "${z_gar_intermediate}" \
+      || buc_die "Failed to write intermediate GAR IAM policy"
+
+    local z_gar_complete
+    z_gar_complete=$(rbgu_jq_add_member_to_role_capture "director_gar_complete_iam" \
+      "roles/artifactregistry.writer" "serviceAccount:${RBGD_MASON_EMAIL}" "") \
+      || buc_die "Failed to add Mason writer to GAR IAM policy"
+
+    local z_gar_set_body="${BURD_TEMP_DIR}/rbgg_gar_complete_policy_body.json"
+    printf '{"policy":%s}\n' "${z_gar_complete}" > "${z_gar_set_body}" \
+      || buc_die "Failed to write GAR setIamPolicy body"
+    rbgu_http_json "POST" "${z_gar_set_url}" "${z_token}" "${z_gar_set_infix}" "${z_gar_set_body}"
+
+    local z_gar_set_code
+    z_gar_set_code=$(rbgu_http_code_capture "${z_gar_set_infix}") || buc_die "No HTTP code from GAR setIamPolicy"
+
+    # Propagation retry on SET
+    if test "${z_gar_set_code}" = "400"; then
+      local z_gar_set_err=""
+      z_gar_set_err=$(rbgu_error_message_capture "${z_gar_set_infix}") || z_gar_set_err=""
+      case "${z_gar_set_err}" in
+        *"does not exist"*|*"is not deleted"*)
+          test "${z_gar_prop_elapsed}" -lt "${z_gar_prop_deadline}" \
+            || buc_die "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
+          buc_log_args "GAR setIamPolicy propagation delay (attempt ${z_gar_prop_attempt}, ${z_gar_prop_elapsed}s)"
+          sleep "${z_gar_prop_delay}"
+          z_gar_prop_elapsed=$((z_gar_prop_elapsed + z_gar_prop_delay))
+          z_gar_prop_delay=$((z_gar_prop_delay * 2))
+          test "${z_gar_prop_delay}" -le 20 || z_gar_prop_delay=20
+          continue
+          ;;
+      esac
+    fi
+
+    rbgu_http_require_ok "Set GAR repo IAM policy (complete)" "${z_gar_set_infix}"
+    break
+  done
 
   local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
 

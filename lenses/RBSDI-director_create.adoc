@@ -115,11 +115,14 @@ to construct authenticated git URLs.
 link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/getIamPolicy[secrets.getIamPolicy] for `projects/{rbrr_depot_project_id}/secrets/RBGC_CBV2_API_TOKEN_SECRET_NAME`
 .. {rbbc_require}
 HTTP 200 — existing policy must be read successfully before modification. Die on failure; a silent fallback to empty policy would destroy existing bindings (e.g., the Cloud Build service agent binding set by {rbtgo_depot_create}).
-.. Add `serviceAccount:«DIRECTOR_EMAIL»` to `roles/secretmanager.secretAccessor` in the existing policy (read-modify-write)
+.. *Complete policy write*: Add ALL expected `secretAccessor` bindings to the read policy, regardless of what the read returned:
+... `serviceAccount:«DIRECTOR_EMAIL»` — Director needs secret access for inscribe
+... `serviceAccount:service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com` — Cloud Build service agent needs secret access at build time
+.. NOTE: This complete-policy-write pattern prevents the IAM eventual consistency race: if `getIamPolicy` returns stale data missing the CB service agent binding (set by {rbtgo_depot_create}), the `setIamPolicy` still includes it.
 .. {rbbc_call}
-link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy] with the updated policy
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy] with the complete expected policy
 .. {rbbc_require}
-IAM binding successful — existing bindings preserved
+IAM policy set with all expected secretAccessor bindings
 
 //axhos_step
 . *Grant
@@ -159,9 +162,12 @@ Admin Access*:
 .. {rbbc_call}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy] for
 {rbtgi_repository}
-.. Add `serviceAccount:«DIRECTOR_EMAIL»` with `roles/artifactregistry.repoAdmin`
+.. *Complete policy write*: Add ALL expected bindings to the read policy, regardless of what the read returned:
+... `serviceAccount:«DIRECTOR_EMAIL»` with `roles/artifactregistry.repoAdmin` — Director manages images
+... `serviceAccount:«MASON_EMAIL»` with `roles/artifactregistry.writer` — Mason pushes images at build time
+.. NOTE: Same complete-policy-write pattern as the secret IAM step. Prevents stale read from overwriting Mason's writer binding set by {rbtgo_depot_create}.
 .. {rbbc_require}
-repository IAM update successful
+repository IAM set with all expected bindings
 
 //axhoo_output_of_type
 {rbtgi_rbra_file}

@@ -696,3 +696,23 @@ requires a `push` or `pullRequest` filter (union field per API docs). The altern
 and require live API testing — deferred. The unmatchable pattern is self-documenting and
 preserves the existing dispatch path unchanged.
 | then | ₢AiAA0 | e2e-verify-cbv2-provenance | Full e2e re-run from depot destroy (depends on ₢AiABC + ₢AiABD + Syft resolution) |
+
+### Session Decision: Complete-policy-write pattern for IAM (2026-03-03)
+
+**Problem:** `create_director` does read-modify-write on IAM policies for secrets and GAR
+repo, adding only its own bindings. If `getIamPolicy` returns stale data (IAM eventual
+consistency returns 200 with missing bindings), the `setIamPolicy` overwrites bindings set
+by `depot_create`. Affected: CB service agent `secretAccessor` on secret, Mason `writer`
+on GAR repo.
+
+**Fix:** Every `setIamPolicy` in `create_director` writes the complete expected binding set.
+Two `rbgu_jq_add_member_to_role_capture` calls chained via intermediate temp file, then one
+`setIamPolicy`. No conditional branches based on what the read returned — one path, always
+correct.
+
+**Secret IAM:** Director `secretAccessor` + CB service agent `secretAccessor`
+(email derived from `z_project_number` already fetched in create_director).
+
+**GAR repo IAM:** Director `repoAdmin` + Mason `writer` (email from `RBGD_MASON_EMAIL`).
+Replaced `rbgi_add_repo_iam_role` with inline read-modify-write to chain both bindings
+before the single set. Propagation retry preserved (inline, same exponential backoff pattern).
