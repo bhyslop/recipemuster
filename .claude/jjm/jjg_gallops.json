@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Al",
+  "next_heat_seed": "Am",
   "heat_order": [
     "₣AD",
     "₣AG",
@@ -20,7 +20,8 @@
     "₣AZ",
     "₣Aa",
     "₣Ac",
-    "₣Ak"
+    "₣Ak",
+    "₣Al"
   ],
   "heats": {
     "₣AD": {
@@ -7826,6 +7827,15 @@
           ]
         }
       }
+    },
+    "₣Al": {
+      "silks": "rbw-e2e-cbv2-provenance",
+      "creation_time": "260303",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAll.md",
+      "paces": {}
     }
   }
 }
