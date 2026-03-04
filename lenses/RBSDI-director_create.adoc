@@ -20,7 +20,7 @@ with build management permissions:
 .. {rbbc_require}
 `«INPUT_INSTANCE»` provided as first argument
 .. {rbbc_store}
-`«DIRECTOR_ACCOUNT_NAME»` as `rb-director-«INPUT_INSTANCE»`
+`«DIRECTOR_ACCOUNT_NAME»` as `director-«INPUT_INSTANCE»`
 .. {rbbc_store}
 `«DIRECTOR_EMAIL»` as `«DIRECTOR_ACCOUNT_NAME»@{rbrr_depot_project_id}.iam.gserviceaccount.com`
 
@@ -99,7 +99,6 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 .. Add `serviceAccount:«DIRECTOR_EMAIL»` with roles:
 ... `roles/cloudbuild.builds.editor` (submit and manage builds)
 ... `roles/viewer` (read project resources)
-... `roles/cloudbuild.connectionAdmin` (CB v2 connection and repository management)
 .. Policy version: 3
 .. {rbbc_require}
 IAM policy update successful
@@ -108,7 +107,7 @@ IAM policy update successful
 . *Grant Secret Manager Access for Inscribe*:
 .. NOTE:
 {rbtr_director}
-needs to fetch the GitLab project access token from Secret Manager during
+needs to fetch the API token from Secret Manager during
 {rbtgo_rubric_inscribe}
 to construct authenticated git URLs.
 .. {rbbc_call}

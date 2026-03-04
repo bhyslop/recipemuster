@@ -1,13 +1,6 @@
 //axhob_operation
 {rbtgo_retriever_create}
 
-//axhoq_precondition
-* Execute {rbtoe_check_rubric_repo_url} (validates {rbrr_rubric_repo_url} using PAT from Secret Manager)
-
-//axhoq_precondition
-* Execute {rbtoe_check_cbv2_connection} to verify {rbtgi_cbv2_connection} is active
-
-//axhos_step
 The
 {rbtr_governor}
 creates a
@@ -15,18 +8,110 @@ creates a
 {giam_service_account}
 with read-only
 {rbtgi_repository}
-access and generates credentials using
-{rbtoe_rbra_generate}
-to create
-{rbrr_retriever_rbra_file}.
+access:
+
+//axhoq_precondition
+* Execute {rbtoe_check_rubric_repo_url} (validates {rbrr_rubric_repo_url} using PAT from Secret Manager)
+
+//axhoq_precondition
+* Execute {rbtoe_check_cbv2_connection} to verify {rbtgi_cbv2_connection} is active
+
+//axhop_parameter_from_type
+{rbtr_retriever}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«INPUT_INSTANCE»` provided as first argument
+.. {rbbc_store}
+`«RETRIEVER_ACCOUNT_NAME»` as `retriever-«INPUT_INSTANCE»`
+.. {rbbc_store}
+`«RETRIEVER_EMAIL»` as `«RETRIEVER_ACCOUNT_NAME»@{rbrr_depot_project_id}.iam.gserviceaccount.com`
+
+//axhoq_precondition
+* {rbbc_require}
+`BURD_OUTPUT_DIR` environment variable set and directory exists
+
+//axhos_step
+. *Authenticate as
+{rbtr_governor}*:
+.. Execute
+{rbtoe_governor_authenticate}
+.. {rbbc_store}
+`«GOVERNOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Create
+{rbtr_retriever}
+Service Account*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
+... accountId: `«RETRIEVER_ACCOUNT_NAME»`
+... displayName: `Recipe Bottle Retriever («INPUT_INSTANCE»)`
+... description: `Read-only access to Google Artifact Registry - instance: «INPUT_INSTANCE»`
+... project:
+{rbrr_depot_project_id}
+.. {rbbc_require}
+HTTP 200 response
+.. {rbbc_store}
+`«RETRIEVER_UNIQUE_ID»` from response `.uniqueId` field
+
+//axhos_step
+. *Verify Service Account Propagation*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `projects/-/serviceAccounts/«RETRIEVER_UNIQUE_ID»`
+.. {rbbc_poll}
+with backoff until HTTP 200 (newly-created SA may not be immediately resolvable by numeric ID)
+.. NOTE: Numeric ID is valid in API URL paths but subject to IAM propagation delay. Not valid in IAM policy `members` — see RBS0 IAM Member Format.
+.. {rbbc_require}
+service account accessible
+
+//axhos_step
+. *Preflight: Ensure Pristine Key State*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/list[serviceAccounts.keys.list] for `«RETRIEVER_EMAIL»`
+.. {rbbc_store}
+`«EXISTING_KEYS»` from response `.keys[]`
+.. {rbbc_require}
+no keys with `keyType: USER_MANAGED` exist
+.. {rbbc_fatal}
+if USER_MANAGED keys found: "Manual cleanup required via Console"
+
+//axhos_step
+. *Generate Service Account Key*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/create[serviceAccounts.keys.create] for `«RETRIEVER_EMAIL»` with:
+... privateKeyType: `TYPE_GOOGLE_CREDENTIALS_FILE`
+.. {rbbc_store}
+`«RETRIEVER_PRIVATE_KEY_DATA»` from response `.privateKeyData` field
+.. {rbtoe_rbra_generate}
+converts `«RETRIEVER_PRIVATE_KEY_DATA»` to `«RETRIEVER_RBRA_FILE»`
+
+//axhos_step
+. *Grant
+{rbtgi_repository}
+Read Access*:
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for
+{rbrr_depot_project_id}
+.. Add `serviceAccount:«RETRIEVER_EMAIL»` with role:
+... `roles/artifactregistry.reader` (read-only access to all Artifact Registry repositories)
+.. Policy version: 3
+.. {rbbc_require}
+IAM policy update successful
 
 //axhoo_output_of_type
 {rbtgi_rbra_file}
-NOTE: Script outputs copy command for RBRA file installation.
-{rbbc_warn}
+. *Display Installation Instructions*:
+.. {rbbc_show}
+Retriever created successfully
+.. {rbbc_show}
+RBRA file location: `«RETRIEVER_RBRA_FILE»`
+.. {rbbc_show}
+installation command:
+... `cp "«RETRIEVER_RBRA_FILE»" "{rbrr_retriever_rbra_file}"`
+.. {rbbc_warn}
 if
 {rbrr_retriever_rbra_file}
-already exists.
+already exists
 
 //axhoc_completion
-Successful execution generates retriever credentials and provides RBRA file installation command.
+Successful execution creates retriever service account with read-only Artifact Registry access and provides RBRA file installation command.

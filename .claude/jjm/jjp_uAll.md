@@ -42,6 +42,21 @@ OCI layout from the multi-platform archive so Syft can generate SBOMs
 - `RBRR_GCB_SKOPEO_IMAGE_REF` — skopeo image pin (needs refresh on depot create)
 - PAT in Secret Manager (`RBGC_CBV2_PAT_SECRET_NAME = rb-github-pat`)
 
+### GitLab→GitHub Secret Constant Migration
+
+**WARNING (from ₣Ai ₢AiABB):** `rbgc_Constants.sh` lines 151-157 contain four
+GitLab-specific constants that must be restructured for GitHub CB v2:
+
+- `RBGC_CBV2_API_TOKEN_SECRET_NAME="rbw-gitlab-api-token"` → rename to `"rb-github-pat"` (single PAT)
+- `RBGC_CBV2_READ_TOKEN_SECRET_NAME="rbw-gitlab-read-token"` → **delete** (GitLab-only, GitHub uses one PAT)
+- `RBGC_CBV2_WEBHOOK_SECRET_NAME="rbw-gitlab-webhook-secret"` → **delete** (GitHub App handles webhooks)
+- `RBGC_CBV2_CONNECTION_SUFFIX="-gitlab"` → rename to `"-github"` (or remove suffix concept)
+- Comment on line 151 references "GitLab" → update
+
+The three-secret model (api-token + read-token + webhook) is GitLab CB v2 specific.
+GitHub CB v2 needs only one secret (classic PAT). All consumers of the deleted
+constants (`rbgp_Payor.sh`, `rbf_Foundry.sh`) must be updated during depot rebuild.
+
 ### Current State
 
 **Depot demo1015** exists with CB v2 GitLab connection. Rubric repo at
