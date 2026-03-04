@@ -579,6 +579,13 @@
         "₢AGAAK": {
           "tacks": [
             {
+              "ts": "260304-1503",
+              "state": "abandoned",
+              "text": "Rename JSON schema field \"text\" to \"docket\" in tack records.\n\nCompanion to json-schema-commit-to-basis (₢AGAAF). Same pattern:\n1. Remove serde rename attribute (or change field name) in jjrt_types.rs\n2. Migrate existing gallops JSON: s/\"text\":/\"docket\":/g\n3. Update documentation referencing the JSON schema\n\nBreaking: Changes JSON schema. All existing gallops files must be migrated.\n\nAcceptance: JSON files use \"docket\" key. Round-trip validation passes. All tests pass.",
+              "silks": "json-schema-text-to-docket",
+              "commit": "dedd9ca"
+            },
+            {
               "ts": "260206-2234",
               "state": "rough",
               "text": "Rename JSON schema field \"text\" to \"docket\" in tack records.\n\nCompanion to json-schema-commit-to-basis (₢AGAAF). Same pattern:\n1. Remove serde rename attribute (or change field name) in jjrt_types.rs\n2. Migrate existing gallops JSON: s/\"text\":/\"docket\":/g\n3. Update documentation referencing the JSON schema\n\nBreaking: Changes JSON schema. All existing gallops files must be migrated.\n\nAcceptance: JSON files use \"docket\" key. Round-trip validation passes. All tests pass.",
