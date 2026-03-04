@@ -4726,9 +4726,10 @@
         "₢AiAA3",
         "₢AiAA8",
         "₢AiABA",
-        "₢AiABB"
+        "₢AiABB",
+        "₢AiABD"
       ],
-      "next_pace_seed": "ABD",
+      "next_pace_seed": "ABE",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA-": {
@@ -6630,6 +6631,17 @@
               "text": "Remove push filter from rubric triggers to prevent inscribe from auto-firing all 7 builds.\n\n## Problem\n\nTriggers are configured with `push: { branch: \"^main$\" }`. When inscribe pushes to the\nrubric repo's main branch, all 7 triggers fire automatically. This is unintended — builds\nshould only dispatch via explicit `triggers.run` calls from `rbf_build`.\n\n## Changes Required\n\n### Code\n- `rbf_Foundry.sh`: Remove `push` filter from trigger creation in `rbf_rubric_inscribe`\n  (the jq block near line 1252 that builds the trigger body). The trigger should have\n  `repositoryEventConfig.repository` but NO `push` filter — making it manual-dispatch-only.\n- Existing triggers need to be updated or recreated without the push filter. Consider\n  whether `triggers.patch` can remove the push filter, or if delete+recreate is needed.\n\n### Specs\n- `lenses/RBSRI-rubric_inscribe.adoc`: Update trigger creation step to document that\n  triggers are manual-dispatch-only (no push filter).\n- `lenses/RBSTB-trigger_build.adoc`: Confirm dispatch-only semantics are documented.\n- `lenses/RBSDC-depot_create.adoc`: If trigger creation is referenced, ensure no push\n  filter is specified.\n- Paddock: Add session decision explaining why push triggers were removed (inscribe\n  push fires all 7 builds unintentionally; explicit dispatch matches zero-override design).\n\n### Verification\n- After fix, inscribe push should NOT trigger any builds\n- Manual `rbf_build` dispatch via `triggers.run` should still work\n- Existing triggers on demo1015 depot need updating\n\n## Acceptance Criteria\n- Trigger bodies have no `push` filter\n- Inscribe push produces zero builds\n- `rbf_build` dispatch still succeeds\n- Specs updated to reflect manual-dispatch-only design",
               "silks": "fix-trigger-push-filter-removes-auto-fire",
               "commit": "1fc29d1"
+            }
+          ]
+        },
+        "₢AiABD": {
+          "tacks": [
+            {
+              "ts": "260303-1719",
+              "state": "rough",
+              "text": "Fix IAM read-modify-write race: make create_director assert all expected bindings.\n\n## Problem\n\n`depot_create` sets Mason's bindings on GAR repo and secret IAM policies.\n`create_director` later does read-modify-write on the same resources.\nIf `getIamPolicy` returns stale data (IAM eventual consistency — 200 but missing\nMason's binding), the `setIamPolicy` overwrites and destroys Mason's binding.\n\nThis is NOT fixable with delays/retries — a 200 with stale data is indistinguishable\nfrom a 200 with fresh data.\n\n## Approach: Declarative assertion\n\nEvery `setIamPolicy` call must assert the complete expected binding set, not just\nadd its own binding incrementally. When `create_director` modifies a policy, it\npositively asserts ALL bindings that should exist on that resource.\n\n## Changes Required\n\n### rbgg_Governor.sh — create_director\n\n**GAR repo IAM** (currently line ~622):\nAfter reading the policy and adding Director `repoAdmin`, also assert Mason `writer`.\nMason's email is available via `RBGD_MASON_EMAIL`. Apply both bindings to the policy\nJSON before the single `setIamPolicy` call:\n1. `rbgu_jq_add_member_to_role_capture` for Director repoAdmin\n2. Run the result through jq again (or a second add_member call) for Mason writer\n3. One `setIamPolicy` with the fully-asserted policy\n\n**Secret IAM** (currently line ~592):\nAfter reading the policy and adding Director `secretAccessor`, also assert CB service\nagent `secretAccessor`. CB service agent email: `service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com`.\nThe project number is available from RBGD constants or can be derived.\n\n### Specs\n- `lenses/RBSDI-director_create.adoc`: Document that create_director asserts both its\n  own bindings AND depot_create's bindings in every IAM policy write. Explain the\n  eventual-consistency rationale.\n- Paddock: Add session decision on declarative IAM assertion pattern.\n\n### Consider\n- Should `rbgu_jq_add_member_to_role_capture` gain a multi-binding variant? Or just\n  chain two calls (pipe JSON through jq twice)?\n- Should depot_create also assert Mason + CB service agent together in one write?\n  (Currently writes them separately — same stale-read risk between the two writes.)\n\n## Acceptance Criteria\n- create_director's GAR setIamPolicy includes both Director repoAdmin AND Mason writer\n- create_director's secret setIamPolicy includes both Director secretAccessor AND CB service agent secretAccessor\n- No IAM binding can be lost to stale reads\n- Specs document the declarative assertion pattern",
+              "silks": "fix-iam-policy-declarative-assertions",
+              "commit": "a46e005"
             }
           ]
         }
