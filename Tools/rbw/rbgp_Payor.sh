@@ -917,13 +917,13 @@ rbgp_depot_create() {
   local -r z_api_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
   local -r z_read_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_READ_TOKEN_SECRET_NAME}"
   local -r z_wh_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_WEBHOOK_SECRET_NAME}"
-  rbgu_poll_until_ok "POST" "Secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME}" \
+  rbgu_poll_until_ok "GET" "Secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME}" \
     "${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_secret_resource}:getIamPolicy" \
     "${z_token}" "secret_propagate_api"
-  rbgu_poll_until_ok "POST" "Secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME}" \
+  rbgu_poll_until_ok "GET" "Secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME}" \
     "${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_read_secret_resource}:getIamPolicy" \
     "${z_token}" "secret_propagate_read"
-  rbgu_poll_until_ok "POST" "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME}" \
+  rbgu_poll_until_ok "GET" "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME}" \
     "${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_wh_secret_resource}:getIamPolicy" \
     "${z_token}" "secret_propagate_webhook"
 
@@ -931,7 +931,7 @@ rbgp_depot_create() {
 
   # --- IAM for api token secret ---
   local -r z_api_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_secret_resource}:getIamPolicy"
-  rbgu_http_json "POST" "${z_api_iam_get_url}" "${z_token}" "depot_secret_get_iam_api"
+  rbgu_http_json "GET" "${z_api_iam_get_url}" "${z_token}" "depot_secret_get_iam_api"
   local z_api_iam_code
   z_api_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_api") || z_api_iam_code=""
   test "${z_api_iam_code}" = "200" \
@@ -951,7 +951,7 @@ rbgp_depot_create() {
 
   # --- IAM for read_api token secret ---
   local -r z_read_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_read_secret_resource}:getIamPolicy"
-  rbgu_http_json "POST" "${z_read_iam_get_url}" "${z_token}" "depot_secret_get_iam_read"
+  rbgu_http_json "GET" "${z_read_iam_get_url}" "${z_token}" "depot_secret_get_iam_read"
   local z_read_iam_code
   z_read_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_read") || z_read_iam_code=""
   test "${z_read_iam_code}" = "200" \
@@ -971,7 +971,7 @@ rbgp_depot_create() {
 
   # --- IAM for webhook secret ---
   local -r z_wh_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_wh_secret_resource}:getIamPolicy"
-  rbgu_http_json "POST" "${z_wh_iam_get_url}" "${z_token}" "depot_secret_get_iam_webhook"
+  rbgu_http_json "GET" "${z_wh_iam_get_url}" "${z_token}" "depot_secret_get_iam_webhook"
   local z_wh_iam_code
   z_wh_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_webhook") || z_wh_iam_code=""
   test "${z_wh_iam_code}" = "200" \

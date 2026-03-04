@@ -592,7 +592,7 @@ rbgg_create_director() {
   buc_step 'Grant Secret Manager access on GitLab api token secret'
   local -r z_director_secret_resource="projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
   local -r z_director_secret_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_director_secret_resource}:getIamPolicy"
-  rbgu_http_json "POST" "${z_director_secret_iam_get_url}" "${z_token}" "director_secret_get_iam"
+  rbgu_http_json "GET" "${z_director_secret_iam_get_url}" "${z_token}" "director_secret_get_iam"
   local z_director_secret_get_code
   z_director_secret_get_code=$(rbgu_http_code_capture "director_secret_get_iam") || z_director_secret_get_code=""
   test "${z_director_secret_get_code}" = "200" \
