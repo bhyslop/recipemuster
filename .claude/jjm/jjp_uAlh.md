@@ -283,6 +283,50 @@ Corral: human review checkpoint
 
 Confidence gate: "if R1 discovers files not in the docket, and R3 classifies any as 'rewrite' rather than 'cascade', stop — the docket underspecified the scope."
 
+## V3→V4 Migration Discipline
+
+### Strategy
+
+V4 introduces breaking schema changes. A work installation runs V3 jjx against V3 gallops and must continue functioning until explicitly upgraded.
+
+**Detection:** `schema_version` field in `jjrg_Gallops`. Absent = V3. Present with value `4` = V4. Uses `#[serde(default)]` so V3 files deserialize cleanly.
+
+**Migration path (dual-read, write-V4):**
+- V4 `jjdr_load` detects V3 (missing `schema_version`), deserializes as V3 types, transforms in memory to V4, skips round-trip byte-exact check
+- V4 `jjdr_save` always writes V4 format with `schema_version: 4`
+- First load of a V3 file silently upgrades it to V4 on next save
+- Round-trip check remains strict for V4 files
+
+**Frozen V3 reference:** V3 types are snapshot as `jjrt_v3_types.rs` (frozen, not edited). The V3 schema section of JJS0 remains as a reference until ₣An removes it.
+
+### Pace Discipline
+
+Every pace in ₣Ah that modifies the gallops schema MUST include in its docket:
+- **V3 field**: What V3 field/structure is affected
+- **V4 change**: What V4 does differently
+- **Migration transform**: How `jjdr_load` converts V3→V4 in memory
+
+This discipline propagates to any continuation heats spawned from ₣Ah.
+
+### Validation Changes
+
+V3 validation rules in `jjrv_validate.rs` that will break:
+- Tack non-emptiness (tack eliminated in V4)
+- `direction` present iff `bridled` state (both concepts eliminated)
+- Pace state enum (V3: rough/bridled/complete/abandoned → V4: green/ready/reined/candidate/complete/abandoned)
+
+These must be updated alongside the type changes, not as an afterthought.
+
+## Heat Constellation
+
+₣Ah is part of a V4 initiative:
+
+| Heat | Silks | Role | Status |
+|------|-------|------|--------|
+| ₣Ah | jjk-v4-vision | Development — schema transition, breaking changes, gaits/beats | Racing |
+| ₣An | jjk-v4-release-and-legacy-removal | Cleanup — upgrade installs, re-enable validation, remove V3 compat | Stabled (until ₣Ah nears completion) |
+| ₣Am | jjk-v5-notional | Parking lot — post-V4 ideas relocated from ₣AG | Stabled |
+
 ## References
 
 - `Memos/memo-20260224-jjk-v4-gaits.md` — Gaits, branches, and the breeze pipeline (partially superseded)
@@ -292,3 +336,4 @@ Confidence gate: "if R1 discovers files not in the docket, and R3 classifies any
 - cchat-20260301 — Dreaming session: beats, voltes, corral, execution model, attention model
 - cchat-20260301b — Continuation: quirt identity, warrant structure (JSON), warrant evolution from V3, school incrementalism, memory challenge, gait library as school-time resource
 - cchat-20260302 — Gait working concept: gaits as school checklists, confidence gates, research steps, review phases, MCM vocabulary migration example (derived from ₣Ai ₢AiAAz execution)
+- cchat-20260304 — Groom session: backwards compatibility strategy, ₣AG triage, three-heat constellation, migration discipline
