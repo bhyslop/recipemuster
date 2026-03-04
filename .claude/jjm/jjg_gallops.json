@@ -5776,6 +5776,13 @@
         "₢AlAAE": {
           "tacks": [
             {
+              "ts": "260304-1516",
+              "state": "complete",
+              "text": "Retire rbrr.validator.sh by migrating its two regex checks into buv_* enrollment types.\n\n## Context\n\nrbrr.validator.sh is a pre-BCG legacy validator with 5 checks. Three are already\ncovered by buv_*_enroll in rbrr_regime.sh. Two regex checks remain:\n\n1. RBRR_GCB_MACHINE_TYPE: CE format ^[a-z][a-z0-9-]+$\n   FIX: Change from buv_string_enroll to buv_gname_enroll in rbrr_regime.sh.\n   buv_gname validates ^[a-z][a-z0-9-]*[a-z0-9]$ which is stricter (no trailing hyphen).\n\n2. RBRR_GCB_WORKER_POOL: resource path ^projects/[^/]+/locations/[^/]+/workerPools/[^/]+$\n   FIX: Needs either a new buv enroll type or a post-enrollment validation call.\n   Design decision: new buv type vs inline regex in rbrr_regime.sh.\n\n## Deliverables\n\n1. Change RBRR_GCB_MACHINE_TYPE to buv_gname_enroll in rbrr_regime.sh\n2. Add worker pool path validation (decide approach during pace)\n3. Delete rbrr.validator.sh\n4. Remove source call from rbgd_DepotConstants.sh\n5. Verify depot_create still works (the validator was a pre-operation gate)\n\n## Sequencing\n\nDo this BEFORE the next e2e test run (₢AlAAA).",
+              "silks": "retire-rbrr-validator",
+              "commit": "3ed74f6"
+            },
+            {
               "ts": "260304-1459",
               "state": "rough",
               "text": "Retire rbrr.validator.sh by migrating its two regex checks into buv_* enrollment types.\n\n## Context\n\nrbrr.validator.sh is a pre-BCG legacy validator with 5 checks. Three are already\ncovered by buv_*_enroll in rbrr_regime.sh. Two regex checks remain:\n\n1. RBRR_GCB_MACHINE_TYPE: CE format ^[a-z][a-z0-9-]+$\n   FIX: Change from buv_string_enroll to buv_gname_enroll in rbrr_regime.sh.\n   buv_gname validates ^[a-z][a-z0-9-]*[a-z0-9]$ which is stricter (no trailing hyphen).\n\n2. RBRR_GCB_WORKER_POOL: resource path ^projects/[^/]+/locations/[^/]+/workerPools/[^/]+$\n   FIX: Needs either a new buv enroll type or a post-enrollment validation call.\n   Design decision: new buv type vs inline regex in rbrr_regime.sh.\n\n## Deliverables\n\n1. Change RBRR_GCB_MACHINE_TYPE to buv_gname_enroll in rbrr_regime.sh\n2. Add worker pool path validation (decide approach during pace)\n3. Delete rbrr.validator.sh\n4. Remove source call from rbgd_DepotConstants.sh\n5. Verify depot_create still works (the validator was a pre-operation gate)\n\n## Sequencing\n\nDo this BEFORE the next e2e test run (₢AlAAA).",
