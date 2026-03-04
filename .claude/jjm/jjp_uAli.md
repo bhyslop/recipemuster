@@ -624,3 +624,63 @@ host migration would swap the connection config shape — the architecture
 - ₢AiAAh (rename rbw→rbk + move lenses) — massive rename, lands cleaner post-stabilization
 - ₢AiAAm (rename inscribe tabtarget) — housekeeping
 - ₢AiAAs (director colophon reorg) — housekeeping
+
+### Session Decisions (2026-03-03) — E2E Dispatch Findings
+
+**Three blocking issues discovered during first E2E dispatch (demo1015 depot):**
+
+1. **CB v2 service agent needs Secret Manager access for repository fetch.**
+   Cloud Build's service agent (`service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com`)
+   needs `secretmanager.secretAccessor` on the GitLab API token secret to authenticate
+   when fetching commits from the rubric repo. `depot_create` already grants this, but
+   `create_director` overwrote it (see #2). Symptom: `triggers.run` returns HTTP 400
+   "Couldn't read commit".
+
+2. **IAM read-modify-write race destroys bindings (secret AND GAR repo).**
+   `create_director` reads IAM policies, adds its own binding, and writes back.
+   If the read returns stale data (IAM eventual consistency — 200 but missing
+   bindings set by `depot_create`), the write overwrites them. This is NOT a
+   timing/retry issue — stale 200 is indistinguishable from fresh 200.
+   Affected resources: Secret Manager (CB service agent `secretAccessor` lost)
+   and GAR repository (Mason `writer` lost).
+   **Fix (₢AiABD):** Every `setIamPolicy` writes the complete expected binding set.
+   One path, one write, always correct.
+   **Interim fix applied:** Silent vanilla-json fallbacks in `rbgp_Payor.sh` and
+   `rbgg_Governor.sh` replaced with die-on-failure. This prevents the worst case
+   (empty policy overwrite) but does not prevent stale-read overwrites.
+
+3. **Push triggers fire on inscribe push — unintended 7-build burst.**
+   Triggers configured with `push: { branch: "^main$" }` fire automatically when
+   inscribe pushes to the rubric repo. All 7 vessel triggers fire simultaneously.
+   **Fix (₢AiABC):** Remove push filter; triggers become manual-dispatch-only
+   via `triggers.run`. Matches the zero-override design philosophy.
+
+**Build step `dir` field was missing from stitched JSON.**
+`zrbf_stitch_build_json` emitted steps without a `dir` field. When Cloud Build
+checks out the rubric repo (per-vessel subdirectories), the working directory
+defaults to `/workspace` (repo root). Dockerfile and build context are in
+`{vessel}/` subdirectory. Fix: add `dir: $moniker` to every stitched step.
+Regenerated all 7 `cloudbuild.json` files.
+
+**Syft SBOM step fails on multi-platform OCI layout.**
+`oci-dir:/workspace/oci-layout` contains a multi-platform index manifest
+(`application/vnd.oci.image.index.v1+json`). Syft's `oci-dir:` transport
+doesn't support index manifests (anchore/syft#1545). Steps 4-5 (build + push)
+succeed; step 6 (SBOM) fails. Research in progress on alternatives:
+local analysis with platform selection, registry-based analysis, or alternative
+SBOM tools. May require changes to the OCI Layout Bridge pattern.
+
+**E2E pace (₢AiAA0) scope revised.**
+Original scope assumed a clean run from fresh depot. Actual experience revealed
+infrastructure bugs that require code fixes before a clean run is possible.
+The remaining E2E verification requires: fix push triggers (₢AiABC), fix IAM
+assertions (₢AiABD), resolve Syft multi-platform issue, then re-run from
+depot destroy. Reslated to reflect this dependency chain.
+
+### Pace Plan Update (2026-03-03)
+
+| Order | Coronet | Silks | Scope |
+|-------|---------|-------|-------|
+| next | ₢AiABC | fix-trigger-push-filter-removes-auto-fire | Remove push filter from triggers |
+| next | ₢AiABD | fix-iam-policy-declarative-assertions | Complete policy construction in create_director |
+| then | ₢AiAA0 | e2e-verify-cbv2-provenance | Full e2e re-run from depot destroy (depends on ₢AiABC + ₢AiABD + Syft resolution) |
