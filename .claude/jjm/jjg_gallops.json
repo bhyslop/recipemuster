@@ -3388,9 +3388,10 @@
         "₢AUAAA",
         "₢AUAAB",
         "₢AUAAE",
-        "₢AUAAF"
+        "₢AUAAF",
+        "₢AUAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -3445,6 +3446,17 @@
               "text": "Simplify GCB pin digest extraction by dropping --verbose from docker manifest inspect.\n\n## Problem\n\nThe current jq in rbrr_cli.sh:rbrr_refresh_gcb_pins uses --verbose output which wraps\nmanifests in a Descriptor object and returns either an array (multi-arch) or object\n(single-arch), requiring branching logic. This complexity caused an architecture\nmismatch bug (arm64 digest pinned instead of amd64).\n\n## Work\n\n1. Remove --verbose from the docker manifest inspect call\n2. Replace the jq extraction with the simpler manifest list format:\n   `.manifests[] | select(.platform.architecture == $arch and .platform.os == $os) | .digest`\n3. Handle the single-manifest case (no .manifests array) if any images lack a manifest list\n4. Verify all 8 images produce correct linux/amd64 digests by comparing against\n   the forensic temp files from a --verbose run\n\n## Acceptance\n\n- All 8 GCB images resolve to the same linux/amd64 digests as the current platform-filtered approach\n- jq extraction is a single clean pipeline, no array-vs-object branching\n- --verbose flag removed from docker manifest inspect",
               "silks": "simplify-manifest-digest-extraction",
               "commit": "0db35ac"
+            }
+          ]
+        },
+        "₢AUAAG": {
+          "tacks": [
+            {
+              "ts": "260303-1918",
+              "state": "rough",
+              "text": "Design the consumer-facing CLAUDE.md guidance strategy for Recipe Bottle's open-source release.\n\n## Problem\n\nThe development CLAUDE.md contains private information (future project hints, personal workflow details, AXLA references) that must not ship. But consumers using Claude Code need orientation to work effectively with BUK tabtargets, regime configuration, and RBK workflows.\n\n## Strategy (settled in conversation)\n\n- The CMK managed-section install pattern does NOT apply — consumers are outside the kit ecosystem\n- Instead, README.md files that ship with the kits contain \"Consumer CLAUDE.md Recommendations\" sections\n- These sections document the minimum context a consumer's Claude needs\n- A consumer can reference the README from their CLAUDE.md (`Read Tools/buk/README.md for BUK patterns`) or copy the recommended entries directly\n- No install scripts, no managed sections, no leakage surface\n\n## Deliverables\n\n1. **BUK README section**: \"Consumer CLAUDE.md Recommendations\" covering:\n   - Tabtarget vocabulary (colophon/frontispiece/imprint)\n   - The `cd` prohibition with rationale\n   - Regime structure awareness (BURC/BURS/RBRR)\n   - Key BUK workflow verbs\n\n2. **RBK README section** (once Tools/rbk/ exists per ₢AkAAK): covering:\n   - Regime prefixes and tabtarget inventory\n   - Qualification workflow\n   - Key RBK operation verbs\n\n3. **prep-pr ceremony update**: Ensure the RBK prep-pr strips development CLAUDE.md while kit READMEs with consumer guidance survive\n\n## Design Principle\n\nREADME is version-controlled documentation that users read and understand. CLAUDE.md is invisible machinery. The user chooses to adopt patterns by reading the README — nothing is injected silently.\n\n## Dependencies\n\n- BUK README deliverable can proceed independently\n- RBK README deliverable depends on ₢AkAAK (rename-rbw-to-rbk-move-lenses)\n- prep-pr update depends on having an RBK prep-pr ceremony designed",
+              "silks": "design-consumer-claudemd-guidance",
+              "commit": "674f388"
             }
           ]
         }
