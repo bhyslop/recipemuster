@@ -433,7 +433,6 @@
         "₢AGAAK",
         "₢AGAAL",
         "₢AGAAI",
-        "₢AGAAM",
         "₢AGAAO",
         "₢AGAAP",
         "₢AGAAQ"
@@ -528,17 +527,6 @@
               "text": "Rename JSON schema field \"direction\" to \"warrant\" in tack records.\n\nCompanion to json-schema-text-to-docket (₢AGAAK). Same pattern:\n1. Remove serde rename attribute (or change field name) in jjrt_types.rs\n2. Migrate existing gallops JSON: s/\"direction\":/\"warrant\":/g\n3. Update documentation referencing the JSON schema\n\nBreaking: Changes JSON schema. All existing gallops files must be migrated.\n\nAcceptance: JSON files use \"warrant\" key. Round-trip validation passes. All tests pass.",
               "silks": "json-schema-direction-to-warrant",
               "commit": "8e1572b"
-            }
-          ]
-        },
-        "₢AGAAM": {
-          "tacks": [
-            {
-              "ts": "260208-1318",
-              "state": "rough",
-              "text": "Add an auto-generated intent field to pace records.\n\nThe intent statement should be a prose summary (1-2 sentences) extracted from the pace docket, maintaining it automatically as part of slate/reslate operations.\n\nDisplay intent:\n- In non-detailed pace listings (alongside silks)\n- In wrap completion summary (showing what was just finished)\n\nThis gives paces more semantic richness than silks alone, helping runners understand purpose at a glance.",
-              "silks": "add-intent-field",
-              "commit": "d13b192"
             }
           ]
         },
@@ -5971,9 +5959,10 @@
         "₢AmAAB",
         "₢AmAAC",
         "₢AmAAD",
-        "₢AmAAE"
+        "₢AmAAE",
+        "₢AmAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAlm.md",
       "paces": {
         "₢AmAAA": {
@@ -6084,6 +6073,24 @@
               "text": "Extract hardcoded Rust build/test commands from the wrap slash command and make build discipline configurable per-heat.\n\nCurrent state: The wrap command (and CLAUDE.md Pre-wrap Verification section) hardcodes `tt/vow-b.Build.sh && tt/vow-t.Test.sh` as the pre-wrap verification step.\n\nGoal: Allow heats to specify their own build discipline (or none), so non-Rust heats don't require Rust builds, and different projects can have appropriate verification.\n\nDesign decision needed: Where should build discipline live?\n- Option A: Paddock structure (new field in paddock file)\n- Option B: Heat fields in gallops.json (new schema field)\n- Option C: Heat-level config file\n\nImplementation:\n1. Choose storage location\n2. Define schema for build discipline specification\n3. Update wrap command to read discipline from heat context\n4. Update CLAUDE.md to reference dynamic discipline rather than hardcoded commands\n5. Migrate existing heats if needed",
               "silks": "heat-build-discipline",
               "commit": "26f0d95"
+            }
+          ]
+        },
+        "₢AmAAF": {
+          "tacks": [
+            {
+              "ts": "260304-1503",
+              "state": "rough",
+              "text": "Drafted from ₢AGAAM in ₣AG.\n\nAdd an auto-generated intent field to pace records.\n\nThe intent statement should be a prose summary (1-2 sentences) extracted from the pace docket, maintaining it automatically as part of slate/reslate operations.\n\nDisplay intent:\n- In non-detailed pace listings (alongside silks)\n- In wrap completion summary (showing what was just finished)\n\nThis gives paces more semantic richness than silks alone, helping runners understand purpose at a glance.",
+              "silks": "add-intent-field",
+              "commit": "6795208"
+            },
+            {
+              "ts": "260208-1318",
+              "state": "rough",
+              "text": "Add an auto-generated intent field to pace records.\n\nThe intent statement should be a prose summary (1-2 sentences) extracted from the pace docket, maintaining it automatically as part of slate/reslate operations.\n\nDisplay intent:\n- In non-detailed pace listings (alongside silks)\n- In wrap completion summary (showing what was just finished)\n\nThis gives paces more semantic richness than silks alone, helping runners understand purpose at a glance.",
+              "silks": "add-intent-field",
+              "commit": "d13b192"
             }
           ]
         }
