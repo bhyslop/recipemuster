@@ -4431,10 +4431,24 @@
       "silks": "jjk-v4-vision",
       "creation_time": "260222",
       "status": "racing",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AhAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
-      "paces": {}
+      "paces": {
+        "₢AhAAA": {
+          "tacks": [
+            {
+              "ts": "260304-1542",
+              "state": "rough",
+              "text": "Opus-tier design session: reconcile all V4 paddock schema decisions into a complete, buildable data model specification.\n\n## Why this is pace 1\n\nThe paddock captures design explorations across 5+ cchat sessions (20260222 through 20260302). Key decisions are scattered, some contradict each other, and critical items are explicitly \"TBD.\" No Rust should be written until this pace produces a coherent schema.\n\n## What this pace produces\n\nA concrete V4 schema section added to JJS0 (or a dedicated spec fragment), containing:\n\n1. **Complete type definitions** for jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Gait\n2. **State enum** — finalize green/ready/reined/candidate/complete/abandoned. What transitions are valid? What does \"reined\" mean operationally now that bridling is eliminated?\n3. **Gait record fields** — currently \"TBD\" twice in the paddock. What does a gait contain? Prompt template structure, default model, beat shape, confidence gates? How does school consume them?\n4. **Warrant field shape** — is it a JSON string blob stored in the pace? A typed struct? How does it relate to the warrant-as-commit-message design?\n5. **Tack elimination consequences** — what history is lost? Is that acceptable? Do we need an audit trail or is git history sufficient?\n6. **Quirt identity mechanics** — how are quirts allocated? Seed in gallops like firemark/coronet?\n7. **V3 migration mapping** — for every V3 field, document what V4 does with it\n\n## What this pace does NOT produce\n\n- No Rust code\n- No migration implementation\n- No command changes\n\n## Not bridleable\n\nThis is a human-driven design conversation. The output is a document refined through interactive Q&A, not autonomous execution.",
+              "silks": "design-v4-data-model",
+              "commit": "8954a6e"
+            }
+          ]
+        }
+      }
     },
     "₣Aj": {
       "silks": "rbk-axla-term-voicing-scrub",
