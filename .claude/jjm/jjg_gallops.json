@@ -5482,9 +5482,10 @@
         "₢AkAAK",
         "₢AkAAL",
         "₢AkAAM",
-        "₢AkAAN"
+        "₢AkAAN",
+        "₢AkAAO"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5784,6 +5785,17 @@
               "text": "Rename BCG (Bash Console Guide) to better reflect its prescriptive, specification-like nature. The document is not a casual guide — it's a mandatory compliance specification for bash module architecture, with templates, anti-patterns, maturity checklists, and decision matrices.\n\nCandidates:\n- BCS: Bash Compliance Specification — emphasizes mandatory compliance nature\n- BMP: Bash Module Patterns — scopes to module architecture focus\n\nRename touches:\n- File: Tools/buk/vov_veiled/BCG-BashConsoleGuide.md → new name\n- CLAUDE.md acronym mapping (BCG entry)\n- Any references across codebase (grep for BCG-BashConsoleGuide, \"Bash Console Guide\")\n- BUS0 spec if it references BCG by name\n- Prefix mint implications: BCS uses bu-prefix space (bus_ would conflict with BUS0); BMP uses bm_ (new prefix outside bu tree)\n\nDecision on BCS vs BMP is pending — user to choose before execution.",
               "silks": "rename-bcg-document-identity",
               "commit": "5794157"
+            }
+          ]
+        },
+        "₢AkAAO": {
+          "tacks": [
+            {
+              "ts": "260304-1428",
+              "state": "rough",
+              "text": "Nucleate an RBS0 \"Release Compliance\" section and define rbbk_ key premises.\n\nREQUIRES HUMAN CONVERSATION — design decisions on vocabulary, scope, and inscription rules.\n\n## Context\n\nRecurring LLM failure modes in this codebase:\n- Proposing fixed sleeps instead of polling actual endpoints (delay-and-pray)\n- Creating silent fallback/repair paths instead of dying with diagnostics\n- Ignoring BCG patterns in favor of common (bad) bash idioms\n\n## Deliverables\n\n1. Define three rbbk_ premises as MCM linked terms (voiced axk_premise) in RBS0:\n   - Probe-not-pray: readiness proven by operation succeeding, not by fixed delays\n   - No-silent-fallback: unexpected failures die with diagnostics, no alternate repair paths\n   - BCG-compliance: all bash follows BCG patterns, LLM training data is adversarial\n\n2. Nucleate a \"Release Compliance\" section in RBS0 that specifies checkable rules,\n   starting with: functions governed by a premise MUST carry premise text in headerdoc\n\n3. Write the headerdoc inscription rule — what goes in the comment block, which files\n   require it, how release checks verify it\n\n4. Begin inscription on key files (rbgu_Utility.sh, rbgp_Payor.sh, rbgi_IAM.sh,\n   rbgg_Governor.sh) — not exhaustive, but enough to establish the pattern\n\n## Not in scope\n- Regime variable checking (separate pace)\n- Shellcheck integration (separate pace)\n- Inscribing every file (iterative annealing across future paces)",
+              "silks": "rbs0-release-compliance-premises",
+              "commit": "548cf22"
             }
           ]
         }
