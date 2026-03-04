@@ -739,3 +739,19 @@ yields `-d @-` (curl stdin convention). Secret never touches filesystem. No chan
 
 **Specs (RBS0, RBSDC):** No changes needed — specs describe what data goes to the API,
 not how the body is transmitted. The stdin pipe is an implementation improvement.
+
+### Session Decision: Mason tokenCreator grant audit (2026-03-03)
+
+**Audit of `roles/iam.serviceAccountTokenCreator` granted to CB service agent on Mason SA.**
+
+**Finding: KEEP.** The grant is required by the OCI Layout Bridge pattern. Build steps
+execute as Mason (via trigger `serviceAccount` field = actAs). Those steps need to
+authenticate to GCP APIs (GAR docker login, crane push), which requires generating fresh
+access tokens. The CB service agent's `tokenCreator` role enables this token generation.
+
+**Two distinct impersonation relationships:**
+- **Director → Mason**: `serviceAccountUser` (actAs) — Director submits builds that run as Mason
+- **CB service agent → Mason**: `tokenCreator` — build steps running as Mason can mint tokens
+
+RBSCIP-IamPropagation.adoc already preserves this grant with rationale. Updated RBSDC
+NOTE to clearly explain the distinction between tokenCreator and serviceAccountUser.

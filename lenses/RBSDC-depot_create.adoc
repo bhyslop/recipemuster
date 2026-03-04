@@ -172,9 +172,9 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIam
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for `«MASON_EMAIL»`
 .. Add member: `serviceAccount:service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
 .. Grant role: `roles/iam.serviceAccountTokenCreator`
-.. NOTE: Cloud Build service agent is Google-provisioned, not newly created.
+.. NOTE: Cloud Build service agent is Google-provisioned (auto-created when Cloud Build API is enabled), not a user-created service account. The `tokenCreator` role enables build steps running as {rbtr_mason} (via the trigger's `serviceAccount` field) to generate fresh access tokens for GCP API calls — required by the OCI Layout Bridge pattern for GAR authentication (docker login, crane push). This is distinct from `serviceAccountUser` (actAs), which the {rbtr_director} holds on {rbtr_mason} for submitting builds.
 .. {rbbc_require}
-IAM binding successful (enables Cloud Build to execute as Mason)
+IAM binding successful
 
 //axhos_step
 . *Store GitLab credentials in Secret Manager (3 secrets)*:
