@@ -4435,9 +4435,10 @@
         "₢AhAAA",
         "₢AhAAB",
         "₢AhAAC",
-        "₢AhAAD"
+        "₢AhAAD",
+        "₢AhAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -4481,6 +4482,17 @@
               "text": "Implement the V4 pace data model as designed in ₢AhAAA. Replace tack array with flat fields.\n\n## V3 field\njjrg_Pace contains `tacks: Vec<jjrg_Tack>`. Each tack has: ts, state, text, silks, basis, direction.\n\n## V4 change\njjrg_Pace gets flat fields: state, silks, docket (was text), warrant (was direction), basis, ts. Exact field definitions come from ₢AhAAA design output. New state enum replaces jjrg_PaceState.\n\n## Migration transform\nIn jjdr_load V3 migration path: deserialize as V3 types (jjrt_v3_types), extract tacks[0] values into flat V4 fields. Tack history (tacks[1..]) is discarded — git history preserves the audit trail.\n\n## Depends on\n- ₢AhAAA (design-v4-data-model) — provides the type definitions\n- ₢AhAAB (add-schema-version-detection) — provides migration detection\n- ₢AhAAC (snapshot-v3-types-and-spec) — provides V3 types for migration read\n\n## Files\n- jjrt_types.rs — rewrite jjrg_Pace, jjrg_PaceState, remove jjrg_Tack\n- jjri_io.rs — implement V3→V4 migration transform\n- jjrv_validate.rs — rewrite pace validation for V4 fields\n- jjtg_gallops.rs — rewrite tests for V4 types\n\n## Acceptance\n- V3 gallops load, migrate in memory, save as V4\n- V4 gallops load with strict round-trip validation\n- All existing jjx_* commands compile (but may need adaptation in next pace)",
               "silks": "define-v4-pace-struct",
               "commit": "64cbde4"
+            }
+          ]
+        },
+        "₢AhAAE": {
+          "tacks": [
+            {
+              "ts": "260304-1546",
+              "state": "rough",
+              "text": "Update all jjx_* command implementations to use V4 flat pace fields instead of tack array access.\n\n## V3 pattern\nCommands access pace data via: pace.tacks[0].text, pace.tacks[0].state, pace.tacks[0].silks, pace.tacks[0].basis, pace.tacks.first().unwrap().direction\n\n## V4 pattern\nDirect field access: pace.docket, pace.state, pace.silks, pace.basis, pace.warrant\n\n## Scope\nEvery Rust file in jjk/vov_veiled/src/ that reads or writes pace fields. This is the widest pace — touches most command implementations. But it is mechanical: find tack access patterns, replace with flat field access.\n\n## Depends on\n- ₢AhAAD (define-v4-pace-struct) — V4 types must exist and compile\n\n## Files\n- All jjr*_.rs command files that access pace data\n- jjru_util.rs — remove jjrg_make_tack if it exists\n- Any helper functions that construct or destructure tacks\n\n## Acceptance\n- All commands work against V4 gallops\n- cargo build clean, cargo test pass\n- End-to-end: nominate heat, slate pace, show pace, close pace — all work",
+              "silks": "adapt-commands-to-v4-types",
+              "commit": "c850ce0"
             }
           ]
         }
