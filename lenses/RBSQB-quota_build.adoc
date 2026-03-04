@@ -5,23 +5,27 @@ The
 {at_operator}
 reviews
 {gcb_service}
-quota settings for a
+private pool quota settings for a
 {rbtgi_depot_project}
-to verify that the
-{rbrr_gcb_machine_type}
-and the *Concurrent Build CPUs* quota support the desired level of parallel build execution.
+to verify that the *Concurrent Private Pool Build CPUs* quota supports the desired level of parallel build execution.
 
-The default *Concurrent Build CPUs* quota is 10 per region.
+All depots use a private worker pool.
+Machine type is set at pool creation time via
+{rbrr_gcb_machine_type}
+(a Compute Engine type such as `e2-standard-2`); individual build requests do not specify machine type.
 Each
 {rbtgo_trigger_build}
-invocation consumes vCPUs according to the configured machine type.
-If the machine type consumes most of the CPU quota (e.g., `E2_HIGHCPU_8` uses 8 of 10 CPUs), builds serialize because a second invocation cannot acquire enough CPUs.
+invocation consumes vCPUs according to the pool's machine type.
+If the pool's vCPU count consumes most of the quota, builds serialize because a second invocation cannot acquire enough CPUs.
 
-The primary control for concurrent build capacity is selecting a machine type whose vCPU count divides evenly into the available CPU quota:
+The primary control for concurrent build capacity is the pool's machine type (set via
+{rbrr_gcb_machine_type}
+at pool creation).
+Common Compute Engine types and their vCPU counts:
 
-* `UNSPECIFIED` (2 vCPUs): 5 concurrent builds in 10-CPU quota
-* `E2_HIGHCPU_8` (8 vCPUs): 1 concurrent build in 10-CPU quota
-* `E2_HIGHCPU_32` (32 vCPUs): requires 32+ CPU quota for even 1 build
+* `e2-standard-2` (2 vCPUs): 5 concurrent builds in a 10-CPU quota
+* `e2-highcpu-8` (8 vCPUs): 1 concurrent build in a 10-CPU quota
+* `e2-highcpu-32` (32 vCPUs): requires 32+ CPU quota for even 1 build
 
 //axhoq_precondition
 * {rbhg_require}
@@ -47,7 +51,7 @@ Console access to the depot project with Owner or Quota Administrator IAM role
 .. In the filter bar, enter `cloudbuild.googleapis.com` to show only
 {gcb_service}
 quotas
-.. Locate the *Concurrent Build CPUs (Regional Default Pool)* row for the depot region
+.. Locate the *Concurrent Private Pool Build CPUs* row for the depot region
 .. {rbhg_store}
 current CPU quota value as `«CPU_QUOTA»`
 .. {rbhg_store}
@@ -59,19 +63,18 @@ current usage percentage — if near 100% with one build running, the machine ty
 current
 {rbrr_gcb_machine_type}
 from the regime configuration
-.. Compute maximum concurrent builds: `«CPU_QUOTA»` ÷ vCPUs per machine type
-.. Machine type is the primary lever to control concurrent capacity.
-Reduce the machine type in the regime configuration to fit more builds in existing quota:
-... Set
+.. Compute maximum concurrent builds: `«CPU_QUOTA»` ÷ vCPUs per pool machine type
+.. Machine type is set at pool creation time.
+To change it, the pool must be recreated with a different
 {rbrr_gcb_machine_type}
-to `UNSPECIFIED` (2 vCPUs) for 5 concurrent builds in a 10-CPU quota.
+(e.g., `e2-standard-2` for 2 vCPUs, `e2-highcpu-8` for 8 vCPUs).
 .. If machine type adjustment alone cannot satisfy capacity requirements, a CPU quota increase can be requested via *Edit Quotas*.
 This is a last resort and rarely necessary.
 
 //axhos_step
 . *Confirm Quota Headroom*:
-.. After changing machine type or receiving quota increase, return to *IAM & Admin > Quotas & System Limits*
-.. Filter for `cloudbuild.googleapis.com` and verify the *Concurrent Build CPUs* row
+.. After pool recreation or quota increase, return to *IAM & Admin > Quotas & System Limits*
+.. Filter for `cloudbuild.googleapis.com` and verify the *Concurrent Private Pool Build CPUs* row
 .. {rbhg_require}
 quota headroom supports the desired number of concurrent builds: `«CPU_QUOTA»` ≥ (desired concurrency × vCPUs per machine type)
 
@@ -80,12 +83,12 @@ quota headroom supports the desired number of concurrent builds: `«CPU_QUOTA»`
 
 The
 {rbtgi_depot_project}
-is configured for the desired level of concurrent build execution through alignment of
-{rbrr_gcb_machine_type}
-and CPU quota.
+private pool quota is confirmed to support the desired level of concurrent build execution.
 
 //axhoc_completion
-NOTE: If the desired concurrency exceeds what the default pool CPU quota permits even after machine type adjustment, a
-{gcb_service}
-private worker pool with explicit concurrency settings is an alternative.
-This would require additional regime configuration beyond the scope of this procedure.
+NOTE: All depots use a private worker pool (created by
+{rbtgo_depot_create}).
+The relevant quota metric is *Concurrent Private Pool Build CPUs* on the pool's host project.
+Machine type is set at pool creation time via
+{rbrr_gcb_machine_type};
+individual build requests do not specify machine type.

@@ -680,22 +680,16 @@ Both builds succeed; neither overwrites the other.
 
 NOTE: The
 {gcb_service}
-default pool enforces a *Concurrent Build CPUs* quota per project per region (default: 10).
-If
+private pool enforces a *Concurrent Private Pool Build CPUs* quota per project per region.
+Machine type is set at pool creation time via
 {rbrr_gcb_machine_type}
-consumes most of the CPU quota (e.g., `E2_HIGHCPU_8` uses 8 of 10 CPUs), a second
+(a Compute Engine type such as `e2-standard-2`); individual build requests do not specify machine type.
+If the pool's vCPU allocation is nearly exhausted, a second
 {rbtgo_trigger_build}
 invocation will remain in `QUEUED` status while the first is `WORKING`.
 The
 {rbrr_gcb_min_concurrent_builds}
 regime variable declares the operator's minimum concurrency requirement.
-The nameplate audit (`rbw-nv`) and build preflight both query the Service Usage API to verify that `CPU_QUOTA ÷ vCPUs_per_build ≥`
-{rbrr_gcb_min_concurrent_builds}
-and hard-fail if quota is insufficient.
-When
-{rbrr_gcb_worker_pool}
-is set, the relevant quota metric is `concurrent_private_pool_build_cpus` on the pool's host project,
-and machine type is determined by the pool configuration rather than the build request.
 See
 {rbtgo_quota_build}
 for the manual Console procedure to review build capacity settings.
@@ -2161,8 +2155,16 @@ Builds always use a private pool; the default shared pool is not supported.
 `options.machineType` is omitted from the build JSON — machine type is a property of the pool resource.
 
 NOTE: *Private pool is always required.*
-Private pools are a prerequisite for VPC Service Controls and `NO_PUBLIC_EGRESS` hardening tiers.
-See heat ₣Al paddock for full decision rationale.
+Private pools are a prerequisite for VPC Service Controls and `NO_PUBLIC_EGRESS` hardening tiers (see `RBSCB-CloudBuildRoadmap.adoc` tier definitions).
+Pricing is region-dependent: in us-central1/us-east4, private pool e2-standard-2 matches the default pool rate ($0.006/build-minute); in other regions the private pool rate is up to 1.4× higher.
+This cost is accepted because the security prerequisite is non-negotiable and maintaining two code paths (conditional pool vs. default) doubles configuration surface.
++
+Cloud Build supports two distinct machine type naming systems:
+the default shared pool uses Cloud Build enum values (`E2_HIGHCPU_8`, `N1_HIGHCPU_32`) in `options.machineType` of the build JSON;
+private pools use Compute Engine instance type names (`e2-standard-2`, `n2d-standard-4`, `c3-standard-8`) in `workerConfig.machineType` at pool creation.
+Valid private pool families: `e2`, `n2d`, `c3` (availability varies by region).
+Since Recipe Bottle uses only private pools, only the Compute Engine format is valid for
+{rbrr_gcb_machine_type}.
 
 [[rbrr_gcb_min_concurrent_builds]]
 //axvr_variable axd_required rbst_integer

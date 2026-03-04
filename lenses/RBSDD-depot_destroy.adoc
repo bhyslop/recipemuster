@@ -108,7 +108,7 @@ and any
 or
 {rbtr_retriever}
 service accounts created within the depot.
-The private worker pool is explicitly deleted before project deletion.
+The private worker pool is explicitly deleted before project deletion because GCP project deletion does not automatically cascade to worker pool resources — an undrained pool can block or delay the delete operation.
 
 NOTE: Project enters 30-day retention period in
 {gcp_delete_requested}
