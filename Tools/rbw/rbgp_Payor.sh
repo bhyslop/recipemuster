@@ -847,10 +847,8 @@ rbgp_depot_create() {
   rbgu_http_require_ok "Create secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME}" "depot_secret_create_api"
 
   local -r z_api_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}:addVersion"
-  local -r z_api_version_body="${BURD_TEMP_DIR}/rbgp_secret_version_api.json"
-  jq -n --arg data "${z_token_b64}" '{"payload": {"data": $data}}' > "${z_api_version_body}" \
-    || buc_die "Failed to build api token secret version body"
-  rbgu_http_json "POST" "${z_api_version_url}" "${z_token}" "depot_secret_version_api" "${z_api_version_body}"
+  jq -n --arg data "${z_token_b64}" '{"payload": {"data": $data}}' \
+    | rbgu_http_json "POST" "${z_api_version_url}" "${z_token}" "depot_secret_version_api" "-"
   rbgu_http_require_ok "Add api token secret version" "depot_secret_version_api"
 
   local z_api_token_version
@@ -864,10 +862,8 @@ rbgp_depot_create() {
   rbgu_http_require_ok "Create secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME}" "depot_secret_create_read"
 
   local -r z_read_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_READ_TOKEN_SECRET_NAME}:addVersion"
-  local -r z_read_version_body="${BURD_TEMP_DIR}/rbgp_secret_version_read.json"
-  jq -n --arg data "${z_token_b64}" '{"payload": {"data": $data}}' > "${z_read_version_body}" \
-    || buc_die "Failed to build read token secret version body"
-  rbgu_http_json "POST" "${z_read_version_url}" "${z_token}" "depot_secret_version_read" "${z_read_version_body}"
+  jq -n --arg data "${z_token_b64}" '{"payload": {"data": $data}}' \
+    | rbgu_http_json "POST" "${z_read_version_url}" "${z_token}" "depot_secret_version_read" "-"
   rbgu_http_require_ok "Add read token secret version" "depot_secret_version_read"
 
   local z_read_token_version
@@ -881,10 +877,8 @@ rbgp_depot_create() {
   rbgu_http_require_ok "Create secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME}" "depot_secret_create_webhook"
 
   local -r z_wh_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_WEBHOOK_SECRET_NAME}:addVersion"
-  local -r z_wh_version_body="${BURD_TEMP_DIR}/rbgp_secret_version_webhook.json"
-  jq -n --arg data "${z_webhook_b64}" '{"payload": {"data": $data}}' > "${z_wh_version_body}" \
-    || buc_die "Failed to build webhook secret version body"
-  rbgu_http_json "POST" "${z_wh_version_url}" "${z_token}" "depot_secret_version_webhook" "${z_wh_version_body}"
+  jq -n --arg data "${z_webhook_b64}" '{"payload": {"data": $data}}' \
+    | rbgu_http_json "POST" "${z_wh_version_url}" "${z_token}" "depot_secret_version_webhook" "-"
   rbgu_http_require_ok "Add webhook secret version" "depot_secret_version_webhook"
 
   local z_webhook_version

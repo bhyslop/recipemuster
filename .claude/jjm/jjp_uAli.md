@@ -716,3 +716,26 @@ correct.
 **GAR repo IAM:** Director `repoAdmin` + Mason `writer` (email from `RBGD_MASON_EMAIL`).
 Replaced `rbgi_add_repo_iam_role` with inline read-modify-write to chain both bindings
 before the single set. Propagation retry preserved (inline, same exponential backoff pattern).
+
+### Session Decision: Secret sanitization audit and stdin pipe (2026-03-03)
+
+**Audit:** Comprehensive review of `rbgu_Utility.sh`, `rbf_Foundry.sh`, `rbgp_Payor.sh`,
+`rbgg_Governor.sh` for secret leakage into transcripts and logs.
+
+**Finding:** Bearer tokens, OAuth tokens, and PAT values do NOT appear in transcript files.
+`curl -sS` (no verbose), `buc_log_args` never passed token values, OAuth token stays in
+memory. The code already follows BCG discipline for in-memory secret handling.
+
+**One violation found:** `rbgp_Payor.sh` `depot_create` wrote base64-encoded GitLab tokens
+to temp files (`rbgp_secret_version_*.json`) for Secret Manager `addVersion` API calls.
+These persist in `BURD_TEMP_DIR` (never auto-cleaned). Token is valid up to 30 days (GitLab
+project access token lifetime).
+
+**Fix:** BCG says "Secrets use `_capture` functions, never temp files." Applied the same
+principle to HTTP request bodies: pipe secret payload via stdin using `jq | rbgu_http_json
+... "-"`. `rbgu_http_json` already uses `-d @"${body_file}"` — passing `-` as body file
+yields `-d @-` (curl stdin convention). Secret never touches filesystem. No changes to
+`rbgu_http_json` needed.
+
+**Specs (RBS0, RBSDC):** No changes needed — specs describe what data goes to the API,
+not how the body is transmitted. The stdin pipe is an implementation improvement.
