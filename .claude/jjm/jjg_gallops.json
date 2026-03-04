@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "An",
+  "next_heat_seed": "Ao",
   "heat_order": [
     "₣Am",
     "₣AD",
@@ -21,7 +21,8 @@
     "₣AZ",
     "₣Aa",
     "₣Ac",
-    "₣Ak"
+    "₣Ak",
+    "₣An"
   ],
   "heats": {
     "₣AD": {
@@ -6021,6 +6022,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAlm.md",
+      "paces": {}
+    },
+    "₣An": {
+      "silks": "jjk-v4-release-and-legacy-removal",
+      "creation_time": "260304",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAln.md",
       "paces": {}
     }
   }
