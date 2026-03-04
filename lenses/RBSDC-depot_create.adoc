@@ -198,10 +198,12 @@ link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.sec
 .. Construct service agent: `service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
 .. For each of the 3 secrets:
 ... {rbbc_call}
-link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy]
-... Add Cloud Build service agent with `roles/secretmanager.secretAccessor`
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/getIamPolicy[secrets.getIamPolicy] — must succeed (HTTP 200) before modification. Die on failure; never fall back to empty policy.
+... Add Cloud Build service agent to `roles/secretmanager.secretAccessor` in the existing policy (read-modify-write)
+... {rbbc_call}
+link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy] with the updated policy
 .. {rbbc_require}
-all IAM bindings successful
+all IAM bindings successful — existing bindings preserved
 
 //axhos_step
 . *Grant Cloud Build service agent connection admin*:

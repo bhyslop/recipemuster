@@ -595,9 +595,8 @@ rbgg_create_director() {
   rbgu_http_json "POST" "${z_director_secret_iam_get_url}" "${z_token}" "director_secret_get_iam"
   local z_director_secret_get_code
   z_director_secret_get_code=$(rbgu_http_code_capture "director_secret_get_iam") || z_director_secret_get_code=""
-  if test "${z_director_secret_get_code}" != "200"; then
-    rbgu_write_vanilla_json "director_secret_get_iam"
-  fi
+  test "${z_director_secret_get_code}" = "200" \
+    || buc_die "Failed to read IAM policy on secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} (HTTP ${z_director_secret_get_code}) — cannot safely add Director binding without reading existing policy"
 
   local z_director_secret_updated_policy
   z_director_secret_updated_policy=$(rbgu_jq_add_member_to_role_capture "director_secret_get_iam" \

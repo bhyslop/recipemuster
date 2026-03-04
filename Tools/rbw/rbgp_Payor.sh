@@ -900,9 +900,8 @@ rbgp_depot_create() {
   rbgu_http_json "POST" "${z_api_iam_get_url}" "${z_token}" "depot_secret_get_iam_api"
   local z_api_iam_code
   z_api_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_api") || z_api_iam_code=""
-  if test "${z_api_iam_code}" != "200"; then
-    rbgu_write_vanilla_json "depot_secret_get_iam_api"
-  fi
+  test "${z_api_iam_code}" = "200" \
+    || buc_die "Failed to read IAM policy on secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} (HTTP ${z_api_iam_code}) — cannot safely grant access without reading existing policy"
 
   local z_api_updated_policy
   z_api_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam_api" \
@@ -922,9 +921,8 @@ rbgp_depot_create() {
   rbgu_http_json "POST" "${z_read_iam_get_url}" "${z_token}" "depot_secret_get_iam_read"
   local z_read_iam_code
   z_read_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_read") || z_read_iam_code=""
-  if test "${z_read_iam_code}" != "200"; then
-    rbgu_write_vanilla_json "depot_secret_get_iam_read"
-  fi
+  test "${z_read_iam_code}" = "200" \
+    || buc_die "Failed to read IAM policy on secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME} (HTTP ${z_read_iam_code}) — cannot safely grant access without reading existing policy"
 
   local z_read_updated_policy
   z_read_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam_read" \
@@ -944,9 +942,8 @@ rbgp_depot_create() {
   rbgu_http_json "POST" "${z_wh_iam_get_url}" "${z_token}" "depot_secret_get_iam_webhook"
   local z_wh_iam_code
   z_wh_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_webhook") || z_wh_iam_code=""
-  if test "${z_wh_iam_code}" != "200"; then
-    rbgu_write_vanilla_json "depot_secret_get_iam_webhook"
-  fi
+  test "${z_wh_iam_code}" = "200" \
+    || buc_die "Failed to read IAM policy on secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME} (HTTP ${z_wh_iam_code}) — cannot safely grant access without reading existing policy"
 
   local z_wh_updated_policy
   z_wh_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam_webhook" \
