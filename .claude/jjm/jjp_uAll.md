@@ -56,18 +56,17 @@ The roadmap (RBSCB) treats private pools as current posture and both hardening
 tiers as future stages — every depot must be on private pools to keep that path open.
 
 Additionally, pricing is essentially identical (~$0.003/vCPU-min, 1.0-1.13x ratio),
-and the conditional in `zrbf_stitch_build_json` (`if pool != "" then pool.name else
-machineType end`) creates two code paths, two depot configurations, two things to
-debug. One path, well-tested, is better.
+and the conditional in `zrbf_stitch_build_json` created two code paths, two depot
+configurations, two things to debug. One path, well-tested, is better.
 
-**What changes:**
-- `RBRR_GCB_WORKER_POOL` becomes **required** in regime (1-512 chars, not 0-512)
-- `zrbf_stitch_build_json`: remove conditional, always emit `pool.name`
-- `rbgd_DepotConstants.sh`: remove default-pool quota check path
-- `depot_create`: always create worker pool (workerPools API)
-- `depot_destroy`: always delete worker pool
-- `RBRR_GCB_MACHINE_TYPE`: may become dead (pool config specifies machine type)
-  — verify during implementation
+**What changed** _(completed by ₢AlAAB)_**:**
+- `RBRR_GCB_WORKER_POOL` became **required** in regime (1-512 chars, not 0-512)
+- `zrbf_stitch_build_json`: conditional removed, always emits `pool.name`
+- `rbgd_DepotConstants.sh`: default-pool quota check path removed
+- `depot_create`: always creates worker pool (workerPools API)
+- `depot_destroy`: always deletes worker pool
+- `RBRR_GCB_MACHINE_TYPE`: survives with changed meaning — Compute Engine type
+  (e.g. `e2-standard-2`) consumed at pool creation time, not build-time enum
 
 ### Current State
 
