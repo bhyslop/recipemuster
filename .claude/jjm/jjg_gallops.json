@@ -7832,10 +7832,24 @@
       "silks": "rbw-e2e-cbv2-provenance",
       "creation_time": "260303",
       "status": "racing",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AlAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
-      "paces": {}
+      "paces": {
+        "₢AlAAA": {
+          "tacks": [
+            {
+              "ts": "260303-1814",
+              "state": "rough",
+              "text": "Full sequential e2e from clean state with SLSA v1.0 provenance verification.\n\n## Prerequisites\n\n- ₢AiABD (declarative IAM policy writes) landed in ₣Ai\n- All 7 vessel cloudbuild.json regenerated after skopeo split step addition\n- Pin refresh will occur during depot create\n\n## Procedure\n\nOperator-guided, phase-gated:\n\n**Phase 1: Destroy + Create**\n1. Destroy existing demo1015 depot\n2. Create depot with CB v2 connection (PAT + installation ID via stdin)\n3. Verify: Secret Manager secret, CB v2 connection COMPLETE, CB v2 repository exists\n\n**Phase 2: Roles + Pins**\n4. Governor reset, create director, create retriever\n5. Verify: Director SA has secretAccessor on PAT secret (₢AiABD fix)\n6. Refresh pins — verify RBRR_GCB_SKOPEO_IMAGE_REF gets real digest\n7. Commit updated pins\n\n**Phase 3: Inscribe + Dispatch**\n8. Inscribe — verify no auto-fired builds (₢AiABC fix)\n9. Dispatch busybox build via triggers.run\n10. Wait for build success — all steps including skopeo split + SBOM\n\n**Phase 4: Provenance**\n11. Query Container Analysis API for SLSA v1.0 provenance on image digest\n12. Confirm inTotoSlsaProvenanceV1 exists\n13. Confirm builder.id, source metadata, trigger URI present\n\n**Phase 5: Fleet**\n14. Dispatch additional vessels beyond busybox\n\n## Acceptance Criteria\n\n- Busybox build succeeds via triggers.run\n- SLSA v1.0 provenance confirmed on produced artifact\n- IAM bindings survive full lifecycle (no stale-read overwrites)\n- No auto-fired builds during inscribe\n- Skopeo split + Syft SBOM succeeds\n- PAT never appears in logs or transcripts",
+              "silks": "e2e-full-depot-lifecycle-provenance",
+              "commit": "c23fb69"
+            }
+          ]
+        }
+      }
     }
   }
 }
