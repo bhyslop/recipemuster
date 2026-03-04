@@ -4725,9 +4725,10 @@
         "₢AiAA3",
         "₢AiAA8",
         "₢AiABA",
-        "₢AiABB"
+        "₢AiABB",
+        "₢AiABC"
       ],
-      "next_pace_seed": "ABC",
+      "next_pace_seed": "ABD",
       "paddock_file": ".claude/jjm/jjp_uAli.md",
       "paces": {
         "₢AiAA-": {
@@ -6618,6 +6619,17 @@
               "text": "RBSRC-retriever_create.adoc is a high-level summary with no step-by-step\noperations, while RBSDI-director_create.adoc has detailed steps including\nSA creation, key generation, propagation verification, and role grants.\n\nBoth follow the same pattern (Governor creates a role SA with key + RBRA)\nand should be specified at the same level of detail.\n\nOptions:\n1. Flesh out RBSRC to match RBSDI's step-by-step detail\n2. Extract shared steps into a common pattern/template and have both\n   documents reference it\n\nAlso update RBSRC SA verification step to include poll-with-backoff\nlanguage matching the RBSDI fix from ₢AiAA0.\n\n## Target files\n- lenses/RBSRC-retriever_create.adoc\n- lenses/RBSDI-director_create.adoc (reference for pattern)\n\n## Acceptance criteria\n- Both specs describe operations at the same level of detail\n- SA propagation verification documented with poll/backoff in both",
               "silks": "align-rbsrc-detail-with-rbsdi",
               "commit": "dad35a9"
+            }
+          ]
+        },
+        "₢AiABC": {
+          "tacks": [
+            {
+              "ts": "260303-1715",
+              "state": "rough",
+              "text": "Remove push filter from rubric triggers to prevent inscribe from auto-firing all 7 builds.\n\n## Problem\n\nTriggers are configured with `push: { branch: \"^main$\" }`. When inscribe pushes to the\nrubric repo's main branch, all 7 triggers fire automatically. This is unintended — builds\nshould only dispatch via explicit `triggers.run` calls from `rbf_build`.\n\n## Changes Required\n\n### Code\n- `rbf_Foundry.sh`: Remove `push` filter from trigger creation in `rbf_rubric_inscribe`\n  (the jq block near line 1252 that builds the trigger body). The trigger should have\n  `repositoryEventConfig.repository` but NO `push` filter — making it manual-dispatch-only.\n- Existing triggers need to be updated or recreated without the push filter. Consider\n  whether `triggers.patch` can remove the push filter, or if delete+recreate is needed.\n\n### Specs\n- `lenses/RBSRI-rubric_inscribe.adoc`: Update trigger creation step to document that\n  triggers are manual-dispatch-only (no push filter).\n- `lenses/RBSTB-trigger_build.adoc`: Confirm dispatch-only semantics are documented.\n- `lenses/RBSDC-depot_create.adoc`: If trigger creation is referenced, ensure no push\n  filter is specified.\n- Paddock: Add session decision explaining why push triggers were removed (inscribe\n  push fires all 7 builds unintentionally; explicit dispatch matches zero-override design).\n\n### Verification\n- After fix, inscribe push should NOT trigger any builds\n- Manual `rbf_build` dispatch via `triggers.run` should still work\n- Existing triggers on demo1015 depot need updating\n\n## Acceptance Criteria\n- Trigger bodies have no `push` filter\n- Inscribe push produces zero builds\n- `rbf_build` dispatch still succeeds\n- Specs updated to reflect manual-dispatch-only design",
+              "silks": "fix-trigger-push-filter-removes-auto-fire",
+              "commit": "1fc29d1"
             }
           ]
         }
