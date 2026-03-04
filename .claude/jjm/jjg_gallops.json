@@ -433,7 +433,6 @@
         "₢AGAAK",
         "₢AGAAL",
         "₢AGAAI",
-        "₢AGAAP",
         "₢AGAAQ"
       ],
       "next_pace_seed": "AAR",
@@ -526,24 +525,6 @@
               "text": "Rename JSON schema field \"direction\" to \"warrant\" in tack records.\n\nCompanion to json-schema-text-to-docket (₢AGAAK). Same pattern:\n1. Remove serde rename attribute (or change field name) in jjrt_types.rs\n2. Migrate existing gallops JSON: s/\"direction\":/\"warrant\":/g\n3. Update documentation referencing the JSON schema\n\nBreaking: Changes JSON schema. All existing gallops files must be migrated.\n\nAcceptance: JSON files use \"warrant\" key. Round-trip validation passes. All tests pass.",
               "silks": "json-schema-direction-to-warrant",
               "commit": "8e1572b"
-            }
-          ]
-        },
-        "₢AGAAP": {
-          "tacks": [
-            {
-              "ts": "260221-1323",
-              "state": "rough",
-              "text": "Remove paddock_file from jjrg_Heat struct; it is computed by jjdr_load and never\nmeaningfully stored. Its presence in gallops.json is noise.\n\n## What changed since this pace was drafted\n\nThe ₣Ag implementation took a different shape than originally planned:\n- `jjdr_load` now recomputes `paddock_file` from the firemark on every load,\n  ignoring whatever is stored in JSON\n- The existence check + mv instructions remain as permanent behavior (not a shim)\n- The stored `paddock_file` value is now dead data written to JSON on every save\n\n## Work\n\n1. **`jjrt_types.rs`** — Remove `paddock_file` field from `jjrg_Heat` struct.\n   With serde's default behavior, unknown fields are silently ignored on\n   deserialization, so old gallops files load without error. However the\n   round-trip check will fail because original JSON has `paddock_file` and\n   re-serialized output won't.\n\n2. **`jjri_io.rs` (`jjdr_load`)** — Before the round-trip check, scan raw JSON\n   bytes (or the deserialized struct) for presence of `paddock_file` in any heat.\n   If found, return a clear error:\n   ```\n   Deprecated paddock_file fields found in gallops.json.\n   Remove paddock_file from all heats in gallops.json, then re-run.\n   Affected heats: AF, AG, ...\n   ```\n   This is a one-time manual edit — Claude Code can do it trivially from the\n   error message. After removal, round-trip passes and JJK proceeds normally.\n\n3. **All callsites using `heat.paddock_file`** — Replace with inline\n   `jjri_paddock_path(bare_firemark)`. Search for `.paddock_file` across the\n   codebase to find all sites (retire, curry, chalk, etc.).\n\n4. **Remove the legacy existence check + mv instructions** from `jjdr_load` —\n   at breaking-change time all projects are assumed migrated; the instructions\n   are no longer needed.\n\n## Prerequisite\n\nAll projects must have completed the ₣Ag migration (ul-encoded paddock files\npresent, no legacy raw-firemark files remaining).\n\n## Files\n\njjrt_types.rs (remove field), jjri_io.rs (pre-check + remove existence block),\nany file using heat.paddock_file (retire, curry, chalk ops)",
-              "silks": "harden-paddock-encoding",
-              "commit": "ce4802b"
-            },
-            {
-              "ts": "260221-1301",
-              "state": "rough",
-              "text": "Remove legacy paddock filename detection shim; make ul-encoded names mandatory.\n\n## Context\n\nThis pace is the breaking-change cleanup that follows ₣Ag's `paddock-filename-encoding`\nimplementation. Once all gallops files have been migrated (ul-encoded paddock names\nwritten, legacy names absent), this shim is dead weight.\n\n## What to remove\n\nIn jjri_io.rs: delete the load-time legacy detection loop that fatals with repair\ninstructions. After this change, JJK will simply fail to find/open a paddock file\nif it doesn't exist at the expected ul-encoded path — no special error message, no\nrecovery guidance. The assumption is that legacy files no longer exist.\n\nIn jjro_ops.rs: no change needed (nominate already writes ul-encoded names after ₣Ag).\n\n## Prerequisite\n\n₣Ag `paddock-filename-encoding` pace must be complete and all live gallops files\nmust have been migrated through the fatal-out repair cycle.\n\n## Files\n\njjri_io.rs (remove legacy detection block)",
-              "silks": "harden-paddock-encoding",
-              "commit": "0bd195e"
             }
           ]
         },
@@ -5949,9 +5930,10 @@
         "₢AmAAD",
         "₢AmAAE",
         "₢AmAAF",
-        "₢AmAAG"
+        "₢AmAAG",
+        "₢AmAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAlm.md",
       "paces": {
         "₢AmAAA": {
@@ -6098,6 +6080,31 @@
               "text": "Design and implement a \"snip\" operation for paces.\n\n## Concept\n\nMidway through executing a pace, the runner realizes a chunk of remaining work belongs in a separate pace (typically the one immediately following). The snip operation:\n\n1. Creates a new pace positioned immediately after the current pace\n2. Moves the \"snipped\" steps from the current pace's docket into the new pace's docket\n3. Revises the current pace's docket to remove those steps\n\n## Context\n\nThis typically arises at wrap time — the runner wants to wrap the current pace but recognizes some planned steps weren't done and belong in their own pace rather than being abandoned or crammed in.\n\n## Vocabulary TBD\n\nNeed good naming. Candidates to consider:\n- snip (cutting thread)\n- cleave (splitting)\n- shear (cutting wool — fits equestrian theme)\n- fork (splitting path)\n- calve (splitting off)\n\nThe verb should feel natural in the JJ equestrian vocabulary.\n\n## Schema Implications\n\nMay need a new CLI command (jjx_snip or similar). Likely composes existing primitives (enroll + revise_docket) but having a dedicated command ensures atomicity and correct positioning.\n\n## Open Questions\n\n- Should snip only work on the currently-active pace, or any pace?\n- Should it auto-position after current, or allow positioning?\n- How to handle the docket split — interactive, or provide both halves?\n- Should the snipped pace inherit any properties (markers, state)?",
               "silks": "pace-snip-operation",
               "commit": "3b1e8db"
+            }
+          ]
+        },
+        "₢AmAAH": {
+          "tacks": [
+            {
+              "ts": "260304-1504",
+              "state": "rough",
+              "text": "Drafted from ₢AGAAP in ₣AG.\n\nRemove paddock_file from jjrg_Heat struct; it is computed by jjdr_load and never\nmeaningfully stored. Its presence in gallops.json is noise.\n\n## What changed since this pace was drafted\n\nThe ₣Ag implementation took a different shape than originally planned:\n- `jjdr_load` now recomputes `paddock_file` from the firemark on every load,\n  ignoring whatever is stored in JSON\n- The existence check + mv instructions remain as permanent behavior (not a shim)\n- The stored `paddock_file` value is now dead data written to JSON on every save\n\n## Work\n\n1. **`jjrt_types.rs`** — Remove `paddock_file` field from `jjrg_Heat` struct.\n   With serde's default behavior, unknown fields are silently ignored on\n   deserialization, so old gallops files load without error. However the\n   round-trip check will fail because original JSON has `paddock_file` and\n   re-serialized output won't.\n\n2. **`jjri_io.rs` (`jjdr_load`)** — Before the round-trip check, scan raw JSON\n   bytes (or the deserialized struct) for presence of `paddock_file` in any heat.\n   If found, return a clear error:\n   ```\n   Deprecated paddock_file fields found in gallops.json.\n   Remove paddock_file from all heats in gallops.json, then re-run.\n   Affected heats: AF, AG, ...\n   ```\n   This is a one-time manual edit — Claude Code can do it trivially from the\n   error message. After removal, round-trip passes and JJK proceeds normally.\n\n3. **All callsites using `heat.paddock_file`** — Replace with inline\n   `jjri_paddock_path(bare_firemark)`. Search for `.paddock_file` across the\n   codebase to find all sites (retire, curry, chalk, etc.).\n\n4. **Remove the legacy existence check + mv instructions** from `jjdr_load` —\n   at breaking-change time all projects are assumed migrated; the instructions\n   are no longer needed.\n\n## Prerequisite\n\nAll projects must have completed the ₣Ag migration (ul-encoded paddock files\npresent, no legacy raw-firemark files remaining).\n\n## Files\n\njjrt_types.rs (remove field), jjri_io.rs (pre-check + remove existence block),\nany file using heat.paddock_file (retire, curry, chalk ops)",
+              "silks": "harden-paddock-encoding",
+              "commit": "6b6a216"
+            },
+            {
+              "ts": "260221-1323",
+              "state": "rough",
+              "text": "Remove paddock_file from jjrg_Heat struct; it is computed by jjdr_load and never\nmeaningfully stored. Its presence in gallops.json is noise.\n\n## What changed since this pace was drafted\n\nThe ₣Ag implementation took a different shape than originally planned:\n- `jjdr_load` now recomputes `paddock_file` from the firemark on every load,\n  ignoring whatever is stored in JSON\n- The existence check + mv instructions remain as permanent behavior (not a shim)\n- The stored `paddock_file` value is now dead data written to JSON on every save\n\n## Work\n\n1. **`jjrt_types.rs`** — Remove `paddock_file` field from `jjrg_Heat` struct.\n   With serde's default behavior, unknown fields are silently ignored on\n   deserialization, so old gallops files load without error. However the\n   round-trip check will fail because original JSON has `paddock_file` and\n   re-serialized output won't.\n\n2. **`jjri_io.rs` (`jjdr_load`)** — Before the round-trip check, scan raw JSON\n   bytes (or the deserialized struct) for presence of `paddock_file` in any heat.\n   If found, return a clear error:\n   ```\n   Deprecated paddock_file fields found in gallops.json.\n   Remove paddock_file from all heats in gallops.json, then re-run.\n   Affected heats: AF, AG, ...\n   ```\n   This is a one-time manual edit — Claude Code can do it trivially from the\n   error message. After removal, round-trip passes and JJK proceeds normally.\n\n3. **All callsites using `heat.paddock_file`** — Replace with inline\n   `jjri_paddock_path(bare_firemark)`. Search for `.paddock_file` across the\n   codebase to find all sites (retire, curry, chalk, etc.).\n\n4. **Remove the legacy existence check + mv instructions** from `jjdr_load` —\n   at breaking-change time all projects are assumed migrated; the instructions\n   are no longer needed.\n\n## Prerequisite\n\nAll projects must have completed the ₣Ag migration (ul-encoded paddock files\npresent, no legacy raw-firemark files remaining).\n\n## Files\n\njjrt_types.rs (remove field), jjri_io.rs (pre-check + remove existence block),\nany file using heat.paddock_file (retire, curry, chalk ops)",
+              "silks": "harden-paddock-encoding",
+              "commit": "ce4802b"
+            },
+            {
+              "ts": "260221-1301",
+              "state": "rough",
+              "text": "Remove legacy paddock filename detection shim; make ul-encoded names mandatory.\n\n## Context\n\nThis pace is the breaking-change cleanup that follows ₣Ag's `paddock-filename-encoding`\nimplementation. Once all gallops files have been migrated (ul-encoded paddock names\nwritten, legacy names absent), this shim is dead weight.\n\n## What to remove\n\nIn jjri_io.rs: delete the load-time legacy detection loop that fatals with repair\ninstructions. After this change, JJK will simply fail to find/open a paddock file\nif it doesn't exist at the expected ul-encoded path — no special error message, no\nrecovery guidance. The assumption is that legacy files no longer exist.\n\nIn jjro_ops.rs: no change needed (nominate already writes ul-encoded names after ₣Ag).\n\n## Prerequisite\n\n₣Ag `paddock-filename-encoding` pace must be complete and all live gallops files\nmust have been migrated through the fatal-out repair cycle.\n\n## Files\n\njjri_io.rs (remove legacy detection block)",
+              "silks": "harden-paddock-encoding",
+              "commit": "0bd195e"
             }
           ]
         }
