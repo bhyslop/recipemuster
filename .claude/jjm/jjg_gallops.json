@@ -429,7 +429,6 @@
       "status": "stabled",
       "order": [
         "₢AGAAA",
-        "₢AGAAB",
         "₢AGAAC",
         "₢AGAAD",
         "₢AGAAH",
@@ -461,17 +460,6 @@
               "text": "Add 'express' pace state for heavy human intervention. Prevents Claude from incorrectly assuming autonomous solvability.\n\n**Problem:** Claude sometimes presumes it can solve things when it can't. Current states (rough, bridled, complete, abandoned) don't signal 'needs significant human guidance.'\n\n**Proposed state:** express (or similar name TBD)\n- Signals: 'human must drive this, Claude assists'\n- Opposite of bridled: bridled = autonomous, express = human-led\n\n**Schema change:** Add to PaceState enum in jjrg_gallops.rs\n\n**Workflow implications to muse:**\n- mount: How does express affect pace selection? Skip for autonomous mount?\n- bridle: Can't bridle an express pace (mutual exclusion)\n- saddle: Include express paces in output? With flag?\n- groom: Surface express paces prominently\n- State transitions: rough → express? express → complete?\n\n**Open questions:**\n- Name: express, guided, manual, assisted?\n- Can a pace transition bridled ↔ express? Or only from rough?\n- Does mount skip express paces entirely, or show them with warning?",
               "silks": "express-pace-state",
               "commit": "81b30f5"
-            }
-          ]
-        },
-        "₢AGAAB": {
-          "tacks": [
-            {
-              "ts": "260120-1801",
-              "state": "rough",
-              "text": "Consider moving itches into the gallops data structure. The gallops model is working well for heats/paces, and itches would benefit from the same structured treatment (queryable, linkable to heats they spawn, managed via jjx_* commands). This is a breaking change with schema, migration, and command implications. When working on this heat, evaluate whether this problem warrants its own dedicated heat — it probably does. Note: a search feature is in the queue and may inform itch schema decisions.",
-              "silks": "consider-itches-in-gallops",
-              "commit": "225fd21"
             }
           ]
         },
@@ -6047,10 +6035,31 @@
       "silks": "jjk-v5-notional",
       "creation_time": "260304",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AmAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAlm.md",
-      "paces": {}
+      "paces": {
+        "₢AmAAA": {
+          "tacks": [
+            {
+              "ts": "260304-1503",
+              "state": "rough",
+              "text": "Drafted from ₢AGAAB in ₣AG.\n\nConsider moving itches into the gallops data structure. The gallops model is working well for heats/paces, and itches would benefit from the same structured treatment (queryable, linkable to heats they spawn, managed via jjx_* commands). This is a breaking change with schema, migration, and command implications. When working on this heat, evaluate whether this problem warrants its own dedicated heat — it probably does. Note: a search feature is in the queue and may inform itch schema decisions.",
+              "silks": "consider-itches-in-gallops",
+              "commit": "03507a9"
+            },
+            {
+              "ts": "260120-1801",
+              "state": "rough",
+              "text": "Consider moving itches into the gallops data structure. The gallops model is working well for heats/paces, and itches would benefit from the same structured treatment (queryable, linkable to heats they spawn, managed via jjx_* commands). This is a breaking change with schema, migration, and command implications. When working on this heat, evaluate whether this problem warrants its own dedicated heat — it probably does. Note: a search feature is in the queue and may inform itch schema decisions.",
+              "silks": "consider-itches-in-gallops",
+              "commit": "225fd21"
+            }
+          ]
+        }
+      }
     },
     "₣An": {
       "silks": "jjk-v4-release-and-legacy-removal",
