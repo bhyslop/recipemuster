@@ -449,6 +449,13 @@
         "₢AGAAA": {
           "tacks": [
             {
+              "ts": "260304-1503",
+              "state": "abandoned",
+              "text": "Add 'express' pace state for heavy human intervention. Prevents Claude from incorrectly assuming autonomous solvability.\n\n**Problem:** Claude sometimes presumes it can solve things when it can't. Current states (rough, bridled, complete, abandoned) don't signal 'needs significant human guidance.'\n\n**Proposed state:** express (or similar name TBD)\n- Signals: 'human must drive this, Claude assists'\n- Opposite of bridled: bridled = autonomous, express = human-led\n\n**Schema change:** Add to PaceState enum in jjrg_gallops.rs\n\n**Workflow implications to muse:**\n- mount: How does express affect pace selection? Skip for autonomous mount?\n- bridle: Can't bridle an express pace (mutual exclusion)\n- saddle: Include express paces in output? With flag?\n- groom: Surface express paces prominently\n- State transitions: rough → express? express → complete?\n\n**Open questions:**\n- Name: express, guided, manual, assisted?\n- Can a pace transition bridled ↔ express? Or only from rough?\n- Does mount skip express paces entirely, or show them with warning?",
+              "silks": "express-pace-state",
+              "commit": "edd33e1"
+            },
+            {
               "ts": "260119-0941",
               "state": "rough",
               "text": "Add 'express' pace state for heavy human intervention. Prevents Claude from incorrectly assuming autonomous solvability.\n\n**Problem:** Claude sometimes presumes it can solve things when it can't. Current states (rough, bridled, complete, abandoned) don't signal 'needs significant human guidance.'\n\n**Proposed state:** express (or similar name TBD)\n- Signals: 'human must drive this, Claude assists'\n- Opposite of bridled: bridled = autonomous, express = human-led\n\n**Schema change:** Add to PaceState enum in jjrg_gallops.rs\n\n**Workflow implications to muse:**\n- mount: How does express affect pace selection? Skip for autonomous mount?\n- bridle: Can't bridle an express pace (mutual exclusion)\n- saddle: Include express paces in output? With flag?\n- groom: Surface express paces prominently\n- State transitions: rough → express? express → complete?\n\n**Open questions:**\n- Name: express, guided, manual, assisted?\n- Can a pace transition bridled ↔ express? Or only from rough?\n- Does mount skip express paces entirely, or show them with warning?",
