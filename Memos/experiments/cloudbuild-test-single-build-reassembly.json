@@ -1,0 +1,65 @@
+{
+  "steps": [
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "create-dockerfile",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "cat > /workspace/Dockerfile <<'DOCKEOF'\nFROM busybox:latest\nWORKDIR /app\nRUN adduser -D appuser\nUSER appuser\nCMD [\"echo\", \"BusyBox container is running!\"]\nDOCKEOF\necho 'Dockerfile created'"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "qemu-binfmt",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "docker run --privileged --rm docker.io/tonistiigi/binfmt@sha256:8db0f28060565399642110b798c6c35efcac7c5b3b48c56d36503d3b4d8f93c8 --install arm64,arm"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "buildx-push-multi",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "docker buildx create --driver docker-container --name rb-builder --use\ndocker buildx build \\\n  --push \\\n  --platform=linux/amd64,linux/arm64,linux/arm/v7 \\\n  --tag us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-multi \\\n  -f /workspace/Dockerfile \\\n  /workspace\necho 'Multi-platform push complete'"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "pullback-amd64",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "docker pull --platform linux/amd64 us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-multi\ndocker tag us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-multi us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-amd64"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "pullback-arm64",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "docker pull --platform linux/arm64 us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-multi\ndocker tag us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-multi us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-arm64"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "pullback-armv7",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "docker pull --platform linux/arm/v7 us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-multi\ndocker tag us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-multi us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-armv7"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "push-per-platform",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "IMAGE=us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox\necho '=== Pushing per-platform tags to registry ==='\ndocker push $${IMAGE}:varG-amd64\ndocker push $${IMAGE}:varG-arm64\ndocker push $${IMAGE}:varG-armv7\necho '=== Push complete ==='"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "imagetools-create",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "IMAGE=us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox\necho '=== Creating multi-platform manifest from per-platform images ==='\ndocker buildx imagetools create \\\n  -t $${IMAGE}:varG-combined \\\n  $${IMAGE}:varG-amd64 \\\n  $${IMAGE}:varG-arm64 \\\n  $${IMAGE}:varG-armv7\necho '=== Inspecting combined manifest ==='\ndocker buildx imagetools inspect $${IMAGE}:varG-combined"]
+    }
+  ],
+  "images": [
+    "us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-amd64",
+    "us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-arm64",
+    "us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:varG-armv7"
+  ],
+  "options": {
+    "requestedVerifyOption": "VERIFIED",
+    "logging": "CLOUD_LOGGING_ONLY",
+    "pool": {
+      "name": "projects/rbwg-d-demo1025-260304183118/locations/us-central1/workerPools/rbw-demo1025-pool"
+    }
+  },
+  "timeout": "1200s"
+}
