@@ -70,9 +70,9 @@ configurations, two things to debug. One path, well-tested, is better.
 
 ### Current State
 
-**Depot demo1015** exists with CB v2 GitLab connection. Rubric repo at
+**Depot demo1025** exists with CB v2 GitLab connection and private pool. Rubric repo at
 `gitlab.com/bhyslop/rb-rubric.git`. 7 vessel triggers created.
-**Will be destroyed and rebuilt on GitLab with private pool.**
+Busybox builds and pushes successfully.
 
 **All known issues from ₣Ai e2e (2026-03-03) are FIXED:**
 1. Push triggers fired on inscribe push — FIXED (₢AiABC: unmatchable branch filter)
@@ -80,12 +80,26 @@ configurations, two things to debug. One path, well-tested, is better.
 3. Syft multi-platform OCI layout — FIXED (₢AiABE: skopeo split)
 4. Build step `dir` field missing — FIXED in ₣Ai
 
+### Provenance Research Complete (₢AlAAI, 2026-03-05)
+
+Busybox build succeeded but `slsa_build_level: "unknown"` — no provenance.
+Research found that the OCI Layout Bridge (crane push) is structurally
+incompatible with CB-native SLSA provenance. Adding `requestedVerifyOption:
+VERIFIED` or `images:` to the current pipeline would BREAK builds, not just
+skip provenance.
+
+**Primary path:** Test whether buildx --push can replace crane (₢AlAAK), then
+test pull-back + images: + VERIFIED for CB-native SLSA (₢AlAAL). Cosign is
+fallback only.
+
+**Full research:** `Memos/memo-20260305-provenance-architecture-gap.md`
+
 ### What This Heat Verifies
 
 - Full lifecycle: destroy → create (with private pool) → roles → pins → inscribe → dispatch → provenance
 - GitLab CB v2 connection (validated, per ₣Ai migration)
 - Private pool created by depot_create, used by all builds
-- SLSA v1.0 provenance exists on trigger-invoked builds
+- SLSA v1.0 provenance exists on trigger-invoked builds (requires push path restructuring)
 - IAM bindings survive the full depot lifecycle (declarative policy writes)
 - Skopeo split + Syft SBOM succeeds on multi-platform builds
 - No auto-fired builds during inscribe (unmatchable push filter)
@@ -107,6 +121,7 @@ depot create — `RBRR_GCB_SKOPEO_IMAGE_REF` will get a real digest at that time
 - `Tools/rbw/rbf_Foundry.sh` — Stitch function + build dispatch
 - `Tools/rbw/rbgjb/*.sh` — Step scripts (source of truth)
 - `Memos/memo-20260303-cloudbuild-trigger-anatomy.md` — Trigger body research
+- `Memos/memo-20260305-provenance-architecture-gap.md` — Provenance research + experiment plan
 - `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md` — BCG patterns
 - CB v2 API: https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections
 - SLSA provenance: https://cloud.google.com/build/docs/securing-builds/generate-validate-build-provenance
