@@ -5858,6 +5858,7 @@
         "₢AlAAK",
         "₢AlAAL",
         "₢AlAAJ",
+        "₢AlAAM",
         "₢AlAAH",
         "₢AlAAG",
         "₢AlAAE",
@@ -5867,7 +5868,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6146,6 +6147,17 @@
               "text": "Test whether pulling a buildx-pushed image back into Docker's local store enables\nCB-native SLSA provenance via images: + requestedVerifyOption: VERIFIED.\n\n## Prerequisites\n\n- test-buildx-push-gar (₢AlAAK) succeeded\n\n## Context\n\nCB-native SLSA provenance requires the image in Docker's local store for the\nimages: field push. docker pull of a multi-platform manifest pulls only the host\nplatform (linux/amd64 on CB workers). If CB can push this single-platform image\nvia images: and generate provenance, we may use a dual-tag scheme.\n\n## Experiment\n\nOn demo1025, manually submit a build that:\n1. Steps 01-04 as normal\n2. buildx --push multi-platform image as TAG-image (per ₢AlAAK)\n3. docker pull IMAGE_URI (pulls linux/amd64 into local daemon)\n4. Declare pulled image in images: field\n5. Set requestedVerifyOption: VERIFIED in options\n\n## Key Questions\n\n- Does docker pull succeed on the just-pushed multi-platform manifest?\n- Does CB's images: push overwrite the multi-platform manifest? (destructive?)\n- Does provenance attach to the image digest?\n- What slsa_build_level is reported?\n\n## Verification\n\n```\ngcloud artifacts docker images describe IMAGE --show-provenance --format=json\n```\n\n## Acceptance Criteria\n\n- slsa_build_level is NOT \"unknown\"\n- Multi-platform manifest (from --push) survives alongside provenance\n- OR: documented failure mode explaining exactly where the chain breaks",
               "silks": "test-pullback-images-verified",
               "commit": "432ed7b"
+            }
+          ]
+        },
+        "₢AlAAM": {
+          "tacks": [
+            {
+              "ts": "260304-2015",
+              "state": "rough",
+              "text": "Update RBSCB-CloudBuildRoadmap.adoc with crystallized provenance posture based on\nconfirmed experiment results.\n\n## Prerequisites\n\n- test-buildx-push-gar (₢AlAAK), test-pullback-images-verified (₢AlAAL),\n  and stitch-provenance-fix (₢AlAAJ) all complete\n\n## Scope\n\n- Correct \"SLSA v1.0 provenance is automatic\" in Current Posture (line 29-33)\n- Update OCI Layout Bridge reference (line 68-71) with push path outcome\n- Update Deferred Items: cosign (157-166) and BinAuth (168-171) based on results\n- Add provenance architecture section if experiment results warrant it\n- Reference memo-20260305-provenance-architecture-gap.md as research source\n\n## Acceptance Criteria\n\n- RBSCB states only confirmed facts, not hypotheses\n- Deferred Items reflect current reality\n- No \"we are still trying\" language in the roadmap",
+              "silks": "rbscb-provenance-posture-update",
+              "commit": "fd227fb"
             }
           ]
         }
