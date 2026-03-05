@@ -424,4 +424,18 @@ buc_link() {
   fi
 }
 
+######################################################################
+# Remit infrastructure — structured multi-value return with sentinel
+
+readonly BUC_REMIT_VALID="REMIT_OK"
+readonly BUC_REMIT_DELIMITER="|"
+
+buc_remit_assert() {
+  local z_sentinel="${1:-}"
+  local z_context="${2:-}"
+
+  test "${z_sentinel}" = "${BUC_REMIT_VALID}" \
+    || buc_die "${z_context}: remit sentinel invalid (got '${z_sentinel}')"
+}
+
 # eof
