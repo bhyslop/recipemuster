@@ -20,23 +20,6 @@ Secret Manager). No browser OAuth consent flow. Connection + repository created
 during `depot_create`. GitLab chosen over GitHub for repository-scoped PAT
 security (see ₣Ai trophy, `rbgm_gitlab_setup()`).
 
-**Build pipeline (10 steps, stitched by `zrbf_stitch_build_json`):**
-1. derive-tag-base (gcloud)
-2. get-docker-token (gcloud)
-3. docker-login-gar (docker)
-4. qemu-binfmt (docker)
-5. build-and-export (docker) — OCI Layout Bridge Phase 1
-6. push-with-crane (alpine) — OCI Layout Bridge Phase 2
-7. **split-oci-platform (skopeo)** — extracts linux/amd64 from multi-platform layout
-8. sbom-and-summary (docker) — Syft scans single-platform layout
-9. assemble-metadata (alpine)
-10. build-and-push-metadata (docker)
-
-**Skopeo split (₢AiABE):** Step 07b uses skopeo to extract a single-platform
-OCI layout from the multi-platform archive so Syft can generate SBOMs
-(workaround for anchore/syft#1545). SBOM output is per-platform:
-`sbom.linux_amd64.spdx.json`.
-
 **Key regime variables:**
 - `RBRR_RUBRIC_REPO_URL` — plain HTTPS URL to rubric repo (no credentials)
 - `RBRR_CBV2_CONNECTION_NAME` — CB v2 connection identifier
@@ -48,31 +31,123 @@ OCI layout from the multi-platform archive so Syft can generate SBOMs
 
 **Burn the default-pool bridge.** Every depot gets a private pool. No conditional
 path in stitch, no "optional" regime variable, no two configurations to debug.
+See ₢AlAAB for details.
 
-**Rationale:** Private pools are the prerequisite for higher security tiers.
-VPC Service Controls (data exfiltration perimeter) **only works with private pools**.
-NO_PUBLIC_EGRESS (build worker network isolation) **requires private pools**.
-The roadmap (RBSCB) treats private pools as current posture and both hardening
-tiers as future stages — every depot must be on private pools to keep that path open.
+### Decision: Single-Arch First (2026-03-05)
 
-Additionally, pricing is essentially identical (~$0.003/vCPU-min, 1.0-1.13x ratio),
-and the conditional in `zrbf_stitch_build_json` created two code paths, two depot
-configurations, two things to debug. One path, well-tested, is better.
+**Build SLSA provenance capability incrementally.** Single-architecture vessels
+get full SLSA v1.0 Level 3 provenance first. Multi-platform provenance is a
+separate future initiative, tackled only after single-arch is battle-tested with
+statistically many images.
 
-**What changed** _(completed by ₢AlAAB)_**:**
-- `RBRR_GCB_WORKER_POOL` became **required** in regime (1-512 chars, not 0-512)
-- `zrbf_stitch_build_json`: conditional removed, always emits `pool.name`
-- `rbgd_DepotConstants.sh`: default-pool quota check path removed
-- `depot_create`: always creates worker pool (workerPools API)
-- `depot_destroy`: always deletes worker pool
-- `RBRR_GCB_MACHINE_TYPE`: survives with changed meaning — Compute Engine type
-  (e.g. `e2-standard-2`) consumed at pool creation time, not build-time enum
+**Rationale:** CB-native SLSA requires images in Docker's local store via
+`images:` field. Docker's local store is single-platform only. Multi-platform
+manifests cannot exist in the local store. Single-arch vessels sidestep this
+entirely — `docker buildx build --load` puts the image in the local daemon,
+`images:` + `VERIFIED` generates SLSA Level 3.
+
+**What this means for vessels:**
+- Single-arch vessels get full SLSA provenance immediately
+- Multi-platform vessels are rejected by stitch with a clear error
+- Busybox bifurcated into rbev-busybox-amd64 and rbev-busybox-arm64
+- trbim-macos is already arm64-only — free test target
+- Other multi-platform vessels (5 total) remain as-is but cannot build
+  until either: (a) they are bifurcated, or (b) multi-platform provenance
+  is implemented
+
+**Multi-platform provenance — future work (not in this heat):**
+- CB structural limitation: `images:` can only push single-platform from daemon
+- Possible paths: per-platform pullback, cosign on manifest list, or accept
+  discrete per-platform images as the provenance unit
+- Will be a separate heat once single-arch baseline is established
+
+### Provenance Experiments Validated (₢AlAAK, ₢AlAAL, 2026-03-05)
+
+Three experiments on demo1025 via `gcloud builds submit --no-source`:
+
+| Experiment | Build ID | Result |
+|---|---|---|
+| Variant A: buildx --push with docker login | a3e5c2d7 | SUCCESS |
+| Variant B: buildx --push ADC only | 4de1467a | SUCCESS (docker login unnecessary) |
+| Provenance: --push + pullback + images: + VERIFIED | 48b818ed | SLSA Level 3 |
+
+**Critical finding:** Cloud Build pre-populates `/builder/home/.docker/config.json`
+with oauth2accesstoken for ALL GAR regions. Steps 02 (get-docker-token) and
+03 (docker-login-gar) are completely unnecessary.
+
+**Toolchain versions (confirmed working):**
+- Docker Engine 20.10.24, buildx v0.23.0, BuildKit moby/buildkit:buildx-stable-1
+- Builder image: gcr.io/cloud-builders/docker@sha256:efdbd755...
+
+**Full evidence:** `Memos/memo-20260305-provenance-architecture-gap.md`
+
+### Pipeline: Before and After
+
+**Before (10 steps, OCI Layout Bridge):**
+1. derive-tag-base (gcloud)
+2. get-docker-token (gcloud) — REMOVING
+3. docker-login-gar (docker) — REMOVING
+4. qemu-binfmt (docker)
+5. build-and-export (docker → OCI tar) — REPLACING with --load
+6. push-with-crane (alpine) — REMOVING
+7. split-oci-platform (skopeo) — REMOVING (single-arch)
+8. sbom-and-summary (docker/syft) — REWORKING (scan local daemon image)
+9. assemble-metadata (alpine) — REWORKING (derive URI from substitutions)
+10. build-and-push-metadata (docker)
+
+**After (single-arch, ~6 steps + images: push):**
+1. derive-tag-base
+2. qemu-binfmt (if cross-arch, e.g., arm64 on amd64 worker)
+3. build-and-load (buildx --load, single platform)
+4. sbom (Syft scans local daemon image)
+5. assemble-metadata (derive URI from substitutions)
+6. build-and-push-metadata
++ `images:` field triggers CB-native push + SLSA provenance
++ `requestedVerifyOption: VERIFIED` in options
+
+### Pace Threading (provenance track)
+
+Dependency chain for single-arch SLSA:
+
+```
+₢AlAAJ stitch-single-arch-slsa      Pipeline code (stitch + step scripts)
+  │
+  ├─→ ₢AlAAN bifurcate-busybox       Vessel directories (can parallel with AlAAJ)
+  │     │
+  │     v
+  └──→ ₢AlAAO verify-single-arch-e2e  Live infrastructure: inscribe → dispatch → verify
+          │
+          v
+        ₢AlAAP spec-single-arch-prov   RBS0, RBSOB updates (confirmed facts only)
+          │
+          v
+        ₢AlAAM rbscb-posture-update    Roadmap crystallization
+```
+
+₢AlAAJ and ₢AlAAN are independent — can execute in parallel.
+₢AlAAO requires both complete + possibly depot cycle for new triggers.
+₢AlAAP and ₢AlAAM require verified results — state only confirmed facts.
+
+### Vessel Landscape
+
+| Vessel | Current Platforms | Status |
+|---|---|---|
+| rbev-busybox | amd64, arm64, arm/v7 | Bifurcating into -amd64 and -arm64 |
+| rbev-busybox-amd64 | (new) linux/amd64 | Created by ₢AlAAN |
+| rbev-busybox-arm64 | (new) linux/arm64 | Created by ₢AlAAN |
+| trbim-macos | arm64 | Already single-arch, free test target |
+| rbev-bottle-anthropic-jupyter | amd64, arm64 | Multi-platform, deferred |
+| rbev-bottle-plantuml | amd64, arm64 | Multi-platform, deferred |
+| rbev-bottle-ubuntu-test | amd64, arm64 | Multi-platform, deferred |
+| rbev-sentry-ubuntu-large | amd64, arm64 | Multi-platform, deferred |
+| rbev-ubu-safety | amd64, arm64 | Multi-platform, deferred |
+| rbev-nginx-ward | (bind mode) | No build |
 
 ### Current State
 
-**Depot demo1025** exists with CB v2 GitLab connection and private pool. Rubric repo at
-`gitlab.com/bhyslop/rb-rubric.git`. 7 vessel triggers created.
-Busybox builds and pushes successfully.
+**Depot demo1025** exists with CB v2 GitLab connection and private pool.
+Rubric repo at `gitlab.com/bhyslop/rb-rubric.git`. 7 vessel triggers created.
+Busybox builds and pushes successfully (no provenance yet — pipeline not updated).
 
 **All known issues from ₣Ai e2e (2026-03-03) are FIXED:**
 1. Push triggers fired on inscribe push — FIXED (₢AiABC: unmatchable branch filter)
@@ -80,31 +155,8 @@ Busybox builds and pushes successfully.
 3. Syft multi-platform OCI layout — FIXED (₢AiABE: skopeo split)
 4. Build step `dir` field missing — FIXED in ₣Ai
 
-### Provenance Research Complete (₢AlAAI, 2026-03-05)
-
-Busybox build succeeded but `slsa_build_level: "unknown"` — no provenance.
-Research found that the OCI Layout Bridge (crane push) is structurally
-incompatible with CB-native SLSA provenance. Adding `requestedVerifyOption:
-VERIFIED` or `images:` to the current pipeline would BREAK builds, not just
-skip provenance.
-
-**Primary path:** Test whether buildx --push can replace crane (₢AlAAK), then
-test pull-back + images: + VERIFIED for CB-native SLSA (₢AlAAL). Cosign is
-fallback only.
-
-**Full research:** `Memos/memo-20260305-provenance-architecture-gap.md`
-
-### What This Heat Verifies
-
-- Full lifecycle: destroy → create (with private pool) → roles → pins → inscribe → dispatch → provenance
-- GitLab CB v2 connection (validated, per ₣Ai migration)
-- Private pool created by depot_create, used by all builds
-- SLSA v1.0 provenance exists on trigger-invoked builds (requires push path restructuring)
-- IAM bindings survive the full depot lifecycle (declarative policy writes)
-- Skopeo split + Syft SBOM succeeds on multi-platform builds
-- No auto-fired builds during inscribe (unmatchable push filter)
-- PAT never appears in logs or transcripts
-- All 7 vessels inscribe and at least busybox dispatches successfully
+**Depot may need destroy+create cycle** for new vessel triggers (busybox-amd64,
+busybox-arm64). User pre-approved depot reconfiguration (2026-03-05).
 
 ## Build Requirements
 
@@ -121,7 +173,7 @@ depot create — `RBRR_GCB_SKOPEO_IMAGE_REF` will get a real digest at that time
 - `Tools/rbw/rbf_Foundry.sh` — Stitch function + build dispatch
 - `Tools/rbw/rbgjb/*.sh` — Step scripts (source of truth)
 - `Memos/memo-20260303-cloudbuild-trigger-anatomy.md` — Trigger body research
-- `Memos/memo-20260305-provenance-architecture-gap.md` — Provenance research + experiment plan
+- `Memos/memo-20260305-provenance-architecture-gap.md` — Provenance research + experiment results
 - `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md` — BCG patterns
 - CB v2 API: https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections
 - SLSA provenance: https://cloud.google.com/build/docs/securing-builds/generate-validate-build-provenance
