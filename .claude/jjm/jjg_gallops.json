@@ -5889,6 +5889,7 @@
         "₢AlAAP",
         "₢AlAAQ",
         "₢AlAAR",
+        "₢AlAAU",
         "₢AlAAS",
         "₢AlAAT",
         "₢AlAAM",
@@ -5901,7 +5902,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6528,6 +6529,17 @@
               "text": "End-to-end verification of multi-platform SLSA provenance on a live\ntrigger-dispatched build.\n\n## Prerequisites\n\n- ₢AlAAS (stitch-multiplatform-provenance) complete\n- demo1025 depot with CB v2 connection and private pool\n\n## Scope\n\n1. Inscribe the original `rbev-busybox` vessel (3 platforms: amd64, arm64, arm/v7)\n   using the updated stitch function\n2. Verify generated cloudbuild.json has correct multi-platform structure\n3. Trigger dispatch (push to rubric repo)\n4. Wait for build completion\n5. Verify SLSA Level 3 on each per-platform image\n6. Verify same buildInvocationId across all platforms\n7. Verify manifest list reassembly produced transparent multi-platform tag\n8. Verify `docker pull` of the combined tag resolves correctly\n\n## Cleanup considerations\n\n- Bifurcated vessels (rbev-busybox-amd64, rbev-busybox-arm64) can be removed\n  after successful verification, or retained as single-arch test targets\n- Decision deferred to this pace\n\n## Acceptance Criteria\n\n- rbev-busybox builds with 3 platforms via trigger dispatch\n- SLSA Level 3 on all 3 per-platform images\n- Same buildInvocationId proves single-build origin\n- Multi-platform manifest list resolves correctly\n- Results documented in memo",
               "silks": "verify-multiplatform-provenance-e2e",
               "commit": "b4676c1"
+            }
+          ]
+        },
+        "₢AlAAU": {
+          "tacks": [
+            {
+              "ts": "260305-1518",
+              "state": "rough",
+              "text": "Update RBS0 specification to document the resolved multi-platform metadata\narchitecture decisions from ₢AlAAS design discussions.\n\n## Prerequisites\n\n- ₢AlAAR (spec-multiplatform-provenance) complete — base architecture documented\n\n## Context\n\n₢AlAAR documented the multi-platform provenance pipeline architecture in RBS0\n(buildx --push, pullback, imagetools create, experiment build IDs). However,\nseveral decisions were resolved AFTER ₢AlAAR was wrapped:\n\n- Per-platform SBOMs in multi-platform -about container (Decision 2)\n- FROM scratch + TARGETARCH/TARGETVARIANT metadata container build (Decision 5)\n- Per-platform build_info.json with SLSA summary fields (Decision 6)\n- The -about container becoming multi-platform (mirroring -image)\n- Tag scheme for -about (same {TAG_BASE}-about tag, now multi-platform)\n\nThese are recorded in the paddock and ₢AlAAS docket but not yet in RBS0.\n\n## Scope\n\n### RBS0-SpecTop.adoc\n\nUpdate or add definitions for:\n\n- rbtga_ark_about: update to reflect multi-platform -about container with\n  per-platform content (SBOM + build_info per architecture)\n- rbtgi_metadata: update to note per-platform SBOMs and SLSA summary fields\n  in build_info.json\n- Document build_info.json fields: platform string, image digest, QEMU used,\n  slsa_build_level, build_invocation_id, provenance_predicate_types,\n  provenance_builder_id (shared fields: build ID, timestamps, git commit,\n  vessel name)\n- Document the FROM scratch + TARGETARCH/TARGETVARIANT build pattern for\n  metadata containers\n- Note: -about uses buildx --push (not docker build + docker push) for\n  multi-platform vessels; reuses the buildx builder instance from the\n  main image build\n\n### What NOT to change\n\n- The rbtgr_provenance definition (already updated by ₢AlAAR)\n- The multi-platform pipeline step sequence (already updated post-₢AlAAR)\n- Single-arch vessel behavior documentation\n\n## Acceptance Criteria\n\n- RBS0 metadata/about definitions reflect multi-platform architecture\n- build_info.json field inventory documented\n- FROM scratch + TARGETARCH pattern documented\n- No speculative language — only confirmed design decisions\n- Consistent with paddock Decisions 2-6 section",
+              "silks": "spec-multiplatform-metadata",
+              "commit": "0c27317"
             }
           ]
         }
