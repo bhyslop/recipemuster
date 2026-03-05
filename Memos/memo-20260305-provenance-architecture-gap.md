@@ -424,3 +424,131 @@ Priority: exhaust CB-native SLSA path before considering cosign.
 4. **rbscb-provenance-posture-update** — Crystallize provenance posture in RBSCB
    roadmap based on confirmed results.
 5. **test-cosign-keyless-signing** — NOT NEEDED. CB-native SLSA path succeeded.
+
+## Multi-Platform Rejoining Research (2026-03-05)
+
+Web research conducted to assess viability of the multi-platform provenance
+rejoining path — can individually-attested per-platform images be reassembled
+into a multi-platform manifest list while preserving provenance?
+
+### Finding 1: CB `images:` field accepts a list, each gets independent provenance
+
+The `images:` field in `cloudbuild.json` accepts multiple URIs. When
+`requestedVerifyOption: VERIFIED` is set, Cloud Build generates separate SLSA
+provenance attestation for each image in the list. This is documented in the
+[build config schema](https://cloud.google.com/build/docs/build-config-file-schema)
+and [provenance docs](https://cloud.google.com/build/docs/securing-builds/generate-validate-build-provenance).
+
+This means a single build invocation can declare `IMAGE:TAG-amd64`,
+`IMAGE:TAG-arm64`, `IMAGE:TAG-armv7` in `images:` and each gets SLSA Level 3
+with the same `buildInvocationId`.
+
+### Finding 2: `docker buildx imagetools create` preserves attestations
+
+Per [buildx PR #3433](https://github.com/docker/buildx/pull/3433) and
+[Docker docs](https://docs.docker.com/reference/cli/docker/buildx/imagetools/create/),
+`docker buildx imagetools create` now persists attestation manifests (including
+provenance and cosign signatures) when combining per-platform images into a
+multi-platform index. It operates registry-side — no local daemon needed for
+the reassembly step.
+
+Previously, combining single-arch manifests dropped their attestation manifests.
+This has been fixed. The command loads attestation manifests from the referrers
+API when the attestation is not inlined in the source manifest.
+
+This is the key mechanism for reconstructing a multi-platform manifest list
+from individually-attested images without losing provenance.
+
+### Finding 3: CB workers use classic Docker image store
+
+CB workers run Docker Engine 20.10.24 with the classic image store — not the
+containerd image store. The classic store is single-platform only; it cannot
+hold manifest lists or multiple platform variants of the same image.
+
+The [containerd image store](https://docs.docker.com/desktop/features/containerd/)
+would enable native multi-platform local storage, but CB doesn't have it.
+If Google upgrades CB workers to containerd in the future, the pullback
+strategy would become unnecessary — `--load` could load multi-platform images
+directly. Until then, the pullback path is required.
+
+### Finding 4: `docker pull --platform` for cross-arch has edge cases
+
+The `--platform` flag on `docker pull` is available in Docker 20.10+ with
+Experimental: true (confirmed on CB workers). It allows pulling a specific
+architecture variant from a multi-platform manifest.
+
+However, there are [reported edge cases](https://github.com/docker/for-mac/issues/5625)
+where `docker pull --platform` silently falls back to the host architecture
+on Docker Desktop. CB workers are different (Linux daemon, not Desktop), but
+this reinforces why Variant B (digest-based pulls) is preferred over
+Variant A (`--platform` flag pulls).
+
+Digest-based pulls (`docker pull IMAGE@sha256:...`) are unambiguous — no
+platform resolution needed, no silent fallback risk.
+
+### Finding 5: BuildKit attaches per-platform attestations on multi-platform builds
+
+BuildKit (used by `docker buildx build --push`) stores provenance attestations
+per-platform in the OCI image index. Each platform-specific manifest gets its
+own attestation manifest, stored alongside the runnable manifests in the index
+under `unknown/unknown` platform entries with an annotation linking to the
+target platform manifest digest.
+
+This means multi-platform `buildx --push` already generates BuildKit-level
+provenance on each platform. The CB-native SLSA provenance (from `images:` +
+VERIFIED) is additive — it provides Google-signed, BinAuth-compatible
+attestation on top of BuildKit's own attestations.
+
+### Synthesized Rejoining Path
+
+If ₢AlAAQ experiment succeeds, the full multi-platform provenance pipeline:
+
+```
+Step 1: qemu-binfmt
+Step 2: buildx --push --platform linux/amd64,linux/arm64 → IMAGE:TAG-multi
+Step 3: imagetools inspect --raw IMAGE:TAG-multi | jq → per-platform digests
+Step 4: docker pull IMAGE@sha256:<amd64-digest>; docker tag → IMAGE:TAG-amd64
+Step 5: docker pull IMAGE@sha256:<arm64-digest>; docker tag → IMAGE:TAG-arm64
+Step 6: sbom, metadata (existing steps)
+images: [IMAGE:TAG-amd64, IMAGE:TAG-arm64]
+options: { requestedVerifyOption: VERIFIED }
+```
+
+Post-build (or as a final build step):
+```
+docker buildx imagetools create -t IMAGE:TAG IMAGE:TAG-amd64 IMAGE:TAG-arm64
+```
+
+This creates `IMAGE:TAG` as a multi-platform manifest list. Each per-platform
+image retains its CB-native SLSA provenance. Consumers run `docker pull IMAGE:TAG`,
+get routed to their platform, and that platform image has SLSA Level 3.
+
+### Key Risk
+
+The untested link: can CB's `images:` field push a foreign-arch image from the
+local daemon? When `docker pull --platform linux/arm64` or
+`docker pull IMAGE@sha256:<arm64-digest>` runs on an amd64 worker, the arm64
+image sits in the local daemon. `images:` needs to push it. Since `images:`
+pushes bytes (it doesn't execute the image), this should work — but it is
+exactly what ₢AlAAQ tests.
+
+### Architectural Intent
+
+Bifurcation of vessels into per-architecture variants (e.g., `rbev-busybox-amd64`,
+`rbev-busybox-arm64`) is temporary scaffolding for the single-arch milestone.
+The target architecture is that vessels remain multi-platform, with per-platform
+CB-native SLSA provenance generated within a single build invocation and a
+multi-platform manifest list reassembled via `imagetools create`.
+
+### Sources
+
+- [Cloud Build provenance generation](https://docs.google.com/build/docs/securing-builds/generate-validate-build-provenance)
+- [Build config file schema (images field)](https://cloud.google.com/build/docs/build-config-file-schema)
+- [Docker multi-platform builds](https://docs.docker.com/build/building/multi-platform/)
+- [Docker containerd image store](https://docs.docker.com/desktop/features/containerd/)
+- [BuildKit attestation storage](https://github.com/moby/buildkit/blob/master/docs/attestations/attestation-storage.md)
+- [docker buildx imagetools create](https://docs.docker.com/reference/cli/docker/buildx/imagetools/create/)
+- [imagetools attestation preservation (PR #3433)](https://github.com/docker/buildx/pull/3433)
+- [Docker image attestation storage](https://docs.docker.com/build/metadata/attestations/attestation-storage/)
+- [docker pull --platform fallback issue](https://github.com/docker/for-mac/issues/5625)
+- [Docker roadmap: multi-platform image store](https://github.com/docker/roadmap/issues/371)

@@ -183,9 +183,9 @@ with oauth2accesstoken for ALL GAR regions. Steps 02 (get-docker-token) and
 
 | Vessel | Current Platforms | Status |
 |---|---|---|
-| rbev-busybox | amd64, arm64, arm/v7 | Bifurcating into -amd64 and -arm64 |
-| rbev-busybox-amd64 | (new) linux/amd64 | Created by ₢AlAAN |
-| rbev-busybox-arm64 | (new) linux/arm64 | Created by ₢AlAAN |
+| rbev-busybox | amd64, arm64, arm/v7 | Retained multi-platform; stitch rejects until multi-platform support |
+| rbev-busybox-amd64 | linux/amd64 | CREATED (₢AlAAN) — binfmt deny (native on CB workers) |
+| rbev-busybox-arm64 | linux/arm64 | CREATED (₢AlAAN) — binfmt allow (QEMU on amd64 workers) |
 | trbim-macos | arm64 | Already single-arch, free test target |
 | rbev-bottle-anthropic-jupyter | amd64, arm64 | Multi-platform, deferred |
 | rbev-bottle-plantuml | amd64, arm64 | Multi-platform, deferred |
@@ -193,6 +193,23 @@ with oauth2accesstoken for ALL GAR regions. Steps 02 (get-docker-token) and
 | rbev-sentry-ubuntu-large | amd64, arm64 | Multi-platform, deferred |
 | rbev-ubu-safety | amd64, arm64 | Multi-platform, deferred |
 | rbev-nginx-ward | (bind mode) | No build |
+
+### Bifurcation Policy (₢AlAAN, 2026-03-05)
+
+**Original `rbev-busybox`:** Kept as-is with 3-platform config. The single-arch
+gate in stitch (₢AlAAJ) rejects it at inscribe time. It remains available for
+future multi-platform provenance work (₢AlAAQ path). No trigger needed until
+multi-platform support lands.
+
+**Other multi-platform vessels** (5 total: anthropic-jupyter, plantuml,
+ubuntu-test, sentry-ubuntu-large, ubu-safety): Unchanged. Same stitch gate
+rejects them. They are NOT bifurcated — bifurcation is only for the busybox
+test target. Production vessels will wait for native multi-platform provenance.
+
+**Single-arch test targets for ₢AlAAO e2e:**
+- `rbev-busybox-amd64` — native build on CB amd64 workers (no QEMU)
+- `rbev-busybox-arm64` — cross-build via QEMU on CB amd64 workers
+- `trbim-macos` — existing arm64-only vessel (zero changes needed)
 
 ### Current State
 
