@@ -5825,6 +5825,13 @@
         "₢AkAAX": {
           "tacks": [
             {
+              "ts": "260304-1959",
+              "state": "rough",
+              "text": "Ensure bottle start auto-pulls missing images instead of dying with a tabtarget hint.\n\nCurrently `rbob_start` (Tools/rbw/rbob_bottle.sh lines 310-322) checks if sentry/bottle images are local and dies with `buc_tabtarget` hints if missing. The consecration is already known from the nameplate (`RBRN_*_CONSECRATION`), and `rbf_summon` works with Retriever credentials.\n\nChange: when an image is missing, auto-invoke `rbf_summon` with the vessel+consecration from the nameplate instead of dying. Log what's happening so the user sees the pull activity. Die only if the summon itself fails.\n\nFiles:\n- `Tools/rbw/rbob_bottle.sh` — replace die-with-hint blocks with auto-summon calls (sentry ~line 310, bottle ~line 317)\n\nDesign note: The Retriever role doesn't need consecration discovery — the nameplate IS the selection mechanism. Directors browse with `rbf_beseech`; Retrievers trust the committed nameplate and pull what it says.",
+              "silks": "muse-retriever-list-consecrations",
+              "commit": "28e0a5c"
+            },
+            {
               "ts": "260304-1941",
               "state": "rough",
               "text": "Investigate whether the Retriever should support listing consecrations (not just images). Currently `rbf_list` lists images in a depot, but there's no operation to enumerate the consecrations (tagged artifact groups) themselves. Consider:\n\n- Is there a user need to see \"what consecrations exist in this depot\" vs \"what images exist\"?\n- Would this be a distinct tabtarget or a flag on the existing list operation?\n- How does this relate to the ark/vessel/consecration vocabulary in RBSRV?\n\nThis is a design musing — capture findings and recommendation, not implementation.",
