@@ -5874,6 +5874,7 @@
         "₢AlAAJ",
         "₢AlAAN",
         "₢AlAAO",
+        "₢AlAAP",
         "₢AlAAM",
         "₢AlAAH",
         "₢AlAAG",
@@ -5884,7 +5885,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6273,6 +6274,17 @@
               "text": "End-to-end verification of single-arch SLSA v1.0 provenance on live infrastructure.\n\n## Prerequisites\n\n- ₢AlAAJ (stitch-single-arch-slsa) complete — pipeline code ready\n- ₢AlAAN (bifurcate-busybox-single-arch) complete — vessels exist\n\n## Context\n\nPipeline code and vessels are ready. This pace exercises them on demo1025\n(or a fresh depot if needed) to prove SLSA Level 3 on trigger-dispatched builds.\n\n## Scope\n\n### Infrastructure preparation\n\n- If new vessel sigils need triggers: depot destroy + create cycle\n  (user pre-approved depot reconfiguration)\n- Pin refresh during depot create\n- Governor reset, director/retriever creation as needed\n\n### Test A: amd64 SLSA\n\n1. Inscribe rbev-busybox-amd64: `tt/rbw-DI.DirectorInscribesRubric.sh`\n2. Dispatch: `tt/rbw-DC.DirectorConjuresArk.sh rbev-vessels/rbev-busybox-amd64`\n3. Verify: `gcloud artifacts docker images describe ... --show-provenance`\n4. Confirm: `slsa_build_level: 3`\n\n### Test B: arm64 SLSA (cross-arch on amd64 worker)\n\n1. Inscribe rbev-busybox-arm64\n2. Dispatch\n3. Verify SLSA provenance\n4. This proves QEMU + buildx --load + images: works for foreign arch\n\n### Test C: trbim-macos (existing arm64 vessel)\n\n1. Inscribe trbim-macos (already single-arch arm64)\n2. Dispatch\n3. Verify SLSA provenance\n4. Proves the pipeline works on a pre-existing single-arch vessel\n\n### Verification checklist (per image)\n\n- `slsa_build_level: 3`\n- Both v0.1 and v1 provenance occurrences present\n- Builder ID is `GoogleHostedWorker`\n- Build steps recorded in provenance predicate\n- SBOM generated correctly from local daemon image\n\n## Acceptance Criteria\n\n- SLSA Level 3 on trigger-dispatched amd64 busybox\n- SLSA Level 3 on trigger-dispatched arm64 busybox\n- SLSA Level 3 on trigger-dispatched trbim-macos\n- All three images inspectable via `--show-provenance`\n- No 401/403 auth errors in build logs\n- SBOM present on all three images\n- Results documented in paddock for downstream spec paces",
               "silks": "verify-single-arch-slsa-e2e",
               "commit": "24bd6c4"
+            }
+          ]
+        },
+        "₢AlAAP": {
+          "tacks": [
+            {
+              "ts": "260305-1218",
+              "state": "rough",
+              "text": "Update specifications to reflect validated single-arch SLSA v1.0 provenance.\n\n## Prerequisites\n\n- ₢AlAAO (verify-single-arch-slsa-e2e) complete — confirmed facts only\n\n## Context\n\nWith SLSA Level 3 confirmed on live trigger-dispatched builds for both amd64\nand arm64, update specs to reflect reality. State only confirmed facts.\n\n## Scope\n\n### RBS0-SpecTop.adoc (lines ~1455-1472)\n\n- Remove \"Architectural constraint\" paragraph about OCI Layout Bridge\n- Update `rbtgr_provenance` definition: single-arch vessels produce SLSA\n  Level 3 via `--load` + `images:` + `VERIFIED`\n- Document that multi-platform provenance is not yet supported\n- Reference experiment evidence (memo, build IDs)\n- Note: CB pre-populates Docker credentials (steps 02/03 eliminated)\n\n### RBSOB-oci_layout_bridge.adoc\n\n- Mark OCI Layout Bridge as superseded for single-arch vessels\n- Explain why: buildx --load puts image in local daemon directly\n- Note: may be revisited for multi-platform provenance path\n- Do not delete — historical record and potential future use\n\n### Paddock update\n\n- Record spec changes and their basis in verified experiment results\n\n## Acceptance Criteria\n\n- RBS0 provenance definition states only confirmed, tested facts\n- No \"we hope\" or \"should work\" language in specs\n- RBSOB clearly marks superseded status with rationale\n- All spec assertions traceable to experiment build IDs",
+              "silks": "spec-single-arch-provenance",
+              "commit": "cfc6111"
             }
           ]
         }
