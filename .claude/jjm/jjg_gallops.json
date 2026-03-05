@@ -5855,6 +5855,7 @@
       "status": "racing",
       "order": [
         "₢AlAAI",
+        "₢AlAAK",
         "₢AlAAJ",
         "₢AlAAH",
         "₢AlAAG",
@@ -5865,7 +5866,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6122,6 +6123,17 @@
               "text": "Apply provenance fix to zrbf_stitch_build_json based on research findings from ₢AlAAI.\n\n## Prerequisites\n\n- ₢AlAAI (research-cloudbuild-provenance-mechanics) complete with clear recommendation\n\n## Scope\n\n- Update `zrbf_stitch_build_json` in `Tools/rbw/rbf_Foundry.sh` per research findings\n- At minimum: add `requestedVerifyOption: VERIFIED` to build options\n- If `images:` field needed: determine how to declare the pushed image URI/digest\n- Re-inscribe on current demo1025 depot (no depot recreation needed)\n- Dispatch busybox build and verify SLSA provenance appears on the image\n\n## Acceptance Criteria\n\n- `gcloud artifacts docker images describe ... --show-provenance` returns provenance data\n- `slsa_build_level` is not \"unknown\"\n- Provenance includes builder.id, source metadata, trigger URI\n- All 7 vessel cloudbuild.json regenerated and committed",
               "silks": "stitch-provenance-fix",
               "commit": "18c2543"
+            }
+          ]
+        },
+        "₢AlAAK": {
+          "tacks": [
+            {
+              "ts": "260304-2014",
+              "state": "rough",
+              "text": "Test whether docker buildx build --push can push multi-platform images directly\nto GAR from Cloud Build, eliminating the OCI Layout Bridge.\n\n## Context\n\nResearch (Memos/memo-20260305-provenance-architecture-gap.md) found multiple\ndocumented examples of buildx --push working in Cloud Build using ADC from\ngcr.io/cloud-builders/docker. If confirmed, this eliminates crane (step 07)\nand simplifies the pipeline. Prerequisite for CB-native SLSA provenance path.\n\n## Experiment\n\nOn demo1025, manually submit a build that:\n1. Uses existing steps 01-04 (tag, token, login, qemu)\n2. Replaces steps 05+06 with: docker buildx build --push --platform=linux/amd64,linux/arm64,linux/arm/v7 --tag IMAGE_URI\n3. Keeps steps 07b-09 (skopeo split, SBOM, metadata) reading from registry\n   instead of /workspace — OR skip those and just verify push succeeded\n\n## Verification\n\n- Image appears in GAR with correct multi-platform manifest\n- All 3 platforms present: `gcloud artifacts docker images list ... --include-tags`\n- Build completes without 401/403 errors\n\n## Key Risk\n\n1-hour token expiry (docker/buildx#1205) — busybox build is fast so not a\nconcern, but note for larger vessels.\n\n## Acceptance Criteria\n\n- Multi-platform image successfully pushed to GAR via buildx --push\n- OR: documented failure mode with error details",
+              "silks": "test-buildx-push-gar",
+              "commit": "52eead6"
             }
           ]
         }
