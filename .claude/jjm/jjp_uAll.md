@@ -70,46 +70,40 @@ like `TAG_BASE` (which includes the build timestamp from step 01). Therefore:
 (reads from local daemon via Docker socket) instead of `oci-dir:` (which
 required the OCI Layout Bridge). Step 04 mounts `/var/run/docker.sock`.
 
-### Multi-Platform Provenance: Viable Path Identified (research 2026-03-05)
+### Multi-Platform Provenance: VALIDATED (₢AlAAQ, 2026-03-05)
 
-CB structural constraint: `images:` can only push single-platform from the
-Docker daemon (classic image store, Docker 20.10.24). The goal remains full
-SLSA v1.0 on multi-platform images.
+**Full path proven.** Per-platform pullback produces SLSA v1.0 Level 3 on all
+platforms within a single build invocation.
 
-**Web research (2026-03-05) identified a viable rejoining path:**
+**Experiment 4** (build `b3fd60c7`): `buildx --push` 3 platforms → `docker pull
+--platform` each arch → tag individually → `images:` declares all 3 →
+SLSA Level 3 on amd64, arm64, armv7. Same `buildInvocationId` proves
+single-build origin. Uses Variant A (`--platform` flag), not digest-based
+pulls (Variant B `docker manifest inspect` failed with "no such manifest").
 
-1. CB `images:` field accepts a list — each URI gets independent SLSA
-   provenance (documented in CB build config schema and provenance docs).
-2. `docker buildx imagetools create` now preserves attestation manifests when
-   combining per-platform images into a multi-platform index (buildx PR #3433).
-   Operates registry-side, no local daemon needed for reassembly.
-3. BuildKit already generates per-platform attestations on `--push`
-   multi-platform builds. CB-native SLSA (from `images:`) is additive.
+**Experiment 5** (build `8cd7b713`): `imagetools create` reassembles per-platform
+images into multi-platform manifest list. Per-platform SLSA provenance preserved.
+Combined manifest itself has `slsa_build_level: unknown` (expected — CB didn't
+build the manifest list), but consumers get transparent platform resolution to
+attested per-platform images.
 
-**Synthesized path (₢AlAAQ will validate):**
-- `buildx --push` multi-platform → extract per-platform digests via
-  `imagetools inspect --raw` → pull each by digest into local daemon →
-  tag individually → declare all in `images:` → CB provenance on each →
-  then `imagetools create` to reconstruct multi-platform manifest list
+**Key findings:**
+- `docker pull --platform` works on CB workers (Docker 20.10.24, Experimental: true)
+- Foreign-arch images pushed successfully by `images:` (CB pushes bytes, not execution)
+- `$${VAR}` escaping required for shell variables in cloudbuild.json
+- `jq` not available in `gcr.io/cloud-builders/docker`
 
-**Key untested link:** Can `images:` push a foreign-arch image from the local
-daemon? This is exactly what ₢AlAAQ Variant B tests.
+**Full evidence:** `Memos/memo-20260305-provenance-architecture-gap.md`
+(sections: "Multi-Platform Provenance Experiment Results", "Validated Multi-Platform Provenance Architecture")
 
-**Full research evidence:** `Memos/memo-20260305-provenance-architecture-gap.md`
-(section: "Multi-Platform Rejoining Research")
+### Architectural Intent: Bifurcation No Longer Necessary
 
-### Architectural Intent: Bifurcation Is Temporary
-
-Vessel bifurcation (`rbev-busybox-amd64`, `rbev-busybox-arm64`) is scaffolding
-for the single-arch provenance milestone. The target architecture is that
-vessels remain multi-platform with `RBRV_CONJURE_PLATFORMS` containing multiple
-platforms. If ₢AlAAQ succeeds, the stitch function gains a multi-platform code
-path: `--push` + per-platform pullback + multi-URI `images:` + manifest
-reassembly via `imagetools create`. Single-platform vessels keep the simpler
-`--load` path.
-
-Whether results lead to implementation in this heat or a successor heat
-is a decision for after the experiment.
+Vessel bifurcation (`rbev-busybox-amd64`, `rbev-busybox-arm64`) was scaffolding
+for the single-arch milestone. With ₢AlAAQ validated, multi-platform vessels can
+retain `RBRV_CONJURE_PLATFORMS` with multiple platforms. The stitch function
+needs two code paths: `--load` for single-platform vessels, `--push` +
+per-platform pullback + multi-URI `images:` + `imagetools create` reassembly
+for multi-platform vessels.
 
 ### Provenance Experiments Validated (₢AlAAK, ₢AlAAL, 2026-03-05)
 

@@ -1,0 +1,17 @@
+{
+  "steps": [
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "reassemble-manifest",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "IMAGE=us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox\necho '=== Creating multi-platform manifest from per-platform images ==='\ndocker buildx imagetools create \\\n  -t $${IMAGE}:varB-combined \\\n  $${IMAGE}:varB-amd64 \\\n  $${IMAGE}:varB-arm64 \\\n  $${IMAGE}:varB-armv7\necho '=== Inspecting combined manifest ==='\ndocker buildx imagetools inspect $${IMAGE}:varB-combined"]
+    }
+  ],
+  "options": {
+    "logging": "CLOUD_LOGGING_ONLY",
+    "pool": {
+      "name": "projects/rbwg-d-demo1025-260304183118/locations/us-central1/workerPools/rbw-demo1025-pool"
+    }
+  },
+  "timeout": "300s"
+}

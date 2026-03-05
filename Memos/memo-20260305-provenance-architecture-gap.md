@@ -2,8 +2,8 @@
 
 **Date:** 2026-03-05
 **Heat:** rbw-e2e-cbv2-provenance (Al)
-**Pace:** research-cloudbuild-provenance-mechanics (AlAAI), test-buildx-push-gar (AlAAK), test-pullback-images-verified (AlAAL), verify-single-arch-slsa-e2e (AlAAO)
-**Status:** SLSA v1.0 Build Level 3 achieved on production trigger-dispatched builds (2026-03-05)
+**Pace:** research-cloudbuild-provenance-mechanics (AlAAI), test-buildx-push-gar (AlAAK), test-pullback-images-verified (AlAAL), verify-single-arch-slsa-e2e (AlAAO), experiment-multiplatform-slsa-provenance (AlAAQ)
+**Status:** SLSA v1.0 Build Level 3 achieved — single-arch production (2026-03-05), multi-platform experiment validated (2026-03-05)
 
 ## Summary
 
@@ -615,6 +615,99 @@ Bifurcation of vessels into per-architecture variants (e.g., `rbev-busybox-amd64
 The target architecture is that vessels remain multi-platform, with per-platform
 CB-native SLSA provenance generated within a single build invocation and a
 multi-platform manifest list reassembled via `imagetools create`.
+
+## Multi-Platform Provenance Experiment Results (₢AlAAQ, 2026-03-05)
+
+### Experiment 4: Per-Platform Pullback with SLSA Provenance (Variant A)
+
+**Build ID:** `b3fd60c7-2918-45d8-8d1e-1196a7ee5bb4`
+**Method:** `docker pull --platform` (Variant A from docket)
+**Config:** `Memos/experiments/cloudbuild-test-multiplatform-provenance-varB.json`
+
+Pipeline:
+1. Inline Dockerfile (busybox, same as Experiment 3)
+2. QEMU binfmt registration (arm64, arm)
+3. `buildx --push --platform=linux/amd64,linux/arm64,linux/arm/v7` → `:varB-multi`
+4. `docker pull --platform linux/amd64` → tag `:varB-amd64`
+5. `docker pull --platform linux/arm64` → tag `:varB-arm64`
+6. `docker pull --platform linux/arm/v7` → tag `:varB-armv7`
+7. `images:` declares all 3 per-platform tags, `requestedVerifyOption: VERIFIED`
+
+**Results:**
+
+| Platform | Tag | SLSA Level | buildInvocationId |
+|---|---|---|---|
+| linux/amd64 | `:varB-amd64` | **3** | `b3fd60c7` |
+| linux/arm64 | `:varB-arm64` | **3** | `b3fd60c7` |
+| linux/arm/v7 | `:varB-armv7` | **3** | `b3fd60c7` |
+
+Both provenance predicates (v0.1 + v1) present on all three images.
+Same `buildInvocationId` across all platforms — proves single-build origin.
+Provenance `recipe.arguments.steps` contains the `buildx --push` step with
+`--platform=linux/amd64,linux/arm64,linux/arm/v7`, proving the full
+multi-platform build is recorded in each platform's attestation.
+
+**Key findings:**
+- `docker pull --platform` works on CB workers (Docker 20.10.24, Experimental: true)
+- Foreign-arch images (arm64, armv7) in the local daemon on an amd64 worker
+  are pushed successfully by `images:` — CB pushes bytes, not execution
+- No docker login needed (CB pre-populated ADC credentials)
+- Build completed in 31 seconds
+
+**Issues encountered during iteration:**
+- Variant B (manifest inspect + digest pull) failed: `docker manifest inspect`
+  returned "no such manifest" despite the image being freshly pushed. Root cause
+  not investigated — Variant A worked immediately.
+- `jq` is not available in `gcr.io/cloud-builders/docker` image. Variant A
+  avoids JSON parsing entirely.
+- Cloud Build interprets `${VAR}` in step args as substitution variables.
+  Shell variables must be escaped as `$${VAR}` in cloudbuild.json.
+
+### Experiment 5: Manifest List Reassembly
+
+**Build ID:** `8cd7b713-1035-4672-bcc2-17cd9cd65e63`
+**Config:** `Memos/experiments/cloudbuild-test-multiplatform-reassembly.json`
+
+Single step: `docker buildx imagetools create -t :varB-combined :varB-amd64 :varB-arm64 :varB-armv7`
+
+**Results:**
+
+| Image | SLSA Level | Notes |
+|---|---|---|
+| `:varB-combined` (manifest list) | unknown | Expected — CB didn't build this artifact |
+| `:varB-amd64` (referenced by combined) | **3** | Provenance preserved after reassembly |
+| `:varB-arm64` (referenced by combined) | **3** | Provenance preserved after reassembly |
+| `:varB-armv7` (referenced by combined) | **3** | Provenance preserved after reassembly |
+
+The combined manifest list itself has `slsa_build_level: unknown` because Cloud
+Build did not build or push it — `imagetools create` operates registry-side.
+However, consumers who `docker pull :varB-combined` get transparent platform
+resolution to a per-platform image that retains full SLSA Level 3 provenance.
+
+Build completed in 4 seconds.
+
+### Validated Multi-Platform Provenance Architecture
+
+The complete path is now proven:
+
+```
+buildx --push (3 platforms)
+    │
+    ├─ docker pull --platform linux/amd64 → tag :TAG-amd64  ─┐
+    ├─ docker pull --platform linux/arm64 → tag :TAG-arm64  ─┤─ images: [all 3]
+    └─ docker pull --platform linux/arm/v7 → tag :TAG-armv7 ─┘    → SLSA Level 3 each
+                                                                    → same buildInvocationId
+    then (post-build or in-build):
+    imagetools create -t :TAG :TAG-amd64 :TAG-arm64 :TAG-armv7
+        → multi-platform manifest list
+        → transparent docker pull resolution
+        → per-platform provenance preserved
+```
+
+**Architectural implication:** Vessel bifurcation (`rbev-busybox-amd64`,
+`rbev-busybox-arm64`) is no longer necessary. Multi-platform vessels can retain
+`RBRV_CONJURE_PLATFORMS` with multiple platforms and get full SLSA provenance
+on each platform image through the pullback path.
 
 ### Sources
 
