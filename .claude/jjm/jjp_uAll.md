@@ -211,20 +211,33 @@ test target. Production vessels will wait for native multi-platform provenance.
 - `rbev-busybox-arm64` — cross-build via QEMU on CB amd64 workers
 - `trbim-macos` — existing arm64-only vessel (zero changes needed)
 
+### E2E Results: SLSA v1.0 Build Level 3 Achieved (₢AlAAO, 2026-03-05)
+
+Full production pipeline: pin refresh → inscribe → trigger dispatch → verify.
+Inscribe timestamp `i20260305_133650`, rubric commit `392b95ec`.
+
+| Vessel | Build ID | SLSA Level | Predicates |
+|---|---|---|---|
+| rbev-busybox-amd64 | `16d3b60f` | **3** | v0.1 + v1 |
+| rbev-busybox-arm64 | `fc36b970` | **3** | v0.1 + v1 |
+| trbim-macos | `9180c42a` | **3** | v0.1 + v1 |
+
+Inscribe created triggers for new vessels automatically (no depot destroy/create).
+Two bugs fixed during e2e: crane grep `readonly` mismatch, inscribe die-on-multiplatform.
+
+Full evidence: `Memos/memo-20260305-provenance-architecture-gap.md` (Production Pipeline Results)
+
 ### Current State
 
 **Depot demo1025** exists with CB v2 GitLab connection and private pool.
-Rubric repo at `gitlab.com/bhyslop/rb-rubric.git`. 7 vessel triggers created.
-Busybox builds and pushes successfully (no provenance yet — pipeline not updated).
+Rubric repo at `gitlab.com/bhyslop/rb-rubric.git`. 9 vessel triggers (7 original + 2 new).
+Three single-arch vessels building with SLSA v1.0 Build Level 3 provenance.
 
 **All known issues from ₣Ai e2e (2026-03-03) are FIXED:**
 1. Push triggers fired on inscribe push — FIXED (₢AiABC: unmatchable branch filter)
 2. IAM read-modify-write race — FIXED (₢AiABD: declarative policy writes)
 3. Syft multi-platform OCI layout — FIXED (₢AiABE: skopeo split)
 4. Build step `dir` field missing — FIXED in ₣Ai
-
-**Depot may need destroy+create cycle** for new vessel triggers (busybox-amd64,
-busybox-arm64). User pre-approved depot reconfiguration (2026-03-05).
 
 ## Build Requirements
 

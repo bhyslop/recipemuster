@@ -2,8 +2,8 @@
 
 **Date:** 2026-03-05
 **Heat:** rbw-e2e-cbv2-provenance (Al)
-**Pace:** research-cloudbuild-provenance-mechanics (AlAAI), test-buildx-push-gar (AlAAK), test-pullback-images-verified (AlAAL)
-**Status:** Hypotheses A and B experimentally validated on 2026-03-05
+**Pace:** research-cloudbuild-provenance-mechanics (AlAAI), test-buildx-push-gar (AlAAK), test-pullback-images-verified (AlAAL), verify-single-arch-slsa-e2e (AlAAO)
+**Status:** SLSA v1.0 Build Level 3 achieved on production trigger-dispatched builds (2026-03-05)
 
 ## Summary
 
@@ -424,6 +424,82 @@ Priority: exhaust CB-native SLSA path before considering cosign.
 4. **rbscb-provenance-posture-update** — Crystallize provenance posture in RBSCB
    roadmap based on confirmed results.
 5. **test-cosign-keyless-signing** — NOT NEEDED. CB-native SLSA path succeeded.
+
+## Production Pipeline Results (₢AlAAO, 2026-03-05)
+
+The experimental hypotheses (A and B) were translated into the production
+stitch function (₢AlAAJ) and validated end-to-end via the full
+inscribe→trigger→dispatch pipeline on depot `demo1025`.
+
+### Pipeline Architecture (single-arch, 6 steps + images: push)
+
+```
+01: derive-tag-base (gcloud)
+02: qemu-binfmt (docker) — conditional on cross-arch
+03: build-and-load (docker buildx --load, single platform)
+04: sbom-and-summary (docker/syft via docker: transport + socket mount)
+05: assemble-metadata (alpine/jq)
+06: build-and-push-metadata (docker)
++ images: field → CB-native push + SLSA provenance
++ requestedVerifyOption: VERIFIED
+```
+
+Key changes from the 10-step OCI Layout Bridge pipeline:
+- Removed 4 steps (get-docker-token, docker-login-gar, push-with-crane, split-oci-platform)
+- Replaced buildx --push + pullback with simpler --load (single-arch only)
+- Syft scans local daemon via `docker:IMAGE_URI` transport (socket mount)
+- `images:` + `VERIFIED` triggers CB-native SLSA provenance
+
+### Trigger-Dispatched Build Results
+
+All builds used the full production path: pin refresh → inscribe (stitch +
+rubric push + trigger ensure) → dispatch (triggers.run API) → wait → verify.
+
+Inscribe timestamp: `i20260305_133650`
+Rubric commit: `392b95ec`
+Source commit: `c2cc6708`
+
+| Vessel | Build ID | Duration | SLSA Level | Predicates |
+|---|---|---|---|---|
+| rbev-busybox-amd64 | `16d3b60f-f408-4cf4-b101-14e109563644` | ~37s | **3** | v0.1 + v1 |
+| rbev-busybox-arm64 | `fc36b970-94c4-41c3-8b0e-b4d8839a0740` | ~40s | **3** | v0.1 + v1 |
+| trbim-macos (arm64) | `9180c42a-dd1f-42f8-ad10-b0fcf2d650db` | ~42s | **3** | v0.1 + v1 |
+
+### Verification
+
+```bash
+gcloud artifacts docker images describe \
+  us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox-amd64:i20260305_133650-image \
+  --show-provenance
+```
+
+All three images show:
+- `slsa_build_level: 3`
+- Builder: `https://cloudbuild.googleapis.com/GoogleHostedWorker@v0.3` (v0.1) / `GoogleHostedWorker` (v1)
+- Dual provenance predicates (v0.1 + v1)
+- Source provenance: `git+https://gitlab.com/bhyslop/rb-rubric` at `392b95ec`
+- Private pool: `rbw-demo1025-pool`
+- `requestedVerifyOption: VERIFIED` confirmed in recipe options
+
+### Bugs Fixed During E2E
+
+1. **Crane pin refresh grep** — `grep "^RBRR_CRANE_TAR_GZ="` failed on
+   `readonly RBRR_CRANE_TAR_GZ=` in rbrr.env. Fixed to match both patterns
+   (same as image-pin loop). Pre-existing bug exposed by this run.
+
+2. **Inscribe multi-platform vessel rejection** — Inscribe `buc_die`d on first
+   multi-platform vessel instead of skipping. Added platform count check to
+   vessel enumeration loop — multi-platform vessels are now logged and skipped.
+
+### Significance
+
+This is the first time Recipe Bottle has achieved CB-native SLSA provenance on
+trigger-dispatched builds. The full chain — from `cloudbuild.json` generation
+(stitch) through rubric inscribe, trigger creation, build dispatch, and
+provenance verification — works end-to-end without manual intervention.
+
+The single-arch gate (₢AlAAJ) cleanly separates eligible vessels from
+multi-platform vessels that require the rejoining path (₢AlAAQ).
 
 ## Multi-Platform Rejoining Research (2026-03-05)
 
