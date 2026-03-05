@@ -5299,6 +5299,7 @@
       "creation_time": "260224",
       "status": "racing",
       "order": [
+        "₢AkAAW",
         "₢AkAAD",
         "₢AkAAE",
         "₢AkAAG",
@@ -5320,7 +5321,7 @@
         "₢AkAAS",
         "₢AkAAT"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5785,6 +5786,17 @@
               "text": "Design the LRO (Long-Running Operation) polling wrapper for the _remit architecture.\n\n## Problem\n\n`rbgu_http_json_lro_ok` is the most complex internal wrapper in rbgu_Utility.sh.\nIt does: POST -> check immediate done -> extract op name -> poll loop -> check\ndone + error on each poll -> timeout. It calls rbgu_http_json multiple times\nin a loop, uses both rbgu_http_code_capture and rbgu_json_field_capture, and\nreconstructs ZRBGU_PREFIX paths directly.\n\nThis is NOT a mechanical migration — the polling loop structure needs design thought.\n\n## Current signature\n\n```\nrbgu_http_json_lro_ok(label, token, post_url, infix, body, name_jq, poll_root, op_prefix, [poll_interval], [timeout])\n```\n\n## Questions to resolve\n\n1. Should this become `rbgu_http_lro_ok_remit`? Or should callers inline the polling?\n   (Only ~3-5 call sites use LRO, so inlining is feasible but duplicative.)\n\n2. If it becomes a _remit function:\n   - It calls rbgu_http_json_remit internally (multiple times in the poll loop)\n   - Each poll call returns a remit that the LRO function destructures\n   - The outer function itself emits a remit with the final result\n   - This is _remit calling _remit — is that sound? (Nested $() subshells)\n\n3. If callers inline:\n   - Each LRO call site gets ~30 lines of poll logic\n   - But each site has different poll_root, op_prefix, name_jq\n   - Duplication risk is moderate\n\n4. The current function uses buc_die on timeout and poll errors.\n   A _remit version would return 1. Does the caller need to distinguish\n   \"operation failed\" from \"poll timed out\" from \"network error during poll\"?\n\n## Related functions\n\n- `rbgu_poll_until_ok` — simpler polling (just HTTP 200 check, no LRO structure)\n  Same design question applies but simpler.\n- `rbgu_provision_service_agent` — contains its own inline poll loop\n- `rbgu_api_enable` — calls rbgu_http_json_lro_ok internally\n\n## Completion\n\n- Decision on wrapper vs inline for LRO polling\n- If wrapper: signature and remit contract defined\n- Transform template documented for ₢AkAAS",
               "silks": "design-lro-polling-as-remit",
               "commit": "1b760c1"
+            }
+          ]
+        },
+        "₢AkAAW": {
+          "tacks": [
+            {
+              "ts": "260304-1850",
+              "state": "rough",
+              "text": "In rbgm_ManualProcedures.sh, the payor_refresh procedure step 3 \"Verify Installation\" directs users to run `rbgp_depot_list` as a raw bash function call. This should instead guide users to use the existing tabtarget `tt/rbw-Pl.PayorListsDepots.sh` (discoverable via `buc_next`), consistent with the BUK tabtarget-driven workflow.\n\nFix the procedure text at line ~320 to reference the tabtarget instead of the raw function.",
+              "silks": "payor-refresh-use-tabtarget",
+              "commit": "f572527"
             }
           ]
         }
