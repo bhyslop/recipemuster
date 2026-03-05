@@ -36,9 +36,7 @@ See ₢AlAAB for details.
 ### Decision: Single-Arch First (2026-03-05)
 
 **Build SLSA provenance capability incrementally.** Single-architecture vessels
-get full SLSA v1.0 Level 3 provenance first. Multi-platform provenance is a
-separate future initiative, tackled only after single-arch is battle-tested with
-statistically many images.
+get full SLSA v1.0 Level 3 provenance first, establishing a proven baseline.
 
 **Rationale:** CB-native SLSA requires images in Docker's local store via
 `images:` field. Docker's local store is single-platform only. Multi-platform
@@ -55,11 +53,20 @@ entirely — `docker buildx build --load` puts the image in the local daemon,
   until either: (a) they are bifurcated, or (b) multi-platform provenance
   is implemented
 
-**Multi-platform provenance — future work (not in this heat):**
-- CB structural limitation: `images:` can only push single-platform from daemon
-- Possible paths: per-platform pullback, cosign on manifest list, or accept
-  discrete per-platform images as the provenance unit
-- Will be a separate heat once single-arch baseline is established
+### Multi-Platform Provenance: Open Question
+
+CB structural constraint: `images:` can only push single-platform from the
+Docker daemon. The goal remains full SLSA v1.0 on multi-platform images.
+
+Possible paths under investigation (₢AlAAQ):
+- Per-platform pullback: `docker pull --platform` each arch, tag distinctly,
+  declare all in `images:` — does CB generate provenance on each?
+- Per-platform --load: multiple single-arch builds, all in local daemon
+- Manifest reconstruction: reassemble multi-platform manifest from
+  individually-attested platform images
+
+Whether results lead to implementation in this heat or a successor heat
+is a decision for after the experiment.
 
 ### Provenance Experiments Validated (₢AlAAK, ₢AlAAL, 2026-03-05)
 
@@ -105,9 +112,7 @@ with oauth2accesstoken for ALL GAR regions. Steps 02 (get-docker-token) and
 + `images:` field triggers CB-native push + SLSA provenance
 + `requestedVerifyOption: VERIFIED` in options
 
-### Pace Threading (provenance track)
-
-Dependency chain for single-arch SLSA:
+### Pace Threading
 
 ```
 ₢AlAAJ stitch-single-arch-slsa      Pipeline code (stitch + step scripts)
@@ -120,13 +125,16 @@ Dependency chain for single-arch SLSA:
           v
         ₢AlAAP spec-single-arch-prov   RBS0, RBSOB updates (confirmed facts only)
           │
+          ├─→ ₢AlAAQ experiment-multiplatform-slsa  Per-platform provenance experiment
+          │
           v
-        ₢AlAAM rbscb-posture-update    Roadmap crystallization
+        ₢AlAAM rbscb-posture-update    Roadmap (after single-arch AND experiment results)
 ```
 
 ₢AlAAJ and ₢AlAAN are independent — can execute in parallel.
 ₢AlAAO requires both complete + possibly depot cycle for new triggers.
-₢AlAAP and ₢AlAAM require verified results — state only confirmed facts.
+₢AlAAP and ₢AlAAQ can execute in parallel after ₢AlAAO.
+₢AlAAM waits for both spec and experiment results before crystallizing roadmap.
 
 ### Vessel Landscape
 
