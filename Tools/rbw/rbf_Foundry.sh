@@ -120,6 +120,11 @@ zrbf_stitch_build_json() {
   local -r z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
   local -r z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
 
+  # Single-arch validation: reject multi-platform vessels
+  case "${z_platforms}" in
+    *,*) buc_die "Multi-platform vessel rejected (${z_platforms}). Stitch requires single-arch for SLSA provenance. Bifurcate vessel or wait for multi-platform provenance support." ;;
+  esac
+
   buc_log_args 'Extract git state for substitutions'
   local -r z_stitch_git_commit_file="${ZRBF_STITCH_PREFIX}git_commit.txt"
   local -r z_stitch_git_branch_file="${ZRBF_STITCH_PREFIX}git_branch.txt"
@@ -142,29 +147,23 @@ zrbf_stitch_build_json() {
 
   # Step definitions: script|builder|entrypoint|id
   # Entrypoint 'bash' uses args ["-lc", script], 'sh' uses ["-c", script]
-  # Note: Step 05 (buildx-create) was merged into step 06 because Cloud Build
-  # steps run in isolated containers - builder state doesn't persist across steps
-  #
-  # OCI Layout Bridge pattern (steps 06-08):
-  # - Step 06: buildx exports to /workspace/oci-layout.tar (no auth needed)
-  # - Step 07: crane extracts tar to /workspace/oci-layout/ and pushes to GAR
-  # - Step 07b: skopeo splits multi-platform layout to /workspace/oci-amd64/
-  # - Step 08: Syft analyzes single-platform /workspace/oci-amd64/ for SBOM
-  # - Step 10: Assembles metadata JSON from .image_uri
-  # - Step 09: Builds and pushes metadata container (depends on step 10)
   # Delimiter is | because image refs contain colons (sha256 digests)
-  # Note: builder images pinned via RBRR_GCB_*_IMAGE_REF variables
+  #
+  # Single-arch SLSA pipeline:
+  # - Step 01: derive tag base from inscribe + build timestamps
+  # - Step 02: register QEMU for cross-platform builds
+  # - Step 03: buildx --load into local daemon (single platform)
+  # - Step 04: Syft SBOM from local daemon image (docker: transport)
+  # - Step 05: assemble metadata JSON from substitutions
+  # - Step 06: build and push metadata container
+  # + images: field triggers CB-native push + SLSA v1.0 provenance
   local z_step_defs=(
     "rbgjb01-derive-tag-base.sh|${RBRR_GCB_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
-    "rbgjb02-get-docker-token.sh|${RBRR_GCB_GCLOUD_IMAGE_REF}|bash|get-docker-token"
-    "rbgjb03-docker-login-gar.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|docker-login-gar"
-    "rbgjb04-qemu-binfmt.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
-    "rbgjb06-build-and-export.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-export"
-    "rbgjb07-push-with-crane.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|push-with-crane"
-    "rbgjb07b-split-oci-platform.sh|${RBRR_GCB_SKOPEO_IMAGE_REF}|sh|split-oci-platform"
-    "rbgjb08-sbom-and-summary.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|sbom-and-summary"
-    "rbgjb10-assemble-metadata.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|assemble-metadata"
-    "rbgjb09-build-and-push-metadata.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-push-metadata"
+    "rbgjb02-qemu-binfmt.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
+    "rbgjb03-build-and-load.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-load"
+    "rbgjb04-sbom-and-summary.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|sbom-and-summary"
+    "rbgjb05-assemble-metadata.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|assemble-metadata"
+    "rbgjb06-build-and-push-metadata.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-push-metadata"
   )
 
   local z_def=""
@@ -200,7 +199,6 @@ zrbf_stitch_build_json() {
     buc_log_args "Baking pinned image refs into script text (GCB containers lack RBRR vars)"
     z_body="${z_body//\$\{RBRR_GCB_SYFT_IMAGE_REF\}/${RBRR_GCB_SYFT_IMAGE_REF}}"
     z_body="${z_body//\$\{RBRR_GCB_BINFMT_IMAGE_REF\}/${RBRR_GCB_BINFMT_IMAGE_REF}}"
-    z_body="${z_body//\$\{RBRR_GCB_SKOPEO_IMAGE_REF\}/${RBRR_GCB_SKOPEO_IMAGE_REF}}"
 
     buc_log_args "Escaping dollars for Cloud Build, preserving RBGY substitutions"
     printf '%s' "${z_body}" | sed 's/\$/\$\$/g; s/\$\${_RBGY_/${_RBGY_/g' \
@@ -248,7 +246,6 @@ zrbf_stitch_build_json() {
     --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
     --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
     --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
-    --arg zjq_crane_tar_gz     "${RBRR_CRANE_TAR_GZ}" \
     --arg zjq_rubric_repo      "__INSCRIBE_RUBRIC_REPO__" \
     --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
     --arg zjq_inscribe_ts      "__INSCRIBE_TIMESTAMP__" \
@@ -269,12 +266,13 @@ zrbf_stitch_build_json() {
         _RBGY_GAR_HOST_SUFFIX:     $zjq_gar_host_suffix,
         _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
         _RBGY_ARK_SUFFIX_ABOUT:    $zjq_ark_suffix_about,
-        _RBGY_CRANE_TAR_GZ:        $zjq_crane_tar_gz,
         _RBGY_RUBRIC_REPO:         $zjq_rubric_repo,
         _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
         _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
       },
+      images: ["${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}"],
       options: {
+        requestedVerifyOption: "VERIFIED",
         logging: "CLOUD_LOGGING_ONLY",
         pool: { name: $zjq_pool }
       },

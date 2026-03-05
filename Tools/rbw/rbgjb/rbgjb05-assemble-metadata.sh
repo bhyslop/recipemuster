@@ -1,24 +1,29 @@
 #!/bin/bash
-# RBGJB Step 07: Assemble build metadata JSON
-# Builder: alpine:latest (with jq installed at runtime)
+# RBGJB Step 05: Assemble build metadata JSON
+# Builder: alpine (via RBRR_GCB_ALPINE_IMAGE_REF)
 # Entrypoint: sh (not bash)
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,
-#                _RBGY_GIT_REPO, _RBGY_GIT_BRANCH, _RBGY_GIT_COMMIT
+#                _RBGY_GIT_REPO, _RBGY_GIT_BRANCH, _RBGY_GIT_COMMIT,
+#                _RBGY_GAR_LOCATION, _RBGY_GAR_HOST_SUFFIX,
+#                _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
+#                _RBGY_ARK_SUFFIX_IMAGE, _RBGY_INSCRIBE_TIMESTAMP
 
 set -euo pipefail
 
-# Install jq (alpine is minimal, jqlang/jq distroless has no shell)
 apk add --no-cache jq >/dev/null
 
 test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
 TAG_BASE="$(cat .tag_base)"
-IMG_URI="$(cat .image_uri)"
+
+# Image URI derived from substitutions (matches images: field for provenance)
+IMAGE_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}"
+
 cp "${_RBGY_DOCKERFILE}" recipe.txt
 TS="$(date -u +%FT%TZ)"
 
 jq -n \
   --arg tag_base  "${TAG_BASE}" \
-  --arg image_uri "${IMG_URI}" \
+  --arg image_uri "${IMAGE_URI}" \
   --arg moniker   "${_RBGY_MONIKER}" \
   --arg repo      "${_RBGY_GIT_REPO}" \
   --arg branch    "${_RBGY_GIT_BRANCH}" \
