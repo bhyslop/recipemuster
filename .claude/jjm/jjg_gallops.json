@@ -5320,9 +5320,10 @@
         "₢AkAAU",
         "₢AkAAV",
         "₢AkAAS",
-        "₢AkAAT"
+        "₢AkAAT",
+        "₢AkAAY"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5858,6 +5859,17 @@
               "text": "Investigate whether the Retriever should support listing consecrations (not just images). Currently `rbf_list` lists images in a depot, but there's no operation to enumerate the consecrations (tagged artifact groups) themselves. Consider:\n\n- Is there a user need to see \"what consecrations exist in this depot\" vs \"what images exist\"?\n- Would this be a distinct tabtarget or a flag on the existing list operation?\n- How does this relate to the ark/vessel/consecration vocabulary in RBSRV?\n\nThis is a design musing — capture findings and recommendation, not implementation.",
               "silks": "muse-retriever-list-consecrations",
               "commit": "d784307"
+            }
+          ]
+        },
+        "₢AkAAY": {
+          "tacks": [
+            {
+              "ts": "260305-1333",
+              "state": "rough",
+              "text": "Extract GCB tool pins from rbrr.env into a dedicated config regime.\n\n## Problem\n\nGCB image pins (`RBRR_GCB_*_IMAGE_REF`, `RBRR_CRANE_TAR_GZ`) live inside\n`rbrr.env` alongside regime identity variables. The pin refresh command\n(`rbrr_refresh_gcb_pins`) edits `rbrr.env` in-place via sed, which is\nmanifestly BCG incompliant — BCG requires config regimes to be fully\nrewritable, not surgically edited.\n\nThe grep/sed patterns are already fragile (e.g., `readonly` prefix mismatch\non crane grep — fixed in ₢AlAAO). More pins will make this worse.\n\n## Scope\n\n1. **Create a dedicated GCB pins config regime** (e.g., `rbgp.env` or similar)\n   that holds all `RBRR_GCB_*_IMAGE_REF` pins and `RBRR_CRANE_TAR_GZ`\n2. **Rewrite pin refresh** to generate the entire pins file from scratch\n   (discover → resolve → write complete file) rather than grep/sed editing\n3. **Source the pins file from rbrr.env** or from the stitch function,\n   maintaining the existing variable names for downstream consumers\n4. **Remove pin variables from rbrr.env** — they move to the new file\n5. **Decide crane disposition** — crane is no longer used in the pipeline\n   (₢AlAAJ removed OCI Layout Bridge). Still used in `rbv_PodmanVM.sh`.\n   Either remove from pins entirely or keep if PodmanVM still needs it.\n\n## BCG Compliance Target\n\nPin refresh should follow the BCG \"config regime rewrite\" pattern:\n- Discover all current values\n- Write complete new file (not edit existing)\n- Validate new file\n- Replace atomically\n\n## References\n\n- `Tools/rbw/rbrr_cli.sh` — current pin refresh (`rbrr_refresh_gcb_pins`)\n- `.rbk/rbrr.env` — current pin storage\n- `Tools/rbw/rbrr_regime.sh` — regime validation\n- `Tools/rbw/rbf_Foundry.sh` — stitch function (pin consumer)\n- `Tools/rbw/rbv_PodmanVM.sh` — crane consumer\n- `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md` — BCG patterns",
+              "silks": "extract-gcb-pins-config-regime",
+              "commit": "cf90a44"
             }
           ]
         }
