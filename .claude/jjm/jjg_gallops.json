@@ -5841,6 +5841,7 @@
       "status": "racing",
       "order": [
         "₢AlAAI",
+        "₢AlAAJ",
         "₢AlAAH",
         "₢AlAAG",
         "₢AlAAE",
@@ -5850,7 +5851,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6075,6 +6076,17 @@
               "text": "Investigate Cloud Build SLSA provenance generation requirements.\n\n## Context\n\nBusybox build succeeded on demo1025 private pool but `slsa_build_level: \"unknown\"` — no provenance attestation generated. Two gaps identified:\n\n1. `options.requestedVerifyOption: VERIFIED` is not set in the build config\n2. The `images:` field is empty because we push via crane/skopeo (OCI Layout Bridge) rather than Cloud Build's native push. Cloud Build provenance is tied to images declared in `images:`.\n\n## Research Questions\n\n1. Does adding `requestedVerifyOption: VERIFIED` alone generate provenance for trigger-invoked builds on private pools?\n2. Does the top-level `images:` field need to be populated for provenance to attach? If so, can it reference an image digest that was pushed by a build step (not by Cloud Build's native push)?\n3. Are there alternative provenance mechanisms (e.g., `--requested-verify-option` on trigger creation, or Artifact Analysis API attestations)?\n4. What is the interaction between private pools and provenance generation? Any limitations?\n5. Does the CB v2 (GitLab) connection type affect provenance availability?\n\n## Acceptance Criteria\n\n- Clear answers to all 5 research questions with GCP documentation references\n- Update RBS0 with provenance requirements (new section or update existing)\n- Recommendation for stitch changes needed",
               "silks": "research-cloudbuild-provenance-mechanics",
               "commit": "172a6cb"
+            }
+          ]
+        },
+        "₢AlAAJ": {
+          "tacks": [
+            {
+              "ts": "260304-1941",
+              "state": "rough",
+              "text": "Apply provenance fix to zrbf_stitch_build_json based on research findings from ₢AlAAI.\n\n## Prerequisites\n\n- ₢AlAAI (research-cloudbuild-provenance-mechanics) complete with clear recommendation\n\n## Scope\n\n- Update `zrbf_stitch_build_json` in `Tools/rbw/rbf_Foundry.sh` per research findings\n- At minimum: add `requestedVerifyOption: VERIFIED` to build options\n- If `images:` field needed: determine how to declare the pushed image URI/digest\n- Re-inscribe on current demo1025 depot (no depot recreation needed)\n- Dispatch busybox build and verify SLSA provenance appears on the image\n\n## Acceptance Criteria\n\n- `gcloud artifacts docker images describe ... --show-provenance` returns provenance data\n- `slsa_build_level` is not \"unknown\"\n- Provenance includes builder.id, source metadata, trigger URI\n- All 7 vessel cloudbuild.json regenerated and committed",
+              "silks": "stitch-provenance-fix",
+              "commit": "18c2543"
             }
           ]
         }
