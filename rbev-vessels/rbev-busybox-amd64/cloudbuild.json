@@ -4,7 +4,7 @@
       "name": "gcr.io/cloud-builders/gcloud@sha256:4a58b9883e286608d1084cf21e5aed1cbb0817ac6adf41b1293cf2ef46c4942e",
       "id": "derive-tag-base",
       "entrypoint": "/bin/bash",
-      "dir": "trbim-macos",
+      "dir": "rbev-busybox-amd64",
       "args": [
         "-lc",
         "# RBGJB Step 01: Derive TAG_BASE from inscribe + build timestamps\n# Builder: gcr.io/cloud-builders/gcloud\n#\n# Dual-timestamp format: i20260224_153022-b20260224_160530\n# - Inscribe timestamp (iYYYYMMDD_HHMMSS) baked at inscribe time via _RBGY_INSCRIBE_TIMESTAMP\n# - Build timestamp (bYYYYMMDD_HHMMSS) derived at build time\n# Multiple builds of same inscribed JSON sort together by inscribe prefix\n\nset -euo pipefail\n\nTAG_BASE=\"${_RBGY_INSCRIBE_TIMESTAMP}-b$$(date -u +%Y%m%d_%H%M%S)\"\ntest -n \"$${TAG_BASE}\" || { echo \"TAG_BASE empty\" >&2; exit 1; }\necho \"$${TAG_BASE}\" > .tag_base"
@@ -14,7 +14,7 @@
       "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
       "id": "qemu-binfmt",
       "entrypoint": "/bin/bash",
-      "dir": "trbim-macos",
+      "dir": "rbev-busybox-amd64",
       "args": [
         "-lc",
         "# RBGJB Step 02: Register QEMU for cross-platform builds\n# Builder: gcr.io/cloud-builders/docker\n\nset -euo pipefail\n\n# Register QEMU for cross-platform builds (arm64, arm/v7)\ndocker run --privileged --rm docker.io/tonistiigi/binfmt@sha256:8db0f28060565399642110b798c6c35efcac7c5b3b48c56d36503d3b4d8f93c8 --install arm64,arm"
@@ -24,7 +24,7 @@
       "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
       "id": "build-and-load",
       "entrypoint": "/bin/bash",
-      "dir": "trbim-macos",
+      "dir": "rbev-busybox-amd64",
       "args": [
         "-lc",
         "# RBGJB Step 03: Build single-arch image and load into local Docker daemon\n# Builder: gcr.io/cloud-builders/docker\n# Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,\n#                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,\n#                _RBGY_GAR_HOST_SUFFIX, _RBGY_ARK_SUFFIX_IMAGE,\n#                _RBGY_INSCRIBE_TIMESTAMP,\n#                _RBGY_GIT_COMMIT, _RBGY_GIT_BRANCH\n#\n# Builds a single-platform image and loads it into the local Docker daemon\n# via --load. The images: field in cloudbuild.json triggers Cloud Build to\n# push this image to GAR and generate SLSA v1.0 provenance.\n#\n# Image tag uses _RBGY_INSCRIBE_TIMESTAMP (CB substitution) so the images:\n# field can reference it statically. TAG_BASE (inscribe + build timestamp)\n# is used only for metadata.\n\nset -euo pipefail\n\n# Required inputs\ntest -n \"${_RBGY_DOCKERFILE}\"          || (echo \"_RBGY_DOCKERFILE missing\"          >&2; exit 1)\ntest -n \"${_RBGY_MONIKER}\"             || (echo \"_RBGY_MONIKER missing\"             >&2; exit 1)\ntest -n \"${_RBGY_PLATFORMS}\"           || (echo \"_RBGY_PLATFORMS missing\"           >&2; exit 1)\ntest -n \"${_RBGY_GAR_LOCATION}\"        || (echo \"_RBGY_GAR_LOCATION missing\"        >&2; exit 1)\ntest -n \"${_RBGY_GAR_PROJECT}\"         || (echo \"_RBGY_GAR_PROJECT missing\"         >&2; exit 1)\ntest -n \"${_RBGY_GAR_REPOSITORY}\"      || (echo \"_RBGY_GAR_REPOSITORY missing\"      >&2; exit 1)\ntest -n \"${_RBGY_INSCRIBE_TIMESTAMP}\"  || (echo \"_RBGY_INSCRIBE_TIMESTAMP missing\"  >&2; exit 1)\ntest -n \"${_RBGY_GIT_COMMIT}\"          || (echo \"_RBGY_GIT_COMMIT missing\"          >&2; exit 1)\ntest -n \"${_RBGY_GIT_BRANCH}\"          || (echo \"_RBGY_GIT_BRANCH missing\"          >&2; exit 1)\n\nIMAGE_URI=\"${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}\"\n\ndocker buildx version\ndocker version\n\n# Create docker-container driver for cross-arch builds (QEMU emulation)\n# Harmless for native-arch builds; required when platform != host arch\ndocker buildx create --driver docker-container --name rb-builder --use\n\n# Build single-platform image and load into local Docker daemon\n# - --load puts the image in the local daemon for CB images: field\n# - Single platform only (stitch validates single-arch at inscribe time)\n# - CB-native push via images: field generates SLSA v1.0 provenance\ndocker buildx build \\\n  --platform=\"${_RBGY_PLATFORMS}\" \\\n  --tag \"$${IMAGE_URI}\" \\\n  --load \\\n  --label \"moniker=${_RBGY_MONIKER}\" \\\n  --label \"git.commit=${_RBGY_GIT_COMMIT}\" \\\n  --label \"git.branch=${_RBGY_GIT_BRANCH}\" \\\n  -f \"${_RBGY_DOCKERFILE}\" \\\n  .\n\necho \"Image loaded into local daemon: $${IMAGE_URI}\""
@@ -34,7 +34,7 @@
       "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
       "id": "sbom-and-summary",
       "entrypoint": "/bin/bash",
-      "dir": "trbim-macos",
+      "dir": "rbev-busybox-amd64",
       "args": [
         "-lc",
         "#\n# Copyright 2026 Scale Invariant, Inc.\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this file except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#     http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\n# Author: Brad Hyslop <bhyslop@scaleinvariant.org>\n#\n# RBGJB Step 04: Generate SBOM and package summary with Syft\n# Builder: gcr.io/cloud-builders/docker\n# Substitutions: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,\n#                _RBGY_MONIKER, _RBGY_GAR_HOST_SUFFIX, _RBGY_ARK_SUFFIX_IMAGE,\n#                _RBGY_INSCRIBE_TIMESTAMP, _RBGY_PLATFORMS\n#\n# Syft scans the image from the local Docker daemon via docker: transport.\n# The image was loaded by step 03 (build-and-load). Syft runs as a sibling\n# container sharing the Docker daemon socket.\n\nset -euo pipefail\n\nSYFT_IMAGE=\"docker.io/anchore/syft@sha256:d775ca26ef52914830e6db70ad17381d15acaed7507e3c1b70e8c1af2b95d861\"\n\nIMAGE_URI=\"${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}\"\n\n# Derive platform label for SBOM filenames (linux/amd64 → linux_amd64)\nPLATFORM_LABEL=\"$$(echo \"${_RBGY_PLATFORMS}\" | tr '/' '_')\"\n\necho \"SBOM generation: $${SYFT_IMAGE} scanning docker:$${IMAGE_URI}\"\n\ndocker run --rm -v /var/run/docker.sock:/var/run/docker.sock \\\n  \"$${SYFT_IMAGE}\" \"docker:$${IMAGE_URI}\" -o json > \"sbom.$${PLATFORM_LABEL}.spdx.json\" \\\n  || { echo \"Syft JSON generation failed\" >&2; exit 1; }\n\ndocker run --rm -v /var/run/docker.sock:/var/run/docker.sock \\\n  \"$${SYFT_IMAGE}\" \"docker:$${IMAGE_URI}\" -o table > \"package_summary.$${PLATFORM_LABEL}.txt\" \\\n  || { echo \"Syft table generation failed\" >&2; exit 1; }\n\ntest -s \"sbom.$${PLATFORM_LABEL}.spdx.json\" || { echo \"SBOM output empty\" >&2; exit 1; }"
@@ -44,7 +44,7 @@
       "name": "docker.io/library/alpine@sha256:59855d3dceb3ae53991193bd03301e082b2a7faa56a514b03527ae0ec2ce3a95",
       "id": "assemble-metadata",
       "entrypoint": "/bin/sh",
-      "dir": "trbim-macos",
+      "dir": "rbev-busybox-amd64",
       "args": [
         "-c",
         "# RBGJB Step 05: Assemble build metadata JSON\n# Builder: alpine (via RBRR_GCB_ALPINE_IMAGE_REF)\n# Entrypoint: sh (not bash)\n# Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,\n#                _RBGY_GIT_REPO, _RBGY_GIT_BRANCH, _RBGY_GIT_COMMIT,\n#                _RBGY_GAR_LOCATION, _RBGY_GAR_HOST_SUFFIX,\n#                _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,\n#                _RBGY_ARK_SUFFIX_IMAGE, _RBGY_INSCRIBE_TIMESTAMP\n\nset -euo pipefail\n\napk add --no-cache jq >/dev/null\n\ntest -s .tag_base || (echo \"tag base not derived\" >&2; exit 1)\nTAG_BASE=\"$$(cat .tag_base)\"\n\n# Image URI derived from substitutions (matches images: field for provenance)\nIMAGE_URI=\"${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}\"\n\ncp \"${_RBGY_DOCKERFILE}\" recipe.txt\nTS=\"$$(date -u +%FT%TZ)\"\n\njq -n \\\n  --arg tag_base  \"$${TAG_BASE}\" \\\n  --arg image_uri \"$${IMAGE_URI}\" \\\n  --arg moniker   \"${_RBGY_MONIKER}\" \\\n  --arg repo      \"${_RBGY_GIT_REPO}\" \\\n  --arg branch    \"${_RBGY_GIT_BRANCH}\" \\\n  --arg commit    \"${_RBGY_GIT_COMMIT}\" \\\n  --arg ts        \"$${TS}\" \\\n  --arg platforms \"${_RBGY_PLATFORMS}\" \\\n  '{\n    tag_base: $$tag_base,\n    image: { uri: $$image_uri },\n    moniker: $$moniker,\n    git: { repo: $$repo, branch: $$branch, commit: $$commit },\n    build: { timestamp: $$ts },\n    platforms: $$platforms\n  }' > build_info.json"
@@ -54,7 +54,7 @@
       "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
       "id": "build-and-push-metadata",
       "entrypoint": "/bin/bash",
-      "dir": "trbim-macos",
+      "dir": "rbev-busybox-amd64",
       "args": [
         "-lc",
         "# RBGJB Step 06: Build and push metadata container\n# Builder: gcr.io/cloud-builders/docker\n# Substitutions: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,\n#                _RBGY_MONIKER, _RBGY_GAR_HOST_SUFFIX, _RBGY_ARK_SUFFIX_ABOUT,\n#                _RBGY_PLATFORMS\n\nset -euo pipefail\n\ntest -s .tag_base || (echo \"tag base not derived\" >&2; exit 1)\nTAG_BASE=\"$$(cat .tag_base)\"\nMETA_URI=\"${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:$${TAG_BASE}${_RBGY_ARK_SUFFIX_ABOUT}\"\n\n# Platform label for SBOM filenames (linux/amd64 → linux_amd64)\nPLATFORM_LABEL=\"$$(echo \"${_RBGY_PLATFORMS}\" | tr '/' '_')\"\n\n{\n  echo 'FROM scratch'\n  echo 'LABEL org.opencontainers.image.title=\"rbia-metadata\"'\n  echo 'ADD build_info.json /build_info.json'\n  echo \"ADD sbom.$${PLATFORM_LABEL}.spdx.json /sbom.$${PLATFORM_LABEL}.spdx.json\"\n  echo \"ADD package_summary.$${PLATFORM_LABEL}.txt /package_summary.$${PLATFORM_LABEL}.txt\"\n  echo 'ADD recipe.txt /recipe.txt'\n} > Dockerfile.meta\n\ndocker build -f Dockerfile.meta -t \"$${META_URI}\" .\ndocker push \"$${META_URI}\""
@@ -63,8 +63,8 @@
   ],
   "substitutions": {
     "_RBGY_DOCKERFILE": "Dockerfile",
-    "_RBGY_MONIKER": "trbim-macos",
-    "_RBGY_PLATFORMS": "linux/arm64",
+    "_RBGY_MONIKER": "rbev-busybox-amd64",
+    "_RBGY_PLATFORMS": "linux/amd64",
     "_RBGY_GAR_LOCATION": "us-central1",
     "_RBGY_GAR_PROJECT": "rbwg-d-demo1025-260304183118",
     "_RBGY_GAR_REPOSITORY": "rbw-demo1025-repository",
