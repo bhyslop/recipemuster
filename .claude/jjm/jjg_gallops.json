@@ -5856,6 +5856,7 @@
       "order": [
         "₢AlAAI",
         "₢AlAAK",
+        "₢AlAAL",
         "₢AlAAJ",
         "₢AlAAH",
         "₢AlAAG",
@@ -5866,7 +5867,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6134,6 +6135,17 @@
               "text": "Test whether docker buildx build --push can push multi-platform images directly\nto GAR from Cloud Build, eliminating the OCI Layout Bridge.\n\n## Context\n\nResearch (Memos/memo-20260305-provenance-architecture-gap.md) found multiple\ndocumented examples of buildx --push working in Cloud Build using ADC from\ngcr.io/cloud-builders/docker. If confirmed, this eliminates crane (step 07)\nand simplifies the pipeline. Prerequisite for CB-native SLSA provenance path.\n\n## Experiment\n\nOn demo1025, manually submit a build that:\n1. Uses existing steps 01-04 (tag, token, login, qemu)\n2. Replaces steps 05+06 with: docker buildx build --push --platform=linux/amd64,linux/arm64,linux/arm/v7 --tag IMAGE_URI\n3. Keeps steps 07b-09 (skopeo split, SBOM, metadata) reading from registry\n   instead of /workspace — OR skip those and just verify push succeeded\n\n## Verification\n\n- Image appears in GAR with correct multi-platform manifest\n- All 3 platforms present: `gcloud artifacts docker images list ... --include-tags`\n- Build completes without 401/403 errors\n\n## Key Risk\n\n1-hour token expiry (docker/buildx#1205) — busybox build is fast so not a\nconcern, but note for larger vessels.\n\n## Acceptance Criteria\n\n- Multi-platform image successfully pushed to GAR via buildx --push\n- OR: documented failure mode with error details",
               "silks": "test-buildx-push-gar",
               "commit": "52eead6"
+            }
+          ]
+        },
+        "₢AlAAL": {
+          "tacks": [
+            {
+              "ts": "260304-2014",
+              "state": "rough",
+              "text": "Test whether pulling a buildx-pushed image back into Docker's local store enables\nCB-native SLSA provenance via images: + requestedVerifyOption: VERIFIED.\n\n## Prerequisites\n\n- test-buildx-push-gar (₢AlAAK) succeeded\n\n## Context\n\nCB-native SLSA provenance requires the image in Docker's local store for the\nimages: field push. docker pull of a multi-platform manifest pulls only the host\nplatform (linux/amd64 on CB workers). If CB can push this single-platform image\nvia images: and generate provenance, we may use a dual-tag scheme.\n\n## Experiment\n\nOn demo1025, manually submit a build that:\n1. Steps 01-04 as normal\n2. buildx --push multi-platform image as TAG-image (per ₢AlAAK)\n3. docker pull IMAGE_URI (pulls linux/amd64 into local daemon)\n4. Declare pulled image in images: field\n5. Set requestedVerifyOption: VERIFIED in options\n\n## Key Questions\n\n- Does docker pull succeed on the just-pushed multi-platform manifest?\n- Does CB's images: push overwrite the multi-platform manifest? (destructive?)\n- Does provenance attach to the image digest?\n- What slsa_build_level is reported?\n\n## Verification\n\n```\ngcloud artifacts docker images describe IMAGE --show-provenance --format=json\n```\n\n## Acceptance Criteria\n\n- slsa_build_level is NOT \"unknown\"\n- Multi-platform manifest (from --push) survives alongside provenance\n- OR: documented failure mode explaining exactly where the chain breaks",
+              "silks": "test-pullback-images-verified",
+              "commit": "432ed7b"
             }
           ]
         }
