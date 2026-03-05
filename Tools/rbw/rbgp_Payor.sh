@@ -92,7 +92,9 @@ zrbgp_refresh_capture() {
       client_id: $client_id,
       client_secret: $client_secret,
       grant_type: $grant_type
-    }' | curl -s -X POST \
+    }' | curl -sS -X POST \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Content-Type: application/json" \
       -d @- \
       "https://oauth2.googleapis.com/token") || buc_die "Failed to execute OAuth refresh request"
@@ -466,7 +468,9 @@ rbgp_payor_install() {
       client_secret: $client_secret,
       redirect_uri: $redirect_uri,
       grant_type: $grant_type
-    }' | curl -s -X POST \
+    }' | curl -sS -X POST \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Content-Type: application/json" \
       -d @- \
       "https://oauth2.googleapis.com/token") || buc_die "Failed to execute token exchange request"

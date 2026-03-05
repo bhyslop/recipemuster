@@ -133,6 +133,8 @@ zrbap_jwt_ar_probe_once() {
       -H "Accept: application/json"                 \
       -o "${ZRBAP_AR_RESP_FILE}"                    \
       -w "%{http_code}"                             \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}"        \
       "${z_ar_url}" > "${ZRBAP_AR_CODE_FILE}"       \
                    2> "${ZRBAP_AR_STDERR_FILE}"     \
     || z_curl_status=$?
@@ -197,6 +199,8 @@ zrbap_payor_crm_probe_once() {
       -H "Accept: application/json"                  \
       -o "${ZRBAP_CRM_RESP_FILE}"                    \
       -w "%{http_code}"                              \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}"         \
       "${z_crm_url}" > "${ZRBAP_CRM_CODE_FILE}"      \
                     2> "${ZRBAP_CRM_STDERR_FILE}"    \
     || z_curl_status=$?

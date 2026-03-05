@@ -137,7 +137,9 @@ zrbgo_exchange_jwt_capture() {
   local -r z_jwt="$1"
 
   buc_log_args "Exchange JWT for OAuth token"
-  curl -s -X POST "${RBGC_OAUTH_TOKEN_URL}"                                        \
+  curl -sS -X POST "${RBGC_OAUTH_TOKEN_URL}"                                        \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"                           \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"                                         \
     -H "Content-Type: application/x-www-form-urlencoded"                           \
     -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
     > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_CURL_STDERR_FILE}" || return 1

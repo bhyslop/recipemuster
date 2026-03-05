@@ -111,6 +111,7 @@ zrbi_curl_registry() {
   test -n "${z_token}" || buc_die "Token is empty"
 
   curl -sL                                          \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}"         \
       -H "Accept: ${ZRBI_ACCEPT_MANIFEST_MTYPES}"   \
       "${z_url}"                                    \
@@ -361,6 +362,7 @@ rbi_metadata() {
 
   buc_step "Downloading GAR metadata for: ${z_tag}"
   curl -s                                             \
+       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
        -H "Authorization: Bearer ${z_token}"          \
        "${z_package_path}/versions/metadata:download" \
        -o "${ZRBI_METADATA_ARCHIVE}"                  \

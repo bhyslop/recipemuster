@@ -350,6 +350,8 @@ zrbf_wait_build_completion() {
 
     buc_log_args "Fetch build status (attempt ${z_attempts}/${z_max_attempts})"
     curl -s                                                \
+         --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+         --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
          -H "Authorization: Bearer ${z_token}"             \
          "${ZRBF_GCB_PROJECT_BUILDS_URL}/${z_build_id}"    \
          > "${ZRBF_BUILD_STATUS_FILE}"                     \
@@ -534,6 +536,8 @@ rbf_delete() {
   local z_response_file="${ZRBF_DELETE_PREFIX}response.json"
 
   curl -X DELETE -s                                   \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
     -H "Authorization: Bearer ${z_token}"             \
     -w "%{http_code}"                                 \
     -o "${z_response_file}"                           \
@@ -582,6 +586,8 @@ rbf_list() {
   local z_repo_path="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   curl -sL \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
     "${z_gar_api}/${z_repo_path}/packages" \
     > "${z_packages_file}" || buc_die "Failed to fetch packages"
@@ -605,6 +611,8 @@ rbf_list() {
   while IFS= read -r z_moniker; do
     local z_tags_file="${BURD_TEMP_DIR}/rbf_list_tags_${z_moniker}.json"
     curl -sL \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
       "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/tags/list" \
       > "${z_tags_file}" 2>/dev/null || continue
@@ -646,6 +654,8 @@ rbf_beseech() {
   local z_repo_path="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
 
   curl -sL \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
     "${z_gar_api}/${z_repo_path}/packages" \
     > "${z_packages_file}" || buc_die "Failed to fetch packages"
@@ -679,6 +689,8 @@ rbf_beseech() {
   while IFS= read -r z_moniker; do
     local z_tags_file="${BURD_TEMP_DIR}/rbf_beseech_tags_${z_moniker}.json"
     curl -sL \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
       "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/tags/list" \
       > "${z_tags_file}" 2>/dev/null || continue
@@ -844,6 +856,8 @@ rbf_summon() {
   local z_image_response_file="${ZRBF_DELETE_PREFIX}summon_image_response.json"
 
   curl --head -s                                     \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
     -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
@@ -867,6 +881,8 @@ rbf_summon() {
   local z_about_response_file="${ZRBF_DELETE_PREFIX}summon_about_response.json"
 
   curl --head -s                                     \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
     -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
@@ -1309,6 +1325,8 @@ rbf_abjure() {
   local z_image_response_file="${ZRBF_DELETE_PREFIX}image_response.json"
 
   curl --head -s                                     \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
     -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
@@ -1332,6 +1350,8 @@ rbf_abjure() {
   local z_about_response_file="${ZRBF_DELETE_PREFIX}about_response.json"
 
   curl --head -s                                     \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
     -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
@@ -1381,6 +1401,8 @@ rbf_abjure() {
     local z_delete_image_response="${ZRBF_DELETE_PREFIX}delete_image_response.json"
 
     curl -X DELETE -s                                   \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_image_response}"                   \
@@ -1407,6 +1429,8 @@ rbf_abjure() {
     local z_delete_about_response="${ZRBF_DELETE_PREFIX}delete_about_response.json"
 
     curl -X DELETE -s                                   \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_about_response}"                   \

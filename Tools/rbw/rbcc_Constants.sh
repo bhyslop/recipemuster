@@ -43,6 +43,10 @@ zrbcc_kindle() {
   # Kindle constants (depend on runtime state)
   readonly RBCC_KIT_DIR="${BURC_TOOLS_DIR}/rbw"
 
+  # Curl timeout bounds — all actionable curl sites use these
+  readonly RBCC_CURL_CONNECT_TIMEOUT_SEC=10
+  readonly RBCC_CURL_MAX_TIME_SEC=60
+
   readonly ZRBCC_KINDLED=1
 }
 

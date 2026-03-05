@@ -74,6 +74,7 @@ rbrr_refresh_gcb_pins() {
 
   buc_log_args "Obtaining GHCR bearer token (anonymous, scoped to oras repo)"
   curl -sS \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     "https://ghcr.io/token?scope=repository:oras-project/oras:pull&service=ghcr.io" \
     -o "${z_oras_token_file}" 2>"${z_oras_token_stderr}" \
     || buc_die "Failed to fetch GHCR bearer token — see ${z_oras_token_stderr}"
@@ -86,6 +87,7 @@ rbrr_refresh_gcb_pins() {
 
   buc_log_args "Fetching tag list using bearer token"
   curl -sS \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_oras_token}" \
     "https://ghcr.io/v2/oras-project/oras/tags/list?n=1000" \
     -o "${z_oras_tags_file}" 2>"${z_oras_tags_stderr}" \
@@ -119,6 +121,7 @@ rbrr_refresh_gcb_pins() {
   buc_step "Discovering latest crane release from GitHub"
 
   curl -sS \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     "https://api.github.com/repos/google/go-containerregistry/releases/latest" \
     -o "${z_crane_releases_file}" 2>"${z_crane_stderr}" \
     || buc_die "Failed to fetch crane releases from GitHub API — see ${z_crane_stderr}"

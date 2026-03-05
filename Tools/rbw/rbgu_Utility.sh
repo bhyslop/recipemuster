@@ -306,6 +306,8 @@ rbgu_http_json() {
     if test -n "${z_body_file}"; then
       curl                                              \
           -sS                                           \
+          --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+          --max-time "${RBCC_CURL_MAX_TIME_SEC}"        \
           -X "${z_method}"                              \
           -H "Authorization: Bearer ${z_token}"         \
           -H "Content-Type: application/json"           \
@@ -319,6 +321,8 @@ rbgu_http_json() {
     else
       curl                                              \
           -sS                                           \
+          --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+          --max-time "${RBCC_CURL_MAX_TIME_SEC}"        \
           -X "${z_method}"                              \
           -H "Authorization: Bearer ${z_token}"         \
           -H "Content-Type: application/json"           \
@@ -386,6 +390,8 @@ rbgu_http_json_remit() {
     if test -n "${z_body_file}"; then
       curl                                              \
           -sS                                           \
+          --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+          --max-time "${RBCC_CURL_MAX_TIME_SEC}"        \
           -X "${z_method}"                              \
           -H "Authorization: Bearer ${z_token}"         \
           -H "Content-Type: application/json"           \
@@ -399,6 +405,8 @@ rbgu_http_json_remit() {
     else
       curl                                              \
           -sS                                           \
+          --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+          --max-time "${RBCC_CURL_MAX_TIME_SEC}"        \
           -X "${z_method}"                              \
           -H "Authorization: Bearer ${z_token}"         \
           -H "Content-Type: application/json"           \
