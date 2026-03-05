@@ -5314,9 +5314,10 @@
         "₢AkAAO",
         "₢AkAAR",
         "₢AkAAP",
-        "₢AkAAQ"
+        "₢AkAAQ",
+        "₢AkAAS"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5709,6 +5710,17 @@
               "text": "Inscribe rbbk_ premise text into source file headerdocs across rbw modules.\n\nMechanical work following the pattern established by ₢AkAAO exemplar.\n\n## Context\n\n₢AkAAO defines three rbbk_ premises and inscribes one exemplar file. This pace\nextends inscription to remaining files where premises are load-bearing.\n\n## Target files (not exhaustive — add as discovered)\n\nFiles with error-recovery or eventual-consistency logic:\n- rbgp_Payor.sh — probe-not-pray, no-silent-fallback\n- rbgi_IAM.sh — probe-not-pray, no-silent-fallback\n- rbgg_Governor.sh — probe-not-pray, no-silent-fallback\n- rbf_Foundry.sh — probe-not-pray, bcg-compliance\n\nFiles are candidates if they contain propagation loops, fallback paths,\nor error-recovery patterns. Constants files, guide display modules, and\npure-declaration files do not need inscription.\n\n## Deliverables\n\n1. Inscribe premise text in headerdocs per the rule defined in ₢AkAAO\n2. Verify inscription with the release compliance check (also from ₢AkAAO)\n\n## Sequencing\n\nDepends on ₢AkAAO (premises defined, rule written, exemplar established).\nBridleable once ₢AkAAO is complete — mechanical pattern application.",
               "silks": "premise-headerdoc-inscription",
               "commit": "f946651"
+            }
+          ]
+        },
+        "₢AkAAS": {
+          "tacks": [
+            {
+              "ts": "260304-1803",
+              "state": "rough",
+              "text": "Migrate all rbgu_http_json direct callers (7 files, ~90 sites) to rbgu_http_json_remit.\n\n## Prerequisites\n\n- ₣Al e2e validates rbgu_http_json_remit works in production\n- BCG _remit pattern proven stable\n\n## Work\n\nMechanical per-file transform at each call site:\n\nBEFORE:\n  rbgu_http_json \"METHOD\" \"${url}\" \"${token}\" \"infix\" [\"${body}\"]\n  z_code=$(rbgu_http_code_capture \"infix\") || z_code=\"\"\n\nAFTER:\n  IFS=\"${BUC_REMIT_DELIMITER}\" read -r z_remit_valid z_code z_resp \\\n    <<< \"$(rbgu_http_json_remit \"METHOD\" \"${url}\" \"${token}\" \"infix\" [\"${body}\"])\"\n  buc_remit_assert \"${z_remit_valid}\" \"context\"\n\nSites using rbgu_json_field_capture become direct jq calls on z_resp.\n\n## Files (from original docket census)\n\n| File | Approx sites |\n|------|-------------|\n| rbgp_Payor.sh | ~47 |\n| rbgg_Governor.sh | ~22 |\n| rbgu_Utility.sh | ~21 |\n| rbgi_IAM.sh | ~12 |\n| rbgb_Buckets.sh | ~7 |\n| rbf_Foundry.sh | ~5 |\n| rbga_ArtifactRegistry.sh | ~4 |\n\nEach file is independent — can be split into sub-paces if desired.\n\n## Completion\n\n- All direct rbgu_http_json callers migrated to rbgu_http_json_remit\n- rbgu_http_json callable but unused (verify with grep)",
+              "silks": "migrate-rbgu-callers-to-remit",
+              "commit": "3261ac7"
             }
           ]
         }
