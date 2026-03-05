@@ -53,6 +53,23 @@ entirely — `docker buildx build --load` puts the image in the local daemon,
   until either: (a) they are bifurcated, or (b) multi-platform provenance
   is implemented
 
+### Decision: Image Tag Uses Inscribe Timestamp Only (₢AlAAJ, 2026-03-05)
+
+**CB `images:` field requires a tag constructable from CB substitutions.** The
+`images:` field is static config — it cannot reference runtime-computed values
+like `TAG_BASE` (which includes the build timestamp from step 01). Therefore:
+
+- **Primary image tag:** `${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}`
+  (e.g., `i20260224_153022-image`). All components are CB substitutions.
+- **Metadata container tag:** still uses dual-timestamp `TAG_BASE` + `-about`
+  suffix, pushed by `docker push` in step 06 (not via `images:`).
+- **TAG_BASE** (`inscribe_ts-bBUILD_TS`) remains for metadata/logging in
+  `build_info.json` but is no longer the primary image tag.
+
+**Syft transport changed:** Syft now scans via `docker:IMAGE_URI` transport
+(reads from local daemon via Docker socket) instead of `oci-dir:` (which
+required the OCI Layout Bridge). Step 04 mounts `/var/run/docker.sock`.
+
 ### Multi-Platform Provenance: Open Question
 
 CB structural constraint: `images:` can only push single-platform from the
