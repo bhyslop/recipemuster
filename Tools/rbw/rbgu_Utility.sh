@@ -293,20 +293,15 @@ rbgu_http_json() {
   local -r z_max_attempts=3
   local -r z_retry_sleep=3
 
-  # File paths include attempt suffix on retries (attempt 1 uses base name)
-  local z_resp_file=""
-  local z_code_file=""
-  local z_code_errs=""
-
   while :; do
     z_curl_status=0
     z_attempt=$((z_attempt + 1))
 
-    local z_attempt_infix="${z_infix}"
-    test "${z_attempt}" -eq 1 || z_attempt_infix="${z_infix}_retry${z_attempt}"
-    z_resp_file="${ZRBGU_PREFIX}${z_attempt_infix}${ZRBGU_POSTFIX_JSON}"
-    z_code_file="${ZRBGU_PREFIX}${z_attempt_infix}${ZRBGU_POSTFIX_CODE}"
-    z_code_errs="${ZRBGU_PREFIX}${z_attempt_infix}${ZRBGU_POSTFIX_CODE}.stderr"
+    # Each attempt writes to uniquely-suffixed files; callers use z_infix_u
+    z_infix_u="${z_infix}_${z_attempt}"
+    local z_resp_file="${ZRBGU_PREFIX}${z_infix_u}${ZRBGU_POSTFIX_JSON}"
+    local z_code_file="${ZRBGU_PREFIX}${z_infix_u}${ZRBGU_POSTFIX_CODE}"
+    local z_code_errs="${ZRBGU_PREFIX}${z_infix_u}${ZRBGU_POSTFIX_CODE}.stderr"
 
     if test -n "${z_body_file}"; then
       curl                                              \
@@ -354,17 +349,6 @@ rbgu_http_json() {
     buc_log_args "Transient curl error (exit ${z_curl_status}), retry ${z_attempt}/${z_max_attempts} in ${z_retry_sleep}s"
     sleep "${z_retry_sleep}"
   done
-
-  # If a retry succeeded, copy final attempt's files to base infix paths
-  # so callers (rbgu_http_code_capture, rbgu_json_field_capture) find them
-  if test "${z_attempt}" -gt 1; then
-    local -r z_base_resp="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
-    local -r z_base_code="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}"
-    local -r z_base_errs="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}.stderr"
-    cp "${z_resp_file}" "${z_base_resp}"
-    cp "${z_code_file}" "${z_base_code}"
-    cp "${z_code_errs}" "${z_base_errs}"
-  fi
 
   local z_code
   z_code=$(<"${z_code_file}") || buc_die "Failed to read code file"
