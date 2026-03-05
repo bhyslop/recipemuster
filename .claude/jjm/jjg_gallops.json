@@ -5875,6 +5875,7 @@
         "₢AlAAN",
         "₢AlAAO",
         "₢AlAAP",
+        "₢AlAAQ",
         "₢AlAAM",
         "₢AlAAH",
         "₢AlAAG",
@@ -5885,7 +5886,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6313,6 +6314,17 @@
               "text": "Update specifications to reflect validated single-arch SLSA v1.0 provenance.\n\n## Prerequisites\n\n- ₢AlAAO (verify-single-arch-slsa-e2e) complete — confirmed facts only\n\n## Context\n\nWith SLSA Level 3 confirmed on live trigger-dispatched builds for both amd64\nand arm64, update specs to reflect reality. State only confirmed facts.\n\n## Scope\n\n### RBS0-SpecTop.adoc (lines ~1455-1472)\n\n- Remove \"Architectural constraint\" paragraph about OCI Layout Bridge\n- Update `rbtgr_provenance` definition: single-arch vessels produce SLSA\n  Level 3 via `--load` + `images:` + `VERIFIED`\n- Document that multi-platform provenance is not yet supported\n- Reference experiment evidence (memo, build IDs)\n- Note: CB pre-populates Docker credentials (steps 02/03 eliminated)\n\n### RBSOB-oci_layout_bridge.adoc\n\n- Mark OCI Layout Bridge as superseded for single-arch vessels\n- Explain why: buildx --load puts image in local daemon directly\n- Note: may be revisited for multi-platform provenance path\n- Do not delete — historical record and potential future use\n\n### Paddock update\n\n- Record spec changes and their basis in verified experiment results\n\n## Acceptance Criteria\n\n- RBS0 provenance definition states only confirmed, tested facts\n- No \"we hope\" or \"should work\" language in specs\n- RBSOB clearly marks superseded status with rationale\n- All spec assertions traceable to experiment build IDs",
               "silks": "spec-single-arch-provenance",
               "commit": "cfc6111"
+            }
+          ]
+        },
+        "₢AlAAQ": {
+          "tacks": [
+            {
+              "ts": "260305-1233",
+              "state": "rough",
+              "text": "Test whether per-platform pullback can produce SLSA v1.0 provenance on all\nsub-images of a multi-platform build.\n\n## Context\n\nSingle-arch SLSA is proven (₢AlAAK, ₢AlAAL experiments). The structural\nconstraint is: CB's `images:` field pushes from Docker's local daemon, which\nis single-platform only. Multi-platform manifests cannot exist in the local\ndaemon.\n\n**Core question:** Can we build multi-platform via `buildx --push`, then pull\nback EACH platform individually into the local daemon, and get SLSA provenance\non each platform's digest?\n\n## What We Know\n\nFrom Experiment 3 (build 48b818ed):\n- `docker pull` of a multi-platform manifest on amd64 worker pulls amd64 only\n- Pulled image enters local daemon, `images:` pushes it, SLSA Level 3 generated\n- Tag is overwritten (multi-platform manifest replaced by single-platform)\n- Provenance attaches to the pulled-back single-platform digest\n\n**Unknown:**\n- Does `docker pull --platform linux/arm64` work on an amd64 CB worker?\n- If so, does the arm64 image enter the local daemon correctly?\n- Can `images:` push a foreign-arch image from the local daemon?\n- Can we tag each platform distinctly and declare ALL in `images:`?\n- Does CB generate provenance on each declared image?\n\n## Experiment Design\n\nUse `gcloud builds submit --no-source` on demo1025 (same method as prior\nexperiments). Busybox image, same toolchain versions.\n\n### Variant A: Per-platform pull with --platform flag\n\n```\n1. buildx --push multi-platform (amd64, arm64, arm/v7) → TAG-multi\n2. docker pull --platform linux/amd64 IMAGE:TAG-multi\n3. docker tag → IMAGE:TAG-amd64\n4. docker pull --platform linux/arm64 IMAGE:TAG-multi\n5. docker tag → IMAGE:TAG-arm64\n6. docker pull --platform linux/arm/v7 IMAGE:TAG-multi\n7. docker tag → IMAGE:TAG-armv7\n```\n\ncloudbuild.json `images:` declares all three tagged URIs.\n`requestedVerifyOption: VERIFIED`.\n\n**Success:** Each platform image gets SLSA Level 3.\n**Failure modes:** --platform flag rejected, foreign-arch pull fails,\n`images:` push fails for foreign-arch image, VERIFIED fails.\n\n### Variant B: Per-platform pull via digest\n\nIf --platform flag doesn't work on `docker pull`, try pulling by\nplatform-specific digest (extracted from the manifest list):\n\n```\n1. buildx --push multi-platform → TAG-multi\n2. docker manifest inspect IMAGE:TAG-multi → extract per-platform digests\n3. docker pull IMAGE@sha256:<amd64-digest>\n4. docker tag → IMAGE:TAG-amd64\n5. (repeat for arm64, arm/v7)\n```\n\n### Variant C: Single build, multiple --load runs\n\nInstead of --push + pullback, try multiple single-platform builds with --load:\n\n```\n1. buildx build --load --platform=linux/amd64 --tag IMAGE:TAG-amd64 .\n2. buildx build --load --platform=linux/arm64 --tag IMAGE:TAG-arm64 .\n3. buildx build --load --platform=linux/arm/v7 --tag IMAGE:TAG-armv7 .\n```\n\nAll three in local daemon. `images:` declares all three.\nDownside: three separate builds (slower), no multi-platform manifest.\nUpside: no --push+pullback complexity.\n\n## Downstream Questions (if experiment succeeds)\n\n- How to reconstruct a multi-platform manifest from individually-tagged images?\n  (`docker manifest create` + `docker manifest push`?)\n- Does the reconstructed manifest get provenance? (Probably not — but do the\n  per-platform images retain theirs?)\n- Is the per-platform tagging scheme acceptable for consumers?\n- What does `docker pull IMAGE:TAG-multi` resolve to after reconstruction?\n\n## Verification (per variant)\n\n- Each platform image has `slsa_build_level: 3`\n- Provenance predicate records the correct platform\n- No 401/403 errors\n- Build completes under VERIFIED constraint\n\n## Key Files\n\n- `Memos/memo-20260305-provenance-architecture-gap.md` — prior experiment evidence\n- `cloudbuild-test-provenance.json` — Experiment 3 config (template)\n\n## Acceptance Criteria\n\n- At least one variant produces SLSA Level 3 on all platform sub-images\n- OR: documented failure modes for all variants with clear error evidence\n- Results added to provenance memo with same level of detail as prior experiments",
+              "silks": "experiment-multiplatform-slsa-provenance",
+              "commit": "be698ba"
             }
           ]
         }
