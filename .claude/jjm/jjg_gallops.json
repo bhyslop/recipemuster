@@ -5873,6 +5873,7 @@
         "₢AlAAL",
         "₢AlAAJ",
         "₢AlAAN",
+        "₢AlAAO",
         "₢AlAAM",
         "₢AlAAH",
         "₢AlAAG",
@@ -5883,7 +5884,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6261,6 +6262,17 @@
               "text": "Create single-architecture busybox vessels for SLSA v1.0 provenance validation.\n\n## Context\n\nThe stitch function (₢AlAAJ) now supports single-arch vessels only. Before we\ncan verify SLSA provenance on live infrastructure, we need vessels configured\nfor single platforms.\n\n## Current Vessel Landscape\n\n| Vessel | Platforms | Notes |\n|---|---|---|\n| rbev-busybox | amd64, arm64, arm/v7 | 3-platform, needs bifurcation |\n| rbev-bottle-anthropic-jupyter | amd64, arm64 | 2-platform |\n| rbev-bottle-plantuml | amd64, arm64 | 2-platform |\n| rbev-bottle-ubuntu-test | amd64, arm64 | 2-platform |\n| rbev-sentry-ubuntu-large | amd64, arm64 | 2-platform |\n| rbev-ubu-safety | amd64, arm64 | 2-platform |\n| rbev-nginx-ward | (bind mode) | No build |\n| trbim-macos | arm64 only | Already single-arch! |\n\n## Scope\n\n1. **Create `rbev-busybox-amd64`** — new vessel directory, rbrv.env with\n   `RBRV_CONJURE_PLATFORMS=\"linux/amd64\"`, same Dockerfile as busybox\n2. **Create `rbev-busybox-arm64`** — same but `linux/arm64`\n3. **Decide policy for original `rbev-busybox`** — keep with multi-platform\n   config (stitch will reject it until multi-platform is implemented)?\n   Remove? Document decision in paddock.\n4. **Decide policy for other multi-platform vessels** — not bifurcated in\n   this pace, but document the plan. They remain multi-platform and stitch\n   will reject them until multi-platform support is added.\n5. **Note trbim-macos** — already arm64-only, available as additional\n   arm64 test target without any changes.\n\n## Acceptance Criteria\n\n- rbev-busybox-amd64 exists with valid rbrv.env, single platform\n- rbev-busybox-arm64 exists with valid rbrv.env, single platform\n- Policy for original busybox and other multi-platform vessels documented\n- Paddock updated with vessel bifurcation status",
               "silks": "bifurcate-busybox-single-arch",
               "commit": "7fc8062"
+            }
+          ]
+        },
+        "₢AlAAO": {
+          "tacks": [
+            {
+              "ts": "260305-1217",
+              "state": "rough",
+              "text": "End-to-end verification of single-arch SLSA v1.0 provenance on live infrastructure.\n\n## Prerequisites\n\n- ₢AlAAJ (stitch-single-arch-slsa) complete — pipeline code ready\n- ₢AlAAN (bifurcate-busybox-single-arch) complete — vessels exist\n\n## Context\n\nPipeline code and vessels are ready. This pace exercises them on demo1025\n(or a fresh depot if needed) to prove SLSA Level 3 on trigger-dispatched builds.\n\n## Scope\n\n### Infrastructure preparation\n\n- If new vessel sigils need triggers: depot destroy + create cycle\n  (user pre-approved depot reconfiguration)\n- Pin refresh during depot create\n- Governor reset, director/retriever creation as needed\n\n### Test A: amd64 SLSA\n\n1. Inscribe rbev-busybox-amd64: `tt/rbw-DI.DirectorInscribesRubric.sh`\n2. Dispatch: `tt/rbw-DC.DirectorConjuresArk.sh rbev-vessels/rbev-busybox-amd64`\n3. Verify: `gcloud artifacts docker images describe ... --show-provenance`\n4. Confirm: `slsa_build_level: 3`\n\n### Test B: arm64 SLSA (cross-arch on amd64 worker)\n\n1. Inscribe rbev-busybox-arm64\n2. Dispatch\n3. Verify SLSA provenance\n4. This proves QEMU + buildx --load + images: works for foreign arch\n\n### Test C: trbim-macos (existing arm64 vessel)\n\n1. Inscribe trbim-macos (already single-arch arm64)\n2. Dispatch\n3. Verify SLSA provenance\n4. Proves the pipeline works on a pre-existing single-arch vessel\n\n### Verification checklist (per image)\n\n- `slsa_build_level: 3`\n- Both v0.1 and v1 provenance occurrences present\n- Builder ID is `GoogleHostedWorker`\n- Build steps recorded in provenance predicate\n- SBOM generated correctly from local daemon image\n\n## Acceptance Criteria\n\n- SLSA Level 3 on trigger-dispatched amd64 busybox\n- SLSA Level 3 on trigger-dispatched arm64 busybox\n- SLSA Level 3 on trigger-dispatched trbim-macos\n- All three images inspectable via `--show-provenance`\n- No 401/403 auth errors in build logs\n- SBOM present on all three images\n- Results documented in paddock for downstream spec paces",
+              "silks": "verify-single-arch-slsa-e2e",
+              "commit": "24bd6c4"
             }
           ]
         }
