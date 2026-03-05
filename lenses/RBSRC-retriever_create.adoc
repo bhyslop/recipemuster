@@ -57,12 +57,12 @@ HTTP 200 response
 //axhos_step
 . *Verify Service Account Propagation*:
 .. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `projects/-/serviceAccounts/«RETRIEVER_UNIQUE_ID»`
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `projects/-/serviceAccounts/«RETRIEVER_EMAIL»`
 .. {rbbc_poll}
-with backoff until HTTP 200 (newly-created SA may not be immediately resolvable by numeric ID)
-.. NOTE: Numeric ID is valid in API URL paths but subject to IAM propagation delay. Not valid in IAM policy `members` — see RBS0 IAM Member Format.
+with backoff until HTTP 200 (newly-created SA may not be immediately resolvable by email)
+.. NOTE: Poll must use the email address, not the numeric ID. The email-based lookup path has independent propagation from the UID-based path, and subsequent steps (keys.list, keys.create) all use the email address. Polling by UID can succeed while the email path still returns 404.
 .. {rbbc_require}
-service account accessible
+service account accessible by email
 
 //axhos_step
 . *Preflight: Ensure Pristine Key State*:
