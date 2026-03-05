@@ -5792,6 +5792,13 @@
         "₢AkAAW": {
           "tacks": [
             {
+              "ts": "260304-1909",
+              "state": "complete",
+              "text": "Two changes in one pace:\n\n1. Rename `buc_next` to `buc_tabtarget` across all live code:\n   - `Tools/buk/buc_command.sh` — definition + error message\n   - `Tools/rbw/rbf_Foundry.sh` — 1 call site\n   - `Tools/rbw/rbgp_Payor.sh` — 4 call sites\n   - `Tools/rbw/rbgm_ManualProcedures.sh` — 1 call site\n   - `Tools/rbw/rbob_bottle.sh` — 2 call sites\n\n2. In `rbgm_ManualProcedures.sh`, payor_refresh procedure step 3 \"Verify Installation\" (~line 320): replace the raw `rbgp_depot_list` function call with guidance to use the tabtarget `tt/rbw-Pl.PayorListsDepots.sh` (discoverable via `buc_tabtarget`), consistent with BUK tabtarget-driven workflow.\n\nDo NOT touch retired heat docs or gallops JSON — those are historical records.",
+              "silks": "rename-buc-next-and-fix-payor-refresh",
+              "commit": "575d490"
+            },
+            {
               "ts": "260304-1853",
               "state": "rough",
               "text": "Two changes in one pace:\n\n1. Rename `buc_next` to `buc_tabtarget` across all live code:\n   - `Tools/buk/buc_command.sh` — definition + error message\n   - `Tools/rbw/rbf_Foundry.sh` — 1 call site\n   - `Tools/rbw/rbgp_Payor.sh` — 4 call sites\n   - `Tools/rbw/rbgm_ManualProcedures.sh` — 1 call site\n   - `Tools/rbw/rbob_bottle.sh` — 2 call sites\n\n2. In `rbgm_ManualProcedures.sh`, payor_refresh procedure step 3 \"Verify Installation\" (~line 320): replace the raw `rbgp_depot_list` function call with guidance to use the tabtarget `tt/rbw-Pl.PayorListsDepots.sh` (discoverable via `buc_tabtarget`), consistent with BUK tabtarget-driven workflow.\n\nDo NOT touch retired heat docs or gallops JSON — those are historical records.",
