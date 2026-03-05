@@ -1488,20 +1488,21 @@ Implementation notes:
 `jq` is not available in `gcr.io/cloud-builders/docker` — the `--platform` flag approach avoids JSON manifest parsing entirely.
 See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment details.
 +
-**Target multi-platform pipeline** (8 steps + `images:` push + post-build reassembly):
+**Target multi-platform pipeline** (9 steps + `images:` push, single build invocation — validated by experiment 6, build `6661d0cd`):
 +
   1. `derive-tag-base` — compute inscribe timestamp and tag base
   2. `qemu-binfmt` — register cross-architecture emulation
-  3. `buildx --push` — build all platforms, push intermediate multi-platform tag to GAR
+  3. `buildx --push` — build all platforms, push intermediate `-multi` tag to GAR
   4. `per-platform-pullback` — `docker pull --platform <arch>` for each platform, `docker tag` to per-platform tags
-  5. `sbom` — strategy TBD (per-platform or combined)
-  6. `assemble-metadata` — collect build metadata
-  7. `build-and-push-metadata` — build and push metadata sidecar image
+  5. `docker push` — pre-push each per-platform tag to registry (enables in-build `imagetools create`)
+  6. `syft` — scan each per-platform image sequentially from local daemon (`docker:` transport), one SBOM per platform
+  7. `build-info` — generate per-platform `build_info.json` with SLSA provenance summary fields
+  8. `buildx --push -about` — build multi-platform metadata container (`FROM scratch` + `TARGETARCH`/`TARGETVARIANT` selects per-platform SBOM and build_info)
+  9. `imagetools create` — assemble consumer-facing multi-platform manifest list from per-platform tags (in-build step, not post-build)
 +
-`images:` lists all per-platform tags — Cloud Build pushes each and generates SLSA provenance.
+`images:` lists all per-platform tags — Cloud Build re-pushes each (idempotent, same digest) and generates SLSA provenance.
 `options.requestedVerifyOption: VERIFIED` ensures build fails if provenance cannot be generated.
-+
-Post-build: `docker buildx imagetools create -t :TAG :TAG-amd64 :TAG-arm64 ...` reassembles the multi-platform manifest list from attested per-platform images.
+Per-platform tags are internal build plumbing; the consumer-facing tag (assembled by `imagetools create`) is platform-transparent, identical to single-arch.
 
 === Cloud Build v2 Definitions
 

@@ -709,6 +709,51 @@ buildx --push (3 platforms)
 `RBRV_CONJURE_PLATFORMS` with multiple platforms and get full SLSA provenance
 on each platform image through the pullback path.
 
+### Experiment 6: Single-Build Reassembly (Option G)
+
+**Build ID:** `6661d0cd-ad30-48e1-a1fb-ab7419a9c670`
+**Config:** `Memos/experiments/cloudbuild-test-single-build-reassembly.json`
+**Duration:** 33 seconds
+
+**Purpose:** Test whether `docker push` per-platform tags mid-build + `imagetools
+create` within the same build + `images:` re-push produces SLSA provenance, all
+in a single build invocation. This eliminates the need for post-build steps,
+Pub/Sub, Cloud Functions, or local operator involvement.
+
+Pipeline (8 steps in one build):
+1. Inline Dockerfile (busybox, same as prior experiments)
+2. qemu-binfmt (arm64, arm)
+3. `buildx --push` 3 platforms → `:varG-multi`
+4. Per-platform pullback (3 steps: `docker pull --platform` → `docker tag`)
+5. `docker push` each per-platform tag (`:varG-amd64`, `:varG-arm64`, `:varG-armv7`)
+6. `imagetools create -t :varG-combined :varG-amd64 :varG-arm64 :varG-armv7`
+
+`images:` field lists `:varG-amd64`, `:varG-arm64`, `:varG-armv7` with
+`requestedVerifyOption: VERIFIED`.
+
+**Results:**
+
+| Image | SLSA Level | Build ID |
+|---|---|---|
+| `:varG-amd64` | **3** | `6661d0cd` |
+| `:varG-arm64` | **3** | `6661d0cd` |
+| `:varG-armv7` | **3** | `6661d0cd` |
+| `:varG-combined` (manifest list) | `unknown` (expected) | — |
+
+Same `buildInvocationId` across all per-platform images.
+
+**Key findings:**
+- `docker push` works mid-build using pre-populated GAR credentials
+- `imagetools create` can reference images pushed by `docker push` in prior steps
+- `images:` re-push is idempotent — same content, same digest, SLSA provenance generated
+- Combined manifest list survives the `images:` re-push intact
+- Zero new dependencies — only `docker` + `buildx` in `gcr.io/cloud-builders/docker`
+
+**Conclusion:** The entire multi-platform provenance pipeline runs in a single
+build invocation. Options (b) Pub/Sub → Cloud Function, (c) local post-dispatch,
+and (d) separate `gcloud builds submit` are all eliminated. The operator
+dispatches, Cloud Build executes — no local environment in the provenance chain.
+
 ### Sources
 
 - [Cloud Build provenance generation](https://docs.google.com/build/docs/securing-builds/generate-validate-build-provenance)

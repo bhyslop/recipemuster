@@ -130,6 +130,48 @@ provenance chain.
 
 **Config:** `Memos/experiments/cloudbuild-test-single-build-reassembly.json`
 
+### Decisions: Multi-Platform SBOM, Tags, Metadata (₢AlAAS design, 2026-03-05)
+
+**SBOM strategy:** Per-platform Syft scans → per-platform SBOMs. No weakening
+of the per-image documentation premise. Each architecture gets its own SBOM
+describing exactly that platform image's dependencies.
+
+**Tag scheme — platform-transparent consumer tags:**
+
+| Tag | Purpose |
+|-----|---------|
+| `{INSCRIBE_TS}-multi` | Intermediate `buildx --push` target |
+| `{INSCRIBE_TS}{ARK_SUFFIX}-amd64` | Per-platform (`images:` field, SLSA) |
+| `{INSCRIBE_TS}{ARK_SUFFIX}` | Consumer-facing (reassembled manifest list) |
+| `{TAG_BASE}-about` | Metadata container (multi-platform) |
+
+Platform suffix: `linux/amd64` → `-amd64`, `linux/arm64` → `-arm64`,
+`linux/arm/v7` → `-armv7`. Computed at inscribe time from `RBRV_CONJURE_PLATFORMS`.
+
+**Multi-platform `-about` build:** `FROM scratch` + buildx `TARGETARCH`/
+`TARGETVARIANT` auto-args select per-platform files in one `buildx --push`
+invocation. No QEMU needed. Changes `-about` from `docker build` + `docker push`
+to `buildx --push`.
+
+**build_info.json:** Per-platform (not shared). Per-platform fields: platform
+string, image digest, QEMU used. Shared fields: build ID, timestamps, git
+commit, vessel name. SLSA summary fields added: `slsa_build_level`,
+`build_invocation_id`, `provenance_predicate_types`, `provenance_builder_id`.
+
+### Multi-Platform Pipeline Shape (target for ₢AlAAS)
+
+1. derive-tag-base
+2. qemu-binfmt
+3. buildx --push (all platforms → `-multi` tag)
+4. per-platform pullback (docker pull --platform → docker tag)
+5. docker push per-platform tags (pre-push for imagetools)
+6. syft scan each per-platform image sequentially (docker: transport)
+7. generate per-platform build_info.json with SLSA summary
+8. buildx --push multi-platform -about (FROM scratch + TARGETARCH)
+9. imagetools create → consumer-facing manifest list (in-build step)
++ `images:` re-pushes per-platform tags (idempotent) → SLSA Level 3
++ `requestedVerifyOption: VERIFIED`
+
 ### Provenance Experiments Validated (₢AlAAK, ₢AlAAL, 2026-03-05)
 
 Three experiments on demo1025 via `gcloud builds submit --no-source`:
