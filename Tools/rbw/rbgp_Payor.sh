@@ -583,7 +583,7 @@ rbgp_depot_create() {
   if test -z "${z_rubric_repo_url}"; then
     buc_warn "RBRR_RUBRIC_REPO_URL is not set in rbrr.env"
     buc_info "Set up a GitLab rubric repo first:"
-    buc_next "${RBZ_GITLAB_SETUP}"
+    buc_tabtarget "${RBZ_GITLAB_SETUP}"
     buc_die "Cannot proceed without GitLab rubric repo"
   fi
 
@@ -594,7 +594,7 @@ rbgp_depot_create() {
       buc_warn "RBRR_RUBRIC_REPO_URL is not a gitlab.com URL"
       buc_info "Only GitLab is supported for CB v2 connections."
       buc_info "Set up a GitLab rubric repo:"
-      buc_next "${RBZ_GITLAB_SETUP}"
+      buc_tabtarget "${RBZ_GITLAB_SETUP}"
       buc_die "Cannot proceed without GitLab rubric repo"
       ;;
   esac
@@ -602,7 +602,7 @@ rbgp_depot_create() {
   buc_step 'Read GitLab project access token from stdin'
   buc_info "Rubric repo: ${z_rubric_repo_url}"
   buc_info "Need a token? Run the setup guide:"
-  buc_next "${RBZ_GITLAB_SETUP}"
+  buc_tabtarget "${RBZ_GITLAB_SETUP}"
   local z_gitlab_token=""
   buc_info "Paste GitLab project access token:"
   read -r z_gitlab_token || buc_die "Failed to read token from stdin"
@@ -1187,7 +1187,7 @@ rbgp_depot_create() {
   buc_bare "  RBRR_CBV2_CONNECTION_NAME=${z_cbv2_connection_name}"
   buc_bare "  RBRR_GCB_WORKER_POOL=${z_pool_resource}"
   buc_info "Next: create Governor for this depot:"
-  buc_next "${RBZ_GOVERNOR_RESET}"
+  buc_tabtarget "${RBZ_GOVERNOR_RESET}"
 }
 
 rbgp_depot_destroy() {

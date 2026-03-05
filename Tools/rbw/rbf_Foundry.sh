@@ -990,7 +990,7 @@ rbf_rubric_inscribe() {
   if test "${z_age}" -gt "${ZRBF_INSCRIBE_STALENESS_SEC}"; then
     buc_warn "GCB pins are stale (${z_age}s old, limit ${ZRBF_INSCRIBE_STALENESS_SEC}s)"
     buc_info "Refresh pins first, commit, then re-run inscribe:"
-    buc_next "${RBZ_REFRESH_GCB_PINS}"
+    buc_tabtarget "${RBZ_REFRESH_GCB_PINS}"
     buc_die "Cannot inscribe with stale pins"
   fi
   buc_info "Pin freshness verified (${z_age}s old)"

@@ -310,14 +310,14 @@ rbob_start() {
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1; then
     buc_warn "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}"
     buc_info "Summon it first:"
-    buc_next "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
+    buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
     buc_die "Cannot start without sentry image"
   fi
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_IMAGE}" >/dev/null 2>&1; then
     buc_warn "Bottle image not found locally: ${ZRBOB_BOTTLE_IMAGE}"
     buc_info "Summon it first:"
-    buc_next "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
+    buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
     buc_die "Cannot start without bottle image"
   fi
 

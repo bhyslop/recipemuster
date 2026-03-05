@@ -317,7 +317,7 @@ rbgm_payor_refresh() {
   zrbgm_e
   zrbgm_s2     "3. Verify Installation:"
   zrbgm_d      "   Test with a simple operation:"
-  zrbgm_dc     "      " "rbgp_depot_list"
+  buc_tabtarget "${RBZ_LIST_DEPOT}"
   zrbgm_d      "   Should display current depots without authentication errors."
   zrbgm_e
   zrbgm_d      "Prevention: Run any Payor operation monthly to prevent expiration."
@@ -449,7 +449,7 @@ rbgm_gitlab_setup() {
   bug_e
   bug_section  "5. Run Depot Create:"
   bug_t        "   Run depot_create — it will prompt you to paste the token:"
-  buc_next "${RBZ_CREATE_DEPOT}" "<depot-name>"
+  buc_tabtarget "${RBZ_CREATE_DEPOT}" "<depot-name>"
   bug_t        "   When prompted, paste the token and press Enter."
   bug_tW       "   " "Do NOT put the token in a command line or pipeline — stdin keeps it out of shell history."
 
