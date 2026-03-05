@@ -122,7 +122,7 @@
   "options": {
     "logging": "CLOUD_LOGGING_ONLY",
     "pool": {
-      "name": "projects/rbwg-d-demo1015-260303152320/locations/us-central1/workerPools/rbw-demo1015-pool"
+      "name": "projects/rbwg-d-demo1025-260304183118/locations/us-central1/workerPools/rbw-demo1025-pool"
     }
   },
   "timeout": "1200s"
