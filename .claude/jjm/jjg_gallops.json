@@ -6254,6 +6254,13 @@
         "₢AlAAM": {
           "tacks": [
             {
+              "ts": "260305-1226",
+              "state": "rough",
+              "text": "Update RBSCB-CloudBuildRoadmap.adoc with crystallized provenance posture based on\nconfirmed experiment results and verified single-arch SLSA.\n\n## Prerequisites\n\n- ₢AlAAP (spec-single-arch-provenance) complete — RBS0 and RBSOB updated with\n  confirmed facts from live verification\n- ₢AlAAO (verify-single-arch-slsa-e2e) complete — SLSA Level 3 confirmed on\n  trigger-dispatched builds for both amd64 and arm64\n\n## Scope\n\n- Correct \"SLSA v1.0 provenance is automatic\" in Current Posture (line 29-33)\n- Update OCI Layout Bridge reference (line 68-71) — superseded for single-arch\n- Update Deferred Items: cosign (157-166) — not needed for single-arch SLSA\n- Update Deferred Items: BinAuth (168-171) — now achievable with CB-native SLSA\n- Add single-arch provenance architecture section with confirmed pipeline\n- Document multi-platform provenance as future work with known constraints\n- Reference memo-20260305-provenance-architecture-gap.md as research source\n\n## Acceptance Criteria\n\n- RBSCB states only confirmed facts, not hypotheses\n- Single-arch provenance path documented as current capability\n- Multi-platform provenance documented as future work with clear constraints\n- Deferred Items reflect current reality\n- No \"we are still trying\" language in the roadmap",
+              "silks": "rbscb-provenance-posture-update",
+              "commit": "9cc32fa"
+            },
+            {
               "ts": "260304-2015",
               "state": "rough",
               "text": "Update RBSCB-CloudBuildRoadmap.adoc with crystallized provenance posture based on\nconfirmed experiment results.\n\n## Prerequisites\n\n- test-buildx-push-gar (₢AlAAK), test-pullback-images-verified (₢AlAAL),\n  and stitch-provenance-fix (₢AlAAJ) all complete\n\n## Scope\n\n- Correct \"SLSA v1.0 provenance is automatic\" in Current Posture (line 29-33)\n- Update OCI Layout Bridge reference (line 68-71) with push path outcome\n- Update Deferred Items: cosign (157-166) and BinAuth (168-171) based on results\n- Add provenance architecture section if experiment results warrant it\n- Reference memo-20260305-provenance-architecture-gap.md as research source\n\n## Acceptance Criteria\n\n- RBSCB states only confirmed facts, not hypotheses\n- Deferred Items reflect current reality\n- No \"we are still trying\" language in the roadmap",
