@@ -1462,14 +1462,15 @@ Requires two conditions in the
 {rbtgr_build_json}:
 (1) `options.requestedVerifyOption: VERIFIED` — opts private pool builds into provenance generation (private pools default to no provenance);
 (2) the top-level `images:` field must list the image URI — Cloud Build generates provenance only for images it pushes via this field.
+Cloud Build pre-populates Docker credentials for all GAR regions, so explicit docker-login steps are unnecessary.
 +
-**Architectural constraint**: The
-<<rbsob_oci_layout_bridge,OCI Layout Bridge>>
-pushes images via crane/skopeo in build steps, bypassing Cloud Build's native push.
-Cloud Build cannot generate provenance for images pushed by build steps
-(see https://cloud.google.com/build/docs/securing-builds/generate-validate-build-provenance[GCP provenance docs]).
-Resolution requires restructuring the push path so Cloud Build performs the image push via `images:`.
-See `Memos/memo-20260305-provenance-architecture-gap.md` for research and experiment plan.
+**Single-arch vessels**: `buildx --load` places the built image into the local Docker daemon's store.
+The `images:` field in {rbtgr_build_json} causes Cloud Build to push the image and generate SLSA v1.0 Level 3 provenance.
+Verified on 3 trigger-dispatched vessels — rbev-busybox-amd64 (`16d3b60f`), rbev-busybox-arm64 (`fc36b970`), trbim-macos (`9180c42a`).
++
+**Multi-platform vessels**: not yet supported.
+The `images:` field requires images present in Docker's local store, which is single-platform only.
+Research identified a viable path via per-platform pullback; see `Memos/memo-20260305-provenance-architecture-gap.md`.
 
 === Cloud Build v2 Definitions
 
