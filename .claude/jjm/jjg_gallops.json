@@ -5828,6 +5828,7 @@
       "creation_time": "260303",
       "status": "racing",
       "order": [
+        "₢AlAAI",
         "₢AlAAH",
         "₢AlAAG",
         "₢AlAAE",
@@ -5837,7 +5838,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6051,6 +6052,17 @@
               "text": "Add --connect-timeout and --max-time to all 26 actionable curl sites across 7 files, using new RBCC kindle constants.\n\n## Problem\n\nCurl calls have no timeout. The webhook secret curl hung indefinitely during depot create (PID sat for minutes until manually killed). The OAuth refresh curl uses -s (not -sS) so failures produce no diagnostic output.\n\n## Solution\n\nAdd two kindle constants to rbcc_Constants.sh:\n```\nreadonly RBCC_CURL_CONNECT_TIMEOUT_SEC=10\nreadonly RBCC_CURL_MAX_TIME_SEC=60\n```\n\nThen add `--connect-timeout \"${RBCC_CURL_CONNECT_TIMEOUT_SEC}\" --max-time \"${RBCC_CURL_MAX_TIME_SEC}\"` to all 26 curl invocations across these 7 files:\n\n| File | Curl count | Notes |\n|------|-----------|-------|\n| rbgu_Utility.sh | 4 | rbgu_http_json + rbgu_http_json_remit (2 each: body/no-body) |\n| rbgp_Payor.sh | 2 | OAuth refresh (zrbgp_refresh_capture, zrbgp_authorization_capture); also fix -s to -sS |\n| rbgo_OAuth.sh | 1 | OAuth token exchange |\n| rbf_Foundry.sh | 12 | Trigger dispatch, delete, crane downloads, HEAD checks |\n| rbi_Image.sh | 2 | Image operations |\n| rbrr_cli.sh | 3 | Crane downloads, registry check |\n| rbap_AccessProbe.sh | 2 | Access probe checks |\n\n## Additional fix\n\nChange `-s` to `-sS` in rbgp_Payor.sh OAuth curls (lines 95, 469) so curl errors reach stderr.\n\n## Effect\n\n- Curl exit code 28 (timeout) is already retryable in rbgu_http_json retry loop\n- Worst case: 3 retries x 60s = 180s bounded failure, not infinite hang\n- OAuth curls fail fast (30s max) with visible error output\n\n## Not in scope\n\n- Test file curls (rbts/): different context\n- VM string curl (rbv_PodmanVM.sh): runs inside VM",
               "silks": "curl-timeout-bounded-transport",
               "commit": "f5a601d"
+            }
+          ]
+        },
+        "₢AlAAI": {
+          "tacks": [
+            {
+              "ts": "260304-1941",
+              "state": "rough",
+              "text": "Investigate Cloud Build SLSA provenance generation requirements.\n\n## Context\n\nBusybox build succeeded on demo1025 private pool but `slsa_build_level: \"unknown\"` — no provenance attestation generated. Two gaps identified:\n\n1. `options.requestedVerifyOption: VERIFIED` is not set in the build config\n2. The `images:` field is empty because we push via crane/skopeo (OCI Layout Bridge) rather than Cloud Build's native push. Cloud Build provenance is tied to images declared in `images:`.\n\n## Research Questions\n\n1. Does adding `requestedVerifyOption: VERIFIED` alone generate provenance for trigger-invoked builds on private pools?\n2. Does the top-level `images:` field need to be populated for provenance to attach? If so, can it reference an image digest that was pushed by a build step (not by Cloud Build's native push)?\n3. Are there alternative provenance mechanisms (e.g., `--requested-verify-option` on trigger creation, or Artifact Analysis API attestations)?\n4. What is the interaction between private pools and provenance generation? Any limitations?\n5. Does the CB v2 (GitLab) connection type affect provenance availability?\n\n## Acceptance Criteria\n\n- Clear answers to all 5 research questions with GCP documentation references\n- Update RBS0 with provenance requirements (new section or update existing)\n- Recommendation for stitch changes needed",
+              "silks": "research-cloudbuild-provenance-mechanics",
+              "commit": "172a6cb"
             }
           ]
         }
