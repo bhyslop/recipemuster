@@ -350,11 +350,142 @@ rbgu_http_json() {
     sleep "${z_retry_sleep}"
   done
 
+  # Register successful attempt under bare infix for capture functions
+  cp "${ZRBGU_PREFIX}${z_infix_u}${ZRBGU_POSTFIX_JSON}" "${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+  cp "${ZRBGU_PREFIX}${z_infix_u}${ZRBGU_POSTFIX_CODE}" "${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}"
+
   local z_code
   z_code=$(<"${z_code_file}") || buc_die "Failed to read code file"
   test -n "${z_code}"         || buc_die "Empty HTTP code from curl"
 
   buc_log_args "HTTP ${z_method} ${z_url} returned code ${z_code}"
+}
+
+rbgu_http_json_remit() {
+  zrbgu_sentinel
+
+  local -r z_method="${1}"
+  local -r z_url="${2}"
+  local -r z_token="${3}"
+  local -r z_infix="${4}"
+  local -r z_body_file="${5:-}"
+
+  local z_curl_status=0
+  local z_attempt=0
+  local -r z_max_attempts=3
+  local -r z_retry_sleep=3
+
+  while :; do
+    z_curl_status=0
+    z_attempt=$((z_attempt + 1))
+
+    local z_resp_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
+    local z_code_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}"
+    local z_code_errs="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_CODE}.stderr"
+
+    if test -n "${z_body_file}"; then
+      curl                                              \
+          -sS                                           \
+          -X "${z_method}"                              \
+          -H "Authorization: Bearer ${z_token}"         \
+          -H "Content-Type: application/json"           \
+          -H "Accept: application/json"                 \
+          -d @"${z_body_file}"                          \
+          -o "${z_resp_file}"                           \
+          -w "%{http_code}"                             \
+          "${z_url}" > "${z_code_file}"                 \
+                    2> "${z_code_errs}"                 \
+        || z_curl_status=$?
+    else
+      curl                                              \
+          -sS                                           \
+          -X "${z_method}"                              \
+          -H "Authorization: Bearer ${z_token}"         \
+          -H "Content-Type: application/json"           \
+          -H "Accept: application/json"                 \
+          -o "${z_resp_file}"                           \
+          -w "%{http_code}"                             \
+          "${z_url}" > "${z_code_file}"                 \
+                    2> "${z_code_errs}"                 \
+        || z_curl_status=$?
+    fi
+
+    buc_log_args 'Curl status' "${z_curl_status}"
+    buc_log_pipe < "${z_code_errs}"
+
+    test "${z_curl_status}" -ne 0 || break
+
+    case "${z_curl_status}" in
+      7|28|35|56) ;;
+      *)
+        buc_log_args "HTTP request failed (curl exit ${z_curl_status})"
+        return 1
+        ;;
+    esac
+
+    if test "${z_attempt}" -ge "${z_max_attempts}"; then
+      buc_log_args "HTTP request failed after ${z_max_attempts} attempts (curl exit ${z_curl_status})"
+      return 1
+    fi
+
+    buc_log_args "Transient curl error (exit ${z_curl_status}), retry ${z_attempt}/${z_max_attempts} in ${z_retry_sleep}s"
+    sleep "${z_retry_sleep}"
+  done
+
+  local z_code
+  z_code=$(<"${z_code_file}") || { buc_log_args "Failed to read code file"; return 1; }
+  test -n "${z_code}"         || { buc_log_args "Empty HTTP code from curl"; return 1; }
+
+  buc_log_args "HTTP ${z_method} ${z_url} returned code ${z_code}"
+  printf '%s' "${BUC_REMIT_VALID}${BUC_REMIT_DELIMITER}${z_code}${BUC_REMIT_DELIMITER}${z_resp_file}"
+}
+
+rbgu_http_ok_remit() {
+  zrbgu_sentinel
+
+  local -r z_label="${1}"
+  local -r z_token="${2}"
+  local -r z_method="${3}"
+  local -r z_url="${4}"
+  local -r z_infix="${5}"
+  local -r z_body_file="${6}"
+  local -r z_warn_code="${7:-}"
+  local -r z_warn_msg="${8:-}"
+
+  buc_log_args "${z_label}"
+
+  local z_remit_valid z_code z_resp
+  IFS="${BUC_REMIT_DELIMITER}" read -r z_remit_valid z_code z_resp \
+    <<< "$(rbgu_http_json_remit "${z_method}" "${z_url}" "${z_token}" "${z_infix}" "${z_body_file:-}")"
+
+  test "${z_remit_valid}" = "${BUC_REMIT_VALID}" || return 1
+
+  case "${z_code}" in
+    200|201|204)
+      printf '%s' "${BUC_REMIT_VALID}${BUC_REMIT_DELIMITER}${z_code}${BUC_REMIT_DELIMITER}${z_resp}"
+      return 0
+      ;;
+  esac
+
+  if test -n "${z_warn_code}" && test "${z_code}" = "${z_warn_code}"; then
+    printf '%s' "${BUC_REMIT_VALID}${BUC_REMIT_DELIMITER}${z_code}${BUC_REMIT_DELIMITER}${z_resp}"
+    return 0
+  fi
+
+  local z_err=""
+  if jq -e . "${z_resp}" >/dev/null 2>&1; then
+    z_err=$(rbgu_json_field_capture "${z_infix}" '.error.message') || z_err="Unknown error"
+  else
+    local z_content
+    z_content=$(<"${z_resp}") || z_content=""
+    z_err="${z_content:0:200}"
+    z_err="${z_err//$'\n'/ }"
+    z_err="${z_err//$'\r'/ }"
+    test -n "${z_err}" || z_err="Non-JSON error body"
+  fi
+
+  buc_log_args "${z_label} (HTTP ${z_code}): ${z_err}"
+  return 1
 }
 
 rbgu_http_require_ok() {
