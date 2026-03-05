@@ -5315,9 +5315,10 @@
         "₢AkAAR",
         "₢AkAAP",
         "₢AkAAQ",
-        "₢AkAAS"
+        "₢AkAAS",
+        "₢AkAAT"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5721,6 +5722,17 @@
               "text": "Migrate all rbgu_http_json direct callers (7 files, ~90 sites) to rbgu_http_json_remit.\n\n## Prerequisites\n\n- ₣Al e2e validates rbgu_http_json_remit works in production\n- BCG _remit pattern proven stable\n\n## Work\n\nMechanical per-file transform at each call site:\n\nBEFORE:\n  rbgu_http_json \"METHOD\" \"${url}\" \"${token}\" \"infix\" [\"${body}\"]\n  z_code=$(rbgu_http_code_capture \"infix\") || z_code=\"\"\n\nAFTER:\n  IFS=\"${BUC_REMIT_DELIMITER}\" read -r z_remit_valid z_code z_resp \\\n    <<< \"$(rbgu_http_json_remit \"METHOD\" \"${url}\" \"${token}\" \"infix\" [\"${body}\"])\"\n  buc_remit_assert \"${z_remit_valid}\" \"context\"\n\nSites using rbgu_json_field_capture become direct jq calls on z_resp.\n\n## Files (from original docket census)\n\n| File | Approx sites |\n|------|-------------|\n| rbgp_Payor.sh | ~47 |\n| rbgg_Governor.sh | ~22 |\n| rbgu_Utility.sh | ~21 |\n| rbgi_IAM.sh | ~12 |\n| rbgb_Buckets.sh | ~7 |\n| rbf_Foundry.sh | ~5 |\n| rbga_ArtifactRegistry.sh | ~4 |\n\nEach file is independent — can be split into sub-paces if desired.\n\n## Completion\n\n- All direct rbgu_http_json callers migrated to rbgu_http_json_remit\n- rbgu_http_json callable but unused (verify with grep)",
               "silks": "migrate-rbgu-callers-to-remit",
               "commit": "3261ac7"
+            }
+          ]
+        },
+        "₢AkAAT": {
+          "tacks": [
+            {
+              "ts": "260304-1803",
+              "state": "rough",
+              "text": "Remove rbgu_http_json, rbgu_http_code_capture, rbgu_json_field_capture, and related legacy infrastructure.\n\n## Prerequisites\n\n- ₢AkAAS complete (all callers migrated to remit)\n- grep confirms zero remaining callers of legacy functions\n\n## Work\n\n1. Delete rbgu_http_json (the buc_die + _{N} suffix version)\n2. Delete rbgu_http_code_capture\n3. Delete rbgu_json_field_capture\n4. Delete rbgu_error_message_capture (if no remaining callers after migration)\n5. Evaluate rbgu_write_vanilla_json, rbgu_jq_file_to_file_ok, rbgu_jq_add_member_to_role_capture\n   - These use ZRBGU_PREFIX+infix path reconstruction for non-HTTP purposes\n   - Decide: adapt to take file paths directly, or leave as-is\n6. Evaluate whether _capture suffix can be fully retired in rbgu in favor of _remit\n7. Clean up ZRBGU_POSTFIX_JSON, ZRBGU_POSTFIX_CODE if no longer referenced\n\n## Not in scope\n\n- Codebase-wide _capture → _remit migration (separate initiative if warranted)",
+              "silks": "evict-legacy-http-capture-functions",
+              "commit": "2aabbd1"
             }
           ]
         }
