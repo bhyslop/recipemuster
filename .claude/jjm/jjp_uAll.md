@@ -70,17 +70,43 @@ like `TAG_BASE` (which includes the build timestamp from step 01). Therefore:
 (reads from local daemon via Docker socket) instead of `oci-dir:` (which
 required the OCI Layout Bridge). Step 04 mounts `/var/run/docker.sock`.
 
-### Multi-Platform Provenance: Open Question
+### Multi-Platform Provenance: Viable Path Identified (research 2026-03-05)
 
 CB structural constraint: `images:` can only push single-platform from the
-Docker daemon. The goal remains full SLSA v1.0 on multi-platform images.
+Docker daemon (classic image store, Docker 20.10.24). The goal remains full
+SLSA v1.0 on multi-platform images.
 
-Possible paths under investigation (₢AlAAQ):
-- Per-platform pullback: `docker pull --platform` each arch, tag distinctly,
-  declare all in `images:` — does CB generate provenance on each?
-- Per-platform --load: multiple single-arch builds, all in local daemon
-- Manifest reconstruction: reassemble multi-platform manifest from
-  individually-attested platform images
+**Web research (2026-03-05) identified a viable rejoining path:**
+
+1. CB `images:` field accepts a list — each URI gets independent SLSA
+   provenance (documented in CB build config schema and provenance docs).
+2. `docker buildx imagetools create` now preserves attestation manifests when
+   combining per-platform images into a multi-platform index (buildx PR #3433).
+   Operates registry-side, no local daemon needed for reassembly.
+3. BuildKit already generates per-platform attestations on `--push`
+   multi-platform builds. CB-native SLSA (from `images:`) is additive.
+
+**Synthesized path (₢AlAAQ will validate):**
+- `buildx --push` multi-platform → extract per-platform digests via
+  `imagetools inspect --raw` → pull each by digest into local daemon →
+  tag individually → declare all in `images:` → CB provenance on each →
+  then `imagetools create` to reconstruct multi-platform manifest list
+
+**Key untested link:** Can `images:` push a foreign-arch image from the local
+daemon? This is exactly what ₢AlAAQ Variant B tests.
+
+**Full research evidence:** `Memos/memo-20260305-provenance-architecture-gap.md`
+(section: "Multi-Platform Rejoining Research")
+
+### Architectural Intent: Bifurcation Is Temporary
+
+Vessel bifurcation (`rbev-busybox-amd64`, `rbev-busybox-arm64`) is scaffolding
+for the single-arch provenance milestone. The target architecture is that
+vessels remain multi-platform with `RBRV_CONJURE_PLATFORMS` containing multiple
+platforms. If ₢AlAAQ succeeds, the stitch function gains a multi-platform code
+path: `--push` + per-platform pullback + multi-URI `images:` + manifest
+reassembly via `imagetools create`. Single-platform vessels keep the simpler
+`--load` path.
 
 Whether results lead to implementation in this heat or a successor heat
 is a decision for after the experiment.
