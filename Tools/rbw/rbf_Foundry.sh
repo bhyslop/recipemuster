@@ -1035,6 +1035,13 @@ rbf_rubric_inscribe() {
       buc_info "Skipping non-conjure vessel: ${z_vessel_dir##*/}"
       continue
     }
+    # Skip multi-platform vessels — stitch requires single-arch for SLSA provenance
+    local z_platforms=""
+    z_platforms=$(grep "^RBRV_CONJURE_PLATFORMS=" "${z_vessel_dir}rbrv.env" 2>/dev/null | cut -d'"' -f2) || true
+    if test -n "${z_platforms}" && test "${z_platforms}" != "${z_platforms%% *}"; then
+      buc_info "Skipping multi-platform vessel: ${z_vessel_dir##*/} (${z_platforms})"
+      continue
+    fi
     z_vessel_dirs+=("${z_vessel_dir%/}")
   done
   test "${#z_vessel_dirs[@]}" -gt 0 || buc_die "No conjure vessels found in ${RBRR_VESSEL_DIR}"
