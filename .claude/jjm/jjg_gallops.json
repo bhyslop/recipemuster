@@ -5890,6 +5890,7 @@
         "₢AlAAQ",
         "₢AlAAR",
         "₢AlAAS",
+        "₢AlAAT",
         "₢AlAAM",
         "₢AlAAH",
         "₢AlAAG",
@@ -5900,7 +5901,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6445,6 +6446,17 @@
               "text": "Implement multi-platform SLSA provenance code path in the stitch function\nand step scripts.\n\n## Prerequisites\n\n- ₢AlAAR (spec-multiplatform-provenance) complete\n\n## Scope\n\n### rbf_Foundry.sh — stitch function\n\n- Detect platform count from RBRV_CONJURE_PLATFORMS\n- Single-platform (1 platform): existing `--load` path (unchanged)\n- Multi-platform (2+ platforms): new `--push` + pullback path:\n  1. `buildx --push` with all platforms → push to GAR with a `-multi` tag\n  2. Per-platform `docker pull --platform <PLAT>` → `docker tag` to per-platform tags\n  3. `images:` field lists all per-platform tags\n  4. `requestedVerifyOption: VERIFIED`\n  5. Post-build: `imagetools create` reassembles multi-platform manifest list\n- Remove the single-arch gate that currently rejects multi-platform vessels\n  at inscribe time\n\n### Step scripts (Tools/rbw/rbgjb/)\n\n- Update or create step scripts for the pullback sequence\n- Ensure `$${}` escaping for shell variables in generated cloudbuild.json\n- Tag scheme: inscribe_timestamp + platform suffix (e.g., `-amd64`, `-arm64`)\n\n### cloudbuild.json generation\n\n- `images:` field must list all per-platform tagged URIs\n- Private pool + VERIFIED options (same as single-arch)\n\n## Acceptance Criteria\n\n- `rbf_stitch` generates valid cloudbuild.json for both single and multi-platform vessels\n- Multi-platform cloudbuild.json includes pullback steps and multi-URI images field\n- No changes to single-platform vessel behavior\n- BCG compliance for all new bash code",
               "silks": "stitch-multiplatform-provenance",
               "commit": "80121c7"
+            }
+          ]
+        },
+        "₢AlAAT": {
+          "tacks": [
+            {
+              "ts": "260305-1430",
+              "state": "rough",
+              "text": "End-to-end verification of multi-platform SLSA provenance on a live\ntrigger-dispatched build.\n\n## Prerequisites\n\n- ₢AlAAS (stitch-multiplatform-provenance) complete\n- demo1025 depot with CB v2 connection and private pool\n\n## Scope\n\n1. Inscribe the original `rbev-busybox` vessel (3 platforms: amd64, arm64, arm/v7)\n   using the updated stitch function\n2. Verify generated cloudbuild.json has correct multi-platform structure\n3. Trigger dispatch (push to rubric repo)\n4. Wait for build completion\n5. Verify SLSA Level 3 on each per-platform image\n6. Verify same buildInvocationId across all platforms\n7. Verify manifest list reassembly produced transparent multi-platform tag\n8. Verify `docker pull` of the combined tag resolves correctly\n\n## Cleanup considerations\n\n- Bifurcated vessels (rbev-busybox-amd64, rbev-busybox-arm64) can be removed\n  after successful verification, or retained as single-arch test targets\n- Decision deferred to this pace\n\n## Acceptance Criteria\n\n- rbev-busybox builds with 3 platforms via trigger dispatch\n- SLSA Level 3 on all 3 per-platform images\n- Same buildInvocationId proves single-build origin\n- Multi-platform manifest list resolves correctly\n- Results documented in memo",
+              "silks": "verify-multiplatform-provenance-e2e",
+              "commit": "b4676c1"
             }
           ]
         }
