@@ -79,7 +79,11 @@ Multiple documented examples show `docker buildx build --push` working in Cloud
 Build without explicit `docker login`, using ADC (Application Default
 Credentials) from the `gcr.io/cloud-builders/docker` image. The BuildKit
 `authprovider` session mechanism forwards credentials from the buildx client to
-the BuildKit daemon container via gRPC.
+the BuildKit daemon container via gRPC. Google's own
+[Dataflow multi-arch container guide](https://docs.cloud.google.com/dataflow/docs/guides/multi-architecture-container)
+uses this pattern. The docker/buildx#3050 maintainer confirmed (March 2025):
+"You don't need to do anything extra apart from `docker login`" for standard
+(non-DIND) usage.
 
 If this works, crane (step 07) and the OCI Layout Bridge become unnecessary.
 
@@ -133,6 +137,11 @@ Working reference: [salrashid123/cosign_bazel_cloud_build](https://github.com/sa
 Binary Authorization's Sigstore CV check can then enforce that only signed images
 deploy. This provides cryptographic deploy-time enforcement but in a different
 trust model from CB-native SLSA.
+
+**Key constraint:** The Sigstore CV check uses **ECDSA key-based verification**,
+not OIDC identity patterns. The policy references the cosign public key
+directly, not the service account email. This means provisioning and managing a
+signing keypair (or KMS key), not just configuring identity matching.
 
 ## Dead Ends (Confirmed)
 
