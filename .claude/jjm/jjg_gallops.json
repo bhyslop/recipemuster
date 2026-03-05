@@ -5719,6 +5719,7 @@
       "creation_time": "260303",
       "status": "racing",
       "order": [
+        "₢AlAAG",
         "₢AlAAE",
         "₢AlAAC",
         "₢AlAAB",
@@ -5726,7 +5727,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -5862,6 +5863,17 @@
               "text": "Reconsider the rbgu_poll_until_ok method parameter factoring.\n\n## Context\n\nThe refactor in cf3406a6 changed rbgu_poll_get_until_ok (GET-only) to\nrbgu_poll_until_ok with a method parameter to support POST for Secret Manager\ngetIamPolicy. This turned out to be wrong — Secret Manager getIamPolicy uses\nGET, not POST (unlike CRM getIamPolicy which uses POST).\n\nThe method parameter made it easy to pass the wrong verb without any compile-time\nor structural safety. All existing callers use GET. The parameterization was\npremature — introduced for a use case that didn't exist.\n\n## Questions to resolve\n\n1. Should we revert to rbgu_poll_get_until_ok (GET-only)?\n2. Or keep the parameterization but document which GCP APIs use GET vs POST for\n   getIamPolicy? (CRM uses POST, Secret Manager uses GET, IAM uses POST)\n3. Consider whether rbgu_http_json callers should have a wrapper per GCP API\n   that encodes the correct method, rather than raw method strings at call sites.\n\n## Not in scope\n\n- Changing runtime behavior (the fix is already landed)\n- Refactoring rbgu_http_json itself",
               "silks": "reconsider-poll-method-parameterization",
               "commit": "1265570"
+            }
+          ]
+        },
+        "₢AlAAG": {
+          "tacks": [
+            {
+              "ts": "260304-1611",
+              "state": "rough",
+              "text": "Refactor rbgu_http_json temp file handling to write-once discipline with BCG return pattern.\n\n## Problem\n\nrbgu_http_json writes temp files keyed by an \"infix\" string. 118 callers reconstruct\nthe same file paths via capture functions (rbgu_http_code_capture, rbgu_json_field_capture).\nAdding curl retry (for transient transport errors like SSL_ERROR_SYSCALL) means multiple\nfile versions per call, but the path-reconstruction pattern leaks the suffix convention\nacross all 118 callers.\n\n## Current state (broken)\n\n- rbgu_http_json writes to `{infix}_{N}` per attempt (write-once, good)\n- But capture functions reconstruct paths from the original infix (no suffix)\n- Callers have no way to find the right file without knowing the suffix convention\n- This is a design debt from the original single-attempt architecture\n\n## Design direction\n\nUse BCG temp-file-then-read pattern (BCG line 456): rbgu_http_json writes its\nreturn values (HTTP code, response file path) to a result temp file. Callers\nread with `read -r z_code z_resp_file < \"${ZRBGU_RESULT_FILE}\"`.\n\nThis eliminates:\n- rbgu_http_code_capture (118 call sites → read -r pattern)\n- rbgu_json_field_capture (callers jq directly from z_resp_file)\n- All path reconstruction outside rbgu_http_json\n- Any suffix/naming convention leaking beyond the function\n\nThe file path stitching lives in ONE place: rbgu_http_json's loop body.\n\n## Scope\n\n1. Refactor rbgu_http_json to write result temp file with code + resp path\n2. Retire rbgu_http_code_capture and rbgu_json_field_capture\n3. Migrate all 118 callers to read-r pattern (mechanical, bridleable per-file)\n4. Verify curl retry write-once discipline works end-to-end\n5. Each attempt writes uniquely-suffixed files, no overwrites, no copies, no moves\n\n## Concerns to resolve during pace\n\n- Exact temp file format (space-delimited? line-per-value?)\n- Whether ZRBGU_RESULT_FILE is a kindle constant or derived per-call\n- How rbgu_http_json_lro_ok and rbgu_poll_until_ok adapt (they call rbgu_http_json in loops)\n- Whether to split migration by file for parallel execution\n- Interaction with the rbgu_write_vanilla_json and similar helpers that read infixes\n\n## Not in scope\n\n- Changing retry policy (3 attempts, 3s sleep, codes 7/28/35/56 — already landed)\n- Changing any HTTP call semantics\n- RBS0 spec changes beyond rbbc_call (already updated for retry)",
+              "silks": "rbgu-http-json-write-once-cleanup",
+              "commit": "4b01e08"
             }
           ]
         }
