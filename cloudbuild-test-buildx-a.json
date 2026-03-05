@@ -1,0 +1,41 @@
+{
+  "steps": [
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "create-dockerfile",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "cat > /workspace/Dockerfile <<'DOCKEOF'\nFROM busybox:latest\nWORKDIR /app\nRUN adduser -D appuser\nUSER appuser\nCMD [\"echo\", \"BusyBox container is running!\"]\nDOCKEOF\necho 'Dockerfile created:'\ncat /workspace/Dockerfile"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/gcloud@sha256:4a58b9883e286608d1084cf21e5aed1cbb0817ac6adf41b1293cf2ef46c4942e",
+      "id": "get-docker-token",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "gcloud auth print-access-token > /workspace/.docker-token"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "docker-login-gar",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "cat /workspace/.docker-token | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev\nrm /workspace/.docker-token"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "qemu-binfmt",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "docker run --privileged --rm docker.io/tonistiigi/binfmt@sha256:8db0f28060565399642110b798c6c35efcac7c5b3b48c56d36503d3b4d8f93c8 --install arm64,arm"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "buildx-push",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "echo '=== Docker and buildx versions ==='\ndocker version\ndocker buildx version\necho '=== Creating docker-container builder ==='\ndocker buildx create --driver docker-container --name rb-builder --use\necho '=== Building and pushing multi-platform image ==='\ndocker buildx build \\\n  --push \\\n  --platform=linux/amd64,linux/arm64,linux/arm/v7 \\\n  --tag us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:buildx-push-test-a-image \\\n  -f /workspace/Dockerfile \\\n  /workspace"]
+    }
+  ],
+  "options": {
+    "logging": "CLOUD_LOGGING_ONLY",
+    "pool": {
+      "name": "projects/rbwg-d-demo1025-260304183118/locations/us-central1/workerPools/rbw-demo1025-pool"
+    }
+  },
+  "timeout": "1200s"
+}

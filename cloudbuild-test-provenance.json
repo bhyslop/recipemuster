@@ -1,0 +1,39 @@
+{
+  "steps": [
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "create-dockerfile",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "cat > /workspace/Dockerfile <<'DOCKEOF'\nFROM busybox:latest\nWORKDIR /app\nRUN adduser -D appuser\nUSER appuser\nCMD [\"echo\", \"BusyBox container is running!\"]\nDOCKEOF\necho 'Dockerfile created'"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "qemu-binfmt",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "docker run --privileged --rm docker.io/tonistiigi/binfmt@sha256:8db0f28060565399642110b798c6c35efcac7c5b3b48c56d36503d3b4d8f93c8 --install arm64,arm"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "buildx-push",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "docker buildx create --driver docker-container --name rb-builder --use\ndocker buildx build \\\n  --push \\\n  --platform=linux/amd64,linux/arm64,linux/arm/v7 \\\n  --tag us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:buildx-prov-test-image \\\n  -f /workspace/Dockerfile \\\n  /workspace\necho 'Multi-platform push complete'"]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
+      "id": "pullback",
+      "entrypoint": "/bin/bash",
+      "args": ["-lc", "echo '=== Pulling image back to local daemon (amd64 only) ==='\ndocker pull us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:buildx-prov-test-image\necho '=== Local images: ==='\ndocker images | grep rbev-busybox || true\necho '=== Pulled image inspect: ==='\ndocker inspect us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:buildx-prov-test-image | jq '.[0].Architecture, .[0].Os' || true"]
+    }
+  ],
+  "images": [
+    "us-central1-docker.pkg.dev/rbwg-d-demo1025-260304183118/rbw-demo1025-repository/rbev-busybox:buildx-prov-test-image"
+  ],
+  "options": {
+    "requestedVerifyOption": "VERIFIED",
+    "logging": "CLOUD_LOGGING_ONLY",
+    "pool": {
+      "name": "projects/rbwg-d-demo1025-260304183118/locations/us-central1/workerPools/rbw-demo1025-pool"
+    }
+  },
+  "timeout": "1200s"
+}
