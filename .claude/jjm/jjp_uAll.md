@@ -227,6 +227,11 @@ Full evidence: `Memos/memo-20260305-provenance-architecture-gap.md` (Production 
 Rubric repo at `gitlab.com/bhyslop/rb-rubric.git`. 9 vessel triggers (7 original + 2 new).
 Three single-arch vessels building with SLSA v1.0 Build Level 3 provenance.
 
+**Spec updated (₢AlAAR):** RBS0 `rbtgr_provenance` now documents the validated
+multi-platform architecture (per-platform pullback + `images:` + `imagetools create`
+reassembly) with target pipeline step sequence. RBSOB superseded notice updated
+to reflect experimental validation (full supersession pending ₢AlAAT production e2e).
+
 **All known issues from ₣Ai e2e (2026-03-03) are FIXED:**
 1. Push triggers fired on inscribe push — FIXED (₢AiABC: unmatchable branch filter)
 2. IAM read-modify-write race — FIXED (₢AiABD: declarative policy writes)

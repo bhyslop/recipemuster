@@ -1468,9 +1468,40 @@ Cloud Build pre-populates Docker credentials for all GAR regions, so explicit do
 The `images:` field in {rbtgr_build_json} causes Cloud Build to push the image and generate SLSA v1.0 Level 3 provenance.
 Verified on 3 trigger-dispatched vessels — rbev-busybox-amd64 (`16d3b60f`), rbev-busybox-arm64 (`fc36b970`), trbim-macos (`9180c42a`).
 +
-**Multi-platform vessels**: not yet supported.
-The `images:` field requires images present in Docker's local store, which is single-platform only.
-Research identified a viable path via per-platform pullback; see `Memos/memo-20260305-provenance-architecture-gap.md`.
+**Multi-platform vessels**: experimentally validated architecture, pending production e2e proof.
+Docker's local store (classic image store on CB workers, Docker 20.10.24) is single-platform only — `buildx --load` cannot load multi-platform images.
+The validated approach uses per-platform pullback:
+`buildx --push` builds all platforms and pushes a multi-platform manifest to GAR;
+`docker pull --platform <arch>` pulls each platform variant back to the local daemon (requires Experimental: true, confirmed on CB workers);
+each pulled image is tagged with a per-platform tag (e.g., `:TAG-amd64`, `:TAG-arm64`);
+the `images:` field declares all per-platform tags — Cloud Build pushes each and generates independent SLSA v1.0 Level 3 provenance with the same `buildInvocationId`, proving single-build origin;
+`docker buildx imagetools create` then reassembles a multi-platform manifest list from the per-platform tags.
++
+Validated in experiments on depot `demo1025`:
+per-platform provenance (`b3fd60c7`) — all 3 platforms (amd64, arm64, armv7) achieved SLSA Level 3 with shared `buildInvocationId`;
+manifest reassembly (`8cd7b713`) — `imagetools create` produced a combined manifest list, per-platform provenance preserved.
+The combined manifest list itself has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list artifact), but consumers pulling the combined tag get transparent platform resolution to attested per-platform images with full SLSA Level 3.
++
+Implementation notes:
+`docker pull --platform` works on CB workers (Docker 20.10.24, Experimental: true);
+`$${VAR}` escaping required for shell variables in {rbtgr_build_json} (Cloud Build interprets `${VAR}` as substitution variables);
+`jq` is not available in `gcr.io/cloud-builders/docker` — the `--platform` flag approach avoids JSON manifest parsing entirely.
+See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment details.
++
+**Target multi-platform pipeline** (8 steps + `images:` push + post-build reassembly):
++
+  1. `derive-tag-base` — compute inscribe timestamp and tag base
+  2. `qemu-binfmt` — register cross-architecture emulation
+  3. `buildx --push` — build all platforms, push intermediate multi-platform tag to GAR
+  4. `per-platform-pullback` — `docker pull --platform <arch>` for each platform, `docker tag` to per-platform tags
+  5. `sbom` — strategy TBD (per-platform or combined)
+  6. `assemble-metadata` — collect build metadata
+  7. `build-and-push-metadata` — build and push metadata sidecar image
++
+`images:` lists all per-platform tags — Cloud Build pushes each and generates SLSA provenance.
+`options.requestedVerifyOption: VERIFIED` ensures build fails if provenance cannot be generated.
++
+Post-build: `docker buildx imagetools create -t :TAG :TAG-amd64 :TAG-arm64 ...` reassembles the multi-platform manifest list from attested per-platform images.
 
 === Cloud Build v2 Definitions
 

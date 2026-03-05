@@ -1,5 +1,5 @@
-// STATUS: Superseded for single-arch vessels (2026-03-05)
-// Retained as historical record and for potential multi-platform provenance use.
+// STATUS: Superseded for single-arch vessels (2026-03-05), experimentally validated for multi-platform (2026-03-05)
+// Retained as historical record; pending full supersession for multi-platform after production e2e.
 
 [NOTE]
 ====
@@ -9,9 +9,13 @@ daemon, then Cloud Build pushes via the `images:` field — generating SLSA v1.0
 Level 3 provenance natively. The OCI Layout Bridge (buildx → OCI tar → crane push)
 is no longer needed for single-arch builds.
 
-Multi-platform vessels may still require an adapted bridge approach. See
-`Memos/memo-20260305-provenance-architecture-gap.md` for research on a
-per-platform pullback path.
+**Experimentally validated for multi-platform vessels.** The per-platform pullback
+path — `buildx --push` (all platforms) followed by `docker pull --platform` per
+architecture — is experimentally validated with SLSA Level 3 provenance on each
+platform (experiment `b3fd60c7`), and manifest reassembly via `imagetools create`
+preserves per-platform provenance (experiment `8cd7b713`). Full supersession
+of this bridge for multi-platform vessels requires production e2e proof (₢AlAAT).
+See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment details.
 ====
 
 ==== Problem
