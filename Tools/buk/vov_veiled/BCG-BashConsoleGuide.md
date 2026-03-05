@@ -770,7 +770,8 @@ The `read` builtin places everything after the last named variable into that var
 - Field values must not contain embedded spaces
 - The number of fields is between the function and its caller — fixed or variable
 - No trailing newline — use `printf '%s'`, not `printf '%s\n'` or `echo` (`<<<` adds the newline that `read` requires; a trailing newline from the function would create a spurious empty field)
-- Never uses `buc_die` internally (like `_capture` — returns 1 on failure)
+- On failure: `return 1` without emitting anything — the absent sentinel is the failure signal
+- Never uses `buc_die` internally (like `_capture` — caller decides error handling via `buc_remit_assert`)
 - No side effects beyond the returned values
 - May use `buc_log_«source»` for forensic trail
 
@@ -1183,6 +1184,7 @@ The error handling suffix depends on the function type:
 | Regular/enroll   | `\|\| buc_die`       | Enroll validates invariants; violations are fatal |
 | Predicate        | `\|\| return 1`      | Never dies, status only                          |
 | Capture/recite   | `\|\| return 1`      | Never dies, caller decides                       |
+| Remit            | `\|\| return 1`      | Never dies; absent sentinel signals failure to caller via `buc_remit_assert` |
 | Flow control     | `\|\| continue`      | Intentional skip to next iteration               |
 
 ---
