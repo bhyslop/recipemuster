@@ -5872,6 +5872,7 @@
         "₢AlAAK",
         "₢AlAAL",
         "₢AlAAJ",
+        "₢AlAAN",
         "₢AlAAM",
         "₢AlAAH",
         "₢AlAAG",
@@ -5882,7 +5883,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6249,6 +6250,17 @@
               "text": "Update RBSCB-CloudBuildRoadmap.adoc with crystallized provenance posture based on\nconfirmed experiment results.\n\n## Prerequisites\n\n- test-buildx-push-gar (₢AlAAK), test-pullback-images-verified (₢AlAAL),\n  and stitch-provenance-fix (₢AlAAJ) all complete\n\n## Scope\n\n- Correct \"SLSA v1.0 provenance is automatic\" in Current Posture (line 29-33)\n- Update OCI Layout Bridge reference (line 68-71) with push path outcome\n- Update Deferred Items: cosign (157-166) and BinAuth (168-171) based on results\n- Add provenance architecture section if experiment results warrant it\n- Reference memo-20260305-provenance-architecture-gap.md as research source\n\n## Acceptance Criteria\n\n- RBSCB states only confirmed facts, not hypotheses\n- Deferred Items reflect current reality\n- No \"we are still trying\" language in the roadmap",
               "silks": "rbscb-provenance-posture-update",
               "commit": "fd227fb"
+            }
+          ]
+        },
+        "₢AlAAN": {
+          "tacks": [
+            {
+              "ts": "260305-1217",
+              "state": "rough",
+              "text": "Create single-architecture busybox vessels for SLSA v1.0 provenance validation.\n\n## Context\n\nThe stitch function (₢AlAAJ) now supports single-arch vessels only. Before we\ncan verify SLSA provenance on live infrastructure, we need vessels configured\nfor single platforms.\n\n## Current Vessel Landscape\n\n| Vessel | Platforms | Notes |\n|---|---|---|\n| rbev-busybox | amd64, arm64, arm/v7 | 3-platform, needs bifurcation |\n| rbev-bottle-anthropic-jupyter | amd64, arm64 | 2-platform |\n| rbev-bottle-plantuml | amd64, arm64 | 2-platform |\n| rbev-bottle-ubuntu-test | amd64, arm64 | 2-platform |\n| rbev-sentry-ubuntu-large | amd64, arm64 | 2-platform |\n| rbev-ubu-safety | amd64, arm64 | 2-platform |\n| rbev-nginx-ward | (bind mode) | No build |\n| trbim-macos | arm64 only | Already single-arch! |\n\n## Scope\n\n1. **Create `rbev-busybox-amd64`** — new vessel directory, rbrv.env with\n   `RBRV_CONJURE_PLATFORMS=\"linux/amd64\"`, same Dockerfile as busybox\n2. **Create `rbev-busybox-arm64`** — same but `linux/arm64`\n3. **Decide policy for original `rbev-busybox`** — keep with multi-platform\n   config (stitch will reject it until multi-platform is implemented)?\n   Remove? Document decision in paddock.\n4. **Decide policy for other multi-platform vessels** — not bifurcated in\n   this pace, but document the plan. They remain multi-platform and stitch\n   will reject them until multi-platform support is added.\n5. **Note trbim-macos** — already arm64-only, available as additional\n   arm64 test target without any changes.\n\n## Acceptance Criteria\n\n- rbev-busybox-amd64 exists with valid rbrv.env, single platform\n- rbev-busybox-arm64 exists with valid rbrv.env, single platform\n- Policy for original busybox and other multi-platform vessels documented\n- Paddock updated with vessel bifurcation status",
+              "silks": "bifurcate-busybox-single-arch",
+              "commit": "7fc8062"
             }
           ]
         }
