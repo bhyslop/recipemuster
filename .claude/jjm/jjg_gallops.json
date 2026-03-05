@@ -5315,10 +5315,11 @@
         "₢AkAAR",
         "₢AkAAP",
         "₢AkAAQ",
+        "₢AkAAU",
         "₢AkAAS",
         "₢AkAAT"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5761,6 +5762,17 @@
               "text": "Remove rbgu_http_json, rbgu_http_code_capture, rbgu_json_field_capture, and related legacy infrastructure.\n\n## Prerequisites\n\n- ₢AkAAS complete (all callers migrated to remit)\n- grep confirms zero remaining callers of legacy functions\n\n## Work\n\n1. Delete rbgu_http_json (the buc_die + _{N} suffix version)\n2. Delete rbgu_http_code_capture\n3. Delete rbgu_json_field_capture\n4. Delete rbgu_error_message_capture (if no remaining callers after migration)\n5. Evaluate rbgu_write_vanilla_json, rbgu_jq_file_to_file_ok, rbgu_jq_add_member_to_role_capture\n   - These use ZRBGU_PREFIX+infix path reconstruction for non-HTTP purposes\n   - Decide: adapt to take file paths directly, or leave as-is\n6. Evaluate whether _capture suffix can be fully retired in rbgu in favor of _remit\n7. Clean up ZRBGU_POSTFIX_JSON, ZRBGU_POSTFIX_CODE if no longer referenced\n\n## Not in scope\n\n- Codebase-wide _capture → _remit migration (separate initiative if warranted)",
               "silks": "evict-legacy-http-capture-functions",
               "commit": "2aabbd1"
+            }
+          ]
+        },
+        "₢AkAAU": {
+          "tacks": [
+            {
+              "ts": "260304-1818",
+              "state": "rough",
+              "text": "Investigate `|| true` usage on rbgu_http_json calls and design proper replacement.\n\n## Problem\n\nAt least two call sites suppress rbgu_http_json failures with `|| true`:\n- `rbgg_Governor.sh:167` — API enabled check loop\n- `rbgp_Payor.sh:327` — API enabled check loop\n\nThese exist to implement \"check if API is enabled\" logic: call the API, if it fails\nthat's information not an error. But `|| true` silently swallows ALL failures including\ntransport errors, timeouts, and malformed responses. This makes debugging transport\nissues impossible at these sites.\n\n## Analysis needed\n\n1. Grep all `rbgu_http_json.*|| true` sites — are there more than the two known?\n2. For each site, understand the intent: is it a predicate check? A best-effort call?\n3. Determine if the _remit pattern naturally handles this (caller receives code,\n   decides what to do) or if a `_predicate` wrapper is more appropriate\n4. Consider: with rbgu_http_json_remit, a failed call returns empty sentinel.\n   The caller can check z_remit_valid != BUC_REMIT_VALID and handle gracefully\n   WITHOUT || true. But this conflates \"transport failed\" with \"API returned 404.\"\n   Do callers need to distinguish these?\n\n## Resolution\n\nDesign a transform template for the migration pace (₢AkAAS) to use at these sites.\nOptions include:\n- Direct rbgu_http_json_remit + conditional sentinel check (no assert)\n- A predicate wrapper: `rbgu_http_ok_predicate` that returns 0/1\n- Keeping || true on the remit call (least preferred — same masking problem)\n\n## Completion\n\n- All || true sites catalogued with intent\n- Transform template documented for ₢AkAAS\n- Decision on whether predicate wrapper is needed",
+              "silks": "investigate-or-true-suppression-patterns",
+              "commit": "9a8e66d"
             }
           ]
         }
