@@ -5889,6 +5889,7 @@
         "₢AlAAP",
         "₢AlAAQ",
         "₢AlAAR",
+        "₢AlAAS",
         "₢AlAAM",
         "₢AlAAH",
         "₢AlAAG",
@@ -5899,7 +5900,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6433,6 +6434,17 @@
               "text": "Update RBS0 and RBSOB specifications to document the validated multi-platform\nSLSA v1.0 provenance architecture.\n\n## Prerequisites\n\n- ₢AlAAQ (experiment-multiplatform-slsa-provenance) complete — confirmed facts only\n\n## Scope\n\n### RBS0-SpecTop.adoc\n\n- Update `rbtgr_provenance` definition to add multi-platform path as validated\n  (currently says \"not yet supported\")\n- Document the architecture: `buildx --push` → per-platform pullback via\n  `docker pull --platform` → per-platform tags in `images:` → SLSA Level 3\n  on each → `imagetools create` for manifest list reassembly\n- Reference experiment build IDs: `b3fd60c7` (provenance), `8cd7b713` (reassembly)\n- Note: combined manifest list has `slsa_build_level: unknown` (expected);\n  per-platform images retain Level 3 through reassembly\n\n### RBSOB-oci_layout_bridge.adoc\n\n- Update superseded notice: now superseded for ALL vessels, not just single-arch\n- Multi-platform path no longer needs the bridge either\n\n### Paddock update\n\n- Record spec changes\n\n## Acceptance Criteria\n\n- RBS0 multi-platform provenance states only confirmed, tested facts\n- No speculative language\n- RBSOB clearly marks full supersession",
               "silks": "spec-multiplatform-provenance",
               "commit": "43ae142"
+            }
+          ]
+        },
+        "₢AlAAS": {
+          "tacks": [
+            {
+              "ts": "260305-1430",
+              "state": "rough",
+              "text": "Implement multi-platform SLSA provenance code path in the stitch function\nand step scripts.\n\n## Prerequisites\n\n- ₢AlAAR (spec-multiplatform-provenance) complete\n\n## Scope\n\n### rbf_Foundry.sh — stitch function\n\n- Detect platform count from RBRV_CONJURE_PLATFORMS\n- Single-platform (1 platform): existing `--load` path (unchanged)\n- Multi-platform (2+ platforms): new `--push` + pullback path:\n  1. `buildx --push` with all platforms → push to GAR with a `-multi` tag\n  2. Per-platform `docker pull --platform <PLAT>` → `docker tag` to per-platform tags\n  3. `images:` field lists all per-platform tags\n  4. `requestedVerifyOption: VERIFIED`\n  5. Post-build: `imagetools create` reassembles multi-platform manifest list\n- Remove the single-arch gate that currently rejects multi-platform vessels\n  at inscribe time\n\n### Step scripts (Tools/rbw/rbgjb/)\n\n- Update or create step scripts for the pullback sequence\n- Ensure `$${}` escaping for shell variables in generated cloudbuild.json\n- Tag scheme: inscribe_timestamp + platform suffix (e.g., `-amd64`, `-arm64`)\n\n### cloudbuild.json generation\n\n- `images:` field must list all per-platform tagged URIs\n- Private pool + VERIFIED options (same as single-arch)\n\n## Acceptance Criteria\n\n- `rbf_stitch` generates valid cloudbuild.json for both single and multi-platform vessels\n- Multi-platform cloudbuild.json includes pullback steps and multi-URI images field\n- No changes to single-platform vessel behavior\n- BCG compliance for all new bash code",
+              "silks": "stitch-multiplatform-provenance",
+              "commit": "80121c7"
             }
           ]
         }
