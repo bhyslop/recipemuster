@@ -61,13 +61,23 @@
       ]
     },
     {
+      "name": "quay.io/skopeo/stable@sha256:c79ee77ccefe6c347031c5f1f21adb69c8ca0ac3ca89b5bc53911c6a91413980",
+      "id": "split-oci-platform",
+      "entrypoint": "/bin/sh",
+      "dir": "rbev-ubu-safety",
+      "args": [
+        "-c",
+        "#\n# Copyright 2026 Scale Invariant, Inc.\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this file except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#     http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\n# Author: Brad Hyslop <bhyslop@scaleinvariant.org>\n#\n# RBGJB Step 07b: Split multi-platform OCI archive to single-platform layout\n# Builder: quay.io/skopeo/stable (via RBRR_GCB_SKOPEO_IMAGE_REF)\n#\n# OCI Layout Bridge Phase 2b: Extract amd64 OCI layout from multi-platform archive.\n# Syft cannot scan multi-platform OCI layouts (anchore/syft#1545).\n# Skopeo extracts a single-platform layout so Syft can analyze it.\n\nset -eu\n\ntest -d /workspace/oci-layout || { echo \"/workspace/oci-layout not found\" >&2; exit 1; }\n\necho \"Split multi-platform OCI layout to linux/amd64\"\nskopeo --override-os linux --override-arch amd64 \\\n  copy oci:/workspace/oci-layout oci:/workspace/oci-amd64 \\\n  || { echo \"skopeo copy failed\" >&2; exit 1; }\n\ntest -d /workspace/oci-amd64 || { echo \"/workspace/oci-amd64 not created by skopeo\" >&2; exit 1; }"
+      ]
+    },
+    {
       "name": "gcr.io/cloud-builders/docker@sha256:efdbd755476e7e5eb1077ed6e4bf691f87b38fbded575e9b825f9480374f8f4b",
       "id": "sbom-and-summary",
       "entrypoint": "/bin/bash",
       "dir": "rbev-ubu-safety",
       "args": [
         "-lc",
-        "# RBGJB Step 08: Generate SBOM and package summary with Syft\n# Builder: gcr.io/cloud-builders/docker\n#\n# OCI Layout Bridge Phase 3: Generate SBOM from OCI layout directory.\n# Syft analyzes /workspace/oci-layout directly via oci-dir: scheme,\n# avoiding platform mismatch when build arch differs from GCB worker arch.\n\nset -euo pipefail\n\n# Syft image pinned via RBRR regime variable\nSYFT_IMAGE=\"docker.io/anchore/syft@sha256:d775ca26ef52914830e6db70ad17381d15acaed7507e3c1b70e8c1af2b95d861\"\n\ntest -d /workspace/oci-layout || (echo \"/workspace/oci-layout not found\" >&2; exit 1)\n\necho \"Generating SBOM with $${SYFT_IMAGE}...\"\ndocker run --rm -v /workspace:/workspace \\\n  \"$${SYFT_IMAGE}\" \"oci-dir:/workspace/oci-layout\" -o json  > syft_analysis.json\ndocker run --rm -v /workspace:/workspace \\\n  \"$${SYFT_IMAGE}\" \"oci-dir:/workspace/oci-layout\" -o table > package_summary.txt\n\necho \"SBOM generation complete\""
+        "#\n# Copyright 2026 Scale Invariant, Inc.\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this file except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#     http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\n# Author: Brad Hyslop <bhyslop@scaleinvariant.org>\n#\n# RBGJB Step 08: Generate SBOM and package summary with Syft\n# Builder: gcr.io/cloud-builders/docker\n#\n# OCI Layout Bridge Phase 3: Generate SBOM from single-platform OCI layout.\n# Step 07b extracts linux/amd64 layout from multi-platform archive;\n# Syft analyzes the single-platform layout via oci-dir: scheme.\n# SBOM is labeled with platform (amd64).\n\nset -euo pipefail\n\nSYFT_IMAGE=\"docker.io/anchore/syft@sha256:d775ca26ef52914830e6db70ad17381d15acaed7507e3c1b70e8c1af2b95d861\"\n\ntest -d /workspace/oci-amd64 || { echo \"/workspace/oci-amd64 not found (step 07b must run first)\" >&2; exit 1; }\n\necho \"SBOM generation: $${SYFT_IMAGE}\"\ndocker run --rm -v /workspace:/workspace \\\n  \"$${SYFT_IMAGE}\" \"oci-dir:/workspace/oci-amd64\" -o json > sbom.linux_amd64.spdx.json \\\n  || { echo \"Syft JSON generation failed\" >&2; exit 1; }\n\ndocker run --rm -v /workspace:/workspace \\\n  \"$${SYFT_IMAGE}\" \"oci-dir:/workspace/oci-amd64\" -o table > package_summary.linux_amd64.txt \\\n  || { echo \"Syft table generation failed\" >&2; exit 1; }\n\ntest -s sbom.linux_amd64.spdx.json || { echo \"SBOM output empty\" >&2; exit 1; }"
       ]
     },
     {
@@ -87,7 +97,7 @@
       "dir": "rbev-ubu-safety",
       "args": [
         "-lc",
-        "# RBGJB Step 09: Build and push metadata container\n# Builder: gcr.io/cloud-builders/docker\n# Substitutions: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY, _RBGY_MONIKER\n\nset -euo pipefail\n\ntest -s .tag_base || (echo \"tag base not derived\" >&2; exit 1)\nTAG_BASE=\"$$(cat .tag_base)\"\nMETA_URI=\"${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:$${TAG_BASE}${_RBGY_ARK_SUFFIX_ABOUT}\"\n\n{\n  echo 'FROM scratch'\n  echo 'LABEL org.opencontainers.image.title=\"rbia-metadata\"'\n  echo 'ADD build_info.json /build_info.json'\n  echo 'ADD syft_analysis.json /syft_analysis.json'\n  echo 'ADD package_summary.txt /package_summary.txt'\n  echo 'ADD recipe.txt /recipe.txt'\n} > Dockerfile.meta\n\ndocker build -f Dockerfile.meta -t \"$${META_URI}\" .\ndocker push \"$${META_URI}\""
+        "# RBGJB Step 09: Build and push metadata container\n# Builder: gcr.io/cloud-builders/docker\n# Substitutions: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY, _RBGY_MONIKER\n\nset -euo pipefail\n\ntest -s .tag_base || (echo \"tag base not derived\" >&2; exit 1)\nTAG_BASE=\"$$(cat .tag_base)\"\nMETA_URI=\"${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:$${TAG_BASE}${_RBGY_ARK_SUFFIX_ABOUT}\"\n\n{\n  echo 'FROM scratch'\n  echo 'LABEL org.opencontainers.image.title=\"rbia-metadata\"'\n  echo 'ADD build_info.json /build_info.json'\n  echo 'ADD sbom.linux_amd64.spdx.json /sbom.linux_amd64.spdx.json'\n  echo 'ADD package_summary.linux_amd64.txt /package_summary.linux_amd64.txt'\n  echo 'ADD recipe.txt /recipe.txt'\n} > Dockerfile.meta\n\ndocker build -f Dockerfile.meta -t \"$${META_URI}\" .\ndocker push \"$${META_URI}\""
       ]
     }
   ],
@@ -96,8 +106,8 @@
     "_RBGY_MONIKER": "rbev-ubu-safety",
     "_RBGY_PLATFORMS": "linux/amd64,linux/arm64",
     "_RBGY_GAR_LOCATION": "us-central1",
-    "_RBGY_GAR_PROJECT": "rbwg-d-demo1015-260303152320",
-    "_RBGY_GAR_REPOSITORY": "rbw-demo1015-repository",
+    "_RBGY_GAR_PROJECT": "rbwg-d-demo1025-260304183118",
+    "_RBGY_GAR_REPOSITORY": "rbw-demo1025-repository",
     "_RBGY_GIT_COMMIT": "__INSCRIBE_GIT_COMMIT__",
     "_RBGY_GIT_BRANCH": "main",
     "_RBGY_GIT_REPO": "bhyslop/recipemuster",
@@ -111,7 +121,9 @@
   },
   "options": {
     "logging": "CLOUD_LOGGING_ONLY",
-    "machineType": "UNSPECIFIED"
+    "pool": {
+      "name": "projects/rbwg-d-demo1015-260303152320/locations/us-central1/workerPools/rbw-demo1015-pool"
+    }
   },
   "timeout": "1200s"
 }
