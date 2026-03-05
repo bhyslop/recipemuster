@@ -7,12 +7,19 @@
 
 ## Summary
 
-Cloud Build's native SLSA v1.0 provenance is structurally incompatible with the
-OCI Layout Bridge push architecture. Adding `requestedVerifyOption: VERIFIED` or
-the `images:` field to the current pipeline would **break builds**, not just skip
-provenance. The primary path forward is to restructure the push so Cloud Build
-can generate native SLSA provenance. Cosign attestation is a fallback if the
-native path proves impossible.
+Cloud Build native SLSA v1.0 provenance (Level 3) is achievable by replacing the
+OCI Layout Bridge with `docker buildx build --push` and pulling the image back
+into Docker's local daemon for the `images:` field. Three experiments on
+2026-03-05 (builds `a3e5c2d7`, `4de1467a`, `48b818ed`) validated the full chain:
+buildx pushes multi-platform images to GAR using pre-populated ADC credentials
+(no docker login required), and the pullback + `images:` + `requestedVerifyOption:
+VERIFIED` pattern produces dual-signed SLSA Level 3 provenance.
+
+The OCI Layout Bridge (crane push) was structurally incompatible with CB-native
+provenance because `images:` requires images in Docker's local daemon, and crane
+pushed directly to the registry. Adding `VERIFIED` or `images:` to the crane-based
+pipeline would have broken builds, not just skipped provenance. The buildx --push +
+pullback pattern resolves this. Cosign is not needed.
 
 ## Why the OCI Layout Bridge Exists
 
@@ -396,9 +403,9 @@ Plus config changes (`images:`, `requestedVerifyOption`).
 ### Test Configuration Files
 
 The cloudbuild.json files used for these experiments are committed to the repo:
-- `cloudbuild-test-buildx-a.json` — Experiment 1 (Variant A, with docker login)
-- `cloudbuild-test-buildx-b.json` — Experiment 2 (Variant B, ADC only)
-- `cloudbuild-test-provenance.json` — Experiment 3 (provenance)
+- `Memos/experiments/cloudbuild-test-buildx-a.json` — Experiment 1 (Variant A, with docker login)
+- `Memos/experiments/cloudbuild-test-buildx-b.json` — Experiment 2 (Variant B, ADC only)
+- `Memos/experiments/cloudbuild-test-provenance.json` — Experiment 3 (provenance)
 
 These are throwaway test configs, not production build definitions.
 
