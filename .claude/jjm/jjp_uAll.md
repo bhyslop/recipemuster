@@ -105,6 +105,31 @@ needs two code paths: `--load` for single-platform vessels, `--push` +
 per-platform pullback + multi-URI `images:` + `imagetools create` reassembly
 for multi-platform vessels.
 
+### Decision: Single-Build Reassembly (Experiment 6, 2026-03-05)
+
+**`imagetools create` runs within the same CB build — no post-build step needed.**
+Build `6661d0cd` (33s) proved the full pipeline in one invocation:
+
+1. `buildx --push` (3 platforms) → `:varG-multi`
+2. Per-platform pullback (`docker pull --platform`)
+3. `docker push` each per-platform tag (pre-pushes to registry)
+4. `imagetools create` assembles combined manifest list (reads from registry)
+5. `images:` field re-pushes same per-platform tags → SLSA Level 3 (idempotent)
+
+**Key findings:**
+- `docker push` works mid-build (pre-populated GAR credentials)
+- `imagetools create` can reference images pushed by `docker push` in prior steps
+- `images:` re-push is idempotent — same content, same digest, provenance generated
+- Combined manifest list (`:varG-combined`, `slsa_build_level: unknown`) survives
+  the `images:` re-push intact
+- Zero new dependencies — only `docker` + `buildx` in `gcr.io/cloud-builders/docker`
+
+**This eliminates options (b) Pub/Sub, (c) local post-dispatch, (d) separate gcloud
+build.** The operator dispatches, cloud executes — no local environment in the
+provenance chain.
+
+**Config:** `Memos/experiments/cloudbuild-test-single-build-reassembly.json`
+
 ### Provenance Experiments Validated (₢AlAAK, ₢AlAAL, 2026-03-05)
 
 Three experiments on demo1025 via `gcloud builds submit --no-source`:
