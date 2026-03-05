@@ -136,7 +136,7 @@ rbrr_refresh_gcb_pins() {
   local z_crane_url="https://github.com/google/go-containerregistry/releases/download/${z_crane_tag}/go-containerregistry_Linux_x86_64.tar.gz"
 
   buc_log_args "Reading current RBRR_CRANE_TAR_GZ from rbrr file"
-  grep "^RBRR_CRANE_TAR_GZ=" "${z_rbrr_file}" | cut -d'=' -f2- > "${z_crane_old_url_file}" \
+  grep "^readonly RBRR_CRANE_TAR_GZ=\|^RBRR_CRANE_TAR_GZ=" "${z_rbrr_file}" | cut -d'=' -f2- > "${z_crane_old_url_file}" \
     || buc_die "No existing value for RBRR_CRANE_TAR_GZ in rbrr file"
   local z_old_crane_url=$(<"${z_crane_old_url_file}")
   test -n "${z_old_crane_url}" || buc_die "Empty RBRR_CRANE_TAR_GZ value in rbrr file"
