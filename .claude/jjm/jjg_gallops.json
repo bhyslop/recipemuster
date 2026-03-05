@@ -5299,6 +5299,7 @@
       "creation_time": "260224",
       "status": "racing",
       "order": [
+        "₢AkAAX",
         "₢AkAAW",
         "₢AkAAD",
         "₢AkAAE",
@@ -5321,7 +5322,7 @@
         "₢AkAAS",
         "₢AkAAT"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5818,6 +5819,17 @@
               "text": "In rbgm_ManualProcedures.sh, the payor_refresh procedure step 3 \"Verify Installation\" directs users to run `rbgp_depot_list` as a raw bash function call. This should instead guide users to use the existing tabtarget `tt/rbw-Pl.PayorListsDepots.sh` (discoverable via `buc_next`), consistent with the BUK tabtarget-driven workflow.\n\nFix the procedure text at line ~320 to reference the tabtarget instead of the raw function.",
               "silks": "payor-refresh-use-tabtarget",
               "commit": "f572527"
+            }
+          ]
+        },
+        "₢AkAAX": {
+          "tacks": [
+            {
+              "ts": "260304-1941",
+              "state": "rough",
+              "text": "Investigate whether the Retriever should support listing consecrations (not just images). Currently `rbf_list` lists images in a depot, but there's no operation to enumerate the consecrations (tagged artifact groups) themselves. Consider:\n\n- Is there a user need to see \"what consecrations exist in this depot\" vs \"what images exist\"?\n- Would this be a distinct tabtarget or a flag on the existing list operation?\n- How does this relate to the ark/vessel/consecration vocabulary in RBSRV?\n\nThis is a design musing — capture findings and recommendation, not implementation.",
+              "silks": "muse-retriever-list-consecrations",
+              "commit": "d784307"
             }
           ]
         }
