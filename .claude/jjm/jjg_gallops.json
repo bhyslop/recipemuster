@@ -9,6 +9,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣AY",
     "₣Al",
     "₣Aj",
     "₣AP",
@@ -17,7 +18,6 @@
     "₣AU",
     "₣AV",
     "₣AW",
-    "₣AY",
     "₣AZ",
     "₣Aa",
     "₣Ac",
@@ -3980,7 +3980,7 @@
     "₣AY": {
       "silks": "jjk-cue-calibration",
       "creation_time": "260209",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢AYAAA",
         "₢AYAAB",
