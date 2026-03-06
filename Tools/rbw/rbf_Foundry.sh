@@ -1645,7 +1645,10 @@ rbf_check_consecrations() {
   # Extract tags and group by inscribe timestamp
   # Tags matching: i\d{8}_\d{6}-image[-suffix] or i\d{8}_\d{6}-about or i\d{8}_\d{6}-multi
   local -r z_raw_file="${BURD_TEMP_DIR}/rbf_dc_raw.txt"
-  jq -r '.tags[]? // empty' "${z_tags_file}" | while read -r z_tag; do
+  local -r z_all_tags_file="${BURD_TEMP_DIR}/rbf_dc_all_tags.txt"
+  jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}"
+
+  while IFS= read -r z_tag || test -n "${z_tag}"; do
     # Extract inscribe timestamp prefix (iYYYYMMDD_HHMMSS)
     local z_ts=""
     if [[ "${z_tag}" =~ ^(i[0-9]{8}_[0-9]{6}) ]]; then
@@ -1668,7 +1671,7 @@ rbf_check_consecrations() {
     elif [[ "${z_tag}" == *"-multi" ]]; then
       echo "${z_ts}|multi|"
     fi
-  done > "${z_raw_file}"
+  done < "${z_all_tags_file}" > "${z_raw_file}"
 
   if ! test -s "${z_raw_file}"; then
     buc_info "No consecrations found for ${RBRV_SIGIL}"
@@ -1773,11 +1776,16 @@ rbf_vouch() {
 
   # Find all -image tags and extract inscribe timestamps, pick most recent
   local -r z_image_tags_file="${BURD_TEMP_DIR}/rbf_rv_image_tags.txt"
-  jq -r '.tags[]? // empty' "${z_tags_file}" | while read -r z_tag; do
+  local -r z_rv_all_tags_file="${BURD_TEMP_DIR}/rbf_rv_all_tags.txt"
+  local -r z_rv_unsorted_file="${BURD_TEMP_DIR}/rbf_rv_unsorted.txt"
+  jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_rv_all_tags_file}"
+
+  while IFS= read -r z_tag || test -n "${z_tag}"; do
     if [[ "${z_tag}" =~ ^(i[0-9]{8}_[0-9]{6})${RBGC_ARK_SUFFIX_IMAGE}(.*)$ ]]; then
       echo "${BASH_REMATCH[1]}|${z_tag}|${BASH_REMATCH[2]}"
     fi
-  done | sort -t'|' -k1,1r > "${z_image_tags_file}"
+  done < "${z_rv_all_tags_file}" > "${z_rv_unsorted_file}"
+  sort -t'|' -k1,1r "${z_rv_unsorted_file}" > "${z_image_tags_file}"
 
   if ! test -s "${z_image_tags_file}"; then
     buc_die "No -image tags found for ${RBRV_SIGIL}"
@@ -1794,6 +1802,12 @@ rbf_vouch() {
   local -r z_vouch_tags_file="${BURD_TEMP_DIR}/rbf_rv_vouch_tags.txt"
   grep "^${z_consecration}|" "${z_image_tags_file}" > "${z_vouch_tags_file}"
 
+  # Load vouch tags (BCG load-then-iterate: close file before complex processing)
+  local z_vouch_lines=()
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_vouch_lines+=("${z_line}")
+  done < "${z_vouch_tags_file}"
+
   # For each -image tag: resolve digest, query Container Analysis
   local -r z_report_file="${BURD_TEMP_DIR}/rbf_rv_report.txt"
   > "${z_report_file}"
@@ -1801,7 +1815,10 @@ rbf_vouch() {
   local z_all_build_ids=""
   local z_tag_count=0
 
-  while IFS='|' read -r z_ts z_tag z_plat_suffix; do
+  local z_vouch_entry=""
+  for z_vouch_entry in "${z_vouch_lines[@]}"; do
+    local z_ts z_tag z_plat_suffix
+    IFS='|' read -r z_ts z_tag z_plat_suffix <<< "${z_vouch_entry}"
     z_tag_count=$((z_tag_count + 1))
 
     # Determine platform display name
@@ -1866,37 +1883,21 @@ rbf_vouch() {
       continue
     fi
 
-    # Extract SLSA build level and build invocation ID from occurrences
+    # Extract SLSA build level from occurrences
+    # Check v1 predicate path first, then fall back to recursive search
     local z_ca_resp="${ZRBGU_PREFIX}${z_ca_infix}${ZRBGU_POSTFIX_JSON}"
-    local z_slsa_level=""
-    z_slsa_level=$(jq -r '
-      [.occurrences[]? | .build.intotoStatement.slsaProvenanceZeroTwo.buildDefinition.externalParameters.buildConfigSource.ref // empty] |
-      if length > 0 then "present" else
-        [.occurrences[]? | .build.provenance.builtInMaterials // empty] |
-        if length > 0 then "present" else "none" end
-      end
-    ' "${z_ca_resp}" 2>/dev/null) || z_slsa_level=""
-
-    # Try to get the numeric SLSA level from the occurrence note
-    local z_slsa_num=""
-    z_slsa_num=$(jq -r '
-      [.occurrences[]? | .noteName // empty] | first // "none"
-    ' "${z_ca_resp}" 2>/dev/null) || z_slsa_num=""
-
-    # Extract slsa_build_level from the discovery/build metadata
-    local z_build_level=""
-    z_build_level=$(jq -r '
-      [.occurrences[]? |
-        (.build.intotoStatement.predicate.runDetails.builder.builderDependencies[]?.digest // empty),
-        (.envelope.payload // empty)
-      ] | first // "unknown"
-    ' "${z_ca_resp}" 2>/dev/null) || z_build_level=""
-
-    # More direct: look for slsa_build_level in the flattened structure
     local z_level_direct=""
     z_level_direct=$(jq -r '
-      [.occurrences[]? | .. | .slsa_build_level? // empty | select(. != null)] | first // "unknown"
-    ' "${z_ca_resp}" 2>/dev/null) || z_level_direct="unknown"
+      [.occurrences[]? |
+        .build.intotoStatement.predicate.buildDefinition.internalParameters.slsa_build_level // empty
+      ] | first // empty | tostring
+    ' "${z_ca_resp}" 2>/dev/null) || z_level_direct=""
+
+    if test -z "${z_level_direct}"; then
+      z_level_direct=$(jq -r '
+        [.occurrences[]? | .. | .slsa_build_level? // empty | select(. != null)] | first // "unknown" | tostring
+      ' "${z_ca_resp}" 2>/dev/null) || z_level_direct="unknown"
+    fi
 
     # Extract build invocation ID
     local z_build_id=""
@@ -1928,7 +1929,7 @@ rbf_vouch() {
         z_all_build_ids="${z_all_build_ids} ${z_build_id}"
       fi
     fi
-  done < "${z_vouch_tags_file}"
+  done
 
   # Display report
   printf "\nVessel: %s\n" "${RBRV_SIGIL}"
