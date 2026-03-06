@@ -1438,6 +1438,11 @@ Built locally by the
 {rbtr_director}
 after trigger-dispatched build completion.
 Single-platform (`FROM scratch`, linux/amd64) — content is platform-independent JSON describing per-platform SLSA facts.
++
+**SLSA level determination**: The Container Analysis API does not expose an explicit `slsa_build_level` field.
+The vouch function infers the level from occurrence structure: presence of `inTotoSlsaProvenanceV1` (signed v1 provenance from Cloud Build's verified-builder keys) implies Level 3.
+This is weaker than cryptographic verification — the proper approach is `slsa-verifier verify-image` from the SLSA framework, which verifies provenance signatures against Google's public keys and confirms builder identity.
+Integration of `slsa-verifier` into the vouch path is deferred.
 
 === Rubric Definitions
 
