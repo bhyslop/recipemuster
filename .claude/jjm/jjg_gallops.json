@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Ao",
+  "next_heat_seed": "Ap",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -21,7 +21,8 @@
     "₣AZ",
     "₣Aa",
     "₣Ac",
-    "₣Ak"
+    "₣Ak",
+    "₣Ao"
   ],
   "heats": {
     "₣AD": {
@@ -7036,6 +7037,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAln.md",
+      "paces": {}
+    },
+    "₣Ao": {
+      "silks": "jjk-v3-recast-mcp",
+      "creation_time": "260306",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlo.md",
       "paces": {}
     }
   }
