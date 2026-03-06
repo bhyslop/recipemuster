@@ -2091,26 +2091,37 @@ rbf_vouch() {
     fi
 
     # Extract SLSA build level from occurrences
-    # Check v1 predicate path first, then fall back to recursive search
+    # Container Analysis API does not expose an explicit slsa_build_level field.
+    # Infer level from occurrence structure:
+    #   inTotoSlsaProvenanceV1 present → Level 3 (CB VERIFIED with signed v1 provenance)
+    #   intotoStatement only           → Level 1 (v0.1 unsigned)
+    #   neither                        → unknown
     local z_ca_resp="${ZRBGU_PREFIX}${z_ca_infix}${ZRBGU_POSTFIX_JSON}"
-    local z_level_direct=""
-    z_level_direct=$(jq -r '
-      [.occurrences[]? |
-        .build.intotoStatement.predicate.buildDefinition.internalParameters.slsa_build_level // empty
-      ] | first // empty | tostring
-    ' "${z_ca_resp}" 2>/dev/null) || z_level_direct=""
+    local z_level_direct="unknown"
+    local z_has_v1=""
+    z_has_v1=$(jq -r '
+      [.occurrences[]? | .build.inTotoSlsaProvenanceV1 // empty] | length
+    ' "${z_ca_resp}" 2>/dev/null) || z_has_v1="0"
 
-    if test -z "${z_level_direct}"; then
-      z_level_direct=$(jq -r '
-        [.occurrences[]? | .. | .slsa_build_level? // empty | select(. != null)] | first // "unknown" | tostring
-      ' "${z_ca_resp}" 2>/dev/null) || z_level_direct="unknown"
+    if test "${z_has_v1}" -gt 0; then
+      z_level_direct="3"
+    else
+      local z_has_v01=""
+      z_has_v01=$(jq -r '
+        [.occurrences[]? | .build.intotoStatement // empty] | length
+      ' "${z_ca_resp}" 2>/dev/null) || z_has_v01="0"
+      if test "${z_has_v01}" -gt 0; then
+        z_level_direct="1"
+      fi
     fi
 
     # Extract build invocation ID
+    # Check v1 path (inTotoSlsaProvenanceV1), then v0.1 path (intotoStatement), then legacy
     local z_build_id=""
     z_build_id=$(jq -r '
       [.occurrences[]? |
-        .build.intotoStatement.predicate.runDetails.metadata.invocationId //
+        .build.inTotoSlsaProvenanceV1.predicate.runDetails.metadata.invocationId //
+        .build.intotoStatement.predicate.metadata.buildInvocationId //
         .build.provenance.id //
         empty
       ] | first // "unknown"
@@ -2126,10 +2137,13 @@ rbf_vouch() {
     z_occ_count=$(jq -r '.occurrences | length // 0' "${z_ca_resp}" 2>/dev/null) || z_occ_count="0"
 
     # Extract predicate type versions present in occurrences
+    # Check both v0.1 (intotoStatement) and v1 (inTotoSlsaProvenanceV1) paths
     local z_pred_types=""
     z_pred_types=$(jq -r '
-      [.occurrences[]? | .build.intotoStatement.predicateType // empty] |
-      unique | map(
+      [.occurrences[]? |
+        .build.intotoStatement.predicateType // empty,
+        .build.inTotoSlsaProvenanceV1.predicateType // empty
+      ] | map(select(. != null and . != "")) | unique | map(
         if test("v1$") then "v1"
         elif test("v0\\.1") then "v0.1"
         else .

@@ -163,6 +163,7 @@ zrbtb_slsa_tsuite_setup() {
   buto_trace "Setup for slsa-provenance fixture"
   git diff-index --quiet HEAD -- || buto_fatal "slsa-provenance requires a clean git working tree (rbf_build will reject dirty state)"
   ZRBTB_ARK_VESSEL_SIGIL="rbev-busybox"
+  zrbgc_kindle
 }
 
 zrbtb_dispatch_tsuite_setup() {
