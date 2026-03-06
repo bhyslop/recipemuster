@@ -6021,6 +6021,7 @@
       "creation_time": "260303",
       "status": "racing",
       "order": [
+        "₢AlAAb",
         "₢AlAAI",
         "₢AlAAK",
         "₢AlAAL",
@@ -6047,7 +6048,7 @@
         "₢AlAAB",
         "₢AlAAA"
       ],
-      "next_pace_seed": "AAb",
+      "next_pace_seed": "AAc",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6834,6 +6835,17 @@
               "text": "Run the SLSA provenance e2e test (rbtcsl_SlsaProvenance) against live GCP\ninfrastructure on depot demo1025. This exercises conjure → check consecrations\n→ vouch (assert Level 3) → abjure on rbev-busybox (3-platform).\n\nFix any issues discovered during the run.\n\n## Acceptance Criteria\n\n- rbtcsl_provenance_tcase passes on rbev-busybox\n- Any code fixes committed before wrapping",
               "silks": "e2e-slsa-provenance-test-run",
               "commit": "087388a"
+            }
+          ]
+        },
+        "₢AlAAb": {
+          "tacks": [
+            {
+              "ts": "260306-1235",
+              "state": "rough",
+              "text": "Fix consecration discovery to use strong build-ID tie instead of inferential GAR tag scanning.\n\n## Problem\n\n`rbf_build` discovers the consecration by scanning GAR tags for the first about tag matching the inscribe timestamp. When multiple builds share the same inscribe timestamp (same rubric, different dispatches), this finds stale about tags from previous builds that were never abjured.\n\n## Repair A — Root cause: step output (rbf_Foundry.sh + step 01)\n\nCloud Build steps can write up to 50 bytes to `/builder/outputs/output`, which appears in `results.buildStepOutputs[N]` (base64-encoded). Step 01 (derive-tag-base) already computes TAG_BASE (= consecration). Add one line to step 01:\n\n    echo -n \"${TAG_BASE}\" > /builder/outputs/output\n\nThen replace the GAR tag scanning in `rbf_build` consecration discovery (lines ~672-694) with:\n\n    z_found_consecration=$(echo \"${step0_output}\" | base64 -d)\n\nThis eliminates GAR scanning entirely. Direct, zero inference.\n\nRequires: re-inscribe after step script change (stitch regenerates cloudbuild.json).\n\n## Repair B — Test safety net: build ID assertion (rbtcsl_SlsaProvenance.sh)\n\n1. Add `RBF_FACT_BUILD_ID` constant to rbgc_Constants.sh\n2. Have `rbf_build` write the dispatched build ID to `${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}`\n3. Have `rbf_vouch` write the provenance `buildInvocationId` to `${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}`\n4. In `rbtcsl_provenance_tcase`, assert conjure's build ID == vouch's build ID\n\nThis catches stale-consecration bugs at test time even if Repair A has a regression.\n\n## Spec assessment\n\nRBS0 `rbtgr_provenance` section documents the multi-platform pipeline steps. Step 01 output behavior should be noted there. The `rbtga_ark_vouch` section should note the build-ID cross-check.\n\n## Acceptance Criteria\n\n- Step 01 writes TAG_BASE to `/builder/outputs/output`\n- `rbf_build` reads consecration from `buildStepOutputs[0]`, no GAR tag scan\n- Test asserts conjure build ID matches vouch provenance build ID\n- RBS0 updated with step output and build-ID cross-check documentation\n- Re-inscribe + dispatch + vouch passes on rbev-busybox",
+              "silks": "fix-consecration-discovery-strong-tie",
+              "commit": "fbce5ae"
             }
           ]
         }
