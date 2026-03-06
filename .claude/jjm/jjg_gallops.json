@@ -7032,9 +7032,10 @@
       "creation_time": "260306",
       "status": "racing",
       "order": [
-        "₢AoAAA"
+        "₢AoAAA",
+        "₢AoAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAlo.md",
       "paces": {
         "₢AoAAA": {
@@ -7059,6 +7060,17 @@
               "text": "Evaluate MCP (Model Context Protocol) as a transport replacement for the current bash-stdin invocation pattern used by jjx commands.\n\n## Context\n\nCurrently Claude invokes jjx via Bash tool calls with heredoc stdin pipes. This causes permission friction — Claude Code's Bash permission matcher sees each unique heredoc as a new command string. The current bash layer is purely transport (args + stdin); Rust already owns locking, JSON transformation, and git operations (see persist/wrap routines in JJS0).\n\n## Key Insight\n\nMCP stdio transport would replace bash as the invocation layer with structured JSON-RPC tool calls. The Rust core logic stays untouched — only the entry point changes.\n\nCurrent:  Claude → Bash(args + stdin pipe) → Rust(lock + transform + git)\nMCP:      Claude → MCP tool call(structured params) → Rust(lock + transform + git)\n\n## Questions to Resolve\n\n1. **Scope**: What exactly needs to change in vvx to serve as MCP stdio server? JSON-RPC dispatch loop, tool registration, parameter mapping.\n2. **Registration**: How does Claude Code discover and spawn the MCP server? `.claude/settings.json` mcpServers config.\n3. **Multi-officium**: Multiple Claude sessions = multiple MCP server instances. Locking already handles this (vvg_lock_acquire), but verify no conflicts.\n4. **Stdin commands**: The 7 commands taking stdin (enroll, revise_docket, arm, transfer, close, paddock, landing) become structured string parameters. Any edge cases?\n5. **Backward compatibility**: Can vvx serve both CLI and MCP modes? (e.g., `vvx --mcp` for stdio server mode, default for CLI)\n6. **JJS0 stale section**: The Crash-Safe Architecture section (lines 248-265) still describes bash-owned locking. Update regardless of MCP decision.\n7. **Incremental path**: Could we do file-based input (--input-file) as a quick fix AND MCP as the proper solution?\n\n## Acceptance\n\nA design document or paddock update with clear go/no-go recommendation and implementation sketch if go.",
               "silks": "consider-mcp-transport-for-jjx",
               "commit": "859773c"
+            }
+          ]
+        },
+        "₢AoAAB": {
+          "tacks": [
+            {
+              "ts": "260306-1002",
+              "state": "rough",
+              "text": "Update JJS0-GallopsData.adoc to specify MCP as a transport layer alongside CLI.\n\n## Sections to update\n\n1. **Crash-Safe Architecture** (lines 248-265) — Replace bash-only locking description with dual-transport model. MCP server performs lock→read→modify→write→unlock per tool call (stateless). CLI path unchanged. Remove bash code example showing lock_acquire/lock_release pattern; replace with transport-agnostic description.\n\n2. **Operations preamble** (lines 1143-1153) — Revise \"Bash handles locking\" to describe two transports: MCP (Claude's exclusive path, structured JSON-RPC params) and CLI (hooks, tabtargets, manual use, same binary). Both share the same Rust handlers.\n\n3. **CLI section** (lines 1089-1105) — Add MCP transport description alongside existing CLI description. vvx gains `--mcp` mode for stdio JSON-RPC server. Tool registration derives from existing clap Args structs.\n\n4. **Stdin-reading operations** — Document that the 7 stdin commands (enroll, revise_docket, arm, transfer, close, paddock, landing) accept structured string parameters under MCP transport while retaining stdin for CLI. This is a transport concern, not a schema change.\n\n5. **{jjda_file} argument** (lines 895-906) — Note that MCP transport defaults this internally; not exposed as a tool parameter. CLI retains the flag.\n\n## Not changing\n- Types, Records, Serialization, Upper API verbs, Commit Message Architecture — all transport-agnostic.\n\n## Acceptance\n- JJS0 accurately describes both MCP and CLI transports\n- Crash-Safe Architecture reflects stateless per-call MCP model\n- Stdin→params documented for affected operations",
+              "silks": "jjs0-mcp-transport-spec",
+              "commit": "cf4f0dd"
             }
           ]
         }
