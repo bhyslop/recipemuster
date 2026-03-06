@@ -7036,9 +7036,10 @@
         "₢AoAAB",
         "₢AoAAC",
         "₢AoAAD",
-        "₢AoAAE"
+        "₢AoAAE",
+        "₢AoAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAlo.md",
       "paces": {
         "₢AoAAA": {
@@ -7107,6 +7108,17 @@
               "text": "Update vvx_emplace (kit install) to register MCP server in Claude Code settings.\n\n## Scope\n\n- vvx_emplace writes mcpServers entry to `.claude/settings.local.json`\n- Entry specifies: command path to vvx binary, `--mcp` flag, working directory\n- Handle existing settings file (merge, don't overwrite)\n- vvx_uninstall removes the mcpServers entry\n\n## Config shape (approximate)\n```json\n{\n  \"mcpServers\": {\n    \"vvx\": {\n      \"command\": \"./Tools/vok/target/debug/vvx\",\n      \"args\": [\"--mcp\"]\n    }\n  }\n}\n```\n\n## Acceptance\n- After `vvx_emplace`, Claude Code sees vvx MCP tools natively\n- After uninstall, the mcpServers entry is removed\n- Existing settings.local.json content preserved",
               "silks": "vvx-emplace-mcp-config",
               "commit": "2de6921"
+            }
+          ]
+        },
+        "₢AoAAF": {
+          "tacks": [
+            {
+              "ts": "260306-1003",
+              "state": "rough",
+              "text": "Update CLAUDE.md JJK managed section to reflect MCP-native usage.\n\n## Changes\n\n- Remove bash invocation patterns (`./tt/vvw-r.RunVVX.sh jjx_*`) from verb table and examples\n- Remove heredoc guidance section (structured params eliminate delimiter conflicts)\n- CLI Command Reference: simplify to parameter documentation rather than shell syntax\n- Update Commit Discipline section: jjx_record invoked via MCP, not bash\n- Update Mount/Groom/Wrap protocols to reflect MCP tool calls\n- Preserve all semantic content (verb mappings, protocols, discipline rules)\n\n## Dependencies\n- MCP server working (₢AoAAC)\n- Emplace config done (₢AoAAE)\n- Should be last implementation pace — only update docs after transport is proven\n\n## Acceptance\n- CLAUDE.md JJK section contains no bash invocation patterns for jjx\n- Heredoc guidance removed\n- Claude can follow the updated section to use MCP tools directly",
+              "silks": "claudemd-mcp-migration",
+              "commit": "3b08378"
             }
           ]
         }
