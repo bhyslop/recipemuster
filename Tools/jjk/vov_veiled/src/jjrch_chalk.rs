@@ -7,6 +7,9 @@
 //! The chalk command creates empty commits with special formatting for tracking
 //! steeplechase events like approach, wrap, fly, or heat-level discussions.
 
+#[allow(unused_imports)]
+use std::fmt::Write;
+
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};
 use crate::jjrn_notch::{jjrn_ChalkMarker as ChalkMarker, jjrn_format_chalk_message, jjrn_format_heat_discussion};
 
@@ -26,12 +29,14 @@ pub struct jjrx_ChalkArgs {
 }
 
 /// Run the chalk command - create steeplechase marker commit
-pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
+pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
+    let buf = String::new();
+
     let marker = match ChalkMarker::jjrn_parse(&args.marker) {
         Ok(m) => m,
         Err(e) => {
             eprintln!("jjx_chalk: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -44,7 +49,7 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
             Ok(c) => c,
             Err(e) => {
                 eprintln!("jjx_chalk: error: {}", e);
-                return 1;
+                return (1, buf);
             }
         };
         jjrn_format_chalk_message(&coronet, marker, &args.description)
@@ -52,20 +57,20 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
         // Firemark - heat-level (discussion, session)
         if marker.jjrn_requires_pace() {
             eprintln!("jjx_chalk: error: {} marker requires a Coronet (pace identity), not a Firemark", marker.jjrn_as_str());
-            return 1;
+            return (1, buf);
         }
         let firemark = match Firemark::jjrf_parse(&args.identity) {
             Ok(fm) => fm,
             Err(e) => {
                 eprintln!("jjx_chalk: error: {}", e);
-                return 1;
+                return (1, buf);
             }
         };
 
         jjrn_format_heat_discussion(&firemark, &args.description)
     } else {
         eprintln!("jjx_chalk: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
-        return 1;
+        return (1, buf);
     };
 
     let commit_args = vvc::vvcc_CommitArgs {
@@ -77,5 +82,5 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> i32 {
         warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 
-    vvc::commit(&commit_args)
+    (vvc::commit(&commit_args), buf)
 }

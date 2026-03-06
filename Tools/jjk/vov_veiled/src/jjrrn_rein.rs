@@ -22,11 +22,13 @@ pub struct jjrrn_ReinArgs {
 }
 
 /// Run the rein command - display steeplechase history
-pub fn jjrrn_run_rein(args: jjrrn_ReinArgs) -> i32 {
+pub fn jjrrn_run_rein(args: jjrrn_ReinArgs) -> (i32, String) {
+    let mut buf = String::new();
     let rein_args = LibReinArgs {
         firemark: args.firemark,
         limit: args.limit,
     };
 
-    lib_run(rein_args)
+    let rc = lib_run(rein_args, &mut buf);
+    (rc, buf)
 }

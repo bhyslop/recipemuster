@@ -6,6 +6,7 @@
 //!
 //! This module provides the Args struct and handler for the jjx_nominate command.
 
+use std::fmt::Write;
 use std::path::PathBuf;
 use std::collections::BTreeMap;
 
@@ -27,15 +28,16 @@ pub struct jjrx_NominateArgs {
 }
 
 /// Handler for jjx_nominate command
-pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> i32 {
+pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
     use std::path::Path;
+    let mut buf = String::new();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_nominate: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -44,14 +46,14 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> i32 {
             Ok(g) => g,
             Err(e) => {
                 eprintln!("jjx_nominate: error loading Gallops: {}", e);
-                return 1;
+                return (1, buf);
             }
         }
     } else {
         if let Some(parent) = args.file.parent() {
             if let Err(e) = std::fs::create_dir_all(parent) {
                 eprintln!("jjx_nominate: error creating directory: {}", e);
-                return 1;
+                return (1, buf);
             }
         }
         Gallops {
@@ -83,16 +85,16 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> i32 {
                 }
                 Err(e) => {
                     eprintln!("jjx_nominate: error: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             }
 
-            println!("{}", result.firemark);
-            0
+            let _ = writeln!(buf, "{}", result.firemark);
+            (0, buf)
         }
         Err(e) => {
             eprintln!("jjx_nominate: error: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here

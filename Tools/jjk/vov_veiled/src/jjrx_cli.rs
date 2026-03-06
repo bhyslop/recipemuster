@@ -179,64 +179,69 @@ pub async fn jjrx_dispatch(args: &[OsString]) -> i32 {
     // Handlers no longer read stdin directly — text arrives as parameters.
     use crate::jjrg_gallops::{jjrg_read_stdin, jjrg_read_stdin_optional};
 
+    // Helper: destructure (i32, String) from buf-returning handlers, print buf, return code.
+    macro_rules! emit {
+        ($expr:expr) => {{ let (code, buf) = $expr; print!("{}", buf); code }};
+    }
+
     match parsed {
-        jjrx_JjxCommands::Record(args) => jjrnc_run_notch(args),
-        jjrx_JjxCommands::Mark(args) => jjrx_run_chalk(args),
-        jjrx_JjxCommands::Log(args) => jjrrn_run_rein(args),
-        jjrx_JjxCommands::Validate(args) => jjrvl_run_validate(args),
-        jjrx_JjxCommands::List(args) => jjrmu_run_muster(args).await,
-        jjrx_JjxCommands::Orient(args) => jjrsd_run_saddle(args).await,
-        jjrx_JjxCommands::Show(args) => jjrpd_run_parade(args),
-        jjrx_JjxCommands::Archive(args) => jjrrt_run_retire(args),
-        jjrx_JjxCommands::Create(args) => jjrx_run_nominate(args),
+        jjrx_JjxCommands::Record(args) => emit!(jjrnc_run_notch(args)),
+        jjrx_JjxCommands::Mark(args) => emit!(jjrx_run_chalk(args)),
+        jjrx_JjxCommands::Log(args) => emit!(jjrrn_run_rein(args)),
+        jjrx_JjxCommands::Validate(args) => emit!(jjrvl_run_validate(args)),
+        jjrx_JjxCommands::List(args) => emit!(jjrmu_run_muster(args).await),
+        jjrx_JjxCommands::Orient(args) => emit!(jjrsd_run_saddle(args).await),
+        jjrx_JjxCommands::Show(args) => emit!(jjrpd_run_parade(args)),
+        jjrx_JjxCommands::Archive(args) => emit!(jjrrt_run_retire(args)),
+        jjrx_JjxCommands::Create(args) => emit!(jjrx_run_nominate(args)),
         jjrx_JjxCommands::Enroll(args) => {
             match jjrg_read_stdin() {
-                Ok(docket) => jjrsl_run_slate(args, docket),
+                Ok(docket) => emit!(jjrsl_run_slate(args, docket)),
                 Err(e) => { eprintln!("jjx_enroll: error: {}", e); 1 }
             }
         }
-        jjrx_JjxCommands::Reorder(args) => jjrrl_run_rail(args),
+        jjrx_JjxCommands::Reorder(args) => emit!(jjrrl_run_rail(args)),
         jjrx_JjxCommands::ReviseDocket(args) => {
             match jjrg_read_stdin() {
-                Ok(docket) => jjrtl_run_revise_docket(args, docket),
+                Ok(docket) => emit!(jjrtl_run_revise_docket(args, docket)),
                 Err(e) => { eprintln!("jjx_revise_docket: error: {}", e); 1 }
             }
         }
         jjrx_JjxCommands::Arm(args) => {
             match jjrg_read_stdin() {
-                Ok(warrant) => jjrtl_run_arm(args, warrant),
+                Ok(warrant) => emit!(jjrtl_run_arm(args, warrant)),
                 Err(e) => { eprintln!("jjx_arm: error: {}", e); 1 }
             }
         }
-        jjrx_JjxCommands::Relabel(args) => jjrtl_run_relabel(args),
-        jjrx_JjxCommands::Drop(args) => jjrtl_run_drop(args),
-        jjrx_JjxCommands::Relocate(args) => jjrdr_run_draft(args),
-        jjrx_JjxCommands::Alter(args) => jjrfu_run_furlough(args),
+        jjrx_JjxCommands::Relabel(args) => emit!(jjrtl_run_relabel(args)),
+        jjrx_JjxCommands::Drop(args) => emit!(jjrtl_run_drop(args)),
+        jjrx_JjxCommands::Relocate(args) => emit!(jjrdr_run_draft(args)),
+        jjrx_JjxCommands::Alter(args) => emit!(jjrfu_run_furlough(args)),
         jjrx_JjxCommands::Close(args) => {
             match jjrg_read_stdin_optional() {
-                Ok(summary) => zjjrx_run_wrap(args, summary),
+                Ok(summary) => emit!(zjjrx_run_wrap(args, summary)),
                 Err(e) => { eprintln!("jjx_close: error: {}", e); 1 }
             }
         }
-        jjrx_JjxCommands::Search(args) => jjrsc_run_scout(args),
-        jjrx_JjxCommands::GetBrief(args) => jjrgs_run_get_spec(args),
-        jjrx_JjxCommands::GetCoronets(args) => jjrgc_run_get_coronets(args),
+        jjrx_JjxCommands::Search(args) => emit!(jjrsc_run_scout(args)),
+        jjrx_JjxCommands::GetBrief(args) => emit!(jjrgs_run_get_spec(args)),
+        jjrx_JjxCommands::GetCoronets(args) => emit!(jjrgc_run_get_coronets(args)),
         jjrx_JjxCommands::Paddock(args) => {
             match jjrg_read_stdin_optional() {
-                Ok(content) => jjrcu_run_curry(args, content),
+                Ok(content) => emit!(jjrcu_run_curry(args, content)),
                 Err(e) => { eprintln!("jjx_paddock: error: {}", e); 1 }
             }
         }
-        jjrx_JjxCommands::Continue(args) => jjrgl_run_garland(args),
+        jjrx_JjxCommands::Continue(args) => emit!(jjrgl_run_garland(args)),
         jjrx_JjxCommands::Transfer(args) => {
             match jjrg_read_stdin() {
-                Ok(coronets) => jjrrs_run(args, coronets),
+                Ok(coronets) => emit!(jjrrs_run(args, coronets)),
                 Err(e) => { eprintln!("jjx_transfer: error: {}", e); 1 }
             }
         }
         jjrx_JjxCommands::Landing(args) => {
             match jjrg_read_stdin_optional() {
-                Ok(content) => jjrld_run_landing(args, content.unwrap_or_default()),
+                Ok(content) => emit!(jjrld_run_landing(args, content.unwrap_or_default())),
                 Err(e) => { eprintln!("jjx_landing: error: {}", e); 1 }
             }
         }

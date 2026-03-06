@@ -6,6 +6,7 @@
 //!
 //! This module owns the validate command's Args struct and handler function.
 
+use std::fmt::Write;
 use std::path::PathBuf;
 use crate::jjrg_gallops::jjrg_Gallops as Gallops;
 
@@ -18,26 +19,28 @@ pub struct jjrvl_ValidateArgs {
 }
 
 /// Run the validate command - validate Gallops JSON schema
-pub fn jjrvl_run_validate(args: jjrvl_ValidateArgs) -> i32 {
+pub fn jjrvl_run_validate(args: jjrvl_ValidateArgs) -> (i32, String) {
+    let mut buf = String::new();
+
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_validate: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
     match gallops.jjrg_validate() {
         Ok(()) => {
-            println!("Gallops validation passed");
-            0
+            let _ = writeln!(buf, "Gallops validation passed");
+            (0, buf)
         }
         Err(errors) => {
             eprintln!("jjx_validate: validation failed with {} error(s):", errors.len());
             for error in errors {
                 eprintln!("  - {}", error);
             }
-            1
+            (1, buf)
         }
     }
 }

@@ -38,11 +38,13 @@ pub struct jjrnc_NotchArgs {
 ///
 /// Stages specified files and commits with JJ-aware prefix.
 /// Supports both pace-affiliated (Coronet) and heat-only (Firemark) commits.
-pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
+pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
+    let buf = String::new();
+
     // Require non-empty files list
     if args.files.is_empty() {
         eprintln!("jjx_notch: error: at least one file required");
-        return 1;
+        return (1, buf);
     }
 
     // Check each file either exists on disk or is tracked by git (for deletions)
@@ -58,7 +60,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
                 Ok(o) => o,
                 Err(e) => {
                     eprintln!("jjx_notch: error: failed to check git tracking: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             };
 
@@ -71,7 +73,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
                     Ok(o) => o,
                     Err(e) => {
                         eprintln!("jjx_notch: error: failed to check staged deletion: {}", e);
-                        return 1;
+                        return (1, buf);
                     }
                 };
 
@@ -81,7 +83,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
 
                 if !is_staged_deletion {
                     eprintln!("jjx_notch: error: file does not exist and is not tracked by git: {}", file);
-                    return 1;
+                    return (1, buf);
                 }
             }
         }
@@ -96,7 +98,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
             Ok(c) => c,
             Err(e) => {
                 eprintln!("jjx_notch: error: {}", e);
-                return 1;
+                return (1, buf);
             }
         };
         jjrn_format_notch_prefix(&coronet)
@@ -106,7 +108,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
             Ok(fm) => fm,
             Err(e) => {
                 eprintln!("jjx_notch: error: {}", e);
-                return 1;
+                return (1, buf);
             }
         };
         let hallmark = vvc::vvcc_get_hallmark();
@@ -114,7 +116,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
         vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity_str, "n", "", None)
     } else {
         eprintln!("jjx_notch: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
-        return 1;
+        return (1, buf);
     };
 
     // Warn about uncommitted changes outside the file list
@@ -125,13 +127,13 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
         Ok(o) => o,
         Err(e) => {
             eprintln!("jjx_notch: error: failed to run git status: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
     if !output.status.success() {
         eprintln!("jjx_notch: error: git status failed");
-        return 1;
+        return (1, buf);
     }
 
     let status_output = String::from_utf8_lossy(&output.stdout);
@@ -167,13 +169,13 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
         Ok(o) => o,
         Err(e) => {
             eprintln!("jjx_notch: error: failed to run git add: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
     if !add_output.status.success() {
         eprintln!("jjx_notch: error: git add failed");
-        return 1;
+        return (1, buf);
     }
 
     // Commit using vvc with the generated message prefix
@@ -198,5 +200,6 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> i32 {
         }
     };
 
-    vvc::commit(&commit_args)
+    let rc = vvc::commit(&commit_args);
+    (rc, buf)
 }

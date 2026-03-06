@@ -8,9 +8,8 @@
 //! used by the CLI dispatch path. Each tool call is stateless:
 //! lock → load → transform → save → unlock per invocation.
 //!
-//! stdout capture: Handlers print results to stdout via println!. Since
-//! MCP owns stdout for JSON-RPC transport, we redirect the fd during
-//! handler execution and capture output as the tool result text.
+//! Handlers return (i32, String) — exit code and accumulated output.
+//! The MCP layer converts this to CallToolResult (success/error).
 
 use std::path::PathBuf;
 use rmcp::handler::server::router::tool::ToolRouter;
@@ -49,116 +48,16 @@ fn gallops_pathbuf() -> PathBuf {
 }
 
 // ============================================================================
-// stdout capture
+// Result conversion
 // ============================================================================
 
-/// Redirect stdout to a pipe, run a closure, capture its printed output.
-///
-/// A reader thread drains the pipe concurrently to prevent deadlock when
-/// handler output exceeds the OS pipe buffer (~64KB on macOS).
-///
-/// # Safety
-/// Uses dup/dup2/pipe to redirect fd 1 at the OS level. Safe because:
-/// - MCP server is single-threaded per session (one tool call at a time)
-/// - saved fd is always restored, even if the handler panics would unwind
-///   (though handlers return i32, they don't panic in practice)
-/// - pipe fds and saved fd are closed on all paths
-fn jjrm_capture<F: FnOnce() -> i32>(f: F) -> Result<CallToolResult, McpError> {
-    use std::io::{Read, Write};
-    use std::os::unix::io::FromRawFd;
-
-    unsafe {
-        // SAFETY: pipe() returns two valid fds on success
-        let mut fds = [0i32; 2];
-        if libc::pipe(fds.as_mut_ptr()) != 0 {
-            return Err(McpError::internal_error("pipe creation failed", None));
-        }
-        let (read_fd, write_fd) = (fds[0], fds[1]);
-
-        // SAFETY: dup() returns a new fd pointing to the same stdout
-        let saved = libc::dup(libc::STDOUT_FILENO);
-        if saved < 0 {
-            libc::close(read_fd);
-            libc::close(write_fd);
-            return Err(McpError::internal_error("dup stdout failed", None));
-        }
-
-        // SAFETY: dup2 atomically redirects stdout to pipe write end
-        libc::dup2(write_fd, libc::STDOUT_FILENO);
-        libc::close(write_fd);
-
-        // Reader thread prevents pipe buffer deadlock
-        let reader_handle = std::thread::spawn(move || {
-            // SAFETY: read_fd is a valid fd from pipe(), transferred to this thread
-            let mut reader = std::fs::File::from_raw_fd(read_fd);
-            let mut output = String::new();
-            reader.read_to_string(&mut output).ok();
-            output
-        });
-
-        let code = f();
-        std::io::stdout().flush().ok();
-
-        // SAFETY: restore original stdout, close our saved copy
-        libc::dup2(saved, libc::STDOUT_FILENO);
-        libc::close(saved);
-
-        let output = reader_handle.join().unwrap_or_default();
-
-        if code == 0 {
-            Ok(CallToolResult::success(vec![Content::text(output)]))
-        } else {
-            Ok(CallToolResult::error(vec![Content::text(output)]))
-        }
-    }
-}
-
-/// Async variant — same fd redirection with reader thread for deadlock safety.
-async fn jjrm_capture_async<F, Fut>(f: F) -> Result<CallToolResult, McpError>
-where
-    F: FnOnce() -> Fut,
-    Fut: std::future::Future<Output = i32>,
-{
-    use std::io::{Read, Write};
-    use std::os::unix::io::FromRawFd;
-
-    unsafe {
-        let mut fds = [0i32; 2];
-        if libc::pipe(fds.as_mut_ptr()) != 0 {
-            return Err(McpError::internal_error("pipe creation failed", None));
-        }
-        let (read_fd, write_fd) = (fds[0], fds[1]);
-
-        let saved = libc::dup(libc::STDOUT_FILENO);
-        if saved < 0 {
-            libc::close(read_fd);
-            libc::close(write_fd);
-            return Err(McpError::internal_error("dup stdout failed", None));
-        }
-        libc::dup2(write_fd, libc::STDOUT_FILENO);
-        libc::close(write_fd);
-
-        // Reader thread drains pipe concurrently while async handler runs
-        let reader_handle = std::thread::spawn(move || {
-            let mut reader = std::fs::File::from_raw_fd(read_fd);
-            let mut output = String::new();
-            reader.read_to_string(&mut output).ok();
-            output
-        });
-
-        let code = f().await;
-        std::io::stdout().flush().ok();
-
-        libc::dup2(saved, libc::STDOUT_FILENO);
-        libc::close(saved);
-
-        let output = reader_handle.join().unwrap_or_default();
-
-        if code == 0 {
-            Ok(CallToolResult::success(vec![Content::text(output)]))
-        } else {
-            Ok(CallToolResult::error(vec![Content::text(output)]))
-        }
+/// Convert handler (exit_code, output) to MCP CallToolResult.
+fn jjrm_result(result: (i32, String)) -> Result<CallToolResult, McpError> {
+    let (code, output) = result;
+    if code == 0 {
+        Ok(CallToolResult::success(vec![Content::text(output)]))
+    } else {
+        Ok(CallToolResult::error(vec![Content::text(output)]))
     }
 }
 
@@ -426,7 +325,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_record", description = "JJ-aware commit with heat/pace context prefix. Stages specified files and commits with identity-derived message prefix.")]
     fn record(&self, Parameters(p): Parameters<jjrm_RecordParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrnc_run_notch(jjrnc_NotchArgs {
+        jjrm_result( jjrnc_run_notch(jjrnc_NotchArgs {
             identity: p.identity,
             files: p.files,
             size_limit: p.size_limit,
@@ -436,7 +335,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_mark", description = "Create empty commit marking a steeplechase event (A=approach, R=review, etc.)")]
     fn mark(&self, Parameters(p): Parameters<jjrm_MarkParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrx_run_chalk(jjrx_ChalkArgs {
+        jjrm_result( jjrx_run_chalk(jjrx_ChalkArgs {
             identity: p.identity,
             marker: p.marker,
             description: p.description,
@@ -445,7 +344,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_log", description = "Parse git history for steeplechase entries affiliated with a heat")]
     fn log(&self, Parameters(p): Parameters<jjrm_LogParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrrn_run_rein(jjrrn_ReinArgs {
+        jjrm_result( jjrrn_run_rein(jjrrn_ReinArgs {
             firemark: p.firemark,
             limit: p.limit.unwrap_or(50),
         }))
@@ -453,30 +352,30 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_validate", description = "Validate Gallops JSON schema integrity")]
     fn validate(&self, Parameters(_p): Parameters<jjrm_ValidateParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrvl_run_validate(jjrvl_ValidateArgs {
+        jjrm_result( jjrvl_run_validate(jjrvl_ValidateArgs {
             file: gallops_pathbuf(),
         }))
     }
 
     #[tool(name = "jjx_list", description = "List all Heats with status and pace completion counts")]
     async fn list(&self, Parameters(p): Parameters<jjrm_ListParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture_async(|| jjrmu_run_muster(jjrmu_MusterArgs {
+        jjrm_result( jjrmu_run_muster(jjrmu_MusterArgs {
             file: gallops_pathbuf(),
             status: p.status,
-        })).await
+        }).await)
     }
 
     #[tool(name = "jjx_orient", description = "Get saddling context for a Heat: racing heats, paddock, next pace, docket, recent work, and file-touch bitmap")]
     async fn orient(&self, Parameters(p): Parameters<jjrm_OrientParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture_async(|| jjrsd_run_saddle(jjrsd_SaddleArgs {
+        jjrm_result( jjrsd_run_saddle(jjrsd_SaddleArgs {
             file: gallops_pathbuf(),
             firemark: p.firemark,
-        })).await
+        }).await)
     }
 
     #[tool(name = "jjx_show", description = "Display comprehensive Heat or Pace status for project review")]
     fn show(&self, Parameters(p): Parameters<jjrm_ShowParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrpd_run_parade(jjrpd_ParadeArgs {
+        jjrm_result( jjrpd_run_parade(jjrpd_ParadeArgs {
             file: gallops_pathbuf(),
             target: p.target,
             detail: p.detail,
@@ -486,7 +385,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_archive", description = "Extract complete Heat data for archival trophy and retire the heat")]
     fn archive(&self, Parameters(p): Parameters<jjrm_ArchiveParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrrt_run_retire(jjrrt_RetireArgs {
+        jjrm_result( jjrrt_run_retire(jjrrt_RetireArgs {
             file: gallops_pathbuf(),
             firemark: p.firemark,
             execute: p.execute,
@@ -496,7 +395,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_create", description = "Create a new Heat with empty Pace structure")]
     fn create(&self, Parameters(p): Parameters<jjrm_CreateParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrx_run_nominate(jjrx_NominateArgs {
+        jjrm_result( jjrx_run_nominate(jjrx_NominateArgs {
             file: gallops_pathbuf(),
             silks: p.silks,
         }))
@@ -504,7 +403,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_enroll", description = "Add a new Pace to a Heat with docket text")]
     fn enroll(&self, Parameters(p): Parameters<jjrm_EnrollParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrsl_run_slate(jjrsl_SlateArgs {
+        jjrm_result( jjrsl_run_slate(jjrsl_SlateArgs {
             file: gallops_pathbuf(),
             firemark: p.firemark,
             silks: p.silks,
@@ -516,7 +415,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_reorder", description = "Reorder Paces within a Heat using move semantics")]
     fn reorder(&self, Parameters(p): Parameters<jjrm_ReorderParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrrl_run_rail(jjrrl_RailArgs {
+        jjrm_result( jjrrl_run_rail(jjrrl_RailArgs {
             file: gallops_pathbuf(),
             firemark: p.firemark,
             order: vec![],
@@ -530,7 +429,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_revise_docket", description = "Update pace docket text")]
     fn revise_docket(&self, Parameters(p): Parameters<jjrm_ReviseDocketParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrtl_run_revise_docket(jjrtl_ReviseDocketArgs {
+        jjrm_result( jjrtl_run_revise_docket(jjrtl_ReviseDocketArgs {
             file: gallops_pathbuf(),
             coronet: p.coronet,
         }, p.docket))
@@ -538,7 +437,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_arm", description = "Set pace state to bridled with warrant text")]
     fn arm(&self, Parameters(p): Parameters<jjrm_ArmParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrtl_run_arm(jjrtl_ArmArgs {
+        jjrm_result( jjrtl_run_arm(jjrtl_ArmArgs {
             file: gallops_pathbuf(),
             coronet: p.coronet,
         }, p.warrant))
@@ -546,7 +445,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_relabel", description = "Rename pace silks (display name)")]
     fn relabel(&self, Parameters(p): Parameters<jjrm_RelabelParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrtl_run_relabel(jjrtl_RelabelArgs {
+        jjrm_result( jjrtl_run_relabel(jjrtl_RelabelArgs {
             file: gallops_pathbuf(),
             coronet: p.coronet,
             silks: p.silks,
@@ -555,7 +454,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_drop", description = "Set pace state to abandoned")]
     fn drop_pace(&self, Parameters(p): Parameters<jjrm_DropParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrtl_run_drop(jjrtl_DropArgs {
+        jjrm_result( jjrtl_run_drop(jjrtl_DropArgs {
             file: gallops_pathbuf(),
             coronet: p.coronet,
         }))
@@ -563,7 +462,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_relocate", description = "Move a Pace from one Heat to another")]
     fn relocate(&self, Parameters(p): Parameters<jjrm_RelocateParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrdr_run_draft(jjrdr_DraftArgs {
+        jjrm_result( jjrdr_run_draft(jjrdr_DraftArgs {
             file: gallops_pathbuf(),
             coronet: p.coronet,
             to: p.to,
@@ -575,7 +474,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_alter", description = "Change Heat status (racing/stabled) or rename silks")]
     fn alter(&self, Parameters(p): Parameters<jjrm_AlterParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrfu_run_furlough(jjrfu_FurloughArgs {
+        jjrm_result( jjrfu_run_furlough(jjrfu_FurloughArgs {
             file: gallops_pathbuf(),
             firemark: p.firemark,
             racing: p.racing,
@@ -586,7 +485,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_close", description = "Mark a pace complete, commit all uncommitted changes in one operation")]
     fn close(&self, Parameters(p): Parameters<jjrm_CloseParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| zjjrx_run_wrap(jjrx_WrapArgs {
+        jjrm_result( zjjrx_run_wrap(jjrx_WrapArgs {
             coronet: p.coronet,
             size_limit: p.size_limit,
         }, p.summary))
@@ -594,7 +493,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_search", description = "Search across heats and paces with regex pattern")]
     fn search(&self, Parameters(p): Parameters<jjrm_SearchParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrsc_run_scout(jjrsc_ScoutArgs {
+        jjrm_result( jjrsc_run_scout(jjrsc_ScoutArgs {
             file: gallops_pathbuf(),
             pattern: p.pattern,
             actionable: p.actionable,
@@ -603,7 +502,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_get_brief", description = "Get raw docket text for a Pace")]
     fn get_brief(&self, Parameters(p): Parameters<jjrm_GetBriefParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrgs_run_get_spec(jjrgs_GetSpecArgs {
+        jjrm_result( jjrgs_run_get_spec(jjrgs_GetSpecArgs {
             file: gallops_pathbuf(),
             coronet: p.coronet,
         }))
@@ -611,7 +510,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_get_coronets", description = "List Coronets for a Heat with optional filtering")]
     fn get_coronets(&self, Parameters(p): Parameters<jjrm_GetCoronetsParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
+        jjrm_result( jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
             file: gallops_pathbuf(),
             firemark: p.firemark,
             remaining: p.remaining,
@@ -621,7 +520,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_paddock", description = "Get or set Heat paddock content. Omit content to read; provide content to write.")]
     fn paddock(&self, Parameters(p): Parameters<jjrm_PaddockParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrcu_run_curry(jjrcu_CurryArgs {
+        jjrm_result( jjrcu_run_curry(jjrcu_CurryArgs {
             file: gallops_pathbuf(),
             firemark: p.firemark,
             note: p.note,
@@ -630,7 +529,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_continue", description = "Garland a heat - celebrate completion and create continuation heat")]
     fn r#continue(&self, Parameters(p): Parameters<jjrm_ContinueParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrgl_run_garland(jjrgl_GarlandArgs {
+        jjrm_result( jjrgl_run_garland(jjrgl_GarlandArgs {
             file: gallops_pathbuf(),
             firemark: p.firemark,
         }))
@@ -638,7 +537,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_transfer", description = "Bulk transfer multiple paces between heats atomically")]
     fn transfer(&self, Parameters(p): Parameters<jjrm_TransferParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrrs_run(jjrrs_RestringArgs {
+        jjrm_result( jjrrs_run(jjrrs_RestringArgs {
             file: gallops_pathbuf(),
             firemark: p.firemark,
             to: p.to,
@@ -647,7 +546,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx_landing", description = "Record agent landing after autonomous execution")]
     fn landing(&self, Parameters(p): Parameters<jjrm_LandingParams>) -> Result<CallToolResult, McpError> {
-        jjrm_capture(|| jjrld_run_landing(jjrld_LandingArgs {
+        jjrm_result( jjrld_run_landing(jjrld_LandingArgs {
             coronet: p.coronet,
             agent: p.agent,
         }, p.content.unwrap_or_default()))

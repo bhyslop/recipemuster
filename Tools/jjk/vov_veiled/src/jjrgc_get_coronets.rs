@@ -7,6 +7,7 @@
 //! Queries a Gallops JSON file and outputs coronets (pace identities) for a specified heat,
 //! with optional filtering for remaining or rough paces only.
 
+use std::fmt::Write;
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
 use std::path::PathBuf;
@@ -31,12 +32,13 @@ pub struct jjrgc_GetCoronetsArgs {
 }
 
 /// Run the get_coronets command - output coronets one per line
-pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> i32 {
+pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
+    let mut buf = String::new();
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
             eprintln!("jjx_get_coronets: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -44,7 +46,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_get_coronets: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -53,7 +55,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> i32 {
         Some(h) => h,
         None => {
             eprintln!("jjx_get_coronets: error: Heat '{}' not found", heat_key);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -68,10 +70,10 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> i32 {
                 if args.rough && tack.state != PaceState::Rough {
                     continue;
                 }
-                println!("{}", coronet_key);
+                let _ = writeln!(buf, "{}", coronet_key);
             }
         }
     }
 
-    0
+    (0, buf)
 }

@@ -211,7 +211,7 @@ pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEnt
 
 /// Run jjx_rein command (CLI wrapper)
 /// Outputs column-aligned plain text table with header and separator
-pub fn jjrs_run(args: jjrs_ReinArgs) -> i32 {
+pub fn jjrs_run(args: jjrs_ReinArgs, buf: &mut String) -> i32 {
     match jjrs_get_entries(&args) {
         Ok(entries) => {
             // Set up table with column definitions
@@ -243,11 +243,11 @@ pub fn jjrs_run(args: jjrs_ReinArgs) -> i32 {
                 ]);
             }
 
-            // Print header and separator
-            table.jjrp_print_header();
-            table.jjrp_print_separator();
+            // Write header and separator
+            table.jjrp_write_header(buf);
+            table.jjrp_write_separator(buf);
 
-            // Print data rows
+            // Write data rows
             for entry in &entries {
                 let action_str = entry.action.as_ref().map(|a| format!("[{}]", a)).unwrap_or_else(|| String::new());
                 let affil_str = if let Some(ref coronet) = entry.coronet {
@@ -255,7 +255,7 @@ pub fn jjrs_run(args: jjrs_ReinArgs) -> i32 {
                 } else {
                     format!("₣{}", args.firemark)
                 };
-                table.jjrp_print_row(&[
+                table.jjrp_write_row(buf, &[
                     &entry.timestamp,
                     &entry.commit,
                     &action_str,

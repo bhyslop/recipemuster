@@ -7,6 +7,7 @@
 //! Handles the jjx_restring command which moves multiple paces from one heat
 //! to another in a single atomic operation.
 
+use std::fmt::Write;
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
@@ -29,13 +30,15 @@ pub struct jjrrs_RestringArgs {
 }
 
 /// Execute restring command - bulk draft multiple paces atomically
-pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> i32 {
+pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
+    let mut buf = String::new();
+
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_restring: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -43,7 +46,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> i32 {
         Ok(c) => c,
         Err(e) => {
             eprintln!("jjx_restring: error: Expected JSON array of coronets: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -51,7 +54,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_restring: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -66,14 +69,14 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> i32 {
         Ok(r) => r,
         Err(e) => {
             eprintln!("jjx_restring: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
         eprintln!("jjx_restring: error saving Gallops: {}", e);
-        return 1;
+        return (1, buf);
     }
 
     // Parse both firemarks for commit file list
@@ -143,12 +146,12 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> i32 {
 
     match serde_json::to_string_pretty(&output) {
         Ok(json) => {
-            println!("{}", json);
-            0
+            let _ = writeln!(buf, "{}", json);
+            (0, buf)
         }
         Err(e) => {
             eprintln!("jjx_restring: error serializing output: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here

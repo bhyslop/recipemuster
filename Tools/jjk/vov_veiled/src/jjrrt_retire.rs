@@ -7,6 +7,7 @@
 //! Handles retire operation: optionally dry-run (preview trophy) or execute
 //! (write trophy, remove from gallops, delete paddock, commit).
 
+use std::fmt::Write;
 use std::path::{Path, PathBuf};
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
@@ -35,14 +36,16 @@ pub struct jjrrt_RetireArgs {
 }
 
 /// Run the retire command
-pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
+pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     use std::path::Path;
+
+    let mut buf = String::new();
 
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
             eprintln!("jjx_retire: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -51,7 +54,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_retire: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -82,7 +85,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
             Some(h) => h,
             None => {
                 eprintln!("jjx_retire: error: Heat '{}' not found", firemark_key);
-                return 1;
+                return (1, buf);
             }
         };
         let paddock_path = base_path.join(&heat.paddock_file);
@@ -90,7 +93,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
             Ok(c) => c,
             Err(e) => {
                 eprintln!("jjx_retire: error reading paddock: {}", e);
-                return 1;
+                return (1, buf);
             }
         };
 
@@ -98,12 +101,12 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
         let today = jjrc_timestamp_date();
         match gallops.jjrg_build_trophy_preview(&args.firemark, &paddock_content, &today, &steeplechase) {
             Ok(markdown) => {
-                println!("{}", markdown);
-                return 0;
+                let _ = writeln!(buf, "{}", markdown);
+                return (0, buf);
             }
             Err(e) => {
                 eprintln!("jjx_retire: error: {}", e);
-                return 1;
+                return (1, buf);
             }
         }
     }
@@ -118,7 +121,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_retire: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -132,14 +135,14 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
         Ok(r) => r,
         Err(e) => {
             eprintln!("jjx_retire: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
         eprintln!("jjx_retire: error saving Gallops: {}", e);
-        return 1;
+        return (1, buf);
     }
 
     // Commit using vvcm_commit with explicit file list
@@ -174,14 +177,14 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> i32 {
             let _ = std::fs::remove_file(&result.trophy_path);
             eprintln!("jjx_retire: rolled back file changes");
             eprintln!("jjx_retire: retry with --size-limit <bytes> to override guard");
-            return 1;
+            return (1, buf);
         }
     }
 
     // Output result
-    println!("trophy: {}", result.trophy_path);
-    println!("Heat {} retired successfully", result.firemark);
+    let _ = writeln!(buf, "trophy: {}", result.trophy_path);
+    let _ = writeln!(buf, "Heat {} retired successfully", result.firemark);
 
-    0
+    (0, buf)
     // lock released here
 }

@@ -385,7 +385,6 @@ version = "0.0.1"
 dependencies = [
  "chrono",
  "clap",
- "libc",
  "regex",
  "rmcp",
  "schemars",

@@ -6,6 +6,7 @@
 //!
 //! Supports getter mode (display paddock) and setter mode (update with chalk entry).
 
+use std::fmt::Write;
 use std::path::PathBuf;
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
@@ -26,15 +27,17 @@ pub struct jjrcu_CurryArgs {
 }
 
 /// Handler for jjx_curry command
-pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> i32 {
+pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, String) {
     use crate::jjro_ops::jjrg_curry;
+
+    let mut buf = String::new();
 
     // Parse firemark
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
             eprintln!("jjx_curry: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -45,7 +48,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> i32 {
                 Ok(g) => g,
                 Err(e) => {
                     eprintln!("jjx_curry: error loading Gallops: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             };
 
@@ -54,7 +57,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> i32 {
                 Some(h) => h,
                 None => {
                     eprintln!("jjx_curry: error: Heat '{}' not found", firemark_key);
-                    return 1;
+                    return (1, buf);
                 }
             };
 
@@ -63,12 +66,12 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> i32 {
                 Ok(c) => c,
                 Err(e) => {
                     eprintln!("jjx_curry: error reading paddock: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             };
 
-            print!("{}", content);
-            0
+            let _ = write!(buf, "{}", content);
+            (0, buf)
         }
         Some(new_content) => {
             // Setter mode: update paddock
@@ -76,11 +79,11 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> i32 {
             match jjrg_curry(&args.file, &firemark, &new_content, args.note.as_deref()) {
                 Ok(()) => {
                     eprintln!("jjx_curry: paddock updated");
-                    0
+                    (0, buf)
                 }
                 Err(e) => {
                     eprintln!("jjx_curry: error: {}", e);
-                    1
+                    (1, buf)
                 }
             }
         }

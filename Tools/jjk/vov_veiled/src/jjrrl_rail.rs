@@ -52,16 +52,19 @@ pub struct jjrrl_RailArgs {
 }
 
 /// Execute rail command - reorder Paces within a Heat
-pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> i32 {
+pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
+    use std::fmt::Write;
     use crate::jjrg_gallops::jjrg_RailArgs as LibRailArgs;
     use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
+
+    let mut buf = String::new();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_rail: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -78,7 +81,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_rail: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -117,9 +120,9 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> i32 {
                 let coronet_display = move_coronet.as_deref().unwrap_or("pace");
                 eprintln!("jjx_rail: no change — {} is already {}", coronet_display, position);
                 for coronet in new_order {
-                    println!("{}", coronet);
+                    let _ = writeln!(buf, "{}", coronet);
                 }
-                return 0;
+                return (0, buf);
             }
 
             // Compute descriptive subject for commit message
@@ -144,18 +147,18 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> i32 {
                 }
                 Err(e) => {
                     eprintln!("jjx_rail: error: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             }
 
             for coronet in new_order {
-                println!("{}", coronet);
+                let _ = writeln!(buf, "{}", coronet);
             }
-            0
+            (0, buf)
         }
         Err(e) => {
             eprintln!("jjx_rail: error: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here

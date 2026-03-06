@@ -10,6 +10,7 @@
 //! - Transfers actionable paces (rough/bridled) to new heat
 //! - Retains complete/abandoned paces in garlanded heat
 
+use std::fmt::Write;
 use std::path::PathBuf;
 
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_GarlandArgs as LibGarlandArgs};
@@ -32,15 +33,16 @@ pub struct jjrgl_GarlandArgs {
 ///
 /// Executes garland operation, saves gallops, and commits the result.
 /// Returns exit code (0 for success, non-zero for failure).
-pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> i32 {
+pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
     use std::path::Path;
+    let mut buf = String::new();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_garland: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -48,7 +50,7 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_garland: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -69,14 +71,14 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> i32 {
         Ok(r) => r,
         Err(e) => {
             eprintln!("jjx_garland: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
         eprintln!("jjx_garland: error saving Gallops: {}", e);
-        return 1;
+        return (1, buf);
     }
 
     // Parse both firemarks for commit file list
@@ -126,12 +128,12 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> i32 {
 
     match serde_json::to_string_pretty(&output) {
         Ok(json) => {
-            println!("{}", json);
-            0
+            let _ = writeln!(buf, "{}", json);
+            (0, buf)
         }
         Err(e) => {
             eprintln!("jjx_garland: error serializing output: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here

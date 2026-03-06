@@ -5,6 +5,7 @@
 //! Slate command - add a new Pace to a Heat
 
 use clap::Args;
+use std::fmt::Write;
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
@@ -39,15 +40,16 @@ pub struct jjrsl_SlateArgs {
 }
 
 /// Handler for jjx_slate command
-pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> i32 {
+pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
     use crate::jjrg_gallops::jjrg_SlateArgs as LibSlateArgs;
+    let mut buf = String::new();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_slate: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -57,7 +59,7 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_slate: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -81,16 +83,16 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> i32 {
                 Ok(_hash) => {}
                 Err(e) => {
                     eprintln!("jjx_slate: error: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             }
 
-            println!("{}", result.coronet);
-            0
+            let _ = writeln!(buf, "{}", result.coronet);
+            (0, buf)
         }
         Err(e) => {
             eprintln!("jjx_slate: error: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here

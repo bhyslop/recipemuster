@@ -4,6 +4,7 @@
 
 //! Saddle command - Return context needed to saddle up on a Heat
 
+use std::fmt::Write;
 use std::fs;
 use std::path::PathBuf;
 
@@ -13,7 +14,7 @@ use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
 use crate::jjrq_query::jjrq_resolve_default_heat;
-use crate::jjrpd_parade::{jjrpd_print_file_bitmap, jjrpd_print_commit_swimlanes};
+use crate::jjrpd_parade::{jjrpd_write_file_bitmap, jjrpd_write_commit_swimlanes};
 
 /// Arguments for saddle command
 #[derive(clap::Args, Debug)]
@@ -27,12 +28,13 @@ pub struct jjrsd_SaddleArgs {
 }
 
 /// Run the saddle command - return Heat context
-pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
+pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
+    let mut buf = String::new();
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_orient: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -80,9 +82,9 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
             }
 
             // Print header and separator
-            println!("Racing-heats:");
-            table.jjrp_print_header();
-            table.jjrp_print_separator();
+            let _ = writeln!(buf, "Racing-heats:");
+            table.jjrp_write_header(&mut buf);
+            table.jjrp_write_separator(&mut buf);
 
             // Print data rows
             for (key, heat) in &racing_heats {
@@ -102,7 +104,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
                     }
                 }).count();
 
-                table.jjrp_print_row(&[
+                table.jjrp_write_row(&mut buf, &[
                     key,
                     &heat.silks,
                     "racing",
@@ -111,7 +113,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
                 ]);
             }
 
-            println!();
+            let _ = writeln!(buf);
         }
     }
 
@@ -123,7 +125,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
                 Ok(fm) => fm,
                 Err(e) => {
                     eprintln!("jjx_orient: error: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             }
         }
@@ -141,7 +143,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
             Ok(c) => c,
             Err(e) => {
                 eprintln!("jjx_orient: error: {}", e);
-                return 1;
+                return (1, buf);
             }
         };
         Some(coronet)
@@ -150,7 +152,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
         None
     } else {
         eprintln!("jjx_orient: error: Invalid argument '{}' (must be 2-char firemark or 5-char coronet)", firemark_str);
-        return 1;
+        return (1, buf);
     };
 
     // Extract firemark (either directly provided or from coronet parent)
@@ -161,7 +163,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
             Ok(fm) => fm,
             Err(e) => {
                 eprintln!("jjx_orient: error: {}", e);
-                return 1;
+                return (1, buf);
             }
         }
     };
@@ -171,14 +173,14 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
         Some(h) => h,
         None => {
             eprintln!("jjx_orient: error: Heat '{}' not found", heat_key);
-            return 1;
+            return (1, buf);
         }
     };
 
     // Check if heat is stabled (cannot saddle stabled heat)
     if heat.status == HeatStatus::Stabled {
         eprintln!("jjx_orient: error: Cannot saddle stabled heat '{}'", heat_key);
-        return 1;
+        return (1, buf);
     }
 
     // Read paddock file content
@@ -186,7 +188,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
         Ok(content) => content,
         Err(e) => {
             eprintln!("jjx_orient: error reading paddock file '{}': {}", heat.paddock_file, e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -226,25 +228,25 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
                         }
                         PaceState::Complete => {
                             eprintln!("jjx_orient: error: Pace '{}' is already complete", coronet_key);
-                            return 1;
+                            return (1, buf);
                         }
                         PaceState::Abandoned => {
                             eprintln!("jjx_orient: error: Pace '{}' is abandoned", coronet_key);
-                            return 1;
+                            return (1, buf);
                         }
                         _ => {
                             eprintln!("jjx_orient: error: Pace '{}' has invalid state", coronet_key);
-                            return 1;
+                            return (1, buf);
                         }
                     }
                 } else {
                     eprintln!("jjx_orient: error: Pace '{}' has no tacks", coronet_key);
-                    return 1;
+                    return (1, buf);
                 }
             }
             None => {
                 eprintln!("jjx_orient: error: Pace '{}' not found in heat '{}'", coronet_key, heat_key);
-                return 1;
+                return (1, buf);
             }
         }
     } else {
@@ -282,33 +284,33 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
     };
 
     // Output plain text format
-    println!("Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
-    println!("Paddock: {}", heat.paddock_file);
-    println!();
-    println!("Paddock-content:");
+    let _ = writeln!(buf, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
+    let _ = writeln!(buf, "Paddock: {}", heat.paddock_file);
+    let _ = writeln!(buf);
+    let _ = writeln!(buf, "Paddock-content:");
     for line in paddock_content.lines() {
-        println!("  {}", line);
+        let _ = writeln!(buf, "  {}", line);
     }
-    println!();
+    let _ = writeln!(buf);
 
     if let Some(coronet) = pace_coronet {
         if let Some(silks) = pace_silks {
             if let Some(state) = pace_state {
-                println!("Next: {} ({}) [{}]", silks, coronet, state);
-                println!();
+                let _ = writeln!(buf, "Next: {} ({}) [{}]", silks, coronet, state);
+                let _ = writeln!(buf);
                 if let Some(spec_text) = spec {
-                    println!("Docket:");
+                    let _ = writeln!(buf, "Docket:");
                     for line in spec_text.lines() {
-                        println!("  {}", line);
+                        let _ = writeln!(buf, "  {}", line);
                     }
-                    println!();
+                    let _ = writeln!(buf);
                 }
                 if let Some(dir_text) = direction {
-                    println!("Warrant:");
+                    let _ = writeln!(buf, "Warrant:");
                     for line in dir_text.lines() {
-                        println!("  {}", line);
+                        let _ = writeln!(buf, "  {}", line);
                     }
-                    println!();
+                    let _ = writeln!(buf);
                 }
                 eprintln!();
                 if state == "bridled" {
@@ -331,7 +333,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
     }).collect();
 
     if !filtered_work.is_empty() {
-        println!("Recent-work:");
+        let _ = writeln!(buf, "Recent-work:");
 
         let mut table = jjrp_Table::jjrp_new(vec![
             jjrp_Column::new("Commit", jjrp_Align::Left),
@@ -354,8 +356,8 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
         }
 
         // Print header and separator
-        table.jjrp_print_header();
-        table.jjrp_print_separator();
+        table.jjrp_write_header(&mut buf);
+        table.jjrp_write_separator(&mut buf);
 
         // Print data rows
         for entry in &filtered_work {
@@ -364,7 +366,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
             } else {
                 heat_key.clone()
             };
-            table.jjrp_print_row(&[
+            table.jjrp_write_row(&mut buf, &[
                 &entry.commit,
                 &identity_str,
                 &entry.subject,
@@ -373,13 +375,13 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> i32 {
     }
 
     // Always show file-touch bitmap and commit swim lanes after recent work
-    jjrpd_print_file_bitmap(&firemark, heat);
-    jjrpd_print_commit_swimlanes(&firemark, heat);
+    jjrpd_write_file_bitmap(&mut buf, &firemark, heat);
+    jjrpd_write_commit_swimlanes(&mut buf, &firemark, heat);
 
     // Call invitatory to check/create officium marker
     if let Err(e) = vvc::vvcp_invitatory().await {
         eprintln!("jjx_orient: warning: invitatory failed: {}", e);
     }
 
-    0
+    (0, buf)
 }

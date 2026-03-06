@@ -28,13 +28,15 @@ pub struct jjrld_LandingArgs {
 /// execution of a bridled pace. Content is the agent completion report.
 ///
 /// Returns exit code (0 for success, non-zero for failure).
-pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> i32 {
+pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> (i32, String) {
+    let buf = String::new();
+
     // Parse coronet
     let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("jjx_landing: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -56,5 +58,6 @@ pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> i32 {
         warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 
-    vvc::commit(&commit_args)
+    let rc = vvc::commit(&commit_args);
+    (rc, buf)
 }

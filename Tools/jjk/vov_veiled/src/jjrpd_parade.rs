@@ -36,12 +36,13 @@ pub struct jjrpd_ParadeArgs {
 }
 
 /// Run the show command - display comprehensive Heat status
-pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
+pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
+    let mut buf = String::new();
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_show: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -54,7 +55,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                 Ok(fm) => fm,
                 Err(e) => {
                     eprintln!("jjx_show: error: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             }
         }
@@ -69,7 +70,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             Ok(c) => c,
             Err(e) => {
                 eprintln!("jjx_show: error: {}", e);
-                return 1;
+                return (1, buf);
             }
         };
 
@@ -80,7 +81,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             Some(h) => h,
             None => {
                 eprintln!("jjx_show: error: Heat '{}' not found", heat_key);
-                return 1;
+                return (1, buf);
             }
         };
 
@@ -90,25 +91,25 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             Some(p) => p,
             None => {
                 eprintln!("jjx_show: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
-                return 1;
+                return (1, buf);
             }
         };
 
         // Display pace view
         if !pace.tacks.is_empty() {
-            // Print header with current state from tacks[0]
+            // Write header with current state from tacks[0]
             let current_tack = &pace.tacks[0];
-            println!("Pace: {} ({}) [{}]", current_tack.silks, coronet_key, zjjrpd_pace_state_str(&current_tack.state));
-            println!("Heat: {}", heat_key);
+            let _ = writeln!(buf, "Pace: {} ({}) [{}]", current_tack.silks, coronet_key, zjjrpd_pace_state_str(&current_tack.state));
+            let _ = writeln!(buf, "Heat: {}", heat_key);
 
             // Show work files touched by this pace's commits
             match jjrq_files_for_pace(firemark.jjrf_as_str(), &coronet_key) {
                 Ok(files) if !files.is_empty() => {
-                    println!("Work files: {}", files.join(", "));
+                    let _ = writeln!(buf, "Work files: {}", files.join(", "));
                 }
                 _ => {}
             }
-            println!();
+            let _ = writeln!(buf);
 
             if args.detail {
                 // Detail view: full tack history in reverse order (oldest first)
@@ -120,32 +121,32 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                         tack.basis.clone()
                     };
 
-                    println!("[{}] {} (basis: {})", index, state_str, basis_str);
-                    println!("    Silks: {}", tack.silks);
+                    let _ = writeln!(buf, "[{}] {} (basis: {})", index, state_str, basis_str);
+                    let _ = writeln!(buf, "    Silks: {}", tack.silks);
                     if let Some(ref direction) = tack.direction {
-                        println!("    Warrant: {}", direction);
+                        let _ = writeln!(buf, "    Warrant: {}", direction);
                     }
-                    println!();
+                    let _ = writeln!(buf);
                     // Indent docket text
                     for line in tack.text.lines() {
-                        println!("    {}", line);
+                        let _ = writeln!(buf, "    {}", line);
                     }
-                    println!();
+                    let _ = writeln!(buf);
                 }
             } else {
                 // Default view: latest tack docket only
                 if let Some(ref direction) = current_tack.direction {
-                    println!("Warrant: {}", direction);
-                    println!();
+                    let _ = writeln!(buf, "Warrant: {}", direction);
+                    let _ = writeln!(buf);
                 }
                 for line in current_tack.text.lines() {
-                    println!("{}", line);
+                    let _ = writeln!(buf, "{}", line);
                 }
-                println!();
+                let _ = writeln!(buf);
             }
 
             // Append files-per-commit bitmap
-            zjjrpd_print_pace_commits(&firemark, &coronet_key);
+            zjjrpd_write_pace_commits(&mut buf, &firemark, &coronet_key);
         }
     } else if target_str.len() == 2 {
         // Firemark - heat view
@@ -153,7 +154,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             Ok(fm) => fm,
             Err(e) => {
                 eprintln!("jjx_show: error: {}", e);
-                return 1;
+                return (1, buf);
             }
         };
 
@@ -162,7 +163,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
             Some(h) => h,
             None => {
                 eprintln!("jjx_show: error: Heat '{}' not found", heat_key);
-                return 1;
+                return (1, buf);
             }
         };
 
@@ -172,7 +173,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                 Ok(content) => content,
                 Err(e) => {
                     eprintln!("jjx_show: error reading paddock file '{}': {}", heat.paddock_file, e);
-                    return 1;
+                    return (1, buf);
                 }
             };
 
@@ -182,16 +183,16 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                 HeatStatus::Retired => "retired",
             };
 
-            println!("Heat: {} ({})", heat.silks, heat_key);
-            println!("Status: {}", status_str);
-            println!("Created: {}", heat.creation_time);
-            println!();
-            println!("## Paddock");
-            println!();
-            println!("{}", paddock_content);
-            println!();
-            println!("## Paces");
-            println!();
+            let _ = writeln!(buf, "Heat: {} ({})", heat.silks, heat_key);
+            let _ = writeln!(buf, "Status: {}", status_str);
+            let _ = writeln!(buf, "Created: {}", heat.creation_time);
+            let _ = writeln!(buf);
+            let _ = writeln!(buf, "## Paddock");
+            let _ = writeln!(buf);
+            let _ = writeln!(buf, "{}", paddock_content);
+            let _ = writeln!(buf);
+            let _ = writeln!(buf, "## Paces");
+            let _ = writeln!(buf);
 
             for coronet_key in &heat.order {
                 if let Some(pace) = heat.paces.get(coronet_key) {
@@ -201,14 +202,14 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                             continue;
                         }
                         let state_str = zjjrpd_pace_state_str(&tack.state);
-                        println!("### {} ({}) [{}]", tack.silks, coronet_key, state_str);
-                        println!();
-                        println!("{}", tack.text);
+                        let _ = writeln!(buf, "### {} ({}) [{}]", tack.silks, coronet_key, state_str);
+                        let _ = writeln!(buf);
+                        let _ = writeln!(buf, "{}", tack.text);
                         if let Some(ref direction) = tack.direction {
-                            println!();
-                            println!("**Warrant:** {}", direction);
+                            let _ = writeln!(buf);
+                            let _ = writeln!(buf, "**Warrant:** {}", direction);
                         }
-                        println!();
+                        let _ = writeln!(buf);
                     }
                 }
             }
@@ -257,10 +258,10 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                 let remaining_count = rough_count + bridled_count;
 
                 // Header line with heat info
-                println!("Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
-                println!("Progress: {} complete | {} abandoned | {} remaining ({} rough, {} bridled)",
+                let _ = writeln!(buf, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
+                let _ = writeln!(buf, "Progress: {} complete | {} abandoned | {} remaining ({} rough, {} bridled)",
                     complete_count, abandoned_count, remaining_count, rough_count, bridled_count);
-                println!();
+                let _ = writeln!(buf);
 
                 // Table with remaining paces
                 if !remaining_paces.is_empty() {
@@ -285,15 +286,15 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                         }
                     }
 
-                    // Print header and separator
-                    table.jjrp_print_header();
-                    table.jjrp_print_separator();
+                    // Write header and separator
+                    table.jjrp_write_header(&mut buf);
+                    table.jjrp_write_separator(&mut buf);
 
-                    // Print data rows
+                    // Write data rows
                     for (idx, (coronet_key, pace)) in remaining_paces.iter().enumerate() {
                         if let Some(tack) = pace.tacks.first() {
                             let state_str = zjjrpd_pace_state_str(&tack.state);
-                            table.jjrp_print_row(&[
+                            table.jjrp_write_row(&mut buf, &[
                                 &(idx + 1).to_string(),
                                 state_str,
                                 &tack.silks,
@@ -301,14 +302,14 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                             ]);
                         }
                     }
-                    println!();
+                    let _ = writeln!(buf);
                 }
 
                 // Next up callout
                 if let Some((coronet_key, pace)) = first_remaining_pace {
                     if let Some(tack) = pace.tacks.first() {
                         let state_str = zjjrpd_pace_state_str(&tack.state);
-                        println!("Next: {} ({}) [{}]", tack.silks, coronet_key, state_str);
+                        let _ = writeln!(buf, "Next: {} ({}) [{}]", tack.silks, coronet_key, state_str);
                         eprintln!();
                         eprintln!("Recommended: /jjc-heat-mount {}", heat_key);
                     }
@@ -340,18 +341,18 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
                     }
                 }
 
-                // Print header and separator
-                table.jjrp_print_header();
-                table.jjrp_print_separator();
+                // Write header and separator
+                table.jjrp_write_header(&mut buf);
+                table.jjrp_write_separator(&mut buf);
 
-                // Print data rows
+                // Write data rows
                 let mut num = 0;
                 for coronet_key in &heat.order {
                     if let Some(pace) = heat.paces.get(coronet_key) {
                         if let Some(tack) = pace.tacks.first() {
                             num += 1;
                             let state_str = zjjrpd_pace_state_str(&tack.state);
-                            table.jjrp_print_row(&[
+                            table.jjrp_write_row(&mut buf, &[
                                 &num.to_string(),
                                 state_str,
                                 &tack.silks,
@@ -364,14 +365,14 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> i32 {
         }
 
         // Always show file-touch bitmap and commit swim lanes after pace listing
-        jjrpd_print_file_bitmap(&firemark, heat);
-        jjrpd_print_commit_swimlanes(&firemark, heat);
+        jjrpd_write_file_bitmap(&mut buf, &firemark, heat);
+        jjrpd_write_commit_swimlanes(&mut buf, &firemark, heat);
     } else {
         eprintln!("jjx_show: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
-        return 1;
+        return (1, buf);
     }
 
-    0
+    (0, buf)
 }
 
 /// Format the file-touch bitmap for a heat as a String.
@@ -468,10 +469,10 @@ pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<Stri
     Ok(output)
 }
 
-/// Print the file-touch bitmap for a heat to stdout.
-pub(crate) fn jjrpd_print_file_bitmap(firemark: &Firemark, heat: &Heat) {
+/// Write the file-touch bitmap for a heat to a buffer.
+pub(crate) fn jjrpd_write_file_bitmap(buf: &mut String, firemark: &Firemark, heat: &Heat) {
     match jjrpd_format_file_bitmap(firemark, heat) {
-        Ok(output) => print!("{}", output),
+        Ok(output) => { let _ = write!(buf, "{}", output); }
         Err(e) => eprintln!("jjx_show: error getting file touches: {}", e),
     }
 }
@@ -606,19 +607,19 @@ pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result
     Ok(output)
 }
 
-/// Print commit swim lanes for a heat to stdout.
-pub(crate) fn jjrpd_print_commit_swimlanes(firemark: &Firemark, heat: &Heat) {
+/// Write commit swim lanes for a heat to a buffer.
+pub(crate) fn jjrpd_write_commit_swimlanes(buf: &mut String, firemark: &Firemark, heat: &Heat) {
     match jjrpd_format_commit_swimlanes(firemark, heat) {
-        Ok(output) => print!("{}", output),
+        Ok(output) => { let _ = write!(buf, "{}", output); }
         Err(e) => eprintln!("jjx_show: error getting steeplechase entries: {}", e),
     }
 }
 
-/// Print files-per-commit bitmap for a single pace.
+/// Write files-per-commit bitmap for a single pace to a buffer.
 ///
 /// Shows which files each commit in this pace touched.
 /// Called after tack history in pace parade.
-fn zjjrpd_print_pace_commits(firemark: &Firemark, coronet_key: &str) {
+fn zjjrpd_write_pace_commits(buf: &mut String, firemark: &Firemark, coronet_key: &str) {
     let rein_args = jjrs_ReinArgs {
         firemark: firemark.jjrf_as_str().to_string(),
         limit: 10000,
@@ -662,25 +663,25 @@ fn zjjrpd_print_pace_commits(firemark: &Firemark, coronet_key: &str) {
     }
 
     if file_touches.is_empty() {
-        println!();
-        println!("Pace commits: (no project file commits)");
+        let _ = writeln!(buf);
+        let _ = writeln!(buf, "Pace commits: (no project file commits)");
         return;
     }
 
-    println!();
-    println!("Pace commits (x = commit touched file):");
-    println!();
+    let _ = writeln!(buf);
+    let _ = writeln!(buf, "Pace commits (x = commit touched file):");
+    let _ = writeln!(buf);
 
     // Legend: commit index char, SHA, subject
     for (i, entry) in pace_entries.iter().enumerate() {
         let ch = zjjrpd_commit_index_char(i).unwrap_or('?');
-        println!("  {} {}  {}", ch, entry.commit, entry.subject);
+        let _ = writeln!(buf, "  {} {}  {}", ch, entry.commit, entry.subject);
     }
-    println!();
+    let _ = writeln!(buf);
 
     // Column header line
     let header: String = (0..num_commits).filter_map(zjjrpd_commit_index_char).collect();
-    println!("{}", header);
+    let _ = writeln!(buf, "{}", header);
 
     // Group by identical touch pattern
     let mut pattern_groups: BTreeMap<Vec<bool>, Vec<String>> = BTreeMap::new();
@@ -701,6 +702,6 @@ fn zjjrpd_print_pace_commits(firemark: &Firemark, coronet_key: &str) {
 
     for (pattern, files) in &sorted {
         let bits: String = pattern.iter().map(|&b| if b { 'x' } else { '·' }).collect();
-        println!("{} {}", bits, files.join(", "));
+        let _ = writeln!(buf, "{} {}", bits, files.join(", "));
     }
 }

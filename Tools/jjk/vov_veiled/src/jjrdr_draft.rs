@@ -7,6 +7,7 @@
 //! Implements the jjx_draft subcommand and related structures.
 
 use clap::Args;
+use std::fmt::Write;
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
@@ -42,15 +43,16 @@ pub struct jjrdr_DraftArgs {
 }
 
 /// Handler function for draft command
-pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> i32 {
+pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
     use crate::jjrg_gallops::jjrg_DraftArgs as LibDraftArgs;
+    let mut buf = String::new();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_draft: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -58,7 +60,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_draft: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -77,7 +79,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> i32 {
             // Save gallops
             if let Err(e) = gallops.jjrg_save(&args.file) {
                 eprintln!("jjx_draft: error saving Gallops: {}", e);
-                return 1;
+                return (1, buf);
             }
 
             // Commit using machine_commit - draft affects source and dest paddocks
@@ -111,12 +113,12 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> i32 {
                 }
             }
 
-            println!("{}", result.new_coronet);
-            0
+            let _ = writeln!(buf, "{}", result.new_coronet);
+            (0, buf)
         }
         Err(e) => {
             eprintln!("jjx_draft: error: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here

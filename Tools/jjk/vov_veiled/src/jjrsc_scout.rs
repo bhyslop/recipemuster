@@ -5,6 +5,7 @@
 //! Scout command - Search across heats and paces with regex
 
 use clap::Args;
+use std::fmt::Write;
 use std::path::PathBuf;
 use regex::Regex;
 use std::fs;
@@ -27,14 +28,16 @@ pub struct jjrsc_ScoutArgs {
 }
 
 /// Run the scout command - regex search across heats/paces
-pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> i32 {
+pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
     use regex::RegexBuilder;
+
+    let mut buf = String::new();
 
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_scout: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -46,7 +49,7 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> i32 {
         Ok(r) => r,
         Err(e) => {
             eprintln!("jjx_scout: error: invalid regex pattern: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -93,24 +96,24 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> i32 {
                     if let Some((field_name, field_content)) = match_result {
                         // Print heat header if this is a new heat
                         if current_heat_key.as_ref() != Some(heat_key) {
-                            println!("{} {}", heat_key, heat.silks);
+                            let _ = writeln!(buf, "{} {}", heat_key, heat.silks);
                             current_heat_key = Some(heat_key.clone());
                         }
 
                         // Print pace line
                         let state_str = zjrsc_pace_state_str(&tack.state);
-                        println!("  {} [{}] {}", coronet_key, state_str, tack.silks);
+                        let _ = writeln!(buf, "  {} [{}] {}", coronet_key, state_str, tack.silks);
 
                         // Print match line with context (extract ~60 chars around match)
                         let match_excerpt = zjrsc_extract_match_context(&field_content, &re);
-                        println!("    {}: {}", field_name, match_excerpt);
+                        let _ = writeln!(buf, "    {}: {}", field_name, match_excerpt);
                     }
                 }
             }
         }
     }
 
-    0
+    (0, buf)
 }
 
 /// Helper to convert PaceState to display string

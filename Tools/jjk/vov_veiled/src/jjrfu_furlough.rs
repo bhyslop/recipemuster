@@ -8,6 +8,9 @@
 
 use std::path::PathBuf;
 
+#[allow(unused_imports)]
+use std::fmt::Write;
+
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_FurloughArgs as LibFurloughArgs};
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
@@ -36,13 +39,15 @@ pub struct jjrfu_FurloughArgs {
 }
 
 /// Handler for jjx_furlough command
-pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> i32 {
+pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
+    let buf = String::new();
+
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_furlough: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -50,7 +55,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_furlough: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -85,15 +90,15 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> i32 {
                 }
                 Err(e) => {
                     eprintln!("jjx_furlough: error: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             }
 
-            0
+            (0, buf)
         }
         Err(e) => {
             eprintln!("jjx_furlough: error: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here

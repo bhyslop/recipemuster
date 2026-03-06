@@ -10,6 +10,7 @@
 //! - relabel: Rename pace silks
 //! - drop: Set state to abandoned
 
+use std::fmt::Write;
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
@@ -30,15 +31,16 @@ pub struct jjrtl_ReviseDocketArgs {
 /// Run the revise_docket command
 ///
 /// Updates the docket text for a pace.
-pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> i32 {
+pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> (i32, String) {
     use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
+    let mut buf = String::new();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_revise_docket: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -48,7 +50,7 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> 
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_revise_docket: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -65,7 +67,7 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> 
         }
         Err(e) => {
             eprintln!("jjx_revise_docket: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -83,18 +85,18 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> 
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
-                    println!("committed {}", hash);
-                    0
+                    let _ = writeln!(buf, "committed {}", hash);
+                    (0, buf)
                 }
                 Err(e) => {
                     eprintln!("jjx_revise_docket: error: {}", e);
-                    1
+                    (1, buf)
                 }
             }
         }
         Err(e) => {
             eprintln!("jjx_revise_docket: error: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here
@@ -115,15 +117,16 @@ pub struct jjrtl_ArmArgs {
 ///
 /// Sets pace state to bridled with warrant.
 /// Creates both a tally commit and a B commit.
-pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> i32 {
+pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> (i32, String) {
     use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
+    let mut buf = String::new();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_arm: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -131,7 +134,7 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_arm: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -148,7 +151,7 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> i32 {
         }
         Err(e) => {
             eprintln!("jjx_arm: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -166,11 +169,11 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> i32 {
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
-                    println!("committed {}", hash);
+                    let _ = writeln!(buf, "committed {}", hash);
                 }
                 Err(e) => {
                     eprintln!("jjx_arm: error: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             }
 
@@ -179,7 +182,7 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> i32 {
                 Ok(c) => c,
                 Err(e) => {
                     eprintln!("jjx_arm: error parsing coronet for B commit: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             };
 
@@ -206,28 +209,28 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> i32 {
                     if let Ok(hash_result) = hash_output {
                         if hash_result.status.success() {
                             let hash = String::from_utf8_lossy(&hash_result.stdout).trim().to_string();
-                            println!("B commit {}", &hash[..8.min(hash.len())]);
+                            let _ = writeln!(buf, "B commit {}", &hash[..8.min(hash.len())]);
                         }
                     }
                 }
                 Ok(result) => {
                     let stderr = String::from_utf8_lossy(&result.stderr);
                     eprintln!("jjx_arm: error creating B commit: {}", stderr);
-                    return 1;
+                    return (1, buf);
                 }
                 Err(e) => {
                     eprintln!("jjx_arm: error creating B commit: {}", e);
-                    return 1;
+                    return (1, buf);
                 }
             }
 
             eprintln!();
             eprintln!("Recommended: /jjc-heat-mount {} to execute", fm.jjrf_as_str());
-            0
+            (0, buf)
         }
         Err(e) => {
             eprintln!("jjx_arm: error: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here
@@ -251,15 +254,16 @@ pub struct jjrtl_RelabelArgs {
 /// Run the relabel command
 ///
 /// Renames the pace silks.
-pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> i32 {
+pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
+    let mut buf = String::new();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_relabel: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -267,7 +271,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_relabel: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -278,7 +282,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> i32 {
         Ok(c) => c.jjrf_parent_firemark(),
         Err(e) => {
             eprintln!("jjx_relabel: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -296,18 +300,18 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> i32 {
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
-                    println!("committed {}", hash);
-                    0
+                    let _ = writeln!(buf, "committed {}", hash);
+                    (0, buf)
                 }
                 Err(e) => {
                     eprintln!("jjx_relabel: error: {}", e);
-                    1
+                    (1, buf)
                 }
             }
         }
         Err(e) => {
             eprintln!("jjx_relabel: error: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here
@@ -327,15 +331,16 @@ pub struct jjrtl_DropArgs {
 /// Run the drop command
 ///
 /// Sets pace state to abandoned.
-pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> i32 {
+pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
     use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
+    let mut buf = String::new();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
             eprintln!("jjx_drop: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -343,7 +348,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_drop: error loading Gallops: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -360,7 +365,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> i32 {
         }
         Err(e) => {
             eprintln!("jjx_drop: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -378,18 +383,18 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> i32 {
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
-                    println!("committed {}", hash);
-                    0
+                    let _ = writeln!(buf, "committed {}", hash);
+                    (0, buf)
                 }
                 Err(e) => {
                     eprintln!("jjx_drop: error: {}", e);
-                    1
+                    (1, buf)
                 }
             }
         }
         Err(e) => {
             eprintln!("jjx_drop: error: {}", e);
-            1
+            (1, buf)
         }
     }
     // lock released here

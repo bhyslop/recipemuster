@@ -7,6 +7,7 @@
 //! Implements the `jjx_get_spec` command which retrieves and outputs the raw
 //! specification text for a single pace.
 
+use std::fmt::Write;
 use std::path::PathBuf;
 use clap::Args;
 
@@ -25,12 +26,14 @@ pub struct jjrgs_GetSpecArgs {
 }
 
 /// Run the get_spec command - output raw spec text
-pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> i32 {
+pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
+    let mut buf = String::new();
+
     let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("jjx_get_spec: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -38,7 +41,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> i32 {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_get_spec: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -49,7 +52,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> i32 {
         Some(h) => h,
         None => {
             eprintln!("jjx_get_spec: error: Heat '{}' not found", heat_key);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -59,16 +62,16 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> i32 {
         Some(p) => p,
         None => {
             eprintln!("jjx_get_spec: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
-            return 1;
+            return (1, buf);
         }
     };
 
     // Output tacks[0].text (current spec)
     if let Some(tack) = pace.tacks.first() {
-        print!("{}", tack.text);
-        0
+        let _ = write!(buf, "{}", tack.text);
+        (0, buf)
     } else {
         eprintln!("jjx_get_spec: error: Pace '{}' has no tacks", coronet_key);
-        1
+        (1, buf)
     }
 }

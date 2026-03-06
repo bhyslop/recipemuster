@@ -7,6 +7,7 @@
 //! Implements the muster query operation which displays all heats
 //! with their status and pace completion counts.
 
+use std::fmt::Write;
 use std::path::PathBuf;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
@@ -24,12 +25,13 @@ pub struct jjrmu_MusterArgs {
 }
 
 /// Run the muster command - list Heats as TSV
-pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> i32 {
+pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
+    let mut buf = String::new();
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             eprintln!("jjx_muster: error: {}", e);
-            return 1;
+            return (1, buf);
         }
     };
 
@@ -98,8 +100,8 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> i32 {
     }
 
     // Print header and separator
-    table.jjrp_print_header();
-    table.jjrp_print_separator();
+    table.jjrp_write_header(&mut buf);
+    table.jjrp_write_separator(&mut buf);
 
     // Print data rows
     for (key, heat) in heats_by_status {
@@ -127,7 +129,7 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> i32 {
             HeatStatus::Retired => "retired",
         };
 
-        table.jjrp_print_row(&[
+        table.jjrp_write_row(&mut buf, &[
             key,
             &heat.silks,
             status_str,
@@ -141,5 +143,5 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> i32 {
         eprintln!("jjx_muster: warning: invitatory failed: {}", e);
     }
 
-    0
+    (0, buf)
 }

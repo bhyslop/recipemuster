@@ -74,8 +74,9 @@ impl jjrp_Table {
         }
     }
 
-    /// Print the header row
-    pub fn jjrp_print_header(&self) {
+    /// Write the header row to a buffer
+    pub fn jjrp_write_header(&self, buf: &mut String) {
+        use std::fmt::Write;
         let mut parts = Vec::new();
         for (i, col) in self.columns.iter().enumerate() {
             let width = self.widths[i];
@@ -85,21 +86,23 @@ impl jjrp_Table {
             };
             parts.push(formatted);
         }
-        println!("{}", parts.join(&" ".repeat(JJRP_COLUMN_GAP)));
+        let _ = writeln!(buf, "{}", parts.join(&" ".repeat(JJRP_COLUMN_GAP)));
     }
 
-    /// Print a separator line using computed widths
+    /// Write a separator line to a buffer
     /// Uses box drawing character to avoid markdown interpretation of dashes
-    pub fn jjrp_print_separator(&self) {
+    pub fn jjrp_write_separator(&self, buf: &mut String) {
+        use std::fmt::Write;
         let mut parts = Vec::new();
         for width in &self.widths {
             parts.push("─".repeat(*width));
         }
-        println!("{}", parts.join(&" ".repeat(JJRP_COLUMN_GAP)));
+        let _ = writeln!(buf, "{}", parts.join(&" ".repeat(JJRP_COLUMN_GAP)));
     }
 
-    /// Print a data row
-    pub fn jjrp_print_row(&self, values: &[&str]) {
+    /// Write a data row to a buffer
+    pub fn jjrp_write_row(&self, buf: &mut String, values: &[&str]) {
+        use std::fmt::Write;
         let mut parts = Vec::new();
         for (i, value) in values.iter().enumerate() {
             if i < self.columns.len() {
@@ -112,7 +115,7 @@ impl jjrp_Table {
                 parts.push(formatted);
             }
         }
-        println!("{}", parts.join(&" ".repeat(JJRP_COLUMN_GAP)));
+        let _ = writeln!(buf, "{}", parts.join(&" ".repeat(JJRP_COLUMN_GAP)));
     }
 }
 
@@ -167,11 +170,12 @@ mod tests {
         table.jjrp_measure(&["₣AB", "test-heat", "42"]);
         table.jjrp_measure(&["₣CD", "another-heat-name", "100"]);
 
-        // These would print to stdout in actual usage
-        // Just verify they don't panic
-        table.jjrp_print_header();
-        table.jjrp_print_separator();
-        table.jjrp_print_row(&["₣AB", "test-heat", "42"]);
-        table.jjrp_print_row(&["₣CD", "another-heat-name", "100"]);
+        // Write to buffer and verify they don't panic
+        let mut buf = String::new();
+        table.jjrp_write_header(&mut buf);
+        table.jjrp_write_separator(&mut buf);
+        table.jjrp_write_row(&mut buf, &["₣AB", "test-heat", "42"]);
+        table.jjrp_write_row(&mut buf, &["₣CD", "another-heat-name", "100"]);
+        assert!(!buf.is_empty());
     }
 }

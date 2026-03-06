@@ -50,4 +50,7 @@ Tools/vvc/target/
 # Rubric repo clone (inscribe workspace)
 .rbk/rubric/
 
+# MCP server config (contains absolute paths, user-specific)
+.mcp.json
+
 # JJK release directory (parcels ignored via .jjk/.gitignore)
