@@ -7090,9 +7090,10 @@
         "₢AoAAC",
         "₢AoAAE",
         "₢AoAAG",
-        "₢AoAAF"
+        "₢AoAAF",
+        "₢AoAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAlo.md",
       "paces": {
         "₢AoAAA": {
@@ -7253,6 +7254,17 @@
               "text": "Remove the CLI dispatch path for jjx_* commands from dispatch_external in vorm_main.rs.\n\n## Context\n\nCLI dispatch was temporarily restored during ₢AoAAC to avoid bootstrap deadlock (can't jjx_record without CLI while MCP isn't registered). Once ₢AoAAE registers MCP in settings and MCP tools are verified working from Claude Code, the CLI path is redundant.\n\n## Scope\n\n- Remove jjk delegation from dispatch_external in vorm_main.rs (the 4-line #[cfg(feature = \"jjk\")] block)\n- Remove jjrx_dispatch and jjrx_is_jjk_command re-exports from jjk lib.rs (dead code after removal)\n- Optionally remove jjrx_cli.rs entirely if nothing else references it\n- Remove any tabtargets that invoke jjx_* via CLI (tt/vvw-r.RunVVX.sh jjx_* patterns)\n\n## Gate\n\nDo NOT execute this pace until MCP tools are confirmed working from Claude Code via ₢AoAAE registration. Verify with at least one MCP tool call (e.g., jjx_list) before removing CLI.\n\n## Acceptance\n\n- vvx jjx_* returns \"unknown command\"\n- All jjx operations still work via MCP\n- No dead code warnings from removed dispatch path",
               "silks": "remove-cli-dispatch-path",
               "commit": "fef9238"
+            }
+          ]
+        },
+        "₢AoAAH": {
+          "tacks": [
+            {
+              "ts": "260306-1153",
+              "state": "rough",
+              "text": "Investigate whether JJS0 Crash-Safe Architecture section (currently lines ~248-265) accurately reflects the implemented locking and git commit architecture after MCP transport changes.\n\n## Context\n\nAs of cchat-20260306, the section says \"Bash handles locking via `git update-ref`\" and shows a bash lock_acquire/lock_release pattern. But the actual persist routine (JJSRPS) and wrap routine (JJSRWP) show Rust owns locking via `vvg_lock_acquire`, git staging (`git add`), and git commit — all inside the Rust binary.\n\nAfter ₣Ao's MCP work completes, the bash layer may be further reduced or eliminated, making this section even more stale — or the MCP changes may have already addressed it.\n\n## Action\n\nRead the section, compare against implemented routines, and either:\n- Correct if still stale\n- Confirm if already fixed by prior paces in ₣Ao\n- Note what remains inaccurate\n\nDo NOT assume the fix is \"just update the text\" — the MCP transport changes may have restructured the architecture in ways that require rethinking the section entirely.",
+              "silks": "investigate-jjs0-crash-safe-staleness",
+              "commit": "314ffb5"
             }
           ]
         }
