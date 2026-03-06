@@ -5904,6 +5904,7 @@
         "₢AlAAU",
         "₢AlAAS",
         "₢AlAAT",
+        "₢AlAAV",
         "₢AlAAM",
         "₢AlAAH",
         "₢AlAAG",
@@ -5914,7 +5915,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6566,6 +6567,17 @@
               "text": "Update RBS0 specification to document the resolved multi-platform metadata\narchitecture decisions from ₢AlAAS design discussions.\n\n## Prerequisites\n\n- ₢AlAAR (spec-multiplatform-provenance) complete — base architecture documented\n\n## Context\n\n₢AlAAR documented the multi-platform provenance pipeline architecture in RBS0\n(buildx --push, pullback, imagetools create, experiment build IDs). However,\nseveral decisions were resolved AFTER ₢AlAAR was wrapped:\n\n- Per-platform SBOMs in multi-platform -about container (Decision 2)\n- FROM scratch + TARGETARCH/TARGETVARIANT metadata container build (Decision 5)\n- Per-platform build_info.json with SLSA summary fields (Decision 6)\n- The -about container becoming multi-platform (mirroring -image)\n- Tag scheme for -about (same {TAG_BASE}-about tag, now multi-platform)\n\nThese are recorded in the paddock and ₢AlAAS docket but not yet in RBS0.\n\n## Scope\n\n### RBS0-SpecTop.adoc\n\nUpdate or add definitions for:\n\n- rbtga_ark_about: update to reflect multi-platform -about container with\n  per-platform content (SBOM + build_info per architecture)\n- rbtgi_metadata: update to note per-platform SBOMs and SLSA summary fields\n  in build_info.json\n- Document build_info.json fields: platform string, image digest, QEMU used,\n  slsa_build_level, build_invocation_id, provenance_predicate_types,\n  provenance_builder_id (shared fields: build ID, timestamps, git commit,\n  vessel name)\n- Document the FROM scratch + TARGETARCH/TARGETVARIANT build pattern for\n  metadata containers\n- Note: -about uses buildx --push (not docker build + docker push) for\n  multi-platform vessels; reuses the buildx builder instance from the\n  main image build\n\n### What NOT to change\n\n- The rbtgr_provenance definition (already updated by ₢AlAAR)\n- The multi-platform pipeline step sequence (already updated post-₢AlAAR)\n- Single-arch vessel behavior documentation\n\n## Acceptance Criteria\n\n- RBS0 metadata/about definitions reflect multi-platform architecture\n- build_info.json field inventory documented\n- FROM scratch + TARGETARCH pattern documented\n- No speculative language — only confirmed design decisions\n- Consistent with paddock Decisions 2-6 section",
               "silks": "spec-multiplatform-metadata",
               "commit": "0c27317"
+            }
+          ]
+        },
+        "₢AlAAV": {
+          "tacks": [
+            {
+              "ts": "260305-1607",
+              "state": "rough",
+              "text": "Create a verification tabtarget that queries Container Analysis REST API\nfor SLSA provenance facts on a vessel's per-platform images.\n\n## Context\n\nAfter a trigger-dispatched build completes, the operator needs to confirm\nthat Google actually stamped SLSA Level 3 on each per-platform image. This\ntabtarget provides that ground truth using only OAuth/curl (no gcloud).\n\n## Design\n\nTabtarget: `tt/rbw-DV.DirectorVouchesArk.sh <vessel-dir>`\n\nOperates on a vessel directory. Determines the most recent consecration\n(or accepts one as optional argument). For each per-platform image tag:\n\n1. Resolve the image digest from GAR (Docker Registry v2 API or GAR REST API)\n2. Query Container Analysis REST API for BUILD occurrences:\n   `GET https://containeranalysis.googleapis.com/v1/projects/{PROJECT}/occurrences`\n   with filter: `kind=\"BUILD\" AND resourceUrl=\"https://{IMAGE_URI}@{DIGEST}\"`\n3. Extract `slsaBuildLevel` and `buildInvocationId` from provenance\n4. Display tabular report:\n   ```\n   Vessel: rbev-busybox\n   Consecration: i20260305_154104-b20260305_234254\n\n     Platform     Digest (short)   SLSA Level   Build ID\n     linux/amd64  d8ddccf8ea1f     3            2e172ce0\n     linux/arm64  d085e8e47c62     3            2e172ce0\n     linux/arm/v7 289dbc68d93a     3            2e172ce0\n\n     Build origin: single invocation (all IDs match)\n   ```\n\n## Authentication\n\nUses Director RBRA credentials + OAuth access token, same pattern as\nexisting rbgu_http_remit_* functions. No gcloud dependency.\n\n## Implementation\n\n- New function in rbf_Foundry.sh (or new module if cleaner)\n- Reuse rbgu_http_remit_get for REST calls\n- Parse JSON responses with jq (available locally, unlike CB workers)\n- BCG compliant\n\n## Acceptance Criteria\n\n- Tabtarget displays SLSA level for each per-platform image\n- Reports shared buildInvocationId (single-build origin check)\n- Works with both single-platform and multi-platform vessels\n- No gcloud dependency — pure REST API + OAuth\n- Tested against rbev-busybox consecration i20260305_154104",
+              "silks": "slsa-verification-tabtarget",
+              "commit": "28f7033"
             }
           ]
         }
