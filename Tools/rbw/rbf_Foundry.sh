@@ -2293,8 +2293,10 @@ rbf_vouch() {
   fi
 
   # Write build ID fact file (provenance build invocation ID for cross-check with conjure)
+  # Container Analysis returns full URI; strip to bare UUID for comparison with conjure's build ID
   if test -n "${z_all_build_ids}"; then
     local z_first_build_id="${z_all_build_ids%% *}"
+    z_first_build_id="${z_first_build_id##*/}"
     echo "${z_first_build_id}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}" \
       || buc_die "Failed to write build ID fact file"
     buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}"
