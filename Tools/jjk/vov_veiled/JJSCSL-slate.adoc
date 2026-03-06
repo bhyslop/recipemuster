@@ -16,19 +16,16 @@ Use positioning flags to insert at a specific location.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
 * {jjdt_firemark}
-(positional) — target
+— target
 {jjdhr_heat}
 
 //axd_required
 * {jjda_silks}
 
 //axd_required
-* stdin —
+* `docket` (string) —
 {jjdkm_text}
 content for the initial
 {jjdkr_tack}
@@ -72,8 +69,7 @@ at a specific location.
 {jjds_behavior}
 
 .
-{jjdr_load}
-{jjda_file};
+{jjdr_load};
 on failure, exit immediately with
 {jjdr_load}
 error status
@@ -112,7 +108,7 @@ current timestamp (YYMMDD-HHMM)
 ... {jjdkm_state}:
 {jjdpe_rough}
 ... {jjdkm_text}:
-from stdin
+from `docket` parameter
 ... {jjdkm_silks}:
 from argument
 ... {jjdkm_commit}:
@@ -139,9 +135,6 @@ insert immediately after target
 (base64 arithmetic with carry)
 .
 {jjdr_save}
-{jjdgr_gallops}
-to
-{jjda_file}
 . Output new
 {jjdt_coronet}
 to stdout

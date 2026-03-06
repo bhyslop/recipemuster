@@ -8,8 +8,8 @@ Create an L (landing) commit recording agent return from autonomous execution.
 //axd_required
 * agent (positional) — agent tier that executed (haiku, sonnet, opus)
 
-//axd_stdin
-* stdin — agent completion report (body content)
+//axd_required
+* `content` (string) — agent completion report (body content)
 
 {jjds_stdout} Commit hash
 
@@ -18,14 +18,11 @@ Create an L (landing) commit recording agent return from autonomous execution.
 {jjds_behavior}
 
 . Parse coronet argument
-. Read agent completion report from stdin
 . Format subject: `jjb:HALLMARK:₢XXXXX:L: {agent} landed`
-. Format body: stdin content + Co-Authored-By
+. Format body: `content` parameter + Co-Authored-By
 . Run `git commit --allow-empty -m "..."`
 . Output commit hash
 
 {jjds_example}
 
-----
-echo "Agent completed successfully. Build passed." | jjx_landing AFABC sonnet
-----
+MCP tool call with parameters: coronet=`AFABC`, agent=`sonnet`, content=`"Agent completed successfully. Build passed."`

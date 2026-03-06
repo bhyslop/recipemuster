@@ -21,6 +21,7 @@
 // jjdo_:  Operations
 // jjdr_:  Routines (internal reusable procedures)
 // jjds_:  Section headers (operation documentation structure)
+// jjdx_:  Executor and transport
 // jjdz_:  Serialization concerns
 // jjsuv_: Upper API verbs (horse vocabulary)
 // jjsus_: Upper API slash commands (skill artifacts)
@@ -110,9 +111,13 @@
 :jjda_status:         <<jjda_status,--status>>
 :jjda_to:             <<jjda_to,--to>>
 
-// CLI executor
-:jjdx_vvx:   <<jjdx_vvx,vvx>>
-:jjdx_cli:   <<jjdx_cli,jjx>>
+// Executor and transport
+:jjdx_vvx:      <<jjdx_vvx,vvx>>
+:jjdx_cli:      <<jjdx_cli,jjx>>
+:jjdx_mcp:      <<jjdx_mcp,MCP server>>
+:jjdx_tool:     <<jjdx_tool,MCP tool>>
+:jjdx_tool_s:   <<jjdx_tool,MCP tools>>
+:jjdx_handler:  <<jjdx_handler,handler>>
 
 // Operations
 :jjdo_mark:          <<jjdo_mark,jjx_mark>>
@@ -247,22 +252,62 @@ This redundancy is cheap and enables grep, copy-paste, and self-documenting JSON
 
 === Crash-Safe Architecture
 
-Bash handles locking via `git update-ref`.
-{jjdx_cli} owns all
-{jjdgr_gallops}
-file access - reading, transforming, and writing.
-{jjdx_cli} implements atomic writes internally (write to temp file, then rename).
-If {jjdx_cli} crashes mid-transform, no partial writes occur.
+Every operation follows the same invariant regardless of transport:
+lock → load → transform → save → unlock.
++
+The {jjdx_handler} acquires a git-ref lock (`git update-ref`),
+loads the {jjdgr_gallops} JSON,
+performs the transformation,
+writes atomically (temp file then rename),
+and releases the lock.
+If the {jjdx_handler} crashes mid-transform, no partial writes occur.
++
+No in-memory {jjdgr_gallops} state persists between operations.
+Each operation reads from disk and writes back.
+This is critical for the {jjdx_mcp}, which is a long-lived process:
+caching state between calls would produce stale reads when multiple sessions write concurrently.
 
-The pattern:
-[source,bash]
-----
-lock_acquire
-vvx jjx gallops nominate --file gallops.json "my-heat" "260111" || { lock_release; die; }
-lock_release
-----
+=== MCP Transport
 
-This keeps bash simple (just locking and invocation) while {jjdx_cli} owns all JSON file operations.
+[[jjdx_mcp]]
+//axl_voices axi_cli_subcommand
+{jjdx_mcp}::
+The `vvx mcp` subcommand starts a long-lived stdio server implementing the Model Context Protocol (MCP) specification version 2025-11-25.
+The server communicates via JSON-RPC 2.0 over stdin/stdout.
+Implemented using the `rmcp` crate (official Rust MCP SDK), version pinned exactly.
+
+[[jjdx_tool]]
+//axl_voices axo_entity
+{jjdx_tool}::
+A JSON-RPC tool call within an {jjdx_mcp} session.
+Each {jjdo_operation} is registered as an {jjdx_tool} with typed parameter schemas and descriptions.
+{jjdx_tool_s} are the sole invocation path for Claude Code.
+The {jjdx_cli} CLI subcommand path is removed;
+{jjdx_tool_s} are NOT also available as CLI subcommands.
++
+Infrastructure commands ({jjdx_vvx} emplace, unlock) remain CLI-only.
+
+[[jjdx_handler]]
+//axl_voices axo_entity
+{jjdx_handler}::
+The transport-agnostic Rust function that implements an operation.
+Both {jjdx_tool_s} and (historical) CLI subcommands invoke the same {jjdx_handler}.
+{jjdx_handler} functions accept typed parameters and return structured results;
+the transport layer (MCP or CLI) handles serialization.
+
+Each {jjdx_tool} call is stateless: the {jjdx_handler} performs the full crash-safe invariant (lock → load → transform → save → unlock) per invocation.
+The {jjdx_mcp} holds no {jjdgr_gallops} state between calls.
++
+Operations that previously read text from stdin (
+{jjdo_enroll},
+{jjdo_revise_docket},
+{jjdo_arm},
+{jjdo_transfer},
+{jjdo_close},
+{jjdo_landing})
+accept structured string parameters instead.
+The {jjdx_mcp} resolves the {jjdgr_gallops} path internally;
+{jjda_file} is not exposed as a tool parameter.
 
 === Deterministic Serialization
 
@@ -317,22 +362,22 @@ These are display/CLI terms, not schema changes. The schema field names (`text`,
 == Upper API
 
 Job Jockey has two distinct API layers.
-The *lower layer* is the {jjdx_cli} command set: boring, heterogeneous verb names implemented in Rust ({jjdo_enroll}, {jjdo_orient}, {jjdo_close}, etc.).
+The *lower layer* is the {jjdx_tool} set: boring, heterogeneous verb names implemented in Rust ({jjdo_enroll}, {jjdo_orient}, {jjdo_close}, etc.).
 The *upper layer* is the horse racing vocabulary that humans use to direct a language model ({jjsuv_slate}, {jjsuv_mount}, {jjsuv_wrap}, etc.).
 
 The separation is deliberate.
-Shared vocabulary between layers caused the LLM to conflate them — guessing CLI flags by analogy, reaching for raw commands instead of following workflows.
+Shared vocabulary between layers caused the LLM to conflate them — guessing tool parameters by analogy, reaching for raw tools instead of following workflows.
 Boring lower-layer names resist pattern matching.
 Vivid upper-layer names stay memorable for humans.
 
 The {jjsuc_insert} is the primary artifact that translates between layers — most verbs are delivered via the CLAUDE.md verb table.
 V4 reserves slash commands for protocol-heavy orchestration (school, corral).
-The human speaks horse vocabulary; the LLM maps it to {jjdx_cli} invocations.
+The human speaks horse vocabulary; the LLM invokes {jjdx_tool_s} via MCP.
 
 === Verbs
 
-Upper API verbs map horse racing vocabulary to {jjdx_cli} operations.
-Some verbs map directly to a single operation; others orchestrate multiple operations.
+Upper API verbs map horse racing vocabulary to {jjdx_tool_s}.
+Some verbs map directly to a single {jjdx_tool}; others orchestrate multiple tools.
 All verbs are delivered via the {jjsuc_insert} verb table.
 
 [[jjsuv_slate]]
@@ -892,18 +937,17 @@ Output always includes the prefix (`₣` or `₢`).
 
 == Arguments
 
-*Note:* {jjda_file} appears as the first argument on all operations.
-It is annotated `//axd_optional axd_defaulted` and uses the default value when not explicitly provided.
-
 [[jjda_file]]
-//axl_voices axa_cli_option
+//axl_voices axa_cli_option axd_internal
 {jjda_file}::
 Path to the
 {jjdgr_gallops}
 JSON file.
-Long: `--file`.
-Short: none.
 Default: `.claude/jjm/jjg_gallops.json`.
++
+The {jjdx_mcp} resolves this path internally.
+{jjda_file} is not exposed as an {jjdx_tool} parameter.
+{jjdx_handler} functions accept the resolved path from the transport layer.
 
 [[jjda_silks]]
 //axl_voices axa_cli_option
@@ -1097,12 +1141,17 @@ Local reference to the VVK-defined CLI program that hosts Job Jockey.
 [[jjdx_cli]]
 //axl_voices axi_cli_command_group
 {jjdx_cli}::
-The Job Jockey command group within
+The historical Job Jockey CLI command group within
 {jjdx_vvx}.
-Invoked as `vvx jjx`.
-All operations are subcommands of
-{jjdx_cli}.
-Inherits Unix CLI semantics: stdout for results, stderr for errors, exit 0 for success, non-zero for failure.
+Previously invoked as `vvx jjx`; now removed.
+All operations are served as
+{jjdx_tool_s}
+via the
+{jjdx_mcp}
+(see MCP Transport).
+The `vvx mcp` subcommand replaces `vvx jjx` as the entry point for Claude.
++
+{jjdx_tool_s} inherit structured JSON-RPC semantics: result objects for success, error objects for failure.
 
 == Commit Message Architecture
 
@@ -1142,15 +1191,19 @@ include::JJSRWP-wrap.adoc[]
 
 == Operations
 
-Operations are implemented as {jjdx_cli} subcommands.
-{jjdx_cli} owns all
+Operations are served as
+{jjdx_tool_s}
+via the
+{jjdx_mcp}.
+Each {jjdx_tool} invokes a transport-agnostic
+{jjdx_handler}
+that owns all
 {jjdgr_gallops}
 file access through
 {jjdr_load}
 and
 {jjdr_save}.
-Bash handles locking via `git update-ref` and invokes {jjdx_cli} with
-{jjda_file}.
+The {jjdx_mcp} resolves the {jjdgr_gallops} path internally.
 
 === Write Operations
 
@@ -1183,17 +1236,13 @@ include::JJSCDR-draft.adoc[]
 ==== {jjdo_revise_docket}
 
 Update a {jjdpr_pace_p} docket text.
-Reads new docket from stdin.
 Carries forward current state and silks.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
+* {jjdt_coronet} — target {jjdpr_pace}.
 
-* {jjdt_coronet} (positional) — target {jjdpr_pace}.
-
-* stdin — new docket text.
+* `docket` (string, required) — new docket text.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
@@ -1201,8 +1250,7 @@ Carries forward current state and silks.
 
 . {jjdr_load}
 . Verify {jjdpr_pace} exists
-. Read stdin as new docket text
-. Prepend new {jjdkr_tack} with current state, current silks, new text, current commit SHA
+. Prepend new {jjdkr_tack} with current state, current silks, new docket text, current commit SHA
 . If current state is {jjdpe_bridled}, error (must unbridle first or use {jjdo_arm})
 . {jjdr_save}
 
@@ -1210,16 +1258,13 @@ Carries forward current state and silks.
 //axl_voices axi_cli_subcommand
 ==== {jjdo_arm}
 
-Set a {jjdpr_pace_p} state to {jjdpe_bridled} with warrant from stdin.
+Set a {jjdpr_pace_p} state to {jjdpe_bridled} with warrant.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
+* {jjdt_coronet} — target {jjdpr_pace}.
 
-* {jjdt_coronet} (positional) — target {jjdpr_pace}.
-
-* stdin — warrant text (execution guidance).
+* `warrant` (string, required) — execution guidance for autonomous operation.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
@@ -1227,7 +1272,6 @@ Set a {jjdpr_pace_p} state to {jjdpe_bridled} with warrant from stdin.
 
 . {jjdr_load}
 . Verify {jjdpr_pace} exists
-. Read stdin as warrant (direction) text
 . Prepend new {jjdkr_tack} with state={jjdpe_bridled}, current silks, current docket text, warrant as direction, current commit SHA
 . {jjdr_save}
 
@@ -1240,10 +1284,7 @@ Carries forward current docket and state.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
-* {jjdt_coronet} (positional) — target {jjdpr_pace}.
+* {jjdt_coronet} — target {jjdpr_pace}.
 
 * {jjda_silks} — new silks name.
 
@@ -1264,10 +1305,7 @@ Set a {jjdpr_pace_p} state to {jjdpe_abandoned}.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
-* {jjdt_coronet} (positional) — target {jjdpr_pace}.
+* {jjdt_coronet} — target {jjdpr_pace}.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 

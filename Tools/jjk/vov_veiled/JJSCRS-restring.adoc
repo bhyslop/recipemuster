@@ -32,12 +32,9 @@ with no additional ceremony.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
 * {jjdt_firemark}
-(positional) — source
+— source
 {jjdhr_heat}
 
 //axd_required
@@ -46,7 +43,7 @@ with no additional ceremony.
 {jjdt_firemark}
 
 //axd_required
-* stdin — JSON array of
+* `coronets` (string) — JSON array of
 {jjdt_coronet_s}
 to draft (order preserved in destination)
 
@@ -127,12 +124,11 @@ from `tacks[0]`
 {jjds_behavior}
 
 .
-{jjdr_load}
-{jjda_file};
+{jjdr_load};
 on failure, exit immediately with
 {jjdr_load}
 error status
-. Parse stdin as JSON array of
+. Parse `coronets` parameter as JSON array of
 {jjdt_coronet_s}
 . Verify source
 {jjdhr_heat}
@@ -147,7 +143,7 @@ exists with given
 {jjdhr_heat_s}
 . For each
 {jjdt_coronet}
-in stdin array:
+in `coronets` array:
 .. Extract source
 {jjdt_firemark}
 from
@@ -164,7 +160,7 @@ exists in source
 {jjdhm_seed}
 . For each
 {jjdt_coronet}
-in stdin array (preserving order):
+in `coronets` array (preserving order):
 .. Construct new
 {jjdt_coronet}:
 `₢` + destination
@@ -214,9 +210,6 @@ from source
 {jjdhm_order}
 .
 {jjdr_save}
-{jjdgr_gallops}
-to
-{jjda_file}
 . Construct output JSON with source info, destination info, and drafted array
 . Output JSON to stdout
 
@@ -235,8 +228,8 @@ to
 | Source and destination same
 | "Cannot relocate paces to same heat"
 
-| Invalid JSON in stdin
-| "Invalid JSON in stdin"
+| Invalid JSON in `coronets`
+| "Invalid JSON in coronets parameter"
 
 | {jjdt_coronet} not array
 | "Expected JSON array of coronets"
@@ -247,6 +240,6 @@ to
 | {jjdpr_pace} not found
 | "Pace {coronet} not found in heat {firemark}"
 
-| Empty array in stdin
+| Empty `coronets` array
 | "No paces specified for relocate"
 |===
