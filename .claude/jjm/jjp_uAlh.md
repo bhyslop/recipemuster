@@ -17,7 +17,7 @@ Key decisions: no leg layer, worktrees for isolation (branches persist after wor
 
 Length alone disambiguates: 2=firemark, 3=quirt, 4=caracole, 5=coronet.
 
-Quirt `ꝖABC` identifies a gait. If the gait evolves, it gets a new quirt — version history lives in gallops and git, not in the identifier.
+Quirt `ꝖABC` identifies an immutable gait snapshot. When a gait evolves, a new quirt is minted with the same silks. "Latest version" = highest quirt with matching silks. No lineage fields needed.
 
 Beats do not have global identities. They are positional within a warrant (local IDs like `1a`, `1b`, `2`). Their output is commits on branches — the commits are the identity.
 
@@ -144,7 +144,7 @@ The gait library is like a playbook a coach consults before writing the game pla
 
 Gaits evolve through practice: start with a few simple single-beat gaits, use them, see what works, crystallize recurring compositions as named gaits. The library grows from practice, not from design.
 
-**Gait record fields (TBD)**: at minimum needs prompt template content, default model preference, and whatever structure school needs to compose them. Exact schema deferred until first gaits are built.
+**Gait record fields (TBD)**: at minimum needs silks (shared across versions), prompt template content, default model preference, and whatever structure school needs to compose them. Exact schema deferred until first gaits are built. Gaits are immutable — evolution mints new quirts with the same silks.
 
 ## Schema Decisions (cchat-20260224 groom session, updated cchat-20260301)
 
@@ -176,6 +176,7 @@ Gaits evolve through practice: start with a few simple single-beat gaits, use th
 - **No concurrent voltes** (cchat-20260306): One active volte per heat. Sequential: school → breeze → corral → done. Parallax via concurrent voltes deferred.
 - **Volte state from git** (cchat-20260306): No volte state in gallops. Branch existence = active. Heat stores only `next_caracole` seed. Corral reviews per-pace (accept/reject individually); volte done when all paces reviewed.
 - **Volte history synthesis deferred** (cchat-20260306): When a volte's pace is rejected, human grooms/reslates the docket with lessons learned. School starts fresh from the docket — the docket IS the memory. Machine-curated volte history is V4.1+ scope.
+- **Quirt immutability** (cchat-20260306): Gaits are immutable snapshots. When a gait evolves, mint a new quirt with the same silks. Multiple quirts share silks; "latest version" = highest quirt with matching silks. No `supersedes` field or lineage chain — flat scan over the gaits registry (fast for hundreds). Beats cite specific quirts for audit; school picks the latest. Same pattern as immutable container images with mutable tags.
 
 ## Gait Design Principles (distilled from cchat-20260302, ₢AiAAz retrospective)
 
