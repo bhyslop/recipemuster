@@ -6830,6 +6830,13 @@
         "₢AlAAa": {
           "tacks": [
             {
+              "ts": "260306-1304",
+              "state": "complete",
+              "text": "Run the SLSA provenance e2e test (rbtcsl_SlsaProvenance) against live GCP\ninfrastructure on depot demo1025. This exercises conjure → check consecrations\n→ vouch (assert Level 3) → abjure on rbev-busybox (3-platform).\n\nFix any issues discovered during the run.\n\n## Acceptance Criteria\n\n- rbtcsl_provenance_tcase passes on rbev-busybox\n- Any code fixes committed before wrapping",
+              "silks": "e2e-slsa-provenance-test-run",
+              "commit": "58966fa"
+            },
+            {
               "ts": "260306-1136",
               "state": "rough",
               "text": "Run the SLSA provenance e2e test (rbtcsl_SlsaProvenance) against live GCP\ninfrastructure on depot demo1025. This exercises conjure → check consecrations\n→ vouch (assert Level 3) → abjure on rbev-busybox (3-platform).\n\nFix any issues discovered during the run.\n\n## Acceptance Criteria\n\n- rbtcsl_provenance_tcase passes on rbev-busybox\n- Any code fixes committed before wrapping",
