@@ -4,7 +4,7 @@
 
 **Authoritative design seeds**: `Memos/memo-20260224-jjk-v4-gaits.md` — Gaits, branches, and the breeze pipeline. Partially superseded by cchat-20260301 sessions (corral replaces prance, warrant evolves from prose to structured beat map, volte naming, quirt identity).
 
-Key decisions: no leg layer, worktrees for isolation (branches persist after worktree disposal), composable gaits, three-phase pipeline (school → breeze → corral), warrant-as-beat-map, jjx as LLM orchestrator.
+Key decisions: no leg layer, worktrees for isolation (branches persist after worktree disposal), composable gaits, four-phase pipeline (longe → school → breeze → corral), warrant-as-beat-map, jjx as LLM orchestrator. Git-as-mutex proven under concurrent pressure; V4 extends git protection to work product (branches) and process artifacts (warrants in commits).
 
 ## Identity System
 
@@ -27,7 +27,8 @@ Beats do not have global identities. They are positional within a warrant (local
 | **Warrant** | School's output: a fully resolved JSON beat map. Contains concrete prompts, model assignments, file scopes, and dependency DAG. No indirections — breeze/jjx need not look up gait definitions. Each beat cites its source quirt for audit. Stored as an empty first commit on the volte branch (self-documenting). |
 | **Volte** | An attempt at executing a pace (or batch of paces). Branch namespace: `jj/{firemark}/volte-N/{coronet}`. Multiple voltes enable parallax — different approaches to the same problem, compared at corral. Dressage term: a precise, controlled circle back to the same point with refined intent. |
 | **Quirt** | Gait identity. `Ꝗ` + 3 base64 characters. Named after a short riding whip — the thing that sets a gait in motion. |
-| **School** | Planning phase. Reads pace docket, selects gaits from library, produces warrant. Incremental — schools forward until ambiguity is too thick, then stops. Opus-tier work. High human attention. |
+| **Longe** | Heat-level readiness assessment. Evaluates all remaining paces in parallel: reads dockets, reads codebase to understand scope and file types, classifies each as breezable / needs-refinement / blocked. Read-only — produces a readiness report, not warrants. Guides where to focus groom/reslate effort before schooling. Named for working a horse on a long line to assess soundness before riding. |
+| **School** | Per-pace planning phase. Reads pace docket AND codebase thoroughly (grep, read files, understand structure) to produce a fully resolved warrant. Does NOT web-search or produce work artifacts. Two internal phases: (1) assess docket quality — validate assumptions against codebase reality, check confidence gates; (2) plan — decompose into beats, write concrete prompts. May refuse to warrant a pace ("this docket has gaps"). Opus-tier, high human attention, one pace at a time. |
 | **Breeze** | Execution phase. jjx reads the warrant, creates worktrees, dispatches beats per the DAG. Each beat is a bare prompt issued to the specified model in its worktree. jjx manages sequencing, parallelism, and merge. Zero human attention. |
 | **Corral** | Review phase. Evaluates candidates, accepts/rejects/synthesizes. Medium human attention. Can see all voltes for parallax comparison. Replaces V3 "prance." |
 
@@ -37,11 +38,12 @@ Beats do not have global identities. They are positional within a warrant (local
 
 ## Execution Model
 
-### Three Phases
+### Four Phases
 
-1. **School** (opus, conversational) — reads pace docket, selects gaits, produces warrant JSON. Incremental: proposes per pace, human approves, includes ambiguity/malformation assessment to decide when to stop schooling further paces. Slash command primes LLM; jjx emits directive output that LLM interprets as instructions. Human Q&A refines the warrant.
-2. **Breeze** (jjx-orchestrated) — jjx reads warrant, creates worktrees per beat, dispatches bare prompts to specified models per the dependency DAG. Parallel beats run concurrently. jjx collects results and merges beat branches into a single candidate branch for this pace in this volte. Haiku can dispatch — just following instructions, no judgment needed. Practical constraint: concurrent bare-prompt dispatches share a single account's RPM and token-per-minute throttle. Staggering beat launches by 1-2 seconds and right-sizing models per beat mitigates throughput contention. Different models have independent rate limit pools — a warrant mixing haiku/sonnet/opus beats gets more effective throughput than one using a single model.
-3. **Corral** (human + LLM) — reviews candidate. Accept, reject (school produces new volte with revised warrant), or synthesize across voltes.
+1. **Longe** (parallel, read-only) — assesses all remaining paces in a heat simultaneously. For each pace: reads docket, reads codebase to understand scope, identifies file types and potential gaits, classifies as breezable / needs-refinement / blocked. Output is a heat-level readiness report. Guides where to focus groom/reslate before committing to school. A school parameter controls how many paces to warrant.
+2. **School** (opus, per-pace, conversational) — reads pace docket and codebase thoroughly (file reads, grep, structural understanding). Two internal phases: (a) assess docket quality against codebase reality, evaluate confidence gates; (b) produce fully resolved warrant JSON. May refuse to warrant ("this docket has gaps — here's what's wrong"). Does NOT web-search or produce work artifacts. Human Q&A refines the warrant. One pace at a time — most docket writing is interactive and focused.
+3. **Breeze** (jjx-orchestrated) — jjx reads warrant, creates worktrees per beat, dispatches bare prompts to specified models per the dependency DAG. Parallel beats run concurrently. jjx collects results and merges beat branches into a single candidate branch for this pace in this volte. Haiku can dispatch — just following instructions, no judgment needed. Practical constraint: concurrent bare-prompt dispatches share a single account's RPM and token-per-minute throttle. Staggering beat launches by 1-2 seconds and right-sizing models per beat mitigates throughput contention. Different models have independent rate limit pools — a warrant mixing haiku/sonnet/opus beats gets more effective throughput than one using a single model.
+4. **Corral** (human + LLM) — reviews candidate. Accept, reject (school produces new volte with revised warrant), or synthesize across voltes.
 
 ### Warrant Structure
 
@@ -89,49 +91,26 @@ Bare prompts are reproducible. Same prompt + same model + same worktree state = 
 
 The warrant is stored as an **empty commit** (first commit on the volte branch) containing the full warrant JSON in the commit message. The branch tells its own story: first commit is the plan, subsequent commits are the execution. Anyone reading branch history sees intent followed by action.
 
-### School is Incremental
+### Longe → School Handoff
 
-School doesn't plan the whole heat at once. It schools forward until the fog gets too thick:
+Longe assesses the whole heat at once. School warrants one pace at a time. The cycle:
 
-1. School presents pace A: "clear docket, here's the warrant." Human approves.
-2. School presents pace B: "clear, two parallel gaits." Human approves.
-3. School presents pace C: "ambiguous docket, depends on B's outcome. I'd stop here."
-4. Human agrees. Breeze executes A and B.
-5. After corral, school can see results and C's fog may have lifted.
+1. Longe reports: "A breezable, B breezable, C needs refinement, D blocked on C."
+2. Human grooms C (reslate to clarify docket). Re-longes if desired.
+3. School warrants A: reads codebase, validates docket, produces warrant. Human approves.
+4. School warrants B: same process. Human approves.
+5. Breeze executes A and B.
+6. After corral, longe reassesses — C's fog may have lifted.
 
-School's primary value-add is the **ambiguity/malformation assessment** — not just "here's a warrant" but "here's my confidence level, and here's why we should stop."
+School's primary discipline is **refusing to plan on weak foundations**. Its most valuable output may be "I cannot warrant this docket — here's what's wrong." A well-groomed docket should be plannable; when it isn't, that signals docket gaps, not a problem for school to paper over.
 
-### Multi-Gait Decomposition
+### Voltes, Worktrees, and Parallax
 
-A single pace docket often commingles concerns (e.g., "update the spec and implement the feature"). School's intelligence lies in decomposing this into parallel gaits — a spec-writer gait on the adoc files AND a bash-coder gait on the shell files, running concurrently, followed by a reviewer beat that reads both outputs. The warrant captures this as a DAG of beats drawn from different gaits. For well-understood changes, parallel is safe; for exploratory work, school serializes and adds a reconciliation step.
+A volte is whatever school and the human agreed to execute in this pass — one pace or five. Volte boundary is set by the schooling conversation. School decomposes multi-concern dockets into parallel gaits (e.g., spec-writer + bash-coder + reviewer as a DAG).
 
-### Volte Scope
+Worktrees provide isolation (cheap, disposable — branch is the permanent artifact). Multiple voltes enable parallax: cross-model comparison, prompt engineering comparison, quality annealing through school learning from prior results.
 
-A volte is **whatever school and the human agreed to execute in this pass.** Could be one pace, could be five. The volte boundary is set by the schooling conversation, not by a fixed rule.
-
-Volte-1 might cover paces A and B. Volte-2 covers C and D after seeing volte-1's results. Volte-3 redoes B and ripples through C-D because corral found a flaw.
-
-### Parallax
-
-Multiple voltes are a feature, not failure. Different prompts, different models, different gaits applied to the same pace docket. Enables:
-- Cross-language triangulation (implement in Rust, compare back to bash — use Rust as a lens to find bugs/gaps)
-- Model comparison (haiku vs sonnet on the same beat)
-- Prompt engineering comparison (same gait, different warrant framing)
-- Quality annealing through school learning from prior volte results
-
-### Worktrees
-
-Worktrees provide isolation. Cheap (shared .git database, milliseconds to create). Disposable — the branch is the permanent artifact, the worktree is scaffolding.
-
-Lifecycle: create worktree → create branch → do work → commit → remove worktree → branch persists for corral.
-
-### Prompts in Git Commits
-
-Every beat stores its prompt/warrant context in the git commit. This enables:
-- **Replay**: re-run a beat with a better prompt or different model
-- **Audit**: trace flaws back to the prompt that produced them
-- **Merge intelligence**: semantic merge conflict resolution — corral knows *why* each side changed, not just *what* changed. A reconciler beat can read both warrants and produce an intelligent merge.
-- **Process improvement**: compare prompts that led to good vs bad outcomes, traced back to specific quirt versions
+Every beat stores its prompt/warrant in the git commit — enabling replay, audit, semantic merge intelligence, and process improvement traced to specific quirt versions.
 
 ### jjx as LLM Orchestrator
 
@@ -146,17 +125,12 @@ jjx orchestration is haiku-tier work. The JJS0 lower/upper API split already imp
 ### Attention Model
 
 V4 is designed around human attention as the bottleneck:
+- **Longe**: low attention — read report, decide where to focus groom effort
 - **School**: high attention — shaping warrants, making stop/go judgments on ambiguous paces
 - **Breeze**: zero attention — pure execution, go do something else
 - **Corral**: medium attention — reviewing diffs, not co-piloting. Parallax (multiple voltes) gives intuition something to triangulate against
 
 The system optimizes for the serial path being frictionless, not for raw parallelism.
-
-## Warrant Evolution (from V3)
-
-V3 "warrant" (the `direction` field) was prose execution guidance for a bridled pace — manually written, hoping the LLM interprets it correctly. V4 warrant is a structured JSON beat map produced by school. The V3 meaning is a degenerate special case (single beat, prose prompt).
-
-**Bridling is eliminated.** School/breeze/corral replaces the manual arm-and-fly pattern entirely. The `jjdo_arm` operation and `direction` field on tack are V3-only concepts.
 
 ## Gait Library
 
@@ -180,96 +154,30 @@ Gaits evolve through practice: start with a few simple single-beat gaits, use th
 - **Markers eliminated**: Restore on need.
 - **Field renames**: V3 `text` → `docket`, V3 `direction` → `warrant` (now structured JSON, not prose).
 
-## Slash Command and Verb Restructure
-
-Decisions captured in ₢AhAAF (jjs0-upper-api-restructure) and ₢AhAAG (slash-command-cleanup-claudemd-sync).
-
-Key outcomes:
-- All upper API verbs unified under `jjsuv_*` prefix (merging `jjsud_`/`jjsum_`)
-- Eliminated concepts: bridle, quarter, braid, garland
-- All surviving verbs demoted to CLAUDE.md verb table: slate, reslate, wrap, notch, mount, groom, rail, furlough, retire, restring, muster, parade, scout, nominate
-- Only school and corral justify slash commands (new, protocol-heavy, to be implemented later)
-
-## V3 Wins to Preserve
-
-- **Git-as-mutex for gallops.json**: Proven under genuine concurrent pressure. V4 extends this — git protects not just metadata but work product (branches) and process artifacts (warrants in commits).
-
-## Memory Design (serious open challenge)
-
-Memory is context. Context is tokens. "School has memory of prior voltes" requires externalized memory — stored in git, in gallops, in structured artifacts — not assumed to live in an LLM context window. Different school sessions may be different LLM invocations.
-
-jjx is the memory. It reads volte history, rejection notes, prior warrants, and **curates what to include** in the school prompt. The curation logic — what to include, how much, in what form — is the critical design challenge:
-- Too little context: school repeats mistakes
-- Too much: token bloat, confusion, cost
-- Must evolve through practice
-
-Volte branches and warrant commits are the raw material. jjx's job is to summarize and present the relevant subset.
-
 ## Still Open
 
-- **Gait data model fields**: What does a gait record contain? Prompt template, default model, beat structure — exact schema deferred.
+- **Gait data model fields**: What does a gait record contain? Beat shape (DAG pattern), confidence gates, default model preferences — exact schema deferred. Key insight: gaits are checklists for school (decomposition guidance + confidence gates), not plan templates for breeze.
 - **Beat merge ceremony**: Merging beat branches into candidate branch after breeze — mechanical (automatic) or does it need a final beat in the warrant?
-- **Memory curation**: How does jjx decide what prior-volte context to feed into school? This is the hardest design problem.
-- **Groom's fate**: Slash command or verb table entry in V4?
-- **Ready vs reined distinction**: Both in the state enum — is the distinction clear enough? School decides which. (Note: bridled is eliminated, but reined may still be meaningful as "needs human interaction during execution.")
+- **Memory curation**: How does jjx curate prior-volte context for school prompts? jjx is the memory — reads volte history, rejection notes, prior warrants. The curation logic (what to include, how much) is the hardest design problem. Deferred — likely ₣Am scope.
+- **Longe output format**: What does the readiness report look like? Per-pace: breezable/needs-refinement/blocked + rationale + identified file types + candidate gaits.
+- **Longe verb and CLI**: New upper API verb `longe`. Maps to what jjx operation? Needs spec.
+- **Ready vs reined distinction**: Both in the state enum — is the distinction clear enough? School decides which.
 
-## Gait Working Concept (cchat-20260302)
+## Resolved
 
-Derived from executing ₢AiAAz (update-specs-cbv2-migration) on ₣Ai and reflecting on what a gait would have needed to guide that work. The pace was a 9-file AsciiDoc vocabulary migration — term renames, spec rewrites, retirements, cascading reference fixes, multi-angle review.
+- **School scope** (cchat-20260306): School reads codebase thoroughly (grep, file reads) to understand scope and validate dockets — this is planning intelligence, not "research." School does NOT web-search or produce work artifacts. School has two internal phases: assess (validate docket against codebase) and plan (produce warrant).
+- **Assessment vs planning split** (cchat-20260306): New "longe" phase handles heat-level readiness assessment (parallel, all paces). School handles per-pace warrant production (sequential, interactive). This separates "which paces are ready?" from "plan this specific pace."
+- **Groom's fate**: Groom remains a verb table entry. Longe → groom → school is the refinement cycle.
 
-### Gaits are checklists for school, not plan templates for breeze
+## Gait Design Principles (distilled from cchat-20260302, ₢AiAAz retrospective)
 
-A gait does not contain a plan. It contains the *structure school follows to produce a plan*:
+A gait contains three things: **beat shape** (DAG pattern), **codebase investigation steps** (school reads files to understand scope before decomposing beats), and **confidence gates** (conditions that cause school to stop and flag). Confidence gates are the most valuable part — they encode "where this kind of work goes wrong."
 
-- **Beat shape**: the DAG pattern ("parallel file edits with a shared vocabulary table as input")
-- **Research steps**: bounded investigations school runs before committing to beat breakdown ("scan for all attribute references across includes," "classify files by change type: rename, rewrite, retire, cascade")
-- **Confidence gates**: conditions that should cause school to stop and flag rather than produce a warrant ("if blast radius exceeds docket's file list by >50%, flag," "if any file requires rewrite but paddock lacks explicit guidance for that rewrite, flag")
-
-Confidence gates are the most valuable part. They encode "where this kind of work goes wrong" — distilled experience from prior executions of this gait pattern.
-
-### Research is steps within a gait, not a separate category
-
-Early in the conversation we considered "research gaits" as a distinct type. Discarded. Research is steps that school follows within a gait's recipe before breaking beats. The outputs are structured artifacts (file manifests, translation tables, classification lists) that downstream beats consume. These artifacts are auditable — they're commits on the volte branch.
-
-### Gait selection belongs in school, not at slate time
-
-Considered attaching candidate gaits at pace slating. Rejected — dockets evolve through reslate and groom. Stale gait selections add coupling without meaningful savings. The gait library is small enough that school scans it alongside the docket. Gait selection is cheap relative to research and beat-breaking.
-
-A human *may* hint at a gait in docket prose ("this looks like a vocabulary migration"). School considers hints but isn't bound by them.
-
-### Review is multi-phase, not one beat
-
-The ₢AiAAz execution revealed review is richer than a single "consistency check" beat:
-
-1. **Self-review**: parallel agents examining different angles (mapping completeness, paddock fidelity, cross-file consistency)
-2. **Fix**: beats addressing self-review findings
-3. **Human review**: corral checkpoint — may happen in a separate session
-4. **Fix**: beats addressing human review findings
-
-A gait's beat shape should model review as a phase with its own internal structure, not a single terminal beat.
-
-### School's primary discipline is refusing to plan
-
-School's most valuable output may be "I cannot produce a warrant for this docket." A well-defined docket (refined through groom) should be plannable. When it isn't, that's a signal the docket has gaps — not a problem for school to paper over.
-
-The school slash command should be lightweight: jjx emits the docket + gait library, the LLM (sonnet or opus) follows the matched gait's recipe, commissions research as the gait prescribes, and either produces a warrant or stops with a specific concern. The human never reads the warrant — it's machine-consumed by breeze.
-
-### Concrete example: MCM vocabulary migration
-
-Beat shape observed in ₢AiAAz that could become a named gait:
-
-```
-Research R1 (sonnet): blast-radius-scan — grep term usage, produce affected-file manifest
-Research R2 (sonnet): vocabulary-table — extract old→new term mappings from paddock decisions
-Research R3 (sonnet): file-classify — classify each file as rename/rewrite/retire/cascade
-Edit 2a (sonnet): backbone spec (RBS0) — renames + definition rewrites (serial, one file)
-Edit 2b-2n (sonnet/haiku): operation specs — parallel per file, consuming R2+R3
-Review 3a-3c (sonnet): parallel review beats with different angles
-Fix 4 (sonnet/haiku): address review findings
-Corral: human review checkpoint
-```
-
-Confidence gate: "if R1 discovers files not in the docket, and R3 classifies any as 'rewrite' rather than 'cascade', stop — the docket underspecified the scope."
+Key decisions:
+- Gaits are checklists for school, not plan templates for breeze. School produces the plan; the gait guides decomposition.
+- Gait selection belongs in school, not at slate time. Dockets evolve; stale gait selections add coupling. Humans may hint in docket prose.
+- Review is multi-phase: self-review (parallel angles) → fix → human review (corral) → fix. Not a single terminal beat.
+- School's primary discipline is refusing to plan on weak foundations. The school slash command is lightweight: jjx emits docket + gait library, LLM follows the gait's recipe or stops with a specific concern.
 
 ## V3→V4 Migration Discipline
 
@@ -325,3 +233,5 @@ These must be updated alongside the type changes, not as an afterthought.
 - cchat-20260301b — Continuation: quirt identity, warrant structure (JSON), warrant evolution from V3, school incrementalism, memory challenge, gait library as school-time resource
 - cchat-20260302 — Gait working concept: gaits as school checklists, confidence gates, research steps, review phases, MCM vocabulary migration example (derived from ₣Ai ₢AiAAz execution)
 - cchat-20260304 — Groom session: backwards compatibility strategy, ₣AG triage, three-heat constellation, migration discipline
+- cchat-20260306 — Longe concept, school scope clarification (reads codebase, not web search), assessment/planning split, paddock compression
+- ₢AhAAF/₢AhAAG — Verb restructure and slash command cleanup (completed, outcomes in CLAUDE.md)
