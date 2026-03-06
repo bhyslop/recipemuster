@@ -6760,6 +6760,13 @@
         "₢AlAAX": {
           "tacks": [
             {
+              "ts": "260306-1129",
+              "state": "complete",
+              "text": "Remove bifurcated vessel scaffolding that is no longer needed now that\nmulti-platform provenance is production-validated.\n\n## Scope\n\n- Remove `rbev-vessels/rbev-busybox-amd64/` directory\n- Remove `rbev-vessels/rbev-busybox-arm64/` directory\n- Clean up their triggers if still present (inscribe will skip them\n  once directories are gone; triggers can be deleted via API or left\n  to be cleaned up on next depot destroy/create cycle)\n- Retain original `rbev-busybox` with 3-platform config as the canonical vessel\n\n## Context\n\nThese were created in ₢AlAAN as single-arch test targets for the initial\nSLSA provenance e2e (₢AlAAO). With multi-platform provenance validated\n(₢AlAAT, build 2e172ce0), the original `rbev-busybox` handles all three\nplatforms natively.\n\n## Acceptance Criteria\n\n- rbev-busybox-amd64 and rbev-busybox-arm64 directories removed\n- Inscribe succeeds with only the original multi-platform vessels\n- No orphaned triggers blocking future depot operations",
+              "silks": "cleanup-bifurcated-vessels",
+              "commit": "5ad6ec2"
+            },
+            {
               "ts": "260305-1619",
               "state": "rough",
               "text": "Remove bifurcated vessel scaffolding that is no longer needed now that\nmulti-platform provenance is production-validated.\n\n## Scope\n\n- Remove `rbev-vessels/rbev-busybox-amd64/` directory\n- Remove `rbev-vessels/rbev-busybox-arm64/` directory\n- Clean up their triggers if still present (inscribe will skip them\n  once directories are gone; triggers can be deleted via API or left\n  to be cleaned up on next depot destroy/create cycle)\n- Retain original `rbev-busybox` with 3-platform config as the canonical vessel\n\n## Context\n\nThese were created in ₢AlAAN as single-arch test targets for the initial\nSLSA provenance e2e (₢AlAAO). With multi-platform provenance validated\n(₢AlAAT, build 2e172ce0), the original `rbev-busybox` handles all three\nplatforms natively.\n\n## Acceptance Criteria\n\n- rbev-busybox-amd64 and rbev-busybox-arm64 directories removed\n- Inscribe succeeds with only the original multi-platform vessels\n- No orphaned triggers blocking future depot operations",
