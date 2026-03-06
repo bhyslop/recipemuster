@@ -7,7 +7,7 @@
       "dir": "rbev-busybox",
       "args": [
         "-lc",
-        "# RBGJB Step 01: Derive TAG_BASE from inscribe + build timestamps\n# Builder: gcr.io/cloud-builders/gcloud\n#\n# Dual-timestamp format: i20260224_153022-b20260224_160530\n# - Inscribe timestamp (iYYYYMMDD_HHMMSS) baked at inscribe time via _RBGY_INSCRIBE_TIMESTAMP\n# - Build timestamp (bYYYYMMDD_HHMMSS) derived at build time\n# Multiple builds of same inscribed JSON sort together by inscribe prefix\n\nset -euo pipefail\n\nTAG_BASE=\"${_RBGY_INSCRIBE_TIMESTAMP}-b$$(date -u +%Y%m%d_%H%M%S)\"\ntest -n \"$${TAG_BASE}\" || { echo \"TAG_BASE empty\" >&2; exit 1; }\necho \"$${TAG_BASE}\" > .tag_base"
+        "# RBGJB Step 01: Derive TAG_BASE from inscribe + build timestamps\n# Builder: gcr.io/cloud-builders/gcloud\n#\n# Dual-timestamp format: i20260224_153022-b20260224_160530\n# - Inscribe timestamp (iYYYYMMDD_HHMMSS) baked at inscribe time via _RBGY_INSCRIBE_TIMESTAMP\n# - Build timestamp (bYYYYMMDD_HHMMSS) derived at build time\n# Multiple builds of same inscribed JSON sort together by inscribe prefix\n\nset -euo pipefail\n\nTAG_BASE=\"${_RBGY_INSCRIBE_TIMESTAMP}-b$$(date -u +%Y%m%d_%H%M%S)\"\ntest -n \"$${TAG_BASE}\" || { echo \"TAG_BASE empty\" >&2; exit 1; }\necho \"$${TAG_BASE}\" > .tag_base\n\n# Expose TAG_BASE (= consecration) via Cloud Build step output mechanism\n# Results appear in results.buildStepOutputs[0] (base64-encoded, max 50 bytes)\necho -n \"$${TAG_BASE}\" > /builder/outputs/output"
       ]
     },
     {
