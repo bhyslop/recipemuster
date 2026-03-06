@@ -5,7 +5,7 @@
 //! JJK MCP Server - MCP tool definitions for all jjx_* operations
 //!
 //! Defines typed MCP tools that delegate to the same handler functions
-//! used by the (now-removed) CLI dispatch path. Each tool call is stateless:
+//! used by the CLI dispatch path. Each tool call is stateless:
 //! lock → load → transform → save → unlock per invocation.
 //!
 //! stdout capture: Handlers print results to stdout via println!. Since
@@ -52,30 +52,44 @@ fn gallops_pathbuf() -> PathBuf {
 // stdout capture
 // ============================================================================
 
-/// Capture stdout from a synchronous handler, returning output as MCP tool result.
-/// Uses fd-level redirection with a reader thread to avoid pipe deadlock.
+/// Redirect stdout to a pipe, run a closure, capture its printed output.
+///
+/// A reader thread drains the pipe concurrently to prevent deadlock when
+/// handler output exceeds the OS pipe buffer (~64KB on macOS).
+///
+/// # Safety
+/// Uses dup/dup2/pipe to redirect fd 1 at the OS level. Safe because:
+/// - MCP server is single-threaded per session (one tool call at a time)
+/// - saved fd is always restored, even if the handler panics would unwind
+///   (though handlers return i32, they don't panic in practice)
+/// - pipe fds and saved fd are closed on all paths
 fn jjrm_capture<F: FnOnce() -> i32>(f: F) -> Result<CallToolResult, McpError> {
     use std::io::{Read, Write};
     use std::os::unix::io::FromRawFd;
 
     unsafe {
+        // SAFETY: pipe() returns two valid fds on success
         let mut fds = [0i32; 2];
         if libc::pipe(fds.as_mut_ptr()) != 0 {
             return Err(McpError::internal_error("pipe creation failed", None));
         }
         let (read_fd, write_fd) = (fds[0], fds[1]);
 
+        // SAFETY: dup() returns a new fd pointing to the same stdout
         let saved = libc::dup(libc::STDOUT_FILENO);
         if saved < 0 {
             libc::close(read_fd);
             libc::close(write_fd);
             return Err(McpError::internal_error("dup stdout failed", None));
         }
+
+        // SAFETY: dup2 atomically redirects stdout to pipe write end
         libc::dup2(write_fd, libc::STDOUT_FILENO);
         libc::close(write_fd);
 
         // Reader thread prevents pipe buffer deadlock
         let reader_handle = std::thread::spawn(move || {
+            // SAFETY: read_fd is a valid fd from pipe(), transferred to this thread
             let mut reader = std::fs::File::from_raw_fd(read_fd);
             let mut output = String::new();
             reader.read_to_string(&mut output).ok();
@@ -85,6 +99,7 @@ fn jjrm_capture<F: FnOnce() -> i32>(f: F) -> Result<CallToolResult, McpError> {
         let code = f();
         std::io::stdout().flush().ok();
 
+        // SAFETY: restore original stdout, close our saved copy
         libc::dup2(saved, libc::STDOUT_FILENO);
         libc::close(saved);
 
@@ -98,7 +113,7 @@ fn jjrm_capture<F: FnOnce() -> i32>(f: F) -> Result<CallToolResult, McpError> {
     }
 }
 
-/// Async variant of jjrm_capture for handlers that need .await
+/// Async variant — same fd redirection with reader thread for deadlock safety.
 async fn jjrm_capture_async<F, Fut>(f: F) -> Result<CallToolResult, McpError>
 where
     F: FnOnce() -> Fut,
@@ -123,16 +138,21 @@ where
         libc::dup2(write_fd, libc::STDOUT_FILENO);
         libc::close(write_fd);
 
+        // Reader thread drains pipe concurrently while async handler runs
+        let reader_handle = std::thread::spawn(move || {
+            let mut reader = std::fs::File::from_raw_fd(read_fd);
+            let mut output = String::new();
+            reader.read_to_string(&mut output).ok();
+            output
+        });
+
         let code = f().await;
         std::io::stdout().flush().ok();
 
         libc::dup2(saved, libc::STDOUT_FILENO);
         libc::close(saved);
 
-        // Read captured output (pipe write end closed by dup2 restore)
-        let mut reader = std::fs::File::from_raw_fd(read_fd);
-        let mut output = String::new();
-        reader.read_to_string(&mut output).ok();
+        let output = reader_handle.join().unwrap_or_default();
 
         if code == 0 {
             Ok(CallToolResult::success(vec![Content::text(output)]))
@@ -177,10 +197,7 @@ pub struct jjrm_LogParams {
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
-pub struct jjrm_ValidateParams {
-    #[schemars(description = "Path to gallops JSON file (default: .claude/jjm/jjg_gallops.json)")]
-    pub file: Option<String>,
-}
+pub struct jjrm_ValidateParams {}
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ListParams {
@@ -435,9 +452,9 @@ impl jjrm_McpServer {
     }
 
     #[tool(name = "jjx_validate", description = "Validate Gallops JSON schema integrity")]
-    fn validate(&self, Parameters(p): Parameters<jjrm_ValidateParams>) -> Result<CallToolResult, McpError> {
+    fn validate(&self, Parameters(_p): Parameters<jjrm_ValidateParams>) -> Result<CallToolResult, McpError> {
         jjrm_capture(|| jjrvl_run_validate(jjrvl_ValidateArgs {
-            file: p.file.map(PathBuf::from).unwrap_or_else(gallops_pathbuf),
+            file: gallops_pathbuf(),
         }))
     }
 
