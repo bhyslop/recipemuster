@@ -4,8 +4,8 @@
 
 //! VOK Main - Voce Viva Rust binary entry point
 //!
-//! Provides core VOK commands and delegates kit commands via external subcommand pattern.
-//! JJK commands (jjx_*) are handled entirely by the jjk crate when the feature is enabled.
+//! Provides core VOK commands and MCP stdio server for jjx_* tool access.
+//! JJK commands are accessed exclusively via MCP transport (no CLI dispatch).
 
 use clap::Parser;
 use std::ffi::OsString;
@@ -284,12 +284,6 @@ async fn dispatch_external(args: Vec<OsString>) -> i32 {
     }
 
     let cmd_name = args[0].to_string_lossy();
-
-    // Delegate to JJK if available and command matches (retained for bootstrap transition)
-    #[cfg(feature = "jjk")]
-    if jjk::jjrx_is_jjk_command(&cmd_name) {
-        return jjk::jjrx_dispatch(&args).await;
-    }
 
     // Unknown external subcommand
     eprintln!("vvx: error: unknown command '{}'", cmd_name);

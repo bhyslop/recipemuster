@@ -26,8 +26,6 @@ pub mod jjrnm_markers;
 pub mod jjrq_query;
 pub mod jjrp_print;
 pub mod jjrs_steeplechase;
-pub mod jjrx_cli;
-
 // Per-command modules (jjrxx_command pattern)
 pub mod jjrch_chalk;
 pub mod jjrcu_curry;
@@ -108,6 +106,3 @@ pub use jjrs_steeplechase::{jjrs_ReinArgs, jjrs_SteeplechaseEntry, jjrs_get_entr
 
 // Re-export new I/O routines
 pub use jjri_io::{jjdr_load, jjdr_save, jjdr_ValidatedGallops, jjri_persist};
-
-// Re-export CLI dispatch function
-pub use jjrx_cli::{jjrx_dispatch, jjrx_is_jjk_command};
