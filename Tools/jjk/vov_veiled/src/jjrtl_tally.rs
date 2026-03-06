@@ -13,7 +13,7 @@
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState, jjrg_read_stdin_optional as read_stdin_optional};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
 use crate::jjrn_notch::{jjrn_format_heat_message as format_heat_message, jjrn_HeatAction as HeatAction};
 
 /// Arguments for jjx_revise_docket command
@@ -29,8 +29,8 @@ pub struct jjrtl_ReviseDocketArgs {
 
 /// Run the revise_docket command
 ///
-/// Updates the docket text for a pace from stdin.
-pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs) -> i32 {
+/// Updates the docket text for a pace.
+pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> i32 {
     use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
@@ -42,17 +42,7 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs) -> i32 {
         }
     };
 
-    let text = match read_stdin_optional() {
-        Ok(Some(t)) => t,
-        Ok(None) => {
-            eprintln!("jjx_revise_docket: error: docket text required via stdin");
-            return 1;
-        }
-        Err(e) => {
-            eprintln!("jjx_revise_docket: error: {}", e);
-            return 1;
-        }
-    };
+    let text = docket;
 
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
@@ -123,26 +113,14 @@ pub struct jjrtl_ArmArgs {
 
 /// Run the arm command
 ///
-/// Sets pace state to bridled with warrant from stdin.
+/// Sets pace state to bridled with warrant.
 /// Creates both a tally commit and a B commit.
-pub fn jjrtl_run_arm(args: jjrtl_ArmArgs) -> i32 {
+pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> i32 {
     use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
-        Err(e) => {
-            eprintln!("jjx_arm: error: {}", e);
-            return 1;
-        }
-    };
-
-    let warrant = match read_stdin_optional() {
-        Ok(Some(w)) => w,
-        Ok(None) => {
-            eprintln!("jjx_arm: error: warrant text required via stdin");
-            return 1;
-        }
         Err(e) => {
             eprintln!("jjx_arm: error: {}", e);
             return 1;

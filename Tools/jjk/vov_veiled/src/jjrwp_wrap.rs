@@ -43,7 +43,7 @@ fn get_pace_silks_or_default(gallops: &Gallops, firemark_key: &str, coronet_key:
 /// chalk marker commit.
 ///
 /// Returns exit code (0 for success, non-zero for failure).
-pub fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
+pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> i32 {
     // Parse coronet
     let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
@@ -53,14 +53,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs) -> i32 {
         }
     };
 
-    // Read optional stdin for chalk description
-    let stdin_summary = match crate::jjrg_gallops::jjrg_read_stdin_optional() {
-        Ok(opt) => opt,
-        Err(e) => {
-            eprintln!("jjx_wrap: error: {}", e);
-            return 1;
-        }
-    };
+    let stdin_summary = summary;
 
     // Acquire commit lock
     let _lock = match vvc::vvcc_CommitLock::vvcc_acquire() {

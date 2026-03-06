@@ -26,9 +26,8 @@ pub struct jjrcu_CurryArgs {
 }
 
 /// Handler for jjx_curry command
-pub fn jjrcu_run_curry(args: jjrcu_CurryArgs) -> i32 {
+pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> i32 {
     use crate::jjro_ops::jjrg_curry;
-    use crate::jjrg_gallops::jjrg_read_stdin_optional;
 
     // Parse firemark
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
@@ -39,16 +38,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs) -> i32 {
         }
     };
 
-    // Check stdin
-    let stdin_content = match jjrg_read_stdin_optional() {
-        Ok(opt) => opt,
-        Err(e) => {
-            eprintln!("jjx_curry: error: {}", e);
-            return 1;
-        }
-    };
-
-    match stdin_content {
+    match content {
         None => {
             // Getter mode: display paddock content
             let gallops = match Gallops::jjrg_load(&args.file) {

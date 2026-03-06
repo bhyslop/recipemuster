@@ -8,7 +8,7 @@ use clap::Args;
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_read_stdin as read_stdin};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
 
 /// Arguments for jjx_slate command
@@ -39,7 +39,7 @@ pub struct jjrsl_SlateArgs {
 }
 
 /// Handler for jjx_slate command
-pub fn jjrsl_run_slate(args: jjrsl_SlateArgs) -> i32 {
+pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> i32 {
     use crate::jjrg_gallops::jjrg_SlateArgs as LibSlateArgs;
 
     // Acquire lock FIRST - fail fast if another operation is in progress
@@ -51,13 +51,7 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs) -> i32 {
         }
     };
 
-    let text = match read_stdin() {
-        Ok(t) => t,
-        Err(e) => {
-            eprintln!("jjx_slate: error: {}", e);
-            return 1;
-        }
-    };
+    let text = docket;
 
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,

@@ -29,7 +29,7 @@ pub struct jjrrs_RestringArgs {
 }
 
 /// Execute restring command - bulk draft multiple paces atomically
-pub fn jjrrs_run(args: jjrrs_RestringArgs) -> i32 {
+pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> i32 {
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
@@ -39,16 +39,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs) -> i32 {
         }
     };
 
-    // Read coronets from stdin as JSON array
-    let coronets_json = match crate::jjrg_gallops::jjrg_read_stdin() {
-        Ok(s) => s,
-        Err(e) => {
-            eprintln!("jjx_restring: error reading stdin: {}", e);
-            return 1;
-        }
-    };
-
-    let coronets: Vec<String> = match serde_json::from_str(&coronets_json) {
+    let coronets: Vec<String> = match serde_json::from_str(&coronets) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("jjx_restring: error: Expected JSON array of coronets: {}", e);

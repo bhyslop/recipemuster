@@ -25,10 +25,10 @@ pub struct jjrld_LandingArgs {
 /// Execute the landing command
 ///
 /// Creates an empty commit with L marker recording when an agent completes
-/// execution of a bridled pace.
+/// execution of a bridled pace. Content is the agent completion report.
 ///
 /// Returns exit code (0 for success, non-zero for failure).
-pub fn jjrld_run_landing(args: jjrld_LandingArgs) -> i32 {
+pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> i32 {
     // Parse coronet
     let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
@@ -38,8 +38,13 @@ pub fn jjrld_run_landing(args: jjrld_LandingArgs) -> i32 {
         }
     };
 
-    // Use jjrn_format_landing_message to create the commit message
-    let message = jjrn_format_landing_message(&coronet, &args.agent);
+    // Use jjrn_format_landing_message to create the commit message, with content as body
+    let base_message = jjrn_format_landing_message(&coronet, &args.agent);
+    let message = if content.trim().is_empty() {
+        base_message
+    } else {
+        format!("{}\n\n{}", base_message, content.trim())
+    };
 
     // Create empty landing commit
     let commit_args = vvc::vvcc_CommitArgs {
