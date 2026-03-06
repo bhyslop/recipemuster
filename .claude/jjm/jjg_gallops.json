@@ -1,6 +1,7 @@
 {
   "next_heat_seed": "Ao",
   "heat_order": [
+    "₣Ah",
     "₣An",
     "₣Am",
     "₣AD",
@@ -10,7 +11,6 @@
     "₣AN",
     "₣Al",
     "₣Aj",
-    "₣Ah",
     "₣AP",
     "₣AQ",
     "₣AR",
@@ -4428,9 +4428,9 @@
       }
     },
     "₣Ah": {
-      "silks": "jjk-v4-vision",
+      "silks": "jjk-v4-1-school-breeze-founding",
       "creation_time": "260222",
-      "status": "racing",
+      "status": "stabled",
       "order": [
         "₢AhAAA",
         "₢AhAAB",
