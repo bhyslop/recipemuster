@@ -159,6 +159,12 @@ zrbtb_ark_tsuite_setup() {
   ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
 }
 
+zrbtb_slsa_tsuite_setup() {
+  buto_trace "Setup for slsa-provenance fixture"
+  git diff-index --quiet HEAD -- || buto_fatal "slsa-provenance requires a clean git working tree (rbf_build will reject dirty state)"
+  ZRBTB_ARK_VESSEL_SIGIL="rbev-busybox"
+}
+
 zrbtb_dispatch_tsuite_setup() {
   buto_trace "Setup for dispatch-exercise fixture"
 }
@@ -232,8 +238,8 @@ rbtb_kindle() {
   butr_fixture_enroll "ark-lifecycle" "" "zrbtb_ark_tsuite_setup"
   butr_case_enroll "ark-lifecycle" rbtcal_lifecycle_tcase
 
-  # slsa-provenance fixture (reuses ark-lifecycle setup — same vessel, same depot)
-  butr_fixture_enroll "slsa-provenance" "" "zrbtb_ark_tsuite_setup"
+  # slsa-provenance fixture (rbev-busybox 3-platform, exercises multi-platform provenance)
+  butr_fixture_enroll "slsa-provenance" "" "zrbtb_slsa_tsuite_setup"
   butr_case_enroll "slsa-provenance" rbtcsl_provenance_tcase
 
   # -- FAST + COMPLETE: no external dependencies --
