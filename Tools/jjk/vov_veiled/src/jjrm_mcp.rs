@@ -2,11 +2,11 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! JJK MCP Server - MCP tool definitions for all jjx_* operations
+//! JJK MCP Server - Single dispatcher tool for all jjx operations
 //!
-//! Defines typed MCP tools that delegate to the same handler functions
-//! used by the CLI dispatch path. Each tool call is stateless:
-//! lock → load → transform → save → unlock per invocation.
+//! Exposes one MCP tool (`jjx`) that takes a command name and JSON params,
+//! then dispatches to the appropriate handler. This replaces 25 individual
+//! MCP tools with a single entry point, reducing ToolSearch friction.
 //!
 //! Handlers return (i32, String) — exit code and accumulated output.
 //! The MCP layer converts this to CallToolResult (success/error).
@@ -61,37 +61,33 @@ fn jjrm_result(result: (i32, String)) -> Result<CallToolResult, McpError> {
     }
 }
 
+/// Return deserialization error as MCP error result.
+fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, McpError> {
+    Ok(CallToolResult::error(vec![Content::text(format!("jjx {}: invalid params: {}", cmd, e))]))
+}
+
 // ============================================================================
-// MCP parameter structs
+// MCP parameter structs (kept for serde deserialization)
 // ============================================================================
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_RecordParams {
-    #[schemars(description = "Coronet (5-char, pace-affiliated) or Firemark (2-char, heat-only)")]
     pub identity: String,
-    #[schemars(description = "Files to commit (at least one required)")]
     pub files: Vec<String>,
-    #[schemars(description = "Size limit in bytes (overrides default 50KB guard)")]
     pub size_limit: Option<u64>,
-    #[schemars(description = "Commit message intent (overrides haiku-generated message)")]
     pub intent: Option<String>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_MarkParams {
-    #[schemars(description = "Coronet identity for the pace")]
     pub identity: String,
-    #[schemars(description = "Marker type (A=approach, R=review, etc.)")]
     pub marker: String,
-    #[schemars(description = "Description text for the steeplechase entry")]
     pub description: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_LogParams {
-    #[schemars(description = "Heat firemark to show log for")]
     pub firemark: String,
-    #[schemars(description = "Maximum number of entries (default 50)")]
     pub limit: Option<usize>,
 }
 
@@ -100,210 +96,171 @@ pub struct jjrm_ValidateParams {}
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ListParams {
-    #[schemars(description = "Filter by status: racing, stabled, or retired")]
     pub status: Option<String>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_OrientParams {
-    #[schemars(description = "Heat firemark (optional, defaults to auto-select)")]
     pub firemark: Option<String>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ShowParams {
-    #[schemars(description = "Firemark or Coronet to show")]
     pub target: Option<String>,
-    #[schemars(description = "Show detailed pace information")]
     #[serde(default)]
     pub detail: bool,
-    #[schemars(description = "Show only remaining (incomplete) paces")]
     #[serde(default)]
     pub remaining: bool,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ArchiveParams {
-    #[schemars(description = "Heat firemark to archive")]
     pub firemark: String,
-    #[schemars(description = "Actually execute the archive (default: dry run)")]
     #[serde(default)]
     pub execute: bool,
-    #[schemars(description = "Size limit in bytes for archive commit")]
     pub size_limit: Option<u64>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_CreateParams {
-    #[schemars(description = "Kebab-case display name for the new Heat")]
     pub silks: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_EnrollParams {
-    #[schemars(description = "Heat firemark to add the pace to")]
     pub firemark: String,
-    #[schemars(description = "Kebab-case display name for the new pace")]
     pub silks: String,
-    #[schemars(description = "Docket text (description/spec for the pace)")]
     pub docket: String,
-    #[schemars(description = "Insert before this coronet")]
     pub before: Option<String>,
-    #[schemars(description = "Insert after this coronet")]
     pub after: Option<String>,
-    #[schemars(description = "Insert at the beginning of the pace list")]
     #[serde(default)]
     pub first: bool,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ReorderParams {
-    #[schemars(description = "Heat firemark")]
     pub firemark: String,
-    #[schemars(description = "Coronet to move within order")]
     pub r#move: Option<String>,
-    #[schemars(description = "Move before this coronet")]
     pub before: Option<String>,
-    #[schemars(description = "Move after this coronet")]
     pub after: Option<String>,
-    #[schemars(description = "Move to beginning")]
     #[serde(default)]
     pub first: bool,
-    #[schemars(description = "Move to end")]
     #[serde(default)]
     pub last: bool,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ReviseDocketParams {
-    #[schemars(description = "Pace coronet")]
     pub coronet: String,
-    #[schemars(description = "New docket text")]
     pub docket: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ArmParams {
-    #[schemars(description = "Pace coronet")]
     pub coronet: String,
-    #[schemars(description = "Warrant text for bridling the pace")]
     pub warrant: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_RelabelParams {
-    #[schemars(description = "Pace coronet")]
     pub coronet: String,
-    #[schemars(description = "New silks (kebab-case display name)")]
     pub silks: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_DropParams {
-    #[schemars(description = "Pace coronet to abandon")]
     pub coronet: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_RelocateParams {
-    #[schemars(description = "Pace coronet to move")]
     pub coronet: String,
-    #[schemars(description = "Destination heat firemark")]
     pub to: String,
-    #[schemars(description = "Insert before this coronet in destination")]
     pub before: Option<String>,
-    #[schemars(description = "Insert after this coronet in destination")]
     pub after: Option<String>,
-    #[schemars(description = "Insert at beginning of destination pace list")]
     #[serde(default)]
     pub first: bool,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_AlterParams {
-    #[schemars(description = "Heat firemark")]
     pub firemark: String,
-    #[schemars(description = "Set heat to racing status")]
     #[serde(default)]
     pub racing: bool,
-    #[schemars(description = "Set heat to stabled status")]
     #[serde(default)]
     pub stabled: bool,
-    #[schemars(description = "New silks (kebab-case display name)")]
     pub silks: Option<String>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_CloseParams {
-    #[schemars(description = "Pace coronet to close")]
     pub coronet: String,
-    #[schemars(description = "Summary of work accomplished")]
     pub summary: Option<String>,
-    #[schemars(description = "Size limit in bytes for close commit")]
     pub size_limit: Option<u64>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_SearchParams {
-    #[schemars(description = "Regex pattern to search across heats and paces")]
     pub pattern: String,
-    #[schemars(description = "Only show actionable (incomplete) results")]
     #[serde(default)]
     pub actionable: bool,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_GetBriefParams {
-    #[schemars(description = "Pace coronet to get docket for")]
     pub coronet: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_GetCoronetsParams {
-    #[schemars(description = "Heat firemark")]
     pub firemark: String,
-    #[schemars(description = "Only show remaining (incomplete) paces")]
     #[serde(default)]
     pub remaining: bool,
-    #[schemars(description = "Only show rough (unstarted) paces")]
     #[serde(default)]
     pub rough: bool,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_PaddockParams {
-    #[schemars(description = "Heat firemark")]
     pub firemark: String,
-    #[schemars(description = "Paddock content to set (omit to get current paddock)")]
     pub content: Option<String>,
-    #[schemars(description = "Append note to existing paddock")]
     pub note: Option<String>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ContinueParams {
-    #[schemars(description = "Heat firemark to garland and continue")]
     pub firemark: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_TransferParams {
-    #[schemars(description = "Source heat firemark")]
     pub firemark: String,
-    #[schemars(description = "Destination heat firemark")]
     pub to: String,
-    #[schemars(description = "JSON array of coronets to transfer, e.g. [\"ABCDe\",\"ABCDf\"]")]
     pub coronets: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_LandingParams {
-    #[schemars(description = "Pace coronet")]
     pub coronet: String,
-    #[schemars(description = "Agent identifier")]
     pub agent: String,
-    #[schemars(description = "Landing content/report")]
     pub content: Option<String>,
+}
+
+// ============================================================================
+// Single dispatcher tool params
+// ============================================================================
+
+fn jjrm_empty_object() -> serde_json::Value {
+    serde_json::Value::Object(serde_json::Map::new())
+}
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_JjxParams {
+    #[schemars(description = "Command name: list, show, orient, record, mark, log, validate, create, enroll, close, archive, reorder, revise_docket, arm, relabel, drop, relocate, alter, search, get_brief, get_coronets, paddock, continue, transfer, landing")]
+    pub command: String,
+    #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
+    #[serde(default = "jjrm_empty_object")]
+    pub params: serde_json::Value,
 }
 
 // ============================================================================
@@ -323,233 +280,229 @@ impl jjrm_McpServer {
         }
     }
 
-    #[tool(name = "jjx_record", description = "JJ-aware commit with heat/pace context prefix. Stages specified files and commits with identity-derived message prefix.")]
-    fn record(&self, Parameters(p): Parameters<jjrm_RecordParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrnc_run_notch(jjrnc_NotchArgs {
-            identity: p.identity,
-            files: p.files,
-            size_limit: p.size_limit,
-            intent: p.intent,
-        }))
-    }
+    #[tool(name = "jjx", description = "Job Jockey Kit - MCP tools for project initiative management")]
+    async fn jjx(&self, Parameters(p): Parameters<jjrm_JjxParams>) -> Result<CallToolResult, McpError> {
+        let cmd = p.command.strip_prefix("jjx_").unwrap_or(&p.command);
+        let v = p.params;
 
-    #[tool(name = "jjx_mark", description = "Create empty commit marking a steeplechase event (A=approach, R=review, etc.)")]
-    fn mark(&self, Parameters(p): Parameters<jjrm_MarkParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrx_run_chalk(jjrx_ChalkArgs {
-            identity: p.identity,
-            marker: p.marker,
-            description: p.description,
-        }))
-    }
+        macro_rules! deser {
+            ($t:ty) => {
+                match serde_json::from_value::<$t>(v) {
+                    Ok(p) => p,
+                    Err(e) => return jjrm_deser_error(cmd, e),
+                }
+            }
+        }
 
-    #[tool(name = "jjx_log", description = "Parse git history for steeplechase entries affiliated with a heat")]
-    fn log(&self, Parameters(p): Parameters<jjrm_LogParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrrn_run_rein(jjrrn_ReinArgs {
-            firemark: p.firemark,
-            limit: p.limit.unwrap_or(50),
-        }))
-    }
-
-    #[tool(name = "jjx_validate", description = "Validate Gallops JSON schema integrity")]
-    fn validate(&self, Parameters(_p): Parameters<jjrm_ValidateParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrvl_run_validate(jjrvl_ValidateArgs {
-            file: gallops_pathbuf(),
-        }))
-    }
-
-    #[tool(name = "jjx_list", description = "List all Heats with status and pace completion counts")]
-    async fn list(&self, Parameters(p): Parameters<jjrm_ListParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrmu_run_muster(jjrmu_MusterArgs {
-            file: gallops_pathbuf(),
-            status: p.status,
-        }).await)
-    }
-
-    #[tool(name = "jjx_orient", description = "Get saddling context for a Heat: racing heats, paddock, next pace, docket, recent work, and file-touch bitmap")]
-    async fn orient(&self, Parameters(p): Parameters<jjrm_OrientParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrsd_run_saddle(jjrsd_SaddleArgs {
-            file: gallops_pathbuf(),
-            firemark: p.firemark,
-        }).await)
-    }
-
-    #[tool(name = "jjx_show", description = "Display comprehensive Heat or Pace status for project review")]
-    fn show(&self, Parameters(p): Parameters<jjrm_ShowParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrpd_run_parade(jjrpd_ParadeArgs {
-            file: gallops_pathbuf(),
-            target: p.target,
-            detail: p.detail,
-            remaining: p.remaining,
-        }))
-    }
-
-    #[tool(name = "jjx_archive", description = "Extract complete Heat data for archival trophy and retire the heat")]
-    fn archive(&self, Parameters(p): Parameters<jjrm_ArchiveParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrrt_run_retire(jjrrt_RetireArgs {
-            file: gallops_pathbuf(),
-            firemark: p.firemark,
-            execute: p.execute,
-            size_limit: p.size_limit,
-        }))
-    }
-
-    #[tool(name = "jjx_create", description = "Create a new Heat with empty Pace structure")]
-    fn create(&self, Parameters(p): Parameters<jjrm_CreateParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrx_run_nominate(jjrx_NominateArgs {
-            file: gallops_pathbuf(),
-            silks: p.silks,
-        }))
-    }
-
-    #[tool(name = "jjx_enroll", description = "Add a new Pace to a Heat with docket text")]
-    fn enroll(&self, Parameters(p): Parameters<jjrm_EnrollParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrsl_run_slate(jjrsl_SlateArgs {
-            file: gallops_pathbuf(),
-            firemark: p.firemark,
-            silks: p.silks,
-            before: p.before,
-            after: p.after,
-            first: p.first,
-        }, p.docket))
-    }
-
-    #[tool(name = "jjx_reorder", description = "Reorder Paces within a Heat using move semantics")]
-    fn reorder(&self, Parameters(p): Parameters<jjrm_ReorderParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrrl_run_rail(jjrrl_RailArgs {
-            file: gallops_pathbuf(),
-            firemark: p.firemark,
-            order: vec![],
-            r#move: p.r#move,
-            before: p.before,
-            after: p.after,
-            first: p.first,
-            last: p.last,
-        }))
-    }
-
-    #[tool(name = "jjx_revise_docket", description = "Update pace docket text")]
-    fn revise_docket(&self, Parameters(p): Parameters<jjrm_ReviseDocketParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrtl_run_revise_docket(jjrtl_ReviseDocketArgs {
-            file: gallops_pathbuf(),
-            coronet: p.coronet,
-        }, p.docket))
-    }
-
-    #[tool(name = "jjx_arm", description = "Set pace state to bridled with warrant text")]
-    fn arm(&self, Parameters(p): Parameters<jjrm_ArmParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrtl_run_arm(jjrtl_ArmArgs {
-            file: gallops_pathbuf(),
-            coronet: p.coronet,
-        }, p.warrant))
-    }
-
-    #[tool(name = "jjx_relabel", description = "Rename pace silks (display name)")]
-    fn relabel(&self, Parameters(p): Parameters<jjrm_RelabelParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrtl_run_relabel(jjrtl_RelabelArgs {
-            file: gallops_pathbuf(),
-            coronet: p.coronet,
-            silks: p.silks,
-        }))
-    }
-
-    #[tool(name = "jjx_drop", description = "Set pace state to abandoned")]
-    fn drop_pace(&self, Parameters(p): Parameters<jjrm_DropParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrtl_run_drop(jjrtl_DropArgs {
-            file: gallops_pathbuf(),
-            coronet: p.coronet,
-        }))
-    }
-
-    #[tool(name = "jjx_relocate", description = "Move a Pace from one Heat to another")]
-    fn relocate(&self, Parameters(p): Parameters<jjrm_RelocateParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrdr_run_draft(jjrdr_DraftArgs {
-            file: gallops_pathbuf(),
-            coronet: p.coronet,
-            to: p.to,
-            before: p.before,
-            after: p.after,
-            first: p.first,
-        }))
-    }
-
-    #[tool(name = "jjx_alter", description = "Change Heat status (racing/stabled) or rename silks")]
-    fn alter(&self, Parameters(p): Parameters<jjrm_AlterParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrfu_run_furlough(jjrfu_FurloughArgs {
-            file: gallops_pathbuf(),
-            firemark: p.firemark,
-            racing: p.racing,
-            stabled: p.stabled,
-            silks: p.silks,
-        }))
-    }
-
-    #[tool(name = "jjx_close", description = "Mark a pace complete, commit all uncommitted changes in one operation")]
-    fn close(&self, Parameters(p): Parameters<jjrm_CloseParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( zjjrx_run_wrap(jjrx_WrapArgs {
-            coronet: p.coronet,
-            size_limit: p.size_limit,
-        }, p.summary))
-    }
-
-    #[tool(name = "jjx_search", description = "Search across heats and paces with regex pattern")]
-    fn search(&self, Parameters(p): Parameters<jjrm_SearchParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrsc_run_scout(jjrsc_ScoutArgs {
-            file: gallops_pathbuf(),
-            pattern: p.pattern,
-            actionable: p.actionable,
-        }))
-    }
-
-    #[tool(name = "jjx_get_brief", description = "Get raw docket text for a Pace")]
-    fn get_brief(&self, Parameters(p): Parameters<jjrm_GetBriefParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrgs_run_get_spec(jjrgs_GetSpecArgs {
-            file: gallops_pathbuf(),
-            coronet: p.coronet,
-        }))
-    }
-
-    #[tool(name = "jjx_get_coronets", description = "List Coronets for a Heat with optional filtering")]
-    fn get_coronets(&self, Parameters(p): Parameters<jjrm_GetCoronetsParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
-            file: gallops_pathbuf(),
-            firemark: p.firemark,
-            remaining: p.remaining,
-            rough: p.rough,
-        }))
-    }
-
-    #[tool(name = "jjx_paddock", description = "Get or set Heat paddock content. Omit content to read; provide content to write.")]
-    fn paddock(&self, Parameters(p): Parameters<jjrm_PaddockParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrcu_run_curry(jjrcu_CurryArgs {
-            file: gallops_pathbuf(),
-            firemark: p.firemark,
-            note: p.note,
-        }, p.content))
-    }
-
-    #[tool(name = "jjx_continue", description = "Garland a heat - celebrate completion and create continuation heat")]
-    fn r#continue(&self, Parameters(p): Parameters<jjrm_ContinueParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrgl_run_garland(jjrgl_GarlandArgs {
-            file: gallops_pathbuf(),
-            firemark: p.firemark,
-        }))
-    }
-
-    #[tool(name = "jjx_transfer", description = "Bulk transfer multiple paces between heats atomically")]
-    fn transfer(&self, Parameters(p): Parameters<jjrm_TransferParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrrs_run(jjrrs_RestringArgs {
-            file: gallops_pathbuf(),
-            firemark: p.firemark,
-            to: p.to,
-        }, p.coronets))
-    }
-
-    #[tool(name = "jjx_landing", description = "Record agent landing after autonomous execution")]
-    fn landing(&self, Parameters(p): Parameters<jjrm_LandingParams>) -> Result<CallToolResult, McpError> {
-        jjrm_result( jjrld_run_landing(jjrld_LandingArgs {
-            coronet: p.coronet,
-            agent: p.agent,
-        }, p.content.unwrap_or_default()))
+        match cmd {
+            "record" => {
+                let p = deser!(jjrm_RecordParams);
+                jjrm_result(jjrnc_run_notch(jjrnc_NotchArgs {
+                    identity: p.identity,
+                    files: p.files,
+                    size_limit: p.size_limit,
+                    intent: p.intent,
+                }))
+            }
+            "mark" => {
+                let p = deser!(jjrm_MarkParams);
+                jjrm_result(jjrx_run_chalk(jjrx_ChalkArgs {
+                    identity: p.identity,
+                    marker: p.marker,
+                    description: p.description,
+                }))
+            }
+            "log" => {
+                let p = deser!(jjrm_LogParams);
+                jjrm_result(jjrrn_run_rein(jjrrn_ReinArgs {
+                    firemark: p.firemark,
+                    limit: p.limit.unwrap_or(50),
+                }))
+            }
+            "validate" => {
+                let _p = deser!(jjrm_ValidateParams);
+                jjrm_result(jjrvl_run_validate(jjrvl_ValidateArgs {
+                    file: gallops_pathbuf(),
+                }))
+            }
+            "list" => {
+                let p = deser!(jjrm_ListParams);
+                jjrm_result(jjrmu_run_muster(jjrmu_MusterArgs {
+                    file: gallops_pathbuf(),
+                    status: p.status,
+                }).await)
+            }
+            "orient" => {
+                let p = deser!(jjrm_OrientParams);
+                jjrm_result(jjrsd_run_saddle(jjrsd_SaddleArgs {
+                    file: gallops_pathbuf(),
+                    firemark: p.firemark,
+                }).await)
+            }
+            "show" => {
+                let p = deser!(jjrm_ShowParams);
+                jjrm_result(jjrpd_run_parade(jjrpd_ParadeArgs {
+                    file: gallops_pathbuf(),
+                    target: p.target,
+                    detail: p.detail,
+                    remaining: p.remaining,
+                }))
+            }
+            "archive" => {
+                let p = deser!(jjrm_ArchiveParams);
+                jjrm_result(jjrrt_run_retire(jjrrt_RetireArgs {
+                    file: gallops_pathbuf(),
+                    firemark: p.firemark,
+                    execute: p.execute,
+                    size_limit: p.size_limit,
+                }))
+            }
+            "create" => {
+                let p = deser!(jjrm_CreateParams);
+                jjrm_result(jjrx_run_nominate(jjrx_NominateArgs {
+                    file: gallops_pathbuf(),
+                    silks: p.silks,
+                }))
+            }
+            "enroll" => {
+                let p = deser!(jjrm_EnrollParams);
+                jjrm_result(jjrsl_run_slate(jjrsl_SlateArgs {
+                    file: gallops_pathbuf(),
+                    firemark: p.firemark,
+                    silks: p.silks,
+                    before: p.before,
+                    after: p.after,
+                    first: p.first,
+                }, p.docket))
+            }
+            "reorder" => {
+                let p = deser!(jjrm_ReorderParams);
+                jjrm_result(jjrrl_run_rail(jjrrl_RailArgs {
+                    file: gallops_pathbuf(),
+                    firemark: p.firemark,
+                    order: vec![],
+                    r#move: p.r#move,
+                    before: p.before,
+                    after: p.after,
+                    first: p.first,
+                    last: p.last,
+                }))
+            }
+            "revise_docket" => {
+                let p = deser!(jjrm_ReviseDocketParams);
+                jjrm_result(jjrtl_run_revise_docket(jjrtl_ReviseDocketArgs {
+                    file: gallops_pathbuf(),
+                    coronet: p.coronet,
+                }, p.docket))
+            }
+            "arm" => {
+                let p = deser!(jjrm_ArmParams);
+                jjrm_result(jjrtl_run_arm(jjrtl_ArmArgs {
+                    file: gallops_pathbuf(),
+                    coronet: p.coronet,
+                }, p.warrant))
+            }
+            "relabel" => {
+                let p = deser!(jjrm_RelabelParams);
+                jjrm_result(jjrtl_run_relabel(jjrtl_RelabelArgs {
+                    file: gallops_pathbuf(),
+                    coronet: p.coronet,
+                    silks: p.silks,
+                }))
+            }
+            "drop" => {
+                let p = deser!(jjrm_DropParams);
+                jjrm_result(jjrtl_run_drop(jjrtl_DropArgs {
+                    file: gallops_pathbuf(),
+                    coronet: p.coronet,
+                }))
+            }
+            "relocate" => {
+                let p = deser!(jjrm_RelocateParams);
+                jjrm_result(jjrdr_run_draft(jjrdr_DraftArgs {
+                    file: gallops_pathbuf(),
+                    coronet: p.coronet,
+                    to: p.to,
+                    before: p.before,
+                    after: p.after,
+                    first: p.first,
+                }))
+            }
+            "alter" => {
+                let p = deser!(jjrm_AlterParams);
+                jjrm_result(jjrfu_run_furlough(jjrfu_FurloughArgs {
+                    file: gallops_pathbuf(),
+                    firemark: p.firemark,
+                    racing: p.racing,
+                    stabled: p.stabled,
+                    silks: p.silks,
+                }))
+            }
+            "close" => {
+                let p = deser!(jjrm_CloseParams);
+                jjrm_result(zjjrx_run_wrap(jjrx_WrapArgs {
+                    coronet: p.coronet,
+                    size_limit: p.size_limit,
+                }, p.summary))
+            }
+            "search" => {
+                let p = deser!(jjrm_SearchParams);
+                jjrm_result(jjrsc_run_scout(jjrsc_ScoutArgs {
+                    file: gallops_pathbuf(),
+                    pattern: p.pattern,
+                    actionable: p.actionable,
+                }))
+            }
+            "get_brief" => {
+                let p = deser!(jjrm_GetBriefParams);
+                jjrm_result(jjrgs_run_get_spec(jjrgs_GetSpecArgs {
+                    file: gallops_pathbuf(),
+                    coronet: p.coronet,
+                }))
+            }
+            "get_coronets" => {
+                let p = deser!(jjrm_GetCoronetsParams);
+                jjrm_result(jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
+                    file: gallops_pathbuf(),
+                    firemark: p.firemark,
+                    remaining: p.remaining,
+                    rough: p.rough,
+                }))
+            }
+            "paddock" => {
+                let p = deser!(jjrm_PaddockParams);
+                jjrm_result(jjrcu_run_curry(jjrcu_CurryArgs {
+                    file: gallops_pathbuf(),
+                    firemark: p.firemark,
+                    note: p.note,
+                }, p.content))
+            }
+            "continue" => {
+                let p = deser!(jjrm_ContinueParams);
+                jjrm_result(jjrgl_run_garland(jjrgl_GarlandArgs {
+                    file: gallops_pathbuf(),
+                    firemark: p.firemark,
+                }))
+            }
+            "transfer" => {
+                let p = deser!(jjrm_TransferParams);
+                jjrm_result(jjrrs_run(jjrrs_RestringArgs {
+                    file: gallops_pathbuf(),
+                    firemark: p.firemark,
+                    to: p.to,
+                }, p.coronets))
+            }
+            "landing" => {
+                let p = deser!(jjrm_LandingParams);
+                jjrm_result(jjrld_run_landing(jjrld_LandingArgs {
+                    coronet: p.coronet,
+                    agent: p.agent,
+                }, p.content.unwrap_or_default()))
+            }
+            _ => {
+                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: list, show, orient, record, mark, log, validate, create, enroll, close, archive, reorder, revise_docket, arm, relabel, drop, relocate, alter, search, get_brief, get_coronets, paddock, continue, transfer, landing", cmd))]))
+            }
+        }
     }
 }
 
