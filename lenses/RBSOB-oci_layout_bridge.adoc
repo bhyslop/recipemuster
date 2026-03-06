@@ -1,21 +1,19 @@
-// STATUS: Superseded for single-arch vessels (2026-03-05), experimentally validated for multi-platform (2026-03-05)
-// Retained as historical record; pending full supersession for multi-platform after production e2e.
+// STATUS: Fully superseded (2026-03-05). Retained as historical record.
 
 [NOTE]
 ====
-**Superseded for single-arch vessels.** As of 2026-03-05, single-architecture
-vessels use `buildx --load` to place the image directly in the local Docker
-daemon, then Cloud Build pushes via the `images:` field — generating SLSA v1.0
-Level 3 provenance natively. The OCI Layout Bridge (buildx → OCI tar → crane push)
-is no longer needed for single-arch builds.
+**Fully superseded.** As of 2026-03-05, all vessel types use direct Docker
+daemon interaction for image handling — `buildx --load` for single-arch,
+`buildx --push` with per-platform pullback for multi-platform. The OCI Layout
+Bridge (buildx → OCI tar → crane push → skopeo split) is no longer used in
+any pipeline.
 
-**Experimentally validated for multi-platform vessels.** The per-platform pullback
-path — `buildx --push` (all platforms) followed by `docker pull --platform` per
-architecture — is experimentally validated with SLSA Level 3 provenance on each
-platform (experiment `b3fd60c7`), and manifest reassembly via `imagetools create`
-preserves per-platform provenance (experiment `8cd7b713`). Full supersession
-of this bridge for multi-platform vessels requires production e2e proof (₢AlAAT).
-See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment details.
+Single-arch supersession verified on 3 trigger-dispatched vessels (build IDs
+`16d3b60f`, `fc36b970`, `9180c42a`) with SLSA v1.0 Level 3 provenance.
+Multi-platform supersession verified on `rbev-busybox` 3-platform trigger-dispatched
+build (`2e172ce0`) with SLSA v1.0 Level 3 on all per-platform images.
+See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment and
+production evidence.
 ====
 
 ==== Problem

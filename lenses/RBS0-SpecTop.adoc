@@ -1383,6 +1383,8 @@ the build timestamp records when
 executed the build.
 Hyphen delimits major concepts; underscore separates date from time within each timestamp.
 Combined with vessel to form complete artifact tags: `«VESSEL»:«CONSECRATION»-image` and `«VESSEL»:«CONSECRATION»-about`.
+For multi-platform vessels, per-platform tags append a platform suffix: `«VESSEL»:«INSCRIBE_TS»-image-amd64`, `«VESSEL»:«INSCRIBE_TS»-image-arm64`.
+These are internal build plumbing; the consumer-facing tag uses the full consecration without platform suffix.
 
 [[rbtga_ark_image]]
 //axl_voices axig_container_image
@@ -1392,6 +1394,12 @@ The container image artifact within an
 tagged with the `-image` suffix.
 Contains the executable container layers built by
 {gcb_service}.
++
+**Single-arch vessels**: a single-platform image pushed via the `images:` field, with SLSA v1.0 Level 3 provenance.
++
+**Multi-platform vessels**: the consumer-facing `-image` tag is a multi-platform manifest list assembled by `imagetools create` from per-platform tags (e.g., `-image-amd64`, `-image-arm64`, `-image-armv7`).
+Per-platform tags are internal build plumbing with independent SLSA v1.0 Level 3 provenance sharing a common `buildInvocationId`.
+The combined manifest list has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list); consumers pulling the combined tag get transparent platform resolution to attested per-platform images.
 
 [[rbtga_ark_about]]
 //axl_voices axig_generic_artifact
@@ -1481,7 +1489,16 @@ Cloud Build pre-populates Docker credentials for all GAR regions, so explicit do
 The `images:` field in {rbtgr_build_json} causes Cloud Build to push the image and generate SLSA v1.0 Level 3 provenance.
 Verified on 3 trigger-dispatched vessels — rbev-busybox-amd64 (`16d3b60f`), rbev-busybox-arm64 (`fc36b970`), trbim-macos (`9180c42a`).
 +
-**Multi-platform vessels**: experimentally validated architecture, pending production e2e proof.
+**Single-arch pipeline** (6 steps + `images:` push, single build invocation):
++
+  1. `derive-tag-base` — compute inscribe timestamp and tag base
+  2. `qemu-binfmt` — register cross-architecture emulation (skipped if native platform)
+  3. `build-and-load` — `buildx --load` into local Docker daemon (single platform)
+  4. `sbom-and-summary` — Syft scans local daemon image (`docker:` transport), generates SBOM
+  5. `assemble-metadata` — generate `build_info.json` from substitutions
+  6. `build-and-push-metadata` — build and push single-platform `-about` container
++
+**Multi-platform vessels**: production-validated architecture.
 Docker's local store (classic image store on CB workers, Docker 20.10.24) is single-platform only — `buildx --load` cannot load multi-platform images.
 The validated approach uses per-platform pullback:
 `buildx --push` builds all platforms and pushes a multi-platform manifest to GAR;
@@ -1490,9 +1507,10 @@ each pulled image is tagged with a per-platform tag (e.g., `:TAG-amd64`, `:TAG-a
 the `images:` field declares all per-platform tags — Cloud Build pushes each and generates independent SLSA v1.0 Level 3 provenance with the same `buildInvocationId`, proving single-build origin;
 `docker buildx imagetools create` then reassembles a multi-platform manifest list from the per-platform tags.
 +
-Validated in experiments on depot `demo1025`:
+Validated in experiments and production on depot `demo1025`:
 per-platform provenance (`b3fd60c7`) — all 3 platforms (amd64, arm64, armv7) achieved SLSA Level 3 with shared `buildInvocationId`;
-manifest reassembly (`8cd7b713`) — `imagetools create` produced a combined manifest list, per-platform provenance preserved.
+manifest reassembly (`8cd7b713`) — `imagetools create` produced a combined manifest list, per-platform provenance preserved;
+production e2e (`2e172ce0`) — trigger-dispatched build of `rbev-busybox` (3 platforms) achieved SLSA Level 3 on all per-platform images with shared `buildInvocationId`, consumer-facing manifest list resolved correctly.
 The combined manifest list itself has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list artifact), but consumers pulling the combined tag get transparent platform resolution to attested per-platform images with full SLSA Level 3.
 +
 Implementation notes:
@@ -2269,7 +2287,9 @@ Fully-qualified image reference for binfmt Cloud Build step.
 //axvr_variable axd_required rbst_image_ref
 {rbrr_gcb_skopeo_image_ref}::
 Fully-qualified image reference for skopeo Cloud Build step.
-Skopeo splits multi-platform OCI layouts to single-platform for Syft SBOM generation (anchore/syft#1545).
+Historically used to split multi-platform OCI layouts to single-platform for Syft SBOM generation (anchore/syft#1545).
+No longer used in the current pipeline — Syft now scans per-platform images from the local Docker daemon via `docker:` transport after per-platform pullback.
+Pin retained for potential future use.
 
 [[rbrr_gcb_pins_refreshed_at]]
 //axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp
