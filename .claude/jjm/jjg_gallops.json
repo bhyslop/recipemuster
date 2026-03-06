@@ -4433,13 +4433,14 @@
       "status": "stabled",
       "order": [
         "₢AhAAF",
+        "₢AhAAG",
         "₢AhAAA",
         "₢AhAAB",
         "₢AhAAC",
         "₢AhAAD",
         "₢AhAAE"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -4505,6 +4506,17 @@
               "text": "Restructure JJS0 Upper API section: merge jjsud_/jjsum_ categories into jjsuv_ (JJ Spec Upper Verb).\n\n## Changes to mapping section\n\n- Replace category comments: remove `jjsud_` (direct verbs) and `jjsum_` (multistep verbs), add `jjsuv_` (verbs)\n- Rename all surviving verb attributes from `jjsud_*`/`jjsum_*` to `jjsuv_*`\n- Remove eliminated verb attributes entirely: bridle, quarter, braid, garland\n- Remove `jjsus_*` entries for eliminated verbs: bridle, quarter, braid, garland\n- Remove `jjsus_*` entries for demoted verbs: slate, reslate, notch, rail, furlough, restring, retire-dryrun, retire-FINAL, mount, groom\n\n## Changes to definition sections\n\n- Merge \"Direct Verbs\" and \"Multistep Verbs\" subsections into single \"Verbs\" subsection\n- Rewrite all verb definitions using `jjsuv_*` linked terms\n- Remove definitions for eliminated verbs: bridle, quarter, braid, garland\n- Update `//axl_voices` annotations: all verbs voice `axi_cc_claudemd_verb`\n\n## Changes to Slash Commands section\n\n- Remove entries for eliminated verbs (bridle, quarter, braid, garland)\n- Remove entries for demoted verbs (all others except future school/corral)\n- Trim section to document only that future V4 slash commands (school, corral) will be added when implemented\n- Keep `jjsus_notch` removal — notch demotes to verb table\n\n## Verbs surviving as jjsuv_*\n\nslate, reslate, wrap, rail, furlough, retire, restring, muster, parade, scout, nominate, mount, groom, notch\n\n## Files\n\n- Tools/jjk/vov_veiled/JJS0-GallopsData.adoc (sole file)\n\n## Not in scope\n\n- Tack/bridled state removal (that's schema work in ₢AhAAD)\n- Actual slash command file deletion (that's next pace)\n- CLAUDE.md updates (that's next pace)",
               "silks": "jjs0-upper-api-restructure",
               "commit": "53b9adb"
+            }
+          ]
+        },
+        "₢AhAAG": {
+          "tacks": [
+            {
+              "ts": "260306-0837",
+              "state": "rough",
+              "text": "Delete eliminated and demoted slash command files, update CLAUDE.md managed section to match.\n\n## Slash command files to DELETE (eliminated concepts — verb removed entirely)\n\n- .claude/commands/jjc-pace-bridle.md\n- .claude/commands/jjc-heat-quarter.md\n- .claude/commands/jjc-heat-braid.md\n- .claude/commands/jjc-heat-garland.md\n\n## Slash command files to DELETE (demoted — verb survives as verb table entry)\n\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-reslate.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-heat-rail.md\n- .claude/commands/jjc-heat-furlough.md\n- .claude/commands/jjc-heat-restring.md\n- .claude/commands/jjc-heat-retire-dryrun.md\n- .claude/commands/jjc-heat-retire-FINAL.md\n- .claude/commands/jjc-heat-mount.md\n- .claude/commands/jjc-heat-groom.md\n\n## CLAUDE.md managed section updates\n\n- Remove eliminated verbs from verb table: bridle, quarter, braid, garland\n- Remove jjx_arm from CLI reference\n- Remove Bridleability Assessment section\n- Remove quarter from Quick Verbs table\n- Update mount/groom/notch verb table entries: replace slash command references with inline orchestration guidance\n- Before deleting mount and groom slash commands, distill their orchestration logic into concise verb table guidance\n\n## Depends on\n\n- ₢AhAAF (jjs0-upper-api-restructure) — spec authority established first\n\n## Files\n\n- .claude/commands/jjc-*.md (14 files deleted)\n- CLAUDE.md (managed JJK section updated)",
+              "silks": "slash-command-cleanup-claudemd-sync",
+              "commit": "bed107e"
             }
           ]
         }
