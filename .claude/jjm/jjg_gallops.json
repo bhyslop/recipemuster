@@ -5383,9 +5383,10 @@
         "₢AkAAY",
         "₢AkAAZ",
         "₢AkAAa",
-        "₢AkAAb"
+        "₢AkAAb",
+        "₢AkAAc"
       ],
-      "next_pace_seed": "AAc",
+      "next_pace_seed": "AAd",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -5979,6 +5980,17 @@
               "text": "Reconsider the rbgu_poll_until_ok method parameter factoring.\n\n## Context\n\nThe refactor in cf3406a6 changed rbgu_poll_get_until_ok (GET-only) to\nrbgu_poll_until_ok with a method parameter to support POST for Secret Manager\ngetIamPolicy. This turned out to be wrong — Secret Manager getIamPolicy uses\nGET, not POST (unlike CRM getIamPolicy which uses POST).\n\nThe method parameter made it easy to pass the wrong verb without any compile-time\nor structural safety. All existing callers use GET. The parameterization was\npremature — introduced for a use case that didn't exist.\n\n## Questions to resolve\n\n1. Should we revert to rbgu_poll_get_until_ok (GET-only)?\n2. Or keep the parameterization but document which GCP APIs use GET vs POST for\n   getIamPolicy? (CRM uses POST, Secret Manager uses GET, IAM uses POST)\n3. Consider whether rbgu_http_json callers should have a wrapper per GCP API\n   that encodes the correct method, rather than raw method strings at call sites.\n\n## Not in scope\n\n- Changing runtime behavior (the fix is already landed)\n- Refactoring rbgu_http_json itself",
               "silks": "reconsider-poll-method-parameterization",
               "commit": "1265570"
+            }
+          ]
+        },
+        "₢AkAAc": {
+          "tacks": [
+            {
+              "ts": "260306-0909",
+              "state": "rough",
+              "text": "Remove the dispatch tier (`bute_dispatch`, `bute_init_dispatch`,\n`bute_init_evidence`, `bute_get_step_*`) from `bute_engine.sh`.\n\n## Context\n\nThe dispatch tier was a stepping stone. Its only unique value — evidence\nharvesting (copying BURD_OUTPUT_DIR/current/ into evidence dirs) — is\nsuperseded by `ZBUTO_BURV_OUTPUT` (added in ₢AlAAY), which exposes the\nBURV output root directly after `zbuto_invoke`.\n\nThree consumers exist:\n- `butcde_DispatchExercise.sh` — tests the dispatch machinery itself (remove)\n- `butcrg_RegimeSmoke.sh` — convert to `buto_tt_expect_ok`\n- `butcrg_RegimeCredentials.sh` — convert to `buto_tt_expect_ok`\n\nThe regime tests currently use 4 lines of dispatch boilerplate to check\nwhat `buto_tt_expect_ok` does in one line.\n\n## Scope\n\n### Remove from bute_engine.sh\n- `bute_init_dispatch()`, `zbute_dispatch_sentinel()`\n- `zbute_resolve_tabtarget_capture()`\n- `bute_init_evidence()`\n- `bute_dispatch()`\n- `bute_last_step_capture()`, `bute_get_step_exit_capture()`, `bute_get_step_output_capture()`\n- All `zbute_step_*` array declarations\n- Keep `zbute_tcase()` — that's the case boundary runner, not dispatch\n\n### Convert butcrg_RegimeSmoke.sh\n- Replace `zbutcrg_init` + `zbutcrg_dispatch_ok` with `buto_tt_expect_ok`\n- Remove `bute_init_dispatch`/`bute_init_evidence` calls\n- Pattern: `buto_tt_expect_ok \"rbw-rnr\" \"${z_moniker}\"`\n\n### Convert butcrg_RegimeCredentials.sh\n- Same conversion pattern\n\n### Remove butcde_DispatchExercise.sh\n- Delete file\n- Remove `source` line from `rbtb_testbench.sh`\n- Remove fixture enrollment from `rbtb_kindle()`\n\n## Prerequisite\n- ₢AlAAY (ZBUTO_BURV_OUTPUT must exist before dispatch tier removal)\n\n## Acceptance Criteria\n- No `bute_dispatch` calls anywhere in codebase\n- `butcde_DispatchExercise.sh` deleted\n- Regime smoke/credential tests pass using tabtarget tier\n- `bute_engine.sh` contains only `zbute_tcase` and its helpers\n- All tests pass (`rbw-ta`)",
+              "silks": "retire-dispatch-tier-evidence-machinery",
+              "commit": "ca6c39f"
             }
           ]
         }
