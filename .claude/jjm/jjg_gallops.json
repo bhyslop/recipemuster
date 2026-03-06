@@ -5944,6 +5944,7 @@
         "₢AlAAT",
         "₢AlAAV",
         "₢AlAAW",
+        "₢AlAAY",
         "₢AlAAX",
         "₢AlAAM",
         "₢AlAAH",
@@ -5953,7 +5954,7 @@
         "₢AlAAB",
         "₢AlAAA"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6665,6 +6666,17 @@
               "text": "Remove bifurcated vessel scaffolding that is no longer needed now that\nmulti-platform provenance is production-validated.\n\n## Scope\n\n- Remove `rbev-vessels/rbev-busybox-amd64/` directory\n- Remove `rbev-vessels/rbev-busybox-arm64/` directory\n- Clean up their triggers if still present (inscribe will skip them\n  once directories are gone; triggers can be deleted via API or left\n  to be cleaned up on next depot destroy/create cycle)\n- Retain original `rbev-busybox` with 3-platform config as the canonical vessel\n\n## Context\n\nThese were created in ₢AlAAN as single-arch test targets for the initial\nSLSA provenance e2e (₢AlAAO). With multi-platform provenance validated\n(₢AlAAT, build 2e172ce0), the original `rbev-busybox` handles all three\nplatforms natively.\n\n## Acceptance Criteria\n\n- rbev-busybox-amd64 and rbev-busybox-arm64 directories removed\n- Inscribe succeeds with only the original multi-platform vessels\n- No orphaned triggers blocking future depot operations",
               "silks": "cleanup-bifurcated-vessels",
               "commit": "5e491ef"
+            }
+          ]
+        },
+        "₢AlAAY": {
+          "tacks": [
+            {
+              "ts": "260306-0817",
+              "state": "rough",
+              "text": "Add an automated test to the test-all suite that builds SLSA v1.0\nbusybox and validates its provenance.\n\n## Scope\n\nAdd a test case to the rbw test suite that exercises the full SLSA\nprovenance pipeline end-to-end:\n\n1. Inscribe + dispatch a busybox build (rbev-busybox or single-arch variant)\n2. Wait for build completion\n3. Run rbw-Dc (check consecrations) to verify tags appeared in GAR\n4. Run rbw-Rv (vouch) to verify SLSA Level 3 provenance via Container Analysis\n5. Optionally verify the -vouch artifact (if ₢AlAAW is complete)\n\n## Context\n\nThe SLSA pipeline has been manually validated in ₢AlAAO (single-arch)\nand ₢AlAAT (multi-platform). This pace adds automated regression\ncoverage so future changes to stitch, step scripts, or infrastructure\nare caught by test-all.\n\n## Implementation Notes\n\n- Requires live GCP infrastructure (depot, triggers, private pool)\n- Uses Director credentials for build dispatch and provenance query\n- Test should be skippable when no depot is configured (graceful skip)\n- May be a separate test target (rbw-tslsa or similar) if too heavy\n  for the main test-all sweep\n\n## Acceptance Criteria\n\n- Test dispatches a busybox build and verifies SLSA Level 3 provenance\n- Test passes on the current demo1025 depot\n- Test is integrated into the test suite (rbw-ta or dedicated target)\n- Test skips gracefully when depot infrastructure is unavailable",
+              "silks": "test-all-slsa-busybox-provenance",
+              "commit": "80ba797"
             }
           ]
         }
