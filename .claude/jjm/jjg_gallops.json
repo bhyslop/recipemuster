@@ -7035,9 +7035,10 @@
         "₢AoAAA",
         "₢AoAAB",
         "₢AoAAC",
-        "₢AoAAD"
+        "₢AoAAD",
+        "₢AoAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAlo.md",
       "paces": {
         "₢AoAAA": {
@@ -7095,6 +7096,17 @@
               "text": "Convert the 7 stdin-reading jjx commands to accept structured string parameters under MCP transport.\n\n## Commands affected\n1. jjx_enroll — docket text\n2. jjx_revise_docket — new docket text\n3. jjx_arm — warrant text\n4. jjx_transfer — coronet list\n5. jjx_close — wrap summary\n6. jjx_paddock — paddock content (when setting)\n7. jjx_landing — agent completion report\n\n## Approach\n\n- Each command gains an optional string parameter (e.g., `--docket-text`, `--content`, or similar)\n- When invoked via MCP, the structured parameter is used\n- When invoked via CLI, stdin is read as before (parameter not provided)\n- The command handler unifies both paths: parameter present → use it; absent → read stdin\n- No behavioral changes — same validation, same processing\n\n## Acceptance\n- All 7 commands work via MCP with structured string params\n- All 7 commands still work via CLI with stdin pipes\n- No regressions in existing CLI workflows",
               "silks": "jjx-stdin-to-params",
               "commit": "49a4088"
+            }
+          ]
+        },
+        "₢AoAAE": {
+          "tacks": [
+            {
+              "ts": "260306-1002",
+              "state": "rough",
+              "text": "Update vvx_emplace (kit install) to register MCP server in Claude Code settings.\n\n## Scope\n\n- vvx_emplace writes mcpServers entry to `.claude/settings.local.json`\n- Entry specifies: command path to vvx binary, `--mcp` flag, working directory\n- Handle existing settings file (merge, don't overwrite)\n- vvx_uninstall removes the mcpServers entry\n\n## Config shape (approximate)\n```json\n{\n  \"mcpServers\": {\n    \"vvx\": {\n      \"command\": \"./Tools/vok/target/debug/vvx\",\n      \"args\": [\"--mcp\"]\n    }\n  }\n}\n```\n\n## Acceptance\n- After `vvx_emplace`, Claude Code sees vvx MCP tools natively\n- After uninstall, the mcpServers entry is removed\n- Existing settings.local.json content preserved",
+              "silks": "vvx-emplace-mcp-config",
+              "commit": "2de6921"
             }
           ]
         }
