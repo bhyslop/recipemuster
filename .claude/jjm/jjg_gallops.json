@@ -7124,6 +7124,13 @@
         "₢AoAAE": {
           "tacks": [
             {
+              "ts": "260306-1019",
+              "state": "rough",
+              "text": "Update vvx_emplace (kit install) to register MCP server in Claude Code settings.\n\n## Scope\n\n- vvx_emplace writes mcpServers entry to `.claude/settings.local.json`\n- Handle existing settings file (merge, don't overwrite other keys)\n- vvx_uninstall removes the mcpServers entry\n\n## Binary path resolution\n\n- **Installed kit**: binary at path from `.vvk/vvbf_brand.json`\n- **Kit Forge (dev)**: binary at `Tools/vok/target/debug/vvx`\n- Emplace must detect which mode and use the correct path\n- Verify: does Claude Code accept relative paths in mcpServers, or must they be absolute?\n\n## Config shape (verify against Claude Code's actual schema)\n\n```json\n{\n  \"mcpServers\": {\n    \"vvx\": {\n      \"command\": \"<resolved-binary-path>\",\n      \"args\": [\"mcp\"]\n    }\n  }\n}\n```\n\nNote: `args` is `[\"mcp\"]` (subcommand), not `[\"--mcp\"]` (flag).\n\n## Server name\n\nUse `\"vvx\"` as the server name. settings.local.json is per-project, so no cross-project collision.\n\n## Cleanup\n\n- Remove jjx_* tabtargets from `tt/` that used the CLI path\n- Remove or update jjw_workbench.sh references to jjx CLI dispatch\n\n## Acceptance\n- After `vvx_emplace`, Claude Code sees vvx MCP tools natively\n- After uninstall, the mcpServers entry is removed\n- Existing settings.local.json content preserved\n- Correct binary path for both installed and Kit Forge modes",
+              "silks": "vvx-emplace-mcp-config",
+              "commit": "804b063"
+            },
+            {
               "ts": "260306-1002",
               "state": "rough",
               "text": "Update vvx_emplace (kit install) to register MCP server in Claude Code settings.\n\n## Scope\n\n- vvx_emplace writes mcpServers entry to `.claude/settings.local.json`\n- Entry specifies: command path to vvx binary, `--mcp` flag, working directory\n- Handle existing settings file (merge, don't overwrite)\n- vvx_uninstall removes the mcpServers entry\n\n## Config shape (approximate)\n```json\n{\n  \"mcpServers\": {\n    \"vvx\": {\n      \"command\": \"./Tools/vok/target/debug/vvx\",\n      \"args\": [\"--mcp\"]\n    }\n  }\n}\n```\n\n## Acceptance\n- After `vvx_emplace`, Claude Code sees vvx MCP tools natively\n- After uninstall, the mcpServers entry is removed\n- Existing settings.local.json content preserved",
