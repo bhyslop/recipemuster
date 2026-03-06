@@ -63,6 +63,10 @@ enum Commands {
     #[command(name = "vvx_freshen")]
     VvxFreshen(FreshenArgs),
 
+    /// Start MCP stdio server for jjx_* tool access
+    #[command(name = "mcp")]
+    Mcp,
+
     /// External subcommands (delegated to kit CLIs)
     #[command(external_subcommand)]
     External(Vec<OsString>),
@@ -208,6 +212,7 @@ async fn main() -> ExitCode {
         Some(Commands::VvxEmplace(args)) => run_emplace(args),
         Some(Commands::VvxVacate(args)) => run_vacate(args),
         Some(Commands::VvxFreshen(args)) => run_freshen(args),
+        Some(Commands::Mcp) => run_mcp().await,
         Some(Commands::External(args)) => dispatch_external(args).await,
         None => {
             use clap::CommandFactory;
@@ -252,6 +257,25 @@ async fn run_invitatory() -> i32 {
     }
 }
 
+/// Run MCP stdio server
+async fn run_mcp() -> i32 {
+    #[cfg(feature = "jjk")]
+    {
+        match jjk::jjrm_mcp::jjrm_serve_stdio().await {
+            Ok(()) => 0,
+            Err(e) => {
+                eprintln!("mcp: error: {}", e);
+                1
+            }
+        }
+    }
+    #[cfg(not(feature = "jjk"))]
+    {
+        eprintln!("mcp: error: jjk feature not enabled");
+        1
+    }
+}
+
 /// Dispatch external subcommands to appropriate kit CLIs
 async fn dispatch_external(args: Vec<OsString>) -> i32 {
     if args.is_empty() {
@@ -260,12 +284,6 @@ async fn dispatch_external(args: Vec<OsString>) -> i32 {
     }
 
     let cmd_name = args[0].to_string_lossy();
-
-    // Delegate to JJK if available and command matches
-    #[cfg(feature = "jjk")]
-    if jjk::jjrx_is_jjk_command(&cmd_name) {
-        return jjk::jjrx_dispatch(&args).await;
-    }
 
     // Unknown external subcommand
     eprintln!("vvx: error: unknown command '{}'", cmd_name);

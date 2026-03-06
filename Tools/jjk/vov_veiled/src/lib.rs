@@ -51,6 +51,7 @@ pub mod jjrsl_slate;
 pub mod jjrtl_tally;
 pub mod jjrvl_validate;
 pub mod jjrwp_wrap;
+pub mod jjrm_mcp;
 
 #[cfg(test)]
 mod jjts_steeplechase;
