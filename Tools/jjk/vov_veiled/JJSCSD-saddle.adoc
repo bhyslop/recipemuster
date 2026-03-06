@@ -15,11 +15,8 @@ details.
 {jjds_arguments}
 
 //axd_optional axd_defaulted
-* {jjda_file}
-
-//axd_optional axd_defaulted
 * {jjdt_firemark}
-(positional) — target
+— target
 {jjdhr_heat}.
 If omitted, iterates
 {jjdgm_order}
@@ -135,7 +132,6 @@ Render column-aligned table using same format as
 Output as `Racing-heats:` section.
 . Read
 {jjdgr_gallops}
-from file
 . Verify
 {jjdhr_heat}
 exists with given

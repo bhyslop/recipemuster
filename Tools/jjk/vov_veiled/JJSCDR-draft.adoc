@@ -32,12 +32,9 @@ state is preserved through the move.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
 * {jjdt_coronet}
-(positional) —
+—
 {jjdpr_pace}
 to move
 
@@ -83,8 +80,7 @@ in destination
 {jjds_behavior}
 
 .
-{jjdr_load}
-{jjda_file};
+{jjdr_load};
 on failure, exit immediately with
 {jjdr_load}
 error status
@@ -157,9 +153,6 @@ from source
 {jjdhm_order}
 .
 {jjdr_save}
-{jjdgr_gallops}
-to
-{jjda_file}
 . Output new
 {jjdt_coronet}
 to stdout

@@ -19,9 +19,6 @@ mutation is tracked in git history.
 (in-memory structure to persist)
 
 //axd_required
-* {jjda_file}
-
-//axd_required
 * identity —
 {jjdt_firemark}
 for heat-level operations or
@@ -38,10 +35,7 @@ for pace-level operations
 
 .
 {jjdr_save}
-{jjdgr_gallops}
-to
-{jjda_file}
-. Stage gallops file with `git add {file}`
+. Stage gallops file
 . If paddock file exists for this identity, stage it with `git add {paddock_file}`
 . Run size guard check with provided size_limit
 . Determine action code:

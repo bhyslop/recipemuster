@@ -4,11 +4,8 @@ Get raw docket text for a
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
-* `CORONET` — positional, the
+* `CORONET` — the
 {jjdt_coronet}
 to query
 
@@ -21,10 +18,8 @@ No prefix, no trailing newline beyond the text itself.
 
 . Parse
 {jjdt_coronet}
-from positional argument
 . Read
 {jjdgr_gallops}
-from file
 . Locate
 {jjdpr_pace}
 by

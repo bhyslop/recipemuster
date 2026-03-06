@@ -14,14 +14,11 @@ Update the {jjdkm_text} content of a {jjdpr_pace}. State and {jjdkm_silks} carry
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
+//axd_required
+* {jjdt_coronet}
 
 //axd_required
-* {jjdt_coronet} (positional)
-
-//axd_required
-* stdin — New {jjdkm_text} content
+* `docket` (string) — New {jjdkm_text} content
 
 {jjds_stdout} None
 
@@ -29,7 +26,7 @@ Update the {jjdkm_text} content of a {jjdpr_pace}. State and {jjdkm_silks} carry
 
 {jjds_behavior}
 
-. {jjdr_load} {jjda_file}; on failure, exit immediately with {jjdr_load} error status
+. {jjdr_load}; on failure, exit immediately with {jjdr_load} error status
 . Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
 . Verify {jjdhr_heat} exists
 . Verify {jjdpr_pace} exists with given {jjdt_coronet}
@@ -37,12 +34,12 @@ Update the {jjdkm_text} content of a {jjdpr_pace}. State and {jjdkm_silks} carry
 . Create new {jjdkr_tack} with:
 .. {jjdkm_refined}: current timestamp (YYMMDD-HHMM)
 .. {jjdkm_state}: inherited from previous `tacks[0].state`
-.. {jjdkm_text}: stdin content
+.. {jjdkm_text}: from `docket` parameter
 .. {jjdkm_silks}: inherited from previous `tacks[0].silks`
 .. {jjdkm_commit}: capture {jjdkm_commit}
 .. {jjdkm_warrant}: inherited if present in previous `tacks[0]`
 . Prepend new {jjdkr_tack} to `tacks` array (position 0)
-. {jjdr_save} {jjdgr_gallops} to {jjda_file}
+. {jjdr_save}
 
 == jjx_arm
 
@@ -50,14 +47,11 @@ Set a {jjdpr_pace} state to {jjdpe_bridled} with an execution {jjdkm_warrant}. T
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
+//axd_required
+* {jjdt_coronet}
 
 //axd_required
-* {jjdt_coronet} (positional)
-
-//axd_required
-* stdin — {jjdkm_warrant} content
+* `warrant` (string) — {jjdkm_warrant} content
 
 {jjds_stdout} None
 
@@ -65,7 +59,7 @@ Set a {jjdpr_pace} state to {jjdpe_bridled} with an execution {jjdkm_warrant}. T
 
 {jjds_behavior}
 
-. {jjdr_load} {jjda_file}; on failure, exit immediately with {jjdr_load} error status
+. {jjdr_load}; on failure, exit immediately with {jjdr_load} error status
 . Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
 . Verify {jjdhr_heat} exists
 . Verify {jjdpr_pace} exists with given {jjdt_coronet}
@@ -76,9 +70,9 @@ Set a {jjdpr_pace} state to {jjdpe_bridled} with an execution {jjdkm_warrant}. T
 .. {jjdkm_text}: inherited from previous `tacks[0].text`
 .. {jjdkm_silks}: inherited from previous `tacks[0].silks`
 .. {jjdkm_commit}: capture {jjdkm_commit}
-.. {jjdkm_warrant}: stdin content
+.. {jjdkm_warrant}: from `warrant` parameter
 . Prepend new {jjdkr_tack} to `tacks` array (position 0)
-. {jjdr_save} {jjdgr_gallops} to {jjda_file}
+. {jjdr_save}
 
 == jjx_relabel
 
@@ -86,11 +80,8 @@ Change the {jjdkm_silks} (display name) of a {jjdpr_pace}. {jjdkm_text} and stat
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
-* {jjdt_coronet} (positional)
+* {jjdt_coronet}
 
 //axd_required
 * {jjda_silks}
@@ -101,7 +92,7 @@ Change the {jjdkm_silks} (display name) of a {jjdpr_pace}. {jjdkm_text} and stat
 
 {jjds_behavior}
 
-. {jjdr_load} {jjda_file}; on failure, exit immediately with {jjdr_load} error status
+. {jjdr_load}; on failure, exit immediately with {jjdr_load} error status
 . Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
 . Verify {jjdhr_heat} exists
 . Verify {jjdpr_pace} exists with given {jjdt_coronet}
@@ -114,7 +105,7 @@ Change the {jjdkm_silks} (display name) of a {jjdpr_pace}. {jjdkm_text} and stat
 .. {jjdkm_commit}: capture {jjdkm_commit}
 .. {jjdkm_warrant}: inherited if present in previous `tacks[0]`
 . Prepend new {jjdkr_tack} to `tacks` array (position 0)
-. {jjdr_save} {jjdgr_gallops} to {jjda_file}
+. {jjdr_save}
 
 == jjx_drop
 
@@ -122,11 +113,8 @@ Mark a {jjdpr_pace} as {jjdpe_abandoned}. The {jjdpr_pace} is removed from activ
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
-* {jjdt_coronet} (positional)
+* {jjdt_coronet}
 
 {jjds_stdout} None
 
@@ -134,7 +122,7 @@ Mark a {jjdpr_pace} as {jjdpe_abandoned}. The {jjdpr_pace} is removed from activ
 
 {jjds_behavior}
 
-. {jjdr_load} {jjda_file}; on failure, exit immediately with {jjdr_load} error status
+. {jjdr_load}; on failure, exit immediately with {jjdr_load} error status
 . Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
 . Verify {jjdhr_heat} exists
 . Verify {jjdpr_pace} exists with given {jjdt_coronet}
@@ -147,7 +135,7 @@ Mark a {jjdpr_pace} as {jjdpe_abandoned}. The {jjdpr_pace} is removed from activ
 .. {jjdkm_commit}: capture {jjdkm_commit}
 .. {jjdkm_warrant}: omitted (not applicable for {jjdpe_abandoned} state)
 . Prepend new {jjdkr_tack} to `tacks` array (position 0)
-. {jjdr_save} {jjdgr_gallops} to {jjda_file}
+. {jjdr_save}
 
 == Composition
 

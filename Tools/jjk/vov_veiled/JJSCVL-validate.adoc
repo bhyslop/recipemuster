@@ -5,9 +5,6 @@ JSON conforms to schema.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 {jjds_stdout} None
 
 {jjds_exit_uniform} 0 success, non-zero error.

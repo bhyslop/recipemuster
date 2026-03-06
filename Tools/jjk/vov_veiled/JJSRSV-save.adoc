@@ -14,8 +14,7 @@ Validates output by loading it back before finalizing.
 {jjdgr_gallops}
 (in-memory structure to persist)
 
-//axd_required
-* {jjda_file}
+Note: the {jjdgr_gallops} file path is resolved internally by the transport layer.
 
 {jjds_behavior}
 

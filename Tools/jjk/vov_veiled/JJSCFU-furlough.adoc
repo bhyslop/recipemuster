@@ -9,12 +9,9 @@ or rename its
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
 * {jjdt_firemark}
-(positional) — target
+— target
 {jjdhr_heat}
 
 //axd_optional
@@ -38,8 +35,7 @@ or rename its
 {jjds_behavior}
 
 .
-{jjdr_load}
-{jjda_file};
+{jjdr_load};
 on failure, exit immediately with
 {jjdr_load}
 error status
@@ -66,9 +62,6 @@ to just before the first heat with the target status in
 to new value
 .
 {jjdr_save}
-{jjdgr_gallops}
-to
-{jjda_file}
 
 *Validation errors:*
 

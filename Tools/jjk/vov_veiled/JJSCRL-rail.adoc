@@ -13,12 +13,9 @@ vvx jjx_reorder <FIREMARK> --move <CORONET> [--before <TARGET> | --after <TARGET
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
 * {jjdt_firemark}
-(positional) — target
+— target
 {jjdhr_heat}
 
 //axd_required
@@ -45,8 +42,7 @@ per line, in new sequence.
 {jjds_behavior}
 
 .
-{jjdr_load}
-{jjda_file};
+{jjdr_load};
 on failure, exit immediately with
 {jjdr_load}
 error status
@@ -94,9 +90,6 @@ insert immediately after target
 against original. If identical (pace is already in requested position), output order and exit 0 with no commit: `jjx_rail: no change — {coronet} is already {position}`
 . Otherwise,
 {jjdr_save}
-{jjdgr_gallops}
-to
-{jjda_file}
 . Output new
 {jjdhm_order},
 one

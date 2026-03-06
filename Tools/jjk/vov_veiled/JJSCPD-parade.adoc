@@ -8,10 +8,7 @@ Output varies by target type.
 {jjds_arguments}
 
 //axd_optional axd_defaulted
-* {jjda_file}
-
-//axd_optional axd_defaulted
-* TARGET (positional) —
+* TARGET —
 {jjdt_firemark}
 (heat view) or
 {jjdt_coronet}
@@ -172,7 +169,6 @@ Commit hash displays "(no commit)" for placeholder value `0000000`.
 
 . Read
 {jjdgr_gallops}
-from file
 . Detect target type by length (strip prefix if present):
 .. 2 chars → heat view
 .. 5 chars → pace view

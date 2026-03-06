@@ -5,9 +5,6 @@ with summary information.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 {jjds_stdout} Tab-separated values, one line per
 {jjdhr_heat}:
 `{jjdt_firemark}<TAB>{jjdt_silks}<TAB>{jjdhm_status}<TAB><completed><TAB><defined>`
@@ -22,7 +19,6 @@ Where:
 
 . Read
 {jjdgr_gallops}
-from file
 . Iterate
 {jjdgm_order}
 array in sequence (

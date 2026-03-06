@@ -30,12 +30,9 @@ remain with the garlanded source.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
 * {jjdt_firemark}
-(positional) —
+—
 {jjdhr_heat}
 to garland
 
@@ -57,8 +54,7 @@ to garland
 
 {jjds_behavior}
 
-. {jjdr_load}
-{jjda_file};
+. {jjdr_load};
 on failure, exit immediately with
 {jjdr_load}
 error status
@@ -131,9 +127,6 @@ preserve
 {jjdkr_tack}
 history)
 . {jjdr_save}
-{jjdgr_gallops}
-to
-{jjda_file}
 . Output JSON to stdout
 
 *Validation errors:*

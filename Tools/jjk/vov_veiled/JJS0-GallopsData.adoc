@@ -280,7 +280,7 @@ Implemented using the `rmcp` crate (official Rust MCP SDK), version pinned exact
 //axl_voices axo_entity
 {jjdx_tool}::
 A JSON-RPC tool call within an {jjdx_mcp} session.
-Each {jjdo_operation} is registered as an {jjdx_tool} with typed parameter schemas and descriptions.
+Each operation is registered as an {jjdx_tool} with typed parameter schemas and descriptions.
 {jjdx_tool_s} are the sole invocation path for Claude Code.
 The {jjdx_cli} CLI subcommand path is removed;
 {jjdx_tool_s} are NOT also available as CLI subcommands.

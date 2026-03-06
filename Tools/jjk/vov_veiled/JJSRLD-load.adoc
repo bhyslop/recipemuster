@@ -10,8 +10,7 @@ only after all checks pass.
 
 {jjds_arguments}
 
-//axd_required
-* {jjda_file}
+Note: the {jjdgr_gallops} file path is resolved internally by the transport layer.
 
 {jjds_behavior}
 

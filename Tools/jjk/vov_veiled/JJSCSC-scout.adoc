@@ -7,11 +7,8 @@ using regex patterns.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
-* pattern (positional) — regex pattern to search for (case insensitive)
+* pattern — regex pattern to search for (case insensitive)
 
 //axd_optional
 * `--actionable` — limit results to
@@ -39,7 +36,6 @@ Match excerpt shows approximately 60 characters of context around the first matc
 
 . Read
 {jjdgr_gallops}
-from file
 . Build case-insensitive regex from pattern argument
 . For each
 {jjdhr_heat}

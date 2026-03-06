@@ -7,9 +7,6 @@ structure.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjda_file}
-
 //axd_required
 * {jjda_silks}
 
@@ -25,15 +22,14 @@ structure.
 
 . If
 {jjdgr_gallops}
-file exists:
-{jjdr_load}
-{jjda_file};
+exists:
+{jjdr_load};
 on failure, exit immediately with
 {jjdr_load}
 error status
 . If
 {jjdgr_gallops}
-file does not exist:
+does not exist:
 .. Create parent directory `.claude/jjm/` if needed
 .. Initialize new
 {jjdgr_gallops}
@@ -87,9 +83,6 @@ to
 {jjdgm_order}
 .
 {jjdr_save}
-{jjdgr_gallops}
-to
-{jjda_file}
 . Output new
 {jjdt_firemark}
 to stdout
