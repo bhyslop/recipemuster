@@ -7033,9 +7033,10 @@
       "status": "racing",
       "order": [
         "₢AoAAA",
-        "₢AoAAB"
+        "₢AoAAB",
+        "₢AoAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAlo.md",
       "paces": {
         "₢AoAAA": {
@@ -7071,6 +7072,17 @@
               "text": "Update JJS0-GallopsData.adoc to specify MCP as a transport layer alongside CLI.\n\n## Sections to update\n\n1. **Crash-Safe Architecture** (lines 248-265) — Replace bash-only locking description with dual-transport model. MCP server performs lock→read→modify→write→unlock per tool call (stateless). CLI path unchanged. Remove bash code example showing lock_acquire/lock_release pattern; replace with transport-agnostic description.\n\n2. **Operations preamble** (lines 1143-1153) — Revise \"Bash handles locking\" to describe two transports: MCP (Claude's exclusive path, structured JSON-RPC params) and CLI (hooks, tabtargets, manual use, same binary). Both share the same Rust handlers.\n\n3. **CLI section** (lines 1089-1105) — Add MCP transport description alongside existing CLI description. vvx gains `--mcp` mode for stdio JSON-RPC server. Tool registration derives from existing clap Args structs.\n\n4. **Stdin-reading operations** — Document that the 7 stdin commands (enroll, revise_docket, arm, transfer, close, paddock, landing) accept structured string parameters under MCP transport while retaining stdin for CLI. This is a transport concern, not a schema change.\n\n5. **{jjda_file} argument** (lines 895-906) — Note that MCP transport defaults this internally; not exposed as a tool parameter. CLI retains the flag.\n\n## Not changing\n- Types, Records, Serialization, Upper API verbs, Commit Message Architecture — all transport-agnostic.\n\n## Acceptance\n- JJS0 accurately describes both MCP and CLI transports\n- Crash-Safe Architecture reflects stateless per-call MCP model\n- Stdin→params documented for affected operations",
               "silks": "jjs0-mcp-transport-spec",
               "commit": "cf4f0dd"
+            }
+          ]
+        },
+        "₢AoAAC": {
+          "tacks": [
+            {
+              "ts": "260306-1002",
+              "state": "rough",
+              "text": "Implement MCP stdio server mode in vvx.\n\n## Scope\n\n- Add `--mcp` flag (or subcommand) to vvx that enters JSON-RPC 2.0 stdio server loop\n- Register all jjx_* and vvx_* commands as MCP tools with typed schemas\n- Derive tool schemas from existing clap Args structs (tool name, parameter types, descriptions)\n- JSON-RPC dispatch loop: read request from stdin, route to existing command handler, write response to stdout\n- Each tool call is stateless: full lock→read→modify→write→unlock cycle per invocation\n- Error responses use JSON-RPC error codes\n\n## Key design points\n\n- Reuse existing `dispatch_external` seam in `vorm_main.rs`\n- Existing command handlers return structured data; MCP wraps in JSON-RPC response envelope\n- The 7 stdin-reading commands gain string parameters instead of reading process stdin\n- No in-memory state between tool calls — critical for long-lived server process correctness\n\n## Dependencies\n- JJS0 spec update (₢AoAAB) should be done first to guide implementation\n\n## Acceptance\n- `vvx --mcp` starts stdio server\n- All jjx_* and vvx_* commands callable as MCP tools\n- Tool schemas include parameter types and descriptions\n- Stateless per-call (no cached gallops between calls)",
+              "silks": "vvx-mcp-stdio-server",
+              "commit": "4231ec1"
             }
           ]
         }
