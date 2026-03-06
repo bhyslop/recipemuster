@@ -4432,13 +4432,14 @@
       "creation_time": "260222",
       "status": "stabled",
       "order": [
+        "₢AhAAF",
         "₢AhAAA",
         "₢AhAAB",
         "₢AhAAC",
         "₢AhAAD",
         "₢AhAAE"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -4493,6 +4494,17 @@
               "text": "Update all jjx_* command implementations to use V4 flat pace fields instead of tack array access.\n\n## V3 pattern\nCommands access pace data via: pace.tacks[0].text, pace.tacks[0].state, pace.tacks[0].silks, pace.tacks[0].basis, pace.tacks.first().unwrap().direction\n\n## V4 pattern\nDirect field access: pace.docket, pace.state, pace.silks, pace.basis, pace.warrant\n\n## Scope\nEvery Rust file in jjk/vov_veiled/src/ that reads or writes pace fields. This is the widest pace — touches most command implementations. But it is mechanical: find tack access patterns, replace with flat field access.\n\n## Depends on\n- ₢AhAAD (define-v4-pace-struct) — V4 types must exist and compile\n\n## Files\n- All jjr*_.rs command files that access pace data\n- jjru_util.rs — remove jjrg_make_tack if it exists\n- Any helper functions that construct or destructure tacks\n\n## Acceptance\n- All commands work against V4 gallops\n- cargo build clean, cargo test pass\n- End-to-end: nominate heat, slate pace, show pace, close pace — all work",
               "silks": "adapt-commands-to-v4-types",
               "commit": "c850ce0"
+            }
+          ]
+        },
+        "₢AhAAF": {
+          "tacks": [
+            {
+              "ts": "260306-0834",
+              "state": "rough",
+              "text": "Restructure JJS0 Upper API section: merge jjsud_/jjsum_ categories into jjsuv_ (JJ Spec Upper Verb).\n\n## Changes to mapping section\n\n- Replace category comments: remove `jjsud_` (direct verbs) and `jjsum_` (multistep verbs), add `jjsuv_` (verbs)\n- Rename all surviving verb attributes from `jjsud_*`/`jjsum_*` to `jjsuv_*`\n- Remove eliminated verb attributes entirely: bridle, quarter, braid, garland\n- Remove `jjsus_*` entries for eliminated verbs: bridle, quarter, braid, garland\n- Remove `jjsus_*` entries for demoted verbs: slate, reslate, notch, rail, furlough, restring, retire-dryrun, retire-FINAL, mount, groom\n\n## Changes to definition sections\n\n- Merge \"Direct Verbs\" and \"Multistep Verbs\" subsections into single \"Verbs\" subsection\n- Rewrite all verb definitions using `jjsuv_*` linked terms\n- Remove definitions for eliminated verbs: bridle, quarter, braid, garland\n- Update `//axl_voices` annotations: all verbs voice `axi_cc_claudemd_verb`\n\n## Changes to Slash Commands section\n\n- Remove entries for eliminated verbs (bridle, quarter, braid, garland)\n- Remove entries for demoted verbs (all others except future school/corral)\n- Trim section to document only that future V4 slash commands (school, corral) will be added when implemented\n- Keep `jjsus_notch` removal — notch demotes to verb table\n\n## Verbs surviving as jjsuv_*\n\nslate, reslate, wrap, rail, furlough, retire, restring, muster, parade, scout, nominate, mount, groom, notch\n\n## Files\n\n- Tools/jjk/vov_veiled/JJS0-GallopsData.adoc (sole file)\n\n## Not in scope\n\n- Tack/bridled state removal (that's schema work in ₢AhAAD)\n- Actual slash command file deletion (that's next pace)\n- CLAUDE.md updates (that's next pace)",
+              "silks": "jjs0-upper-api-restructure",
+              "commit": "53b9adb"
             }
           ]
         }
