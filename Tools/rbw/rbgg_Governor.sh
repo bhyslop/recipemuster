@@ -525,6 +525,15 @@ rbgg_create_retriever() {
     "serviceAccount:${z_account_email}"     \
     "retriever-reader"
 
+  buc_step 'Adding Container Analysis Occurrences Viewer role'
+  rbgi_add_project_iam_role                              \
+    "${z_token}"                                         \
+    "Grant Container Analysis Occurrences Viewer"        \
+    "${RBGD_PROJECT_RESOURCE}"                           \
+    "${RBGC_ROLE_CONTAINERANALYSIS_OCCURRENCES_VIEWER}"  \
+    "serviceAccount:${z_account_email}"                  \
+    "retriever-analysis"
+
   local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
 
   buc_info "RBRA file written: ${z_actual_rbra_file}"

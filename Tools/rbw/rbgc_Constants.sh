@@ -131,6 +131,7 @@ zrbgc_kindle() {
   readonly RBGC_ROLE_ARTIFACTREGISTRY_READER="roles/artifactregistry.reader"
   readonly RBGC_ROLE_ARTIFACTREGISTRY_WRITER="roles/artifactregistry.writer"
   readonly RBGC_ROLE_ARTIFACTREGISTRY_ADMIN="roles/artifactregistry.admin"
+  readonly RBGC_ROLE_CONTAINERANALYSIS_OCCURRENCES_VIEWER="roles/containeranalysis.occurrences.viewer"
   readonly RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR="roles/cloudbuild.builds.editor"
 
   # Common API Base Paths (project-independent)
