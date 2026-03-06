@@ -6796,6 +6796,13 @@
         "₢AlAAZ": {
           "tacks": [
             {
+              "ts": "260306-1052",
+              "state": "complete",
+              "text": "Fix three issues discovered in ₢AlAAW review:\n\n1. **Abjure orphans suffixed image tags**: After stitch unification,\n   single-platform vessels have both suffixed and bare image tags.\n   Abjure only deletes the bare tag, orphaning the suffixed one.\n   Fix: add vessel_dir parameter to abjure (or enumerate tags from\n   GAR matching inscribe_ts) so all image tags are deleted.\n\n2. **Vouch soft-skips missing platform tags**: rbf_vouch continues\n   silently when a deterministically-constructed platform tag is\n   missing (FETCH_ERROR/NO_DIGEST). Since tags are derived from\n   vessel config, a missing tag means the build is incomplete.\n   Change continue to buc_die.\n\n3. **RBS0 consecration tag examples inaccurate**: Line showing\n   CONSECRATION-image is wrong — image tags use inscribe TS only\n   and now include platform suffixes. Update examples to reflect\n   the actual tag scheme post-unification.",
+              "silks": "fix-abjure-orphan-vouch-hardening",
+              "commit": "36b80f5"
+            },
+            {
               "ts": "260306-1026",
               "state": "rough",
               "text": "Fix three issues discovered in ₢AlAAW review:\n\n1. **Abjure orphans suffixed image tags**: After stitch unification,\n   single-platform vessels have both suffixed and bare image tags.\n   Abjure only deletes the bare tag, orphaning the suffixed one.\n   Fix: add vessel_dir parameter to abjure (or enumerate tags from\n   GAR matching inscribe_ts) so all image tags are deleted.\n\n2. **Vouch soft-skips missing platform tags**: rbf_vouch continues\n   silently when a deterministically-constructed platform tag is\n   missing (FETCH_ERROR/NO_DIGEST). Since tags are derived from\n   vessel config, a missing tag means the build is incomplete.\n   Change continue to buc_die.\n\n3. **RBS0 consecration tag examples inaccurate**: Line showing\n   CONSECRATION-image is wrong — image tags use inscribe TS only\n   and now include platform suffixes. Update examples to reflect\n   the actual tag scheme post-unification.",
