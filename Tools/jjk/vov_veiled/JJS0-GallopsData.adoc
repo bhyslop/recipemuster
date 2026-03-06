@@ -204,13 +204,11 @@ maintains a history of
 
 All access to the
 {jjdgr_gallops}
-goes through {jjdx_cli}, the Job Jockey subcommand of the Voce Viva executor.
+goes through {jjdx_handler} functions within {jjdx_vvx}.
 No jq or direct JSON manipulation ever touches this data.
 This is an absolute architectural constraint, not a preference.
 
-The rationale: writing reliable bash with jq pipelines requires fighting LLM training data.
-The internet is full of bad bash.
-Rust replaces fragile jq invocations with compiler-enforced correctness.
+The rationale: Rust {jjdx_handler} functions replace fragile jq invocations with compiler-enforced correctness.
 The compiler is tireless; humans are not.
 
 === Git as Journal
@@ -352,7 +350,7 @@ This is intentional: vivid domain vocabulary helps humans hold complex systems i
 
 === Presentation Vocabulary
 
-The CLI and display layer uses distinct terms for certain schema fields to avoid collision with other project vocabulary:
+The display and output layer uses distinct terms for certain schema fields to avoid collision with other project vocabulary:
 
 * *docket* — the presentation term for the {jjdkm_text} field. What the {jjdpr_pace} should accomplish. Used in CLI output labels and slash command descriptions. The JSON schema field remains `text`.
 * *warrant* — the presentation term for the {jjdkm_warrant} field. Execution guidance for autonomous operation. Used in CLI output labels and slash command descriptions. The JSON schema field remains `direction`.
