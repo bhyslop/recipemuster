@@ -7034,9 +7034,10 @@
       "order": [
         "₢AoAAA",
         "₢AoAAB",
-        "₢AoAAC"
+        "₢AoAAC",
+        "₢AoAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAlo.md",
       "paces": {
         "₢AoAAA": {
@@ -7083,6 +7084,17 @@
               "text": "Implement MCP stdio server mode in vvx.\n\n## Scope\n\n- Add `--mcp` flag (or subcommand) to vvx that enters JSON-RPC 2.0 stdio server loop\n- Register all jjx_* and vvx_* commands as MCP tools with typed schemas\n- Derive tool schemas from existing clap Args structs (tool name, parameter types, descriptions)\n- JSON-RPC dispatch loop: read request from stdin, route to existing command handler, write response to stdout\n- Each tool call is stateless: full lock→read→modify→write→unlock cycle per invocation\n- Error responses use JSON-RPC error codes\n\n## Key design points\n\n- Reuse existing `dispatch_external` seam in `vorm_main.rs`\n- Existing command handlers return structured data; MCP wraps in JSON-RPC response envelope\n- The 7 stdin-reading commands gain string parameters instead of reading process stdin\n- No in-memory state between tool calls — critical for long-lived server process correctness\n\n## Dependencies\n- JJS0 spec update (₢AoAAB) should be done first to guide implementation\n\n## Acceptance\n- `vvx --mcp` starts stdio server\n- All jjx_* and vvx_* commands callable as MCP tools\n- Tool schemas include parameter types and descriptions\n- Stateless per-call (no cached gallops between calls)",
               "silks": "vvx-mcp-stdio-server",
               "commit": "4231ec1"
+            }
+          ]
+        },
+        "₢AoAAD": {
+          "tacks": [
+            {
+              "ts": "260306-1002",
+              "state": "rough",
+              "text": "Convert the 7 stdin-reading jjx commands to accept structured string parameters under MCP transport.\n\n## Commands affected\n1. jjx_enroll — docket text\n2. jjx_revise_docket — new docket text\n3. jjx_arm — warrant text\n4. jjx_transfer — coronet list\n5. jjx_close — wrap summary\n6. jjx_paddock — paddock content (when setting)\n7. jjx_landing — agent completion report\n\n## Approach\n\n- Each command gains an optional string parameter (e.g., `--docket-text`, `--content`, or similar)\n- When invoked via MCP, the structured parameter is used\n- When invoked via CLI, stdin is read as before (parameter not provided)\n- The command handler unifies both paths: parameter present → use it; absent → read stdin\n- No behavioral changes — same validation, same processing\n\n## Acceptance\n- All 7 commands work via MCP with structured string params\n- All 7 commands still work via CLI with stdin pipes\n- No regressions in existing CLI workflows",
+              "silks": "jjx-stdin-to-params",
+              "commit": "49a4088"
             }
           ]
         }
