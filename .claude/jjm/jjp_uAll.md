@@ -305,6 +305,38 @@ to reflect experimental validation (full supersession pending ₢AlAAT productio
 3. Syft multi-platform OCI layout — FIXED (₢AiABE: skopeo split)
 4. Build step `dir` field missing — FIXED in ₣Ai
 
+### Decision: SLSA Vouch and Consecration Check (₢AlAAV, 2026-03-05)
+
+**Two role-separated tabtargets** for SLSA provenance verification:
+
+- `rbw-Dc.DirectorChecksConsecrations.sh <vessel-dir>` — lists consecrations
+  from GAR tags. No-arg lists vessels. Director auth.
+- `rbw-Rv.RetrieverVouchesArk.sh <vessel-dir>` — vouches most recent
+  consecration via Container Analysis API. No-arg lists vessels.
+
+**Role split rationale:** Director lists consecrations ("what did I build?").
+Retriever vouches provenance ("is this safe to consume?"). SLSA exists for
+consumers — vouch is naturally a Retriever operation.
+
+**Auth strategy (interim):** Both use Director RBRA credentials for now.
+Director has `roles/viewer` which includes `containeranalysis.occurrences.list`.
+Retriever auth path deferred — swap RBRA file loading when ready.
+
+**IAM landed:** `roles/containeranalysis.occurrences.viewer` added to
+`rbgg_create_retriever()` and `RBGC_ROLE_CONTAINERANALYSIS_OCCURRENCES_VIEWER`
+constant added. Existing Retrievers need manual grant or depot cycle.
+
+**Colophon rationale:** `rbw-Dc` lowercase `c` = read-only check. `rbw-Rv`
+lowercase `v` = read-only vouch. Both diagnostic, no state alteration.
+
+**Implementation status (in-progress):**
+- Tabtarget files created and executable
+- Zipper enrollments added (`RBZ_CHECK_CONSECRATIONS`, `RBZ_VOUCH_ARK`)
+- Draft functions in `rbf_Foundry.sh` — need BCG review (stderr capture,
+  temp file patterns, `local -r`, no piped while-read subshells)
+- The consecration check is simpler (one curl + tag parsing); vouch is
+  more complex (loop over per-platform images, Container Analysis API)
+
 ## Build Requirements
 
 This heat is primarily operator-guided e2e execution (live GCP infrastructure).

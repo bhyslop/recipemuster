@@ -68,8 +68,10 @@ zrbz_kindle() {
   buz_enroll RBZ_SUMMON_ARK      "rbw-DS" "${z_mod}" "rbf_summon"
   buz_enroll RBZ_RUBRIC_INSCRIBE "rbw-DI" "${z_mod}" "rbf_rubric_inscribe"
   buz_enroll RBZ_DELETE_IMAGE    "rbw-DD" "${z_mod}" "rbf_delete"
-  buz_enroll RBZ_LIST_IMAGES     "rbw-Rl" "${z_mod}" "rbf_list"
-  buz_enroll RBZ_RETRIEVE_IMAGE  "rbw-Rr" "${z_mod}" "rbf_retrieve"
+  buz_enroll RBZ_LIST_IMAGES            "rbw-Rl" "${z_mod}" "rbf_list"
+  buz_enroll RBZ_RETRIEVE_IMAGE         "rbw-Rr" "${z_mod}" "rbf_retrieve"
+  buz_enroll RBZ_CHECK_CONSECRATIONS    "rbw-Dc" "${z_mod}" "rbf_check_consecrations"
+  buz_enroll RBZ_VOUCH_ARK              "rbw-Rv" "${z_mod}" "rbf_vouch"
   z_mod="rbrr_cli.sh"
   buz_enroll RBZ_REFRESH_GCB_PINS "rbw-DP" "${z_mod}" "rbrr_refresh_gcb_pins"
 

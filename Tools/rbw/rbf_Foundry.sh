@@ -1596,5 +1596,364 @@ rbf_abjure() {
   fi
 }
 
+######################################################################
+# Consecration Check (rbw-Dc)
+
+rbf_check_consecrations() {
+  zrbf_sentinel
+
+  local -r z_vessel_dir="${1:-}"
+
+  buc_doc_brief "List consecrations for a vessel by querying GAR tags"
+  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_shown || return 0
+
+  # No-arg: list available vessels
+  if test -z "${z_vessel_dir}"; then
+    local z_sigils
+    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+    buc_step "Available vessels:"
+    local z_sigil=""
+    for z_sigil in ${z_sigils}; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    done
+    buc_die "Vessel directory required"
+  fi
+
+  # Load vessel
+  zrbf_load_vessel "${z_vessel_dir}"
+
+  buc_step "Fetching OAuth token (Director)"
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+
+  buc_step "Querying GAR tags for ${RBRV_SIGIL}"
+  local -r z_tags_file="${BURD_TEMP_DIR}/rbf_dc_tags.json"
+  curl -sL \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/tags/list" \
+    > "${z_tags_file}" 2>/dev/null || buc_die "Failed to fetch tags"
+
+  if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
+    local z_err
+    z_err=$(jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}")
+    buc_die "Registry API error: ${z_err}"
+  fi
+
+  # Extract tags and group by inscribe timestamp
+  # Tags matching: i\d{8}_\d{6}-image[-suffix] or i\d{8}_\d{6}-about or i\d{8}_\d{6}-multi
+  local -r z_raw_file="${BURD_TEMP_DIR}/rbf_dc_raw.txt"
+  jq -r '.tags[]? // empty' "${z_tags_file}" | while read -r z_tag; do
+    # Extract inscribe timestamp prefix (iYYYYMMDD_HHMMSS)
+    local z_ts=""
+    if [[ "${z_tag}" =~ ^(i[0-9]{8}_[0-9]{6}) ]]; then
+      z_ts="${BASH_REMATCH[1]}"
+    else
+      continue
+    fi
+
+    # Classify the tag
+    if [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}" ]] || [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}"-* ]]; then
+      # -image or -image-amd64 etc
+      local z_suffix="${z_tag#*${RBGC_ARK_SUFFIX_IMAGE}}"
+      if test -z "${z_suffix}"; then
+        echo "${z_ts}|image|consumer"
+      else
+        echo "${z_ts}|image|${z_suffix#-}"
+      fi
+    elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_ABOUT}" ]]; then
+      echo "${z_ts}|about|"
+    elif [[ "${z_tag}" == *"-multi" ]]; then
+      echo "${z_ts}|multi|"
+    fi
+  done > "${z_raw_file}"
+
+  if ! test -s "${z_raw_file}"; then
+    buc_info "No consecrations found for ${RBRV_SIGIL}"
+    return 0
+  fi
+
+  # Group by consecration timestamp and display
+  local -r z_report_file="${BURD_TEMP_DIR}/rbf_dc_report.txt"
+  sort -t'|' -k1,1r "${z_raw_file}" | awk -F'|' '
+    {
+      ts = $1
+      type = $2
+      detail = $3
+
+      if (ts != prev_ts) {
+        if (prev_ts != "") {
+          # Print previous group
+          plat_str = (platform_count > 0) ? platforms : "single"
+          printf "  %-22s %-30s %d image + %d about\n", prev_ts, plat_str, image_count, about_count
+        }
+        prev_ts = ts
+        image_count = 0
+        about_count = 0
+        platform_count = 0
+        platforms = ""
+      }
+
+      if (type == "image") {
+        image_count++
+        if (detail != "consumer" && detail != "") {
+          platform_count++
+          if (platforms != "") platforms = platforms ", "
+          platforms = platforms detail
+        }
+      } else if (type == "about") {
+        about_count++
+      }
+    }
+    END {
+      if (prev_ts != "") {
+        plat_str = (platform_count > 0) ? platforms : "single"
+        printf "  %-22s %-30s %d image + %d about\n", prev_ts, plat_str, image_count, about_count
+      }
+    }
+  ' > "${z_report_file}"
+
+  printf "\nVessel: %s\n" "${RBRV_SIGIL}"
+  printf "  %-22s %-30s %s\n" "Consecration" "Platforms" "Tags"
+  cat "${z_report_file}"
+  echo ""
+
+  buc_success "Consecration check complete"
+}
+
+######################################################################
+# Vouch (rbw-Rv)
+
+rbf_vouch() {
+  zrbf_sentinel
+
+  local -r z_vessel_dir="${1:-}"
+
+  buc_doc_brief "Verify SLSA provenance on a vessel's per-platform images via Container Analysis API"
+  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_shown || return 0
+
+  # No-arg: list available vessels
+  if test -z "${z_vessel_dir}"; then
+    local z_sigils
+    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+    buc_step "Available vessels:"
+    local z_sigil=""
+    for z_sigil in ${z_sigils}; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    done
+    buc_die "Vessel directory required"
+  fi
+
+  # Load vessel
+  zrbf_load_vessel "${z_vessel_dir}"
+
+  # Auth as Director (Retriever path deferred — Director has roles/viewer which includes containeranalysis)
+  buc_step "Fetching OAuth token (Director)"
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+
+  # Find the most recent consecration by querying GAR tags
+  buc_step "Querying GAR tags for ${RBRV_SIGIL}"
+  local -r z_tags_file="${BURD_TEMP_DIR}/rbf_rv_tags.json"
+  curl -sL \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/tags/list" \
+    > "${z_tags_file}" 2>/dev/null || buc_die "Failed to fetch tags"
+
+  if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
+    local z_err
+    z_err=$(jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}")
+    buc_die "Registry API error: ${z_err}"
+  fi
+
+  # Find all -image tags and extract inscribe timestamps, pick most recent
+  local -r z_image_tags_file="${BURD_TEMP_DIR}/rbf_rv_image_tags.txt"
+  jq -r '.tags[]? // empty' "${z_tags_file}" | while read -r z_tag; do
+    if [[ "${z_tag}" =~ ^(i[0-9]{8}_[0-9]{6})${RBGC_ARK_SUFFIX_IMAGE}(.*)$ ]]; then
+      echo "${BASH_REMATCH[1]}|${z_tag}|${BASH_REMATCH[2]}"
+    fi
+  done | sort -t'|' -k1,1r > "${z_image_tags_file}"
+
+  if ! test -s "${z_image_tags_file}"; then
+    buc_die "No -image tags found for ${RBRV_SIGIL}"
+  fi
+
+  # Most recent consecration timestamp
+  local z_consecration
+  z_consecration=$(head -1 "${z_image_tags_file}" | cut -d'|' -f1)
+  test -n "${z_consecration}" || buc_die "Failed to extract consecration timestamp"
+
+  buc_info "Vouching consecration: ${z_consecration}"
+
+  # Collect all -image tags for this consecration
+  local -r z_vouch_tags_file="${BURD_TEMP_DIR}/rbf_rv_vouch_tags.txt"
+  grep "^${z_consecration}|" "${z_image_tags_file}" > "${z_vouch_tags_file}"
+
+  # For each -image tag: resolve digest, query Container Analysis
+  local -r z_report_file="${BURD_TEMP_DIR}/rbf_rv_report.txt"
+  > "${z_report_file}"
+
+  local z_all_build_ids=""
+  local z_tag_count=0
+
+  while IFS='|' read -r z_ts z_tag z_plat_suffix; do
+    z_tag_count=$((z_tag_count + 1))
+
+    # Determine platform display name
+    local z_platform_display=""
+    if test -z "${z_plat_suffix}"; then
+      z_platform_display="(consumer)"
+    else
+      z_platform_display="${z_plat_suffix#-}"
+    fi
+
+    # Resolve digest via Docker Registry v2 API (HEAD for manifest)
+    buc_log_args "Resolving digest for ${RBRV_SIGIL}:${z_tag}"
+    local z_digest_infix="rv_digest_${z_tag_count}"
+    local z_manifest_url="${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_tag}"
+    local z_digest_headers="${BURD_TEMP_DIR}/rbf_rv_headers_${z_tag_count}.txt"
+
+    local z_head_status=0
+    curl -sS \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+      -H "Authorization: Bearer ${z_token}" \
+      -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+      --head \
+      -o /dev/null \
+      -D "${z_digest_headers}" \
+      -w "%{http_code}" \
+      "${z_manifest_url}" > "${BURD_TEMP_DIR}/rbf_rv_head_code_${z_tag_count}.txt" 2>/dev/null \
+      || z_head_status=$?
+
+    if test "${z_head_status}" -ne 0; then
+      printf "  %-14s %-14s %-12s %s\n" "${z_platform_display}" "FETCH_ERROR" "-" "-" >> "${z_report_file}"
+      continue
+    fi
+
+    # Extract Docker-Content-Digest header
+    local z_digest=""
+    z_digest=$(grep -i '^docker-content-digest:' "${z_digest_headers}" | tr -d '\r' | awk '{print $2}')
+
+    if test -z "${z_digest}"; then
+      printf "  %-14s %-14s %-12s %s\n" "${z_platform_display}" "NO_DIGEST" "-" "-" >> "${z_report_file}"
+      continue
+    fi
+
+    local z_digest_short="${z_digest#sha256:}"
+    z_digest_short="${z_digest_short:0:12}"
+
+    # Query Container Analysis for BUILD occurrences
+    buc_log_args "Querying Container Analysis for ${z_digest_short}"
+    local z_image_uri="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${RBRV_SIGIL}@${z_digest}"
+    local z_ca_filter
+    z_ca_filter=$(rbgu_urlencode_capture "kind=\"BUILD\" AND resourceUrl=\"https://${z_image_uri}\"")
+
+    local z_ca_url="https://containeranalysis.googleapis.com/v1/projects/${RBGD_GAR_PROJECT_ID}/occurrences?filter=${z_ca_filter}"
+    local z_ca_infix="rv_ca_${z_tag_count}"
+    rbgu_http_json "GET" "${z_ca_url}" "${z_token}" "${z_ca_infix}"
+
+    local z_ca_code
+    z_ca_code=$(rbgu_http_code_capture "${z_ca_infix}") || z_ca_code=""
+
+    if test "${z_ca_code}" != "200"; then
+      printf "  %-14s %-14s %-12s %s\n" "${z_platform_display}" "${z_digest_short}" "HTTP_${z_ca_code}" "-" >> "${z_report_file}"
+      continue
+    fi
+
+    # Extract SLSA build level and build invocation ID from occurrences
+    local z_ca_resp="${ZRBGU_PREFIX}${z_ca_infix}${ZRBGU_POSTFIX_JSON}"
+    local z_slsa_level=""
+    z_slsa_level=$(jq -r '
+      [.occurrences[]? | .build.intotoStatement.slsaProvenanceZeroTwo.buildDefinition.externalParameters.buildConfigSource.ref // empty] |
+      if length > 0 then "present" else
+        [.occurrences[]? | .build.provenance.builtInMaterials // empty] |
+        if length > 0 then "present" else "none" end
+      end
+    ' "${z_ca_resp}" 2>/dev/null) || z_slsa_level=""
+
+    # Try to get the numeric SLSA level from the occurrence note
+    local z_slsa_num=""
+    z_slsa_num=$(jq -r '
+      [.occurrences[]? | .noteName // empty] | first // "none"
+    ' "${z_ca_resp}" 2>/dev/null) || z_slsa_num=""
+
+    # Extract slsa_build_level from the discovery/build metadata
+    local z_build_level=""
+    z_build_level=$(jq -r '
+      [.occurrences[]? |
+        (.build.intotoStatement.predicate.runDetails.builder.builderDependencies[]?.digest // empty),
+        (.envelope.payload // empty)
+      ] | first // "unknown"
+    ' "${z_ca_resp}" 2>/dev/null) || z_build_level=""
+
+    # More direct: look for slsa_build_level in the flattened structure
+    local z_level_direct=""
+    z_level_direct=$(jq -r '
+      [.occurrences[]? | .. | .slsa_build_level? // empty | select(. != null)] | first // "unknown"
+    ' "${z_ca_resp}" 2>/dev/null) || z_level_direct="unknown"
+
+    # Extract build invocation ID
+    local z_build_id=""
+    z_build_id=$(jq -r '
+      [.occurrences[]? |
+        .build.intotoStatement.predicate.runDetails.metadata.invocationId //
+        .build.provenance.id //
+        empty
+      ] | first // "unknown"
+    ' "${z_ca_resp}" 2>/dev/null) || z_build_id="unknown"
+
+    local z_build_id_short="${z_build_id}"
+    if test "${#z_build_id}" -gt 12; then
+      z_build_id_short="${z_build_id:0:8}"
+    fi
+
+    # Count occurrences (v0.1 and v1 predicates expected)
+    local z_occ_count=""
+    z_occ_count=$(jq -r '.occurrences | length // 0' "${z_ca_resp}" 2>/dev/null) || z_occ_count="0"
+
+    printf "  %-14s %-14s %-12s %-12s %s\n" \
+      "${z_platform_display}" "${z_digest_short}" "${z_level_direct}" "${z_build_id_short}" "${z_occ_count} occ" >> "${z_report_file}"
+
+    # Accumulate build IDs for single-origin check
+    if test "${z_build_id}" != "unknown"; then
+      if test -z "${z_all_build_ids}"; then
+        z_all_build_ids="${z_build_id}"
+      elif [[ "${z_all_build_ids}" != *"${z_build_id}"* ]]; then
+        z_all_build_ids="${z_all_build_ids} ${z_build_id}"
+      fi
+    fi
+  done < "${z_vouch_tags_file}"
+
+  # Display report
+  printf "\nVessel: %s\n" "${RBRV_SIGIL}"
+  printf "Consecration: %s\n\n" "${z_consecration}"
+  printf "  %-14s %-14s %-12s %-12s %s\n" "Platform" "Digest" "SLSA Level" "Build ID" "Evidence"
+  cat "${z_report_file}"
+
+  # Single-build origin check
+  local z_id_count=0
+  local z_id=""
+  for z_id in ${z_all_build_ids}; do
+    z_id_count=$((z_id_count + 1))
+  done
+
+  echo ""
+  if test "${z_id_count}" -eq 1; then
+    buc_success "Build origin: single invocation (all IDs match)"
+  elif test "${z_id_count}" -eq 0; then
+    buc_warn "Build origin: no build invocation IDs found"
+  else
+    buc_warn "Build origin: MULTIPLE invocations detected (${z_id_count} distinct IDs)"
+  fi
+
+  buc_success "Vouch complete"
+}
+
 # eof
 
