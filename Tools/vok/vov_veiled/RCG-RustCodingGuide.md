@@ -181,6 +181,32 @@ All naming follows the project's minting rules. Key constraints:
 
 Reference: CLAUDE.md "Prefix Naming Discipline" section.
 
+## Interface Contamination Discipline
+
+**Interface contamination** is any change that expands the accepted input space, invocation forms, or alternative paths through an interface without explicit specification requirement.
+
+### Zeroes Theory
+
+Every tolerance, alias, fallback, or alternative path multiplies the enumerated state space of the project. The litmus test for any interface decision: **"How many zeroes got added to the enumerated state space because of this choice?"** If the answer isn't zero, the change requires explicit justification in the specification.
+
+### Rules
+
+1. **One canonical form**: Every function, parameter, command, and identifier has exactly one accepted form. Do not accept alternatives.
+2. **No tolerances**: Do not add `strip_prefix`, case folding, alias acceptance, or alternative parse paths unless the specification explicitly requires temporary backwards compatibility.
+3. **No undocumented defaults**: Do not add `unwrap_or`, `Option` with silent defaults, or fallback values that expand what callers can omit beyond what the interface contract specifies.
+4. **No silent normalization**: Do not silently transform input to a canonical form. If input doesn't match the canonical form exactly, reject it.
+5. **Documentation uses canonical form**: All documentation, examples, and generated content must use the single canonical form — never a tolerated alternative, even if the implementation happens to accept it.
+
+### Relationship to Other Disciplines
+
+- **String Boundary Discipline** is the serialization-specific instance: one const, exact match, no friendly parsing
+- **Minting Discipline** is the naming-specific instance: one canonical name per terminal prefix
+- This section is the general principle those specific disciplines instantiate
+
+### Smell Test
+
+If you can invoke the same operation two different ways (e.g., `"close"` and `"jjx_close"`), the interface is contaminated. If a function silently accepts `None` where the caller should always provide a value, the interface is contaminated. If documentation shows a shorter form than the canonical one, the documentation is contaminated.
+
 ## String Boundary Discipline
 
 **Core principle**: This is an internal system. Strings that cross serialization boundaries (JSON, display, CLI) are produced and consumed by the same codebase. There are no external users typing variants.
@@ -529,6 +555,13 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 - [ ] Test file imports source module with `use super::*`
 - [ ] Test functions prefixed with test file's prefix
 - [ ] Helper functions local to test file (no prefix needed)
+
+### Interface Contamination Discipline
+- [ ] Functions accept exactly one canonical form for each parameter — no aliases
+- [ ] No `strip_prefix`, case folding, or input normalization that expands accepted forms
+- [ ] No silent defaults that expand what callers can omit beyond the interface contract
+- [ ] Documentation and examples use the canonical form exclusively
+- [ ] Zeroes theory applied: no unexplained state space expansion
 
 ### String Boundary Discipline
 - [ ] Each serialized/displayed string value has exactly one `const` definition

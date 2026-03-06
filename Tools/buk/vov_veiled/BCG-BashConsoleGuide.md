@@ -1148,6 +1148,28 @@ readarray -t z_lines            # readarray/mapfile
 
 ---
 
+## Interface Contamination Discipline
+
+**Interface contamination** is any change that expands the accepted input space, invocation forms, or alternative paths through an interface without explicit specification requirement.
+
+### Zeroes Theory
+
+Every tolerance, alias, fallback, or alternative path multiplies the enumerated state space. The litmus test: **"How many zeroes got added to the enumerated state space because of this choice?"** If the answer isn't zero, the change requires explicit justification.
+
+### Rules
+
+1. **One canonical form**: Every command, argument, and parameter has exactly one accepted form. Do not accept alternatives.
+2. **No tolerances**: Do not add case folding, prefix stripping, alias acceptance, or alternative parse paths. If the canonical form is `--racing`, do not also accept `-r`, `racing`, or `RACING`.
+3. **No undocumented defaults**: Do not add `${1:-default}` patterns that silently fill missing required arguments. Required means required.
+4. **No silent normalization**: Do not silently transform input. If input doesn't match the canonical form, `buc_die` with a clear message stating the expected form.
+5. **Documentation uses canonical form**: All documentation, examples, and `buc_doc_*` output must show the single canonical invocation — never a tolerated alternative.
+
+### Smell Test
+
+If a command can be invoked two different ways for the same result, the interface is contaminated. If `"${1:-}"` silently provides a default for what should be a mandatory argument, the interface is contaminated.
+
+---
+
 ## `set -e` is Not Sufficient
 
 **The POSIX suppression rule**: `set -e` is suppressed inside `if`, `while`, `||`, `&&` test expressions, and this propagates through the **entire call tree** of the tested command.
@@ -1495,6 +1517,13 @@ buc_warn    # Instead of echo >&2
 - [ ] Furnish gates with `buc_doc_env_done || return 0` before any sourcing
 - [ ] Credential sourcing documented and never writes to disk
 - [ ] No other sourcing anywhere
+
+### Interface Contamination Discipline
+- [ ] Commands accept exactly one canonical form for each argument — no aliases
+- [ ] No case folding, prefix stripping, or normalization of inputs
+- [ ] No `${1:-default}` for required parameters — missing required args cause `buc_die`
+- [ ] `buc_doc_*` output shows the single canonical invocation form
+- [ ] Zeroes theory applied: no unexplained state space expansion
 
 ### Code Quality
 - [ ] Prefer bash builtins over external tools (parameter expansion vs sed/awk)

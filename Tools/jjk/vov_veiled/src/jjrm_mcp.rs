@@ -256,7 +256,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: list, show, orient, record, mark, log, validate, create, enroll, close, archive, reorder, revise_docket, arm, relabel, drop, relocate, alter, search, get_brief, get_coronets, paddock, continue, transfer, landing")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_mark, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_revise_docket, jjx_arm, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_get_brief, jjx_get_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -282,7 +282,7 @@ impl jjrm_McpServer {
 
     #[tool(name = "jjx", description = "Job Jockey Kit - MCP tools for project initiative management")]
     async fn jjx(&self, Parameters(p): Parameters<jjrm_JjxParams>) -> Result<CallToolResult, McpError> {
-        let cmd = p.command.strip_prefix("jjx_").unwrap_or(&p.command);
+        let cmd = p.command.as_str();
         let v = p.params;
 
         macro_rules! deser {
@@ -295,7 +295,7 @@ impl jjrm_McpServer {
         }
 
         match cmd {
-            "record" => {
+            "jjx_record" => {
                 let p = deser!(jjrm_RecordParams);
                 jjrm_result(jjrnc_run_notch(jjrnc_NotchArgs {
                     identity: p.identity,
@@ -304,7 +304,7 @@ impl jjrm_McpServer {
                     intent: p.intent,
                 }))
             }
-            "mark" => {
+            "jjx_mark" => {
                 let p = deser!(jjrm_MarkParams);
                 jjrm_result(jjrx_run_chalk(jjrx_ChalkArgs {
                     identity: p.identity,
@@ -312,34 +312,34 @@ impl jjrm_McpServer {
                     description: p.description,
                 }))
             }
-            "log" => {
+            "jjx_log" => {
                 let p = deser!(jjrm_LogParams);
                 jjrm_result(jjrrn_run_rein(jjrrn_ReinArgs {
                     firemark: p.firemark,
                     limit: p.limit.unwrap_or(50),
                 }))
             }
-            "validate" => {
+            "jjx_validate" => {
                 let _p = deser!(jjrm_ValidateParams);
                 jjrm_result(jjrvl_run_validate(jjrvl_ValidateArgs {
                     file: gallops_pathbuf(),
                 }))
             }
-            "list" => {
+            "jjx_list" => {
                 let p = deser!(jjrm_ListParams);
                 jjrm_result(jjrmu_run_muster(jjrmu_MusterArgs {
                     file: gallops_pathbuf(),
                     status: p.status,
                 }).await)
             }
-            "orient" => {
+            "jjx_orient" => {
                 let p = deser!(jjrm_OrientParams);
                 jjrm_result(jjrsd_run_saddle(jjrsd_SaddleArgs {
                     file: gallops_pathbuf(),
                     firemark: p.firemark,
                 }).await)
             }
-            "show" => {
+            "jjx_show" => {
                 let p = deser!(jjrm_ShowParams);
                 jjrm_result(jjrpd_run_parade(jjrpd_ParadeArgs {
                     file: gallops_pathbuf(),
@@ -348,7 +348,7 @@ impl jjrm_McpServer {
                     remaining: p.remaining,
                 }))
             }
-            "archive" => {
+            "jjx_archive" => {
                 let p = deser!(jjrm_ArchiveParams);
                 jjrm_result(jjrrt_run_retire(jjrrt_RetireArgs {
                     file: gallops_pathbuf(),
@@ -357,14 +357,14 @@ impl jjrm_McpServer {
                     size_limit: p.size_limit,
                 }))
             }
-            "create" => {
+            "jjx_create" => {
                 let p = deser!(jjrm_CreateParams);
                 jjrm_result(jjrx_run_nominate(jjrx_NominateArgs {
                     file: gallops_pathbuf(),
                     silks: p.silks,
                 }))
             }
-            "enroll" => {
+            "jjx_enroll" => {
                 let p = deser!(jjrm_EnrollParams);
                 jjrm_result(jjrsl_run_slate(jjrsl_SlateArgs {
                     file: gallops_pathbuf(),
@@ -375,7 +375,7 @@ impl jjrm_McpServer {
                     first: p.first,
                 }, p.docket))
             }
-            "reorder" => {
+            "jjx_reorder" => {
                 let p = deser!(jjrm_ReorderParams);
                 jjrm_result(jjrrl_run_rail(jjrrl_RailArgs {
                     file: gallops_pathbuf(),
@@ -388,21 +388,21 @@ impl jjrm_McpServer {
                     last: p.last,
                 }))
             }
-            "revise_docket" => {
+            "jjx_revise_docket" => {
                 let p = deser!(jjrm_ReviseDocketParams);
                 jjrm_result(jjrtl_run_revise_docket(jjrtl_ReviseDocketArgs {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
                 }, p.docket))
             }
-            "arm" => {
+            "jjx_arm" => {
                 let p = deser!(jjrm_ArmParams);
                 jjrm_result(jjrtl_run_arm(jjrtl_ArmArgs {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
                 }, p.warrant))
             }
-            "relabel" => {
+            "jjx_relabel" => {
                 let p = deser!(jjrm_RelabelParams);
                 jjrm_result(jjrtl_run_relabel(jjrtl_RelabelArgs {
                     file: gallops_pathbuf(),
@@ -410,14 +410,14 @@ impl jjrm_McpServer {
                     silks: p.silks,
                 }))
             }
-            "drop" => {
+            "jjx_drop" => {
                 let p = deser!(jjrm_DropParams);
                 jjrm_result(jjrtl_run_drop(jjrtl_DropArgs {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
                 }))
             }
-            "relocate" => {
+            "jjx_relocate" => {
                 let p = deser!(jjrm_RelocateParams);
                 jjrm_result(jjrdr_run_draft(jjrdr_DraftArgs {
                     file: gallops_pathbuf(),
@@ -428,7 +428,7 @@ impl jjrm_McpServer {
                     first: p.first,
                 }))
             }
-            "alter" => {
+            "jjx_alter" => {
                 let p = deser!(jjrm_AlterParams);
                 jjrm_result(jjrfu_run_furlough(jjrfu_FurloughArgs {
                     file: gallops_pathbuf(),
@@ -438,14 +438,14 @@ impl jjrm_McpServer {
                     silks: p.silks,
                 }))
             }
-            "close" => {
+            "jjx_close" => {
                 let p = deser!(jjrm_CloseParams);
                 jjrm_result(zjjrx_run_wrap(jjrx_WrapArgs {
                     coronet: p.coronet,
                     size_limit: p.size_limit,
                 }, p.summary))
             }
-            "search" => {
+            "jjx_search" => {
                 let p = deser!(jjrm_SearchParams);
                 jjrm_result(jjrsc_run_scout(jjrsc_ScoutArgs {
                     file: gallops_pathbuf(),
@@ -453,14 +453,14 @@ impl jjrm_McpServer {
                     actionable: p.actionable,
                 }))
             }
-            "get_brief" => {
+            "jjx_get_brief" => {
                 let p = deser!(jjrm_GetBriefParams);
                 jjrm_result(jjrgs_run_get_spec(jjrgs_GetSpecArgs {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
                 }))
             }
-            "get_coronets" => {
+            "jjx_get_coronets" => {
                 let p = deser!(jjrm_GetCoronetsParams);
                 jjrm_result(jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
                     file: gallops_pathbuf(),
@@ -469,7 +469,7 @@ impl jjrm_McpServer {
                     rough: p.rough,
                 }))
             }
-            "paddock" => {
+            "jjx_paddock" => {
                 let p = deser!(jjrm_PaddockParams);
                 jjrm_result(jjrcu_run_curry(jjrcu_CurryArgs {
                     file: gallops_pathbuf(),
@@ -477,14 +477,14 @@ impl jjrm_McpServer {
                     note: p.note,
                 }, p.content))
             }
-            "continue" => {
+            "jjx_continue" => {
                 let p = deser!(jjrm_ContinueParams);
                 jjrm_result(jjrgl_run_garland(jjrgl_GarlandArgs {
                     file: gallops_pathbuf(),
                     firemark: p.firemark,
                 }))
             }
-            "transfer" => {
+            "jjx_transfer" => {
                 let p = deser!(jjrm_TransferParams);
                 jjrm_result(jjrrs_run(jjrrs_RestringArgs {
                     file: gallops_pathbuf(),
@@ -492,7 +492,7 @@ impl jjrm_McpServer {
                     to: p.to,
                 }, p.coronets))
             }
-            "landing" => {
+            "jjx_landing" => {
                 let p = deser!(jjrm_LandingParams);
                 jjrm_result(jjrld_run_landing(jjrld_LandingArgs {
                     coronet: p.coronet,
@@ -500,7 +500,7 @@ impl jjrm_McpServer {
                 }, p.content.unwrap_or_default()))
             }
             _ => {
-                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: list, show, orient, record, mark, log, validate, create, enroll, close, archive, reorder, revise_docket, arm, relabel, drop, relocate, alter, search, get_brief, get_coronets, paddock, continue, transfer, landing", cmd))]))
+                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_mark, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_revise_docket, jjx_arm, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_get_brief, jjx_get_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing", cmd))]))
             }
         }
     }
