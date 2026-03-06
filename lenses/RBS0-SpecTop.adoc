@@ -1386,9 +1386,11 @@ the build timestamp records when
 {gcb_service}
 executed the build.
 Hyphen delimits major concepts; underscore separates date from time within each timestamp.
-Combined with vessel to form complete artifact tags: `«VESSEL»:«CONSECRATION»-image`, `«VESSEL»:«CONSECRATION»-about`, and optionally `«VESSEL»:«CONSECRATION»-vouch`.
-For multi-platform vessels, per-platform tags append a platform suffix: `«VESSEL»:«INSCRIBE_TS»-image-amd64`, `«VESSEL»:«INSCRIBE_TS»-image-arm64`.
-These are internal build plumbing; the consumer-facing tag uses the full consecration without platform suffix.
+Combined with vessel to form complete artifact tags.
+Image tags use the inscribe timestamp with a platform suffix: `«VESSEL»:«INSCRIBE_TS»-image-amd64`, `«VESSEL»:«INSCRIBE_TS»-image-arm64`.
+Platform suffix is derived from the OCI platform (e.g., `linux/amd64` -> `-amd64`, `linux/arm64` -> `-arm64`, `linux/arm/v7` -> `-armv7`).
+For multi-platform vessels, a consumer-facing manifest list is also pushed as `«VESSEL»:«INSCRIBE_TS»-image`.
+About and vouch tags use the full consecration: `«VESSEL»:«CONSECRATION»-about`, and optionally `«VESSEL»:«CONSECRATION»-vouch`.
 
 [[rbtga_ark_image]]
 //axl_voices axig_container_image

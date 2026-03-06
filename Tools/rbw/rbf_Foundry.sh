@@ -1511,27 +1511,40 @@ rbf_rubric_inscribe() {
 rbf_abjure() {
   zrbf_sentinel
 
-  local z_vessel="${1:-}"
-  z_vessel="${z_vessel##*/}"  # strip path prefix — accept directory path or bare moniker
+  local -r z_vessel_dir="${1:-}"
   local z_consecration="${2:-}"
   local z_force="${3:-}"
 
   # Documentation block
-  buc_doc_brief "Abjure an ark (delete -image, -about, and -vouch artifacts as a coherent unit)"
-  buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
+  buc_doc_brief "Abjure an ark (delete all per-platform image, about, and vouch artifacts)"
+  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
 
-  # Validate parameters
-  test -n "${z_vessel}" || buc_die "Vessel parameter required"
+  # No-arg: list available vessels
+  if test -z "${z_vessel_dir}"; then
+    local z_sigils
+    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+    buc_step "Available vessels:"
+    local z_sigil=""
+    for z_sigil in ${z_sigils}; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    done
+    buc_die "Vessel directory required"
+  fi
+
+  # Load vessel
+  zrbf_load_vessel "${z_vessel_dir}"
+
+  # Validate remaining parameters
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
 
   # Derive inscribe timestamp from full consecration
   local -r z_inscribe_ts="${z_consecration%%-b*}"
   test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from consecration"
 
-  # Check for --force flag in remaining arguments
+  # Check for --force flag
   local z_skip_confirm=false
   if test "${z_force}" = "--force"; then
     z_skip_confirm=true
@@ -1543,37 +1556,70 @@ rbf_abjure() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  # Construct ark tags — image uses inscribe TS only, about/vouch use full consecration
-  local z_image_tag="${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}"
-  local z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
-  local z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  # Compute platform suffixes from vessel config
+  local z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
+  local z_platform_suffixes=()
+  local z_remaining_plats="${z_platforms}"
+  local z_plat=""
+  local z_suffix=""
+  while test -n "${z_remaining_plats}"; do
+    z_plat="${z_remaining_plats%%,*}"
+    z_suffix="${z_plat#linux/}"
+    z_suffix="${z_suffix//\//}"
+    z_platform_suffixes+=("-${z_suffix}")
+    test "${z_remaining_plats}" = "${z_plat}" && break
+    z_remaining_plats="${z_remaining_plats#*,}"
+  done
+
+  # Build list of image tags to check/delete:
+  # - Per-platform suffixed tags (always present after stitch unification)
+  # - Consumer-facing bare tag (multi-platform manifest list only)
+  # - Intermediate -multi tag (multi-platform only)
+  local z_image_tags=()
+  local z_idx=0
+  for z_idx in "${!z_platform_suffixes[@]}"; do
+    z_image_tags+=("${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}")
+  done
+  if test "${#z_platform_suffixes[@]}" -gt 1; then
+    z_image_tags+=("${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}")
+    z_image_tags+=("${z_inscribe_ts}-multi")
+  fi
+
+  # About and vouch tags use full consecration
+  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
 
   buc_step "Verifying ark existence"
 
-  # Check if -image artifact exists
-  local z_image_status_file="${ZRBF_DELETE_PREFIX}image_status.txt"
-  local z_image_response_file="${ZRBF_DELETE_PREFIX}image_response.json"
+  # Check all image tags
+  local z_existing_image_tags=()
+  local z_img_tag=""
+  local z_img_check_idx=0
+  for z_img_tag in "${z_image_tags[@]}"; do
+    local z_img_status_file="${ZRBF_DELETE_PREFIX}image_${z_img_check_idx}_status.txt"
+    local z_img_response_file="${ZRBF_DELETE_PREFIX}image_${z_img_check_idx}_response.json"
 
-  curl --head -s                                     \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
-    -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
-    -w "%{http_code}"                               \
-    -o "${z_image_response_file}"                   \
-    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_image_tag}" \
-    > "${z_image_status_file}" || buc_die "HEAD request failed for -image artifact"
+    curl --head -s                                     \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
+      -H "Authorization: Bearer ${z_token}"           \
+      -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+      -w "%{http_code}"                               \
+      -o "${z_img_response_file}"                     \
+      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_img_tag}" \
+      > "${z_img_status_file}" || buc_die "HEAD request failed for image tag: ${z_img_tag}"
 
-  local z_image_http_code
-  z_image_http_code=$(<"${z_image_status_file}")
-  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for -image"
+    local z_img_http_code
+    z_img_http_code=$(<"${z_img_status_file}")
+    test -n "${z_img_http_code}" || buc_die "HTTP status code is empty for image tag: ${z_img_tag}"
 
-  local z_image_exists=false
-  if test "${z_image_http_code}" = "200"; then
-    z_image_exists=true
-  elif test "${z_image_http_code}" != "404"; then
-    buc_die "Unexpected HTTP status ${z_image_http_code} when checking -image artifact"
-  fi
+    if test "${z_img_http_code}" = "200"; then
+      z_existing_image_tags+=("${z_img_tag}")
+    elif test "${z_img_http_code}" != "404"; then
+      buc_die "Unexpected HTTP status ${z_img_http_code} for image tag: ${z_img_tag}"
+    fi
+    z_img_check_idx=$((z_img_check_idx + 1))
+  done
 
   # Check if -about artifact exists
   local z_about_status_file="${ZRBF_DELETE_PREFIX}about_status.txt"
@@ -1586,7 +1632,7 @@ rbf_abjure() {
     -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_about_response_file}"                   \
-    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_about_tag}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
     > "${z_about_status_file}" || buc_die "HEAD request failed for -about artifact"
 
   local z_about_http_code
@@ -1611,7 +1657,7 @@ rbf_abjure() {
     -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_vouch_response_file}"                   \
-    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_vouch_tag}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
     > "${z_vouch_status_file}" || buc_die "HEAD request failed for -vouch artifact"
 
   local z_vouch_http_code
@@ -1626,58 +1672,60 @@ rbf_abjure() {
   fi
 
   # Evaluate ark state
-  if test "${z_image_exists}" = "false" && test "${z_about_exists}" = "false"; then
-    buc_die "Ark not found: neither -image nor -about exists"
+  if test "${#z_existing_image_tags[@]}" -eq 0 && test "${z_about_exists}" = "false"; then
+    buc_die "Ark not found: no image tags and no -about exists for ${RBRV_SIGIL}/${z_consecration}"
   fi
 
-  if test "${z_image_exists}" = "true" && test "${z_about_exists}" = "false"; then
-    buc_warn "Orphaned artifact detected: -image exists but -about is missing"
-  elif test "${z_image_exists}" = "false" && test "${z_about_exists}" = "true"; then
-    buc_warn "Orphaned artifact detected: -about exists but -image is missing"
+  if test "${#z_existing_image_tags[@]}" -gt 0 && test "${z_about_exists}" = "false"; then
+    buc_warn "Orphaned artifact detected: image tags exist but -about is missing"
+  elif test "${#z_existing_image_tags[@]}" -eq 0 && test "${z_about_exists}" = "true"; then
+    buc_warn "Orphaned artifact detected: -about exists but no image tags found"
   fi
 
   # Confirm abjuration unless --force
   if test "${z_skip_confirm}" = "false"; then
-    local z_confirm_msg="Will abjure ark ${z_vessel}/${z_consecration}:"
-    if test "${z_image_exists}" = "true"; then
-      z_confirm_msg="${z_confirm_msg}\n  - ${z_vessel}:${z_image_tag}"
-    fi
+    local z_confirm_msg="Will abjure ark ${RBRV_SIGIL}/${z_consecration}:"
+    for z_img_tag in "${z_existing_image_tags[@]}"; do
+      z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_img_tag}"
+    done
     if test "${z_about_exists}" = "true"; then
-      z_confirm_msg="${z_confirm_msg}\n  - ${z_vessel}:${z_about_tag}"
+      z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_about_tag}"
     fi
     if test "${z_vouch_exists}" = "true"; then
-      z_confirm_msg="${z_confirm_msg}\n  - ${z_vessel}:${z_vouch_tag}"
+      z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_vouch_tag}"
     fi
     buc_require "${z_confirm_msg}" "yes"
   fi
 
-  # Delete -image artifact if exists
-  if test "${z_image_exists}" = "true"; then
-    buc_step "Deleting -image artifact"
+  # Delete all existing image tags
+  local z_img_del_idx=0
+  for z_img_tag in "${z_existing_image_tags[@]}"; do
+    buc_step "Deleting image tag: ${z_img_tag}"
 
-    local z_delete_image_status="${ZRBF_DELETE_PREFIX}delete_image_status.txt"
-    local z_delete_image_response="${ZRBF_DELETE_PREFIX}delete_image_response.json"
+    local z_delete_img_status="${ZRBF_DELETE_PREFIX}delete_image_${z_img_del_idx}_status.txt"
+    local z_delete_img_response="${ZRBF_DELETE_PREFIX}delete_image_${z_img_del_idx}_response.json"
 
     curl -X DELETE -s                                   \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
-      -o "${z_delete_image_response}"                   \
-      "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_image_tag}" \
-      > "${z_delete_image_status}" || buc_die "DELETE request failed for -image"
+      -o "${z_delete_img_response}"                     \
+      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_img_tag}" \
+      > "${z_delete_img_status}" || buc_die "DELETE request failed for image tag: ${z_img_tag}"
 
-    local z_delete_image_code
-    z_delete_image_code=$(<"${z_delete_image_status}")
-    test -n "${z_delete_image_code}" || buc_die "HTTP status code is empty for -image delete"
+    local z_delete_img_code
+    z_delete_img_code=$(<"${z_delete_img_status}")
+    test -n "${z_delete_img_code}" || buc_die "HTTP status code is empty for image tag delete: ${z_img_tag}"
 
-    if test "${z_delete_image_code}" != "202" && test "${z_delete_image_code}" != "204"; then
-      buc_warn "Response body: $(cat "${z_delete_image_response}" 2>/dev/null || echo 'empty')"
-      buc_die "Failed to delete -image artifact (HTTP ${z_delete_image_code})"
+    if test "${z_delete_img_code}" != "202" && test "${z_delete_img_code}" != "204"; then
+      buc_warn "Response body: $(cat "${z_delete_img_response}" 2>/dev/null || echo 'empty')"
+      buc_die "Failed to delete image tag ${z_img_tag} (HTTP ${z_delete_img_code})"
     fi
 
-    buc_info "Deleted: ${z_vessel}:${z_image_tag}"
-  fi
+    buc_info "Deleted: ${RBRV_SIGIL}:${z_img_tag}"
+    z_img_del_idx=$((z_img_del_idx + 1))
+  done
 
   # Delete -about artifact if exists
   if test "${z_about_exists}" = "true"; then
@@ -1692,7 +1740,7 @@ rbf_abjure() {
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_about_response}"                   \
-      "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_about_tag}" \
+      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
       > "${z_delete_about_status}" || buc_die "DELETE request failed for -about"
 
     local z_delete_about_code
@@ -1704,7 +1752,7 @@ rbf_abjure() {
       buc_die "Failed to delete -about artifact (HTTP ${z_delete_about_code})"
     fi
 
-    buc_info "Deleted: ${z_vessel}:${z_about_tag}"
+    buc_info "Deleted: ${RBRV_SIGIL}:${z_about_tag}"
   fi
 
   # Delete -vouch artifact if exists (optional — older arks won't have one)
@@ -1720,7 +1768,7 @@ rbf_abjure() {
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_vouch_response}"                   \
-      "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_vouch_tag}" \
+      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
       > "${z_delete_vouch_status}" || buc_die "DELETE request failed for -vouch"
 
     local z_delete_vouch_code
@@ -1732,20 +1780,20 @@ rbf_abjure() {
       buc_die "Failed to delete -vouch artifact (HTTP ${z_delete_vouch_code})"
     fi
 
-    buc_info "Deleted: ${z_vessel}:${z_vouch_tag}"
+    buc_info "Deleted: ${RBRV_SIGIL}:${z_vouch_tag}"
   fi
 
   # Display results
   echo ""
-  buc_success "Ark abjured: ${z_vessel}/${z_consecration}"
-  if test "${z_image_exists}" = "true"; then
-    echo "  - ${z_vessel}:${z_image_tag} deleted"
-  fi
+  buc_success "Ark abjured: ${RBRV_SIGIL}/${z_consecration}"
+  for z_img_tag in "${z_existing_image_tags[@]}"; do
+    echo "  - ${RBRV_SIGIL}:${z_img_tag} deleted"
+  done
   if test "${z_about_exists}" = "true"; then
-    echo "  - ${z_vessel}:${z_about_tag} deleted"
+    echo "  - ${RBRV_SIGIL}:${z_about_tag} deleted"
   fi
   if test "${z_vouch_exists}" = "true"; then
-    echo "  - ${z_vessel}:${z_vouch_tag} deleted"
+    echo "  - ${RBRV_SIGIL}:${z_vouch_tag} deleted"
   fi
 }
 
@@ -1997,8 +2045,7 @@ rbf_vouch() {
       || z_head_status=$?
 
     if test "${z_head_status}" -ne 0; then
-      printf "  %-14s %-14s %-12s %s\n" "${z_platform_display}" "FETCH_ERROR" "-" "-" >> "${z_report_file}"
-      continue
+      buc_die "Failed to fetch manifest for ${RBRV_SIGIL}:${z_tag} (platform ${z_platform_display}) — build may be incomplete"
     fi
 
     # Extract Docker-Content-Digest header
@@ -2006,8 +2053,7 @@ rbf_vouch() {
     z_digest=$(grep -i '^docker-content-digest:' "${z_digest_headers}" | tr -d '\r' | awk '{print $2}')
 
     if test -z "${z_digest}"; then
-      printf "  %-14s %-14s %-12s %s\n" "${z_platform_display}" "NO_DIGEST" "-" "-" >> "${z_report_file}"
-      continue
+      buc_die "No digest found for ${RBRV_SIGIL}:${z_tag} (platform ${z_platform_display}) — build may be incomplete"
     fi
 
     local z_digest_short="${z_digest#sha256:}"
