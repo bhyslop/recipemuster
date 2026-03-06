@@ -6038,6 +6038,7 @@
         "₢AlAAZ",
         "₢AlAAY",
         "₢AlAAX",
+        "₢AlAAa",
         "₢AlAAM",
         "₢AlAAH",
         "₢AlAAG",
@@ -6046,7 +6047,7 @@
         "₢AlAAB",
         "₢AlAAA"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6822,6 +6823,17 @@
               "text": "Fix three issues discovered in ₢AlAAW review:\n\n1. **Abjure orphans suffixed image tags**: After stitch unification,\n   single-platform vessels have both suffixed and bare image tags.\n   Abjure only deletes the bare tag, orphaning the suffixed one.\n   Fix: add vessel_dir parameter to abjure (or enumerate tags from\n   GAR matching inscribe_ts) so all image tags are deleted.\n\n2. **Vouch soft-skips missing platform tags**: rbf_vouch continues\n   silently when a deterministically-constructed platform tag is\n   missing (FETCH_ERROR/NO_DIGEST). Since tags are derived from\n   vessel config, a missing tag means the build is incomplete.\n   Change continue to buc_die.\n\n3. **RBS0 consecration tag examples inaccurate**: Line showing\n   CONSECRATION-image is wrong — image tags use inscribe TS only\n   and now include platform suffixes. Update examples to reflect\n   the actual tag scheme post-unification.",
               "silks": "fix-abjure-orphan-vouch-hardening",
               "commit": "50a1af4"
+            }
+          ]
+        },
+        "₢AlAAa": {
+          "tacks": [
+            {
+              "ts": "260306-1136",
+              "state": "rough",
+              "text": "Run the SLSA provenance e2e test (rbtcsl_SlsaProvenance) against live GCP\ninfrastructure on depot demo1025. This exercises conjure → check consecrations\n→ vouch (assert Level 3) → abjure on rbev-busybox (3-platform).\n\nFix any issues discovered during the run.\n\n## Acceptance Criteria\n\n- rbtcsl_provenance_tcase passes on rbev-busybox\n- Any code fixes committed before wrapping",
+              "silks": "e2e-slsa-provenance-test-run",
+              "commit": "087388a"
             }
           ]
         }
