@@ -75,6 +75,7 @@
 :rbtga_consecration:         <<rbtga_consecration,Consecration>>
 :rbtga_ark_image:            <<rbtga_ark_image,Ark Image Artifact>>
 :rbtga_ark_about:            <<rbtga_ark_about,Ark About Artifact>>
+:rbtga_ark_vouch:            <<rbtga_ark_vouch,Ark Vouch Artifact>>
 
 // Recipe Bottle Term Google Rubric (per-vessel build definition)
 :rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
@@ -1362,6 +1363,9 @@ An ark comprises the
 (`-image` suffix) containing the container image and the
 {rbtga_ark_about}
 (`-about` suffix) containing build provenance and metadata.
+Optionally, an ark includes the
+{rbtga_ark_vouch}
+(`-vouch` suffix) recording verified SLSA provenance facts.
 Arks are conjured atomically by
 {rbtgo_ark_conjure}
 and abjured atomically by
@@ -1382,7 +1386,7 @@ the build timestamp records when
 {gcb_service}
 executed the build.
 Hyphen delimits major concepts; underscore separates date from time within each timestamp.
-Combined with vessel to form complete artifact tags: `«VESSEL»:«CONSECRATION»-image` and `«VESSEL»:«CONSECRATION»-about`.
+Combined with vessel to form complete artifact tags: `«VESSEL»:«CONSECRATION»-image`, `«VESSEL»:«CONSECRATION»-about`, and optionally `«VESSEL»:«CONSECRATION»-vouch`.
 For multi-platform vessels, per-platform tags append a platform suffix: `«VESSEL»:«INSCRIBE_TS»-image-amd64`, `«VESSEL»:«INSCRIBE_TS»-image-arm64`.
 These are internal build plumbing; the consumer-facing tag uses the full consecration without platform suffix.
 
@@ -1418,6 +1422,20 @@ is generated separately by Google as a signed attestation on the built image.
 Each platform's layer contains that architecture's SBOM and `build_info.json`.
 The `-about` container mirrors the `-image` container's platform list — consumers pulling `-about` for a specific platform get that platform's metadata.
 Reuses the buildx builder instance from the main image build.
+
+[[rbtga_ark_vouch]]
+//axl_voices axig_generic_artifact
+{rbtga_ark_vouch}::
+The verification artifact within an
+{rbtga_ark},
+tagged with the `-vouch` suffix.
+Contains post-build SLSA provenance assessment for each per-platform image, queried from Container Analysis after
+{gcb_service}
+generates provenance.
+Built locally by the
+{rbtr_director}
+after trigger-dispatched build completion.
+Single-platform (`FROM scratch`, linux/amd64) — content is platform-independent JSON describing per-platform SLSA facts.
 
 === Rubric Definitions
 

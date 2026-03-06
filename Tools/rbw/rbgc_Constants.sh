@@ -122,6 +122,7 @@ zrbgc_kindle() {
   # Ark Artifact Suffixes
   readonly RBGC_ARK_SUFFIX_IMAGE="-image"
   readonly RBGC_ARK_SUFFIX_ABOUT="-about"
+  readonly RBGC_ARK_SUFFIX_VOUCH="-vouch"
 
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"

@@ -95,6 +95,10 @@ zrbf_kindle() {
   readonly ZRBF_INSCRIBE_CLONE_DIR="${RBGC_RUBRIC_CLONE_DIR}"
   readonly ZRBF_INSCRIBE_STALENESS_SEC=86400
 
+  buc_log_args 'Define output files (BURD_OUTPUT_DIR — persists after dispatch)'
+  readonly ZRBF_OUTPUT_VESSEL_DIR="${BURD_OUTPUT_DIR}/rbf_vessel_dir.txt"
+  readonly ZRBF_OUTPUT_CONSECRATION="${BURD_OUTPUT_DIR}/rbf_consecration.txt"
+
   buc_log_args 'For now lets double check these'
   test -n "${RBRR_GCB_ORAS_IMAGE_REF:-}"   || buc_die "RBRR_GCB_ORAS_IMAGE_REF not set"
 
@@ -206,31 +210,29 @@ zrbf_stitch_build_json() {
     )
   fi
 
-  # Compute platform suffixes for multi-platform (used in images: field and substitutions)
-  # linux/amd64 → -amd64, linux/arm64 → -arm64, linux/arm/v7 → -armv7
+  # Compute platform suffixes (used in images: field and substitutions)
+  # Always computed: linux/amd64 → -amd64, linux/arm64 → -arm64, linux/arm/v7 → -armv7
   local z_platform_suffixes=""
   local z_platform_suffixes_csv=""
-  if test "${z_is_multi_platform}" = "true"; then
-    local z_remaining_plats="${z_platforms}"
-    local z_plat=""
-    local z_suffix=""
-    while test -n "${z_remaining_plats}"; do
-      z_plat="${z_remaining_plats%%,*}"
-      # Strip linux/ prefix, collapse remaining slashes: linux/arm/v7 → armv7
-      z_suffix="${z_plat#linux/}"
-      z_suffix="${z_suffix//\//}"
-      z_suffix="-${z_suffix}"
-      if test -n "${z_platform_suffixes}"; then
-        z_platform_suffixes="${z_platform_suffixes},${z_suffix}"
-      else
-        z_platform_suffixes="${z_suffix}"
-      fi
-      test "${z_remaining_plats}" = "${z_plat}" && break
-      z_remaining_plats="${z_remaining_plats#*,}"
-    done
-    z_platform_suffixes_csv="${z_platform_suffixes}"
-    buc_log_args "Platform suffixes: ${z_platform_suffixes_csv}"
-  fi
+  local z_remaining_plats="${z_platforms}"
+  local z_plat=""
+  local z_suffix=""
+  while test -n "${z_remaining_plats}"; do
+    z_plat="${z_remaining_plats%%,*}"
+    # Strip linux/ prefix, collapse remaining slashes: linux/arm/v7 → armv7
+    z_suffix="${z_plat#linux/}"
+    z_suffix="${z_suffix//\//}"
+    z_suffix="-${z_suffix}"
+    if test -n "${z_platform_suffixes}"; then
+      z_platform_suffixes="${z_platform_suffixes},${z_suffix}"
+    else
+      z_platform_suffixes="${z_suffix}"
+    fi
+    test "${z_remaining_plats}" = "${z_plat}" && break
+    z_remaining_plats="${z_remaining_plats#*,}"
+  done
+  z_platform_suffixes_csv="${z_platform_suffixes}"
+  buc_log_args "Platform suffixes: ${z_platform_suffixes_csv}"
 
   local z_def=""
   local z_script=""
@@ -299,12 +301,35 @@ zrbf_stitch_build_json() {
   local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
 
   if test "${z_is_multi_platform}" = "false"; then
-    # Single-platform: one image in images: field
+    # Single-platform: two images in images: field (suffixed + bare consumer tag)
+    # Build images array from platform suffix, then add bare consumer tag
+    local z_images_file="${ZRBF_STITCH_PREFIX}images.json"
+    echo "[]" > "${z_images_file}" || buc_die "Failed to initialize images JSON"
+    local z_img_remaining="${z_platform_suffixes_csv}"
+    local z_img_suffix=""
+    local z_img_tmp="${ZRBF_STITCH_PREFIX}images_tmp.json"
+    local z_img_uri_template="\${_RBGY_GAR_LOCATION}\${_RBGY_GAR_HOST_SUFFIX}/\${_RBGY_GAR_PROJECT}/\${_RBGY_GAR_REPOSITORY}/\${_RBGY_MONIKER}:\${_RBGY_INSCRIBE_TIMESTAMP}\${_RBGY_ARK_SUFFIX_IMAGE}"
+    # Add per-platform suffixed tag(s)
+    while test -n "${z_img_remaining}"; do
+      z_img_suffix="${z_img_remaining%%,*}"
+      jq --arg uri "${z_img_uri_template}${z_img_suffix}" '. + [$uri]' \
+        "${z_images_file}" > "${z_img_tmp}" || buc_die "Failed to add image to array"
+      mv "${z_img_tmp}" "${z_images_file}" || buc_die "Failed to update images JSON"
+      test "${z_img_remaining}" = "${z_img_suffix}" && break
+      z_img_remaining="${z_img_remaining#*,}"
+    done
+    # Add bare consumer tag (no platform suffix)
+    jq --arg uri "${z_img_uri_template}" '. + [$uri]' \
+      "${z_images_file}" > "${z_img_tmp}" || buc_die "Failed to add bare consumer image to array"
+    mv "${z_img_tmp}" "${z_images_file}" || buc_die "Failed to update images JSON"
+
     jq -n \
       --slurpfile zjq_steps  "${z_accumulator_file}" \
+      --slurpfile zjq_images "${z_images_file}" \
       --arg zjq_dockerfile     "${z_dockerfile_name}" \
       --arg zjq_moniker        "${z_sigil}" \
       --arg zjq_platforms      "${z_platforms}" \
+      --arg zjq_platform_suffixes "${z_platform_suffixes_csv}" \
       --arg zjq_gar_location   "${RBGD_GAR_LOCATION}" \
       --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}" \
       --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}" \
@@ -325,6 +350,7 @@ zrbf_stitch_build_json() {
           _RBGY_DOCKERFILE:          $zjq_dockerfile,
           _RBGY_MONIKER:             $zjq_moniker,
           _RBGY_PLATFORMS:           $zjq_platforms,
+          _RBGY_PLATFORM_SUFFIXES:   $zjq_platform_suffixes,
           _RBGY_GAR_LOCATION:        $zjq_gar_location,
           _RBGY_GAR_PROJECT:         $zjq_gar_project,
           _RBGY_GAR_REPOSITORY:      $zjq_gar_repository,
@@ -338,7 +364,7 @@ zrbf_stitch_build_json() {
           _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
           _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
         },
-        images: ["${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}"],
+        images: $zjq_images[0],
         options: {
           requestedVerifyOption: "VERIFIED",
           logging: "CLOUD_LOGGING_ONLY",
@@ -619,6 +645,65 @@ rbf_build() {
 
   # Wait for completion (5s intervals, up to 80 minutes)
   zrbf_wait_build_completion
+
+  # Discover consecration for output
+  buc_step "Discovering consecration from build result"
+
+  local z_inscribe_ts=""
+  z_inscribe_ts=$(jq -r '.substitutions._RBGY_INSCRIBE_TIMESTAMP // empty' "${ZRBF_BUILD_STATUS_FILE}") \
+    || buc_die "Failed to extract inscribe timestamp from build response"
+  test -n "${z_inscribe_ts}" || buc_die "Inscribe timestamp empty in build response"
+  buc_info "Inscribe timestamp: ${z_inscribe_ts}"
+
+  buc_step "Fetching fresh token for GAR query"
+  local z_output_token=""
+  z_output_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get OAuth token for consecration discovery"
+
+  local -r z_output_tags_file="${BURD_TEMP_DIR}/rbf_output_tags.json"
+  curl -sL \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_output_token}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/tags/list" \
+    > "${z_output_tags_file}" 2>/dev/null \
+    || buc_die "Failed to query GAR tags for consecration discovery"
+
+  # Find the -about tag matching our inscribe timestamp
+  # About tag format: {INSCRIBE_TS}-b{BUILD_TS}-about
+  local -r z_output_about_tags_file="${BURD_TEMP_DIR}/rbf_output_about_tags.txt"
+  jq -r '.tags[]? // empty' "${z_output_tags_file}" > "${z_output_about_tags_file}"
+
+  # Load tags and search (BCG: load-then-iterate, no piped while-read)
+  local z_about_tags=()
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_about_tags+=("${z_line}")
+  done < "${z_output_about_tags_file}"
+
+  local z_found_consecration=""
+  local z_about_candidate=""
+  for z_about_candidate in "${z_about_tags[@]}"; do
+    # Match: starts with inscribe_ts, ends with RBGC_ARK_SUFFIX_ABOUT
+    case "${z_about_candidate}" in
+      "${z_inscribe_ts}"*"${RBGC_ARK_SUFFIX_ABOUT}")
+        # Strip the -about suffix to get the consecration
+        z_found_consecration="${z_about_candidate%${RBGC_ARK_SUFFIX_ABOUT}}"
+        break
+        ;;
+    esac
+  done
+
+  test -n "${z_found_consecration}" \
+    || buc_die "No -about tag found matching inscribe timestamp ${z_inscribe_ts}"
+  buc_info "Discovered consecration: ${z_found_consecration}"
+
+  # Persist to output directory for test harness consumption
+  echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
+    || buc_die "Failed to write vessel dir to output"
+  echo "${z_found_consecration}" > "${ZRBF_OUTPUT_CONSECRATION}" \
+    || buc_die "Failed to write consecration to output"
+  buc_info "Output: ${ZRBF_OUTPUT_VESSEL_DIR}"
+  buc_info "Output: ${ZRBF_OUTPUT_CONSECRATION}"
 
   buc_success "Vessel image built: ${RBRV_SIGIL}"
 }
@@ -958,12 +1043,16 @@ rbf_summon() {
   # Documentation block
   buc_doc_brief "Summon an ark (pull both -image and -about artifacts as a coherent unit)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
-  buc_doc_param "consecration" "Consecration timestamp (e.g., 20250206T120000Z)"
+  buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
   buc_doc_shown || return 0
 
   buc_log_args "Validate parameters"
   test -n "${z_vessel}" || buc_die "Vessel parameter required"
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
+
+  # Derive inscribe timestamp from full consecration
+  local -r z_inscribe_ts="${z_consecration%%-b*}"
+  test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from consecration"
 
   buc_step "Authenticating for retrieval"
 
@@ -981,8 +1070,8 @@ rbf_summon() {
   local z_token
   z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token"
 
-  # Construct ark tags
-  local z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  # Construct ark tags — image uses inscribe TS only, about uses full consecration
+  local z_image_tag="${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}"
   local z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
 
   buc_step "Verifying ark existence"
@@ -1428,15 +1517,19 @@ rbf_abjure() {
   local z_force="${3:-}"
 
   # Documentation block
-  buc_doc_brief "Abjure an ark (delete both -image and -about artifacts as a coherent unit)"
+  buc_doc_brief "Abjure an ark (delete -image, -about, and -vouch artifacts as a coherent unit)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
-  buc_doc_param "consecration" "Consecration timestamp (e.g., 20250206T120000Z)"
+  buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
 
   # Validate parameters
   test -n "${z_vessel}" || buc_die "Vessel parameter required"
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
+
+  # Derive inscribe timestamp from full consecration
+  local -r z_inscribe_ts="${z_consecration%%-b*}"
+  test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from consecration"
 
   # Check for --force flag in remaining arguments
   local z_skip_confirm=false
@@ -1450,9 +1543,10 @@ rbf_abjure() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  # Construct ark tags
-  local z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  # Construct ark tags — image uses inscribe TS only, about/vouch use full consecration
+  local z_image_tag="${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}"
   local z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
 
   buc_step "Verifying ark existence"
 
@@ -1506,6 +1600,31 @@ rbf_abjure() {
     buc_die "Unexpected HTTP status ${z_about_http_code} when checking -about artifact"
   fi
 
+  # Check if -vouch artifact exists (optional — older arks won't have one)
+  local z_vouch_status_file="${ZRBF_DELETE_PREFIX}vouch_status.txt"
+  local z_vouch_response_file="${ZRBF_DELETE_PREFIX}vouch_response.json"
+
+  curl --head -s                                     \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
+    -H "Authorization: Bearer ${z_token}"           \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -w "%{http_code}"                               \
+    -o "${z_vouch_response_file}"                   \
+    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_vouch_tag}" \
+    > "${z_vouch_status_file}" || buc_die "HEAD request failed for -vouch artifact"
+
+  local z_vouch_http_code
+  z_vouch_http_code=$(<"${z_vouch_status_file}")
+  test -n "${z_vouch_http_code}" || buc_die "HTTP status code is empty for -vouch"
+
+  local z_vouch_exists=false
+  if test "${z_vouch_http_code}" = "200"; then
+    z_vouch_exists=true
+  elif test "${z_vouch_http_code}" != "404"; then
+    buc_die "Unexpected HTTP status ${z_vouch_http_code} when checking -vouch artifact"
+  fi
+
   # Evaluate ark state
   if test "${z_image_exists}" = "false" && test "${z_about_exists}" = "false"; then
     buc_die "Ark not found: neither -image nor -about exists"
@@ -1525,6 +1644,9 @@ rbf_abjure() {
     fi
     if test "${z_about_exists}" = "true"; then
       z_confirm_msg="${z_confirm_msg}\n  - ${z_vessel}:${z_about_tag}"
+    fi
+    if test "${z_vouch_exists}" = "true"; then
+      z_confirm_msg="${z_confirm_msg}\n  - ${z_vessel}:${z_vouch_tag}"
     fi
     buc_require "${z_confirm_msg}" "yes"
   fi
@@ -1585,6 +1707,34 @@ rbf_abjure() {
     buc_info "Deleted: ${z_vessel}:${z_about_tag}"
   fi
 
+  # Delete -vouch artifact if exists (optional — older arks won't have one)
+  if test "${z_vouch_exists}" = "true"; then
+    buc_step "Deleting -vouch artifact"
+
+    local z_delete_vouch_status="${ZRBF_DELETE_PREFIX}delete_vouch_status.txt"
+    local z_delete_vouch_response="${ZRBF_DELETE_PREFIX}delete_vouch_response.json"
+
+    curl -X DELETE -s                                   \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
+      -H "Authorization: Bearer ${z_token}"             \
+      -w "%{http_code}"                                 \
+      -o "${z_delete_vouch_response}"                   \
+      "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_vouch_tag}" \
+      > "${z_delete_vouch_status}" || buc_die "DELETE request failed for -vouch"
+
+    local z_delete_vouch_code
+    z_delete_vouch_code=$(<"${z_delete_vouch_status}")
+    test -n "${z_delete_vouch_code}" || buc_die "HTTP status code is empty for -vouch delete"
+
+    if test "${z_delete_vouch_code}" != "202" && test "${z_delete_vouch_code}" != "204"; then
+      buc_warn "Response body: $(cat "${z_delete_vouch_response}" 2>/dev/null || echo 'empty')"
+      buc_die "Failed to delete -vouch artifact (HTTP ${z_delete_vouch_code})"
+    fi
+
+    buc_info "Deleted: ${z_vessel}:${z_vouch_tag}"
+  fi
+
   # Display results
   echo ""
   buc_success "Ark abjured: ${z_vessel}/${z_consecration}"
@@ -1593,6 +1743,9 @@ rbf_abjure() {
   fi
   if test "${z_about_exists}" = "true"; then
     echo "  - ${z_vessel}:${z_about_tag} deleted"
+  fi
+  if test "${z_vouch_exists}" = "true"; then
+    echo "  - ${z_vessel}:${z_vouch_tag} deleted"
   fi
 }
 
@@ -1643,7 +1796,7 @@ rbf_check_consecrations() {
   fi
 
   # Extract tags and group by inscribe timestamp
-  # Tags matching: i\d{8}_\d{6}-image[-suffix] or i\d{8}_\d{6}-about or i\d{8}_\d{6}-multi
+  # Tags matching: i\d{8}_\d{6}-image[-suffix] or i\d{8}_\d{6}-b...-about or i\d{8}_\d{6}-b...-vouch or i\d{8}_\d{6}-multi
   local -r z_raw_file="${BURD_TEMP_DIR}/rbf_dc_raw.txt"
   local -r z_all_tags_file="${BURD_TEMP_DIR}/rbf_dc_all_tags.txt"
   jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}"
@@ -1657,7 +1810,7 @@ rbf_check_consecrations() {
       continue
     fi
 
-    # Classify the tag
+    # Classify the tag — vouch checked before about since -vouch could false-match -about pattern
     if [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}" ]] || [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}"-* ]]; then
       # -image or -image-amd64 etc
       local z_suffix="${z_tag#*${RBGC_ARK_SUFFIX_IMAGE}}"
@@ -1666,6 +1819,8 @@ rbf_check_consecrations() {
       else
         echo "${z_ts}|image|${z_suffix#-}"
       fi
+    elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_VOUCH}" ]]; then
+      echo "${z_ts}|vouch|"
     elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_ABOUT}" ]]; then
       echo "${z_ts}|about|"
     elif [[ "${z_tag}" == *"-multi" ]]; then
@@ -1690,11 +1845,13 @@ rbf_check_consecrations() {
         if (prev_ts != "") {
           # Print previous group
           plat_str = (platform_count > 0) ? platforms : "single"
-          printf "  %-22s %-30s %d image + %d about\n", prev_ts, plat_str, image_count, about_count
+          vouch_str = (vouch_count > 0) ? " + " vouch_count " vouch" : ""
+          printf "  %-22s %-30s %d image + %d about%s\n", prev_ts, plat_str, image_count, about_count, vouch_str
         }
         prev_ts = ts
         image_count = 0
         about_count = 0
+        vouch_count = 0
         platform_count = 0
         platforms = ""
       }
@@ -1708,12 +1865,15 @@ rbf_check_consecrations() {
         }
       } else if (type == "about") {
         about_count++
+      } else if (type == "vouch") {
+        vouch_count++
       }
     }
     END {
       if (prev_ts != "") {
         plat_str = (platform_count > 0) ? platforms : "single"
-        printf "  %-22s %-30s %d image + %d about\n", prev_ts, plat_str, image_count, about_count
+        vouch_str = (vouch_count > 0) ? " + " vouch_count " vouch" : ""
+        printf "  %-22s %-30s %d image + %d about%s\n", prev_ts, plat_str, image_count, about_count, vouch_str
       }
     }
   ' > "${z_report_file}"
@@ -1736,6 +1896,7 @@ rbf_vouch() {
 
   buc_doc_brief "Verify SLSA provenance on a vessel's per-platform images via Container Analysis API"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_param "consecration" "Full consecration timestamp (e.g., i20260305_133650-b20260305_160530)"
   buc_doc_shown || return 0
 
   # No-arg: list available vessels
@@ -1758,55 +1919,45 @@ rbf_vouch() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  # Find the most recent consecration by querying GAR tags
-  buc_step "Querying GAR tags for ${RBRV_SIGIL}"
-  local -r z_tags_file="${BURD_TEMP_DIR}/rbf_rv_tags.json"
-  curl -sL \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/tags/list" \
-    > "${z_tags_file}" 2>/dev/null || buc_die "Failed to fetch tags"
+  # Consecration parameter (required)
+  local -r z_consecration="${2:-}"
+  test -n "${z_consecration}" || buc_die "Consecration parameter required"
 
-  if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
-    local z_err
-    z_err=$(jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}")
-    buc_die "Registry API error: ${z_err}"
-  fi
-
-  # Find all -image tags and extract inscribe timestamps, pick most recent
-  local -r z_image_tags_file="${BURD_TEMP_DIR}/rbf_rv_image_tags.txt"
-  local -r z_rv_all_tags_file="${BURD_TEMP_DIR}/rbf_rv_all_tags.txt"
-  local -r z_rv_unsorted_file="${BURD_TEMP_DIR}/rbf_rv_unsorted.txt"
-  jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_rv_all_tags_file}"
-
-  while IFS= read -r z_tag || test -n "${z_tag}"; do
-    if [[ "${z_tag}" =~ ^(i[0-9]{8}_[0-9]{6})${RBGC_ARK_SUFFIX_IMAGE}(.*)$ ]]; then
-      echo "${BASH_REMATCH[1]}|${z_tag}|${BASH_REMATCH[2]}"
-    fi
-  done < "${z_rv_all_tags_file}" > "${z_rv_unsorted_file}"
-  sort -t'|' -k1,1r "${z_rv_unsorted_file}" > "${z_image_tags_file}"
-
-  if ! test -s "${z_image_tags_file}"; then
-    buc_die "No -image tags found for ${RBRV_SIGIL}"
-  fi
-
-  # Most recent consecration timestamp
-  local z_consecration
-  z_consecration=$(head -1 "${z_image_tags_file}" | cut -d'|' -f1)
-  test -n "${z_consecration}" || buc_die "Failed to extract consecration timestamp"
+  # Derive inscribe timestamp from consecration (glob, not regex)
+  local -r z_inscribe_ts="${z_consecration%%-b*}"
+  test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from consecration"
 
   buc_info "Vouching consecration: ${z_consecration}"
+  buc_info "Inscribe timestamp: ${z_inscribe_ts}"
 
-  # Collect all -image tags for this consecration
-  local -r z_vouch_tags_file="${BURD_TEMP_DIR}/rbf_rv_vouch_tags.txt"
-  grep "^${z_consecration}|" "${z_image_tags_file}" > "${z_vouch_tags_file}"
+  # Compute platform suffixes from vessel config
+  local z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
+  local z_platform_names=()
+  local z_platform_suffixes=()
+  local z_remaining_plats="${z_platforms}"
+  local z_plat=""
+  local z_suffix=""
 
-  # Load vouch tags (BCG load-then-iterate: close file before complex processing)
+  # Build parallel arrays of platform names and image tag suffixes
+  while test -n "${z_remaining_plats}"; do
+    z_plat="${z_remaining_plats%%,*}"
+    z_platform_names+=("${z_plat}")
+    # linux/amd64 → -amd64, linux/arm/v7 → -armv7
+    z_suffix="${z_plat#linux/}"
+    z_suffix="${z_suffix//\//}"
+    z_platform_suffixes+=("-${z_suffix}")
+    test "${z_remaining_plats}" = "${z_plat}" && break
+    z_remaining_plats="${z_remaining_plats#*,}"
+  done
+
+  # Construct vouch entries deterministically (no tag scraping)
+  # Format: inscribe_ts|image_tag|platform_suffix|platform_name
   local z_vouch_lines=()
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    z_vouch_lines+=("${z_line}")
-  done < "${z_vouch_tags_file}"
+  local z_idx=0
+  for z_idx in "${!z_platform_names[@]}"; do
+    local z_img_tag="${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}"
+    z_vouch_lines+=("${z_inscribe_ts}|${z_img_tag}|${z_platform_suffixes[$z_idx]}|${z_platform_names[$z_idx]}")
+  done
 
   # For each -image tag: resolve digest, query Container Analysis
   local -r z_report_file="${BURD_TEMP_DIR}/rbf_rv_report.txt"
@@ -1814,20 +1965,17 @@ rbf_vouch() {
 
   local z_all_build_ids=""
   local z_tag_count=0
+  local -r z_vouch_platforms_file="${BURD_TEMP_DIR}/rbf_rv_vouch_platforms.json"
+  > "${z_vouch_platforms_file}"
 
   local z_vouch_entry=""
   for z_vouch_entry in "${z_vouch_lines[@]}"; do
-    local z_ts z_tag z_plat_suffix
-    IFS='|' read -r z_ts z_tag z_plat_suffix <<< "${z_vouch_entry}"
+    local z_ts z_tag z_plat_suffix z_platform_name
+    IFS='|' read -r z_ts z_tag z_plat_suffix z_platform_name <<< "${z_vouch_entry}"
     z_tag_count=$((z_tag_count + 1))
 
-    # Determine platform display name
-    local z_platform_display=""
-    if test -z "${z_plat_suffix}"; then
-      z_platform_display="(consumer)"
-    else
-      z_platform_display="${z_plat_suffix#-}"
-    fi
+    # Platform display name from vessel config
+    local z_platform_display="${z_platform_name}"
 
     # Resolve digest via Docker Registry v2 API (HEAD for manifest)
     buc_log_args "Resolving digest for ${RBRV_SIGIL}:${z_tag}"
@@ -1918,6 +2066,43 @@ rbf_vouch() {
     local z_occ_count=""
     z_occ_count=$(jq -r '.occurrences | length // 0' "${z_ca_resp}" 2>/dev/null) || z_occ_count="0"
 
+    # Extract predicate type versions present in occurrences
+    local z_pred_types=""
+    z_pred_types=$(jq -r '
+      [.occurrences[]? | .build.intotoStatement.predicateType // empty] |
+      unique | map(
+        if test("v1$") then "v1"
+        elif test("v0\\.1") then "v0.1"
+        else .
+        end
+      ) | unique | join(",")
+    ' "${z_ca_resp}" 2>/dev/null) || z_pred_types=""
+    if test -z "${z_pred_types}"; then
+      z_pred_types="unknown"
+    fi
+
+    # Accumulate per-platform vouch data as JSON fragment
+    local z_slsa_level_int=0
+    if [[ "${z_level_direct}" =~ ^[0-9]+$ ]]; then
+      z_slsa_level_int="${z_level_direct}"
+    fi
+    local z_plat_json_file="${BURD_TEMP_DIR}/rbf_rv_plat_${z_tag_count}.json"
+    jq -n \
+      --arg platform "${z_platform_display}" \
+      --arg image_digest "${z_digest}" \
+      --argjson slsa_build_level "${z_slsa_level_int}" \
+      --arg build_invocation_id "${z_build_id}" \
+      --arg predicate_types "${z_pred_types}" \
+      '{
+        platform: $platform,
+        image_digest: $image_digest,
+        slsa_build_level: $slsa_build_level,
+        build_invocation_id: $build_invocation_id,
+        predicate_types: ($predicate_types | split(","))
+      }' > "${z_plat_json_file}" 2>/dev/null \
+      || buc_die "Failed to generate platform vouch JSON for ${z_platform_display}"
+    echo "${z_plat_json_file}" >> "${z_vouch_platforms_file}"
+
     printf "  %-14s %-14s %-12s %-12s %s\n" \
       "${z_platform_display}" "${z_digest_short}" "${z_level_direct}" "${z_build_id_short}" "${z_occ_count} occ" >> "${z_report_file}"
 
@@ -1945,15 +2130,109 @@ rbf_vouch() {
   done
 
   echo ""
+  local z_single_build_origin="false"
   if test "${z_id_count}" -eq 1; then
     buc_success "Build origin: single invocation (all IDs match)"
+    z_single_build_origin="true"
   elif test "${z_id_count}" -eq 0; then
     buc_warn "Build origin: no build invocation IDs found"
   else
     buc_warn "Build origin: MULTIPLE invocations detected (${z_id_count} distinct IDs)"
   fi
 
-  buc_success "Vouch complete"
+  # Build and push -vouch container
+  if ! test -s "${z_vouch_platforms_file}"; then
+    buc_warn "No platform provenance data collected — skipping vouch container"
+    buc_success "Vouch provenance query complete (no vouch container pushed)"
+    return 0
+  fi
+
+  buc_step "Building vouch container"
+
+  # Assemble platforms JSON array from per-platform fragment files
+  local -r z_vouch_build_dir="${BURD_TEMP_DIR}/rbf_rv_vouch_build"
+  mkdir -p "${z_vouch_build_dir}" || buc_die "Failed to create vouch build directory"
+
+  local z_plat_file_list=()
+  while IFS= read -r z_plat_file || test -n "${z_plat_file}"; do
+    z_plat_file_list+=("${z_plat_file}")
+  done < "${z_vouch_platforms_file}"
+
+  # Merge platform JSON fragments into a single array
+  local -r z_merged_platforms_file="${BURD_TEMP_DIR}/rbf_rv_merged_platforms.json"
+  local z_plat_file_entry=""
+  printf '[' > "${z_merged_platforms_file}"
+  local z_plat_sep=""
+  for z_plat_file_entry in "${z_plat_file_list[@]}"; do
+    if test -n "${z_plat_sep}"; then
+      printf ',' >> "${z_merged_platforms_file}"
+    fi
+    cat "${z_plat_file_entry}" >> "${z_merged_platforms_file}"
+    z_plat_sep=","
+  done
+  printf ']' >> "${z_merged_platforms_file}"
+
+  # Generate ISO8601 vouch timestamp
+  local z_vouch_ts=""
+  z_vouch_ts=$(date -u +%FT%TZ) || buc_die "Failed to generate vouch timestamp"
+
+  # Compose slsa_vouch.json
+  local -r z_vouch_json="${z_vouch_build_dir}/slsa_vouch.json"
+  jq -n \
+    --arg vessel "${RBRV_SIGIL}" \
+    --arg consecration "${z_consecration}" \
+    --arg vouch_timestamp "${z_vouch_ts}" \
+    --argjson platforms "$(cat "${z_merged_platforms_file}")" \
+    --argjson single_build_origin "${z_single_build_origin}" \
+    '{
+      vessel: $vessel,
+      consecration: $consecration,
+      vouch_timestamp: $vouch_timestamp,
+      platforms: $platforms,
+      single_build_origin: $single_build_origin
+    }' > "${z_vouch_json}" 2>/dev/null \
+    || buc_die "Failed to generate slsa_vouch.json"
+
+  buc_info "Generated slsa_vouch.json for ${RBRV_SIGIL}"
+
+  # Generate Dockerfile
+  local -r z_vouch_dockerfile="${z_vouch_build_dir}/Dockerfile"
+  printf 'FROM scratch\nCOPY slsa_vouch.json /slsa_vouch.json\n' > "${z_vouch_dockerfile}" \
+    || buc_die "Failed to generate vouch Dockerfile"
+
+  # Construct vouch image tag and reference
+  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  local -r z_vouch_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${RBRV_SIGIL}:${z_vouch_tag}"
+
+  buc_info "Vouch image: ${z_vouch_ref}"
+
+  # Docker login to GAR (Director credentials already authenticated)
+  buc_step "Logging into container registry for vouch push"
+  local -r z_docker_login_stderr="${BURD_TEMP_DIR}/rbf_rv_docker_login_stderr.txt"
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBF_REGISTRY_HOST}" \
+    > /dev/null 2>"${z_docker_login_stderr}" \
+    || buc_die "Container registry login failed: $(cat "${z_docker_login_stderr}")"
+
+  # Docker build (single-platform, no buildx needed)
+  buc_step "Building vouch container image"
+  local -r z_docker_build_stderr="${BURD_TEMP_DIR}/rbf_rv_docker_build_stderr.txt"
+  docker build \
+    --platform linux/amd64 \
+    --tag "${z_vouch_ref}" \
+    --file "${z_vouch_dockerfile}" \
+    "${z_vouch_build_dir}" \
+    > /dev/null 2>"${z_docker_build_stderr}" \
+    || buc_die "Docker build failed for vouch container: $(cat "${z_docker_build_stderr}")"
+
+  # Docker push
+  buc_step "Pushing vouch container image"
+  local -r z_docker_push_stderr="${BURD_TEMP_DIR}/rbf_rv_docker_push_stderr.txt"
+  docker push "${z_vouch_ref}" \
+    > /dev/null 2>"${z_docker_push_stderr}" \
+    || buc_die "Docker push failed for vouch container: $(cat "${z_docker_push_stderr}")"
+
+  buc_info "Pushed: ${z_vouch_ref}"
+  buc_success "Vouch complete — provenance verified and vouch container pushed"
 }
 
 # eof
