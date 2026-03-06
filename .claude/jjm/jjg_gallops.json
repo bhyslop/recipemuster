@@ -6043,9 +6043,10 @@
         "₢AlAAE",
         "₢AlAAC",
         "₢AlAAB",
-        "₢AlAAA"
+        "₢AlAAA",
+        "₢AlAAZ"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6782,6 +6783,17 @@
               "text": "Add an automated test to the test-all suite that builds SLSA v1.0\nbusybox and validates its provenance.\n\n## Scope\n\nAdd a test case to the rbw test suite that exercises the full SLSA\nprovenance pipeline end-to-end:\n\n1. Inscribe + dispatch a busybox build (rbev-busybox or single-arch variant)\n2. Wait for build completion\n3. Run rbw-Dc (check consecrations) to verify tags appeared in GAR\n4. Run rbw-Rv (vouch) to verify SLSA Level 3 provenance via Container Analysis\n5. Optionally verify the -vouch artifact (if ₢AlAAW is complete)\n\n## Context\n\nThe SLSA pipeline has been manually validated in ₢AlAAO (single-arch)\nand ₢AlAAT (multi-platform). This pace adds automated regression\ncoverage so future changes to stitch, step scripts, or infrastructure\nare caught by test-all.\n\n## Implementation Notes\n\n- Requires live GCP infrastructure (depot, triggers, private pool)\n- Uses Director credentials for build dispatch and provenance query\n- Test should be skippable when no depot is configured (graceful skip)\n- May be a separate test target (rbw-tslsa or similar) if too heavy\n  for the main test-all sweep\n\n## Acceptance Criteria\n\n- Test dispatches a busybox build and verifies SLSA Level 3 provenance\n- Test passes on the current demo1025 depot\n- Test is integrated into the test suite (rbw-ta or dedicated target)\n- Test skips gracefully when depot infrastructure is unavailable",
               "silks": "test-all-slsa-busybox-provenance",
               "commit": "80ba797"
+            }
+          ]
+        },
+        "₢AlAAZ": {
+          "tacks": [
+            {
+              "ts": "260306-1026",
+              "state": "rough",
+              "text": "Fix three issues discovered in ₢AlAAW review:\n\n1. **Abjure orphans suffixed image tags**: After stitch unification,\n   single-platform vessels have both suffixed and bare image tags.\n   Abjure only deletes the bare tag, orphaning the suffixed one.\n   Fix: add vessel_dir parameter to abjure (or enumerate tags from\n   GAR matching inscribe_ts) so all image tags are deleted.\n\n2. **Vouch soft-skips missing platform tags**: rbf_vouch continues\n   silently when a deterministically-constructed platform tag is\n   missing (FETCH_ERROR/NO_DIGEST). Since tags are derived from\n   vessel config, a missing tag means the build is incomplete.\n   Change continue to buc_die.\n\n3. **RBS0 consecration tag examples inaccurate**: Line showing\n   CONSECRATION-image is wrong — image tags use inscribe TS only\n   and now include platform suffixes. Update examples to reflect\n   the actual tag scheme post-unification.",
+              "silks": "fix-abjure-orphan-vouch-hardening",
+              "commit": "50a1af4"
             }
           ]
         }
