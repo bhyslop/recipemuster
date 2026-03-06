@@ -124,6 +124,10 @@ zrbgc_kindle() {
   readonly RBGC_ARK_SUFFIX_ABOUT="-about"
   readonly RBGC_ARK_SUFFIX_VOUCH="-vouch"
 
+  # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
+  readonly RBF_FACT_IMAGE_REF="rbf_fact_image_ref.txt"
+  readonly RBF_FACT_SLSA_LEVEL="rbf_fact_slsa_level.txt"
+
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"
 

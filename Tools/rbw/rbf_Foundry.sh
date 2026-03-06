@@ -702,8 +702,20 @@ rbf_build() {
     || buc_die "Failed to write vessel dir to output"
   echo "${z_found_consecration}" > "${ZRBF_OUTPUT_CONSECRATION}" \
     || buc_die "Failed to write consecration to output"
+
+  # Write primary image reference fact file
+  local z_first_plat="${RBRV_CONJURE_PLATFORMS%%,*}"
+  z_first_plat="${z_first_plat%% *}"
+  local z_first_suffix="${z_first_plat#linux/}"
+  z_first_suffix="${z_first_suffix//\//}"
+  local z_primary_image_tag="${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}-${z_first_suffix}"
+  local z_primary_image_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${RBRV_SIGIL}:${z_primary_image_tag}"
+  echo "${z_primary_image_ref}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}" \
+    || buc_die "Failed to write image ref fact file"
+
   buc_info "Output: ${ZRBF_OUTPUT_VESSEL_DIR}"
   buc_info "Output: ${ZRBF_OUTPUT_CONSECRATION}"
+  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}"
 
   buc_success "Vessel image built: ${RBRV_SIGIL}"
 }
@@ -2010,6 +2022,7 @@ rbf_vouch() {
   # For each -image tag: resolve digest, query Container Analysis
   local -r z_report_file="${BURD_TEMP_DIR}/rbf_rv_report.txt"
   > "${z_report_file}"
+  local z_min_slsa_level=99
 
   local z_all_build_ids=""
   local z_tag_count=0
@@ -2131,6 +2144,9 @@ rbf_vouch() {
     local z_slsa_level_int=0
     if [[ "${z_level_direct}" =~ ^[0-9]+$ ]]; then
       z_slsa_level_int="${z_level_direct}"
+      if test "${z_slsa_level_int}" -lt "${z_min_slsa_level}"; then
+        z_min_slsa_level="${z_slsa_level_int}"
+      fi
     fi
     local z_plat_json_file="${BURD_TEMP_DIR}/rbf_rv_plat_${z_tag_count}.json"
     jq -n \
@@ -2278,6 +2294,14 @@ rbf_vouch() {
     || buc_die "Docker push failed for vouch container: $(cat "${z_docker_push_stderr}")"
 
   buc_info "Pushed: ${z_vouch_ref}"
+
+  # Write SLSA level fact file (minimum across all platforms)
+  if test "${z_min_slsa_level}" -lt 99; then
+    echo "${z_min_slsa_level}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_SLSA_LEVEL}" \
+      || buc_die "Failed to write SLSA level fact file"
+    buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_SLSA_LEVEL}"
+  fi
+
   buc_success "Vouch complete — provenance verified and vouch container pushed"
 }
 

@@ -52,6 +52,7 @@ source "${RBTB_RBTS_DIR}/rbtckk_KickTires.sh"
 source "${RBTB_RBTS_DIR}/rbtcqa_QualifyAll.sh"
 source "${RBTB_RBTS_DIR}/rbtcap_AccessProbe.sh"
 source "${RBTB_RBTS_DIR}/rbtcal_ArkLifecycle.sh"
+source "${RBTB_RBTS_DIR}/rbtcsl_SlsaProvenance.sh"
 source "${RBTB_BUTS_DIR}/butcde_DispatchExercise.sh"
 source "${RBTB_RBTS_DIR}/rbtcns_NsproSecurity.sh"
 source "${RBTB_RBTS_DIR}/rbtcsj_SrjclJupyter.sh"
@@ -230,6 +231,10 @@ rbtb_kindle() {
   # ark-lifecycle fixture
   butr_fixture_enroll "ark-lifecycle" "" "zrbtb_ark_tsuite_setup"
   butr_case_enroll "ark-lifecycle" rbtcal_lifecycle_tcase
+
+  # slsa-provenance fixture (reuses ark-lifecycle setup — same vessel, same depot)
+  butr_fixture_enroll "slsa-provenance" "" "zrbtb_ark_tsuite_setup"
+  butr_case_enroll "slsa-provenance" rbtcsl_provenance_tcase
 
   # -- FAST + COMPLETE: no external dependencies --
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"

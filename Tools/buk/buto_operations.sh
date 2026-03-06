@@ -116,9 +116,10 @@ zbuto_next_invoke_capture() {
 ######################################################################
 # Safely invoke a command under 'set -e', capturing stdout, stderr, and exit status
 # Globals set:
-#   ZBUTO_STDOUT  - command stdout
-#   ZBUTO_STDERR  - command stderr
-#   ZBUTO_STATUS  - command exit code
+#   ZBUTO_STDOUT       - command stdout
+#   ZBUTO_STDERR       - command stderr
+#   ZBUTO_STATUS       - command exit code
+#   ZBUTO_BURV_OUTPUT  - BURV output directory (empty if BURV not enabled)
 # BURV bridge: If BUTE_BURV_ROOT is set, creates per-invocation BURV isolation
 
 zbuto_invoke() {
@@ -164,6 +165,8 @@ zbuto_invoke() {
   fi
 
   rm -f "${z_tmp_stdout}" "${z_tmp_stderr}"
+
+  ZBUTO_BURV_OUTPUT="${z_burv_output}"
 }
 
 ######################################################################
