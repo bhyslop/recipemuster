@@ -4439,6 +4439,7 @@
       "creation_time": "260222",
       "status": "racing",
       "order": [
+        "₢AhAAH",
         "₢AhAAF",
         "₢AhAAG",
         "₢AhAAA",
@@ -4447,7 +4448,7 @@
         "₢AhAAD",
         "₢AhAAE"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -4559,6 +4560,17 @@
               "text": "Delete eliminated and demoted slash command files, update CLAUDE.md managed section to match.\n\n## Slash command files to DELETE (eliminated concepts — verb removed entirely)\n\n- .claude/commands/jjc-pace-bridle.md\n- .claude/commands/jjc-heat-quarter.md\n- .claude/commands/jjc-heat-braid.md\n- .claude/commands/jjc-heat-garland.md\n\n## Slash command files to DELETE (demoted — verb survives as verb table entry)\n\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-reslate.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-heat-rail.md\n- .claude/commands/jjc-heat-furlough.md\n- .claude/commands/jjc-heat-restring.md\n- .claude/commands/jjc-heat-retire-dryrun.md\n- .claude/commands/jjc-heat-retire-FINAL.md\n- .claude/commands/jjc-heat-mount.md\n- .claude/commands/jjc-heat-groom.md\n\n## CLAUDE.md managed section updates\n\n- Remove eliminated verbs from verb table: bridle, quarter, braid, garland\n- Remove jjx_arm from CLI reference\n- Remove Bridleability Assessment section\n- Remove quarter from Quick Verbs table\n- Update mount/groom/notch verb table entries: replace slash command references with inline orchestration guidance\n- Before deleting mount and groom slash commands, distill their orchestration logic into concise verb table guidance\n\n## Depends on\n\n- ₢AhAAF (jjs0-upper-api-restructure) — spec authority established first\n\n## Files\n\n- .claude/commands/jjc-*.md (14 files deleted)\n- CLAUDE.md (managed JJK section updated)",
               "silks": "slash-command-cleanup-claudemd-sync",
               "commit": "bed107e"
+            }
+          ]
+        },
+        "₢AhAAH": {
+          "tacks": [
+            {
+              "ts": "260306-0922",
+              "state": "rough",
+              "text": "Evaluate MCP (Model Context Protocol) as a transport replacement for the current bash-stdin invocation pattern used by jjx commands.\n\n## Context\n\nCurrently Claude invokes jjx via Bash tool calls with heredoc stdin pipes. This causes permission friction — Claude Code's Bash permission matcher sees each unique heredoc as a new command string. The current bash layer is purely transport (args + stdin); Rust already owns locking, JSON transformation, and git operations (see persist/wrap routines in JJS0).\n\n## Key Insight\n\nMCP stdio transport would replace bash as the invocation layer with structured JSON-RPC tool calls. The Rust core logic stays untouched — only the entry point changes.\n\nCurrent:  Claude → Bash(args + stdin pipe) → Rust(lock + transform + git)\nMCP:      Claude → MCP tool call(structured params) → Rust(lock + transform + git)\n\n## Questions to Resolve\n\n1. **Scope**: What exactly needs to change in vvx to serve as MCP stdio server? JSON-RPC dispatch loop, tool registration, parameter mapping.\n2. **Registration**: How does Claude Code discover and spawn the MCP server? `.claude/settings.json` mcpServers config.\n3. **Multi-officium**: Multiple Claude sessions = multiple MCP server instances. Locking already handles this (vvg_lock_acquire), but verify no conflicts.\n4. **Stdin commands**: The 7 commands taking stdin (enroll, revise_docket, arm, transfer, close, paddock, landing) become structured string parameters. Any edge cases?\n5. **Backward compatibility**: Can vvx serve both CLI and MCP modes? (e.g., `vvx --mcp` for stdio server mode, default for CLI)\n6. **JJS0 stale section**: The Crash-Safe Architecture section (lines 248-265) still describes bash-owned locking. Update regardless of MCP decision.\n7. **Incremental path**: Could we do file-based input (--input-file) as a quick fix AND MCP as the proper solution?\n\n## Acceptance\n\nA design document or paddock update with clear go/no-go recommendation and implementation sketch if go.",
+              "silks": "consider-mcp-transport-for-jjx",
+              "commit": "859773c"
             }
           ]
         }
