@@ -1443,6 +1443,9 @@ Single-platform (`FROM scratch`, linux/amd64) — content is platform-independen
 The vouch function infers the level from occurrence structure: presence of `inTotoSlsaProvenanceV1` (signed v1 provenance from Cloud Build's verified-builder keys) implies Level 3.
 This is weaker than cryptographic verification — the proper approach is `slsa-verifier verify-image` from the SLSA framework, which verifies provenance signatures against Google's public keys and confirms builder identity.
 Integration of `slsa-verifier` into the vouch path is deferred.
++
+**Build ID cross-check**: Both conjure (`rbf_build`) and vouch (`rbf_vouch`) write the build invocation ID to `RBF_FACT_BUILD_ID` fact files — conjure writes the dispatched build ID from the trigger response, vouch writes the `buildInvocationId` extracted from Container Analysis provenance.
+The SLSA provenance test asserts these are equal, ensuring vouch examined provenance from the same build that conjure dispatched.
 
 === Rubric Definitions
 
@@ -1516,7 +1519,7 @@ Verified on 3 trigger-dispatched vessels — rbev-busybox-amd64 (`16d3b60f`), rb
 +
 **Single-arch pipeline** (6 steps + `images:` push, single build invocation):
 +
-  1. `derive-tag-base` — compute inscribe timestamp and tag base
+  1. `derive-tag-base` — compute inscribe timestamp and tag base; writes TAG_BASE (= consecration) to `/builder/outputs/output` for strong-tie discovery via `results.buildStepOutputs[0]`
   2. `qemu-binfmt` — register cross-architecture emulation (skipped if native platform)
   3. `build-and-load` — `buildx --load` into local Docker daemon (single platform)
   4. `sbom-and-summary` — Syft scans local daemon image (`docker:` transport), generates SBOM

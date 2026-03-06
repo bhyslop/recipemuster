@@ -646,56 +646,27 @@ rbf_build() {
   # Wait for completion (5s intervals, up to 80 minutes)
   zrbf_wait_build_completion
 
-  # Discover consecration for output
-  buc_step "Discovering consecration from build result"
+  # Discover consecration from build step output (strong tie — no GAR scanning)
+  # Step 01 (derive-tag-base) writes TAG_BASE to /builder/outputs/output,
+  # which appears base64-encoded in results.buildStepOutputs[0].
+  buc_step "Discovering consecration from build step output"
+
+  local z_step0_output=""
+  z_step0_output=$(jq -r '.results.buildStepOutputs[0] // empty' "${ZRBF_BUILD_STATUS_FILE}") \
+    || buc_die "Failed to extract buildStepOutputs[0] from build response"
+  test -n "${z_step0_output}" || buc_die "Build step 0 output empty — step 01 may not have written to /builder/outputs/output"
+
+  local z_found_consecration=""
+  z_found_consecration=$(echo "${z_step0_output}" | base64 -d) \
+    || buc_die "Failed to base64-decode build step output"
+  test -n "${z_found_consecration}" || buc_die "Decoded consecration is empty"
+  buc_info "Discovered consecration: ${z_found_consecration}"
 
   local z_inscribe_ts=""
   z_inscribe_ts=$(jq -r '.substitutions._RBGY_INSCRIBE_TIMESTAMP // empty' "${ZRBF_BUILD_STATUS_FILE}") \
     || buc_die "Failed to extract inscribe timestamp from build response"
   test -n "${z_inscribe_ts}" || buc_die "Inscribe timestamp empty in build response"
   buc_info "Inscribe timestamp: ${z_inscribe_ts}"
-
-  buc_step "Fetching fresh token for GAR query"
-  local z_output_token=""
-  z_output_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
-    || buc_die "Failed to get OAuth token for consecration discovery"
-
-  local -r z_output_tags_file="${BURD_TEMP_DIR}/rbf_output_tags.json"
-  curl -sL \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_output_token}" \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/tags/list" \
-    > "${z_output_tags_file}" 2>/dev/null \
-    || buc_die "Failed to query GAR tags for consecration discovery"
-
-  # Find the -about tag matching our inscribe timestamp
-  # About tag format: {INSCRIBE_TS}-b{BUILD_TS}-about
-  local -r z_output_about_tags_file="${BURD_TEMP_DIR}/rbf_output_about_tags.txt"
-  jq -r '.tags[]? // empty' "${z_output_tags_file}" > "${z_output_about_tags_file}"
-
-  # Load tags and search (BCG: load-then-iterate, no piped while-read)
-  local z_about_tags=()
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    z_about_tags+=("${z_line}")
-  done < "${z_output_about_tags_file}"
-
-  local z_found_consecration=""
-  local z_about_candidate=""
-  for z_about_candidate in "${z_about_tags[@]}"; do
-    # Match: starts with inscribe_ts, ends with RBGC_ARK_SUFFIX_ABOUT
-    case "${z_about_candidate}" in
-      "${z_inscribe_ts}"*"${RBGC_ARK_SUFFIX_ABOUT}")
-        # Strip the -about suffix to get the consecration
-        z_found_consecration="${z_about_candidate%${RBGC_ARK_SUFFIX_ABOUT}}"
-        break
-        ;;
-    esac
-  done
-
-  test -n "${z_found_consecration}" \
-    || buc_die "No -about tag found matching inscribe timestamp ${z_inscribe_ts}"
-  buc_info "Discovered consecration: ${z_found_consecration}"
 
   # Persist to output directory for test harness consumption
   echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
@@ -713,9 +684,14 @@ rbf_build() {
   echo "${z_primary_image_ref}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}" \
     || buc_die "Failed to write image ref fact file"
 
+  # Write build ID fact file (dispatched build ID for cross-check with vouch provenance)
+  echo "${z_build_id}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}" \
+    || buc_die "Failed to write build ID fact file"
+
   buc_info "Output: ${ZRBF_OUTPUT_VESSEL_DIR}"
   buc_info "Output: ${ZRBF_OUTPUT_CONSECRATION}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}"
+  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}"
 
   buc_success "Vessel image built: ${RBRV_SIGIL}"
 }
@@ -2314,6 +2290,14 @@ rbf_vouch() {
     echo "${z_min_slsa_level}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_SLSA_LEVEL}" \
       || buc_die "Failed to write SLSA level fact file"
     buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_SLSA_LEVEL}"
+  fi
+
+  # Write build ID fact file (provenance build invocation ID for cross-check with conjure)
+  if test -n "${z_all_build_ids}"; then
+    local z_first_build_id="${z_all_build_ids%% *}"
+    echo "${z_first_build_id}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}" \
+      || buc_die "Failed to write build ID fact file"
+    buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}"
   fi
 
   buc_success "Vouch complete — provenance verified and vouch container pushed"

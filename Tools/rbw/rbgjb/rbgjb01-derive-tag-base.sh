@@ -12,3 +12,7 @@ set -euo pipefail
 TAG_BASE="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"
 test -n "${TAG_BASE}" || { echo "TAG_BASE empty" >&2; exit 1; }
 echo "${TAG_BASE}" > .tag_base
+
+# Expose TAG_BASE (= consecration) via Cloud Build step output mechanism
+# Results appear in results.buildStepOutputs[0] (base64-encoded, max 50 bytes)
+echo -n "${TAG_BASE}" > /builder/outputs/output

@@ -74,6 +74,20 @@ rbtcsl_provenance_tcase() {
   test "${z_slsa_level}" = "3" \
     || buto_fatal "Expected SLSA Level 3 but got: ${z_slsa_level}"
 
+  # Cross-check: conjure's dispatched build ID must match vouch's provenance build ID
+  local z_conjure_build_id
+  z_conjure_build_id=$(<"${z_conjure_burv}/current/${RBF_FACT_BUILD_ID}")
+  test -n "${z_conjure_build_id}" || buto_fatal "Conjure build ID fact file empty"
+
+  local z_vouch_build_id
+  z_vouch_build_id=$(<"${z_vouch_burv}/current/${RBF_FACT_BUILD_ID}")
+  test -n "${z_vouch_build_id}" || buto_fatal "Vouch build ID fact file empty"
+
+  buto_info "Conjure build ID: ${z_conjure_build_id}"
+  buto_info "Vouch build ID:   ${z_vouch_build_id}"
+  test "${z_conjure_build_id}" = "${z_vouch_build_id}" \
+    || buto_fatal "Build ID mismatch: conjure=${z_conjure_build_id} vouch=${z_vouch_build_id}"
+
   # Step 4: Cleanup — abjure the conjured ark
   buto_section "Step 4/4: Abjuring ark to restore baseline"
   buto_tt_expect_ok "${RBZ_ABJURE_ARK}" "${z_vessel_dir}" "${z_consecration}" "--force"
