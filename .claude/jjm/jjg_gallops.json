@@ -6035,6 +6035,7 @@
         "₢AlAAT",
         "₢AlAAV",
         "₢AlAAW",
+        "₢AlAAZ",
         "₢AlAAY",
         "₢AlAAX",
         "₢AlAAM",
@@ -6043,8 +6044,7 @@
         "₢AlAAE",
         "₢AlAAC",
         "₢AlAAB",
-        "₢AlAAA",
-        "₢AlAAZ"
+        "₢AlAAA"
       ],
       "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
