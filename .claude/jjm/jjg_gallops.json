@@ -5905,6 +5905,7 @@
         "₢AlAAS",
         "₢AlAAT",
         "₢AlAAV",
+        "₢AlAAW",
         "₢AlAAM",
         "₢AlAAH",
         "₢AlAAG",
@@ -5915,7 +5916,7 @@
         "₢AlAAD",
         "₢AlAAF"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_uAll.md",
       "paces": {
         "₢AlAAA": {
@@ -6578,6 +6579,17 @@
               "text": "Create a verification tabtarget that queries Container Analysis REST API\nfor SLSA provenance facts on a vessel's per-platform images.\n\n## Context\n\nAfter a trigger-dispatched build completes, the operator needs to confirm\nthat Google actually stamped SLSA Level 3 on each per-platform image. This\ntabtarget provides that ground truth using only OAuth/curl (no gcloud).\n\n## Design\n\nTabtarget: `tt/rbw-DV.DirectorVouchesArk.sh <vessel-dir>`\n\nOperates on a vessel directory. Determines the most recent consecration\n(or accepts one as optional argument). For each per-platform image tag:\n\n1. Resolve the image digest from GAR (Docker Registry v2 API or GAR REST API)\n2. Query Container Analysis REST API for BUILD occurrences:\n   `GET https://containeranalysis.googleapis.com/v1/projects/{PROJECT}/occurrences`\n   with filter: `kind=\"BUILD\" AND resourceUrl=\"https://{IMAGE_URI}@{DIGEST}\"`\n3. Extract `slsaBuildLevel` and `buildInvocationId` from provenance\n4. Display tabular report:\n   ```\n   Vessel: rbev-busybox\n   Consecration: i20260305_154104-b20260305_234254\n\n     Platform     Digest (short)   SLSA Level   Build ID\n     linux/amd64  d8ddccf8ea1f     3            2e172ce0\n     linux/arm64  d085e8e47c62     3            2e172ce0\n     linux/arm/v7 289dbc68d93a     3            2e172ce0\n\n     Build origin: single invocation (all IDs match)\n   ```\n\n## Authentication\n\nUses Director RBRA credentials + OAuth access token, same pattern as\nexisting rbgu_http_remit_* functions. No gcloud dependency.\n\n## Implementation\n\n- New function in rbf_Foundry.sh (or new module if cleaner)\n- Reuse rbgu_http_remit_get for REST calls\n- Parse JSON responses with jq (available locally, unlike CB workers)\n- BCG compliant\n\n## Acceptance Criteria\n\n- Tabtarget displays SLSA level for each per-platform image\n- Reports shared buildInvocationId (single-build origin check)\n- Works with both single-platform and multi-platform vessels\n- No gcloud dependency — pure REST API + OAuth\n- Tested against rbev-busybox consecration i20260305_154104",
               "silks": "slsa-verification-tabtarget",
               "commit": "28f7033"
+            }
+          ]
+        },
+        "₢AlAAW": {
+          "tacks": [
+            {
+              "ts": "260305-1608",
+              "state": "rough",
+              "text": "Define and implement the `-vouch` ark artifact — a post-build container\nrecording verified SLSA provenance facts about the `-image` artifacts.\n\n## Context\n\nThe `-about` container is built during the CB build, before SLSA provenance\nis generated. It can only record precondition intent, not verified facts.\nThe `-vouch` container is built after the build completes, recording what\nContainer Analysis actually attested.\n\n## Design\n\n### New term: rbtga_ark_vouch\n\nThe verification artifact within an ark, tagged with the `-vouch` suffix.\nContains post-build SLSA provenance assessment for each per-platform image,\nqueried from Container Analysis after Cloud Build generates provenance.\nBuilt locally by the Director after trigger-dispatched build completion.\nSingle-platform (`FROM scratch`, linux/amd64) — content is platform-independent\nJSON describing per-platform SLSA facts.\n\n### New constant: RBGC_ARK_SUFFIX_VOUCH=\"-vouch\"\n\n### Ark expansion\n\nArks expand from pairs to triples:\n- `-image` — container layers (built by CB)\n- `-about` — SBOM, build_info, recipe (built by CB)\n- `-vouch` — SLSA verification record (built locally, post-CB)\n\n### Container contents\n\nSingle file: `slsa_vouch.json` containing:\n```json\n{\n  \"vessel\": \"rbev-busybox\",\n  \"consecration\": \"i20260305_154104-b20260305_234254\",\n  \"vouch_timestamp\": \"2026-03-05T15:50:00Z\",\n  \"platforms\": [\n    {\n      \"platform\": \"linux/amd64\",\n      \"image_digest\": \"sha256:d8ddccf8...\",\n      \"slsa_build_level\": 3,\n      \"build_invocation_id\": \"2e172ce0-...\",\n      \"predicate_types\": [\"v0.1\", \"v1\"]\n    }\n  ],\n  \"single_build_origin\": true\n}\n```\n\n### Tag scheme\n\n`{CONSECRATION}-vouch` (e.g., `i20260305_154104-b20260305_234254-vouch`)\nUses the full consecration (inscribe + build timestamps) since the vouch\nis specific to a particular build, not just an inscribe.\n\n### Build mechanism\n\nLocal `docker build` + `docker push` using Director credentials.\nIntegrated into the vouch tabtarget (₢AlAAV) — after displaying the\nreport, optionally builds and pushes the `-vouch` container.\n\n## Scope\n\n### RBS0-SpecTop.adoc\n- Add `rbtga_ark_vouch` attribute reference and definition\n- Update `rbtga_ark` definition to include `-vouch` as third component\n\n### Tools/rbw/rbgc_Constants.sh\n- Add `RBGC_ARK_SUFFIX_VOUCH=\"-vouch\"`\n\n### Tools/rbw/rbf_Foundry.sh (or vouch tabtarget)\n- Build `FROM scratch` container with `slsa_vouch.json`\n- Push to GAR with consecration-vouch tag\n\n## Acceptance Criteria\n\n- `-vouch` container pushed to GAR after successful vouch verification\n- Contains accurate SLSA facts matching Container Analysis query results\n- RBS0 documents the `-vouch` artifact and expanded ark definition\n- Single-platform FROM scratch (no QEMU, no buildx)\n- No gcloud dependency",
+              "silks": "ark-vouch-artifact",
+              "commit": "69ea9bd"
             }
           ]
         }
