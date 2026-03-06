@@ -8,6 +8,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣Ao",
     "₣Ah",
     "₣AY",
     "₣Al",
@@ -21,8 +22,7 @@
     "₣AZ",
     "₣Aa",
     "₣Ac",
-    "₣Ak",
-    "₣Ao"
+    "₣Ak"
   ],
   "heats": {
     "₣AD": {
@@ -7042,7 +7042,7 @@
     "₣Ao": {
       "silks": "jjk-v3-recast-mcp",
       "creation_time": "260306",
-      "status": "stabled",
+      "status": "racing",
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAlo.md",
