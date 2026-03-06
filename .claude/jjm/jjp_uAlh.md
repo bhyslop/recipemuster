@@ -180,27 +180,15 @@ Gaits evolve through practice: start with a few simple single-beat gaits, use th
 - **Markers eliminated**: Restore on need.
 - **Field renames**: V3 `text` → `docket`, V3 `direction` → `warrant` (now structured JSON, not prose).
 
-## Slash Command Reduction (cchat-20260224 groom session)
+## Slash Command and Verb Restructure
 
-V4 aggressively reduces slash commands. Most become CLAUDE.md verb table entries. Only protocol-heavy verbs justify slash commands.
+Decisions captured in ₢AhAAF (jjs0-upper-api-restructure) and ₢AhAAG (slash-command-cleanup-claudemd-sync).
 
-**Delete entirely (concept eliminated):**
-- bridle, quarter, braid, garland
-
-**Demote to CLAUDE.md verb table:**
-- slate, reslate, notch, rail, furlough, restring, retire-dryrun, retire-FINAL
-
-**Notch simplification**: Branch model eliminates file-selection complexity. All changes on a pace branch belong to that pace. Notch becomes a simple verb table entry.
-
-**Keep as slash command:**
-- mount — protocol-heavy, may keep
-- school — new, protocol-heavy (jjx-directive + LLM-conversational co-routine)
-- corral — new, protocol-heavy (replaces prance)
-
-**Undecided:**
-- groom — changing nature in V4, TBD
-
-**Design principle**: Slash commands set behavioral protocols for complex multi-step interactions. Simple verb→jjx mappings go in the CLAUDE.md verb table (cheaper, no token tax).
+Key outcomes:
+- All upper API verbs unified under `jjsuv_*` prefix (merging `jjsud_`/`jjsum_`)
+- Eliminated concepts: bridle, quarter, braid, garland
+- All surviving verbs demoted to CLAUDE.md verb table: slate, reslate, wrap, notch, mount, groom, rail, furlough, retire, restring, muster, parade, scout, nominate
+- Only school and corral justify slash commands (new, protocol-heavy, to be implemented later)
 
 ## V3 Wins to Preserve
 
