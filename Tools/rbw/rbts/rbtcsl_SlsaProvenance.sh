@@ -44,11 +44,13 @@ rbtcsl_provenance_tcase() {
   local z_conjure_burv="${ZBUTO_BURV_OUTPUT}"
   test -n "${z_conjure_burv}" || buto_fatal "ZBUTO_BURV_OUTPUT empty after conjure"
 
-  local z_image_ref=$(<"${z_conjure_burv}/current/${RBF_FACT_IMAGE_REF}")
+  local z_image_ref
+  z_image_ref=$(<"${z_conjure_burv}/current/${RBF_FACT_IMAGE_REF}")
   test -n "${z_image_ref}" || buto_fatal "Image ref fact file empty"
   buto_info "Image ref: ${z_image_ref}"
 
-  local z_consecration=$(<"${z_conjure_burv}/current/rbf_consecration.txt")
+  local z_consecration
+  z_consecration=$(<"${z_conjure_burv}/current/rbf_consecration.txt")
   test -n "${z_consecration}" || buto_fatal "Consecration output empty"
   buto_info "Consecration: ${z_consecration}"
 
@@ -64,7 +66,8 @@ rbtcsl_provenance_tcase() {
   local z_vouch_burv="${ZBUTO_BURV_OUTPUT}"
   test -n "${z_vouch_burv}" || buto_fatal "ZBUTO_BURV_OUTPUT empty after vouch"
 
-  local z_slsa_level=$(<"${z_vouch_burv}/current/${RBF_FACT_SLSA_LEVEL}")
+  local z_slsa_level
+  z_slsa_level=$(<"${z_vouch_burv}/current/${RBF_FACT_SLSA_LEVEL}")
   test -n "${z_slsa_level}" || buto_fatal "SLSA level fact file empty"
   buto_info "SLSA build level: ${z_slsa_level}"
 
