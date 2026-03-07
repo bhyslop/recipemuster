@@ -7397,6 +7397,13 @@
         "₢AoAAJ": {
           "tacks": [
             {
+              "ts": "260306-1953",
+              "state": "complete",
+              "text": "Fix MCP transport deadlock caused by child processes inheriting the MCP server's stdin fd.\n\nRoot cause: Command::new(\"git\") and Command::new(\"claude\") spawn subprocesses that inherit stdin from the parent MCP server process. Since MCP uses stdin/stdout for JSON-RPC transport, child processes reading from the shared stdin corrupt or deadlock the protocol.\n\nFix: Create vvce_git_command() factory in vvce_env.rs that sets stdin(Stdio::null()) on all git subprocess calls. Apply same fix to vvce_claude_command(). Replace all 28 Command::new(\"git\") call sites across vvc and jjk crates with the factory. Remove probe disable workaround — all three model probes (haiku/sonnet/opus) now run successfully in parallel during invitatory.",
+              "silks": "fix-mcp-subprocess-stdin-inheritance",
+              "commit": "ee250f8"
+            },
+            {
               "ts": "260306-1943",
               "state": "rough",
               "text": "Fix MCP transport deadlock caused by child processes inheriting the MCP server's stdin fd.\n\nRoot cause: Command::new(\"git\") and Command::new(\"claude\") spawn subprocesses that inherit stdin from the parent MCP server process. Since MCP uses stdin/stdout for JSON-RPC transport, child processes reading from the shared stdin corrupt or deadlock the protocol.\n\nFix: Create vvce_git_command() factory in vvce_env.rs that sets stdin(Stdio::null()) on all git subprocess calls. Apply same fix to vvce_claude_command(). Replace all 28 Command::new(\"git\") call sites across vvc and jjk crates with the factory. Remove probe disable workaround — all three model probes (haiku/sonnet/opus) now run successfully in parallel during invitatory.",
