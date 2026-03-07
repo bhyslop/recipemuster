@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Ap",
+  "next_heat_seed": "Aq",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -21,7 +21,8 @@
     "₣AZ",
     "₣Aa",
     "₣Ac",
-    "₣Ak"
+    "₣Ak",
+    "₣Ap"
   ],
   "heats": {
     "₣AD": {
@@ -7256,6 +7257,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAln.md",
+      "paces": {}
+    },
+    "₣Ap": {
+      "silks": "rbk-use-bash-remits",
+      "creation_time": "260307",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlp.md",
       "paces": {}
     }
   }
