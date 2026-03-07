@@ -7196,9 +7196,10 @@
         "₢ApAAA",
         "₢ApAAB",
         "₢ApAAC",
-        "₢ApAAD"
+        "₢ApAAD",
+        "₢ApAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAlp.md",
       "paces": {
         "₢ApAAA": {
@@ -7312,6 +7313,17 @@
               "text": "Remove rbgu_http_json, rbgu_http_code_capture, rbgu_json_field_capture, and related legacy infrastructure.\n\n## Prerequisites\n\n- ₢AkAAS complete (all callers migrated to remit)\n- grep confirms zero remaining callers of legacy functions\n\n## Work\n\n1. Delete rbgu_http_json (the buc_die + _{N} suffix version)\n2. Delete rbgu_http_code_capture\n3. Delete rbgu_json_field_capture\n4. Delete rbgu_error_message_capture (if no remaining callers after migration)\n5. Evaluate rbgu_write_vanilla_json, rbgu_jq_file_to_file_ok, rbgu_jq_add_member_to_role_capture\n   - These use ZRBGU_PREFIX+infix path reconstruction for non-HTTP purposes\n   - Decide: adapt to take file paths directly, or leave as-is\n6. Evaluate whether _capture suffix can be fully retired in rbgu in favor of _remit\n7. Clean up ZRBGU_POSTFIX_JSON, ZRBGU_POSTFIX_CODE if no longer referenced\n\n## Not in scope\n\n- Codebase-wide _capture → _remit migration (separate initiative if warranted)",
               "silks": "evict-legacy-http-capture-functions",
               "commit": "2aabbd1"
+            }
+          ]
+        },
+        "₢ApAAE": {
+          "tacks": [
+            {
+              "ts": "260307-1348",
+              "state": "rough",
+              "text": "Re-evaluate the BCG _remit function pattern for post-MVP adoption.\n\n## Input\n\n- Read `Memos/memo-20260307-remit-pattern-backout.md` for preserved code, git commits, and rationale\n- Review the four original pace dockets preserved in the memo (|| true suppression, LRO polling, caller migration, capture unification)\n- Re-read BCG _capture section to understand the current baseline\n\n## Decision Points\n\n1. Is the exit-status-swallowing problem (IFS read <<< on _capture) actually encountered in practice, or theoretical?\n2. Should _remit replace _capture entirely (the degenerate single-field case), eliminating two patterns in favor of one?\n3. If keeping both: is the sentinel overhead justified for the safety it provides?\n4. For HTTP specifically: does the remit pattern fit the curl retry + code + response-file return shape, or is there a simpler design?\n\n## Deliverable\n\nDecision document (can be a scar or memo) with one of:\n- Restore _remit as-is from the memo, re-add BCG docs and infrastructure\n- Re-engineer _remit with lessons learned, then restore\n- Retire the concept permanently with rationale\n\nIf restoring: re-slate the migration paces from the memo as subsequent work.",
+              "silks": "reconsider-remit-pattern",
+              "commit": "e979679"
             }
           ]
         }
