@@ -92,7 +92,6 @@ rbtb_load_nameplate() {
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
   zrbrn_kindle
   zrbrn_enforce
-  zrbrn_lock
 
   rbtb_show "Nameplate loaded: RBRN_MONIKER=${RBRN_MONIKER}, RBRN_RUNTIME=${RBRN_RUNTIME}"
 

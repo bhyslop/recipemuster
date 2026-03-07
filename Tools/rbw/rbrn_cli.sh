@@ -203,7 +203,6 @@ zrbrn_furnish() {
     source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
     zrbrn_kindle
     zrbrn_enforce
-    zrbrn_lock
   fi
 }
 

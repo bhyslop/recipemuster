@@ -83,6 +83,9 @@ zrbrn_kindle() {
   # Guard against unexpected RBRN_ variables not in enrollment
   buv_scope_sentinel RBRN RBRN_
 
+  # Lock all enrolled RBRN_ variables against mutation
+  buv_lock RBRN
+
   readonly ZRBRN_KINDLED=1
 }
 
@@ -107,18 +110,10 @@ zrbrn_enforce() {
     test "${RBRN_ENTRY_PORT_ENCLAVE}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
       buc_die "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
   fi
-}
-
-# Lock step — build derived state from validated values, then lock enrolled variables
-zrbrn_lock() {
-  zrbrn_sentinel
 
   # Build docker env args array from validated values
   # Usage: docker run "${ZRBRN_DOCKER_ENV[@]}" ...
   buv_docker_env RBRN ZRBRN_DOCKER_ENV
-
-  # Lock all enrolled RBRN_ variables against mutation
-  buv_lock RBRN
 }
 
 ######################################################################
