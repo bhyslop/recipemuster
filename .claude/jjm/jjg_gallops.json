@@ -6035,6 +6035,13 @@
         "₢AkAAg": {
           "tacks": [
             {
+              "ts": "260307-1351",
+              "state": "complete",
+              "text": "Rebuild container vessels and fix the 3 failing nameplate test fixtures.\n\n## Problem\n\nnsproto-security, srjcl-jupyter, and pluml-diagram fixtures fail with \"container is not running\" errors. The container images need rebuilding/re-summoning.\n\n## Steps\n\n1. Rebuild/re-summon vessel images for nsproto, srjcl, pluml\n2. Verify all three nameplate fixtures pass in rbw-ta\n\n## Acceptance\n\n- nsproto-security passes\n- srjcl-jupyter passes\n- pluml-diagram passes",
+              "silks": "rebuild-vessels-fix-nameplate-tests",
+              "commit": "acf81cd"
+            },
+            {
               "ts": "260307-1219",
               "state": "rough",
               "text": "Rebuild container vessels and fix the 3 failing nameplate test fixtures.\n\n## Problem\n\nnsproto-security, srjcl-jupyter, and pluml-diagram fixtures fail with \"container is not running\" errors. The container images need rebuilding/re-summoning.\n\n## Steps\n\n1. Rebuild/re-summon vessel images for nsproto, srjcl, pluml\n2. Verify all three nameplate fixtures pass in rbw-ta\n\n## Acceptance\n\n- nsproto-security passes\n- srjcl-jupyter passes\n- pluml-diagram passes",
