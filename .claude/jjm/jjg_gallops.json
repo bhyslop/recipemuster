@@ -7149,9 +7149,10 @@
         "₢AoAAI",
         "₢AoAAG",
         "₢AoAAF",
-        "₢AoAAH"
+        "₢AoAAH",
+        "₢AoAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAlo.md",
       "paces": {
         "₢AoAAA": {
@@ -7376,6 +7377,17 @@
               "text": "Replace 25 individual MCP tools with a single `jjx` dispatcher tool.\n\n## Motivation\n\nEach jjx command is currently a separate MCP tool. This means Claude Code must ToolSearch before first use of each command in a conversation, and the tool list is cluttered with 25 entries. Since CLAUDE.md already teaches the command vocabulary, per-tool schemas add friction without proportional value.\n\n## Design\n\nSingle `#[tool]` function with parameters:\n- `command`: String — the jjx command name (e.g., `list`, `record`, `show`)\n- `params`: String — JSON-encoded parameters for the command\n\nThe dispatcher deserializes `params` into the appropriate per-command param struct and calls the existing handler. All handler functions and their Args types are unchanged.\n\n## Scope\n\n- Rewrite `jjrm_mcp.rs` to expose one tool (`jjx`) instead of 25\n- Remove per-tool `#[tool]` functions\n- Keep all `jjrm_*Params` structs (used for serde deserialization)\n- Keep all handler dispatch logic\n- Update `.mcp.json` or registration if tool name changes\n\n## Acceptance\n\n- `jjx` appears as single MCP tool in Claude Code\n- All 25 commands work via the single dispatcher\n- ToolSearch loads one tool instead of 25\n- Build and tests pass",
               "silks": "mcp-single-dispatcher-tool",
               "commit": "46c4361"
+            }
+          ]
+        },
+        "₢AoAAJ": {
+          "tacks": [
+            {
+              "ts": "260306-1943",
+              "state": "rough",
+              "text": "Fix MCP transport deadlock caused by child processes inheriting the MCP server's stdin fd.\n\nRoot cause: Command::new(\"git\") and Command::new(\"claude\") spawn subprocesses that inherit stdin from the parent MCP server process. Since MCP uses stdin/stdout for JSON-RPC transport, child processes reading from the shared stdin corrupt or deadlock the protocol.\n\nFix: Create vvce_git_command() factory in vvce_env.rs that sets stdin(Stdio::null()) on all git subprocess calls. Apply same fix to vvce_claude_command(). Replace all 28 Command::new(\"git\") call sites across vvc and jjk crates with the factory. Remove probe disable workaround — all three model probes (haiku/sonnet/opus) now run successfully in parallel during invitatory.",
+              "silks": "fix-mcp-subprocess-stdin-inheritance",
+              "commit": "660c900"
             }
           ]
         }
