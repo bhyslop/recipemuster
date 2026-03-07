@@ -4429,6 +4429,7 @@
       "creation_time": "260222",
       "status": "racing",
       "order": [
+        "₢AhAAL",
         "₢AhAAF",
         "₢AhAAG",
         "₢AhAAI",
@@ -4440,7 +4441,7 @@
         "₢AhAAJ",
         "₢AhAAK"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -4599,6 +4600,17 @@
               "text": "Iterate on minimum viable CLAUDE.md cue to get models to format CSV as a table.\n\n## Approach\n\nBuild a trivial `jjx_table` command that echoes CSV stdin back as raw CSV output. Then run controlled trials across model tiers and cue levels to find the simplest cue that reliably produces formatted tables.\n\n## Step 1: Build jjx_table\n\nMinimal Rust command:\n- Reads CSV lines from stdin\n- Echoes them back unchanged to stdout\n- No formatting, no parsing — just a passthrough\n\nFiles: new command file in Tools/jjk/vov_veiled/src/, register in jjrx_cli.rs\n\n## Step 2: Define cue levels\n\n| Level | CLAUDE.md Cue |\n|-------|--------------|\n| 0 | Nothing — no cue at all |\n| 1 | \"jjx_table outputs CSV. Present as a table.\" |\n| 2 | \"When jjx commands emit CSV, render as markdown table for the user.\" |\n| 3 | Full slash command with step-by-step instructions (control/baseline) |\n\n## Step 3: Run trials\n\nFor each cue level, test across model tiers using Task tool with model param:\n- Opus: Task(model=\"opus\")\n- Sonnet: Task(model=\"sonnet\")\n- Haiku: Task(model=\"haiku\")\n\nEach trial: call jjx_table with 3-5 CSV rows, capture model's response, grade pass/fail (did it produce a markdown table with correct values?).\n\nTest CSV payload (fixed across trials):\n```\nName,Status,Count\nalpha,racing,5\nbeta,stabled,12\ngamma,retired,8\n```\n\n## Step 4: Record results\n\nBuild a 4x3 matrix (cue level x model tier) in a memo documenting:\n- Pass/fail per cell\n- Qualitative notes (added headers? extra commentary? reformatted values?)\n- Minimum viable cue level per tier\n\n## Step 5: Iterate\n\nIf Level 2 works universally, that's the target cue for CLAUDE.md.\nIf tiers diverge, consider whether --model flag lets jjx pre-format for weaker models.\n\n## Success Criteria\n- jjx_table command builds and runs\n- At least 3 trials per cell in the matrix\n- Clear recommendation for minimum cue wording\n- Memo with findings: Memos/memo-YYYYMMDD-cue-calibration-csv-table.md",
               "silks": "csv-table-cue-trial",
               "commit": "390cf92"
+            }
+          ]
+        },
+        "₢AhAAL": {
+          "tacks": [
+            {
+              "ts": "260307-1205",
+              "state": "rough",
+              "text": "Spook fix: jjx_transfer (restring) fails silently through MCP.\n\n## Two bugs\n\n1. **CLAUDE.md says coronets is newline-separated string** but jjrrs_restring.rs:45 deserializes via `serde_json::from_str::<Vec<String>>()` — needs a JSON array like `[\"AYAAA\"]`.\n\n2. **Errors go to stderr, not buf** — all error paths in jjrrs_run() use `eprintln!()` and return `(1, empty_buf)`. MCP transport only sees buf, so errors are silently lost.\n\n## Fix\n\n- Update CLAUDE.md (and vocjjmc_core.md) to document coronets as JSON array\n- Change `eprintln!` error paths in jjrrs_restring.rs to `write!(buf, ...)` so errors flow through MCP\n- Audit other commands for same eprintln pattern",
+              "silks": "fix-restring-eprintln-and-claudemd-coronets-doc",
+              "commit": "f2e1bc4"
             }
           ]
         }
