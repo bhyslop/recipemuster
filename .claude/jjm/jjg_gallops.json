@@ -5462,9 +5462,10 @@
         "₢AkAAa",
         "₢AkAAb",
         "₢AkAAc",
-        "₢AkAAd"
+        "₢AkAAd",
+        "₢AkAAi"
       ],
-      "next_pace_seed": "AAi",
+      "next_pace_seed": "AAj",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6145,6 +6146,17 @@
               "text": "Create RBDC (Derived Constants) module to hold credential file path constants currently in RBRR's lock function.\n\n## Problem\n\nRBRR's zrbrr_lock() derives 4 credential file paths from RBRR_SECRETS_DIR:\n- RBRR_GOVERNOR_RBRA_FILE\n- RBRR_RETRIEVER_RBRA_FILE\n- RBRR_DIRECTOR_RBRA_FILE\n- RBRR_PAYOR_RBRO_FILE\n\nThese are convention constants (hardcoded filenames + runtime path) that serve as a directory service for other regimes' credential files. They don't belong in RBRR — RBRR is a config regime, not a path resolver.\n\n## Deliverables\n\n1. Create `Tools/rbw/rbdc_DerivedConstants.sh` with zrbdc_kindle() that:\n   - Requires RBRR kindled (needs RBRR_SECRETS_DIR)\n   - Declares readonly RBDC_GOVERNOR_RBRA_FILE, RBDC_RETRIEVER_RBRA_FILE, RBDC_DIRECTOR_RBRA_FILE, RBDC_PAYOR_RBRO_FILE\n   - Sentinel function zrbdc_sentinel()\n\n2. Remove the 4 file path derivations from zrbrr_lock() (ZRBRR_DOCKER_ENV stays — it's genuinely RBRR-derived)\n\n3. Update all ~40 consumer sites to use RBDC_ prefix instead of RBRR_\n   - rbgg_Governor.sh, rbf_Foundry.sh, rbro_regime.sh, rbro_cli.sh, rbgu_Utility.sh, rbi_Image.sh, rbra_cli.sh, rbgp_Payor.sh, rbap_AccessProbe.sh, butcrg_RegimeCredentials.sh\n\n4. Update all cli furnish functions to source rbdc and call zrbdc_kindle() after zrbrr_kindle/enforce\n\n5. Update CLAUDE.md acronym mappings\n\n## Prefix Mint\n\n- RBDC: rbd (new non-terminal) + c (constants by domain convention)\n- Variables: RBDC_*\n- Functions: zrbdc_kindle(), zrbdc_sentinel()\n- No .env file — pure kindle-time derivation\n\n## Acceptance\n\n- No RBRR_*_RBRA_FILE or RBRR_PAYOR_RBRO_FILE references remain\n- All tests pass (rbw-ta)\n- CLAUDE.md updated with RBDC mapping",
               "silks": "extract-rbdc-derived-constants",
               "commit": "a6224a7"
+            }
+          ]
+        },
+        "₢AkAAi": {
+          "tacks": [
+            {
+              "ts": "260307-1326",
+              "state": "rough",
+              "text": "Add automated quota preflight check for concurrent_private_pool_build_cpus.\n\n## Problem\n\nRBRR_GCB_MIN_CONCURRENT_BUILDS=3 is declared and validated but never consumed. When depot quota is too low (e.g. 2 vCPU with e2-standard-2 = 1 concurrent build), builds silently queue instead of failing fast. Discovered during demo1025 vessel rebuilds where 3 builds serialized on a 2-vCPU quota.\n\n## Design\n\nQuery Service Usage consumer quota API for `concurrent_private_pool_build_cpus` in the depot project/region. Extract vCPU count from RBRR_GCB_MACHINE_TYPE string. Compute max_concurrent = quota_value / vcpus. Compare against RBRR_GCB_MIN_CONCURRENT_BUILDS.\n\n## Insertion Points\n\n1. **Hard gate in rbf_build** — die before trigger dispatch if quota < required\n2. **Soft advisory in rbf_list** — warn after listing if quota looks insufficient\n\n## Notes\n\n- Metric is private-pool-specific (not default pool concurrent builds)\n- Service Usage API infrastructure already in rbgd_DepotConstants.sh and rbgu_Utility.sh\n- Director credentials already available in both rbf_build and rbf_list paths\n- Consider extracting the check as a shared function in rbf_Foundry.sh",
+              "silks": "quota-preflight-concurrent-builds",
+              "commit": "0847d34"
             }
           ]
         }
