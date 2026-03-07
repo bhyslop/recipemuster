@@ -10,7 +10,6 @@
 
 use clap::Args;
 use std::collections::HashSet;
-use std::process::Command;
 
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX};
 use crate::jjrn_notch::{jjrn_format_notch_prefix, JJRN_COMMIT_PREFIX};
@@ -53,8 +52,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
 
         // If file doesn't exist on disk, check if it's tracked by git
         if !path_exists {
-            let git_ls_output = match Command::new("git")
-                .args(["ls-files", "--error-unmatch", file])
+            let git_ls_output = match vvc::vvce_git_command(&["ls-files", "--error-unmatch", file])
                 .output()
             {
                 Ok(o) => o,
@@ -66,8 +64,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
 
             // If git ls-files fails, check if it's a staged deletion
             if !git_ls_output.status.success() {
-                let git_diff_output = match Command::new("git")
-                    .args(["diff", "--cached", "--name-only", "--diff-filter=D", "--", file])
+                let git_diff_output = match vvc::vvce_git_command(&["diff", "--cached", "--name-only", "--diff-filter=D", "--", file])
                     .output()
                 {
                     Ok(o) => o,
@@ -120,8 +117,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     };
 
     // Warn about uncommitted changes outside the file list
-    let output = match Command::new("git")
-        .args(["status", "--porcelain"])
+    let output = match vvc::vvce_git_command(&["status", "--porcelain"])
         .output()
     {
         Ok(o) => o,
@@ -159,8 +155,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     }
 
     // Stage only the specified files
-    let mut git_add = Command::new("git");
-    git_add.arg("add");
+    let mut git_add = vvc::vvce_git_command(&["add"]);
     for file in &args.files {
         git_add.arg(file);
     }

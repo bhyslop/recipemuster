@@ -157,14 +157,27 @@ fn zvvce_validate_env() -> VvcEnv {
     }
 }
 
+/// Create a Command for invoking git as a subprocess.
+///
+/// Disconnects stdin to prevent child process from inheriting the
+/// MCP server's stdin fd, which causes transport deadlock.
+pub fn vvce_git_command(args: &[&str]) -> std::process::Command {
+    let mut cmd = std::process::Command::new("git");
+    cmd.args(args);
+    cmd.stdin(std::process::Stdio::null());
+    cmd
+}
+
 /// Create a Command for invoking claude as a subprocess.
 ///
 /// Removes the CLAUDECODE environment variable to prevent the
 /// nested-session guard (v2.1.39+) from blocking subprocess invocations
 /// that are legitimate tool usage, not interactive nesting.
+/// Disconnects stdin to prevent MCP transport deadlock.
 pub fn vvce_claude_command() -> std::process::Command {
     let mut cmd = std::process::Command::new("claude");
     cmd.env_remove("CLAUDECODE");
+    cmd.stdin(std::process::Stdio::null());
     cmd
 }
 

@@ -13,7 +13,6 @@
 //! - ACTION: Single letter code (required for all commits)
 
 use serde::Serialize;
-use std::process::Command;
 
 use crate::jjrf_favor::{jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
@@ -182,8 +181,7 @@ pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEnt
         CORONET_PREFIX, firemark_raw
     );
 
-    let output = Command::new("git")
-        .args([
+    let output = vvc::vvce_git_command(&[
             "log",
             "--all",
             "--extended-regexp",

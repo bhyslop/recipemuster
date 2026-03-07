@@ -18,8 +18,6 @@
 //!   0 - Success (commit hash printed to stdout)
 //!   1 - Failure (staging failed, guard failed, commit failed)
 
-use std::process::Command;
-
 use crate::vvcc_commit::vvcc_CommitLock;
 use crate::vvcg_guard;
 
@@ -84,8 +82,7 @@ pub fn vvcm_commit(
 
 /// Stage specific files using git add
 fn zvvcm_stage_files(files: &[String]) -> Result<(), String> {
-    let mut cmd = Command::new("git");
-    cmd.arg("add").arg("--");
+    let mut cmd = crate::vvce_git_command(&["add", "--"]);
     for file in files {
         cmd.arg(file);
     }
@@ -106,8 +103,7 @@ fn zvvcm_stage_files(files: &[String]) -> Result<(), String> {
 
 /// Execute git commit with message (no Co-Authored-By)
 fn zvvcm_execute_commit(message: &str) -> Result<String, String> {
-    let output = Command::new("git")
-        .args(["commit", "-m", message])
+    let output = crate::vvce_git_command(&["commit", "-m", message])
         .output()
         .map_err(|e| format!("Failed to run git commit: {}", e))?;
 
@@ -117,8 +113,7 @@ fn zvvcm_execute_commit(message: &str) -> Result<String, String> {
     }
 
     // Get commit hash
-    let hash_output = Command::new("git")
-        .args(["rev-parse", "HEAD"])
+    let hash_output = crate::vvce_git_command(&["rev-parse", "HEAD"])
         .output()
         .map_err(|e| format!("Failed to get commit hash: {}", e))?;
 

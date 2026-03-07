@@ -26,8 +26,6 @@
 //!   0 - Success (commit hash printed to stdout)
 //!   1 - Failure (lock held, guard failed, claude failed, commit failed)
 
-use std::process::Command;
-
 use crate::vvcg_guard;
 
 /// Lock reference path for commit operations
@@ -101,8 +99,7 @@ impl Drop for vvcc_CommitLock {
 
 /// Acquire the commit lock using git update-ref
 fn zvvcc_acquire_lock() -> Result<(), String> {
-    let head_output = Command::new("git")
-        .args(["rev-parse", "HEAD"])
+    let head_output = crate::vvce_git_command(&["rev-parse", "HEAD"])
         .output()
         .map_err(|e| format!("Failed to run git rev-parse: {}", e))?;
 
@@ -112,8 +109,7 @@ fn zvvcc_acquire_lock() -> Result<(), String> {
         "0000000000000000000000000000000000000000".to_string()
     };
 
-    let result = Command::new("git")
-        .args(["update-ref", VVCC_LOCK_REF, &lock_value, ""])
+    let result = crate::vvce_git_command(&["update-ref", VVCC_LOCK_REF, &lock_value, ""])
         .output()
         .map_err(|e| format!("Failed to run git update-ref: {}", e))?;
 
@@ -126,15 +122,13 @@ fn zvvcc_acquire_lock() -> Result<(), String> {
 
 /// Release the commit lock
 fn zvvcc_release_lock() {
-    let _ = Command::new("git")
-        .args(["update-ref", "-d", VVCC_LOCK_REF])
+    let _ = crate::vvce_git_command(&["update-ref", "-d", VVCC_LOCK_REF])
         .output();
 }
 
 /// Stage all changes including untracked files with 'git add -A'
 fn zvvcc_stage_changes() -> Result<(), String> {
-    let result = Command::new("git")
-        .args(["add", "-A"])
+    let result = crate::vvce_git_command(&["add", "-A"])
         .output()
         .map_err(|e| format!("Failed to run git add: {}", e))?;
 
@@ -150,8 +144,7 @@ fn zvvcc_stage_changes() -> Result<(), String> {
 
 /// Check if there are staged changes
 fn zvvcc_has_staged_changes() -> Result<bool, String> {
-    let result = Command::new("git")
-        .args(["diff", "--cached", "--quiet"])
+    let result = crate::vvce_git_command(&["diff", "--cached", "--quiet"])
         .output()
         .map_err(|e| format!("Failed to run git diff: {}", e))?;
 
@@ -180,8 +173,7 @@ fn zvvcc_run_guard(args: &vvcc_CommitArgs) -> Result<(), String> {
 
 /// Get the staged diff for commit message generation
 fn zvvcc_get_staged_diff() -> Result<String, String> {
-    let output = Command::new("git")
-        .args(["diff", "--cached"])
+    let output = crate::vvce_git_command(&["diff", "--cached"])
         .output()
         .map_err(|e| format!("Failed to run git diff: {}", e))?;
 
@@ -269,8 +261,7 @@ fn zvvcc_execute_commit(message: &str, allow_empty: bool) -> Result<String, Stri
         args.push("--allow-empty");
     }
 
-    let output = Command::new("git")
-        .args(&args)
+    let output = crate::vvce_git_command(&args)
         .output()
         .map_err(|e| format!("Failed to run git commit: {}", e))?;
 
@@ -279,8 +270,7 @@ fn zvvcc_execute_commit(message: &str, allow_empty: bool) -> Result<String, Stri
         return Err(format!("git commit failed: {}", stderr));
     }
 
-    let hash_output = Command::new("git")
-        .args(["rev-parse", "HEAD"])
+    let hash_output = crate::vvce_git_command(&["rev-parse", "HEAD"])
         .output()
         .map_err(|e| format!("Failed to get commit hash: {}", e))?;
 

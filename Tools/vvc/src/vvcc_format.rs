@@ -8,7 +8,6 @@
 //! (jjb: for Job Jockey, vvb: for VOK builds, etc.)
 
 use std::fs;
-use std::process::Command;
 
 /// Path to brand file containing vvbh_hallmark
 pub const VVCC_BRAND_FILE_PATH: &str = ".vvk/vvbf_brand.json";
@@ -52,8 +51,7 @@ pub fn vvcc_get_hallmark() -> String {
     }
 
     // Get short commit hash
-    let git_output = Command::new("git")
-        .args(["rev-parse", "--short", "HEAD"])
+    let git_output = crate::vvce_git_command(&["rev-parse", "--short", "HEAD"])
         .output();
 
     let commit_hash = if let Ok(output) = git_output {

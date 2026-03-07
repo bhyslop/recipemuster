@@ -37,7 +37,6 @@
 //!   2 - Over warn threshold (WARNING)
 
 use std::path::Path;
-use std::process::Command;
 
 /// Standard size limit for guard check (50KB)
 ///
@@ -73,8 +72,7 @@ pub(crate) struct zvvcg_StagedFile {
 
 /// Get list of staged files with their diff sizes
 fn zvvcg_get_staged_files(repo_dir: Option<&Path>) -> Result<Vec<zvvcg_StagedFile>, String> {
-    let mut cmd = Command::new("git");
-    cmd.args(["diff", "--cached", "--name-only"]);
+    let mut cmd = crate::vvce_git_command(&["diff", "--cached", "--name-only"]);
     if let Some(dir) = repo_dir {
         cmd.current_dir(dir);
     }
@@ -114,8 +112,7 @@ enum zvvcg_ChangeStatus {
 
 /// Get the change status of a staged file (A/M/D)
 fn zvvcg_get_change_status(path: &str, repo_dir: Option<&Path>) -> Result<zvvcg_ChangeStatus, String> {
-    let mut cmd = Command::new("git");
-    cmd.args(["diff", "--cached", "--name-status", "--", path]);
+    let mut cmd = crate::vvce_git_command(&["diff", "--cached", "--name-status", "--", path]);
     if let Some(dir) = repo_dir {
         cmd.current_dir(dir);
     }
@@ -151,8 +148,7 @@ fn zvvcg_get_change_status(path: &str, repo_dir: Option<&Path>) -> Result<zvvcg_
 ///
 /// Uses git diff --numstat which reports `-\t-\t<path>` for binary files.
 fn zvvcg_is_binary(path: &str, repo_dir: Option<&Path>) -> Result<bool, String> {
-    let mut cmd = Command::new("git");
-    cmd.args(["diff", "--cached", "--numstat", "--", path]);
+    let mut cmd = crate::vvce_git_command(&["diff", "--cached", "--numstat", "--", path]);
     if let Some(dir) = repo_dir {
         cmd.current_dir(dir);
     }
@@ -175,8 +171,7 @@ fn zvvcg_is_binary(path: &str, repo_dir: Option<&Path>) -> Result<bool, String> 
 /// Get the blob size for a staged file
 fn zvvcg_get_blob_size(path: &str, repo_dir: Option<&Path>) -> Result<u64, String> {
     // Get staged blob info: mode, sha, stage, path
-    let mut cmd = Command::new("git");
-    cmd.args(["ls-files", "--cached", "-s", "--", path]);
+    let mut cmd = crate::vvce_git_command(&["ls-files", "--cached", "-s", "--", path]);
     if let Some(dir) = repo_dir {
         cmd.current_dir(dir);
     }
@@ -204,8 +199,7 @@ fn zvvcg_get_blob_size(path: &str, repo_dir: Option<&Path>) -> Result<u64, Strin
     let blob_sha = parts[1];
 
     // Get actual blob size
-    let mut cmd = Command::new("git");
-    cmd.args(["cat-file", "-s", blob_sha]);
+    let mut cmd = crate::vvce_git_command(&["cat-file", "-s", blob_sha]);
     if let Some(dir) = repo_dir {
         cmd.current_dir(dir);
     }
@@ -226,8 +220,7 @@ fn zvvcg_get_blob_size(path: &str, repo_dir: Option<&Path>) -> Result<u64, Strin
 
 /// Get the diff output size for a modified text file
 fn zvvcg_get_text_diff_size(path: &str, repo_dir: Option<&Path>) -> Result<u64, String> {
-    let mut cmd = Command::new("git");
-    cmd.args(["diff", "--cached", "--", path]);
+    let mut cmd = crate::vvce_git_command(&["diff", "--cached", "--", path]);
     if let Some(dir) = repo_dir {
         cmd.current_dir(dir);
     }

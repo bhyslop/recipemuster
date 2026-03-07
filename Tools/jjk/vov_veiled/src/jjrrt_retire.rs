@@ -168,11 +168,9 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
             eprintln!("jjx_retire: error: commit failed: {}", e);
             // Rollback: restore gallops and paddock from HEAD, remove trophy
             let gp = args.file.to_string_lossy().to_string();
-            let _ = std::process::Command::new("git")
-                .args(["checkout", "HEAD", "--", &gp, &result.paddock_path])
+            let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", &gp, &result.paddock_path])
                 .status();
-            let _ = std::process::Command::new("git")
-                .args(["rm", "-f", "--cached", &result.trophy_path])
+            let _ = vvc::vvce_git_command(&["rm", "-f", "--cached", &result.trophy_path])
                 .status();
             let _ = std::fs::remove_file(&result.trophy_path);
             eprintln!("jjx_retire: rolled back file changes");

@@ -8,7 +8,6 @@
 //! and transitions the pace state to complete with chalk marker.
 
 use std::path::PathBuf;
-use std::process::Command;
 use std::io::Write;
 use std::fmt::Write as FmtWrite;
 
@@ -68,8 +67,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     };
 
     // Stage all changes
-    let add_output = match Command::new("git")
-        .args(["add", "-A"])
+    let add_output = match vvc::vvce_git_command(&["add", "-A"])
         .output()
     {
         Ok(o) => o,
@@ -86,8 +84,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
 
     // Size guard check
     let size_limit = args.size_limit.unwrap_or(50000); // 50KB default
-    let diff_output = match Command::new("git")
-        .args(["diff", "--cached", "--stat"])
+    let diff_output = match vvc::vvce_git_command(&["diff", "--cached", "--stat"])
         .output()
     {
         Ok(o) => o,
@@ -104,8 +101,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
 
     // Parse size from last line of --stat output (format: "N files changed, M insertions(+), K deletions(-)")
     // Better size check: get actual staged content size
-    let numstat_output = match Command::new("git")
-        .args(["diff", "--cached", "--numstat"])
+    let numstat_output = match vvc::vvce_git_command(&["diff", "--cached", "--numstat"])
         .output()
     {
         Ok(o) => o,
@@ -147,8 +143,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     // Only generate commit message and commit if there are staged changes
     let commit_hash = if has_staged_changes {
         // Generate commit message using Claude CLI
-        let diff_content = match Command::new("git")
-            .args(["diff", "--cached"])
+        let diff_content = match vvc::vvce_git_command(&["diff", "--cached"])
             .output()
         {
             Ok(o) => o,
@@ -208,8 +203,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         let prefix = jjrn_format_notch_prefix(&coronet);
         let full_message = format!("{}{}\n\nCo-Authored-By: Claude <noreply@anthropic.com>", prefix, generated_message);
 
-        let commit_output = match Command::new("git")
-            .args(["commit", "-m", &full_message])
+        let commit_output = match vvc::vvce_git_command(&["commit", "-m", &full_message])
             .output()
         {
             Ok(o) => o,
@@ -226,8 +220,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         }
 
         // Get commit hash
-        let hash_output = match Command::new("git")
-            .args(["rev-parse", "HEAD"])
+        let hash_output = match vvc::vvce_git_command(&["rev-parse", "HEAD"])
             .output()
         {
             Ok(o) => o,
@@ -243,8 +236,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         eprintln!("jjx_wrap: no staged changes, proceeding with state transition only");
 
         // Get current HEAD as reference (no new work commit created)
-        let hash_output = match Command::new("git")
-            .args(["rev-parse", "HEAD"])
+        let hash_output = match vvc::vvce_git_command(&["rev-parse", "HEAD"])
             .output()
         {
             Ok(o) => o,

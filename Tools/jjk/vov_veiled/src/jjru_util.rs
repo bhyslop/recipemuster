@@ -45,11 +45,8 @@ pub(crate) fn zjjrg_increment_seed(seed: &str) -> String {
 /// Runs `git rev-parse --short=N HEAD` where N is derived from JJRG_UNKNOWN_BASIS length.
 /// Returns JJRG_UNKNOWN_BASIS on error (e.g., not in a git repo).
 pub fn jjrg_capture_commit_sha() -> String {
-    use std::process::Command;
-
     let short_arg = format!("--short={}", JJRG_UNKNOWN_BASIS.len());
-    match Command::new("git")
-        .args(["rev-parse", &short_arg, "HEAD"])
+    match vvc::vvce_git_command(&["rev-parse", &short_arg, "HEAD"])
         .output()
     {
         Ok(output) if output.status.success() => {

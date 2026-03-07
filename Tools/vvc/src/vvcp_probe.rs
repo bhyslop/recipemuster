@@ -24,7 +24,7 @@ pub const VVCP_OFFICIUM_TOKEN: &str = "OFFICIUM";
 
 /// Gap threshold in seconds for officium detection (1 hour).
 /// For manual testing, lower to 60 and rebuild; restore after.
-pub const VVCP_OFFICIUM_GAP_SECS: u64 = 3600;
+pub const VVCP_OFFICIUM_GAP_SECS: u64 = 1; // TEMPORARY: lowered from 3600 for probe testing
 
 /// Raw probe output file for haiku
 const VVCP_RAW_HAIKU_FILE: &str = "vvcp_raw_haiku.txt";
@@ -65,70 +65,17 @@ const VVCP_BURD_TEMP_DIR_VAR: &str = "BURD_TEMP_DIR";
 ///
 /// On probe failure for a tier, returns "unavailable" for that tier.
 pub async fn vvcp_probe() -> Result<String, String> {
-    // Spawn haiku and sonnet probes in parallel to get raw output
+    // EXPERIMENT: re-enable all probes with stdin disconnected from MCP transport.
+    // Hypothesis: child claude inherits MCP server's stdin fd, causing hang.
+    // Fix: probe_model_tier_raw now uses .stdin(Stdio::null()).
     let haiku_future = probe_model_tier_raw("haiku");
     let sonnet_future = probe_model_tier_raw("sonnet");
+    let opus_future = probe_model_tier_raw("opus");
+    let (haiku_raw, sonnet_raw, opus_raw) = tokio::join!(haiku_future, sonnet_future, opus_future);
 
-    // Wait for both probes
-    let (haiku_raw, sonnet_raw) = tokio::join!(haiku_future, sonnet_future);
-
-    // Get BURD_TEMP_DIR from environment
-    let temp_dir = std::env::var(VVCP_BURD_TEMP_DIR_VAR).ok();
-
-    // Write raw haiku and sonnet outputs to files if BURD_TEMP_DIR is set
-    if let Some(ref dir) = temp_dir {
-        let _ = write_raw_output(dir, VVCP_RAW_HAIKU_FILE, &haiku_raw).await;
-        let _ = write_raw_output(dir, VVCP_RAW_SONNET_FILE, &sonnet_raw).await;
-    }
-
-    // Build opus prompt from constants
-    let prompt = format!(
-        "Report your own model ID. Then extract the Claude model ID from each raw output below.\n\
-        \n\
-        <raw_haiku>\n\
-        {}\n\
-        </raw_haiku>\n\
-        \n\
-        <raw_sonnet>\n\
-        {}\n\
-        </raw_sonnet>\n\
-        \n\
-        Respond with exactly:\n\
-        <{}>[opus model ID]</{}>\n\
-        <{}>[haiku model ID]</{}>\n\
-        <{}>[sonnet model ID]</{}>",
-        haiku_raw,
-        sonnet_raw,
-        VVCP_ELEMENT_OPUS,
-        VVCP_ELEMENT_OPUS,
-        VVCP_ELEMENT_HAIKU,
-        VVCP_ELEMENT_HAIKU,
-        VVCP_ELEMENT_SONNET,
-        VVCP_ELEMENT_SONNET
-    );
-
-    // Invoke opus with the prompt (no --system-prompt flag)
-    let opus_output = Command::from(crate::vvce_claude_command())
-        .args(["-p", "--model", "opus", "--no-session-persistence", "--", &prompt])
-        .output()
-        .await;
-
-    let opus_raw = match opus_output {
-        Ok(output) if output.status.success() => {
-            String::from_utf8_lossy(&output.stdout).to_string()
-        }
-        _ => String::new(),
-    };
-
-    // Write raw opus response if BURD_TEMP_DIR is set
-    if let Some(ref dir) = temp_dir {
-        let _ = write_raw_output(dir, VVCP_RAW_OPUS_FILE, &opus_raw).await;
-    }
-
-    // Parse opus response with regexes
-    let haiku_id = extract_xml_element(&opus_raw, VVCP_ELEMENT_HAIKU);
-    let sonnet_id = extract_xml_element(&opus_raw, VVCP_ELEMENT_SONNET);
-    let opus_id = extract_xml_element(&opus_raw, VVCP_ELEMENT_OPUS);
+    let haiku_id = if haiku_raw.trim().is_empty() { "unavailable".to_string() } else { haiku_raw.trim().to_string() };
+    let sonnet_id = if sonnet_raw.trim().is_empty() { "unavailable".to_string() } else { sonnet_raw.trim().to_string() };
+    let opus_id = if opus_raw.trim().is_empty() { "unavailable".to_string() } else { opus_raw.trim().to_string() };
 
     // Collect hostname
     let hostname = get_hostname().await;
@@ -246,14 +193,13 @@ pub(crate) async fn zvvcp_needs_officium() -> bool {
     let pattern = format!("^{}:.*:{}:", VVCC_BRAND_PREFIX, VVCP_ACTION_INVITATORY);
 
     // Search git log for most recent invitatory commit
-    let output = Command::new("git")
-        .args([
+    let output = tokio::process::Command::from(crate::vvce_git_command(&[
             "log",
             "--all",
             &format!("--grep={}", pattern),
             "--format=%ai",
             "-1",
-        ])
+        ]))
         .output()
         .await;
 

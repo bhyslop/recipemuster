@@ -12,7 +12,6 @@ mod tests {
     use crate::vvcg_guard::{zvvcg_get_diff_size, vvcg_run, vvcg_GuardArgs, VVCG_SIZE_LIMIT, VVCG_WARN_LIMIT};
     use std::fs;
     use std::path::{Path, PathBuf};
-    use std::process::Command;
 
     /// Get test temp directory - uses BUD if available, falls back to system temp
     fn get_test_base() -> PathBuf {
@@ -29,21 +28,18 @@ mod tests {
 
     /// Helper to initialize a git repo in a directory
     fn init_git_repo(dir: &Path) {
-        Command::new("git")
-            .args(["init"])
+        crate::vvce_git_command(&["init"])
             .current_dir(dir)
             .output()
             .expect("git init failed");
 
         // Set user config for commits
-        Command::new("git")
-            .args(["config", "user.name", "Test User"])
+        crate::vvce_git_command(&["config", "user.name", "Test User"])
             .current_dir(dir)
             .output()
             .expect("git config user.name failed");
 
-        Command::new("git")
-            .args(["config", "user.email", "test@example.com"])
+        crate::vvce_git_command(&["config", "user.email", "test@example.com"])
             .current_dir(dir)
             .output()
             .expect("git config user.email failed");
@@ -51,8 +47,7 @@ mod tests {
 
     /// Helper to stage a file in a git repo
     fn stage_file(dir: &Path, path: &str) {
-        Command::new("git")
-            .args(["add", path])
+        crate::vvce_git_command(&["add", path])
             .current_dir(dir)
             .output()
             .expect("git add failed");
@@ -120,8 +115,7 @@ mod tests {
         fs::write(&file_path, "content\n").unwrap();
         stage_file(&temp_dir, "test.txt");
 
-        Command::new("git")
-            .args(["commit", "-m", "Initial commit"])
+        crate::vvce_git_command(&["commit", "-m", "Initial commit"])
             .current_dir(&temp_dir)
             .output()
             .expect("git commit failed");

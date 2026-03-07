@@ -18,7 +18,6 @@ use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus
 use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries};
 use regex::Regex;
 use serde::Serialize;
-use std::process::Command;
 
 /// Path prefix for JJ infrastructure files (excluded from work file queries)
 const JJRQ_INFRA_PREFIX: &str = ".claude/jjm/";
@@ -41,8 +40,7 @@ pub fn jjrq_resolve_default_heat(gallops: &Gallops) -> Result<String, String> {
 
 /// Get files changed by a single commit via git diff-tree
 pub(crate) fn zjjrq_files_for_commit(sha: &str) -> Vec<String> {
-    let output = Command::new("git")
-        .args(["diff-tree", "--no-commit-id", "--name-only", "-r", sha])
+    let output = vvc::vvce_git_command(&["diff-tree", "--no-commit-id", "--name-only", "-r", sha])
         .output();
 
     match output {

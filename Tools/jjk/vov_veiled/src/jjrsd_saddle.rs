@@ -378,7 +378,6 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
     jjrpd_write_file_bitmap(&mut buf, &firemark, heat);
     jjrpd_write_commit_swimlanes(&mut buf, &firemark, heat);
 
-    // Call invitatory to check/create officium marker
     if let Err(e) = vvc::vvcp_invitatory().await {
         eprintln!("jjx_orient: warning: invitatory failed: {}", e);
     }

@@ -138,7 +138,6 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
         ]);
     }
 
-    // Call invitatory to check/create officium marker
     if let Err(e) = vvc::vvcp_invitatory().await {
         eprintln!("jjx_muster: warning: invitatory failed: {}", e);
     }

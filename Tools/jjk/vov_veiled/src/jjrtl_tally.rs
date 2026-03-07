@@ -194,16 +194,13 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> (i32, String) {
             let b_message = format!("{}\n\n{}", b_subject, warrant);
 
             // Create empty B commit using git directly (like chalk markers)
-            use std::process::Command;
-            let output = Command::new("git")
-                .args(["commit", "--allow-empty", "-m", &b_message])
+            let output = vvc::vvce_git_command(&["commit", "--allow-empty", "-m", &b_message])
                 .output();
 
             match output {
                 Ok(result) if result.status.success() => {
                     // Get commit hash
-                    let hash_output = Command::new("git")
-                        .args(["rev-parse", "HEAD"])
+                    let hash_output = vvc::vvce_git_command(&["rev-parse", "HEAD"])
                         .output();
 
                     if let Ok(hash_result) = hash_output {
