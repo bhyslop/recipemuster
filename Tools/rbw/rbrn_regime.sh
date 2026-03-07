@@ -175,8 +175,10 @@ rbrn_preflight() {
     test -f "${z_nameplate_files[$z_nf_i]}" || continue
     local z_line
     z_line=$(
-      source "${z_nameplate_files[$z_nf_i]}" || buc_die "Failed to source: ${z_nameplate_files[$z_nf_i]}"
-      echo "${RBRN_MONIKER}|${RBRN_ENTRY_MODE}|${RBRN_ENTRY_PORT_WORKSTATION:-0}|${RBRN_ENTRY_PORT_ENCLAVE:-0}|${RBRN_ENCLAVE_BASE_IP}|${RBRN_ENCLAVE_NETMASK}|${RBRN_ENCLAVE_SENTRY_IP}|${RBRN_ENCLAVE_BOTTLE_IP}" || buc_die "Failed to echo nameplate data"
+      bash -c '
+        source "$1" || exit 1
+        echo "${RBRN_MONIKER}|${RBRN_ENTRY_MODE}|${RBRN_ENTRY_PORT_WORKSTATION:-0}|${RBRN_ENTRY_PORT_ENCLAVE:-0}|${RBRN_ENCLAVE_BASE_IP}|${RBRN_ENCLAVE_NETMASK}|${RBRN_ENCLAVE_SENTRY_IP}|${RBRN_ENCLAVE_BOTTLE_IP}"
+      ' _ "${z_nameplate_files[$z_nf_i]}"
     ) || buc_die "Preflight isolation failed for: ${z_nameplate_files[$z_nf_i]}"
     z_data_lines+=("${z_line}")
   done
