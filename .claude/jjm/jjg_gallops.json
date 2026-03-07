@@ -5417,6 +5417,7 @@
       "creation_time": "260224",
       "status": "racing",
       "order": [
+        "₢AkAAg",
         "₢AkAAf",
         "₢AkAAe",
         "₢AkAAX",
@@ -5448,7 +5449,7 @@
         "₢AkAAc",
         "₢AkAAd"
       ],
-      "next_pace_seed": "AAg",
+      "next_pace_seed": "AAh",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6100,6 +6101,17 @@
               "text": "Move buv_lock from separate zXXX_lock() functions into zXXX_kindle() for all regimes.\n\nThe current pattern has a separate lock step (kindle → enforce → lock) but there is no ordering reason for lock to be after enforce: if values are invalid, enforce dies and locked invalid values are never consumed. Derived state computations (e.g., buv_docker_env in RBRN) only read variables, so they work fine after lock.\n\n## Approach\n\n1. Start with RBRN (rbrn_regime.sh): move buv_lock into zrbrn_kindle(), move buv_docker_env into zrbrn_enforce() or after it, remove zrbrn_lock(). Update all callers.\n2. Run full test suite — RBRN has the most coverage.\n3. If green, apply same pattern to all remaining regimes: RBRR, RBRA, BURD, BURS, and any others with the separate lock step.\n4. RBRO already fixed (lock in kindle, no separate lock step).\n\n## Acceptance Criteria\n\n- No regime has a separate zXXX_lock() function\n- buv_lock called inside zXXX_kindle() for every regime\n- All existing tests pass\n- Callers that called zXXX_lock() updated (remove the call)",
               "silks": "regime-lock-in-kindle-antipattern",
               "commit": "0f9ebc0"
+            }
+          ]
+        },
+        "₢AkAAg": {
+          "tacks": [
+            {
+              "ts": "260307-1219",
+              "state": "rough",
+              "text": "Rebuild container vessels and fix the 3 failing nameplate test fixtures.\n\n## Problem\n\nnsproto-security, srjcl-jupyter, and pluml-diagram fixtures fail with \"container is not running\" errors. The container images need rebuilding/re-summoning.\n\n## Steps\n\n1. Rebuild/re-summon vessel images for nsproto, srjcl, pluml\n2. Verify all three nameplate fixtures pass in rbw-ta\n\n## Acceptance\n\n- nsproto-security passes\n- srjcl-jupyter passes\n- pluml-diagram passes",
+              "silks": "rebuild-vessels-fix-nameplate-tests",
+              "commit": "032ecda"
             }
           ]
         }
