@@ -116,8 +116,6 @@ pub struct jjrm_ShowParams {
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ArchiveParams {
     pub firemark: String,
-    #[serde(default)]
-    pub execute: bool,
     pub size_limit: Option<u64>,
 }
 
@@ -353,7 +351,6 @@ impl jjrm_McpServer {
                 jjrm_result(jjrrt_run_retire(jjrrt_RetireArgs {
                     file: gallops_pathbuf(),
                     firemark: p.firemark,
-                    execute: p.execute,
                     size_limit: p.size_limit,
                 }))
             }

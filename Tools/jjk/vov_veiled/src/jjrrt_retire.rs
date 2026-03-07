@@ -4,8 +4,8 @@
 
 //! jjx_retire command - Extract complete Heat data for archival trophy
 //!
-//! Handles retire operation: optionally dry-run (preview trophy) or execute
-//! (write trophy, remove from gallops, delete paddock, commit).
+//! Handles retire operation: write trophy, remove from gallops, delete paddock, commit.
+//! Fails fast if gallops file has uncommitted changes.
 
 use std::fmt::Write;
 use std::path::{Path, PathBuf};
@@ -26,10 +26,6 @@ pub struct jjrrt_RetireArgs {
     /// Target Heat identity (Firemark)
     pub firemark: String,
 
-    /// Execute the retire (write trophy, remove from gallops, delete paddock, commit)
-    #[arg(long)]
-    pub execute: bool,
-
     /// Override size limit for commit guard (bytes)
     #[arg(long)]
     pub size_limit: Option<u64>,
@@ -37,8 +33,6 @@ pub struct jjrrt_RetireArgs {
 
 /// Run the retire command
 pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
-    use std::path::Path;
-
     let mut buf = String::new();
 
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
@@ -77,43 +71,27 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
         .and_then(|p| p.parent())
         .unwrap_or(Path::new("."));
 
-    // If --execute not specified, output trophy markdown preview
-    if !args.execute {
-        // Read paddock content
-        let firemark_key = firemark.jjrf_display();
-        let heat = match gallops.heats.get(&firemark_key) {
-            Some(h) => h,
-            None => {
-                jjbuf!(buf, "jjx_retire: error: Heat '{}' not found", firemark_key);
-                return (1, buf);
-            }
-        };
-        let paddock_path = base_path.join(&heat.paddock_file);
-        let paddock_content = match std::fs::read_to_string(&paddock_path) {
-            Ok(c) => c,
-            Err(e) => {
-                jjbuf!(buf, "jjx_retire: error reading paddock: {}", e);
-                return (1, buf);
-            }
-        };
-
-        // Build and output trophy preview
-        let today = jjrc_timestamp_date();
-        match gallops.jjrg_build_trophy_preview(&args.firemark, &paddock_content, &today, &steeplechase) {
-            Ok(markdown) => {
-                let _ = writeln!(buf, "{}", markdown);
-                return (0, buf);
-            }
-            Err(e) => {
-                jjbuf!(buf, "jjx_retire: error: {}", e);
-                return (1, buf);
-            }
+    // Fail-fast guard: reject if gallops file has uncommitted changes
+    let gallops_rel = args.file.to_string_lossy().to_string();
+    let status_output = match vvc::vvce_git_command(&["status", "--porcelain", "--", &gallops_rel])
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            jjbuf!(buf, "jjx_retire: error: failed to run git status: {}", e);
+            return (1, buf);
         }
+    };
+    if !status_output.status.success() {
+        jjbuf!(buf, "jjx_retire: error: git status failed");
+        return (1, buf);
+    }
+    let status_text = String::from_utf8_lossy(&status_output.stdout);
+    if !status_text.trim().is_empty() {
+        jjbuf!(buf, "jjx_retire: error: gallops file has uncommitted changes — commit or discard first");
+        return (1, buf);
     }
 
-    // --execute: perform the actual retire operation
-
-    // Need mutable gallops for execute path
     let mut gallops = gallops;
 
     // Acquire lock FIRST
