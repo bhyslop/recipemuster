@@ -4559,6 +4559,13 @@
         "₢AhAAI": {
           "tacks": [
             {
+              "ts": "260307-1251",
+              "state": "complete",
+              "text": "Rework jjx_archive (retire) command: (1) Remove dry-run mode — always execute. (2) Fail-fast guard: reject immediately if gallops has uncommitted changes. (3) Accept optional size_limit param for commit guard retry. (4) Ensure clean rollback on size-guard failure. (5) Route all error messages to buf, not eprintln, so MCP agent sees diagnostics.",
+              "silks": "retire-command-rework",
+              "commit": "f3a4335"
+            },
+            {
               "ts": "260306-2005",
               "state": "rough",
               "text": "Rework jjx_archive (retire) command: (1) Remove dry-run mode — always execute. (2) Fail-fast guard: reject immediately if gallops has uncommitted changes. (3) Accept optional size_limit param for commit guard retry. (4) Ensure clean rollback on size-guard failure. (5) Route all error messages to buf, not eprintln, so MCP agent sees diagnostics.",
