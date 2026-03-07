@@ -4445,9 +4445,10 @@
         "₢AhAAB",
         "₢AhAAC",
         "₢AhAAD",
-        "₢AhAAE"
+        "₢AhAAE",
+        "₢AhAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -4559,6 +4560,17 @@
               "text": "Delete eliminated and demoted slash command files, update CLAUDE.md managed section to match.\n\n## Slash command files to DELETE (eliminated concepts — verb removed entirely)\n\n- .claude/commands/jjc-pace-bridle.md\n- .claude/commands/jjc-heat-quarter.md\n- .claude/commands/jjc-heat-braid.md\n- .claude/commands/jjc-heat-garland.md\n\n## Slash command files to DELETE (demoted — verb survives as verb table entry)\n\n- .claude/commands/jjc-pace-slate.md\n- .claude/commands/jjc-pace-reslate.md\n- .claude/commands/jjc-pace-notch.md\n- .claude/commands/jjc-heat-rail.md\n- .claude/commands/jjc-heat-furlough.md\n- .claude/commands/jjc-heat-restring.md\n- .claude/commands/jjc-heat-retire-dryrun.md\n- .claude/commands/jjc-heat-retire-FINAL.md\n- .claude/commands/jjc-heat-mount.md\n- .claude/commands/jjc-heat-groom.md\n\n## CLAUDE.md managed section updates\n\n- Remove eliminated verbs from verb table: bridle, quarter, braid, garland\n- Remove jjx_arm from CLI reference\n- Remove Bridleability Assessment section\n- Remove quarter from Quick Verbs table\n- Update mount/groom/notch verb table entries: replace slash command references with inline orchestration guidance\n- Before deleting mount and groom slash commands, distill their orchestration logic into concise verb table guidance\n\n## Depends on\n\n- ₢AhAAF (jjs0-upper-api-restructure) — spec authority established first\n\n## Files\n\n- .claude/commands/jjc-*.md (14 files deleted)\n- CLAUDE.md (managed JJK section updated)",
               "silks": "slash-command-cleanup-claudemd-sync",
               "commit": "bed107e"
+            }
+          ]
+        },
+        "₢AhAAI": {
+          "tacks": [
+            {
+              "ts": "260306-2005",
+              "state": "rough",
+              "text": "Rework jjx_archive (retire) command: (1) Remove dry-run mode — always execute. (2) Fail-fast guard: reject immediately if gallops has uncommitted changes. (3) Accept optional size_limit param for commit guard retry. (4) Ensure clean rollback on size-guard failure. (5) Route all error messages to buf, not eprintln, so MCP agent sees diagnostics.",
+              "silks": "retire-command-rework",
+              "commit": "5c795e4"
             }
           ]
         }
