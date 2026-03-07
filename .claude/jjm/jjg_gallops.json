@@ -4606,6 +4606,13 @@
         "₢AhAAL": {
           "tacks": [
             {
+              "ts": "260307-1244",
+              "state": "complete",
+              "text": "Spook fix: jjx_transfer (restring) fails silently through MCP.\n\n## Two bugs\n\n1. **CLAUDE.md says coronets is newline-separated string** but jjrrs_restring.rs:45 deserializes via `serde_json::from_str::<Vec<String>>()` — needs a JSON array like `[\"AYAAA\"]`.\n\n2. **Errors go to stderr, not buf** — all error paths in jjrrs_run() use `eprintln!()` and return `(1, empty_buf)`. MCP transport only sees buf, so errors are silently lost.\n\n## Fix\n\n- Update CLAUDE.md (and vocjjmc_core.md) to document coronets as JSON array\n- Change `eprintln!` error paths in jjrrs_restring.rs to `write!(buf, ...)` so errors flow through MCP\n- Audit other commands for same eprintln pattern",
+              "silks": "fix-restring-eprintln-and-claudemd-coronets-doc",
+              "commit": "11b800b"
+            },
+            {
               "ts": "260307-1205",
               "state": "rough",
               "text": "Spook fix: jjx_transfer (restring) fails silently through MCP.\n\n## Two bugs\n\n1. **CLAUDE.md says coronets is newline-separated string** but jjrrs_restring.rs:45 deserializes via `serde_json::from_str::<Vec<String>>()` — needs a JSON array like `[\"AYAAA\"]`.\n\n2. **Errors go to stderr, not buf** — all error paths in jjrrs_run() use `eprintln!()` and return `(1, empty_buf)`. MCP transport only sees buf, so errors are silently lost.\n\n## Fix\n\n- Update CLAUDE.md (and vocjjmc_core.md) to document coronets as JSON array\n- Change `eprintln!` error paths in jjrrs_restring.rs to `write!(buf, ...)` so errors flow through MCP\n- Audit other commands for same eprintln pattern",
