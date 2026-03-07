@@ -653,7 +653,6 @@ This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
 |-----------|--------------------------------|----------------------|------------------------------|---------------------------|-------------------------------------|
 | Predicate | `[z]«prefix»_«name»_predicate` | `z«prefix»_sentinel` | 0=true, 1=false              | No (use buc_log_«source») | Never dies, status only             |
 | Capture   | `[z]«prefix»_«name»_capture`   | `z«prefix»_sentinel` | stdout once at end or exit 1 | No (use buc_log_«source») | Clean error handling, single return |
-| Remit     | `[z]«prefix»_«name»_remit`     | `z«prefix»_sentinel` | sentinel+fields via stdout   | No (use buc_log_«source») | Structured return (fixed or variable arity) with in-band sentinel |
 | Enroll    | `[z]«prefix»_[«scope»_]enroll` | `z«prefix»_sentinel` | `z_«funcname»_«retval»` vars | No (use buc_log_«source») | Mutates rolls (parallel arrays) in kindle only; returns via variables |
 | Recite    | `[z]«prefix»_«what»_recite`    | `z«prefix»_sentinel` | stdout or exit 1             | No (use buc_log_«source») | Read-only access to rolls; never mutates |
 | Tsuite init | `z«tb»_«name»_tsuite_init`  | —                    | 0=proceed, non-zero=skip     | No                        | Parent layer; no kindle, no source  |
@@ -701,99 +700,6 @@ z_value=$(z«prefix»_«name»_capture) || buc_die "Failed to capture value"
 - May use `buc_log_«source»` for forensic trail (writes to transcript file only)
 - Never writes secrets to disk
 - Never writes to stderr
-
-#### Remit Functions (structured multi-value return with sentinel)
-
-**Purpose: Return structured values through stdout with in-band integrity verification.**
-
-Remit functions solve the exit-status-swallowing problem that occurs when `_capture` output is destructured via `IFS read <<<`. In that pattern, `read` succeeds even when the capture function fails, silently hiding the error. Remit functions embed a sentinel as the first field — the caller verifies the sentinel to confirm the function completed its contract.
-
-**Fixed-arity example** (known number of return values):
-
-```bash
-z«prefix»_«name»_remit() {
-  z«prefix»_sentinel
-
-  # «compute z_alpha and z_bravo internally»
-
-  # Emit sentinel-first, delimiter-separated, single line, no trailing newline
-  printf '%s' "${BUC_REMIT_VALID}${BUC_REMIT_DELIMITER}${z_alpha}${BUC_REMIT_DELIMITER}${z_bravo}"
-}
-
-# Caller: two-line pattern — destructure then assert
-IFS="${BUC_REMIT_DELIMITER}" read -r z_remit_valid z_alpha z_bravo <<< "$(z«prefix»_«name»_remit)"
-buc_remit_assert "${z_remit_valid}" "«context message»"
-```
-
-**Variable-length example** (list of items after sentinel):
-
-```bash
-z«prefix»_«name»_remit() {
-  z«prefix»_sentinel
-
-  # «build z_items array internally»
-
-  # Build delimiter-separated list
-  local z_out="${BUC_REMIT_VALID}"
-  local z_i
-  for z_i in "${!z_items[@]}"; do
-    z_out="${z_out}${BUC_REMIT_DELIMITER}${z_items[$z_i]}"
-  done
-
-  # No trailing newline — <<< adds one for read
-  printf '%s' "${z_out}"
-}
-
-# Caller: destructure sentinel into z_remit_valid, remainder into z_rest
-IFS="${BUC_REMIT_DELIMITER}" read -r z_remit_valid z_rest <<< "$(z«prefix»_«name»_remit)"
-buc_remit_assert "${z_remit_valid}" "«context message»"
-
-# Iterate the variable-length tail — substitute delimiter with space
-# (UNQUOTED expansion is intentional — see Quoting Exception below)
-local z_item
-for z_item in ${z_rest//${BUC_REMIT_DELIMITER}/ }; do
-  # «process z_item»
-done
-```
-
-The `read` builtin places everything after the last named variable into that variable. With `read -r z_remit_valid z_rest`, the sentinel lands in `z_remit_valid` and the entire delimiter-separated payload lands in `z_rest` with delimiters intact. The `${z_rest//delim/ }` parameter expansion converts delimiters to spaces for iteration — this is sound only because the `_remit` contract forbids spaces in field values.
-
-**Zero-length list**: When a `_remit` function has zero items beyond the sentinel, it emits only `BUC_REMIT_VALID`. The sentinel asserts successfully (the function completed its contract), `z_rest` is empty, and the `for` loop executes zero iterations. A valid remit with zero payload items is a correct return — the sentinel is the proclamation of success, not the payload.
-
-**Quoting exception**: The `for z_item in ${z_rest//${BUC_REMIT_DELIMITER}/ }` pattern uses intentionally unquoted expansion to trigger word-splitting on spaces. This is the sole sanctioned exception to the "always quote expansions" rule, and is safe only because the `_remit` contract forbids spaces in field values. Do not use this pattern outside `_remit` variable-length iteration.
-
-**Contract:**
-- Returns a single line to stdout: sentinel, then delimiter-separated fields
-- Sentinel (`BUC_REMIT_VALID`) is always the first field
-- Delimiter is always `BUC_REMIT_DELIMITER` (pipe character)
-- Field values must not contain the delimiter character
-- Field values must not contain embedded spaces
-- The number of fields is between the function and its caller — fixed or variable
-- No trailing newline — use `printf '%s'`, not `printf '%s\n'` or `echo` (`<<<` adds the newline that `read` requires; a trailing newline from the function would create a spurious empty field)
-- On failure: `return 1` without emitting anything — the absent sentinel is the failure signal
-- Never uses `buc_die` internally (like `_capture` — caller decides error handling via `buc_remit_assert`)
-- No side effects beyond the returned values
-- May use `buc_log_«source»` for forensic trail
-
-**Infrastructure (defined in `buc_command.sh`):**
-- `BUC_REMIT_VALID` — sentinel constant, checked by `buc_remit_assert`
-- `BUC_REMIT_DELIMITER` — field delimiter constant (pipe)
-- `buc_remit_assert` — dies if first argument is not the sentinel; passes context to `buc_die`
-
-**When to use `_remit` vs `_capture`:**
-- `_capture`: caller uses `z_val=$(func_capture) || buc_die` — exit status guards correctness
-- `_remit`: caller uses `IFS read <<<` + `buc_remit_assert` — sentinel guards correctness
-- **Never** combine `_capture` with `IFS read <<<` — the exit status is swallowed and no sentinel protects the caller
-
-**Why `_capture` with `IFS read` is unsafe:**
-```bash
-# ❌ UNSAFE — read succeeds even when func_capture fails
-IFS=' ' read -r z_code z_resp <<< "$(func_capture)"  # exit status swallowed!
-
-# ✅ SAFE — sentinel detects failure in-band
-IFS="${BUC_REMIT_DELIMITER}" read -r z_remit_valid z_code z_resp <<< "$(func_remit)"
-buc_remit_assert "${z_remit_valid}" "context message"
-```
 
 #### Predicate Functions (status only, no output)
 
@@ -929,8 +835,7 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 
 ## When to Use Special Functions
 
-- **_capture**: Need a value via command substitution; caller uses `$() || buc_die`
-- **_remit**: Need structured values (fixed or variable count); caller destructures with `IFS read <<<` + `buc_remit_assert`; **never** use `_capture` with `IFS read`
+- **_capture**: Need a value that requires command substitution or clean error handling
 - **_predicate**: Need true/false for conditional logic without dying
 - **_enroll**: Populate parallel-array registries (rolls) during kindle with validated inputs and return values
 - **_recite**: Read-only access to roll arrays populated by enroll functions
@@ -956,8 +861,6 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 | Predicate Internal functions | `z«prefix»_«name»_predicate` | `zrbv_file_exists_predicate` | Impl     | snake_case                    |
 | Capture Internal functions   | `z«prefix»_«name»_capture`   | `zrbv_get_token_capture`     | Impl     | snake_case                    |
 | Capture Public functions     | `«prefix»_«name»_capture`    | `rbv_get_token_capture`      | Impl     | snake_case                    |
-| Remit Internal functions     | `z«prefix»_«name»_remit`     | `zrbv_http_result_remit`     | Impl     | snake_case                    |
-| Remit Public functions       | `«prefix»_«name»_remit`      | `rbv_http_result_remit`      | Impl     | snake_case                    |
 | Kindle constant (internal)   | `Z«PREFIX»_«NAME»`           | `ZRBV_TEMP_FILE`             | Impl     | SCREAMING_SNAKE (multi-word)  |
 | Kindle constant (public)     | `«PREFIX»_«NAME»`            | `RBV_REGIME_FILE`            | Both     | SCREAMING_SNAKE (multi-word)  |
 | Literal constant (public)    | `«PREFIX»_«name»`            | `RBBC_rbrr_file`             | Impl     | lower_snake (multi-word)      |
@@ -1206,7 +1109,6 @@ The error handling suffix depends on the function type:
 | Regular/enroll   | `\|\| buc_die`       | Enroll validates invariants; violations are fatal |
 | Predicate        | `\|\| return 1`      | Never dies, status only                          |
 | Capture/recite   | `\|\| return 1`      | Never dies, caller decides                       |
-| Remit            | `\|\| return 1`      | Never dies; absent sentinel signals failure to caller via `buc_remit_assert` |
 | Flow control     | `\|\| continue`      | Intentional skip to next iteration               |
 
 ---
@@ -1405,7 +1307,6 @@ buc_warn    # Instead of echo >&2
 | Conditional tests   | `test` not `[[ ]]`                                               |
 | Pattern matching    | `[[ var =~ pattern ]]` only                                      |
 | Secret extraction   | `_capture` function, never temp files                            |
-| Structured return   | `_remit` function, `IFS read <<<` + `buc_remit_assert`          |
 | Roll population + return | `_enroll` function (kindle only), `z_«funcname»_«retval»` vars |
 | Roll read access    | `_recite` function                                               |
 | True/false check    | `_predicate` function                                            |
@@ -1447,7 +1348,7 @@ buc_warn    # Instead of echo >&2
 - [ ] All expansions use `"${var}"` pattern (braced, quoted)
 - [ ] Parameters use `"${1:-}"` pattern for defensive programming
 - [ ] Module state variable `readonly Z«PREFIX»_KINDLED=1` is the last statement in kindle
-- [ ] No bare `$var` or unbraced `"$var"` expansions (exception: `_remit` variable-length iteration uses intentionally unquoted `${z_rest//${BUC_REMIT_DELIMITER}/ }` — see Remit Functions)
+- [ ] No bare `$var` or unbraced `"$var"` expansions
 - [ ] No `local -i` — use plain local with explicit validation
 - [ ] No raw `eval` for value assignment — use `printf -v` after name validation; `${!name}` for reading
 
@@ -1455,12 +1356,6 @@ buc_warn    # Instead of echo >&2
 - [ ] Every command that can fail has `|| buc_die` (`|| buc_warn` only with a human-authored comment granting permission and explaining why non-fatal is safe)
 - [ ] `_predicate` functions return 0/1, never die, no output
 - [ ] `_capture` functions output once at end or exit 1, no stderr
-- [ ] `_remit` functions emit `BUC_REMIT_VALID` sentinel first, `BUC_REMIT_DELIMITER`-separated fields, single line (when applicable)
-- [ ] `_remit` functions use `printf '%s'` — no trailing newline (`<<<` provides it; trailing newline creates spurious empty field)
-- [ ] `_remit` field values contain no embedded delimiter characters and no embedded spaces
-- [ ] `_remit` callers destructure with `IFS="${BUC_REMIT_DELIMITER}" read -r z_remit_valid ...` — first variable always named `z_remit_valid`
-- [ ] `_remit` callers always follow with `buc_remit_assert "${z_remit_valid}" "context"` — no other sentinel check pattern
-- [ ] `_capture` NEVER destructured via `IFS read <<<` — use `_remit` when `IFS read` destructuring is needed
 - [ ] `_enroll` functions set `z_«funcname»_«retval»` return vars, never echo; callers never use `$()` (when applicable)
 - [ ] `_enroll` functions called only within kindle (when applicable)
 - [ ] `_recite` functions never mutate roll arrays (when applicable)
@@ -1474,11 +1369,10 @@ buc_warn    # Instead of echo >&2
 - [ ] Isolation subshells (`( ... ) || buc_die`) have `|| buc_die` on every internal command and on the outer boundary
 
 ### Command Substitution Rules
-- [ ] NO command substitution except `$(<file)` builtin, `_capture`, and `_remit` functions
+- [ ] NO command substitution except `$(<file)` builtin and `_capture` functions
 - [ ] Temp files used instead of complex command substitution
 - [ ] `$(<file)` always followed by validation
 - [ ] `_capture` functions properly named with suffix
-- [ ] `_remit` functions properly named with suffix; callers use `IFS="${BUC_REMIT_DELIMITER}" read -r z_remit_valid ...` + `buc_remit_assert`
 
 ### Loop Safety
 - [ ] All while-read loops use load-then-iterate pattern
@@ -1500,7 +1394,7 @@ buc_warn    # Instead of echo >&2
 - [ ] Internal functions: `z«prefix»_«name»` (snake_case)
 - [ ] Internal constants: `Z«PREFIX»_«NAME»` (SCREAMING_SNAKE)
 - [ ] Public constants: `«PREFIX»_«NAME»` (SCREAMING_SNAKE)
-- [ ] Special functions: `*_predicate`, `*_capture`, `*_remit`, `*_enroll`, `*_recite` suffixes
+- [ ] Special functions: `*_predicate`, `*_capture`, `*_enroll`, `*_recite` suffixes
 
 ### Documentation & Visibility
 - [ ] Public functions documented with `buc_doc_*` blocks
