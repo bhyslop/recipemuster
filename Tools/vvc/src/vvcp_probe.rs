@@ -24,7 +24,7 @@ pub const VVCP_OFFICIUM_TOKEN: &str = "OFFICIUM";
 
 /// Gap threshold in seconds for officium detection (1 hour).
 /// For manual testing, lower to 60 and rebuild; restore after.
-pub const VVCP_OFFICIUM_GAP_SECS: u64 = 1; // TEMPORARY: lowered from 3600 for probe testing
+pub const VVCP_OFFICIUM_GAP_SECS: u64 = 3600;
 
 /// Raw probe output file for haiku
 const VVCP_RAW_HAIKU_FILE: &str = "vvcp_raw_haiku.txt";
@@ -49,8 +49,8 @@ const VVCP_BURD_TEMP_DIR_VAR: &str = "BURD_TEMP_DIR";
 
 /// Probe Claude Code environment for model IDs and platform information.
 ///
-/// Spawns haiku and sonnet probes in parallel, then asks opus to interpret
-/// the raw outputs and self-report. Returns a 5-line string in "key: value" format.
+/// Spawns haiku, sonnet, and opus probes in parallel via `claude -p`.
+/// Returns a 5-line string in "key: value" format.
 ///
 /// # Returns
 ///
@@ -65,9 +65,6 @@ const VVCP_BURD_TEMP_DIR_VAR: &str = "BURD_TEMP_DIR";
 ///
 /// On probe failure for a tier, returns "unavailable" for that tier.
 pub async fn vvcp_probe() -> Result<String, String> {
-    // EXPERIMENT: re-enable all probes with stdin disconnected from MCP transport.
-    // Hypothesis: child claude inherits MCP server's stdin fd, causing hang.
-    // Fix: probe_model_tier_raw now uses .stdin(Stdio::null()).
     let haiku_future = probe_model_tier_raw("haiku");
     let sonnet_future = probe_model_tier_raw("sonnet");
     let opus_future = probe_model_tier_raw("opus");
