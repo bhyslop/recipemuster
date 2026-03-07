@@ -7,7 +7,6 @@
 //! Handles the jjx_restring command which moves multiple paces from one heat
 //! to another in a single atomic operation.
 
-use std::fmt::Write;
 use std::path::PathBuf;
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
@@ -37,7 +36,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_restring: error: {}", e);
+            jjbuf!(buf, "jjx_restring: error: {}", e);
             return (1, buf);
         }
     };
@@ -45,7 +44,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
     let coronets: Vec<String> = match serde_json::from_str(&coronets) {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("jjx_restring: error: Expected JSON array of coronets: {}", e);
+            jjbuf!(buf, "jjx_restring: error: Expected JSON array of coronets: {}", e);
             return (1, buf);
         }
     };
@@ -53,7 +52,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_restring: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_restring: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -68,14 +67,14 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
     let result = match gallops.jjrg_restring(restring_args) {
         Ok(r) => r,
         Err(e) => {
-            eprintln!("jjx_restring: error: {}", e);
+            jjbuf!(buf, "jjx_restring: error: {}", e);
             return (1, buf);
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
-        eprintln!("jjx_restring: error saving Gallops: {}", e);
+        jjbuf!(buf, "jjx_restring: error saving Gallops: {}", e);
         return (1, buf);
     }
 
@@ -106,10 +105,10 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
 
     match vvc::machine_commit(&lock, &commit_args) {
         Ok(hash) => {
-            eprintln!("jjx_restring: committed {}", &hash[..8]);
+            jjbuf!(buf, "jjx_restring: committed {}", &hash[..8]);
         }
         Err(e) => {
-            eprintln!("jjx_restring: commit warning: {}", e);
+            jjbuf!(buf, "jjx_restring: commit warning: {}", e);
         }
     }
 
@@ -146,11 +145,11 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
 
     match serde_json::to_string_pretty(&output) {
         Ok(json) => {
-            let _ = writeln!(buf, "{}", json);
+            jjbuf!(buf, "{}", json);
             (0, buf)
         }
         Err(e) => {
-            eprintln!("jjx_restring: error serializing output: {}", e);
+            jjbuf!(buf, "jjx_restring: error serializing output: {}", e);
             (1, buf)
         }
     }

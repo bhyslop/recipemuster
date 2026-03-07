@@ -36,7 +36,7 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_scout: error: {}", e);
+            jjbuf!(buf, "jjx_scout: error: {}", e);
             return (1, buf);
         }
     };
@@ -48,7 +48,7 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
     {
         Ok(r) => r,
         Err(e) => {
-            eprintln!("jjx_scout: error: invalid regex pattern: {}", e);
+            jjbuf!(buf, "jjx_scout: error: invalid regex pattern: {}", e);
             return (1, buf);
         }
     };

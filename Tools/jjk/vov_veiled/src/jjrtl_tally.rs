@@ -39,7 +39,7 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> 
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_revise_docket: error: {}", e);
+            jjbuf!(buf, "jjx_revise_docket: error: {}", e);
             return (1, buf);
         }
     };
@@ -49,7 +49,7 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> 
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_revise_docket: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_revise_docket: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -66,7 +66,7 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> 
             (parent_fm, silks)
         }
         Err(e) => {
-            eprintln!("jjx_revise_docket: error: {}", e);
+            jjbuf!(buf, "jjx_revise_docket: error: {}", e);
             return (1, buf);
         }
     };
@@ -89,13 +89,13 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> 
                     (0, buf)
                 }
                 Err(e) => {
-                    eprintln!("jjx_revise_docket: error: {}", e);
+                    jjbuf!(buf, "jjx_revise_docket: error: {}", e);
                     (1, buf)
                 }
             }
         }
         Err(e) => {
-            eprintln!("jjx_revise_docket: error: {}", e);
+            jjbuf!(buf, "jjx_revise_docket: error: {}", e);
             (1, buf)
         }
     }
@@ -125,7 +125,7 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_arm: error: {}", e);
+            jjbuf!(buf, "jjx_arm: error: {}", e);
             return (1, buf);
         }
     };
@@ -133,7 +133,7 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_arm: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_arm: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -150,7 +150,7 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> (i32, String) {
             (parent_fm, silks)
         }
         Err(e) => {
-            eprintln!("jjx_arm: error: {}", e);
+            jjbuf!(buf, "jjx_arm: error: {}", e);
             return (1, buf);
         }
     };
@@ -172,7 +172,7 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> (i32, String) {
                     let _ = writeln!(buf, "committed {}", hash);
                 }
                 Err(e) => {
-                    eprintln!("jjx_arm: error: {}", e);
+                    jjbuf!(buf, "jjx_arm: error: {}", e);
                     return (1, buf);
                 }
             }
@@ -181,7 +181,7 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> (i32, String) {
             let coronet = match Coronet::jjrf_parse(&coronet_str) {
                 Ok(c) => c,
                 Err(e) => {
-                    eprintln!("jjx_arm: error parsing coronet for B commit: {}", e);
+                    jjbuf!(buf, "jjx_arm: error parsing coronet for B commit: {}", e);
                     return (1, buf);
                 }
             };
@@ -212,21 +212,21 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> (i32, String) {
                 }
                 Ok(result) => {
                     let stderr = String::from_utf8_lossy(&result.stderr);
-                    eprintln!("jjx_arm: error creating B commit: {}", stderr);
+                    jjbuf!(buf, "jjx_arm: error creating B commit: {}", stderr);
                     return (1, buf);
                 }
                 Err(e) => {
-                    eprintln!("jjx_arm: error creating B commit: {}", e);
+                    jjbuf!(buf, "jjx_arm: error creating B commit: {}", e);
                     return (1, buf);
                 }
             }
 
-            eprintln!();
-            eprintln!("Recommended: /jjc-heat-mount {} to execute", fm.jjrf_as_str());
+            jjbuf!(buf, "");
+            jjbuf!(buf, "Recommended: /jjc-heat-mount {} to execute", fm.jjrf_as_str());
             (0, buf)
         }
         Err(e) => {
-            eprintln!("jjx_arm: error: {}", e);
+            jjbuf!(buf, "jjx_arm: error: {}", e);
             (1, buf)
         }
     }
@@ -259,7 +259,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_relabel: error: {}", e);
+            jjbuf!(buf, "jjx_relabel: error: {}", e);
             return (1, buf);
         }
     };
@@ -267,7 +267,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_relabel: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_relabel: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -278,7 +278,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     let fm = match Coronet::jjrf_parse(&coronet_str) {
         Ok(c) => c.jjrf_parent_firemark(),
         Err(e) => {
-            eprintln!("jjx_relabel: error: {}", e);
+            jjbuf!(buf, "jjx_relabel: error: {}", e);
             return (1, buf);
         }
     };
@@ -301,13 +301,13 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
                     (0, buf)
                 }
                 Err(e) => {
-                    eprintln!("jjx_relabel: error: {}", e);
+                    jjbuf!(buf, "jjx_relabel: error: {}", e);
                     (1, buf)
                 }
             }
         }
         Err(e) => {
-            eprintln!("jjx_relabel: error: {}", e);
+            jjbuf!(buf, "jjx_relabel: error: {}", e);
             (1, buf)
         }
     }
@@ -336,7 +336,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_drop: error: {}", e);
+            jjbuf!(buf, "jjx_drop: error: {}", e);
             return (1, buf);
         }
     };
@@ -344,7 +344,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_drop: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_drop: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -361,7 +361,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
             (parent_fm, silks)
         }
         Err(e) => {
-            eprintln!("jjx_drop: error: {}", e);
+            jjbuf!(buf, "jjx_drop: error: {}", e);
             return (1, buf);
         }
     };
@@ -384,13 +384,13 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
                     (0, buf)
                 }
                 Err(e) => {
-                    eprintln!("jjx_drop: error: {}", e);
+                    jjbuf!(buf, "jjx_drop: error: {}", e);
                     (1, buf)
                 }
             }
         }
         Err(e) => {
-            eprintln!("jjx_drop: error: {}", e);
+            jjbuf!(buf, "jjx_drop: error: {}", e);
             (1, buf)
         }
     }

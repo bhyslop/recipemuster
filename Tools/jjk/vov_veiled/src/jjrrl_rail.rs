@@ -63,7 +63,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_rail: error: {}", e);
+            jjbuf!(buf, "jjx_rail: error: {}", e);
             return (1, buf);
         }
     };
@@ -80,7 +80,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_rail: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_rail: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -118,7 +118,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
                     else if move_after.is_some() { "requested position" }
                     else { "requested position" };
                 let coronet_display = move_coronet.as_deref().unwrap_or("pace");
-                eprintln!("jjx_rail: no change — {} is already {}", coronet_display, position);
+                jjbuf!(buf, "jjx_rail: no change — {} is already {}", coronet_display, position);
                 for coronet in new_order {
                     let _ = writeln!(buf, "{}", coronet);
                 }
@@ -143,10 +143,10 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
-                    eprintln!("jjx_rail: committed {}", &hash[..8]);
+                    jjbuf!(buf, "jjx_rail: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    eprintln!("jjx_rail: error: {}", e);
+                    jjbuf!(buf, "jjx_rail: error: {}", e);
                     return (1, buf);
                 }
             }
@@ -157,7 +157,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
             (0, buf)
         }
         Err(e) => {
-            eprintln!("jjx_rail: error: {}", e);
+            jjbuf!(buf, "jjx_rail: error: {}", e);
             (1, buf)
         }
     }

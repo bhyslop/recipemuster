@@ -41,7 +41,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_show: error: {}", e);
+            jjbuf!(buf, "jjx_show: error: {}", e);
             return (1, buf);
         }
     };
@@ -54,7 +54,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
             match zjjrpd_resolve_default_heat(&gallops) {
                 Ok(fm) => fm,
                 Err(e) => {
-                    eprintln!("jjx_show: error: {}", e);
+                    jjbuf!(buf, "jjx_show: error: {}", e);
                     return (1, buf);
                 }
             }
@@ -69,7 +69,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         let coronet = match Coronet::jjrf_parse(&target) {
             Ok(c) => c,
             Err(e) => {
-                eprintln!("jjx_show: error: {}", e);
+                jjbuf!(buf, "jjx_show: error: {}", e);
                 return (1, buf);
             }
         };
@@ -80,7 +80,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         let heat = match gallops.heats.get(&heat_key) {
             Some(h) => h,
             None => {
-                eprintln!("jjx_show: error: Heat '{}' not found", heat_key);
+                jjbuf!(buf, "jjx_show: error: Heat '{}' not found", heat_key);
                 return (1, buf);
             }
         };
@@ -90,7 +90,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         let pace = match heat.paces.get(&coronet_key) {
             Some(p) => p,
             None => {
-                eprintln!("jjx_show: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
+                jjbuf!(buf, "jjx_show: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
                 return (1, buf);
             }
         };
@@ -153,7 +153,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         let firemark = match Firemark::jjrf_parse(&target) {
             Ok(fm) => fm,
             Err(e) => {
-                eprintln!("jjx_show: error: {}", e);
+                jjbuf!(buf, "jjx_show: error: {}", e);
                 return (1, buf);
             }
         };
@@ -162,7 +162,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         let heat = match gallops.heats.get(&heat_key) {
             Some(h) => h,
             None => {
-                eprintln!("jjx_show: error: Heat '{}' not found", heat_key);
+                jjbuf!(buf, "jjx_show: error: Heat '{}' not found", heat_key);
                 return (1, buf);
             }
         };
@@ -172,7 +172,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
             let paddock_content = match fs::read_to_string(&heat.paddock_file) {
                 Ok(content) => content,
                 Err(e) => {
-                    eprintln!("jjx_show: error reading paddock file '{}': {}", heat.paddock_file, e);
+                    jjbuf!(buf, "jjx_show: error reading paddock file '{}': {}", heat.paddock_file, e);
                     return (1, buf);
                 }
             };
@@ -310,8 +310,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
                     if let Some(tack) = pace.tacks.first() {
                         let state_str = zjjrpd_pace_state_str(&tack.state);
                         let _ = writeln!(buf, "Next: {} ({}) [{}]", tack.silks, coronet_key, state_str);
-                        eprintln!();
-                        eprintln!("Recommended: /jjc-heat-mount {}", heat_key);
+                        jjbuf!(buf, "");
+                        jjbuf!(buf, "Recommended: /jjc-heat-mount {}", heat_key);
                     }
                 }
             } else {
@@ -368,7 +368,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         jjrpd_write_file_bitmap(&mut buf, &firemark, heat);
         jjrpd_write_commit_swimlanes(&mut buf, &firemark, heat);
     } else {
-        eprintln!("jjx_show: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
+        jjbuf!(buf, "jjx_show: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
         return (1, buf);
     }
 
@@ -473,7 +473,7 @@ pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<Stri
 pub(crate) fn jjrpd_write_file_bitmap(buf: &mut String, firemark: &Firemark, heat: &Heat) {
     match jjrpd_format_file_bitmap(firemark, heat) {
         Ok(output) => { let _ = write!(buf, "{}", output); }
-        Err(e) => eprintln!("jjx_show: error getting file touches: {}", e),
+        Err(e) => jjbuf!(buf, "jjx_show: error getting file touches: {}", e),
     }
 }
 
@@ -611,7 +611,7 @@ pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result
 pub(crate) fn jjrpd_write_commit_swimlanes(buf: &mut String, firemark: &Firemark, heat: &Heat) {
     match jjrpd_format_commit_swimlanes(firemark, heat) {
         Ok(output) => { let _ = write!(buf, "{}", output); }
-        Err(e) => eprintln!("jjx_show: error getting steeplechase entries: {}", e),
+        Err(e) => jjbuf!(buf, "jjx_show: error getting steeplechase entries: {}", e),
     }
 }
 
@@ -628,7 +628,7 @@ fn zjjrpd_write_pace_commits(buf: &mut String, firemark: &Firemark, coronet_key:
     let entries = match jjrs_get_entries(&rein_args) {
         Ok(e) => e,
         Err(e) => {
-            eprintln!("jjx_show: error getting steeplechase entries: {}", e);
+            jjbuf!(buf, "jjx_show: error getting steeplechase entries: {}", e);
             return;
         }
     };

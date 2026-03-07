@@ -25,7 +25,7 @@ pub fn jjrvl_run_validate(args: jjrvl_ValidateArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_validate: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_validate: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -36,9 +36,9 @@ pub fn jjrvl_run_validate(args: jjrvl_ValidateArgs) -> (i32, String) {
             (0, buf)
         }
         Err(errors) => {
-            eprintln!("jjx_validate: validation failed with {} error(s):", errors.len());
+            jjbuf!(buf, "jjx_validate: validation failed with {} error(s):", errors.len());
             for error in errors {
-                eprintln!("  - {}", error);
+                jjbuf!(buf, "  - {}", error);
             }
             (1, buf)
         }

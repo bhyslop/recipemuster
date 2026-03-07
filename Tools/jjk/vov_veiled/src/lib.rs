@@ -13,6 +13,7 @@
 #![allow(private_interfaces)]
 #![deny(unused_variables)]
 
+#[macro_use]
 pub mod jjrc_core;
 pub mod jjrf_favor;
 pub mod jjrt_types;

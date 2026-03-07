@@ -48,7 +48,7 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_slate: error: {}", e);
+            jjbuf!(buf, "jjx_slate: error: {}", e);
             return (1, buf);
         }
     };
@@ -58,7 +58,7 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_slate: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_slate: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -82,7 +82,7 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(_hash) => {}
                 Err(e) => {
-                    eprintln!("jjx_slate: error: {}", e);
+                    jjbuf!(buf, "jjx_slate: error: {}", e);
                     return (1, buf);
                 }
             }
@@ -91,7 +91,7 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
             (0, buf)
         }
         Err(e) => {
-            eprintln!("jjx_slate: error: {}", e);
+            jjbuf!(buf, "jjx_slate: error: {}", e);
             (1, buf)
         }
     }

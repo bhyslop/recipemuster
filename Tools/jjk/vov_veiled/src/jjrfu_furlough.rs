@@ -40,13 +40,13 @@ pub struct jjrfu_FurloughArgs {
 
 /// Handler for jjx_furlough command
 pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
-    let buf = String::new();
+    let mut buf = String::new();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_furlough: error: {}", e);
+            jjbuf!(buf, "jjx_furlough: error: {}", e);
             return (1, buf);
         }
     };
@@ -54,7 +54,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_furlough: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_furlough: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -86,10 +86,10 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 100000) {
                 Ok(hash) => {
-                    eprintln!("jjx_furlough: committed {}", &hash[..8]);
+                    jjbuf!(buf, "jjx_furlough: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    eprintln!("jjx_furlough: error: {}", e);
+                    jjbuf!(buf, "jjx_furlough: error: {}", e);
                     return (1, buf);
                 }
             }
@@ -97,7 +97,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
             (0, buf)
         }
         Err(e) => {
-            eprintln!("jjx_furlough: error: {}", e);
+            jjbuf!(buf, "jjx_furlough: error: {}", e);
             (1, buf)
         }
     }

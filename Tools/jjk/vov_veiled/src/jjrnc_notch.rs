@@ -38,11 +38,11 @@ pub struct jjrnc_NotchArgs {
 /// Stages specified files and commits with JJ-aware prefix.
 /// Supports both pace-affiliated (Coronet) and heat-only (Firemark) commits.
 pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
-    let buf = String::new();
+    let mut buf = String::new();
 
     // Require non-empty files list
     if args.files.is_empty() {
-        eprintln!("jjx_notch: error: at least one file required");
+        jjbuf!(buf, "jjx_notch: error: at least one file required");
         return (1, buf);
     }
 
@@ -57,7 +57,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
             {
                 Ok(o) => o,
                 Err(e) => {
-                    eprintln!("jjx_notch: error: failed to check git tracking: {}", e);
+                    jjbuf!(buf, "jjx_notch: error: failed to check git tracking: {}", e);
                     return (1, buf);
                 }
             };
@@ -69,7 +69,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
                 {
                     Ok(o) => o,
                     Err(e) => {
-                        eprintln!("jjx_notch: error: failed to check staged deletion: {}", e);
+                        jjbuf!(buf, "jjx_notch: error: failed to check staged deletion: {}", e);
                         return (1, buf);
                     }
                 };
@@ -79,7 +79,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
                     && !git_diff_output.stdout.is_empty();
 
                 if !is_staged_deletion {
-                    eprintln!("jjx_notch: error: file does not exist and is not tracked by git: {}", file);
+                    jjbuf!(buf, "jjx_notch: error: file does not exist and is not tracked by git: {}", file);
                     return (1, buf);
                 }
             }
@@ -94,7 +94,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         let coronet = match Coronet::jjrf_parse(&args.identity) {
             Ok(c) => c,
             Err(e) => {
-                eprintln!("jjx_notch: error: {}", e);
+                jjbuf!(buf, "jjx_notch: error: {}", e);
                 return (1, buf);
             }
         };
@@ -104,7 +104,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         let firemark = match Firemark::jjrf_parse(&args.identity) {
             Ok(fm) => fm,
             Err(e) => {
-                eprintln!("jjx_notch: error: {}", e);
+                jjbuf!(buf, "jjx_notch: error: {}", e);
                 return (1, buf);
             }
         };
@@ -112,7 +112,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         let identity_str = format!("{}{}", JJRF_FIREMARK_PREFIX, firemark.jjrf_as_str());
         vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity_str, "n", "", None)
     } else {
-        eprintln!("jjx_notch: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
+        jjbuf!(buf, "jjx_notch: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
         return (1, buf);
     };
 
@@ -122,13 +122,13 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     {
         Ok(o) => o,
         Err(e) => {
-            eprintln!("jjx_notch: error: failed to run git status: {}", e);
+            jjbuf!(buf, "jjx_notch: error: failed to run git status: {}", e);
             return (1, buf);
         }
     };
 
     if !output.status.success() {
-        eprintln!("jjx_notch: error: git status failed");
+        jjbuf!(buf, "jjx_notch: error: git status failed");
         return (1, buf);
     }
 
@@ -148,9 +148,9 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     }
 
     if !warnings.is_empty() {
-        eprintln!("warning: uncommitted changes outside file list:");
+        jjbuf!(buf, "warning: uncommitted changes outside file list:");
         for warning in warnings {
-            eprintln!("{}", warning);
+            jjbuf!(buf, "{}", warning);
         }
     }
 
@@ -163,13 +163,13 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     let add_output = match git_add.output() {
         Ok(o) => o,
         Err(e) => {
-            eprintln!("jjx_notch: error: failed to run git add: {}", e);
+            jjbuf!(buf, "jjx_notch: error: failed to run git add: {}", e);
             return (1, buf);
         }
     };
 
     if !add_output.status.success() {
-        eprintln!("jjx_notch: error: git add failed");
+        jjbuf!(buf, "jjx_notch: error: git add failed");
         return (1, buf);
     }
 

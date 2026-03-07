@@ -44,7 +44,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
-            eprintln!("jjx_retire: error: {}", e);
+            jjbuf!(buf, "jjx_retire: error: {}", e);
             return (1, buf);
         }
     };
@@ -53,7 +53,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_retire: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_retire: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -66,7 +66,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     let steeplechase = match get_entries(&rein_args) {
         Ok(entries) => entries,
         Err(e) => {
-            eprintln!("jjx_retire: warning: could not get steeplechase: {}", e);
+            jjbuf!(buf, "jjx_retire: warning: could not get steeplechase: {}", e);
             Vec::new()
         }
     };
@@ -84,7 +84,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
         let heat = match gallops.heats.get(&firemark_key) {
             Some(h) => h,
             None => {
-                eprintln!("jjx_retire: error: Heat '{}' not found", firemark_key);
+                jjbuf!(buf, "jjx_retire: error: Heat '{}' not found", firemark_key);
                 return (1, buf);
             }
         };
@@ -92,7 +92,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
         let paddock_content = match std::fs::read_to_string(&paddock_path) {
             Ok(c) => c,
             Err(e) => {
-                eprintln!("jjx_retire: error reading paddock: {}", e);
+                jjbuf!(buf, "jjx_retire: error reading paddock: {}", e);
                 return (1, buf);
             }
         };
@@ -105,7 +105,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
                 return (0, buf);
             }
             Err(e) => {
-                eprintln!("jjx_retire: error: {}", e);
+                jjbuf!(buf, "jjx_retire: error: {}", e);
                 return (1, buf);
             }
         }
@@ -120,7 +120,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_retire: error: {}", e);
+            jjbuf!(buf, "jjx_retire: error: {}", e);
             return (1, buf);
         }
     };
@@ -134,14 +134,14 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     let result = match gallops.jjrg_retire(retire_args, base_path, &steeplechase) {
         Ok(r) => r,
         Err(e) => {
-            eprintln!("jjx_retire: error: {}", e);
+            jjbuf!(buf, "jjx_retire: error: {}", e);
             return (1, buf);
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
-        eprintln!("jjx_retire: error saving Gallops: {}", e);
+        jjbuf!(buf, "jjx_retire: error saving Gallops: {}", e);
         return (1, buf);
     }
 
@@ -162,10 +162,10 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
 
     match vvc::machine_commit(&lock, &commit_args) {
         Ok(hash) => {
-            eprintln!("jjx_retire: committed {}", &hash[..8]);
+            jjbuf!(buf, "jjx_retire: committed {}", &hash[..8]);
         }
         Err(e) => {
-            eprintln!("jjx_retire: error: commit failed: {}", e);
+            jjbuf!(buf, "jjx_retire: error: commit failed: {}", e);
             // Rollback: restore gallops and paddock from HEAD, remove trophy
             let gp = args.file.to_string_lossy().to_string();
             let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", &gp, &result.paddock_path])
@@ -173,8 +173,8 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
             let _ = vvc::vvce_git_command(&["rm", "-f", "--cached", &result.trophy_path])
                 .status();
             let _ = std::fs::remove_file(&result.trophy_path);
-            eprintln!("jjx_retire: rolled back file changes");
-            eprintln!("jjx_retire: retry with --size-limit <bytes> to override guard");
+            jjbuf!(buf, "jjx_retire: rolled back file changes");
+            jjbuf!(buf, "jjx_retire: retry with --size-limit <bytes> to override guard");
             return (1, buf);
         }
     }

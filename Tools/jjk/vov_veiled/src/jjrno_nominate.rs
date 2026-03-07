@@ -36,7 +36,7 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_nominate: error: {}", e);
+            jjbuf!(buf, "jjx_nominate: error: {}", e);
             return (1, buf);
         }
     };
@@ -45,14 +45,14 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
         match Gallops::jjrg_load(&args.file) {
             Ok(g) => g,
             Err(e) => {
-                eprintln!("jjx_nominate: error loading Gallops: {}", e);
+                jjbuf!(buf, "jjx_nominate: error loading Gallops: {}", e);
                 return (1, buf);
             }
         }
     } else {
         if let Some(parent) = args.file.parent() {
             if let Err(e) = std::fs::create_dir_all(parent) {
-                eprintln!("jjx_nominate: error creating directory: {}", e);
+                jjbuf!(buf, "jjx_nominate: error creating directory: {}", e);
                 return (1, buf);
             }
         }
@@ -81,10 +81,10 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
                 Ok(hash) => {
-                    eprintln!("jjx_nominate: committed {}", &hash[..8]);
+                    jjbuf!(buf, "jjx_nominate: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    eprintln!("jjx_nominate: error: {}", e);
+                    jjbuf!(buf, "jjx_nominate: error: {}", e);
                     return (1, buf);
                 }
             }
@@ -93,7 +93,7 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
             (0, buf)
         }
         Err(e) => {
-            eprintln!("jjx_nominate: error: {}", e);
+            jjbuf!(buf, "jjx_nominate: error: {}", e);
             (1, buf)
         }
     }

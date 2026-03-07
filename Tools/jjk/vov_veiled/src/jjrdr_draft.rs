@@ -51,7 +51,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_draft: error: {}", e);
+            jjbuf!(buf, "jjx_draft: error: {}", e);
             return (1, buf);
         }
     };
@@ -59,7 +59,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_draft: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_draft: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -78,7 +78,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
         Ok(result) => {
             // Save gallops
             if let Err(e) = gallops.jjrg_save(&args.file) {
-                eprintln!("jjx_draft: error saving Gallops: {}", e);
+                jjbuf!(buf, "jjx_draft: error saving Gallops: {}", e);
                 return (1, buf);
             }
 
@@ -106,10 +106,10 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
 
             match vvc::machine_commit(&lock, &commit_args) {
                 Ok(hash) => {
-                    eprintln!("jjx_draft: committed {}", &hash[..8]);
+                    jjbuf!(buf, "jjx_draft: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    eprintln!("jjx_draft: commit warning: {}", e);
+                    jjbuf!(buf, "jjx_draft: commit warning: {}", e);
                 }
             }
 
@@ -117,7 +117,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
             (0, buf)
         }
         Err(e) => {
-            eprintln!("jjx_draft: error: {}", e);
+            jjbuf!(buf, "jjx_draft: error: {}", e);
             (1, buf)
         }
     }

@@ -36,7 +36,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, 
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
-            eprintln!("jjx_curry: error: {}", e);
+            jjbuf!(buf, "jjx_curry: error: {}", e);
             return (1, buf);
         }
     };
@@ -47,7 +47,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, 
             let gallops = match Gallops::jjrg_load(&args.file) {
                 Ok(g) => g,
                 Err(e) => {
-                    eprintln!("jjx_curry: error loading Gallops: {}", e);
+                    jjbuf!(buf, "jjx_curry: error loading Gallops: {}", e);
                     return (1, buf);
                 }
             };
@@ -56,7 +56,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, 
             let heat = match gallops.heats.get(&firemark_key) {
                 Some(h) => h,
                 None => {
-                    eprintln!("jjx_curry: error: Heat '{}' not found", firemark_key);
+                    jjbuf!(buf, "jjx_curry: error: Heat '{}' not found", firemark_key);
                     return (1, buf);
                 }
             };
@@ -65,7 +65,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, 
             let content = match std::fs::read_to_string(paddock_path) {
                 Ok(c) => c,
                 Err(e) => {
-                    eprintln!("jjx_curry: error reading paddock: {}", e);
+                    jjbuf!(buf, "jjx_curry: error reading paddock: {}", e);
                     return (1, buf);
                 }
             };
@@ -78,11 +78,11 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, 
             // Call operation (curry acquires its own lock)
             match jjrg_curry(&args.file, &firemark, &new_content, args.note.as_deref()) {
                 Ok(()) => {
-                    eprintln!("jjx_curry: paddock updated");
+                    jjbuf!(buf, "jjx_curry: paddock updated");
                     (0, buf)
                 }
                 Err(e) => {
-                    eprintln!("jjx_curry: error: {}", e);
+                    jjbuf!(buf, "jjx_curry: error: {}", e);
                     (1, buf)
                 }
             }

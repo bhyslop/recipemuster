@@ -41,7 +41,7 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_garland: error: {}", e);
+            jjbuf!(buf, "jjx_garland: error: {}", e);
             return (1, buf);
         }
     };
@@ -49,7 +49,7 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_garland: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_garland: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -70,14 +70,14 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
     let result = match gallops.jjrg_garland(garland_args, base_path) {
         Ok(r) => r,
         Err(e) => {
-            eprintln!("jjx_garland: error: {}", e);
+            jjbuf!(buf, "jjx_garland: error: {}", e);
             return (1, buf);
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
-        eprintln!("jjx_garland: error saving Gallops: {}", e);
+        jjbuf!(buf, "jjx_garland: error saving Gallops: {}", e);
         return (1, buf);
     }
 
@@ -109,10 +109,10 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
 
     match vvc::machine_commit(&lock, &commit_args) {
         Ok(hash) => {
-            eprintln!("jjx_garland: committed {}", &hash[..8]);
+            jjbuf!(buf, "jjx_garland: committed {}", &hash[..8]);
         }
         Err(e) => {
-            eprintln!("jjx_garland: commit warning: {}", e);
+            jjbuf!(buf, "jjx_garland: commit warning: {}", e);
         }
     }
 
@@ -132,7 +132,7 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
             (0, buf)
         }
         Err(e) => {
-            eprintln!("jjx_garland: error serializing output: {}", e);
+            jjbuf!(buf, "jjx_garland: error serializing output: {}", e);
             (1, buf)
         }
     }

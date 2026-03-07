@@ -50,7 +50,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("jjx_wrap: error: {}", e);
+            jjbuf!(buf, "jjx_wrap: error: {}", e);
             return (1, buf);
         }
     };
@@ -61,7 +61,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     let _lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("jjx_wrap: error: {}", e);
+            jjbuf!(buf, "jjx_wrap: error: {}", e);
             return (1, buf);
         }
     };
@@ -72,13 +72,13 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     {
         Ok(o) => o,
         Err(e) => {
-            eprintln!("jjx_wrap: error: failed to run git add: {}", e);
+            jjbuf!(buf, "jjx_wrap: error: failed to run git add: {}", e);
             return (1, buf);
         }
     };
 
     if !add_output.status.success() {
-        eprintln!("jjx_wrap: error: git add failed");
+        jjbuf!(buf, "jjx_wrap: error: git add failed");
         return (1, buf);
     }
 
@@ -89,13 +89,13 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     {
         Ok(o) => o,
         Err(e) => {
-            eprintln!("jjx_wrap: error: failed to run git diff: {}", e);
+            jjbuf!(buf, "jjx_wrap: error: failed to run git diff: {}", e);
             return (1, buf);
         }
     };
 
     if !diff_output.status.success() {
-        eprintln!("jjx_wrap: error: git diff failed");
+        jjbuf!(buf, "jjx_wrap: error: git diff failed");
         return (1, buf);
     }
 
@@ -106,13 +106,13 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     {
         Ok(o) => o,
         Err(e) => {
-            eprintln!("jjx_wrap: error: failed to run git diff --numstat: {}", e);
+            jjbuf!(buf, "jjx_wrap: error: failed to run git diff --numstat: {}", e);
             return (1, buf);
         }
     };
 
     if !numstat_output.status.success() {
-        eprintln!("jjx_wrap: error: git diff --numstat failed");
+        jjbuf!(buf, "jjx_wrap: error: git diff --numstat failed");
         return (1, buf);
     }
 
@@ -132,7 +132,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     }
 
     if total_size > size_limit {
-        eprintln!("jjx_wrap: error: staged changes exceed size limit ({} > {} bytes)", total_size, size_limit);
+        jjbuf!(buf, "jjx_wrap: error: staged changes exceed size limit ({} > {} bytes)", total_size, size_limit);
         // Lock released automatically by Drop
         return (2, buf);
     }
@@ -148,13 +148,13 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         {
             Ok(o) => o,
             Err(e) => {
-                eprintln!("jjx_wrap: error: failed to run git diff --cached: {}", e);
+                jjbuf!(buf, "jjx_wrap: error: failed to run git diff --cached: {}", e);
                 return (1, buf);
             }
         };
 
         if !diff_content.status.success() {
-            eprintln!("jjx_wrap: error: git diff --cached failed");
+            jjbuf!(buf, "jjx_wrap: error: git diff --cached failed");
             return (1, buf);
         }
 
@@ -170,7 +170,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         {
             Ok(c) => c,
             Err(e) => {
-                eprintln!("jjx_wrap: error: failed to spawn claude command: {}", e);
+                jjbuf!(buf, "jjx_wrap: error: failed to spawn claude command: {}", e);
                 return (1, buf);
             }
         };
@@ -178,7 +178,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         // Write diff to stdin
         if let Some(mut stdin) = claude_cmd.stdin.take() {
             if let Err(e) = stdin.write_all(&diff_content.stdout) {
-                eprintln!("jjx_wrap: error: failed to write to claude stdin: {}", e);
+                jjbuf!(buf, "jjx_wrap: error: failed to write to claude stdin: {}", e);
                 return (1, buf);
             }
         }
@@ -186,14 +186,14 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         let claude_output = match claude_cmd.wait_with_output() {
             Ok(o) => o,
             Err(e) => {
-                eprintln!("jjx_wrap: error: failed to wait for claude: {}", e);
+                jjbuf!(buf, "jjx_wrap: error: failed to wait for claude: {}", e);
                 return (1, buf);
             }
         };
 
         if !claude_output.status.success() {
-            eprintln!("jjx_wrap: error: claude command failed");
-            eprintln!("{}", String::from_utf8_lossy(&claude_output.stderr));
+            jjbuf!(buf, "jjx_wrap: error: claude command failed");
+            jjbuf!(buf, "{}", String::from_utf8_lossy(&claude_output.stderr));
             return (1, buf);
         }
 
@@ -208,14 +208,14 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         {
             Ok(o) => o,
             Err(e) => {
-                eprintln!("jjx_wrap: error: failed to run git commit: {}", e);
+                jjbuf!(buf, "jjx_wrap: error: failed to run git commit: {}", e);
                 return (1, buf);
             }
         };
 
         if !commit_output.status.success() {
-            eprintln!("jjx_wrap: error: git commit failed");
-            eprintln!("{}", String::from_utf8_lossy(&commit_output.stderr));
+            jjbuf!(buf, "jjx_wrap: error: git commit failed");
+            jjbuf!(buf, "{}", String::from_utf8_lossy(&commit_output.stderr));
             return (1, buf);
         }
 
@@ -225,7 +225,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         {
             Ok(o) => o,
             Err(e) => {
-                eprintln!("jjx_wrap: error: failed to get commit hash: {}", e);
+                jjbuf!(buf, "jjx_wrap: error: failed to get commit hash: {}", e);
                 return (1, buf);
             }
         };
@@ -233,7 +233,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         String::from_utf8_lossy(&hash_output.stdout).trim().to_string()
     } else {
         // No staged changes - this is valid for verification-only paces
-        eprintln!("jjx_wrap: no staged changes, proceeding with state transition only");
+        jjbuf!(buf, "jjx_wrap: no staged changes, proceeding with state transition only");
 
         // Get current HEAD as reference (no new work commit created)
         let hash_output = match vvc::vvce_git_command(&["rev-parse", "HEAD"])
@@ -241,7 +241,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         {
             Ok(o) => o,
             Err(e) => {
-                eprintln!("jjx_wrap: error: failed to get commit hash: {}", e);
+                jjbuf!(buf, "jjx_wrap: error: failed to get commit hash: {}", e);
                 return (1, buf);
             }
         };
@@ -254,7 +254,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     let mut gallops = match Gallops::jjrg_load(&gallops_path) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_wrap: error loading Gallops: {}", e);
+            jjbuf!(buf, "jjx_wrap: error loading Gallops: {}", e);
             return (1, buf);
         }
     };
@@ -268,13 +268,13 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     };
 
     if let Err(e) = gallops.jjrg_tally(tally_args) {
-        eprintln!("jjx_wrap: error: {}", e);
+        jjbuf!(buf, "jjx_wrap: error: {}", e);
         return (1, buf);
     }
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&gallops_path) {
-        eprintln!("jjx_wrap: error saving Gallops: {}", e);
+        jjbuf!(buf, "jjx_wrap: error saving Gallops: {}", e);
         return (1, buf);
     }
 
@@ -329,22 +329,22 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
                 })
             });
 
-            eprintln!();
+            jjbuf!(buf, "");
             match next_pace_info {
                 Some((next_coronet, next_silks)) => {
-                    eprintln!("AGENT_RESPONSE: \u{20a2}{} wrapped. Next: {} (\u{20a2}{}) \u{2014} `/clear` then `/jjc-heat-mount {}`",
+                    jjbuf!(buf, "AGENT_RESPONSE: \u{20a2}{} wrapped. Next: {} (\u{20a2}{}) \u{2014} `/clear` then `/jjc-heat-mount {}`",
                         args.coronet, next_silks, next_coronet, fm_str);
                 }
                 None => {
-                    eprintln!("AGENT_RESPONSE: \u{20a2}{} wrapped. All paces complete \u{2014} `/clear` then `/jjc-heat-retire {}`",
+                    jjbuf!(buf, "AGENT_RESPONSE: \u{20a2}{} wrapped. All paces complete \u{2014} `/clear` then `/jjc-heat-retire {}`",
                         args.coronet, fm_str);
                 }
             }
             (0, buf)
         }
         Err(e) => {
-            eprintln!("jjx_wrap: error: chalk commit failed: {}", e);
-            eprintln!("jjx_wrap: warning: gallops state updated but not committed");
+            jjbuf!(buf, "jjx_wrap: error: chalk commit failed: {}", e);
+            jjbuf!(buf, "jjx_wrap: warning: gallops state updated but not committed");
             (1, buf)
         }
     }

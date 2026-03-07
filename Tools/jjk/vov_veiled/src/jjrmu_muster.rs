@@ -30,7 +30,7 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_muster: error: {}", e);
+            jjbuf!(buf, "jjx_muster: error: {}", e);
             return (1, buf);
         }
     };
@@ -139,7 +139,7 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
     }
 
     if let Err(e) = vvc::vvcp_invitatory().await {
-        eprintln!("jjx_muster: warning: invitatory failed: {}", e);
+        jjbuf!(buf, "jjx_muster: warning: invitatory failed: {}", e);
     }
 
     (0, buf)

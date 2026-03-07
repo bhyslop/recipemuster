@@ -33,7 +33,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_orient: error: {}", e);
+            jjbuf!(buf, "jjx_orient: error: {}", e);
             return (1, buf);
         }
     };
@@ -124,7 +124,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
             match jjrq_resolve_default_heat(&gallops) {
                 Ok(fm) => fm,
                 Err(e) => {
-                    eprintln!("jjx_orient: error: {}", e);
+                    jjbuf!(buf, "jjx_orient: error: {}", e);
                     return (1, buf);
                 }
             }
@@ -142,7 +142,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
         let coronet = match Coronet::jjrf_parse(&firemark_str) {
             Ok(c) => c,
             Err(e) => {
-                eprintln!("jjx_orient: error: {}", e);
+                jjbuf!(buf, "jjx_orient: error: {}", e);
                 return (1, buf);
             }
         };
@@ -151,7 +151,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
         // It's a firemark - existing behavior
         None
     } else {
-        eprintln!("jjx_orient: error: Invalid argument '{}' (must be 2-char firemark or 5-char coronet)", firemark_str);
+        jjbuf!(buf, "jjx_orient: error: Invalid argument '{}' (must be 2-char firemark or 5-char coronet)", firemark_str);
         return (1, buf);
     };
 
@@ -162,7 +162,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
         match Firemark::jjrf_parse(&firemark_str) {
             Ok(fm) => fm,
             Err(e) => {
-                eprintln!("jjx_orient: error: {}", e);
+                jjbuf!(buf, "jjx_orient: error: {}", e);
                 return (1, buf);
             }
         }
@@ -172,14 +172,14 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
-            eprintln!("jjx_orient: error: Heat '{}' not found", heat_key);
+            jjbuf!(buf, "jjx_orient: error: Heat '{}' not found", heat_key);
             return (1, buf);
         }
     };
 
     // Check if heat is stabled (cannot saddle stabled heat)
     if heat.status == HeatStatus::Stabled {
-        eprintln!("jjx_orient: error: Cannot saddle stabled heat '{}'", heat_key);
+        jjbuf!(buf, "jjx_orient: error: Cannot saddle stabled heat '{}'", heat_key);
         return (1, buf);
     }
 
@@ -187,7 +187,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
     let paddock_content = match fs::read_to_string(&heat.paddock_file) {
         Ok(content) => content,
         Err(e) => {
-            eprintln!("jjx_orient: error reading paddock file '{}': {}", heat.paddock_file, e);
+            jjbuf!(buf, "jjx_orient: error reading paddock file '{}': {}", heat.paddock_file, e);
             return (1, buf);
         }
     };
@@ -227,25 +227,25 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
                             }
                         }
                         PaceState::Complete => {
-                            eprintln!("jjx_orient: error: Pace '{}' is already complete", coronet_key);
+                            jjbuf!(buf, "jjx_orient: error: Pace '{}' is already complete", coronet_key);
                             return (1, buf);
                         }
                         PaceState::Abandoned => {
-                            eprintln!("jjx_orient: error: Pace '{}' is abandoned", coronet_key);
+                            jjbuf!(buf, "jjx_orient: error: Pace '{}' is abandoned", coronet_key);
                             return (1, buf);
                         }
                         _ => {
-                            eprintln!("jjx_orient: error: Pace '{}' has invalid state", coronet_key);
+                            jjbuf!(buf, "jjx_orient: error: Pace '{}' has invalid state", coronet_key);
                             return (1, buf);
                         }
                     }
                 } else {
-                    eprintln!("jjx_orient: error: Pace '{}' has no tacks", coronet_key);
+                    jjbuf!(buf, "jjx_orient: error: Pace '{}' has no tacks", coronet_key);
                     return (1, buf);
                 }
             }
             None => {
-                eprintln!("jjx_orient: error: Pace '{}' not found in heat '{}'", coronet_key, heat_key);
+                jjbuf!(buf, "jjx_orient: error: Pace '{}' not found in heat '{}'", coronet_key, heat_key);
                 return (1, buf);
             }
         }
@@ -312,11 +312,11 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
                     }
                     let _ = writeln!(buf);
                 }
-                eprintln!();
+                jjbuf!(buf, "");
                 if state == "bridled" {
-                    eprintln!("Recommended: /jjc-heat-mount {} to execute", firemark.jjrf_as_str());
+                    jjbuf!(buf, "Recommended: /jjc-heat-mount {} to execute", firemark.jjrf_as_str());
                 } else {
-                    eprintln!("Recommended: /jjc-pace-bridle {} or /jjc-heat-mount {}", coronet, firemark.jjrf_as_str());
+                    jjbuf!(buf, "Recommended: /jjc-pace-bridle {} or /jjc-heat-mount {}", coronet, firemark.jjrf_as_str());
                 }
             }
         }
@@ -379,7 +379,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
     jjrpd_write_commit_swimlanes(&mut buf, &firemark, heat);
 
     if let Err(e) = vvc::vvcp_invitatory().await {
-        eprintln!("jjx_orient: warning: invitatory failed: {}", e);
+        jjbuf!(buf, "jjx_orient: warning: invitatory failed: {}", e);
     }
 
     (0, buf)

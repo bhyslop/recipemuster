@@ -37,7 +37,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
-            eprintln!("jjx_get_coronets: error: {}", e);
+            jjbuf!(buf, "jjx_get_coronets: error: {}", e);
             return (1, buf);
         }
     };
@@ -45,7 +45,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_get_coronets: error: {}", e);
+            jjbuf!(buf, "jjx_get_coronets: error: {}", e);
             return (1, buf);
         }
     };
@@ -54,7 +54,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
-            eprintln!("jjx_get_coronets: error: Heat '{}' not found", heat_key);
+            jjbuf!(buf, "jjx_get_coronets: error: Heat '{}' not found", heat_key);
             return (1, buf);
         }
     };

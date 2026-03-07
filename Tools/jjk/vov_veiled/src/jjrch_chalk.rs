@@ -30,12 +30,12 @@ pub struct jjrx_ChalkArgs {
 
 /// Run the chalk command - create steeplechase marker commit
 pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
-    let buf = String::new();
+    let mut buf = String::new();
 
     let marker = match ChalkMarker::jjrn_parse(&args.marker) {
         Ok(m) => m,
         Err(e) => {
-            eprintln!("jjx_chalk: error: {}", e);
+            jjbuf!(buf, "jjx_chalk: error: {}", e);
             return (1, buf);
         }
     };
@@ -48,7 +48,7 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
         let coronet = match Coronet::jjrf_parse(&args.identity) {
             Ok(c) => c,
             Err(e) => {
-                eprintln!("jjx_chalk: error: {}", e);
+                jjbuf!(buf, "jjx_chalk: error: {}", e);
                 return (1, buf);
             }
         };
@@ -56,20 +56,20 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
     } else if identity.len() == 2 {
         // Firemark - heat-level (discussion, session)
         if marker.jjrn_requires_pace() {
-            eprintln!("jjx_chalk: error: {} marker requires a Coronet (pace identity), not a Firemark", marker.jjrn_as_str());
+            jjbuf!(buf, "jjx_chalk: error: {} marker requires a Coronet (pace identity), not a Firemark", marker.jjrn_as_str());
             return (1, buf);
         }
         let firemark = match Firemark::jjrf_parse(&args.identity) {
             Ok(fm) => fm,
             Err(e) => {
-                eprintln!("jjx_chalk: error: {}", e);
+                jjbuf!(buf, "jjx_chalk: error: {}", e);
                 return (1, buf);
             }
         };
 
         jjrn_format_heat_discussion(&firemark, &args.description)
     } else {
-        eprintln!("jjx_chalk: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
+        jjbuf!(buf, "jjx_chalk: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
         return (1, buf);
     };
 

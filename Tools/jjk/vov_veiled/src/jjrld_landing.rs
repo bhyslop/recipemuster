@@ -29,13 +29,13 @@ pub struct jjrld_LandingArgs {
 ///
 /// Returns exit code (0 for success, non-zero for failure).
 pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> (i32, String) {
-    let buf = String::new();
+    let mut buf = String::new();
 
     // Parse coronet
     let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("jjx_landing: error: {}", e);
+            jjbuf!(buf, "jjx_landing: error: {}", e);
             return (1, buf);
         }
     };

@@ -88,7 +88,7 @@ jjx_arm            {coronet, warrant}
 - `jjx_enroll` takes `docket` as a string param (not stdin)
 - `jjx_close` takes `summary` as a string param (not stdin pipe)
 - `jjx_record` takes `files` as a JSON array: `["file1.rs", "file2.rs"]`
-- `jjx_transfer` takes `coronets` as a string (newline-separated coronet list)
+- `jjx_transfer` takes `coronets` as a JSON array: `["AYAAA", "AYAAB"]`
 
 ### Mount Protocol
 

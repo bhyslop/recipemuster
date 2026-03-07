@@ -32,7 +32,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
     let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("jjx_get_spec: error: {}", e);
+            jjbuf!(buf, "jjx_get_spec: error: {}", e);
             return (1, buf);
         }
     };
@@ -40,7 +40,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            eprintln!("jjx_get_spec: error: {}", e);
+            jjbuf!(buf, "jjx_get_spec: error: {}", e);
             return (1, buf);
         }
     };
@@ -51,7 +51,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
-            eprintln!("jjx_get_spec: error: Heat '{}' not found", heat_key);
+            jjbuf!(buf, "jjx_get_spec: error: Heat '{}' not found", heat_key);
             return (1, buf);
         }
     };
@@ -61,7 +61,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
     let pace = match heat.paces.get(&coronet_key) {
         Some(p) => p,
         None => {
-            eprintln!("jjx_get_spec: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
+            jjbuf!(buf, "jjx_get_spec: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
             return (1, buf);
         }
     };
@@ -71,7 +71,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
         let _ = write!(buf, "{}", tack.text);
         (0, buf)
     } else {
-        eprintln!("jjx_get_spec: error: Pace '{}' has no tacks", coronet_key);
+        jjbuf!(buf, "jjx_get_spec: error: Pace '{}' has no tacks", coronet_key);
         (1, buf)
     }
 }
