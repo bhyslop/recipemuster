@@ -8,9 +8,6 @@
 //! See Tools/vok/vov_veiled/VOSRP-probe.adoc for specification.
 
 use chrono::{DateTime, Local, Utc};
-use regex::Regex;
-use std::path::PathBuf;
-use tokio::fs;
 use tokio::process::Command;
 
 /// Brand prefix for VVC commits
@@ -25,27 +22,6 @@ pub const VVCP_OFFICIUM_TOKEN: &str = "OFFICIUM";
 /// Gap threshold in seconds for officium detection (1 hour).
 /// For manual testing, lower to 60 and rebuild; restore after.
 pub const VVCP_OFFICIUM_GAP_SECS: u64 = 3600;
-
-/// Raw probe output file for haiku
-const VVCP_RAW_HAIKU_FILE: &str = "vvcp_raw_haiku.txt";
-
-/// Raw probe output file for sonnet
-const VVCP_RAW_SONNET_FILE: &str = "vvcp_raw_sonnet.txt";
-
-/// Raw probe output file for opus
-const VVCP_RAW_OPUS_FILE: &str = "vvcp_raw_opus.txt";
-
-/// XML element name for haiku model ID
-const VVCP_ELEMENT_HAIKU: &str = "vvpxh_haiku";
-
-/// XML element name for sonnet model ID
-const VVCP_ELEMENT_SONNET: &str = "vvpxs_sonnet";
-
-/// XML element name for opus model ID
-const VVCP_ELEMENT_OPUS: &str = "vvpxo_opus";
-
-/// Environment variable for BURD_TEMP_DIR
-const VVCP_BURD_TEMP_DIR_VAR: &str = "BURD_TEMP_DIR";
 
 /// Probe Claude Code environment for model IDs and platform information.
 ///
@@ -108,32 +84,6 @@ async fn probe_model_tier_raw(tier: &str) -> String {
         Ok(output) if output.status.success() => String::from_utf8_lossy(&output.stdout).to_string(),
         _ => String::new(),
     }
-}
-
-/// Write raw probe output to file
-async fn write_raw_output(dir: &str, filename: &str, content: &str) -> Result<(), String> {
-    let mut path = PathBuf::from(dir);
-    path.push(filename);
-
-    fs::write(&path, content)
-        .await
-        .map_err(|e| format!("Failed to write {}: {}", filename, e))
-}
-
-/// Extract content from XML element using regex
-/// Returns "unavailable" if element not found or empty
-fn extract_xml_element(text: &str, element: &str) -> String {
-    let pattern = format!(r"<{}>(.*?)</{}>", regex::escape(element), regex::escape(element));
-    let re = match Regex::new(&pattern) {
-        Ok(re) => re,
-        Err(_) => return "unavailable".to_string(),
-    };
-
-    re.captures(text)
-        .and_then(|cap| cap.get(1))
-        .map(|m| m.as_str().trim().to_string())
-        .filter(|s| !s.is_empty())
-        .unwrap_or_else(|| "unavailable".to_string())
 }
 
 /// Get hostname via std::env or hostname command
@@ -334,67 +284,4 @@ mod tests {
         assert!(!platform.starts_with("unknown-"), "OS should be detected");
     }
 
-    #[test]
-    fn test_extract_xml_element_clean() {
-        // Test with clean XML
-        let xml = "<vvpxh_haiku>claude-3-5-haiku-20241022</vvpxh_haiku>";
-        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
-        assert_eq!(result, "claude-3-5-haiku-20241022");
-
-        let xml = "<vvpxs_sonnet>claude-sonnet-4-20250514</vvpxs_sonnet>";
-        let result = extract_xml_element(xml, VVCP_ELEMENT_SONNET);
-        assert_eq!(result, "claude-sonnet-4-20250514");
-
-        let xml = "<vvpxo_opus>claude-opus-4-5-20251101</vvpxo_opus>";
-        let result = extract_xml_element(xml, VVCP_ELEMENT_OPUS);
-        assert_eq!(result, "claude-opus-4-5-20251101");
-    }
-
-    #[test]
-    fn test_extract_xml_element_missing() {
-        // Test with missing element returns unavailable
-        let xml = "<vvpxs_sonnet>claude-sonnet-4-20250514</vvpxs_sonnet>";
-        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
-        assert_eq!(result, "unavailable");
-    }
-
-    #[test]
-    fn test_extract_xml_element_empty() {
-        // Test with empty element returns unavailable
-        let xml = "<vvpxh_haiku></vvpxh_haiku>";
-        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
-        assert_eq!(result, "unavailable");
-
-        // Test with whitespace-only element
-        let xml = "<vvpxh_haiku>   </vvpxh_haiku>";
-        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
-        assert_eq!(result, "unavailable");
-    }
-
-    #[test]
-    fn test_extract_xml_element_with_extra_text() {
-        // Test with extra text around XML still extracts correctly
-        let xml = "Here is the information you requested:\n\
-                   <vvpxh_haiku>claude-3-5-haiku-20241022</vvpxh_haiku>\n\
-                   <vvpxs_sonnet>claude-sonnet-4-20250514</vvpxs_sonnet>\n\
-                   <vvpxo_opus>claude-opus-4-5-20251101</vvpxo_opus>\n\
-                   I hope this helps!";
-
-        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
-        assert_eq!(result, "claude-3-5-haiku-20241022");
-
-        let result = extract_xml_element(xml, VVCP_ELEMENT_SONNET);
-        assert_eq!(result, "claude-sonnet-4-20250514");
-
-        let result = extract_xml_element(xml, VVCP_ELEMENT_OPUS);
-        assert_eq!(result, "claude-opus-4-5-20251101");
-    }
-
-    #[test]
-    fn test_extract_xml_element_with_whitespace() {
-        // Test that trimming works inside elements
-        let xml = "<vvpxh_haiku>  claude-3-5-haiku-20241022  </vvpxh_haiku>";
-        let result = extract_xml_element(xml, VVCP_ELEMENT_HAIKU);
-        assert_eq!(result, "claude-3-5-haiku-20241022");
-    }
 }
