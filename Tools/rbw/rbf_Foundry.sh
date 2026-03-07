@@ -37,8 +37,8 @@ zrbf_kindle() {
   zrbgc_sentinel
 
   buc_log_args 'Verify service account files'
-  test -n "${RBRR_DIRECTOR_RBRA_FILE:-}" || buc_die "RBRR_DIRECTOR_RBRA_FILE not set"
-  test -f "${RBRR_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBRR_DIRECTOR_RBRA_FILE}"
+  test -n "${RBDC_DIRECTOR_RBRA_FILE:-}" || buc_die "RBDC_DIRECTOR_RBRA_FILE not set"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBDC_DIRECTOR_RBRA_FILE}"
 
   buc_log_args 'Module Variables (ZRBF_*)'
   readonly ZRBF_GCB_API_BASE="https://cloudbuild.googleapis.com/v1"
@@ -497,7 +497,7 @@ zrbf_wait_build_completion() {
 
   buc_log_args 'Get fresh token for polling'
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get GCB OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get GCB OAuth token"
 
   local z_status="PENDING"
   local z_attempts=0
@@ -581,13 +581,13 @@ rbf_build() {
 
   # Source Director RBRA for credentials (still needed for OAuth token)
   buc_step "Loading Director RBRA credentials"
-  source "${RBRR_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
+  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
   test -n "${RBRR_RUBRIC_REPO_URL:-}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
 
   # Authenticate as Director
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
   # Fetch GitLab token from Secret Manager (api token secret)
@@ -731,7 +731,7 @@ rbf_delete() {
 
   # Get OAuth token using Director credentials
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
   # Confirm deletion unless --force
   if test "${z_skip_confirm}" = "false"; then
@@ -776,11 +776,11 @@ rbf_list() {
 
   # Prefer Retriever credentials, fallback to Director
   local z_rbra_file=""
-  if test -n "${RBRR_RETRIEVER_RBRA_FILE:-}" && test -f "${RBRR_RETRIEVER_RBRA_FILE}"; then
-    z_rbra_file="${RBRR_RETRIEVER_RBRA_FILE}"
+  if test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" && test -f "${RBDC_RETRIEVER_RBRA_FILE}"; then
+    z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE}"
     buc_info "Using Retriever credentials"
   else
-    z_rbra_file="${RBRR_DIRECTOR_RBRA_FILE}"
+    z_rbra_file="${RBDC_DIRECTOR_RBRA_FILE}"
     buc_info "Retriever not configured, using Director credentials"
   fi
 
@@ -854,7 +854,7 @@ rbf_beseech() {
 
   buc_step "Fetching OAuth token (Director)"
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
   buc_step "Enumerating arks from repository"
 
@@ -982,11 +982,11 @@ rbf_retrieve() {
 
   # Prefer Retriever credentials, fallback to Director
   local z_rbra_file=""
-  if test -n "${RBRR_RETRIEVER_RBRA_FILE:-}" && test -f "${RBRR_RETRIEVER_RBRA_FILE}"; then
-    z_rbra_file="${RBRR_RETRIEVER_RBRA_FILE}"
+  if test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" && test -f "${RBDC_RETRIEVER_RBRA_FILE}"; then
+    z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE}"
     buc_info "Using Retriever credentials"
   else
-    z_rbra_file="${RBRR_DIRECTOR_RBRA_FILE}"
+    z_rbra_file="${RBDC_DIRECTOR_RBRA_FILE}"
     buc_info "Retriever not configured, using Director credentials"
   fi
 
@@ -1046,11 +1046,11 @@ rbf_summon() {
 
   # Prefer Retriever credentials, fallback to Director
   local z_rbra_file=""
-  if test -n "${RBRR_RETRIEVER_RBRA_FILE:-}" && test -f "${RBRR_RETRIEVER_RBRA_FILE}"; then
-    z_rbra_file="${RBRR_RETRIEVER_RBRA_FILE}"
+  if test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" && test -f "${RBDC_RETRIEVER_RBRA_FILE}"; then
+    z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE}"
     buc_info "Using Retriever credentials"
   else
-    z_rbra_file="${RBRR_DIRECTOR_RBRA_FILE}"
+    z_rbra_file="${RBDC_DIRECTOR_RBRA_FILE}"
     buc_info "Retriever not configured, using Director credentials"
   fi
 
@@ -1168,13 +1168,13 @@ rbf_rubric_inscribe() {
 
   # Source Director RBRA for credentials (still needed for OAuth token)
   buc_step "Loading Director RBRA credentials"
-  source "${RBRR_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
+  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
   test -n "${RBRR_RUBRIC_REPO_URL:-}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
 
   # Authenticate as Director early (needed for Secret Manager PAT retrieval)
   buc_step "Authenticating as Director"
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
   # Fetch GitLab token from Secret Manager (api token secret)
@@ -1542,7 +1542,7 @@ rbf_abjure() {
 
   # Get OAuth token using Director credentials
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
   # Compute platform suffixes from vessel config
   local z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
@@ -1814,7 +1814,7 @@ rbf_check_consecrations() {
 
   buc_step "Fetching OAuth token (Director)"
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
   buc_step "Querying GAR tags for ${RBRV_SIGIL}"
   local -r z_tags_file="${BURD_TEMP_DIR}/rbf_dc_tags.json"
@@ -1953,7 +1953,7 @@ rbf_vouch() {
   # Auth as Director (Retriever path deferred — Director has roles/viewer which includes containeranalysis)
   buc_step "Fetching OAuth token (Director)"
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
   # Consecration parameter (required)
   local -r z_consecration="${2:-}"

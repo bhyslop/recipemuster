@@ -428,7 +428,7 @@ rbgp_payor_install() {
   test -n "${z_project_id}" || buc_die "OAuth JSON file missing project_id field"
 
   buc_step 'Check existing credentials'
-  local -r z_rbro_file="${RBRR_PAYOR_RBRO_FILE}"
+  local -r z_rbro_file="${RBDC_PAYOR_RBRO_FILE}"
   if test -f "${z_rbro_file}"; then
     buc_log_args "Existing RBRO credentials will be replaced"
   fi
@@ -1753,7 +1753,7 @@ rbgp_governor_reset() {
   buc_info "RBRA file written: ${z_rbra_file}"
   buc_info ""
   buc_info "Install the RBRA file:"
-  buc_bare "        cp ${z_rbra_file} ${RBRR_GOVERNOR_RBRA_FILE}"
+  buc_bare "        cp ${z_rbra_file} ${RBDC_GOVERNOR_RBRA_FILE}"
 }
 
 # eof

@@ -101,6 +101,7 @@ zrbob_furnish() {
   source "${z_rbw_kit_dir}/rbrn_regime.sh"
   source "${z_rbw_kit_dir}/rbcc_Constants.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
   source "${RBBC_rbrr_file}"
   source "${z_rbw_kit_dir}/rbgc_Constants.sh"
   source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
@@ -124,6 +125,7 @@ zrbob_furnish() {
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock
+  zrbdc_kindle
 
   # Kindle depot constants (provides RBGD_GAR_LOCATION, RBGD_GAR_PROJECT_ID for image URLs)
   zrbgc_kindle

@@ -76,16 +76,16 @@ zrbap_role_rbra_file_capture() {
 
   case "${z_role}" in
     governor)
-      test -n "${RBRR_GOVERNOR_RBRA_FILE:-}"  || buc_die "RBRR_GOVERNOR_RBRA_FILE is not set"
-      printf '%s\n' "${RBRR_GOVERNOR_RBRA_FILE}"
+      test -n "${RBDC_GOVERNOR_RBRA_FILE:-}"  || buc_die "RBDC_GOVERNOR_RBRA_FILE is not set"
+      printf '%s\n' "${RBDC_GOVERNOR_RBRA_FILE}"
       ;;
     director)
-      test -n "${RBRR_DIRECTOR_RBRA_FILE:-}"  || buc_die "RBRR_DIRECTOR_RBRA_FILE is not set"
-      printf '%s\n' "${RBRR_DIRECTOR_RBRA_FILE}"
+      test -n "${RBDC_DIRECTOR_RBRA_FILE:-}"  || buc_die "RBDC_DIRECTOR_RBRA_FILE is not set"
+      printf '%s\n' "${RBDC_DIRECTOR_RBRA_FILE}"
       ;;
     retriever)
-      test -n "${RBRR_RETRIEVER_RBRA_FILE:-}" || buc_die "RBRR_RETRIEVER_RBRA_FILE is not set"
-      printf '%s\n' "${RBRR_RETRIEVER_RBRA_FILE}"
+      test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" || buc_die "RBDC_RETRIEVER_RBRA_FILE is not set"
+      printf '%s\n' "${RBDC_RETRIEVER_RBRA_FILE}"
       ;;
     *)
       buc_die "Unknown role '${z_role}': expected governor | director | retriever"

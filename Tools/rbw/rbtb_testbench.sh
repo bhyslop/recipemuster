@@ -35,6 +35,7 @@ source "${RBTB_SCRIPT_DIR}/rbz_zipper.sh"
 source "${BURD_BUK_DIR}/buv_validation.sh"
 source "${RBTB_SCRIPT_DIR}/rbrn_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbrr_regime.sh"
+source "${RBTB_SCRIPT_DIR}/rbdc_DerivedConstants.sh"
 source "${RBTB_SCRIPT_DIR}/rbrv_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbrp_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbcc_Constants.sh"
@@ -100,6 +101,7 @@ rbtb_load_nameplate() {
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock
+  zrbdc_kindle
 
   rbtb_show "Kindling RBGC/RBGD/RBOB"
   zrbgc_kindle

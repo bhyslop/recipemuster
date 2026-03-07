@@ -57,9 +57,10 @@ butcrg_rbra_tcase() {
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock
+  zrbdc_kindle
 
   local z_roles=("governor" "retriever" "director")
-  local z_vars=("RBRR_GOVERNOR_RBRA_FILE" "RBRR_RETRIEVER_RBRA_FILE" "RBRR_DIRECTOR_RBRA_FILE")
+  local z_vars=("RBDC_GOVERNOR_RBRA_FILE" "RBDC_RETRIEVER_RBRA_FILE" "RBDC_DIRECTOR_RBRA_FILE")
 
   local z_i
   for z_i in "${!z_roles[@]}"; do
@@ -87,8 +88,9 @@ butcrg_rbro_tcase() {
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock
+  zrbdc_kindle
 
-  local z_file="${RBRR_PAYOR_RBRO_FILE}"
+  local z_file="${RBDC_PAYOR_RBRO_FILE}"
   test -f "${z_file}" || buto_fatal "RBRO credential file not found: ${z_file}. This suite requires a fully configured workstation."
 
   zbutcrg_cred_dispatch_ok "rbw-rov"

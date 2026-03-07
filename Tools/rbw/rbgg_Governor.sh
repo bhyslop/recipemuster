@@ -101,7 +101,7 @@ zrbgg_sentinel() {
 zrbgg_rubric_preflight() {
   zrbgg_sentinel
 
-  local z_gov_rbra="${RBRR_GOVERNOR_RBRA_FILE}"
+  local z_gov_rbra="${RBDC_GOVERNOR_RBRA_FILE}"
   test -f "${z_gov_rbra}" || buc_die "Governor RBRA file not found: ${z_gov_rbra} — run rbgp_governor_reset"
 
   if test -z "${ZRBRA_SOURCED:-}"; then
@@ -539,7 +539,7 @@ rbgg_create_retriever() {
   buc_info "RBRA file written: ${z_actual_rbra_file}"
   buc_info ""
   buc_info "Install the RBRA file:"
-  buc_bare "        cp ${z_actual_rbra_file} ${RBRR_RETRIEVER_RBRA_FILE}"
+  buc_bare "        cp ${z_actual_rbra_file} ${RBDC_RETRIEVER_RBRA_FILE}"
 }
 
 rbgg_create_director() {
@@ -738,7 +738,7 @@ rbgg_create_director() {
   buc_info "RBRA file written: ${z_actual_rbra_file}"
   buc_info ""
   buc_info "Install the RBRA file:"
-  buc_bare "        cp ${z_actual_rbra_file} ${RBRR_DIRECTOR_RBRA_FILE}"
+  buc_bare "        cp ${z_actual_rbra_file} ${RBDC_DIRECTOR_RBRA_FILE}"
 }
 
 rbgg_delete_service_account() {

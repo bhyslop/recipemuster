@@ -31,7 +31,7 @@ rbro_validate() {
   buc_doc_brief "Validate RBRO OAuth credential file via enrollment enforcement"
   buc_doc_shown || return 0
 
-  buc_step "Validating RBRO OAuth credential file: ${RBRR_PAYOR_RBRO_FILE}"
+  buc_step "Validating RBRO OAuth credential file: ${RBDC_PAYOR_RBRO_FILE}"
   buc_step "  PASS  RBRO_CLIENT_SECRET=[REDACTED - ${#RBRO_CLIENT_SECRET} chars] [string]"
   buc_step "  PASS  RBRO_REFRESH_TOKEN=[REDACTED - ${#RBRO_REFRESH_TOKEN} chars] [string]"
   buc_step "RBRO OAuth credential file valid"
@@ -68,6 +68,7 @@ zrbro_furnish() {
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
   source "${z_rbw_kit_dir}/rbcc_Constants.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
   source "${z_rbw_kit_dir}/rbro_regime.sh"
 
   zbuv_kindle
@@ -80,6 +81,7 @@ zrbro_furnish() {
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock
+  zrbdc_kindle
 
   rbro_load
 

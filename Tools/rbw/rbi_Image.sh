@@ -38,8 +38,8 @@ zrbi_kindle() {
   zburd_sentinel
 
   # Verify GAR service account file is configured
-  test -n "${RBRR_RETRIEVER_RBRA_FILE:-}"   || buc_die "RBRR_RETRIEVER_RBRA_FILE not set"
-  test -f "${RBRR_RETRIEVER_RBRA_FILE}"     || buc_die "GAR service env file not found: ${RBRR_RETRIEVER_RBRA_FILE}"
+  test -n "${RBDC_RETRIEVER_RBRA_FILE:-}"   || buc_die "RBDC_RETRIEVER_RBRA_FILE not set"
+  test -f "${RBDC_RETRIEVER_RBRA_FILE}"     || buc_die "GAR service env file not found: ${RBDC_RETRIEVER_RBRA_FILE}"
 
   # Module Variables (ZRBI_*)
   readonly ZRBI_REGISTRY_HOST="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -91,7 +91,7 @@ zrbi_refresh_token() {
   # No sentinel check - called from kindle before KINDLED=1
   buc_log_args "Obtaining OAuth token for GAR API"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBRR_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token from RBGO"
+  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token from RBGO"
   echo "${z_token}" > "${ZRBI_TOKEN_FILE}" || buc_die "Failed to write token file"
 }
 

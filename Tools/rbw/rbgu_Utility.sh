@@ -211,11 +211,11 @@ rbgu_http_code_capture() {
 rbgu_get_governor_token_capture() {
   zrbgu_sentinel
 
-  # Need access to RBRR_GOVERNOR_RBRA_FILE from regime
-  test -n "${RBRR_GOVERNOR_RBRA_FILE:-}" || return 1
+  # Need access to RBDC_GOVERNOR_RBRA_FILE from regime
+  test -n "${RBDC_GOVERNOR_RBRA_FILE:-}" || return 1
 
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBRR_GOVERNOR_RBRA_FILE}") || return 1
+  z_token=$(rbgo_get_token_capture "${RBDC_GOVERNOR_RBRA_FILE}") || return 1
 
   test -n "${z_token}" || return 1
   echo    "${z_token}"

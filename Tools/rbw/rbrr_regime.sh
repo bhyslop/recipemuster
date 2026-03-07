@@ -122,12 +122,6 @@ zrbrr_enforce() {
 zrbrr_lock() {
   zrbrr_sentinel
 
-  # Derive credential file paths from RBRR_SECRETS_DIR
-  readonly RBRR_GOVERNOR_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-governor.env"
-  readonly RBRR_RETRIEVER_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-retriever.env"
-  readonly RBRR_DIRECTOR_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-director.env"
-  readonly RBRR_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/rbro-payor.env"
-
   # Build docker env args array from validated values
   # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
   ZRBRR_DOCKER_ENV=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")

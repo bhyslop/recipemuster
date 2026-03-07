@@ -168,6 +168,7 @@ zrbrn_furnish() {
   case "${z_command}" in
     rbrn_survey|rbrn_audit)
       source "${z_rbw_kit_dir}/rbrr_regime.sh"
+      source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
       source "${z_rbw_kit_dir}/rbgc_Constants.sh"
       source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
       source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
@@ -191,6 +192,7 @@ zrbrn_furnish() {
       zrbrr_kindle
       zrbrr_enforce
       zrbrr_lock
+      zrbdc_kindle
       zrbgo_kindle
       zrbgd_kindle
       ;;

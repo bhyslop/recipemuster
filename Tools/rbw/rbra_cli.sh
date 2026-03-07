@@ -36,9 +36,9 @@ zrbra_resolve_role() {
   zrbrr_sentinel
 
   case "${z_role}" in
-    governor)  echo "${RBRR_GOVERNOR_RBRA_FILE}" ;;
-    retriever) echo "${RBRR_RETRIEVER_RBRA_FILE}" ;;
-    director)  echo "${RBRR_DIRECTOR_RBRA_FILE}" ;;
+    governor)  echo "${RBDC_GOVERNOR_RBRA_FILE}" ;;
+    retriever) echo "${RBDC_RETRIEVER_RBRA_FILE}" ;;
+    director)  echo "${RBDC_DIRECTOR_RBRA_FILE}" ;;
     *)         buc_die "Unknown RBRA role: ${z_role}. Valid roles: governor, retriever, director" ;;
   esac
 }
@@ -78,7 +78,7 @@ rbra_list() {
 
   buc_step "RBRA credential roles (from RBRR):"
   local z_roles=("governor" "retriever" "director")
-  local z_vars=("RBRR_GOVERNOR_RBRA_FILE" "RBRR_RETRIEVER_RBRA_FILE" "RBRR_DIRECTOR_RBRA_FILE")
+  local z_vars=("RBDC_GOVERNOR_RBRA_FILE" "RBDC_RETRIEVER_RBRA_FILE" "RBDC_DIRECTOR_RBRA_FILE")
 
   local z_i
   for z_i in "${!z_roles[@]}"; do
@@ -107,6 +107,7 @@ zrbra_furnish() {
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
   source "${z_rbw_kit_dir}/rbcc_Constants.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
   source "${z_rbw_kit_dir}/rbra_regime.sh"
 
   # Light kindles (always)
@@ -122,6 +123,7 @@ zrbra_furnish() {
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock
+  zrbdc_kindle
 
   # If BUZ_FOLIO is set, load and kindle the specified role
   if test -n "${BUZ_FOLIO:-}"; then

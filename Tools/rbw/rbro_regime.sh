@@ -67,10 +67,10 @@ zrbro_lock() {
 ######################################################################
 # Public Functions (rbro_*)
 
-# Load RBRO from RBRR_PAYOR_RBRO_FILE (kindle constant from RBRR_SECRETS_DIR)
-# Requires: RBRR kindled+enforced+locked (RBRR_PAYOR_RBRO_FILE is a lock-step constant)
+# Load RBRO from RBDC_PAYOR_RBRO_FILE (kindle constant from RBRR_SECRETS_DIR)
+# Requires: RBRR kindled+enforced+locked (RBDC_PAYOR_RBRO_FILE is a lock-step constant)
 rbro_load() {
-  local z_rbro_file="${RBRR_PAYOR_RBRO_FILE}"
+  local z_rbro_file="${RBDC_PAYOR_RBRO_FILE}"
 
   test -f "${z_rbro_file}" || buc_die "RBRO credentials missing (${z_rbro_file}) - run rbgp_payor_install"
   test -r "${z_rbro_file}" || buc_die "RBRO file not readable - check permissions"

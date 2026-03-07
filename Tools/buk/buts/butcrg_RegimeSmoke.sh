@@ -98,6 +98,7 @@ butcrg_rbrv_tcase() {
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock
+  zrbdc_kindle
 
   local z_sigils
   z_sigils=$(rbrv_list_capture) || buto_fatal "No vessels found"

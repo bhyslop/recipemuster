@@ -41,6 +41,7 @@ Full read and edit access is pre-approved for all files in:
 ### Tools Directory (`Tools/`)
 
 #### RBW Subdirectory (`Tools/rbw/`)
+- **RBDC** → `rbw/rbdc_DerivedConstants.sh`
 - **RBF**  → `rbw/rbf_Foundry.sh`
 - **RBGA** → `rbw/rbga_ArtifactRegistry.sh`
 - **RBGB** → `rbw/rbgb_Buckets.sh`

@@ -76,6 +76,7 @@ zrbrv_furnish() {
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
   source "${z_rbw_kit_dir}/rbcc_Constants.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
   source "${z_rbw_kit_dir}/rbrv_regime.sh"
 
   # Kindles (always)
@@ -91,6 +92,7 @@ zrbrv_furnish() {
   zrbrr_kindle
   zrbrr_enforce
   zrbrr_lock
+  zrbdc_kindle
 
   # If BUZ_FOLIO is set, load and kindle the specified vessel
   if test -n "${BUZ_FOLIO:-}"; then
