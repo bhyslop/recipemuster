@@ -5432,6 +5432,7 @@
       "creation_time": "260224",
       "status": "racing",
       "order": [
+        "₢AkAAj",
         "₢AkAAh",
         "₢AkAAg",
         "₢AkAAf",
@@ -5462,7 +5463,7 @@
         "₢AkAAd",
         "₢AkAAi"
       ],
-      "next_pace_seed": "AAj",
+      "next_pace_seed": "AAk",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6075,6 +6076,17 @@
               "text": "Add automated quota preflight check for concurrent_private_pool_build_cpus.\n\n## Problem\n\nRBRR_GCB_MIN_CONCURRENT_BUILDS=3 is declared and validated but never consumed. When depot quota is too low (e.g. 2 vCPU with e2-standard-2 = 1 concurrent build), builds silently queue instead of failing fast. Discovered during demo1025 vessel rebuilds where 3 builds serialized on a 2-vCPU quota.\n\n## Design\n\nQuery Service Usage consumer quota API for `concurrent_private_pool_build_cpus` in the depot project/region. Extract vCPU count from RBRR_GCB_MACHINE_TYPE string. Compute max_concurrent = quota_value / vcpus. Compare against RBRR_GCB_MIN_CONCURRENT_BUILDS.\n\n## Insertion Points\n\n1. **Hard gate in rbf_build** — die before trigger dispatch if quota < required\n2. **Soft advisory in rbf_list** — warn after listing if quota looks insufficient\n\n## Notes\n\n- Metric is private-pool-specific (not default pool concurrent builds)\n- Service Usage API infrastructure already in rbgd_DepotConstants.sh and rbgu_Utility.sh\n- Director credentials already available in both rbf_build and rbf_list paths\n- Consider extracting the check as a shared function in rbf_Foundry.sh",
               "silks": "quota-preflight-concurrent-builds",
               "commit": "0847d34"
+            }
+          ]
+        },
+        "₢AkAAj": {
+          "tacks": [
+            {
+              "ts": "260307-1344",
+              "state": "rough",
+              "text": "Fix consumer image tag to use full consecration (TAG_BASE) instead of inscribe timestamp only.\n\n## Problem\n\nThe cloudbuild.json step 09 (imagetools-create) constructs the consumer-facing image tag as:\n```\nCONSUMER_TAG=\"${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}\"\n```\n\nThis produces tags like `i20260306_125145-image`, dropping the build timestamp (`-b20260307_HHMMSS`). But `rbob_bottle.sh` constructs image references as `${RBRN_*_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}`, expecting the full consecration in the tag.\n\nResult: nameplate consecrations don't match actual image tags. Two builds from the same inscribed JSON produce identical consumer tags, making them indistinguishable.\n\n## Fix\n\n### Pipeline side (cloudbuild.json, all vessels)\n\nStep 09 (imagetools-create): Change CONSUMER_TAG to use TAG_BASE (the full consecration) instead of _RBGY_INSCRIBE_TIMESTAMP.\n\nStep 04 (per-platform-pullback) and Step 05 (push-per-platform): Same fix — per-platform tags should also use TAG_BASE so imagetools-create can reference them.\n\nTAG_BASE is already derived in step 01 and written to `.tag_base`. Steps that need it can read from that file (steps 07 and 08 already do this).\n\n### Stitch function (rbf_Foundry.sh)\n\nThe inscribe/stitch function generates the cloudbuild.json substitutions. Verify that the stitch templates pass through correctly — the fix is in the step scripts themselves, not substitutions, since TAG_BASE is derived at build time.\n\n### Validation\n\n- Rebuild one vessel (rbev-busybox is fastest) and verify consumer tag is `{consecration}-image`\n- Summon and verify rbob_start can find the image\n- Update nameplate consecrations to match\n\n## Scope\n\nAll vessel cloudbuild.json files (7 files in rbev-vessels/).\nThe stitch function that generates them (rbf_Foundry.sh).\nPossibly rbf_summon if it also assumes inscribe-only tags.",
+              "silks": "fix-consumer-image-tag-uses-full-consecration",
+              "commit": "818434c"
             }
           ]
         }
