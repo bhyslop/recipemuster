@@ -5868,6 +5868,13 @@
         "₢AkAAX": {
           "tacks": [
             {
+              "ts": "260308-0911",
+              "state": "rough",
+              "text": "## Goal\n\nEnsure bottle start auto-pulls missing images instead of dying with a tabtarget hint.\n\nCurrently `rbob_start` (Tools/rbw/rbob_bottle.sh lines 310-322) checks if sentry/bottle images are local and dies with `buc_tabtarget` hints if missing. The consecration is already known from the nameplate (`RBRN_*_CONSECRATION`), and `rbf_summon` works with Retriever credentials.\n\n## Change\n\nWhen an image is missing, auto-invoke `rbf_summon` with the vessel+consecration from the nameplate instead of dying. Log what's happening so the user sees the pull activity. Die only if the summon itself fails.\n\n## Validation\n\nUpdate nsproto nameplate consecrations to the new builds from ₢AkAAm:\n- `RBRN_SENTRY_CONSECRATION` → sentry consecration from `i20260308_082033` inscription\n- `RBRN_BOTTLE_CONSECRATION` → `i20260308_082033-b20260308_152727`\n\nThen start nsproto — the new images won't be local, so auto-summon must fire. Success = nsproto starts without manual summon steps.\n\n## Files\n\n- `Tools/rbw/rbob_bottle.sh` — replace die-with-hint blocks with auto-summon calls\n- `Tools/rbw/rbrn_nsproto.env` — update consecrations to new builds\n\n## Design note\n\nThe Retriever role doesn't need consecration discovery — the nameplate IS the selection mechanism. Directors browse with `rbf_beseech`; Retrievers trust the committed nameplate and pull what it says.",
+              "silks": "bottle-start-auto-summon-missing",
+              "commit": "9a84d57"
+            },
+            {
               "ts": "260304-1959",
               "state": "rough",
               "text": "Ensure bottle start auto-pulls missing images instead of dying with a tabtarget hint.\n\nCurrently `rbob_start` (Tools/rbw/rbob_bottle.sh lines 310-322) checks if sentry/bottle images are local and dies with `buc_tabtarget` hints if missing. The consecration is already known from the nameplate (`RBRN_*_CONSECRATION`), and `rbf_summon` works with Retriever credentials.\n\nChange: when an image is missing, auto-invoke `rbf_summon` with the vessel+consecration from the nameplate instead of dying. Log what's happening so the user sees the pull activity. Die only if the summon itself fails.\n\nFiles:\n- `Tools/rbw/rbob_bottle.sh` — replace die-with-hint blocks with auto-summon calls (sentry ~line 310, bottle ~line 317)\n\nDesign note: The Retriever role doesn't need consecration discovery — the nameplate IS the selection mechanism. Directors browse with `rbf_beseech`; Retrievers trust the committed nameplate and pull what it says.",
