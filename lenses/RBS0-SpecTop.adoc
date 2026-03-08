@@ -288,7 +288,8 @@
 :rbrg_syft_image_ref:    <<rbrg_syft_image_ref,RBRG_SYFT_IMAGE_REF>>
 :rbrg_binfmt_image_ref:  <<rbrg_binfmt_image_ref,RBRG_BINFMT_IMAGE_REF>>
 :rbrg_skopeo_image_ref: <<rbrg_skopeo_image_ref,RBRG_SKOPEO_IMAGE_REF>>
-:rbrg_pins_refreshed_at: <<rbrg_pins_refreshed_at,RBRG_PINS_REFRESHED_AT>>
+:rbrg_image_pins_refreshed_at: <<rbrg_image_pins_refreshed_at,RBRG_IMAGE_PINS_REFRESHED_AT>>
+:rbrg_binary_pins_refreshed_at: <<rbrg_binary_pins_refreshed_at,RBRG_BINARY_PINS_REFRESHED_AT>>
 :rbrm_chosen_identity:       <<rbrm_chosen_identity,RBRM_CHOSEN_IDENTITY>>
 :rbrm_chosen_podman_version: <<rbrm_chosen_podman_version,RBRM_CHOSEN_PODMAN_VERSION>>
 :rbrm_chosen_vmimage_origin: <<rbrm_chosen_vmimage_origin,RBRM_CHOSEN_VMIMAGE_ORIGIN>>
@@ -2321,14 +2322,20 @@ Historically used to split multi-platform OCI layouts to single-platform for Syf
 No longer used in the current pipeline — Syft now scans per-platform images from the local Docker daemon via `docker:` transport after per-platform pullback.
 Pin retained for potential future use.
 
-[[rbrg_pins_refreshed_at]]
+[[rbrg_image_pins_refreshed_at]]
 //axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp
-{rbrg_pins_refreshed_at}::
-Timestamp recording when builder image pins were last refreshed.
-Written by `rbrr_refresh_gcb_pins` on successful completion.
+{rbrg_image_pins_refreshed_at}::
+Timestamp recording when container image pins were last refreshed.
+Written by `rbrr_refresh_gcb_pins` (`rbw-DPG`) on successful completion.
 {rbtgo_rubric_inscribe}
-checks this value and skips pin refresh if less than 1 day old,
-otherwise refreshes automatically before proceeding.
+checks this value and gates on freshness (less than 1 day old).
+
+[[rbrg_binary_pins_refreshed_at]]
+//axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp
+{rbrg_binary_pins_refreshed_at}::
+Timestamp recording when binary tool pins were last refreshed.
+Written by `rbrr_refresh_binary_pins` (`rbw-DPB`) on successful completion.
+Not gated by inscribe — binary pins are updated deliberately.
 
 [[rbrr_group_service_accounts]]
 //axvr_group
@@ -2381,10 +2388,11 @@ include::RBSRR-RegimeRepo.adoc[]
 [[rbrg_regime]]
 //axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {rbrg_regime}::
-Digest-pinned container image references for
+Pinned tool references for
 {gcb_service}
 build steps.
-Auto-refreshed by `rbrr_refresh_gcb_pins` which writes a complete file from scratch (BCG compliant).
+Two refresh commands: `rbrr_refresh_gcb_pins` (`rbw-DPG`) for container image pins and `rbrr_refresh_binary_pins` (`rbw-DPB`) for binary tool pins.
+Each writes the complete file from scratch (BCG compliant), preserving the other's section.
 Located at `.rbk/rbrg.env`.
 
 include::RBSRG-RegimeGcbPins.adoc[]

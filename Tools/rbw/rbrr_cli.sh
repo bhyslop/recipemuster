@@ -25,12 +25,14 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 ######################################################################
 # Internal Functions
 
-# Module-scoped arrays for BCG file rewrite — populated by refresh commands
+# Module-scoped arrays and timestamps for BCG file rewrite — populated by refresh commands
 ZRBRR_IMAGE_LINES=()
 ZRBRR_BINARY_LINES=()
+ZRBRR_IMAGE_PINS_REFRESHED_AT=""
+ZRBRR_BINARY_PINS_REFRESHED_AT=""
 
 # BCG compliant: write complete RBRG file from image + binary pin arrays, replace atomically
-# Caller must populate ZRBRR_IMAGE_LINES and ZRBRR_BINARY_LINES before calling.
+# Caller must populate ZRBRR_IMAGE_LINES, ZRBRR_BINARY_LINES, and both REFRESHED_AT values.
 zrbrr_write_rbrg() {
   local z_vintage="$1"
   local z_temp_file="$2"
@@ -64,7 +66,8 @@ zrbrr_write_rbrg() {
       echo "${z_line}"
     done
     echo ''
-    echo "RBRG_PINS_REFRESHED_AT=${BURD_NOW_EPOCH}"
+    echo "RBRG_IMAGE_PINS_REFRESHED_AT=${ZRBRR_IMAGE_PINS_REFRESHED_AT}"
+    echo "RBRG_BINARY_PINS_REFRESHED_AT=${ZRBRR_BINARY_PINS_REFRESHED_AT}"
     echo ''
     echo '# eof'
   } > "${z_temp_file}" || buc_die "Failed to write temporary RBRG file"
@@ -231,12 +234,14 @@ rbrr_refresh_gcb_pins() {
     z_index=$((z_index + 1))
   done
 
-  # Populate shared arrays: freshly resolved image pins, pass-through binary pins
+  # Populate shared state: freshly resolved image pins, pass-through binary pins and its timestamp
   ZRBRR_IMAGE_LINES=("${z_resolved_lines[@]}")
   ZRBRR_BINARY_LINES=(
     "RBRG_SLSA_VERIFIER_URL=\"${RBRG_SLSA_VERIFIER_URL}\""
     "RBRG_SLSA_VERIFIER_SHA256=\"${RBRG_SLSA_VERIFIER_SHA256}\""
   )
+  ZRBRR_IMAGE_PINS_REFRESHED_AT="${BURD_NOW_EPOCH}"
+  ZRBRR_BINARY_PINS_REFRESHED_AT="${RBRG_BINARY_PINS_REFRESHED_AT}"
 
   buc_step "Writing complete RBRG pin file (BCG rewrite pattern)"
   local -r z_temp_rbrg="${z_prefix}rbrg_complete.env"
@@ -339,7 +344,7 @@ rbrr_refresh_binary_pins() {
     z_updated=1
   fi
 
-  # Populate shared arrays: pass-through image pins, freshly resolved binary pins
+  # Populate shared state: pass-through image pins and its timestamp, freshly resolved binary pins
   ZRBRR_IMAGE_LINES=(
     "RBRG_ORAS_IMAGE_REF=\"${RBRG_ORAS_IMAGE_REF}\""
     "RBRG_GCLOUD_IMAGE_REF=\"${RBRG_GCLOUD_IMAGE_REF}\""
@@ -353,6 +358,8 @@ rbrr_refresh_binary_pins() {
     "RBRG_SLSA_VERIFIER_URL=\"${z_binary_url}\""
     "RBRG_SLSA_VERIFIER_SHA256=\"${z_local_sha}\""
   )
+  ZRBRR_IMAGE_PINS_REFRESHED_AT="${RBRG_IMAGE_PINS_REFRESHED_AT}"
+  ZRBRR_BINARY_PINS_REFRESHED_AT="${BURD_NOW_EPOCH}"
 
   buc_step "Writing complete RBRG pin file (BCG rewrite pattern)"
   local -r z_temp_rbrg="${z_prefix}rbrg_complete.env"

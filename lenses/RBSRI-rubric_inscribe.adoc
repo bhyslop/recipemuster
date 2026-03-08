@@ -24,8 +24,8 @@ and ensures all triggers exist.
 
 //axhos_step
 . *Pin Staleness Gate*:
-.. Verify `RBRG_PINS_REFRESHED_AT` is less than 1 day old
-.. If stale: die with guidance to run pin refresh manually, commit, and re-run inscribe
+.. Verify `RBRG_IMAGE_PINS_REFRESHED_AT` is less than 1 day old
+.. If stale: die with guidance to run image pin refresh (`rbw-DPG`) manually, commit, and re-run inscribe
 .. `rbrr_refresh_gcb_pins` remains independently callable for manual inspection
 
 //axhos_step

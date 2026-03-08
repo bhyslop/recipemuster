@@ -1197,7 +1197,7 @@ rbf_rubric_inscribe() {
   # Phase 0: Pin staleness gate
   buc_step "Checking GCB pin freshness"
   local -r z_now_epoch="${BURD_NOW_EPOCH}"
-  local -r z_pins_epoch="${RBRG_PINS_REFRESHED_AT:-0}"
+  local -r z_pins_epoch="${RBRG_IMAGE_PINS_REFRESHED_AT:-0}"
   local -r z_age=$((z_now_epoch - z_pins_epoch))
   if test "${z_age}" -gt "${ZRBF_INSCRIBE_STALENESS_SEC}"; then
     buc_warn "GCB pins are stale (${z_age}s old, limit ${ZRBF_INSCRIBE_STALENESS_SEC}s)"
@@ -1504,7 +1504,7 @@ rbf_abjure() {
   local z_force="${3:-}"
 
   # Documentation block
-  buc_doc_brief "Abjure an ark (delete all per-platform image and about artifacts)"
+  buc_doc_brief "Abjure an ark (delete all per-platform image, about, and vouch artifacts)"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
@@ -1573,8 +1573,9 @@ rbf_abjure() {
     z_image_tags+=("${z_inscribe_ts}-multi")
   fi
 
-  # About tag uses full consecration
+  # About and vouch tags use full consecration
   local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
 
   buc_step "Verifying ark existence"
 

@@ -65,12 +65,17 @@ Fully-qualified image reference for skopeo tool used in Cloud Build steps.
 Pin retained for potential future use.
 
 //axhrv_variable
-{rbrg_pins_refreshed_at}
+{rbrg_image_pins_refreshed_at}
 
-Timestamp recording when builder image pins were last refreshed via `rbrr_refresh_gcb_pins`.
+Timestamp recording when container image pins were last refreshed via `rbrr_refresh_gcb_pins` (`rbw-DPG`).
 {rbtgo_rubric_inscribe}
-checks this value and skips pin refresh if less than 1 day old,
-otherwise refreshes automatically before proceeding.
+gates on this value — must be less than 1 day old.
+
+//axhrv_variable
+{rbrg_binary_pins_refreshed_at}
+
+Timestamp recording when binary tool pins were last refreshed via `rbrr_refresh_binary_pins` (`rbw-DPB`).
+Not gated by inscribe — binary pins are updated deliberately.
 
 //axhro_kindle
 {rbkro_kindle}
