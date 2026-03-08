@@ -371,6 +371,8 @@ All JJK commands are accessed via the single `mcp__vvx__jjx` MCP tool with two p
 - `command`: string selecting the operation — always the canonical `jjx_*` name (e.g., `"jjx_show"`, `"jjx_enroll"`, `"jjx_record"`)
 - `params`: JSON object with command-specific fields (see reference below)
 
+**`params` must be a JSON object, never a string.** If params is accidentally stringified (e.g., `"{\"key\": \"val\"}"` instead of `{"key": "val"}`), deserialization will fail. The server has a defensive fallback for this, but always pass a native object.
+
 **Verb names are NOT command names**: there is no `jjx_slate`, `jjx_mount`, `jjx_notch`, `jjx_groom` command. The verb table below maps horse vocabulary to actual MCP commands.
 NEVER invent param fields — check the reference below first.
 

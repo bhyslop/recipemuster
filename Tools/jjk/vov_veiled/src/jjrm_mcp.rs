@@ -281,7 +281,12 @@ impl jjrm_McpServer {
     #[tool(name = "jjx", description = "Job Jockey Kit - MCP tools for project initiative management")]
     async fn jjx(&self, Parameters(p): Parameters<jjrm_JjxParams>) -> Result<CallToolResult, McpError> {
         let cmd = p.command.as_str();
-        let v = p.params;
+        let v = match p.params {
+            serde_json::Value::String(ref s) => {
+                serde_json::from_str(s).unwrap_or(p.params)
+            }
+            other => other,
+        };
 
         macro_rules! deser {
             ($t:ty) => {
