@@ -6390,6 +6390,13 @@
         "₢AkAAt": {
           "tacks": [
             {
+              "ts": "260308-1425",
+              "state": "complete",
+              "text": "## Goal\n\nRemove `rbw-Rl` (RetrieverListsImages) and `rbf_list`. The flat tag dump is superseded by `rbw-Dc` (DirectorChecksConsecrations) which provides structured consecration health. The Retriever fallback-to-Director credential pattern violates credential discipline.\n\n## Changes\n\n1. Delete `tt/rbw-Rl.RetrieverListsImages.sh`\n2. Remove `rbf_list()` from `Tools/rbw/rbf_Foundry.sh`\n3. Remove zipper enrollment `RBZ_LIST_IMAGES` from `Tools/rbw/rbz_zipper.sh`\n4. Grep for any references to `rbw-Rl` or `rbf_list` and clean up",
+              "silks": "delete-retriever-list-images",
+              "commit": "fe7be33"
+            },
+            {
               "ts": "260308-1348",
               "state": "rough",
               "text": "## Goal\n\nRemove `rbw-Rl` (RetrieverListsImages) and `rbf_list`. The flat tag dump is superseded by `rbw-Dc` (DirectorChecksConsecrations) which provides structured consecration health. The Retriever fallback-to-Director credential pattern violates credential discipline.\n\n## Changes\n\n1. Delete `tt/rbw-Rl.RetrieverListsImages.sh`\n2. Remove `rbf_list()` from `Tools/rbw/rbf_Foundry.sh`\n3. Remove zipper enrollment `RBZ_LIST_IMAGES` from `Tools/rbw/rbz_zipper.sh`\n4. Grep for any references to `rbw-Rl` or `rbf_list` and clean up",
