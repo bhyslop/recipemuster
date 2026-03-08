@@ -5439,6 +5439,7 @@
         "₢AkAAg",
         "₢AkAAf",
         "₢AkAAe",
+        "₢AkAAp",
         "₢AkAAo",
         "₢AkAAX",
         "₢AkAAW",
@@ -5467,7 +5468,7 @@
         "₢AkAAl",
         "₢AkAAn"
       ],
-      "next_pace_seed": "AAp",
+      "next_pace_seed": "AAq",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6236,6 +6237,17 @@
               "text": "## Goal\n\nEliminate `rbf_vouch` as a separate workflow step. Make `rbf_check_consecrations` (list) query Container Analysis for SLSA provenance on demand and display it inline per consecration.\n\n## Current state\n\nThree-step flow: conjure → vouch (human step) → list shows vouch presence.\n`rbf_vouch` queries Container Analysis, displays results, then builds and pushes a `-vouch` container to the registry. List (`rbf_check_consecrations`) groups tags by inscription timestamp but doesn't show individual full consecrations or provenance status.\n\n## Changes\n\n### List overhaul (`rbf_check_consecrations`)\n- Parse tags to show **full consecrations** (inscription + build timestamp), not just inscription-level grouping\n- For each consecration: resolve per-platform image tags to digests, query Container Analysis for SLSA attestations\n- Display inline: consecration, platforms, SLSA level, build ID\n- Single-origin check (all platforms share one build invocation ID)\n\n### Remove vouch\n- Remove `rbf_vouch` function from `rbf_Foundry.sh`\n- Remove `-vouch` tag from tag scheme (`RBGC_ARK_SUFFIX_VOUCH`)\n- Remove vouch tabtarget (`rbw-Rv`)\n- Remove vouch from zipper registration\n- Update `rbf_abjure` to stop looking for `-vouch` tags\n\n### Spec updates (RBS0)\n- Remove `-vouch` from tag scheme documentation\n- Update consecration definition: remove vouch references\n- Update pipeline description: conjure produces images + about, list verifies provenance\n- Update RBSCB-CloudBuildRoadmap.adoc tag table\n\n## Design rationale\n\nProvenance is already in Container Analysis, keyed by digest. The `-vouch` container is a redundant snapshot of information that's queryable on demand. Eliminating it removes a human step, a failure mode (stale/forgotten vouch), and a registry artifact.\n\n## Files\n\n- `Tools/rbw/rbf_Foundry.sh` — overhaul list, remove vouch\n- `Tools/rbw/rbz_zipper.sh` — remove vouch registration\n- `Tools/rbw/rbgc_Constants.sh` — remove `RBGC_ARK_SUFFIX_VOUCH`\n- `lenses/RBS0-SpecTop.adoc` — update tag scheme, remove vouch references\n- `lenses/RBSCB-CloudBuildRoadmap.adoc` — update tag table\n- `tt/rbw-Rv.RetrieverVouchesArk.sh` — delete",
               "silks": "eliminate-vouch-provenance-on-demand",
               "commit": "6bd6746"
+            }
+          ]
+        },
+        "₢AkAAp": {
+          "tacks": [
+            {
+              "ts": "260308-1032",
+              "state": "rough",
+              "text": "## Goal\n\nAdd `slsa-verifier` container image as a managed GCB pin in the regime configuration.\n\n## Context\n\nThe upcoming vouch-via-slsa-verifier architecture (₢AkAAo) requires `slsa-verifier` to run inside a Cloud Build step. Like all CB step images (`gcr.io/cloud-builders/docker`, etc.), it must be digest-pinned for reproducibility and refreshable via `rbw-DP`.\n\n## Source\n\n- Image: `ghcr.io/slsa-framework/slsa-verifier` (official SLSA framework)\n- Note: hosted on GitHub Container Registry, not Google's GCR — pin refresh logic may need to handle `ghcr.io` as a source registry\n\n## Changes\n\n- Add `slsa-verifier` pin entry to regime GCB pin configuration\n- Verify `rbw-DP` (refresh GCB pins) can resolve and pin from `ghcr.io`\n- If `ghcr.io` is not supported by pin refresh, extend it\n- Test: refresh pins, verify slsa-verifier digest is resolved and recorded\n\n## Files (expected)\n\n- Regime pin configuration (rbrg.env or equivalent)\n- `Tools/rbw/rbrr_cli.sh` or pin refresh implementation — if ghcr.io support needed\n- `lenses/RBSRG-RegimeGcbPins.adoc` — document new pin",
+              "silks": "gcb-pin-slsa-verifier",
+              "commit": "d7afb82"
             }
           ]
         }
