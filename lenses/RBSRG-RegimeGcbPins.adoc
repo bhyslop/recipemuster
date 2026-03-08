@@ -16,6 +16,12 @@ Fully-qualified image reference for ORAS tool used in Cloud Build steps.
 ORAS handles OCI artifact operations beyond container images.
 
 //axhrv_variable
+{rbrg_slsa_verifier_image_ref}
+
+Fully-qualified image reference for slsa-verifier tool used in Cloud Build steps.
+Verifies SLSA provenance attestations for supply chain integrity.
+
+//axhrv_variable
 {rbrg_gcloud_image_ref}
 
 Fully-qualified image reference for gcloud tool used in Cloud Build steps.

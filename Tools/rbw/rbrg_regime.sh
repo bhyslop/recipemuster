@@ -34,6 +34,7 @@ zrbrg_kindle() {
 
   buv_group_enroll "GCB Image Pins"
   buv_odref_enroll   RBRG_ORAS_IMAGE_REF                 "oras image reference (digest-pinned)"
+  buv_odref_enroll   RBRG_SLSA_VERIFIER_IMAGE_REF        "slsa-verifier image reference (digest-pinned)"
   buv_odref_enroll   RBRG_GCLOUD_IMAGE_REF               "gcloud image reference (digest-pinned)"
   buv_odref_enroll   RBRG_DOCKER_IMAGE_REF               "docker image reference (digest-pinned)"
   buv_odref_enroll   RBRG_ALPINE_IMAGE_REF               "alpine image reference (digest-pinned)"

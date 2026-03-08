@@ -70,6 +70,13 @@ rbrr_refresh_gcb_pins() {
   local z_oras_token_stderr="${z_prefix}oras_token_stderr.txt"
   local z_oras_tags_stderr="${z_prefix}oras_tags_stderr.txt"
 
+  local z_slsav_token_file="${z_prefix}slsav_token.json"
+  local z_slsav_tags_file="${z_prefix}slsav_tags.json"
+  local z_slsav_token_value_file="${z_prefix}slsav_token_value.txt"
+  local z_slsav_tag_file="${z_prefix}slsav_tag.txt"
+  local z_slsav_token_stderr="${z_prefix}slsav_token_stderr.txt"
+  local z_slsav_tags_stderr="${z_prefix}slsav_tags_stderr.txt"
+
   # Discover latest oras stable version from GHCR API.
   # oras doesn't publish a :latest tag, so we must find the newest semver release.
   # GHCR requires a bearer token even for public images.
@@ -112,11 +119,52 @@ rbrr_refresh_gcb_pins() {
     || buc_die "No stable oras semver tag found in GHCR tag list"
   buc_info "oras discovered tag: ${z_oras_tag}"
 
+  # Discover latest slsa-verifier stable version from GHCR API.
+  # slsa-verifier doesn't publish a :latest tag, so we must find the newest semver release.
+  buc_step "Discovering latest slsa-verifier version from GHCR (no :latest tag published)"
+
+  buc_log_args "Obtaining GHCR bearer token (anonymous, scoped to slsa-verifier repo)"
+  curl -sS \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    "https://ghcr.io/token?scope=repository:slsa-framework/slsa-verifier:pull&service=ghcr.io" \
+    -o "${z_slsav_token_file}" 2>"${z_slsav_token_stderr}" \
+    || buc_die "Failed to fetch GHCR bearer token for slsa-verifier — see ${z_slsav_token_stderr}"
+
+  jq -r '.token // empty' "${z_slsav_token_file}" > "${z_slsav_token_value_file}" \
+    || buc_die "Failed to extract token from GHCR response for slsa-verifier"
+  local z_slsav_token
+  z_slsav_token=$(<"${z_slsav_token_value_file}")
+  test -n "${z_slsav_token}" || buc_die "GHCR returned empty bearer token for slsa-verifier"
+
+  buc_log_args "Fetching slsa-verifier tag list using bearer token"
+  curl -sS \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_slsav_token}" \
+    "https://ghcr.io/v2/slsa-framework/slsa-verifier/tags/list?n=1000" \
+    -o "${z_slsav_tags_file}" 2>"${z_slsav_tags_stderr}" \
+    || buc_die "Failed to fetch slsa-verifier tags from GHCR — see ${z_slsav_tags_stderr}"
+
+  buc_log_args "Extracting newest stable semver tag"
+  jq -r '
+    [.tags[] | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))]
+    | map(ltrimstr("v") | split(".") | map(tonumber))
+    | sort_by(.[0], .[1], .[2])
+    | last
+    | "v\(.[0]).\(.[1]).\(.[2])"
+  ' "${z_slsav_tags_file}" > "${z_slsav_tag_file}" \
+    || buc_die "Failed to extract semver tag from slsa-verifier tags response"
+  local z_slsav_tag
+  z_slsav_tag=$(<"${z_slsav_tag_file}")
+  test -n "${z_slsav_tag}" -a "${z_slsav_tag}" != "null" \
+    || buc_die "No stable slsa-verifier semver tag found in GHCR tag list"
+  buc_info "slsa-verifier discovered tag: ${z_slsav_tag}"
+
   # Image specifications: VARNAME|BASE_IMAGE|TAG
   # Most images use :latest which always points to newest version.
   # oras uses discovered semver tag above (no :latest published).
   local z_specs=(
     "RBRG_ORAS_IMAGE_REF|ghcr.io/oras-project/oras|${z_oras_tag}"
+    "RBRG_SLSA_VERIFIER_IMAGE_REF|ghcr.io/slsa-framework/slsa-verifier|${z_slsav_tag}"
     "RBRG_GCLOUD_IMAGE_REF|gcr.io/cloud-builders/gcloud|latest"
     "RBRG_DOCKER_IMAGE_REF|gcr.io/cloud-builders/docker|latest"
     "RBRG_ALPINE_IMAGE_REF|docker.io/library/alpine|latest"
