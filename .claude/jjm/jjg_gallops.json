@@ -5461,9 +5461,10 @@
         "₢AkAAc",
         "₢AkAAd",
         "₢AkAAi",
-        "₢AkAAk"
+        "₢AkAAk",
+        "₢AkAAl"
       ],
-      "next_pace_seed": "AAl",
+      "next_pace_seed": "AAm",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6125,6 +6126,17 @@
               "text": "Investigate and fix the location of nameplate .env files (rbrn_nsproto.env, rbrn_srjcl.env, rbrn_pluml.env). These are currently in Tools/rbw/ alongside implementation code, but they're user-authored configuration (regime files) — not tooling. Determine the correct location, move them, and update all consumers.\n\n## Questions to answer\n\n- Where do other regime .env files live? (rbrr.env, rbrp.env, etc.)\n- What references these files? (RBCC literal constants, furnish functions, testbench)\n- What is the principled location for per-instance regime config?\n\n## Scope\n\n- Move the 3 nameplate .env files to the correct location\n- Update all path references (likely RBCC/RBBC literal constants)\n- Verify all nameplate tests still pass after the move",
               "silks": "nameplate-env-file-location",
               "commit": "231b314"
+            }
+          ]
+        },
+        "₢AkAAl": {
+          "tacks": [
+            {
+              "ts": "260307-2005",
+              "state": "rough",
+              "text": "The `test X && break` idiom used in while loops for comma-separated string parsing is technically safe under `set -e` (bash exempts `&&`/`||` lists from errexit), but relies on humans remembering that exemption rule. This is fragile.\n\n## Deliverables\n\n1. Add BCG guidance banning `test ... && break` (and similar `cmd && control-flow` patterns where the exemption matters). Recommend explicit `if`/`then`/`break`/`fi` instead.\n2. Repair all instances in the codebase. Known sites in `rbf_Foundry.sh` (currently 4 occurrences at lines ~211, ~301, ~1592, ~2014). Search broadly for other occurrences.\n\n## Rationale\n\nCode correctness should not depend on remembering language-lawyer exemption rules. An explicit `if` block is one line longer but immediately obvious to any reader.",
+              "silks": "bcg-ban-test-and-break-idiom",
+              "commit": "8358f37"
             }
           ]
         }
