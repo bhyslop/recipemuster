@@ -5492,9 +5492,10 @@
         "₢AkAAi",
         "₢AkAAk",
         "₢AkAAl",
-        "₢AkAAn"
+        "₢AkAAn",
+        "₢AkAAq"
       ],
-      "next_pace_seed": "AAq",
+      "next_pace_seed": "AAr",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6288,6 +6289,17 @@
               "text": "## Goal\n\nAdd `slsa-verifier` container image as a managed GCB pin in the regime configuration.\n\n## Context\n\nThe upcoming vouch-via-slsa-verifier architecture (₢AkAAo) requires `slsa-verifier` to run inside a Cloud Build step. Like all CB step images (`gcr.io/cloud-builders/docker`, etc.), it must be digest-pinned for reproducibility and refreshable via `rbw-DP`.\n\n## Source\n\n- Image: `ghcr.io/slsa-framework/slsa-verifier` (official SLSA framework)\n- Note: hosted on GitHub Container Registry, not Google's GCR — pin refresh logic may need to handle `ghcr.io` as a source registry\n\n## Changes\n\n- Add `slsa-verifier` pin entry to regime GCB pin configuration\n- Verify `rbw-DP` (refresh GCB pins) can resolve and pin from `ghcr.io`\n- If `ghcr.io` is not supported by pin refresh, extend it\n- Test: refresh pins, verify slsa-verifier digest is resolved and recorded\n\n## Files (expected)\n\n- Regime pin configuration (rbrg.env or equivalent)\n- `Tools/rbw/rbrr_cli.sh` or pin refresh implementation — if ghcr.io support needed\n- `lenses/RBSRG-RegimeGcbPins.adoc` — document new pin",
               "silks": "gcb-pin-slsa-verifier",
               "commit": "d7afb82"
+            }
+          ]
+        },
+        "₢AkAAq": {
+          "tacks": [
+            {
+              "ts": "260308-1134",
+              "state": "rough",
+              "text": "Evaluate moving all inscribe-related functionality out of the local repo and into the rubric.\n\n## Context\n\nInscribe aspects are currently split across the local repo and the rubric. As the system grows more complex, this split creates moving-part overhead. This pace is a design conversation to assess:\n\n1. **What inscribe functionality currently lives in the local repo** — enumerate files, tabtargets, and dependencies\n2. **What would need to move to the rubric** — and what rubric changes that implies\n3. **What breaks** — tabtarget references, CLAUDE.md mappings, test infrastructure, regime interactions\n4. **Is it worth it** — simplification vs migration cost\n\n## Not bridleable\n\nThis is a design conversation with too many interacting concerns to plan autonomously. Needs interactive exploration of the dependency graph.",
+              "silks": "consider-inscribe-to-rubric-migration",
+              "commit": "b5585d5"
             }
           ]
         }
