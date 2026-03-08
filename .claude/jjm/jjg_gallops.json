@@ -5489,7 +5489,6 @@
         "₢AkAAK",
         "₢AkAAL",
         "₢AkAAM",
-        "₢AkAAN",
         "₢AkAAP",
         "₢AkAAQ",
         "₢AkAAY",
@@ -5821,17 +5820,6 @@
               "text": "Reorganize Director-affiliated tabtargets under rbw-D* colophon prefix.\n\n## Context\n\nGovernor operations use rbw-G* prefix consistently. Director operations are\nscattered across rbw-i* (image), rbw-a* (ark), rbw-RI (inscribe), and\nrbw-rrg (pins). This pace consolidates Director-affiliated tabtargets under\nrbw-D* for consistency.\n\n## Inventory\n\nCurrent Director-affiliated tabtargets:\n\nArk operations (high-level, vessel-scoped):\n- rbw-aC ConjureArk → rbf_build (build image from vessel)\n- rbw-aA AbjureArk → rbf_abjure (delete ark, vessel-scoped)\n- rbw-as SummonArk → rbf_summon (pull ark)\n- rbw-ab BeseechArk → rbf_beseech (list arks with correlation)\n\nImage operations (low-level, locator-scoped):\n- rbw-iB BuildImageRemotely → rbf_build (DUPLICATE of rbw-aC)\n- rbw-iD DeleteImage → rbf_delete (delete by moniker:tag)\n- rbw-il ImageList → rbf_list (raw list of locators)\n- rbw-ir RetrieveImage → rbf_retrieve (pull by moniker:tag)\n\nRubric/build infrastructure:\n- rbw-RI RubricInscribe → rbf_inscribe\n- rbw-rrg RefreshGcbPins → rbrr_refresh_gcb_pins\n\n## Proposed Mapping (requires human review)\n\nCandidate rbw-D* colophons — present to user for approval before executing:\n\n| Proposed   | Description                  | Replaces       |\n|------------|------------------------------|----------------|\n| rbw-DC     | DirectorConjuresArk          | rbw-aC, rbw-iB |\n| rbw-DA     | DirectorAbjuresArk           | rbw-aA         |\n| rbw-DS     | DirectorSummonsArk           | rbw-as         |\n| rbw-DB     | DirectorBeseechesArk         | rbw-ab         |\n| rbw-DI     | DirectorInscribesRubric      | rbw-RI         |\n| rbw-DP     | DirectorRefreshesPins        | rbw-rrg        |\n| rbw-Dd     | DirectorDeletesImage         | rbw-iD         |\n| rbw-Dl     | DirectorListsImages          | rbw-il         |\n| rbw-Dr     | DirectorRetrievesImage       | rbw-ir         |\n\n## CRITICAL: Human review gate\n\nDo NOT proceed with renames without presenting the full mapping to the user\nand getting explicit approval. The colophon choices affect tab-completion\nergonomics, terminal exclusivity rules, and muscle memory. This is a design\ndecision, not a mechanical transformation.\n\n## Execution (after approval)\n\n1. Rename tabtarget files in tt/\n2. Update rbz_zipper.sh colophon strings\n3. Update any buc_next references in code\n4. Retire rbw-iB (duplicate of conjure)\n5. Verify no stale colophon references remain",
               "silks": "director-colophon-reorg",
               "commit": "edc4066"
-            }
-          ]
-        },
-        "₢AkAAN": {
-          "tacks": [
-            {
-              "ts": "260303-1323",
-              "state": "rough",
-              "text": "Rename BCG (Bash Console Guide) to better reflect its prescriptive, specification-like nature. The document is not a casual guide — it's a mandatory compliance specification for bash module architecture, with templates, anti-patterns, maturity checklists, and decision matrices.\n\nCandidates:\n- BCS: Bash Compliance Specification — emphasizes mandatory compliance nature\n- BMP: Bash Module Patterns — scopes to module architecture focus\n\nRename touches:\n- File: Tools/buk/vov_veiled/BCG-BashConsoleGuide.md → new name\n- CLAUDE.md acronym mapping (BCG entry)\n- Any references across codebase (grep for BCG-BashConsoleGuide, \"Bash Console Guide\")\n- BUS0 spec if it references BCG by name\n- Prefix mint implications: BCS uses bu-prefix space (bus_ would conflict with BUS0); BMP uses bm_ (new prefix outside bu tree)\n\nDecision on BCS vs BMP is pending — user to choose before execution.",
-              "silks": "rename-bcg-document-identity",
-              "commit": "5794157"
             }
           ]
         },
@@ -7683,10 +7671,31 @@
       "silks": "jjk-v4-2",
       "creation_time": "260308",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢ArAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAlr.md",
-      "paces": {}
+      "paces": {
+        "₢ArAAA": {
+          "tacks": [
+            {
+              "ts": "260308-1344",
+              "state": "rough",
+              "text": "Drafted from ₢AkAAN in ₣Ak.\n\nRename BCG (Bash Console Guide) to better reflect its prescriptive, specification-like nature. The document is not a casual guide — it's a mandatory compliance specification for bash module architecture, with templates, anti-patterns, maturity checklists, and decision matrices.\n\nCandidates:\n- BCS: Bash Compliance Specification — emphasizes mandatory compliance nature\n- BMP: Bash Module Patterns — scopes to module architecture focus\n\nRename touches:\n- File: Tools/buk/vov_veiled/BCG-BashConsoleGuide.md → new name\n- CLAUDE.md acronym mapping (BCG entry)\n- Any references across codebase (grep for BCG-BashConsoleGuide, \"Bash Console Guide\")\n- BUS0 spec if it references BCG by name\n- Prefix mint implications: BCS uses bu-prefix space (bus_ would conflict with BUS0); BMP uses bm_ (new prefix outside bu tree)\n\nDecision on BCS vs BMP is pending — user to choose before execution.",
+              "silks": "rename-bcg-document-identity",
+              "commit": "bb6047d"
+            },
+            {
+              "ts": "260303-1323",
+              "state": "rough",
+              "text": "Rename BCG (Bash Console Guide) to better reflect its prescriptive, specification-like nature. The document is not a casual guide — it's a mandatory compliance specification for bash module architecture, with templates, anti-patterns, maturity checklists, and decision matrices.\n\nCandidates:\n- BCS: Bash Compliance Specification — emphasizes mandatory compliance nature\n- BMP: Bash Module Patterns — scopes to module architecture focus\n\nRename touches:\n- File: Tools/buk/vov_veiled/BCG-BashConsoleGuide.md → new name\n- CLAUDE.md acronym mapping (BCG entry)\n- Any references across codebase (grep for BCG-BashConsoleGuide, \"Bash Console Guide\")\n- BUS0 spec if it references BCG by name\n- Prefix mint implications: BCS uses bu-prefix space (bus_ would conflict with BUS0); BMP uses bm_ (new prefix outside bu tree)\n\nDecision on BCS vs BMP is pending — user to choose before execution.",
+              "silks": "rename-bcg-document-identity",
+              "commit": "5794157"
+            }
+          ]
+        }
+      }
     }
   }
 }
