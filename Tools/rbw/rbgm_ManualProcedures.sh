@@ -347,10 +347,14 @@ rbgm_quota_build() {
   bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
   bug_e
   bug_section  "1. Current Regime Configuration:"
-  bug_tc       "   RBRR_DEPOT_PROJECT_ID: " "${RBRR_DEPOT_PROJECT_ID}"
-  bug_tc       "   RBRR_GCP_REGION:       " "${RBRR_GCP_REGION}"
-  bug_tc       "   RBRR_GCB_MACHINE_TYPE: " "${RBRR_GCB_MACHINE_TYPE}"
-  bug_tc       "   RBRR_GCB_WORKER_POOL:  " "${RBRR_GCB_WORKER_POOL}"
+  bug_tc       "   RBRR_DEPOT_PROJECT_ID:          " "${RBRR_DEPOT_PROJECT_ID}"
+  bug_tc       "   RBRR_GCP_REGION:                " "${RBRR_GCP_REGION}"
+  bug_tc       "   RBRR_GCB_MACHINE_TYPE:          " "${RBRR_GCB_MACHINE_TYPE}"
+  bug_tc       "   RBRR_GCB_WORKER_POOL:           " "${RBRR_GCB_WORKER_POOL}"
+  bug_tc       "   RBRR_GCB_MIN_CONCURRENT_BUILDS: " "${RBRR_GCB_MIN_CONCURRENT_BUILDS}"
+  bug_e
+  bug_t        "   The build preflight gate checks quota automatically before each build."
+  bug_t        "   It computes: quota_vCPUs / machine_vCPUs >= RBRR_GCB_MIN_CONCURRENT_BUILDS"
   bug_e
   bug_section  "2. Check CPU Quota:"
   bug_t        "   Private pool quota is tracked under the depot project with the metric:"
@@ -377,7 +381,8 @@ rbgm_quota_build() {
   bug_section  "4. Confirm Quota Headroom:"
   bug_link     "   Return to: " "Quotas & System Limits" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
   bug_t        "   Filter for cloudbuild.googleapis.com"
-  bug_t        "   Verify: quota >= (desired concurrency × vCPUs per machine type)"
+  bug_t        "   Verify: quota / vCPUs per machine type >= RBRR_GCB_MIN_CONCURRENT_BUILDS"
+  bug_tc       "     Current target: " "${RBRR_GCB_MIN_CONCURRENT_BUILDS} concurrent builds"
   bug_e
 
   buc_success "Cloud Build quota guide displayed"

@@ -64,6 +64,10 @@ current
 {rbrr_gcb_machine_type}
 from the regime configuration
 .. Compute maximum concurrent builds: `«CPU_QUOTA»` ÷ vCPUs per pool machine type
+.. {rbhg_require}
+the result meets or exceeds
+{rbrr_gcb_min_concurrent_builds}
+(the regime's minimum concurrent build target)
 .. Machine type is set at pool creation time.
 To change it, the pool must be recreated with a different
 {rbrr_gcb_machine_type}
@@ -76,7 +80,8 @@ This is a last resort and rarely necessary.
 .. After pool recreation or quota increase, return to *IAM & Admin > Quotas & System Limits*
 .. Filter for `cloudbuild.googleapis.com` and verify the *Concurrent Private Pool Build CPUs* row
 .. {rbhg_require}
-quota headroom supports the desired number of concurrent builds: `«CPU_QUOTA»` ≥ (desired concurrency × vCPUs per machine type)
+quota headroom supports the required concurrent builds: `«CPU_QUOTA»` ÷ vCPUs per machine type ≥
+{rbrr_gcb_min_concurrent_builds}
 
 //axhoo_output_of_type
 {rbtgi_depot_project}
@@ -92,3 +97,9 @@ The relevant quota metric is *Concurrent Private Pool Build CPUs* on the pool's 
 Machine type is set at pool creation time via
 {rbrr_gcb_machine_type};
 individual build requests do not specify machine type.
+The
+{rbtgo_trigger_build}
+operation includes an automated quota preflight gate that queries this metric and verifies capacity against
+{rbrr_gcb_min_concurrent_builds}
+before dispatching.
+The image listing operation performs the same check as a non-blocking advisory.
