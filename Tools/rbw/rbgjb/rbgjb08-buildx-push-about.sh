@@ -25,10 +25,10 @@ test -n "${_RBGY_GAR_PROJECT}"         || (echo "_RBGY_GAR_PROJECT missing"     
 test -n "${_RBGY_GAR_REPOSITORY}"      || (echo "_RBGY_GAR_REPOSITORY missing"      >&2; exit 1)
 test -n "${_RBGY_ARK_SUFFIX_ABOUT}"    || (echo "_RBGY_ARK_SUFFIX_ABOUT missing"    >&2; exit 1)
 
-test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
-TAG_BASE="$(cat .tag_base)"
+test -s .consecration || (echo "consecration not derived" >&2; exit 1)
+CONSECRATION="$(cat .consecration)"
 
-META_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}${_RBGY_ARK_SUFFIX_ABOUT}"
+META_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${CONSECRATION}${_RBGY_ARK_SUFFIX_ABOUT}"
 
 # Generate multi-platform Dockerfile.meta
 # TARGETARCH and TARGETVARIANT are automatic buildx args

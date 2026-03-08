@@ -7,8 +7,8 @@
 #                _RBGY_INSCRIBE_TIMESTAMP
 #
 # For each platform: docker pull --platform <plat> from the -multi tag,
-# then docker tag to the per-platform tag (TAG_BASE + ark_suffix + plat_suffix).
-# This loads each platform's image into the local Docker daemon.
+# then docker tag to the per-platform consecration tag and the inscribe-time
+# alias tag (for CB images: field SLSA provenance generation).
 
 set -euo pipefail
 
@@ -21,8 +21,8 @@ test -n "${_RBGY_GAR_REPOSITORY}"      || (echo "_RBGY_GAR_REPOSITORY missing"  
 test -n "${_RBGY_INSCRIBE_TIMESTAMP}"  || (echo "_RBGY_INSCRIBE_TIMESTAMP missing"  >&2; exit 1)
 test -n "${_RBGY_ARK_SUFFIX_IMAGE}"    || (echo "_RBGY_ARK_SUFFIX_IMAGE missing"    >&2; exit 1)
 
-test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
-TAG_BASE="$(cat .tag_base)"
+test -s .consecration || (echo "consecration not derived" >&2; exit 1)
+CONSECRATION="$(cat .consecration)"
 
 IMAGE_BASE="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}"
 MULTI_TAG="${_RBGY_INSCRIBE_TIMESTAMP}-multi"
@@ -40,12 +40,17 @@ echo "=== Per-platform pullback from ${IMAGE_BASE}:${MULTI_TAG} ==="
 for IDX in "${!PLATFORMS[@]}"; do
   PLAT="${PLATFORMS[${IDX}]}"
   SUFFIX="${SUFFIXES[${IDX}]}"
-  PER_PLAT_TAG="${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
+  PER_PLAT_TAG="${CONSECRATION}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
+  SLSA_ALIAS_TAG="${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
 
   echo "--- Pulling ${PLAT} ---"
   docker pull --platform "${PLAT}" "${IMAGE_BASE}:${MULTI_TAG}"
   docker tag "${IMAGE_BASE}:${MULTI_TAG}" "${IMAGE_BASE}:${PER_PLAT_TAG}"
   echo "Tagged: ${IMAGE_BASE}:${PER_PLAT_TAG}"
+
+  # Alias tag for CB images: field — inscribe-time-predictable, triggers SLSA provenance
+  docker tag "${IMAGE_BASE}:${MULTI_TAG}" "${IMAGE_BASE}:${SLSA_ALIAS_TAG}"
+  echo "SLSA alias: ${IMAGE_BASE}:${SLSA_ALIAS_TAG}"
 done
 
 echo "=== Pullback complete ==="

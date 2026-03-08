@@ -1,5 +1,5 @@
 #!/bin/bash
-# RBGJB Step 01: Derive TAG_BASE from inscribe + build timestamps
+# RBGJB Step 01: Derive consecration from inscribe + build timestamps
 # Builder: gcr.io/cloud-builders/gcloud
 #
 # Dual-timestamp format: i20260224_153022-b20260224_160530
@@ -9,10 +9,10 @@
 
 set -euo pipefail
 
-TAG_BASE="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"
-test -n "${TAG_BASE}" || { echo "TAG_BASE empty" >&2; exit 1; }
-echo "${TAG_BASE}" > .tag_base
+CONSECRATION="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"
+test -n "${CONSECRATION}" || { echo "CONSECRATION empty" >&2; exit 1; }
+echo "${CONSECRATION}" > .consecration
 
-# Expose TAG_BASE (= consecration) via Cloud Build step output mechanism
+# Expose consecration via Cloud Build step output mechanism
 # Results appear in results.buildStepOutputs[0] (base64-encoded, max 50 bytes)
-echo -n "${TAG_BASE}" > /builder/outputs/output
+echo -n "${CONSECRATION}" > /builder/outputs/output

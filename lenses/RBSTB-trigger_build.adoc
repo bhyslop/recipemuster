@@ -234,12 +234,12 @@ with dual timestamps:
 
 Example: `i20260224_153022-b20260224_160530`
 
-Step `rbgjb01` constructs: `TAG_BASE="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"`
+Step `rbgjb01` constructs: `CONSECRATION="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"`
 
-Complete artifact tags combine vessel moniker with consecration:
+Complete artifact tags combine vessel moniker with {rbtga_consecration}:
 
-* {rbtga_ark_image}: `«MONIKER»:«TAG_BASE»«ARK_SUFFIX_IMAGE»`
-* {rbtga_ark_about}: `«MONIKER»:«TAG_BASE»«ARK_SUFFIX_ABOUT»`
+* {rbtga_ark_image}: `«MONIKER»:«CONSECRATION»«ARK_SUFFIX_IMAGE»`
+* {rbtga_ark_about}: `«MONIKER»:«CONSECRATION»«ARK_SUFFIX_ABOUT»`
 
 Multiple builds of the same inscribed JSON sort together by inscribe prefix,
 each distinguished by its build timestamp.

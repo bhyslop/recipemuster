@@ -1393,10 +1393,17 @@ the build timestamp records when
 executed the build.
 Hyphen delimits major concepts; underscore separates date from time within each timestamp.
 Combined with vessel to form complete artifact tags.
-Image tags use the inscribe timestamp with a platform suffix: `«VESSEL»:«INSCRIBE_TS»-image-amd64`, `«VESSEL»:«INSCRIBE_TS»-image-arm64`.
+All persistent artifact tags use the full consecration:
+per-platform image tags as `«VESSEL»:«CONSECRATION»-image-amd64`, `«VESSEL»:«CONSECRATION»-image-arm64`;
+consumer-facing manifest list as `«VESSEL»:«CONSECRATION»-image`;
+about as `«VESSEL»:«CONSECRATION»-about`; vouch as `«VESSEL»:«CONSECRATION»-vouch`.
 Platform suffix is derived from the OCI platform (e.g., `linux/amd64` -> `-amd64`, `linux/arm64` -> `-arm64`, `linux/arm/v7` -> `-armv7`).
-For multi-platform vessels, a consumer-facing manifest list is also pushed as `«VESSEL»:«INSCRIBE_TS»-image`.
-About and vouch tags use the full consecration: `«VESSEL»:«CONSECRATION»-about`, and optionally `«VESSEL»:«CONSECRATION»-vouch`.
+Multiple conjures of the same inscription produce distinct consecrations (unique build timestamps) with independently-attested images.
++
+SLSA provenance is generated via the {rbtgr_build_json} `images:` field, which lists inscribe-time-predictable alias tags (`«VESSEL»:«INSCRIBE_TS»-image-«SUFFIX»`).
+These alias tags exist in the local Docker daemon (created during pullback) so that {gcb_service} can push and attest them.
+Provenance is bound to image digests, not tags — the consecration-tagged copies share the same digests and inherit the attestations.
+Alias tags are ephemeral; re-conjure overwrites them in the registry. Consecration-tagged artifacts persist.
 
 [[rbtga_ark_image]]
 //axl_voices axig_container_image
@@ -1525,7 +1532,7 @@ Verified on 3 trigger-dispatched vessels — rbev-busybox-amd64 (`16d3b60f`), rb
 +
 **Single-arch pipeline** (6 steps + `images:` push, single build invocation):
 +
-  1. `derive-tag-base` — compute inscribe timestamp and tag base; writes TAG_BASE (= consecration) to `/builder/outputs/output` for strong-tie discovery via `results.buildStepOutputs[0]`
+  1. `derive-tag-base` — compute {rbtga_consecration} from inscribe + build timestamps; writes to `/builder/outputs/output` for strong-tie discovery via `results.buildStepOutputs[0]`
   2. `qemu-binfmt` — register cross-architecture emulation (skipped if native platform)
   3. `build-and-load` — `buildx --load` into local Docker daemon (single platform)
   4. `sbom-and-summary` — Syft scans local daemon image (`docker:` transport), generates SBOM
@@ -1555,11 +1562,11 @@ See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment det
 +
 **Target multi-platform pipeline** (9 steps + `images:` push, single build invocation — validated by experiment 6, build `6661d0cd`):
 +
-  1. `derive-tag-base` — compute inscribe timestamp and tag base
+  1. `derive-tag-base` — compute {rbtga_consecration} from inscribe + build timestamps
   2. `qemu-binfmt` — register cross-architecture emulation
   3. `buildx --push` — build all platforms, push intermediate `-multi` tag to GAR
-  4. `per-platform-pullback` — `docker pull --platform <arch>` for each platform, `docker tag` to per-platform tags
-  5. `docker push` — pre-push each per-platform tag to registry (enables in-build `imagetools create`)
+  4. `per-platform-pullback` — `docker pull --platform <arch>` for each platform, `docker tag` to consecration-tagged and inscribe-time alias tags
+  5. `docker push` — pre-push each consecration-tagged per-platform image to registry (enables in-build `imagetools create`)
   6. `syft` — scan each per-platform image sequentially from local daemon (`docker:` transport), one SBOM per platform
   7. `build-info` — generate per-platform `build_info.json` with SLSA provenance summary fields
   8. `buildx --push -about` — build multi-platform metadata container (`FROM scratch` + `TARGETARCH`/`TARGETVARIANT` selects per-platform SBOM and build_info)
@@ -2919,8 +2926,8 @@ without repeating registry host or path.
 [[rbst_consecration]]
 //axl_voices axtu_string
 {rbst_consecration}::
-Build timestamp marking when a vessel image was consecrated.
-ISO 8601 basic format (e.g., `20260209T235622Z`); 1-128 characters.
+Dual-timestamp {rbtga_consecration} identifying a specific build of a vessel.
+Format: `i«INSCRIBE»-b«BUILD»` (e.g., `i20260224_153022-b20260224_160530`); 1-128 characters.
 
 [[rbst_path]]
 //axl_voices axtu_path

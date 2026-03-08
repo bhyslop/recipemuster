@@ -21,18 +21,18 @@ test -n "${_RBGY_GAR_PROJECT}"         || (echo "_RBGY_GAR_PROJECT missing"     
 test -n "${_RBGY_GAR_REPOSITORY}"      || (echo "_RBGY_GAR_REPOSITORY missing"      >&2; exit 1)
 test -n "${_RBGY_ARK_SUFFIX_IMAGE}"    || (echo "_RBGY_ARK_SUFFIX_IMAGE missing"    >&2; exit 1)
 
-test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
-TAG_BASE="$(cat .tag_base)"
+test -s .consecration || (echo "consecration not derived" >&2; exit 1)
+CONSECRATION="$(cat .consecration)"
 
 IMAGE_BASE="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}"
-CONSUMER_TAG="${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}"
+CONSUMER_TAG="${CONSECRATION}${_RBGY_ARK_SUFFIX_IMAGE}"
 
 IFS=',' read -ra SUFFIXES <<< "${_RBGY_PLATFORM_SUFFIXES}"
 
 # Build source image list for imagetools create
 SOURCE_IMAGES=""
 for SUFFIX in "${SUFFIXES[@]}"; do
-  PER_PLAT_TAG="${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
+  PER_PLAT_TAG="${CONSECRATION}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
   if test -n "${SOURCE_IMAGES}"; then
     SOURCE_IMAGES="${SOURCE_IMAGES} ${IMAGE_BASE}:${PER_PLAT_TAG}"
   else

@@ -339,11 +339,32 @@ zrbf_stitch_build_json() {
   buc_log_args "Composing complete trigger-compatible Build resource"
   local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
 
-  # NOTE: images: field omitted — TAG_BASE includes runtime build timestamp that
-  # can't be predicted at inscribe time. See ₢AkAAm for the fix plan.
-  # Without images:, builds succeed but CB does not generate SLSA provenance.
+  # images: field uses inscribe-time-predictable alias tags for SLSA provenance.
+  # CB pushes these after all steps complete, generating provenance attestations
+  # keyed to image digests. The consecration-tagged copies (pushed in step 05)
+  # share the same digests, so provenance applies to them too.
+  # Alias tags are ephemeral (overwritten on re-conjure); consecration tags persist.
+
+  # Build images: array — one entry per platform using inscribe-time alias tag
+  local z_images_file="${ZRBF_STITCH_PREFIX}images.json"
+  local z_image_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${z_sigil}"
+  local z_remaining_suffixes="${z_platform_suffixes_csv}"
+  local z_img_suffix=""
+  echo "[]" > "${z_images_file}" || buc_die "Failed to initialize images JSON"
+  while test -n "${z_remaining_suffixes}"; do
+    z_img_suffix="${z_remaining_suffixes%%,*}"
+    jq --arg uri "${z_image_base}:__INSCRIBE_TIMESTAMP__-image${z_img_suffix}" \
+      '. + [$uri]' "${z_images_file}" > "${z_images_file}.tmp" \
+      || buc_die "Failed to append image URI"
+    mv "${z_images_file}.tmp" "${z_images_file}" \
+      || buc_die "Failed to update images JSON"
+    test "${z_remaining_suffixes}" = "${z_img_suffix}" && break
+    z_remaining_suffixes="${z_remaining_suffixes#*,}"
+  done
+
   jq -n \
     --slurpfile zjq_steps  "${z_accumulator_file}" \
+    --slurpfile zjq_images "${z_images_file}" \
     --arg zjq_dockerfile     "${z_dockerfile_name}" \
     --arg zjq_moniker        "${z_sigil}" \
     --arg zjq_platforms      "${z_platforms}" \
@@ -364,6 +385,7 @@ zrbf_stitch_build_json() {
     --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
+      images: $zjq_images[0],
       substitutions: {
         _RBGY_DOCKERFILE:          $zjq_dockerfile,
         _RBGY_MONIKER:             $zjq_moniker,
@@ -597,7 +619,7 @@ rbf_build() {
   zrbf_wait_build_completion
 
   # Discover consecration from build step output (strong tie — no GAR scanning)
-  # Step 01 (derive-tag-base) writes TAG_BASE to /builder/outputs/output,
+  # Step 01 (derive-tag-base) writes consecration to /builder/outputs/output,
   # which appears base64-encoded in results.buildStepOutputs[0].
   buc_step "Discovering consecration from build step output"
 

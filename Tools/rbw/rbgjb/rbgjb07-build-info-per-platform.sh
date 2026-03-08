@@ -21,8 +21,8 @@ set -euo pipefail
 
 apk add --no-cache jq >/dev/null
 
-test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
-TAG_BASE="$(cat .tag_base)"
+test -s .consecration || (echo "consecration not derived" >&2; exit 1)
+CONSECRATION="$(cat .consecration)"
 
 IMAGE_BASE="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}"
 
@@ -64,7 +64,7 @@ while [ -n "${REMAINING_PLATS}" ]; do
   # Derive filenames: strip leading dash from suffix
   LABEL="${SUFFIX#-}"
   INFO_FILE="build_info-${LABEL}.json"
-  PER_PLAT_TAG="${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
+  PER_PLAT_TAG="${CONSECRATION}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
   IMAGE_URI="${IMAGE_BASE}:${PER_PLAT_TAG}"
 
   # Determine if QEMU is used for this platform
@@ -76,7 +76,7 @@ while [ -n "${REMAINING_PLATS}" ]; do
   echo "--- ${PLAT} → ${INFO_FILE} ---"
 
   jq -n \
-    --arg tag_base       "${TAG_BASE}" \
+    --arg consecration  "${CONSECRATION}" \
     --arg image_uri      "${IMAGE_URI}" \
     --arg moniker        "${_RBGY_MONIKER}" \
     --arg repo           "${_RBGY_GIT_REPO}" \
@@ -88,7 +88,7 @@ while [ -n "${REMAINING_PLATS}" ]; do
     --arg build_id       "${BUILD_ID}" \
     --argjson qemu_used  "${QEMU_USED}" \
     '{
-      tag_base: $tag_base,
+      consecration: $consecration,
       image: { uri: $image_uri },
       moniker: $moniker,
       platform: $platform,

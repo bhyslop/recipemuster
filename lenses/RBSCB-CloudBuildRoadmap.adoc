@@ -126,16 +126,19 @@ The reassembled manifest list provides transparent platform resolution to attest
 |`{INSCRIBE_TS}-multi`
 |Intermediate `buildx --push` target (multi-platform only)
 
-|`{INSCRIBE_TS}-image-{SUFFIX}`
-|Per-platform image (`images:` field, SLSA attestation target)
+|`{CONSECRATION}-image-{SUFFIX}`
+|Per-platform image (persistent, consecration-tagged)
 
-|`{INSCRIBE_TS}-image`
+|`{INSCRIBE_TS}-image-{SUFFIX}`
+|SLSA alias tag (`images:` field, provenance generation trigger — ephemeral, overwritten on re-conjure)
+
+|`{CONSECRATION}-image`
 |Consumer-facing manifest list (reassembled by `imagetools create`, multi-platform only)
 
-|`{TAG_BASE}-about`
+|`{CONSECRATION}-about`
 |Metadata container (SBOM, build_info.json — multi-platform)
 
-|`{TAG_BASE}-vouch`
+|`{CONSECRATION}-vouch`
 |Verification artifact (SLSA report — pushed by `rbf_vouch`)
 |===
 
