@@ -6321,6 +6321,13 @@
         "₢AkAAr": {
           "tacks": [
             {
+              "ts": "260308-1235",
+              "state": "rough",
+              "text": "## Goal\n\nImplement rbf_vouch and supporting infrastructure per RBSAV-ark_vouch.adoc specification.\n\n## Context\n\n₢AkAAo produced the vouch spec subdoc after a failed implementation attempt that discovered critical constraints (default pool, metadata server auth, no gcloud in bash, GCB dollar escaping). The spec captures all lessons learned. This pace implements from the reviewed spec rather than ad-hoc coding.\n\n## Approach\n\n1. Review the last two committed versions of RBSAV-ark_vouch.adoc (the original and the revision from ₢AkAAo wrap). Identify any gaps or ambiguities that need resolution before coding.\n2. Critically review RBSAV against the improvement suggestions from the ₢AkAAo session (GCB escaping, builder-id, Alpine capabilities, step auth isolation, source URI format, re-vouch comparison, Mason permissions, prerequisites). For each complication, ask: is there a simpler way?\n3. Discuss findings with user before writing any code.\n4. Implement: RBGC_ARK_SUFFIX_VOUCH constant, zipper enrollment, vouch in abjure, vouch column in check_consecrations, rbf_vouch function, rbw-Rv tabtarget.\n\n## Files (expected)\n\n- lenses/RBSAV-ark_vouch.adoc (review, possible updates)\n- lenses/RBS0-SpecTop.adoc (review)\n- Tools/rbw/rbgc_Constants.sh\n- Tools/rbw/rbz_zipper.sh\n- Tools/rbw/rbf_Foundry.sh\n- tt/rbw-Rv.RetrieverVouchesArk.sh",
+              "silks": "vouch-implementation-from-spec",
+              "commit": "9972260"
+            },
+            {
               "ts": "260308-1224",
               "state": "rough",
               "text": "## Goal\n\nImplement rbf_vouch and supporting infrastructure per RBSAV-ark_vouch.adoc specification.\n\n## Context\n\n₢AkAAo produced the vouch spec subdoc after a failed implementation attempt that discovered critical constraints (default pool, metadata server auth, no gcloud in bash, GCB dollar escaping). The spec captures all lessons learned. This pace implements from the reviewed spec rather than ad-hoc coding.\n\n## Approach\n\nBefore writing any code, critically review RBSAV-ark_vouch.adoc and the vouch sections of RBS0-SpecTop.adoc. For each complication, ask: is there a simpler way? Discuss with user before proceeding.\n\nThen implement: RBGC_ARK_SUFFIX_VOUCH constant, zipper enrollment, vouch in abjure, vouch column in check_consecrations, rbf_vouch function, rbw-Rv tabtarget.\n\n## Files (expected)\n\n- Tools/rbw/rbgc_Constants.sh\n- Tools/rbw/rbz_zipper.sh\n- Tools/rbw/rbf_Foundry.sh\n- tt/rbw-Rv.RetrieverVouchesArk.sh",
