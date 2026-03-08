@@ -111,7 +111,6 @@ zrbgg_rubric_preflight() {
   source "${z_gov_rbra}" || buc_die "Failed to source Governor RBRA: ${z_gov_rbra}"
   zrbra_kindle
   zrbra_enforce
-  zrbra_lock
 
   rbgu_check_rubric_repo_url "${RBRR_RUBRIC_REPO_URL:-}"
 

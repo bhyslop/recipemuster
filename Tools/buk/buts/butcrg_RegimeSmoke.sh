@@ -97,7 +97,6 @@ butcrg_rbrv_tcase() {
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
-  zrbrr_lock
   zrbdc_kindle
 
   local z_sigils
@@ -132,7 +131,6 @@ butcrg_burd_tcase() {
   buto_section "Verifying BURD dispatch environment"
   zburd_sentinel
   zburd_enforce
-  zburd_lock
   test -d "${BURD_TEMP_DIR}"      || buto_fatal "BURD_TEMP_DIR does not exist: ${BURD_TEMP_DIR}"
   buto_success "BURD dispatch environment verified"
 }

@@ -49,6 +49,9 @@ zrbra_kindle() {
   # Guard against unexpected RBRA_ variables not in enrollment
   buv_scope_sentinel RBRA RBRA_
 
+  # Lock all enrolled RBRA_ variables against mutation
+  buv_lock RBRA
+
   readonly ZRBRA_KINDLED=1
 }
 
@@ -69,14 +72,6 @@ zrbra_enforce() {
   # Private key must contain PEM key material
   [[ "${RBRA_PRIVATE_KEY}" =~ BEGIN ]] \
     || buc_die "RBRA_PRIVATE_KEY does not contain PEM key material"
-}
-
-# Lock step — lock enrolled variables against mutation after enforcement
-zrbra_lock() {
-  zrbra_sentinel
-
-  # Lock all enrolled RBRA_ variables against mutation
-  buv_lock RBRA
 }
 
 # eof

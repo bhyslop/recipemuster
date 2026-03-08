@@ -43,6 +43,9 @@ zburs_kindle() {
   # Guard against unexpected BURS_ variables not in enrollment
   buv_scope_sentinel BURS BURS_
 
+  # Lock all enrolled BURS_ variables against mutation
+  buv_lock BURS
+
   readonly ZBURS_KINDLED=1
 }
 
@@ -55,14 +58,6 @@ zburs_enforce() {
   zburs_sentinel
 
   buv_vet BURS
-}
-
-# Lock step — lock enrolled variables against mutation after enforcement
-zburs_lock() {
-  zburs_sentinel
-
-  # Lock all enrolled BURS_ variables against mutation
-  buv_lock BURS
 }
 
 # eof

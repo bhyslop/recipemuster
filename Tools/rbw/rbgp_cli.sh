@@ -51,7 +51,6 @@ zrbgp_furnish() {
 
   zrbrr_kindle
   zrbrr_enforce
-  zrbrr_lock
   zrbdc_kindle
 
   zrbgc_kindle
@@ -59,7 +58,6 @@ zrbgp_furnish() {
   source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
   zrbrp_kindle
   zrbrp_enforce
-  zrbrp_lock
 
   zrbgo_kindle
   zrbgu_kindle

@@ -54,6 +54,9 @@ zrbrp_kindle() {
   # Guard against unexpected RBRP_ variables not in enrollment
   buv_scope_sentinel RBRP RBRP_
 
+  # Lock all enrolled RBRP_ variables against mutation
+  buv_lock RBRP
+
   readonly ZRBRP_KINDLED=1
 }
 
@@ -81,14 +84,6 @@ zrbrp_enforce() {
     [[ "${RBRP_OAUTH_CLIENT_ID}" =~ \.apps\.googleusercontent\.com$ ]] \
       || buc_die "RBRP_OAUTH_CLIENT_ID must end with .apps.googleusercontent.com"
   fi
-}
-
-# Lock step — lock enrolled variables against mutation after enforcement
-zrbrp_lock() {
-  zrbrp_sentinel
-
-  # Lock all enrolled RBRP_ variables against mutation
-  buv_lock RBRP
 }
 
 # eof

@@ -52,7 +52,6 @@ zbuv_kindle
 source "${BURC_TOOLS_DIR}/buk/burc_regime.sh" || buc_die "Failed to source burc_regime.sh"
 zburc_kindle
 zburc_enforce
-zburc_lock
 
 # Load BURS configuration and kindle
 z_station_file="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
@@ -60,7 +59,6 @@ source "${z_station_file}" || buc_die "Failed to source: ${z_station_file}"
 source "${BURC_TOOLS_DIR}/buk/burs_regime.sh" || buc_die "Failed to source burs_regime.sh"
 zburs_kindle
 zburs_enforce
-zburs_lock
 
 # Helper function to delegate to BURD
 # Usage: bul_launch "path/to/workbench.sh" "$@"

@@ -100,7 +100,6 @@ rbtb_load_nameplate() {
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
-  zrbrr_lock
   zrbdc_kindle
 
   rbtb_show "Kindling RBGC/RBGD/RBOB"
@@ -134,68 +133,69 @@ rbtb_exec_bottle_i() {
 }
 
 ######################################################################
-# Setup functions
+# Litmus predicates (BCG _litmus_predicate: 0=proceed, 1=skip, never dies, no output)
 
-zrbtb_kick_tsuite_setup() {
-  buto_trace "Setup for kick-tires fixture (no-op)"
+zrbtb_container_runtime_litmus_predicate() {
+  timeout 5 docker version >/dev/null 2>/dev/null || return 1
+  return 0
 }
 
-zrbtb_qualify_tsuite_setup() {
-  buto_trace "Setup for qualify-all fixture"
+zrbtb_clean_git_litmus_predicate() {
+  git diff-index --quiet HEAD -- || return 1
+  return 0
+}
+
+zrbtb_container_clean_git_litmus_predicate() {
+  zrbtb_container_runtime_litmus_predicate || return 1
+  zrbtb_clean_git_litmus_predicate || return 1
+  return 0
+}
+
+######################################################################
+# Baste functions (BCG _baste: kindle, source, configure inside fixture subshell)
+
+zrbtb_noop_baste() {
+  buto_trace "Baste (no-op)"
+}
+
+zrbtb_qualify_baste() {
+  buto_trace "Baste for qualify-all fixture"
   source "${RBTB_SCRIPT_DIR}/rbq_Qualify.sh"
   zrbq_kindle
 }
 
-zrbtb_access_probe_tsuite_setup() {
-  buto_trace "Setup for access-probe fixture"
+zrbtb_access_probe_baste() {
+  buto_trace "Baste for access-probe fixture"
   # 5 iterations with 1500ms delay between calls
   # Total runtime: ~4 roles × 5 × 1.5s ≈ 30 seconds
   ZRBTCAP_ITERATIONS=5
   ZRBTCAP_DELAY_MS=1500
 }
 
-zrbtb_ark_tsuite_setup() {
-  buto_trace "Setup for ark-lifecycle fixture"
-  git diff-index --quiet HEAD -- || buto_fatal "ark-lifecycle requires a clean git working tree (rbf_build will reject dirty state)"
+zrbtb_ark_baste() {
+  buto_trace "Baste for ark-lifecycle fixture"
   ZRBTB_ARK_VESSEL_SIGIL="trbim-macos"
 }
 
-zrbtb_slsa_tsuite_setup() {
-  buto_trace "Setup for slsa-provenance fixture"
-  git diff-index --quiet HEAD -- || buto_fatal "slsa-provenance requires a clean git working tree (rbf_build will reject dirty state)"
+zrbtb_slsa_baste() {
+  buto_trace "Baste for slsa-provenance fixture"
   ZRBTB_ARK_VESSEL_SIGIL="rbev-busybox"
   zrbgc_kindle
 }
 
-zrbtb_dispatch_tsuite_setup() {
-  buto_trace "Setup for dispatch-exercise fixture"
-}
-
-zrbtb_nsproto_tsuite_setup() {
-  buto_trace "Setup for nsproto-security fixture"
+zrbtb_nsproto_baste() {
+  buto_trace "Baste for nsproto-security fixture"
   rbtb_load_nameplate "nsproto"
 }
 
-zrbtb_srjcl_tsuite_setup() {
-  buto_trace "Setup for srjcl-jupyter fixture"
+zrbtb_srjcl_baste() {
+  buto_trace "Baste for srjcl-jupyter fixture"
   rbtb_load_nameplate "srjcl"
 }
 
-zrbtb_pluml_tsuite_setup() {
-  buto_trace "Setup for pluml-diagram fixture"
+zrbtb_pluml_baste() {
+  buto_trace "Baste for pluml-diagram fixture"
   rbtb_load_nameplate "pluml"
-}
-
-zrbtb_regime_tsuite_setup() {
-  buto_trace "Setup for regime-smoke fixture (no-op)"
-}
-
-zrbtb_credentials_tsuite_setup() {
-  buto_trace "Setup for regime-credentials fixture (no-op)"
-}
-
-zrbtb_enrollment_tsuite_setup() {
-  buto_trace "Setup for enrollment-validation fixture (no-op)"
 }
 
 
@@ -214,12 +214,12 @@ rbtb_kindle() {
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
 
   # kick-tires fixture
-  butr_fixture_enroll "kick-tires" "" "zrbtb_kick_tsuite_setup"
+  butr_fixture_enroll "kick-tires" "" "zrbtb_noop_baste"
   butr_case_enroll "kick-tires" rbtckk_false_tcase
   butr_case_enroll "kick-tires" rbtckk_true_tcase
 
   # qualify-all fixture
-  butr_fixture_enroll "qualify-all" "" "zrbtb_qualify_tsuite_setup"
+  butr_fixture_enroll "qualify-all" "" "zrbtb_qualify_baste"
   butr_case_enroll "qualify-all" rbtcqa_qualify_all_tcase
 
   # -- SERVICE + COMPLETE: needs credentials, no containers --
@@ -227,7 +227,7 @@ rbtb_kindle() {
 
   # access-probe fixture (runs before ark-lifecycle; ~30s smoke test for OAuth/credential issues)
   # Regression tests for rbgo_OAuth.sh stderr-capture fix (pace AfAAR)
-  butr_fixture_enroll "access-probe" "" "zrbtb_access_probe_tsuite_setup"
+  butr_fixture_enroll "access-probe" "" "zrbtb_access_probe_baste"
   butr_case_enroll "access-probe" rbtcap_jwt_governor_tcase
   butr_case_enroll "access-probe" rbtcap_jwt_director_tcase
   butr_case_enroll "access-probe" rbtcap_jwt_retriever_tcase
@@ -237,11 +237,11 @@ rbtb_kindle() {
   butr_suite_enroll "${BUTR_SUITE_COMPLETE}"
 
   # ark-lifecycle fixture
-  butr_fixture_enroll "ark-lifecycle" "" "zrbtb_ark_tsuite_setup"
+  butr_fixture_enroll "ark-lifecycle" "zrbtb_container_clean_git_litmus_predicate" "zrbtb_ark_baste"
   butr_case_enroll "ark-lifecycle" rbtcal_lifecycle_tcase
 
   # slsa-provenance fixture (rbev-busybox 3-platform, exercises multi-platform provenance)
-  butr_fixture_enroll "slsa-provenance" "" "zrbtb_slsa_tsuite_setup"
+  butr_fixture_enroll "slsa-provenance" "zrbtb_container_clean_git_litmus_predicate" "zrbtb_slsa_baste"
   butr_case_enroll "slsa-provenance" rbtcsl_provenance_tcase
 
   # -- FAST + COMPLETE: no external dependencies --
@@ -249,7 +249,7 @@ rbtb_kindle() {
 
   # dispatch-exercise fixture
   buz_enroll ZBUTCDE_TEST_COLOPHON "butctt" "butcde_DispatchExercise" "butcde_run"
-  butr_fixture_enroll "dispatch-exercise" "" "zrbtb_dispatch_tsuite_setup"
+  butr_fixture_enroll "dispatch-exercise" "" "zrbtb_noop_baste"
   butr_case_enroll "dispatch-exercise" butcde_burv_isolation_tcase
   butr_case_enroll "dispatch-exercise" butcde_evidence_created_tcase
   butr_case_enroll "dispatch-exercise" butcde_exit_capture_tcase
@@ -258,7 +258,7 @@ rbtb_kindle() {
   butr_suite_enroll "${BUTR_SUITE_COMPLETE}"
 
   # nsproto-security fixture
-  butr_fixture_enroll "nsproto-security" "" "zrbtb_nsproto_tsuite_setup"
+  butr_fixture_enroll "nsproto-security" "zrbtb_container_runtime_litmus_predicate" "zrbtb_nsproto_baste"
   butr_case_enroll "nsproto-security" rbtcns_basic_dnsmasq_tcase
   butr_case_enroll "nsproto-security" rbtcns_basic_iptables_tcase
   butr_case_enroll "nsproto-security" rbtcns_basic_ping_sentry_tcase
@@ -283,13 +283,13 @@ rbtb_kindle() {
   butr_case_enroll "nsproto-security" rbtcns_tcp443_block_google_tcase
 
   # srjcl-jupyter fixture
-  butr_fixture_enroll "srjcl-jupyter" "" "zrbtb_srjcl_tsuite_setup"
+  butr_fixture_enroll "srjcl-jupyter" "zrbtb_container_runtime_litmus_predicate" "zrbtb_srjcl_baste"
   butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_connectivity_tcase
   butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_running_tcase
   butr_case_enroll "srjcl-jupyter" rbtcsj_websocket_kernel_tcase
 
   # pluml-diagram fixture
-  butr_fixture_enroll "pluml-diagram" "" "zrbtb_pluml_tsuite_setup"
+  butr_fixture_enroll "pluml-diagram" "zrbtb_container_runtime_litmus_predicate" "zrbtb_pluml_baste"
   butr_case_enroll "pluml-diagram" rbtcpl_http_headers_tcase
   butr_case_enroll "pluml-diagram" rbtcpl_invalid_hash_tcase
   butr_case_enroll "pluml-diagram" rbtcpl_local_diagram_tcase
@@ -300,7 +300,7 @@ rbtb_kindle() {
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
 
   # regime-smoke fixture
-  butr_fixture_enroll "regime-smoke" "" "zrbtb_regime_tsuite_setup"
+  butr_fixture_enroll "regime-smoke" "" "zrbtb_noop_baste"
   butr_case_enroll "regime-smoke" butcrg_burc_tcase
   butr_case_enroll "regime-smoke" butcrg_burs_tcase
   butr_case_enroll "regime-smoke" butcrg_rbrn_tcase
@@ -313,7 +313,7 @@ rbtb_kindle() {
   butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
 
   # regime-credentials fixture (requires workstation credentials)
-  butr_fixture_enroll "regime-credentials" "" "zrbtb_credentials_tsuite_setup"
+  butr_fixture_enroll "regime-credentials" "" "zrbtb_noop_baste"
   butr_case_enroll "regime-credentials" butcrg_rbra_tcase
   butr_case_enroll "regime-credentials" butcrg_rbro_tcase
   butr_case_enroll "regime-credentials" butcrg_rbrs_tcase
@@ -322,7 +322,7 @@ rbtb_kindle() {
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
 
   # enrollment-validation fixture
-  butr_fixture_enroll "enrollment-validation" "" "zrbtb_enrollment_tsuite_setup"
+  butr_fixture_enroll "enrollment-validation" "" "zrbtb_noop_baste"
   butr_case_enroll "enrollment-validation" butcev_string_valid_tcase
   butr_case_enroll "enrollment-validation" butcev_string_empty_optional_tcase
   butr_case_enroll "enrollment-validation" butcev_string_too_short_tcase

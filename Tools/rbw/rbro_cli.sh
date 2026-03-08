@@ -74,13 +74,11 @@ zrbro_furnish() {
   zbuv_kindle
   zburd_kindle
   zburd_enforce
-  zburd_lock
   zrbcc_kindle
 
   source "${RBBC_rbrr_file}" || buc_die "Failed to source RBRR: ${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
-  zrbrr_lock
   zrbdc_kindle
 
   rbro_load

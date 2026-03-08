@@ -83,7 +83,6 @@ zrbrv_furnish() {
   zbuv_kindle
   zburd_kindle
   zburd_enforce
-  zburd_lock
   zbupr_kindle
   zrbcc_kindle
 
@@ -91,7 +90,6 @@ zrbrv_furnish() {
   source "${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
-  zrbrr_lock
   zrbdc_kindle
 
   # If BUZ_FOLIO is set, load and kindle the specified vessel
@@ -101,7 +99,6 @@ zrbrv_furnish() {
     source "${z_vessel_file}"  || buc_die "Failed to source vessel: ${z_vessel_file}"
     zrbrv_kindle
     zrbrv_enforce
-    zrbrv_lock
   fi
 }
 

@@ -85,6 +85,9 @@ zburd_kindle() {
   # Guard against unexpected BURD_ variables not in enrollment
   buv_scope_sentinel BURD BURD_
 
+  # Lock all enrolled BURD_ variables against mutation
+  buv_lock BURD
+
   readonly ZBURD_KINDLED=1
 }
 
@@ -103,14 +106,6 @@ zburd_enforce() {
     test -n "${BURD_LOG_SAME:-}" || buc_die "BURD_LOG_SAME required when logging is active"
     test -n "${BURD_LOG_HIST:-}" || buc_die "BURD_LOG_HIST required when logging is active"
   fi
-}
-
-# Lock step — lock enrolled variables against mutation after enforcement
-zburd_lock() {
-  zburd_sentinel
-
-  # Lock all enrolled BURD_ variables against mutation
-  buv_lock BURD
 }
 
 # eof

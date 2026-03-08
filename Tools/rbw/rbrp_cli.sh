@@ -60,7 +60,6 @@ zrbrp_furnish() {
   zbuv_kindle
   zburd_kindle
   zburd_enforce
-  zburd_lock
   zrbcc_kindle
   zrbgc_kindle
 
@@ -68,7 +67,6 @@ zrbrp_furnish() {
 
   zrbrp_kindle
   zrbrp_enforce
-  zrbrp_lock
 
   zbupr_kindle
 }

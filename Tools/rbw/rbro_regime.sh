@@ -43,6 +43,9 @@ zrbro_kindle() {
   # Guard against unexpected RBRO_ variables not in enrollment
   buv_scope_sentinel RBRO RBRO_
 
+  # Lock all enrolled RBRO_ variables against mutation
+  buv_lock RBRO
+
   readonly ZRBRO_KINDLED=1
 }
 
@@ -54,14 +57,6 @@ zrbro_sentinel() {
 zrbro_enforce() {
   zrbro_sentinel
   buv_vet RBRO
-}
-
-# Lock step — lock enrolled variables against mutation after enforcement
-zrbro_lock() {
-  zrbro_sentinel
-
-  # Lock all enrolled RBRO_ variables against mutation
-  buv_lock RBRO
 }
 
 ######################################################################
@@ -79,7 +74,6 @@ rbro_load() {
   source "${z_rbro_file}" || buc_die "Failed to source RBRO credentials"
   zrbro_kindle
   zrbro_enforce
-  zrbro_lock
 }
 
 # eof

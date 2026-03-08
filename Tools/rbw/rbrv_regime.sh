@@ -58,6 +58,9 @@ zrbrv_kindle() {
   # Guard against unexpected RBRV_ variables not in enrollment
   buv_scope_sentinel RBRV RBRV_
 
+  # Lock all enrolled RBRV_ variables against mutation
+  buv_lock RBRV
+
   readonly ZRBRV_KINDLED=1
 }
 
@@ -70,14 +73,6 @@ zrbrv_enforce() {
   zrbrv_sentinel
 
   buv_vet RBRV
-}
-
-# Lock step — lock enrolled variables against mutation after enforcement
-zrbrv_lock() {
-  zrbrv_sentinel
-
-  # Lock all enrolled RBRV_ variables against mutation
-  buv_lock RBRV
 }
 
 ######################################################################

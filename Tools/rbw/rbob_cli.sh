@@ -124,7 +124,6 @@ zrbob_furnish() {
 
   zrbrr_kindle
   zrbrr_enforce
-  zrbrr_lock
   zrbdc_kindle
 
   # Kindle depot constants (provides RBGD_GAR_LOCATION, RBGD_GAR_PROJECT_ID for image URLs)

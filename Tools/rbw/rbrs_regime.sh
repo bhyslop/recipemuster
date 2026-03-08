@@ -45,6 +45,9 @@ zrbrs_kindle() {
   # Guard against unexpected RBRS_ variables not in enrollment
   buv_scope_sentinel RBRS RBRS_
 
+  # Lock all enrolled RBRS_ variables against mutation
+  buv_lock RBRS
+
   readonly ZRBRS_KINDLED=1
 }
 
@@ -57,14 +60,6 @@ zrbrs_enforce() {
   zrbrs_sentinel
 
   buv_vet RBRS
-}
-
-# Lock step — lock enrolled variables against mutation after enforcement
-zrbrs_lock() {
-  zrbrs_sentinel
-
-  # Lock all enrolled RBRS_ variables against mutation
-  buv_lock RBRS
 }
 
 # eof

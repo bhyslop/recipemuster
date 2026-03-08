@@ -179,7 +179,6 @@ zrbrn_furnish() {
   zbuv_kindle
   zburd_kindle
   zburd_enforce
-  zburd_lock
   zbupr_kindle
   zrbcc_kindle
   test "${z_rbw_kit_dir}" = "${RBCC_KIT_DIR}" || buc_die "z_rbw_kit_dir mismatch: ${z_rbw_kit_dir} != ${RBCC_KIT_DIR}"
@@ -191,7 +190,6 @@ zrbrn_furnish() {
       zrbgc_kindle
       zrbrr_kindle
       zrbrr_enforce
-      zrbrr_lock
       zrbdc_kindle
       zrbgo_kindle
       zrbgd_kindle

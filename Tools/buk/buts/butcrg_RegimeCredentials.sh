@@ -56,7 +56,6 @@ butcrg_rbra_tcase() {
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
-  zrbrr_lock
   zrbdc_kindle
 
   local z_roles=("governor" "retriever" "director")
@@ -87,7 +86,6 @@ butcrg_rbro_tcase() {
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
-  zrbrr_lock
   zrbdc_kindle
 
   local z_file="${RBDC_PAYOR_RBRO_FILE}"

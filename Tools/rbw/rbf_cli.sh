@@ -59,7 +59,6 @@ zrbf_furnish() {
 
   zrbrr_kindle
   zrbrr_enforce
-  zrbrr_lock
   zrbdc_kindle
 
   source "${z_rbw_kit_dir}/rbrv_regime.sh"

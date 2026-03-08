@@ -56,13 +56,11 @@ zburs_furnish() {
   zbuv_kindle
   zburd_kindle
   zburd_enforce
-  zburd_lock
 
   source "${BURD_STATION_FILE}" || buc_die "Failed to source BURS: ${BURD_STATION_FILE}"
 
   zburs_kindle
   zburs_enforce
-  zburs_lock
 
   zbupr_kindle
 }

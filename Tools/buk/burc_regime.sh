@@ -68,6 +68,9 @@ zburc_kindle() {
   export BURC_TOOLS_DIR
   export BURC_BUK_DIR
 
+  # Lock all enrolled BURC_ variables against mutation
+  buv_lock BURC
+
   readonly ZBURC_KINDLED=1
 }
 
@@ -80,14 +83,6 @@ zburc_enforce() {
   zburc_sentinel
 
   buv_vet BURC
-}
-
-# Lock step — lock enrolled variables against mutation after enforcement
-zburc_lock() {
-  zburc_sentinel
-
-  # Lock all enrolled BURC_ variables against mutation
-  buv_lock BURC
 }
 
 # eof

@@ -85,6 +85,13 @@ zrbrr_kindle() {
   readonly ZRBRR_REFRESH_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_"
   readonly ZRBRR_REFRESH_SED_PREFIX="${BURD_TEMP_DIR}/rbrr_refresh_sed_"
 
+  # Build docker env args array from validated values
+  # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
+  ZRBRR_DOCKER_ENV=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")
+
+  # Lock all enrolled RBRR_ variables against mutation
+  buv_lock RBRR
+
   readonly ZRBRR_KINDLED=1
 }
 
@@ -116,18 +123,6 @@ zrbrr_enforce() {
   [[ "${RBRR_GCB_WORKER_POOL}" =~ ^projects/[^/]+/locations/[^/]+/workerPools/[^/]+$ ]] \
     || buc_die "Invalid RBRR_GCB_WORKER_POOL format: ${RBRR_GCB_WORKER_POOL} (expected projects/{P}/locations/{L}/workerPools/{W})"
 
-}
-
-# Lock step — build derived state from validated values, then lock enrolled variables
-zrbrr_lock() {
-  zrbrr_sentinel
-
-  # Build docker env args array from validated values
-  # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
-  ZRBRR_DOCKER_ENV=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")
-
-  # Lock all enrolled RBRR_ variables against mutation
-  buv_lock RBRR
 }
 
 # eof

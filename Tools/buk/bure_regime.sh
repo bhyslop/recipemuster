@@ -51,6 +51,9 @@ zbure_kindle() {
   # Guard against unexpected BURE_ variables not in enrollment
   buv_scope_sentinel BURE BURE_
 
+  # Lock all enrolled BURE_ variables against mutation
+  buv_lock BURE
+
   readonly ZBURE_KINDLED=1
 }
 
@@ -69,14 +72,6 @@ zbure_enforce() {
     test "${BURE_COUNTDOWN}" = "skip" \
       || buc_die "BURE_COUNTDOWN must be 'skip' or empty, got '${BURE_COUNTDOWN}'"
   fi
-}
-
-# Lock step — lock enrolled variables against mutation after enforcement
-zbure_lock() {
-  zbure_sentinel
-
-  # Lock all enrolled BURE_ variables against mutation
-  buv_lock BURE
 }
 
 # eof
