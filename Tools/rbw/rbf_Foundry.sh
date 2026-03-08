@@ -2160,7 +2160,6 @@ VOUCHSTEP3
     --arg zjq_sfx_image "${RBGC_ARK_SUFFIX_IMAGE}" \
     --arg zjq_src_uri   "${z_source_uri}" \
     --arg zjq_sa        "projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}" \
-    --arg zjq_pool      "${RBRR_GCB_WORKER_POOL}" \
     --arg zjq_timeout   "${RBRR_GCB_TIMEOUT}" \
     '{
       serviceAccount: $zjq_sa,
@@ -2199,8 +2198,7 @@ VOUCHSTEP3
         _RBGV_SOURCE_URI:           $zjq_src_uri
       },
       options: {
-        logging: "CLOUD_LOGGING_ONLY",
-        pool: { name: $zjq_pool }
+        logging: "CLOUD_LOGGING_ONLY"
       },
       timeout: $zjq_timeout
     }' > "${z_build_file}" \
