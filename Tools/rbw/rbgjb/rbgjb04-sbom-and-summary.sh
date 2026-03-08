@@ -20,7 +20,7 @@
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
 #                _RBGY_MONIKER, _RBGY_GAR_HOST_SUFFIX, _RBGY_ARK_SUFFIX_IMAGE,
-#                _RBGY_INSCRIBE_TIMESTAMP, _RBGY_PLATFORMS
+#                _RBGY_PLATFORMS
 #
 # Syft scans the image from the local Docker daemon via docker: transport.
 # The image was loaded by step 03 (build-and-load). Syft runs as a sibling
@@ -30,7 +30,10 @@ set -euo pipefail
 
 SYFT_IMAGE="${RBRR_GCB_SYFT_IMAGE_REF}"
 
-IMAGE_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}"
+test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
+TAG_BASE="$(cat .tag_base)"
+
+IMAGE_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}"
 
 # Derive platform label for SBOM filenames (linux/amd64 → linux_amd64)
 PLATFORM_LABEL="$(echo "${_RBGY_PLATFORMS}" | tr '/' '_')"

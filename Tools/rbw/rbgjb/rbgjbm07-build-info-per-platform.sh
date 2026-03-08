@@ -64,7 +64,7 @@ while [ -n "${REMAINING_PLATS}" ]; do
   # Derive filenames: strip leading dash from suffix
   LABEL="${SUFFIX#-}"
   INFO_FILE="build_info-${LABEL}.json"
-  PER_PLAT_TAG="${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
+  PER_PLAT_TAG="${TAG_BASE}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
   IMAGE_URI="${IMAGE_BASE}:${PER_PLAT_TAG}"
 
   # Determine if QEMU is used for this platform

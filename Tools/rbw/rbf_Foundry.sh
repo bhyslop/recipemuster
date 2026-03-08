@@ -301,31 +301,11 @@ zrbf_stitch_build_json() {
   local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
 
   if test "${z_is_multi_platform}" = "false"; then
-    # Single-platform: two images in images: field (suffixed + bare consumer tag)
-    # Build images array from platform suffix, then add bare consumer tag
-    local z_images_file="${ZRBF_STITCH_PREFIX}images.json"
-    echo "[]" > "${z_images_file}" || buc_die "Failed to initialize images JSON"
-    local z_img_remaining="${z_platform_suffixes_csv}"
-    local z_img_suffix=""
-    local z_img_tmp="${ZRBF_STITCH_PREFIX}images_tmp.json"
-    local z_img_uri_template="\${_RBGY_GAR_LOCATION}\${_RBGY_GAR_HOST_SUFFIX}/\${_RBGY_GAR_PROJECT}/\${_RBGY_GAR_REPOSITORY}/\${_RBGY_MONIKER}:\${_RBGY_INSCRIBE_TIMESTAMP}\${_RBGY_ARK_SUFFIX_IMAGE}"
-    # Add per-platform suffixed tag(s)
-    while test -n "${z_img_remaining}"; do
-      z_img_suffix="${z_img_remaining%%,*}"
-      jq --arg uri "${z_img_uri_template}${z_img_suffix}" '. + [$uri]' \
-        "${z_images_file}" > "${z_img_tmp}" || buc_die "Failed to add image to array"
-      mv "${z_img_tmp}" "${z_images_file}" || buc_die "Failed to update images JSON"
-      test "${z_img_remaining}" = "${z_img_suffix}" && break
-      z_img_remaining="${z_img_remaining#*,}"
-    done
-    # Add bare consumer tag (no platform suffix)
-    jq --arg uri "${z_img_uri_template}" '. + [$uri]' \
-      "${z_images_file}" > "${z_img_tmp}" || buc_die "Failed to add bare consumer image to array"
-    mv "${z_img_tmp}" "${z_images_file}" || buc_die "Failed to update images JSON"
+    # Single-platform: images pushed explicitly by step 03 (build-and-load).
+    # images: field omitted — TAG_BASE is runtime-derived, not a CB substitution.
 
     jq -n \
       --slurpfile zjq_steps  "${z_accumulator_file}" \
-      --slurpfile zjq_images "${z_images_file}" \
       --arg zjq_dockerfile     "${z_dockerfile_name}" \
       --arg zjq_moniker        "${z_sigil}" \
       --arg zjq_platforms      "${z_platforms}" \
@@ -364,7 +344,6 @@ zrbf_stitch_build_json() {
           _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
           _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
         },
-        images: $zjq_images[0],
         options: {
           requestedVerifyOption: "VERIFIED",
           logging: "CLOUD_LOGGING_ONLY",
@@ -374,27 +353,11 @@ zrbf_stitch_build_json() {
       }' > "${z_build_file}" \
       || buc_die "Failed to compose single-platform build JSON"
   else
-    # Multi-platform: per-platform images in images: field
-    # Build images array from platform suffixes
-    # Each entry: GAR_LOCATION + HOST_SUFFIX / GAR_PROJECT / GAR_REPOSITORY / MONIKER : INSCRIBE_TS + ARK_SUFFIX_IMAGE + PLATFORM_SUFFIX
-    local z_images_file="${ZRBF_STITCH_PREFIX}images.json"
-    echo "[]" > "${z_images_file}" || buc_die "Failed to initialize images JSON"
-    local z_img_remaining="${z_platform_suffixes_csv}"
-    local z_img_suffix=""
-    local z_img_tmp="${ZRBF_STITCH_PREFIX}images_tmp.json"
-    local z_img_uri_template="\${_RBGY_GAR_LOCATION}\${_RBGY_GAR_HOST_SUFFIX}/\${_RBGY_GAR_PROJECT}/\${_RBGY_GAR_REPOSITORY}/\${_RBGY_MONIKER}:\${_RBGY_INSCRIBE_TIMESTAMP}\${_RBGY_ARK_SUFFIX_IMAGE}"
-    while test -n "${z_img_remaining}"; do
-      z_img_suffix="${z_img_remaining%%,*}"
-      jq --arg uri "${z_img_uri_template}${z_img_suffix}" '. + [$uri]' \
-        "${z_images_file}" > "${z_img_tmp}" || buc_die "Failed to add image to array"
-      mv "${z_img_tmp}" "${z_images_file}" || buc_die "Failed to update images JSON"
-      test "${z_img_remaining}" = "${z_img_suffix}" && break
-      z_img_remaining="${z_img_remaining#*,}"
-    done
+    # Multi-platform: images pushed explicitly by steps 05 and 09.
+    # images: field omitted — TAG_BASE is runtime-derived, not a CB substitution.
 
     jq -n \
       --slurpfile zjq_steps  "${z_accumulator_file}" \
-      --slurpfile zjq_images "${z_images_file}" \
       --arg zjq_dockerfile     "${z_dockerfile_name}" \
       --arg zjq_moniker        "${z_sigil}" \
       --arg zjq_platforms      "${z_platforms}" \
@@ -433,7 +396,6 @@ zrbf_stitch_build_json() {
           _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
           _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
         },
-        images: $zjq_images[0],
         options: {
           requestedVerifyOption: "VERIFIED",
           logging: "CLOUD_LOGGING_ONLY",
@@ -679,7 +641,7 @@ rbf_build() {
   z_first_plat="${z_first_plat%% *}"
   local z_first_suffix="${z_first_plat#linux/}"
   z_first_suffix="${z_first_suffix//\//}"
-  local z_primary_image_tag="${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}-${z_first_suffix}"
+  local z_primary_image_tag="${z_found_consecration}${RBGC_ARK_SUFFIX_IMAGE}-${z_first_suffix}"
   local z_primary_image_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${RBRV_SIGIL}:${z_primary_image_tag}"
   echo "${z_primary_image_ref}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}" \
     || buc_die "Failed to write image ref fact file"
@@ -1038,10 +1000,6 @@ rbf_summon() {
   test -n "${z_vessel}" || buc_die "Vessel parameter required"
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
 
-  # Derive inscribe timestamp from full consecration
-  local -r z_inscribe_ts="${z_consecration%%-b*}"
-  test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from consecration"
-
   buc_step "Authenticating for retrieval"
 
   # Prefer Retriever credentials, fallback to Director
@@ -1058,8 +1016,8 @@ rbf_summon() {
   local z_token
   z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token"
 
-  # Construct ark tags — image uses inscribe TS only, about uses full consecration
-  local z_image_tag="${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}"
+  # Construct ark tags — both use full consecration
+  local z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
   local z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
 
   buc_step "Verifying ark existence"
@@ -1528,7 +1486,7 @@ rbf_abjure() {
   # Validate remaining parameters
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
 
-  # Derive inscribe timestamp from full consecration
+  # Derive inscribe timestamp from full consecration (needed for -multi intermediate tag)
   local -r z_inscribe_ts="${z_consecration%%-b*}"
   test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from consecration"
 
@@ -1560,16 +1518,16 @@ rbf_abjure() {
   done
 
   # Build list of image tags to check/delete:
-  # - Per-platform suffixed tags (always present after stitch unification)
+  # - Per-platform suffixed tags use full consecration
   # - Consumer-facing bare tag (multi-platform manifest list only)
-  # - Intermediate -multi tag (multi-platform only)
+  # - Intermediate -multi tag uses inscribe TS only (multi-platform only)
   local z_image_tags=()
   local z_idx=0
   for z_idx in "${!z_platform_suffixes[@]}"; do
-    z_image_tags+=("${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}")
+    z_image_tags+=("${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}")
   done
   if test "${#z_platform_suffixes[@]}" -gt 1; then
-    z_image_tags+=("${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}")
+    z_image_tags+=("${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}")
     z_image_tags+=("${z_inscribe_ts}-multi")
   fi
 
@@ -1959,12 +1917,7 @@ rbf_vouch() {
   local -r z_consecration="${2:-}"
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
 
-  # Derive inscribe timestamp from consecration (glob, not regex)
-  local -r z_inscribe_ts="${z_consecration%%-b*}"
-  test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from consecration"
-
   buc_info "Vouching consecration: ${z_consecration}"
-  buc_info "Inscribe timestamp: ${z_inscribe_ts}"
 
   # Compute platform suffixes from vessel config
   local z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
@@ -1987,12 +1940,12 @@ rbf_vouch() {
   done
 
   # Construct vouch entries deterministically (no tag scraping)
-  # Format: inscribe_ts|image_tag|platform_suffix|platform_name
+  # Format: consecration|image_tag|platform_suffix|platform_name
   local z_vouch_lines=()
   local z_idx=0
   for z_idx in "${!z_platform_names[@]}"; do
-    local z_img_tag="${z_inscribe_ts}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}"
-    z_vouch_lines+=("${z_inscribe_ts}|${z_img_tag}|${z_platform_suffixes[$z_idx]}|${z_platform_names[$z_idx]}")
+    local z_img_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}"
+    z_vouch_lines+=("${z_consecration}|${z_img_tag}|${z_platform_suffixes[$z_idx]}|${z_platform_names[$z_idx]}")
   done
 
   # For each -image tag: resolve digest, query Container Analysis
