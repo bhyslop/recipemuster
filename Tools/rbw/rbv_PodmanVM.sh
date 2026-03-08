@@ -70,7 +70,7 @@ zrbv_kindle() {
   readonly ZRBV_BLOB_INFO="${RBV_TEMP_DIR}/blob_info.txt"
   readonly ZRBV_LAYERS_JSON="${RBV_TEMP_DIR}/layers.json"
 
-  readonly ZRBV_VMIMAGE_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_PODMAN_VERSION}-"
+  readonly ZRBV_VMIMAGE_TAG_PREFIX="${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRM_CHOSEN_PODMAN_VERSION}-"
 
   # Additional temp file paths
   readonly ZRBV_SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
@@ -89,11 +89,11 @@ zrbv_generate_brand_file() {
 
   echo "# Recipe Bottle VM Brand File"                    > "${ZRBV_GENERATED_BRAND_FILE}"
   echo "#"                                               >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "PODMAN_VERSION: ${RBRR_CHOSEN_PODMAN_VERSION}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "VMIMAGE_ORIGIN: ${RBRR_CHOSEN_VMIMAGE_ORIGIN}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "VMIMAGE_FQIN:   ${RBRR_CHOSEN_VMIMAGE_FQIN}"     >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "VMIMAGE_DIGEST: ${RBRR_CHOSEN_VMIMAGE_DIGEST}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "IDENTITY:       ${RBRR_CHOSEN_IDENTITY}"         >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "PODMAN_VERSION: ${RBRM_CHOSEN_PODMAN_VERSION}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "VMIMAGE_ORIGIN: ${RBRM_CHOSEN_VMIMAGE_ORIGIN}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "VMIMAGE_FQIN:   ${RBRM_CHOSEN_VMIMAGE_FQIN}"     >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "VMIMAGE_DIGEST: ${RBRM_CHOSEN_VMIMAGE_DIGEST}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
+  echo "IDENTITY:       ${RBRM_CHOSEN_IDENTITY}"         >> "${ZRBV_GENERATED_BRAND_FILE}"
 }
 
 # Extract natural tag from podman init output
@@ -170,7 +170,7 @@ zrbv_ignite_bootstrap() {
 
     buc_step "Installing crane..."
     podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" --                        \
-        "curl -sL ${RBRR_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" \
+        "curl -sL ${RBRM_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" \
         || buc_die "crane fail"
 
     buc_step "Verify crane installation..."
@@ -234,7 +234,7 @@ zrbv_process_image_type() {
     echo "${z_arch}"        > "${ZRBV_FACT_ARCH_PREFIX}${z_platform_spec}"
     echo "${z_disktype}"    > "${ZRBV_FACT_DISKTYPE_PREFIX}${z_platform_spec}"
 
-    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRR_CHOSEN_IDENTITY}-${RBRR_CHOSEN_PODMAN_VERSION}-${z_platform_spec}"
+    echo "  ${ZRBV_GIT_REGISTRY}/${RBRR_REGISTRY_OWNER}/${RBRR_REGISTRY_NAME}:podvm-${RBRM_CHOSEN_IDENTITY}-${RBRM_CHOSEN_PODMAN_VERSION}-${z_platform_spec}"
   done < "${z_entries_file}"
 }
 
@@ -287,7 +287,7 @@ rbv_mirror() {
   buc_doc_brief "Process manifests for WSL and standard machine-os images, then upload needed disk images to GHCR"
   buc_doc_lines "Queries quay.io/podman/machine-os-wsl and quay.io/podman/machine-os"
   buc_doc_lines "Uses crane manifest to retrieve raw manifests, formatted with jq"
-  buc_doc_lines "Validates that all RBRR_MANIFEST_PLATFORMS are available"
+  buc_doc_lines "Validates that all RBRM_MANIFEST_PLATFORMS are available"
   buc_doc_lines "Downloads needed disk images and packages them as container images"
   buc_doc_lines "Builds all images locally, creates local manifest list, then single push to GHCR"
   buc_doc_lines "Tags each platform image individually for direct access"
@@ -313,7 +313,7 @@ rbv_mirror() {
     "${ZRBV_MOW_ENTRIES_JSON}"   \
     "${ZRBV_MOW_DECODED_PREFIX}" \
     "mow"                        \
-    "quay.io/podman/machine-os-wsl:${RBRR_CHOSEN_PODMAN_VERSION}" \
+    "quay.io/podman/machine-os-wsl:${RBRM_CHOSEN_PODMAN_VERSION}" \
     "Machine-OS-WSL"
 
   zrbv_process_image_type        \
@@ -321,13 +321,13 @@ rbv_mirror() {
     "${ZRBV_MOS_ENTRIES_JSON}"   \
     "${ZRBV_MOS_DECODED_PREFIX}" \
     "mos"                        \
-    "quay.io/podman/machine-os:${RBRR_CHOSEN_PODMAN_VERSION}" \
+    "quay.io/podman/machine-os:${RBRM_CHOSEN_PODMAN_VERSION}" \
     "Machine-OS standard"
 
-  buc_step "Validating RBRR_MANIFEST_PLATFORMS availability..."
+  buc_step "Validating RBRM_MANIFEST_PLATFORMS availability..."
 
   local z_missing_images=""
-  for z_needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
+  for z_needed_image in ${RBRM_MANIFEST_PLATFORMS}; do
     if test ! -f "${ZRBV_FACT_DIGEST_PREFIX}${z_needed_image}"; then
       z_missing_images="${z_missing_images} ${z_needed_image}"
     else
@@ -345,7 +345,7 @@ rbv_mirror() {
     || buc_die "Failed to create VM temp directory"
 
   buc_step "Building container images..."
-  for z_needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
+  for z_needed_image in ${RBRM_MANIFEST_PLATFORMS}; do
     buc_step "Processing: ${z_needed_image}"
 
     # Read facts
@@ -410,7 +410,7 @@ rbv_mirror() {
   buc_step "All container images built"
 
   buc_step "Tagging individual platform images..."
-  for z_needed_image in ${RBRR_MANIFEST_PLATFORMS}; do
+  for z_needed_image in ${RBRM_MANIFEST_PLATFORMS}; do
     local z_platform_tag="${ZRBV_VMIMAGE_TAG_PREFIX}${z_new_identity}-${z_needed_image}"
     local z_local_tag="localhost/podvm-${z_needed_image}:${z_new_identity}"
 
@@ -420,13 +420,13 @@ rbv_mirror() {
       || buc_die "Failed to push platform tag for ${z_needed_image}"
   done
 
-  buc_step "Update your RBRR configuration:"
+  buc_step "Update your RBRM configuration:"
   buc_code ""
-  buc_code "# Add to ${RBV_RBRR_FILE}:"
-  buc_code "export RBRR_CHOSEN_IDENTITY=${z_new_identity}  # ${RBRR_MANIFEST_PLATFORMS}"
+  buc_code "# Add to .rbk/rbrm.env:"
+  buc_code "RBRM_CHOSEN_IDENTITY=${z_new_identity}  # ${RBRM_MANIFEST_PLATFORMS}"
   buc_code ""
 
-  buc_success "Platform tags created for: ${RBRR_MANIFEST_PLATFORMS}"
+  buc_success "Platform tags created for: ${RBRM_MANIFEST_PLATFORMS}"
 }
 
 # Fetch VM image from GHCR container
@@ -451,7 +451,7 @@ rbv_fetch() {
   buc_step "Starting ignite VM to access podman image cache..."
   zrbv_ignite_bootstrap false || buc_die "Failed to start ignite machine"
 
-  local z_platform_tag="${ZRBV_VMIMAGE_TAG_PREFIX}${RBRR_CHOSEN_IDENTITY}-${RBRS_VM_PLATFORM}"
+  local z_platform_tag="${ZRBV_VMIMAGE_TAG_PREFIX}${RBRM_CHOSEN_IDENTITY}-${RBRS_VM_PLATFORM}"
 
   buc_step "Pulling platform-specific container: ${z_platform_tag}"
   podman -c "${RBRR_IGNITE_MACHINE_NAME}" pull "${z_platform_tag}" \
@@ -476,7 +476,7 @@ rbv_fetch() {
       "podman cp ${z_container_id}:/disk-image.tar ${z_vm_temp_disk}" \
     || buc_die "Failed to extract disk image from container"
 
-  local z_cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
+  local z_cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRM_CHOSEN_IDENTITY}.tar"
   buc_step "Copying disk image to cache directory as -> ${z_cache_file}"
   podman machine ssh "${RBRR_IGNITE_MACHINE_NAME}" -- \
       "cat ${z_vm_temp_disk}" > "${z_cache_file}"         \
@@ -515,10 +515,10 @@ rbv_init() {
 
   buc_step "Validating platform configuration..."
   test -n "${RBRS_VM_PLATFORM}" || buc_die "RBRS_VM_PLATFORM not set in station config"
-  echo "${RBRR_MANIFEST_PLATFORMS}" | grep -q "${RBRS_VM_PLATFORM}" \
-    || buc_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRR_MANIFEST_PLATFORMS}"
+  echo "${RBRM_MANIFEST_PLATFORMS}" | grep -q "${RBRS_VM_PLATFORM}" \
+    || buc_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRM_MANIFEST_PLATFORMS}"
 
-  local z_cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRR_CHOSEN_IDENTITY}.tar"
+  local z_cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRM_CHOSEN_IDENTITY}.tar"
 
   buc_step "Checking for cached VM image..."
   test -f "${z_cache_file}" \

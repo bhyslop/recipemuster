@@ -28,7 +28,7 @@
 
 set -euo pipefail
 
-SYFT_IMAGE="${RBRR_GCB_SYFT_IMAGE_REF}"
+SYFT_IMAGE="${RBRG_SYFT_IMAGE_REF}"
 
 test -s .tag_base || (echo "tag base not derived" >&2; exit 1)
 TAG_BASE="$(cat .tag_base)"

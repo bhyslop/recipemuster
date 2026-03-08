@@ -281,21 +281,21 @@
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
 :rbrr_gcb_worker_pool:       <<rbrr_gcb_worker_pool,RBRR_GCB_WORKER_POOL>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
-:rbrr_gcb_oras_image_ref:    <<rbrr_gcb_oras_image_ref,RBRR_GCB_ORAS_IMAGE_REF>>
-:rbrr_gcb_gcloud_image_ref:  <<rbrr_gcb_gcloud_image_ref,RBRR_GCB_GCLOUD_IMAGE_REF>>
-:rbrr_gcb_docker_image_ref:  <<rbrr_gcb_docker_image_ref,RBRR_GCB_DOCKER_IMAGE_REF>>
-:rbrr_gcb_alpine_image_ref:  <<rbrr_gcb_alpine_image_ref,RBRR_GCB_ALPINE_IMAGE_REF>>
-:rbrr_gcb_syft_image_ref:    <<rbrr_gcb_syft_image_ref,RBRR_GCB_SYFT_IMAGE_REF>>
-:rbrr_gcb_binfmt_image_ref:  <<rbrr_gcb_binfmt_image_ref,RBRR_GCB_BINFMT_IMAGE_REF>>
-:rbrr_gcb_skopeo_image_ref: <<rbrr_gcb_skopeo_image_ref,RBRR_GCB_SKOPEO_IMAGE_REF>>
-:rbrr_gcb_pins_refreshed_at: <<rbrr_gcb_pins_refreshed_at,RBRR_GCB_PINS_REFRESHED_AT>>
-:rbrr_chosen_identity:       <<rbrr_chosen_identity,RBRR_CHOSEN_IDENTITY>>
-:rbrr_chosen_podman_version: <<rbrr_chosen_podman_version,RBRR_CHOSEN_PODMAN_VERSION>>
-:rbrr_chosen_vmimage_origin: <<rbrr_chosen_vmimage_origin,RBRR_CHOSEN_VMIMAGE_ORIGIN>>
-:rbrr_crane_tar_gz:          <<rbrr_crane_tar_gz,RBRR_CRANE_TAR_GZ>>
+:rbrg_oras_image_ref:    <<rbrg_oras_image_ref,RBRG_ORAS_IMAGE_REF>>
+:rbrg_gcloud_image_ref:  <<rbrg_gcloud_image_ref,RBRG_GCLOUD_IMAGE_REF>>
+:rbrg_docker_image_ref:  <<rbrg_docker_image_ref,RBRG_DOCKER_IMAGE_REF>>
+:rbrg_alpine_image_ref:  <<rbrg_alpine_image_ref,RBRG_ALPINE_IMAGE_REF>>
+:rbrg_syft_image_ref:    <<rbrg_syft_image_ref,RBRG_SYFT_IMAGE_REF>>
+:rbrg_binfmt_image_ref:  <<rbrg_binfmt_image_ref,RBRG_BINFMT_IMAGE_REF>>
+:rbrg_skopeo_image_ref: <<rbrg_skopeo_image_ref,RBRG_SKOPEO_IMAGE_REF>>
+:rbrg_pins_refreshed_at: <<rbrg_pins_refreshed_at,RBRG_PINS_REFRESHED_AT>>
+:rbrm_chosen_identity:       <<rbrm_chosen_identity,RBRM_CHOSEN_IDENTITY>>
+:rbrm_chosen_podman_version: <<rbrm_chosen_podman_version,RBRM_CHOSEN_PODMAN_VERSION>>
+:rbrm_chosen_vmimage_origin: <<rbrm_chosen_vmimage_origin,RBRM_CHOSEN_VMIMAGE_ORIGIN>>
+:rbrm_crane_tar_gz:          <<rbrm_crane_tar_gz,RBRM_CRANE_TAR_GZ>>
 :rbrr_deploy_machine_name:   <<rbrr_deploy_machine_name,RBRR_DEPLOY_MACHINE_NAME>>
 :rbrr_ignite_machine_name:   <<rbrr_ignite_machine_name,RBRR_IGNITE_MACHINE_NAME>>
-:rbrr_manifest_platforms:    <<rbrr_manifest_platforms,RBRR_MANIFEST_PLATFORMS>>
+:rbrm_manifest_platforms:    <<rbrm_manifest_platforms,RBRM_MANIFEST_PLATFORMS>>
 
 // Recipe Bottle Regime: Cloud Build v2
 :rbrr_group_cbv2:               <<rbrr_group_cbv2,Cloud Build v2 Group>>
@@ -307,6 +307,12 @@
 :rbra_private_key:           <<rbra_private_key,RBRA_PRIVATE_KEY>>
 :rbra_project_id:            <<rbra_project_id,RBRA_PROJECT_ID>>
 :rbra_token_lifetime_sec:    <<rbra_token_lifetime_sec,RBRA_TOKEN_LIFETIME_SEC>>
+
+// Recipe Bottle Regime: GCB Pins
+:rbrg_regime:                <<rbrg_regime,RBRG Regime>>
+
+// Recipe Bottle Regime: Machine (Podman VM Supply Chain)
+:rbrm_regime:                <<rbrm_regime,RBRM Regime>>
 
 // Recipe Bottle Regime: Payor
 :rbrp_billing_account_id:    <<rbrp_billing_account_id,RBRP_BILLING_ACCOUNT_ID>>
@@ -2215,29 +2221,29 @@ Podman machine name for bottle ignition operations.
 {rbrr_deploy_machine_name}::
 Podman machine name for bottle deployment operations.
 
-[[rbrr_crane_tar_gz]]
+[[rbrm_crane_tar_gz]]
 //axvr_variable axd_required rbst_path
-{rbrr_crane_tar_gz}::
+{rbrm_crane_tar_gz}::
 Path to crane tool tarball for OCI registry operations.
 
-[[rbrr_manifest_platforms]]
+[[rbrm_manifest_platforms]]
 //axvr_variable axd_required rbst_platform_list
-{rbrr_manifest_platforms}::
+{rbrm_manifest_platforms}::
 Space-separated target platforms for multi-platform manifest creation.
 
-[[rbrr_chosen_podman_version]]
+[[rbrm_chosen_podman_version]]
 //axvr_variable axd_required rbst_version
-{rbrr_chosen_podman_version}::
+{rbrm_chosen_podman_version}::
 Podman version string for VM provisioning.
 
-[[rbrr_chosen_vmimage_origin]]
+[[rbrm_chosen_vmimage_origin]]
 //axvr_variable axd_required rbst_string
-{rbrr_chosen_vmimage_origin}::
+{rbrm_chosen_vmimage_origin}::
 Podman VM image origin specification.
 
-[[rbrr_chosen_identity]]
+[[rbrm_chosen_identity]]
 //axvr_variable axd_required rbst_string
-{rbrr_chosen_identity}::
+{rbrm_chosen_identity}::
 Identity specification for VM or build environment.
 
 [[rbrr_gcb_machine_type]]
@@ -2281,47 +2287,47 @@ Minimum concurrent Cloud Build execution count.
 {rbrr_gcb_timeout}::
 Maximum duration for Cloud Build operations.
 
-[[rbrr_gcb_oras_image_ref]]
+[[rbrg_oras_image_ref]]
 //axvr_variable axd_required rbst_image_ref
-{rbrr_gcb_oras_image_ref}::
+{rbrg_oras_image_ref}::
 Fully-qualified image reference for ORAS Cloud Build step.
 
-[[rbrr_gcb_gcloud_image_ref]]
+[[rbrg_gcloud_image_ref]]
 //axvr_variable axd_required rbst_image_ref
-{rbrr_gcb_gcloud_image_ref}::
+{rbrg_gcloud_image_ref}::
 Fully-qualified image reference for gcloud Cloud Build step.
 
-[[rbrr_gcb_docker_image_ref]]
+[[rbrg_docker_image_ref]]
 //axvr_variable axd_required rbst_image_ref
-{rbrr_gcb_docker_image_ref}::
+{rbrg_docker_image_ref}::
 Fully-qualified image reference for Docker Cloud Build step.
 
-[[rbrr_gcb_alpine_image_ref]]
+[[rbrg_alpine_image_ref]]
 //axvr_variable axd_required rbst_image_ref
-{rbrr_gcb_alpine_image_ref}::
+{rbrg_alpine_image_ref}::
 Fully-qualified image reference for Alpine Cloud Build step.
 
-[[rbrr_gcb_syft_image_ref]]
+[[rbrg_syft_image_ref]]
 //axvr_variable axd_required rbst_image_ref
-{rbrr_gcb_syft_image_ref}::
+{rbrg_syft_image_ref}::
 Fully-qualified image reference for Syft SBOM Cloud Build step.
 
-[[rbrr_gcb_binfmt_image_ref]]
+[[rbrg_binfmt_image_ref]]
 //axvr_variable axd_required rbst_image_ref
-{rbrr_gcb_binfmt_image_ref}::
+{rbrg_binfmt_image_ref}::
 Fully-qualified image reference for binfmt Cloud Build step.
 
-[[rbrr_gcb_skopeo_image_ref]]
+[[rbrg_skopeo_image_ref]]
 //axvr_variable axd_required rbst_image_ref
-{rbrr_gcb_skopeo_image_ref}::
+{rbrg_skopeo_image_ref}::
 Fully-qualified image reference for skopeo Cloud Build step.
 Historically used to split multi-platform OCI layouts to single-platform for Syft SBOM generation (anchore/syft#1545).
 No longer used in the current pipeline — Syft now scans per-platform images from the local Docker daemon via `docker:` transport after per-platform pullback.
 Pin retained for potential future use.
 
-[[rbrr_gcb_pins_refreshed_at]]
+[[rbrg_pins_refreshed_at]]
 //axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp
-{rbrr_gcb_pins_refreshed_at}::
+{rbrg_pins_refreshed_at}::
 Timestamp recording when builder image pins were last refreshed.
 Written by `rbrr_refresh_gcb_pins` on successful completion.
 {rbtgo_rubric_inscribe}
@@ -2373,6 +2379,29 @@ Used by
 to construct an authenticated git URL at runtime (combining with token fetched from Secret Manager via `https://oauth2:TOKEN@...`).
 
 include::RBSRR-RegimeRepo.adoc[]
+
+=== GCB Pins Regime (RBRG)
+
+[[rbrg_regime]]
+//axvr_regime axf_bash axrd_file_sourced axrd_singleton
+{rbrg_regime}::
+Digest-pinned container image references for
+{gcb_service}
+build steps.
+Auto-refreshed by `rbrr_refresh_gcb_pins` which writes a complete file from scratch (BCG compliant).
+Located at `.rbk/rbrg.env`.
+
+include::RBSRG-RegimeGcbPins.adoc[]
+
+=== Machine Regime (RBRM)
+
+[[rbrm_regime]]
+//axvr_regime axf_bash axrd_file_sourced axrd_singleton
+{rbrm_regime}::
+Podman VM supply chain configuration including container runtime tool versions, platform targets, and VM image selection.
+Located at `.rbk/rbrm.env`.
+
+include::RBSRM-RegimeMachine.adoc[]
 
 === Authentication Regime (RBRA)
 

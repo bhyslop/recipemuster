@@ -1,0 +1,59 @@
+//axhrb_regime
+{rbrm_regime}
+
+This regime specifies Podman VM supply chain configuration within the Recipe Bottle system.
+Each
+{rbrm_regime}
+instance represents the operator's chosen Podman release, platform targets, and supporting tool versions.
+RBRM assignment files are found at `.rbk/rbrm.env`.
+Podman VM support is currently deferred.
+
+//axhrv_variable
+{rbrm_crane_tar_gz}
+
+Path to crane tool tarball archive.
+Crane is used for OCI image manipulation and registry operations within the Podman VM.
+
+//axhrv_variable
+{rbrm_manifest_platforms}
+
+Space-separated list of platforms for multi-platform manifest creation.
+Example: `mow_x86_64_wsl mow_aarch64_wsl`.
+
+//axhrv_variable
+{rbrm_chosen_podman_version}
+
+Podman version string for VM provisioning and build operations.
+Must match a valid Podman release version (N.N or N.N.N format).
+
+//axhrv_variable
+{rbrm_chosen_vmimage_origin}
+
+Podman VM image origin specification.
+Determines which VM base image to use for machine creation.
+
+//axhrv_variable
+{rbrm_chosen_identity}
+
+Identity specification for VM or build environment.
+Used to configure authentication and authorization context.
+
+//axhro_kindle
+{rbkro_kindle}
+
+Enrolls all RBRM_ variables via buv enrollment.
+Guards against unexpected RBRM_ variables via scope sentinel.
+Locks all enrolled variables against mutation.
+
+//axhro_validate
+{rbkro_validate}
+
+Validates fields via buv_vet type checkers.
+Validates platform format constraints (lowercase alphanumeric with underscores).
+Validates Podman version format (semantic version).
+
+//axhro_render
+{rbkro_render}
+
+Renders via buv_render.
+Sections: Podman VM Supply Chain.

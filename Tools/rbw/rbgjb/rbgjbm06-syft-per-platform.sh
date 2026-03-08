@@ -12,7 +12,7 @@
 
 set -euo pipefail
 
-SYFT_IMAGE="${RBRR_GCB_SYFT_IMAGE_REF}"
+SYFT_IMAGE="${RBRG_SYFT_IMAGE_REF}"
 
 test -n "${_RBGY_MONIKER}"             || (echo "_RBGY_MONIKER missing"             >&2; exit 1)
 test -n "${_RBGY_PLATFORMS}"           || (echo "_RBGY_PLATFORMS missing"           >&2; exit 1)

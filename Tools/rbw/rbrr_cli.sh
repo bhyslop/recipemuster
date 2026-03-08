@@ -46,26 +46,29 @@ rbrr_render() {
   buv_render RBRR "RBRR - Recipe Bottle Regime Repo"
 }
 
-# Command: refresh_gcb_pins - resolve image tags to digests and update RBRR file
+# Command: refresh_gcb_pins - resolve image tags to digests and write complete RBRG file
+# BCG compliant: discovers all values, writes complete file from scratch, replaces atomically.
 # Every step must succeed or the function dies — no partial updates.
 # Requires: docker, jq, curl, BURD_NOW_STAMP set, BURD_TEMP_DIR set
 rbrr_refresh_gcb_pins() {
-  buc_doc_brief "Resolve image tags to digests and update RBRR configuration file"
+  buc_doc_brief "Resolve image tags to digests and write complete RBRG pin file"
   buc_doc_shown || return 0
 
-  local z_rbrr_file="${RBBC_rbrr_file}"
-  test -f "${z_rbrr_file}" || buc_die "RBRR config not found: ${z_rbrr_file}"
+  local -r z_rbrg_file="${RBBC_rbrg_file}"
+  test -f "${z_rbrg_file}" || buc_die "RBRG config not found: ${z_rbrg_file}"
   zburd_sentinel
 
   buc_countdown 5 "NOTE: Docker anonymous login is heavily rate limited.  Try again in 6 hours if you see that fail.  Continuing in:"
 
-  local z_vintage="${BURD_NOW_STAMP}"
-  local z_oras_token_file="${ZRBRR_REFRESH_PREFIX}oras_token.json"
-  local z_oras_tags_file="${ZRBRR_REFRESH_PREFIX}oras_tags.json"
-  local z_oras_token_value_file="${ZRBRR_REFRESH_PREFIX}oras_token_value.txt"
-  local z_oras_tag_file="${ZRBRR_REFRESH_PREFIX}oras_tag.txt"
-  local z_oras_token_stderr="${ZRBRR_REFRESH_PREFIX}oras_token_stderr.txt"
-  local z_oras_tags_stderr="${ZRBRR_REFRESH_PREFIX}oras_tags_stderr.txt"
+  local -r z_vintage="${BURD_NOW_STAMP}"
+  local -r z_prefix="${BURD_TEMP_DIR}/rbrg_refresh_"
+
+  local z_oras_token_file="${z_prefix}oras_token.json"
+  local z_oras_tags_file="${z_prefix}oras_tags.json"
+  local z_oras_token_value_file="${z_prefix}oras_token_value.txt"
+  local z_oras_tag_file="${z_prefix}oras_tag.txt"
+  local z_oras_token_stderr="${z_prefix}oras_token_stderr.txt"
+  local z_oras_tags_stderr="${z_prefix}oras_tags_stderr.txt"
 
   # Discover latest oras stable version from GHCR API.
   # oras doesn't publish a :latest tag, so we must find the newest semver release.
@@ -109,62 +112,23 @@ rbrr_refresh_gcb_pins() {
     || buc_die "No stable oras semver tag found in GHCR tag list"
   buc_info "oras discovered tag: ${z_oras_tag}"
 
-  # Discover latest crane release from GitHub API.
-  # crane is distributed as a tarball (not a container image), so it needs
-  # its own freshening path separate from the image-pin loop below.
-  local z_crane_releases_file="${ZRBRR_REFRESH_PREFIX}crane_releases.json"
-  local z_crane_tag_file="${ZRBRR_REFRESH_PREFIX}crane_tag.txt"
-  local z_crane_old_url_file="${ZRBRR_REFRESH_PREFIX}crane_old_url.txt"
-  local z_crane_sed_file="${ZRBRR_REFRESH_SED_PREFIX}crane.sh"
-  local z_crane_stderr="${ZRBRR_REFRESH_PREFIX}crane_stderr.txt"
-
-  buc_step "Discovering latest crane release from GitHub"
-
-  curl -sS \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    "https://api.github.com/repos/google/go-containerregistry/releases/latest" \
-    -o "${z_crane_releases_file}" 2>"${z_crane_stderr}" \
-    || buc_die "Failed to fetch crane releases from GitHub API — see ${z_crane_stderr}"
-
-  buc_log_args "Extracting tag from latest release"
-  jq -r '.tag_name // empty' "${z_crane_releases_file}" > "${z_crane_tag_file}" \
-    || buc_die "Failed to extract tag from crane releases response"
-  local z_crane_tag=$(<"${z_crane_tag_file}")
-  test -n "${z_crane_tag}" || buc_die "No tag found in crane latest release"
-  buc_info "crane discovered tag: ${z_crane_tag}"
-
-  local z_crane_url="https://github.com/google/go-containerregistry/releases/download/${z_crane_tag}/go-containerregistry_Linux_x86_64.tar.gz"
-
-  buc_log_args "Reading current RBRR_CRANE_TAR_GZ from rbrr file"
-  grep "^RBRR_CRANE_TAR_GZ=" "${z_rbrr_file}" | cut -d'=' -f2- > "${z_crane_old_url_file}" \
-    || buc_die "No existing value for RBRR_CRANE_TAR_GZ in rbrr file"
-  local z_old_crane_url=$(<"${z_crane_old_url_file}")
-  test -n "${z_old_crane_url}" || buc_die "Empty RBRR_CRANE_TAR_GZ value in rbrr file"
-
-  if test "${z_old_crane_url}" = "${z_crane_url}"; then
-    buc_info "RBRR_CRANE_TAR_GZ: unchanged (${z_crane_tag})"
-  else
-    buc_info "RBRR_CRANE_TAR_GZ: -> ${z_crane_url}"
-    sed "s|^RBRR_CRANE_TAR_GZ=.*|RBRR_CRANE_TAR_GZ=${z_crane_url}|" "${z_rbrr_file}" > "${z_crane_sed_file}" \
-      || buc_die "Failed to sed value for RBRR_CRANE_TAR_GZ"
-    mv "${z_crane_sed_file}" "${z_rbrr_file}" || buc_die "Failed to update RBRR_CRANE_TAR_GZ in rbrr file"
-  fi
-
   # Image specifications: VARNAME|BASE_IMAGE|TAG
   # Most images use :latest which always points to newest version.
   # oras uses discovered semver tag above (no :latest published).
   local z_specs=(
-    "RBRR_GCB_ORAS_IMAGE_REF|ghcr.io/oras-project/oras|${z_oras_tag}"
-    "RBRR_GCB_GCLOUD_IMAGE_REF|gcr.io/cloud-builders/gcloud|latest"
-    "RBRR_GCB_DOCKER_IMAGE_REF|gcr.io/cloud-builders/docker|latest"
-    "RBRR_GCB_ALPINE_IMAGE_REF|docker.io/library/alpine|latest"
-    "RBRR_GCB_SYFT_IMAGE_REF|docker.io/anchore/syft|latest"
-    "RBRR_GCB_BINFMT_IMAGE_REF|docker.io/tonistiigi/binfmt|latest"
-    "RBRR_GCB_SKOPEO_IMAGE_REF|quay.io/skopeo/stable|latest"
+    "RBRG_ORAS_IMAGE_REF|ghcr.io/oras-project/oras|${z_oras_tag}"
+    "RBRG_GCLOUD_IMAGE_REF|gcr.io/cloud-builders/gcloud|latest"
+    "RBRG_DOCKER_IMAGE_REF|gcr.io/cloud-builders/docker|latest"
+    "RBRG_ALPINE_IMAGE_REF|docker.io/library/alpine|latest"
+    "RBRG_SYFT_IMAGE_REF|docker.io/anchore/syft|latest"
+    "RBRG_BINFMT_IMAGE_REF|docker.io/tonistiigi/binfmt|latest"
+    "RBRG_SKOPEO_IMAGE_REF|quay.io/skopeo/stable|latest"
   )
 
   buc_step "Refreshing GCB tool image pins (vintage: ~${z_vintage})"
 
+  # Resolve all digests, collecting results for complete file write
+  local -a z_resolved_lines=()
   local z_updated=0
   local z_unchanged=0
 
@@ -174,26 +138,19 @@ rbrr_refresh_gcb_pins() {
   local z_tag=""
   local z_manifest_file=""
   local z_digest_file=""
-  local z_oldref_file=""
   local z_digest=""
   local z_full_ref=""
-  local z_old_ref=""
   # GCB runs on linux/amd64 — pin digests must match this platform
   local z_pin_os="linux"
   local z_pin_arch="amd64"
-  local z_sed_value_file=""
-  local z_sed_vintage_file=""
   local z_inspect_stderr=""
   local z_index=0
   for z_spec in "${z_specs[@]}"; do
     IFS='|' read -r z_varname z_image z_tag <<< "${z_spec}"
 
-    z_manifest_file="${ZRBRR_REFRESH_PREFIX}${z_index}_manifest.json"
-    z_digest_file="${ZRBRR_REFRESH_PREFIX}${z_index}_digest.txt"
-    z_oldref_file="${ZRBRR_REFRESH_PREFIX}${z_index}_oldref.txt"
-    z_sed_value_file="${ZRBRR_REFRESH_SED_PREFIX}${z_index}_value.sh"
-    z_sed_vintage_file="${ZRBRR_REFRESH_SED_PREFIX}${z_index}_vintage.sh"
-    z_inspect_stderr="${ZRBRR_REFRESH_PREFIX}${z_index}_inspect_stderr.txt"
+    z_manifest_file="${z_prefix}${z_index}_manifest.json"
+    z_digest_file="${z_prefix}${z_index}_digest.txt"
+    z_inspect_stderr="${z_prefix}${z_index}_inspect_stderr.txt"
 
     buc_step "Inspecting ${z_image}:${z_tag}"
 
@@ -214,40 +171,54 @@ rbrr_refresh_gcb_pins() {
     test -n "${z_digest}" || buc_die "Empty digest for ${z_image}:${z_tag}"
     z_full_ref="${z_image}@${z_digest}"
 
-    grep "^${z_varname}=" "${z_rbrr_file}" | cut -d'"' -f2 > "${z_oldref_file}" \
-      || buc_die "No existing value for ${z_varname} in rbrr file"
-    z_old_ref=$(<"${z_oldref_file}")
-
+    # Log changes vs current values
+    local z_old_ref="${!z_varname:-}"
     if test "${z_old_ref}" = "${z_full_ref}"; then
       buc_info "${z_varname}: unchanged"
       z_unchanged=$((z_unchanged + 1))
     else
       buc_info "${z_varname}: ${z_old_ref} -> ${z_full_ref}"
-
-      sed "s|^${z_varname}=.*|${z_varname}=\"${z_full_ref}\"|" "${z_rbrr_file}" > "${z_sed_value_file}" \
-        || buc_die "Failed to sed value for ${z_varname}"
-      mv "${z_sed_value_file}" "${z_rbrr_file}" || buc_die "Failed to update ${z_varname} in rbrr file"
-
-      buc_log_args "Updating vintage comment for ${z_varname}"
-      sed "/${z_varname}=/{
-        x
-        s|(~[^)]*)|(~${z_vintage})|
-        x
-      }" "${z_rbrr_file}" > "${z_sed_vintage_file}" \
-        || buc_die "Failed to update vintage comment for ${z_varname}"
-      test -s "${z_sed_vintage_file}" || buc_die "Vintage sed produced empty output for ${z_varname}"
-      mv "${z_sed_vintage_file}" "${z_rbrr_file}" || buc_die "Failed to update vintage for ${z_varname}"
-
       z_updated=$((z_updated + 1))
     fi
+
+    z_resolved_lines+=("${z_varname}=\"${z_full_ref}\"")
     z_index=$((z_index + 1))
   done
 
-  buc_step "Writing RBRR_GCB_PINS_REFRESHED_AT epoch to rbrr file"
-  local -r z_sed_epoch_file="${ZRBRR_REFRESH_SED_PREFIX}epoch.sh"
-  sed "s|^RBRR_GCB_PINS_REFRESHED_AT=.*|RBRR_GCB_PINS_REFRESHED_AT=${BURD_NOW_EPOCH}|" "${z_rbrr_file}" > "${z_sed_epoch_file}" \
-    || buc_die "Failed to sed RBRR_GCB_PINS_REFRESHED_AT"
-  mv "${z_sed_epoch_file}" "${z_rbrr_file}" || buc_die "Failed to update RBRR_GCB_PINS_REFRESHED_AT in rbrr file"
+  # BCG compliant: write complete file from scratch, then replace atomically
+  buc_step "Writing complete RBRG pin file (BCG rewrite pattern)"
+  local -r z_temp_rbrg="${z_prefix}rbrg_complete.env"
+  {
+    echo '#!/bin/bash'
+    echo '# Copyright 2026 Scale Invariant, Inc.'
+    echo '#'
+    echo '# Licensed under the Apache License, Version 2.0 (the "License");'
+    echo '# you may not use this file except in compliance with the License.'
+    echo '# You may obtain a copy of the License at'
+    echo '#'
+    echo '#     http://www.apache.org/licenses/LICENSE-2.0'
+    echo '#'
+    echo '# Unless required by applicable law or agreed to in writing, software'
+    echo '# distributed under the License is distributed on an "AS IS" BASIS,'
+    echo '# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.'
+    echo '# See the License for the specific language governing permissions and'
+    echo '# limitations under the License.'
+    echo '#'
+    echo '# Author: Brad Hyslop <bhyslop@scaleinvariant.org>'
+    echo '#'
+    echo "# RBRG - GCB Image Pins (refreshed ~${z_vintage})"
+    echo ''
+    local z_line=""
+    for z_line in "${z_resolved_lines[@]}"; do
+      echo "${z_line}"
+    done
+    echo ''
+    echo "RBRG_PINS_REFRESHED_AT=${BURD_NOW_EPOCH}"
+    echo ''
+    echo '# eof'
+  } > "${z_temp_rbrg}" || buc_die "Failed to write temporary RBRG file"
+
+  mv "${z_temp_rbrg}" "${z_rbrg_file}" || buc_die "Failed to replace RBRG file"
 
   buc_step "Refresh complete: ${z_updated} updated, ${z_unchanged} unchanged"
 }
@@ -265,8 +236,10 @@ zrbrr_furnish() {
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${z_rbw_kit_dir}/rbcc_Constants.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${z_rbw_kit_dir}/rbrg_regime.sh"
   source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
   source "${RBBC_rbrr_file}"
+  source "${RBBC_rbrg_file}"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
 
   zbuv_kindle
@@ -276,6 +249,8 @@ zrbrr_furnish() {
 
   zrbrr_kindle
   zrbrr_enforce
+  zrbrg_kindle
+  zrbrg_enforce
   zrbdc_kindle
 
   zbupr_kindle

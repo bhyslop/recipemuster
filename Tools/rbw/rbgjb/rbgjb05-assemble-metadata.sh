@@ -1,6 +1,6 @@
 #!/bin/bash
 # RBGJB Step 05: Assemble build metadata JSON
-# Builder: alpine (via RBRR_GCB_ALPINE_IMAGE_REF)
+# Builder: alpine (via RBRG_ALPINE_IMAGE_REF)
 # Entrypoint: sh (not bash)
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,
 #                _RBGY_GIT_REPO, _RBGY_GIT_BRANCH, _RBGY_GIT_COMMIT,

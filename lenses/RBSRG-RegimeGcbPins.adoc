@@ -1,0 +1,79 @@
+//axhrb_regime
+{rbrg_regime}
+
+This regime specifies digest-pinned container image references used as builders in
+{gcb_service}
+build steps.
+Each
+{rbrg_regime}
+instance represents the current set of tool image pins, auto-refreshed by `rbrr_refresh_gcb_pins`.
+RBRG assignment files are found at `.rbk/rbrg.env` and are generated from scratch by the refresh command (BCG compliant full-file rewrite).
+
+//axhrv_variable
+{rbrg_oras_image_ref}
+
+Fully-qualified image reference for ORAS tool used in Cloud Build steps.
+ORAS handles OCI artifact operations beyond container images.
+
+//axhrv_variable
+{rbrg_gcloud_image_ref}
+
+Fully-qualified image reference for gcloud tool used in Cloud Build steps.
+Provides Google Cloud CLI for project and service operations.
+
+//axhrv_variable
+{rbrg_docker_image_ref}
+
+Fully-qualified image reference for Docker tool used in Cloud Build steps.
+Provides container image building and pushing capabilities.
+
+//axhrv_variable
+{rbrg_alpine_image_ref}
+
+Fully-qualified image reference for Alpine base image used in Cloud Build steps.
+Provides lightweight shell environment for scripting steps.
+
+//axhrv_variable
+{rbrg_syft_image_ref}
+
+Fully-qualified image reference for Syft tool used in Cloud Build steps.
+Generates software bill of materials (SBOM) for built images.
+
+//axhrv_variable
+{rbrg_binfmt_image_ref}
+
+Fully-qualified image reference for binfmt tool used in Cloud Build steps.
+Configures QEMU binary format support for cross-platform builds.
+
+//axhrv_variable
+{rbrg_skopeo_image_ref}
+
+Fully-qualified image reference for skopeo tool used in Cloud Build steps.
+Pin retained for potential future use.
+
+//axhrv_variable
+{rbrg_pins_refreshed_at}
+
+Timestamp recording when builder image pins were last refreshed via `rbrr_refresh_gcb_pins`.
+{rbtgo_rubric_inscribe}
+checks this value and skips pin refresh if less than 1 day old,
+otherwise refreshes automatically before proceeding.
+
+//axhro_kindle
+{rbkro_kindle}
+
+Enrolls all RBRG_ variables via buv enrollment.
+Guards against unexpected RBRG_ variables via scope sentinel.
+Locks all enrolled variables against mutation.
+
+//axhro_validate
+{rbkro_validate}
+
+Validates fields via buv_vet type checkers.
+All pin references must be valid digest-pinned image references.
+
+//axhro_render
+{rbkro_render}
+
+Renders via buv_render.
+Sections: GCB Image Pins.

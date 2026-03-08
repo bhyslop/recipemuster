@@ -35,8 +35,10 @@ zrbf_furnish() {
   source "${z_rbw_kit_dir}/rbgc_Constants.sh"
   source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
+  source "${z_rbw_kit_dir}/rbrg_regime.sh"
   source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
   source "${RBBC_rbrr_file}"
+  source "${RBBC_rbrg_file}"
   source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbw_kit_dir}/rbgu_Utility.sh"
   source "${z_rbw_kit_dir}/rbf_Foundry.sh"
@@ -59,6 +61,8 @@ zrbf_furnish() {
 
   zrbrr_kindle
   zrbrr_enforce
+  zrbrg_kindle
+  zrbrg_enforce
   zrbdc_kindle
 
   source "${z_rbw_kit_dir}/rbrv_regime.sh"

@@ -100,7 +100,7 @@ zrbf_kindle() {
   readonly ZRBF_OUTPUT_CONSECRATION="${BURD_OUTPUT_DIR}/rbf_consecration.txt"
 
   buc_log_args 'For now lets double check these'
-  test -n "${RBRR_GCB_ORAS_IMAGE_REF:-}"   || buc_die "RBRR_GCB_ORAS_IMAGE_REF not set"
+  test -n "${RBRG_ORAS_IMAGE_REF:-}"   || buc_die "RBRG_ORAS_IMAGE_REF not set"
 
   readonly ZRBF_KINDLED=1
 }
@@ -178,12 +178,12 @@ zrbf_stitch_build_json() {
     # - Step 06: build and push metadata container
     # + images: field triggers CB-native push + SLSA v1.0 provenance
     z_step_defs=(
-      "rbgjb01-derive-tag-base.sh|${RBRR_GCB_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
-      "rbgjb02-qemu-binfmt.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
-      "rbgjb03-build-and-load.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-load"
-      "rbgjb04-sbom-and-summary.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|sbom-and-summary"
-      "rbgjb05-assemble-metadata.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|assemble-metadata"
-      "rbgjb06-build-and-push-metadata.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|build-and-push-metadata"
+      "rbgjb01-derive-tag-base.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
+      "rbgjb02-qemu-binfmt.sh|${RBRG_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
+      "rbgjb03-build-and-load.sh|${RBRG_DOCKER_IMAGE_REF}|bash|build-and-load"
+      "rbgjb04-sbom-and-summary.sh|${RBRG_DOCKER_IMAGE_REF}|bash|sbom-and-summary"
+      "rbgjb05-assemble-metadata.sh|${RBRG_ALPINE_IMAGE_REF}|sh|assemble-metadata"
+      "rbgjb06-build-and-push-metadata.sh|${RBRG_DOCKER_IMAGE_REF}|bash|build-and-push-metadata"
     )
   else
     # Multi-platform SLSA pipeline:
@@ -198,15 +198,15 @@ zrbf_stitch_build_json() {
     # - Step 09: imagetools create → assemble consumer-facing manifest list
     # + images: field lists all per-platform tags for SLSA provenance
     z_step_defs=(
-      "rbgjb01-derive-tag-base.sh|${RBRR_GCB_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
-      "rbgjb02-qemu-binfmt.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
-      "rbgjbm03-buildx-push-multi.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|buildx-push-multi"
-      "rbgjbm04-per-platform-pullback.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|per-platform-pullback"
-      "rbgjbm05-push-per-platform.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|push-per-platform"
-      "rbgjbm06-syft-per-platform.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|syft-per-platform"
-      "rbgjbm07-build-info-per-platform.sh|${RBRR_GCB_ALPINE_IMAGE_REF}|sh|build-info-per-platform"
-      "rbgjbm08-buildx-push-about.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|buildx-push-about"
-      "rbgjbm09-imagetools-create.sh|${RBRR_GCB_DOCKER_IMAGE_REF}|bash|imagetools-create"
+      "rbgjb01-derive-tag-base.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
+      "rbgjb02-qemu-binfmt.sh|${RBRG_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
+      "rbgjbm03-buildx-push-multi.sh|${RBRG_DOCKER_IMAGE_REF}|bash|buildx-push-multi"
+      "rbgjbm04-per-platform-pullback.sh|${RBRG_DOCKER_IMAGE_REF}|bash|per-platform-pullback"
+      "rbgjbm05-push-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|push-per-platform"
+      "rbgjbm06-syft-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|syft-per-platform"
+      "rbgjbm07-build-info-per-platform.sh|${RBRG_ALPINE_IMAGE_REF}|sh|build-info-per-platform"
+      "rbgjbm08-buildx-push-about.sh|${RBRG_DOCKER_IMAGE_REF}|bash|buildx-push-about"
+      "rbgjbm09-imagetools-create.sh|${RBRG_DOCKER_IMAGE_REF}|bash|imagetools-create"
     )
   fi
 
@@ -265,8 +265,8 @@ zrbf_stitch_build_json() {
     test -n "${z_body}" || buc_die "Empty script body: ${z_script_path}"
 
     buc_log_args "Baking pinned image refs into script text (GCB containers lack RBRR vars)"
-    z_body="${z_body//\$\{RBRR_GCB_SYFT_IMAGE_REF\}/${RBRR_GCB_SYFT_IMAGE_REF}}"
-    z_body="${z_body//\$\{RBRR_GCB_BINFMT_IMAGE_REF\}/${RBRR_GCB_BINFMT_IMAGE_REF}}"
+    z_body="${z_body//\$\{RBRG_SYFT_IMAGE_REF\}/${RBRG_SYFT_IMAGE_REF}}"
+    z_body="${z_body//\$\{RBRG_BINFMT_IMAGE_REF\}/${RBRG_BINFMT_IMAGE_REF}}"
 
     buc_log_args "Escaping dollars for Cloud Build, preserving RBGY substitutions"
     printf '%s' "${z_body}" | sed 's/\$/\$\$/g; s/\$\${_RBGY_/${_RBGY_/g' \
@@ -1156,7 +1156,7 @@ rbf_rubric_inscribe() {
   # Phase 0: Pin staleness gate
   buc_step "Checking GCB pin freshness"
   local -r z_now_epoch="${BURD_NOW_EPOCH}"
-  local -r z_pins_epoch="${RBRR_GCB_PINS_REFRESHED_AT:-0}"
+  local -r z_pins_epoch="${RBRG_PINS_REFRESHED_AT:-0}"
   local -r z_age=$((z_now_epoch - z_pins_epoch))
   if test "${z_age}" -gt "${ZRBF_INSCRIBE_STALENESS_SEC}"; then
     buc_warn "GCB pins are stale (${z_age}s old, limit ${ZRBF_INSCRIBE_STALENESS_SEC}s)"
