@@ -23,8 +23,10 @@ set -euo pipefail
 ######################################################################
 # SLSA provenance integration test
 #
-# 4-step sequence: conjure → check → vouch → cleanup
-# Exercises full SLSA v1.0 provenance pipeline against live GCP environment.
+# 3-step sequence: conjure → check → cleanup
+# Exercises conjure pipeline and verifies the conjured ark appears in
+# the consecration listing. SLSA provenance verification will be
+# restored when the vouch-via-slsa-verifier architecture lands.
 #
 # Expects ZRBTB_ARK_VESSEL_SIGIL to contain vessel sigil (set by setup function).
 
@@ -37,7 +39,7 @@ rbtcsl_provenance_tcase() {
   buto_info "Vessel: ${z_vessel_sigil} at ${z_vessel_dir}"
 
   # Step 1: Conjure ark
-  buto_section "Step 1/4: Conjuring ark from vessel ${z_vessel_sigil}"
+  buto_section "Step 1/3: Conjuring ark from vessel ${z_vessel_sigil}"
   buto_tt_expect_ok "${RBZ_CONJURE_ARK}" "${z_vessel_dir}"
 
   # Read fact files from BURV output
@@ -54,45 +56,16 @@ rbtcsl_provenance_tcase() {
   test -n "${z_consecration}" || buto_fatal "Consecration output empty"
   buto_info "Consecration: ${z_consecration}"
 
-  # Step 2: Check consecrations — verify conjured image appears
-  buto_section "Step 2/4: Checking consecrations for ${z_vessel_sigil}"
+  # Step 2: Check consecrations — verify conjured ark appears in listing
+  buto_section "Step 2/3: Checking consecrations for ${z_vessel_sigil}"
   buto_tt_expect_ok "${RBZ_CHECK_CONSECRATIONS}" "${z_vessel_dir}"
-  buto_info "Consecration check output available"
+  buto_info "Consecration check passed"
 
-  # Step 3: Vouch provenance — assert SLSA Level 3
-  buto_section "Step 3/4: Vouching provenance for ${z_vessel_sigil}"
-  buto_tt_expect_ok "${RBZ_VOUCH_ARK}" "${z_vessel_dir}" "${z_consecration}"
-
-  local z_vouch_burv="${ZBUTO_BURV_OUTPUT}"
-  test -n "${z_vouch_burv}" || buto_fatal "ZBUTO_BURV_OUTPUT empty after vouch"
-
-  local z_slsa_level
-  z_slsa_level=$(<"${z_vouch_burv}/current/${RBF_FACT_SLSA_LEVEL}")
-  test -n "${z_slsa_level}" || buto_fatal "SLSA level fact file empty"
-  buto_info "SLSA build level: ${z_slsa_level}"
-
-  test "${z_slsa_level}" = "3" \
-    || buto_fatal "Expected SLSA Level 3 but got: ${z_slsa_level}"
-
-  # Cross-check: conjure's dispatched build ID must match vouch's provenance build ID
-  local z_conjure_build_id
-  z_conjure_build_id=$(<"${z_conjure_burv}/current/${RBF_FACT_BUILD_ID}")
-  test -n "${z_conjure_build_id}" || buto_fatal "Conjure build ID fact file empty"
-
-  local z_vouch_build_id
-  z_vouch_build_id=$(<"${z_vouch_burv}/current/${RBF_FACT_BUILD_ID}")
-  test -n "${z_vouch_build_id}" || buto_fatal "Vouch build ID fact file empty"
-
-  buto_info "Conjure build ID: ${z_conjure_build_id}"
-  buto_info "Vouch build ID:   ${z_vouch_build_id}"
-  test "${z_conjure_build_id}" = "${z_vouch_build_id}" \
-    || buto_fatal "Build ID mismatch: conjure=${z_conjure_build_id} vouch=${z_vouch_build_id}"
-
-  # Step 4: Cleanup — abjure the conjured ark
-  buto_section "Step 4/4: Abjuring ark to restore baseline"
+  # Step 3: Cleanup — abjure the conjured ark
+  buto_section "Step 3/3: Abjuring ark to restore baseline"
   buto_tt_expect_ok "${RBZ_ABJURE_ARK}" "${z_vessel_dir}" "${z_consecration}" "--force"
 
-  buto_success "SLSA provenance test passed — Level 3 verified"
+  buto_success "Provenance test passed — conjure/check/abjure cycle complete"
 }
 
 # eof

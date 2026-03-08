@@ -75,8 +75,6 @@
 :rbtga_consecration:         <<rbtga_consecration,Consecration>>
 :rbtga_ark_image:            <<rbtga_ark_image,Ark Image Artifact>>
 :rbtga_ark_about:            <<rbtga_ark_about,Ark About Artifact>>
-:rbtga_ark_vouch:            <<rbtga_ark_vouch,Ark Vouch Artifact>>
-
 // Recipe Bottle Term Google Rubric (per-vessel build definition)
 :rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
 :rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
@@ -1369,9 +1367,6 @@ An ark comprises the
 (`-image` suffix) containing the container image and the
 {rbtga_ark_about}
 (`-about` suffix) containing build provenance and metadata.
-Optionally, an ark includes the
-{rbtga_ark_vouch}
-(`-vouch` suffix) recording verified SLSA provenance facts.
 Arks are conjured atomically by
 {rbtgo_ark_conjure}
 and abjured atomically by
@@ -1396,7 +1391,7 @@ Combined with vessel to form complete artifact tags.
 All persistent artifact tags use the full consecration:
 per-platform image tags as `«VESSEL»:«CONSECRATION»-image-amd64`, `«VESSEL»:«CONSECRATION»-image-arm64`;
 consumer-facing manifest list as `«VESSEL»:«CONSECRATION»-image`;
-about as `«VESSEL»:«CONSECRATION»-about`; vouch as `«VESSEL»:«CONSECRATION»-vouch`.
+about as `«VESSEL»:«CONSECRATION»-about`.
 Platform suffix is derived from the OCI platform (e.g., `linux/amd64` -> `-amd64`, `linux/arm64` -> `-arm64`, `linux/arm/v7` -> `-armv7`).
 Multiple conjures of the same inscription produce distinct consecrations (unique build timestamps) with independently-attested images.
 +
@@ -1438,27 +1433,9 @@ Each platform's layer contains that architecture's SBOM and `build_info.json`.
 The `-about` container mirrors the `-image` container's platform list — consumers pulling `-about` for a specific platform get that platform's metadata.
 Reuses the buildx builder instance from the main image build.
 
-[[rbtga_ark_vouch]]
-//axl_voices axig_generic_artifact
-{rbtga_ark_vouch}::
-The verification artifact within an
-{rbtga_ark},
-tagged with the `-vouch` suffix.
-Contains post-build SLSA provenance assessment for each per-platform image, queried from Container Analysis after
-{gcb_service}
-generates provenance.
-Built locally by the
-{rbtr_director}
-after trigger-dispatched build completion.
-Single-platform (`FROM scratch`, linux/amd64) — content is platform-independent JSON describing per-platform SLSA facts.
-+
-**SLSA level determination**: The Container Analysis API does not expose an explicit `slsa_build_level` field.
-The vouch function infers the level from occurrence structure: presence of `inTotoSlsaProvenanceV1` (signed v1 provenance from Cloud Build's verified-builder keys) implies Level 3.
-This is weaker than cryptographic verification — the proper approach is `slsa-verifier verify-image` from the SLSA framework, which verifies provenance signatures against Google's public keys and confirms builder identity.
-Integration of `slsa-verifier` into the vouch path is deferred.
-+
-**Build ID cross-check**: Both conjure (`rbf_build`) and vouch (`rbf_vouch`) write the build invocation ID to `RBF_FACT_BUILD_ID` fact files — conjure writes the dispatched build ID from the trigger response, vouch writes the `buildInvocationId` extracted from Container Analysis provenance.
-The SLSA provenance test asserts these are equal, ensuring vouch examined provenance from the same build that conjure dispatched.
+**SLSA provenance on demand**: `rbf_check_consecrations` queries Container Analysis for each per-platform image, resolving digests and extracting SLSA build level and build invocation ID inline.
+The Container Analysis API does not expose an explicit `slsa_build_level` field; the level is inferred from occurrence structure: presence of `inTotoSlsaProvenanceV1` (signed v1 provenance from Cloud Build's verified-builder keys) implies Level 3.
+Integration of `slsa-verifier` for cryptographic verification is deferred.
 
 === Rubric Definitions
 

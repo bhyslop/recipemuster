@@ -77,12 +77,10 @@ The upgrade path is runtime-aware analysis, not removal.
 Build requests set `options.logging: CLOUD_LOGGING_ONLY`.
 Log hygiene (no credential echo) was audited during trigger migration script inlining.
 
-**-vouch verification artifact.**
-`rbf_vouch()` queries Container Analysis for each per-platform image in a consecration,
-extracts SLSA build level, build invocation ID, and predicate types,
-then assembles a `-vouch` metadata container with the verification report.
-Operator-initiated post-build verification — confirms what Container Analysis recorded.
-Tabtargets: `rbw-Dc` (list consecrations), `rbw-Rv` (vouch provenance).
+**Provenance on demand.**
+`rbf_check_consecrations()` lists all consecrations and queries Container Analysis inline for each per-platform image,
+displaying SLSA build level, build invocation ID, and single-origin verification per consecration.
+Tabtarget: `rbw-Dc`.
 
 ===== Pipeline Architecture: Single-Platform Vessels
 
@@ -137,9 +135,6 @@ The reassembled manifest list provides transparent platform resolution to attest
 
 |`{CONSECRATION}-about`
 |Metadata container (SBOM, build_info.json — multi-platform)
-
-|`{CONSECRATION}-vouch`
-|Verification artifact (SLSA report — pushed by `rbf_vouch`)
 |===
 
 Platform suffix derivation: `linux/amd64` → `amd64`, `linux/arm64` → `arm64`, `linux/arm/v7` → `armv7`.
@@ -281,7 +276,7 @@ Not actionable until vessel ecosystem matures.
 * RBSCJ: Cloud Build JSON trade study
 * RBSRI: Rubric Inscribe specification
 * RBSTB: Trigger Build specification
-* rbf_Foundry.sh: `zrbf_stitch_build_json()` — build stitching; `rbf_vouch()` — provenance verification
+* rbf_Foundry.sh: `zrbf_stitch_build_json()` — build stitching; `rbf_check_consecrations()` — provenance on demand
 * buv_validation.sh: `buv_val_odref()` — digest-pinned image reference validator
 * RBRV vessel regime: `RBRV_CONJURE_BINFMT_POLICY` — multi-arch emulation canary
 * Memos/memo-20260305-provenance-architecture-gap.md — provenance experiment evidence
