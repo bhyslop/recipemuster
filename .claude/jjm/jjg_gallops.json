@@ -5463,9 +5463,10 @@
         "₢AkAAd",
         "₢AkAAi",
         "₢AkAAk",
-        "₢AkAAl"
+        "₢AkAAl",
+        "₢AkAAn"
       ],
-      "next_pace_seed": "AAn",
+      "next_pace_seed": "AAo",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6177,6 +6178,17 @@
               "text": "## Problem\n\n₢AkAAj introduced TAG_BASE = `i<inscribe_ts>-b<build_ts>` so each build gets a unique tag even when the same inscription is used multiple times. But the CB `images:` field (which triggers SLSA provenance) must be declared at inscribe time in `cloudbuild.json`, and can only reference CB substitution variables known before the build runs. `_RBGY_INSCRIBE_TIMESTAMP` is known; the build timestamp is not.\n\nBefore ₢AkAAj, TAG_BASE was just the inscribe timestamp, so `images:` matched the per-platform tags. ₢AkAAj changed TAG_BASE but couldn't update `images:` (the build timestamp isn't knowable at inscribe time), so it removed `images:` entirely — breaking SLSA provenance. This was a latent regression: the committed `cloudbuild.json` files still had `images:` from a prior inscribe, so provenance kept working until ₢AkAAZ re-inscribed.\n\n## Regression chain\n\n- `8878f887` (₢AlAAS): `images:` present in stitch, provenance working\n- `c7c91636` (₢AkAAj): `images:` removed from stitch (TAG_BASE mismatch), latent regression\n- `2127c3ed` (₢AkAAZ): first re-inscribe, regression exposed — builds succeed but no provenance\n- `ecc06341` (₢AkAAZ): `images:` restored in stitch, but tag mismatch causes `PUSH_IMAGE_NOT_FOUND` build failure\n\n## User's desired design direction\n\nOne inscription should support multiple distinct builds, each producing images with unique tags. The build timestamp should be captured early in the CB step sequence, then used to rename/retag the per-platform images. Concurrent builds of the same vessel are not a concern.\n\nKey idea: the pullback step (rbgjb04) currently tags images as `TAG_BASE-image-<platform>`. It should ALSO tag them with the `images:`-declared tag (`_RBGY_INSCRIBE_TIMESTAMP + ARK_SUFFIX_IMAGE + platform_suffix`) so CB's native `images:` push can find them. The CB push creates the provenance-attested copies; the TAG_BASE-tagged copies in the registry (from step 05 push) carry the unique build identity.\n\nAlternatively: step 04 could tag with the `images:`-compatible name, step 05 pushes those (CB `images:` also pushes them with provenance), and a later step retags in the registry with the full TAG_BASE for consumer-facing uniqueness.\n\n## Current state\n\nThe `images:` field is currently restored in the stitch function but causes build failures. Before executing this pace, either:\n- Revert the `images:` restoration so builds work (without provenance), or\n- Leave it and accept that conjure will fail until this pace is completed\n\n## Files\n\n- `Tools/rbw/rbf_Foundry.sh` — stitch function `images:` generation\n- `Tools/rbw/rbgjb/rbgjb04-per-platform-pullback.sh` — docker tag commands\n- `Tools/rbw/rbgjb/rbgjb05-push-per-platform.sh` — docker push commands\n- Possibly `Tools/rbw/rbgjb/rbgjb01-derive-tag-base.sh` — TAG_BASE construction\n\n## Acceptance criteria\n\n- `images:` field present in `cloudbuild.json` with inscribe-time-predictable tags\n- Per-platform images in local daemon tagged to match `images:` entries\n- Builds succeed with `VERIFIED` and produce SLSA Level 3 provenance\n- Consumer-facing tags in the registry include the build timestamp for uniqueness\n- Multiple conjures from the same inscription produce distinct, independently-provenance-attested images",
               "silks": "fix-images-field-tag-base-mismatch",
               "commit": "79efc3f"
+            }
+          ]
+        },
+        "₢AkAAn": {
+          "tacks": [
+            {
+              "ts": "260308-0841",
+              "state": "rough",
+              "text": "## Problem\n\nThe build status poll loop in `zrbf_wait_build_completion` (rbf_Foundry.sh:475-504) dies on a single transient curl failure (`buc_die` at line 489). Observed in production: sentry build poll crashed at attempt 5 due to network blip during concurrent builds.\n\n## Fix\n\nTolerate N consecutive curl failures (e.g., 3) before dying. On a single failure, log a warning and continue to the next 5s poll cycle. Also validate the HTTP response body — a curl exit 0 with a 401/403 JSON error should be handled gracefully.\n\n## Files\n\n- `Tools/rbw/rbf_Foundry.sh` — `zrbf_wait_build_completion` function\n\n## Acceptance criteria\n\n- Single transient curl failure does not abort the poll loop\n- 3+ consecutive failures still abort (not a silent infinite loop)\n- 401/403 responses logged as warnings, not silently ignored",
+              "silks": "conjure-poll-retry-hardening",
+              "commit": "429383f"
             }
           ]
         }
