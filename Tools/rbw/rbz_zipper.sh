@@ -91,6 +91,8 @@ zrbz_kindle() {
   z_mod="rbrr_cli.sh"
   buz_enroll RBZ_RENDER_REPO      "rbw-rrr" "${z_mod}" "rbrr_render"
   buz_enroll RBZ_VALIDATE_REPO    "rbw-rrv" "${z_mod}" "rbrr_validate"
+  buz_enroll RBZ_RENDER_PINS      "rbw-rgr" "${z_mod}" "rbrr_render_pins"
+  buz_enroll RBZ_VALIDATE_PINS    "rbw-rgv" "${z_mod}" "rbrr_validate_pins"
 
   # Payor regime operations
   z_mod="rbrp_cli.sh"

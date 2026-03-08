@@ -95,6 +95,24 @@ rbrr_render() {
   buv_render RBRR "RBRR - Recipe Bottle Regime Repo"
 }
 
+# Command: validate_pins - enrollment-based validation report for RBRG pins
+rbrr_validate_pins() {
+  buc_doc_brief "Validate RBRG pin regime configuration via enrollment report"
+  buc_doc_shown || return 0
+
+  buc_step "Validating RBRG pin file: ${RBBC_rbrg_file}"
+  buv_report RBRG "GCB Pins Regime"
+  buc_step "RBRG pin regime valid"
+}
+
+# Command: render_pins - diagnostic display of all RBRG fields
+rbrr_render_pins() {
+  buc_doc_brief "Display diagnostic view of RBRG pin regime configuration"
+  buc_doc_shown || return 0
+
+  buv_render RBRG "RBRG - GCB Pins Regime"
+}
+
 # Command: refresh_gcb_pins - resolve image tags to digests and write complete RBRG file
 # BCG compliant: discovers all values, writes complete file from scratch, replaces atomically.
 # Every step must succeed or the function dies — no partial updates.
