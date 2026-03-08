@@ -6033,6 +6033,13 @@
             {
               "ts": "260308-1351",
               "state": "rough",
+              "text": "Remove the spurious method parameter from rbgu_poll_until_ok. The parameter was added based on a misunderstanding that Secret Manager getIamPolicy uses POST (it uses GET). All 8 callers pass \"GET\" — the parameter carries zero information. Hardcode GET inside the function, drop the parameter, update all call sites, update RBSCIP-IamPropagation.adoc lens.",
+              "silks": "remove-spurious-poll-method-parameter",
+              "commit": "24c5732"
+            },
+            {
+              "ts": "260308-1351",
+              "state": "rough",
               "text": "Drafted from ₢AlAAF in ₣Al.\n\nReconsider the rbgu_poll_until_ok method parameter factoring.\n\n## Context\n\nThe refactor in cf3406a6 changed rbgu_poll_get_until_ok (GET-only) to\nrbgu_poll_until_ok with a method parameter to support POST for Secret Manager\ngetIamPolicy. This turned out to be wrong — Secret Manager getIamPolicy uses\nGET, not POST (unlike CRM getIamPolicy which uses POST).\n\nThe method parameter made it easy to pass the wrong verb without any compile-time\nor structural safety. All existing callers use GET. The parameterization was\npremature — introduced for a use case that didn't exist.\n\n## Questions to resolve\n\n1. Should we revert to rbgu_poll_get_until_ok (GET-only)?\n2. Or keep the parameterization but document which GCP APIs use GET vs POST for\n   getIamPolicy? (CRM uses POST, Secret Manager uses GET, IAM uses POST)\n3. Consider whether rbgu_http_json callers should have a wrapper per GCP API\n   that encodes the correct method, rather than raw method strings at call sites.\n\n## Not in scope\n\n- Changing runtime behavior (the fix is already landed)\n- Refactoring rbgu_http_json itself",
               "silks": "remove-spurious-poll-method-parameter",
               "commit": "47852ca"
