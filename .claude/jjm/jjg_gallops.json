@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Aq",
+  "next_heat_seed": "Ar",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -22,7 +22,8 @@
     "₣Aa",
     "₣Ac",
     "₣Ak",
-    "₣Ap"
+    "₣Ap",
+    "₣Aq"
   ],
   "heats": {
     "₣AD": {
@@ -7389,6 +7390,15 @@
           ]
         }
       }
+    },
+    "₣Aq": {
+      "silks": "rbk-post-release-ideas",
+      "creation_time": "260307",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlq.md",
+      "paces": {}
     }
   }
 }
