@@ -97,7 +97,6 @@
 :rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
 :rbtgo_governor_reset:            <<rbtgo_governor_reset,rbgp_governor_reset>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbf_delete>>
-:rbtgo_image_list:                <<rbtgo_image_list,rbf_list>>
 :rbtgo_image_retrieve:            <<rbtgo_image_retrieve,Image Retrieval>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbgm_payor_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
@@ -957,17 +956,6 @@ All values baked in
 include::RBSTB-trigger_build.adoc[]
 
 NOTE: For multi-platform build authentication challenges and research findings, see link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
-
-[[rbtgo_image_list]]
-//axvo_method axd_transient axd_grouped
-=== {rbtgo_image_list}
-
-Lists
-{rbtgi_image}
-artifacts
-({rbtgog_image}).
-
-include::RBSIL-image_list.adoc[]
 
 [[rbtgo_image_delete]]
 //axvo_method axd_transient axd_grouped

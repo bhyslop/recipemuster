@@ -43,16 +43,15 @@ rbtcsl_provenance_tcase() {
   buto_tt_expect_ok "${RBZ_CONJURE_ARK}" "${z_vessel_dir}"
 
   # Read fact files from BURV output
-  local z_conjure_burv="${ZBUTO_BURV_OUTPUT}"
-  test -n "${z_conjure_burv}" || buto_fatal "ZBUTO_BURV_OUTPUT empty after conjure"
+  test -n "${ZBUTO_BURV_OUTPUT_DIR}" || buto_fatal "ZBUTO_BURV_OUTPUT_DIR empty after conjure"
 
   local z_image_ref
-  z_image_ref=$(<"${z_conjure_burv}/current/${RBF_FACT_IMAGE_REF}")
+  z_image_ref=$(<"${ZBUTO_BURV_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}")
   test -n "${z_image_ref}" || buto_fatal "Image ref fact file empty"
   buto_info "Image ref: ${z_image_ref}"
 
   local z_consecration
-  z_consecration=$(<"${z_conjure_burv}/current/rbf_consecration.txt")
+  z_consecration=$(<"${ZBUTO_BURV_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}")
   test -n "${z_consecration}" || buto_fatal "Consecration output empty"
   buto_info "Consecration: ${z_consecration}"
 

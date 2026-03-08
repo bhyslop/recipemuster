@@ -97,7 +97,6 @@ zrbf_kindle() {
 
   buc_log_args 'Define output files (BURD_OUTPUT_DIR — persists after dispatch)'
   readonly ZRBF_OUTPUT_VESSEL_DIR="${BURD_OUTPUT_DIR}/rbf_vessel_dir.txt"
-  readonly ZRBF_OUTPUT_CONSECRATION="${BURD_OUTPUT_DIR}/rbf_consecration.txt"
 
   buc_log_args 'For now lets double check these'
   test -n "${RBRG_ORAS_IMAGE_REF:-}"   || buc_die "RBRG_ORAS_IMAGE_REF not set"
@@ -671,7 +670,7 @@ rbf_build() {
   # Persist to output directory for test harness consumption
   echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  echo "${z_found_consecration}" > "${ZRBF_OUTPUT_CONSECRATION}" \
+  echo "${z_found_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
     || buc_die "Failed to write consecration to output"
 
   # Write primary image reference fact file
@@ -689,7 +688,7 @@ rbf_build() {
     || buc_die "Failed to write build ID fact file"
 
   buc_info "Output: ${ZRBF_OUTPUT_VESSEL_DIR}"
-  buc_info "Output: ${ZRBF_OUTPUT_CONSECRATION}"
+  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}"
 
@@ -763,84 +762,6 @@ rbf_delete() {
   fi
 
   buc_success "Deleted or nonexistent: ${z_locator}"
-}
-
-rbf_list() {
-  zrbf_sentinel
-
-  # Documentation block
-  buc_doc_brief "List all locators (moniker:tag) in the Artifact Registry repository"
-  buc_doc_shown || return 0
-
-  buc_step "Authenticating as Retriever"
-
-  # Prefer Retriever credentials, fallback to Director
-  local z_rbra_file=""
-  if test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" && test -f "${RBDC_RETRIEVER_RBRA_FILE}"; then
-    z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE}"
-    buc_info "Using Retriever credentials"
-  else
-    z_rbra_file="${RBDC_DIRECTOR_RBRA_FILE}"
-    buc_info "Retriever not configured, using Director credentials"
-  fi
-
-  # Get OAuth token
-  local z_token
-  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token"
-
-  buc_step "Listing all images in repository"
-
-  local z_packages_file="${BURD_TEMP_DIR}/rbf_list_packages.json"
-  local z_gar_api="https://artifactregistry.googleapis.com/v1"
-  local z_repo_path="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
-
-  curl -sL \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    "${z_gar_api}/${z_repo_path}/packages" \
-    > "${z_packages_file}" || buc_die "Failed to fetch packages"
-
-  # Check for error response
-  if jq -e '.error' "${z_packages_file}" >/dev/null 2>&1; then
-    local z_error
-    z_error=$(jq -r '.error.message // "Unknown error"' "${z_packages_file}")
-    buc_die "API error: ${z_error}"
-  fi
-
-  # Extract package monikers
-  local z_packages_list="${BURD_TEMP_DIR}/rbf_list_packages.txt"
-  jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
-    echo "${pkg##*/}"
-  done | sort > "${z_packages_list}"
-
-  echo "Repository: ${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}"
-
-  # For each moniker, fetch tags and emit locators
-  while IFS= read -r z_moniker; do
-    local z_tags_file="${BURD_TEMP_DIR}/rbf_list_tags_${z_moniker}.json"
-    curl -sL \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-      -H "Authorization: Bearer ${z_token}" \
-      "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/tags/list" \
-      > "${z_tags_file}" 2>/dev/null || continue
-
-    # Skip if error response
-    if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
-      continue
-    fi
-
-    # Emit locators: moniker:tag
-    jq -r '.tags[]? // empty' "${z_tags_file}" | sort | while read -r z_tag; do
-      echo "${z_moniker}:${z_tag}"
-    done
-  done < "${z_packages_list}"
-
-  # Advisory quota check -- warn if insufficient but do not block listing
-  zrbf_quota_preflight "${z_token}" "advisory"
-
-  buc_success "List complete"
 }
 
 rbf_beseech() {
@@ -965,7 +886,7 @@ rbf_retrieve() {
 
   # Documentation block
   buc_doc_brief "Pull an image from the registry to local container runtime by locator"
-  buc_doc_param "locator" "Image locator in moniker:tag format (from rbf_list output)"
+  buc_doc_param "locator" "Image locator in moniker:tag format"
   buc_doc_shown || return 0
 
   # Validate locator parameter
@@ -1873,6 +1794,10 @@ rbf_check_consecrations() {
   # Deduplicate and sort consecrations (newest first)
   local -r z_unique_consec_file="${BURD_TEMP_DIR}/rbf_dc_unique_consec.txt"
   sort -ur "${z_consecrations_file}" > "${z_unique_consec_file}"
+
+  # Write fact file (even if empty — tests count lines)
+  cp "${z_unique_consec_file}" "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATIONS}" \
+    || buc_die "Failed to write consecrations fact file"
 
   if ! test -s "${z_unique_consec_file}"; then
     buc_info "No consecrations found for ${RBRV_SIGIL}"

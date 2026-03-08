@@ -119,7 +119,8 @@ zbuto_next_invoke_capture() {
 #   ZBUTO_STDOUT       - command stdout
 #   ZBUTO_STDERR       - command stderr
 #   ZBUTO_STATUS       - command exit code
-#   ZBUTO_BURV_OUTPUT  - BURV output directory (empty if BURV not enabled)
+#   ZBUTO_BURV_OUTPUT      - BURV output root (empty if BURV not enabled)
+#   ZBUTO_BURV_OUTPUT_DIR  - BURV output dir matching BURD_OUTPUT_DIR (empty if BURV not enabled)
 # BURV bridge: If BUTE_BURV_ROOT is set, creates per-invocation BURV isolation
 
 zbuto_invoke() {
@@ -167,6 +168,7 @@ zbuto_invoke() {
   rm -f "${z_tmp_stdout}" "${z_tmp_stderr}"
 
   ZBUTO_BURV_OUTPUT="${z_burv_output}"
+  ZBUTO_BURV_OUTPUT_DIR="${z_burv_output:+${z_burv_output}/current}"
 }
 
 ######################################################################

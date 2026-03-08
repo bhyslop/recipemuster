@@ -128,6 +128,8 @@ zrbgc_kindle() {
   readonly RBF_FACT_IMAGE_REF="rbf_fact_image_ref.txt"
   readonly RBF_FACT_SLSA_LEVEL="rbf_fact_slsa_level.txt"
   readonly RBF_FACT_BUILD_ID="rbf_fact_build_id.txt"
+  readonly RBF_FACT_CONSECRATION="rbf_fact_consecration.txt"
+  readonly RBF_FACT_CONSECRATIONS="rbf_fact_consecrations.txt"
 
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"
