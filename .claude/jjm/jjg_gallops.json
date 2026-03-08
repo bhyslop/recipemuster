@@ -7682,6 +7682,13 @@
             {
               "ts": "260308-1344",
               "state": "rough",
+              "text": "HEAVY RESLATE NEEDED before mounting. The original docket (rename BCG document identity, BCS vs BMP decision) was drafted in the context of rbk-mvp-finalization. By the time jjk-v4-2 work begins, the BUK kit structure, naming conventions, and veiled-document patterns may have evolved significantly. Re-examine the renaming question from scratch in the v4.2 context — the right answer may be different, or the pace may no longer be needed at all.",
+              "silks": "rename-bcg-document-identity",
+              "commit": "d6cf88d"
+            },
+            {
+              "ts": "260308-1344",
+              "state": "rough",
               "text": "Drafted from ₢AkAAN in ₣Ak.\n\nRename BCG (Bash Console Guide) to better reflect its prescriptive, specification-like nature. The document is not a casual guide — it's a mandatory compliance specification for bash module architecture, with templates, anti-patterns, maturity checklists, and decision matrices.\n\nCandidates:\n- BCS: Bash Compliance Specification — emphasizes mandatory compliance nature\n- BMP: Bash Module Patterns — scopes to module architecture focus\n\nRename touches:\n- File: Tools/buk/vov_veiled/BCG-BashConsoleGuide.md → new name\n- CLAUDE.md acronym mapping (BCG entry)\n- Any references across codebase (grep for BCG-BashConsoleGuide, \"Bash Console Guide\")\n- BUS0 spec if it references BCG by name\n- Prefix mint implications: BCS uses bu-prefix space (bus_ would conflict with BUS0); BMP uses bm_ (new prefix outside bu tree)\n\nDecision on BCS vs BMP is pending — user to choose before execution.",
               "silks": "rename-bcg-document-identity",
               "commit": "bb6047d"
