@@ -87,7 +87,7 @@ rbtb_load_nameplate() {
 
   rbtb_show "Loading nameplate: ${z_moniker}"
 
-  local -r z_nameplate_file="${RBCC_KIT_DIR}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
+  local -r z_nameplate_file="${RBBC_dot_dir}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
   test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
   zrbrn_kindle
