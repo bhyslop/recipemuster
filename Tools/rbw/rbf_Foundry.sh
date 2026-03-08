@@ -684,7 +684,7 @@ rbf_build() {
   echo "${z_primary_image_ref}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}" \
     || buc_die "Failed to write image ref fact file"
 
-  # Write build ID fact file (dispatched build ID for cross-check with check provenance)
+  # Write build ID fact file (dispatched build ID for cross-check with vouch provenance)
   echo "${z_build_id}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}" \
     || buc_die "Failed to write build ID fact file"
 
@@ -1634,6 +1634,31 @@ rbf_abjure() {
     buc_die "Unexpected HTTP status ${z_about_http_code} when checking -about artifact"
   fi
 
+  # Check if -vouch artifact exists (optional — older arks won't have one)
+  local z_vouch_status_file="${ZRBF_DELETE_PREFIX}vouch_status.txt"
+  local z_vouch_response_file="${ZRBF_DELETE_PREFIX}vouch_response.json"
+
+  curl --head -s                                     \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
+    -H "Authorization: Bearer ${z_token}"           \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -w "%{http_code}"                               \
+    -o "${z_vouch_response_file}"                   \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
+    > "${z_vouch_status_file}" || buc_die "HEAD request failed for -vouch artifact"
+
+  local z_vouch_http_code
+  z_vouch_http_code=$(<"${z_vouch_status_file}")
+  test -n "${z_vouch_http_code}" || buc_die "HTTP status code is empty for -vouch"
+
+  local z_vouch_exists=false
+  if test "${z_vouch_http_code}" = "200"; then
+    z_vouch_exists=true
+  elif test "${z_vouch_http_code}" != "404"; then
+    buc_die "Unexpected HTTP status ${z_vouch_http_code} when checking -vouch artifact"
+  fi
+
   # Evaluate ark state
   if test "${#z_existing_image_tags[@]}" -eq 0 && test "${z_about_exists}" = "false"; then
     buc_die "Ark not found: no image tags and no -about exists for ${RBRV_SIGIL}/${z_consecration}"
@@ -1653,6 +1678,9 @@ rbf_abjure() {
     done
     if test "${z_about_exists}" = "true"; then
       z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_about_tag}"
+    fi
+    if test "${z_vouch_exists}" = "true"; then
+      z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_vouch_tag}"
     fi
     buc_require "${z_confirm_msg}" "yes"
   fi
@@ -1715,6 +1743,34 @@ rbf_abjure() {
     buc_info "Deleted: ${RBRV_SIGIL}:${z_about_tag}"
   fi
 
+  # Delete -vouch artifact if exists (optional — older arks won't have one)
+  if test "${z_vouch_exists}" = "true"; then
+    buc_step "Deleting -vouch artifact"
+
+    local z_delete_vouch_status="${ZRBF_DELETE_PREFIX}delete_vouch_status.txt"
+    local z_delete_vouch_response="${ZRBF_DELETE_PREFIX}delete_vouch_response.json"
+
+    curl -X DELETE -s                                   \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
+      -H "Authorization: Bearer ${z_token}"             \
+      -w "%{http_code}"                                 \
+      -o "${z_delete_vouch_response}"                   \
+      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
+      > "${z_delete_vouch_status}" || buc_die "DELETE request failed for -vouch"
+
+    local z_delete_vouch_code
+    z_delete_vouch_code=$(<"${z_delete_vouch_status}")
+    test -n "${z_delete_vouch_code}" || buc_die "HTTP status code is empty for -vouch delete"
+
+    if test "${z_delete_vouch_code}" != "202" && test "${z_delete_vouch_code}" != "204"; then
+      buc_warn "Response body: $(cat "${z_delete_vouch_response}" 2>/dev/null || echo 'empty')"
+      buc_die "Failed to delete -vouch artifact (HTTP ${z_delete_vouch_code})"
+    fi
+
+    buc_info "Deleted: ${RBRV_SIGIL}:${z_vouch_tag}"
+  fi
+
   # Display results
   echo ""
   buc_success "Ark abjured: ${RBRV_SIGIL}/${z_consecration}"
@@ -1723,6 +1779,9 @@ rbf_abjure() {
   done
   if test "${z_about_exists}" = "true"; then
     echo "  - ${RBRV_SIGIL}:${z_about_tag} deleted"
+  fi
+  if test "${z_vouch_exists}" = "true"; then
+    echo "  - ${RBRV_SIGIL}:${z_vouch_tag} deleted"
   fi
 }
 
@@ -1793,7 +1852,7 @@ rbf_check_consecrations() {
       continue
     fi
 
-    # Classify the tag
+    # Classify the tag — vouch checked before about since -vouch could false-match -about pattern
     if [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}" ]] || [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}"-* ]]; then
       local z_suffix="${z_tag#*${RBGC_ARK_SUFFIX_IMAGE}}"
       if test -z "${z_suffix}"; then
@@ -1801,6 +1860,9 @@ rbf_check_consecrations() {
       else
         echo "${z_consec}|image|${z_suffix#-}" >> "${z_tag_data_file}"
       fi
+      echo "${z_consec}" >> "${z_consecrations_file}"
+    elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_VOUCH}" ]]; then
+      echo "${z_consec}|vouch|" >> "${z_tag_data_file}"
       echo "${z_consec}" >> "${z_consecrations_file}"
     elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_ABOUT}" ]]; then
       echo "${z_consec}|about|" >> "${z_tag_data_file}"
@@ -1819,12 +1881,13 @@ rbf_check_consecrations() {
 
   # Display each consecration with its artifacts
   printf "\nVessel: %s\n" "${RBRV_SIGIL}"
-  printf "  %-42s %-30s %s\n" "Consecration" "Platforms" "About"
+  printf "  %-42s %-30s %-6s %s\n" "Consecration" "Platforms" "About" "Vouch"
 
   while IFS= read -r z_consecration || test -n "${z_consecration}"; do
-    # Collect platform-suffixed image tags and about status for this consecration
+    # Collect platform-suffixed image tags, about, and vouch status for this consecration
     local z_consec_platforms=""
     local z_has_about="no"
+    local z_has_vouch="no"
     local z_image_count=0
     while IFS='|' read -r z_c z_type z_detail; do
       test "${z_c}" = "${z_consecration}" || continue
@@ -1837,16 +1900,336 @@ rbf_check_consecrations() {
         z_image_count=$((z_image_count + 1))
       elif test "${z_type}" = "about"; then
         z_has_about="yes"
+      elif test "${z_type}" = "vouch"; then
+        z_has_vouch="yes"
       fi
     done < "${z_tag_data_file}"
 
     local z_plat_display="${z_consec_platforms:-single}"
 
-    printf "  %-42s %-30s %s\n" "${z_consecration}" "${z_plat_display}" "${z_has_about}"
+    printf "  %-42s %-30s %-6s %s\n" "${z_consecration}" "${z_plat_display}" "${z_has_about}" "${z_has_vouch}"
   done < "${z_unique_consec_file}"
 
   echo ""
   buc_success "Consecration check complete"
+}
+
+######################################################################
+# Vouch (rbw-Rv)
+
+rbf_vouch() {
+  zrbf_sentinel
+
+  local -r z_vessel_dir="${1:-}"
+
+  buc_doc_brief "Vouch for a vessel consecration via SLSA verification in Cloud Build"
+  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
+  buc_doc_shown || return 0
+
+  # No-arg: list available vessels
+  if test -z "${z_vessel_dir}"; then
+    local z_sigils
+    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+    buc_step "Available vessels:"
+    local z_sigil=""
+    for z_sigil in ${z_sigils}; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    done
+    buc_die "Vessel directory required"
+  fi
+
+  # Load vessel
+  zrbf_load_vessel "${z_vessel_dir}"
+
+  local -r z_consecration="${2:-}"
+  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+
+  buc_info "Vouching consecration: ${z_consecration}"
+
+  # Auth as Director
+  buc_step "Authenticating as Director"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+
+  # Verify -about exists (vouch depends on about)
+  buc_step "Verifying -about artifact exists (prerequisite)"
+  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_vouch_about_status="${BURD_TEMP_DIR}/rbf_vouch_about_status.txt"
+  local -r z_vouch_about_resp="${BURD_TEMP_DIR}/rbf_vouch_about_response.json"
+
+  curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -w "%{http_code}" \
+    -o "${z_vouch_about_resp}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
+    > "${z_vouch_about_status}" || buc_die "HEAD request failed for -about artifact"
+
+  local z_about_code=""
+  z_about_code=$(<"${z_vouch_about_status}")
+  test -n "${z_about_code}" || buc_die "HTTP status code is empty for -about check"
+  test "${z_about_code}" = "200" \
+    || buc_die "About artifact not found (HTTP ${z_about_code}): ${RBRV_SIGIL}:${z_about_tag} — conjure must complete before vouch"
+
+  # Check if -vouch already exists (for idempotent re-vouch)
+  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  local -r z_vouch_exist_status="${BURD_TEMP_DIR}/rbf_vouch_exist_status.txt"
+  local -r z_vouch_exist_resp="${BURD_TEMP_DIR}/rbf_vouch_exist_response.json"
+
+  curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -w "%{http_code}" \
+    -o "${z_vouch_exist_resp}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
+    > "${z_vouch_exist_status}" || buc_die "HEAD request failed for -vouch artifact"
+
+  local z_exist_vouch_code=""
+  z_exist_vouch_code=$(<"${z_vouch_exist_status}")
+  test -n "${z_exist_vouch_code}" || buc_die "HTTP status code is empty for -vouch check"
+  if test "${z_exist_vouch_code}" = "200"; then
+    buc_warn "Vouch artifact already exists — re-vouching (will verify idempotency)"
+  fi
+
+  # Compute platform suffixes from vessel config
+  local z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
+  local z_platform_suffixes=""
+  local z_remaining_plats="${z_platforms}"
+  local z_plat=""
+  local z_suffix=""
+  while test -n "${z_remaining_plats}"; do
+    z_plat="${z_remaining_plats%%,*}"
+    z_suffix="${z_plat#linux/}"
+    z_suffix="${z_suffix//\//}"
+    z_suffix="-${z_suffix}"
+    if test -n "${z_platform_suffixes}"; then
+      z_platform_suffixes="${z_platform_suffixes},${z_suffix}"
+    else
+      z_platform_suffixes="${z_suffix}"
+    fi
+    test "${z_remaining_plats}" = "${z_plat}" && break
+    z_remaining_plats="${z_remaining_plats#*,}"
+  done
+  buc_info "Platform suffixes: ${z_platform_suffixes}"
+
+  # Construct vouch Cloud Build job
+  # Three steps: download-verifier (Alpine), verify-provenance (gcloud), push-vouch (Docker)
+  # Steps are written to temp files, escaped for GCB substitution, then stitched into Build JSON.
+  buc_step "Constructing vouch Cloud Build job"
+
+  local -r z_vp="${BURD_TEMP_DIR}/rbf_vouch_"
+
+  # Step 1: Download and verify slsa-verifier binary
+  local -r z_step1_file="${z_vp}step1.sh"
+  local -r z_step1_escaped="${z_vp}step1_escaped.sh"
+  cat > "${z_step1_file}" <<'VOUCHSTEP1'
+set -euo pipefail
+echo "=== Downloading slsa-verifier ==="
+wget -q "${_RBGV_SLSA_VERIFIER_URL}" -O /workspace/slsa-verifier
+COMPUTED=$(sha256sum /workspace/slsa-verifier | cut -d' ' -f1)
+echo "Expected: ${_RBGV_SLSA_VERIFIER_SHA256}"
+echo "Computed: ${COMPUTED}"
+test "${COMPUTED}" = "${_RBGV_SLSA_VERIFIER_SHA256}" || { echo "CHECKSUM MISMATCH"; exit 1; }
+chmod +x /workspace/slsa-verifier
+/workspace/slsa-verifier version || true
+echo "slsa-verifier ready"
+VOUCHSTEP1
+
+  # Step 2: Configure auth and run slsa-verifier verify-image for each platform
+  local -r z_step2_file="${z_vp}step2.sh"
+  local -r z_step2_escaped="${z_vp}step2_escaped.sh"
+  cat > "${z_step2_file}" <<'VOUCHSTEP2'
+set -euo pipefail
+GAR_HOST="${_RBGV_GAR_LOCATION}${_RBGV_GAR_HOST_SUFFIX}"
+REGISTRY="${GAR_HOST}/${_RBGV_GAR_PROJECT}/${_RBGV_GAR_REPOSITORY}"
+
+echo "=== Configuring registry auth ==="
+export DOCKER_CONFIG=/workspace/.docker
+mkdir -p "${DOCKER_CONFIG}"
+gcloud auth configure-docker "${GAR_HOST}" --quiet
+
+echo "=== Verifying SLSA provenance per platform ==="
+RESULT_DIR="/workspace/vouch_results"
+mkdir -p "${RESULT_DIR}"
+
+IFS=',' read -ra SUFFIXES <<< "${_RBGV_PLATFORM_SUFFIXES}"
+for SUFFIX in "${SUFFIXES[@]}"; do
+  TAG="${_RBGV_CONSECRATION}${_RBGV_ARK_SUFFIX_IMAGE}${SUFFIX}"
+  URI="${REGISTRY}/${_RBGV_MONIKER}:${TAG}"
+  echo "--- Verifying: ${URI} ---"
+  RESULT_FILE="${RESULT_DIR}/verify${SUFFIX}.json"
+  /workspace/slsa-verifier verify-image "${URI}" \
+    --source-uri "${_RBGV_SOURCE_URI}" \
+    --print-provenance \
+    > "${RESULT_FILE}" 2>&1
+  echo "Passed: ${SUFFIX}"
+done
+
+echo "=== Assembling vouch summary ==="
+{
+  echo "{"
+  echo "  \"consecration\": \"${_RBGV_CONSECRATION}\","
+  echo "  \"vessel\": \"${_RBGV_MONIKER}\","
+  echo "  \"verifier\": {"
+  echo "    \"url\": \"${_RBGV_SLSA_VERIFIER_URL}\","
+  echo "    \"sha256\": \"${_RBGV_SLSA_VERIFIER_SHA256}\""
+  echo "  },"
+  echo "  \"platforms\": ["
+  FIRST=true
+  for SUFFIX in "${SUFFIXES[@]}"; do
+    if test "${FIRST}" != "true"; then printf ",\n"; fi
+    FIRST=false
+    printf "    {\"suffix\": \"%s\", \"verified\": true}" "${SUFFIX}"
+  done
+  echo ""
+  echo "  ]"
+  echo "}"
+} > "${RESULT_DIR}/vouch_summary.json"
+
+echo "All platform verifications passed"
+VOUCHSTEP2
+
+  # Step 3: Build scratch container with vouch data and push as -vouch tag
+  local -r z_step3_file="${z_vp}step3.sh"
+  local -r z_step3_escaped="${z_vp}step3_escaped.sh"
+  cat > "${z_step3_file}" <<'VOUCHSTEP3'
+set -euo pipefail
+GAR_HOST="${_RBGV_GAR_LOCATION}${_RBGV_GAR_HOST_SUFFIX}"
+REGISTRY="${GAR_HOST}/${_RBGV_GAR_PROJECT}/${_RBGV_GAR_REPOSITORY}"
+VOUCH_TAG="${REGISTRY}/${_RBGV_MONIKER}:${_RBGV_CONSECRATION}${_RBGV_ARK_SUFFIX_VOUCH}"
+
+cd /workspace/vouch_results
+
+echo "=== Building vouch container ==="
+{
+  echo "FROM scratch"
+  echo "LABEL org.opencontainers.image.title=\"rbia-vouch\""
+  echo "COPY vouch_summary.json /vouch_summary.json"
+} > Dockerfile.vouch
+
+for f in verify-*.json; do
+  test -f "${f}" || continue
+  echo "COPY ${f} /${f}" >> Dockerfile.vouch
+done
+
+docker build -t "${VOUCH_TAG}" -f Dockerfile.vouch .
+
+echo "=== Pushing vouch container ==="
+docker push "${VOUCH_TAG}"
+
+echo "Vouch pushed: ${VOUCH_TAG}"
+VOUCHSTEP3
+
+  # Escape step scripts for GCB: $$ for literal $, preserve _RBGV_ substitutions
+  buc_log_args "Escaping step scripts for GCB substitution"
+  sed 's/\$/\$\$/g; s/\$\${_RBGV_/${_RBGV_/g' < "${z_step1_file}" > "${z_step1_escaped}" \
+    || buc_die "Failed to escape step 1"
+  sed 's/\$/\$\$/g; s/\$\${_RBGV_/${_RBGV_/g' < "${z_step2_file}" > "${z_step2_escaped}" \
+    || buc_die "Failed to escape step 2"
+  sed 's/\$/\$\$/g; s/\$\${_RBGV_/${_RBGV_/g' < "${z_step3_file}" > "${z_step3_escaped}" \
+    || buc_die "Failed to escape step 3"
+
+  # Assemble Build resource JSON
+  buc_log_args "Assembling Build resource JSON"
+  local -r z_build_file="${z_vp}build.json"
+  local -r z_source_uri="${RBRR_RUBRIC_REPO_URL:-}"
+  test -n "${z_source_uri}" || buc_die "RBRR_RUBRIC_REPO_URL not set — required for SLSA source verification"
+
+  jq -n \
+    --rawfile zjq_step1 "${z_step1_escaped}" \
+    --rawfile zjq_step2 "${z_step2_escaped}" \
+    --rawfile zjq_step3 "${z_step3_escaped}" \
+    --arg zjq_alpine   "${RBRG_ALPINE_IMAGE_REF}" \
+    --arg zjq_gcloud   "${RBRG_GCLOUD_IMAGE_REF}" \
+    --arg zjq_docker   "${RBRG_DOCKER_IMAGE_REF}" \
+    --arg zjq_moniker  "${RBRV_SIGIL}" \
+    --arg zjq_consec   "${z_consecration}" \
+    --arg zjq_gar_loc  "${RBGD_GAR_LOCATION}" \
+    --arg zjq_gar_proj "${RBGD_GAR_PROJECT_ID}" \
+    --arg zjq_gar_repo "${RBRR_GAR_REPOSITORY}" \
+    --arg zjq_gar_host "${RBGC_GAR_HOST_SUFFIX}" \
+    --arg zjq_plat_sfx "${z_platform_suffixes}" \
+    --arg zjq_ver_url  "${RBRG_SLSA_VERIFIER_URL}" \
+    --arg zjq_ver_sha  "${RBRG_SLSA_VERIFIER_SHA256}" \
+    --arg zjq_sfx_vouch "${RBGC_ARK_SUFFIX_VOUCH}" \
+    --arg zjq_sfx_about "${RBGC_ARK_SUFFIX_ABOUT}" \
+    --arg zjq_sfx_image "${RBGC_ARK_SUFFIX_IMAGE}" \
+    --arg zjq_src_uri   "${z_source_uri}" \
+    --arg zjq_pool      "${RBRR_GCB_WORKER_POOL}" \
+    --arg zjq_timeout   "${RBRR_GCB_TIMEOUT}" \
+    '{
+      steps: [
+        {
+          name: $zjq_alpine,
+          id: "download-verifier",
+          entrypoint: "/bin/sh",
+          args: ["-c", $zjq_step1]
+        },
+        {
+          name: $zjq_gcloud,
+          id: "verify-provenance",
+          entrypoint: "/bin/bash",
+          args: ["-lc", $zjq_step2]
+        },
+        {
+          name: $zjq_docker,
+          id: "push-vouch",
+          entrypoint: "/bin/bash",
+          args: ["-lc", $zjq_step3]
+        }
+      ],
+      substitutions: {
+        _RBGV_MONIKER:              $zjq_moniker,
+        _RBGV_CONSECRATION:         $zjq_consec,
+        _RBGV_GAR_LOCATION:         $zjq_gar_loc,
+        _RBGV_GAR_PROJECT:          $zjq_gar_proj,
+        _RBGV_GAR_REPOSITORY:       $zjq_gar_repo,
+        _RBGV_GAR_HOST_SUFFIX:      $zjq_gar_host,
+        _RBGV_PLATFORM_SUFFIXES:    $zjq_plat_sfx,
+        _RBGV_SLSA_VERIFIER_URL:    $zjq_ver_url,
+        _RBGV_SLSA_VERIFIER_SHA256: $zjq_ver_sha,
+        _RBGV_ARK_SUFFIX_VOUCH:     $zjq_sfx_vouch,
+        _RBGV_ARK_SUFFIX_ABOUT:     $zjq_sfx_about,
+        _RBGV_ARK_SUFFIX_IMAGE:     $zjq_sfx_image,
+        _RBGV_SOURCE_URI:           $zjq_src_uri
+      },
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $zjq_pool }
+      },
+      timeout: $zjq_timeout
+    }' > "${z_build_file}" \
+    || buc_die "Failed to compose vouch Build JSON"
+
+  # Submit vouch build via RunBuild API (direct build, not trigger dispatch)
+  buc_step "Submitting vouch build to Cloud Build"
+  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" "vouch_build_submit" "${z_build_file}"
+  rbgu_http_require_ok "Vouch build submission" "vouch_build_submit"
+
+  # Extract build ID from Operation response
+  local z_build_id=""
+  z_build_id=$(rbgu_json_field_capture "vouch_build_submit" '.metadata.build.id') || z_build_id=""
+  test -n "${z_build_id}" || buc_die "Build ID not found in vouch build response"
+  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist vouch build ID"
+
+  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  buc_info "Vouch build dispatched: ${z_build_id}"
+  buc_link "Click to " "Open vouch build in Cloud Console" "${z_console_url}"
+
+  # Wait for completion (reuses existing build wait infrastructure)
+  zrbf_wait_build_completion
+
+  # Write fact files for test harness consumption
+  echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/rbf_vouch_consecration.txt" \
+    || buc_die "Failed to write vouch consecration fact file"
+
+  buc_success "Vouch complete: ${RBRV_SIGIL}/${z_consecration}"
+  buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"
 }
 
 # eof
