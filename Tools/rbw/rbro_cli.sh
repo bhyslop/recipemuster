@@ -43,15 +43,11 @@ rbro_render() {
   buc_doc_brief "Display diagnostic view of RBRO OAuth regime configuration"
   buc_doc_shown || return 0
 
-  local z_real_secret="${RBRO_CLIENT_SECRET}"
-  local z_real_token="${RBRO_REFRESH_TOKEN}"
-  RBRO_CLIENT_SECRET="[REDACTED - ${#z_real_secret} chars]"
-  RBRO_REFRESH_TOKEN="[REDACTED - ${#z_real_token} chars]"
-
-  buv_render RBRO "RBRO - Recipe Bottle OAuth Regime"
-
-  RBRO_CLIENT_SECRET="${z_real_secret}"
-  RBRO_REFRESH_TOKEN="${z_real_token}"
+  echo ""
+  echo "${ZBUC_WHITE}RBRO - Recipe Bottle OAuth Regime${ZBUC_RESET}"
+  echo ""
+  buc_step "  RBRO_CLIENT_SECRET=[REDACTED - ${#RBRO_CLIENT_SECRET} chars] [string]"
+  buc_step "  RBRO_REFRESH_TOKEN=[REDACTED - ${#RBRO_REFRESH_TOKEN} chars] [string]"
 }
 
 ######################################################################
