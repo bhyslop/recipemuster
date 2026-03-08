@@ -280,7 +280,8 @@
 :rbrr_gcb_worker_pool:       <<rbrr_gcb_worker_pool,RBRR_GCB_WORKER_POOL>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
 :rbrg_oras_image_ref:    <<rbrg_oras_image_ref,RBRG_ORAS_IMAGE_REF>>
-:rbrg_slsa_verifier_image_ref: <<rbrg_slsa_verifier_image_ref,RBRG_SLSA_VERIFIER_IMAGE_REF>>
+:rbrg_slsa_verifier_url:    <<rbrg_slsa_verifier_url,RBRG_SLSA_VERIFIER_URL>>
+:rbrg_slsa_verifier_sha256: <<rbrg_slsa_verifier_sha256,RBRG_SLSA_VERIFIER_SHA256>>
 :rbrg_gcloud_image_ref:  <<rbrg_gcloud_image_ref,RBRG_GCLOUD_IMAGE_REF>>
 :rbrg_docker_image_ref:  <<rbrg_docker_image_ref,RBRG_DOCKER_IMAGE_REF>>
 :rbrg_alpine_image_ref:  <<rbrg_alpine_image_ref,RBRG_ALPINE_IMAGE_REF>>
@@ -2277,10 +2278,15 @@ Maximum duration for Cloud Build operations.
 {rbrg_oras_image_ref}::
 Fully-qualified image reference for ORAS Cloud Build step.
 
-[[rbrg_slsa_verifier_image_ref]]
-//axvr_variable axd_required rbst_image_ref
-{rbrg_slsa_verifier_image_ref}::
-Fully-qualified image reference for slsa-verifier Cloud Build step.
+[[rbrg_slsa_verifier_url]]
+//axvr_variable axd_required rbst_binary_pin
+{rbrg_slsa_verifier_url}::
+GitHub Releases download URL for slsa-verifier linux-amd64 binary.
+
+[[rbrg_slsa_verifier_sha256]]
+//axvr_variable axd_required rbst_binary_pin
+{rbrg_slsa_verifier_sha256}::
+SHA256 checksum of slsa-verifier binary, verified against SLSA provenance attestation.
 
 [[rbrg_gcloud_image_ref]]
 //axvr_variable axd_required rbst_image_ref

@@ -34,13 +34,17 @@ zrbrg_kindle() {
 
   buv_group_enroll "GCB Image Pins"
   buv_odref_enroll   RBRG_ORAS_IMAGE_REF                 "oras image reference (digest-pinned)"
-  buv_odref_enroll   RBRG_SLSA_VERIFIER_IMAGE_REF        "slsa-verifier image reference (digest-pinned)"
   buv_odref_enroll   RBRG_GCLOUD_IMAGE_REF               "gcloud image reference (digest-pinned)"
   buv_odref_enroll   RBRG_DOCKER_IMAGE_REF               "docker image reference (digest-pinned)"
   buv_odref_enroll   RBRG_ALPINE_IMAGE_REF               "alpine image reference (digest-pinned)"
   buv_odref_enroll   RBRG_SYFT_IMAGE_REF                 "syft image reference (digest-pinned)"
   buv_odref_enroll   RBRG_BINFMT_IMAGE_REF               "binfmt image reference (digest-pinned)"
   buv_odref_enroll   RBRG_SKOPEO_IMAGE_REF               "skopeo image reference (digest-pinned)"
+
+  buv_group_enroll "GCB Binary Pins"
+  buv_string_enroll  RBRG_SLSA_VERIFIER_URL       1  512  "slsa-verifier binary download URL"
+  buv_string_enroll  RBRG_SLSA_VERIFIER_SHA256   64   64  "slsa-verifier binary SHA256 checksum"
+
   buv_decimal_enroll RBRG_PINS_REFRESHED_AT  0  9999999999  "Epoch seconds of last successful pin refresh (0=never)"
 
   # Guard against unexpected RBRG_ variables not in enrollment

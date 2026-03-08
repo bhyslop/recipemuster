@@ -1,13 +1,13 @@
 //axhrb_regime
 {rbrg_regime}
 
-This regime specifies digest-pinned container image references used as builders in
+This regime specifies pinned tool references used as builders in
 {gcb_service}
 build steps.
 Each
 {rbrg_regime}
-instance represents the current set of tool image pins, auto-refreshed by `rbrr_refresh_gcb_pins`.
-RBRG assignment files are found at `.rbk/rbrg.env` and are generated from scratch by the refresh command (BCG compliant full-file rewrite).
+instance represents the current set of tool pins, managed by two refresh commands: `rbrr_refresh_gcb_pins` for container image pins and `rbrr_refresh_binary_pins` for binary tool pins.
+RBRG assignment files are found at `.rbk/rbrg.env` and are generated from scratch by either refresh command (BCG compliant full-file rewrite).
 
 //axhrv_variable
 {rbrg_oras_image_ref}
@@ -16,10 +16,17 @@ Fully-qualified image reference for ORAS tool used in Cloud Build steps.
 ORAS handles OCI artifact operations beyond container images.
 
 //axhrv_variable
-{rbrg_slsa_verifier_image_ref}
+{rbrg_slsa_verifier_url}
 
-Fully-qualified image reference for slsa-verifier tool used in Cloud Build steps.
-Verifies SLSA provenance attestations for supply chain integrity.
+GitHub Releases download URL for the slsa-verifier linux-amd64 binary.
+Used in vouch Cloud Build steps to verify SLSA provenance attestations.
+Refreshed via `rbrr_refresh_binary_pins` which discovers the latest release, downloads the binary, and verifies its checksum against the SLSA provenance attestation (belt and suspenders).
+
+//axhrv_variable
+{rbrg_slsa_verifier_sha256}
+
+SHA256 checksum of the slsa-verifier binary.
+Verified during refresh against both local computation and the SLSA provenance attestation embedded in the release's `.intoto.jsonl` file.
 
 //axhrv_variable
 {rbrg_gcloud_image_ref}
@@ -76,10 +83,11 @@ Locks all enrolled variables against mutation.
 {rbkro_validate}
 
 Validates fields via buv_vet type checkers.
-All pin references must be valid digest-pinned image references.
+Image pins must be valid digest-pinned references.
+Binary pins must be valid URL and SHA256 strings.
 
 //axhro_render
 {rbkro_render}
 
 Renders via buv_render.
-Sections: GCB Image Pins.
+Sections: GCB Image Pins, GCB Binary Pins.
