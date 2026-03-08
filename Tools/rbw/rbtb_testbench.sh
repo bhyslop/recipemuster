@@ -174,6 +174,7 @@ zrbtb_access_probe_baste() {
 zrbtb_ark_baste() {
   buto_trace "Baste for ark-lifecycle fixture"
   ZRBTB_ARK_VESSEL_SIGIL="rbev-busybox"
+  zrbgc_kindle
 }
 
 zrbtb_slsa_baste() {
