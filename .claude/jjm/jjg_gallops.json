@@ -6198,6 +6198,13 @@
         "₢AkAAn": {
           "tacks": [
             {
+              "ts": "260308-0928",
+              "state": "complete",
+              "text": "## Problem\n\nThe build status poll loop in `zrbf_wait_build_completion` (rbf_Foundry.sh:475-504) dies on a single transient curl failure (`buc_die` at line 489). Observed in production: sentry build poll crashed at attempt 5 due to network blip during concurrent builds.\n\n## Fix\n\nTolerate N consecutive curl failures (e.g., 3) before dying. On a single failure, log a warning and continue to the next 5s poll cycle. Also validate the HTTP response body — a curl exit 0 with a 401/403 JSON error should be handled gracefully.\n\n## Files\n\n- `Tools/rbw/rbf_Foundry.sh` — `zrbf_wait_build_completion` function\n\n## Acceptance criteria\n\n- Single transient curl failure does not abort the poll loop\n- 3+ consecutive failures still abort (not a silent infinite loop)\n- 401/403 responses logged as warnings, not silently ignored",
+              "silks": "conjure-poll-retry-hardening",
+              "commit": "6561cef"
+            },
+            {
               "ts": "260308-0841",
               "state": "rough",
               "text": "## Problem\n\nThe build status poll loop in `zrbf_wait_build_completion` (rbf_Foundry.sh:475-504) dies on a single transient curl failure (`buc_die` at line 489). Observed in production: sentry build poll crashed at attempt 5 due to network blip during concurrent builds.\n\n## Fix\n\nTolerate N consecutive curl failures (e.g., 3) before dying. On a single failure, log a warning and continue to the next 5s poll cycle. Also validate the HTTP response body — a curl exit 0 with a 401/403 JSON error should be handled gracefully.\n\n## Files\n\n- `Tools/rbw/rbf_Foundry.sh` — `zrbf_wait_build_completion` function\n\n## Acceptance criteria\n\n- Single transient curl failure does not abort the poll loop\n- 3+ consecutive failures still abort (not a silent infinite loop)\n- 401/403 responses logged as warnings, not silently ignored",
