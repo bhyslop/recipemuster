@@ -18,7 +18,7 @@
 #
 # BUK Test Registry - fixture/case/suite enrollment following BCG enroll/recite patterns
 #
-# Fixtures: init/setup execution contexts (one per case)
+# Fixtures: litmus/baste execution contexts (one per case)
 # Suites: cross-cutting selection groups (N:M with cases)
 
 set -euo pipefail
@@ -35,8 +35,8 @@ butr_kindle() {
 
   # Fixture rolls (parallel arrays)
   z_butr_name_roll=()
-  z_butr_init_roll=()
-  z_butr_setup_roll=()
+  z_butr_litmus_roll=()
+  z_butr_baste_roll=()
 
   # Case rolls (parallel arrays with foreign key to fixture)
   z_butr_case_fn_roll=()
@@ -61,17 +61,17 @@ zbutr_sentinel() {
 ######################################################################
 # Public fixture enrollment functions
 
-# butr_fixture_enroll() - Register a fixture with init and setup functions
-# Args: fixture_name, init_fn, setup_fn
+# butr_fixture_enroll() - Register a fixture with litmus predicate and baste function
+# Args: fixture_name, litmus_fn, baste_fn
 #   fixture_name: unique name for the fixture
-#   init_fn: precondition in parent shell ("" for always ready)
-#   setup_fn: kindle/source/configure inside fixture subshell ("" for none)
+#   litmus_fn: predicate in parent shell, 0=proceed 1=skip ("" for always ready)
+#   baste_fn: kindle/source/configure inside fixture subshell ("" for none)
 butr_fixture_enroll() {
   zbutr_sentinel
 
   local -r z_name="${1:-}"
-  local -r z_init="${2:-}"
-  local -r z_setup="${3:-}"
+  local -r z_litmus="${2:-}"
+  local -r z_baste="${3:-}"
 
   test -n "${z_name}" || buto_fatal "butr_fixture_enroll: fixture_name required"
 
@@ -81,19 +81,19 @@ butr_fixture_enroll() {
     test "${z_butr_name_roll[$z_i]}" != "${z_name}" || buto_fatal "butr_fixture_enroll: duplicate fixture '${z_name}'"
   done
 
-  # Validate init function if specified
-  if test -n "${z_init}"; then
-    declare -F "${z_init}" >/dev/null || buto_fatal "butr_fixture_enroll: init function not found: ${z_init}"
+  # Validate litmus function if specified
+  if test -n "${z_litmus}"; then
+    declare -F "${z_litmus}" >/dev/null || buto_fatal "butr_fixture_enroll: litmus function not found: ${z_litmus}"
   fi
 
-  # Validate setup function if specified
-  if test -n "${z_setup}"; then
-    declare -F "${z_setup}" >/dev/null || buto_fatal "butr_fixture_enroll: setup function not found: ${z_setup}"
+  # Validate baste function if specified
+  if test -n "${z_baste}"; then
+    declare -F "${z_baste}" >/dev/null || buto_fatal "butr_fixture_enroll: baste function not found: ${z_baste}"
   fi
 
   z_butr_name_roll+=("${z_name}")
-  z_butr_init_roll+=("${z_init}")
-  z_butr_setup_roll+=("${z_setup}")
+  z_butr_litmus_roll+=("${z_litmus}")
+  z_butr_baste_roll+=("${z_baste}")
 }
 
 ######################################################################
@@ -175,34 +175,34 @@ butr_fixtures_recite() {
   done
 }
 
-# butr_init_recite() - Get init function for named fixture
+# butr_litmus_recite() - Get litmus predicate function for named fixture
 # Args: fixture_name
-# Returns: init function name (or empty string)
-butr_init_recite() {
+# Returns: litmus function name (or empty string)
+butr_litmus_recite() {
   zbutr_sentinel
   local -r z_name="${1:-}"
   test -n "${z_name}" || return 1
   local z_i
   for z_i in "${!z_butr_name_roll[@]}"; do
     if test "${z_butr_name_roll[$z_i]}" = "${z_name}"; then
-      echo "${z_butr_init_roll[$z_i]}" || return 1
+      echo "${z_butr_litmus_roll[$z_i]}" || return 1
       return 0
     fi
   done
   return 1
 }
 
-# butr_setup_recite() - Get setup function for named fixture
+# butr_baste_recite() - Get baste function for named fixture
 # Args: fixture_name
-# Returns: setup function name (or empty string)
-butr_setup_recite() {
+# Returns: baste function name (or empty string)
+butr_baste_recite() {
   zbutr_sentinel
   local -r z_name="${1:-}"
   test -n "${z_name}" || return 1
   local z_i
   for z_i in "${!z_butr_name_roll[@]}"; do
     if test "${z_butr_name_roll[$z_i]}" = "${z_name}"; then
-      echo "${z_butr_setup_roll[$z_i]}" || return 1
+      echo "${z_butr_baste_roll[$z_i]}" || return 1
       return 0
     fi
   done

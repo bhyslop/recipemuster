@@ -655,8 +655,8 @@ This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
 | Capture   | `[z]«prefix»_«name»_capture`   | `z«prefix»_sentinel` | stdout once at end or exit 1 | No (use buc_log_«source») | Clean error handling, single return |
 | Enroll    | `[z]«prefix»_[«scope»_]enroll` | `z«prefix»_sentinel` | `z_«funcname»_«retval»` vars | No (use buc_log_«source») | Mutates rolls (parallel arrays) in kindle only; returns via variables |
 | Recite    | `[z]«prefix»_«what»_recite`    | `z«prefix»_sentinel` | stdout or exit 1             | No (use buc_log_«source») | Read-only access to rolls; never mutates |
-| Tsuite init | `z«tb»_«name»_tsuite_init`  | —                    | 0=proceed, non-zero=skip     | No                        | Parent layer; no kindle, no source  |
-| Tsuite setup | `z«tb»_«name»_tsuite_setup` | —                   | — (side effects only)        | Optional                  | Suite subshell; kindle, source, configure |
+| Litmus predicate | `z«tb»_«name»_litmus_predicate` | —              | 0=proceed, 1=skip            | No                        | Reusable, composable; never dies, no output |
+| Fixture baste | `z«tb»_«name»_baste`         | —                   | — (side effects only)        | Optional                  | Fixture subshell; kindle, source, configure |
 | Tcase     | `«tc»_«name»_tcase`           | —                    | — (exit status to suite)     | No                        | Case subshell; assertions, verification |
 
 ---
@@ -839,8 +839,8 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 - **_predicate**: Need true/false for conditional logic without dying
 - **_enroll**: Populate parallel-array registries (rolls) during kindle with validated inputs and return values
 - **_recite**: Read-only access to roll arrays populated by enroll functions
-- **_tsuite_init**: Suite precondition check in parent shell (return non-zero to skip)
-- **_tsuite_setup**: Suite initialization inside `_tsuite` subshell (kindle, source, configure)
+- **_litmus_predicate**: Fixture precondition check in parent shell (0=proceed, 1=skip); reusable, composable
+- **_baste**: Fixture preparation inside fixture subshell (kindle, source, configure)
 - **_tcase**: Test case verification function inside `_tcase` subshell
 - **Neither**: Use temp files for multi-step pipelines, direct `|| buc_die` for simple failures
 
@@ -871,8 +871,8 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 | Enroll return vars           | `z_«funcname»_«retval»`      | `z_«prefix»_enroll_name`     | Impl     | snake_case (func name verbatim)|
 | Testbench file               | `«prefix»tb_testbench.sh`    | `rbtb_testbench.sh`          | N/A      | fixed name                    |
 | Test case file               | `«prefix»tc«xx»_«Name».sh`  | `rbtckk_KickTires.sh`        | N/A      | PascalCase name               |
-| Suite init function          | `z«tb»_«name»_tsuite_init`  | `zrbtb_kick_tsuite_init`     | Testbench| snake_case, parent layer      |
-| Suite setup function         | `z«tb»_«name»_tsuite_setup` | `zrbtb_kick_tsuite_setup`    | Testbench| snake_case, suite layer       |
+| Litmus predicate             | `z«tb»_«name»_litmus_predicate` | `zrbtb_container_runtime_litmus_predicate` | Testbench| snake_case, parent layer |
+| Fixture baste function       | `z«tb»_«name»_baste`        | `zrbtb_ark_baste`            | Testbench| snake_case, fixture layer     |
 | Case function                | `«tc»_«name»_tcase`         | `rbtckk_false_tcase`         | Test case| snake_case, case layer        |
 
 ---
@@ -1463,12 +1463,12 @@ Test execution uses three layers separated by two subshell boundaries:
 
 ```
 Parent Shell (runner layer)
- ├─ _tsuite_init — precondition check (return non-zero to skip)
+ ├─ _litmus_predicate — precondition check (0=proceed, 1=skip)
  ├─ Fixture iteration and status tracking
  └─ Reporting (pass/fail/skip counts)
      │
-     └─ Fixture Subshell (_tsuite boundary)
-         ├─ _tsuite_setup — kindle, source, configure
+     └─ Fixture Subshell (fixture boundary)
+         ├─ _baste — kindle, source, configure
          ├─ Fixture temp dir creation
          └─ Case iteration
              │
@@ -1480,39 +1480,40 @@ Parent Shell (runner layer)
 
 ### Vocabulary
 
-**`_tsuite`** — the fixture isolation boundary:
+**Fixture boundary** — the fixture isolation boundary:
 - Runs in a subshell (state dies at boundary)
-- Setup runs inside (visible to cases, dies with fixture)
-- Init/precondition runs outside (parent decides whether to enter)
+- Baste runs inside (visible to cases, dies with fixture)
+- Litmus runs outside (parent decides whether to enter)
 - Communicates only exit status to the runner
 - Kindle guards catch double-kindle within a fixture; subshell boundary prevents cross-fixture contamination
 
 **`_tcase`** — the case isolation boundary:
-- Runs in a subshell within the `_tsuite` subshell
-- Inherits setup state, cannot mutate sibling state
+- Runs in a subshell within the fixture subshell
+- Inherits baste state, cannot mutate sibling state
 - Communicates only exit status and stdio
 - Each case gets isolated temp dir and BURV root
 
-**`_tsuite_init`** — precondition function (parent layer):
-- Runs in parent shell, outside the `_tsuite` boundary
-- Returns 0 to proceed, non-zero to skip fixture
+**`_litmus_predicate`** — fixture precondition (parent layer):
+- Runs in parent shell, outside the fixture boundary
+- Returns 0 to proceed, 1 to skip fixture
 - Must not kindle or source modules — state would persist to next fixture
+- Reusable: multiple fixtures share one litmus; composable: one litmus calls others
 - Registered as second argument to `butr_fixture_enroll`
 
-**`_tsuite_setup`** — fixture initialization function (fixture layer):
-- Runs inside the `_tsuite` subshell
+**`_baste`** — fixture preparation function (fixture layer):
+- Runs inside the fixture subshell
 - Kindles modules, sources dependencies, sets configuration
 - State visible to all cases within this fixture, dies at fixture boundary
 - Registered as third argument to `butr_fixture_enroll`
 
 ### Allowed Operations by Layer
 
-| Operation | Parent | `_tsuite` | `_tcase` |
-|-----------|--------|-----------|----------|
-| Init / precondition check | ✅ | — | — |
+| Operation | Parent | Fixture | `_tcase` |
+|-----------|--------|---------|----------|
+| Litmus predicate check | ✅ | — | — |
 | `z«prefix»_kindle` | — | ✅ | — |
 | `source` module files | — | ✅ | — |
-| Setup configuration | — | ✅ | — |
+| Baste configuration | — | ✅ | — |
 | Case iteration | — | ✅ | — |
 | Assertions (`buto_*_expect_*`) | — | — | ✅ |
 | `zbuto_invoke` (capture) | — | — | ✅ |
@@ -1523,8 +1524,8 @@ Parent Shell (runner layer)
 
 | Boundary | Crosses | Does Not Cross |
 |----------|---------|----------------|
-| `_tsuite` (fixture) → parent | Exit status (0=pass, non-zero=fail, 2=skip), stdout/stderr | Variables, kindle state, sourced functions |
-| `_tcase` → `_tsuite` (fixture) | Exit status (0=pass, non-zero=fail), stdout/stderr | Variable mutations, BURV roots, temp dirs |
+| Fixture → parent | Exit status (0=pass, non-zero=fail, 2=skip), stdout/stderr | Variables, kindle state, sourced functions |
+| `_tcase` → fixture | Exit status (0=pass, non-zero=fail), stdout/stderr | Variable mutations, BURV roots, temp dirs |
 
 ### Naming Conventions
 
@@ -1532,8 +1533,8 @@ Parent Shell (runner layer)
 |---------|---------|---------|
 | Testbench file | `«prefix»tb_testbench.sh` | `rbtb_testbench.sh` |
 | Test case file | `«prefix»tc«xx»_«Name».sh` | `rbtckk_KickTires.sh` |
-| Init function | `z«tb»_«name»_tsuite_init` | `zrbtb_kick_tsuite_init` |
-| Setup function | `z«tb»_«name»_tsuite_setup` | `zrbtb_kick_tsuite_setup` |
+| Litmus predicate | `z«tb»_«name»_litmus_predicate` | `zrbtb_container_runtime_litmus_predicate` |
+| Baste function | `z«tb»_«name»_baste` | `zrbtb_ark_baste` |
 | Case function | `«tc»_«name»_tcase` | `rbtckk_false_tcase` |
 | Fixture enrollment | `butr_fixture_enroll` | — |
 | Suite enrollment | `butr_suite_enroll` | Sets sweep suite context |
@@ -1544,16 +1545,16 @@ Parent Shell (runner layer)
 The naming conventions enable grep-based auditing:
 
 ```bash
-# Find all suite init functions
-grep -rn '_tsuite_init' Tools/
+# Find all litmus predicates
+grep -rn '_litmus_predicate' Tools/
 
-# Find all suite setup functions
-grep -rn '_tsuite_setup' Tools/
+# Find all baste functions
+grep -rn '_baste' Tools/
 
 # Find all case functions
 grep -rn '_tcase' Tools/
 
-# Verify enrollment matches naming — init/setup/case functions should
+# Verify enrollment matches naming — litmus/baste/case functions should
 # appear both in enrollment calls and as function definitions
 grep -rn 'butr_fixture_enroll\|butr_case_enroll' Tools/
 ```

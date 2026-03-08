@@ -60,35 +60,35 @@ butd_run_fixture() {
     return 0
   fi
 
-  local z_init
-  z_init=$(butr_init_recite "${z_fixture}") || buto_fatal "butd_run_fixture: failed to get init for '${z_fixture}'"
-  local z_setup
-  z_setup=$(butr_setup_recite "${z_fixture}") || buto_fatal "butd_run_fixture: failed to get setup for '${z_fixture}'"
+  local z_litmus
+  z_litmus=$(butr_litmus_recite "${z_fixture}") || buto_fatal "butd_run_fixture: failed to get litmus for '${z_fixture}'"
+  local z_baste
+  z_baste=$(butr_baste_recite "${z_fixture}") || buto_fatal "butd_run_fixture: failed to get baste for '${z_fixture}'"
 
   buto_section "Fixture: ${z_fixture}"
 
-  # Run init function if specified (status capture pattern)
-  if test -n "${z_init}"; then
-    buto_trace "Running init: ${z_init}"
-    declare -F "${z_init}" >/dev/null || buto_fatal "Init function not found: ${z_init}"
+  # Run litmus predicate if specified (status capture pattern)
+  if test -n "${z_litmus}"; then
+    buto_trace "Running litmus: ${z_litmus}"
+    declare -F "${z_litmus}" >/dev/null || buto_fatal "Litmus function not found: ${z_litmus}"
     local z_status=0
-    "${z_init}" || z_status=$?
+    "${z_litmus}" || z_status=$?
     if test "${z_status}" -ne 0; then
-      buc_warn "Fixture '${z_fixture}' not ready (init returned ${z_status}), skipping"
+      buc_warn "Fixture '${z_fixture}' skipped (litmus: ${z_litmus})"
       return 2
     fi
   fi
 
-  # Fixture subshell boundary: isolates fixture state (setup kindles, module guards) from other fixtures.
-  # Init/precondition runs above in parent so it can skip via return.
+  # Fixture subshell boundary: isolates fixture state (baste kindles, module guards) from other fixtures.
+  # Litmus runs above in parent so it can skip via return.
   (
     set -e
 
-    # Run setup function if specified
-    if test -n "${z_setup}"; then
-      buto_trace "Running setup: ${z_setup}"
-      declare -F "${z_setup}" >/dev/null || buto_fatal "Setup function not found: ${z_setup}"
-      "${z_setup}"
+    # Run baste function if specified
+    if test -n "${z_baste}"; then
+      buto_trace "Running baste: ${z_baste}"
+      declare -F "${z_baste}" >/dev/null || buto_fatal "Baste function not found: ${z_baste}"
+      "${z_baste}"
     fi
 
     # Create per-fixture temp dir
@@ -154,21 +154,21 @@ butd_run_one() {
   local z_fixture
   z_fixture=$(butr_fixture_for_case_recite "${z_func}") || buto_fatal "butd_run_one: no fixture matches function '${z_func}'"
 
-  local z_init
-  z_init=$(butr_init_recite "${z_fixture}") || buto_fatal "butd_run_one: failed to get init for '${z_fixture}'"
-  local z_setup
-  z_setup=$(butr_setup_recite "${z_fixture}") || buto_fatal "butd_run_one: failed to get setup for '${z_fixture}'"
+  local z_litmus
+  z_litmus=$(butr_litmus_recite "${z_fixture}") || buto_fatal "butd_run_one: failed to get litmus for '${z_fixture}'"
+  local z_baste
+  z_baste=$(butr_baste_recite "${z_fixture}") || buto_fatal "butd_run_one: failed to get baste for '${z_fixture}'"
 
   buto_section "Fixture: ${z_fixture} (single case: ${z_func})"
 
-  # Run init function if specified (status capture pattern)
-  if test -n "${z_init}"; then
-    buto_trace "Running init: ${z_init}"
-    declare -F "${z_init}" >/dev/null || buto_fatal "Init function not found: ${z_init}"
+  # Run litmus predicate if specified (status capture pattern)
+  if test -n "${z_litmus}"; then
+    buto_trace "Running litmus: ${z_litmus}"
+    declare -F "${z_litmus}" >/dev/null || buto_fatal "Litmus function not found: ${z_litmus}"
     local z_status=0
-    "${z_init}" || z_status=$?
+    "${z_litmus}" || z_status=$?
     if test "${z_status}" -ne 0; then
-      buto_fatal "Fixture '${z_fixture}' not ready (init returned ${z_status})"
+      buto_fatal "Fixture '${z_fixture}' not ready (litmus: ${z_litmus})"
     fi
   fi
 
@@ -176,11 +176,11 @@ butd_run_one() {
   (
     set -e
 
-    # Run setup function if specified
-    if test -n "${z_setup}"; then
-      buto_trace "Running setup: ${z_setup}"
-      declare -F "${z_setup}" >/dev/null || buto_fatal "Setup function not found: ${z_setup}"
-      "${z_setup}"
+    # Run baste function if specified
+    if test -n "${z_baste}"; then
+      buto_trace "Running baste: ${z_baste}"
+      declare -F "${z_baste}" >/dev/null || buto_fatal "Baste function not found: ${z_baste}"
+      "${z_baste}"
     fi
 
     # Create per-fixture temp dir
