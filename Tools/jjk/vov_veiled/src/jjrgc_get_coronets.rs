@@ -7,7 +7,7 @@
 //! Queries a Gallops JSON file and outputs coronets (pace identities) for a specified heat,
 //! with optional filtering for remaining or rough paces only.
 
-use std::fmt::Write;
+use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
 use std::path::PathBuf;
@@ -33,20 +33,20 @@ pub struct jjrgc_GetCoronetsArgs {
 
 /// Run the get_coronets command - output coronets one per line
 pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
-            jjbuf!(buf, "jjx_get_coronets: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_get_coronets: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_get_coronets: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_get_coronets: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -54,8 +54,8 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
-            jjbuf!(buf, "jjx_get_coronets: error: Heat '{}' not found", heat_key);
-            return (1, buf);
+            vvco_err!(output, "jjx_get_coronets: error: Heat '{}' not found", heat_key);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -70,10 +70,10 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
                 if args.rough && tack.state != PaceState::Rough {
                     continue;
                 }
-                let _ = writeln!(buf, "{}", coronet_key);
+                vvco_out!(output, "{}", coronet_key);
             }
         }
     }
 
-    (0, buf)
+    (0, output.vvco_finish())
 }

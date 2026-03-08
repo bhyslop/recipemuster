@@ -7,8 +7,9 @@
 //! Handles retire operation: write trophy, remove from gallops, delete paddock, commit.
 //! Fails fast if gallops file has uncommitted changes.
 
-use std::fmt::Write;
 use std::path::{Path, PathBuf};
+
+use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_RetireArgs as LibRetireArgs};
@@ -33,13 +34,13 @@ pub struct jjrrt_RetireArgs {
 
 /// Run the retire command
 pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
-            jjbuf!(buf, "jjx_retire: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_retire: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -47,8 +48,8 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_retire: error loading Gallops: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_retire: error loading Gallops: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -60,7 +61,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     let steeplechase = match get_entries(&rein_args) {
         Ok(entries) => entries,
         Err(e) => {
-            jjbuf!(buf, "jjx_retire: warning: could not get steeplechase: {}", e);
+            vvco_err!(output, "jjx_retire: warning: could not get steeplechase: {}", e);
             Vec::new()
         }
     };
@@ -78,18 +79,18 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     {
         Ok(o) => o,
         Err(e) => {
-            jjbuf!(buf, "jjx_retire: error: failed to run git status: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_retire: error: failed to run git status: {}", e);
+            return (1, output.vvco_finish());
         }
     };
     if !status_output.status.success() {
-        jjbuf!(buf, "jjx_retire: error: git status failed");
-        return (1, buf);
+        vvco_err!(output, "jjx_retire: error: git status failed");
+        return (1, output.vvco_finish());
     }
     let status_text = String::from_utf8_lossy(&status_output.stdout);
     if !status_text.trim().is_empty() {
-        jjbuf!(buf, "jjx_retire: error: gallops file has uncommitted changes — commit or discard first");
-        return (1, buf);
+        vvco_err!(output, "jjx_retire: error: gallops file has uncommitted changes — commit or discard first");
+        return (1, output.vvco_finish());
     }
 
     let mut gallops = gallops;
@@ -98,8 +99,8 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            jjbuf!(buf, "jjx_retire: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_retire: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -112,15 +113,15 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     let result = match gallops.jjrg_retire(retire_args, base_path, &steeplechase) {
         Ok(r) => r,
         Err(e) => {
-            jjbuf!(buf, "jjx_retire: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_retire: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
-        jjbuf!(buf, "jjx_retire: error saving Gallops: {}", e);
-        return (1, buf);
+        vvco_err!(output, "jjx_retire: error saving Gallops: {}", e);
+        return (1, output.vvco_finish());
     }
 
     // Commit using vvcm_commit with explicit file list
@@ -138,12 +139,12 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
         warn_limit: effective_size_limit / 2,
     };
 
-    match vvc::machine_commit(&lock, &commit_args) {
+    match vvc::machine_commit(&lock, &commit_args, &mut output) {
         Ok(hash) => {
-            jjbuf!(buf, "jjx_retire: committed {}", &hash[..8]);
+            vvco_out!(output, "jjx_retire: committed {}", &hash[..8]);
         }
         Err(e) => {
-            jjbuf!(buf, "jjx_retire: error: commit failed: {}", e);
+            vvco_err!(output, "jjx_retire: error: commit failed: {}", e);
             // Rollback: restore gallops and paddock from HEAD, remove trophy
             let gp = args.file.to_string_lossy().to_string();
             let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", &gp, &result.paddock_path])
@@ -151,16 +152,16 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
             let _ = vvc::vvce_git_command(&["rm", "-f", "--cached", &result.trophy_path])
                 .status();
             let _ = std::fs::remove_file(&result.trophy_path);
-            jjbuf!(buf, "jjx_retire: rolled back file changes");
-            jjbuf!(buf, "jjx_retire: retry with --size-limit <bytes> to override guard");
-            return (1, buf);
+            vvco_err!(output, "jjx_retire: rolled back file changes");
+            vvco_err!(output, "jjx_retire: retry with --size-limit <bytes> to override guard");
+            return (1, output.vvco_finish());
         }
     }
 
     // Output result
-    let _ = writeln!(buf, "trophy: {}", result.trophy_path);
-    let _ = writeln!(buf, "Heat {} retired successfully", result.firemark);
+    vvco_out!(output, "trophy: {}", result.trophy_path);
+    vvco_out!(output, "Heat {} retired successfully", result.firemark);
 
-    (0, buf)
+    (0, output.vvco_finish())
     // lock released here
 }

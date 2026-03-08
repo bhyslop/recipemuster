@@ -37,6 +37,8 @@
 //!   2 - Over warn threshold (WARNING)
 
 use std::path::Path;
+use crate::vvco_output::vvco_Output;
+use crate::{vvco_err};
 
 /// Standard size limit for guard check (50KB)
 ///
@@ -268,11 +270,11 @@ pub(crate) fn zvvcg_get_diff_size(path: &str, repo_dir: Option<&Path>) -> Result
 /// - 0: Under limit (OK)
 /// - 1: Over limit (BLOCKED)
 /// - 2: Over warn threshold (WARNING)
-pub fn vvcg_run(args: &vvcg_GuardArgs, repo_dir: Option<&Path>) -> i32 {
+pub fn vvcg_run(args: &vvcg_GuardArgs, repo_dir: Option<&Path>, output: &mut vvco_Output) -> i32 {
     let files = match zvvcg_get_staged_files(repo_dir) {
         Ok(f) => f,
         Err(e) => {
-            eprintln!("guard: error: {}", e);
+            vvco_err!(output, "guard: error: {}", e);
             return 1;
         }
     };
@@ -280,25 +282,25 @@ pub fn vvcg_run(args: &vvcg_GuardArgs, repo_dir: Option<&Path>) -> i32 {
     let total_size: u64 = files.iter().map(|f| f.size).sum();
 
     if total_size > args.limit {
-        eprintln!(
+        vvco_err!(output,
             "guard: BLOCKED - staged content {} bytes exceeds limit {} bytes",
             total_size, args.limit
         );
-        eprintln!();
-        eprintln!("Breakdown by file:");
+        vvco_err!(output, "");
+        vvco_err!(output, "Breakdown by file:");
         let mut sorted_files = files;
         sorted_files.sort_by(|a, b| b.size.cmp(&a.size));
         for f in sorted_files.iter().take(10) {
-            eprintln!("  {:>10} bytes  {}", f.size, f.path);
+            vvco_err!(output, "  {:>10} bytes  {}", f.size, f.path);
         }
         if sorted_files.len() > 10 {
-            eprintln!("  ... and {} more files", sorted_files.len() - 10);
+            vvco_err!(output, "  ... and {} more files", sorted_files.len() - 10);
         }
         return 1;
     }
 
     if total_size > args.warn {
-        eprintln!(
+        vvco_err!(output,
             "guard: WARNING - staged content {} bytes exceeds warning threshold {} bytes",
             total_size, args.warn
         );

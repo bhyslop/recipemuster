@@ -11,6 +11,8 @@
 use clap::Args;
 use std::collections::HashSet;
 
+use vvc::{vvco_out, vvco_err, vvco_Output};
+
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX};
 use crate::jjrn_notch::{jjrn_format_notch_prefix, JJRN_COMMIT_PREFIX};
 
@@ -38,12 +40,12 @@ pub struct jjrnc_NotchArgs {
 /// Stages specified files and commits with JJ-aware prefix.
 /// Supports both pace-affiliated (Coronet) and heat-only (Firemark) commits.
 pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     // Require non-empty files list
     if args.files.is_empty() {
-        jjbuf!(buf, "jjx_notch: error: at least one file required");
-        return (1, buf);
+        vvco_err!(output, "jjx_notch: error: at least one file required");
+        return (1, output.vvco_finish());
     }
 
     // Check each file either exists on disk or is tracked by git (for deletions)
@@ -57,8 +59,8 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
             {
                 Ok(o) => o,
                 Err(e) => {
-                    jjbuf!(buf, "jjx_notch: error: failed to check git tracking: {}", e);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_notch: error: failed to check git tracking: {}", e);
+                    return (1, output.vvco_finish());
                 }
             };
 
@@ -69,8 +71,8 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
                 {
                     Ok(o) => o,
                     Err(e) => {
-                        jjbuf!(buf, "jjx_notch: error: failed to check staged deletion: {}", e);
-                        return (1, buf);
+                        vvco_err!(output, "jjx_notch: error: failed to check staged deletion: {}", e);
+                        return (1, output.vvco_finish());
                     }
                 };
 
@@ -79,8 +81,8 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
                     && !git_diff_output.stdout.is_empty();
 
                 if !is_staged_deletion {
-                    jjbuf!(buf, "jjx_notch: error: file does not exist and is not tracked by git: {}", file);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_notch: error: file does not exist and is not tracked by git: {}", file);
+                    return (1, output.vvco_finish());
                 }
             }
         }
@@ -94,8 +96,8 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         let coronet = match Coronet::jjrf_parse(&args.identity) {
             Ok(c) => c,
             Err(e) => {
-                jjbuf!(buf, "jjx_notch: error: {}", e);
-                return (1, buf);
+                vvco_err!(output, "jjx_notch: error: {}", e);
+                return (1, output.vvco_finish());
             }
         };
         jjrn_format_notch_prefix(&coronet)
@@ -104,35 +106,35 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         let firemark = match Firemark::jjrf_parse(&args.identity) {
             Ok(fm) => fm,
             Err(e) => {
-                jjbuf!(buf, "jjx_notch: error: {}", e);
-                return (1, buf);
+                vvco_err!(output, "jjx_notch: error: {}", e);
+                return (1, output.vvco_finish());
             }
         };
         let hallmark = vvc::vvcc_get_hallmark();
         let identity_str = format!("{}{}", JJRF_FIREMARK_PREFIX, firemark.jjrf_as_str());
         vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity_str, "n", "", None)
     } else {
-        jjbuf!(buf, "jjx_notch: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
-        return (1, buf);
+        vvco_err!(output, "jjx_notch: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
+        return (1, output.vvco_finish());
     };
 
     // Warn about uncommitted changes outside the file list
-    let output = match vvc::vvce_git_command(&["status", "--porcelain"])
+    let status_result = match vvc::vvce_git_command(&["status", "--porcelain"])
         .output()
     {
         Ok(o) => o,
         Err(e) => {
-            jjbuf!(buf, "jjx_notch: error: failed to run git status: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_notch: error: failed to run git status: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
-    if !output.status.success() {
-        jjbuf!(buf, "jjx_notch: error: git status failed");
-        return (1, buf);
+    if !status_result.status.success() {
+        vvco_err!(output, "jjx_notch: error: git status failed");
+        return (1, output.vvco_finish());
     }
 
-    let status_output = String::from_utf8_lossy(&output.stdout);
+    let status_output = String::from_utf8_lossy(&status_result.stdout);
     let files_set: HashSet<_> = args.files.iter().map(|s| s.as_str()).collect();
     let mut warnings = Vec::new();
 
@@ -148,9 +150,9 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     }
 
     if !warnings.is_empty() {
-        jjbuf!(buf, "warning: uncommitted changes outside file list:");
+        vvco_err!(output, "warning: uncommitted changes outside file list:");
         for warning in warnings {
-            jjbuf!(buf, "{}", warning);
+            vvco_err!(output, "{}", warning);
         }
     }
 
@@ -163,14 +165,14 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     let add_output = match git_add.output() {
         Ok(o) => o,
         Err(e) => {
-            jjbuf!(buf, "jjx_notch: error: failed to run git add: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_notch: error: failed to run git add: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     if !add_output.status.success() {
-        jjbuf!(buf, "jjx_notch: error: git add failed");
-        return (1, buf);
+        vvco_err!(output, "jjx_notch: error: git add failed");
+        return (1, output.vvco_finish());
     }
 
     // Commit using vvc with the generated message prefix
@@ -195,6 +197,6 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         }
     };
 
-    let rc = vvc::commit(&commit_args);
-    (rc, buf)
+    let rc = vvc::commit(&commit_args, &mut output);
+    (rc, output.vvco_finish())
 }

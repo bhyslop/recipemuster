@@ -227,9 +227,10 @@ pub async fn vvcp_invitatory() -> Result<(), String> {
         warn_limit: crate::VVCG_WARN_LIMIT,
     };
 
-    // Create empty commit
+    // Create empty commit (invitatory always runs in console context)
+    let mut output = crate::vvco_Output::console();
     let hash = match crate::vvcc_CommitLock::vvcc_acquire() {
-        Ok(lock) => lock.vvcc_commit(&commit_args)?,
+        Ok(lock) => lock.vvcc_commit(&commit_args, &mut output)?,
         Err(e) => return Err(format!("Failed to acquire lock: {}", e)),
     };
 

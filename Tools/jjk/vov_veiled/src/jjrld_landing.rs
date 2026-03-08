@@ -9,6 +9,7 @@
 //! marker in the steeplechase format.
 
 use clap::Args;
+use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrn_notch::jjrn_format_landing_message;
 
@@ -29,14 +30,14 @@ pub struct jjrld_LandingArgs {
 ///
 /// Returns exit code (0 for success, non-zero for failure).
 pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> (i32, String) {
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     // Parse coronet
     let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
-            jjbuf!(buf, "jjx_landing: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_landing: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -58,6 +59,6 @@ pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> (i32, Stri
         warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 
-    let rc = vvc::commit(&commit_args);
-    (rc, buf)
+    let rc = vvc::commit(&commit_args, &mut output);
+    (rc, output.vvco_finish())
 }

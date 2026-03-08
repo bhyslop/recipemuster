@@ -209,7 +209,7 @@ pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEnt
 
 /// Run jjx_rein command (CLI wrapper)
 /// Outputs column-aligned plain text table with header and separator
-pub fn jjrs_run(args: jjrs_ReinArgs, buf: &mut String) -> i32 {
+pub fn jjrs_run(args: jjrs_ReinArgs, output: &mut vvc::vvco_Output) -> i32 {
     match jjrs_get_entries(&args) {
         Ok(entries) => {
             // Set up table with column definitions
@@ -242,8 +242,8 @@ pub fn jjrs_run(args: jjrs_ReinArgs, buf: &mut String) -> i32 {
             }
 
             // Write header and separator
-            table.jjrp_write_header(buf);
-            table.jjrp_write_separator(buf);
+            table.jjrp_write_header(output);
+            table.jjrp_write_separator(output);
 
             // Write data rows
             for entry in &entries {
@@ -253,7 +253,7 @@ pub fn jjrs_run(args: jjrs_ReinArgs, buf: &mut String) -> i32 {
                 } else {
                     format!("₣{}", args.firemark)
                 };
-                table.jjrp_write_row(buf, &[
+                table.jjrp_write_row(output, &[
                     &entry.timestamp,
                     &entry.commit,
                     &action_str,
@@ -265,7 +265,7 @@ pub fn jjrs_run(args: jjrs_ReinArgs, buf: &mut String) -> i32 {
             0
         }
         Err(e) => {
-            eprintln!("jjx_rein: error: {}", e);
+            vvc::vvco_err!(output, "jjx_rein: error: {}", e);
             1
         }
     }

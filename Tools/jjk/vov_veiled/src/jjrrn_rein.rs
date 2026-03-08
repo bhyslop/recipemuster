@@ -8,6 +8,7 @@
 //! Steeplechase entries are stored in git commit messages and parsed to show work tracking.
 
 use clap::Args;
+use vvc::vvco_Output;
 use crate::jjrs_steeplechase::{jjrs_ReinArgs as LibReinArgs, jjrs_run as lib_run};
 
 /// Arguments for jjx_rein command
@@ -23,12 +24,12 @@ pub struct jjrrn_ReinArgs {
 
 /// Run the rein command - display steeplechase history
 pub fn jjrrn_run_rein(args: jjrrn_ReinArgs) -> (i32, String) {
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
     let rein_args = LibReinArgs {
         firemark: args.firemark,
         limit: args.limit,
     };
 
-    let rc = lib_run(rein_args, &mut buf);
-    (rc, buf)
+    let rc = lib_run(rein_args, &mut output);
+    (rc, output.vvco_finish())
 }

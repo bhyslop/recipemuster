@@ -10,8 +10,9 @@
 //! - Transfers actionable paces (rough/bridled) to new heat
 //! - Retains complete/abandoned paces in garlanded heat
 
-use std::fmt::Write;
 use std::path::PathBuf;
+
+use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_GarlandArgs as LibGarlandArgs};
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
@@ -35,22 +36,22 @@ pub struct jjrgl_GarlandArgs {
 /// Returns exit code (0 for success, non-zero for failure).
 pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
     use std::path::Path;
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            jjbuf!(buf, "jjx_garland: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_garland: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_garland: error loading Gallops: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_garland: error loading Gallops: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -70,15 +71,15 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
     let result = match gallops.jjrg_garland(garland_args, base_path) {
         Ok(r) => r,
         Err(e) => {
-            jjbuf!(buf, "jjx_garland: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_garland: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
-        jjbuf!(buf, "jjx_garland: error saving Gallops: {}", e);
-        return (1, buf);
+        vvco_err!(output, "jjx_garland: error saving Gallops: {}", e);
+        return (1, output.vvco_finish());
     }
 
     // Parse both firemarks for commit file list
@@ -107,17 +108,17 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
         warn_limit: 50000,
     };
 
-    match vvc::machine_commit(&lock, &commit_args) {
+    match vvc::machine_commit(&lock, &commit_args, &mut output) {
         Ok(hash) => {
-            jjbuf!(buf, "jjx_garland: committed {}", &hash[..8]);
+            vvco_out!(output, "jjx_garland: committed {}", &hash[..8]);
         }
         Err(e) => {
-            jjbuf!(buf, "jjx_garland: commit warning: {}", e);
+            vvco_err!(output, "jjx_garland: commit warning: {}", e);
         }
     }
 
     // Output JSON result
-    let output = serde_json::json!({
+    let json_result = serde_json::json!({
         "old_firemark": result.old_firemark,
         "old_silks": result.old_silks,
         "new_firemark": result.new_firemark,
@@ -126,14 +127,14 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
         "paces_retained": result.paces_retained,
     });
 
-    match serde_json::to_string_pretty(&output) {
+    match serde_json::to_string_pretty(&json_result) {
         Ok(json) => {
-            let _ = writeln!(buf, "{}", json);
-            (0, buf)
+            vvco_out!(output, "{}", json);
+            (0, output.vvco_finish())
         }
         Err(e) => {
-            jjbuf!(buf, "jjx_garland: error serializing output: {}", e);
-            (1, buf)
+            vvco_err!(output, "jjx_garland: error serializing output: {}", e);
+            (1, output.vvco_finish())
         }
     }
     // lock released here

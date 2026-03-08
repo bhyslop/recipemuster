@@ -217,7 +217,9 @@
 :axc_warn:                            <<axc_warn,WARN>>
 
 // Axial Environment Terms (retained: rest_api, daemon_runtime under review)
+:axe_console:                         <<axe_console,Console>>
 :axe_daemon_runtime:                  <<axe_daemon_runtime,Daemon Runtime>>
+:axe_mcp_transport:                   <<axe_mcp_transport,MCP Transport>>
 :axe_rest_api:                        <<axe_rest_api,REST API>>
 
 // Axial Operation Terms
@@ -578,6 +580,21 @@ representing invocation of an HTTP REST API endpoint.
 Request/response via JSON or other structured format.
 Authentication via bearer tokens, API keys, or similar.
 Calls return HTTP status codes and response bodies.
+
+[[axe_console]]
+{axe_console}::
+A
+{axl_motif}
+representing direct terminal invocation.
+Standard output and standard error are visible to the user.
+Output can be routed directly to stdout/stderr.
+
+[[axe_mcp_transport]]
+{axe_mcp_transport}::
+A
+{axl_motif}
+representing invocation through the MCP (Model Context Protocol) transport layer.
+Standard error is swallowed by the transport — all output must be captured in a return buffer to reach the caller.
 
 [[axe_daemon_runtime]]
 {axe_daemon_runtime}::

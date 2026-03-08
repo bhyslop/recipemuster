@@ -29,9 +29,9 @@ The cost model approximates incremental storage impact:
 //axhos_step
 . Sum all file sizes
 //axhos_step
-. If total > `limit`: emit blocked message with breakdown, return 1
+. If total > `limit`: emit blocked message with breakdown via {vose_output}, return 1
 //axhos_step
-. If total > `warn`: emit warning message, return 2
+. If total > `warn`: emit warning message via {vose_output}, return 2
 //axhos_step
 . Otherwise: return 0
 
@@ -42,6 +42,6 @@ The cost model approximates incremental storage impact:
 
 //axhoc_completion
 Returns exit code indicating status.
-On blocked (exit 1), emits breakdown of largest files to stderr.
+On blocked (exit 1), emits breakdown of largest files via {vose_output}.
 
 *Implementation:* `Tools/vvc/src/vvcg_guard.rs` — `vvcg_run()`

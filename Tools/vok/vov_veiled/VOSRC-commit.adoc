@@ -27,7 +27,7 @@ with `size_limit` and `warn_limit`
 //axhos_step
 . If guard returns blocked (exit 1): return error "Staged content exceeds size limit"
 //axhos_step
-. If guard returns warning (exit 2): emit warning to stderr, continue
+. If guard returns warning (exit 2): emit warning via {vose_output}, continue
 //axhos_step
 . If `message` is absent:
 .. Get staged diff via `git diff --cached`

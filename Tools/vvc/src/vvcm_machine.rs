@@ -20,6 +20,8 @@
 
 use crate::vvcc_commit::vvcc_CommitLock;
 use crate::vvcg_guard;
+use crate::vvco_output::vvco_Output;
+use crate::vvco_err;
 
 /// Arguments for machine commit operation
 #[derive(Debug, Clone)]
@@ -49,6 +51,7 @@ pub struct vvcm_CommitArgs {
 pub fn vvcm_commit(
     _lock: &vvcc_CommitLock,
     args: &vvcm_CommitArgs,
+    output: &mut vvco_Output,
 ) -> Result<String, String> {
     // Validate args
     if args.files.is_empty() {
@@ -66,12 +69,12 @@ pub fn vvcm_commit(
         limit: args.size_limit,
         warn: args.warn_limit,
     };
-    let guard_result = vvcg_guard::vvcg_run(&guard_args, None);
+    let guard_result = vvcg_guard::vvcg_run(&guard_args, None, output);
     match guard_result {
         0 => {}
         1 => return Err("Staged content exceeds size limit".to_string()),
         2 => {
-            eprintln!("vvcm_commit: WARNING - staged content near size limit");
+            vvco_err!(output, "vvcm_commit: WARNING - staged content near size limit");
         }
         _ => return Err(format!("Guard returned unexpected code: {}", guard_result)),
     }

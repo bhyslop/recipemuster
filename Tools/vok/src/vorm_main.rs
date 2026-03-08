@@ -230,7 +230,8 @@ fn run_guard(args: GuardArgs) -> i32 {
         limit: args.limit,
         warn: args.warn,
     };
-    vvc::guard(&vvc_args, None)
+    let mut output = vvc::vvco_Output::console();
+    vvc::guard(&vvc_args, None, &mut output)
 }
 
 /// Run commit command using vvc
@@ -243,7 +244,8 @@ fn run_commit(args: CommitArgs) -> i32 {
         size_limit: vvc::VVCG_SIZE_LIMIT,
         warn_limit: vvc::VVCG_WARN_LIMIT,
     };
-    vvc::commit(&vvc_args)
+    let mut output = vvc::vvco_Output::console();
+    vvc::commit(&vvc_args, &mut output)
 }
 
 /// Run invitatory command using vvc

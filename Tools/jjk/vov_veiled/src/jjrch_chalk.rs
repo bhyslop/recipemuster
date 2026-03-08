@@ -7,8 +7,7 @@
 //! The chalk command creates empty commits with special formatting for tracking
 //! steeplechase events like approach, wrap, fly, or heat-level discussions.
 
-#[allow(unused_imports)]
-use std::fmt::Write;
+use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};
 use crate::jjrn_notch::{jjrn_ChalkMarker as ChalkMarker, jjrn_format_chalk_message, jjrn_format_heat_discussion};
@@ -30,13 +29,13 @@ pub struct jjrx_ChalkArgs {
 
 /// Run the chalk command - create steeplechase marker commit
 pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     let marker = match ChalkMarker::jjrn_parse(&args.marker) {
         Ok(m) => m,
         Err(e) => {
-            jjbuf!(buf, "jjx_chalk: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_chalk: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -48,29 +47,29 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
         let coronet = match Coronet::jjrf_parse(&args.identity) {
             Ok(c) => c,
             Err(e) => {
-                jjbuf!(buf, "jjx_chalk: error: {}", e);
-                return (1, buf);
+                vvco_err!(output, "jjx_chalk: error: {}", e);
+                return (1, output.vvco_finish());
             }
         };
         jjrn_format_chalk_message(&coronet, marker, &args.description)
     } else if identity.len() == 2 {
         // Firemark - heat-level (discussion, session)
         if marker.jjrn_requires_pace() {
-            jjbuf!(buf, "jjx_chalk: error: {} marker requires a Coronet (pace identity), not a Firemark", marker.jjrn_as_str());
-            return (1, buf);
+            vvco_err!(output, "jjx_chalk: error: {} marker requires a Coronet (pace identity), not a Firemark", marker.jjrn_as_str());
+            return (1, output.vvco_finish());
         }
         let firemark = match Firemark::jjrf_parse(&args.identity) {
             Ok(fm) => fm,
             Err(e) => {
-                jjbuf!(buf, "jjx_chalk: error: {}", e);
-                return (1, buf);
+                vvco_err!(output, "jjx_chalk: error: {}", e);
+                return (1, output.vvco_finish());
             }
         };
 
         jjrn_format_heat_discussion(&firemark, &args.description)
     } else {
-        jjbuf!(buf, "jjx_chalk: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
-        return (1, buf);
+        vvco_err!(output, "jjx_chalk: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
+        return (1, output.vvco_finish());
     };
 
     let commit_args = vvc::vvcc_CommitArgs {
@@ -82,5 +81,6 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
         warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 
-    (vvc::commit(&commit_args), buf)
+    let rc = vvc::commit(&commit_args, &mut output);
+    (rc, output.vvco_finish())
 }

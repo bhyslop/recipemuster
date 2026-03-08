@@ -27,6 +27,8 @@
 //!   1 - Failure (lock held, guard failed, claude failed, commit failed)
 
 use crate::vvcg_guard;
+use crate::vvco_output::vvco_Output;
+use crate::{vvco_out, vvco_err};
 
 /// Lock reference path for commit operations
 const VVCC_LOCK_REF: &str = "refs/vvg/locks/vvx";
@@ -86,8 +88,8 @@ impl vvcc_CommitLock {
     /// and can perform additional operations if needed.
     ///
     /// Returns the commit hash on success.
-    pub fn vvcc_commit(&self, args: &vvcc_CommitArgs) -> Result<String, String> {
-        zvvcc_run_commit_workflow(args)
+    pub fn vvcc_commit(&self, args: &vvcc_CommitArgs, output: &mut vvco_Output) -> Result<String, String> {
+        zvvcc_run_commit_workflow(args, output)
     }
 }
 
@@ -152,19 +154,19 @@ fn zvvcc_has_staged_changes() -> Result<bool, String> {
 }
 
 /// Run size guard check on staged content
-fn zvvcc_run_guard(args: &vvcc_CommitArgs) -> Result<(), String> {
+fn zvvcc_run_guard(args: &vvcc_CommitArgs, output: &mut vvco_Output) -> Result<(), String> {
     let guard_args = vvcg_guard::vvcg_GuardArgs {
         limit: args.size_limit,
         warn: args.warn_limit,
     };
 
-    let result = vvcg_guard::vvcg_run(&guard_args, None);
+    let result = vvcg_guard::vvcg_run(&guard_args, None, output);
 
     match result {
         0 => Ok(()),
         1 => Err("Staged content exceeds size limit".to_string()),
         2 => {
-            eprintln!("commit: WARNING - staged content near size limit");
+            vvco_err!(output, "commit: WARNING - staged content near size limit");
             Ok(())
         }
         _ => Err(format!("Guard returned unexpected code: {}", result)),
@@ -291,22 +293,22 @@ fn zvvcc_execute_commit(message: &str, allow_empty: bool) -> Result<String, Stri
 /// This is the simple API that acquires and releases the lock automatically.
 /// For operations that need to hold the lock across multiple steps, use
 /// `vvcc_CommitLock::vvcc_acquire()` instead.
-pub fn vvcc_run(args: &vvcc_CommitArgs) -> i32 {
+pub fn vvcc_run(args: &vvcc_CommitArgs, output: &mut vvco_Output) -> i32 {
     let lock = match vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            eprintln!("commit: error: {}", e);
+            vvco_err!(output, "commit: error: {}", e);
             return 1;
         }
     };
 
-    match lock.vvcc_commit(args) {
+    match lock.vvcc_commit(args, output) {
         Ok(hash) => {
-            println!("{}", hash);
+            vvco_out!(output, "{}", hash);
             0
         }
         Err(e) => {
-            eprintln!("commit: error: {}", e);
+            vvco_err!(output, "commit: error: {}", e);
             1
         }
     }
@@ -314,7 +316,7 @@ pub fn vvcc_run(args: &vvcc_CommitArgs) -> i32 {
 }
 
 /// Inner workflow that can return Result for cleaner error handling
-fn zvvcc_run_commit_workflow(args: &vvcc_CommitArgs) -> Result<String, String> {
+fn zvvcc_run_commit_workflow(args: &vvcc_CommitArgs, output: &mut vvco_Output) -> Result<String, String> {
     if !args.no_stage {
         zvvcc_stage_changes()?;
     }
@@ -323,7 +325,7 @@ fn zvvcc_run_commit_workflow(args: &vvcc_CommitArgs) -> Result<String, String> {
         return Err("Nothing to commit".to_string());
     }
 
-    zvvcc_run_guard(args)?;
+    zvvcc_run_guard(args, output)?;
 
     let message = match &args.message {
         Some(m) => m.clone(),

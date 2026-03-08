@@ -6,9 +6,10 @@
 //!
 //! This module provides the Args struct and handler for the jjx_nominate command.
 
-use std::fmt::Write;
 use std::path::PathBuf;
 use std::collections::BTreeMap;
+
+use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_NominateArgs as LibNominateArgs};
@@ -30,14 +31,14 @@ pub struct jjrx_NominateArgs {
 /// Handler for jjx_nominate command
 pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
     use std::path::Path;
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            jjbuf!(buf, "jjx_nominate: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_nominate: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -45,15 +46,15 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
         match Gallops::jjrg_load(&args.file) {
             Ok(g) => g,
             Err(e) => {
-                jjbuf!(buf, "jjx_nominate: error loading Gallops: {}", e);
-                return (1, buf);
+                vvco_err!(output, "jjx_nominate: error loading Gallops: {}", e);
+                return (1, output.vvco_finish());
             }
         }
     } else {
         if let Some(parent) = args.file.parent() {
             if let Err(e) = std::fs::create_dir_all(parent) {
-                jjbuf!(buf, "jjx_nominate: error creating directory: {}", e);
-                return (1, buf);
+                vvco_err!(output, "jjx_nominate: error creating directory: {}", e);
+                return (1, output.vvco_finish());
             }
         }
         Gallops {
@@ -79,22 +80,22 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
             let fm = Firemark::jjrf_parse(&result.firemark).expect("nominate returned invalid firemark");
             let message = format_heat_message(&fm, HeatAction::Nominate, &silks);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
                 Ok(hash) => {
-                    jjbuf!(buf, "jjx_nominate: committed {}", &hash[..8]);
+                    vvco_out!(output, "jjx_nominate: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    jjbuf!(buf, "jjx_nominate: error: {}", e);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_nominate: error: {}", e);
+                    return (1, output.vvco_finish());
                 }
             }
 
-            let _ = writeln!(buf, "{}", result.firemark);
-            (0, buf)
+            vvco_out!(output, "{}", result.firemark);
+            (0, output.vvco_finish())
         }
         Err(e) => {
-            jjbuf!(buf, "jjx_nominate: error: {}", e);
-            (1, buf)
+            vvco_err!(output, "jjx_nominate: error: {}", e);
+            (1, output.vvco_finish())
         }
     }
     // lock released here

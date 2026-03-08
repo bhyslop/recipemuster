@@ -8,8 +8,7 @@
 
 use std::path::PathBuf;
 
-#[allow(unused_imports)]
-use std::fmt::Write;
+use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_FurloughArgs as LibFurloughArgs};
@@ -40,22 +39,22 @@ pub struct jjrfu_FurloughArgs {
 
 /// Handler for jjx_furlough command
 pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            jjbuf!(buf, "jjx_furlough: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_furlough: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_furlough: error loading Gallops: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_furlough: error loading Gallops: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -84,21 +83,21 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
             let fm = Firemark::jjrf_parse(&firemark_str).expect("furlough given invalid firemark");
             let message = format_heat_message(&fm, HeatAction::Furlough, &description);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 100000) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 100000, &mut output) {
                 Ok(hash) => {
-                    jjbuf!(buf, "jjx_furlough: committed {}", &hash[..8]);
+                    vvco_out!(output, "jjx_furlough: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    jjbuf!(buf, "jjx_furlough: error: {}", e);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_furlough: error: {}", e);
+                    return (1, output.vvco_finish());
                 }
             }
 
-            (0, buf)
+            (0, output.vvco_finish())
         }
         Err(e) => {
-            jjbuf!(buf, "jjx_furlough: error: {}", e);
-            (1, buf)
+            vvco_err!(output, "jjx_furlough: error: {}", e);
+            (1, output.vvco_finish())
         }
     }
     // lock released here

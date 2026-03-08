@@ -6,8 +6,8 @@
 //!
 //! Supports getter mode (display paddock) and setter mode (update with chalk entry).
 
-use std::fmt::Write;
 use std::path::PathBuf;
+use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
 
@@ -30,14 +30,14 @@ pub struct jjrcu_CurryArgs {
 pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, String) {
     use crate::jjro_ops::jjrg_curry;
 
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     // Parse firemark
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
-            jjbuf!(buf, "jjx_curry: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_curry: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -47,8 +47,8 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, 
             let gallops = match Gallops::jjrg_load(&args.file) {
                 Ok(g) => g,
                 Err(e) => {
-                    jjbuf!(buf, "jjx_curry: error loading Gallops: {}", e);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_curry: error loading Gallops: {}", e);
+                    return (1, output.vvco_finish());
                 }
             };
 
@@ -56,34 +56,34 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, 
             let heat = match gallops.heats.get(&firemark_key) {
                 Some(h) => h,
                 None => {
-                    jjbuf!(buf, "jjx_curry: error: Heat '{}' not found", firemark_key);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_curry: error: Heat '{}' not found", firemark_key);
+                    return (1, output.vvco_finish());
                 }
             };
 
             let paddock_path = std::path::Path::new(&heat.paddock_file);
-            let content = match std::fs::read_to_string(paddock_path) {
+            let paddock_content = match std::fs::read_to_string(paddock_path) {
                 Ok(c) => c,
                 Err(e) => {
-                    jjbuf!(buf, "jjx_curry: error reading paddock: {}", e);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_curry: error reading paddock: {}", e);
+                    return (1, output.vvco_finish());
                 }
             };
 
-            let _ = write!(buf, "{}", content);
-            (0, buf)
+            vvco_out!(output, "{}", paddock_content);
+            (0, output.vvco_finish())
         }
         Some(new_content) => {
             // Setter mode: update paddock
             // Call operation (curry acquires its own lock)
-            match jjrg_curry(&args.file, &firemark, &new_content, args.note.as_deref()) {
+            match jjrg_curry(&args.file, &firemark, &new_content, args.note.as_deref(), &mut output) {
                 Ok(()) => {
-                    jjbuf!(buf, "jjx_curry: paddock updated");
-                    (0, buf)
+                    vvco_out!(output, "jjx_curry: paddock updated");
+                    (0, output.vvco_finish())
                 }
                 Err(e) => {
-                    jjbuf!(buf, "jjx_curry: error: {}", e);
-                    (1, buf)
+                    vvco_err!(output, "jjx_curry: error: {}", e);
+                    (1, output.vvco_finish())
                 }
             }
         }

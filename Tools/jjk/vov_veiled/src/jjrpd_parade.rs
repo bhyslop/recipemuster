@@ -16,6 +16,8 @@ use std::collections::BTreeMap;
 use std::fmt::Write;
 use std::fs;
 
+use vvc::{vvco_out, vvco_err, vvco_Output};
+
 /// Arguments for jjx_show command
 #[derive(clap::Args, Debug)]
 pub struct jjrpd_ParadeArgs {
@@ -37,12 +39,12 @@ pub struct jjrpd_ParadeArgs {
 
 /// Run the show command - display comprehensive Heat status
 pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_show: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_show: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -54,8 +56,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
             match zjjrpd_resolve_default_heat(&gallops) {
                 Ok(fm) => fm,
                 Err(e) => {
-                    jjbuf!(buf, "jjx_show: error: {}", e);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_show: error: {}", e);
+                    return (1, output.vvco_finish());
                 }
             }
         }
@@ -69,8 +71,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         let coronet = match Coronet::jjrf_parse(&target) {
             Ok(c) => c,
             Err(e) => {
-                jjbuf!(buf, "jjx_show: error: {}", e);
-                return (1, buf);
+                vvco_err!(output, "jjx_show: error: {}", e);
+                return (1, output.vvco_finish());
             }
         };
 
@@ -80,8 +82,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         let heat = match gallops.heats.get(&heat_key) {
             Some(h) => h,
             None => {
-                jjbuf!(buf, "jjx_show: error: Heat '{}' not found", heat_key);
-                return (1, buf);
+                vvco_err!(output, "jjx_show: error: Heat '{}' not found", heat_key);
+                return (1, output.vvco_finish());
             }
         };
 
@@ -90,8 +92,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         let pace = match heat.paces.get(&coronet_key) {
             Some(p) => p,
             None => {
-                jjbuf!(buf, "jjx_show: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
-                return (1, buf);
+                vvco_err!(output, "jjx_show: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
+                return (1, output.vvco_finish());
             }
         };
 
@@ -99,17 +101,17 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         if !pace.tacks.is_empty() {
             // Write header with current state from tacks[0]
             let current_tack = &pace.tacks[0];
-            let _ = writeln!(buf, "Pace: {} ({}) [{}]", current_tack.silks, coronet_key, zjjrpd_pace_state_str(&current_tack.state));
-            let _ = writeln!(buf, "Heat: {}", heat_key);
+            vvco_out!(output, "Pace: {} ({}) [{}]", current_tack.silks, coronet_key, zjjrpd_pace_state_str(&current_tack.state));
+            vvco_out!(output, "Heat: {}", heat_key);
 
             // Show work files touched by this pace's commits
             match jjrq_files_for_pace(firemark.jjrf_as_str(), &coronet_key) {
                 Ok(files) if !files.is_empty() => {
-                    let _ = writeln!(buf, "Work files: {}", files.join(", "));
+                    vvco_out!(output, "Work files: {}", files.join(", "));
                 }
                 _ => {}
             }
-            let _ = writeln!(buf);
+            vvco_out!(output, "");
 
             if args.detail {
                 // Detail view: full tack history in reverse order (oldest first)
@@ -121,40 +123,40 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
                         tack.basis.clone()
                     };
 
-                    let _ = writeln!(buf, "[{}] {} (basis: {})", index, state_str, basis_str);
-                    let _ = writeln!(buf, "    Silks: {}", tack.silks);
+                    vvco_out!(output, "[{}] {} (basis: {})", index, state_str, basis_str);
+                    vvco_out!(output, "    Silks: {}", tack.silks);
                     if let Some(ref direction) = tack.direction {
-                        let _ = writeln!(buf, "    Warrant: {}", direction);
+                        vvco_out!(output, "    Warrant: {}", direction);
                     }
-                    let _ = writeln!(buf);
+                    vvco_out!(output, "");
                     // Indent docket text
                     for line in tack.text.lines() {
-                        let _ = writeln!(buf, "    {}", line);
+                        vvco_out!(output, "    {}", line);
                     }
-                    let _ = writeln!(buf);
+                    vvco_out!(output, "");
                 }
             } else {
                 // Default view: latest tack docket only
                 if let Some(ref direction) = current_tack.direction {
-                    let _ = writeln!(buf, "Warrant: {}", direction);
-                    let _ = writeln!(buf);
+                    vvco_out!(output, "Warrant: {}", direction);
+                    vvco_out!(output, "");
                 }
                 for line in current_tack.text.lines() {
-                    let _ = writeln!(buf, "{}", line);
+                    vvco_out!(output, "{}", line);
                 }
-                let _ = writeln!(buf);
+                vvco_out!(output, "");
             }
 
             // Append files-per-commit bitmap
-            zjjrpd_write_pace_commits(&mut buf, &firemark, &coronet_key);
+            zjjrpd_write_pace_commits(&mut output, &firemark, &coronet_key);
         }
     } else if target_str.len() == 2 {
         // Firemark - heat view
         let firemark = match Firemark::jjrf_parse(&target) {
             Ok(fm) => fm,
             Err(e) => {
-                jjbuf!(buf, "jjx_show: error: {}", e);
-                return (1, buf);
+                vvco_err!(output, "jjx_show: error: {}", e);
+                return (1, output.vvco_finish());
             }
         };
 
@@ -162,8 +164,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         let heat = match gallops.heats.get(&heat_key) {
             Some(h) => h,
             None => {
-                jjbuf!(buf, "jjx_show: error: Heat '{}' not found", heat_key);
-                return (1, buf);
+                vvco_err!(output, "jjx_show: error: Heat '{}' not found", heat_key);
+                return (1, output.vvco_finish());
             }
         };
 
@@ -172,8 +174,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
             let paddock_content = match fs::read_to_string(&heat.paddock_file) {
                 Ok(content) => content,
                 Err(e) => {
-                    jjbuf!(buf, "jjx_show: error reading paddock file '{}': {}", heat.paddock_file, e);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_show: error reading paddock file '{}': {}", heat.paddock_file, e);
+                    return (1, output.vvco_finish());
                 }
             };
 
@@ -183,16 +185,16 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
                 HeatStatus::Retired => "retired",
             };
 
-            let _ = writeln!(buf, "Heat: {} ({})", heat.silks, heat_key);
-            let _ = writeln!(buf, "Status: {}", status_str);
-            let _ = writeln!(buf, "Created: {}", heat.creation_time);
-            let _ = writeln!(buf);
-            let _ = writeln!(buf, "## Paddock");
-            let _ = writeln!(buf);
-            let _ = writeln!(buf, "{}", paddock_content);
-            let _ = writeln!(buf);
-            let _ = writeln!(buf, "## Paces");
-            let _ = writeln!(buf);
+            vvco_out!(output, "Heat: {} ({})", heat.silks, heat_key);
+            vvco_out!(output, "Status: {}", status_str);
+            vvco_out!(output, "Created: {}", heat.creation_time);
+            vvco_out!(output, "");
+            vvco_out!(output, "## Paddock");
+            vvco_out!(output, "");
+            vvco_out!(output, "{}", paddock_content);
+            vvco_out!(output, "");
+            vvco_out!(output, "## Paces");
+            vvco_out!(output, "");
 
             for coronet_key in &heat.order {
                 if let Some(pace) = heat.paces.get(coronet_key) {
@@ -202,14 +204,14 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
                             continue;
                         }
                         let state_str = zjjrpd_pace_state_str(&tack.state);
-                        let _ = writeln!(buf, "### {} ({}) [{}]", tack.silks, coronet_key, state_str);
-                        let _ = writeln!(buf);
-                        let _ = writeln!(buf, "{}", tack.text);
+                        vvco_out!(output, "### {} ({}) [{}]", tack.silks, coronet_key, state_str);
+                        vvco_out!(output, "");
+                        vvco_out!(output, "{}", tack.text);
                         if let Some(ref direction) = tack.direction {
-                            let _ = writeln!(buf);
-                            let _ = writeln!(buf, "**Warrant:** {}", direction);
+                            vvco_out!(output, "");
+                            vvco_out!(output, "**Warrant:** {}", direction);
                         }
-                        let _ = writeln!(buf);
+                        vvco_out!(output, "");
                     }
                 }
             }
@@ -258,10 +260,10 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
                 let remaining_count = rough_count + bridled_count;
 
                 // Header line with heat info
-                let _ = writeln!(buf, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
-                let _ = writeln!(buf, "Progress: {} complete | {} abandoned | {} remaining ({} rough, {} bridled)",
+                vvco_out!(output, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
+                vvco_out!(output, "Progress: {} complete | {} abandoned | {} remaining ({} rough, {} bridled)",
                     complete_count, abandoned_count, remaining_count, rough_count, bridled_count);
-                let _ = writeln!(buf);
+                vvco_out!(output, "");
 
                 // Table with remaining paces
                 if !remaining_paces.is_empty() {
@@ -287,14 +289,14 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
                     }
 
                     // Write header and separator
-                    table.jjrp_write_header(&mut buf);
-                    table.jjrp_write_separator(&mut buf);
+                    table.jjrp_write_header(&mut output);
+                    table.jjrp_write_separator(&mut output);
 
                     // Write data rows
                     for (idx, (coronet_key, pace)) in remaining_paces.iter().enumerate() {
                         if let Some(tack) = pace.tacks.first() {
                             let state_str = zjjrpd_pace_state_str(&tack.state);
-                            table.jjrp_write_row(&mut buf, &[
+                            table.jjrp_write_row(&mut output, &[
                                 &(idx + 1).to_string(),
                                 state_str,
                                 &tack.silks,
@@ -302,16 +304,16 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
                             ]);
                         }
                     }
-                    let _ = writeln!(buf);
+                    vvco_out!(output, "");
                 }
 
                 // Next up callout
                 if let Some((coronet_key, pace)) = first_remaining_pace {
                     if let Some(tack) = pace.tacks.first() {
                         let state_str = zjjrpd_pace_state_str(&tack.state);
-                        let _ = writeln!(buf, "Next: {} ({}) [{}]", tack.silks, coronet_key, state_str);
-                        jjbuf!(buf, "");
-                        jjbuf!(buf, "Recommended: /jjc-heat-mount {}", heat_key);
+                        vvco_out!(output, "Next: {} ({}) [{}]", tack.silks, coronet_key, state_str);
+                        vvco_out!(output, "");
+                        vvco_out!(output, "Recommended: /jjc-heat-mount {}", heat_key);
                     }
                 }
             } else {
@@ -342,8 +344,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
                 }
 
                 // Write header and separator
-                table.jjrp_write_header(&mut buf);
-                table.jjrp_write_separator(&mut buf);
+                table.jjrp_write_header(&mut output);
+                table.jjrp_write_separator(&mut output);
 
                 // Write data rows
                 let mut num = 0;
@@ -352,7 +354,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
                         if let Some(tack) = pace.tacks.first() {
                             num += 1;
                             let state_str = zjjrpd_pace_state_str(&tack.state);
-                            table.jjrp_write_row(&mut buf, &[
+                            table.jjrp_write_row(&mut output, &[
                                 &num.to_string(),
                                 state_str,
                                 &tack.silks,
@@ -365,14 +367,14 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         }
 
         // Always show file-touch bitmap and commit swim lanes after pace listing
-        jjrpd_write_file_bitmap(&mut buf, &firemark, heat);
-        jjrpd_write_commit_swimlanes(&mut buf, &firemark, heat);
+        jjrpd_write_file_bitmap(&mut output, &firemark, heat);
+        jjrpd_write_commit_swimlanes(&mut output, &firemark, heat);
     } else {
-        jjbuf!(buf, "jjx_show: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
-        return (1, buf);
+        vvco_err!(output, "jjx_show: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
+        return (1, output.vvco_finish());
     }
 
-    (0, buf)
+    (0, output.vvco_finish())
 }
 
 /// Format the file-touch bitmap for a heat as a String.
@@ -469,11 +471,15 @@ pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<Stri
     Ok(output)
 }
 
-/// Write the file-touch bitmap for a heat to a buffer.
-pub(crate) fn jjrpd_write_file_bitmap(buf: &mut String, firemark: &Firemark, heat: &Heat) {
+/// Write the file-touch bitmap for a heat to output.
+pub(crate) fn jjrpd_write_file_bitmap(output: &mut vvco_Output, firemark: &Firemark, heat: &Heat) {
     match jjrpd_format_file_bitmap(firemark, heat) {
-        Ok(output) => { let _ = write!(buf, "{}", output); }
-        Err(e) => jjbuf!(buf, "jjx_show: error getting file touches: {}", e),
+        Ok(text) => {
+            for line in text.lines() {
+                vvco_out!(output, "{}", line);
+            }
+        }
+        Err(e) => vvco_err!(output, "jjx_show: error getting file touches: {}", e),
     }
 }
 
@@ -607,19 +613,23 @@ pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result
     Ok(output)
 }
 
-/// Write commit swim lanes for a heat to a buffer.
-pub(crate) fn jjrpd_write_commit_swimlanes(buf: &mut String, firemark: &Firemark, heat: &Heat) {
+/// Write commit swim lanes for a heat to output.
+pub(crate) fn jjrpd_write_commit_swimlanes(output: &mut vvco_Output, firemark: &Firemark, heat: &Heat) {
     match jjrpd_format_commit_swimlanes(firemark, heat) {
-        Ok(output) => { let _ = write!(buf, "{}", output); }
-        Err(e) => jjbuf!(buf, "jjx_show: error getting steeplechase entries: {}", e),
+        Ok(text) => {
+            for line in text.lines() {
+                vvco_out!(output, "{}", line);
+            }
+        }
+        Err(e) => vvco_err!(output, "jjx_show: error getting steeplechase entries: {}", e),
     }
 }
 
-/// Write files-per-commit bitmap for a single pace to a buffer.
+/// Write files-per-commit bitmap for a single pace to output.
 ///
 /// Shows which files each commit in this pace touched.
 /// Called after tack history in pace parade.
-fn zjjrpd_write_pace_commits(buf: &mut String, firemark: &Firemark, coronet_key: &str) {
+fn zjjrpd_write_pace_commits(output: &mut vvco_Output, firemark: &Firemark, coronet_key: &str) {
     let rein_args = jjrs_ReinArgs {
         firemark: firemark.jjrf_as_str().to_string(),
         limit: 10000,
@@ -628,7 +638,7 @@ fn zjjrpd_write_pace_commits(buf: &mut String, firemark: &Firemark, coronet_key:
     let entries = match jjrs_get_entries(&rein_args) {
         Ok(e) => e,
         Err(e) => {
-            jjbuf!(buf, "jjx_show: error getting steeplechase entries: {}", e);
+            vvco_err!(output, "jjx_show: error getting steeplechase entries: {}", e);
             return;
         }
     };
@@ -663,25 +673,25 @@ fn zjjrpd_write_pace_commits(buf: &mut String, firemark: &Firemark, coronet_key:
     }
 
     if file_touches.is_empty() {
-        let _ = writeln!(buf);
-        let _ = writeln!(buf, "Pace commits: (no project file commits)");
+        vvco_out!(output, "");
+        vvco_out!(output, "Pace commits: (no project file commits)");
         return;
     }
 
-    let _ = writeln!(buf);
-    let _ = writeln!(buf, "Pace commits (x = commit touched file):");
-    let _ = writeln!(buf);
+    vvco_out!(output, "");
+    vvco_out!(output, "Pace commits (x = commit touched file):");
+    vvco_out!(output, "");
 
     // Legend: commit index char, SHA, subject
     for (i, entry) in pace_entries.iter().enumerate() {
         let ch = zjjrpd_commit_index_char(i).unwrap_or('?');
-        let _ = writeln!(buf, "  {} {}  {}", ch, entry.commit, entry.subject);
+        vvco_out!(output, "  {} {}  {}", ch, entry.commit, entry.subject);
     }
-    let _ = writeln!(buf);
+    vvco_out!(output, "");
 
     // Column header line
     let header: String = (0..num_commits).filter_map(zjjrpd_commit_index_char).collect();
-    let _ = writeln!(buf, "{}", header);
+    vvco_out!(output, "{}", header);
 
     // Group by identical touch pattern
     let mut pattern_groups: BTreeMap<Vec<bool>, Vec<String>> = BTreeMap::new();
@@ -702,6 +712,6 @@ fn zjjrpd_write_pace_commits(buf: &mut String, firemark: &Firemark, coronet_key:
 
     for (pattern, files) in &sorted {
         let bits: String = pattern.iter().map(|&b| if b { 'x' } else { '·' }).collect();
-        let _ = writeln!(buf, "{} {}", bits, files.join(", "));
+        vvco_out!(output, "{} {}", bits, files.join(", "));
     }
 }

@@ -5,8 +5,9 @@
 //! Slate command - add a new Pace to a Heat
 
 use clap::Args;
-use std::fmt::Write;
 use std::path::PathBuf;
+
+use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
@@ -42,14 +43,14 @@ pub struct jjrsl_SlateArgs {
 /// Handler for jjx_slate command
 pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
     use crate::jjrg_gallops::jjrg_SlateArgs as LibSlateArgs;
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            jjbuf!(buf, "jjx_slate: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_slate: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -58,8 +59,8 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_slate: error loading Gallops: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_slate: error loading Gallops: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -79,20 +80,20 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
             let fm = Firemark::jjrf_parse(&firemark).expect("slate given invalid firemark");
             let message = format_heat_message(&fm, HeatAction::Slate, &silks);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
                 Ok(_hash) => {}
                 Err(e) => {
-                    jjbuf!(buf, "jjx_slate: error: {}", e);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_slate: error: {}", e);
+                    return (1, output.vvco_finish());
                 }
             }
 
-            let _ = writeln!(buf, "{}", result.coronet);
-            (0, buf)
+            vvco_out!(output, "{}", result.coronet);
+            (0, output.vvco_finish())
         }
         Err(e) => {
-            jjbuf!(buf, "jjx_slate: error: {}", e);
-            (1, buf)
+            vvco_err!(output, "jjx_slate: error: {}", e);
+            (1, output.vvco_finish())
         }
     }
     // lock released here

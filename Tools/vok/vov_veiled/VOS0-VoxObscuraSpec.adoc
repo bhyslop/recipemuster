@@ -152,6 +152,10 @@
 :vosr_probe:            <<vosr_probe,probe routine>>
 :vosr_init:             <<vosr_init,init routine>>
 
+// Entities
+:vose_output:           <<vose_output,Output>>
+:vose_output_s:         <<vose_output,Outputs>>
+
 // Control terms (voice axc_* in bash scripted context)
 :vosc_require:          <<vosc_require,REQUIRE>>
 :vosc_fatal:            <<vosc_fatal,FATAL>>
@@ -686,6 +690,36 @@ to allocate
 — if super-SHA exists, reuse its
 {vost_hallmark};
 otherwise allocate next sequential value.
+
+[[vose_output]]
+//axl_voices axo_entity
+{vose_output}::
+Context-aware output accumulator that routes standard and error output based on invocation environment.
+In
+{axe_console}
+mode, standard output goes to stdout and errors go to stderr.
+In
+{axe_mcp_transport}
+mode, both accumulate into an internal buffer for return through the MCP protocol.
++
+Replaces direct `eprintln!` calls that are invisible in
+{axe_mcp_transport}
+context.
++
+Construction: `vvco_Output::console()` or `vvco_Output::buffer()`
++
+Methods:
++
+* `vvco_out_line(line)` — route standard output
+* `vvco_err_line(line)` — route error/warning output
+* `vvco_finish()` — consume and return accumulated text
++
+Macros (formatting wrappers):
++
+* `vvco_out!(output, fmt, args...)` — formatted standard output
+* `vvco_err!(output, fmt, args...)` — formatted error output
++
+*Implementation:* `Tools/vvc/src/vvco_output.rs`
 
 == Places
 

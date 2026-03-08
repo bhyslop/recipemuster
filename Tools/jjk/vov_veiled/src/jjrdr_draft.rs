@@ -7,8 +7,9 @@
 //! Implements the jjx_draft subcommand and related structures.
 
 use clap::Args;
-use std::fmt::Write;
 use std::path::PathBuf;
+
+use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::jjrg_Gallops as Gallops;
@@ -45,22 +46,22 @@ pub struct jjrdr_DraftArgs {
 /// Handler function for draft command
 pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
     use crate::jjrg_gallops::jjrg_DraftArgs as LibDraftArgs;
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            jjbuf!(buf, "jjx_draft: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_draft: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_draft: error loading Gallops: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_draft: error loading Gallops: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -78,8 +79,8 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
         Ok(result) => {
             // Save gallops
             if let Err(e) = gallops.jjrg_save(&args.file) {
-                jjbuf!(buf, "jjx_draft: error saving Gallops: {}", e);
-                return (1, buf);
+                vvco_err!(output, "jjx_draft: error saving Gallops: {}", e);
+                return (1, output.vvco_finish());
             }
 
             // Commit using machine_commit - draft affects source and dest paddocks
@@ -104,21 +105,21 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
                 warn_limit: 30000,
             };
 
-            match vvc::machine_commit(&lock, &commit_args) {
+            match vvc::machine_commit(&lock, &commit_args, &mut output) {
                 Ok(hash) => {
-                    jjbuf!(buf, "jjx_draft: committed {}", &hash[..8]);
+                    vvco_out!(output, "jjx_draft: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    jjbuf!(buf, "jjx_draft: commit warning: {}", e);
+                    vvco_err!(output, "jjx_draft: commit warning: {}", e);
                 }
             }
 
-            let _ = writeln!(buf, "{}", result.new_coronet);
-            (0, buf)
+            vvco_out!(output, "{}", result.new_coronet);
+            (0, output.vvco_finish())
         }
         Err(e) => {
-            jjbuf!(buf, "jjx_draft: error: {}", e);
-            (1, buf)
+            vvco_err!(output, "jjx_draft: error: {}", e);
+            (1, output.vvco_finish())
         }
     }
     // lock released here

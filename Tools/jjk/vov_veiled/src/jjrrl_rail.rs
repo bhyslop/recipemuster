@@ -11,6 +11,8 @@
 use clap::Args;
 use std::path::PathBuf;
 
+use vvc::{vvco_out, vvco_err};
+
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::jjrg_Gallops as Gallops;
 
@@ -53,18 +55,17 @@ pub struct jjrrl_RailArgs {
 
 /// Execute rail command - reorder Paces within a Heat
 pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
-    use std::fmt::Write;
     use crate::jjrg_gallops::jjrg_RailArgs as LibRailArgs;
     use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
-    let mut buf = String::new();
+    let mut output = vvc::vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            jjbuf!(buf, "jjx_rail: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_rail: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -80,8 +81,8 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_rail: error loading Gallops: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_rail: error loading Gallops: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -118,11 +119,11 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
                     else if move_after.is_some() { "requested position" }
                     else { "requested position" };
                 let coronet_display = move_coronet.as_deref().unwrap_or("pace");
-                jjbuf!(buf, "jjx_rail: no change — {} is already {}", coronet_display, position);
+                vvco_out!(output, "jjx_rail: no change — {} is already {}", coronet_display, position);
                 for coronet in new_order {
-                    let _ = writeln!(buf, "{}", coronet);
+                    vvco_out!(output, "{}", coronet);
                 }
-                return (0, buf);
+                return (0, output.vvco_finish());
             }
 
             // Compute descriptive subject for commit message
@@ -141,24 +142,24 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
 
             let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Rail, &subject);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
                 Ok(hash) => {
-                    jjbuf!(buf, "jjx_rail: committed {}", &hash[..8]);
+                    vvco_out!(output, "jjx_rail: committed {}", &hash[..8]);
                 }
                 Err(e) => {
-                    jjbuf!(buf, "jjx_rail: error: {}", e);
-                    return (1, buf);
+                    vvco_err!(output, "jjx_rail: error: {}", e);
+                    return (1, output.vvco_finish());
                 }
             }
 
             for coronet in new_order {
-                let _ = writeln!(buf, "{}", coronet);
+                vvco_out!(output, "{}", coronet);
             }
-            (0, buf)
+            (0, output.vvco_finish())
         }
         Err(e) => {
-            jjbuf!(buf, "jjx_rail: error: {}", e);
-            (1, buf)
+            vvco_err!(output, "jjx_rail: error: {}", e);
+            (1, output.vvco_finish())
         }
     }
     // lock released here

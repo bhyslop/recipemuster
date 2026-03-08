@@ -11,16 +11,6 @@
 use std::path::PathBuf;
 use chrono::Local;
 
-/// Write formatted text to a buf String, suppressing the Result.
-/// Replaces `eprintln!` in command handlers so errors flow through MCP transport
-/// instead of vanishing into stderr.
-#[macro_export]
-macro_rules! jjbuf {
-    ($buf:expr, $($arg:tt)*) => {
-        { use std::fmt::Write; let _ = writeln!($buf, $($arg)*); }
-    };
-}
-
 /// Default path to the Gallops JSON file
 pub const JJRC_DEFAULT_GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 

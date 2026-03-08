@@ -5,10 +5,11 @@
 //! Scout command - Search across heats and paces with regex
 
 use clap::Args;
-use std::fmt::Write;
 use std::path::PathBuf;
 use regex::Regex;
 use std::fs;
+
+use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
 
@@ -31,13 +32,13 @@ pub struct jjrsc_ScoutArgs {
 pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
     use regex::RegexBuilder;
 
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_scout: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_scout: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -48,8 +49,8 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
     {
         Ok(r) => r,
         Err(e) => {
-            jjbuf!(buf, "jjx_scout: error: invalid regex pattern: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_scout: error: invalid regex pattern: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -96,24 +97,24 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
                     if let Some((field_name, field_content)) = match_result {
                         // Print heat header if this is a new heat
                         if current_heat_key.as_ref() != Some(heat_key) {
-                            let _ = writeln!(buf, "{} {}", heat_key, heat.silks);
+                            vvco_out!(output, "{} {}", heat_key, heat.silks);
                             current_heat_key = Some(heat_key.clone());
                         }
 
                         // Print pace line
                         let state_str = zjrsc_pace_state_str(&tack.state);
-                        let _ = writeln!(buf, "  {} [{}] {}", coronet_key, state_str, tack.silks);
+                        vvco_out!(output, "  {} [{}] {}", coronet_key, state_str, tack.silks);
 
                         // Print match line with context (extract ~60 chars around match)
                         let match_excerpt = zjrsc_extract_match_context(&field_content, &re);
-                        let _ = writeln!(buf, "    {}: {}", field_name, match_excerpt);
+                        vvco_out!(output, "    {}: {}", field_name, match_excerpt);
                     }
                 }
             }
         }
     }
 
-    (0, buf)
+    (0, output.vvco_finish())
 }
 
 /// Helper to convert PaceState to display string

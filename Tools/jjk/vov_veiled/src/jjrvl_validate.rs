@@ -6,8 +6,8 @@
 //!
 //! This module owns the validate command's Args struct and handler function.
 
-use std::fmt::Write;
 use std::path::PathBuf;
+use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrg_gallops::jjrg_Gallops as Gallops;
 
 /// Arguments for jjx_validate command
@@ -20,27 +20,27 @@ pub struct jjrvl_ValidateArgs {
 
 /// Run the validate command - validate Gallops JSON schema
 pub fn jjrvl_run_validate(args: jjrvl_ValidateArgs) -> (i32, String) {
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_validate: error loading Gallops: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_validate: error loading Gallops: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     match gallops.jjrg_validate() {
         Ok(()) => {
-            let _ = writeln!(buf, "Gallops validation passed");
-            (0, buf)
+            vvco_out!(output, "Gallops validation passed");
+            (0, output.vvco_finish())
         }
         Err(errors) => {
-            jjbuf!(buf, "jjx_validate: validation failed with {} error(s):", errors.len());
+            vvco_err!(output, "jjx_validate: validation failed with {} error(s):", errors.len());
             for error in errors {
-                jjbuf!(buf, "  - {}", error);
+                vvco_err!(output, "  - {}", error);
             }
-            (1, buf)
+            (1, output.vvco_finish())
         }
     }
 }

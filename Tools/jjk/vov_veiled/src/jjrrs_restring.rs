@@ -9,6 +9,8 @@
 
 use std::path::PathBuf;
 
+use vvc::{vvco_out, vvco_err, vvco_Output};
+
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_RestringArgs as LibRestringArgs, jjrg_PaceState};
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
@@ -30,30 +32,30 @@ pub struct jjrrs_RestringArgs {
 
 /// Execute restring command - bulk draft multiple paces atomically
 pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
-    let mut buf = String::new();
+    let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            jjbuf!(buf, "jjx_restring: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_restring: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     let coronets: Vec<String> = match serde_json::from_str(&coronets) {
         Ok(c) => c,
         Err(e) => {
-            jjbuf!(buf, "jjx_restring: error: Expected JSON array of coronets: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_restring: error: Expected JSON array of coronets: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            jjbuf!(buf, "jjx_restring: error loading Gallops: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_restring: error loading Gallops: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
@@ -67,15 +69,15 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
     let result = match gallops.jjrg_restring(restring_args) {
         Ok(r) => r,
         Err(e) => {
-            jjbuf!(buf, "jjx_restring: error: {}", e);
-            return (1, buf);
+            vvco_err!(output, "jjx_restring: error: {}", e);
+            return (1, output.vvco_finish());
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
-        jjbuf!(buf, "jjx_restring: error saving Gallops: {}", e);
-        return (1, buf);
+        vvco_err!(output, "jjx_restring: error saving Gallops: {}", e);
+        return (1, output.vvco_finish());
     }
 
     // Parse both firemarks for commit file list
@@ -103,12 +105,12 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
         warn_limit: 50000,
     };
 
-    match vvc::machine_commit(&lock, &commit_args) {
+    match vvc::machine_commit(&lock, &commit_args, &mut output) {
         Ok(hash) => {
-            jjbuf!(buf, "jjx_restring: committed {}", &hash[..8]);
+            vvco_out!(output, "jjx_restring: committed {}", &hash[..8]);
         }
         Err(e) => {
-            jjbuf!(buf, "jjx_restring: commit warning: {}", e);
+            vvco_err!(output, "jjx_restring: commit warning: {}", e);
         }
     }
 
@@ -128,7 +130,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
         })
     }).collect();
 
-    let output = serde_json::json!({
+    let json_result = serde_json::json!({
         "source": {
             "firemark": result.source_firemark,
             "silks": result.source_silks,
@@ -143,14 +145,14 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
         "drafted": drafted_json,
     });
 
-    match serde_json::to_string_pretty(&output) {
+    match serde_json::to_string_pretty(&json_result) {
         Ok(json) => {
-            jjbuf!(buf, "{}", json);
-            (0, buf)
+            vvco_out!(output, "{}", json);
+            (0, output.vvco_finish())
         }
         Err(e) => {
-            jjbuf!(buf, "jjx_restring: error serializing output: {}", e);
-            (1, buf)
+            vvco_err!(output, "jjx_restring: error serializing output: {}", e);
+            (1, output.vvco_finish())
         }
     }
     // lock released here

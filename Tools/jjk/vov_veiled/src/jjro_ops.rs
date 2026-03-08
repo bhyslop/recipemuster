@@ -709,6 +709,7 @@ pub fn jjrg_curry(
     firemark: &Firemark,
     new_content: &str,
     note: Option<&str>,
+    output: &mut vvc::vvco_Output,
 ) -> Result<(), String> {
     use std::fs;
 
@@ -748,9 +749,9 @@ pub fn jjrg_curry(
     let lock = vvc::vvcc_CommitLock::vvcc_acquire()
         .map_err(|e| format!("Failed to acquire commit lock: {}", e))?;
 
-    match vvc::machine_commit(&lock, &commit_args) {
+    match vvc::machine_commit(&lock, &commit_args, output) {
         Ok(hash) => {
-            eprintln!("jjx_curry: committed {}", &hash[..8]);
+            vvc::vvco_out!(output, "jjx_curry: committed {}", &hash[..8]);
             Ok(())
         }
         Err(e) => Err(format!("Commit failed: {}", e)),

@@ -211,6 +211,7 @@ pub fn jjri_persist(
     firemark: &crate::jjrf_favor::jjrf_Firemark,
     message: String,
     size_limit: u64,
+    output: &mut vvc::vvco_Output,
 ) -> Result<String, String> {
     // Save gallops first
     jjdr_save(gallops, file)?;
@@ -230,5 +231,5 @@ pub fn jjri_persist(
         warn_limit: 30000,
     };
 
-    vvc::machine_commit(lock, &commit_args)
+    vvc::machine_commit(lock, &commit_args, output)
 }

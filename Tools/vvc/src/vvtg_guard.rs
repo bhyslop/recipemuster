@@ -152,7 +152,8 @@ mod tests {
             limit: VVCG_SIZE_LIMIT,  // 50KB
             warn: VVCG_WARN_LIMIT,   // 30KB
         };
-        let result = vvcg_run(&args, Some(&temp_dir));
+        let mut output = crate::vvco_output::vvco_Output::buffer();
+        let result = vvcg_run(&args, Some(&temp_dir), &mut output);
 
         // Should be blocked (exit code 1) because 100KB > 50KB limit
         assert_eq!(result, 1);
