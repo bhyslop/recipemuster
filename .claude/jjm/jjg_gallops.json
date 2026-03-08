@@ -7437,9 +7437,10 @@
       "status": "stabled",
       "order": [
         "₢AqAAA",
-        "₢AqAAB"
+        "₢AqAAB",
+        "₢AqAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAlq.md",
       "paces": {
         "₢AqAAA": {
@@ -7496,6 +7497,17 @@
               "text": "Inscribe rbbk_ premise text into source file headerdocs across rbw modules.\n\nMechanical work following the pattern established by ₢AkAAO exemplar.\n\n## Context\n\n₢AkAAO defines three rbbk_ premises and inscribes one exemplar file. This pace\nextends inscription to remaining files where premises are load-bearing.\n\n## Target files (not exhaustive — add as discovered)\n\nFiles with error-recovery or eventual-consistency logic:\n- rbgp_Payor.sh — probe-not-pray, no-silent-fallback\n- rbgi_IAM.sh — probe-not-pray, no-silent-fallback\n- rbgg_Governor.sh — probe-not-pray, no-silent-fallback\n- rbf_Foundry.sh — probe-not-pray, bcg-compliance\n\nFiles are candidates if they contain propagation loops, fallback paths,\nor error-recovery patterns. Constants files, guide display modules, and\npure-declaration files do not need inscription.\n\n## Deliverables\n\n1. Inscribe premise text in headerdocs per the rule defined in ₢AkAAO\n2. Verify inscription with the release compliance check (also from ₢AkAAO)\n\n## Sequencing\n\nDepends on ₢AkAAO (premises defined, rule written, exemplar established).\nBridleable once ₢AkAAO is complete — mechanical pattern application.",
               "silks": "premise-headerdoc-inscription",
               "commit": "f946651"
+            }
+          ]
+        },
+        "₢AqAAC": {
+          "tacks": [
+            {
+              "ts": "260308-0841",
+              "state": "rough",
+              "text": "## Goal\n\nAllow configurable OAuth token lifetime (up to 12 hours) for long-running build polls. Default Google tokens expire at 60 minutes; sentry builds with QEMU cross-compilation can exceed this.\n\n## Design\n\n1. Add `RBRR_OAUTH_TOKEN_LIFETIME_SEC` to regime config (default 3600, max 43200)\n2. At depot creation time, set org policy `constraints/iam.allowServiceAccountCredentialLifetimeExtension` on the project to allow the Director service account\n3. Update `rbgo_OAuth.sh` to pass `lifetime` parameter when generating access tokens via IAM Credentials API\n\n## GCP prerequisites\n\n- Payor needs Organization Policy Administrator role (or equivalent) on the project to set the constraint\n- Uses `generateAccessToken` from IAM Service Account Credentials API instead of standard OAuth endpoint\n\n## Files\n\n- `Tools/rbw/rbrr.env` (per-regime) — new RBRR_OAUTH_TOKEN_LIFETIME_SEC\n- `Tools/rbw/rbgo_OAuth.sh` — token generation\n- `Tools/rbw/rbgp_Payor.sh` or depot creation — org policy setup\n- `lenses/RBS0-SpecTop.adoc` — document the configuration",
+              "silks": "oauth-token-lifetime-extension",
+              "commit": "f3fd860"
             }
           ]
         }
