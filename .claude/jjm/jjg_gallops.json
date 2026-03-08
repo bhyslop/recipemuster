@@ -5461,9 +5461,10 @@
         "₢AkAAb",
         "₢AkAAc",
         "₢AkAAd",
-        "₢AkAAi"
+        "₢AkAAi",
+        "₢AkAAk"
       ],
-      "next_pace_seed": "AAk",
+      "next_pace_seed": "AAl",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6108,6 +6109,17 @@
               "text": "Fix consumer image tag to use full consecration (TAG_BASE) instead of inscribe timestamp only.\n\n## Problem\n\nThe cloudbuild.json step 09 (imagetools-create) constructs the consumer-facing image tag as:\n```\nCONSUMER_TAG=\"${_RBGY_INSCRIBE_TIMESTAMP}${_RBGY_ARK_SUFFIX_IMAGE}\"\n```\n\nThis produces tags like `i20260306_125145-image`, dropping the build timestamp (`-b20260307_HHMMSS`). But `rbob_bottle.sh` constructs image references as `${RBRN_*_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}`, expecting the full consecration in the tag.\n\nResult: nameplate consecrations don't match actual image tags. Two builds from the same inscribed JSON produce identical consumer tags, making them indistinguishable.\n\n## Fix\n\n### Pipeline side (cloudbuild.json, all vessels)\n\nStep 09 (imagetools-create): Change CONSUMER_TAG to use TAG_BASE (the full consecration) instead of _RBGY_INSCRIBE_TIMESTAMP.\n\nStep 04 (per-platform-pullback) and Step 05 (push-per-platform): Same fix — per-platform tags should also use TAG_BASE so imagetools-create can reference them.\n\nTAG_BASE is already derived in step 01 and written to `.tag_base`. Steps that need it can read from that file (steps 07 and 08 already do this).\n\n### Stitch function (rbf_Foundry.sh)\n\nThe inscribe/stitch function generates the cloudbuild.json substitutions. Verify that the stitch templates pass through correctly — the fix is in the step scripts themselves, not substitutions, since TAG_BASE is derived at build time.\n\n### Validation\n\n- Rebuild one vessel (rbev-busybox is fastest) and verify consumer tag is `{consecration}-image`\n- Summon and verify rbob_start can find the image\n- Update nameplate consecrations to match\n\n## Scope\n\nAll vessel cloudbuild.json files (7 files in rbev-vessels/).\nThe stitch function that generates them (rbf_Foundry.sh).\nPossibly rbf_summon if it also assumes inscribe-only tags.",
               "silks": "fix-consumer-image-tag-uses-full-consecration",
               "commit": "818434c"
+            }
+          ]
+        },
+        "₢AkAAk": {
+          "tacks": [
+            {
+              "ts": "260307-1845",
+              "state": "rough",
+              "text": "Investigate and fix the location of nameplate .env files (rbrn_nsproto.env, rbrn_srjcl.env, rbrn_pluml.env). These are currently in Tools/rbw/ alongside implementation code, but they're user-authored configuration (regime files) — not tooling. Determine the correct location, move them, and update all consumers.\n\n## Questions to answer\n\n- Where do other regime .env files live? (rbrr.env, rbrp.env, etc.)\n- What references these files? (RBCC literal constants, furnish functions, testbench)\n- What is the principled location for per-instance regime config?\n\n## Scope\n\n- Move the 3 nameplate .env files to the correct location\n- Update all path references (likely RBCC/RBBC literal constants)\n- Verify all nameplate tests still pass after the move",
+              "silks": "nameplate-env-file-location",
+              "commit": "231b314"
             }
           ]
         }
