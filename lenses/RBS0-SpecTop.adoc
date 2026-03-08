@@ -75,6 +75,7 @@
 :rbtga_consecration:         <<rbtga_consecration,Consecration>>
 :rbtga_ark_image:            <<rbtga_ark_image,Ark Image Artifact>>
 :rbtga_ark_about:            <<rbtga_ark_about,Ark About Artifact>>
+:rbtga_ark_vouch:            <<rbtga_ark_vouch,Ark Vouch Artifact>>
 // Recipe Bottle Term Google Rubric (per-vessel build definition)
 :rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
 :rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
@@ -88,6 +89,7 @@
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
 :rbtgo_ark_beseech:               <<rbtgo_ark_beseech,rbf_beseech>>
 :rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbf_build>>
+:rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbf_vouch>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbf_summon>>
 :rbtgo_depot_create:              <<rbtgo_depot_create,rbgp_depot_create>>
 :rbtgo_depot_destroy:             <<rbtgo_depot_destroy,rbgp_depot_destroy>>
@@ -744,7 +746,7 @@ artifacts: listing, deletion, and retrieval.
 {rbtgog_ark}::
 Operations on
 {rbtga_ark}
-units: abjuration, beseeching, conjuring, and summoning.
+units: abjuration, beseeching, conjuring, vouching, and summoning.
 
 [[rbtgog_sa]]
 //axvo_group axd_tabtarget
@@ -963,7 +965,7 @@ Formally renounces an
 {rbtga_ark}
 from the repository
 ({rbtgog_ark}),
-removing both its image and about artifacts as a coherent unit.
+removing its image, about, and vouch artifacts as a coherent unit.
 
 include::RBSAA-ark_abjure.adoc[]
 
@@ -990,6 +992,23 @@ by building a container image
 from a vessel specification and storing both image and about artifacts in the repository.
 
 include::RBSAC-ark_conjure.adoc[]
+
+[[rbtgo_ark_vouch]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_ark_vouch}
+
+Vouches for an
+{rbtga_ark}
+by running `slsa-verifier verify-image` against each per-platform digest
+({rbtgog_ark}),
+producing a
+{rbtga_ark_vouch}
+that records cryptographic verification results.
+Submitted as a separate
+{gcb_service}
+job via the RunBuild API after conjure completes.
+
+include::RBSAV-ark_vouch.adoc[]
 
 == {rbtr_retriever} Operations
 
@@ -1367,11 +1386,15 @@ sharing a common
 but distinguished by suffix.
 An ark comprises the
 {rbtga_ark_image}
-(`-image` suffix) containing the container image and the
+(`-image` suffix) containing the container image, the
 {rbtga_ark_about}
-(`-about` suffix) containing build provenance and metadata.
+(`-about` suffix) containing build metadata, and optionally the
+{rbtga_ark_vouch}
+(`-vouch` suffix) containing cryptographic SLSA verification results.
 Arks are conjured atomically by
-{rbtgo_ark_conjure}
+{rbtgo_ark_conjure},
+vouched by
+{rbtgo_ark_vouch},
 and abjured atomically by
 {rbtgo_ark_abjure}.
 
@@ -1394,7 +1417,8 @@ Combined with vessel to form complete artifact tags.
 All persistent artifact tags use the full consecration:
 per-platform image tags as `«VESSEL»:«CONSECRATION»-image-amd64`, `«VESSEL»:«CONSECRATION»-image-arm64`;
 consumer-facing manifest list as `«VESSEL»:«CONSECRATION»-image`;
-about as `«VESSEL»:«CONSECRATION»-about`.
+about as `«VESSEL»:«CONSECRATION»-about`;
+vouch as `«VESSEL»:«CONSECRATION»-vouch` (optional, created by {rbtgo_ark_vouch}).
 Platform suffix is derived from the OCI platform (e.g., `linux/amd64` -> `-amd64`, `linux/arm64` -> `-arm64`, `linux/arm/v7` -> `-armv7`).
 Multiple conjures of the same inscription produce distinct consecrations (unique build timestamps) with independently-attested images.
 +
@@ -1436,9 +1460,61 @@ Each platform's layer contains that architecture's SBOM and `build_info.json`.
 The `-about` container mirrors the `-image` container's platform list — consumers pulling `-about` for a specific platform get that platform's metadata.
 Reuses the buildx builder instance from the main image build.
 
-**SLSA provenance on demand**: `rbf_check_consecrations` queries Container Analysis for each per-platform image, resolving digests and extracting SLSA build level and build invocation ID inline.
-The Container Analysis API does not expose an explicit `slsa_build_level` field; the level is inferred from occurrence structure: presence of `inTotoSlsaProvenanceV1` (signed v1 provenance from Cloud Build's verified-builder keys) implies Level 3.
-Integration of `slsa-verifier` for cryptographic verification is deferred.
+[[rbtga_ark_vouch]]
+//axl_voices axig_verification_artifact
+{rbtga_ark_vouch}::
+The optional verification artifact within an
+{rbtga_ark},
+tagged with the `-vouch` suffix.
+Contains the output of `slsa-verifier verify-image` run against each per-platform
+{rbtga_ark_image}
+digest, plus a summary recording the verifier binary identity (URL and SHA256).
+Created by
+{rbtgo_ark_vouch}
+as a separate
+{gcb_service}
+job submitted after conjure completes.
++
+The vouch artifact is a single-platform `FROM scratch` container holding `vouch_summary.json` and per-platform `verify-«SUFFIX».json` files.
+It is not multi-platform — verification results are architecture-independent metadata.
++
+**Vouch depends on about**: {rbtgo_ark_vouch} gates on `-about` existence before submission.
+Conjure must complete (producing both `-image` and `-about`) before vouch can run.
++
+**slsa-verifier as binary tool pin**:
+The verifier is pinned in `rbrg.env` as a direct binary download URL ({rbrg_slsa_verifier_url}) with SHA256 checksum ({rbrg_slsa_verifier_sha256}), following the crane binary pin precedent.
+It is NOT a container image — the Cloud Build step downloads the binary into `/workspace`, verifies the checksum, and executes it directly.
+Binary pin refresh (`rbrr_refresh_binary_pins` / `rbw-DPB`) discovers the latest release from GitHub Releases API, downloads the binary, computes local SHA256, fetches the SLSA provenance attestation, and dies on mismatch (belt-and-suspenders verification).
++
+**Vouch Cloud Build job architecture**:
+Vouch uses the RunBuild API (`builds.create`) rather than trigger dispatch — the consecration is known only after conjure completes, so a pre-registered trigger cannot provide it.
+The build runs as the {rbtr_mason} service account.
++
+Discovered constraints from implementation:
++
+  * **No private worker pool**: The RunBuild API caller ({rbtr_director}) requires `cloudbuild.workerpools.use` to specify a private pool, a permission not included in `roles/cloudbuild.builds.editor`.
+    Trigger dispatch grants pool access implicitly via the trigger configuration.
+    Vouch builds use the default (public) pool — acceptable because vouch steps only need internet access (GitHub binary download, GAR registry, Sigstore root of trust), not private network resources.
+  * **No gcloud in build steps**: Project policy prohibits gcloud CLI in bash scripts, including GCB step scripts.
+    Registry auth must use the GCE metadata server (`http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`) to obtain an access token, then write a static Docker config JSON.
+    The `gcloud auth configure-docker` approach fails regardless — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
+  * **Builder image selection**: Step 1 (download + verify binary) uses Alpine (wget, sha256sum).
+    Step 2 (run slsa-verifier) needs only the binary plus registry auth via Docker config — Alpine suffices.
+    Step 3 (push vouch container) uses the Docker builder image (`docker build` + `docker push`).
+  * **GCB dollar escaping**: Step scripts embedded in Build JSON require `$$` for literal `$` and un-escaped `${_RBGV_*}` for GCB substitution variables, following the same `sed` pattern as conjure's `${_RBGY_*}`.
+  * **slsa-verifier source-uri**: The `--source-uri` parameter must match the source recorded in the provenance attestation.
+    For trigger-dispatched builds, this is the {rbtgr_rubric_repo} URL — the rubric repo is what the trigger references, not the main repo.
++
+**Idempotent re-vouch**:
+Re-running {rbtgo_ark_vouch} on a consecration that already has a `-vouch` artifact re-executes verification.
+The new vouch content should match the existing vouch byte-for-byte (same digests + same provenance + same verifier = identical output).
+A mismatch indicates provenance change or tampering and must produce a loud alarm.
+If determinism proves unreliable in practice, narrow the comparison to verification verdict, digests, and builder identity.
++
+**Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image` and `-about`.
+Older arks without vouch are handled gracefully (404 on HEAD check).
++
+**Display**: `rbf_check_consecrations` includes a Vouch column showing `yes`/`no` per consecration, detected by matching the `-vouch` tag suffix in the GAR tag list.
 
 === Rubric Definitions
 
