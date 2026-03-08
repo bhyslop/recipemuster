@@ -6325,6 +6325,13 @@
         "₢AkAAp": {
           "tacks": [
             {
+              "ts": "260308-1352",
+              "state": "abandoned",
+              "text": "## Goal\n\nAdd `slsa-verifier` container image as a managed GCB pin in the regime configuration.\n\n## Context\n\nThe upcoming vouch-via-slsa-verifier architecture (₢AkAAo) requires `slsa-verifier` to run inside a Cloud Build step. Like all CB step images (`gcr.io/cloud-builders/docker`, etc.), it must be digest-pinned for reproducibility and refreshable via `rbw-DP`.\n\n## Source\n\n- Image: `ghcr.io/slsa-framework/slsa-verifier` (official SLSA framework)\n- Note: hosted on GitHub Container Registry, not Google's GCR — pin refresh logic may need to handle `ghcr.io` as a source registry\n\n## Changes\n\n- Add `slsa-verifier` pin entry to regime GCB pin configuration\n- Verify `rbw-DP` (refresh GCB pins) can resolve and pin from `ghcr.io`\n- If `ghcr.io` is not supported by pin refresh, extend it\n- Test: refresh pins, verify slsa-verifier digest is resolved and recorded\n\n## Files (expected)\n\n- Regime pin configuration (rbrg.env or equivalent)\n- `Tools/rbw/rbrr_cli.sh` or pin refresh implementation — if ghcr.io support needed\n- `lenses/RBSRG-RegimeGcbPins.adoc` — document new pin",
+              "silks": "gcb-pin-slsa-verifier",
+              "commit": "d2a5fed"
+            },
+            {
               "ts": "260308-1032",
               "state": "rough",
               "text": "## Goal\n\nAdd `slsa-verifier` container image as a managed GCB pin in the regime configuration.\n\n## Context\n\nThe upcoming vouch-via-slsa-verifier architecture (₢AkAAo) requires `slsa-verifier` to run inside a Cloud Build step. Like all CB step images (`gcr.io/cloud-builders/docker`, etc.), it must be digest-pinned for reproducibility and refreshable via `rbw-DP`.\n\n## Source\n\n- Image: `ghcr.io/slsa-framework/slsa-verifier` (official SLSA framework)\n- Note: hosted on GitHub Container Registry, not Google's GCR — pin refresh logic may need to handle `ghcr.io` as a source registry\n\n## Changes\n\n- Add `slsa-verifier` pin entry to regime GCB pin configuration\n- Verify `rbw-DP` (refresh GCB pins) can resolve and pin from `ghcr.io`\n- If `ghcr.io` is not supported by pin refresh, extend it\n- Test: refresh pins, verify slsa-verifier digest is resolved and recorded\n\n## Files (expected)\n\n- Regime pin configuration (rbrg.env or equivalent)\n- `Tools/rbw/rbrr_cli.sh` or pin refresh implementation — if ghcr.io support needed\n- `lenses/RBSRG-RegimeGcbPins.adoc` — document new pin",
