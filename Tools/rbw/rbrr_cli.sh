@@ -136,7 +136,7 @@ rbrr_refresh_gcb_pins() {
   local z_crane_url="https://github.com/google/go-containerregistry/releases/download/${z_crane_tag}/go-containerregistry_Linux_x86_64.tar.gz"
 
   buc_log_args "Reading current RBRR_CRANE_TAR_GZ from rbrr file"
-  grep "^readonly RBRR_CRANE_TAR_GZ=\|^RBRR_CRANE_TAR_GZ=" "${z_rbrr_file}" | cut -d'=' -f2- > "${z_crane_old_url_file}" \
+  grep "^RBRR_CRANE_TAR_GZ=" "${z_rbrr_file}" | cut -d'=' -f2- > "${z_crane_old_url_file}" \
     || buc_die "No existing value for RBRR_CRANE_TAR_GZ in rbrr file"
   local z_old_crane_url=$(<"${z_crane_old_url_file}")
   test -n "${z_old_crane_url}" || buc_die "Empty RBRR_CRANE_TAR_GZ value in rbrr file"
@@ -145,7 +145,7 @@ rbrr_refresh_gcb_pins() {
     buc_info "RBRR_CRANE_TAR_GZ: unchanged (${z_crane_tag})"
   else
     buc_info "RBRR_CRANE_TAR_GZ: -> ${z_crane_url}"
-    sed "s|^readonly RBRR_CRANE_TAR_GZ=.*|readonly RBRR_CRANE_TAR_GZ=${z_crane_url}|;s|^RBRR_CRANE_TAR_GZ=.*|readonly RBRR_CRANE_TAR_GZ=${z_crane_url}|" "${z_rbrr_file}" > "${z_crane_sed_file}" \
+    sed "s|^RBRR_CRANE_TAR_GZ=.*|RBRR_CRANE_TAR_GZ=${z_crane_url}|" "${z_rbrr_file}" > "${z_crane_sed_file}" \
       || buc_die "Failed to sed value for RBRR_CRANE_TAR_GZ"
     mv "${z_crane_sed_file}" "${z_rbrr_file}" || buc_die "Failed to update RBRR_CRANE_TAR_GZ in rbrr file"
   fi
@@ -214,7 +214,7 @@ rbrr_refresh_gcb_pins() {
     test -n "${z_digest}" || buc_die "Empty digest for ${z_image}:${z_tag}"
     z_full_ref="${z_image}@${z_digest}"
 
-    grep "^readonly ${z_varname}=\|^${z_varname}=" "${z_rbrr_file}" | cut -d'"' -f2 > "${z_oldref_file}" \
+    grep "^${z_varname}=" "${z_rbrr_file}" | cut -d'"' -f2 > "${z_oldref_file}" \
       || buc_die "No existing value for ${z_varname} in rbrr file"
     z_old_ref=$(<"${z_oldref_file}")
 
@@ -224,7 +224,7 @@ rbrr_refresh_gcb_pins() {
     else
       buc_info "${z_varname}: ${z_old_ref} -> ${z_full_ref}"
 
-      sed "s|^readonly ${z_varname}=.*|readonly ${z_varname}=\"${z_full_ref}\"|;s|^${z_varname}=.*|readonly ${z_varname}=\"${z_full_ref}\"|" "${z_rbrr_file}" > "${z_sed_value_file}" \
+      sed "s|^${z_varname}=.*|${z_varname}=\"${z_full_ref}\"|" "${z_rbrr_file}" > "${z_sed_value_file}" \
         || buc_die "Failed to sed value for ${z_varname}"
       mv "${z_sed_value_file}" "${z_rbrr_file}" || buc_die "Failed to update ${z_varname} in rbrr file"
 
@@ -245,7 +245,7 @@ rbrr_refresh_gcb_pins() {
 
   buc_step "Writing RBRR_GCB_PINS_REFRESHED_AT epoch to rbrr file"
   local -r z_sed_epoch_file="${ZRBRR_REFRESH_SED_PREFIX}epoch.sh"
-  sed "s|^readonly RBRR_GCB_PINS_REFRESHED_AT=.*|readonly RBRR_GCB_PINS_REFRESHED_AT=${BURD_NOW_EPOCH}|;s|^RBRR_GCB_PINS_REFRESHED_AT=.*|readonly RBRR_GCB_PINS_REFRESHED_AT=${BURD_NOW_EPOCH}|" "${z_rbrr_file}" > "${z_sed_epoch_file}" \
+  sed "s|^RBRR_GCB_PINS_REFRESHED_AT=.*|RBRR_GCB_PINS_REFRESHED_AT=${BURD_NOW_EPOCH}|" "${z_rbrr_file}" > "${z_sed_epoch_file}" \
     || buc_die "Failed to sed RBRR_GCB_PINS_REFRESHED_AT"
   mv "${z_sed_epoch_file}" "${z_rbrr_file}" || buc_die "Failed to update RBRR_GCB_PINS_REFRESHED_AT in rbrr file"
 
