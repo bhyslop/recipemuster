@@ -26,7 +26,6 @@ set -euo pipefail
 
 zbutcde_init() {
   bute_init_dispatch
-  BURD_TEMP_DIR="${BUT_TEMP_DIR}"
   bute_init_evidence
 }
 

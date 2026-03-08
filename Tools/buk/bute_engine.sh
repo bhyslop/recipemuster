@@ -93,7 +93,7 @@ bute_init_evidence() {
   zbute_dispatch_sentinel
   zburd_sentinel
 
-  ZBUTE_EVIDENCE_ROOT="${BURD_TEMP_DIR}/evidence"
+  ZBUTE_EVIDENCE_ROOT="${BUT_TEMP_DIR}/evidence"
   mkdir -p "${ZBUTE_EVIDENCE_ROOT}"
   buc_log_args "Evidence root: ${ZBUTE_EVIDENCE_ROOT}"
 }
@@ -122,8 +122,19 @@ bute_dispatch() {
 
   buc_log_args "Dispatching step ${z_step_idx}: colophon=${z_colophon} tabtarget=${z_tabtarget}"
 
+  # Scrub inherited BURD_/BURV_ from the environment so the inner tabtarget
+  # runs exactly as configured — its own script sets BURD_ flags, and only
+  # the BURV_ overrides we explicitly pass below reach the inner launcher.
+  local z_scrub=()
+  local z_var
+  for z_var in $(compgen -e); do
+    case "${z_var}" in
+      BURD_*|BURV_*) z_scrub+=("-u" "${z_var}") ;;
+    esac
+  done
+
   local z_exit_status=0
-  BURD_NO_LOG= \
+  env "${z_scrub[@]}" \
   BURV_OUTPUT_ROOT_DIR="${z_burv_output}" \
   BURV_TEMP_ROOT_DIR="${z_burv_temp}" \
     "${z_tabtarget}" "$@" || z_exit_status=$?
