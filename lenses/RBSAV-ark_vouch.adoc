@@ -19,7 +19,7 @@ NOTE: Vouch uses `builds.create` (direct submission) rather than trigger dispatc
 is known only after conjure completes.
 The default pool is acceptable: vouch steps only need internet access (binary download, GAR registry, Sigstore root of trust).
 
-NOTE: Project policy prohibits `gcloud` CLI in bash scripts, including GCB step scripts.
+NOTE: {rbsk_no_gcloud} applies.
 Registry authentication uses the GCE metadata server to obtain a service account token and writes a static Docker config.
 
 The vouch operation:

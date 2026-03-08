@@ -457,6 +457,9 @@
 :rbgt_service_account:       <<rbgt_service_account,GCP Service Account>>
 :rbgt_billing_account:       <<rbgt_billing_account,GCP Billing Account>>
 
+// Recipe Bottle Key Premises
+:rbsk_no_gcloud:             <<rbsk_no_gcloud,gcloud CLI Prohibition>>
+
 // Cross-references to companion specifications
 :xref_AXLA:                  Axial Lexicon Specification
 
@@ -703,6 +706,26 @@ regime variable declares the operator's minimum concurrency requirement.
 See
 {rbtgo_quota_build}
 for the manual Console procedure to review build capacity settings.
+
+== Key Premises
+
+[[rbsk_no_gcloud]]
+//axl_voices axk_premise
+{rbsk_no_gcloud}::
+{at_recipe_bottle}
+scripts MUST NOT invoke the `gcloud` CLI in any context — local bash scripts, GCB step scripts, or transitively through helper scripts.
+All
+{gcp_service}
+interaction uses direct REST API calls via `curl` with JWT-authenticated bearer tokens.
+In GCB step contexts, registry authentication uses the GCE metadata server to obtain an access token and writes a static Docker config JSON.
++
+Rationale: `gcloud` is an opaque, version-sensitive binary that obscures API semantics, introduces implicit authentication state, and breaks reproducibility.
+The `gcloud auth configure-docker` approach also fails mechanically in GCB steps — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
++
+NOTE: The
+{rbrg_gcloud_image_ref}
+pin exists because conjure uses the gcloud builder image as a convenience shell (for `bash` and `date`), not for any `gcloud` command.
+This is acceptable — the prohibition is on invoking `gcloud`, not on using the image that contains it.
 
 == Operation Groups
 
@@ -1495,7 +1518,7 @@ Discovered constraints from implementation:
   * **No private worker pool**: The RunBuild API caller ({rbtr_director}) requires `cloudbuild.workerpools.use` to specify a private pool, a permission not included in `roles/cloudbuild.builds.editor`.
     Trigger dispatch grants pool access implicitly via the trigger configuration.
     Vouch builds use the default (public) pool — acceptable because vouch steps only need internet access (GitHub binary download, GAR registry, Sigstore root of trust), not private network resources.
-  * **No gcloud in build steps**: Project policy prohibits gcloud CLI in bash scripts, including GCB step scripts.
+  * **No gcloud in build steps**: {rbsk_no_gcloud} applies.
     Registry auth must use the GCE metadata server (`http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`) to obtain an access token, then write a static Docker config JSON.
     The `gcloud auth configure-docker` approach fails regardless — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
   * **Builder image selection**: Step 1 (download + verify binary) uses Alpine (wget, sha256sum).
@@ -2369,6 +2392,8 @@ SHA256 checksum of slsa-verifier binary, verified against SLSA provenance attest
 //axvr_variable axd_required rbst_image_ref
 {rbrg_gcloud_image_ref}::
 Fully-qualified image reference for gcloud Cloud Build step.
+Used as a convenience shell (for `bash` and `date`), not for `gcloud` invocation.
+See {rbsk_no_gcloud}.
 
 [[rbrg_docker_image_ref]]
 //axvr_variable axd_required rbst_image_ref
