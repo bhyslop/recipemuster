@@ -5464,9 +5464,10 @@
         "₢AkAAi",
         "₢AkAAk",
         "₢AkAAl",
-        "₢AkAAn"
+        "₢AkAAn",
+        "₢AkAAo"
       ],
-      "next_pace_seed": "AAo",
+      "next_pace_seed": "AAp",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6210,6 +6211,17 @@
               "text": "## Problem\n\nThe build status poll loop in `zrbf_wait_build_completion` (rbf_Foundry.sh:475-504) dies on a single transient curl failure (`buc_die` at line 489). Observed in production: sentry build poll crashed at attempt 5 due to network blip during concurrent builds.\n\n## Fix\n\nTolerate N consecutive curl failures (e.g., 3) before dying. On a single failure, log a warning and continue to the next 5s poll cycle. Also validate the HTTP response body — a curl exit 0 with a 401/403 JSON error should be handled gracefully.\n\n## Files\n\n- `Tools/rbw/rbf_Foundry.sh` — `zrbf_wait_build_completion` function\n\n## Acceptance criteria\n\n- Single transient curl failure does not abort the poll loop\n- 3+ consecutive failures still abort (not a silent infinite loop)\n- 401/403 responses logged as warnings, not silently ignored",
               "silks": "conjure-poll-retry-hardening",
               "commit": "429383f"
+            }
+          ]
+        },
+        "₢AkAAo": {
+          "tacks": [
+            {
+              "ts": "260308-0934",
+              "state": "rough",
+              "text": "## Goal\n\nEliminate `rbf_vouch` as a separate workflow step. Make `rbf_check_consecrations` (list) query Container Analysis for SLSA provenance on demand and display it inline per consecration.\n\n## Current state\n\nThree-step flow: conjure → vouch (human step) → list shows vouch presence.\n`rbf_vouch` queries Container Analysis, displays results, then builds and pushes a `-vouch` container to the registry. List (`rbf_check_consecrations`) groups tags by inscription timestamp but doesn't show individual full consecrations or provenance status.\n\n## Changes\n\n### List overhaul (`rbf_check_consecrations`)\n- Parse tags to show **full consecrations** (inscription + build timestamp), not just inscription-level grouping\n- For each consecration: resolve per-platform image tags to digests, query Container Analysis for SLSA attestations\n- Display inline: consecration, platforms, SLSA level, build ID\n- Single-origin check (all platforms share one build invocation ID)\n\n### Remove vouch\n- Remove `rbf_vouch` function from `rbf_Foundry.sh`\n- Remove `-vouch` tag from tag scheme (`RBGC_ARK_SUFFIX_VOUCH`)\n- Remove vouch tabtarget (`rbw-Rv`)\n- Remove vouch from zipper registration\n- Update `rbf_abjure` to stop looking for `-vouch` tags\n\n### Spec updates (RBS0)\n- Remove `-vouch` from tag scheme documentation\n- Update consecration definition: remove vouch references\n- Update pipeline description: conjure produces images + about, list verifies provenance\n- Update RBSCB-CloudBuildRoadmap.adoc tag table\n\n## Design rationale\n\nProvenance is already in Container Analysis, keyed by digest. The `-vouch` container is a redundant snapshot of information that's queryable on demand. Eliminating it removes a human step, a failure mode (stale/forgotten vouch), and a registry artifact.\n\n## Files\n\n- `Tools/rbw/rbf_Foundry.sh` — overhaul list, remove vouch\n- `Tools/rbw/rbz_zipper.sh` — remove vouch registration\n- `Tools/rbw/rbgc_Constants.sh` — remove `RBGC_ARK_SUFFIX_VOUCH`\n- `lenses/RBS0-SpecTop.adoc` — update tag scheme, remove vouch references\n- `lenses/RBSCB-CloudBuildRoadmap.adoc` — update tag table\n- `tt/rbw-Rv.RetrieverVouchesArk.sh` — delete",
+              "silks": "eliminate-vouch-provenance-on-demand",
+              "commit": "6bd6746"
             }
           ]
         }
