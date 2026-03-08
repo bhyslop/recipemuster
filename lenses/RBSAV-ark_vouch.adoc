@@ -53,20 +53,11 @@ HTTP 200 response -- conjure must complete before vouch
 re-vouch in progress (see idempotency below)
 
 //axhos_step
-. *Discover Per-Platform Image Digests*:
-.. {rbbc_call}
-Docker Registry API: GET manifests for `«CONSECRATION»-image` with `Accept: application/vnd.oci.image.index.v1+json`
-.. {rbbc_require}
-HTTP 200 response with OCI image index (manifest list)
-.. {rbbc_store}
-`«PLATFORM_DIGESTS»` as list of `(platform, digest)` pairs extracted from the manifest list
-
-//axhos_step
 . *Submit Vouch Cloud Build*:
 .. Construct Build resource JSON with `serviceAccount` as
 {rbtr_mason},
 substitution namespace `_RBGV_*`
-.. Pass `«PLATFORM_DIGESTS»`, registry coordinates, verifier identity, and source URI as substitution variables
+.. Pass registry coordinates, verifier identity, and source URI as substitution variables
 .. {rbbc_submit}
 `POST «GCB_PROJECT_BUILDS_URL»` with Build resource JSON
 .. {rbbc_require}
@@ -87,9 +78,13 @@ checksum matches {rbrg_slsa_verifier_sha256}
 verified binary at `/workspace/slsa-verifier`
 
 //axhos_step
-. *Cloud Build Step 2: Verify Provenance Per Platform*:
+. *Cloud Build Step 2: Discover Digests and Verify Provenance*:
 .. Image: {rbrg_alpine_image_ref}
 .. Authenticate to GAR via GCE metadata server token, write Docker config
+.. {rbbc_call}
+Docker Registry API: GET manifests for `«CONSECRATION»-image` to obtain OCI image index
+.. {rbbc_store}
+`«PLATFORM_DIGESTS»` as list of `(platform, digest)` pairs extracted from the manifest list
 .. For each `(platform, digest)` in `«PLATFORM_DIGESTS»`:
 ... {rbbc_call}
 `slsa-verifier verify-image` with `--source-uri` set to `git+«RBRR_RUBRIC_REPO_URL»` and `--print-provenance`
@@ -149,7 +144,6 @@ All `_RBGV_*` substitution variables are passed in the `builds.create` request b
 *Verification*::
 [cols="1,2"]
 |===
-| `_RBGV_PLATFORM_DIGESTS` | Comma-separated `platform=sha256:digest` pairs. Source: manifest list query.
 | `_RBGV_SOURCE_URI` | `git+«RBRR_RUBRIC_REPO_URL»`. Source: regime configuration.
 | `_RBGV_VERIFIER_URL` | slsa-verifier download URL. Source: {rbrg_slsa_verifier_url}.
 | `_RBGV_VERIFIER_SHA256` | slsa-verifier binary checksum. Source: {rbrg_slsa_verifier_sha256}.
