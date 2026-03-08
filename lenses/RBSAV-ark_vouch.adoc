@@ -5,16 +5,16 @@ NOTE: This operation vouches for an
 {rbtga_ark}
 in
 {rbtgi_repository}
-by running `slsa-verifier verify-image` against each per-platform image digest and pushing the verification results as a
+by verifying SLSA provenance on each per-platform image digest and publishing the verification results as a
 {rbtga_ark_vouch}
 artifact.
 The
 {rbtr_director}
-submits a Cloud Build job via the RunBuild API (`builds.create`), which runs as the
+submits a Cloud Build job via `builds.create` (direct submission), which runs as the
 {rbtr_mason}
 service account on the default pool.
 
-NOTE: Vouch uses `builds.create` (direct submission) rather than trigger dispatch because the
+NOTE: Vouch uses `builds.create` rather than trigger dispatch because the
 {rbtga_consecration}
 is known only after conjure completes.
 The default pool is acceptable: vouch steps only need internet access (binary download, GAR registry, Sigstore root of trust).
@@ -22,7 +22,9 @@ The default pool is acceptable: vouch steps only need internet access (binary do
 NOTE: {rbsk_no_gcloud} applies.
 Registry authentication uses the GCE metadata server to obtain a service account token and writes a static Docker config.
 
-The vouch operation:
+The
+{rbtr_director}
+vouches for an ark:
 
 //axhop_parameter_from_type
 {rbtga_ark}
@@ -38,35 +40,83 @@ consecration provided as second argument
 .. Execute
 {rbtoe_director_authenticate}
 .. {rbbc_store}
-`<<DIRECTOR_TOKEN>>` for subsequent API calls
+`«DIRECTOR_TOKEN»` for subsequent API calls
 
 //axhos_step
 . *Gate on About Existence*:
 .. {rbbc_call}
-Docker Registry API: HEAD manifests for `<<CONSECRATION>>-about`
+Docker Registry API: HEAD manifests for `«CONSECRATION»-about`
 .. {rbbc_require}
 HTTP 200 response -- conjure must complete before vouch
-.. If `<<CONSECRATION>>-vouch` already exists:
+.. If `«CONSECRATION»-vouch` already exists:
 {rbbc_warn}
 re-vouch in progress (see idempotency below)
 
 //axhos_step
-. *Submit Vouch Cloud Build*:
-.. Construct Build resource JSON with three step scripts, `serviceAccount` as {rbtr_mason}, substitution namespace `_RBGV_*`
-.. *Step 1* ({rbrg_alpine_image_ref}): Download slsa-verifier binary from {rbrg_slsa_verifier_url} and verify checksum matches {rbrg_slsa_verifier_sha256}
-.. *Step 2* ({rbrg_alpine_image_ref}): Authenticate to GAR via metadata server token, then run `slsa-verifier verify-image` for each per-platform image digest with `--source-uri` set to {rbtgr_rubric_repo} URL and `--print-provenance`, capturing per-platform verification output
-.. *Step 3* ({rbrg_docker_image_ref}): Build and push a `FROM scratch` vouch container tagged `<<CONSECRATION>>-vouch`
+. *Discover Per-Platform Image Digests*:
 .. {rbbc_call}
-`POST <<GCB_BUILDS_URL>>` and poll until terminal state
+Docker Registry API: GET manifests for `«CONSECRATION»-image` with `Accept: application/vnd.oci.image.index.v1+json`
+.. {rbbc_require}
+HTTP 200 response with OCI image index (manifest list)
+.. {rbbc_store}
+`«PLATFORM_DIGESTS»` as list of `(platform, digest)` pairs extracted from the manifest list
+
+//axhos_step
+. *Submit Vouch Cloud Build*:
+.. Construct Build resource JSON with `serviceAccount` as
+{rbtr_mason},
+substitution namespace `_RBGV_*`
+.. Pass `«PLATFORM_DIGESTS»`, registry coordinates, verifier identity, and source URI as substitution variables
+.. {rbbc_submit}
+`POST «GCB_PROJECT_BUILDS_URL»` with Build resource JSON
+.. {rbbc_require}
+HTTP 200 response
+.. {rbbc_store}
+`«BUILD_ID»` from response `.metadata.build.id`
+.. {rbbc_show}
+Cloud Console URL for build monitoring
+
+//axhos_step
+. *Cloud Build Step 1: Download and Verify slsa-verifier*:
+.. Image: {rbrg_alpine_image_ref}
+.. Download slsa-verifier binary from {rbrg_slsa_verifier_url}
+.. Compute SHA256 checksum of downloaded binary
+.. {rbbc_require}
+checksum matches {rbrg_slsa_verifier_sha256}
+.. {rbbc_store}
+verified binary at `/workspace/slsa-verifier`
+
+//axhos_step
+. *Cloud Build Step 2: Verify Provenance Per Platform*:
+.. Image: {rbrg_alpine_image_ref}
+.. Authenticate to GAR via GCE metadata server token, write Docker config
+.. For each `(platform, digest)` in `«PLATFORM_DIGESTS»`:
+... {rbbc_call}
+`slsa-verifier verify-image` with `--source-uri` set to `git+«RBRR_RUBRIC_REPO_URL»` and `--print-provenance`
+... {rbbc_store}
+per-platform verification output to `/workspace/verify-«PLATFORM_SUFFIX».json`
+.. {rbbc_require}
+all platforms verify successfully
+
+//axhos_step
+. *Cloud Build Step 3: Assemble and Push Vouch Artifact*:
+.. Image: {rbrg_docker_image_ref}
+.. Compose `vouch_summary.json`: consecration, vessel, verifier identity (URL + SHA256), per-platform verification verdicts
+.. Build `FROM scratch` container with summary and per-platform verification files as layers
+.. Push to registry tagged `«CONSECRATION»-vouch`
+.. {rbbc_require}
+push succeeds
+
+//axhos_step
+. *Wait for Build Completion*:
+.. {rbbc_poll}
+`GET «GCB_PROJECT_BUILDS_URL»/«BUILD_ID»` every 5 seconds
+.. Continue while status in [`PENDING`, `QUEUED`, `WORKING`]
 .. {rbbc_fatal}
-if any platform verification fails or build status is not SUCCESS -- no partial vouch artifacts are pushed
+if timeout or final status is not `SUCCESS` -- no partial vouch artifacts are pushed
 
 //axhoo_output_of_type
 {rbtga_ark_vouch}
-. *Vouch Artifact Content*:
-.. `vouch_summary.json`: consecration, vessel, verifier identity (URL + SHA256), and per-platform verification status
-.. Per-platform `verify-<<SUFFIX>>.json`: full provenance dump from `--print-provenance`
-.. The vouch artifact is a single-platform container (verification results are architecture-independent metadata)
 . *Display Results*:
 .. {rbbc_show}
 vouch complete with consecration and vouch artifact tag
@@ -74,12 +124,33 @@ vouch complete with consecration and vouch artifact tag
 //axhoc_completion
 Successful execution creates a
 {rbtga_ark_vouch}
-artifact in the registry tagged as `<<VESSEL>>:<<CONSECRATION>>-vouch`.
+artifact in the registry tagged as `«VESSEL»:«CONSECRATION»-vouch`.
+The vouch artifact is a single-platform container (verification results are architecture-independent metadata).
 +
-*Source URI matching*: The `--source-uri` must match the source recorded in provenance.
-For trigger-dispatched builds, this is the {rbtgr_rubric_repo} URL.
+*Source URI matching*: The `--source-uri` must be `git+«RBRR_RUBRIC_REPO_URL»` to match the source recorded in provenance by trigger-dispatched builds.
 Format mismatch causes verification failure.
 +
 *Re-vouch idempotency*: Re-running vouch re-executes verification and pushes a new vouch artifact, overwriting the previous.
 Content is presumed deterministic (same digests + same provenance + same verifier = identical output).
-If this assumption fails in practice, narrow comparison scope to verification verdict, digests, and builder identity.
+
+==== Vouch Substitution Variables
+
+All `_RBGV_*` substitution variables are passed in the `builds.create` request body.
+
+*Registry and identity*::
+[cols="1,2"]
+|===
+| `_RBGV_GAR_HOST` | GAR Docker host (e.g., `us-central1-docker.pkg.dev`). Source: regime constants.
+| `_RBGV_GAR_PATH` | GAR repository path (`«PROJECT»/«REPOSITORY»`). Source: regime constants.
+| `_RBGV_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
+| `_RBGV_CONSECRATION` | Full consecration string. Source: input parameter.
+|===
+
+*Verification*::
+[cols="1,2"]
+|===
+| `_RBGV_PLATFORM_DIGESTS` | Comma-separated `platform=sha256:digest` pairs. Source: manifest list query.
+| `_RBGV_SOURCE_URI` | `git+«RBRR_RUBRIC_REPO_URL»`. Source: regime configuration.
+| `_RBGV_VERIFIER_URL` | slsa-verifier download URL. Source: {rbrg_slsa_verifier_url}.
+| `_RBGV_VERIFIER_SHA256` | slsa-verifier binary checksum. Source: {rbrg_slsa_verifier_sha256}.
+|===
