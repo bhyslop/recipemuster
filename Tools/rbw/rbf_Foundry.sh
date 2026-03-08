@@ -2157,12 +2157,13 @@ VOUCHSTEP3
     --arg zjq_ver_url  "${RBRG_SLSA_VERIFIER_URL}" \
     --arg zjq_ver_sha  "${RBRG_SLSA_VERIFIER_SHA256}" \
     --arg zjq_sfx_vouch "${RBGC_ARK_SUFFIX_VOUCH}" \
-    --arg zjq_sfx_about "${RBGC_ARK_SUFFIX_ABOUT}" \
     --arg zjq_sfx_image "${RBGC_ARK_SUFFIX_IMAGE}" \
     --arg zjq_src_uri   "${z_source_uri}" \
+    --arg zjq_sa        "projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}" \
     --arg zjq_pool      "${RBRR_GCB_WORKER_POOL}" \
     --arg zjq_timeout   "${RBRR_GCB_TIMEOUT}" \
     '{
+      serviceAccount: $zjq_sa,
       steps: [
         {
           name: $zjq_alpine,
@@ -2194,7 +2195,6 @@ VOUCHSTEP3
         _RBGV_SLSA_VERIFIER_URL:    $zjq_ver_url,
         _RBGV_SLSA_VERIFIER_SHA256: $zjq_ver_sha,
         _RBGV_ARK_SUFFIX_VOUCH:     $zjq_sfx_vouch,
-        _RBGV_ARK_SUFFIX_ABOUT:     $zjq_sfx_about,
         _RBGV_ARK_SUFFIX_IMAGE:     $zjq_sfx_image,
         _RBGV_SOURCE_URI:           $zjq_src_uri
       },
