@@ -471,6 +471,9 @@ zrbf_wait_build_completion() {
   local z_status="PENDING"
   local z_attempts=0
   local z_max_attempts=960  # 80 minutes with 5 second intervals
+  local z_consecutive_failures=0
+  local z_max_consecutive_failures=3
+  local z_err_check_file="${ZRBF_STITCH_PREFIX}poll_err_check.txt"
 
   while true; do
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break;; esac
@@ -485,14 +488,39 @@ zrbf_wait_build_completion() {
          --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
          -H "Authorization: Bearer ${z_token}"             \
          "${ZRBF_GCB_PROJECT_BUILDS_URL}/${z_build_id}"    \
-         > "${ZRBF_BUILD_STATUS_FILE}"                     \
-      || buc_die "Failed to get build status"
+         > "${ZRBF_BUILD_STATUS_FILE}"
+    if test $? -ne 0; then
+      z_consecutive_failures=$((z_consecutive_failures + 1))
+      buc_warn "Curl failed (${z_consecutive_failures}/${z_max_consecutive_failures} consecutive)"
+      test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
+        && buc_die "Failed to get build status after ${z_max_consecutive_failures} consecutive failures"
+      continue
+    fi
 
-    test -f "${ZRBF_BUILD_STATUS_FILE}" || buc_die "Build status file not created"
-    test -s "${ZRBF_BUILD_STATUS_FILE}" || buc_die "Build status file is empty"
+    # Validate response is non-empty
+    if ! test -s "${ZRBF_BUILD_STATUS_FILE}"; then
+      z_consecutive_failures=$((z_consecutive_failures + 1))
+      buc_warn "Empty response (${z_consecutive_failures}/${z_max_consecutive_failures} consecutive)"
+      test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
+        && buc_die "Empty build status after ${z_max_consecutive_failures} consecutive failures"
+      continue
+    fi
+
+    # Check for HTTP error responses (401/403/etc) — write to temp file, no subshell
+    jq -r '.error.code // empty' "${ZRBF_BUILD_STATUS_FILE}" > "${z_err_check_file}" 2>/dev/null
+    if test -s "${z_err_check_file}"; then
+      z_consecutive_failures=$((z_consecutive_failures + 1))
+      buc_warn "HTTP error $(<"${z_err_check_file}") (${z_consecutive_failures}/${z_max_consecutive_failures} consecutive)"
+      test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
+        && buc_die "HTTP errors after ${z_max_consecutive_failures} consecutive failures"
+      continue
+    fi
+
+    # Successful response — reset failure counter
+    z_consecutive_failures=0
 
     jq -r '.status' "${ZRBF_BUILD_STATUS_FILE}" > "${ZRBF_STATUS_CHECK_FILE}" || buc_die "Failed to extract status"
-    z_status=$(<"${ZRBF_STATUS_CHECK_FILE}") || buc_die "Failed to read status"
+    z_status=$(<"${ZRBF_STATUS_CHECK_FILE}")
     test -n "${z_status}" || buc_die "Status is empty"
 
     buc_info "Build status: ${z_status} (attempt ${z_attempts}/${z_max_attempts})"
