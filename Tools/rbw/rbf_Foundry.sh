@@ -1326,7 +1326,8 @@ rbf_rubric_inscribe() {
        --arg inscribe_ts "${z_inscribe_ts}" \
       '.substitutions._RBGY_RUBRIC_REPO = $repo
        | .substitutions._RBGY_GIT_COMMIT = $git_commit
-       | .substitutions._RBGY_INSCRIBE_TIMESTAMP = $inscribe_ts' \
+       | .substitutions._RBGY_INSCRIBE_TIMESTAMP = $inscribe_ts
+       | .images = [.images[] | gsub("__INSCRIBE_TIMESTAMP__"; $inscribe_ts)]' \
       "${z_rubric_json}" > "${z_filled_file}" \
       || buc_die "Failed to fill pre-commit placeholders for ${z_sigil}"
     mv "${z_filled_file}" "${z_rubric_json}" \
