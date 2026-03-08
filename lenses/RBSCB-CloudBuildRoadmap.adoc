@@ -2,7 +2,7 @@
 
 All sections below assume Google Cloud Build (GCB) remains the sole builder.
 GCB provides only x86 workers — default and private pools alike.
-Multi-platform builds use QEMU emulation via the binfmt setup step (rbgjb04).
+Multi-platform builds use QEMU emulation via the binfmt setup step (rbgjb02).
 
 The vessel regime's `RBRV_CONJURE_BINFMT_POLICY` field ("allow" / "forbid") is the canary for this assumption.
 As long as all vessels tolerate emulation, GCB-specific investment is sound.

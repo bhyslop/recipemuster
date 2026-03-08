@@ -109,6 +109,83 @@ zrbf_sentinel() {
   test "${ZRBF_KINDLED:-}" = "1" || buc_die "Module rbf not kindled - call zrbf_kindle first"
 }
 
+# Check concurrent build quota against regime requirements
+# Args: token mode
+#   mode: "gate" (die if insufficient) or "advisory" (warn if insufficient)
+zrbf_quota_preflight() {
+  zrbf_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_mode="${2:-}"
+
+  test -n "${z_token}" || buc_die "zrbf_quota_preflight: token required"
+  test -n "${z_mode}"  || buc_die "zrbf_quota_preflight: mode required (gate|advisory)"
+
+  # Extract vCPU count from machine type (last segment after final hyphen)
+  local -r z_vcpus="${RBRR_GCB_MACHINE_TYPE##*-}"
+  case "${z_vcpus}" in
+    ""|0|*[!0-9]*)
+      buc_warn "Cannot parse vCPU count from RBRR_GCB_MACHINE_TYPE='${RBRR_GCB_MACHINE_TYPE}' -- skipping quota preflight"
+      return 0
+      ;;
+  esac
+
+  buc_log_args "Machine type ${RBRR_GCB_MACHINE_TYPE} = ${z_vcpus} vCPUs"
+
+  # Query Service Usage consumer quota API for concurrent_private_pool_build_cpus
+  local -r z_metric_encoded="cloudbuild.googleapis.com%2Fconcurrent_private_pool_build_cpus"
+  local -r z_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}/projects/${RBRR_DEPOT_PROJECT_ID}/services/cloudbuild.googleapis.com/consumerQuotaMetrics/${z_metric_encoded}"
+
+  buc_step "Checking concurrent build quota"
+  rbgu_http_json "GET" "${z_url}" "${z_token}" "quota_preflight"
+
+  local z_code=""
+  z_code=$(rbgu_http_code_capture "quota_preflight") || z_code=""
+  if test "${z_code}" != "200"; then
+    buc_warn "Could not query build quota (HTTP ${z_code}) -- skipping preflight check"
+    return 0
+  fi
+
+  # Filter quota response to region-specific bucket via intermediate file
+  rbgu_jq_file_to_file_ok "quota_preflight" "quota_region" \
+    "[.consumerQuotaLimits[0].quotaBuckets[] | select(.dimensions.region == \"${RBRR_GCP_REGION}\")] | .[0] // {}" \
+    || true
+
+  # Extract effective limit from region bucket, then fallback to first bucket
+  local z_limit=""
+  z_limit=$(rbgu_json_field_capture "quota_region" '.effectiveLimit') || z_limit=""
+  if test -z "${z_limit}"; then
+    z_limit=$(rbgu_json_field_capture "quota_preflight" \
+      '.consumerQuotaLimits[0].quotaBuckets[0].effectiveLimit') || z_limit=""
+  fi
+
+  if test -z "${z_limit}"; then
+    buc_warn "Could not extract quota limit -- skipping preflight check"
+    return 0
+  fi
+
+  # -1 means unlimited
+  if test "${z_limit}" = "-1"; then
+    buc_info "Quota: unlimited concurrent private pool build CPUs"
+    return 0
+  fi
+
+  # Compute max concurrent builds
+  local -r z_max_concurrent=$((z_limit / z_vcpus))
+
+  buc_log_args "Quota ${z_limit} vCPUs, machine ${z_vcpus} vCPUs, max concurrent ${z_max_concurrent}, required ${RBRR_GCB_MIN_CONCURRENT_BUILDS}"
+
+  if test "${z_max_concurrent}" -lt "${RBRR_GCB_MIN_CONCURRENT_BUILDS}"; then
+    buc_warn "Build quota insufficient: ${z_limit} vCPU quota / ${z_vcpus} vCPUs per build = ${z_max_concurrent} concurrent (need ${RBRR_GCB_MIN_CONCURRENT_BUILDS})"
+    buc_tabtarget "${RBZ_QUOTA_BUILD}"
+    if test "${z_mode}" = "gate"; then
+      buc_die "Quota preflight failed -- review capacity settings above"
+    fi
+  else
+    buc_info "Quota OK: ${z_limit} vCPU / ${z_vcpus} per build = ${z_max_concurrent} concurrent (need ${RBRR_GCB_MIN_CONCURRENT_BUILDS})"
+  fi
+}
+
 zrbf_stitch_build_json() {
   zrbf_sentinel
 
@@ -124,24 +201,17 @@ zrbf_stitch_build_json() {
   local -r z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
   local -r z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
 
-  # Platform count detection: single vs multi-platform pipeline
-  local z_platform_count=1
-  local z_is_multi_platform=false
-  case "${z_platforms}" in
-    *,*) z_platform_count=0
-         local z_p=""
-         local z_remaining="${z_platforms}"
-         while test -n "${z_remaining}"; do
-           z_p="${z_remaining%%,*}"
-           z_platform_count=$((z_platform_count + 1))
-           test "${z_remaining}" = "${z_p}" && break
-           z_remaining="${z_remaining#*,}"
-         done
-         z_is_multi_platform=true
-         buc_log_args "Multi-platform vessel detected: ${z_platform_count} platforms (${z_platforms})"
-         ;;
-    *)   buc_log_args "Single-platform vessel: ${z_platforms}" ;;
-  esac
+  # Platform count detection
+  local z_platform_count=0
+  local z_remaining_count="${z_platforms}"
+  local z_p_count=""
+  while test -n "${z_remaining_count}"; do
+    z_p_count="${z_remaining_count%%,*}"
+    z_platform_count=$((z_platform_count + 1))
+    test "${z_remaining_count}" = "${z_p_count}" && break
+    z_remaining_count="${z_remaining_count#*,}"
+  done
+  buc_log_args "Vessel platforms: ${z_platform_count} (${z_platforms})"
 
   buc_log_args 'Extract git state for substitutions'
   local -r z_stitch_git_commit_file="${ZRBF_STITCH_PREFIX}git_commit.txt"
@@ -166,49 +236,18 @@ zrbf_stitch_build_json() {
   # Step definitions: script|builder|entrypoint|id
   # Entrypoint 'bash' uses args ["-lc", script], 'sh' uses ["-c", script]
   # Delimiter is | because image refs contain colons (sha256 digests)
-  local z_step_defs=()
-
-  if test "${z_is_multi_platform}" = "false"; then
-    # Single-arch SLSA pipeline:
-    # - Step 01: derive tag base from inscribe + build timestamps
-    # - Step 02: register QEMU for cross-platform builds
-    # - Step 03: buildx --load into local daemon (single platform)
-    # - Step 04: Syft SBOM from local daemon image (docker: transport)
-    # - Step 05: assemble metadata JSON from substitutions
-    # - Step 06: build and push metadata container
-    # + images: field triggers CB-native push + SLSA v1.0 provenance
-    z_step_defs=(
-      "rbgjb01-derive-tag-base.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
-      "rbgjb02-qemu-binfmt.sh|${RBRG_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
-      "rbgjb03-build-and-load.sh|${RBRG_DOCKER_IMAGE_REF}|bash|build-and-load"
-      "rbgjb04-sbom-and-summary.sh|${RBRG_DOCKER_IMAGE_REF}|bash|sbom-and-summary"
-      "rbgjb05-assemble-metadata.sh|${RBRG_ALPINE_IMAGE_REF}|sh|assemble-metadata"
-      "rbgjb06-build-and-push-metadata.sh|${RBRG_DOCKER_IMAGE_REF}|bash|build-and-push-metadata"
-    )
-  else
-    # Multi-platform SLSA pipeline:
-    # - Step 01: derive tag base from inscribe + build timestamps
-    # - Step 02: register QEMU for cross-platform builds
-    # - Step 03: buildx --push all platforms → intermediate -multi tag
-    # - Step 04: per-platform pullback → docker pull --platform + docker tag
-    # - Step 05: docker push each per-platform tag (enables imagetools create)
-    # - Step 06: Syft scan each per-platform image sequentially
-    # - Step 07: generate per-platform build_info.json with SLSA summary
-    # - Step 08: buildx --push multi-platform -about metadata container
-    # - Step 09: imagetools create → assemble consumer-facing manifest list
-    # + images: field lists all per-platform tags for SLSA provenance
-    z_step_defs=(
-      "rbgjb01-derive-tag-base.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
-      "rbgjb02-qemu-binfmt.sh|${RBRG_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
-      "rbgjbm03-buildx-push-multi.sh|${RBRG_DOCKER_IMAGE_REF}|bash|buildx-push-multi"
-      "rbgjbm04-per-platform-pullback.sh|${RBRG_DOCKER_IMAGE_REF}|bash|per-platform-pullback"
-      "rbgjbm05-push-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|push-per-platform"
-      "rbgjbm06-syft-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|syft-per-platform"
-      "rbgjbm07-build-info-per-platform.sh|${RBRG_ALPINE_IMAGE_REF}|sh|build-info-per-platform"
-      "rbgjbm08-buildx-push-about.sh|${RBRG_DOCKER_IMAGE_REF}|bash|buildx-push-about"
-      "rbgjbm09-imagetools-create.sh|${RBRG_DOCKER_IMAGE_REF}|bash|imagetools-create"
-    )
-  fi
+  # Pipeline: buildx --push → per-platform pullback → SLSA provenance via images: field
+  local z_step_defs=(
+    "rbgjb01-derive-tag-base.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
+    "rbgjb02-qemu-binfmt.sh|${RBRG_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
+    "rbgjb03-buildx-push-multi.sh|${RBRG_DOCKER_IMAGE_REF}|bash|buildx-push-multi"
+    "rbgjb04-per-platform-pullback.sh|${RBRG_DOCKER_IMAGE_REF}|bash|per-platform-pullback"
+    "rbgjb05-push-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|push-per-platform"
+    "rbgjb06-syft-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|syft-per-platform"
+    "rbgjb07-build-info-per-platform.sh|${RBRG_ALPINE_IMAGE_REF}|sh|build-info-per-platform"
+    "rbgjb08-buildx-push-about.sh|${RBRG_DOCKER_IMAGE_REF}|bash|buildx-push-about"
+    "rbgjb09-imagetools-create.sh|${RBRG_DOCKER_IMAGE_REF}|bash|imagetools-create"
+  )
 
   # Compute platform suffixes (used in images: field and substitutions)
   # Always computed: linux/amd64 → -amd64, linux/arm64 → -arm64, linux/arm/v7 → -armv7
@@ -300,111 +339,56 @@ zrbf_stitch_build_json() {
   buc_log_args "Composing complete trigger-compatible Build resource"
   local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
 
-  if test "${z_is_multi_platform}" = "false"; then
-    # Single-platform: images pushed explicitly by step 03 (build-and-load).
-    # images: field omitted — TAG_BASE is runtime-derived, not a CB substitution.
-
-    jq -n \
-      --slurpfile zjq_steps  "${z_accumulator_file}" \
-      --arg zjq_dockerfile     "${z_dockerfile_name}" \
-      --arg zjq_moniker        "${z_sigil}" \
-      --arg zjq_platforms      "${z_platforms}" \
-      --arg zjq_platform_suffixes "${z_platform_suffixes_csv}" \
-      --arg zjq_gar_location   "${RBGD_GAR_LOCATION}" \
-      --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}" \
-      --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}" \
-      --arg zjq_git_commit     "__INSCRIBE_GIT_COMMIT__" \
-      --arg zjq_git_branch     "${z_git_branch}" \
-      --arg zjq_git_repo       "${z_git_repo}" \
-      --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
-      --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
-      --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
-      --arg zjq_rubric_repo      "__INSCRIBE_RUBRIC_REPO__" \
-      --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
-      --arg zjq_inscribe_ts      "__INSCRIBE_TIMESTAMP__" \
-      --arg zjq_pool   "${RBRR_GCB_WORKER_POOL}" \
-      --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
-      '{
-        steps: $zjq_steps[0],
-        substitutions: {
-          _RBGY_DOCKERFILE:          $zjq_dockerfile,
-          _RBGY_MONIKER:             $zjq_moniker,
-          _RBGY_PLATFORMS:           $zjq_platforms,
-          _RBGY_PLATFORM_SUFFIXES:   $zjq_platform_suffixes,
-          _RBGY_GAR_LOCATION:        $zjq_gar_location,
-          _RBGY_GAR_PROJECT:         $zjq_gar_project,
-          _RBGY_GAR_REPOSITORY:      $zjq_gar_repository,
-          _RBGY_GIT_COMMIT:          $zjq_git_commit,
-          _RBGY_GIT_BRANCH:          $zjq_git_branch,
-          _RBGY_GIT_REPO:            $zjq_git_repo,
-          _RBGY_GAR_HOST_SUFFIX:     $zjq_gar_host_suffix,
-          _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
-          _RBGY_ARK_SUFFIX_ABOUT:    $zjq_ark_suffix_about,
-          _RBGY_RUBRIC_REPO:         $zjq_rubric_repo,
-          _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
-          _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
-        },
-        options: {
-          requestedVerifyOption: "VERIFIED",
-          logging: "CLOUD_LOGGING_ONLY",
-          pool: { name: $zjq_pool }
-        },
-        timeout: $zjq_timeout
-      }' > "${z_build_file}" \
-      || buc_die "Failed to compose single-platform build JSON"
-  else
-    # Multi-platform: images pushed explicitly by steps 05 and 09.
-    # images: field omitted — TAG_BASE is runtime-derived, not a CB substitution.
-
-    jq -n \
-      --slurpfile zjq_steps  "${z_accumulator_file}" \
-      --arg zjq_dockerfile     "${z_dockerfile_name}" \
-      --arg zjq_moniker        "${z_sigil}" \
-      --arg zjq_platforms      "${z_platforms}" \
-      --arg zjq_platform_suffixes "${z_platform_suffixes_csv}" \
-      --arg zjq_gar_location   "${RBGD_GAR_LOCATION}" \
-      --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}" \
-      --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}" \
-      --arg zjq_git_commit     "__INSCRIBE_GIT_COMMIT__" \
-      --arg zjq_git_branch     "${z_git_branch}" \
-      --arg zjq_git_repo       "${z_git_repo}" \
-      --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
-      --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
-      --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
-      --arg zjq_rubric_repo      "__INSCRIBE_RUBRIC_REPO__" \
-      --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
-      --arg zjq_inscribe_ts      "__INSCRIBE_TIMESTAMP__" \
-      --arg zjq_pool   "${RBRR_GCB_WORKER_POOL}" \
-      --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
-      '{
-        steps: $zjq_steps[0],
-        substitutions: {
-          _RBGY_DOCKERFILE:          $zjq_dockerfile,
-          _RBGY_MONIKER:             $zjq_moniker,
-          _RBGY_PLATFORMS:           $zjq_platforms,
-          _RBGY_PLATFORM_SUFFIXES:   $zjq_platform_suffixes,
-          _RBGY_GAR_LOCATION:        $zjq_gar_location,
-          _RBGY_GAR_PROJECT:         $zjq_gar_project,
-          _RBGY_GAR_REPOSITORY:      $zjq_gar_repository,
-          _RBGY_GIT_COMMIT:          $zjq_git_commit,
-          _RBGY_GIT_BRANCH:          $zjq_git_branch,
-          _RBGY_GIT_REPO:            $zjq_git_repo,
-          _RBGY_GAR_HOST_SUFFIX:     $zjq_gar_host_suffix,
-          _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
-          _RBGY_ARK_SUFFIX_ABOUT:    $zjq_ark_suffix_about,
-          _RBGY_RUBRIC_REPO:         $zjq_rubric_repo,
-          _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
-          _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
-        },
-        options: {
-          requestedVerifyOption: "VERIFIED",
-          logging: "CLOUD_LOGGING_ONLY",
-          pool: { name: $zjq_pool }
-        },
-        timeout: $zjq_timeout
-      }' > "${z_build_file}" \
-      || buc_die "Failed to compose multi-platform build JSON"
-  fi
+  # Images pushed explicitly by steps 05 and 09.
+  # images: field omitted — TAG_BASE is runtime-derived, not a CB substitution.
+  jq -n \
+    --slurpfile zjq_steps  "${z_accumulator_file}" \
+    --arg zjq_dockerfile     "${z_dockerfile_name}" \
+    --arg zjq_moniker        "${z_sigil}" \
+    --arg zjq_platforms      "${z_platforms}" \
+    --arg zjq_platform_suffixes "${z_platform_suffixes_csv}" \
+    --arg zjq_gar_location   "${RBGD_GAR_LOCATION}" \
+    --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}" \
+    --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}" \
+    --arg zjq_git_commit     "__INSCRIBE_GIT_COMMIT__" \
+    --arg zjq_git_branch     "${z_git_branch}" \
+    --arg zjq_git_repo       "${z_git_repo}" \
+    --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
+    --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
+    --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
+    --arg zjq_rubric_repo      "__INSCRIBE_RUBRIC_REPO__" \
+    --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
+    --arg zjq_inscribe_ts      "__INSCRIBE_TIMESTAMP__" \
+    --arg zjq_pool   "${RBRR_GCB_WORKER_POOL}" \
+    --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
+    '{
+      steps: $zjq_steps[0],
+      substitutions: {
+        _RBGY_DOCKERFILE:          $zjq_dockerfile,
+        _RBGY_MONIKER:             $zjq_moniker,
+        _RBGY_PLATFORMS:           $zjq_platforms,
+        _RBGY_PLATFORM_SUFFIXES:   $zjq_platform_suffixes,
+        _RBGY_GAR_LOCATION:        $zjq_gar_location,
+        _RBGY_GAR_PROJECT:         $zjq_gar_project,
+        _RBGY_GAR_REPOSITORY:      $zjq_gar_repository,
+        _RBGY_GIT_COMMIT:          $zjq_git_commit,
+        _RBGY_GIT_BRANCH:          $zjq_git_branch,
+        _RBGY_GIT_REPO:            $zjq_git_repo,
+        _RBGY_GAR_HOST_SUFFIX:     $zjq_gar_host_suffix,
+        _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
+        _RBGY_ARK_SUFFIX_ABOUT:    $zjq_ark_suffix_about,
+        _RBGY_RUBRIC_REPO:         $zjq_rubric_repo,
+        _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
+        _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
+      },
+      options: {
+        requestedVerifyOption: "VERIFIED",
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $zjq_pool }
+      },
+      timeout: $zjq_timeout
+    }' > "${z_build_file}" \
+    || buc_die "Failed to compose build JSON"
 
   mv "${z_build_file}" "${ZRBF_STITCHED_BUILD_FILE}" \
     || buc_die "Failed to write final stitched build JSON"
@@ -551,6 +535,9 @@ rbf_build() {
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
+
+  # Quota preflight -- die if insufficient capacity
+  zrbf_quota_preflight "${z_token}" "gate"
 
   # Fetch GitLab token from Secret Manager (api token secret)
   buc_step "Fetching rubric repo token from Secret Manager"
@@ -798,6 +785,9 @@ rbf_list() {
       echo "${z_moniker}:${z_tag}"
     done
   done < "${z_packages_list}"
+
+  # Advisory quota check -- warn if insufficient but do not block listing
+  zrbf_quota_preflight "${z_token}" "advisory"
 
   buc_success "List complete"
 }
