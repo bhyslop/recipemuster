@@ -5493,9 +5493,10 @@
         "₢AkAAk",
         "₢AkAAl",
         "₢AkAAn",
-        "₢AkAAq"
+        "₢AkAAq",
+        "₢AkAAr"
       ],
-      "next_pace_seed": "AAr",
+      "next_pace_seed": "AAs",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6300,6 +6301,17 @@
               "text": "Evaluate moving all inscribe-related functionality out of the local repo and into the rubric.\n\n## Context\n\nInscribe aspects are currently split across the local repo and the rubric. As the system grows more complex, this split creates moving-part overhead. This pace is a design conversation to assess:\n\n1. **What inscribe functionality currently lives in the local repo** — enumerate files, tabtargets, and dependencies\n2. **What would need to move to the rubric** — and what rubric changes that implies\n3. **What breaks** — tabtarget references, CLAUDE.md mappings, test infrastructure, regime interactions\n4. **Is it worth it** — simplification vs migration cost\n\n## Not bridleable\n\nThis is a design conversation with too many interacting concerns to plan autonomously. Needs interactive exploration of the dependency graph.",
               "silks": "consider-inscribe-to-rubric-migration",
               "commit": "b5585d5"
+            }
+          ]
+        },
+        "₢AkAAr": {
+          "tacks": [
+            {
+              "ts": "260308-1224",
+              "state": "rough",
+              "text": "## Goal\n\nImplement rbf_vouch and supporting infrastructure per RBSAV-ark_vouch.adoc specification.\n\n## Context\n\n₢AkAAo produced the vouch spec subdoc after a failed implementation attempt that discovered critical constraints (default pool, metadata server auth, no gcloud in bash, GCB dollar escaping). The spec captures all lessons learned. This pace implements from the reviewed spec rather than ad-hoc coding.\n\n## Approach\n\nBefore writing any code, critically review RBSAV-ark_vouch.adoc and the vouch sections of RBS0-SpecTop.adoc. For each complication, ask: is there a simpler way? Discuss with user before proceeding.\n\nThen implement: RBGC_ARK_SUFFIX_VOUCH constant, zipper enrollment, vouch in abjure, vouch column in check_consecrations, rbf_vouch function, rbw-Rv tabtarget.\n\n## Files (expected)\n\n- Tools/rbw/rbgc_Constants.sh\n- Tools/rbw/rbz_zipper.sh\n- Tools/rbw/rbf_Foundry.sh\n- tt/rbw-Rv.RetrieverVouchesArk.sh",
+              "silks": "vouch-implementation-from-spec",
+              "commit": "72eb3b6"
             }
           ]
         }
