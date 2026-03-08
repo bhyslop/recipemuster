@@ -5776,6 +5776,13 @@
         "₢AkAAL": {
           "tacks": [
             {
+              "ts": "260308-1341",
+              "state": "abandoned",
+              "text": "Drafted from ₢AiAAm in ₣Ai.\n\nRename tabtarget tt/rbw-RI.RubricInscribe.sh. New name TBD — requires minting decision when pace is worked. Current colophon rbw-RI with frontispiece RubricInscribe.",
+              "silks": "rename-rubric-inscribe-tabtarget",
+              "commit": "0b21c59"
+            },
+            {
               "ts": "260302-0713",
               "state": "rough",
               "text": "Drafted from ₢AiAAm in ₣Ai.\n\nRename tabtarget tt/rbw-RI.RubricInscribe.sh. New name TBD — requires minting decision when pace is worked. Current colophon rbw-RI with frontispiece RubricInscribe.",
