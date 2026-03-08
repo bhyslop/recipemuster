@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "Ar",
+  "next_heat_seed": "As",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -23,7 +23,8 @@
     "₣Ac",
     "₣Ak",
     "₣Ap",
-    "₣Aq"
+    "₣Aq",
+    "₣Ar"
   ],
   "heats": {
     "₣AD": {
@@ -7677,6 +7678,15 @@
           ]
         }
       }
+    },
+    "₣Ar": {
+      "silks": "jjk-v4-2",
+      "creation_time": "260308",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlr.md",
+      "paces": {}
     }
   }
 }
