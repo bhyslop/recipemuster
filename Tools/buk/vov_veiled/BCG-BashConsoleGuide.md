@@ -1111,6 +1111,22 @@ The error handling suffix depends on the function type:
 | Capture/recite   | `\|\| return 1`      | Never dies, caller decides                       |
 | Flow control     | `\|\| continue`      | Intentional skip to next iteration               |
 
+### ❌ Test-and-control-flow with `&&`
+
+```bash
+# ❌ Relies on set -e exemption for &&/|| lists — fragile
+test "${z_val}" = "done" && break
+test -z "${z_val}" && return 0
+[[ "${z_line}" == *"pattern"* ]] && continue
+
+# ✅ Invert the test, use || — same behavior, no exemption reliance
+test "${z_val}" != "done" || break
+test -n "${z_val}" || return 0
+[[ "${z_line}" != *"pattern"* ]] || continue
+```
+
+**BCG rule: Never `test ... && break/continue/return`.** Always invert the test and use `||`. The `||` form is already the BCG standard for control flow after a test; the `&&` form relies on humans remembering that bash exempts `&&`/`||` lists from `set -e`, which is a language-lawyer trap.
+
 ---
 
 ## Array Safety Under `set -u`
@@ -1304,6 +1320,7 @@ buc_warn    # Instead of echo >&2
 | Fatal error         | `buc_die`                                                        |
 | Success message     | `buc_success`                                                    |
 | Variable expansion  | Always `"${var}"`                                                |
+| Control flow after test | `test ... \|\| break/continue/return` (never `&&`)           |
 | Conditional tests   | `test` not `[[ ]]`                                               |
 | Pattern matching    | `[[ var =~ pattern ]]` only                                      |
 | Secret extraction   | `_capture` function, never temp files                            |
@@ -1365,6 +1382,7 @@ buc_warn    # Instead of echo >&2
 - [ ] Pipelines either: occur inside a `_capture` function, write to temp files with explicit status checks, or explicitly inspect `${PIPESTATUS[@]}`
 - [ ] No `test $(command)` — use `grep -q` or `case` for validation
 - [ ] Only `_predicate` functions in `if`/`while` conditions — no regular/enroll functions in conditionals
+- [ ] No `test ... && break/continue/return` — invert test and use `||`
 - [ ] Error blocks use `{ ...; }` not `( ... )` — no `|| (... exit ...)` patterns
 - [ ] Isolation subshells (`( ... ) || buc_die`) have `|| buc_die` on every internal command and on the outer boundary
 
