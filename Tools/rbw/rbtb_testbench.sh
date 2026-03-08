@@ -54,7 +54,6 @@ source "${RBTB_RBTS_DIR}/rbtcqa_QualifyAll.sh"
 source "${RBTB_RBTS_DIR}/rbtcap_AccessProbe.sh"
 source "${RBTB_RBTS_DIR}/rbtcal_ArkLifecycle.sh"
 source "${RBTB_RBTS_DIR}/rbtcsl_SlsaProvenance.sh"
-source "${RBTB_BUTS_DIR}/butcde_DispatchExercise.sh"
 source "${RBTB_RBTS_DIR}/rbtcns_NsproSecurity.sh"
 source "${RBTB_RBTS_DIR}/rbtcsj_SrjclJupyter.sh"
 source "${RBTB_RBTS_DIR}/rbtcpl_PlumlDiagram.sh"
@@ -246,13 +245,6 @@ rbtb_kindle() {
 
   # -- FAST + COMPLETE: no external dependencies --
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
-
-  # dispatch-exercise fixture
-  buz_enroll ZBUTCDE_TEST_COLOPHON "butctt" "butcde_DispatchExercise" "butcde_run"
-  butr_fixture_enroll "dispatch-exercise" "" "zrbtb_noop_baste"
-  butr_case_enroll "dispatch-exercise" butcde_burv_isolation_tcase
-  butr_case_enroll "dispatch-exercise" butcde_evidence_created_tcase
-  butr_case_enroll "dispatch-exercise" butcde_exit_capture_tcase
 
   # -- COMPLETE only: needs container runtime --
   butr_suite_enroll "${BUTR_SUITE_COMPLETE}"

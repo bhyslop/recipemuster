@@ -18,47 +18,23 @@
 #
 # BUTCRG - Regime smoke test cases
 #
-# Dispatches all regime render and validate tabtargets via bute_dispatch
+# Invokes all regime render and validate tabtargets via buto_tt_expect_ok
 # and verifies each exits cleanly.
 
 set -euo pipefail
 
 ######################################################################
-# Private helper: init dispatch and evidence scoped to this test case
-
-zbutcrg_init() {
-  bute_init_dispatch
-  bute_init_evidence
-}
-
-zbutcrg_dispatch_ok() {
-  local z_colophon="${1}"
-  shift || true
-  local z_label="${z_colophon}${*:+ $*}"
-  buto_section "Dispatching: ${z_label}"
-  bute_dispatch "${z_colophon}" "$@"
-  local z_step
-  z_step=$(bute_last_step_capture) || buto_fatal "No step recorded for ${z_label}"
-  local z_status
-  z_status=$(bute_get_step_exit_capture "${z_step}")
-  buto_fatal_on_error "${z_status}" "Tabtarget failed" "Colophon: ${z_label}"
-  buto_info "OK: ${z_label} (exit ${z_status})"
-}
-
-######################################################################
 # BUK regime cases
 
 butcrg_burc_tcase() {
-  zbutcrg_init
-  zbutcrg_dispatch_ok "buw-rcr"
-  zbutcrg_dispatch_ok "buw-rcv"
+  buto_tt_expect_ok "buw-rcr"
+  buto_tt_expect_ok "buw-rcv"
   buto_success "BURC regime render+validate passed"
 }
 
 butcrg_burs_tcase() {
-  zbutcrg_init
-  zbutcrg_dispatch_ok "buw-rsr"
-  zbutcrg_dispatch_ok "buw-rsv"
+  buto_tt_expect_ok "buw-rsr"
+  buto_tt_expect_ok "buw-rsv"
   buto_success "BURS regime render+validate passed"
 }
 
@@ -66,8 +42,6 @@ butcrg_burs_tcase() {
 # RBW regime cases
 
 butcrg_rbrn_tcase() {
-  zbutcrg_init
-
   local z_monikers
   z_monikers=$(rbrn_list_capture) || buto_fatal "No nameplates found"
 
@@ -75,23 +49,20 @@ butcrg_rbrn_tcase() {
   local z_moniker=""
   for z_moniker in ${z_monikers}; do
     buto_info "Render+validate nameplate: ${z_moniker}"
-    zbutcrg_dispatch_ok "rbw-rnr" "${z_moniker}"
-    zbutcrg_dispatch_ok "rbw-rnv" "${z_moniker}"
+    buto_tt_expect_ok "rbw-rnr" "${z_moniker}"
+    buto_tt_expect_ok "rbw-rnv" "${z_moniker}"
   done
 
   buto_success "RBRN regime render+validate passed"
 }
 
 butcrg_rbrr_tcase() {
-  zbutcrg_init
-  zbutcrg_dispatch_ok "rbw-rrr"
-  zbutcrg_dispatch_ok "rbw-rrv"
+  buto_tt_expect_ok "rbw-rrr"
+  buto_tt_expect_ok "rbw-rrv"
   buto_success "RBRR regime render+validate passed"
 }
 
 butcrg_rbrv_tcase() {
-  zbutcrg_init
-
   # Load RBRR for rbrv_list_capture (needs RBRR_VESSEL_DIR)
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
@@ -105,8 +76,8 @@ butcrg_rbrv_tcase() {
   local z_sigil=""
   for z_sigil in ${z_sigils}; do
     buto_info "Render+validate vessel: ${z_sigil}"
-    zbutcrg_dispatch_ok "rbw-rvr" "${z_sigil}"
-    zbutcrg_dispatch_ok "rbw-rvv" "${z_sigil}"
+    buto_tt_expect_ok "rbw-rvr" "${z_sigil}"
+    buto_tt_expect_ok "rbw-rvv" "${z_sigil}"
   done
 
   buto_success "RBRV regime render+validate passed"
@@ -116,17 +87,15 @@ butcrg_rbrv_tcase() {
 # Payor regime case
 
 butcrg_rbrp_tcase() {
-  zbutcrg_init
-  zbutcrg_dispatch_ok "rbw-rpr"
-  zbutcrg_dispatch_ok "rbw-rpv"
+  buto_tt_expect_ok "rbw-rpr"
+  buto_tt_expect_ok "rbw-rpv"
   buto_success "RBRP regime render+validate passed"
 }
 
 ######################################################################
-# BURD dispatch regime case
+# BURD regime case
 
 butcrg_burd_tcase() {
-  zbutcrg_init
   buto_section "Verifying BURD dispatch environment"
   zburd_sentinel
   zburd_enforce

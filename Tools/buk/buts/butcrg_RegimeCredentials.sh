@@ -25,33 +25,9 @@
 set -euo pipefail
 
 ######################################################################
-# Private helper: init dispatch and evidence scoped to this test case
-
-zbutcrg_cred_init() {
-  bute_init_dispatch
-  bute_init_evidence
-}
-
-zbutcrg_cred_dispatch_ok() {
-  local z_colophon="${1}"
-  shift || true
-  local z_label="${z_colophon}${*:+ $*}"
-  buto_section "Dispatching: ${z_label}"
-  bute_dispatch "${z_colophon}" "$@"
-  local z_step
-  z_step=$(bute_last_step_capture) || buto_fatal "No step recorded for ${z_label}"
-  local z_status
-  z_status=$(bute_get_step_exit_capture "${z_step}")
-  buto_fatal_on_error "${z_status}" "Tabtarget failed" "Colophon: ${z_label}"
-  buto_info "OK: ${z_label} (exit ${z_status})"
-}
-
-######################################################################
 # RBRA credential cases (requires RBRR with RBRA file paths)
 
 butcrg_rbra_tcase() {
-  zbutcrg_cred_init
-
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
@@ -69,8 +45,8 @@ butcrg_rbra_tcase() {
     test -n "${z_path}" || buto_fatal "RBRR variable ${z_var} is empty"
     test -f "${z_path}" || buto_fatal "RBRA credential file not found for ${z_role}: ${z_path}. This suite requires a fully configured workstation."
 
-    zbutcrg_cred_dispatch_ok "rbw-rav" "${z_role}"
-    zbutcrg_cred_dispatch_ok "rbw-rar" "${z_role}"
+    buto_tt_expect_ok "rbw-rav" "${z_role}"
+    buto_tt_expect_ok "rbw-rar" "${z_role}"
   done
 
   buto_success "RBRA credential render+validate passed (all roles)"
@@ -80,8 +56,6 @@ butcrg_rbra_tcase() {
 # RBRO OAuth credential case
 
 butcrg_rbro_tcase() {
-  zbutcrg_cred_init
-
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
@@ -90,8 +64,8 @@ butcrg_rbro_tcase() {
   local z_file="${RBDC_PAYOR_RBRO_FILE}"
   test -f "${z_file}" || buto_fatal "RBRO credential file not found: ${z_file}. This suite requires a fully configured workstation."
 
-  zbutcrg_cred_dispatch_ok "rbw-rov"
-  zbutcrg_cred_dispatch_ok "rbw-ror"
+  buto_tt_expect_ok "rbw-rov"
+  buto_tt_expect_ok "rbw-ror"
 
   buto_success "RBRO OAuth regime render+validate passed"
 }
@@ -100,13 +74,11 @@ butcrg_rbro_tcase() {
 # RBRS station credential case
 
 butcrg_rbrs_tcase() {
-  zbutcrg_cred_init
-
   local z_file="../station-files/rbrs.env"
   test -f "${z_file}" || buto_fatal "RBRS station file not found: ${z_file}. This suite requires a fully configured workstation."
 
-  zbutcrg_cred_dispatch_ok "rbw-rsv"
-  zbutcrg_cred_dispatch_ok "rbw-rsr"
+  buto_tt_expect_ok "rbw-rsv"
+  buto_tt_expect_ok "rbw-rsr"
 
   buto_success "RBRS station regime render+validate passed"
 }
