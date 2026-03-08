@@ -124,40 +124,13 @@ Identifies which Podman VM to use for production deployments.
 //axhrgb_group
 {rbrr_group_build_configuration}
 
-Variables that control container image build processes.
-These settings define build tooling, platform targets, timeout constraints, and machine resources for
+Operator-chosen
 {gcb_service}
-operations.
-
-//axhrgv_variable
-{rbrm_crane_tar_gz}
-
-Path to crane tool tarball archive.
-Crane is used for OCI image manipulation and registry operations.
-
-//axhrgv_variable
-{rbrm_manifest_platforms}
-
-Space-separated list of platforms for multi-platform manifest creation.
-Example: `linux/amd64 linux/arm64`.
-
-//axhrgv_variable
-{rbrm_chosen_podman_version}
-
-Podman version string for VM provisioning and build operations.
-Must match a valid Podman release version.
-
-//axhrgv_variable
-{rbrm_chosen_vmimage_origin}
-
-Podman VM image origin specification.
-Determines which VM base image to use for machine creation.
-
-//axhrgv_variable
-{rbrm_chosen_identity}
-
-Identity specification for VM or build environment.
-Used to configure authentication and authorization context.
+build parameters.
+Builder image pins are in the
+{rbrg_regime};
+platform targets and VM supply chain are in the
+{rbrm_regime}.
 
 //axhrgv_variable
 {rbrr_gcb_machine_type}
@@ -179,50 +152,6 @@ Machine type is determined by the pool configuration at creation time, not by in
 
 Maximum duration for Cloud Build operations before timeout.
 Specified in seconds or duration format (e.g., `3600s`).
-
-//axhrgv_variable
-{rbrg_oras_image_ref}
-
-Fully-qualified image reference for ORAS tool used in Cloud Build steps.
-ORAS handles OCI artifact operations beyond container images.
-
-//axhrgv_variable
-{rbrg_gcloud_image_ref}
-
-Fully-qualified image reference for gcloud tool used in Cloud Build steps.
-Provides Google Cloud CLI for project and service operations.
-
-//axhrgv_variable
-{rbrg_docker_image_ref}
-
-Fully-qualified image reference for Docker tool used in Cloud Build steps.
-Provides container image building and pushing capabilities.
-
-//axhrgv_variable
-{rbrg_alpine_image_ref}
-
-Fully-qualified image reference for Alpine base image used in Cloud Build steps.
-Provides lightweight shell environment for scripting steps.
-
-//axhrgv_variable
-{rbrg_syft_image_ref}
-
-Fully-qualified image reference for Syft tool used in Cloud Build steps.
-Generates software bill of materials (SBOM) for built images.
-
-//axhrgv_variable
-{rbrg_binfmt_image_ref}
-
-Fully-qualified image reference for binfmt tool used in Cloud Build steps.
-Configures QEMU binary format support for cross-platform builds.
-
-//axhrgv_variable
-{rbrg_pins_refreshed_at}
-
-Timestamp recording when builder image pins were last refreshed via `rbrr_refresh_gcb_pins`.
-{rbtgo_rubric_inscribe}
-checks this value and skips pin refresh if less than 1 day old,
-otherwise refreshes automatically before proceeding.
 
 //axhrgb_group
 {rbrr_group_cbv2}
