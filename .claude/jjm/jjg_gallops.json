@@ -4438,12 +4438,13 @@
         "₢AhAAB",
         "₢AhAAC",
         "₢AhAAA",
+        "₢AhAAM",
         "₢AhAAD",
         "₢AhAAE",
         "₢AhAAJ",
         "₢AhAAK"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -4641,6 +4642,17 @@
               "text": "Spook fix: jjx_transfer (restring) fails silently through MCP.\n\n## Two bugs\n\n1. **CLAUDE.md says coronets is newline-separated string** but jjrrs_restring.rs:45 deserializes via `serde_json::from_str::<Vec<String>>()` — needs a JSON array like `[\"AYAAA\"]`.\n\n2. **Errors go to stderr, not buf** — all error paths in jjrrs_run() use `eprintln!()` and return `(1, empty_buf)`. MCP transport only sees buf, so errors are silently lost.\n\n## Fix\n\n- Update CLAUDE.md (and vocjjmc_core.md) to document coronets as JSON array\n- Change `eprintln!` error paths in jjrrs_restring.rs to `write!(buf, ...)` so errors flow through MCP\n- Audit other commands for same eprintln pattern",
               "silks": "fix-restring-eprintln-and-claudemd-coronets-doc",
               "commit": "f2e1bc4"
+            }
+          ]
+        },
+        "₢AhAAM": {
+          "tacks": [
+            {
+              "ts": "260308-1055",
+              "state": "rough",
+              "text": "Specify the complete V4 command surface implied by the data model from ₢AhAAA.\n\n## Why this pace exists\n\nThe data model defines types. But V4's complexity lives in the command lifecycle: when worktrees are created/destroyed, how school/breeze/corral orchestrate across sessions, how tackles and blazes are validated at each phase boundary, how existing commands (orient, show, mount, notch, wrap) change in worktree-aware context.\n\nThis pace produces the operational specification that implementation paces (₢AhAAD, ₢AhAAE, and new command paces) build against. Without it, implementation will discover lifecycle gaps at code time — expensive and disorienting.\n\n## What this pace produces\n\nJJS0 sections (or dedicated spec fragments) covering:\n\n1. **New command specs**: school, breeze, corral, longe, tackle CRUD, gait management, worktree lifecycle commands\n2. **Modified command specs**: orient, show, mount, notch, wrap — how each changes for V4 worktree/session/blaze awareness\n3. **Phase boundary contracts**: what jjx validates at each transition (pre-school blaze check, pre-breeze warrant integrity, post-breeze merge ceremony, corral accept/reject mechanics)\n4. **Session-worktree lifecycle**: creation, binding, dirty-state detection, orphan cleanup, session death recovery\n5. **Exclusivity enforcement**: how jjx holds mutexes for jjee_workstation and jjee_project scoped actions during breeze\n\n## Depends on\n\n- ₢AhAAA (design-v4-data-model) — provides the type definitions this pace specifies operations against\n\n## Not bridleable\n\nThis is a human-driven specification conversation requiring judgment about lifecycle edge cases.",
+              "silks": "spec-v4-command-surface",
+              "commit": "289a88b"
             }
           ]
         }
