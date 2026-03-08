@@ -515,16 +515,15 @@ rbgu_http_json_lro_ok() {
 rbgu_poll_until_ok() {
   zrbgu_sentinel
 
-  local -r z_method="${1}"
-  local -r z_label="${2}"
-  local -r z_url="${3}"
-  local -r z_token="${4}"
-  local -r z_infix="${5}"
+  local -r z_label="${1}"
+  local -r z_url="${2}"
+  local -r z_token="${3}"
+  local -r z_infix="${4}"
 
   local z_elapsed=0
   while :; do
     local z_poll_infix="${z_infix}-${z_elapsed}s"
-    rbgu_http_json "${z_method}" "${z_url}" "${z_token}" "${z_poll_infix}" || true
+    rbgu_http_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}" || true
 
     local z_code
     z_code=$(rbgu_http_code_capture "${z_poll_infix}") || z_code=""

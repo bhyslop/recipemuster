@@ -218,7 +218,7 @@ zrbgg_create_service_account_with_key() {
     || buc_die "Failed to get uniqueId from SA creation response"
   buc_info "Service account created: ${z_account_email} (uid: ${z_sa_uid})"
 
-  rbgu_poll_until_ok "GET" "SA propagation (by email)" \
+  rbgu_poll_until_ok "SA propagation (by email)" \
     "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGG_INFIX_VERIFY}"
 
   buc_step 'Preflight: ensure no existing USER_MANAGED keys (manual cleanup path)'
