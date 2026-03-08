@@ -16,6 +16,11 @@
 // burs_:  Station Regime (developer-level settings)
 // burd_:  Dispatch Runtime (ephemeral state assembled during dispatch)
 // bure_:  Environment Regime (ambient caller-supplied behavioral overrides)
+// busi:   Invocation (test invocation umbrella)
+// busit_: Invocation Tier (tier classification)
+// busig_: Invocation Global (capture state set by zbuto_invoke)
+// busx_:  Case Boundary (test case isolation runner)
+// busff_: Fact-File (inter-step communication via output files)
 //
 // Variant patterns:
 //   _s: plural form
@@ -120,6 +125,25 @@
 :bure_countdown:                   <<bure_countdown,BURE_COUNTDOWN>>
 :bure_verbose:                     <<bure_verbose,BURE_VERBOSE>>
 :bure_color:                       <<bure_color,BURE_COLOR>>
+
+// Invocation Tier
+:busit_unit:                      <<busit_unit,Unit Tier>>
+:busit_tabtarget:                 <<busit_tabtarget,Tabtarget Tier>>
+:busit_launch:                    <<busit_launch,Launch Tier>>
+
+// Invocation Globals
+:busig_stdout:                    <<busig_stdout,ZBUTO_STDOUT>>
+:busig_stderr:                    <<busig_stderr,ZBUTO_STDERR>>
+:busig_status:                    <<busig_status,ZBUTO_STATUS>>
+:busig_burv_output:               <<busig_burv_output,ZBUTO_BURV_OUTPUT>>
+
+// Case Boundary
+:busx_tcase:                      <<busx_tcase,Case Boundary>>
+:busx_temp_dir:                   <<busx_temp_dir,BUT_TEMP_DIR>>
+:busx_burv_root:                  <<busx_burv_root,BUTE_BURV_ROOT>>
+
+// Fact-File
+:busff_fact_file:                 <<busff_fact_file,Fact-File>>
 
 // end::mapping-section[]
 
@@ -335,6 +359,8 @@ Registered with `butr_fixture_enroll(name, init_fn, setup_fn)`.
 
 **Suite** — cross-cutting selection group (N:M with cases).
 A case can belong to multiple suites.
+Suites classify by dependency tier (what environment must exist), not by test methodology.
+A suite is a membership tag.
 Suites enable sweep dispatch: run a cross-cutting subset of cases grouped by their owning fixtures.
 Suite context is set with `butr_suite_enroll(SUITE1 [SUITE2...])` before case enrollments.
 Queried by `butd_run_sweep(suite_name)`.
@@ -362,6 +388,137 @@ follow a structure that encodes both kit identity and formulary type:
 * `{cipher}-{variant}-` — specialized workbench (e.g., `rbw-B-` for bottle operations)
 
 The trailing hyphen is always part of the colophon — it separates the routing prefix from the dot-delimited tabtarget components.
+
+== Test Invocation
+
+The test invocation vocabulary defines how test cases exercise code under controlled capture.
+All invocation tiers share a common primitive,
+`zbuto_invoke`,
+which captures stdout, stderr, exit status, and optional BURV output into
+{busig_stdout},
+{busig_stderr},
+{busig_status},
+and
+{busig_burv_output}.
+
+=== Invocation Tiers
+
+Three tiers provide increasing levels of resolution:
+
+[[busit_unit]]
+//axl_voices axo_entity
+{busit_unit}::
+Invokes a raw function or command directly via `zbuto_invoke`.
+No tabtarget file or workbench routing involved.
++
+API: `buto_unit_expect_ok(command...)`, `buto_unit_expect_fatal(command...)`, `buto_unit_expect_ok_stdout(expected, command...)`
+
+[[busit_tabtarget]]
+//axl_voices axo_entity
+{busit_tabtarget}::
+Resolves a
+{busdc_colophon}
+to a
+{busdl_launcher}
+file in `tt/`, then invokes it via `zbuto_invoke`.
+Dies if no tabtarget matches or if multiple matches exist.
++
+API: `buto_tt_expect_ok(colophon, args...)`, `buto_tt_expect_fatal(colophon, args...)`
+
+[[busit_launch]]
+//axl_voices axo_entity
+{busit_launch}::
+Invokes a workbench dispatch function directly, bypassing the
+{busdl_launcher}
+file.
+Useful when exercising workbench routing without a tabtarget on disk.
++
+API: `buto_launch_expect_ok(launcher, colophon, args...)`, `buto_launch_expect_fatal(launcher, colophon, args...)`
+
+=== Capture Globals
+
+Every call to `zbuto_invoke` sets four globals that subsequent assertions can inspect.
+
+[[busig_stdout]]
+//axl_voices axrg_variable axtu_string
+{busig_stdout}::
+Captured stdout from the invoked command.
+
+[[busig_stderr]]
+//axl_voices axrg_variable axtu_string
+{busig_stderr}::
+Captured stderr from the invoked command.
+
+[[busig_status]]
+//axl_voices axrg_variable axtu_integer
+{busig_status}::
+Exit code from the invoked command.
+
+[[busig_burv_output]]
+//axl_voices axrg_variable axtu_path
+{busig_burv_output}::
+BURV output directory for the invocation.
+Empty when
+{busx_burv_root}
+is not set.
+When set, contains the invocation's isolated output tree rooted at
+`{BUTE_BURV_ROOT}/invoke-NNNNN/output`.
+
+=== Case Boundary
+
+[[busx_tcase]]
+//axl_voices axo_entity
+{busx_tcase}::
+The case isolation runner (`zbute_tcase`).
+Executes a single test case function in a subshell with per-case temporary state.
+Sets
+{busx_temp_dir}
+and
+{busx_burv_root}
+before invoking the case function.
++
+The subshell boundary ensures that variable mutations, function redefinitions, and side effects in one case cannot leak to another.
+
+[[busx_temp_dir]]
+//axl_voices axrg_variable axtu_path
+{busx_temp_dir}::
+Per-case temporary directory (`BUT_TEMP_DIR`), set by
+{busx_tcase}.
+Created as a subdirectory of the fixture's root temp dir, named after the case function.
+
+[[busx_burv_root]]
+//axl_voices axrg_variable axtu_path
+{busx_burv_root}::
+Per-case BURV isolation root (`BUTE_BURV_ROOT`), set by
+{busx_tcase}.
+When present, all invocation tiers create per-invoke BURV directories under this root, enabling multi-step test sequences to produce and consume isolated output.
+
+=== Fact-File Pattern
+
+[[busff_fact_file]]
+//axl_voices axo_entity
+{busff_fact_file}::
+Inter-step communication pattern using named output files.
++
+A producer writes a value to `${BURD_OUTPUT_DIR}/${CONSTANT}` during command execution.
+A consumer reads it from `${ZBUTO_BURV_OUTPUT}/current/${CONSTANT}` after invocation.
+The kindle constant name is the contract between producer and consumer.
++
+Example:
++
+[source,bash]
+----
+# Producer (in command implementation):
+echo "${z_image_ref}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}"
+
+# Consumer (in test case, after buto_tt_expect_ok):
+z_image_ref=$(<"${ZBUTO_BURV_OUTPUT}/current/${RBF_FACT_IMAGE_REF}")
+----
++
+The `current/` path segment maps
+{burd_output_dir}
+inside the BURV isolation tree.
+Fact-file constants are defined as `readonly` in kindle (e.g., `RBF_FACT_IMAGE_REF`).
 
 == Regime Configuration
 
