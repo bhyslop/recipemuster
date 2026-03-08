@@ -207,7 +207,7 @@ zrbf_stitch_build_json() {
   while test -n "${z_remaining_count}"; do
     z_p_count="${z_remaining_count%%,*}"
     z_platform_count=$((z_platform_count + 1))
-    test "${z_remaining_count}" = "${z_p_count}" && break
+    test "${z_remaining_count}" != "${z_p_count}" || break
     z_remaining_count="${z_remaining_count#*,}"
   done
   buc_log_args "Vessel platforms: ${z_platform_count} (${z_platforms})"
@@ -266,7 +266,7 @@ zrbf_stitch_build_json() {
     else
       z_platform_suffixes="${z_suffix}"
     fi
-    test "${z_remaining_plats}" = "${z_plat}" && break
+    test "${z_remaining_plats}" != "${z_plat}" || break
     z_remaining_plats="${z_remaining_plats#*,}"
   done
   z_platform_suffixes_csv="${z_platform_suffixes}"
@@ -357,7 +357,7 @@ zrbf_stitch_build_json() {
       || buc_die "Failed to append image URI"
     mv "${z_images_file}.tmp" "${z_images_file}" \
       || buc_die "Failed to update images JSON"
-    test "${z_remaining_suffixes}" = "${z_img_suffix}" && break
+    test "${z_remaining_suffixes}" != "${z_img_suffix}" || break
     z_remaining_suffixes="${z_remaining_suffixes#*,}"
   done
 
@@ -1476,7 +1476,7 @@ rbf_abjure() {
     z_suffix="${z_plat#linux/}"
     z_suffix="${z_suffix//\//}"
     z_platform_suffixes+=("-${z_suffix}")
-    test "${z_remaining_plats}" = "${z_plat}" && break
+    test "${z_remaining_plats}" != "${z_plat}" || break
     z_remaining_plats="${z_remaining_plats#*,}"
   done
 

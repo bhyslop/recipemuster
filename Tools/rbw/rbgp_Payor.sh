@@ -1126,7 +1126,7 @@ rbgp_depot_create() {
         sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
       done
 
-      test "${z_conn_succeeded}" = "true" && break
+      test "${z_conn_succeeded}" != "true" || break
     fi
 
     # LRO failed — likely IAM propagation delay (service agent cannot read secrets yet)

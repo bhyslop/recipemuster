@@ -75,9 +75,9 @@ is_text_file() {
   else
     # Fallback heuristic: look for null bytes
     if [[ -n "$refspec" ]]; then
-      git show "$refspec:$file" 2>/dev/null | head -c 512 | grep -q $'\x00' && return 1 || return 0
+      ! git show "$refspec:$file" 2>/dev/null | head -c 512 | grep -q $'\x00'
     else
-      head -c 512 "$file" 2>/dev/null | grep -q $'\x00' && return 1 || return 0
+      ! head -c 512 "$file" 2>/dev/null | grep -q $'\x00'
     fi
   fi
 }

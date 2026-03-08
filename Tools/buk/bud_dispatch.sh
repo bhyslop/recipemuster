@@ -46,7 +46,7 @@ zbud_check_string() {
   local -r z_min="${3}"
   local -r z_max="${4}"
 
-  test "${z_min}" = "0" && test -z "${z_val}" && return 0
+  test "${z_min}" != "0" -o -n "${z_val}" || return 0
   test -n "${z_val}" || zbud_die "[${z_context}] ${z_varname} must not be empty"
 
   if [ -n "${z_max}" ]; then

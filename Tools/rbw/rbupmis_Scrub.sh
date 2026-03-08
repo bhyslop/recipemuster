@@ -49,8 +49,8 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   clean_line="${line//$'\x00'/}"
 
   # Skip lines matching...
-  [[ "$clean_line" == "Looking up Podman Machine image at"* ]] && continue
-  [[ "$clean_line" == *"podman machine start"*              ]] && continue
+  [[ "$clean_line" != "Looking up Podman Machine image at"* ]] || continue
+  [[ "$clean_line" != *"podman machine start"*              ]] || continue
 
   echo "$clean_line" >> "$outfile"
 done

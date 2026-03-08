@@ -81,14 +81,14 @@ buto_fatal() {
 buto_fatal_on_error() {
   set -e
   local z_condition="${1}"; shift
-  test "${z_condition}" -eq 0 && return 0
+  test "${z_condition}" -ne 0 || return 0
   buto_fatal "$@"
 }
 
 buto_fatal_on_success() {
   set -e
   local z_condition="${1}"; shift
-  test "${z_condition}" -ne 0 && return 0
+  test "${z_condition}" -eq 0 || return 0
   buto_fatal "$@"
 }
 

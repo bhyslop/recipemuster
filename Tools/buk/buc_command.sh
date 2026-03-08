@@ -134,7 +134,7 @@ zbuc_disable_trace() {
 }
 
 zbuc_do_execute() {
-  test "${ZBUC_DOC_MODE}" = "true" && return 0 || return 1
+  test "${ZBUC_DOC_MODE}" = "true"
 }
 
 buc_doc_env() {

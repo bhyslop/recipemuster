@@ -740,7 +740,7 @@ rbgu_provision_service_agent() {
       test "${z_code}" = "200" || buc_die "Provision ${z_api_service}: poll failed (HTTP ${z_code})"
 
       z_done=$(rbgu_json_field_capture "${z_final_infix}" ".done") || z_done=""
-      test "${z_done}" = "true" && break
+      test "${z_done}" != "true" || break
 
       test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" \
         && buc_die "Provision ${z_api_service}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"

@@ -19,7 +19,7 @@
 # Compatible with Bash 3.2 (e.g., macOS default shell)
 
 # Multiple inclusion guard
-test -n "${ZBUV_INCLUDED:-}" && return 0
+test -z "${ZBUV_INCLUDED:-}" || return 0
 ZBUV_INCLUDED=1
 
 # Literal constants — check capture output protocol markers
