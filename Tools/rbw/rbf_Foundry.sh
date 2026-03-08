@@ -339,28 +339,11 @@ zrbf_stitch_build_json() {
   buc_log_args "Composing complete trigger-compatible Build resource"
   local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
 
-  # Build per-platform images array for CB-native SLSA provenance
-  # Each entry: GAR_LOCATION + HOST_SUFFIX / GAR_PROJECT / GAR_REPOSITORY / MONIKER : INSCRIBE_TS + ARK_SUFFIX_IMAGE + PLATFORM_SUFFIX
-  local z_images_file="${ZRBF_STITCH_PREFIX}images.json"
-  echo "[]" > "${z_images_file}" || buc_die "Failed to initialize images JSON"
-  local z_img_remaining="${z_platform_suffixes_csv}"
-  local z_img_suffix=""
-  local z_img_tmp="${ZRBF_STITCH_PREFIX}images_tmp.json"
-  local z_img_uri_template="\${_RBGY_GAR_LOCATION}\${_RBGY_GAR_HOST_SUFFIX}/\${_RBGY_GAR_PROJECT}/\${_RBGY_GAR_REPOSITORY}/\${_RBGY_MONIKER}:\${_RBGY_INSCRIBE_TIMESTAMP}\${_RBGY_ARK_SUFFIX_IMAGE}"
-  while test -n "${z_img_remaining}"; do
-    z_img_suffix="${z_img_remaining%%,*}"
-    jq --arg uri "${z_img_uri_template}${z_img_suffix}" '. + [$uri]' \
-      "${z_images_file}" > "${z_img_tmp}" || buc_die "Failed to add image to array"
-    mv "${z_img_tmp}" "${z_images_file}" || buc_die "Failed to update images JSON"
-    if test "${z_img_remaining}" = "${z_img_suffix}"; then
-      break
-    fi
-    z_img_remaining="${z_img_remaining#*,}"
-  done
-
+  # NOTE: images: field omitted — TAG_BASE includes runtime build timestamp that
+  # can't be predicted at inscribe time. See ₢AkAAm for the fix plan.
+  # Without images:, builds succeed but CB does not generate SLSA provenance.
   jq -n \
     --slurpfile zjq_steps  "${z_accumulator_file}" \
-    --slurpfile zjq_images "${z_images_file}" \
     --arg zjq_dockerfile     "${z_dockerfile_name}" \
     --arg zjq_moniker        "${z_sigil}" \
     --arg zjq_platforms      "${z_platforms}" \
@@ -399,7 +382,6 @@ zrbf_stitch_build_json() {
         _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
         _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
       },
-      images: $zjq_images[0],
       options: {
         requestedVerifyOption: "VERIFIED",
         logging: "CLOUD_LOGGING_ONLY",
