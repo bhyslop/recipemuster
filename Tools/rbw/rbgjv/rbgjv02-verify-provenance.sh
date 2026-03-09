@@ -43,9 +43,12 @@ while [ "${IDX}" -lt "${DIGEST_COUNT}" ]; do
   echo "  ref:        ${FULL_REF}"
   echo "  source-uri: ${_RBGV_SOURCE_URI}"
   echo "  --- Container Analysis API diagnostic ---"
-  ENCODED_URI="https://${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}@${DIGEST}"
-  CA_URL="https://containeranalysis.googleapis.com/v1/projects/${_RBGV_GAR_PATH%%/*}/occurrences?filter=resourceUrl%3D%22${ENCODED_URI}%22"
-  echo "  CA API URL: ${CA_URL}"
+  GAR_PATH="${_RBGV_GAR_PATH}"
+  CA_PROJECT="${GAR_PATH%%/*}"
+  ENCODED_URI="https://${_RBGV_GAR_HOST}/${GAR_PATH}/${_RBGV_VESSEL}@${DIGEST}"
+  CA_URL="https://containeranalysis.googleapis.com/v1/projects/${CA_PROJECT}/occurrences?filter=resourceUrl%3D%22${ENCODED_URI}%22"
+  echo "  CA project:  ${CA_PROJECT}"
+  echo "  CA API URL:  ${CA_URL}"
   wget -q -O /workspace/ca_diagnostic.json \
     --header "Authorization: Bearer ${TOKEN}" \
     "${CA_URL}" 2>&1 || echo "  CA API call failed"
