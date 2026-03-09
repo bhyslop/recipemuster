@@ -17,10 +17,7 @@ service account on the default pool.
 NOTE: Vouch uses `builds.create` rather than trigger dispatch because the
 {rbtga_consecration}
 is known only after conjure completes.
-The default pool is acceptable: vouch steps only need internet access (binary download, GAR registry, Sigstore root of trust).
-
-NOTE: {rbsk_no_gcloud} applies.
-Registry authentication uses the GCE metadata server to obtain a service account token and writes a static Docker config.
+The default pool is acceptable: vouch steps only need internet access (binary download, GAR registry, Container Analysis API).
 
 The
 {rbtr_director}
@@ -79,24 +76,28 @@ verified binary at `/workspace/slsa-verifier`
 
 //axhos_step
 . *Cloud Build Step 2: Discover Digests and Verify Provenance*:
-.. Image: {rbrg_alpine_image_ref}
-.. Authenticate to GAR via GCE metadata server token, write Docker config
+.. Image: {rbrg_gcloud_image_ref}
+.. Fetch OAuth token via `gcloud auth print-access-token` (gcloud authenticates as {rbtr_mason} via metadata server)
 .. {rbbc_call}
 Docker Registry API: GET manifests for `«CONSECRATION»-image` to obtain OCI image index
 .. {rbbc_store}
 `«PLATFORM_DIGESTS»` as list of `(platform, digest)` pairs extracted from the manifest list
 .. For each `(platform, digest)` in `«PLATFORM_DIGESTS»`:
 ... {rbbc_call}
-`slsa-verifier verify-image` with `--source-uri` set to `git+«RBRR_RUBRIC_REPO_URL»` and `--print-provenance`
+`gcloud artifacts docker images describe --format json --show-provenance` to fetch provenance from Container Analysis API
+... {rbbc_store}
+per-platform provenance to `/workspace/provenance-«PLATFORM_SUFFIX».json`
+... {rbbc_call}
+`slsa-verifier verify-image` with `--provenance-path`, `--source-uri «RBRR_RUBRIC_REPO_URL»` (sans `.git` suffix), `--builder-id=https://cloudbuild.googleapis.com/GoogleHostedWorker`, and `--print-provenance`
 ... {rbbc_store}
 per-platform verification output to `/workspace/verify-«PLATFORM_SUFFIX».json`
 .. {rbbc_require}
 all platforms verify successfully
+.. Compose `vouch_summary.json` via python3: consecration, vessel, verifier identity (URL + SHA256), per-platform verification verdicts
 
 //axhos_step
 . *Cloud Build Step 3: Assemble and Push Vouch Artifact*:
 .. Image: {rbrg_docker_image_ref}
-.. Compose `vouch_summary.json`: consecration, vessel, verifier identity (URL + SHA256), per-platform verification verdicts
 .. Build `FROM scratch` container with summary and per-platform verification files as layers
 .. Push to registry tagged `«CONSECRATION»-vouch`
 .. {rbbc_require}
@@ -122,8 +123,13 @@ Successful execution creates a
 artifact in the registry tagged as `«VESSEL»:«CONSECRATION»-vouch`.
 The vouch artifact is a single-platform container (verification results are architecture-independent metadata).
 +
-*Source URI matching*: The `--source-uri` must be `git+«RBRR_RUBRIC_REPO_URL»` to match the source recorded in provenance by trigger-dispatched builds.
+*Source URI matching*: The `--source-uri` must be `«RBRR_RUBRIC_REPO_URL»` with the `.git` suffix stripped.
+The slsa-verifier prepends `https://` when matching against the source recorded in provenance by trigger-dispatched builds.
 Format mismatch causes verification failure.
++
+*Provenance discovery*: slsa-verifier does not auto-discover GCB provenance from the Container Analysis API.
+Provenance must be fetched explicitly via `gcloud artifacts docker images describe --show-provenance` and passed via `--provenance-path`.
+The `--builder-id` must be `https://cloudbuild.googleapis.com/GoogleHostedWorker`.
 +
 *Re-vouch idempotency*: Re-running vouch re-executes verification and pushes a new vouch artifact, overwriting the previous.
 Content is presumed deterministic (same digests + same provenance + same verifier = identical output).
@@ -144,7 +150,7 @@ All `_RBGV_*` substitution variables are passed in the `builds.create` request b
 *Verification*::
 [cols="1,2"]
 |===
-| `_RBGV_SOURCE_URI` | `git+«RBRR_RUBRIC_REPO_URL»`. Source: regime configuration.
+| `_RBGV_SOURCE_URI` | `«RBRR_RUBRIC_REPO_URL»` (sans `.git` suffix). Source: regime configuration.
 | `_RBGV_VERIFIER_URL` | slsa-verifier download URL. Source: {rbrg_slsa_verifier_url}.
 | `_RBGV_VERIFIER_SHA256` | slsa-verifier binary checksum. Source: {rbrg_slsa_verifier_sha256}.
 |===
