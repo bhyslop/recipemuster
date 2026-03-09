@@ -93,8 +93,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[pr
 
 //axhos_step
 . *Grant Project-Level Permissions*:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for
+.. {rbtoe_iam_grant_project} for
 {rbrr_depot_project_id}
 .. Add `serviceAccount:«DIRECTOR_EMAIL»` with roles:
 ... `roles/cloudbuild.builds.editor` (submit and manage builds)
@@ -133,8 +132,7 @@ submits builds that execute as
 {rbtr_mason}.
 This requires `serviceAccountUser` permission on
 {rbtr_mason}.
-.. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] for
+.. {rbtoe_iam_grant_sa} on
 {rbtr_mason}
 service account
 .. Add `serviceAccount:«DIRECTOR_EMAIL»` with `roles/iam.serviceAccountUser`
@@ -145,8 +143,7 @@ IAM binding successful
 . *Grant
 {rbtgi_build_bucket}
 Access*:
-.. {rbbc_call}
-link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] for
+.. {rbtoe_iam_grant_bucket} on
 {rbtgi_build_bucket}
 .. Add `serviceAccount:«DIRECTOR_EMAIL»` with roles:
 ... `roles/storage.objectCreator` (upload sources)

@@ -89,8 +89,7 @@ converts `«RETRIEVER_PRIVATE_KEY_DATA»` to `«RETRIEVER_RBRA_FILE»`
 . *Grant
 {rbtgi_repository}
 Read Access*:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for
+.. {rbtoe_iam_grant_project} for
 {rbrr_depot_project_id}
 .. Add `serviceAccount:«RETRIEVER_EMAIL»` with role:
 ... `roles/artifactregistry.reader` (read-only access to all Artifact Registry repositories)

@@ -101,8 +101,7 @@ service account accessible before proceeding
 . *Grant
 {gcp_project_id}
 -level Permissions*:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy]
+.. {rbtoe_iam_grant_project}
 to update IAM policy on
 `«INPUT_DEPOT_PROJECT_ID»`
 .. {rbbc_use}
