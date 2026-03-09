@@ -465,6 +465,8 @@ zrbf_load_vessel() {
 zrbf_wait_build_completion() {
   zrbf_sentinel
 
+  local z_max_attempts="${1:?zrbf_wait_build_completion: max_attempts required}"
+
   buc_step 'Waiting for build completion'
 
   local z_build_id=""
@@ -477,7 +479,6 @@ zrbf_wait_build_completion() {
 
   local z_status="PENDING"
   local z_attempts=0
-  local z_max_attempts=960  # 80 minutes with 5 second intervals
   local z_consecutive_failures=0
   local z_max_consecutive_failures=3
   local z_err_check_file="${ZRBF_STITCH_PREFIX}poll_err_check.txt"
@@ -650,8 +651,7 @@ rbf_build() {
   buc_info "Build dispatched: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  # Wait for completion (5s intervals, up to 80 minutes)
-  zrbf_wait_build_completion
+  zrbf_wait_build_completion 960  # 80 minutes at 5s intervals
 
   # Discover consecration from build step output (strong tie — no GAR scanning)
   # Step 01 (derive-tag-base) writes consecration to /builder/outputs/output,
@@ -1916,7 +1916,7 @@ rbf_vouch() {
   buc_info "Vouch build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion
+  zrbf_wait_build_completion 36  # 3 minutes at 5s intervals
 
   buc_success "Vouch complete: ${RBRV_SIGIL}/${z_consecration}"
   buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"
