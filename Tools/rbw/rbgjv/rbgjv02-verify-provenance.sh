@@ -42,20 +42,20 @@ while [ "${IDX}" -lt "${DIGEST_COUNT}" ]; do
   echo "Verifying ${PLAT_SUFFIX} (${DIGEST})..."
   echo "  ref:        ${FULL_REF}"
   echo "  source-uri: ${_RBGV_SOURCE_URI}"
-  echo "  --- Container Analysis API diagnostic ---"
+  echo "  --- diagnostics ---"
+  /workspace/slsa-verifier version 2>&1 || echo "  (version command not supported)"
   GAR_PATH="${_RBGV_GAR_PATH}"
   CA_PROJECT="${GAR_PATH%%/*}"
   ENCODED_URI="https://${_RBGV_GAR_HOST}/${GAR_PATH}/${_RBGV_VESSEL}@${DIGEST}"
-  CA_URL="https://containeranalysis.googleapis.com/v1/projects/${CA_PROJECT}/occurrences?filter=resourceUrl%3D%22${ENCODED_URI}%22"
-  echo "  CA project:  ${CA_PROJECT}"
-  echo "  CA API URL:  ${CA_URL}"
-  wget -q -O /workspace/ca_diagnostic.json \
+  DSSE_URL="https://containeranalysis.googleapis.com/v1/projects/${CA_PROJECT}/occurrences?filter=kind%3D%22DSSE_ATTESTATION%22%20AND%20resourceUrl%3D%22${ENCODED_URI}%22"
+  echo "  DSSE query: ${DSSE_URL}"
+  wget -q -O /workspace/ca_dsse.json \
     --header "Authorization: Bearer ${TOKEN}" \
-    "${CA_URL}" 2>&1 || echo "  CA API call failed"
-  echo "  CA API response:"
-  cat /workspace/ca_diagnostic.json 2>/dev/null | head -c 2000
+    "${DSSE_URL}" 2>&1 || echo "  DSSE query failed"
+  echo "  DSSE response (first 3000 chars):"
+  cat /workspace/ca_dsse.json 2>/dev/null | head -c 3000
   echo ""
-  echo "  --- end diagnostic ---"
+  echo "  --- end diagnostics ---"
   if ! /workspace/slsa-verifier verify-image "${FULL_REF}" \
     --source-uri "${_RBGV_SOURCE_URI}" \
     --print-provenance \
