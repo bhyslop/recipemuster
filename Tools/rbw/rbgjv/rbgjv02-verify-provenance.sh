@@ -43,17 +43,24 @@ while [ "${IDX}" -lt "${DIGEST_COUNT}" ]; do
   echo "  ref:        ${FULL_REF}"
   echo "  source-uri: ${_RBGV_SOURCE_URI}"
   echo "  --- diagnostics ---"
-  /workspace/slsa-verifier version 2>&1 || echo "  (version command not supported)"
   GAR_PATH="${_RBGV_GAR_PATH}"
   CA_PROJECT="${GAR_PATH%%/*}"
   ENCODED_URI="https://${_RBGV_GAR_HOST}/${GAR_PATH}/${_RBGV_VESSEL}@${DIGEST}"
-  DSSE_URL="https://containeranalysis.googleapis.com/v1/projects/${CA_PROJECT}/occurrences?filter=kind%3D%22DSSE_ATTESTATION%22%20AND%20resourceUrl%3D%22${ENCODED_URI}%22"
-  echo "  DSSE query: ${DSSE_URL}"
-  wget -q -O /workspace/ca_dsse.json \
+  echo "  Querying ALL occurrences for this digest (no kind filter):"
+  ALL_URL="https://containeranalysis.googleapis.com/v1/projects/${CA_PROJECT}/occurrences?filter=resourceUrl%3D%22${ENCODED_URI}%22"
+  wget -q -O /workspace/ca_all.json \
     --header "Authorization: Bearer ${TOKEN}" \
-    "${DSSE_URL}" 2>&1 || echo "  DSSE query failed"
-  echo "  DSSE response (first 3000 chars):"
-  cat /workspace/ca_dsse.json 2>/dev/null | head -c 3000
+    "${ALL_URL}" 2>&1 || echo "  ALL query failed"
+  echo "  Occurrence kinds found:"
+  jq -r '.occurrences[]? | "\(.kind) \(.noteName)"' /workspace/ca_all.json 2>/dev/null || echo "  (none)"
+  echo ""
+  echo "  Querying ALL DSSE_ATTESTATION in project (no resource filter):"
+  DSSE_ALL_URL="https://containeranalysis.googleapis.com/v1/projects/${CA_PROJECT}/occurrences?filter=kind%3D%22DSSE_ATTESTATION%22&pageSize=5"
+  wget -q -O /workspace/ca_dsse_all.json \
+    --header "Authorization: Bearer ${TOKEN}" \
+    "${DSSE_ALL_URL}" 2>&1 || echo "  DSSE-all query failed"
+  echo "  DSSE occurrences in project:"
+  jq -r '.occurrences[]? | "\(.resourceUri) \(.noteName)"' /workspace/ca_dsse_all.json 2>/dev/null || echo "  (none)"
   echo ""
   echo "  --- end diagnostics ---"
   if ! /workspace/slsa-verifier verify-image "${FULL_REF}" \
