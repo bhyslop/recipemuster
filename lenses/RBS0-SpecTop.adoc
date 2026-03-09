@@ -181,6 +181,11 @@
 :rbtoe_rbra_generate:        <<rbtoe_rbra_generate,rbgu_extract_json_to_rbra>>
 :rbtoe_rbra_load:            <<rbtoe_rbra_load,rbgu_rbra_load>>
 :rbtoe_rbro_load:            <<rbtoe_rbro_load,rbgu_rbro_load>>
+:rbtoe_poll_readiness:       <<rbtoe_poll_readiness,rbgu_poll_until_ok>>
+:rbtoe_iam_grant_project:    <<rbtoe_iam_grant_project,rbgi_add_project_iam_role>>
+:rbtoe_iam_grant_repo:       <<rbtoe_iam_grant_repo,rbgi_add_repo_iam_role>>
+:rbtoe_iam_grant_sa:         <<rbtoe_iam_grant_sa,rbgi_add_sa_iam_role>>
+:rbtoe_iam_grant_bucket:     <<rbtoe_iam_grant_bucket,rbgi_add_bucket_iam_role>>
 
 // Core Architecture Terms
 :at_base_utilities:          <<at_base_utilities,Base Utilities>>
@@ -3449,6 +3454,73 @@ to obtain access token,
 and
 {rbtgo_depot_destroy}
 operations.
+
+[[rbtoe_poll_readiness]]
+//axvo_procedure axd_transient axd_internal
+{rbtoe_poll_readiness}::
+A pattern that polls a REST endpoint with GET until HTTP 200, confirming resource or IAM propagation readiness:
+
+. {rbbc_call} GET on target URL,
+. on HTTP 200, returns success with elapsed time,
+. on non-200, waits `RBGC_EVENTUAL_CONSISTENCY_SEC` then retries,
+. {rbbc_fatal} if `RBGC_MAX_CONSISTENCY_SEC` elapsed without success.
+
+[[rbtoe_iam_grant_project]]
+//axvo_procedure axd_transient axd_internal
+{rbtoe_iam_grant_project}::
+A pattern that grants an {giam_role} binding on a GCP project with optimistic concurrency, propagation-delay tolerance, and strong read-back verification:
+
+. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/getIamPolicy[projects.getIamPolicy] with policy version 3,
+. extracts etag for optimistic concurrency control,
+. composes updated policy JSON preserving existing bindings,
+. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] with etag; {rbbc_fatal} on 412 precondition failure or 409 conflict,
+. retries transient errors (429, 5xx) with bounded wait,
+. retries the full get-modify-set cycle on HTTP 400 "does not exist" (SA propagation delay),
+. {rbbc_call} getIamPolicy to verify the granted role is observable in the returned policy,
+. {rbbc_fatal} if verification times out.
+
+Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x multiplier, 20s cap, 420s deadline).
+
+[[rbtoe_iam_grant_repo]]
+//axvo_procedure axd_transient axd_internal
+{rbtoe_iam_grant_repo}::
+A pattern that grants an {giam_role} binding on a {gar_registry} repository with propagation-delay tolerance:
+
+. {rbbc_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/getIamPolicy[repositories.getIamPolicy]; initializes vanilla policy on HTTP 404 (new repository, no policy yet),
+. composes updated policy JSON preserving existing bindings,
+. {rbbc_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy],
+. retries the full get-modify-set cycle on HTTP 400 "does not exist" (SA propagation delay),
+. {rbbc_fatal} on unexpected errors.
+
+Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x multiplier, 20s cap, 420s deadline).
+
+[[rbtoe_iam_grant_sa]]
+//axvo_procedure axd_transient axd_internal
+{rbtoe_iam_grant_sa}::
+A pattern that grants an {giam_role} binding on a {giam_service_account} with existence pre-flight and propagation-delay tolerance:
+
+. {rbbc_require} target {giam_service_account} is accessible via link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[serviceAccounts.get] or {rbbc_fatal},
+. {rbbc_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/getIamPolicy[serviceAccounts.getIamPolicy]; initializes vanilla policy on non-200 (no policy yet),
+. composes updated policy JSON preserving existing bindings,
+. {rbbc_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy],
+. retries the full get-modify-set cycle on HTTP 400 "does not exist" (SA propagation delay),
+. {rbbc_fatal} on unexpected errors.
+
+Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x multiplier, 20s cap, 420s deadline).
+
+[[rbtoe_iam_grant_bucket]]
+//axvo_procedure axd_transient axd_internal
+{rbtoe_iam_grant_bucket}::
+A pattern that grants an {giam_role} binding on a {gcs_bucket} with propagation-delay tolerance:
+
+. {rbbc_call} GET link:https://cloud.google.com/storage/docs/json_api/v1/buckets/getIamPolicy[buckets.getIamPolicy]; initializes vanilla policy on non-200,
+. extracts etag from existing policy when present,
+. composes updated policy JSON preserving existing bindings,
+. {rbbc_call} PUT link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy],
+. retries the full get-modify-set cycle on HTTP 400 "does not exist" (SA propagation delay),
+. {rbbc_fatal} on unexpected errors.
+
+Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x multiplier, 20s cap, 420s deadline).
 
 == Script Internals
 
