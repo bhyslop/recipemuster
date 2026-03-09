@@ -42,6 +42,17 @@ while [ "${IDX}" -lt "${DIGEST_COUNT}" ]; do
   echo "Verifying ${PLAT_SUFFIX} (${DIGEST})..."
   echo "  ref:        ${FULL_REF}"
   echo "  source-uri: ${_RBGV_SOURCE_URI}"
+  echo "  --- Container Analysis API diagnostic ---"
+  ENCODED_URI="https://${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}@${DIGEST}"
+  CA_URL="https://containeranalysis.googleapis.com/v1/projects/${_RBGV_GAR_PATH%%/*}/occurrences?filter=resourceUrl%3D%22${ENCODED_URI}%22"
+  echo "  CA API URL: ${CA_URL}"
+  wget -q -O /workspace/ca_diagnostic.json \
+    --header "Authorization: Bearer ${TOKEN}" \
+    "${CA_URL}" 2>&1 || echo "  CA API call failed"
+  echo "  CA API response:"
+  cat /workspace/ca_diagnostic.json 2>/dev/null | head -c 2000
+  echo ""
+  echo "  --- end diagnostic ---"
   if ! /workspace/slsa-verifier verify-image "${FULL_REF}" \
     --source-uri "${_RBGV_SOURCE_URI}" \
     --print-provenance \
