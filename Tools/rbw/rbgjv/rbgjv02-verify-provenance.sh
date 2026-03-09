@@ -40,10 +40,16 @@ while [ "${IDX}" -lt "${DIGEST_COUNT}" ]; do
   fi
   FULL_REF="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}@${DIGEST}"
   echo "Verifying ${PLAT_SUFFIX} (${DIGEST})..."
-  /workspace/slsa-verifier verify-image "${FULL_REF}" \
+  echo "  ref:        ${FULL_REF}"
+  echo "  source-uri: ${_RBGV_SOURCE_URI}"
+  if ! /workspace/slsa-verifier verify-image "${FULL_REF}" \
     --source-uri "${_RBGV_SOURCE_URI}" \
     --print-provenance \
-    > "/workspace/verify-${PLAT_SUFFIX}.json"
+    > "/workspace/verify-${PLAT_SUFFIX}.json" 2>/workspace/verify-error.txt; then
+    echo "VERIFY FAILED for ${PLAT_SUFFIX}:" >&2
+    cat /workspace/verify-error.txt >&2
+    exit 1
+  fi
   echo "Platform ${PLAT_SUFFIX} verified"
   IDX=$((IDX + 1))
 done
