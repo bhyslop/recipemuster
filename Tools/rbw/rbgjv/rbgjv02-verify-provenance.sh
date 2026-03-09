@@ -1,33 +1,35 @@
-#!/bin/sh
+#!/bin/bash
 # RBGJV Step 02: Discover per-platform digests, verify SLSA provenance, compose summary
-# Builder: alpine (via RBRG_ALPINE_IMAGE_REF)
-# Entrypoint: sh (not bash — alpine does not have bash)
+# Builder: gcloud (via RBRG_GCLOUD_IMAGE_REF)
+# Entrypoint: bash
 # Substitutions: _RBGV_GAR_HOST, _RBGV_GAR_PATH, _RBGV_VESSEL,
 #                _RBGV_CONSECRATION, _RBGV_SOURCE_URI,
 #                _RBGV_VERIFIER_URL, _RBGV_VERIFIER_SHA256
 
-set -eu
+set -euo pipefail
 echo "=== Discover digests and verify provenance ==="
-apk add --no-cache jq >/dev/null
-echo "Authenticating to GAR via metadata server..."
-wget -q -O /workspace/token_response.json --header "Metadata-Flavor: Google" \
-  "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
-TOKEN=$(jq -r '.access_token' /workspace/token_response.json)
-test -n "${TOKEN}" || { echo "FATAL: empty metadata server token" >&2; exit 1; }
-mkdir -p /root/.docker
-AUTH_B64=$(printf "oauth2accesstoken:%s" "${TOKEN}" | base64 | tr -d '\n')
-printf '{"auths":{"%s":{"auth":"%s"}}}' "${_RBGV_GAR_HOST}" "${AUTH_B64}" \
-  > /root/.docker/config.json
+
+FULL_IMAGE="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}"
 IMAGE_TAG="${_RBGV_CONSECRATION}-image"
-MANIFEST_URL="https://${_RBGV_GAR_HOST}/v2/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}/manifests/${IMAGE_TAG}"
+BUILDER_ID="https://cloudbuild.googleapis.com/GoogleHostedWorker"
+
 echo "Fetching manifest list: ${IMAGE_TAG}"
-wget -q -O /workspace/manifest_list.json \
-  --header "Authorization: Bearer ${TOKEN}" \
-  --header "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json" \
-  "${MANIFEST_URL}"
+gcloud artifacts docker images describe "${FULL_IMAGE}:${IMAGE_TAG}" \
+  --format json > /workspace/image_describe.json
+DIGEST_COUNT=$(jq '.image_summary.media_type' /workspace/image_describe.json | grep -c "manifest.list\|image.index" || true)
+
+# Extract per-platform digests from the manifest list via registry API
+TOKEN=$(gcloud auth print-access-token)
+MANIFEST_URL="https://${_RBGV_GAR_HOST}/v2/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}/manifests/${IMAGE_TAG}"
+curl -sS \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json" \
+  "${MANIFEST_URL}" > /workspace/manifest_list.json
+
 DIGEST_COUNT=$(jq '.manifests | length' /workspace/manifest_list.json)
 echo "Found ${DIGEST_COUNT} platform entries"
 test "${DIGEST_COUNT}" -gt 0 || { echo "FATAL: no platform entries in manifest list" >&2; exit 1; }
+
 IDX=0
 while [ "${IDX}" -lt "${DIGEST_COUNT}" ]; do
   DIGEST=$(jq -r ".manifests[${IDX}].digest" /workspace/manifest_list.json)
@@ -38,43 +40,27 @@ while [ "${IDX}" -lt "${DIGEST_COUNT}" ]; do
   else
     PLAT_SUFFIX="${ARCH}"
   fi
-  FULL_REF="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}@${DIGEST}"
+  FULL_REF="${FULL_IMAGE}@${DIGEST}"
   echo "Verifying ${PLAT_SUFFIX} (${DIGEST})..."
-  echo "  ref:        ${FULL_REF}"
-  echo "  source-uri: ${_RBGV_SOURCE_URI}"
-  echo "  --- diagnostics ---"
-  GAR_PATH="${_RBGV_GAR_PATH}"
-  CA_PROJECT="${GAR_PATH%%/*}"
-  ENCODED_URI="https://${_RBGV_GAR_HOST}/${GAR_PATH}/${_RBGV_VESSEL}@${DIGEST}"
-  echo "  Querying ALL occurrences for this digest (no kind filter):"
-  ALL_URL="https://containeranalysis.googleapis.com/v1/projects/${CA_PROJECT}/occurrences?filter=resourceUrl%3D%22${ENCODED_URI}%22"
-  wget -q -O /workspace/ca_all.json \
-    --header "Authorization: Bearer ${TOKEN}" \
-    "${ALL_URL}" 2>&1 || echo "  ALL query failed"
-  echo "  Occurrence kinds found:"
-  jq -r '.occurrences[]? | "\(.kind) \(.noteName)"' /workspace/ca_all.json 2>/dev/null || echo "  (none)"
-  echo ""
-  echo "  Querying ALL DSSE_ATTESTATION in project (no resource filter):"
-  DSSE_ALL_URL="https://containeranalysis.googleapis.com/v1/projects/${CA_PROJECT}/occurrences?filter=kind%3D%22DSSE_ATTESTATION%22&pageSize=5"
-  wget -q -O /workspace/ca_dsse_all.json \
-    --header "Authorization: Bearer ${TOKEN}" \
-    "${DSSE_ALL_URL}" 2>&1 || echo "  DSSE-all query failed"
-  echo "  DSSE occurrences in project:"
-  jq -r '.occurrences[]? | "\(.resourceUri) \(.noteName)"' /workspace/ca_dsse_all.json 2>/dev/null || echo "  (none)"
-  echo ""
-  echo "  --- end diagnostics ---"
-  if ! /workspace/slsa-verifier verify-image "${FULL_REF}" \
+
+  echo "  Fetching provenance for ${PLAT_SUFFIX}..."
+  gcloud artifacts docker images describe "${FULL_REF}" \
+    --format json --show-provenance \
+    > "/workspace/provenance-${PLAT_SUFFIX}.json"
+
+  echo "  Running slsa-verifier for ${PLAT_SUFFIX}..."
+  /workspace/slsa-verifier verify-image "${FULL_REF}" \
+    --provenance-path "/workspace/provenance-${PLAT_SUFFIX}.json" \
     --source-uri "${_RBGV_SOURCE_URI}" \
+    --builder-id="${BUILDER_ID}" \
     --print-provenance \
-    > "/workspace/verify-${PLAT_SUFFIX}.json" 2>/workspace/verify-error.txt; then
-    echo "VERIFY FAILED for ${PLAT_SUFFIX}:" >&2
-    cat /workspace/verify-error.txt >&2
-    exit 1
-  fi
-  echo "Platform ${PLAT_SUFFIX} verified"
+    > "/workspace/verify-${PLAT_SUFFIX}.json"
+  echo "  Platform ${PLAT_SUFFIX} verified"
+
   IDX=$((IDX + 1))
 done
 echo "All ${DIGEST_COUNT} platforms verified"
+
 echo "Composing vouch summary..."
 VERDICTS="[]"
 for f in /workspace/verify-*.json; do

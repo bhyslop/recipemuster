@@ -1809,7 +1809,7 @@ rbf_vouch() {
   # Delimiter is | because image refs contain colons (sha256 digests)
   local -r z_vouch_step_defs=(
     "rbgjv01-download-verifier.sh|${RBRG_ALPINE_IMAGE_REF}|sh|download-verifier"
-    "rbgjv02-verify-provenance.sh|${RBRG_ALPINE_IMAGE_REF}|sh|verify-provenance"
+    "rbgjv02-verify-provenance.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|verify-provenance"
     "rbgjv03-assemble-push-vouch.sh|${RBRG_DOCKER_IMAGE_REF}|bash|assemble-push-vouch"
   )
 
