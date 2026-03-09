@@ -294,6 +294,69 @@ zrbob_launch_bottle() {
 }
 
 ######################################################################
+# Auto-Summon Helper
+
+# Verify vouch exists and pull image if missing locally
+# Usage: zrbob_vouch_gate_and_summon <vessel> <consecration> <image_ref>
+zrbob_vouch_gate_and_summon() {
+  local z_vessel="${1:-}"
+  local z_consecration="${2:-}"
+  local z_image_ref="${3:-}"
+
+  test -n "${z_vessel}"       || buc_die "zrbob_vouch_gate_and_summon: vessel required"
+  test -n "${z_consecration}" || buc_die "zrbob_vouch_gate_and_summon: consecration required"
+  test -n "${z_image_ref}"    || buc_die "zrbob_vouch_gate_and_summon: image_ref required"
+
+  # Construct registry API base from available constants
+  local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local z_registry_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local z_registry_api_base="https://${z_registry_host}/v2/${z_registry_path}"
+
+  # Get OAuth token — prefer Retriever credentials, fallback to Director
+  local z_rbra_file=""
+  if test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" && test -f "${RBDC_RETRIEVER_RBRA_FILE}"; then
+    z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE}"
+    buc_info "Using Retriever credentials for auto-summon"
+  else
+    z_rbra_file="${RBDC_DIRECTOR_RBRA_FILE}"
+    buc_info "Retriever not configured, using Director credentials for auto-summon"
+  fi
+
+  local z_token
+  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token for auto-summon"
+
+  # Vouch gate: HEAD request for -vouch tag
+  local z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  buc_step "Checking vouch for ${z_vessel}:${z_vouch_tag}"
+
+  local z_vouch_http_code
+  z_vouch_http_code=$(curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -o /dev/null \
+    -w "%{http_code}" \
+    "${z_registry_api_base}/${z_vessel}/manifests/${z_vouch_tag}") \
+    || buc_die "HEAD request failed for vouch artifact: ${z_vessel}:${z_vouch_tag}"
+
+  if test "${z_vouch_http_code}" != "200"; then
+    buc_die "Consecration not vouched: ${z_vessel}:${z_consecration} (Director has not vouched this consecration — refusing to pull unvouched images)"
+  fi
+
+  buc_info "Vouch verified: ${z_vessel}:${z_vouch_tag}"
+
+  # Pull the image
+  buc_step "Auto-summoning ${z_image_ref}"
+
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_registry_host}" \
+    || buc_die "Container registry authentication failed during auto-summon"
+
+  docker pull "${z_image_ref}" || buc_die "Failed to pull image: ${z_image_ref}"
+
+  buc_info "Auto-summoned: ${z_image_ref}"
+}
+
+######################################################################
 # Public API
 
 # Start the complete bottle service (sentry + censer + bottle)
@@ -306,19 +369,15 @@ rbob_start() {
   # Cross-nameplate validation (silent on success, dies on conflict)
   rbrn_preflight
 
-  # Preflight: verify container images exist locally before touching anything
+  # Preflight: verify container images exist locally, auto-summon if missing
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1; then
     buc_warn "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}"
-    buc_info "Summon it first:"
-    buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
-    buc_die "Cannot start without sentry image"
+    zrbob_vouch_gate_and_summon "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_CONSECRATION}" "${ZRBOB_SENTRY_IMAGE}"
   fi
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_IMAGE}" >/dev/null 2>&1; then
     buc_warn "Bottle image not found locally: ${ZRBOB_BOTTLE_IMAGE}"
-    buc_info "Summon it first:"
-    buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
-    buc_die "Cannot start without bottle image"
+    zrbob_vouch_gate_and_summon "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_CONSECRATION}" "${ZRBOB_BOTTLE_IMAGE}"
   fi
 
   # Cleanup any prior state

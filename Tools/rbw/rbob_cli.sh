@@ -98,6 +98,7 @@ zrbob_furnish() {
 
   local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
   source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${z_rbw_kit_dir}/rbrn_regime.sh"
   source "${z_rbw_kit_dir}/rbcc_Constants.sh"
   source "${z_rbw_kit_dir}/rbrr_regime.sh"
@@ -105,15 +106,16 @@ zrbob_furnish() {
   source "${RBBC_rbrr_file}"
   source "${z_rbw_kit_dir}/rbgc_Constants.sh"
   source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
+  source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbw_kit_dir}/rbob_bottle.sh"
   source "${z_rbw_kit_dir}/rboo_observe.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_rbw_kit_dir}/rbz_zipper.sh"
 
   zbuv_kindle
+  zburd_kindle
   zrbcc_kindle
 
-  # Load nameplate from BUZ_FOLIO
   local z_folio="${BUZ_FOLIO:-}"
   test -n "${z_folio}" || buc_die "BUZ_FOLIO must be set to a nameplate moniker"
   local z_nameplate_file="${RBBC_dot_dir}/${RBCC_rbrn_prefix}${z_folio}${RBCC_rbrn_ext}"
@@ -125,12 +127,9 @@ zrbob_furnish() {
   zrbrr_kindle
   zrbrr_enforce
   zrbdc_kindle
-
-  # Kindle depot constants (provides RBGD_GAR_LOCATION, RBGD_GAR_PROJECT_ID for image URLs)
   zrbgc_kindle
   zrbgd_kindle
-
-  # Kindle RBOB (validates RBRN and RBRR are ready)
+  zrbgo_kindle
   zrbob_kindle
 
   zbuz_kindle
