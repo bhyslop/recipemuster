@@ -1802,7 +1802,7 @@ rbf_vouch() {
   buc_step "Constructing vouch Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  local -r z_source_uri="git+${RBRR_RUBRIC_REPO_URL%.git}"
+  local -r z_source_uri="${RBRR_RUBRIC_REPO_URL%.git}"
   local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Step definitions: script|builder|entrypoint|id
