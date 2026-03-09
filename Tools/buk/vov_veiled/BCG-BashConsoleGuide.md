@@ -18,6 +18,20 @@ Enterprise bash isn't about looking clever; it's about being boringly, reliably 
 
 The patterns reject bash 4+ features to maintain compatibility with older enterprise systems still running bash 3.2, particularly older RHEL/CentOS or macOS deployments.
 
+### Load-Bearing Complexity
+
+Every element in a system — every function extraction, every pattern variant, every structural distinction — must carry weight. An element is **load-bearing** when its removal would create a gap between intent and behavior. When similar things differ, ask whether the difference is load-bearing: if yes, document why; if no, homogenize.
+
+This is the general decision criterion that tools like Zeroes Theory instantiate. Zeroes Theory asks "how many zeroes did this add to state space?" — load-bearing complexity asks the prior question: "does this element earn its existence at all?"
+
+Concrete examples from this codebase:
+
+- **Four separate `rbgi_add_*_iam` functions** look like copy-paste, but each wraps a different GCP API with different failure modes. The variation is load-bearing — extracting a "generic IAM helper" would hide which API failed at 3am.
+- **Three copy-pasted Secret Manager IAM blocks** are NOT load-bearing variation — same API, same failure class, same recovery. Extract a helper.
+- **Not adding three-part structure to a simple `api_enable` spec definition** — the structure would add ceremony without carrying meaning. Non-load-bearing elements increase cognitive cost without increasing correctness.
+
+Non-load-bearing elements are the silent budget overruns of a codebase. Each one is small; their aggregate is what makes systems incomprehensible.
+
 ## Module Architecture
 
 Every module has an implementation file. CLI entry points are only present if module requires standalone execution.

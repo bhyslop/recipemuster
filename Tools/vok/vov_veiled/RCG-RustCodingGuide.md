@@ -424,6 +424,12 @@ Large files typically split into 2-3 smaller files by responsibility. Common bou
 
 All split files keep the same cipher prefix for grep-ability.
 
+## Load-Bearing Complexity
+
+Every element in a system must carry weight — its removal would create a gap between intent and behavior. When similar things differ, the difference must be load-bearing or the code should be homogenized.
+
+Rust's type system enforces much of this mechanically: unused fields warn, unused variants warn, dead code warns. The disciplines above — Interface Contamination (no unearned input forms), Constant Discipline (no unearned literals), Constructor Discipline (no unearned construction sites) — are each instantiations of this principle applied to specific domains. When evaluating a new pattern or extraction, ask: "Is this element load-bearing?" If not, it doesn't belong.
+
 ## What RCG Does Not Cover
 
 Trust Claude's Rust idioms for:
