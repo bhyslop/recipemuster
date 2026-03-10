@@ -186,16 +186,19 @@ zrbtb_slsa_baste() {
 zrbtb_nsproto_baste() {
   buto_trace "Baste for nsproto-security fixture"
   rbtb_load_nameplate "nsproto"
+  rbob_start
 }
 
 zrbtb_srjcl_baste() {
   buto_trace "Baste for srjcl-jupyter fixture"
   rbtb_load_nameplate "srjcl"
+  rbob_start
 }
 
 zrbtb_pluml_baste() {
   buto_trace "Baste for pluml-diagram fixture"
   rbtb_load_nameplate "pluml"
+  rbob_start
 }
 
 
