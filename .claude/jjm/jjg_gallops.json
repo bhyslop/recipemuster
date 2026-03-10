@@ -1,5 +1,5 @@
 {
-  "next_heat_seed": "As",
+  "next_heat_seed": "At",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -24,7 +24,8 @@
     "₣Ak",
     "₣Ap",
     "₣Aq",
-    "₣Ar"
+    "₣Ar",
+    "₣As"
   ],
   "heats": {
     "₣AD": {
@@ -7875,6 +7876,15 @@
           ]
         }
       }
+    },
+    "₣As": {
+      "silks": "rbk-mvp-2-iam-grant-unification",
+      "creation_time": "260309",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAls.md",
+      "paces": {}
     }
   }
 }
