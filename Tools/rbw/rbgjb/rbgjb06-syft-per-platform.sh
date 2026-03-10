@@ -29,12 +29,14 @@ CONSECRATION="$(cat .consecration)"
 IMAGE_BASE="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}"
 GAR_AUTHORITY="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}"
 
-# Fetch OAuth2 token from GCB metadata server (no gcloud dependency)
+# Fetch OAuth2 token from GCB metadata server (no gcloud/jq dependency)
+# Response: {"access_token":"ya29...","expires_in":3600,"token_type":"Bearer"}
 echo "Fetching OAuth2 token from metadata server"
-TOKEN=$(curl -sf -H "Metadata-Flavor: Google" \
-  "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
-  | jq -r '.access_token') \
+TOKEN_JSON=$(curl -sf -H "Metadata-Flavor: Google" \
+  "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token") \
   || { echo "Failed to fetch OAuth2 token from metadata server" >&2; exit 1; }
+TOKEN=$(printf '%s' "${TOKEN_JSON}" | sed 's/.*"access_token":"\([^"]*\)".*/\1/') \
+  || { echo "Failed to parse access_token from metadata response" >&2; exit 1; }
 test -n "${TOKEN}" || { echo "OAuth2 token empty" >&2; exit 1; }
 
 # Split platforms and suffixes
