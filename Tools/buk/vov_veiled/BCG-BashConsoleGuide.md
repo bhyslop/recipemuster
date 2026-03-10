@@ -1091,6 +1091,31 @@ source "${z_file}"
 
 All BCG-structural shellcheck suppressions live in `busc_shellcheckrc`. No inline `# shellcheck` directives of any kind. If a shellcheck code fires and it's BCG-structural, add it to `busc_shellcheckrc` with rationale. If it's a genuine finding, fix the code.
 
+### ❌ Commit-Message Comments
+
+A **commit-message comment** describes the *change event* rather than the *code*. It narrates what was added, when, or why it was inserted — information that belongs in `git log`, not in the file. The tell: the comment would make more sense as a commit summary than as documentation for a future reader.
+
+```bash
+# ❌ Commit-message comment: narrates the insertion
+# Added qualification subsystem for shellcheck support
+buw-qsc) exec "${z_buq_cli}" buq_shellcheck "$@" ;;
+
+# ❌ Commit-message comment: documents the change, not the code
+# New helper for retry logic (see PR #142)
+zrbf_retry_with_backoff() {
+
+# ✅ No comment needed — the code is self-evident
+buw-qsc) exec "${z_buq_cli}" buq_shellcheck "$@" ;;
+
+# ✅ Comment describes the code, not the change
+# Retry with exponential backoff; max delay capped at 60s
+zrbf_retry_with_backoff() {
+```
+
+**Litmus test**: Would this comment be better as a commit message? If yes, delete it from the code — it's already captured in git history.
+
+This is a characteristic LLM failure mode. Models narrate their own work process into code, writing for the person reviewing the diff rather than the person reading the file next year. The resulting comments assume a supervisory reader with conversation context — an audience that does not exist at maintenance time.
+
 ---
 
 ## Interface Contamination Discipline
@@ -1461,6 +1486,7 @@ buc_warn    # Instead of echo >&2
 - [ ] Runtime info via `buc_log_«source»` (forensic) and `buc_step` (milestones), never comments
 - [ ] Details use `buc_log_«source»` (transcript.txt)
 - [ ] Comments only for code clarification, not runtime info
+- [ ] No commit-message comments (narrating the change, not the code)
 - [ ] Major operations use `buc_step` (always visible)
 
 ### Sourcing Restrictions
