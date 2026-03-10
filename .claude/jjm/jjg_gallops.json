@@ -5506,9 +5506,10 @@
         "₢AkAAq",
         "₢AkAAv",
         "₢AkAAw",
-        "₢AkAAx"
+        "₢AkAAx",
+        "₢AkAAy"
       ],
-      "next_pace_seed": "AAy",
+      "next_pace_seed": "AAz",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6483,6 +6484,17 @@
               "text": "Full test sweep to establish green baseline before any mvp-2 work begins. Run all test suites, record results. This is the exit gate for mvp-1 and the entry proof for mvp-2.",
               "silks": "baseline-test-sweep",
               "commit": "33d06f1"
+            }
+          ]
+        },
+        "₢AkAAy": {
+          "tacks": [
+            {
+              "ts": "260309-2013",
+              "state": "rough",
+              "text": "Migrate buw_workbench.sh from hardcoded case-statement routing to buz_zipper dispatch, matching the pattern already used by rbw_workbench.sh.\n\n## Context\n\nrbw_workbench.sh uses buz_zipper: enrolls colophons via rbz_zipper.sh kindle, then dispatches with a single buz_exec_lookup call. buw_workbench.sh predates this pattern and uses a manual case statement where colophon strings appear as duplicate literals.\n\n## Deliverables\n\n1. Create buwz_zipper.sh (or equivalent) with kindle function that enrolls all BUK workbench colophons (buw-tt-*, buw-rc*, buw-rs*, buw-re*, buw-qsc)\n2. Refactor buw_workbench.sh to source buz_zipper.sh, kindle, and dispatch via buz_exec_lookup\n3. Remove the hardcoded case statement and local z_*_cli variables\n4. Verify all existing buw-* tabtargets still work\n5. Run buz_healthcheck to validate colophon-tabtarget alignment",
+              "silks": "buw-workbench-zipper-migration",
+              "commit": "11f4fc8"
             }
           ]
         }
