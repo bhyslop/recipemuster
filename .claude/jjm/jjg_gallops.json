@@ -6586,6 +6586,13 @@
         "₢AkAAx": {
           "tacks": [
             {
+              "ts": "260310-1446",
+              "state": "complete",
+              "text": "Full test sweep to establish green baseline before any mvp-2 work begins. Run all test suites, record results. This is the exit gate for mvp-1 and the entry proof for mvp-2.",
+              "silks": "baseline-test-sweep",
+              "commit": "88e3681"
+            },
+            {
               "ts": "260309-1945",
               "state": "rough",
               "text": "Full test sweep to establish green baseline before any mvp-2 work begins. Run all test suites, record results. This is the exit gate for mvp-1 and the entry proof for mvp-2.",
