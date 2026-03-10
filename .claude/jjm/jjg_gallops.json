@@ -6267,6 +6267,13 @@
         "₢AkAAk": {
           "tacks": [
             {
+              "ts": "260310-1240",
+              "state": "complete",
+              "text": "Investigate and fix the location of nameplate .env files (rbrn_nsproto.env, rbrn_srjcl.env, rbrn_pluml.env). These are currently in Tools/rbw/ alongside implementation code, but they're user-authored configuration (regime files) — not tooling. Determine the correct location, move them, and update all consumers.\n\n## Questions to answer\n\n- Where do other regime .env files live? (rbrr.env, rbrp.env, etc.)\n- What references these files? (RBCC literal constants, furnish functions, testbench)\n- What is the principled location for per-instance regime config?\n\n## Scope\n\n- Move the 3 nameplate .env files to the correct location\n- Update all path references (likely RBCC/RBBC literal constants)\n- Verify all nameplate tests still pass after the move",
+              "silks": "nameplate-env-file-location",
+              "commit": "565df93"
+            },
+            {
               "ts": "260307-1845",
               "state": "rough",
               "text": "Investigate and fix the location of nameplate .env files (rbrn_nsproto.env, rbrn_srjcl.env, rbrn_pluml.env). These are currently in Tools/rbw/ alongside implementation code, but they're user-authored configuration (regime files) — not tooling. Determine the correct location, move them, and update all consumers.\n\n## Questions to answer\n\n- Where do other regime .env files live? (rbrr.env, rbrp.env, etc.)\n- What references these files? (RBCC literal constants, furnish functions, testbench)\n- What is the principled location for per-instance regime config?\n\n## Scope\n\n- Move the 3 nameplate .env files to the correct location\n- Update all path references (likely RBCC/RBBC literal constants)\n- Verify all nameplate tests still pass after the move",
