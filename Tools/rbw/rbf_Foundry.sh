@@ -866,8 +866,12 @@ rbf_beseech() {
           z_consecration="${z_tag%${RBGC_ARK_SUFFIX_ABOUT}}"
           echo "${z_moniker}|${z_consecration}|about" >> "${z_arks_raw}"
           ;;
+        *"${RBGC_ARK_SUFFIX_VOUCH}")
+          z_consecration="${z_tag%${RBGC_ARK_SUFFIX_VOUCH}}"
+          echo "${z_moniker}|${z_consecration}|vouch" >> "${z_arks_raw}"
+          ;;
+        *) ;; # Infrastructure tags (alias, -multi, per-platform) — not ark artifacts
       esac
-      # Skip tags that are neither (plain image tags)
     done < "${z_tags_raw}"
   done < "${z_packages_list}"
 
@@ -880,6 +884,8 @@ rbf_beseech() {
         has_image[key] = 1
       } else if ($3 == "about") {
         has_about[key] = 1
+      } else if ($3 == "vouch") {
+        has_vouch[key] = 1
       }
       seen[key] = 1
     }
@@ -890,13 +896,14 @@ rbf_beseech() {
         consecration = parts[2]
         image_mark = (has_image[k] ? "✓" : "✗")
         about_mark = (has_about[k] ? "✓" : "✗")
-        printf "%-30s %-20s %-8s %-8s\n", vessel, consecration, image_mark, about_mark
+        vouch_mark = (has_vouch[k] ? "✓" : "✗")
+        printf "%-30s %-20s %-8s %-8s %-8s\n", vessel, consecration, image_mark, about_mark, vouch_mark
       }
     }
   ' | sort -k1,1 -k2,2r > "${z_arks_correlated}"
 
   # Display header and results
-  printf "%-30s %-20s %-8s %-8s\n" "VESSEL" "CONSECRATION" "-image" "-about"
+  printf "%-30s %-20s %-8s %-8s %-8s\n" "VESSEL" "CONSECRATION" "-image" "-about" "-vouch"
   cat "${z_arks_correlated}"
 
   buc_success "Beseech complete"
