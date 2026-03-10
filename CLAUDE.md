@@ -489,7 +489,7 @@ Use `jjx_record` with `{identity: "FIREMARK", files: ["file1", "file2"], intent:
 
 Synthesize intent from the conversation — describe *what* was accomplished, not *how*.
 
-**Size guard**: If the commit fails due to size limits, report the failure to the user and ask how to proceed. Do not retry silently.
+**Size guard**: If the commit fails due to size limits, report the byte count and limit to the user and ask: "Raise the limit, or split?" Do not retry or work around the guard.
 
 When user says "notch", determine context (pace or heat affiliated) and invoke `jjx_record` with the appropriate identity and explicit file list.
 
