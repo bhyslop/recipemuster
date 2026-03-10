@@ -21,60 +21,7 @@
 set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh"
-
-######################################################################
-# Command Functions
-
-buq_shellcheck() {
-  buc_doc_brief "Run shellcheck with BCG-structural suppressions across Tools/"
-  buc_doc_shown || return 0
-
-  buc_step "Running shellcheck qualification"
-
-  local -r z_rcfile="${BURD_BUK_DIR}/busc_shellcheckrc"
-  local -r z_tools_dir="${BURD_TOOLS_DIR}"
-
-  test -f "${z_rcfile}" || buc_die "Shellcheck rcfile not found: ${z_rcfile}"
-  test -d "${z_tools_dir}" || buc_die "Tools directory not found: ${z_tools_dir}"
-
-  # Verify shellcheck is available
-  command -v shellcheck >/dev/null 2>&1 || buc_die "shellcheck not found — install from https://www.shellcheck.net"
-
-  # Collect .sh files (load-then-iterate per BCG)
-  local z_files=()
-  local z_file=""
-  while IFS= read -r z_file || test -n "${z_file}"; do
-    z_files+=("${z_file}")
-  done < <(find "${z_tools_dir}" -name '*.sh' -type f | sort)
-
-  local -r z_file_count=${#z_files[@]}
-  buc_log_args "Found ${z_file_count} shell files under ${z_tools_dir}"
-
-  test "${z_file_count}" -gt 0 || buc_die "No .sh files found under ${z_tools_dir}"
-
-  # Run shellcheck — capture output to temp file for forensics
-  local -r z_result_file="${BURD_TEMP_DIR}/buq_shellcheck_results.txt"
-  local z_status=0
-  shellcheck --rcfile="${z_rcfile}" -S style -f gcc "${z_files[@]}" \
-    > "${z_result_file}" 2>&1 \
-    || z_status=$?
-
-  if test "${z_status}" = "0"; then
-    buc_step "Shellcheck qualification passed: ${z_file_count} files clean"
-    return 0
-  fi
-
-  # Count and display findings
-  local -r z_finding_count=$(<"${z_result_file}" wc -l)
-  buc_log_args "Shellcheck findings: ${z_finding_count} (see ${z_result_file})"
-
-  local z_line=""
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    buc_warn "${z_line}"
-  done < "${z_result_file}"
-
-  buc_die "Shellcheck qualification failed: ${z_finding_count} findings across ${z_file_count} files"
-}
+source "${BURD_BUK_DIR}/buq_qualify.sh"
 
 ######################################################################
 # Furnish and Main

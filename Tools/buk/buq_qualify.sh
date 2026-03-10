@@ -30,12 +30,12 @@ source "${ZBUQ_SCRIPT_DIR}/buc_command.sh"
 ######################################################################
 # Tabtarget structural qualification
 
-buq_qualify_tabtargets() {
+buq_tabtargets() {
   local z_tt_dir="${1:-}"
   local z_project_root="${2:-}"
-  test -n "${z_tt_dir}"       || buc_die "buq_qualify_tabtargets: tabtarget directory required"
-  test -n "${z_project_root}" || buc_die "buq_qualify_tabtargets: project root required"
-  test -d "${z_tt_dir}"       || buc_die "buq_qualify_tabtargets: directory not found: ${z_tt_dir}"
+  test -n "${z_tt_dir}"       || buc_die "buq_tabtargets: tabtarget directory required"
+  test -n "${z_project_root}" || buc_die "buq_tabtargets: project root required"
+  test -d "${z_tt_dir}"       || buc_die "buq_tabtargets: directory not found: ${z_tt_dir}"
   shift 2
 
   # Remaining arguments are glob patterns for exempt tabtargets
@@ -160,6 +160,59 @@ buq_qualify_tabtargets() {
   fi
 
   buc_log_args "All ${z_checked} tabtargets structurally valid"
+}
+
+######################################################################
+# Shellcheck qualification
+
+buq_shellcheck() {
+  local z_tools_dir="${1:-${BURD_TOOLS_DIR:-}}"
+  local z_rcfile="${2:-${BURD_BUK_DIR:+${BURD_BUK_DIR}/busc_shellcheckrc}}"
+  local z_result_file="${3:-${BURD_TEMP_DIR:+${BURD_TEMP_DIR}/buq_shellcheck_results.txt}}"
+  test -n "${z_tools_dir}"   || buc_die "buq_shellcheck: tools directory required"
+  test -n "${z_rcfile}"      || buc_die "buq_shellcheck: rcfile path required"
+  test -n "${z_result_file}" || buc_die "buq_shellcheck: result file path required"
+
+  buc_step "Running shellcheck qualification"
+
+  test -f "${z_rcfile}"    || buc_die "Shellcheck rcfile not found: ${z_rcfile}"
+  test -d "${z_tools_dir}" || buc_die "Tools directory not found: ${z_tools_dir}"
+
+  command -v shellcheck >/dev/null 2>&1 || buc_die "shellcheck not found — install from https://www.shellcheck.net"
+
+  # Collect .sh files (load-then-iterate per BCG)
+  local z_files=()
+  local z_file=""
+  while IFS= read -r z_file || test -n "${z_file}"; do
+    z_files+=("${z_file}")
+  done < <(find "${z_tools_dir}" -name '*.sh' -type f | sort)
+
+  local -r z_file_count=${#z_files[@]}
+  buc_log_args "Found ${z_file_count} shell files under ${z_tools_dir}"
+
+  test "${z_file_count}" -gt 0 || buc_die "No .sh files found under ${z_tools_dir}"
+
+  # Run shellcheck — capture output to temp file for forensics
+  local z_status=0
+  shellcheck --rcfile="${z_rcfile}" -S style -f gcc "${z_files[@]}" \
+    > "${z_result_file}" 2>&1 \
+    || z_status=$?
+
+  if test "${z_status}" = "0"; then
+    buc_step "Shellcheck qualification passed: ${z_file_count} files clean"
+    return 0
+  fi
+
+  # Count and display findings
+  local -r z_finding_count=$(<"${z_result_file}" wc -l)
+  buc_log_args "Shellcheck findings: ${z_finding_count} (see ${z_result_file})"
+
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    buc_warn "${z_line}"
+  done < "${z_result_file}"
+
+  buc_die "Shellcheck qualification failed: ${z_finding_count} findings across ${z_file_count} files"
 }
 
 # eof

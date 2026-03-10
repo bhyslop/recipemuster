@@ -132,11 +132,14 @@ rbq_qualify_all() {
 
   buc_step "Running full qualification"
 
-  buq_qualify_tabtargets "${ZRBQ_TT_DIR}" "${ZRBQ_PROJECT_ROOT}" \
+  buq_tabtargets "${ZRBQ_TT_DIR}" "${ZRBQ_PROJECT_ROOT}" \
     "butctt.*.sh" \
     # End of exempt list
   rbq_qualify_colophons
   rbrn_preflight
+  buq_shellcheck "${BURC_TOOLS_DIR}" \
+    "${BURD_BUK_DIR}/busc_shellcheckrc" \
+    "${BURD_TEMP_DIR}/buq_shellcheck_results.txt"
 
   buc_step "Full qualification passed"
 }
