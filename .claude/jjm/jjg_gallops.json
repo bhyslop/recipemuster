@@ -5506,9 +5506,10 @@
         "₢AkAAn",
         "₢AkAAq",
         "₢AkAAv",
-        "₢AkAAw"
+        "₢AkAAw",
+        "₢AkAAx"
       ],
-      "next_pace_seed": "AAx",
+      "next_pace_seed": "AAy",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6497,6 +6498,17 @@
               "text": "## Goal\n\nFix jjx_record (notch) to handle files that are already staged deletions (via git rm).\n\n## Problem\n\nWhen a file is git rm'd before jjx_record, the file list validation correctly detects it as a staged deletion, but the subsequent git add step fails because the file doesn't exist on disk. This forces the user to omit deleted files from the file list, which then appear as warnings.\n\n## Fix\n\nIn jjrnc_notch.rs, track which files are staged deletions during the validation loop, then skip them in the git add step (they are already staged). Collect into a staged_deletions vec during validation, filter them out of the git add arg list.\n\n## Test\n\n1. Create a temp file, git add + git commit it\n2. git rm the file\n3. Run jjx_record with the deleted file in the file list\n4. Verify commit succeeds and includes the deletion\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrnc_notch.rs",
               "silks": "notch-staged-deletion-support",
               "commit": "f5900b9"
+            }
+          ]
+        },
+        "₢AkAAx": {
+          "tacks": [
+            {
+              "ts": "260309-1945",
+              "state": "rough",
+              "text": "Full test sweep to establish green baseline before any mvp-2 work begins. Run all test suites, record results. This is the exit gate for mvp-1 and the entry proof for mvp-2.",
+              "silks": "baseline-test-sweep",
+              "commit": "33d06f1"
             }
           ]
         }
