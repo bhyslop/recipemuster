@@ -932,11 +932,12 @@ The batch-all-vessels
 lifecycle command
 ({rbtgog_rubric}):
 refreshes pins (rate-limited to 1/day),
-generates all
-{rbtgr_build_json}
-files from step scripts and regime pins, copies all build contexts,
-verifies committed in main repo, syncs all to
+clones the
 {rbtgr_rubric_repo},
+copies all build contexts and generates all
+{rbtgr_build_json}
+directly into the clone from step scripts and regime pins,
+fills placeholders, pushes,
 and ensures all
 {rbtgr_vessel_trigger}
 resources exist.
@@ -1552,7 +1553,7 @@ Older arks without vouch are handled gracefully (404 on HEAD check).
 [[rbtgr_rubric]]
 //axl_voices axig_build_config axig_build_trigger
 {rbtgr_rubric}::
-The composite per-vessel build definition comprising a committed
+The composite per-vessel build definition comprising a generated
 {rbtgr_build_json},
 a
 {rbtgr_vessel_trigger},
@@ -1564,7 +1565,7 @@ Created and maintained by
 [[rbtgr_build_json]]
 //axl_voices axig_build_config
 {rbtgr_build_json}::
-The committed `cloudbuild.json` file for a vessel, generated from step scripts and regime pins by the stitch function.
+The generated `cloudbuild.json` file for a vessel, produced from step scripts and regime pins by the stitch function directly into the {rbtgr_rubric_repo} clone.
 All values baked at inscribe time — zero custom substitution overrides at dispatch.
 See <<rbscj_trade_study>>.
 

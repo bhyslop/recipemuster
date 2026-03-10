@@ -70,9 +70,6 @@ zrbf_kindle() {
   readonly ZRBF_RBGJV_STEPS_DIR="${z_self_dir}/rbgjv"
   test -d "${ZRBF_RBGJV_STEPS_DIR}"   || buc_die "RBGJV steps directory not found: ${ZRBF_RBGJV_STEPS_DIR}"
 
-  buc_log_args 'Define stitched build JSON temp file'
-  readonly ZRBF_STITCHED_BUILD_FILE="${BURD_TEMP_DIR}/rbf_stitched_build.json"
-
   buc_log_args 'Define temp files for build operations'
   readonly ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
   readonly ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
@@ -196,7 +193,9 @@ zrbf_quota_preflight() {
 zrbf_stitch_build_json() {
   zrbf_sentinel
 
-  buc_log_args 'Stitching trigger-compatible build JSON from step scripts'
+  local -r z_output_path="${1:?Output path required}"
+
+  buc_log_args "Stitching trigger-compatible build JSON to ${z_output_path}"
 
   # Preconditions: vessel loaded and git state captured
   test -s "${ZRBF_VESSEL_SIGIL_FILE}" || buc_die "Vessel not loaded — call zrbf_load_vessel first"
@@ -342,7 +341,7 @@ zrbf_stitch_build_json() {
   # Compose complete trigger-compatible Build resource
   # Steps from accumulator, substitutions from module state, options/timeout from RBRR
   # _RBGY_RUBRIC_REPO, _RBGY_RUBRIC_COMMIT, _RBGY_INSCRIBE_TIMESTAMP, _RBGY_GIT_COMMIT
-  # are placeholders in the main-repo copy; inscribe fills them in the rubric repo copy
+  # are placeholders in the stitched output; inscribe fills them in the rubric repo clone
   buc_log_args "Composing complete trigger-compatible Build resource"
   local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
 
@@ -420,10 +419,10 @@ zrbf_stitch_build_json() {
     }' > "${z_build_file}" \
     || buc_die "Failed to compose build JSON"
 
-  mv "${z_build_file}" "${ZRBF_STITCHED_BUILD_FILE}" \
-    || buc_die "Failed to write final stitched build JSON"
+  mv "${z_build_file}" "${z_output_path}" \
+    || buc_die "Failed to write final stitched build JSON to ${z_output_path}"
 
-  buc_log_args "Stitched ${#z_step_defs[@]} steps to ${ZRBF_STITCHED_BUILD_FILE}"
+  buc_log_args "Stitched ${#z_step_defs[@]} steps to ${z_output_path}"
 }
 
 zrbf_load_vessel() {
@@ -663,9 +662,14 @@ rbf_build() {
     || buc_die "Failed to extract buildStepOutputs[0] from build response"
   test -n "${z_step0_output}" || buc_die "Build step 0 output empty — step 01 may not have written to /builder/outputs/output"
 
-  local z_found_consecration=""
-  z_found_consecration=$(echo "${z_step0_output}" | base64 -d) \
+  local -r z_step0_b64_file="${BURD_TEMP_DIR}/rbf_step0_b64.txt"
+  local -r z_step0_decoded_file="${BURD_TEMP_DIR}/rbf_step0_decoded.txt"
+  printf '%s' "${z_step0_output}" > "${z_step0_b64_file}" \
+    || buc_die "Failed to write step output for decoding"
+  base64 -d < "${z_step0_b64_file}" > "${z_step0_decoded_file}" \
     || buc_die "Failed to base64-decode build step output"
+  local z_found_consecration=""
+  z_found_consecration=$(<"${z_step0_decoded_file}")
   test -n "${z_found_consecration}" || buc_die "Decoded consecration is empty"
   buc_info "Discovered consecration: ${z_found_consecration}"
 
@@ -810,18 +814,21 @@ rbf_beseech() {
 
   # Extract package monikers, optionally filter
   local z_packages_list="${BURD_TEMP_DIR}/rbf_beseech_packages.txt"
-  if [[ -n "${z_filter_vessel}" ]]; then
-    jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
-      local moniker="${pkg##*/}"
-      if [[ "${moniker}" == "${z_filter_vessel}" ]]; then
-        echo "${moniker}"
-      fi
-    done | sort > "${z_packages_list}"
-  else
-    jq -r '.packages[]?.name // empty' "${z_packages_file}" | while read -r pkg; do
-      echo "${pkg##*/}"
-    done | sort > "${z_packages_list}"
-  fi
+  local z_packages_raw="${BURD_TEMP_DIR}/rbf_beseech_packages_raw.txt"
+  jq -r '.packages[]?.name // empty' "${z_packages_file}" > "${z_packages_raw}" \
+    || buc_die "Failed to extract package names"
+
+  > "${z_packages_list}"
+  local z_pkg=""
+  local z_moniker=""
+  while IFS= read -r z_pkg || test -n "${z_pkg}"; do
+    z_moniker="${z_pkg##*/}"
+    if test -n "${z_filter_vessel}"; then
+      test "${z_moniker}" = "${z_filter_vessel}" || continue
+    fi
+    echo "${z_moniker}" >> "${z_packages_list}"
+  done < "${z_packages_raw}"
+  sort -o "${z_packages_list}" "${z_packages_list}"
 
   # Build ark correlation data
   local z_arks_raw="${BURD_TEMP_DIR}/rbf_beseech_arks_raw.txt"
@@ -842,18 +849,26 @@ rbf_beseech() {
     fi
 
     # Process tags: extract consecrations and artifact types
-    jq -r '.tags[]? // empty' "${z_tags_file}" | while read -r z_tag; do
+    local z_tags_raw="${BURD_TEMP_DIR}/rbf_beseech_tags_${z_moniker}_raw.txt"
+    jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_tags_raw}" \
+      || buc_die "Failed to extract tags for ${z_moniker}"
+
+    local z_tag=""
+    local z_consecration=""
+    while IFS= read -r z_tag || test -n "${z_tag}"; do
       # Check for -image suffix
-      if [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}" ]]; then
-        local z_consecration="${z_tag%${RBGC_ARK_SUFFIX_IMAGE}}"
-        echo "${z_moniker}|${z_consecration}|image"
-      # Check for -about suffix
-      elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_ABOUT}" ]]; then
-        local z_consecration="${z_tag%${RBGC_ARK_SUFFIX_ABOUT}}"
-        echo "${z_moniker}|${z_consecration}|about"
-      fi
+      case "${z_tag}" in
+        *"${RBGC_ARK_SUFFIX_IMAGE}")
+          z_consecration="${z_tag%${RBGC_ARK_SUFFIX_IMAGE}}"
+          echo "${z_moniker}|${z_consecration}|image" >> "${z_arks_raw}"
+          ;;
+        *"${RBGC_ARK_SUFFIX_ABOUT}")
+          z_consecration="${z_tag%${RBGC_ARK_SUFFIX_ABOUT}}"
+          echo "${z_moniker}|${z_consecration}|about" >> "${z_arks_raw}"
+          ;;
+      esac
       # Skip tags that are neither (plain image tags)
-    done >> "${z_arks_raw}"
+    done < "${z_tags_raw}"
   done < "${z_packages_list}"
 
   # Correlate artifacts into arks
@@ -1164,7 +1179,7 @@ rbf_rubric_inscribe() {
     > "${ZRBF_GIT_INFO_FILE}" || buc_die "Failed to write git info"
   buc_info "Git: ${z_git_commit:0:8} on ${z_git_branch}"
 
-  # Phase 2: Generate all rubric JSON
+  # Phase 2: Clone rubric repo, copy build contexts, generate JSON directly
   buc_step "Enumerating conjure vessels"
   local z_vessel_dir=""
   local z_vessel_dirs=()
@@ -1183,59 +1198,6 @@ rbf_rubric_inscribe() {
   test "${#z_vessel_dirs[@]}" -gt 0 || buc_die "No conjure vessels found in ${RBRR_VESSEL_DIR}"
   buc_info "Found ${#z_vessel_dirs[@]} conjure vessel(s)"
 
-  buc_step "Generating rubric JSON for all conjure vessels"
-  local z_target=""
-  local z_loaded_sigil=""
-  for z_vessel_dir in "${z_vessel_dirs[@]}"; do
-    # Isolation subshell: each vessel's rbrv.env sets different RBRV_* values that
-    # would collide without isolation. Outputs survive via filesystem:
-    # ZRBF_VESSEL_SIGIL_FILE and ZRBF_STITCHED_BUILD_FILE.
-    (
-      zrbf_load_vessel "${z_vessel_dir}" || buc_die "Failed to load vessel: ${z_vessel_dir}"
-      buc_step "Stitching build JSON for ${RBRV_SIGIL}"
-      zrbf_stitch_build_json || buc_die "Failed to stitch build JSON for ${RBRV_SIGIL}"
-    ) || buc_die "Isolation subshell failed for vessel: ${z_vessel_dir}"
-
-    z_loaded_sigil=$(<"${ZRBF_VESSEL_SIGIL_FILE}") || buc_die "Failed to read vessel sigil after isolation subshell"
-    z_vessel_sigils+=("${z_loaded_sigil}")
-
-    z_target="${z_vessel_dir}/cloudbuild.json"
-    cp "${ZRBF_STITCHED_BUILD_FILE}" "${z_target}" \
-      || buc_die "Failed to copy stitched JSON to ${z_target}"
-    buc_info "Generated: ${z_target}"
-  done
-
-  # Phase 3: Verify all committed
-  buc_step "Verifying all generated JSON matches committed copies"
-  local z_stale_vessels=""
-  local z_sigil=""
-  local z_json_path=""
-  local z_idx=0
-  local z_ls_stderr="${ZRBF_INSCRIBE_PREFIX}ls_stderr.txt"
-  local z_diff_stderr="${ZRBF_INSCRIBE_PREFIX}diff_stderr.txt"
-
-  for ((z_idx=0; z_idx<${#z_vessel_dirs[@]}; z_idx++)); do
-    z_json_path="${z_vessel_dirs[z_idx]}/cloudbuild.json"
-
-    # Check if file is tracked by git
-    if ! git ls-files --error-unmatch "${z_json_path}" >/dev/null 2>"${z_ls_stderr}"; then
-      z_stale_vessels="${z_stale_vessels}  ${z_json_path} (NEW — not yet committed)\n"
-      continue
-    fi
-    # Compare working copy against HEAD
-    if ! git diff --quiet HEAD -- "${z_json_path}" 2>"${z_diff_stderr}"; then
-      z_stale_vessels="${z_stale_vessels}  ${z_json_path} (modified — not committed)\n"
-    fi
-  done
-
-  if test -n "${z_stale_vessels}"; then
-    buc_warn "The following vessel JSON files differ from committed copies:"
-    printf "%b" "${z_stale_vessels}"
-    buc_die "Review diffs, commit, and re-run inscribe"
-  fi
-  buc_step "All vessel JSON files match committed copies"
-
-  # Phase 4: Fresh clone and sync to rubric repo
   buc_step "Cloning rubric repo (always-fresh)"
   rm -rf "${ZRBF_INSCRIBE_CLONE_DIR}" || buc_die "Failed to remove old rubric clone"
   mkdir -p "${ZRBF_INSCRIBE_CLONE_DIR%/*}" || buc_die "Failed to create clone parent directory"
@@ -1244,26 +1206,36 @@ rbf_rubric_inscribe() {
     || buc_die "Failed to clone rubric repo"
   buc_info "Rubric repo cloned to ${ZRBF_INSCRIBE_CLONE_DIR}"
 
-  # Copy per-vessel directories to rubric clone
-  # Rubric per-vessel dir = vessel dir minus rbrv.env (regime config, not build material)
-  buc_step "Syncing vessel build material to rubric repo clone"
+  buc_step "Copying build contexts and generating rubric JSON"
+  local z_loaded_sigil=""
+  local z_sigil=""
+  local z_idx=0
   local z_rubric_vessel_dir=""
-  for ((z_idx=0; z_idx<${#z_vessel_dirs[@]}; z_idx++)); do
-    z_vessel_dir="${z_vessel_dirs[z_idx]}"
-    z_sigil="${z_vessel_sigils[z_idx]}"
-    z_rubric_vessel_dir="${ZRBF_INSCRIBE_CLONE_DIR}/${z_sigil}"
+  for z_vessel_dir in "${z_vessel_dirs[@]}"; do
+    # Isolation subshell: each vessel's rbrv.env sets different RBRV_* values that
+    # would collide without isolation. Sigil survives via ZRBF_VESSEL_SIGIL_FILE.
+    # Build context copy and stitch both happen inside the subshell.
+    (
+      zrbf_load_vessel "${z_vessel_dir}" || buc_die "Failed to load vessel: ${z_vessel_dir}"
 
-    rm -rf "${z_rubric_vessel_dir}"
-    cp -R "${z_vessel_dir}" "${z_rubric_vessel_dir}" \
-      || buc_die "Failed to copy vessel directory for ${z_sigil}"
-    rm -f "${z_rubric_vessel_dir}/rbrv.env"
+      # Purge stale rubric content, copy fresh build context
+      z_rubric_vessel_dir="${ZRBF_INSCRIBE_CLONE_DIR}/${RBRV_SIGIL}"
+      rm -rf "${z_rubric_vessel_dir}"
+      cp -R "${z_vessel_dir}" "${z_rubric_vessel_dir}" \
+        || buc_die "Failed to copy vessel build context for ${RBRV_SIGIL}"
 
-    test -f "${z_rubric_vessel_dir}/cloudbuild.json" \
-      || buc_die "cloudbuild.json missing after copy for ${z_sigil}"
-    test -f "${z_rubric_vessel_dir}/Dockerfile" \
-      || buc_die "Dockerfile missing after copy for ${z_sigil}"
+      test -f "${z_rubric_vessel_dir}/Dockerfile" \
+        || buc_die "Dockerfile missing in build context for ${RBRV_SIGIL}"
 
-    buc_info "Synced: ${z_sigil}"
+      buc_step "Stitching build JSON for ${RBRV_SIGIL}"
+      zrbf_stitch_build_json "${z_rubric_vessel_dir}/cloudbuild.json" \
+        || buc_die "Failed to stitch build JSON for ${RBRV_SIGIL}"
+    ) || buc_die "Isolation subshell failed for vessel: ${z_vessel_dir}"
+
+    z_loaded_sigil=$(<"${ZRBF_VESSEL_SIGIL_FILE}") || buc_die "Failed to read vessel sigil after isolation subshell"
+    z_vessel_sigils+=("${z_loaded_sigil}")
+
+    buc_info "Synced and stitched: ${z_loaded_sigil}"
   done
 
   # Fill pre-commit placeholders in rubric clone copies
@@ -1986,21 +1958,25 @@ rbf_check_consecrations() {
         continue
       fi
 
-      if [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}" ]] || [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}"-* ]]; then
-        local z_suffix="${z_tag#*${RBGC_ARK_SUFFIX_IMAGE}}"
-        if test -z "${z_suffix}"; then
-          echo "${z_consec}|image|consumer" >> "${z_tag_data_file}"
-        else
-          echo "${z_consec}|image|${z_suffix#-}" >> "${z_tag_data_file}"
-        fi
-        echo "${z_consec}" >> "${z_consec_file}"
-      elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_VOUCH}" ]]; then
-        echo "${z_consec}|vouch|" >> "${z_tag_data_file}"
-        echo "${z_consec}" >> "${z_consec_file}"
-      elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_ABOUT}" ]]; then
-        echo "${z_consec}|about|" >> "${z_tag_data_file}"
-        echo "${z_consec}" >> "${z_consec_file}"
-      fi
+      case "${z_tag}" in
+        *"${RBGC_ARK_SUFFIX_IMAGE}"-*|*"${RBGC_ARK_SUFFIX_IMAGE}")
+          local z_suffix="${z_tag#*${RBGC_ARK_SUFFIX_IMAGE}}"
+          if test -z "${z_suffix}"; then
+            echo "${z_consec}|image|consumer" >> "${z_tag_data_file}"
+          else
+            echo "${z_consec}|image|${z_suffix#-}" >> "${z_tag_data_file}"
+          fi
+          echo "${z_consec}" >> "${z_consec_file}"
+          ;;
+        *"${RBGC_ARK_SUFFIX_VOUCH}")
+          echo "${z_consec}|vouch|" >> "${z_tag_data_file}"
+          echo "${z_consec}" >> "${z_consec_file}"
+          ;;
+        *"${RBGC_ARK_SUFFIX_ABOUT}")
+          echo "${z_consec}|about|" >> "${z_tag_data_file}"
+          echo "${z_consec}" >> "${z_consec_file}"
+          ;;
+      esac
     done < "${z_all_tags_file}"
 
     local z_unique_file="${BURD_TEMP_DIR}/rbf_dc_${z_sigil}_unique.txt"
@@ -2134,11 +2110,14 @@ rbf_batch_vouch() {
       else
         continue
       fi
-      if [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_VOUCH}" ]]; then
-        echo "${z_consec}" >> "${z_vouch_file}"
-      elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_ABOUT}" ]]; then
-        echo "${z_consec}" >> "${z_about_file}"
-      fi
+      case "${z_tag}" in
+        *"${RBGC_ARK_SUFFIX_VOUCH}")
+          echo "${z_consec}" >> "${z_vouch_file}"
+          ;;
+        *"${RBGC_ARK_SUFFIX_ABOUT}")
+          echo "${z_consec}" >> "${z_about_file}"
+          ;;
+      esac
     done < "${z_all_tags_file}"
 
     # Find pending: has about, no vouch
