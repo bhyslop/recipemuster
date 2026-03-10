@@ -49,6 +49,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     }
 
     // Check each file either exists on disk or is tracked by git (for deletions)
+    let mut staged_deletions: HashSet<String> = HashSet::new();
     for file in &args.files {
         let path_exists = std::path::Path::new(file).exists();
 
@@ -84,6 +85,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
                     vvco_err!(output, "jjx_notch: error: file does not exist and is not tracked by git: {}", file);
                     return (1, output.vvco_finish());
                 }
+                staged_deletions.insert(file.clone());
             }
         }
     }
@@ -156,23 +158,26 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         }
     }
 
-    // Stage only the specified files
-    let mut git_add = vvc::vvce_git_command(&["add"]);
-    for file in &args.files {
-        git_add.arg(file);
-    }
+    // Stage only the specified files (skip staged deletions — already staged by git rm)
+    let files_to_add: Vec<&String> = args.files.iter().filter(|f| !staged_deletions.contains(f.as_str())).collect();
+    if !files_to_add.is_empty() {
+        let mut git_add = vvc::vvce_git_command(&["add"]);
+        for file in &files_to_add {
+            git_add.arg(file.as_str());
+        }
 
-    let add_output = match git_add.output() {
-        Ok(o) => o,
-        Err(e) => {
-            vvco_err!(output, "jjx_notch: error: failed to run git add: {}", e);
+        let add_output = match git_add.output() {
+            Ok(o) => o,
+            Err(e) => {
+                vvco_err!(output, "jjx_notch: error: failed to run git add: {}", e);
+                return (1, output.vvco_finish());
+            }
+        };
+
+        if !add_output.status.success() {
+            vvco_err!(output, "jjx_notch: error: git add failed");
             return (1, output.vvco_finish());
         }
-    };
-
-    if !add_output.status.success() {
-        vvco_err!(output, "jjx_notch: error: git add failed");
-        return (1, output.vvco_finish());
     }
 
     // Commit using vvc with the generated message prefix
