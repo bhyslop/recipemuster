@@ -208,7 +208,7 @@ zrbtb_pluml_baste() {
 # Registration
 
 rbtb_kindle() {
-  # Sweep suite constants
+  # Suite constants
   readonly BUTR_SUITE_FAST="fast"
   readonly BUTR_SUITE_SERVICE="service"
   readonly BUTR_SUITE_COMPLETE="complete"
@@ -386,35 +386,31 @@ rbtb_route() {
   export BUT_VERBOSE="${BUT_VERBOSE:-0}"
 
   case "${z_command}" in
-    rbw-ta) butd_run_all ;;
-    rbw-ts) butd_run_fixture "${1:-}" ;;
-    rbw-to) butd_run_one "${1:-}" ;;
-    rbw-tw) butd_run_sweep "${1:-}" ;;
-    rbw-tn)
-      local -r z_imprint="${BURD_TOKEN_3:-}"
-      case "${z_imprint}" in
-        nsproto) butd_run_fixture "nsproto-security" ;;
-        srjcl)  butd_run_fixture "srjcl-jupyter" ;;
-        pluml)  butd_run_fixture "pluml-diagram" ;;
-        *)      buc_die "rbw-tn: unknown nameplate imprint '${z_imprint}' (expected: nsproto, srjcl, pluml)" ;;
-      esac
+    rbw-tf)
+      local -r z_fixture="${BURD_TOKEN_3:-}"
+      test -n "${z_fixture}" || buc_die "rbw-tf: fixture imprint required (tab-complete to see options)"
+      butd_run_fixture "${z_fixture}"
       ;;
-    rbw-tap) butd_run_fixture "access-probe" ;;
-    rbw-trg) butd_run_fixture "regime-smoke" ;;
-    rbw-trc) butd_run_fixture "regime-credentials" ;;
+    rbw-ts)
+      local -r z_suite="${BURD_TOKEN_3:-}"
+      test -n "${z_suite}" || buc_die "rbw-ts: suite imprint required (fast, service, complete)"
+      butd_run_sweep "${z_suite}"
+      ;;
+    rbw-to)
+      if test -z "${1:-}"; then
+        butd_run_one ""
+        buc_die "Test function name required"
+      fi
+      butd_run_one "${1}"
+      ;;
     *)
-      if [ -n "${z_command}" ]; then
+      if test -n "${z_command}"; then
         buc_warn "Unknown command: ${z_command}"
       fi
       buc_info "Available test commands:"
-      buc_info "  rbw-ta   Run all fixtures"
-      buc_info "  rbw-ts   Run single fixture (pass fixture name)"
-      buc_info "  rbw-to   Run single test function (pass function name)"
-      buc_info "  rbw-tw   Run sweep suite (pass sweep name: fast, service, complete)"
-      buc_info "  rbw-tn   Run nameplate fixture (imprint: nsproto, srjcl, pluml)"
-      buc_info "  rbw-tap  Run access-probe fixture (OAuth/credential smoke test)"
-      buc_info "  rbw-trg  Run regime-smoke fixture"
-      buc_info "  rbw-trc  Run regime-credentials fixture"
+      buc_info "  rbw-tf   Run single fixture (imprint selects fixture)"
+      buc_info "  rbw-ts   Run suite (imprint: fast, service, complete)"
+      buc_info "  rbw-to   Run single test function (param: function name)"
       return 0
       ;;
   esac

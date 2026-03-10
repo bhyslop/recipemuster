@@ -136,13 +136,9 @@ zrbz_kindle() {
 
   # Test operations (module is testbench, command is colophon)
   z_mod="rbtb_testbench.sh"
-  buz_enroll RBZ_TEST_ALL                "rbw-ta"  "${z_mod}" "rbw-ta"
-  buz_enroll RBZ_TEST_SUITE              "rbw-ts"  "${z_mod}" "rbw-ts"
-  buz_enroll RBZ_TEST_ONE                "rbw-to"  "${z_mod}" "rbw-to"
-  buz_enroll RBZ_TEST_NAMEPLATE          "rbw-tn"  "${z_mod}" "rbw-tn"
-  buz_enroll RBZ_TEST_REGIME             "rbw-trg" "${z_mod}" "rbw-trg"
-  buz_enroll RBZ_TEST_REGIME_CREDENTIALS "rbw-trc" "${z_mod}" "rbw-trc"
-  buz_enroll RBZ_TEST_SWEEP              "rbw-tw"  "${z_mod}" "rbw-tw"
+  buz_enroll RBZ_TEST_FIXTURE "rbw-tf" "${z_mod}" "rbw-tf" "imprint"
+  buz_enroll RBZ_TEST_SUITE   "rbw-ts" "${z_mod}" "rbw-ts" "imprint"
+  buz_enroll RBZ_TEST_ONE     "rbw-to" "${z_mod}" "rbw-to"
 
   readonly ZRBZ_KINDLED=1
 }
