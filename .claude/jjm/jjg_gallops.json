@@ -5505,9 +5505,10 @@
         "₢AkAAn",
         "₢AkAAq",
         "₢AkAAu",
-        "₢AkAAv"
+        "₢AkAAv",
+        "₢AkAAw"
       ],
-      "next_pace_seed": "AAw",
+      "next_pace_seed": "AAx",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAAA": {
@@ -6482,6 +6483,17 @@
               "text": "## Goal\n\nInstall the load-bearing complexity principle in BCG, RCG, and CLAUDE.md. Keep each installation simple and in the voice of its host document.\n\n## The Principle\n\nEvery element in a system — every spec definition line, every function extraction, every pattern variant, every structural distinction — must carry weight. An element is load-bearing when its removal would create a gap between intent and behavior. When similar things differ, ask whether the difference is load-bearing: if yes, document why; if no, homogenize. Non-load-bearing elements increase cognitive cost without increasing correctness.\n\n## Where and How\n\nBCG (Tools/buk/vov_veiled/BCG-BashConsoleGuide.md): End of Core Philosophy section. BCG has the gap — it has aesthetic (boring over clever) and specific tools (Zeroes Theory) but lacks the general decision criterion. Use concrete bash/GCP examples in BCG voice.\n\nRCG (Tools/vok/vov_veiled/RCG-RustCodingGuide.md): Light touch. RCG is deliberately minimal and Rust's type system enforces much of this mechanically. Note that existing disciplines (Interface Contamination, Constant Discipline, Constructor Discipline) are instantiations of this principle. Brief paragraph only.\n\nCLAUDE.md: Project-wide cross-cutting reference near the Working Preferences or as a new Design Principles section. This is the interim home until a proper top-level design principles document is created.\n\n## Important Context\n\nWe do not yet have a top-level design principles document spanning all project languages and artifacts. This principle is the first signal that such a document is needed. For now, install it where it fits and accept that the final home will be determined later. The goal is retention, not perfection of placement.\n\n## Concrete Examples (from the session that surfaced this)\n\n- NOT adding boilerplate three-part structure to api_enable spec definition: the structure would not be load-bearing there\n- Keeping 4 separate IAM grant functions: their differences ARE load-bearing (different GCP API failure modes)\n- Identifying 3x copy-pasted secret IAM code as NOT load-bearing variation: should be extracted\n- Inline Secret Manager IAM staying separate from extracted rbgi_add_* functions: the difference IS load-bearing (different failure class)\n\n## Files\n\n- Tools/buk/vov_veiled/BCG-BashConsoleGuide.md\n- Tools/vok/vov_veiled/RCG-RustCodingGuide.md\n- CLAUDE.md",
               "silks": "install-load-bearing-principle",
               "commit": "3ae6fa7"
+            }
+          ]
+        },
+        "₢AkAAw": {
+          "tacks": [
+            {
+              "ts": "260309-1812",
+              "state": "rough",
+              "text": "## Goal\n\nFix jjx_record (notch) to handle files that are already staged deletions (via git rm).\n\n## Problem\n\nWhen a file is git rm'd before jjx_record, the file list validation correctly detects it as a staged deletion, but the subsequent git add step fails because the file doesn't exist on disk. This forces the user to omit deleted files from the file list, which then appear as warnings.\n\n## Fix\n\nIn jjrnc_notch.rs, track which files are staged deletions during the validation loop, then skip them in the git add step (they are already staged). Collect into a staged_deletions vec during validation, filter them out of the git add arg list.\n\n## Test\n\n1. Create a temp file, git add + git commit it\n2. git rm the file\n3. Run jjx_record with the deleted file in the file list\n4. Verify commit succeeds and includes the deletion\n\n## Files\n\n- Tools/jjk/vov_veiled/src/jjrnc_notch.rs",
+              "silks": "notch-staged-deletion-support",
+              "commit": "f5900b9"
             }
           ]
         }
