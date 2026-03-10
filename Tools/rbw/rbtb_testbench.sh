@@ -41,6 +41,8 @@ source "${RBTB_SCRIPT_DIR}/rbrp_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${RBTB_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${RBTB_SCRIPT_DIR}/rbgd_DepotConstants.sh"
+source "${RBTB_SCRIPT_DIR}/rbrg_regime.sh"
+source "${RBTB_SCRIPT_DIR}/rbf_Foundry.sh"
 source "${RBTB_SCRIPT_DIR}/rbob_bottle.sh"
 source "${RBTB_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${RBTB_SCRIPT_DIR}/rbgu_Utility.sh"
@@ -53,7 +55,6 @@ source "${RBTB_RBTS_DIR}/rbtckk_KickTires.sh"
 source "${RBTB_RBTS_DIR}/rbtcqa_QualifyAll.sh"
 source "${RBTB_RBTS_DIR}/rbtcap_AccessProbe.sh"
 source "${RBTB_RBTS_DIR}/rbtcal_ArkLifecycle.sh"
-source "${RBTB_RBTS_DIR}/rbtcsl_SlsaProvenance.sh"
 source "${RBTB_RBTS_DIR}/rbtcns_NsproSecurity.sh"
 source "${RBTB_RBTS_DIR}/rbtcsj_SrjclJupyter.sh"
 source "${RBTB_RBTS_DIR}/rbtcpl_PlumlDiagram.sh"
@@ -174,13 +175,24 @@ zrbtb_access_probe_baste() {
 zrbtb_ark_baste() {
   buto_trace "Baste for ark-lifecycle fixture"
   ZRBTB_ARK_VESSEL_SIGIL="rbev-busybox"
-  zrbgc_kindle
-}
 
-zrbtb_slsa_baste() {
-  buto_trace "Baste for slsa-provenance fixture"
-  ZRBTB_ARK_VESSEL_SIGIL="rbev-busybox"
+  # Load RBRR regime (repo config)
+  source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
+  zrbrr_kindle
+  zrbrr_enforce
+
+  # Load RBRG regime (GCB pins — needed by foundry kindle)
+  source "${RBBC_rbrg_file}" || buc_die "Failed to source ${RBBC_rbrg_file}"
+  zrbrg_kindle
+  zrbrg_enforce
+
+  # Kindle infrastructure for foundry access
   zrbgc_kindle
+  zrbgd_kindle
+  zrbdc_kindle
+  zrbgo_kindle
+  zrbgu_kindle
+  zrbf_kindle
 }
 
 zrbtb_nsproto_baste() {
@@ -244,10 +256,6 @@ rbtb_kindle() {
   # ark-lifecycle fixture
   butr_fixture_enroll "ark-lifecycle" "zrbtb_container_clean_git_litmus_predicate" "zrbtb_ark_baste"
   butr_case_enroll "ark-lifecycle" rbtcal_lifecycle_tcase
-
-  # slsa-provenance fixture (rbev-busybox 3-platform, exercises multi-platform provenance)
-  butr_fixture_enroll "slsa-provenance" "zrbtb_container_clean_git_litmus_predicate" "zrbtb_slsa_baste"
-  butr_case_enroll "slsa-provenance" rbtcsl_provenance_tcase
 
   # -- FAST + COMPLETE: no external dependencies --
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"

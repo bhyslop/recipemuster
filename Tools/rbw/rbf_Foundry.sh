@@ -1700,6 +1700,46 @@ rbf_abjure() {
 }
 
 ######################################################################
+# Vouch Gate (consumer-side vouch verification)
+#
+# Standalone — does not require foundry kindle; uses regime-level constants only.
+# Callers: rbob auto-summon preflight, test case vouch gate verification.
+
+rbf_vouch_gate() {
+  local -r z_vessel="${1:-}"
+  local -r z_consecration="${2:-}"
+
+  test -n "${z_vessel}"       || buc_die "rbf_vouch_gate: vessel required"
+  test -n "${z_consecration}" || buc_die "rbf_vouch_gate: consecration required"
+
+  local -r z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_registry_api_base="https://${z_registry_host}/v2/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+
+  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  buc_step "Vouch gate: checking ${z_vessel}:${z_vouch_tag}"
+
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "rbf_vouch_gate: failed to get Director OAuth token"
+
+  local z_vouch_http_code
+  z_vouch_http_code=$(curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -o /dev/null \
+    -w "%{http_code}" \
+    "${z_registry_api_base}/${z_vessel}/manifests/${z_vouch_tag}") \
+    || buc_die "rbf_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag}"
+
+  if test "${z_vouch_http_code}" != "200"; then
+    buc_die "Consecration not vouched: ${z_vessel}:${z_consecration} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"
+  fi
+
+  buc_info "Vouch verified: ${z_vessel}:${z_vouch_tag}"
+}
+
+######################################################################
 # Vouch (rbw-DV)
 
 rbf_vouch() {

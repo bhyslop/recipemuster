@@ -308,12 +308,11 @@ zrbob_vouch_gate_and_summon() {
   test -n "${z_consecration}" || buc_die "zrbob_vouch_gate_and_summon: consecration required"
   test -n "${z_image_ref}"    || buc_die "zrbob_vouch_gate_and_summon: image_ref required"
 
-  # Construct registry API base from available constants
-  local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local z_registry_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  local z_registry_api_base="https://${z_registry_host}/v2/${z_registry_path}"
+  # Verify vouch artifact exists (delegates to foundry vouch gate)
+  rbf_vouch_gate "${z_vessel}" "${z_consecration}"
 
   # Get OAuth token — prefer Retriever credentials, fallback to Director
+  local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local z_rbra_file=""
   if test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" && test -f "${RBDC_RETRIEVER_RBRA_FILE}"; then
     z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE}"
@@ -325,26 +324,6 @@ zrbob_vouch_gate_and_summon() {
 
   local z_token
   z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token for auto-summon"
-
-  # Vouch gate: HEAD request for -vouch tag
-  local z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
-  buc_step "Checking vouch for ${z_vessel}:${z_vouch_tag}"
-
-  local z_vouch_http_code
-  z_vouch_http_code=$(curl --head -s \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -o /dev/null \
-    -w "%{http_code}" \
-    "${z_registry_api_base}/${z_vessel}/manifests/${z_vouch_tag}") \
-    || buc_die "HEAD request failed for vouch artifact: ${z_vessel}:${z_vouch_tag}"
-
-  if test "${z_vouch_http_code}" != "200"; then
-    buc_die "Consecration not vouched: ${z_vessel}:${z_consecration} (Director has not vouched this consecration — refusing to pull unvouched images)"
-  fi
-
-  buc_info "Vouch verified: ${z_vessel}:${z_vouch_tag}"
 
   # Pull the image
   buc_step "Auto-summoning ${z_image_ref}"

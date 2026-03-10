@@ -108,6 +108,7 @@ zrbob_furnish() {
   source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
   source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbw_kit_dir}/rbob_bottle.sh"
+  source "${z_rbw_kit_dir}/rbf_Foundry.sh"
   source "${z_rbw_kit_dir}/rboo_observe.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_rbw_kit_dir}/rbz_zipper.sh"
