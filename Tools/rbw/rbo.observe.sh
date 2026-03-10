@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "RBO DIAG: Script starting, pwd=$(pwd)"
 echo "RBO DIAG: Script path=$0"

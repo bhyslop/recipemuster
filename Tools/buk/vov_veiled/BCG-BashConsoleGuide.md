@@ -391,6 +391,19 @@ $var                    # Unquoted - word splitting risk
 ${var}                  # Unquoted - glob expansion risk
 ```
 
+**Quote inside parameter expansion operators:**
+```bash
+# ✅ Inner expansion quoted separately — matches literally
+"${z_path%"${z_suffix}"}"       # Strip suffix
+"${z_path#"${z_prefix}"}"       # Strip prefix
+
+# ❌ Inner expansion unquoted — matches as a glob pattern
+"${z_path%${z_suffix}}"         # z_suffix with * or ? chars matches as glob!
+"${z_path#${z_prefix}}"         # Same risk
+```
+
+When using `%`, `%%`, `#`, `##` operators with a variable as the pattern, the inner expansion must be quoted separately. Without inner quotes, the pattern is glob-expanded — a suffix containing `*` or `?` silently matches more than intended.
+
 ### Assignment Patterns
 
 ```bash
@@ -1194,6 +1207,22 @@ test -n "${z_val}" || return 0
 
 **BCG rule: Never `test ... && break/continue/return`.** Always invert the test and use `||`. The `||` form is already the BCG standard for control flow after a test; the `&&` form relies on humans remembering that bash exempts `&&`/`||` lists from `set -e`, which is a language-lawyer trap.
 
+### ❌ `A && B || C` as Pseudo-Ternary
+
+```bash
+# ❌ C runs both when A fails AND when B fails — not equivalent to if/then/else
+curl "${z_url}" && jq '.field' "${z_file}" || buc_die "Failed"
+
+# ✅ Explicit if/then/else — C runs only when A fails
+if curl "${z_url}"; then
+  jq '.field' "${z_file}" || buc_die "jq failed"
+else
+  buc_die "curl failed"
+fi
+```
+
+**BCG rule: Never `A && B || C`.** This is not if-then-else. When `A` succeeds but `B` fails, `C` runs — which is almost never the intended behavior. Use explicit `if`/`then`/`else` for conditional execution with a fallback.
+
 ---
 
 ## Array Safety Under `set -u`
@@ -1660,7 +1689,7 @@ BCG uses [shellcheck](https://www.shellcheck.net) for static analysis of bash so
 
 ### Suppressed Codes (BCG-structural)
 
-These codes are false positives caused by BCG's dynamic sourcing, cross-module constants, and indirect dispatch:
+These codes are false positives caused by BCG's dynamic sourcing, cross-module constants, indirect dispatch, and template-generation patterns:
 
 | Code | Reason |
 |------|--------|
@@ -1671,6 +1700,9 @@ These codes are false positives caused by BCG's dynamic sourcing, cross-module c
 | SC2155 | Declare and assign separately — BCG blesses single-line `$(<file)` |
 | SC2153 | Possible misspelling — cross-module prefix similarity |
 | SC2329 | Function never invoked — indirect invocation via source/dispatch |
+| SC2016 | Expressions in single quotes — template-generation patterns echo single-quoted strings containing `${}` into generated files (tabtargets, launchers, Dockerfiles) |
+| SC2254 | Unquoted case pattern — BCG glob-matching patterns intentionally use unquoted variables in case statements |
+| SC2059 | Variable in printf format string — BCG table-formatting patterns use `local -r` format constants shared across header, separator, and data rows |
 
 ### Policy
 
