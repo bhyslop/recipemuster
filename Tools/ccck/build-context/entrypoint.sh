@@ -30,12 +30,14 @@ fi
 
 # Set up environment for SSH sessions
 CLAUDE_HOME=$(getent passwd claude | cut -d: -f6)
-echo "export PATH=/usr/local/bin:\$PATH"              >> ${CLAUDE_HOME}/.bashrc
-echo "export ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY"    >> ${CLAUDE_HOME}/.bashrc
-echo "cd /workspace"                                  >> ${CLAUDE_HOME}/.bashrc
+{
+echo "export PATH=/usr/local/bin:\$PATH"
+echo "export ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY"
+echo "cd /workspace"
+} >> "${CLAUDE_HOME}/.bashrc"
 
 # Ensure proper permissions
-chown -R claude:claude ${CLAUDE_HOME}
+chown -R claude:claude "${CLAUDE_HOME}"
 
 echo "Container is ready. SSH access available on port 22"
 echo "Connect using: ssh -p 8888 claude@localhost"

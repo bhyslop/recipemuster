@@ -5,19 +5,19 @@ set -e
 set -x
 
 echo "RBSp1: Validate parameters"
-: ${RBRN_ENCLAVE_BASE_IP:?}        && echo "RBSp0: RBRN_ENCLAVE_BASE_IP        = ${RBRN_ENCLAVE_BASE_IP}"
-: ${RBRN_ENCLAVE_NETMASK:?}        && echo "RBSp0: RBRN_ENCLAVE_NETMASK        = ${RBRN_ENCLAVE_NETMASK}"
-: ${RBRN_ENCLAVE_SENTRY_IP:?}      && echo "RBSp0: RBRN_ENCLAVE_SENTRY_IP      = ${RBRN_ENCLAVE_SENTRY_IP}"
-: ${RBRN_ENCLAVE_BOTTLE_IP:?}      && echo "RBSp0: RBRN_ENCLAVE_BOTTLE_IP      = ${RBRN_ENCLAVE_BOTTLE_IP}"
-: ${RBRR_DNS_SERVER:?}             && echo "RBSp0: RBRR_DNS_SERVER             = ${RBRR_DNS_SERVER}"
-: ${RBRN_ENTRY_MODE:?}             && echo "RBSp0: RBRN_ENTRY_MODE             = ${RBRN_ENTRY_MODE}"
-: ${RBRN_ENTRY_PORT_WORKSTATION:?} && echo "RBSp0: RBRN_ENTRY_PORT_WORKSTATION = ${RBRN_ENTRY_PORT_WORKSTATION}"
-: ${RBRN_ENTRY_PORT_ENCLAVE:?}     && echo "RBSp0: RBRN_ENTRY_PORT_ENCLAVE     = ${RBRN_ENTRY_PORT_ENCLAVE}"
-: ${RBRN_UPLINK_DNS_MODE:?}        && echo "RBSp0: RBRN_UPLINK_DNS_MODE        = ${RBRN_UPLINK_DNS_MODE}"
-: ${RBRN_UPLINK_PORT_MIN:?}        && echo "RBSp0: RBRN_UPLINK_PORT_MIN        = ${RBRN_UPLINK_PORT_MIN}"
-: ${RBRN_UPLINK_ACCESS_MODE:?}     && echo "RBSp0: RBRN_UPLINK_ACCESS_MODE     = ${RBRN_UPLINK_ACCESS_MODE}"
-: ${RBRN_UPLINK_ALLOWED_CIDRS:?}   && echo "RBSp0: RBRN_UPLINK_ALLOWED_CIDRS   = ${RBRN_UPLINK_ALLOWED_CIDRS}"
-: ${RBRN_UPLINK_ALLOWED_DOMAINS:?} && echo "RBSp0: RBRN_UPLINK_ALLOWED_DOMAINS = ${RBRN_UPLINK_ALLOWED_DOMAINS}"
+: "${RBRN_ENCLAVE_BASE_IP:?}"        && echo "RBSp0: RBRN_ENCLAVE_BASE_IP        = ${RBRN_ENCLAVE_BASE_IP}"
+: "${RBRN_ENCLAVE_NETMASK:?}"        && echo "RBSp0: RBRN_ENCLAVE_NETMASK        = ${RBRN_ENCLAVE_NETMASK}"
+: "${RBRN_ENCLAVE_SENTRY_IP:?}"      && echo "RBSp0: RBRN_ENCLAVE_SENTRY_IP      = ${RBRN_ENCLAVE_SENTRY_IP}"
+: "${RBRN_ENCLAVE_BOTTLE_IP:?}"      && echo "RBSp0: RBRN_ENCLAVE_BOTTLE_IP      = ${RBRN_ENCLAVE_BOTTLE_IP}"
+: "${RBRR_DNS_SERVER:?}"             && echo "RBSp0: RBRR_DNS_SERVER             = ${RBRR_DNS_SERVER}"
+: "${RBRN_ENTRY_MODE:?}"             && echo "RBSp0: RBRN_ENTRY_MODE             = ${RBRN_ENTRY_MODE}"
+: "${RBRN_ENTRY_PORT_WORKSTATION:?}" && echo "RBSp0: RBRN_ENTRY_PORT_WORKSTATION = ${RBRN_ENTRY_PORT_WORKSTATION}"
+: "${RBRN_ENTRY_PORT_ENCLAVE:?}"     && echo "RBSp0: RBRN_ENTRY_PORT_ENCLAVE     = ${RBRN_ENTRY_PORT_ENCLAVE}"
+: "${RBRN_UPLINK_DNS_MODE:?}"        && echo "RBSp0: RBRN_UPLINK_DNS_MODE        = ${RBRN_UPLINK_DNS_MODE}"
+: "${RBRN_UPLINK_PORT_MIN:?}"        && echo "RBSp0: RBRN_UPLINK_PORT_MIN        = ${RBRN_UPLINK_PORT_MIN}"
+: "${RBRN_UPLINK_ACCESS_MODE:?}"     && echo "RBSp0: RBRN_UPLINK_ACCESS_MODE     = ${RBRN_UPLINK_ACCESS_MODE}"
+: "${RBRN_UPLINK_ALLOWED_CIDRS:?}"   && echo "RBSp0: RBRN_UPLINK_ALLOWED_CIDRS   = ${RBRN_UPLINK_ALLOWED_CIDRS}"
+: "${RBRN_UPLINK_ALLOWED_DOMAINS:?}" && echo "RBSp0: RBRN_UPLINK_ALLOWED_DOMAINS = ${RBRN_UPLINK_ALLOWED_DOMAINS}"
 
 echo "RBSp1: Beginning IPTables initialization"
 
@@ -61,11 +61,11 @@ if [ "${RBRN_ENTRY_MODE}" = "enabled" ]; then
     echo "RBSp2: Configuring TCP access for bottled services"
 
     echo "RBSp2: Allow direct connections from sentry to bottle for the entry port"
-    iptables -A RBM-EGRESS  -o eth1 -p tcp -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
-    iptables -A RBM-INGRESS -i eth1 -p tcp -s "${RBRN_ENCLAVE_BOTTLE_IP}" --sport ${RBRN_ENTRY_PORT_ENCLAVE} -j ACCEPT || exit 25
+    iptables -A RBM-EGRESS  -o eth1 -p tcp -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" -j ACCEPT || exit 25
+    iptables -A RBM-INGRESS -i eth1 -p tcp -s "${RBRN_ENCLAVE_BOTTLE_IP}" --sport "${RBRN_ENTRY_PORT_ENCLAVE}" -j ACCEPT || exit 25
 
     echo "RBSp2: Setting up socat proxy on port ${RBRN_ENTRY_PORT_WORKSTATION} -> ${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}"
-    nohup socat TCP-LISTEN:${RBRN_ENTRY_PORT_WORKSTATION},fork,reuseaddr TCP:${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE} >/var/log/socat-proxy.log 2>&1 &
+    nohup socat "TCP-LISTEN:${RBRN_ENTRY_PORT_WORKSTATION},fork,reuseaddr" "TCP:${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" >/var/log/socat-proxy.log 2>&1 &
 
     echo "RBSp2: Give socat a moment to start"
     sleep 1
@@ -80,7 +80,7 @@ if [ "${RBRN_ENTRY_MODE}" = "enabled" ]; then
     fi
 
     echo "RBSp2: Allow incoming connections from bridge network (eth0) on entry port"
-    iptables -A RBM-INGRESS -i eth0 -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} -j ACCEPT || exit 27
+    iptables -A RBM-INGRESS -i eth0 -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" -j ACCEPT || exit 27
 fi
 
 echo "RBSp2b: Blocking ICMP cross-boundary traffic"

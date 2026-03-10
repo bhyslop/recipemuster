@@ -1268,7 +1268,7 @@ rbgp_depot_destroy() {
   fi
 
   # Extract depot name from project ID for resource naming
-  local z_without_prefix="${z_depot_project_id#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
+  local z_without_prefix="${z_depot_project_id#"${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-"}"
   local z_name_len=${#z_without_prefix}
   local z_ts_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
   local -r z_depot_name="${z_without_prefix:0:$((z_name_len - z_ts_suffix_len))}"
@@ -1445,7 +1445,7 @@ rbgp_depot_list() {
     local z_depot_name
     local z_depot_timestamp
     if printf '%s' "${z_project_id}" | grep -qE "${RBGC_GLOBAL_DEPOT_REGEX}"; then
-      local z_without_prefix="${z_project_id#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
+      local z_without_prefix="${z_project_id#"${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-"}"
       local z_len=${#z_without_prefix}
       local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
       z_depot_name="${z_without_prefix:0:$((z_len - z_suffix_len))}"

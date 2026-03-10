@@ -89,9 +89,10 @@ rbhr_build_image() {
   buc_step "Running Syft analysis"
 
   # Install Syft
-  curl -sSfL https://github.com/anchore/syft/releases/download/v1.14.1/syft_1.14.1_linux_amd64.tar.gz -o syft.tar.gz && \
-    tar -xzf syft.tar.gz syft && rm syft.tar.gz && sudo mv syft /usr/local/bin/ || \
+  if ! { curl -sSfL https://github.com/anchore/syft/releases/download/v1.14.1/syft_1.14.1_linux_amd64.tar.gz -o syft.tar.gz \
+    && tar -xzf syft.tar.gz syft && rm syft.tar.gz && sudo mv syft /usr/local/bin/; }; then
     buc_die "Failed to install Syft"
+  fi
 
   # Pull and analyze
   docker pull "${z_ghcr_path}" || buc_die "Failed to pull built image"

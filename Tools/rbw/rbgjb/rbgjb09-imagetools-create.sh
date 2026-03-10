@@ -30,23 +30,19 @@ CONSUMER_TAG="${CONSECRATION}${_RBGY_ARK_SUFFIX_IMAGE}"
 IFS=',' read -ra SUFFIXES <<< "${_RBGY_PLATFORM_SUFFIXES}"
 
 # Build source image list for imagetools create
-SOURCE_IMAGES=""
+SOURCE_IMAGES=()
 for SUFFIX in "${SUFFIXES[@]}"; do
   PER_PLAT_TAG="${CONSECRATION}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
-  if test -n "${SOURCE_IMAGES}"; then
-    SOURCE_IMAGES="${SOURCE_IMAGES} ${IMAGE_BASE}:${PER_PLAT_TAG}"
-  else
-    SOURCE_IMAGES="${IMAGE_BASE}:${PER_PLAT_TAG}"
-  fi
+  SOURCE_IMAGES+=("${IMAGE_BASE}:${PER_PLAT_TAG}")
 done
 
 echo "=== Creating multi-platform manifest from per-platform images ==="
 echo "Consumer tag: ${IMAGE_BASE}:${CONSUMER_TAG}"
-echo "Sources: ${SOURCE_IMAGES}"
+echo "Sources: ${SOURCE_IMAGES[*]}"
 
 docker buildx imagetools create \
   -t "${IMAGE_BASE}:${CONSUMER_TAG}" \
-  ${SOURCE_IMAGES}
+  "${SOURCE_IMAGES[@]}"
 
 echo "=== Inspecting combined manifest ==="
 docker buildx imagetools inspect "${IMAGE_BASE}:${CONSUMER_TAG}"

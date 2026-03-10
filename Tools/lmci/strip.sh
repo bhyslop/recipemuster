@@ -58,7 +58,7 @@ for pattern in "$@"; do
     fi
     
     # Handle simple glob patterns
-    glob_files=($pattern)
+    mapfile -t glob_files < <(compgen -G "$pattern")
     
     # Check if expansion returned any files
     if [ ${#glob_files[@]} -eq 0 ] || [ "${glob_files[0]}" = "$pattern" ]; then

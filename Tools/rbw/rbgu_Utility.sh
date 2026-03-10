@@ -117,7 +117,7 @@ rbgu_urlencode_capture() {
   while test ${z_i} -lt ${#z_s}; do
     z_c="${z_s:z_i:1}"
     case "${z_c}" in
-      [A-Za-z0-9._~\-]) z_out="${z_out}${z_c}" ;;
+      [A-Za-z0-9._~-]) z_out="${z_out}${z_c}" ;;
       *) printf -v z_hex '%%%02X' "'${z_c}"; z_out="${z_out}${z_hex}" ;;
     esac
     z_i=$((z_i + 1))

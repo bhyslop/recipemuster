@@ -91,8 +91,8 @@ rbhh_check_git_status() {
 # Replace the existing ahead/behind detection in rbhh_check_git_status with:
 
   local z_commits_ahead z_commits_behind
-  z_commits_ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
-  z_commits_behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
+  z_commits_ahead=$(git rev-list --count '@{u}..HEAD' 2>/dev/null || echo "0")
+  z_commits_behind=$(git rev-list --count 'HEAD..@{u}' 2>/dev/null || echo "0")
 
   if test "${z_commits_ahead}" -gt 0; then
     buc_die "Your repo is ahead of the remote branch by ${z_commits_ahead} commit(s). Push changes to proceed: git push"
@@ -125,7 +125,7 @@ rbhh_build_workflow() {
   # Dispatch workflow
   buc_step "Triggering GitHub Actions workflow for image build"
   rbga_dispatch "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}" \
-                "rbgr_build" '{"dockerfile": "'${z_recipe_file}'", "ref": "'${z_commit_ref}'"}'
+                "rbgr_build" '{"dockerfile": "'"${z_recipe_file}"'", "ref": "'"${z_commit_ref}"'"}'
 
   # Wait for completion
   rbga_wait_completion "${RBRR_REGISTRY_OWNER}" "${RBRR_REGISTRY_NAME}"

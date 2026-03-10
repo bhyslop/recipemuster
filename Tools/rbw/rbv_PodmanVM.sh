@@ -87,13 +87,15 @@ zrbv_sentinel() {
 zrbv_generate_brand_file() {
   test ! -f "${ZRBV_GENERATED_BRAND_FILE}" || buc_die 'Brand file already exists'
 
-  echo "# Recipe Bottle VM Brand File"                    > "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "#"                                               >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "PODMAN_VERSION: ${RBRM_CHOSEN_PODMAN_VERSION}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "VMIMAGE_ORIGIN: ${RBRM_CHOSEN_VMIMAGE_ORIGIN}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "VMIMAGE_FQIN:   ${RBRM_CHOSEN_VMIMAGE_FQIN}"     >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "VMIMAGE_DIGEST: ${RBRM_CHOSEN_VMIMAGE_DIGEST}"   >> "${ZRBV_GENERATED_BRAND_FILE}"
-  echo "IDENTITY:       ${RBRM_CHOSEN_IDENTITY}"         >> "${ZRBV_GENERATED_BRAND_FILE}"
+  {
+    echo "# Recipe Bottle VM Brand File"
+    echo "#"
+    echo "PODMAN_VERSION: ${RBRM_CHOSEN_PODMAN_VERSION}"
+    echo "VMIMAGE_ORIGIN: ${RBRM_CHOSEN_VMIMAGE_ORIGIN}"
+    echo "VMIMAGE_FQIN:   ${RBRM_CHOSEN_VMIMAGE_FQIN}"
+    echo "VMIMAGE_DIGEST: ${RBRM_CHOSEN_VMIMAGE_DIGEST}"
+    echo "IDENTITY:       ${RBRM_CHOSEN_IDENTITY}"
+  } > "${ZRBV_GENERATED_BRAND_FILE}"
 }
 
 # Extract natural tag from podman init output

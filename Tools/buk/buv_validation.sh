@@ -173,8 +173,8 @@ buv_gate_enroll() {
   z_buv_current_gate_var="${z_gate_var}"
   z_buv_current_gate_val="${z_gate_val}"
 
-  z_buv_grp_gate_var_roll[$z_buv_current_group_idx]="${z_gate_var}"
-  z_buv_grp_gate_val_roll[$z_buv_current_group_idx]="${z_gate_val}"
+  z_buv_grp_gate_var_roll[z_buv_current_group_idx]="${z_gate_var}"
+  z_buv_grp_gate_val_roll[z_buv_current_group_idx]="${z_gate_val}"
 }
 
 # Internal enrollment helper — all public enroll functions delegate here

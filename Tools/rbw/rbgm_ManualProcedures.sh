@@ -153,7 +153,7 @@ rbgm_payor_establish() {
   bug_t        "   (You will discover RBRP_BILLING_ACCOUNT_ID later in step 5)"
   bug_e
   bug_t        "   First time setup? Set a timestamped project ID with:"
-  bug_c        "   sed -i '' 's/^RBRP_PAYOR_PROJECT_ID=.*/RBRP_PAYOR_PROJECT_ID=${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-$(date ${RBGC_GLOBAL_TIMESTAMP_FORMAT})/' ${ZRBGM_RBRP_FILE}"
+  bug_c        "   sed -i '' 's/^RBRP_PAYOR_PROJECT_ID=.*/RBRP_PAYOR_PROJECT_ID=${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}")/' ${ZRBGM_RBRP_FILE}"
   bug_e
   bug_section  "2. Check if Project Already Exists:"
   bug_t        "   Before creating a new project, verify the configured ID is not already in use:"

@@ -487,7 +487,7 @@ zrbf_wait_build_completion() {
     sleep 5
 
     z_attempts=$((z_attempts + 1))
-    test ${z_attempts} -le ${z_max_attempts} || buc_die "Build timeout after ${z_max_attempts} attempts"
+    test "${z_attempts}" -le "${z_max_attempts}" || buc_die "Build timeout after ${z_max_attempts} attempts"
 
     buc_log_args "Fetch build status (attempt ${z_attempts}/${z_max_attempts})"
     curl -s                                                \
@@ -818,7 +818,7 @@ rbf_beseech() {
   jq -r '.packages[]?.name // empty' "${z_packages_file}" > "${z_packages_raw}" \
     || buc_die "Failed to extract package names"
 
-  > "${z_packages_list}"
+  : > "${z_packages_list}"
   local z_pkg=""
   local z_moniker=""
   while IFS= read -r z_pkg || test -n "${z_pkg}"; do
@@ -832,7 +832,7 @@ rbf_beseech() {
 
   # Build ark correlation data
   local z_arks_raw="${BURD_TEMP_DIR}/rbf_beseech_arks_raw.txt"
-  > "${z_arks_raw}"  # Clear file
+  : > "${z_arks_raw}"  # Clear file
 
   while IFS= read -r z_moniker; do
     local z_tags_file="${BURD_TEMP_DIR}/rbf_beseech_tags_${z_moniker}.json"
@@ -859,15 +859,15 @@ rbf_beseech() {
       # Check for -image suffix
       case "${z_tag}" in
         *"${RBGC_ARK_SUFFIX_IMAGE}")
-          z_consecration="${z_tag%${RBGC_ARK_SUFFIX_IMAGE}}"
+          z_consecration="${z_tag%"${RBGC_ARK_SUFFIX_IMAGE}"}"
           echo "${z_moniker}|${z_consecration}|image" >> "${z_arks_raw}"
           ;;
         *"${RBGC_ARK_SUFFIX_ABOUT}")
-          z_consecration="${z_tag%${RBGC_ARK_SUFFIX_ABOUT}}"
+          z_consecration="${z_tag%"${RBGC_ARK_SUFFIX_ABOUT}"}"
           echo "${z_moniker}|${z_consecration}|about" >> "${z_arks_raw}"
           ;;
         *"${RBGC_ARK_SUFFIX_VOUCH}")
-          z_consecration="${z_tag%${RBGC_ARK_SUFFIX_VOUCH}}"
+          z_consecration="${z_tag%"${RBGC_ARK_SUFFIX_VOUCH}"}"
           echo "${z_moniker}|${z_consecration}|vouch" >> "${z_arks_raw}"
           ;;
         *) ;; # Infrastructure tags (alias, -multi, per-platform) — not ark artifacts
@@ -1954,8 +1954,8 @@ rbf_check_consecrations() {
 
     local z_consec_file="${BURD_TEMP_DIR}/rbf_dc_${z_sigil}_consecrations.txt"
     local z_tag_data_file="${BURD_TEMP_DIR}/rbf_dc_${z_sigil}_tag_data.txt"
-    > "${z_consec_file}"
-    > "${z_tag_data_file}"
+    : > "${z_consec_file}"
+    : > "${z_tag_data_file}"
 
     while IFS= read -r z_tag || test -n "${z_tag}"; do
       local z_consec=""
@@ -1967,7 +1967,7 @@ rbf_check_consecrations() {
 
       case "${z_tag}" in
         *"${RBGC_ARK_SUFFIX_IMAGE}"-*|*"${RBGC_ARK_SUFFIX_IMAGE}")
-          local z_suffix="${z_tag#*${RBGC_ARK_SUFFIX_IMAGE}}"
+          local z_suffix="${z_tag#*"${RBGC_ARK_SUFFIX_IMAGE}"}"
           if test -z "${z_suffix}"; then
             echo "${z_consec}|image|consumer" >> "${z_tag_data_file}"
           else
@@ -2107,8 +2107,8 @@ rbf_batch_vouch() {
     # Classify: find consecrations with -about but no -vouch
     local z_about_file="${BURD_TEMP_DIR}/rbf_bv_${z_sigil}_has_about.txt"
     local z_vouch_file="${BURD_TEMP_DIR}/rbf_bv_${z_sigil}_has_vouch.txt"
-    > "${z_about_file}"
-    > "${z_vouch_file}"
+    : > "${z_about_file}"
+    : > "${z_vouch_file}"
 
     while IFS= read -r z_tag || test -n "${z_tag}"; do
       local z_consec=""

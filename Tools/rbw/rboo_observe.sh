@@ -45,7 +45,8 @@ zrboo_kindle() {
   readonly ZRBOO_RESET=$(tput sgr0 2>/dev/null || echo "")
 
   # Common tcpdump options: unbuffered, line-buffered, no name resolution, verbose
-  readonly ZRBOO_TCPDUMP_OPTS="-U -l -nn -vvv"
+  ZRBOO_TCPDUMP_OPTS=(-U -l -nn -vvv)
+  readonly ZRBOO_TCPDUMP_OPTS
 
   # Bridge interface (only for podman, discovered at observe time)
   z_rboo_bridge_interface=""
@@ -97,11 +98,11 @@ rboo_observe() {
 
   # Start censer capture (shared namespace with bottle)
   buc_info "Starting censer/bottle capture (eth0)"
-  ${ZRBOB_RUNTIME} exec "${ZRBOB_CENSER}" tcpdump ${ZRBOO_TCPDUMP_OPTS} -i eth0 2>&1 | zrboo_prefix_censer &
+  "${ZRBOB_RUNTIME}" exec "${ZRBOB_CENSER}" tcpdump "${ZRBOO_TCPDUMP_OPTS[@]}" -i eth0 2>&1 | zrboo_prefix_censer &
 
   # Start sentry enclave capture
   buc_info "Starting sentry enclave capture (eth1)"
-  ${ZRBOB_RUNTIME} exec "${ZRBOB_SENTRY}" tcpdump ${ZRBOO_TCPDUMP_OPTS} -i eth1 2>&1 | zrboo_prefix_sentry &
+  "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" tcpdump "${ZRBOO_TCPDUMP_OPTS[@]}" -i eth1 2>&1 | zrboo_prefix_sentry &
 
   # Bridge capture: only for podman (requires podman machine ssh)
   if [[ "${RBRN_RUNTIME}" == "podman" ]]; then

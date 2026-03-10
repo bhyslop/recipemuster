@@ -231,10 +231,12 @@ buut_launcher() {
   z_description="${z_description%_Coordinator}"
 
   # Write the 4-line launcher stub
-  echo '#!/bin/bash' > "${z_launcher_file}"
-  echo "# Launcher stub - delegates to ${z_description} workbench" >> "${z_launcher_file}"
-  echo 'source "${BASH_SOURCE[0]%/*}/launcher_common.sh"' >> "${z_launcher_file}"
-  echo "bud_launch \"\${BURC_TOOLS_DIR}/${z_workbench_path#Tools/}\" \"\$@\"" >> "${z_launcher_file}"
+  {
+    echo '#!/bin/bash'
+    echo "# Launcher stub - delegates to ${z_description} workbench"
+    echo 'source "${BASH_SOURCE[0]%/*}/launcher_common.sh"'
+    echo "bud_launch \"\${BURC_TOOLS_DIR}/${z_workbench_path#Tools/}\" \"\$@\""
+  } > "${z_launcher_file}"
 
   chmod +x "${z_launcher_file}" || buc_die "Failed to make launcher executable: ${z_launcher_file}"
   buc_success "Created launcher: ${z_launcher_file}"

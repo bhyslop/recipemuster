@@ -194,9 +194,9 @@ zbud_process_args() {
     # Prepare log directories
     mkdir -p "${BURS_LOG_DIR}"
     # Initialize log files
-    > "${BURD_LOG_LAST}"
-    > "${BURD_LOG_SAME}"
-    > "${BURD_LOG_HIST}"
+    : > "${BURD_LOG_LAST}"
+    : > "${BURD_LOG_SAME}"
+    : > "${BURD_LOG_HIST}"
   fi
 
   # Store target and extra arguments
@@ -330,7 +330,7 @@ zbud_main() {
     # Interactive mode: uncurated logging to historical log, preserves line buffering
     "${z_invocation[@]}" 2>&1 | tee -a "${BURD_LOG_HIST}"
     zBURD_EXIT_STATUS=${PIPESTATUS[0]}
-    echo ${zBURD_EXIT_STATUS} > "${zBURD_STATUS_FILE}"
+    echo "${zBURD_EXIT_STATUS}" > "${zBURD_STATUS_FILE}"
     zbud_show "Coordinator status (interactive): ${zBURD_EXIT_STATUS}"
   elif test -n "${BURD_NO_LOG:-}"; then
     {

@@ -86,7 +86,7 @@ zrbhcr_kindle() {
 
   # Login to registry
   buc_step "Log in to container registry"
-  ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} login "${ZRBHCR_REGISTRY_HOST}" -u "${ZRBHCR_REGISTRY_USERNAME}" -p "${ZRBHCR_GITHUB_TOKEN}"
+  "${RBG_RUNTIME}" "${RBG_RUNTIME_ARG:-}" login "${ZRBHCR_REGISTRY_HOST}" -u "${ZRBHCR_REGISTRY_USERNAME}" -p "${ZRBHCR_GITHUB_TOKEN}"
 
   readonly ZRBHCR_KINDLED=1
 }
@@ -144,12 +144,14 @@ zrbhcr_process_single_manifest() {
   local z_config_out="${ZRBHCR_CONFIG_PREFIX}${z_idx}.json"
   local z_config_err="${ZRBHCR_CONFIG_PREFIX}${z_idx}.err"
 
-  curl -sL -H "${ZRBHCR_HEADER_AUTH_BEARER}" "${ZRBHCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" \
-        >"${z_config_out}" 2>"${z_config_err}" && \
-    jq . "${z_config_out}" >/dev/null || {
-      buc_warn "Failed to fetch config blob"
-      buc_die "Failed to retrieve config blob from registry"
-    }
+  if curl -sL -H "${ZRBHCR_HEADER_AUTH_BEARER}" "${ZRBHCR_REGISTRY_API_BASE}/blobs/${z_config_digest}" \
+        >"${z_config_out}" 2>"${z_config_err}" \
+     && jq . "${z_config_out}" >/dev/null; then
+    :
+  else
+    buc_warn "Failed to fetch config blob"
+    buc_die "Failed to retrieve config blob from registry"
+  fi
 
   # Build detail entry
   local z_temp_detail="${ZRBHCR_DETAIL_PREFIX}$(zrbhcr_get_next_index).json"
@@ -285,12 +287,12 @@ rbhcr_get_manifest() {
        -H "${ZRBHCR_HEADER_AUTH_BEARER}" \
        -H "${ZRBHCR_HEADER_ACCEPT_MANIFEST}" \
        "${ZRBHCR_REGISTRY_API_BASE}/manifests/${z_tag}" \
-       >"${z_manifest_out}" 2>"${z_manifest_err}" \
-    && jq . "${z_manifest_out}" >/dev/null \
-    || {
-      buc_warn "Failed to fetch manifest for ${z_tag}"
-      buc_die "This image appears corrupted"
-    }
+       >"${z_manifest_out}" 2>"${z_manifest_err}"
+
+  if ! jq . "${z_manifest_out}" >/dev/null; then
+    buc_warn "Failed to fetch manifest for ${z_tag}"
+    buc_die "This image appears corrupted"
+  fi
 
   local z_media_type
   z_media_type=$(jq -r '.mediaType // .schemaVersion' "${z_manifest_out}")
@@ -320,13 +322,13 @@ rbhcr_get_manifest() {
            -H "${ZRBHCR_HEADER_AUTH_BEARER}" \
            -H "${ZRBHCR_HEADER_ACCEPT_MANIFEST}" \
            "${ZRBHCR_REGISTRY_API_BASE}/manifests/${z_platform_digest}" \
-           >"${z_platform_out}" 2>"${z_platform_err}" \
-        && jq . "${z_platform_out}" >/dev/null \
-        || {
-          buc_warn "Failed to fetch platform manifest"
-          ((z_platform_idx++))
-          continue
-        }
+           >"${z_platform_out}" 2>"${z_platform_err}"
+
+      if ! jq . "${z_platform_out}" >/dev/null; then
+        buc_warn "Failed to fetch platform manifest"
+        ((z_platform_idx++))
+        continue
+      fi
 
       zrbhcr_process_single_manifest "${z_tag}" "${z_platform_out}" "${z_platform_info}"
 
@@ -407,7 +409,7 @@ rbhcr_pull() {
   z_fqin=$(<"${ZRBHCR_FQIN_FILE}")
 
   buc_info "Fetch image..."
-  ${RBG_RUNTIME} ${RBG_RUNTIME_ARG:-} pull "${z_fqin}"
+  "${RBG_RUNTIME}" "${RBG_RUNTIME_ARG:-}" pull "${z_fqin}"
 }
 
 rbhcr_exists_predicate() {

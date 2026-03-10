@@ -59,7 +59,7 @@ rbtcsj_websocket_kernel_tcase() {
 
   # Run Python test in dedicated container with networking dependencies
   # Note: Python script uses RBRN_ENTRY_PORT_WORKSTATION env var
-  buto_unit_expect_ok ${ZRBOB_RUNTIME} run --rm -i \
+  buto_unit_expect_ok "${ZRBOB_RUNTIME}" run --rm -i \
     --network host \
     -e RBRN_ENTRY_PORT_WORKSTATION="${RBRN_ENTRY_PORT_WORKSTATION}" \
     "${RBTCSJ_TEST_IMAGE}" \

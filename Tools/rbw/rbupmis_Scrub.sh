@@ -42,7 +42,7 @@ set -euo pipefail
 outfile="$1"
 
 # Ensure output file is empty
-> "$outfile"
+: > "$outfile"
 
 while IFS= read -r line || [[ -n "$line" ]]; do
   # Strip nulls from line

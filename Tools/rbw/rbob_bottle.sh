@@ -66,12 +66,13 @@ zrbob_kindle() {
   readonly ZRBOB_SENTRY_SCRIPT="${ZRBOB_SCRIPT_DIR}/rbss.sentry.sh"
   test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
 
-  # Runtime-specific censer network args
+  # Runtime-specific censer network args (array for proper quoting)
   # Docker uses --ip separately, Podman uses network:ip= syntax
   case "${RBRN_RUNTIME}" in
-    docker) readonly ZRBOB_CENSER_NETWORK_ARGS="--network ${ZRBOB_NETWORK} --ip ${RBRN_ENCLAVE_BOTTLE_IP}" ;;
-    podman) readonly ZRBOB_CENSER_NETWORK_ARGS="--network ${ZRBOB_NETWORK}:ip=${RBRN_ENCLAVE_BOTTLE_IP}" ;;
+    docker) ZRBOB_CENSER_NETWORK_ARGS=("--network" "${ZRBOB_NETWORK}" "--ip" "${RBRN_ENCLAVE_BOTTLE_IP}") ;;
+    podman) ZRBOB_CENSER_NETWORK_ARGS=("--network" "${ZRBOB_NETWORK}:ip=${RBRN_ENCLAVE_BOTTLE_IP}") ;;
   esac
+  readonly ZRBOB_CENSER_NETWORK_ARGS
 
   # GAR image references (computed once, used by launch and preflight)
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
@@ -228,9 +229,9 @@ zrbob_launch_censer() {
 
   # Run censer on enclave network with bottle IP, sleep infinity
   # ZRBOB_CENSER_NETWORK_ARGS computed at kindle time
-  ${ZRBOB_RUNTIME} run -d \
+  "${ZRBOB_RUNTIME}" run -d \
     --name "${ZRBOB_CENSER}" \
-    ${ZRBOB_CENSER_NETWORK_ARGS} \
+    "${ZRBOB_CENSER_NETWORK_ARGS[@]}" \
     --privileged \
     --entrypoint /bin/sleep \
     "${ZRBOB_SENTRY_IMAGE}" \

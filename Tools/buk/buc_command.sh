@@ -110,7 +110,7 @@ buc_tabtarget() {
   shift
   local z_extra="${*:+ $*}"
   local z_match
-  z_match=$(set +o pipefail; ls "${BURD_TABTARGET_DIR}/${z_colophon}."* 2>/dev/null | head -1) || true
+  z_match=$(set +o pipefail; find "${BURD_TABTARGET_DIR}" -maxdepth 1 -name "${z_colophon}."'*' -print 2>/dev/null | head -1) || true
   test -n "${z_match}" || buc_die "buc_tabtarget: no tabtarget found for colophon '${z_colophon}'"
   buc_bare "        ${BURD_TABTARGET_DIR}/${z_match##*/}${z_extra}"
 }

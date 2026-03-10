@@ -38,8 +38,7 @@ zrbrn_fleet_survey() {
   zrbrr_sentinel
 
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  local z_row_fmt="%-10s %-8s %6s %6s  %-17s %-14s %-14s  %3s %3s\n"
-
+  local -r z_row_fmt="%-10s %-8s %6s %6s  %-17s %-14s %-14s  %3s %3s\n"
   echo ""
   printf "${z_row_fmt}" \
     "Moniker" "Entry" "WS" "Enc" "Subnet" "Sentry IP" "Bottle IP" "Snt" "Btl"

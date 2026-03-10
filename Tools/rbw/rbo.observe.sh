@@ -9,12 +9,12 @@ echo "RBO: Beginning network observation script"
 set -e
 
 # Validate required environment variables
-: ${RBM_MACHINE:?}              && echo "RBO: RBM_MACHINE              = ${RBM_MACHINE}"
-: ${RBM_MONIKER:?}              && echo "RBO: RBM_MONIKER              = ${RBM_MONIKER}"
-: ${RBM_ENCLAVE_NETWORK:?}      && echo "RBO: RBM_ENCLAVE_NETWORK      = ${RBM_ENCLAVE_NETWORK}"
-: ${RBM_SENTRY_CONTAINER:?}     && echo "RBO: RBM_SENTRY_CONTAINER     = ${RBM_SENTRY_CONTAINER}"
-: ${RBM_BOTTLE_CONTAINER:?}     && echo "RBO: RBM_BOTTLE_CONTAINER     = ${RBM_BOTTLE_CONTAINER}"
-: ${RBM_CENSER_CONTAINER:?}     && echo "RBO: RBM_CENSER_CONTAINER     = ${RBM_CENSER_CONTAINER}"
+: "${RBM_MACHINE:?}"              && echo "RBO: RBM_MACHINE              = ${RBM_MACHINE}"
+: "${RBM_MONIKER:?}"              && echo "RBO: RBM_MONIKER              = ${RBM_MONIKER}"
+: "${RBM_ENCLAVE_NETWORK:?}"      && echo "RBO: RBM_ENCLAVE_NETWORK      = ${RBM_ENCLAVE_NETWORK}"
+: "${RBM_SENTRY_CONTAINER:?}"     && echo "RBO: RBM_SENTRY_CONTAINER     = ${RBM_SENTRY_CONTAINER}"
+: "${RBM_BOTTLE_CONTAINER:?}"     && echo "RBO: RBM_BOTTLE_CONTAINER     = ${RBM_BOTTLE_CONTAINER}"
+: "${RBM_CENSER_CONTAINER:?}"     && echo "RBO: RBM_CENSER_CONTAINER     = ${RBM_CENSER_CONTAINER}"
 
 echo "RBO: Storing terminal control sequences"
 BOLD=$(tput bold)
@@ -31,15 +31,12 @@ cleanup() {
     kill 0
     exit 0
 }
-trap cleanup SIGINT SIGTERM
+trap cleanup INT TERM
 
 echo "RBO DIAG: About to setup tcpdump"
 
-echo "RBO: Setting up common tcpdump options"
-TCPDUMP_OPTS="-U -l -nn -vvv"
-
 echo "RBO: Discovering bridge interface for enclave network"
-BRIDGE_INTERFACE=$(podman --connection ${RBM_MACHINE} network inspect ${RBM_ENCLAVE_NETWORK} --format '{{.NetworkInterface}}')
+BRIDGE_INTERFACE=$(podman --connection "${RBM_MACHINE}" network inspect "${RBM_ENCLAVE_NETWORK}" --format '{{.NetworkInterface}}')
 echo "RBO: Bridge interface: ${BRIDGE_INTERFACE}"
 
 echo "RBO: Defining output prefixing functions"
@@ -64,15 +61,15 @@ prefix_sentry() {
 echo "RBO: Starting network capture processes"
 
 echo "RBO: Starting bottle/censer shared namespace capture (using CENSER container)"
-podman --connection ${RBM_MACHINE} exec ${RBM_CENSER_CONTAINER} tcpdump ${TCPDUMP_OPTS} -i eth0 2>&1 |
+podman --connection "${RBM_MACHINE}" exec "${RBM_CENSER_CONTAINER}" tcpdump -U -l -nn -vvv -i eth0 2>&1 |
     prefix_bottle &
 
 echo "RBO: Starting bridge perspective capture"
-podman --connection ${RBM_MACHINE} machine ssh "sudo -n tcpdump ${TCPDUMP_OPTS} -i ${BRIDGE_INTERFACE}" 2>&1 |
+podman --connection "${RBM_MACHINE}" machine ssh "sudo -n tcpdump -U -l -nn -vvv -i ${BRIDGE_INTERFACE}" 2>&1 |
     prefix_bridge &
 
 echo "RBO: Starting sentry enclave interface capture"
-podman --connection ${RBM_MACHINE} exec ${RBM_SENTRY_CONTAINER} tcpdump ${TCPDUMP_OPTS} -i eth1 2>&1 |
+podman --connection "${RBM_MACHINE}" exec "${RBM_SENTRY_CONTAINER}" tcpdump -U -l -nn -vvv -i eth1 2>&1 |
     prefix_sentry &
 
 echo "RBO: All capture processes started"

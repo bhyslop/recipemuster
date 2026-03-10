@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 # RBGJBM Step 07: Generate per-platform build_info.json with SLSA summary
 # Builder: alpine (via RBRG_ALPINE_IMAGE_REF)
-# Entrypoint: sh (not bash — alpine does not have bash)
+# Entrypoint: sh (Cloud Build overrides shebang; bash shebang for shellcheck)
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,
 #                _RBGY_PLATFORM_SUFFIXES, _RBGY_GIT_REPO, _RBGY_GIT_BRANCH,
 #                _RBGY_GIT_COMMIT, _RBGY_GAR_LOCATION, _RBGY_GAR_HOST_SUFFIX,

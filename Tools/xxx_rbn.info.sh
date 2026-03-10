@@ -37,23 +37,23 @@ set -e
 echo "NEEDS REPAIRS.  Concept above."  &&  false
 
 # Validate required environment variables
-: ${RBM_MONIKER:?}              && echo "RBN: RBM_MONIKER              = ${RBM_MONIKER}"
-: ${RBM_ENCLAVE_NETWORK:?}      && echo "RBN: RBM_ENCLAVE_NETWORK      = ${RBM_ENCLAVE_NETWORK}"
-: ${RBM_SENTRY_CONTAINER:?}     && echo "RBN: RBM_SENTRY_CONTAINER     = ${RBM_SENTRY_CONTAINER}"
-: ${RBM_BOTTLE_CONTAINER:?}     && echo "RBN: RBM_BOTTLE_CONTAINER     = ${RBM_BOTTLE_CONTAINER}"
+: "${RBM_MONIKER:?}"              && echo "RBN: RBM_MONIKER              = ${RBM_MONIKER}"
+: "${RBM_ENCLAVE_NETWORK:?}"      && echo "RBN: RBM_ENCLAVE_NETWORK      = ${RBM_ENCLAVE_NETWORK}"
+: "${RBM_SENTRY_CONTAINER:?}"     && echo "RBN: RBM_SENTRY_CONTAINER     = ${RBM_SENTRY_CONTAINER}"
+: "${RBM_BOTTLE_CONTAINER:?}"     && echo "RBN: RBM_BOTTLE_CONTAINER     = ${RBM_BOTTLE_CONTAINER}"
 
 echo "RBN: Network Configuration:"
 echo "================================"
 
 echo "RBN: Enclave Network:"
-podman network inspect ${RBM_ENCLAVE_NETWORK} --format 'Gateway: {{(index .Subnets 0).Gateway}}, Subnet: {{(index .Subnets 0).Subnet}}, Bridge: {{.NetworkInterface}}'
+podman network inspect "${RBM_ENCLAVE_NETWORK}" --format 'Gateway: {{(index .Subnets 0).Gateway}}, Subnet: {{(index .Subnets 0).Subnet}}, Bridge: {{.NetworkInterface}}'
 echo ""
 
 echo "RBN: SENTRY Container Networks:"
-podman inspect ${RBM_SENTRY_CONTAINER} --format '{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}: {{$conf.IPAddress}}{{println}}{{end}}'
+podman inspect "${RBM_SENTRY_CONTAINER}" --format '{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}: {{$conf.IPAddress}}{{println}}{{end}}'
 
 echo "RBN: BOTTLE Container Networks:"
-podman inspect ${RBM_BOTTLE_CONTAINER} --format '{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}: {{$conf.IPAddress}}{{println}}{{end}}' 2>/dev/null || echo "(not yet created)"
+podman inspect "${RBM_BOTTLE_CONTAINER}" --format '{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}: {{$conf.IPAddress}}{{println}}{{end}}' 2>/dev/null || echo "(not yet created)"
 echo ""
 
 echo "RBN: Container veth interfaces:"
@@ -62,10 +62,10 @@ echo ""
 
 echo "RBN: TC filters on container interfaces:"
 for veth in $(ip link show | grep -oE "veth[0-9a-f]+" | sort -u); do
-    if tc qdisc show dev $veth 2>/dev/null | grep -q clsact; then
+    if tc qdisc show dev "$veth" 2>/dev/null | grep -q clsact; then
         echo "  $veth:"
-        tc filter show dev $veth ingress 2>/dev/null | grep -E "bpf|direct-action" | sed 's/^/    /'
-        tc filter show dev $veth egress  2>/dev/null | grep -E "bpf|direct-action" | sed 's/^/    /'
+        tc filter show dev "$veth" ingress 2>/dev/null | grep -E "bpf|direct-action" | sed 's/^/    /'
+        tc filter show dev "$veth" egress  2>/dev/null | grep -E "bpf|direct-action" | sed 's/^/    /'
     fi
 done
 

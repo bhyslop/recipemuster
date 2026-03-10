@@ -53,7 +53,7 @@ zrbgd_kindle() {
 
   # Extract depot name and timestamp from project ID pattern rbwg-d-{depot_name}-{timestamp}
   # Using bash builtins per BCG: remove prefix, then remove suffix (hyphen + timestamp)
-  local z_without_prefix="${RBRR_DEPOT_PROJECT_ID#${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-}"
+  local z_without_prefix="${RBRR_DEPOT_PROJECT_ID#"${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-"}"
   local z_len=${#z_without_prefix}
   local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
   readonly RBGD_DEPOT_NAME="${z_without_prefix:0:$((z_len - z_suffix_len))}"
