@@ -119,7 +119,7 @@ using
 obtained from
 {gcb_service}
 metadata server.
-... *Platform Split Phase*: Multi-platform OCI layout split to single-platform (linux/amd64) via skopeo for Syft compatibility (anchore/syft#1545).
+... *Platform Split Phase*: Multi-platform OCI layout split to single-platform (linux/amd64) via skopeo (per-platform tag isolation).
 ... *Analysis Phase*: Single-platform container image analyzed to produce per-platform SBOM (Software Bill of Materials, labeled `sbom.linux_amd64.spdx.json`).
 ... *Metadata Phase*: Build provenance, SBOM, and transcript assembled into
 {rbtgi_metadata}

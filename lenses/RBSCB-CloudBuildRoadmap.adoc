@@ -68,7 +68,7 @@ Regime variables configure project, region, and repository.
 Scoped to depot-project permissions, specified in the `serviceAccount` field of each build JSON.
 
 **SBOM generation.**
-Per-platform Syft scans via `docker:` transport (reads from local daemon via Docker socket).
+Per-platform Syft scans via `registry:` transport (reads directly from GAR using an OAuth2 token obtained from the GCB metadata server — no Docker daemon coupling).
 Each platform image gets its own JSON and table-format SBOM,
 packaged into the per-platform metadata container.
 Aligned with CISA 2025 minimum elements and EU CRA requirements.
@@ -91,7 +91,7 @@ Applies to vessels with a single entry in `RBRV_CONJURE_PLATFORMS`.
 1. **derive-tag-base** — compute timestamps and tag components from CB substitutions
 2. **qemu-binfmt** — register QEMU user-static for cross-arch builds (skipped if native)
 3. **build-and-load** — `docker buildx build --load` (single platform into local daemon)
-4. **sbom** — Syft scan via `docker:` transport
+4. **sbom** — Syft scan via `registry:` transport
 5. **assemble-metadata** — per-platform `build_info.json` with SLSA summary fields
 6. **build-and-push-metadata** — multi-platform `-about` container via `buildx --push`
 

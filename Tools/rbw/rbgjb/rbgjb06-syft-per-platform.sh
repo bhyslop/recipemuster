@@ -5,10 +5,10 @@
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
 #                _RBGY_GAR_HOST_SUFFIX, _RBGY_ARK_SUFFIX_IMAGE
 #
-# Scans each per-platform image from the local Docker daemon (docker: transport).
-# Images were loaded by step 04 (pullback). Produces one SBOM per platform:
+# Scans each per-platform image from GAR via registry: transport.
+# Images were pushed by step 05. Produces one SBOM per platform:
 #   sbom-{arch}{variant}.json (e.g., sbom-amd64.json, sbom-armv7.json)
-# Syft runs as a sibling container sharing the Docker daemon socket.
+# Auth via GCB metadata server OAuth2 token — no Docker daemon coupling.
 
 set -euo pipefail
 
@@ -21,11 +21,21 @@ test -n "${_RBGY_GAR_LOCATION}"        || (echo "_RBGY_GAR_LOCATION missing"    
 test -n "${_RBGY_GAR_PROJECT}"         || (echo "_RBGY_GAR_PROJECT missing"         >&2; exit 1)
 test -n "${_RBGY_GAR_REPOSITORY}"      || (echo "_RBGY_GAR_REPOSITORY missing"      >&2; exit 1)
 test -n "${_RBGY_ARK_SUFFIX_IMAGE}"    || (echo "_RBGY_ARK_SUFFIX_IMAGE missing"    >&2; exit 1)
+test -n "${_RBGY_GAR_HOST_SUFFIX}"     || (echo "_RBGY_GAR_HOST_SUFFIX missing"     >&2; exit 1)
 
 test -s .consecration || (echo "consecration not derived" >&2; exit 1)
 CONSECRATION="$(cat .consecration)"
 
 IMAGE_BASE="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}"
+GAR_AUTHORITY="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}"
+
+# Fetch OAuth2 token from GCB metadata server (no gcloud dependency)
+echo "Fetching OAuth2 token from metadata server"
+TOKEN=$(curl -sf -H "Metadata-Flavor: Google" \
+  "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" \
+  | jq -r '.access_token') \
+  || { echo "Failed to fetch OAuth2 token from metadata server" >&2; exit 1; }
+test -n "${TOKEN}" || { echo "OAuth2 token empty" >&2; exit 1; }
 
 # Split platforms and suffixes
 IFS=',' read -ra PLATFORMS <<< "${_RBGY_PLATFORMS}"
@@ -34,7 +44,7 @@ IFS=',' read -ra SUFFIXES <<< "${_RBGY_PLATFORM_SUFFIXES}"
 test "${#PLATFORMS[@]}" -eq "${#SUFFIXES[@]}" \
   || (echo "Platform/suffix count mismatch" >&2; exit 1)
 
-echo "=== Per-platform SBOM generation ==="
+echo "=== Per-platform SBOM generation (registry transport) ==="
 for IDX in "${!PLATFORMS[@]}"; do
   PLAT="${PLATFORMS[${IDX}]}"
   SUFFIX="${SUFFIXES[${IDX}]}"
@@ -46,8 +56,11 @@ for IDX in "${!PLATFORMS[@]}"; do
   SBOM_FILE="sbom-${SBOM_LABEL}.json"
 
   echo "--- Scanning ${PLAT} (${IMAGE_URI}) → ${SBOM_FILE} ---"
-  docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-    "${SYFT_IMAGE}" "docker:${IMAGE_URI}" -o json > "${SBOM_FILE}" \
+  docker run --rm \
+    -e SYFT_REGISTRY_AUTH_AUTHORITY="${GAR_AUTHORITY}" \
+    -e SYFT_REGISTRY_AUTH_USERNAME=oauth2accesstoken \
+    -e SYFT_REGISTRY_AUTH_PASSWORD="${TOKEN}" \
+    "${SYFT_IMAGE}" "registry:${IMAGE_URI}" -o json > "${SBOM_FILE}" \
     || { echo "Syft JSON generation failed for ${PLAT}" >&2; exit 1; }
 
   test -s "${SBOM_FILE}" || { echo "SBOM output empty for ${PLAT}" >&2; exit 1; }
