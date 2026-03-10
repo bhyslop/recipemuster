@@ -1,6 +1,6 @@
 Mark a pace complete and commit all changes in one self-contained operation.
 This routine combines staging, committing, state transition, and chalk marker creation.
-Used by `/jjc-pace-wrap` to provide a single-command wrap experience.
+Used by the `wrap` verb (mapped to `jjx_close`) to provide a single-command wrap experience.
 
 {jjds_arguments}
 
@@ -25,8 +25,8 @@ Used by `/jjc-pace-wrap` to provide a single-command wrap experience.
 . Create W chalk marker with outcome summary (uses `summary` parameter if provided, else "pace {silks} complete" from gallops)
 . Lookahead: walk parent heat's order array for next actionable pace (first with state {jjdpe_rough} or {jjdpe_bridled})
 . Emit `AGENT_RESPONSE:` line to stderr:
-.. If next pace found: `AGENT_RESPONSE: ₢{coronet} wrapped. Next: {next_silks} (₢{next_coronet}) — \`/clear\` then \`/jjc-heat-mount {firemark}\``
-.. If no next pace: `AGENT_RESPONSE: ₢{coronet} wrapped. All paces complete — \`/clear\` then \`/jjc-heat-retire {firemark}\``
+.. If next pace found: `AGENT_RESPONSE: ₢{coronet} wrapped. Next: {next_silks} (₢{next_coronet}) — \`/clear\` then \`mount {firemark}\``
+.. If no next pace: `AGENT_RESPONSE: ₢{coronet} wrapped. All paces complete — \`/clear\` then \`retire {firemark}\``
 . Release lock
 . Return commit hash
 

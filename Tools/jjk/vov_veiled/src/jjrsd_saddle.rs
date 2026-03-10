@@ -315,9 +315,9 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
                 }
                 vvco_out!(output, "");
                 if state == "bridled" {
-                    vvco_out!(output, "Recommended: /jjc-heat-mount {} to execute", firemark.jjrf_as_str());
+                    vvco_out!(output, "Recommended: mount {} to execute", firemark.jjrf_as_str());
                 } else {
-                    vvco_out!(output, "Recommended: /jjc-pace-bridle {} or /jjc-heat-mount {}", coronet, firemark.jjrf_as_str());
+                    vvco_out!(output, "Recommended: `jjx_arm` \u{20a2}{} or mount {}", coronet, firemark.jjrf_as_str());
                 }
             }
         }

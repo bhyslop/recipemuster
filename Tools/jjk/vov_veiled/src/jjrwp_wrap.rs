@@ -333,11 +333,11 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
             vvco_out!(output, "");
             match next_pace_info {
                 Some((next_coronet, next_silks)) => {
-                    vvco_out!(output, "AGENT_RESPONSE: \u{20a2}{} wrapped. Next: {} (\u{20a2}{}) \u{2014} `/clear` then `/jjc-heat-mount {}`",
+                    vvco_out!(output, "AGENT_RESPONSE: \u{20a2}{} wrapped. Next: {} (\u{20a2}{}) \u{2014} `/clear` then `mount {}`",
                         args.coronet, next_silks, next_coronet, fm_str);
                 }
                 None => {
-                    vvco_out!(output, "AGENT_RESPONSE: \u{20a2}{} wrapped. All paces complete \u{2014} `/clear` then `/jjc-heat-retire {}`",
+                    vvco_out!(output, "AGENT_RESPONSE: \u{20a2}{} wrapped. All paces complete \u{2014} `/clear` then `retire {}`",
                         args.coronet, fm_str);
                 }
             }

@@ -313,7 +313,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
                         let state_str = zjjrpd_pace_state_str(&tack.state);
                         vvco_out!(output, "Next: {} ({}) [{}]", tack.silks, coronet_key, state_str);
                         vvco_out!(output, "");
-                        vvco_out!(output, "Recommended: /jjc-heat-mount {}", heat_key);
+                        vvco_out!(output, "Recommended: mount {}", heat_key);
                     }
                 }
             } else {

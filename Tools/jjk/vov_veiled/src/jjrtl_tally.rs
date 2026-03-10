@@ -223,7 +223,7 @@ pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> (i32, String) {
             }
 
             vvco_out!(output, "");
-            vvco_out!(output, "Recommended: /jjc-heat-mount {} to execute", fm.jjrf_as_str());
+            vvco_out!(output, "Recommended: mount {} to execute", fm.jjrf_as_str());
             (0, output.vvco_finish())
         }
         Err(e) => {
