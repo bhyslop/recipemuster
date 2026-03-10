@@ -7877,9 +7877,10 @@
       "order": [
         "₢AsAAB",
         "₢AsAAA",
-        "₢AsAAC"
+        "₢AsAAC",
+        "₢AsAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAls.md",
       "paces": {
         "₢AsAAA": {
@@ -7926,6 +7927,17 @@
               "text": "After IAM grant refactor lands: create a fresh depot, conjure all bottle service vessels, vouch all arks. This exercises every IAM grant path with real propagation delays on freshly-provisioned resources. The acid test for the unified grant contract.",
               "silks": "fresh-depot-conjure-vouch",
               "commit": "35b3823"
+            }
+          ]
+        },
+        "₢AsAAD": {
+          "tacks": [
+            {
+              "ts": "260309-1945",
+              "state": "rough",
+              "text": "Final full test sweep after fresh depot + conjure + vouch succeeds. Confirms the entire system is green with the unified IAM grant contract under real-world conditions.",
+              "silks": "post-validation-test-sweep",
+              "commit": "68d6507"
             }
           ]
         }
