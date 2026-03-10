@@ -2053,6 +2053,10 @@ rbf_check_consecrations() {
       fi
 
       printf "  %-42s %-30s %-10s\n" "${z_consecration}" "${z_plat_display}" "${z_health}"
+
+      # Write per-consecration fact file for test observability
+      test -n "${z_consecration}" || buc_die "Empty consecration in unique file for ${z_sigil}"
+      echo "${z_sigil}" > "${BURD_OUTPUT_DIR}/${z_sigil}${RBCC_FACT_CONSEC_INFIX}${z_consecration}"
     done < "${z_unique_file}"
 
   done

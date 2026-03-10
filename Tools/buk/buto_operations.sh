@@ -252,6 +252,11 @@ buto_tt_expect_ok() {
                                         "STDERR: ${ZBUTO_STDERR}"
 }
 
+buto_tt_previous_output_capture() {
+  test -n "${ZBUTO_BURV_OUTPUT_DIR:-}" || buto_fatal "No previous tabtarget output"
+  echo "${ZBUTO_BURV_OUTPUT_DIR}"
+}
+
 buto_tt_expect_fatal() {
   set -e
 
