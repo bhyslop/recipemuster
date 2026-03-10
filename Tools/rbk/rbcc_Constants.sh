@@ -41,7 +41,7 @@ zrbcc_kindle() {
   test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR not set - rbcc requires BURC environment"
 
   # Kindle constants (depend on runtime state)
-  readonly RBCC_KIT_DIR="${BURC_TOOLS_DIR}/rbw"
+  readonly RBCC_KIT_DIR="${BURC_TOOLS_DIR}/${RBBC_kit_subdir}"
 
   # Curl timeout bounds — all actionable curl sites use these
   readonly RBCC_CURL_CONNECT_TIMEOUT_SEC=10

@@ -32,7 +32,7 @@ ZRBOB_SOURCED=1
 # Store script directory for locating sibling files (rbss.sentry.sh)
 ZRBOB_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
-# Project root directory (two levels up from Tools/rbw/)
+# Project root directory (relative to script location)
 ZRBOB_PROJECT_ROOT="${ZRBOB_SCRIPT_DIR}/../.."
 
 ######################################################################

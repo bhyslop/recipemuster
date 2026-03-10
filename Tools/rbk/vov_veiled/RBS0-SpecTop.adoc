@@ -2823,7 +2823,7 @@ include::RBSRV-RegimeVessel.adoc[]
 //axvr_regime axf_bash axrd_file_sourced axrd_manifold
 {rbrn_regime}::
 Configuration regime for bottle service deployment.
-RBRN assignment files in `Tools/rbw/rbrn_*.env` define container deployment and network security settings.
+RBRN assignment files in `.rbk/rbrn_*.env` define container deployment and network security settings.
 
 [[rbrn_moniker]]
 //axvr_variable axd_required rbst_xname

@@ -29,19 +29,20 @@ zrbgg_furnish() {
   buc_doc_env "BURD_OUTPUT_DIR       " "Directory for command outputs"
   buc_doc_env_done || return 0
 
-  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
+  local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
-  source "${z_rbw_kit_dir}/rbgc_Constants.sh"
-  source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
-  source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
-  source "${z_rbw_kit_dir}/rbgu_Utility.sh"
-  source "${z_rbw_kit_dir}/rbgi_IAM.sh"
-  source "${z_rbw_kit_dir}/rbrr_regime.sh"
-  source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
+  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbgc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbgd_DepotConstants.sh"
+  source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
+  source "${z_rbk_kit_dir}/rbgu_Utility.sh"
+  source "${z_rbk_kit_dir}/rbgi_IAM.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${RBBC_rbrr_file}"
-  source "${z_rbw_kit_dir}/rbgg_Governor.sh"
+  source "${z_rbk_kit_dir}/rbgg_Governor.sh"
 
   zbuv_kindle
   zburd_kindle

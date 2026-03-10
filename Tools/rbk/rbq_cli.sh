@@ -30,13 +30,14 @@ zrbq_furnish() {
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
+  local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
-  source "${z_rbw_kit_dir}/rbz_zipper.sh"
-  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
-  source "${z_rbw_kit_dir}/rbrn_regime.sh"
-  source "${z_rbw_kit_dir}/rbq_Qualify.sh"
+  source "${z_rbk_kit_dir}/rbz_zipper.sh"
+  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbrn_regime.sh"
+  source "${z_rbk_kit_dir}/rbq_Qualify.sh"
 
   zbuz_kindle
   zrbz_kindle

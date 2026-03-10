@@ -31,13 +31,14 @@ zrbv_furnish() {
   buc_doc_env "RBV_RBRS_FILE         " "File containing the RBRS constants"
   buc_doc_env_done || return 0
 
-  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
+  local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${z_rbw_kit_dir}/rbrr_regime.sh"
-  source "${z_rbw_kit_dir}/rbrm_regime.sh"
-  source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
-  source "${z_rbw_kit_dir}/rbrs_regime.sh"
-  source "${z_rbw_kit_dir}/rbv_PodmanVM.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrm_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
+  source "${z_rbk_kit_dir}/rbrs_regime.sh"
+  source "${z_rbk_kit_dir}/rbv_PodmanVM.sh"
 
   # Initialize enrollment and validate environment
   zbuv_kindle

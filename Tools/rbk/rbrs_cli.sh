@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBRP CLI - Command line interface for RBRP payor operations
+# RBRS CLI - Command line interface for RBRS station operations
 
 set -euo pipefail
 
@@ -25,52 +25,51 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 ######################################################################
 # Command Functions
 
-rbrp_validate() {
-  buc_doc_brief "Validate RBRP payor regime configuration via enrollment report"
+rbrs_validate() {
+  buc_doc_brief "Validate RBRS station regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  buc_step "Validating RBRP payor file: ${RBBC_rbrp_file}"
-  buv_report RBRP "Payor Regime"
-  buc_step "RBRP payor valid"
+  buc_step "Validating RBRS station regime file: ${RBCC_rbrs_file}"
+  buv_report RBRS "Station Regime"
+  buc_step "RBRS station regime valid"
 }
 
-rbrp_render() {
-  buc_doc_brief "Display diagnostic view of RBRP payor regime configuration"
+rbrs_render() {
+  buc_doc_brief "Display diagnostic view of RBRS station regime configuration"
   buc_doc_shown || return 0
 
-  buv_render RBRP "RBRP - Recipe Bottle Regime Payor"
+  buv_render RBRS "RBRS - Recipe Bottle Station Regime"
 }
 
 ######################################################################
 # Furnish and Main
 
-zrbrp_furnish() {
+zrbrs_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
+  local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
-  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
-  source "${z_rbw_kit_dir}/rbgc_Constants.sh"
-  source "${z_rbw_kit_dir}/rbrp_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbrs_regime.sh"
 
   zbuv_kindle
   zburd_kindle
   zburd_enforce
   zrbcc_kindle
-  zrbgc_kindle
 
-  source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
+  source "${RBCC_rbrs_file}" || buc_die "Failed to source RBRS: ${RBCC_rbrs_file}"
 
-  zrbrp_kindle
-  zrbrp_enforce
+  zrbrs_kindle
+  zrbrs_enforce
 
   zbupr_kindle
 }
 
-buc_execute rbrp_ "Recipe Bottle Payor Regime" zrbrp_furnish "$@"
+buc_execute rbrs_ "Recipe Bottle Station Regime" zrbrs_furnish "$@"
 
 # eof

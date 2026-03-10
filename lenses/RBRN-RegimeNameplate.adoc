@@ -5,7 +5,7 @@ This regime specifies variables that define bottle service deployment configurat
 Each
 {rbrn_regime}
 instance represents a distinct service deployment with its own network, entry, and uplink settings.
-RBRN assignment files are found in `Tools/rbw/rbrn_*.env` and configure container deployment and network security.
+RBRN assignment files are found in `.rbk/rbrn_*.env` and configure container deployment and network security.
 
 //axhrv_variable
 {rbrn_moniker}

@@ -43,7 +43,7 @@ zrbq_kindle() {
 
   readonly ZRBQ_TT_DIR="${BURC_TABTARGET_DIR}"
   readonly ZRBQ_PROJECT_ROOT="${BURC_TOOLS_DIR}/.."
-  readonly ZRBQ_RBW_DIR="${BURC_TOOLS_DIR}/rbw"
+  readonly ZRBQ_RBW_DIR="${RBCC_KIT_DIR}"
   readonly ZRBQ_RBW_LAUNCHER=".buk/launcher.rbw_workbench.sh"
 
   readonly ZRBQ_KINDLED=1

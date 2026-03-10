@@ -156,21 +156,22 @@ zrbrn_furnish() {
   local z_command="${1:-}"
 
   # Light sources (always)
-  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
+  local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
-  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
-  source "${z_rbw_kit_dir}/rbrn_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbrn_regime.sh"
 
   # Heavy sources (survey/audit only)
   case "${z_command}" in
     rbrn_survey|rbrn_audit)
-      source "${z_rbw_kit_dir}/rbrr_regime.sh"
-      source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
-      source "${z_rbw_kit_dir}/rbgc_Constants.sh"
-      source "${z_rbw_kit_dir}/rbgd_DepotConstants.sh"
-      source "${z_rbw_kit_dir}/rbgo_OAuth.sh"
+      source "${z_rbk_kit_dir}/rbrr_regime.sh"
+      source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
+      source "${z_rbk_kit_dir}/rbgc_Constants.sh"
+      source "${z_rbk_kit_dir}/rbgd_DepotConstants.sh"
+      source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
       ;;
   esac
 
@@ -180,7 +181,7 @@ zrbrn_furnish() {
   zburd_enforce
   zbupr_kindle
   zrbcc_kindle
-  test "${z_rbw_kit_dir}" = "${RBCC_KIT_DIR}" || buc_die "z_rbw_kit_dir mismatch: ${z_rbw_kit_dir} != ${RBCC_KIT_DIR}"
+  test "${z_rbk_kit_dir}" = "${RBCC_KIT_DIR}" || buc_die "z_rbk_kit_dir mismatch: ${z_rbk_kit_dir} != ${RBCC_KIT_DIR}"
 
   # Heavy kindles (survey/audit only)
   case "${z_command}" in

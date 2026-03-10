@@ -103,7 +103,7 @@ An important transitional note concerns GHCR-era variables. The original impleme
 
 == Implementation Status
 
-The current implementation exists in Tools/rbw/rbv_PodmanVM.sh and targets GitHub Container Registry. This bash module implements the mirror, fetch, init, start, stop, and nuke operations as described above. However, the check operation, which would discover upstream updates by comparing digests, has no bash implementation and exists only as a concept.
+The current implementation exists in Tools/rbk/rbv_PodmanVM.sh and targets GitHub Container Registry. This bash module implements the mirror, fetch, init, start, stop, and nuke operations as described above. However, the check operation, which would discover upstream updates by comparing digests, has no bash implementation and exists only as a concept.
 
 The codebase reflects an evolution well beyond the original specifications. Earlier specification documents RBSVC and RBSVM described a simpler design in which crane would copy entire images directly from upstream to the registry. This design envisioned variables like rbrr_chosen_vmimage_fqin and rbrr_chosen_vmimage_sha that would reference complete images. These variables were never implemented in code and remain spec-only ghosts.
 

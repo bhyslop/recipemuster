@@ -101,14 +101,15 @@ zrbra_furnish() {
   local z_command="${1:-}"
 
   # Light sources (always)
-  local z_rbw_kit_dir="${BURD_TOOLS_DIR}/rbw"
+  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
+  local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
-  source "${z_rbw_kit_dir}/rbcc_Constants.sh"
-  source "${z_rbw_kit_dir}/rbrr_regime.sh"
-  source "${z_rbw_kit_dir}/rbdc_DerivedConstants.sh"
-  source "${z_rbw_kit_dir}/rbra_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
+  source "${z_rbk_kit_dir}/rbra_regime.sh"
 
   # Light kindles (always)
   zbuv_kindle

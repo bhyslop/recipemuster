@@ -78,7 +78,7 @@ This ensures tests exercise real dispatch paths with proper isolation.
 **Examples**:
 - `Tools/buk/buw_workbench.sh` - BUK workbench (manages BUK itself)
 - `Tools/ccck/cccw_workbench.sh` - CCCK workbench (container control)
-- `Tools/rbw/rbw_workbench.sh` - RBW workbench (recipe bottle management)
+- `Tools/rbk/rbw_workbench.sh` - RBW workbench (recipe bottle management)
 
 **Structure**:
 
@@ -173,7 +173,7 @@ tt/jjt-f.TestFavor.sh → Launcher → BUD → jjt_testbench.sh
 
 **Examples**:
 - `Tools/buk/buz_zipper.sh` - BUK zipper (base registry infrastructure)
-- `Tools/rbw/rbz_zipper.sh` - RBW zipper (Recipe Bottle colophon registry)
+- `Tools/rbk/rbz_zipper.sh` - RBW zipper (Recipe Bottle colophon registry)
 
 **Key Functions**:
 - `buz_register(colophon, module, command)` — Register a tuple, sets `z1z_buz_colophon`
@@ -376,7 +376,7 @@ Project Root/
 │   ├── ccck/                          # CCCK workbench
 │   │   └── cccw_workbench.sh
 │   │
-│   └── rbw/                           # RBW workbench
+│   └── rbk/                           # RBW workbench
 │       └── rbw_workbench.sh
 │
 └── ../station-files/                  # Developer machine configs (NOT in git)
@@ -710,7 +710,7 @@ To create a new workbench:
 
 1. **Study existing workbenches** as templates:
    - `Tools/buk/buw_workbench.sh` - Simple routing example
-   - `Tools/rbw/rbw_workbench.sh` - Module delegation pattern
+   - `Tools/rbk/rbw_workbench.sh` - Module delegation pattern
 
 2. **Create the workbench script** in `Tools/{prefix}/`
 
