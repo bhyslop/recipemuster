@@ -7875,9 +7875,10 @@
       "creation_time": "260309",
       "status": "stabled",
       "order": [
+        "₢AsAAB",
         "₢AsAAA"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAls.md",
       "paces": {
         "₢AsAAA": {
@@ -7902,6 +7903,17 @@
               "text": "## Goal\n\nUnify the IAM grant implementation in rbgi_IAM.sh and its specification in RBS0 to reduce cognitive load from patchwork evolution.\n\n## Context\n\nDuring AkAAa (rbscip-linked-term-consideration), we created 5 rbtoe_ linked terms for IAM patterns and installed them in 4 subdocuments. We discovered the 4 rbgi_add_* functions share a contract (read-modify-write with propagation retry per RBSCIP) but differ in ways that feel arbitrary without context: only project has read-back verification and inner transient retry, only sa has pre-flight existence check, bucket uses GET/PUT where others use POST/POST, project and bucket use etag while repo and sa do not. We also found inline Secret Manager IAM grants (3x copy-paste in rbgp_Payor.sh) that should be extracted, and complete-policy-write patterns in rbgg_Governor.sh that are genuinely different (multi-binding atomic) and should stay separate.\n\n## Key Design Insight\n\nThe 4 variants handle the SAME failure class (member-SA propagation in IAM policy ops) and should converge to uniform behavioral guarantees. The Secret Manager inline grants handle a DIFFERENT failure class (resource propagation, handled by poll_readiness beforehand) but could still use the shared implementation harmlessly. The complete-policy-write pattern (multi-binding atomic writes to prevent stale-read races) is genuinely different and stays separate.\n\n## BCG Compliance Finding\n\nA design using bash dynamic scoping (local -r ZRBGI_* in outer wrappers visible to inner function) was rejected as non-BCG. Two BCG-compliant approaches identified: (A) one inner function with 10+ explicit positional parameters, or (B) extracted step helpers (zrbgi_read_policy, zrbgi_compose_binding, zrbgi_write_policy, zrbgi_verify_binding) called by per-resource outer functions that own their retry loops. Option B was favored as more BCG-idiomatic but final selection deferred to this pace.\n\n## Spec Convergence\n\nIf implementation unifies, collapse 4 rbtoe_iam_grant_* terms to 1 rbtoe_iam_grant with superset contract. Resource-type API details become implementation, not spec.\n\n## Files\n\n- Tools/rbw/rbgi_IAM.sh: refactor 4 functions into shared helpers plus thin wrappers\n- Tools/rbw/rbgp_Payor.sh: extract 3x inline secret IAM copy-paste\n- lenses/RBS0-SpecTop.adoc: potentially collapse 4 rbtoe_iam_grant_* to 1\n- lenses/RBSDC, RBSDI, RBSGR, RBSRC subdocs: update if spec terms change\n- lenses/RBSCIP-IamPropagation.adoc: may benefit from referencing new unified term\n\n## Not In Scope\n\n- Complete-policy-write patterns (genuinely different operation)\n- Changing runtime behavior: this is a refactor for clarity not functionality\n- BCG-BashConsoleGuide.md changes",
               "silks": "iam-grant-homogenization",
               "commit": "3791297"
+            }
+          ]
+        },
+        "₢AsAAB": {
+          "tacks": [
+            {
+              "ts": "260309-1945",
+              "state": "rough",
+              "text": "Repeat full test sweep at the start of mvp-2 to confirm green baseline still holds before touching IAM grant code. Must match mvp-1 exit results.",
+              "silks": "pre-refactor-baseline-sweep",
+              "commit": "ee5f864"
             }
           ]
         }
