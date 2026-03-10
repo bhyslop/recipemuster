@@ -95,6 +95,7 @@
 :rbtgo_depot_destroy:             <<rbtgo_depot_destroy,rbgp_depot_destroy>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
 :rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
+:rbtgo_director_vouch:            <<rbtgo_director_vouch,rbf_batch_vouch>>
 :rbtgo_governor_reset:            <<rbtgo_governor_reset,rbgp_governor_reset>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbf_delete>>
 :rbtgo_image_retrieve:            <<rbtgo_image_retrieve,Image Retrieval>>
@@ -1025,6 +1026,20 @@ Submitted as a separate
 job via the RunBuild API after conjure completes.
 
 include::RBSAV-ark_vouch.adoc[]
+
+[[rbtgo_director_vouch]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_director_vouch}
+
+Batch-vouches all pending
+{rbtga_ark}
+consecrations across all
+{rbtgi_vessel}
+repositories
+({rbtgog_ark}).
+Pre-checks SLSA provenance availability and skips consecrations that lack it.
+
+include::RBSDV-director_vouch.adoc[]
 
 == {rbtr_retriever} Operations
 

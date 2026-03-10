@@ -25,6 +25,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSAC** → `RBSAC-ark_conjure.adoc`
 - **RBSAS** → `RBSAS-ark_summon.adoc`
 - **RBSAX** → `RBSAX-access_setup.adoc`
+- **RBSDV** → `RBSDV-director_vouch.adoc`
 - **RBSID** → `RBSID-image_delete.adoc`
 - **RBSIR** → `RBSIR-image_retrieve.adoc`
 - **RBSOB** → `RBSOB-oci_layout_bridge.adoc`

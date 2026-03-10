@@ -1928,131 +1928,273 @@ rbf_vouch() {
 rbf_check_consecrations() {
   zrbf_sentinel
 
-  local -r z_vessel_dir="${1:-}"
-
-  buc_doc_brief "List consecrations for a vessel by querying GAR tags"
-  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_brief "List consecrations across all vessels with health status"
   buc_doc_shown || return 0
 
-  # No-arg: list available vessels
-  if test -z "${z_vessel_dir}"; then
-    local z_sigils
-    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
-    buc_step "Available vessels:"
-    local z_sigil=""
-    for z_sigil in ${z_sigils}; do
-      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
-    done
-    buc_die "Vessel directory required"
-  fi
-
-  # Load vessel
-  zrbf_load_vessel "${z_vessel_dir}"
+  buc_step "Enumerating vessels"
+  local z_sigils
+  z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
 
   buc_step "Fetching OAuth token (Director)"
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  buc_step "Querying GAR tags for ${RBRV_SIGIL}"
-  local -r z_tags_file="${BURD_TEMP_DIR}/rbf_dc_tags.json"
-  curl -sL \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/tags/list" \
-    > "${z_tags_file}" 2>/dev/null || buc_die "Failed to fetch tags"
+  local z_any_pending=0
+  local z_any_incomplete=0
 
-  if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
-    local z_err
-    z_err=$(jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}")
-    buc_die "Registry API error: ${z_err}"
-  fi
+  local z_sigil=""
+  for z_sigil in ${z_sigils}; do
 
-  # Extract tags and identify full consecrations
-  # Full consecration format: iYYYYMMDD_HHMMSS-bYYYYMMDD_HHMMSS
-  # Tags: {CONSECRATION}-image[-suffix], {CONSECRATION}-about, {INSCRIBE_TS}-multi
-  local -r z_all_tags_file="${BURD_TEMP_DIR}/rbf_dc_all_tags.txt"
-  jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}"
+    buc_step "Querying GAR tags for ${z_sigil}"
+    local z_tags_file="${BURD_TEMP_DIR}/rbf_dc_${z_sigil}_tags.json"
+    local z_stderr_file="${BURD_TEMP_DIR}/rbf_dc_${z_sigil}_stderr.txt"
+    curl -sL \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+      -H "Authorization: Bearer ${z_token}" \
+      "${ZRBF_REGISTRY_API_BASE}/${z_sigil}/tags/list" \
+      > "${z_tags_file}" 2>"${z_stderr_file}" \
+      || buc_die "Failed to fetch tags for ${z_sigil} — see ${z_stderr_file}"
 
-  # Collect unique full consecrations and classify tags
-  local -r z_consecrations_file="${BURD_TEMP_DIR}/rbf_dc_consecrations.txt"
-  local -r z_tag_data_file="${BURD_TEMP_DIR}/rbf_dc_tag_data.txt"
-  > "${z_consecrations_file}"
-  > "${z_tag_data_file}"
+    if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
+      local z_err
+      z_err=$(jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}")
+      buc_die "Registry API error for ${z_sigil}: ${z_err}"
+    fi
 
-  while IFS= read -r z_tag || test -n "${z_tag}"; do
-    # Match full consecration: iYYYYMMDD_HHMMSS-bYYYYMMDD_HHMMSS
-    local z_consec=""
-    if [[ "${z_tag}" =~ ^(i[0-9]{8}_[0-9]{6}-b[0-9]{8}_[0-9]{6}) ]]; then
-      z_consec="${BASH_REMATCH[1]}"
-    else
+    # Extract tags and identify full consecrations
+    local z_all_tags_file="${BURD_TEMP_DIR}/rbf_dc_${z_sigil}_all_tags.txt"
+    jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}" \
+      || buc_die "Failed to extract tags for ${z_sigil}"
+
+    local z_consec_file="${BURD_TEMP_DIR}/rbf_dc_${z_sigil}_consecrations.txt"
+    local z_tag_data_file="${BURD_TEMP_DIR}/rbf_dc_${z_sigil}_tag_data.txt"
+    > "${z_consec_file}"
+    > "${z_tag_data_file}"
+
+    while IFS= read -r z_tag || test -n "${z_tag}"; do
+      local z_consec=""
+      if [[ "${z_tag}" =~ ^(i[0-9]{8}_[0-9]{6}-b[0-9]{8}_[0-9]{6}) ]]; then
+        z_consec="${BASH_REMATCH[1]}"
+      else
+        continue
+      fi
+
+      if [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}" ]] || [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}"-* ]]; then
+        local z_suffix="${z_tag#*${RBGC_ARK_SUFFIX_IMAGE}}"
+        if test -z "${z_suffix}"; then
+          echo "${z_consec}|image|consumer" >> "${z_tag_data_file}"
+        else
+          echo "${z_consec}|image|${z_suffix#-}" >> "${z_tag_data_file}"
+        fi
+        echo "${z_consec}" >> "${z_consec_file}"
+      elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_VOUCH}" ]]; then
+        echo "${z_consec}|vouch|" >> "${z_tag_data_file}"
+        echo "${z_consec}" >> "${z_consec_file}"
+      elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_ABOUT}" ]]; then
+        echo "${z_consec}|about|" >> "${z_tag_data_file}"
+        echo "${z_consec}" >> "${z_consec_file}"
+      fi
+    done < "${z_all_tags_file}"
+
+    local z_unique_file="${BURD_TEMP_DIR}/rbf_dc_${z_sigil}_unique.txt"
+    sort -ur "${z_consec_file}" > "${z_unique_file}" \
+      || buc_die "Failed to sort consecrations for ${z_sigil}"
+
+    if ! test -s "${z_unique_file}"; then
+      buc_info "No consecrations found for ${z_sigil}"
       continue
     fi
 
-    # Classify the tag — vouch checked before about since -vouch could false-match -about pattern
-    if [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}" ]] || [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_IMAGE}"-* ]]; then
-      local z_suffix="${z_tag#*${RBGC_ARK_SUFFIX_IMAGE}}"
-      if test -z "${z_suffix}"; then
-        echo "${z_consec}|image|consumer" >> "${z_tag_data_file}"
-      else
-        echo "${z_consec}|image|${z_suffix#-}" >> "${z_tag_data_file}"
-      fi
-      echo "${z_consec}" >> "${z_consecrations_file}"
-    elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_VOUCH}" ]]; then
-      echo "${z_consec}|vouch|" >> "${z_tag_data_file}"
-      echo "${z_consec}" >> "${z_consecrations_file}"
-    elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_ABOUT}" ]]; then
-      echo "${z_consec}|about|" >> "${z_tag_data_file}"
-      echo "${z_consec}" >> "${z_consecrations_file}"
-    fi
-  done < "${z_all_tags_file}"
+    # Display per-vessel table with health states
+    printf "\nVessel: %s\n" "${z_sigil}"
+    printf "  %-42s %-30s %-10s\n" "Consecration" "Platforms" "Health"
 
-  # Deduplicate and sort consecrations (newest first)
-  local -r z_unique_consec_file="${BURD_TEMP_DIR}/rbf_dc_unique_consec.txt"
-  sort -ur "${z_consecrations_file}" > "${z_unique_consec_file}"
+    while IFS= read -r z_consecration || test -n "${z_consecration}"; do
+      local z_consec_platforms=""
+      local z_has_about="no"
+      local z_has_vouch="no"
+      local z_has_image="no"
 
-  # Write fact file (even if empty — tests count lines)
-  cp "${z_unique_consec_file}" "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATIONS}" \
-    || buc_die "Failed to write consecrations fact file"
-
-  if ! test -s "${z_unique_consec_file}"; then
-    buc_info "No consecrations found for ${RBRV_SIGIL}"
-    return 0
-  fi
-
-  # Display each consecration with its artifacts
-  printf "\nVessel: %s\n" "${RBRV_SIGIL}"
-  printf "  %-42s %-30s %-6s %s\n" "Consecration" "Platforms" "About" "Vouch"
-
-  while IFS= read -r z_consecration || test -n "${z_consecration}"; do
-    # Collect platform-suffixed image tags, about, and vouch status for this consecration
-    local z_consec_platforms=""
-    local z_has_about="no"
-    local z_has_vouch="no"
-    local z_image_count=0
-    while IFS='|' read -r z_c z_type z_detail; do
-      test "${z_c}" = "${z_consecration}" || continue
-      if test "${z_type}" = "image" && test "${z_detail}" != "consumer"; then
-        if test -n "${z_consec_platforms}"; then
-          z_consec_platforms="${z_consec_platforms},${z_detail}"
-        else
-          z_consec_platforms="${z_detail}"
+      while IFS='|' read -r z_c z_type z_detail; do
+        test "${z_c}" = "${z_consecration}" || continue
+        if test "${z_type}" = "image"; then
+          z_has_image="yes"
+          if test "${z_detail}" != "consumer"; then
+            if test -n "${z_consec_platforms}"; then
+              z_consec_platforms="${z_consec_platforms},${z_detail}"
+            else
+              z_consec_platforms="${z_detail}"
+            fi
+          fi
+        elif test "${z_type}" = "about"; then
+          z_has_about="yes"
+        elif test "${z_type}" = "vouch"; then
+          z_has_vouch="yes"
         fi
-        z_image_count=$((z_image_count + 1))
-      elif test "${z_type}" = "about"; then
-        z_has_about="yes"
-      elif test "${z_type}" = "vouch"; then
-        z_has_vouch="yes"
+      done < "${z_tag_data_file}"
+
+      local z_plat_display="${z_consec_platforms:-single}"
+      local z_health=""
+      if test "${z_has_about}" = "yes" && test "${z_has_vouch}" = "yes"; then
+        z_health="vouched"
+      elif test "${z_has_about}" = "yes" && test "${z_has_vouch}" = "no"; then
+        z_health="pending"
+        z_any_pending=1
+      elif test "${z_has_image}" = "yes" && test "${z_has_about}" = "no"; then
+        z_health="incomplete"
+        z_any_incomplete=1
       fi
-    done < "${z_tag_data_file}"
 
-    local z_plat_display="${z_consec_platforms:-single}"
+      printf "  %-42s %-30s %-10s\n" "${z_consecration}" "${z_plat_display}" "${z_health}"
+    done < "${z_unique_file}"
 
-    printf "  %-42s %-30s %-6s %s\n" "${z_consecration}" "${z_plat_display}" "${z_has_about}" "${z_has_vouch}"
-  done < "${z_unique_consec_file}"
+  done
 
   echo ""
+
+  # Tabtarget recommendations
+  if test "${z_any_pending}" = "1"; then
+    buc_step "Pending consecrations can be vouched:"
+    buc_tabtarget "rbw-DV"
+  fi
+  if test "${z_any_incomplete}" = "1"; then
+    buc_step "Incomplete consecrations should be abjured and re-conjured:"
+    buc_tabtarget "rbw-DA"
+  fi
+
   buc_success "Consecration check complete"
+}
+
+######################################################################
+# Batch Vouch (rbw-DV)
+
+rbf_batch_vouch() {
+  zrbf_sentinel
+
+  buc_doc_brief "Vouch all pending consecrations across all vessels"
+  buc_doc_shown || return 0
+
+  buc_step "Enumerating vessels"
+  local z_sigils
+  z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+
+  buc_step "Fetching OAuth token (Director)"
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+
+  local z_vouched_count=0
+  local z_already_count=0
+  local z_failed_count=0
+
+  local z_sigil=""
+  for z_sigil in ${z_sigils}; do
+
+    buc_step "Scanning ${z_sigil} for pending consecrations"
+    local z_tags_file="${BURD_TEMP_DIR}/rbf_bv_${z_sigil}_tags.json"
+    local z_stderr_file="${BURD_TEMP_DIR}/rbf_bv_${z_sigil}_stderr.txt"
+    curl -sL \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+      -H "Authorization: Bearer ${z_token}" \
+      "${ZRBF_REGISTRY_API_BASE}/${z_sigil}/tags/list" \
+      > "${z_tags_file}" 2>"${z_stderr_file}" \
+      || buc_die "Failed to fetch tags for ${z_sigil} — see ${z_stderr_file}"
+
+    if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
+      local z_err
+      z_err=$(jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}")
+      buc_die "Registry API error for ${z_sigil}: ${z_err}"
+    fi
+
+    local z_all_tags_file="${BURD_TEMP_DIR}/rbf_bv_${z_sigil}_all_tags.txt"
+    jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}" \
+      || buc_die "Failed to extract tags for ${z_sigil}"
+
+    # Classify: find consecrations with -about but no -vouch
+    local z_about_file="${BURD_TEMP_DIR}/rbf_bv_${z_sigil}_has_about.txt"
+    local z_vouch_file="${BURD_TEMP_DIR}/rbf_bv_${z_sigil}_has_vouch.txt"
+    > "${z_about_file}"
+    > "${z_vouch_file}"
+
+    while IFS= read -r z_tag || test -n "${z_tag}"; do
+      local z_consec=""
+      if [[ "${z_tag}" =~ ^(i[0-9]{8}_[0-9]{6}-b[0-9]{8}_[0-9]{6}) ]]; then
+        z_consec="${BASH_REMATCH[1]}"
+      else
+        continue
+      fi
+      if [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_VOUCH}" ]]; then
+        echo "${z_consec}" >> "${z_vouch_file}"
+      elif [[ "${z_tag}" == *"${RBGC_ARK_SUFFIX_ABOUT}" ]]; then
+        echo "${z_consec}" >> "${z_about_file}"
+      fi
+    done < "${z_all_tags_file}"
+
+    # Find pending: has about, no vouch
+    local z_pending_file="${BURD_TEMP_DIR}/rbf_bv_${z_sigil}_pending.txt"
+    sort -u "${z_about_file}" > "${z_about_file}.sorted" \
+      || buc_die "Failed to sort about file for ${z_sigil}"
+    sort -u "${z_vouch_file}" > "${z_vouch_file}.sorted" \
+      || buc_die "Failed to sort vouch file for ${z_sigil}"
+    comm -23 "${z_about_file}.sorted" "${z_vouch_file}.sorted" > "${z_pending_file}" \
+      || buc_die "Failed to compute pending consecrations for ${z_sigil}"
+
+    # Count already vouched for this vessel
+    local z_count_file="${BURD_TEMP_DIR}/rbf_bv_${z_sigil}_vouch_count.txt"
+    wc -l < "${z_vouch_file}.sorted" > "${z_count_file}" \
+      || buc_die "Failed to count vouched consecrations for ${z_sigil}"
+    local z_vessel_already=0
+    z_vessel_already=$(<"${z_count_file}")
+    z_vessel_already="${z_vessel_already// /}"
+    z_already_count=$((z_already_count + z_vessel_already))
+
+    if ! test -s "${z_pending_file}"; then
+      buc_info "No pending consecrations for ${z_sigil}"
+      continue
+    fi
+
+    # Load pending consecrations into array (load-then-iterate)
+    local z_pending_items=()
+    while IFS= read -r z_pline || test -n "${z_pline}"; do
+      z_pending_items+=("${z_pline}")
+    done < "${z_pending_file}"
+
+    local z_vessel_dir="${RBRR_VESSEL_DIR}/${z_sigil}"
+    local z_pi=""
+    for z_pi in "${!z_pending_items[@]}"; do
+      local z_consecration="${z_pending_items[$z_pi]}"
+      test -n "${z_consecration}" || continue
+
+      buc_step "Vouching ${z_sigil}/${z_consecration}"
+
+      # Run vouch in isolation subshell — buc_die inside kills only the subshell
+      local z_vouch_status=0
+      (
+        rbf_vouch "${z_vessel_dir}" "${z_consecration}" \
+          || buc_die "rbf_vouch failed for ${z_sigil}/${z_consecration}"
+      ) || z_vouch_status=$?
+
+      if test "${z_vouch_status}" = "0"; then
+        z_vouched_count=$((z_vouched_count + 1))
+      else
+        buc_warn "Vouch failed for ${z_sigil}/${z_consecration} (exit ${z_vouch_status}) — skipping"
+        z_failed_count=$((z_failed_count + 1))
+      fi
+    done
+  done
+
+  echo ""
+  buc_step "Batch vouch summary"
+  buc_info "  Vouched:        ${z_vouched_count}"
+  buc_info "  Already vouched: ${z_already_count}"
+  buc_info "  Failed/skipped:  ${z_failed_count}"
+
+  if test "${z_failed_count}" -gt 0; then
+    buc_warn "Some consecrations failed — older builds may lack SLSA provenance"
+  fi
+
+  buc_success "Batch vouch complete"
 }
 
 # eof

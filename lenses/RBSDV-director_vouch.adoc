@@ -1,0 +1,69 @@
+//axhob_operation
+{rbtgo_director_vouch}
+
+NOTE: This operation vouches for all pending
+{rbtga_ark}
+consecrations across all
+{rbtgi_vessel}
+repositories.
+The
+{rbtr_director}
+enumerates vessels, identifies consecrations with `-about` but no `-vouch`, pre-checks SLSA provenance availability, and submits individual vouch builds for each vouchable consecration.
+Consecrations lacking provenance are skipped with a warning rather than aborting the batch.
+
+The
+{rbtr_director}
+batch-vouches arks:
+
+//axhos_step
+. *Enumerate Vessels*:
+.. Invoke `rbrv_list_capture` to discover all vessel sigils
+.. {rbbc_require}
+at least one vessel exists
+
+//axhos_step
+. *Iterate Vessels*:
+.. For each vessel sigil:
+... Load vessel configuration via `zrbf_load_vessel`
+... {rbbc_call}
+Docker Registry API: GET tags list for the vessel
+... Classify each tag by consecration and suffix (`-image`, `-about`, `-vouch`)
+
+//axhos_step
+. *Classify Consecration Health*:
+.. For each unique consecration across all vessels, determine health state:
+... *vouched*: has `-about` and `-vouch` — healthy, skip
+... *vouchable*: has `-about`, no `-vouch`, SLSA provenance exists — queue for vouch
+... *unvouchable*: has `-about`, no `-vouch`, no SLSA provenance — skip with warning
+... *incomplete*: has `-image` but no `-about` — conjure did not finish, skip with warning
+
+//axhos_step
+. *Pre-check Provenance*:
+.. For each consecration with `-about` but no `-vouch`:
+... {rbbc_call}
+`gcloud artifacts docker images describe --show-provenance` to test provenance availability
+... If provenance unavailable: classify as *unvouchable*, continue to next
+
+//axhos_step
+. *Submit Vouch Builds*:
+.. For each *vouchable* consecration:
+... Invoke `rbf_vouch` with vessel directory and consecration parameters
+... {rbbc_require}
+vouch completes successfully
+
+//axhoo_output_of_type
+{rbtga_ark_vouch}
+. *Display Summary*:
+.. {rbbc_show}
+per-vessel table: consecration, health state, action taken
+.. {rbbc_show}
+batch totals: N vouched, M skipped (no provenance), P already vouched, Q incomplete
+
+//axhoc_completion
+Successful execution creates
+{rbtga_ark_vouch}
+artifacts for all vouchable consecrations across all vessels.
+Consecrations without SLSA provenance are skipped gracefully — the batch never aborts on these.
++
+*No-provenance resilience*: Older builds may lack SLSA provenance records.
+Rather than submitting a Cloud Build that fails with an opaque `invalid DSSE envelope payload` error, the batch pre-checks provenance availability and skips with a clear message.
