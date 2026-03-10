@@ -5490,7 +5490,6 @@
         "₢AkAAC",
         "₢AkAAF",
         "₢AkAAA",
-        "₢AkAAK",
         "₢AkAAL",
         "₢AkAAM",
         "₢AkAAQ",
@@ -5511,7 +5510,8 @@
         "₢AkAAy",
         "₢AkAAz",
         "₢AkAA0",
-        "₢AkAA2"
+        "₢AkAA2",
+        "₢AkAAK"
       ],
       "next_pace_seed": "AA3",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
