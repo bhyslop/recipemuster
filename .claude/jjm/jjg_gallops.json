@@ -5508,11 +5508,23 @@
         "₢AkAAw",
         "₢AkAAx",
         "₢AkAAy",
-        "₢AkAAz"
+        "₢AkAAz",
+        "₢AkAA0"
       ],
-      "next_pace_seed": "AA0",
+      "next_pace_seed": "AA1",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
+        "₢AkAA0": {
+          "tacks": [
+            {
+              "ts": "260309-2025",
+              "state": "rough",
+              "text": "Wire shellcheck qualification into the prerelease process so it runs as part of rbw-qa (QualifyAll) or an equivalent release gate.\n\n## Deliverables\n\n1. Add buq_shellcheck call to rbq_qualify_all() so rbw-qa includes shellcheck\n2. Verify buw-qsc passes clean (depends on ¢AkAAz completing first)\n3. Document in RBS0 Release Compliance section (depends on that section existing)\n\n## Sequencing\n\nDepends on ¢AkAAz (shellcheck-finding-repair) — findings must be fixed before gating on them.",
+              "silks": "shellcheck-prerelease-gate",
+              "commit": "4d0d3a5"
+            }
+          ]
+        },
         "₢AkAAA": {
           "tacks": [
             {
