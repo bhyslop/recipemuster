@@ -1145,21 +1145,19 @@ test -n "${z_val}" || return 0
 
 ## Array Safety Under `set -u`
 
-Under `set -u`, `"${array[@]}"` on an empty array triggers "unbound variable" in bash 3.2.
+Under `set -u`, `"${array[@]}"` on an empty array triggers "unbound variable" in bash 3.2. Two patterns are safe; choose by whether you need the index.
 
-**Primary pattern: index iteration** — works safely on empty arrays, no guard needed:
+**Index iteration** — use when you need the index (parallel arrays, kindle rolls). Inherently safe on empty arrays, no guard needed:
 
 ```bash
-# ✅ Safe: index iteration works on empty arrays under set -u
 for z_i in "${!z_«prefix»_name_roll[@]}"; do
   echo "${z_«prefix»_name_roll[$z_i]}" || buc_die "Failed to echo"
 done
 ```
 
-**Acceptable alternative: guarded value iteration** — check array is non-empty before expanding. The `(( expr ))` arithmetic command returns exit 0 when expr is non-zero, exit 1 when zero — it works in bash 3.2 and is the idiomatic guard for array size checks:
+**Guarded value iteration** — use when you only need values. The `(( ))` guard prevents expansion of the empty array:
 
 ```bash
-# ✅ Acceptable: guard value iteration with size check
 if (( ${#z_«prefix»_name_roll[@]} )); then
   for z_val in "${z_«prefix»_name_roll[@]}"; do
     echo "${z_val}" || buc_die "Failed to echo"
@@ -1167,10 +1165,10 @@ if (( ${#z_«prefix»_name_roll[@]} )); then
 fi
 ```
 
-**Anti-pattern:**
+**Anti-pattern** — unguarded value iteration on a possibly-empty array:
 
 ```bash
-# ❌ Unsafe: value iteration fails on empty arrays under set -u in bash 3.2
+# ❌ Crashes under set -u in bash 3.2 when array is empty
 for z_val in "${z_«prefix»_name_roll[@]}"; do
   echo "${z_val}" || buc_die "Failed to echo"
 done
