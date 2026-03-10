@@ -1602,9 +1602,11 @@ rbf_abjure() {
   # Confirm abjuration unless --force
   if test "${z_skip_confirm}" = "false"; then
     local z_confirm_msg="Will abjure ark ${RBRV_SIGIL}/${z_consecration}:"
-    for z_img_tag in "${z_existing_image_tags[@]}"; do
-      z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_img_tag}"
-    done
+    if (( ${#z_existing_image_tags[@]} )); then
+      for z_img_tag in "${z_existing_image_tags[@]}"; do
+        z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_img_tag}"
+      done
+    fi
     if test "${z_about_exists}" = "true"; then
       z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_about_tag}"
     fi
@@ -1615,34 +1617,36 @@ rbf_abjure() {
   fi
 
   # Delete all existing image tags
-  local z_img_del_idx=0
-  for z_img_tag in "${z_existing_image_tags[@]}"; do
-    buc_step "Deleting image tag: ${z_img_tag}"
+  if (( ${#z_existing_image_tags[@]} )); then
+    local z_img_del_idx=0
+    for z_img_tag in "${z_existing_image_tags[@]}"; do
+      buc_step "Deleting image tag: ${z_img_tag}"
 
-    local z_delete_img_status="${ZRBF_DELETE_PREFIX}delete_image_${z_img_del_idx}_status.txt"
-    local z_delete_img_response="${ZRBF_DELETE_PREFIX}delete_image_${z_img_del_idx}_response.json"
+      local z_delete_img_status="${ZRBF_DELETE_PREFIX}delete_image_${z_img_del_idx}_status.txt"
+      local z_delete_img_response="${ZRBF_DELETE_PREFIX}delete_image_${z_img_del_idx}_response.json"
 
-    curl -X DELETE -s                                   \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
-      -H "Authorization: Bearer ${z_token}"             \
-      -w "%{http_code}"                                 \
-      -o "${z_delete_img_response}"                     \
-      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_img_tag}" \
-      > "${z_delete_img_status}" || buc_die "DELETE request failed for image tag: ${z_img_tag}"
+      curl -X DELETE -s                                   \
+        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+        --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
+        -H "Authorization: Bearer ${z_token}"             \
+        -w "%{http_code}"                                 \
+        -o "${z_delete_img_response}"                     \
+        "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_img_tag}" \
+        > "${z_delete_img_status}" || buc_die "DELETE request failed for image tag: ${z_img_tag}"
 
-    local z_delete_img_code
-    z_delete_img_code=$(<"${z_delete_img_status}")
-    test -n "${z_delete_img_code}" || buc_die "HTTP status code is empty for image tag delete: ${z_img_tag}"
+      local z_delete_img_code
+      z_delete_img_code=$(<"${z_delete_img_status}")
+      test -n "${z_delete_img_code}" || buc_die "HTTP status code is empty for image tag delete: ${z_img_tag}"
 
-    if test "${z_delete_img_code}" != "202" && test "${z_delete_img_code}" != "204"; then
-      buc_warn "Response body: $(cat "${z_delete_img_response}" 2>/dev/null || echo 'empty')"
-      buc_die "Failed to delete image tag ${z_img_tag} (HTTP ${z_delete_img_code})"
-    fi
+      if test "${z_delete_img_code}" != "202" && test "${z_delete_img_code}" != "204"; then
+        buc_warn "Response body: $(cat "${z_delete_img_response}" 2>/dev/null || echo 'empty')"
+        buc_die "Failed to delete image tag ${z_img_tag} (HTTP ${z_delete_img_code})"
+      fi
 
-    buc_info "Deleted: ${RBRV_SIGIL}:${z_img_tag}"
-    z_img_del_idx=$((z_img_del_idx + 1))
-  done
+      buc_info "Deleted: ${RBRV_SIGIL}:${z_img_tag}"
+      z_img_del_idx=$((z_img_del_idx + 1))
+    done
+  fi
 
   # Delete -about artifact if exists
   if test "${z_about_exists}" = "true"; then
@@ -1703,9 +1707,11 @@ rbf_abjure() {
   # Display results
   echo ""
   buc_success "Ark abjured: ${RBRV_SIGIL}/${z_consecration}"
-  for z_img_tag in "${z_existing_image_tags[@]}"; do
-    echo "  - ${RBRV_SIGIL}:${z_img_tag} deleted"
-  done
+  if (( ${#z_existing_image_tags[@]} )); then
+    for z_img_tag in "${z_existing_image_tags[@]}"; do
+      echo "  - ${RBRV_SIGIL}:${z_img_tag} deleted"
+    done
+  fi
   if test "${z_about_exists}" = "true"; then
     echo "  - ${RBRV_SIGIL}:${z_about_tag} deleted"
   fi
