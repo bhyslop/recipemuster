@@ -55,7 +55,6 @@ but_launch_expect_fatal()  { buto_launch_expect_fatal "$@"; }
 zbut_case()                { zbute_tcase "$@"; }
 
 # Legacy globals — callers may reference these after zbut_invoke
-# shellcheck disable=SC2034
 ZBUT_STDOUT=""
 ZBUT_STDERR=""
 ZBUT_STATUS=""

@@ -47,7 +47,6 @@ vslw_load_burc() {
   test -f "${z_burc_file}" || buc_die "BURC file not found: ${z_burc_file}"
 
   vslw_show "Loading BURC from: ${z_burc_file}"
-  # shellcheck disable=SC1090
   source "${z_burc_file}"
 }
 

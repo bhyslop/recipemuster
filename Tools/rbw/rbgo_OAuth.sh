@@ -79,7 +79,6 @@ zrbgo_build_jwt_capture() {
   # Only source if not already loaded (avoids readonly conflict in subshells)
   if [ -z "${RBRA_CLIENT_EMAIL:-}" ]; then
     buc_log_args "Source RBRA file"
-    # shellcheck disable=SC1090
     source "${z_rbra_file}" || return 1
   fi
 

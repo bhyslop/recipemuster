@@ -44,7 +44,6 @@ echo "=== Creating multi-platform manifest from per-platform images ==="
 echo "Consumer tag: ${IMAGE_BASE}:${CONSUMER_TAG}"
 echo "Sources: ${SOURCE_IMAGES}"
 
-# shellcheck disable=SC2086
 docker buildx imagetools create \
   -t "${IMAGE_BASE}:${CONSUMER_TAG}" \
   ${SOURCE_IMAGES}

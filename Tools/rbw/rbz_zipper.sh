@@ -27,7 +27,6 @@ ZRBZ_SOURCED=1
 ######################################################################
 # Colophon registry initialization
 
-# shellcheck disable=SC2034,SC2154
 zrbz_kindle() {
   test -z "${ZRBZ_KINDLED:-}" || buc_die "rbz already kindled"
 

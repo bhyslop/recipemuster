@@ -1063,6 +1063,34 @@ z_files=(**/*.txt)              # ** globbing
 readarray -t z_lines            # readarray/mapfile
 ```
 
+### ❌ Bare File Truncation
+
+```bash
+# ❌ Looks like a line where the command was accidentally deleted
+> "${z_file}"
+
+# ✅ Explicit no-op makes truncation intent unambiguous
+: > "${z_file}"
+```
+
+Bare `> file` without a command is valid bash but reads like an accident at 3am. The `: >` form explicitly signals "I am creating or truncating this file." Shellcheck enforces this via SC2188.
+
+**Prefer immutable temp files.** BCG temp files are forensic artifacts — preserved for post-mortem debugging. If you find yourself truncating a temp file, the design likely needs a unique filename per step instead of reusing and clearing. Truncation is appropriate only for log files and other non-forensic outputs.
+
+### ❌ Inline Shellcheck Directives
+
+```bash
+# ❌ Never suppress shellcheck inline
+# shellcheck disable=SC2086
+some_command ${z_unquoted}
+
+# ❌ Never use source path hints
+# shellcheck source=/dev/null
+source "${z_file}"
+```
+
+All BCG-structural shellcheck suppressions live in `busc_shellcheckrc`. No inline `# shellcheck` directives of any kind. If a shellcheck code fires and it's BCG-structural, add it to `busc_shellcheckrc` with rationale. If it's a genuine finding, fix the code.
+
 ---
 
 ## Interface Contamination Discipline
@@ -1588,6 +1616,41 @@ grep -rn '_tcase' Tools/
 # appear both in enrollment calls and as function definitions
 grep -rn 'butr_fixture_enroll\|butr_case_enroll' Tools/
 ```
+
+---
+
+## Shellcheck Integration
+
+BCG uses [shellcheck](https://www.shellcheck.net) for static analysis of bash source with a curated suppress list that eliminates false positives caused by BCG's module architecture.
+
+### Architecture
+
+| Artifact | Location | Purpose |
+|----------|----------|---------|
+| `busc_shellcheckrc` | `Tools/buk/` | BCG-structural suppressions with rationale |
+| `buq_cli.sh` | `Tools/buk/` | BUK qualification CLI hosting shellcheck command |
+| `buw-qsc` | Workbench route | Invokes `buq_shellcheck` |
+| `buw-qsc.QualifyShellCheck.sh` | `tt/` | Tabtarget for shellcheck qualification |
+
+### Suppressed Codes (BCG-structural)
+
+These codes are false positives caused by BCG's dynamic sourcing, cross-module constants, and indirect dispatch:
+
+| Code | Reason |
+|------|--------|
+| SC1090 | Can't follow non-constant source — BCG furnish pattern |
+| SC1091 | Not following sourced file — same root cause |
+| SC2034 | Variable appears unused — cross-module kindle/literal constants |
+| SC2154 | Variable not assigned — inverse of SC2034 |
+| SC2155 | Declare and assign separately — BCG blesses single-line `$(<file)` |
+| SC2153 | Possible misspelling — cross-module prefix similarity |
+| SC2329 | Function never invoked — indirect invocation via source/dispatch |
+
+### Policy
+
+1. **No inline directives.** All structural suppressions live in `busc_shellcheckrc`. See **Prohibited Constructs § Inline Shellcheck Directives**.
+2. **Genuine findings must be fixed.** If shellcheck flags code that isn't BCG-structural, the code has a real issue.
+3. **New structural codes** discovered during adoption should be added to `busc_shellcheckrc` with rationale — never suppressed inline.
 
 ---
 

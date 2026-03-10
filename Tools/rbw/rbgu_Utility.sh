@@ -768,7 +768,6 @@ rbgu_rbra_load() {
   buc_log_args "Loading and validating RBRA credentials from ${z_rbra_file}"
 
   # Source the RBRA file
-  # shellcheck source=/dev/null
   source "${z_rbra_file}" || buc_die "rbgu_rbra_load: failed to source RBRA file"
 
   # Validate required fields
@@ -793,7 +792,6 @@ rbgu_rbro_load() {
 
   # Source regime module if not already loaded
   if test -z "${ZRBRO_SOURCED:-}"; then
-    # shellcheck source=/dev/null
     source "${BASH_SOURCE[0]%/*}/rbro_regime.sh"
   fi
 
