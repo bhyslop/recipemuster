@@ -7876,9 +7876,10 @@
       "status": "stabled",
       "order": [
         "₢AsAAB",
-        "₢AsAAA"
+        "₢AsAAA",
+        "₢AsAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAls.md",
       "paces": {
         "₢AsAAA": {
@@ -7914,6 +7915,17 @@
               "text": "Repeat full test sweep at the start of mvp-2 to confirm green baseline still holds before touching IAM grant code. Must match mvp-1 exit results.",
               "silks": "pre-refactor-baseline-sweep",
               "commit": "ee5f864"
+            }
+          ]
+        },
+        "₢AsAAC": {
+          "tacks": [
+            {
+              "ts": "260309-1945",
+              "state": "rough",
+              "text": "After IAM grant refactor lands: create a fresh depot, conjure all bottle service vessels, vouch all arks. This exercises every IAM grant path with real propagation delays on freshly-provisioned resources. The acid test for the unified grant contract.",
+              "silks": "fresh-depot-conjure-vouch",
+              "commit": "35b3823"
             }
           ]
         }
