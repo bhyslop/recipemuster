@@ -193,12 +193,14 @@ zrbtb_srjcl_baste() {
   buto_trace "Baste for srjcl-jupyter fixture"
   rbtb_load_nameplate "srjcl"
   rbob_start
+  sleep "${RBCC_GENERIC_SERVICE_START_SECONDS}"
 }
 
 zrbtb_pluml_baste() {
   buto_trace "Baste for pluml-diagram fixture"
   rbtb_load_nameplate "pluml"
   rbob_start
+  sleep "${RBCC_GENERIC_SERVICE_START_SECONDS}"
 }
 
 

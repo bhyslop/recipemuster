@@ -47,6 +47,9 @@ zrbcc_kindle() {
   readonly RBCC_CURL_CONNECT_TIMEOUT_SEC=10
   readonly RBCC_CURL_MAX_TIME_SEC=60
 
+  # Bottle service readiness — max seconds to wait for HTTP 200 after rbob_start
+  readonly RBCC_GENERIC_SERVICE_START_SECONDS=30
+
   # Fact-file infix for per-vessel-consecration presence files
   # Composed as: ${vessel}${RBCC_FACT_CONSEC_INFIX}${consecration}
   # Producer: rbf_check_consecrations  Consumer: test cases via test -f
