@@ -5510,9 +5510,10 @@
         "₢AkAAx",
         "₢AkAAy",
         "₢AkAAz",
-        "₢AkAA0"
+        "₢AkAA0",
+        "₢AkAA2"
       ],
-      "next_pace_seed": "AA2",
+      "next_pace_seed": "AA3",
       "paddock_file": ".claude/jjm/jjp_uAlk.md",
       "paces": {
         "₢AkAA0": {
@@ -5555,6 +5556,17 @@
               "text": "Fix test sweep reliability issues discovered during full run. Three concerns:\n\n## 1. ark-lifecycle fact file gap (design discussion needed)\n\n`rbf_check_consecrations` is display-only — iterates all vessels, writes no fact files. The test `rbtcal_lifecycle_tcase` expects `rbf_fact_consecrations.txt` per vessel, which doesn't exist.\n\nDesign options discussed but NOT resolved:\n- Add optional vessel arg to `rbf_check_consecrations` that writes `rbf_fact_consecration_count.txt` (single integer)\n- Rewrite test to unconditionally abjure all busybox consecrations first, assert zero, conjure, assert one, retrieve, abjure, assert zero — owning the full lifecycle from clean slate\n- Concern: per-vessel consecration *list* fact files introduce too many edge cases; a simple count may suffice\n- The agent proposed both approaches; user wants a fresh-eyes discussion on the right trade-off before implementing\n\n## 2. Bottle service fixtures need stop-before-start\n\nnsproto-security, srjcl-jupyter, pluml-diagram all failed with HTTP 000 / container not running. Fixture setup functions should each: (a) stop any existing bottle service of that type (ok if none running), then (b) start a fresh instance. This makes tests self-contained rather than depending on pre-existing container state.\n\n## 3. Test suites must NOT run in parallel\n\nDuring this session, `complete` and `service` sweep suites were launched in parallel bash sessions. This is unsafe — tests exercise shared cloud infrastructure (GCP registry, build triggers, OAuth tokens, container runtime). Suite execution must be sequential. Document this constraint and ensure the test runner enforces it or at minimum the sweep tabtarget rejects concurrent invocations.",
               "silks": "harden-test-sweep-reliability",
               "commit": "3d97eda"
+            }
+          ]
+        },
+        "₢AkAA2": {
+          "tacks": [
+            {
+              "ts": "260310-1337",
+              "state": "rough",
+              "text": "Consolidate ark-lifecycle and slsa-provenance test fixtures into a single 8-step ark-lifecycle fixture that exercises the full supply chain: conjure, check present, vouch (batch), check vouched, retrieve, run & verify, abjure, check absent.\n\n## Scope\n\n### 1. Extract vouch gate from rbob to foundry\nMove the vouch-checking logic (HEAD request for -vouch tag) from zrbob_vouch_gate_and_summon() in rbob_bottle.sh into a new public rbf_vouch_gate() function in rbf_Foundry.sh. The function takes vessel, consecration, and verifies the -vouch tag exists via registry API. rbob's zrbob_vouch_gate_and_summon() then calls rbf_vouch_gate() internally before pulling — one implementation, two callers.\n\nDependencies are all foundry/regime-level (RBGD_GAR_*, RBDC_*_RBRA_FILE, RBCC_CURL_*, rbgo_get_token_capture) — no rbob state needed.\n\n### 2. Rewrite ark-lifecycle test case\nReplace rbtcal_ArkLifecycle.sh with an 8-step test:\n1. Conjure ark from rbev-busybox vessel\n2. Check consecrations — verify -about and -image tags present\n3. Vouch — call RBZ_VOUCH_ARK (batch vouch, may take minutes)\n4. Check vouched — verify -vouch tag exists, health shows vouched\n5. Vouch gate — call extracted rbf_vouch_gate() to verify gate passes\n6. Retrieve — pull image via RBZ_RETRIEVE_IMAGE\n7. Run and verify — RBRN_RUNTIME run --rm the image, assert output contains expected busybox CMD string\n8. Abjure — delete ark with --force\n9. Check absent — verify consecration gone\n\nRuntime for step 7 uses regime-chosen RBRN_RUNTIME. Not parameterizable by vessel — hardcoded to rbev-busybox as proof-of-life for simple build.\n\n### 3. Remove slsa-provenance fixture\nDelete rbtcsl_SlsaProvenance.sh. Remove its fixture enrollment and case enrollment from rbtb_testbench.sh. Remove the slsa-provenance tabtarget from tt/.\n\n### 4. Update testbench enrollment\nUpdate rbtb_testbench.sh: remove slsa-provenance fixture/case enrollment, keep ark-lifecycle enrollment pointing to the rewritten test case.\n\n## Files\n- Tools/rbw/rbf_Foundry.sh — add rbf_vouch_gate()\n- Tools/rbw/rbob_bottle.sh — refactor zrbob_vouch_gate_and_summon() to call rbf_vouch_gate()\n- Tools/rbw/rbts/rbtcal_ArkLifecycle.sh — rewrite with 8-step sequence\n- Tools/rbw/rbts/rbtcsl_SlsaProvenance.sh — delete\n- Tools/rbw/rbtb_testbench.sh — remove slsa-provenance enrollment\n- tt/rbw-tf.TestFixture.slsa-provenance.sh — delete\n\n## Acceptance\n- rbf_vouch_gate() exists as public foundry function\n- rbob_bottle.sh vouch gate calls rbf_vouch_gate() (no behavioral change)\n- ark-lifecycle fixture exercises all 8 steps including vouch and run\n- slsa-provenance fixture and tabtarget are gone\n- No new vessel or nameplate required",
+              "silks": "consolidate-ark-lifecycle-vouch-and-run",
+              "commit": "cabfe04"
             }
           ]
         },
