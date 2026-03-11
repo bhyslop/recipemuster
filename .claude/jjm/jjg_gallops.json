@@ -688,13 +688,13 @@
       "status": "racing",
       "order": [
         "₢AUAAD",
+        "₢AUAAI",
         "₢AUAAA",
         "₢AUAAB",
         "₢AUAAE",
         "₢AUAAF",
         "₢AUAAG",
-        "₢AUAAH",
-        "₢AUAAI"
+        "₢AUAAH"
       ],
       "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
