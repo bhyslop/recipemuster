@@ -1033,6 +1033,13 @@
         "₢AhAAC": {
           "tacks": [
             {
+              "ts": "260311-1638",
+              "state": "complete",
+              "text": "Freeze the current V3 schema as a reference artifact for migration work.\n\n## Deliverables\n\n1. **Rust snapshot**: Copy jjrt_types.rs to jjrt_v3_types.rs. Add a file header comment: \"Frozen V3 types — DO NOT EDIT. Reference for V3→V4 migration in jjdr_load. Will be deleted by ₣An (jjk-v4-release-and-legacy-removal).\"\n\n2. **JJS0 spec section**: Add a \"V3 Legacy Schema Reference\" section to JJS0-GallopsData.adoc summarizing the V3 record/member/type definitions. Mark it clearly as frozen reference, not active spec.\n\n3. **Wire V3 types into migration path**: Update jjri_io.rs to `use jjrt_v3_types` for deserializing V3 gallops in migration mode. The V3 types become the \"read\" side; V4 types become the \"write\" side.\n\n## Files\n- jjrt_types.rs — source for snapshot (do not modify)\n- jjrt_v3_types.rs — NEW frozen copy\n- JJS0-GallopsData.adoc — add V3 reference section\n- jjri_io.rs — import V3 types for migration deserialize path\n- Cargo.toml / mod.rs — register new module\n\n## Acceptance\n- jjrt_v3_types.rs exists and is byte-identical to current jjrt_types.rs (minus header comment)\n- JJS0 has a clearly marked V3 reference section\n- Builds clean",
+              "silks": "snapshot-v3-types-and-spec",
+              "commit": "72f63bf"
+            },
+            {
               "ts": "260304-1544",
               "state": "rough",
               "text": "Freeze the current V3 schema as a reference artifact for migration work.\n\n## Deliverables\n\n1. **Rust snapshot**: Copy jjrt_types.rs to jjrt_v3_types.rs. Add a file header comment: \"Frozen V3 types — DO NOT EDIT. Reference for V3→V4 migration in jjdr_load. Will be deleted by ₣An (jjk-v4-release-and-legacy-removal).\"\n\n2. **JJS0 spec section**: Add a \"V3 Legacy Schema Reference\" section to JJS0-GallopsData.adoc summarizing the V3 record/member/type definitions. Mark it clearly as frozen reference, not active spec.\n\n3. **Wire V3 types into migration path**: Update jjri_io.rs to `use jjrt_v3_types` for deserializing V3 gallops in migration mode. The V3 types become the \"read\" side; V4 types become the \"write\" side.\n\n## Files\n- jjrt_types.rs — source for snapshot (do not modify)\n- jjrt_v3_types.rs — NEW frozen copy\n- JJS0-GallopsData.adoc — add V3 reference section\n- jjri_io.rs — import V3 types for migration deserialize path\n- Cargo.toml / mod.rs — register new module\n\n## Acceptance\n- jjrt_v3_types.rs exists and is byte-identical to current jjrt_types.rs (minus header comment)\n- JJS0 has a clearly marked V3 reference section\n- Builds clean",
