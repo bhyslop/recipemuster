@@ -715,6 +715,13 @@
         "₢AUAAB": {
           "tacks": [
             {
+              "ts": "260310-1934",
+              "state": "abandoned",
+              "text": "Remember planned directory shuffles for future MVP release work:\n\n1. Move AsciiDoc files to a veiled directory (following precedent from other kits like `Tools/cmk/vov_veiled/`, `Tools/jjk/vov_veiled/`, etc.)\n\n2. Rename `Tools/rbw/` directory to `Tools/rbk/` (Recipe Bottle Kit)\n\nThis pace is a placeholder to capture the intent. Actual execution may require coordination with other heats touching these files.",
+              "silks": "directory-restructure-prep",
+              "commit": "f3f988b"
+            },
+            {
               "ts": "260202-1944",
               "state": "rough",
               "text": "Remember planned directory shuffles for future MVP release work:\n\n1. Move AsciiDoc files to a veiled directory (following precedent from other kits like `Tools/cmk/vov_veiled/`, `Tools/jjk/vov_veiled/`, etc.)\n\n2. Rename `Tools/rbw/` directory to `Tools/rbk/` (Recipe Bottle Kit)\n\nThis pace is a placeholder to capture the intent. Actual execution may require coordination with other heats touching these files.",
