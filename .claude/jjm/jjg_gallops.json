@@ -693,12 +693,13 @@
         "₢AUAAJ",
         "₢AUAAK",
         "₢AUAAA",
+        "₢AUAAL",
         "₢AUAAE",
         "₢AUAAB",
         "₢AUAAG",
         "₢AUAAH"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -878,6 +879,17 @@
               "text": "Require local -vouch artifact on every bottle start, unconditionally.\n\n## Problem\n\nThe current vouch gate only fires on the auto-summon path (when -image is missing locally). If -image is already local, no vouch check happens. A previously-pulled-but-unvouched image starts without complaint.\n\n## Design\n\n1. On every bottle start, for each vessel (sentry + bottle), check that the -vouch image exists locally via `docker image inspect` on the vouch tag\n2. If -vouch is missing locally: fatal — do not start, do not auto-summon, do not fall back to remote HEAD check\n3. This means summon (which now pulls -vouch) becomes the prerequisite for bottle start\n4. Remove or demote the remote vouch gate HEAD check — local presence is the authority\n\n## Rationale\n\nLocal -vouch presence proves the operator deliberately acquired the attestation. Remote HEAD check only proves the tag exists in GAR — weaker trust. After the summon change (now pulls -vouch), requiring local presence is a natural tightening.\n\n## Files\n\n- Tools/rbk/rbob_bottle.sh: add unconditional local vouch image inspect to preflight, fatal if missing\n- Tools/rbk/rbf_Foundry.sh: rbf_vouch_gate may be simplified or removed if local-only check replaces it\n\n## Acceptance\n\n- Bottle start with -vouch locally present: succeeds\n- Bottle start without -vouch locally: fatal error with clear message to run summon first\n- No network calls required for vouch validation at start time",
               "silks": "local-vouch-preflight-gate",
               "commit": "4613673"
+            }
+          ]
+        },
+        "₢AUAAL": {
+          "tacks": [
+            {
+              "ts": "260310-1952",
+              "state": "rough",
+              "text": "New Director command to inspect a consecration's build consequences, SBOM, and provenance.\n\n## Problem\n\nThe supply chain metadata for a consecration (-about and -vouch artifacts) is opaque. A Director who conjured and vouched an ark has no easy way to see: what build strategy was used (native vs emulated), what packages are inside (SBOM), what the SLSA provenance actually attests to (and what it doesn't), or the verification results.\n\nThis came up in conversation — SLSA v1.0 Build L3 sounds impressive but its scope is narrow and non-obvious. The Director needs a command that makes consequences visible.\n\n## Design\n\nA consecration inspect command reads locally-present -about and -vouch images (pulled by summon) and presents a human-readable summary:\n\n- **Build strategy**: native or emulated, which platforms, QEMU involvement\n- **Source**: git repo + commit that produced this build\n- **Builder**: Google Cloud Build ID, service account, build timestamps\n- **SLSA provenance**: level, what it attests (build authenticity, input/output binding), what it does NOT attest (base image security, package integrity)\n- **SBOM summary**: package count, base image (pinned or unpinned tag), notable packages\n- **Vouch results**: per-platform pass/fail, verifier identity and version\n\nRequires -about and -vouch to be locally present (summon must have been run). Fatal if either is missing.\n\n## Data sources (all local, no network)\n\n- `-about` container: build_info.json (build metadata, SLSA level, git info, QEMU usage), sbom.json (syft package inventory), recipe.txt (Dockerfile)\n- `-vouch` container: vouch_summary.json (per-platform verdicts, verifier identity), verify-*.json (full SLSA provenance statements)\n\n## Implementation\n\n1. New command in rbf_Foundry.sh or separate module\n2. Extract files from -about and -vouch via `docker create` + `docker cp` into temp dir\n3. Parse JSON with jq, format human-readable output\n4. New colophon + tabtarget (e.g. rbw-CI.ConsecrationInspect.sh)\n5. Spec treatment in RBS0 for the new operation\n\n## Acceptance\n\n- Command produces readable summary from local -about and -vouch artifacts\n- SLSA section explains what provenance does and does not attest\n- SBOM section highlights base image pinning status\n- Build strategy section shows native vs emulated and why\n- Fatal with clear message if -about or -vouch not locally present",
+              "silks": "consecration-inspect-command",
+              "commit": "a62c7c3"
             }
           ]
         }
