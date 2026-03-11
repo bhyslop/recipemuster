@@ -40,6 +40,7 @@
 :rbtr_director:              <<rbtr_director,Director Role>>
 :rbtr_director_s:            <<rbtr_director,Director Roles>>
 :rbtr_governor:              <<rbtr_governor,Governor Role>>
+:rbtr_marshal:               <<rbtr_marshal,Marshal Role>>
 :rbtr_mason:                 <<rbtr_mason,Mason Role>>
 :at_operator:                <<at_operator,Operator>>
 :at_operator_p:              <<at_operator,Operator's>>
@@ -1314,6 +1315,26 @@ that grants an
 full build lifecycle permissions including Cloud Build submission and
 {rbtgi_repository}
 management.
+
+=== Local Role Definitions
+
+[[rbtr_marshal]]
+//axl_voices axo_actor
+{rbtr_marshal}::
+An
+{rbtr_role}
+that qualifies and prepares releases for distribution.
+Unlike other
+{rbtr_role_s},
+the
+{rbtr_marshal}
+has no
+{giam_service_account}
+or cloud identity — the
+{rbtr_role}
+taxonomy concerns operational authority, not authentication type.
+Marshal operations are invisible to
+{rbtr_consumer_s}.
 
 === {gcp_service} Definitions
 

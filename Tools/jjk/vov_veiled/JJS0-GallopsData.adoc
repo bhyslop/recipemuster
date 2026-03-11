@@ -1399,18 +1399,15 @@ Same as V4 except:
 
 === V3→V4 Migration Path
 
-V4 types MUST always deserialize V3 JSON — one deserialization path, always tested.
-Use `#[serde(default)]` for new fields, `#[serde(alias)]` for renamed variants, and rely on serde ignoring unknown fields for removed structures (e.g., tacks).
-No separate V3 deserialization path; no try/catch branching.
+Migration is handled by {jjdr_load} in `jjri_io.rs`.
+Current behavior:
 
-Migration is handled by {jjdr_load} in `jjri_io.rs`:
-
-. Deserialize JSON as current (V4) types — serde compatibility ensures V3 JSON always loads
+. Deserialize JSON as current types
 . Detect migration mode: `schema_version` absent or `heat_order` empty
 . Recompute `paddock_file` from firemark for every heat
 . Set `schema_version` to 4
 . Populate `heat_order` from sorted BTreeMap keys
 . Next {jjdr_save} writes V4 format
 
-The frozen V3 types in `jjrt_v3_types.rs` serve as a compile-time reference for what V3 JSON looks like, ensuring V4 type changes maintain serde compatibility with the old format.
+The frozen V3 types in `jjrt_v3_types.rs` capture the V3 schema for reference when V4 type changes are implemented.
 

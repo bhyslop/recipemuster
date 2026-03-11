@@ -11,12 +11,6 @@ use std::path::Path;
 use crate::jjrt_types::jjrg_Gallops;
 use crate::jjrv_validate::jjrg_validate;
 
-// V3 migration: jjrt_v3_types (registered in lib.rs) is a frozen reference
-// of the V3 schema. V4 types MUST always deserialize V3 JSON — use
-// #[serde(default)] for new fields, #[serde(alias)] for renamed variants,
-// and rely on serde ignoring unknown fields for removed structures.
-// One deserialization path, always tested, always works.
-
 /// Validated Gallops wrapper
 ///
 /// This newtype ensures that Gallops instances are validated on load.
@@ -94,9 +88,7 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     let original_bytes = fs::read(path)
         .map_err(|e| format!("Failed to read file '{}': {}", path.display(), e))?;
 
-    // Deserialize as current types. V4 types must always accept V3 JSON:
-    // serde ignores unknown fields, #[serde(default)] handles missing fields,
-    // #[serde(alias)] handles renamed variants. One path, always tested.
+    // Deserialize (mut: paddock_file will be recomputed below)
     let mut gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
