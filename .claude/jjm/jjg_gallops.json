@@ -1792,6 +1792,13 @@
         "₢AsAAC": {
           "tacks": [
             {
+              "ts": "260311-1535",
+              "state": "rough",
+              "text": "## Goal\n\nWalk through the full onboarding sequence using rbw-PO and rbw-MR, exercising every step from blank RBRR through working bottle. Fix whatever the college-try paces (AsAAI, AsAAJ) got wrong.\n\n## Process\n\n1. Run rbw-MR to reset RBRR to blank\n2. Run rbw-PO, follow its guidance step by step\n3. At each step: does the guide emit the right next action? Does the tabtarget work? Does the state probe correctly advance?\n4. Fix guide text, probe logic, and regime template issues as encountered\n5. Continue through: payor establish, payor install, gitlab setup, depot create, governor reset, director/retriever create, conjure, vouch, start bottle\n6. This exercises every IAM grant path on freshly-provisioned resources (the original acid test goal)\n\n## Cross-pace file touches\nThis pace may touch files from AsAAI and AsAAJ in the same commits. That is expected and correct: this is the integration/polish pass.\n\n## Acceptance\n\nA new user with a blank RBRR can follow rbw-PO from start to running bottle with no undocumented steps.\n\n## Files\n- Whatever AsAAI and AsAAJ touched, plus anything discovered during walkthrough",
+              "silks": "fresh-depot-conjure-vouch",
+              "commit": "265d876"
+            },
+            {
               "ts": "260311-1533",
               "state": "rough",
               "text": "## Goal\n\nWalk through the full onboarding sequence using rbw-PO and rbw-MR, exercising every step from blank RBRR through working bottle. Fix whatever the college-try paces (AsAAI, AsAAJ) got wrong.\n\n## Process\n\n1. Run rbw-MR to reset RBRR to blank\n2. Run rbw-PO, follow its guidance step by step\n3. At each step: does the guide emit the right next action? Does the tabtarget work? Does the state probe correctly advance?\n4. Fix guide text, probe logic, and regime template issues as encountered\n5. Continue through: payor establish, payor install, gitlab setup, depot create, governor reset, director/retriever create, conjure, vouch, start bottle\n6. This exercises every IAM grant path on freshly-provisioned resources (the original acid test goal)\n\n## Acceptance\n\nA new user with a blank RBRR can follow rbw-PO from start to running bottle with no undocumented steps.\n\n## Files\n- Whatever AsAAI and AsAAJ touched, plus anything discovered during walkthrough",
