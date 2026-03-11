@@ -23,7 +23,7 @@
 // jjds_:  Section headers (operation documentation structure)
 // jjdx_:  Executor and transport
 // jjdz_:  Serialization concerns
-// jjsuv_: Upper API verbs (horse vocabulary)
+// jjsuv_: Upper API verbs (equestrian vocabulary)
 // jjsus_: Upper API slash commands (skill artifacts)
 // jjsuc_: Upper API context artifacts (CLAUDE.md sections)
 //
@@ -161,7 +161,7 @@
 :jjdz_charset:  <<jjdz_charset,Charset>>
 :jjdz_encoding: <<jjdz_encoding,Identity Encoding>>
 
-// Upper API: verbs (horse vocabulary)
+// Upper API: verbs (equestrian vocabulary)
 :jjsuv_slate:      <<jjsuv_slate,slate>>
 :jjsuv_reslate:    <<jjsuv_reslate,reslate>>
 :jjsuv_wrap:       <<jjsuv_wrap,wrap>>
@@ -335,22 +335,72 @@ not the `heats` object directly.
 The base64 encoding provides compact, URL-safe, shell-safe strings.
 Internally, Rust may decode to integers for arithmetic, but the string form is authoritative.
 
-=== Horse Racing Vocabulary
+== Equestrian Vocabulary
 
-Job Jockey uses horse racing metaphors throughout.
-This is intentional: vivid domain vocabulary helps humans hold complex systems in working memory.
+=== Vocabulary Isolation
 
-* {jjdhr_heat} - a bounded initiative (like a race)
-* {jjdpr_pace} - a discrete action (the rhythm of the race)
-* {jjdkr_tack} - plan refinement (equipment; also "tacking" = adjusting course)
-* {jjdt_firemark} - heat identity, `₣`-prefixed (hot-iron brand marking ownership)
-* {jjdt_coronet} - pace identity, `₢`-prefixed (marking at the hoof line)
-* {jjdt_silks} - display name (jockey's colors)
-* {jjdgr_gallops} - the training grounds (where real work happens before race day)
+Job Jockey's terminology is drawn entirely from equestrianism.
+This is not decoration — it is a namespace discipline applied to human cognition and language model disambiguation.
 
-=== Presentation Vocabulary
+Planning systems face a persistent hazard: when the vocabulary used to _organize_ work overlaps with the vocabulary used to _do_ work, the boundary between plan and product dissolves.
+"Task" could be a planning unit or a runtime construct.
+"Phase" could be a workflow stage or a build step.
+"Diff" could be a review artifact or a git object.
+Every ambiguous term forces a context switch — the human pauses to resolve which layer a word belongs to, and the language model may silently resolve it wrong.
 
-The display and output layer uses distinct terms for certain schema fields to avoid collision with other project vocabulary:
+In early incarnations, Job Jockey used generic planning terms that bled directly into source code.
+Planning concepts became load-bearing in two systems simultaneously: changing one risked breaking the other.
+The fix was not better naming within the same domain — it was choosing a source domain so alien to software engineering that collision becomes structurally impossible.
+
+Equestrianism shares zero terminology with software, cloud infrastructure, CI/CD pipelines, or corporate project management.
+No codebase has a `heat` object.
+No ticketing system uses `firemark`.
+No CI step is called `corral`.
+When a human says "mount," there is no ambiguity about which system they are addressing.
+When a language model encounters "school," it does not reach for a compiler.
+
+The vocabulary also exploits a property of human memory: concrete, physical, sensory metaphors lodge more durably than abstract labels.
+A jockey wearing silks, a horse being schooled in a dressage ring, a volte circling back to the same point with refined intent — these images persist across sessions in ways that "human-claimed-pending-interactive-work" cannot.
+The cognitive cost of re-establishing context drops when the terms are vivid and the metaphor is coherent.
+
+=== Racing Vocabulary
+
+The original layer, established in V3.
+Terms drawn from horse racing — the competitive, forward-driving aspect of initiative management.
+
+* {jjdhr_heat} — a bounded initiative. A race: defined start, defined finish, sustained effort.
+* {jjdpr_pace} — a discrete action within a heat. The rhythm of hooves — each stride advances the race.
+* {jjdkr_tack} — plan refinement. Equipment adjusted before riding; also "tacking" — changing course while maintaining heading.
+* {jjdt_firemark} — heat identity, `₣`-prefixed. The hot-iron brand that marks ownership on a living animal — permanent, unmistakable.
+* {jjdt_coronet} — pace identity, `₢`-prefixed. The marking at the hoof line — fine-grained, below the firemark, identifying the individual step.
+* {jjdt_silks} — display name. The jockey's colors — vivid, human-recognizable, worn for the crowd, not the horse.
+* {jjdgr_gallops} — the persistent data store. Training grounds where real work happens before race day — not the race itself, but where readiness is built.
+* *paddock* — heat-wide context. The gathering area where horses are assessed before entering the course.
+* *muster* — list heats. Assembling the field before the race.
+* *parade* — show heat or pace detail. The formal presentation of horses before the crowd.
+* *furlough* — alter heat status. A horse temporarily withdrawn from racing — not retired, not scratched, resting.
+* *retire* — archive a completed heat. The horse leaves the racing life — honored, not discarded.
+* *rail* — reorder paces. The rail governs position on the track — who runs where.
+
+=== Dressage Vocabulary
+
+The V4 layer, introduced for the school-breeze-corral execution pipeline.
+Terms drawn from dressage and classical horsemanship — the disciplined, precise, iterative aspect of training and evaluation.
+
+* *school* — per-pace planning phase. Schooling a horse: patient, attentive work that develops capability before asking for performance. The rider (human) is fully present.
+* *longe* — heat-level readiness assessment. Working a horse on a long line to assess soundness before mounting — observation without commitment.
+* *breeze* — autonomous execution phase. A breeze work: the horse runs at controlled speed, demonstrating trained capability without the rider directing each stride.
+* *corral* — review and integration phase. Gathering horses after work — assessing condition, accepting or turning back for more training.
+* *volte* — an execution attempt covering one or more paces. A dressage figure: a precise, controlled circle back to the same point with refined intent. Each volte attempts the same work with accumulated understanding.
+* *caracole* — volte identity, `₡`-prefixed. A cavalry half-turn — circling back for another pass at the same objective.
+* *gait* — reusable recipe of beats. The trained movement patterns a horse carries — walk, trot, canter, each with distinct rhythm and purpose.
+* *beat* — atomic execution unit. The indivisible footfall within a gait — one hoof striking ground.
+* *quirt* — gait identity, `Ꝗ`-prefixed. A short riding whip — the thing that sets a gait in motion.
+* *reined* — under human authority. The rider holds the reins; the pipeline does not touch this horse.
+
+=== Presentation Aliases
+
+The display and output layer uses distinct terms for certain schema fields, following the same vocabulary isolation principle:
 
 * *docket* — the presentation term for the {jjdkm_text} field. What the {jjdpr_pace} should accomplish. Used in CLI output labels and slash command descriptions. The JSON schema field remains `text`.
 * *warrant* — the presentation term for the {jjdkm_warrant} field. Execution guidance for autonomous operation. Used in CLI output labels and slash command descriptions. The JSON schema field remains `direction`.
@@ -361,20 +411,20 @@ These are display/CLI terms, not schema changes. The schema field names (`text`,
 
 Job Jockey has two distinct API layers.
 The *lower layer* is the {jjdx_tool} set: boring, heterogeneous verb names implemented in Rust ({jjdo_enroll}, {jjdo_orient}, {jjdo_close}, etc.).
-The *upper layer* is the horse racing vocabulary that humans use to direct a language model ({jjsuv_slate}, {jjsuv_mount}, {jjsuv_wrap}, etc.).
+The *upper layer* is the equestrian vocabulary that humans use to direct a language model ({jjsuv_slate}, {jjsuv_mount}, {jjsuv_wrap}, etc.).
 
-The separation is deliberate.
+The separation is deliberate and follows the vocabulary isolation principle described in Equestrian Vocabulary.
 Shared vocabulary between layers caused the LLM to conflate them — guessing tool parameters by analogy, reaching for raw tools instead of following workflows.
 Boring lower-layer names resist pattern matching.
-Vivid upper-layer names stay memorable for humans.
+Vivid upper-layer names stay memorable for humans and unambiguous for language models.
 
 The {jjsuc_insert} is the primary artifact that translates between layers — most verbs are delivered via the CLAUDE.md verb table.
 V4 reserves slash commands for protocol-heavy orchestration (school, corral).
-The human speaks horse vocabulary; the LLM invokes {jjdx_tool_s} via MCP.
+The human speaks equestrian vocabulary; the LLM invokes {jjdx_tool_s} via MCP.
 
 === Verbs
 
-Upper API verbs map horse racing vocabulary to {jjdx_tool_s}.
+Upper API verbs map equestrian vocabulary to {jjdx_tool_s}.
 Some verbs map directly to a single {jjdx_tool}; others orchestrate multiple tools.
 All verbs are delivered via the {jjsuc_insert} verb table.
 
