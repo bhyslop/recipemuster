@@ -1865,6 +1865,13 @@
         "₢AsAAH": {
           "tacks": [
             {
+              "ts": "260311-1421",
+              "state": "complete",
+              "text": "## Goal\n\nClean up two minor inconsistencies in rbgi_IAM.sh discovered during AsAAF review.\n\n## Changes\n\n### 1. Homogenize z_get_code capture to die-on-failure\n\nProject function (line ~155) dies on HTTP code capture failure: `|| buc_die \"No HTTP code from getIamPolicy\"`. Repo and SA outer GET loops fall back to empty string: `|| z_get_code=\"\"`. The empty-string fallback works (propagation predicate rejects non-400, then rbgu_http_require_ok dies) but is an indirect path to the same crash. Change repo and SA to match project's die-on-failure pattern.\n\n### 2. Remove dead kindle constants\n\n`ZRBGI_INFIX_REPO_POLICY` and `ZRBGI_INFIX_RPOLICY_SET` in zrbgi_kindle appear unused — repo function uses `ZRBGI_INFIX_REPO_ROLE` and `ZRBGI_INFIX_REPO_ROLE_SET` instead. Verify no callers, then remove.\n\n## Files\n- Tools/rbk/rbgi_IAM.sh\n\n## Risk Assessment\nZero. Capture-failure homogenization changes behavior only when temp files are missing (already fatal). Dead constant removal is pure cleanup.",
+              "silks": "rbgi-kindle-and-capture-cleanup",
+              "commit": "2147b83"
+            },
+            {
               "ts": "260311-1129",
               "state": "rough",
               "text": "## Goal\n\nClean up two minor inconsistencies in rbgi_IAM.sh discovered during AsAAF review.\n\n## Changes\n\n### 1. Homogenize z_get_code capture to die-on-failure\n\nProject function (line ~155) dies on HTTP code capture failure: `|| buc_die \"No HTTP code from getIamPolicy\"`. Repo and SA outer GET loops fall back to empty string: `|| z_get_code=\"\"`. The empty-string fallback works (propagation predicate rejects non-400, then rbgu_http_require_ok dies) but is an indirect path to the same crash. Change repo and SA to match project's die-on-failure pattern.\n\n### 2. Remove dead kindle constants\n\n`ZRBGI_INFIX_REPO_POLICY` and `ZRBGI_INFIX_RPOLICY_SET` in zrbgi_kindle appear unused — repo function uses `ZRBGI_INFIX_REPO_ROLE` and `ZRBGI_INFIX_REPO_ROLE_SET` instead. Verify no callers, then remove.\n\n## Files\n- Tools/rbk/rbgi_IAM.sh\n\n## Risk Assessment\nZero. Capture-failure homogenization changes behavior only when temp files are missing (already fatal). Dead constant removal is pure cleanup.",
