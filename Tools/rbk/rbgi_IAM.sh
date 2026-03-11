@@ -29,6 +29,11 @@
 # - Policy: All HTTP 409 Conflict responses are fatal (buc_die). We do not
 #   treat 409 as idempotent success anywhere in RBGI.
 #   If you see a 409, resolve state drift first (destroy/reset), then rerun.
+# - Note: 409 has two distinct meanings in RBGI operations:
+#   (a) Resource creation: "already exists" — state drift or prior manual activity.
+#   (b) setIamPolicy: "ABORTED" — etag mismatch from concurrent policy change.
+#   Both are fatal under single-writer invariant. Google-internal auto-provisioning
+#   can trigger (b) outside our control; the 409 surfaces a real concurrency issue.
 # ----------------------------------------------------------------------
 
 set -euo pipefail
@@ -54,6 +59,9 @@ zrbgi_kindle() {
   readonly ZRBGI_PREFIX="${BURD_TEMP_DIR}/rbgi_"
   readonly ZRBGI_EMPTY_JSON="${ZRBGI_PREFIX}empty.json"
   printf '{}' > "${ZRBGI_EMPTY_JSON}"
+
+  readonly ZRBGI_VERSION3_BODY="${ZRBGI_PREFIX}version3_body.json"
+  printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${ZRBGI_VERSION3_BODY}"
 
   # Infix values for IAM operations
   readonly ZRBGI_INFIX_ROLE="role"
@@ -177,7 +185,7 @@ rbgi_add_project_iam_role() {
     local z_set_body="${ZRBGI_PREFIX}${z_parent_infix}_set_body.json"
     printf '{"policy":%s}\n' "${z_new_policy_json}" > "${z_set_body}"
 
-    buc_log_args '3) setIamPolicy (fatal on 409/412 by policy)'
+    buc_log_args '3) setIamPolicy (fatal on 409 — etag mismatch)'
     local z_set_elapsed=0
     local z_set_infix=""
     local z_set_succeeded=0
@@ -196,19 +204,18 @@ rbgi_add_project_iam_role() {
 
       case "${z_code}" in
         200)                 z_set_succeeded=1; break ;;
-        412)                 buc_die "${z_label}: precondition failed (etag mismatch)"    ;;
-        429|500|502|503|504) buc_log_args "Transient ${z_code} at ${z_set_elapsed}s; retry"   ;;
-        409)                 buc_die "${z_label}: HTTP 409 Conflict (fatal by invariant)" ;;
+        409)                 buc_die "${z_label}: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
+        429|500|502|503|504) buc_log_args "Transient ${z_code} at ${z_set_elapsed}s; retry" ;;
         *)                   rbgu_http_require_ok "${z_label} (set policy)" "${z_set_infix}" "" ;;
       esac
 
-      test "${z_set_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && buc_die "${z_label}: timeout setting policy"
+      test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "${z_label}: timeout setting policy"
       sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
       z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
     done
 
     # If setIamPolicy succeeded, break outer propagation loop
-    test "${z_set_succeeded}" = "1" && { z_prop_succeeded=1; break; }
+    test "${z_set_succeeded}" != "1" || { z_prop_succeeded=1; break; }
 
     # setIamPolicy hit propagation error — retry outer loop with fresh getIamPolicy
     test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
@@ -237,7 +244,7 @@ rbgi_add_project_iam_role() {
       return 0
     fi
 
-    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && buc_die "${z_label}: verify timeout"
+    test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "${z_label}: verify timeout"
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
     z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
@@ -263,7 +270,7 @@ rbgi_add_repo_iam_role() {
   buc_log_args "Using admin token (value not logged)"
 
   local -r z_resource="projects/${z_project_id}/locations/${z_location}/repositories/${z_repository}"
-  local -r z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy"
+  local -r z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy?options.requestedPolicyVersion=3"
   local -r z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
 
   buc_log_args 'Adding repo-scoped IAM role' \
@@ -277,13 +284,14 @@ rbgi_add_repo_iam_role() {
   local z_prop_deadline=420
   local z_prop_attempt=0
 
+  local z_prop_succeeded=0
+
   while :; do
     z_prop_attempt=$((z_prop_attempt + 1))
     local z_get_infix="${ZRBGI_INFIX_REPO_ROLE}-${z_prop_elapsed}s"
-    local z_set_infix="${ZRBGI_INFIX_REPO_ROLE_SET}-${z_prop_elapsed}s"
 
-    buc_log_args "Get current repo IAM policy [attempt ${z_prop_attempt}]"
-    rbgu_http_json "POST" "${z_get_url}" "${z_token}" "${z_get_infix}" "${ZRBGI_EMPTY_JSON}"
+    buc_log_args "1) GET repo IAM policy (v3) [attempt ${z_prop_attempt}]"
+    rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
 
     local z_get_code
     z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || z_get_code=""
@@ -301,45 +309,69 @@ rbgi_add_repo_iam_role() {
       continue
     fi
 
-    if test "${z_get_code}" = "404"; then
-      # 404 means repo exists but has no IAM policy yet - this is normal for new repos
-      buc_log_args 'No IAM policy exists yet (404), initializing with empty bindings'
-      rbgu_write_vanilla_json "${z_get_infix}"
-    else
-      rbgu_http_require_ok "Get repo IAM policy" "${z_get_infix}"
-    fi
+    # Not a propagation error on GET — require success
+    rbgu_http_require_ok "Get repo IAM policy" "${z_get_infix}"
 
-    buc_log_args 'Update repo IAM policy'
+    buc_log_args 'Extract etag; require non-empty'
+    local z_etag=""
+    z_etag=$(rbgu_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing repo etag"
+    test -n "${z_etag}" || buc_die "Empty repo etag"
+
+    buc_log_args "Using etag ${z_etag}"
+
+    buc_log_args '2) Build new policy JSON (bindings unique; version=3; keep etag)'
     local z_updated_policy_json=""
     z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" \
-      "${z_role}" "serviceAccount:${z_account_email}" "") \
+      "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
       || buc_die "Failed to update policy JSON"
 
-    buc_log_args 'Set updated repo IAM policy'
+    buc_log_args '3) setIamPolicy (fatal on 409 — etag mismatch)'
     local z_repo_set_body="${BURD_TEMP_DIR}/rbgi_repo_set_policy_body.json"
     printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_repo_set_body}" \
       || buc_die "Failed to build repo setIamPolicy body"
-    rbgu_http_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_repo_set_body}"
 
-    local z_set_code
-    z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+    local z_set_elapsed=0
+    local z_set_infix=""
+    local z_set_succeeded=0
+    while :; do
+      z_set_infix="${ZRBGI_INFIX_REPO_ROLE_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
+      rbgu_http_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_repo_set_body}"
 
-    # Check for propagation error on SET
-    if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}"; then
-      buc_log_args "Repo setIamPolicy returned 400 'does not exist' (propagation delay)"
-      test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
-        || buc_die "Repo IAM: propagation timeout after ${z_prop_elapsed}s"
-      buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-      sleep "${z_prop_delay}"
-      z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
-      z_prop_delay=$((z_prop_delay * 2))
-      test "${z_prop_delay}" -le 20 || z_prop_delay=20
-      continue
-    fi
+      local z_set_code=""
+      z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
-    rbgu_http_require_ok "Set repo IAM policy" "${z_set_infix}"
-    break
+      # Check for propagation error on SET — break inner loop to retry outer
+      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}"; then
+        buc_log_args "Repo setIamPolicy returned 400 'does not exist' (propagation delay)"
+        break
+      fi
+
+      case "${z_set_code}" in
+        200)                 z_set_succeeded=1; break ;;
+        409)                 buc_die "Repo IAM: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
+        429|500|502|503|504) buc_log_args "Transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
+        *)                   rbgu_http_require_ok "Set repo IAM policy" "${z_set_infix}" "" ;;
+      esac
+
+      test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "Repo IAM: timeout setting policy"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+    done
+
+    # If setIamPolicy succeeded, break outer propagation loop
+    test "${z_set_succeeded}" != "1" || { z_prop_succeeded=1; break; }
+
+    # setIamPolicy hit propagation error — retry outer loop with fresh getIamPolicy
+    test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
+      || buc_die "Repo IAM: propagation timeout after ${z_prop_elapsed}s"
+    buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
+    sleep "${z_prop_delay}"
+    z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
+    z_prop_delay=$((z_prop_delay * 2))
+    test "${z_prop_delay}" -le 20 || z_prop_delay=20
   done
+
+  test "${z_prop_succeeded}" = "1" || buc_die "Repo IAM: propagation retry loop exited without success"
 
   buc_log_args 'Successfully added repo-scoped role' "${z_role}"
 }
@@ -383,14 +415,15 @@ rbgi_add_sa_iam_role() {
   local z_prop_deadline=420
   local z_prop_attempt=0
 
+  local z_prop_succeeded=0
+
   while :; do
     z_prop_attempt=$((z_prop_attempt + 1))
     local z_get_infix="${ZRBGI_INFIX_ROLE}-${z_prop_elapsed}s"
-    local z_set_infix="${ZRBGI_INFIX_ROLE_SET}-${z_prop_elapsed}s"
 
-    buc_log_args "Get current SA IAM policy [attempt ${z_prop_attempt}]"
+    buc_log_args "1) GET SA IAM policy (v3) [attempt ${z_prop_attempt}]"
     rbgu_http_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
-      "${z_get_infix}" "${ZRBGI_EMPTY_JSON}"
+      "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
 
     local z_code
     z_code=$(rbgu_http_code_capture "${z_get_infix}") || z_code=""
@@ -408,44 +441,70 @@ rbgi_add_sa_iam_role() {
       continue
     fi
 
-    if test "${z_code}" != "200"; then
-      buc_log_args 'No IAM policy exists yet, initializing'
-      rbgu_write_vanilla_json "${z_get_infix}"
-    fi
+    # Not a propagation error on GET — require success
+    rbgu_http_require_ok "Get SA IAM policy" "${z_get_infix}"
 
-    buc_log_args 'Update SA IAM policy with new role binding'
+    buc_log_args 'Extract etag; require non-empty'
+    local z_etag=""
+    z_etag=$(rbgu_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing SA etag"
+    test -n "${z_etag}" || buc_die "Empty SA etag"
+
+    buc_log_args "Using etag ${z_etag}"
+
+    buc_log_args '2) Build new policy JSON (bindings unique; version=3; keep etag)'
     local z_updated_policy_json=""
     z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" \
-      "${z_role}" "serviceAccount:${z_member_email}" "") \
+      "${z_role}" "serviceAccount:${z_member_email}" "${z_etag}") \
       || buc_die "Failed to update SA IAM policy"
 
-    buc_log_args 'Set updated SA IAM policy'
+    buc_log_args '3) setIamPolicy (fatal on 409 — etag mismatch)'
     local z_set_body="${BURD_TEMP_DIR}/rbgi_sa_set_policy_body.json"
     printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_set_body}" \
       || buc_die "Failed to build SA setIamPolicy body"
 
-    rbgu_http_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" \
-      "${z_set_infix}" "${z_set_body}"
+    local z_set_elapsed=0
+    local z_set_infix=""
+    local z_set_succeeded=0
+    while :; do
+      z_set_infix="${ZRBGI_INFIX_ROLE_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
+      rbgu_http_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" \
+        "${z_set_infix}" "${z_set_body}"
 
-    local z_set_code
-    z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+      local z_set_code=""
+      z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
-    # Check for propagation error on SET
-    if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}"; then
-      buc_log_args "SA setIamPolicy returned 400 'does not exist' (propagation delay)"
-      test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
-        || buc_die "SA IAM: propagation timeout after ${z_prop_elapsed}s"
-      buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-      sleep "${z_prop_delay}"
-      z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
-      z_prop_delay=$((z_prop_delay * 2))
-      test "${z_prop_delay}" -le 20 || z_prop_delay=20
-      continue
-    fi
+      # Check for propagation error on SET — break inner loop to retry outer
+      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}"; then
+        buc_log_args "SA setIamPolicy returned 400 'does not exist' (propagation delay)"
+        break
+      fi
 
-    rbgu_http_require_ok "Set SA IAM policy" "${z_set_infix}"
-    break
+      case "${z_set_code}" in
+        200)                 z_set_succeeded=1; break ;;
+        409)                 buc_die "SA IAM: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
+        429|500|502|503|504) buc_log_args "Transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
+        *)                   rbgu_http_require_ok "Set SA IAM policy" "${z_set_infix}" "" ;;
+      esac
+
+      test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "SA IAM: timeout setting policy"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+    done
+
+    # If setIamPolicy succeeded, break outer propagation loop
+    test "${z_set_succeeded}" != "1" || { z_prop_succeeded=1; break; }
+
+    # setIamPolicy hit propagation error — retry outer loop with fresh getIamPolicy
+    test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
+      || buc_die "SA IAM: propagation timeout after ${z_prop_elapsed}s"
+    buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
+    sleep "${z_prop_delay}"
+    z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
+    z_prop_delay=$((z_prop_delay * 2))
+    test "${z_prop_delay}" -le 20 || z_prop_delay=20
   done
+
+  test "${z_prop_succeeded}" = "1" || buc_die "SA IAM: propagation retry loop exited without success"
 
   buc_log_args 'Successfully granted SA role' "${z_role}"
 }
@@ -473,13 +532,14 @@ rbgi_add_bucket_iam_role() {
   local z_prop_deadline=420
   local z_prop_attempt=0
 
+  local z_prop_succeeded=0
+
   while :; do
     z_prop_attempt=$((z_prop_attempt + 1))
     local z_get_infix="${ZRBGI_INFIX_BUCKET_IAM}-${z_prop_elapsed}s"
-    local z_set_infix="${ZRBGI_INFIX_BUCKET_IAM_SET}-${z_prop_elapsed}s"
 
-    buc_log_args "Get current bucket IAM policy [attempt ${z_prop_attempt}]"
-    rbgu_http_json "GET" "${z_iam_url}" "${z_token}" "${z_get_infix}"
+    buc_log_args "1) GET bucket IAM policy (v3) [attempt ${z_prop_attempt}]"
+    rbgu_http_json "GET" "${z_iam_url}?options.requestedPolicyVersion=3" "${z_token}" "${z_get_infix}"
 
     local z_code
     z_code=$(rbgu_http_code_capture "${z_get_infix}") || z_code=""
@@ -497,45 +557,70 @@ rbgi_add_bucket_iam_role() {
       continue
     fi
 
-    if test "${z_code}" != "200"; then
-      buc_log_args 'Initialize empty IAM policy for bucket'
-      rbgu_write_vanilla_json "${z_get_infix}"
-    fi
+    # Not a propagation error on GET — require success
+    rbgu_http_require_ok "Get bucket IAM policy" "${z_get_infix}"
 
-    buc_log_args 'Update bucket IAM policy'
-    local z_etag
-    z_etag=$(rbgu_json_field_capture "${z_get_infix}" '.etag') || z_etag=""
+    buc_log_args 'Extract etag; require non-empty'
+    local z_etag=""
+    z_etag=$(rbgu_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing bucket etag"
+    test -n "${z_etag}" || buc_die "Empty bucket etag"
+
+    buc_log_args "Using etag ${z_etag}"
+
+    buc_log_args '2) Build new policy JSON (bindings unique; keep etag)'
     local z_updated_policy_json=""
     z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" \
       "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
       || buc_die "Failed to update bucket IAM policy"
 
-    buc_log_args 'Set updated bucket IAM policy'
+    buc_log_args '3) setIamPolicy (fatal on 412 — etag mismatch; Storage uses 412 not 409)'
     local z_bucket_set_body="${BURD_TEMP_DIR}/rbgi_bucket_set_policy_body.json"
     printf '%s\n' "${z_updated_policy_json}" > "${z_bucket_set_body}" \
       || buc_die "Failed to write bucket policy body"
 
-    rbgu_http_json "PUT" "${z_iam_url}" "${z_token}" "${z_set_infix}" "${z_bucket_set_body}"
+    local z_set_elapsed=0
+    local z_set_infix=""
+    local z_set_succeeded=0
+    while :; do
+      z_set_infix="${ZRBGI_INFIX_BUCKET_IAM_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
+      rbgu_http_json "PUT" "${z_iam_url}" "${z_token}" "${z_set_infix}" "${z_bucket_set_body}"
 
-    local z_set_code
-    z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+      local z_set_code=""
+      z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
-    # Check for propagation error on SET
-    if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}"; then
-      buc_log_args "Bucket setIamPolicy returned 400 'does not exist' (propagation delay)"
-      test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
-        || buc_die "Bucket IAM: propagation timeout after ${z_prop_elapsed}s"
-      buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-      sleep "${z_prop_delay}"
-      z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
-      z_prop_delay=$((z_prop_delay * 2))
-      test "${z_prop_delay}" -le 20 || z_prop_delay=20
-      continue
-    fi
+      # Check for propagation error on SET — break inner loop to retry outer
+      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}"; then
+        buc_log_args "Bucket setIamPolicy returned 400 'does not exist' (propagation delay)"
+        break
+      fi
 
-    rbgu_http_require_ok "Set bucket IAM policy" "${z_set_infix}"
-    break
+      case "${z_set_code}" in
+        200)                 z_set_succeeded=1; break ;;
+        412)                 buc_die "Bucket IAM: HTTP 412 Precondition Failed (etag mismatch)" ;;
+        409)                 buc_die "Bucket IAM: HTTP 409 ABORTED (defensive — unexpected for Storage)" ;;
+        429|500|502|503|504) buc_log_args "Transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
+        *)                   rbgu_http_require_ok "Set bucket IAM policy" "${z_set_infix}" "" ;;
+      esac
+
+      test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "Bucket IAM: timeout setting policy"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+    done
+
+    # If setIamPolicy succeeded, break outer propagation loop
+    test "${z_set_succeeded}" != "1" || { z_prop_succeeded=1; break; }
+
+    # setIamPolicy hit propagation error — retry outer loop with fresh getIamPolicy
+    test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
+      || buc_die "Bucket IAM: propagation timeout after ${z_prop_elapsed}s"
+    buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
+    sleep "${z_prop_delay}"
+    z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
+    z_prop_delay=$((z_prop_delay * 2))
+    test "${z_prop_delay}" -le 20 || z_prop_delay=20
   done
+
+  test "${z_prop_succeeded}" = "1" || buc_die "Bucket IAM: propagation retry loop exited without success"
 
   buc_log_args "Successfully added bucket role ${z_role}"
 }
