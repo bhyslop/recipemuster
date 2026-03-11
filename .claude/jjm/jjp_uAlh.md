@@ -28,13 +28,13 @@ Beats do not have global identities. They are positional within a warrant (local
 | **Beat** | Atomic unit: single dispatch, autonomous execution, no human interaction. The model may use tools freely (read files, search, etc.) but there is no multi-turn dialogue. The indivisible footfall within a gait. |
 | **Gait** | Reusable recipe of beats — single, sequential, parallel, or a DAG. Gaits can compose other gaits (practical depth limit: ~2 levels). Stored as data in gallops with quirt identity. School-time resource: school reads gaits for inspiration and structure, but warrants are fully resolved with no gait references to look up at runtime. |
 | **Warrant** | School's output: a fully resolved JSON beat map. Contains concrete prompts, model assignments, file scopes, and dependency DAG. No indirections — breeze/jjx need not look up gait definitions. Each beat cites its source quirt for audit. Stored as the first commit on the caracole branch (self-documenting). |
-| **Volte** | An attempt at executing one or more paces. One active volte per heat at a time. School creates it; breeze executes it; corral reviews per-pace (accept/reject). State derived from git branch existence — no gallops bookkeeping beyond `next_caracole` seed. Branch namespace: `jj/₡AhAA/₢AhAAB`. Dressage term: a precise, controlled circle back to the same point with refined intent. |
+| **Volte** | An attempt at executing one or more paces. One active volte per heat at a time. School creates it; breeze executes it; corral reviews per-pace (accept/refine/reject). State derived from git branch existence — no gallops bookkeeping beyond `next_caracole` seed. Branch namespace: `jj/₡AhAA/₢AhAAB`. Dressage term: a precise, controlled circle back to the same point with refined intent. |
 | **Caracole** | Volte identity. `₡` + 4 base64 characters (2 heat + 2 index). Named for a cavalry half-turn to circle back for another pass. |
 | **Quirt** | Gait identity. `Ꝗ` + 3 base64 characters. Named after a short riding whip — the thing that sets a gait in motion. |
 | **Longe** | Heat-level readiness assessment. Evaluates all remaining paces in parallel: reads dockets, reads codebase to understand scope and file types, classifies each as breezable / needs-refinement / blocked. Read-only — produces a readiness report, not warrants. Guides where to focus groom/reslate effort before schooling. Named for working a horse on a long line to assess soundness before riding. |
 | **School** | Per-pace planning phase. Reads pace docket AND codebase thoroughly (grep, read files, understand structure) to produce a fully resolved warrant. Does NOT web-search or produce work artifacts. Two internal phases: (1) assess docket quality — validate assumptions against codebase reality, check confidence gates; (2) plan — decompose into beats, write concrete prompts. May refuse to warrant a pace ("this docket has gaps"). Opus-tier, high human attention, one pace at a time. |
 | **Breeze** | Execution phase. jjx reads the warrant, creates worktrees, dispatches beats per the DAG. Each beat is a bare prompt issued to the specified model in its worktree. jjx manages sequencing, parallelism, and merge. Zero human attention. |
-| **Corral** | Review phase. Evaluates candidates, accepts/rejects/synthesizes. Medium human attention. Can see all voltes for parallax comparison. Replaces V3 "prance." |
+| **Corral** | Per-pace review verb (parallels mount). No-param targets next candidate; with param targets specific pace. Three outcomes: accept as-is, refine interactively then accept, or reject (returns to pool for groom/reslate → school cycle). No rebreeze — rejection always flows upstream. Medium human attention. Replaces V3 "prance." |
 
 ### Type/Instance Note
 
@@ -47,7 +47,7 @@ Beats do not have global identities. They are positional within a warrant (local
 1. **Longe** (parallel, read-only) — assesses all remaining paces in a heat simultaneously. For each pace: reads docket, reads codebase to understand scope, identifies file types and potential gaits, classifies as breezable / needs-refinement / blocked. Output is a heat-level readiness report. Guides where to focus groom/reslate before committing to school. A school parameter controls how many paces to warrant.
 2. **School** (opus, per-pace, conversational) — reads pace docket and codebase thoroughly (file reads, grep, structural understanding). Two internal phases: (a) assess docket quality against codebase reality, evaluate confidence gates; (b) produce fully resolved warrant JSON. May refuse to warrant ("this docket has gaps — here's what's wrong"). Does NOT web-search or produce work artifacts. Human Q&A refines the warrant. One pace at a time — most docket writing is interactive and focused.
 3. **Breeze** (jjx-orchestrated) — jjx reads warrant from the volte branch, creates worktrees per beat, dispatches bare prompts to specified models per the dependency DAG. Parallel beats run concurrently. jjx collects results and merges beat branches into per-pace candidate branches. Haiku can dispatch — just following instructions, no judgment needed. Practical constraint: concurrent bare-prompt dispatches share a single account's RPM and token-per-minute throttle. Staggering beat launches by 1-2 seconds and right-sizing models per beat mitigates throughput contention. Different models have independent rate limit pools — a warrant mixing haiku/sonnet/opus beats gets more effective throughput than one using a single model.
-4. **Corral** (human + LLM) — reviews per-pace candidates within the volte. Accept or reject each pace individually. When all paces reviewed, volte is done (branches are the archive). Rejected paces return to pool for future longe/groom/school cycle.
+4. **Corral** (human + LLM, per-pace) — invoked per pace like mount, targeting next candidate (no param) or a specific pace. Reviews candidate against docket, diffs against base. Three outcomes: (a) accept as-is → merge to main, pace complete; (b) refine interactively → agent and human adjust near-miss output, then merge; (c) reject → pace returns to pool for groom/reslate, eventual re-school produces new volte. No rebreeze concept — the fix is always upstream (improve dockets/gaits so school produces better warrants). When all paces in a volte are reviewed, volte is done (branches are the archive).
 
 ### Warrant Structure
 
@@ -132,7 +132,7 @@ V4 is designed around human attention as the bottleneck:
 - **Longe**: low attention — read report, decide where to focus groom effort
 - **School**: high attention — shaping warrants, making stop/go judgments on ambiguous paces
 - **Breeze**: zero attention — pure execution, go do something else
-- **Corral**: medium attention — reviewing diffs per pace, not co-piloting
+- **Corral**: medium attention — reviewing diffs per pace, optionally interactive refinement for near-miss candidates
 
 The system optimizes for the serial path being frictionless, not for raw parallelism.
 
@@ -177,6 +177,7 @@ Gaits evolve through practice: start with a few simple single-beat gaits, use th
 - **Volte state from git** (cchat-20260306): No volte state in gallops. Branch existence = active. Heat stores only `next_caracole` seed. Corral reviews per-pace (accept/reject individually); volte done when all paces reviewed.
 - **Volte history synthesis deferred** (cchat-20260306): When a volte's pace is rejected, human grooms/reslates the docket with lessons learned. School starts fresh from the docket — the docket IS the memory. Machine-curated volte history is V4.1+ scope.
 - **Quirt immutability** (cchat-20260306): Gaits are immutable snapshots. When a gait evolves, mint a new quirt with the same silks. Multiple quirts share silks; "latest version" = highest quirt with matching silks. No `supersedes` field or lineage chain — flat scan over the gaits registry (fast for hundreds). Beats cite specific quirts for audit; school picks the latest. Same pattern as immutable container images with mutable tags.
+- **Corral as per-pace verb** (cchat-20260311): Corral promoted from "phase" to per-pace verb parallel to mount. No-param targets next candidate. Three outcomes: accept / refine interactively + accept / reject. Rejection flows upstream: groom → reslate → school → new volte. No rebreeze concept — fix is always upstream in dockets/gaits. Interactive refinement during corral expected for near-miss breeze output.
 
 ## Gait Design Principles (distilled from cchat-20260302, ₢AiAAz retrospective)
 
@@ -243,4 +244,5 @@ These must be updated alongside the type changes, not as an afterthought.
 - cchat-20260302 — Gait working concept: gaits as school checklists, confidence gates, research steps, review phases, MCM vocabulary migration example (derived from ₣Ai ₢AiAAz execution)
 - cchat-20260304 — Groom session: backwards compatibility strategy, ₣AG triage, three-heat constellation, migration discipline
 - cchat-20260306 — Longe concept, school scope clarification (reads codebase, not web search), assessment/planning split, paddock compression
+- cchat-20260311 — Corral refinement: per-pace verb, three outcomes (accept/refine/reject), no rebreeze
 - ₢AhAAF/₢AhAAG — Verb restructure and slash command cleanup (completed, outcomes in CLAUDE.md)
