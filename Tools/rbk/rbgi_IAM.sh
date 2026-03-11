@@ -539,7 +539,7 @@ rbgi_add_bucket_iam_role() {
     local z_get_infix="${ZRBGI_INFIX_BUCKET_IAM}-${z_prop_elapsed}s"
 
     buc_log_args "1) GET bucket IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbgu_http_json "GET" "${z_iam_url}?options.requestedPolicyVersion=3" "${z_token}" "${z_get_infix}"
+    rbgu_http_json "GET" "${z_iam_url}?optionsRequestedPolicyVersion=3" "${z_token}" "${z_get_infix}"
 
     local z_code
     z_code=$(rbgu_http_code_capture "${z_get_infix}") || z_code=""
