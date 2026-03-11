@@ -689,6 +689,7 @@
       "order": [
         "₢AUAAD",
         "₢AUAAI",
+        "₢AUAAJ",
         "₢AUAAA",
         "₢AUAAB",
         "₢AUAAE",
@@ -696,7 +697,7 @@
         "₢AUAAG",
         "₢AUAAH"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -819,6 +820,17 @@
               "text": "Create a tiered qualification system and release qualification tabtarget.\n\n## Problem\n\nrbq_qualify_all runs shellcheck (133 files) on every bottle-start and conjure-ark invocation. Shellcheck is valuable but too slow for routine operations.\n\n## Design\n\n1. Split rbq_qualify_all into two tiers:\n   - rbq_qualify_fast: tabtarget structure, colophon registrations, nameplate preflight (cheap checks)\n   - rbq_qualify_all: everything in fast + shellcheck\n\n2. Workbench gate (rbw_workbench.sh line 67) calls rbq_qualify_fast instead of rbq_qualify_all\n\n3. New release qualification tabtarget that runs:\n   - rbq_qualify_all (including shellcheck)\n   - Complete test suite (all rbtb/rbtg routes)\n   - This is the pre-release gate — everything must pass before tagging\n\n4. Cloud build does NOT run qualification — it builds what it's told. Qualification is a local pre-flight concern.\n\n## Files\n\n- Tools/rbk/rbq_Qualify.sh: split qualify_all, add qualify_fast\n- Tools/rbk/rbw_workbench.sh: gate calls qualify_fast\n- Tools/rbk/rbz_zipper.sh: enroll new release-qualify colophon\n- tt/: new release qualification tabtarget",
               "silks": "release-qualification-gate",
               "commit": "765f7f1"
+            }
+          ]
+        },
+        "₢AUAAJ": {
+          "tacks": [
+            {
+              "ts": "260310-1919",
+              "state": "rough",
+              "text": "Make the -vouch artifact multi-platform via buildx, matching the -about pattern.\n\n## Problem\n\nrbgjv03 uses plain `docker build` + `docker push`, producing an amd64-only image. On arm64 hosts, `docker pull` warns about platform mismatch. The -about artifact (rbgjb08) already uses buildx correctly.\n\n## Work\n\n1. Update Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh to use `docker buildx build --push --platform=...` instead of plain `docker build` + `docker push`\n2. Follow the rbgjb08 pattern: reuse the rb-builder instance, pass platform substitution vars\n3. Ensure the vouch Cloud Build step has the necessary substitution variables (_RBGV_PLATFORMS or equivalent)\n4. Update rbf_Foundry.sh vouch build JSON composition if new substitutions are needed\n\n## Acceptance\n\n- `docker pull` of -vouch artifact on arm64 host produces no platform warning\n- Vouch contents (vouch_summary.json, verify-*.json) identical across platform variants\n- No new host tooling dependencies",
+              "silks": "vouch-artifact-multiplatform",
+              "commit": "dd968cb"
             }
           ]
         }
