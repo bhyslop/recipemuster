@@ -1735,6 +1735,13 @@
         "₢AsAAB": {
           "tacks": [
             {
+              "ts": "260310-2024",
+              "state": "complete",
+              "text": "Repeat full test sweep at the start of mvp-2 to confirm green baseline still holds before touching IAM grant code. Must match mvp-1 exit results.",
+              "silks": "pre-refactor-baseline-sweep",
+              "commit": "db10ee9"
+            },
+            {
               "ts": "260309-1945",
               "state": "rough",
               "text": "Repeat full test sweep at the start of mvp-2 to confirm green baseline still holds before touching IAM grant code. Must match mvp-1 exit results.",
