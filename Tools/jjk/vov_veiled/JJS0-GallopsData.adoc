@@ -1359,3 +1359,58 @@ include::JJSCRN-rein.adoc[]
 
 include::JJSCNC-notch.adoc[]
 
+== V3 Legacy Schema Reference
+
+WARNING: This section is a frozen reference for V3→V4 migration.
+It documents the V3 schema as implemented in `jjrt_v3_types.rs`.
+Do NOT modify — will be removed by ₣An (jjk-v4-release-and-legacy-removal).
+
+=== V3 Pace Record
+
+In V3, a {jjdpr_pace} contains a `tacks` array of Tack records.
+Each Tack captures a snapshot of the pace's state at a point in time.
+
+==== V3 Tack Record
+
+* `ts` (string, required) — timestamp
+* `state` (enum, required) — pace state (see V3 Pace State Enum)
+* `text` (string, required) — docket text at this snapshot
+* `silks` (string, required) — pace silks at this snapshot
+* `commit` (string, required) — basis commit SHA (Rust field: `basis`, serde rename: `commit`)
+* `direction` (string, optional) — plan/direction text
+
+==== V3 Pace State Enum
+
+* `rough` — needs clarification
+* `bridled` — human-claimed for interactive work (serde alias: `primed`)
+* `complete` — finished
+* `abandoned` — stopped without completion
+
+=== V3 Heat Record
+
+Same as V4 (no structural changes to Heat in V4 migration).
+
+=== V3 Gallops Record
+
+Same as V4 except:
+
+* `schema_version` absent (added in V4)
+* `heat_order` absent (added in V4; populated from sorted BTreeMap keys on migration)
+
+=== V3→V4 Migration Path
+
+V4 types MUST always deserialize V3 JSON — one deserialization path, always tested.
+Use `#[serde(default)]` for new fields, `#[serde(alias)]` for renamed variants, and rely on serde ignoring unknown fields for removed structures (e.g., tacks).
+No separate V3 deserialization path; no try/catch branching.
+
+Migration is handled by {jjdr_load} in `jjri_io.rs`:
+
+. Deserialize JSON as current (V4) types — serde compatibility ensures V3 JSON always loads
+. Detect migration mode: `schema_version` absent or `heat_order` empty
+. Recompute `paddock_file` from firemark for every heat
+. Set `schema_version` to 4
+. Populate `heat_order` from sorted BTreeMap keys
+. Next {jjdr_save} writes V4 format
+
+The frozen V3 types in `jjrt_v3_types.rs` serve as a compile-time reference for what V3 JSON looks like, ensuring V4 type changes maintain serde compatibility with the old format.
+

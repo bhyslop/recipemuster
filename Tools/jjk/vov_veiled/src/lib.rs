@@ -17,6 +17,7 @@
 pub mod jjrc_core;
 pub mod jjrf_favor;
 pub mod jjrt_types;
+pub mod jjrt_v3_types;
 pub mod jjrv_validate;
 pub mod jjri_io;
 pub mod jjro_ops;
