@@ -1708,11 +1708,12 @@
         "₢AsAAA",
         "₢AsAAF",
         "₢AsAAG",
+        "₢AsAAI",
         "₢AsAAC",
         "₢AsAAD",
         "₢AsAAH"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAls.md",
       "paces": {
         "₢AsAAA": {
@@ -1889,6 +1890,17 @@
               "text": "## Goal\n\nClean up two minor inconsistencies in rbgi_IAM.sh discovered during AsAAF review.\n\n## Changes\n\n### 1. Homogenize z_get_code capture to die-on-failure\n\nProject function (line ~155) dies on HTTP code capture failure: `|| buc_die \"No HTTP code from getIamPolicy\"`. Repo and SA outer GET loops fall back to empty string: `|| z_get_code=\"\"`. The empty-string fallback works (propagation predicate rejects non-400, then rbgu_http_require_ok dies) but is an indirect path to the same crash. Change repo and SA to match project's die-on-failure pattern.\n\n### 2. Remove dead kindle constants\n\n`ZRBGI_INFIX_REPO_POLICY` and `ZRBGI_INFIX_RPOLICY_SET` in zrbgi_kindle appear unused — repo function uses `ZRBGI_INFIX_REPO_ROLE` and `ZRBGI_INFIX_REPO_ROLE_SET` instead. Verify no callers, then remove.\n\n## Files\n- Tools/rbk/rbgi_IAM.sh\n\n## Risk Assessment\nZero. Capture-failure homogenization changes behavior only when temp files are missing (already fatal). Dead constant removal is pure cleanup.",
               "silks": "rbgi-kindle-and-capture-cleanup",
               "commit": "19dc7b4"
+            }
+          ]
+        },
+        "₢AsAAI": {
+          "tacks": [
+            {
+              "ts": "260311-1452",
+              "state": "rough",
+              "text": "## Goal\n\nCreate adaptive getting-started guide (rbgm_getting_started) and RBRR reset tabtarget forming the new-user onboarding funnel.\n\n## Deliverables\n\n### 1. RBRR reset mechanism\nTabtarget producing valid-but-incomplete RBRR: every field present with empty/sentinel values. Guide can probe without set -u failures; real operations correctly reject.\n\n### 2. Adaptive getting-started guide\nrbgm_getting_started() in rbgm_ManualProcedures.sh, wired to tabtarget. Reads RBRR state, shows progress status, emits next steps. Does NOT require enforced RBRR.\n\nPhases detected and guided:\n- Payor establish (points to existing rbgm_payor_establish)\n- Payor install (OAuth handshake)\n- GitLab rubric repo setup (points to existing rbgm_gitlab_setup)\n- Depot create\n- Governor reset + credential distribution\n- Director/retriever create\n- Conjure vessels (nsproto images)\n- Vouch arks\n- Start bottle, run test case\n- Tour: show vessels, images, what you built\n\n## Design constraints\n- Existing guides keep current integrity; guide points to them, does not rewrite\n- Each probe is simple file/variable check, no API calls for state detection\n- Guide and reset co-designed: reset defines starting state, guide defines progress\n- Lives in rbgm for now\n\n## Files\n- Tools/rbk/rbgm_ManualProcedures.sh\n- tt/ (new tabtargets for guide + reset)\n- Regime template files as needed",
+              "silks": "adaptive-getting-started-guide",
+              "commit": "78dfb14"
             }
           ]
         }
