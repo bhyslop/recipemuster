@@ -983,7 +983,7 @@ rbf_summon() {
   local z_consecration="${2:-}"
 
   # Documentation block
-  buc_doc_brief "Summon an ark (pull both -image and -about artifacts as a coherent unit)"
+  buc_doc_brief "Summon an ark (pull -image, -about, and -vouch artifacts as a coherent unit)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
   buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
   buc_doc_shown || return 0
@@ -1008,9 +1008,10 @@ rbf_summon() {
   local z_token
   z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token"
 
-  # Construct ark tags — both use full consecration
+  # Construct ark tags — all use full consecration
   local z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
   local z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
 
   buc_step "Verifying ark existence"
 
@@ -1064,6 +1065,31 @@ rbf_summon() {
     buc_die "Unexpected HTTP status ${z_about_http_code} when checking -about artifact"
   fi
 
+  # Check if -vouch artifact exists
+  local z_vouch_status_file="${ZRBF_DELETE_PREFIX}summon_vouch_status.txt"
+  local z_vouch_response_file="${ZRBF_DELETE_PREFIX}summon_vouch_response.json"
+
+  curl --head -s                                     \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
+    -H "Authorization: Bearer ${z_token}"           \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -w "%{http_code}"                               \
+    -o "${z_vouch_response_file}"                   \
+    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_vouch_tag}" \
+    > "${z_vouch_status_file}" || buc_die "HEAD request failed for -vouch artifact"
+
+  local z_vouch_http_code
+  z_vouch_http_code=$(<"${z_vouch_status_file}")
+  test -n "${z_vouch_http_code}" || buc_die "HTTP status code is empty for -vouch"
+
+  local z_vouch_exists=false
+  if test "${z_vouch_http_code}" = "200"; then
+    z_vouch_exists=true
+  elif test "${z_vouch_http_code}" != "404"; then
+    buc_die "Unexpected HTTP status ${z_vouch_http_code} when checking -vouch artifact"
+  fi
+
   # Evaluate ark state
   if test "${z_image_exists}" = "false" && test "${z_about_exists}" = "false"; then
     buc_die "Ark not found: neither -image nor -about exists"
@@ -1099,6 +1125,15 @@ rbf_summon() {
     buc_info "Retrieved: ${z_about_ref}"
   fi
 
+  # Pull -vouch artifact if exists
+  if test "${z_vouch_exists}" = "true"; then
+    buc_step "Pulling -vouch artifact"
+
+    local z_vouch_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel}:${z_vouch_tag}"
+    docker pull "${z_vouch_ref}" || buc_die "Failed to pull -vouch artifact"
+    buc_info "Retrieved: ${z_vouch_ref}"
+  fi
+
   # Display results
   echo ""
   buc_success "Ark summoned: ${z_vessel}/${z_consecration}"
@@ -1107,6 +1142,9 @@ rbf_summon() {
   fi
   if test "${z_about_exists}" = "true"; then
     echo "  - ${z_vessel}:${z_about_tag} retrieved"
+  fi
+  if test "${z_vouch_exists}" = "true"; then
+    echo "  - ${z_vessel}:${z_vouch_tag} retrieved"
   fi
 }
 
