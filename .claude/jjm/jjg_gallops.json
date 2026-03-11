@@ -827,6 +827,13 @@
         "₢AUAAJ": {
           "tacks": [
             {
+              "ts": "260310-1925",
+              "state": "rough",
+              "text": "Make the -vouch artifact multi-platform via buildx, matching the -about pattern.\n\n## Problem\n\nrbgjv03 uses plain `docker build` + `docker push`, producing an amd64-only image. On arm64 hosts, `docker pull` warns about platform mismatch. The -about artifact (rbgjb08) already uses buildx correctly.\n\n## Work\n\n1. Update Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh to use `docker buildx build --push --platform=...` instead of plain `docker build` + `docker push`\n2. Follow the rbgjb08 pattern: reuse the rb-builder instance, pass platform substitution vars\n3. Ensure the vouch Cloud Build step has the necessary substitution variables (_RBGV_PLATFORMS or equivalent)\n4. Update rbf_Foundry.sh vouch build JSON composition if new substitutions are needed\n5. **Update RBSAV-ark_vouch.adoc**: remove line 124 statement that vouch is single-platform; document multi-platform buildx pattern\n\n## Acceptance\n\n- `docker pull` of -vouch artifact on arm64 host produces no platform warning\n- Vouch contents (vouch_summary.json, verify-*.json) identical across platform variants\n- RBSAV spec reflects multi-platform vouch artifact\n- No new host tooling dependencies",
+              "silks": "vouch-artifact-multiplatform",
+              "commit": "d377879"
+            },
+            {
               "ts": "260310-1919",
               "state": "rough",
               "text": "Make the -vouch artifact multi-platform via buildx, matching the -about pattern.\n\n## Problem\n\nrbgjv03 uses plain `docker build` + `docker push`, producing an amd64-only image. On arm64 hosts, `docker pull` warns about platform mismatch. The -about artifact (rbgjb08) already uses buildx correctly.\n\n## Work\n\n1. Update Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh to use `docker buildx build --push --platform=...` instead of plain `docker build` + `docker push`\n2. Follow the rbgjb08 pattern: reuse the rb-builder instance, pass platform substitution vars\n3. Ensure the vouch Cloud Build step has the necessary substitution variables (_RBGV_PLATFORMS or equivalent)\n4. Update rbf_Foundry.sh vouch build JSON composition if new substitutions are needed\n\n## Acceptance\n\n- `docker pull` of -vouch artifact on arm64 host produces no platform warning\n- Vouch contents (vouch_summary.json, verify-*.json) identical across platform variants\n- No new host tooling dependencies",
