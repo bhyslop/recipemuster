@@ -693,9 +693,10 @@
         "₢AUAAE",
         "₢AUAAF",
         "₢AUAAG",
-        "₢AUAAH"
+        "₢AUAAH",
+        "₢AUAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -807,6 +808,17 @@
               "text": "Add a release compliance check that verifies every enrolled regime variable has complete spec treatment.\n\nREQUIRES HUMAN CONVERSATION — existing regime validation behaviors need discovery first.\n\n## Context\n\nMultiple regime files (rbrr_regime.sh, rbra_regime.sh, rbro_regime.sh, etc.) enroll\nvariables via buv_string_enroll and similar. Each enrolled variable should have:\n- Spec definition in the relevant .adoc\n- Validation rule (type, range, required/optional)\n- Documentation of who sets it and who reads it\n\n## Discovery step (FIRST)\n\nBefore designing the checker, survey existing regime validation infrastructure:\n- buv_* enrollment patterns across all regime files\n- Existing validators (rbrr.validator.sh, etc.)\n- How regime variables are currently documented in specs\n- Identify gaps between enrolled variables and spec coverage\n\n## Deliverables\n\n1. Survey of existing regime validation behaviors\n2. Design a completeness checker (possibly a tabtarget or rbq_Qualify.sh integration)\n3. Add the check to RBS0 Release Compliance section (nucleated by premises pace)\n4. Run the checker and catalogue any gaps found\n\n## Not in scope\n- Fixing all discovered gaps (those become their own paces)\n- Changing regime enrollment machinery",
               "silks": "regime-variable-completeness-check",
               "commit": "9666e89"
+            }
+          ]
+        },
+        "₢AUAAI": {
+          "tacks": [
+            {
+              "ts": "260310-1901",
+              "state": "rough",
+              "text": "Create a tiered qualification system and release qualification tabtarget.\n\n## Problem\n\nrbq_qualify_all runs shellcheck (133 files) on every bottle-start and conjure-ark invocation. Shellcheck is valuable but too slow for routine operations.\n\n## Design\n\n1. Split rbq_qualify_all into two tiers:\n   - rbq_qualify_fast: tabtarget structure, colophon registrations, nameplate preflight (cheap checks)\n   - rbq_qualify_all: everything in fast + shellcheck\n\n2. Workbench gate (rbw_workbench.sh line 67) calls rbq_qualify_fast instead of rbq_qualify_all\n\n3. New release qualification tabtarget that runs:\n   - rbq_qualify_all (including shellcheck)\n   - Complete test suite (all rbtb/rbtg routes)\n   - This is the pre-release gate — everything must pass before tagging\n\n4. Cloud build does NOT run qualification — it builds what it's told. Qualification is a local pre-flight concern.\n\n## Files\n\n- Tools/rbk/rbq_Qualify.sh: split qualify_all, add qualify_fast\n- Tools/rbk/rbw_workbench.sh: gate calls qualify_fast\n- Tools/rbk/rbz_zipper.sh: enroll new release-qualify colophon\n- tt/: new release qualification tabtarget",
+              "silks": "release-qualification-gate",
+              "commit": "765f7f1"
             }
           ]
         }
