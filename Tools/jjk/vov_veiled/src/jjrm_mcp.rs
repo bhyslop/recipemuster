@@ -19,7 +19,6 @@ use rmcp::{ErrorData as McpError, ServerHandler, tool, tool_handler, tool_router
 
 // Handler imports
 use crate::jjrnc_notch::{jjrnc_NotchArgs, jjrnc_run_notch};
-use crate::jjrch_chalk::{jjrx_ChalkArgs, jjrx_run_chalk};
 use crate::jjrrn_rein::{jjrrn_ReinArgs, jjrrn_run_rein};
 use crate::jjrvl_validate::{jjrvl_ValidateArgs, jjrvl_run_validate};
 use crate::jjrmu_muster::{jjrmu_MusterArgs, jjrmu_run_muster};
@@ -29,7 +28,7 @@ use crate::jjrrt_retire::{jjrrt_RetireArgs, jjrrt_run_retire};
 use crate::jjrno_nominate::{jjrx_NominateArgs, jjrx_run_nominate};
 use crate::jjrsl_slate::{jjrsl_SlateArgs, jjrsl_run_slate};
 use crate::jjrrl_rail::{jjrrl_RailArgs, jjrrl_run_rail};
-use crate::jjrtl_tally::{jjrtl_ReviseDocketArgs, jjrtl_run_revise_docket, jjrtl_ArmArgs, jjrtl_run_arm, jjrtl_RelabelArgs, jjrtl_run_relabel, jjrtl_DropArgs, jjrtl_run_drop};
+use crate::jjrtl_tally::{jjrtl_ReviseDocketArgs, jjrtl_run_revise_docket, jjrtl_RelabelArgs, jjrtl_run_relabel, jjrtl_DropArgs, jjrtl_run_drop};
 use crate::jjrdr_draft::{jjrdr_DraftArgs, jjrdr_run_draft};
 use crate::jjrfu_furlough::{jjrfu_FurloughArgs, jjrfu_run_furlough};
 use crate::jjrwp_wrap::{jjrx_WrapArgs, zjjrx_run_wrap};
@@ -78,12 +77,6 @@ pub struct jjrm_RecordParams {
     pub intent: Option<String>,
 }
 
-#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
-pub struct jjrm_MarkParams {
-    pub identity: String,
-    pub marker: String,
-    pub description: String,
-}
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_LogParams {
@@ -153,11 +146,6 @@ pub struct jjrm_ReviseDocketParams {
     pub docket: String,
 }
 
-#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
-pub struct jjrm_ArmParams {
-    pub coronet: String,
-    pub warrant: String,
-}
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_RelabelParams {
@@ -254,7 +242,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_mark, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_revise_docket, jjx_arm, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_get_brief, jjx_get_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_revise_docket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_get_brief, jjx_get_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -305,14 +293,6 @@ impl jjrm_McpServer {
                     files: p.files,
                     size_limit: p.size_limit,
                     intent: p.intent,
-                }))
-            }
-            "jjx_mark" => {
-                let p = deser!(jjrm_MarkParams);
-                jjrm_result(jjrx_run_chalk(jjrx_ChalkArgs {
-                    identity: p.identity,
-                    marker: p.marker,
-                    description: p.description,
                 }))
             }
             "jjx_log" => {
@@ -396,13 +376,6 @@ impl jjrm_McpServer {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
                 }, p.docket))
-            }
-            "jjx_arm" => {
-                let p = deser!(jjrm_ArmParams);
-                jjrm_result(jjrtl_run_arm(jjrtl_ArmArgs {
-                    file: gallops_pathbuf(),
-                    coronet: p.coronet,
-                }, p.warrant))
             }
             "jjx_relabel" => {
                 let p = deser!(jjrm_RelabelParams);
@@ -502,7 +475,7 @@ impl jjrm_McpServer {
                 }, p.content.unwrap_or_default()))
             }
             _ => {
-                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_mark, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_revise_docket, jjx_arm, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_get_brief, jjx_get_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing", cmd))]))
+                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_revise_docket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_get_brief, jjx_get_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing", cmd))]))
             }
         }
     }

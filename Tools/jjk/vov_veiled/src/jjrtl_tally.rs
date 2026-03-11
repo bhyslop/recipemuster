@@ -4,9 +4,8 @@
 
 //! JJK Tally commands - pace modification operations
 //!
-//! Split into four single-purpose commands:
+//! Split into three single-purpose commands:
 //! - revise_docket: Update pace docket text
-//! - arm: Set state to bridled with warrant
 //! - relabel: Rename pace silks
 //! - drop: Set state to abandoned
 
@@ -97,137 +96,6 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> 
         }
         Err(e) => {
             vvco_err!(output, "jjx_revise_docket: error: {}", e);
-            (1, output.vvco_finish())
-        }
-    }
-    // lock released here
-}
-
-/// Arguments for jjx_arm command
-#[derive(clap::Args, Debug)]
-pub struct jjrtl_ArmArgs {
-    /// Path to the Gallops JSON file
-    #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
-    pub file: PathBuf,
-
-    /// Target Pace identity (Coronet)
-    pub coronet: String,
-}
-
-/// Run the arm command
-///
-/// Sets pace state to bridled with warrant.
-/// Creates both a tally commit and a B commit.
-pub fn jjrtl_run_arm(args: jjrtl_ArmArgs, warrant: String) -> (i32, String) {
-    use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
-    let mut output = vvco_Output::buffer();
-
-    // Acquire lock FIRST - fail fast if another operation is in progress
-    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
-        Ok(l) => l,
-        Err(e) => {
-            vvco_err!(output, "jjx_arm: error: {}", e);
-            return (1, output.vvco_finish());
-        }
-    };
-
-    let mut gallops = match Gallops::jjrg_load(&args.file) {
-        Ok(g) => g,
-        Err(e) => {
-            vvco_err!(output, "jjx_arm: error loading Gallops: {}", e);
-            return (1, output.vvco_finish());
-        }
-    };
-
-    // Get firemark and silks for commit message before we move args
-    let coronet_str = args.coronet.clone();
-    let (fm, silks) = match Coronet::jjrf_parse(&coronet_str) {
-        Ok(c) => {
-            let parent_fm = c.jjrf_parent_firemark();
-            let silks = gallops.heats.get(&parent_fm.jjrf_display())
-                .and_then(|h| h.paces.get(&c.jjrf_display()))
-                .and_then(|p| p.tacks.first().map(|t| t.silks.clone()))
-                .unwrap_or_else(|| coronet_str.clone());
-            (parent_fm, silks)
-        }
-        Err(e) => {
-            vvco_err!(output, "jjx_arm: error: {}", e);
-            return (1, output.vvco_finish());
-        }
-    };
-
-    let tally_args = LibTallyArgs {
-        coronet: args.coronet,
-        state: Some(PaceState::Bridled),
-        direction: Some(warrant.clone()),
-        text: None,
-        silks: None,
-    };
-
-    match gallops.jjrg_tally(tally_args) {
-        Ok(()) => {
-            let message = format_heat_message(&fm, HeatAction::Tally, &silks);
-
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
-                Ok(hash) => {
-                    vvco_out!(output, "committed {}", hash);
-                }
-                Err(e) => {
-                    vvco_err!(output, "jjx_arm: error: {}", e);
-                    return (1, output.vvco_finish());
-                }
-            }
-
-            // Create B commit for bridling
-            let coronet = match Coronet::jjrf_parse(&coronet_str) {
-                Ok(c) => c,
-                Err(e) => {
-                    vvco_err!(output, "jjx_arm: error parsing coronet for B commit: {}", e);
-                    return (1, output.vvco_finish());
-                }
-            };
-
-            let agent = "arm"; // Agent that bridled the pace
-
-            // Build B commit message
-            use crate::jjrn_notch::jjrn_format_bridle_message;
-            let b_subject = jjrn_format_bridle_message(&coronet, agent, &silks);
-            let b_message = format!("{}\n\n{}", b_subject, warrant);
-
-            // Create empty B commit using git directly (like chalk markers)
-            let git_result = vvc::vvce_git_command(&["commit", "--allow-empty", "-m", &b_message])
-                .output();
-
-            match git_result {
-                Ok(result) if result.status.success() => {
-                    // Get commit hash
-                    let hash_output = vvc::vvce_git_command(&["rev-parse", "HEAD"])
-                        .output();
-
-                    if let Ok(hash_result) = hash_output {
-                        if hash_result.status.success() {
-                            let hash = String::from_utf8_lossy(&hash_result.stdout).trim().to_string();
-                            vvco_out!(output, "B commit {}", &hash[..8.min(hash.len())]);
-                        }
-                    }
-                }
-                Ok(result) => {
-                    let stderr = String::from_utf8_lossy(&result.stderr);
-                    vvco_err!(output, "jjx_arm: error creating B commit: {}", stderr);
-                    return (1, output.vvco_finish());
-                }
-                Err(e) => {
-                    vvco_err!(output, "jjx_arm: error creating B commit: {}", e);
-                    return (1, output.vvco_finish());
-                }
-            }
-
-            vvco_out!(output, "");
-            vvco_out!(output, "Recommended: mount {} to execute", fm.jjrf_as_str());
-            (0, output.vvco_finish())
-        }
-        Err(e) => {
-            vvco_err!(output, "jjx_arm: error: {}", e);
             (1, output.vvco_finish())
         }
     }

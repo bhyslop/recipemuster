@@ -9,43 +9,35 @@ use super::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};
 
 #[test]
 fn jjtn_chalk_marker_parse_single_letter() {
-    assert_eq!(jjrn_ChalkMarker::jjrn_parse("A").unwrap(), jjrn_ChalkMarker::Approach);
     assert_eq!(jjrn_ChalkMarker::jjrn_parse("W").unwrap(), jjrn_ChalkMarker::Wrap);
-    assert_eq!(jjrn_ChalkMarker::jjrn_parse("F").unwrap(), jjrn_ChalkMarker::Fly);
     assert_eq!(jjrn_ChalkMarker::jjrn_parse("d").unwrap(), jjrn_ChalkMarker::Discussion);
 }
 
 #[test]
 fn jjtn_chalk_marker_parse_full_word() {
-    assert_eq!(jjrn_ChalkMarker::jjrn_parse("APPROACH").unwrap(), jjrn_ChalkMarker::Approach);
-    assert_eq!(jjrn_ChalkMarker::jjrn_parse("approach").unwrap(), jjrn_ChalkMarker::Approach);
     assert_eq!(jjrn_ChalkMarker::jjrn_parse("Wrap").unwrap(), jjrn_ChalkMarker::Wrap);
-    assert_eq!(jjrn_ChalkMarker::jjrn_parse("FLY").unwrap(), jjrn_ChalkMarker::Fly);
     assert_eq!(jjrn_ChalkMarker::jjrn_parse("discussion").unwrap(), jjrn_ChalkMarker::Discussion);
     assert!(jjrn_ChalkMarker::jjrn_parse("invalid").is_err());
+    assert!(jjrn_ChalkMarker::jjrn_parse("A").is_err());
+    assert!(jjrn_ChalkMarker::jjrn_parse("F").is_err());
+    assert!(jjrn_ChalkMarker::jjrn_parse("B").is_err());
 }
 
 #[test]
 fn jjtn_chalk_marker_code() {
-    assert_eq!(jjrn_ChalkMarker::Approach.jjrn_code(), 'A');
     assert_eq!(jjrn_ChalkMarker::Wrap.jjrn_code(), 'W');
-    assert_eq!(jjrn_ChalkMarker::Fly.jjrn_code(), 'F');
     assert_eq!(jjrn_ChalkMarker::Discussion.jjrn_code(), 'd');
 }
 
 #[test]
 fn jjtn_chalk_marker_as_str() {
-    assert_eq!(jjrn_ChalkMarker::Approach.jjrn_as_str(), "APPROACH");
     assert_eq!(jjrn_ChalkMarker::Wrap.jjrn_as_str(), "WRAP");
-    assert_eq!(jjrn_ChalkMarker::Fly.jjrn_as_str(), "FLY");
     assert_eq!(jjrn_ChalkMarker::Discussion.jjrn_as_str(), "discussion");
 }
 
 #[test]
 fn jjtn_chalk_marker_requires_pace() {
-    assert!(jjrn_ChalkMarker::Approach.jjrn_requires_pace());
     assert!(jjrn_ChalkMarker::Wrap.jjrn_requires_pace());
-    assert!(jjrn_ChalkMarker::Fly.jjrn_requires_pace());
     assert!(!jjrn_ChalkMarker::Discussion.jjrn_requires_pace());
 }
 
@@ -90,27 +82,11 @@ fn jjtn_format_notch_prefix() {
 }
 
 #[test]
-fn jjtn_format_chalk_message_approach() {
-    let coronet = Coronet::jjrf_parse("ABAAA").unwrap();
-    let msg = jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Approach, "Starting work on feature");
-    assert!(msg.starts_with("jjb:"));
-    assert!(msg.contains(":₢ABAAA:A: Starting work on feature"));
-}
-
-#[test]
 fn jjtn_format_chalk_message_wrap() {
     let coronet = Coronet::jjrf_parse("__AAA").unwrap();
     let msg = jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Wrap, "Completed the task");
     assert!(msg.starts_with("jjb:"));
     assert!(msg.contains(":₢__AAA:W: Completed the task"));
-}
-
-#[test]
-fn jjtn_format_chalk_message_fly() {
-    let coronet = Coronet::jjrf_parse("ABCDE").unwrap();
-    let msg = jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Fly, "Autonomous execution");
-    assert!(msg.starts_with("jjb:"));
-    assert!(msg.contains(":₢ABCDE:F: Autonomous execution"));
 }
 
 #[test]

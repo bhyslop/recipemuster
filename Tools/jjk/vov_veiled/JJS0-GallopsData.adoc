@@ -12,9 +12,7 @@
 // jjdhe_: Heat enum values (status)
 // jjdpr_: Pace record
 // jjdpm_: Pace members
-// jjdkr_: Tack record
-// jjdkm_: Tack members
-// jjdpe_: Tack state enum values
+// jjdpe_: Pace state enum values
 // jjdyr_: Column Table record
 // jjdym_: Column Table members
 // jjdye_: Column Table enum values (alignment)
@@ -68,24 +66,12 @@
 :jjdpr_pace_p:    <<jjdpr_pace,Pace's>>
 :jjdpr_pace_s:    <<jjdpr_pace,Paces>>
 
-// Pace/Tack state enum values (used in Tack)
+// Pace state enum values
 :jjdpe_abandoned: <<jjdpe_abandoned,abandoned>>
 :jjdpe_complete:  <<jjdpe_complete,complete>>
-:jjdpe_bridled:   <<jjdpe_bridled,bridled>>
 :jjdpe_rough:     <<jjdpe_rough,rough>>
 :jjdpe_defined:   <<jjdpe_defined,defined>>
 :jjdpe_resolved:  <<jjdpe_resolved,resolved>>
-
-// Tack record and members
-:jjdkm_commit:    <<jjdkm_commit,commit>>
-:jjdkm_warrant: <<jjdkm_warrant,direction>>
-:jjdkm_refined:   <<jjdkm_refined,ts>>
-:jjdkm_silks:     <<jjdkm_silks,silks>>
-:jjdkm_state:     <<jjdkm_state,state>>
-:jjdkm_text:      <<jjdkm_text,text>>
-:jjdkr_tack:      <<jjdkr_tack,Tack>>
-:jjdkr_tack_p:    <<jjdkr_tack,Tack's>>
-:jjdkr_tack_s:    <<jjdkr_tack,Tacks>>
 
 // Column Table record and members
 :jjdyr_table:  <<jjdyr_table,Column Table>>
@@ -120,7 +106,6 @@
 :jjdx_handler:  <<jjdx_handler,handler>>
 
 // Operations
-:jjdo_mark:          <<jjdo_mark,jjx_mark>>
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
 :jjdo_alter:       <<jjdo_alter,jjx_alter>>
 :jjdo_continue:        <<jjdo_continue,jjx_continue>>
@@ -139,7 +124,6 @@
 :jjdo_search:          <<jjdo_search,jjx_search>>
 :jjdo_enroll:          <<jjdo_enroll,jjx_enroll>>
 :jjdo_revise_docket:  <<jjdo_revise_docket,jjx_revise_docket>>
-:jjdo_arm:            <<jjdo_arm,jjx_arm>>
 :jjdo_relabel:        <<jjdo_relabel,jjx_relabel>>
 :jjdo_drop:           <<jjdo_drop,jjx_drop>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
@@ -192,11 +176,6 @@ It tracks
 (bounded initiatives) and their constituent
 {jjdpr_pace_s}
 (discrete actions).
-Each
-{jjdpr_pace}
-maintains a history of
-{jjdkr_tack_s}
-(plan refinements).
 
 == Design Principles
 
@@ -219,22 +198,10 @@ remains JSON specifically so git can serve as the journalling layer.
 Every mutation creates a diffable commit.
 Git owns the complete history; we need not implement our own audit trail.
 
-The
-{jjdkr_tack}
-history within each
-{jjdpr_pace}
-exists for convenient postmortem analysis.
-Git has the full history, but
-{jjdkr_tack_s}
-let us see plan evolution without spelunking commits.
+Git has the full history of every mutation.
+Plan evolution is visible through commit diffs without additional in-JSON bookkeeping.
 
 === Diff-Friendly Mutations
-
-New
-{jjdkr_tack_s}
-prepend to position 0 rather than append.
-This produces cleaner git diffs: prepending adds a line with trailing comma, while appending would modify the previous last line to add a comma.
-Small discipline, large cumulative benefit.
 
 The
 {jjdhm_order}
@@ -299,7 +266,6 @@ The {jjdx_mcp} holds no {jjdgr_gallops} state between calls.
 Operations that previously read text from stdin (
 {jjdo_enroll},
 {jjdo_revise_docket},
-{jjdo_arm},
 {jjdo_transfer},
 {jjdo_close},
 {jjdo_landing})
@@ -370,7 +336,6 @@ Terms drawn from horse racing — the competitive, forward-driving aspect of ini
 
 * {jjdhr_heat} — a bounded initiative. A race: defined start, defined finish, sustained effort.
 * {jjdpr_pace} — a discrete action within a heat. The rhythm of hooves — each stride advances the race.
-* {jjdkr_tack} — plan refinement. Equipment adjusted before riding; also "tacking" — changing course while maintaining heading.
 * {jjdt_firemark} — heat identity, `₣`-prefixed. The hot-iron brand that marks ownership on a living animal — permanent, unmistakable.
 * {jjdt_coronet} — pace identity, `₢`-prefixed. The marking at the hoof line — fine-grained, below the firemark, identifying the individual step.
 * {jjdt_silks} — display name. The jockey's colors — vivid, human-recognizable, worn for the crowd, not the horse.
@@ -402,10 +367,9 @@ Terms drawn from dressage and classical horsemanship — the disciplined, precis
 
 The display and output layer uses distinct terms for certain schema fields, following the same vocabulary isolation principle:
 
-* *docket* — the presentation term for the {jjdkm_text} field. What the {jjdpr_pace} should accomplish. Used in CLI output labels and slash command descriptions. The JSON schema field remains `text`.
-* *warrant* — the presentation term for the {jjdkm_warrant} field. Execution guidance for autonomous operation. Used in CLI output labels and slash command descriptions. The JSON schema field remains `direction`.
+* *docket* — the presentation term for the `text` field. What the {jjdpr_pace} should accomplish. Used in CLI output labels and slash command descriptions.
 
-These are display/CLI terms, not schema changes. The schema field names (`text`, `direction`) are unchanged and deferred to a future heat.
+These are display/CLI terms, not schema changes. Field renames are deferred to a future heat.
 
 == Upper API
 
@@ -566,8 +530,7 @@ The new
 {jjdt_coronet}
 embeds the destination
 {jjdt_firemark}.
-{jjdkr_tack}
-history is preserved, with a note recording the original
+Pace data is preserved, with a note recording the original
 {jjdt_coronet}.
 
 [[jjdt_silks]]
@@ -741,11 +704,6 @@ is complete and archived.
 {jjdpr_pace}::
 A discrete action within a
 {jjdhr_heat}.
-Contains one or more
-{jjdkr_tack_s}
-representing state snapshots and plan refinements.
-Current state is derived from `tacks[0].state`.
-Current silks is derived from `tacks[0].silks`.
 Keyed in JSON by
 {jjdt_coronet}.
 
@@ -761,89 +719,6 @@ Type:
 {jjdt_coronet}.
 Implicit from JSON key; not stored as separate field.
 
-=== {jjdkr_tack}
-
-[[jjdkr_tack]]
-//axl_voices axr_record_json
-{jjdkr_tack}::
-A snapshot of
-{jjdpr_pace}
-state and plan at a point in time.
-{jjdkr_tack_s}
-form an append-only history capturing both plan refinements and state transitions.
-Position 0 is the most recent; older
-{jjdkr_tack_s}
-follow.
-New
-{jjdkr_tack_s}
-are prepended for cleaner git diffs.
-The current
-{jjdpr_pace}
-state is always
-`tacks[0].state`.
-
-==== Members
-
-* [[jjdkm_refined]]
-//axl_voices axr_member axd_required
-{jjdkm_refined}
-records when this
-{jjdkr_tack}
-was added.
-Format: YYMMDD-HHMM.
-
-* [[jjdkm_state]]
-//axl_voices axr_member axd_required
-{jjdkm_state}
-indicates the
-{jjdpr_pace_p}
-progress at this snapshot.
-Values:
-{jjdpe_rough},
-{jjdpe_bridled},
-{jjdpe_complete},
-or
-{jjdpe_abandoned}.
-
-* [[jjdkm_text]]
-//axl_voices axr_member axd_required
-{jjdkm_text}
-contains the plan specification.
-Non-empty string describing what the
-{jjdpr_pace}
-should accomplish.
-
-* [[jjdkm_silks]]
-//axl_voices axr_member axd_required
-{jjdkm_silks}
-is the
-{jjdpr_pace_p}
-display name at this point in time.
-Type:
-{jjdt_silks}.
-Enables rename history; current pace silks is derived from `tacks[0].silks`.
-
-* [[jjdkm_commit]]
-//axl_voices axr_member axd_required
-{jjdkm_commit}
-is the commit SHA at
-{jjdkr_tack}
-creation.
-Format: 7-character hex string.
-Captures repo state when plan was written.
-Value `0000000` indicates commit was unavailable at creation time.
-
-* [[jjdkm_warrant]]
-//axl_voices axr_member axd_conditional
-{jjdkm_warrant}
-contains execution guidance for autonomous operation.
-Required when
-{jjdkm_state}
-is
-{jjdpe_bridled};
-forbidden otherwise.
-Describes which agent to dispatch, parallelism strategy, or other execution parameters.
-
 ==== State Values
 
 [[jjdpe_rough]]
@@ -852,22 +727,6 @@ Describes which agent to dispatch, parallelism strategy, or other execution para
 The
 {jjdpr_pace}
 needs clarification before work can proceed.
-When context is assembled for a
-{jjdpe_rough}
-pace, the model is guided to refine the specification rather than begin execution.
-
-[[jjdpe_bridled]]
-//axl_voices axt_enum_value
-{jjdpe_bridled}::
-The
-{jjdpr_pace}
-is ready for autonomous execution.
-The
-{jjdkm_warrant}
-field contains explicit guidance for the executing agent.
-When context is assembled for a
-{jjdpe_bridled}
-pace, the model proceeds without human confirmation.
 
 [[jjdpe_complete]]
 //axl_voices axt_enum_value
@@ -889,13 +748,11 @@ Predicates for querying pace states by semantic category.
 
 [[jjdpe_defined]] {jjdpe_defined}:: Pace contributes to heat's scope.
 * rough: true
-* bridled: true
 * complete: true
 * abandoned: false
 
 [[jjdpe_resolved]] {jjdpe_resolved}:: Pace requires no further action.
 * rough: false
-* bridled: false
 * complete: true
 * abandoned: true
 
@@ -1008,26 +865,13 @@ Short: `-s`.
 //axl_voices axa_cli_option
 {jjda_state}::
 Target state for the
-{jjdkr_tack}.
+{jjdpr_pace}.
 Long: `--state`.
 Short: none.
 Values:
 {jjdpe_rough},
-{jjdpe_bridled},
 {jjdpe_complete},
 {jjdpe_abandoned}.
-
-[[jjda_direction]]
-//axl_voices axa_cli_option
-{jjda_direction}::
-Execution guidance for autonomous operation.
-Long: `--direction`.
-Short: `-d`.
-Required when
-{jjda_state}
-is
-{jjdpe_bridled};
-forbidden otherwise.
 
 [[jjda_pace]]
 //axl_voices axa_cli_option
@@ -1084,8 +928,6 @@ Position at first actionable slot in
 {jjdhm_order}
 (before the first
 {jjdpe_rough}
-or
-{jjdpe_bridled}
 pace).
 If no actionable paces exist, positions at end.
 Long: `--first`.
@@ -1284,7 +1126,6 @@ include::JJSCDR-draft.adoc[]
 ==== {jjdo_revise_docket}
 
 Update a {jjdpr_pace_p} docket text.
-Carries forward current state and silks.
 
 {jjds_arguments}
 
@@ -1298,29 +1139,7 @@ Carries forward current state and silks.
 
 . {jjdr_load}
 . Verify {jjdpr_pace} exists
-. Prepend new {jjdkr_tack} with current state, current silks, new docket text, current commit SHA
-. If current state is {jjdpe_bridled}, error (must unbridle first or use {jjdo_arm})
-. {jjdr_save}
-
-[[jjdo_arm]]
-//axl_voices axi_cli_subcommand
-==== {jjdo_arm}
-
-Set a {jjdpr_pace_p} state to {jjdpe_bridled} with warrant.
-
-{jjds_arguments}
-
-* {jjdt_coronet} — target {jjdpr_pace}.
-
-* `warrant` (string, required) — execution guidance for autonomous operation.
-
-{jjds_exit_uniform} 0 success, non-zero error.
-
-{jjds_behavior}
-
-. {jjdr_load}
-. Verify {jjdpr_pace} exists
-. Prepend new {jjdkr_tack} with state={jjdpe_bridled}, current silks, current docket text, warrant as direction, current commit SHA
+. Update docket text on {jjdpr_pace}
 . {jjdr_save}
 
 [[jjdo_relabel]]
@@ -1328,7 +1147,6 @@ Set a {jjdpr_pace_p} state to {jjdpe_bridled} with warrant.
 ==== {jjdo_relabel}
 
 Rename a {jjdpr_pace_p} silks.
-Carries forward current docket and state.
 
 {jjds_arguments}
 
@@ -1342,7 +1160,7 @@ Carries forward current docket and state.
 
 . {jjdr_load}
 . Verify {jjdpr_pace} exists
-. Prepend new {jjdkr_tack} with current state, new silks, current docket text, current commit SHA
+. Update silks on {jjdpr_pace}
 . {jjdr_save}
 
 [[jjdo_drop]]
@@ -1361,7 +1179,7 @@ Set a {jjdpr_pace_p} state to {jjdpe_abandoned}.
 
 . {jjdr_load}
 . Verify {jjdpr_pace} exists
-. Prepend new {jjdkr_tack} with state={jjdpe_abandoned}, current silks, current docket text, current commit SHA
+. Set state to {jjdpe_abandoned} on {jjdpr_pace}
 . {jjdr_save}
 
 [[jjdo_alter]]
@@ -1465,24 +1283,6 @@ Co-Authored-By: ...
 
 Standard notch commits use `n` to denote routine progress tracking.
 
-*Pace-level chalk* (created by {jjdo_mark}):
-----
-jjb:HALLMARK:₢XXXXX:A: description
-
-Co-Authored-By: ...
-----
-
-*Bridle marker* (created when pace transitions to bridled state):
-----
-jjb:HALLMARK:₢XXXXX:B: {agent} | {silks}
-
-{full direction text}
-
-Co-Authored-By: ...
-----
-
-Subject format: `{agent} | {silks}` where agent is the designated executor and silks is the pace display name. Body contains the complete direction text that guides autonomous execution.
-
 *Landing marker* (created when spawned agent completes):
 ----
 jjb:HALLMARK:₢XXXXX:L: {agent} {landed|crashed}
@@ -1523,9 +1323,6 @@ Model IDs are collected via {vosr_probe} routine, which spawns parallel claude i
 Pace-level action codes:
 
 * `n` — Notch: standard commit
-* `A` — APPROACH: proposed approach before work begins
-* `B` — BRIDLE: records bridling decision before autonomous execution
-* `F` — FLY: autonomous execution began (bridled pace)
 * `L` — LANDING: records agent return after autonomous execution
 * `W` — WRAP: pace completion summary
 * `d` — discussion: significant decision (lowercase, can also be heat-level)
@@ -1536,7 +1333,6 @@ jjb:HALLMARK:₣XX:N: heat-silks
 jjb:HALLMARK:₣XX:S: pace-silks
 jjb:HALLMARK:₣XX:s: YYMMDD-HHMM session
 jjb:HALLMARK:₣XX:r: reordered
-jjb:HALLMARK:₣XX:T: pace-silks
 jjb:HALLMARK:₣XX:D: old-coronet → new-coronet
 jjb:HALLMARK:₣XX:R: heat-silks
 ----
@@ -1546,7 +1342,6 @@ Heat-level action codes:
 * `N` — Nominate: create new heat
 * `S` — Slate: add new pace
 * `r` — rail: reorder paces (lowercase)
-* `T` — Tally: add tack to pace
 * `D` — Draft: move pace between heats (uppercase, rare)
 * `R` — Retire: archive heat (uppercase)
 
@@ -1564,8 +1359,3 @@ include::JJSCRN-rein.adoc[]
 
 include::JJSCNC-notch.adoc[]
 
-[[jjdo_mark]]
-//axl_voices axi_cli_subcommand
-==== {jjdo_mark}
-
-include::JJSCCH-chalk.adoc[]

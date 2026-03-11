@@ -66,7 +66,6 @@ jjx_search         {pattern, actionable?}
 jjx_archive        {firemark, execute?, size_limit?}
 jjx_transfer       {firemark, to, coronets}
 jjx_continue       {firemark}
-jjx_mark           {identity, marker, description}
 jjx_paddock        {firemark, content?, note?}
 jjx_relocate       {coronet, to, before?, after?, first?}
 jjx_revise_docket  {coronet, docket}
@@ -76,7 +75,6 @@ jjx_get_brief      {coronet}
 jjx_get_coronets   {firemark, remaining?, rough?}
 jjx_landing        {coronet, agent, content?}
 jjx_validate       {}
-jjx_arm            {coronet, warrant}
 ```
 
 **Key points:**
@@ -102,8 +100,7 @@ When user says "mount" or you need to engage the next pace:
    - Model tier: haiku (mechanical), sonnet (standard dev), opus (architectural)
    - Parallelization: file independence, task decomposability
    - State recommendation explicitly (e.g., "Sequential sonnet — single file")
-6. Create chalk APPROACH marker via `jjx_mark` command with `marker: "A"`
-7. Ask to proceed, then begin work
+6. Ask to proceed, then begin work
 
 ### Groom Protocol
 

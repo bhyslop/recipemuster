@@ -1,16 +1,15 @@
 
-This document is superseded. The unified `jjx_tally` command has been split into four single-purpose operations:
+This document is superseded. The unified `jjx_tally` command has been split into three single-purpose operations:
 
-* `jjx_revise_docket` — Update {jjdkm_text} content
-* `jjx_arm` — Set state to {jjdpe_bridled} with {jjdkm_warrant}
-* `jjx_relabel` — Change {jjdkm_silks}
+* `jjx_revise_docket` — Update docket text
+* `jjx_relabel` — Change silks
 * `jjx_drop` — Set state to {jjdpe_abandoned}
 
-Each creates a new {jjdkr_tack} with a single concern. They compose with `&&` for multi-field updates.
+Each mutates flat fields on the {jjdpr_pace} directly.
 
 == jjx_revise_docket
 
-Update the {jjdkm_text} content of a {jjdpr_pace}. State and {jjdkm_silks} carry forward from the previous {jjdkr_tack}.
+Update the docket text of a {jjdpr_pace}.
 
 {jjds_arguments}
 
@@ -18,7 +17,7 @@ Update the {jjdkm_text} content of a {jjdpr_pace}. State and {jjdkm_silks} carry
 * {jjdt_coronet}
 
 //axd_required
-* `docket` (string) — New {jjdkm_text} content
+* `docket` (string) — New docket text
 
 {jjds_stdout} None
 
@@ -30,53 +29,12 @@ Update the {jjdkm_text} content of a {jjdpr_pace}. State and {jjdkm_silks} carry
 . Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
 . Verify {jjdhr_heat} exists
 . Verify {jjdpr_pace} exists with given {jjdt_coronet}
-. Read current {jjdkr_tack} from `tacks[0]`
-. Create new {jjdkr_tack} with:
-.. {jjdkm_refined}: current timestamp (YYMMDD-HHMM)
-.. {jjdkm_state}: inherited from previous `tacks[0].state`
-.. {jjdkm_text}: from `docket` parameter
-.. {jjdkm_silks}: inherited from previous `tacks[0].silks`
-.. {jjdkm_commit}: capture {jjdkm_commit}
-.. {jjdkm_warrant}: inherited if present in previous `tacks[0]`
-. Prepend new {jjdkr_tack} to `tacks` array (position 0)
-. {jjdr_save}
-
-== jjx_arm
-
-Set a {jjdpr_pace} state to {jjdpe_bridled} with an execution {jjdkm_warrant}. The {jjdkm_warrant} is refined guidance for autonomous execution.
-
-{jjds_arguments}
-
-//axd_required
-* {jjdt_coronet}
-
-//axd_required
-* `warrant` (string) — {jjdkm_warrant} content
-
-{jjds_stdout} None
-
-{jjds_exit_uniform} 0 success, non-zero error.
-
-{jjds_behavior}
-
-. {jjdr_load}; on failure, exit immediately with {jjdr_load} error status
-. Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
-. Verify {jjdhr_heat} exists
-. Verify {jjdpr_pace} exists with given {jjdt_coronet}
-. Read current {jjdkr_tack} from `tacks[0]`
-. Create new {jjdkr_tack} with:
-.. {jjdkm_refined}: current timestamp (YYMMDD-HHMM)
-.. {jjdkm_state}: {jjdpe_bridled}
-.. {jjdkm_text}: inherited from previous `tacks[0].text`
-.. {jjdkm_silks}: inherited from previous `tacks[0].silks`
-.. {jjdkm_commit}: capture {jjdkm_commit}
-.. {jjdkm_warrant}: from `warrant` parameter
-. Prepend new {jjdkr_tack} to `tacks` array (position 0)
+. Update docket text on {jjdpr_pace}
 . {jjdr_save}
 
 == jjx_relabel
 
-Change the {jjdkm_silks} (display name) of a {jjdpr_pace}. {jjdkm_text} and state carry forward.
+Change the {jjdt_silks} (display name) of a {jjdpr_pace}.
 
 {jjds_arguments}
 
@@ -96,15 +54,7 @@ Change the {jjdkm_silks} (display name) of a {jjdpr_pace}. {jjdkm_text} and stat
 . Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
 . Verify {jjdhr_heat} exists
 . Verify {jjdpr_pace} exists with given {jjdt_coronet}
-. Read current {jjdkr_tack} from `tacks[0]`
-. Create new {jjdkr_tack} with:
-.. {jjdkm_refined}: current timestamp (YYMMDD-HHMM)
-.. {jjdkm_state}: inherited from previous `tacks[0].state`
-.. {jjdkm_text}: inherited from previous `tacks[0].text`
-.. {jjdkm_silks}: value from {jjda_silks} argument
-.. {jjdkm_commit}: capture {jjdkm_commit}
-.. {jjdkm_warrant}: inherited if present in previous `tacks[0]`
-. Prepend new {jjdkr_tack} to `tacks` array (position 0)
+. Update silks on {jjdpr_pace}
 . {jjdr_save}
 
 == jjx_drop
@@ -126,26 +76,5 @@ Mark a {jjdpr_pace} as {jjdpe_abandoned}. The {jjdpr_pace} is removed from activ
 . Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
 . Verify {jjdhr_heat} exists
 . Verify {jjdpr_pace} exists with given {jjdt_coronet}
-. Read current {jjdkr_tack} from `tacks[0]`
-. Create new {jjdkr_tack} with:
-.. {jjdkm_refined}: current timestamp (YYMMDD-HHMM)
-.. {jjdkm_state}: {jjdpe_abandoned}
-.. {jjdkm_text}: inherited from previous `tacks[0].text`
-.. {jjdkm_silks}: inherited from previous `tacks[0].silks`
-.. {jjdkm_commit}: capture {jjdkm_commit}
-.. {jjdkm_warrant}: omitted (not applicable for {jjdpe_abandoned} state)
-. Prepend new {jjdkr_tack} to `tacks` array (position 0)
+. Set state to {jjdpe_abandoned} on {jjdpr_pace}
 . {jjdr_save}
-
-== Composition
-
-These commands compose with `&&` for multi-field updates:
-
-[source,bash]
-----
-# Update docket and rename
-jjx_revise_docket AAEEb < new_docket.txt && jjx_relabel AAEEb --silks "new-name"
-
-# Update docket and arm for execution
-jjx_revise_docket AAEEb < docket.txt && jjx_arm AAEEb < warrant.txt
-----

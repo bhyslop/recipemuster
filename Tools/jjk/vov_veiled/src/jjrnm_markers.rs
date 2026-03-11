@@ -7,17 +7,8 @@
 //! This module defines all single-character codes used in JJ commit prefixes
 //! and provides compile-time validation to prevent collisions.
 
-/// Chalk Marker: Approach - proposed approach before work begins
-pub const JJRNM_APPROACH: char = 'A';
-
 /// Chalk Marker: Wrap - pace completion summary
 pub const JJRNM_WRAP: char = 'W';
-
-/// Chalk Marker: Fly - autonomous execution began (bridled pace)
-pub const JJRNM_FLY: char = 'F';
-
-/// Chalk Marker: Bridle - pace transitioned to bridled state
-pub const JJRNM_BRIDLE: char = 'B';
 
 /// Chalk Marker: Discussion - significant decision (lowercase, can be heat-level too)
 pub const JJRNM_DISCUSSION: char = 'd';
@@ -31,7 +22,7 @@ pub const JJRNM_SLATE: char = 'S';
 /// Heat Action: Rail - reorder paces (lowercase)
 pub const JJRNM_RAIL: char = 'r';
 
-/// Heat Action: Tally - add tack to pace
+/// Heat Action: Tally - modify pace fields (docket, silks, state)
 pub const JJRNM_TALLY: char = 'T';
 
 /// Heat Action: Draft - move pace between heats (uppercase, rare)
@@ -58,10 +49,7 @@ pub const JJRNM_LANDING: char = 'L';
 /// Each entry is (code, name) where name describes the marker's purpose.
 pub const fn jjrnm_all_codes() -> &'static [(char, &'static str)] {
     &[
-        (JJRNM_APPROACH, "Approach"),
         (JJRNM_WRAP, "Wrap"),
-        (JJRNM_FLY, "Fly"),
-        (JJRNM_BRIDLE, "Bridle"),
         (JJRNM_DISCUSSION, "Discussion"),
         (JJRNM_NOMINATE, "Nominate"),
         (JJRNM_SLATE, "Slate"),

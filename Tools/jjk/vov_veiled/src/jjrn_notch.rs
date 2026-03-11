@@ -7,7 +7,7 @@
 //! Provides message formatting for JJ-aware git commits that record session history:
 //! - jjx_notch: Standard commit with heat/pace context prefix
 //! - jjx_chalk: Empty commit marking a steeplechase event (pace-level)
-//! - Heat-level commits: nominate, slate, rail, tally, draft, retire
+//! - Heat-level commits: nominate, slate, rail, draft, retire
 //!
 //! Commit format: `jjb:HALLMARK:IDENTITY:ACTION: message`
 //! - HALLMARK: Version identifier (NNNN or NNNN-xxxxxxx)
@@ -25,17 +25,11 @@ pub const JJRN_COMMIT_PREFIX: &str = "jjb";
 
 
 /// Pace-level chalk markers (single-letter codes)
-/// - A = APPROACH: proposed approach before work begins
 /// - W = WRAP: pace completion summary
-/// - F = FLY: autonomous execution began (bridled pace)
-/// - B = BRIDLE: pace transitioned to bridled state
 /// - d = discussion: significant decision (lowercase, can be heat-level too)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrn_ChalkMarker {
-    Approach,
     Wrap,
-    Fly,
-    Bridle,
     Discussion,
 }
 
@@ -43,13 +37,10 @@ impl jjrn_ChalkMarker {
     /// Parse marker from string (accepts both single letter and full word)
     pub fn jjrn_parse(s: &str) -> Result<Self, String> {
         match s {
-            "A" | "a" | "APPROACH" | "approach" | "Approach" => Ok(jjrn_ChalkMarker::Approach),
             "W" | "w" | "WRAP" | "wrap" | "Wrap" => Ok(jjrn_ChalkMarker::Wrap),
-            "F" | "f" | "FLY" | "fly" | "Fly" => Ok(jjrn_ChalkMarker::Fly),
-            "B" | "b" | "BRIDLE" | "bridle" | "Bridle" => Ok(jjrn_ChalkMarker::Bridle),
             "d" | "D" | "DISCUSSION" | "discussion" | "Discussion" => Ok(jjrn_ChalkMarker::Discussion),
             _ => Err(format!(
-                "Invalid marker type '{}'. Valid: A(pproach), W(rap), F(ly), B(ridle), d(iscussion)",
+                "Invalid marker type '{}'. Valid: W(rap), d(iscussion)",
                 s
             )),
         }
@@ -58,10 +49,7 @@ impl jjrn_ChalkMarker {
     /// Get single-letter code for commit message
     pub fn jjrn_code(&self) -> char {
         match self {
-            jjrn_ChalkMarker::Approach => JJRNM_APPROACH,
             jjrn_ChalkMarker::Wrap => JJRNM_WRAP,
-            jjrn_ChalkMarker::Fly => JJRNM_FLY,
-            jjrn_ChalkMarker::Bridle => JJRNM_BRIDLE,
             jjrn_ChalkMarker::Discussion => JJRNM_DISCUSSION,
         }
     }
@@ -69,10 +57,7 @@ impl jjrn_ChalkMarker {
     /// Get full display string for the marker (for user-facing output)
     pub fn jjrn_as_str(&self) -> &'static str {
         match self {
-            jjrn_ChalkMarker::Approach => "APPROACH",
             jjrn_ChalkMarker::Wrap => "WRAP",
-            jjrn_ChalkMarker::Fly => "FLY",
-            jjrn_ChalkMarker::Bridle => "BRIDLE",
             jjrn_ChalkMarker::Discussion => "discussion",
         }
     }
@@ -80,7 +65,7 @@ impl jjrn_ChalkMarker {
     /// Returns true if this marker type requires a pace to be specified
     pub fn jjrn_requires_pace(&self) -> bool {
         match self {
-            jjrn_ChalkMarker::Approach | jjrn_ChalkMarker::Wrap | jjrn_ChalkMarker::Fly | jjrn_ChalkMarker::Bridle => true,
+            jjrn_ChalkMarker::Wrap => true,
             jjrn_ChalkMarker::Discussion => false,
         }
     }
@@ -90,7 +75,7 @@ impl jjrn_ChalkMarker {
 /// - N = Nominate: create new heat
 /// - S = Slate: add new pace
 /// - r = rail: reorder paces (lowercase)
-/// - T = Tally: add tack to pace
+/// - T = Tally: modify pace fields (docket, silks, state)
 /// - D = Draft: move pace between heats (uppercase, rare)
 /// - R = Retire: archive heat (uppercase)
 /// - f = furlough: change heat status or rename (lowercase)
@@ -169,24 +154,12 @@ pub fn jjrn_format_heat_discussion(firemark: &Firemark, description: &str) -> St
 
 /// Format a heat-level action message: jjb:HALLMARK:₣XX:X: description
 ///
-/// Used for nominate, slate, rail, tally, draft, retire operations.
+/// Used for nominate, slate, rail, draft, retire operations.
 pub fn jjrn_format_heat_message(firemark: &Firemark, action: jjrn_HeatAction, description: &str) -> String {
     let hallmark = vvc::vvcc_get_hallmark();
     let identity = format!("{}{}", FIREMARK_PREFIX, firemark.jjrf_as_str());
     let action_code = action.jjrn_code().to_string();
     vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, &action_code, description, None)
-}
-
-/// Format a bridle message: jjb:HALLMARK:₢CORONET:B: {agent} | {silks}
-///
-/// Creates the subject line for a B (bridle) commit.
-/// Body should contain the full direction text.
-pub fn jjrn_format_bridle_message(coronet: &Coronet, agent: &str, silks: &str) -> String {
-    let hallmark = vvc::vvcc_get_hallmark();
-    let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
-    let subject = format!("{} | {}", agent, silks);
-    let action = JJRNM_BRIDLE.to_string();
-    vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, &action, &subject, None)
 }
 
 /// Format a landing message: jjb:HALLMARK:₢CORONET:L: {agent} landed
@@ -200,4 +173,3 @@ pub fn jjrn_format_landing_message(coronet: &Coronet, agent: &str) -> String {
     let action = JJRNM_LANDING.to_string();
     vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity, &action, &subject, None)
 }
-
