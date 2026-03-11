@@ -1189,6 +1189,13 @@
         "₢AhAAN": {
           "tacks": [
             {
+              "ts": "260311-1454",
+              "state": "complete",
+              "text": "Remove dead V3 concepts from JJS0 and Rust: (1) Delete tack record/members/bridled-state from spec and types, rewrite pace record as flat fields in spec, (2) Delete arm command from spec and Rust, (3) Remove A/B/F/T steeplechase markers from spec and marker registry, (4) Delete or gut jjdo_mark (chalk) command — remove approach/fly/bridle markers, keep only discussion marker if needed, (5) Update all command behaviors from 'prepend tack' to flat field mutation (revise_docket, relabel, drop), (6) Remove jjdkr_/jjdkm_/jjdpe_bridled linked terms from mapping section, (7) CLAUDE.md mount protocol: remove approach chalk step. Spec-first: update JJS0 and mapping section, then align Rust to match.",
+              "silks": "cull-v3-spec-chalk-tack-bridle-arm",
+              "commit": "a249700"
+            },
+            {
               "ts": "260311-1429",
               "state": "rough",
               "text": "Remove dead V3 concepts from JJS0 and Rust: (1) Delete tack record/members/bridled-state from spec and types, rewrite pace record as flat fields in spec, (2) Delete arm command from spec and Rust, (3) Remove A/B/F/T steeplechase markers from spec and marker registry, (4) Delete or gut jjdo_mark (chalk) command — remove approach/fly/bridle markers, keep only discussion marker if needed, (5) Update all command behaviors from 'prepend tack' to flat field mutation (revise_docket, relabel, drop), (6) Remove jjdkr_/jjdkm_/jjdpe_bridled linked terms from mapping section, (7) CLAUDE.md mount protocol: remove approach chalk step. Spec-first: update JJS0 and mapping section, then align Rust to match.",
