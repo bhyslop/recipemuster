@@ -5,8 +5,7 @@ Research memo documenting the actual behavioral contracts of the Google Cloud
 IAM policy APIs used by the four grant patterns:
 {rbtoe_iam_grant_project}, {rbtoe_iam_grant_repo},
 {rbtoe_iam_grant_sa}, {rbtoe_iam_grant_bucket}.
-Also covers Secret Manager (inline grants in {rbtgo_depot_create}, candidate
-for extraction into a dedicated grant function).
+Also covers Secret Manager ({rbtoe_iam_grant_secret}).
 
 This document provides verified evidence for spec definition corrections and
 future convergence decisions.  It should be re-reviewed when any grant function
@@ -43,7 +42,7 @@ Research conducted: 2026-03-11.
 |POST
 |`{"policy":...}`
 
-|Secret Manager (inline in {rbtgo_depot_create})
+|Secret Manager ({rbtoe_iam_grant_secret})
 |GET (query param)
 |POST
 |`{"policy":...}`
@@ -273,8 +272,7 @@ Secret Manager supports both global and regional secret endpoints:
 * Regional: `projects/*/locations/*/secrets/*`
 
 The service proto defines `additional_bindings` for regional secrets at both
-`getIamPolicy` and `setIamPolicy`.  The current inline grants in
-{rbtgo_depot_create} use global endpoints.  If Recipe Bottle ever uses regional
+`getIamPolicy` and `setIamPolicy`.  The current {rbtoe_iam_grant_secret} grants use global endpoints.  If Recipe Bottle ever uses regional
 secrets, the IAM grant patterns would need to construct regional resource paths.
 Noting for completeness.
 
@@ -344,13 +342,12 @@ invariant — but they represent incorrect assumptions in the code.
  should never trigger.  Minor: the RBS0 spec previously said "when
  present" but it is always present.
 
-|Inline Secret Manager
-|No propagation retry
-|The three inline secret IAM grants in {rbtgo_depot_create}
- (lines 936-994 of rbgp_Payor.sh) have no propagation retry.
- They rely on `rbgu_poll_until_ok` having already confirmed the
- secret resource is visible, but this polls resource existence,
- not IAM policy writability.
+|Secret Manager ({rbtoe_iam_grant_secret})
+|Resolved — now has propagation retry
+|The three secret IAM grants (formerly inline in {rbtgo_depot_create})
+ are now extracted into {rbtoe_iam_grant_secret} with full propagation
+ retry per <<rbscip_trade_study>> backoff profile, explicit etag,
+ transient retry, and `requestedPolicyVersion=3`.
 
 |{rbtoe_iam_grant_repo}, {rbtoe_iam_grant_sa}, {rbtoe_iam_grant_bucket}
 |No requestedPolicyVersion in getIamPolicy

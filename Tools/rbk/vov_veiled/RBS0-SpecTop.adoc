@@ -187,6 +187,7 @@
 :rbtoe_iam_grant_repo:       <<rbtoe_iam_grant_repo,rbgi_add_repo_iam_role>>
 :rbtoe_iam_grant_sa:         <<rbtoe_iam_grant_sa,rbgi_add_sa_iam_role>>
 :rbtoe_iam_grant_bucket:     <<rbtoe_iam_grant_bucket,rbgi_add_bucket_iam_role>>
+:rbtoe_iam_grant_secret:     <<rbtoe_iam_grant_secret,rbgi_grant_secret_iam>>
 
 // Core Architecture Terms
 :at_base_utilities:          <<at_base_utilities,Base Utilities>>
@@ -3538,6 +3539,22 @@ A pattern that grants an {giam_role} binding on a {gcs_bucket} with propagation-
 . extracts etag for optimistic concurrency control (API always returns etag per <<rbscig_iam_grant_contracts>>),
 . composes updated policy JSON preserving existing bindings,
 . {rbbc_call} PUT link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] with etag; {rbbc_fatal} on 412 Precondition Failed (etag mismatch — {gcs_service} uniquely uses 412, not 409; see <<rbscig_iam_grant_contracts>>),
+. retries the full get-modify-set cycle on HTTP 400 "does not exist" (SA propagation delay),
+. {rbbc_fatal} on unexpected errors.
+
+Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x multiplier, 20s cap, 420s deadline).
+API contract details: <<rbscig_iam_grant_contracts>>.
+
+[[rbtoe_iam_grant_secret]]
+//axvo_procedure axd_transient axd_internal
+{rbtoe_iam_grant_secret}::
+A pattern that grants an {giam_role} binding on a Secret Manager secret with propagation-delay tolerance:
+
+. {rbbc_call} GET link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/getIamPolicy[secrets.getIamPolicy] with `?options.requestedPolicyVersion=3` (Secret Manager proto specifies GET; see <<rbscig_iam_grant_contracts>>); secrets always have IAM policies once created (200 with empty policy; see <<rbscig_iam_grant_contracts>>),
+. extracts etag for optimistic concurrency control (API always returns etag per <<rbscig_iam_grant_contracts>>),
+. composes updated policy JSON preserving existing bindings,
+. {rbbc_call} POST link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy] with etag; {rbbc_fatal} on 409 ABORTED (etag mismatch),
+. retries transient errors (429, 5xx) with bounded wait,
 . retries the full get-modify-set cycle on HTTP 400 "does not exist" (SA propagation delay),
 . {rbbc_fatal} on unexpected errors.
 

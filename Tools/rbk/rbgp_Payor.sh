@@ -933,65 +933,17 @@ rbgp_depot_create() {
 
   buc_step 'Grant Cloud Build service agent Secret Manager access (all 3 secrets)'
 
-  # --- IAM for api token secret ---
-  local -r z_api_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_secret_resource}:getIamPolicy"
-  rbgu_http_json "GET" "${z_api_iam_get_url}" "${z_token}" "depot_secret_get_iam_api"
-  local z_api_iam_code
-  z_api_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_api") || z_api_iam_code=""
-  test "${z_api_iam_code}" = "200" \
-    || buc_die "Failed to read IAM policy on secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} (HTTP ${z_api_iam_code}) — cannot safely grant access without reading existing policy"
+  rbgi_grant_secret_iam "${z_token}" "${z_api_secret_resource}" \
+    "serviceAccount:${z_cb_service_agent}" "roles/secretmanager.secretAccessor" \
+    "depot_secret_iam_api"
 
-  local z_api_updated_policy
-  z_api_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam_api" \
-    "roles/secretmanager.secretAccessor" "serviceAccount:${z_cb_service_agent}" "") \
-    || buc_die "Failed to build updated secret IAM policy for api token"
+  rbgi_grant_secret_iam "${z_token}" "${z_read_secret_resource}" \
+    "serviceAccount:${z_cb_service_agent}" "roles/secretmanager.secretAccessor" \
+    "depot_secret_iam_read"
 
-  local -r z_api_set_iam_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_secret_resource}:setIamPolicy"
-  local -r z_api_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam_api.json"
-  printf '{"policy":%s}\n' "${z_api_updated_policy}" > "${z_api_set_iam_body}" \
-    || buc_die "Failed to write api token secret IAM policy body"
-  rbgu_http_json "POST" "${z_api_set_iam_url}" "${z_token}" "depot_secret_set_iam_api" "${z_api_set_iam_body}"
-  rbgu_http_require_ok "Grant CB service agent access to api token secret" "depot_secret_set_iam_api"
-
-  # --- IAM for read_api token secret ---
-  local -r z_read_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_read_secret_resource}:getIamPolicy"
-  rbgu_http_json "GET" "${z_read_iam_get_url}" "${z_token}" "depot_secret_get_iam_read"
-  local z_read_iam_code
-  z_read_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_read") || z_read_iam_code=""
-  test "${z_read_iam_code}" = "200" \
-    || buc_die "Failed to read IAM policy on secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME} (HTTP ${z_read_iam_code}) — cannot safely grant access without reading existing policy"
-
-  local z_read_updated_policy
-  z_read_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam_read" \
-    "roles/secretmanager.secretAccessor" "serviceAccount:${z_cb_service_agent}" "") \
-    || buc_die "Failed to build updated secret IAM policy for read token"
-
-  local -r z_read_set_iam_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_read_secret_resource}:setIamPolicy"
-  local -r z_read_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam_read.json"
-  printf '{"policy":%s}\n' "${z_read_updated_policy}" > "${z_read_set_iam_body}" \
-    || buc_die "Failed to write read token secret IAM policy body"
-  rbgu_http_json "POST" "${z_read_set_iam_url}" "${z_token}" "depot_secret_set_iam_read" "${z_read_set_iam_body}"
-  rbgu_http_require_ok "Grant CB service agent access to read token secret" "depot_secret_set_iam_read"
-
-  # --- IAM for webhook secret ---
-  local -r z_wh_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_wh_secret_resource}:getIamPolicy"
-  rbgu_http_json "GET" "${z_wh_iam_get_url}" "${z_token}" "depot_secret_get_iam_webhook"
-  local z_wh_iam_code
-  z_wh_iam_code=$(rbgu_http_code_capture "depot_secret_get_iam_webhook") || z_wh_iam_code=""
-  test "${z_wh_iam_code}" = "200" \
-    || buc_die "Failed to read IAM policy on secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME} (HTTP ${z_wh_iam_code}) — cannot safely grant access without reading existing policy"
-
-  local z_wh_updated_policy
-  z_wh_updated_policy=$(rbgu_jq_add_member_to_role_capture "depot_secret_get_iam_webhook" \
-    "roles/secretmanager.secretAccessor" "serviceAccount:${z_cb_service_agent}" "") \
-    || buc_die "Failed to build updated secret IAM policy for webhook"
-
-  local -r z_wh_set_iam_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_wh_secret_resource}:setIamPolicy"
-  local -r z_wh_set_iam_body="${BURD_TEMP_DIR}/rbgp_secret_set_iam_webhook.json"
-  printf '{"policy":%s}\n' "${z_wh_updated_policy}" > "${z_wh_set_iam_body}" \
-    || buc_die "Failed to write webhook secret IAM policy body"
-  rbgu_http_json "POST" "${z_wh_set_iam_url}" "${z_token}" "depot_secret_set_iam_webhook" "${z_wh_set_iam_body}"
-  rbgu_http_require_ok "Grant CB service agent access to webhook secret" "depot_secret_set_iam_webhook"
+  rbgi_grant_secret_iam "${z_token}" "${z_wh_secret_resource}" \
+    "serviceAccount:${z_cb_service_agent}" "roles/secretmanager.secretAccessor" \
+    "depot_secret_iam_webhook"
 
   buc_step 'Grant Cloud Build service agent connection admin'
   rbgi_add_project_iam_role "${z_token}" "Grant CB Connection Admin" "projects/${z_depot_project_id}" \
