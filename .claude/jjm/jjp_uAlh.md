@@ -35,6 +35,16 @@ Beats do not have global identities. They are positional within a warrant (local
 | **School** | Per-pace planning phase. Reads pace docket AND codebase thoroughly (grep, read files, understand structure) to produce a fully resolved warrant. Does NOT web-search or produce work artifacts. Two internal phases: (1) assess docket quality — validate assumptions against codebase reality, check confidence gates; (2) plan — decompose into beats, write concrete prompts. May refuse to warrant a pace ("this docket has gaps"). Opus-tier, high human attention, one pace at a time. |
 | **Breeze** | Execution phase. jjx reads the warrant, creates worktrees, dispatches beats per the DAG. Each beat is a bare prompt issued to the specified model in its worktree. jjx manages sequencing, parallelism, and merge. Zero human attention. |
 | **Corral** | Per-pace review verb (parallels mount). No-param targets next candidate; with param targets specific pace. Three outcomes: accept as-is, refine interactively then accept, or reject (returns to pool for groom/reslate → school cycle). No rebreeze — rejection always flows upstream. Medium human attention. Replaces V3 "prance." |
+| **Tackle** | Named resource bundle within a heat. Silks-identified, mutable. Contains ₿-named file scopes (blazes mapping symbolic names to file paths/globs), ₿-named actions (command + exclusivity), gait affinities, and read-also entries. Tackles let dockets and gaits reference files indirectly — school resolves ₿ references to concrete paths when building warrants. |
+| **Blaze** | Symbolic file/resource reference defined by a tackle. Notation: `₿guide-doc`. Tackles own blaze definitions; dockets and gaits reference them. School resolves blazes to concrete paths in warrants — breeze never sees ₿ symbols, only resolved paths. Global uniqueness within a heat. |
+
+### Three Naming Regimes
+
+| Regime | Scope | Example | Where used |
+|--------|-------|---------|------------|
+| Minted prefixes | Code, specs, cross-chat precision | `jjep_`, `jjfg_` | Rust types, AsciiDoc anchors, AXLA |
+| Silks | Gallops entities (heats, paces, gaits, tackles) | `design-v4-data-model` | JSON data, human display |
+| Blazes (₿) | Tackle slot references | `₿guide-doc` | Dockets, gaits — resolved by school |
 
 ### Type/Instance Note
 
@@ -157,11 +167,12 @@ Gaits evolve through practice: start with a few simple single-beat gaits, use th
 - **Bridling eliminated**: School/breeze/corral replaces arm-and-fly. No bridled state in V4.
 - **Markers eliminated**: Restore on need.
 - **Field renames**: V3 `text` → `docket`, V3 `direction` → `warrant` (now structured JSON, not prose).
+- **Tackles as resource bundles**: New top-level gallops key alongside gaits. Silks-identified, mutable. Contains blaze definitions (₿-named file scopes), actions, gait affinities. Tackles decouple dockets from concrete paths — school resolves blazes when building warrants.
+- **Blaze identity (₿)**: Not a global identity like ₣/₢/₡/Ꝗ — blazes are scoped to their tackle, referenced by dockets and gaits, resolved by school. No identity table slot needed.
 
 ## Still Open
 
 - **Gait data model fields**: What does a gait record contain? Beat shape (DAG pattern), confidence gates, default model preferences — exact schema deferred. Key insight: gaits are checklists for school (decomposition guidance + confidence gates), not plan templates for breeze.
-- **Beat merge ceremony**: Merging beat branches into candidate branch after breeze — mechanical (automatic) or does it need a final beat in the warrant?
 - **Memory curation**: How does jjx curate prior-volte context for school prompts? jjx is the memory — reads volte history, rejection notes, prior warrants. The curation logic (what to include, how much) is the hardest design problem. Deferred — likely ₣Am scope.
 - **Longe output format**: What does the readiness report look like? Per-pace: breezable/needs-refinement/blocked + rationale + identified file types + candidate gaits.
 - **Longe verb and CLI**: New upper API verb `longe`. Maps to what jjx operation? Needs spec.
@@ -178,6 +189,7 @@ Gaits evolve through practice: start with a few simple single-beat gaits, use th
 - **Volte history synthesis deferred** (cchat-20260306): When a volte's pace is rejected, human grooms/reslates the docket with lessons learned. School starts fresh from the docket — the docket IS the memory. Machine-curated volte history is V4.1+ scope.
 - **Quirt immutability** (cchat-20260306): Gaits are immutable snapshots. When a gait evolves, mint a new quirt with the same silks. Multiple quirts share silks; "latest version" = highest quirt with matching silks. No `supersedes` field or lineage chain — flat scan over the gaits registry (fast for hundreds). Beats cite specific quirts for audit; school picks the latest. Same pattern as immutable container images with mutable tags.
 - **Corral as per-pace verb** (cchat-20260311): Corral promoted from "phase" to per-pace verb parallel to mount. No-param targets next candidate. Three outcomes: accept / refine interactively + accept / reject. Rejection flows upstream: groom → reslate → school → new volte. No rebreeze concept — fix is always upstream in dockets/gaits. Interactive refinement during corral expected for near-miss breeze output.
+- **Beat merge as prompt assembly** (cchat-20260311): Parallel beats with overlapping file scopes (e.g., multiple beats refining different sections of BCG) are not a git-merge problem — they're a prompt assembly problem. The merger beat gets a worktree forked from main (not from any single beat's output) and receives docket + warrant + per-beat diffs as assembled context in its prompt. jjx constructs this context; the merger beat writes the coherent combined file. Three information layers available to merger: (1) warrant — the static plan/intent, (2) beat diffs — the actual outputs, (3) docket — the human's original goal. No new data model needed; this is orchestration logic in jjx's beat dispatch.
 
 ## Gait Design Principles (distilled from cchat-20260302, ₢AiAAz retrospective)
 
@@ -245,4 +257,5 @@ These must be updated alongside the type changes, not as an afterthought.
 - cchat-20260304 — Groom session: backwards compatibility strategy, ₣AG triage, three-heat constellation, migration discipline
 - cchat-20260306 — Longe concept, school scope clarification (reads codebase, not web search), assessment/planning split, paddock compression
 - cchat-20260311 — Corral refinement: per-pace verb, three outcomes (accept/refine/reject), no rebreeze
+- cchat-20260311b — Tackle/blaze surfacing, beat merge as prompt assembly, parallel subtrees within a pace
 - ₢AhAAF/₢AhAAG — Verb restructure and slash command cleanup (completed, outcomes in CLAUDE.md)
