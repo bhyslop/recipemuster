@@ -1697,9 +1697,10 @@
         "₢AsAAF",
         "₢AsAAG",
         "₢AsAAC",
-        "₢AsAAD"
+        "₢AsAAD",
+        "₢AsAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAls.md",
       "paces": {
         "₢AsAAA": {
@@ -1844,6 +1845,17 @@
               "text": "## Goal\n\nExtract the 3x copy-pasted Secret Manager IAM grants from rbgp_Payor.sh (lines 936-994) into a new rbgi_grant_secret_iam function in rbgi_IAM.sh. The new function follows the corrected contract pattern from the start: explicit etag, correct error handling, propagation retry.\n\n## Current State\n\nThree inline blocks in rbgp_depot_create grant roles/secretmanager.secretAccessor to the Cloud Build service agent on three secrets (api token, read token, webhook). Each block does getIamPolicy (GET) → modify → setIamPolicy (POST) with no etag, no propagation retry, and no transient retry.\n\n## New Function Contract\n- GET getIamPolicy (Secret Manager proto specifies GET)\n- Require HTTP 200 (secrets always have policies once created; non-200 is real error)\n- Extract and pass etag (API always returns it)\n- Compose binding with etag for concurrency-safe write\n- POST setIamPolicy with {\"policy\":...} envelope\n- 409 ABORTED fatal (etag mismatch)\n- 429/5xx transient retry on SET\n- Propagation retry per RBSCIP backoff profile\n- Add rbtoe_iam_grant_secret mapping/definition in RBS0\n- Update RBSDC-depot_create.adoc to use the new linked term\n\n## Files\n- Tools/rbk/rbgi_IAM.sh — add rbgi_grant_secret_iam + kindle constants\n- Tools/rbk/rbgp_Payor.sh — replace 3x inline blocks with function calls\n- Tools/rbk/vov_veiled/RBS0-SpecTop.adoc — add rbtoe_iam_grant_secret definition\n- Tools/rbk/vov_veiled/RBSDC-depot_create.adoc — use new linked term\n- Tools/rbk/vov_veiled/RBSCIG-IamGrantContracts.adoc — update to reference new function",
               "silks": "rbgi-secret-manager-extraction",
               "commit": "b986ea9"
+            }
+          ]
+        },
+        "₢AsAAH": {
+          "tacks": [
+            {
+              "ts": "260311-1129",
+              "state": "rough",
+              "text": "## Goal\n\nClean up two minor inconsistencies in rbgi_IAM.sh discovered during AsAAF review.\n\n## Changes\n\n### 1. Homogenize z_get_code capture to die-on-failure\n\nProject function (line ~155) dies on HTTP code capture failure: `|| buc_die \"No HTTP code from getIamPolicy\"`. Repo and SA outer GET loops fall back to empty string: `|| z_get_code=\"\"`. The empty-string fallback works (propagation predicate rejects non-400, then rbgu_http_require_ok dies) but is an indirect path to the same crash. Change repo and SA to match project's die-on-failure pattern.\n\n### 2. Remove dead kindle constants\n\n`ZRBGI_INFIX_REPO_POLICY` and `ZRBGI_INFIX_RPOLICY_SET` in zrbgi_kindle appear unused — repo function uses `ZRBGI_INFIX_REPO_ROLE` and `ZRBGI_INFIX_REPO_ROLE_SET` instead. Verify no callers, then remove.\n\n## Files\n- Tools/rbk/rbgi_IAM.sh\n\n## Risk Assessment\nZero. Capture-failure homogenization changes behavior only when temp files are missing (already fatal). Dead constant removal is pure cleanup.",
+              "silks": "rbgi-kindle-and-capture-cleanup",
+              "commit": "19dc7b4"
             }
           ]
         }
