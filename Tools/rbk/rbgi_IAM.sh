@@ -69,8 +69,6 @@ zrbgi_kindle() {
   readonly ZRBGI_INFIX_REPO_ROLE="repo_role"
   readonly ZRBGI_INFIX_REPO_ROLE_SET="repo_role_set"
   readonly ZRBGI_INFIX_SA_IAM_VERIFY="sa_iamverify"
-  readonly ZRBGI_INFIX_REPO_POLICY="repo_policy"
-  readonly ZRBGI_INFIX_RPOLICY_SET="repo_policy_set"
   readonly ZRBGI_INFIX_BUCKET_IAM="bucket_iam"
   readonly ZRBGI_INFIX_BUCKET_IAM_SET="bucket_iam_set"
   readonly ZRBGI_INFIX_SECRET_IAM="secret_iam"
@@ -296,7 +294,7 @@ rbgi_add_repo_iam_role() {
     rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
 
     local z_get_code
-    z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || z_get_code=""
+    z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from repo getIamPolicy"
 
     # Check for propagation error on GET
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}"; then
@@ -403,7 +401,7 @@ rbgi_add_sa_iam_role() {
   rbgu_http_json "GET" \
     "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}" \
                             "${z_token}" "${ZRBGI_INFIX_SA_IAM_VERIFY}"
-  z_verify_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_SA_IAM_VERIFY}") || z_verify_code=""
+  z_verify_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_SA_IAM_VERIFY}") || buc_die "No HTTP code from SA verify"
   test "${z_verify_code}" = "200" || \
     buc_die "Target service account not accessible: ${z_target_sa_email} (HTTP ${z_verify_code})"
 
@@ -428,7 +426,7 @@ rbgi_add_sa_iam_role() {
       "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
 
     local z_code
-    z_code=$(rbgu_http_code_capture "${z_get_infix}") || z_code=""
+    z_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from SA getIamPolicy"
 
     # Check for propagation error on GET
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_code}"; then
@@ -544,7 +542,7 @@ rbgi_add_bucket_iam_role() {
     rbgu_http_json "GET" "${z_iam_url}?optionsRequestedPolicyVersion=3" "${z_token}" "${z_get_infix}"
 
     local z_code
-    z_code=$(rbgu_http_code_capture "${z_get_infix}") || z_code=""
+    z_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from bucket getIamPolicy"
 
     # Check for propagation error on GET
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_code}"; then
@@ -667,7 +665,7 @@ rbgi_grant_secret_iam() {
     rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
 
     local z_get_code
-    z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || z_get_code=""
+    z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from secret getIamPolicy"
 
     # Check for propagation error on GET
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}"; then
