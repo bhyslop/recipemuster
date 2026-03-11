@@ -18,6 +18,7 @@ fn jjtg_pace_state_serialization() {
 // Helper to create a minimal valid Gallops structure
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
+        schema_version: Some(4),
         next_heat_seed: "AB".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
@@ -373,6 +374,7 @@ fn jjtg_serialize_deserialize_roundtrip() {
 #[test]
 fn jjtg_multiple_errors_collected() {
     let mut gallops = jjrg_Gallops {
+        schema_version: Some(4),
         next_heat_seed: "!!!".to_string(), // Wrong length and chars
         heat_order: vec![],
         heats: BTreeMap::new(),

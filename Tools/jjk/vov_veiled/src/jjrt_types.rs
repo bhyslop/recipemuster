@@ -72,6 +72,8 @@ pub struct jjrg_Heat {
 /// Root Gallops structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct jjrg_Gallops {
+    #[serde(default)]
+    pub schema_version: Option<u32>,
     pub next_heat_seed: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub heat_order: Vec<String>,

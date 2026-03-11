@@ -74,6 +74,17 @@ pub(crate) fn zjjrg_is_commit_sha(s: &str) -> bool {
 pub fn jjrg_validate(gallops: &jjrg_Gallops) -> Result<(), Vec<String>> {
     let mut errors = Vec::new();
 
+    // Rule 0: schema_version must be Some(4)
+    match gallops.schema_version {
+        Some(4) => {}
+        Some(v) => {
+            errors.push(format!("schema_version must be 4, got {}", v));
+        }
+        None => {
+            errors.push("schema_version is missing".to_string());
+        }
+    }
+
     // Rule 1: next_heat_seed must be 2 URL-safe base64 characters
     if gallops.next_heat_seed.len() != 2 {
         errors.push(format!(

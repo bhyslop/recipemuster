@@ -58,6 +58,7 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
             }
         }
         Gallops {
+            schema_version: Some(4),
             next_heat_seed: "AA".to_string(),
             heat_order: vec![],
             heats: BTreeMap::new(),
@@ -113,6 +114,7 @@ mod tests {
         let td = JjkTestDir::new("jjk_test_nominate_appends_to_heat_order");
 
         let mut gallops = jjrg_Gallops {
+            schema_version: Some(4),
             next_heat_seed: "AA".to_string(),
             heat_order: vec![],
             heats: BTreeMap::new(),

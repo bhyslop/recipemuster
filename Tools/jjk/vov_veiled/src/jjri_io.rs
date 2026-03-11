@@ -92,10 +92,10 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     let mut gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-    // Detect old-format files: heat_order absent in JSON → serde default → empty vec.
+    // Detect old-format files: heat_order absent or schema_version absent.
     // Old-format files cannot pass round-trip check because BTreeMap serializes heats
     // in sorted key order, which differs from original furlough-shuffled order.
-    let is_migration_mode = gallops.heat_order.is_empty();
+    let is_migration_mode = gallops.heat_order.is_empty() || gallops.schema_version.is_none();
 
     // Round-trip validation: run before recomputation to validate the stored format.
     // Skipped for old-format files (heat_order empty) — BTreeMap key order differs from
@@ -119,10 +119,13 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
         heat.paddock_file = jjri_paddock_path(bare);
     }
 
-    // Populate heat_order from sorted heats keys on first load of old-format file.
-    // BTreeMap guarantees sorted key order here.
+    // Populate missing fields on first load of old-format file.
+    // BTreeMap guarantees sorted key order for heat_order.
     if is_migration_mode {
-        gallops.heat_order = gallops.heats.keys().cloned().collect();
+        if gallops.heat_order.is_empty() {
+            gallops.heat_order = gallops.heats.keys().cloned().collect();
+        }
+        gallops.schema_version = Some(4);
     }
 
     // Paddock existence check: verify each encoded paddock file exists on disk.

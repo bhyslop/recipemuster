@@ -17,6 +17,7 @@ use std::collections::BTreeMap;
 // Sets next_heat_seed to "AC" so that manually-created "AB" heat doesn't conflict
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
+        schema_version: Some(4),
         next_heat_seed: "AC".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
