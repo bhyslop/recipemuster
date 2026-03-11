@@ -1695,10 +1695,11 @@
         "₢AsAAB",
         "₢AsAAA",
         "₢AsAAF",
+        "₢AsAAG",
         "₢AsAAC",
         "₢AsAAD"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAls.md",
       "paces": {
         "₢AsAAA": {
@@ -1796,6 +1797,17 @@
               "text": "## Goal\n\nBring the 4 grant functions in rbgi_IAM.sh into compliance with the corrected RBS0 spec definitions and RBSCIG research findings.\n\n## Changes\n\n### rbtoe_iam_grant_project (rbgi_add_project_iam_role)\n- Change 412 handler (line 199) to 409 ABORTED — CRM returns 409, not 412\n- The 412 case should become a dead-code removal or unreachable assertion\n- Existing etag handling is already correct (extract, assert non-empty, pass)\n\n### rbtoe_iam_grant_repo (rbgi_add_repo_iam_role)\n- Remove 404 → vanilla-init handler (line 304-307) — API never returns 404 for existing repos; replace with rbgu_http_require_ok\n- Extract etag explicitly from getIamPolicy response; pass to compose function\n- Add 409 ABORTED handler (fatal, etag mismatch)\n- Change HTTP method from POST to GET for getIamPolicy (proto specifies GET)\n- Add 429/5xx transient retry on SET (currently absent)\n\n### rbtoe_iam_grant_sa (rbgi_add_sa_iam_role)\n- Remove non-200 → vanilla-init handler (line 411-413) — API returns 200 for existing SAs; non-200 is real error; replace with rbgu_http_require_ok\n- Extract etag explicitly from getIamPolicy response; pass to compose function\n- Add 409 ABORTED handler (fatal, etag mismatch)\n- Add 429/5xx transient retry on SET (currently absent)\n\n### rbtoe_iam_grant_bucket (rbgi_add_bucket_iam_role)\n- Assert etag non-empty instead of fallback to empty (line 507) — API always returns etag\n- Add 429/5xx transient retry on SET (currently absent)\n- 412 handler is correct for Storage (unique to this API)\n\n## Files\n- Tools/rbk/rbgi_IAM.sh — all changes in this file\n\n## Risk\nMedium. Removing false error handlers means we die on previously-silent errors. This is correct behavior (masking errors is worse) but could surface latent issues. The green baseline from AsAAB validates current happy path.",
               "silks": "rbgi-etag-and-error-compliance",
               "commit": "5e294b4"
+            }
+          ]
+        },
+        "₢AsAAG": {
+          "tacks": [
+            {
+              "ts": "260311-1053",
+              "state": "rough",
+              "text": "## Goal\n\nExtract the 3x copy-pasted Secret Manager IAM grants from rbgp_Payor.sh (lines 936-994) into a new rbgi_grant_secret_iam function in rbgi_IAM.sh. The new function follows the corrected contract pattern from the start: explicit etag, correct error handling, propagation retry.\n\n## Current State\n\nThree inline blocks in rbgp_depot_create grant roles/secretmanager.secretAccessor to the Cloud Build service agent on three secrets (api token, read token, webhook). Each block does getIamPolicy (GET) → modify → setIamPolicy (POST) with no etag, no propagation retry, and no transient retry.\n\n## New Function Contract\n- GET getIamPolicy (Secret Manager proto specifies GET)\n- Require HTTP 200 (secrets always have policies once created; non-200 is real error)\n- Extract and pass etag (API always returns it)\n- Compose binding with etag for concurrency-safe write\n- POST setIamPolicy with {\"policy\":...} envelope\n- 409 ABORTED fatal (etag mismatch)\n- 429/5xx transient retry on SET\n- Propagation retry per RBSCIP backoff profile\n- Add rbtoe_iam_grant_secret mapping/definition in RBS0\n- Update RBSDC-depot_create.adoc to use the new linked term\n\n## Files\n- Tools/rbk/rbgi_IAM.sh — add rbgi_grant_secret_iam + kindle constants\n- Tools/rbk/rbgp_Payor.sh — replace 3x inline blocks with function calls\n- Tools/rbk/vov_veiled/RBS0-SpecTop.adoc — add rbtoe_iam_grant_secret definition\n- Tools/rbk/vov_veiled/RBSDC-depot_create.adoc — use new linked term\n- Tools/rbk/vov_veiled/RBSCIG-IamGrantContracts.adoc — update to reference new function",
+              "silks": "rbgi-secret-manager-extraction",
+              "commit": "b986ea9"
             }
           ]
         }
