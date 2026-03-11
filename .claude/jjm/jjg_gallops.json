@@ -690,6 +690,7 @@
         "₢AUAAD",
         "₢AUAAI",
         "₢AUAAJ",
+        "₢AUAAK",
         "₢AUAAA",
         "₢AUAAB",
         "₢AUAAE",
@@ -697,7 +698,7 @@
         "₢AUAAG",
         "₢AUAAH"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -831,6 +832,17 @@
               "text": "Make the -vouch artifact multi-platform via buildx, matching the -about pattern.\n\n## Problem\n\nrbgjv03 uses plain `docker build` + `docker push`, producing an amd64-only image. On arm64 hosts, `docker pull` warns about platform mismatch. The -about artifact (rbgjb08) already uses buildx correctly.\n\n## Work\n\n1. Update Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh to use `docker buildx build --push --platform=...` instead of plain `docker build` + `docker push`\n2. Follow the rbgjb08 pattern: reuse the rb-builder instance, pass platform substitution vars\n3. Ensure the vouch Cloud Build step has the necessary substitution variables (_RBGV_PLATFORMS or equivalent)\n4. Update rbf_Foundry.sh vouch build JSON composition if new substitutions are needed\n\n## Acceptance\n\n- `docker pull` of -vouch artifact on arm64 host produces no platform warning\n- Vouch contents (vouch_summary.json, verify-*.json) identical across platform variants\n- No new host tooling dependencies",
               "silks": "vouch-artifact-multiplatform",
               "commit": "dd968cb"
+            }
+          ]
+        },
+        "₢AUAAK": {
+          "tacks": [
+            {
+              "ts": "260310-1922",
+              "state": "rough",
+              "text": "Require local -vouch artifact on every bottle start, unconditionally.\n\n## Problem\n\nThe current vouch gate only fires on the auto-summon path (when -image is missing locally). If -image is already local, no vouch check happens. A previously-pulled-but-unvouched image starts without complaint.\n\n## Design\n\n1. On every bottle start, for each vessel (sentry + bottle), check that the -vouch image exists locally via `docker image inspect` on the vouch tag\n2. If -vouch is missing locally: fatal — do not start, do not auto-summon, do not fall back to remote HEAD check\n3. This means summon (which now pulls -vouch) becomes the prerequisite for bottle start\n4. Remove or demote the remote vouch gate HEAD check — local presence is the authority\n\n## Rationale\n\nLocal -vouch presence proves the operator deliberately acquired the attestation. Remote HEAD check only proves the tag exists in GAR — weaker trust. After the summon change (now pulls -vouch), requiring local presence is a natural tightening.\n\n## Files\n\n- Tools/rbk/rbob_bottle.sh: add unconditional local vouch image inspect to preflight, fatal if missing\n- Tools/rbk/rbf_Foundry.sh: rbf_vouch_gate may be simplified or removed if local-only check replaces it\n\n## Acceptance\n\n- Bottle start with -vouch locally present: succeeds\n- Bottle start without -vouch locally: fatal error with clear message to run summon first\n- No network calls required for vouch validation at start time",
+              "silks": "local-vouch-preflight-gate",
+              "commit": "4613673"
             }
           ]
         }
