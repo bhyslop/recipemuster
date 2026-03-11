@@ -1,0 +1,110 @@
+[[rbshr_horizon_roadmap]]
+==== Horizon Roadmap
+
+Defined-but-unscoped future work across Recipe Bottle.  Each item has a
+rationale (why it matters), a trigger (when to revisit), and a reference
+(where the evidence lives).
+
+Items here are not planned for any heat.  When an item becomes actionable,
+it moves into a heat as paces with proper dockets.  This is the single
+collection point for big changes — individual spec subdocuments should
+cross-reference here rather than maintaining local "Future Work" sections.
+
+===== IAM / Identity Infrastructure
+
+**SA numeric ID for member references.**
+Google recommends using a {giam_service_account}'s numeric ID rather than its
+email address when referencing it immediately after creation, to reduce
+propagation delay.  Recipe Bottle uses email addresses throughout, which is
+why propagation retry (<<rbscip_trade_study>> backoff profile) is necessary.
+Switching to numeric ID could reduce retry frequency but would require
+threading the numeric ID from SA creation responses through all call chains
+that construct `serviceAccount:` member strings.  Requires verification that
+`setIamPolicy` accepts numeric ID in member strings.
+_Trigger_: if propagation retries become a significant wall-clock cost in
+depot creation or governor reset.
+_Reference_: <<rbscig_iam_grant_contracts>> (SA propagation section, evidence table).
+
+**Read-back verification universalization.**
+Currently only {rbtoe_iam_grant_project} performs post-write verification
+(re-reading policy to confirm the granted role is observable).
+{rbtoe_iam_grant_repo}, {rbtoe_iam_grant_sa}, and {rbtoe_iam_grant_bucket}
+trust the 200 from `setIamPolicy`.  Adding verification universally would
+provide stronger guarantees but adds an HTTP round-trip and a new timeout
+window per grant.
+_Trigger_: after etag convergence (\u20a2AsAAF) has been validated in production
+and we have confidence in the corrected grant contracts.
+_Reference_: <<rbscig_iam_grant_contracts>> (Convergence Analysis section).
+
+**SA preflight universalization.**
+Currently only {rbtoe_iam_grant_sa} performs a pre-flight existence check on
+the target {giam_service_account}.  Applying it to all grant types when the
+member is a service account requires conditional logic and changes behavior
+for non-SA members.
+_Trigger_: if grant failures due to non-existent members become a diagnostic
+problem.
+_Reference_: <<rbscig_iam_grant_contracts>> (Convergence Analysis section).
+
+===== Container Runtime
+
+**Podman as first-class deployment target.**
+Recipe Bottle currently deploys to Podman on workstations via the bottle
+lifecycle (RBSBS, RBSBR, RBSBL).  Podman support is functional but not
+hardened — the sentry container, network isolation, and eBPF enforcement
+assume Linux Podman with rootful access.  Expanding to rootless Podman,
+Podman on macOS (via podman-machine), or alternative container runtimes
+would require revisiting the security model and network architecture.
+_Trigger_: user demand for rootless deployment or macOS-native workflows
+beyond the current Podman VM approach.
+_Reference_: RBSPV-PodmanVmSupplyChain.adoc (current VM supply chain);
+RBSBS, RBSBR, RBSBL (bottle lifecycle specs).
+
+===== Build Pipeline Security
+
+Items below are evaluated and consciously deferred.  Full analysis with
+revisit triggers lives in RBSCB-CloudBuildPosture.adoc.
+
+**Egress lockdown.**
+Set `egressOption: NO_PUBLIC_EGRESS` on Private Pool workers.  Requires
+dependency mirroring for all external resources (base images, tool images).
+Largest cascading change in pipeline history.  Foundation for VPC-SC.
+_Trigger_: compliance requirement or threat model change requiring
+network isolation of build workers.
+_Reference_: RBSCB-CloudBuildPosture.adoc (Potential Hardening: Egress Lockdown).
+
+**VPC Service Controls perimeter.**
+Wrap depot project in VPC-SC perimeter restricting API access.  Requires
+egress lockdown as prerequisite, org-level admin for perimeter creation,
+and verification of every GCP API call in the pipeline.
+_Trigger_: organizational security policy mandating VPC-SC, or data
+exfiltration risk assessment.
+_Reference_: RBSCB-CloudBuildPosture.adoc (Potential Hardening: VPC Service Controls).
+
+**Cosign image signing.**
+Cryptographic signatures on images, verifiable by downstream consumers.
+KMS-backed keyed signing preferred for egress-lockdown compatibility.
+Currently redundant given CB-native SLSA v1.0 Build Level 3 attestation.
+_Trigger_: external image distribution, trust verification needed outside
+GCP, or builder strategy expanding beyond Google Cloud Build.
+_Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Cosign).
+
+**Binary Authorization.**
+Deploy-time policy enforcement (only attested images can be deployed).
+Technically achievable now with CB-native SLSA Level 3.  Not beneficial
+until deployment targets include GKE or Cloud Run.
+_Trigger_: deployment targets change from Podman workstations to managed
+container platforms.
+_Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Binary Authorization).
+
+**Dockerfile base image digest validation.**
+Builder step images are digest-pinned, but user-authored Dockerfiles in
+vessel build contexts are not validated.  A vessel with `FROM ubuntu:22.04`
+uses a mutable tag.  Constrains vessel authors (policy decision).
+_Trigger_: vessel ecosystem matures beyond internal-only use.
+_Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Dockerfile base image).
+
+**Reproducibility verification.**
+Periodic independent rebuilds compared by digest.  Requires reproducible
+toolchains — a vessel-author discipline, not a pipeline control.
+_Trigger_: vessel ecosystem maturity and external distribution.
+_Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Reproducibility).

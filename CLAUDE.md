@@ -45,7 +45,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSBL** → `rbk/vov_veiled/RBSBL-bottle_launch.adoc`
 - **RBSBR** → `rbk/vov_veiled/RBSBR-bottle_run.adoc`
 - **RBSBS** → `rbk/vov_veiled/RBSBS-bottle_start.adoc`
-- **RBSCB** → `rbk/vov_veiled/RBSCB-CloudBuildRoadmap.adoc`
+- **RBSCB** → `rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc` (Cloud Build security posture and deferred hardening)
 - **RBSCE** → `rbk/vov_veiled/RBSCE-command_exec.adoc`
 - **RBSCIG** → `rbk/vov_veiled/RBSCIG-IamGrantContracts.adoc` (IAM Grant API Contracts - verified behavioral contracts per resource type)
 - **RBSCIP** → `rbk/vov_veiled/RBSCIP-IamPropagation.adoc`
@@ -62,6 +62,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSGD** → `rbk/vov_veiled/RBSGD-gdc_establish.adoc`
 - **RBSGR** → `rbk/vov_veiled/RBSGR-governor_reset.adoc`
 - **RBSGS** → `rbk/vov_veiled/RBSGS-GettingStarted.adoc`
+- **RBSHR** → `rbk/vov_veiled/RBSHR-HorizonRoadmap.adoc` (Horizon Roadmap - single collection point for defined-but-unscoped future work)
 - **RBSID** → `rbk/vov_veiled/RBSID-image_delete.adoc`
 - **RBSIP** → `rbk/vov_veiled/RBSIP-iptables_init.adoc`
 - **RBSIR** → `rbk/vov_veiled/RBSIR-image_retrieve.adoc`

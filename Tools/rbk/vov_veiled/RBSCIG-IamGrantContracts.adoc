@@ -401,18 +401,11 @@ Based on these findings, the following convergence opportunities exist:
 * **Project non-200 GET is a real error**: Projects always have IAM policies.
   Do not vanilla-init on non-200 for projects.
 
-**Require investigation before converging:**
+**Require investigation before converging** (tracked in <<rbshr_horizon_roadmap>>)**:**
 
-* **Read-back verification**: Currently only {rbtoe_iam_grant_project} does
-  post-write verification.  Adding it universally would provide stronger
-  guarantees but changes runtime behavior (additional HTTP round-trip, new
-  timeout window).  Worth pursuing in a future pace after etag convergence
-  has been validated in production.
-
-* **SA preflight universalization**: Currently only {rbtoe_iam_grant_sa}
-  performs SA existence pre-flight.  Applying it universally requires
-  conditional logic (is the member a service account?) and changes behavior
-  for non-SA members.  Deferring.
+* **Read-back verification universalization**
+* **SA preflight universalization**
+* **SA numeric ID for member references**
 
 ===== Evidence
 
