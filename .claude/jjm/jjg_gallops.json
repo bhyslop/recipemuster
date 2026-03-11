@@ -7,10 +7,10 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣AU",
     "₣As",
     "₣Ah",
     "₣AQ",
-    "₣AU",
     "₣AV",
     "₣AZ",
     "₣Aa",
@@ -683,9 +683,9 @@
       }
     },
     "₣AU": {
-      "silks": "rbw-mvp-release-finalize",
+      "silks": "rbk-mvp-3-release-finalize",
       "creation_time": "260131",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢AUAAD",
         "₢AUAAA",
