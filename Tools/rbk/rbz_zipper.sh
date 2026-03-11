@@ -45,6 +45,8 @@ zrbz_kindle() {
   buz_enroll RBZ_PAYOR_REFRESH   "rbw-PR" "${z_mod}" "rbgm_payor_refresh"
   buz_enroll RBZ_QUOTA_BUILD     "rbw-gqb" "${z_mod}" "rbgm_quota_build"
   buz_enroll RBZ_GITLAB_SETUP    "rbw-Pgl" "${z_mod}" "rbgm_gitlab_setup"
+  # Payor onboarding guide (pre-kindle, uses rbgm_onboard_cli.sh)
+  buz_enroll RBZ_PAYOR_ONBOARDING "rbw-PO" "rbgm_onboard_cli.sh" "rbgm_payor_onboarding"
 
   # Payor depot operations (rbgp_cli.sh)
   z_mod="rbgp_cli.sh"

@@ -461,6 +461,184 @@ rbgm_gitlab_setup() {
   buc_success "GitLab rubric repo setup guide displayed"
 }
 
+# Dashboard status line — no sentinel (used pre-kindle by onboarding guide)
+zrbgm_po_status() {
+  local -r z_flag="${1:-}"
+  local -r z_text="${2:-}"
+  if test "${z_flag}" = "1"; then
+    bug_ct " [*] " "${z_text}"
+  else
+    bug_t " [ ] ${z_text}"
+  fi
+}
+
+# Extract a KEY=VALUE from a file; stdout empty if missing.  grep-only, no sourcing.
+zrbgm_po_extract_capture() {
+  local -r z_file="${1:-}"
+  local -r z_key="${2:-}"
+  test -n "${z_key}"  || return 1
+  test -f "${z_file}" || return 1
+  local z_line=""
+  z_line=$(grep -m1 "^${z_key}=" "${z_file}") || return 1
+  echo "${z_line#"${z_key}="}"
+}
+
+rbgm_payor_onboarding() {
+  # No zrbgm_sentinel — works pre-kindle (load-bearing: the guide's purpose
+  # is to run before a valid regime exists; see docket for rationale)
+
+  buc_doc_brief "Adaptive onboarding guide — reads current state and shows next steps"
+  buc_doc_shown || return 0
+
+  # --- State probes (file/variable checks via grep, no API calls) ---
+  local z_rbrp=0
+  local z_oauth=0
+  local z_rubric=0
+  local z_depot=0
+  local z_governor=0
+  local z_director=0
+  local z_retriever=0
+  local z_nameplates=0
+
+  # Probe payor project
+  if test -f "${RBBC_rbrp_file}"; then
+    if grep -q '^RBRP_PAYOR_PROJECT_ID=.\+' "${RBBC_rbrp_file}"; then
+      z_rbrp=1
+    fi
+  fi
+
+  # Probe repo regime — extract secrets dir for credential file probes
+  local z_secrets_dir=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+    if grep -q '^RBRR_RUBRIC_REPO_URL=.\+' "${RBBC_rbrr_file}"; then
+      z_rubric=1
+    fi
+    if grep -q '^RBRR_DEPOT_PROJECT_ID=.\+' "${RBBC_rbrr_file}"; then
+      z_depot=1
+    fi
+  fi
+
+  # Probe OAuth credentials
+  if test -n "${z_secrets_dir}" && test -f "${z_secrets_dir}/rbro-payor.env"; then
+    z_oauth=1
+  fi
+
+  # Probe service account credentials
+  if test -n "${z_secrets_dir}"; then
+    if test -f "${z_secrets_dir}/rbra-governor.env";  then z_governor=1;  fi
+    if test -f "${z_secrets_dir}/rbra-director.env";  then z_director=1;  fi
+    if test -f "${z_secrets_dir}/rbra-retriever.env"; then z_retriever=1; fi
+  fi
+
+  # Probe vessel nameplates
+  local z_np=""
+  for z_np in "${RBBC_dot_dir}"/rbrn_*.env; do
+    if test -f "${z_np}"; then
+      z_nameplates=1
+      break
+    fi
+  done
+
+  # --- Status dashboard ---
+  bug_section "Recipe Bottle Onboarding"
+  bug_e
+  zrbgm_po_status "${z_rbrp}"       "1. Payor Establish     — GCP project + OAuth consent screen"
+  zrbgm_po_status "${z_oauth}"      "2. Payor Install       — OAuth credential flow"
+  zrbgm_po_status "${z_rubric}"     "3. GitLab Setup        — Rubric repo + access token"
+  zrbgm_po_status "${z_depot}"      "4. Depot Create        — GCP depot project"
+  zrbgm_po_status "${z_governor}"   "5. Governor Reset      — Admin service account"
+  zrbgm_po_status "${z_director}"   "6. Director Create     — Build service account"
+  zrbgm_po_status "${z_retriever}"  "7. Retriever Create    — Image pull service account"
+  zrbgm_po_status "${z_nameplates}" "8. Conjure & Vouch     — Build and verify vessel images"
+  bug_t " [ ] 9. Start & Tour        — Launch and explore a bottle"
+  bug_e
+
+  # --- Guided next step ---
+  if test "${z_rbrp}" = "0"; then
+    bug_section "Next: Payor Establish"
+    bug_t "  Create a GCP project and configure OAuth consent screen."
+    bug_t "  This is the billing anchor for all Recipe Bottle infrastructure."
+    bug_e
+    bug_t "  Run the guided procedure:"
+    buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
+    buc_success "Onboarding guide displayed"
+    return 0
+  fi
+
+  if test "${z_oauth}" = "0"; then
+    bug_section "Next: Payor Install"
+    bug_t "  Install OAuth credentials from the JSON file downloaded during Payor Establish."
+    bug_e
+    bug_t "  Run:"
+    buc_tabtarget "${RBZ_PAYOR_INSTALL}" "~/Downloads/client_secret_*.json"
+    buc_success "Onboarding guide displayed"
+    return 0
+  fi
+
+  if test "${z_rubric}" = "0"; then
+    bug_section "Next: GitLab Setup"
+    bug_t "  Create a GitLab repo for Cloud Build rubric files and access token."
+    bug_e
+    bug_t "  Run the guided procedure:"
+    buc_tabtarget "${RBZ_GITLAB_SETUP}"
+    buc_success "Onboarding guide displayed"
+    return 0
+  fi
+
+  if test "${z_depot}" = "0"; then
+    bug_section "Next: Depot Create"
+    bug_t "  Create the GCP depot project that hosts all build infrastructure."
+    bug_e
+    bug_t "  Run:"
+    buc_tabtarget "${RBZ_CREATE_DEPOT}" "<depot-name>"
+    buc_success "Onboarding guide displayed"
+    return 0
+  fi
+
+  if test "${z_governor}" = "0"; then
+    bug_section "Next: Governor Reset"
+    bug_t "  Create the governor service account (admin for depot project)."
+    bug_e
+    bug_t "  Run:"
+    buc_tabtarget "${RBZ_GOVERNOR_RESET}"
+    buc_success "Onboarding guide displayed"
+    return 0
+  fi
+
+  if test "${z_director}" = "0"; then
+    bug_section "Next: Director Create"
+    bug_t "  Create the director service account (executes Cloud Build operations)."
+    bug_e
+    bug_t "  Run:"
+    buc_tabtarget "${RBZ_CREATE_DIRECTOR}"
+    buc_success "Onboarding guide displayed"
+    return 0
+  fi
+
+  if test "${z_retriever}" = "0"; then
+    bug_section "Next: Retriever Create"
+    bug_t "  Create the retriever service account (pulls images for local bottles)."
+    bug_e
+    bug_t "  Run:"
+    buc_tabtarget "${RBZ_CREATE_RETRIEVER}"
+    buc_success "Onboarding guide displayed"
+    return 0
+  fi
+
+  bug_section "Next: Conjure, Vouch & Start"
+  bug_t "  Infrastructure is configured. Build, verify, and launch:"
+  bug_e
+  bug_t "  1. Conjure vessel images:"
+  buc_tabtarget "${RBZ_CONJURE_ARK}" "<vessel-name>"
+  bug_t "  2. Vouch (verify) the images:"
+  buc_tabtarget "${RBZ_VOUCH_ARK}"
+  bug_t "  3. Start a bottle:"
+  buc_tabtarget "${RBZ_BOTTLE_START}" "<vessel-name>"
+  bug_e
+  buc_success "Onboarding guide displayed"
+}
+
 rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
   zrbgm_sentinel
 
