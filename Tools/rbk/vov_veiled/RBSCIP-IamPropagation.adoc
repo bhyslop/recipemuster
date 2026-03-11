@@ -93,11 +93,11 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 
 * SA GET poll via `rbgu_poll_until_ok` -- retained as a fast-path check that the SA resource itself
   is readable, which typically resolves well before IAM policy propagation completes
-* The existing 429/5xx transient retry loop in `rbgi_add_project_iam_role` step 3 --
+* The existing 429/5xx transient retry loop in {rbtoe_iam_grant_project} step 3 --
   this handles a different failure class (rate limiting, server errors) and is preserved inside
   the new outer propagation retry
-* All IAM grant functions (`rbgi_add_project_iam_role`, `rbgi_add_repo_iam_role`,
-  `rbgi_add_sa_iam_role`, `rbgi_add_bucket_iam_role`) -- enhanced with propagation retry,
+* All IAM grant functions ({rbtoe_iam_grant_project}, {rbtoe_iam_grant_repo},
+  {rbtoe_iam_grant_sa}, {rbtoe_iam_grant_bucket}) -- enhanced with propagation retry,
   not replaced
 * Cloud Build service agent `roles/iam.serviceAccountTokenCreator` grant on Mason SA --
   this is for build-time impersonation (Cloud Build executing as Mason), unrelated to the readiness gate

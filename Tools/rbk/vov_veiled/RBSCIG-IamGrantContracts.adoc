@@ -1,0 +1,481 @@
+[[rbscig_iam_grant_contracts]]
+==== IAM Grant API Contracts
+
+Research memo documenting the actual behavioral contracts of the Google Cloud
+IAM policy APIs used by the four grant patterns:
+{rbtoe_iam_grant_project}, {rbtoe_iam_grant_repo},
+{rbtoe_iam_grant_sa}, {rbtoe_iam_grant_bucket}.
+Also covers Secret Manager (inline grants in {rbtgo_depot_create}, candidate
+for extraction into a dedicated grant function).
+
+This document provides verified evidence for spec definition corrections and
+future convergence decisions.  It should be re-reviewed when any grant function
+behavior is modified, when new resource types require IAM grants, or when
+Google API behavior changes are suspected.
+
+Findings are verified against API reference documentation, upstream proto
+definitions (`google.iam.v1.Policy`, per-service `service.proto` files), and
+ecosystem evidence (Terraform provider issues, Red Hat bugzilla, Pulumi issues).
+
+Research conducted: 2026-03-11.
+
+===== HTTP Method and Body Format
+
+[cols="2,2,2,2",options="header"]
+|===
+|API
+|getIamPolicy
+|setIamPolicy
+|SET body format
+
+|CRM Projects ({rbtoe_iam_grant_project})
+|POST (body: `{"options":{"requestedPolicyVersion":3}}`)
+|POST
+|`{"policy":...}`
+
+|IAM {giam_service_account_s} ({rbtoe_iam_grant_sa})
+|POST (body: `{}`)
+|POST
+|`{"policy":...}`
+
+|{gar_registry} ({rbtoe_iam_grant_repo})
+|GET (query param)
+|POST
+|`{"policy":...}`
+
+|Secret Manager (inline in {rbtgo_depot_create})
+|GET (query param)
+|POST
+|`{"policy":...}`
+
+|{gcs_service} ({rbtoe_iam_grant_bucket})
+|GET (query param)
+|PUT
+|raw policy (no envelope)
+|===
+
+The GET-vs-POST split reflects an API generation boundary.
+{gcs_service} predates Google's gRPC transcoding convention (AIP-127/AIP-136)
+and uses classical REST semantics (GET to read, PUT to replace).
+{gar_registry} and Secret Manager define their own RPC methods in their
+service protos with GET HTTP annotations, overriding the default IAM mixin POST.
+CRM Projects and IAM {giam_service_account_s} use the standard IAM mixin POST
+convention.
+
+Note on gRPC transcoding tolerance: the current {rbtoe_iam_grant_repo}
+implementation sends POST to an endpoint whose proto specifies GET.  This works
+because Google's gRPC transcoding layer accepts both methods when the operation
+is idempotent and the request body is empty or trivial.  This tolerance is
+not documented as a stable guarantee — it is an implementation artifact of the
+transcoding infrastructure.  Whether it will continue to work is unknown.
+
+===== Etag Behavior
+
+[cols="2,2,2,2",options="header"]
+|===
+|API
+|Etag in GET response
+|Mismatch error
+|No-etag behavior
+
+|CRM Projects ({rbtoe_iam_grant_project})
+|Always present
+|409 ABORTED
+|Unconditional overwrite
+
+|IAM {giam_service_account_s} ({rbtoe_iam_grant_sa})
+|Always present
+|409 ABORTED
+|Unconditional overwrite
+
+|{gar_registry} ({rbtoe_iam_grant_repo})
+|Always present
+|409 ABORTED
+|Unconditional overwrite
+
+|Secret Manager
+|Always present
+|409 ABORTED
+|Unconditional overwrite
+
+|{gcs_service} ({rbtoe_iam_grant_bucket})
+|Always present
+|412 Precondition Failed
+|Unconditional overwrite
+|===
+
+**Universal finding: every API always returns an etag.**
+The `etag` field is a required structural field of the `google.iam.v1.Policy`
+proto message (`bytes etag = 3`).  There is no documented scenario where a
+successful `getIamPolicy` response omits the etag.
+
+**Unconditional overwrite is dangerous.**
+All five APIs accept writes without etag and silently succeed.  If the existing
+policy is version 3 (IAM Conditions) and the caller sends a version 1 policy
+without etag, all conditions are silently destroyed.  The proto documentation
+explicitly warns: "If you omit the etag field, then IAM lets you overwrite a
+version 3 allow policy with a version 1 allow policy, and all of the conditions
+in the version 3 policy are lost."
+
+**{gcs_service} is the only 412 API.**
+All standard IAM mixin APIs (CRM, IAM, {gar_registry}, Secret Manager) return
+409 ABORTED on etag mismatch.  {gcs_service} returns 412 Precondition Failed.
+This is a genuine API family difference, not arbitrary — {gcs_service} uses
+metageneration-based preconditions and `If-Match` header semantics from its
+legacy REST design.
+
+**The single-writer invariant is necessary but not sufficient.**
+The operational invariant at the top of `rbgi_IAM.sh` ("Single admin actor.
+There are no concurrent writers in the same project.") protects against
+concurrent _Recipe Bottle_ operations.  However, Google's own internal
+processes — API enablement auto-grants, service agent auto-provisioning,
+organization policy inheritance changes — can modify project IAM concurrently
+and without notice.  This is why {rbtoe_iam_grant_project}'s etag handling is
+load-bearing even under single-writer, and why {rbtoe_iam_grant_repo} and
+{rbtoe_iam_grant_sa} should also use etag intentionally rather than relying on
+the single-writer assumption alone.
+
+**Accidental etag passthrough in current code.**
+The compose function (`rbgu_jq_add_member_to_role_capture`) applies
+`if $etag != "" then .etag = $etag else . end` — when the caller passes empty
+string for etag, the jq filter does nothing, leaving the original `.etag` field
+from the `getIamPolicy` response in the composed JSON.  This means
+{rbtoe_iam_grant_repo} and {rbtoe_iam_grant_sa} may already be _accidentally_
+sending etags via passthrough to `setIamPolicy`.  Whether those APIs then
+enforce the passthrough etag is unverified.  The current behavior is neither
+intentionally safe (explicit etag extraction and assertion) nor intentionally
+unsafe (deliberate unconditional overwrite) — it is accidental, and should be
+made intentional in either direction.
+
+===== Policy Version and requestedPolicyVersion
+
+The `requestedPolicyVersion` parameter in `getIamPolicy` controls which policy
+schema the caller declares it understands:
+
+[cols="2,2,3",options="header"]
+|===
+|requestedPolicyVersion
+|Policy has conditions?
+|Result
+
+|Omitted or 1
+|No
+|Returns version 1 policy
+
+|Omitted or 1
+|Yes
+|Returns version 1; conditions appear as mangled role names with `_withcond_` suffix + hash (e.g., `roles/iam.securityReviewer_withcond_58e135cabb940ad9346c`). Actual condition objects are stripped.
+
+|3
+|No
+|Returns version 1 policy (server won't inflate version unnecessarily)
+
+|3
+|Yes
+|Returns version 3 policy with full condition objects
+|===
+
+Currently only {rbtoe_iam_grant_project} requests version 3.
+{rbtoe_iam_grant_repo}, {rbtoe_iam_grant_sa}, and {rbtoe_iam_grant_bucket}
+do not request a specific version.  If any of those resources ever acquire
+conditioned IAM policies, the `getIamPolicy` response would silently mangle
+the conditions, and a subsequent `setIamPolicy` would destroy them.  This is
+a latent hazard: Recipe Bottle does not currently use IAM Conditions on these
+resource types, but future work or organization-level policy inheritance could
+introduce them without Recipe Bottle's knowledge.
+
+===== updateMask Default Behavior
+
+The `setIamPolicy` request includes an optional `updateMask` field (FieldMask).
+When not provided, it defaults to `bindings, etag`.  This means the `version`
+and `auditConfigs` fields in the submitted policy JSON are _ignored_ by the
+server unless the mask explicitly includes them.  The compose function should
+not need to manage `auditConfigs` (Recipe Bottle does not configure audit
+logging via IAM policy), but this default explains why submitting a policy with
+version=1 does not downgrade a version=3 policy when the mask is defaulted —
+the version field is simply ignored.
+
+===== Empty-Policy / No-Policy Behavior
+
+[cols="2,3,1",options="header"]
+|===
+|API
+|getIamPolicy on new resource
+|404 possible?
+
+|CRM Projects ({rbtoe_iam_grant_project})
+|200 + policy with bindings (project born with Owner grant)
+|No (403 if project does not exist — deliberate enumeration prevention)
+
+|IAM {giam_service_account_s} ({rbtoe_iam_grant_sa})
+|200 + empty policy with etag
+|No
+
+|{gar_registry} ({rbtoe_iam_grant_repo})
+|200 + empty policy with etag
+|No
+
+|Secret Manager
+|200 + empty policy with etag
+|No (404 = secret itself does not exist)
+
+|{gcs_service} ({rbtoe_iam_grant_bucket})
+|200 + policy with inherited bindings
+|No
+|===
+
+**No API returns 404 for "no IAM policy."**
+All resources that accept allow policies are created with default allow policies.
+`getIamPolicy` returns 200 with an empty-ish policy (no bindings, but etag and
+version present) for resources that have never had explicit IAM configuration.
+
+===== Propagation Error Strings
+
+The HTTP 400 errors containing `"does not exist"` and `"is not deleted"` that
+the grant functions retry on (per <<rbscip_trade_study>> backoff profile) are
+**empirically stable but not contractually guaranteed**.
+Google does not document error message text as stable API surface.
+The HTTP status code (400) is the stable signal; the message content is
+diagnostic, not machine-parseable contract.
+
+The two patterns represent different propagation directions:
+
+* `"does not exist"` — forward propagation: a newly-created {giam_service_account}
+  is not yet visible to the IAM policy service as a valid member.  The SA
+  resource has been created (GET returns 200) but the policy service has not yet
+  learned about it.
+
+* `"is not deleted"` — backward propagation: a recently-deleted
+  {giam_service_account} is still referenced in existing policy bindings.
+  The SA resource has been deleted but the policy service still considers it
+  a valid (or at least referenced) member.
+
+Multiple independent ecosystem sources (Terraform provider, Red Hat OpenShift
+installer, Pulumi) have depended on these strings for years without breakage.
+The Terraform Google provider explicitly treats HTTP 400 as retryable in IAM
+contexts (issue #8280), which constitutes strong ecosystem evidence that this
+pattern is reliable enough for major infrastructure tools.
+The practical risk of string instability is low but nonzero.
+
+**SA email vs numeric ID propagation.**
+Google's documentation recommends using a service account's numeric ID rather
+than its email address to reference it immediately after creation: "To identify
+a service account just after it is created, use its numeric ID rather than its
+email address."  Recipe Bottle uses email addresses throughout, which is why
+propagation retry is necessary.  Switching to numeric ID could reduce (but
+likely not eliminate) propagation delays.
+
+===== Secret Manager Regional Endpoints
+
+Secret Manager supports both global and regional secret endpoints:
+
+* Global: `projects/*/secrets/*`
+* Regional: `projects/*/locations/*/secrets/*`
+
+The service proto defines `additional_bindings` for regional secrets at both
+`getIamPolicy` and `setIamPolicy`.  The current inline grants in
+{rbtgo_depot_create} use global endpoints.  If Recipe Bottle ever uses regional
+secrets, the IAM grant patterns would need to construct regional resource paths.
+Noting for completeness.
+
+===== Current Code vs Actual API Contract
+
+This section catalogs discrepancies between the current implementation and the
+verified API contracts.  These are not necessarily bugs that cause failures —
+several work by accident or are protected by the single-writer operational
+invariant — but they represent incorrect assumptions in the code.
+
+[cols="1,2,3",options="header"]
+|===
+|Pattern
+|Discrepancy
+|Detail
+
+|{rbtoe_iam_grant_project}
+|412 handler targets wrong error code
+|Code handles 412 as "etag mismatch" (line 199 of rbgi_IAM.sh).
+ CRM actually returns 409 ABORTED.
+ The 412 case never fires; etag mismatches hit the 409 path
+ (`buc_die "HTTP 409 Conflict (fatal by invariant)"`), which
+ produces the correct outcome (fatal) but with the wrong diagnostic.
+
+|{rbtoe_iam_grant_repo}
+|404 handler for impossible response
+|Code initializes vanilla policy on HTTP 404 (line 304).
+ {gar_registry} `getIamPolicy` returns 200 with empty policy
+ for existing repos, never 404.
+ A 404 would mean the repository itself does not exist — vanilla init
+ would mask this real error.
+
+|{rbtoe_iam_grant_repo}
+|Uses POST for GET endpoint
+|Code sends POST to `getIamPolicy` (line 286).
+ {gar_registry} proto annotates this as GET.
+ Works via gRPC transcoding tolerance (the transcoding layer accepts
+ both methods when the operation is idempotent and the body is trivial)
+ but this tolerance is not a documented guarantee.
+
+|{rbtoe_iam_grant_repo}
+|Skips available etag
+|Passes empty string for etag (line 315), performing unconditional
+ overwrite despite the API always returning etag.
+ Safe under single-writer invariant but discards protection the API
+ provides for free.  See "Accidental etag passthrough" above — the
+ actual behavior may be passthrough rather than omission, but this
+ is accidental, not intentional.
+
+|{rbtoe_iam_grant_sa}
+|Vanilla init for impossible response
+|Code initializes vanilla policy on non-200 (line 411).
+ IAM `getIamPolicy` returns 200 with empty policy for existing SAs.
+ Non-200 means the SA does not exist or access denied — vanilla init
+ masks a real error.
+
+|{rbtoe_iam_grant_sa}
+|Skips available etag
+|Passes empty string for etag (line 419), performing unconditional
+ overwrite.  Same single-writer safety, same accidental passthrough
+ possibility, same missed intentional protection.
+
+|{rbtoe_iam_grant_bucket}
+|Etag described as conditional
+|Code extracts etag with fallback to empty (line 507).
+ {gcs_service} `getIamPolicy` always returns etag — the fallback
+ should never trigger.  Minor: the RBS0 spec previously said "when
+ present" but it is always present.
+
+|Inline Secret Manager
+|No propagation retry
+|The three inline secret IAM grants in {rbtgo_depot_create}
+ (lines 936-994 of rbgp_Payor.sh) have no propagation retry.
+ They rely on `rbgu_poll_until_ok` having already confirmed the
+ secret resource is visible, but this polls resource existence,
+ not IAM policy writability.
+
+|{rbtoe_iam_grant_repo}, {rbtoe_iam_grant_sa}, {rbtoe_iam_grant_bucket}
+|No requestedPolicyVersion in getIamPolicy
+|Only {rbtoe_iam_grant_project} requests policy version 3.
+ The other three do not, creating a latent hazard if conditioned
+ policies are ever introduced on those resource types (conditions
+ would be silently mangled and destroyed on read-modify-write).
+|===
+
+===== Convergence Analysis
+
+Based on these findings, the following convergence opportunities exist:
+
+**Safe to converge (zero new state space):**
+
+* **Always extract and pass etag intentionally**: Every API always returns etag.
+  Extracting it explicitly and passing it to `setIamPolicy` converts accidental
+  passthrough or unconditional overwrites to intentionally concurrency-safe
+  writes.  The compose function already handles etag correctly when provided.
+  This also protects against Google-internal concurrent policy modifications
+  that the single-writer invariant does not cover.
+
+* **Transient retry on SET (429/5xx)**: Currently only {rbtoe_iam_grant_project}
+  retries transient errors.  Adding bounded retry for 429 (rate limit) and 5xx
+  (server error) is universally correct and cannot cause new failures.
+
+* **Uniform etag-mismatch handling**: Handle 409 ABORTED for all standard IAM
+  mixin APIs, and 412 Precondition Failed for {gcs_service} only.  The current
+  project code's 412 handler should become a 409 handler.
+
+* **Request policy version 3 everywhere**: Protects against silent condition
+  destruction if conditioned policies are ever introduced on repo, SA, or
+  bucket resources.  For APIs that use GET (where version is a query param),
+  this is a query parameter addition; for POST APIs, it is a request body
+  field.
+
+**Load-bearing differences (do not homogenize):**
+
+* **GET vs POST for getIamPolicy**: API-mandated per service proto.
+  Cannot be unified.
+
+* **PUT vs POST for setIamPolicy**: {gcs_service} requires PUT.
+  Cannot be unified.
+
+* **Body wrapping** (`{"policy":...}` vs raw): {gcs_service} requires raw.
+  Cannot be unified.
+
+* **Project non-200 GET is a real error**: Projects always have IAM policies.
+  Do not vanilla-init on non-200 for projects.
+
+**Require investigation before converging:**
+
+* **Read-back verification**: Currently only {rbtoe_iam_grant_project} does
+  post-write verification.  Adding it universally would provide stronger
+  guarantees but changes runtime behavior (additional HTTP round-trip, new
+  timeout window).  Worth pursuing in a future pace after etag convergence
+  has been validated in production.
+
+* **SA preflight universalization**: Currently only {rbtoe_iam_grant_sa}
+  performs SA existence pre-flight.  Applying it universally requires
+  conditional logic (is the member a service account?) and changes behavior
+  for non-SA members.  Deferring.
+
+===== Evidence
+
+[cols="1,3",options="header"]
+|===
+|Claim
+|Source
+
+|Etag is a required field of google.iam.v1.Policy
+|https://github.com/googleapis/googleapis/blob/master/google/iam/v1/policy.proto[google.iam.v1.policy.proto] — `bytes etag = 3`
+
+|CRM setIamPolicy returns 409 on etag mismatch
+|https://docs.google.com/iam/docs/allow-policies[Understanding allow policies] — "There were concurrent policy changes" with HTTP 409
+
+|{gcs_service} setIamPolicy returns 412 on etag mismatch
+|https://github.com/hashicorp/terraform-provider-google/issues/7853[Terraform #7853] — empirical 412 `conditionNotMet` with `location: "If-Match"`
+
+|Omitting etag allows unconditional overwrite, can destroy conditions
+|https://docs.google.com/iam/docs/reference/rest/v1/Policy[IAM Policy reference] — "If you omit this field, then IAM lets you overwrite a version 3 allow policy with a version 1 allow policy"
+
+|All resources are created with default allow policies
+|https://docs.google.com/iam/docs/allow-policies[Understanding allow policies] — "All resources that accept allow policies are created with default allow policies"
+
+|{gar_registry} getIamPolicy uses HTTP GET
+|https://github.com/googleapis/googleapis/blob/master/google/devtools/artifactregistry/v1/service.proto[Artifact Registry service.proto] — `get: "/v1/{resource=...}:getIamPolicy"`
+
+|Secret Manager getIamPolicy uses HTTP GET
+|https://github.com/googleapis/googleapis/blob/master/google/cloud/secretmanager/v1/service.proto[Secret Manager service.proto] — `get: "/v1/{resource=...}:getIamPolicy"`
+
+|{gcs_service} uses GET/PUT (legacy REST, pre-gRPC transcoding)
+|https://docs.google.com/storage/docs/json_api/v1/buckets/getIamPolicy[buckets.getIamPolicy] — GET method; https://docs.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] — PUT method
+
+|SA propagation delay: typically < 2 minutes, can exceed 7 minutes
+|https://docs.google.com/iam/docs/access-change-propagation[Access change propagation]; https://docs.google.com/iam/docs/service-accounts-create[Creating service accounts] — "you might need to wait 60 seconds or more"
+
+|Google recommends numeric ID for newly-created SAs
+|https://docs.google.com/iam/docs/service-accounts-create[Creating service accounts] — "To identify a service account just after it is created, use its numeric ID rather than its email address"
+
+|400 "does not exist" is empirically stable across ecosystem
+|https://bugzilla.redhat.com/show_bug.cgi?id=1896218[Red Hat #1896218]; https://github.com/hashicorp/terraform-provider-google/issues/8280[Terraform #8280]; https://github.com/pulumi/pulumi-gcp/issues/1028[Pulumi #1028]
+
+|Terraform treats 400 as retryable in IAM contexts
+|https://github.com/hashicorp/terraform-provider-google/issues/8280[Terraform #8280] — 400 errors treated as concurrent-modification conflicts with retry logic
+
+|CRM returns 403 (not 404) for nonexistent projects
+|https://docs.google.com/resource-manager/reference/rest/v3/projects/getIamPolicy[projects.getIamPolicy] — "Permission is denied if the policy or the resource do not exist"
+
+|IAM SA getIamPolicy returns 200 with empty policy for new SAs
+|https://docs.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/getIamPolicy[serviceAccounts.getIamPolicy] — "returns an empty policy if the resource exists and does not have a policy set"
+
+|requestedPolicyVersion controls condition visibility
+|https://docs.google.com/iam/docs/allow-policies[Understanding allow policies] — version 1 response mangles conditions into `_withcond_` role suffixes
+
+|updateMask defaults to `bindings, etag`
+|https://docs.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] — "OPTIONAL: A FieldMask specifying which fields of the policy to modify"
+
+|Secret Manager supports regional secrets
+|https://github.com/googleapis/googleapis/blob/master/google/cloud/secretmanager/v1/service.proto[Secret Manager service.proto] — `additional_bindings` for `projects/*/locations/*/secrets/*`
+|===
+
+===== References
+
+* Research conducted: 2026-03-11
+* Related: <<rbscip_trade_study>> — IAM propagation retry backoff profile
+* Google API Improvement Proposals: https://google.aip.dev/136[AIP-136 Custom methods], https://google.aip.dev/127[AIP-127 HTTP and gRPC Transcoding]
+* Upstream proto: https://github.com/googleapis/googleapis/blob/master/google/iam/v1/iam_policy.proto[google.iam.v1.IAMPolicy service definition]

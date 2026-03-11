@@ -3486,29 +3486,32 @@ A pattern that polls a REST endpoint with GET until HTTP 200, confirming resourc
 {rbtoe_iam_grant_project}::
 A pattern that grants an {giam_role} binding on a GCP project with optimistic concurrency, propagation-delay tolerance, and strong read-back verification:
 
-. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/getIamPolicy[projects.getIamPolicy] with policy version 3,
-. extracts etag for optimistic concurrency control,
+. {rbbc_call} POST link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/getIamPolicy[projects.getIamPolicy] with policy version 3; {rbbc_require} HTTP 200 (projects always have IAM policies) or {rbbc_fatal},
+. extracts etag for optimistic concurrency control; {rbbc_require} etag non-empty (API always returns etag per <<rbscig_iam_grant_contracts>>),
 . composes updated policy JSON preserving existing bindings,
-. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] with etag; {rbbc_fatal} on 412 precondition failure or 409 conflict,
+. {rbbc_call} POST link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] with etag; {rbbc_fatal} on 409 ABORTED (etag mismatch — CRM uses 409, not 412; see <<rbscig_iam_grant_contracts>>),
 . retries transient errors (429, 5xx) with bounded wait,
 . retries the full get-modify-set cycle on HTTP 400 "does not exist" (SA propagation delay),
 . {rbbc_call} getIamPolicy to verify the granted role is observable in the returned policy,
 . {rbbc_fatal} if verification times out.
 
 Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x multiplier, 20s cap, 420s deadline).
+API contract details: <<rbscig_iam_grant_contracts>>.
 
 [[rbtoe_iam_grant_repo]]
 //axvo_procedure axd_transient axd_internal
 {rbtoe_iam_grant_repo}::
 A pattern that grants an {giam_role} binding on a {gar_registry} repository with propagation-delay tolerance:
 
-. {rbbc_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/getIamPolicy[repositories.getIamPolicy]; initializes vanilla policy on HTTP 404 (new repository, no policy yet),
+. {rbbc_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/getIamPolicy[repositories.getIamPolicy] (API proto specifies GET; see <<rbscig_iam_grant_contracts>>); API returns 200 with empty policy for new repositories (never 404),
+. extracts etag for optimistic concurrency control (API always returns etag per <<rbscig_iam_grant_contracts>>),
 . composes updated policy JSON preserving existing bindings,
-. {rbbc_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy],
+. {rbbc_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy] with etag; {rbbc_fatal} on 409 ABORTED (etag mismatch),
 . retries the full get-modify-set cycle on HTTP 400 "does not exist" (SA propagation delay),
 . {rbbc_fatal} on unexpected errors.
 
 Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x multiplier, 20s cap, 420s deadline).
+API contract details: <<rbscig_iam_grant_contracts>>.
 
 [[rbtoe_iam_grant_sa]]
 //axvo_procedure axd_transient axd_internal
@@ -3516,27 +3519,30 @@ Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x mul
 A pattern that grants an {giam_role} binding on a {giam_service_account} with existence pre-flight and propagation-delay tolerance:
 
 . {rbbc_require} target {giam_service_account} is accessible via link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[serviceAccounts.get] or {rbbc_fatal},
-. {rbbc_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/getIamPolicy[serviceAccounts.getIamPolicy]; initializes vanilla policy on non-200 (no policy yet),
+. {rbbc_call} POST link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/getIamPolicy[serviceAccounts.getIamPolicy]; API returns 200 with empty policy for existing SAs (non-200 indicates SA does not exist or access denied, not "no policy"; see <<rbscig_iam_grant_contracts>>),
+. extracts etag for optimistic concurrency control (API always returns etag per <<rbscig_iam_grant_contracts>>),
 . composes updated policy JSON preserving existing bindings,
-. {rbbc_call} link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy],
+. {rbbc_call} POST link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/setIamPolicy[serviceAccounts.setIamPolicy] with etag; {rbbc_fatal} on 409 ABORTED (etag mismatch),
 . retries the full get-modify-set cycle on HTTP 400 "does not exist" (SA propagation delay),
 . {rbbc_fatal} on unexpected errors.
 
 Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x multiplier, 20s cap, 420s deadline).
+API contract details: <<rbscig_iam_grant_contracts>>.
 
 [[rbtoe_iam_grant_bucket]]
 //axvo_procedure axd_transient axd_internal
 {rbtoe_iam_grant_bucket}::
 A pattern that grants an {giam_role} binding on a {gcs_bucket} with propagation-delay tolerance:
 
-. {rbbc_call} GET link:https://cloud.google.com/storage/docs/json_api/v1/buckets/getIamPolicy[buckets.getIamPolicy]; initializes vanilla policy on non-200,
-. extracts etag from existing policy when present,
+. {rbbc_call} GET link:https://cloud.google.com/storage/docs/json_api/v1/buckets/getIamPolicy[buckets.getIamPolicy]; buckets always have IAM policies (200 with inherited bindings; see <<rbscig_iam_grant_contracts>>),
+. extracts etag for optimistic concurrency control (API always returns etag per <<rbscig_iam_grant_contracts>>),
 . composes updated policy JSON preserving existing bindings,
-. {rbbc_call} PUT link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy],
+. {rbbc_call} PUT link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy] with etag; {rbbc_fatal} on 412 Precondition Failed (etag mismatch — {gcs_service} uniquely uses 412, not 409; see <<rbscig_iam_grant_contracts>>),
 . retries the full get-modify-set cycle on HTTP 400 "does not exist" (SA propagation delay),
 . {rbbc_fatal} on unexpected errors.
 
 Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x multiplier, 20s cap, 420s deadline).
+API contract details: <<rbscig_iam_grant_contracts>>.
 
 == Script Internals
 

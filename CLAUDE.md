@@ -47,6 +47,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSBS** → `rbk/vov_veiled/RBSBS-bottle_start.adoc`
 - **RBSCB** → `rbk/vov_veiled/RBSCB-CloudBuildRoadmap.adoc`
 - **RBSCE** → `rbk/vov_veiled/RBSCE-command_exec.adoc`
+- **RBSCIG** → `rbk/vov_veiled/RBSCIG-IamGrantContracts.adoc` (IAM Grant API Contracts - verified behavioral contracts per resource type)
 - **RBSCIP** → `rbk/vov_veiled/RBSCIP-IamPropagation.adoc`
 - **RBSCJ** → `rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`
 - **RBSCO** → `rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`
