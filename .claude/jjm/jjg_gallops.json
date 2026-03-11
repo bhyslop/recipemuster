@@ -697,8 +697,7 @@
         "₢AUAAE",
         "₢AUAAB",
         "₢AUAAG",
-        "₢AUAAH",
-        "₢AUAAM"
+        "₢AUAAH"
       ],
       "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
@@ -898,17 +897,6 @@
               "text": "New Director command to inspect a consecration's build consequences, SBOM, and provenance.\n\n## Problem\n\nThe supply chain metadata for a consecration (-about and -vouch artifacts) is opaque. A Director who conjured and vouched an ark has no easy way to see: what build strategy was used (native vs emulated), what packages are inside (SBOM), what the SLSA provenance actually attests to (and what it doesn't), or the verification results.\n\nThis came up in conversation — SLSA v1.0 Build L3 sounds impressive but its scope is narrow and non-obvious. The Director needs a command that makes consequences visible.\n\n## Design\n\nA consecration inspect command reads locally-present -about and -vouch images (pulled by summon) and presents a human-readable summary:\n\n- **Build strategy**: native or emulated, which platforms, QEMU involvement\n- **Source**: git repo + commit that produced this build\n- **Builder**: Google Cloud Build ID, service account, build timestamps\n- **SLSA provenance**: level, what it attests (build authenticity, input/output binding), what it does NOT attest (base image security, package integrity)\n- **SBOM summary**: package count, base image (pinned or unpinned tag), notable packages\n- **Vouch results**: per-platform pass/fail, verifier identity and version\n\nRequires -about and -vouch to be locally present (summon must have been run). Fatal if either is missing.\n\n## Data sources (all local, no network)\n\n- `-about` container: build_info.json (build metadata, SLSA level, git info, QEMU usage), sbom.json (syft package inventory), recipe.txt (Dockerfile)\n- `-vouch` container: vouch_summary.json (per-platform verdicts, verifier identity), verify-*.json (full SLSA provenance statements)\n\n## Implementation\n\n1. New command in rbf_Foundry.sh or separate module\n2. Extract files from -about and -vouch via `docker create` + `docker cp` into temp dir\n3. Parse JSON with jq, format human-readable output\n4. New colophon + tabtarget (e.g. rbw-CI.ConsecrationInspect.sh)\n5. Spec treatment in RBS0 for the new operation\n\n## Acceptance\n\n- Command produces readable summary from local -about and -vouch artifacts\n- SLSA section explains what provenance does and does not attest\n- SBOM section highlights base image pinning status\n- Build strategy section shows native vs emulated and why\n- Fatal with clear message if -about or -vouch not locally present",
               "silks": "consecration-inspect-command",
               "commit": "a62c7c3"
-            }
-          ]
-        },
-        "₢AUAAM": {
-          "tacks": [
-            {
-              "ts": "260311-1516",
-              "state": "rough",
-              "text": "## Goal\n\nCreate rbw-PO.PayorOverwritesRegime.sh (capital O, impactful) that resets RBRR to a blank-but-valid template suitable for shipping in a release.\n\n## Context\n\nEvery Recipe Bottle release must ship with an RBRR that new users can start from. The onboarding guide (rbw-Po, on heat As) reads this RBRR and walks users forward. This pace produces the blank canvas that the guide consumes.\n\n## Deliverables\n\n1. Determine what a blank RBRR looks like: every field present with empty or sentinel values so set -u survives and the onboarding guide can probe, but real operations correctly reject.\n2. rbw-PO tabtarget that overwrites rbrr.env with the blank template.\n3. Exercise: run rbw-PO then rbw-Po and verify the guide correctly detects blank state and emits first steps.\n\n## Design constraints\n- Capital O: this changes regime state, intentionally destructive\n- Part of release qualification sequence (relates to AUAAI release-qualification-gate)\n- Must be exercised before every release to verify guide works from blank\n\n## Files\n- Tools/rbk/rbgp_Payor.sh or rbgm_ManualProcedures.sh (reset function)\n- Tools/rbk/rbz_zipper.sh (enroll colophon)\n- tt/rbw-PO.PayorOverwritesRegime.sh",
-              "silks": "release-rbrr-reset",
-              "commit": "bc768d4"
             }
           ]
         }
@@ -1730,9 +1718,10 @@
         "₢AsAAI",
         "₢AsAAC",
         "₢AsAAD",
-        "₢AsAAH"
+        "₢AsAAH",
+        "₢AsAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAls.md",
       "paces": {
         "₢AsAAA": {
@@ -1927,6 +1916,24 @@
               "text": "## Goal\n\nCreate adaptive getting-started guide (rbgm_getting_started) and RBRR reset tabtarget forming the new-user onboarding funnel.\n\n## Deliverables\n\n### 1. RBRR reset mechanism\nTabtarget producing valid-but-incomplete RBRR: every field present with empty/sentinel values. Guide can probe without set -u failures; real operations correctly reject.\n\n### 2. Adaptive getting-started guide\nrbgm_getting_started() in rbgm_ManualProcedures.sh, wired to tabtarget. Reads RBRR state, shows progress status, emits next steps. Does NOT require enforced RBRR.\n\nPhases detected and guided:\n- Payor establish (points to existing rbgm_payor_establish)\n- Payor install (OAuth handshake)\n- GitLab rubric repo setup (points to existing rbgm_gitlab_setup)\n- Depot create\n- Governor reset + credential distribution\n- Director/retriever create\n- Conjure vessels (nsproto images)\n- Vouch arks\n- Start bottle, run test case\n- Tour: show vessels, images, what you built\n\n## Design constraints\n- Existing guides keep current integrity; guide points to them, does not rewrite\n- Each probe is simple file/variable check, no API calls for state detection\n- Guide and reset co-designed: reset defines starting state, guide defines progress\n- Lives in rbgm for now\n\n## Files\n- Tools/rbk/rbgm_ManualProcedures.sh\n- tt/ (new tabtargets for guide + reset)\n- Regime template files as needed",
               "silks": "adaptive-getting-started-guide",
               "commit": "78dfb14"
+            }
+          ]
+        },
+        "₢AsAAJ": {
+          "tacks": [
+            {
+              "ts": "260311-1516",
+              "state": "rough",
+              "text": "Drafted from ₢AUAAM in ₣AU.\n\n## Goal\n\nCreate rbw-PO.PayorOverwritesRegime.sh (capital O, impactful) that resets RBRR to a blank-but-valid template suitable for shipping in a release.\n\n## Context\n\nEvery Recipe Bottle release must ship with an RBRR that new users can start from. The onboarding guide (rbw-Po, on heat As) reads this RBRR and walks users forward. This pace produces the blank canvas that the guide consumes.\n\n## Deliverables\n\n1. Determine what a blank RBRR looks like: every field present with empty or sentinel values so set -u survives and the onboarding guide can probe, but real operations correctly reject.\n2. rbw-PO tabtarget that overwrites rbrr.env with the blank template.\n3. Exercise: run rbw-PO then rbw-Po and verify the guide correctly detects blank state and emits first steps.\n\n## Design constraints\n- Capital O: this changes regime state, intentionally destructive\n- Part of release qualification sequence (relates to AUAAI release-qualification-gate)\n- Must be exercised before every release to verify guide works from blank\n\n## Files\n- Tools/rbk/rbgp_Payor.sh or rbgm_ManualProcedures.sh (reset function)\n- Tools/rbk/rbz_zipper.sh (enroll colophon)\n- tt/rbw-PO.PayorOverwritesRegime.sh",
+              "silks": "release-rbrr-reset",
+              "commit": "1a9ea2d"
+            },
+            {
+              "ts": "260311-1516",
+              "state": "rough",
+              "text": "## Goal\n\nCreate rbw-PO.PayorOverwritesRegime.sh (capital O, impactful) that resets RBRR to a blank-but-valid template suitable for shipping in a release.\n\n## Context\n\nEvery Recipe Bottle release must ship with an RBRR that new users can start from. The onboarding guide (rbw-Po, on heat As) reads this RBRR and walks users forward. This pace produces the blank canvas that the guide consumes.\n\n## Deliverables\n\n1. Determine what a blank RBRR looks like: every field present with empty or sentinel values so set -u survives and the onboarding guide can probe, but real operations correctly reject.\n2. rbw-PO tabtarget that overwrites rbrr.env with the blank template.\n3. Exercise: run rbw-PO then rbw-Po and verify the guide correctly detects blank state and emits first steps.\n\n## Design constraints\n- Capital O: this changes regime state, intentionally destructive\n- Part of release qualification sequence (relates to AUAAI release-qualification-gate)\n- Must be exercised before every release to verify guide works from blank\n\n## Files\n- Tools/rbk/rbgp_Payor.sh or rbgm_ManualProcedures.sh (reset function)\n- Tools/rbk/rbz_zipper.sh (enroll colophon)\n- tt/rbw-PO.PayorOverwritesRegime.sh",
+              "silks": "release-rbrr-reset",
+              "commit": "bc768d4"
             }
           ]
         }
