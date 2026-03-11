@@ -968,13 +968,14 @@
         "₢AhAAB",
         "₢AhAAC",
         "₢AhAAA",
+        "₢AhAAO",
         "₢AhAAM",
         "₢AhAAD",
         "₢AhAAE",
         "₢AhAAJ",
         "₢AhAAK"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -1215,6 +1216,17 @@
               "text": "Remove dead V3 concepts from JJS0 and Rust: (1) Delete tack record/members/bridled-state from spec and types, rewrite pace record as flat fields in spec, (2) Delete arm command from spec and Rust, (3) Remove A/B/F/T steeplechase markers from spec and marker registry, (4) Delete or gut jjdo_mark (chalk) command — remove approach/fly/bridle markers, keep only discussion marker if needed, (5) Update all command behaviors from 'prepend tack' to flat field mutation (revise_docket, relabel, drop), (6) Remove jjdkr_/jjdkm_/jjdpe_bridled linked terms from mapping section, (7) CLAUDE.md mount protocol: remove approach chalk step. Spec-first: update JJS0 and mapping section, then align Rust to match.",
               "silks": "cull-v3-spec-chalk-tack-bridle-arm",
               "commit": "4a460f5"
+            }
+          ]
+        },
+        "₢AhAAO": {
+          "tacks": [
+            {
+              "ts": "260311-1603",
+              "state": "rough",
+              "text": "Opus-tier design conversation: define the V4 tackle and blaze data model in JJS0.\n\n## Scope\n\nThis pace produces JJS0 spec sections for the tackle/blaze system:\n\n1. **jjrg_Tackle type definition** — silks-identified, mutable, contains ₿-named file scopes, actions (command + exclusivity), gait affinities, read-also entries\n2. **Blaze (₿) mechanics** — definition ownership (tackle defines, gaits/dockets reference), uniqueness scope (per-heat), validation rules (no duplicates, no orphan references)\n3. **Tackle-gait interface contract** — how gaits declare required ₿ blazes, how jjx validates compatibility at school time\n4. **Exclusivity scopes** — jjee_ enum (worktree/workstation/project), how jjx enforces mutexes during breeze\n5. **Top-level gallops key** — tackles registry alongside gaits registry\n\n## Design constraints\n\n- Tackles decouple dockets from concrete paths — school resolves blazes, breeze sees only concrete values\n- Blaze is NOT a global identity (not in ₣/₢/₡/Ꝗ table) — scoped to tackle, resolved at school time\n- Paddock tackle/blaze vocabulary is authoritative starting point\n\n## Depends on\n- ₢AhAAA (design-v4-data-model) — pace/state model should be settled first\n\n## Produces\n- JJS0 section: V4 Tackle Data Model\n- JJS0 section: Blaze Mechanics\n- JJS0 section: Exclusivity Enforcement\n\n## Not bridleable\n\nDesign conversation — tackle is a new concept requiring careful edge-case exploration.",
+              "silks": "design-v4-tackle-blaze",
+              "commit": "6afca28"
             }
           ]
         }
