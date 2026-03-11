@@ -8,6 +8,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣As",
     "₣Ah",
     "₣AY",
     "₣Al",
@@ -23,8 +24,7 @@
     "₣Ac",
     "₣Ap",
     "₣Aq",
-    "₣Ar",
-    "₣As"
+    "₣Ar"
   ],
   "heats": {
     "₣AD": {
@@ -6821,7 +6821,7 @@
     "₣As": {
       "silks": "rbk-mvp-2-iam-grant-unification",
       "creation_time": "260309",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢AsAAB",
         "₢AsAAA",
