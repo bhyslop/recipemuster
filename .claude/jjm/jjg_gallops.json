@@ -970,13 +970,14 @@
         "₢AhAAA",
         "₢AhAAO",
         "₢AhAAP",
+        "₢AhAAQ",
         "₢AhAAM",
         "₢AhAAD",
         "₢AhAAE",
         "₢AhAAJ",
         "₢AhAAK"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -1239,6 +1240,17 @@
               "text": "Opus-tier design conversation: define the V4 gait record and quirt identity model in JJS0.\n\n## Scope\n\nThis pace produces JJS0 spec sections for the gait system:\n\n1. **jjrg_Gait record fields** — beat templates with ₿ references, silks (shared across versions), model preferences, confidence gates, required blazes\n2. **Quirt identity mechanics** — allocation strategy, next_quirt seed in gallops, immutability (new quirt per evolution, same silks)\n3. **Gait-school interface** — how school reads gaits as checklists for decomposition, confidence gates as stop conditions\n4. **Gaits registry** — top-level gallops key, keyed by quirt, schema\n\n## Design constraints\n\n- Gaits are school-time resources, not breeze-time — warrants are fully resolved\n- Gaits are immutable snapshots; evolution mints new quirts with same silks\n- Gait design principles from paddock are authoritative (checklists for school, confidence gates most valuable)\n\n## Depends on\n- ₢AhAAO (design-v4-tackle-blaze) — gait records reference ₿ blazes, so tackle schema should be settled\n\n## Produces\n- JJS0 section: V4 Gait Data Model\n- JJS0 section: Quirt Identity and Allocation\n\n## Not bridleable\n\nDesign conversation — gait record shape has been intentionally deferred; first concrete definition needs interactive exploration.",
               "silks": "design-v4-gait-quirt",
               "commit": "13231a2"
+            }
+          ]
+        },
+        "₢AhAAQ": {
+          "tacks": [
+            {
+              "ts": "260311-1603",
+              "state": "rough",
+              "text": "Opus-tier design conversation: define the V4 warrant structure, volte/caracole model, and identity system update in JJS0.\n\n## Scope\n\nThis pace produces JJS0 spec sections for execution infrastructure:\n\n1. **Warrant field shape** — formalize the JSON beat map structure from paddock example into spec (id, quirt, model, depends, files, prompt). Document merger-beat prompt assembly pattern (docket + warrant + per-beat diffs as context).\n2. **Caracole/volte data model** — next_caracole seed on heat, branch naming conventions (jj/₡AhAA, jj/₡AhAA/₢AhAAB), volte lifecycle (branch existence = active), session-scoped worktree lifecycle\n3. **Identity system update** — complete identity table with all V4 symbols (₣/₢/₡/Ꝗ), document three naming regimes (minted/silks/blazes), clarify blaze is not a global identity\n4. **Beat merge ceremony spec** — codify the prompt-assembly resolution: parallel beats with overlapping file scopes produce diffs that jjx assembles as context for a merger beat\n\n## Design constraints\n\n- Warrant is fully resolved — no ₿ symbols, no gait references, only concrete values\n- Paddock warrant example and beat-merge resolution are authoritative\n- Volte state derived from git, not gallops — only next_caracole seed stored\n\n## Depends on\n- ₢AhAAP (design-v4-gait-quirt) — warrant references quirts, so gait model should be settled\n\n## Produces\n- JJS0 section: V4 Warrant Structure\n- JJS0 section: Volte and Caracole Model\n- JJS0 section: V4 Identity System\n\n## Not bridleable\n\nDesign conversation — warrant structure is the execution contract; getting it right requires careful exploration of edge cases (merger beats, overlapping scopes, worktree lifecycle).",
+              "silks": "design-v4-warrant-volte-identity",
+              "commit": "e250679"
             }
           ]
         }
