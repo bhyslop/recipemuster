@@ -444,7 +444,8 @@ rbgm_gitlab_setup() {
     bug_tu       "   Left sidebar: " "Settings" " → "
     bug_tu       "                 " "Access tokens"
   fi
-  bug_t        "   The form is displayed directly on the page. Configure:"
+  bug_tu       "   Click " "Add new token"
+  bug_t        "   Configure:"
   bug_tc       "      - Token name: " "rb-depot"
   bug_t        "      - Token description: (optional, skip)"
   bug_t        "      - Expiration date: default is 30 days (max 1 year); leave default or extend"
