@@ -24,54 +24,78 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 
 zrbgm_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_CONFIG_DIR       " "Configuration directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
   buc_doc_env "BURD_OUTPUT_DIR       " "Directory for command outputs"
   buc_doc_env_done || return 0
 
-  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
+  local z_command="${1:-}"
+
+  # Light sources (always)
+  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"  || buc_die "Failed to source rbbc_constants.sh"
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/bug_guide.sh"
-  source "${z_rbk_kit_dir}/rbgc_Constants.sh"
-  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
-  source "${RBBC_rbrr_file}"
-  source "${z_rbk_kit_dir}/rbrp_regime.sh"
-  source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
-  source "${z_rbk_kit_dir}/rbgu_Utility.sh"
-  source "${z_rbk_kit_dir}/rbgi_IAM.sh"
-  source "${z_rbk_kit_dir}/rbra_regime.sh"
-  source "${z_rbk_kit_dir}/rbgm_ManualProcedures.sh"
-  source "${BURD_BUK_DIR}/buz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbz_zipper.sh"
 
-  zbuv_kindle
-  zburd_kindle
-  zrbcc_kindle
+  # Differential furnish: guide commands need only display infrastructure,
+  # everything else needs full regime kindle/enforce.
+  case "${z_command}" in
+    rbgm_payor_onboarding|rbgm_gitlab_setup)
+      source "${BURD_BUK_DIR}/bug_guide.sh"           || buc_die "Failed to source bug_guide.sh"
+      source "${BURD_BUK_DIR}/buv_validation.sh"       || buc_die "Failed to source buv_validation.sh"
+      zbuv_kindle
+      source "${BURD_BUK_DIR}/burc_regime.sh"          || buc_die "Failed to source burc_regime.sh"
+      zburc_kindle
+      source "${BURD_BUK_DIR}/buz_zipper.sh"           || buc_die "Failed to source buz_zipper.sh"
+      source "${z_rbk_kit_dir}/rbz_zipper.sh"          || buc_die "Failed to source rbz_zipper.sh"
+      zbuz_kindle
+      zrbz_kindle
+      source "${z_rbk_kit_dir}/rbgm_ManualProcedures.sh" || buc_die "Failed to source rbgm_ManualProcedures.sh"
+      zrbgm_kindle
+      ;;
+    *)
+      source "${BURD_BUK_DIR}/burd_regime.sh"
+      source "${BURD_BUK_DIR}/buv_validation.sh"
+      source "${BURD_BUK_DIR}/bug_guide.sh"
+      source "${z_rbk_kit_dir}/rbgc_Constants.sh"
+      source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+      source "${z_rbk_kit_dir}/rbrr_regime.sh"
+      source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
+      source "${RBBC_rbrr_file}"
+      source "${z_rbk_kit_dir}/rbrp_regime.sh"
+      source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
+      source "${z_rbk_kit_dir}/rbgu_Utility.sh"
+      source "${z_rbk_kit_dir}/rbgi_IAM.sh"
+      source "${z_rbk_kit_dir}/rbra_regime.sh"
+      source "${z_rbk_kit_dir}/rbgm_ManualProcedures.sh"
+      source "${BURD_BUK_DIR}/buz_zipper.sh"
+      source "${z_rbk_kit_dir}/rbz_zipper.sh"
 
-  zrbrr_kindle
-  zrbrr_enforce
-  zrbdc_kindle
+      zbuv_kindle
+      zburd_kindle
+      zrbcc_kindle
 
-  zrbgc_kindle
+      zrbrr_kindle
+      zrbrr_enforce
+      zrbdc_kindle
 
-  source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
-  zrbrp_kindle
-  zrbrp_enforce
+      zrbgc_kindle
 
-  zrbgo_kindle
-  zrbgu_kindle
-  zrbgi_kindle
-  zrbgm_kindle
+      source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
+      zrbrp_kindle
+      zrbrp_enforce
 
-  zbuz_kindle
-  zrbz_kindle
+      zrbgo_kindle
+      zrbgu_kindle
+      zrbgi_kindle
+      zrbgm_kindle
+      zrbgm_enforce
+
+      zbuz_kindle
+      zrbz_kindle
+      ;;
+  esac
 }
 
 buc_execute rbgm_ "Manual Procedures" zrbgm_furnish "$@"
-
 
 # eof

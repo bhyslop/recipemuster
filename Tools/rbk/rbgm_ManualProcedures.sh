@@ -30,12 +30,6 @@ ZRBGM_SOURCED=1
 zrbgm_kindle() {
   test -z "${ZRBGM_KINDLED:-}" || buc_die "Module rbgm already kindled"
 
-  test -n "${RBRR_DEPOT_PROJECT_ID:-}"     || buc_die "RBRR_DEPOT_PROJECT_ID is not set"
-  test   "${#RBRR_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBRR_DEPOT_PROJECT_ID is empty"
-
-  buc_log_args "Ensure RBGC is kindled first"
-  zrbgc_sentinel
-
   local z_use_color=0
   if [ -z "${NO_COLOR:-}" ] && [ "${BURE_COLOR:-0}" = "1" ]; then
     z_use_color=1
@@ -88,6 +82,13 @@ zrbgm_kindle() {
 
 zrbgm_sentinel() {
   test "${ZRBGM_KINDLED:-}" = "1" || buc_die "Module rbgm not kindled - call zrbgm_kindle first"
+}
+
+zrbgm_enforce() {
+  zrbgm_sentinel
+  test -n "${RBRR_DEPOT_PROJECT_ID:-}"     || buc_die "RBRR_DEPOT_PROJECT_ID is not set"
+  test   "${#RBRR_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBRR_DEPOT_PROJECT_ID is empty"
+  zrbgc_sentinel
 }
 
 zrbgm_show() {
@@ -435,7 +436,7 @@ rbgm_gitlab_setup() {
   bug_e
   bug_section  "4. Create a Project Access Token:"
   local z_tokens_url=""
-  z_tokens_url=$(zrbgu_gitlab_tokens_url_capture) || z_tokens_url=""
+  z_tokens_url=$(zrbgu_gitlab_tokens_url_capture 2>/dev/null) || z_tokens_url=""
   if test -n "${z_tokens_url}"; then
     bug_link     "   Go to: " "Project Access Tokens" "${z_tokens_url}"
   else
