@@ -27,6 +27,8 @@ zrbgp_furnish() {
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
+  local z_command="${1:-}"
+
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/burd_regime.sh"
@@ -51,7 +53,12 @@ zrbgp_furnish() {
   zrbcc_kindle
 
   zrbrr_kindle
-  zrbrr_enforce
+  # Differential furnish: depot_create establishes the depot — skip enforce
+  # which requires RBRR_DEPOT_PROJECT_ID and other fields it will populate.
+  case "${z_command}" in
+    rbgp_depot_create) ;;
+    *)                 zrbrr_enforce ;;
+  esac
   zrbdc_kindle
 
   zrbgc_kindle
