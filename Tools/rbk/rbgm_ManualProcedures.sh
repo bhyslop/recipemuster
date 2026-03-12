@@ -429,10 +429,10 @@ rbgm_gitlab_setup() {
   bug_t        "      - SAST / Secret Detection: leave unchecked (unnecessary for generated build files)"
   bug_tu       "   3. Click " "Create project"
   bug_e
-  bug_section  "3. Set RBRR_RUBRIC_REPO_URL in rbrr.env:"
+  bug_section  "3. Set RBRR_RUBRIC_REPO_URL:"
   bug_t        "   After creation, copy the HTTPS clone URL from the project page."
   bug_tc       "   Example: " "RBRR_RUBRIC_REPO_URL=https://gitlab.com/yourname/rb-rubric.git"
-  bug_t        "   Edit your rbrr.env file and set this value."
+  bug_tc       "   Edit " "${RBBC_rbrr_file}" " and set this value."
   bug_e
   bug_section  "4. Create a Project Access Token:"
   local z_tokens_url=""
