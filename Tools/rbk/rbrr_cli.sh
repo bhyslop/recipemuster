@@ -77,6 +77,54 @@ zrbrr_write_rbrg() {
 ######################################################################
 # Command Functions
 
+# Command: reset - transform RBRR to blank template via line-by-line rewrite
+# Pre-fills infrastructure defaults, blanks site-specific fields.
+# Uses differential furnish (light path, no regime kindle/enforce).
+rbrr_reset() {
+  buc_doc_brief "Reset RBRR repo regime to blank template for release qualification"
+  buc_doc_shown || return 0
+
+  local -r z_rbrr="${RBBC_rbrr_file}"
+  test -f "${z_rbrr}" || buc_die "RBRR file not found: ${z_rbrr}"
+
+  bug_section "Marshal Reset"
+  bug_t "  Target: ${z_rbrr}"
+  bug_t "  Infrastructure defaults and project conventions will be pre-filled."
+  bug_t "  Site-specific fields will be blanked for onboarding."
+  bug_t "  Credential files (RBRA/RBRO) are NOT touched."
+  bug_e
+
+  local -r z_tmp="${z_rbrr}.tmp"
+  while IFS= read -r z_line; do
+    case "${z_line}" in
+      # Pre-selected defaults
+      RBRR_DNS_SERVER=*)              printf '%s\n' "RBRR_DNS_SERVER=8.8.8.8"              ;;
+      RBRR_GCB_MACHINE_TYPE=*)        printf '%s\n' "RBRR_GCB_MACHINE_TYPE=e2-standard-2"  ;;
+      RBRR_GCB_TIMEOUT=*)             printf '%s\n' "RBRR_GCB_TIMEOUT=1200s"               ;;
+      RBRR_GCB_MIN_CONCURRENT_BUILDS=*) printf '%s\n' "RBRR_GCB_MIN_CONCURRENT_BUILDS=3"   ;;
+      RBRR_GCP_REGION=*)              printf '%s\n' "RBRR_GCP_REGION=us-central1"           ;;
+      RBRR_VESSEL_DIR=*)              printf '%s\n' "RBRR_VESSEL_DIR=rbev-vessels"           ;;
+      RBRR_SECRETS_DIR=*)             printf '%s\n' "RBRR_SECRETS_DIR=../station-files/secrets" ;;
+      # Site-specific fields blanked
+      RBRR_IGNITE_MACHINE_NAME=*)     printf '%s\n' "RBRR_IGNITE_MACHINE_NAME="             ;;
+      RBRR_DEPLOY_MACHINE_NAME=*)     printf '%s\n' "RBRR_DEPLOY_MACHINE_NAME="             ;;
+      RBRR_DEPOT_PROJECT_ID=*)        printf '%s\n' "RBRR_DEPOT_PROJECT_ID="                 ;;
+      RBRR_GAR_REPOSITORY=*)          printf '%s\n' "RBRR_GAR_REPOSITORY="                   ;;
+      RBRR_CBV2_CONNECTION_NAME=*)    printf '%s\n' "RBRR_CBV2_CONNECTION_NAME="             ;;
+      RBRR_GCB_WORKER_POOL=*)         printf '%s\n' "RBRR_GCB_WORKER_POOL="                 ;;
+      RBRR_RUBRIC_REPO_URL=*)         printf '%s\n' "RBRR_RUBRIC_REPO_URL="                  ;;
+      # Everything else passes through (comments, shebang, blanks)
+      *)                              printf '%s\n' "${z_line}"                              ;;
+    esac
+  done < "${z_rbrr}" > "${z_tmp}" && mv "${z_tmp}" "${z_rbrr}"
+
+  bug_t "  Reset complete: ${z_rbrr}"
+  bug_e
+  bug_t "  Next: verify onboarding guide detects blank state:"
+  buc_tabtarget "${RBZ_PAYOR_ONBOARDING}"
+  buc_success "Regime reset to blank template"
+}
+
 # Command: validate - enrollment-based validation report
 rbrr_validate() {
   buc_doc_brief "Validate RBRR repo regime configuration via enrollment report"
@@ -394,30 +442,46 @@ zrbrr_furnish() {
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
+  local z_command="${1:-}"
+
+  # Light sources (always)
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbrg_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
-  source "${RBBC_rbrr_file}"
-  source "${RBBC_rbrg_file}"
-  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
 
-  zbuv_kindle
-  zburd_kindle
-  zburd_enforce
-  zrbcc_kindle
+  # Differential furnish: reset needs guide + zipper, everything else needs regime
+  case "${z_command}" in
+    rbrr_reset)
+      source "${BURD_BUK_DIR}/bug_guide.sh"           || buc_die "Failed to source bug_guide.sh"
+      source "${BURD_BUK_DIR}/buz_zipper.sh"           || buc_die "Failed to source buz_zipper.sh"
+      source "${z_rbk_kit_dir}/rbz_zipper.sh"           || buc_die "Failed to source rbz_zipper.sh"
+      zbuz_kindle
+      zrbz_kindle
+      ;;
+    *)
+      source "${BURD_BUK_DIR}/buv_validation.sh"
+      source "${BURD_BUK_DIR}/burd_regime.sh"
+      source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+      source "${z_rbk_kit_dir}/rbrr_regime.sh"
+      source "${z_rbk_kit_dir}/rbrg_regime.sh"
+      source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
+      source "${RBBC_rbrr_file}"
+      source "${RBBC_rbrg_file}"
+      source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
 
-  zrbrr_kindle
-  zrbrr_enforce
-  zrbrg_kindle
-  zrbrg_enforce
-  zrbdc_kindle
+      zbuv_kindle
+      zburd_kindle
+      zburd_enforce
+      zrbcc_kindle
 
-  zbupr_kindle
+      zrbrr_kindle
+      zrbrr_enforce
+      zrbrg_kindle
+      zrbrg_enforce
+      zrbdc_kindle
+
+      zbupr_kindle
+      ;;
+  esac
 }
 
 buc_execute rbrr_ "Recipe Bottle Repository Regime" zrbrr_furnish "$@"

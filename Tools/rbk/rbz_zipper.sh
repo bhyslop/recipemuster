@@ -47,8 +47,8 @@ zrbz_kindle() {
   buz_enroll RBZ_GITLAB_SETUP    "rbw-gPL" "${z_mod}" "rbgm_gitlab_setup"
   # Payor onboarding guide (pre-kindle, uses rbgm_onboard_cli.sh)
   buz_enroll RBZ_PAYOR_ONBOARDING "rbw-gPo" "rbgm_onboard_cli.sh" "rbgm_payor_onboarding"
-  # Marshal operations (pre-kindle, uses rbrr_reset_cli.sh)
-  buz_enroll RBZ_MARSHAL_RESET "rbw-MR" "rbrr_reset_cli.sh" "rbrr_reset"
+  # Marshal operations (differential furnish in rbrr_cli.sh)
+  buz_enroll RBZ_MARSHAL_RESET "rbw-MR" "rbrr_cli.sh" "rbrr_reset"
 
   # Payor depot operations (rbgp_cli.sh)
   z_mod="rbgp_cli.sh"
