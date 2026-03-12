@@ -98,23 +98,23 @@ rbrr_reset() {
   while IFS= read -r z_line; do
     case "${z_line}" in
       # Pre-selected defaults
-      RBRR_DNS_SERVER=*)              printf '%s\n' "RBRR_DNS_SERVER=8.8.8.8"              ;;
-      RBRR_GCB_MACHINE_TYPE=*)        printf '%s\n' "RBRR_GCB_MACHINE_TYPE=e2-standard-2"  ;;
-      RBRR_GCB_TIMEOUT=*)             printf '%s\n' "RBRR_GCB_TIMEOUT=1200s"               ;;
-      RBRR_GCB_MIN_CONCURRENT_BUILDS=*) printf '%s\n' "RBRR_GCB_MIN_CONCURRENT_BUILDS=3"   ;;
-      RBRR_GCP_REGION=*)              printf '%s\n' "RBRR_GCP_REGION=us-central1"           ;;
-      RBRR_VESSEL_DIR=*)              printf '%s\n' "RBRR_VESSEL_DIR=rbev-vessels"           ;;
-      RBRR_SECRETS_DIR=*)             printf '%s\n' "RBRR_SECRETS_DIR=../station-files/secrets" ;;
+      RBRR_DNS_SERVER=*)                    printf '%s\n' "RBRR_DNS_SERVER=8.8.8.8"                     ;;
+      RBRR_GCB_MACHINE_TYPE=*)              printf '%s\n' "RBRR_GCB_MACHINE_TYPE=e2-standard-2"         ;;
+      RBRR_GCB_TIMEOUT=*)                   printf '%s\n' "RBRR_GCB_TIMEOUT=1200s"                      ;;
+      RBRR_GCB_MIN_CONCURRENT_BUILDS=*)     printf '%s\n' "RBRR_GCB_MIN_CONCURRENT_BUILDS=3"            ;;
+      RBRR_GCP_REGION=*)                    printf '%s\n' "RBRR_GCP_REGION=us-central1"                 ;;
+      RBRR_VESSEL_DIR=*)                    printf '%s\n' "RBRR_VESSEL_DIR=rbev-vessels"                ;;
+      RBRR_SECRETS_DIR=*)                   printf '%s\n' "RBRR_SECRETS_DIR=../station-files/secrets"   ;;
       # Site-specific fields blanked
-      RBRR_IGNITE_MACHINE_NAME=*)     printf '%s\n' "RBRR_IGNITE_MACHINE_NAME="             ;;
-      RBRR_DEPLOY_MACHINE_NAME=*)     printf '%s\n' "RBRR_DEPLOY_MACHINE_NAME="             ;;
-      RBRR_DEPOT_PROJECT_ID=*)        printf '%s\n' "RBRR_DEPOT_PROJECT_ID="                 ;;
-      RBRR_GAR_REPOSITORY=*)          printf '%s\n' "RBRR_GAR_REPOSITORY="                   ;;
-      RBRR_CBV2_CONNECTION_NAME=*)    printf '%s\n' "RBRR_CBV2_CONNECTION_NAME="             ;;
-      RBRR_GCB_WORKER_POOL=*)         printf '%s\n' "RBRR_GCB_WORKER_POOL="                 ;;
-      RBRR_RUBRIC_REPO_URL=*)         printf '%s\n' "RBRR_RUBRIC_REPO_URL="                  ;;
+      RBRR_IGNITE_MACHINE_NAME=*)           printf '%s\n' "RBRR_IGNITE_MACHINE_NAME="                   ;;
+      RBRR_DEPLOY_MACHINE_NAME=*)           printf '%s\n' "RBRR_DEPLOY_MACHINE_NAME="                   ;;
+      RBRR_DEPOT_PROJECT_ID=*)              printf '%s\n' "RBRR_DEPOT_PROJECT_ID="                      ;;
+      RBRR_GAR_REPOSITORY=*)                printf '%s\n' "RBRR_GAR_REPOSITORY="                        ;;
+      RBRR_CBV2_CONNECTION_NAME=*)          printf '%s\n' "RBRR_CBV2_CONNECTION_NAME="                  ;;
+      RBRR_GCB_WORKER_POOL=*)               printf '%s\n' "RBRR_GCB_WORKER_POOL="                       ;;
+      RBRR_RUBRIC_REPO_URL=*)               printf '%s\n' "RBRR_RUBRIC_REPO_URL="                       ;;
       # Everything else passes through (comments, shebang, blanks)
-      *)                              printf '%s\n' "${z_line}"                              ;;
+      *)                                    printf '%s\n' "${z_line}"                                   ;;
     esac
   done < "${z_rbrr}" > "${z_tmp}" && mv "${z_tmp}" "${z_rbrr}"
 
@@ -451,9 +451,9 @@ zrbrr_furnish() {
   # Differential furnish: reset needs guide + zipper, everything else needs regime
   case "${z_command}" in
     rbrr_reset)
-      source "${BURD_BUK_DIR}/bug_guide.sh"           || buc_die "Failed to source bug_guide.sh"
-      source "${BURD_BUK_DIR}/buz_zipper.sh"           || buc_die "Failed to source buz_zipper.sh"
-      source "${z_rbk_kit_dir}/rbz_zipper.sh"           || buc_die "Failed to source rbz_zipper.sh"
+      source "${BURD_BUK_DIR}/bug_guide.sh"      || buc_die "Failed to source bug_guide.sh"
+      source "${BURD_BUK_DIR}/buz_zipper.sh"     || buc_die "Failed to source buz_zipper.sh"
+      source "${z_rbk_kit_dir}/rbz_zipper.sh"    || buc_die "Failed to source rbz_zipper.sh"
       zbuz_kindle
       zrbz_kindle
       ;;
