@@ -490,152 +490,195 @@ rbgm_payor_onboarding() {
   buc_doc_brief "Adaptive onboarding guide — reads current state and shows next steps"
   buc_doc_shown || return 0
 
-  # --- State probes (file/variable checks via grep, no API calls) ---
-  local z_rbrp=0
-  local z_oauth=0
-  local z_rubric=0
-  local z_depot=0
-  local z_governor=0
-  local z_director=0
-  local z_retriever=0
-  local z_nameplates=0
-
-  # Probe payor project
-  if test -f "${RBBC_rbrp_file}"; then
-    if grep -q '^RBRP_PAYOR_PROJECT_ID=.\+' "${RBBC_rbrp_file}"; then
-      z_rbrp=1
-    fi
-  fi
-
-  # Probe repo regime — extract secrets dir for credential file probes
+  # --- Compute level (strict sequential: first unmet probe stops advancement) ---
+  local z_level=0
   local z_secrets_dir=""
-  if test -f "${RBBC_rbrr_file}"; then
-    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
-    if grep -q '^RBRR_RUBRIC_REPO_URL=.\+' "${RBBC_rbrr_file}"; then
-      z_rubric=1
-    fi
-    if grep -q '^RBRR_DEPOT_PROJECT_ID=.\+' "${RBBC_rbrr_file}"; then
-      z_depot=1
-    fi
-  fi
-
-  # Probe OAuth credentials
-  if test -n "${z_secrets_dir}" && test -f "${z_secrets_dir}/rbro-payor.env"; then
-    z_oauth=1
-  fi
-
-  # Probe service account credentials
-  if test -n "${z_secrets_dir}"; then
-    if test -f "${z_secrets_dir}/rbra-governor.env";  then z_governor=1;  fi
-    if test -f "${z_secrets_dir}/rbra-director.env";  then z_director=1;  fi
-    if test -f "${z_secrets_dir}/rbra-retriever.env"; then z_retriever=1; fi
-  fi
-
-  # Probe vessel nameplates
   local z_np=""
-  for z_np in "${RBBC_dot_dir}"/rbrn_*.env; do
-    if test -f "${z_np}"; then
-      z_nameplates=1
-      break
-    fi
+
+  while true; do
+    # Level 1: Payor project configured in rbrp.env
+    test -f "${RBBC_rbrp_file}" || break
+    grep -q '^RBRP_PAYOR_PROJECT_ID=.\+' "${RBBC_rbrp_file}" || break
+    z_level=1
+
+    # Level 2: OAuth credentials installed (requires secrets dir from rbrr)
+    test -f "${RBBC_rbrr_file}" || break
+    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+    test -n "${z_secrets_dir}" || break
+    test -f "${z_secrets_dir}/rbro-payor.env" || break
+    z_level=2
+
+    # Level 3: GitLab rubric repo URL configured
+    grep -q '^RBRR_RUBRIC_REPO_URL=.\+' "${RBBC_rbrr_file}" || break
+    z_level=3
+
+    # Level 4: Depot project created
+    grep -q '^RBRR_DEPOT_PROJECT_ID=.\+' "${RBBC_rbrr_file}" || break
+    z_level=4
+
+    # Level 5: Governor service account
+    test -f "${z_secrets_dir}/rbra-governor.env" || break
+    z_level=5
+
+    # Level 6: Director service account
+    test -f "${z_secrets_dir}/rbra-director.env" || break
+    z_level=6
+
+    # Level 7: Retriever service account
+    test -f "${z_secrets_dir}/rbra-retriever.env" || break
+    z_level=7
+
+    # Level 8: Vessel nameplates exist (conjure & vouch completed)
+    for z_np in "${RBBC_dot_dir}"/rbrn_*.env; do
+      test -f "${z_np}" && { z_level=8; break; }
+    done
+    test "${z_level}" = "8" || break
+
+    break
   done
 
-  # --- Status dashboard ---
-  bug_section "Recipe Bottle Onboarding"
+  # --- Frontmatter (level-appropriate orientation for newcomers) ---
+  case "${z_level}" in
+    0)
+      bug_section "Recipe Bottle Onboarding — Fresh Setup"
+      bug_t "Welcome to Recipe Bottle. This guide walks you through provisioning"
+      bug_t "GCP infrastructure from scratch. Each step builds on the previous"
+      bug_t "one — complete them in order."
+      ;;
+    1)
+      bug_section "Recipe Bottle Onboarding — Payor Established"
+      bug_t "Your GCP payor project exists. Next you will install OAuth"
+      bug_t "credentials so that CLI tools can act on your behalf."
+      ;;
+    2)
+      bug_section "Recipe Bottle Onboarding — Authenticated"
+      bug_t "OAuth credentials are installed. Next you will connect a GitLab"
+      bug_t "rubric repo where Cloud Build fetches build definitions."
+      ;;
+    3)
+      bug_section "Recipe Bottle Onboarding — Source Connected"
+      bug_t "GitLab rubric repo is configured. Next you will create the GCP"
+      bug_t "depot project that hosts build infrastructure, artifact registry,"
+      bug_t "and secrets."
+      ;;
+    4)
+      bug_section "Recipe Bottle Onboarding — Depot Created"
+      bug_t "Depot project exists. Three service accounts are needed:"
+      bug_t "governor (admin), director (builds), and retriever (image pulls)."
+      ;;
+    5)
+      bug_section "Recipe Bottle Onboarding — Governor Provisioned"
+      bug_t "Governor admin account is ready. Next: create the director"
+      bug_t "service account that executes Cloud Build operations."
+      ;;
+    6)
+      bug_section "Recipe Bottle Onboarding — Director Provisioned"
+      bug_t "Director build account is ready. Next: create the retriever"
+      bug_t "service account for pulling container images to local bottles."
+      ;;
+    7)
+      bug_section "Recipe Bottle Onboarding — Service Accounts Ready"
+      bug_t "All service accounts are provisioned. Next: build vessel images"
+      bug_t "with conjure, then verify them with vouch."
+      ;;
+    8)
+      bug_section "Recipe Bottle Onboarding — Setup Complete"
+      bug_t "Infrastructure is fully provisioned and vessel images are built."
+      bug_t "You can start bottles, or tear down and re-provision from scratch:"
+      buc_tabtarget "${RBZ_MARSHAL_RESET}"
+      ;;
+  esac
   bug_e
-  zrbgm_po_status "${z_rbrp}"       "1. Payor Establish     — GCP project + OAuth consent screen"
-  zrbgm_po_status "${z_oauth}"      "2. Payor Install       — OAuth credential flow"
-  zrbgm_po_status "${z_rubric}"     "3. GitLab Setup        — Rubric repo + access token"
-  zrbgm_po_status "${z_depot}"      "4. Depot Create        — GCP depot project"
-  zrbgm_po_status "${z_governor}"   "5. Governor Reset      — Admin service account"
-  zrbgm_po_status "${z_director}"   "6. Director Create     — Build service account"
-  zrbgm_po_status "${z_retriever}"  "7. Retriever Create    — Image pull service account"
-  zrbgm_po_status "${z_nameplates}" "8. Conjure & Vouch     — Build and verify vessel images"
-  bug_t " [ ] 9. Start & Tour        — Launch and explore a bottle"
+
+  # --- Dashboard ---
+  local z_flag=0
+  z_flag=0; test "${z_level}" -ge 1 && z_flag=1
+  zrbgm_po_status "${z_flag}" "1. Payor Establish     — GCP project + OAuth consent screen"
+  z_flag=0; test "${z_level}" -ge 2 && z_flag=1
+  zrbgm_po_status "${z_flag}" "2. Payor Install       — OAuth credential flow"
+  z_flag=0; test "${z_level}" -ge 3 && z_flag=1
+  zrbgm_po_status "${z_flag}" "3. GitLab Setup        — Rubric repo + access token"
+  z_flag=0; test "${z_level}" -ge 4 && z_flag=1
+  zrbgm_po_status "${z_flag}" "4. Depot Create        — GCP depot project"
+  z_flag=0; test "${z_level}" -ge 5 && z_flag=1
+  zrbgm_po_status "${z_flag}" "5. Governor Reset      — Admin service account"
+  z_flag=0; test "${z_level}" -ge 6 && z_flag=1
+  zrbgm_po_status "${z_flag}" "6. Director Create     — Build service account"
+  z_flag=0; test "${z_level}" -ge 7 && z_flag=1
+  zrbgm_po_status "${z_flag}" "7. Retriever Create    — Image pull service account"
+  z_flag=0; test "${z_level}" -ge 8 && z_flag=1
+  zrbgm_po_status "${z_flag}" "8. Conjure & Vouch     — Build and verify vessel images"
   bug_e
 
-  # --- Guided next step ---
-  if test "${z_rbrp}" = "0"; then
-    bug_section "Next: Payor Establish"
-    bug_t "  Create a GCP project and configure OAuth consent screen."
-    bug_t "  This is the billing anchor for all Recipe Bottle infrastructure."
-    bug_e
-    bug_t "  Run the guided procedure:"
-    buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
-    buc_success "Onboarding guide displayed"
-    return 0
-  fi
+  # --- Next step guidance ---
+  case "${z_level}" in
+    0)
+      bug_section "Next: Payor Establish"
+      bug_t "  Create a GCP project and configure OAuth consent screen."
+      bug_t "  This is the billing anchor for all Recipe Bottle infrastructure."
+      bug_e
+      bug_t "  Run the guided procedure:"
+      buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
+      ;;
+    1)
+      bug_section "Next: Payor Install"
+      bug_t "  Install OAuth credentials from the JSON file downloaded during Payor Establish."
+      bug_e
+      bug_t "  Run:"
+      buc_tabtarget "${RBZ_PAYOR_INSTALL}" "~/Downloads/client_secret_*.json"
+      ;;
+    2)
+      bug_section "Next: GitLab Setup"
+      bug_t "  Create a GitLab repo for Cloud Build rubric files and access token."
+      bug_e
+      bug_t "  Run the guided procedure:"
+      buc_tabtarget "${RBZ_GITLAB_SETUP}"
+      ;;
+    3)
+      bug_section "Next: Depot Create"
+      bug_t "  Create the GCP depot project that hosts all build infrastructure."
+      bug_e
+      bug_t "  Run:"
+      buc_tabtarget "${RBZ_CREATE_DEPOT}" "<depot-name>"
+      ;;
+    4)
+      bug_section "Next: Governor Reset"
+      bug_t "  Create the governor service account (admin for depot project)."
+      bug_e
+      bug_t "  Run:"
+      buc_tabtarget "${RBZ_GOVERNOR_RESET}"
+      ;;
+    5)
+      bug_section "Next: Director Create"
+      bug_t "  Create the director service account (executes Cloud Build operations)."
+      bug_e
+      bug_t "  Run:"
+      buc_tabtarget "${RBZ_CREATE_DIRECTOR}"
+      ;;
+    6)
+      bug_section "Next: Retriever Create"
+      bug_t "  Create the retriever service account (pulls images for local bottles)."
+      bug_e
+      bug_t "  Run:"
+      buc_tabtarget "${RBZ_CREATE_RETRIEVER}"
+      ;;
+    7)
+      bug_section "Next: Conjure & Vouch"
+      bug_t "  Build vessel images and verify their integrity."
+      bug_e
+      bug_t "  1. Conjure vessel images:"
+      buc_tabtarget "${RBZ_CONJURE_ARK}" "<vessel-name>"
+      bug_t "  2. Vouch (verify) the images:"
+      buc_tabtarget "${RBZ_VOUCH_ARK}"
+      ;;
+    8)
+      bug_section "Next: Start a Bottle"
+      bug_t "  Launch a bottle from your built vessel images:"
+      bug_e
+      buc_tabtarget "${RBZ_BOTTLE_START}" "<vessel-name>"
+      ;;
+  esac
 
-  if test "${z_oauth}" = "0"; then
-    bug_section "Next: Payor Install"
-    bug_t "  Install OAuth credentials from the JSON file downloaded during Payor Establish."
-    bug_e
-    bug_t "  Run:"
-    buc_tabtarget "${RBZ_PAYOR_INSTALL}" "~/Downloads/client_secret_*.json"
-    buc_success "Onboarding guide displayed"
-    return 0
-  fi
-
-  if test "${z_rubric}" = "0"; then
-    bug_section "Next: GitLab Setup"
-    bug_t "  Create a GitLab repo for Cloud Build rubric files and access token."
-    bug_e
-    bug_t "  Run the guided procedure:"
-    buc_tabtarget "${RBZ_GITLAB_SETUP}"
-    buc_success "Onboarding guide displayed"
-    return 0
-  fi
-
-  if test "${z_depot}" = "0"; then
-    bug_section "Next: Depot Create"
-    bug_t "  Create the GCP depot project that hosts all build infrastructure."
-    bug_e
-    bug_t "  Run:"
-    buc_tabtarget "${RBZ_CREATE_DEPOT}" "<depot-name>"
-    buc_success "Onboarding guide displayed"
-    return 0
-  fi
-
-  if test "${z_governor}" = "0"; then
-    bug_section "Next: Governor Reset"
-    bug_t "  Create the governor service account (admin for depot project)."
-    bug_e
-    bug_t "  Run:"
-    buc_tabtarget "${RBZ_GOVERNOR_RESET}"
-    buc_success "Onboarding guide displayed"
-    return 0
-  fi
-
-  if test "${z_director}" = "0"; then
-    bug_section "Next: Director Create"
-    bug_t "  Create the director service account (executes Cloud Build operations)."
-    bug_e
-    bug_t "  Run:"
-    buc_tabtarget "${RBZ_CREATE_DIRECTOR}"
-    buc_success "Onboarding guide displayed"
-    return 0
-  fi
-
-  if test "${z_retriever}" = "0"; then
-    bug_section "Next: Retriever Create"
-    bug_t "  Create the retriever service account (pulls images for local bottles)."
-    bug_e
-    bug_t "  Run:"
-    buc_tabtarget "${RBZ_CREATE_RETRIEVER}"
-    buc_success "Onboarding guide displayed"
-    return 0
-  fi
-
-  bug_section "Next: Conjure, Vouch & Start"
-  bug_t "  Infrastructure is configured. Build, verify, and launch:"
-  bug_e
-  bug_t "  1. Conjure vessel images:"
-  buc_tabtarget "${RBZ_CONJURE_ARK}" "<vessel-name>"
-  bug_t "  2. Vouch (verify) the images:"
-  buc_tabtarget "${RBZ_VOUCH_ARK}"
-  bug_t "  3. Start a bottle:"
-  buc_tabtarget "${RBZ_BOTTLE_START}" "<vessel-name>"
-  bug_e
   buc_success "Onboarding guide displayed"
 }
 
