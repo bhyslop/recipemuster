@@ -582,11 +582,12 @@ rbgm_payor_onboarding() {
     test -f "${z_secrets_dir}/rbra-retriever.env" || break
     z_level=7
 
-    # Level 8: Vessel nameplates exist (conjure & vouch completed)
-    for z_np in "${RBBC_dot_dir}"/rbrn_*.env; do
-      test -f "${z_np}" && { z_level=8; break; }
-    done
-    test "${z_level}" = "8" || break
+    # Level 8: nsproto consecrations present (conjure & vouch completed)
+    test -f "${RBBC_dot_dir}/rbrn_nsproto.env" || break
+    source "${RBBC_dot_dir}/rbrn_nsproto.env"
+    test -n "${RBRN_SENTRY_CONSECRATION:-}" || break
+    test -n "${RBRN_BOTTLE_CONSECRATION:-}" || break
+    z_level=8
 
     break
   done

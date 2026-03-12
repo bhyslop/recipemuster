@@ -136,6 +136,25 @@ rbrr_reset() {
     done
   fi
 
+  # Blank consecration values in all vessel nameplates.
+  # Consecrations reference images built against the prior depot — they
+  # become stale after reset.  Blanking them causes the onboarding guide
+  # to require conjure & vouch before declaring setup complete.
+  local z_np=""
+  local z_np_tmp=""
+  for z_np in "${RBBC_dot_dir}"/rbrn_*.env; do
+    test -f "${z_np}" || continue
+    z_np_tmp="${z_np}.tmp"
+    while IFS= read -r z_line; do
+      case "${z_line}" in
+        RBRN_SENTRY_CONSECRATION=*)  printf '%s\n' "RBRN_SENTRY_CONSECRATION=" ;;
+        RBRN_BOTTLE_CONSECRATION=*)  printf '%s\n' "RBRN_BOTTLE_CONSECRATION=" ;;
+        *)                           printf '%s\n' "${z_line}"                  ;;
+      esac
+    done < "${z_np}" > "${z_np_tmp}" && mv "${z_np_tmp}" "${z_np}"
+    bug_t "  Blanked consecrations: ${z_np}"
+  done
+
   bug_t "  Reset complete: ${z_rbrr}"
   bug_e
   bug_t "  Next: verify onboarding guide detects blank state:"
