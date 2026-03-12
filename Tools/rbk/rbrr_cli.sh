@@ -106,8 +106,6 @@ rbrr_reset() {
       RBRR_VESSEL_DIR=*)                    printf '%s\n' "RBRR_VESSEL_DIR=rbev-vessels"                ;;
       RBRR_SECRETS_DIR=*)                   printf '%s\n' "RBRR_SECRETS_DIR=../station-files/secrets"   ;;
       # Site-specific fields blanked
-      RBRR_IGNITE_MACHINE_NAME=*)           printf '%s\n' "RBRR_IGNITE_MACHINE_NAME="                   ;;
-      RBRR_DEPLOY_MACHINE_NAME=*)           printf '%s\n' "RBRR_DEPLOY_MACHINE_NAME="                   ;;
       RBRR_DEPOT_PROJECT_ID=*)              printf '%s\n' "RBRR_DEPOT_PROJECT_ID="                      ;;
       RBRR_GAR_REPOSITORY=*)                printf '%s\n' "RBRR_GAR_REPOSITORY="                        ;;
       RBRR_CBV2_CONNECTION_NAME=*)          printf '%s\n' "RBRR_CBV2_CONNECTION_NAME="                  ;;

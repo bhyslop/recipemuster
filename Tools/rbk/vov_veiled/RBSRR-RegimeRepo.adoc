@@ -95,7 +95,7 @@ OAuth operations using locally stored refresh credentials.
 {rbrr_group_container_runtime}
 
 Variables that configure container runtime and deployment environment settings.
-These settings control local Podman VM configuration, DNS resolution, and build machine selection.
+These settings control DNS resolution and vessel directory layout.
 
 //axhrgv_variable
 {rbrr_vessel_dir}
@@ -108,18 +108,6 @@ Each subdirectory defines a vessel image source (bind or conjure mode).
 
 DNS server IP address used by sentry containers for name resolution.
 Injected into container environment to control DNS behavior.
-
-//axhrgv_variable
-{rbrr_ignite_machine_name}
-
-Podman machine name for bottle ignition (startup) operations.
-Identifies which Podman VM to use for local image building and testing.
-
-//axhrgv_variable
-{rbrr_deploy_machine_name}
-
-Podman machine name for bottle deployment operations.
-Identifies which Podman VM to use for production deployments.
 
 //axhrgb_group
 {rbrr_group_build_configuration}

@@ -32,6 +32,10 @@ zrbrm_kindle() {
 
   buv_regime_enroll RBRM
 
+  buv_group_enroll "Podman VM Machine Names"
+  buv_xname_enroll   RBRM_IGNITE_MACHINE_NAME      1   64  "Podman machine for ignite operations"
+  buv_xname_enroll   RBRM_DEPLOY_MACHINE_NAME      1   64  "Podman machine for deploy operations"
+
   buv_group_enroll "Podman VM Supply Chain"
   buv_string_enroll  RBRM_CRANE_TAR_GZ             1  512  "Crane binary archive path"
   buv_string_enroll  RBRM_MANIFEST_PLATFORMS        1  512  "Target platforms for manifests"

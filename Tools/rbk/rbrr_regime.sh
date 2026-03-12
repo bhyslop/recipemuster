@@ -41,10 +41,6 @@ zrbrr_kindle() {
   buv_string_enroll  RBRR_VESSEL_DIR           1  255  "Vessel definitions directory"
   buv_ipv4_enroll    RBRR_DNS_SERVER                   "DNS server for containers"
 
-  buv_group_enroll "Local Machine Configuration"
-  buv_xname_enroll   RBRR_IGNITE_MACHINE_NAME      1   64  "Podman machine for ignite operations"
-  buv_xname_enroll   RBRR_DEPLOY_MACHINE_NAME      1   64  "Podman machine for deploy operations"
-
   buv_group_enroll "GCP Infrastructure"
   buv_gname_enroll   RBRR_DEPOT_PROJECT_ID         6   63  "GCP project ID for depot"
   buv_gname_enroll   RBRR_GCP_REGION               1   32  "GCP region"

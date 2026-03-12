@@ -310,8 +310,8 @@
 :rbrm_chosen_podman_version: <<rbrm_chosen_podman_version,RBRM_CHOSEN_PODMAN_VERSION>>
 :rbrm_chosen_vmimage_origin: <<rbrm_chosen_vmimage_origin,RBRM_CHOSEN_VMIMAGE_ORIGIN>>
 :rbrm_crane_tar_gz:          <<rbrm_crane_tar_gz,RBRM_CRANE_TAR_GZ>>
-:rbrr_deploy_machine_name:   <<rbrr_deploy_machine_name,RBRR_DEPLOY_MACHINE_NAME>>
-:rbrr_ignite_machine_name:   <<rbrr_ignite_machine_name,RBRR_IGNITE_MACHINE_NAME>>
+:rbrm_deploy_machine_name:   <<rbrm_deploy_machine_name,RBRM_DEPLOY_MACHINE_NAME>>
+:rbrm_ignite_machine_name:   <<rbrm_ignite_machine_name,RBRM_IGNITE_MACHINE_NAME>>
 :rbrm_manifest_platforms:    <<rbrm_manifest_platforms,RBRM_MANIFEST_PLATFORMS>>
 
 // Recipe Bottle Regime: Cloud Build v2
@@ -2358,14 +2358,14 @@ Directory containing vessel configuration subdirectories for
 {rbrr_dns_server}::
 DNS server IP address for sentry container name resolution.
 
-[[rbrr_ignite_machine_name]]
+[[rbrm_ignite_machine_name]]
 //axvr_variable axd_required rbst_xname
-{rbrr_ignite_machine_name}::
+{rbrm_ignite_machine_name}::
 Podman machine name for bottle ignition operations.
 
-[[rbrr_deploy_machine_name]]
+[[rbrm_deploy_machine_name]]
 //axvr_variable axd_required rbst_xname
-{rbrr_deploy_machine_name}::
+{rbrm_deploy_machine_name}::
 Podman machine name for bottle deployment operations.
 
 [[rbrm_crane_tar_gz]]
