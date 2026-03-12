@@ -1,4 +1,5 @@
 {
+  "schema_version": 4,
   "next_heat_seed": "At",
   "heat_order": [
     "₣An",
@@ -1776,9 +1777,10 @@
         "₢AsAAJ",
         "₢AsAAC",
         "₢AsAAD",
-        "₢AsAAH"
+        "₢AsAAH",
+        "₢AsAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAls.md",
       "paces": {
         "₢AsAAA": {
@@ -2054,6 +2056,17 @@
               "text": "## Goal\n\nCreate rbw-PO.PayorOverwritesRegime.sh (capital O, impactful) that resets RBRR to a blank-but-valid template suitable for shipping in a release.\n\n## Context\n\nEvery Recipe Bottle release must ship with an RBRR that new users can start from. The onboarding guide (rbw-Po, on heat As) reads this RBRR and walks users forward. This pace produces the blank canvas that the guide consumes.\n\n## Deliverables\n\n1. Determine what a blank RBRR looks like: every field present with empty or sentinel values so set -u survives and the onboarding guide can probe, but real operations correctly reject.\n2. rbw-PO tabtarget that overwrites rbrr.env with the blank template.\n3. Exercise: run rbw-PO then rbw-Po and verify the guide correctly detects blank state and emits first steps.\n\n## Design constraints\n- Capital O: this changes regime state, intentionally destructive\n- Part of release qualification sequence (relates to AUAAI release-qualification-gate)\n- Must be exercised before every release to verify guide works from blank\n\n## Files\n- Tools/rbk/rbgp_Payor.sh or rbgm_ManualProcedures.sh (reset function)\n- Tools/rbk/rbz_zipper.sh (enroll colophon)\n- tt/rbw-PO.PayorOverwritesRegime.sh",
               "silks": "release-rbrr-reset",
               "commit": "bc768d4"
+            }
+          ]
+        },
+        "₢AsAAK": {
+          "tacks": [
+            {
+              "ts": "260312-1553",
+              "state": "rough",
+              "text": "## Goal\n\nAdd RBSCIP-compliant propagation retry to SA key generation in zrbgg_create_service_account_with_key.\n\n## Diagnosis\n\nSA creation returns 200 with uid. The existing rbgu_poll_until_ok confirms SA is readable via GET. But POST to /keys returns 404 because the keys sub-resource endpoint has additional propagation delay. Google documents: \"you might need to wait 60 seconds or more before you use the service account.\"\n\nThis is a pre-existing latent race (Governor.sh unchanged by heat), surfaced during fresh depot onboarding walkthrough on 2026-03-12.\n\n## Required Context\n\n- RBSCIP-IamPropagation.adoc — backoff profile (3s initial, 2x multiplier, 20s cap, 420s deadline), pattern precedent\n- BCG-BashConsoleGuide.md — enterprise retry patterns, temp file discipline, load-bearing complexity\n- RBS0-SpecTop.adoc — spec definition for zrbgg_create_service_account_with_key if exists\n- Tools/rbk/rbgi_IAM.sh — existing propagation retry loops in IAM grant functions (pattern to follow)\n- Tools/rbk/rbgu_Utility.sh — rbgu_poll_until_ok and rbgu_http_json (understand their contracts)\n- Tools/rbk/rbgg_Governor.sh — the key generation step at line 249-254\n\n## Design Questions\n\n1. Should rbgu_poll_until_ok be enhanced to support POST-with-retry, or does key generation need its own retry in rbgg?\n2. The RBSCIP backoff profile uses exponential backoff — should key retry use the same profile or is flat interval sufficient given the 404 is a different failure class (resource propagation, not IAM grant propagation)?\n3. Should the retry be specific to 404 only, or also handle 503/429?\n\n## Files\n- Tools/rbk/rbgg_Governor.sh\n- Tools/rbk/rbgu_Utility.sh (if poll_until_ok is enhanced)\n- Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc (reference)\n- Tools/rbk/vov_veiled/RBS0-SpecTop.adoc (spec update if needed)",
+              "silks": "sa-key-propagation-retry",
+              "commit": "68b0969"
             }
           ]
         }
