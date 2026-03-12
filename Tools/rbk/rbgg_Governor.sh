@@ -246,16 +246,37 @@ zrbgg_create_service_account_with_key() {
     buc_die  "Aborting to avoid minting additional keys."
   fi
 
-  buc_step 'Generate service account key'
+  buc_step 'Generate service account key (with propagation retry)'
   local z_key_req="${BURD_TEMP_DIR}/rbgg_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
-  rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
-                                         "${z_token}" "${ZRBGG_INFIX_KEY}" "${z_key_req}"
-  rbgu_http_require_ok "Generate service account key" "${ZRBGG_INFIX_KEY}"
+
+  local z_key_attempt=0
+  local z_key_infix=""
+  local z_key_code=""
+  while :; do
+    z_key_attempt=$((z_key_attempt + 1))
+    z_key_infix="${ZRBGG_INFIX_KEY}-attempt${z_key_attempt}"
+    rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
+                                           "${z_token}" "${z_key_infix}" "${z_key_req}"
+
+    z_key_code=$(rbgu_http_code_capture "${z_key_infix}") || z_key_code=""
+
+    if test "${z_key_code}" = "200"; then
+      break
+    fi
+
+    if test "${z_key_code}" = "404" && test "${z_key_attempt}" -lt "${RBGC_SA_KEY_CREATE_RETRY_MAX}"; then
+      buc_warn "keys.create returned 404 (SA write-path propagation delay), retry ${z_key_attempt}/${RBGC_SA_KEY_CREATE_RETRY_MAX} in ${RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC}s..."
+      sleep "${RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC}"
+      continue
+    fi
+
+    rbgu_http_require_ok "Generate service account key" "${z_key_infix}"
+  done
 
   buc_step 'Extract and decode key data'
   local z_key_b64
-  z_key_b64=$(rbgu_json_field_capture "${ZRBGG_INFIX_KEY}" '.privateKeyData') \
+  z_key_b64=$(rbgu_json_field_capture "${z_key_infix}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
   local z_key_json="${BURD_TEMP_DIR}/rbgg_key_${z_instance}.json"
   buc_log_args 'Tolerate macos base64 difference'

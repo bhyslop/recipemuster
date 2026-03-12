@@ -121,6 +121,8 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 to create service account key for
 `«GOVERNOR_SERVICE_ACCOUNT»`
 .. Set keyAlgorithm: `KEY_ALG_RSA_2048`, privateKeyType: `TYPE_GOOGLE_CREDENTIALS_FILE`
+.. Retry up to `RBGC_SA_KEY_CREATE_RETRY_MAX` times on HTTP 404 with `RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC` delay between attempts
+.. NOTE: SA read operations (GET by email, keys.list) may succeed while keys.create POST returns 404 "does not exist" due to write-path propagation delay. The 404 confirms no key was created, making retry safe. See <<rbscig_iam_grant_contracts>>.
 .. {rbbc_store}
 `«GOVERNOR_PRIVATE_KEY_DATA»` from response `.privateKeyData` field
 .. {rbtoe_rbra_generate}

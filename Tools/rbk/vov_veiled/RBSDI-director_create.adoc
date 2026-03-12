@@ -78,6 +78,8 @@ if USER_MANAGED keys found: "Manual cleanup required via Console"
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/create[serviceAccounts.keys.create] for `«DIRECTOR_EMAIL»` with:
 ... privateKeyType: `TYPE_GOOGLE_CREDENTIALS_FILE`
+.. Retry up to `RBGC_SA_KEY_CREATE_RETRY_MAX` times on HTTP 404 with `RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC` delay between attempts
+.. NOTE: SA read operations (GET by email, keys.list) may succeed while keys.create POST returns 404 "does not exist" due to write-path propagation delay. The 404 confirms no key was created, making retry safe. See <<rbscig_iam_grant_contracts>>.
 .. {rbbc_store}
 `«DIRECTOR_PRIVATE_KEY_DATA»` from response `.privateKeyData` field
 .. {rbtoe_rbra_generate}

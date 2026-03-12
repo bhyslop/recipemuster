@@ -65,6 +65,8 @@ zrbgc_kindle() {
   # Timeouts
   readonly RBGC_MAX_CONSISTENCY_SEC=90
   readonly RBGC_EVENTUAL_CONSISTENCY_SEC=3
+  readonly RBGC_SA_KEY_CREATE_RETRY_MAX=3
+  readonly RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC=10
 
   # URL Roots & Well-known Endpoints
   readonly RBGC_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"

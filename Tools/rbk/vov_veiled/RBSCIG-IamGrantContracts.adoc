@@ -264,6 +264,21 @@ email address."  Recipe Bottle uses email addresses throughout, which is why
 propagation retry is necessary.  Switching to numeric ID could reduce (but
 likely not eliminate) propagation delays.
 
+**SA keys.create write-path propagation.**
+Observed 2026-03-12 during fresh depot onboarding: `serviceAccounts.keys.create`
+POST returned HTTP 404 "Service account ... does not exist" immediately after
+both `serviceAccounts.get` (GET by email) and `serviceAccounts.keys.list` (GET)
+succeeded on the same SA email path.  This demonstrates a third propagation
+class: SA read operations (GET by email, keys.list) propagate independently
+from SA write operations (keys.create) on the same endpoint family.
+The 404 response confirms the POST was rejected without side effects — no key
+was created — making retry safe.  `gcloud iam service-accounts keys list`
+confirmed zero USER_MANAGED keys after the 404 failure.
+The race is intermittent: a subsequent director creation (dir1011) with the same
+code path succeeded on first attempt.
+Mitigation: retry keys.create POST on 404 up to `RBGC_SA_KEY_CREATE_RETRY_MAX`
+times with `RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC` delay between attempts.
+
 ===== Secret Manager Regional Endpoints
 
 Secret Manager supports both global and regional secret endpoints:

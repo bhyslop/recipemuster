@@ -1607,17 +1607,37 @@ rbgp_governor_reset() {
     "serviceAccount:${z_governor_email}" \
     "governor-cb-conn-viewer"
 
-  buc_step 'Generate service account key'
+  buc_step 'Generate service account key (with propagation retry)'
   local -r z_key_req="${BURD_TEMP_DIR}/rbgp_governor_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
 
   local -r z_key_url="${z_sa_list_url}/${z_governor_email}/keys"
-  rbgu_http_json "POST" "${z_key_url}" "${z_token}" "${ZRBGP_INFIX_GOV_KEY}" "${z_key_req}"
-  rbgu_http_require_ok "Generate Governor key" "${ZRBGP_INFIX_GOV_KEY}"
+  local z_key_attempt=0
+  local z_gov_key_infix=""
+  local z_key_code=""
+  while :; do
+    z_key_attempt=$((z_key_attempt + 1))
+    z_gov_key_infix="${ZRBGP_INFIX_GOV_KEY}-attempt${z_key_attempt}"
+    rbgu_http_json "POST" "${z_key_url}" "${z_token}" "${z_gov_key_infix}" "${z_key_req}"
+
+    z_key_code=$(rbgu_http_code_capture "${z_gov_key_infix}") || z_key_code=""
+
+    if test "${z_key_code}" = "200"; then
+      break
+    fi
+
+    if test "${z_key_code}" = "404" && test "${z_key_attempt}" -lt "${RBGC_SA_KEY_CREATE_RETRY_MAX}"; then
+      buc_warn "keys.create returned 404 (SA write-path propagation delay), retry ${z_key_attempt}/${RBGC_SA_KEY_CREATE_RETRY_MAX} in ${RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC}s..."
+      sleep "${RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC}"
+      continue
+    fi
+
+    rbgu_http_require_ok "Generate Governor key" "${z_gov_key_infix}"
+  done
 
   buc_step 'Extract and decode key data'
   local z_key_b64
-  z_key_b64=$(rbgu_json_field_capture "${ZRBGP_INFIX_GOV_KEY}" '.privateKeyData') \
+  z_key_b64=$(rbgu_json_field_capture "${z_gov_key_infix}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
 
   local -r z_key_json="${BURD_TEMP_DIR}/rbgp_governor_key.json"
