@@ -686,7 +686,17 @@ rbgm_payor_onboarding() {
       ;;
     2)
       bug_section "Next: GitLab Setup"
-      bug_t "  Create a GitLab repo for Cloud Build rubric files and access token."
+      bug_t "  Cloud Build needs build instructions, but should never see your main repo."
+      bug_t "  The rubric repo is a separate, minimal repository that serves as the"
+      bug_t "  security boundary between your project and Google."
+      bug_e
+      bug_t "  You define vessels in your main repo. When you inscribe, Recipe Bottle"
+      bug_t "  translates your vessel definitions into build instructions that Cloud Build"
+      bug_t "  understands, and pushes them to the rubric repo automatically. You never"
+      bug_t "  edit the rubric repo directly."
+      bug_e
+      bug_t "  GitLab is required: its project access tokens are repository-scoped,"
+      bug_t "  which Cloud Build's v2 connection API needs."
       bug_e
       bug_t "  Run the guided procedure:"
       buc_tabtarget "${RBZ_GITLAB_SETUP}"
