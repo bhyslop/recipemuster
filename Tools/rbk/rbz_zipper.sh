@@ -35,86 +35,74 @@ zrbz_kindle() {
 
   # Payor depot/governor commands
   local z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_CREATE_DEPOT   "rbw-PC" "${z_mod}" "rbgp_depot_create"
-  buz_enroll RBZ_PAYOR_INSTALL  "rbw-gPI" "${z_mod}" "rbgp_payor_install"
-  buz_enroll RBZ_DESTROY_DEPOT  "rbw-PD" "${z_mod}" "rbgp_depot_destroy"
-  buz_enroll RBZ_GOVERNOR_RESET "rbw-PG" "${z_mod}" "rbgp_governor_reset"
+  buz_enroll RBZ_CREATE_DEPOT               "rbw-PC"       "${z_mod}" "rbgp_depot_create"
+  buz_enroll RBZ_PAYOR_INSTALL              "rbw-gPI"      "${z_mod}" "rbgp_payor_install"
+  buz_enroll RBZ_DESTROY_DEPOT              "rbw-PD"       "${z_mod}" "rbgp_depot_destroy"
+  buz_enroll RBZ_GOVERNOR_RESET             "rbw-PG"       "${z_mod}" "rbgp_governor_reset"
   # Payor guide/manual procedures (rbgm_cli.sh)
   z_mod="rbgm_cli.sh"
-  buz_enroll RBZ_PAYOR_ESTABLISH "rbw-gPE" "${z_mod}" "rbgm_payor_establish"
-  buz_enroll RBZ_PAYOR_REFRESH   "rbw-gPR" "${z_mod}" "rbgm_payor_refresh"
-  buz_enroll RBZ_QUOTA_BUILD     "rbw-gq"  "${z_mod}" "rbgm_quota_build"
-  buz_enroll RBZ_GITLAB_SETUP    "rbw-gPL" "${z_mod}" "rbgm_gitlab_setup"
-  buz_enroll RBZ_PAYOR_ONBOARDING "rbw-gPo" "${z_mod}" "rbgm_payor_onboarding"
+  buz_enroll RBZ_PAYOR_ESTABLISH            "rbw-gPE"      "${z_mod}" "rbgm_payor_establish"
+  buz_enroll RBZ_PAYOR_REFRESH              "rbw-gPR"      "${z_mod}" "rbgm_payor_refresh"
+  buz_enroll RBZ_QUOTA_BUILD                "rbw-gq"       "${z_mod}" "rbgm_quota_build"
+  buz_enroll RBZ_GITLAB_SETUP               "rbw-gPL"      "${z_mod}" "rbgm_gitlab_setup"
+  buz_enroll RBZ_PAYOR_ONBOARDING           "rbw-gPo"      "${z_mod}" "rbgm_payor_onboarding"
   # Marshal operations (differential furnish in rbrr_cli.sh)
-  buz_enroll RBZ_MARSHAL_RESET "rbw-MR" "rbrr_cli.sh" "rbrr_reset"
+  buz_enroll RBZ_MARSHAL_RESET              "rbw-MR"       "rbrr_cli.sh" "rbrr_reset"
 
   # Payor depot operations (rbgp_cli.sh)
   z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_LIST_DEPOT  "rbw-Pl" "${z_mod}" "rbgp_depot_list"
+  buz_enroll RBZ_LIST_DEPOT                 "rbw-Pl"      "${z_mod}" "rbgp_depot_list"
 
   # Governor commands
   z_mod="rbgg_cli.sh"
-  buz_enroll RBZ_CREATE_RETRIEVER "rbw-GR" "${z_mod}" "rbgg_create_retriever"
-  buz_enroll RBZ_CREATE_DIRECTOR  "rbw-GD" "${z_mod}" "rbgg_create_director"
+  buz_enroll RBZ_CREATE_RETRIEVER          "rbw-GR"        "${z_mod}" "rbgg_create_retriever"
+  buz_enroll RBZ_CREATE_DIRECTOR           "rbw-GD"        "${z_mod}" "rbgg_create_director"
 
   z_mod="rbgg_cli.sh"
-  buz_enroll RBZ_LIST_SERVICE_ACCOUNTS  "rbw-Gl" "${z_mod}" "rbgg_list_service_accounts"
-  buz_enroll RBZ_DELETE_SERVICE_ACCOUNT "rbw-GS" "${z_mod}" "rbgg_delete_service_account"
+  buz_enroll RBZ_LIST_SERVICE_ACCOUNTS     "rbw-Gl"        "${z_mod}" "rbgg_list_service_accounts"
+  buz_enroll RBZ_DELETE_SERVICE_ACCOUNT    "rbw-GS"        "${z_mod}" "rbgg_delete_service_account"
 
   # Retriever/Image commands (rbw-R* colophon family → rbf_cli.sh)
   z_mod="rbf_cli.sh"
-  buz_enroll RBZ_CONJURE_ARK     "rbw-DC" "${z_mod}" "rbf_build"
-  buz_enroll RBZ_ABJURE_ARK      "rbw-DA" "${z_mod}" "rbf_abjure"
-  buz_enroll RBZ_BESEECH_ARK     "rbw-DB" "${z_mod}" "rbf_beseech"
-  buz_enroll RBZ_SUMMON_ARK      "rbw-DS" "${z_mod}" "rbf_summon"
-  buz_enroll RBZ_RUBRIC_INSCRIBE "rbw-DI" "${z_mod}" "rbf_rubric_inscribe"
-  buz_enroll RBZ_DELETE_IMAGE    "rbw-DD" "${z_mod}" "rbf_delete"
-  buz_enroll RBZ_RETRIEVE_IMAGE         "rbw-Rr" "${z_mod}" "rbf_retrieve"
-  buz_enroll RBZ_CHECK_CONSECRATIONS    "rbw-Dc" "${z_mod}" "rbf_check_consecrations"
-  buz_enroll RBZ_VOUCH_ARK             "rbw-DV" "${z_mod}" "rbf_batch_vouch"
+  buz_enroll RBZ_CONJURE_ARK                "rbw-DC"       "${z_mod}" "rbf_build"
+  buz_enroll RBZ_ABJURE_ARK                 "rbw-DA"       "${z_mod}" "rbf_abjure"
+  buz_enroll RBZ_BESEECH_ARK                "rbw-DB"       "${z_mod}" "rbf_beseech"
+  buz_enroll RBZ_SUMMON_ARK                 "rbw-DS"       "${z_mod}" "rbf_summon"
+  buz_enroll RBZ_RUBRIC_INSCRIBE            "rbw-DI"       "${z_mod}" "rbf_rubric_inscribe"
+  buz_enroll RBZ_DELETE_IMAGE               "rbw-DD"       "${z_mod}" "rbf_delete"
+  buz_enroll RBZ_RETRIEVE_IMAGE             "rbw-Rr"       "${z_mod}" "rbf_retrieve"
+  buz_enroll RBZ_CHECK_CONSECRATIONS        "rbw-Dc"       "${z_mod}" "rbf_check_consecrations"
+  buz_enroll RBZ_VOUCH_ARK                  "rbw-DV"       "${z_mod}" "rbf_batch_vouch"
   z_mod="rbrr_cli.sh"
-  buz_enroll RBZ_REFRESH_GCB_PINS    "rbw-DPG" "${z_mod}" "rbrr_refresh_gcb_pins"
-  buz_enroll RBZ_REFRESH_BINARY_PINS "rbw-DPB" "${z_mod}" "rbrr_refresh_binary_pins"
+  buz_enroll RBZ_REFRESH_GCB_PINS           "rbw-DPG"      "${z_mod}" "rbrr_refresh_gcb_pins"
+  buz_enroll RBZ_REFRESH_BINARY_PINS        "rbw-DPB"      "${z_mod}" "rbrr_refresh_binary_pins"
 
-  # Nameplate regime operations
+  # Regime operations
   z_mod="rbrn_cli.sh"
-  buz_enroll RBZ_RENDER_NAMEPLATE   "rbw-rnr" "${z_mod}" "rbrn_render"   "param1"
-  buz_enroll RBZ_VALIDATE_NAMEPLATE "rbw-rnv" "${z_mod}" "rbrn_validate" "param1"
-
-  # Vessel regime operations
+  buz_enroll RBZ_RENDER_NAMEPLATE           "rbw-rnr"      "${z_mod}" "rbrn_render"   "param1"
+  buz_enroll RBZ_VALIDATE_NAMEPLATE         "rbw-rnv"      "${z_mod}" "rbrn_validate" "param1"
   z_mod="rbrv_cli.sh"
-  buz_enroll RBZ_LIST_VESSELS    "rbw-rvl" "${z_mod}" "rbrv_list"
-  buz_enroll RBZ_RENDER_VESSEL   "rbw-rvr" "${z_mod}" "rbrv_render"   "param1"
-  buz_enroll RBZ_VALIDATE_VESSEL "rbw-rvv" "${z_mod}" "rbrv_validate" "param1"
-
-  # Repo regime operations
+  buz_enroll RBZ_LIST_VESSELS               "rbw-rvl"      "${z_mod}" "rbrv_list"
+  buz_enroll RBZ_RENDER_VESSEL              "rbw-rvr"      "${z_mod}" "rbrv_render"   "param1"
+  buz_enroll RBZ_VALIDATE_VESSEL            "rbw-rvv"      "${z_mod}" "rbrv_validate" "param1"
   z_mod="rbrr_cli.sh"
-  buz_enroll RBZ_RENDER_REPO      "rbw-rrr" "${z_mod}" "rbrr_render"
-  buz_enroll RBZ_VALIDATE_REPO    "rbw-rrv" "${z_mod}" "rbrr_validate"
-  buz_enroll RBZ_RENDER_PINS      "rbw-rgr" "${z_mod}" "rbrr_render_pins"
-  buz_enroll RBZ_VALIDATE_PINS    "rbw-rgv" "${z_mod}" "rbrr_validate_pins"
-
-  # Payor regime operations
+  buz_enroll RBZ_RENDER_REPO                "rbw-rrr"      "${z_mod}" "rbrr_render"
+  buz_enroll RBZ_VALIDATE_REPO              "rbw-rrv"      "${z_mod}" "rbrr_validate"
+  buz_enroll RBZ_RENDER_PINS                "rbw-rgr"      "${z_mod}" "rbrr_render_pins"
+  buz_enroll RBZ_VALIDATE_PINS              "rbw-rgv"      "${z_mod}" "rbrr_validate_pins"
   z_mod="rbrp_cli.sh"
-  buz_enroll RBZ_RENDER_PAYOR   "rbw-rpr" "${z_mod}" "rbrp_render"
-  buz_enroll RBZ_VALIDATE_PAYOR "rbw-rpv" "${z_mod}" "rbrp_validate"
-
-  # OAuth regime operations
+  buz_enroll RBZ_RENDER_PAYOR               "rbw-rpr"      "${z_mod}" "rbrp_render"
+  buz_enroll RBZ_VALIDATE_PAYOR             "rbw-rpv"      "${z_mod}" "rbrp_validate"
   z_mod="rbro_cli.sh"
-  buz_enroll RBZ_RENDER_OAUTH   "rbw-ror" "${z_mod}" "rbro_render"
-  buz_enroll RBZ_VALIDATE_OAUTH "rbw-rov" "${z_mod}" "rbro_validate"
-
-  # Station regime operations
+  buz_enroll RBZ_RENDER_OAUTH               "rbw-ror"      "${z_mod}" "rbro_render"
+  buz_enroll RBZ_VALIDATE_OAUTH             "rbw-rov"      "${z_mod}" "rbro_validate"
   z_mod="rbrs_cli.sh"
-  buz_enroll RBZ_RENDER_STATION   "rbw-rsr" "${z_mod}" "rbrs_render"
-  buz_enroll RBZ_VALIDATE_STATION "rbw-rsv" "${z_mod}" "rbrs_validate"
-
-  # Auth regime operations
+  buz_enroll RBZ_RENDER_STATION             "rbw-rsr"      "${z_mod}" "rbrs_render"
+  buz_enroll RBZ_VALIDATE_STATION           "rbw-rsv"      "${z_mod}" "rbrs_validate"
   z_mod="rbra_cli.sh"
-  buz_enroll RBZ_RENDER_AUTH   "rbw-rar" "${z_mod}" "rbra_render"   "param1"
-  buz_enroll RBZ_VALIDATE_AUTH "rbw-rav" "${z_mod}" "rbra_validate" "param1"
-  buz_enroll RBZ_LIST_AUTH     "rbw-ral" "${z_mod}" "rbra_list"
+  buz_enroll RBZ_RENDER_AUTH                "rbw-rar"      "${z_mod}" "rbra_render"   "param1"
+  buz_enroll RBZ_VALIDATE_AUTH              "rbw-rav"      "${z_mod}" "rbra_validate" "param1"
+  buz_enroll RBZ_LIST_AUTH                  "rbw-ral"      "${z_mod}" "rbra_list"
 
   # Nameplate regime list
   z_mod="rbrn_cli.sh"
