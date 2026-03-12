@@ -91,8 +91,10 @@ rbrr_reset() {
   bug_t "  Target: ${z_rbrr}"
   bug_t "  Infrastructure defaults and project conventions will be pre-filled."
   bug_t "  Site-specific fields will be blanked for onboarding."
-  bug_t "  Credential files (RBRA/RBRO) are NOT touched."
+  bug_t "  Payor credentials (RBRA/RBRO) are preserved."
+  bug_t "  Depot-scoped credentials (governor, director, retriever) are removed."
   bug_e
+  buc_require "This will blank site-specific RBRR fields and delete depot credentials." "reset"
 
   local -r z_tmp="${z_rbrr}.tmp"
   while IFS= read -r z_line; do
@@ -115,6 +117,24 @@ rbrr_reset() {
       *)                                    printf '%s\n' "${z_line}"                                   ;;
     esac
   done < "${z_rbrr}" > "${z_tmp}" && mv "${z_tmp}" "${z_rbrr}"
+
+  # Remove depot-scoped RBRA files (governor, director, retriever).
+  # These are tied to a specific depot project — stale credentials from
+  # a prior depot would fool the onboarding guide's file-existence probes.
+  # Payor credentials (rbro-payor.env) are NOT touched: they are scoped
+  # to the payor project which persists across depots.
+  local z_secrets_dir=""
+  z_secrets_dir=$(grep -m1 '^RBRR_SECRETS_DIR=' "${z_rbrr}") || z_secrets_dir=""
+  z_secrets_dir="${z_secrets_dir#RBRR_SECRETS_DIR=}"
+  if test -n "${z_secrets_dir}"; then
+    local z_rbra=""
+    for z_rbra in rbra-governor.env rbra-director.env rbra-retriever.env; do
+      if test -f "${z_secrets_dir}/${z_rbra}"; then
+        rm "${z_secrets_dir}/${z_rbra}"
+        bug_t "  Removed stale depot credential: ${z_rbra}"
+      fi
+    done
+  fi
 
   bug_t "  Reset complete: ${z_rbrr}"
   bug_e
