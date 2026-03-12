@@ -734,16 +734,18 @@ rbgm_payor_onboarding() {
     5)
       bug_section "Next: Director Create"
       bug_t "  Create the director service account (executes Cloud Build operations)."
+      bug_t "  The instance name labels this director — use a short identifier."
       bug_e
       bug_t "  Run:"
-      buc_tabtarget "${RBZ_CREATE_DIRECTOR}"
+      buc_tabtarget "${RBZ_CREATE_DIRECTOR}" "<instance-name>"
       ;;
     6)
       bug_section "Next: Retriever Create"
       bug_t "  Create the retriever service account (pulls images for local bottles)."
+      bug_t "  Use the same instance name as your director."
       bug_e
       bug_t "  Run:"
-      buc_tabtarget "${RBZ_CREATE_RETRIEVER}"
+      buc_tabtarget "${RBZ_CREATE_RETRIEVER}" "<instance-name>"
       ;;
     7)
       bug_section "Next: Conjure & Vouch"
