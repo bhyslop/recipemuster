@@ -605,8 +605,8 @@ rbgm_payor_onboarding() {
       bug_t "credentials so that CLI tools can act on your behalf."
       ;;
     2)
-      bug_section "Recipe Bottle Onboarding — Authenticated"
-      bug_t "OAuth credentials are installed. Next you will connect a GitLab"
+      bug_section "Recipe Bottle Onboarding — Payor Credentialed"
+      bug_t "Payor RBRA credentials are emplaced. Next you will connect a GitLab"
       bug_t "rubric repo where Cloud Build fetches build definitions."
       ;;
     3)
@@ -648,7 +648,7 @@ rbgm_payor_onboarding() {
   z_flag=0; test "${z_level}" -ge 1 && z_flag=1
   zrbgm_po_status "${z_flag}" "1. Payor Establish     — GCP project + OAuth consent screen"
   z_flag=0; test "${z_level}" -ge 2 && z_flag=1
-  zrbgm_po_status "${z_flag}" "2. Payor Install       — OAuth credential flow"
+  zrbgm_po_status "${z_flag}" "2. Payor Install       — RBRA credential emplacement"
   z_flag=0; test "${z_level}" -ge 3 && z_flag=1
   zrbgm_po_status "${z_flag}" "3. GitLab Setup        — Rubric repo + access token"
   z_flag=0; test "${z_level}" -ge 4 && z_flag=1
@@ -693,6 +693,20 @@ rbgm_payor_onboarding() {
       ;;
     3)
       bug_section "Next: Depot Create"
+      bug_t "  Creating a depot binds your RBRR configuration to real cloud resources."
+      bug_t "  Review these values before proceeding — one RBRR is tied to one depot."
+      bug_e
+      bug_tc "    GCP_REGION                " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCP_REGION)"
+      bug_tc "    GCB_MACHINE_TYPE          " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCB_MACHINE_TYPE)"
+      bug_tc "    GCB_TIMEOUT               " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCB_TIMEOUT)"
+      bug_tc "    GCB_MIN_CONCURRENT_BUILDS " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCB_MIN_CONCURRENT_BUILDS)"
+      bug_tc "    VESSEL_DIR                " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_VESSEL_DIR)"
+      bug_tc "    SECRETS_DIR               " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_SECRETS_DIR)"
+      bug_tc "    RUBRIC_REPO_URL           " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_RUBRIC_REPO_URL)"
+      bug_e
+      bug_tc "  To adjust, edit " "${RBBC_rbrr_file}"
+      bug_t "  and re-run this guide."
+      bug_e
       bug_t "  Create the GCP depot project that hosts all build infrastructure."
       bug_e
       bug_t "  Run:"
