@@ -246,12 +246,30 @@ zrbgg_create_service_account_with_key() {
     buc_die  "Aborting to avoid minting additional keys."
   fi
 
-  buc_step 'Generate service account key'
+  buc_step 'Generate service account key (with propagation retry)'
   local z_key_req="${BURD_TEMP_DIR}/rbgg_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
-  rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
-                                         "${z_token}" "${ZRBGG_INFIX_KEY}" "${z_key_req}"
-  rbgu_http_require_ok "Generate service account key" "${ZRBGG_INFIX_KEY}"
+  local z_key_elapsed=0
+  while :; do
+    local z_key_infix="${ZRBGG_INFIX_KEY}-${z_key_elapsed}s"
+    rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
+                                           "${z_token}" "${z_key_infix}" "${z_key_req}"
+    local z_key_code
+    z_key_code=$(rbgu_http_code_capture "${z_key_infix}") || z_key_code=""
+    if test "${z_key_code}" = "200"; then
+      # Copy final response to bare infix for downstream extraction
+      cp "${ZRBGU_PREFIX}${z_key_infix}${ZRBGU_POSTFIX_JSON}" \
+         "${ZRBGU_PREFIX}${ZRBGG_INFIX_KEY}${ZRBGU_POSTFIX_JSON}"
+      cp "${ZRBGU_PREFIX}${z_key_infix}${ZRBGU_POSTFIX_CODE}" \
+         "${ZRBGU_PREFIX}${ZRBGG_INFIX_KEY}${ZRBGU_POSTFIX_CODE}"
+      break
+    fi
+    test "${z_key_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" \
+      && buc_die "Key generation timeout after ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_key_code})"
+    buc_info "Key endpoint not ready (HTTP ${z_key_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_key_elapsed=$((z_key_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+  done
 
   buc_step 'Extract and decode key data'
   local z_key_b64
