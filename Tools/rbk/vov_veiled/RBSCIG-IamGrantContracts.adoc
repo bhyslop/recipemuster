@@ -61,12 +61,18 @@ service protos with GET HTTP annotations, overriding the default IAM mixin POST.
 CRM Projects and IAM {giam_service_account_s} use the standard IAM mixin POST
 convention.
 
-Note on gRPC transcoding tolerance: the current {rbtoe_iam_grant_repo}
-implementation sends POST to an endpoint whose proto specifies GET.  This works
-because Google's gRPC transcoding layer accepts both methods when the operation
-is idempotent and the request body is empty or trivial.  This tolerance is
-not documented as a stable guarantee — it is an implementation artifact of the
-transcoding infrastructure.  Whether it will continue to work is unknown.
+Note on gRPC transcoding tolerance: the {gar_registry} proto specifies GET
+for `getIamPolicy` with no `additional_bindings` for POST.  AIP-127 documents
+no automatic POST-to-GET fallback — if the proto annotation says `get:`, only
+GET is accepted via the transcoded REST endpoint.  The previous implementation
+sent POST to this GET-only endpoint, which worked intermittently via undocumented
+transcoding tolerance but was observed failing with HTTP 404 on 2026-03-12
+during director creation (the 404 was the transcoding layer rejecting the POST,
+not a missing repository).  The inline director AR grant path also passed an
+empty body `{}` that omitted `requestedPolicyVersion`, creating a latent
+condition-mangling hazard.  Both issues are now corrected: the shared
+{rbtoe_iam_grant_repo} function already used GET; the inline director path
+has been fixed to match.
 
 ===== Etag Behavior
 
@@ -321,12 +327,14 @@ invariant — but they represent incorrect assumptions in the code.
  would mask this real error.
 
 |{rbtoe_iam_grant_repo}
-|Uses POST for GET endpoint
-|Code sends POST to `getIamPolicy` (line 286).
- {gar_registry} proto annotates this as GET.
- Works via gRPC transcoding tolerance (the transcoding layer accepts
- both methods when the operation is idempotent and the body is trivial)
- but this tolerance is not a documented guarantee.
+|Resolved — uses GET per proto
+|The shared `rbgi_add_repo_iam_role` function already used GET.
+ The inline director AR grant path in `rbgg_Governor.sh` was the
+ remaining POST site — observed failing with HTTP 404 on 2026-03-12
+ (transcoding layer rejecting POST on GET-only endpoint).  Fixed to
+ GET with `requestedPolicyVersion=3` query parameter.  The 404
+ vanilla-init handler was also removed (404 on GET means repo does
+ not exist — a real error, not a policy absence).
 
 |{rbtoe_iam_grant_repo}
 |Skips available etag

@@ -665,28 +665,28 @@ rbgg_create_director() {
   # Complete policy: Director repoAdmin + Mason writer in one setIamPolicy.
   # Prevents read-modify-write race where stale getIamPolicy omits Mason's binding.
   local -r z_gar_resource="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
-  local -r z_gar_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_gar_resource}:getIamPolicy"
+  local -r z_gar_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_gar_resource}:getIamPolicy?options.requestedPolicyVersion=3"
   local -r z_gar_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_gar_resource}:setIamPolicy"
-  local -r z_gar_empty_body="${BURD_TEMP_DIR}/rbgg_gar_empty.json"
-  printf '{}' > "${z_gar_empty_body}"
 
   local z_gar_prop_delay=3
   local z_gar_prop_elapsed=0
   local -r z_gar_prop_deadline=420
   local z_gar_prop_attempt=0
+  local z_gar_get_infix=""
+  local z_gar_set_infix=""
+  local z_gar_get_code=""
+  local z_gar_get_err=""
 
   while :; do
     z_gar_prop_attempt=$((z_gar_prop_attempt + 1))
-    local z_gar_get_infix="director_gar_get_iam-${z_gar_prop_elapsed}s"
-    local z_gar_set_infix="director_gar_set_iam-${z_gar_prop_elapsed}s"
+    z_gar_get_infix="director_gar_get_iam-${z_gar_prop_elapsed}s"
+    z_gar_set_infix="director_gar_set_iam-${z_gar_prop_elapsed}s"
 
-    rbgu_http_json "POST" "${z_gar_get_url}" "${z_token}" "${z_gar_get_infix}" "${z_gar_empty_body}"
-    local z_gar_get_code
+    rbgu_http_json "GET" "${z_gar_get_url}" "${z_token}" "${z_gar_get_infix}"
     z_gar_get_code=$(rbgu_http_code_capture "${z_gar_get_infix}") || z_gar_get_code=""
 
     # Propagation retry: newly-created Director SA may not be visible yet
     if test "${z_gar_get_code}" = "400"; then
-      local z_gar_get_err=""
       z_gar_get_err=$(rbgu_error_message_capture "${z_gar_get_infix}") || z_gar_get_err=""
       case "${z_gar_get_err}" in
         *"does not exist"*|*"is not deleted"*)
@@ -702,11 +702,7 @@ rbgg_create_director() {
       esac
     fi
 
-    if test "${z_gar_get_code}" = "404"; then
-      rbgu_write_vanilla_json "${z_gar_get_infix}"
-    else
-      rbgu_http_require_ok "Get GAR repo IAM policy" "${z_gar_get_infix}"
-    fi
+    rbgu_http_require_ok "Get GAR repo IAM policy" "${z_gar_get_infix}"
 
     # Build complete expected policy: Director repoAdmin + Mason writer
     local z_gar_partial

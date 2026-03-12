@@ -158,6 +158,11 @@ bucket IAM update successful
 {rbtgi_repository}
 Admin Access*:
 .. {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/getIamPolicy[repositories.getIamPolicy] via HTTP GET with `options.requestedPolicyVersion=3` query parameter
+.. NOTE: {gar_registry} proto specifies GET for `getIamPolicy` with no `additional_bindings` for POST. Using POST fails intermittently with HTTP 404 (transcoding layer rejection, not missing repository). See <<rbscig_iam_grant_contracts>>.
+.. {rbbc_require}
+HTTP 200 — 404 means repository does not exist (real error, not empty policy)
+.. {rbbc_call}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/setIamPolicy[repositories.setIamPolicy] for
 {rbtgi_repository}
 .. *Complete policy write*: Add ALL expected bindings to the read policy, regardless of what the read returned:
