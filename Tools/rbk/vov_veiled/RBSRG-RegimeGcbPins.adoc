@@ -67,14 +67,14 @@ Pin retained for potential future use.
 //axhrv_variable
 {rbrg_image_pins_refreshed_at}
 
-Timestamp recording when container image pins were last refreshed via `rbrr_refresh_gcb_pins` (`rbw-DPG`).
+Timestamp recording when container image pins were last refreshed via `rbrr_refresh_gcb_pins` ({rbtc_refresh_gcb_pins}).
 {rbtgo_rubric_inscribe}
 gates on this value — must be less than 1 day old.
 
 //axhrv_variable
 {rbrg_binary_pins_refreshed_at}
 
-Timestamp recording when binary tool pins were last refreshed via `rbrr_refresh_binary_pins` (`rbw-DPB`).
+Timestamp recording when binary tool pins were last refreshed via `rbrr_refresh_binary_pins` ({rbtc_refresh_binary_pins}).
 Not gated by inscribe — binary pins are updated deliberately.
 
 //axhro_kindle

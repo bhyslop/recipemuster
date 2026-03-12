@@ -81,7 +81,7 @@ Log hygiene (no credential echo) was audited during trigger migration script inl
 **Provenance on demand.**
 `rbf_check_consecrations()` lists all consecrations and queries Container Analysis inline for each per-platform image,
 displaying SLSA build level, build invocation ID, and single-origin verification per consecration.
-Tabtarget: `rbw-Dc`.
+Tabtarget: {rbtc_check_consecrations}.
 
 ===== Pipeline Architecture: Single-Platform Vessels
 

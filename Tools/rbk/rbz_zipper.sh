@@ -36,17 +36,17 @@ zrbz_kindle() {
   # Payor depot/governor commands
   local z_mod="rbgp_cli.sh"
   buz_enroll RBZ_CREATE_DEPOT   "rbw-PC" "${z_mod}" "rbgp_depot_create"
-  buz_enroll RBZ_PAYOR_INSTALL  "rbw-PI" "${z_mod}" "rbgp_payor_install"
+  buz_enroll RBZ_PAYOR_INSTALL  "rbw-gPI" "${z_mod}" "rbgp_payor_install"
   buz_enroll RBZ_DESTROY_DEPOT  "rbw-PD" "${z_mod}" "rbgp_depot_destroy"
   buz_enroll RBZ_GOVERNOR_RESET "rbw-PG" "${z_mod}" "rbgp_governor_reset"
   # Payor guide/manual procedures (rbgm_cli.sh)
   z_mod="rbgm_cli.sh"
-  buz_enroll RBZ_PAYOR_ESTABLISH "rbw-Pg" "${z_mod}" "rbgm_payor_establish"
-  buz_enroll RBZ_PAYOR_REFRESH   "rbw-PR" "${z_mod}" "rbgm_payor_refresh"
-  buz_enroll RBZ_QUOTA_BUILD     "rbw-gqb" "${z_mod}" "rbgm_quota_build"
-  buz_enroll RBZ_GITLAB_SETUP    "rbw-Pgl" "${z_mod}" "rbgm_gitlab_setup"
+  buz_enroll RBZ_PAYOR_ESTABLISH "rbw-gPE" "${z_mod}" "rbgm_payor_establish"
+  buz_enroll RBZ_PAYOR_REFRESH   "rbw-gPR" "${z_mod}" "rbgm_payor_refresh"
+  buz_enroll RBZ_QUOTA_BUILD     "rbw-gq"  "${z_mod}" "rbgm_quota_build"
+  buz_enroll RBZ_GITLAB_SETUP    "rbw-gPL" "${z_mod}" "rbgm_gitlab_setup"
   # Payor onboarding guide (pre-kindle, uses rbgm_onboard_cli.sh)
-  buz_enroll RBZ_PAYOR_ONBOARDING "rbw-PO" "rbgm_onboard_cli.sh" "rbgm_payor_onboarding"
+  buz_enroll RBZ_PAYOR_ONBOARDING "rbw-gPo" "rbgm_onboard_cli.sh" "rbgm_payor_onboarding"
   # Marshal operations (pre-kindle, uses rbrr_reset_cli.sh)
   buz_enroll RBZ_MARSHAL_RESET "rbw-MR" "rbrr_reset_cli.sh" "rbrr_reset"
 

@@ -17,6 +17,7 @@
 // gcs_ prefix: Google Cloud Storage (generic service)
 // gcb_ prefix: Google Cloud Build (generic service)
 // giam_ prefix: Google Cloud Identity and Access Management
+// rbtc_ prefix: RB Term Colophon (tabtarget entry points)
 // rbrr_ prefix: Repository Regime configuration
 
 // Local Architecture Terms (bottle deployment architecture):
@@ -121,6 +122,12 @@
 :rbtgog_payor:                    <<rbtgog_payor,Payor Group>>
 :rbtgog_rubric:                   <<rbtgog_rubric,Rubric Group>>
 :rbtgog_sa:                       <<rbtgog_sa,Service Account Group>>
+
+// Recipe Bottle Term Colophon (tabtarget entry points)
+:rbtc_gitlab_setup:              <<rbtc_gitlab_setup,rbw-gPL>>
+:rbtc_refresh_gcb_pins:          <<rbtc_refresh_gcb_pins,rbw-DPG>>
+:rbtc_refresh_binary_pins:       <<rbtc_refresh_binary_pins,rbw-DPB>>
+:rbtc_check_consecrations:       <<rbtc_check_consecrations,rbw-Dc>>
 
 :rbtoe_check_rubric_repo_url:     <<rbtoe_check_rubric_repo_url,Rubric Repo URL Check>>
 :rbtoe_check_cbv2_connection:     <<rbtoe_check_cbv2_connection,CB v2 Connection Check>>
@@ -1538,7 +1545,7 @@ Conjure must complete (producing both `-image` and `-about`) before vouch can ru
 **slsa-verifier as binary tool pin**:
 The verifier is pinned in `rbrg.env` as a direct binary download URL ({rbrg_slsa_verifier_url}) with SHA256 checksum ({rbrg_slsa_verifier_sha256}), following the crane binary pin precedent.
 It is NOT a container image — the Cloud Build step downloads the binary into `/workspace`, verifies the checksum, and executes it directly.
-Binary pin refresh (`rbrr_refresh_binary_pins` / `rbw-DPB`) discovers the latest release from GitHub Releases API, downloads the binary, computes local SHA256, fetches the SLSA provenance attestation, and dies on mismatch (belt-and-suspenders verification).
+Binary pin refresh (`rbrr_refresh_binary_pins` / {rbtc_refresh_binary_pins}) discovers the latest release from GitHub Releases API, downloads the binary, computes local SHA256, fetches the SLSA provenance attestation, and dies on mismatch (belt-and-suspenders verification).
 +
 **Vouch Cloud Build job architecture**:
 Vouch uses the RunBuild API (`builds.create`) rather than trigger dispatch — the consecration is known only after conjure completes, so a pre-registered trigger cannot provide it.
@@ -2179,6 +2186,29 @@ A logically visible subdivision of IP network address space.
 {st_gateway}::
 A network node that serves as the entry point between two networks.
 
+=== Tabtarget Colophons
+
+[[rbtc_gitlab_setup]]
+{rbtc_gitlab_setup}::
+Tabtarget colophon for the GitLab rubric repo setup guide.
+Displays manual procedure for creating a GitLab project and project access token,
+prerequisite to {rbtgo_depot_create}.
+
+[[rbtc_refresh_gcb_pins]]
+{rbtc_refresh_gcb_pins}::
+Tabtarget colophon for GCB container image pin refresh.
+Discovers latest container image digests and updates {rbrr_prefix} pins.
+
+[[rbtc_refresh_binary_pins]]
+{rbtc_refresh_binary_pins}::
+Tabtarget colophon for binary tool pin refresh.
+Discovers latest release from GitHub, downloads binary, verifies SLSA provenance.
+
+[[rbtc_check_consecrations]]
+{rbtc_check_consecrations}::
+Tabtarget colophon for consecration verification.
+Displays SLSA build level, build invocation ID, and single-origin verification per consecration.
+
 == Configuration Regimes
 
 [[rbrr_prefix]]
@@ -2458,7 +2488,7 @@ Pin retained for potential future use.
 //axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp
 {rbrg_image_pins_refreshed_at}::
 Timestamp recording when container image pins were last refreshed.
-Written by `rbrr_refresh_gcb_pins` (`rbw-DPG`) on successful completion.
+Written by `rbrr_refresh_gcb_pins` ({rbtc_refresh_gcb_pins}) on successful completion.
 {rbtgo_rubric_inscribe}
 checks this value and gates on freshness (less than 1 day old).
 
@@ -2466,7 +2496,7 @@ checks this value and gates on freshness (less than 1 day old).
 //axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp
 {rbrg_binary_pins_refreshed_at}::
 Timestamp recording when binary tool pins were last refreshed.
-Written by `rbrr_refresh_binary_pins` (`rbw-DPB`) on successful completion.
+Written by `rbrr_refresh_binary_pins` ({rbtc_refresh_binary_pins}) on successful completion.
 Not gated by inscribe — binary pins are updated deliberately.
 
 [[rbrr_group_service_accounts]]
@@ -2523,7 +2553,7 @@ include::RBSRR-RegimeRepo.adoc[]
 Pinned tool references for
 {gcb_service}
 build steps.
-Two refresh commands: `rbrr_refresh_gcb_pins` (`rbw-DPG`) for container image pins and `rbrr_refresh_binary_pins` (`rbw-DPB`) for binary tool pins.
+Two refresh commands: `rbrr_refresh_gcb_pins` ({rbtc_refresh_gcb_pins}) for container image pins and `rbrr_refresh_binary_pins` ({rbtc_refresh_binary_pins}) for binary tool pins.
 Each writes the complete file from scratch (BCG compliant), preserving the other's section.
 Located at `.rbk/rbrg.env`.
 

@@ -23,16 +23,16 @@ creates a new depot infrastructure from the
 . *Validate Rubric Repo URL (GitLab required)*:
 .. {rbbc_require}
 {rbrr_rubric_repo_url}
-is set in regime (`RBRR_RUBRIC_REPO_URL` in `rbrr.env`) or {rbbc_show} tabtarget hint for `rbw-Pgl` then {rbbc_fatal} "Cannot proceed without GitLab rubric repo"
+is set in regime (`RBRR_RUBRIC_REPO_URL` in `rbrr.env`) or {rbbc_show} tabtarget hint for {rbtc_gitlab_setup} then {rbbc_fatal} "Cannot proceed without GitLab rubric repo"
 .. {rbbc_require}
-URL begins with `https://gitlab.com/` or {rbbc_show} tabtarget hint for `rbw-Pgl` (GitLab setup guide) then {rbbc_fatal} "Cannot proceed without GitLab rubric repo"
+URL begins with `https://gitlab.com/` or {rbbc_show} tabtarget hint for {rbtc_gitlab_setup} (GitLab setup guide) then {rbbc_fatal} "Cannot proceed without GitLab rubric repo"
 
 //axhop_parameter_from_stdin
 . *GitLab Project Access Token (stdin)*:
 .. {rbbc_show}
 rubric repo URL
 .. Read one line from stdin: `«GITLAB_TOKEN»`
-.. If empty, {rbbc_show} tabtarget hint for `rbw-Pgl` (GitLab setup guide) then {rbbc_fatal} "Token is empty"
+.. If empty, {rbbc_show} tabtarget hint for {rbtc_gitlab_setup} (GitLab setup guide) then {rbbc_fatal} "Token is empty"
 
 //axhos_step
 . *Validate Rubric Repo URL reachability*:
