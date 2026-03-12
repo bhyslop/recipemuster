@@ -35,6 +35,12 @@ zrbgm_onboard_furnish() {
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"  || buc_die "Failed to source rbbc_constants.sh"
   source "${BURD_BUK_DIR}/bug_guide.sh"           || buc_die "Failed to source bug_guide.sh"
 
+  # Kindle BURC regime (enroll + readonly, no enforce) for configuration review display
+  source "${BURD_BUK_DIR}/buv_validation.sh"       || buc_die "Failed to source buv_validation.sh"
+  zbuv_kindle
+  source "${BURD_BUK_DIR}/burc_regime.sh"          || buc_die "Failed to source burc_regime.sh"
+  zburc_kindle
+
   # Kindle zipper for tabtarget colophon references (lightweight, no regime dependency)
   source "${BURD_BUK_DIR}/buz_zipper.sh"                             || buc_die "Failed to source buz_zipper.sh"
   source "${BURD_TOOLS_DIR}/${RBBC_kit_subdir}/rbz_zipper.sh"        || buc_die "Failed to source rbz_zipper.sh"

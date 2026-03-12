@@ -31,6 +31,10 @@ zrbdc_kindle() {
   test -z "${ZRBDC_KINDLED:-}" || buc_die "Module rbdc already kindled"
   zrbrr_sentinel
 
+  # Ensure secrets directory exists (defensive: Payor Install creates it first,
+  # but other paths like Governor Reset should not assume ordering)
+  mkdir -p "${RBRR_SECRETS_DIR}" || buc_die "Failed to create secrets directory: ${RBRR_SECRETS_DIR}"
+
   # Derive credential file paths from RBRR_SECRETS_DIR
   readonly RBDC_GOVERNOR_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-governor.env"
   readonly RBDC_RETRIEVER_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-retriever.env"

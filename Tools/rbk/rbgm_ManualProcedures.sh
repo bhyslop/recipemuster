@@ -483,6 +483,58 @@ zrbgm_po_extract_capture() {
   echo "${z_line#"${z_key}="}"
 }
 
+# Configuration review — displayed at level 0 (first thing a newcomer sees)
+# Shows pre-selected RBRR defaults with orientation, plus BURC project structure.
+# No sentinel: runs pre-kindle like the rest of the onboarding guide.
+zrbgm_po_review_defaults() {
+  local z_rbrr_file="${RBBC_rbrr_file}"
+
+  # --- Pre-selected RBRR defaults ---
+  bug_section "Pre-selected Defaults"
+  bug_tc "  File: " "${z_rbrr_file}"
+  bug_t  "  Edit this file if any defaults don't fit, then re-run this guide."
+  bug_e
+  bug_t  "  Infrastructure:"
+  bug_tc "    DNS_SERVER                " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_DNS_SERVER)"
+  bug_t  "      Resolver for bottle network connectivity checks (Google Public DNS)."
+  bug_tc "    GCB_MACHINE_TYPE          " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCB_MACHINE_TYPE)"
+  bug_t  "      Compute Engine type for Cloud Build workers. Smallest reasonable option;"
+  bug_t  "      balances cost and build speed."
+  bug_tc "    GCB_TIMEOUT               " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCB_TIMEOUT)"
+  bug_t  "      Maximum time for a single Cloud Build job (20 minutes)."
+  bug_tc "    GCB_MIN_CONCURRENT_BUILDS " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCB_MIN_CONCURRENT_BUILDS)"
+  bug_t  "      Preflight gate: require capacity for this many parallel builds."
+  bug_t  "      With e2-standard-2 (2 vCPU) and default 10-CPU quota, 5 are possible."
+  bug_e
+  bug_t  "  Conventions:"
+  bug_tc "    VESSEL_DIR                " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_VESSEL_DIR)"
+  bug_t  "      Directory containing vessel specifications — what gets built into"
+  bug_t  "      container images."
+  bug_tc "    GCP_REGION                " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCP_REGION)"
+  bug_t  "      GCP region for all infrastructure. Change if you need geographic"
+  bug_t  "      proximity to a different region."
+  bug_tc "    SECRETS_DIR               " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_SECRETS_DIR)"
+  bug_t  "      Local directory for credential files, outside the repo for security."
+  bug_t  "      Created automatically when credentials are first installed."
+  bug_e
+
+  # --- BURC project structure (read-only orientation) ---
+  bug_section "Project Structure (BURC regime — rarely needs changing)"
+  bug_tc "    TOOLS_DIR                 " "${BURC_TOOLS_DIR}"
+  bug_t  "      Tool modules — the kit scripts that implement every operation."
+  bug_tc "    TABTARGET_DIR             " "${BURC_TABTARGET_DIR}"
+  bug_t  "      Launcher scripts. Tab-complete these in your terminal to run commands."
+  bug_tc "    STATION_FILE              " "${BURC_STATION_FILE}"
+  bug_t  "      Developer-local settings (log directory). Lives outside the repo."
+  bug_tc "    TEMP_ROOT_DIR             " "${BURC_TEMP_ROOT_DIR}"
+  bug_t  "      Temporary working files for each command run. Outside the repo."
+  bug_tc "    OUTPUT_ROOT_DIR           " "${BURC_OUTPUT_ROOT_DIR}"
+  bug_t  "      Persistent command output. Outside the repo."
+  bug_tc "    MANAGED_KITS              " "${BURC_MANAGED_KITS}"
+  bug_t  "      Kit modules managed by the vvx toolchain."
+  bug_e
+}
+
 rbgm_payor_onboarding() {
   # No zrbgm_sentinel — works pre-kindle (load-bearing: the guide's purpose
   # is to run before a valid regime exists; see docket for rationale)
@@ -540,10 +592,12 @@ rbgm_payor_onboarding() {
   # --- Frontmatter (level-appropriate orientation for newcomers) ---
   case "${z_level}" in
     0)
-      bug_section "Recipe Bottle Onboarding — Fresh Setup"
+      bug_section "Recipe Bottle Onboarding — Configuration Review"
       bug_t "Welcome to Recipe Bottle. This guide walks you through provisioning"
-      bug_t "GCP infrastructure from scratch. Each step builds on the previous"
-      bug_t "one — complete them in order."
+      bug_t "Google Cloud infrastructure from scratch. Before starting, review"
+      bug_t "the configuration defaults below."
+      bug_e
+      zrbgm_po_review_defaults
       ;;
     1)
       bug_section "Recipe Bottle Onboarding — Payor Established"
@@ -584,8 +638,7 @@ rbgm_payor_onboarding() {
     8)
       bug_section "Recipe Bottle Onboarding — Setup Complete"
       bug_t "Infrastructure is fully provisioned and vessel images are built."
-      bug_t "You can start bottles, or tear down and re-provision from scratch:"
-      buc_tabtarget "${RBZ_MARSHAL_RESET}"
+      bug_t "You can now start bottles from your built vessel images."
       ;;
   esac
   bug_e
@@ -614,6 +667,10 @@ rbgm_payor_onboarding() {
   case "${z_level}" in
     0)
       bug_section "Next: Payor Establish"
+      bug_t "  If the defaults above look right, proceed to Payor Establish."
+      bug_tc "  To adjust defaults first, edit " "${RBBC_rbrr_file}"
+      bug_t "  and re-run this guide. Nothing is committed until the next step."
+      bug_e
       bug_t "  Create a GCP project and configure OAuth consent screen."
       bug_t "  This is the billing anchor for all Recipe Bottle infrastructure."
       bug_e
