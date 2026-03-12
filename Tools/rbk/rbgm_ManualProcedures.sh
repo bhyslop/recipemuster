@@ -547,7 +547,9 @@ rbgm_payor_onboarding() {
   # --- Compute level (strict sequential: first unmet probe stops advancement) ---
   local z_level=0
   local z_secrets_dir=""
-  local z_np=""
+  local z_gar_host=""
+  local z_sentry_vouch_ref=""
+  local z_bottle_vouch_ref=""
 
   while true; do
     # Level 1: Payor project configured in rbrp.env
@@ -582,12 +584,21 @@ rbgm_payor_onboarding() {
     test -f "${z_secrets_dir}/rbra-retriever.env" || break
     z_level=7
 
-    # Level 8: nsproto consecrations present (conjure & vouch completed)
+    # Level 8: nsproto consecrations present (conjure completed)
     test -f "${RBBC_dot_dir}/rbrn_nsproto.env" || break
     source "${RBBC_dot_dir}/rbrn_nsproto.env"
     test -n "${RBRN_SENTRY_CONSECRATION:-}" || break
     test -n "${RBRN_BOTTLE_CONSECRATION:-}" || break
     z_level=8
+
+    # Level 9: nsproto vouch images present in local runtime (vouch & summon completed)
+    source "${RBBC_rbrr_file}"
+    z_gar_host="${RBRR_GCP_REGION}-docker.pkg.dev"
+    z_sentry_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-vouch"
+    z_bottle_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}-vouch"
+    "${RBRN_RUNTIME}" image inspect "${z_sentry_vouch_ref}" >/dev/null 2>&1 || break
+    "${RBRN_RUNTIME}" image inspect "${z_bottle_vouch_ref}" >/dev/null 2>&1 || break
+    z_level=9
 
     break
   done
@@ -635,12 +646,17 @@ rbgm_payor_onboarding() {
       ;;
     7)
       bug_section "Recipe Bottle Onboarding — Service Accounts Ready"
-      bug_t "All service accounts are provisioned. Next: build vessel images"
-      bug_t "with conjure, then verify them with vouch."
+      bug_t "All service accounts are provisioned. Next: build the nsproto"
+      bug_t "vessel images with conjure."
       ;;
     8)
+      bug_section "Recipe Bottle Onboarding — Vessel Images Built"
+      bug_t "Nsproto vessel images are built. Next: verify with batch vouch,"
+      bug_t "then summon both vessels to pull images locally."
+      ;;
+    9)
       bug_section "Recipe Bottle Onboarding — Setup Complete"
-      bug_t "Infrastructure is fully provisioned and vessel images are built."
+      bug_t "Infrastructure is fully provisioned and vessel images are verified."
       bug_t "You can now start bottles from your built vessel images."
       ;;
   esac
@@ -663,7 +679,9 @@ rbgm_payor_onboarding() {
   z_flag=0; test "${z_level}" -ge 7 && z_flag=1
   zrbgm_po_status "${z_flag}" "7. Retriever Create    — Image pull service account"
   z_flag=0; test "${z_level}" -ge 8 && z_flag=1
-  zrbgm_po_status "${z_flag}" "8. Conjure & Vouch     — Build and verify vessel images"
+  zrbgm_po_status "${z_flag}" "8. Conjure             — Build nsproto vessel images"
+  z_flag=0; test "${z_level}" -ge 9 && z_flag=1
+  zrbgm_po_status "${z_flag}" "9. Vouch & Summon      — Verify and pull vessel images"
   bug_e
 
   # --- Next step guidance ---
@@ -749,15 +767,29 @@ rbgm_payor_onboarding() {
       buc_tabtarget "${RBZ_CREATE_RETRIEVER}" "<instance-name>"
       ;;
     7)
-      bug_section "Next: Conjure & Vouch"
-      bug_t "  Build vessel images and verify their integrity."
+      bug_section "Next: Conjure"
+      bug_t "  Build nsproto vessel images. Conjure each vessel separately:"
       bug_e
-      bug_t "  1. Conjure vessel images:"
-      buc_tabtarget "${RBZ_CONJURE_ARK}" "<vessel-name>"
-      bug_t "  2. Vouch (verify) the images:"
-      buc_tabtarget "${RBZ_VOUCH_ARK}"
+      bug_t "  1. Sentry vessel:"
+      buc_tabtarget "${RBZ_CONJURE_ARK}" "${RBRN_SENTRY_VESSEL}"
+      bug_t "  2. Bottle vessel:"
+      buc_tabtarget "${RBZ_CONJURE_ARK}" "${RBRN_BOTTLE_VESSEL}"
+      bug_e
+      bug_t "  After each conjure completes, update the consecration in"
+      bug_tc "  " "${RBBC_dot_dir}/rbrn_nsproto.env"
       ;;
     8)
+      bug_section "Next: Vouch & Summon"
+      bug_t "  Verify SLSA provenance on built images, then pull locally."
+      bug_e
+      bug_t "  1. Batch vouch (verifies all pending consecrations):"
+      buc_tabtarget "${RBZ_VOUCH_ARK}"
+      bug_t "  2. Summon sentry vessel:"
+      buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
+      bug_t "  3. Summon bottle vessel:"
+      buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
+      ;;
+    9)
       bug_section "Next: Start a Bottle"
       bug_t "  Launch a bottle from your built vessel images:"
       bug_e
