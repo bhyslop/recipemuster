@@ -87,14 +87,52 @@ rbrr_reset() {
   local -r z_rbrr="${RBBC_rbrr_file}"
   test -f "${z_rbrr}" || buc_die "RBRR file not found: ${z_rbrr}"
 
+  # Discover secrets dir for pre-confirmation inventory
+  local z_secrets_dir=""
+  z_secrets_dir=$(grep -m1 '^RBRR_SECRETS_DIR=' "${z_rbrr}") || z_secrets_dir=""
+  z_secrets_dir="${z_secrets_dir#RBRR_SECRETS_DIR=}"
+
   bug_section "Marshal Reset"
   bug_t "  Target: ${z_rbrr}"
-  bug_t "  Infrastructure defaults and project conventions will be pre-filled."
-  bug_t "  Site-specific fields will be blanked for onboarding."
-  bug_t "  Payor credentials (RBRA/RBRO) are preserved."
-  bug_t "  Depot-scoped credentials (governor, director, retriever) are removed."
   bug_e
-  buc_require "This will blank site-specific RBRR fields and delete depot credentials." "reset"
+  bug_t "  RBRR fields blanked (reset to onboarding start):"
+  bug_t "    RBRR_DEPOT_PROJECT_ID, RBRR_GAR_REPOSITORY,"
+  bug_t "    RBRR_CBV2_CONNECTION_NAME, RBRR_GCB_WORKER_POOL, RBRR_RUBRIC_REPO_URL"
+  bug_e
+  bug_t "  RBRR fields pre-filled to defaults:"
+  bug_t "    RBRR_DNS_SERVER, RBRR_GCB_MACHINE_TYPE, RBRR_GCB_TIMEOUT,"
+  bug_t "    RBRR_GCB_MIN_CONCURRENT_BUILDS, RBRR_GCP_REGION,"
+  bug_t "    RBRR_VESSEL_DIR, RBRR_SECRETS_DIR"
+  bug_e
+  bug_t "  Depot credentials DELETED (tied to prior depot):"
+  if test -n "${z_secrets_dir}"; then
+    local z_preview=""
+    local z_any_cred=0
+    for z_preview in rbra-governor.env rbra-director.env rbra-retriever.env; do
+      if test -f "${z_secrets_dir}/${z_preview}"; then
+        bug_t "    ${z_secrets_dir}/${z_preview}"
+        z_any_cred=1
+      fi
+    done
+    test "${z_any_cred}" = "1" || bug_t "    (none present)"
+  else
+    bug_t "    (secrets dir not configured)"
+  fi
+  bug_e
+  bug_t "  Vessel consecrations BLANKED (stale after depot change):"
+  local z_np_preview=""
+  local z_any_np=0
+  for z_np_preview in "${RBBC_dot_dir}"/rbrn_*.env; do
+    test -f "${z_np_preview}" || continue
+    bug_t "    ${z_np_preview}"
+    z_any_np=1
+  done
+  test "${z_any_np}" = "1" || bug_t "    (no nameplates found)"
+  bug_e
+  bug_t "  Preserved (payor-scoped, survives depot change):"
+  bug_t "    ${z_secrets_dir}/rbro-payor.env"
+  bug_e
+  buc_require "Proceed with marshal reset?" "reset"
 
   local -r z_tmp="${z_rbrr}.tmp"
   while IFS= read -r z_line; do
@@ -119,13 +157,7 @@ rbrr_reset() {
   done < "${z_rbrr}" > "${z_tmp}" && mv "${z_tmp}" "${z_rbrr}"
 
   # Remove depot-scoped RBRA files (governor, director, retriever).
-  # These are tied to a specific depot project — stale credentials from
-  # a prior depot would fool the onboarding guide's file-existence probes.
-  # Payor credentials (rbro-payor.env) are NOT touched: they are scoped
-  # to the payor project which persists across depots.
-  local z_secrets_dir=""
-  z_secrets_dir=$(grep -m1 '^RBRR_SECRETS_DIR=' "${z_rbrr}") || z_secrets_dir=""
-  z_secrets_dir="${z_secrets_dir#RBRR_SECRETS_DIR=}"
+  # z_secrets_dir already extracted above for pre-confirmation inventory.
   if test -n "${z_secrets_dir}"; then
     local z_rbra=""
     for z_rbra in rbra-governor.env rbra-director.env rbra-retriever.env; do
