@@ -545,7 +545,7 @@ zrbgm_po_review_defaults() {
   bug_e
 }
 
-rbgm_payor_onboarding() {
+rbgm_onboarding() {
   # No zrbgm_sentinel — works pre-kindle (load-bearing: the guide's purpose
   # is to run before a valid regime exists; see docket for rationale)
 

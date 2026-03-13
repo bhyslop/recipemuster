@@ -190,7 +190,7 @@ rbrr_reset() {
   bug_t "  Reset complete: ${z_rbrr}"
   bug_e
   bug_t "  Next: verify onboarding guide detects blank state:"
-  buc_tabtarget "${RBZ_PAYOR_ONBOARDING}"
+  buc_tabtarget "${RBZ_ONBOARDING}"
   buc_success "Regime reset to blank template"
 }
 
