@@ -66,13 +66,15 @@ zrbob_kindle() {
   readonly ZRBOB_SENTRY_SCRIPT="${ZRBOB_SCRIPT_DIR}/rbss.sentry.sh"
   test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
 
-  # Sentry setup log (stdout redirected here to reduce chatter)
-  readonly ZRBOB_SENTRY_SETUP_LOG="${BURD_TEMP_DIR}/rbss_sentry_setup.log"
-
   # Container creation logs (preserved in output dir for inspection)
   readonly ZRBOB_SENTRY_CREATE_LOG="${BURD_OUTPUT_DIR}/rbob_sentry_create.log"
   readonly ZRBOB_CENSER_CREATE_LOG="${BURD_OUTPUT_DIR}/rbob_censer_create.log"
   readonly ZRBOB_BOTTLE_CREATE_LOG="${BURD_OUTPUT_DIR}/rbob_bottle_create.log"
+
+  # Per-role consolidated logs (cleanup/network/exec chatter appended here)
+  readonly ZRBOB_SENTRY_LOG="${BURD_TEMP_DIR}/rbob_sentry.log"
+  readonly ZRBOB_CENSER_LOG="${BURD_TEMP_DIR}/rbob_censer.log"
+  readonly ZRBOB_BOTTLE_LOG="${BURD_TEMP_DIR}/rbob_bottle.log"
 
   # Runtime-specific censer network args (array for proper quoting)
   # Docker uses --ip separately, Podman uses network:ip= syntax
@@ -128,20 +130,20 @@ zrbob_cleanup_containers() {
   buc_step "Stopping any prior containers"
 
   # Stop with short timeout, then force remove (ignore errors for missing containers)
-  ${ZRBOB_RUNTIME} stop -t 2 "${ZRBOB_SENTRY}" >/dev/null 2>&1 || true
-  ${ZRBOB_RUNTIME} rm   -f    "${ZRBOB_SENTRY}" >/dev/null 2>&1 || true
+  ${ZRBOB_RUNTIME} stop -t 2 "${ZRBOB_SENTRY}" >> "${ZRBOB_SENTRY_LOG}" 2>&1 || true
+  ${ZRBOB_RUNTIME} rm   -f    "${ZRBOB_SENTRY}" >> "${ZRBOB_SENTRY_LOG}" 2>&1 || true
 
-  ${ZRBOB_RUNTIME} stop -t 2 "${ZRBOB_BOTTLE}" >/dev/null 2>&1 || true
-  ${ZRBOB_RUNTIME} rm   -f    "${ZRBOB_BOTTLE}" >/dev/null 2>&1 || true
+  ${ZRBOB_RUNTIME} stop -t 2 "${ZRBOB_BOTTLE}" >> "${ZRBOB_BOTTLE_LOG}" 2>&1 || true
+  ${ZRBOB_RUNTIME} rm   -f    "${ZRBOB_BOTTLE}" >> "${ZRBOB_BOTTLE_LOG}" 2>&1 || true
 
-  ${ZRBOB_RUNTIME} stop -t 2 "${ZRBOB_CENSER}" >/dev/null 2>&1 || true
-  ${ZRBOB_RUNTIME} rm   -f    "${ZRBOB_CENSER}" >/dev/null 2>&1 || true
+  ${ZRBOB_RUNTIME} stop -t 2 "${ZRBOB_CENSER}" >> "${ZRBOB_CENSER_LOG}" 2>&1 || true
+  ${ZRBOB_RUNTIME} rm   -f    "${ZRBOB_CENSER}" >> "${ZRBOB_CENSER_LOG}" 2>&1 || true
 }
 
 # Remove enclave network (tolerates missing)
 zrbob_cleanup_network() {
   buc_step "Removing any existing enclave network"
-  ${ZRBOB_RUNTIME} network rm -f "${ZRBOB_NETWORK}" >/dev/null 2>&1 || true
+  ${ZRBOB_RUNTIME} network rm -f "${ZRBOB_NETWORK}" >> "${ZRBOB_SENTRY_LOG}" 2>&1 || true
 }
 
 ######################################################################
@@ -165,7 +167,7 @@ zrbob_create_network() {
     ${z_internal_flag} \
     --subnet="${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
     "${ZRBOB_NETWORK}" \
-    >/dev/null \
+    >> "${ZRBOB_SENTRY_LOG}" \
     || buc_die "Failed to create enclave network"
 
   buc_info "Enclave network created: ${ZRBOB_NETWORK} (${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK})"
@@ -223,8 +225,8 @@ zrbob_launch_sentry() {
   # Configure sentry security by exec'ing rbss.sentry.sh
   buc_step "Configuring sentry security"
   ${ZRBOB_RUNTIME} exec -i "${ZRBOB_SENTRY}" /bin/sh < "${ZRBOB_SENTRY_SCRIPT}" \
-    > "${ZRBOB_SENTRY_SETUP_LOG}" \
-    || buc_die "Failed to configure sentry security — see ${ZRBOB_SENTRY_SETUP_LOG}"
+    >> "${ZRBOB_SENTRY_LOG}" \
+    || buc_die "Failed to configure sentry security — see ${ZRBOB_SENTRY_LOG}"
 
   buc_info "Sentry launched and configured: ${ZRBOB_SENTRY}"
 }
@@ -263,7 +265,7 @@ zrbob_launch_censer() {
   buc_step "Flushing censer ARP entries"
   ${ZRBOB_RUNTIME} exec "${ZRBOB_CENSER}" sh -c \
     "ip link set eth0 down && ip link set eth0 up && ip -s -s neigh flush all" \
-    >/dev/null \
+    >> "${ZRBOB_CENSER_LOG}" \
     || buc_die "Failed to flush censer ARP"
 
   # Configure default route through sentry
