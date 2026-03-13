@@ -66,6 +66,9 @@ zrbob_kindle() {
   readonly ZRBOB_SENTRY_SCRIPT="${ZRBOB_SCRIPT_DIR}/rbss.sentry.sh"
   test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
 
+  # Sentry setup log (stdout redirected here to reduce chatter)
+  readonly ZRBOB_SENTRY_SETUP_LOG="${BURD_TEMP_DIR}/rbss_sentry_setup.log"
+
   # Runtime-specific censer network args (array for proper quoting)
   # Docker uses --ip separately, Podman uses network:ip= syntax
   case "${RBRN_RUNTIME}" in
@@ -213,7 +216,8 @@ zrbob_launch_sentry() {
   # Configure sentry security by exec'ing rbss.sentry.sh
   buc_step "Configuring sentry security"
   ${ZRBOB_RUNTIME} exec -i "${ZRBOB_SENTRY}" /bin/sh < "${ZRBOB_SENTRY_SCRIPT}" \
-    || buc_die "Failed to configure sentry security"
+    > "${ZRBOB_SENTRY_SETUP_LOG}" \
+    || buc_die "Failed to configure sentry security — see ${ZRBOB_SENTRY_SETUP_LOG}"
 
   buc_info "Sentry launched and configured: ${ZRBOB_SENTRY}"
 }
