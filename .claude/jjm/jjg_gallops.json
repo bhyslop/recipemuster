@@ -1000,6 +1000,13 @@
         "₢AUAAP": {
           "tacks": [
             {
+              "ts": "260313-1218",
+              "state": "rough",
+              "text": "Update RBSCO-CosmologyIntro.adoc and faux-render to index.html for open source project page.\n\n## Work\n\n1. Pull roadmap highlights from RBSHR-HorizonRoadmap.adoc into RBSCO as a forward-looking section\n2. Rewrite 'Current Challenges' to present tense — GCB/GAR migration is complete, Makefiles replaced by bash\n3. Update Significant Events timeline through current date\n4. Faux-render RBSCO to index.html (sonnet synchronization — resolve MCM attributes to plain text, produce styled HTML matching current dark-mode format)\n\n## MCM Attribute Resolution\n\nRBSCO uses MCM attribute references ({at_rbm_system}, {at_sentry_container}, etc.) defined in the mapping section of RBS0-SpecTop.adoc. The faux-render must resolve each attribute to its display text from that mapping section. No asciidoctor tooling available — this is a manual/sonnet synchronization job.\n\n## Acceptance\n\n- RBSCO accurately describes current state (cloud build as accomplished, not future)\n- index.html renders correctly in browser with current content\n- Roadmap section gives consumers visibility into project direction\n- All MCM attributes resolved to plain text in index.html",
+              "silks": "freshen-cosmology-and-render",
+              "commit": "68fae54"
+            },
+            {
               "ts": "260313-1213",
               "state": "rough",
               "text": "Update RBSCO-CosmologyIntro.adoc and faux-render to index.html for open source project page.\n\n## Work\n\n1. Pull roadmap highlights from RBSHR-HorizonRoadmap.adoc into RBSCO as a forward-looking section\n2. Rewrite 'Current Challenges' to present tense — GCB/GAR migration is complete, Makefiles replaced by bash\n3. Update Significant Events timeline through current date\n4. Faux-render RBSCO to index.html (sonnet synchronization — resolve MCM attributes to plain text, produce styled HTML matching current dark-mode format)\n\n## Acceptance\n\n- RBSCO accurately describes current state (cloud build as accomplished, not future)\n- index.html renders correctly in browser with current content\n- Roadmap section gives consumers visibility into project direction",
