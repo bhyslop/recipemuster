@@ -12,12 +12,12 @@ The
 {rbtr_director}
 submits a Cloud Build job via `builds.create` (direct submission), which runs as the
 {rbtr_mason}
-service account on the default pool.
+service account on the private pool (`RBRR_GCB_WORKER_POOL`).
 
 NOTE: Vouch uses `builds.create` rather than trigger dispatch because the
 {rbtga_consecration}
 is known only after conjure completes.
-The default pool is acceptable: vouch steps only need internet access (binary download, GAR registry, Container Analysis API).
+The private pool matches conjure's execution environment, eliminating an untested default-pool-with-buildx permutation.
 
 The
 {rbtr_director}
@@ -98,8 +98,10 @@ all platforms verify successfully
 //axhos_step
 . *Cloud Build Step 3: Assemble and Push Vouch Artifact*:
 .. Image: {rbrg_docker_image_ref}
-.. Build `FROM scratch` container with summary and per-platform verification files as layers
-.. Push to registry tagged `«CONSECRATION»-vouch`
+.. Create buildx builder instance (inspect-or-create pattern, same as conjure)
+.. Build multi-platform `FROM scratch` container with summary and per-platform verification files as layers
+.. Platforms: `_RBGV_PLATFORMS` (sourced from `RBRV_CONJURE_PLATFORMS`, comma-separated)
+.. Push to registry tagged `«CONSECRATION»-vouch` via `docker buildx build --push`
 .. {rbbc_require}
 push succeeds
 
@@ -121,7 +123,7 @@ vouch complete with consecration and vouch artifact tag
 Successful execution creates a
 {rbtga_ark_vouch}
 artifact in the registry tagged as `«VESSEL»:«CONSECRATION»-vouch`.
-The vouch artifact is a single-platform container (verification results are architecture-independent metadata).
+The vouch artifact is a multi-platform container (verification results are architecture-independent metadata; multi-platform is for pull ergonomics so arm64 hosts receive no platform mismatch warning).
 +
 *Source URI matching*: The `--source-uri` must be `«RBRR_RUBRIC_REPO_URL»` with the `.git` suffix stripped.
 The slsa-verifier prepends `https://` when matching against the source recorded in provenance by trigger-dispatched builds.
@@ -145,6 +147,12 @@ All `_RBGV_*` substitution variables are passed in the `builds.create` request b
 | `_RBGV_GAR_PATH` | GAR repository path (`«PROJECT»/«REPOSITORY»`). Source: regime constants.
 | `_RBGV_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
 | `_RBGV_CONSECRATION` | Full consecration string. Source: input parameter.
+|===
+
+*Build configuration*::
+[cols="1,2"]
+|===
+| `_RBGV_PLATFORMS` | Comma-separated platform list (e.g., `linux/amd64,linux/arm64`). Source: `RBRV_CONJURE_PLATFORMS` (space→comma conversion).
 |===
 
 *Verification*::

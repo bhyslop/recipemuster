@@ -1950,6 +1950,8 @@ rbf_vouch() {
   buc_log_args "Composing vouch Build resource JSON"
   local -r z_vouch_build_file="${ZRBF_VOUCH_PREFIX}build.json"
 
+  local -r z_vouch_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
+
   jq -n \
     --slurpfile zjq_steps  "${z_vouch_steps_accumulator}" \
     --arg zjq_sa           "${z_mason_sa}" \
@@ -1960,6 +1962,8 @@ rbf_vouch() {
     --arg zjq_source_uri   "${z_source_uri}" \
     --arg zjq_verifier_url "${RBRG_SLSA_VERIFIER_URL}" \
     --arg zjq_verifier_sha "${RBRG_SLSA_VERIFIER_SHA256}" \
+    --arg zjq_platforms    "${z_vouch_platforms}" \
+    --arg zjq_pool         "${RBRR_GCB_WORKER_POOL}" \
     --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
@@ -1970,11 +1974,13 @@ rbf_vouch() {
         _RBGV_CONSECRATION:    $zjq_consecration,
         _RBGV_SOURCE_URI:      $zjq_source_uri,
         _RBGV_VERIFIER_URL:    $zjq_verifier_url,
-        _RBGV_VERIFIER_SHA256: $zjq_verifier_sha
+        _RBGV_VERIFIER_SHA256: $zjq_verifier_sha,
+        _RBGV_PLATFORMS:       $zjq_platforms
       },
       serviceAccount: $zjq_sa,
       options: {
-        logging: "CLOUD_LOGGING_ONLY"
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $zjq_pool }
       },
       timeout: $zjq_timeout
     }' > "${z_vouch_build_file}" \

@@ -618,6 +618,14 @@ rbgg_create_director() {
     "serviceAccount:${z_account_email}"     \
     "director-viewer"
 
+  rbgi_add_project_iam_role                 \
+    "${z_token}"                            \
+    "Grant Worker Pool User"               \
+    "${RBGD_PROJECT_RESOURCE}"              \
+    "roles/cloudbuild.workerPoolUser"       \
+    "serviceAccount:${z_account_email}"     \
+    "director-pool"
+
   buc_step 'Grant Secret Manager access on GitLab api token secret'
   local -r z_director_secret_resource="projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
   local -r z_director_secret_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_director_secret_resource}:getIamPolicy"

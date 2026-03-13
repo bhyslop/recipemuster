@@ -100,6 +100,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[pr
 .. Add `serviceAccount:«DIRECTOR_EMAIL»` with roles:
 ... `roles/cloudbuild.builds.editor` (submit and manage builds)
 ... `roles/viewer` (read project resources)
+... `roles/cloudbuild.workerPoolUser` (use private pool for vouch `builds.create`)
 .. Policy version: 3
 .. {rbbc_require}
 IAM policy update successful
