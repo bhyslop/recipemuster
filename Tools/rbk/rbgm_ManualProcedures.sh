@@ -780,6 +780,10 @@ rbgm_payor_onboarding() {
       bug_section "Next: Inscribe & Conjure"
       bug_t "  Refresh GCB pins, commit, inscribe build definitions, then conjure."
       bug_e
+      bug_t "  Cloud Build jobs run in Google's infrastructure using specific tool images"
+      bug_t "  (gcloud, docker, oras, etc). Pins lock these to exact digests so builds"
+      bug_t "  are reproducible. Both image and binary pins must be fresh before inscribe."
+      bug_e
       bug_t "  1. Refresh GCB image pins (resolves latest tool image digests):"
       buc_tabtarget "${RBZ_REFRESH_GCB_PINS}"
       bug_t "  2. Refresh binary pins (resolves latest slsa-verifier):"
@@ -787,7 +791,12 @@ rbgm_payor_onboarding() {
       bug_t "  3. Commit the updated pin file (inscribe requires fresh pins committed):"
       bug_tc "        git add " "${RBBC_dot_dir}/rbrg.env"
       bug_tc "        git commit -m " "\"Refresh GCB pins for inscribe\""
-      bug_t "  4. Inscribe (pushes build definitions and creates Cloud Build triggers):"
+      bug_e
+      bug_t "  Inscribe translates your vessel definitions into Cloud Build instructions"
+      bug_t "  and pushes them to the rubric repo. It also creates the Cloud Build"
+      bug_t "  triggers that conjure will invoke."
+      bug_e
+      bug_t "  4. Inscribe:"
       buc_tabtarget "${RBZ_RUBRIC_INSCRIBE}"
       bug_t "  5. Conjure sentry vessel:"
       buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_SENTRY_VESSEL}"
