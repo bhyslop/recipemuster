@@ -703,6 +703,7 @@
         "₢AUAAH",
         "₢AUAAO",
         "₢AUAAN",
+        "₢AUAAY",
         "₢AUAAP",
         "₢AUAAQ",
         "₢AUAAR",
@@ -710,7 +711,7 @@
         "₢AUAAF",
         "₢AUAAV"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1302,6 +1303,17 @@
               "text": "Add a prominent maturity/security warning to the top of README.consumer.md (and thus the released README.md). The project's security vision is strong but needs broader review before production trust.\n\n## Tone\n\nNot self-deprecating, not alarming. Honest engineering communication:\n- The security architecture is intentional and well-designed\n- It has not yet had sufficient independent review\n- Users should understand they are early adopters contributing to hardening\n- Invite security-minded contributors\n\n## Placement\n\nImmediately after the title/badge line, before any other content. Visually distinct (admonition box or similar markdown callout).\n\n## Content Direction\n\nSomething like: \"This project implements a rigorous container supply chain trust model. The security vision is sound but the implementation has had limited independent review. We welcome security-focused contributors and responsible disclosure.\"\n\nGet the exact wording right — this is the first thing potential users read. Draft options and iterate with user before committing.\n\n## Acceptance\n\n- Warning is visually prominent at top of README.consumer.md\n- Tone is confident but honest about maturity\n- Does not undermine the project's credibility\n- Invites contribution rather than discouraging adoption",
               "silks": "readme-maturity-warning",
               "commit": "6cbb654"
+            }
+          ]
+        },
+        "₢AUAAY": {
+          "tacks": [
+            {
+              "ts": "260313-1650",
+              "state": "rough",
+              "text": "Add the rbm-abstract-drawio.svg architecture diagram to README.consumer.md using centered HTML img tag. The SVG already survives prep-release stripping. Place after the introductory paragraph, before Key Concepts.",
+              "silks": "readme-architecture-diagram",
+              "commit": "9d702e5"
             }
           ]
         }
