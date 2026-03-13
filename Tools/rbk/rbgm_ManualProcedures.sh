@@ -688,9 +688,8 @@ rbgm_onboarding() {
   zrbgm_po_status "${z_flag}" "7. Retriever Create    — Governor:  Image pull service account"
   z_flag=0; test "${z_level}" -ge 8 && z_flag=1
   zrbgm_po_status "${z_flag}" "8. Inscribe & Conjure  — Director:  Push build defs, build & verify vessels"
-  zrbgm_po_status "${z_flag}" "9. Nameplate Update    —            Record consecrations from step 8"
   z_flag=0; test "${z_level}" -ge 9 && z_flag=1
-  zrbgm_po_status "${z_flag}" "10. Summon              — Retriever: Pull vessel images locally"
+  zrbgm_po_status "${z_flag}" "9. Summon              — Retriever: Pull vessel images locally"
   bug_e
 
   # --- Next step guidance ---
