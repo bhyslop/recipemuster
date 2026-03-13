@@ -67,7 +67,7 @@ zrbz_kindle() {
   buz_enroll RBZ_CONJURE_ARK                "rbw-DC"       "${z_mod}" "rbf_build"
   buz_enroll RBZ_ABJURE_ARK                 "rbw-DA"       "${z_mod}" "rbf_abjure"
   buz_enroll RBZ_BESEECH_ARK                "rbw-DB"       "${z_mod}" "rbf_beseech"
-  buz_enroll RBZ_SUMMON_ARK                 "rbw-DS"       "${z_mod}" "rbf_summon"
+  buz_enroll RBZ_SUMMON_ARK                 "rbw-Rs"       "${z_mod}" "rbf_summon"
   buz_enroll RBZ_RUBRIC_INSCRIBE            "rbw-DI"       "${z_mod}" "rbf_rubric_inscribe"
   buz_enroll RBZ_DELETE_IMAGE               "rbw-DD"       "${z_mod}" "rbf_delete"
   buz_enroll RBZ_RETRIEVE_IMAGE             "rbw-Rr"       "${z_mod}" "rbf_retrieve"

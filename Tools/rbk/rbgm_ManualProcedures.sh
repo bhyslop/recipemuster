@@ -673,23 +673,23 @@ rbgm_onboarding() {
   # --- Dashboard ---
   local z_flag=0
   z_flag=0; test "${z_level}" -ge 1 && z_flag=1
-  zrbgm_po_status "${z_flag}" "1. Payor Establish     — Payor:    GCP project + OAuth consent screen"
+  zrbgm_po_status "${z_flag}" "1. Payor Establish     — Payor:     GCP project + OAuth consent screen"
   z_flag=0; test "${z_level}" -ge 2 && z_flag=1
-  zrbgm_po_status "${z_flag}" "2. Payor Install       — Payor:    RBRA credential emplacement"
+  zrbgm_po_status "${z_flag}" "2. Payor Install       — Payor:     RBRA credential emplacement"
   z_flag=0; test "${z_level}" -ge 3 && z_flag=1
-  zrbgm_po_status "${z_flag}" "3. GitLab Setup        — Payor:    Rubric repo + access token"
+  zrbgm_po_status "${z_flag}" "3. GitLab Setup        — Payor:     Rubric repo + access token"
   z_flag=0; test "${z_level}" -ge 4 && z_flag=1
-  zrbgm_po_status "${z_flag}" "4. Depot Create        — Payor:    GCP depot project"
+  zrbgm_po_status "${z_flag}" "4. Depot Create        — Payor:     GCP depot project"
   z_flag=0; test "${z_level}" -ge 5 && z_flag=1
-  zrbgm_po_status "${z_flag}" "5. Governor Reset      — Payor:    Admin service account"
+  zrbgm_po_status "${z_flag}" "5. Governor Reset      — Payor:     Admin service account"
   z_flag=0; test "${z_level}" -ge 6 && z_flag=1
-  zrbgm_po_status "${z_flag}" "6. Director Create     — Governor: Build service account"
+  zrbgm_po_status "${z_flag}" "6. Director Create     — Governor:  Build service account"
   z_flag=0; test "${z_level}" -ge 7 && z_flag=1
-  zrbgm_po_status "${z_flag}" "7. Retriever Create    — Governor: Image pull service account"
+  zrbgm_po_status "${z_flag}" "7. Retriever Create    — Governor:  Image pull service account"
   z_flag=0; test "${z_level}" -ge 8 && z_flag=1
-  zrbgm_po_status "${z_flag}" "8. Inscribe & Conjure  — Director: Push build defs, build vessel images"
+  zrbgm_po_status "${z_flag}" "8. Inscribe & Conjure  — Director:  Push build defs, build & verify vessels"
   z_flag=0; test "${z_level}" -ge 9 && z_flag=1
-  zrbgm_po_status "${z_flag}" "9. Vouch & Summon      — Director: Verify and pull vessel images"
+  zrbgm_po_status "${z_flag}" "9. Nameplate & Summon  — Retriever: Record consecrations, pull vessel images"
   bug_e
 
   # --- Next step guidance ---
@@ -784,6 +784,7 @@ rbgm_onboarding() {
       bug_t "  Inscribe translates your vessel definitions into Cloud Build instructions"
       bug_t "  and pushes them to the rubric repo. It also creates the Cloud Build"
       bug_t "  triggers that conjure will invoke. Each conjure takes 10-20 minutes."
+      bug_t "  Vouch verifies SLSA provenance on each built image."
       bug_e
       bug_t "  1. Refresh GCB image pins (resolves latest tool image digests):"
       buc_tabtarget "${RBZ_REFRESH_GCB_PINS}"
@@ -798,17 +799,18 @@ rbgm_onboarding() {
       buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_SENTRY_VESSEL}"
       bug_t "  6. Conjure bottle vessel:"
       buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_BOTTLE_VESSEL}"
-      bug_t "  7. List arks and consecrations (verify both builds completed):"
+      bug_t "  7. Check consecrations (verify both builds completed):"
       buc_tabtarget "${RBZ_CHECK_CONSECRATIONS}"
-      bug_t "  8. Update consecration values in nameplate:"
-      bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
+      bug_t "  8. Vouch (verify SLSA provenance on built images):"
+      buc_tabtarget "${RBZ_VOUCH_ARK}"
       ;;
     8)
-      bug_section "Next: Vouch & Summon"
-      bug_t "  Verify SLSA provenance on built images, then pull locally."
+      bug_section "Next: Nameplate & Summon (Retriever role actions)"
+      bug_t "  Record the consecration values from step 8 into your nameplate,"
+      bug_t "  then pull the vouched images locally using Retriever credentials."
       bug_e
-      bug_t "  1. Batch vouch (verifies all pending consecrations):"
-      buc_tabtarget "${RBZ_VOUCH_ARK}"
+      bug_t "  1. Update consecration values in nameplate:"
+      bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
       bug_t "  2. Summon sentry vessel:"
       buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
       bug_t "  3. Summon bottle vessel:"
