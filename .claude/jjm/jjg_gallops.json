@@ -706,9 +706,10 @@
         "₢AUAAR",
         "₢AUAAU",
         "₢AUAAF",
-        "₢AUAAV"
+        "₢AUAAV",
+        "₢AUAAW"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1215,6 +1216,17 @@
               "text": "Add a dirty-working-tree guard to rbf_rubric_inscribe. Fail early with a clear message if `git diff --quiet` or `git diff --cached --quiet` fails, so the rubric repo's recorded source commit always corresponds exactly to the scripts being inscribed. Without this, inscribed scripts can diverge from any committed state, breaking the paper trail from rubric to source.",
               "silks": "inscribe-dirty-tree-guard",
               "commit": "0dd13fd"
+            }
+          ]
+        },
+        "₢AUAAW": {
+          "tacks": [
+            {
+              "ts": "260313-1448",
+              "state": "rough",
+              "text": "Add and debug bind vessel support. Convert rbev-bottle-plantuml from conjure to bind.\n\n## Context\n\nBind vessels pin an external image by digest — no Dockerfile, no Cloud Build, trust is the digest pin. The concept exists in code (RBRV_VESSEL_MODE=bind, RBRV_BIND_IMAGE) but no bind vessel currently exists in the fleet. The only prior bind vessel (rbev-nginx-ward) was deleted as purposeless.\n\n## Work\n\n1. Convert rbev-bottle-plantuml from conjure to bind:\n   - Change RBRV_VESSEL_MODE from conjure to bind\n   - Add RBRV_BIND_IMAGE pointing to upstream plantuml/plantuml-server with digest pin\n   - Remove RBRV_CONJURE_* variables\n   - Delete Dockerfile (no longer needed)\n2. Verify bind vessel path through the pipeline:\n   - Inscription: does inscribe handle bind vessels correctly (skip, or register differently)?\n   - Retrieve/summon: does the retrieval path work for digest-pinned upstream images?\n   - Inspect: compact and full modes for bind vessels (should show \"trust is digest-pin only\")\n   - Bottle start: does bottle-start work with a bind vessel image?\n3. Fix any bugs found in the bind vessel codepath\n4. Update consumer docs (README.consumer.md, CLAUDE.consumer.md) vessel structure example to show a real bind vessel\n5. Update pluml nameplate if needed to reference the bind image correctly\n\n## Acceptance\n\n- rbev-bottle-plantuml is a working bind vessel\n- Bind vessel end-to-end path verified: pin → retrieve → inspect → start\n- At least one bind vessel exists in the fleet for testing and documentation\n- Consumer docs show bind vessel example with real data",
+              "silks": "bind-vessel-support-and-plantuml-conversion",
+              "commit": "43d48dc"
             }
           ]
         }
