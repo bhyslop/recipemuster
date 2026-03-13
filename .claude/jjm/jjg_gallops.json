@@ -888,6 +888,13 @@
         "₢AUAAI": {
           "tacks": [
             {
+              "ts": "260313-1141",
+              "state": "complete",
+              "text": "Create release qualification gate tabtarget (rbw-QR) and remove shellcheck from routine workbench gate.\n\n## Changes\n\n1. Remove buq_shellcheck call from rbq_qualify_all — workbench gate keeps tabtarget, colophon, and nameplate preflight checks but no longer runs shellcheck on every bottle-start\n\n2. Create rbq_qualify_release function that runs:\n   - rbq_qualify_all (cheap checks)\n   - buq_shellcheck (full shellcheck sweep)\n   - Complete test suite (sequential, not parallel)\n   - Fail-fast: stop on first failure\n\n3. Register rbw-QR colophon in rbz_zipper.sh, create tabtarget\n\n## Files\n\n- Tools/rbk/rbq_Qualify.sh: remove shellcheck from qualify_all, add qualify_release\n- Tools/rbk/rbq_cli.sh: add cli routing for qualify_release\n- Tools/rbk/rbz_zipper.sh: enroll rbw-QR colophon\n- tt/: new rbw-QR.QualifyRelease.sh tabtarget\n\n## Acceptance\n\n- Bottle-start no longer runs shellcheck\n- rbw-QR runs all checks + shellcheck + complete test suite sequentially\n- Existing rbw-qa tabtarget still works (now without shellcheck)",
+              "silks": "release-qualification-gate",
+              "commit": "e984e5a"
+            },
+            {
               "ts": "260313-1134",
               "state": "rough",
               "text": "Create release qualification gate tabtarget (rbw-QR) and remove shellcheck from routine workbench gate.\n\n## Changes\n\n1. Remove buq_shellcheck call from rbq_qualify_all — workbench gate keeps tabtarget, colophon, and nameplate preflight checks but no longer runs shellcheck on every bottle-start\n\n2. Create rbq_qualify_release function that runs:\n   - rbq_qualify_all (cheap checks)\n   - buq_shellcheck (full shellcheck sweep)\n   - Complete test suite (sequential, not parallel)\n   - Fail-fast: stop on first failure\n\n3. Register rbw-QR colophon in rbz_zipper.sh, create tabtarget\n\n## Files\n\n- Tools/rbk/rbq_Qualify.sh: remove shellcheck from qualify_all, add qualify_release\n- Tools/rbk/rbq_cli.sh: add cli routing for qualify_release\n- Tools/rbk/rbz_zipper.sh: enroll rbw-QR colophon\n- tt/: new rbw-QR.QualifyRelease.sh tabtarget\n\n## Acceptance\n\n- Bottle-start no longer runs shellcheck\n- rbw-QR runs all checks + shellcheck + complete test suite sequentially\n- Existing rbw-qa tabtarget still works (now without shellcheck)",
