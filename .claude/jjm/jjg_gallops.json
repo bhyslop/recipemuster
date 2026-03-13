@@ -700,9 +700,10 @@
         "₢AUAAN",
         "₢AUAAH",
         "₢AUAAO",
-        "₢AUAAP"
+        "₢AUAAP",
+        "₢AUAAQ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -989,6 +990,17 @@
               "text": "Update RBSCO-CosmologyIntro.adoc and faux-render to index.html for open source project page.\n\n## Work\n\n1. Pull roadmap highlights from RBSHR-HorizonRoadmap.adoc into RBSCO as a forward-looking section\n2. Rewrite 'Current Challenges' to present tense — GCB/GAR migration is complete, Makefiles replaced by bash\n3. Update Significant Events timeline through current date\n4. Faux-render RBSCO to index.html (sonnet synchronization — resolve MCM attributes to plain text, produce styled HTML matching current dark-mode format)\n\n## Acceptance\n\n- RBSCO accurately describes current state (cloud build as accomplished, not future)\n- index.html renders correctly in browser with current content\n- Roadmap section gives consumers visibility into project direction",
               "silks": "freshen-cosmology-and-render",
               "commit": "cf1b507"
+            }
+          ]
+        },
+        "₢AUAAQ": {
+          "tacks": [
+            {
+              "ts": "260313-1213",
+              "state": "rough",
+              "text": "Faux-render RBSGS-GettingStarted.adoc into a consumer-facing README.md.\n\n## Work\n\n1. Resolve MCM attribute references to plain text (e.g. {rbtgo_payor_establish} becomes the actual tabtarget name or operation description)\n2. Suppress adoc-specific patterns (cross-references, attribute definitions)\n3. Integrate with onboarding process — the README should walk a new user from clone through payor establish, depot create, and first bottle-start\n4. Consider what level of detail belongs in README vs separate docs\n5. Place README.md at repo root for open source publication\n\n## Acceptance\n\n- README.md is self-contained markdown, no adoc dependencies\n- New user can follow README from clone to working bottle\n- Payor and onboarding steps are clear and sequenced",
+              "silks": "getting-started-readme",
+              "commit": "9629b54"
             }
           ]
         }
