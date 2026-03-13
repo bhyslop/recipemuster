@@ -689,7 +689,6 @@
       "order": [
         "₢AUAAS",
         "₢AUAAD",
-        "₢AUAAF",
         "₢AUAAA",
         "₢AUAAJ",
         "₢AUAAK",
@@ -706,7 +705,8 @@
         "₢AUAAQ",
         "₢AUAAR",
         "₢AUAAU",
-        "₢AUAAV"
+        "₢AUAAV",
+        "₢AUAAF"
       ],
       "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
