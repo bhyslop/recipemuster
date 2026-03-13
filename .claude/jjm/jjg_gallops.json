@@ -701,9 +701,10 @@
         "₢AUAAH",
         "₢AUAAO",
         "₢AUAAP",
-        "₢AUAAQ"
+        "₢AUAAQ",
+        "₢AUAAR"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1001,6 +1002,17 @@
               "text": "Faux-render RBSGS-GettingStarted.adoc into a consumer-facing README.md.\n\n## Work\n\n1. Resolve MCM attribute references to plain text (e.g. {rbtgo_payor_establish} becomes the actual tabtarget name or operation description)\n2. Suppress adoc-specific patterns (cross-references, attribute definitions)\n3. Integrate with onboarding process — the README should walk a new user from clone through payor establish, depot create, and first bottle-start\n4. Consider what level of detail belongs in README vs separate docs\n5. Place README.md at repo root for open source publication\n\n## Acceptance\n\n- README.md is self-contained markdown, no adoc dependencies\n- New user can follow README from clone to working bottle\n- Payor and onboarding steps are clear and sequenced",
               "silks": "getting-started-readme",
               "commit": "9629b54"
+            }
+          ]
+        },
+        "₢AUAAR": {
+          "tacks": [
+            {
+              "ts": "260313-1214",
+              "state": "rough",
+              "text": "Create /rbk-prep-release slash command — the full release ceremony.\n\n## Ceremony Sequence\n\n1. Run rbw-QR release qualification gate (fast qualify + shellcheck + complete test suite) — fail-fast on develop\n2. Verify develop is clean and pushed\n3. Sync main with upstream (git fetch/pull from scaleinv/recipebottle)\n4. Create candidate branch from main, squash-merge develop\n5. On candidate: strip vov_veiled/, .claude/, lenses/, Tools/gad/\n6. On candidate: swap CLAUDE.md with consumer template (from AUAAN)\n7. On candidate: marshal reset (rbw-MR equivalent — blank site-specific config)\n8. On candidate: delete podman-gateway-proposal.md if present\n9. Generate commit\n10. Final review — user inspects and pushes manually\n\n## Pattern\n\nModeled on /cma-prep-pr (.claude/commands/cma-prep-pr.md). Branch mechanics are similar; strip list and transform steps are rbk-specific.\n\n## Prerequisites (other paces)\n\n- AUAAN: consumer CLAUDE.md template must exist\n- AUAAO: lenses consolidated into veiled (simplifies strip list)\n- AUAAP: index.html must be current\n- AUAAQ: README.md must exist\n\n## References\n\n- .claude/commands/cma-prep-pr.md (pattern)\n- scaleinv/recipebottle (destination repo: git@github.com:scaleinv/recipebottle.git)\n- Tools/rbk/rbrr_cli.sh rbrr_reset (marshal reset implementation)",
+              "silks": "prep-release-slash-command",
+              "commit": "d3fe3df"
             }
           ]
         }
