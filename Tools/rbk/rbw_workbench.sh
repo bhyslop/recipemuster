@@ -64,7 +64,7 @@ rbw_route() {
   # Qualification gate for commands that need it
   case "${z_command}" in
     "${RBZ_BOTTLE_START}"|"${RBZ_CONJURE_ARK}")
-      "${RBW_SCRIPT_DIR}/rbq_cli.sh" rbq_qualify_all || buc_die "Qualification gate failed"
+      "${RBW_SCRIPT_DIR}/rbq_cli.sh" rbq_qualify_fast || buc_die "Qualification gate failed"
       ;;
   esac
 

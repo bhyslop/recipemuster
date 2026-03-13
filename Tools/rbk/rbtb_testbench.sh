@@ -67,6 +67,7 @@ source "${RBTB_BUTS_DIR}/butcev_RefTypes.sh"
 source "${RBTB_BUTS_DIR}/butcev_ListTypes.sh"
 source "${RBTB_BUTS_DIR}/butcev_GateEnroll.sh"
 source "${RBTB_BUTS_DIR}/butcev_EnforceReport.sh"
+source "${RBTB_RBTS_DIR}/rbtcrv_RegimeValidation.sh"
 
 buc_context "${0##*/}"
 zbuv_kindle
@@ -216,6 +217,15 @@ zrbtb_pluml_baste() {
   sleep "${RBCC_BOTTLE_TEST_READINESS_DELAY_SEC}"
 }
 
+zrbtb_regime_validation_baste() {
+  buto_trace "Baste for regime-validation fixture"
+  # Source RBRR env but do NOT kindle — test helpers kindle in their own subshells.
+  # Kindling makes RBRR_ vars readonly, which would prevent RBRR negative tests
+  # from overriding values. ZRBTCRV_VESSEL_DIR caches the path for RBRV iteration.
+  source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
+  export ZRBTCRV_VESSEL_DIR="${RBRR_VESSEL_DIR}"
+}
+
 
 ######################################################################
 # Registration
@@ -238,7 +248,7 @@ rbtb_kindle() {
 
   # qualify-all fixture
   butr_fixture_enroll "qualify-all" "" "zrbtb_qualify_baste"
-  butr_case_enroll "qualify-all" rbtcqa_qualify_all_tcase
+  butr_case_enroll "qualify-all" rbtcqa_qualify_fast_tcase
 
   # -- SERVICE + COMPLETE: needs credentials, no containers --
   butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
@@ -377,6 +387,30 @@ rbtb_kindle() {
   butr_case_enroll "enrollment-validation" butcev_report_mixed_tcase
   butr_case_enroll "enrollment-validation" butcev_report_gated_tcase
   butr_case_enroll "enrollment-validation" butcev_multiscope_tcase
+
+  # regime-validation fixture
+  butr_fixture_enroll "regime-validation" "" "zrbtb_regime_validation_baste"
+  butr_case_enroll "regime-validation" rbtcrv_rbrr_missing_project_id_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_timeout_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_worker_pool_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrr_unexpected_var_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_vessel_dir_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_secrets_dir_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrv_missing_sigil_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrv_no_bind_image_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrv_unexpected_var_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrv_partial_conjure_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrn_missing_moniker_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrn_invalid_runtime_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrn_invalid_entry_mode_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrn_invalid_dns_mode_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrn_invalid_access_mode_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrn_port_conflict_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrn_unexpected_var_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrn_bad_ip_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrr_repo_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrv_all_vessels_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrn_all_nameplates_tcase
 
 }
 

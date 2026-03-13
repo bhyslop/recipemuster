@@ -123,7 +123,8 @@ zrbz_kindle() {
 
   # Qualification operations
   z_mod="rbq_cli.sh"
-  buz_enroll RBZ_QUALIFY_ALL "rbw-qa" "${z_mod}" "rbq_qualify_all"
+  buz_enroll RBZ_QUALIFY_FAST    "rbw-Qf" "${z_mod}" "rbq_qualify_fast"
+  buz_enroll RBZ_QUALIFY_RELEASE "rbw-QR" "${z_mod}" "rbq_qualify_release"
 
   # Test operations (module is testbench, command is colophon)
   z_mod="rbtb_testbench.sh"

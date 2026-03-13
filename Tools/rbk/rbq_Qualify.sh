@@ -127,21 +127,39 @@ rbq_qualify_colophons() {
   buc_log_args "All ${z_checked} RBW colophons registered"
 }
 
-rbq_qualify_all() {
+rbq_qualify_fast() {
   zrbq_sentinel
 
-  buc_step "Running full qualification"
+  buc_step "Running fast qualification"
 
   buq_tabtargets "${ZRBQ_TT_DIR}" "${ZRBQ_PROJECT_ROOT}" \
     "butctt.*.sh" \
     # End of exempt list
   rbq_qualify_colophons
   rbrn_preflight
+
+  buc_step "Fast qualification passed"
+}
+
+rbq_qualify_release() {
+  zrbq_sentinel
+
+  buc_step "Running release qualification"
+
+  # Phase 1: Fast qualification (tabtargets, colophons, nameplate preflight)
+  rbq_qualify_fast
+
+  # Phase 2: Shellcheck (expensive, release-only)
+  buc_step "Running shellcheck"
   buq_shellcheck "${BURC_TOOLS_DIR}" \
     "${BURD_BUK_DIR}/busc_shellcheckrc" \
     "${BURD_TEMP_DIR}/buq_shellcheck_results.txt"
 
-  buc_step "Full qualification passed"
+  # Phase 3: Complete test suite (sequential)
+  buc_step "Running complete test suite"
+  "${ZRBQ_PROJECT_ROOT}/tt/rbw-ts.TestSuite.complete.sh"
+
+  buc_step "Release qualification passed"
 }
 
 # eof
