@@ -172,6 +172,19 @@ Full read and edit access is pre-approved for all files in:
 - For .adoc files, maintain consistent AsciiDoc formatting
 - For .claudex files, preserve the specific format requirements
 
+### Test Execution Discipline
+
+Run test fixture tabtargets **sequentially, never in parallel**. Test fixtures share regime state and container/network namespaces — parallel execution causes resource conflicts and false failures.
+
+```
+# Correct: run one at a time
+tt/rbw-tf.TestFixture.regime-validation.sh
+tt/rbw-tf.TestFixture.nsproto-security.sh
+
+# Wrong: never run fixtures concurrently
+tt/rbw-tf.TestFixture.regime-validation.sh & tt/rbw-tf.TestFixture.nsproto-security.sh &
+```
+
 ### Heredoc Delimiter Selection
 
 When generating heredocs for stdin content, the delimiter must not appear alone on any line within the content.
