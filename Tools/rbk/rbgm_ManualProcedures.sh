@@ -654,8 +654,8 @@ rbgm_payor_onboarding() {
       ;;
     7)
       bug_section "Recipe Bottle Onboarding — Service Accounts Ready"
-      bug_t "All service accounts are provisioned. Next: build the nsproto"
-      bug_t "vessel images with conjure."
+      bug_t "All service accounts are provisioned. Next: inscribe vessel build"
+      bug_t "definitions to the rubric repo, then conjure nsproto vessel images."
       ;;
     8)
       bug_section "Recipe Bottle Onboarding — Vessel Images Built"
@@ -687,7 +687,7 @@ rbgm_payor_onboarding() {
   z_flag=0; test "${z_level}" -ge 7 && z_flag=1
   zrbgm_po_status "${z_flag}" "7. Retriever Create    — Image pull service account"
   z_flag=0; test "${z_level}" -ge 8 && z_flag=1
-  zrbgm_po_status "${z_flag}" "8. Conjure             — Build nsproto vessel images"
+  zrbgm_po_status "${z_flag}" "8. Inscribe & Conjure  — Push build defs, build vessel images"
   z_flag=0; test "${z_level}" -ge 9 && z_flag=1
   zrbgm_po_status "${z_flag}" "9. Vouch & Summon      — Verify and pull vessel images"
   bug_e
@@ -777,12 +777,14 @@ rbgm_payor_onboarding() {
     7)
       local z_vessel_dir=""
       z_vessel_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_VESSEL_DIR") || z_vessel_dir=""
-      bug_section "Next: Conjure"
-      bug_t "  Build nsproto vessel images. Conjure each vessel separately:"
+      bug_section "Next: Inscribe & Conjure"
+      bug_t "  Push vessel build definitions to the rubric repo, then build images."
       bug_e
-      bug_t "  1. Sentry vessel:"
+      bug_t "  1. Inscribe (pushes build definitions and creates Cloud Build triggers):"
+      buc_tabtarget "${RBZ_RUBRIC_INSCRIBE}"
+      bug_t "  2. Conjure sentry vessel:"
       buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_SENTRY_VESSEL}"
-      bug_t "  2. Bottle vessel:"
+      bug_t "  3. Conjure bottle vessel:"
       buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_BOTTLE_VESSEL}"
       bug_e
       bug_t "  After each conjure completes, update the consecration in"
