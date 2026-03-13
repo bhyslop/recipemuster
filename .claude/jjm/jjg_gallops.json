@@ -705,9 +705,10 @@
         "₢AUAAP",
         "₢AUAAQ",
         "₢AUAAR",
-        "₢AUAAU"
+        "₢AUAAU",
+        "₢AUAAV"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1189,6 +1190,17 @@
               "text": "The beseech command (rbw-DB, DirectorBeseechesArk) has an unclear purpose — how does it differ from summon and retrieve? Investigate rbf_beseech implementation, clarify its role, update its frontispiece/description if needed, and fix any references in README.consumer.md, CLAUDE.consumer.md, and relevant specs (RBSAB-ark_beseech.adoc).",
               "silks": "clarify-beseech-purpose-and-docs",
               "commit": "6803040"
+            }
+          ]
+        },
+        "₢AUAAV": {
+          "tacks": [
+            {
+              "ts": "260313-1440",
+              "state": "rough",
+              "text": "Add a dirty-working-tree guard to rbf_rubric_inscribe. Fail early with a clear message if `git diff --quiet` or `git diff --cached --quiet` fails, so the rubric repo's recorded source commit always corresponds exactly to the scripts being inscribed. Without this, inscribed scripts can diverge from any committed state, breaking the paper trail from rubric to source.",
+              "silks": "inscribe-dirty-tree-guard",
+              "commit": "0dd13fd"
             }
           ]
         }
