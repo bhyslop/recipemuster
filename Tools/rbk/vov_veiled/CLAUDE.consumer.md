@@ -17,7 +17,7 @@ tt/rbw-gO.Onboarding.sh
 
 | Term | Meaning |
 |------|---------|
-| **Vessel** | A specification for a container workload — what to build (Dockerfile + config in `rbev-vessels/`) |
+| **Vessel** | A specification for a container workload — a directory in `rbev-vessels/` with `rbrv.env` and optionally a `Dockerfile` |
 | **Ark** | The built result: an immutable container image artifact produced from a vessel |
 | **Consecration** | A specific build instance of a vessel, identified by timestamp (e.g. `i20260101_120000-b20260101_130000`) |
 | **Vouch** | SLSA provenance verification — proves an ark was built by trusted infrastructure |
@@ -26,7 +26,7 @@ tt/rbw-gO.Onboarding.sh
 | **Inscribe** | Push build definitions from the local repo to the rubric repo for Cloud Build |
 | **Abjure** | Revoke vouch on an ark (mark as no longer trusted) |
 | **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
-| **Nameplate** | Per-vessel configuration: runtime, vessel names, consecration values |
+| **Nameplate** | Ties a sentry vessel + bottle vessel into a runnable bottle. The moniker (e.g. `nsproto`) is the imprint in tabtargets. |
 | **Regime** | A structured configuration unit: specification + assignment file (`.env`) + validation |
 | **Sentry** | Security container that enforces network policies via `iptables` and `dnsmasq` |
 | **Censer** | Privileged container that establishes the network namespace shared with the bottle |
@@ -88,9 +88,9 @@ TabTargets are lightweight shell scripts in `tt/` that serve as the CLI entry po
 |------|---------|---------|
 | **Colophon** | Routing identifier (workbench matches on this) | `rbw-B` |
 | **Frontispiece** | Human-readable description (PascalCase) | `ConnectBottle` |
-| **Imprint** | Optional target parameter (vessel name, fixture, etc.) | `nsproto` |
+| **Imprint** | Optional target parameter (nameplate moniker, fixture name, etc.) | `nsproto` |
 
-Example: `tt/rbw-B.ConnectBottle.nsproto.sh` — colophon `rbw-B` routes to the bottle connect command, frontispiece tells you what it does, imprint `nsproto` selects the vessel.
+Example: `tt/rbw-B.ConnectBottle.nsproto.sh` — colophon `rbw-B` routes to the bottle connect command, frontispiece tells you what it does, imprint `nsproto` selects the nameplate.
 
 Multiple tabtargets can share the same colophon but differ by imprint:
 ```
@@ -148,7 +148,7 @@ For full BUK infrastructure documentation, see `Tools/buk/README.md`.
 | `rbw-RiF` | RetrieverInspectsFull | Full provenance display (SBOM, build info, Dockerfile) |
 | `rbw-Ric` | RetrieverInspectsCompact | Compact provenance summary |
 
-### Bottle Operations (imprint = vessel name)
+### Bottle Operations (imprint = nameplate moniker)
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
@@ -233,7 +233,7 @@ Project Root/
 ├── Tools/
 │   ├── buk/                 # Bash Utility Kit (portable infrastructure)
 │   └── rbk/                 # Recipe Bottle Kit (domain logic)
-└── rbev-vessels/            # Vessel definitions (Dockerfiles + config per vessel)
+└── rbev-vessels/            # Vessel definitions (rbrv.env + optional Dockerfile per vessel)
 ```
 
 ## Bash Conventions

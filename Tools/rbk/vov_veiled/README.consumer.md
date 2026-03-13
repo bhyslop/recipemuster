@@ -185,7 +185,7 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
 
 ## Day-to-Day Operations
 
-The examples below use `nsproto` (the included test vessel). Replace with your own vessel name — imprints in tabtarget filenames match your vessel directory names under `rbev-vessels/`.
+The examples below use `nsproto` (the included test nameplate). Replace with your own nameplate moniker — imprints in tabtarget filenames match the nameplate name from `.rbk/rbrn_*.env`.
 
 ### Starting a Bottle
 
@@ -258,21 +258,32 @@ Recipe Bottle uses a Config Regime system — structured configuration with type
 | BURC | `.buk/burc.env` | Project structure (tabtarget dir, tools dir) |
 | BURS | `../station-files/burs.env` | Developer machine (log dir). Not in git. |
 
-## Vessel Directory Structure
+## Vessels and Nameplates
 
-Each vessel is a directory under `rbev-vessels/` containing the build definition:
+**Vessels** are build definitions — each is a directory under `rbev-vessels/`:
 
 ```
 rbev-vessels/
-├── nsproto/                 # Test vessel (included)
-│   ├── Dockerfile           # Container image definition
-│   └── rbrv.env             # Vessel regime (build parameters)
-└── <your-vessel>/           # Your custom vessels follow the same pattern
+├── rbev-sentry-ubuntu-large/   # Sentry vessel (conjure — built from source)
+│   ├── Dockerfile
+│   └── rbrv.env
+├── rbev-bottle-ubuntu-test/    # Bottle vessel (conjure — built from source)
+│   ├── Dockerfile
+│   └── rbrv.env
+└── rbev-bottle-plantuml/       # PlantUML server (conjure — built from source)
     ├── Dockerfile
     └── rbrv.env
 ```
 
-The vessel directory name becomes the imprint in tabtarget filenames (e.g. `tt/rbw-s.Start.nsproto.sh`).
+Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (not shown above) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step, trust is the digest pin itself.
+
+**Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `nsproto`) is what appears as the imprint in tabtarget filenames:
+
+```
+.rbk/rbrn_nsproto.env          # Maps nsproto → rbev-sentry-ubuntu-large + rbev-bottle-ubuntu-test
+```
+
+So `tt/rbw-s.Start.nsproto.sh` starts the bottle defined by the `nsproto` nameplate, which selects its sentry and bottle vessel images.
 
 ## Testing
 
