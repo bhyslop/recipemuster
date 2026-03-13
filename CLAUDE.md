@@ -2,16 +2,11 @@
 
 ## Directory Permissions
 Full read and edit access is pre-approved for all files in:
-- `lenses/`
 - `Tools/`
+- `Memos/`
 - `../cnmp_CellNodeMessagePrototype/lenses/`
 
 ## File Acronym Mappings
-
-### Lenses Directory (`lenses/`)
-- **RBRN**   → `RBRN-RegimeNameplate.adoc`
-- **CRR**    → `CRR-ConfigRegimeRequirements.adoc`
-- **RBWMBX** → `RBWMBX-BuildxMultiPlatformAuth.adoc` (Memo: Buildx multi-platform authentication research)
 
 ### Tools Directory (`Tools/`)
 
@@ -79,6 +74,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSRC** → `rbk/vov_veiled/RBSRC-retriever_create.adoc`
 - **RBSRG** → `rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc`
 - **RBSRI** → `rbk/vov_veiled/RBSRI-rubric_inscribe.adoc`
+- **RBRN**  → `rbk/vov_veiled/RBRN-RegimeNameplate.adoc`
 - **RBSRM** → `rbk/vov_veiled/RBSRM-RegimeMachine.adoc`
 - **RBSRO** → `rbk/vov_veiled/RBSRO-RegimeOauth.adoc`
 - **RBSRP** → `rbk/vov_veiled/RBSRP-RegimePayor.adoc`
@@ -114,7 +110,7 @@ Full read and edit access is pre-approved for all files in:
 #### CMK Subdirectory (`Tools/cmk/`)
 - **MCM**   → `cmk/vov_veiled/MCM-MetaConceptModel.adoc`
 - **AXLA**  → `cmk/vov_veiled/AXLA-Lexicon.adoc`
-- **AXMCM** → `cmk/AXMCM-ClaudeMarkConceptMemo.md`
+- **AXMCM** → `cmk/vov_veiled/AXMCM-ClaudeMarkConceptMemo.md`
 
 #### JJK Subdirectory (`Tools/jjk/`)
 - **JJS0** → `jjk/vov_veiled/JJS0-GallopsData.adoc` (Gallops data model specification - main file)
