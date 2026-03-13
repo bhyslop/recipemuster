@@ -673,23 +673,23 @@ rbgm_payor_onboarding() {
   # --- Dashboard ---
   local z_flag=0
   z_flag=0; test "${z_level}" -ge 1 && z_flag=1
-  zrbgm_po_status "${z_flag}" "1. Payor Establish     — GCP project + OAuth consent screen"
+  zrbgm_po_status "${z_flag}" "1. Payor Establish     — Payor:    GCP project + OAuth consent screen"
   z_flag=0; test "${z_level}" -ge 2 && z_flag=1
-  zrbgm_po_status "${z_flag}" "2. Payor Install       — RBRA credential emplacement"
+  zrbgm_po_status "${z_flag}" "2. Payor Install       — Payor:    RBRA credential emplacement"
   z_flag=0; test "${z_level}" -ge 3 && z_flag=1
-  zrbgm_po_status "${z_flag}" "3. GitLab Setup        — Rubric repo + access token"
+  zrbgm_po_status "${z_flag}" "3. GitLab Setup        — Payor:    Rubric repo + access token"
   z_flag=0; test "${z_level}" -ge 4 && z_flag=1
-  zrbgm_po_status "${z_flag}" "4. Depot Create        — GCP depot project"
+  zrbgm_po_status "${z_flag}" "4. Depot Create        — Payor:    GCP depot project"
   z_flag=0; test "${z_level}" -ge 5 && z_flag=1
-  zrbgm_po_status "${z_flag}" "5. Governor Reset      — Admin service account"
+  zrbgm_po_status "${z_flag}" "5. Governor Reset      — Payor:    Admin service account"
   z_flag=0; test "${z_level}" -ge 6 && z_flag=1
-  zrbgm_po_status "${z_flag}" "6. Director Create     — Build service account"
+  zrbgm_po_status "${z_flag}" "6. Director Create     — Governor: Build service account"
   z_flag=0; test "${z_level}" -ge 7 && z_flag=1
-  zrbgm_po_status "${z_flag}" "7. Retriever Create    — Image pull service account"
+  zrbgm_po_status "${z_flag}" "7. Retriever Create    — Governor: Image pull service account"
   z_flag=0; test "${z_level}" -ge 8 && z_flag=1
-  zrbgm_po_status "${z_flag}" "8. Inscribe & Conjure  — Push build defs, build vessel images"
+  zrbgm_po_status "${z_flag}" "8. Inscribe & Conjure  — Director: Push build defs, build vessel images"
   z_flag=0; test "${z_level}" -ge 9 && z_flag=1
-  zrbgm_po_status "${z_flag}" "9. Vouch & Summon      — Verify and pull vessel images"
+  zrbgm_po_status "${z_flag}" "9. Vouch & Summon      — Director: Verify and pull vessel images"
   bug_e
 
   # --- Next step guidance ---
@@ -777,12 +777,13 @@ rbgm_payor_onboarding() {
     7)
       local z_vessel_dir=""
       z_vessel_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_VESSEL_DIR") || z_vessel_dir=""
-      bug_section "Next: Inscribe & Conjure"
-      bug_t "  Refresh GCB pins, commit, inscribe build definitions, then conjure."
-      bug_e
+      bug_section "Next: Inscribe & Conjure (Director role actions)"
       bug_t "  Cloud Build jobs run in Google's infrastructure using specific tool images"
       bug_t "  (gcloud, docker, oras, etc). Pins lock these to exact digests so builds"
       bug_t "  are reproducible. Both image and binary pins must be fresh before inscribe."
+      bug_t "  Inscribe translates your vessel definitions into Cloud Build instructions"
+      bug_t "  and pushes them to the rubric repo. It also creates the Cloud Build"
+      bug_t "  triggers that conjure will invoke. Each conjure takes 10-20 minutes."
       bug_e
       bug_t "  1. Refresh GCB image pins (resolves latest tool image digests):"
       buc_tabtarget "${RBZ_REFRESH_GCB_PINS}"
@@ -791,20 +792,16 @@ rbgm_payor_onboarding() {
       bug_t "  3. Commit the updated pin file (inscribe requires fresh pins committed):"
       bug_tc "        " "git add ${RBBC_dot_dir}/rbrg.env"
       bug_tc "        " "git commit -m \"Refresh GCB pins for inscribe\""
-      bug_e
-      bug_t "  Inscribe translates your vessel definitions into Cloud Build instructions"
-      bug_t "  and pushes them to the rubric repo. It also creates the Cloud Build"
-      bug_t "  triggers that conjure will invoke."
-      bug_e
       bug_t "  4. Inscribe:"
       buc_tabtarget "${RBZ_RUBRIC_INSCRIBE}"
-      bug_t "  5. Conjure sentry vessel (10-20 minutes, builds in Cloud Build):"
+      bug_t "  5. Conjure sentry vessel:"
       buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_SENTRY_VESSEL}"
-      bug_t "  6. Conjure bottle vessel (10-20 minutes):"
+      bug_t "  6. Conjure bottle vessel:"
       buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_BOTTLE_VESSEL}"
-      bug_e
-      bug_t "  After each conjure completes, update the consecration in"
-      bug_tc "  " "${RBBC_dot_dir}/rbrn_nsproto.env"
+      bug_t "  7. List arks and consecrations (verify both builds completed):"
+      buc_tabtarget "${RBZ_CHECK_CONSECRATIONS}"
+      bug_t "  8. Update consecration values in nameplate:"
+      bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
       ;;
     8)
       bug_section "Next: Vouch & Summon"
