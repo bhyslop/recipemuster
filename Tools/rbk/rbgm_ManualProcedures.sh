@@ -823,6 +823,8 @@ rbgm_onboarding() {
       buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
       bug_t "  2. Summon bottle vessel:"
       buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
+      bug_t "  3. Run full nsproto test suite:"
+      buc_tabtarget "${RBZ_TEST_FIXTURE}" "nsproto-security"
       ;;
     9)
       bug_section "Next: Start a Bottle"
