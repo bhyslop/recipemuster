@@ -767,13 +767,15 @@ rbgm_payor_onboarding() {
       buc_tabtarget "${RBZ_CREATE_RETRIEVER}" "<instance-name>"
       ;;
     7)
+      local z_vessel_dir=""
+      z_vessel_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_VESSEL_DIR") || z_vessel_dir=""
       bug_section "Next: Conjure"
       bug_t "  Build nsproto vessel images. Conjure each vessel separately:"
       bug_e
       bug_t "  1. Sentry vessel:"
-      buc_tabtarget "${RBZ_CONJURE_ARK}" "${RBRN_SENTRY_VESSEL}"
+      buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_SENTRY_VESSEL}"
       bug_t "  2. Bottle vessel:"
-      buc_tabtarget "${RBZ_CONJURE_ARK}" "${RBRN_BOTTLE_VESSEL}"
+      buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_BOTTLE_VESSEL}"
       bug_e
       bug_t "  After each conjure completes, update the consecration in"
       bug_tc "  " "${RBBC_dot_dir}/rbrn_nsproto.env"
