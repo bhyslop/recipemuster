@@ -996,6 +996,13 @@
         "₢AUAAO": {
           "tacks": [
             {
+              "ts": "260313-1250",
+              "state": "complete",
+              "text": "Three .adoc files remain in lenses/ outside the vov_veiled convention: RBRN-RegimeNameplate.adoc, CRR-ConfigRegimeRequirements.adoc, RBWMBX-BuildxMultiPlatformAuth.adoc. Decide for each: move into appropriate Tools/*/vov_veiled/ directory, or delete if obsolete. Goal: eliminate lenses/ as a separate strip target so all proprietary docs live under vov_veiled/.",
+              "silks": "consolidate-lenses-into-veiled",
+              "commit": "13f6ae9"
+            },
+            {
               "ts": "260313-1153",
               "state": "rough",
               "text": "Three .adoc files remain in lenses/ outside the vov_veiled convention: RBRN-RegimeNameplate.adoc, CRR-ConfigRegimeRequirements.adoc, RBWMBX-BuildxMultiPlatformAuth.adoc. Decide for each: move into appropriate Tools/*/vov_veiled/ directory, or delete if obsolete. Goal: eliminate lenses/ as a separate strip target so all proprietary docs live under vov_veiled/.",
