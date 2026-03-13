@@ -699,9 +699,10 @@
         "₢AUAAG",
         "₢AUAAN",
         "₢AUAAH",
-        "₢AUAAO"
+        "₢AUAAO",
+        "₢AUAAP"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -977,6 +978,17 @@
               "text": "Three .adoc files remain in lenses/ outside the vov_veiled convention: RBRN-RegimeNameplate.adoc, CRR-ConfigRegimeRequirements.adoc, RBWMBX-BuildxMultiPlatformAuth.adoc. Decide for each: move into appropriate Tools/*/vov_veiled/ directory, or delete if obsolete. Goal: eliminate lenses/ as a separate strip target so all proprietary docs live under vov_veiled/.",
               "silks": "consolidate-lenses-into-veiled",
               "commit": "1fd2fbe"
+            }
+          ]
+        },
+        "₢AUAAP": {
+          "tacks": [
+            {
+              "ts": "260313-1213",
+              "state": "rough",
+              "text": "Update RBSCO-CosmologyIntro.adoc and faux-render to index.html for open source project page.\n\n## Work\n\n1. Pull roadmap highlights from RBSHR-HorizonRoadmap.adoc into RBSCO as a forward-looking section\n2. Rewrite 'Current Challenges' to present tense — GCB/GAR migration is complete, Makefiles replaced by bash\n3. Update Significant Events timeline through current date\n4. Faux-render RBSCO to index.html (sonnet synchronization — resolve MCM attributes to plain text, produce styled HTML matching current dark-mode format)\n\n## Acceptance\n\n- RBSCO accurately describes current state (cloud build as accomplished, not future)\n- index.html renders correctly in browser with current content\n- Roadmap section gives consumers visibility into project direction",
+              "silks": "freshen-cosmology-and-render",
+              "commit": "cf1b507"
             }
           ]
         }
