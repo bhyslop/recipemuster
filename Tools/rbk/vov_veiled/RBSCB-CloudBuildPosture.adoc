@@ -135,11 +135,44 @@ The reassembled manifest list provides transparent platform resolution to attest
 |Consumer-facing manifest list (reassembled by `imagetools create`, multi-platform only)
 
 |`{CONSECRATION}-about`
-|Metadata container (SBOM, build_info.json — multi-platform)
+|Metadata container (build provenance — multi-platform, see About Artifact Contents below)
 |===
 
 Platform suffix derivation: `linux/amd64` → `amd64`, `linux/arm64` → `arm64`, `linux/arm/v7` → `armv7`.
 Computed at inscribe time from `RBRV_CONJURE_PLATFORMS`.
+
+===== About Artifact Contents
+
+The `-about` artifact is a `FROM scratch` multi-platform container carrying build provenance files at the root filesystem.
+Contents are extracted by {rbtgo_ark_inspect} for trust posture display.
+
+[cols="1,2",options="header"]
+|===
+|File
+|Contents
+
+|`build_info.json`
+|Per-platform build metadata: consecration, image URI, moniker, platform, QEMU usage, git coordinates (repo/branch/commit), build timestamps, and SLSA summary (build level, invocation ID, builder ID, predicate types).
+
+|`sbom.json`
+|Syft SPDX JSON output: package inventory with type, name, version, license, and Package URL for every detected package.
+
+|`recipe.txt`
+|The exact Dockerfile used to build the image.
+
+|`buildkit_metadata.json`
+|BuildKit `--metadata-file` output from the `buildx build` step: output manifest digest, OCI media type, buildx build reference, and image name. For per-platform builds, includes per-platform digests keyed by platform string.
+
+|`cache_before.json`
+|Docker daemon image inventory snapshot taken on the Cloud Build worker before the build step. Captures the pre-populated image cache (Cloud Build workers arrive with ~100 cached images from Google infrastructure).
+
+|`cache_after.json`
+|Docker daemon image inventory snapshot taken after all pushes complete. Diff against `cache_before.json` reveals images pulled or built during this consecration. Cloud Build worker caches must not be pruned — they contain Google infrastructure images.
+|===
+
+The last three files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`) were added in the about-artifact enrichment work.
+Older consecrations built before this enrichment contain only `build_info.json`, `sbom.json`, and `recipe.txt`.
+{rbtgo_ark_inspect} degrades gracefully when these files are absent.
 
 ===== OCI Layout Bridge — Superseded
 
@@ -277,7 +310,8 @@ Not actionable until vessel ecosystem matures.
 * RBSCJ: Cloud Build JSON trade study
 * RBSRI: Rubric Inscribe specification
 * RBSTB: Trigger Build specification
-* rbf_Foundry.sh: `zrbf_stitch_build_json()` — build stitching; `rbf_check_consecrations()` — provenance on demand
+* rbf_Foundry.sh: `zrbf_stitch_build_json()` — build stitching; `rbf_check_consecrations()` — provenance on demand; `rbf_inspect_full()`/`rbf_inspect_compact()` — local trust posture display
+* RBSAI: Ark Inspect specification
 * buv_validation.sh: `buv_val_odref()` — digest-pinned image reference validator
 * RBRV vessel regime: `RBRV_CONJURE_PLATFORMS` vs `RBGC_BUILD_RUNNER_PLATFORM` — binfmt inclusion predicate
 * Memos/memo-20260305-provenance-architecture-gap.md — provenance experiment evidence

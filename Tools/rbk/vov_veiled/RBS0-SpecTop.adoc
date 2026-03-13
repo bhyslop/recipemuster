@@ -93,6 +93,7 @@
 :rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbf_build>>
 :rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbf_vouch>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbf_summon>>
+:rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbf_inspect>>
 :rbtgo_depot_create:              <<rbtgo_depot_create,rbgp_depot_create>>
 :rbtgo_depot_destroy:             <<rbtgo_depot_destroy,rbgp_depot_destroy>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
@@ -127,6 +128,8 @@
 :rbtc_gitlab_setup:              <<rbtc_gitlab_setup,rbw-gPL>>
 :rbtc_refresh_gcb_pins:          <<rbtc_refresh_gcb_pins,rbw-DPG>>
 :rbtc_refresh_binary_pins:       <<rbtc_refresh_binary_pins,rbw-DPB>>
+:rbtc_inspect_full:              <<rbtc_inspect_full,rbw-RiF>>
+:rbtc_inspect_compact:           <<rbtc_inspect_compact,rbw-Ric>>
 
 :rbtoe_check_rubric_repo_url:     <<rbtoe_check_rubric_repo_url,Rubric Repo URL Check>>
 :rbtoe_check_cbv2_connection:     <<rbtoe_check_cbv2_connection,CB v2 Connection Check>>
@@ -1071,6 +1074,19 @@ from the repository
 retrieving both its image and about artifacts to the local container runtime.
 
 include::RBSAS-ark_summon.adoc[]
+
+[[rbtgo_ark_inspect]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_ark_inspect}
+
+Inspects an
+{rbtga_ark}
+locally
+({rbtgog_ark}),
+displaying trust posture from locally-present about and vouch artifacts.
+Two modes: {rbtc_inspect_full} (full detail) and {rbtc_inspect_compact} (summary).
+
+include::RBSAI-ark_inspect.adoc[]
 
 == Multi Role Operations
 
@@ -2199,6 +2215,16 @@ Discovers latest container image digests and updates {rbrr_prefix} pins.
 {rbtc_refresh_binary_pins}::
 Tabtarget colophon for binary tool pin refresh.
 Discovers latest release from GitHub, downloads binary, verifies SLSA provenance.
+
+[[rbtc_inspect_full]]
+{rbtc_inspect_full}::
+Tabtarget colophon for full consecration inspect.
+Displays complete trust posture including package inventory, licensing, cache delta, and Dockerfile.
+
+[[rbtc_inspect_compact]]
+{rbtc_inspect_compact}::
+Tabtarget colophon for compact consecration inspect.
+Displays trust posture summary: vessel type, source, SLSA provenance, base image, build output, cache delta, SBOM summary, and vouch results.
 
 
 == Configuration Regimes

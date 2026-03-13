@@ -29,6 +29,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
 - **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
 - **RBSAC** → `rbk/vov_veiled/RBSAC-ark_conjure.adoc`
+- **RBSAI** → `rbk/vov_veiled/RBSAI-ark_inspect.adoc`
 - **RBSAJ** → `rbk/vov_veiled/RBSAJ-access_jwt_probe.adoc`
 - **RBSAO** → `rbk/vov_veiled/RBSAO-access_oauth_probe.adoc`
 - **RBSAS** → `rbk/vov_veiled/RBSAS-ark_summon.adoc`

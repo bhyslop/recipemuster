@@ -91,6 +91,7 @@ in clean, isolated environments using **Google-curated Cloud Build builder image
 - Generates software bills of material for compliance
 - Captures and stores full build transcripts for provenance
 - Maintains build transcripts, SBOMs, and commit references in an **auxiliary metadata artifact** separate from the runtime image
+- Provides local trust posture inspection ({rbtgo_ark_inspect}) with compact and full views of build provenance, SLSA attestations, SBOM contents, and vouch verification results
 - Stores validated
 {st_image_s}
 in Google Artifact Registry, tagged with minimal non-invasive labels

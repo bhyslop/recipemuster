@@ -233,6 +233,13 @@ from the
 to the local
 {at_workstation}.
 
+{rbtgo_ark_inspect}
+displays the trust posture of a locally-present
+{rbtga_ark},
+reading build provenance, SBOM, and vouch results from the `-about` and `-vouch` artifacts retrieved by
+{rbtgo_ark_summon}.
+Use {rbtc_inspect_compact} for a summary or {rbtc_inspect_full} for complete detail including package inventory and Dockerfile.
+
 == Recovery
 
 If `~/.rbw/rbro.env` is lost, the administrator obtains a fresh

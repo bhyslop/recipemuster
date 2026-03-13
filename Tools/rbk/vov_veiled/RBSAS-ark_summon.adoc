@@ -84,3 +84,4 @@ which artifacts were retrieved
 
 //axhoc_completion
 Successful execution retrieves the {rbtga_ark} artifacts to the local container runtime, making them available for use.
+Once locally present, {rbtgo_ark_inspect} can display the trust posture from the about and vouch artifacts.

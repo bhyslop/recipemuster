@@ -53,3 +53,4 @@ Successful execution creates a complete
 {rbtga_ark}
 with both image and about artifacts sharing the same
 {rbtga_consecration}.
+The about artifact contents can be examined locally via {rbtgo_ark_inspect} after {rbtgo_ark_summon}.

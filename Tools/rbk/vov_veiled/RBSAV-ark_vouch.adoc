@@ -135,6 +135,8 @@ The `--builder-id` must be `https://cloudbuild.googleapis.com/GoogleHostedWorker
 +
 *Re-vouch idempotency*: Re-running vouch re-executes verification and pushes a new vouch artifact, overwriting the previous.
 Content is presumed deterministic (same digests + same provenance + same verifier = identical output).
++
+*Inspect integration*: Vouch results are displayed by {rbtgo_ark_inspect} in the Vouch Results section, showing verifier identity and per-platform verification verdicts.
 
 ==== Vouch Substitution Variables
 

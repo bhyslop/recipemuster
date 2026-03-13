@@ -1,0 +1,80 @@
+//axhob_operation
+{rbtgo_ark_inspect}
+
+NOTE: This operation inspects an
+{rbtga_ark}
+locally, displaying trust posture from the
+{rbtga_ark_about}
+and
+{rbtga_ark_vouch}
+artifacts that were previously retrieved by
+{rbtgo_ark_summon}.
+No remote API calls are made; all data is read from locally-present container images.
+
+NOTE: Two entry points provide different detail levels:
+{rbtc_inspect_full} for complete diagnostic output and
+{rbtc_inspect_compact} for a trust posture summary.
+
+The inspect operation:
+
+//axhop_parameter_from_type
+{rbtga_ark}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+vessel provided as first argument
+.. {rbbc_require}
+consecration provided as second argument
+
+//axhos_step
+. *Load Vessel Configuration*:
+.. {rbbc_store}
+vessel mode (conjure or bind) from vessel regime
+.. If bind vessel: display digest-pin trust statement and return (no provenance data exists)
+
+//axhos_step
+. *Verify Local Artifact Presence*:
+.. {rbbc_require}
+`-about` artifact locally present (run {rbtgo_ark_summon} first)
+.. {rbbc_store}
+`-vouch` artifact availability (optional)
+
+//axhos_step
+. *Extract About Artifact Contents*:
+.. Create temporary container from `-about` image
+.. Extract `build_info.json`, `sbom.json`, `recipe.txt`
+.. Extract `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (present for consecrations built after about-artifact enrichment)
+.. If `-vouch` locally present: extract `vouch_summary.json`
+
+//axhos_step
+. *Display Shared Sections* (both modes):
+.. *Vessel Type*: conjure/bind, platform, build strategy (native/QEMU), moniker
+.. *Source*: git repository, branch, commit
+.. *Builder*: Cloud Build job ID, timestamps, image URI
+.. *SLSA Provenance*: build level, invocation ID, builder ID, predicate types, explicit boundary statements (what SLSA does and does not attest)
+.. *Base Image*: Dockerfile FROM line, syft-detected distro
+.. *Build Output*: output manifest digest, OCI media type, buildx build reference, image name, per-platform digests (from `buildkit_metadata.json` when present)
+.. *Build Cache Delta*: Cloud Build worker image counts before/after, new images deduplicated by ID (from `cache_before.json`/`cache_after.json` when present)
+.. *SBOM Summary*: package count and type breakdown from syft scan
+.. *Vouch Results*: verifier identity, per-platform verification verdicts (from `-vouch` when present)
+
+//axhos_step
+. *Display Full-Only Sections* ({rbtc_inspect_full} only):
+.. *Package Inventory*: every syft-detected package (type, name, version) sorted by ecosystem
+.. *Package Licensing*: per-package license and Package URL for compliance review
+.. *Recipe*: the exact Dockerfile used to build the image
+
+//axhoo_output_of_type
+{rbtga_ark}
+. *Display Results*:
+.. {rbbc_show}
+trust posture for the specified consecration
+
+//axhoc_completion
+Inspect is a read-only local operation.
+It does not modify artifacts, contact remote registries, or require authentication.
+All data is extracted from container images already present in the local container runtime.
++
+*Graceful degradation*: Fields sourced from `buildkit_metadata.json`, `cache_before.json`, and `cache_after.json` display only when those files are present in the `-about` artifact.
+Older consecrations built before about-artifact enrichment omit these sections without error.
++
+*Bind vessels*: Display a clear trust boundary statement (digest-pin only, no SLSA provenance, no SBOM, no build transcript) and return without attempting artifact extraction.
