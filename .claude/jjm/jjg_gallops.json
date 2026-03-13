@@ -881,6 +881,13 @@
         "₢AUAAI": {
           "tacks": [
             {
+              "ts": "260313-1134",
+              "state": "rough",
+              "text": "Create release qualification gate tabtarget (rbw-QR) and remove shellcheck from routine workbench gate.\n\n## Changes\n\n1. Remove buq_shellcheck call from rbq_qualify_all — workbench gate keeps tabtarget, colophon, and nameplate preflight checks but no longer runs shellcheck on every bottle-start\n\n2. Create rbq_qualify_release function that runs:\n   - rbq_qualify_all (cheap checks)\n   - buq_shellcheck (full shellcheck sweep)\n   - Complete test suite (sequential, not parallel)\n   - Fail-fast: stop on first failure\n\n3. Register rbw-QR colophon in rbz_zipper.sh, create tabtarget\n\n## Files\n\n- Tools/rbk/rbq_Qualify.sh: remove shellcheck from qualify_all, add qualify_release\n- Tools/rbk/rbq_cli.sh: add cli routing for qualify_release\n- Tools/rbk/rbz_zipper.sh: enroll rbw-QR colophon\n- tt/: new rbw-QR.QualifyRelease.sh tabtarget\n\n## Acceptance\n\n- Bottle-start no longer runs shellcheck\n- rbw-QR runs all checks + shellcheck + complete test suite sequentially\n- Existing rbw-qa tabtarget still works (now without shellcheck)",
+              "silks": "release-qualification-gate",
+              "commit": "cc5e9d3"
+            },
+            {
               "ts": "260310-1901",
               "state": "rough",
               "text": "Create a tiered qualification system and release qualification tabtarget.\n\n## Problem\n\nrbq_qualify_all runs shellcheck (133 files) on every bottle-start and conjure-ark invocation. Shellcheck is valuable but too slow for routine operations.\n\n## Design\n\n1. Split rbq_qualify_all into two tiers:\n   - rbq_qualify_fast: tabtarget structure, colophon registrations, nameplate preflight (cheap checks)\n   - rbq_qualify_all: everything in fast + shellcheck\n\n2. Workbench gate (rbw_workbench.sh line 67) calls rbq_qualify_fast instead of rbq_qualify_all\n\n3. New release qualification tabtarget that runs:\n   - rbq_qualify_all (including shellcheck)\n   - Complete test suite (all rbtb/rbtg routes)\n   - This is the pre-release gate — everything must pass before tagging\n\n4. Cloud build does NOT run qualification — it builds what it's told. Qualification is a local pre-flight concern.\n\n## Files\n\n- Tools/rbk/rbq_Qualify.sh: split qualify_all, add qualify_fast\n- Tools/rbk/rbw_workbench.sh: gate calls qualify_fast\n- Tools/rbk/rbz_zipper.sh: enroll new release-qualify colophon\n- tt/: new release qualification tabtarget",
