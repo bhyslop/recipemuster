@@ -71,6 +71,8 @@ zrbz_kindle() {
   buz_enroll RBZ_RUBRIC_INSCRIBE            "rbw-DI"       "${z_mod}" "rbf_rubric_inscribe"
   buz_enroll RBZ_DELETE_IMAGE               "rbw-DD"       "${z_mod}" "rbf_delete"
   buz_enroll RBZ_RETRIEVE_IMAGE             "rbw-Rr"       "${z_mod}" "rbf_retrieve"
+  buz_enroll RBZ_INSPECT_FULL              "rbw-RiF"      "${z_mod}" "rbf_inspect_full"
+  buz_enroll RBZ_INSPECT_COMPACT           "rbw-Ric"      "${z_mod}" "rbf_inspect_compact"
   buz_enroll RBZ_CHECK_CONSECRATIONS        "rbw-Dc"       "${z_mod}" "rbf_check_consecrations"
   buz_enroll RBZ_VOUCH_ARK                  "rbw-DV"       "${z_mod}" "rbf_batch_vouch"
   z_mod="rbrr_cli.sh"

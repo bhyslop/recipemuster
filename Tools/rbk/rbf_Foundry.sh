@@ -2476,20 +2476,34 @@ zrbf_inspect_show_sections() {
   fi
 
   echo ""
-  echo "  -- SBOM (syft) --------------------------------------------------"
+  echo "  -- Base Image ---------------------------------------------------"
+  echo "  The upstream image this build started FROM and the OS syft detected."
+  echo ""
+  local -r z_recipe="${z_dir}/recipe.txt"
+  if test -f "${z_recipe}"; then
+    local z_from_line=""
+    z_from_line=$(grep -i '^FROM ' "${z_recipe}" | head -1 || true)
+    if test -n "${z_from_line}"; then
+      echo "  Dockerfile FROM: ${z_from_line#FROM }"
+    fi
+  fi
+  if test -f "${z_sbom}"; then
+    local z_distro_name="" z_distro_ver=""
+    z_distro_name=$(jq -r '.distro.name // empty' "${z_sbom}" 2>/dev/null || true)
+    z_distro_ver=$(jq -r '.distro.version // empty' "${z_sbom}" 2>/dev/null || true)
+    if test -n "${z_distro_name}"; then
+      echo "  Detected distro: ${z_distro_name} ${z_distro_ver}"
+    fi
+  fi
+
+  echo ""
+  echo "  -- SBOM Summary (syft) ------------------------------------------"
   echo "  Software bill of materials: every package syft found installed."
   echo ""
   if test -f "${z_sbom}"; then
     local z_pkg_count=""
     z_pkg_count=$(jq '.artifacts | length' "${z_sbom}" 2>/dev/null || echo "?")
     echo "  Package count:  ${z_pkg_count}"
-
-    local z_distro_name="" z_distro_ver=""
-    z_distro_name=$(jq -r '.distro.name // empty' "${z_sbom}" 2>/dev/null || true)
-    z_distro_ver=$(jq -r '.distro.version // empty' "${z_sbom}" 2>/dev/null || true)
-    if test -n "${z_distro_name}"; then
-      echo "  Base distro:    ${z_distro_name} ${z_distro_ver}"
-    fi
 
     echo "  Package types:"
     jq -r '
@@ -2563,17 +2577,39 @@ zrbf_inspect_show_full() {
 
   echo ""
   echo "  -- Package Inventory --------------------------------------------"
-  echo "  Every package syft detected, with name, version, and type."
+  echo "  Every package syft detected, sorted by ecosystem type."
   echo ""
   if test -f "${z_sbom}"; then
-    printf "    %-40s %-28s %s\n" "NAME" "VERSION" "TYPE"
-    printf "    %-40s %-28s %s\n" "----" "-------" "----"
+    printf "    %-12s %-36s %s\n" "TYPE" "NAME" "VERSION"
+    printf "    %-12s %-36s %s\n" "----" "----" "-------"
     jq -r '
       .artifacts[]? |
-      [.name // "?", .version // "?", .type // "?"] |
+      [.type // "?", .name // "?", .version // "?"] |
       @tsv
-    ' "${z_sbom}" 2>/dev/null | sort | while IFS=$'\t' read -r z_name z_ver z_type; do
-      printf "    %-40s %-28s %s\n" "${z_name}" "${z_ver}" "${z_type}"
+    ' "${z_sbom}" 2>/dev/null | sort | while IFS=$'\t' read -r z_type z_name z_ver; do
+      printf "    %-12s %-36s %s\n" "${z_type}" "${z_name}" "${z_ver}"
+    done
+  else
+    echo "    sbom.json not found in -about artifact"
+  fi
+
+  echo ""
+  echo "  -- Package Licensing & Identity ---------------------------------"
+  echo "  License and Package URL for each package (for compliance review)."
+  echo ""
+  if test -f "${z_sbom}"; then
+    printf "    %-36s %-20s %s\n" "NAME" "LICENSE" "PURL"
+    printf "    %-36s %-20s %s\n" "----" "-------" "----"
+    jq -r '
+      .artifacts[]? |
+      [
+        (.name // "?"),
+        ((.licenses // []) | map(.value // .expression // empty) | join(", ") | if . == "" then "-" else . end),
+        (.purl // "-")
+      ] |
+      @tsv
+    ' "${z_sbom}" 2>/dev/null | sort | while IFS=$'\t' read -r z_name z_lic z_purl; do
+      printf "    %-36s %-20s %s\n" "${z_name}" "${z_lic}" "${z_purl}"
     done
   else
     echo "    sbom.json not found in -about artifact"
