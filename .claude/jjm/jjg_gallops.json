@@ -698,9 +698,10 @@
         "₢AUAAB",
         "₢AUAAG",
         "₢AUAAN",
-        "₢AUAAH"
+        "₢AUAAH",
+        "₢AUAAO"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -965,6 +966,17 @@
               "text": "Finalize the consumer CLAUDE.md publication strategy and implement test execution discipline.\n\n## Two Problems, One Pace\n\n1. **Test execution discipline**: Claude Code must never run test fixtures in parallel. Fixtures share regime state and container/network namespaces. Add rule to CLAUDE.md: \"Run test fixture tabtargets sequentially, never in parallel. Fixtures share regime state and may share container/network resources.\"\n\n2. **Consumer CLAUDE.md strategy**: The development CLAUDE.md contains secrets (acronym mappings, JJ config, prefix discipline, kit internals) that must not ship. But a minimal CLAUDE.md with agent behavioral constraints must ship for zero-friction Claude Code orientation.\n\n## Design Decision to Finalize\n\nTwo CLAUDE.md files:\n- Development CLAUDE.md (current, full, never published)\n- Consumer CLAUDE.md (minimal, installed by prep-pr when pushing to open-source remote)\n\nConsumer CLAUDE.md contains ONLY:\n- cd prohibition with rationale\n- Test execution discipline (sequential only)\n- Tabtarget vocabulary basics\n- Pointers to Tools/buk/README.md and Tools/rbk/README.md for full documentation\n\n## Work\n\n1. Add test execution discipline rule to development CLAUDE.md immediately\n2. Decide consumer CLAUDE.md location and naming (e.g., CLAUDE.consumer.md template)\n3. Implement consumer CLAUDE.md content\n4. Update prep-pr ceremony to swap development to consumer CLAUDE.md on open-source push\n5. Verify prep-pr strips all sensitive content\n\n## Relationship to Existing Paces\n\nSubsumes AUAAG (design-consumer-claudemd-guidance) -- that pace's README recommendation sections are still valid but the CLAUDE.md publication decision is settled here. Consider dropping or reslating AUAAG to cover only the README sections.\n\n## References\n\n- Current CLAUDE.md (development, full)\n- Tools/buk/README.md, Tools/rbk/README.md (consumer documentation targets)\n- prep-pr ceremony (cma-prep-pr skill)",
               "silks": "consumer-claudemd-and-test-discipline",
               "commit": "b6c7fa7"
+            }
+          ]
+        },
+        "₢AUAAO": {
+          "tacks": [
+            {
+              "ts": "260313-1153",
+              "state": "rough",
+              "text": "Three .adoc files remain in lenses/ outside the vov_veiled convention: RBRN-RegimeNameplate.adoc, CRR-ConfigRegimeRequirements.adoc, RBWMBX-BuildxMultiPlatformAuth.adoc. Decide for each: move into appropriate Tools/*/vov_veiled/ directory, or delete if obsolete. Goal: eliminate lenses/ as a separate strip target so all proprietary docs live under vov_veiled/.",
+              "silks": "consolidate-lenses-into-veiled",
+              "commit": "1fd2fbe"
             }
           ]
         }
