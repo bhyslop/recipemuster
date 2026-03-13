@@ -14,17 +14,18 @@ Harden the Recipe Bottle supply chain trust model and complete release-readiness
 
 ## MVP-3 Themes
 
-**Supply chain trust hardening**: Summon now pulls -vouch artifact (landed). Remaining: make -vouch multi-platform to eliminate arm64 pull warnings, then require local -vouch presence on every bottle start as an unconditional preflight gate.
+**Supply chain trust hardening**: Summon now pulls -vouch artifact (landed). Remaining: make -vouch multi-platform (AUAAJ), then require local -vouch presence on every bottle start as unconditional preflight gate (AUAAK).
 
-**Developer tooling**: Qualification currently runs shellcheck (133 files) on every bottle-start and conjure. Split into fast (cheap checks for routine operations) and full (shellcheck + complete test suite for release). Add regime validation testbench.
+**Developer tooling**: Qualification split into fast and release tiers (AUAAI, done). Fast qualify (rbw-Qf) runs on bottle-start: tabtargets, colophons, nameplate preflight — no shellcheck. Release qualify (rbw-QR) adds shellcheck + complete test suite. Regime validation testbench added (AUAAE, done). Remaining: manifest digest simplification (AUAAF), consecration inspect command (AUAAL), regime variable completeness check (AUAAH).
 
-**Release prep**: Simplify manifest digest extraction, design consumer CLAUDE.md guidance for open-source release, verify regime variable spec completeness.
+**Release prep**: Consumer-facing documentation pipeline: consolidate lenses into veiled (AUAAO), consumer CLAUDE.md template (AUAAN), freshen cosmology and render index.html (AUAAP), getting-started README (AUAAQ). Final: prep-release slash command ceremony (AUAAR) that orchestrates qualification, branch mechanics, content stripping, CLAUDE.md swap, and marshal reset.
 
 ## References
 
 - ₣Ak (rbk-mvp-1-finalization) — retired trophy, prior art for all directory/spec/test work
 - ₣As (rbk-mvp-2-iam-grant-unification) — racing, parallel IAM refactor
 - Tools/rbk/rbf_Foundry.sh — summon, vouch, conjure operations
-- Tools/rbk/rbq_Qualify.sh — qualification orchestrator
+- Tools/rbk/rbq_Qualify.sh — qualification orchestrator (fast/release tiers)
 - Tools/rbk/rbob_bottle.sh — bottle lifecycle, vouch gate
 - Tools/rbk/vov_veiled/RBS0-SpecTop.adoc — main specification
+- scaleinv/recipebottle — open source destination repo
