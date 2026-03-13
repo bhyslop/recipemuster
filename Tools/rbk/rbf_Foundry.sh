@@ -1038,6 +1038,13 @@ rbf_rubric_inscribe() {
   buc_doc_brief "Inscribe all conjure vessel build definitions to rubric repo and ensure triggers"
   buc_doc_shown || return 0
 
+  # Dirty-tree guard: inscribed scripts must match a committed state
+  buc_step "Verifying clean working tree"
+  git diff --quiet \
+    || buc_die "Working tree has unstaged changes — commit or stash before inscribing"
+  git diff --cached --quiet \
+    || buc_die "Index has staged changes — commit before inscribing"
+
   # Source Director RBRA for credentials (still needed for OAuth token)
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
