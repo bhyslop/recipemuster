@@ -2150,11 +2150,11 @@ rbf_check_consecrations() {
   # Tabtarget recommendations
   if test "${z_any_pending}" = "1"; then
     buc_step "Pending consecrations can be vouched:"
-    buc_tabtarget "rbw-DV"
+    buc_tabtarget "${RBZ_VOUCH_ARK}"
   fi
   if test "${z_any_incomplete}" = "1"; then
     buc_step "Incomplete consecrations should be abjured and re-conjured:"
-    buc_tabtarget "rbw-DA"
+    buc_tabtarget "${RBZ_ABJURE_ARK}"
   fi
 
   buc_success "Consecration check complete"
@@ -2292,6 +2292,333 @@ rbf_batch_vouch() {
   fi
 
   buc_success "Batch vouch complete"
+}
+
+######################################################################
+# Inspect (rbw-RiF / rbw-Ric)
+
+# Internal: core inspect logic shared by full and compact modes
+# Args: vessel consecration mode
+zrbf_inspect_core() {
+  local z_vessel="${1:-}"
+  z_vessel="${z_vessel##*/}"  # accept directory path or bare moniker
+  local -r z_consecration="${2:-}"
+  local -r z_mode="${3}"
+
+  test -n "${z_vessel}"       || buc_die "Vessel parameter required"
+  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+
+  # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_BIND_IMAGE, etc.)
+  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
+  zrbf_load_vessel "${z_vessel_dir}"
+
+  # Construct local image references (as tagged by docker pull / summon)
+  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  local -r z_about_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel}:${z_about_tag}"
+  local -r z_vouch_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel}:${z_vouch_tag}"
+
+  # Check local availability of artifacts
+  local z_has_about=false z_has_vouch=false
+  docker image inspect "${z_about_ref}" >/dev/null 2>&1 && z_has_about=true
+  docker image inspect "${z_vouch_ref}" >/dev/null 2>&1 && z_has_vouch=true
+
+  # Bind vessels: no provenance expected
+  if test "${RBRV_VESSEL_MODE}" = "bind"; then
+    zrbf_inspect_show_bind "${z_vessel}" "${z_consecration}" "${z_mode}"
+    return 0
+  fi
+
+  # Conjure vessels: require -about locally present (summon must have been run)
+  if test "${z_has_about}" = "false"; then
+    buc_die "About artifact not locally present — run summon first"
+  fi
+
+  # Extract -about contents into temp directory
+  buc_step "Extracting -about artifact"
+  local -r z_extract="${BURD_TEMP_DIR}/inspect"
+  mkdir -p "${z_extract}"
+  local z_cid=""
+  z_cid=$(docker create "${z_about_ref}" x 2>/dev/null) \
+    || buc_die "Failed to create container from -about artifact"
+  docker cp "${z_cid}:/build_info.json" "${z_extract}/" 2>/dev/null || true
+  docker cp "${z_cid}:/sbom.json"       "${z_extract}/" 2>/dev/null || true
+  docker cp "${z_cid}:/recipe.txt"      "${z_extract}/" 2>/dev/null || true
+  docker rm "${z_cid}" >/dev/null 2>&1
+
+  # Extract -vouch contents if locally present
+  if test "${z_has_vouch}" = "true"; then
+    buc_step "Extracting -vouch artifact"
+    z_cid=$(docker create "${z_vouch_ref}" x 2>/dev/null) \
+      || buc_die "Failed to create container from -vouch artifact"
+    docker cp "${z_cid}:/vouch_summary.json" "${z_extract}/" 2>/dev/null || true
+    docker rm "${z_cid}" >/dev/null 2>&1
+  fi
+
+  # Display results
+  if test "${z_mode}" = "compact"; then
+    zrbf_inspect_show_compact "${z_vessel}" "${z_consecration}" "${z_extract}" "${z_has_vouch}"
+  else
+    zrbf_inspect_show_full "${z_vessel}" "${z_consecration}" "${z_extract}" "${z_has_vouch}"
+  fi
+}
+
+# Internal: display bind vessel info
+# Args: vessel consecration mode
+zrbf_inspect_show_bind() {
+  local -r z_vessel="$1"
+  local -r z_consecration="$2"
+  local -r z_mode="$3"
+
+  if test "${z_mode}" = "compact"; then
+    echo ""
+    echo "=== ${z_vessel} / ${z_consecration} ==="
+    echo "  Type: bind | Trust: digest-pin only"
+    test -n "${RBRV_BIND_IMAGE:-}" && echo "  Source: ${RBRV_BIND_IMAGE}"
+    echo "  No SLSA provenance, SBOM, or build transcript (not built by GCB)"
+    echo ""
+    return 0
+  fi
+
+  echo ""
+  echo "================================================================"
+  echo "  CONSECRATION INSPECT: ${z_vessel} / ${z_consecration}"
+  echo "================================================================"
+  echo ""
+  echo "  Vessel type:  BIND (external image pinned by digest)"
+  echo "  Trust model:  Digest-pin only"
+  echo ""
+  test -n "${RBRV_BIND_IMAGE:-}" && echo "  Bind source:  ${RBRV_BIND_IMAGE}"
+  echo ""
+  echo "  TRUST BOUNDARY"
+  echo "  This is a bind vessel. The image was not built by Google Cloud"
+  echo "  Build. No SLSA provenance, no SBOM, and no build transcript"
+  echo "  exist because GCB did not produce this image."
+  echo ""
+  echo "  Trust is based solely on digest pinning of a known-good"
+  echo "  external image from its source registry."
+  echo ""
+  echo "================================================================"
+  echo ""
+}
+
+# Internal: shared section rendering used by both compact and full modes
+# Args: extract_dir has_vouch
+# Outputs: vessel type, source, builder, SLSA, SBOM summary, vouch results
+zrbf_inspect_show_sections() {
+  local -r z_dir="$1"
+  local -r z_has_vouch="$2"
+
+  local -r z_bi="${z_dir}/build_info.json"
+  local -r z_sbom="${z_dir}/sbom.json"
+  local -r z_vs="${z_dir}/vouch_summary.json"
+
+  if test -f "${z_bi}"; then
+    echo ""
+    echo "  -- Vessel Type -------------------------------------------------"
+    echo "  How this image was produced and for which CPU architecture."
+    echo ""
+    echo "  Mode:           conjure (built by Google Cloud Build)"
+    local z_platform="" z_qemu=""
+    z_platform=$(jq -r '.platform // "unknown"' "${z_bi}")
+    z_qemu=$(jq -r '.qemu_used' "${z_bi}")
+    local z_strategy="native"
+    test "${z_qemu}" = "true" && z_strategy="emulated (QEMU)"
+    echo "  Platform:       ${z_platform} (host-platform view)"
+    echo "  Build strategy: ${z_strategy}"
+    echo "  Moniker:        $(jq -r '.moniker // "?"' "${z_bi}")"
+
+    echo ""
+    echo "  -- Source -------------------------------------------------------"
+    echo "  The git repository, branch, and commit that produced this build."
+    echo ""
+    echo "  Repository:     $(jq -r '.git.repo // "?"' "${z_bi}")"
+    echo "  Branch:         $(jq -r '.git.branch // "?"' "${z_bi}")"
+    echo "  Commit:         $(jq -r '.git.commit // "?"' "${z_bi}")"
+
+    echo ""
+    echo "  -- Builder ------------------------------------------------------"
+    echo "  The Cloud Build job that executed this build, with timestamps."
+    echo ""
+    echo "  Build ID:       $(jq -r '.build.build_id // "?"' "${z_bi}")"
+    echo "  Build time:     $(jq -r '.build.timestamp // "?"' "${z_bi}")"
+    echo "  Inscribe time:  $(jq -r '.build.inscribe_timestamp // "?"' "${z_bi}")"
+    echo "  Image URI:      $(jq -r '.image.uri // "?"' "${z_bi}")"
+
+    echo ""
+    echo "  -- SLSA Provenance ----------------------------------------------"
+    echo "  Cryptographic proof linking this exact image digest to its build."
+    echo ""
+    local z_slsa_level=""
+    z_slsa_level=$(jq -r '.slsa.build_level // "?"' "${z_bi}")
+    echo "  Build level:    ${z_slsa_level}"
+    echo "  Invocation ID:  $(jq -r '.slsa.build_invocation_id // "?"' "${z_bi}")"
+    echo "  Builder ID:     $(jq -r '.slsa.provenance_builder_id // "?"' "${z_bi}")"
+    echo "  Predicate types:"
+    jq -r '.slsa.provenance_predicate_types[]?' "${z_bi}" 2>/dev/null | while IFS= read -r z_pt; do
+      echo "                    ${z_pt}"
+    done
+
+    echo ""
+    echo "  SLSA Build L${z_slsa_level} attests:"
+    echo "    + This digest was produced by this Cloud Build invocation"
+    echo "    + From this source repo and commit"
+    echo "    + On Google's hosted builder (tamper-resistant environment)"
+    echo ""
+    echo "  SLSA Build L${z_slsa_level} does NOT attest:"
+    echo "    - Base image security or supply chain"
+    echo "    - Package integrity within the image"
+    echo "    - Absence of vulnerabilities"
+    echo "    - Correctness or security of the Dockerfile"
+  else
+    echo ""
+    echo "  build_info.json not found in -about artifact"
+  fi
+
+  echo ""
+  echo "  -- SBOM (syft) --------------------------------------------------"
+  echo "  Software bill of materials: every package syft found installed."
+  echo ""
+  if test -f "${z_sbom}"; then
+    local z_pkg_count=""
+    z_pkg_count=$(jq '.artifacts | length' "${z_sbom}" 2>/dev/null || echo "?")
+    echo "  Package count:  ${z_pkg_count}"
+
+    local z_distro_name="" z_distro_ver=""
+    z_distro_name=$(jq -r '.distro.name // empty' "${z_sbom}" 2>/dev/null || true)
+    z_distro_ver=$(jq -r '.distro.version // empty' "${z_sbom}" 2>/dev/null || true)
+    if test -n "${z_distro_name}"; then
+      echo "  Base distro:    ${z_distro_name} ${z_distro_ver}"
+    fi
+
+    echo "  Package types:"
+    jq -r '
+      [.artifacts[]?.type // empty] | group_by(.) |
+      map({type: .[0], count: length}) |
+      sort_by(-.count)[] |
+      "    \(.count)\t\(.type)"
+    ' "${z_sbom}" 2>/dev/null || echo "    (unable to parse)"
+
+    echo ""
+    echo "  Syft inventories installed packages. This is not a security"
+    echo "  assessment, vulnerability scan, or license audit."
+  else
+    echo "  sbom.json not found in -about artifact"
+  fi
+
+  echo ""
+  echo "  -- Vouch Results ------------------------------------------------"
+  echo "  Independent SLSA verification: did this image pass provenance checks?"
+  echo ""
+  if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
+    echo "  Verifier:"
+    echo "    URL:    $(jq -r '.verifier.url // "?"' "${z_vs}")"
+    echo "    SHA256: $(jq -r '.verifier.sha256 // "?"' "${z_vs}")"
+    echo ""
+    echo "  Per-platform verdicts:"
+    jq -r '.platforms[]? | "    \(.platform): \(.verdict)"' "${z_vs}" 2>/dev/null \
+      || echo "    (unable to parse)"
+  else
+    echo "  Vouch artifact not locally present — run summon to retrieve"
+  fi
+}
+
+# Internal: display compact conjure vessel info
+# Args: vessel consecration extract_dir has_vouch
+zrbf_inspect_show_compact() {
+  local -r z_vessel="$1"
+  local -r z_consecration="$2"
+  local -r z_dir="$3"
+  local -r z_has_vouch="$4"
+
+  echo ""
+  echo "================================================================"
+  echo "  CONSECRATION INSPECT: ${z_vessel} / ${z_consecration}"
+  echo "================================================================"
+
+  zrbf_inspect_show_sections "${z_dir}" "${z_has_vouch}"
+
+  echo ""
+  echo "================================================================"
+  echo ""
+}
+
+# Internal: display full conjure vessel info
+# Adds per-package inventory and Dockerfile to the compact sections.
+# Args: vessel consecration extract_dir has_vouch
+zrbf_inspect_show_full() {
+  local -r z_vessel="$1"
+  local -r z_consecration="$2"
+  local -r z_dir="$3"
+  local -r z_has_vouch="$4"
+
+  local -r z_sbom="${z_dir}/sbom.json"
+
+  echo ""
+  echo "================================================================"
+  echo "  CONSECRATION INSPECT (FULL): ${z_vessel} / ${z_consecration}"
+  echo "================================================================"
+
+  zrbf_inspect_show_sections "${z_dir}" "${z_has_vouch}"
+
+  echo ""
+  echo "  -- Package Inventory --------------------------------------------"
+  echo "  Every package syft detected, with name, version, and type."
+  echo ""
+  if test -f "${z_sbom}"; then
+    printf "    %-40s %-28s %s\n" "NAME" "VERSION" "TYPE"
+    printf "    %-40s %-28s %s\n" "----" "-------" "----"
+    jq -r '
+      .artifacts[]? |
+      [.name // "?", .version // "?", .type // "?"] |
+      @tsv
+    ' "${z_sbom}" 2>/dev/null | sort | while IFS=$'\t' read -r z_name z_ver z_type; do
+      printf "    %-40s %-28s %s\n" "${z_name}" "${z_ver}" "${z_type}"
+    done
+  else
+    echo "    sbom.json not found in -about artifact"
+  fi
+
+  local -r z_recipe="${z_dir}/recipe.txt"
+  if test -f "${z_recipe}"; then
+    echo ""
+    echo "  -- Recipe (Dockerfile) ------------------------------------------"
+    echo "  The exact Dockerfile used to build this image."
+    echo ""
+    sed 's/^/    /' "${z_recipe}"
+  fi
+
+  echo ""
+  echo "================================================================"
+  echo ""
+}
+
+rbf_inspect_full() {
+  zrbf_sentinel
+
+  local z_vessel="${1:-}"
+  local z_consecration="${2:-}"
+
+  buc_doc_brief "Inspect a consecration's trust posture (full detail)"
+  buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
+  buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
+  buc_doc_shown || return 0
+
+  zrbf_inspect_core "${z_vessel}" "${z_consecration}" "full"
+}
+
+rbf_inspect_compact() {
+  zrbf_sentinel
+
+  local z_vessel="${1:-}"
+  local z_consecration="${2:-}"
+
+  buc_doc_brief "Inspect a consecration's trust posture (compact summary)"
+  buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
+  buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
+  buc_doc_shown || return 0
+
+  zrbf_inspect_core "${z_vessel}" "${z_consecration}" "compact"
 }
 
 # eof
