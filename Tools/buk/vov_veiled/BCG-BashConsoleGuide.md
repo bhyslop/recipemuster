@@ -391,6 +391,15 @@ $var                    # Unquoted - word splitting risk
 ${var}                  # Unquoted - glob expansion risk
 ```
 
+**No tilde in quoted strings** — tilde expansion is suppressed inside quotes:
+```bash
+# ❌ Tilde does not expand in quotes
+"~/Downloads/file.txt"          # Literal ~ character, not home directory
+
+# ✅ Use $HOME instead
+"${HOME}/Downloads/file.txt"    # Expands correctly
+```
+
 **Quote inside parameter expansion operators:**
 ```bash
 # ✅ Inner expansion quoted separately — matches literally
@@ -1460,6 +1469,7 @@ buc_warn    # Instead of echo >&2
 - [ ] Parameters use `"${1:-}"` pattern for defensive programming
 - [ ] Module state variable `readonly Z«PREFIX»_KINDLED=1` is the last statement in kindle
 - [ ] No bare `$var` or unbraced `"$var"` expansions
+- [ ] No tilde in quoted strings — use `${HOME}` instead
 - [ ] No `local -i` — use plain local with explicit validation
 - [ ] No raw `eval` for value assignment — use `printf -v` after name validation; `${!name}` for reading
 
