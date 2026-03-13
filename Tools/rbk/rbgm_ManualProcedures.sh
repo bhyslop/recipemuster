@@ -793,7 +793,11 @@ rbgm_payor_onboarding() {
       bug_section "Next: Start a Bottle"
       bug_t "  Launch a bottle from your built vessel images:"
       bug_e
-      buc_tabtarget "${RBZ_BOTTLE_START}" "<vessel-name>"
+      buc_tabtarget "${RBZ_BOTTLE_START}" "nsproto"
+      bug_e
+      bug_t "  Once the bottle is running, verify with the nsproto security tests:"
+      bug_e
+      buc_tabtarget "${RBZ_TEST_FIXTURE}" "nsproto-security"
       ;;
   esac
 
