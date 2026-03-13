@@ -31,3 +31,13 @@ for SUFFIX in "${SUFFIXES[@]}"; do
   docker push "${IMAGE_BASE}:${PER_PLAT_TAG}"
 done
 echo "=== Push complete ==="
+
+# Snapshot host daemon cache state after all builds and pushes
+# Everything in cache_after that was not in cache_before was pulled for THIS build.
+echo "=== Capturing cache_after.json ==="
+{
+  printf '{"timestamp":"%s","host_daemon_images":[' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  docker images --no-trunc --format '{{json .}}' 2>/dev/null \
+    | awk '{if(NR>1) printf ","; print}' || true
+  printf ']}'
+} > cache_after.json

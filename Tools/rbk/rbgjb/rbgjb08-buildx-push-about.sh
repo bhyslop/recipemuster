@@ -13,6 +13,12 @@
 #   sbom-{arch}{variant}.json       → /sbom.json
 #   build_info-{arch}{variant}.json → /build_info.json
 #
+# Platform-independent files (same content across all -about platform variants):
+#   buildkit_metadata.json → /buildkit_metadata.json  (step 03: buildx --metadata-file)
+#   cache_before.json      → /cache_before.json       (step 03: pre-build cache snapshot)
+#   cache_after.json       → /cache_after.json        (step 05: post-build cache snapshot)
+#   recipe.txt             → /recipe.txt
+#
 # No QEMU needed: scratch images have no executables — just file copies with
 # platform annotations.
 
@@ -40,6 +46,9 @@ META_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_
   echo 'COPY sbom-${TARGETARCH}${TARGETVARIANT}.json /sbom.json'
   echo 'COPY build_info-${TARGETARCH}${TARGETVARIANT}.json /build_info.json'
   echo 'COPY recipe.txt /recipe.txt'
+  echo 'COPY buildkit_metadata.json /buildkit_metadata.json'
+  echo 'COPY cache_before.json /cache_before.json'
+  echo 'COPY cache_after.json /cache_after.json'
 } > Dockerfile.meta
 
 echo "=== Building multi-platform -about container ==="

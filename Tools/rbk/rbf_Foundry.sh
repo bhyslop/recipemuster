@@ -2341,9 +2341,12 @@ zrbf_inspect_core() {
   local z_cid=""
   z_cid=$(docker create "${z_about_ref}" x 2>/dev/null) \
     || buc_die "Failed to create container from -about artifact"
-  docker cp "${z_cid}:/build_info.json" "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/sbom.json"       "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/recipe.txt"      "${z_extract}/" 2>/dev/null || true
+  docker cp "${z_cid}:/build_info.json"          "${z_extract}/" 2>/dev/null || true
+  docker cp "${z_cid}:/sbom.json"                "${z_extract}/" 2>/dev/null || true
+  docker cp "${z_cid}:/recipe.txt"               "${z_extract}/" 2>/dev/null || true
+  docker cp "${z_cid}:/buildkit_metadata.json"   "${z_extract}/" 2>/dev/null || true
+  docker cp "${z_cid}:/cache_before.json"        "${z_extract}/" 2>/dev/null || true
+  docker cp "${z_cid}:/cache_after.json"         "${z_extract}/" 2>/dev/null || true
   docker rm "${z_cid}" >/dev/null 2>&1
 
   # Extract -vouch contents if locally present
@@ -2412,6 +2415,7 @@ zrbf_inspect_show_sections() {
   local -r z_bi="${z_dir}/build_info.json"
   local -r z_sbom="${z_dir}/sbom.json"
   local -r z_vs="${z_dir}/vouch_summary.json"
+  local -r z_bkmeta="${z_dir}/buildkit_metadata.json"
 
   if test -f "${z_bi}"; then
     echo ""
@@ -2477,7 +2481,7 @@ zrbf_inspect_show_sections() {
 
   echo ""
   echo "  -- Base Image ---------------------------------------------------"
-  echo "  The upstream image this build started FROM and the OS syft detected."
+  echo "  The upstream image this build started FROM, resolved by BuildKit."
   echo ""
   local -r z_recipe="${z_dir}/recipe.txt"
   if test -f "${z_recipe}"; then
@@ -2485,6 +2489,28 @@ zrbf_inspect_show_sections() {
     z_from_line=$(grep -i '^FROM ' "${z_recipe}" | head -1 || true)
     if test -n "${z_from_line}"; then
       echo "  Dockerfile FROM: ${z_from_line#FROM }"
+    fi
+  fi
+  # BuildKit metadata: resolved base image digests from the actual build
+  if test -f "${z_bkmeta}"; then
+    local z_bk_platforms=""
+    z_bk_platforms=$(jq -r 'keys[]' "${z_bkmeta}" 2>/dev/null || true)
+    if test -n "${z_bk_platforms}"; then
+      echo "  BuildKit resolved digests:"
+      local z_bk_plat="" z_bk_digest=""
+      while IFS= read -r z_bk_plat; do
+        z_bk_digest=$(jq -r --arg p "${z_bk_plat}" '.[$p]["containerimage.digest"] // empty' "${z_bkmeta}" 2>/dev/null || true)
+        if test -n "${z_bk_digest}"; then
+          echo "    ${z_bk_plat}: ${z_bk_digest}"
+        fi
+      done <<< "${z_bk_platforms}"
+    else
+      # Single-platform build: metadata is flat (no platform keys)
+      local z_bk_single_digest=""
+      z_bk_single_digest=$(jq -r '."containerimage.digest" // empty' "${z_bkmeta}" 2>/dev/null || true)
+      if test -n "${z_bk_single_digest}"; then
+        echo "  BuildKit resolved digest: ${z_bk_single_digest}"
+      fi
     fi
   fi
   if test -f "${z_sbom}"; then
@@ -2613,6 +2639,45 @@ zrbf_inspect_show_full() {
     done
   else
     echo "    sbom.json not found in -about artifact"
+  fi
+
+  # Cache diff: show images pulled during build
+  local -r z_cache_before="${z_dir}/cache_before.json"
+  local -r z_cache_after="${z_dir}/cache_after.json"
+  if test -f "${z_cache_after}"; then
+    echo ""
+    echo "  -- Build Cache Diff ---------------------------------------------"
+    echo "  Docker images present after build vs before. Everything here was"
+    echo "  pulled or built for this consecration."
+    echo ""
+    if test -f "${z_cache_before}"; then
+      local z_before_count="" z_after_count=""
+      z_before_count=$(jq '.host_daemon_images | length' "${z_cache_before}" 2>/dev/null || echo "?")
+      z_after_count=$(jq '.host_daemon_images | length' "${z_cache_after}" 2>/dev/null || echo "?")
+      echo "  Images before: ${z_before_count}"
+      echo "  Images after:  ${z_after_count}"
+      echo ""
+      # Show images in after that were not in before (by ID)
+      local z_new_images=""
+      z_new_images=$(jq -r --slurpfile before "${z_cache_before}" '
+        ($before[0].host_daemon_images // [] | map(.ID) | unique) as $before_ids |
+        (.host_daemon_images // [])[] |
+        select(.ID as $id | $before_ids | index($id) | not) |
+        "    \(.Repository):\(.Tag)  \(.ID)  \(.Size)"
+      ' "${z_cache_after}" 2>/dev/null || true)
+      if test -n "${z_new_images}"; then
+        echo "  New images (pulled for this build):"
+        echo "${z_new_images}"
+      else
+        echo "  No new images detected (cache diff empty)"
+      fi
+    else
+      echo "  cache_before.json not available — showing full after-build inventory:"
+      jq -r '
+        (.host_daemon_images // [])[] |
+        "    \(.Repository):\(.Tag)  \(.ID)  \(.Size)"
+      ' "${z_cache_after}" 2>/dev/null || echo "    (unable to parse)"
+    fi
   fi
 
   local -r z_recipe="${z_dir}/recipe.txt"

@@ -31,14 +31,33 @@ MULTI_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${
 docker buildx version
 docker version
 
+# Cache hygiene: prune host daemon and buildx caches for authoritative before/after diff
+# The buildx builder is created fresh below, but the host daemon may retain residual images
+# on shared private worker pools.
+echo "=== Cache hygiene: pruning host daemon and buildx caches ==="
+docker system prune -af
+docker buildx prune -af 2>/dev/null || true
+
+# Snapshot host daemon cache state before build
+echo "=== Capturing cache_before.json ==="
+{
+  printf '{"timestamp":"%s","host_daemon_images":[' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  docker images --no-trunc --format '{{json .}}' 2>/dev/null \
+    | awk '{if(NR>1) printf ","; print}' || true
+  printf ']}'
+} > cache_before.json
+
 # Create docker-container driver for multi-platform builds (QEMU emulation)
 docker buildx create --driver docker-container --name rb-builder --use
 
 # Build all platforms and push intermediate -multi tag
+# --metadata-file captures BuildKit's resolved base image references, digests,
+# and build parameters for base image provenance in inspect.
 docker buildx build \
   --push \
   --platform="${_RBGY_PLATFORMS}" \
   --tag "${MULTI_URI}" \
+  --metadata-file buildkit_metadata.json \
   --label "moniker=${_RBGY_MONIKER}" \
   --label "git.commit=${_RBGY_GIT_COMMIT}" \
   --label "git.branch=${_RBGY_GIT_BRANCH}" \
