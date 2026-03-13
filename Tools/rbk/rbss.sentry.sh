@@ -2,7 +2,7 @@
 echo "RBS: Beginning sentry setup script"
 
 set -e
-set -x
+test "${RBSS_VERBOSE:-0}" -ge 1 && set -x
 
 echo "RBSp1: Validate parameters"
 : "${RBRN_ENCLAVE_BASE_IP:?}"        && echo "RBSp0: RBRN_ENCLAVE_BASE_IP        = ${RBRN_ENCLAVE_BASE_IP}"
