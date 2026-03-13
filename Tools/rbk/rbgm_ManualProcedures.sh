@@ -654,17 +654,17 @@ rbgm_onboarding() {
       ;;
     7)
       bug_section "Recipe Bottle Onboarding — Service Accounts Ready"
-      bug_t "All service accounts are provisioned. Next: inscribe vessel build"
-      bug_t "definitions to the rubric repo, then conjure nsproto vessel images."
+      bug_t "All service accounts are provisioned. Next: inscribe build definitions,"
+      bug_t "conjure vessel images, and vouch SLSA provenance (Director role)."
       ;;
     8)
-      bug_section "Recipe Bottle Onboarding — Vessel Images Built"
-      bug_t "Nsproto vessel images are built. Next: verify with batch vouch,"
-      bug_t "then summon both vessels to pull images locally."
+      bug_section "Recipe Bottle Onboarding — Vessels Built & Verified"
+      bug_t "Nsproto vessels are built and vouched. Next: summon both vessels"
+      bug_t "to pull images locally using Retriever credentials."
       ;;
     9)
       bug_section "Recipe Bottle Onboarding — Setup Complete"
-      bug_t "Infrastructure is fully provisioned and vessel images are verified."
+      bug_t "Infrastructure is fully provisioned and vessel images are pulled."
       bug_t "You can now start bottles from your built vessel images."
       ;;
   esac
@@ -688,8 +688,9 @@ rbgm_onboarding() {
   zrbgm_po_status "${z_flag}" "7. Retriever Create    — Governor:  Image pull service account"
   z_flag=0; test "${z_level}" -ge 8 && z_flag=1
   zrbgm_po_status "${z_flag}" "8. Inscribe & Conjure  — Director:  Push build defs, build & verify vessels"
+  zrbgm_po_status "${z_flag}" "9. Nameplate Update    —            Record consecrations from step 8"
   z_flag=0; test "${z_level}" -ge 9 && z_flag=1
-  zrbgm_po_status "${z_flag}" "9. Nameplate & Summon  — Retriever: Record consecrations, pull vessel images"
+  zrbgm_po_status "${z_flag}" "10. Summon              — Retriever: Pull vessel images locally"
   bug_e
 
   # --- Next step guidance ---
@@ -803,17 +804,25 @@ rbgm_onboarding() {
       buc_tabtarget "${RBZ_CHECK_CONSECRATIONS}"
       bug_t "  8. Vouch (verify SLSA provenance on built images):"
       buc_tabtarget "${RBZ_VOUCH_ARK}"
+      bug_e
+      bug_section "Then: Record Consecrations in Nameplate (step 9)"
+      bug_t "  The check-consecrations output (step 7) shows your consecration values."
+      bug_t "  Record them in your nameplate to advance this guide."
+      bug_e
+      bug_t "  Edit:"
+      bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
+      bug_e
+      bug_t "  Set these two lines (substitute your actual consecration values):"
+      bug_tc "        RBRN_SENTRY_CONSECRATION=" "i20260101_120000-b20260101_130000"
+      bug_tc "        RBRN_BOTTLE_CONSECRATION=" "i20260101_120000-b20260101_140000"
       ;;
     8)
-      bug_section "Next: Nameplate & Summon (Retriever role actions)"
-      bug_t "  Record the consecration values from step 8 into your nameplate,"
-      bug_t "  then pull the vouched images locally using Retriever credentials."
+      bug_section "Next: Summon (Retriever role actions)"
+      bug_t "  Pull the vouched images locally using Retriever credentials."
       bug_e
-      bug_t "  1. Update consecration values in nameplate:"
-      bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
-      bug_t "  2. Summon sentry vessel:"
+      bug_t "  1. Summon sentry vessel:"
       buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
-      bug_t "  3. Summon bottle vessel:"
+      bug_t "  2. Summon bottle vessel:"
       buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
       ;;
     9)
