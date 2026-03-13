@@ -699,6 +699,7 @@
         "₢AUAAB",
         "₢AUAAG",
         "₢AUAAW",
+        "₢AUAAX",
         "₢AUAAH",
         "₢AUAAO",
         "₢AUAAN",
@@ -709,7 +710,7 @@
         "₢AUAAF",
         "₢AUAAV"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1290,6 +1291,17 @@
               "text": "Add and debug bind vessel support. Convert rbev-bottle-plantuml from conjure to bind.\n\n## Context\n\nBind vessels pin an external image by digest — no Dockerfile, no Cloud Build, trust is the digest pin. The concept exists in code (RBRV_VESSEL_MODE=bind, RBRV_BIND_IMAGE) but no bind vessel currently exists in the fleet. The only prior bind vessel (rbev-nginx-ward) was deleted as purposeless.\n\n## Work\n\n1. Convert rbev-bottle-plantuml from conjure to bind:\n   - Change RBRV_VESSEL_MODE from conjure to bind\n   - Add RBRV_BIND_IMAGE pointing to upstream plantuml/plantuml-server with digest pin\n   - Remove RBRV_CONJURE_* variables\n   - Delete Dockerfile (no longer needed)\n2. Verify bind vessel path through the pipeline:\n   - Inscription: does inscribe handle bind vessels correctly (skip, or register differently)?\n   - Retrieve/summon: does the retrieval path work for digest-pinned upstream images?\n   - Inspect: compact and full modes for bind vessels (should show \"trust is digest-pin only\")\n   - Bottle start: does bottle-start work with a bind vessel image?\n3. Fix any bugs found in the bind vessel codepath\n4. Update consumer docs (README.consumer.md, CLAUDE.consumer.md) vessel structure example to show a real bind vessel\n5. Update pluml nameplate if needed to reference the bind image correctly\n\n## Acceptance\n\n- rbev-bottle-plantuml is a working bind vessel\n- Bind vessel end-to-end path verified: pin → retrieve → inspect → start\n- At least one bind vessel exists in the fleet for testing and documentation\n- Consumer docs show bind vessel example with real data",
               "silks": "bind-vessel-support-and-plantuml-conversion",
               "commit": "43d48dc"
+            }
+          ]
+        },
+        "₢AUAAX": {
+          "tacks": [
+            {
+              "ts": "260313-1521",
+              "state": "rough",
+              "text": "Add a prominent maturity/security warning to the top of README.consumer.md (and thus the released README.md). The project's security vision is strong but needs broader review before production trust.\n\n## Tone\n\nNot self-deprecating, not alarming. Honest engineering communication:\n- The security architecture is intentional and well-designed\n- It has not yet had sufficient independent review\n- Users should understand they are early adopters contributing to hardening\n- Invite security-minded contributors\n\n## Placement\n\nImmediately after the title/badge line, before any other content. Visually distinct (admonition box or similar markdown callout).\n\n## Content Direction\n\nSomething like: \"This project implements a rigorous container supply chain trust model. The security vision is sound but the implementation has had limited independent review. We welcome security-focused contributors and responsible disclosure.\"\n\nGet the exact wording right — this is the first thing potential users read. Draft options and iterate with user before committing.\n\n## Acceptance\n\n- Warning is visually prominent at top of README.consumer.md\n- Tone is confident but honest about maturity\n- Does not undermine the project's credibility\n- Invites contribution rather than discouraging adoption",
+              "silks": "readme-maturity-warning",
+              "commit": "6cbb654"
             }
           ]
         }
