@@ -1018,6 +1018,13 @@
         "₢AUAAQ": {
           "tacks": [
             {
+              "ts": "260313-1218",
+              "state": "rough",
+              "text": "Faux-render RBSGS-GettingStarted.adoc into a consumer-facing README.md.\n\n## Work\n\n1. Resolve MCM attribute references to plain text (e.g. {rbtgo_payor_establish} becomes the tabtarget name tt/rbw-gPE.PayorEstablish.sh or its operation description)\n2. Suppress adoc-specific patterns (cross-references, attribute definitions)\n3. Integrate with onboarding workflow: RBSGS references rbw-gO (onboarding tabtarget, backed by rbgm_onboarding in rbgm_cli.sh) which is a guided manual procedure. The README should make this the clear entry point after clone.\n4. Walk a new user from clone through: payor establish (manual console, rbw-gPE) -> payor install (OAuth, rbw-gPI) -> depot create (rbw-PC) -> governor reset (rbw-PG) -> credential creation -> first bottle-start\n5. Consider what level of detail belongs in README vs separate docs\n6. Place README.md at repo root for open source publication\n\n## MCM Attribute Resolution\n\nSame as AUAAP: attributes defined in RBS0-SpecTop.adoc mapping section. Manual/sonnet synchronization job.\n\n## Acceptance\n\n- README.md is self-contained markdown, no adoc dependencies\n- New user can follow README from clone to working bottle\n- Payor and onboarding steps are clear and sequenced\n- Tabtarget names are concrete (not MCM attribute references)",
+              "silks": "getting-started-readme",
+              "commit": "c0a7bc4"
+            },
+            {
               "ts": "260313-1213",
               "state": "rough",
               "text": "Faux-render RBSGS-GettingStarted.adoc into a consumer-facing README.md.\n\n## Work\n\n1. Resolve MCM attribute references to plain text (e.g. {rbtgo_payor_establish} becomes the actual tabtarget name or operation description)\n2. Suppress adoc-specific patterns (cross-references, attribute definitions)\n3. Integrate with onboarding process — the README should walk a new user from clone through payor establish, depot create, and first bottle-start\n4. Consider what level of detail belongs in README vs separate docs\n5. Place README.md at repo root for open source publication\n\n## Acceptance\n\n- README.md is self-contained markdown, no adoc dependencies\n- New user can follow README from clone to working bottle\n- Payor and onboarding steps are clear and sequenced",
