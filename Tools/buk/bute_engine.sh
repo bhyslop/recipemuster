@@ -51,7 +51,7 @@ zbute_tcase() {
   buto_fatal_on_error "${z_status}" "Test failed: ${z_case_name}"
 
   buto_trace "Finished: ${z_case_name} with status: ${z_status}"
-  test "${BUT_VERBOSE:-0}" -le 0 || echo "${ZBUTO_GREEN}PASSED:${ZBUTO_RESET} ${z_case_name}" >&2
+  echo "${ZBUTO_GREEN}PASSED:${ZBUTO_RESET} ${z_case_name}" >&2
 }
 
 # eof
