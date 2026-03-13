@@ -1239,6 +1239,13 @@
         "₢AUAAV": {
           "tacks": [
             {
+              "ts": "260313-1516",
+              "state": "complete",
+              "text": "Add a dirty-working-tree guard to rbf_rubric_inscribe. Fail early with a clear message if `git diff --quiet` or `git diff --cached --quiet` fails, so the rubric repo's recorded source commit always corresponds exactly to the scripts being inscribed. Without this, inscribed scripts can diverge from any committed state, breaking the paper trail from rubric to source.",
+              "silks": "inscribe-dirty-tree-guard",
+              "commit": "f49b1f2"
+            },
+            {
               "ts": "260313-1440",
               "state": "rough",
               "text": "Add a dirty-working-tree guard to rbf_rubric_inscribe. Fail early with a clear message if `git diff --quiet` or `git diff --cached --quiet` fails, so the rubric repo's recorded source commit always corresponds exactly to the scripts being inscribed. Without this, inscribed scripts can diverge from any committed state, breaking the paper trail from rubric to source.",
