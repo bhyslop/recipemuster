@@ -824,7 +824,7 @@ rbgm_onboarding() {
       bug_t "  2. Summon bottle vessel:"
       buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
       bug_t "  3. Run full nsproto test suite:"
-      buc_tabtarget "${RBZ_TEST_FIXTURE}" "nsproto-security"
+      bug_tc "        " "tt/rbw-tf.TestFixture.nsproto-security.sh"
       ;;
     9)
       bug_section "Next: Start a Bottle"
@@ -834,7 +834,7 @@ rbgm_onboarding() {
       bug_e
       bug_t "  Once the bottle is running, verify with the nsproto security tests:"
       bug_e
-      buc_tabtarget "${RBZ_TEST_FIXTURE}" "nsproto-security"
+      bug_tc "        " "tt/rbw-tf.TestFixture.nsproto-security.sh"
       ;;
   esac
 
