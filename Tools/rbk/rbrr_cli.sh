@@ -341,16 +341,13 @@ rbrr_refresh_gcb_pins() {
     docker manifest inspect --verbose "${z_image}:${z_tag}" > "${z_manifest_file}" 2>"${z_inspect_stderr}" \
       || buc_die "Failed to fetch manifest for ${z_image}:${z_tag} — see ${z_inspect_stderr}"
 
-    buc_log_args "Extracting ${z_pin_os}/${z_pin_arch} digest from manifest"
+    buc_log_args "Extracting ${z_pin_os}/${z_pin_arch} digest (normalize-then-filter)"
     jq -r --arg os "${z_pin_os}" --arg arch "${z_pin_arch}" '
-      if type == "array" then
-        [.[] | select(.Descriptor.platform.architecture == $arch
-                  and .Descriptor.platform.os == $os)][0].Descriptor.digest
-      else
-        .Descriptor.digest
-      end' \
+      first([.] | flatten | .[].Descriptor
+        | select(.platform.architecture == $arch and .platform.os == $os)
+        | .digest)' \
       "${z_manifest_file}" > "${z_digest_file}" \
-      || buc_die "Failed to extract digest for ${z_image}:${z_tag}"
+      || buc_die "Failed to extract ${z_pin_os}/${z_pin_arch} digest for ${z_image}:${z_tag} (single-platform or multi-arch)"
     z_digest=$(<"${z_digest_file}")
     test -n "${z_digest}" || buc_die "Empty digest for ${z_image}:${z_tag}"
     z_full_ref="${z_image}@${z_digest}"
