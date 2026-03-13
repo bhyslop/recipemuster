@@ -798,9 +798,9 @@ rbgm_payor_onboarding() {
       bug_e
       bug_t "  4. Inscribe:"
       buc_tabtarget "${RBZ_RUBRIC_INSCRIBE}"
-      bug_t "  5. Conjure sentry vessel:"
+      bug_t "  5. Conjure sentry vessel (10-20 minutes, builds in Cloud Build):"
       buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_SENTRY_VESSEL}"
-      bug_t "  6. Conjure bottle vessel:"
+      bug_t "  6. Conjure bottle vessel (10-20 minutes):"
       buc_tabtarget "${RBZ_CONJURE_ARK}" "${z_vessel_dir}/${RBRN_BOTTLE_VESSEL}"
       bug_e
       bug_t "  After each conjure completes, update the consecration in"
