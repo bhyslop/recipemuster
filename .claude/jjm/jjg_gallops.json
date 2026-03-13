@@ -1916,6 +1916,13 @@
         "₢AsAAD": {
           "tacks": [
             {
+              "ts": "260313-1039",
+              "state": "complete",
+              "text": "Final full test sweep after fresh depot + conjure + vouch succeeds. Confirms the entire system is green with the unified IAM grant contract under real-world conditions.",
+              "silks": "post-validation-test-sweep",
+              "commit": "9d48123"
+            },
+            {
               "ts": "260309-1945",
               "state": "rough",
               "text": "Final full test sweep after fresh depot + conjure + vouch succeeds. Confirms the entire system is green with the unified IAM grant contract under real-world conditions.",
