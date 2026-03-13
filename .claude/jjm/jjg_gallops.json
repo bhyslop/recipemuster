@@ -687,6 +687,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢AUAAS",
         "₢AUAAD",
         "₢AUAAF",
         "₢AUAAA",
@@ -704,7 +705,7 @@
         "₢AUAAQ",
         "₢AUAAR"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1083,6 +1084,17 @@
               "text": "Create /rbk-prep-release slash command — the full release ceremony.\n\n## Ceremony Sequence\n\n1. Run rbw-QR release qualification gate (fast qualify + shellcheck + complete test suite) — fail-fast on develop\n2. Verify develop is clean and pushed\n3. Sync main with upstream (git fetch/pull from scaleinv/recipebottle)\n4. Create candidate branch from main, squash-merge develop\n5. On candidate: strip vov_veiled/, .claude/, lenses/, Tools/gad/\n6. On candidate: swap CLAUDE.md with consumer template (from AUAAN)\n7. On candidate: marshal reset (rbw-MR equivalent — blank site-specific config)\n8. On candidate: delete podman-gateway-proposal.md if present\n9. Generate commit\n10. Final review — user inspects and pushes manually\n\n## Pattern\n\nModeled on /cma-prep-pr (.claude/commands/cma-prep-pr.md). Branch mechanics are similar; strip list and transform steps are rbk-specific.\n\n## Prerequisites (other paces)\n\n- AUAAN: consumer CLAUDE.md template must exist\n- AUAAO: lenses consolidated into veiled (simplifies strip list)\n- AUAAP: index.html must be current\n- AUAAQ: README.md must exist\n\n## References\n\n- .claude/commands/cma-prep-pr.md (pattern)\n- scaleinv/recipebottle (destination repo: git@github.com:scaleinv/recipebottle.git)\n- Tools/rbk/rbrr_cli.sh rbrr_reset (marshal reset implementation)",
               "silks": "prep-release-slash-command",
               "commit": "d3fe3df"
+            }
+          ]
+        },
+        "₢AUAAS": {
+          "tacks": [
+            {
+              "ts": "260313-1344",
+              "state": "rough",
+              "text": "Enrich the -about artifact with BuildKit build metadata and Docker cache inventory to enable base image provenance in inspect.\n\n## New files in -about\n\n- `buildkit_metadata.json` — output of `docker buildx build --metadata-file`, containing BuildKit's own record of resolved base image references, digests, and build parameters. Authoritative source for what images the build consumed.\n- `cache_before.json` — `docker images --format json` snapshot taken before the build starts.\n- `cache_after.json` — `docker images --format json` snapshot taken after the build completes.\n\n## Cache hygiene\n\nClear Docker daemon cache (`docker system prune -af`) and remove/recreate the buildx builder (`docker buildx rm rb-builder`) at the start of each build. This makes the before/after cache diff authoritative rather than diagnostic — everything new in cache_after was pulled for THIS build. Eliminates cross-build leakage of other vessels' image references on shared private worker pools.\n\n## Build pipeline changes\n\n1. New early step: prune Docker cache and snapshot `cache_before.json`\n2. Modify rbgjb05 (buildx build): add `--metadata-file /workspace/buildkit_metadata.json`\n3. Modify rbgjb03 or equivalent: force-recreate buildx builder instead of reuse\n4. New post-build step: snapshot `cache_after.json`\n5. Modify rbgjb08 (about assembly): COPY the three new files into -about Dockerfile\n\n## Inspect integration\n\nUpdate `zrbf_inspect_show_sections` to display base image provenance from buildkit_metadata.json. Update `zrbf_inspect_show_full` to show cache diff if available.\n\n## Acceptance\n\n- buildkit_metadata.json present in -about with resolved base image references\n- cache_before.json empty (or near-empty) after prune\n- cache_after.json shows only images pulled for this build\n- Inspect displays base image identity without Dockerfile parsing\n- No cross-build information leakage between vessels",
+              "silks": "enrich-about-with-build-provenance",
+              "commit": "013edd4"
             }
           ]
         }
