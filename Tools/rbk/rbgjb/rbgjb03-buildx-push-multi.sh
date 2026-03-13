@@ -31,14 +31,9 @@ MULTI_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${
 docker buildx version
 docker version
 
-# Cache hygiene: prune host daemon and buildx caches for authoritative before/after diff
-# The buildx builder is created fresh below, but the host daemon may retain residual images
-# on shared private worker pools.
-echo "=== Cache hygiene: pruning host daemon and buildx caches ==="
-docker system prune -af
-docker buildx prune -af 2>/dev/null || true
-
 # Snapshot host daemon cache state before build
+# No prune: Cloud Build workers have extensive pre-cached infrastructure images that
+# must not be disturbed. The before/after diff at inspect time filters by relevance.
 echo "=== Capturing cache_before.json ==="
 {
   printf '{"timestamp":"%s","host_daemon_images":[' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
