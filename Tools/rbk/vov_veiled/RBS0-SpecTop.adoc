@@ -1533,8 +1533,8 @@ as a separate
 {gcb_service}
 job submitted after conjure completes.
 +
-The vouch artifact is a single-platform `FROM scratch` container holding `vouch_summary.json` and per-platform `verify-«SUFFIX».json` files.
-It is not multi-platform — verification results are architecture-independent metadata.
+The vouch artifact is a multi-platform `FROM scratch` container holding `vouch_summary.json` and per-platform `verify-«SUFFIX».json` files.
+Content is architecture-independent metadata; multi-platform is for pull ergonomics (no platform mismatch warning on arm64 hosts).
 +
 **Vouch depends on about**: {rbtgo_ark_vouch} gates on `-about` existence before submission.
 Conjure must complete (producing both `-image` and `-about`) before vouch can run.
