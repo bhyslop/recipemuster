@@ -6,6 +6,15 @@ NOTE: This operation removes any previous container instance and instantiates an
 instance.
 
 //axhos_step
+. *Verify Local Vouch Artifacts*:
+.. {rbbc_require}
+sentry vouch artifact present in local image store (`docker image inspect` on `{vessel}:{consecration}-vouch`)
+.. {rbbc_require}
+bottle vouch artifact present in local image store (`docker image inspect` on `{vessel}:{consecration}-vouch`)
+.. {rbbc_fatal}
+if either vouch artifact is absent: emit clear message directing operator to run summon first; no network calls attempted
+
+//axhos_step
 . *Clean Previous Instance*:
 .. {rbbc_call}
 {mkr_bottle_cleanup}

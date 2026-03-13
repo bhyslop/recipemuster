@@ -89,6 +89,10 @@ zrbob_kindle() {
   readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
   readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
 
+  # GAR vouch references (local presence verified on every start)
+  readonly ZRBOB_SENTRY_VOUCH="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_VOUCH}"
+  readonly ZRBOB_BOTTLE_VOUCH="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}${RBGC_ARK_SUFFIX_VOUCH}"
+
   readonly ZRBOB_KINDLED=1
 }
 
@@ -325,9 +329,6 @@ zrbob_vouch_gate_and_summon() {
   test -n "${z_consecration}" || buc_die "zrbob_vouch_gate_and_summon: consecration required"
   test -n "${z_image_ref}"    || buc_die "zrbob_vouch_gate_and_summon: image_ref required"
 
-  # Verify vouch artifact exists (delegates to foundry vouch gate)
-  rbf_vouch_gate "${z_vessel}" "${z_consecration}"
-
   # Get OAuth token — prefer Retriever credentials, fallback to Director
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local z_rbra_file=""
@@ -365,6 +366,19 @@ rbob_start() {
 
   # Cross-nameplate validation (silent on success, dies on conflict)
   rbrn_preflight
+
+  # Preflight: verify vouch artifacts exist locally — no network calls, fatal if missing
+  if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_VOUCH}" >/dev/null 2>&1; then
+    buc_warn "Sentry vouch artifact missing locally: ${ZRBOB_SENTRY_VOUCH}"
+    buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_CONSECRATION}"
+    buc_die "Run summon to pull vouch artifact before starting"
+  fi
+
+  if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_VOUCH}" >/dev/null 2>&1; then
+    buc_warn "Bottle vouch artifact missing locally: ${ZRBOB_BOTTLE_VOUCH}"
+    buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_CONSECRATION}"
+    buc_die "Run summon to pull vouch artifact before starting"
+  fi
 
   # Preflight: verify container images exist locally, auto-summon if missing
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1; then
