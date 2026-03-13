@@ -102,9 +102,10 @@ rbtb_load_nameplate() {
   zrbrr_enforce
   zrbdc_kindle
 
-  rbtb_show "Kindling RBGC/RBGD/RBOB"
+  rbtb_show "Kindling RBGC/RBGD/RBGO/RBOB"
   zrbgc_kindle
   zrbgd_kindle
+  zrbgo_kindle
   zrbob_kindle
 }
 
