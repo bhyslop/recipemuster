@@ -643,7 +643,9 @@ rbf_build() {
   local z_trigger_code=""
   z_trigger_code=$(rbgu_http_code_capture "build_trigger_check") || z_trigger_code=""
   test "${z_trigger_code}" = "200" \
-    || buc_die "Vessel trigger '${z_trigger_name}' not found (HTTP ${z_trigger_code}) — run rubric inscribe first"
+    || { buc_bare "Vessel trigger '${z_trigger_name}' not found (HTTP ${z_trigger_code}) — inscribe first:"
+         buc_tabtarget "${RBZ_RUBRIC_INSCRIBE}"
+         buc_die "Cannot conjure without trigger"; }
   buc_info "Trigger resolved: ${z_trigger_name}"
 
   # Dispatch build via triggers.run — zero substitution overrides
