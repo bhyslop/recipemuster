@@ -239,13 +239,34 @@ zrbf_stitch_build_json() {
   test -n "${z_git_branch}" || buc_die "Git branch is empty"
   test -n "${z_git_repo}"   || buc_die "Git repo is empty"
 
+  # Build strategy: compare vessel platforms against runner platform
+  # If platforms exactly match the runner, no QEMU emulation is needed (native build).
+  # Any difference (multi-platform or non-native single-platform) requires binfmt.
+  local z_needs_binfmt="true"
+  if test "${RBRV_CONJURE_PLATFORMS// /,}" = "${RBGC_BUILD_RUNNER_PLATFORM}"; then
+    z_needs_binfmt="false"
+  fi
+
+  local z_build_strategy=""
+  if test "${z_needs_binfmt}" = "true"; then
+    z_build_strategy="emulated multi-platform via QEMU (${RBRV_CONJURE_PLATFORMS// /,})"
+    buc_log_args "Build strategy: ${z_build_strategy} — rbgjb02 included"
+  else
+    z_build_strategy="native single-platform (${RBGC_BUILD_RUNNER_PLATFORM})"
+    buc_log_args "Build strategy: ${z_build_strategy} — rbgjb02 excluded"
+  fi
+
   # Step definitions: script|builder|entrypoint|id
   # Entrypoint 'bash' uses args ["-lc", script], 'sh' uses ["-c", script]
   # Delimiter is | because image refs contain colons (sha256 digests)
   # Pipeline: buildx --push → per-platform pullback → SLSA provenance via images: field
   local z_step_defs=(
     "rbgjb01-derive-tag-base.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
-    "rbgjb02-qemu-binfmt.sh|${RBRG_DOCKER_IMAGE_REF}|bash|qemu-binfmt"
+  )
+  if test "${z_needs_binfmt}" = "true"; then
+    z_step_defs+=("rbgjb02-qemu-binfmt.sh|${RBRG_DOCKER_IMAGE_REF}|bash|qemu-binfmt")
+  fi
+  z_step_defs+=(
     "rbgjb03-buildx-push-multi.sh|${RBRG_DOCKER_IMAGE_REF}|bash|buildx-push-multi"
     "rbgjb04-per-platform-pullback.sh|${RBRG_DOCKER_IMAGE_REF}|bash|per-platform-pullback"
     "rbgjb05-push-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|push-per-platform"
@@ -309,9 +330,10 @@ zrbf_stitch_build_json() {
     z_body=$(<"${z_body_file}")
     test -n "${z_body}" || buc_die "Empty script body: ${z_script_path}"
 
-    buc_log_args "Baking pinned image refs into script text (GCB containers lack RBRR vars)"
+    buc_log_args "Baking pinned image refs and build strategy into script text"
     z_body="${z_body//\$\{RBRG_SYFT_IMAGE_REF\}/${RBRG_SYFT_IMAGE_REF}}"
     z_body="${z_body//\$\{RBRG_BINFMT_IMAGE_REF\}/${RBRG_BINFMT_IMAGE_REF}}"
+    z_body="${z_body//\$\{ZRBF_BUILD_STRATEGY\}/${z_build_strategy}}"
 
     buc_log_args "Escaping dollars for Cloud Build, preserving RBGY substitutions"
     printf '%s' "${z_body}" | sed 's/\$/\$\$/g; s/\$\${_RBGY_/${_RBGY_/g' \
@@ -573,13 +595,6 @@ rbf_build() {
   buc_log_args "Resolve paths from vessel configuration"
   test -f "${RBRV_CONJURE_DOCKERFILE}" || buc_die "Dockerfile not found: ${RBRV_CONJURE_DOCKERFILE}"
   test -d "${RBRV_CONJURE_BLDCONTEXT}" || buc_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
-
-  buc_log_args "Enforce vessel binfmt policy"
-  if test "${RBRV_CONJURE_BINFMT_POLICY}" = "forbid"; then
-    if test "${RBRV_CONJURE_PLATFORMS}" != "${RBGC_BUILD_RUNNER_PLATFORM}"; then
-      buc_die "Vessel '${RBRV_SIGIL}' forbids binfmt but RBRV_CONJURE_PLATFORMS='${RBRV_CONJURE_PLATFORMS}' extends beyond Cloud Build runner platform (${RBGC_BUILD_RUNNER_PLATFORM})"
-    fi
-  fi
 
   buc_info "Building vessel image: ${RBRV_SIGIL}"
 

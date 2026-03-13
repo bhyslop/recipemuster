@@ -3,9 +3,10 @@
 All sections below assume Google Cloud Build (GCB) remains the sole builder.
 GCB provides only x86 workers — default and private pools alike.
 Multi-platform builds use QEMU emulation via the binfmt setup step (rbgjb02).
+The binfmt step is conditionally included: vessels whose `RBRV_CONJURE_PLATFORMS`
+matches the build runner platform (`RBGC_BUILD_RUNNER_PLATFORM`) skip it,
+reducing attack surface for native-only builds.
 
-The vessel regime's `RBRV_CONJURE_BINFMT_POLICY` field ("allow" / "forbid") is the canary for this assumption.
-As long as all vessels tolerate emulation, GCB-specific investment is sound.
 If a vessel requires native ARM builds, the builder strategy must expand beyond GCB,
 and further GCB-specific hardening should be re-evaluated.
 
@@ -85,24 +86,23 @@ Tabtarget: {rbtc_check_consecrations}.
 
 ===== Pipeline Architecture: Single-Platform Vessels
 
-Six build steps plus CB-native `images:` push.
-Applies to vessels with a single entry in `RBRV_CONJURE_PLATFORMS`.
+Five build steps plus CB-native `images:` push (binfmt step excluded at stitch time).
+Applies to vessels whose `RBRV_CONJURE_PLATFORMS` matches `RBGC_BUILD_RUNNER_PLATFORM`.
 
-1. **derive-tag-base** — compute timestamps and tag components from CB substitutions
-2. **qemu-binfmt** — register QEMU user-static for cross-arch builds (skipped if native)
-3. **build-and-load** — `docker buildx build --load` (single platform into local daemon)
-4. **sbom** — Syft scan via `registry:` transport
-5. **assemble-metadata** — per-platform `build_info.json` with SLSA summary fields
-6. **build-and-push-metadata** — multi-platform `-about` container via `buildx --push`
+1. **derive-tag-base** — compute timestamps and tag components from CB substitutions; log build strategy
+2. **build-and-load** — `docker buildx build --load` (single platform into local daemon)
+3. **sbom** — Syft scan via `registry:` transport
+4. **assemble-metadata** — per-platform `build_info.json` with SLSA summary fields
+5. **build-and-push-metadata** — multi-platform `-about` container via `buildx --push`
 
 `images:` field declares the single per-platform URI → CB pushes and generates SLSA Level 3.
 
 ===== Pipeline Architecture: Multi-Platform Vessels
 
-Nine build steps plus CB-native `images:` push.
-Applies to vessels with multiple entries in `RBRV_CONJURE_PLATFORMS`.
+Nine build steps plus CB-native `images:` push (binfmt step included at stitch time).
+Applies to vessels whose `RBRV_CONJURE_PLATFORMS` differs from `RBGC_BUILD_RUNNER_PLATFORM`.
 
-1. **derive-tag-base** — compute timestamps and tag components
+1. **derive-tag-base** — compute timestamps and tag components; log build strategy
 2. **qemu-binfmt** — register QEMU user-static for cross-arch emulation
 3. **buildx-push-multi** — `docker buildx build --push` all platforms to intermediate `-multi` tag
 4. **per-platform-pullback** — `docker pull --platform` each arch, tag individually
@@ -279,5 +279,5 @@ Not actionable until vessel ecosystem matures.
 * RBSTB: Trigger Build specification
 * rbf_Foundry.sh: `zrbf_stitch_build_json()` — build stitching; `rbf_check_consecrations()` — provenance on demand
 * buv_validation.sh: `buv_val_odref()` — digest-pinned image reference validator
-* RBRV vessel regime: `RBRV_CONJURE_BINFMT_POLICY` — multi-arch emulation canary
+* RBRV vessel regime: `RBRV_CONJURE_PLATFORMS` vs `RBGC_BUILD_RUNNER_PLATFORM` — binfmt inclusion predicate
 * Memos/memo-20260305-provenance-architecture-gap.md — provenance experiment evidence

@@ -351,15 +351,12 @@
 
 // Recipe Bottle Regime: Vessel (container image specifications)
 :rbrv_regime:                <<rbrv_regime,RBRV Regime>>
-:rbrv_binfmt_allow:          <<rbrv_binfmt_allow,allow>>
 :rbrv_group_binding:         <<rbrv_group_binding,Binding Group>>
 :rbrv_bind_image:            <<rbrv_bind_image,RBRV_BIND_IMAGE>>
 :rbrv_conjure_bldcontext:    <<rbrv_conjure_bldcontext,RBRV_CONJURE_BLDCONTEXT>>
-:rbrv_conjure_binfmt_policy: <<rbrv_conjure_binfmt_policy,RBRV_CONJURE_BINFMT_POLICY>>
 :rbrv_conjure_dockerfile:    <<rbrv_conjure_dockerfile,RBRV_CONJURE_DOCKERFILE>>
 :rbrv_conjure_platforms:     <<rbrv_conjure_platforms,RBRV_CONJURE_PLATFORMS>>
 :rbrv_group_conjuring:       <<rbrv_group_conjuring,Conjuring Group>>
-:rbrv_binfmt_forbid:         <<rbrv_binfmt_forbid,forbid>>
 :rbrv_description:           <<rbrv_description,RBRV_DESCRIPTION>>
 :rbrv_sigil:                 <<rbrv_sigil,RBRV_SIGIL>>
 :rbrv_sigil_s:               <<rbrv_sigil,RBRV_SIGILs>>
@@ -2851,21 +2848,6 @@ conjuring.
 Target platform architectures for
 {rbrv_regime}
 multi-platform builds.
-
-[[rbrv_conjure_binfmt_policy]]
-//axvr_variable axd_conditional rbst_binfmt_policy
-{rbrv_conjure_binfmt_policy}::
-Qemu binary format policy for
-{rbrv_regime}
-cross-platform builds.
-
-[[rbrv_binfmt_allow]]
-{rbrv_binfmt_allow}::
-Permits cross-platform emulation via binfmt during builds.
-
-[[rbrv_binfmt_forbid]]
-{rbrv_binfmt_forbid}::
-Prohibits cross-platform emulation; build targets must match host architecture.
 
 include::RBSRV-RegimeVessel.adoc[]
 

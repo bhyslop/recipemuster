@@ -9,6 +9,8 @@
 
 set -euo pipefail
 
+echo "Build strategy: ${ZRBF_BUILD_STRATEGY}"
+
 CONSECRATION="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"
 test -n "${CONSECRATION}" || { echo "CONSECRATION empty" >&2; exit 1; }
 echo "${CONSECRATION}" > .consecration

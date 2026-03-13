@@ -52,8 +52,6 @@ zrbrv_kindle() {
   buv_string_enroll RBRV_CONJURE_DOCKERFILE    1  512  "Dockerfile path relative to repo root"
   buv_string_enroll RBRV_CONJURE_BLDCONTEXT    1  512  "Build context relative to repo root"
   buv_string_enroll RBRV_CONJURE_PLATFORMS     1  512  "Space-separated target platforms"
-  buv_enum_enroll   RBRV_CONJURE_BINFMT_POLICY         "Cross-platform policy: allow or forbid" \
-                    allow forbid
 
   # Guard against unexpected RBRV_ variables not in enrollment
   buv_scope_sentinel RBRV RBRV_
