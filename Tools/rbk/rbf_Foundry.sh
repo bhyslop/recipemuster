@@ -2481,7 +2481,7 @@ zrbf_inspect_show_sections() {
 
   echo ""
   echo "  -- Base Image ---------------------------------------------------"
-  echo "  The upstream image this build started FROM, resolved by BuildKit."
+  echo "  The upstream image this build started FROM and the OS syft detected."
   echo ""
   local -r z_recipe="${z_dir}/recipe.txt"
   if test -f "${z_recipe}"; then
@@ -2491,12 +2491,13 @@ zrbf_inspect_show_sections() {
       echo "  Dockerfile FROM: ${z_from_line#FROM }"
     fi
   fi
-  # BuildKit metadata: resolved base image digests from the actual build
+  # BuildKit metadata: output image digest and build reference from --metadata-file
   if test -f "${z_bkmeta}"; then
+    # Check for per-platform keys (contain "/", e.g. "linux/amd64")
     local z_bk_platforms=""
-    z_bk_platforms=$(jq -r 'keys[]' "${z_bkmeta}" 2>/dev/null || true)
+    z_bk_platforms=$(jq -r 'keys[] | select(contains("/"))' "${z_bkmeta}" 2>/dev/null || true)
     if test -n "${z_bk_platforms}"; then
-      echo "  BuildKit resolved digests:"
+      echo "  BuildKit output digests:"
       local z_bk_plat="" z_bk_digest=""
       while IFS= read -r z_bk_plat; do
         z_bk_digest=$(jq -r --arg p "${z_bk_plat}" '.[$p]["containerimage.digest"] // empty' "${z_bkmeta}" 2>/dev/null || true)
@@ -2505,11 +2506,11 @@ zrbf_inspect_show_sections() {
         fi
       done <<< "${z_bk_platforms}"
     else
-      # Single-platform build: metadata is flat (no platform keys)
-      local z_bk_single_digest=""
-      z_bk_single_digest=$(jq -r '."containerimage.digest" // empty' "${z_bkmeta}" 2>/dev/null || true)
-      if test -n "${z_bk_single_digest}"; then
-        echo "  BuildKit resolved digest: ${z_bk_single_digest}"
+      # Flat metadata (multi-platform builds emit a single manifest index digest)
+      local z_bk_digest=""
+      z_bk_digest=$(jq -r '."containerimage.digest" // empty' "${z_bkmeta}" 2>/dev/null || true)
+      if test -n "${z_bk_digest}"; then
+        echo "  BuildKit output digest: ${z_bk_digest}"
       fi
     fi
   fi
