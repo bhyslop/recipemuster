@@ -703,7 +703,7 @@ rbgm_payor_onboarding() {
       bug_t "  Install OAuth credentials from the JSON file downloaded during Payor Establish."
       bug_e
       bug_t "  Run:"
-      buc_tabtarget "${RBZ_PAYOR_INSTALL}" "~/Downloads/client_secret_*.json"
+      buc_tabtarget "${RBZ_PAYOR_INSTALL}" "\${HOME}/Downloads/client_secret_*.json"
       ;;
     2)
       bug_section "Next: GitLab Setup"
