@@ -28,7 +28,6 @@ Full read and edit access is pre-approved for all files in:
 - **RBV**  → `rbk/rbv_PodmanVM.sh`
 - **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
 - **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
-- **RBSAB** → `rbk/vov_veiled/RBSAB-ark_beseech.adoc`
 - **RBSAC** → `rbk/vov_veiled/RBSAC-ark_conjure.adoc`
 - **RBSAJ** → `rbk/vov_veiled/RBSAJ-access_jwt_probe.adoc`
 - **RBSAO** → `rbk/vov_veiled/RBSAO-access_oauth_probe.adoc`
@@ -42,6 +41,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSBS** → `rbk/vov_veiled/RBSBS-bottle_start.adoc`
 - **RBSCB** → `rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc` (Cloud Build security posture and deferred hardening)
 - **RBSCE** → `rbk/vov_veiled/RBSCE-command_exec.adoc`
+- **RBSCK** → `rbk/vov_veiled/RBSCK-consecration_check.adoc` (Consecration Check - registry ark inventory with health status)
 - **RBSCIG** → `rbk/vov_veiled/RBSCIG-IamGrantContracts.adoc` (IAM Grant API Contracts - verified behavioral contracts per resource type)
 - **RBSCIP** → `rbk/vov_veiled/RBSCIP-IamPropagation.adoc`
 - **RBSCJ** → `rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`

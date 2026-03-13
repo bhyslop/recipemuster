@@ -89,7 +89,7 @@
 
 // Recipe Bottle Term Google Operations
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
-:rbtgo_ark_beseech:               <<rbtgo_ark_beseech,rbf_beseech>>
+:rbtgo_consecration_check:        <<rbtgo_consecration_check,rbf_check_consecrations>>
 :rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbf_build>>
 :rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbf_vouch>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbf_summon>>
@@ -127,7 +127,6 @@
 :rbtc_gitlab_setup:              <<rbtc_gitlab_setup,rbw-gPL>>
 :rbtc_refresh_gcb_pins:          <<rbtc_refresh_gcb_pins,rbw-DPG>>
 :rbtc_refresh_binary_pins:       <<rbtc_refresh_binary_pins,rbw-DPB>>
-:rbtc_check_consecrations:       <<rbtc_check_consecrations,rbw-Dc>>
 
 :rbtoe_check_rubric_repo_url:     <<rbtoe_check_rubric_repo_url,Rubric Repo URL Check>>
 :rbtoe_check_cbv2_connection:     <<rbtoe_check_cbv2_connection,CB v2 Connection Check>>
@@ -780,7 +779,7 @@ artifacts: listing, deletion, and retrieval.
 {rbtgog_ark}::
 Operations on
 {rbtga_ark}
-units: abjuration, beseeching, conjuring, vouching, and summoning.
+units: abjuration, conjuring, vouching, summoning, and consecration checking.
 
 [[rbtgog_sa]]
 //axvo_group axd_tabtarget
@@ -993,17 +992,17 @@ removing its image, about, and vouch artifacts as a coherent unit.
 
 include::RBSAA-ark_abjure.adoc[]
 
-[[rbtgo_ark_beseech]]
+[[rbtgo_consecration_check]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_ark_beseech}
+=== {rbtgo_consecration_check}
 
-Petitions the registry to reveal
+Enumerates
 {rbtga_ark}
-consecrations
+consecrations across all regime vessels
 ({rbtgog_ark}),
-correlating artifact pairs by shared consecration timestamp.
+classifying each by artifact completeness, platform coverage, and vouch status.
 
-include::RBSAB-ark_beseech.adoc[]
+include::RBSCK-consecration_check.adoc[]
 
 [[rbtgo_ark_conjure]]
 //axvo_method axd_transient axd_grouped
@@ -1572,7 +1571,7 @@ If determinism proves unreliable in practice, narrow the comparison to verificat
 **Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image` and `-about`.
 Older arks without vouch are handled gracefully (404 on HEAD check).
 +
-**Display**: `rbf_check_consecrations` includes a Vouch column showing `yes`/`no` per consecration, detected by matching the `-vouch` tag suffix in the GAR tag list.
+**Display**: {rbtgo_consecration_check} includes a Vouch column showing `yes`/`no` per consecration, detected by matching the `-vouch` tag suffix in the GAR tag list.
 
 === Rubric Definitions
 
@@ -2201,10 +2200,6 @@ Discovers latest container image digests and updates {rbrr_prefix} pins.
 Tabtarget colophon for binary tool pin refresh.
 Discovers latest release from GitHub, downloads binary, verifies SLSA provenance.
 
-[[rbtc_check_consecrations]]
-{rbtc_check_consecrations}::
-Tabtarget colophon for consecration verification.
-Displays SLSA build level, build invocation ID, and single-origin verification per consecration.
 
 == Configuration Regimes
 

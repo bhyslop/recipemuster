@@ -1,0 +1,85 @@
+//axhob_operation
+{rbtgo_consecration_check}
+
+NOTE: This operation enumerates
+{rbtga_ark}s
+across all
+{rbtgi_vessel}
+packages in
+{rbtgi_repository},
+classifying each
+{rbtga_consecration}
+by artifact completeness and vouch status.
+Uses local regime vessel list for enumeration, queries
+{gar_service}
+Docker Registry HTTP API V2 for tag data.
+
+The
+{rbtr_director}
+checks consecrations:
+
+//axhos_step
+. *Enumerate Vessels*:
+.. {rbbc_call}
+local regime vessel list via `rbrv_list_capture`
+.. {rbbc_store}
+`«VESSELS»` as list of vessel monikers
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Fetch Tags Per Vessel*:
+.. For each vessel in `«VESSELS»`:
+... {rbbc_call}
+Docker Registry HTTP API V2 tag list endpoint
+... For each tag returned, match against
+{rbtga_consecration}
+pattern (`iYYYYMMDD_HHMMSS-bYYYYMMDD_HHMMSS`):
+.... Tags with `-image` suffix → classify by platform suffix (bare = consumer manifest list, `-amd64`/`-arm64` = per-platform)
+.... Tags with `-about` suffix → about artifact present
+.... Tags with `-vouch` suffix → vouch artifact present
+.... Other tags → skip (infrastructure aliases, not ark artifacts)
+... {rbbc_store}
+unique consecrations with artifact type and platform data
+
+//axhos_step
+. *Evaluate Health Per Consecration*:
+.. For each unique vessel+consecration pair:
+... If `-about` present and `-vouch` present → `vouched`
+... If `-about` present and `-vouch` absent → `pending`
+... If `-image` present and `-about` absent → `incomplete`
+.. {rbbc_store}
+health state and platform list per consecration
+
+//axhoo_output_of_type
+{rbtga_consecration}
+. *Present Per-Vessel Tables*:
+.. For each vessel with consecrations:
+... {rbbc_show}
+vessel header
+... {rbbc_show}
+column headers: `Consecration`, `Platforms`, `Health`
+... For each consecration (newest first):
+.... {rbbc_show}
+consecration timestamp, platform list (or `single`), health state
+.. {rbbc_show}
+per-consecration fact files in output directory for test observability
+
+//axhos_step
+. *Recommend Next Actions*:
+.. If any `pending` consecrations:
+... {rbbc_show}
+tabtarget recommendation for vouch
+.. If any `incomplete` consecrations:
+... {rbbc_show}
+tabtarget recommendation to abjure and re-conjure
+
+//axhoc_completion
+Procedure completes successfully when all vessels have been queried and the per-vessel tables display consecration health.
+The check reveals the registry's ark inventory and vouch coverage without modifying any resources.
