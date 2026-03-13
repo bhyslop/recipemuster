@@ -486,7 +486,7 @@ zrbf_load_vessel() {
 zrbf_wait_build_completion() {
   zrbf_sentinel
 
-  local z_max_attempts="${1:?zrbf_wait_build_completion: max_attempts required}"
+  local z_max_polls="${1:?zrbf_wait_build_completion: max_polls required}"
 
   buc_step 'Waiting for build completion'
 
@@ -499,7 +499,7 @@ zrbf_wait_build_completion() {
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get GCB OAuth token"
 
   local z_status="PENDING"
-  local z_attempts=0
+  local z_polls=0
   local z_consecutive_failures=0
   local z_max_consecutive_failures=3
   local z_err_check_file="${ZRBF_STITCH_PREFIX}poll_err_check.txt"
@@ -508,10 +508,10 @@ zrbf_wait_build_completion() {
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break;; esac
     sleep 5
 
-    z_attempts=$((z_attempts + 1))
-    test "${z_attempts}" -le "${z_max_attempts}" || buc_die "Build timeout after ${z_max_attempts} attempts"
+    z_polls=$((z_polls + 1))
+    test "${z_polls}" -le "${z_max_polls}" || buc_die "Build timeout after ${z_max_polls} polls"
 
-    buc_log_args "Fetch build status (attempt ${z_attempts}/${z_max_attempts})"
+    buc_log_args "Fetch build status (poll ${z_polls}/${z_max_polls})"
     curl -s                                                \
          --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
          --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
@@ -552,7 +552,7 @@ zrbf_wait_build_completion() {
     z_status=$(<"${ZRBF_STATUS_CHECK_FILE}")
     test -n "${z_status}" || buc_die "Status is empty"
 
-    buc_info "Build status: ${z_status} (attempt ${z_attempts}/${z_max_attempts})"
+    buc_info "Build status: ${z_status} (poll ${z_polls}/${z_max_polls})"
   done
 
   test "${z_status}" = "SUCCESS" || buc_die "Build failed with status: ${z_status}"
@@ -2002,7 +2002,7 @@ rbf_vouch() {
   buc_info "Vouch build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 36  # 3 minutes at 5s intervals
+  zrbf_wait_build_completion 50  # ~4 minutes at 5s intervals (private pool is slower)
 
   buc_success "Vouch complete: ${RBRV_SIGIL}/${z_consecration}"
   buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"

@@ -36,7 +36,6 @@ docker buildx build \
   --push \
   --platform="${_RBGV_PLATFORMS}" \
   --tag "${VOUCH_TAG}" \
-  -f Dockerfile \
   /workspace/vouch_ctx
 
 echo "Vouch artifact pushed: ${VOUCH_TAG}"
