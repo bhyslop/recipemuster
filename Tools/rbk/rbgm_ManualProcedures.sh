@@ -789,8 +789,8 @@ rbgm_payor_onboarding() {
       bug_t "  2. Refresh binary pins (resolves latest slsa-verifier):"
       buc_tabtarget "${RBZ_REFRESH_BINARY_PINS}"
       bug_t "  3. Commit the updated pin file (inscribe requires fresh pins committed):"
-      bug_tc "        git add " "${RBBC_dot_dir}/rbrg.env"
-      bug_tc "        git commit -m " "\"Refresh GCB pins for inscribe\""
+      bug_tc "        " "git add ${RBBC_dot_dir}/rbrg.env"
+      bug_tc "        " "git commit -m \"Refresh GCB pins for inscribe\""
       bug_e
       bug_t "  Inscribe translates your vessel definitions into Cloud Build instructions"
       bug_t "  and pushes them to the rubric repo. It also creates the Cloud Build"
