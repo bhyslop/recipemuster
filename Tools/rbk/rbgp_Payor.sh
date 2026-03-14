@@ -140,49 +140,6 @@ zrbgp_authenticate_capture() {
   echo "${z_access_token}"
 }
 
-# Capture: exchange authorization code for refresh token (secrets never touch disk)
-# Args: auth_code client_id client_secret
-zrbgp_authorization_exchange_capture() {
-  local -r z_auth_code="$1"
-  local -r z_client_id="$2"
-  local -r z_client_secret="$3"
-
-  local z_response
-  z_response=$(jq -n \
-    --arg code "${z_auth_code}" \
-    --arg client_id "${z_client_id}" \
-    --arg client_secret "${z_client_secret}" \
-    --arg redirect_uri "urn:ietf:wg:oauth:2.0:oob" \
-    --arg grant_type "authorization_code" \
-    '{
-      code: $code,
-      client_id: $client_id,
-      client_secret: $client_secret,
-      redirect_uri: $redirect_uri,
-      grant_type: $grant_type
-    }' | curl -sS -X POST \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-      -H "Content-Type: application/json" \
-      -d @- \
-      "https://oauth2.googleapis.com/token") || return 1
-
-  local z_error
-  z_error=$(jq -r '.error // empty' <<<"${z_response}")
-  if test -n "${z_error}"; then
-    local z_error_desc
-    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}")
-    buc_log_args "OAuth token exchange failed: ${z_error_desc}"
-    return 1
-  fi
-
-  local z_refresh_token
-  z_refresh_token=$(jq -r '.refresh_token // empty' <<<"${z_response}")
-  test -n "${z_refresh_token}" || return 1
-
-  echo "${z_refresh_token}"
-}
-
 zrbgp_depot_list_update() {
   zrbgp_sentinel
 
@@ -497,14 +454,42 @@ rbgp_payor_install() {
   bug_t   "  4. Authorization code will be displayed"
   bug_e
   local z_auth_code
-  bug_prompt "Copy the authorization code and paste here: " > "${ZRBGP_SCRATCH_FILE}" \
-    || buc_die "Failed to read authorization code"
-  z_auth_code=$(<"${ZRBGP_SCRATCH_FILE}")
+  z_auth_code=$(bug_prompt "Copy the authorization code and paste here: ")
   test -n "${z_auth_code}" || buc_die "Authorization code is required"
 
   buc_log_args "Exchanging authorization code for tokens"
-  z_refresh_token=$(zrbgp_authorization_exchange_capture "${z_auth_code}" "${z_client_id}" "${z_client_secret}") \
-    || buc_die "Failed to exchange authorization code for refresh token"
+
+  # Build request and pipe to curl - secrets never touch disk
+  local z_response
+  z_response=$(jq -n \
+    --arg code "${z_auth_code}" \
+    --arg client_id "${z_client_id}" \
+    --arg client_secret "${z_client_secret}" \
+    --arg redirect_uri "urn:ietf:wg:oauth:2.0:oob" \
+    --arg grant_type "authorization_code" \
+    '{
+      code: $code,
+      client_id: $client_id,
+      client_secret: $client_secret,
+      redirect_uri: $redirect_uri,
+      grant_type: $grant_type
+    }' | curl -sS -X POST \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+      -H "Content-Type: application/json" \
+      -d @- \
+      "https://oauth2.googleapis.com/token") || buc_die "Failed to execute token exchange request"
+
+  # Check for error in response
+  local z_error
+  z_error=$(jq -r '.error // empty' <<<"${z_response}")
+  if test -n "${z_error}"; then
+    local z_error_desc
+    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}")
+    buc_die "OAuth token exchange failed: ${z_error_desc}"
+  fi
+
+  z_refresh_token=$(jq -r '.refresh_token // empty' <<<"${z_response}")
   test -n "${z_refresh_token}" || buc_die "OAuth response missing refresh_token field"
 
   buc_step 'Create credentials directory'
