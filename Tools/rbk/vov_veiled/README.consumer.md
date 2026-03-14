@@ -160,9 +160,9 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
     tt/rbw-DI.DirectorInscribesRubric.sh
     ```
 
-12. **Conjure** — Trigger Cloud Build for each vessel (typically 10-20 minutes per build):
+12. **Create ark** — Build (conjure) or mirror (bind) each vessel's image (typically 10-20 minutes for conjure builds):
     ```
-    tt/rbw-DC.DirectorConjuresArk.sh rbev-vessels/<vessel-name>
+    tt/rbw-DC.DirectorCreatesArk.sh rbev-vessels/<vessel-name>
     ```
 
 13. **Check & vouch** — Verify builds completed and SLSA provenance:
@@ -274,7 +274,7 @@ rbev-vessels/
     └── rbrv.env
 ```
 
-Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. The image is mirrored to GAR via `tt/rbw-DM.DirectorMirrorsBind.sh`, and trust is the digest pin itself.
+Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. The same `tt/rbw-DC.DirectorCreatesArk.sh` command handles both: it detects the vessel mode and either triggers a Cloud Build (conjure) or mirrors the upstream image to GAR (bind). Trust for bind vessels is the digest pin itself.
 
 **Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `nsproto`) is what appears as the imprint in tabtarget filenames:
 

@@ -43,7 +43,7 @@ rbtcal_lifecycle_tcase() {
 
   # Step 1: Conjure ark
   buto_section "Step 1/10: Conjuring ark from vessel ${z_vessel_sigil}"
-  buto_tt_expect_ok "${RBZ_CONJURE_ARK}" "${z_vessel_dir}"
+  buto_tt_expect_ok "${RBZ_CREATE_ARK}" "${z_vessel_dir}"
   local z_conjure_dir
   z_conjure_dir=$(buto_tt_previous_output_capture)
   local z_consecration

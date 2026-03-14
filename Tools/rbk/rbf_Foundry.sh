@@ -563,6 +563,32 @@ zrbf_wait_build_completion() {
 ######################################################################
 # External Functions (rbf_*)
 
+rbf_create() {
+  zrbf_sentinel
+
+  local -r z_vessel_dir="${1:-}"
+
+  buc_doc_brief "Create an ark from a vessel (conjure or mirror based on vessel mode)"
+  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_shown || return 0
+
+  test -n "${z_vessel_dir}" || buc_die "vessel_dir required"
+
+  # Load vessel regime to determine mode
+  local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
+  test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
+  source "${z_rbrv_file}"
+  zrbrv_kindle
+  zrbrv_enforce
+
+  local -r z_mode="${RBRV_VESSEL_MODE:-conjure}"
+  case "${z_mode}" in
+    conjure) rbf_build "${z_vessel_dir}" ;;
+    bind)    rbf_mirror "${z_vessel_dir}" ;;
+    *)       buc_die "Unknown vessel mode: ${z_mode}" ;;
+  esac
+}
+
 rbf_build() {
   zrbf_sentinel
 

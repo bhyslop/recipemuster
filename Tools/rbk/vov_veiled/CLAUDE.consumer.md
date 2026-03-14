@@ -133,7 +133,7 @@ For full BUK infrastructure documentation, see `Tools/buk/README.md`.
 | `rbw-DPG` | DirectorRefreshesGcbPins | Resolve latest GCB tool image digests |
 | `rbw-DPB` | DirectorRefreshesBinaryPins | Resolve latest slsa-verifier binary |
 | `rbw-DI` | DirectorInscribesRubric | Push build definitions to rubric repo |
-| `rbw-DC` | DirectorConjuresArk | Trigger Cloud Build for a vessel |
+| `rbw-DC` | DirectorCreatesArk | Create ark: conjure (Cloud Build) or mirror (bind) based on vessel mode |
 | `rbw-Dc` | DirectorChecksConsecrations | Verify builds completed |
 | `rbw-DV` | DirectorVouchesConsecrations | SLSA provenance verification |
 | `rbw-DA` | DirectorAbjuresArk | Revoke vouch on an ark |
