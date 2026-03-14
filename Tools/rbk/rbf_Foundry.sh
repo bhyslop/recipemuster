@@ -1022,20 +1022,21 @@ rbf_mirror() {
     }' > "${z_build_info_file}" \
     || buc_die "Failed to generate build_info.json"
 
-  # Generate SBOM if syft is available
+  # Generate SBOM via containerized syft (same pattern as conjure Cloud Build step)
   local -r z_sbom_file="${BURD_TEMP_DIR}/sbom.json"
   local -r z_sbom_stderr="${BURD_TEMP_DIR}/sbom_stderr.txt"
   local z_has_sbom=false
-  if command -v syft >/dev/null 2>&1; then
-    buc_step "Generating SBOM via syft"
-    if syft "${RBRV_BIND_IMAGE}" -o syft-json > "${z_sbom_file}" 2>"${z_sbom_stderr}"; then
-      z_has_sbom=true
-      buc_info "SBOM generated"
-    else
-      buc_warn "syft scan failed — see ${z_sbom_stderr}"
-    fi
+  buc_step "Generating SBOM via syft container"
+  if docker run --rm \
+    -e SYFT_REGISTRY_AUTH_AUTHORITY="${z_gar_host}" \
+    -e SYFT_REGISTRY_AUTH_USERNAME=oauth2accesstoken \
+    -e SYFT_REGISTRY_AUTH_PASSWORD="${z_token}" \
+    "${RBRG_SYFT_IMAGE_REF}" "registry:${z_image_ref}" -o json \
+    > "${z_sbom_file}" 2>"${z_sbom_stderr}"; then
+    z_has_sbom=true
+    buc_info "SBOM generated"
   else
-    buc_info "syft not available — -about will omit SBOM"
+    buc_warn "syft scan failed — see ${z_sbom_stderr}"
   fi
 
   # Build and push -about container (FROM scratch with metadata files)
