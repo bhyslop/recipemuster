@@ -2447,6 +2447,13 @@
         "₢AtAAF": {
           "tacks": [
             {
+              "ts": "260314-1024",
+              "state": "complete",
+              "text": "Add pinned syft container image to GCB pin regime alongside existing pins (alpine, gcloud, docker, crane).\n\n## Character\nMechanical — follow existing pin pattern exactly.\n\n## Current state\nSyft is currently hardcoded in rbgjb06-syft-per-platform.sh (the about step that moves to rbgja02). Need a proper RBRG_SYFT_IMAGE_REF regime pin with digest.\n\n## Work\n- Add RBRG_SYFT_IMAGE_REF to rbrg.env (GCB pins regime)\n- Pin to current anchore/syft image with SHA256 digest\n- Add to pin refresh tooling (rbw-DPG / rbtc_refresh_gcb_pins) so it stays current\n- Update rbgja02 (or rbgjb06 until extraction) to use RBRG_SYFT_IMAGE_REF\n- Add to RBSRG-RegimeGcbPins.adoc spec\n\n## Depends on\n- Nothing — can be done independently, but must complete before AtAAC (about pipeline uses it)",
+              "silks": "syft-gcb-image-pin",
+              "commit": "f9e4b0b"
+            },
+            {
               "ts": "260314-0955",
               "state": "rough",
               "text": "Add pinned syft container image to GCB pin regime alongside existing pins (alpine, gcloud, docker, crane).\n\n## Character\nMechanical — follow existing pin pattern exactly.\n\n## Current state\nSyft is currently hardcoded in rbgjb06-syft-per-platform.sh (the about step that moves to rbgja02). Need a proper RBRG_SYFT_IMAGE_REF regime pin with digest.\n\n## Work\n- Add RBRG_SYFT_IMAGE_REF to rbrg.env (GCB pins regime)\n- Pin to current anchore/syft image with SHA256 digest\n- Add to pin refresh tooling (rbw-DPG / rbtc_refresh_gcb_pins) so it stays current\n- Update rbgja02 (or rbgjb06 until extraction) to use RBRG_SYFT_IMAGE_REF\n- Add to RBSRG-RegimeGcbPins.adoc spec\n\n## Depends on\n- Nothing — can be done independently, but must complete before AtAAC (about pipeline uses it)",
