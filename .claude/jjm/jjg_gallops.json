@@ -1328,6 +1328,13 @@
         "₢AUAAY": {
           "tacks": [
             {
+              "ts": "260314-1114",
+              "state": "complete",
+              "text": "Add the rbm-abstract-drawio.svg architecture diagram to README.consumer.md using centered HTML img tag. The SVG already survives prep-release stripping. Place after the introductory paragraph, before Key Concepts.",
+              "silks": "readme-architecture-diagram",
+              "commit": "5aeff4b"
+            },
+            {
               "ts": "260313-1650",
               "state": "rough",
               "text": "Add the rbm-abstract-drawio.svg architecture diagram to README.consumer.md using centered HTML img tag. The SVG already survives prep-release stripping. Place after the introductory paragraph, before Key Concepts.",
