@@ -89,13 +89,13 @@ bupr_section_begin() {
 
   if test "${z_bupr_section_active}" = 1; then
     if test -n "${z_gate_var}"; then
-      printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_GREEN}(since %s=%s)${ZBUC_RESET}\n" \
+      printf "${BUC_yellow}%-34s${BUC_reset} ${BUC_green}(since %s=%s)${BUC_reset}\n" \
         "${z_title}" "${z_gate_var}" "${z_gate_value}"
     else
-      printf "${ZBUC_YELLOW}%s${ZBUC_RESET}\n" "${z_title}"
+      printf "${BUC_yellow}%s${BUC_reset}\n" "${z_title}"
     fi
   else
-    printf "${ZBUC_YELLOW}%-34s${ZBUC_RESET} ${ZBUC_GREEN}(%s)${ZBUC_RESET}\n" "${z_title}" "${z_bupr_section_gate_desc}"
+    printf "${BUC_yellow}%-34s${BUC_reset} ${BUC_green}(%s)${BUC_reset}\n" "${z_title}" "${z_bupr_section_gate_desc}"
   fi
 }
 
@@ -154,25 +154,25 @@ zbupr_render_field() {
   # Name color: green when set, yellow when not set
   local z_nc
   if test -n "${z_value}"; then
-    z_nc=${ZBUC_GREEN}
+    z_nc=${BUC_green}
   else
-    z_nc=${ZBUC_YELLOW}
+    z_nc=${BUC_yellow}
     z_value="(not set)"
   fi
 
   if test "${ZBUPR_LAYOUT}" = single; then
     # Wide terminal: name value req type description — one line
-    printf "  ${z_nc}%-30s${ZBUC_RESET}  %-24s  ${ZBUC_BLUE}%-4s %-11s${ZBUC_RESET}  ${ZBUC_CYAN}%s${ZBUC_RESET}\n" \
+    printf "  ${z_nc}%-30s${BUC_reset}  %-24s  ${BUC_blue}%-4s %-11s${BUC_reset}  ${BUC_cyan}%s${BUC_reset}\n" \
       "${z_varname}" "${z_value}" "${z_req}" "${z_type}" "${z_desc}"
   else
     # Narrow terminal: 3-line short display
     # Line 1: name + req + type
-    printf "  ${z_nc}%-30s${ZBUC_RESET}  ${ZBUC_BLUE}%-4s %-11s${ZBUC_RESET}\n" \
+    printf "  ${z_nc}%-30s${BUC_reset}  ${BUC_blue}%-4s %-11s${BUC_reset}\n" \
       "${z_varname}" "${z_req}" "${z_type}"
     # Line 2: current value
-    printf "      ${ZBUC_WHITE}%s${ZBUC_RESET}\n" "${z_value}"
+    printf "      ${BUC_white}%s${BUC_reset}\n" "${z_value}"
     # Line 3: meaning
-    printf "      ${ZBUC_GRAY}meaning => %s${ZBUC_RESET}\n" "${z_desc}"
+    printf "      ${BUC_gray}meaning => %s${BUC_reset}\n" "${z_desc}"
   fi
 }
 

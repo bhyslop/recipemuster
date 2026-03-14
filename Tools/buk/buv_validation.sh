@@ -769,7 +769,7 @@ buv_render() {
   local z_desc=""
 
   echo ""
-  echo "${ZBUC_WHITE}${z_label}${ZBUC_RESET}"
+  echo "${BUC_white}${z_label}${BUC_reset}"
   echo ""
 
   for z_i in "${!z_buv_scope_roll[@]}"; do

@@ -23,24 +23,17 @@ set -euo pipefail
 test -z "${ZBUC_INCLUDED:-}" || return 0
 ZBUC_INCLUDED=1
 
-# Color codes
-zbuc_color() {
-  if test -n "${TERM:-}" && test "${TERM}" != "dumb"; then
-    printf '\033[%sm' "${1}"
-  else
-    printf ''
-  fi
-}
-ZBUC_BLACK=$(   zbuc_color '1;30' )
-ZBUC_RED=$(     zbuc_color '1;31' )
-ZBUC_GREEN=$(   zbuc_color '1;32' )
-ZBUC_YELLOW=$(  zbuc_color '1;33' )
-ZBUC_BLUE=$(    zbuc_color '1;34' )
-ZBUC_MAGENTA=$( zbuc_color '1;35' )
-ZBUC_CYAN=$(    zbuc_color '1;36' )
-ZBUC_WHITE=$(   zbuc_color '1;37' )
-ZBUC_GRAY=$(    zbuc_color '90'   )
-ZBUC_RESET=$(   zbuc_color '0'    )
+# Color tinder constants (pure ANSI-C quoted literals — no computation, no $())
+BUC_black=$'\033[1;30m'
+BUC_red=$'\033[1;31m'
+BUC_green=$'\033[1;32m'
+BUC_yellow=$'\033[1;33m'
+BUC_blue=$'\033[1;34m'
+BUC_magenta=$'\033[1;35m'
+BUC_cyan=$'\033[1;36m'
+BUC_white=$'\033[1;37m'
+BUC_gray=$'\033[90m'
+BUC_reset=$'\033[0m'
 
 # Global context variable for info and error messages
 ZBUC_CONTEXT=""
@@ -90,21 +83,21 @@ zbuc_tag_args() {
 buc_log_args() { zbuc_tag_args 3 "buc_log_args " "$@"; }
 buc_log_pipe() { zbuc_make_tag 3 "buc_log_pipe "; zbuc_log "${ZBUC_TAG}" " ---- "; }
 
-buc_step()     { zbuc_tag_args 3 "buc_step     " "$@"; zbuc_print 0 "${ZBUC_WHITE}$*${ZBUC_RESET}"; }
-buc_code()     { zbuc_tag_args 3 "buc_code     " "$@"; zbuc_print 0 "${ZBUC_CYAN}$*${ZBUC_RESET}"; }
+buc_step()     { zbuc_tag_args 3 "buc_step     " "$@"; zbuc_print 0 "${BUC_white}$*${BUC_reset}"; }
+buc_code()     { zbuc_tag_args 3 "buc_code     " "$@"; zbuc_print 0 "${BUC_cyan}$*${BUC_reset}"; }
 buc_info()     { zbuc_tag_args 3 "buc_info     " "$@"; zbuc_print 0 "$@"; }
 buc_debug()    { zbuc_tag_args 3 "buc_debug    " "$@"; zbuc_print 2 "$@"; }
 buc_trace()    { zbuc_tag_args 3 "buc_trace    " "$@"; zbuc_print 3 "$@"; }
-buc_warn()     { zbuc_tag_args 3 "buc_warn     " "$@"; zbuc_print 0 "${ZBUC_YELLOW}WARNING:${ZBUC_RESET} $*"; }
-buc_success()  { zbuc_tag_args 3 "buc_success  " "$@"; printf '%b\n' "${ZBUC_GREEN}$*${ZBUC_RESET}" >&2 || buc_die; }
+buc_warn()     { zbuc_tag_args 3 "buc_warn     " "$@"; zbuc_print 0 "${BUC_yellow}WARNING:${BUC_reset} $*"; }
+buc_success()  { zbuc_tag_args 3 "buc_success  " "$@"; printf '%b\n' "${BUC_green}$*${BUC_reset}" >&2 || buc_die; }
 buc_die() {
   zbuc_tag_args                3 "buc_die      " "ERROR: [${ZBUC_CONTEXT:-}] $*"
-  zbuc_print -1          "${ZBUC_RED}ERROR:${ZBUC_RESET} [${ZBUC_CONTEXT:-}] $*"
+  zbuc_print -1          "${BUC_red}ERROR:${BUC_reset} [${ZBUC_CONTEXT:-}] $*"
   exit 1
 }
 
 # Display unprefixed cyan text for typeable guidance (commands, config values)
-buc_bare() { zbuc_tag_args 3 "buc_bare     " "$@"; printf '%b\n' "${ZBUC_CYAN}$*${ZBUC_RESET}" >&2; }
+buc_bare() { zbuc_tag_args 3 "buc_bare     " "$@"; printf '%b\n' "${BUC_cyan}$*${BUC_reset}" >&2; }
 
 # Display tabtarget hint: resolves colophon to tabtarget filename
 # Args: colophon [extra_args...]
@@ -154,7 +147,7 @@ buc_doc_env() {
 
   # In doc mode, show documentation only (no validation — env vars may not be set)
   if zbuc_doc_mode_predicate; then
-    echo "  ${ZBUC_MAGENTA}${1}${ZBUC_RESET}:  ${env_var_info}"
+    echo "  ${BUC_magenta}${1}${BUC_reset}:  ${env_var_info}"
     return 0
   fi
 
@@ -178,7 +171,7 @@ buc_doc_brief() {
   ZBUC_USAGE_STRING="${ZBUC_CONTEXT}"
   zbuc_doc_mode_predicate || return 0
   echo
-  echo "  ${ZBUC_WHITE}${ZBUC_CONTEXT}${ZBUC_RESET}"
+  echo "  ${BUC_white}${ZBUC_CONTEXT}${BUC_reset}"
   echo "    brief: $1"
 }
 
@@ -203,7 +196,7 @@ buc_doc_oparm() {
 }
 
 zbuc_usage() {
-  printf '%b\n' "    usage: ${ZBUC_CYAN}${ZBUC_USAGE_STRING}${ZBUC_RESET}"
+  printf '%b\n' "    usage: ${BUC_cyan}${ZBUC_USAGE_STRING}${BUC_reset}"
 }
 
 # Idiomatic last step of documentation in the bash api.
@@ -223,7 +216,7 @@ buc_usage_die() {
   set -e
   local context="${ZBUC_CONTEXT:-}"
   local usage=$(zbuc_usage)
-  printf '%b\n' "${ZBUC_RED}ERROR:${ZBUC_RESET} ${usage}"
+  printf '%b\n' "${BUC_red}ERROR:${BUC_reset} ${usage}"
   exit 1
 }
 
@@ -237,7 +230,7 @@ zbuc_print() {
   if test "${min_verbosity}" -eq -1 || test "${BURE_VERBOSE:-0}" -ge "${min_verbosity}"; then
     while test $# -gt 0; do
       if test -n "${ZBUC_CONTEXT}"; then
-        printf '%b%s%b %s\n' "${ZBUC_GRAY}" "${ZBUC_CONTEXT}" "${ZBUC_RESET}" "$1" >&2
+        printf '%b%s%b %s\n' "${BUC_gray}" "${ZBUC_CONTEXT}" "${BUC_reset}" "$1" >&2
       else
         echo "$1" >&2
       fi
@@ -271,7 +264,7 @@ buc_die_if() {
 
   set -e
   local context="${ZBUC_CONTEXT:-}"
-  zbuc_print -1 "${ZBUC_RED}ERROR:${ZBUC_RESET} [$context] $1"
+  zbuc_print -1 "${BUC_red}ERROR:${BUC_reset} [$context] $1"
   shift
   zbuc_print -1 "$@"
   exit 1
@@ -287,7 +280,7 @@ buc_die_unless() {
 
   set -e
   local context="${ZBUC_CONTEXT:-}"
-  zbuc_print -1 "${ZBUC_RED}ERROR:${ZBUC_RESET} [$context] $1"
+  zbuc_print -1 "${BUC_red}ERROR:${BUC_reset} [$context] $1"
   shift
   zbuc_print -1 "$@"
   exit 1
@@ -328,7 +321,7 @@ buc_countdown() {
 
   buc_step "Countdown: ${z_seconds}s to cancel (Ctrl-C)"
   sleep 1
-  printf '%b ' "${ZBUC_YELLOW}${z_prompt}${ZBUC_RESET}" >/dev/tty
+  printf '%b ' "${BUC_yellow}${z_prompt}${BUC_reset}" >/dev/tty
   local z_i
   for (( z_i=z_seconds; z_i>=1; z_i-- )); do
     printf '%d... ' "$z_i" >/dev/tty
@@ -349,7 +342,7 @@ buc_require() {
   test -z "${BURE_CONFIRM:-}" || buc_die "BURE_CONFIRM must be 'skip' or unset, got '${BURE_CONFIRM}'"
 
   sleep 1
-  printf '%b\n' "${ZBUC_YELLOW}${z_prompt}${ZBUC_RESET}" >/dev/tty
+  printf '%b\n' "${BUC_yellow}${z_prompt}${BUC_reset}" >/dev/tty
   printf 'Type %s to confirm: ' "${z_required_value}" >/dev/tty
   local z_input
   read -r z_input </dev/tty

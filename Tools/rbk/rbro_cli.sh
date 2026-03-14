@@ -44,7 +44,7 @@ rbro_render() {
   buc_doc_shown || return 0
 
   echo ""
-  echo "${ZBUC_WHITE}RBRO - Recipe Bottle OAuth Regime${ZBUC_RESET}"
+  echo "${BUC_white}RBRO - Recipe Bottle OAuth Regime${BUC_reset}"
   echo ""
   buc_step "  RBRO_CLIENT_SECRET=[REDACTED - ${#RBRO_CLIENT_SECRET} chars] [string]"
   buc_step "  RBRO_REFRESH_TOKEN=[REDACTED - ${#RBRO_REFRESH_TOKEN} chars] [string]"
