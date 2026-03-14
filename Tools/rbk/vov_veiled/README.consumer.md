@@ -25,8 +25,8 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` native
 
 | Term | Meaning |
 |------|---------|
-| **Vessel** | A specification for a container workload — what to build (Dockerfile + config) |
-| **Ark** | The built result: an immutable container image artifact produced from a vessel |
+| **Vessel** | A specification for a container image — built from source (conjure), mirrored from upstream (bind), or pushed from local (graft) |
+| **Ark** | An immutable container image artifact stored in your own Google Artifact Registry, produced from a vessel |
 | **Consecration** | A specific build instance of a vessel, identified by timestamp |
 | **Vouch** | SLSA provenance verification — proves an ark was built by trusted infrastructure |
 | **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
