@@ -574,14 +574,13 @@ rbf_create() {
 
   test -n "${z_vessel_dir}" || buc_die "vessel_dir required"
 
-  # Load vessel regime to determine mode
+  # Peek at vessel mode without sourcing (sourcing makes vars readonly,
+  # and the downstream function will source again via zrbf_load_vessel)
   local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
   test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
-  source "${z_rbrv_file}"
-  zrbrv_kindle
-  zrbrv_enforce
-
-  local -r z_mode="${RBRV_VESSEL_MODE:-conjure}"
+  local z_mode
+  z_mode=$(grep -E '^RBRV_VESSEL_MODE=' "${z_rbrv_file}" | head -1 | sed 's/^RBRV_VESSEL_MODE=//') || true
+  z_mode="${z_mode:-conjure}"
   case "${z_mode}" in
     conjure) rbf_build "${z_vessel_dir}" ;;
     bind)    rbf_mirror "${z_vessel_dir}" ;;

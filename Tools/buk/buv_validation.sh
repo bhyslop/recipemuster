@@ -427,8 +427,8 @@ zbuv_check_capture() {
         echo "${BUV_check_fail}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
-      echo "${z_val}" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9:._/-]*$' || {
-        echo "${BUV_check_fail}${z_varname} must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, got '${z_val}'"
+      echo "${z_val}" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9:._/@-]*$' || {
+        echo "${BUV_check_fail}${z_varname} must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, at-signs, got '${z_val}'"
         return 0
       }
       ;;
