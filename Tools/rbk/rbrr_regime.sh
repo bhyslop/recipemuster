@@ -67,6 +67,7 @@ zrbrr_kindle() {
   # Build docker env args array from validated values
   # Usage: docker run "${ZRBRR_DOCKER_ENV[@]}" ...
   ZRBRR_DOCKER_ENV=("-e" "RBRR_DNS_SERVER=${RBRR_DNS_SERVER}")
+  readonly ZRBRR_DOCKER_ENV
 
   # Lock all enrolled RBRR_ variables against mutation
   buv_lock RBRR

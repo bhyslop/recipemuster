@@ -973,8 +973,8 @@ rbf_mirror() {
   z_git_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die "Failed to get branch"
   local -r z_git_remote_file="${BURD_TEMP_DIR}/rbf_mirror_git_remote.txt"
   git remote > "${z_git_remote_file}" || buc_die "Failed to list git remotes"
-  local z_git_remote
-  z_git_remote=$(head -1 "${z_git_remote_file}")
+  local z_git_remote=""
+  read -r z_git_remote < "${z_git_remote_file}" || buc_die "Failed to read git remote from ${z_git_remote_file}"
   test -n "${z_git_remote}" || buc_die "No git remotes found"
   local z_git_repo_url
   z_git_repo_url=$(git config --get "remote.${z_git_remote}.url") || buc_die "Failed to get repo URL"
@@ -1044,11 +1044,11 @@ rbf_mirror() {
   local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
   local -r z_about_ref="${z_gar_base}/${RBRV_SIGIL}:${z_about_tag}"
   local -r z_about_dir="${BURD_TEMP_DIR}/about_build"
-  mkdir -p "${z_about_dir}"
+  mkdir -p "${z_about_dir}" || buc_die "Failed to create about directory: ${z_about_dir}"
 
-  cp "${z_build_info_file}" "${z_about_dir}/build_info.json"
+  cp "${z_build_info_file}" "${z_about_dir}/build_info.json" || buc_die "Failed to copy build info"
   if test "${z_has_sbom}" = "true"; then
-    cp "${z_sbom_file}" "${z_about_dir}/sbom.json"
+    cp "${z_sbom_file}" "${z_about_dir}/sbom.json" || buc_die "Failed to copy SBOM"
   fi
 
   local -r z_about_dockerfile="${z_about_dir}/Dockerfile"
@@ -1319,7 +1319,7 @@ rbf_rubric_inscribe() {
   z_git_commit=$(git rev-parse HEAD) || buc_die "Failed to get commit SHA"
   z_git_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die "Failed to get branch"
   git remote > "${z_git_remote_file}" || buc_die "Failed to list git remotes"
-  z_git_remote=$(head -1 "${z_git_remote_file}")
+  read -r z_git_remote < "${z_git_remote_file}" || buc_die "Failed to read git remote from ${z_git_remote_file}"
   test -n "${z_git_remote}" || buc_die "No git remotes found"
   z_git_repo_url=$(git config --get "remote.${z_git_remote}.url") || buc_die "Failed to get repo URL"
   # Extract repo path from remote URL (works for any git host: github.com, gitlab.com, etc.)
@@ -1377,7 +1377,7 @@ rbf_rubric_inscribe() {
 
       # Purge stale rubric content, copy fresh build context
       z_rubric_vessel_dir="${ZRBF_INSCRIBE_CLONE_DIR}/${RBRV_SIGIL}"
-      rm -rf "${z_rubric_vessel_dir}"
+      rm -rf "${z_rubric_vessel_dir}" || buc_die "Failed to remove rubric vessel dir: ${z_rubric_vessel_dir}"
       cp -R "${z_vessel_dir}" "${z_rubric_vessel_dir}" \
         || buc_die "Failed to copy vessel build context for ${RBRV_SIGIL}"
 
@@ -2080,8 +2080,8 @@ zrbf_vouch_bind() {
   # Build and push -vouch container locally
   buc_step "Building bind -vouch container"
   local -r z_vouch_dir="${BURD_TEMP_DIR}/vouch_build"
-  mkdir -p "${z_vouch_dir}"
-  cp "${z_vouch_summary}" "${z_vouch_dir}/vouch_summary.json"
+  mkdir -p "${z_vouch_dir}" || buc_die "Failed to create vouch directory: ${z_vouch_dir}"
+  cp "${z_vouch_summary}" "${z_vouch_dir}/vouch_summary.json" || buc_die "Failed to copy vouch summary"
 
   {
     echo 'FROM scratch'
@@ -2567,7 +2567,7 @@ zrbf_inspect_core() {
   # Extract -about contents into temp directory
   buc_step "Extracting -about artifact"
   local -r z_extract="${BURD_TEMP_DIR}/inspect"
-  mkdir -p "${z_extract}"
+  mkdir -p "${z_extract}" || buc_die "Failed to create extraction directory: ${z_extract}"
   local z_cid=""
   z_cid=$(docker create "${z_about_ref}" x 2>/dev/null) \
     || buc_die "Failed to create container from -about artifact"

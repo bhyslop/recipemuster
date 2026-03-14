@@ -87,7 +87,8 @@ zbud_setup() {
   # Validate station variables
   zbud_check_string "${BURC_STATION_FILE}" BURS_LOG_DIR 1 256
 
-  local -r z_datetime=$(date +'%Y%m%d-%H%M%S %s')
+  local z_datetime
+  z_datetime=$(date +'%Y%m%d-%H%M%S %s') || buc_die "Failed to get datetime"
   BURD_NOW_STAMP="${z_datetime% *}-$$-$((RANDOM % 1000))"
   BURD_NOW_EPOCH="${z_datetime#* }"
   zbud_show "Generated timestamp: ${BURD_NOW_STAMP} epoch: ${BURD_NOW_EPOCH}"
@@ -97,14 +98,8 @@ zbud_setup() {
     /*) ;;
     *)  BURD_TEMP_DIR="${PWD}/${BURD_TEMP_DIR}" ;;
   esac
-  mkdir -p                           "${BURD_TEMP_DIR}"
+  mkdir -p                           "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory: ${BURD_TEMP_DIR}"
   zbud_show "Generated temporary dir: ${BURD_TEMP_DIR}"
-
-  # Validate temporary directory
-  if test ! -d "${BURD_TEMP_DIR}"; then
-    echo "ERROR: Failed to create temporary directory: ${BURD_TEMP_DIR}" >&2
-    return 1
-  fi
 
   if test -n "$(find "${BURD_TEMP_DIR}" -mindepth 1 -print -quit 2>/dev/null)"; then
     echo "ERROR: Temporary directory is not empty: ${BURD_TEMP_DIR}" >&2
@@ -124,15 +119,9 @@ zbud_setup() {
   # Clear if exists, then create fresh
   if test -d "${BURD_OUTPUT_DIR}"; then
     zbud_show "Clearing existing output directory: ${BURD_OUTPUT_DIR}"
-    rm -rf "${BURD_OUTPUT_DIR}"
+    rm -rf "${BURD_OUTPUT_DIR}" || buc_die "Failed to remove output directory: ${BURD_OUTPUT_DIR}"
   fi
-  mkdir -p "${BURD_OUTPUT_DIR}"
-
-  # Validate output directory
-  if test ! -d "${BURD_OUTPUT_DIR}"; then
-    echo "ERROR: Failed to create output directory: ${BURD_OUTPUT_DIR}" >&2
-    return 1
-  fi
+  mkdir -p "${BURD_OUTPUT_DIR}" || buc_die "Failed to create output directory: ${BURD_OUTPUT_DIR}"
 
   if test -n "$(find "${BURD_OUTPUT_DIR}" -mindepth 1 -print -quit 2>/dev/null)"; then
     echo "ERROR: Output directory is not empty: ${BURD_OUTPUT_DIR}" >&2

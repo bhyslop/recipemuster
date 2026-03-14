@@ -125,7 +125,7 @@ buc_context() {
 # Enable trace to stderr safely if supported
 zbuc_enable_trace() {
   # Only supported in Bash >= 4.1
-  if [[ ${BASH_VERSINFO[0]} -gt 4 ]] || { [[ ${BASH_VERSINFO[0]} -eq 4 ]] && [[ ${BASH_VERSINFO[1]} -ge 1 ]]; }; then
+  if test "${BASH_VERSINFO[0]}" -gt 4 || { test "${BASH_VERSINFO[0]}" -eq 4 && test "${BASH_VERSINFO[1]}" -ge 1; }; then
     export BASH_XTRACEFD=2
   fi
   set -x
@@ -136,7 +136,7 @@ zbuc_disable_trace() {
   set +x
 }
 
-zbuc_do_execute() {
+zbuc_doc_mode_predicate() {
   test "${ZBUC_DOC_MODE}" = "true"
 }
 
@@ -150,7 +150,7 @@ buc_doc_env() {
   env_var_name="${env_var_name%% *}"
 
   # In doc mode, show documentation only (no validation — env vars may not be set)
-  if zbuc_do_execute; then
+  if zbuc_doc_mode_predicate; then
     echo "  ${ZBUC_MAGENTA}${1}${ZBUC_RESET}:  ${env_var_info}"
     return 0
   fi
@@ -164,7 +164,7 @@ buc_doc_env() {
 # Usage:
 #    buc_doc_env_done || return 0
 buc_doc_env_done() {
-  zbuc_do_execute || return 0
+  zbuc_doc_mode_predicate || return 0
   return 1
 }
 
@@ -173,7 +173,7 @@ ZBUC_USAGE_STRING="UNFILLED"
 buc_doc_brief() {
   set -e
   ZBUC_USAGE_STRING="${ZBUC_CONTEXT}"
-  zbuc_do_execute || return 0
+  zbuc_doc_mode_predicate || return 0
   echo
   echo "  ${ZBUC_WHITE}${ZBUC_CONTEXT}${ZBUC_RESET}"
   echo "    brief: $1"
@@ -181,21 +181,21 @@ buc_doc_brief() {
 
 buc_doc_lines() {
   set -e
-  zbuc_do_execute || return 0
+  zbuc_doc_mode_predicate || return 0
   echo "           $1"
 }
 
 buc_doc_param() {
   set -e
   ZBUC_USAGE_STRING="${ZBUC_USAGE_STRING} <<$1>>"
-  zbuc_do_execute || return 0
+  zbuc_doc_mode_predicate || return 0
   echo "    required: $1 - $2"
 }
 
 buc_doc_oparm() {
   set -e
   ZBUC_USAGE_STRING="${ZBUC_USAGE_STRING} [<<$1>>]"
-  zbuc_do_execute || return 0
+  zbuc_doc_mode_predicate || return 0
   echo "    optional: $1 - $2"
 }
 
@@ -207,7 +207,7 @@ zbuc_usage() {
 # Usage:
 #    buc_doc_shown || return 0
 buc_doc_shown() {
-  zbuc_do_execute || return 0
+  zbuc_doc_mode_predicate || return 0
   zbuc_usage
   return 1
 }
@@ -364,8 +364,8 @@ buc_execute() {
   export BUC_VERBOSE="${BUC_VERBOSE:-0}"
 
   # Enable bash trace to stderr if BUC_VERBOSE is 3 or higher and bash >= 4.1
-  if [[ "${BUC_VERBOSE}" -ge 3 ]]; then
-    if [[ "${BASH_VERSINFO[0]}" -gt 4 ]] || [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 1 ]]; then
+  if test "${BUC_VERBOSE}" -ge 3; then
+    if test "${BASH_VERSINFO[0]}" -gt 4 || { test "${BASH_VERSINFO[0]}" -eq 4 && test "${BASH_VERSINFO[1]}" -ge 1; }; then
       export PS4='+ ${BASH_SOURCE##*/}:${LINENO}: '
       export BASH_XTRACEFD=2
       set -x

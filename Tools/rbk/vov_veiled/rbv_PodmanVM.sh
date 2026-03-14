@@ -278,7 +278,7 @@ rbv_nuke() {
   done
 
   buc_step "Deleting VM cache directory..."
-  rm -rf "${RBRS_PODMAN_ROOT_DIR}/machine"/*
+  rm -rf "${RBRS_PODMAN_ROOT_DIR}/machine"/* || buc_die "Failed to clear VM machine cache"
 
   buc_success "Podman VM environment reset complete"
 }
@@ -304,7 +304,7 @@ rbv_mirror() {
 
   buc_step "Generate new identity for this build..."
   local z_new_identity
-  z_new_identity=$(date +'%Y%m%d-%H%M%S')
+  z_new_identity=$(date +'%Y%m%d-%H%M%S') || buc_die "Failed to generate identity timestamp"
   buc_info "New identity: ${z_new_identity}"
 
   buc_step "Potential container image names for caching:"

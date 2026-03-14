@@ -488,16 +488,15 @@ rbgp_payor_install() {
   test -n "${z_refresh_token}" || buc_die "OAuth response missing refresh_token field"
 
   buc_step 'Create credentials directory'
-  local z_rbro_dir
-  z_rbro_dir="$(dirname "${z_rbro_file}")"
+  local -r z_rbro_dir="${z_rbro_file%/*}"
   mkdir -p "${z_rbro_dir}" || buc_die "Failed to create credentials directory: ${z_rbro_dir}"
   chmod 700 "${z_rbro_dir}" || buc_die "Failed to set credentials directory permissions"
 
   buc_step 'Store OAuth credentials'
-  cat > "${z_rbro_file}" <<-EOF || buc_die "Failed to write RBRO credentials file"
-RBRO_CLIENT_SECRET=${z_client_secret}
-RBRO_REFRESH_TOKEN=${z_refresh_token}
-EOF
+  {
+    echo "RBRO_CLIENT_SECRET=${z_client_secret}"
+    echo "RBRO_REFRESH_TOKEN=${z_refresh_token}"
+  } > "${z_rbro_file}" || buc_die "Failed to write RBRO credentials file"
   chmod 600 "${z_rbro_file}" || buc_die "Failed to set RBRO file permissions"
   
   buc_step 'Validate public configuration'
@@ -1672,7 +1671,7 @@ rbgp_governor_reset() {
 
   test -f "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
 
-  rm -f "${z_key_json}"
+  rm -f "${z_key_json}" || buc_die "Failed to remove temp key file: ${z_key_json}"
 
   # Verify CB v2 connectionViewer grant is enforced before declaring success.
   # Exercise the actual permission with Governor credentials (Pattern B).
