@@ -2472,6 +2472,13 @@
         "₢AtAAD": {
           "tacks": [
             {
+              "ts": "260314-1354",
+              "state": "rough",
+              "text": "Vouch unification and graft push. Keep existing draft code (rbgjv01-03 mode-aware, zrbf_vouch_submit, rbf_vouch unified, rbf_graft push logic, inspect graft/bind sections, rbw-Db wiring). Refactor rbf_graft: remove about submission, just push image and persist consecration. Update RBSAG completion note: chaining happens in rbf_create not rbf_graft.",
+              "silks": "vouch-unification-and-graft",
+              "commit": "c22aa3b"
+            },
+            {
               "ts": "260314-1353",
               "state": "rough",
               "text": "See /tmp/docket_content.txt for full content — placeholder for MCP size workaround",
