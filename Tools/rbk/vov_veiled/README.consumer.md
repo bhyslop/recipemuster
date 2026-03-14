@@ -7,9 +7,11 @@
 >
 > This architecture is deliberate, but it has not yet had broad independent review — particularly the runtime containment (iptables rules, privileged namespace setup, network isolation enforcement). If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
-Recipe Bottle enables developers to safely run untrusted containers — a significantly distinct use case from typical container deployments of carefully crafted code.
+Recipe Bottle helps you build container images with rigorous supply-chain provenance, and run untrusted containers behind enforced network isolation.
 
-While containers excel at packaging known applications, running third-party or experimental code poses security risks. Recipe Bottle addresses this by interposing a security layer (sentry container) between untrusted containers (bottle containers) and system resources, without requiring modifications to existing container images.
+On the build side, Recipe Bottle orchestrates Google Cloud Build to produce images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
+
+On the runtime side, Recipe Bottle interposes a sentry container between untrusted workloads and system resources, enforcing network policy via `iptables` and `dnsmasq` — without requiring modifications to existing container images.
 
 The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` natively. No `gcloud` CLI is required on your workstation — cloud operations use REST APIs via `curl` and `jq`.
 
