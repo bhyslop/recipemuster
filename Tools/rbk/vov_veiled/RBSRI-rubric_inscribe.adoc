@@ -27,7 +27,7 @@ and ensures all triggers exist.
 . *Pin Staleness Gate*:
 .. Verify `RBRG_IMAGE_PINS_REFRESHED_AT` is less than 1 day old
 .. If stale: die with guidance to run image pin refresh ({rbtc_refresh_gcb_pins}) manually, commit, and re-run inscribe
-.. `rbrr_refresh_gcb_pins` remains independently callable for manual inspection
+.. `rbrg_refresh_gcb_pins` remains independently callable for manual inspection
 
 //axhos_step
 . *Fetch GitLab token from Secret Manager*:

@@ -6,7 +6,7 @@ This regime specifies pinned tool references used as builders in
 build steps.
 Each
 {rbrg_regime}
-instance represents the current set of tool pins, managed by two refresh commands: `rbrr_refresh_gcb_pins` for container image pins and `rbrr_refresh_binary_pins` for binary tool pins.
+instance represents the current set of tool pins, managed by two refresh commands: `rbrg_refresh_gcb_pins` for container image pins and `rbrg_refresh_binary_pins` for binary tool pins.
 RBRG assignment files are found at `.rbk/rbrg.env` and are generated from scratch by either refresh command (BCG compliant full-file rewrite).
 
 //axhrv_variable
@@ -20,7 +20,7 @@ ORAS handles OCI artifact operations beyond container images.
 
 GitHub Releases download URL for the slsa-verifier linux-amd64 binary.
 Used in vouch Cloud Build steps to verify SLSA provenance attestations.
-Refreshed via `rbrr_refresh_binary_pins` which discovers the latest release, downloads the binary, and verifies its checksum against the SLSA provenance attestation (belt and suspenders).
+Refreshed via `rbrg_refresh_binary_pins` which discovers the latest release, downloads the binary, and verifies its checksum against the SLSA provenance attestation (belt and suspenders).
 
 //axhrv_variable
 {rbrg_slsa_verifier_sha256}
@@ -67,14 +67,14 @@ Pin retained for potential future use.
 //axhrv_variable
 {rbrg_image_pins_refreshed_at}
 
-Timestamp recording when container image pins were last refreshed via `rbrr_refresh_gcb_pins` ({rbtc_refresh_gcb_pins}).
+Timestamp recording when container image pins were last refreshed via `rbrg_refresh_gcb_pins` ({rbtc_refresh_gcb_pins}).
 {rbtgo_rubric_inscribe}
 gates on this value — must be less than 1 day old.
 
 //axhrv_variable
 {rbrg_binary_pins_refreshed_at}
 
-Timestamp recording when binary tool pins were last refreshed via `rbrr_refresh_binary_pins` ({rbtc_refresh_binary_pins}).
+Timestamp recording when binary tool pins were last refreshed via `rbrg_refresh_binary_pins` ({rbtc_refresh_binary_pins}).
 Not gated by inscribe — binary pins are updated deliberately.
 
 //axhro_kindle
