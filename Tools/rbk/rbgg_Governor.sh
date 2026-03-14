@@ -866,7 +866,7 @@ rbgg_destroy_project() {
   local z_lifecycle_state
   z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse project state"
 
-  if [[ "${z_lifecycle_state}" == "DELETE_REQUESTED" ]]; then
+  if test "${z_lifecycle_state}" = "DELETE_REQUESTED"; then
     buc_success "Project successfully marked for deletion"
     buc_step "Project Status: ${z_lifecycle_state}"
     buc_step "Grace period: Up to 30 days"
@@ -896,7 +896,7 @@ rbgg_restore_project() {
   local z_lifecycle_state
   z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse project state"
 
-  if [[ "${z_lifecycle_state}" != "DELETE_REQUESTED" ]]; then
+  if test "${z_lifecycle_state}" != "DELETE_REQUESTED"; then
     buc_die "Project state is ${z_lifecycle_state} - can only restore projects in DELETE_REQUESTED state"
   fi
 
@@ -915,7 +915,7 @@ rbgg_restore_project() {
 
     z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse restored project state"
 
-    if [[ "${z_lifecycle_state}" == "ACTIVE" ]]; then
+    if test "${z_lifecycle_state}" = "ACTIVE"; then
       buc_success "Project successfully restored to ACTIVE state"
       buc_log_args "Project Status: ${z_lifecycle_state}"
       buc_log_args "Project is now usable again"

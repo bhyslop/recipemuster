@@ -163,9 +163,9 @@ zrbgp_depot_list_update() {
   local z_project_count
   z_project_count=$(rbgu_json_field_capture "depot_list_tracking" '.projects // [] | length') || z_project_count=0
   
-  if [ "${z_project_count}" -gt 0 ]; then
+  if test "${z_project_count}" -gt 0; then
     local z_index=0
-    while [ "${z_index}" -lt "${z_project_count}" ]; do
+    while test "${z_index}" -lt "${z_project_count}"; do
       local z_project_id
       z_project_id=$(rbgu_json_field_capture "depot_list_tracking" ".projects[${z_index}].projectId") || continue
       
@@ -266,7 +266,7 @@ zrbgp_liens_list() {
   local z_lien_count
   z_lien_count=$(rbgu_json_field_capture "${ZRBGP_INFIX_LIST_LIENS}" '.liens // [] | length') || buc_die "Failed to parse liens response"
 
-  if [[ "${z_lien_count}" -eq 0 ]]; then
+  if test "${z_lien_count}" -eq 0; then
     buc_info "No liens found on project"
     return 0
   fi
@@ -574,7 +574,7 @@ rbgp_depot_create() {
     buc_die "Depot name must contain only lowercase letters, numbers, and hyphens"
   fi
   
-  if [ "${#z_depot_name}" -gt "${RBGC_GLOBAL_DEPOT_NAME_MAX}" ]; then
+  if test "${#z_depot_name}" -gt "${RBGC_GLOBAL_DEPOT_NAME_MAX}"; then
     buc_die "Depot name must be ${RBGC_GLOBAL_DEPOT_NAME_MAX} characters or less"
   fi
 
@@ -650,7 +650,7 @@ rbgp_depot_create() {
   z_timestamp=$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}") || buc_die "Failed to generate timestamp"
   local -r z_depot_project_id="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-${z_depot_name}-${z_timestamp}"
   
-  if [ "${#z_depot_project_id}" -gt 30 ]; then
+  if test "${#z_depot_project_id}" -gt 30; then
     buc_die "Generated project ID too long (${#z_depot_project_id} > 30): ${z_depot_project_id}"
   fi
   
@@ -1173,8 +1173,8 @@ rbgp_depot_destroy() {
   local z_lifecycle_state
   z_lifecycle_state=$(rbgu_json_field_capture "depot_destroy_validate" '.state // "UNKNOWN"') || buc_die "Failed to parse project state"
   
-  if [ "${z_lifecycle_state}" != "ACTIVE" ]; then
-    if [ "${z_lifecycle_state}" = "DELETE_REQUESTED" ]; then
+  if test "${z_lifecycle_state}" != "ACTIVE"; then
+    if test "${z_lifecycle_state}" = "DELETE_REQUESTED"; then
       buc_die "Project already marked for deletion"
     else
       buc_die "Project state is ${z_lifecycle_state} - can only destroy ACTIVE projects"
@@ -1189,13 +1189,13 @@ rbgp_depot_destroy() {
   local z_lien_count
   z_lien_count=$(rbgu_json_field_capture "depot_destroy_liens_list" '.liens // [] | length') || buc_die "Failed to parse liens response"
   
-  if [ "${z_lien_count}" -gt 0 ]; then
+  if test "${z_lien_count}" -gt 0; then
     buc_log_args "Found ${z_lien_count} lien(s) - removing them"
     local z_lien_names
     z_lien_names=$(rbgu_json_field_capture "depot_destroy_liens_list" '.liens[].name' | tr '\n' ' ') || buc_die "Failed to extract lien names"
     
     for z_lien_name in ${z_lien_names}; do
-      if [ -n "${z_lien_name}" ]; then
+      if test -n "${z_lien_name}"; then
         buc_log_args "Removing lien: ${z_lien_name}"
         local z_delete_lien_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens/${z_lien_name}"
         rbgu_http_json "DELETE" "${z_delete_lien_url}" "${z_token}" "depot_destroy_lien_delete"
@@ -1213,7 +1213,7 @@ rbgp_depot_destroy() {
 
   local z_billing_unlink_code
   z_billing_unlink_code=$(rbgu_http_code_capture "depot_destroy_billing_unlink") || z_billing_unlink_code=""
-  if [ "${z_billing_unlink_code}" = "200" ]; then
+  if test "${z_billing_unlink_code}" = "200"; then
     buc_log_args "Billing account unlinked - quota released"
   else
     buc_warn "Could not unlink billing (HTTP ${z_billing_unlink_code}) - proceeding with deletion anyway"
@@ -1302,7 +1302,7 @@ rbgp_depot_destroy() {
   local z_delete_response
   z_delete_response=$(rbgu_http_code_capture "depot_destroy_delete") || buc_die "Failed to get deletion response code"
   
-  if [ "${z_delete_response}" = "200" ] || [ "${z_delete_response}" = "204" ]; then
+  if test "${z_delete_response}" = "200" || test "${z_delete_response}" = "204"; then
     buc_log_args "Project deletion initiated successfully"
   else
     local z_error_msg
@@ -1315,7 +1315,7 @@ rbgp_depot_destroy() {
   local z_attempt=1
   local z_final_state
   
-  while [ "${z_attempt}" -le "${z_max_attempts}" ]; do
+  while test "${z_attempt}" -le "${z_max_attempts}"; do
     sleep 5
     buc_log_args "Checking deletion state (attempt ${z_attempt}/${z_max_attempts})"
     
@@ -1323,10 +1323,10 @@ rbgp_depot_destroy() {
 
     local z_state_check_code
     z_state_check_code=$(rbgu_http_code_capture "depot_destroy_state_check") || z_state_check_code=""
-    if [ "${z_state_check_code}" = "200" ]; then
+    if test "${z_state_check_code}" = "200"; then
       z_final_state=$(rbgu_json_field_capture "depot_destroy_state_check" '.state // "UNKNOWN"') || z_final_state="UNKNOWN"
 
-      if [ "${z_final_state}" = "DELETE_REQUESTED" ]; then
+      if test "${z_final_state}" = "DELETE_REQUESTED"; then
         break
       fi
     fi
@@ -1334,7 +1334,7 @@ rbgp_depot_destroy() {
     z_attempt=$((z_attempt + 1))
   done
   
-  if [ "${z_final_state}" != "DELETE_REQUESTED" ]; then
+  if test "${z_final_state}" != "DELETE_REQUESTED"; then
     buc_die "Failed to verify deletion state transition. Current state: ${z_final_state}"
   fi
 
@@ -1371,7 +1371,7 @@ rbgp_depot_list() {
   local z_project_count
   z_project_count=$(rbgu_json_field_capture "depot_list_projects" '.projects // [] | length') || z_project_count=0
 
-  if [ "${z_project_count}" -eq 0 ]; then
+  if test "${z_project_count}" -eq 0; then
     buc_info "No active depot projects found"
     return 0
   fi
@@ -1385,7 +1385,7 @@ rbgp_depot_list() {
   buc_info ""
   buc_info "=== DEPOT SUMMARY ==="
   
-  while [ "${z_depot_index}" -lt "${z_project_count}" ]; do
+  while test "${z_depot_index}" -lt "${z_project_count}"; do
     local z_project_id
     z_project_id=$(rbgu_json_field_capture "depot_list_projects" ".projects[${z_depot_index}].projectId") || continue
     
@@ -1422,7 +1422,7 @@ rbgp_depot_list() {
 
     local z_mason_code
     z_mason_code=$(rbgu_http_code_capture "depot_list_mason_${z_depot_index}") || z_mason_code=""
-    if [ "${z_mason_code}" = "200" ]; then
+    if test "${z_mason_code}" = "200"; then
       z_status="COMPLETE"
       z_complete_count=$((z_complete_count + 1))
     else
@@ -1442,7 +1442,7 @@ rbgp_depot_list() {
   buc_info "Complete: ${z_complete_count}"
   buc_info "Broken: ${z_broken_count}"
   
-  if [ "${z_broken_count}" -gt 0 ]; then
+  if test "${z_broken_count}" -gt 0; then
     buc_info ""
     buc_info "Note: BROKEN depots may have missing resources (Mason SA, repository, or bucket)"
     buc_info "Consider investigating broken depots or destroying them if no longer needed"

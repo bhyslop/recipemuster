@@ -57,7 +57,7 @@ iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20
 iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 
 echo "RBJp2: Phase 2: Port Setup"
-if [ "${RBRN_ENTRY_MODE}" = "enabled" ]; then
+if test "${RBRN_ENTRY_MODE}" = "enabled"; then
     echo "RBJp2: Configuring TCP access for bottled services"
 
     echo "RBJp2: Allow direct connections from sentry to bottle for the entry port"
@@ -88,7 +88,7 @@ iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
 iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 28
 
 echo "RBJp3: Phase 3: Access Setup"
-if [ "${RBRN_UPLINK_ACCESS_MODE}" = "disabled" ]; then
+if test "${RBRN_UPLINK_ACCESS_MODE}" = "disabled"; then
     echo "RBJp3: Blocking all non-port traffic"
     iptables -A RBM-EGRESS  -o eth0 -j DROP || exit 30
     iptables -A RBM-FORWARD -i eth1 -j DROP || exit 30
@@ -104,7 +104,7 @@ else
                                          ! -d "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
                                          -j MASQUERADE || exit 31
 
-    if [ "${RBRN_UPLINK_ACCESS_MODE}" = "global" ]; then
+    if test "${RBRN_UPLINK_ACCESS_MODE}" = "global"; then
         echo "RBJp3: Enabling global access"
         iptables -A RBM-EGRESS  -o eth0 -j ACCEPT || exit 31
         iptables -A RBM-FORWARD -i eth1 -j ACCEPT || exit 31
@@ -130,7 +130,7 @@ echo "RBJp4: Configuring DNS services"
 echo "RBJp4: Configuring sentry DNS resolution"
 echo "nameserver ${RBRR_DNS_SERVER}" > /etc/resolv.conf   || exit 40
 
-if [ "${RBRN_UPLINK_DNS_MODE}" = "disabled" ]; then
+if test "${RBRN_UPLINK_DNS_MODE}" = "disabled"; then
     echo "RBJp4: Blocking all DNS traffic"
     iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP || exit 40
     iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP || exit 40
@@ -167,7 +167,7 @@ else
     echo "log-dhcp"                                               >> /etc/dnsmasq.conf || exit 41
     echo "log-debug"                                              >> /etc/dnsmasq.conf || exit 41
     echo "log-async=20"                                           >> /etc/dnsmasq.conf || exit 41
-    if [ "${RBRN_UPLINK_DNS_MODE}" = "global" ]; then
+    if test "${RBRN_UPLINK_DNS_MODE}" = "global"; then
         echo "RBJp4: Enabling global DNS resolution"
         echo "server=${RBRR_DNS_SERVER}"                          >> /etc/dnsmasq.conf || exit 41
     else

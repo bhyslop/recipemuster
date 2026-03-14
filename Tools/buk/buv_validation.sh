@@ -632,6 +632,8 @@ buv_docker_env() {
   local z_array_var="${2:-}"
   test -n "${z_scope}"     || buc_die "buv_docker_env: scope required"
   test -n "${z_array_var}" || buc_die "buv_docker_env: array variable name required"
+  echo "${z_array_var}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' \
+    || buc_die "buv_docker_env: invalid array variable name: '${z_array_var}'"
 
   eval "${z_array_var}=()"
 

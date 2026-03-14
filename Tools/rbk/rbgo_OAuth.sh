@@ -77,7 +77,7 @@ zrbgo_build_jwt_capture() {
   # RBRA_* expected: CLIENT_EMAIL, PRIVATE_KEY, TOKEN_LIFETIME_SEC
   # RBRA_PRIVATE_KEY contains \n sequences that must become real newlines for openssl
   # Only source if not already loaded (avoids readonly conflict in subshells)
-  if [ -z "${RBRA_CLIENT_EMAIL:-}" ]; then
+  if test -z "${RBRA_CLIENT_EMAIL:-}"; then
     buc_log_args "Source RBRA file"
     source "${z_rbra_file}" || return 1
   fi

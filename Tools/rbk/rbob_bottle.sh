@@ -163,7 +163,7 @@ zrbob_create_network() {
   buc_step "Creating enclave network: ${ZRBOB_NETWORK}"
 
   local z_internal_flag=""
-  if [[ "${RBRN_RUNTIME}" == "podman" ]]; then
+  if test "${RBRN_RUNTIME}" = "podman"; then
     z_internal_flag="--internal"
   fi
 
@@ -188,7 +188,7 @@ zrbob_launch_sentry() {
 
   # Build port mapping args if entry is enabled
   local z_port_args=()
-  if [[ "${RBRN_ENTRY_MODE}" == "enabled" ]]; then
+  if test "${RBRN_ENTRY_MODE}" = "enabled"; then
     z_port_args+=("-p" "${RBRN_ENTRY_PORT_WORKSTATION}:${RBRN_ENTRY_PORT_WORKSTATION}")
   fi
 

@@ -105,7 +105,7 @@ rboo_observe() {
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" tcpdump "${ZRBOO_TCPDUMP_OPTS[@]}" -i eth1 2>&1 | zrboo_prefix_sentry &
 
   # Bridge capture: only for podman (requires podman machine ssh)
-  if [[ "${RBRN_RUNTIME}" == "podman" ]]; then
+  if test "${RBRN_RUNTIME}" = "podman"; then
     # Discover bridge interface for enclave network
     z_rboo_bridge_interface=$(${ZRBOB_RUNTIME} network inspect "${ZRBOB_NETWORK}" --format '{{.NetworkInterface}}')
     buc_info "Starting bridge capture (${z_rboo_bridge_interface}) via podman machine ssh"

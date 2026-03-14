@@ -194,7 +194,7 @@ rbgu_json_field_capture() {
   local -r z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
   local z_result
   z_result=$(jq -r "${z_jq}" "${z_json_file}")          || return 1
-  test -n "${z_result}" && test "${z_result}" != "null" || return 1
+  if test -z "${z_result}" || test "${z_result}" = "null"; then return 1; fi
   echo "${z_result}"
 }
 
@@ -588,7 +588,7 @@ rbgu_extract_json_to_rbra() {
   test -n "${z_project_id}"           || buc_die "Empty project_id in JSON"
   test    "${z_project_id}" != "null" || buc_die "Null project_id in JSON"
 
-  if [ -n "${z_expected_project_id}" ]; then
+  if test -n "${z_expected_project_id}"; then
     buc_log_args "Verify project matches expected: ${z_expected_project_id}"
     test "${z_project_id}" = "${z_expected_project_id}" \
       || buc_die "Project mismatch: JSON has '${z_project_id}', expected '${z_expected_project_id}'"
@@ -662,7 +662,7 @@ rbgu_api_enable() {
   local z_operation_name
   z_operation_name=$(rbgu_json_field_capture "${z_infix}" ".name") || z_operation_name=""
 
-  if [ -n "${z_operation_name}" ]; then
+  if test -n "${z_operation_name}"; then
     buc_log_args "API enable returned LRO, polling for completion"
     # Use the LRO polling mechanism
     local -r z_poll_root="https://serviceusage.googleapis.com/v1"
@@ -687,7 +687,7 @@ rbgu_api_enable() {
   local z_state
   z_state=$(rbgu_json_field_capture "${z_verify_infix}" ".state") || buc_die "Failed to read API state"
 
-  if [ "${z_state}" != "ENABLED" ]; then
+  if test "${z_state}" != "ENABLED"; then
     buc_die "API ${z_api_service} not enabled after request (state: ${z_state})"
   fi
 

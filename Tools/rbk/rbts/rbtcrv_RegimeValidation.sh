@@ -345,7 +345,8 @@ rbtcrv_rbrv_all_vessels_tcase() {
   local z_dirs=("${ZRBTCRV_VESSEL_DIR}"/*)
   local z_d=""
   for z_d in "${z_dirs[@]}"; do
-    test -d "${z_d}" && test -f "${z_d}/rbrv.env" || continue
+    test -d "${z_d}" || continue
+    test -f "${z_d}/rbrv.env" || continue
     local z_sigil="${z_d##*/}"
     buto_info "Validating vessel: ${z_sigil}"
     buto_unit_expect_ok zrbtcrv_rbrv_validate_vessel "${z_sigil}"

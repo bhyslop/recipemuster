@@ -23,7 +23,13 @@ set -euo pipefail
 ######################################################################
 # Color codes
 
-buto_color() { test -n "${TERM:-}" && test "${TERM}" != "dumb" && printf '\033[%sm' "${1}" || printf ''; }
+buto_color() {
+  if test -n "${TERM:-}" && test "${TERM}" != "dumb"; then
+    printf '\033[%sm' "${1}"
+  else
+    printf ''
+  fi
+}
 ZBUTO_WHITE=$(  buto_color '1;37' )
 ZBUTO_RED=$(    buto_color '1;31' )
 ZBUTO_GREEN=$(  buto_color '1;32' )
@@ -42,7 +48,7 @@ zbuto_render_lines() {
   local z_visible_prefix="${z_prefix}"
   test -z "${z_color}" || z_prefix="${z_color}${z_prefix}${ZBUTO_RESET}"
   local z_indent
-  z_indent=$(printf '%*s' "$(echo -e "${z_visible_prefix}" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)" '')
+  z_indent=$(printf '%*s' "$(printf '%b' "${z_visible_prefix}" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)" '')
 
   local z_first=1
   local z_line=""

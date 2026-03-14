@@ -25,8 +25,11 @@ ZBUC_INCLUDED=1
 
 # Color codes
 zbuc_color() {
-  # More robust terminal detection for Cygwin and other environments
-  test -n "${TERM}" && test "${TERM}" != "dumb" && printf '\033[%sm' "$1" || printf ''
+  if test -n "${TERM:-}" && test "${TERM}" != "dumb"; then
+    printf '\033[%sm' "${1}"
+  else
+    printf ''
+  fi
 }
 ZBUC_BLACK=$(   zbuc_color '1;30' )
 ZBUC_RED=$(     zbuc_color '1;31' )
@@ -153,7 +156,7 @@ buc_doc_env() {
   fi
 
   # In execute mode, validate variable is set
-  eval "test -n \"\${${env_var_name}:-}\"" || buc_warn "${env_var_name} is not set"
+  test -n "${!env_var_name:-}" || buc_warn "${env_var_name} is not set"
 }
 
 # Idiomatic last step of environment documentation in furnish.
@@ -197,7 +200,7 @@ buc_doc_oparm() {
 }
 
 zbuc_usage() {
-  echo -e "    usage: ${ZBUC_CYAN}${ZBUC_USAGE_STRING}${ZBUC_RESET}"
+  printf '%b\n' "    usage: ${ZBUC_CYAN}${ZBUC_USAGE_STRING}${ZBUC_RESET}"
 }
 
 # Idiomatic last step of documentation in the bash api.
@@ -217,7 +220,7 @@ buc_usage_die() {
   set -e
   local context="${ZBUC_CONTEXT:-}"
   local usage=$(zbuc_usage)
-  echo -e "${ZBUC_RED}ERROR:${ZBUC_RESET} $usage"
+  printf '%b\n' "${ZBUC_RED}ERROR:${ZBUC_RESET} ${usage}"
   exit 1
 }
 
@@ -228,9 +231,9 @@ zbuc_print() {
   shift
 
   # Always print if min_verbosity is -1, otherwise check BURE_VERBOSE
-  if [ "${min_verbosity}" -eq -1 ] || [ "${BURE_VERBOSE:-0}" -ge "${min_verbosity}" ]; then
-    while [ $# -gt 0 ]; do
-      if [ -n "${ZBUC_CONTEXT}" ]; then
+  if test "${min_verbosity}" -eq -1 || test "${BURE_VERBOSE:-0}" -ge "${min_verbosity}"; then
+    while test $# -gt 0; do
+      if test -n "${ZBUC_CONTEXT}"; then
         printf '%b%s%b %s\n' "${ZBUC_GRAY}" "${ZBUC_CONTEXT}" "${ZBUC_RESET}" "$1" >&2
       else
         echo "$1" >&2
@@ -295,7 +298,7 @@ zbuc_show_help() {
   echo "$title"
   echo
 
-  if [ -n "$env_func" ]; then
+  if test -n "${env_func}"; then
     echo "Environment Variables:"
     "$env_func"
     echo
@@ -356,7 +359,7 @@ buc_execute() {
   local title="$2"
   local env_func="$3"
   local command="${4:-}"
-  shift 3; [ -n "$command" ] && shift || true
+  shift 3; test -z "${command}" || shift
 
   export BUC_VERBOSE="${BUC_VERBOSE:-0}"
 
@@ -370,9 +373,9 @@ buc_execute() {
   fi
 
   # Validate prefix pattern, furnish deps, then dispatch command
-  if [ -n "${command}" ] && echo "${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
+  if test -n "${command}" && echo "${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
     buc_context "${command}"
-    [ -n "${env_func}" ] && "${env_func}" "${command}"
+    test -z "${env_func}" || "${env_func}" "${command}"
     declare -F "${command}" >/dev/null || buc_die "Function not found: ${command}"
     "${command}" "$@"
   else
@@ -394,7 +397,7 @@ zbuc_hyperlink() {
   local z_blue_underline=$'\033[34m\033[4m'
   local z_reset=$'\033[0m'
 
-  if [ -n "${BURD_NO_HYPERLINKS:-}" ]; then
+  if test -n "${BURD_NO_HYPERLINKS:-}"; then
     # Fallback: blue underlined text with URL in angle brackets
     printf '%s%s%s <%s>' "${z_blue_underline}" "${z_text}" "${z_reset}" "${z_url}"
     return 0
@@ -414,7 +417,7 @@ buc_link() {
   zbuc_tag_args 3 "buc_link    " "${z_prefix} ${z_text} -> ${z_url}"
 
   # Always show at verbosity >= 0 (same visibility as buc_step)
-  if [ "${BUC_VERBOSE:-0}" -ge 0 ]; then
+  if test "${BUC_VERBOSE:-0}" -ge 0; then
     # Print prefix text if provided
     test -n "${z_prefix}" && printf '%s ' "${z_prefix}" >&2
 

@@ -46,11 +46,11 @@ zbug_kindle() {
 
   # Color support detection
   local z_use_color=0
-  if [ -z "${NO_COLOR:-}" ] && [ -n "${TERM:-}" ] && [ "${TERM}" != "dumb" ]; then
+  if test -z "${NO_COLOR:-}" && test -n "${TERM:-}" && test "${TERM}" != "dumb"; then
     z_use_color=1
   fi
 
-  if [ "$z_use_color" = "1" ]; then
+  if test "${z_use_color}" = "1"; then
     readonly ZBUG_R="\033[0m"          # Reset
     readonly ZBUG_T=""                 # Text (default - no color change)
     readonly ZBUG_C="\033[36m"         # Command (cyan)
@@ -80,13 +80,13 @@ zbug_sentinel() {
 
 zbug_show() {
   zbug_sentinel
-  echo -e "${1:-}" >&2
+  printf '%b\n' "${1:-}" >&2
 }
 
 ######################################################################
 # Public: Section headers
 
-bug_section() { zbug_sentinel; echo -e "${ZBUG_S}${1}${ZBUG_R}" >&2; }
+bug_section() { zbug_sentinel; printf '%b\n' "${ZBUG_S}${1}${ZBUG_R}" >&2; }
 bug_e()       { echo "" >&2; }
 
 ######################################################################
@@ -146,7 +146,7 @@ bug_link() {
   # Blue + underline style
   local z_link_style="\033[34;4m"
 
-  if [ -n "${BURD_NO_HYPERLINKS:-}" ]; then
+  if test -n "${BURD_NO_HYPERLINKS:-}"; then
     # Fallback: styled text with URL in angle brackets
     printf '%s%b%s%b <%s>%s\n' \
       "${z_prefix}" "${z_link_style}" "${z_text}" "${ZBUG_R}" "${z_url}" "${z_suffix}" >&2
@@ -175,7 +175,7 @@ bug_prompt() {
 bug_prompt_required() {
   local z_input
   z_input=$(bug_prompt "${1:-}")
-  if [ -z "${z_input}" ]; then
+  if test -z "${z_input}"; then
     zbug_show "${ZBUG_E}ERROR:${ZBUG_R} ${2:-Input required}"
     return 1
   fi

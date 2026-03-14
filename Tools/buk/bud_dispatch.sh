@@ -42,14 +42,14 @@ zburd_sentinel() {
 zbud_check_string() {
   local -r z_context="${1}"
   local -r z_varname="${2}"
-  eval "local z_val=\${${z_varname}:-}" || zbud_die "Variable '${z_varname}' is not defined in '${z_context}'"
+  local z_val="${!z_varname:-}"
   local -r z_min="${3}"
   local -r z_max="${4}"
 
   test "${z_min}" != "0" -o -n "${z_val}" || return 0
   test -n "${z_val}" || zbud_die "[${z_context}] ${z_varname} must not be empty"
 
-  if [ -n "${z_max}" ]; then
+  if test -n "${z_max}"; then
     test ${#z_val} -ge "${z_min}" || zbud_die "[${z_context}] ${z_varname} must be at least ${z_min} chars, got '${z_val}' (${#z_val})"
     test ${#z_val} -le "${z_max}" || zbud_die "[${z_context}] ${z_varname} must be no more than ${z_max} chars, got '${z_val}' (${#z_val})"
   fi
@@ -246,7 +246,7 @@ zbud_generate_checksum() {
 
 # Resolve color policy once at dispatch time and export BURE_COLOR (0/1)
 zbud_resolve_color() {
-  if [ -n "${NO_COLOR:-}" ]; then
+  if test -n "${NO_COLOR:-}"; then
     export BURE_COLOR=0
     return 0
   fi
@@ -255,7 +255,7 @@ zbud_resolve_color() {
       export BURE_COLOR
       ;;
     auto|*)
-      if [ -t 1 ] && [ "${TERM:-}" != "dumb" ] && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -gt 0 ]; then
+      if test -t 1 && test "${TERM:-}" != "dumb" && command -v tput >/dev/null 2>&1 && test "$(tput colors 2>/dev/null || echo 0)" -gt 0; then
           export BURE_COLOR=1
       else
           export BURE_COLOR=0

@@ -31,11 +31,11 @@ zrbgm_kindle() {
   test -z "${ZRBGM_KINDLED:-}" || buc_die "Module rbgm already kindled"
 
   local z_use_color=0
-  if [ -z "${NO_COLOR:-}" ] && [ "${BURE_COLOR:-0}" = "1" ]; then
+  if test -z "${NO_COLOR:-}" && test "${BURE_COLOR:-0}" = "1"; then
     z_use_color=1
   fi
 
-  if [ "$z_use_color" = "1" ]; then
+  if test "${z_use_color}" = "1"; then
     readonly ZRBGM_R="\033[0m"         # Reset
     readonly ZRBGM_S="\033[1;37m"      # Section (bright white)
     readonly ZRBGM_C="\033[36m"        # Command (cyan)
@@ -93,7 +93,7 @@ zrbgm_enforce() {
 
 zrbgm_show() {
   zrbgm_sentinel
-  echo -e "${1:-}"
+  printf '%b\n' "${1:-}"
 }
 
 zrbgm_s1()      { zrbgm_show "${ZRBGM_S}${1}${ZRBGM_R}"; }

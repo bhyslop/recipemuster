@@ -208,10 +208,10 @@ rbrn_preflight() {
     test -n "${z_mon}" || continue
 
     # Workstation and enclave port uniqueness (enabled entries only)
-    if [[ "${z_entry}" == "enabled" ]]; then
+    if test "${z_entry}" = "enabled"; then
       local z_i
       for z_i in "${!z_ws_port_keys[@]}"; do
-        if [[ "${z_ws_port_keys[$z_i]}" == "${z_ws}" ]]; then
+        if test "${z_ws_port_keys[$z_i]}" = "${z_ws}"; then
           buc_die "Port conflict: RBRN_ENTRY_PORT_WORKSTATION=${z_ws} claimed by both ${z_ws_port_vals[$z_i]} and ${z_mon}"
         fi
       done
@@ -219,7 +219,7 @@ rbrn_preflight() {
       z_ws_port_vals+=("${z_mon}")
 
       for z_i in "${!z_enc_port_keys[@]}"; do
-        if [[ "${z_enc_port_keys[$z_i]}" == "${z_enc}" ]]; then
+        if test "${z_enc_port_keys[$z_i]}" = "${z_enc}"; then
           buc_die "Port conflict: RBRN_ENTRY_PORT_ENCLAVE=${z_enc} claimed by both ${z_enc_port_vals[$z_i]} and ${z_mon}"
         fi
       done
@@ -230,7 +230,7 @@ rbrn_preflight() {
     # Enclave IP uniqueness (all sentry and bottle IPs across nameplates)
     local z_j
     for z_j in "${!z_ip_keys[@]}"; do
-      if [[ "${z_ip_keys[$z_j]}" == "${z_sentry}" ]]; then
+      if test "${z_ip_keys[$z_j]}" = "${z_sentry}"; then
         buc_die "IP conflict: ${z_sentry} claimed by ${z_mon} (sentry) and ${z_ip_vals[$z_j]}"
       fi
     done
@@ -238,7 +238,7 @@ rbrn_preflight() {
     z_ip_vals+=("${z_mon}:sentry")
 
     for z_j in "${!z_ip_keys[@]}"; do
-      if [[ "${z_ip_keys[$z_j]}" == "${z_bottle}" ]]; then
+      if test "${z_ip_keys[$z_j]}" = "${z_bottle}"; then
         buc_die "IP conflict: ${z_bottle} claimed by ${z_mon} (bottle) and ${z_ip_vals[$z_j]}"
       fi
     done
