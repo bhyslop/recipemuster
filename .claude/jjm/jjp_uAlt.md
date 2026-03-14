@@ -29,3 +29,15 @@ The director polls each Cloud Build job to completion before proceeding. One use
 - Graft degenerate primary job: about-only builds.create job after local push. Same rbgja scripts, same Cloud Build submission pattern, no image step.
 - Vouch separate from conjure: SLSA provenance is a post-build artifact. Cannot verify provenance from within the same build. Hard constraint.
 - rbw-DA is taken by abjure. Standalone about recovery tabtarget uses rbw-Db.
+
+## References
+
+- RBSAV-ark_vouch.adoc: vouch spec (always separate Cloud Build job)
+- RBSAB-ark_about.adoc: about spec (four Cloud Build steps only, no director wrapper)
+- RBSAC-ark_conjure.adoc: conjure spec (combined image+about job)
+- RBSAG-ark_graft.adoc: graft spec (degenerate combined, chaining in rbf_create)
+- RBS0-SpecTop.adoc: top-level spec (three-mode combined delivery)
+- rbf_Foundry.sh: implementation
+- rbgjb/: conjure Cloud Build steps (stitch must embed rbgja steps)
+- rbgja/: about Cloud Build steps (shared scripts across all delivery modes)
+- rbgjv/: vouch Cloud Build steps (mode-aware, always separate job)
