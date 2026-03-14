@@ -128,7 +128,7 @@ Enrollment types and gating API: see `buv_validation.sh`.
 
 **Mutable kindle state**: A variable initialized in kindle but intentionally mutated after kindle returns (counters, accumulators, registry rolls, builder state). Uses **lowercase** `z_«prefix»_name` to visually distinguish from `readonly` kindle constants. Never apply `readonly` to mutable kindle state.
 
-**Literal constant**: A public variable (`«PREFIX»_lower_name`) defined at module top level, immediately after the `Z«PREFIX»_SOURCED=1` guard. Literal constants must be pure string literals with **no variable expansion, no computation, and no runtime dependency**. They are available immediately after sourcing — no kindle required. Use `SCREAMING` case for the prefix (module identity) and `lower_snake` case for the name to visually distinguish from kindle constants. This enables sourcing chains where a literal constant from module A provides the path for sourcing module B's config in the furnish function.
+**Tinder constant**: A public variable (`«PREFIX»_lower_name`) defined at module top level, immediately after the `Z«PREFIX»_SOURCED=1` guard. Tinder constants must be pure string literals with **no variable expansion, no computation, and no runtime dependency**. They are available immediately after sourcing — no kindle required. Use `SCREAMING` case for the prefix (module identity) and `lower_snake` case for the name to visually distinguish from kindle constants. This enables sourcing chains where a tinder constant from module A provides the path for sourcing module B's config in the furnish function. The name reflects their role in the kindle metaphor: tinder is the fixed material prepared before kindling — inert, unchanging, and enabling the fire to start.
 
 **KINDLED must be last**: `readonly Z«PREFIX»_KINDLED=1` must be the final statement in kindle. Since sentinel checks this variable, setting it last guarantees all kindle constants, roll arrays, and enroll calls are complete before the module is considered operational. Any function calling sentinel before kindle finishes will correctly fail. The `readonly` makes re-kindling a loud error.
 
@@ -277,7 +277,7 @@ set -euo pipefail
 test -z "${Z«PREFIX»_SOURCED:-}" || buc_die "Module «prefix» multiply sourced - check sourcing hierarchy"
 Z«PREFIX»_SOURCED=1
 
-# Literal constants (pure string literals, no variable expansion — available at source time)
+# Tinder constants (pure string literals, no variable expansion — available at source time)
 # «PREFIX»_some_path="fixed-filename.env"
 # «PREFIX»_some_prefix="prefix_"
 
@@ -360,17 +360,20 @@ z«prefix»_kindle() {
 }
 ```
 
-**Literal vs kindle constant — choosing correctly:**
+**Tinder vs kindle constant — choosing correctly:**
 
 ```bash
-# ✅ Literal constant: pure string, no variable expansion, available at source time
+# ✅ Tinder constant: pure string, no variable expansion, available at source time
 «PREFIX»_config_file="config.env"        # lower_snake name — no kindle needed
 
 # ✅ Kindle constant: depends on runtime state, requires kindle
 «PREFIX»_CONFIG_DIR="${BURD_TEMP_DIR}/config"  # SCREAMING name — kindle required
 
-# ❌ Wrong: variable expansion in literal constant position
+# ❌ Wrong: variable expansion in tinder constant position
 «PREFIX»_config_dir="${BURD_TEMP_DIR}/config"  # VIOLATION: uses ${}, must be in kindle
+
+# ❌ Wrong: computation in tinder constant position
+«PREFIX»_color_red=$(z«prefix»_color '1;31')   # VIOLATION: $() — must be in kindle
 ```
 
 ## Variable Handling (General Rules)
@@ -482,16 +485,27 @@ z_result=$((z_value * 2 + 10))    # Instead of: expr or bc
 
 ### Temp Files Instead of Command Substitution
 
+All external command output capture uses temp files. The three prohibited `$()` patterns are: `local z_var=$(cmd)` (local swallows exit status), pipelines inside `$()` (hidden intermediate failures), and unguarded `$()` (silent failure). The only `$()` permitted on functions is for `_capture` (secrets that must not touch disk) and `_recite` (read-only roll access) — both with explicit `|| buc_die` or `|| return 1`. Bash introspection (`compgen`, `declare -F`, `mktemp`) is also permitted in `$()` as no file-based alternative exists.
+
 ```bash
 # ❌ Anti-pattern: nested command substitution
 z_result=$(echo $(complex_command) | process)  # Hidden failures!
+
+# ❌ Anti-pattern: unguarded command substitution
+z_timestamp=$(date +%s)  # Failure is silent!
 
 # ✅ Correct: temp files make failures visible afterward
 complex_command > "${Z_MODULE_TEMP1}" || buc_die "Complex command failed"
 process < "${Z_MODULE_TEMP1}" > "${Z_MODULE_TEMP2}" || buc_die "Process failed"
 read -r z_result < "${Z_MODULE_TEMP2}" || buc_die "No result"
 
+# ✅ Correct: single external command via temp file
+date +%s > "${Z_MODULE_TEMP1}" || buc_die "Failed to get timestamp"
+local -r z_timestamp=$(<"${Z_MODULE_TEMP1}")
+test -n "${z_timestamp}" || buc_die "Empty timestamp"
+
 # ⚠️ EXCEPTION: Secrets use _capture functions, never temp files
+# ⚠️ EXCEPTION: _recite functions return via stdout (read-only roll access)
 ```
 
 **Temp file lifecycle**: Temp files under `BURD_TEMP_DIR` are **preserved after execution** for forensic debugging. Never delete temp files in module code — their persistence is intentional. Cleanup is handled by infrastructure outside BCG's scope.
@@ -591,7 +605,7 @@ Every variable assigned in a kindle function is a constant. Apply `readonly` to 
 z«prefix»_kindle() {
   test -z "${Z«PREFIX»_KINDLED:-}" || buc_die "Module «prefix» already kindled"
 
-  # Literal constants
+  # Simple kindle constants (literal values, but defined in kindle for readonly enforcement)
   readonly Z«PREFIX»_API_VERSION="v2"
   readonly Z«PREFIX»_MAX_RETRIES=3
 
@@ -899,7 +913,7 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 | Capture Public functions     | `«prefix»_«name»_capture`    | `rbv_get_token_capture`      | Impl     | snake_case                    |
 | Kindle constant (internal)   | `Z«PREFIX»_«NAME»`           | `ZRBV_TEMP_FILE`             | Impl     | SCREAMING_SNAKE (multi-word)  |
 | Kindle constant (public)     | `«PREFIX»_«NAME»`            | `RBV_REGIME_FILE`            | Both     | SCREAMING_SNAKE (multi-word)  |
-| Literal constant (public)    | `«PREFIX»_«name»`            | `RBBC_rbrr_file`             | Impl     | lower_snake (multi-word)      |
+| Tinder constant (public)     | `«PREFIX»_«name»`            | `RBBC_rbrr_file`             | Impl     | lower_snake (multi-word)      |
 | Local parameters             | `z_«name»`                   | `z_vm_name`, `z_force_flag`  | Both     | snake_case (multi-word)       |
 | Enroll functions             | `[z]«prefix»_[«scope»_]enroll` | `«prefix»_enroll`          | Impl     | kindle-only                   |
 | Recite functions             | `[z]«prefix»_«what»_recite`  | `«prefix»_target_recite`     | Impl     | read-only, never mutates      |
@@ -1001,7 +1015,7 @@ some_cmd || { echo "ERROR" >&2; exit 1; }
 The prohibition above is specific to error-handling blocks where `exit`/`return` must reach the calling shell. Subshells are legitimate in these contexts:
 
 - **Test execution** — principled isolation between suites and cases; see **Test Execution Patterns**
-- **`$()` command substitution** — inside `_capture` functions only; see **Capture Functions**
+- **`$()` command substitution** — inside `_capture`/`_recite` functions only, or bash introspection (`compgen`, `declare -F`, `mktemp`); see **Capture Functions** and **Command Substitution Rules** checklist
 - **Isolation subshells** — environment containment with exit-status propagation (below)
 
 #### Isolation Subshells (environment containment)
@@ -1463,7 +1477,7 @@ buc_warn    # Instead of echo >&2
 - [ ] All kindle constants (internal `Z«PREFIX»_SCREAMING` and public `«PREFIX»_SCREAMING`) defined exclusively in kindle with `readonly`
 - [ ] No kindle constant assignments outside kindle function
 - [ ] Mutable kindle state (counters, rolls, builder state) uses lowercase `z_«prefix»_name` — no `readonly`
-- [ ] Literal constants (`«PREFIX»_lower_name`) are pure string literals with no `${}` expansion, placed after `SOURCED` guard
+- [ ] Tinder constants (`«PREFIX»_lower_name`) are pure string literals with no `${}` expansion, no `$()` computation, placed after `SOURCED` guard
 - [ ] All local variables use `z_` prefix
 - [ ] All expansions use `"${var}"` pattern (braced, quoted)
 - [ ] Parameters use `"${1:-}"` pattern for defensive programming
@@ -1491,10 +1505,14 @@ buc_warn    # Instead of echo >&2
 - [ ] Isolation subshells (`( ... ) || buc_die`) have `|| buc_die` on every internal command and on the outer boundary
 
 ### Command Substitution Rules
-- [ ] NO command substitution except `$(<file)` builtin and `_capture` functions
-- [ ] Temp files used instead of complex command substitution
+- [ ] NO `local z_var=$(cmd)` — always two-line pattern (`local` swallows exit status)
+- [ ] NO pipelines inside `$()` — use `_capture` function or temp files
+- [ ] NO unguarded `$()` — every `$(cmd)` must have `|| buc_die` or `|| return 1`
+- [ ] NO `$()` on external commands — use temp files; `_capture`/`_recite` for contracted functions only
+- [ ] Bash introspection (`compgen`, `declare -F`, `mktemp`) permitted in `$()` — no file-based alternative
 - [ ] `$(<file)` always followed by validation
-- [ ] `_capture` functions properly named with suffix
+- [ ] Temp files for all external command output capture
+- [ ] `_capture` and `_recite` functions properly named with suffix
 
 ### Loop Safety
 - [ ] All while-read loops use load-then-iterate pattern
@@ -1705,7 +1723,7 @@ These codes are false positives caused by BCG's dynamic sourcing, cross-module c
 |------|--------|
 | SC1090 | Can't follow non-constant source — BCG furnish pattern |
 | SC1091 | Not following sourced file — same root cause |
-| SC2034 | Variable appears unused — cross-module kindle/literal constants |
+| SC2034 | Variable appears unused — cross-module kindle/tinder constants |
 | SC2154 | Variable not assigned — inverse of SC2034 |
 | SC2155 | Declare and assign separately — BCG blesses single-line `$(<file)` |
 | SC2153 | Possible misspelling — cross-module prefix similarity |
