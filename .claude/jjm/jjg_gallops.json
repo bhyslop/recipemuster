@@ -8,6 +8,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣At",
     "₣AU",
     "₣Ah",
     "₣AQ",
@@ -16,8 +17,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Ar",
-    "₣At"
+    "₣Ar"
   ],
   "heats": {
     "₣AD": {
@@ -2286,7 +2286,7 @@
     "₣At": {
       "silks": "rbk-mvp-3-add-graft",
       "creation_time": "260314",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢AtAAA",
         "₢AtAAB",
