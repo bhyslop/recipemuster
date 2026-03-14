@@ -1466,6 +1466,13 @@
         "₢AUAAe": {
           "tacks": [
             {
+              "ts": "260314-1519",
+              "state": "complete",
+              "text": "Extract RBRG pin management functions from rbrr_cli.sh into new rbrg_cli.sh module.\n\n## Functions to move\n\n- zrbrr_write_rbrg → zrbrg_write_rbrg\n- rbrr_validate_pins → rbrg_validate_pins\n- rbrr_render_pins → rbrg_render_pins\n- rbrr_refresh_gcb_pins → rbrg_refresh_gcb_pins\n- rbrr_refresh_binary_pins → rbrg_refresh_binary_pins\n\n## Shared state to move\n\n- ZRBRR_IMAGE_PINS_REFRESHED_AT → ZRBRG_IMAGE_PINS_REFRESHED_AT\n- ZRBRR_BINARY_PINS_REFRESHED_AT → ZRBRG_BINARY_PINS_REFRESHED_AT\n\n## Wiring\n\n- Create Tools/rbk/rbrg_cli.sh with standard module structure (multiple-inclusion guard, kindle, sentinel)\n- Update Tools/rbk/rbz_zipper.sh to route RBRG colophons to new module\n- Verify no remaining RBRG references in rbrr_cli.sh\n- Run fast qualification to verify wiring\n\n## Character\n\nMechanical extraction — self-contained functions, no design judgment needed.",
+              "silks": "extract-rbrg-cli-from-rbrr",
+              "commit": "fd3198c"
+            },
+            {
               "ts": "260314-1342",
               "state": "rough",
               "text": "Extract RBRG pin management functions from rbrr_cli.sh into new rbrg_cli.sh module.\n\n## Functions to move\n\n- zrbrr_write_rbrg → zrbrg_write_rbrg\n- rbrr_validate_pins → rbrg_validate_pins\n- rbrr_render_pins → rbrg_render_pins\n- rbrr_refresh_gcb_pins → rbrg_refresh_gcb_pins\n- rbrr_refresh_binary_pins → rbrg_refresh_binary_pins\n\n## Shared state to move\n\n- ZRBRR_IMAGE_PINS_REFRESHED_AT → ZRBRG_IMAGE_PINS_REFRESHED_AT\n- ZRBRR_BINARY_PINS_REFRESHED_AT → ZRBRG_BINARY_PINS_REFRESHED_AT\n\n## Wiring\n\n- Create Tools/rbk/rbrg_cli.sh with standard module structure (multiple-inclusion guard, kindle, sentinel)\n- Update Tools/rbk/rbz_zipper.sh to route RBRG colophons to new module\n- Verify no remaining RBRG references in rbrr_cli.sh\n- Run fast qualification to verify wiring\n\n## Character\n\nMechanical extraction — self-contained functions, no design judgment needed.",
