@@ -22,17 +22,25 @@ Ask the user for permission to execute all git operations needed (checkout, bran
 - Verify develop is pushed to origin
 - If dirty or unpushed, **STOP** and ask user to resolve
 
-## Step 2: Pre-strip qualification
+## Step 2: External command audit (LLM task)
 
-Run full release qualification on develop to verify the complete codebase is healthy before any transforms:
+Scan all .sh files that will survive stripping for external command invocations beyond declared dependencies. This catches problems before the expensive test suite in Step 4.
 
-```
-tt/rbw-QR.QualifyRelease.sh
-```
+**Scope**: All .sh files under `Tools/buk/` and `Tools/rbk/` EXCEPT:
+- `Tools/rbk/rbgja/` — cloudbuild about pipeline (runs on GCB, not user workstation)
+- `Tools/rbk/rbgjb/` — cloudbuild conjure pipeline (runs on GCB)
+- `Tools/rbk/rbgjv/` — cloudbuild vouch pipeline (runs on GCB)
+- `**/vov_veiled/` — will be stripped
 
-If qualification fails, **STOP**. The full codebase must pass before we proceed.
+**Declared dependencies** (index.html promise): bash, git, curl, ssh/scp/ssh-keygen, jq, docker
 
-Show the qualification result and wait for user acknowledgment.
+**Assumed POSIX/coreutils** (any system with bash): chmod, cp, mv, rm, mkdir, mktemp, date, sleep, cat, grep, sed, awk, sort, head, tail, wc, tee, touch, ln, tr, cut, printf, test, true, false, kill, read, source, local, return, exit, set, unset, export, readonly, shift, trap, wait, type, command, cd, ls, stat, basename, dirname, xargs, find, diff, comm, paste, tput, stty, env
+
+Read each .sh file and identify any command invocations not in either tier. Report findings to the user. Common catches: gcloud, podman, python, shellcheck, column, openssl, base64, shasum.
+
+If unpermitted commands are found, **STOP** and discuss with user before proceeding.
+
+Wait for user acknowledgment.
 
 ## Step 3: Regime variable completeness check (LLM task)
 
@@ -58,7 +66,19 @@ Present results to the user. Gaps are informational — they don't block the cer
 
 Wait for user acknowledgment.
 
-## Step 4: Sync main with upstream
+## Step 4: Pre-strip qualification
+
+Run full release qualification on develop to verify the complete codebase is healthy before any transforms:
+
+```
+tt/rbw-QR.QualifyRelease.sh
+```
+
+If qualification fails, **STOP**. The full codebase must pass before we proceed.
+
+Show the qualification result and wait for user acknowledgment.
+
+## Step 5: Sync main with upstream
 
 - `git checkout main`
 - `git fetch OPEN_SOURCE_UPSTREAM`
@@ -68,7 +88,7 @@ Wait for user acknowledgment.
 
 Show results and wait for user acknowledgment.
 
-## Step 5: Auto-detect next candidate branch
+## Step 6: Auto-detect next candidate branch
 
 - Find max batch from upstream: `git ls-remote --heads OPEN_SOURCE_UPSTREAM | grep 'candidate-'`
 - Find max batch from local branches
@@ -78,7 +98,7 @@ Show results and wait for user acknowledgment.
 
 Wait for user approval of the branch name.
 
-## Step 6: Create candidate branch and squash merge
+## Step 7: Create candidate branch and squash merge
 
 - `git checkout -b candidate-NNN-R main`
 - Show commits that will be included: `git log main..develop --oneline`
@@ -87,9 +107,9 @@ Wait for user approval of the branch name.
 
 Wait for user acknowledgment.
 
-## Step 7: Extract consumer templates
+## Step 8: Extract consumer templates
 
-The consumer templates live in `vov_veiled/` which will be stripped in the next step. Extract them now:
+The consumer templates live in `vov_veiled/` which will be stripped in Step 10. Extract them now:
 
 ```
 cp Tools/rbk/vov_veiled/CLAUDE.consumer.md CLAUDE.md
@@ -100,11 +120,29 @@ Note: `CLAUDE.md` is overwritten (replacing the development version). The existi
 
 Show the user what was copied. Wait for acknowledgment.
 
-## Step 8: Strip proprietary content
+## Step 9: Marshal reset
+
+Run marshal reset while the tabtarget is still available (it will be stripped in Step 10):
+
+```
+tt/rbw-MR.MarshalReset.sh
+```
+
+This will:
+- Blank site-specific RBRR fields (depot project ID, GAR repository, connection name, worker pool, rubric URL)
+- Pre-fill RBRR defaults (DNS server, machine type, timeout, region, vessel dir, secrets dir)
+- Delete depot-scoped credential files (governor, director, retriever)
+- Blank consecration values in all nameplate files
+
+The command will prompt for confirmation — the user must type `reset` to proceed.
+
+After the reset, show `git status` to confirm the changes. Wait for user acknowledgment.
+
+## Step 10: Strip proprietary content
 
 Remove all proprietary content from the candidate branch. Present the full strip plan to the user, then execute after approval.
 
-**8a. Recursive glob — all vov_veiled directories:**
+**10a. Recursive glob — all vov_veiled directories:**
 ```
 git rm -rf --ignore-unmatch Tools/buk/vov_veiled/
 git rm -rf --ignore-unmatch Tools/cmk/vov_veiled/
@@ -115,7 +153,7 @@ git rm -rf --ignore-unmatch Tools/vok/vov_veiled/
 git rm -rf --ignore-unmatch Tools/vvk/vov_veiled/
 ```
 
-**8b. Whole directories — internal tools and infrastructure:**
+**10b. Whole directories — internal tools and infrastructure:**
 ```
 git rm -rf --ignore-unmatch .claude/
 git rm -rf --ignore-unmatch lenses/
@@ -137,7 +175,7 @@ git rm -rf --ignore-unmatch Tools/vvc/
 git rm -rf --ignore-unmatch Tools/vvk/
 ```
 
-**8c. Internal tabtargets (non-rbw, non-buw operational targets):**
+**10c. Internal tabtargets (non-rbw, non-buw operational targets):**
 ```
 git rm -f --ignore-unmatch tt/butctt.TestTarget.sh
 git rm -f --ignore-unmatch tt/ccck-s.ConnectShell.sh
@@ -149,7 +187,7 @@ git rm -f --ignore-unmatch tt/rbw-MR.MarshalReset.sh
 git rm -f --ignore-unmatch tt/rbw-MD.MarshalDuplicate.sh
 ```
 
-**8d. Internal .buk/ launchers (for stripped workbenches):**
+**10d. Internal .buk/ launchers (for stripped workbenches):**
 ```
 git rm -f --ignore-unmatch .buk/launcher.cccw_workbench.sh
 git rm -f --ignore-unmatch .buk/launcher.cmw_workbench.sh
@@ -160,7 +198,7 @@ git rm -f --ignore-unmatch .buk/launcher.vslw_workbench.sh
 git rm -f --ignore-unmatch .buk/launcher.vvw_workbench.sh
 ```
 
-**8e. Individual files:**
+**10e. Individual files:**
 ```
 git rm -f --ignore-unmatch podman-gateway-proposal.md
 git rm -f --ignore-unmatch brm_recipemuster.iml
@@ -168,9 +206,10 @@ git rm -f --ignore-unmatch MBS.STATION-reference.sh
 git rm -f --ignore-unmatch readme.md
 ```
 
-**8f. Stage the consumer templates** (copied in step 7, replacing stripped originals):
+**10f. Stage the consumer templates and marshal reset changes:**
 ```
 git add CLAUDE.md README.md
+git add -u
 ```
 
 After all removals, verify with `git ls-files` that no proprietary content remains. Show the user a summary of what was removed and what survives. **Pause for careful review.**
@@ -178,9 +217,9 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 ### What should survive after stripping:
 
 - `.buk/` — `burc.env`, `rbbc_constants.sh`, `launcher.buw_workbench.sh`, `launcher.rbw_workbench.sh`
-- `.rbk/` — all regime `.env` files (will be blanked by marshal reset later)
-- `CLAUDE.md` — consumer version (copied in step 7)
-- `README.md` — consumer version (copied in step 7)
+- `.rbk/` — all regime `.env` files (already blanked by marshal reset in Step 9)
+- `CLAUDE.md` — consumer version (copied in Step 8)
+- `README.md` — consumer version (copied in Step 8)
 - `LICENSE`
 - `.nojekyll`
 - `index.html`
@@ -190,55 +229,23 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 - `Tools/rbk/` — all `.sh` files (minus `vov_veiled/`)
 - `tt/` — `rbw-*` and `buw-*` tabtargets only (minus `rbw-MR`, `rbw-MD` marshal tabtargets)
 
-## Step 9: Post-strip qualification
+## Step 11: Post-strip verification
 
-Run release qualification on the stripped candidate tree:
-
-```
-tt/rbw-QR.QualifyRelease.sh
-```
-
-This validates that the stripped repo still works — tabtargets resolve, colophons match modules, nameplate health, shellcheck passes on surviving scripts, and the test suite runs.
-
-**If qualification fails, STOP.** This means something in the consumer-visible code depends on stripped content. Report the specific failure to the user — this is a real finding that must be investigated before proceeding.
-
-Show the qualification result and wait for user acknowledgment.
-
-## Step 10: Marshal reset
-
-Run the marshal reset command to blank site-specific configuration:
+Run fast qualification only on the stripped candidate tree:
 
 ```
-tt/rbw-MR.MarshalReset.sh
+tt/rbw-Qf.QualifyFast.sh
 ```
 
-This will:
-- Blank site-specific RBRR fields (depot project ID, GAR repository, connection name, worker pool, rubric URL)
-- Pre-fill RBRR defaults (DNS server, machine type, timeout, region, vessel dir, secrets dir)
-- Delete depot-scoped credential files (governor, director, retriever)
-- Blank consecration values in all nameplate files
+This validates that stripping didn't break wiring — tabtargets resolve, colophons match surviving modules, nameplate preflight passes. No shellcheck, no test suite — the full `.complete.` test already passed pre-strip on develop in Step 4, and the stripped tree lacks cloud infrastructure to run integration tests.
 
-The command will prompt for confirmation — the user must type `reset` to proceed.
+**If fast qualification fails, STOP.** This means something in the consumer-visible code depends on stripped content. Report the specific failure to the user — this is a real finding that must be investigated before proceeding.
 
-After the reset, show `git status` to confirm the changes. Wait for user acknowledgment.
-
-## Step 11: Final cleanup
-
-Remove any remaining uncatalogued files that should not ship:
-
-```
-git rm -f --ignore-unmatch podman-gateway-proposal.md
-```
-
-(This is a safety catch — it may already have been removed in step 8e.)
-
-Stage all marshal reset changes:
-```
-git add -u
-```
+Show the result and wait for user acknowledgment.
 
 ## Step 12: Generate commit
 
+- Stage any remaining changes: `git add -u`
 - Analyze all changes for a consolidated commit message
 - Filter out commits that only touched stripped files
 - Create commit (no attribution footer — this is a release candidate)
