@@ -1008,8 +1008,6 @@ rbf_mirror() {
 
   # Generate consecration timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
   local -r z_mirror_ts="b${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
-
-  # Generate consecration timestamps
   local -r z_build_ts_file="${ZRBF_MIRROR_PREFIX}build_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_build_ts_file}" || buc_die "Failed to generate build timestamp"
   local z_build_ts
@@ -1103,8 +1101,12 @@ zrbf_mirror_submit() {
   local z_dockerfile_content=""
   local -r z_dockerfile_max_bytes=4000
   if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
-    local z_df_size
-    z_df_size=$(wc -c < "${RBRV_BIND_OPTIONAL_DOCKERFILE}" | tr -d ' ')
+    local -r z_df_size_file="${ZRBF_MIRROR_PREFIX}df_size.txt"
+    wc -c < "${RBRV_BIND_OPTIONAL_DOCKERFILE}" > "${z_df_size_file}" \
+      || buc_die "Failed to measure Dockerfile size"
+    local z_df_size=""
+    z_df_size=$(<"${z_df_size_file}")
+    z_df_size="${z_df_size// /}"  # Strip spaces (wc output varies by platform)
     if test "${z_df_size}" -le "${z_dockerfile_max_bytes}"; then
       z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}")
     else
@@ -2330,6 +2332,8 @@ zrbf_ensure_git_metadata() {
 # Args: output_file temp_prefix
 # Reads ZRBF_RBGJA_STEPS_DIR and RBRG_* image refs from module state
 zrbf_assemble_about_steps() {
+  zrbf_sentinel
+
   local -r z_output_file="$1"
   local -r z_temp_prefix="$2"
 
