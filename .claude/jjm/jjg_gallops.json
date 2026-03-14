@@ -2320,10 +2320,11 @@
         "₢AtAAB",
         "₢AtAAF",
         "₢AtAAC",
+        "₢AtAAG",
         "₢AtAAD",
         "₢AtAAE"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2501,6 +2502,17 @@
               "text": "Add pinned syft container image to GCB pin regime alongside existing pins (alpine, gcloud, docker, crane).\n\n## Character\nMechanical — follow existing pin pattern exactly.\n\n## Current state\nSyft is currently hardcoded in rbgjb06-syft-per-platform.sh (the about step that moves to rbgja02). Need a proper RBRG_SYFT_IMAGE_REF regime pin with digest.\n\n## Work\n- Add RBRG_SYFT_IMAGE_REF to rbrg.env (GCB pins regime)\n- Pin to current anchore/syft image with SHA256 digest\n- Add to pin refresh tooling (rbw-DPG / rbtc_refresh_gcb_pins) so it stays current\n- Update rbgja02 (or rbgjb06 until extraction) to use RBRG_SYFT_IMAGE_REF\n- Add to RBSRG-RegimeGcbPins.adoc spec\n\n## Depends on\n- Nothing — can be done independently, but must complete before AtAAC (about pipeline uses it)",
               "silks": "syft-gcb-image-pin",
               "commit": "db3236e"
+            }
+          ]
+        },
+        "₢AtAAG": {
+          "tacks": [
+            {
+              "ts": "260314-1217",
+              "state": "rough",
+              "text": "Forward conjure build-time diagnostics to the about pipeline via a transient `-diags` registry artifact.\n\n## Character\nInfrastructure plumbing — mechanical but cross-cutting (conjure build, about pipeline, inspect specs).\n\n## Problem\nThe about pipeline extraction (AtAAC) separated about into its own Cloud Build job. Three conjure-build-time files are now unreachable:\n- `buildkit_metadata.json` (from `buildx build --metadata-file`)\n- `cache_before.json` (docker daemon snapshot before build)\n- `cache_after.json` (docker daemon snapshot after pushes)\n\nAdditionally, `recipe.txt` (Dockerfile content) is currently conveyed via `_RBGA_DOCKERFILE_CONTENT` substitution variable, which has a hard ~4KB limit. Large multi-stage Dockerfiles are silently omitted.\n\n## Solution: `-diags` transient artifact\n\n### Conjure side (rbgjb/)\n- New rbgjb07-push-diags.sh: build a `FROM scratch` container containing `buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, and the Dockerfile (read from build context, no size limit). Push as `consecration-diags`.\n- Builder: gcr.io/cloud-builders/docker\n- Files are already in /workspace from earlier conjure steps (rbgjb03 generates buildkit_metadata + cache_before, rbgjb05 generates cache_after, Dockerfile is in build context)\n- Update zrbf_stitch_build_json to include the new step\n\n### About side (rbgja/)\n- New rbgja00-pull-diags.sh (or modify rbgja01): before platform discovery, check if `consecration-diags` exists in registry. If present, pull and extract all files into /workspace (recipe.txt, buildkit_metadata.json, cache_before.json, cache_after.json). If absent (bind/graft have no -diags), skip gracefully.\n- Modify rbgja04 Dockerfile.meta to COPY the forwarded files when present (recipe.txt, buildkit_metadata.json, cache_before.json, cache_after.json — all conditional on file existence)\n- Builder: gcr.io/cloud-builders/gcloud (or docker, whichever has registry API access)\n\n### Remove _RBGA_DOCKERFILE_CONTENT\n- Remove from zrbf_about_submit substitution construction\n- Remove from rbgja03 (recipe.txt write from substitution variable)\n- Remove from RBSAB spec substitution table\n- recipe.txt now comes exclusively from -diags (conjure) or is absent (bind/graft without optional Dockerfile... actually bind/graft optional Dockerfiles still need conveyance — keep _RBGA_DOCKERFILE_CONTENT for bind/graft only, or accept that bind/graft optional Dockerfiles also go through -diags? No — bind/graft don't have a conjure build to push -diags from. Keep _RBGA_DOCKERFILE_CONTENT for bind/graft optional Dockerfiles only, remove for conjure.)\n\n### -diags cleanup\n- About pipeline deletes `consecration-diags` after absorbing its contents. Use registry API DELETE via gcloud/curl with mason SA credentials (about runs as mason on private pool).\n- If deletion fails, warn but don't fail the about job — stale -diags is harmless.\n\n### Spec updates\n- RBSAB: document -diags pull step, remove _RBGA_DOCKERFILE_CONTENT for conjure, update artifact contents to include forwarded files\n- RBSCB: confirm enrichment files are back in about artifact\n- RBSRI: update stitch to include rbgjb07\n- RBSAI: no change needed (inspect already handles these files)\n\n## Verification\n- Conjure: -diags pushed after build, about absorbs files, -diags deleted, -about contains all enrichment files + full Dockerfile\n- Bind/graft: no -diags, about proceeds without enrichment files (correct — they don't exist for these modes)\n- Inspect: Build Output and Build Cache Delta sections populated for conjure\n- Large Dockerfile (>4KB): recipe.txt present in -about (no substitution limit)\n\n## Depends on\n- AtAAC about pipeline extraction",
+              "silks": "diags-artifact-forwarding",
+              "commit": "c73372a"
             }
           ]
         }
