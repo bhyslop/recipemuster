@@ -75,6 +75,11 @@ zrbf_kindle() {
   readonly ZRBF_RBGJA_STEPS_DIR="${z_self_dir}/rbgja"
   test -d "${ZRBF_RBGJA_STEPS_DIR}"   || buc_die "RBGJA steps directory not found: ${ZRBF_RBGJA_STEPS_DIR}"
 
+  buc_log_args 'RBGJM mirror step scripts (same Tools directory)'
+  # Acronym: rbgjm = Recipe Bottle Google Json Mirror (step scripts in rbgjm/ dir)
+  readonly ZRBF_RBGJM_STEPS_DIR="${z_self_dir}/rbgjm"
+  test -d "${ZRBF_RBGJM_STEPS_DIR}"   || buc_die "RBGJM steps directory not found: ${ZRBF_RBGJM_STEPS_DIR}"
+
   buc_log_args 'Define temp files for build operations'
   readonly ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
   readonly ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
@@ -612,6 +617,31 @@ rbf_create() {
     graft)   rbf_graft "${z_vessel_dir}" ;;
     *)       buc_die "Unknown vessel mode: ${z_mode}" ;;
   esac
+
+  # Chaining: read consecration persisted by mode dispatch
+  buc_step "Reading consecration from mode dispatch output"
+  local z_consecration=""
+  z_consecration=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}") \
+    || buc_die "Failed to read consecration from output"
+  test -n "${z_consecration}" || buc_die "Empty consecration in output"
+
+  # About: conjure and graft need standalone about; bind combined job already produced -about
+  case "${z_mode}" in
+    conjure)
+      local z_build_id=""
+      z_build_id=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}") || z_build_id=""
+      rbf_about "${z_vessel_dir}" "${z_consecration}" "${z_build_id}"
+      ;;
+    graft)
+      rbf_about "${z_vessel_dir}" "${z_consecration}" ""
+      ;;
+    bind)
+      buc_info "About produced by combined bind job — skipping standalone about"
+      ;;
+  esac
+
+  # Vouch: all modes
+  rbf_vouch "${z_vessel_dir}" "${z_consecration}"
 }
 
 rbf_build() {
@@ -924,7 +954,7 @@ rbf_mirror() {
   local z_vessel_dir="${1:-}"
 
   # Documentation block
-  buc_doc_brief "Mirror a bind vessel image from upstream to GAR with -about metadata"
+  buc_doc_brief "Mirror a bind vessel image from upstream to GAR via combined Cloud Build (skopeo copy + about)"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_shown || return 0
 
@@ -970,155 +1000,181 @@ rbf_mirror() {
   # Generate consecration timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
   local -r z_mirror_ts="b${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
 
-  # Authenticate docker to GAR
-  buc_step "Logging into GAR"
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_gar_host}" \
-    || buc_die "GAR authentication failed"
-
-  # Pull upstream image locally (for SBOM generation and digest verification)
-  buc_step "Pulling bind image from upstream"
-  buc_info "Source: ${RBRV_BIND_IMAGE}"
-  docker pull "${RBRV_BIND_IMAGE}" || buc_die "Failed to pull bind image: ${RBRV_BIND_IMAGE}"
-
-  # Copy all platforms from upstream to GAR using buildx imagetools
+  # Generate consecration timestamps
   local -r z_build_ts_file="${ZRBF_MIRROR_PREFIX}build_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_build_ts_file}" || buc_die "Failed to generate build timestamp"
   local z_build_ts
   z_build_ts="r$(<"${z_build_ts_file}")"
   test -n "${z_build_ts}" || buc_die "Empty build timestamp from ${z_build_ts_file}"
   local -r z_consecration="${z_mirror_ts}-${z_build_ts}"
-  local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
-  local -r z_image_ref="${z_gar_base}/${RBRV_SIGIL}:${z_image_tag}"
 
-  buc_step "Mirroring to GAR (all platforms)"
-  buc_info "Target: ${z_image_ref}"
-  docker buildx imagetools create \
-    --tag "${z_image_ref}" \
-    "${RBRV_BIND_IMAGE}" \
-    || buc_die "Failed to mirror bind image to GAR"
+  buc_info "Consecration: ${z_consecration}"
 
-  buc_info "Image mirrored: ${z_image_ref}"
+  # Persist to output directory for chaining by rbf_create
+  echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
+    || buc_die "Failed to write vessel dir to output"
+  echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
+    || buc_die "Failed to write consecration to output"
 
-  # Capture git metadata
-  buc_step "Capturing git metadata"
-  local -r z_mirror_git_commit_file="${ZRBF_MIRROR_PREFIX}git_commit.txt"
-  local -r z_mirror_git_branch_file="${ZRBF_MIRROR_PREFIX}git_branch.txt"
-  local -r z_mirror_git_remote_file="${ZRBF_MIRROR_PREFIX}git_remote.txt"
-  local -r z_mirror_git_repo_url_file="${ZRBF_MIRROR_PREFIX}git_repo_url.txt"
-  git rev-parse HEAD > "${z_mirror_git_commit_file}" || buc_die "Failed to get commit SHA"
-  local -r z_git_commit=$(<"${z_mirror_git_commit_file}")
-  test -n "${z_git_commit}" || buc_die "Empty commit SHA from ${z_mirror_git_commit_file}"
-  git rev-parse --abbrev-ref HEAD > "${z_mirror_git_branch_file}" || buc_die "Failed to get branch"
-  local -r z_git_branch=$(<"${z_mirror_git_branch_file}")
-  test -n "${z_git_branch}" || buc_die "Empty branch from ${z_mirror_git_branch_file}"
-  git remote > "${z_mirror_git_remote_file}" || buc_die "Failed to list git remotes"
-  local z_git_remote=""
-  read -r z_git_remote < "${z_mirror_git_remote_file}" || buc_die "Failed to read git remote from ${z_mirror_git_remote_file}"
-  test -n "${z_git_remote}" || buc_die "No git remotes found"
-  git config --get "remote.${z_git_remote}.url" > "${z_mirror_git_repo_url_file}" || buc_die "Failed to get repo URL"
-  local z_git_repo_url
-  z_git_repo_url=$(<"${z_mirror_git_repo_url_file}")
-  test -n "${z_git_repo_url}" || buc_die "Empty repo URL from ${z_mirror_git_repo_url_file}"
-  local z_git_repo="${z_git_repo_url#*://*/}"
-  z_git_repo="${z_git_repo%.git}"
-
-  # Generate build_info.json (bind-specific)
-  buc_step "Generating mirror metadata"
-  local -r z_build_info_file="${BURD_TEMP_DIR}/build_info.json"
-  jq -n \
-    --arg mode          "bind" \
-    --arg moniker       "${RBRV_SIGIL}" \
-    --arg source_image  "${RBRV_BIND_IMAGE}" \
-    --arg consecration  "${z_consecration}" \
-    --arg mirror_ts     "${z_mirror_ts}" \
-    --arg build_ts      "${z_build_ts}" \
-    --arg git_repo      "${z_git_repo}" \
-    --arg git_branch    "${z_git_branch}" \
-    --arg git_commit    "${z_git_commit}" \
-    --arg image_uri     "${z_image_ref}" \
-    '{
-      mode: $mode,
-      moniker: $moniker,
-      source: {
-        image_ref: $source_image,
-        vessel_mode: "bind"
-      },
-      build: {
-        timestamp: $build_ts,
-        inscribe_timestamp: $mirror_ts,
-        consecration: $consecration
-      },
-      git: {
-        repo: $git_repo,
-        branch: $git_branch,
-        commit: $git_commit
-      },
-      image: {
-        uri: $image_uri
-      },
-      trust: {
-        model: "digest-pin",
-        note: "Image mirrored from upstream registry. Trust based solely on digest pinning. No SLSA provenance."
-      }
-    }' > "${z_build_info_file}" \
-    || buc_die "Failed to generate build_info.json"
-
-  # Generate SBOM via containerized syft (same pattern as conjure Cloud Build step)
-  local -r z_sbom_file="${BURD_TEMP_DIR}/sbom.json"
-  local -r z_sbom_stderr="${BURD_TEMP_DIR}/sbom_stderr.txt"
-  local z_has_sbom=false
-  buc_step "Generating SBOM via syft container"
-  if docker run --rm \
-    -e SYFT_REGISTRY_AUTH_AUTHORITY="${z_gar_host}" \
-    -e SYFT_REGISTRY_AUTH_USERNAME=oauth2accesstoken \
-    -e SYFT_REGISTRY_AUTH_PASSWORD="${z_token}" \
-    "${RBRG_SYFT_IMAGE_REF}" "registry:${z_image_ref}" -o json \
-    > "${z_sbom_file}" 2>"${z_sbom_stderr}"; then
-    z_has_sbom=true
-    buc_info "SBOM generated"
-  else
-    buc_warn "syft scan failed — see ${z_sbom_stderr}"
-  fi
-
-  # Build and push -about container (FROM scratch with metadata files)
-  buc_step "Building -about metadata container"
-  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
-  local -r z_about_ref="${z_gar_base}/${RBRV_SIGIL}:${z_about_tag}"
-  local -r z_about_dir="${BURD_TEMP_DIR}/about_build"
-  mkdir -p "${z_about_dir}" || buc_die "Failed to create about directory: ${z_about_dir}"
-
-  cp "${z_build_info_file}" "${z_about_dir}/build_info.json" || buc_die "Failed to copy build info"
-  if test "${z_has_sbom}" = "true"; then
-    cp "${z_sbom_file}" "${z_about_dir}/sbom.json" || buc_die "Failed to copy SBOM"
-  fi
-
-  local -r z_about_dockerfile="${z_about_dir}/Dockerfile"
-  {
-    echo 'FROM scratch'
-    echo 'LABEL org.opencontainers.image.title="rbia-metadata"'
-    echo 'COPY build_info.json /build_info.json'
-  } > "${z_about_dockerfile}"
-  if test "${z_has_sbom}" = "true"; then
-    echo 'COPY sbom.json /sbom.json' >> "${z_about_dockerfile}"
-  fi
-
-  docker build -t "${z_about_ref}" "${z_about_dir}" \
-    || buc_die "Failed to build -about container"
-  docker push "${z_about_ref}" \
-    || buc_die "Failed to push -about container"
-
-  buc_info "About metadata pushed: ${z_about_ref}"
+  # Submit combined Cloud Build (skopeo image copy + about steps)
+  zrbf_mirror_submit "${z_consecration}" "${z_token}"
 
   # Summary
   echo ""
   buc_success "Mirror complete: ${RBRV_SIGIL}"
   echo "  Consecration: ${z_consecration}"
-  echo "  Image:  ${z_image_ref}"
-  echo "  About:  ${z_about_ref}"
-  echo ""
-  echo "  Next steps:"
-  echo "    1. Update nameplate RBRN_BOTTLE_CONSECRATION to: ${z_consecration}"
-  buc_tabtarget "${RBZ_VOUCH_ARK}"
+}
+
+# Internal: submit combined mirror Cloud Build job (skopeo image copy + about steps)
+# Args: consecration token
+zrbf_mirror_submit() {
+  zrbf_sentinel
+
+  local -r z_consecration="$1"
+  local -r z_token="$2"
+
+  buc_step "Constructing combined mirror Cloud Build resource"
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+
+  # Step 0: Mirror image via skopeo
+  local -r z_mscript_path="${ZRBF_RBGJM_STEPS_DIR}/rbgjm01-mirror-image.sh"
+  test -f "${z_mscript_path}" || buc_die "Mirror step script not found: ${z_mscript_path}"
+
+  local -r z_mbody_file="${ZRBF_MIRROR_PREFIX}mirror_body.txt"
+  local -r z_mescaped_file="${ZRBF_MIRROR_PREFIX}mirror_escaped.txt"
+  local -r z_mirror_step_file="${ZRBF_MIRROR_PREFIX}mirror_step.json"
+  local -r z_mirror_step_built="${ZRBF_MIRROR_PREFIX}mirror_step_built.json"
+
+  buc_log_args "Reading mirror step script (skip shebang)"
+  tail -n +2 "${z_mscript_path}" > "${z_mbody_file}" \
+    || buc_die "Failed to read mirror step script"
+  local z_mbody
+  z_mbody=$(<"${z_mbody_file}")
+  test -n "${z_mbody}" || buc_die "Empty mirror script body"
+
+  buc_log_args "Escaping dollars for Cloud Build, preserving _RBGA_ substitutions"
+  printf '%s' "${z_mbody}" | sed 's/\$/\$\$/g; s/\$\${_RBGA_/${_RBGA_/g' \
+    > "${z_mescaped_file}" || buc_die "Failed to escape mirror script body"
+
+  echo "[]" > "${z_mirror_step_file}" || buc_die "Failed to initialize mirror step JSON"
+  jq \
+    --arg name "${RBRG_SKOPEO_IMAGE_REF}" \
+    --arg id "mirror-image" \
+    --arg ep "/bin/bash" \
+    --arg flag "-lc" \
+    --rawfile script "${z_mescaped_file}" \
+    '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+    "${z_mirror_step_file}" > "${z_mirror_step_built}" \
+    || buc_die "Failed to build mirror step JSON"
+  mv "${z_mirror_step_built}" "${z_mirror_step_file}" \
+    || buc_die "Failed to finalize mirror step JSON"
+
+  # Steps 1-4: About (shared with standalone about pipeline)
+  local -r z_about_steps_file="${ZRBF_MIRROR_PREFIX}about_steps.json"
+  zrbf_assemble_about_steps "${z_about_steps_file}" "${ZRBF_MIRROR_PREFIX}about_"
+
+  # Combine: mirror step + about steps
+  local -r z_combined_steps="${ZRBF_MIRROR_PREFIX}combined_steps.json"
+  jq -s '.[0] + .[1]' "${z_mirror_step_file}" "${z_about_steps_file}" \
+    > "${z_combined_steps}" || buc_die "Failed to combine mirror and about steps"
+
+  # Git metadata
+  local z_git_commit="" z_git_branch="" z_git_repo=""
+  local z_git_remote="" z_git_repo_url=""
+  z_git_commit=$(git rev-parse HEAD) || buc_die "Failed to get git commit"
+  z_git_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die "Failed to get git branch"
+  z_git_remote=$(git remote | head -1) || buc_die "Failed to get git remote"
+  z_git_repo_url=$(git config --get "remote.${z_git_remote}.url") || buc_die "Failed to get git repo URL"
+  z_git_repo="${z_git_repo_url#*://*/}"
+  z_git_repo="${z_git_repo%.git}"
+
+  # Mode-specific substitution values for bind
+  local -r z_bind_source="${RBRV_BIND_IMAGE:-}"
+  local z_dockerfile_content=""
+  local -r z_dockerfile_max_bytes=4000
+  if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
+    local z_df_size
+    z_df_size=$(wc -c < "${RBRV_BIND_OPTIONAL_DOCKERFILE}" | tr -d ' ')
+    if test "${z_df_size}" -le "${z_dockerfile_max_bytes}"; then
+      z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}")
+    else
+      buc_warn "Dockerfile exceeds 4KB substitution limit (${z_df_size} bytes) — recipe.txt omitted"
+    fi
+  fi
+
+  # Compose Build resource JSON
+  buc_log_args "Composing combined mirror Build resource JSON"
+  local -r z_mirror_build_file="${ZRBF_MIRROR_PREFIX}build.json"
+
+  jq -n \
+    --slurpfile zjq_steps  "${z_combined_steps}" \
+    --arg zjq_sa           "${z_mason_sa}" \
+    --arg zjq_gar_host     "${z_gar_host}" \
+    --arg zjq_gar_path     "${z_gar_path}" \
+    --arg zjq_vessel       "${RBRV_SIGIL}" \
+    --arg zjq_consecration "${z_consecration}" \
+    --arg zjq_vessel_mode  "bind" \
+    --arg zjq_git_commit   "${z_git_commit}" \
+    --arg zjq_git_branch   "${z_git_branch}" \
+    --arg zjq_git_repo     "${z_git_repo}" \
+    --arg zjq_build_id     "" \
+    --arg zjq_inscribe_ts  "" \
+    --arg zjq_bind_source  "${z_bind_source}" \
+    --arg zjq_graft_source "" \
+    --arg zjq_dockerfile   "${z_dockerfile_content}" \
+    --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
+    --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
+    --arg zjq_ark_suffix_diags "${RBGC_ARK_SUFFIX_DIAGS}" \
+    --arg zjq_pool         "${RBRR_GCB_WORKER_POOL}" \
+    --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
+    '{
+      steps: $zjq_steps[0],
+      substitutions: {
+        _RBGA_GAR_HOST:              $zjq_gar_host,
+        _RBGA_GAR_PATH:              $zjq_gar_path,
+        _RBGA_VESSEL:                $zjq_vessel,
+        _RBGA_CONSECRATION:          $zjq_consecration,
+        _RBGA_VESSEL_MODE:           $zjq_vessel_mode,
+        _RBGA_GIT_COMMIT:            $zjq_git_commit,
+        _RBGA_GIT_BRANCH:            $zjq_git_branch,
+        _RBGA_GIT_REPO:              $zjq_git_repo,
+        _RBGA_BUILD_ID:              $zjq_build_id,
+        _RBGA_INSCRIBE_TIMESTAMP:    $zjq_inscribe_ts,
+        _RBGA_BIND_SOURCE:           $zjq_bind_source,
+        _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
+        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
+        _RBGA_ARK_SUFFIX_IMAGE:      $zjq_ark_suffix_image,
+        _RBGA_ARK_SUFFIX_ABOUT:      $zjq_ark_suffix_about,
+        _RBGA_ARK_SUFFIX_DIAGS:      $zjq_ark_suffix_diags
+      },
+      serviceAccount: $zjq_sa,
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $zjq_pool }
+      },
+      timeout: $zjq_timeout
+    }' > "${z_mirror_build_file}" \
+    || buc_die "Failed to compose mirror build JSON"
+
+  buc_log_args "Mirror build JSON: ${z_mirror_build_file}"
+
+  buc_step "Submitting combined mirror Cloud Build"
+  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+    "mirror_build_create" "${z_mirror_build_file}"
+  rbgu_http_require_ok "Mirror build submission" "mirror_build_create"
+
+  local z_build_id=""
+  z_build_id=$(rbgu_json_field_capture "mirror_build_create" '.metadata.build.id') || z_build_id=""
+  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
+  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+
+  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  buc_info "Mirror build submitted: ${z_build_id}"
+  buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
+
+  zrbf_wait_build_completion 100  # ~8 minutes at 5s intervals (image copy + about steps)
 }
 
 ######################################################################
@@ -2222,6 +2278,79 @@ rbf_about() {
   buc_info "About artifact: ${RBRV_SIGIL}:${z_about_tag}"
 }
 
+# Internal: assemble about step scripts into JSON array file
+# Args: output_file temp_prefix
+# Reads ZRBF_RBGJA_STEPS_DIR and RBRG_* image refs from module state
+zrbf_assemble_about_steps() {
+  local -r z_output_file="$1"
+  local -r z_temp_prefix="$2"
+
+  # Step definitions: script|builder|entrypoint|id
+  # Delimiter is | because image refs contain colons (sha256 digests)
+  local -r z_about_step_defs=(
+    "rbgja01-discover-platforms.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|discover-platforms"
+    "rbgja02-syft-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|syft-per-platform"
+    "rbgja03-build-info-per-platform.sh|${RBRG_ALPINE_IMAGE_REF}|sh|build-info-per-platform"
+    "rbgja04-assemble-push-about.sh|${RBRG_DOCKER_IMAGE_REF}|bash|assemble-push-about"
+  )
+
+  echo "[]" > "${z_output_file}" || buc_die "Failed to initialize about steps JSON"
+
+  local z_adef=""
+  local z_ascript=""
+  local z_abuilder=""
+  local z_aentrypoint=""
+  local z_aid=""
+  local z_ascript_path=""
+  local z_abody_file=""
+  local z_aescaped_file=""
+  local z_asteps_file=""
+  local z_abody=""
+  local z_aarg_flag=""
+
+  for z_adef in "${z_about_step_defs[@]}"; do
+    IFS='|' read -r z_ascript z_abuilder z_aentrypoint z_aid <<< "${z_adef}"
+    z_ascript_path="${ZRBF_RBGJA_STEPS_DIR}/${z_ascript}"
+    z_abody_file="${z_temp_prefix}${z_aid}_body.txt"
+    z_aescaped_file="${z_temp_prefix}${z_aid}_escaped.txt"
+    z_asteps_file="${z_temp_prefix}${z_aid}_steps.json"
+
+    test -f "${z_ascript_path}" || buc_die "About step script not found: ${z_ascript_path}"
+
+    buc_log_args "Reading script body for ${z_aid} (skip shebang)"
+    tail -n +2 "${z_ascript_path}" > "${z_abody_file}" \
+      || buc_die "Failed to read about step script: ${z_ascript_path}"
+    z_abody=$(<"${z_abody_file}")
+    test -n "${z_abody}" || buc_die "Empty about script body: ${z_ascript_path}"
+
+    buc_log_args "Baking pinned image refs into script text"
+    z_abody="${z_abody//\$\{RBRG_SYFT_IMAGE_REF\}/${RBRG_SYFT_IMAGE_REF}}"
+
+    buc_log_args "Escaping dollars for Cloud Build, preserving _RBGA_ substitutions"
+    printf '%s' "${z_abody}" | sed 's/\$/\$\$/g; s/\$\${_RBGA_/${_RBGA_/g' \
+      > "${z_aescaped_file}" || buc_die "Failed to escape about script body for ${z_aid}"
+
+    case "${z_aentrypoint}" in
+      bash) z_aentrypoint="/bin/bash"; z_aarg_flag="-lc" ;;
+      sh)   z_aentrypoint="/bin/sh";   z_aarg_flag="-c" ;;
+      *)    buc_die "Unknown entrypoint: ${z_aentrypoint}" ;;
+    esac
+
+    buc_log_args "Appending about step ${z_aid} to JSON array"
+    jq \
+      --arg name "${z_abuilder}" \
+      --arg id "${z_aid}" \
+      --arg ep "${z_aentrypoint}" \
+      --arg flag "${z_aarg_flag}" \
+      --rawfile script "${z_aescaped_file}" \
+      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+      "${z_output_file}" > "${z_asteps_file}" \
+      || buc_die "Failed to append about step ${z_aid} to JSON"
+    mv "${z_asteps_file}" "${z_output_file}" \
+      || buc_die "Failed to update about steps JSON for ${z_aid}"
+  done
+}
+
 # Internal: submit about Cloud Build job and wait for completion
 zrbf_about_submit() {
   zrbf_sentinel
@@ -2303,71 +2432,9 @@ zrbf_about_submit() {
   z_git_repo="${z_git_repo_url#*://*/}"
   z_git_repo="${z_git_repo%.git}"
 
-  # Step definitions: script|builder|entrypoint|id
-  # Delimiter is | because image refs contain colons (sha256 digests)
-  local -r z_about_step_defs=(
-    "rbgja01-discover-platforms.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|discover-platforms"
-    "rbgja02-syft-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|syft-per-platform"
-    "rbgja03-build-info-per-platform.sh|${RBRG_ALPINE_IMAGE_REF}|sh|build-info-per-platform"
-    "rbgja04-assemble-push-about.sh|${RBRG_DOCKER_IMAGE_REF}|bash|assemble-push-about"
-  )
-
+  # Assemble about steps via shared helper
   local -r z_about_steps_accumulator="${ZRBF_ABOUT_PREFIX}steps.json"
-  echo "[]" > "${z_about_steps_accumulator}" || buc_die "Failed to initialize about steps JSON"
-
-  local z_adef=""
-  local z_ascript=""
-  local z_abuilder=""
-  local z_aentrypoint=""
-  local z_aid=""
-  local z_ascript_path=""
-  local z_abody_file=""
-  local z_aescaped_file=""
-  local z_asteps_file=""
-  local z_abody=""
-  local z_aarg_flag=""
-
-  for z_adef in "${z_about_step_defs[@]}"; do
-    IFS='|' read -r z_ascript z_abuilder z_aentrypoint z_aid <<< "${z_adef}"
-    z_ascript_path="${ZRBF_RBGJA_STEPS_DIR}/${z_ascript}"
-    z_abody_file="${ZRBF_ABOUT_PREFIX}${z_aid}_body.txt"
-    z_aescaped_file="${ZRBF_ABOUT_PREFIX}${z_aid}_escaped.txt"
-    z_asteps_file="${ZRBF_ABOUT_PREFIX}${z_aid}_steps.json"
-
-    test -f "${z_ascript_path}" || buc_die "About step script not found: ${z_ascript_path}"
-
-    buc_log_args "Reading script body for ${z_aid} (skip shebang)"
-    tail -n +2 "${z_ascript_path}" > "${z_abody_file}" \
-      || buc_die "Failed to read about step script: ${z_ascript_path}"
-    z_abody=$(<"${z_abody_file}")
-    test -n "${z_abody}" || buc_die "Empty about script body: ${z_ascript_path}"
-
-    buc_log_args "Baking pinned image refs into script text"
-    z_abody="${z_abody//\$\{RBRG_SYFT_IMAGE_REF\}/${RBRG_SYFT_IMAGE_REF}}"
-
-    buc_log_args "Escaping dollars for Cloud Build, preserving _RBGA_ substitutions"
-    printf '%s' "${z_abody}" | sed 's/\$/\$\$/g; s/\$\${_RBGA_/${_RBGA_/g' \
-      > "${z_aescaped_file}" || buc_die "Failed to escape about script body for ${z_aid}"
-
-    case "${z_aentrypoint}" in
-      bash) z_aentrypoint="/bin/bash"; z_aarg_flag="-lc" ;;
-      sh)   z_aentrypoint="/bin/sh";   z_aarg_flag="-c" ;;
-      *)    buc_die "Unknown entrypoint: ${z_aentrypoint}" ;;
-    esac
-
-    buc_log_args "Appending about step ${z_aid} to JSON array"
-    jq \
-      --arg name "${z_abuilder}" \
-      --arg id "${z_aid}" \
-      --arg ep "${z_aentrypoint}" \
-      --arg flag "${z_aarg_flag}" \
-      --rawfile script "${z_aescaped_file}" \
-      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
-      "${z_about_steps_accumulator}" > "${z_asteps_file}" \
-      || buc_die "Failed to append about step ${z_aid} to JSON"
-    mv "${z_asteps_file}" "${z_about_steps_accumulator}" \
-      || buc_die "Failed to update about steps JSON for ${z_aid}"
-  done
+  zrbf_assemble_about_steps "${z_about_steps_accumulator}" "${ZRBF_ABOUT_PREFIX}"
 
   buc_log_args "Composing about Build resource JSON"
   local -r z_about_build_file="${ZRBF_ABOUT_PREFIX}build.json"
