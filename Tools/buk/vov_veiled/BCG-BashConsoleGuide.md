@@ -1001,7 +1001,7 @@ some_cmd || { echo "ERROR" >&2; exit 1; }
 The prohibition above is specific to error-handling blocks where `exit`/`return` must reach the calling shell. Subshells are legitimate in these contexts:
 
 - **Test execution** — principled isolation between suites and cases; see **Test Execution Patterns**
-- **`$()` command substitution** — inside `_capture` functions only; see **Capture Functions**
+- **`$()` command substitution** — inside `_capture`/`_recite` functions, or single-command with explicit `|| buc_die`; see **Capture Functions**
 - **Isolation subshells** — environment containment with exit-status propagation (below)
 
 #### Isolation Subshells (environment containment)
@@ -1491,10 +1491,14 @@ buc_warn    # Instead of echo >&2
 - [ ] Isolation subshells (`( ... ) || buc_die`) have `|| buc_die` on every internal command and on the outer boundary
 
 ### Command Substitution Rules
-- [ ] NO command substitution except `$(<file)` builtin and `_capture` functions
-- [ ] Temp files used instead of complex command substitution
+- [ ] NO `local z_var=$(cmd)` — `local` swallows exit status, always
+- [ ] NO pipelines inside `$()` — intermediate failures hidden
+- [ ] NO unguarded `$()` — must have `|| buc_die` or `|| return`
+- [ ] Temp files used instead of complex multi-step command substitution
 - [ ] `$(<file)` always followed by validation
-- [ ] `_capture` functions properly named with suffix
+- [ ] `_capture` and `_recite` functions are legitimate `$()` targets
+- [ ] Single-command `$(cmd) || buc_die` is acceptable (no pipeline, explicit guard)
+- [ ] Source-time constants (e.g., color init before kindle) are acceptable
 
 ### Loop Safety
 - [ ] All while-read loops use load-then-iterate pattern
