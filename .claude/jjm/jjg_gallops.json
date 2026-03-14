@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "At",
+  "next_heat_seed": "Au",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -16,7 +16,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Ar"
+    "₣Ar",
+    "₣At"
   ],
   "heats": {
     "₣AD": {
@@ -2274,6 +2275,15 @@
           ]
         }
       }
+    },
+    "₣At": {
+      "silks": "rbk-mvp-3-add-graft",
+      "creation_time": "260314",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlt.md",
+      "paces": {}
     }
   }
 }
