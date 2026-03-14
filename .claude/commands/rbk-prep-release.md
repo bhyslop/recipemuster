@@ -145,6 +145,8 @@ git rm -f --ignore-unmatch tt/study-mpt.Run.*.sh
 git rm -f --ignore-unmatch tt/vow-*.sh
 git rm -f --ignore-unmatch tt/vslk-*.sh
 git rm -f --ignore-unmatch tt/vvw-*.sh
+git rm -f --ignore-unmatch tt/rbw-MR.MarshalReset.sh
+git rm -f --ignore-unmatch tt/rbw-MD.MarshalDuplicate.sh
 ```
 
 **8d. Internal .buk/ launchers (for stripped workbenches):**
@@ -186,7 +188,7 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 - `rbev-vessels/` — vessel definitions and README
 - `Tools/buk/` — all `.sh` files, `busc_shellcheckrc`, `README.md`, `buts/` test support (minus `vov_veiled/`)
 - `Tools/rbk/` — all `.sh` files (minus `vov_veiled/`)
-- `tt/` — `rbw-*` and `buw-*` tabtargets only
+- `tt/` — `rbw-*` and `buw-*` tabtargets only (minus `rbw-MR`, `rbw-MD` marshal tabtargets)
 
 ## Step 9: Post-strip qualification
 
