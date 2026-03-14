@@ -699,6 +699,7 @@
         "₢AUAAB",
         "₢AUAAG",
         "₢AUAAW",
+        "₢AUAAa",
         "₢AUAAZ",
         "₢AUAAX",
         "₢AUAAH",
@@ -712,7 +713,7 @@
         "₢AUAAF",
         "₢AUAAV"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1326,6 +1327,17 @@
               "text": "End-to-end BCG compliance review and repair of all bash scripts in Tools/rbk/ and Tools/buk/. Audit against BCG-BashConsoleGuide.md patterns: Zeroes Theory (state space minimization), Interface Contamination Discipline (input forms), error handling, function extraction, variable discipline, quoting, etc.\n\n## Scope\n\n- All .sh files in Tools/rbk/ (rbf, rbga, rbgb, rbgc, rbgg, rbgi, rbgm, rbgo, rbgp, rbgu, rbi, rbob, rbq, rbv, rbdc, workbench, zipper, regime files, CLI files)\n- All .sh files in Tools/buk/ (buc, bud, bug, but, buv, buw, workbench, regime files, CLI files)\n- Test fixtures and testbenches\n\n## Approach\n\n1. Read BCG thoroughly to establish the checklist\n2. Audit files systematically — group by kit, start with foundational modules (buc, bud, buv) since other files depend on their patterns\n3. Fix issues in-place, notching progress per logical group\n4. Run rbw-Qf after each group to ensure nothing breaks\n\n## Out of scope\n\n- Scripts in other kits (jjk, vok, cmk, ccck, gad) — those are stripped at release\n- Spec documents (.adoc)\n- Adding new BCG patterns — this is compliance with existing guide\n\n## Acceptance\n\n- Every .sh file in Tools/rbk/ and Tools/buk/ passes BCG review\n- rbw-Qf passes\n- No functional regressions",
               "silks": "bcg-compliance-audit",
               "commit": "b1ad3a1"
+            }
+          ]
+        },
+        "₢AUAAa": {
+          "tacks": [
+            {
+              "ts": "260313-1714",
+              "state": "rough",
+              "text": "Mint `rbj` (Recipe Bottle Jailer) as the prefix for sentry setup/security-rule scripts. Resolves the terminal exclusivity violation where `rbs` parents both the specification document tree (RBS0, RBSAA, RBSAC, etc.) and sentry code (`rbss_*`).\n\n## Work\n\n1. **Inventory**: Enumerate all `rbss_*` functions, `RBSS_*` variables, and any files using the sentry prefix under `rbs`\n2. **Rename**: `rbss_*` functions → `rbj_*`, `RBSS_*` variables → `RBJ_*`, files `rbss_*.sh` → `rbj_*.sh`\n3. **Update callers**: grep all references across Tools/rbk/, Tools/buk/, tt/ tabtargets, and spec documents\n4. **Spec linked terms**: Update RBS0-SpecTop.adoc — rename any `:rbss_*:` attributes to `:rbj_*:`, update anchors `[[rbss_*]]` → `[[rbj_*]]`\n5. **CLAUDE.md**: Add RBJ to the file acronym mappings and prefix registry\n6. **Spec documents**: Update RBSSS (sentry_start), RBSSR (sentry_run), RBSSC (security_config) if they reference `rbss_*` linked terms or code identifiers\n7. **Verify**: rbw-Qf passes, no broken references\n\n## Minting Record\n\n- Prefix: `rbj`\n- Expansion: Recipe Bottle Jailer\n- Domain: sentry container security setup — iptables rules, dnsmasq config, enclave network establishment\n- Rationale: `rbs` was overloaded (specs + sentry), `rbj` is clean with zero existing references. \"Jailer\" reflects FreeBSD jail lineage and the sentry's role confining bottle network access.\n- Terminal exclusivity: `rbj` is terminal (no children planned)\n\n## Character\n\nIntricate but mechanical — systematic find-and-replace with careful verification. No architectural changes, just prefix relocation.\n\n## Acceptance\n\n- Zero remaining `rbss_*` or `RBSS_*` references in active code\n- `rbj_*` functions and `RBJ_*` variables work correctly\n- RBS0 linked terms updated\n- CLAUDE.md updated\n- rbw-Qf passes\n- `rbs` prefix tree contains only specification documents",
+              "silks": "mint-rbj-jailer-prefix",
+              "commit": "ed61309"
             }
           ]
         }
