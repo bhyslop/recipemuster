@@ -15,6 +15,10 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` native
 
 **Project page**: https://scaleinv.github.io/recipebottle
 
+<p align="center">
+  <img src="rbm-abstract-drawio.svg" alt="Recipe Bottle architecture diagram" width="720" />
+</p>
+
 ## Key Concepts
 
 | Term | Meaning |
