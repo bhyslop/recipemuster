@@ -1035,7 +1035,7 @@ Grafts a locally-built container image into the
 {rbtgi_repository}
 ({rbtgog_ark})
 via native docker/podman push.
-No Cloud Build involvement — the image is already built locally.
+The image push itself is local (no Cloud Build); about and vouch follow as Cloud Build jobs.
 
 include::RBSAG-ark_graft.adoc[]
 
