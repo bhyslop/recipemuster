@@ -49,6 +49,15 @@ Binding retrieves a pre-built image from an external registry without local buil
 Fully-qualified image reference to copy from an external registry.
 Must be a valid FQIN; 1-512 characters.
 
+//axhrgv_variable
+{rbrv_bind_optional_dockerfile}
+
+Optional path to reference Dockerfile for the upstream image.
+When configured, the Dockerfile content is passed to
+{rbtgo_ark_about}
+and embedded in the about artifact as `recipe.txt`.
+Optional; 0-512 characters.
+
 //axhrgb_group
 {rbrv_group_conjuring}
 
@@ -103,6 +112,15 @@ Optional; 0-512 characters.
 When set, provides the default `--image` argument to
 {rbtgo_ark_graft}.
 When empty, the image reference must be provided as a runtime parameter.
+
+//axhrgv_variable
+{rbrv_graft_optional_dockerfile}
+
+Optional path to Dockerfile used for the local build.
+When configured, the Dockerfile content is passed to
+{rbtgo_ark_about}
+and embedded in the about artifact as `recipe.txt`.
+Optional; 0-512 characters.
 
 //axhro_kindle
 {rbkro_kindle}

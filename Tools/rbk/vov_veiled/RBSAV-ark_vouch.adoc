@@ -130,7 +130,7 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
 .. Image: {rbrg_docker_image_ref}
 .. Create buildx builder instance (inspect-or-create pattern, same as conjure)
 .. Build multi-platform `FROM scratch` container with summary and per-platform verification files as layers
-.. Platforms: `_RBGV_PLATFORMS` (sourced from vessel configuration, comma-separated)
+.. Platforms: discovered from `-image` manifest (same approach as {rbtgo_ark_about} step 1 — query manifest, extract platform list)
 .. Push to registry tagged `«CONSECRATION»-vouch` via `docker buildx build --push`
 .. {rbbc_require}
 push succeeds
@@ -180,11 +180,7 @@ All `_RBGV_*` substitution variables are passed in the `builds.create` request b
 | `_RBGV_VESSEL_MODE` | Vessel mode (`conjure`, `bind`, or `graft`). Source: loaded vessel configuration.
 |===
 
-*Build configuration*::
-[cols="1,2"]
-|===
-| `_RBGV_PLATFORMS` | Comma-separated platform list (e.g., `linux/amd64,linux/arm64`). Source: vessel configuration (space→comma conversion).
-|===
+NOTE: Platform list is discovered at runtime from the `-image` manifest (same as {rbtgo_ark_about} step 1), not passed as a substitution variable.
 
 *Verification* (conjure only)::
 [cols="1,2"]

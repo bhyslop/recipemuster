@@ -357,6 +357,7 @@
 :rbrv_regime:                <<rbrv_regime,RBRV Regime>>
 :rbrv_group_binding:         <<rbrv_group_binding,Binding Group>>
 :rbrv_bind_image:            <<rbrv_bind_image,RBRV_BIND_IMAGE>>
+:rbrv_bind_optional_dockerfile: <<rbrv_bind_optional_dockerfile,RBRV_BIND_OPTIONAL_DOCKERFILE>>
 :rbrv_conjure_bldcontext:    <<rbrv_conjure_bldcontext,RBRV_CONJURE_BLDCONTEXT>>
 :rbrv_conjure_dockerfile:    <<rbrv_conjure_dockerfile,RBRV_CONJURE_DOCKERFILE>>
 :rbrv_conjure_platforms:     <<rbrv_conjure_platforms,RBRV_CONJURE_PLATFORMS>>
@@ -370,6 +371,7 @@
 :rbrv_vessel_mode_graft:     <<rbrv_vessel_mode_graft,graft>>
 :rbrv_group_grafting:        <<rbrv_group_grafting,Grafting Group>>
 :rbrv_graft_image:           <<rbrv_graft_image,RBRV_GRAFT_IMAGE>>
+:rbrv_graft_optional_dockerfile: <<rbrv_graft_optional_dockerfile,RBRV_GRAFT_OPTIONAL_DOCKERFILE>>
 
 // Recipe Bottle Regime: Authentication (service account credentials)
 :rbra_regime:                <<rbra_regime,RBRA Regime>>
@@ -1566,7 +1568,8 @@ Contains the executable container layers, regardless of how the image arrived in
 **Multi-platform vessels** (conjure only): the consumer-facing `-image` tag is a multi-platform manifest list assembled by `imagetools create` from per-platform tags (e.g., `-image-amd64`, `-image-arm64`, `-image-armv7`).
 Per-platform tags are internal build plumbing with independent SLSA v1.0 Level 3 provenance sharing a common `buildInvocationId`.
 The combined manifest list has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list); consumers pulling the combined tag get transparent platform resolution to attested per-platform images.
-Bind and graft vessels are typically single-platform.
+Bind vessels may be multi-platform (upstream images often are; crane copy preserves the manifest list).
+Graft vessels are typically single-platform.
 
 [[rbtga_ark_about]]
 //axl_voices axig_generic_artifact
@@ -2918,6 +2921,16 @@ Container image reference for
 {rbrv_regime}
 binding vessels.
 
+[[rbrv_bind_optional_dockerfile]]
+//axvr_variable axd_optional rbst_path
+{rbrv_bind_optional_dockerfile}::
+Optional path to reference Dockerfile for the upstream image in
+{rbrv_regime}
+binding vessels.
+When configured, the Dockerfile content is embedded in the
+{rbtga_ark_about}
+artifact as `recipe.txt`.
+
 [[rbrv_conjure_dockerfile]]
 //axvr_variable axd_conditional rbst_path
 {rbrv_conjure_dockerfile}::
@@ -2953,6 +2966,16 @@ Default local image reference for
 grafting vessels.
 Optional; when empty, the image reference must be provided as a runtime parameter to
 {rbtgo_ark_graft}.
+
+[[rbrv_graft_optional_dockerfile]]
+//axvr_variable axd_optional rbst_path
+{rbrv_graft_optional_dockerfile}::
+Optional path to Dockerfile used for the local build in
+{rbrv_regime}
+grafting vessels.
+When configured, the Dockerfile content is embedded in the
+{rbtga_ark_about}
+artifact as `recipe.txt`.
 
 include::RBSRV-RegimeVessel.adoc[]
 

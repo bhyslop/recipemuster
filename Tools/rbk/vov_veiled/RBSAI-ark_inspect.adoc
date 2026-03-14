@@ -41,7 +41,8 @@ vessel mode (conjure, bind, or graft) from vessel regime
 . *Extract About Artifact Contents*:
 .. Create temporary container from `-about` image
 .. Extract `build_info.json`, `sbom.json`
-.. For conjure vessels: extract `recipe.txt`, `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (present for consecrations built after about-artifact enrichment)
+.. Extract `recipe.txt` if present (available for any mode when the Dockerfile path was configured)
+.. For conjure vessels: extract `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (present for consecrations built after about-artifact enrichment)
 .. If `-vouch` locally present: extract `vouch_summary.json`
 
 //axhos_step
@@ -76,7 +77,7 @@ vessel mode (conjure, bind, or graft) from vessel regime
 . *Display Full-Only Sections* ({rbtc_inspect_full} only):
 .. *Package Inventory*: every syft-detected package (type, name, version) sorted by ecosystem
 .. *Package Licensing*: per-package license and Package URL for compliance review
-.. *Recipe*: the exact Dockerfile used to build the image (conjure only)
+.. *Recipe*: the Dockerfile content from `recipe.txt` in the about artifact (available for any mode when the Dockerfile path was configured in the vessel regime). When `recipe.txt` is absent, display the Dockerfile path from `build_info.json` if available, or omit the section.
 
 //axhoo_output_of_type
 {rbtga_ark}

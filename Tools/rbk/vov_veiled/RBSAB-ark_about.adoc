@@ -95,9 +95,10 @@ platform count for subsequent step branching
 .. Image: {rbrg_syft_image_ref}
 .. Fetch OAuth token via metadata server (syft authenticates as {rbtr_mason})
 .. For each platform in `«PLATFORMS»`:
-... {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image-«PLATFORM_SUFFIX»` to scan directly from GAR
-... For single-platform images (no per-platform tags): `syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image`
+... If single-platform (no manifest list): {rbbc_call}
+`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image`
+... If multi-platform (manifest list detected in step 1): {rbbc_call}
+`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image-«PLATFORM_SUFFIX»`
 ... {rbbc_store}
 per-platform SBOM to `/workspace/sbom.«PLATFORM_SUFFIX».spdx.json`
 .. NOTE: Syft's `registry:` transport reads directly from the OCI registry — no docker CLI or local pull required.
@@ -113,17 +114,17 @@ per-platform SBOM to `/workspace/sbom.«PLATFORM_SUFFIX».spdx.json`
 .... Graft: `graft_source` (from `_RBGA_GRAFT_SOURCE`)
 ... {rbbc_store}
 per-platform `build_info.json` to `/workspace/build_info.«PLATFORM_SUFFIX».json`
-.. For conjure mode:
-... {rbbc_call}
-read Dockerfile content from vessel build context (passed as `_RBGA_DOCKERFILE_PATH`)
+.. If `_RBGA_DOCKERFILE_CONTENT` is non-empty:
 ... {rbbc_store}
-`recipe.txt` to `/workspace/recipe.txt` (the exact Dockerfile used to build the image)
+`recipe.txt` to `/workspace/recipe.txt` from substitution variable content
+.. NOTE: The {rbtr_director} reads the Dockerfile locally and passes its content as `_RBGA_DOCKERFILE_CONTENT`.
+If the file exceeds the Cloud Build substitution variable size limit (~4KB), the director omits it with a warning.
 
 //axhos_step
 . *Cloud Build Step 4: Build and Push About Artifact*:
 .. Image: {rbrg_docker_image_ref}
 .. Create buildx builder instance (inspect-or-create pattern)
-.. Build multi-platform `FROM scratch` container with per-platform SBOM and `build_info.json` as layers
+.. Build multi-platform `FROM scratch` container with per-platform SBOM, `build_info.json`, and `recipe.txt` (when present) as layers
 .. For single-platform images: build single-platform `-about` container
 .. For multi-platform images: build with `buildx --push` using `TARGETARCH`/`TARGETVARIANT` to select per-platform files
 .. Push to registry tagged `«CONSECRATION»-about` via `docker buildx build --push`
@@ -189,5 +190,7 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 | `_RBGA_INSCRIBE_TIMESTAMP` | Inscribe timestamp from consecration (conjure only). Empty for bind/graft.
 | `_RBGA_BIND_SOURCE` | Pinned upstream image reference (bind only). Source: {rbrv_bind_image}. Empty for conjure/graft.
 | `_RBGA_GRAFT_SOURCE` | Local image reference at push time (graft only). Empty for conjure/bind.
-| `_RBGA_DOCKERFILE_PATH` | Path to Dockerfile in rubric repo (conjure only). Source: {rbrv_conjure_dockerfile}. Used to embed `recipe.txt`. Empty for bind/graft.
+| `_RBGA_DOCKERFILE_CONTENT` | Dockerfile content read locally by {rbtr_director} (all modes, optional). Source: {rbrv_conjure_dockerfile} (conjure, always populated), {rbrv_graft_optional_dockerfile} (graft, optional), {rbrv_bind_optional_dockerfile} (bind, optional). Empty if file exceeds ~4KB substitution limit or path not configured. Written to `recipe.txt` in step 3.
 |===
+
+NOTE: `«PLATFORMS»` is discovered in step 1 and passed to subsequent steps as a workspace variable (written to `/workspace/platforms.txt`), not as a substitution variable.

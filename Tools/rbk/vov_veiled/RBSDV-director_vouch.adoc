@@ -37,8 +37,8 @@ Docker Registry API: GET tags list for the vessel
 ... *unvouchable*: has `-about`, no `-vouch`, mode is conjure, no SLSA provenance — skip with warning
 ... *incomplete*: has `-image` but no `-about` — about pipeline has not run, skip with warning
 .. Vessel mode is derived from the consecration mode prefix (`c`=conjure, `b`=bind, `g`=graft)
-.. {rbbc_require}
-consecration mode prefix matches loaded {rbrv_vessel_mode} — a mismatch indicates corruption or misconfigured vessel
+.. {rbbc_warn}
+if consecration mode prefix does not match loaded {rbrv_vessel_mode} — may indicate vessel reconfiguration or corruption
 
 //axhos_step
 . *Pre-check Provenance* (conjure only):

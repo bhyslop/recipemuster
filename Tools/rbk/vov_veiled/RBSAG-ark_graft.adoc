@@ -59,7 +59,7 @@ image exists in local container runtime
 //axhos_step
 . *Construct Consecration*:
 .. {rbbc_call}
-`docker inspect --format '{{.Created}}' «LOCAL_IMAGE_REF»` to read OCI image creation timestamp
+query local container runtime for image creation timestamp (e.g., `docker inspect` or `podman inspect` — the `Created` field from OCI image config)
 .. {rbbc_store}
 `«IMAGE_CREATED»` as the image's creation timestamp, converted to `YYMMDDHHMMSS` format
 .. {rbbc_store}
