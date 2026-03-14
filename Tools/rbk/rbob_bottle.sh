@@ -29,7 +29,7 @@ set -euo pipefail
 test -z "${ZRBOB_SOURCED:-}" || buc_die "Module rbob multiply sourced - check sourcing hierarchy"
 ZRBOB_SOURCED=1
 
-# Store script directory for locating sibling files (rbss.sentry.sh)
+# Store script directory for locating sibling files (rbj_sentry.sh)
 ZRBOB_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Project root directory (relative to script location)
@@ -63,7 +63,7 @@ zrbob_kindle() {
   readonly ZRBOB_NETWORK="${RBRN_MONIKER}-enclave"
 
   # Sentry configuration script
-  readonly ZRBOB_SENTRY_SCRIPT="${ZRBOB_SCRIPT_DIR}/rbss.sentry.sh"
+  readonly ZRBOB_SENTRY_SCRIPT="${ZRBOB_SCRIPT_DIR}/rbj_sentry.sh"
   test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
 
   # Container creation logs (preserved in output dir for inspection)
@@ -226,7 +226,7 @@ zrbob_launch_sentry() {
   fi
   buc_info "Sentry enclave IP verified: ${z_actual_ip}"
 
-  # Configure sentry security by exec'ing rbss.sentry.sh
+  # Configure sentry security by exec'ing rbj_sentry.sh
   buc_step "Configuring sentry security"
   ${ZRBOB_RUNTIME} exec -i "${ZRBOB_SENTRY}" /bin/sh < "${ZRBOB_SENTRY_SCRIPT}" \
     >> "${ZRBOB_SENTRY_LOG}" \

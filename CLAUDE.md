@@ -23,6 +23,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBGP** → `rbk/rbgp_Payor.sh`
 - **RBGU** → `rbk/rbgu_Utility.sh`
 - **RBI**  → `rbk/rbi_Image.sh`
+- **RBJ**  → `rbk/rbj_sentry.sh` (Jailer - sentry container security setup: iptables, dnsmasq, enclave network)
 - **RBOB** → `rbk/rbob_bottle.sh`
 - **RBQ**  → `rbk/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBV**  → `rbk/rbv_PodmanVM.sh`
