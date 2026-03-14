@@ -715,9 +715,10 @@
         "₢AUAAd",
         "₢AUAAU",
         "₢AUAAF",
-        "₢AUAAV"
+        "₢AUAAV",
+        "₢AUAAe"
       ],
-      "next_pace_seed": "AAe",
+      "next_pace_seed": "AAf",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1459,6 +1460,17 @@
               "text": "Refinements to /rbk-prep-release slash command identified during ₢AUAAR work:\n\n## 1. External command audit step (LLM task)\n\nAdd a ceremony step after stripping that scans surviving .sh files for external command invocations beyond declared dependencies. Excludes cloudbuild scripts (Tools/rbk/rbgja/, rbgjb/, rbgjv/) since those run on GCB, not the user's workstation.\n\n**Declared dependencies** (index.html promise): bash, git, curl, ssh/scp/ssh-keygen, jq, docker\n\n**Assumed POSIX/coreutils** (any system with bash): chmod, cp, mv, rm, mkdir, mktemp, date, sleep, cat, grep, sed, awk, sort, head, tail, wc, tee, touch, ln, tr, cut, printf, test, true, false, kill\n\nThe audit flags anything not in either tier. Catches gcloud, podman, python, shellcheck, column, openssl, base64, shasum, etc.\n\n## 2. Fix marshal reset invocation after strip\n\nStep 10 references tt/rbw-MR.MarshalReset.sh which gets stripped in step 8c. Fix: invoke Tools/rbk/rblm_cli.sh directly instead of via the tabtarget, or reorder to run marshal reset before stripping the marshal tabtarget.\n\n## 3. RBRG pin refresh coupling note\n\nRBRG pin refresh and validate/render operations live in rbrr_cli.sh despite being a different regime. Not blocking for release but worth noting as future cleanup (itch candidate).\n\n## References\n- .claude/commands/rbk-prep-release.md (the slash command)\n- Tools/rbk/rblm_cli.sh (lifecycle marshal)\n- index.html lines 211-213 (dependency claim)\n- BCG (no precise external command list exists today — audit defines one)",
               "silks": "prep-release-ceremony-refinements",
               "commit": "ebcbd02"
+            }
+          ]
+        },
+        "₢AUAAe": {
+          "tacks": [
+            {
+              "ts": "260314-1342",
+              "state": "rough",
+              "text": "Extract RBRG pin management functions from rbrr_cli.sh into new rbrg_cli.sh module.\n\n## Functions to move\n\n- zrbrr_write_rbrg → zrbrg_write_rbrg\n- rbrr_validate_pins → rbrg_validate_pins\n- rbrr_render_pins → rbrg_render_pins\n- rbrr_refresh_gcb_pins → rbrg_refresh_gcb_pins\n- rbrr_refresh_binary_pins → rbrg_refresh_binary_pins\n\n## Shared state to move\n\n- ZRBRR_IMAGE_PINS_REFRESHED_AT → ZRBRG_IMAGE_PINS_REFRESHED_AT\n- ZRBRR_BINARY_PINS_REFRESHED_AT → ZRBRG_BINARY_PINS_REFRESHED_AT\n\n## Wiring\n\n- Create Tools/rbk/rbrg_cli.sh with standard module structure (multiple-inclusion guard, kindle, sentinel)\n- Update Tools/rbk/rbz_zipper.sh to route RBRG colophons to new module\n- Verify no remaining RBRG references in rbrr_cli.sh\n- Run fast qualification to verify wiring\n\n## Character\n\nMechanical extraction — self-contained functions, no design judgment needed.",
+              "silks": "extract-rbrg-cli-from-rbrr",
+              "commit": "b153d71"
             }
           ]
         }
