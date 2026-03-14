@@ -2289,9 +2289,10 @@
       "status": "stabled",
       "order": [
         "₢AtAAA",
-        "₢AtAAB"
+        "₢AtAAB",
+        "₢AtAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2320,6 +2321,17 @@
               "text": "Implement new consecration format and graft regime scaffolding.\n\n## Character\nMechanical but cross-cutting — careful find-and-replace with format validation at each site.\n\n## Consecration Format Change\nOld: `i20260224_153022-b20260224_160530` (35 chars)\nNew: `[cbg]YYMMDDHHMMSS-rYYMMDDHHMMSS` (27 chars)\n- Mode prefix: `c` (conjure), `b` (bind), `g` (graft)\n- `r` = realized (image landed in GAR)\n- Drop century, drop underscore\n\n## Sites to update\n- `rbgjb01-derive-tag-base.sh`: consecration construction (conjure path, `c` prefix)\n- `rbf_mirror` in rbf_Foundry.sh: mirror tag construction (bind path, `b` prefix)\n- `rbf_check_consecrations` / consecration_check parsing: regex pattern match updated\n- Any other consecration format references in RBF (vouch gate, abjure, summon, inspect)\n- RBGC constants if the old format prefixes (`i`, `b`) are defined there\n\n## Regime Additions\n- Add `graft` to RBRV_VESSEL_MODE validation (buv check)\n- Add rbrv_group_grafting with RBRV_GRAFT_IMAGE variable\n- Update kindle (defaults), validate (type check + group gate), render (display section)\n- RBGC: add any new constants for graft mode\n\n## Verification\n- Existing conjure and bind operations still work with new consecration format\n- Regime render shows graft section when mode=graft\n- Regime validate accepts graft mode, rejects unknown modes\n\n## Depends on\n- ₢AtAAA specification updates (must be complete first)",
               "silks": "consecration-format-and-regime-foundation",
               "commit": "b24f1d7"
+            }
+          ]
+        },
+        "₢AtAAC": {
+          "tacks": [
+            {
+              "ts": "260314-0944",
+              "state": "rough",
+              "text": "Extract about artifact generation from conjure build into standalone Cloud Build pipeline, uniform across all vessel modes.\n\n## Character\nSubstantial refactor with new Cloud Build infrastructure — careful extraction without breaking conjure.\n\n## New Cloud Build step scripts (rbgja/)\n- `rbgja01-discover-platforms.sh`: Fetch -image manifest from GAR, extract platform list. Must handle single-arch images (no manifest list) gracefully.\n- `rbgja02-syft-per-platform.sh`: Syft SBOM per platform. Extracted/adapted from current rbgjb06. Auth via GCE metadata server token.\n- `rbgja03-build-info-per-platform.sh`: Generate metadata JSON per platform. Adapted from rbgjb07, now mode-aware: conjure gets full provenance fields, bind/graft get reduced fields. Git metadata from _RBGA_* substitution variables.\n- `rbgja04-assemble-push-about.sh`: Assemble + push multi-platform FROM scratch -about container. Adapted from rbgjb08.\n\n## RBF changes\n- New about Cloud Build submission function: director submits builds.create after -image exists in GAR\n- Substitution namespace _RBGA_* (about-specific): GAR coordinates, vessel, consecration, vessel_mode, git metadata\n- About job uses same worker pool and mason SA as vouch\n\n## Conjure pipeline reduction (rbgjb/)\n- Remove rbgjb06-syft-per-platform.sh (moved to rbgja02)\n- Remove rbgjb07-build-info-per-platform.sh (moved to rbgja03)\n- Remove rbgjb08-buildx-push-about.sh (moved to rbgja04)\n- Update rubric inscribe to generate reduced cloudbuild.json (steps 01-05 + 09 only)\n- Conjure now produces only -image; director calls about pipeline as second Cloud Build job\n\n## Verification\n- Conjure produces -image via trigger build, then -about via separate about Cloud Build job\n- About artifact contains syft SBOM and build_info.json as before\n- Inspect still reads about content correctly\n\n## Depends on\n- ₢AtAAB consecration format and regime foundation",
+              "silks": "about-pipeline-extraction",
+              "commit": "6db52a8"
             }
           ]
         }
