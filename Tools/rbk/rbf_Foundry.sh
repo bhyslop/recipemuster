@@ -111,6 +111,9 @@ zrbf_kindle() {
   buc_log_args 'Define mirror operation files'
   readonly ZRBF_MIRROR_PREFIX="${BURD_TEMP_DIR}/rbf_mirror_"
 
+  buc_log_args 'Define graft operation files'
+  readonly ZRBF_GRAFT_PREFIX="${BURD_TEMP_DIR}/rbf_graft_"
+
   buc_log_args 'Define output files (BURD_OUTPUT_DIR — persists after dispatch)'
   readonly ZRBF_OUTPUT_VESSEL_DIR="${BURD_OUTPUT_DIR}/rbf_vessel_dir.txt"
 
@@ -606,7 +609,7 @@ rbf_create() {
   case "${z_mode}" in
     conjure) rbf_build "${z_vessel_dir}" ;;
     bind)    rbf_mirror "${z_vessel_dir}" ;;
-    graft)   buc_die "Graft mode not yet implemented — use rbf_graft when available" ;;
+    graft)   rbf_graft "${z_vessel_dir}" ;;
     *)       buc_die "Unknown vessel mode: ${z_mode}" ;;
   esac
 }
@@ -1112,6 +1115,132 @@ rbf_mirror() {
   echo "  Consecration: ${z_consecration}"
   echo "  Image:  ${z_image_ref}"
   echo "  About:  ${z_about_ref}"
+  echo ""
+  echo "  Next steps:"
+  echo "    1. Update nameplate RBRN_BOTTLE_CONSECRATION to: ${z_consecration}"
+  buc_tabtarget "${RBZ_VOUCH_ARK}"
+}
+
+######################################################################
+# Graft (graft vessel → GAR)
+
+rbf_graft() {
+  zrbf_sentinel
+
+  local z_vessel_dir="${1:-}"
+
+  # Documentation block
+  buc_doc_brief "Graft a locally-built image into GAR, then run about pipeline"
+  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_shown || return 0
+
+  # No-arg: list available vessels
+  if test -z "${z_vessel_dir}"; then
+    local z_sigils
+    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+    buc_step "Available vessels:"
+    local z_sigil=""
+    for z_sigil in ${z_sigils}; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    done
+    buc_die "Vessel directory required"
+  fi
+
+  # Load and validate vessel
+  zrbf_load_vessel "${z_vessel_dir}"
+  test "${RBRV_VESSEL_MODE:-}" = "graft" \
+    || buc_die "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
+  test -n "${RBRV_GRAFT_IMAGE:-}" \
+    || buc_die "RBRV_GRAFT_IMAGE not set for graft vessel '${RBRV_SIGIL}'"
+
+  local -r z_local_image="${RBRV_GRAFT_IMAGE}"
+
+  # No dirty-tree guard — image already built; git state irrelevant to container
+
+  # Verify local image exists
+  buc_step "Verifying local image exists"
+  docker image inspect "${z_local_image}" > /dev/null 2>&1 \
+    || buc_die "Local image not found: ${z_local_image} — build the image before grafting"
+  buc_info "Local image confirmed: ${z_local_image}"
+
+  # Extract image creation timestamp for consecration T1
+  buc_step "Reading image creation timestamp"
+  local -r z_created_file="${ZRBF_GRAFT_PREFIX}created.txt"
+  docker image inspect --format '{{.Created}}' "${z_local_image}" > "${z_created_file}" \
+    || buc_die "Failed to inspect image creation timestamp"
+  local z_created=""
+  z_created=$(<"${z_created_file}")
+  test -n "${z_created}" || buc_die "Empty creation timestamp from docker inspect"
+  buc_info "Image created: ${z_created}"
+
+  # Parse ISO 8601 timestamp to YYMMDDHHMMSS
+  # Input formats: 2024-01-15T10:30:45.123456789Z or 1970-01-01T00:00:00Z
+  local z_created_clean="${z_created%%.*}"  # Remove fractional seconds
+  z_created_clean="${z_created_clean%%Z}"   # Remove trailing Z if no fractional part
+  z_created_clean="${z_created_clean%Z}"    # Handle edge case
+  local -r z_cdate="${z_created_clean%%T*}"
+  local -r z_ctime="${z_created_clean##*T}"
+  local -r z_graft_ts="g${z_cdate:2:2}${z_cdate:5:2}${z_cdate:8:2}${z_ctime:0:2}${z_ctime:3:2}${z_ctime:6:2}"
+
+  # Authenticate as Director
+  buc_step "Loading Director RBRA credentials"
+  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
+
+  buc_step "Authenticating as Director"
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  # GAR coordinates
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+
+  # Generate push timestamp (T2) for consecration
+  local -r z_push_ts_file="${ZRBF_GRAFT_PREFIX}push_ts.txt"
+  date -u +'%y%m%d%H%M%S' > "${z_push_ts_file}" || buc_die "Failed to generate push timestamp"
+  local z_push_ts
+  z_push_ts="r$(<"${z_push_ts_file}")"
+  test -n "${z_push_ts}" || buc_die "Empty push timestamp from ${z_push_ts_file}"
+  local -r z_consecration="${z_graft_ts}-${z_push_ts}"
+  local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_image_ref="${z_gar_base}/${RBRV_SIGIL}:${z_image_tag}"
+
+  buc_info "Consecration: ${z_consecration}"
+
+  # Tag and push
+  buc_step "Logging into GAR"
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_gar_host}" \
+    || buc_die "GAR authentication failed"
+
+  buc_step "Tagging local image"
+  docker tag "${z_local_image}" "${z_image_ref}" \
+    || buc_die "Failed to tag local image as ${z_image_ref}"
+
+  buc_step "Pushing to GAR"
+  buc_info "Target: ${z_image_ref}"
+  docker push "${z_image_ref}" \
+    || buc_die "Failed to push image to GAR"
+
+  buc_info "Image pushed: ${z_image_ref}"
+
+  # Submit about pipeline and wait for completion
+  buc_step "Submitting about pipeline"
+  zrbf_about_submit "${z_consecration}" "${z_token}" ""
+
+  buc_info "About complete for graft"
+
+  # Persist to output directory for downstream consumption
+  echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
+    || buc_die "Failed to write vessel dir to output"
+  echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
+    || buc_die "Failed to write consecration to output"
+
+  # Summary
+  echo ""
+  buc_success "Graft complete: ${RBRV_SIGIL}"
+  echo "  Consecration: ${z_consecration}"
+  echo "  Source:  ${z_local_image}"
+  echo "  Image:   ${z_image_ref}"
   echo ""
   echo "  Next steps:"
   echo "    1. Update nameplate RBRN_BOTTLE_CONSECRATION to: ${z_consecration}"
@@ -2011,7 +2140,7 @@ rbf_vouch_gate() {
 }
 
 ######################################################################
-# About (rbw-DA)
+# About (rbw-Db)
 
 rbf_about() {
   zrbf_sentinel
@@ -2331,7 +2460,7 @@ rbf_vouch() {
   local -r z_vessel_dir="${1:-}"
   local -r z_consecration="${2:-}"
 
-  buc_doc_brief "Vouch for an ark by verifying SLSA provenance and publishing results"
+  buc_doc_brief "Vouch for an ark by mode-aware verification in Cloud Build"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
@@ -2352,14 +2481,18 @@ rbf_vouch() {
 
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-  test -n "${RBRR_RUBRIC_REPO_URL:-}" || buc_die "RBRR_RUBRIC_REPO_URL not set"
+
+  # Conjure vouch needs RBRR_RUBRIC_REPO_URL for SOURCE_URI (SLSA verification)
+  if test "${RBRV_VESSEL_MODE}" = "conjure"; then
+    test -n "${RBRR_RUBRIC_REPO_URL:-}" || buc_die "RBRR_RUBRIC_REPO_URL not set (required for conjure vouch)"
+  fi
 
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  # Gate: require -about exists (conjure must complete before vouch)
+  # Gate: require -about exists (about must complete before vouch)
   buc_step "Gating on about artifact existence"
   local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
   local -r z_about_gate_status="${ZRBF_VOUCH_PREFIX}about_status.txt"
@@ -2380,7 +2513,7 @@ rbf_vouch() {
   local -r z_about_http_code=$(<"${z_about_gate_status}")
   test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for -about"
   test "${z_about_http_code}" = "200" \
-    || buc_die "About artifact not found (HTTP ${z_about_http_code}) — conjure must complete before vouch"
+    || buc_die "About artifact not found (HTTP ${z_about_http_code}) — about must complete before vouch"
 
   buc_info "About artifact confirmed: ${z_about_tag}"
 
@@ -2407,145 +2540,19 @@ rbf_vouch() {
     buc_warn "Re-vouch in progress: ${z_vouch_tag} already exists"
   fi
 
-  # Branch: bind vessels use local vouch, conjure vessels use Cloud Build vouch
-  if test "${RBRV_VESSEL_MODE}" = "bind"; then
-    zrbf_vouch_bind "${z_consecration}" "${z_vouch_tag}" "${z_token}"
-  else
-    zrbf_vouch_conjure "${z_consecration}" "${z_vouch_tag}" "${z_token}"
-  fi
+  # All modes use Cloud Build for vouch (mode-aware verification inside the build)
+  zrbf_vouch_submit "${z_consecration}" "${z_vouch_tag}" "${z_token}"
 
   buc_success "Vouch complete: ${RBRV_SIGIL}/${z_consecration}"
   buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"
 }
 
-# Internal: local vouch for bind vessels (no Cloud Build, no SLSA)
-zrbf_vouch_bind() {
-  zrbf_sentinel
-
-  local -r z_consecration="$1"
-  local -r z_vouch_tag="$2"
-  local -r z_token="$3"
-
-  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  local -r z_vouch_ref="${z_gar_base}/${RBRV_SIGIL}:${z_vouch_tag}"
-
-  # Verify -image exists in GAR (mirror must have completed)
-  buc_step "Verifying mirrored image exists"
-  local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
-  local -r z_image_check_status="${ZRBF_VOUCH_PREFIX}bind_image_status.txt"
-  local -r z_image_check_response="${ZRBF_VOUCH_PREFIX}bind_image_response.json"
-
-  curl --head -s \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
-    -w "%{http_code}" \
-    -o "${z_image_check_response}" \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_image_tag}" \
-    > "${z_image_check_status}" \
-    || buc_die "HEAD request failed for -image artifact"
-
-  local -r z_image_http_code=$(<"${z_image_check_status}")
-  test -n "${z_image_http_code}" || buc_die "Failed to read or empty: ${z_image_check_status}"
-  test "${z_image_http_code}" = "200" \
-    || buc_die "Image artifact not found (HTTP ${z_image_http_code}) — mirror must complete before vouch"
-  buc_info "Mirrored image confirmed: ${z_image_tag}"
-
-  # Extract GAR digest from HEAD response headers
-  buc_step "Verifying digest fidelity"
-  local z_gar_digest=""
-  local z_digest_line=""
-  while IFS= read -r z_digest_line || test -n "${z_digest_line}"; do
-    case "${z_digest_line}" in
-      [Dd]ocker-[Cc]ontent-[Dd]igest:*)
-        z_gar_digest="${z_digest_line#*: }"
-        while test "${z_gar_digest}" != "${z_gar_digest%[[:space:]]}" ; do
-          z_gar_digest="${z_gar_digest%[[:space:]]}"
-        done
-        break ;;
-    esac
-  done < "${z_image_check_response}"
-  test -n "${z_gar_digest}" || buc_die "Docker-Content-Digest header not found in GAR HEAD response"
-
-  # Extract pin digest from RBRV_BIND_IMAGE (the part after @)
-  local z_pin_digest
-  z_pin_digest="${RBRV_BIND_IMAGE#*@}"
-  test -n "${z_pin_digest}" || buc_die "No digest found in RBRV_BIND_IMAGE: ${RBRV_BIND_IMAGE}"
-  test "${z_pin_digest}" != "${RBRV_BIND_IMAGE}" || buc_die "RBRV_BIND_IMAGE has no @ delimiter: ${RBRV_BIND_IMAGE}"
-
-  # Compare digests
-  local z_vouch_verdict="FAIL"
-  if test "${z_gar_digest}" = "${z_pin_digest}"; then
-    z_vouch_verdict="PASS"
-    buc_info "Digest match confirmed: ${z_gar_digest}"
-  else
-    buc_warn "Digest MISMATCH — GAR: ${z_gar_digest}  Pin: ${z_pin_digest}"
-  fi
-
-  # Generate vouch_summary.json (bind-specific)
-  buc_step "Generating bind vouch summary"
-  local -r z_vouch_summary="${ZRBF_VOUCH_PREFIX}vouch_summary.json"
-  local -r z_vouch_ts_file="${ZRBF_VOUCH_PREFIX}timestamp.txt"
-  date -u +'%Y-%m-%dT%H:%M:%SZ' > "${z_vouch_ts_file}" || buc_die "Failed to generate vouch timestamp"
-  local z_vouch_ts
-  z_vouch_ts=$(<"${z_vouch_ts_file}")
-  test -n "${z_vouch_ts}" || buc_die "Empty vouch timestamp from ${z_vouch_ts_file}"
-  jq -n \
-    --arg vessel        "${RBRV_SIGIL}" \
-    --arg consecration  "${z_consecration}" \
-    --arg vessel_mode   "bind" \
-    --arg source_image  "${RBRV_BIND_IMAGE:-}" \
-    --arg pin_digest    "${z_pin_digest}" \
-    --arg gar_digest    "${z_gar_digest}" \
-    --arg verdict       "${z_vouch_verdict}" \
-    --arg timestamp     "${z_vouch_ts}" \
-    '{
-      vessel: $vessel,
-      consecration: $consecration,
-      vessel_mode: $vessel_mode,
-      verification: {
-        method: "digest-pin",
-        source_image: $source_image,
-        pin_digest: $pin_digest,
-        gar_digest: $gar_digest,
-        digest_match: ($verdict == "PASS"),
-        timestamp: $timestamp,
-        result: (if $verdict == "PASS"
-          then "PASS — GAR image digest matches vessel pin"
-          else "FAIL — GAR image digest does not match vessel pin"
-        end)
-      }
-    }' > "${z_vouch_summary}" \
-    || buc_die "Failed to generate vouch summary"
-
-  # Build and push -vouch container locally
-  buc_step "Building bind -vouch container"
-  local -r z_vouch_dir="${BURD_TEMP_DIR}/vouch_build"
-  mkdir -p "${z_vouch_dir}" || buc_die "Failed to create vouch directory: ${z_vouch_dir}"
-  cp "${z_vouch_summary}" "${z_vouch_dir}/vouch_summary.json" || buc_die "Failed to copy vouch summary"
-
-  {
-    echo 'FROM scratch'
-    echo 'LABEL org.opencontainers.image.title="rbva-vouch"'
-    echo 'COPY vouch_summary.json /vouch_summary.json'
-  } > "${z_vouch_dir}/Dockerfile"
-
-  # Authenticate docker to GAR
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_gar_host}" \
-    || buc_die "GAR authentication failed for vouch push"
-
-  docker build -t "${z_vouch_ref}" "${z_vouch_dir}" \
-    || buc_die "Failed to build -vouch container"
-  docker push "${z_vouch_ref}" \
-    || buc_die "Failed to push -vouch container"
-
-  buc_info "Bind vouch pushed: ${z_vouch_ref}"
-}
-
-# Internal: Cloud Build vouch for conjure vessels (SLSA provenance verification)
-zrbf_vouch_conjure() {
+# Internal: Submit vouch Cloud Build job (mode-aware verification)
+# All vessel modes use Cloud Build. The build scripts branch on _RBGV_VESSEL_MODE:
+#   conjure: SLSA provenance verification via slsa-verifier
+#   bind: digest-pin comparison against upstream reference
+#   graft: GRAFTED stamp (no verification)
+zrbf_vouch_submit() {
   zrbf_sentinel
 
   local -r z_consecration="$1"
@@ -2555,8 +2562,31 @@ zrbf_vouch_conjure() {
   buc_step "Constructing vouch Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  local -r z_source_uri="${RBRR_RUBRIC_REPO_URL%.git}"
   local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+
+  # Mode-specific substitution values (empty strings for non-applicable modes)
+  local z_source_uri=""
+  local z_verifier_url=""
+  local z_verifier_sha=""
+  local z_bind_source=""
+  local z_graft_source=""
+
+  case "${RBRV_VESSEL_MODE}" in
+    conjure)
+      z_source_uri="${RBRR_RUBRIC_REPO_URL%.git}"
+      z_verifier_url="${RBRG_SLSA_VERIFIER_URL}"
+      z_verifier_sha="${RBRG_SLSA_VERIFIER_SHA256}"
+      ;;
+    bind)
+      z_bind_source="${RBRV_BIND_IMAGE:-}"
+      ;;
+    graft)
+      z_graft_source="${RBRV_GRAFT_IMAGE:-}"
+      ;;
+    *)
+      buc_die "Unknown vessel mode: ${RBRV_VESSEL_MODE}"
+      ;;
+  esac
 
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
@@ -2623,32 +2653,38 @@ zrbf_vouch_conjure() {
   buc_log_args "Composing vouch Build resource JSON"
   local -r z_vouch_build_file="${ZRBF_VOUCH_PREFIX}build.json"
 
-  local -r z_vouch_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
-
   jq -n \
-    --slurpfile zjq_steps  "${z_vouch_steps_accumulator}" \
-    --arg zjq_sa           "${z_mason_sa}" \
-    --arg zjq_gar_host     "${z_gar_host}" \
-    --arg zjq_gar_path     "${z_gar_path}" \
-    --arg zjq_vessel       "${RBRV_SIGIL}" \
-    --arg zjq_consecration "${z_consecration}" \
-    --arg zjq_source_uri   "${z_source_uri}" \
-    --arg zjq_verifier_url "${RBRG_SLSA_VERIFIER_URL}" \
-    --arg zjq_verifier_sha "${RBRG_SLSA_VERIFIER_SHA256}" \
-    --arg zjq_platforms    "${z_vouch_platforms}" \
-    --arg zjq_pool         "${RBRR_GCB_WORKER_POOL}" \
-    --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
+    --slurpfile zjq_steps       "${z_vouch_steps_accumulator}" \
+    --arg zjq_sa                "${z_mason_sa}" \
+    --arg zjq_gar_host          "${z_gar_host}" \
+    --arg zjq_gar_path          "${z_gar_path}" \
+    --arg zjq_vessel            "${RBRV_SIGIL}" \
+    --arg zjq_consecration      "${z_consecration}" \
+    --arg zjq_vessel_mode       "${RBRV_VESSEL_MODE}" \
+    --arg zjq_source_uri        "${z_source_uri}" \
+    --arg zjq_verifier_url      "${z_verifier_url}" \
+    --arg zjq_verifier_sha      "${z_verifier_sha}" \
+    --arg zjq_bind_source       "${z_bind_source}" \
+    --arg zjq_graft_source      "${z_graft_source}" \
+    --arg zjq_ark_suffix_image  "${RBGC_ARK_SUFFIX_IMAGE}" \
+    --arg zjq_ark_suffix_vouch  "${RBGC_ARK_SUFFIX_VOUCH}" \
+    --arg zjq_pool              "${RBRR_GCB_WORKER_POOL}" \
+    --arg zjq_timeout           "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
-        _RBGV_GAR_HOST:        $zjq_gar_host,
-        _RBGV_GAR_PATH:        $zjq_gar_path,
-        _RBGV_VESSEL:          $zjq_vessel,
-        _RBGV_CONSECRATION:    $zjq_consecration,
-        _RBGV_SOURCE_URI:      $zjq_source_uri,
-        _RBGV_VERIFIER_URL:    $zjq_verifier_url,
-        _RBGV_VERIFIER_SHA256: $zjq_verifier_sha,
-        _RBGV_PLATFORMS:       $zjq_platforms
+        _RBGV_GAR_HOST:          $zjq_gar_host,
+        _RBGV_GAR_PATH:          $zjq_gar_path,
+        _RBGV_VESSEL:            $zjq_vessel,
+        _RBGV_CONSECRATION:      $zjq_consecration,
+        _RBGV_VESSEL_MODE:       $zjq_vessel_mode,
+        _RBGV_SOURCE_URI:        $zjq_source_uri,
+        _RBGV_VERIFIER_URL:      $zjq_verifier_url,
+        _RBGV_VERIFIER_SHA256:   $zjq_verifier_sha,
+        _RBGV_BIND_SOURCE:       $zjq_bind_source,
+        _RBGV_GRAFT_SOURCE:      $zjq_graft_source,
+        _RBGV_ARK_SUFFIX_IMAGE:  $zjq_ark_suffix_image,
+        _RBGV_ARK_SUFFIX_VOUCH:  $zjq_ark_suffix_vouch
       },
       serviceAccount: $zjq_sa,
       options: {
@@ -3414,8 +3450,8 @@ zrbf_inspect_show_sections() {
 
   # Vouch — branched by vessel mode
   echo ""
+  echo "  -- Vouch Results ------------------------------------------------"
   if test "${z_vessel_mode}" = "bind"; then
-    echo "  -- Vouch Results ------------------------------------------------"
     echo "  Bind verification: was the mirrored image verified against its digest pin?"
     echo ""
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
@@ -3423,12 +3459,12 @@ zrbf_inspect_show_sections() {
       local z_vf_match="" z_vf_ts="" z_vf_source=""
       jq -r '
         (.verification.method // "?"),
-        (.verification.result // "?"),
-        (.verification.pin_digest // "?"),
-        (.verification.gar_digest // "?"),
+        (.verification.result // .verification.verdict // "?"),
+        (.verification.pin_digest // .verification.pinned_digest // "?"),
+        (.verification.gar_digest // .verification.actual_digest // "?"),
         (.verification.digest_match // "?"),
         (.verification.timestamp // "?"),
-        (.verification.source_image // "?")
+        (.verification.source_image // .verification.bind_source // "?")
       ' "${z_vs}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
       { read -r z_vf_method
         read -r z_vf_result
@@ -3439,7 +3475,7 @@ zrbf_inspect_show_sections() {
         read -r z_vf_source
       } < "${ZRBF_SCRATCH_FILE}"
       echo "  Method:      ${z_vf_method}"
-      echo "  Result:      ${z_vf_result}"
+      echo "  Verdict:     ${z_vf_result}"
       echo "  Pin digest:  ${z_vf_pin}"
       echo "  GAR digest:  ${z_vf_gar}"
       echo "  Match:       ${z_vf_match}"
@@ -3448,8 +3484,27 @@ zrbf_inspect_show_sections() {
     else
       echo "  Vouch artifact not locally present — run summon to retrieve"
     fi
+  elif test "${z_vessel_mode}" = "graft"; then
+    echo "  Graft acknowledgment: no provenance chain — GRAFTED verdict"
+    echo ""
+    if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
+      local z_gf_verdict="" z_gf_source="" z_gf_method=""
+      jq -r '
+        (.verification.verdict // "?"),
+        (.verification.graft_source // "?"),
+        (.verification.method // "?")
+      ' "${z_vs}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+      { read -r z_gf_verdict
+        read -r z_gf_source
+        read -r z_gf_method
+      } < "${ZRBF_SCRATCH_FILE}"
+      echo "  Verdict:     ${z_gf_verdict}"
+      echo "  Method:      ${z_gf_method}"
+      echo "  Source:      ${z_gf_source}"
+    else
+      echo "  Vouch artifact not locally present — run summon to retrieve"
+    fi
   else
-    echo "  -- Vouch Results ------------------------------------------------"
     echo "  Independent SLSA verification: did this image pass provenance checks?"
     echo ""
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then

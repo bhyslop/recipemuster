@@ -74,6 +74,7 @@ zrbz_kindle() {
   buz_enroll RBZ_INSPECT_FULL              "rbw-RiF"      "${z_mod}" "rbf_inspect_full"
   buz_enroll RBZ_INSPECT_COMPACT           "rbw-Ric"      "${z_mod}" "rbf_inspect_compact"
   buz_enroll RBZ_CHECK_CONSECRATIONS        "rbw-Dc"       "${z_mod}" "rbf_check_consecrations"
+  buz_enroll RBZ_ABOUT_ARK                   "rbw-Db"       "${z_mod}" "rbf_about"
   buz_enroll RBZ_VOUCH_ARK                  "rbw-DV"       "${z_mod}" "rbf_batch_vouch"
   z_mod="rbrr_cli.sh"
   buz_enroll RBZ_REFRESH_GCB_PINS           "rbw-DPG"      "${z_mod}" "rbrr_refresh_gcb_pins"

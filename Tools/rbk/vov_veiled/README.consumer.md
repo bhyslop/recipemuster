@@ -287,7 +287,7 @@ rbev-vessels/
     └── rbrv.env
 ```
 
-Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. The same `tt/rbw-DC.DirectorCreatesArk.sh` command handles both: it detects the vessel mode and either triggers a Cloud Build (conjure) or mirrors the upstream image to GAR (bind). Trust for bind vessels is the digest pin itself.
+Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. Graft vessels push a locally-built image to GAR via docker push — no Cloud Build for the image, but about and vouch still run in Cloud Build. The same `tt/rbw-DC.DirectorCreatesArk.sh` command handles all three: it detects the vessel mode and triggers a Cloud Build (conjure), mirrors from upstream (bind), or pushes a local image (graft). Trust hierarchy: conjure has full SLSA provenance, bind has digest-pin verification, graft has no provenance chain (GRAFTED verdict).
 
 **Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `nsproto`) is what appears as the imprint in tabtarget filenames:
 
