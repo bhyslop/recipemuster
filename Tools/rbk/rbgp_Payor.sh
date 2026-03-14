@@ -862,9 +862,7 @@ rbgp_depot_create() {
 
   # Base64-encode the GitLab token (same value for api and read_api secrets)
   local z_token_b64
-  printf '%s' "${z_gitlab_token}" | base64 > "${ZRBGP_SCRATCH_FILE}" \
-    || buc_die "Failed to base64-encode token"
-  z_token_b64=$(<"${ZRBGP_SCRATCH_FILE}")
+  z_token_b64=$(printf '%s' "${z_gitlab_token}" | base64) || buc_die "Failed to base64-encode token"
 
   # Generate webhook secret (random UUID) — uuidgen to temp file, read with builtin
   local -r z_webhook_uuid_file="${BURD_TEMP_DIR}/rbgp_webhook_uuid.txt"
@@ -878,9 +876,7 @@ rbgp_depot_create() {
   z_webhook_secret="${z_webhook_secret%"${z_webhook_secret##*[![:space:]]}"}"
 
   local z_webhook_b64
-  printf '%s' "${z_webhook_secret}" | base64 > "${ZRBGP_SCRATCH_FILE}" \
-    || buc_die "Failed to base64-encode webhook secret"
-  z_webhook_b64=$(<"${ZRBGP_SCRATCH_FILE}")
+  z_webhook_b64=$(printf '%s' "${z_webhook_secret}" | base64) || buc_die "Failed to base64-encode webhook secret"
 
   # --- Create api token secret ---
   local -r z_api_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
@@ -1669,21 +1665,15 @@ rbgp_governor_reset() {
   local -r z_rbra_file="${BURD_OUTPUT_DIR}/governor-${z_timestamp}.rbra"
 
   local z_client_email
-  jq -r '.client_email' "${z_key_json}" > "${ZRBGP_SCRATCH_FILE}" \
-    || buc_die "Failed to extract client_email"
-  z_client_email=$(<"${ZRBGP_SCRATCH_FILE}")
+  z_client_email=$(jq -r '.client_email' "${z_key_json}") || buc_die "Failed to extract client_email"
   test -n "${z_client_email}" || buc_die "Empty client_email in key JSON"
 
   local z_private_key
-  jq -r '.private_key' "${z_key_json}" > "${ZRBGP_SCRATCH_FILE}" \
-    || buc_die "Failed to extract private_key"
-  z_private_key=$(<"${ZRBGP_SCRATCH_FILE}")
+  z_private_key=$(jq -r '.private_key' "${z_key_json}") || buc_die "Failed to extract private_key"
   test -n "${z_private_key}" || buc_die "Empty private_key in key JSON"
 
   local z_project_id
-  jq -r '.project_id' "${z_key_json}" > "${ZRBGP_SCRATCH_FILE}" \
-    || buc_die "Failed to extract project_id"
-  z_project_id=$(<"${ZRBGP_SCRATCH_FILE}")
+  z_project_id=$(jq -r '.project_id' "${z_key_json}") || buc_die "Failed to extract project_id"
   test -n "${z_project_id}" || buc_die "Empty project_id in key JSON"
 
   buc_step 'Write RBRA file'

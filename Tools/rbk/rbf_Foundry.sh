@@ -2832,7 +2832,7 @@ zrbf_inspect_show_sections() {
     echo ""
     echo "  Mode:           conjure (built by Google Cloud Build)"
     local z_strategy="native"
-    test "${z_qemu}" = "true" && z_strategy="emulated (QEMU)"
+    if test "${z_qemu}" = "true"; then z_strategy="emulated (QEMU)"; fi
     echo "  Platform:       ${z_platform} (host-platform view)"
     echo "  Build strategy: ${z_strategy}"
     echo "  Moniker:        ${z_cj_moniker}"
