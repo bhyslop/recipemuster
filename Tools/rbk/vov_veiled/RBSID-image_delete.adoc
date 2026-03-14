@@ -6,7 +6,7 @@ NOTE: This operation deletes a container image from
 using the Docker Registry HTTP API V2 implemented by
 {gar_service}.
 
-NOTE: To delete an entire {rbtga_ark} (both `-image` and `-about` artifacts), use {rbtgo_ark_abjure} instead.
+NOTE: To delete an entire {rbtga_ark} (all three artifacts: `-image`, `-about`, `-vouch`), use {rbtgo_ark_abjure} instead.
 
 The
 {rbtr_director}

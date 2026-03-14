@@ -1,0 +1,180 @@
+//axhob_operation
+{rbtgo_ark_about}
+
+NOTE: This operation assembles the
+{rbtga_ark_about}
+metadata artifact for an existing
+{rbtga_ark_image}
+in
+{rbtgi_repository}.
+The
+{rbtr_director}
+submits a Cloud Build job via `builds.create` (direct submission), which runs as the
+{rbtr_mason}
+service account on the private pool (`RBRR_GCB_WORKER_POOL`).
+
+NOTE: The about pipeline is uniform across all three vessel modes.
+Once `-image` exists in GAR (however it got there — conjure, bind, or graft), the same about job runs Syft for SBOM and assembles mode-aware `build_info.json`.
+
+NOTE: About uses `builds.create` rather than trigger dispatch because the
+{rbtga_consecration}
+is known only after the image arrives in GAR.
+
+The
+{rbtr_director}
+assembles about for an ark:
+
+//axhop_parameter_from_type
+{rbtga_ark}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+vessel directory provided as first argument
+.. {rbbc_require}
+consecration provided as second argument
+
+//axhos_step
+. *Load Vessel Configuration*:
+.. Source vessel configuration from `rbrv.env`
+.. {rbbc_store}
+`«VESSEL_MODE»` from {rbrv_vessel_mode}
+.. {rbbc_store}
+`«VESSEL_SIGIL»` from {rbrv_sigil}
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Gate on Image Existence*:
+.. {rbbc_call}
+Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
+.. {rbbc_require}
+HTTP 200 response -- image must exist before about can run
+.. If `«CONSECRATION»-about` already exists:
+{rbbc_warn}
+re-about in progress (idempotent overwrite)
+
+//axhos_step
+. *Submit About Cloud Build*:
+.. Construct Build resource JSON with `serviceAccount` as
+{rbtr_mason},
+substitution namespace `_RBGA_*`
+.. Pass registry coordinates, vessel mode, vessel identity, and git metadata as substitution variables
+.. {rbbc_submit}
+`POST «GCB_PROJECT_BUILDS_URL»` with Build resource JSON
+.. {rbbc_require}
+HTTP 200 response
+.. {rbbc_store}
+`«BUILD_ID»` from response `.metadata.build.id`
+.. {rbbc_show}
+Cloud Console URL for build monitoring
+
+//axhos_step
+. *Cloud Build Step 1: Discover Platforms*:
+.. Image: {rbrg_gcloud_image_ref}
+.. Fetch OAuth token via `gcloud auth print-access-token`
+.. {rbbc_call}
+Docker Registry API: GET manifests for `«CONSECRATION»-image` with OCI media type accept headers
+.. If response is an OCI image index or Docker manifest list:
+... {rbbc_store}
+`«PLATFORMS»` as list of platform descriptors from the manifest list
+.. If response is a single OCI/Docker manifest:
+... {rbbc_store}
+`«PLATFORMS»` as single-element list from image config
+.. {rbbc_store}
+platform count for subsequent step branching
+
+//axhos_step
+. *Cloud Build Step 2: Syft SBOM Generation*:
+.. Image: {rbrg_syft_image_ref}
+.. For each platform in `«PLATFORMS»`:
+... Pull platform-specific image via `docker pull --platform «PLATFORM»` (or direct registry access)
+... {rbbc_call}
+`syft` scan against the pulled image
+... {rbbc_store}
+per-platform SBOM to `/workspace/sbom.«PLATFORM_SUFFIX».spdx.json`
+
+//axhos_step
+. *Cloud Build Step 3: Assemble build_info.json*:
+.. Image: {rbrg_alpine_image_ref}
+.. For each platform in `«PLATFORMS»`:
+... Construct `build_info.json` with mode-aware fields:
+.... Shared: `vessel_mode`, `vessel_name`, `platform`, `image_digest`, `about_timestamp`, `git_commit`, `git_branch`, `git_repo`
+.... Conjure: `build_id` (from `_RBGA_BUILD_ID`), `inscribe_timestamp`, `qemu_used`, `slsa_build_level`, `build_invocation_id`, `provenance_predicate_types`, `provenance_builder_id`
+.... Bind: `bind_source` (from `_RBGA_BIND_SOURCE`)
+.... Graft: `graft_source` (from `_RBGA_GRAFT_SOURCE`)
+... {rbbc_store}
+per-platform `build_info.json` to `/workspace/build_info.«PLATFORM_SUFFIX».json`
+
+//axhos_step
+. *Cloud Build Step 4: Build and Push About Artifact*:
+.. Image: {rbrg_docker_image_ref}
+.. Create buildx builder instance (inspect-or-create pattern)
+.. Build multi-platform `FROM scratch` container with per-platform SBOM and `build_info.json` as layers
+.. For single-platform images: build single-platform `-about` container
+.. For multi-platform images: build with `buildx --push` using `TARGETARCH`/`TARGETVARIANT` to select per-platform files
+.. Push to registry tagged `«CONSECRATION»-about` via `docker buildx build --push`
+.. {rbbc_require}
+push succeeds
+
+//axhos_step
+. *Wait for Build Completion*:
+.. {rbbc_poll}
+`GET «GCB_PROJECT_BUILDS_URL»/«BUILD_ID»` every 5 seconds
+.. Continue while status in [`PENDING`, `QUEUED`, `WORKING`]
+.. {rbbc_fatal}
+if timeout or final status is not `SUCCESS`
+
+//axhoo_output_of_type
+{rbtga_ark_about}
+. *Display Results*:
+.. {rbbc_show}
+about assembly complete with consecration and about artifact tag
+
+//axhoc_completion
+Successful execution creates a
+{rbtga_ark_about}
+artifact in the registry tagged as `«VESSEL»:«CONSECRATION»-about`.
+The about artifact is a multi-platform container matching the `-image` artifact's platform list.
++
+*Re-about idempotency*: Re-running about re-executes Syft and rebuilds `build_info.json`, overwriting the previous `-about` artifact.
+SBOM content may vary if Syft discovers different packages (e.g., after a Syft version update).
++
+*Proceed to vouch*: After about completes, run
+{rbtgo_ark_vouch}
+to produce the verification artifact that completes the ark.
+
+==== About Substitution Variables
+
+All `_RBGA_*` substitution variables are passed in the `builds.create` request body.
+
+*Registry and identity*::
+[cols="1,2"]
+|===
+| `_RBGA_GAR_HOST` | GAR Docker host. Source: regime constants.
+| `_RBGA_GAR_PATH` | GAR repository path. Source: regime constants.
+| `_RBGA_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
+| `_RBGA_CONSECRATION` | Full consecration string. Source: input parameter.
+| `_RBGA_VESSEL_MODE` | Vessel mode (`conjure`, `bind`, or `graft`). Source: loaded vessel configuration.
+|===
+
+*Git metadata*::
+[cols="1,2"]
+|===
+| `_RBGA_GIT_COMMIT` | Main repo HEAD SHA at operation time.
+| `_RBGA_GIT_BRANCH` | Main repo branch at operation time.
+| `_RBGA_GIT_REPO` | Main repo identifier (owner/repo).
+|===
+
+*Mode-specific*::
+[cols="1,2"]
+|===
+| `_RBGA_BUILD_ID` | Conjure Cloud Build job ID (conjure only). Empty for bind/graft.
+| `_RBGA_INSCRIBE_TIMESTAMP` | Inscribe timestamp from consecration (conjure only). Empty for bind/graft.
+| `_RBGA_BIND_SOURCE` | Pinned upstream image reference (bind only). Source: {rbrv_bind_image}. Empty for conjure/graft.
+| `_RBGA_GRAFT_SOURCE` | Local image reference at push time (graft only). Empty for conjure/bind.
+|===

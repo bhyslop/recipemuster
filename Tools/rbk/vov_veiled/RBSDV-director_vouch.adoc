@@ -8,8 +8,8 @@ consecrations across all
 repositories.
 The
 {rbtr_director}
-enumerates vessels, identifies consecrations with `-about` but no `-vouch`, pre-checks SLSA provenance availability, and submits individual vouch builds for each vouchable consecration.
-Consecrations lacking provenance are skipped with a warning rather than aborting the batch.
+enumerates vessels, identifies consecrations with `-about` but no `-vouch`, pre-checks SLSA provenance availability for conjure-mode consecrations, and submits individual vouch builds for each vouchable consecration.
+Conjure consecrations lacking provenance are skipped with a warning; bind and graft consecrations are always vouchable.
 
 The
 {rbtr_director}
@@ -33,16 +33,18 @@ Docker Registry API: GET tags list for the vessel
 . *Classify Consecration Health*:
 .. For each unique consecration across all vessels, determine health state:
 ... *vouched*: has `-about` and `-vouch` — healthy, skip
-... *vouchable*: has `-about`, no `-vouch`, SLSA provenance exists — queue for vouch
-... *unvouchable*: has `-about`, no `-vouch`, no SLSA provenance — skip with warning
-... *incomplete*: has `-image` but no `-about` — conjure did not finish, skip with warning
+... *vouchable*: has `-about`, no `-vouch`, and either (a) mode is bind/graft, or (b) mode is conjure and SLSA provenance exists — queue for vouch
+... *unvouchable*: has `-about`, no `-vouch`, mode is conjure, no SLSA provenance — skip with warning
+... *incomplete*: has `-image` but no `-about` — about pipeline has not run, skip with warning
+.. Vessel mode is derived from the consecration mode prefix (`c`=conjure, `b`=bind, `g`=graft)
 
 //axhos_step
-. *Pre-check Provenance*:
-.. For each consecration with `-about` but no `-vouch`:
+. *Pre-check Provenance* (conjure only):
+.. For each conjure-mode consecration with `-about` but no `-vouch`:
 ... {rbbc_call}
 `gcloud artifacts docker images describe --show-provenance` to test provenance availability
 ... If provenance unavailable: classify as *unvouchable*, continue to next
+.. Bind and graft consecrations skip this step — they are always vouchable
 
 //axhos_step
 . *Submit Vouch Builds*:
@@ -63,7 +65,11 @@ batch totals: N vouched, M skipped (no provenance), P already vouched, Q incompl
 Successful execution creates
 {rbtga_ark_vouch}
 artifacts for all vouchable consecrations across all vessels.
-Consecrations without SLSA provenance are skipped gracefully — the batch never aborts on these.
+Conjure consecrations without SLSA provenance are skipped gracefully — the batch never aborts on these.
+Bind and graft consecrations are always vouchable (no provenance pre-check needed).
 +
-*No-provenance resilience*: Older builds may lack SLSA provenance records.
+*No-provenance resilience* (conjure only): Older conjure builds may lack SLSA provenance records.
 Rather than submitting a Cloud Build that fails with an opaque `invalid DSSE envelope payload` error, the batch pre-checks provenance availability and skips with a clear message.
++
+*Mode-aware vouch*: The batch delegates to {rbtgo_ark_vouch}, which branches on vessel mode internally.
+Bind gets digest-pin verification; graft gets GRAFTED stamp; conjure gets full SLSA verification.

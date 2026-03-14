@@ -55,6 +55,7 @@ using the ephemeral authenticated URL
 {rbtgr_build_json}
 directly into the clone via `zrbf_stitch_build_json()` from step scripts (`rbgjb/*.sh`) and regime pins
 ... All values baked: GAR coordinates, builder image pins (digest-pinned), vessel identity, platforms
+... The generated JSON produces only the `-image` artifact; about and vouch are handled by subsequent pipeline stages
 ... Substitutions block includes four placeholders: `_RBGY_RUBRIC_REPO`, `_RBGY_RUBRIC_COMMIT`, `_RBGY_GIT_COMMIT`, and `_RBGY_INSCRIBE_TIMESTAMP` — filled before push (next step)
 ... All other values deterministic: same inputs produce byte-identical output
 .. Fill all four placeholders in each

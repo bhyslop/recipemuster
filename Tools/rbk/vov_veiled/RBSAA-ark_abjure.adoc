@@ -10,7 +10,7 @@ using the Docker Registry HTTP API V2 implemented by
 
 An
 {rbtga_ark}
-is the coherent unit of a Recipe Bottle build: a paired set of artifacts sharing a common
+is the coherent unit of a Recipe Bottle build: a set of artifacts sharing a common
 {rbtga_consecration}
 but distinguished by suffix.
 The
@@ -18,8 +18,11 @@ The
 (`-image`) contains the container image itself.
 The
 {rbtga_ark_about}
-(`-about`) contains build provenance, SBOM, and metadata.
-Abjuring an ark removes both artifacts as a single logical operation.
+(`-about`) contains SBOM and build metadata.
+The
+{rbtga_ark_vouch}
+(`-vouch`) contains verification results.
+Abjuring an ark removes all three artifacts as a single logical operation.
 
 The
 {rbtr_director}
@@ -41,7 +44,7 @@ if consecration missing: "Consecration parameter required"
 {rbtga_consecration}
 . *Validate Consecration Format*:
 .. {rbbc_require}
-`«INPUT_CONSECRATION»` matches pattern `YYYYMMDDTHHMMSSZ` or similar timestamp format
+`«INPUT_CONSECRATION»` matches pattern `[cbg]\d{12}-r\d{12}` (mode prefix + dual timestamp)
 .. {rbbc_fatal}
 if malformed: "Consecration format invalid"
 
@@ -68,6 +71,8 @@ if malformed: "Consecration format invalid"
 `«IMAGE_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-image`
 .. {rbbc_store}
 `«ABOUT_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-about`
+.. {rbbc_store}
+`«VOUCH_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-vouch`
 
 //axhos_step
 . *Verify Ark Existence*:
@@ -84,10 +89,15 @@ same HEAD request for `«ABOUT_TAG»`:
 ... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-about`
 .. {rbbc_store}
 `«ABOUT_EXISTS»` as true if HTTP 200, false if HTTP 404
+.. {rbbc_call}
+same HEAD request for `«VOUCH_TAG»`:
+... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-vouch`
+.. {rbbc_store}
+`«VOUCH_EXISTS»` as true if HTTP 200, false if HTTP 404
 
 //axhos_step
 . *Evaluate Ark State*:
-.. If both `«IMAGE_EXISTS»` and `«ABOUT_EXISTS»` are false:
+.. If all of `«IMAGE_EXISTS»`, `«ABOUT_EXISTS»`, and `«VOUCH_EXISTS»` are false:
 ... {rbbc_fatal}
 "Ark not found: neither -image nor -about exists"
 .. If exactly one exists:
@@ -133,6 +143,19 @@ Docker Registry API: DELETE manifests with:
 HTTP 202 (Accepted) or 204 (No Content) response
 ... {rbbc_fatal}
 if delete fails: "Failed to delete -about artifact (HTTP «STATUS_CODE»)"
+
+//axhos_step
+. *Delete Vouch Artifact* (if exists):
+.. If `«VOUCH_EXISTS»`:
+... {rbbc_call}
+Docker Registry API: DELETE manifests with:
+.... method: `DELETE`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-vouch`
+.... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
+... {rbbc_require}
+HTTP 202 (Accepted) or 204 (No Content) response
+... {rbbc_fatal}
+if delete fails: "Failed to delete -vouch artifact (HTTP «STATUS_CODE»)"
 
 //axhoo_output_of_type
 {rbtga_ark}

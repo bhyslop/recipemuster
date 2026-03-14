@@ -29,7 +29,9 @@ Full read and edit access is pre-approved for all files in:
 - **RBV**  → `rbk/rbv_PodmanVM.sh`
 - **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
 - **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
+- **RBSAB** → `rbk/vov_veiled/RBSAB-ark_about.adoc` (Standalone Cloud Build about pipeline - syft SBOM + mode-aware build_info)
 - **RBSAC** → `rbk/vov_veiled/RBSAC-ark_conjure.adoc`
+- **RBSAG** → `rbk/vov_veiled/RBSAG-ark_graft.adoc` (Graft operation - local image push to GAR)
 - **RBSAI** → `rbk/vov_veiled/RBSAI-ark_inspect.adoc`
 - **RBSAJ** → `rbk/vov_veiled/RBSAJ-access_jwt_probe.adoc`
 - **RBSAO** → `rbk/vov_veiled/RBSAO-access_oauth_probe.adoc`

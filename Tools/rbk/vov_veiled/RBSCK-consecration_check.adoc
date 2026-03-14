@@ -40,7 +40,7 @@ local regime vessel list via `rbrv_list_capture`
 Docker Registry HTTP API V2 tag list endpoint
 ... For each tag returned, match against
 {rbtga_consecration}
-pattern (`iYYYYMMDD_HHMMSS-bYYYYMMDD_HHMMSS`):
+pattern (`[cbg]\d{12}-r\d{12}`):
 .... Tags with `-image` suffix → classify by platform suffix (bare = consumer manifest list, `-amd64`/`-arm64` = per-platform)
 .... Tags with `-about` suffix → about artifact present
 .... Tags with `-vouch` suffix → vouch artifact present
@@ -64,10 +64,10 @@ health state and platform list per consecration
 ... {rbbc_show}
 vessel header
 ... {rbbc_show}
-column headers: `Consecration`, `Platforms`, `Health`
+column headers: `Consecration`, `Mode`, `Platforms`, `Health`
 ... For each consecration (newest first):
 .... {rbbc_show}
-consecration timestamp, platform list (or `single`), health state
+consecration timestamp, vessel mode (conjure/bind/graft from mode prefix), platform list (or `single`), health state
 .. {rbbc_show}
 per-consecration fact files in output directory for test observability
 
@@ -78,7 +78,7 @@ per-consecration fact files in output directory for test observability
 tabtarget recommendation for vouch
 .. If any `incomplete` consecrations:
 ... {rbbc_show}
-tabtarget recommendation to abjure and re-conjure
+tabtarget recommendation to run {rbtgo_ark_about} (or abjure and rebuild if image is suspect)
 
 //axhoc_completion
 Procedure completes successfully when all vessels have been queried and the per-vessel tables display consecration health.

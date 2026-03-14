@@ -1,0 +1,109 @@
+//axhob_operation
+{rbtgo_ark_graft}
+
+NOTE: This operation grafts a locally-built container image into
+{rbtgi_repository}
+via native docker/podman push.
+No Cloud Build involvement — the image is already built on the local workstation.
+No crane dependency — docker tag + docker push is sufficient for locally-present images.
+No dirty-tree guard — git state is irrelevant to an already-built container.
+
+NOTE: The name "graft" comes from botanical grafting — foreign material spliced onto rootstock.
+The graft may take or may not.
+The metaphor fits the trust posture: grafted images have no provenance chain and receive a GRAFTED verdict from
+{rbtgo_ark_vouch}.
+
+The
+{rbtr_director}
+grafts an image:
+
+//axhop_parameter_from_type
+{rbtgr_vessel_dir}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+vessel directory provided as first argument
+.. {rbbc_require}
+local image reference provided as second argument (or defaulted from {rbrv_graft_image})
+.. {rbbc_require}
+vessel mode is {rbrv_vessel_mode_graft}
+
+//axhos_step
+. *Load Vessel Configuration*:
+.. Source vessel configuration from `rbrv.env`
+.. {rbbc_store}
+`«VESSEL_SIGIL»` from {rbrv_sigil}
+.. {rbbc_store}
+`«VESSEL_MODE»` from {rbrv_vessel_mode}
+.. {rbbc_require}
+`«VESSEL_MODE»` is `graft`
+
+//axhos_step
+. *Verify Local Image Exists*:
+.. {rbbc_call}
+`docker image inspect «LOCAL_IMAGE_REF»` (or podman equivalent)
+.. {rbbc_require}
+image exists in local container runtime
+.. {rbbc_store}
+`«LOCAL_DIGEST»` from local image inspect
+.. {rbbc_store}
+`«LOCAL_PLATFORMS»` from local image manifest (typically single-platform for local builds)
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Construct Consecration*:
+.. {rbbc_store}
+`«GRAFT_TIMESTAMP»` as current UTC time (`YYMMDDHHMMSS`)
+.. {rbbc_store}
+`«CONSECRATION»` as `g«GRAFT_TIMESTAMP»-r«REALIZED_TIMESTAMP»`
+.. The graft timestamp (T1) is the current time; the realized timestamp (T2) is recorded after push confirms
+.. NOTE: Both timestamps may be very close for local push operations
+
+//axhos_step
+. *Tag and Push Image*:
+.. {rbbc_call}
+`docker login` to GAR registry with director credentials
+.. {rbbc_store}
+`«REGISTRY_TAG»` as `«GAR_HOST»/«GAR_PATH»/«VESSEL_SIGIL»:«CONSECRATION»-image`
+.. {rbbc_call}
+`docker tag «LOCAL_IMAGE_REF» «REGISTRY_TAG»`
+.. {rbbc_call}
+`docker push «REGISTRY_TAG»`
+.. {rbbc_require}
+push succeeds
+.. {rbbc_store}
+`«REALIZED_TIMESTAMP»` as current UTC time after push confirms
+.. Update consecration if realized timestamp differs from initial estimate
+
+//axhoo_output_of_type
+{rbtga_ark_image}
+. *Display Results*:
+.. {rbbc_show}
+graft complete with consecration tag
+.. {rbbc_show}
+local image reference, registry tag, digest
+
+//axhoc_completion
+Successful execution pushes the locally-built image to
+{rbtgi_repository}
+tagged as `«VESSEL»:«CONSECRATION»-image`.
+The image is ready for the about-then-vouch pipeline.
+Proceed to
+{rbtgo_ark_about}
+to assemble metadata, then
+{rbtgo_ark_vouch}
+to record the GRAFTED verdict.
++
+*No SLSA provenance*: Grafted images have no Cloud Build provenance.
+The {rbtgo_ark_vouch} pipeline records a GRAFTED verdict, explicitly marking the absence of a provenance chain.
+This is a deliberate trust boundary — grafted images are accepted into the system but carry less attestation than conjured images.
++
+*Single-platform typical*: Local builds are typically single-platform.
+The about pipeline's platform discovery step handles this correctly, producing a single-platform `-about` artifact.
+Multi-platform local images (e.g., from `docker buildx build --load` on supported runtimes) are also supported — platform discovery queries the manifest.

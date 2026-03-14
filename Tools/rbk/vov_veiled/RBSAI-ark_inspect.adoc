@@ -28,40 +28,55 @@ consecration provided as second argument
 //axhos_step
 . *Load Vessel Configuration*:
 .. {rbbc_store}
-vessel mode (conjure or bind) from vessel regime
-.. If bind vessel: display digest-pin trust statement and return (no provenance data exists)
+vessel mode (conjure, bind, or graft) from vessel regime
 
 //axhos_step
 . *Verify Local Artifact Presence*:
 .. {rbbc_require}
 `-about` artifact locally present (run {rbtgo_ark_summon} first)
 .. {rbbc_store}
-`-vouch` artifact availability (optional)
+`-vouch` artifact availability
 
 //axhos_step
 . *Extract About Artifact Contents*:
 .. Create temporary container from `-about` image
-.. Extract `build_info.json`, `sbom.json`, `recipe.txt`
-.. Extract `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (present for consecrations built after about-artifact enrichment)
+.. Extract `build_info.json`, `sbom.json`
+.. For conjure vessels: extract `recipe.txt`, `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (present for consecrations built after about-artifact enrichment)
 .. If `-vouch` locally present: extract `vouch_summary.json`
 
 //axhos_step
-. *Display Shared Sections* (both modes):
-.. *Vessel Type*: conjure/bind, platform, build strategy (native/QEMU), moniker
+. *Display Mode-Aware Sections* (both detail levels):
+.. *Vessel Type*: mode (conjure/bind/graft), platform, build strategy (native/QEMU for conjure), moniker
 .. *Source*: git repository, branch, commit
+.. Branch on vessel mode:
++
+**Conjure sections**:
 .. *Builder*: Cloud Build job ID, timestamps, image URI
 .. *SLSA Provenance*: build level, invocation ID, builder ID, predicate types, explicit boundary statements (what SLSA does and does not attest)
 .. *Base Image*: Dockerfile FROM line, syft-detected distro
 .. *Build Output*: output manifest digest, OCI media type, buildx build reference, image name, per-platform digests (from `buildkit_metadata.json` when present)
 .. *Build Cache Delta*: Cloud Build worker image counts before/after, new images deduplicated by ID (from `cache_before.json`/`cache_after.json` when present)
++
+**Bind sections**:
+.. *Bind Source*: original upstream image reference, digest-pin status
+.. *Trust Boundary*: digest-pin only, no SLSA provenance, no build transcript
++
+**Graft sections**:
+.. *Graft Source*: local image reference at push time
+.. *Trust Boundary*: no provenance chain, no build transcript — GRAFTED acknowledgment
++
+**Shared sections** (all modes):
 .. *SBOM Summary*: package count and type breakdown from syft scan
-.. *Vouch Results*: verifier identity, per-platform verification verdicts (from `-vouch` when present)
+.. *Vouch Results*: verdict type and details:
+... Conjure: verifier identity, per-platform verification verdicts (`SLSA_VERIFIED`)
+... Bind: digest-pin confirmation (`DIGEST_PIN_VERIFIED`)
+... Graft: GRAFTED acknowledgment (`GRAFTED`)
 
 //axhos_step
 . *Display Full-Only Sections* ({rbtc_inspect_full} only):
 .. *Package Inventory*: every syft-detected package (type, name, version) sorted by ecosystem
 .. *Package Licensing*: per-package license and Package URL for compliance review
-.. *Recipe*: the exact Dockerfile used to build the image
+.. *Recipe*: the exact Dockerfile used to build the image (conjure only)
 
 //axhoo_output_of_type
 {rbtga_ark}
@@ -77,4 +92,5 @@ All data is extracted from container images already present in the local contain
 *Graceful degradation*: Fields sourced from `buildkit_metadata.json`, `cache_before.json`, and `cache_after.json` display only when those files are present in the `-about` artifact.
 Older consecrations built before about-artifact enrichment omit these sections without error.
 +
-*Bind vessels*: Display a clear trust boundary statement (digest-pin only, no SLSA provenance, no SBOM, no build transcript) and return without attempting artifact extraction.
+*Mode-aware display*: The inspect output adapts to vessel mode.
+Bind and graft vessels display clear trust boundary statements rather than attempting to show provenance data that does not exist.

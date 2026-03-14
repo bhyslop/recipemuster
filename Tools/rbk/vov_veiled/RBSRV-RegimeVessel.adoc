@@ -4,7 +4,7 @@
 This regime specifies variables that define container vessel configurations within the Recipe Bottle system.
 Each
 {rbrv_regime}
-instance represents a vessel image source, either bound from an external registry or conjured from a Dockerfile.
+instance represents a vessel image source: bound from an external registry, conjured from a Dockerfile, or grafted from a local build.
 RBRV assignment files are found in `rbev-vessels/*/rbrv.env` and configure image sourcing for bottle deployments.
 
 //axhrv_variable
@@ -25,9 +25,10 @@ Optional; 0-512 characters.
 
 Selects vessel provisioning strategy.
 Must be
-{rbrv_vessel_mode_bind}
+{rbrv_vessel_mode_bind},
+{rbrv_vessel_mode_conjure},
 or
-{rbrv_vessel_mode_conjure}.
+{rbrv_vessel_mode_graft}.
 
 //axhrgb_group
 {rbrv_group_binding}
@@ -80,6 +81,29 @@ Space-separated list of target platforms for multi-platform builds.
 Must be 1-512 characters.
 Examples: `linux/amd64`, `linux/amd64 linux/arm64`.
 
+//axhrgb_group
+{rbrv_group_grafting}
+
+//axhrgc_gate
+{rbrv_vessel_mode}
+{rbrv_vessel_mode_graft}
+
+Variables in this group apply only when
+{rbrv_vessel_mode}
+is
+{rbrv_vessel_mode_graft}.
+Grafting accepts a locally-built image pushed to GAR via native docker/podman push.
+No Cloud Build involvement for the image itself — about and vouch run in Cloud Build after push.
+
+//axhrgv_variable
+{rbrv_graft_image}
+
+Default local image reference for graft operations.
+Optional; 0-512 characters.
+When set, provides the default `--image` argument to
+{rbtgo_ark_graft}.
+When empty, the image reference must be provided as a runtime parameter.
+
 //axhro_kindle
 {rbkro_kindle}
 
@@ -91,13 +115,13 @@ Builds ZRBRV_ROLLUP serialization string.
 {rbkro_validate}
 
 Validates fields via buv_env_* type checkers.
-Checks RBRV_BIND_IMAGE or RBRV_CONJURE_DOCKERFILE presence invariant.
+Checks mode-appropriate presence invariant: RBRV_BIND_IMAGE for bind, RBRV_CONJURE_DOCKERFILE for conjure, optional RBRV_GRAFT_IMAGE for graft.
 
 //axhro_render
 {rbkro_render}
 
 Renders via rbcr_* shared module.
-Sections: Core Vessel Identity, Binding Configuration, Conjuring Configuration.
+Sections: Core Vessel Identity, Binding Configuration, Conjuring Configuration, Grafting Configuration.
 Displays unexpected variables in red.
 Validates after full render completes.
 
