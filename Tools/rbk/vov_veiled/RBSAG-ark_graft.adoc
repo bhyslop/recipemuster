@@ -4,7 +4,7 @@
 NOTE: This operation grafts a locally-built container image into
 {rbtgi_repository}
 via native docker/podman push.
-No Cloud Build involvement — the image is already built on the local workstation.
+No Cloud Build involvement in the image push — the image is already built on the local workstation.
 No crane dependency — docker tag + docker push is sufficient for locally-present images.
 No dirty-tree guard — git state is irrelevant to an already-built container.
 

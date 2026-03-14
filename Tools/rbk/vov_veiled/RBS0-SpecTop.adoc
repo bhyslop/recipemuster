@@ -1050,7 +1050,8 @@ metadata artifact for an existing
 ({rbtgog_ark}).
 Runs Syft for SBOM generation and builds mode-aware `build_info.json` using uniform
 {gcb_service}
-steps embedded in the primary Cloud Build job (conjure/bind) or a degenerate about-only job (graft).
+steps.
+Conjure and bind embed these steps in their primary Cloud Build job alongside image production; graft's primary job consists of these steps alone.
 
 include::RBSAB-ark_about.adoc[]
 

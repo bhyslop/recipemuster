@@ -7,23 +7,15 @@ metadata artifact for an existing
 {rbtga_ark_image}
 in
 {rbtgi_repository}.
-The about scripts (`rbgja01`–`rbgja04`) are uniform across all three vessel modes and always execute as Cloud Build steps within the primary Cloud Build job — never as a separate pipeline stage.
-This procedure describes the Cloud Build steps that produce `-about`, not a standalone Cloud Build job.
-Each mode's operation embeds these steps in its primary Cloud Build job (conjure via stitch, bind via `builds.create` construction, graft as a degenerate about-only `builds.create` job).
-
-NOTE: About delivery varies by mode, but the Cloud Build steps are identical:
-conjure embeds about steps in the trigger-dispatched build job via stitch (one job produces both `-image` and `-about`);
-bind includes about steps in a `builds.create` job alongside image copy (one job produces both `-image` and `-about`);
-graft runs about steps in a `builds.create` job after local push (degenerate — no image step since the image arrived via local push).
+The about scripts (`rbgja01`–`rbgja04`) are uniform across all three vessel modes and always execute as Cloud Build steps.
+This procedure describes those steps — not a standalone Cloud Build job.
+Conjure and bind embed these steps in their primary Cloud Build job alongside image production; graft's primary job consists of these steps alone (degenerate — no image step).
 All jobs run as the
 {rbtr_mason}
 service account on the private pool (`RBRR_GCB_WORKER_POOL`).
 
-NOTE: For conjure, the consecration is read from `/workspace` (computed by the preceding build steps).
-For bind and graft, the consecration comes from the `_RBGA_CONSECRATION` substitution variable.
-
 NOTE: The about steps receive their context via substitution variables (`_RBGA_*`) and workspace state, not via function parameters.
-The calling mode's Cloud Build job is responsible for populating the substitution namespace before these steps execute.
+For conjure, the consecration is read from `/workspace` (computed by the preceding build steps); for bind and graft, it comes from the `_RBGA_CONSECRATION` substitution variable.
 See <<rbtgo_about_substitutions>> below for the full variable reference.
 
 //axhos_step
