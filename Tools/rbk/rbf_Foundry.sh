@@ -2269,6 +2269,9 @@ zrbf_about_submit() {
     --arg zjq_bind_source  "${z_bind_source}" \
     --arg zjq_graft_source "${z_graft_source}" \
     --arg zjq_dockerfile   "${z_dockerfile_content}" \
+    --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
+    --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
+    --arg zjq_ark_suffix_diags "${RBGC_ARK_SUFFIX_DIAGS}" \
     --arg zjq_pool         "${RBRR_GCB_WORKER_POOL}" \
     --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
     '{
@@ -2286,7 +2289,10 @@ zrbf_about_submit() {
         _RBGA_INSCRIBE_TIMESTAMP:    $zjq_inscribe_ts,
         _RBGA_BIND_SOURCE:           $zjq_bind_source,
         _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
-        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile
+        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
+        _RBGA_ARK_SUFFIX_IMAGE:      $zjq_ark_suffix_image,
+        _RBGA_ARK_SUFFIX_ABOUT:      $zjq_ark_suffix_about,
+        _RBGA_ARK_SUFFIX_DIAGS:      $zjq_ark_suffix_diags
       },
       serviceAccount: $zjq_sa,
       options: {

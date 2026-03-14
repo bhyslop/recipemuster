@@ -185,6 +185,9 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 | `_RBGA_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
 | `_RBGA_CONSECRATION` | Full consecration string. Source: input parameter.
 | `_RBGA_VESSEL_MODE` | Vessel mode (`conjure`, `bind`, or `graft`). Source: loaded vessel configuration.
+| `_RBGA_ARK_SUFFIX_IMAGE` | Ark suffix for image artifact. Source: `RBGC_ARK_SUFFIX_IMAGE` constant.
+| `_RBGA_ARK_SUFFIX_ABOUT` | Ark suffix for about artifact. Source: `RBGC_ARK_SUFFIX_ABOUT` constant.
+| `_RBGA_ARK_SUFFIX_DIAGS` | Ark suffix for diags artifact. Source: `RBGC_ARK_SUFFIX_DIAGS` constant.
 |===
 
 *Git metadata*::

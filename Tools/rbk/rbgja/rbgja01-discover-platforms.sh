@@ -2,7 +2,8 @@
 # RBGJAM Step 01: Discover platforms from -image manifest in GAR
 # Builder: gcr.io/cloud-builders/gcloud
 # Substitutions: _RBGA_GAR_HOST, _RBGA_GAR_PATH, _RBGA_VESSEL,
-#                _RBGA_CONSECRATION, _RBGA_VESSEL_MODE
+#                _RBGA_CONSECRATION, _RBGA_VESSEL_MODE,
+#                _RBGA_ARK_SUFFIX_IMAGE, _RBGA_ARK_SUFFIX_DIAGS
 #
 # Queries the -image manifest to discover what platforms are present.
 # Handles OCI image index (multi-platform) vs single OCI/Docker manifest.
@@ -21,8 +22,10 @@ test -n "${_RBGA_GAR_PATH}"       || { echo "_RBGA_GAR_PATH missing"       >&2; 
 test -n "${_RBGA_VESSEL}"         || { echo "_RBGA_VESSEL missing"         >&2; exit 1; }
 test -n "${_RBGA_CONSECRATION}"   || { echo "_RBGA_CONSECRATION missing"   >&2; exit 1; }
 test -n "${_RBGA_VESSEL_MODE}"    || { echo "_RBGA_VESSEL_MODE missing"    >&2; exit 1; }
+test -n "${_RBGA_ARK_SUFFIX_IMAGE}" || { echo "_RBGA_ARK_SUFFIX_IMAGE missing" >&2; exit 1; }
+test -n "${_RBGA_ARK_SUFFIX_DIAGS}" || { echo "_RBGA_ARK_SUFFIX_DIAGS missing" >&2; exit 1; }
 
-IMAGE_TAG="${_RBGA_CONSECRATION}-image"
+IMAGE_TAG="${_RBGA_CONSECRATION}${_RBGA_ARK_SUFFIX_IMAGE}"
 REGISTRY_BASE="https://${_RBGA_GAR_HOST}/v2/${_RBGA_GAR_PATH}/${_RBGA_VESSEL}"
 
 echo "Fetching OAuth2 token via gcloud"
@@ -125,7 +128,7 @@ echo "Count: $(cat platform_count.txt)"
 echo "=== Platform discovery complete ==="
 
 # === Attempt -diags extraction (conjure-only artifact) ===
-DIAGS_TAG="${_RBGA_CONSECRATION}-diags"
+DIAGS_TAG="${_RBGA_CONSECRATION}${_RBGA_ARK_SUFFIX_DIAGS}"
 echo ""
 echo "=== Checking for -diags artifact: ${DIAGS_TAG} ==="
 
