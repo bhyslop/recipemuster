@@ -1359,6 +1359,13 @@
         "₢AUAAb": {
           "tacks": [
             {
+              "ts": "260313-1925",
+              "state": "complete",
+              "text": "Run syft SBOM scan in rbf_mirror using the digest-pinned syft container image (RBRG_SYFT_IMAGE_REF) via docker run, matching the conjure pipeline pattern from rbgjb06. Replace the local command -v syft check with containerized syft invocation against the mirrored GAR image.",
+              "silks": "bind-mirror-syft-via-container",
+              "commit": "899c730"
+            },
+            {
               "ts": "260313-1907",
               "state": "rough",
               "text": "Run syft SBOM scan in rbf_mirror using the digest-pinned syft container image (RBRG_SYFT_IMAGE_REF) via docker run, matching the conjure pipeline pattern from rbgjb06. Replace the local command -v syft check with containerized syft invocation against the mirrored GAR image.",
