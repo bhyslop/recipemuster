@@ -31,15 +31,15 @@ without requiring modifications to existing container images.
 This approach allows developers to leverage the vast ecosystem of containerized tools while maintaining strict security boundaries -
 essential for small teams experimenting with diverse, potentially risky codebases.
 
-== Current Challenges
-
-GHCR violates OCI specification for reference counting, creating critical operational risk where deleting older container images may remove shared layers that newer images depend upon. GitHub Actions' shared runner environment enables cache poisoning attacks where multiple users share docker daemon access, making it unsafe for building containers from untrusted code.
+== Accomplished Infrastructure
 
 The
 {at_rbm_system}
-will migrate to Google Cloud Build and Google Artifact Registry, which provide isolated build environments, SLSA Level 3 attestations, reference-counted layer management, native vulnerability scanning, and Binary Authorization for deploy-time verification.
+migrated from GitHub Actions and GHCR to Google Cloud Build (GCB) and Google Artifact Registry (GAR) in August 2025.
+GHCR violated OCI specification for reference counting, and GitHub Actions' shared runner environment enabled cache poisoning attacks — both unacceptable for building containers from untrusted code.
 
-Additionally, the project's build infrastructure currently relies on Makefiles, which limits portability. Converting to pure bash 3.2 implementation will ensure broader compatibility across development environments.
+GCB and GAR provide isolated build environments, SLSA Build Level 3 attestations (verified end-to-end March 2026), reference-counted layer management, and native vulnerability scanning.
+The project's build infrastructure was converted from Makefiles to pure bash, and the container runtime switched from podman to docker in December 2025.
 
 == The {at_rbm_system} Vision
 
@@ -64,7 +64,7 @@ in sophisticated yet safe ways for me and my customer's work?
 
 {at_rbm_system} uses only `bash`, `git`, `curl`, `openssh`, `jq` and a
 {at_runtime}
-(currently only `podman`) natively to produce a safe and controlled space for development involving
+(currently `docker`) natively to produce a safe and controlled space for development involving
 {st_container_s}
 heavily.
 {at_rbm_system}
@@ -164,6 +164,28 @@ By providing these controlled yet accessible tools, the
 enables small development teams to maintain proper container hygiene throughout their workflow - from initial building through deployment and eventual cleanup.
 This empowers organizations to leverage the expanding ecosystem of containerized development tools without requiring specialized DevOps expertise.
 
+== Project Direction
+
+The following themes represent future directions for Recipe Bottle, drawn from the project's horizon roadmap.
+
+**Build pipeline security hardening.**
+Egress lockdown, VPC Service Controls, cosign image signing, and Binary Authorization are evaluated and consciously deferred.
+Each has a defined trigger condition — they activate when compliance requirements, threat models, or deployment targets change.
+Full analysis lives in the Cloud Build security posture documentation.
+
+**IAM identity infrastructure.**
+Service account numeric IDs for faster propagation, universal read-back verification after IAM grants, and universal SA preflight checks.
+These reduce retry frequency and strengthen grant correctness guarantees.
+
+**Container runtime expansion.**
+Rootless deployment, macOS-native workflows, and alternative container runtimes beyond the current docker-on-Linux model.
+
+== Links
+
+Source repository: https://github.com/scaleinv/recipebottle
+
+Project page: https://scaleinv.github.io/recipebottle
+
 == Significant Events
 
 // Deep spelunk helper: $ git log --remotes=origin --all --graph --name-status
@@ -251,5 +273,29 @@ test cases pass again.
 | GHCR
 {st_image}
 deletions determined unsafe due to lack of OCI-specified reference counting on layers; deleting old images can destroy new ones.
+
+| Aug 5, 2025
+| Abandoned GitHub Actions and GHCR for Google Cloud Build and Google Artifact Registry — isolated build environments, SLSA attestations, reference-counted layer management.
+
+| Aug 23, 2025
+| First GCP project provisioned with role-based service accounts: Governor, Director, Mason, and Retriever — no single credential has full access.
+
+| Dec 29, 2025
+| Switched container runtime from podman to docker. Entire bottle lifecycle rewritten from Makefile to pure bash.
+
+| Jan 13, 2026
+| Job Jockey initiative tracker rewritten in Rust, enabling structured multi-heat development with machine-readable commit discipline.
+
+| Mar 2, 2026
+| Cloud Build v2 migration: replaced Developer Connect with CB v2 connections and Secret Manager PAT retrieval, decoupling the build pipeline from GitHub.
+
+| Mar 5, 2026
+| SLSA Build Level 3 provenance verified end-to-end — single-architecture and multi-platform, dual provenance signatures (v0.1 and v1).
+
+| Mar 13, 2026
+| Bind vessel mode operational: upstream image mirroring to GAR with digest fidelity verification and containerized SBOM generation.
+
+| Mar 14, 2026
+| Graft vessel mode specified: local image push to GAR as third ark arrival path alongside conjure and bind.
 
 |===
