@@ -22,9 +22,7 @@ Harden the Recipe Bottle supply chain trust model and complete release-readiness
 
 ## BCG Compliance Audit Results (₢AUAAZ)
 
-Full census completed across 63 .sh files in Tools/buk/ and Tools/rbk/.
-
-### Fixed (this pace)
+### Wave 1 (bd6eba19) — correctness/portability tier
 - 5 pseudo-ternary `A && B || C` patterns → if/then/else or inverted tests
 - 11 non-POSIX `[[ == ]]` → `test =`
 - ~40 `[ ]` bracket tests → `test` command
@@ -32,15 +30,34 @@ Full census completed across 63 .sh files in Tools/buk/ and Tools/rbk/.
 - 2 `eval` hardened with variable name validation
 - 6 `echo -e` → `printf '%b\n'`
 
+### Wave 2 (627e1c0f) — structural/error-handling tier
+- Renamed `zbuc_do_execute` → `zbuc_doc_mode_predicate` (non-predicate in if, 8 sites)
+- `[[ ]]` → `test` in bash version checks (2 sites)
+- Split combined `local z_var=$(cmd)` → two-line capture pattern
+- Added `|| buc_die` to 10 unguarded mkdir/cp/rm/date commands
+- `head -1` → `read -r` builtin (2 sites)
+- Heredoc → echo sequence (1 site)
+- `dirname` → `${var%/*}` parameter expansion (1 site)
+- Added `readonly` to kindle array ZRBRR_DOCKER_ENV
+
+### Remaining: command substitution elimination (~20 violations, 8 files)
+BCG rule: NO `$(command)` except `$(<file)` and `_capture` functions.
+Each needs temp file path (kindle constant), _capture wrapper, or builtin replacement.
+Docket reslated with per-file inventory.
+
 ### Deferred Technical Debt (itch for post-release)
-- **z_ prefix on locals**: 1,519 occurrences across 63 files — naming convention, no runtime impact. This is a refactoring heat, not an audit fix.
-- **Unbraced expansions `"$var"`**: 198 occurrences across 49 files — mechanical transformation.
-- **`2>/dev/null` stderr suppression**: 73 occurrences across 20 files — each needs case-by-case judgment (some are intentional, e.g. `command -v foo 2>/dev/null`).
+- **z_ prefix on locals**: 1,519 occurrences across 63 files — naming convention, no runtime impact
+- **Unbraced expansions `"$var"`**: 198 occurrences across 49 files — mechanical
+- **`2>/dev/null` stderr suppression**: 73 occurrences across 20 files — case-by-case judgment
+- **`local -r` missing**: Pervasive — single-assignment locals without readonly
+- **Raw echo for user messages**: 200+ in display-heavy modules (rbf inspect, rbj sentry, rbo observe)
+- **Bare file truncation** (`> file` without `:`): 38 occurrences, 7 files
 
 ## References
 
 - ₣Ak (rbk-mvp-1-finalization) — retired trophy, prior art for all directory/spec/test work
 - ₣As (rbk-mvp-2-iam-grant-unification) — racing, parallel IAM refactor
+- Tools/buk/vov_veiled/BCG-BashConsoleGuide.md — the authoritative guide
 - Tools/rbk/rbf_Foundry.sh — summon, vouch, conjure operations
 - Tools/rbk/rbq_Qualify.sh — qualification orchestrator (fast/release tiers)
 - Tools/rbk/rbob_bottle.sh — bottle lifecycle, vouch gate
