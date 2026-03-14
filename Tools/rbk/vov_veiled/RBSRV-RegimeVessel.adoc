@@ -107,11 +107,10 @@ No Cloud Build involvement for the image itself — about and vouch run in Cloud
 //axhrgv_variable
 {rbrv_graft_image}
 
-Default local image reference for graft operations.
-Optional; 0-512 characters.
-When set, provides the default `--image` argument to
+Local image reference for graft operations.
+Must be 1-512 characters.
+Provides the image argument to
 {rbtgo_ark_graft}.
-When empty, the image reference must be provided as a runtime parameter.
 
 //axhrgv_variable
 {rbrv_graft_optional_dockerfile}

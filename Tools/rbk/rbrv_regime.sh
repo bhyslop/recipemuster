@@ -56,7 +56,7 @@ zrbrv_kindle() {
 
   buv_group_enroll "Grafting Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  graft
-  buv_string_enroll RBRV_GRAFT_IMAGE                0  512  "Default local image for graft operations"
+  buv_string_enroll RBRV_GRAFT_IMAGE                1  512  "Local image reference for graft operations"
   buv_string_enroll RBRV_GRAFT_OPTIONAL_DOCKERFILE  0  512  "Optional Dockerfile for about recipe.txt"
 
   # Guard against unexpected RBRV_ variables not in enrollment
