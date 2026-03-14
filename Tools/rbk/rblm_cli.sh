@@ -211,7 +211,6 @@ rblm_duplicate() {
     bug_t "  OPEN_SOURCE_UPSTREAM: (not configured)"
   fi
   bug_e
-  buc_require "Proceed with duplicate?" "duplicate"
 
   # Create target directory
   buc_step "Creating target directory"
