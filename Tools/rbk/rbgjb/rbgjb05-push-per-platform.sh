@@ -31,7 +31,15 @@ for SUFFIX in "${SUFFIXES[@]}"; do
   docker push "${IMAGE_BASE}:${PER_PLAT_TAG}"
 done
 # Capture Docker daemon state after pushes (forwarded to about via -diags)
-docker image ls --format json > cache_after.json
+# Format: {"timestamp":"...","host_daemon_images":[...]} matching inspect's jq queries
+CACHE_TS_AFTER="$(date -u +%FT%TZ)"
+docker images --no-trunc --format '{{json .}}' > cache_after_raw.txt
+{
+  printf '{"timestamp":"%s","host_daemon_images":[' "${CACHE_TS_AFTER}"
+  awk 'NR>1{printf ","}{printf "%s",$0}' cache_after_raw.txt
+  printf ']}'
+} > cache_after.json
+rm -f cache_after_raw.txt
 echo "cache_after.json written ($(wc -c < cache_after.json | tr -d ' ') bytes)"
 
 echo "=== Push complete ==="

@@ -32,7 +32,15 @@ docker buildx version
 docker version
 
 # Capture Docker daemon state before build (forwarded to about via -diags)
-docker image ls --format json > cache_before.json
+# Format: {"timestamp":"...","host_daemon_images":[...]} matching inspect's jq queries
+CACHE_TS_BEFORE="$(date -u +%FT%TZ)"
+docker images --no-trunc --format '{{json .}}' > cache_before_raw.txt
+{
+  printf '{"timestamp":"%s","host_daemon_images":[' "${CACHE_TS_BEFORE}"
+  awk 'NR>1{printf ","}{printf "%s",$0}' cache_before_raw.txt
+  printf ']}'
+} > cache_before.json
+rm -f cache_before_raw.txt
 echo "cache_before.json written ($(wc -c < cache_before.json | tr -d ' ') bytes)"
 
 # Create docker-container driver for multi-platform builds (QEMU emulation)
