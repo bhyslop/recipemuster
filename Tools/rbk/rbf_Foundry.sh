@@ -2022,6 +2022,28 @@ zrbf_vouch_bind() {
     || buc_die "Image artifact not found (HTTP ${z_image_http_code}) — mirror must complete before vouch"
   buc_info "Mirrored image confirmed: ${z_image_tag}"
 
+  # Extract GAR digest from HEAD response headers
+  buc_step "Verifying digest fidelity"
+  local z_gar_digest
+  z_gar_digest=$(grep -i '^Docker-Content-Digest:' "${z_image_check_response}" | head -1 | sed 's/^[^:]*: *//; s/[[:space:]]*$//') \
+    || true
+  test -n "${z_gar_digest}" || buc_die "Docker-Content-Digest header not found in GAR HEAD response"
+
+  # Extract pin digest from RBRV_BIND_IMAGE (the part after @)
+  local z_pin_digest
+  z_pin_digest="${RBRV_BIND_IMAGE#*@}"
+  test -n "${z_pin_digest}" || buc_die "No digest found in RBRV_BIND_IMAGE: ${RBRV_BIND_IMAGE}"
+  test "${z_pin_digest}" != "${RBRV_BIND_IMAGE}" || buc_die "RBRV_BIND_IMAGE has no @ delimiter: ${RBRV_BIND_IMAGE}"
+
+  # Compare digests
+  local z_vouch_verdict="FAIL"
+  if test "${z_gar_digest}" = "${z_pin_digest}"; then
+    z_vouch_verdict="PASS"
+    buc_info "Digest match confirmed: ${z_gar_digest}"
+  else
+    buc_warn "Digest MISMATCH — GAR: ${z_gar_digest}  Pin: ${z_pin_digest}"
+  fi
+
   # Generate vouch_summary.json (bind-specific)
   buc_step "Generating bind vouch summary"
   local -r z_vouch_summary="${ZRBF_VOUCH_PREFIX}vouch_summary.json"
@@ -2032,6 +2054,9 @@ zrbf_vouch_bind() {
     --arg consecration  "${z_consecration}" \
     --arg vessel_mode   "bind" \
     --arg source_image  "${RBRV_BIND_IMAGE:-}" \
+    --arg pin_digest    "${z_pin_digest}" \
+    --arg gar_digest    "${z_gar_digest}" \
+    --arg verdict       "${z_vouch_verdict}" \
     --arg timestamp     "${z_vouch_ts}" \
     '{
       vessel: $vessel,
@@ -2040,9 +2065,14 @@ zrbf_vouch_bind() {
       verification: {
         method: "digest-pin",
         source_image: $source_image,
+        pin_digest: $pin_digest,
+        gar_digest: $gar_digest,
+        digest_match: ($verdict == "PASS"),
         timestamp: $timestamp,
-        slsa_provenance: "not applicable — image was not built by Google Cloud Build",
-        result: "PASS — image mirrored from digest-pinned upstream source"
+        result: (if $verdict == "PASS"
+          then "PASS — GAR image digest matches vessel pin"
+          else "FAIL — GAR image digest does not match vessel pin"
+        end)
       }
     }' > "${z_vouch_summary}" \
     || buc_die "Failed to generate vouch summary"
@@ -2861,10 +2891,13 @@ zrbf_inspect_show_sections() {
     echo "  Bind verification: was the mirrored image verified against its digest pin?"
     echo ""
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
-      echo "  Method:     $(jq -r '.verification.method // "?"' "${z_vs}")"
-      echo "  Result:     $(jq -r '.verification.result // "?"' "${z_vs}")"
-      echo "  Timestamp:  $(jq -r '.verification.timestamp // "?"' "${z_vs}")"
-      echo "  Source:     $(jq -r '.verification.source_image // "?"' "${z_vs}")"
+      echo "  Method:      $(jq -r '.verification.method // "?"' "${z_vs}")"
+      echo "  Result:      $(jq -r '.verification.result // "?"' "${z_vs}")"
+      echo "  Pin digest:  $(jq -r '.verification.pin_digest // "?"' "${z_vs}")"
+      echo "  GAR digest:  $(jq -r '.verification.gar_digest // "?"' "${z_vs}")"
+      echo "  Match:       $(jq -r '.verification.digest_match // "?"' "${z_vs}")"
+      echo "  Timestamp:   $(jq -r '.verification.timestamp // "?"' "${z_vs}")"
+      echo "  Source:      $(jq -r '.verification.source_image // "?"' "${z_vs}")"
     else
       echo "  Vouch artifact not locally present — run summon to retrieve"
     fi
