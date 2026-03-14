@@ -859,6 +859,201 @@ rbf_retrieve() {
   buc_success "Image pull complete"
 }
 
+######################################################################
+# Mirror (bind vessel → GAR)
+
+rbf_mirror() {
+  zrbf_sentinel
+
+  local z_vessel_dir="${1:-}"
+
+  # Documentation block
+  buc_doc_brief "Mirror a bind vessel image from upstream to GAR with -about metadata"
+  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_shown || return 0
+
+  # No-arg: list available vessels
+  if test -z "${z_vessel_dir}"; then
+    local z_sigils
+    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+    buc_step "Available vessels:"
+    local z_sigil=""
+    for z_sigil in ${z_sigils}; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    done
+    buc_die "Vessel directory required"
+  fi
+
+  # Load and validate vessel
+  zrbf_load_vessel "${z_vessel_dir}"
+  test "${RBRV_VESSEL_MODE:-}" = "bind" \
+    || buc_die "Vessel '${RBRV_SIGIL}' is not a bind vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
+  test -n "${RBRV_BIND_IMAGE:-}" \
+    || buc_die "RBRV_BIND_IMAGE not set for bind vessel '${RBRV_SIGIL}'"
+
+  # Dirty-tree guard (same as inscribe — mirror should match a committed state)
+  buc_step "Verifying clean working tree"
+  git diff --quiet \
+    || buc_die "Working tree has unstaged changes — commit before mirroring"
+  git diff --cached --quiet \
+    || buc_die "Index has staged changes — commit before mirroring"
+
+  # Authenticate as Director
+  buc_step "Loading Director RBRA credentials"
+  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
+
+  buc_step "Authenticating as Director"
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  # GAR coordinates
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+
+  # Generate consecration timestamps (same format as conjure)
+  local -r z_mirror_ts="i${BURD_NOW_STAMP:0:8}_${BURD_NOW_STAMP:9:6}"
+
+  # Authenticate docker to GAR
+  buc_step "Logging into GAR"
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_gar_host}" \
+    || buc_die "GAR authentication failed"
+
+  # Pull upstream image locally (for SBOM generation and digest verification)
+  buc_step "Pulling bind image from upstream"
+  buc_info "Source: ${RBRV_BIND_IMAGE}"
+  docker pull "${RBRV_BIND_IMAGE}" || buc_die "Failed to pull bind image: ${RBRV_BIND_IMAGE}"
+
+  # Copy all platforms from upstream to GAR using buildx imagetools
+  local z_build_ts
+  z_build_ts="b$(date -u +'%Y%m%d_%H%M%S')" || buc_die "Failed to generate build timestamp"
+  local -r z_consecration="${z_mirror_ts}-${z_build_ts}"
+  local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_image_ref="${z_gar_base}/${RBRV_SIGIL}:${z_image_tag}"
+
+  buc_step "Mirroring to GAR (all platforms)"
+  buc_info "Target: ${z_image_ref}"
+  docker buildx imagetools create \
+    --tag "${z_image_ref}" \
+    "${RBRV_BIND_IMAGE}" \
+    || buc_die "Failed to mirror bind image to GAR"
+
+  buc_info "Image mirrored: ${z_image_ref}"
+
+  # Capture git metadata
+  buc_step "Capturing git metadata"
+  local z_git_commit
+  z_git_commit=$(git rev-parse HEAD) || buc_die "Failed to get commit SHA"
+  local z_git_branch
+  z_git_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die "Failed to get branch"
+  local -r z_git_remote_file="${BURD_TEMP_DIR}/rbf_mirror_git_remote.txt"
+  git remote > "${z_git_remote_file}" || buc_die "Failed to list git remotes"
+  local z_git_remote
+  z_git_remote=$(head -1 "${z_git_remote_file}")
+  test -n "${z_git_remote}" || buc_die "No git remotes found"
+  local z_git_repo_url
+  z_git_repo_url=$(git config --get "remote.${z_git_remote}.url") || buc_die "Failed to get repo URL"
+  local z_git_repo="${z_git_repo_url#*://*/}"
+  z_git_repo="${z_git_repo%.git}"
+
+  # Generate build_info.json (bind-specific)
+  buc_step "Generating mirror metadata"
+  local -r z_build_info_file="${BURD_TEMP_DIR}/build_info.json"
+  jq -n \
+    --arg mode          "bind" \
+    --arg moniker       "${RBRV_SIGIL}" \
+    --arg source_image  "${RBRV_BIND_IMAGE}" \
+    --arg consecration  "${z_consecration}" \
+    --arg mirror_ts     "${z_mirror_ts}" \
+    --arg build_ts      "${z_build_ts}" \
+    --arg git_repo      "${z_git_repo}" \
+    --arg git_branch    "${z_git_branch}" \
+    --arg git_commit    "${z_git_commit}" \
+    --arg image_uri     "${z_image_ref}" \
+    '{
+      mode: $mode,
+      moniker: $moniker,
+      source: {
+        image_ref: $source_image,
+        vessel_mode: "bind"
+      },
+      build: {
+        timestamp: $build_ts,
+        inscribe_timestamp: $mirror_ts,
+        consecration: $consecration
+      },
+      git: {
+        repo: $git_repo,
+        branch: $git_branch,
+        commit: $git_commit
+      },
+      image: {
+        uri: $image_uri
+      },
+      trust: {
+        model: "digest-pin",
+        note: "Image mirrored from upstream registry. Trust based solely on digest pinning. No SLSA provenance."
+      }
+    }' > "${z_build_info_file}" \
+    || buc_die "Failed to generate build_info.json"
+
+  # Generate SBOM if syft is available
+  local -r z_sbom_file="${BURD_TEMP_DIR}/sbom.json"
+  local -r z_sbom_stderr="${BURD_TEMP_DIR}/sbom_stderr.txt"
+  local z_has_sbom=false
+  if command -v syft >/dev/null 2>&1; then
+    buc_step "Generating SBOM via syft"
+    if syft "${RBRV_BIND_IMAGE}" -o syft-json > "${z_sbom_file}" 2>"${z_sbom_stderr}"; then
+      z_has_sbom=true
+      buc_info "SBOM generated"
+    else
+      buc_warn "syft scan failed — see ${z_sbom_stderr}"
+    fi
+  else
+    buc_info "syft not available — -about will omit SBOM"
+  fi
+
+  # Build and push -about container (FROM scratch with metadata files)
+  buc_step "Building -about metadata container"
+  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_about_ref="${z_gar_base}/${RBRV_SIGIL}:${z_about_tag}"
+  local -r z_about_dir="${BURD_TEMP_DIR}/about_build"
+  mkdir -p "${z_about_dir}"
+
+  cp "${z_build_info_file}" "${z_about_dir}/build_info.json"
+  if test "${z_has_sbom}" = "true"; then
+    cp "${z_sbom_file}" "${z_about_dir}/sbom.json"
+  fi
+
+  local -r z_about_dockerfile="${z_about_dir}/Dockerfile"
+  {
+    echo 'FROM scratch'
+    echo 'LABEL org.opencontainers.image.title="rbia-metadata"'
+    echo 'COPY build_info.json /build_info.json'
+  } > "${z_about_dockerfile}"
+  if test "${z_has_sbom}" = "true"; then
+    echo 'COPY sbom.json /sbom.json' >> "${z_about_dockerfile}"
+  fi
+
+  docker build -t "${z_about_ref}" "${z_about_dir}" \
+    || buc_die "Failed to build -about container"
+  docker push "${z_about_ref}" \
+    || buc_die "Failed to push -about container"
+
+  buc_info "About metadata pushed: ${z_about_ref}"
+
+  # Summary
+  echo ""
+  buc_success "Mirror complete: ${RBRV_SIGIL}"
+  echo "  Consecration: ${z_consecration}"
+  echo "  Image:  ${z_image_ref}"
+  echo "  About:  ${z_about_ref}"
+  echo ""
+  echo "  Next steps:"
+  echo "    1. Update nameplate RBRN_BOTTLE_CONSECRATION to: ${z_consecration}"
+  buc_tabtarget "${RBZ_VOUCH_ARK}"
+}
+
 rbf_summon() {
   zrbf_sentinel
 
@@ -1381,33 +1576,35 @@ rbf_abjure() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  # Compute platform suffixes from vessel config
-  local z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
-  local z_platform_suffixes=()
-  local z_remaining_plats="${z_platforms}"
-  local z_plat=""
-  local z_suffix=""
-  while test -n "${z_remaining_plats}"; do
-    z_plat="${z_remaining_plats%%,*}"
-    z_suffix="${z_plat#linux/}"
-    z_suffix="${z_suffix//\//}"
-    z_platform_suffixes+=("-${z_suffix}")
-    test "${z_remaining_plats}" != "${z_plat}" || break
-    z_remaining_plats="${z_remaining_plats#*,}"
-  done
-
-  # Build list of image tags to check/delete:
-  # - Per-platform suffixed tags use full consecration
-  # - Consumer-facing bare tag (multi-platform manifest list only)
-  # - Intermediate -multi tag uses inscribe TS only (multi-platform only)
+  # Build list of image tags to check/delete
   local z_image_tags=()
-  local z_idx=0
-  for z_idx in "${!z_platform_suffixes[@]}"; do
-    z_image_tags+=("${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}")
-  done
-  if test "${#z_platform_suffixes[@]}" -gt 1; then
+  if test "${RBRV_VESSEL_MODE:-conjure}" = "bind"; then
+    # Bind vessels have a single multi-arch manifest list tag (no per-platform suffixes)
     z_image_tags+=("${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}")
-    z_image_tags+=("${z_inscribe_ts}-multi")
+  else
+    # Conjure vessels have per-platform suffixed tags + consumer-facing + intermediate
+    local z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
+    local z_platform_suffixes=()
+    local z_remaining_plats="${z_platforms}"
+    local z_plat=""
+    local z_suffix=""
+    while test -n "${z_remaining_plats}"; do
+      z_plat="${z_remaining_plats%%,*}"
+      z_suffix="${z_plat#linux/}"
+      z_suffix="${z_suffix//\//}"
+      z_platform_suffixes+=("-${z_suffix}")
+      test "${z_remaining_plats}" != "${z_plat}" || break
+      z_remaining_plats="${z_remaining_plats#*,}"
+    done
+
+    local z_idx=0
+    for z_idx in "${!z_platform_suffixes[@]}"; do
+      z_image_tags+=("${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}")
+    done
+    if test "${#z_platform_suffixes[@]}" -gt 1; then
+      z_image_tags+=("${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}")
+      z_image_tags+=("${z_inscribe_ts}-multi")
+    fi
   fi
 
   # About and vouch tags use full consecration
@@ -1753,6 +1950,109 @@ rbf_vouch() {
     buc_warn "Re-vouch in progress: ${z_vouch_tag} already exists"
   fi
 
+  # Branch: bind vessels use local vouch, conjure vessels use Cloud Build vouch
+  if test "${RBRV_VESSEL_MODE}" = "bind"; then
+    zrbf_vouch_bind "${z_consecration}" "${z_vouch_tag}" "${z_token}"
+  else
+    zrbf_vouch_conjure "${z_consecration}" "${z_vouch_tag}" "${z_token}"
+  fi
+
+  buc_success "Vouch complete: ${RBRV_SIGIL}/${z_consecration}"
+  buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"
+}
+
+# Internal: local vouch for bind vessels (no Cloud Build, no SLSA)
+zrbf_vouch_bind() {
+  zrbf_sentinel
+
+  local -r z_consecration="$1"
+  local -r z_vouch_tag="$2"
+  local -r z_token="$3"
+
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local -r z_vouch_ref="${z_gar_base}/${RBRV_SIGIL}:${z_vouch_tag}"
+
+  # Verify -image exists in GAR (mirror must have completed)
+  buc_step "Verifying mirrored image exists"
+  local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_image_check_status="${ZRBF_VOUCH_PREFIX}bind_image_status.txt"
+  local -r z_image_check_response="${ZRBF_VOUCH_PREFIX}bind_image_response.json"
+
+  curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -w "%{http_code}" \
+    -o "${z_image_check_response}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_image_tag}" \
+    > "${z_image_check_status}" \
+    || buc_die "HEAD request failed for -image artifact"
+
+  local -r z_image_http_code=$(<"${z_image_check_status}")
+  test -n "${z_image_http_code}" || buc_die "Failed to read or empty: ${z_image_check_status}"
+  test "${z_image_http_code}" = "200" \
+    || buc_die "Image artifact not found (HTTP ${z_image_http_code}) — mirror must complete before vouch"
+  buc_info "Mirrored image confirmed: ${z_image_tag}"
+
+  # Generate vouch_summary.json (bind-specific)
+  buc_step "Generating bind vouch summary"
+  local -r z_vouch_summary="${ZRBF_VOUCH_PREFIX}vouch_summary.json"
+  local z_vouch_ts
+  z_vouch_ts=$(date -u +'%Y-%m-%dT%H:%M:%SZ') || buc_die "Failed to generate vouch timestamp"
+  jq -n \
+    --arg vessel        "${RBRV_SIGIL}" \
+    --arg consecration  "${z_consecration}" \
+    --arg vessel_mode   "bind" \
+    --arg source_image  "${RBRV_BIND_IMAGE:-}" \
+    --arg timestamp     "${z_vouch_ts}" \
+    '{
+      vessel: $vessel,
+      consecration: $consecration,
+      vessel_mode: $vessel_mode,
+      verification: {
+        method: "digest-pin",
+        source_image: $source_image,
+        timestamp: $timestamp,
+        slsa_provenance: "not applicable — image was not built by Google Cloud Build",
+        result: "PASS — image mirrored from digest-pinned upstream source"
+      }
+    }' > "${z_vouch_summary}" \
+    || buc_die "Failed to generate vouch summary"
+
+  # Build and push -vouch container locally
+  buc_step "Building bind -vouch container"
+  local -r z_vouch_dir="${BURD_TEMP_DIR}/vouch_build"
+  mkdir -p "${z_vouch_dir}"
+  cp "${z_vouch_summary}" "${z_vouch_dir}/vouch_summary.json"
+
+  {
+    echo 'FROM scratch'
+    echo 'LABEL org.opencontainers.image.title="rbva-vouch"'
+    echo 'COPY vouch_summary.json /vouch_summary.json'
+  } > "${z_vouch_dir}/Dockerfile"
+
+  # Authenticate docker to GAR
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_gar_host}" \
+    || buc_die "GAR authentication failed for vouch push"
+
+  docker build -t "${z_vouch_ref}" "${z_vouch_dir}" \
+    || buc_die "Failed to build -vouch container"
+  docker push "${z_vouch_ref}" \
+    || buc_die "Failed to push -vouch container"
+
+  buc_info "Bind vouch pushed: ${z_vouch_ref}"
+}
+
+# Internal: Cloud Build vouch for conjure vessels (SLSA provenance verification)
+zrbf_vouch_conjure() {
+  zrbf_sentinel
+
+  local -r z_consecration="$1"
+  local -r z_vouch_tag="$2"
+  local -r z_token="$3"
+
   buc_step "Constructing vouch Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
@@ -1877,9 +2177,6 @@ rbf_vouch() {
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
   zrbf_wait_build_completion 50  # ~4 minutes at 5s intervals (private pool is slower)
-
-  buc_success "Vouch complete: ${RBRV_SIGIL}/${z_consecration}"
-  buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"
 }
 
 ######################################################################
@@ -2197,13 +2494,16 @@ zrbf_inspect_core() {
   docker image inspect "${z_about_ref}" >/dev/null 2>&1 && z_has_about=true
   docker image inspect "${z_vouch_ref}" >/dev/null 2>&1 && z_has_vouch=true
 
-  # Bind vessels: no provenance expected
+  # Bind vessels: use -about if available, fallback to static display
   if test "${RBRV_VESSEL_MODE}" = "bind"; then
-    zrbf_inspect_show_bind "${z_vessel}" "${z_consecration}" "${z_mode}"
-    return 0
+    if test "${z_has_about}" = "false"; then
+      zrbf_inspect_show_bind "${z_vessel}" "${z_consecration}" "${z_mode}"
+      return 0
+    fi
+    # Bind vessel with -about: fall through to shared extract+display path
   fi
 
-  # Conjure vessels: require -about locally present (summon must have been run)
+  # Require -about locally present (summon must have been run)
   if test "${z_has_about}" = "false"; then
     buc_die "About artifact not locally present — run summon first"
   fi
@@ -2291,7 +2591,56 @@ zrbf_inspect_show_sections() {
   local -r z_vs="${z_dir}/vouch_summary.json"
   local -r z_bkmeta="${z_dir}/buildkit_metadata.json"
 
+  # Determine vessel mode from build_info.json
+  local z_vessel_mode="conjure"
   if test -f "${z_bi}"; then
+    local z_mode_raw
+    z_mode_raw=$(jq -r '.mode // "conjure"' "${z_bi}") || z_mode_raw="conjure"
+    z_vessel_mode="${z_mode_raw}"
+  fi
+
+  if test -f "${z_bi}" && test "${z_vessel_mode}" = "bind"; then
+    # ── Bind vessel sections ──────────────────────────────────────────
+    echo ""
+    echo "  -- Vessel Type -------------------------------------------------"
+    echo "  How this image was produced."
+    echo ""
+    echo "  Mode:           bind (upstream image mirrored to GAR)"
+    echo "  Moniker:        $(jq -r '.moniker // "?"' "${z_bi}")"
+
+    echo ""
+    echo "  -- Upstream Source -----------------------------------------------"
+    echo "  The digest-pinned upstream image that was mirrored."
+    echo ""
+    echo "  Source image:   $(jq -r '.source.image_ref // "?"' "${z_bi}")"
+    echo "  Trust model:    digest-pin (image identity is the digest itself)"
+
+    echo ""
+    echo "  -- Mirror -------------------------------------------------------"
+    echo "  When the image was mirrored from upstream into GAR."
+    echo ""
+    echo "  Mirror time:    $(jq -r '.build.inscribe_timestamp // "?"' "${z_bi}")"
+    echo "  Consecration:   $(jq -r '.build.consecration // "?"' "${z_bi}")"
+    echo "  Image URI:      $(jq -r '.image.uri // "?"' "${z_bi}")"
+
+    echo ""
+    echo "  -- Git Context --------------------------------------------------"
+    echo "  The repository state when the mirror operation was performed."
+    echo ""
+    echo "  Repository:     $(jq -r '.git.repo // "?"' "${z_bi}")"
+    echo "  Branch:         $(jq -r '.git.branch // "?"' "${z_bi}")"
+    echo "  Commit:         $(jq -r '.git.commit // "?"' "${z_bi}")"
+
+    echo ""
+    echo "  -- Trust --------------------------------------------------------"
+    echo "  Bind vessels are NOT built by Cloud Build. Trust comes from the"
+    echo "  digest pin in rbrv.env — the image is exactly the bytes specified."
+    echo ""
+    echo "  SLSA provenance:  not applicable (no build step)"
+    echo "  Verification:     image digest matches the pin in the vessel definition"
+
+  elif test -f "${z_bi}"; then
+    # ── Conjure vessel sections ───────────────────────────────────────
     echo ""
     echo "  -- Vessel Type -------------------------------------------------"
     echo "  How this image was produced and for which CPU architecture."
@@ -2353,29 +2702,32 @@ zrbf_inspect_show_sections() {
     echo "  build_info.json not found in -about artifact"
   fi
 
-  echo ""
-  echo "  -- Base Image ---------------------------------------------------"
-  echo "  The upstream image this build started FROM and the OS syft detected."
-  echo ""
-  local -r z_recipe="${z_dir}/recipe.txt"
-  if test -f "${z_recipe}"; then
-    local z_from_line=""
-    z_from_line=$(grep -i '^FROM ' "${z_recipe}" | head -1 || true)
-    if test -n "${z_from_line}"; then
-      echo "  Dockerfile FROM: ${z_from_line#FROM }"
+  # Base image section — conjure only (bind has no Dockerfile)
+  if test "${z_vessel_mode}" != "bind"; then
+    echo ""
+    echo "  -- Base Image ---------------------------------------------------"
+    echo "  The upstream image this build started FROM and the OS syft detected."
+    echo ""
+    local -r z_recipe="${z_dir}/recipe.txt"
+    if test -f "${z_recipe}"; then
+      local z_from_line=""
+      z_from_line=$(grep -i '^FROM ' "${z_recipe}" | head -1 || true)
+      if test -n "${z_from_line}"; then
+        echo "  Dockerfile FROM: ${z_from_line#FROM }"
+      fi
     fi
-  fi
-  if test -f "${z_sbom}"; then
-    local z_distro_name="" z_distro_ver=""
-    z_distro_name=$(jq -r '.distro.name // empty' "${z_sbom}" 2>/dev/null || true)
-    z_distro_ver=$(jq -r '.distro.version // empty' "${z_sbom}" 2>/dev/null || true)
-    if test -n "${z_distro_name}"; then
-      echo "  Detected distro: ${z_distro_name} ${z_distro_ver}"
+    if test -f "${z_sbom}"; then
+      local z_distro_name="" z_distro_ver=""
+      z_distro_name=$(jq -r '.distro.name // empty' "${z_sbom}" 2>/dev/null || true)
+      z_distro_ver=$(jq -r '.distro.version // empty' "${z_sbom}" 2>/dev/null || true)
+      if test -n "${z_distro_name}"; then
+        echo "  Detected distro: ${z_distro_name} ${z_distro_ver}"
+      fi
     fi
   fi
 
-  # Build output: container image manifest produced by buildx
-  if test -f "${z_bkmeta}"; then
+  # Build output — conjure only (bind has no buildx step)
+  if test "${z_vessel_mode}" != "bind" && test -f "${z_bkmeta}"; then
     echo ""
     echo "  -- Build Output -------------------------------------------------"
     echo "  The container image manifest produced by this buildx invocation."
@@ -2406,49 +2758,52 @@ zrbf_inspect_show_sections() {
     fi
   fi
 
-  # Build cache delta: images that appeared on the worker during the build
-  local -r z_cache_before="${z_dir}/cache_before.json"
-  local -r z_cache_after="${z_dir}/cache_after.json"
-  if test -f "${z_cache_after}"; then
-    echo ""
-    echo "  -- Build Cache Delta --------------------------------------------"
-    echo "  Images on the Cloud Build worker after vs before this build."
-    echo ""
-    local z_before_count="n/a"
-    local z_after_count=""
-    test -f "${z_cache_before}" && \
-      z_before_count=$(jq '.host_daemon_images | length' "${z_cache_before}" 2>/dev/null || echo "?")
-    z_after_count=$(jq '.host_daemon_images | length' "${z_cache_after}" 2>/dev/null || echo "?")
-    echo "  Images before: ${z_before_count}"
-    echo "  Images after:  ${z_after_count}"
-    if test -f "${z_cache_before}"; then
-      local z_new_images=""
-      z_new_images=$(jq -r --slurpfile before "${z_cache_before}" '
-        ($before[0].host_daemon_images // [] | map(.ID) | unique) as $before_ids |
-        [(.host_daemon_images // [])[] |
-         select(.ID as $id | $before_ids | index($id) | not)] |
-        group_by(.ID) |
-        map(.[0] |
-          (if (.Repository | split("/") | length) > 2 then
-            (.Repository | split("/") | .[-1])
-          else .Repository end) as $short |
-          [$short, .Tag, .Size, .ID[7:19]] | @tsv) |
-        .[]
-      ' "${z_cache_after}" 2>/dev/null || true)
-      if test -n "${z_new_images}"; then
-        local z_new_count=""
-        z_new_count=$(printf '%s\n' "${z_new_images}" | wc -l | tr -d ' ')
-        echo ""
-        echo "  New images (${z_new_count} unique):"
-        printf '%s\n' "${z_new_images}" | while IFS=$'\t' read -r z_repo z_tag z_size z_id; do
-          echo "    ${z_id}  ${z_repo}:${z_tag}  ${z_size}"
-        done
-      else
-        echo "  No new images (cache unchanged)"
+  # Build cache delta — conjure only
+  if test "${z_vessel_mode}" != "bind"; then
+    local -r z_cache_before="${z_dir}/cache_before.json"
+    local -r z_cache_after="${z_dir}/cache_after.json"
+    if test -f "${z_cache_after}"; then
+      echo ""
+      echo "  -- Build Cache Delta --------------------------------------------"
+      echo "  Images on the Cloud Build worker after vs before this build."
+      echo ""
+      local z_before_count="n/a"
+      local z_after_count=""
+      test -f "${z_cache_before}" && \
+        z_before_count=$(jq '.host_daemon_images | length' "${z_cache_before}" 2>/dev/null || echo "?")
+      z_after_count=$(jq '.host_daemon_images | length' "${z_cache_after}" 2>/dev/null || echo "?")
+      echo "  Images before: ${z_before_count}"
+      echo "  Images after:  ${z_after_count}"
+      if test -f "${z_cache_before}"; then
+        local z_new_images=""
+        z_new_images=$(jq -r --slurpfile before "${z_cache_before}" '
+          ($before[0].host_daemon_images // [] | map(.ID) | unique) as $before_ids |
+          [(.host_daemon_images // [])[] |
+           select(.ID as $id | $before_ids | index($id) | not)] |
+          group_by(.ID) |
+          map(.[0] |
+            (if (.Repository | split("/") | length) > 2 then
+              (.Repository | split("/") | .[-1])
+            else .Repository end) as $short |
+            [$short, .Tag, .Size, .ID[7:19]] | @tsv) |
+          .[]
+        ' "${z_cache_after}" 2>/dev/null || true)
+        if test -n "${z_new_images}"; then
+          local z_new_count=""
+          z_new_count=$(printf '%s\n' "${z_new_images}" | wc -l | tr -d ' ')
+          echo ""
+          echo "  New images (${z_new_count} unique):"
+          printf '%s\n' "${z_new_images}" | while IFS=$'\t' read -r z_repo z_tag z_size z_id; do
+            echo "    ${z_id}  ${z_repo}:${z_tag}  ${z_size}"
+          done
+        else
+          echo "  No new images (cache unchanged)"
+        fi
       fi
     fi
   fi
 
+  # SBOM — present for both bind and conjure (if syft was available)
   echo ""
   echo "  -- SBOM Summary (syft) ------------------------------------------"
   echo "  Software bill of materials: every package syft found installed."
@@ -2473,24 +2828,39 @@ zrbf_inspect_show_sections() {
     echo "  sbom.json not found in -about artifact"
   fi
 
+  # Vouch — branched by vessel mode
   echo ""
-  echo "  -- Vouch Results ------------------------------------------------"
-  echo "  Independent SLSA verification: did this image pass provenance checks?"
-  echo ""
-  if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
-    echo "  Verifier:"
-    echo "    URL:    $(jq -r '.verifier.url // "?"' "${z_vs}")"
-    echo "    SHA256: $(jq -r '.verifier.sha256 // "?"' "${z_vs}")"
+  if test "${z_vessel_mode}" = "bind"; then
+    echo "  -- Vouch Results ------------------------------------------------"
+    echo "  Bind verification: was the mirrored image verified against its digest pin?"
     echo ""
-    echo "  Per-platform verdicts:"
-    jq -r '.platforms[]? | "    \(.platform): \(.verdict)"' "${z_vs}" 2>/dev/null \
-      || echo "    (unable to parse)"
+    if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
+      echo "  Method:     $(jq -r '.verification.method // "?"' "${z_vs}")"
+      echo "  Result:     $(jq -r '.verification.result // "?"' "${z_vs}")"
+      echo "  Timestamp:  $(jq -r '.verification.timestamp // "?"' "${z_vs}")"
+      echo "  Source:     $(jq -r '.verification.source_image // "?"' "${z_vs}")"
+    else
+      echo "  Vouch artifact not locally present — run summon to retrieve"
+    fi
   else
-    echo "  Vouch artifact not locally present — run summon to retrieve"
+    echo "  -- Vouch Results ------------------------------------------------"
+    echo "  Independent SLSA verification: did this image pass provenance checks?"
+    echo ""
+    if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
+      echo "  Verifier:"
+      echo "    URL:    $(jq -r '.verifier.url // "?"' "${z_vs}")"
+      echo "    SHA256: $(jq -r '.verifier.sha256 // "?"' "${z_vs}")"
+      echo ""
+      echo "  Per-platform verdicts:"
+      jq -r '.platforms[]? | "    \(.platform): \(.verdict)"' "${z_vs}" 2>/dev/null \
+        || echo "    (unable to parse)"
+    else
+      echo "  Vouch artifact not locally present — run summon to retrieve"
+    fi
   fi
 }
 
-# Internal: display compact conjure vessel info
+# Internal: display compact vessel info (conjure or bind)
 # Args: vessel consecration extract_dir has_vouch
 zrbf_inspect_show_compact() {
   local -r z_vessel="$1"
@@ -2510,8 +2880,8 @@ zrbf_inspect_show_compact() {
   echo ""
 }
 
-# Internal: display full conjure vessel info
-# Adds per-package inventory and Dockerfile to the compact sections.
+# Internal: display full vessel info (conjure or bind)
+# Adds per-package inventory and Dockerfile (conjure only) to the compact sections.
 # Args: vessel consecration extract_dir has_vouch
 zrbf_inspect_show_full() {
   local -r z_vessel="$1"

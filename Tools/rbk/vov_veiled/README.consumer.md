@@ -270,12 +270,11 @@ rbev-vessels/
 ├── rbev-bottle-ubuntu-test/    # Bottle vessel (conjure — built from source)
 │   ├── Dockerfile
 │   └── rbrv.env
-└── rbev-bottle-plantuml/       # PlantUML server (conjure — built from source)
-    ├── Dockerfile
+└── rbev-bottle-plantuml/       # PlantUML server (bind — upstream image pinned by digest)
     └── rbrv.env
 ```
 
-Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (not shown above) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step, trust is the digest pin itself.
+Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. The image is mirrored to GAR via `tt/rbw-DM.DirectorMirrorsBind.sh`, and trust is the digest pin itself.
 
 **Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `nsproto`) is what appears as the imprint in tabtarget filenames:
 
