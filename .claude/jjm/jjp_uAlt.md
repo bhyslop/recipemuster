@@ -75,17 +75,16 @@ Two timestamps remain meaningful across modes:
 - Vouch separate from conjure: SLSA provenance is a post-build artifact. Cannot verify provenance from within the same build. Hard constraint.
 - rbw-DA is taken by abjure. Standalone about recovery tabtarget uses rbw-Db.
 
-## Spec correction needed
+## Spec correction completed
 
-The specs (RBSAB, RBSAC, RBS0) were updated during pace A to say about is "always a standalone builds.create job" with combined delivery as a "future optimization." This is wrong — combined delivery is the architecture. The specs drifted from the paddock and need re-correction:
-- **RBSAB**: Remove "always standalone" and "Future: may be embedded" language. About is always part of the primary Cloud Build job. Describe combined delivery for conjure/bind and degenerate combined for graft.
-- **RBSAC**: Remove "produces only -image" and "Future optimization" language. Conjure's trigger-dispatched job produces -image AND -about.
-- **RBS0**: Update the three-mode pipeline description (currently shows image then about then vouch as three separate stages).
-- **RBSAG**: Minor — clarify graft's about is the degenerate primary job, not a separate stage.
+Spec drift corrected in two passes:
+- **7a8bd2fa**: Re-corrected RBSAB, RBSAC, RBSAG, RBS0, RBSRI, RBSCB — removed all "always standalone" and "future optimization" language.
+- **fa6b60a3**: Tightened RBS0 graft operation summary.
+- **₢AtAAJ** (this pace): Stripped RBSAB of director-side submission wrapper. RBSAB now describes only the four Cloud Build steps. Added waymark anchor `[[rbtgo_about_substitutions]]` for cross-reference. Fixed `_RBGA_BUILD_ID` description for combined architecture.
 
 ## Completed paces
 
-A (spec), B (format+regime), F (syft pin), C (about extraction), G (diags forwarding), H (about suffix substitutions). D (vouch unification) has 1 commit but is not wrapped.
+A (spec), B (format+regime), F (syft pin), C (about extraction), G (diags forwarding), H (about suffix substitutions), J (RBSAB procedure refactor). D (vouch unification) has 1 commit but is not wrapped.
 
 The rbgja scripts extracted in pace C are correct and reusable — they are Cloud Build step scripts that work in any Cloud Build job context (trigger-dispatched, builds.create, or degenerate about-only).
 
@@ -97,10 +96,10 @@ The rbgja scripts extracted in pace C are correct and reusable — they are Clou
 
 ## References
 - RBSAV-ark_vouch.adoc: vouch spec (correct as-is — always separate Cloud Build job)
-- RBSAB-ark_about.adoc: about spec (NEEDS RE-CORRECTION — currently says "always standalone," must describe combined delivery)
-- RBSAC-ark_conjure.adoc: conjure spec (NEEDS RE-CORRECTION — currently says "only -image," must describe combined image+about job)
-- RBSAG-ark_graft.adoc: graft spec (minor — degenerate combined, chaining in rbf_create)
-- RBS0-SpecTop.adoc: top-level spec (NEEDS CORRECTION — three-mode description shows separate about stage)
+- RBSAB-ark_about.adoc: about spec (corrected — describes four Cloud Build steps only, no director wrapper)
+- RBSAC-ark_conjure.adoc: conjure spec (corrected — combined image+about job)
+- RBSAG-ark_graft.adoc: graft spec (corrected — degenerate combined, chaining in rbf_create)
+- RBS0-SpecTop.adoc: top-level spec (corrected — three-mode description reflects combined delivery)
 - rbf_Foundry.sh: implementation
 - rbgjb/: conjure Cloud Build steps (stitch must embed rbgja steps)
 - rbgja/: about Cloud Build steps (shared scripts across all delivery modes)
