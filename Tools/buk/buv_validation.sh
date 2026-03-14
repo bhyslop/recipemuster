@@ -590,6 +590,15 @@ zbuv_check_capture() {
   esac
 }
 
+# buv_consecration_format VALUE — validate consecration string matches [cbg]YYMMDDHHMMSS-rYYMMDDHHMMSS
+# Returns 0 on valid, dies on invalid. Pass empty string to skip (optional fields).
+buv_consecration_format() {
+  local z_val="${1:-}"
+  test -n "${z_val}" || return 0
+  echo "${z_val}" | grep -qE '^[cbg][0-9]{12}-r[0-9]{12}$' \
+    || buc_die "Invalid consecration format: '${z_val}' (expected [cbg]YYMMDDHHMMSS-rYYMMDDHHMMSS)"
+}
+
 # buv_scope_sentinel SCOPE PREFIX — die if any PREFIX_ vars exist that are not enrolled in SCOPE
 # Usage: buv_scope_sentinel RBRN RBRN_
 buv_scope_sentinel() {

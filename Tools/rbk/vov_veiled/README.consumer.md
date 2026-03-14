@@ -187,8 +187,8 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
 14. **Record consecrations** — Copy the consecration values from the check output into your nameplate regime file:
     ```
     # Edit .rbk/rbrn_<vessel>.env and set:
-    RBRN_SENTRY_CONSECRATION=i20260101_120000-b20260101_130000
-    RBRN_BOTTLE_CONSECRATION=i20260101_120000-b20260101_140000
+    RBRN_SENTRY_CONSECRATION=c260101120000-r260101130000
+    RBRN_BOTTLE_CONSECRATION=c260101120000-r260101140000
     ```
 
 15. **Summon** — Pull vouched images locally (Retriever role):

@@ -19,7 +19,7 @@ tt/rbw-gO.Onboarding.sh
 |------|---------|
 | **Vessel** | A specification for a container workload — a directory in `rbev-vessels/` with `rbrv.env` and optionally a `Dockerfile` |
 | **Ark** | The built result: an immutable container image artifact produced from a vessel |
-| **Consecration** | A specific build instance of a vessel, identified by timestamp (e.g. `i20260101_120000-b20260101_130000`) |
+| **Consecration** | A specific build instance of a vessel, identified by timestamp (e.g. `c260101120000-r260101130000`) |
 | **Vouch** | SLSA provenance verification — proves an ark was built by trusted infrastructure |
 | **Summon** | Pull a vouched ark image to the local workstation |
 | **Conjure** | Trigger a Cloud Build to produce an ark from a vessel |

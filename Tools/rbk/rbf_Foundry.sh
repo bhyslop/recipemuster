@@ -580,7 +580,7 @@ rbf_create() {
 
   local -r z_vessel_dir="${1:-}"
 
-  buc_doc_brief "Create an ark from a vessel (conjure or mirror based on vessel mode)"
+  buc_doc_brief "Create an ark from a vessel (conjure, mirror, or graft based on vessel mode)"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_shown || return 0
 
@@ -601,6 +601,7 @@ rbf_create() {
   case "${z_mode}" in
     conjure) rbf_build "${z_vessel_dir}" ;;
     bind)    rbf_mirror "${z_vessel_dir}" ;;
+    graft)   buc_die "Graft mode not yet implemented — use rbf_graft when available" ;;
     *)       buc_die "Unknown vessel mode: ${z_mode}" ;;
   esac
 }
@@ -958,8 +959,8 @@ rbf_mirror() {
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
 
-  # Generate consecration timestamps (same format as conjure)
-  local -r z_mirror_ts="i${BURD_NOW_STAMP:0:8}_${BURD_NOW_STAMP:9:6}"
+  # Generate consecration timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
+  local -r z_mirror_ts="b${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
 
   # Authenticate docker to GAR
   buc_step "Logging into GAR"
@@ -973,9 +974,9 @@ rbf_mirror() {
 
   # Copy all platforms from upstream to GAR using buildx imagetools
   local -r z_build_ts_file="${ZRBF_MIRROR_PREFIX}build_ts.txt"
-  date -u +'%Y%m%d_%H%M%S' > "${z_build_ts_file}" || buc_die "Failed to generate build timestamp"
+  date -u +'%y%m%d%H%M%S' > "${z_build_ts_file}" || buc_die "Failed to generate build timestamp"
   local z_build_ts
-  z_build_ts="b$(<"${z_build_ts_file}")"
+  z_build_ts="r$(<"${z_build_ts_file}")"
   test -n "${z_build_ts}" || buc_die "Empty build timestamp from ${z_build_ts_file}"
   local -r z_consecration="${z_mirror_ts}-${z_build_ts}"
   local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
@@ -1122,7 +1123,7 @@ rbf_summon() {
   # Documentation block
   buc_doc_brief "Summon an ark (pull -image, -about, and -vouch artifacts as a coherent unit)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
-  buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
+  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
   buc_log_args "Validate parameters"
@@ -1442,7 +1443,7 @@ rbf_rubric_inscribe() {
   buc_step "Filling pre-commit placeholders in clone copies"
   local z_rubric_json=""
   local z_filled_file=""
-  local z_inscribe_ts="i${BURD_NOW_STAMP:0:8}_${BURD_NOW_STAMP:9:6}"
+  local z_inscribe_ts="c${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
   for ((z_idx=0; z_idx<${#z_vessel_dirs[@]}; z_idx++)); do
     z_sigil="${z_vessel_sigils[z_idx]}"
     z_rubric_json="${ZRBF_INSCRIBE_CLONE_DIR}/${z_sigil}/cloudbuild.json"
@@ -1464,7 +1465,7 @@ rbf_rubric_inscribe() {
   # Commit (not pushed yet) to get a content hash
   buc_step "Committing rubric repo changes"
   local z_inscribe_ts
-  z_inscribe_ts="i${BURD_NOW_STAMP:0:8}_${BURD_NOW_STAMP:9:6}"
+  z_inscribe_ts="c${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
 
   git -C "${ZRBF_INSCRIBE_CLONE_DIR}" add -A \
     || buc_die "Failed to stage rubric repo changes"
@@ -1607,7 +1608,7 @@ rbf_abjure() {
   # Documentation block
   buc_doc_brief "Abjure an ark (delete all per-platform image, about, and vouch artifacts)"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
-  buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
+  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
 
@@ -1630,7 +1631,7 @@ rbf_abjure() {
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
 
   # Derive inscribe timestamp from full consecration (needed for -multi intermediate tag)
-  local -r z_inscribe_ts="${z_consecration%%-b*}"
+  local -r z_inscribe_ts="${z_consecration%%-r*}"
   test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from consecration"
 
   # Check for --force flag
@@ -1953,7 +1954,7 @@ rbf_vouch() {
 
   buc_doc_brief "Vouch for an ark by verifying SLSA provenance and publishing results"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
-  buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
+  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
   if test -z "${z_vessel_dir}"; then
@@ -2352,7 +2353,7 @@ rbf_check_consecrations() {
 
     while IFS= read -r z_tag || test -n "${z_tag}"; do
       local z_consec=""
-      if [[ "${z_tag}" =~ ^(i[0-9]{8}_[0-9]{6}-b[0-9]{8}_[0-9]{6}) ]]; then
+      if [[ "${z_tag}" =~ ^([cbg][0-9]{12}-r[0-9]{12}) ]]; then
         z_consec="${BASH_REMATCH[1]}"
       else
         continue
@@ -2507,7 +2508,7 @@ rbf_batch_vouch() {
 
     while IFS= read -r z_tag || test -n "${z_tag}"; do
       local z_consec=""
-      if [[ "${z_tag}" =~ ^(i[0-9]{8}_[0-9]{6}-b[0-9]{8}_[0-9]{6}) ]]; then
+      if [[ "${z_tag}" =~ ^([cbg][0-9]{12}-r[0-9]{12}) ]]; then
         z_consec="${BASH_REMATCH[1]}"
       else
         continue
@@ -3186,7 +3187,7 @@ rbf_inspect_full() {
 
   buc_doc_brief "Inspect a consecration's trust posture (full detail)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
-  buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
+  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
   zrbf_inspect_core "${z_vessel}" "${z_consecration}" "full"
@@ -3200,7 +3201,7 @@ rbf_inspect_compact() {
 
   buc_doc_brief "Inspect a consecration's trust posture (compact summary)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
-  buc_doc_param "consecration" "Full consecration (e.g., i20260305_133650-b20260305_160530)"
+  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
   zrbf_inspect_core "${z_vessel}" "${z_consecration}" "compact"

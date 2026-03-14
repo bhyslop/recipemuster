@@ -40,18 +40,24 @@ zrbrv_kindle() {
   buv_group_enroll "Core Vessel Identity"
   buv_xname_enroll  RBRV_SIGIL             1   64  "Unique identifier (must match directory name)"
   buv_string_enroll RBRV_DESCRIPTION       0  512  "Human-readable description"
-  buv_enum_enroll   RBRV_VESSEL_MODE               "Operation mode: bind or conjure" \
-                    bind conjure
+  buv_enum_enroll   RBRV_VESSEL_MODE               "Operation mode: bind, conjure, or graft" \
+                    bind conjure graft
 
   buv_group_enroll "Binding Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  bind
-  buv_fqin_enroll   RBRV_BIND_IMAGE  1  512  "Source image to copy from registry"
+  buv_fqin_enroll   RBRV_BIND_IMAGE                1  512  "Source image to copy from registry"
+  buv_string_enroll RBRV_BIND_OPTIONAL_DOCKERFILE  0  512  "Optional Dockerfile for about recipe.txt"
 
   buv_group_enroll "Conjuring Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  conjure
   buv_string_enroll RBRV_CONJURE_DOCKERFILE    1  512  "Dockerfile path relative to repo root"
   buv_string_enroll RBRV_CONJURE_BLDCONTEXT    1  512  "Build context relative to repo root"
   buv_string_enroll RBRV_CONJURE_PLATFORMS     1  512  "Space-separated target platforms"
+
+  buv_group_enroll "Grafting Configuration"
+  buv_gate_enroll   RBRV_VESSEL_MODE  graft
+  buv_string_enroll RBRV_GRAFT_IMAGE                0  512  "Default local image for graft operations"
+  buv_string_enroll RBRV_GRAFT_OPTIONAL_DOCKERFILE  0  512  "Optional Dockerfile for about recipe.txt"
 
   # Guard against unexpected RBRV_ variables not in enrollment
   buv_scope_sentinel RBRV RBRV_

@@ -2,16 +2,17 @@
 # RBGJB Step 01: Derive consecration from inscribe + build timestamps
 # Builder: gcr.io/cloud-builders/gcloud
 #
-# Dual-timestamp format: i20260224_153022-b20260224_160530
-# - Inscribe timestamp (iYYYYMMDD_HHMMSS) baked at inscribe time via _RBGY_INSCRIBE_TIMESTAMP
-# - Build timestamp (bYYYYMMDD_HHMMSS) derived at build time
+# Consecration format: [cbg]YYMMDDHHMMSS-rYYMMDDHHMMSS
+# - Mode prefix: c (conjure), b (bind), g (graft)
+# - Inscribe timestamp (cYYMMDDHHMMSS) baked at inscribe time via _RBGY_INSCRIBE_TIMESTAMP
+# - Realized timestamp (rYYMMDDHHMMSS) derived at build time (when image lands in GAR)
 # Multiple builds of same inscribed JSON sort together by inscribe prefix
 
 set -euo pipefail
 
 echo "Build strategy: ${ZRBF_BUILD_STRATEGY}"
 
-CONSECRATION="${_RBGY_INSCRIBE_TIMESTAMP}-b$(date -u +%Y%m%d_%H%M%S)"
+CONSECRATION="${_RBGY_INSCRIBE_TIMESTAMP}-r$(date -u +%y%m%d%H%M%S)"
 test -n "${CONSECRATION}" || { echo "CONSECRATION empty" >&2; exit 1; }
 echo "${CONSECRATION}" > .consecration
 

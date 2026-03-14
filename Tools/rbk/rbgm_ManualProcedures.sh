@@ -812,8 +812,8 @@ rbgm_onboarding() {
       bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
       bug_e
       bug_t "  Set these two lines (substitute your actual consecration values):"
-      bug_tc "        RBRN_SENTRY_CONSECRATION=" "i20260101_120000-b20260101_130000"
-      bug_tc "        RBRN_BOTTLE_CONSECRATION=" "i20260101_120000-b20260101_140000"
+      bug_tc "        RBRN_SENTRY_CONSECRATION=" "c260101120000-r260101130000"
+      bug_tc "        RBRN_BOTTLE_CONSECRATION=" "c260101120000-r260101140000"
       ;;
     8)
       bug_section "Next: Summon (Retriever role actions)"
