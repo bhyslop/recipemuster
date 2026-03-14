@@ -42,6 +42,7 @@ vessel mode (conjure, bind, or graft) from vessel regime
 .. Create temporary container from `-about` image
 .. Extract `build_info.json`, `sbom.json`
 .. Extract `recipe.txt` if present (available for any mode when the Dockerfile path was configured)
+.. Extract `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` if present (conjure only — forwarded from `-diags` via the about pipeline; absent for bind/graft). Graceful degradation: absence of these files does not affect inspect output.
 .. If `-vouch` locally present: extract `vouch_summary.json`
 
 //axhos_step

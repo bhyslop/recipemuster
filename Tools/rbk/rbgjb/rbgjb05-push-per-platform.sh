@@ -30,4 +30,8 @@ for SUFFIX in "${SUFFIXES[@]}"; do
   echo "Pushing: ${IMAGE_BASE}:${PER_PLAT_TAG}"
   docker push "${IMAGE_BASE}:${PER_PLAT_TAG}"
 done
+# Capture Docker daemon state after pushes (forwarded to about via -diags)
+docker image ls --format json > cache_after.json
+echo "cache_after.json written ($(wc -c < cache_after.json | tr -d ' ') bytes)"
+
 echo "=== Push complete ==="

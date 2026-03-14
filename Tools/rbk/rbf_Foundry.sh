@@ -291,6 +291,7 @@ zrbf_stitch_build_json() {
     "rbgjb04-per-platform-pullback.sh|${RBRG_DOCKER_IMAGE_REF}|bash|per-platform-pullback"
     "rbgjb05-push-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|push-per-platform"
     "rbgjb06-imagetools-create.sh|${RBRG_DOCKER_IMAGE_REF}|bash|imagetools-create"
+    "rbgjb07-push-diags.sh|${RBRG_DOCKER_IMAGE_REF}|bash|push-diags"
   )
 
   # Compute platform suffixes (used in images: field and substitutions)
@@ -421,6 +422,7 @@ zrbf_stitch_build_json() {
     --arg zjq_git_repo       "${z_git_repo}" \
     --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
     --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
+    --arg zjq_ark_suffix_diags "${RBGC_ARK_SUFFIX_DIAGS}" \
     --arg zjq_rubric_repo      "__INSCRIBE_RUBRIC_REPO__" \
     --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
     --arg zjq_inscribe_ts      "__INSCRIBE_TIMESTAMP__" \
@@ -442,6 +444,7 @@ zrbf_stitch_build_json() {
         _RBGY_GIT_REPO:            $zjq_git_repo,
         _RBGY_GAR_HOST_SUFFIX:     $zjq_gar_host_suffix,
         _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
+        _RBGY_ARK_SUFFIX_DIAGS:    $zjq_ark_suffix_diags,
         _RBGY_RUBRIC_REPO:         $zjq_rubric_repo,
         _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
         _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
@@ -1679,9 +1682,10 @@ rbf_abjure() {
     fi
   fi
 
-  # About and vouch tags use full consecration
+  # About, vouch, and diags tags use full consecration
   local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
   local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  local -r z_diags_tag="${z_consecration}${RBGC_ARK_SUFFIX_DIAGS}"
 
   buc_step "Verifying ark existence"
 
@@ -1765,6 +1769,31 @@ rbf_abjure() {
     buc_die "Unexpected HTTP status ${z_vouch_http_code} when checking -vouch artifact"
   fi
 
+  # Check if -diags artifact exists (optional — conjure-only, absent for bind/graft)
+  local z_diags_status_file="${ZRBF_DELETE_PREFIX}diags_status.txt"
+  local z_diags_response_file="${ZRBF_DELETE_PREFIX}diags_response.json"
+
+  curl --head -s                                     \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
+    -H "Authorization: Bearer ${z_token}"           \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -w "%{http_code}"                               \
+    -o "${z_diags_response_file}"                   \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_diags_tag}" \
+    > "${z_diags_status_file}" || buc_die "HEAD request failed for -diags artifact"
+
+  local z_diags_http_code
+  z_diags_http_code=$(<"${z_diags_status_file}")
+  test -n "${z_diags_http_code}" || buc_die "HTTP status code is empty for -diags"
+
+  local z_diags_exists=false
+  if test "${z_diags_http_code}" = "200"; then
+    z_diags_exists=true
+  elif test "${z_diags_http_code}" != "404"; then
+    buc_die "Unexpected HTTP status ${z_diags_http_code} when checking -diags artifact"
+  fi
+
   # Evaluate ark state
   if test "${#z_existing_image_tags[@]}" -eq 0 && test "${z_about_exists}" = "false"; then
     buc_die "Ark not found: no image tags and no -about exists for ${RBRV_SIGIL}/${z_consecration}"
@@ -1789,6 +1818,9 @@ rbf_abjure() {
     fi
     if test "${z_vouch_exists}" = "true"; then
       z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_vouch_tag}"
+    fi
+    if test "${z_diags_exists}" = "true"; then
+      z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_diags_tag}"
     fi
     buc_require "${z_confirm_msg}" "yes"
   fi
@@ -1887,6 +1919,36 @@ rbf_abjure() {
     buc_info "Deleted: ${RBRV_SIGIL}:${z_vouch_tag}"
   fi
 
+  # Delete -diags artifact if exists (optional — conjure-only)
+  if test "${z_diags_exists}" = "true"; then
+    buc_step "Deleting -diags artifact"
+
+    local z_delete_diags_status="${ZRBF_DELETE_PREFIX}delete_diags_status.txt"
+    local z_delete_diags_response="${ZRBF_DELETE_PREFIX}delete_diags_response.json"
+
+    curl -X DELETE -s                                   \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
+      -H "Authorization: Bearer ${z_token}"             \
+      -w "%{http_code}"                                 \
+      -o "${z_delete_diags_response}"                   \
+      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_diags_tag}" \
+      > "${z_delete_diags_status}" || buc_die "DELETE request failed for -diags"
+
+    local z_delete_diags_code
+    z_delete_diags_code=$(<"${z_delete_diags_status}")
+    test -n "${z_delete_diags_code}" || buc_die "HTTP status code is empty for -diags delete"
+
+    if test "${z_delete_diags_code}" != "202" && test "${z_delete_diags_code}" != "204"; then
+      local z_body="empty"
+      if test -f "${z_delete_diags_response}"; then z_body=$(<"${z_delete_diags_response}"); fi
+      buc_warn "Response body: ${z_body}"
+      buc_die "Failed to delete -diags artifact (HTTP ${z_delete_diags_code})"
+    fi
+
+    buc_info "Deleted: ${RBRV_SIGIL}:${z_diags_tag}"
+  fi
+
   # Display results
   echo ""
   buc_success "Ark abjured: ${RBRV_SIGIL}/${z_consecration}"
@@ -1900,6 +1962,9 @@ rbf_abjure() {
   fi
   if test "${z_vouch_exists}" = "true"; then
     echo "  - ${RBRV_SIGIL}:${z_vouch_tag} deleted"
+  fi
+  if test "${z_diags_exists}" = "true"; then
+    echo "  - ${RBRV_SIGIL}:${z_diags_tag} deleted"
   fi
 }
 
@@ -2683,6 +2748,10 @@ rbf_check_consecrations() {
           ;;
         *"${RBGC_ARK_SUFFIX_ABOUT}")
           echo "${z_consec}|about|" >> "${z_tag_data_file}"
+          echo "${z_consec}" >> "${z_consec_file}"
+          ;;
+        *"${RBGC_ARK_SUFFIX_DIAGS}")
+          echo "${z_consec}|diags|" >> "${z_tag_data_file}"
           echo "${z_consec}" >> "${z_consec_file}"
           ;;
       esac

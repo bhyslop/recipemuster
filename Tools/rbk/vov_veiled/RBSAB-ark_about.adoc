@@ -89,6 +89,12 @@ GET config blob via digest from manifest's `config.digest` field
 `«PLATFORMS»` as single-element list from config's `os` and `architecture` fields
 .. {rbbc_store}
 platform count for subsequent step branching
+.. After platform discovery, attempt `-diags` artifact extraction (conjure-only):
+... {rbbc_call}
+Docker Registry API: HEAD manifests for `«CONSECRATION»-diags`
+... If HTTP 200: fetch manifest, iterate layer blobs, extract diagnostic files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`) to `/workspace`
+... If HTTP 404 or error: skip gracefully (expected for bind/graft — no `-diags` artifact exists)
+.. NOTE: The `-diags` artifact is pushed by conjure step 07 (`rbgjb07-push-diags.sh`) and contains build-time diagnostics that cannot be conveyed via Cloud Build substitution variables (Dockerfile content exceeding the ~4KB limit, BuildKit metadata, Docker daemon cache snapshots).
 
 //axhos_step
 . *Cloud Build Step 2: Syft SBOM Generation*:
@@ -116,17 +122,21 @@ per-platform SBOM to `/workspace/sbom-«LABEL».json` (e.g., `sbom-amd64.json`; 
 .... Graft: `graft_source` (from `_RBGA_GRAFT_SOURCE`)
 ... {rbbc_store}
 per-platform `build_info.json` to `/workspace/build_info-«LABEL».json` (e.g., `build_info-amd64.json`)
-.. If `_RBGA_DOCKERFILE_CONTENT` is non-empty:
-... {rbbc_store}
+.. Write `recipe.txt` using dual-source logic:
+... If `recipe.txt` already exists in `/workspace` (written by `-diags` extraction in step 1): skip substitution variable write, log that `recipe.txt` came from `-diags`
+... Else if `_RBGA_DOCKERFILE_CONTENT` is non-empty: {rbbc_store}
 `recipe.txt` to `/workspace/recipe.txt` from substitution variable content
+... Else: omit `recipe.txt`
 .. NOTE: The {rbtr_director} reads the Dockerfile locally and passes its content as `_RBGA_DOCKERFILE_CONTENT`.
 If the file exceeds the Cloud Build substitution variable size limit (~4KB), the director omits it with a warning.
+The `-diags` path (conjure only) bypasses this limit by conveying the full Dockerfile via a registry artifact.
+`_RBGA_DOCKERFILE_CONTENT` is retained for all modes as a fallback when `-diags` extraction fails or is absent.
 
 //axhos_step
 . *Cloud Build Step 4: Build and Push About Artifact*:
 .. Image: {rbrg_docker_image_ref}
 .. Create buildx builder instance (inspect-or-create pattern)
-.. Build multi-platform `FROM scratch` container with per-platform SBOM, `build_info.json`, and `recipe.txt` (when present) as layers
+.. Build multi-platform `FROM scratch` container with per-platform SBOM, `build_info.json`, `recipe.txt` (when present), and conjure enrichment files when forwarded from `-diags`: `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (conditional COPY — included only if present in `/workspace`)
 .. For single-platform images: build single-platform `-about` container
 .. For multi-platform images: build with `buildx --push` using `TARGETARCH`/`TARGETVARIANT` to select per-platform files
 .. Push to registry tagged `«CONSECRATION»-about` via `docker buildx build --push`

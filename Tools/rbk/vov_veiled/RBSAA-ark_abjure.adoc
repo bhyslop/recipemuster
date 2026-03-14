@@ -22,7 +22,8 @@ The
 The
 {rbtga_ark_vouch}
 (`-vouch`) contains verification results.
-Abjuring an ark removes all three artifacts as a single logical operation.
+A fourth artifact, `-diags`, is present for conjure arks only (build-time diagnostics forwarded to the about pipeline).
+Abjuring an ark removes all existing artifacts as a single logical operation.
 
 The
 {rbtr_director}
@@ -73,6 +74,8 @@ if malformed: "Consecration format invalid"
 `«ABOUT_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-about`
 .. {rbbc_store}
 `«VOUCH_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-vouch`
+.. {rbbc_store}
+`«DIAGS_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-diags`
 
 //axhos_step
 . *Verify Ark Existence*:
@@ -94,6 +97,11 @@ same HEAD request for `«VOUCH_TAG»`:
 ... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-vouch`
 .. {rbbc_store}
 `«VOUCH_EXISTS»` as true if HTTP 200, false if HTTP 404
+.. {rbbc_call}
+same HEAD request for `«DIAGS_TAG»`:
+... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-diags`
+.. {rbbc_store}
+`«DIAGS_EXISTS»` as true if HTTP 200, false if HTTP 404 (optional — conjure-only, absent for bind/graft)
 
 //axhos_step
 . *Evaluate Ark State*:
@@ -156,6 +164,19 @@ Docker Registry API: DELETE manifests with:
 HTTP 202 (Accepted) or 204 (No Content) response
 ... {rbbc_fatal}
 if delete fails: "Failed to delete -vouch artifact (HTTP «STATUS_CODE»)"
+
+//axhos_step
+. *Delete Diags Artifact* (if exists):
+.. If `«DIAGS_EXISTS»`:
+... {rbbc_call}
+Docker Registry API: DELETE manifests with:
+.... method: `DELETE`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-diags`
+.... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
+... {rbbc_require}
+HTTP 202 (Accepted) or 204 (No Content) response
+... {rbbc_fatal}
+if delete fails: "Failed to delete -diags artifact (HTTP «STATUS_CODE»)"
 
 //axhoo_output_of_type
 {rbtga_ark}

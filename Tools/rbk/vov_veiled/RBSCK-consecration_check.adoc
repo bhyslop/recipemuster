@@ -44,6 +44,7 @@ pattern (`[cbg]\d{12}-r\d{12}`):
 .... Tags with `-image` suffix → classify by platform suffix (bare = consumer manifest list, `-amd64`/`-arm64` = per-platform)
 .... Tags with `-about` suffix → about artifact present
 .... Tags with `-vouch` suffix → vouch artifact present
+.... Tags with `-diags` suffix → diags artifact present (conjure-only build diagnostics)
 .... Tags with unrecognized patterns → skip (not ark artifacts)
 .... Other tags → skip (infrastructure aliases, not ark artifacts)
 ... {rbbc_store}

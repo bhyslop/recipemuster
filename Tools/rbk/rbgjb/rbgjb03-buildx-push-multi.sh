@@ -31,6 +31,10 @@ MULTI_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${
 docker buildx version
 docker version
 
+# Capture Docker daemon state before build (forwarded to about via -diags)
+docker image ls --format json > cache_before.json
+echo "cache_before.json written ($(wc -c < cache_before.json | tr -d ' ') bytes)"
+
 # Create docker-container driver for multi-platform builds (QEMU emulation)
 docker buildx create --driver docker-container --name rb-builder --use
 

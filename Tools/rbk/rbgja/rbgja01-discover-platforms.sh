@@ -123,3 +123,51 @@ echo "Platforms: $(cat platforms.txt)"
 echo "Suffixes: $(cat platform_suffixes.txt)"
 echo "Count: $(cat platform_count.txt)"
 echo "=== Platform discovery complete ==="
+
+# === Attempt -diags extraction (conjure-only artifact) ===
+DIAGS_TAG="${_RBGA_CONSECRATION}-diags"
+echo ""
+echo "=== Checking for -diags artifact: ${DIAGS_TAG} ==="
+
+DIAGS_ACCEPT="application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.v2+json"
+
+DIAGS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -H "Accept: ${DIAGS_ACCEPT}" \
+  "${REGISTRY_BASE}/manifests/${DIAGS_TAG}") || DIAGS_STATUS="000"
+
+if [ "${DIAGS_STATUS}" = "200" ]; then
+  echo "Found -diags artifact, extracting..."
+
+  DIAGS_MANIFEST=$(curl -sf \
+    -H "Authorization: Bearer ${TOKEN}" \
+    -H "Accept: ${DIAGS_ACCEPT}" \
+    "${REGISTRY_BASE}/manifests/${DIAGS_TAG}") \
+    || { echo "WARN: Failed to fetch -diags manifest — skipping extraction" >&2; DIAGS_MANIFEST=""; }
+
+  if [ -n "${DIAGS_MANIFEST}" ]; then
+    printf '%s' "${DIAGS_MANIFEST}" | jq -r '.layers[].digest' > diags_layers.txt
+
+    while IFS= read -r LAYER_DIGEST || [ -n "${LAYER_DIGEST}" ]; do
+      echo "Extracting -diags layer: ${LAYER_DIGEST}"
+      curl -sf \
+        -H "Authorization: Bearer ${TOKEN}" \
+        "${REGISTRY_BASE}/blobs/${LAYER_DIGEST}" \
+        > diags_layer.tar.gz
+      tar xzf diags_layer.tar.gz \
+        || echo "WARN: Failed to extract -diags layer ${LAYER_DIGEST}" >&2
+      rm -f diags_layer.tar.gz
+    done < diags_layers.txt
+
+    # Report extracted files
+    for DFILE in buildkit_metadata.json cache_before.json cache_after.json recipe.txt; do
+      if [ -f "${DFILE}" ]; then
+        echo "Extracted from -diags: ${DFILE} ($(wc -c < "${DFILE}" | tr -d ' ') bytes)"
+      fi
+    done
+  fi
+else
+  echo "No -diags artifact found (HTTP ${DIAGS_STATUS}) — expected for bind/graft"
+fi
+
+echo "=== -diags check complete ==="

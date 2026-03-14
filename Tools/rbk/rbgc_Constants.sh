@@ -125,6 +125,7 @@ zrbgc_kindle() {
   readonly RBGC_ARK_SUFFIX_IMAGE="-image"
   readonly RBGC_ARK_SUFFIX_ABOUT="-about"
   readonly RBGC_ARK_SUFFIX_VOUCH="-vouch"
+  readonly RBGC_ARK_SUFFIX_DIAGS="-diags"
 
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
   readonly RBF_FACT_IMAGE_REF="rbf_fact_image_ref.txt"

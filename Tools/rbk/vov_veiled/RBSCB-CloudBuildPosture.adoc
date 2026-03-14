@@ -99,18 +99,17 @@ Applies to vessels whose `RBRV_CONJURE_PLATFORMS` matches `RBGC_BUILD_RUNNER_PLA
 
 ===== Pipeline Architecture: Multi-Platform Vessels
 
-Nine build steps plus CB-native `images:` push (binfmt step included at stitch time).
+Seven build steps plus CB-native `images:` push (binfmt step included at stitch time).
 Applies to vessels whose `RBRV_CONJURE_PLATFORMS` differs from `RBGC_BUILD_RUNNER_PLATFORM`.
+About and vouch are handled by subsequent standalone pipelines (rbgja/, rbgjv/).
 
 1. **derive-tag-base** — compute timestamps and tag components; log build strategy
 2. **qemu-binfmt** — register QEMU user-static for cross-arch emulation
-3. **buildx-push-multi** — `docker buildx build --push` all platforms to intermediate `-multi` tag
+3. **buildx-push-multi** — `docker buildx build --push` all platforms to intermediate `-multi` tag; capture `cache_before.json` (Docker daemon state pre-build) and `buildkit_metadata.json` (via `--metadata-file`)
 4. **per-platform-pullback** — `docker pull --platform` each arch, tag individually
-5. **push-per-platform** — `docker push` each per-platform tag (pre-push for imagetools)
-6. **syft-per-platform** — sequential Syft scan of each per-platform image
-7. **build-info-per-platform** — per-platform `build_info.json` with SLSA summary
-8. **buildx-push-about** — multi-platform `-about` container (`FROM scratch` + `TARGETARCH`)
-9. **imagetools-create** — reassemble consumer-facing manifest list from per-platform tags
+5. **push-per-platform** — `docker push` each per-platform tag (pre-push for imagetools); capture `cache_after.json` (Docker daemon state post-push)
+6. **imagetools-create** — reassemble consumer-facing manifest list from per-platform tags
+7. **push-diags** — build `FROM scratch` container with build-time diagnostic files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`), push as `«CONSECRATION»-diags`
 
 `images:` field declares all per-platform URIs → CB re-pushes (idempotent) and generates SLSA Level 3.
 The reassembled manifest list provides transparent platform resolution to attested per-platform images.
@@ -136,6 +135,9 @@ The reassembled manifest list provides transparent platform resolution to attest
 
 |`{CONSECRATION}-about`
 |Metadata container (build provenance — multi-platform, see About Artifact Contents below)
+
+|`{CONSECRATION}-diags`
+|Build-time diagnostics container (conjure only — `buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`). Pushed by conjure step 07, pulled by about step 01.
 |===
 
 Platform suffix derivation: `linux/amd64` → `amd64`, `linux/arm64` → `arm64`, `linux/arm/v7` → `armv7`.
@@ -160,7 +162,20 @@ Contents are extracted by {rbtgo_ark_inspect} for trust posture display.
 |`recipe.txt`
 |The exact Dockerfile used to build the image.
 
+|`buildkit_metadata.json`
+|BuildKit resolved base image references and build parameters (conjure only, forwarded from `-diags`).
+
+|`cache_before.json`
+|Docker daemon image state before the build (conjure only, forwarded from `-diags`).
+
+|`cache_after.json`
+|Docker daemon image state after all pushes (conjure only, forwarded from `-diags`).
+
 |===
+
+NOTE: The three enrichment files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`) are present only for conjure consecrations.
+They are forwarded from the `-diags` registry artifact by the about pipeline's step 1.
+For bind and graft, these files are absent and the about artifact contains only `build_info.json`, `sbom.json`, and optionally `recipe.txt`.
 
 ===== OCI Layout Bridge — Superseded
 

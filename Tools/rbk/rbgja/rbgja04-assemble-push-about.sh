@@ -44,6 +44,15 @@ PLATFORM_COUNT=$(cat platform_count.txt)
   if test -f recipe.txt; then
     echo 'COPY recipe.txt /recipe.txt'
   fi
+  if test -f buildkit_metadata.json; then
+    echo 'COPY buildkit_metadata.json /buildkit_metadata.json'
+  fi
+  if test -f cache_before.json; then
+    echo 'COPY cache_before.json /cache_before.json'
+  fi
+  if test -f cache_after.json; then
+    echo 'COPY cache_after.json /cache_after.json'
+  fi
 } > Dockerfile.meta
 
 echo "=== Building -about container ==="

@@ -37,10 +37,12 @@ test -s platform_digests.txt  || { echo "platform_digests.txt not found (step 01
 
 IMAGE_BASE="${_RBGA_GAR_HOST}/${_RBGA_GAR_PATH}/${_RBGA_VESSEL}"
 
-# Write recipe.txt from Dockerfile content substitution (if provided)
-if [ -n "${_RBGA_DOCKERFILE_CONTENT:-}" ]; then
+# Write recipe.txt — prefer -diags extraction (step 01), fall back to substitution variable
+if [ -f recipe.txt ]; then
+  echo "recipe.txt present from -diags extraction ($(wc -c < recipe.txt | tr -d ' ') bytes) — skipping substitution variable"
+elif [ -n "${_RBGA_DOCKERFILE_CONTENT:-}" ]; then
   printf '%s' "${_RBGA_DOCKERFILE_CONTENT}" > recipe.txt
-  echo "recipe.txt written ($(wc -c < recipe.txt | tr -d ' ') bytes)"
+  echo "recipe.txt written from substitution variable ($(wc -c < recipe.txt | tr -d ' ') bytes)"
 else
   echo "No Dockerfile content provided — recipe.txt omitted"
 fi
