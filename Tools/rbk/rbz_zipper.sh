@@ -46,8 +46,9 @@ zrbz_kindle() {
   buz_enroll RBZ_QUOTA_BUILD                "rbw-gq"       "${z_mod}" "rbgm_quota_build"
   buz_enroll RBZ_GITLAB_SETUP               "rbw-gPL"      "${z_mod}" "rbgm_gitlab_setup"
   buz_enroll RBZ_ONBOARDING                 "rbw-gO"       "${z_mod}" "rbgm_onboarding"
-  # Marshal operations (differential furnish in rbrr_cli.sh)
-  buz_enroll RBZ_MARSHAL_RESET              "rbw-MR"       "rbrr_cli.sh" "rbrr_reset"
+  # Marshal operations (rblm_cli.sh — Lifecycle Marshal)
+  buz_enroll RBZ_MARSHAL_RESET              "rbw-MR"       "rblm_cli.sh" "rblm_reset"
+  buz_enroll RBZ_MARSHAL_DUPLICATE          "rbw-MD"       "rblm_cli.sh" "rblm_duplicate"
 
   # Payor depot operations (rbgp_cli.sh)
   z_mod="rbgp_cli.sh"

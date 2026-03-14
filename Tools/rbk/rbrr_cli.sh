@@ -80,124 +80,6 @@ zrbrr_write_rbrg() {
 # Command: reset - transform RBRR to blank template via line-by-line rewrite
 # Pre-fills infrastructure defaults, blanks site-specific fields.
 # Uses differential furnish (light path, no regime kindle/enforce).
-rbrr_reset() {
-  buc_doc_brief "Reset RBRR repo regime to blank template for release qualification"
-  buc_doc_shown || return 0
-
-  local -r z_rbrr="${RBBC_rbrr_file}"
-  test -f "${z_rbrr}" || buc_die "RBRR file not found: ${z_rbrr}"
-
-  # Discover secrets dir for pre-confirmation inventory
-  local z_secrets_dir=""
-  local z_secrets_line=""
-  while IFS= read -r z_secrets_line || test -n "${z_secrets_line}"; do
-    case "${z_secrets_line}" in
-      RBRR_SECRETS_DIR=*) z_secrets_dir="${z_secrets_line#RBRR_SECRETS_DIR=}"; break ;;
-    esac
-  done < "${z_rbrr}"
-
-  bug_section "Marshal Reset"
-  bug_t "  Target: ${z_rbrr}"
-  bug_e
-  bug_t "  RBRR fields blanked (reset to onboarding start):"
-  bug_t "    RBRR_DEPOT_PROJECT_ID, RBRR_GAR_REPOSITORY,"
-  bug_t "    RBRR_CBV2_CONNECTION_NAME, RBRR_GCB_WORKER_POOL, RBRR_RUBRIC_REPO_URL"
-  bug_e
-  bug_t "  RBRR fields pre-filled to defaults:"
-  bug_t "    RBRR_DNS_SERVER, RBRR_GCB_MACHINE_TYPE, RBRR_GCB_TIMEOUT,"
-  bug_t "    RBRR_GCB_MIN_CONCURRENT_BUILDS, RBRR_GCP_REGION,"
-  bug_t "    RBRR_VESSEL_DIR, RBRR_SECRETS_DIR"
-  bug_e
-  bug_t "  Depot credentials DELETED (tied to prior depot):"
-  if test -n "${z_secrets_dir}"; then
-    local z_preview=""
-    local z_any_cred=0
-    for z_preview in rbra-governor.env rbra-director.env rbra-retriever.env; do
-      if test -f "${z_secrets_dir}/${z_preview}"; then
-        bug_t "    ${z_secrets_dir}/${z_preview}"
-        z_any_cred=1
-      fi
-    done
-    test "${z_any_cred}" = "1" || bug_t "    (none present)"
-  else
-    bug_t "    (secrets dir not configured)"
-  fi
-  bug_e
-  bug_t "  Vessel consecrations BLANKED (stale after depot change):"
-  local z_np_preview=""
-  local z_any_np=0
-  for z_np_preview in "${RBBC_dot_dir}"/rbrn_*.env; do
-    test -f "${z_np_preview}" || continue
-    bug_t "    ${z_np_preview}"
-    z_any_np=1
-  done
-  test "${z_any_np}" = "1" || bug_t "    (no nameplates found)"
-  bug_e
-  bug_t "  Preserved (payor-scoped, survives depot change):"
-  bug_t "    ${z_secrets_dir}/rbro-payor.env"
-  bug_e
-  buc_require "Proceed with marshal reset?" "reset"
-
-  local -r z_tmp="${z_rbrr}.tmp"
-  while IFS= read -r z_line; do
-    case "${z_line}" in
-      # Pre-selected defaults
-      RBRR_DNS_SERVER=*)                    printf '%s\n' "RBRR_DNS_SERVER=8.8.8.8"                     ;;
-      RBRR_GCB_MACHINE_TYPE=*)              printf '%s\n' "RBRR_GCB_MACHINE_TYPE=e2-standard-2"         ;;
-      RBRR_GCB_TIMEOUT=*)                   printf '%s\n' "RBRR_GCB_TIMEOUT=2700s"                      ;;
-      RBRR_GCB_MIN_CONCURRENT_BUILDS=*)     printf '%s\n' "RBRR_GCB_MIN_CONCURRENT_BUILDS=1"            ;;
-      RBRR_GCP_REGION=*)                    printf '%s\n' "RBRR_GCP_REGION=us-central1"                 ;;
-      RBRR_VESSEL_DIR=*)                    printf '%s\n' "RBRR_VESSEL_DIR=rbev-vessels"                ;;
-      RBRR_SECRETS_DIR=*)                   printf '%s\n' "RBRR_SECRETS_DIR=../station-files/secrets"   ;;
-      # Site-specific fields blanked
-      RBRR_DEPOT_PROJECT_ID=*)              printf '%s\n' "RBRR_DEPOT_PROJECT_ID="                      ;;
-      RBRR_GAR_REPOSITORY=*)                printf '%s\n' "RBRR_GAR_REPOSITORY="                        ;;
-      RBRR_CBV2_CONNECTION_NAME=*)          printf '%s\n' "RBRR_CBV2_CONNECTION_NAME="                  ;;
-      RBRR_GCB_WORKER_POOL=*)               printf '%s\n' "RBRR_GCB_WORKER_POOL="                       ;;
-      RBRR_RUBRIC_REPO_URL=*)               printf '%s\n' "RBRR_RUBRIC_REPO_URL="                       ;;
-      # Everything else passes through (comments, shebang, blanks)
-      *)                                    printf '%s\n' "${z_line}"                                   ;;
-    esac
-  done < "${z_rbrr}" > "${z_tmp}" && mv "${z_tmp}" "${z_rbrr}"
-
-  # Remove depot-scoped RBRA files (governor, director, retriever).
-  # z_secrets_dir already extracted above for pre-confirmation inventory.
-  if test -n "${z_secrets_dir}"; then
-    local z_rbra=""
-    for z_rbra in rbra-governor.env rbra-director.env rbra-retriever.env; do
-      if test -f "${z_secrets_dir}/${z_rbra}"; then
-        rm "${z_secrets_dir}/${z_rbra}"
-        bug_t "  Removed stale depot credential: ${z_rbra}"
-      fi
-    done
-  fi
-
-  # Blank consecration values in all vessel nameplates.
-  # Consecrations reference images built against the prior depot — they
-  # become stale after reset.  Blanking them causes the onboarding guide
-  # to require conjure & vouch before declaring setup complete.
-  local z_np=""
-  local z_np_tmp=""
-  for z_np in "${RBBC_dot_dir}"/rbrn_*.env; do
-    test -f "${z_np}" || continue
-    z_np_tmp="${z_np}.tmp"
-    while IFS= read -r z_line; do
-      case "${z_line}" in
-        RBRN_SENTRY_CONSECRATION=*)  printf '%s\n' "RBRN_SENTRY_CONSECRATION=" ;;
-        RBRN_BOTTLE_CONSECRATION=*)  printf '%s\n' "RBRN_BOTTLE_CONSECRATION=" ;;
-        *)                           printf '%s\n' "${z_line}"                  ;;
-      esac
-    done < "${z_np}" > "${z_np_tmp}" && mv "${z_np_tmp}" "${z_np}"
-    bug_t "  Blanked consecrations: ${z_np}"
-  done
-
-  bug_t "  Reset complete: ${z_rbrr}"
-  bug_e
-  bug_t "  Next: verify onboarding guide detects blank state:"
-  buc_tabtarget "${RBZ_ONBOARDING}"
-  buc_success "Regime reset to blank template"
-}
-
 # Command: validate - enrollment-based validation report
 rbrr_validate() {
   buc_doc_brief "Validate RBRR repo regime configuration via enrollment report"
@@ -512,46 +394,31 @@ zrbrr_furnish() {
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  local z_command="${1:-}"
-
-  # Light sources (always)
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
 
-  # Differential furnish: reset needs guide + zipper, everything else needs regime
-  case "${z_command}" in
-    rbrr_reset)
-      source "${BURD_BUK_DIR}/bug_guide.sh"      || buc_die "Failed to source bug_guide.sh"
-      source "${BURD_BUK_DIR}/buz_zipper.sh"     || buc_die "Failed to source buz_zipper.sh"
-      source "${z_rbk_kit_dir}/rbz_zipper.sh"    || buc_die "Failed to source rbz_zipper.sh"
-      zbuz_kindle
-      zrbz_kindle
-      ;;
-    *)
-      source "${BURD_BUK_DIR}/buv_validation.sh"
-      source "${BURD_BUK_DIR}/burd_regime.sh"
-      source "${z_rbk_kit_dir}/rbcc_Constants.sh"
-      source "${z_rbk_kit_dir}/rbrr_regime.sh"
-      source "${z_rbk_kit_dir}/rbrg_regime.sh"
-      source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
-      source "${RBBC_rbrr_file}"
-      source "${RBBC_rbrg_file}"
-      source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrg_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
+  source "${RBBC_rbrr_file}"
+  source "${RBBC_rbrg_file}"
+  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
 
-      zbuv_kindle
-      zburd_kindle
-      zburd_enforce
-      zrbcc_kindle
+  zbuv_kindle
+  zburd_kindle
+  zburd_enforce
+  zrbcc_kindle
 
-      zrbrr_kindle
-      zrbrr_enforce
-      zrbrg_kindle
-      zrbrg_enforce
-      zrbdc_kindle
+  zrbrr_kindle
+  zrbrr_enforce
+  zrbrg_kindle
+  zrbrg_enforce
+  zrbdc_kindle
 
-      zbupr_kindle
-      ;;
-  esac
+  zbupr_kindle
 }
 
 buc_execute rbrr_ "Recipe Bottle Repository Regime" zrbrr_furnish "$@"
