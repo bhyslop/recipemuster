@@ -91,15 +91,15 @@ verified binary at `/workspace/slsa-verifier`
 . *Cloud Build Step 2: Mode-Aware Verification*:
 .. Image: {rbrg_gcloud_image_ref}
 .. Fetch OAuth token via `gcloud auth print-access-token` (gcloud authenticates as {rbtr_mason} via metadata server)
-.. Branch on `_RBGV_VESSEL_MODE`:
-+
-**Conjure branch**:
 .. {rbbc_call}
 Docker Registry API: GET manifests for `«CONSECRATION»-image` to obtain OCI image index
 .. {rbbc_store}
 `«PLATFORM_DIGESTS»` as list of `(platform, digest)` pairs extracted from the manifest list
 .. {rbbc_store}
 platform list to `/workspace/vouch_platforms.txt`
+.. Branch on `_RBGV_VESSEL_MODE`:
++
+**Conjure branch**:
 .. For each `(platform, digest)` in `«PLATFORM_DIGESTS»`:
 ... {rbbc_call}
 `gcloud artifacts docker images describe --format json --show-provenance` to fetch provenance from Container Analysis API
@@ -125,17 +125,9 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
 .. {rbbc_require}
 `«ACTUAL_DIGEST»` equals `«PINNED_DIGEST»` — pin integrity verified
 .. Compose `vouch_summary.json`: consecration, vessel, vessel_mode (`bind`), verdict (`DIGEST_PIN_VERIFIED`), bind_source, actual_digest, pinned_digest
-.. {rbbc_call}
-Docker Registry API: GET manifests for `«CONSECRATION»-image` to discover platforms
-.. {rbbc_store}
-platform list to `/workspace/vouch_platforms.txt`
 +
 **Graft branch**:
 .. Compose `vouch_summary.json`: consecration, vessel, vessel_mode (`graft`), verdict (`GRAFTED`), graft_source from `_RBGV_GRAFT_SOURCE`
-.. {rbbc_call}
-Docker Registry API: GET manifests for `«CONSECRATION»-image` to discover platforms
-.. {rbbc_store}
-platform list to `/workspace/vouch_platforms.txt`
 .. No verification performed — the GRAFTED verdict explicitly marks the absence of provenance chain
 
 //axhos_step
