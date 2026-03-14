@@ -97,8 +97,10 @@ platform count for subsequent step branching
 .. For each platform in `«PLATFORMS»`:
 ... If single-platform (no manifest list): {rbbc_call}
 `syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image`
-... If multi-platform (manifest list detected in step 1): {rbbc_call}
+... If multi-platform with per-platform tags (conjure): {rbbc_call}
 `syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image-«PLATFORM_SUFFIX»`
+... If multi-platform without per-platform tags (bind): {rbbc_call}
+`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image@«PLATFORM_DIGEST»` using per-platform digest from step 1's manifest list
 ... {rbbc_store}
 per-platform SBOM to `/workspace/sbom.«PLATFORM_SUFFIX».spdx.json`
 .. NOTE: Syft's `registry:` transport reads directly from the OCI registry — no docker CLI or local pull required.
@@ -186,7 +188,7 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 *Mode-specific*::
 [cols="1,2"]
 |===
-| `_RBGA_BUILD_ID` | Conjure Cloud Build job ID (conjure only). Empty for bind/graft.
+| `_RBGA_BUILD_ID` | Conjure Cloud Build job ID (conjure only). Ephemeral director-side state retained between the conjure and about `builds.create` calls. Empty for bind/graft.
 | `_RBGA_INSCRIBE_TIMESTAMP` | Inscribe timestamp from consecration (conjure only). Empty for bind/graft.
 | `_RBGA_BIND_SOURCE` | Pinned upstream image reference (bind only). Source: {rbrv_bind_image}. Empty for conjure/graft.
 | `_RBGA_GRAFT_SOURCE` | Local image reference at push time (graft only). Empty for conjure/bind.

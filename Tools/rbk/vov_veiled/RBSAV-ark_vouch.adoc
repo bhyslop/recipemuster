@@ -133,7 +133,7 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
 .. Image: {rbrg_docker_image_ref}
 .. Create buildx builder instance (inspect-or-create pattern, same as conjure)
 .. Build multi-platform `FROM scratch` container with summary and per-platform verification files as layers
-.. Platforms: reuse platform list from step 2's manifest fetch (conjure branch already fetches the image index; bind/graft use the HEAD response)
+.. Platforms: discovered via GET manifest for `«CONSECRATION»-image` (same pattern as {rbtgo_ark_about} step 1 — manifest list yields multi-platform, single manifest yields single-platform)
 .. Push to registry tagged `«CONSECRATION»-vouch` via `docker buildx build --push`
 .. {rbbc_require}
 push succeeds

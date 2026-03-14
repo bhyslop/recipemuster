@@ -134,6 +134,7 @@ Builds ZRBRV_ROLLUP serialization string.
 
 Validates fields via buv_env_* type checkers.
 Checks mode-appropriate presence invariant: RBRV_BIND_IMAGE for bind, RBRV_CONJURE_DOCKERFILE for conjure, optional RBRV_GRAFT_IMAGE for graft.
+Validates optional Dockerfile paths when configured: RBRV_BIND_OPTIONAL_DOCKERFILE (bind), RBRV_GRAFT_OPTIONAL_DOCKERFILE (graft).
 
 //axhro_render
 {rbkro_render}

@@ -62,7 +62,7 @@ image exists in local container runtime
 //axhos_step
 . *Construct Consecration*:
 .. {rbbc_call}
-query local container runtime for image creation timestamp (e.g., `docker inspect` or `podman inspect` — the `Created` field from OCI image config)
+query local container runtime for image creation timestamp via `docker image inspect` (the `Created` field — OCI Image Configuration spec, exposed at `.Created` by both docker and podman)
 .. {rbbc_store}
 `«IMAGE_CREATED»` as the image's creation timestamp, converted to `YYMMDDHHMMSS` format
 .. {rbbc_store}
@@ -107,6 +107,9 @@ to record the GRAFTED verdict.
 *No SLSA provenance*: Grafted images have no Cloud Build provenance.
 The {rbtgo_ark_vouch} pipeline records a GRAFTED verdict, explicitly marking the absence of a provenance chain.
 This is a deliberate trust boundary — grafted images are accepted into the system but carry less attestation than conjured images.
++
+*Push atomicity*: `docker push` is atomic per manifest — a failed push (network timeout, authentication expiry) leaves no partial state in GAR.
+The director can safely retry without cleanup.
 +
 *Single-platform only*: Graft is specified for single-platform images only.
 `docker push` of a locally-present image pushes a single manifest.
