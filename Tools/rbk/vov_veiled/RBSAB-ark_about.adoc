@@ -16,6 +16,11 @@ service account on the private pool (`RBRR_GCB_WORKER_POOL`).
 NOTE: The about pipeline is uniform across all three vessel modes.
 Once `-image` exists in GAR (however it got there — conjure, bind, or graft), the same about job runs Syft for SBOM and assembles mode-aware `build_info.json`.
 
+NOTE: About is always submitted as a standalone `builds.create` Cloud Build job by the {rbtr_director}.
+The about scripts (`rbgja01`–`rbgja04`) are uniform across all vessel modes.
+`rbf_create` chains the about submission after the mode-specific image operation completes.
+Future: for conjure and bind, the about steps may be embedded in the image-producing Cloud Build job for single-round-trip efficiency; in that case `rbf_create` would skip the standalone about submission.
+
 NOTE: About uses `builds.create` rather than trigger dispatch because the
 {rbtga_consecration}
 is known only after the image arrives in GAR.

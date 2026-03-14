@@ -97,10 +97,8 @@ local image reference, registry tag, digest
 Successful execution pushes the locally-built image to
 {rbtgi_repository}
 tagged as `«VESSEL»:«CONSECRATION»-image`.
-The image is ready for the about-then-vouch pipeline.
-Proceed to
-{rbtgo_ark_about}
-to assemble metadata, then
+The graft operation returns `«CONSECRATION»` to `rbf_create`, which chains the subsequent pipeline stages automatically:
+{rbtgo_ark_about} (standalone `builds.create` job) to assemble metadata, then
 {rbtgo_ark_vouch}
 to record the GRAFTED verdict.
 +

@@ -55,10 +55,11 @@ Successful execution creates the
 {rbtga_ark_image}
 in
 {rbtgi_repository}.
-The {rbtr_director} retains `«BUILD_ID»` and `«CONSECRATION»` from the conjure round-trip for subsequent {rbtgo_ark_about} submission (passed as `_RBGA_BUILD_ID`).
-The image is ready for the about-then-vouch pipeline.
-Proceed to
-{rbtgo_ark_about}
-to assemble metadata, then
+The {rbtr_director} retains `«BUILD_ID»` and `«CONSECRATION»` from the conjure round-trip.
+`rbf_create` chains the subsequent pipeline stages automatically:
+{rbtgo_ark_about} (standalone `builds.create` job, passing `«BUILD_ID»` as `_RBGA_BUILD_ID`), then
 {rbtgo_ark_vouch}
 to verify provenance.
++
+*Future optimization*: The about steps may be embedded in the trigger-dispatched build job via stitch, producing both `-image` and `-about` in a single Cloud Build round-trip.
+In that configuration, `rbf_create` would chain only {rbtgo_ark_vouch} after the combined job.
