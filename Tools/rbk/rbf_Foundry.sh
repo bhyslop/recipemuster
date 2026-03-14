@@ -1130,7 +1130,7 @@ rbf_graft() {
   local z_vessel_dir="${1:-}"
 
   # Documentation block
-  buc_doc_brief "Graft a locally-built image into GAR, then run about pipeline"
+  buc_doc_brief "Graft a locally-built image into GAR"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_shown || return 0
 
@@ -1223,12 +1223,6 @@ rbf_graft() {
 
   buc_info "Image pushed: ${z_image_ref}"
 
-  # Submit about pipeline and wait for completion
-  buc_step "Submitting about pipeline"
-  zrbf_about_submit "${z_consecration}" "${z_token}" ""
-
-  buc_info "About complete for graft"
-
   # Persist to output directory for downstream consumption
   echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
@@ -1241,10 +1235,6 @@ rbf_graft() {
   echo "  Consecration: ${z_consecration}"
   echo "  Source:  ${z_local_image}"
   echo "  Image:   ${z_image_ref}"
-  echo ""
-  echo "  Next steps:"
-  echo "    1. Update nameplate RBRN_BOTTLE_CONSECRATION to: ${z_consecration}"
-  buc_tabtarget "${RBZ_VOUCH_ARK}"
 }
 
 rbf_summon() {
