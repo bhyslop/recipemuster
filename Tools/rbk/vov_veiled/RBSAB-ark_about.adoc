@@ -8,6 +8,8 @@ metadata artifact for an existing
 in
 {rbtgi_repository}.
 The about scripts (`rbgja01`–`rbgja04`) are uniform across all three vessel modes and always execute as Cloud Build steps within the primary Cloud Build job — never as a separate pipeline stage.
+This procedure describes the Cloud Build steps that produce `-about`, not a standalone Cloud Build job.
+Each mode's operation embeds these steps in its primary Cloud Build job (conjure via stitch, bind via `builds.create` construction, graft as a degenerate about-only `builds.create` job).
 
 NOTE: About delivery varies by mode, but the Cloud Build steps are identical:
 conjure embeds about steps in the trigger-dispatched build job via stitch (one job produces both `-image` and `-about`);
@@ -20,58 +22,9 @@ service account on the private pool (`RBRR_GCB_WORKER_POOL`).
 NOTE: For conjure, the consecration is read from `/workspace` (computed by the preceding build steps).
 For bind and graft, the consecration comes from the `_RBGA_CONSECRATION` substitution variable.
 
-The
-{rbtr_director}
-assembles about for an ark:
-
-//axhop_parameter_from_type
-{rbtga_ark}
-. *Validate Input Parameters*:
-.. {rbbc_require}
-vessel directory provided as first argument
-.. {rbbc_require}
-consecration provided as second argument
-
-//axhos_step
-. *Load Vessel Configuration*:
-.. Source vessel configuration from `rbrv.env`
-.. {rbbc_store}
-`«VESSEL_MODE»` from {rbrv_vessel_mode}
-.. {rbbc_store}
-`«VESSEL_SIGIL»` from {rbrv_sigil}
-
-//axhos_step
-. *Authenticate as
-{rbtr_director}*:
-.. Execute
-{rbtoe_director_authenticate}
-.. {rbbc_store}
-`«DIRECTOR_TOKEN»` for subsequent API calls
-
-//axhos_step
-. *Gate on Image Existence*:
-.. {rbbc_call}
-Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
-.. {rbbc_require}
-HTTP 200 response -- image must exist before about can run
-.. If `«CONSECRATION»-about` already exists:
-{rbbc_warn}
-re-about in progress (idempotent overwrite)
-
-//axhos_step
-. *Submit About Cloud Build*:
-.. Construct Build resource JSON with `serviceAccount` as
-{rbtr_mason},
-substitution namespace `_RBGA_*`
-.. Pass registry coordinates, vessel mode, vessel identity, and git metadata as substitution variables
-.. {rbbc_submit}
-`POST «GCB_PROJECT_BUILDS_URL»` with Build resource JSON
-.. {rbbc_require}
-HTTP 200 response
-.. {rbbc_store}
-`«BUILD_ID»` from response `.metadata.build.id`
-.. {rbbc_show}
-Cloud Console URL for build monitoring
+NOTE: The about steps receive their context via substitution variables (`_RBGA_*`) and workspace state, not via function parameters.
+The calling mode's Cloud Build job is responsible for populating the substitution namespace before these steps execute.
+See <<rbtgo_about_substitutions>> below for the full variable reference.
 
 //axhos_step
 . *Cloud Build Step 1: Discover Platforms*:
@@ -143,22 +96,8 @@ The `-diags` path (conjure only) bypasses this limit by conveying the full Docke
 .. {rbbc_require}
 push succeeds
 
-//axhos_step
-. *Wait for Build Completion*:
-.. {rbbc_poll}
-`GET «GCB_PROJECT_BUILDS_URL»/«BUILD_ID»` every 5 seconds
-.. Continue while status in [`PENDING`, `QUEUED`, `WORKING`]
-.. {rbbc_fatal}
-if timeout or final status is not `SUCCESS`
-
-//axhoo_output_of_type
-{rbtga_ark_about}
-. *Display Results*:
-.. {rbbc_show}
-about assembly complete with consecration and about artifact tag
-
 //axhoc_completion
-Successful execution creates a
+Successful execution of these four Cloud Build steps produces a
 {rbtga_ark_about}
 artifact in the registry tagged as `«VESSEL»:«CONSECRATION»-about`.
 The about artifact is a multi-platform container matching the `-image` artifact's platform list.
@@ -166,13 +105,11 @@ The about artifact is a multi-platform container matching the `-image` artifact'
 *Re-about idempotency*: Re-running about re-executes Syft and rebuilds `build_info.json`, overwriting the previous `-about` artifact.
 SBOM content may vary if Syft discovers different packages (e.g., after a Syft version update).
 +
-*Proceed to vouch*: After about completes, run
-{rbtgo_ark_vouch}
-to produce the verification artifact that completes the ark.
-+
 *Implementation note*: About and vouch share common Build resource JSON construction patterns (worker pool, mason SA, registry coordinates).
 The implementation should extract a shared helper for `builds.create` request assembly.
 
+//axhos_waymark
+[[rbtgo_about_substitutions]]
 ==== About Substitution Variables
 
 All `_RBGA_*` substitution variables are passed in the `builds.create` request body.
@@ -201,7 +138,7 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 *Mode-specific*::
 [cols="1,2"]
 |===
-| `_RBGA_BUILD_ID` | Conjure Cloud Build job ID (conjure only). Ephemeral director-side state retained between the conjure and about `builds.create` calls. Empty for bind/graft.
+| `_RBGA_BUILD_ID` | Conjure Cloud Build job ID (conjure only). In the combined conjure job, populated from the built-in `$BUILD_ID`. In graft/recovery standalone about, passed by the director from a prior conjure run. Used by step 3 to populate `build_info.json`. Empty for bind/graft.
 | `_RBGA_INSCRIBE_TIMESTAMP` | Inscribe timestamp from consecration (conjure only). Empty for bind/graft.
 | `_RBGA_BIND_SOURCE` | Pinned upstream image reference (bind only). Source: {rbrv_bind_image}. Empty for conjure/graft.
 | `_RBGA_GRAFT_SOURCE` | Local image reference at push time (graft only). Empty for conjure/bind.
