@@ -134,7 +134,7 @@ For full BUK infrastructure documentation, see `Tools/buk/README.md`.
 | `rbw-DPB` | DirectorRefreshesBinaryPins | Resolve latest slsa-verifier binary |
 | `rbw-DI` | DirectorInscribesRubric | Push build definitions to rubric repo |
 | `rbw-DC` | DirectorCreatesArk | Create ark: conjure (Cloud Build), mirror (bind), or graft (local push) based on vessel mode |
-| `rbw-Db` | DirectorBuildsAbout | Standalone about metadata pipeline for existing -image |
+| `rbw-Db` | DirectorBuildsAbout | About-only Cloud Build job for existing -image (recovery/re-about) |
 | `rbw-Dc` | DirectorChecksConsecrations | Verify builds completed |
 | `rbw-DV` | DirectorVouchesConsecrations | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
 | `rbw-DA` | DirectorAbjuresArk | Revoke vouch on an ark |

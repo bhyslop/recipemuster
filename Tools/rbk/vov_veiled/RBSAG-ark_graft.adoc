@@ -98,7 +98,7 @@ Successful execution pushes the locally-built image to
 {rbtgi_repository}
 tagged as `«VESSEL»:«CONSECRATION»-image`.
 The graft operation returns `«CONSECRATION»` to `rbf_create`, which chains the subsequent pipeline stages automatically:
-{rbtgo_ark_about} (standalone `builds.create` job) to assemble metadata, then
+{rbtgo_ark_about} (`builds.create` job — degenerate combined, about steps only since the image arrived via local push) to assemble metadata, then
 {rbtgo_ark_vouch}
 to record the GRAFTED verdict.
 +

@@ -7,23 +7,18 @@ metadata artifact for an existing
 {rbtga_ark_image}
 in
 {rbtgi_repository}.
-The
-{rbtr_director}
-submits a Cloud Build job via `builds.create` (direct submission), which runs as the
+The about scripts (`rbgja01`–`rbgja04`) are uniform across all three vessel modes and always execute as Cloud Build steps within the primary Cloud Build job — never as a separate pipeline stage.
+
+NOTE: About delivery varies by mode, but the Cloud Build steps are identical:
+conjure embeds about steps in the trigger-dispatched build job via stitch (one job produces both `-image` and `-about`);
+bind includes about steps in a `builds.create` job alongside image copy (one job produces both `-image` and `-about`);
+graft runs about steps in a `builds.create` job after local push (degenerate — no image step since the image arrived via local push).
+All jobs run as the
 {rbtr_mason}
 service account on the private pool (`RBRR_GCB_WORKER_POOL`).
 
-NOTE: The about pipeline is uniform across all three vessel modes.
-Once `-image` exists in GAR (however it got there — conjure, bind, or graft), the same about job runs Syft for SBOM and assembles mode-aware `build_info.json`.
-
-NOTE: About is always submitted as a standalone `builds.create` Cloud Build job by the {rbtr_director}.
-The about scripts (`rbgja01`–`rbgja04`) are uniform across all vessel modes.
-`rbf_create` chains the about submission after the mode-specific image operation completes.
-Future: for conjure and bind, the about steps may be embedded in the image-producing Cloud Build job for single-round-trip efficiency; in that case `rbf_create` would skip the standalone about submission.
-
-NOTE: About uses `builds.create` rather than trigger dispatch because the
-{rbtga_consecration}
-is known only after the image arrives in GAR.
+NOTE: For conjure, the consecration is read from `/workspace` (computed by the preceding build steps).
+For bind and graft, the consecration comes from the `_RBGA_CONSECRATION` substitution variable.
 
 The
 {rbtr_director}

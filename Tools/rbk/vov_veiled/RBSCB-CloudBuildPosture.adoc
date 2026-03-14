@@ -101,7 +101,7 @@ Applies to vessels whose `RBRV_CONJURE_PLATFORMS` matches `RBGC_BUILD_RUNNER_PLA
 
 Seven build steps plus CB-native `images:` push (binfmt step included at stitch time).
 Applies to vessels whose `RBRV_CONJURE_PLATFORMS` differs from `RBGC_BUILD_RUNNER_PLATFORM`.
-About and vouch are handled by subsequent standalone pipelines (rbgja/, rbgjv/).
+About steps (`rbgja/`) are embedded in the build job via stitch (combined image+about). Vouch (`rbgjv/`) runs as a separate Cloud Build job.
 
 1. **derive-tag-base** — compute timestamps and tag components; log build strategy
 2. **qemu-binfmt** — register QEMU user-static for cross-arch emulation

@@ -10,9 +10,9 @@ by building a container image from a vessel specification. The
 performs the build via
 {gcb_service}.
 
-NOTE: Conjure produces only the `-image` artifact.
-The `-about` and `-vouch` artifacts are created by subsequent pipeline stages:
-{rbtgo_ark_about} then {rbtgo_ark_vouch}.
+NOTE: Conjure produces both the `-image` and `-about` artifacts in a single trigger-dispatched Cloud Build job.
+The about steps (`rbgja01`–`rbgja04`) are embedded via stitch alongside the build steps.
+The `-vouch` artifact is created by the subsequent {rbtgo_ark_vouch} pipeline stage (always a separate Cloud Build job).
 
 NOTE: This is the ark-level view of the build operation. For detailed build procedure steps, see
 {rbtgo_trigger_build}.
@@ -56,10 +56,5 @@ Successful execution creates the
 in
 {rbtgi_repository}.
 The {rbtr_director} retains `«BUILD_ID»` and `«CONSECRATION»` from the conjure round-trip.
-`rbf_create` chains the subsequent pipeline stages automatically:
-{rbtgo_ark_about} (standalone `builds.create` job, passing `«BUILD_ID»` as `_RBGA_BUILD_ID`), then
-{rbtgo_ark_vouch}
-to verify provenance.
-+
-*Future optimization*: The about steps may be embedded in the trigger-dispatched build job via stitch, producing both `-image` and `-about` in a single Cloud Build round-trip.
-In that configuration, `rbf_create` would chain only {rbtgo_ark_vouch} after the combined job.
+The trigger-dispatched job produces both `-image` and `-about` (about steps embedded via stitch).
+`rbf_create` chains only {rbtgo_ark_vouch} after the combined job completes, passing `«BUILD_ID»` for SLSA provenance verification.
