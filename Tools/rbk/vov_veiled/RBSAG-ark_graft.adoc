@@ -58,12 +58,16 @@ image exists in local container runtime
 
 //axhos_step
 . *Construct Consecration*:
+.. {rbbc_call}
+`docker inspect --format '{{.Created}}' «LOCAL_IMAGE_REF»` to read OCI image creation timestamp
 .. {rbbc_store}
-`«GRAFT_TIMESTAMP»` as current UTC time (`YYMMDDHHMMSS`)
+`«IMAGE_CREATED»` as the image's creation timestamp, converted to `YYMMDDHHMMSS` format
 .. {rbbc_store}
-`«CONSECRATION»` as `g«GRAFT_TIMESTAMP»-r«REALIZED_TIMESTAMP»`
-.. The graft timestamp (T1) is the current time; the realized timestamp (T2) is recorded after push confirms
-.. NOTE: Both timestamps may be very close for local push operations
+`«PUSH_TIMESTAMP»` as current UTC time (`YYMMDDHHMMSS`)
+.. {rbbc_store}
+`«CONSECRATION»` as `g«IMAGE_CREATED»-r«PUSH_TIMESTAMP»`
+.. T1 encodes when the image was created (a fact about the artifact); T2 encodes when it was pushed to GAR
+.. NOTE: The `created` field may be `1970-01-01T00:00:00Z` for reproducible builds. This produces `g700101000000-r...` — a true statement about the image, not an error.
 
 //axhos_step
 . *Tag and Push Image*:
@@ -77,9 +81,6 @@ image exists in local container runtime
 `docker push «REGISTRY_TAG»`
 .. {rbbc_require}
 push succeeds
-.. {rbbc_store}
-`«REALIZED_TIMESTAMP»` as current UTC time after push confirms
-.. Update consecration if realized timestamp differs from initial estimate
 
 //axhoo_output_of_type
 {rbtga_ark_image}

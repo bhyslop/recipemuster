@@ -82,21 +82,25 @@ Docker Registry API: GET manifests for `«CONSECRATION»-image` with OCI media t
 .. If response is an OCI image index or Docker manifest list:
 ... {rbbc_store}
 `«PLATFORMS»` as list of platform descriptors from the manifest list
-.. If response is a single OCI/Docker manifest:
+.. If response is a single OCI/Docker manifest (typical for bind and graft):
+... {rbbc_call}
+GET config blob via digest from manifest's `config.digest` field
 ... {rbbc_store}
-`«PLATFORMS»` as single-element list from image config
+`«PLATFORMS»` as single-element list from config's `os` and `architecture` fields
 .. {rbbc_store}
 platform count for subsequent step branching
 
 //axhos_step
 . *Cloud Build Step 2: Syft SBOM Generation*:
 .. Image: {rbrg_syft_image_ref}
+.. Fetch OAuth token via metadata server (syft authenticates as {rbtr_mason})
 .. For each platform in `«PLATFORMS»`:
-... Pull platform-specific image via `docker pull --platform «PLATFORM»` (or direct registry access)
 ... {rbbc_call}
-`syft` scan against the pulled image
+`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image-«PLATFORM_SUFFIX»` to scan directly from GAR
+... For single-platform images (no per-platform tags): `syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image`
 ... {rbbc_store}
 per-platform SBOM to `/workspace/sbom.«PLATFORM_SUFFIX».spdx.json`
+.. NOTE: Syft's `registry:` transport reads directly from the OCI registry — no docker CLI or local pull required.
 
 //axhos_step
 . *Cloud Build Step 3: Assemble build_info.json*:
@@ -109,6 +113,11 @@ per-platform SBOM to `/workspace/sbom.«PLATFORM_SUFFIX».spdx.json`
 .... Graft: `graft_source` (from `_RBGA_GRAFT_SOURCE`)
 ... {rbbc_store}
 per-platform `build_info.json` to `/workspace/build_info.«PLATFORM_SUFFIX».json`
+.. For conjure mode:
+... {rbbc_call}
+read Dockerfile content from vessel build context (passed as `_RBGA_DOCKERFILE_PATH`)
+... {rbbc_store}
+`recipe.txt` to `/workspace/recipe.txt` (the exact Dockerfile used to build the image)
 
 //axhos_step
 . *Cloud Build Step 4: Build and Push About Artifact*:
@@ -147,6 +156,9 @@ SBOM content may vary if Syft discovers different packages (e.g., after a Syft v
 *Proceed to vouch*: After about completes, run
 {rbtgo_ark_vouch}
 to produce the verification artifact that completes the ark.
++
+*Implementation note*: About and vouch share common Build resource JSON construction patterns (worker pool, mason SA, registry coordinates).
+The implementation should extract a shared helper for `builds.create` request assembly.
 
 ==== About Substitution Variables
 
@@ -177,4 +189,5 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 | `_RBGA_INSCRIBE_TIMESTAMP` | Inscribe timestamp from consecration (conjure only). Empty for bind/graft.
 | `_RBGA_BIND_SOURCE` | Pinned upstream image reference (bind only). Source: {rbrv_bind_image}. Empty for conjure/graft.
 | `_RBGA_GRAFT_SOURCE` | Local image reference at push time (graft only). Empty for conjure/bind.
+| `_RBGA_DOCKERFILE_PATH` | Path to Dockerfile in rubric repo (conjure only). Source: {rbrv_conjure_dockerfile}. Used to embed `recipe.txt`. Empty for bind/graft.
 |===

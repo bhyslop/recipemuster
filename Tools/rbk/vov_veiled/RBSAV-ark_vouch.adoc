@@ -113,13 +113,13 @@ all platforms verify successfully
 +
 **Bind branch**:
 .. {rbbc_call}
-Docker Registry API: GET manifests for `«CONSECRATION»-image` to obtain image digest
+Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
 .. {rbbc_store}
-`«ACTUAL_DIGEST»` from manifest response
-.. Compare `«ACTUAL_DIGEST»` against the pinned upstream digest from `_RBGV_BIND_SOURCE`
+`«ACTUAL_DIGEST»` from `Docker-Content-Digest` response header
+.. Extract `«PINNED_DIGEST»` from the `@sha256:...` suffix of `_RBGV_BIND_SOURCE`
 .. {rbbc_require}
-digests match — pin integrity verified
-.. Compose `vouch_summary.json`: consecration, vessel, vessel_mode (`bind`), verdict (`DIGEST_PIN_VERIFIED`), bind_source, actual_digest
+`«ACTUAL_DIGEST»` equals `«PINNED_DIGEST»` — pin integrity verified
+.. Compose `vouch_summary.json`: consecration, vessel, vessel_mode (`bind`), verdict (`DIGEST_PIN_VERIFIED`), bind_source, actual_digest, pinned_digest
 +
 **Graft branch**:
 .. Compose `vouch_summary.json`: consecration, vessel, vessel_mode (`graft`), verdict (`GRAFTED`), graft_source from `_RBGV_GRAFT_SOURCE`

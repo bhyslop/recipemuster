@@ -1083,7 +1083,7 @@ consecrations across all
 {rbtgi_vessel}
 repositories
 ({rbtgog_ark}).
-Pre-checks SLSA provenance availability and skips consecrations that lack it.
+Bind and graft consecrations are always vouchable; conjure consecrations require SLSA provenance pre-check.
 
 include::RBSDV-director_vouch.adoc[]
 
@@ -1529,8 +1529,11 @@ The `r` prefix on the second timestamp means "realized" — the moment the image
 Example: `c260224153022-r260224160530` (27 characters).
 Regex: `[cbg]\d{12}-r\d{12}`.
 +
-T1 (mode-prefixed): when the operation was initiated — inscribe for conjure, mirror for bind, push for graft.
+T1 (mode-prefixed): when the operation was initiated — inscribe for conjure, mirror for bind, OCI image creation time for graft.
 T2 (r-prefixed): when the image landed in GAR.
++
+For graft, T1 is an intrinsic fact about the image (its `created` metadata), not an operational timestamp.
+Reproducible builds may produce `T1=700101000000` — this is a true statement, not an error.
 +
 Combined with vessel to form complete artifact tags.
 All persistent artifact tags use the full consecration:
@@ -1552,14 +1555,18 @@ Alias tags are ephemeral; re-conjure overwrites them in the registry. Consecrati
 The container image artifact within an
 {rbtga_ark},
 tagged with the `-image` suffix.
-Contains the executable container layers built by
-{gcb_service}.
+Contains the executable container layers, regardless of how the image arrived in GAR.
 +
-**Single-arch vessels**: a single-platform image pushed via the `images:` field, with SLSA v1.0 Level 3 provenance.
+* *Conjure*: built by {gcb_service} from a Dockerfile. SLSA v1.0 Level 3 provenance is auto-generated.
+* *Bind*: mirrored from a pinned upstream registry reference. No SLSA provenance (upstream image, not locally built).
+* *Graft*: locally built and pushed via native docker/podman push. No SLSA provenance (no Cloud Build involvement).
 +
-**Multi-platform vessels**: the consumer-facing `-image` tag is a multi-platform manifest list assembled by `imagetools create` from per-platform tags (e.g., `-image-amd64`, `-image-arm64`, `-image-armv7`).
+**Single-arch vessels**: a single-platform image. For conjure, pushed via the `images:` field with SLSA provenance.
++
+**Multi-platform vessels** (conjure only): the consumer-facing `-image` tag is a multi-platform manifest list assembled by `imagetools create` from per-platform tags (e.g., `-image-amd64`, `-image-arm64`, `-image-armv7`).
 Per-platform tags are internal build plumbing with independent SLSA v1.0 Level 3 provenance sharing a common `buildInvocationId`.
 The combined manifest list has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list); consumers pulling the combined tag get transparent platform resolution to attested per-platform images.
+Bind and graft vessels are typically single-platform.
 
 [[rbtga_ark_about]]
 //axl_voices axig_generic_artifact
@@ -1643,7 +1650,6 @@ A mismatch for conjure/bind indicates provenance change or tampering and must pr
 If determinism proves unreliable in practice, narrow the comparison to verification verdict, digests, and builder identity.
 +
 **Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image` and `-about`.
-Older arks without vouch are handled gracefully (404 on HEAD check).
 +
 **Display**: {rbtgo_consecration_check} includes a Vouch column showing `yes`/`no` per consecration, detected by matching the `-vouch` tag suffix in the GAR tag list.
 
