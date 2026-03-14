@@ -2288,9 +2288,10 @@
       "creation_time": "260314",
       "status": "stabled",
       "order": [
-        "₢AtAAA"
+        "₢AtAAA",
+        "₢AtAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2308,6 +2309,17 @@
               "text": "Update RBS0 and operation subdocuments to specify: (1) graft vessel mode, (2) standalone Cloud Build about pipeline, (3) mode-aware Cloud Build vouch pipeline.\n\n## Character\nArchitectural design writing — intricate cross-document consistency work requiring judgment on several open design questions.\n\n## Documents to modify (9 existing)\n\n**RBS0-SpecTop.adoc** (heaviest):\n- Mapping section: add linked terms rbrv_vessel_mode_graft, rbrv_group_grafting, rbrv_graft_image\n- rbtga_ark definition: cover all three arrival paths (conjure/bind/graft)\n- rbtga_ark_image: add bind/graft origin variants alongside conjure's SLSA description\n- rbtga_ark_about: rewrite — no longer conjure build side-effect; now standalone Cloud Build syft job, uniform across modes\n- rbtga_ark_vouch: rewrite — no longer optional, no longer SLSA-only; always Cloud Build, mode-aware (SLSA/digest-pin/GRAFTED)\n- Vessel mode enum: add graft value definition\n- Vessel regime: add rbrv_group_grafting with rbrv_graft_image\n- Consecration format: confirm i-prefix works generically (initiator timestamp) for graft\n\n**RBSAV-ark_vouch.adoc** (full rewrite):\n- Mode-aware Cloud Build job with three verification branches\n- New substitution variable _RBGV_VESSEL_MODE\n- Bind branch: digest-pin comparison (replaces current local zrbf_vouch_bind)\n- Graft branch: GRAFTED stamp, no provenance\n- Conjure branch: existing SLSA verification (largely preserved)\n\n**RBSAC-ark_conjure.adoc** (minor):\n- Remove implication that about is generated during conjure build\n- Conjure now produces only -image; about is separate downstream job\n\n**RBSTB-trigger_build.adoc** (moderate):\n- Remove steps 06-08 (syft, build-info, about assembly) — these move to standalone about pipeline\n- Build becomes purely: image construction + push\n- Note: conjure now requires two Cloud Build round-trips\n\n**RBSAI-ark_inspect.adoc** (moderate):\n- Add graft branch alongside bind/conjure\n- About extraction now uniform (syft SBOM) across all modes\n- Vouch display handles three verdict types\n\n**RBSAA-ark_abjure.adoc** (minor):\n- Uniformly delete all three artifacts (-image, -about, -vouch) for all modes\n\n**RBSCK-consecration_check.adoc** (minor):\n- Vessel mode in display; GRAFTED vouch status distinct from SLSA-vouched\n\n**RBSAS-ark_summon.adoc** (no change expected — already generic)\n\n**RBSRV-RegimeVessel.adoc** (moderate):\n- Add graft to vessel mode enum\n- Add rbrv_group_grafting with gate, rbrv_graft_image variable\n- Update kindle/validate/render sections\n\n## New documents (2)\n\n**RBSAB-ark_about.adoc** (new operation spec):\n- Standalone Cloud Build about job: director submits after -image exists in GAR\n- Steps: discover platforms, syft per-platform, build-info per-platform, assemble+push -about\n- Cloud Build step scripts: rbgja01 through rbgja04\n- Substitution namespace _RBGA_*\n- Uniform across all three vessel modes\n\n**RBSAG-ark_graft.adoc** (new operation spec):\n- Graft operation: push local image to GAR as consecrated -image\n- Runtime param: local image reference\n- Consecration: i-timestamp (graft initiation) + b-timestamp (placeholder or push completion)\n- Director authenticates, pushes via crane/docker, then triggers about + vouch pipelines\n\n## Open design questions to resolve during spec writing\n1. Consecration i-prefix: confirm generic 'initiator timestamp' semantics work for graft\n2. Graft b-timestamp: Cloud Build doesn't build the image — is b-timestamp the about job time, or graft push time?\n3. Git metadata in about: conjure gets it from Cloud Build context; bind/graft need it passed as substitution variables from local\n4. Single-arch handling in rbgja pipeline: bind/graft may be single-platform",
               "silks": "specification-updates-graft-about-vouch",
               "commit": "c7babf0"
+            }
+          ]
+        },
+        "₢AtAAB": {
+          "tacks": [
+            {
+              "ts": "260314-0944",
+              "state": "rough",
+              "text": "Implement new consecration format and graft regime scaffolding.\n\n## Character\nMechanical but cross-cutting — careful find-and-replace with format validation at each site.\n\n## Consecration Format Change\nOld: `i20260224_153022-b20260224_160530` (35 chars)\nNew: `[cbg]YYMMDDHHMMSS-rYYMMDDHHMMSS` (27 chars)\n- Mode prefix: `c` (conjure), `b` (bind), `g` (graft)\n- `r` = realized (image landed in GAR)\n- Drop century, drop underscore\n\n## Sites to update\n- `rbgjb01-derive-tag-base.sh`: consecration construction (conjure path, `c` prefix)\n- `rbf_mirror` in rbf_Foundry.sh: mirror tag construction (bind path, `b` prefix)\n- `rbf_check_consecrations` / consecration_check parsing: regex pattern match updated\n- Any other consecration format references in RBF (vouch gate, abjure, summon, inspect)\n- RBGC constants if the old format prefixes (`i`, `b`) are defined there\n\n## Regime Additions\n- Add `graft` to RBRV_VESSEL_MODE validation (buv check)\n- Add rbrv_group_grafting with RBRV_GRAFT_IMAGE variable\n- Update kindle (defaults), validate (type check + group gate), render (display section)\n- RBGC: add any new constants for graft mode\n\n## Verification\n- Existing conjure and bind operations still work with new consecration format\n- Regime render shows graft section when mode=graft\n- Regime validate accepts graft mode, rejects unknown modes\n\n## Depends on\n- ₢AtAAA specification updates (must be complete first)",
+              "silks": "consecration-format-and-regime-foundation",
+              "commit": "b24f1d7"
             }
           ]
         }
