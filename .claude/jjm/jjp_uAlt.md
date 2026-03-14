@@ -4,13 +4,19 @@
 
 Recipe Bottle currently supports two vessel modes: conjure (Cloud Build builds from Dockerfile) and bind (mirror pinned upstream image to GAR). This heat adds a third mode, graft, for users who build locally and want their image accepted into the consecration system.
 
-The design conversation surfaced a deeper architectural improvement: all attestation should happen in Cloud Build, not on local workstations. This led to three interconnected changes:
+The name graft comes from botanical grafting: foreign material spliced onto the rootstock. It may take or may not. The metaphor fits the trust posture exactly.
+
+The design conversation surfaced a deeper architectural improvement: all attestation should happen in Cloud Build, not on local workstations. This led to three interconnected changes.
+
+## Core invariant
+
+Once -image is in GAR, the same about-then-vouch pipeline runs regardless of how it got there.
 
 ### 1. Graft vessel mode
 A locally-built image is pushed to GAR via native docker/podman push, then receives the same about + vouch pipeline as conjure and bind. The vouch verdict is GRAFTED, no provenance chain. No crane dependency needed (image is already local). No dirty-tree guard (git state is irrelevant to an already-built container).
 
 ### 2. Standalone about pipeline (extracted from conjure)
-The about artifact (-about) is currently generated as steps 06-08 inside the conjure Cloud Build job. Extracting it into a standalone Cloud Build pipeline (rbgja/) makes it uniform across all three modes: after -image exists in GAR (however it got there), the director submits an about job that runs syft for SBOM and assembles metadata. This means conjure now requires two Cloud Build round-trips (build, then about).
+The about artifact (-about) is currently generated as steps 06-08 inside the conjure Cloud Build job. Extracting it into a standalone Cloud Build pipeline (Tools/rbk/rbgja/) makes it uniform across all three modes: after -image exists in GAR (however it got there), the director submits an about job that runs syft for SBOM and assembles metadata. This means conjure now requires two Cloud Build round-trips (build, then about).
 
 ### 3. Vouch always in Cloud Build (mode-aware)
 The bind vouch currently runs locally (docker build + docker push of vouch artifact from workstation). Moving it to Cloud Build eliminates local workstation as an attestation authority. The vouch Cloud Build job becomes mode-aware: conjure gets SLSA provenance verification, bind gets digest-pin comparison, graft gets GRAFTED stamp.
@@ -29,7 +35,7 @@ New: c260224153022-r260224160530 (27 chars).
 - r = realized (image landed in GAR)
 - Drop century 20, drop underscore between date/time
 - Regex: [cbg]\d{12}-r\d{12}
-- No backward compatibility needed. Depot will be destroyed and recreated.
+- No backward compatibility needed. Depot will be destroyed and recreated by user as a manual prerequisite between spec completion and implementation start. This is outside the heat.
 
 Two timestamps remain meaningful across modes:
 - T1: when the operation was initiated (inscribe/mirror/graft)
@@ -43,11 +49,16 @@ Two timestamps remain meaningful across modes:
 - Syft image pin: currently hardcoded, needs proper RBRG_SYFT_IMAGE_REF regime pin
 - Step renumbering: conjure rbgjb/ steps 01-05 + 09 renumber to 01-06 after about extraction
 
+## Pace dependency graph
+
+A (spec) then B (format+regime). F (syft pin) parallel to B. B+F then C (about extraction). C then D (vouch+graft). D then E (tests).
+
 ## References
-- RBS0-SpecTop.adoc: master spec (ark definitions, vessel regime, operations)
-- RBSAV-ark_vouch.adoc: current vouch spec (full rewrite needed)
-- RBSRV-RegimeVessel.adoc: vessel regime spec
-- rbf_Foundry.sh: implementation (zrbf_vouch_bind to eliminate, rbf_mirror pattern to follow)
-- rbgjb/: conjure Cloud Build steps (06-08 moving to rbgja/)
-- rbgjv/: vouch Cloud Build steps (becoming mode-aware)
-- RBSRG-RegimeGcbPins.adoc: GCB image pin regime (syft pin addition)
+- Tools/rbk/vov_veiled/RBS0-SpecTop.adoc: master spec (ark definitions, vessel regime, operations)
+- Tools/rbk/vov_veiled/RBSAV-ark_vouch.adoc: current vouch spec (full rewrite needed)
+- Tools/rbk/vov_veiled/RBSRV-RegimeVessel.adoc: vessel regime spec
+- Tools/rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc: GCB image pin regime (syft pin addition)
+- Tools/rbk/rbf_Foundry.sh: implementation (zrbf_vouch_bind to eliminate, rbf_mirror pattern to follow)
+- Tools/rbk/rbgjb/: conjure Cloud Build steps (06-08 moving to rbgja/)
+- Tools/rbk/rbgjv/: vouch Cloud Build steps (becoming mode-aware)
+- Tools/rbk/rbq_Qualify.sh: qualification orchestrator (check for consecration format references)
