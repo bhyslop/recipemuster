@@ -19,6 +19,8 @@
 # Note: jq is NOT available in gcr.io/cloud-builders/docker or alpine base,
 # so this step uses alpine + apk add jq.
 
+# Note: pipefail is not POSIX but is supported by busybox ash (Alpine's /bin/sh).
+# This step targets Alpine Cloud Build images which always use busybox ash.
 set -euo pipefail
 
 apk add --no-cache jq >/dev/null
@@ -45,18 +47,14 @@ fi
 
 TS="$(date -u +%FT%TZ)"
 
-# Cloud Build provides BUILD_ID as an environment variable in all steps
-ABOUT_BUILD_ID="${BUILD_ID:-unknown}"
-
 # Host platform for QEMU detection (conjure only)
 HOST_PLATFORM="linux/amd64"
 
-# Load per-platform digests
-# shellcheck disable=SC2034  # DIGEST_* variables used in loop
+# Load per-platform digests into individual files (avoids eval with external data)
 while IFS=' ' read -r D_SUFFIX D_DIGEST; do
-  # Store as shell variables: DIGEST_amd64, DIGEST_arm64, DIGEST_armv7, etc.
   D_LABEL="${D_SUFFIX#-}"
-  eval "DIGEST_${D_LABEL}=\"${D_DIGEST}\""
+  D_LABEL=$(printf '%s' "${D_LABEL}" | tr -cd 'a-z0-9')
+  echo "${D_DIGEST}" > "digest-${D_LABEL}.txt"
 done < platform_digests.txt
 
 # Process each platform (POSIX sh — no arrays, use positional parsing)
@@ -81,25 +79,16 @@ while [ -n "${REMAINING_PLATS}" ]; do
   fi
 
   LABEL="${SUFFIX#-}"
+  LABEL=$(printf '%s' "${LABEL}" | tr -cd 'a-z0-9')
   INFO_FILE="build_info-${LABEL}.json"
 
-  # Look up per-platform digest
-  eval "IMAGE_DIGEST=\"\${DIGEST_${LABEL}:-}\""
+  # Look up per-platform digest from file written above
+  IMAGE_DIGEST=""
+  if [ -f "digest-${LABEL}.txt" ]; then
+    IMAGE_DIGEST=$(cat "digest-${LABEL}.txt")
+  fi
 
   echo "--- ${PLAT} → ${INFO_FILE} ---"
-
-  # Build shared fields
-  SHARED_ARGS="
-    --arg consecration  \"${_RBGA_CONSECRATION}\"
-    --arg vessel_mode   \"${_RBGA_VESSEL_MODE}\"
-    --arg vessel_name   \"${_RBGA_VESSEL}\"
-    --arg platform      \"${PLAT}\"
-    --arg image_digest  \"${IMAGE_DIGEST}\"
-    --arg about_ts      \"${TS}\"
-    --arg git_commit    \"${_RBGA_GIT_COMMIT}\"
-    --arg git_branch    \"${_RBGA_GIT_BRANCH}\"
-    --arg git_repo      \"${_RBGA_GIT_REPO}\"
-  "
 
   case "${_RBGA_VESSEL_MODE}" in
     conjure)

@@ -42,7 +42,6 @@ vessel mode (conjure, bind, or graft) from vessel regime
 .. Create temporary container from `-about` image
 .. Extract `build_info.json`, `sbom.json`
 .. Extract `recipe.txt` if present (available for any mode when the Dockerfile path was configured)
-.. For conjure vessels: extract `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (present for consecrations built after about-artifact enrichment)
 .. If `-vouch` locally present: extract `vouch_summary.json`
 
 //axhos_step
@@ -55,8 +54,6 @@ vessel mode (conjure, bind, or graft) from vessel regime
 .. *Builder*: Cloud Build job ID, timestamps, image URI
 .. *SLSA Provenance*: build level, invocation ID, builder ID, predicate types, explicit boundary statements (what SLSA does and does not attest)
 .. *Base Image*: Dockerfile FROM line, syft-detected distro
-.. *Build Output*: output manifest digest, OCI media type, buildx build reference, image name, per-platform digests (from `buildkit_metadata.json` when present)
-.. *Build Cache Delta*: Cloud Build worker image counts before/after, new images deduplicated by ID (from `cache_before.json`/`cache_after.json` when present)
 +
 **Bind sections**:
 .. *Bind Source*: original upstream image reference, digest-pin status
@@ -89,9 +86,6 @@ trust posture for the specified consecration
 Inspect is a read-only local operation.
 It does not modify artifacts, contact remote registries, or require authentication.
 All data is extracted from container images already present in the local container runtime.
-+
-*Graceful degradation*: Fields sourced from `buildkit_metadata.json`, `cache_before.json`, and `cache_after.json` display only when those files are present in the `-about` artifact.
-Older consecrations built before about-artifact enrichment omit these sections without error.
 +
 *Mode-aware display*: The inspect output adapts to vessel mode.
 Bind and graft vessels display clear trust boundary statements rather than attempting to show provenance data that does not exist.

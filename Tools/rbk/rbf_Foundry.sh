@@ -2057,6 +2057,9 @@ zrbf_about_submit() {
   local z_graft_source=""
   local z_inscribe_ts=""
   local z_dockerfile_content=""
+  # Cloud Build substitution values are limited to 4096 bytes. We use 4000 as a
+  # conservative guard to account for encoding overhead and avoid edge-case failures.
+  local -r z_dockerfile_max_bytes=4000
 
   case "${z_vessel_mode}" in
     conjure)
@@ -2066,7 +2069,7 @@ zrbf_about_submit() {
       if test -f "${RBRV_CONJURE_DOCKERFILE:-}"; then
         local z_df_size
         z_df_size=$(wc -c < "${RBRV_CONJURE_DOCKERFILE}" | tr -d ' ')
-        if test "${z_df_size}" -le 4000; then
+        if test "${z_df_size}" -le "${z_dockerfile_max_bytes}"; then
           z_dockerfile_content=$(<"${RBRV_CONJURE_DOCKERFILE}")
         else
           buc_warn "Dockerfile exceeds 4KB substitution limit (${z_df_size} bytes) — recipe.txt omitted"
@@ -2078,7 +2081,7 @@ zrbf_about_submit() {
       if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
         local z_df_size
         z_df_size=$(wc -c < "${RBRV_BIND_OPTIONAL_DOCKERFILE}" | tr -d ' ')
-        if test "${z_df_size}" -le 4000; then
+        if test "${z_df_size}" -le "${z_dockerfile_max_bytes}"; then
           z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}")
         else
           buc_warn "Dockerfile exceeds 4KB substitution limit (${z_df_size} bytes) — recipe.txt omitted"
@@ -2090,7 +2093,7 @@ zrbf_about_submit() {
       if test -n "${RBRV_GRAFT_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_GRAFT_OPTIONAL_DOCKERFILE}"; then
         local z_df_size
         z_df_size=$(wc -c < "${RBRV_GRAFT_OPTIONAL_DOCKERFILE}" | tr -d ' ')
-        if test "${z_df_size}" -le 4000; then
+        if test "${z_df_size}" -le "${z_dockerfile_max_bytes}"; then
           z_dockerfile_content=$(<"${RBRV_GRAFT_OPTIONAL_DOCKERFILE}")
         else
           buc_warn "Dockerfile exceeds 4KB substitution limit (${z_df_size} bytes) — recipe.txt omitted"

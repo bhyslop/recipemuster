@@ -31,17 +31,6 @@ MULTI_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${
 docker buildx version
 docker version
 
-# Snapshot host daemon cache state before build
-# No prune: Cloud Build workers have extensive pre-cached infrastructure images that
-# must not be disturbed. The before/after diff at inspect time filters by relevance.
-echo "=== Capturing cache_before.json ==="
-{
-  printf '{"timestamp":"%s","host_daemon_images":[' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  docker images --no-trunc --format '{{json .}}' 2>/dev/null \
-    | awk '{if(NR>1) printf ","; print}' || true
-  printf ']}'
-} > cache_before.json
-
 # Create docker-container driver for multi-platform builds (QEMU emulation)
 docker buildx create --driver docker-container --name rb-builder --use
 

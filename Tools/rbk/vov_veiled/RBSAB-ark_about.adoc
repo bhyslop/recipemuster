@@ -92,7 +92,7 @@ platform count for subsequent step branching
 
 //axhos_step
 . *Cloud Build Step 2: Syft SBOM Generation*:
-.. Image: {rbrg_syft_image_ref}
+.. Image: {rbrg_docker_image_ref} (runs syft via `docker run` with pinned {rbrg_syft_image_ref})
 .. Fetch OAuth token via metadata server (syft authenticates as {rbtr_mason})
 .. For each platform in `«PLATFORMS»`:
 ... If single-platform (no manifest list): {rbbc_call}
@@ -102,7 +102,7 @@ platform count for subsequent step branching
 ... If multi-platform without per-platform tags (bind): {rbbc_call}
 `syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image@«PLATFORM_DIGEST»` using per-platform digest from step 1's manifest list
 ... {rbbc_store}
-per-platform SBOM to `/workspace/sbom.«PLATFORM_SUFFIX».spdx.json`
+per-platform SBOM to `/workspace/sbom-«LABEL».json` (e.g., `sbom-amd64.json`; LABEL = architecture + variant without separators)
 .. NOTE: Syft's `registry:` transport reads directly from the OCI registry — no docker CLI or local pull required.
 
 //axhos_step
@@ -115,7 +115,7 @@ per-platform SBOM to `/workspace/sbom.«PLATFORM_SUFFIX».spdx.json`
 .... Bind: `bind_source` (from `_RBGA_BIND_SOURCE`)
 .... Graft: `graft_source` (from `_RBGA_GRAFT_SOURCE`)
 ... {rbbc_store}
-per-platform `build_info.json` to `/workspace/build_info.«PLATFORM_SUFFIX».json`
+per-platform `build_info.json` to `/workspace/build_info-«LABEL».json` (e.g., `build_info-amd64.json`)
 .. If `_RBGA_DOCKERFILE_CONTENT` is non-empty:
 ... {rbbc_store}
 `recipe.txt` to `/workspace/recipe.txt` from substitution variable content
