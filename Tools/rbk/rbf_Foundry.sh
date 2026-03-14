@@ -70,6 +70,11 @@ zrbf_kindle() {
   readonly ZRBF_RBGJV_STEPS_DIR="${z_self_dir}/rbgjv"
   test -d "${ZRBF_RBGJV_STEPS_DIR}"   || buc_die "RBGJV steps directory not found: ${ZRBF_RBGJV_STEPS_DIR}"
 
+  buc_log_args 'RBGJA about step scripts (same Tools directory)'
+  # Acronym: rbgja = Recipe Bottle Google Json About (step scripts in rbgja/ dir)
+  readonly ZRBF_RBGJA_STEPS_DIR="${z_self_dir}/rbgja"
+  test -d "${ZRBF_RBGJA_STEPS_DIR}"   || buc_die "RBGJA steps directory not found: ${ZRBF_RBGJA_STEPS_DIR}"
+
   buc_log_args 'Define temp files for build operations'
   readonly ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
   readonly ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
@@ -88,6 +93,9 @@ zrbf_kindle() {
 
   buc_log_args 'Define vouch operation file prefix (postfixed per step id)'
   readonly ZRBF_VOUCH_PREFIX="${BURD_TEMP_DIR}/rbf_vouch_"
+
+  buc_log_args 'Define about operation file prefix (postfixed per step id)'
+  readonly ZRBF_ABOUT_PREFIX="${BURD_TEMP_DIR}/rbf_about_"
 
   buc_log_args 'Vessel-related files'
   readonly ZRBF_VESSEL_SIGIL_FILE="${BURD_TEMP_DIR}/rbf_vessel_sigil.txt"
@@ -282,10 +290,7 @@ zrbf_stitch_build_json() {
     "rbgjb03-buildx-push-multi.sh|${RBRG_DOCKER_IMAGE_REF}|bash|buildx-push-multi"
     "rbgjb04-per-platform-pullback.sh|${RBRG_DOCKER_IMAGE_REF}|bash|per-platform-pullback"
     "rbgjb05-push-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|push-per-platform"
-    "rbgjb06-syft-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|syft-per-platform"
-    "rbgjb07-build-info-per-platform.sh|${RBRG_ALPINE_IMAGE_REF}|sh|build-info-per-platform"
-    "rbgjb08-buildx-push-about.sh|${RBRG_DOCKER_IMAGE_REF}|bash|buildx-push-about"
-    "rbgjb09-imagetools-create.sh|${RBRG_DOCKER_IMAGE_REF}|bash|imagetools-create"
+    "rbgjb06-imagetools-create.sh|${RBRG_DOCKER_IMAGE_REF}|bash|imagetools-create"
   )
 
   # Compute platform suffixes (used in images: field and substitutions)
@@ -343,7 +348,6 @@ zrbf_stitch_build_json() {
     test -n "${z_body}" || buc_die "Empty script body: ${z_script_path}"
 
     buc_log_args "Baking pinned image refs and build strategy into script text"
-    z_body="${z_body//\$\{RBRG_SYFT_IMAGE_REF\}/${RBRG_SYFT_IMAGE_REF}}"
     z_body="${z_body//\$\{RBRG_BINFMT_IMAGE_REF\}/${RBRG_BINFMT_IMAGE_REF}}"
     z_body="${z_body//\$\{ZRBF_BUILD_STRATEGY\}/${z_build_strategy}}"
 
@@ -417,7 +421,6 @@ zrbf_stitch_build_json() {
     --arg zjq_git_repo       "${z_git_repo}" \
     --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
     --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
-    --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
     --arg zjq_rubric_repo      "__INSCRIBE_RUBRIC_REPO__" \
     --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
     --arg zjq_inscribe_ts      "__INSCRIBE_TIMESTAMP__" \
@@ -439,7 +442,6 @@ zrbf_stitch_build_json() {
         _RBGY_GIT_REPO:            $zjq_git_repo,
         _RBGY_GAR_HOST_SUFFIX:     $zjq_gar_host_suffix,
         _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
-        _RBGY_ARK_SUFFIX_ABOUT:    $zjq_ark_suffix_about,
         _RBGY_RUBRIC_REPO:         $zjq_rubric_repo,
         _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
         _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
@@ -1941,6 +1943,309 @@ rbf_vouch_gate() {
   fi
 
   buc_info "Vouch verified: ${z_vessel}:${z_vouch_tag}"
+}
+
+######################################################################
+# About (rbw-DA)
+
+rbf_about() {
+  zrbf_sentinel
+
+  local -r z_vessel_dir="${1:-}"
+  local -r z_consecration="${2:-}"
+  local -r z_conjure_build_id="${3:-}"  # Optional: conjure BUILD_ID for provenance
+
+  buc_doc_brief "Assemble about metadata artifact for an existing ark image"
+  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
+  buc_doc_param "conjure_build_id" "(Optional) Cloud Build job ID from conjure"
+  buc_doc_shown || return 0
+
+  if test -z "${z_vessel_dir}"; then
+    local z_sigils
+    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+    buc_step "Available vessels:"
+    local z_sigil=""
+    for z_sigil in ${z_sigils}; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    done
+    buc_die "Vessel directory required"
+  fi
+
+  zrbf_load_vessel "${z_vessel_dir}"
+  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+
+  buc_step "Loading Director RBRA credentials"
+  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
+
+  buc_step "Authenticating as Director"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  # Gate: require -image exists
+  buc_step "Gating on image artifact existence"
+  local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_image_gate_status="${ZRBF_ABOUT_PREFIX}image_status.txt"
+  local -r z_image_gate_response="${ZRBF_ABOUT_PREFIX}image_response.json"
+  local -r z_image_gate_stderr="${ZRBF_ABOUT_PREFIX}image_stderr.txt"
+
+  curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -w "%{http_code}" \
+    -o "${z_image_gate_response}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_image_tag}" \
+    > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
+    || buc_die "HEAD request failed for -image artifact — see ${z_image_gate_stderr}"
+
+  local -r z_image_http_code=$(<"${z_image_gate_status}")
+  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for -image"
+  test "${z_image_http_code}" = "200" \
+    || buc_die "Image artifact not found (HTTP ${z_image_http_code}) — image must exist before about"
+
+  buc_info "Image artifact confirmed: ${z_image_tag}"
+
+  # Gate: warn if -about already exists (re-about is idempotent overwrite)
+  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_about_gate_status="${ZRBF_ABOUT_PREFIX}about_status.txt"
+  local -r z_about_gate_response="${ZRBF_ABOUT_PREFIX}about_response.json"
+  local -r z_about_gate_stderr="${ZRBF_ABOUT_PREFIX}about_stderr.txt"
+
+  curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -w "%{http_code}" \
+    -o "${z_about_gate_response}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
+    > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
+    || buc_die "HEAD request failed for -about artifact — see ${z_about_gate_stderr}"
+
+  local -r z_about_http_code=$(<"${z_about_gate_status}")
+  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for -about"
+  if test "${z_about_http_code}" = "200"; then
+    buc_warn "Re-about in progress: ${z_about_tag} already exists"
+  fi
+
+  # Submit about Cloud Build
+  zrbf_about_submit "${z_consecration}" "${z_token}" "${z_conjure_build_id}"
+
+  buc_success "About complete: ${RBRV_SIGIL}/${z_consecration}"
+  buc_info "About artifact: ${RBRV_SIGIL}:${z_about_tag}"
+}
+
+# Internal: submit about Cloud Build job and wait for completion
+zrbf_about_submit() {
+  zrbf_sentinel
+
+  local -r z_consecration="$1"
+  local -r z_token="$2"
+  local -r z_conjure_build_id="${3:-}"
+
+  buc_step "Constructing about Cloud Build resource"
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+
+  # Determine mode-specific substitution values
+  local z_vessel_mode="${RBRV_VESSEL_MODE}"
+  local z_bind_source=""
+  local z_graft_source=""
+  local z_inscribe_ts=""
+  local z_dockerfile_content=""
+
+  case "${z_vessel_mode}" in
+    conjure)
+      # Extract inscribe timestamp from consecration (e.g., c260305133650 from c260305133650-r260305160530)
+      z_inscribe_ts="${z_consecration%%-r*}"
+      # Read Dockerfile content for recipe.txt
+      if test -f "${RBRV_CONJURE_DOCKERFILE:-}"; then
+        local z_df_size
+        z_df_size=$(wc -c < "${RBRV_CONJURE_DOCKERFILE}" | tr -d ' ')
+        if test "${z_df_size}" -le 4000; then
+          z_dockerfile_content=$(<"${RBRV_CONJURE_DOCKERFILE}")
+        else
+          buc_warn "Dockerfile exceeds 4KB substitution limit (${z_df_size} bytes) — recipe.txt omitted"
+        fi
+      fi
+      ;;
+    bind)
+      z_bind_source="${RBRV_BIND_IMAGE:-}"
+      if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
+        local z_df_size
+        z_df_size=$(wc -c < "${RBRV_BIND_OPTIONAL_DOCKERFILE}" | tr -d ' ')
+        if test "${z_df_size}" -le 4000; then
+          z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}")
+        else
+          buc_warn "Dockerfile exceeds 4KB substitution limit (${z_df_size} bytes) — recipe.txt omitted"
+        fi
+      fi
+      ;;
+    graft)
+      z_graft_source="${RBRV_GRAFT_IMAGE:-}"
+      if test -n "${RBRV_GRAFT_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_GRAFT_OPTIONAL_DOCKERFILE}"; then
+        local z_df_size
+        z_df_size=$(wc -c < "${RBRV_GRAFT_OPTIONAL_DOCKERFILE}" | tr -d ' ')
+        if test "${z_df_size}" -le 4000; then
+          z_dockerfile_content=$(<"${RBRV_GRAFT_OPTIONAL_DOCKERFILE}")
+        else
+          buc_warn "Dockerfile exceeds 4KB substitution limit (${z_df_size} bytes) — recipe.txt omitted"
+        fi
+      fi
+      ;;
+    *)
+      buc_die "Unknown vessel mode: ${z_vessel_mode}"
+      ;;
+  esac
+
+  # Git metadata
+  local z_git_commit=""
+  local z_git_branch=""
+  local z_git_repo=""
+  local z_git_remote=""
+  local z_git_repo_url=""
+
+  z_git_commit=$(git rev-parse HEAD) || buc_die "Failed to get git commit"
+  z_git_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die "Failed to get git branch"
+  z_git_remote=$(git remote | head -1) || buc_die "Failed to get git remote"
+  z_git_repo_url=$(git config --get "remote.${z_git_remote}.url") || buc_die "Failed to get git repo URL"
+  z_git_repo="${z_git_repo_url#*://*/}"
+  z_git_repo="${z_git_repo%.git}"
+
+  # Step definitions: script|builder|entrypoint|id
+  # Delimiter is | because image refs contain colons (sha256 digests)
+  local -r z_about_step_defs=(
+    "rbgja01-discover-platforms.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|discover-platforms"
+    "rbgja02-syft-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|syft-per-platform"
+    "rbgja03-build-info-per-platform.sh|${RBRG_ALPINE_IMAGE_REF}|sh|build-info-per-platform"
+    "rbgja04-assemble-push-about.sh|${RBRG_DOCKER_IMAGE_REF}|bash|assemble-push-about"
+  )
+
+  local -r z_about_steps_accumulator="${ZRBF_ABOUT_PREFIX}steps.json"
+  echo "[]" > "${z_about_steps_accumulator}" || buc_die "Failed to initialize about steps JSON"
+
+  local z_adef=""
+  local z_ascript=""
+  local z_abuilder=""
+  local z_aentrypoint=""
+  local z_aid=""
+  local z_ascript_path=""
+  local z_abody_file=""
+  local z_aescaped_file=""
+  local z_asteps_file=""
+  local z_abody=""
+  local z_aarg_flag=""
+
+  for z_adef in "${z_about_step_defs[@]}"; do
+    IFS='|' read -r z_ascript z_abuilder z_aentrypoint z_aid <<< "${z_adef}"
+    z_ascript_path="${ZRBF_RBGJA_STEPS_DIR}/${z_ascript}"
+    z_abody_file="${ZRBF_ABOUT_PREFIX}${z_aid}_body.txt"
+    z_aescaped_file="${ZRBF_ABOUT_PREFIX}${z_aid}_escaped.txt"
+    z_asteps_file="${ZRBF_ABOUT_PREFIX}${z_aid}_steps.json"
+
+    test -f "${z_ascript_path}" || buc_die "About step script not found: ${z_ascript_path}"
+
+    buc_log_args "Reading script body for ${z_aid} (skip shebang)"
+    tail -n +2 "${z_ascript_path}" > "${z_abody_file}" \
+      || buc_die "Failed to read about step script: ${z_ascript_path}"
+    z_abody=$(<"${z_abody_file}")
+    test -n "${z_abody}" || buc_die "Empty about script body: ${z_ascript_path}"
+
+    buc_log_args "Baking pinned image refs into script text"
+    z_abody="${z_abody//\$\{RBRG_SYFT_IMAGE_REF\}/${RBRG_SYFT_IMAGE_REF}}"
+
+    buc_log_args "Escaping dollars for Cloud Build, preserving _RBGA_ substitutions"
+    printf '%s' "${z_abody}" | sed 's/\$/\$\$/g; s/\$\${_RBGA_/${_RBGA_/g' \
+      > "${z_aescaped_file}" || buc_die "Failed to escape about script body for ${z_aid}"
+
+    case "${z_aentrypoint}" in
+      bash) z_aentrypoint="/bin/bash"; z_aarg_flag="-lc" ;;
+      sh)   z_aentrypoint="/bin/sh";   z_aarg_flag="-c" ;;
+      *)    buc_die "Unknown entrypoint: ${z_aentrypoint}" ;;
+    esac
+
+    buc_log_args "Appending about step ${z_aid} to JSON array"
+    jq \
+      --arg name "${z_abuilder}" \
+      --arg id "${z_aid}" \
+      --arg ep "${z_aentrypoint}" \
+      --arg flag "${z_aarg_flag}" \
+      --rawfile script "${z_aescaped_file}" \
+      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+      "${z_about_steps_accumulator}" > "${z_asteps_file}" \
+      || buc_die "Failed to append about step ${z_aid} to JSON"
+    mv "${z_asteps_file}" "${z_about_steps_accumulator}" \
+      || buc_die "Failed to update about steps JSON for ${z_aid}"
+  done
+
+  buc_log_args "Composing about Build resource JSON"
+  local -r z_about_build_file="${ZRBF_ABOUT_PREFIX}build.json"
+
+  jq -n \
+    --slurpfile zjq_steps  "${z_about_steps_accumulator}" \
+    --arg zjq_sa           "${z_mason_sa}" \
+    --arg zjq_gar_host     "${z_gar_host}" \
+    --arg zjq_gar_path     "${z_gar_path}" \
+    --arg zjq_vessel       "${RBRV_SIGIL}" \
+    --arg zjq_consecration "${z_consecration}" \
+    --arg zjq_vessel_mode  "${z_vessel_mode}" \
+    --arg zjq_git_commit   "${z_git_commit}" \
+    --arg zjq_git_branch   "${z_git_branch}" \
+    --arg zjq_git_repo     "${z_git_repo}" \
+    --arg zjq_build_id     "${z_conjure_build_id}" \
+    --arg zjq_inscribe_ts  "${z_inscribe_ts}" \
+    --arg zjq_bind_source  "${z_bind_source}" \
+    --arg zjq_graft_source "${z_graft_source}" \
+    --arg zjq_dockerfile   "${z_dockerfile_content}" \
+    --arg zjq_pool         "${RBRR_GCB_WORKER_POOL}" \
+    --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
+    '{
+      steps: $zjq_steps[0],
+      substitutions: {
+        _RBGA_GAR_HOST:              $zjq_gar_host,
+        _RBGA_GAR_PATH:              $zjq_gar_path,
+        _RBGA_VESSEL:                $zjq_vessel,
+        _RBGA_CONSECRATION:          $zjq_consecration,
+        _RBGA_VESSEL_MODE:           $zjq_vessel_mode,
+        _RBGA_GIT_COMMIT:            $zjq_git_commit,
+        _RBGA_GIT_BRANCH:            $zjq_git_branch,
+        _RBGA_GIT_REPO:              $zjq_git_repo,
+        _RBGA_BUILD_ID:              $zjq_build_id,
+        _RBGA_INSCRIBE_TIMESTAMP:    $zjq_inscribe_ts,
+        _RBGA_BIND_SOURCE:           $zjq_bind_source,
+        _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
+        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile
+      },
+      serviceAccount: $zjq_sa,
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $zjq_pool }
+      },
+      timeout: $zjq_timeout
+    }' > "${z_about_build_file}" \
+    || buc_die "Failed to compose about build JSON"
+
+  buc_log_args "About build JSON: ${z_about_build_file}"
+
+  buc_step "Submitting about Cloud Build"
+  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+    "about_build_create" "${z_about_build_file}"
+  rbgu_http_require_ok "About build submission" "about_build_create"
+
+  local z_build_id=""
+  z_build_id=$(rbgu_json_field_capture "about_build_create" '.metadata.build.id') || z_build_id=""
+  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
+  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+
+  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  buc_info "About build submitted: ${z_build_id}"
+  buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
+
+  zrbf_wait_build_completion 50  # ~4 minutes at 5s intervals (private pool)
 }
 
 ######################################################################

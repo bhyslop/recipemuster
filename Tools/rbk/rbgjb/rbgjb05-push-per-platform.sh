@@ -5,7 +5,7 @@
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
 #                _RBGY_GAR_HOST_SUFFIX, _RBGY_ARK_SUFFIX_IMAGE
 #
-# Pre-pushes each per-platform tag so that imagetools create (step 09)
+# Pre-pushes each per-platform tag so that imagetools create (step 06)
 # can reference them as registry-resident images.
 
 set -euo pipefail

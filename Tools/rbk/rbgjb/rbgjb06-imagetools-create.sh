@@ -1,5 +1,5 @@
 #!/bin/bash
-# RBGJBM Step 09: Assemble consumer-facing multi-platform manifest list
+# RBGJBM Step 06: Assemble consumer-facing multi-platform manifest list
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_MONIKER, _RBGY_PLATFORM_SUFFIXES,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
