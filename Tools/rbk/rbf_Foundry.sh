@@ -89,6 +89,12 @@ zrbf_kindle() {
   buc_log_args 'Define git info file (used by inscribe -> stitch)'
   readonly ZRBF_GIT_INFO_FILE="${BURD_TEMP_DIR}/rbf_git_info.json"
 
+  buc_log_args 'Define git metadata files (shared across about/mirror submissions)'
+  readonly ZRBF_GIT_PREFIX="${BURD_TEMP_DIR}/rbf_git_"
+  readonly ZRBF_GIT_COMMIT_FILE="${ZRBF_GIT_PREFIX}commit.txt"
+  readonly ZRBF_GIT_BRANCH_FILE="${ZRBF_GIT_PREFIX}branch.txt"
+  readonly ZRBF_GIT_REPO_FILE="${ZRBF_GIT_PREFIX}repo.txt"
+
   buc_log_args 'Define validation files'
   readonly ZRBF_STATUS_CHECK_FILE="${BURD_TEMP_DIR}/rbf_status_check.txt"
 
@@ -638,6 +644,9 @@ rbf_create() {
     bind)
       buc_info "About produced by combined bind job — skipping standalone about"
       ;;
+    *)
+      buc_die "Unknown vessel mode in chaining: ${z_mode}"
+      ;;
   esac
 
   # Vouch: all modes
@@ -1080,15 +1089,14 @@ zrbf_mirror_submit() {
   jq -s '.[0] + .[1]' "${z_mirror_step_file}" "${z_about_steps_file}" \
     > "${z_combined_steps}" || buc_die "Failed to combine mirror and about steps"
 
-  # Git metadata
-  local z_git_commit="" z_git_branch="" z_git_repo=""
-  local z_git_remote="" z_git_repo_url=""
-  z_git_commit=$(git rev-parse HEAD) || buc_die "Failed to get git commit"
-  z_git_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die "Failed to get git branch"
-  z_git_remote=$(git remote | head -1) || buc_die "Failed to get git remote"
-  z_git_repo_url=$(git config --get "remote.${z_git_remote}.url") || buc_die "Failed to get git repo URL"
-  z_git_repo="${z_git_repo_url#*://*/}"
-  z_git_repo="${z_git_repo%.git}"
+  # Git metadata (shared temp files, idempotent)
+  zrbf_ensure_git_metadata
+  local z_git_commit=""
+  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}")
+  local z_git_branch=""
+  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}")
+  local z_git_repo=""
+  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")
 
   # Mode-specific substitution values for bind
   local -r z_bind_source="${RBRV_BIND_IMAGE:-}"
@@ -2278,6 +2286,46 @@ rbf_about() {
   buc_info "About artifact: ${RBRV_SIGIL}:${z_about_tag}"
 }
 
+# Internal: capture git metadata to module temp files (idempotent)
+# No args — reads from git, writes to ZRBF_GIT_*_FILE kindle constants
+zrbf_ensure_git_metadata() {
+  zrbf_sentinel
+
+  # Idempotent — skip if already captured
+  test ! -s "${ZRBF_GIT_COMMIT_FILE}" || return 0
+
+  buc_log_args "Capturing git metadata to temp files"
+
+  local -r z_remote_file="${ZRBF_GIT_PREFIX}remote.txt"
+  local -r z_url_file="${ZRBF_GIT_PREFIX}url.txt"
+
+  git rev-parse HEAD > "${ZRBF_GIT_COMMIT_FILE}" \
+    || buc_die "Failed to get git commit"
+  test -s "${ZRBF_GIT_COMMIT_FILE}" || buc_die "Empty git commit file"
+
+  git rev-parse --abbrev-ref HEAD > "${ZRBF_GIT_BRANCH_FILE}" \
+    || buc_die "Failed to get git branch"
+  test -s "${ZRBF_GIT_BRANCH_FILE}" || buc_die "Empty git branch file"
+
+  git remote > "${z_remote_file}" \
+    || buc_die "Failed to list git remotes"
+  local z_remote=""
+  read -r z_remote < "${z_remote_file}" \
+    || buc_die "Failed to read git remote from ${z_remote_file}"
+  test -n "${z_remote}" || buc_die "No git remotes found"
+
+  git config --get "remote.${z_remote}.url" > "${z_url_file}" \
+    || buc_die "Failed to get git repo URL"
+
+  local z_url=""
+  z_url=$(<"${z_url_file}")
+  test -n "${z_url}" || buc_die "Empty git repo URL from ${z_url_file}"
+  local z_repo="${z_url#*://*/}"
+  z_repo="${z_repo%.git}"
+  echo "${z_repo}" > "${ZRBF_GIT_REPO_FILE}" \
+    || buc_die "Failed to write derived git repo"
+}
+
 # Internal: assemble about step scripts into JSON array file
 # Args: output_file temp_prefix
 # Reads ZRBF_RBGJA_STEPS_DIR and RBRG_* image refs from module state
@@ -2418,19 +2466,14 @@ zrbf_about_submit() {
       ;;
   esac
 
-  # Git metadata
+  # Git metadata (shared temp files, idempotent)
+  zrbf_ensure_git_metadata
   local z_git_commit=""
+  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}")
   local z_git_branch=""
+  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}")
   local z_git_repo=""
-  local z_git_remote=""
-  local z_git_repo_url=""
-
-  z_git_commit=$(git rev-parse HEAD) || buc_die "Failed to get git commit"
-  z_git_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die "Failed to get git branch"
-  z_git_remote=$(git remote | head -1) || buc_die "Failed to get git remote"
-  z_git_repo_url=$(git config --get "remote.${z_git_remote}.url") || buc_die "Failed to get git repo URL"
-  z_git_repo="${z_git_repo_url#*://*/}"
-  z_git_repo="${z_git_repo%.git}"
+  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")
 
   # Assemble about steps via shared helper
   local -r z_about_steps_accumulator="${ZRBF_ABOUT_PREFIX}steps.json"
