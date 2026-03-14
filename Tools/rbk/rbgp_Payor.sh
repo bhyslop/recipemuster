@@ -40,6 +40,8 @@ zrbgp_kindle() {
   readonly ZRBGP_EMPTY_JSON="${ZRBGP_PREFIX}empty.json"
   printf '{}' > "${ZRBGP_EMPTY_JSON}"
 
+  readonly ZRBGP_SCRATCH_FILE="${BURD_TEMP_DIR}/rbgp_scratch.txt"
+
   # Infix values for HTTP operations
   readonly ZRBGP_INFIX_PROJECT_DELETE="project_delete"
   readonly ZRBGP_INFIX_PROJECT_RESTORE="project_restore"
@@ -136,6 +138,49 @@ zrbgp_authenticate_capture() {
   
   buc_log_args "Payor OAuth authentication successful"
   echo "${z_access_token}"
+}
+
+# Capture: exchange authorization code for refresh token (secrets never touch disk)
+# Args: auth_code client_id client_secret
+zrbgp_authorization_exchange_capture() {
+  local -r z_auth_code="$1"
+  local -r z_client_id="$2"
+  local -r z_client_secret="$3"
+
+  local z_response
+  z_response=$(jq -n \
+    --arg code "${z_auth_code}" \
+    --arg client_id "${z_client_id}" \
+    --arg client_secret "${z_client_secret}" \
+    --arg redirect_uri "urn:ietf:wg:oauth:2.0:oob" \
+    --arg grant_type "authorization_code" \
+    '{
+      code: $code,
+      client_id: $client_id,
+      client_secret: $client_secret,
+      redirect_uri: $redirect_uri,
+      grant_type: $grant_type
+    }' | curl -sS -X POST \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+      -H "Content-Type: application/json" \
+      -d @- \
+      "https://oauth2.googleapis.com/token") || return 1
+
+  local z_error
+  z_error=$(jq -r '.error // empty' <<<"${z_response}")
+  if test -n "${z_error}"; then
+    local z_error_desc
+    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}")
+    buc_log_args "OAuth token exchange failed: ${z_error_desc}"
+    return 1
+  fi
+
+  local z_refresh_token
+  z_refresh_token=$(jq -r '.refresh_token // empty' <<<"${z_response}")
+  test -n "${z_refresh_token}" || return 1
+
+  echo "${z_refresh_token}"
 }
 
 zrbgp_depot_list_update() {
@@ -415,16 +460,19 @@ rbgp_payor_install() {
   test -f "${z_oauth_json_file}" || buc_die "OAuth JSON file not found: ${z_oauth_json_file}"
 
   buc_step 'Parse OAuth client JSON'
-  local z_client_id
-  z_client_id=$(jq -r '.installed.client_id // .client_id // empty' "${z_oauth_json_file}" 2>/dev/null) || buc_die "Failed to parse OAuth JSON file"
+  local z_client_id="" z_client_secret="" z_project_id=""
+  jq -r '
+    (.installed.client_id // .client_id // ""),
+    (.installed.client_secret // .client_secret // ""),
+    (.installed.project_id // .project_id // "")
+  ' "${z_oauth_json_file}" > "${ZRBGP_SCRATCH_FILE}" 2>/dev/null \
+    || buc_die "Failed to parse OAuth JSON file"
+  { read -r z_client_id
+    read -r z_client_secret
+    read -r z_project_id
+  } < "${ZRBGP_SCRATCH_FILE}"
   test -n "${z_client_id}" || buc_die "OAuth JSON file missing client_id field"
-  
-  local z_client_secret
-  z_client_secret=$(jq -r '.installed.client_secret // .client_secret // empty' "${z_oauth_json_file}" 2>/dev/null) || buc_die "Failed to extract client_secret from OAuth JSON file"
   test -n "${z_client_secret}" || buc_die "OAuth JSON file missing client_secret field"
-  
-  local z_project_id
-  z_project_id=$(jq -r '.installed.project_id // .project_id // empty' "${z_oauth_json_file}" 2>/dev/null) || buc_die "Failed to extract project_id from OAuth JSON file"
   test -n "${z_project_id}" || buc_die "OAuth JSON file missing project_id field"
 
   buc_step 'Check existing credentials'
@@ -449,42 +497,14 @@ rbgp_payor_install() {
   bug_t   "  4. Authorization code will be displayed"
   bug_e
   local z_auth_code
-  z_auth_code=$(bug_prompt "Copy the authorization code and paste here: ")
+  bug_prompt "Copy the authorization code and paste here: " > "${ZRBGP_SCRATCH_FILE}" \
+    || buc_die "Failed to read authorization code"
+  z_auth_code=$(<"${ZRBGP_SCRATCH_FILE}")
   test -n "${z_auth_code}" || buc_die "Authorization code is required"
 
   buc_log_args "Exchanging authorization code for tokens"
-
-  # Build request and pipe to curl - secrets never touch disk
-  local z_response
-  z_response=$(jq -n \
-    --arg code "${z_auth_code}" \
-    --arg client_id "${z_client_id}" \
-    --arg client_secret "${z_client_secret}" \
-    --arg redirect_uri "urn:ietf:wg:oauth:2.0:oob" \
-    --arg grant_type "authorization_code" \
-    '{
-      code: $code,
-      client_id: $client_id,
-      client_secret: $client_secret,
-      redirect_uri: $redirect_uri,
-      grant_type: $grant_type
-    }' | curl -sS -X POST \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-      -H "Content-Type: application/json" \
-      -d @- \
-      "https://oauth2.googleapis.com/token") || buc_die "Failed to execute token exchange request"
-
-  # Check for error in response
-  local z_error
-  z_error=$(jq -r '.error // empty' <<<"${z_response}")
-  if test -n "${z_error}"; then
-    local z_error_desc
-    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}")
-    buc_die "OAuth token exchange failed: ${z_error_desc}"
-  fi
-
-  z_refresh_token=$(jq -r '.refresh_token // empty' <<<"${z_response}")
+  z_refresh_token=$(zrbgp_authorization_exchange_capture "${z_auth_code}" "${z_client_id}" "${z_client_secret}") \
+    || buc_die "Failed to exchange authorization code for refresh token"
   test -n "${z_refresh_token}" || buc_die "OAuth response missing refresh_token field"
 
   buc_step 'Create credentials directory'
@@ -646,7 +666,9 @@ rbgp_depot_create() {
 
   buc_step 'Generate depot project ID'
   local z_timestamp
-  z_timestamp=$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}") || buc_die "Failed to generate timestamp"
+  date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}" > "${ZRBGP_SCRATCH_FILE}" \
+    || buc_die "Failed to generate timestamp"
+  z_timestamp=$(<"${ZRBGP_SCRATCH_FILE}")
   local -r z_depot_project_id="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-${z_depot_name}-${z_timestamp}"
   
   if test "${#z_depot_project_id}" -gt 30; then
@@ -855,7 +877,9 @@ rbgp_depot_create() {
 
   # Base64-encode the GitLab token (same value for api and read_api secrets)
   local z_token_b64
-  z_token_b64=$(printf '%s' "${z_gitlab_token}" | base64) || buc_die "Failed to base64-encode token"
+  printf '%s' "${z_gitlab_token}" | base64 > "${ZRBGP_SCRATCH_FILE}" \
+    || buc_die "Failed to base64-encode token"
+  z_token_b64=$(<"${ZRBGP_SCRATCH_FILE}")
 
   # Generate webhook secret (random UUID) — uuidgen to temp file, read with builtin
   local -r z_webhook_uuid_file="${BURD_TEMP_DIR}/rbgp_webhook_uuid.txt"
@@ -869,7 +893,9 @@ rbgp_depot_create() {
   z_webhook_secret="${z_webhook_secret%"${z_webhook_secret##*[![:space:]]}"}"
 
   local z_webhook_b64
-  z_webhook_b64=$(printf '%s' "${z_webhook_secret}" | base64) || buc_die "Failed to base64-encode webhook secret"
+  printf '%s' "${z_webhook_secret}" | base64 > "${ZRBGP_SCRATCH_FILE}" \
+    || buc_die "Failed to base64-encode webhook secret"
+  z_webhook_b64=$(<"${ZRBGP_SCRATCH_FILE}")
 
   # --- Create api token secret ---
   local -r z_api_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
@@ -980,7 +1006,8 @@ rbgp_depot_create() {
   local z_conn_attempt=0
   local z_conn_succeeded=false
   local z_conn_start_epoch=""
-  z_conn_start_epoch=$(date +%s) || buc_die "Failed to capture epoch for connection retry deadline"
+  date +%s > "${ZRBGP_SCRATCH_FILE}" || buc_die "Failed to capture epoch for connection retry deadline"
+  z_conn_start_epoch=$(<"${ZRBGP_SCRATCH_FILE}")
   local z_zombie_code=""
   local z_zombie_del_code=""
   local z_lro_infix=""
@@ -1082,7 +1109,8 @@ rbgp_depot_create() {
 
     # LRO failed — likely IAM propagation delay (service agent cannot read secrets yet)
     z_conn_now_epoch=""
-    z_conn_now_epoch=$(date +%s) || buc_die "Failed to capture epoch for elapsed time"
+    date +%s > "${ZRBGP_SCRATCH_FILE}" || buc_die "Failed to capture epoch for elapsed time"
+    z_conn_now_epoch=$(<"${ZRBGP_SCRATCH_FILE}")
     z_conn_wall_elapsed=$((z_conn_now_epoch - z_conn_start_epoch))
     buc_log_args "Connection attempt ${z_conn_attempt} did not succeed (${z_conn_wall_elapsed}s elapsed) — retrying"
     buc_log_args "LRO details in: ${BURD_TEMP_DIR}/rbgp_cbv2_lro_stderr_${z_conn_attempt}"
@@ -1471,8 +1499,10 @@ rbgp_payor_oauth_refresh() {
   buc_info "   - Click the download icon next to the OAuth client"
   buc_info "   - Or regenerate client secret if compromised"
   buc_info ""
+  date +%Y%m%d > "${ZRBGP_SCRATCH_FILE}" 2>/dev/null || true
+  local z_today_stamp=$(<"${ZRBGP_SCRATCH_FILE}")
   buc_info "4. Save as timestamped file:"
-  buc_info "   - Example: payor-oauth-$(date +%Y%m%d).json"
+  buc_info "   - Example: payor-oauth-${z_today_stamp}.json"
   buc_info ""
   buc_info "5. Run installation command with new JSON:"
   buc_info "   rbgp_payor_install /path/to/payor-oauth-[timestamp].json"
@@ -1528,8 +1558,10 @@ rbgp_governor_reset() {
   buc_step 'Find and delete existing governor-* service accounts'
   local z_deleted_count=0
   local z_governor_emails
-  z_governor_emails=$(jq -r '.accounts[]? | select(.email | startswith("governor-")) | .email' \
-    "${ZRBGU_PREFIX}${ZRBGP_INFIX_GOV_LIST_SA}${ZRBGU_POSTFIX_JSON}" 2>/dev/null) || z_governor_emails=""
+  jq -r '.accounts[]? | select(.email | startswith("governor-")) | .email' \
+    "${ZRBGU_PREFIX}${ZRBGP_INFIX_GOV_LIST_SA}${ZRBGU_POSTFIX_JSON}" \
+    > "${ZRBGP_SCRATCH_FILE}" 2>/dev/null || true
+  z_governor_emails=$(<"${ZRBGP_SCRATCH_FILE}")
 
   if test -n "${z_governor_emails}"; then
     local z_email
@@ -1554,7 +1586,9 @@ rbgp_governor_reset() {
 
   buc_step 'Generate Governor timestamp and account ID'
   local z_timestamp
-  z_timestamp=$(date +%Y%m%d%H%M) || buc_die "Failed to generate timestamp"
+  date +%Y%m%d%H%M > "${ZRBGP_SCRATCH_FILE}" \
+    || buc_die "Failed to generate timestamp"
+  z_timestamp=$(<"${ZRBGP_SCRATCH_FILE}")
   local -r z_governor_account_id="${RBGC_GOVERNOR_PREFIX}-${z_timestamp}"
   local z_governor_email
   z_governor_email=$(rbgu_sa_email_capture "${z_governor_account_id}" "${z_depot_project_id}") \
@@ -1650,15 +1684,21 @@ rbgp_governor_reset() {
   local -r z_rbra_file="${BURD_OUTPUT_DIR}/governor-${z_timestamp}.rbra"
 
   local z_client_email
-  z_client_email=$(jq -r '.client_email' "${z_key_json}") || buc_die "Failed to extract client_email"
+  jq -r '.client_email' "${z_key_json}" > "${ZRBGP_SCRATCH_FILE}" \
+    || buc_die "Failed to extract client_email"
+  z_client_email=$(<"${ZRBGP_SCRATCH_FILE}")
   test -n "${z_client_email}" || buc_die "Empty client_email in key JSON"
 
   local z_private_key
-  z_private_key=$(jq -r '.private_key' "${z_key_json}") || buc_die "Failed to extract private_key"
+  jq -r '.private_key' "${z_key_json}" > "${ZRBGP_SCRATCH_FILE}" \
+    || buc_die "Failed to extract private_key"
+  z_private_key=$(<"${ZRBGP_SCRATCH_FILE}")
   test -n "${z_private_key}" || buc_die "Empty private_key in key JSON"
 
   local z_project_id
-  z_project_id=$(jq -r '.project_id' "${z_key_json}") || buc_die "Failed to extract project_id"
+  jq -r '.project_id' "${z_key_json}" > "${ZRBGP_SCRATCH_FILE}" \
+    || buc_die "Failed to extract project_id"
+  z_project_id=$(<"${ZRBGP_SCRATCH_FILE}")
   test -n "${z_project_id}" || buc_die "Empty project_id in key JSON"
 
   buc_step 'Write RBRA file'

@@ -106,6 +106,9 @@ zrbf_kindle() {
   buc_log_args 'Define output files (BURD_OUTPUT_DIR — persists after dispatch)'
   readonly ZRBF_OUTPUT_VESSEL_DIR="${BURD_OUTPUT_DIR}/rbf_vessel_dir.txt"
 
+  buc_log_args 'Scratch file for sequential temp-file patterns'
+  readonly ZRBF_SCRATCH_FILE="${BURD_TEMP_DIR}/rbf_scratch.txt"
+
   buc_log_args 'For now lets double check these'
   test -n "${RBRG_ORAS_IMAGE_REF:-}"   || buc_die "RBRG_ORAS_IMAGE_REF not set"
 
@@ -114,6 +117,12 @@ zrbf_kindle() {
 
 zrbf_sentinel() {
   test "${ZRBF_KINDLED:-}" = "1" || buc_die "Module rbf not kindled - call zrbf_kindle first"
+}
+
+# Capture: decode base64 value (secret — never temp file)
+# Args: base64_encoded_value
+zrbf_base64_decode_capture() {
+  printf '%s' "$1" | base64 -d
 }
 
 # Check concurrent build quota against regime requirements
@@ -654,7 +663,7 @@ rbf_build() {
   z_token_b64=$(rbgu_json_field_capture "build_token_fetch" '.payload.data') \
     || buc_die "Failed to extract token payload"
   local z_gitlab_token_value
-  z_gitlab_token_value=$(printf '%s' "${z_token_b64}" | base64 -d) \
+  z_gitlab_token_value=$(zrbf_base64_decode_capture "${z_token_b64}") \
     || buc_die "Failed to decode token"
 
   # Construct authenticated URL: https://gitlab.com/... → https://oauth2:TOKEN@gitlab.com/...
@@ -708,8 +717,9 @@ rbf_build() {
   buc_step "Discovering consecration from build step output"
 
   local z_step0_output=""
-  z_step0_output=$(jq -r '.results.buildStepOutputs[0] // empty' "${ZRBF_BUILD_STATUS_FILE}") \
+  jq -r '.results.buildStepOutputs[0] // empty' "${ZRBF_BUILD_STATUS_FILE}" > "${ZRBF_SCRATCH_FILE}" \
     || buc_die "Failed to extract buildStepOutputs[0] from build response"
+  z_step0_output=$(<"${ZRBF_SCRATCH_FILE}")
   test -n "${z_step0_output}" || buc_die "Build step 0 output empty — step 01 may not have written to /builder/outputs/output"
 
   local -r z_step0_b64_file="${BURD_TEMP_DIR}/rbf_step0_b64.txt"
@@ -724,8 +734,9 @@ rbf_build() {
   buc_info "Discovered consecration: ${z_found_consecration}"
 
   local z_inscribe_ts=""
-  z_inscribe_ts=$(jq -r '.substitutions._RBGY_INSCRIBE_TIMESTAMP // empty' "${ZRBF_BUILD_STATUS_FILE}") \
+  jq -r '.substitutions._RBGY_INSCRIBE_TIMESTAMP // empty' "${ZRBF_BUILD_STATUS_FILE}" > "${ZRBF_SCRATCH_FILE}" \
     || buc_die "Failed to extract inscribe timestamp from build response"
+  z_inscribe_ts=$(<"${ZRBF_SCRATCH_FILE}")
   test -n "${z_inscribe_ts}" || buc_die "Inscribe timestamp empty in build response"
   buc_info "Inscribe timestamp: ${z_inscribe_ts}"
 
@@ -819,7 +830,9 @@ rbf_delete() {
   test -n "${z_http_code}" || buc_die "HTTP status code is empty"
 
   if test "${z_http_code}" != "202" && test "${z_http_code}" != "204"; then
-    buc_warn "Response body: $(cat "${z_response_file}" 2>/dev/null || echo 'empty')"
+    local z_body="empty"
+    test -f "${z_response_file}" && z_body=$(<"${z_response_file}")
+    buc_warn "Response body: ${z_body}"
     buc_die "Delete failed with HTTP ${z_http_code}"
   fi
 
@@ -881,8 +894,9 @@ rbf_retrieve() {
 
   # Get local image ID
   local z_image_id
-  z_image_id=$(docker inspect --format='{{.Id}}' "${z_full_ref}" 2>/dev/null) \
+  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
     || buc_die "Failed to get image ID"
+  z_image_id=$(<"${ZRBF_SCRATCH_FILE}")
 
   # Display results
   echo ""
@@ -1304,7 +1318,7 @@ rbf_rubric_inscribe() {
   z_token_b64=$(rbgu_json_field_capture "inscribe_token_fetch" '.payload.data') \
     || buc_die "Failed to extract token payload"
   local z_gitlab_token_value
-  z_gitlab_token_value=$(printf '%s' "${z_token_b64}" | base64 -d) \
+  z_gitlab_token_value=$(zrbf_base64_decode_capture "${z_token_b64}") \
     || buc_die "Failed to decode token"
 
   # Construct authenticated URL: https://gitlab.com/... → https://oauth2:TOKEN@gitlab.com/...
@@ -1464,8 +1478,9 @@ rbf_rubric_inscribe() {
 
     # Get content commit hash, then fill commit placeholder
     local z_content_commit
-    z_content_commit=$(git -C "${ZRBF_INSCRIBE_CLONE_DIR}" rev-parse HEAD) \
+    git -C "${ZRBF_INSCRIBE_CLONE_DIR}" rev-parse HEAD > "${ZRBF_SCRATCH_FILE}" \
       || buc_die "Failed to get content commit hash"
+    z_content_commit=$(<"${ZRBF_SCRATCH_FILE}")
 
     buc_step "Filling rubric commit hash in clone copies"
     local z_commit_filled=""
@@ -1494,8 +1509,9 @@ rbf_rubric_inscribe() {
       || buc_die "Failed to push rubric repo"
 
     local z_rubric_commit
-    z_rubric_commit=$(git -C "${ZRBF_INSCRIBE_CLONE_DIR}" rev-parse HEAD) \
+    git -C "${ZRBF_INSCRIBE_CLONE_DIR}" rev-parse HEAD > "${ZRBF_SCRATCH_FILE}" \
       || buc_die "Failed to get final rubric commit"
+    z_rubric_commit=$(<"${ZRBF_SCRATCH_FILE}")
     buc_info "Rubric repo pushed: ${z_rubric_commit:0:8}"
   fi
 
@@ -1797,7 +1813,9 @@ rbf_abjure() {
       test -n "${z_delete_img_code}" || buc_die "HTTP status code is empty for image tag delete: ${z_img_tag}"
 
       if test "${z_delete_img_code}" != "202" && test "${z_delete_img_code}" != "204"; then
-        buc_warn "Response body: $(cat "${z_delete_img_response}" 2>/dev/null || echo 'empty')"
+        local z_body="empty"
+        test -f "${z_delete_img_response}" && z_body=$(<"${z_delete_img_response}")
+        buc_warn "Response body: ${z_body}"
         buc_die "Failed to delete image tag ${z_img_tag} (HTTP ${z_delete_img_code})"
       fi
 
@@ -1827,7 +1845,9 @@ rbf_abjure() {
     test -n "${z_delete_about_code}" || buc_die "HTTP status code is empty for -about delete"
 
     if test "${z_delete_about_code}" != "202" && test "${z_delete_about_code}" != "204"; then
-      buc_warn "Response body: $(cat "${z_delete_about_response}" 2>/dev/null || echo 'empty')"
+      local z_body="empty"
+      test -f "${z_delete_about_response}" && z_body=$(<"${z_delete_about_response}")
+      buc_warn "Response body: ${z_body}"
       buc_die "Failed to delete -about artifact (HTTP ${z_delete_about_code})"
     fi
 
@@ -1855,7 +1875,9 @@ rbf_abjure() {
     test -n "${z_delete_vouch_code}" || buc_die "HTTP status code is empty for -vouch delete"
 
     if test "${z_delete_vouch_code}" != "202" && test "${z_delete_vouch_code}" != "204"; then
-      buc_warn "Response body: $(cat "${z_delete_vouch_response}" 2>/dev/null || echo 'empty')"
+      local z_body="empty"
+      test -f "${z_delete_vouch_response}" && z_body=$(<"${z_delete_vouch_response}")
+      buc_warn "Response body: ${z_body}"
       buc_die "Failed to delete -vouch artifact (HTTP ${z_delete_vouch_code})"
     fi
 
@@ -1902,14 +1924,16 @@ rbf_vouch_gate() {
     || buc_die "rbf_vouch_gate: failed to get Director OAuth token"
 
   local z_vouch_http_code
-  z_vouch_http_code=$(curl --head -s \
+  curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
     -o /dev/null \
     -w "%{http_code}" \
-    "${z_registry_api_base}/${z_vessel}/manifests/${z_vouch_tag}") \
+    "${z_registry_api_base}/${z_vessel}/manifests/${z_vouch_tag}" \
+    > "${ZRBF_SCRATCH_FILE}" \
     || buc_die "rbf_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag}"
+  z_vouch_http_code=$(<"${ZRBF_SCRATCH_FILE}")
 
   if test "${z_vouch_http_code}" != "200"; then
     buc_die "Consecration not vouched: ${z_vessel}:${z_consecration} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"
@@ -2308,7 +2332,9 @@ rbf_check_consecrations() {
 
     if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
       local z_err
-      z_err=$(jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}")
+      jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}" > "${ZRBF_SCRATCH_FILE}" \
+        || buc_die "Failed to extract error message from registry response for ${z_sigil}"
+      z_err=$(<"${ZRBF_SCRATCH_FILE}")
       buc_die "Registry API error for ${z_sigil}: ${z_err}"
     fi
 
@@ -2461,7 +2487,9 @@ rbf_batch_vouch() {
 
     if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
       local z_err
-      z_err=$(jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}")
+      jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}" > "${ZRBF_SCRATCH_FILE}" \
+        || buc_die "Failed to extract error message from registry response for ${z_sigil}"
+      z_err=$(<"${ZRBF_SCRATCH_FILE}")
       buc_die "Registry API error for ${z_sigil}: ${z_err}"
     fi
 
@@ -2606,8 +2634,9 @@ zrbf_inspect_core() {
   local -r z_extract="${BURD_TEMP_DIR}/inspect"
   mkdir -p "${z_extract}" || buc_die "Failed to create extraction directory: ${z_extract}"
   local z_cid=""
-  z_cid=$(docker create "${z_about_ref}" x 2>/dev/null) \
+  docker create "${z_about_ref}" x > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
     || buc_die "Failed to create container from -about artifact"
+  z_cid=$(<"${ZRBF_SCRATCH_FILE}")
   docker cp "${z_cid}:/build_info.json"          "${z_extract}/" 2>/dev/null || true
   docker cp "${z_cid}:/sbom.json"                "${z_extract}/" 2>/dev/null || true
   docker cp "${z_cid}:/recipe.txt"               "${z_extract}/" 2>/dev/null || true
@@ -2619,8 +2648,9 @@ zrbf_inspect_core() {
   # Extract -vouch contents if locally present
   if test "${z_has_vouch}" = "true"; then
     buc_step "Extracting -vouch artifact"
-    z_cid=$(docker create "${z_vouch_ref}" x 2>/dev/null) \
+    docker create "${z_vouch_ref}" x > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
       || buc_die "Failed to create container from -vouch artifact"
+    z_cid=$(<"${ZRBF_SCRATCH_FILE}")
     docker cp "${z_cid}:/vouch_summary.json" "${z_extract}/" 2>/dev/null || true
     docker rm "${z_cid}" >/dev/null 2>&1
   fi
@@ -2688,41 +2718,66 @@ zrbf_inspect_show_sections() {
   local z_vessel_mode="conjure"
   if test -f "${z_bi}"; then
     local z_mode_raw
-    z_mode_raw=$(jq -r '.mode // "conjure"' "${z_bi}") || z_mode_raw="conjure"
+    jq -r '.mode // "conjure"' "${z_bi}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
+      || echo "conjure" > "${ZRBF_SCRATCH_FILE}"
+    z_mode_raw=$(<"${ZRBF_SCRATCH_FILE}")
     z_vessel_mode="${z_mode_raw}"
   fi
 
   if test -f "${z_bi}" && test "${z_vessel_mode}" = "bind"; then
     # ── Bind vessel sections ──────────────────────────────────────────
+    # Batch extract bind fields from build_info.json
+    local z_bi_moniker="" z_bi_source_img="" z_bi_mirror_ts="" z_bi_consecration=""
+    local z_bi_image_uri="" z_bi_git_repo="" z_bi_git_branch="" z_bi_git_commit=""
+    jq -r '
+      (.moniker // "?"),
+      (.source.image_ref // "?"),
+      (.build.inscribe_timestamp // "?"),
+      (.build.consecration // "?"),
+      (.image.uri // "?"),
+      (.git.repo // "?"),
+      (.git.branch // "?"),
+      (.git.commit // "?")
+    ' "${z_bi}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+    { read -r z_bi_moniker
+      read -r z_bi_source_img
+      read -r z_bi_mirror_ts
+      read -r z_bi_consecration
+      read -r z_bi_image_uri
+      read -r z_bi_git_repo
+      read -r z_bi_git_branch
+      read -r z_bi_git_commit
+    } < "${ZRBF_SCRATCH_FILE}"
+
     echo ""
     echo "  -- Vessel Type -------------------------------------------------"
     echo "  How this image was produced."
     echo ""
     echo "  Mode:           bind (upstream image mirrored to GAR)"
-    echo "  Moniker:        $(jq -r '.moniker // "?"' "${z_bi}")"
+    echo "  Moniker:        ${z_bi_moniker}"
 
     echo ""
     echo "  -- Upstream Source -----------------------------------------------"
     echo "  The digest-pinned upstream image that was mirrored."
     echo ""
-    echo "  Source image:   $(jq -r '.source.image_ref // "?"' "${z_bi}")"
+    echo "  Source image:   ${z_bi_source_img}"
     echo "  Trust model:    digest-pin (image identity is the digest itself)"
 
     echo ""
     echo "  -- Mirror -------------------------------------------------------"
     echo "  When the image was mirrored from upstream into GAR."
     echo ""
-    echo "  Mirror time:    $(jq -r '.build.inscribe_timestamp // "?"' "${z_bi}")"
-    echo "  Consecration:   $(jq -r '.build.consecration // "?"' "${z_bi}")"
-    echo "  Image URI:      $(jq -r '.image.uri // "?"' "${z_bi}")"
+    echo "  Mirror time:    ${z_bi_mirror_ts}"
+    echo "  Consecration:   ${z_bi_consecration}"
+    echo "  Image URI:      ${z_bi_image_uri}"
 
     echo ""
     echo "  -- Git Context --------------------------------------------------"
     echo "  The repository state when the mirror operation was performed."
     echo ""
-    echo "  Repository:     $(jq -r '.git.repo // "?"' "${z_bi}")"
-    echo "  Branch:         $(jq -r '.git.branch // "?"' "${z_bi}")"
-    echo "  Commit:         $(jq -r '.git.commit // "?"' "${z_bi}")"
+    echo "  Repository:     ${z_bi_git_repo}"
+    echo "  Branch:         ${z_bi_git_branch}"
+    echo "  Commit:         ${z_bi_git_commit}"
 
     echo ""
     echo "  -- Trust --------------------------------------------------------"
@@ -2734,46 +2789,76 @@ zrbf_inspect_show_sections() {
 
   elif test -f "${z_bi}"; then
     # ── Conjure vessel sections ───────────────────────────────────────
+    # Batch extract conjure fields from build_info.json
+    local z_platform="" z_qemu="" z_cj_moniker=""
+    local z_cj_git_repo="" z_cj_git_branch="" z_cj_git_commit=""
+    local z_cj_build_id="" z_cj_build_ts="" z_cj_inscribe_ts="" z_cj_image_uri=""
+    local z_slsa_level="" z_slsa_invocation="" z_slsa_builder=""
+    jq -r '
+      (.platform // "unknown"),
+      (.qemu_used // "false"),
+      (.moniker // "?"),
+      (.git.repo // "?"),
+      (.git.branch // "?"),
+      (.git.commit // "?"),
+      (.build.build_id // "?"),
+      (.build.timestamp // "?"),
+      (.build.inscribe_timestamp // "?"),
+      (.image.uri // "?"),
+      (.slsa.build_level // "?"),
+      (.slsa.build_invocation_id // "?"),
+      (.slsa.provenance_builder_id // "?")
+    ' "${z_bi}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+    { read -r z_platform
+      read -r z_qemu
+      read -r z_cj_moniker
+      read -r z_cj_git_repo
+      read -r z_cj_git_branch
+      read -r z_cj_git_commit
+      read -r z_cj_build_id
+      read -r z_cj_build_ts
+      read -r z_cj_inscribe_ts
+      read -r z_cj_image_uri
+      read -r z_slsa_level
+      read -r z_slsa_invocation
+      read -r z_slsa_builder
+    } < "${ZRBF_SCRATCH_FILE}"
+
     echo ""
     echo "  -- Vessel Type -------------------------------------------------"
     echo "  How this image was produced and for which CPU architecture."
     echo ""
     echo "  Mode:           conjure (built by Google Cloud Build)"
-    local z_platform="" z_qemu=""
-    z_platform=$(jq -r '.platform // "unknown"' "${z_bi}")
-    z_qemu=$(jq -r '.qemu_used' "${z_bi}")
     local z_strategy="native"
     test "${z_qemu}" = "true" && z_strategy="emulated (QEMU)"
     echo "  Platform:       ${z_platform} (host-platform view)"
     echo "  Build strategy: ${z_strategy}"
-    echo "  Moniker:        $(jq -r '.moniker // "?"' "${z_bi}")"
+    echo "  Moniker:        ${z_cj_moniker}"
 
     echo ""
     echo "  -- Source -------------------------------------------------------"
     echo "  The git repository, branch, and commit that produced this build."
     echo ""
-    echo "  Repository:     $(jq -r '.git.repo // "?"' "${z_bi}")"
-    echo "  Branch:         $(jq -r '.git.branch // "?"' "${z_bi}")"
-    echo "  Commit:         $(jq -r '.git.commit // "?"' "${z_bi}")"
+    echo "  Repository:     ${z_cj_git_repo}"
+    echo "  Branch:         ${z_cj_git_branch}"
+    echo "  Commit:         ${z_cj_git_commit}"
 
     echo ""
     echo "  -- Builder ------------------------------------------------------"
     echo "  The Cloud Build job that executed this build, with timestamps."
     echo ""
-    echo "  Build ID:       $(jq -r '.build.build_id // "?"' "${z_bi}")"
-    echo "  Build time:     $(jq -r '.build.timestamp // "?"' "${z_bi}")"
-    echo "  Inscribe time:  $(jq -r '.build.inscribe_timestamp // "?"' "${z_bi}")"
-    echo "  Image URI:      $(jq -r '.image.uri // "?"' "${z_bi}")"
+    echo "  Build ID:       ${z_cj_build_id}"
+    echo "  Build time:     ${z_cj_build_ts}"
+    echo "  Inscribe time:  ${z_cj_inscribe_ts}"
+    echo "  Image URI:      ${z_cj_image_uri}"
 
     echo ""
     echo "  -- SLSA Provenance ----------------------------------------------"
     echo "  Cryptographic proof linking this exact image digest to its build."
     echo ""
-    local z_slsa_level=""
-    z_slsa_level=$(jq -r '.slsa.build_level // "?"' "${z_bi}")
     echo "  Build level:    ${z_slsa_level}"
-    echo "  Invocation ID:  $(jq -r '.slsa.build_invocation_id // "?"' "${z_bi}")"
-    echo "  Builder ID:     $(jq -r '.slsa.provenance_builder_id // "?"' "${z_bi}")"
+    echo "  Invocation ID:  ${z_slsa_invocation}"
+    echo "  Builder ID:     ${z_slsa_builder}"
     echo "  Predicate types:"
     jq -r '.slsa.provenance_predicate_types[]?' "${z_bi}" 2>/dev/null | while IFS= read -r z_pt; do
       echo "                    ${z_pt}"
@@ -2804,15 +2889,18 @@ zrbf_inspect_show_sections() {
     local -r z_recipe="${z_dir}/recipe.txt"
     if test -f "${z_recipe}"; then
       local z_from_line=""
-      z_from_line=$(grep -i '^FROM ' "${z_recipe}" | head -1 || true)
+      while IFS= read -r z_from_line; do
+        break
+      done < <(grep -i '^FROM ' "${z_recipe}" 2>/dev/null || true)
       if test -n "${z_from_line}"; then
         echo "  Dockerfile FROM: ${z_from_line#FROM }"
       fi
     fi
     if test -f "${z_sbom}"; then
       local z_distro_name="" z_distro_ver=""
-      z_distro_name=$(jq -r '.distro.name // empty' "${z_sbom}" 2>/dev/null || true)
-      z_distro_ver=$(jq -r '.distro.version // empty' "${z_sbom}" 2>/dev/null || true)
+      jq -r '(.distro.name // empty), (.distro.version // empty)' "${z_sbom}" \
+        > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+      { read -r z_distro_name; read -r z_distro_ver; } < "${ZRBF_SCRATCH_FILE}"
       if test -n "${z_distro_name}"; then
         echo "  Detected distro: ${z_distro_name} ${z_distro_ver}"
       fi
@@ -2825,27 +2913,34 @@ zrbf_inspect_show_sections() {
     echo "  -- Build Output -------------------------------------------------"
     echo "  The container image manifest produced by this buildx invocation."
     echo ""
-    local z_bk_digest=""
-    local z_bk_mediatype=""
-    local z_bk_ref=""
-    local z_bk_imgname=""
-    z_bk_digest=$(jq -r '."containerimage.digest" // empty' "${z_bkmeta}" 2>/dev/null || true)
-    z_bk_mediatype=$(jq -r '."containerimage.descriptor".mediaType // empty' "${z_bkmeta}" 2>/dev/null || true)
-    z_bk_ref=$(jq -r '."buildx.build.ref" // empty' "${z_bkmeta}" 2>/dev/null || true)
-    z_bk_imgname=$(jq -r '."image.name" // empty' "${z_bkmeta}" 2>/dev/null || true)
+    local z_bk_digest="" z_bk_mediatype="" z_bk_ref="" z_bk_imgname=""
+    jq -r '
+      (."containerimage.digest" // ""),
+      (."containerimage.descriptor".mediaType // ""),
+      (."buildx.build.ref" // ""),
+      (."image.name" // "")
+    ' "${z_bkmeta}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+    { read -r z_bk_digest
+      read -r z_bk_mediatype
+      read -r z_bk_ref
+      read -r z_bk_imgname
+    } < "${ZRBF_SCRATCH_FILE}"
     test -n "${z_bk_digest}"    && echo "  Output digest:  ${z_bk_digest}"
     test -n "${z_bk_mediatype}" && echo "  Media type:     ${z_bk_mediatype}"
     test -n "${z_bk_ref}"       && echo "  Build ref:      ${z_bk_ref}"
     test -n "${z_bk_imgname}"   && echo "  Image name:     ${z_bk_imgname}"
     # Per-platform digests if present
     local z_bk_platforms=""
-    z_bk_platforms=$(jq -r 'keys[] | select(contains("/"))' "${z_bkmeta}" 2>/dev/null || true)
+    jq -r 'keys[] | select(contains("/"))' "${z_bkmeta}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+    z_bk_platforms=$(<"${ZRBF_SCRATCH_FILE}")
     if test -n "${z_bk_platforms}"; then
       echo "  Per-platform digests:"
       local z_bk_plat=""
       local z_bk_pd=""
       while IFS= read -r z_bk_plat; do
-        z_bk_pd=$(jq -r --arg p "${z_bk_plat}" '.[$p]["containerimage.digest"] // empty' "${z_bkmeta}" 2>/dev/null || true)
+        jq -r --arg p "${z_bk_plat}" '.[$p]["containerimage.digest"] // empty' "${z_bkmeta}" \
+          > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+        z_bk_pd=$(<"${ZRBF_SCRATCH_FILE}")
         test -n "${z_bk_pd}" && echo "    ${z_bk_plat}: ${z_bk_pd}"
       done <<< "${z_bk_platforms}"
     fi
@@ -2862,14 +2957,19 @@ zrbf_inspect_show_sections() {
       echo ""
       local z_before_count="n/a"
       local z_after_count=""
-      test -f "${z_cache_before}" && \
-        z_before_count=$(jq '.host_daemon_images | length' "${z_cache_before}" 2>/dev/null || echo "?")
-      z_after_count=$(jq '.host_daemon_images | length' "${z_cache_after}" 2>/dev/null || echo "?")
+      if test -f "${z_cache_before}"; then
+        jq '.host_daemon_images | length' "${z_cache_before}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
+          || echo "?" > "${ZRBF_SCRATCH_FILE}"
+        z_before_count=$(<"${ZRBF_SCRATCH_FILE}")
+      fi
+      jq '.host_daemon_images | length' "${z_cache_after}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
+        || echo "?" > "${ZRBF_SCRATCH_FILE}"
+      z_after_count=$(<"${ZRBF_SCRATCH_FILE}")
       echo "  Images before: ${z_before_count}"
       echo "  Images after:  ${z_after_count}"
       if test -f "${z_cache_before}"; then
         local z_new_images=""
-        z_new_images=$(jq -r --slurpfile before "${z_cache_before}" '
+        jq -r --slurpfile before "${z_cache_before}" '
           ($before[0].host_daemon_images // [] | map(.ID) | unique) as $before_ids |
           [(.host_daemon_images // [])[] |
            select(.ID as $id | $before_ids | index($id) | not)] |
@@ -2880,10 +2980,14 @@ zrbf_inspect_show_sections() {
             else .Repository end) as $short |
             [$short, .Tag, .Size, .ID[7:19]] | @tsv) |
           .[]
-        ' "${z_cache_after}" 2>/dev/null || true)
+        ' "${z_cache_after}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+        z_new_images=$(<"${ZRBF_SCRATCH_FILE}")
         if test -n "${z_new_images}"; then
-          local z_new_count=""
-          z_new_count=$(printf '%s\n' "${z_new_images}" | wc -l | tr -d ' ')
+          local z_new_count=0
+          local z_count_line=""
+          while IFS= read -r z_count_line; do
+            z_new_count=$((z_new_count + 1))
+          done <<< "${z_new_images}"
           echo ""
           echo "  New images (${z_new_count} unique):"
           printf '%s\n' "${z_new_images}" | while IFS=$'\t' read -r z_repo z_tag z_size z_id; do
@@ -2903,7 +3007,9 @@ zrbf_inspect_show_sections() {
   echo ""
   if test -f "${z_sbom}"; then
     local z_pkg_count=""
-    z_pkg_count=$(jq '.artifacts | length' "${z_sbom}" 2>/dev/null || echo "?")
+    jq '.artifacts | length' "${z_sbom}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
+      || echo "?" > "${ZRBF_SCRATCH_FILE}"
+    z_pkg_count=$(<"${ZRBF_SCRATCH_FILE}")
     echo "  Package count:  ${z_pkg_count}"
 
     echo "  Package types:"
@@ -2928,13 +3034,32 @@ zrbf_inspect_show_sections() {
     echo "  Bind verification: was the mirrored image verified against its digest pin?"
     echo ""
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
-      echo "  Method:      $(jq -r '.verification.method // "?"' "${z_vs}")"
-      echo "  Result:      $(jq -r '.verification.result // "?"' "${z_vs}")"
-      echo "  Pin digest:  $(jq -r '.verification.pin_digest // "?"' "${z_vs}")"
-      echo "  GAR digest:  $(jq -r '.verification.gar_digest // "?"' "${z_vs}")"
-      echo "  Match:       $(jq -r '.verification.digest_match // "?"' "${z_vs}")"
-      echo "  Timestamp:   $(jq -r '.verification.timestamp // "?"' "${z_vs}")"
-      echo "  Source:      $(jq -r '.verification.source_image // "?"' "${z_vs}")"
+      local z_vf_method="" z_vf_result="" z_vf_pin="" z_vf_gar=""
+      local z_vf_match="" z_vf_ts="" z_vf_source=""
+      jq -r '
+        (.verification.method // "?"),
+        (.verification.result // "?"),
+        (.verification.pin_digest // "?"),
+        (.verification.gar_digest // "?"),
+        (.verification.digest_match // "?"),
+        (.verification.timestamp // "?"),
+        (.verification.source_image // "?")
+      ' "${z_vs}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+      { read -r z_vf_method
+        read -r z_vf_result
+        read -r z_vf_pin
+        read -r z_vf_gar
+        read -r z_vf_match
+        read -r z_vf_ts
+        read -r z_vf_source
+      } < "${ZRBF_SCRATCH_FILE}"
+      echo "  Method:      ${z_vf_method}"
+      echo "  Result:      ${z_vf_result}"
+      echo "  Pin digest:  ${z_vf_pin}"
+      echo "  GAR digest:  ${z_vf_gar}"
+      echo "  Match:       ${z_vf_match}"
+      echo "  Timestamp:   ${z_vf_ts}"
+      echo "  Source:      ${z_vf_source}"
     else
       echo "  Vouch artifact not locally present — run summon to retrieve"
     fi
@@ -2943,9 +3068,13 @@ zrbf_inspect_show_sections() {
     echo "  Independent SLSA verification: did this image pass provenance checks?"
     echo ""
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
+      local z_verifier_url="" z_verifier_sha=""
+      jq -r '(.verifier.url // "?"), (.verifier.sha256 // "?")' "${z_vs}" \
+        > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+      { read -r z_verifier_url; read -r z_verifier_sha; } < "${ZRBF_SCRATCH_FILE}"
       echo "  Verifier:"
-      echo "    URL:    $(jq -r '.verifier.url // "?"' "${z_vs}")"
-      echo "    SHA256: $(jq -r '.verifier.sha256 // "?"' "${z_vs}")"
+      echo "    URL:    ${z_verifier_url}"
+      echo "    SHA256: ${z_verifier_sha}"
       echo ""
       echo "  Per-platform verdicts:"
       jq -r '.platforms[]? | "    \(.platform): \(.verdict)"' "${z_vs}" 2>/dev/null \
