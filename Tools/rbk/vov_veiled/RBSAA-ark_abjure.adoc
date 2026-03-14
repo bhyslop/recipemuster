@@ -99,7 +99,7 @@ same HEAD request for `«VOUCH_TAG»`:
 . *Evaluate Ark State*:
 .. If all of `«IMAGE_EXISTS»`, `«ABOUT_EXISTS»`, and `«VOUCH_EXISTS»` are false:
 ... {rbbc_fatal}
-"Ark not found: neither -image nor -about exists"
+"Ark not found: no artifacts exist"
 .. If exactly one exists:
 ... {rbbc_warn}
 "Orphaned artifact detected"

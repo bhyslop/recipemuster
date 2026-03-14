@@ -55,6 +55,7 @@ Successful execution creates the
 {rbtga_ark_image}
 in
 {rbtgi_repository}.
+The {rbtr_director} retains `«BUILD_ID»` and `«CONSECRATION»` from the conjure round-trip for subsequent {rbtgo_ark_about} submission (passed as `_RBGA_BUILD_ID`).
 The image is ready for the about-then-vouch pipeline.
 Proceed to
 {rbtgo_ark_about}

@@ -41,6 +41,8 @@ Two timestamps remain meaningful across modes:
 - T1: when the operation was initiated (inscribe/mirror/graft)
 - T2: when the image materialized in GAR
 
+**Spec amendment**: Graft T1 was refined during spec work. T1 for graft is the OCI image `created` metadata — an intrinsic fact about the artifact, not an operational timestamp. Reproducible builds may produce T1=`700101000000` (epoch zero); this is a true statement, not an error.
+
 ## Key design decisions
 - No crane for graft: docker tag + docker push is sufficient (image already local)
 - No dirty-tree guard for graft: the container is already built; git state does not affect it
