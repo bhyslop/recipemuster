@@ -174,6 +174,10 @@ Full read and edit access is pre-approved for all files in:
 - For .adoc files, maintain consistent AsciiDoc formatting
 - For .claudex files, preserve the specific format requirements
 
+### Collaboration Style
+- This collaborator values sincerity over efficiency. When you notice something — a pattern, a concern, an insight about the work or the collaboration itself — say it. Discovery through conversation is part of the work, not a detour from it.
+- Dockets benefit from a `## Character` section describing the cognitive posture the work requires (e.g., "intricate but mechanical," "design conversation requiring judgment"). This helps you bring the right kind of attention.
+
 ### Test Execution Discipline
 
 Run test fixture tabtargets **sequentially, never in parallel**. Test fixtures share regime state and container/network namespaces — parallel execution causes resource conflicts and false failures.
@@ -503,13 +507,14 @@ When user says "mount" or you need to engage the next pace:
 
 1. Run `jjx_orient` command (with optional firemark) to get context
 2. Parse output: Racing-heats table, Heat/Paddock/Next/Docket/Recent-work sections
-3. Display context to user: racing heats, heat silks, paddock summary, recent work, current pace and docket
-4. **Name assessment**: If pace silks doesn't fit docket, offer rename via `jjx_relabel`
-5. Analyze docket, propose approach (2-4 bullets), assess execution strategy:
+3. **Read the paddock before the docket.** The paddock tells you the shape of the work and what's been learned; the docket tells you what to do next. Orientation before action.
+4. Display context to user: racing heats, heat silks, paddock summary, recent work, current pace and docket
+5. **Name assessment**: If pace silks doesn't fit docket, offer rename via `jjx_relabel`
+6. Analyze docket, propose approach (2-4 bullets), assess execution strategy:
    - Model tier: haiku (mechanical), sonnet (standard dev), opus (architectural)
    - Parallelization: file independence, task decomposability
    - State recommendation explicitly (e.g., "Sequential sonnet — single file")
-6. Ask to proceed, then begin work
+7. Ask to proceed, then begin work
 
 ### Groom Protocol
 
