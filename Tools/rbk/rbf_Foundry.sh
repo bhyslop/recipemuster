@@ -831,7 +831,7 @@ rbf_delete() {
 
   if test "${z_http_code}" != "202" && test "${z_http_code}" != "204"; then
     local z_body="empty"
-    test -f "${z_response_file}" && z_body=$(<"${z_response_file}")
+    if test -f "${z_response_file}"; then z_body=$(<"${z_response_file}"); fi
     buc_warn "Response body: ${z_body}"
     buc_die "Delete failed with HTTP ${z_http_code}"
   fi
@@ -1814,7 +1814,7 @@ rbf_abjure() {
 
       if test "${z_delete_img_code}" != "202" && test "${z_delete_img_code}" != "204"; then
         local z_body="empty"
-        test -f "${z_delete_img_response}" && z_body=$(<"${z_delete_img_response}")
+        if test -f "${z_delete_img_response}"; then z_body=$(<"${z_delete_img_response}"); fi
         buc_warn "Response body: ${z_body}"
         buc_die "Failed to delete image tag ${z_img_tag} (HTTP ${z_delete_img_code})"
       fi
@@ -1846,7 +1846,7 @@ rbf_abjure() {
 
     if test "${z_delete_about_code}" != "202" && test "${z_delete_about_code}" != "204"; then
       local z_body="empty"
-      test -f "${z_delete_about_response}" && z_body=$(<"${z_delete_about_response}")
+      if test -f "${z_delete_about_response}"; then z_body=$(<"${z_delete_about_response}"); fi
       buc_warn "Response body: ${z_body}"
       buc_die "Failed to delete -about artifact (HTTP ${z_delete_about_code})"
     fi
@@ -1876,7 +1876,7 @@ rbf_abjure() {
 
     if test "${z_delete_vouch_code}" != "202" && test "${z_delete_vouch_code}" != "204"; then
       local z_body="empty"
-      test -f "${z_delete_vouch_response}" && z_body=$(<"${z_delete_vouch_response}")
+      if test -f "${z_delete_vouch_response}"; then z_body=$(<"${z_delete_vouch_response}"); fi
       buc_warn "Response body: ${z_body}"
       buc_die "Failed to delete -vouch artifact (HTTP ${z_delete_vouch_code})"
     fi
@@ -2081,7 +2081,9 @@ zrbf_vouch_bind() {
     case "${z_digest_line}" in
       [Dd]ocker-[Cc]ontent-[Dd]igest:*)
         z_gar_digest="${z_digest_line#*: }"
-        z_gar_digest="${z_gar_digest%%[[:space:]]}"
+        while test "${z_gar_digest}" != "${z_gar_digest%[[:space:]]}" ; do
+          z_gar_digest="${z_gar_digest%[[:space:]]}"
+        done
         break ;;
     esac
   done < "${z_image_check_response}"
@@ -2889,9 +2891,8 @@ zrbf_inspect_show_sections() {
     local -r z_recipe="${z_dir}/recipe.txt"
     if test -f "${z_recipe}"; then
       local z_from_line=""
-      while IFS= read -r z_from_line; do
-        break
-      done < <(grep -i '^FROM ' "${z_recipe}" 2>/dev/null || true)
+      grep -i '^FROM ' "${z_recipe}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
+      read -r z_from_line < "${ZRBF_SCRATCH_FILE}" 2>/dev/null || z_from_line=""
       if test -n "${z_from_line}"; then
         echo "  Dockerfile FROM: ${z_from_line#FROM }"
       fi
