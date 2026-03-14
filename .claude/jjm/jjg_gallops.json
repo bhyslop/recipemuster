@@ -2371,9 +2371,10 @@
         "₢AtAAH",
         "₢AtAAD",
         "₢AtAAI",
+        "₢AtAAL",
         "₢AtAAE"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2683,6 +2684,17 @@
               "text": "Align RBSAV spec with draft code: step 2 discovers platforms for ALL modes, step 3 reads from workspace.\n\n## Character\nSmall targeted spec edit. Two sections of one file.\n\n## Model check\nVouch is always a separate Cloud Build job (builds.create) for all three modes. Step 2 runs verification logic per mode. Step 3 assembles and pushes the -vouch artifact.\n\n## Current spec (wrong)\n- Step 2 conjure branch: discovers platforms via manifest GET (lines 97-100). Correct.\n- Step 2 bind branch (lines 117-125): does NOT discover platforms. Wrong.\n- Step 2 graft branch (lines 127-129): does NOT discover platforms. Wrong.\n- Step 3 (line 136): independently discovers platforms via manifest GET. Wrong — duplicates work and requires registry API access from the docker image.\n\n## Draft code (correct, approved directionally)\n- Step 2 discovers platforms for ALL three branches and writes /workspace/vouch_platforms.txt\n- Step 3 reads platforms from /workspace/vouch_platforms.txt\n- Step 3 runs the docker builder image (not gcloud), so avoiding registry API access in step 3 is cleaner\n\n## RBSAV changes\n\n### Step 2 bind branch (after line 125): ADD platform discovery\nAfter composing vouch_summary.json, add:\n- GET manifests for CONSECRATION-image to discover platforms\n- Write platform list to /workspace/vouch_platforms.txt\n\n### Step 2 graft branch (after line 129): ADD platform discovery\nAfter composing vouch_summary.json, add:\n- GET manifests for CONSECRATION-image to discover platforms\n- Write platform list to /workspace/vouch_platforms.txt\n\n### Step 2 conjure branch: ADD workspace write\nAfter platform discovery (line 100), add:\n- Write platform list to /workspace/vouch_platforms.txt\n(Conjure already discovers platforms; just needs the workspace write)\n\n### Step 3 (line 136): REPLACE platform source\nChange: \"Platforms: discovered via GET manifest for CONSECRATION-image\"\nTo: \"Platforms: read from /workspace/vouch_platforms.txt (written by step 2)\"\nRemove the parenthetical about manifest list pattern.\n\n## Files touched\n- Tools/rbk/vov_veiled/RBSAV-ark_vouch.adoc",
               "silks": "rbsav-vouch-platform-discovery-alignment",
               "commit": "0f3fc38"
+            }
+          ]
+        },
+        "₢AtAAL": {
+          "tacks": [
+            {
+              "ts": "260314-1528",
+              "state": "rough",
+              "text": "Embed rbgja about steps into conjure's trigger-dispatched cloudbuild.json via the stitch function.\n\n## Character\nSurgical stitch modification — understanding the inscribe/stitch pipeline is the hard part, the change itself is mechanical once understood.\n\n## Model check\nCurrently: conjure trigger job produces -image only. After: trigger job produces -image AND -about. rbf_create no longer needs standalone about submission for conjure.\n\n## Stitch changes\nThe stitch function (in rbf_Foundry.sh) assembles cloudbuild.json for trigger dispatch during inscribe. Append the four rbgja steps (discover platforms, syft SBOM, build_info assembly, about push) after the existing image build steps. The rbgja scripts are already extracted as standalone Cloud Build step scripts.\n\n## rbf_create update\nRemove conjure's standalone about submission from rbf_create chaining tail. After stitch embedding, conjure's trigger job returns having produced both -image and -about. rbf_create chains only vouch for conjure (matching bind behavior).\n\n## Substitution variables\nConjure about steps read consecration from /workspace (computed by build step 01), not from _RBGA_CONSECRATION. The stitch function does NOT add _RBGA_CONSECRATION for conjure. Other _RBGA_* variables may need population — verify against RBSAB substitution table (<<rbtgo_about_substitutions>>).\n\n## Files touched\n- Tools/rbk/rbf_Foundry.sh (stitch function + rbf_create conjure branch)\n- Possibly: Tools/rbk/rbgjb/ (trigger cloudbuild template, if stitch reads a template)",
+              "silks": "conjure-stitch-about-embedding",
+              "commit": "40cd440"
             }
           ]
         }
