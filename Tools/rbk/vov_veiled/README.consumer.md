@@ -1,5 +1,12 @@
 # Recipe Bottle
 
+> [!IMPORTANT]
+> **Early-stage project — security review welcome**
+>
+> Recipe Bottle runs untrusted containers inside a three-container security apparatus: a privileged censer establishes the network namespace, a sentry enforces iptables policy on dual networks, and the bottle workload has no direct network access. The supply chain is hardened with SLSA provenance verification, least-privilege service accounts, and no secrets in version control.
+>
+> This architecture is deliberate, but it has not yet had broad independent review — particularly the runtime containment (iptables rules, privileged namespace setup, network isolation enforcement). If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
+
 Recipe Bottle enables developers to safely run untrusted containers — a significantly distinct use case from typical container deployments of carefully crafted code.
 
 While containers excel at packaging known applications, running third-party or experimental code poses security risks. Recipe Bottle addresses this by interposing a security layer (sentry container) between untrusted containers (bottle containers) and system resources, without requiring modifications to existing container images.
