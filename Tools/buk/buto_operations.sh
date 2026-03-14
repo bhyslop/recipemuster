@@ -47,8 +47,8 @@ zbuto_render_lines() {
 
   local z_visible_prefix="${z_prefix}"
   test -z "${z_color}" || z_prefix="${z_color}${z_prefix}${ZBUTO_RESET}"
-  local z_indent
-  z_indent=$(printf '%*s' "$(printf '%b' "${z_visible_prefix}" | sed 's/\x1b\[[0-9;]*m//g' | wc -c)" '')
+  local z_indent=""
+  printf -v z_indent '%*s' "${#z_visible_prefix}" ''
 
   local z_first=1
   local z_line=""

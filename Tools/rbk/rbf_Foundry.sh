@@ -100,6 +100,9 @@ zrbf_kindle() {
   readonly ZRBF_INSCRIBE_CLONE_DIR="${RBGC_RUBRIC_CLONE_DIR}"
   readonly ZRBF_INSCRIBE_STALENESS_SEC=86400
 
+  buc_log_args 'Define mirror operation files'
+  readonly ZRBF_MIRROR_PREFIX="${BURD_TEMP_DIR}/rbf_mirror_"
+
   buc_log_args 'Define output files (BURD_OUTPUT_DIR — persists after dispatch)'
   readonly ZRBF_OUTPUT_VESSEL_DIR="${BURD_OUTPUT_DIR}/rbf_vessel_dir.txt"
 
@@ -578,8 +581,13 @@ rbf_create() {
   # and the downstream function will source again via zrbf_load_vessel)
   local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
   test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
-  local z_mode
-  z_mode=$(grep -E '^RBRV_VESSEL_MODE=' "${z_rbrv_file}" | head -1 | sed 's/^RBRV_VESSEL_MODE=//') || true
+  local z_mode=""
+  local z_mode_line=""
+  while IFS= read -r z_mode_line || test -n "${z_mode_line}"; do
+    case "${z_mode_line}" in
+      RBRV_VESSEL_MODE=*) z_mode="${z_mode_line#RBRV_VESSEL_MODE=}"; break ;;
+    esac
+  done < "${z_rbrv_file}"
   z_mode="${z_mode:-conjure}"
   case "${z_mode}" in
     conjure) rbf_build "${z_vessel_dir}" ;;
@@ -950,8 +958,11 @@ rbf_mirror() {
   docker pull "${RBRV_BIND_IMAGE}" || buc_die "Failed to pull bind image: ${RBRV_BIND_IMAGE}"
 
   # Copy all platforms from upstream to GAR using buildx imagetools
+  local -r z_build_ts_file="${ZRBF_MIRROR_PREFIX}build_ts.txt"
+  date -u +'%Y%m%d_%H%M%S' > "${z_build_ts_file}" || buc_die "Failed to generate build timestamp"
   local z_build_ts
-  z_build_ts="b$(date -u +'%Y%m%d_%H%M%S')" || buc_die "Failed to generate build timestamp"
+  z_build_ts="b$(<"${z_build_ts_file}")"
+  test -n "${z_build_ts}" || buc_die "Empty build timestamp from ${z_build_ts_file}"
   local -r z_consecration="${z_mirror_ts}-${z_build_ts}"
   local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
   local -r z_image_ref="${z_gar_base}/${RBRV_SIGIL}:${z_image_tag}"
@@ -967,17 +978,24 @@ rbf_mirror() {
 
   # Capture git metadata
   buc_step "Capturing git metadata"
-  local z_git_commit
-  z_git_commit=$(git rev-parse HEAD) || buc_die "Failed to get commit SHA"
-  local z_git_branch
-  z_git_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die "Failed to get branch"
-  local -r z_git_remote_file="${BURD_TEMP_DIR}/rbf_mirror_git_remote.txt"
-  git remote > "${z_git_remote_file}" || buc_die "Failed to list git remotes"
+  local -r z_mirror_git_commit_file="${ZRBF_MIRROR_PREFIX}git_commit.txt"
+  local -r z_mirror_git_branch_file="${ZRBF_MIRROR_PREFIX}git_branch.txt"
+  local -r z_mirror_git_remote_file="${ZRBF_MIRROR_PREFIX}git_remote.txt"
+  local -r z_mirror_git_repo_url_file="${ZRBF_MIRROR_PREFIX}git_repo_url.txt"
+  git rev-parse HEAD > "${z_mirror_git_commit_file}" || buc_die "Failed to get commit SHA"
+  local -r z_git_commit=$(<"${z_mirror_git_commit_file}")
+  test -n "${z_git_commit}" || buc_die "Empty commit SHA from ${z_mirror_git_commit_file}"
+  git rev-parse --abbrev-ref HEAD > "${z_mirror_git_branch_file}" || buc_die "Failed to get branch"
+  local -r z_git_branch=$(<"${z_mirror_git_branch_file}")
+  test -n "${z_git_branch}" || buc_die "Empty branch from ${z_mirror_git_branch_file}"
+  git remote > "${z_mirror_git_remote_file}" || buc_die "Failed to list git remotes"
   local z_git_remote=""
-  read -r z_git_remote < "${z_git_remote_file}" || buc_die "Failed to read git remote from ${z_git_remote_file}"
+  read -r z_git_remote < "${z_mirror_git_remote_file}" || buc_die "Failed to read git remote from ${z_mirror_git_remote_file}"
   test -n "${z_git_remote}" || buc_die "No git remotes found"
+  git config --get "remote.${z_git_remote}.url" > "${z_mirror_git_repo_url_file}" || buc_die "Failed to get repo URL"
   local z_git_repo_url
-  z_git_repo_url=$(git config --get "remote.${z_git_remote}.url") || buc_die "Failed to get repo URL"
+  z_git_repo_url=$(<"${z_mirror_git_repo_url_file}")
+  test -n "${z_git_repo_url}" || buc_die "Empty repo URL from ${z_mirror_git_repo_url_file}"
   local z_git_repo="${z_git_repo_url#*://*/}"
   z_git_repo="${z_git_repo%.git}"
 
@@ -1315,13 +1333,22 @@ rbf_rubric_inscribe() {
   local z_git_remote=""
   local z_git_repo_url=""
   local z_git_repo=""
-  local z_git_remote_file="${ZRBF_INSCRIBE_PREFIX}git_remote.txt"
-  z_git_commit=$(git rev-parse HEAD) || buc_die "Failed to get commit SHA"
-  z_git_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die "Failed to get branch"
-  git remote > "${z_git_remote_file}" || buc_die "Failed to list git remotes"
-  read -r z_git_remote < "${z_git_remote_file}" || buc_die "Failed to read git remote from ${z_git_remote_file}"
+  local -r z_inscribe_git_commit_file="${ZRBF_INSCRIBE_PREFIX}git_commit.txt"
+  local -r z_inscribe_git_branch_file="${ZRBF_INSCRIBE_PREFIX}git_branch.txt"
+  local -r z_inscribe_git_remote_file="${ZRBF_INSCRIBE_PREFIX}git_remote.txt"
+  local -r z_inscribe_git_repo_url_file="${ZRBF_INSCRIBE_PREFIX}git_repo_url.txt"
+  git rev-parse HEAD > "${z_inscribe_git_commit_file}" || buc_die "Failed to get commit SHA"
+  z_git_commit=$(<"${z_inscribe_git_commit_file}")
+  test -n "${z_git_commit}" || buc_die "Empty commit SHA from ${z_inscribe_git_commit_file}"
+  git rev-parse --abbrev-ref HEAD > "${z_inscribe_git_branch_file}" || buc_die "Failed to get branch"
+  z_git_branch=$(<"${z_inscribe_git_branch_file}")
+  test -n "${z_git_branch}" || buc_die "Empty branch from ${z_inscribe_git_branch_file}"
+  git remote > "${z_inscribe_git_remote_file}" || buc_die "Failed to list git remotes"
+  read -r z_git_remote < "${z_inscribe_git_remote_file}" || buc_die "Failed to read git remote from ${z_inscribe_git_remote_file}"
   test -n "${z_git_remote}" || buc_die "No git remotes found"
-  z_git_repo_url=$(git config --get "remote.${z_git_remote}.url") || buc_die "Failed to get repo URL"
+  git config --get "remote.${z_git_remote}.url" > "${z_inscribe_git_repo_url_file}" || buc_die "Failed to get repo URL"
+  z_git_repo_url=$(<"${z_inscribe_git_repo_url_file}")
+  test -n "${z_git_repo_url}" || buc_die "Empty repo URL from ${z_inscribe_git_repo_url_file}"
   # Extract repo path from remote URL (works for any git host: github.com, gitlab.com, etc.)
   # Strip protocol + host: https://gitlab.com/org/repo.git → org/repo.git
   # Then strip .git suffix
@@ -2024,9 +2051,16 @@ zrbf_vouch_bind() {
 
   # Extract GAR digest from HEAD response headers
   buc_step "Verifying digest fidelity"
-  local z_gar_digest
-  z_gar_digest=$(grep -i '^Docker-Content-Digest:' "${z_image_check_response}" | head -1 | sed 's/^[^:]*: *//; s/[[:space:]]*$//') \
-    || true
+  local z_gar_digest=""
+  local z_digest_line=""
+  while IFS= read -r z_digest_line || test -n "${z_digest_line}"; do
+    case "${z_digest_line}" in
+      [Dd]ocker-[Cc]ontent-[Dd]igest:*)
+        z_gar_digest="${z_digest_line#*: }"
+        z_gar_digest="${z_gar_digest%%[[:space:]]}"
+        break ;;
+    esac
+  done < "${z_image_check_response}"
   test -n "${z_gar_digest}" || buc_die "Docker-Content-Digest header not found in GAR HEAD response"
 
   # Extract pin digest from RBRV_BIND_IMAGE (the part after @)
@@ -2047,8 +2081,11 @@ zrbf_vouch_bind() {
   # Generate vouch_summary.json (bind-specific)
   buc_step "Generating bind vouch summary"
   local -r z_vouch_summary="${ZRBF_VOUCH_PREFIX}vouch_summary.json"
+  local -r z_vouch_ts_file="${ZRBF_VOUCH_PREFIX}timestamp.txt"
+  date -u +'%Y-%m-%dT%H:%M:%SZ' > "${z_vouch_ts_file}" || buc_die "Failed to generate vouch timestamp"
   local z_vouch_ts
-  z_vouch_ts=$(date -u +'%Y-%m-%dT%H:%M:%SZ') || buc_die "Failed to generate vouch timestamp"
+  z_vouch_ts=$(<"${z_vouch_ts_file}")
+  test -n "${z_vouch_ts}" || buc_die "Empty vouch timestamp from ${z_vouch_ts_file}"
   jq -n \
     --arg vessel        "${RBRV_SIGIL}" \
     --arg consecration  "${z_consecration}" \

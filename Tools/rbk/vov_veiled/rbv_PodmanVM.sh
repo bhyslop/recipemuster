@@ -56,6 +56,7 @@ zrbv_kindle() {
   readonly ZRBV_NATURAL_TAG_FILE="${RBV_TEMP_DIR}/natural_tag.txt"
 
   readonly ZRBV_PODMAN_REMOVE_PREFIX="${RBV_TEMP_DIR}/podman_inspect_remove_"
+  readonly ZRBV_IDENTITY_TS_FILE="${RBV_TEMP_DIR}/identity_timestamp.txt"
   readonly ZRBV_MOW_MANIFEST_JSON="${RBV_TEMP_DIR}/mow_manifest.json"
   readonly ZRBV_MOS_MANIFEST_JSON="${RBV_TEMP_DIR}/mos_manifest.json"
   readonly ZRBV_MOW_ENTRIES_JSON="${RBV_TEMP_DIR}/mow_entries.json"
@@ -303,8 +304,10 @@ rbv_mirror() {
   zrbv_ignite_bootstrap false || buc_die "Failed to create temp machine"
 
   buc_step "Generate new identity for this build..."
+  date +'%Y%m%d-%H%M%S' > "${ZRBV_IDENTITY_TS_FILE}" || buc_die "Failed to generate identity timestamp"
   local z_new_identity
-  z_new_identity=$(date +'%Y%m%d-%H%M%S') || buc_die "Failed to generate identity timestamp"
+  z_new_identity=$(<"${ZRBV_IDENTITY_TS_FILE}")
+  test -n "${z_new_identity}" || buc_die "Empty identity timestamp from ${ZRBV_IDENTITY_TS_FILE}"
   buc_info "New identity: ${z_new_identity}"
 
   buc_step "Potential container image names for caching:"

@@ -87,8 +87,11 @@ zbud_setup() {
   # Validate station variables
   zbud_check_string "${BURC_STATION_FILE}" BURS_LOG_DIR 1 256
 
+  local -r z_date_file="${BURC_TEMP_ROOT_DIR}/bud_bootstrap_date.txt"
+  date +'%Y%m%d-%H%M%S %s' > "${z_date_file}" || buc_die "Failed to get datetime"
   local z_datetime
-  z_datetime=$(date +'%Y%m%d-%H%M%S %s') || buc_die "Failed to get datetime"
+  z_datetime=$(<"${z_date_file}")
+  test -n "${z_datetime}" || buc_die "Empty datetime from ${z_date_file}"
   BURD_NOW_STAMP="${z_datetime% *}-$$-$((RANDOM % 1000))"
   BURD_NOW_EPOCH="${z_datetime#* }"
   zbud_show "Generated timestamp: ${BURD_NOW_STAMP} epoch: ${BURD_NOW_EPOCH}"
@@ -100,11 +103,6 @@ zbud_setup() {
   esac
   mkdir -p                           "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory: ${BURD_TEMP_DIR}"
   zbud_show "Generated temporary dir: ${BURD_TEMP_DIR}"
-
-  if test -n "$(find "${BURD_TEMP_DIR}" -mindepth 1 -print -quit 2>/dev/null)"; then
-    echo "ERROR: Temporary directory is not empty: ${BURD_TEMP_DIR}" >&2
-    return 1
-  fi
 
   # Setup transcript file path
   BURD_TRANSCRIPT="${BURD_TEMP_DIR}/transcript.txt"
@@ -123,15 +121,16 @@ zbud_setup() {
   fi
   mkdir -p "${BURD_OUTPUT_DIR}" || buc_die "Failed to create output directory: ${BURD_OUTPUT_DIR}"
 
-  if test -n "$(find "${BURD_OUTPUT_DIR}" -mindepth 1 -print -quit 2>/dev/null)"; then
-    echo "ERROR: Output directory is not empty: ${BURD_OUTPUT_DIR}" >&2
-    return 1
-  fi
-
   zbud_show "Output directory ready: ${BURD_OUTPUT_DIR}"
 
   # Get Git context
-  BURD_GIT_CONTEXT=$(git describe --always --dirty --tags --long 2>/dev/null || echo "git-unavailable")
+  local -r z_git_context_file="${BURD_TEMP_DIR}/bud_git_context.txt"
+  local -r z_git_context_stderr="${BURD_TEMP_DIR}/bud_git_context_stderr.txt"
+  if git describe --always --dirty --tags --long > "${z_git_context_file}" 2>"${z_git_context_stderr}"; then
+    BURD_GIT_CONTEXT=$(<"${z_git_context_file}")
+  else
+    BURD_GIT_CONTEXT="git-unavailable"
+  fi
   zbud_show "Git context: ${BURD_GIT_CONTEXT}"
 
   # Export for child processes

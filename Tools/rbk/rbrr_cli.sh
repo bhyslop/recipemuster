@@ -89,8 +89,12 @@ rbrr_reset() {
 
   # Discover secrets dir for pre-confirmation inventory
   local z_secrets_dir=""
-  z_secrets_dir=$(grep -m1 '^RBRR_SECRETS_DIR=' "${z_rbrr}") || z_secrets_dir=""
-  z_secrets_dir="${z_secrets_dir#RBRR_SECRETS_DIR=}"
+  local z_secrets_line=""
+  while IFS= read -r z_secrets_line || test -n "${z_secrets_line}"; do
+    case "${z_secrets_line}" in
+      RBRR_SECRETS_DIR=*) z_secrets_dir="${z_secrets_line#RBRR_SECRETS_DIR=}"; break ;;
+    esac
+  done < "${z_rbrr}"
 
   bug_section "Marshal Reset"
   bug_t "  Target: ${z_rbrr}"
