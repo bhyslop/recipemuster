@@ -2321,10 +2321,11 @@
         "₢AtAAF",
         "₢AtAAC",
         "₢AtAAG",
+        "₢AtAAH",
         "₢AtAAD",
         "₢AtAAE"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2534,6 +2535,17 @@
               "text": "Forward conjure build-time diagnostics to the about pipeline via a transient `-diags` registry artifact.\n\n## Character\nInfrastructure plumbing — mechanical but cross-cutting (conjure build, about pipeline, inspect specs).\n\n## Problem\nThe about pipeline extraction (AtAAC) separated about into its own Cloud Build job. Three conjure-build-time files are now unreachable:\n- `buildkit_metadata.json` (from `buildx build --metadata-file`)\n- `cache_before.json` (docker daemon snapshot before build)\n- `cache_after.json` (docker daemon snapshot after pushes)\n\nAdditionally, `recipe.txt` (Dockerfile content) is currently conveyed via `_RBGA_DOCKERFILE_CONTENT` substitution variable, which has a hard ~4KB limit. Large multi-stage Dockerfiles are silently omitted.\n\n## Solution: `-diags` transient artifact\n\n### Conjure side (rbgjb/)\n- New rbgjb07-push-diags.sh: build a `FROM scratch` container containing `buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, and the Dockerfile (read from build context, no size limit). Push as `consecration-diags`.\n- Builder: gcr.io/cloud-builders/docker\n- Files are already in /workspace from earlier conjure steps (rbgjb03 generates buildkit_metadata + cache_before, rbgjb05 generates cache_after, Dockerfile is in build context)\n- Update zrbf_stitch_build_json to include the new step\n\n### About side (rbgja/)\n- New rbgja00-pull-diags.sh (or modify rbgja01): before platform discovery, check if `consecration-diags` exists in registry. If present, pull and extract all files into /workspace (recipe.txt, buildkit_metadata.json, cache_before.json, cache_after.json). If absent (bind/graft have no -diags), skip gracefully.\n- Modify rbgja04 Dockerfile.meta to COPY the forwarded files when present (recipe.txt, buildkit_metadata.json, cache_before.json, cache_after.json — all conditional on file existence)\n- Builder: gcr.io/cloud-builders/gcloud (or docker, whichever has registry API access)\n\n### Remove _RBGA_DOCKERFILE_CONTENT\n- Remove from zrbf_about_submit substitution construction\n- Remove from rbgja03 (recipe.txt write from substitution variable)\n- Remove from RBSAB spec substitution table\n- recipe.txt now comes exclusively from -diags (conjure) or is absent (bind/graft without optional Dockerfile... actually bind/graft optional Dockerfiles still need conveyance — keep _RBGA_DOCKERFILE_CONTENT for bind/graft only, or accept that bind/graft optional Dockerfiles also go through -diags? No — bind/graft don't have a conjure build to push -diags from. Keep _RBGA_DOCKERFILE_CONTENT for bind/graft optional Dockerfiles only, remove for conjure.)\n\n### -diags cleanup\n- About pipeline deletes `consecration-diags` after absorbing its contents. Use registry API DELETE via gcloud/curl with mason SA credentials (about runs as mason on private pool).\n- If deletion fails, warn but don't fail the about job — stale -diags is harmless.\n\n### Spec updates\n- RBSAB: document -diags pull step, remove _RBGA_DOCKERFILE_CONTENT for conjure, update artifact contents to include forwarded files\n- RBSCB: confirm enrichment files are back in about artifact\n- RBSRI: update stitch to include rbgjb07\n- RBSAI: no change needed (inspect already handles these files)\n\n## Verification\n- Conjure: -diags pushed after build, about absorbs files, -diags deleted, -about contains all enrichment files + full Dockerfile\n- Bind/graft: no -diags, about proceeds without enrichment files (correct — they don't exist for these modes)\n- Inspect: Build Output and Build Cache Delta sections populated for conjure\n- Large Dockerfile (>4KB): recipe.txt present in -about (no substitution limit)\n\n## Depends on\n- AtAAC about pipeline extraction",
               "silks": "diags-artifact-forwarding",
               "commit": "c73372a"
+            }
+          ]
+        },
+        "₢AtAAH": {
+          "tacks": [
+            {
+              "ts": "260314-1243",
+              "state": "rough",
+              "text": "Replace hardcoded suffix strings in about pipeline step scripts (rbgja/) with substitution variables.\n\n## Character\nMechanical cleanup — grep-and-replace with substitution plumbing.\n\n## Problem\nThe about pipeline (rbgja/) hardcodes ark suffix strings (`-image`, `-about`, `-diags`) as magic string literals in step scripts, while the conjure pipeline (rbgjb/) passes them via `_RBGY_ARK_SUFFIX_*` substitution variables backed by `RBGC_ARK_SUFFIX_*` constants. This means the same architectural fact (suffix identity) is expressed in two different forms — Interface Contamination per BCG. Distant relationships between the constant definitions and their usage sites are invisible.\n\n## Solution\n1. Add `_RBGA_ARK_SUFFIX_IMAGE`, `_RBGA_ARK_SUFFIX_ABOUT`, `_RBGA_ARK_SUFFIX_DIAGS` to the about pipeline's substitution namespace in `zrbf_about_submit()`\n2. Replace hardcoded suffix strings in rbgja01, rbgja04 with the new substitution variables\n3. Update RBSAB spec's substitution variable table to document the new variables\n\n## Verification\n- grep for literal `-image`, `-about`, `-diags` in rbgja/ — should find only comments\n- About pipeline substitution block includes all three suffix variables\n- RBSAB substitution table documents all three",
+              "silks": "about-pipeline-suffix-substitutions",
+              "commit": "f21a25a"
             }
           ]
         }
