@@ -2633,6 +2633,13 @@
         "₢AtAAI": {
           "tacks": [
             {
+              "ts": "260314-1356",
+              "state": "rough",
+              "text": "rbf_create orchestrates the full pipeline: mode dispatch, then about, then vouch.\n\n## Character\nCareful refactoring — three functions change shape, one gains a chaining tail.\n\n## rbf_create chaining tail (NEW)\nAfter mode dispatch returns, rbf_create reads persisted consecration from BURD_OUTPUT_DIR, then calls rbf_about(vessel_dir, consecration), then rbf_vouch(vessel_dir, consecration). One user command, full pipeline.\n\n## rbf_mirror simplification\nDelete local about assembly (~lines 1022-1107): build_info.json generation, syft docker run, docker build/push of -about container. rbf_mirror becomes: pull upstream, push to GAR as -image, persist consecration to BURD_OUTPUT_DIR, return. NOTE: bind image copy does NOT move to Cloud Build in this pace. That is a future enhancement.\n\n## rbf_build consecration persistence\nrbf_build already persists consecration. Verify rbf_mirror and rbf_graft use the same pattern (BURD_OUTPUT_DIR/RBF_FACT_CONSECRATION).\n\n## Stitch changes for conjure+about combined job: DEFERRED\nNot in this pace. Future pace will embed rbgja steps in trigger-dispatched cloudbuild.json.\n\n## Spec updates\n- RBSAC: conjure produces -image, director chains about then vouch\n- RBSAB: add note that about is submitted as standalone Cloud Build by director for all modes currently",
+              "silks": "pipeline-orchestration-rbf-create-chaining",
+              "commit": "f5bb60e"
+            },
+            {
               "ts": "260314-1354",
               "state": "rough",
               "text": "rbf_create chains about then vouch after mode dispatch. Remove local about from rbf_mirror (~40 lines). Each mode function persists consecration. rbf_create reads consecration, calls rbf_about then rbf_vouch. Stitch changes for conjure+about combined job DEFERRED. Update specs: RBSAC (conjure produces image, about chained by director), RBSAB (about delivery mode-dependent).",
