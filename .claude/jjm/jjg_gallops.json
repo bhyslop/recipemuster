@@ -2398,9 +2398,10 @@
         "₢AtAAD",
         "₢AtAAI",
         "₢AtAAL",
-        "₢AtAAE"
+        "₢AtAAE",
+        "₢AtAAN"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2830,6 +2831,17 @@
               "text": "Continue manual testing of three-mode combined delivery pipeline. Pick up from bind vouch failure.\n\n## Character\nSystematic bug-fix-and-retry with live GCP builds. Each fix requires spec update, code change, notch, and retry.\n\n## Where we left off\n\nManual testing of all three modes via `rbf_create` uncovered and fixed several bugs:\n\n### Completed\n- **Graft**: Full pipeline works (push + about + vouch). Three bugs fixed:\n  1. Cloud Build rejects substitution vars with bash `:-}` syntax — removed from rbgja03 (4 variables)\n  2. Attestation manifests (platform unknown/unknown) in OCI indexes pollute platform discovery — added filter to rbgja01 and rbgjv02, with spec updates to RBSAB and RBSAV\n  3. Syft index auto-selection fails on arm64-only grafted images — bind/graft now always use @digest pinning in rbgja02\n- **Conjure**: Full pipeline works (trigger-dispatched build + stitch-embedded about + vouch). No new bugs.\n- **Bind**: Combined mirror job succeeds (image copy + about). Vouch step partially fixed:\n  - Fixed `_RBGV_BIND_SOURCE: unbound variable` — Cloud Build cannot handle `${VAR#pattern}` bash expansion; captured to local var first\n\n### Remaining (bind vouch)\n- **Digest format mismatch**: `sed 's/.*: *//'` in rbgjv02 line 186 is too greedy — strips `sha256:` prefix from `Docker-Content-Digest` header value. Fix: `s/^[^:]*: *//` to match only the first colon. One-character fix, then retry bind.\n\n### After bind vouch passes\n- Run consecration check to verify all artifacts across all three modes\n- Consider running inspect to verify mode-specific trust statements\n- Created `rbev-busybox-graft` vessel for graft testing (committed)\n\n## Files changed this session\n- `Tools/rbk/rbgja/rbgja01-discover-platforms.sh` — attestation filter + diagnostics\n- `Tools/rbk/rbgja/rbgja02-syft-per-platform.sh` — digest pinning for bind/graft\n- `Tools/rbk/rbgja/rbgja03-build-info-per-platform.sh` — removed `:-}` from 4 substitution refs\n- `Tools/rbk/rbgjv/rbgjv02-verify-provenance.sh` — attestation filter + bind source local var\n- `Tools/rbk/vov_veiled/RBSAB-ark_about.adoc` — spec: attestation filtering + syft scan targets\n- `Tools/rbk/vov_veiled/RBSAV-ark_vouch.adoc` — spec: attestation filtering\n- `rbev-vessels/rbev-busybox-graft/rbrv.env` — new graft test vessel",
               "silks": "manual-test-fixes-continuation",
               "commit": "c23f1c2"
+            }
+          ]
+        },
+        "₢AtAAN": {
+          "tacks": [
+            {
+              "ts": "260315-0903",
+              "state": "rough",
+              "text": "Add generic tweak mechanism to BURE ambient regime.\n\n## Character\nMechanical regime plumbing — small, precise additions.\n\n## Work\n- Enroll `BURE_TWEAK_NAME` (string, optional) and `BURE_TWEAK_VALUE` (string, optional) in `bure_regime.sh`\n- Verify scope sentinel passes with new vars\n- Verify BURE CLI render/validate commands work with new enrollment\n\n## Design\nBURE stays domain-agnostic. It carries a name/value pair. Consumer code (RBK, etc.) interprets the tweak name. One tweak per invocation is sufficient.\n\n## Propagation\nBURE vars propagate as exported env vars through zbuto_invoke → tabtarget → launcher → dispatch → workbench. BURE is NOT kindled during dispatch, so scope sentinel doesn't fire at runtime. Enrollment needed for CLI validation path only.",
+              "silks": "bure-tweak-mechanism",
+              "commit": "fd68a3a"
             }
           ]
         }
