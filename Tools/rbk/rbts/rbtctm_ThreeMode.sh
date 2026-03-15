@@ -60,6 +60,10 @@ rbtctm_three_mode_tcase() {
   local z_conjure_consec
   z_conjure_consec=$(<"${z_conjure_output}/${RBF_FACT_CONSECRATION}")
   test -n "${z_conjure_consec}" || buto_fatal "Empty consecration after conjure"
+  local z_conjure_gar_root
+  z_conjure_gar_root=$(<"${z_conjure_output}/${RBF_FACT_GAR_ROOT}")
+  local z_conjure_ark_stem
+  z_conjure_ark_stem=$(<"${z_conjure_output}/${RBF_FACT_ARK_STEM}")
   buto_info "Conjured: ${z_conjure_consec}"
 
   # Step 2: Bind plantuml
@@ -71,6 +75,15 @@ rbtctm_three_mode_tcase() {
   z_bind_consec=$(<"${z_bind_output}/${RBF_FACT_CONSECRATION}")
   test -n "${z_bind_consec}" || buto_fatal "Empty consecration after bind"
   buto_info "Bound: ${z_bind_consec}"
+
+  # Retrieve conjured image for graft input
+  buto_section "Retrieving conjured busybox for graft input"
+  local -r z_graft_retrieve_locator="${z_conjure_ark_stem}${RBGC_ARK_SUFFIX_IMAGE}"
+  buto_tt_expect_ok "${RBZ_RETRIEVE_IMAGE}" "${z_graft_retrieve_locator}"
+  local -r z_local_image_ref="${z_conjure_gar_root}/${z_graft_retrieve_locator}"
+  export BURE_TWEAK_NAME=threemodegraft
+  export BURE_TWEAK_VALUE="${z_local_image_ref}"
+  buto_info "Tweak: ${BURE_TWEAK_NAME}=${BURE_TWEAK_VALUE}"
 
   # Step 3: Graft busybox
   buto_section "Step 3/12: Grafting ark from vessel ${z_graft_vessel}"

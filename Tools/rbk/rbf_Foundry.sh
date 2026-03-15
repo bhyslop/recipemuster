@@ -1310,6 +1310,10 @@ rbf_graft() {
   zrbf_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "graft" \
     || buc_die "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
+
+  # Tweak override: test infrastructure can inject graft image via ambient regime variable
+  test "${BURE_TWEAK_NAME:-}" != "threemodegraft" || RBRV_GRAFT_IMAGE="${BURE_TWEAK_VALUE}"
+
   test -n "${RBRV_GRAFT_IMAGE:-}" \
     || buc_die "RBRV_GRAFT_IMAGE not set for graft vessel '${RBRV_SIGIL}'"
 
