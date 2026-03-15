@@ -2400,9 +2400,10 @@
         "₢AtAAL",
         "₢AtAAE",
         "₢AtAAN",
-        "₢AtAAO"
+        "₢AtAAO",
+        "₢AtAAP"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2854,6 +2855,17 @@
               "text": "Enrich rbf_create output fact files so tests can reconstruct locators and local image refs.\n\n## Character\nCareful API surface expansion — fact files are a test contract.\n\n## Work\n- Split existing `RBF_FACT_IMAGE_REF` (full GAR ref) into repository and tag components, or add new complementary fact files\n- Ensure all three modes (conjure, bind, graft) emit consistent fact files from `rbf_create`\n- Define new constants in `rbgc_Constants.sh`\n- Test can construct retrieve locator from vessel sigil + consecration + suffix\n- Test can construct local image ref after retrieve from the same facts\n\n## Design principle\nThe test should never need to hardcode GAR coordinates — fact files provide all building blocks.",
               "silks": "create-fact-file-enrichment",
               "commit": "4d5ce56"
+            }
+          ]
+        },
+        "₢AtAAP": {
+          "tacks": [
+            {
+              "ts": "260315-0903",
+              "state": "rough",
+              "text": "Wire conjure output into graft input via BURE tweak, complete test fixture.\n\n## Character\nIntegration wiring — connecting the pieces from the previous two paces.\n\n## Work\n- `rbf_graft` checks `BURE_TWEAK_NAME=threemodegraft` after vessel loading, overrides `RBRV_GRAFT_IMAGE` with `BURE_TWEAK_VALUE`\n- Update `rbtctm_ThreeMode.sh`: after conjure, retrieve the conjured image, export BURE tweak vars, then graft\n- Test sequence: conjure → read fact files → retrieve → export BURE_TWEAK_NAME/VALUE → graft → check → abjure\n\n## Key invariant\nGraft input is the conjure-produced busybox — same image content, different trust path.",
+              "silks": "graft-tweak-and-test-wiring",
+              "commit": "07aa99c"
             }
           ]
         }
