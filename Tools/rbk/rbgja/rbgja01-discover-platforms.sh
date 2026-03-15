@@ -104,7 +104,7 @@ else
   CONFIG_DIGEST=$(printf '%s' "${MANIFEST}" | jq -r '.config.digest')
   test -n "${CONFIG_DIGEST}" || { echo "No config digest in manifest" >&2; exit 1; }
 
-  CONFIG=$(curl -sf \
+  CONFIG=$(curl -sf --compressed \
     -H "Authorization: Bearer ${TOKEN}" \
     "${REGISTRY_BASE}/blobs/${CONFIG_DIGEST}") \
     || { echo "Failed to fetch config blob" >&2; exit 1; }
