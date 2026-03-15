@@ -82,6 +82,7 @@
 :axd_internal:                        <<axd_internal,Internal>>
 :axd_slash_command:                   <<axd_slash_command,Slash Command>>
 :axd_tabtarget:                       <<axd_tabtarget,Tabtarget>>
+:axd_fact:                            <<axd_fact,Fact>>
 :axd_transient:                       <<axd_transient,Transient>>
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_xml_form:                        <<axd_xml_form,XML Form>>
@@ -2115,6 +2116,16 @@ indicating that external members of an operation group are exposed as
 Valid on
 {axvo_group}.
 
+[[axd_fact]]
+{axd_fact}::
+A
+{axd_dimension}
+indicating that an operation output is delivered as a single atomic value in a well-known named file.
+The file is written to the dispatch output directory; consumers read the value verbatim.
+The constant name (carried by the marker's existing lookahead) is the contract between producer and consumer.
+Valid on
+{axhoo_output_of_type}.
+
 === New Operation Terms
 
 [[axo_group]]
@@ -2269,6 +2280,10 @@ Lookahead: 1
 {mcm_attribute_reference}
 — must resolve to an existing type anchor; zero new terms minted.
 Individual markers per output; no section wrapper needed.
++
+May carry
+{axd_fact}
+to indicate the output is delivered as a named fact file rather than through stdout or return value.
 
 [[axhoq_precondition]]
 {axhoq_precondition}::
