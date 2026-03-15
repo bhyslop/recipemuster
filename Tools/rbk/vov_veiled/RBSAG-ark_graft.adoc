@@ -90,23 +90,39 @@ push succeeds
 
 //axhoo_output_of_type axd_fact
 {rbf_fact_consecration}
-The full consecration string (e.g., `g700101000000-r260224160530`).
+The full
+{rbtga_consecration}
+string.
 
 //axhoo_output_of_type axd_fact
 {rbf_fact_build_id}
-Empty for graft — no Cloud Build involvement in image push. Written for uniform fact coverage.
+Empty for graft — no
+{gcb_build}
+involvement in image push.
+Written for uniform fact coverage.
 
 //axhoo_output_of_type axd_fact
 {rbf_fact_gar_root}
-GAR registry prefix: `«GAR_HOST»/«GAR_PATH»`. Composable with ark stem for full artifact references.
+{gar_service}
+registry prefix.
+Composable with
+{rbf_fact_ark_stem}
+for full artifact references.
 
 //axhoo_output_of_type axd_fact
 {rbf_fact_ark_stem}
-Vessel sigil and consecration: `«VESSEL»:«CONSECRATION»`. Composable with suffix for artifact tags.
+{rbrv_sigil}
+and
+{rbtga_consecration}
+joined as `«VESSEL»:«CONSECRATION»`.
+Composable with suffix for artifact tags.
 
 //axhoo_output_of_type axd_fact
 {rbf_fact_ark_yield}
-Single-platform image reference: `«VESSEL»:«CONSECRATION»-image`. One fact file (graft is single-platform only).
+Single-platform
+{rbtga_ark_image}
+reference.
+One fact file (graft is single-platform only).
 
 . *Display Results*:
 .. {rbbc_show}
