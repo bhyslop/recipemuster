@@ -689,6 +689,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢AUAAg",
         "₢AUAAb",
         "₢AUAAS",
         "₢AUAAD",
@@ -720,7 +721,7 @@
         "₢AUAAe",
         "₢AUAAf"
       ],
-      "next_pace_seed": "AAg",
+      "next_pace_seed": "AAh",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1491,6 +1492,17 @@
               "text": "## Character\nMechanical with one judgment call (poll threshold).\n\n## Context\nPrivate pool builds sit in QUEUED for 7-13 polls (~40-70s) during normal cold-start scale-from-zero. When two builds compete for the 2 vCPU quota, the second serializes (observed: 130-288 polls, 10-26 min). Historical log analysis in `_logs_buk/hist-rbw-DC-sh-*` confirms the pattern across 68 builds from 2026-03-03 to 2026-03-14.\n\n## Deliverable 1: Polling advisory in zrbf_wait_build_completion\nIn `Tools/rbk/rbf_Foundry.sh` line ~607 (the QUEUED/WORKING while loop), add a one-time advisory when QUEUED persists past ~20 polls (~110s). Use `buc_warn` + `buc_tabtarget \"${RBZ_QUOTA_BUILD}\"`. Fire once (guard variable). Message should convey: \"Build queued longer than normal — another build may be holding the private pool.\"\n\n## Deliverable 2: Quota guide lifecycle repair\nThe guide in `rbgm_ManualProcedures.sh` (rbgm_quota_build function) and spec `RBSQB-quota_build.adoc` were overcorrected in commit 13fd330f to say Console Edit Quotas \"does NOT work\" for this metric. Screenshot evidence shows it DOES work on established depots — the edit panel appears with \"A value above 2 will require approval from your service provider.\" The lifecycle is:\n1. Fresh depot: 2 vCPU limit, Console Edit Quotas not available\n2. Established depot (after some build activity): Console Edit Quotas becomes available, values above 2 require provider approval\n\nRepair the guide to document both paths: Console flow (when available) and support ticket (when Console flow isn't available yet). Git history before 13fd330f has the earlier version that described Console Edit Quotas as working — use it as reference for what to restore, then layer on the fresh-vs-established distinction.\n\n## Threshold rationale\n20 polls × ~5.5s/poll ≈ 110s. Normal cold-start ceiling is ~13 polls (~70s). 20 polls provides clear separation from cold-start noise while catching contention early enough to be useful.",
               "silks": "queued-build-advisory-and-quota-guide-repair",
               "commit": "5b45113"
+            }
+          ]
+        },
+        "₢AUAAg": {
+          "tacks": [
+            {
+              "ts": "260314-2111",
+              "state": "rough",
+              "text": "Add a command trust model section to BCG (Bash Console Guide) that codifies the dependency boundary.\n\n## Context\n\nDuring the MVP-3 release ceremony dry run, the Step 2 command audit surfaced commands used on the host workstation that aren't in the declared dependency list (index.html). The conversation that followed developed a trust framework that belongs in BCG as the authoritative reference.\n\n## Trust Tiers\n\n**Tier 1 — Bash builtins**: `test`, `read`, `printf`, `local`, `trap`, `set`, `readonly`, `shift`, `export`, `unset`, etc. These ARE the language. Cannot be hijacked via PATH. Use freely. BCG already pushes toward builtins (test over [[]], read over head -1, parameter expansion over dirname).\n\n**Tier 2 — POSIX-mandated utilities**: `grep`, `sed`, `awk`, `cp`, `mv`, `rm`, `mkdir`, `cat`, `sort`, `cut`, `tr`, `find`, `diff`, `kill`, `sleep`, `date`, `uname`, `tar`, `tee`, `touch`, `ln`, `xargs`, `chmod`, `ls`, `stat`(check), `tput`, `stty`, `env`, `comm`, `paste`, `wc`, `head`, `tail`, `basename`, `dirname`. Trust the standard, not the implementation. But flag usage must be portable — GNU and BSD diverge on flags. Known divergences should be documented.\n\n**Tier 3 — Dangerous middle**: Things that FEEL universal but aren't POSIX-mandated. This is where trust becomes assumption.\n- `base64` — GNU coreutils + macOS, but not standardized. Flag divergence (`-w0` vs `-b0`).\n- `timeout` — GNU coreutils only, absent on stock macOS.\n- `sha256sum` / `shasum` — one or the other per platform, never both standardized.\n- `stat` — exists everywhere, flags completely incompatible between GNU and BSD.\nPattern: wrap in a BUK function that detects and adapts, making the platform seam visible and tested.\n\n**Tier 4 — Declared dependencies**: docker, git, curl, openssh, jq, and possibly openssl. Consumer must consciously install these. Documented in index.html. Each one accepted as a cost.\n\n## Audit Findings to Resolve\n\n- `openssl` used in rbgo_OAuth.sh (JWT signing) and bud_dispatch.sh (checksum fallback) — undeclared. Decide: add to index.html declared deps, or rework?\n- `base64` used in 4 files — wrap for portability or accept as near-universal?\n- `sha256sum` vs `shasum` split across files — needs a BUK portable wrapper.\n- `timeout` used in testbench only — development-only, not runtime. Document as such.\n- `shellcheck`, `python3` — development-only tools, not consumer deps.\n\n## Ceremony Integration\n\nThe release ceremony Step 2 currently inlines its own tier lists. After BCG codifies the tiers, the ceremony should reference BCG rather than maintaining a separate copy.\n\n## Observation\n\nLLMs love adding dependencies — they reach for whatever solves the immediate problem without feeling the cumulative cost. The trust tier framework in BCG serves as a checkpoint for both human and LLM contributors.",
+              "silks": "bcg-command-trust-tiers",
+              "commit": "8d9d871"
             }
           ]
         }
