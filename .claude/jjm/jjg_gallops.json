@@ -2402,9 +2402,10 @@
         "₢AtAAN",
         "₢AtAAO",
         "₢AtAAP",
-        "₢AtAAQ"
+        "₢AtAAQ",
+        "₢AtAAR"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2878,6 +2879,17 @@
               "text": "Execute three-mode integration test fixture and fix whatever surfaces.\n\n## Character\nMethodical execution against live GCP. Expect surprises — the conjure consecration format anomaly (`i20260313_142921-b20260315_034510` not matching `cYYMMDDHHMMSS-rYYMMDDHHMMSS`) is unresolved and may resurface.\n\n## Work\n- Run `tt/rbw-tf.TestFixture.three-mode.sh`\n- Diagnose and fix failures\n- May require investigating consecration check regex (`rbf_Foundry.sh:2954`) or consecration format discrepancies\n- Confirm all 12 steps pass: conjure → bind → graft → check → vouch_gate → retrieve → run → cleanup → abjure×3 → check",
               "silks": "three-mode-run-and-green",
               "commit": "7088857"
+            }
+          ]
+        },
+        "₢AtAAR": {
+          "tacks": [
+            {
+              "ts": "260315-0904",
+              "state": "rough",
+              "text": "Update BUS0 specification to document BURE tweak regime variables.\n\n## Character\nSpec writing — document what was built.\n\n## Work\n- Add `BURE_TWEAK_NAME` and `BURE_TWEAK_VALUE` to BUS0-BashUtilitiesSpec.adoc\n- Document the ambient propagation model (env vars flow through zbuto_invoke without BURE kindle)\n- Document the one-tweak-per-invocation constraint\n- Document consumer-side interpretation pattern (RBK checks tweak name, BUK doesn't know domain semantics)",
+              "silks": "bus0-bure-tweak-spec",
+              "commit": "377b25f"
             }
           ]
         }
