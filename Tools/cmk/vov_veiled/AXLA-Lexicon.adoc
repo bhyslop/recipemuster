@@ -84,6 +84,7 @@
 :axd_slash_command:                   <<axd_slash_command,Slash Command>>
 :axd_tabtarget:                       <<axd_tabtarget,Tabtarget>>
 :axd_fact:                            <<axd_fact,Fact>>
+:axd_tally:                           <<axd_tally,Tally>>
 :axd_transient:                       <<axd_transient,Transient>>
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_xml_form:                        <<axd_xml_form,XML Form>>
@@ -140,6 +141,7 @@
 
 // Axial Product-of-Operation Terms (definition-site output voicings)
 :axpof_fact:                          <<axpof_fact,Fact Voicing>>
+:axpot_tally:                         <<axpot_tally,Tally Voicing>>
 
 // Axial Hierarchy Operation Terms (standalone hierarchy markers)
 :axhob_operation:                     <<axhob_operation,Hierarchy Operation>>
@@ -2132,6 +2134,18 @@ Valid on
 At the definition site, the corresponding term is voiced
 {axpof_fact}.
 
+[[axd_tally]]
+{axd_tally}::
+A
+{axd_dimension}
+indicating that an operation output is a fact map — a dynamically-named set of fact files sharing a common infix.
+The infix constant is the contract; surrounding filename segments are runtime-composed keys.
+Consumers check file presence or glob by infix rather than reading a single well-known filename.
+Valid on
+{axhoo_output_of_type}.
+At the definition site, the corresponding term is voiced
+{axpot_tally}.
+
 === Product-of-Operation Terms
 
 [[axpof_fact]]
@@ -2142,6 +2156,16 @@ At detail sites, referenced by
 {axhoo_output_of_type}
 with
 {axd_fact}.
+
+[[axpot_tally]]
+{axpot_tally}::
+Voices a term as a fact map infix — a naming template that produces dynamically-named fact files at runtime.
+The term's anchor names the infix constant; the full filename is composed as `«prefix»«INFIX»«suffix»` where prefix and suffix are runtime values.
+One file per discovered item; consumers check presence via `test -f` on composed filenames.
+At detail sites, referenced by
+{axhoo_output_of_type}
+with
+{axd_tally}.
 
 === New Operation Terms
 
@@ -2300,7 +2324,9 @@ Individual markers per output; no section wrapper needed.
 +
 May carry
 {axd_fact}
-to indicate the output is delivered as a named fact file rather than through stdout or return value.
+to indicate the output is delivered as a named fact file, or
+{axd_tally}
+to indicate a fact map of dynamically-named files sharing a common infix.
 
 [[axhoq_precondition]]
 {axhoq_precondition}::

@@ -85,6 +85,9 @@
 :rbf_fact_gar_root:          <<rbf_fact_gar_root,RBF_FACT_GAR_ROOT>>
 :rbf_fact_ark_stem:          <<rbf_fact_ark_stem,RBF_FACT_ARK_STEM>>
 :rbf_fact_ark_yield:         <<rbf_fact_ark_yield,RBF_FACT_ARK_YIELD>>
+
+// Recipe Bottle Common Fact Maps (dynamic output contract identifiers)
+:rbcc_fact_consec_infix:     <<rbcc_fact_consec_infix,RBCC_FACT_CONSEC_INFIX>>
 // Recipe Bottle Term Google Rubric (per-vessel build definition)
 :rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
 :rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
@@ -1691,6 +1694,18 @@ Ark stem (vessel:consecration).
 //axpof_fact
 {rbf_fact_ark_yield}::
 Per-platform image reference.
+
+==== Consecration Check Fact Map
+
+[[rbcc_fact_consec_infix]]
+//axpot_tally
+{rbcc_fact_consec_infix}::
+Per-vessel-consecration presence marker.
+Filename: `«VESSEL»«INFIX»«CONSECRATION»`.
+One file per discovered
+{rbtga_consecration}
+in
+{rbtgi_repository}.
 
 === Rubric Definitions
 

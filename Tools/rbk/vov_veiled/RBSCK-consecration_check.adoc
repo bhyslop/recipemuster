@@ -61,6 +61,14 @@ health state and platform list per consecration
 
 //axhoo_output_of_type
 {rbtga_consecration}
+
+//axhoo_output_of_type axd_tally
+{rbcc_fact_consec_infix}
+One file per
+{rbtga_consecration}
+per vessel.
+Consumers check presence via `test -f` on composed filenames.
+
 . *Present Per-Vessel Tables*:
 .. For each vessel with consecrations:
 ... {rbbc_show}
@@ -70,8 +78,6 @@ column headers: `Consecration`, `Mode`, `Platforms`, `Health`
 ... For each consecration (newest first):
 .... {rbbc_show}
 consecration timestamp, vessel mode (conjure/bind/graft from mode prefix), platform list (or `single`), health state
-.. {rbbc_show}
-per-consecration fact files in output directory for test observability
 
 //axhos_step
 . *Recommend Next Actions*:
