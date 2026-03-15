@@ -10,16 +10,16 @@ You are preparing a release candidate branch for upstream delivery to OPEN_SOURC
 - Be methodical — show output at each step
 - Stop immediately on errors
 - User maintains control throughout
-- All destructive transforms happen on a candidate branch, never on develop or main
+- All destructive transforms happen on a candidate branch, never on main
 
 ## Step 0: Request permissions
 
 Ask the user for permission to execute all git operations needed (checkout, branch creation, squash merge, file removal, commit). Get explicit approval before proceeding.
 
-## Step 1: Verify develop is clean and pushed
+## Step 1: Verify main is clean and pushed
 
-- Check `git status` on develop branch — must be clean
-- Verify develop is pushed to origin
+- Check `git status` on main branch — must be clean
+- Verify main is pushed to origin
 - If dirty or unpushed, **STOP** and ask user to resolve
 
 ## Step 2: External command audit (LLM task)
@@ -68,7 +68,7 @@ Wait for user acknowledgment.
 
 ## Step 4: Pre-strip qualification
 
-Run full release qualification on develop to verify the complete codebase is healthy before any transforms:
+Run full release qualification on main to verify the complete codebase is healthy before any transforms:
 
 ```
 tt/rbw-QR.QualifyRelease.sh
@@ -78,13 +78,10 @@ If qualification fails, **STOP**. The full codebase must pass before we proceed.
 
 Show the qualification result and wait for user acknowledgment.
 
-## Step 5: Sync main with upstream
+## Step 5: Fetch upstream state
 
-- `git checkout main`
 - `git fetch OPEN_SOURCE_UPSTREAM`
-- `git pull OPEN_SOURCE_UPSTREAM main`
-- If pull fails, **ABORT** and ask user to resolve
-- `git push origin main`
+- If fetch fails, **ABORT** and ask user to verify remote configuration
 
 Show results and wait for user acknowledgment.
 
@@ -100,9 +97,9 @@ Wait for user approval of the branch name.
 
 ## Step 7: Create candidate branch and squash merge
 
-- `git checkout -b candidate-NNN-R main`
-- Show commits that will be included: `git log main..develop --oneline`
-- Execute: `git merge --squash develop`
+- Show commits that will be included: `git log OPEN_SOURCE_UPSTREAM/main..main --oneline`
+- `git checkout -b candidate-NNN-R OPEN_SOURCE_UPSTREAM/main`
+- Execute: `git merge --squash main`
 - Show the merge result summary
 
 Wait for user acknowledgment.
@@ -237,7 +234,7 @@ Run fast qualification only on the stripped candidate tree:
 tt/rbw-Qf.QualifyFast.sh
 ```
 
-This validates that stripping didn't break wiring — tabtargets resolve, colophons match surviving modules, nameplate preflight passes. No shellcheck, no test suite — the full `.complete.` test already passed pre-strip on develop in Step 4, and the stripped tree lacks cloud infrastructure to run integration tests.
+This validates that stripping didn't break wiring — tabtargets resolve, colophons match surviving modules, nameplate preflight passes. No shellcheck, no test suite — the full `.complete.` test already passed pre-strip on main in Step 4, and the stripped tree lacks cloud infrastructure to run integration tests.
 
 **If fast qualification fails, STOP.** This means something in the consumer-visible code depends on stripped content. Report the specific failure to the user — this is a real finding that must be investigated before proceeding.
 
@@ -247,7 +244,7 @@ Show the result and wait for user acknowledgment.
 
 - Stage any remaining changes: `git add -u`
 - Analyze all changes for a consolidated commit message
-- Filter out commits that only touched stripped files
+- Review `git log OPEN_SOURCE_UPSTREAM/main..main --oneline` to summarize what's included
 - Create commit (no attribution footer — this is a release candidate)
 - Show `git log -1 --stat`
 
