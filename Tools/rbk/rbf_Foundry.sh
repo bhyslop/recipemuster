@@ -391,10 +391,61 @@ zrbf_stitch_build_json() {
       || buc_die "Failed to update steps JSON for ${z_id}"
   done
 
+  # === Combined conjure: embed about steps after image steps ===
+  # About steps use _RBGA_* substitutions. Most are added to the substitutions block.
+  # Two require special handling (not known at inscribe time):
+  #   - _RBGA_CONSECRATION: computed at build time by rbgjb01, read from workspace
+  #   - _RBGA_BUILD_ID: Cloud Build job ID, available as built-in $BUILD_ID
+
+  buc_log_args "Assembling about steps for combined conjure"
+  local -r z_about_steps_file="${ZRBF_STITCH_PREFIX}about_steps.json"
+  zrbf_assemble_about_steps "${z_about_steps_file}" "${ZRBF_STITCH_PREFIX}about_"
+
+  # About steps run in vessel dir so .consecration from rbgjb01 is accessible
+  buc_log_args "Adding dir field to about steps for vessel directory ${z_sigil}"
+  local -r z_about_with_dir="${ZRBF_STITCH_PREFIX}about_with_dir.json"
+  jq --arg dir "${z_sigil}" '[.[] | . + {dir: $dir}]' \
+    "${z_about_steps_file}" > "${z_about_with_dir}" \
+    || buc_die "Failed to add dir to about steps"
+
+  # Consecration: $$(cat .consecration) → CB de-escapes $$ to $, bash reads workspace file
+  # Build ID: $BUILD_ID → CB built-in substitution (same job = conjure job ID)
+  buc_log_args "Post-processing about steps: consecration from workspace, build ID from CB built-in"
+  local -r z_about_processed="${ZRBF_STITCH_PREFIX}about_processed.json"
+  sed 's/\${_RBGA_CONSECRATION}/$$(cat .consecration)/g; s/\${_RBGA_BUILD_ID:-}/$BUILD_ID/g' \
+    "${z_about_with_dir}" > "${z_about_processed}" \
+    || buc_die "Failed to post-process about steps for conjure"
+
+  buc_log_args "Combining image steps and about steps"
+  local -r z_combined_steps_file="${ZRBF_STITCH_PREFIX}combined_steps.json"
+  jq -s '.[0] + .[1]' "${z_accumulator_file}" "${z_about_processed}" \
+    > "${z_combined_steps_file}" || buc_die "Failed to combine image and about steps"
+  z_accumulator_file="${z_combined_steps_file}"
+
+  # Fallback for -diags extraction failure; -diags is the primary path for conjure
+  buc_log_args "Reading Dockerfile content for _RBGA_DOCKERFILE_CONTENT substitution"
+  local z_stitch_dockerfile_content=""
+  local -r z_stitch_df_max_bytes=4000
+  if test -f "${RBRV_CONJURE_DOCKERFILE:-}"; then
+    local -r z_stitch_df_size_file="${ZRBF_STITCH_PREFIX}df_size.txt"
+    wc -c < "${RBRV_CONJURE_DOCKERFILE}" > "${z_stitch_df_size_file}" \
+      || buc_die "Failed to measure Dockerfile size"
+    local z_stitch_df_size=""
+    z_stitch_df_size=$(<"${z_stitch_df_size_file}")
+    z_stitch_df_size="${z_stitch_df_size// /}"
+    if test "${z_stitch_df_size}" -le "${z_stitch_df_max_bytes}"; then
+      z_stitch_dockerfile_content=$(<"${RBRV_CONJURE_DOCKERFILE}")
+    else
+      buc_warn "Dockerfile exceeds 4KB substitution limit (${z_stitch_df_size} bytes) — recipe.txt via -diags only"
+    fi
+  fi
+
   # Compose complete trigger-compatible Build resource
-  # Steps from accumulator, substitutions from module state, options/timeout from RBRR
+  # Steps from accumulator (image + about), substitutions from module state,
+  # options/timeout from RBRR
   # _RBGY_RUBRIC_REPO, _RBGY_RUBRIC_COMMIT, _RBGY_INSCRIBE_TIMESTAMP, _RBGY_GIT_COMMIT
   # are placeholders in the stitched output; inscribe fills them in the rubric repo clone
+  # _RBGA_GIT_COMMIT, _RBGA_INSCRIBE_TIMESTAMP use the same placeholders
   buc_log_args "Composing complete trigger-compatible Build resource"
   local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
 
@@ -442,6 +493,10 @@ zrbf_stitch_build_json() {
     --arg zjq_inscribe_ts      "__INSCRIBE_TIMESTAMP__" \
     --arg zjq_pool   "${RBRR_GCB_WORKER_POOL}" \
     --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_rbga_gar_host       "${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}" \
+    --arg zjq_rbga_gar_path       "${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}" \
+    --arg zjq_rbga_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
+    --arg zjq_rbga_dockerfile     "${z_stitch_dockerfile_content}" \
     '{
       steps: $zjq_steps[0],
       images: $zjq_images[0],
@@ -461,7 +516,21 @@ zrbf_stitch_build_json() {
         _RBGY_ARK_SUFFIX_DIAGS:    $zjq_ark_suffix_diags,
         _RBGY_RUBRIC_REPO:         $zjq_rubric_repo,
         _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
-        _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts
+        _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts,
+        _RBGA_GAR_HOST:            $zjq_rbga_gar_host,
+        _RBGA_GAR_PATH:            $zjq_rbga_gar_path,
+        _RBGA_VESSEL:              $zjq_moniker,
+        _RBGA_VESSEL_MODE:         "conjure",
+        _RBGA_GIT_COMMIT:          $zjq_git_commit,
+        _RBGA_GIT_BRANCH:          $zjq_git_branch,
+        _RBGA_GIT_REPO:            $zjq_git_repo,
+        _RBGA_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts,
+        _RBGA_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
+        _RBGA_ARK_SUFFIX_ABOUT:    $zjq_rbga_ark_suffix_about,
+        _RBGA_ARK_SUFFIX_DIAGS:    $zjq_ark_suffix_diags,
+        _RBGA_BIND_SOURCE:         "",
+        _RBGA_GRAFT_SOURCE:        "",
+        _RBGA_DOCKERFILE_CONTENT:  $zjq_rbga_dockerfile
       },
       options: {
         requestedVerifyOption: "VERIFIED",
@@ -631,12 +700,10 @@ rbf_create() {
     || buc_die "Failed to read consecration from output"
   test -n "${z_consecration}" || buc_die "Empty consecration in output"
 
-  # About: conjure and graft need standalone about; bind combined job already produced -about
+  # About: graft needs standalone about; conjure and bind combined jobs already produced -about
   case "${z_mode}" in
     conjure)
-      local z_build_id=""
-      z_build_id=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}") || z_build_id=""
-      rbf_about "${z_vessel_dir}" "${z_consecration}" "${z_build_id}"
+      buc_info "About produced by combined conjure job — skipping standalone about"
       ;;
     graft)
       rbf_about "${z_vessel_dir}" "${z_consecration}" ""
@@ -1645,6 +1712,8 @@ rbf_rubric_inscribe() {
       '.substitutions._RBGY_RUBRIC_REPO = $repo
        | .substitutions._RBGY_GIT_COMMIT = $git_commit
        | .substitutions._RBGY_INSCRIBE_TIMESTAMP = $inscribe_ts
+       | .substitutions._RBGA_GIT_COMMIT = $git_commit
+       | .substitutions._RBGA_INSCRIBE_TIMESTAMP = $inscribe_ts
        | .images = [.images[] | gsub("__INSCRIBE_TIMESTAMP__"; $inscribe_ts)]' \
       "${z_rubric_json}" > "${z_filled_file}" \
       || buc_die "Failed to fill pre-commit placeholders for ${z_sigil}"
