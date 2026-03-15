@@ -64,15 +64,17 @@ for IDX in "${!PLATFORMS[@]}"; do
   SBOM_LABEL="${SUFFIX#-}"
   SBOM_FILE="sbom-${SBOM_LABEL}.json"
 
-  # Determine scan target based on mode and platform count
-  if test "${PLATFORM_COUNT}" = "1"; then
-    # Single platform: scan main tag directly
-    SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}"
-  elif test "${_RBGA_VESSEL_MODE}" = "conjure"; then
-    # Conjure has per-platform tags
-    SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}${SUFFIX}"
+  # Determine scan target based on mode and platform count.
+  # Bind/graft always use @digest pinning: OCI indexes may contain attestation
+  # manifests (unknown/unknown platform) that cause syft to fail on auto-selection.
+  if test "${_RBGA_VESSEL_MODE}" = "conjure"; then
+    if test "${PLATFORM_COUNT}" = "1"; then
+      SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}"
+    else
+      SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}${SUFFIX}"
+    fi
   else
-    # Bind/graft multi-platform: use @digest from manifest list
+    # Bind/graft: always pin to per-platform digest
     DIGEST="${DIGEST_MAP[${SUFFIX}]:-}"
     test -n "${DIGEST}" || { echo "No digest found for suffix ${SUFFIX}" >&2; exit 1; }
     SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}@${DIGEST}"

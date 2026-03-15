@@ -53,12 +53,16 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-diags`
 .. Image: {rbrg_docker_image_ref} (runs syft via `docker run` with pinned {rbrg_syft_image_ref})
 .. Fetch OAuth token via metadata server (syft authenticates as {rbtr_mason})
 .. For each platform in `«PLATFORMS»`:
-... If single-platform (no manifest list): {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image`
-... If multi-platform with per-platform tags (conjure): {rbbc_call}
+... Conjure with per-platform tags (multi-platform): {rbbc_call}
 `syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image-«PLATFORM_SUFFIX»`
-... If multi-platform without per-platform tags (bind): {rbbc_call}
+... Conjure single-platform (single manifest, not an index): {rbbc_call}
+`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image`
+... Bind/graft (always via per-platform digest): {rbbc_call}
 `syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image@«PLATFORM_DIGEST»` using per-platform digest from step 1's manifest list
++
+NOTE: Bind and graft images always use `@«PLATFORM_DIGEST»` pinning, even for single-platform images.
+Grafted images may be stored as OCI image indexes containing attestation manifests (see step 1 filtering); scanning the main tag would cause syft to auto-select the Cloud Build worker's native platform (amd64) from the index, failing when the image contains only a different architecture.
+Digest pinning bypasses index platform resolution entirely.
 ... {rbbc_store}
 per-platform SBOM to `/workspace/sbom-«LABEL».json` (e.g., `sbom-amd64.json`; LABEL = architecture + variant without separators)
 .. NOTE: Syft's `registry:` transport reads directly from the OCI registry — no docker CLI or local pull required.

@@ -52,7 +52,8 @@ case "${MEDIA_TYPE}" in
 esac
 
 if [ "${IS_INDEX}" = "true" ]; then
-  echo "Multi-platform manifest detected"
+  TOTAL_MANIFESTS=$(printf '%s' "${MANIFEST}" | jq '[.manifests[]] | length')
+  echo "Multi-platform manifest detected (${TOTAL_MANIFESTS} entries in index)"
 
   # Extract platform, digest, and suffix from manifest list.
   # Filter out attestation manifests: BuildKit stores SLSA provenance and SBOM
