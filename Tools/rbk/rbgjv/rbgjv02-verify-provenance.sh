@@ -183,7 +183,7 @@ with open('/workspace/vouch_summary.json','w') as out:
       "${REGISTRY_BASE}/manifests/${IMAGE_TAG}") \
       || { echo "FATAL: HEAD request failed for ${IMAGE_TAG}" >&2; exit 1; }
 
-    ACTUAL_DIGEST=$(printf '%s' "${HEADERS}" | grep -i "docker-content-digest" | sed 's/.*: *//' | tr -d '\r\n')
+    ACTUAL_DIGEST=$(printf '%s' "${HEADERS}" | grep -i "docker-content-digest" | sed 's/^[^:]*: *//' | tr -d '\r\n')
     test -n "${ACTUAL_DIGEST}" || { echo "FATAL: Docker-Content-Digest header not found" >&2; exit 1; }
     echo "Actual digest: ${ACTUAL_DIGEST}"
 
