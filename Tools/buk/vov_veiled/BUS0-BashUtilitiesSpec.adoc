@@ -125,6 +125,8 @@
 :bure_countdown:                   <<bure_countdown,BURE_COUNTDOWN>>
 :bure_verbose:                     <<bure_verbose,BURE_VERBOSE>>
 :bure_color:                       <<bure_color,BURE_COLOR>>
+:bure_tweak_name:                  <<bure_tweak_name,BURE_TWEAK_NAME>>
+:bure_tweak_value:                 <<bure_tweak_value,BURE_TWEAK_VALUE>>
 
 // Invocation Tier
 :busit_unit:                      <<busit_unit,Unit Tier>>
@@ -835,5 +837,36 @@ Verbosity level controlling diagnostic output.
 Color output policy.
 Input as auto/0/1; resolved to 0 or 1 during dispatch.
 Respects NO_COLOR environment convention.
+
+==== Tweak Mechanism
+
+The tweak mechanism provides a single caller-supplied name/value override that flows through invocation without BUK interpreting its semantics.
+BUK enrolls, validates, and propagates the pair; consuming kits (e.g., RBK) check the name and act on the value.
+
+Constraint: one tweak per invocation.
+The caller sets at most one
+{bure_tweak_name}/{bure_tweak_value}
+pair in the environment before invoking a tabtarget.
+The pair is ambient — it propagates through `zbuto_invoke` like all BURE variables, without requiring re-kindle in the invoked command.
+
+[[bure_tweak_name]]
+//axl_voices axrg_variable axtu_string axd_optional
+{bure_tweak_name}::
+Consumer-interpreted tweak identifier.
+The name selects which behavioral override the consuming kit applies.
+BUK validates length (0–64 characters) but assigns no meaning to the value.
++
+Example: `graft_image` — tells RBK to substitute the graft source image.
+
+[[bure_tweak_value]]
+//axl_voices axrg_variable axtu_string axd_optional
+{bure_tweak_value}::
+Consumer-interpreted tweak payload.
+The value is opaque to BUK; its format and interpretation are defined by whatever kit checks
+{bure_tweak_name}.
+BUK validates length (0–256 characters) but assigns no meaning to the value.
++
+Either variable may be set independently — BUK does not enforce pairing.
+Consumer kits that require both must enforce that themselves.
 
 include::BUSD-DispatchRuntime.adoc[]
