@@ -861,15 +861,27 @@ rbf_build() {
   echo "${z_found_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
     || buc_die "Failed to write consecration to output"
 
-  # Write primary image reference fact file
-  local z_first_plat="${RBRV_CONJURE_PLATFORMS%%,*}"
-  z_first_plat="${z_first_plat%% *}"
-  local z_first_suffix="${z_first_plat#linux/}"
-  z_first_suffix="${z_first_suffix//\//}"
-  local z_primary_image_tag="${z_found_consecration}${RBGC_ARK_SUFFIX_IMAGE}-${z_first_suffix}"
-  local z_primary_image_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${RBRV_SIGIL}:${z_primary_image_tag}"
-  echo "${z_primary_image_ref}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}" \
-    || buc_die "Failed to write image ref fact file"
+  # Write GAR root fact file (registry prefix for composing full refs)
+  echo "${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
+    || buc_die "Failed to write GAR root fact file"
+
+  # Write ark stem fact file (sigil:consecration base for composing artifact refs)
+  echo "${RBRV_SIGIL}:${z_found_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
+    || buc_die "Failed to write ark stem fact file"
+
+  # Write per-platform yield fact files
+  local z_plat=""
+  local z_plat_suffix=""
+  local z_yield_tag=""
+  for z_plat in ${RBRV_CONJURE_PLATFORMS//,/ }; do
+    z_plat_suffix="${z_plat#linux/}"
+    z_plat_suffix="${z_plat_suffix//\//}"
+    z_yield_tag="${z_found_consecration}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}"
+    echo "${RBRV_SIGIL}:${z_yield_tag}" \
+      > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}" \
+      || buc_die "Failed to write yield fact file for ${z_plat}"
+    buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}"
+  done
 
   # Write build ID fact file (dispatched build ID for cross-check with vouch provenance)
   echo "${z_build_id}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}" \
@@ -877,7 +889,8 @@ rbf_build() {
 
   buc_info "Output: ${ZRBF_OUTPUT_VESSEL_DIR}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}"
-  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}"
+  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}"
+  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}"
 
   buc_success "Vessel image built: ${RBRV_SIGIL}"
@@ -1089,6 +1102,20 @@ rbf_mirror() {
     || buc_die "Failed to write vessel dir to output"
   echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
     || buc_die "Failed to write consecration to output"
+
+  # Write GAR root fact file
+  echo "${z_gar_base}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
+    || buc_die "Failed to write GAR root fact file"
+
+  # Write ark stem fact file
+  echo "${RBRV_SIGIL}:${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
+    || buc_die "Failed to write ark stem fact file"
+
+  # Write yield fact file (single-platform bind image)
+  local -r z_bind_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  echo "${RBRV_SIGIL}:${z_bind_image_tag}" \
+    > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}" \
+    || buc_die "Failed to write yield fact file"
 
   # Submit combined Cloud Build (skopeo image copy + about steps)
   zrbf_mirror_submit "${z_consecration}" "${z_token}"
@@ -1361,6 +1388,19 @@ rbf_graft() {
     || buc_die "Failed to write vessel dir to output"
   echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
     || buc_die "Failed to write consecration to output"
+
+  # Write GAR root fact file
+  echo "${z_gar_base}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
+    || buc_die "Failed to write GAR root fact file"
+
+  # Write ark stem fact file
+  echo "${RBRV_SIGIL}:${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
+    || buc_die "Failed to write ark stem fact file"
+
+  # Write yield fact file (single-platform graft image)
+  echo "${RBRV_SIGIL}:${z_image_tag}" \
+    > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}" \
+    || buc_die "Failed to write yield fact file"
 
   # Summary
   echo ""

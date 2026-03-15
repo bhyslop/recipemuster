@@ -511,16 +511,16 @@ Example:
 [source,bash]
 ----
 # Producer (in command implementation):
-echo "${z_image_ref}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_IMAGE_REF}"
+echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}"
 
 # Consumer (in test case, after buto_tt_expect_ok):
-z_image_ref=$(<"${ZBUTO_BURV_OUTPUT}/current/${RBF_FACT_IMAGE_REF}")
+z_consecration=$(<"${ZBUTO_BURV_OUTPUT}/current/${RBF_FACT_CONSECRATION}")
 ----
 +
 The `current/` path segment maps
 {burd_output_dir}
 inside the BURV isolation tree.
-Fact-file constants are defined as `readonly` in kindle (e.g., `RBF_FACT_IMAGE_REF`).
+Fact-file constants are defined as `readonly` in kindle (e.g., `RBF_FACT_CONSECRATION`).
 
 == Regime Configuration
 
