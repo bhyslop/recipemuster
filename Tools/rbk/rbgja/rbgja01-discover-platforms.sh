@@ -54,16 +54,27 @@ esac
 if [ "${IS_INDEX}" = "true" ]; then
   echo "Multi-platform manifest detected"
 
-  # Extract platform, digest, and suffix from manifest list
+  # Extract platform, digest, and suffix from manifest list.
+  # Filter out attestation manifests: BuildKit stores SLSA provenance and SBOM
+  # attestations as manifest entries with platform unknown/unknown to prevent
+  # runtimes from pulling them as images.
+  # See: https://docs.docker.com/build/metadata/attestations/attestation-storage/
   # Output: tab-separated lines: os/arch[/variant]\tdigest\t-arch[variant]
   printf '%s' "${MANIFEST}" | jq -r '
     .manifests[] | select(.platform) |
+    select(.platform.os != "unknown" or .platform.architecture != "unknown") |
     (.platform.os + "/" + .platform.architecture +
       (if .platform.variant then "/" + .platform.variant else "" end)) +
     "\t" + .digest +
     "\t-" + (.platform.architecture +
       (if .platform.variant then .platform.variant else "" end))
   ' > platform_entries.txt
+
+  # Report filtered attestation count for diagnostics
+  ATTESTATION_COUNT=$(printf '%s' "${MANIFEST}" | jq '[.manifests[] | select(.platform) | select(.platform.os == "unknown" and .platform.architecture == "unknown")] | length')
+  if [ "${ATTESTATION_COUNT}" -gt 0 ]; then
+    echo "Filtered ${ATTESTATION_COUNT} attestation manifest(s) (platform unknown/unknown)"
+  fi
 
   PLATFORMS=""
   SUFFIXES=""
@@ -78,6 +89,8 @@ if [ "${IS_INDEX}" = "true" ]; then
       SUFFIXES="${SUFFIX}"
     fi
   done < platform_entries.txt
+
+  test -n "${PLATFORMS}" || { echo "No runnable platforms found after filtering attestation manifests" >&2; exit 1; }
 
   echo "${PLATFORMS}" > platforms.txt
   echo "${SUFFIXES}" > platform_suffixes.txt

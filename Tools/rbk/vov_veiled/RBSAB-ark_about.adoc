@@ -25,8 +25,15 @@ See <<rbtgo_about_substitutions>> below for the full variable reference.
 .. {rbbc_call}
 Docker Registry API: GET manifests for `«CONSECRATION»-image` with OCI media type accept headers
 .. If response is an OCI image index or Docker manifest list:
+... Filter out attestation manifests before extracting platforms.
+OCI image indexes may contain non-runnable attestation manifests (SLSA provenance, SBOMs) alongside real platform manifests.
+Per the BuildKit attestation storage specification, these attestation manifests are deliberately assigned platform `unknown/unknown` (`"architecture": "unknown", "os": "unknown"`) to prevent container runtimes from pulling them as images.
+They carry media types such as `application/vnd.in-toto+json` and are annotated with `"vnd.docker.reference.type": "attestation-manifest"`.
+Exclude any manifest entry where _both_ `platform.os` and `platform.architecture` are `unknown`.
++
+See: https://docs.docker.com/build/metadata/attestations/attestation-storage/[Docker Attestation Storage], https://github.com/moby/buildkit/blob/master/docs/attestations/attestation-storage.md[BuildKit Attestation Storage spec].
 ... {rbbc_store}
-`«PLATFORMS»` as list of platform descriptors from the manifest list
+`«PLATFORMS»` as list of platform descriptors from the remaining (non-attestation) manifest entries
 .. If response is a single OCI/Docker manifest (typical for bind and graft):
 ... {rbbc_call}
 GET config blob via digest from manifest's `config.digest` field
