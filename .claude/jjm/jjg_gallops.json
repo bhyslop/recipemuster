@@ -2403,9 +2403,10 @@
         "₢AtAAO",
         "₢AtAAP",
         "₢AtAAQ",
-        "₢AtAAR"
+        "₢AtAAR",
+        "₢AtAAS"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2890,6 +2891,17 @@
               "text": "Update BUS0 specification to document BURE tweak regime variables.\n\n## Character\nSpec writing — document what was built.\n\n## Work\n- Add `BURE_TWEAK_NAME` and `BURE_TWEAK_VALUE` to BUS0-BashUtilitiesSpec.adoc\n- Document the ambient propagation model (env vars flow through zbuto_invoke without BURE kindle)\n- Document the one-tweak-per-invocation constraint\n- Document consumer-side interpretation pattern (RBK checks tweak name, BUK doesn't know domain semantics)",
               "silks": "bus0-bure-tweak-spec",
               "commit": "377b25f"
+            }
+          ]
+        },
+        "₢AtAAS": {
+          "tacks": [
+            {
+              "ts": "260315-0904",
+              "state": "rough",
+              "text": "Update RBS0 specification to document fact file vocabulary and create command outputs.\n\n## Character\nSpec writing — document what was built.\n\n## Work\n- Document fact file pattern: well-known filenames in BURD_OUTPUT_DIR emitted by tabtargets for test observability\n- Document `RBF_FACT_CONSECRATION`, `RBF_FACT_IMAGE_REF`, `RBF_FACT_BUILD_ID`, and any new fact files added in create-fact-file-enrichment pace\n- Document per-mode outputs from `rbf_create` (vessel, consecration, image components)\n- Document consecration check fact files (`{sigil}_fact_consec_{consecration}`)\n- Cross-reference RBSCK-consecration_check.adoc and relevant ark specs",
+              "silks": "rbs0-fact-file-vocabulary",
+              "commit": "68b198b"
             }
           ]
         }
