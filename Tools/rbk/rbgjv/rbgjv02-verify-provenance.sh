@@ -187,10 +187,13 @@ with open('/workspace/vouch_summary.json','w') as out:
     test -n "${ACTUAL_DIGEST}" || { echo "FATAL: Docker-Content-Digest header not found" >&2; exit 1; }
     echo "Actual digest: ${ACTUAL_DIGEST}"
 
-    # Extract pinned digest from _RBGV_BIND_SOURCE (the part after @)
-    PINNED_DIGEST="${_RBGV_BIND_SOURCE#*@}"
+    # Extract pinned digest from _RBGV_BIND_SOURCE (the part after @).
+    # Cloud Build substitution cannot handle ${VAR#pattern} expansion, so we
+    # capture the substituted value into a local variable first.
+    BIND_SOURCE="${_RBGV_BIND_SOURCE}"
+    PINNED_DIGEST="${BIND_SOURCE#*@}"
     test -n "${PINNED_DIGEST}" || { echo "FATAL: no digest in _RBGV_BIND_SOURCE" >&2; exit 1; }
-    test "${PINNED_DIGEST}" != "${_RBGV_BIND_SOURCE}" || { echo "FATAL: no @ delimiter in _RBGV_BIND_SOURCE" >&2; exit 1; }
+    test "${PINNED_DIGEST}" != "${BIND_SOURCE}" || { echo "FATAL: no @ delimiter in _RBGV_BIND_SOURCE" >&2; exit 1; }
     echo "Pinned digest: ${PINNED_DIGEST}"
 
     # Compare
