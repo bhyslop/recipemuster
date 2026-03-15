@@ -59,6 +59,26 @@ beyond the current Podman VM approach.
 _Reference_: RBSPV-PodmanVmSupplyChain.adoc (current VM supply chain);
 RBSBS, RBSBR, RBSBL (bottle lifecycle specs).
 
+**Hairpin peer access between bottle services.**
+Bottled containers cannot currently reach each other's published entry ports.
+Each bottle is isolated behind its own sentry on a separate enclave network.
+The traffic path is feasible: Bottle A egresses through Sentry A's transit
+bridge, the host kernel routes to Sentry B's transit bridge, and Sentry B's
+existing entry path (socat + RBM-INGRESS) accepts the connection unchanged.
+The security model is preserved — the sentry remains the sole enforcement
+point, with peer access as a new category of allowed destination alongside
+entry (inbound) and uplink (outbound internet).  Nameplate model: two new
+variables (`RBRN_PEER_ACCESS_MODE` disabled|allowlist, gated
+`RBRN_PEER_ALLOWED_MONIKERS` as comma-separated moniker list).  No global
+mode — peer access must always be explicit.  Implementation touches three
+areas: nameplate kindle/validate/render, a peer-access iptables step in
+security_config, and host-side peer IP discovery via container inspection.
+Audit gains a cross-instance check: each named peer must exist and have
+entry enabled.
+_Trigger_: when a use case requires bottle-to-bottle communication (e.g.,
+microservice composition, service mesh patterns).
+_Reference_: Heat ₣AU paddock (design conversation capture).
+
 ===== Build Pipeline Security
 
 Items below are evaluated and consciously deferred.  Full analysis with
