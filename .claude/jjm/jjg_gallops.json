@@ -2914,6 +2914,13 @@
         "₢AtAAR": {
           "tacks": [
             {
+              "ts": "260315-0936",
+              "state": "complete",
+              "text": "Update BUS0 specification to document BURE tweak regime variables.\n\n## Character\nSpec writing — document what was built.\n\n## Work\n- Add `BURE_TWEAK_NAME` and `BURE_TWEAK_VALUE` to BUS0-BashUtilitiesSpec.adoc\n- Document the ambient propagation model (env vars flow through zbuto_invoke without BURE kindle)\n- Document the one-tweak-per-invocation constraint\n- Document consumer-side interpretation pattern (RBK checks tweak name, BUK doesn't know domain semantics)",
+              "silks": "bus0-bure-tweak-spec",
+              "commit": "d44b7ae"
+            },
+            {
               "ts": "260315-0904",
               "state": "rough",
               "text": "Update BUS0 specification to document BURE tweak regime variables.\n\n## Character\nSpec writing — document what was built.\n\n## Work\n- Add `BURE_TWEAK_NAME` and `BURE_TWEAK_VALUE` to BUS0-BashUtilitiesSpec.adoc\n- Document the ambient propagation model (env vars flow through zbuto_invoke without BURE kindle)\n- Document the one-tweak-per-invocation constraint\n- Document consumer-side interpretation pattern (RBK checks tweak name, BUK doesn't know domain semantics)",
