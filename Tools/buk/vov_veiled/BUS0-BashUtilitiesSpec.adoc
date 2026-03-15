@@ -361,9 +361,9 @@ Registered with `butr_fixture_enroll(name, init_fn, setup_fn)`.
 A case can belong to multiple suites.
 Suites classify by dependency tier (what environment must exist), not by test methodology.
 A suite is a membership tag.
-Suites enable sweep dispatch: run a cross-cutting subset of cases grouped by their owning fixtures.
+Suites enable suite dispatch: run a cross-cutting subset of cases grouped by their owning fixtures.
 Suite context is set with `butr_suite_enroll(SUITE1 [SUITE2...])` before case enrollments.
-Queried by `butd_run_sweep(suite_name)`.
+Queried by `butd_run_suite(suite_name)`.
 
 Standard suite constants (defined as `readonly` in testbench kindle):
 
@@ -376,7 +376,7 @@ Dispatch entry points:
 * `butd_run_all()` — all fixtures, all cases
 * `butd_run_fixture(name [case...])` — single fixture, optional case filter
 * `butd_run_one(fn)` — single case with its fixture setup
-* `butd_run_sweep(suite)` — cross-cutting suite, grouped by fixture
+* `butd_run_suite(suite)` — cross-cutting suite, grouped by fixture
 
 === Colophon Conventions
 

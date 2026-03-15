@@ -33,6 +33,7 @@ source "${BURD_BUK_DIR}/butd_dispatch.sh"
 source "${BURD_BUK_DIR}/buz_zipper.sh"
 source "${RBTB_SCRIPT_DIR}/rbz_zipper.sh"
 source "${BURD_BUK_DIR}/buv_validation.sh"
+source "${BURD_BUK_DIR}/bure_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbrn_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbrr_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbdc_DerivedConstants.sh"
@@ -68,6 +69,7 @@ source "${RBTB_BUTS_DIR}/butcev_ListTypes.sh"
 source "${RBTB_BUTS_DIR}/butcev_GateEnroll.sh"
 source "${RBTB_BUTS_DIR}/butcev_EnforceReport.sh"
 source "${RBTB_RBTS_DIR}/rbtcrv_RegimeValidation.sh"
+source "${RBTB_RBTS_DIR}/rbtcbe_BureEnvironment.sh"
 
 buc_context "${0##*/}"
 zbuv_kindle
@@ -411,6 +413,16 @@ rbtb_kindle() {
   butr_case_enroll "regime-validation" rbtcrv_rbrv_all_vessels_tcase
   butr_case_enroll "regime-validation" rbtcrv_rbrn_all_nameplates_tcase
 
+  # bure-tweak fixture
+  butr_fixture_enroll "bure-tweak" "" "zrbtb_noop_baste"
+  butr_case_enroll "bure-tweak" rbtcbe_tweak_empty_tcase
+  butr_case_enroll "bure-tweak" rbtcbe_tweak_both_set_tcase
+  butr_case_enroll "bure-tweak" rbtcbe_tweak_name_only_tcase
+  butr_case_enroll "bure-tweak" rbtcbe_tweak_value_only_tcase
+  butr_case_enroll "bure-tweak" rbtcbe_tweak_name_too_long_tcase
+  butr_case_enroll "bure-tweak" rbtcbe_tweak_value_too_long_tcase
+  butr_case_enroll "bure-tweak" rbtcbe_unexpected_var_tcase
+
 }
 
 ######################################################################
@@ -436,7 +448,7 @@ rbtb_route() {
     rbw-ts)
       local -r z_suite="${BURD_TOKEN_3:-}"
       test -n "${z_suite}" || buc_die "rbw-ts: suite imprint required (fast, service, complete)"
-      butd_run_sweep "${z_suite}"
+      butd_run_suite "${z_suite}"
       ;;
     rbw-to)
       if test -z "${1:-}"; then

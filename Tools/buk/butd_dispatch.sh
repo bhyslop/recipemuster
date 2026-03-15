@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# BUK Test Dispatch - fixture boundary runner, sweep dispatch, and reporting
+# BUK Test Dispatch - fixture boundary runner, suite dispatch, and reporting
 
 set -euo pipefail
 
@@ -248,15 +248,15 @@ butd_run_all() {
 }
 
 ######################################################################
-# Sweep dispatch — cross-cutting suite runner
+# Suite dispatch — cross-cutting suite runner
 
-# butd_run_sweep() - Run all cases in a sweep suite, grouped by owning fixture
+# butd_run_suite() - Run all cases in a suite, grouped by owning fixture
 # Args: suite_name
-butd_run_sweep() {
+butd_run_suite() {
   local -r z_suite="${1:-}"
 
   if test -z "${z_suite}"; then
-    buto_info "Available sweep suites:"
+    buto_info "Available suites:"
     local z_suites_temp
     z_suites_temp=$(mktemp)
     butr_suites_recite > "${z_suites_temp}"
@@ -277,7 +277,7 @@ butd_run_sweep() {
     return 0
   fi
 
-  buto_section "Sweep: ${z_suite}"
+  buto_section "Suite: ${z_suite}"
 
   # Load all cases in this suite (BCG: load-then-iterate)
   local z_all_cases=()
@@ -291,7 +291,7 @@ butd_run_sweep() {
   done < "${z_cases_temp}"
   rm -f "${z_cases_temp}"
 
-  test "${#z_all_cases[@]}" -gt 0 || buto_fatal "No cases in sweep suite '${z_suite}'"
+  test "${#z_all_cases[@]}" -gt 0 || buto_fatal "No cases in suite '${z_suite}'"
 
   # Build ordered unique fixture list
   local z_fixtures=()
@@ -337,15 +337,15 @@ butd_run_sweep() {
       z_total_skipped=$((z_total_skipped + 1))
     else
       z_total_failed=$((z_total_failed + 1))
-      buc_warn "Fixture '${z_fix_name}' failed in sweep with status ${z_status}"
+      buc_warn "Fixture '${z_fix_name}' failed in suite with status ${z_status}"
     fi
   done
 
   local -r z_total_ran=$((z_total_fixtures + z_total_failed))
-  test "${z_total_ran}" -gt 0 || buto_fatal "No fixtures ran in sweep '${z_suite}' (${z_total_skipped} skipped)"
+  test "${z_total_ran}" -gt 0 || buto_fatal "No fixtures ran in suite '${z_suite}' (${z_total_skipped} skipped)"
 
   if test "${z_total_failed}" -gt 0; then
-    echo "${ZBUTO_RED}Sweep '${z_suite}' failed: ${z_total_fixtures} passed, ${z_total_failed} failed, ${z_total_skipped} skipped${ZBUTO_RESET}" >&2
+    echo "${ZBUTO_RED}Suite '${z_suite}' failed: ${z_total_fixtures} passed, ${z_total_failed} failed, ${z_total_skipped} skipped${ZBUTO_RESET}" >&2
     exit 1
   fi
 
@@ -353,7 +353,7 @@ butd_run_sweep() {
   test "${z_total_skipped}" -eq 0 || z_skip_note=", ${z_total_skipped} skipped"
 
   local -r z_case_count="${#z_all_cases[@]}"
-  echo "${ZBUTO_GREEN}Sweep '${z_suite}' passed (${z_total_fixtures} fixture$(test "${z_total_fixtures}" -eq 1 || echo 's'), ${z_case_count} case$(test "${z_case_count}" -eq 1 || echo 's')${z_skip_note})${ZBUTO_RESET}" >&2
+  echo "${ZBUTO_GREEN}Suite '${z_suite}' passed (${z_total_fixtures} fixture$(test "${z_total_fixtures}" -eq 1 || echo 's'), ${z_case_count} case$(test "${z_case_count}" -eq 1 || echo 's')${z_skip_note})${ZBUTO_RESET}" >&2
 }
 
 # eof

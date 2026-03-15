@@ -1678,7 +1678,7 @@ Parent Shell (runner layer)
 | Baste function | `z«tb»_«name»_baste` | `zrbtb_ark_baste` |
 | Case function | `«tc»_«name»_tcase` | `rbtckk_false_tcase` |
 | Fixture enrollment | `butr_fixture_enroll` | — |
-| Suite enrollment | `butr_suite_enroll` | Sets sweep suite context |
+| Suite enrollment | `butr_suite_enroll` | Sets suite context |
 | Case enrollment | `butr_case_enroll` | — |
 
 ### Compliance Checking

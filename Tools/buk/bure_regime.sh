@@ -38,6 +38,9 @@ zbure_kindle() {
   # Exception: ambient regime defaults for optional behavioral overrides.
   BURE_VERBOSE="${BURE_VERBOSE:-0}"
   BURE_COLOR="${BURE_COLOR:-auto}"
+  BURE_COUNTDOWN="${BURE_COUNTDOWN:-}"
+  BURE_TWEAK_NAME="${BURE_TWEAK_NAME:-}"
+  BURE_TWEAK_VALUE="${BURE_TWEAK_VALUE:-}"
 
   # Enroll all BURE variables — single source of truth for validation and rendering
 
@@ -47,6 +50,10 @@ zbure_kindle() {
   buv_string_enroll  BURE_COUNTDOWN   0  4  "Countdown override (skip to disable)"
   buv_enum_enroll    BURE_VERBOSE     "Verbosity level" 0 1 2 3
   buv_enum_enroll    BURE_COLOR       "Color mode" auto 0 1
+
+  buv_group_enroll "Tweak Mechanism"
+  buv_string_enroll  BURE_TWEAK_NAME  0  64   "Tweak name (consumer-interpreted)"
+  buv_string_enroll  BURE_TWEAK_VALUE 0  256  "Tweak value (consumer-interpreted)"
 
   # Guard against unexpected BURE_ variables not in enrollment
   buv_scope_sentinel BURE BURE_

@@ -42,7 +42,7 @@ butr_kindle() {
   z_butr_case_fn_roll=()
   z_butr_case_fixture_roll=()
 
-  # Sweep suite state
+  # Suite state
   z_butr_suite_context_set=0
   z_butr_current_suites=()
   z_butr_case_suites_roll=()
@@ -97,9 +97,9 @@ butr_fixture_enroll() {
 }
 
 ######################################################################
-# Public sweep suite enrollment
+# Public suite enrollment
 
-# butr_suite_enroll() - Set current sweep suite context for subsequent case enrollments
+# butr_suite_enroll() - Set current suite context for subsequent case enrollments
 # Args: SUITE1 [SUITE2...]
 # Replacement (not additive) — overwrites previous suite context
 butr_suite_enroll() {
@@ -129,7 +129,7 @@ butr_suite_enroll() {
 # Public case enrollment
 
 # butr_case_enroll() - Register a test case function for a fixture
-# Inherits current sweep suite context. Fatals if no suite context set.
+# Inherits current suite context. Fatals if no suite context set.
 # Args: fixture_name, case_function
 butr_case_enroll() {
   zbutr_sentinel
@@ -255,9 +255,9 @@ butr_fixture_for_case_recite() {
 }
 
 ######################################################################
-# Public sweep suite recite functions
+# Public suite recite functions
 
-# butr_suites_recite() - List all known sweep suite names
+# butr_suites_recite() - List all known suite names
 butr_suites_recite() {
   zbutr_sentinel
   local z_i
@@ -266,7 +266,7 @@ butr_suites_recite() {
   done
 }
 
-# butr_suite_cases_recite() - List case function names enrolled in a sweep suite
+# butr_suite_cases_recite() - List case function names enrolled in a suite
 # Args: suite_name
 butr_suite_cases_recite() {
   zbutr_sentinel
