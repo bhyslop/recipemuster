@@ -2589,6 +2589,13 @@
         "₢AtAAE": {
           "tacks": [
             {
+              "ts": "260315-0914",
+              "state": "complete",
+              "text": "Three-mode integration test fixture: structural creation.\n\n## Character\nDesign and scaffolding — build the fixture shape, discover wiring gaps.\n\n## Delivered\n- Created `rbtctm_ThreeMode.sh` with 12-step test case (conjure→bind→graft→check→vouch_gate→retrieve→run→cleanup→abjure×3→check)\n- Registered three-mode fixture in testbench (`rbtb_testbench.sh`), replacing retired ark-lifecycle\n- Created tabtarget `tt/rbw-tf.TestFixture.three-mode.sh`\n- Deleted retired `rbtcal_ArkLifecycle.sh` and its tabtarget\n- Discovered: graft vessel has stale hardcoded `RBRV_GRAFT_IMAGE` — test needs dynamic wiring from conjure output\n- Discovered: conjure consecration format anomaly in test output needs investigation",
+              "silks": "three-mode-integration-test",
+              "commit": "1ad3c6c"
+            },
+            {
               "ts": "260315-0903",
               "state": "rough",
               "text": "Three-mode integration test fixture: structural creation.\n\n## Character\nDesign and scaffolding — build the fixture shape, discover wiring gaps.\n\n## Delivered\n- Created `rbtctm_ThreeMode.sh` with 12-step test case (conjure→bind→graft→check→vouch_gate→retrieve→run→cleanup→abjure×3→check)\n- Registered three-mode fixture in testbench (`rbtb_testbench.sh`), replacing retired ark-lifecycle\n- Created tabtarget `tt/rbw-tf.TestFixture.three-mode.sh`\n- Deleted retired `rbtcal_ArkLifecycle.sh` and its tabtarget\n- Discovered: graft vessel has stale hardcoded `RBRV_GRAFT_IMAGE` — test needs dynamic wiring from conjure output\n- Discovered: conjure consecration format anomaly in test output needs investigation",
