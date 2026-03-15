@@ -2853,6 +2853,13 @@
         "₢AtAAO": {
           "tacks": [
             {
+              "ts": "260315-0910",
+              "state": "rough",
+              "text": "Make all three modes emit the same atomic fact files from rbf_create.\n\n## Character\nCareful API surface work — fact files are a test contract. No consumer should ever parse or construct values.\n\n## Principle\nFact files are simple, atomic values that consumers read verbatim. No splitting, no construction from regime constants, no implicit coupling.\n\n## Current state\n- Conjure (rbf_build): emits 3 files — RBF_FACT_CONSECRATION, RBF_FACT_IMAGE_REF, RBF_FACT_BUILD_ID\n- Bind (rbf_mirror): emits 1 file — RBF_FACT_CONSECRATION only\n- Graft (rbf_graft): emits 1 file — RBF_FACT_CONSECRATION only\n\nThis asymmetry is a bug, not a design choice.\n\n## Deliverable\nAfter rbf_create (any mode), BURD_OUTPUT_DIR contains at minimum:\n- `RBF_FACT_CONSECRATION` — consecration string (exists, all modes)\n- New: **retrieve locator** fact — `{vessel}:{tag}` passable directly to RBZ_RETRIEVE_IMAGE\n- New: **local image ref** fact — full GAR ref usable by docker run or as graft source after retrieve\n\nDefine new constants in rbgc_Constants.sh. Add writes to rbf_mirror and rbf_graft to match rbf_build's coverage.\n\n## Functions to modify\n- `rbf_mirror()` (rbf_Foundry.sh ~line 1090) — add retrieve locator and local image ref fact writes\n- `rbf_graft()` (rbf_Foundry.sh ~line 1362) — add retrieve locator and local image ref fact writes\n- `rbf_build()` (rbf_Foundry.sh ~line 861) — add retrieve locator fact write (already has image ref)\n- `rbgc_Constants.sh` — define new RBF_FACT_* constants",
+              "silks": "create-fact-file-enrichment",
+              "commit": "ac82e43"
+            },
+            {
               "ts": "260315-0903",
               "state": "rough",
               "text": "Enrich rbf_create output fact files so tests can reconstruct locators and local image refs.\n\n## Character\nCareful API surface expansion — fact files are a test contract.\n\n## Work\n- Split existing `RBF_FACT_IMAGE_REF` (full GAR ref) into repository and tag components, or add new complementary fact files\n- Ensure all three modes (conjure, bind, graft) emit consistent fact files from `rbf_create`\n- Define new constants in `rbgc_Constants.sh`\n- Test can construct retrieve locator from vessel sigil + consecration + suffix\n- Test can construct local image ref after retrieve from the same facts\n\n## Design principle\nThe test should never need to hardcode GAR coordinates — fact files provide all building blocks.",
