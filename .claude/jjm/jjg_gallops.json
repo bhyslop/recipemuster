@@ -2849,6 +2849,13 @@
         "₢AtAAN": {
           "tacks": [
             {
+              "ts": "260315-0931",
+              "state": "complete",
+              "text": "Add generic tweak mechanism to BURE ambient regime.\n\n## Character\nMechanical regime plumbing — small, precise additions.\n\n## Work\n- Enroll `BURE_TWEAK_NAME` (string, optional) and `BURE_TWEAK_VALUE` (string, optional) in `bure_regime.sh`\n- Verify scope sentinel passes with new vars\n- Verify BURE CLI render/validate commands work with new enrollment\n\n## Design\nBURE stays domain-agnostic. It carries a name/value pair. Consumer code (RBK, etc.) interprets the tweak name. One tweak per invocation is sufficient.\n\n## Propagation\nBURE vars propagate as exported env vars through zbuto_invoke → tabtarget → launcher → dispatch → workbench. BURE is NOT kindled during dispatch, so scope sentinel doesn't fire at runtime. Enrollment needed for CLI validation path only.",
+              "silks": "bure-tweak-mechanism",
+              "commit": "9e97e42"
+            },
+            {
               "ts": "260315-0903",
               "state": "rough",
               "text": "Add generic tweak mechanism to BURE ambient regime.\n\n## Character\nMechanical regime plumbing — small, precise additions.\n\n## Work\n- Enroll `BURE_TWEAK_NAME` (string, optional) and `BURE_TWEAK_VALUE` (string, optional) in `bure_regime.sh`\n- Verify scope sentinel passes with new vars\n- Verify BURE CLI render/validate commands work with new enrollment\n\n## Design\nBURE stays domain-agnostic. It carries a name/value pair. Consumer code (RBK, etc.) interprets the tweak name. One tweak per invocation is sufficient.\n\n## Propagation\nBURE vars propagate as exported env vars through zbuto_invoke → tabtarget → launcher → dispatch → workbench. BURE is NOT kindled during dispatch, so scope sentinel doesn't fire at runtime. Enrollment needed for CLI validation path only.",
