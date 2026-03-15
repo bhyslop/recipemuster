@@ -2929,6 +2929,13 @@
         "₢AtAAQ": {
           "tacks": [
             {
+              "ts": "260315-1135",
+              "state": "rough",
+              "text": "Re-run three-mode integration test and confirm all 12 steps pass.\n\n## Character\nMethodical execution against live GCP. The hard bugs are fixed — this is confirmation.\n\n## Context from previous session\nThree fixes applied and inscribed:\n1. **Stale skopeo pin** — upstream quay.io deleted old manifest; refreshed via rbw-DPG\n2. **rbrg_cli.sh furnish chain** — extraction from rbrr_cli.sh missed `rbrr_regime.sh` source and `zrbrr_kindle` call; added both plus `RBBC_rbrr_file` source\n3. **Graft about discover-platforms** — GAR returns gzip-compressed config blobs for single-manifest images; added `--compressed` to curl in rbgja01-discover-platforms.sh\n\nConjure+vouch passed end-to-end on latest run. Process died mid-vouch-poll due to `script -q /dev/null` wrapper (don't use it — run test fixture directly). Bind and graft paths untested with the --compressed fix.\n\n## Work\n- Run `tt/rbw-tf.TestFixture.three-mode.sh` directly (NO `script` wrapper)\n- Confirm all 12 steps pass: conjure → bind → graft → check → vouch_gate → retrieve → run → cleanup → abjure×3 → check\n- If graft about still fails, check gcloud logs for discover-platforms step",
+              "silks": "three-mode-run-and-green",
+              "commit": "06c779f"
+            },
+            {
               "ts": "260315-0904",
               "state": "rough",
               "text": "Execute three-mode integration test fixture and fix whatever surfaces.\n\n## Character\nMethodical execution against live GCP. Expect surprises — the conjure consecration format anomaly (`i20260313_142921-b20260315_034510` not matching `cYYMMDDHHMMSS-rYYMMDDHHMMSS`) is unresolved and may resurface.\n\n## Work\n- Run `tt/rbw-tf.TestFixture.three-mode.sh`\n- Diagnose and fix failures\n- May require investigating consecration check regex (`rbf_Foundry.sh:2954`) or consecration format discrepancies\n- Confirm all 12 steps pass: conjure → bind → graft → check → vouch_gate → retrieve → run → cleanup → abjure×3 → check",
