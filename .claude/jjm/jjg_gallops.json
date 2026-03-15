@@ -2399,9 +2399,10 @@
         "₢AtAAI",
         "₢AtAAL",
         "₢AtAAE",
-        "₢AtAAN"
+        "₢AtAAN",
+        "₢AtAAO"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2842,6 +2843,17 @@
               "text": "Add generic tweak mechanism to BURE ambient regime.\n\n## Character\nMechanical regime plumbing — small, precise additions.\n\n## Work\n- Enroll `BURE_TWEAK_NAME` (string, optional) and `BURE_TWEAK_VALUE` (string, optional) in `bure_regime.sh`\n- Verify scope sentinel passes with new vars\n- Verify BURE CLI render/validate commands work with new enrollment\n\n## Design\nBURE stays domain-agnostic. It carries a name/value pair. Consumer code (RBK, etc.) interprets the tweak name. One tweak per invocation is sufficient.\n\n## Propagation\nBURE vars propagate as exported env vars through zbuto_invoke → tabtarget → launcher → dispatch → workbench. BURE is NOT kindled during dispatch, so scope sentinel doesn't fire at runtime. Enrollment needed for CLI validation path only.",
               "silks": "bure-tweak-mechanism",
               "commit": "fd68a3a"
+            }
+          ]
+        },
+        "₢AtAAO": {
+          "tacks": [
+            {
+              "ts": "260315-0903",
+              "state": "rough",
+              "text": "Enrich rbf_create output fact files so tests can reconstruct locators and local image refs.\n\n## Character\nCareful API surface expansion — fact files are a test contract.\n\n## Work\n- Split existing `RBF_FACT_IMAGE_REF` (full GAR ref) into repository and tag components, or add new complementary fact files\n- Ensure all three modes (conjure, bind, graft) emit consistent fact files from `rbf_create`\n- Define new constants in `rbgc_Constants.sh`\n- Test can construct retrieve locator from vessel sigil + consecration + suffix\n- Test can construct local image ref after retrieve from the same facts\n\n## Design principle\nThe test should never need to hardcode GAR coordinates — fact files provide all building blocks.",
+              "silks": "create-fact-file-enrichment",
+              "commit": "4d5ce56"
             }
           ]
         }
