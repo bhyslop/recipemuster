@@ -51,15 +51,27 @@ esac
 
 if [ "${IS_INDEX}" = "true" ]; then
   echo "Multi-platform manifest detected"
+  # Filter out attestation manifests (platform unknown/unknown) — these are
+  # SLSA provenance/SBOM entries, not runnable images.
+  # See: https://docs.docker.com/build/metadata/attestations/attestation-storage/
   printf '%s' "${MANIFEST}" | pyjson "
 d=json.load(sys.stdin)
 platforms = []
+filtered = 0
 for m in d['manifests']:
     p=m.get('platform',{})
+    if p.get('os','') == 'unknown' and p.get('architecture','') == 'unknown':
+        filtered += 1
+        continue
     plat = p.get('os','') + '/' + p.get('architecture','')
     v = p.get('variant','')
     if v: plat += '/' + v
     platforms.append(plat)
+if filtered:
+    print(f'Filtered {filtered} attestation manifest(s) (platform unknown/unknown)', file=sys.stderr)
+if not platforms:
+    print('FATAL: No runnable platforms after filtering attestation manifests', file=sys.stderr)
+    sys.exit(1)
 print(','.join(platforms))
 " > /workspace/vouch_platforms.txt
 else
@@ -93,19 +105,24 @@ case "${_RBGV_VESSEL_MODE}" in
       exit 1
     fi
 
-    DIGEST_COUNT=$(printf '%s' "${MANIFEST}" | pyjson "print(len(json.load(sys.stdin)['manifests']))")
-    echo "Found ${DIGEST_COUNT} platform entries"
-    test "${DIGEST_COUNT}" -gt 0 || { echo "FATAL: no platform entries in manifest list" >&2; exit 1; }
-
-    # Write manifest to file for python extraction
+    # Write manifest to file for python extraction (filter attestation manifests)
     printf '%s' "${MANIFEST}" > /workspace/manifest_list.json
 
     pyjson "
 d=json.load(open('/workspace/manifest_list.json'))
+entries = []
 for m in d['manifests']:
     p=m.get('platform',{})
-    print(m['digest'], p.get('architecture',''), p.get('variant',''))
+    if p.get('os','') == 'unknown' and p.get('architecture','') == 'unknown':
+        continue
+    entries.append((m['digest'], p.get('architecture',''), p.get('variant','')))
+for digest, arch, variant in entries:
+    print(digest, arch, variant)
 " > /workspace/platform_entries.txt
+
+    DIGEST_COUNT=$(wc -l < /workspace/platform_entries.txt | tr -d ' ')
+    echo "Found ${DIGEST_COUNT} platform entries (after filtering attestation manifests)"
+    test "${DIGEST_COUNT}" -gt 0 || { echo "FATAL: no platform entries after filtering" >&2; exit 1; }
 
     while read -r DIGEST ARCH VARIANT; do
       if [ -n "${VARIANT}" ]; then

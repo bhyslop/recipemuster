@@ -93,8 +93,12 @@ verified binary at `/workspace/slsa-verifier`
 .. Fetch OAuth token via `gcloud auth print-access-token` (gcloud authenticates as {rbtr_mason} via metadata server)
 .. {rbbc_call}
 Docker Registry API: GET manifests for `«CONSECRATION»-image` to obtain OCI image index
+.. Filter out attestation manifests before extracting platforms.
+OCI image indexes may contain non-runnable attestation manifests (SLSA provenance, SBOMs) with platform `unknown/unknown`.
+Exclude any manifest entry where _both_ `platform.os` and `platform.architecture` are `unknown`.
+See: https://docs.docker.com/build/metadata/attestations/attestation-storage/[Docker Attestation Storage].
 .. {rbbc_store}
-`«PLATFORM_DIGESTS»` as list of `(platform, digest)` pairs extracted from the manifest list
+`«PLATFORM_DIGESTS»` as list of `(platform, digest)` pairs from the remaining (non-attestation) manifest entries
 .. {rbbc_store}
 platform list to `/workspace/vouch_platforms.txt`
 .. Branch on `_RBGV_VESSEL_MODE`:
