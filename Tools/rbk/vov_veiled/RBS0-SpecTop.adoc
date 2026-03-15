@@ -78,6 +78,13 @@
 :rbtga_ark_image:            <<rbtga_ark_image,Ark Image Artifact>>
 :rbtga_ark_about:            <<rbtga_ark_about,Ark About Artifact>>
 :rbtga_ark_vouch:            <<rbtga_ark_vouch,Ark Vouch Artifact>>
+
+// Recipe Bottle Foundry Fact Files (output contract identifiers)
+:rbf_fact_consecration:      <<rbf_fact_consecration,RBF_FACT_CONSECRATION>>
+:rbf_fact_build_id:          <<rbf_fact_build_id,RBF_FACT_BUILD_ID>>
+:rbf_fact_gar_root:          <<rbf_fact_gar_root,RBF_FACT_GAR_ROOT>>
+:rbf_fact_ark_stem:          <<rbf_fact_ark_stem,RBF_FACT_ARK_STEM>>
+:rbf_fact_ark_yield:         <<rbf_fact_ark_yield,RBF_FACT_ARK_YIELD>>
 // Recipe Bottle Term Google Rubric (per-vessel build definition)
 :rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
 :rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
@@ -1657,6 +1664,33 @@ If determinism proves unreliable in practice, narrow the comparison to verificat
 **Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image` and `-about`.
 +
 **Display**: {rbtgo_consecration_check} includes a Vouch column showing `yes`/`no` per consecration, detected by matching the `-vouch` tag suffix in the GAR tag list.
+
+=== Foundry Fact Files
+
+[[rbf_fact_consecration]]
+//axpof_fact
+{rbf_fact_consecration}::
+Consecration string.
+
+[[rbf_fact_build_id]]
+//axpof_fact
+{rbf_fact_build_id}::
+Cloud Build job ID.
+
+[[rbf_fact_gar_root]]
+//axpof_fact
+{rbf_fact_gar_root}::
+GAR registry root path.
+
+[[rbf_fact_ark_stem]]
+//axpof_fact
+{rbf_fact_ark_stem}::
+Ark stem (vessel:consecration).
+
+[[rbf_fact_ark_yield]]
+//axpof_fact
+{rbf_fact_ark_yield}::
+Per-platform image reference.
 
 === Rubric Definitions
 

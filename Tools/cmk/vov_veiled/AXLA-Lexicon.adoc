@@ -22,6 +22,7 @@
 // axvo_: Axial Voicing Operation (definition-site operation annotations) → mcm_form_deflist
 // axhr*_: Axial Hierarchy Regime (standalone hierarchy markers) → mcm_form_deflist
 // axho*_: Axial Hierarchy Operation (standalone operation hierarchy markers) → mcm_form_deflist
+// axpo*_: Axial Product-of-Operation (definition-site voicings for operation outputs) → mcm_form_deflist
 // xref_: External specification references
 //
 // Extended Type Categories (domain-specific type subcategories):
@@ -136,6 +137,9 @@
 :axvo_group:                          <<axvo_group,Group Voicing>>
 :axvo_method:                         <<axvo_method,Method Voicing>>
 :axvo_procedure:                      <<axvo_procedure,Procedure Voicing>>
+
+// Axial Product-of-Operation Terms (definition-site output voicings)
+:axpof_fact:                          <<axpof_fact,Fact Voicing>>
 
 // Axial Hierarchy Operation Terms (standalone hierarchy markers)
 :axhob_operation:                     <<axhob_operation,Hierarchy Operation>>
@@ -2125,6 +2129,19 @@ The file is written to the dispatch output directory; consumers read the value v
 The constant name (carried by the marker's existing lookahead) is the contract between producer and consumer.
 Valid on
 {axhoo_output_of_type}.
+At the definition site, the corresponding term is voiced
+{axpof_fact}.
+
+=== Product-of-Operation Terms
+
+[[axpof_fact]]
+{axpof_fact}::
+Voices a term as a fact file constant — a named output file carrying a single atomic value.
+The term's anchor names the file; consumers read the value verbatim without parsing.
+At detail sites, referenced by
+{axhoo_output_of_type}
+with
+{axd_fact}.
 
 === New Operation Terms
 
