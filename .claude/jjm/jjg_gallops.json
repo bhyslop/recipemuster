@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "Au",
+  "next_heat_seed": "Av",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -17,7 +17,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Ar"
+    "₣Ar",
+    "₣Au"
   ],
   "heats": {
     "₣AD": {
@@ -2781,6 +2782,15 @@
           ]
         }
       }
+    },
+    "₣Au": {
+      "silks": "hairpin-peer-access",
+      "creation_time": "260314",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlu.md",
+      "paces": {}
     }
   }
 }
