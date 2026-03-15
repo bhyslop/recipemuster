@@ -2958,6 +2958,13 @@
         "₢AtAAS": {
           "tacks": [
             {
+              "ts": "260315-1051",
+              "state": "complete",
+              "text": "Update RBS0 specification to document fact file vocabulary and create command outputs.\n\n## Character\nSpec writing — document what was built.\n\n## Work\n- Document fact file pattern: well-known filenames in BURD_OUTPUT_DIR emitted by tabtargets for test observability\n- Document `RBF_FACT_CONSECRATION`, `RBF_FACT_IMAGE_REF`, `RBF_FACT_BUILD_ID`, and any new fact files added in create-fact-file-enrichment pace\n- Document per-mode outputs from `rbf_create` (vessel, consecration, image components)\n- Document consecration check fact files (`{sigil}_fact_consec_{consecration}`)\n- Cross-reference RBSCK-consecration_check.adoc and relevant ark specs",
+              "silks": "rbs0-fact-file-vocabulary",
+              "commit": "79101d0"
+            },
+            {
               "ts": "260315-0904",
               "state": "rough",
               "text": "Update RBS0 specification to document fact file vocabulary and create command outputs.\n\n## Character\nSpec writing — document what was built.\n\n## Work\n- Document fact file pattern: well-known filenames in BURD_OUTPUT_DIR emitted by tabtargets for test observability\n- Document `RBF_FACT_CONSECRATION`, `RBF_FACT_IMAGE_REF`, `RBF_FACT_BUILD_ID`, and any new fact files added in create-fact-file-enrichment pace\n- Document per-mode outputs from `rbf_create` (vessel, consecration, image components)\n- Document consecration check fact files (`{sigil}_fact_consec_{consecration}`)\n- Cross-reference RBSCK-consecration_check.adoc and relevant ark specs",
