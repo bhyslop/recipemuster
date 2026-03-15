@@ -2996,10 +2996,24 @@
       "silks": "rbk-egress-lockdown-research",
       "creation_time": "260315",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AvAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
-      "paces": {}
+      "paces": {
+        "₢AvAAA": {
+          "tacks": [
+            {
+              "ts": "260315-1146",
+              "state": "rough",
+              "text": "Test whether builds.create API (no trigger, no repo) retains SLSA Level 3 provenance on built images.\n\nExperiment:\n1. Take an existing vessel that currently conjures successfully via triggers.run with SLSA Level 3\n2. Submit the same cloudbuild.json via builds.create REST API (curl) with source staged differently — either inline or pulled from GAR in first step\n3. Check resulting image provenance with gcloud artifacts docker images describe --show-provenance\n4. Compare provenance fields: buildType, source references, slsa_build_level\n5. Run slsa-verifier verify-image against both images and compare verdicts\n\nIf Level 3 survives: path is clear to eliminate rubric repo and GitLab entirely.\nIf Level 3 is lost: document what level we get, assess whether the tradeoff is acceptable, and whether trigger-based builds can work with GAR-staged source instead of git repo source.",
+              "silks": "slsa-provenance-builds-create-experiment",
+              "commit": "3bbb483"
+            }
+          ]
+        }
+      }
     }
   }
 }
