@@ -110,8 +110,8 @@ while [ -n "${REMAINING_PLATS}" ]; do
         --arg git_commit    "${_RBGA_GIT_COMMIT}" \
         --arg git_branch    "${_RBGA_GIT_BRANCH}" \
         --arg git_repo      "${_RBGA_GIT_REPO}" \
-        --arg build_id      "${_RBGA_BUILD_ID:-}" \
-        --arg inscribe_ts   "${_RBGA_INSCRIBE_TIMESTAMP:-}" \
+        --arg build_id      "${_RBGA_BUILD_ID}" \
+        --arg inscribe_ts   "${_RBGA_INSCRIBE_TIMESTAMP}" \
         --argjson qemu_used "${QEMU_USED}" \
         '{
           consecration: $consecration,
@@ -146,7 +146,7 @@ while [ -n "${REMAINING_PLATS}" ]; do
         --arg git_commit    "${_RBGA_GIT_COMMIT}" \
         --arg git_branch    "${_RBGA_GIT_BRANCH}" \
         --arg git_repo      "${_RBGA_GIT_REPO}" \
-        --arg bind_source   "${_RBGA_BIND_SOURCE:-}" \
+        --arg bind_source   "${_RBGA_BIND_SOURCE}" \
         '{
           consecration: $consecration,
           vessel_mode: $vessel_mode,
@@ -170,7 +170,7 @@ while [ -n "${REMAINING_PLATS}" ]; do
         --arg git_commit    "${_RBGA_GIT_COMMIT}" \
         --arg git_branch    "${_RBGA_GIT_BRANCH}" \
         --arg git_repo      "${_RBGA_GIT_REPO}" \
-        --arg graft_source  "${_RBGA_GRAFT_SOURCE:-}" \
+        --arg graft_source  "${_RBGA_GRAFT_SOURCE}" \
         '{
           consecration: $consecration,
           vessel_mode: $vessel_mode,
