@@ -2,6 +2,7 @@
   "schema_version": 4,
   "next_heat_seed": "Av",
   "heat_order": [
+    "₣AU",
     "₣An",
     "₣Am",
     "₣AD",
@@ -9,7 +10,6 @@
     "₣AJ",
     "₣AN",
     "₣At",
-    "₣AU",
     "₣Ah",
     "₣AQ",
     "₣AV",
@@ -687,7 +687,7 @@
     "₣AU": {
       "silks": "rbk-mvp-3-release-finalize",
       "creation_time": "260131",
-      "status": "racing",
+      "status": "stabled",
       "order": [
         "₢AUAAb",
         "₢AUAAS",
