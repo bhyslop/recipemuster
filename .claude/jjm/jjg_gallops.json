@@ -713,6 +713,7 @@
         "₢AUAAY",
         "₢AUAAP",
         "₢AUAAQ",
+        "₢AUAAh",
         "₢AUAAR",
         "₢AUAAd",
         "₢AUAAU",
@@ -721,7 +722,7 @@
         "₢AUAAe",
         "₢AUAAf"
       ],
-      "next_pace_seed": "AAh",
+      "next_pace_seed": "AAi",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1503,6 +1504,17 @@
               "text": "Add a command trust model section to BCG (Bash Console Guide) that codifies the dependency boundary.\n\n## Context\n\nDuring the MVP-3 release ceremony dry run, the Step 2 command audit surfaced commands used on the host workstation that aren't in the declared dependency list (index.html). The conversation that followed developed a trust framework that belongs in BCG as the authoritative reference.\n\n## Trust Tiers\n\n**Tier 1 — Bash builtins**: `test`, `read`, `printf`, `local`, `trap`, `set`, `readonly`, `shift`, `export`, `unset`, etc. These ARE the language. Cannot be hijacked via PATH. Use freely. BCG already pushes toward builtins (test over [[]], read over head -1, parameter expansion over dirname).\n\n**Tier 2 — POSIX-mandated utilities**: `grep`, `sed`, `awk`, `cp`, `mv`, `rm`, `mkdir`, `cat`, `sort`, `cut`, `tr`, `find`, `diff`, `kill`, `sleep`, `date`, `uname`, `tar`, `tee`, `touch`, `ln`, `xargs`, `chmod`, `ls`, `stat`(check), `tput`, `stty`, `env`, `comm`, `paste`, `wc`, `head`, `tail`, `basename`, `dirname`. Trust the standard, not the implementation. But flag usage must be portable — GNU and BSD diverge on flags. Known divergences should be documented.\n\n**Tier 3 — Dangerous middle**: Things that FEEL universal but aren't POSIX-mandated. This is where trust becomes assumption.\n- `base64` — GNU coreutils + macOS, but not standardized. Flag divergence (`-w0` vs `-b0`).\n- `timeout` — GNU coreutils only, absent on stock macOS.\n- `sha256sum` / `shasum` — one or the other per platform, never both standardized.\n- `stat` — exists everywhere, flags completely incompatible between GNU and BSD.\nPattern: wrap in a BUK function that detects and adapts, making the platform seam visible and tested.\n\n**Tier 4 — Declared dependencies**: docker, git, curl, openssh, jq, and possibly openssl. Consumer must consciously install these. Documented in index.html. Each one accepted as a cost.\n\n## Audit Findings to Resolve\n\n- `openssl` used in rbgo_OAuth.sh (JWT signing) and bud_dispatch.sh (checksum fallback) — undeclared. Decide: add to index.html declared deps, or rework?\n- `base64` used in 4 files — wrap for portability or accept as near-universal?\n- `sha256sum` vs `shasum` split across files — needs a BUK portable wrapper.\n- `timeout` used in testbench only — development-only, not runtime. Document as such.\n- `shellcheck`, `python3` — development-only tools, not consumer deps.\n\n## Ceremony Integration\n\nThe release ceremony Step 2 currently inlines its own tier lists. After BCG codifies the tiers, the ceremony should reference BCG rather than maintaining a separate copy.\n\n## Observation\n\nLLMs love adding dependencies — they reach for whatever solves the immediate problem without feeling the cumulative cost. The trust tier framework in BCG serves as a checkpoint for both human and LLM contributors.",
               "silks": "bcg-command-trust-tiers",
               "commit": "8d9d871"
+            }
+          ]
+        },
+        "₢AUAAh": {
+          "tacks": [
+            {
+              "ts": "260315-0944",
+              "state": "rough",
+              "text": "## Character\nMechanical — source-and-call smoke test.\n\n## Deliverable\nAdd a test fixture that sources every regime file and calls every `*_render()` function plus `rbob_info()`, verifying zero exit status on each.\n\n### Functions to exercise (11 + 1)\n\n**BUK regime renders (3):**\n- `burc_render()` — Tools/buk/burc_cli.sh\n- `burs_render()` — Tools/buk/burs_cli.sh\n- `bure_render()` — Tools/buk/bure_cli.sh\n\n**RBK regime renders (8):**\n- `rbra_render()` — Tools/rbk/rbra_cli.sh\n- `rbrp_render()` — Tools/rbk/rbrp_cli.sh\n- `rbrs_render()` — Tools/rbk/rbrs_cli.sh\n- `rbro_render()` — Tools/rbk/rbro_cli.sh\n- `rbrg_render()` — Tools/rbk/rbrg_cli.sh\n- `rbrn_render()` — Tools/rbk/rbrn_cli.sh\n- `rbrr_render()` — Tools/rbk/rbrr_cli.sh\n- `rbrv_render()` — Tools/rbk/rbrv_cli.sh\n\n**Other:**\n- `rbob_info()` — Tools/rbk/rbob_cli.sh\n\n### Implementation\n- Standalone test fixture (e.g., `rbtcrs_RegimeSweep.sh`) runnable from a tabtarget\n- Each call must exit 0; any failure = test failure\n- Validates regime enrollment files are syntactically complete and render functions execute against current regime state\n- Consider integrating as a step in `rbq_qualify_release()` so the prep-release ceremony invokes it automatically\n\n### References\n- Tools/buk/buv_validation.sh — core `buv_render()` engine\n- Tools/rbk/rbq_Qualify.sh — qualification orchestrator\n- Existing test fixture pattern: rbtcrv_RegimeValidation.sh",
+              "silks": "prerelease-regime-render-sweep",
+              "commit": "f207010"
             }
           ]
         }
