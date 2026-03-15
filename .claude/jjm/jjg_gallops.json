@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "Av",
+  "next_heat_seed": "Aw",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -18,7 +18,8 @@
     "₣Ap",
     "₣Aq",
     "₣Ar",
-    "₣Au"
+    "₣Au",
+    "₣Av"
   ],
   "heats": {
     "₣AD": {
@@ -2989,6 +2990,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAlu.md",
+      "paces": {}
+    },
+    "₣Av": {
+      "silks": "rbk-egress-lockdown-research",
+      "creation_time": "260315",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {}
     }
   }
