@@ -54,7 +54,7 @@ source "${RBTB_SCRIPT_DIR}/rbap_AccessProbe.sh"
 source "${RBTB_RBTS_DIR}/rbtckk_KickTires.sh"
 source "${RBTB_RBTS_DIR}/rbtcqa_QualifyAll.sh"
 source "${RBTB_RBTS_DIR}/rbtcap_AccessProbe.sh"
-source "${RBTB_RBTS_DIR}/rbtcal_ArkLifecycle.sh"
+source "${RBTB_RBTS_DIR}/rbtctm_ThreeMode.sh"
 source "${RBTB_RBTS_DIR}/rbtcns_NsproSecurity.sh"
 source "${RBTB_RBTS_DIR}/rbtcsj_SrjclJupyter.sh"
 source "${RBTB_RBTS_DIR}/rbtcpl_PlumlDiagram.sh"
@@ -174,9 +174,8 @@ zrbtb_access_probe_baste() {
   ZRBTCAP_DELAY_MS=1500
 }
 
-zrbtb_ark_baste() {
-  buto_trace "Baste for ark-lifecycle fixture"
-  ZRBTB_ARK_VESSEL_SIGIL="rbev-busybox"
+zrbtb_three_mode_baste() {
+  buto_trace "Baste for three-mode fixture"
 
   # Load RBRR regime (repo config)
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
@@ -253,7 +252,7 @@ rbtb_kindle() {
   # -- SERVICE + COMPLETE: needs credentials, no containers --
   butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
 
-  # access-probe fixture (runs before ark-lifecycle; ~30s smoke test for OAuth/credential issues)
+  # access-probe fixture (runs before three-mode; ~30s smoke test for OAuth/credential issues)
   # Regression tests for rbgo_OAuth.sh stderr-capture fix (pace AfAAR)
   butr_fixture_enroll "access-probe" "" "zrbtb_access_probe_baste"
   butr_case_enroll "access-probe" rbtcap_jwt_governor_tcase
@@ -264,9 +263,9 @@ rbtb_kindle() {
   # -- COMPLETE only: needs container runtime --
   butr_suite_enroll "${BUTR_SUITE_COMPLETE}"
 
-  # ark-lifecycle fixture
-  butr_fixture_enroll "ark-lifecycle" "zrbtb_container_clean_git_litmus_predicate" "zrbtb_ark_baste"
-  butr_case_enroll "ark-lifecycle" rbtcal_lifecycle_tcase
+  # three-mode fixture (conjure + bind + graft + vouch_gate + retrieve + run + abjure)
+  butr_fixture_enroll "three-mode" "zrbtb_container_clean_git_litmus_predicate" "zrbtb_three_mode_baste"
+  butr_case_enroll "three-mode" rbtctm_three_mode_tcase
 
   # -- FAST + COMPLETE: no external dependencies --
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
