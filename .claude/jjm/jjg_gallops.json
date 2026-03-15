@@ -2401,9 +2401,10 @@
         "₢AtAAE",
         "₢AtAAN",
         "₢AtAAO",
-        "₢AtAAP"
+        "₢AtAAP",
+        "₢AtAAQ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAlt.md",
       "paces": {
         "₢AtAAA": {
@@ -2866,6 +2867,17 @@
               "text": "Wire conjure output into graft input via BURE tweak, complete test fixture.\n\n## Character\nIntegration wiring — connecting the pieces from the previous two paces.\n\n## Work\n- `rbf_graft` checks `BURE_TWEAK_NAME=threemodegraft` after vessel loading, overrides `RBRV_GRAFT_IMAGE` with `BURE_TWEAK_VALUE`\n- Update `rbtctm_ThreeMode.sh`: after conjure, retrieve the conjured image, export BURE tweak vars, then graft\n- Test sequence: conjure → read fact files → retrieve → export BURE_TWEAK_NAME/VALUE → graft → check → abjure\n\n## Key invariant\nGraft input is the conjure-produced busybox — same image content, different trust path.",
               "silks": "graft-tweak-and-test-wiring",
               "commit": "07aa99c"
+            }
+          ]
+        },
+        "₢AtAAQ": {
+          "tacks": [
+            {
+              "ts": "260315-0904",
+              "state": "rough",
+              "text": "Execute three-mode integration test fixture and fix whatever surfaces.\n\n## Character\nMethodical execution against live GCP. Expect surprises — the conjure consecration format anomaly (`i20260313_142921-b20260315_034510` not matching `cYYMMDDHHMMSS-rYYMMDDHHMMSS`) is unresolved and may resurface.\n\n## Work\n- Run `tt/rbw-tf.TestFixture.three-mode.sh`\n- Diagnose and fix failures\n- May require investigating consecration check regex (`rbf_Foundry.sh:2954`) or consecration format discrepancies\n- Confirm all 12 steps pass: conjure → bind → graft → check → vouch_gate → retrieve → run → cleanup → abjure×3 → check",
+              "silks": "three-mode-run-and-green",
+              "commit": "7088857"
             }
           ]
         }
