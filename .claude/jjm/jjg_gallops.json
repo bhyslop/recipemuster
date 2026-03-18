@@ -3092,9 +3092,10 @@
       "status": "stabled",
       "order": [
         "₢AwAAA",
-        "₢AwAAB"
+        "₢AwAAB",
+        "₢AwAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3116,6 +3117,17 @@
               "text": "Compare JJS0 spec annotations against actual Rust implementation to establish a baseline before normalization.\n\n## Scope\n\nFor each annotated definition in JJS0, check whether the implementation (jjrt_types.rs, jjr*_.rs command files, jjrv_validate.rs) matches the spec's claims. Focus on:\n\n1. **Type annotations**: Do `//axl_voices axr_record_json` and `//axl_voices axr_member` on Gallops/Heat/Pace match actual serde-derived Rust structs?\n2. **Operation annotations**: Do `//axl_voices axi_cli_subcommand` annotations match what the MCP tool registration actually does?\n3. **Enum annotations**: Do `//axl_voices axt_enum_value` markers cover all variants in Rust enums?\n4. **Argument annotations**: Do `//axl_voices axa_cli_option` / `axa_cli_flag` match actual MCP tool parameter schemas?\n\n## Character\n\nAudit discipline — careful, mechanical comparison. Not design work. Read spec, read code, note discrepancies.\n\n## Produces\n\n- Paddock note summarizing: what matches, what diverges, what's missing from spec, what's missing from code\n- This baseline informs all subsequent normalization paces",
               "silks": "impl-vs-spec-baseline",
               "commit": "352d76c"
+            }
+          ]
+        },
+        "₢AwAAC": {
+          "tacks": [
+            {
+              "ts": "260317-1831",
+              "state": "rough",
+              "text": "Audit JJS0 against AXLA for motif gaps and propose additions.\n\n## Known gaps (from initial analysis)\n\n1. **axa_cli_flag** — JJS0 uses this (lines 925, 942) but AXLA doesn't define it. Needs upstream addition.\n2. **axi_mcp_tool** — JJS0 operations are MCP tools, not CLI subcommands. AXLA has axi_cli_subcommand but nothing for MCP tool interface. Need a motif.\n3. **Transport dimension on operations** — AXLA defines axe_mcp_transport as a motif but JJS0 operations don't carry it. Should MCP-served operations annotate their transport?\n4. **Operation dimension vocabulary** — RBS0 uses axd_transient, axd_attended, axd_grouped. Which of these apply to JJS0's MCP tool operations? Are they all transient? Which are attended?\n5. **Category-level voicing** — JJS0 category prefixes (jjdgr_, jjdgm_) declare intent in comments but don't formally voice AXLA motifs. Is per-definition annotation sufficient or does AXLA need category-level voicing?\n\n## Character\n\nDesign conversation — judgment required on what AXLA should add vs what JJS0 should adapt to existing motifs.\n\n## Produces\n\n- Concrete AXLA additions (new definitions in AXLA-Lexicon.adoc mapping section and definition body)\n- Decision record on each gap: add to AXLA, reuse existing motif, or accept the gap\n- Updated JJS0 mapping section category comments if category-level voicing pattern is adopted",
+              "silks": "surface-axla-gaps",
+              "commit": "925d2b0"
             }
           ]
         }
