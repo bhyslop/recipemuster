@@ -1619,6 +1619,7 @@
       "creation_time": "260222",
       "status": "stabled",
       "order": [
+        "₢AhAAV",
         "₢AhAAS",
         "₢AhAAN",
         "₢AhAAL",
@@ -1640,7 +1641,7 @@
         "₢AhAAK",
         "₢AhAAR"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -2049,6 +2050,17 @@
               "text": "Opus-tier design conversation: define the V4 concurrent dispatch model for OAuth-authenticated Claude Code instances in JJS0.\n\n## Scope\n\nThis pace produces JJS0 spec sections for multi-instance dispatch:\n\n1. **Instance lifecycle** — how jjx launches a Claude Code instance per beat within a chukker. OAuth authentication flow. Worktree binding (one instance per worktree per beat). Instance startup, prompt delivery, result collection, instance teardown.\n2. **Throttle management** — staggered launches (1-2 seconds) for RPM mitigation. Different model tiers have independent rate limit pools. How jjx selects launch timing. What happens when rate limits are hit mid-chukker.\n3. **Model-tier enforcement** — jjx requires model-identity parameter on every invocation. Self-reported identity. Hard gate: breeze-phase commands refuse non-haiku orchestrators. Model attribution in commit history.\n4. **Result collection** — how jjx detects beat completion (worktree commits? exit code? status file?). Mapping instance output back to kimberwick identity. Updating beat status in gallops.\n5. **Exclusivity enforcement** — jjee_ enum (worktree/workstation/project). How jjx holds mutexes for workstation and project-scoped actions during concurrent dispatch. What happens when two beats in the same chukker need an exclusive resource.\n6. **Error handling** — instance crash vs beat failure vs throttle exhaustion. Which are retryable (pending re-dispatch) vs terminal (beat marked failed).\n\n## Design constraints\n\n- V4/₣Ah uses OAuth-authenticated Claude Code instances only; API-key REST dispatch deferred\n- Bare prompt reproducibility: same prompt + same model + same worktree state = comparable output\n- jjx is the conductor — dispatches warrants, collects commits, never interprets beat output\n- Haiku-tier orchestration: breeze dispatch is mechanical, not judgmental\n\n## Depends on\n- ₢AhAAT (design-v4-chukker-execution) — chukker sequencing and branch lifecycle must be settled\n\n## Produces\n- JJS0 section: Concurrent Dispatch Model\n- JJS0 section: Instance Lifecycle\n- JJS0 section: Throttle and Rate Limit Management\n- JJS0 section: Exclusivity Enforcement\n\n## Not bridleable\n\nDesign conversation — concurrent dispatch has operational edge cases (throttle exhaustion, instance crashes, exclusive resource contention) that need interactive exploration. Also: first concrete design of the jjx-to-Claude-Code interface contract.",
               "silks": "design-v4-concurrent-dispatch",
               "commit": "fd7bad1"
+            }
+          ]
+        },
+        "₢AhAAV": {
+          "tacks": [
+            {
+              "ts": "260317-1851",
+              "state": "rough",
+              "text": "Select Unicode symbols for martingale (volte identity, 4 chars) and kimberwick (beat instance identity, 6 chars).\n\n## Constraints\n\n- Must be visually distinct from existing symbols: ₣ (firemark), Ꝗ (quirt), ₢ (coronet)\n- Must render correctly in terminals (macOS Terminal, iTerm2, VS Code integrated terminal)\n- Must not collide with first letters of other identity names: F (firemark), Q (quirt), C (coronet), M (martingale), K (kimberwick)\n- Should be easy to type or paste\n- ₡ (former caracole symbol) is available for reuse if appropriate for martingale\n\n## Produces\n\n- Martingale Unicode symbol selected and documented\n- Kimberwick Unicode symbol selected and documented\n- Paddock identity table updated with concrete symbols (no more TBD)\n\n## Depends on\n\nNothing.",
+              "silks": "select-martingale-kimberwick-symbols",
+              "commit": "55e9018"
             }
           ]
         }
