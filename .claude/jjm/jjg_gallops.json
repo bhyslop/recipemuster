@@ -3093,9 +3093,10 @@
       "order": [
         "₢AwAAA",
         "₢AwAAB",
-        "₢AwAAC"
+        "₢AwAAC",
+        "₢AwAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3128,6 +3129,17 @@
               "text": "Audit JJS0 against AXLA for motif gaps and propose additions.\n\n## Known gaps (from initial analysis)\n\n1. **axa_cli_flag** — JJS0 uses this (lines 925, 942) but AXLA doesn't define it. Needs upstream addition.\n2. **axi_mcp_tool** — JJS0 operations are MCP tools, not CLI subcommands. AXLA has axi_cli_subcommand but nothing for MCP tool interface. Need a motif.\n3. **Transport dimension on operations** — AXLA defines axe_mcp_transport as a motif but JJS0 operations don't carry it. Should MCP-served operations annotate their transport?\n4. **Operation dimension vocabulary** — RBS0 uses axd_transient, axd_attended, axd_grouped. Which of these apply to JJS0's MCP tool operations? Are they all transient? Which are attended?\n5. **Category-level voicing** — JJS0 category prefixes (jjdgr_, jjdgm_) declare intent in comments but don't formally voice AXLA motifs. Is per-definition annotation sufficient or does AXLA need category-level voicing?\n\n## Character\n\nDesign conversation — judgment required on what AXLA should add vs what JJS0 should adapt to existing motifs.\n\n## Produces\n\n- Concrete AXLA additions (new definitions in AXLA-Lexicon.adoc mapping section and definition body)\n- Decision record on each gap: add to AXLA, reuse existing motif, or accept the gap\n- Updated JJS0 mapping section category comments if category-level voicing pattern is adopted",
               "silks": "surface-axla-gaps",
               "commit": "925d2b0"
+            }
+          ]
+        },
+        "₢AwAAD": {
+          "tacks": [
+            {
+              "ts": "260317-1831",
+              "state": "rough",
+              "text": "Replace first-generation annotations on JJS0 operations with RBS0-style voicing annotations.\n\n## Current state\n\nAll JJS0 operations (create, enroll, reorder, show, orient, etc.) carry:\n```\n//axl_voices axi_cli_subcommand\n```\nThis is semantically wrong (they're MCP tools) and lacks dimensions.\n\n## Target state\n\nEach operation carries the appropriate annotation from ₢AwAAC's AXLA gap resolution:\n- Correct interface motif (whatever replaces axi_cli_subcommand for MCP tools)\n- Dimension modifiers matching RBS0 patterns (transient, attended where applicable, grouped if operation groups are formalized)\n\n## Scope\n\n- All `[[jjdo_*]]` anchored definitions in JJS0\n- All `[[jjdr_*]]` routine definitions (these already have `//axvo_procedure axd_internal` — verify correctness)\n- Operation group headers if ₢AwAAC formalizes them as linked terms\n- Skip V4-VOLATILE marked sections\n\n## Character\n\nMechanical with judgment edges — most operations get the same annotation pattern, but attended/unattended distinction requires understanding each operation.\n\n## Depends on\n\n- ₢AwAAC (surface-axla-gaps) — need resolved motifs before applying them",
+              "silks": "normalize-operation-annotations",
+              "commit": "85a1db1"
             }
           ]
         }
