@@ -125,6 +125,9 @@ zrbf_kindle() {
   buc_log_args 'Define graft operation files'
   readonly ZRBF_GRAFT_PREFIX="${BURD_TEMP_DIR}/rbf_graft_"
 
+  buc_log_args 'Define context push operation files'
+  readonly ZRBF_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbf_context_"
+
   buc_log_args 'Define output files (BURD_OUTPUT_DIR — persists after dispatch)'
   readonly ZRBF_OUTPUT_VESSEL_DIR="${BURD_OUTPUT_DIR}/rbf_vessel_dir.txt"
 
@@ -583,6 +586,57 @@ zrbf_load_vessel() {
   buc_info "Loaded vessel: ${RBRV_SIGIL}"
 }
 
+# Push vessel build context to GAR as a FROM SCRATCH OCI image.
+# The context image carries the Dockerfile and supporting files that GCB
+# needs in /workspace during the build.  This replaces the rubric repo's
+# role as the build-context delivery mechanism.
+#
+# Args: token  sigil  build_context_path
+# Side-effect: writes context image tag to ZRBF_CONTEXT_TAG_FILE
+zrbf_push_build_context() {
+  zrbf_sentinel
+
+  local -r z_token="$1"
+  local -r z_sigil="$2"
+  local -r z_bldctx="$3"
+
+  test -d "${z_bldctx}" || buc_die "Build context directory not found: ${z_bldctx}"
+
+  local -r z_gar_host="${ZRBF_REGISTRY_HOST}"
+  local -r z_context_tag_file="${ZRBF_CONTEXT_PREFIX}tag.txt"
+  local -r z_context_dockerfile="${ZRBF_CONTEXT_PREFIX}Dockerfile"
+
+  # Generate context timestamp
+  local -r z_ctx_ts_file="${ZRBF_CONTEXT_PREFIX}ts.txt"
+  date -u +'%y%m%d%H%M%S' > "${z_ctx_ts_file}" || buc_die "Failed to generate context timestamp"
+  local z_ctx_ts=""
+  z_ctx_ts=$(<"${z_ctx_ts_file}")
+  test -n "${z_ctx_ts}" || buc_die "Empty context timestamp"
+
+  local -r z_context_tag="${z_gar_host}/${ZRBF_REGISTRY_PATH}/${z_sigil}:context-${z_ctx_ts}"
+
+  # Build FROM SCRATCH image containing build context
+  buc_step "Building context image for ${z_sigil}"
+  printf 'FROM scratch\nCOPY . /build-context/\n' > "${z_context_dockerfile}" \
+    || buc_die "Failed to write context Dockerfile"
+
+  docker build -f "${z_context_dockerfile}" -t "${z_context_tag}" "${z_bldctx}" \
+    || buc_die "Failed to build context image"
+
+  # Push to GAR
+  buc_step "Pushing context image to GAR"
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_gar_host}" \
+    || buc_die "GAR authentication failed for context push"
+
+  docker push "${z_context_tag}" \
+    || buc_die "Failed to push context image to GAR"
+
+  echo "${z_context_tag}" > "${z_context_tag_file}" \
+    || buc_die "Failed to persist context image tag"
+
+  buc_info "Context image pushed: ${z_context_tag}"
+}
+
 zrbf_wait_build_completion() {
   zrbf_sentinel
 
@@ -726,7 +780,7 @@ rbf_build() {
   local -r z_vessel_dir="${1:-}"
 
   # Documentation block
-  buc_doc_brief "Build container image from vessel via trigger dispatch"
+  buc_doc_brief "Build container image from vessel via direct builds.create submission"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_shown || return 0
 
@@ -755,10 +809,9 @@ rbf_build() {
 
   buc_info "Building vessel image: ${RBRV_SIGIL}"
 
-  # Source Director RBRA for credentials (still needed for OAuth token)
+  # Source Director RBRA for credentials
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-  test -n "${RBRR_RUBRIC_REPO_URL:-}" || buc_die "RBRR_RUBRIC_REPO_URL not set in rbrr.env"
 
   # Authenticate as Director
   buc_step "Authenticating as Director"
@@ -769,55 +822,82 @@ rbf_build() {
   # Quota preflight -- die if insufficient capacity
   zrbf_quota_preflight "${z_token}" "gate"
 
-  # Fetch GitLab token from Secret Manager (api token secret)
-  buc_step "Fetching rubric repo token from Secret Manager"
-  local -r z_secret_access_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}/versions/latest:access"
-  rbgu_http_json "GET" "${z_secret_access_url}" "${z_token}" "build_token_fetch"
-  rbgu_http_require_ok "Fetch token from Secret Manager" "build_token_fetch"
-  local z_token_b64
-  z_token_b64=$(rbgu_json_field_capture "build_token_fetch" '.payload.data') \
-    || buc_die "Failed to extract token payload"
-  local z_gitlab_token_value
-  z_gitlab_token_value=$(zrbf_base64_decode_capture "${z_token_b64}") \
-    || buc_die "Failed to decode token"
+  # Capture git metadata (stitch needs ZRBF_GIT_INFO_FILE)
+  buc_step "Capturing git metadata"
+  zrbf_ensure_git_metadata
+  local z_git_commit=""
+  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}")
+  local z_git_branch=""
+  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}")
+  local z_git_repo=""
+  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")
+  jq -n \
+    --arg commit "${z_git_commit}" \
+    --arg branch "${z_git_branch}" \
+    --arg repo   "${z_git_repo}" \
+    '{"commit": $commit, "branch": $branch, "repo": $repo}' \
+    > "${ZRBF_GIT_INFO_FILE}" || buc_die "Failed to write git info JSON for stitch"
+  buc_info "Git: ${z_git_commit:0:8} on ${z_git_branch}"
 
-  # Construct authenticated URL: https://gitlab.com/... → https://oauth2:TOKEN@gitlab.com/...
-  local -r z_rubric_auth_url="https://oauth2:${z_gitlab_token_value}@${RBRR_RUBRIC_REPO_URL#https://}"
+  # Push build context to GAR as FROM SCRATCH image
+  zrbf_push_build_context "${z_token}" "${RBRV_SIGIL}" "${RBRV_CONJURE_BLDCONTEXT}"
+  local z_context_tag=""
+  z_context_tag=$(<"${ZRBF_CONTEXT_PREFIX}tag.txt")
+  test -n "${z_context_tag}" || buc_die "Empty context image tag after push"
 
-  # Resolve rubric repo HEAD via ls-remote (no clone needed — build only needs commit hash)
-  buc_step "Resolving rubric repo HEAD commit"
-  git ls-remote "${z_rubric_auth_url}" HEAD > "${ZRBF_BUILD_RUBRIC_LS}" \
-    || buc_die "Failed to reach rubric repo — check RBRR_RUBRIC_REPO_URL and GitLab token in Secret Manager"
-  local z_rubric_commit=$(<"${ZRBF_BUILD_RUBRIC_LS}")
-  test -n "${z_rubric_commit}" || buc_die "Rubric repo HEAD is empty — has inscribe been run?"
-  z_rubric_commit="${z_rubric_commit%%	*}"
-  buc_info "Rubric repo HEAD: ${z_rubric_commit:0:8}"
+  # Stitch build JSON (same function inscribe uses — generates steps, subs, images, options)
+  buc_step "Stitching build JSON"
+  local -r z_stitched_file="${ZRBF_CONTEXT_PREFIX}stitched.json"
+  zrbf_stitch_build_json "${z_stitched_file}"
 
-  # Resolve trigger identity by direct GET (trigger name = trigger ID, set at create time)
-  buc_step "Resolving vessel trigger"
-  local -r z_trigger_name="${RBGC_RUBRIC_TRIGGER_PREFIX}${RBRV_SIGIL}"
-  rbgu_http_json "GET" "${ZRBF_TRIGGERS_URL}/${z_trigger_name}" "${z_token}" "build_trigger_check"
-  local z_trigger_code=""
-  z_trigger_code=$(rbgu_http_code_capture "build_trigger_check") || z_trigger_code=""
-  test "${z_trigger_code}" = "200" \
-    || { buc_bare "Vessel trigger '${z_trigger_name}' not found (HTTP ${z_trigger_code}) — inscribe first:"
-         buc_tabtarget "${RBZ_RUBRIC_INSCRIBE}"
-         buc_die "Cannot conjure without trigger"; }
-  buc_info "Trigger resolved: ${z_trigger_name}"
+  # Post-process: fill placeholders, prepend context extraction step
+  buc_step "Preparing builds.create submission"
+  local -r z_build_file="${ZRBF_CONTEXT_PREFIX}build.json"
+  local -r z_inscribe_ts="c${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
 
-  # Dispatch build via triggers.run — zero substitution overrides
-  buc_step "Dispatching trigger build for ${RBRV_SIGIL}"
-  local -r z_run_url="${ZRBF_TRIGGERS_URL}/${z_trigger_name}:run"
-  jq -n --arg sha "${z_rubric_commit}" '{"source": {"commitSha": $sha}}' \
-    > "${ZRBF_BUILD_TRIGGER_BODY}" || buc_die "Failed to compose triggers.run body"
+  # Compose context extraction step (runs before all build steps)
+  local -r z_extract_step_file="${ZRBF_CONTEXT_PREFIX}extract_step.json"
+  jq -n \
+    --arg name "${RBRG_DOCKER_IMAGE_REF}" \
+    --arg ctx_tag "${z_context_tag}" \
+    --arg sigil "${RBRV_SIGIL}" \
+    '{
+      name: $name,
+      id: "extract-context",
+      entrypoint: "/bin/bash",
+      args: ["-lc", ("set -euo pipefail\necho \"Extracting build context from GAR\"\nCONTAINER=$$(docker create " + $ctx_tag + ")\nmkdir -p /workspace/" + $sigil + "\ndocker cp $${CONTAINER}:/build-context/. /workspace/" + $sigil + "/\ndocker rm $${CONTAINER}\necho \"Context extracted:\"\nls -la /workspace/" + $sigil + "/")]
+    }' > "${z_extract_step_file}" \
+    || buc_die "Failed to compose context extraction step"
 
-  rbgu_http_json "POST" "${z_run_url}" "${z_token}" "build_trigger_run" "${ZRBF_BUILD_TRIGGER_BODY}"
-  rbgu_http_require_ok "Trigger dispatch" "build_trigger_run"
+  # Fill placeholders and prepend extraction step
+  jq \
+    --arg inscribe_ts  "${z_inscribe_ts}" \
+    --arg git_commit   "${z_git_commit}" \
+    --slurpfile extract "${z_extract_step_file}" \
+    '
+      .substitutions._RBGY_RUBRIC_REPO = "" |
+      .substitutions._RBGY_RUBRIC_COMMIT = "" |
+      .substitutions._RBGY_GIT_COMMIT = $git_commit |
+      .substitutions._RBGY_INSCRIBE_TIMESTAMP = $inscribe_ts |
+      .substitutions._RBGA_GIT_COMMIT = $git_commit |
+      .substitutions._RBGA_INSCRIBE_TIMESTAMP = $inscribe_ts |
+      .images = [.images[] | gsub("__INSCRIBE_TIMESTAMP__"; $inscribe_ts)] |
+      .steps = [$extract[0]] + .steps
+    ' "${z_stitched_file}" > "${z_build_file}" \
+    || buc_die "Failed to post-process build JSON"
+
+  buc_info "Inscribe timestamp: ${z_inscribe_ts}"
+
+  # Submit via builds.create (no source — context delivered via GAR image)
+  buc_step "Submitting build via builds.create"
+  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+    "build_direct_create" "${z_build_file}"
+  rbgu_http_require_ok "Direct build submission" "build_direct_create"
 
   # Extract build ID from Operation response
   local z_build_id=""
-  z_build_id=$(rbgu_json_field_capture "build_trigger_run" '.metadata.build.id') || z_build_id=""
-  test -n "${z_build_id}" || buc_die "Build ID not found in triggers.run response"
+  z_build_id=$(rbgu_json_field_capture "build_direct_create" '.metadata.build.id') || z_build_id=""
+  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
   local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
@@ -827,33 +907,26 @@ rbf_build() {
   zrbf_wait_build_completion 960  # 80 minutes at 5s intervals
 
   # Discover consecration from build step output (strong tie — no GAR scanning)
-  # Step 01 (derive-tag-base) writes consecration to /builder/outputs/output,
-  # which appears base64-encoded in results.buildStepOutputs[0].
+  # Step[0] is extract-context (no output).  Step[1] is derive-tag-base which
+  # writes consecration to /builder/outputs/output (base64-encoded in buildStepOutputs[1]).
   buc_step "Discovering consecration from build step output"
 
-  local z_step0_output=""
-  jq -r '.results.buildStepOutputs[0] // empty' "${ZRBF_BUILD_STATUS_FILE}" > "${ZRBF_SCRATCH_FILE}" \
-    || buc_die "Failed to extract buildStepOutputs[0] from build response"
-  z_step0_output=$(<"${ZRBF_SCRATCH_FILE}")
-  test -n "${z_step0_output}" || buc_die "Build step 0 output empty — step 01 may not have written to /builder/outputs/output"
+  local z_step_output=""
+  jq -r '.results.buildStepOutputs[1] // empty' "${ZRBF_BUILD_STATUS_FILE}" > "${ZRBF_SCRATCH_FILE}" \
+    || buc_die "Failed to extract buildStepOutputs[1] from build response"
+  z_step_output=$(<"${ZRBF_SCRATCH_FILE}")
+  test -n "${z_step_output}" || buc_die "Build step 1 output empty — derive-tag-base may not have written to /builder/outputs/output"
 
-  local -r z_step0_b64_file="${BURD_TEMP_DIR}/rbf_step0_b64.txt"
-  local -r z_step0_decoded_file="${BURD_TEMP_DIR}/rbf_step0_decoded.txt"
-  printf '%s' "${z_step0_output}" > "${z_step0_b64_file}" \
+  local -r z_step_b64_file="${BURD_TEMP_DIR}/rbf_step_b64.txt"
+  local -r z_step_decoded_file="${BURD_TEMP_DIR}/rbf_step_decoded.txt"
+  printf '%s' "${z_step_output}" > "${z_step_b64_file}" \
     || buc_die "Failed to write step output for decoding"
-  base64 -d < "${z_step0_b64_file}" > "${z_step0_decoded_file}" \
+  base64 -d < "${z_step_b64_file}" > "${z_step_decoded_file}" \
     || buc_die "Failed to base64-decode build step output"
   local z_found_consecration=""
-  z_found_consecration=$(<"${z_step0_decoded_file}")
+  z_found_consecration=$(<"${z_step_decoded_file}")
   test -n "${z_found_consecration}" || buc_die "Decoded consecration is empty"
   buc_info "Discovered consecration: ${z_found_consecration}"
-
-  local z_inscribe_ts=""
-  jq -r '.substitutions._RBGY_INSCRIBE_TIMESTAMP // empty' "${ZRBF_BUILD_STATUS_FILE}" > "${ZRBF_SCRATCH_FILE}" \
-    || buc_die "Failed to extract inscribe timestamp from build response"
-  z_inscribe_ts=$(<"${ZRBF_SCRATCH_FILE}")
-  test -n "${z_inscribe_ts}" || buc_die "Inscribe timestamp empty in build response"
-  buc_info "Inscribe timestamp: ${z_inscribe_ts}"
 
   # Persist to output directory for test harness consumption
   echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
