@@ -10,6 +10,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣Aw",
     "₣AU",
     "₣At",
     "₣AQ",
@@ -19,8 +20,7 @@
     "₣Ap",
     "₣Aq",
     "₣Ar",
-    "₣Au",
-    "₣Aw"
+    "₣Au"
   ],
   "heats": {
     "₣AD": {
@@ -3089,7 +3089,7 @@
     "₣Aw": {
       "silks": "jjk-v4-0-jjs0-axla-normalization",
       "creation_time": "260317",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢AwAAA",
         "₢AwAAB",
