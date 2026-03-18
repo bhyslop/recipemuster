@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "Aw",
+  "next_heat_seed": "Ax",
   "heat_order": [
     "₣Av",
     "₣An",
@@ -19,7 +19,8 @@
     "₣Ap",
     "₣Aq",
     "₣Ar",
-    "₣Au"
+    "₣Au",
+    "₣Aw"
   ],
   "heats": {
     "₣AD": {
@@ -3084,6 +3085,15 @@
           ]
         }
       }
+    },
+    "₣Aw": {
+      "silks": "jjk-v4-0-jjs0-axla-normalization",
+      "creation_time": "260317",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlw.md",
+      "paces": {}
     }
   }
 }
