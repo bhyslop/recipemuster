@@ -3260,6 +3260,7 @@
       "creation_time": "260317",
       "status": "racing",
       "order": [
+        "₢AwAAK",
         "₢AwAAA",
         "₢AwAAH",
         "₢AwAAG",
@@ -3271,7 +3272,7 @@
         "₢AwAAE",
         "₢AwAAF"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3430,6 +3431,17 @@
               "text": "Implement file exchange for output operations: jjx_orient (mount), jjx_show (parade), and jjx_curry (paddock getter).\n\n## Scope\n\nWire JJF emitting into three output-producing operations:\n\n1. **jjx_orient** — emit `jjfip_paddocks` and `jjfids_slate` tags to exchange out/. Write paddock content under jjfip_paddocks tag (labeled with firemark), write pace docket under jjfids_slate tag (labeled with silks). Delete prior out/ content on invocation.\n\n2. **jjx_show --detail** — emit `jjfip_paddocks` and `jjfids_slate` tags to exchange out/ when displaying heat with detail flag. Same labeling as orient.\n\n3. **jjx_curry getter** — emit `jjfip_paddocks` tag to exchange out/ when invoked without content parameter. Write paddock content under tag (labeled with firemark).\n\n## Testing\n\nFor each operation: verify emitted files are valid JJF (parseable by jjremit_emit_jjf), verify labels match expected values, verify file lifecycle (prior content deleted, new content present until next invocation).\n\n## Produces\n\n- Updated orient, show (--detail), curry (getter) implementations using jjremit_emit_jjf from ₢AwAAH\n- Unit test coverage for each operation's file exchange output path\n- Verified file exchange lifecycle (out/ cleanup before write, idempotent re-invocation)\n\n## Depends on\n\n₢AwAAH (unit-test-jjf-format) — needs working JJF emitter routines",
               "silks": "implement-jjf-output-operations",
               "commit": "d2eed19"
+            }
+          ]
+        },
+        "₢AwAAK": {
+          "tacks": [
+            {
+              "ts": "260318-1559",
+              "state": "rough",
+              "text": "## Character\n\nDiagnostic and methodical. Test whether the MCP integration issue reported in /context output is a real bug or a configuration problem with the tunneled command approach.\n\n## Context\n\nUser reported that each MCP operation appears as a separate line item in /context output, rather than being aggregated by server. Research shows this should NOT happen — MCP operations should aggregate by server per design.\n\nUser implemented a single MCP server using a tunneled command line approach (single MCP command taking a string argument). Before proceeding with the jjk-v4 normalization work, we need to determine if:\n\n1. The tunneling approach causes the /context display problem\n2. Adding a second MCP command (non-tunneled) follows correct design and fixes the issue\n3. The root cause is user configuration error or an actual Claude Code bug\n\nFinding may affect how other MCP operations in subsequent paces are structured.\n\n## Research Summary (from 2026-03-18 session)\n\n### Expected Behavior (By Design)\n- MCP operations SHOULD be aggregated by server in /context output\n- Multiple tool invocations from one server roll up to: \"MCP server 'name': uses X% of context\"\n- Individual tool calls are NOT separately enumerated\n- Token accounting is per-server rollup, not per-operation\n\n### Project Architecture\n- Single MCP server configured: `mcp__vvx__jjx`\n- Multiple commands underneath (jjx_list, jjx_show, jjx_record, etc.)\n- All operations should aggregate into ONE /context line item\n\n### Potential Root Causes\n1. Tunneled command architecture (string-based parameter passing) causes side effects on MCP server registration\n2. Claude Code bug where operation invocations are listed instead of aggregated\n3. User configuration error in settings.json or .claude.json\n4. Display artifact where MCP operations are aggregated but visually prominent and push context info off-screen\n\n## Task\n\n1. **Create second MCP command** — add a new, non-tunneled MCP command alongside the existing tunneled one. This command should be simpler (e.g., take structured JSON parameters directly, no string tunnel). Document the implementation pattern.\n\n2. **Test /context output** — run /context command and document:\n   - How many MCP server entries appear\n   - How many operation rows/line items appear\n   - Whether non-tunneled command behaves differently from tunneled command\n   - Token breakdown and proportions\n\n3. **Compare behaviors** — analyze whether adding a non-tunneled command:\n   - Fixes the individual-operation-rows issue\n   - Introduces new issues\n   - Confirms the tunneling approach is the root cause\n\n4. **Document findings** — update heat paddock with:\n   - Implementation pattern for the new non-tunneled command\n   - /context output screenshots or detailed description\n   - Root cause diagnosis (configuration error, bug, design issue)\n   - Recommendation for subsequent paces\n\n5. **Assess impact on ₣Aw** — determine if findings affect how JJF file exchange should be implemented. If MCP integration has limitations, JJF operations may need workarounds.\n\n## Produces\n\n- Working second MCP command integrated into `mcp__vvx__jjx` or as separate server\n- Detailed /context output analysis with findings\n- Decision: proceed with AwAAH as-is, or adjust implementation strategy\n- Updated ₣Aw paddock with MCP integration diagnostics\n\n## Sequencing\n\nThis pace runs FIRST (before AwAAB) to unblock the rest of the heat. Finding may ripple to how file exchange operations are designed/tested.\n",
+              "silks": "jjk-v4-diagnose-mcp-integration",
+              "commit": "b8c3ea9"
             }
           ]
         }
