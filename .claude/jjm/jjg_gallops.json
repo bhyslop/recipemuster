@@ -3091,9 +3091,10 @@
       "creation_time": "260317",
       "status": "stabled",
       "order": [
-        "₢AwAAA"
+        "₢AwAAA",
+        "₢AwAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3104,6 +3105,17 @@
               "text": "Survey JJS0 sections and subdocuments that ₣Ah V4 design paces will deeply rewrite. Add visible AsciiDoc comments (e.g., `// V4-VOLATILE: This section will be rewritten by ₢AhAAA design-v4-data-model`) at the top of each volatile section/subdocument.\n\n## Purpose\n\nPrevent future normalization paces from investing effort on doomed text, and prevent future agents from pattern-matching against pre-normalization forms in sections that will be replaced.\n\n## Sections likely volatile\n\n- V3 Pace data model (tack array, pace members, pace state enum) — rewritten by ₢AhAAA/₢AhAAD\n- V3 validation rules referencing tack/bridle/direction — rewritten alongside type changes\n- Any remaining V3-specific operation details that reference tack access patterns\n\n## Sections likely stable\n\n- Identity encoding (firemark/coronet)\n- Equestrian vocabulary\n- Deterministic serialization\n- Transport (MCP/handler architecture)\n- Routines (load/save/persist/wrap)\n- Upper API verbs and slash commands\n- Most operations (command surface persists, internal details change)\n\n## Produces\n\n- V4-VOLATILE markers on every section/subdocument destined for V4 rewrite\n- Brief note in paddock listing what was marked and why",
               "silks": "mark-volatile-v4-sections",
               "commit": "83aa4bb"
+            }
+          ]
+        },
+        "₢AwAAB": {
+          "tacks": [
+            {
+              "ts": "260317-1831",
+              "state": "rough",
+              "text": "Compare JJS0 spec annotations against actual Rust implementation to establish a baseline before normalization.\n\n## Scope\n\nFor each annotated definition in JJS0, check whether the implementation (jjrt_types.rs, jjr*_.rs command files, jjrv_validate.rs) matches the spec's claims. Focus on:\n\n1. **Type annotations**: Do `//axl_voices axr_record_json` and `//axl_voices axr_member` on Gallops/Heat/Pace match actual serde-derived Rust structs?\n2. **Operation annotations**: Do `//axl_voices axi_cli_subcommand` annotations match what the MCP tool registration actually does?\n3. **Enum annotations**: Do `//axl_voices axt_enum_value` markers cover all variants in Rust enums?\n4. **Argument annotations**: Do `//axl_voices axa_cli_option` / `axa_cli_flag` match actual MCP tool parameter schemas?\n\n## Character\n\nAudit discipline — careful, mechanical comparison. Not design work. Read spec, read code, note discrepancies.\n\n## Produces\n\n- Paddock note summarizing: what matches, what diverges, what's missing from spec, what's missing from code\n- This baseline informs all subsequent normalization paces",
+              "silks": "impl-vs-spec-baseline",
+              "commit": "352d76c"
             }
           ]
         }
