@@ -3264,13 +3264,14 @@
         "₢AwAAG",
         "₢AwAAH",
         "₢AwAAI",
+        "₢AwAAJ",
         "₢AwAAB",
         "₢AwAAC",
         "₢AwAAD",
         "₢AwAAE",
         "₢AwAAF"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3390,6 +3391,17 @@
               "text": "Implement file exchange for input operations: jjx_enroll (slate), jjx_revise_docket (reslate), and jjx_curry (paddock setter).\n\n## Scope\n\nWire JJF parsing into three input-consuming operations:\n\n1. **jjx_enroll** — accept `jjfids_slate` file input in place of docket string parameter. Read from exchange in/, parse jjfids_slate tag, extract silks from label, docket from content, invoke enroll logic.\n\n2. **jjx_revise_docket** — accept `jjfidr_reslate` file input in place of docket string parameter. Read from exchange in/, parse jjfidr_reslate tag, extract coronet from label, docket from content, invoke revise logic.\n\n3. **jjx_curry setter** — accept `jjfip_paddocks` file input in place of content parameter. Read from exchange in/, parse jjfip_paddocks tag, extract firemark from label, content from body, invoke curry write logic.\n\n## Testing\n\nFor each operation: write unit tests exercising valid input, error cases (missing labels, invalid tags, malformed content), file lifecycle (delete after read).\n\n## Produces\n\n- Updated enroll, revise_docket, curry implementations using jjrpf_parse_jjf from ₢AwAAH\n- Unit test coverage for each operation's file exchange path\n- Verified file exchange lifecycle (in/ cleanup, error handling)\n\n## Depends on\n\n₢AwAAH (unit-test-jjf-format) — needs working JJF parser routines",
               "silks": "implement-jjf-input-operations",
               "commit": "92415e5"
+            }
+          ]
+        },
+        "₢AwAAJ": {
+          "tacks": [
+            {
+              "ts": "260318-1535",
+              "state": "rough",
+              "text": "Implement file exchange for output operations: jjx_orient (mount), jjx_show (parade), and jjx_curry (paddock getter).\n\n## Scope\n\nWire JJF emitting into three output-producing operations:\n\n1. **jjx_orient** — emit `jjfip_paddocks` and `jjfids_slate` tags to exchange out/. Write paddock content under jjfip_paddocks tag (labeled with firemark), write pace docket under jjfids_slate tag (labeled with silks). Delete prior out/ content on invocation.\n\n2. **jjx_show --detail** — emit `jjfip_paddocks` and `jjfids_slate` tags to exchange out/ when displaying heat with detail flag. Same labeling as orient.\n\n3. **jjx_curry getter** — emit `jjfip_paddocks` tag to exchange out/ when invoked without content parameter. Write paddock content under tag (labeled with firemark).\n\n## Testing\n\nFor each operation: verify emitted files are valid JJF (parseable by jjremit_emit_jjf), verify labels match expected values, verify file lifecycle (prior content deleted, new content present until next invocation).\n\n## Produces\n\n- Updated orient, show (--detail), curry (getter) implementations using jjremit_emit_jjf from ₢AwAAH\n- Unit test coverage for each operation's file exchange output path\n- Verified file exchange lifecycle (out/ cleanup before write, idempotent re-invocation)\n\n## Depends on\n\n₢AwAAH (unit-test-jjf-format) — needs working JJF emitter routines",
+              "silks": "implement-jjf-output-operations",
+              "commit": "d2eed19"
             }
           ]
         }
