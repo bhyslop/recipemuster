@@ -32,10 +32,10 @@ Quirt `ꝖABC` identifies an immutable gait snapshot. When a gait evolves, a new
 | **Kimberwick** | Beat instance identifier. TBD symbol + 6 base64 characters (4 martingale + 2 index). 4,096 slots per martingale. Named for a type of bit providing precise, engineered control. Scoped to its martingale. If school exhausts slots, breeze and corral what exists — not an error condition. |
 | **Chukker** | Numbered concurrency layer within a volte. All beats in chukker N execute concurrently; chukkers execute in sequence. School assigns each beat a chukker number. Named for a numbered period in polo — distinctive, won't bleed into generic usage. |
 | **Quirt** | Gait identity. `Ꝗ` + 3 base64 characters. Named after a short riding whip — the thing that sets a gait in motion. |
-| **Longe** | Heat-level readiness assessment. Evaluates all remaining paces in parallel: reads dockets, reads codebase to understand scope and file types, classifies each as breezable / needs-refinement / blocked. Read-only — produces a readiness report, not beat entries. Guides where to focus groom/reslate effort before schooling. Named for working a horse on a long line to assess soundness before riding. |
-| **School** | Per-pace planning phase. Reads pace docket AND codebase thoroughly (grep, read files, understand structure) to produce concrete beat table entries in gallops, each carrying a resolved warrant with chukker assignment and model selection. Does NOT web-search or produce work artifacts. Two internal phases: (1) assess docket quality — validate assumptions against codebase reality, check confidence gates; (2) plan — decompose into beats, write concrete warrants, assign chukkers. May refuse to warrant a pace ("this docket has gaps"). Opus-tier, high human attention, one pace at a time. |
-| **Breeze** | Execution phase. jjx reads beat table from gallops, dispatches beats per chukker ordering. For each chukker: merges prior-chukker branches, creates per-beat branches and worktrees, dispatches warrants as bare prompts to specified models via OAuth-authenticated Claude Code instances. Multiple beats within a chukker execute concurrently. jjx collects results and updates beat status in gallops. Zero human attention. |
-| **Corral** | Per-pace review verb (parallels mount). No-param targets next candidate; with param targets specific pace. Reviews composed pace outcome (not individual beats). Three outcomes: accept as-is, refine interactively then accept, or reject (returns to pool for groom/reslate → school cycle). No rebreeze — rejection always flows upstream. Medium human attention. |
+| **Longe** | Heat-level readiness assessment. Classifies remaining paces as breezable / needs-refinement / blocked. Read-only. See Four Phases for detail. |
+| **School** | Per-pace planning phase. Produces concrete beat table entries from docket + codebase investigation. Opus-tier, high human attention. See Four Phases for detail. |
+| **Breeze** | Execution phase. jjx dispatches beats per chukker via OAuth-authenticated Claude Code instances. Zero human attention. See Four Phases for detail. |
+| **Corral** | Per-pace review verb (parallels mount). Reviews composed pace outcome (not individual beats). Three outcomes: accept, refine + accept, or reject. No rebreeze — rejection flows upstream. See Four Phases for detail. |
 | **Tackle** | Named resource bundle within a heat. Silks-identified, mutable. Contains ₿-named file scopes (blazes mapping symbolic names to file paths/globs), ₿-named actions (command + exclusivity), gait affinities, and read-also entries. Tackles let dockets and gaits reference files indirectly — school resolves ₿ references to concrete paths when building beat warrants. Tackle's build/test/integrity-check declarations inform school's chukker boundary decisions. |
 | **Blaze** | Symbolic file/resource reference defined by a tackle. Notation: `₿guide-doc`. Tackles own blaze definitions; dockets and gaits reference them. School resolves blazes to concrete paths in warrants — breeze never sees ₿ symbols, only resolved paths. Global uniqueness within a heat. |
 
@@ -111,20 +111,13 @@ Two kinds of merge at chukker boundaries:
 
 **Tackle's build/test/integrity-check declarations** inform school's chukker boundary decisions — whether auto-merge with tackle-defined checks suffices or explicit alignment beats are needed.
 
-For semantic merge beats: the merger beat gets a worktree forked from the staging point (post-mechanical-merge) and receives docket + per-beat diffs + warrants as assembled context in its prompt. jjx constructs this context; the merger beat writes the coherent combined output. Three information layers available: (1) warrants — the intent per beat, (2) beat diffs — the actual outputs, (3) docket — the human's original goal.
+Merger beats receive assembled context from the post-mechanical-merge staging point: warrants (intent per beat), beat diffs (actual outputs), and docket (human's original goal). jjx constructs this context.
 
 ### Longe → School Handoff
 
-Longe assesses the whole heat at once. School creates beat entries one pace at a time. The cycle:
+Longe assesses the whole heat; school plans one pace at a time. The refinement cycle: longe identifies readiness → human grooms unready paces (reslate) → school warrants ready paces → breeze executes → corral reviews → longe reassesses.
 
-1. Longe reports: "A breezable, B breezable, C needs refinement, D blocked on C."
-2. Human grooms C (reslate to clarify docket). Re-longes if desired.
-3. School plans A: reads codebase, validates docket, produces beat table entries with warrants. Human approves.
-4. School plans B: same process. Human approves.
-5. Breeze executes A and B (dispatching per chukker).
-6. After corral, longe reassesses — C's fog may have lifted.
-
-School's primary discipline is **refusing to plan on weak foundations**. Its most valuable output may be "I cannot warrant this docket — here's what's wrong." A well-groomed docket should be plannable; when it isn't, that signals docket gaps, not a problem for school to paper over.
+School's primary discipline is **refusing to plan on weak foundations**. Its most valuable output may be "I cannot warrant this docket — here's what's wrong."
 
 ### Concurrent Execution
 
@@ -282,16 +275,14 @@ These must be updated alongside the type changes, not as an afterthought.
 
 ## References
 
-- `Memos/memo-20260224-jjk-v4-gaits.md` — Gaits, branches, and the breeze pipeline (partially superseded)
-- `Memos/memo-20260222-jjk-v4-vision.md` — Superseded original design seeds
+Superseded design seeds: `Memos/memo-20260222-jjk-v4-vision.md`, `Memos/memo-20260224-jjk-v4-gaits.md`
+
 - `Tools/jjk/vov_veiled/JJS0-GallopsData.adoc` — V3 data model (what V4 replaces)
-- cchat-20260224 — Groom session: schema decisions, slash command reduction
-- cchat-20260301 — Dreaming session: beats, voltes, corral, execution model, attention model
-- cchat-20260301b — Continuation: quirt identity, warrant structure, school incrementalism, gait library as school-time resource
-- cchat-20260302 — Gait working concept: gaits as school checklists, confidence gates, review phases
-- cchat-20260304 — Groom session: backwards compatibility strategy, three-heat constellation, migration discipline
-- cchat-20260306 — Longe concept, school scope clarification, assessment/planning split
-- cchat-20260311 — Corral refinement: per-pace verb, three outcomes, no rebreeze
-- cchat-20260311b — Tackle/blaze surfacing, beat merge as prompt assembly, parallel subtrees
-- cchat-20260317 — Execution model refinements: martingale, kimberwick, chukker, warrants in gallops, beat table, branch-per-beat, lane isolation, well-formed gait beats
-- ₢AhAAF/₢AhAAG — Verb restructure and slash command cleanup (completed, outcomes in CLAUDE.md)
+- cchat-20260224 — Schema decisions, slash command reduction
+- cchat-20260301/b — Beats, voltes, corral, execution model, quirt identity, warrant structure, gait library
+- cchat-20260302 — Gait working concept: school checklists, confidence gates, review phases
+- cchat-20260304 — Backwards compatibility, three-heat constellation, migration discipline
+- cchat-20260306 — Longe concept, school scope, assessment/planning split
+- cchat-20260311/b — Corral refinement, tackle/blaze surfacing, beat merge, parallel subtrees
+- cchat-20260317 — Martingale, kimberwick, chukker, warrants in gallops, beat table, branch-per-beat, lane isolation, well-formed gait beats
+- ₢AhAAF/₢AhAAG — Verb restructure and slash command cleanup
