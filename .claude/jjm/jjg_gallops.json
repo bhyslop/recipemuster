@@ -2,6 +2,7 @@
   "schema_version": 4,
   "next_heat_seed": "Ax",
   "heat_order": [
+    "₣Ah",
     "₣Av",
     "₣An",
     "₣Am",
@@ -11,7 +12,6 @@
     "₣AN",
     "₣AU",
     "₣At",
-    "₣Ah",
     "₣AQ",
     "₣AV",
     "₣AZ",
@@ -1585,7 +1585,7 @@
     "₣Ah": {
       "silks": "jjk-v4-1-school-breeze-founding",
       "creation_time": "260222",
-      "status": "racing",
+      "status": "stabled",
       "order": [
         "₢AhAAN",
         "₢AhAAL",
