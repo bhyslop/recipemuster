@@ -2134,6 +2134,13 @@
         "₢AhAAV": {
           "tacks": [
             {
+              "ts": "260318-0553",
+              "state": "complete",
+              "text": "Select Unicode symbols for martingale (volte identity, 4 chars) and kimberwick (beat instance identity, 6 chars).\n\n## Constraints\n\n- Must be visually distinct from existing symbols: ₣ (firemark), Ꝗ (quirt), ₢ (coronet)\n- Must render correctly in terminals (macOS Terminal, iTerm2, VS Code integrated terminal)\n- Must not collide with first letters of other identity names: F (firemark), Q (quirt), C (coronet), M (martingale), K (kimberwick)\n- Should be easy to type or paste\n- ₡ (former caracole symbol) is available for reuse if appropriate for martingale\n\n## Produces\n\n- Martingale Unicode symbol selected and documented\n- Kimberwick Unicode symbol selected and documented\n- Paddock identity table updated with concrete symbols (no more TBD)\n\n## Depends on\n\nNothing.",
+              "silks": "select-martingale-kimberwick-symbols",
+              "commit": "9de3a0b"
+            },
+            {
               "ts": "260317-1851",
               "state": "rough",
               "text": "Select Unicode symbols for martingale (volte identity, 4 chars) and kimberwick (beat instance identity, 6 chars).\n\n## Constraints\n\n- Must be visually distinct from existing symbols: ₣ (firemark), Ꝗ (quirt), ₢ (coronet)\n- Must render correctly in terminals (macOS Terminal, iTerm2, VS Code integrated terminal)\n- Must not collide with first letters of other identity names: F (firemark), Q (quirt), C (coronet), M (martingale), K (kimberwick)\n- Should be easy to type or paste\n- ₡ (former caracole symbol) is available for reuse if appropriate for martingale\n\n## Produces\n\n- Martingale Unicode symbol selected and documented\n- Kimberwick Unicode symbol selected and documented\n- Paddock identity table updated with concrete symbols (no more TBD)\n\n## Depends on\n\nNothing.",
