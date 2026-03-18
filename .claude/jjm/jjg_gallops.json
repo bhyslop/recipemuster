@@ -3263,13 +3263,14 @@
         "₢AwAAA",
         "₢AwAAG",
         "₢AwAAH",
+        "₢AwAAI",
         "₢AwAAB",
         "₢AwAAC",
         "₢AwAAD",
         "₢AwAAE",
         "₢AwAAF"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3378,6 +3379,17 @@
               "text": "Implement and test the JJF parsing and emitting routines specified in ₢AwAAG.\n\n## Scope\n\nBuild `jjrpf_parse_jjf` and `jjremit_emit_jjf` Rust routines per JJS0 specification. Test coverage includes:\n\n1. **Parser tests** — parse all 5 tag types (jjfids_slate, jjfidr_reslate, jjfip_paddocks, jjfip_paddocks output, jjfids_slate output)\n2. **Emitter tests** — emit all 5 tag types with correct formatting\n3. **Round-trip tests** — parse(emit(x)) == x for all tag types\n4. **Error cases** — invalid tags, missing required labels, malformed sections, empty content, whitespace edge cases\n5. **Edge cases** — tags at EOF, consecutive tags without blank lines, subsections in content, multiline labels\n\n## Produces\n\n- `jjrpf_parse_jjf.rs` — parser routine implementation\n- `jjremit_emit_jjf.rs` — emitter routine implementation\n- `jjtpf_parse_jjf.rs` — comprehensive unit test module (all cases listed above)\n- Both routines used by subsequent input/output implementation paces\n\n## Depends on\n\n₢AwAAG (design-v4-mcp-file-exchange) — needs JJF spec and procedure definitions",
               "silks": "unit-test-jjf-format",
               "commit": "7544529"
+            }
+          ]
+        },
+        "₢AwAAI": {
+          "tacks": [
+            {
+              "ts": "260318-1535",
+              "state": "rough",
+              "text": "Implement file exchange for input operations: jjx_enroll (slate), jjx_revise_docket (reslate), and jjx_curry (paddock setter).\n\n## Scope\n\nWire JJF parsing into three input-consuming operations:\n\n1. **jjx_enroll** — accept `jjfids_slate` file input in place of docket string parameter. Read from exchange in/, parse jjfids_slate tag, extract silks from label, docket from content, invoke enroll logic.\n\n2. **jjx_revise_docket** — accept `jjfidr_reslate` file input in place of docket string parameter. Read from exchange in/, parse jjfidr_reslate tag, extract coronet from label, docket from content, invoke revise logic.\n\n3. **jjx_curry setter** — accept `jjfip_paddocks` file input in place of content parameter. Read from exchange in/, parse jjfip_paddocks tag, extract firemark from label, content from body, invoke curry write logic.\n\n## Testing\n\nFor each operation: write unit tests exercising valid input, error cases (missing labels, invalid tags, malformed content), file lifecycle (delete after read).\n\n## Produces\n\n- Updated enroll, revise_docket, curry implementations using jjrpf_parse_jjf from ₢AwAAH\n- Unit test coverage for each operation's file exchange path\n- Verified file exchange lifecycle (in/ cleanup, error handling)\n\n## Depends on\n\n₢AwAAH (unit-test-jjf-format) — needs working JJF parser routines",
+              "silks": "implement-jjf-input-operations",
+              "commit": "92415e5"
             }
           ]
         }
