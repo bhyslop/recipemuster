@@ -1957,6 +1957,13 @@
             {
               "ts": "260317-2051",
               "state": "rough",
+              "text": "Opus-tier design conversation: define the V4 gait record, beat well-formedness model, and quirt identity in JJS0.\n\nScope: This pace produces JJS0 spec sections for the gait system:\n\n1. **jjrg_Gait record fields** -- silks (shared across versions), default model preferences, confidence gates, required blazes. Beat templates carry a **piaffe** -- the named prose field declaring purpose, approach, nosebag production/expectations, and resources.\n2. **Piaffe structure and nosebag declarations** -- piaffe contains: purpose, approach, nosebag production (sections this beat emits in provender), nosebag expectations (nosebag names needed from prior chukkers), resources (file scopes, blaze references). Also: auto-tool declarations and quality requirements.\n3. **Nosebag routing contract** -- how piaffes declare what nosebags each beat produces/expects for jjx to match headers at chukker boundaries. Name-matched, not ID-matched.\n4. **Chukker assignment** -- beat templates carry chukker numbers. Same-chukker beats concurrent; chukkers sequential. School inherits chukker structure from gait.\n5. **Merge/alignment beats** -- gaits CAN name alignment beats at chukker boundaries. Not required. Tackle integrity declarations inform need.\n6. **Quirt identity** -- allocation strategy, next_quirt seed, immutability.\n7. **Gaits registry** -- top-level gallops key, keyed by quirt.",
+              "silks": "design-v4-gait-quirt",
+              "commit": "3159313"
+            },
+            {
+              "ts": "260317-2051",
+              "state": "rough",
               "text": "Opus-tier design conversation: define the V4 gait record, beat well-formedness model, and quirt identity in JJS0.\n\nScope: This pace produces JJS0 spec sections for the gait system:\n\n1. **jjrg_Gait record fields** -- silks (shared across versions), default model preferences, confidence gates, required blazes. Beat templates carry a **piaffe** -- the named prose field declaring purpose, approach, nosebag production/expectations, and resources.\n2. **Piaffe structure and nosebag declarations** -- piaffe contains: purpose, approach, nosebag production (sections this beat emits in provender), nosebag expectations (nosebag names needed from prior chukkers), resources (file scopes, blaze references). Also: auto-tool declarations and quality requirements.\n3. **Nosebag routing contract** -- how piaffes declare what nosebags each beat produces/expects for jjx to match headers at chukker boundaries. Name-matched, not ID-matched.",
               "silks": "design-v4-gait-quirt",
               "commit": "071d3d6"
