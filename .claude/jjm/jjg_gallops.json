@@ -1955,6 +1955,13 @@
         "₢AhAAP": {
           "tacks": [
             {
+              "ts": "260317-2050",
+              "state": "rough",
+              "text": "Opus-tier design: V4 gait record, beat well-formedness, quirt identity in JJS0. Scope: (1) jjrg_Gait record fields with piaffe as named prose field on beat templates. (2) Piaffe structure and nosebag declarations. (3) Nosebag routing contract. (4) Chukker assignment. (5) Merge/alignment beats. (6) Quirt identity. (7) Gaits registry. Depends on AhAAO. Produces: V4 Gait Data Model, Piaffe Structure, Quirt Identity sections in JJS0. New territory: piaffe and nosebag routing from cchat-20260317b.",
+              "silks": "design-v4-gait-quirt",
+              "commit": "e9de3fa"
+            },
+            {
               "ts": "260317-2049",
               "state": "rough",
               "text": "test short docket",
