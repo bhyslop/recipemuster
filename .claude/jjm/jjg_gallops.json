@@ -19,7 +19,6 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Ar",
     "₣Au"
   ],
   "heats": {
@@ -2517,15 +2516,6 @@
           ]
         }
       }
-    },
-    "₣Ar": {
-      "silks": "jjk-v4-2",
-      "creation_time": "260308",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAB",
-      "paddock_file": ".claude/jjm/jjp_uAlr.md",
-      "paces": {}
     },
     "₣At": {
       "silks": "rbk-mvp-3-add-graft",
