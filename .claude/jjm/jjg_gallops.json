@@ -1587,6 +1587,7 @@
       "creation_time": "260222",
       "status": "stabled",
       "order": [
+        "₢AhAAS",
         "₢AhAAN",
         "₢AhAAL",
         "₢AhAAF",
@@ -1605,7 +1606,7 @@
         "₢AhAAK",
         "₢AhAAR"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -1960,6 +1961,17 @@
               "text": "The jjx_record size guard counts full file content of staged additions without accounting for paired deletions in git renames. File moves (git detects as R status) are effectively zero new bytes, but the guard treats them as full-size additions, forcing unnecessary size_limit overrides.\n\n## Problem\n\nWhen jjx_record stages files that are renames/moves, git stores them efficiently (same blob, new path). But the size guard sums the byte count of all staged additions, triggering the limit even though the commit adds no new content.\n\n## Solution\n\nIn the size guard calculation, detect rename pairs (git diff --cached --name-status shows R100 or similar) and exclude the destination file size from the total, or only count the net new bytes.\n\n## Acceptance\n\n- File moves/renames do not trigger size guard\n- Genuinely large new content still triggers the guard\n- Warning threshold still fires for large commits regardless",
               "silks": "size-guard-rename-awareness",
               "commit": "28b9e38"
+            }
+          ]
+        },
+        "₢AhAAS": {
+          "tacks": [
+            {
+              "ts": "260317-1843",
+              "state": "rough",
+              "text": "Manual longe: assess all spec pace dockets for conceptual maturity before executing any specification updates.\n\n## Character\n\nIntricate but focused. This is a grooming exercise, not open-ended design. The paddock carries the authoritative design decisions; this pace verifies that each spec docket faithfully reflects those decisions with sufficient precision to execute against.\n\n## Gate Conditions\n\nA spec docket is \"conceptually mature\" when:\n\n1. **Every new type/field is named** with minted prefix allocated (jjep_, jjfg_, etc.). No unnamed fields or \"TBD\" type names.\n2. **Every V3 migration path** for affected fields is documented — what V3 field maps to what V4 field, what is discarded, what transforms.\n3. **Every cross-pace dependency is surfaced**, not hedged with \"depends on output of X.\" If pace B needs a specific decision from pace A, that decision should either be (a) already made in the paddock, or (b) explicitly listed as a blocking question for A to resolve.\n4. **Precision about what, abstract about where.** Dockets specify what the spec section must define (fields, enums, contracts, validation rules, identity allocation) without prescribing JJS0 section headings or document structure.\n5. **No stale vocabulary.** No references to caracole, DAG depends lists, monolithic warrant JSON, warrant-as-first-commit, or other superseded concepts.\n6. **Confidence gates named.** Each spec docket identifies conditions that should cause the spec author to stop and flag rather than paper over.\n\n## Scope\n\nReview these spec paces against the gate conditions:\n- ₢AhAAA (design-v4-data-model) — pace types, state enum, chain, migration\n- ₢AhAAO (design-v4-tackle-blaze) — tackle/blaze system\n- ₢AhAAP (design-v4-gait-quirt) — gait records, beat well-formedness, quirt identity\n- ₢AhAAQ (design-v4-martingale-beat-identity) — beat table, martingale, kimberwick, chukker, branch-per-beat\n- ₢AhAAM (spec-v4-command-surface) — command lifecycle, dispatch mechanics\n\nAlso evaluate whether ₢AhAAQ and ₢AhAAM need splitting per the decomposition analysis from cchat-20260317 (chukker execution mechanics as own pace, concurrent dispatch as own pace).\n\n## Produces\n\n- Reslated spec dockets where gates are not met\n- Decision on pace decomposition (split ₢AhAAQ? split ₢AhAAM? new paces?)\n- Newly slated implementation paces with concrete dockets built against the now-mature spec dockets\n- This pace is complete when all spec dockets pass all gates AND implementation paces are slated\n\n## Depends on\n\nNothing — this is the first actionable pace in the remaining sequence.\n\n## Not bridleable\n\nRequires human judgment about precision/abstraction calibration and pace decomposition decisions.",
+              "silks": "spec-paces-conceptual-maturity-gate",
+              "commit": "a390ec6"
             }
           ]
         }
