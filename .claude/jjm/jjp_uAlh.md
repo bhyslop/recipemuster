@@ -24,9 +24,12 @@ Quirt `ꝖABC` identifies an immutable gait snapshot. When a gait evolves, a new
 
 | Term | Definition |
 |------|------------|
-| **Beat** | Abstract step within a gait: defines inputs, outputs, resources, and goals for one unit of work. In gallops execution tables, beat rows are concrete instances carrying resolved warrants. Context disambiguates: gait definition → abstract template, gallops table → concrete dispatch unit. |
+| **Beat** | Abstract step within a gait: defined by a piaffe specifying purpose, approach, and nosebag declarations. In gallops execution tables, beat rows are concrete instances carrying resolved warrants and (upon completion) provender. Context disambiguates: gait definition → abstract template with piaffe, gallops table → concrete dispatch unit. |
 | **Gait** | Reusable recipe of beats organized by chukker. Gaits can compose other gaits (practical depth limit: ~2 levels). Stored as data in gallops with quirt identity. School-time resource: school reads gaits for decomposition guidance and confidence gates, then produces concrete beat table entries. Breeze never looks up a gait. |
+| **Piaffe** | The prose field of an abstract gait beat template. Contains the beat's purpose, approach, and nosebag declarations (produces/expects). School reads piaffes to write concrete warrants. Docket → piaffe → warrant: intent → template → concrete. Dressage term: precise, deliberate, contained movement — trotting in place with controlled energy before moving forward. |
 | **Warrant** | The resolved prompt school writes into a single beat table entry. Contains concrete instructions for one model dispatch. Fully resolved — no ₿ symbols, no gait references, only concrete values. Each warrant cites its source quirt for audit. |
+| **Provender** | A beat's informational output — a markdown document produced during execution, indelibly recorded on the beat row when status → complete. One provender per beat, optional (beats may produce zero or one). Labeled with a single `#` header, containing zero or more nosebag subsections. jjx reads markdown structure for routing but never interprets prose content. Scoped to the martingale — lives and dies with the volte. |
+| **Nosebag** | A `##`-labeled subsection within a provender document. The addressable unit of informational output. Consuming beats request nosebags by name in their piaffe; jjx matches `##` headers across all prior completed beats' provender and delivers matching sections at dispatch time. Multiple beats may produce same-named nosebags; consumer gets all matches. Multiple beats may expect the same name; each gets the same set. |
 | **Volte** | An attempt at executing one or more paces. One active volte per heat at a time. School creates it (populating beat table entries in gallops); breeze executes it (dispatching beats per chukker); corral reviews per-pace (accept/refine/reject). Identified by martingale. Dressage term: a precise, controlled circle back to the same point with refined intent. |
 | **Martingale** | Volte identity. TBD symbol + 4 base64 characters (2 heat + 2 index). Named for the control strap that keeps the horse from going off course — what holds execution on track. Replaces "caracole" (cchat-20260317). |
 | **Kimberwick** | Beat instance identifier. TBD symbol + 6 base64 characters (4 martingale + 2 index). 4,096 slots per martingale. Named for a type of bit providing precise, engineered control. Scoped to its martingale. If school exhausts slots, breeze and corral what exists — not an error condition. |
@@ -47,18 +50,28 @@ Quirt `ꝖABC` identifies an immutable gait snapshot. When a gait evolves, a new
 | Silks | Gallops entities (heats, paces, gaits, tackles) | `design-v4-data-model` | JSON data, human display |
 | Blazes (₿) | Tackle slot references | `₿guide-doc` | Dockets, gaits — resolved by school |
 
+### Prose Field Escalation
+
+Three named prose fields form an escalation from intent to execution:
+
+| Field | Lives on | Written by | Purpose |
+|-------|----------|------------|---------|
+| **Docket** | Pace | Human (at slate/reslate) | States intent — what needs to be done |
+| **Piaffe** | Gait beat template | Gait author | Abstract instruction — how school should plan this kind of beat |
+| **Warrant** | Beat row (gallops) | School | Concrete prompt — fully resolved, dispatched to a model |
+
 ### Beat: Abstract and Concrete
 
-"Beat" serves as both abstract template (in gait definitions) and concrete instance (in gallops execution tables). The structural context disambiguates: a beat in a gait's recipe is a template with inputs/outputs/resources/goals; a beat row in gallops is a concrete dispatch unit with a resolved warrant, model, file scope, chukker number, and status. This dual usage is intentional — the word maps naturally to both contexts, and the home (gait library vs gallops table) eliminates ambiguity.
+"Beat" serves as both abstract template (in gait definitions) and concrete instance (in gallops execution tables). The structural context disambiguates: a beat in a gait's recipe is a template with a piaffe declaring purpose, approach, and nosebag flow; a beat row in gallops is a concrete dispatch unit with a resolved warrant, model, file scope, chukker number, status, and (upon completion) provender. This dual usage is intentional — the word maps naturally to both contexts, and the home (gait library vs gallops table) eliminates ambiguity.
 
 ## Execution Model
 
 ### Four Phases
 
 1. **Longe** (parallel, read-only) — assesses all remaining paces in a heat simultaneously. For each pace: reads docket, reads codebase to understand scope, identifies file types and potential gaits, classifies as breezable / needs-refinement / blocked. Output is a heat-level readiness report. Guides where to focus groom/reslate before committing to school.
-2. **School** (opus, per-pace, conversational) — reads pace docket and codebase thoroughly (file reads, grep, structural understanding). Two internal phases: (a) assess docket quality against codebase reality, evaluate confidence gates; (b) produce concrete beat table entries in gallops, each carrying a resolved warrant with chukker assignment and model selection. May refuse to warrant ("this docket has gaps — here's what's wrong"). Does NOT web-search or produce work artifacts. Human Q&A refines the beat plan. One pace at a time.
-3. **Breeze** (jjx-orchestrated, concurrent) — jjx reads beat table from gallops. For each chukker in sequence: merges prior-chukker branches, creates per-beat branches and worktrees, dispatches warrants as bare prompts to specified models via OAuth-authenticated Claude Code instances. Multiple beats within a chukker execute concurrently. jjx collects results and updates beat status in gallops. Haiku can orchestrate — precision, not judgment. Staggering beat launches by 1-2 seconds mitigates RPM throttle. Different model tiers have independent rate limit pools.
-4. **Corral** (human + LLM, per-pace) — invoked per pace like mount, targeting next candidate (no param) or a specific pace. Reviews composed pace outcome against docket, diffs against base. Individual beats are internal detail — corral evaluates the whole. Three outcomes: (a) accept as-is → merge to main, pace complete; (b) refine interactively → agent and human adjust near-miss output, then merge; (c) reject → pace returns to pool for groom/reslate, eventual re-school produces new volte. No rebreeze — the fix is always upstream.
+2. **School** (opus, per-pace, conversational) — reads pace docket and codebase thoroughly (file reads, grep, structural understanding). Two internal phases: (a) assess docket quality against codebase reality, evaluate confidence gates; (b) produce concrete beat table entries in gallops, each carrying a resolved warrant with chukker assignment and model selection. School reads gait piaffes to understand beat purpose and nosebag flow, then writes warrants that account for what provender each beat will receive. May refuse to warrant ("this docket has gaps — here's what's wrong"). Does NOT web-search or produce work artifacts. Human Q&A refines the beat plan. One pace at a time.
+3. **Breeze** (jjx-orchestrated, concurrent) — jjx reads beat table from gallops. For each chukker in sequence: merges prior-chukker branches, collects provender from completed prior-chukker beats, creates per-beat branches and worktrees, dispatches warrants (with matching nosebags assembled per piaffe declarations) as bare prompts to specified models via OAuth-authenticated Claude Code instances. Multiple beats within a chukker execute concurrently. jjx collects results, records provender, and updates beat status in gallops. Haiku can orchestrate — precision, not judgment. Staggering beat launches by 1-2 seconds mitigates RPM throttle. Different model tiers have independent rate limit pools.
+4. **Corral** (human + LLM, per-pace) — invoked per pace like mount, targeting next candidate (no param) or a specific pace. Reviews composed pace outcome against docket, diffs against base. Individual beats are internal detail — corral evaluates the whole. Provender from the volte's beats is visible to corral for context. Three outcomes: (a) accept as-is → merge to main, pace complete; (b) refine interactively → agent and human adjust near-miss output, then merge; (c) reject → pace returns to pool for groom/reslate, eventual re-school produces new volte (fresh provender). No rebreeze — the fix is always upstream.
 
 ### Beat Table in Gallops
 
@@ -73,10 +86,24 @@ Each beat row carries:
 - **Chukker** — integer concurrency layer assignment
 - **Quirt** — source gait beat for audit
 - **Status** — pending / complete / failed
+- **Provender** — markdown document (optional, empty until status → complete, immutable thereafter)
 
 Three status states only. No "dispatched" — idempotent re-dispatch on crash recovery. Failed = critical issue encountered during execution, needs human attention.
 
-No rationale, discovery notes, or "might need it later" fields. Lean records.
+Provender is the only field that changes after beat creation — set once, indelibly, on completion.
+
+### Provender and Nosebag Routing
+
+At each chukker boundary, jjx assembles nosebags for each beat about to dispatch:
+
+1. Scan all completed beats in prior chukkers within this martingale
+2. For each completed beat with provender, parse `##` headers
+3. Match against the consuming beat's piaffe `expects` declarations
+4. Deliver matched nosebag sections as context alongside the warrant
+
+jjx reads markdown structure (headers) but never interprets prose content between headers. The LLM produces nosebags; the LLM consumes them. jjx is the switchboard.
+
+Provender is scoped to the martingale. If corral rejects the volte and a new one is schooled/breezed, fresh provender starts from scratch.
 
 ### Chukker Model
 
@@ -111,7 +138,7 @@ Two kinds of merge at chukker boundaries:
 
 **Tackle's build/test/integrity-check declarations** inform school's chukker boundary decisions — whether auto-merge with tackle-defined checks suffices or explicit alignment beats are needed.
 
-Merger beats receive assembled context from the post-mechanical-merge staging point: warrants (intent per beat), beat diffs (actual outputs), and docket (human's original goal). jjx constructs this context.
+Merger beats receive assembled context from the post-mechanical-merge staging point: warrants (intent per beat), beat diffs (actual outputs), docket (human's original goal), and nosebags from prior beats. jjx constructs this context.
 
 ### Longe → School Handoff
 
@@ -131,7 +158,7 @@ V4 jjx doesn't just manage JSON — it emits prompts, directives, and context th
 
 Pattern: jjx handles state/sequencing, LLM handles git operations and judgment. Co-routine. jjx is the conductor — it never interprets the warrants, just routes them.
 
-jjx orchestration is haiku-tier work. Reading beat tables, creating worktrees, dispatching per chukker, collecting results — precision, not judgment. Reserve opus for school and corral; haiku conducts.
+jjx orchestration is haiku-tier work. Reading beat tables, creating worktrees, dispatching per chukker, collecting results, routing nosebags — precision, not judgment. Reserve opus for school and corral; haiku conducts.
 
 **Model-tier enforcement**: jjx requires a model-identity parameter on every invocation. The invoking model self-reports its identity (e.g., `claude-haiku-4-5`). jjx enforces tier constraints mechanically — breeze-phase orchestration commands refuse to execute unless invoked by haiku. No honor system; hard gate.
 
@@ -157,17 +184,18 @@ Gaits evolve through practice: start with a few simple single-beat gaits, use th
 
 ### Well-Formed Gait Beats
 
-Abstract beats in gait definitions must specify:
-- **Inputs**: What the beat receives (prior outputs, docket content, codebase state)
-- **Outputs**: What the beat produces (file modifications, review commentary)
+Abstract beats in gait definitions carry a **piaffe** — the prose field declaring:
+- **Purpose**: What the beat accomplishes
+- **Approach**: How school should plan this kind of work
+- **Nosebag production**: What `##`-labeled nosebags this beat is expected to emit in its provender
+- **Nosebag expectations**: What nosebag names this beat needs from prior chukkers
 - **Resources**: File scopes, ₿ blaze references
-- **Goals**: What school should discern from the docket for this beat
 
 Additionally, well-formed beats may include:
 - **Auto-tool gaits**: Builds, test runs, linters — automatic tool invocations as beat steps
 - **Quality requirements**: Retry semantics ("try and fix up to N times") or fail-fast ("stop on any failure")
 
-**Gait record fields (TBD)**: At minimum needs silks (shared across versions), beat templates with the above structure, default model preferences, confidence gates, and required ₿ blazes. Exact schema deferred until first gaits are built. Gaits are immutable — evolution mints new quirts with the same silks.
+**Gait record fields (TBD)**: At minimum needs silks (shared across versions), beat templates with piaffes, default model preferences, confidence gates, and required ₿ blazes. Exact schema deferred until first gaits are built. Gaits are immutable — evolution mints new quirts with the same silks.
 
 ## Schema Decisions
 
@@ -188,6 +216,13 @@ Accumulated across groom sessions.
 - **Beat status**: pending/complete/failed. Three states, idempotent re-dispatch.
 - **next_martingale seed**: Heat-level field for martingale allocation.
 
+### V4 Informational Output (cchat-20260317b)
+- **Provender**: Markdown document on beat row, set indelibly at completion. `#` header labels the document. No separate table — lives on beat row as string field.
+- **Nosebag**: `##`-labeled subsection within provender. Addressable unit for routing. jjx matches headers mechanically, never interprets content.
+- **Piaffe**: Named prose field on abstract gait beat templates. Replaces unnamed "inputs/outputs/resources/goals" facet list with a single prose field carrying purpose, approach, and nosebag declarations.
+- **Routing model**: Consuming beat's piaffe declares expected nosebag names. jjx scans completed prior-chukker beats, matches `##` headers, delivers matching sections. Name-matched, not ID-matched.
+- **Provender lifecycle**: Empty until complete, immutable thereafter. Scoped to martingale — rejected volte means fresh provender on re-school/rebreeze.
+
 ### Gallops Registries
 - **Gaits registry**: Top-level gallops key, keyed by quirt. Fields TBD.
 - **Tackles as resource bundles**: Top-level gallops key. Silks-identified, mutable. Contains blaze definitions, actions, gait affinities.
@@ -197,7 +232,9 @@ Accumulated across groom sessions.
 
 - **Martingale Unicode symbol**: Needs selection. Must be visually distinct.
 - **Kimberwick Unicode symbol**: Needs selection. Must be visually distinct.
-- **Gait data model fields**: Beat templates, confidence gates, model preferences, auto-tool gaits, quality requirements — exact schema deferred.
+- **Gait data model fields**: Beat templates with piaffes, confidence gates, model preferences, auto-tool gaits, quality requirements — exact schema deferred.
+- **Provender emission convention**: How does the LLM emit provender during beat execution? Structured block, tool call, delimiter convention? Deferred until first gaits are built.
+- **Provender size limits**: Same size-guard philosophy as commits? Deferred.
 - **Memory curation**: How does jjx curate prior-volte context for school prompts? Deferred — likely ₣Am scope.
 - **Longe output format and CLI**: Readiness report structure and new upper API verb. Needs spec.
 - **Ready vs reined distinction**: Both in state enum — is the distinction clear enough?
@@ -217,11 +254,14 @@ Accumulated across groom sessions.
 ### cchat-20260317: Execution Model Refinements
 Martingale replaces caracole (C-collision avoidance). Kimberwick beat identity (6-char, 4096/martingale). Chukker concurrency layers replace DAG. Warrants in gallops not git (lane isolation). Flat beat table with immutable coronet refs. Branch-per-beat JIT with mechanical merge at chukker boundaries. Three-state beat status (pending/complete/failed). Corral at pace boundary. Spur concept killed (structural context disambiguates). Well-formed gait beats (inputs/outputs/resources/goals, auto-tool gaits, quality requirements). Lean beat records. Chain set at slate/reslate not school. Volte state in gallops supersedes "state from branch existence."
 
+### cchat-20260317b: Provender, Nosebag, and Piaffe
+Beat informational output as provender (markdown doc on beat row, indelible at completion). Nosebags as `##`-labeled addressable subsections. Piaffe as named prose field on gait beat templates (docket → piaffe → warrant escalation). Name-matched routing: piaffe declares produces/expects, jjx matches `##` headers mechanically. No separate findings table — provender lives on beat row. Provender scoped to martingale (dies with rejected volte). LLM produces, LLM consumes, jjx routes.
+
 ## Gait Design Principles
 
 Distilled from cchat-20260302 (₢AiAAz retrospective), updated cchat-20260317.
 
-A gait contains: **beat templates** (with inputs/outputs/resources/goals, organized by chukker), **codebase investigation steps** (school reads files to understand scope before creating beat entries), and **confidence gates** (conditions that cause school to stop and flag). Confidence gates are the most valuable part — they encode "where this kind of work goes wrong."
+A gait contains: **beat templates with piaffes** (declaring purpose, approach, nosebag flow, organized by chukker), **codebase investigation steps** (school reads files to understand scope before creating beat entries), and **confidence gates** (conditions that cause school to stop and flag). Confidence gates are the most valuable part — they encode "where this kind of work goes wrong."
 
 Well-formed gait beats may also include **auto-tool gaits** (builds, test runs, linters) and **quality requirements** (retry semantics or fail-fast declarations). Tackle declarations inform which checks are available.
 
@@ -285,4 +325,5 @@ Superseded design seeds: `Memos/memo-20260222-jjk-v4-vision.md`, `Memos/memo-202
 - cchat-20260306 — Longe concept, school scope, assessment/planning split
 - cchat-20260311/b — Corral refinement, tackle/blaze surfacing, beat merge, parallel subtrees
 - cchat-20260317 — Martingale, kimberwick, chukker, warrants in gallops, beat table, branch-per-beat, lane isolation, well-formed gait beats
+- cchat-20260317b — Provender, nosebag, piaffe: beat informational output and gait prose field naming
 - ₢AhAAF/₢AhAAG — Verb restructure and slash command cleanup
