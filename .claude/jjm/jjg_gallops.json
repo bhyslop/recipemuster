@@ -3095,9 +3095,10 @@
         "₢AwAAB",
         "₢AwAAC",
         "₢AwAAD",
-        "₢AwAAE"
+        "₢AwAAE",
+        "₢AwAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3159,6 +3160,17 @@
               "text": "Update record/member/enum/type annotations on JJS0 data model sections that survive V4.\n\n## Scope\n\nAnnotate definitions that are NOT marked V4-VOLATILE:\n\n1. **Gallops record and members** — verify/complete axr_record_json and axr_member annotations\n2. **Heat record and members** — same\n3. **Identity types** (firemark, coronet, silks) — verify axt_string annotations, add dimension modifiers\n4. **Heat status enum** (racing/stabled/retired) — verify axt_enum_value annotations\n5. **Column Table** record/members/enum — these are JJS0-specific display infrastructure, annotate appropriately\n6. **Argument definitions** (jjda_*) — verify axa_cli_option / axa_cli_flag annotations match resolved AXLA vocabulary\n7. **Upper API verbs and slash commands** — verify axi_cc_claudemd_verb and axi_cc_slash_command annotations\n\n## Character\n\nMechanical — systematic pass through non-volatile definitions applying consistent annotation patterns.\n\n## Depends on\n\n- ₢AwAAA (mark-volatile) — need to know what to skip\n- ₢AwAAC (surface-axla-gaps) — need resolved motif vocabulary",
               "silks": "normalize-data-model-annotations",
               "commit": "6d6d7ea"
+            }
+          ]
+        },
+        "₢AwAAF": {
+          "tacks": [
+            {
+              "ts": "260317-1836",
+              "state": "rough",
+              "text": "Re-run the ₢AwAAB audit after normalization is complete. Confirm divergence count decreased and categorize what remains.\n\n## Inputs\n\n- Baseline memo from ₢AwAAB (filename in ₣Aw paddock)\n- Normalized JJS0 (output of ₢AwAAD and ₢AwAAE)\n\n## Scope\n\nSame audit as ₢AwAAB: walk every annotated JJS0 definition against Rust implementation. For each item in the baseline memo, classify as:\n\n1. **Resolved** — normalization fixed the divergence\n2. **Deferred to ₣Ah** — in a V4-VOLATILE section, will be addressed by V4 design paces\n3. **New gap** — normalization introduced a divergence (should be zero; if nonzero, fix before wrapping)\n4. **Persistent** — was divergent before, still divergent, not V4-VOLATILE (needs explanation)\n\n## Character\n\nAudit discipline — same posture as ₢AwAAB. Mechanical comparison with categorization judgment.\n\n## Acceptance\n\n- Zero \"new gap\" items\n- Zero \"persistent\" items without documented justification\n- Updated memo or addendum documenting the reassessment results\n- Clean handoff summary for ₣Ah paddock\n\n## Depends on\n\n- ₢AwAAD (normalize-operation-annotations)\n- ₢AwAAE (normalize-data-model-annotations)",
+              "silks": "impl-vs-spec-reassessment",
+              "commit": "eb13ab9"
             }
           ]
         }
