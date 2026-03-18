@@ -30,7 +30,7 @@ Quirt `ꝖABC` identifies an immutable gait snapshot. When a gait evolves, a new
 | **Volte** | An attempt at executing one or more paces. One active volte per heat at a time. School creates it (populating beat table entries in gallops); breeze executes it (dispatching beats per chukker); corral reviews per-pace (accept/refine/reject). Identified by martingale. Dressage term: a precise, controlled circle back to the same point with refined intent. |
 | **Martingale** | Volte identity. TBD symbol + 4 base64 characters (2 heat + 2 index). Named for the control strap that keeps the horse from going off course — what holds execution on track. Replaces "caracole" (cchat-20260317). |
 | **Kimberwick** | Beat instance identifier. TBD symbol + 6 base64 characters (4 martingale + 2 index). 4,096 slots per martingale. Named for a type of bit providing precise, engineered control. Scoped to its martingale. If school exhausts slots, breeze and corral what exists — not an error condition. |
-| **Chukker** | Numbered concurrency layer within a volte. All beats in chukker N execute concurrently; chukkers execute in sequence. School assigns each beat a chukker number. Named for a numbered period in polo — distinctive, won't bleed into generic usage. Replaces arbitrary DAG `depends` lists (cchat-20260317). |
+| **Chukker** | Numbered concurrency layer within a volte. All beats in chukker N execute concurrently; chukkers execute in sequence. School assigns each beat a chukker number. Named for a numbered period in polo — distinctive, won't bleed into generic usage. |
 | **Quirt** | Gait identity. `Ꝗ` + 3 base64 characters. Named after a short riding whip — the thing that sets a gait in motion. |
 | **Longe** | Heat-level readiness assessment. Evaluates all remaining paces in parallel: reads dockets, reads codebase to understand scope and file types, classifies each as breezable / needs-refinement / blocked. Read-only — produces a readiness report, not beat entries. Guides where to focus groom/reslate effort before schooling. Named for working a horse on a long line to assess soundness before riding. |
 | **School** | Per-pace planning phase. Reads pace docket AND codebase thoroughly (grep, read files, understand structure) to produce concrete beat table entries in gallops, each carrying a resolved warrant with chukker assignment and model selection. Does NOT web-search or produce work artifacts. Two internal phases: (1) assess docket quality — validate assumptions against codebase reality, check confidence gates; (2) plan — decompose into beats, write concrete warrants, assign chukkers. May refuse to warrant a pace ("this docket has gaps"). Opus-tier, high human attention, one pace at a time. |
@@ -138,11 +138,11 @@ V4 jjx doesn't just manage JSON — it emits prompts, directives, and context th
 
 Pattern: jjx handles state/sequencing, LLM handles git operations and judgment. Co-routine. jjx is the conductor — it never interprets the warrants, just routes them.
 
-jjx orchestration is haiku-tier work. The JJS0 lower/upper API split already implies this: lower-layer commands are deliberately boring and mechanical. Reading beat tables, creating worktrees, dispatching per chukker, collecting results — this requires precision, not judgment. Reserve opus for school and corral; haiku conducts.
+jjx orchestration is haiku-tier work. Reading beat tables, creating worktrees, dispatching per chukker, collecting results — precision, not judgment. Reserve opus for school and corral; haiku conducts.
 
-**Model-tier enforcement**: jjx requires a model-identity parameter on every invocation. The invoking model self-reports its identity (e.g., `claude-haiku-4-5`). jjx enforces tier constraints mechanically — breeze-phase orchestration commands refuse to execute unless invoked by haiku. No honor system; hard gate. Secondary benefit: commit history and execution logs carry a model-attribution trail.
+**Model-tier enforcement**: jjx requires a model-identity parameter on every invocation. The invoking model self-reports its identity (e.g., `claude-haiku-4-5`). jjx enforces tier constraints mechanically — breeze-phase orchestration commands refuse to execute unless invoked by haiku. No honor system; hard gate.
 
-**Bare prompt reproducibility**: Same prompt + same model + same worktree state = comparable output. Multi-turn conversations are path-dependent and unreproducible; a bare prompt is a function call. This makes process improvement scientific: when a beat produces bad output, change one variable (the prompt, or the model) and rerun. The closed loop — prompt → output → evaluate → refine prompt — is what makes the gait library a learning system. Each quirt version encodes lessons from prior bare-prompt outcomes. Tool use during beat execution is expected (file reads, searches, etc.) but opaque to the orchestrator — jjx dispatches one warrant and collects commits. The internal tool-call chain is the model's problem, not the conductor's.
+**Bare prompt reproducibility**: Same prompt + same model + same worktree state = comparable output. Multi-turn conversations are path-dependent and unreproducible; a bare prompt is a function call. This makes process improvement scientific: when a beat produces bad output, change one variable (the prompt, or the model) and rerun. The closed loop — prompt → output → evaluate → refine prompt — is what makes the gait library a learning system. Each quirt version encodes lessons from prior bare-prompt outcomes. Tool use during beat execution is expected (file reads, searches, etc.) but opaque to the orchestrator — jjx dispatches one warrant and collects commits.
 
 ### Attention Model
 
@@ -178,69 +178,64 @@ Additionally, well-formed beats may include:
 
 ## Schema Decisions
 
-Accumulated across groom sessions. Most recent additions marked with session date.
+Accumulated across groom sessions.
 
-- **Tack eliminated**: Flat mutable fields on pace (state, silks, docket, basis, ts, chain). No append-only history.
-- **New state enum**: green → ready/reined → candidate → complete/abandoned. Zero actionable overlap with V3.
-- **Reined state**: Interactive-required. School decides ready (autonomous) vs reined (human-in-loop).
-- **Gaits registry**: New top-level gallops key, keyed by quirt. Stored as data. Fields TBD.
-- **Bridling eliminated**: School/breeze/corral replaces arm-and-fly. No bridled state in V4.
-- **Markers eliminated**: Restore on need.
-- **Field renames**: V3 `text` → `docket`. V3 `direction` → no longer a pace-level field; warrants live on beat rows in gallops.
-- **Tackles as resource bundles**: New top-level gallops key alongside gaits. Silks-identified, mutable. Contains blaze definitions, actions, gait affinities. Tackles decouple dockets from concrete paths.
-- **Blaze identity (₿)**: Not a global identity — scoped to tackle, resolved by school. No identity table slot.
-- **Caracole → Martingale** (cchat-20260317): Volte identity renamed to avoid C-collision with Coronet. Symbol TBD.
-- **Kimberwick** (cchat-20260317): Beat instance identity. 6 chars (4 martingale + 2 index). 4,096 slots per martingale. Symbol TBD.
-- **Beat table in gallops** (cchat-20260317): Flat collection of beat rows, each with immutable coronet reference. Replaces monolithic warrant JSON.
-- **Warrants in gallops, not git** (cchat-20260317): Per-beat warrant field in gallops table. Replaces "warrant as first commit on volte branch." Motivation: lane isolation, natural state store, granular status tracking.
-- **Chukker model** (cchat-20260317): Integer concurrency layers replace arbitrary DAG `depends` lists.
-- **Branch-per-beat, just-in-time** (cchat-20260317): Branches created at dispatch time, not planning time. Mechanical merge at chukker boundaries.
-- **Beat status: pending/complete/failed** (cchat-20260317): Three states. Idempotent re-dispatch. No "dispatched" state.
-- **Branch naming**: `jj/MARTINGALE_ID/KIMBERWICK_ID` — execution artifacts.
-- **next_martingale seed** (cchat-20260317): Heat-level field for martingale allocation (replaces next_caracole).
+### Core V4 Type Changes
+- **Tack eliminated**: Flat mutable fields on pace (state, silks, docket, basis, ts, chain). Chain is inter-pace dependency set at slate/reslate time — structural metadata, not discovered by school. Longe depends on chains being pre-set to assess pace readiness.
+- **Field renames**: V3 `text` → `docket`. V3 `direction` → no longer a pace-level field; warrants live on beat rows.
+- **New state enum**: green → ready/reined → candidate → complete/abandoned. Reined = interactive-required (school decides ready vs reined).
+- **Bridling and markers eliminated**: School/breeze/corral replaces arm-and-fly. Restore markers on need.
+
+### V4 Execution Infrastructure (cchat-20260317)
+- **Caracole → Martingale**: Volte identity renamed to avoid C-collision with Coronet. Symbol TBD.
+- **Kimberwick**: Beat instance identity. 6 chars (4 martingale + 2 index). 4,096 slots per martingale. Symbol TBD.
+- **Beat table in gallops**: Flat collection of beat rows with immutable coronet refs, replacing monolithic warrant JSON. Warrants in gallops (not git) for lane isolation, natural state store, granular status tracking.
+- **Chukker model**: Integer concurrency layers replace arbitrary DAG `depends` lists.
+- **Branch-per-beat JIT**: Branches created at dispatch time. Mechanical merge at chukker boundaries. Naming: `jj/MARTINGALE_ID/KIMBERWICK_ID`.
+- **Beat status**: pending/complete/failed. Three states, idempotent re-dispatch.
+- **next_martingale seed**: Heat-level field for martingale allocation.
+
+### Gallops Registries
+- **Gaits registry**: Top-level gallops key, keyed by quirt. Fields TBD.
+- **Tackles as resource bundles**: Top-level gallops key. Silks-identified, mutable. Contains blaze definitions, actions, gait affinities.
+- **Blaze identity (₿)**: Not a global identity — scoped to tackle, resolved by school.
 
 ## Still Open
 
-- **Martingale Unicode symbol**: Needs selection. Must be visually distinct. Former `₡` symbol available for reuse or replacement.
+- **Martingale Unicode symbol**: Needs selection. Must be visually distinct.
 - **Kimberwick Unicode symbol**: Needs selection. Must be visually distinct.
-- **Gait data model fields**: What does a gait record contain? Beat templates (with inputs/outputs/resources/goals), confidence gates, default model preferences, auto-tool gaits, quality requirements — exact schema deferred. Key insight: gaits are checklists for school, not plan templates for breeze.
-- **Memory curation**: How does jjx curate prior-volte context for school prompts? jjx is the memory — reads volte history, rejection notes, prior warrants. The curation logic (what to include, how much) is the hardest design problem. Deferred — likely ₣Am scope.
-- **Longe output format**: What does the readiness report look like? Per-pace: breezable/needs-refinement/blocked + rationale + identified file types + candidate gaits.
-- **Longe verb and CLI**: New upper API verb `longe`. Maps to what jjx operation? Needs spec.
-- **Ready vs reined distinction**: Both in the state enum — is the distinction clear enough? School decides which.
-- **Beat table gallops location**: Top-level collection keyed by kimberwick? Or scoped under martingale? Affects serialization.
-- **Chukker 0 semantics**: Is chukker 0 always the first execution layer, or can school use it for setup beats?
+- **Gait data model fields**: Beat templates, confidence gates, model preferences, auto-tool gaits, quality requirements — exact schema deferred.
+- **Memory curation**: How does jjx curate prior-volte context for school prompts? Deferred — likely ₣Am scope.
+- **Longe output format and CLI**: Readiness report structure and new upper API verb. Needs spec.
+- **Ready vs reined distinction**: Both in state enum — is the distinction clear enough?
+- **Beat table gallops location**: Top-level keyed by kimberwick, or scoped under martingale?
+- **Chukker 0 semantics**: Always first execution layer, or can school use it for setup beats?
 
 ## Resolved
 
-- **School scope** (cchat-20260306): School reads codebase thoroughly (grep, file reads) to understand scope and validate dockets — planning intelligence, not "research." Does NOT web-search or produce work artifacts. Two internal phases: assess (validate docket against codebase) and plan (produce beat entries).
-- **Assessment vs planning split** (cchat-20260306): "Longe" phase handles heat-level readiness assessment (parallel, all paces). School handles per-pace beat creation (sequential, interactive). Separates "which paces are ready?" from "plan this specific pace."
-- **Groom's fate**: Groom remains a verb table entry. Longe → groom → school is the refinement cycle.
-- **Volte identity renamed** (cchat-20260317): Caracole → Martingale. Avoids C-collision with Coronet. Control strap metaphor fits volte's role.
-- **No concurrent voltes** (cchat-20260306): One active volte per heat. Sequential: school → breeze → corral → done. Parallax via concurrent voltes deferred.
-- **Volte state model revised** (cchat-20260317): Gallops carries beat table with execution state (pending/complete/failed). Supersedes "no volte state in gallops" — branches remain as execution containers but gallops is the primary state carrier. Heat stores `next_martingale` seed.
-- **Volte history synthesis deferred** (cchat-20260306): When a volte's pace is rejected, human grooms/reslates the docket with lessons learned. School starts fresh from the docket — the docket IS the memory. Machine-curated volte history is V4.1+ scope.
-- **Quirt immutability** (cchat-20260306): Gaits are immutable snapshots. Mint new quirt with same silks on evolution. "Latest version" = highest quirt with matching silks. No lineage chain. Beats cite specific quirts for audit; school picks the latest.
-- **Corral as per-pace verb** (cchat-20260311): Promoted from "phase" to per-pace verb parallel to mount. Three outcomes: accept / refine interactively + accept / reject. Rejection flows upstream. No rebreeze.
-- **Corral reviews at pace boundary** (cchat-20260317): Individual beats are internal execution detail. Corral evaluates composed pace outcome.
-- **Beat merge at chukker boundaries** (cchat-20260317): Mechanical merge (git, automatic at every chukker boundary) vs semantic merge (explicit beat in gait, optional for multidisciplinary work). Merger beats receive assembled context from post-mechanical-merge staging point.
-- **Warrant storage in gallops** (cchat-20260317): Per-beat warrant fields in gallops table. Supersedes "warrant as first commit on volte branch." Motivations: lane isolation (agents can't git-log other beats' prompts), natural state store (jjx owns gallops), granular status tracking.
-- **DAG replaced by chukker model** (cchat-20260317): Integer concurrency layers. All beats in chukker N concurrent; chukkers sequential. Simpler than arbitrary DAGs, sufficient for layered decomposition.
-- **Beat instance identity (kimberwick)** (cchat-20260317): 6-char identity (4 martingale + 2 index), 4,096 slots per martingale. If exhausted, breeze what exists.
-- **Spur concept killed before birth** (cchat-20260317): Proposed as concrete beat instance term; killed because structural context (gait definition vs gallops table) already disambiguates beat's dual nature.
-- **Beat well-formedness** (cchat-20260317): Abstract beats in gaits specify inputs, outputs, resources, goals. May include auto-tool gaits (builds, tests, linters) and quality requirements (retry N times, stop on failure).
-- **Lean beat records** (cchat-20260317): No rationale or discovery retention on gallops beat rows. No "might need it later" fields.
+### Pre-20260317
+- **School scope** (cchat-20260306): Reads codebase thoroughly — planning intelligence, not "research." Two phases: assess and plan.
+- **Longe concept** (cchat-20260306): Heat-level readiness assessment, separate from per-pace school. Longe → groom → school refinement cycle.
+- **No concurrent voltes** (cchat-20260306): One active per heat. Parallax via concurrent voltes deferred.
+- **Volte history synthesis deferred** (cchat-20260306): School starts fresh from docket. Machine-curated volte history is V4.1+ scope.
+- **Quirt immutability** (cchat-20260306): Immutable snapshots, new quirt per evolution with same silks. No lineage chain.
+- **Corral as per-pace verb** (cchat-20260311): Three outcomes: accept / refine + accept / reject. No rebreeze — fix is always upstream.
 
-## Gait Design Principles (distilled from cchat-20260302, ₢AiAAz retrospective, updated cchat-20260317)
+### cchat-20260317: Execution Model Refinements
+Martingale replaces caracole (C-collision avoidance). Kimberwick beat identity (6-char, 4096/martingale). Chukker concurrency layers replace DAG. Warrants in gallops not git (lane isolation). Flat beat table with immutable coronet refs. Branch-per-beat JIT with mechanical merge at chukker boundaries. Three-state beat status (pending/complete/failed). Corral at pace boundary. Spur concept killed (structural context disambiguates). Well-formed gait beats (inputs/outputs/resources/goals, auto-tool gaits, quality requirements). Lean beat records. Chain set at slate/reslate not school. Volte state in gallops supersedes "state from branch existence."
+
+## Gait Design Principles
+
+Distilled from cchat-20260302 (₢AiAAz retrospective), updated cchat-20260317.
 
 A gait contains: **beat templates** (with inputs/outputs/resources/goals, organized by chukker), **codebase investigation steps** (school reads files to understand scope before creating beat entries), and **confidence gates** (conditions that cause school to stop and flag). Confidence gates are the most valuable part — they encode "where this kind of work goes wrong."
 
-Well-formed gait beats may also include **auto-tool gaits** (builds, test runs, linters as automatic steps) and **quality requirements** (retry semantics or fail-fast declarations). Tackle declarations inform which checks are available.
+Well-formed gait beats may also include **auto-tool gaits** (builds, test runs, linters) and **quality requirements** (retry semantics or fail-fast declarations). Tackle declarations inform which checks are available.
 
 Key decisions:
-- Gaits are checklists for school, not plan templates for breeze. School produces the beat entries; the gait guides decomposition.
-- Gait selection belongs in school, not at slate time. Dockets evolve; stale gait selections add coupling. Humans may hint in docket prose.
-- Review is multi-phase: self-review (parallel angles) → fix → human review (corral) → fix. Not a single terminal beat.
+- Gaits are checklists for school, not plan templates for breeze.
+- Gait selection belongs in school, not at slate time.
+- Review is multi-phase: self-review → fix → human review (corral) → fix.
 - School's primary discipline is refusing to plan on weak foundations.
 
 ## V3→V4 Migration Discipline
@@ -265,8 +260,6 @@ Every pace in ₣Ah that modifies the gallops schema MUST include in its docket:
 - **V3 field**: What V3 field/structure is affected
 - **V4 change**: What V4 does differently
 - **Migration transform**: How `jjdr_load` converts V3→V4 in memory
-
-This discipline propagates to any continuation heats spawned from ₣Ah.
 
 ### Validation Changes
 
@@ -294,11 +287,11 @@ These must be updated alongside the type changes, not as an afterthought.
 - `Tools/jjk/vov_veiled/JJS0-GallopsData.adoc` — V3 data model (what V4 replaces)
 - cchat-20260224 — Groom session: schema decisions, slash command reduction
 - cchat-20260301 — Dreaming session: beats, voltes, corral, execution model, attention model
-- cchat-20260301b — Continuation: quirt identity, warrant structure (JSON), warrant evolution from V3, school incrementalism, memory challenge, gait library as school-time resource
-- cchat-20260302 — Gait working concept: gaits as school checklists, confidence gates, research steps, review phases, MCM vocabulary migration example (derived from ₣Ai ₢AiAAz execution)
-- cchat-20260304 — Groom session: backwards compatibility strategy, ₣AG triage, three-heat constellation, migration discipline
-- cchat-20260306 — Longe concept, school scope clarification (reads codebase, not web search), assessment/planning split, paddock compression
-- cchat-20260311 — Corral refinement: per-pace verb, three outcomes (accept/refine/reject), no rebreeze
-- cchat-20260311b — Tackle/blaze surfacing, beat merge as prompt assembly, parallel subtrees within a pace
-- cchat-20260317 — Execution model refinements: martingale (replacing caracole), kimberwick (beat identity), chukker (concurrency layers), warrants in gallops, beat table, branch-per-beat, lane isolation, well-formed gait beats
+- cchat-20260301b — Continuation: quirt identity, warrant structure, school incrementalism, gait library as school-time resource
+- cchat-20260302 — Gait working concept: gaits as school checklists, confidence gates, review phases
+- cchat-20260304 — Groom session: backwards compatibility strategy, three-heat constellation, migration discipline
+- cchat-20260306 — Longe concept, school scope clarification, assessment/planning split
+- cchat-20260311 — Corral refinement: per-pace verb, three outcomes, no rebreeze
+- cchat-20260311b — Tackle/blaze surfacing, beat merge as prompt assembly, parallel subtrees
+- cchat-20260317 — Execution model refinements: martingale, kimberwick, chukker, warrants in gallops, beat table, branch-per-beat, lane isolation, well-formed gait beats
 - ₢AhAAF/₢AhAAG — Verb restructure and slash command cleanup (completed, outcomes in CLAUDE.md)
