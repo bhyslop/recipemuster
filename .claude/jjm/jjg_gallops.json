@@ -3090,10 +3090,24 @@
       "silks": "jjk-v4-0-jjs0-axla-normalization",
       "creation_time": "260317",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AwAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
-      "paces": {}
+      "paces": {
+        "₢AwAAA": {
+          "tacks": [
+            {
+              "ts": "260317-1830",
+              "state": "rough",
+              "text": "Survey JJS0 sections and subdocuments that ₣Ah V4 design paces will deeply rewrite. Add visible AsciiDoc comments (e.g., `// V4-VOLATILE: This section will be rewritten by ₢AhAAA design-v4-data-model`) at the top of each volatile section/subdocument.\n\n## Purpose\n\nPrevent future normalization paces from investing effort on doomed text, and prevent future agents from pattern-matching against pre-normalization forms in sections that will be replaced.\n\n## Sections likely volatile\n\n- V3 Pace data model (tack array, pace members, pace state enum) — rewritten by ₢AhAAA/₢AhAAD\n- V3 validation rules referencing tack/bridle/direction — rewritten alongside type changes\n- Any remaining V3-specific operation details that reference tack access patterns\n\n## Sections likely stable\n\n- Identity encoding (firemark/coronet)\n- Equestrian vocabulary\n- Deterministic serialization\n- Transport (MCP/handler architecture)\n- Routines (load/save/persist/wrap)\n- Upper API verbs and slash commands\n- Most operations (command surface persists, internal details change)\n\n## Produces\n\n- V4-VOLATILE markers on every section/subdocument destined for V4 rewrite\n- Brief note in paddock listing what was marked and why",
+              "silks": "mark-volatile-v4-sections",
+              "commit": "83aa4bb"
+            }
+          ]
+        }
+      }
     }
   }
 }
