@@ -620,7 +620,7 @@ zrbf_push_build_context() {
   printf 'FROM scratch\nCOPY . /build-context/\n' > "${z_context_dockerfile}" \
     || buc_die "Failed to write context Dockerfile"
 
-  docker build -f "${z_context_dockerfile}" -t "${z_context_tag}" "${z_bldctx}" \
+  docker build --platform "${RBGC_BUILD_RUNNER_PLATFORM}" -f "${z_context_dockerfile}" -t "${z_context_tag}" "${z_bldctx}" \
     || buc_die "Failed to build context image"
 
   # Push to GAR
@@ -865,24 +865,38 @@ rbf_build() {
       name: $name,
       id: "extract-context",
       entrypoint: "/bin/bash",
-      args: ["-lc", ("set -euo pipefail\necho \"Extracting build context from GAR\"\nCONTAINER=$$(docker create " + $ctx_tag + ")\nmkdir -p /workspace/" + $sigil + "\ndocker cp $${CONTAINER}:/build-context/. /workspace/" + $sigil + "/\ndocker rm $${CONTAINER}\necho \"Context extracted:\"\nls -la /workspace/" + $sigil + "/")]
+      args: ["-lc", ("set -euo pipefail\necho \"Extracting build context from GAR\"\nCONTAINER=$$(docker create " + $ctx_tag + " /nonexistent)\nmkdir -p /workspace/" + $sigil + "\ndocker cp $${CONTAINER}:/build-context/. /workspace/" + $sigil + "/\ndocker rm $${CONTAINER}\necho \"Context extracted:\"\nls -la /workspace/" + $sigil + "/")]
     }' > "${z_extract_step_file}" \
     || buc_die "Failed to compose context extraction step"
 
-  # Fill placeholders and prepend extraction step
+  # Fill placeholders, remove trigger-only substitutions, prepend extraction step
+  # shellcheck disable=SC2016
+  local -r z_cb_build_id='$BUILD_ID'
+  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
   jq \
     --arg inscribe_ts  "${z_inscribe_ts}" \
     --arg git_commit   "${z_git_commit}" \
+    --arg cb_build_id  "${z_cb_build_id}" \
+    --arg mason_sa     "${z_mason_sa}" \
     --slurpfile extract "${z_extract_step_file}" \
     '
-      .substitutions._RBGY_RUBRIC_REPO = "" |
-      .substitutions._RBGY_RUBRIC_COMMIT = "" |
+      # Remove substitutions that no step references (GCB requires strict match)
+      del(.substitutions._RBGY_RUBRIC_REPO) |
+      del(.substitutions._RBGY_RUBRIC_COMMIT) |
+      del(.substitutions._RBGY_GIT_REPO) |
+      # Fill timestamp/commit placeholders
       .substitutions._RBGY_GIT_COMMIT = $git_commit |
       .substitutions._RBGY_INSCRIBE_TIMESTAMP = $inscribe_ts |
       .substitutions._RBGA_GIT_COMMIT = $git_commit |
       .substitutions._RBGA_INSCRIBE_TIMESTAMP = $inscribe_ts |
       .images = [.images[] | gsub("__INSCRIBE_TIMESTAMP__"; $inscribe_ts)] |
-      .steps = [$extract[0]] + .steps
+      # Replace ${_RBGA_BUILD_ID} with CB built-in $BUILD_ID in step args
+      .steps = [[$extract[0]] + .steps | .[] |
+        if .args then
+          .args = [.args[] | gsub("\\$\\{_RBGA_BUILD_ID\\}"; $cb_build_id) | gsub("\\$\\{_RBGA_BUILD_ID:-\\}"; $cb_build_id)]
+        else . end] |
+      # Run build as mason SA (Director has actAs on mason)
+      .serviceAccount = $mason_sa
     ' "${z_stitched_file}" > "${z_build_file}" \
     || buc_die "Failed to post-process build JSON"
 
@@ -2873,7 +2887,9 @@ zrbf_vouch_submit() {
 
   case "${RBRV_VESSEL_MODE}" in
     conjure)
-      z_source_uri="${RBRR_RUBRIC_REPO_URL%.git}"
+      # Empty source URI signals builds.create path (no rubric repo);
+      # vouch script uses direct provenance verification instead of slsa-verifier
+      z_source_uri=""
       z_verifier_url="${RBRG_SLSA_VERIFIER_URL}"
       z_verifier_sha="${RBRG_SLSA_VERIFIER_SHA256}"
       ;;
