@@ -3262,13 +3262,14 @@
       "order": [
         "₢AwAAA",
         "₢AwAAG",
+        "₢AwAAH",
         "₢AwAAB",
         "₢AwAAC",
         "₢AwAAD",
         "₢AwAAE",
         "₢AwAAF"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3366,6 +3367,17 @@
               "text": "Define the MCP file exchange protocol in JJS0: how jjx communicates prose-length content (dockets, paddocks, warrants, provender) via filesystem rather than inline JSON string params.\n\nScope:\n\n1. **Exchange directory announcement** -- jjx announces two exchange directories (in/ and out/) via MCP instructions field at server initialization. Paths available to client for the session lifetime.\n2. **Input discipline** -- client writes exactly one file to in/ before invoking a command that needs prose input. jjx validates exactly one file present (fail otherwise), reads it, deletes it. Commands not needing prose input find in/ empty.\n3. **Output discipline** -- every jjx invocation deletes any file in out/ first, unconditionally. If the command produces prose output, jjx writes one file to out/. Client reads before next invocation or loses it.\n4. **Inline param coexistence** -- short scalar params (coronet, firemark, silks, boolean flags) remain inline MCP params. File exchange is for prose-length markdown content only.\n5. **Command surface impact** -- identify which existing and V4 commands gain file exchange semantics: paddock content/note, revise_docket docket, enroll docket, show/orient output, provender emission.\n6. **JJS0 section** -- formal specification of the protocol as infrastructure used by all subsequent command specs.\n\nDesign constraints:\n- One file at a time per direction, no naming convention needed\n- jjx owns lifecycle (delete on read for input, delete on entry for output)\n- Motivated by MCP JSON serialization bug (Claude Code issue 5504) but the pattern is independently good architecture -- prose documents deserve document treatment\n- Exchange directories are ephemeral per session\n\nDepends on: none (infrastructure pattern, no schema dependencies)\n\nProduces:\n- JJS0 section: MCP File Exchange Protocol\n\nNot bridleable: Design conversation -- command surface impact assessment requires judgment about which params qualify as prose-length.",
               "silks": "design-v4-mcp-file-exchange",
               "commit": "73ddf5f"
+            }
+          ]
+        },
+        "₢AwAAH": {
+          "tacks": [
+            {
+              "ts": "260318-1535",
+              "state": "rough",
+              "text": "Implement and test the JJF parsing and emitting routines specified in ₢AwAAG.\n\n## Scope\n\nBuild `jjrpf_parse_jjf` and `jjremit_emit_jjf` Rust routines per JJS0 specification. Test coverage includes:\n\n1. **Parser tests** — parse all 5 tag types (jjfids_slate, jjfidr_reslate, jjfip_paddocks, jjfip_paddocks output, jjfids_slate output)\n2. **Emitter tests** — emit all 5 tag types with correct formatting\n3. **Round-trip tests** — parse(emit(x)) == x for all tag types\n4. **Error cases** — invalid tags, missing required labels, malformed sections, empty content, whitespace edge cases\n5. **Edge cases** — tags at EOF, consecutive tags without blank lines, subsections in content, multiline labels\n\n## Produces\n\n- `jjrpf_parse_jjf.rs` — parser routine implementation\n- `jjremit_emit_jjf.rs` — emitter routine implementation\n- `jjtpf_parse_jjf.rs` — comprehensive unit test module (all cases listed above)\n- Both routines used by subsequent input/output implementation paces\n\n## Depends on\n\n₢AwAAG (design-v4-mcp-file-exchange) — needs JJF spec and procedure definitions",
+              "silks": "unit-test-jjf-format",
+              "commit": "7544529"
             }
           ]
         }
