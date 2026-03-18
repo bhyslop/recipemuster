@@ -722,9 +722,10 @@
         "₢AUAAF",
         "₢AUAAV",
         "₢AUAAe",
-        "₢AUAAf"
+        "₢AUAAf",
+        "₢AUAAi"
       ],
-      "next_pace_seed": "AAi",
+      "next_pace_seed": "AAj",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1524,6 +1525,38 @@
               "text": "## Character\nMechanical — source-and-call smoke test.\n\n## Deliverable\nAdd a test fixture that sources every regime file and calls every `*_render()` function plus `rbob_info()`, verifying zero exit status on each.\n\n### Functions to exercise (11 + 1)\n\n**BUK regime renders (3):**\n- `burc_render()` — Tools/buk/burc_cli.sh\n- `burs_render()` — Tools/buk/burs_cli.sh\n- `bure_render()` — Tools/buk/bure_cli.sh\n\n**RBK regime renders (8):**\n- `rbra_render()` — Tools/rbk/rbra_cli.sh\n- `rbrp_render()` — Tools/rbk/rbrp_cli.sh\n- `rbrs_render()` — Tools/rbk/rbrs_cli.sh\n- `rbro_render()` — Tools/rbk/rbro_cli.sh\n- `rbrg_render()` — Tools/rbk/rbrg_cli.sh\n- `rbrn_render()` — Tools/rbk/rbrn_cli.sh\n- `rbrr_render()` — Tools/rbk/rbrr_cli.sh\n- `rbrv_render()` — Tools/rbk/rbrv_cli.sh\n\n**Other:**\n- `rbob_info()` — Tools/rbk/rbob_cli.sh\n\n### Implementation\n- Standalone test fixture (e.g., `rbtcrs_RegimeSweep.sh`) runnable from a tabtarget\n- Each call must exit 0; any failure = test failure\n- Validates regime enrollment files are syntactically complete and render functions execute against current regime state\n- Consider integrating as a step in `rbq_qualify_release()` so the prep-release ceremony invokes it automatically\n\n### References\n- Tools/buk/buv_validation.sh — core `buv_render()` engine\n- Tools/rbk/rbq_Qualify.sh — qualification orchestrator\n- Existing test fixture pattern: rbtcrv_RegimeValidation.sh",
               "silks": "prerelease-regime-render-sweep",
               "commit": "f207010"
+            }
+          ]
+        },
+        "₢AUAAi": {
+          "tacks": [
+            {
+              "ts": "260317-1849",
+              "state": "rough",
+              "text": "Drafted from ₢ArAAA in ₣Ar.\n\nHEAVY RESLATE NEEDED before mounting. The original docket (rename BCG document identity, BCS vs BMP decision) was drafted in the context of rbk-mvp-finalization. By the time jjk-v4-2 work begins, the BUK kit structure, naming conventions, and veiled-document patterns may have evolved significantly. Re-examine the renaming question from scratch in the v4.2 context — the right answer may be different, or the pace may no longer be needed at all.",
+              "silks": "rename-bcg-document-identity",
+              "commit": "0be7e14"
+            },
+            {
+              "ts": "260308-1344",
+              "state": "rough",
+              "text": "HEAVY RESLATE NEEDED before mounting. The original docket (rename BCG document identity, BCS vs BMP decision) was drafted in the context of rbk-mvp-finalization. By the time jjk-v4-2 work begins, the BUK kit structure, naming conventions, and veiled-document patterns may have evolved significantly. Re-examine the renaming question from scratch in the v4.2 context — the right answer may be different, or the pace may no longer be needed at all.",
+              "silks": "rename-bcg-document-identity",
+              "commit": "d6cf88d"
+            },
+            {
+              "ts": "260308-1344",
+              "state": "rough",
+              "text": "Drafted from ₢AkAAN in ₣Ak.\n\nRename BCG (Bash Console Guide) to better reflect its prescriptive, specification-like nature. The document is not a casual guide — it's a mandatory compliance specification for bash module architecture, with templates, anti-patterns, maturity checklists, and decision matrices.\n\nCandidates:\n- BCS: Bash Compliance Specification — emphasizes mandatory compliance nature\n- BMP: Bash Module Patterns — scopes to module architecture focus\n\nRename touches:\n- File: Tools/buk/vov_veiled/BCG-BashConsoleGuide.md → new name\n- CLAUDE.md acronym mapping (BCG entry)\n- Any references across codebase (grep for BCG-BashConsoleGuide, \"Bash Console Guide\")\n- BUS0 spec if it references BCG by name\n- Prefix mint implications: BCS uses bu-prefix space (bus_ would conflict with BUS0); BMP uses bm_ (new prefix outside bu tree)\n\nDecision on BCS vs BMP is pending — user to choose before execution.",
+              "silks": "rename-bcg-document-identity",
+              "commit": "bb6047d"
+            },
+            {
+              "ts": "260303-1323",
+              "state": "rough",
+              "text": "Rename BCG (Bash Console Guide) to better reflect its prescriptive, specification-like nature. The document is not a casual guide — it's a mandatory compliance specification for bash module architecture, with templates, anti-patterns, maturity checklists, and decision matrices.\n\nCandidates:\n- BCS: Bash Compliance Specification — emphasizes mandatory compliance nature\n- BMP: Bash Module Patterns — scopes to module architecture focus\n\nRename touches:\n- File: Tools/buk/vov_veiled/BCG-BashConsoleGuide.md → new name\n- CLAUDE.md acronym mapping (BCG entry)\n- Any references across codebase (grep for BCG-BashConsoleGuide, \"Bash Console Guide\")\n- BUS0 spec if it references BCG by name\n- Prefix mint implications: BCS uses bu-prefix space (bus_ would conflict with BUS0); BMP uses bm_ (new prefix outside bu tree)\n\nDecision on BCS vs BMP is pending — user to choose before execution.",
+              "silks": "rename-bcg-document-identity",
+              "commit": "5794157"
             }
           ]
         }
@@ -2489,38 +2522,10 @@
       "silks": "jjk-v4-2",
       "creation_time": "260308",
       "status": "stabled",
-      "order": [
-        "₢ArAAA"
-      ],
+      "order": [],
       "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAlr.md",
-      "paces": {
-        "₢ArAAA": {
-          "tacks": [
-            {
-              "ts": "260308-1344",
-              "state": "rough",
-              "text": "HEAVY RESLATE NEEDED before mounting. The original docket (rename BCG document identity, BCS vs BMP decision) was drafted in the context of rbk-mvp-finalization. By the time jjk-v4-2 work begins, the BUK kit structure, naming conventions, and veiled-document patterns may have evolved significantly. Re-examine the renaming question from scratch in the v4.2 context — the right answer may be different, or the pace may no longer be needed at all.",
-              "silks": "rename-bcg-document-identity",
-              "commit": "d6cf88d"
-            },
-            {
-              "ts": "260308-1344",
-              "state": "rough",
-              "text": "Drafted from ₢AkAAN in ₣Ak.\n\nRename BCG (Bash Console Guide) to better reflect its prescriptive, specification-like nature. The document is not a casual guide — it's a mandatory compliance specification for bash module architecture, with templates, anti-patterns, maturity checklists, and decision matrices.\n\nCandidates:\n- BCS: Bash Compliance Specification — emphasizes mandatory compliance nature\n- BMP: Bash Module Patterns — scopes to module architecture focus\n\nRename touches:\n- File: Tools/buk/vov_veiled/BCG-BashConsoleGuide.md → new name\n- CLAUDE.md acronym mapping (BCG entry)\n- Any references across codebase (grep for BCG-BashConsoleGuide, \"Bash Console Guide\")\n- BUS0 spec if it references BCG by name\n- Prefix mint implications: BCS uses bu-prefix space (bus_ would conflict with BUS0); BMP uses bm_ (new prefix outside bu tree)\n\nDecision on BCS vs BMP is pending — user to choose before execution.",
-              "silks": "rename-bcg-document-identity",
-              "commit": "bb6047d"
-            },
-            {
-              "ts": "260303-1323",
-              "state": "rough",
-              "text": "Rename BCG (Bash Console Guide) to better reflect its prescriptive, specification-like nature. The document is not a casual guide — it's a mandatory compliance specification for bash module architecture, with templates, anti-patterns, maturity checklists, and decision matrices.\n\nCandidates:\n- BCS: Bash Compliance Specification — emphasizes mandatory compliance nature\n- BMP: Bash Module Patterns — scopes to module architecture focus\n\nRename touches:\n- File: Tools/buk/vov_veiled/BCG-BashConsoleGuide.md → new name\n- CLAUDE.md acronym mapping (BCG entry)\n- Any references across codebase (grep for BCG-BashConsoleGuide, \"Bash Console Guide\")\n- BUS0 spec if it references BCG by name\n- Prefix mint implications: BCS uses bu-prefix space (bus_ would conflict with BUS0); BMP uses bm_ (new prefix outside bu tree)\n\nDecision on BCS vs BMP is pending — user to choose before execution.",
-              "silks": "rename-bcg-document-identity",
-              "commit": "5794157"
-            }
-          ]
-        }
-      }
+      "paces": {}
     },
     "₣At": {
       "silks": "rbk-mvp-3-add-graft",
