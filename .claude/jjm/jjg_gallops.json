@@ -1696,6 +1696,13 @@
         "₢AhAAE": {
           "tacks": [
             {
+              "ts": "260317-1818",
+              "state": "rough",
+              "text": "Update all jjx_* command implementations to use V4 flat pace fields instead of tack array access.\n\n## V3 pattern\nCommands access pace data via: pace.tacks[0].text, pace.tacks[0].state, pace.tacks[0].silks, pace.tacks[0].basis, pace.tacks.first().unwrap().direction\n\n## V4 pattern\nDirect field access: pace.docket, pace.state, pace.silks, pace.basis. Note: `pace.warrant` from earlier designs may not exist as a pace-level field — per cchat-20260317, warrants live per-beat in the gallops beat table. Exact V4 field set determined by ₢AhAAA and implemented in ₢AhAAD.\n\n## Scope\nEvery Rust file in jjk/vov_veiled/src/ that reads or writes pace fields. This is the widest pace — touches most command implementations. But it is mechanical: find tack access patterns, replace with flat field access. Beat table access patterns are a separate concern from this pace.\n\n## Depends on\n- ₢AhAAD (define-v4-pace-struct) — V4 types must exist and compile\n\n## Files\n- All jjr*_.rs command files that access pace data\n- jjru_util.rs — remove jjrg_make_tack if it exists\n- Any helper functions that construct or destructure tacks\n\n## Acceptance\n- All commands work against V4 gallops\n- cargo build clean, cargo test pass\n- End-to-end: nominate heat, slate pace, show pace, close pace — all work",
+              "silks": "adapt-commands-to-v4-types",
+              "commit": "c1877cd"
+            },
+            {
               "ts": "260304-1546",
               "state": "rough",
               "text": "Update all jjx_* command implementations to use V4 flat pace fields instead of tack array access.\n\n## V3 pattern\nCommands access pace data via: pace.tacks[0].text, pace.tacks[0].state, pace.tacks[0].silks, pace.tacks[0].basis, pace.tacks.first().unwrap().direction\n\n## V4 pattern\nDirect field access: pace.docket, pace.state, pace.silks, pace.basis, pace.warrant\n\n## Scope\nEvery Rust file in jjk/vov_veiled/src/ that reads or writes pace fields. This is the widest pace — touches most command implementations. But it is mechanical: find tack access patterns, replace with flat field access.\n\n## Depends on\n- ₢AhAAD (define-v4-pace-struct) — V4 types must exist and compile\n\n## Files\n- All jjr*_.rs command files that access pace data\n- jjru_util.rs — remove jjrg_make_tack if it exists\n- Any helper functions that construct or destructure tacks\n\n## Acceptance\n- All commands work against V4 gallops\n- cargo build clean, cargo test pass\n- End-to-end: nominate heat, slate pace, show pace, close pace — all work",
