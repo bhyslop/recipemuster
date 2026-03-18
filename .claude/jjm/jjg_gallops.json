@@ -3094,9 +3094,10 @@
         "₢AwAAA",
         "₢AwAAB",
         "₢AwAAC",
-        "₢AwAAD"
+        "₢AwAAD",
+        "₢AwAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3140,6 +3141,17 @@
               "text": "Replace first-generation annotations on JJS0 operations with RBS0-style voicing annotations.\n\n## Current state\n\nAll JJS0 operations (create, enroll, reorder, show, orient, etc.) carry:\n```\n//axl_voices axi_cli_subcommand\n```\nThis is semantically wrong (they're MCP tools) and lacks dimensions.\n\n## Target state\n\nEach operation carries the appropriate annotation from ₢AwAAC's AXLA gap resolution:\n- Correct interface motif (whatever replaces axi_cli_subcommand for MCP tools)\n- Dimension modifiers matching RBS0 patterns (transient, attended where applicable, grouped if operation groups are formalized)\n\n## Scope\n\n- All `[[jjdo_*]]` anchored definitions in JJS0\n- All `[[jjdr_*]]` routine definitions (these already have `//axvo_procedure axd_internal` — verify correctness)\n- Operation group headers if ₢AwAAC formalizes them as linked terms\n- Skip V4-VOLATILE marked sections\n\n## Character\n\nMechanical with judgment edges — most operations get the same annotation pattern, but attended/unattended distinction requires understanding each operation.\n\n## Depends on\n\n- ₢AwAAC (surface-axla-gaps) — need resolved motifs before applying them",
               "silks": "normalize-operation-annotations",
               "commit": "85a1db1"
+            }
+          ]
+        },
+        "₢AwAAE": {
+          "tacks": [
+            {
+              "ts": "260317-1831",
+              "state": "rough",
+              "text": "Update record/member/enum/type annotations on JJS0 data model sections that survive V4.\n\n## Scope\n\nAnnotate definitions that are NOT marked V4-VOLATILE:\n\n1. **Gallops record and members** — verify/complete axr_record_json and axr_member annotations\n2. **Heat record and members** — same\n3. **Identity types** (firemark, coronet, silks) — verify axt_string annotations, add dimension modifiers\n4. **Heat status enum** (racing/stabled/retired) — verify axt_enum_value annotations\n5. **Column Table** record/members/enum — these are JJS0-specific display infrastructure, annotate appropriately\n6. **Argument definitions** (jjda_*) — verify axa_cli_option / axa_cli_flag annotations match resolved AXLA vocabulary\n7. **Upper API verbs and slash commands** — verify axi_cc_claudemd_verb and axi_cc_slash_command annotations\n\n## Character\n\nMechanical — systematic pass through non-volatile definitions applying consistent annotation patterns.\n\n## Depends on\n\n- ₢AwAAA (mark-volatile) — need to know what to skip\n- ₢AwAAC (surface-axla-gaps) — need resolved motif vocabulary",
+              "silks": "normalize-data-model-annotations",
+              "commit": "6d6d7ea"
             }
           ]
         }
