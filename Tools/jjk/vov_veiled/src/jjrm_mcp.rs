@@ -253,6 +253,12 @@ pub struct jjrm_JjxParams {
 // MCP Server
 // ============================================================================
 
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_TestEchoParams {
+    #[schemars(description = "Test message to echo back")]
+    pub message: String,
+}
+
 #[derive(Debug, Clone)]
 pub struct jjrm_McpServer {
     tool_router: ToolRouter<Self>,
@@ -478,6 +484,15 @@ impl jjrm_McpServer {
                 Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_revise_docket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_get_brief, jjx_get_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing", cmd))]))
             }
         }
+    }
+
+    /// Test tool: non-tunneled MCP command for diagnostics.
+    /// This is NOT a tunneled dispatcher; it's a direct tool with native JSON parameters.
+    /// Used to compare /context aggregation behavior against the tunneled jjx tool.
+    #[tool(name = "jjx_test_echo", description = "Test echo tool (non-tunneled) for MCP aggregation diagnostics")]
+    async fn jjx_test_echo(&self, Parameters(p): Parameters<jjrm_TestEchoParams>) -> Result<CallToolResult, McpError> {
+        let output = format!("Echo: {}", p.message);
+        Ok(CallToolResult::success(vec![Content::text(output)]))
     }
 }
 
