@@ -12,9 +12,9 @@ Key decisions: no leg layer, worktrees for isolation (branches persist after wor
 |--------|------|--------|-----------|-------|
 | `₣` | Firemark | 2 | 2 heat | 4,096 heats |
 | `Ꝗ` | Quirt | 3 | 3 global | 262,144 gaits |
-| TBD | Martingale | 4 | 2 heat + 2 index | 4,096/heat |
+| `₼` | Martingale | 4 | 2 heat + 2 index | 4,096/heat |
 | `₢` | Coronet | 5 | 2 heat + 3 index | ~262K/heat |
-| TBD | Kimberwick | 6 | 4 martingale + 2 index | 4,096/martingale |
+| `₭` | Kimberwick | 6 | 4 martingale + 2 index | 4,096/martingale |
 
 Length alone disambiguates: 2=firemark, 3=quirt, 4=martingale, 5=coronet, 6=kimberwick.
 
@@ -31,8 +31,8 @@ Quirt `ꝖABC` identifies an immutable gait snapshot. When a gait evolves, a new
 | **Provender** | A beat's informational output — a markdown document produced during execution, indelibly recorded on the beat row when status → complete. One provender per beat, optional (beats may produce zero or one). Labeled with a single `#` header, containing zero or more nosebag subsections. jjx reads markdown structure for routing but never interprets prose content. Scoped to the martingale — lives and dies with the volte. |
 | **Nosebag** | A `##`-labeled subsection within a provender document. The addressable unit of informational output. Consuming beats request nosebags by name in their piaffe; jjx matches `##` headers across all prior completed beats' provender and delivers matching sections at dispatch time. Multiple beats may produce same-named nosebags; consumer gets all matches. Multiple beats may expect the same name; each gets the same set. |
 | **Volte** | An attempt at executing one or more paces. One active volte per heat at a time. School creates it (populating beat table entries in gallops); breeze executes it (dispatching beats per chukker); corral reviews per-pace (accept/refine/reject). Identified by martingale. Dressage term: a precise, controlled circle back to the same point with refined intent. |
-| **Martingale** | Volte identity. TBD symbol + 4 base64 characters (2 heat + 2 index). Named for the control strap that keeps the horse from going off course — what holds execution on track. Replaces "caracole" (cchat-20260317). |
-| **Kimberwick** | Beat instance identifier. TBD symbol + 6 base64 characters (4 martingale + 2 index). 4,096 slots per martingale. Named for a type of bit providing precise, engineered control. Scoped to its martingale. If school exhausts slots, breeze and corral what exists — not an error condition. |
+| **Martingale** | Volte identity. `₼` (U+20BC, manat) + 4 base64 characters (2 heat + 2 index). Named for the control strap that keeps the horse from going off course — what holds execution on track. Replaces "caracole" (cchat-20260317). |
+| **Kimberwick** | Beat instance identifier. `₭` (U+20AD, kip) + 6 base64 characters (4 martingale + 2 index). 4,096 slots per martingale. Named for a type of bit providing precise, engineered control. Scoped to its martingale. If school exhausts slots, breeze and corral what exists — not an error condition. |
 | **Chukker** | Numbered concurrency layer within a volte. All beats in chukker N execute concurrently; chukkers execute in sequence. School assigns each beat a chukker number. Named for a numbered period in polo — distinctive, won't bleed into generic usage. |
 | **Quirt** | Gait identity. `Ꝗ` + 3 base64 characters. Named after a short riding whip — the thing that sets a gait in motion. |
 | **Longe** | Heat-level readiness assessment. Classifies remaining paces as breezable / needs-refinement / blocked. Read-only. See Four Phases for detail. |
@@ -208,8 +208,8 @@ Accumulated across groom sessions.
 - **Bridling and markers eliminated**: School/breeze/corral replaces arm-and-fly. Restore markers on need.
 
 ### V4 Execution Infrastructure (cchat-20260317)
-- **Caracole → Martingale**: Volte identity renamed to avoid C-collision with Coronet. Symbol TBD.
-- **Kimberwick**: Beat instance identity. 6 chars (4 martingale + 2 index). 4,096 slots per martingale. Symbol TBD.
+- **Caracole → Martingale**: Volte identity renamed to avoid C-collision with Coronet. Symbol: `₼` (U+20BC, manat).
+- **Kimberwick**: Beat instance identity. 6 chars (4 martingale + 2 index). 4,096 slots per martingale. Symbol: `₭` (U+20AD, kip).
 - **Beat table in gallops**: Flat collection of beat rows with immutable coronet refs, replacing monolithic warrant JSON. Warrants in gallops (not git) for lane isolation, natural state store, granular status tracking.
 - **Chukker model**: Integer concurrency layers replace arbitrary DAG `depends` lists.
 - **Branch-per-beat JIT**: Branches created at dispatch time. Mechanical merge at chukker boundaries. Naming: `jj/MARTINGALE_ID/KIMBERWICK_ID`.
@@ -230,8 +230,6 @@ Accumulated across groom sessions.
 
 ## Still Open
 
-- **Martingale Unicode symbol**: Needs selection. Must be visually distinct.
-- **Kimberwick Unicode symbol**: Needs selection. Must be visually distinct.
 - **Gait data model fields**: Beat templates with piaffes, confidence gates, model preferences, auto-tool gaits, quality requirements — exact schema deferred.
 - **Provender emission convention**: How does the LLM emit provender during beat execution? Structured block, tool call, delimiter convention? Deferred until first gaits are built.
 - **Provender size limits**: Same size-guard philosophy as commits? Deferred.
@@ -253,6 +251,9 @@ Accumulated across groom sessions.
 
 ### cchat-20260317: Execution Model Refinements
 Martingale replaces caracole (C-collision avoidance). Kimberwick beat identity (6-char, 4096/martingale). Chukker concurrency layers replace DAG. Warrants in gallops not git (lane isolation). Flat beat table with immutable coronet refs. Branch-per-beat JIT with mechanical merge at chukker boundaries. Three-state beat status (pending/complete/failed). Corral at pace boundary. Spur concept killed (structural context disambiguates). Well-formed gait beats (inputs/outputs/resources/goals, auto-tool gaits, quality requirements). Lean beat records. Chain set at slate/reslate not school. Volte state in gallops supersedes "state from branch existence."
+
+### cchat-20260318: Symbol Selection
+Martingale symbol: `₼` (U+20BC, Azerbaijani manat). Kimberwick symbol: `₭` (U+20AD, Laotian kip). Continues accidental currency-symbol pattern: ₣ franc, ₢ cruzeiro, ₼ manat, ₭ kip. All in Currency Symbols block (U+20A0–U+20CF).
 
 ### cchat-20260317b: Provender, Nosebag, and Piaffe
 Beat informational output as provender (markdown doc on beat row, indelible at completion). Nosebags as `##`-labeled addressable subsections. Piaffe as named prose field on gait beat templates (docket → piaffe → warrant escalation). Name-matched routing: piaffe declares produces/expects, jjx matches `##` headers mechanically. No separate findings table — provender lives on beat row. Provender scoped to martingale (dies with rejected volte). LLM produces, LLM consumes, jjx routes.
