@@ -691,6 +691,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢AUAAi",
         "₢AUAAg",
         "₢AUAAb",
         "₢AUAAS",
@@ -722,8 +723,7 @@
         "₢AUAAF",
         "₢AUAAV",
         "₢AUAAe",
-        "₢AUAAf",
-        "₢AUAAi"
+        "₢AUAAf"
       ],
       "next_pace_seed": "AAj",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
