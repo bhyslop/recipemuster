@@ -1620,7 +1620,6 @@
       "status": "racing",
       "order": [
         "₢AhAAV",
-        "₢AhAAW",
         "₢AhAAS",
         "₢AhAAN",
         "₢AhAAL",
@@ -2146,17 +2145,6 @@
               "text": "Select Unicode symbols for martingale (volte identity, 4 chars) and kimberwick (beat instance identity, 6 chars).\n\n## Constraints\n\n- Must be visually distinct from existing symbols: ₣ (firemark), Ꝗ (quirt), ₢ (coronet)\n- Must render correctly in terminals (macOS Terminal, iTerm2, VS Code integrated terminal)\n- Must not collide with first letters of other identity names: F (firemark), Q (quirt), C (coronet), M (martingale), K (kimberwick)\n- Should be easy to type or paste\n- ₡ (former caracole symbol) is available for reuse if appropriate for martingale\n\n## Produces\n\n- Martingale Unicode symbol selected and documented\n- Kimberwick Unicode symbol selected and documented\n- Paddock identity table updated with concrete symbols (no more TBD)\n\n## Depends on\n\nNothing.",
               "silks": "select-martingale-kimberwick-symbols",
               "commit": "55e9018"
-            }
-          ]
-        },
-        "₢AhAAW": {
-          "tacks": [
-            {
-              "ts": "260317-2116",
-              "state": "rough",
-              "text": "Define the MCP file exchange protocol in JJS0: how jjx communicates prose-length content (dockets, paddocks, warrants, provender) via filesystem rather than inline JSON string params.\n\nScope:\n\n1. **Exchange directory announcement** -- jjx announces two exchange directories (in/ and out/) via MCP instructions field at server initialization. Paths available to client for the session lifetime.\n2. **Input discipline** -- client writes exactly one file to in/ before invoking a command that needs prose input. jjx validates exactly one file present (fail otherwise), reads it, deletes it. Commands not needing prose input find in/ empty.\n3. **Output discipline** -- every jjx invocation deletes any file in out/ first, unconditionally. If the command produces prose output, jjx writes one file to out/. Client reads before next invocation or loses it.\n4. **Inline param coexistence** -- short scalar params (coronet, firemark, silks, boolean flags) remain inline MCP params. File exchange is for prose-length markdown content only.\n5. **Command surface impact** -- identify which existing and V4 commands gain file exchange semantics: paddock content/note, revise_docket docket, enroll docket, show/orient output, provender emission.\n6. **JJS0 section** -- formal specification of the protocol as infrastructure used by all subsequent command specs.\n\nDesign constraints:\n- One file at a time per direction, no naming convention needed\n- jjx owns lifecycle (delete on read for input, delete on entry for output)\n- Motivated by MCP JSON serialization bug (Claude Code issue 5504) but the pattern is independently good architecture -- prose documents deserve document treatment\n- Exchange directories are ephemeral per session\n\nDepends on: none (infrastructure pattern, no schema dependencies)\n\nProduces:\n- JJS0 section: MCP File Exchange Protocol\n\nNot bridleable: Design conversation -- command surface impact assessment requires judgment about which params qualify as prose-length.",
-              "silks": "design-v4-mcp-file-exchange",
-              "commit": "73ddf5f"
             }
           ]
         }
@@ -3277,9 +3265,10 @@
         "₢AwAAC",
         "₢AwAAD",
         "₢AwAAE",
-        "₢AwAAF"
+        "₢AwAAF",
+        "₢AwAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3352,6 +3341,24 @@
               "text": "Re-run the ₢AwAAB audit after normalization is complete. Confirm divergence count decreased and categorize what remains.\n\n## Inputs\n\n- Baseline memo from ₢AwAAB (filename in ₣Aw paddock)\n- Normalized JJS0 (output of ₢AwAAD and ₢AwAAE)\n\n## Scope\n\nSame audit as ₢AwAAB: walk every annotated JJS0 definition against Rust implementation. For each item in the baseline memo, classify as:\n\n1. **Resolved** — normalization fixed the divergence\n2. **Deferred to ₣Ah** — in a V4-VOLATILE section, will be addressed by V4 design paces\n3. **New gap** — normalization introduced a divergence (should be zero; if nonzero, fix before wrapping)\n4. **Persistent** — was divergent before, still divergent, not V4-VOLATILE (needs explanation)\n\n## Character\n\nAudit discipline — same posture as ₢AwAAB. Mechanical comparison with categorization judgment.\n\n## Acceptance\n\n- Zero \"new gap\" items\n- Zero \"persistent\" items without documented justification\n- Updated memo or addendum documenting the reassessment results\n- Clean handoff summary for ₣Ah paddock\n\n## Depends on\n\n- ₢AwAAD (normalize-operation-annotations)\n- ₢AwAAE (normalize-data-model-annotations)",
               "silks": "impl-vs-spec-reassessment",
               "commit": "eb13ab9"
+            }
+          ]
+        },
+        "₢AwAAG": {
+          "tacks": [
+            {
+              "ts": "260318-1505",
+              "state": "rough",
+              "text": "Drafted from ₢AhAAW in ₣Ah.\n\nDefine the MCP file exchange protocol in JJS0: how jjx communicates prose-length content (dockets, paddocks, warrants, provender) via filesystem rather than inline JSON string params.\n\nScope:\n\n1. **Exchange directory announcement** -- jjx announces two exchange directories (in/ and out/) via MCP instructions field at server initialization. Paths available to client for the session lifetime.\n2. **Input discipline** -- client writes exactly one file to in/ before invoking a command that needs prose input. jjx validates exactly one file present (fail otherwise), reads it, deletes it. Commands not needing prose input find in/ empty.\n3. **Output discipline** -- every jjx invocation deletes any file in out/ first, unconditionally. If the command produces prose output, jjx writes one file to out/. Client reads before next invocation or loses it.\n4. **Inline param coexistence** -- short scalar params (coronet, firemark, silks, boolean flags) remain inline MCP params. File exchange is for prose-length markdown content only.\n5. **Command surface impact** -- identify which existing and V4 commands gain file exchange semantics: paddock content/note, revise_docket docket, enroll docket, show/orient output, provender emission.\n6. **JJS0 section** -- formal specification of the protocol as infrastructure used by all subsequent command specs.\n\nDesign constraints:\n- One file at a time per direction, no naming convention needed\n- jjx owns lifecycle (delete on read for input, delete on entry for output)\n- Motivated by MCP JSON serialization bug (Claude Code issue 5504) but the pattern is independently good architecture -- prose documents deserve document treatment\n- Exchange directories are ephemeral per session\n\nDepends on: none (infrastructure pattern, no schema dependencies)\n\nProduces:\n- JJS0 section: MCP File Exchange Protocol\n\nNot bridleable: Design conversation -- command surface impact assessment requires judgment about which params qualify as prose-length.",
+              "silks": "design-v4-mcp-file-exchange",
+              "commit": "3eaf30d"
+            },
+            {
+              "ts": "260317-2116",
+              "state": "rough",
+              "text": "Define the MCP file exchange protocol in JJS0: how jjx communicates prose-length content (dockets, paddocks, warrants, provender) via filesystem rather than inline JSON string params.\n\nScope:\n\n1. **Exchange directory announcement** -- jjx announces two exchange directories (in/ and out/) via MCP instructions field at server initialization. Paths available to client for the session lifetime.\n2. **Input discipline** -- client writes exactly one file to in/ before invoking a command that needs prose input. jjx validates exactly one file present (fail otherwise), reads it, deletes it. Commands not needing prose input find in/ empty.\n3. **Output discipline** -- every jjx invocation deletes any file in out/ first, unconditionally. If the command produces prose output, jjx writes one file to out/. Client reads before next invocation or loses it.\n4. **Inline param coexistence** -- short scalar params (coronet, firemark, silks, boolean flags) remain inline MCP params. File exchange is for prose-length markdown content only.\n5. **Command surface impact** -- identify which existing and V4 commands gain file exchange semantics: paddock content/note, revise_docket docket, enroll docket, show/orient output, provender emission.\n6. **JJS0 section** -- formal specification of the protocol as infrastructure used by all subsequent command specs.\n\nDesign constraints:\n- One file at a time per direction, no naming convention needed\n- jjx owns lifecycle (delete on read for input, delete on entry for output)\n- Motivated by MCP JSON serialization bug (Claude Code issue 5504) but the pattern is independently good architecture -- prose documents deserve document treatment\n- Exchange directories are ephemeral per session\n\nDepends on: none (infrastructure pattern, no schema dependencies)\n\nProduces:\n- JJS0 section: MCP File Exchange Protocol\n\nNot bridleable: Design conversation -- command surface impact assessment requires judgment about which params qualify as prose-length.",
+              "silks": "design-v4-mcp-file-exchange",
+              "commit": "73ddf5f"
             }
           ]
         }
