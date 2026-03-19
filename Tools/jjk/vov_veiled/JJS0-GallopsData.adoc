@@ -1149,12 +1149,12 @@ Used by all pace-mutating composed methods as the shared write primitive.
 //axvo_method axd_transient
 {jjsgmrd_revise_docket}::
 Pure state transform on {jjdgr_gallops} that updates a {jjdpr_pace_p} docket text.
+Takes caller-provided basis SHA and timestamp (I/O captured at procedure boundary).
 +
 {jjds_behavior}
 +
 . {jjsgmrp_resolve_pace} — obtain current pace context
-. Apply bridled auto-reset policy: if pace is currently bridled and new docket text is provided, reset state to {jjdpe_rough} (new spec invalidates old direction)
-. Create new tack with updated text, resolved state, inherited silks
+. Create new tack with updated text, inherited state and silks, caller-provided basis and timestamp
 . {jjsgmpt_prepend_tack} — commit to pace history
 +
 Returns pace context so the calling procedure has firemark and silks for the commit message.

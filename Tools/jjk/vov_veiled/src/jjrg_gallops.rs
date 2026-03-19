@@ -161,36 +161,24 @@ impl jjrg_Gallops {
 
     /// Revise Docket — composed method
     ///
-    /// Pure state transform: resolve_pace → bridled auto-reset → prepend_tack.
+    /// Pure state transform: resolve_pace → update docket → prepend_tack.
+    /// Takes basis and ts from caller (procedure layer captures I/O).
     /// Returns PaceContext so calling procedure has firemark/silks for commit message.
-    pub fn jjrg_revise_docket(&mut self, coronet: &str, docket: &str) -> Result<jjrg_PaceContext, String> {
-        use crate::jjru_util::jjrg_make_tack;
-
+    pub fn jjrg_revise_docket(&mut self, coronet: &str, docket: &str, basis: &str, ts: &str) -> Result<jjrg_PaceContext, String> {
         if docket.is_empty() {
             return Err("docket text must not be empty".to_string());
         }
 
         let ctx = self.jjrg_resolve_pace(coronet)?;
 
-        // Bridled auto-reset: new docket text invalidates old direction
-        let new_state = if ctx.state == jjrg_PaceState::Bridled {
-            jjrg_PaceState::Rough
-        } else {
-            ctx.state.clone()
+        let tack = jjrg_Tack {
+            ts: ts.to_string(),
+            state: ctx.state.clone(),
+            text: docket.to_string(),
+            silks: ctx.silks.clone(),
+            basis: basis.to_string(),
+            direction: None,
         };
-
-        let new_direction = if new_state == jjrg_PaceState::Bridled {
-            ctx.direction.clone()
-        } else {
-            None
-        };
-
-        let tack = jjrg_make_tack(
-            new_state,
-            docket.to_string(),
-            ctx.silks.clone(),
-            new_direction,
-        );
 
         self.jjrg_prepend_tack(coronet, tack)?;
 
@@ -255,43 +243,25 @@ mod tests {
     #[test]
     fn test_revise_docket_updates_text() {
         let mut gallops = make_test_gallops(jjrg_PaceState::Rough, "original docket", "test-pace");
-        let ctx = gallops.jjrg_revise_docket("AAAAA", "updated docket").unwrap();
+        let ctx = gallops.jjrg_revise_docket("AAAAA", "updated docket", "abc1234", "20260318T130000Z").unwrap();
 
         // Context returns pre-mutation state
         assert_eq!(ctx.text, "original docket");
 
-        // Gallops now has new tack prepended
+        // Gallops now has new tack prepended with caller-provided basis+ts
         let pace = gallops.heats["₣AA"].paces.get("₢AAAAA").unwrap();
         assert_eq!(pace.tacks.len(), 2);
         assert_eq!(pace.tacks[0].text, "updated docket");
         assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough);
+        assert_eq!(pace.tacks[0].basis, "abc1234");
+        assert_eq!(pace.tacks[0].ts, "20260318T130000Z");
         assert_eq!(pace.tacks[1].text, "original docket");
-    }
-
-    #[test]
-    fn test_revise_docket_bridled_auto_resets_to_rough() {
-        let mut gallops = make_test_gallops(jjrg_PaceState::Rough, "original", "test-pace");
-        // Manually set to bridled with direction
-        let pace = gallops.heats.get_mut("₣AA").unwrap().paces.get_mut("₢AAAAA").unwrap();
-        pace.tacks[0].state = jjrg_PaceState::Bridled;
-        pace.tacks[0].direction = Some("work on X first".to_string());
-
-        let ctx = gallops.jjrg_revise_docket("AAAAA", "new spec invalidates direction").unwrap();
-
-        // Context captured the bridled state before mutation
-        assert_eq!(ctx.state, jjrg_PaceState::Bridled);
-
-        // New tack should be rough (auto-reset), direction cleared
-        let pace = gallops.heats["₣AA"].paces.get("₢AAAAA").unwrap();
-        assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough);
-        assert_eq!(pace.tacks[0].direction, None);
-        assert_eq!(pace.tacks[0].text, "new spec invalidates direction");
     }
 
     #[test]
     fn test_revise_docket_empty_text_rejected() {
         let mut gallops = make_test_gallops(jjrg_PaceState::Rough, "original", "test-pace");
-        let result = gallops.jjrg_revise_docket("AAAAA", "");
+        let result = gallops.jjrg_revise_docket("AAAAA", "", "abc1234", "20260318T130000Z");
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("must not be empty"));
     }

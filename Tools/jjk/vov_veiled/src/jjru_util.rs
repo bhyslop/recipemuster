@@ -60,6 +60,11 @@ pub fn jjrg_capture_commit_sha() -> String {
 ///
 /// Centralizes Tack creation to ensure consistent timestamp/basis capture.
 /// All code creating new Tacks should use this helper.
+///
+/// Note: This captures ambient state (git HEAD, wall clock). The Operation
+/// Taxonomy pattern (see JJS0) prefers pure construction with caller-provided
+/// basis/ts — see jjrg_revise_docket for the exemplar. Existing callers will
+/// migrate incrementally.
 pub fn jjrg_make_tack(
     state: jjrg_PaceState,
     text: String,
