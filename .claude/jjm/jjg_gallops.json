@@ -3391,6 +3391,13 @@
         "₢AwAAH": {
           "tacks": [
             {
+              "ts": "260318-2135",
+              "state": "complete",
+              "text": "Simplify dispatch lifecycle per jjdk_sole_operator premise.\n\n## What's Done\n\n1. **jjdk_sole_operator premise nucleated in JJS0** — all concurrent sessions are single operator, lock\nunconditionally\n2. **jjsohr_handler_result eliminated from spec** — handler returns output text, not mutation discriminant\n3. **jjsodp_command_lifecycle rewritten** — unconditional lock→load→call→persist→return, heat/pace\naffiliation for firemark derivation\n4. **Code: HandlerResult/CommitInfo deleted** — two structs gone\n5. **Code: dispatch split into dispatch_heat/dispatch_pace** — firemark parsed by dispatcher, not handler\n6. **Code: jjrtl_run_revise_docket simplified** — 19 lines to 8, returns Result<String, String>\n7. **All 264 tests pass**\n\n## What Remains\n\n- Migrate relabel and drop handlers to dispatch_pace (same file, easy wins)\n- Migrate all other mutating handlers incrementally\n- Remove per-handler lock/load/persist scaffolding as each migrates",
+              "silks": "spec-paddock-with-axla-voicing",
+              "commit": "c5a5abd"
+            },
+            {
               "ts": "260318-2133",
               "state": "rough",
               "text": "Simplify dispatch lifecycle per jjdk_sole_operator premise.\n\n## What's Done\n\n1. **jjdk_sole_operator premise nucleated in JJS0** — all concurrent sessions are single operator, lock\nunconditionally\n2. **jjsohr_handler_result eliminated from spec** — handler returns output text, not mutation discriminant\n3. **jjsodp_command_lifecycle rewritten** — unconditional lock→load→call→persist→return, heat/pace\naffiliation for firemark derivation\n4. **Code: HandlerResult/CommitInfo deleted** — two structs gone\n5. **Code: dispatch split into dispatch_heat/dispatch_pace** — firemark parsed by dispatcher, not handler\n6. **Code: jjrtl_run_revise_docket simplified** — 19 lines to 8, returns Result<String, String>\n7. **All 264 tests pass**\n\n## What Remains\n\n- Migrate relabel and drop handlers to dispatch_pace (same file, easy wins)\n- Migrate all other mutating handlers incrementally\n- Remove per-handler lock/load/persist scaffolding as each migrates",
