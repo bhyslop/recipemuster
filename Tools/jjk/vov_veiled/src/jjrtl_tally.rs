@@ -30,31 +30,20 @@ pub struct jjrtl_ReviseDocketArgs {
 
 /// Run the revise_docket procedure within the dispatch lifecycle.
 ///
-/// Receives &mut Gallops from dispatcher. Returns HandlerResult.
+/// Receives &mut Gallops from dispatcher. Returns output text.
 /// Lock, load, and persist are owned by the dispatcher (jjsodp_command_lifecycle).
 pub fn jjrtl_run_revise_docket(
     gallops: &mut Gallops,
     coronet: &str,
     docket: &str,
-) -> Result<crate::jjrm_mcp::jjrm_HandlerResult, String> {
+) -> Result<String, String> {
     // Capture I/O at procedure boundary — method is pure
     let basis = crate::jjru_util::jjrg_capture_commit_sha();
     let ts = crate::jjrc_core::jjrc_timestamp_full();
 
-    let ctx = gallops.jjrg_revise_docket(coronet, docket, &basis, &ts)?;
+    gallops.jjrg_revise_docket(coronet, docket, &basis, &ts)?;
 
-    let fm = Coronet::jjrf_parse(&ctx.coronet_key)
-        .expect("coronet already validated by resolve_pace")
-        .jjrf_parent_firemark();
-    let message = format_heat_message(&fm, HeatAction::Tally, &ctx.silks);
-
-    Ok(crate::jjrm_mcp::jjrm_HandlerResult {
-        commit: Some(crate::jjrm_mcp::jjrm_CommitInfo {
-            firemark: fm,
-            message,
-        }),
-        output: String::new(),
-    })
+    Ok(String::new())
 }
 
 /// Arguments for jjx_relabel command

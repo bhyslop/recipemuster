@@ -66,37 +66,19 @@ fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, M
 }
 
 // ============================================================================
-// Handler result — jjsohr_handler_result (Operation Taxonomy in JJS0)
-// ============================================================================
-
-/// Return contract from a procedure handler to the dispatch lifecycle.
-///
-/// Carries mutation info (firemark + commit message) and output text.
-pub struct jjrm_HandlerResult {
-    /// If Some, dispatcher persists gallops and commits with this info.
-    /// If None, gallops was not mutated (read-only operation).
-    pub commit: Option<jjrm_CommitInfo>,
-    /// Output text for MCP client
-    pub output: String,
-}
-
-/// Commit information provided by a mutating handler
-pub struct jjrm_CommitInfo {
-    pub firemark: crate::jjrf_favor::jjrf_Firemark,
-    pub message: String,
-}
-
-// ============================================================================
 // Dispatch lifecycle — jjsodp_command_lifecycle (Operation Taxonomy in JJS0)
 // ============================================================================
 
-/// Execute a procedure handler within the uniform command lifecycle.
+/// Shared dispatch body: lock → load → call handler → persist → return output.
 ///
-/// lock → load → call handler → persist if mutated → return output
-fn jjrm_dispatch<F>(cmd: &str, handler: F) -> Result<CallToolResult, McpError>
-where
-    F: FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<jjrm_HandlerResult, String>,
-{
+/// Per jjdk_sole_operator, every operation locks and persists unconditionally.
+/// The handler returns output text on success — it has no knowledge of locks,
+/// persistence, or commit messages.
+fn zjjrm_dispatch_inner(
+    cmd: &str,
+    firemark: &crate::jjrf_favor::jjrf_Firemark,
+    handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
+) -> Result<CallToolResult, McpError> {
     use vvc::vvco_Output;
 
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
@@ -118,8 +100,8 @@ where
         }
     };
 
-    let result = match handler(&mut gallops) {
-        Ok(r) => r,
+    let output = match handler(&mut gallops) {
+        Ok(o) => o,
         Err(e) => {
             return Ok(CallToolResult::error(vec![Content::text(
                 format!("jjx {}: error: {}", cmd, e),
@@ -127,27 +109,60 @@ where
         }
     };
 
-    if let Some(commit) = &result.commit {
-        let mut output = vvco_Output::buffer();
-        match crate::jjri_io::jjri_persist(
-            &lock,
-            &gallops,
-            &gallops_path,
-            &commit.firemark,
-            commit.message.clone(),
-            50000,
-            &mut output,
-        ) {
-            Ok(_hash) => {}
-            Err(e) => {
-                return Ok(CallToolResult::error(vec![Content::text(
-                    format!("jjx {}: error: {}", cmd, e),
-                )]));
-            }
+    let mut persist_output = vvco_Output::buffer();
+    match crate::jjri_io::jjri_persist(
+        &lock,
+        &gallops,
+        &gallops_path,
+        firemark,
+        format!("jjx: {}", cmd),
+        50000,
+        &mut persist_output,
+    ) {
+        Ok(_hash) => {}
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("jjx {}: error: {}", cmd, e),
+            )]));
         }
     }
 
-    Ok(CallToolResult::success(vec![Content::text(result.output)]))
+    Ok(CallToolResult::success(vec![Content::text(output)]))
+}
+
+/// Dispatch a heat-affiliated command. Firemark supplied directly from params.
+fn jjrm_dispatch_heat(
+    cmd: &str,
+    firemark_str: &str,
+    handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
+) -> Result<CallToolResult, McpError> {
+    let firemark = match crate::jjrf_favor::jjrf_Firemark::jjrf_parse(firemark_str) {
+        Ok(f) => f,
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("jjx {}: error: {}", cmd, e),
+            )]));
+        }
+    };
+    zjjrm_dispatch_inner(cmd, &firemark, handler)
+}
+
+/// Dispatch a pace-affiliated command. Coronet supplied from params; parent firemark derived.
+fn jjrm_dispatch_pace(
+    cmd: &str,
+    coronet_str: &str,
+    handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
+) -> Result<CallToolResult, McpError> {
+    let coronet = match crate::jjrf_favor::jjrf_Coronet::jjrf_parse(coronet_str) {
+        Ok(c) => c,
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("jjx {}: error: {}", cmd, e),
+            )]));
+        }
+    };
+    let firemark = coronet.jjrf_parent_firemark();
+    zjjrm_dispatch_inner(cmd, &firemark, handler)
 }
 
 // ============================================================================
@@ -457,7 +472,7 @@ impl jjrm_McpServer {
             }
             "jjx_revise_docket" => {
                 let p = deser!(jjrm_ReviseDocketParams);
-                jjrm_dispatch(cmd, |gallops| {
+                jjrm_dispatch_pace(cmd, &p.coronet, |gallops| {
                     jjrtl_run_revise_docket(gallops, &p.coronet, &p.docket)
                 })
             }
