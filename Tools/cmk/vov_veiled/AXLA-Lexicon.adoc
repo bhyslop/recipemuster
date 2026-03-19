@@ -1998,6 +1998,9 @@ Voices an
 definition.
 The annotated term defines an executable operation with defined inputs, behavior, outputs, and completion semantics.
 No entity affiliation required.
+The first
+{mcm_attribute_reference}
+is the procedure being defined.
 +
 {axd_dimension_s}:
 exactly one lifecycle
@@ -2011,10 +2014,10 @@ Optional
 {axd_internal}.
 Optional
 {axd_grouped}
-(second
+(the second
 {mcm_attribute_reference}
-in definition text must be an
-{axo_group}).
+must be a term voiced
+{axvo_group}).
 
 [[axvo_method]]
 {axvo_method}::
@@ -2022,9 +2025,12 @@ Voices an
 {axo_method}
 definition.
 The annotated term defines an executable operation belonging to an entity's interface.
-The definition text must include, as its second
-{mcm_attribute_reference},
-the affiliated entity (an anchor that voices
+The first
+{mcm_attribute_reference}
+is the method being defined.
+The second
+{mcm_attribute_reference}
+must be the affiliated entity (a term voiced
 {axo_entity}).
 +
 {axd_dimension_s}:
@@ -2039,10 +2045,10 @@ Optional
 {axd_internal}.
 Optional
 {axd_grouped}
-(third
+(the third
 {mcm_attribute_reference}
-in definition text must be an
-{axo_group}).
+must be a term voiced
+{axvo_group}).
 
 [[axvo_group]]
 {axvo_group}::
@@ -2050,9 +2056,12 @@ Voices an
 {axo_group}
 definition.
 The annotated term defines a named collection of related operations that share an affiliated entity.
-The definition text must include, as its second
-{mcm_attribute_reference},
-the affiliated entity (an anchor that voices
+The first
+{mcm_attribute_reference}
+is the group being defined.
+The second
+{mcm_attribute_reference}
+must be the affiliated entity (a term voiced
 {axo_entity}).
 +
 {axd_dimension_s}:
