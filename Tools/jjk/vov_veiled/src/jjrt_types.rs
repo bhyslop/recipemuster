@@ -253,3 +253,20 @@ pub struct jjrg_RestringResult {
     /// Drafted pace mappings (in transfer order)
     pub drafted: Vec<jjrg_RestringMapping>,
 }
+
+/// Context returned by resolve_pace — snapshot of current pace state
+#[derive(Debug, Clone)]
+pub struct jjrg_PaceContext {
+    /// Coronet display key
+    pub coronet_key: String,
+    /// Parent firemark display key
+    pub firemark_key: String,
+    /// Current pace state
+    pub state: jjrg_PaceState,
+    /// Current docket text
+    pub text: String,
+    /// Current silks
+    pub silks: String,
+    /// Current direction (if bridled)
+    pub direction: Option<String>,
+}

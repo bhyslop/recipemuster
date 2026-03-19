@@ -30,9 +30,8 @@ pub struct jjrtl_ReviseDocketArgs {
 
 /// Run the revise_docket command
 ///
-/// Updates the docket text for a pace.
+/// Procedure: lock → load → jjrg_revise_docket → persist.
 pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> (i32, String) {
-    use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
     let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
@@ -44,8 +43,6 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> 
         }
     };
 
-    let text = docket;
-
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
@@ -54,34 +51,13 @@ pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> 
         }
     };
 
-    // Get firemark and silks for commit message before we move args
-    let coronet_str = args.coronet.clone();
-    let (fm, silks) = match Coronet::jjrf_parse(&coronet_str) {
-        Ok(c) => {
-            let parent_fm = c.jjrf_parent_firemark();
-            let silks = gallops.heats.get(&parent_fm.jjrf_display())
-                .and_then(|h| h.paces.get(&c.jjrf_display()))
-                .and_then(|p| p.tacks.first().map(|t| t.silks.clone()))
-                .unwrap_or_else(|| coronet_str.clone());
-            (parent_fm, silks)
-        }
-        Err(e) => {
-            vvco_err!(output, "jjx_revise_docket: error: {}", e);
-            return (1, output.vvco_finish());
-        }
-    };
-
-    let tally_args = LibTallyArgs {
-        coronet: args.coronet,
-        state: None,
-        direction: None,
-        text: Some(text),
-        silks: None,
-    };
-
-    match gallops.jjrg_tally(tally_args) {
-        Ok(()) => {
-            let message = format_heat_message(&fm, HeatAction::Tally, &silks);
+    // Composed method handles resolve + policy + prepend, returns context
+    match gallops.jjrg_revise_docket(&args.coronet, &docket) {
+        Ok(ctx) => {
+            let fm = Coronet::jjrf_parse(&ctx.coronet_key)
+                .expect("coronet already validated by resolve_pace")
+                .jjrf_parent_firemark();
+            let message = format_heat_message(&fm, HeatAction::Tally, &ctx.silks);
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
                 Ok(hash) => {

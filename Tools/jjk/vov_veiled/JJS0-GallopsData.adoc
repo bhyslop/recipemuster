@@ -24,6 +24,9 @@
 // jjsuv_: Upper API verbs (equestrian vocabulary)
 // jjsus_: Upper API slash commands (skill artifacts)
 // jjsuc_: Upper API context artifacts (CLAUDE.md sections)
+// jjsgm*: Gallops methods (entity-affiliated operations)
+// jjsop*: Operation procedures (MCP-served)
+// jjsog*: Operation groups
 //
 // Variant patterns:
 //   _s: plural form
@@ -163,6 +166,17 @@
 
 // Upper API: context artifact
 :jjsuc_insert:  <<jjsuc_insert,CLAUDE.md JJK section>>
+
+// Gallops methods
+:jjsgmrd_revise_docket:  <<jjsgmrd_revise_docket,Revise Docket Method>>
+:jjsgmrp_resolve_pace:   <<jjsgmrp_resolve_pace,Resolve Pace>>
+:jjsgmpt_prepend_tack:   <<jjsgmpt_prepend_tack,Prepend Tack>>
+
+// Operation procedures
+:jjsoprd_revise_docket:  <<jjsoprd_revise_docket,Revise Docket>>
+
+// Operation groups
+:jjsogmc_mcp_commands:   <<jjsogmc_mcp_commands,MCP Commands>>
 
 // end::mapping-section[]
 
@@ -1078,6 +1092,72 @@ include::JJSRPS-persist.adoc[]
 === {jjdr_wrap}
 
 include::JJSRWP-wrap.adoc[]
+
+== Operation Taxonomy
+
+This section defines the structural vocabulary for how operations decompose into
+spec-governed layers.
+Each MCP command ({jjsoprd_revise_docket}, etc.) is a *procedure* that delegates to
+a *composed method* on {jjdgr_gallops}, which itself composes *shared primitive methods*.
+The spec names every layer so implementation cannot drift from design.
+
+=== Groups
+
+[[jjsogmc_mcp_commands]]
+//axvo_group
+{jjsogmc_mcp_commands}::
+The collection of user-visible operations exposed via the {jjdx_cli} MCP tool dispatcher,
+affiliated with {jjdgr_gallops}.
+
+=== Procedures
+
+[[jjsoprd_revise_docket]]
+//axvo_procedure axd_transient axd_grouped
+{jjsoprd_revise_docket}::
+Update a {jjdpr_pace_p} docket text, member of {jjsogmc_mcp_commands}.
++
+{jjds_arguments}
++
+* {jjdt_coronet} — target {jjdpr_pace}.
+* `docket` (string, required) — new docket text.
++
+{jjds_behavior}
++
+. Acquire commit lock
+. {jjdr_load}
+. Call {jjsgmrd_revise_docket} with coronet and docket text
+. {jjdr_persist} with context from method result
++
+{jjds_exit_uniform} 0 success, non-zero error.
+
+=== Gallops Methods
+
+[[jjsgmrp_resolve_pace]]
+//axvo_method axd_transient
+{jjsgmrp_resolve_pace}::
+Navigate {jjdgr_gallops} from a {jjdt_coronet} to the target {jjdpr_pace} and its current tack state.
+Returns pace context: parsed coronet, firemark key, current state, text, silks, and direction.
+Used by all pace-targeting composed methods as the shared read primitive.
+
+[[jjsgmpt_prepend_tack]]
+//axvo_method axd_transient
+{jjsgmpt_prepend_tack}::
+Insert a new tack at position zero of a {jjdpr_pace_p} tack history within {jjdgr_gallops}.
+Used by all pace-mutating composed methods as the shared write primitive.
+
+[[jjsgmrd_revise_docket]]
+//axvo_method axd_transient
+{jjsgmrd_revise_docket}::
+Pure state transform on {jjdgr_gallops} that updates a {jjdpr_pace_p} docket text.
++
+{jjds_behavior}
++
+. {jjsgmrp_resolve_pace} — obtain current pace context
+. Apply bridled auto-reset policy: if pace is currently bridled and new docket text is provided, reset state to {jjdpe_rough} (new spec invalidates old direction)
+. Create new tack with updated text, resolved state, inherited silks
+. {jjsgmpt_prepend_tack} — commit to pace history
++
+Returns pace context so the calling procedure has firemark and silks for the commit message.
 
 == Operations
 
