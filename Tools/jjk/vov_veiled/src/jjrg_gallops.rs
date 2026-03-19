@@ -141,19 +141,12 @@ impl jjrg_Gallops {
     /// Prepend Tack — shared write primitive
     ///
     /// Insert a new tack at position zero of a pace's tack history.
-    pub fn jjrg_prepend_tack(&mut self, coronet: &str, tack: jjrg_Tack) -> Result<(), String> {
-        use crate::jjrf_favor::jjrf_Coronet as Coronet;
-
-        let parsed = Coronet::jjrf_parse(coronet)
-            .map_err(|e| format!("Invalid coronet: {}", e))?;
-        let coronet_key = parsed.jjrf_display();
-        let firemark = parsed.jjrf_parent_firemark();
-        let firemark_key = firemark.jjrf_display();
-
-        let heat = self.heats.get_mut(&firemark_key)
-            .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
-        let pace = heat.paces.get_mut(&coronet_key)
-            .ok_or_else(|| format!("Pace '{}' not found", coronet_key))?;
+    /// Takes a PaceContext (from resolve_pace) so the coronet is parsed exactly once.
+    pub fn jjrg_prepend_tack(&mut self, ctx: &jjrg_PaceContext, tack: jjrg_Tack) -> Result<(), String> {
+        let heat = self.heats.get_mut(&ctx.firemark_key)
+            .ok_or_else(|| format!("Heat '{}' not found", ctx.firemark_key))?;
+        let pace = heat.paces.get_mut(&ctx.coronet_key)
+            .ok_or_else(|| format!("Pace '{}' not found", ctx.coronet_key))?;
 
         pace.tacks.insert(0, tack);
         Ok(())
@@ -180,7 +173,7 @@ impl jjrg_Gallops {
             direction: None,
         };
 
-        self.jjrg_prepend_tack(coronet, tack)?;
+        self.jjrg_prepend_tack(&ctx, tack)?;
 
         Ok(ctx)
     }
