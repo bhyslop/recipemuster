@@ -20,6 +20,7 @@
 // jjdr_:  Routines (internal reusable procedures)
 // jjds_:  Section headers (operation documentation structure)
 // jjdx_:  Executor and transport
+// jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
 // jjsuv_: Upper API verbs (equestrian vocabulary)
 // jjsus_: Upper API slash commands (skill artifacts)
@@ -28,7 +29,6 @@
 // jjsop*: Operation procedures (MCP-served)
 // jjsog*: Operation groups
 // jjsodp_: Dispatch protocol
-// jjsohr_: Handler result
 //
 // Variant patterns:
 //   _s: plural form
@@ -183,8 +183,8 @@
 // Dispatch protocol
 :jjsodp_command_lifecycle:  <<jjsodp_command_lifecycle,Command Lifecycle>>
 
-// Handler result
-:jjsohr_handler_result:  <<jjsohr_handler_result,Handler Result>>
+// Key premises
+:jjdk_sole_operator:  <<jjdk_sole_operator,Sole Operator>>
 
 // end::mapping-section[]
 
@@ -322,6 +322,19 @@ not the `heats` object directly.
 (`₢` prefix) are the canonical identities used in JSON keys, CLI arguments, and display.
 The base64 encoding provides compact, URL-safe, shell-safe strings.
 Internally, Rust may decode to integers for arithmetic, but the string form is authoritative.
+
+== Premises
+
+[[jjdk_sole_operator]]
+//axk_premise
+{jjdk_sole_operator}::
+All concurrent {jjdx_mcp} sessions belong to a single operator.
+The commit lock serializes operations across parallel sessions;
+cross-user concurrency is out of scope.
++
+Consequently, every operation acquires the lock unconditionally — there is no
+read-only fast path, and the {jjsodp_command_lifecycle} dispatcher need not
+distinguish mutating from non-mutating operations.
 
 == Equestrian Vocabulary
 
@@ -1113,25 +1126,26 @@ The spec names every layer so implementation cannot drift from design.
 
 [[jjsodp_command_lifecycle]]
 {jjsodp_command_lifecycle}::
-The uniform frame that the {jjdx_cli} dispatcher applies to every command.
-All operations — read or write — execute within this lifecycle.
+The uniform frame that the {jjdx_cli} dispatcher applies to every mutating command.
+Per {jjdk_sole_operator}, every operation acquires the lock unconditionally.
 +
 {jjds_behavior}
 +
 . Acquire commit lock
 . {jjdr_load} — deserialize {jjdgr_gallops} from JSON
 . Call the procedure handler with `&mut` {jjdgr_gallops} and deserialized parameters
-. If the handler returns {jjsohr_handler_result} indicating mutation: {jjdr_persist} using the handler-provided firemark and commit message
+. {jjdr_persist} — save {jjdgr_gallops} and commit with affiliated firemark
 . Return the handler's output text as MCP response
 +
 The lifecycle is implemented once in the MCP dispatcher.
 Procedures never acquire locks, load {jjdgr_gallops}, or call {jjdr_persist} directly.
-
-[[jjsohr_handler_result]]
-{jjsohr_handler_result}::
-The return contract from a procedure handler to the {jjsodp_command_lifecycle} dispatcher.
-Carries: whether {jjdgr_gallops} was mutated, the affiliated firemark and commit message
-(if mutated), and the output text for the MCP client.
+The handler returns output text on success or an error — it has no knowledge of
+locks, persistence, or commit messages.
++
+The dispatcher determines the affiliated firemark from the command's parameters.
+Heat-affiliated commands supply a {jjdt_firemark} directly.
+Pace-affiliated commands supply a {jjdt_coronet}; the dispatcher derives the
+parent {jjdt_firemark}.
 
 === Groups
 
@@ -1147,7 +1161,7 @@ affiliated with {jjdgr_gallops}.
 //axvo_procedure axd_transient axd_grouped
 {jjsoprd_revise_docket}::
 Update a {jjdpr_pace_p} docket text, member of {jjsogmc_mcp_commands}.
-Runs within {jjsodp_command_lifecycle}.
+Runs within {jjsodp_command_lifecycle} (pace-affiliated).
 +
 {jjds_arguments}
 +
@@ -1158,7 +1172,7 @@ Runs within {jjsodp_command_lifecycle}.
 +
 . Capture basis SHA and timestamp at I/O boundary
 . Call {jjsgmrd_revise_docket} with coronet, docket, basis, and timestamp
-. Return {jjsohr_handler_result} with firemark and silks from method context
+. Return output text
 +
 {jjds_exit_uniform} 0 success, non-zero error.
 
@@ -1189,7 +1203,7 @@ Takes caller-provided basis SHA and timestamp (I/O captured at procedure boundar
 . Create new tack with updated text, inherited state and silks, caller-provided basis and timestamp
 . {jjsgmpt_prepend_tack} — commit to pace history
 +
-Returns pace context so the calling procedure has firemark and silks for the commit message.
+Returns pace context for the calling procedure.
 
 == Operations
 
