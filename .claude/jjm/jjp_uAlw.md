@@ -15,6 +15,10 @@ This heat is **strictly V3 schema**. No breaking changes, no data model rewrites
 
 All work uses V3 data model and schema.
 
+## Key Premise Discovered
+
+**jjdk_sole_operator** — All concurrent MCP sessions belong to a single operator. Cross-user concurrency is out of scope. This premise was missing from JJS0 and caused over-engineering in the Operation Taxonomy: `jjrm_HandlerResult` and `jjrm_CommitInfo` existed to let the dispatcher distinguish mutating from non-mutating handlers, but under sole-operator, every operation locks unconditionally. The handler signature collapses to `FnOnce(&mut Gallops) -> Result<String, String>` — just output text or error. The two structs and the `jjsohr_handler_result` spec term are replaced by this simpler contract.
+
 ## Sequencing
 
 Completes before ₣Ah resumes. ₣Ah is furloughed during this work.
