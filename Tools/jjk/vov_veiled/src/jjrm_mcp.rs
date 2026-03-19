@@ -28,7 +28,7 @@ use crate::jjrrt_retire::{jjrrt_RetireArgs, jjrrt_run_retire};
 use crate::jjrno_nominate::{jjrx_NominateArgs, jjrx_run_nominate};
 use crate::jjrsl_slate::{jjrsl_SlateArgs, jjrsl_run_slate};
 use crate::jjrrl_rail::{jjrrl_RailArgs, jjrrl_run_rail};
-use crate::jjrtl_tally::{jjrtl_ReviseDocketArgs, jjrtl_run_revise_docket, jjrtl_RelabelArgs, jjrtl_run_relabel, jjrtl_DropArgs, jjrtl_run_drop};
+use crate::jjrtl_tally::{jjrtl_run_revise_docket, jjrtl_RelabelArgs, jjrtl_run_relabel, jjrtl_DropArgs, jjrtl_run_drop};
 use crate::jjrdr_draft::{jjrdr_DraftArgs, jjrdr_run_draft};
 use crate::jjrfu_furlough::{jjrfu_FurloughArgs, jjrfu_run_furlough};
 use crate::jjrwp_wrap::{jjrx_WrapArgs, zjjrx_run_wrap};
@@ -63,6 +63,91 @@ fn jjrm_result(result: (i32, String)) -> Result<CallToolResult, McpError> {
 /// Return deserialization error as MCP error result.
 fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, McpError> {
     Ok(CallToolResult::error(vec![Content::text(format!("jjx {}: invalid params: {}", cmd, e))]))
+}
+
+// ============================================================================
+// Handler result — jjsohr_handler_result (Operation Taxonomy in JJS0)
+// ============================================================================
+
+/// Return contract from a procedure handler to the dispatch lifecycle.
+///
+/// Carries mutation info (firemark + commit message) and output text.
+pub struct jjrm_HandlerResult {
+    /// If Some, dispatcher persists gallops and commits with this info.
+    /// If None, gallops was not mutated (read-only operation).
+    pub commit: Option<jjrm_CommitInfo>,
+    /// Output text for MCP client
+    pub output: String,
+}
+
+/// Commit information provided by a mutating handler
+pub struct jjrm_CommitInfo {
+    pub firemark: crate::jjrf_favor::jjrf_Firemark,
+    pub message: String,
+}
+
+// ============================================================================
+// Dispatch lifecycle — jjsodp_command_lifecycle (Operation Taxonomy in JJS0)
+// ============================================================================
+
+/// Execute a procedure handler within the uniform command lifecycle.
+///
+/// lock → load → call handler → persist if mutated → return output
+fn jjrm_dispatch<F>(cmd: &str, handler: F) -> Result<CallToolResult, McpError>
+where
+    F: FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<jjrm_HandlerResult, String>,
+{
+    use vvc::vvco_Output;
+
+    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("jjx {}: error: {}", cmd, e),
+            )]));
+        }
+    };
+
+    let gallops_path = gallops_pathbuf();
+    let mut gallops = match crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_path) {
+        Ok(g) => g,
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("jjx {}: error loading Gallops: {}", cmd, e),
+            )]));
+        }
+    };
+
+    let result = match handler(&mut gallops) {
+        Ok(r) => r,
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("jjx {}: error: {}", cmd, e),
+            )]));
+        }
+    };
+
+    if let Some(commit) = &result.commit {
+        let mut output = vvco_Output::buffer();
+        match crate::jjri_io::jjri_persist(
+            &lock,
+            &gallops,
+            &gallops_path,
+            &commit.firemark,
+            commit.message.clone(),
+            50000,
+            &mut output,
+        ) {
+            Ok(_hash) => {}
+            Err(e) => {
+                return Ok(CallToolResult::error(vec![Content::text(
+                    format!("jjx {}: error: {}", cmd, e),
+                )]));
+            }
+        }
+    }
+
+    Ok(CallToolResult::success(vec![Content::text(result.output)]))
 }
 
 // ============================================================================
@@ -372,10 +457,9 @@ impl jjrm_McpServer {
             }
             "jjx_revise_docket" => {
                 let p = deser!(jjrm_ReviseDocketParams);
-                jjrm_result(jjrtl_run_revise_docket(jjrtl_ReviseDocketArgs {
-                    file: gallops_pathbuf(),
-                    coronet: p.coronet,
-                }, p.docket))
+                jjrm_dispatch(cmd, |gallops| {
+                    jjrtl_run_revise_docket(gallops, &p.coronet, &p.docket)
+                })
             }
             "jjx_relabel" => {
                 let p = deser!(jjrm_RelabelParams);

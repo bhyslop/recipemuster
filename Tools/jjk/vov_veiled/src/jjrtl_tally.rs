@@ -28,58 +28,33 @@ pub struct jjrtl_ReviseDocketArgs {
     pub coronet: String,
 }
 
-/// Run the revise_docket command
+/// Run the revise_docket procedure within the dispatch lifecycle.
 ///
-/// Procedure: lock → load → jjrg_revise_docket → persist.
-pub fn jjrtl_run_revise_docket(args: jjrtl_ReviseDocketArgs, docket: String) -> (i32, String) {
-    let mut output = vvco_Output::buffer();
-
-    // Acquire lock FIRST - fail fast if another operation is in progress
-    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
-        Ok(l) => l,
-        Err(e) => {
-            vvco_err!(output, "jjx_revise_docket: error: {}", e);
-            return (1, output.vvco_finish());
-        }
-    };
-
-    let mut gallops = match Gallops::jjrg_load(&args.file) {
-        Ok(g) => g,
-        Err(e) => {
-            vvco_err!(output, "jjx_revise_docket: error loading Gallops: {}", e);
-            return (1, output.vvco_finish());
-        }
-    };
-
+/// Receives &mut Gallops from dispatcher. Returns HandlerResult.
+/// Lock, load, and persist are owned by the dispatcher (jjsodp_command_lifecycle).
+pub fn jjrtl_run_revise_docket(
+    gallops: &mut Gallops,
+    coronet: &str,
+    docket: &str,
+) -> Result<crate::jjrm_mcp::jjrm_HandlerResult, String> {
     // Capture I/O at procedure boundary — method is pure
     let basis = crate::jjru_util::jjrg_capture_commit_sha();
     let ts = crate::jjrc_core::jjrc_timestamp_full();
 
-    // Composed method handles resolve + update + prepend, returns context
-    match gallops.jjrg_revise_docket(&args.coronet, &docket, &basis, &ts) {
-        Ok(ctx) => {
-            let fm = Coronet::jjrf_parse(&ctx.coronet_key)
-                .expect("coronet already validated by resolve_pace")
-                .jjrf_parent_firemark();
-            let message = format_heat_message(&fm, HeatAction::Tally, &ctx.silks);
+    let ctx = gallops.jjrg_revise_docket(coronet, docket, &basis, &ts)?;
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
-                Ok(hash) => {
-                    vvco_out!(output, "committed {}", hash);
-                    (0, output.vvco_finish())
-                }
-                Err(e) => {
-                    vvco_err!(output, "jjx_revise_docket: error: {}", e);
-                    (1, output.vvco_finish())
-                }
-            }
-        }
-        Err(e) => {
-            vvco_err!(output, "jjx_revise_docket: error: {}", e);
-            (1, output.vvco_finish())
-        }
-    }
-    // lock released here
+    let fm = Coronet::jjrf_parse(&ctx.coronet_key)
+        .expect("coronet already validated by resolve_pace")
+        .jjrf_parent_firemark();
+    let message = format_heat_message(&fm, HeatAction::Tally, &ctx.silks);
+
+    Ok(crate::jjrm_mcp::jjrm_HandlerResult {
+        commit: Some(crate::jjrm_mcp::jjrm_CommitInfo {
+            firemark: fm,
+            message,
+        }),
+        output: String::new(),
+    })
 }
 
 /// Arguments for jjx_relabel command

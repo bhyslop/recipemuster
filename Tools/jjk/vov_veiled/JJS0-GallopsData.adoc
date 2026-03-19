@@ -27,6 +27,8 @@
 // jjsgm*: Gallops methods (entity-affiliated operations)
 // jjsop*: Operation procedures (MCP-served)
 // jjsog*: Operation groups
+// jjsodp_: Dispatch protocol
+// jjsohr_: Handler result
 //
 // Variant patterns:
 //   _s: plural form
@@ -177,6 +179,12 @@
 
 // Operation groups
 :jjsogmc_mcp_commands:   <<jjsogmc_mcp_commands,MCP Commands>>
+
+// Dispatch protocol
+:jjsodp_command_lifecycle:  <<jjsodp_command_lifecycle,Command Lifecycle>>
+
+// Handler result
+:jjsohr_handler_result:  <<jjsohr_handler_result,Handler Result>>
 
 // end::mapping-section[]
 
@@ -1101,6 +1109,30 @@ Each MCP command ({jjsoprd_revise_docket}, etc.) is a *procedure* that delegates
 a *composed method* on {jjdgr_gallops}, which itself composes *shared primitive methods*.
 The spec names every layer so implementation cannot drift from design.
 
+=== Dispatch Protocol
+
+[[jjsodp_command_lifecycle]]
+{jjsodp_command_lifecycle}::
+The uniform frame that the {jjdx_cli} dispatcher applies to every command.
+All operations — read or write — execute within this lifecycle.
++
+{jjds_behavior}
++
+. Acquire commit lock
+. {jjdr_load} — deserialize {jjdgr_gallops} from JSON
+. Call the procedure handler with `&mut` {jjdgr_gallops} and deserialized parameters
+. If the handler returns {jjsohr_handler_result} indicating mutation: {jjdr_persist} using the handler-provided firemark and commit message
+. Return the handler's output text as MCP response
++
+The lifecycle is implemented once in the MCP dispatcher.
+Procedures never acquire locks, load {jjdgr_gallops}, or call {jjdr_persist} directly.
+
+[[jjsohr_handler_result]]
+{jjsohr_handler_result}::
+The return contract from a procedure handler to the {jjsodp_command_lifecycle} dispatcher.
+Carries: whether {jjdgr_gallops} was mutated, the affiliated firemark and commit message
+(if mutated), and the output text for the MCP client.
+
 === Groups
 
 [[jjsogmc_mcp_commands]]
@@ -1115,6 +1147,7 @@ affiliated with {jjdgr_gallops}.
 //axvo_procedure axd_transient axd_grouped
 {jjsoprd_revise_docket}::
 Update a {jjdpr_pace_p} docket text, member of {jjsogmc_mcp_commands}.
+Runs within {jjsodp_command_lifecycle}.
 +
 {jjds_arguments}
 +
@@ -1123,10 +1156,9 @@ Update a {jjdpr_pace_p} docket text, member of {jjsogmc_mcp_commands}.
 +
 {jjds_behavior}
 +
-. Acquire commit lock
-. {jjdr_load}
-. Call {jjsgmrd_revise_docket} with coronet and docket text
-. {jjdr_persist} with context from method result
+. Capture basis SHA and timestamp at I/O boundary
+. Call {jjsgmrd_revise_docket} with coronet, docket, basis, and timestamp
+. Return {jjsohr_handler_result} with firemark and silks from method context
 +
 {jjds_exit_uniform} 0 success, non-zero error.
 
