@@ -12,11 +12,13 @@ NO_PUBLIC_EGRESS blocks public internet, not Google APIs. Workers retain Private
 ### APT/pip Under NO_PUBLIC_EGRESS
 AR APT remote repos are Preview with bootstrap catch-22. Recommended: fat base image vessel pre-baking OS+Python deps. AR Python remote/virtual repo for app-specific pip tail only.
 
-### SLSA Provenance: builds.create vs triggers.run (PROVEN)
-builds.create without git source produces GCB-signed v1 provenance. builder.id: GoogleHostedWorker, buildType: google-worker/v1. resolvedDependencies: step images only (no git source in materials). slsa-verifier rejects this (missing buildConfigSource) — direct provenance verification needed. Context image delivery: FROM SCRATCH OCI to GAR, extract in step 0. Full build+vouch pipeline works end-to-end (3 platforms).
+### SLSA Provenance: builds.create vs triggers.run (EMPIRICAL, NOT SETTLED)
+builds.create without git source produces GCB-signed v1 provenance. builder.id: GoogleHostedWorker, buildType: google-worker/v1. resolvedDependencies: step images only (no git source in materials). slsa-verifier rejects this (missing buildConfigSource). Whether this means Level 3 is unachievable or slsa-verifier is overly strict is an OPEN QUESTION (₢AvAAB).
+
+The experiment's `direct_verify.py` workaround reads provenance JSON fields without cryptographic signature verification — it checks claims, not proofs. This is NOT a substitute for formal SLSA verification and must not ship.
 
 ### Gotchas (PROVEN)
-Platform must match builder (RBGC_BUILD_RUNNER_PLATFORM). Scratch image needs dummy CMD for docker create. Mason SA must be explicit in build JSON. GCB strict substitution matching.
+Platform must match builder (RBGC_BUILD_RUNNER_PLATFORM) even for FROM SCRATCH data-only images — first experiment commit failed without --platform flag, fix commit added it. Scratch image needs dummy CMD for docker create. Mason SA must be explicit in build JSON. GCB strict substitution matching.
 
 ## Design Decisions (2026-03-21)
 
@@ -32,11 +34,31 @@ Optional vessel regime variable. If populated, the vessel builds air-gapped usin
 ### Inscribe Reclaimed
 With GitLab rubric repo eliminated, inscribe is reclaimed as the reliquary generation operation. Walks the vessel fleet, reads RBRV_BASE_IMAGE_* declarations and RBRG tool pins, pulls everything from upstream, pushes the complete set to a namespaced GAR location, and produces the reliquary identifier. Co-versioning is enforced by the operation — everything in one pass, one datestamp.
 
-### Consecration Minted Locally
-With builds.create replacing triggers.run, the Director (not GCB) is the build initiator. Consecration timestamps should be assigned on the Director's local workstation, not in the cloud. This means the Director knows the complete artifact tag set before submission, can pre-compute all tags, embed them in build JSON, and verify fulfillment. Naming authority and verification authority are the same entity; the cloud is just labor.
+### Build = Conjure Execution
+Build (conjure) does: load vessel regime, resolve base images against reliquary (if RBRV_RELIQUARY set), assign consecration, push build context to GAR, stitch JSON, submit via builds.create, wait, vouch. Clean separation from inscribe — no overlap.
 
-### GitLab Elimination
-builds.create with OCI-packaged build context replaces triggers.run with rubric repo. Removes: GitLab account, PAT, 3 Secret Manager entries, CB v2 connection/repo, triggers, RBRR_RUBRIC_REPO_URL. This is a simplification play that also happens to be a prerequisite for air-gap.
+### Build Context as Ark Artifact
+The build context image is tagged as `{vessel}:{consecration}-context`, making it a natural part of the ark alongside -image, -about, -vouch. Cleaned up by abjure with the rest of the consecration's artifacts. No separate lifecycle or naming.
+
+### No More Triggers
+Trigger path fully removed. Stitch generates clean builds.create JSON natively. No rubric repo substitutions generated, no post-hoc jq surgery. GitLab elimination is complete: no GitLab account, PAT, Secret Manager entries, CB v2 connection, triggers, or RBRR_RUBRIC_REPO_URL.
+
+### Consecration Minted Locally
+With builds.create replacing triggers.run, the Director (not GCB) is the build initiator. Consecration timestamps assigned on the Director's local workstation. Formalized as input to stitch, not discovered from build step output. Director knows the complete artifact tag set before submission — naming authority and verification authority are the same entity; the cloud is just labor.
+
+### Explicit Verify Method
+Build JSON includes explicit `_RBGV_VERIFY_METHOD` substitution declaring verification intent. Vouch step executes the declared method rather than inferring from empty/present source URI.
+
+### Single-Platform Conjure Valid
+The multi-platform assertion in rbgjv02 (line 69-71) is a simplification artifact from ₢AtAAD, not an invariant. Single-platform conjure vessels are legitimate. The vouch verification loop iterates once.
 
 ### Open-Egress Preserved
 Open-egress (connected) builds remain fully supported. Required because open-egress builds produce images that may become base images for air-gapped builds. The two modes coexist per-vessel via RBRV_RELIQUARY presence.
+
+## Open Questions
+
+### SLSA Level 3 with builds.create (₢AvAAB)
+Does builds.create without git source achieve SLSA Build Level 3? The experiment's slsa-verifier rejection could mean Level 3 is structurally impossible (no verified source), or that slsa-verifier enforces assumptions beyond the SLSA spec. Definitive answer needed before finalizing verification architecture.
+
+### All Conjures Require Reliquary?
+If all conjure builds required RBRV_RELIQUARY (no open-egress conjure path), the system simplifies significantly: one verification path, one download method (everything from GAR), one stitch mode. Cost: inscribe-before-conjure always, even for quick iterations. This eliminates the dual slsa-verifier-download problem (GitHub fetch vs GAR-resident). Discuss after ₢AvAAB resolves the SLSA question.
