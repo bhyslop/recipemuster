@@ -96,7 +96,8 @@ zrbgg_sentinel() {
 }
 
 ######################################################################
-# Rubric infrastructure preflight — sources Governor RBRA, checks repo URL + DevConnect
+# Governor credential preflight — sources Governor RBRA and validates
+# GitLab/CB v2 checks removed (₣Av) — builds.create + pouch replaces triggers
 
 zrbgg_rubric_preflight() {
   zrbgg_sentinel
@@ -112,29 +113,7 @@ zrbgg_rubric_preflight() {
   zrbra_kindle
   zrbra_enforce
 
-  rbgu_check_rubric_repo_url "${RBRR_RUBRIC_REPO_URL:-}"
-
-  local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get Governor OAuth token for CB v2 check"
-
-  # Verify CB v2 connection is active
-  local -r z_cbv2_conn="${RBRR_CBV2_CONNECTION_NAME:-}"
-  test -n "${z_cbv2_conn}" || buc_die "RBRR_CBV2_CONNECTION_NAME not set — run depot_create to establish CB v2 connection"
-
-  local -r z_cbv2_conn_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn}"
-  rbgu_http_json "GET" "${z_cbv2_conn_url}" "${z_token}" "rubric_cbv2_check"
-  rbgu_http_require_ok "CB v2 connection check" "rubric_cbv2_check"
-
-  local z_cbv2_stage
-  z_cbv2_stage=$(rbgu_json_field_capture "rubric_cbv2_check" '.installationState.stage // "UNKNOWN"') \
-    || buc_die "Failed to parse CB v2 connection stage"
-
-  test "${z_cbv2_stage}" = "COMPLETE" \
-    || buc_die "CB v2 connection not active (stage: ${z_cbv2_stage}) — re-run depot_create"
-
-  buc_log_args "CB v2 connection active (${z_cbv2_conn})"
-
-  buc_log_args "Rubric infrastructure preflight passed"
+  buc_log_args "Governor credential preflight passed"
 }
 
 ######################################################################

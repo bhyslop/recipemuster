@@ -41,13 +41,10 @@ zrbrg_kindle() {
   buv_odref_enroll   RBRG_BINFMT_IMAGE_REF               "binfmt image reference (digest-pinned)"
   buv_odref_enroll   RBRG_SKOPEO_IMAGE_REF               "skopeo image reference (digest-pinned)"
 
-  buv_group_enroll "GCB Binary Pins"
-  buv_string_enroll  RBRG_SLSA_VERIFIER_URL       1  512  "slsa-verifier binary download URL"
-  buv_string_enroll  RBRG_SLSA_VERIFIER_SHA256   64   64  "slsa-verifier binary SHA256 checksum"
+  # slsa-verifier binary pins eliminated (₣Av) — DSSE verification uses embedded keys
 
   buv_group_enroll "Pin Freshness"
   buv_decimal_enroll RBRG_IMAGE_PINS_REFRESHED_AT   0  9999999999  "Epoch seconds of last image pin refresh (0=never)"
-  buv_decimal_enroll RBRG_BINARY_PINS_REFRESHED_AT  0  9999999999  "Epoch seconds of last binary pin refresh (0=never)"
 
   # Guard against unexpected RBRG_ variables not in enrollment
   buv_scope_sentinel RBRG RBRG_

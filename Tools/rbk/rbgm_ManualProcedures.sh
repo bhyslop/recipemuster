@@ -400,13 +400,13 @@ rbgm_quota_build() {
 rbgm_gitlab_setup() {
   zrbgm_sentinel
 
-  buc_doc_brief "Display GitLab rubric repo setup guide for CB v2 connections"
+  buc_doc_brief "ELIMINATED: GitLab rubric repo no longer needed (₣Av)"
   buc_doc_shown || return 0
 
-  bug_section  "GitLab Rubric Repo Setup Guide"
-  bug_t        "Recipe Bottle uses GitLab (not GitHub) for the rubric repo connection."
-  bug_t        "This is required before running depot_create."
-  bug_e
+  buc_info "GitLab rubric repo setup is no longer required."
+  buc_info "Recipe Bottle now uses builds.create + pouch for build context delivery."
+  buc_info "No GitLab account, PAT, or CB v2 connection is needed."
+  return 0
   bug_section  "Why GitLab (not GitHub)?"
   bug_t        "  GitHub classic PATs grant 'repo' scope across ALL repositories the token"
   bug_t        "  owner can access. Fine-grained PATs are rejected by Cloud Build v2 connections"
@@ -572,8 +572,7 @@ rbgm_onboarding() {
     test -f "${z_secrets_dir}/rbro-payor.env" || break
     z_level=2
 
-    # Level 3: GitLab rubric repo URL configured
-    grep -q '^RBRR_RUBRIC_REPO_URL=.\+' "${RBBC_rbrr_file}" || break
+    # Level 3: GitLab rubric repo (eliminated ₣Av — auto-pass)
     z_level=3
 
     # Level 4: Depot project created
@@ -741,7 +740,7 @@ rbgm_onboarding() {
       bug_tc "    GCB_MIN_CONCURRENT_BUILDS " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCB_MIN_CONCURRENT_BUILDS)"
       bug_tc "    VESSEL_DIR                " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_VESSEL_DIR)"
       bug_tc "    SECRETS_DIR               " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_SECRETS_DIR)"
-      bug_tc "    RUBRIC_REPO_URL           " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_RUBRIC_REPO_URL)"
+      bug_tc "    RUBRIC_REPO_URL           " "(eliminated — builds.create + pouch)"
       bug_e
       bug_tc "  To adjust, edit " "${RBBC_rbrr_file}"
       bug_t "  and re-run this guide."
