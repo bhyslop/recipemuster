@@ -4,6 +4,7 @@
 
 A two-level map from slug to lede to content, constructed with a fixed vocabulary of allowed slugs.
 Used for multiline data exchange between {jjdx_tool_s} and Claude.
+Implementation module: `jjrz_gazette.rs` (prefix `jjrz_`).
 
 == Invariants
 
@@ -86,7 +87,7 @@ Notice map — the gazette's content, structured as a two-level map: slug to led
 == Methods
 
 //axhems_scoped_method
-=== parse
+=== jjrz_parse
 
 Construct a frozen gazette from raw markdown per the wire format.
 All validation errors are collected and returned as a diagnostic list rather than failing on the first.
@@ -106,7 +107,7 @@ Frozen gazette on success.
 Diagnostic error list on failure.
 
 //axhems_scoped_method
-=== build
+=== jjrz_build
 
 Construct an unfrozen, empty gazette.
 
@@ -118,7 +119,7 @@ Vocabulary.
 Unfrozen gazette.
 
 //axhems_scoped_method
-=== add
+=== jjrz_add
 
 Add a notice to the gazette.
 Fatal if frozen, if slug is not in vocabulary, or if the (slug, lede) key already exists.
@@ -133,7 +134,7 @@ Lede.
 Content.
 
 //axhems_scoped_method
-=== query_by_slug
+=== jjrz_query_by_slug
 
 Retrieve all notices with the given slug.
 Discloses notice map contents.
@@ -146,7 +147,7 @@ Set of (lede, content) pairs.
 Empty set if no notices match.
 
 //axhems_scoped_method
-=== query_all
+=== jjrz_query_all
 
 Retrieve all notices.
 Discloses notice map contents.
@@ -155,7 +156,7 @@ Discloses notice map contents.
 Set of (slug, lede, content) triples.
 
 //axhems_scoped_method
-=== emit
+=== jjrz_emit
 
 Produce formatted markdown per the wire format.
 Discloses notice map contents.
