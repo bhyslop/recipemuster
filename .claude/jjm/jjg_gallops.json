@@ -3557,6 +3557,13 @@
         "₢AwAAJ": {
           "tacks": [
             {
+              "ts": "260321-1328",
+              "state": "rough",
+              "text": "Implement gazette-based output for read operations: jjx_orient (mount), jjx_show (parade), and jjx_paddock getter.\n\n## Scope\n\nWire gazette building and emitting into three output-producing operations:\n\n1. **jjx_orient** — build gazette with {jjezs_paddock} (firemark lede, paddock content) and {jjezs_pace} (coronet lede, docket content). Emit as markdown in response.\n\n2. **jjx_show --detail** — build gazette with {jjezs_paddock} and {jjezs_pace} when displaying heat with detail flag. Same slug/lede pattern as orient.\n\n3. **jjx_paddock getter** — build gazette with {jjezs_paddock} (firemark lede, paddock content). Emit as markdown.\n\n## Testing\n\nFor each operation: verify emitted gazette parses cleanly (round-trip), verify slug/lede values match expected identities.\n\n## Depends on\n\n₢AwAAO (implement-gazette-rust) — needs working jjrz_build, jjrz_add, jjrz_emit",
+              "silks": "implement-jjf-output-operations",
+              "commit": "87137f9"
+            },
+            {
               "ts": "260318-1535",
               "state": "rough",
               "text": "Implement file exchange for output operations: jjx_orient (mount), jjx_show (parade), and jjx_curry (paddock getter).\n\n## Scope\n\nWire JJF emitting into three output-producing operations:\n\n1. **jjx_orient** — emit `jjfip_paddocks` and `jjfids_slate` tags to exchange out/. Write paddock content under jjfip_paddocks tag (labeled with firemark), write pace docket under jjfids_slate tag (labeled with silks). Delete prior out/ content on invocation.\n\n2. **jjx_show --detail** — emit `jjfip_paddocks` and `jjfids_slate` tags to exchange out/ when displaying heat with detail flag. Same labeling as orient.\n\n3. **jjx_curry getter** — emit `jjfip_paddocks` tag to exchange out/ when invoked without content parameter. Write paddock content under tag (labeled with firemark).\n\n## Testing\n\nFor each operation: verify emitted files are valid JJF (parseable by jjremit_emit_jjf), verify labels match expected values, verify file lifecycle (prior content deleted, new content present until next invocation).\n\n## Produces\n\n- Updated orient, show (--detail), curry (getter) implementations using jjremit_emit_jjf from ₢AwAAH\n- Unit test coverage for each operation's file exchange output path\n- Verified file exchange lifecycle (out/ cleanup before write, idempotent re-invocation)\n\n## Depends on\n\n₢AwAAH (unit-test-jjf-format) — needs working JJF emitter routines",
