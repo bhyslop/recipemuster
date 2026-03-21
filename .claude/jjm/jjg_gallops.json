@@ -3221,9 +3221,10 @@
         "₢AvAAC",
         "₢AvAAD",
         "₢AvAAE",
-        "₢AvAAF"
+        "₢AvAAF",
+        "₢AvAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3345,6 +3346,17 @@
               "text": "## Character\nMechanical code cleanup in a single large file. Low risk — the dead paths already handle empty variables gracefully.\n\n## Goal\nRemove GitLab-specific dead code from rbgp_Payor.sh: CB v2 connection/repository creation, Secret Manager PAT storage, GitLab setup validation. Remove rbgu_check_rubric_repo_url and zrbgu_gitlab_tokens_url_capture from rbgu_Utility.sh.\n\n## Verification\n- Depot creation tabtarget runs without error on active depot (no GitLab steps attempted)\n- No references to RBRR_RUBRIC_REPO_URL or RBRR_CBV2_CONNECTION_NAME in active code paths",
               "silks": "payor-gitlab-dead-code-removal",
               "commit": "c172d42"
+            }
+          ]
+        },
+        "₢AvAAG": {
+          "tacks": [
+            {
+              "ts": "260321-1542",
+              "state": "rough",
+              "text": "## Character\nSystematic review of included AsciiDoc sub-documents. Read each, identify stale GitLab/trigger/slsa-verifier references, rewrite to reflect builds.create + pouch + DSSE.\n\n## Goal\nUpdate RBSAV (ark_vouch), RBSAC (ark_conjure), and RBSRR (RegimeRepo) sub-documents to consistently reflect the new architecture. Remove or update any internal references to eliminated terms.\n\n## Verification\n- grep for eliminated terms across all .adoc files returns zero hits in active content\n- Spec renders consistently (no broken cross-references or stale descriptions)",
+              "silks": "spec-subdocument-gitlab-sweep",
+              "commit": "9cef0c0"
             }
           ]
         }
