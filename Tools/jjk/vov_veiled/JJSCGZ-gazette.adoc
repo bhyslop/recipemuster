@@ -17,12 +17,51 @@ Slug — the category identifier for gazette notices.
 Serves as the first-level key of the gazette map.
 The full set of valid slugs is declared here; each use site constructs a gazette with a vocabulary subset.
 
-Values:
+[[jjezs_slate]]
+//axl_voices axt_enum_value
+{jjezs_slate}::
+Pace creation docket.
+Lede: {jjdt_silks} of the new pace (no {jjdt_coronet} exists yet).
+Content: docket text for the initial tack.
 
-* `slate` — pace creation docket
-* `reslate` — pace docket update
-* `paddock` — heat paddock content
-* `pace` — per-pace content keyed by coronet (mass operations)
+[[jjezs_reslate]]
+//axl_voices axt_enum_value
+{jjezs_reslate}::
+Pace docket update.
+Lede: {jjdt_coronet} of the target pace.
+Content: replacement docket text.
+
+[[jjezs_paddock]]
+//axl_voices axt_enum_value
+{jjezs_paddock}::
+Heat paddock content.
+Lede: {jjdt_firemark} of the target heat.
+Content: paddock markdown.
+
+[[jjezs_pace]]
+//axl_voices axt_enum_value
+{jjezs_pace}::
+Per-pace content keyed by coronet for mass operations.
+Lede: {jjdt_coronet} of the target pace.
+Content: operation-specific per-pace text.
+
+=== Slug Directionality
+
+Each slug has a fixed direction governing whether it appears in input gazettes (parsed from files provided to operations), output gazettes (built by operations and emitted for the caller), or both.
+
+[cols="<,<",options="header"]
+|===
+|Slug |Direction
+
+|{jjezs_slate}    |input
+|{jjezs_reslate}  |input
+|{jjezs_paddock}  |bidirectional
+|{jjezs_pace}     |output
+|===
+
+Input slugs appear in gazettes parsed by write operations.
+Output slugs appear in gazettes emitted by read operations.
+Bidirectional slugs may appear in either direction.
 
 == Fields
 

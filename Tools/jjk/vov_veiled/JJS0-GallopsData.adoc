@@ -87,7 +87,13 @@
 :jjdye_right:  <<jjdye_right,Right>>
 
 // Gazette entity
-:jjsz_gazette:  <<jjsz_gazette,Gazette>>
+:jjsz_gazette:    <<jjsz_gazette,Gazette>>
+
+// Gazette slug enumeration
+:jjezs_slate:     <<jjezs_slate,jjezs_slate>>
+:jjezs_reslate:   <<jjezs_reslate,jjezs_reslate>>
+:jjezs_paddock:   <<jjezs_paddock,jjezs_paddock>>
+:jjezs_pace:      <<jjezs_pace,jjezs_pace>>
 
 // Arguments
 :jjda_after:          <<jjda_after,--after>>
@@ -855,7 +861,7 @@ or by programmatic building (producing an unfrozen gazette that freezes on first
 +
 Contract elaborated in subdocument:
 
-include::JJSCGZ-gazette.adoc[]
+include::JJSCGZ-gazette.adoc[leveloffset=+2]
 
 == Serialization
 
