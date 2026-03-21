@@ -12,10 +12,26 @@ NO_PUBLIC_EGRESS blocks public internet, not Google APIs. Workers retain Private
 ### APT/pip Under NO_PUBLIC_EGRESS
 AR APT remote repos are Preview with bootstrap catch-22. Recommended: fat base image vessel pre-baking OS+Python deps. AR Python remote/virtual repo for app-specific pip tail only.
 
-### SLSA Provenance: builds.create vs triggers.run (EMPIRICAL, NOT SETTLED)
-builds.create without git source produces GCB-signed v1 provenance. builder.id: GoogleHostedWorker, buildType: google-worker/v1. resolvedDependencies: step images only (no git source in materials). slsa-verifier rejects this (missing buildConfigSource). Whether this means Level 3 is unachievable or slsa-verifier is overly strict is an OPEN QUESTION (₢AvAAB).
+### SLSA Provenance: builds.create Achieves Build L3 (SETTLED, ₢AvAAB)
+builds.create without git source produces GCB-signed v0.1 AND v1 provenance (Google docs incorrectly claim only v0.1 for non-trigger builds — empirically disproven on depot10030). GCB reports `slsa_build_level: 3`. slsa-verifier rejects this (requires `buildConfigSource` in `externalParameters`), but slsa-verifier is wrong: it conflates SLSA's Build track with the not-yet-existing Source track.
 
-The experiment's `direct_verify.py` workaround reads provenance JSON fields without cryptographic signature verification — it checks claims, not proofs. This is NOT a substitute for formal SLSA verification and must not ship.
+**SLSA v1.0 spec analysis**: Build L3 requires only platform hardening (isolation, ephemeral environments, unforgeable provenance). Source verification is deferred to a future Source track: "SLSA v1.0 does not address source threats." `resolvedDependencies` is explicitly optional. No requirement for `buildConfigSource` — that is a GCB convention consumed by slsa-verifier, not a SLSA requirement.
+
+**slsa-verifier incompatibility**: The v1.0 handler unconditionally reads `externalParameters.buildConfigSource` and the CLI requires `--source-uri`. No flag to skip source verification. Issue #309 confirms maintainers consider this by-design. The tool carries forward v0.2 assumptions that v1.0 formally dropped.
+
+**Previous rubric repo gave cosmetic source verification**: The old trigger path verified a commit in a generated staging repo (rubric), not actual source code. The new builds.create path is more honest — it doesn't pretend to verify source.
+
+**Verification solution**: Direct DSSE envelope signature verification using jq + openssl (no Python, no slsa-verifier). Empirically proven on depot10030 `rbev-busybox@sha256:91114537...` (builds.create, arm64). All three signatures verified:
+
+| Provenance | Key | Method | Result |
+|---|---|---|---|
+| v1.0 | `google-hosted-worker` (global) | DSSE PAE | Verified OK |
+| v0.1 sig 1 | `provenanceSigner` (global) | DSSE PAE | Verified OK |
+| v0.1 sig 2 | `builtByGCB` (us-central1) | Legacy raw | Verified OK |
+
+**Public key access**: Attestor keys in `projects/verified-builder/` KMS are broadly accessible to any authenticated GCP identity via `cloudkms.cryptoKeyVersions.viewPublicKey`. slsa-verifier embeds them as 22 PEM files at compile time (documented as "temporary solution"). Google documents the manual gcloud + openssl verification process in their provenance docs.
+
+The experiment's `direct_verify.py` checked claims without cryptographic verification — replaced by DSSE signature verification which proves GCB signed the provenance.
 
 ### Gotchas (PROVEN)
 Platform must match builder (RBGC_BUILD_RUNNER_PLATFORM) even for FROM SCRATCH data-only images — first experiment commit failed without --platform flag, fix commit added it. Scratch image needs dummy CMD for docker create. Mason SA must be explicit in build JSON. GCB strict substitution matching.
@@ -78,13 +94,34 @@ With triggers and rubric repo eliminated, the Director's IAM grants need reasses
 
 This is a security surface reduction: fewer secrets, fewer cross-service grants, simpler audit.
 
+### Vouch Verification Architecture (₢AvAAB)
+slsa-verifier is dropped from the verification pipeline. The vouch GCB step verifies provenance via DSSE envelope signature verification using standard tools:
+
+1. **Fetch provenance**: Container Analysis REST API → DSSE envelope (payload + signatures)
+2. **Extract components**: jq extracts payload (base64), signature (base64), keyid
+3. **Decode**: base64 decode payload and signature (standard base64, not url-safe)
+4. **Reconstruct PAE**: `printf "DSSEv1 28 application/vnd.in-toto+json %d " $LEN; cat payload` — binary-safe shell construction
+5. **Verify signature**: `openssl dgst -sha256 -verify key.pub -signature sig.bin pae.bin`
+6. **Check provenance fields**: jq reads builder.id, buildType, invocationId, subject digest from now-trusted payload
+
+**Public key strategy**: Embed attestor PEM keys in the reliquary at inscribe time (fetched from `projects/verified-builder/` KMS). No runtime KMS dependency. Air-gap compatible. Keys change rarely — analogous to slsa-verifier's embedded approach.
+
+**Three keys to embed per region**:
+- `google-hosted-worker` (global) — v1.0 DSSE PAE
+- `provenanceSigner` (global) — v0.1 DSSE PAE
+- `builtByGCB` (regional) — v0.1 legacy raw payload
+
+**Dependencies**: jq (~1.5 MB static binary) + openssl + base64 + printf. Alpine image with `apk add jq openssl`. No Python, no slsa-verifier, no cosign.
+
+**Binary Authorization**: BinAuth SLSA check provides deploy-time enforcement independent of vouch. It trusts GCB's `slsa_build_level: 3` directly. Complementary, not competing.
+
 ### RBSHR Update Required
 The Horizon Roadmap egress lockdown entry (RBSHR line 87-93) describes the old architecture. Update to reflect reliquary/pouch/builds.create architecture, or graduate the item out of RBSHR entirely since it is now active heat work.
 
 ## Open Questions
 
-### SLSA Level 3 with builds.create (₢AvAAB)
-Does builds.create without git source achieve SLSA Build Level 3? The experiment's slsa-verifier rejection could mean Level 3 is structurally impossible (no verified source), or that slsa-verifier enforces assumptions beyond the SLSA spec. Definitive answer needed before finalizing verification architecture.
+### ~~SLSA Level 3 with builds.create (₢AvAAB)~~ SETTLED
+Yes. builds.create achieves Build L3 by spec and by GCB's own assessment. slsa-verifier is incompatible (conflates Build and Source tracks) and is dropped. Vouch step uses DSSE signature verification: jq + openssl against `verified-builder` KMS public keys. See Research Findings section for full analysis.
 
 ### Bind/Graft Vouch and About Step Images
 Vouch and about GCB jobs for bind and graft modes also use step images (gcloud, alpine). Should these modes reference a reliquary for their GCB step images, making the reliquary the universal step-image source for ALL GCB interactions? This would be consistent but may be overkill for simpler modes. If yes, RBRV_RELIQUARY becomes required for all vessel modes, not just conjure.
