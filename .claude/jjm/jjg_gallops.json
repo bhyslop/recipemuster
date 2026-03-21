@@ -3539,6 +3539,13 @@
         "₢AwAAI": {
           "tacks": [
             {
+              "ts": "260321-1328",
+              "state": "rough",
+              "text": "Implement gazette-based input for write operations: jjx_enroll (slate), jjx_revise_docket (reslate), and jjx_paddock setter.\n\n## Scope\n\nWire gazette parsing into three input-consuming operations:\n\n1. **jjx_enroll** — accept gazette with {jjezs_slate} slug. Parse input, extract silks from lede, docket from content, invoke enroll logic.\n\n2. **jjx_revise_docket** — accept gazette with {jjezs_reslate} slug. Parse input, extract coronet from lede, docket from content, invoke revise logic. Support mass reslate: multiple {jjezs_reslate} notices in one gazette, each with a different coronet lede.\n\n3. **jjx_paddock setter** — accept gazette with {jjezs_paddock} slug. Parse input, extract firemark from lede, content from body, invoke paddock write logic.\n\n## Testing\n\nFor each operation: valid input, error cases (unknown slugs, missing ledes, malformed content), gazette diagnostic quality for LLM consumption.\n\n## Depends on\n\n₢AwAAO (implement-gazette-rust) — needs working jjrz_parse",
+              "silks": "implement-jjf-input-operations",
+              "commit": "c276f51"
+            },
+            {
               "ts": "260318-1535",
               "state": "rough",
               "text": "Implement file exchange for input operations: jjx_enroll (slate), jjx_revise_docket (reslate), and jjx_curry (paddock setter).\n\n## Scope\n\nWire JJF parsing into three input-consuming operations:\n\n1. **jjx_enroll** — accept `jjfids_slate` file input in place of docket string parameter. Read from exchange in/, parse jjfids_slate tag, extract silks from label, docket from content, invoke enroll logic.\n\n2. **jjx_revise_docket** — accept `jjfidr_reslate` file input in place of docket string parameter. Read from exchange in/, parse jjfidr_reslate tag, extract coronet from label, docket from content, invoke revise logic.\n\n3. **jjx_curry setter** — accept `jjfip_paddocks` file input in place of content parameter. Read from exchange in/, parse jjfip_paddocks tag, extract firemark from label, content from body, invoke curry write logic.\n\n## Testing\n\nFor each operation: write unit tests exercising valid input, error cases (missing labels, invalid tags, malformed content), file lifecycle (delete after read).\n\n## Produces\n\n- Updated enroll, revise_docket, curry implementations using jjrpf_parse_jjf from ₢AwAAH\n- Unit test coverage for each operation's file exchange path\n- Verified file exchange lifecycle (in/ cleanup, error handling)\n\n## Depends on\n\n₢AwAAH (unit-test-jjf-format) — needs working JJF parser routines",
