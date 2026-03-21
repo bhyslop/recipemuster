@@ -1,25 +1,29 @@
 #!/bin/sh
-# RBGJV Step 01: Prepare DSSE verification keys (conjure only)
+# RBGJV Step 01: Prepare verification tools and keys (conjure only)
 # Builder: alpine (via RBRG_ALPINE_IMAGE_REF)
 # Entrypoint: sh (not bash — alpine does not have bash)
 # Substitutions: _RBGV_VESSEL_MODE
 
 set -eu
-echo "=== Prepare verification keys ==="
+echo "=== Prepare verification tools ==="
 
-# Early-exit for non-conjure modes (DSSE verification only needed for conjure)
+# Early-exit for non-conjure modes
 if [ "${_RBGV_VESSEL_MODE}" != "conjure" ]; then
-  echo "Vessel mode is ${_RBGV_VESSEL_MODE} — skipping key setup"
+  echo "Vessel mode is ${_RBGV_VESSEL_MODE} — skipping"
   exit 0
 fi
 
-# Write GCB attestor public keys to workspace
-# Source: projects/verified-builder KMS (embedded — keys change rarely)
-# Verification: DSSE envelope signatures on GCB-generated SLSA provenance
-mkdir -p /workspace/keys
+# Install statically-linked jq to /workspace/bin/ (gcloud image lacks jq;
+# alpine's jq is musl-linked and fails on glibc with "No such file or directory")
+mkdir -p /workspace/bin
+wget -q -O /workspace/bin/jq "https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64"
+chmod +x /workspace/bin/jq
+/workspace/bin/jq --version
+echo "jq installed to /workspace/bin/"
 
-# v1.0 provenance key: google-hosted-worker (global, DSSE PAE)
-# KMS path: projects/verified-builder/locations/global/keyRings/attestor/cryptoKeys/google-hosted-worker/cryptoKeyVersions/1
+# Write GCB attestor public key (embedded — keys change rarely)
+# KMS: projects/verified-builder/locations/global/keyRings/attestor/cryptoKeys/google-hosted-worker/cryptoKeyVersions/1
+mkdir -p /workspace/keys
 cat > /workspace/keys/google-hosted-worker.pub << 'KEYEOF'
 -----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEg9KII7kzr/30HBluf00y9WwtMFkE
