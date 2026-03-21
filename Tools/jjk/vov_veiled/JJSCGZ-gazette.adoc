@@ -32,6 +32,7 @@ Each use site constructs a gazette with a vocabulary that is a subset of these v
 //axl_voices axt_enum_value
 {jjezs_slate}::
 Pace creation docket.
+Direction: input.
 Lede: {jjdt_silks} of the new pace (no {jjdt_coronet} exists yet).
 Content: docket text for the initial tack.
 
@@ -39,6 +40,7 @@ Content: docket text for the initial tack.
 //axl_voices axt_enum_value
 {jjezs_reslate}::
 Pace docket update.
+Direction: input.
 Lede: {jjdt_coronet} of the target pace.
 Content: replacement docket text.
 
@@ -46,6 +48,7 @@ Content: replacement docket text.
 //axl_voices axt_enum_value
 {jjezs_paddock}::
 Heat paddock content.
+Direction: bidirectional.
 Lede: {jjdt_firemark} of the target heat.
 Content: paddock markdown.
 
@@ -53,23 +56,9 @@ Content: paddock markdown.
 //axl_voices axt_enum_value
 {jjezs_pace}::
 Per-pace content keyed by coronet for mass operations.
+Direction: output.
 Lede: {jjdt_coronet} of the target pace.
 Content: operation-specific per-pace text.
-
-=== Directionality
-
-[cols="<,<",options="header"]
-|===
-|Slug |Direction
-
-|{jjezs_slate}    |input
-|{jjezs_reslate}  |input
-|{jjezs_paddock}  |bidirectional
-|{jjezs_pace}     |output
-|===
-
-Input slugs appear in gazettes parsed by write operations.
-Output slugs appear in gazettes emitted by read operations.
 
 == Wire Format
 
