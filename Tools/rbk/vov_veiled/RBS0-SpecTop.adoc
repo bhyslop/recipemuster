@@ -68,8 +68,9 @@
 :rbtgi_payor_project:        <<rbtgi_payor_project,RB Payor Project>>
 :rbtgi_rbra_file:            <<rbtgi_rbra_file,RBRA File>>
 :rbtgi_rbra_file_s:          <<rbtgi_rbra_file,RBRA Files>>
-:rbtgi_cbv2_connection:   <<rbtgi_cbv2_connection,CB v2 Connection>>
-:rbtgi_cbv2_repository:  <<rbtgi_cbv2_repository,CB v2 Repository>>
+// CB v2 Connection and Repository eliminated (₣Av) — builds.create + pouch replaces triggers
+:rbtgi_cbv2_connection:   CB v2 Connection (eliminated)
+:rbtgi_cbv2_repository:  CB v2 Repository (eliminated)
 
 // Recipe Bottle Term Google Ark (coherent build output unit)
 :rbtga_ark:                  <<rbtga_ark,RB Ark>>
@@ -89,12 +90,13 @@
 // Recipe Bottle Common Fact Maps (dynamic output contract identifiers)
 :rbcc_fact_consec_infix:     <<rbcc_fact_consec_infix,RBCC_FACT_CONSEC_INFIX>>
 // Recipe Bottle Term Google Rubric (per-vessel build definition)
-:rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
-:rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
+// Rubric concept eliminated (₣Av) — builds.create + pouch replaces trigger/rubric path
+:rbtgr_rubric:              RB Rubric (eliminated)
+:rbtgr_rubric_s:            RB Rubrics (eliminated)
 :rbtgr_build_json:          <<rbtgr_build_json,cloudbuild.json>>
-:rbtgr_vessel_trigger:      <<rbtgr_vessel_trigger,Vessel Trigger>>
-:rbtgr_rubric_repo:         <<rbtgr_rubric_repo,Rubric Repo>>
-:rbtgr_vessel_dir:          <<rbtgr_vessel_dir,Vessel Directory>>
+:rbtgr_vessel_trigger:      Vessel Trigger (eliminated)
+:rbtgr_rubric_repo:         Rubric Repo (eliminated)
+:rbtgr_vessel_dir:          Vessel Directory (eliminated)
 :rbtgr_provenance:          <<rbtgr_provenance,Rubric Provenance>>
 
 // Recipe Bottle Term Google Operations
@@ -137,7 +139,7 @@
 :rbtgog_sa:                       <<rbtgog_sa,Service Account Group>>
 
 // Recipe Bottle Term Colophon (tabtarget entry points)
-:rbtc_gitlab_setup:              <<rbtc_gitlab_setup,rbw-gPL>>
+:rbtc_gitlab_setup:              rbw-gPL (eliminated)
 :rbtc_refresh_gcb_pins:          <<rbtc_refresh_gcb_pins,rbw-DPG>>
 :rbtc_refresh_binary_pins:       <<rbtc_refresh_binary_pins,rbw-DPB>>
 :rbtc_inspect_full:              <<rbtc_inspect_full,rbw-RiF>>
@@ -310,8 +312,9 @@
 :rbrr_gcb_worker_pool:       <<rbrr_gcb_worker_pool,RBRR_GCB_WORKER_POOL>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
 :rbrg_oras_image_ref:    <<rbrg_oras_image_ref,RBRG_ORAS_IMAGE_REF>>
-:rbrg_slsa_verifier_url:    <<rbrg_slsa_verifier_url,RBRG_SLSA_VERIFIER_URL>>
-:rbrg_slsa_verifier_sha256: <<rbrg_slsa_verifier_sha256,RBRG_SLSA_VERIFIER_SHA256>>
+// slsa-verifier binary pins eliminated (₣Av) — DSSE envelope verification replaces slsa-verifier
+:rbrg_slsa_verifier_url:    RBRG_SLSA_VERIFIER_URL (eliminated)
+:rbrg_slsa_verifier_sha256: RBRG_SLSA_VERIFIER_SHA256 (eliminated)
 :rbrg_gcloud_image_ref:  <<rbrg_gcloud_image_ref,RBRG_GCLOUD_IMAGE_REF>>
 :rbrg_docker_image_ref:  <<rbrg_docker_image_ref,RBRG_DOCKER_IMAGE_REF>>
 :rbrg_alpine_image_ref:  <<rbrg_alpine_image_ref,RBRG_ALPINE_IMAGE_REF>>
@@ -319,7 +322,7 @@
 :rbrg_binfmt_image_ref:  <<rbrg_binfmt_image_ref,RBRG_BINFMT_IMAGE_REF>>
 :rbrg_skopeo_image_ref: <<rbrg_skopeo_image_ref,RBRG_SKOPEO_IMAGE_REF>>
 :rbrg_image_pins_refreshed_at: <<rbrg_image_pins_refreshed_at,RBRG_IMAGE_PINS_REFRESHED_AT>>
-:rbrg_binary_pins_refreshed_at: <<rbrg_binary_pins_refreshed_at,RBRG_BINARY_PINS_REFRESHED_AT>>
+// RBRG_BINARY_PINS_REFRESHED_AT eliminated (₣Av) — no binary pins remain
 :rbrm_chosen_identity:       <<rbrm_chosen_identity,RBRM_CHOSEN_IDENTITY>>
 :rbrm_chosen_podman_version: <<rbrm_chosen_podman_version,RBRM_CHOSEN_PODMAN_VERSION>>
 :rbrm_chosen_vmimage_origin: <<rbrm_chosen_vmimage_origin,RBRM_CHOSEN_VMIMAGE_ORIGIN>>
@@ -330,8 +333,9 @@
 
 // Recipe Bottle Regime: Cloud Build v2
 :rbrr_group_cbv2:               <<rbrr_group_cbv2,Cloud Build v2 Group>>
-:rbrr_cbv2_connection_name:     <<rbrr_cbv2_connection_name,RBRR_CBV2_CONNECTION_NAME>>
-:rbrr_rubric_repo_url:          <<rbrr_rubric_repo_url,RBRR_RUBRIC_REPO_URL>>
+// RBRR_CBV2_CONNECTION_NAME and RBRR_RUBRIC_REPO_URL eliminated (₣Av)
+:rbrr_cbv2_connection_name:     RBRR_CBV2_CONNECTION_NAME (eliminated)
+:rbrr_rubric_repo_url:          RBRR_RUBRIC_REPO_URL (eliminated)
 
 // Recipe Bottle Regime: Account (service account credentials)
 :rbra_client_email:          <<rbra_client_email,RBRA_CLIENT_EMAIL>>
@@ -952,40 +956,22 @@ include::RBSDI-director_create.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_rubric_inscribe}
 
-The batch-all-vessels
-{rbtgr_rubric}
-lifecycle command
-({rbtgog_rubric}):
-refreshes pins (rate-limited to 1/day),
-clones the
-{rbtgr_rubric_repo},
-copies all build contexts and generates all
-{rbtgr_build_json}
-directly into the clone from step scripts and regime pins,
-fills placeholders, pushes,
-and ensures all
-{rbtgr_vessel_trigger}
-resources exist.
+DEFERRED: Inscribe will become reliquary generation (₣Av).
+The GitLab rubric path (clone, push, trigger creation) is eliminated.
+Builds now use `builds.create` with pouch (build context as GAR image) for context delivery.
+Inscribe currently dies with a stub message; reliquary implementation is future work.
 
-include::RBSRI-rubric_inscribe.adoc[]
-
-NOTE: {rbtgr_vessel_trigger} resources use an unmatchable push branch filter (`^MANUAL-DISPATCH-ONLY$`) rather than no filter. The Cloud Build API requires `repositoryEventConfig` to include a `push` or `pullRequest` filter (union field); omitting both causes HTTP 400. The unmatchable pattern satisfies the API constraint while ensuring triggers never fire on push — builds dispatch only via explicit `triggers.run` calls from {rbtgo_trigger_build}. The proper API mechanism for manual-only triggers (`sourceToBuild`) would require restructuring the trigger body and has not been live-tested.
+// include::RBSRI-rubric_inscribe.adoc[]
 
 [[rbtgo_trigger_build]]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_trigger_build}
 
-Dispatches a
-{rbtgr_rubric}
-build
-({rbtgog_rubric})
-via `triggers.run` using the vessel's
-{rbtgr_vessel_trigger}.
-All values baked in
-{rbtgr_build_json}
-— zero custom substitution overrides.
+ELIMINATED (₣Av): Trigger dispatch replaced by direct `builds.create` API submission.
+Build context delivered via pouch (FROM SCRATCH OCI image in GAR).
+Consecration minted locally by the Director before submission.
 
-include::RBSTB-trigger_build.adoc[]
+// include::RBSTB-trigger_build.adoc[]
 
 NOTE: For multi-platform build authentication challenges and research findings, see link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
 
@@ -1033,7 +1019,7 @@ Conjures an
 by building a container image
 ({rbtgog_ark})
 from a vessel specification.
-The trigger-dispatched job produces both `-image` and `-about` (about steps embedded via stitch). Vouch is a separate Cloud Build job.
+Build context delivered via pouch (FROM SCRATCH OCI image in GAR), submitted via `builds.create` API. The combined job produces both `-image` and `-about` (about steps embedded via stitch). Vouch is a separate Cloud Build job using DSSE envelope signature verification.
 
 include::RBSAC-ark_conjure.adoc[]
 
@@ -1075,12 +1061,12 @@ Vouches for an
 producing a
 {rbtga_ark_vouch}
 that records mode-aware verification results.
-Conjure: SLSA provenance verification.
+Conjure: DSSE envelope signature verification (jq + openssl against GCB attestor keys).
 Bind: digest-pin comparison.
 Graft: GRAFTED stamp.
 Submitted as a
 {gcb_service}
-job via the RunBuild API after
+job via `builds.create` after
 {rbtgo_ark_about}
 completes.
 
