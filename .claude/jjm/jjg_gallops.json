@@ -3325,6 +3325,7 @@
       "status": "racing",
       "order": [
         "₢AwAAM",
+        "₢AwAAO",
         "₢AwAAN",
         "₢AwAAK",
         "₢AwAAA",
@@ -3339,7 +3340,7 @@
         "₢AwAAE",
         "₢AwAAF"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -3612,6 +3613,17 @@
               "text": "Rename existing operation hierarchy markers (axhop_*, axhoo_*) to match the entity voicing naming convention established in ₢AwAAM.\n\n## Renames\n\n- `axhop_parameter` (abstract) → eliminated (branch enforces)\n- `axhop_parameter_from_type` → `axhopt_typed_parameter`\n- `axhop_parameter_from_arg` → `axhopa_arg_parameter`\n- `axhoo_output` (abstract) → eliminated (branch enforces)\n- `axhoo_output_of_type` → `axhoot_typed_output`\n\n## New markers\n\n- `axhopm_motif_parameter` (0-arity)\n- `axhoom_motif_output` (0-arity)\n\n## Character\n\nMechanical but requires care — grep all specs for existing usages and update consistently. Check both AXLA definitions and all consuming documents.",
               "silks": "rename-axho-markers-to-new-convention",
               "commit": "1f474d0"
+            }
+          ]
+        },
+        "₢AwAAO": {
+          "tacks": [
+            {
+              "ts": "260321-1328",
+              "state": "rough",
+              "text": "Implement the Gazette entity in Rust per the JJSCGZ-gazette.adoc specification.\n\n## Scope\n\nCreate `jjrz_gazette.rs` implementing:\n\n1. **Gazette struct** — two-level map (slug → lede → content) with vocabulary and frozen state\n2. **jjrz_parse** — construct frozen gazette from markdown, collect all diagnostics as Vec<String> for LLM-legible error reporting\n3. **jjrz_build** — construct unfrozen gazette with vocabulary\n4. **jjrz_add** — add notice, fatal if frozen/bad slug/duplicate (slug,lede) key\n5. **jjrz_query_by_slug** — retrieve entries by slug, triggers freeze-on-disclosure\n6. **jjrz_query_all** — retrieve all notices, triggers freeze-on-disclosure\n7. **jjrz_emit** — produce markdown, triggers freeze-on-disclosure\n8. **Slug constants** — jjezs_slate, jjezs_reslate, jjezs_paddock, jjezs_pace as Rust enum\n\n## Invariants\n\n- Freeze-on-disclosure: any method that reveals notice map contents freezes permanently\n- No ordering semantic\n- Unique (slug, lede) keys, fatal on duplicate\n- Round-trip: parse(vocab, emit(g)) produces identical notice map\n\n## Testing\n\nUnit tests for:\n- Parse: valid markdown, unknown slugs, malformed headers, duplicate keys, near-match suggestions\n- Build/add/freeze: vocabulary enforcement, freeze-on-disclosure, duplicate key fatality\n- Round-trip: parse(emit(x)) == x\n- Directionality: slug direction constants match spec\n\n## Character\n\nStraightforward Rust implementation from a tight spec. The JJSCGZ subdocument is authoritative.",
+              "silks": "implement-gazette-rust",
+              "commit": "c918711"
             }
           ]
         }
