@@ -26,7 +26,9 @@ Platform must match builder (RBGC_BUILD_RUNNER_PLATFORM) even for FROM SCRATCH d
 A co-versioned, datestamped, immutable snapshot of all tool images and vessel base images, emplaced in GAR. Single concept — no separate term for the instance vs the type (tested against load-bearing principle: unlike vessel/consecration, there is no persistent parent entity that accumulates instances). Each reliquary is identified by a datestamped string. Required for all conjure builds.
 
 ### Pouch
-The build context packaged as a FROM SCRATCH OCI image and pushed to GAR. Tagged as `{vessel}:{consecration}-pouch`, making it a first-class ark artifact alongside `-image`, `-about`, `-vouch`. The pouch carries the Dockerfile and supporting files to the GCB worker, replacing the rubric repo's context delivery role. Cleaned up by abjure with the rest of the consecration's artifacts.
+The build context packaged as a FROM SCRATCH OCI image and pushed to GAR. Required for all conjure builds — with triggers eliminated, builds.create has no other context delivery mechanism. The pouch IS how build context reaches GCB, regardless of egress mode. This is independent of the reliquary requirement: the reliquary provides tool/base images, the pouch provides the Dockerfile and build context files.
+
+Tagged as `{vessel}:{consecration}-pouch`, making it a first-class ark artifact alongside `-image`, `-about`, `-vouch`. Cleaned up by abjure with the rest of the consecration's artifacts.
 
 ## Design Decisions (2026-03-21)
 
