@@ -3218,9 +3218,10 @@
       "order": [
         "₢AvAAA",
         "₢AvAAB",
-        "₢AvAAC"
+        "₢AvAAC",
+        "₢AvAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3302,6 +3303,17 @@
               "text": "## Character\nMechanical and careful. Reverting shared production code that was modified under experiment pressure.\n\n## Task\nRevert rbf_Foundry.sh, rbgjv01-download-verifier.sh, and rbgjv02-verify-provenance.sh to their pre-experiment state (before ₢AvAAA commits 3cd95eac and 04f73057). The trigger-based conjure path must be restored as the working production path until the new architecture is implemented under proper discipline.\n\n## Rationale\nThe experiment answered WHAT to build. The experiment code is NOT the foundation to build on. Design decisions are captured in the heat paddock; implementation will follow in properly scoped paces.\n\n## Not in scope\n- Implementing any of the new design (pouch, reliquary, builds.create)\n- Changing any code beyond the three experiment-modified files",
               "silks": "revert-experiment-restore-trigger-path",
               "commit": "184f49f"
+            }
+          ]
+        },
+        "₢AvAAD": {
+          "tacks": [
+            {
+              "ts": "260321-1315",
+              "state": "rough",
+              "text": "## Character\nArchitectural transition with broad file surface. Replaces trigger-based conjure with builds.create + pouch. Requires judgment on what to preserve vs rebuild, and discipline to stop at the baby step boundary.\n\n## Goal\nEliminate GitLab dependency entirely. Replace trigger-based build dispatch with builds.create API + pouch context delivery. Adapt vouch for builds.create provenance (DSSE jq+openssl). Keep RBRG pin mechanism for step images (no reliquary yet). Result: a working, releasable conjure pipeline with no GitLab, no triggers, no rubric repo.\n\n## Scope\n\n### In scope\n- **Stitch**: Rewrite `zrbf_stitch_build_json` for native builds.create JSON. No rubric substitutions, no post-hoc jq surgery. Pouch reference as first build step (extract context from GAR image). Step image refs from existing RBRG pins.\n- **Pouch**: New function to package build context as FROM SCRATCH OCI image, push to GAR. Tagged as `{vessel}:{inscribe_timestamp}-context` (or similar). Created as part of conjure flow.\n- **Conjure**: Replace triggers.run dispatch with builds.create REST API call + wait. Consecration minted locally (Director assigns timestamps). No trigger-ensure, no rubric commit, no dispatch indirection.\n- **Vouch**: Replace slsa-verifier with DSSE envelope signature verification (jq + base64 + openssl). Verify against embedded or fetched verified-builder KMS public keys. Proven approach from ₢AvAAB research.\n- **Regime cleanup**: Remove RBRR_RUBRIC_REPO_URL, GitLab PAT secrets references, CB v2 connection references from regime and onboarding flows.\n- **Absorbs ₢AvAAC**: Experiment modifications to rbf_Foundry.sh, rbgjv01, rbgjv02 are overwritten by new implementation (no separate revert step).\n\n### Deferred (not in scope)\n- Reliquary (co-versioned tool image snapshots)\n- RBRG replacement — existing pin mechanism stays\n- RBRV_BASE_IMAGE_* resolution against reliquary\n- Air-gap / NO_PUBLIC_EGRESS enforcement\n- Inscribe as reliquary generation\n- Director IAM grant cleanup (separate pace)\n\n## Key files\n- `Tools/rbk/rbf_Foundry.sh` — stitch, conjure, pouch (major rewrite)\n- `Tools/rbk/rbgjv/rbgjv01-download-verifier.sh` — replace slsa-verifier download with DSSE setup\n- `Tools/rbk/rbgjv/rbgjv02-verify-provenance.sh` — replace slsa-verifier/direct_verify with DSSE chain\n- `Tools/rbk/rbrr_regime.sh` / `.rbk/rbrr.env` — remove GitLab regime variables\n- Tabtargets: rbw-DI (inscribe), rbw-DC (conjure) may need adaptation\n\n## Verification\n- End-to-end: conjure a vessel on depot10030 via the new pipeline\n- Vouch: DSSE signature verification passes on the resulting image\n- No GitLab references remain in active code paths\n- Existing bind and graft modes unaffected",
+              "silks": "gitlab-elimination-pouch-builds-create",
+              "commit": "37d00ee"
             }
           ]
         }
