@@ -231,8 +231,10 @@ zrbf_stitch_build_json() {
   zrbf_sentinel
 
   local -r z_output_path="${1:?Output path required}"
+  local -r z_inscribe_ts="${2:?Inscribe timestamp required}"
+  local -r z_context_tag="${3:?Context image tag required}"
 
-  buc_log_args "Stitching trigger-compatible build JSON to ${z_output_path}"
+  buc_log_args "Stitching builds.create JSON to ${z_output_path}"
 
   # Preconditions: vessel loaded and git state captured
   test -s "${ZRBF_VESSEL_SIGIL_FILE}" || buc_die "Vessel not loaded — call zrbf_load_vessel first"
@@ -443,22 +445,33 @@ zrbf_stitch_build_json() {
     fi
   fi
 
-  # Compose complete trigger-compatible Build resource
-  # Steps from accumulator (image + about), substitutions from module state,
-  # options/timeout from RBRR
-  # _RBGY_RUBRIC_REPO, _RBGY_RUBRIC_COMMIT, _RBGY_INSCRIBE_TIMESTAMP, _RBGY_GIT_COMMIT
-  # are placeholders in the stitched output; inscribe fills them in the rubric repo clone
-  # _RBGA_GIT_COMMIT, _RBGA_INSCRIBE_TIMESTAMP use the same placeholders
-  buc_log_args "Composing complete trigger-compatible Build resource"
+  # Compose builds.create Build resource
+  # All values resolved directly — no placeholders, no post-processing jq surgery.
+  # Context extraction step prepended; mason SA included; images: field uses inscribe_ts.
+  buc_log_args "Composing builds.create Build resource"
   local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
+  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
-  # images: field uses inscribe-time-predictable alias tags for SLSA provenance.
-  # CB pushes these after all steps complete, generating provenance attestations
-  # keyed to image digests. The consecration-tagged copies (pushed in step 05)
-  # share the same digests, so provenance applies to them too.
-  # Alias tags are ephemeral (overwritten on re-conjure); consecration tags persist.
+  # Context extraction step (first step — extracts build context from pouch in GAR)
+  local -r z_extract_step_file="${ZRBF_STITCH_PREFIX}extract_step.json"
+  jq -n \
+    --arg name "${RBRG_DOCKER_IMAGE_REF}" \
+    --arg ctx_tag "${z_context_tag}" \
+    --arg sigil "${z_sigil}" \
+    '{
+      name: $name,
+      id: "extract-context",
+      entrypoint: "/bin/bash",
+      args: ["-lc", ("set -euo pipefail\necho \"Extracting build context from GAR\"\nCONTAINER=$$(docker create " + $ctx_tag + " /nonexistent)\nmkdir -p /workspace/" + $sigil + "\ndocker cp $${CONTAINER}:/build-context/. /workspace/" + $sigil + "/\ndocker rm $${CONTAINER}\necho \"Context extracted:\"\nls -la /workspace/" + $sigil + "/")]
+    }' > "${z_extract_step_file}" \
+    || buc_die "Failed to compose context extraction step"
 
-  # Build images: array — one entry per platform using inscribe-time alias tag
+  # Combine: [extract-context] + image steps + about steps
+  local -r z_all_steps_file="${ZRBF_STITCH_PREFIX}all_steps.json"
+  jq -s '.[0] + .[1]' <(jq -s '.' "${z_extract_step_file}") "${z_accumulator_file}" \
+    > "${z_all_steps_file}" || buc_die "Failed to prepend context extraction step"
+
+  # images: field — one entry per platform for SLSA provenance via CB images: push
   local z_images_file="${ZRBF_STITCH_PREFIX}images.json"
   local z_image_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${z_sigil}"
   local z_remaining_suffixes="${z_platform_suffixes_csv}"
@@ -466,7 +479,7 @@ zrbf_stitch_build_json() {
   echo "[]" > "${z_images_file}" || buc_die "Failed to initialize images JSON"
   while test -n "${z_remaining_suffixes}"; do
     z_img_suffix="${z_remaining_suffixes%%,*}"
-    jq --arg uri "${z_image_base}:__INSCRIBE_TIMESTAMP__-image${z_img_suffix}" \
+    jq --arg uri "${z_image_base}:${z_inscribe_ts}-image${z_img_suffix}" \
       '. + [$uri]' "${z_images_file}" > "${z_images_file}.tmp" \
       || buc_die "Failed to append image URI"
     mv "${z_images_file}.tmp" "${z_images_file}" \
@@ -475,8 +488,11 @@ zrbf_stitch_build_json() {
     z_remaining_suffixes="${z_remaining_suffixes#*,}"
   done
 
+  # shellcheck disable=SC2016
+  local -r z_cb_build_id='$BUILD_ID'
+
   jq -n \
-    --slurpfile zjq_steps  "${z_accumulator_file}" \
+    --slurpfile zjq_steps  "${z_all_steps_file}" \
     --slurpfile zjq_images "${z_images_file}" \
     --arg zjq_dockerfile     "${z_dockerfile_name}" \
     --arg zjq_moniker        "${z_sigil}" \
@@ -485,23 +501,25 @@ zrbf_stitch_build_json() {
     --arg zjq_gar_location   "${RBGD_GAR_LOCATION}" \
     --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}" \
     --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}" \
-    --arg zjq_git_commit     "__INSCRIBE_GIT_COMMIT__" \
+    --arg zjq_git_commit     "${z_git_commit}" \
     --arg zjq_git_branch     "${z_git_branch}" \
-    --arg zjq_git_repo       "${z_git_repo}" \
     --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
     --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
     --arg zjq_ark_suffix_diags "${RBGC_ARK_SUFFIX_DIAGS}" \
-    --arg zjq_rubric_repo      "__INSCRIBE_RUBRIC_REPO__" \
-    --arg zjq_rubric_commit    "__INSCRIBE_RUBRIC_COMMIT__" \
-    --arg zjq_inscribe_ts      "__INSCRIBE_TIMESTAMP__" \
+    --arg zjq_inscribe_ts      "${z_inscribe_ts}" \
     --arg zjq_pool   "${RBRR_GCB_WORKER_POOL}" \
     --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_mason_sa         "${z_mason_sa}" \
+    --arg zjq_cb_build_id      "${z_cb_build_id}" \
     --arg zjq_rbga_gar_host       "${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}" \
     --arg zjq_rbga_gar_path       "${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}" \
     --arg zjq_rbga_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
     --arg zjq_rbga_dockerfile     "${z_stitch_dockerfile_content}" \
     '{
-      steps: $zjq_steps[0],
+      steps: [$zjq_steps[0][] |
+        if .args then
+          .args = [.args[] | gsub("\\$\\{_RBGA_BUILD_ID\\}"; $zjq_cb_build_id) | gsub("\\$\\{_RBGA_BUILD_ID:-\\}"; $zjq_cb_build_id)]
+        else . end],
       images: $zjq_images[0],
       substitutions: {
         _RBGY_DOCKERFILE:          $zjq_dockerfile,
@@ -513,12 +531,9 @@ zrbf_stitch_build_json() {
         _RBGY_GAR_REPOSITORY:      $zjq_gar_repository,
         _RBGY_GIT_COMMIT:          $zjq_git_commit,
         _RBGY_GIT_BRANCH:          $zjq_git_branch,
-        _RBGY_GIT_REPO:            $zjq_git_repo,
         _RBGY_GAR_HOST_SUFFIX:     $zjq_gar_host_suffix,
         _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
         _RBGY_ARK_SUFFIX_DIAGS:    $zjq_ark_suffix_diags,
-        _RBGY_RUBRIC_REPO:         $zjq_rubric_repo,
-        _RBGY_RUBRIC_COMMIT:       $zjq_rubric_commit,
         _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts,
         _RBGA_GAR_HOST:            $zjq_rbga_gar_host,
         _RBGA_GAR_PATH:            $zjq_rbga_gar_path,
@@ -526,7 +541,6 @@ zrbf_stitch_build_json() {
         _RBGA_VESSEL_MODE:         "conjure",
         _RBGA_GIT_COMMIT:          $zjq_git_commit,
         _RBGA_GIT_BRANCH:          $zjq_git_branch,
-        _RBGA_GIT_REPO:            $zjq_git_repo,
         _RBGA_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts,
         _RBGA_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
         _RBGA_ARK_SUFFIX_ABOUT:    $zjq_rbga_ark_suffix_about,
@@ -535,6 +549,7 @@ zrbf_stitch_build_json() {
         _RBGA_GRAFT_SOURCE:        "",
         _RBGA_DOCKERFILE_CONTENT:  $zjq_rbga_dockerfile
       },
+      serviceAccount: $zjq_mason_sa,
       options: {
         requestedVerifyOption: "VERIFIED",
         logging: "CLOUD_LOGGING_ONLY",
@@ -545,9 +560,9 @@ zrbf_stitch_build_json() {
     || buc_die "Failed to compose build JSON"
 
   mv "${z_build_file}" "${z_output_path}" \
-    || buc_die "Failed to write final stitched build JSON to ${z_output_path}"
+    || buc_die "Failed to write final build JSON to ${z_output_path}"
 
-  buc_log_args "Stitched ${#z_step_defs[@]} steps to ${z_output_path}"
+  buc_log_args "Stitched ${#z_step_defs[@]} + context + about steps to ${z_output_path}"
 }
 
 zrbf_load_vessel() {
@@ -845,60 +860,11 @@ rbf_build() {
   z_context_tag=$(<"${ZRBF_CONTEXT_PREFIX}tag.txt")
   test -n "${z_context_tag}" || buc_die "Empty context image tag after push"
 
-  # Stitch build JSON (same function inscribe uses — generates steps, subs, images, options)
+  # Stitch build JSON — generates complete builds.create resource directly
   buc_step "Stitching build JSON"
-  local -r z_stitched_file="${ZRBF_CONTEXT_PREFIX}stitched.json"
-  zrbf_stitch_build_json "${z_stitched_file}"
-
-  # Post-process: fill placeholders, prepend context extraction step
-  buc_step "Preparing builds.create submission"
   local -r z_build_file="${ZRBF_CONTEXT_PREFIX}build.json"
   local -r z_inscribe_ts="c${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
-
-  # Compose context extraction step (runs before all build steps)
-  local -r z_extract_step_file="${ZRBF_CONTEXT_PREFIX}extract_step.json"
-  jq -n \
-    --arg name "${RBRG_DOCKER_IMAGE_REF}" \
-    --arg ctx_tag "${z_context_tag}" \
-    --arg sigil "${RBRV_SIGIL}" \
-    '{
-      name: $name,
-      id: "extract-context",
-      entrypoint: "/bin/bash",
-      args: ["-lc", ("set -euo pipefail\necho \"Extracting build context from GAR\"\nCONTAINER=$$(docker create " + $ctx_tag + " /nonexistent)\nmkdir -p /workspace/" + $sigil + "\ndocker cp $${CONTAINER}:/build-context/. /workspace/" + $sigil + "/\ndocker rm $${CONTAINER}\necho \"Context extracted:\"\nls -la /workspace/" + $sigil + "/")]
-    }' > "${z_extract_step_file}" \
-    || buc_die "Failed to compose context extraction step"
-
-  # Fill placeholders, remove trigger-only substitutions, prepend extraction step
-  # shellcheck disable=SC2016
-  local -r z_cb_build_id='$BUILD_ID'
-  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
-  jq \
-    --arg inscribe_ts  "${z_inscribe_ts}" \
-    --arg git_commit   "${z_git_commit}" \
-    --arg cb_build_id  "${z_cb_build_id}" \
-    --arg mason_sa     "${z_mason_sa}" \
-    --slurpfile extract "${z_extract_step_file}" \
-    '
-      # Remove substitutions that no step references (GCB requires strict match)
-      del(.substitutions._RBGY_RUBRIC_REPO) |
-      del(.substitutions._RBGY_RUBRIC_COMMIT) |
-      del(.substitutions._RBGY_GIT_REPO) |
-      # Fill timestamp/commit placeholders
-      .substitutions._RBGY_GIT_COMMIT = $git_commit |
-      .substitutions._RBGY_INSCRIBE_TIMESTAMP = $inscribe_ts |
-      .substitutions._RBGA_GIT_COMMIT = $git_commit |
-      .substitutions._RBGA_INSCRIBE_TIMESTAMP = $inscribe_ts |
-      .images = [.images[] | gsub("__INSCRIBE_TIMESTAMP__"; $inscribe_ts)] |
-      # Replace ${_RBGA_BUILD_ID} with CB built-in $BUILD_ID in step args
-      .steps = [[$extract[0]] + .steps | .[] |
-        if .args then
-          .args = [.args[] | gsub("\\$\\{_RBGA_BUILD_ID\\}"; $cb_build_id) | gsub("\\$\\{_RBGA_BUILD_ID:-\\}"; $cb_build_id)]
-        else . end] |
-      # Run build as mason SA (Director has actAs on mason)
-      .serviceAccount = $mason_sa
-    ' "${z_stitched_file}" > "${z_build_file}" \
-    || buc_die "Failed to post-process build JSON"
+  zrbf_stitch_build_json "${z_build_file}" "${z_inscribe_ts}" "${z_context_tag}"
 
   buc_info "Inscribe timestamp: ${z_inscribe_ts}"
 
@@ -1677,8 +1643,10 @@ rbf_summon() {
 rbf_rubric_inscribe() {
   zrbf_sentinel
 
-  buc_doc_brief "Inscribe all conjure vessel build definitions to rubric repo and ensure triggers"
+  buc_doc_brief "DEFERRED: Inscribe will become reliquary generation (₣Av). GitLab rubric path eliminated."
   buc_doc_shown || return 0
+
+  buc_die "Inscribe is deferred — builds.create + pouch replaces the trigger/rubric path. Reliquary inscribe will be implemented in a future pace."
 
   # Dirty-tree guard: inscribed scripts must match a committed state
   buc_step "Verifying clean working tree"
