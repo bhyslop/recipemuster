@@ -3217,9 +3217,10 @@
       "status": "racing",
       "order": [
         "₢AvAAA",
-        "₢AvAAB"
+        "₢AvAAB",
+        "₢AvAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3262,6 +3263,17 @@
               "text": "## Character\nResearch-first with potential implementation tail. Heavy web research, careful reading of SLSA specifications, and empirical verification against our existing build artifacts.\n\n## Goal\nDefinitively determine whether `builds.create` without a git source can achieve SLSA Build Level 3 provenance, and if so, make `slsa-verifier` work with it.\n\n## Research Phase\n\n1. **SLSA v1.0 Build Level 3 specification**: Read the authoritative SLSA spec (not summaries). What exactly does Level 3 require? Is `buildConfigSource` (or equivalent verified-source property) a hard requirement, or is it one way to satisfy a broader requirement?\n\n2. **GCB provenance for builds.create**: Examine our existing provenance artifacts from the experiment (build IDs `04f73057`, `3cd95eac` era — check paddock for actual GCB build IDs `16d3b60f`, `fc36b970`, `9180c42a`, `2e172ce0`). What predicate version and fields does GCB emit for builds.create vs triggers.run? Diff the provenance structures.\n\n3. **slsa-verifier rejection analysis**: Why exactly does slsa-verifier reject builds.create provenance? Is it checking a SLSA requirement, or is it enforcing an assumption about GCB trigger-based builds that isn't in the SLSA spec itself? Read slsa-verifier source if needed.\n\n4. **GCB documentation**: Does Google document the SLSA level achieved by builds.create vs triggers.run? Any Google guidance on direct-submission provenance?\n\n## Decision Gate\n\nIf Level 3 IS achievable with builds.create:\n- Work out how to configure slsa-verifier (flags, options, custom policies) to accept the provenance\n- Or identify an alternative formal verifier\n- Validate against our existing build artifacts\n\nIf Level 3 is NOT achievable:\n- Document exactly which SLSA requirement fails and why\n- Characterize what level IS achieved (likely Level 2)\n- Draft the architectural rationale for accepting this level\n- Assess whether the rubric repo's Level 3 was substantive or cosmetic (generated staging repo)\n\n## Not in scope\n- Changing the builds.create submission path\n- Implementing reliquary/inscribe\n- Any production code changes",
               "silks": "slsa-level3-builds-create-verification",
               "commit": "4e02329"
+            }
+          ]
+        },
+        "₢AvAAC": {
+          "tacks": [
+            {
+              "ts": "260321-1133",
+              "state": "rough",
+              "text": "## Character\nMechanical and careful. Reverting shared production code that was modified under experiment pressure.\n\n## Task\nRevert rbf_Foundry.sh, rbgjv01-download-verifier.sh, and rbgjv02-verify-provenance.sh to their pre-experiment state (before ₢AvAAA commits 3cd95eac and 04f73057). The trigger-based conjure path must be restored as the working production path until the new architecture is implemented under proper discipline.\n\n## Rationale\nThe experiment answered WHAT to build. The experiment code is NOT the foundation to build on. Design decisions are captured in the heat paddock; implementation will follow in properly scoped paces.\n\n## Not in scope\n- Implementing any of the new design (pouch, reliquary, builds.create)\n- Changing any code beyond the three experiment-modified files",
+              "silks": "revert-experiment-restore-trigger-path",
+              "commit": "184f49f"
             }
           ]
         }
