@@ -503,6 +503,7 @@ zrbf_stitch_build_json() {
     --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}" \
     --arg zjq_git_commit     "${z_git_commit}" \
     --arg zjq_git_branch     "${z_git_branch}" \
+    --arg zjq_git_repo       "${z_git_repo}" \
     --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
     --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
     --arg zjq_ark_suffix_diags "${RBGC_ARK_SUFFIX_DIAGS}" \
@@ -541,6 +542,7 @@ zrbf_stitch_build_json() {
         _RBGA_VESSEL_MODE:         "conjure",
         _RBGA_GIT_COMMIT:          $zjq_git_commit,
         _RBGA_GIT_BRANCH:          $zjq_git_branch,
+        _RBGA_GIT_REPO:            $zjq_git_repo,
         _RBGA_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts,
         _RBGA_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
         _RBGA_ARK_SUFFIX_ABOUT:    $zjq_rbga_ark_suffix_about,
