@@ -86,6 +86,9 @@
 :jjdye_left:   <<jjdye_left,Left>>
 :jjdye_right:  <<jjdye_right,Right>>
 
+// Gazette entity
+:jjsz_gazette:  <<jjsz_gazette,Gazette>>
+
 // Arguments
 :jjda_after:          <<jjda_after,--after>>
 :jjda_before:         <<jjda_before,--before>>
@@ -835,6 +838,24 @@ Left-align column content.
 //axl_voices axt_enum_value
 {jjdye_right}::
 Right-align column content.
+
+=== {jjsz_gazette}
+
+[[jjsz_gazette]]
+//axve_entity
+{jjsz_gazette}::
+A structured container for tagged notices in markdown format, used for multiline data exchange between
+{jjdx_tool_s}
+and Claude.
+Each gazette is constructed with a vocabulary of allowed slugs that constrains its contents.
+Notices are keyed by (slug, lede) pairs; the gazette is a two-level map from slug to lede to content.
++
+Construction is either by parsing raw markdown (producing a frozen gazette with diagnostic error reporting)
+or by programmatic building (producing an unfrozen gazette that freezes on first content disclosure).
++
+Contract elaborated in subdocument:
+
+include::JJSCGZ-gazette.adoc[]
 
 == Serialization
 
