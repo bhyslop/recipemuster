@@ -1,12 +1,16 @@
 #!/bin/bash
 # RBGJV Step 02: Mode-aware verification and vouch summary composition
-# Branches on _RBGV_VESSEL_MODE: conjure (SLSA), bind (digest-pin), graft (stamp)
+# Branches on _RBGV_VESSEL_MODE: conjure (DSSE), bind (digest-pin), graft (stamp)
 # Writes /workspace/vouch_platforms.txt for step 03.
+#
+# conjure: DSSE envelope signature verification against GCB attestor keys.
+#   Cryptographically proves provenance was signed by Google's build platform.
+#   No slsa-verifier, no Python — jq + base64 + openssl only.
+# bind: digest-pin comparison against upstream reference
+# graft: GRAFTED stamp (no verification)
 
 set -euo pipefail
 echo "=== Mode-aware verification (${_RBGV_VESSEL_MODE}) ==="
-
-pyjson() { python3 -c "import json,sys; $1"; }
 
 FULL_IMAGE="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}"
 IMAGE_TAG="${_RBGV_CONSECRATION}${_RBGV_ARK_SUFFIX_IMAGE}"
@@ -22,7 +26,7 @@ MANIFEST=$(curl -sf \
   "${REGISTRY_BASE}/manifests/${IMAGE_TAG}") \
   || { echo "FATAL: Failed to fetch manifest for ${IMAGE_TAG}" >&2; exit 1; }
 
-MEDIA_TYPE=$(printf '%s' "${MANIFEST}" | pyjson "print(json.load(sys.stdin).get('mediaType',''))")
+MEDIA_TYPE=$(printf '%s' "${MANIFEST}" | jq -r '.mediaType // ""')
 echo "Manifest media type: ${MEDIA_TYPE}"
 
 IS_INDEX="false"
@@ -32,33 +36,24 @@ esac
 
 if [ "${IS_INDEX}" = "true" ]; then
   echo "Multi-platform manifest detected"
-  printf '%s' "${MANIFEST}" | pyjson "
-d=json.load(sys.stdin)
-platforms=[]
-for m in d['manifests']:
-    p=m.get('platform',{})
-    if p.get('os','')=='unknown' and p.get('architecture','')=='unknown': continue
-    plat=p.get('os','')+'/'+p.get('architecture','')
-    v=p.get('variant','')
-    if v: plat+='/'+v
-    platforms.append(plat)
-if not platforms: print('FATAL: No platforms',file=sys.stderr); sys.exit(1)
-print(','.join(platforms))
-" > /workspace/vouch_platforms.txt
+  printf '%s' "${MANIFEST}" | jq -r '
+    [.manifests[]
+     | select((.platform.os != "unknown") or (.platform.architecture != "unknown"))
+     | .platform.os + "/" + .platform.architecture
+       + (if .platform.variant then "/" + .platform.variant else "" end)
+    ] | join(",")
+  ' > /workspace/vouch_platforms.txt
+  test -s /workspace/vouch_platforms.txt || { echo "FATAL: No platforms found" >&2; exit 1; }
 else
   echo "Single manifest detected"
-  CONFIG_DIGEST=$(printf '%s' "${MANIFEST}" | pyjson "print(json.load(sys.stdin)['config']['digest'])")
+  CONFIG_DIGEST=$(printf '%s' "${MANIFEST}" | jq -r '.config.digest')
   test -n "${CONFIG_DIGEST}" || { echo "FATAL: No config digest" >&2; exit 1; }
   CONFIG=$(curl -sf -H "Authorization: Bearer ${TOKEN}" "${REGISTRY_BASE}/blobs/${CONFIG_DIGEST}") \
     || { echo "FATAL: Failed to fetch config blob" >&2; exit 1; }
-  PLATFORM=$(printf '%s' "${CONFIG}" | pyjson "
-d=json.load(sys.stdin)
-p=d.get('os','linux')+'/'+d.get('architecture','amd64')
-v=d.get('variant','')
-if v: p+='/'+v
-print(p)
-")
-  echo "${PLATFORM}" > /workspace/vouch_platforms.txt
+  printf '%s' "${CONFIG}" | jq -r '
+    .os + "/" + .architecture
+    + (if .variant then "/" + .variant else "" end)
+  ' > /workspace/vouch_platforms.txt
 fi
 echo "Platforms for vouch: $(cat /workspace/vouch_platforms.txt)"
 
@@ -66,60 +61,129 @@ case "${_RBGV_VESSEL_MODE}" in
 
   conjure)
     BUILDER_ID="https://cloudbuild.googleapis.com/GoogleHostedWorker"
-    if [ "${IS_INDEX}" != "true" ]; then
-      echo "FATAL: conjure image must be multi-platform" >&2; exit 1
-    fi
+    EXPECTED_KEYID="projects/verified-builder/locations/global/keyRings/attestor/cryptoKeys/google-hosted-worker/cryptoKeyVersions/1"
+    VERIFY_METHOD="dsse-envelope"
+    echo "Using DSSE envelope signature verification"
 
-    printf '%s' "${MANIFEST}" > /workspace/manifest_list.json
-    pyjson "
-d=json.load(open('/workspace/manifest_list.json'))
-for m in d['manifests']:
-    p=m.get('platform',{})
-    if p.get('os','')=='unknown' and p.get('architecture','')=='unknown': continue
-    print(m['digest'],p.get('architecture',''),p.get('variant',''))
-" > /workspace/platform_entries.txt
+    # Extract per-platform digests
+    if [ "${IS_INDEX}" = "true" ]; then
+      printf '%s' "${MANIFEST}" | jq -r '
+        .manifests[]
+        | select((.platform.os != "unknown") or (.platform.architecture != "unknown"))
+        | [.digest, .platform.architecture, (.platform.variant // "")] | join(" ")
+      ' > /workspace/platform_entries.txt
+    else
+      # Single-platform: get architecture from config, look up alias tag digest
+      ARCH=$(printf '%s' "${CONFIG}" | jq -r '.architecture')
+      VARIANT=$(printf '%s' "${CONFIG}" | jq -r '.variant // ""')
+      PLAT_SUFFIX="${ARCH}${VARIANT}"
+      ALIAS_TAG="${_RBGV_CONSECRATION}${_RBGV_ARK_SUFFIX_IMAGE}-${PLAT_SUFFIX}"
+      ALIAS_HEADERS=$(curl -sI \
+        -H "Authorization: Bearer ${TOKEN}" \
+        -H "Accept: ${ACCEPT}" \
+        "${REGISTRY_BASE}/manifests/${ALIAS_TAG}") \
+        || { echo "FATAL: HEAD request for alias tag ${ALIAS_TAG} failed" >&2; exit 1; }
+      ALIAS_DIGEST=$(printf '%s' "${ALIAS_HEADERS}" | grep -i "docker-content-digest" | sed 's/^[^:]*: *//' | tr -d '\r\n')
+      test -n "${ALIAS_DIGEST}" || { echo "FATAL: No digest for alias tag ${ALIAS_TAG}" >&2; exit 1; }
+      echo "${ALIAS_DIGEST} ${ARCH} ${VARIANT}" > /workspace/platform_entries.txt
+    fi
 
     DIGEST_COUNT=$(wc -l < /workspace/platform_entries.txt | tr -d ' ')
     echo "Found ${DIGEST_COUNT} platform entries"
     test "${DIGEST_COUNT}" -gt 0 || { echo "FATAL: no platform entries" >&2; exit 1; }
 
-    if [ -n "${_RBGV_SOURCE_URI}" ]; then
-      VERIFY_METHOD="slsa-verifier"
-      echo "Using slsa-verifier (source URI present)"
-    else
-      VERIFY_METHOD="provenance-direct"
-      echo "Using direct provenance verification (builds.create path)"
-    fi
-
     while read -r DIGEST ARCH VARIANT; do
       PLAT_SUFFIX="${ARCH}${VARIANT}"
       FULL_REF="${FULL_IMAGE}@${DIGEST}"
       echo "Verifying ${PLAT_SUFFIX} (${DIGEST})..."
+
+      # Fetch provenance from Container Analysis via gcloud
       echo "  Fetching provenance..."
       gcloud artifacts docker images describe "${FULL_REF}" \
         --format json --show-provenance \
         > "/workspace/provenance-${PLAT_SUFFIX}.json"
-      if [ "${VERIFY_METHOD}" = "slsa-verifier" ]; then
-        /workspace/slsa-verifier verify-image "${FULL_REF}" \
-          --provenance-path "/workspace/provenance-${PLAT_SUFFIX}.json" \
-          --source-uri "${_RBGV_SOURCE_URI}" \
-          --builder-id="${BUILDER_ID}" \
-          --print-provenance \
-          > "/workspace/verify-${PLAT_SUFFIX}.json"
-      else
-        python3 /workspace/direct_verify.py \
-          "/workspace/provenance-${PLAT_SUFFIX}.json" \
-          "/workspace/verify-${PLAT_SUFFIX}.json" "${BUILDER_ID}"
-      fi
-      echo "  ${PLAT_SUFFIX} verified"
+
+      # Extract v1.0 DSSE envelope (note name contains "intoto_slsa_v1")
+      echo "  Extracting v1.0 DSSE envelope..."
+      jq '
+        .provenance_summary.provenance[]
+        | select(.noteName | test("intoto_slsa_v1"))
+        | .envelope
+      ' "/workspace/provenance-${PLAT_SUFFIX}.json" \
+        > "/workspace/envelope-${PLAT_SUFFIX}.json"
+      test -s "/workspace/envelope-${PLAT_SUFFIX}.json" \
+        || { echo "FATAL: No v1.0 DSSE envelope for ${PLAT_SUFFIX}" >&2; exit 1; }
+
+      # Verify keyid matches expected attestor
+      ACTUAL_KEYID=$(jq -r '.signatures[0].keyid' "/workspace/envelope-${PLAT_SUFFIX}.json")
+      test "${ACTUAL_KEYID}" = "${EXPECTED_KEYID}" \
+        || { echo "FATAL: Unexpected keyid: ${ACTUAL_KEYID} (expected ${EXPECTED_KEYID})" >&2; exit 1; }
+
+      # Decode payload and signature from base64
+      echo "  Decoding payload and signature..."
+      jq -r '.payload' "/workspace/envelope-${PLAT_SUFFIX}.json" \
+        | base64 -d > "/workspace/payload-${PLAT_SUFFIX}.raw"
+      jq -r '.signatures[0].sig' "/workspace/envelope-${PLAT_SUFFIX}.json" \
+        | base64 -d > "/workspace/sig-${PLAT_SUFFIX}.bin"
+
+      # Reconstruct PAE (Pre-Authentication Encoding)
+      # Format: "DSSEv1" SP LEN(payloadType) SP payloadType SP LEN(payload) SP payload
+      echo "  Reconstructing PAE..."
+      PAYLOAD_TYPE="application/vnd.in-toto+json"
+      PAYLOAD_LEN=$(wc -c < "/workspace/payload-${PLAT_SUFFIX}.raw" | tr -d ' ')
+      printf "DSSEv1 %d %s %d " "${#PAYLOAD_TYPE}" "${PAYLOAD_TYPE}" "${PAYLOAD_LEN}" \
+        > "/workspace/pae-${PLAT_SUFFIX}.bin"
+      cat "/workspace/payload-${PLAT_SUFFIX}.raw" >> "/workspace/pae-${PLAT_SUFFIX}.bin"
+
+      # Verify ECDSA-P256-SHA256 signature
+      echo "  Verifying DSSE signature..."
+      openssl dgst -sha256 \
+        -verify /workspace/keys/google-hosted-worker.pub \
+        -signature "/workspace/sig-${PLAT_SUFFIX}.bin" \
+        "/workspace/pae-${PLAT_SUFFIX}.bin" \
+        || { echo "FATAL: DSSE signature verification FAILED for ${PLAT_SUFFIX}" >&2; exit 1; }
+
+      # Provenance is now cryptographically trusted — validate fields
+      echo "  Checking provenance fields..."
+      ACTUAL_BUILDER=$(jq -r '.predicate.runDetails.builder.id' "/workspace/payload-${PLAT_SUFFIX}.raw")
+      test "${ACTUAL_BUILDER}" = "${BUILDER_ID}" \
+        || { echo "FATAL: builder.id mismatch: expected ${BUILDER_ID}, got ${ACTUAL_BUILDER}" >&2; exit 1; }
+
+      ACTUAL_BUILD_TYPE=$(jq -r '.predicate.buildDefinition.buildType' "/workspace/payload-${PLAT_SUFFIX}.raw")
+      SUBJECT_DIGEST=$(jq -r '.subject[0].digest.sha256' "/workspace/payload-${PLAT_SUFFIX}.raw")
+
+      jq -n \
+        --arg verifier "dsse-envelope-v1" \
+        --arg builder_id "${ACTUAL_BUILDER}" \
+        --arg build_type "${ACTUAL_BUILD_TYPE}" \
+        --arg subject_digest "${SUBJECT_DIGEST}" \
+        --arg keyid "${ACTUAL_KEYID}" \
+        '{verifier: $verifier, builder_id: $builder_id, build_type: $build_type,
+          subject_digest: $subject_digest, keyid: $keyid, verdict: "pass"}' \
+        > "/workspace/verify-${PLAT_SUFFIX}.json"
+
+      echo "  ${PLAT_SUFFIX}: DSSE verified OK"
     done < /workspace/platform_entries.txt
 
-    echo "All ${DIGEST_COUNT} platforms verified"
-    python3 -c "
-import json,glob,os
-verdicts=[{'platform':os.path.basename(f).replace('verify-','').replace('.json',''),'verdict':'pass'} for f in sorted(glob.glob('/workspace/verify-*.json'))]
-json.dump({'consecration':'${_RBGV_CONSECRATION}','vessel':'${_RBGV_VESSEL}','vessel_mode':'conjure','verify_method':'${VERIFY_METHOD}','verifier':{'url':'${_RBGV_VERIFIER_URL}','sha256':'${_RBGV_VERIFIER_SHA256}'},'platforms':verdicts},open('/workspace/vouch_summary.json','w'),indent=2)
-"
+    echo "All ${DIGEST_COUNT} platforms verified via DSSE"
+
+    # Compose vouch summary from individual verify files
+    jq -n \
+      --arg consecration "${_RBGV_CONSECRATION}" \
+      --arg vessel "${_RBGV_VESSEL}" \
+      --arg verify_method "${VERIFY_METHOD}" \
+      '{consecration: $consecration, vessel: $vessel, vessel_mode: "conjure",
+        verify_method: $verify_method, platforms: []}' \
+      > /workspace/vouch_summary.json
+
+    for f in /workspace/verify-*.json; do
+      PLAT=$(basename "${f}" .json)
+      PLAT="${PLAT#verify-}"
+      jq --arg platform "${PLAT}" --slurpfile v "${f}" \
+        '.platforms += [($v[0] + {platform: $platform})]' \
+        /workspace/vouch_summary.json > /workspace/vouch_summary_tmp.json
+      mv /workspace/vouch_summary_tmp.json /workspace/vouch_summary.json
+    done
     echo "Vouch summary composed"
     ;;
 
@@ -144,19 +208,31 @@ json.dump({'consecration':'${_RBGV_CONSECRATION}','vessel':'${_RBGV_VESSEL}','ve
     else
       echo "FATAL: Digest mismatch — GAR: ${ACTUAL_DIGEST}  Pin: ${PINNED_DIGEST}" >&2; exit 1
     fi
-    python3 -c "
-import json
-json.dump({'consecration':'${_RBGV_CONSECRATION}','vessel':'${_RBGV_VESSEL}','vessel_mode':'bind','verification':{'method':'digest-pin','bind_source':'${_RBGV_BIND_SOURCE}','actual_digest':'${ACTUAL_DIGEST}','pinned_digest':'${PINNED_DIGEST}','verdict':'${VERDICT}'}},open('/workspace/vouch_summary.json','w'),indent=2)
-"
+    jq -n \
+      --arg consecration "${_RBGV_CONSECRATION}" \
+      --arg vessel "${_RBGV_VESSEL}" \
+      --arg bind_source "${_RBGV_BIND_SOURCE}" \
+      --arg actual_digest "${ACTUAL_DIGEST}" \
+      --arg pinned_digest "${PINNED_DIGEST}" \
+      --arg verdict "${VERDICT}" \
+      '{consecration: $consecration, vessel: $vessel, vessel_mode: "bind",
+        verification: {method: "digest-pin", bind_source: $bind_source,
+          actual_digest: $actual_digest, pinned_digest: $pinned_digest,
+          verdict: $verdict}}' \
+      > /workspace/vouch_summary.json
     echo "Vouch summary composed"
     ;;
 
   graft)
     echo "Graft mode — stamping GRAFTED"
-    python3 -c "
-import json
-json.dump({'consecration':'${_RBGV_CONSECRATION}','vessel':'${_RBGV_VESSEL}','vessel_mode':'graft','verification':{'method':'none','graft_source':'${_RBGV_GRAFT_SOURCE}','verdict':'GRAFTED'}},open('/workspace/vouch_summary.json','w'),indent=2)
-"
+    jq -n \
+      --arg consecration "${_RBGV_CONSECRATION}" \
+      --arg vessel "${_RBGV_VESSEL}" \
+      --arg graft_source "${_RBGV_GRAFT_SOURCE}" \
+      '{consecration: $consecration, vessel: $vessel, vessel_mode: "graft",
+        verification: {method: "none", graft_source: $graft_source,
+          verdict: "GRAFTED"}}' \
+      > /workspace/vouch_summary.json
     echo "Vouch summary composed"
     ;;
 

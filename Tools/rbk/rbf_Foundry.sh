@@ -2796,11 +2796,6 @@ rbf_vouch() {
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
 
-  # Conjure vouch needs RBRR_RUBRIC_REPO_URL for SOURCE_URI (SLSA verification)
-  if test "${RBRV_VESSEL_MODE}" = "conjure"; then
-    test -n "${RBRR_RUBRIC_REPO_URL:-}" || buc_die "RBRR_RUBRIC_REPO_URL not set (required for conjure vouch)"
-  fi
-
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
@@ -2863,7 +2858,7 @@ rbf_vouch() {
 
 # Internal: Submit vouch Cloud Build job (mode-aware verification)
 # All vessel modes use Cloud Build. The build scripts branch on _RBGV_VESSEL_MODE:
-#   conjure: SLSA provenance verification via slsa-verifier
+#   conjure: DSSE envelope signature verification (jq + openssl)
 #   bind: digest-pin comparison against upstream reference
 #   graft: GRAFTED stamp (no verification)
 zrbf_vouch_submit() {
@@ -2879,29 +2874,14 @@ zrbf_vouch_submit() {
   local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Mode-specific substitution values (empty strings for non-applicable modes)
-  local z_source_uri=""
-  local z_verifier_url=""
-  local z_verifier_sha=""
   local z_bind_source=""
   local z_graft_source=""
 
   case "${RBRV_VESSEL_MODE}" in
-    conjure)
-      # Empty source URI signals builds.create path (no rubric repo);
-      # vouch script uses direct provenance verification instead of slsa-verifier
-      z_source_uri=""
-      z_verifier_url="${RBRG_SLSA_VERIFIER_URL}"
-      z_verifier_sha="${RBRG_SLSA_VERIFIER_SHA256}"
-      ;;
-    bind)
-      z_bind_source="${RBRV_BIND_IMAGE:-}"
-      ;;
-    graft)
-      z_graft_source="${RBRV_GRAFT_IMAGE:-}"
-      ;;
-    *)
-      buc_die "Unknown vessel mode: ${RBRV_VESSEL_MODE}"
-      ;;
+    conjure) : ;;  # DSSE verification uses embedded keys, no extra substitutions
+    bind)    z_bind_source="${RBRV_BIND_IMAGE:-}" ;;
+    graft)   z_graft_source="${RBRV_GRAFT_IMAGE:-}" ;;
+    *)       buc_die "Unknown vessel mode: ${RBRV_VESSEL_MODE}" ;;
   esac
 
   # Step definitions: script|builder|entrypoint|id
@@ -2977,9 +2957,6 @@ zrbf_vouch_submit() {
     --arg zjq_vessel            "${RBRV_SIGIL}" \
     --arg zjq_consecration      "${z_consecration}" \
     --arg zjq_vessel_mode       "${RBRV_VESSEL_MODE}" \
-    --arg zjq_source_uri        "${z_source_uri}" \
-    --arg zjq_verifier_url      "${z_verifier_url}" \
-    --arg zjq_verifier_sha      "${z_verifier_sha}" \
     --arg zjq_bind_source       "${z_bind_source}" \
     --arg zjq_graft_source      "${z_graft_source}" \
     --arg zjq_ark_suffix_image  "${RBGC_ARK_SUFFIX_IMAGE}" \
@@ -2994,9 +2971,6 @@ zrbf_vouch_submit() {
         _RBGV_VESSEL:            $zjq_vessel,
         _RBGV_CONSECRATION:      $zjq_consecration,
         _RBGV_VESSEL_MODE:       $zjq_vessel_mode,
-        _RBGV_SOURCE_URI:        $zjq_source_uri,
-        _RBGV_VERIFIER_URL:      $zjq_verifier_url,
-        _RBGV_VERIFIER_SHA256:   $zjq_verifier_sha,
         _RBGV_BIND_SOURCE:       $zjq_bind_source,
         _RBGV_GRAFT_SOURCE:      $zjq_graft_source,
         _RBGV_ARK_SUFFIX_IMAGE:  $zjq_ark_suffix_image,
