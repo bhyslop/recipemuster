@@ -43,6 +43,7 @@
 :jjdt_firemark_p: <<jjdt_firemark,Firemark's>>
 :jjdt_firemark_s: <<jjdt_firemark,Firemarks>>
 :jjdt_silks:      <<jjdt_silks,Silks>>
+:jjdt_slug:       <<jjdt_slug,Slug>>
 
 // Gallops record and members
 :jjdgm_seed:        <<jjdgm_seed,next_heat_seed>>
@@ -586,6 +587,22 @@ Used for human-readable identification of
 and
 {jjdpr_pace_s}.
 Pattern: `[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*`
+
+[[jjdt_slug]]
+//axl_voices axt_enumeration
+{jjdt_slug}::
+The category identifier for
+{jjsz_gazette}
+notices.
+Values are the
+{jjezs_slate},
+{jjezs_reslate},
+{jjezs_paddock},
+and
+{jjezs_pace}
+constants defined in the
+{jjsz_gazette}
+subdocument.
 
 == Records
 

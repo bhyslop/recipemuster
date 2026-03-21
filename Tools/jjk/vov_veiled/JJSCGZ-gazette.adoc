@@ -3,19 +3,30 @@
 {jjsz_gazette}
 
 A two-level map from slug to lede to content, constructed with a fixed vocabulary of allowed slugs.
+Used for multiline data exchange between {jjdx_tool_s} and Claude.
 
-The gazette has two lifecycle phases: *building* (unfrozen, accepts mutations) and *frozen* (immutable, accepts queries).
+== Invariants
+
+*Freeze-on-disclosure.*
+A gazette has two lifecycle phases: *building* (unfrozen, accepts mutations) and *frozen* (immutable, accepts queries).
 A parse-constructed gazette is born frozen.
-A build-constructed gazette freezes permanently on first content disclosure — any method that reveals notice map contents to the caller triggers the transition.
-Internal invariant enforcement during mutation (duplicate key checks) does not constitute disclosure.
+A build-constructed gazette freezes permanently when any method discloses notice map contents to the caller.
+Internal invariant enforcement during mutation does not constitute disclosure.
 Mutating a frozen gazette is fatal.
+
+*No ordering.*
+The gazette has no ordering semantic — neither across slugs nor within a slug's entries.
+Callers must not depend on iteration order from any method.
+
+*Unique keys.*
+Each notice is uniquely keyed by its (slug, lede) pair.
+Inserting a duplicate key is fatal with a diagnostic explaining the conflict.
+Lede may be absent for slug types that identify a single item; at most one lede-absent entry per slug.
 
 == Slug Enumeration
 
-//axhefm_motif_field axd_required axt_enumeration
-Slug — the category identifier for gazette notices.
-Serves as the first-level key of the gazette map.
-The full set of valid slugs is declared here; each use site constructs a gazette with a vocabulary subset.
+{jjdt_slug} defines the set of valid category identifiers for gazette notices.
+Each use site constructs a gazette with a vocabulary that is a subset of these values.
 
 [[jjezs_slate]]
 //axl_voices axt_enum_value
@@ -45,9 +56,7 @@ Per-pace content keyed by coronet for mass operations.
 Lede: {jjdt_coronet} of the target pace.
 Content: operation-specific per-pace text.
 
-=== Slug Directionality
-
-Each slug has a fixed direction governing whether it appears in input gazettes (parsed from files provided to operations), output gazettes (built by operations and emitted for the caller), or both.
+=== Directionality
 
 [cols="<,<",options="header"]
 |===
@@ -61,46 +70,10 @@ Each slug has a fixed direction governing whether it appears in input gazettes (
 
 Input slugs appear in gazettes parsed by write operations.
 Output slugs appear in gazettes emitted by read operations.
-Bidirectional slugs may appear in either direction.
 
-== Fields
+== Wire Format
 
-//axhefm_motif_field axd_required axt_enumeration
-Vocabulary — the set of allowed slugs for this gazette instance.
-A subset of the slug enumeration, provided at construction time, immutable thereafter.
-Queryable without triggering freeze (construction constant).
-
-//axhefm_motif_field axd_required axt_object
-Notice map — the gazette's content, structured as a two-level map: slug to lede to content.
-Each entry is uniquely keyed by its (slug, lede) pair.
-Duplicate (slug, lede) insertion is fatal with diagnostic explaining the conflict.
-Lede may be absent (None) for slug types that identify a single item; at most one lede-absent entry per slug.
-
-== Methods
-
-//axhems_scoped_method
-=== parse
-
-Construct a frozen gazette from raw markdown.
-The returned gazette is born frozen — no adds are possible.
-All validation errors are collected and returned as a diagnostic list rather than failing on the first error.
-Each diagnostic string is self-contained and LLM-legible.
-
-//axhempm_motif_parameter axd_required axd_repeated axt_string
-Vocabulary — the set of allowed slugs for this gazette.
-
-//axhempm_motif_parameter axd_required axt_string
-Raw markdown content to parse.
-
-//axhemot_typed_output
-{jjsz_gazette}
-A frozen gazette instance on success.
-
-//axhemom_motif_output axd_repeated axt_string
-Diagnostic error list on failure.
-Each string explains one problem: unknown slug (with near-match suggestion if applicable), malformed header (with line number), or structural violation.
-
-Markdown format:
+Gazette markdown uses `#`-headers to delimit notices:
 
 * `#` at line start marks a notice boundary
 * First token after `#` (whitespace-separated) is the slug
@@ -108,75 +81,95 @@ Markdown format:
 * Content runs from the line after the header to the next `#`-header or EOF
 * Leading and trailing blank lines in content are trimmed
 
-//axhems_scoped_method
-=== build
+Round-trip guarantee: for any gazette `g` constructed by parse with vocabulary `v`, `parse(v, emit(g))` produces a gazette with identical notice map contents.
 
-Construct an unfrozen gazette ready for notice accumulation.
+== Fields
+
+//axheft_typed_field axd_required
+{jjdt_slug}
+Vocabulary — the subset of {jjdt_slug} values that this gazette instance accepts.
+Provided at construction time, immutable thereafter.
+Queryable without triggering freeze (construction constant).
+
+//axhefm_motif_field axd_required axt_object
+Notice map — the gazette's content, structured as a two-level map: slug to lede to content.
+
+== Methods
+
+//axhems_scoped_method
+=== parse
+
+Construct a frozen gazette from raw markdown per the wire format.
+All validation errors are collected and returned as a diagnostic list rather than failing on the first.
+Each diagnostic is self-contained and LLM-legible: unknown slug (with near-match suggestion if applicable), malformed header (with line number), or structural violation.
 
 //axhempm_motif_parameter axd_required axd_repeated axt_string
-Vocabulary — the set of allowed slugs for this gazette.
+Vocabulary.
+
+//axhempm_motif_parameter axd_required axt_string
+Raw markdown content.
 
 //axhemot_typed_output
 {jjsz_gazette}
-An empty, unfrozen gazette instance.
+Frozen gazette on success.
+
+//axhemom_motif_output axd_repeated axt_string
+Diagnostic error list on failure.
+
+//axhems_scoped_method
+=== build
+
+Construct an unfrozen, empty gazette.
+
+//axhempm_motif_parameter axd_required axd_repeated axt_string
+Vocabulary.
+
+//axhemot_typed_output
+{jjsz_gazette}
+Unfrozen gazette.
 
 //axhems_scoped_method
 === add
 
-Add a notice to an unfrozen gazette.
+Add a notice to the gazette.
+Fatal if frozen, if slug is not in vocabulary, or if the (slug, lede) key already exists.
 
 //axhempm_motif_parameter axd_required axt_string
-Slug — must be in the gazette's vocabulary.
+Slug.
 
 //axhempm_motif_parameter axd_optional axt_string
-Lede — the notice subject identifier.
-May be absent for slug types that identify a single item.
+Lede.
 
 //axhempm_motif_parameter axd_required axt_string
-Content — the notice body text.
-
-Fatal conditions:
-
-* Gazette is frozen (any disclosure method was previously called)
-* Slug is not in vocabulary
-* Duplicate (slug, lede) — a notice with this key already exists
-
-The duplicate check is internal invariant enforcement.
-No notice map information is disclosed to the caller; the method either succeeds silently or terminates fatally with a diagnostic explaining the conflict.
+Content.
 
 //axhems_scoped_method
 === query_by_slug
 
 Retrieve all notices with the given slug.
-Freezes the gazette.
+Discloses notice map contents.
 
 //axhempm_motif_parameter axd_required axt_string
-Slug — the category to query.
+Slug.
 
 //axhemom_motif_output axd_repeated axt_object
-Set of matching (lede, content) pairs for the given slug.
-No ordering semantic — the caller must not depend on iteration order.
-Empty set if no notices match (not an error).
+Set of (lede, content) pairs.
+Empty set if no notices match.
 
 //axhems_scoped_method
 === query_all
 
-Retrieve all notices across all slugs.
-Freezes the gazette.
+Retrieve all notices.
+Discloses notice map contents.
 
 //axhemom_motif_output axd_repeated axt_object
 Set of (slug, lede, content) triples.
-No ordering semantic across slugs or within a slug.
 
 //axhems_scoped_method
 === emit
 
-Produce formatted markdown from the gazette's notices.
-Freezes the gazette.
+Produce formatted markdown per the wire format.
+Discloses notice map contents.
 
 //axhemom_motif_output axt_string
 Formatted markdown string.
-Each notice is rendered as a `#`-header (slug, then lede if present) followed by content.
-No guaranteed ordering of notices in the output — slug interleaving is implementation-defined.
-
-Round-trip guarantee: for any gazette `g` constructed by parse with vocabulary `v`, `parse(v, emit(g))` produces a gazette with identical notice map contents.
