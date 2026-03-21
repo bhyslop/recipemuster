@@ -3219,9 +3219,10 @@
         "₢AvAAA",
         "₢AvAAB",
         "₢AvAAC",
-        "₢AvAAD"
+        "₢AvAAD",
+        "₢AvAAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3314,6 +3315,17 @@
               "text": "## Character\nArchitectural transition with broad file surface. Replaces trigger-based conjure with builds.create + pouch. Requires judgment on what to preserve vs rebuild, and discipline to stop at the baby step boundary.\n\n## Goal\nEliminate GitLab dependency entirely. Replace trigger-based build dispatch with builds.create API + pouch context delivery. Adapt vouch for builds.create provenance (DSSE jq+openssl). Keep RBRG pin mechanism for step images (no reliquary yet). Result: a working, releasable conjure pipeline with no GitLab, no triggers, no rubric repo.\n\n## Scope\n\n### In scope\n- **Stitch**: Rewrite `zrbf_stitch_build_json` for native builds.create JSON. No rubric substitutions, no post-hoc jq surgery. Pouch reference as first build step (extract context from GAR image). Step image refs from existing RBRG pins.\n- **Pouch**: New function to package build context as FROM SCRATCH OCI image, push to GAR. Tagged as `{vessel}:{inscribe_timestamp}-context` (or similar). Created as part of conjure flow.\n- **Conjure**: Replace triggers.run dispatch with builds.create REST API call + wait. Consecration minted locally (Director assigns timestamps). No trigger-ensure, no rubric commit, no dispatch indirection.\n- **Vouch**: Replace slsa-verifier with DSSE envelope signature verification (jq + base64 + openssl). Verify against embedded or fetched verified-builder KMS public keys. Proven approach from ₢AvAAB research.\n- **Regime cleanup**: Remove RBRR_RUBRIC_REPO_URL, GitLab PAT secrets references, CB v2 connection references from regime and onboarding flows.\n- **Absorbs ₢AvAAC**: Experiment modifications to rbf_Foundry.sh, rbgjv01, rbgjv02 are overwritten by new implementation (no separate revert step).\n\n### Deferred (not in scope)\n- Reliquary (co-versioned tool image snapshots)\n- RBRG replacement — existing pin mechanism stays\n- RBRV_BASE_IMAGE_* resolution against reliquary\n- Air-gap / NO_PUBLIC_EGRESS enforcement\n- Inscribe as reliquary generation\n- Director IAM grant cleanup (separate pace)\n\n## Key files\n- `Tools/rbk/rbf_Foundry.sh` — stitch, conjure, pouch (major rewrite)\n- `Tools/rbk/rbgjv/rbgjv01-download-verifier.sh` — replace slsa-verifier download with DSSE setup\n- `Tools/rbk/rbgjv/rbgjv02-verify-provenance.sh` — replace slsa-verifier/direct_verify with DSSE chain\n- `Tools/rbk/rbrr_regime.sh` / `.rbk/rbrr.env` — remove GitLab regime variables\n- Tabtargets: rbw-DI (inscribe), rbw-DC (conjure) may need adaptation\n\n## Verification\n- End-to-end: conjure a vessel on depot10030 via the new pipeline\n- Vouch: DSSE signature verification passes on the resulting image\n- No GitLab references remain in active code paths\n- Existing bind and graft modes unaffected",
               "silks": "gitlab-elimination-pouch-builds-create",
               "commit": "37d00ee"
+            }
+          ]
+        },
+        "₢AvAAE": {
+          "tacks": [
+            {
+              "ts": "260321-1501",
+              "state": "rough",
+              "text": "## Character\nSystematic sweep with broad file surface but shallow depth per file. Mostly mechanical removals guided by the RBS0 survey from ₢AvAAD. Requires care to not break bind/graft modes or depot operations that remain valid.\n\n## Goal\nRemove all GitLab/trigger/slsa-verifier references from specifications and depot lifecycle code. Result: spec and code consistently reflect the builds.create + pouch + DSSE architecture. New depot creation works without GitLab.\n\n## Scope\n\n### Specifications (RBS0 + sub-documents)\n- Remove definitions: rubric repo, vessel trigger, vessel directory, CB v2 connection/repository\n- Remove regime variables: RBRR_CBV2_CONNECTION_NAME, RBRR_RUBRIC_REPO_URL, RBRG_SLSA_VERIFIER_URL/SHA256, CBV2 group\n- Remove operations: trigger_build (RBSTB). Update rubric_inscribe (RBSRI) to reflect deferred/stub status.\n- Update: ark_vouch (RBSAV) slsa-verifier → DSSE. ark_conjure (RBSAC) trigger → builds.create. Provenance definition.\n- Remove: GitLab setup tabtarget, rubric repo URL check, CB v2 connection check patterns\n- Review sub-documents: RBSRI, RBSTB, RBSAV, RBSAC, RBSRR\n\n### Depot lifecycle code\n- Payor (rbgp): Remove GitLab setup from depot_create, remove CB v2 connection/repository creation, remove Secret Manager PAT storage\n- Governor (rbgg): Remove rubric repo URL check, CBV2 connection check\n- Manual Procedures (rbgm): Remove GitLab setup guide\n- Utility (rbgu): Remove rubric repo URL validation function\n- Regime validation (rbrr_regime.sh): Remove or make optional the emptied variables\n- Lifecycle Marshal (rblm): Remove CBV2/rubric from reset template\n\n### Not in scope\n- Reliquary implementation\n- RBRG replacement\n- New inscribe ceremony\n- Air-gap / NO_PUBLIC_EGRESS\n\n## Verification\n- Regime validation passes with empty GitLab variables\n- No references to slsa-verifier in active code paths\n- Spec definitions consistent with implemented architecture\n- Existing bind and graft modes unaffected",
+              "silks": "spec-depot-lifecycle-gitlab-removal",
+              "commit": "baa8a3c"
             }
           ]
         }
