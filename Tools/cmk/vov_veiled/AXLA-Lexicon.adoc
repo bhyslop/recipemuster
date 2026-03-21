@@ -2517,7 +2517,7 @@ Variant suffixes identify the source of type identity:
 |{axheb_entity}             |1 {mcm_attribute_reference}  |The entity this subdoc describes
 |{axheft_typed_field}       |1 {mcm_attribute_reference}  |A field's type (domain type term)
 |{axhefm_motif_field}       |0                            |Type on annotation line (motif terms)
-|{axhems_scoped_method}     |0                            |Identity from prose; opens Layer 2
+|{axhems_scoped_method}     |1 {mcm_graven}               |Implementation method name; opens Layer 2
 |{axheme_elevated_method}   |1 {mcm_attribute_reference}  |The parent-document method term
 |{axhempt_typed_parameter}  |1 {mcm_attribute_reference}  |A parameter's type (domain type term)
 |{axhempa_arg_parameter}    |1 {mcm_attribute_reference}  |A parameter's identity (shared argument term)
@@ -2569,8 +2569,14 @@ etc.).
 [[axhems_scoped_method]]
 {axhems_scoped_method}::
 Opens a scoped method scope within the entity.
-The method has no parent-document linked term — its identity exists only within the entity subdocument, expressed through position and prose.
-0-arity — no lookahead.
+The method has no parent-document
+{mcm_lemma}
+— its identity is a
+{mcm_graven}
+that exists only within the entity subdocument.
+Lookahead: 1
+{mcm_graven}
+— the implementation method name, recognized by its prefix pattern.
 Opens Layer 2 scope for parameter and output markers.
 
 [[axheme_elevated_method]]

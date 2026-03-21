@@ -46,6 +46,10 @@
 
 :mcm_linked_term:            <<mcm_linked_term,Linked Term>>
 :mcm_linked_term_s:          <<mcm_linked_term,Linked Terms>>
+:mcm_lemma:                  <<mcm_lemma,Lemma>>
+:mcm_lemma_s:                <<mcm_lemma,Lemmata>>
+:mcm_graven:                 <<mcm_graven,Graven>>
+:mcm_graven_s:               <<mcm_graven,Gravens>>
 :mcm_attribute_reference:    <<mcm_attribute_reference,Attribute Reference>>
 :mcm_attribute_reference_s:  <<mcm_attribute_reference,Attribute References>>
 :mcm_line_break:             <<mcm_line_break,Line Break>>
@@ -949,6 +953,35 @@ Each
 follows strict formatting rules defined in the
 {mcm_mapping_section}.
 
+[[mcm_lemma]]
+{mcm_lemma}::
+A formal identifier with full cataloguing in the
+{mcm_concept_model}:
+{mcm_attribute_reference}
+in the
+{mcm_mapping_section},
+anchor at the definition site, and definition text.
+The headword in the canon's lexicon — addressable from anywhere, tracked across the constellation.
+A
+{mcm_lemma}
+is the Diptych-era term for what
+{mcm_linked_term}
+describes in MCM's AsciiDoc expression.
+
+[[mcm_graven]]
+{mcm_graven}::
+A formal identifier following the prefix naming discipline that exists only within a subdocument's scope.
+No
+{mcm_attribute_reference},
+no anchor, no
+{mcm_mapping_section}
+entry.
+A
+{mcm_graven}
+is permanent and intentional where it is carved — recognized by its prefix pattern — but not catalogued in the parent document's lexicon.
+Used by hierarchy markers that need to formally identify elements without elevating them to
+{mcm_lemma}
+status.
 
 [[mcm_category]]
 {mcm_category}::
