@@ -45,8 +45,11 @@ Build (conjure) does: load vessel regime, resolve base images against reliquary 
 ### No More Triggers
 Trigger path fully removed. Stitch generates clean builds.create JSON natively. No rubric repo substitutions generated, no post-hoc jq surgery. GitLab elimination is complete: no GitLab account, PAT, Secret Manager entries, CB v2 connection, triggers, or RBRR_RUBRIC_REPO_URL.
 
+### Consecration Format Under builds.create
+The dual-timestamp consecration format `{mode}{T1}-r{T2}` gains new meaning. T1 becomes the reliquary datestamp (when the build toolchain was inscribed). T2 remains the actual build time (when conjure ran). This cleanly encodes provenance: the consecration tells you both WHAT tools built the image and WHEN. For open-egress builds without a reliquary, T1 semantics revert to inscribe-time as before. If all conjures require reliquaries (see Open Questions), the format becomes universally consistent.
+
 ### Consecration Minted Locally
-With builds.create replacing triggers.run, the Director (not GCB) is the build initiator. Consecration timestamps assigned on the Director's local workstation. Formalized as input to stitch, not discovered from build step output. Director knows the complete artifact tag set before submission — naming authority and verification authority are the same entity; the cloud is just labor.
+With builds.create replacing triggers.run, the Director (not GCB) is the build initiator. Consecration timestamps assigned on the Director's workstation. Formalized as input to stitch, not discovered from build step output. Director knows the complete artifact tag set before submission — naming authority and verification authority are the same entity; the cloud is just labor.
 
 ### Explicit Verify Method
 Build JSON includes explicit `_RBGV_VERIFY_METHOD` substitution declaring verification intent. Vouch step executes the declared method rather than inferring from empty/present source URI.
@@ -57,10 +60,24 @@ The multi-platform assertion in rbgjv02 (line 69-71) is a simplification artifac
 ### Open-Egress Preserved
 Open-egress (connected) builds remain fully supported. Required because open-egress builds produce images that may become base images for air-gapped builds. The two modes coexist per-vessel via RBRV_RELIQUARY presence.
 
+### RBRG May Become Obsolete
+If all conjures require reliquaries, RBRG's role (holding upstream tool image pins) may be fully absorbed by the reliquary. The reliquary contains the same images, already resolved and mirrored. RBRG would only be needed as the "upstream source list" for the inscribe operation — and even that could be a static configuration rather than a regime with freshness gates. Pending resolution of the all-conjures-require-reliquary question.
+
+### Director IAM Surface Changes
+With triggers and rubric repo eliminated, the Director's IAM grants need reassessment:
+- **Remove**: Secret Manager access for GitLab PAT (3 secrets gone), build bucket objectCreator/objectViewer (source upload no longer needed if pouch goes via docker push to GAR)
+- **Retain**: cloudbuild.builds.editor (builds.create submission), cloudbuild.workerPoolUser (private pool), artifactregistry.repoAdmin (image management), iam.serviceAccountUser on Mason (actAs for build execution)
+- **Assess**: Does docker push for pouch delivery use the Director's existing GAR repoAdmin grant, or does it need a distinct permission? The Director already has repoAdmin for image management — pouch push may be covered.
+
+This is a security surface reduction: fewer secrets, fewer cross-service grants, simpler audit.
+
+### RBSHR Update Required
+The Horizon Roadmap egress lockdown entry (RBSHR line 87-93) describes the old architecture. When this heat's design stabilizes, update RBSHR to reflect the new reliquary/pouch/builds.create architecture — or graduate the item out of RBSHR entirely since it is now active heat work, not deferred.
+
 ## Open Questions
 
 ### SLSA Level 3 with builds.create (₢AvAAB)
 Does builds.create without git source achieve SLSA Build Level 3? The experiment's slsa-verifier rejection could mean Level 3 is structurally impossible (no verified source), or that slsa-verifier enforces assumptions beyond the SLSA spec. Definitive answer needed before finalizing verification architecture.
 
 ### All Conjures Require Reliquary?
-If all conjure builds required RBRV_RELIQUARY (no open-egress conjure path), the system simplifies significantly: one verification path, one download method (everything from GAR), one stitch mode. Cost: inscribe-before-conjure always, even for quick iterations. This eliminates the dual slsa-verifier-download problem (GitHub fetch vs GAR-resident). Discuss after ₢AvAAB resolves the SLSA question.
+If all conjure builds required RBRV_RELIQUARY (no open-egress conjure path), the system simplifies significantly: one verification path, one download method (everything from GAR), one stitch mode, one consecration format semantics, potential RBRG elimination. Cost: inscribe-before-conjure always, even for quick iterations. This eliminates the dual slsa-verifier-download problem (GitHub fetch vs GAR-resident). Discuss after ₢AvAAB resolves the SLSA question.
