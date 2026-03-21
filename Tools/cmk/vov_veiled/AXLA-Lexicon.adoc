@@ -23,6 +23,8 @@
 // axhr*_: Axial Hierarchy Regime (standalone hierarchy markers) → mcm_form_deflist
 // axho*_: Axial Hierarchy Operation (standalone operation hierarchy markers) → mcm_form_deflist
 // axpo*_: Axial Product-of-Operation (definition-site voicings for operation outputs) → mcm_form_deflist
+// axve_: Axial Voicing Entity (definition-site entity annotations) → mcm_form_deflist
+// axhe*_: Axial Hierarchy Entity (standalone entity hierarchy markers) → mcm_form_deflist
 // xref_: External specification references
 //
 // Extended Type Categories (domain-specific type subcategories):
@@ -163,6 +165,21 @@
 :axhro_list:                          <<axhro_list,Hierarchy List>>
 :axhro_survey:                        <<axhro_survey,Hierarchy Survey>>
 :axhro_audit:                         <<axhro_audit,Hierarchy Audit>>
+
+// Axial Voicing Entity Terms (definition-site entity annotations)
+:axve_entity:                         <<axve_entity,Entity Voicing>>
+
+// Axial Hierarchy Entity Terms (standalone entity hierarchy markers)
+:axheb_entity:                        <<axheb_entity,Hierarchy Entity>>
+:axheft_typed_field:                  <<axheft_typed_field,Hierarchy Typed Field>>
+:axhefm_motif_field:                  <<axhefm_motif_field,Hierarchy Motif Field>>
+:axhems_scoped_method:                <<axhems_scoped_method,Hierarchy Scoped Method>>
+:axheme_elevated_method:              <<axheme_elevated_method,Hierarchy Elevated Method>>
+:axhempt_typed_parameter:             <<axhempt_typed_parameter,Hierarchy Typed Parameter>>
+:axhempa_arg_parameter:               <<axhempa_arg_parameter,Hierarchy Arg Parameter>>
+:axhempm_motif_parameter:             <<axhempm_motif_parameter,Hierarchy Motif Parameter>>
+:axhemot_typed_output:                <<axhemot_typed_output,Hierarchy Typed Output>>
+:axhemom_motif_output:                <<axhemom_motif_output,Hierarchy Motif Output>>
 
 // Axial Type Universal Terms (generic infrastructure)
 :axtu_cidr:                           <<axtu_cidr,CIDR Block>>
@@ -2411,6 +2428,245 @@ only
 uses
 {axd_grouped},
 the method's affiliated entity must equal the group's affiliated entity
+
+== Axial Voicing Entity Terms
+
+Three annotation families enable entity specification across
+{axl_definition_site_s}
+and
+{axl_detail_site_s},
+paralleling the regime and operation annotation patterns.
+
+Entity specifications describe objects with both structure (fields) and behavior (methods).
+Methods within an entity may be *scoped* or *elevated*:
+
+* A *scoped* method is defined entirely within the entity subdocument.
+It has no parent-document linked term — its identity exists only within the entity's contract, expressed through position and prose.
+
+* An *elevated* method possesses a linked term at the
+{axl_definition_site}
+in the parent document, voiced with
+{axvo_method}.
+Elevated methods earn independent addressability when other spec layers (procedures, dispatch protocols) need to reference them.
+
+A well-constrained entity is its own documentation.
+Scoped methods are the default; elevation is the exception for methods that must be independently addressable.
+
+=== Definition-Site Voicing Annotations (axve_*)
+
+{axve_*} annotations appear at the
+{axl_definition_site}
+between anchor and definition, declaring that the term defines an entity.
+
+[[axve_entity]]
+{axve_entity}::
+Voices an
+{axo_entity}
+definition.
+The annotated term defines an object with both structure and behavior whose contract is elaborated in a subdocument via
+{axhe*}
+hierarchy markers.
+The first
+{mcm_attribute_reference}
+is the entity being defined.
++
+{axd_dimension_s}:
+optional
+{axd_internal}.
+
+=== Standalone Hierarchy Markers (axhe*_)
+
+Hierarchy markers appear in entity subdocuments as standalone annotations, NOT between anchor and definition.
+Each marker uses the prefix-discriminated form.
+Markers with non-zero arity read ahead a specified number of
+{mcm_attribute_reference_s}
+from the following text.
+Zero-arity markers carry their type and dimension information entirely on the annotation line.
+
+The entity hierarchy uses a two-layer structure:
+
+* *Layer 1*: Entity scope opened by
+{axheb_entity},
+containing field markers
+({axheft_typed_field},
+{axhefm_motif_field})
+and method markers
+({axhems_scoped_method},
+{axheme_elevated_method}).
+
+* *Layer 2*: Method scope opened by a method marker, containing parameter markers
+({axhempt_typed_parameter},
+{axhempa_arg_parameter},
+{axhempm_motif_parameter})
+and output markers
+({axhemot_typed_output},
+{axhemom_motif_output}).
+
+Variant suffixes identify the source of type identity:
+
+* `_typed_*` — 1-arity; lookahead reads a project-specific type term
+* `_arg_*` — 1-arity; lookahead reads a shared argument term
+* `_motif_*` — 0-arity; type expressed through axial motif terms on the annotation line
+
+==== Marker Terms and Lookahead Arities
+
+[cols="<,^,<",options="header"]
+|===
+|Marker |Lookahead |Reads
+
+|{axheb_entity}             |1 {mcm_attribute_reference}  |The entity this subdoc describes
+|{axheft_typed_field}       |1 {mcm_attribute_reference}  |A field's type (domain type term)
+|{axhefm_motif_field}       |0                            |Type on annotation line (motif terms)
+|{axhems_scoped_method}     |0                            |Identity from prose; opens Layer 2
+|{axheme_elevated_method}   |1 {mcm_attribute_reference}  |The parent-document method term
+|{axhempt_typed_parameter}  |1 {mcm_attribute_reference}  |A parameter's type (domain type term)
+|{axhempa_arg_parameter}    |1 {mcm_attribute_reference}  |A parameter's identity (shared argument term)
+|{axhempm_motif_parameter}  |0                            |Type on annotation line (motif terms)
+|{axhemot_typed_output}     |1 {mcm_attribute_reference}  |An output's type (domain type term)
+|{axhemom_motif_output}     |0                            |Type on annotation line (motif terms)
+|===
+
+[[axheb_entity]]
+{axheb_entity}::
+Opens the entity hierarchy block at the
+{axl_detail_site}.
+Lookahead: 1
+{mcm_attribute_reference}
+— the entity this detail site describes.
+The referenced attribute must correspond to an anchor annotated with
+{axve_entity}
+at the
+{axl_definition_site}.
+
+[[axheft_typed_field]]
+{axheft_typed_field}::
+Marks a data member of the entity whose type identity reuses an existing domain type term.
+Lookahead: 1
+{mcm_attribute_reference}
+— must resolve to an existing type anchor.
+{axd_dimension_s}
+on the annotation line qualify the field:
+{axd_required}
+or
+{axd_optional},
+{axd_repeated},
+etc.
+
+[[axhefm_motif_field]]
+{axhefm_motif_field}::
+Marks a data member of the entity whose type is expressed entirely through axial motif terms on the annotation line.
+0-arity — no lookahead.
+{axd_dimension_s}
+on the annotation line include a type motif
+({axt_string},
+{axt_boolean},
+{axt_array},
+etc.) and structural qualifiers
+({axd_required},
+{axd_repeated},
+etc.).
+
+[[axhems_scoped_method]]
+{axhems_scoped_method}::
+Opens a scoped method scope within the entity.
+The method has no parent-document linked term — its identity exists only within the entity subdocument, expressed through position and prose.
+0-arity — no lookahead.
+Opens Layer 2 scope for parameter and output markers.
+
+[[axheme_elevated_method]]
+{axheme_elevated_method}::
+References an elevated method within the entity — a method that has a linked term at the
+{axl_definition_site}
+in the parent document, annotated with
+{axvo_method}.
+Lookahead: 1
+{mcm_attribute_reference}
+— the parent-document method term.
+Opens Layer 2 scope for parameter and output markers.
+
+[[axhempt_typed_parameter]]
+{axhempt_typed_parameter}::
+Marks a parameter within the current method scope whose type identity reuses an existing domain type term.
+Lookahead: 1
+{mcm_attribute_reference}
+— must resolve to an existing type anchor.
+{axd_dimension_s}
+on the annotation line qualify the parameter:
+{axd_required}
+or
+{axd_optional},
+etc.
+
+[[axhempa_arg_parameter]]
+{axhempa_arg_parameter}::
+Marks a parameter within the current method scope whose identity reuses a shared argument term.
+Lookahead: 1
+{mcm_attribute_reference}
+— must resolve to an existing shared argument anchor.
+
+[[axhempm_motif_parameter]]
+{axhempm_motif_parameter}::
+Marks a parameter within the current method scope whose type is expressed entirely through axial motif terms on the annotation line.
+0-arity — no lookahead.
+{axd_dimension_s}
+on the annotation line include a type motif and structural qualifiers.
+
+[[axhemot_typed_output]]
+{axhemot_typed_output}::
+Marks an output of the current method scope whose type identity reuses an existing domain type term.
+Lookahead: 1
+{mcm_attribute_reference}
+— must resolve to an existing type anchor.
+
+[[axhemom_motif_output]]
+{axhemom_motif_output}::
+Marks an output of the current method scope whose type is expressed entirely through axial motif terms on the annotation line.
+0-arity — no lookahead.
+{axd_dimension_s}
+on the annotation line include a type motif and structural qualifiers.
+
+==== Nesting Rules
+
+Entity hierarchy markers establish implicit scope through document order:
+
+* {axheb_entity}
+opens the entity block; all subsequent markers belong to it until document end
+* {axheft_typed_field}
+and
+{axhefm_motif_field}
+must appear within
+{axheb_entity}
+scope but outside any method scope (Layer 1)
+* {axhems_scoped_method}
+and
+{axheme_elevated_method}
+must appear within
+{axheb_entity}
+scope (Layer 1); each opens a new method scope (Layer 2)
+* A method marker implicitly closes any prior method scope
+* {axhempt_typed_parameter},
+{axhempa_arg_parameter},
+{axhempm_motif_parameter},
+{axhemot_typed_output},
+and
+{axhemom_motif_output}
+must appear within a method scope (Layer 2)
+* Field markers should precede method markers within the entity (fields then methods)
+
+==== Cross-Document Validation
+
+* {axheb_entity}
+attribute reference must match an entity defined with
+{axve_entity}
+at the
+{axl_definition_site}
+* {axheme_elevated_method}
+attribute reference must match a method defined with
+{axvo_method}
+at the
+{axl_definition_site},
+and that method's affiliated entity must match the entity opened by
+{axheb_entity}
 
 == Axial Type Universal Terms
 
