@@ -90,13 +90,11 @@
 // Recipe Bottle Common Fact Maps (dynamic output contract identifiers)
 :rbcc_fact_consec_infix:     <<rbcc_fact_consec_infix,RBCC_FACT_CONSEC_INFIX>>
 // Recipe Bottle Term Google Rubric (per-vessel build definition)
-// Rubric concept eliminated (₣Av) — builds.create + pouch replaces trigger/rubric path
-:rbtgr_rubric:              RB Rubric (eliminated)
-:rbtgr_rubric_s:            RB Rubrics (eliminated)
+// Rubric concept simplified (₣Av) — triggers/rubric repo eliminated, term retained for build definition
+:rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
+:rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
 :rbtgr_build_json:          <<rbtgr_build_json,cloudbuild.json>>
-:rbtgr_vessel_trigger:      Vessel Trigger (eliminated)
-:rbtgr_rubric_repo:         Rubric Repo (eliminated)
-:rbtgr_vessel_dir:          Vessel Directory (eliminated)
+// rbtgr_vessel_trigger, rbtgr_rubric_repo, rbtgr_vessel_dir removed (₣Av)
 :rbtgr_provenance:          <<rbtgr_provenance,Rubric Provenance>>
 
 // Recipe Bottle Term Google Operations
@@ -787,9 +785,7 @@ role: configuration reset and subordinate service account creation.
 [[rbtgog_rubric]]
 //axvo_group axd_tabtarget
 {rbtgog_rubric}::
-Operations on
-{rbtgr_rubric}
-lifecycle: vessel inscription and triggered builds.
+Build definition lifecycle: stitch and `builds.create` submission. Triggers and rubric repo eliminated (₣Av).
 
 [[rbtgog_image]]
 //axvo_group axd_tabtarget
@@ -1617,11 +1613,11 @@ Content is architecture-independent metadata; multi-platform is for pull ergonom
 **Vouch depends on about**: {rbtgo_ark_vouch} gates on `-about` existence before submission.
 The about pipeline must complete before vouch can run.
 +
-**slsa-verifier as binary tool pin** (conjure mode only):
-The verifier is pinned in `rbrg.env` as a direct binary download URL ({rbrg_slsa_verifier_url}) with SHA256 checksum ({rbrg_slsa_verifier_sha256}), following the crane binary pin precedent.
-It is NOT a container image — the Cloud Build step downloads the binary into `/workspace`, verifies the checksum, and executes it directly.
-Binary pin refresh (`rbrg_refresh_binary_pins` / {rbtc_refresh_binary_pins}) discovers the latest release from GitHub Releases API, downloads the binary, computes local SHA256, fetches the SLSA provenance attestation, and dies on mismatch (belt-and-suspenders verification).
-The slsa-verifier download step early-exits for bind and graft modes.
+**DSSE envelope verification** (conjure mode only, ₣Av):
+Provenance signatures verified against embedded GCB attestor public keys from `projects/verified-builder` KMS.
+Step 1 (Alpine) downloads a static jq binary and writes the public key PEM to `/workspace/keys/`.
+Step 2 (gcloud) fetches provenance, extracts the v1.0 DSSE envelope, decodes payload + signature, reconstructs PAE, and verifies via `openssl dgst -sha256`.
+No slsa-verifier, no Python — jq + base64 + openssl only. jq installed for all modes (bind/graft use it for vouch summary composition).
 +
 **Vouch Cloud Build job architecture**:
 Vouch uses the RunBuild API (`builds.create`) rather than trigger dispatch — the consecration is known only after the image arrives in GAR, so a pre-registered trigger cannot provide it.
@@ -1636,12 +1632,12 @@ Discovered constraints from implementation:
   * **No gcloud in build steps**: {rbsk_no_gcloud} applies.
     Registry auth must use the GCE metadata server (`http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`) to obtain an access token, then write a static Docker config JSON.
     The `gcloud auth configure-docker` approach fails regardless — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
-  * **Builder image selection**: Step 1 (download + verify binary) uses Alpine (wget, sha256sum).
-    Step 2 (run slsa-verifier) needs only the binary plus registry auth via Docker config — Alpine suffices.
+  * **Builder image selection**: Step 1 (prepare keys + jq) uses Alpine (wget for static jq binary from GitHub).
+    Step 2 (DSSE verification) uses the gcloud builder image (provenance fetched via `gcloud artifacts docker images describe --show-provenance`; signature verification via `openssl dgst`).
     Step 3 (push vouch container) uses the Docker builder image (`docker buildx build --push` for multi-platform).
   * **GCB dollar escaping**: Step scripts embedded in Build JSON require `$$` for literal `$` and un-escaped `${_RBGV_*}` for GCB substitution variables, following the same `sed` pattern as conjure's `${_RBGY_*}`.
-  * **slsa-verifier source-uri**: The `--source-uri` parameter must match the source recorded in the provenance attestation.
-    For trigger-dispatched builds, this is the {rbtgr_rubric_repo} URL — the rubric repo is what the trigger references, not the main repo.
+  * **DSSE verification**: Provenance envelope signatures verified against embedded GCB attestor public keys (`projects/verified-builder` KMS). PAE reconstruction + `openssl dgst -sha256 -verify`. No slsa-verifier, no Python — jq + base64 + openssl only.
+    builds.create provenance achieves SLSA Build Level 3 (₢AvAAB research confirmed).
 +
 **Idempotent re-vouch**:
 Re-running {rbtgo_ark_vouch} on a consecration that already has a `-vouch` artifact re-executes verification.
@@ -1696,16 +1692,12 @@ in
 === Rubric Definitions
 
 [[rbtgr_rubric]]
-//axl_voices axig_build_config axig_build_trigger
+//axl_voices axig_build_config
 {rbtgr_rubric}::
-The composite per-vessel build definition comprising a generated
-{rbtgr_build_json},
-a
-{rbtgr_vessel_trigger},
-and a
-{rbtgr_vessel_dir}.
-Created and maintained by
-{rbtgo_rubric_inscribe}.
+The per-vessel build definition comprising a generated
+{rbtgr_build_json}
+and build context delivered via pouch (FROM SCRATCH OCI image in GAR).
+Triggers and rubric repo eliminated (₣Av) — builds submitted directly via `builds.create` API.
 
 [[rbtgr_build_json]]
 //axl_voices axig_build_config
@@ -2258,9 +2250,8 @@ A network node that serves as the entry point between two networks.
 
 [[rbtc_gitlab_setup]]
 {rbtc_gitlab_setup}::
-Tabtarget colophon for the GitLab rubric repo setup guide.
-Displays manual procedure for creating a GitLab project and project access token,
-prerequisite to {rbtgo_depot_create}.
+ELIMINATED (₣Av): GitLab rubric repo setup no longer required.
+Builds now use `builds.create` + pouch for context delivery.
 
 [[rbtc_refresh_gcb_pins]]
 {rbtc_refresh_gcb_pins}::
@@ -3366,36 +3357,8 @@ Provides context or expected outcomes without requiring action.
 
 Recipe Bottle orchestration patterns define reusable implementation sequences for system operations.
 
-[[rbtoe_check_rubric_repo_url]]
-//axvo_procedure axd_transient axd_internal
-{rbtoe_check_rubric_repo_url}::
-A non-interactive gate that validates
-{rbrr_rubric_repo_url}
-is present and reachable using a GitLab token fetched from Secret Manager:
-
-. {rbbc_require} URL argument is non-empty or {rbbc_fatal} with guidance to set `RBRR_RUBRIC_REPO_URL` in `rbrr.env`,
-. fetches GitLab token from Secret Manager (`RBGC_CBV2_API_TOKEN_SECRET_NAME`),
-. {rbbc_call} `git ls-remote <authenticated-URL> HEAD` to verify reachability and credential validity,
-. {rbbc_require} successful exit from `git ls-remote` or {rbbc_fatal} "URL is unreachable or credentials are invalid",
-. logs confirmation that the {rbtgr_rubric_repo} URL is validated.
-
-No persistent side effects — authenticated URL constructed in memory and discarded.
-Callable from any CLI context via `rbgu_check_rubric_repo_url`.
-
-[[rbtoe_check_cbv2_connection]]
-//axvo_procedure axd_transient axd_internal
-{rbtoe_check_cbv2_connection}::
-A non-interactive gate that validates the
-{rbtgi_cbv2_connection}
-is in COMPLETE state:
-
-. {rbbc_require} project ID, region, and connection name arguments,
-. {rbbc_call} link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/get[connections.get] for the specified connection,
-. {rbbc_require} HTTP 200 response,
-. extracts `.installationState.stage` from response,
-. {rbbc_require} stage equals `COMPLETE` or {rbbc_fatal} with guidance to check CB v2 connection status.
-
-No side effects, no polling.
+// check_rubric_repo_url and check_cbv2_connection procedures eliminated (₣Av)
+// GitLab integration removed — no rubric repo URL or CB v2 connection to validate.
 Callable from any CLI context via `rbgu_check_cbv2_connection`.
 
 [[rbtoe_rbra_generate]]
