@@ -12,7 +12,7 @@ The
 {rbtr_director}
 deletes an image by {rbst_locator}:
 
-//axhop_parameter_from_type
+//axhopt_typed_parameter
 {rbst_locator}
 . *Validate Input Parameters*:
 .. {rbbc_require}
@@ -56,7 +56,7 @@ HTTP 202 (Accepted) or 204 (No Content) response
 .. {rbbc_fatal}
 if delete fails: "Delete failed with HTTP «STATUS_CODE»"
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbst_locator}
 . *Display Results*:
 .. {rbbc_show}

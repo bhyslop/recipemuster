@@ -17,7 +17,7 @@ NOTE: Two entry points provide different detail levels:
 
 The inspect operation:
 
-//axhop_parameter_from_type
+//axhopt_typed_parameter
 {rbtga_ark}
 . *Validate Input Parameters*:
 .. {rbbc_require}
@@ -77,7 +77,7 @@ vessel mode (conjure, bind, or graft) from vessel regime
 .. *Package Licensing*: per-package license and Package URL for compliance review
 .. *Recipe*: the Dockerfile content from `recipe.txt` in the about artifact (available for any mode when the Dockerfile path was configured in the vessel regime). When `recipe.txt` is absent, display the Dockerfile path from `build_info.json` if available, or omit the section.
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtga_ark}
 . *Display Results*:
 .. {rbbc_show}

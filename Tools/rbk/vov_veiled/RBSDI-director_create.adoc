@@ -14,7 +14,7 @@ with build management permissions:
 //axhoq_precondition
 * Execute {rbtoe_check_cbv2_connection} to verify {rbtgi_cbv2_connection} is active
 
-//axhop_parameter_from_type
+//axhopt_typed_parameter
 {rbtr_director}
 . *Validate Input Parameters*:
 .. {rbbc_require}
@@ -173,7 +173,7 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. {rbbc_require}
 repository IAM set with all expected bindings
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtgi_rbra_file}
 . *Display Installation Instructions*:
 .. {rbbc_show}

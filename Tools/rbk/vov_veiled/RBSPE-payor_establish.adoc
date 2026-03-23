@@ -59,11 +59,11 @@ billing linkage for API operations
 .. {rbhg_warn}
 Client secret visible only in this popup; June 2025 onwards, Google will not display it after closing
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtgi_payor_project}
 * Project ID (`«PAYOR_PROJECT_ID»`) recorded from step 1
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {oauth_token}
 * OAuth client credentials: client ID and secret from the downloaded JSON file
 

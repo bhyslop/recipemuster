@@ -19,7 +19,7 @@ The
 {rbtr_director}
 dispatches a trigger-based remote container build:
 
-//axhop_parameter_from_type
+//axhopt_typed_parameter
 {rbtgr_vessel_dir}
 . *Validate Input Parameters*:
 .. {rbbc_require}
@@ -143,7 +143,7 @@ if timeout: "Build timeout after 20 minutes"
 .. {rbbc_fatal}
 if final status is not `SUCCESS`: "Build failed with status: «BUILD_STATUS»"
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtga_consecration}
 . *Display Results*:
 .. {rbbc_show}

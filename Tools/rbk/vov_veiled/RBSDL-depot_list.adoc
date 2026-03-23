@@ -29,7 +29,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[p
 ... Check for bucket: `rbw-«NAME»-bucket`
 ... Display status: COMPLETE, BROKEN (missing resources), or DELETE_REQUESTED
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtgi_depot}
 . *Display summary*:
 .. {rbbc_show}

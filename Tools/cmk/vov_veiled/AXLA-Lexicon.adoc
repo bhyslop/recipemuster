@@ -149,11 +149,11 @@
 :axhob_operation:                     <<axhob_operation,Hierarchy Operation>>
 :axhoc_completion:                    <<axhoc_completion,Hierarchy Completion>>
 :axhog_guarantee:                     <<axhog_guarantee,Hierarchy Guarantee>>
-:axhoo_output:                        <<axhoo_output,Hierarchy Output>>
-:axhoo_output_of_type:                <<axhoo_output_of_type,Hierarchy Output Of Type>>
-:axhop_parameter:                     <<axhop_parameter,Hierarchy Parameter>>
-:axhop_parameter_from_arg:            <<axhop_parameter_from_arg,Hierarchy Parameter From Arg>>
-:axhop_parameter_from_type:           <<axhop_parameter_from_type,Hierarchy Parameter From Type>>
+:axhoom_motif_output:                 <<axhoom_motif_output,Hierarchy Motif Output>>
+:axhoot_typed_output:                 <<axhoot_typed_output,Hierarchy Typed Output>>
+:axhopa_arg_parameter:                <<axhopa_arg_parameter,Hierarchy Arg Parameter>>
+:axhopm_motif_parameter:              <<axhopm_motif_parameter,Hierarchy Motif Parameter>>
+:axhopt_typed_parameter:              <<axhopt_typed_parameter,Hierarchy Typed Parameter>>
 :axhoq_precondition:                  <<axhoq_precondition,Hierarchy Precondition>>
 :axhos_step:                          <<axhos_step,Hierarchy Step>>
 :axhos_waymark:                       <<axhos_waymark,Hierarchy Waymark>>
@@ -1028,7 +1028,8 @@ A
 {axl_motif}
 representing a structured section documenting an operation's arguments.
 {axl_voices}
-{axhop_parameter}
+{axhopt_typed_parameter}
+/{axhopa_arg_parameter}
 in CLI context.
 Within an
 {axa_argument_list},
@@ -2156,7 +2157,7 @@ indicating that an operation output is delivered as a single atomic value in a w
 The file is written to the dispatch output directory; consumers read the value verbatim.
 The constant name (carried by the marker's existing lookahead) is the contract between producer and consumer.
 Valid on
-{axhoo_output_of_type}.
+{axhoot_typed_output}.
 At the definition site, the corresponding term is voiced
 {axpof_fact}.
 
@@ -2168,7 +2169,7 @@ indicating that an operation output is a fact map — a dynamically-named set of
 The infix constant is the contract; surrounding filename segments are runtime-composed keys.
 Consumers check file presence or glob by infix rather than reading a single well-known filename.
 Valid on
-{axhoo_output_of_type}.
+{axhoot_typed_output}.
 At the definition site, the corresponding term is voiced
 {axpot_tally}.
 
@@ -2179,7 +2180,7 @@ At the definition site, the corresponding term is voiced
 Voices a term as a fact file constant — a named output file carrying a single atomic value.
 The term's anchor names the file; consumers read the value verbatim without parsing.
 At detail sites, referenced by
-{axhoo_output_of_type}
+{axhoot_typed_output}
 with
 {axd_fact}.
 
@@ -2189,7 +2190,7 @@ Voices a term as a fact map infix — a naming template that produces dynamicall
 The term's anchor names the infix constant; the full filename is composed as `«prefix»«INFIX»«suffix»` where prefix and suffix are runtime values.
 One file per discovered item; consumers check presence via `test -f` on composed filenames.
 At detail sites, referenced by
-{axhoo_output_of_type}
+{axhoot_typed_output}
 with
 {axd_tally}.
 
@@ -2242,9 +2243,11 @@ from the following text.
 
 |{axhob_operation}          |1 {mcm_attribute_reference}  |The operation this detail site describes (no dimensions — dimensions are at {axl_definition_site} only)
 |{axhoc_completion}         |0                            |Introduces the signaling contract section (exit codes, status); bare marker, no lookahead
-|{axhop_parameter_from_type}|1 {mcm_attribute_reference}  |A named input parameter whose identity reuses an existing domain type term (zero new terms minted)
-|{axhop_parameter_from_arg} |1 {mcm_attribute_reference}  |A named input parameter whose identity reuses a shared CLI argument term (small vocabulary per spec)
-|{axhoo_output_of_type}     |1 {mcm_attribute_reference}  |A named output whose identity reuses an existing domain type term (parallel to parameter_from_type pattern)
+|{axhopt_typed_parameter}   |1 {mcm_attribute_reference}  |A named input parameter whose identity reuses an existing domain type term (zero new terms minted)
+|{axhopa_arg_parameter}     |1 {mcm_attribute_reference}  |A named input parameter whose identity reuses a shared CLI argument term (small vocabulary per spec)
+|{axhopm_motif_parameter}   |0                            |Type on annotation line (motif terms); bare marker, no lookahead
+|{axhoot_typed_output}      |1 {mcm_attribute_reference}  |A named output whose identity reuses an existing domain type term (parallel to typed_parameter pattern)
+|{axhoom_motif_output}      |0                            |Type on annotation line (motif terms); bare marker, no lookahead
 |{axhoq_precondition}       |0                            |A required condition before execution; bare marker, no lookahead
 |{axhog_guarantee}          |0                            |A promised condition after execution; bare marker, no lookahead
 |{axhos_step}               |0                            |A named behavioral step; bare marker, no lookahead
@@ -2275,7 +2278,7 @@ The surface syntax:
 //axhob_operation
 {rbtgo_depot_create}
 
-//axhop_parameter
+//axhopt_typed_parameter
 {rbtgo_depot_create_name}
 ----
 
@@ -2288,24 +2291,15 @@ Documents how the operation communicates success or failure: exit codes for CLI,
 Distinct from
 {axhog_guarantee}
 which describes state promises, and
-{axhoo_output}
-which describes produced data.
+{axhoot_typed_output}
+/{axhoom_motif_output}
+which describe produced data.
 One per operation.
 
-[[axhop_parameter]]
-{axhop_parameter}::
-Abstract parent for parameter markers in an operation
-{axl_detail_site}.
-Do not use directly — use one of the concrete variants:
-{axhop_parameter_from_type}
-or
-{axhop_parameter_from_arg}.
-Individual markers per parameter; no section wrapper needed.
-
-[[axhop_parameter_from_type]]
-{axhop_parameter_from_type}::
-Variant of
-{axhop_parameter}
+[[axhopt_typed_parameter]]
+{axhopt_typed_parameter}::
+Marks a named input parameter in an operation
+{axl_detail_site}
 whose lookahead reuses an existing domain type term.
 No new term is minted — the attribute reference on the following line names a type already defined elsewhere in the lexicon.
 Used when the parameter's identity is fully captured by the type (e.g., a parameter that is simply a CIDR block or a domain name).
@@ -2314,10 +2308,10 @@ Lookahead: 1
 — must resolve to an existing type anchor; zero new terms minted.
 Individual markers per parameter; no section wrapper needed.
 
-[[axhop_parameter_from_arg]]
-{axhop_parameter_from_arg}::
-Variant of
-{axhop_parameter}
+[[axhopa_arg_parameter]]
+{axhopa_arg_parameter}::
+Marks a named input parameter in an operation
+{axl_detail_site}
 whose lookahead reuses a shared CLI argument term.
 The attribute reference on the following line names a shared argument from the small CLI argument vocabulary defined per spec; no new term is minted.
 Used when the parameter is a well-known CLI argument that appears across multiple operations.
@@ -2326,26 +2320,34 @@ Lookahead: 1
 — must resolve to an existing shared CLI argument anchor; small vocabulary per spec.
 Individual markers per parameter; no section wrapper needed.
 
-[[axhoo_output]]
-{axhoo_output}::
-Abstract parent for output markers in an operation
-{axl_detail_site}.
-Do not use directly — use
-{axhoo_output_of_type}.
-Individual markers per output; no section wrapper needed.
+[[axhopm_motif_parameter]]
+{axhopm_motif_parameter}::
+Marks an input parameter in an operation
+{axl_detail_site}
+whose type information is carried on the annotation line itself (motif terms such as dimension modifiers and type classifiers).
+0-arity bare marker — no lookahead required; type follows inline.
+Individual markers per parameter; no section wrapper needed.
 
-[[axhoo_output_of_type]]
-{axhoo_output_of_type}::
-Variant of
-{axhoo_output}
+[[axhoot_typed_output]]
+{axhoot_typed_output}::
+Marks a named output in an operation
+{axl_detail_site}
 whose lookahead reuses an existing domain type term.
 Parallel to the
-{axhop_parameter_from_type}
+{axhopt_typed_parameter}
 pattern: no new term is minted — the attribute reference on the following line names a type already defined elsewhere in the lexicon.
 Used when the output's identity is fully captured by the type (e.g., an output that is simply a list of names or a CIDR block).
 Lookahead: 1
 {mcm_attribute_reference}
 — must resolve to an existing type anchor; zero new terms minted.
+Individual markers per output; no section wrapper needed.
+
+[[axhoom_motif_output]]
+{axhoom_motif_output}::
+Marks an output in an operation
+{axl_detail_site}
+whose type information is carried on the annotation line itself (motif terms such as dimension modifiers and type classifiers).
+0-arity bare marker — no lookahead required; type follows inline.
 Individual markers per output; no section wrapper needed.
 +
 May carry
@@ -2396,8 +2398,11 @@ Operation hierarchy markers establish implicit scope through document order:
 opens the operation block; all subsequent markers belong to it until document end or next
 {axhob_operation}
 * {axhoc_completion},
-{axhop_parameter},
-{axhoo_output},
+{axhopt_typed_parameter},
+{axhopa_arg_parameter},
+{axhopm_motif_parameter},
+{axhoot_typed_output},
+{axhoom_motif_output},
 {axhoq_precondition},
 {axhog_guarantee},
 and
@@ -3035,11 +3040,14 @@ with a detail-site subdocument requires:
 
 Optional markers that MAY be included:
 
-* {axhop_parameter}
-— input parameters (with lookahead to existing domain type or CLI argument term)
+* {axhopt_typed_parameter}
+/{axhopa_arg_parameter}
+/{axhopm_motif_parameter}
+— input parameters (typed/arg variants use 1-arity lookahead; motif is bare)
 
-* {axhoo_output}
-— produced artifacts (with lookahead to existing domain type term)
+* {axhoot_typed_output}
+/{axhoom_motif_output}
+— produced artifacts (typed variant uses 1-arity lookahead; motif is bare)
 
 * {axhoq_precondition}
 — environmental state requirements before execution
@@ -3064,7 +3072,8 @@ in CLI context)
 * Arguments section voiced as
 {axa_argument_list}
 (which voices
-{axhop_parameter}
+{axhopt_typed_parameter}
+/{axhopa_arg_parameter}
 in CLI context; may list zero arguments if operation takes none)
 
 === CLI Option Completeness
@@ -3301,8 +3310,11 @@ at the
 
 * Every
 {axhoc_completion},
-{axhop_parameter},
-{axhoo_output},
+{axhopt_typed_parameter},
+{axhopa_arg_parameter},
+{axhopm_motif_parameter},
+{axhoot_typed_output},
+{axhoom_motif_output},
 {axhoq_precondition},
 {axhog_guarantee},
 and

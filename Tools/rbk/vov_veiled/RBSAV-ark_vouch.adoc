@@ -21,7 +21,7 @@ is known only after the image arrives in GAR.
 The private pool matches conjure's execution environment.
 
 NOTE: The vouch verdict depends on vessel mode.
-Conjure: SLSA provenance verification via `slsa-verifier verify-image`.
+Conjure: DSSE envelope signature verification of GCB-signed provenance.
 Bind: digest-pin comparison against the upstream reference.
 Graft: GRAFTED stamp — explicit acknowledgment of no provenance chain.
 
@@ -29,11 +29,11 @@ The
 {rbtr_director}
 vouches for an ark:
 
-//axhop_parameter_from_type
+//axhopt_typed_parameter
 {rbtga_ark}
 . *Validate Input Parameters*:
 .. {rbbc_require}
-vessel directory provided as first argument
+vessel provided as first argument
 .. {rbbc_require}
 consecration provided as second argument
 
@@ -66,7 +66,7 @@ re-vouch in progress (see idempotency below)
 .. Construct Build resource JSON with `serviceAccount` as
 {rbtr_mason},
 substitution namespace `_RBGV_*`
-.. Pass registry coordinates, vessel mode, verifier identity, and source URI as substitution variables
+.. Pass registry coordinates, vessel mode, and verify method as substitution variables
 .. {rbbc_submit}
 `POST «GCB_PROJECT_BUILDS_URL»` with Build resource JSON
 .. {rbbc_require}
@@ -77,20 +77,9 @@ HTTP 200 response
 Cloud Console URL for build monitoring
 
 //axhos_step
-. *Cloud Build Step 1: Download and Verify slsa-verifier* (conjure only):
-.. Image: {rbrg_alpine_image_ref}
-.. If `_RBGV_VESSEL_MODE` is not `conjure`: early-exit with success
-.. Download slsa-verifier binary from {rbrg_slsa_verifier_url}
-.. Compute SHA256 checksum of downloaded binary
-.. {rbbc_require}
-checksum matches {rbrg_slsa_verifier_sha256}
-.. {rbbc_store}
-verified binary at `/workspace/slsa-verifier`
-
-//axhos_step
-. *Cloud Build Step 2: Mode-Aware Verification*:
-.. Image: {rbrg_gcloud_image_ref}
-.. Fetch OAuth token via `gcloud auth print-access-token` (gcloud authenticates as {rbtr_mason} via metadata server)
+. *Cloud Build Step 1: Mode-Aware Verification*:
+.. Image: {rbrg_alpine_image_ref} (with jq + openssl installed)
+.. Fetch OAuth token from metadata server for API calls
 .. {rbbc_call}
 Docker Registry API: GET manifests for `«CONSECRATION»-image` to obtain OCI image index
 .. Filter out attestation manifests before extracting platforms.
@@ -106,19 +95,21 @@ platform list to `/workspace/vouch_platforms.txt`
 **Conjure branch**:
 .. For each `(platform, digest)` in `«PLATFORM_DIGESTS»`:
 ... {rbbc_call}
-`gcloud artifacts docker images describe --format json --show-provenance` to fetch provenance from Container Analysis API
-... {rbbc_store}
-per-platform provenance to `/workspace/provenance-«PLATFORM_SUFFIX».json`
+Container Analysis REST API to fetch DSSE envelope (provenance occurrences for the image digest)
+... Extract payload (base64), signature (base64), and keyid from the DSSE envelope using jq
+... Decode payload and signature from base64
+... Reconstruct Pre-Authentication Encoding (PAE): `DSSEv1 {payloadType_len} {payloadType} {payload_len} {payload}`
 ... {rbbc_call}
-`slsa-verifier verify-image` with `--provenance-path`, `--source-uri «RBRR_RUBRIC_REPO_URL»` (sans `.git` suffix), `--builder-id=https://cloudbuild.googleapis.com/GoogleHostedWorker`, and `--print-provenance`
+`openssl dgst -sha256 -verify «KEY_PEM» -signature «SIG_BIN» «PAE_BIN»` using embedded attestor public key matching keyid
+... {rbbc_require}
+signature verification succeeds -- proves GCB signed the provenance
+... {rbbc_call}
+jq to read now-trusted provenance fields: `builder.id`, `buildType`, `invocationId`, subject digest
 ... {rbbc_store}
 per-platform verification output to `/workspace/verify-«PLATFORM_SUFFIX».json`
 .. {rbbc_require}
 all platforms verify successfully
-.. Compose `vouch_summary.json` via python3: consecration, vessel, vessel_mode, verifier identity (URL + SHA256), per-platform verification verdicts
-.. NOTE: slsa-verifier does not auto-discover GCB provenance from the Container Analysis API.
-Provenance must be fetched explicitly via `gcloud artifacts docker images describe --show-provenance` and passed via `--provenance-path`.
-The `--builder-id` must be `https://cloudbuild.googleapis.com/GoogleHostedWorker`.
+.. Compose `vouch_summary.json` via jq: consecration, vessel, vessel_mode, per-platform DSSE verification verdicts
 +
 **Bind branch**:
 .. {rbbc_call}
@@ -127,19 +118,19 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
 `«ACTUAL_DIGEST»` from `Docker-Content-Digest` response header
 .. Extract `«PINNED_DIGEST»` from the `@sha256:...` suffix of `_RBGV_BIND_SOURCE`
 .. {rbbc_require}
-`«ACTUAL_DIGEST»` equals `«PINNED_DIGEST»` — pin integrity verified
+`«ACTUAL_DIGEST»` equals `«PINNED_DIGEST»` -- pin integrity verified
 .. Compose `vouch_summary.json`: consecration, vessel, vessel_mode (`bind`), verdict (`DIGEST_PIN_VERIFIED`), bind_source, actual_digest, pinned_digest
 +
 **Graft branch**:
 .. Compose `vouch_summary.json`: consecration, vessel, vessel_mode (`graft`), verdict (`GRAFTED`), graft_source from `_RBGV_GRAFT_SOURCE`
-.. No verification performed — the GRAFTED verdict explicitly marks the absence of provenance chain
+.. No verification performed -- the GRAFTED verdict explicitly marks the absence of provenance chain
 
 //axhos_step
-. *Cloud Build Step 3: Assemble and Push Vouch Artifact*:
+. *Cloud Build Step 2: Assemble and Push Vouch Artifact*:
 .. Image: {rbrg_docker_image_ref}
 .. Create buildx builder instance (inspect-or-create pattern, same as conjure)
 .. Build multi-platform `FROM scratch` container with summary and per-platform verification files as layers
-.. Platforms: read from `/workspace/vouch_platforms.txt` (written by step 2 for all modes)
+.. Platforms: read from `/workspace/vouch_platforms.txt` (written by step 1 for all modes)
 .. Push to registry tagged `«CONSECRATION»-vouch` via `docker buildx build --push`
 .. {rbbc_require}
 push succeeds
@@ -152,13 +143,13 @@ push succeeds
 .. {rbbc_fatal}
 if timeout or final status is not `SUCCESS` -- no partial vouch artifacts are pushed
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtga_ark_vouch}
 . *Display Results*:
 .. {rbbc_show}
 vouch complete with consecration and vouch artifact tag
 .. {rbbc_show}
-verdict type: `SLSA_VERIFIED` (conjure), `DIGEST_PIN_VERIFIED` (bind), or `GRAFTED` (graft)
+verdict type: `DSSE_VERIFIED` (conjure), `DIGEST_PIN_VERIFIED` (bind), or `GRAFTED` (graft)
 
 //axhoc_completion
 Successful execution creates a
@@ -166,14 +157,15 @@ Successful execution creates a
 artifact in the registry tagged as `«VESSEL»:«CONSECRATION»-vouch`.
 The vouch artifact is a multi-platform container (verification results are architecture-independent metadata; multi-platform is for pull ergonomics so arm64 hosts receive no platform mismatch warning).
 +
-*Source URI matching* (conjure only): The `--source-uri` must be `«RBRR_RUBRIC_REPO_URL»` with the `.git` suffix stripped.
-The slsa-verifier prepends `https://` when matching against the source recorded in provenance by trigger-dispatched builds.
-Format mismatch causes verification failure.
+*DSSE verification* (conjure only): Provenance is fetched from the Container Analysis API as a DSSE envelope.
+Signature verification uses attestor public keys embedded in the reliquary (fetched from `projects/verified-builder/` KMS at inscribe time).
+Three keys per region: `google-hosted-worker` (global, v1.0), `provenanceSigner` (global, v0.1), `builtByGCB` (regional, v0.1 legacy).
+No runtime KMS dependency -- air-gap compatible.
 +
 *Re-vouch idempotency*: Re-running vouch re-executes verification and pushes a new vouch artifact, overwriting the previous.
 Content is presumed deterministic for conjure and bind; graft re-vouch always produces an identical GRAFTED stamp.
 +
-*Inspect integration*: Vouch results are displayed by {rbtgo_ark_inspect} in the Vouch Results section, showing verifier identity and per-platform verification verdicts (conjure), digest-pin confirmation (bind), or GRAFTED acknowledgment (graft).
+*Inspect integration*: Vouch results are displayed by {rbtgo_ark_inspect} in the Vouch Results section, showing per-platform DSSE verification verdicts (conjure), digest-pin confirmation (bind), or GRAFTED acknowledgment (graft).
 
 ==== Vouch Substitution Variables
 
@@ -187,18 +179,11 @@ All `_RBGV_*` substitution variables are passed in the `builds.create` request b
 | `_RBGV_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
 | `_RBGV_CONSECRATION` | Full consecration string. Source: input parameter.
 | `_RBGV_VESSEL_MODE` | Vessel mode (`conjure`, `bind`, or `graft`). Source: loaded vessel configuration.
+| `_RBGV_VERIFY_METHOD` | Verification method declaration (`dsse`, `digest_pin`, or `grafted`). Source: derived from vessel mode.
 |===
 
-NOTE: Platform list is discovered by step 2 and written to `/workspace/vouch_platforms.txt`, not passed as a substitution variable.
-Step 3 reads from workspace rather than re-discovering from the registry.
-
-*Verification* (conjure only)::
-[cols="1,2"]
-|===
-| `_RBGV_SOURCE_URI` | `«RBRR_RUBRIC_REPO_URL»` (sans `.git` suffix). Source: regime configuration.
-| `_RBGV_VERIFIER_URL` | slsa-verifier download URL. Source: {rbrg_slsa_verifier_url}.
-| `_RBGV_VERIFIER_SHA256` | slsa-verifier binary checksum. Source: {rbrg_slsa_verifier_sha256}.
-|===
+NOTE: Platform list is discovered by step 1 and written to `/workspace/vouch_platforms.txt`, not passed as a substitution variable.
+Step 2 reads from workspace rather than re-discovering from the registry.
 
 *Mode-specific*::
 [cols="1,2"]

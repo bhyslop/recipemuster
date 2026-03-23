@@ -55,7 +55,7 @@ if consecration mode prefix does not match loaded {rbrv_vessel_mode} — may ind
 ... {rbbc_require}
 vouch completes successfully
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtga_ark_vouch}
 . *Display Summary*:
 .. {rbbc_show}

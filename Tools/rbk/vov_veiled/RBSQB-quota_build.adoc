@@ -83,7 +83,7 @@ The Console *Edit Quotas* flow does not work for this metric (Google reclassifie
 quota headroom supports the required concurrent builds: `«CPU_QUOTA»` ÷ vCPUs per machine type ≥
 {rbrr_gcb_min_concurrent_builds}
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtgi_depot_project}
 
 The

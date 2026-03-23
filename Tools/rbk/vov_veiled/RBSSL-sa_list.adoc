@@ -33,7 +33,7 @@ HTTP 200 response
 "No service accounts found in project"
 ... Return success
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtgi_depot_project}
 . *Display Results*:
 .. {rbbc_show}

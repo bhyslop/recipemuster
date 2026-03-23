@@ -35,7 +35,7 @@ The cost model approximates incremental storage impact:
 //axhos_step
 . Otherwise: return 0
 
-//axhoo_output
+//axhoom_motif_output
 * Exit 0: under limit (OK to commit)
 * Exit 1: over limit (commit blocked)
 * Exit 2: over warning threshold (commit allowed with warning)

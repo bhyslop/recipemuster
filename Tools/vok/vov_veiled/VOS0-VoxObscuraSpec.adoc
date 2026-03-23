@@ -990,7 +990,7 @@ at parcel root
 ... `kits/` — all kit assets by directory (including VVK with binaries)
 ... `claude/` — commands and hooks collected by cipher pattern
 
-//axhoo_output
+//axhoom_motif_output
 * {vose_parcel}
 archive: `vvk-parcel-{hallmark}.tar.gz`
 * {vose_brand_file}
@@ -1149,7 +1149,7 @@ No LLM assistance required for marker manipulation.
 .. {vosc_step}
 "Installation committed"
 
-//axhoo_output
+//axhoom_motif_output
 * Kit assets under `${BURC_TOOLS_DIR}/`
 * Commands in `.claude/commands/`
 * Hooks in `.claude/hooks/`
@@ -1294,7 +1294,7 @@ delete `.vvk/` directory if empty
 .. {vosc_step}
 "Uninstallation committed"
 
-//axhoo_output
+//axhoom_motif_output
 * vvx binaries removed from `${BURC_TOOLS_DIR}/vvk/bin/`
 * Commands removed from `.claude/commands/`
 * Hooks removed from `.claude/hooks/`
@@ -1398,7 +1398,7 @@ The caller decides when to commit, enabling
 {vosof_freshen}
 to be composed with other operations.
 
-//axhoo_output
+//axhoom_motif_output
 * Updated CLAUDE.md with
 {vose_managed_section_s}
 from forge templates

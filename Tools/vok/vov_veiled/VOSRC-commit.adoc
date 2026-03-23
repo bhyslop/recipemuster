@@ -44,7 +44,7 @@ with `size_limit` and `warn_limit`
 //axhos_step
 . Return commit hash
 
-//axhoo_output
+//axhoom_motif_output
 * On success: 7-character commit hash
 * On failure: error string describing failure
 

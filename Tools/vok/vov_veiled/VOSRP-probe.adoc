@@ -28,7 +28,7 @@ claude -p --model opus --system-prompt "Report only your exact model ID string."
 //axhos_step
 . Format output as 5-line string
 
-//axhoo_output
+//axhoom_motif_output
 Five-line string in `key: value` format:
 
 ----

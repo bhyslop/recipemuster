@@ -23,7 +23,7 @@ None.
 //axhos_step
 . If update-ref fails: another operation holds the lock, return error
 
-//axhoo_output
+//axhoom_motif_output
 * On success: RAII lock guard (`vvcc_CommitLock`)
 * On failure: error string "Another commit in progress - lock held"
 

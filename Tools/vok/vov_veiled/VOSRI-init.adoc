@@ -15,7 +15,7 @@ value equals `1`
 .. If missing or any other value:
 panic with message "CLAUDE_CODE_DISABLE_AUTO_MEMORY must be 1"
 
-//axhoo_output
+//axhoom_motif_output
 No outputs on success — execution continues silently.
 On failure, process terminates via panic (non-zero exit, no recovery).
 

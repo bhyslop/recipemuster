@@ -12,7 +12,7 @@ The
 creates a new depot infrastructure from the
 {rbtgi_payor_project}:
 
-//axhop_parameter_from_type
+//axhopt_typed_parameter
 {rbtgi_depot}
 . *Depot Name*:
 .. {rbbc_require}
@@ -287,7 +287,7 @@ returned {gcp_lro}
 .. {rbbc_require}
 repository created successfully
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtgi_depot}
 . *Display Depot Configuration*:
 .. {rbbc_show}
@@ -306,7 +306,7 @@ CB v2 connection `«CBV2_CONNECTION_NAME»` active with GitLab
 .. {rbbc_show}
 GitLab token stored in Secret Manager (3 secrets: api, read_api, webhook)
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtgi_depot}
 . *Update Depot Tracking*:
 .. Execute

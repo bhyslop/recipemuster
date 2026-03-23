@@ -86,7 +86,7 @@ if it does not exist (via Cloud Build v1 triggers REST API)
 .. `repositoryEventConfig.repositoryType` is server-inferred from the connection — never set by the client
 .. Trigger name derived from constant prefix + vessel sigil
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtgr_rubric_repo}
 * All conjure vessel directories synced in {rbtgr_rubric_repo} with current build material (including filled rubric repo metadata)
 * {rbtgi_cbv2_repository} verified within the {rbtgi_cbv2_connection}

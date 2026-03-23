@@ -20,7 +20,7 @@ The
 {rbtr_director}
 grafts an image:
 
-//axhop_parameter_from_type
+//axhopt_typed_parameter
 {rbtgr_vessel_dir}
 . *Validate Input Parameters*:
 .. {rbbc_require}
@@ -85,23 +85,23 @@ query local container runtime for image creation timestamp via `docker image ins
 .. {rbbc_require}
 push succeeds
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtga_ark_image}
 
-//axhoo_output_of_type axd_fact
+//axhoot_typed_output axd_fact
 {rbf_fact_consecration}
 The full
 {rbtga_consecration}
 string.
 
-//axhoo_output_of_type axd_fact
+//axhoot_typed_output axd_fact
 {rbf_fact_build_id}
 Empty for graft — no
 {gcb_build}
 involvement in image push.
 Written for uniform fact coverage.
 
-//axhoo_output_of_type axd_fact
+//axhoot_typed_output axd_fact
 {rbf_fact_gar_root}
 {gar_service}
 registry prefix.
@@ -109,7 +109,7 @@ Composable with
 {rbf_fact_ark_stem}
 for full artifact references.
 
-//axhoo_output_of_type axd_fact
+//axhoot_typed_output axd_fact
 {rbf_fact_ark_stem}
 {rbrv_sigil}
 and
@@ -117,7 +117,7 @@ and
 joined as `«VESSEL»:«CONSECRATION»`.
 Composable with suffix for artifact tags.
 
-//axhoo_output_of_type axd_fact
+//axhoot_typed_output axd_fact
 {rbf_fact_ark_yield}
 Single-platform
 {rbtga_ark_image}

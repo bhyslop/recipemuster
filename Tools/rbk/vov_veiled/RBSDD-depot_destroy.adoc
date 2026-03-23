@@ -7,7 +7,7 @@ destroys an
 {rbtgi_depot}
 and all contained resources:
 
-//axhop_parameter_from_type
+//axhopt_typed_parameter
 {rbtgi_depot_project}
 . *Safety Confirmation*:
 .. If `RBGP_CONFIRM_DESTROY` environment variable is set:

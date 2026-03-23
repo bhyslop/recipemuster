@@ -20,7 +20,7 @@ NOTE: This is the ark-level view of image retrieval. For single-artifact retriev
 
 The summon operation:
 
-//axhop_parameter_from_type
+//axhopt_typed_parameter
 {rbtga_ark}
 . *Validate Input Parameters*:
 .. {rbbc_require}
@@ -76,7 +76,7 @@ docker login to registry
 ... {rbbc_call}
 docker pull to retrieve artifact to local container runtime
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtga_ark}
 . *Display Results*:
 .. {rbbc_show}

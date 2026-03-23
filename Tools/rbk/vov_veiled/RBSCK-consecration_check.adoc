@@ -59,10 +59,10 @@ unique consecrations with artifact type and platform data
 .. {rbbc_store}
 health state and platform list per consecration
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtga_consecration}
 
-//axhoo_output_of_type axd_tally
+//axhoot_typed_output axd_tally
 {rbcc_fact_consec_infix}
 One file per
 {rbtga_consecration}

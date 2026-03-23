@@ -11,7 +11,7 @@ The
 {rbtr_retriever}
 pulls an image by {rbst_locator}:
 
-//axhop_parameter_from_type
+//axhopt_typed_parameter
 {rbst_locator}
 . *Validate Input Parameters*:
 .. {rbbc_require}
@@ -64,7 +64,7 @@ pull completes successfully
 .. {rbbc_fatal}
 if pull fails: "Image pull failed"
 
-//axhoo_output_of_type
+//axhoot_typed_output
 {rbtgi_image}
 . *Display Results*:
 .. {rbbc_show}
