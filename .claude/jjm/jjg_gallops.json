@@ -3389,6 +3389,13 @@
         "₢AvAAH": {
           "tacks": [
             {
+              "ts": "260323-1035",
+              "state": "rough",
+              "text": "## Character\nEnd-to-end integration verification requiring a live GCP depot. Hands-on, sequential, high-confidence. Final pace of the heat.\n\n## Goal\nDestroy and recreate depot, reset governor, create director/retriever, and conjure builds for all service vessels to verify the complete ₣Av implementation: GitLab elimination, enshrine, reliquary, and (if ₢AvAAL completed) egress lockdown.\n\n## Steps\n1. Destroy current depot, create fresh depot — confirm no GitLab/SM/CBv2 steps\n2. Reset governor, create director/retriever — confirm clean IAM grants\n3. Conjure rbev-busybox (FROM scratch) — baseline verification\n4. Conjure the four bottle/sentry service images (sentry-ubuntu-large, bottle-anthropic-jupyter, bottle-plantuml, bottle-ubuntu-test)\n5. If reliquary implemented: verify conjure uses GAR tool images\n6. If enshrine implemented: verify base image resolution from GAR\n7. If egress lockdown enabled: verify air-gapped builds\n8. Verify ark artifacts (image, about, vouch) present for all vessels\n\n## Verification\n- All depot lifecycle operations clean of eliminated code\n- All service vessels build successfully\n- Full pipeline verified end-to-end with all ₣Av changes",
+              "silks": "end-to-end-depot-lifecycle-verification",
+              "commit": "204d7fc"
+            },
+            {
               "ts": "260323-0935",
               "state": "rough",
               "text": "## Character\nEnd-to-end integration verification requiring a live GCP depot. Hands-on, sequential, high-confidence.\n\n## Goal\nDestroy existing depot, recreate from scratch, reset governor, and carry out builds to verify all ₣Av changes (GitLab elimination, builds.create path, DSSE vouch) work end-to-end.\n\n## Steps\n1. Destroy current depot via depot_destroy tabtarget\n2. Create new depot via depot_create — confirm no GitLab prompts, no Secret Manager steps, no CB v2 connection\n3. Reset governor — confirm no CB v2 connectionViewer grant or verification\n4. Run a conjure build on at least one vessel — verify builds.create + pouch + DSSE vouch pipeline\n5. Verify ark artifacts (image, about, vouch) are present in GAR\n\n## Verification\n- Depot creation completes without GitLab/Secret Manager/CB v2 steps\n- Governor reset completes without CB v2 verification\n- At least one successful conjure build with DSSE-verified provenance",
