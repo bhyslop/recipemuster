@@ -3222,9 +3222,10 @@
         "₢AvAAD",
         "₢AvAAE",
         "₢AvAAF",
-        "₢AvAAG"
+        "₢AvAAG",
+        "₢AvAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3371,6 +3372,17 @@
               "text": "## Character\nSystematic review of included AsciiDoc sub-documents. Read each, identify stale GitLab/trigger/slsa-verifier references, rewrite to reflect builds.create + pouch + DSSE.\n\n## Goal\nUpdate RBSAV (ark_vouch), RBSAC (ark_conjure), and RBSRR (RegimeRepo) sub-documents to consistently reflect the new architecture. Remove or update any internal references to eliminated terms.\n\n## Verification\n- grep for eliminated terms across all .adoc files returns zero hits in active content\n- Spec renders consistently (no broken cross-references or stale descriptions)",
               "silks": "spec-subdocument-gitlab-sweep",
               "commit": "9cef0c0"
+            }
+          ]
+        },
+        "₢AvAAH": {
+          "tacks": [
+            {
+              "ts": "260323-0935",
+              "state": "rough",
+              "text": "## Character\nEnd-to-end integration verification requiring a live GCP depot. Hands-on, sequential, high-confidence.\n\n## Goal\nDestroy existing depot, recreate from scratch, reset governor, and carry out builds to verify all ₣Av changes (GitLab elimination, builds.create path, DSSE vouch) work end-to-end.\n\n## Steps\n1. Destroy current depot via depot_destroy tabtarget\n2. Create new depot via depot_create — confirm no GitLab prompts, no Secret Manager steps, no CB v2 connection\n3. Reset governor — confirm no CB v2 connectionViewer grant or verification\n4. Run a conjure build on at least one vessel — verify builds.create + pouch + DSSE vouch pipeline\n5. Verify ark artifacts (image, about, vouch) are present in GAR\n\n## Verification\n- Depot creation completes without GitLab/Secret Manager/CB v2 steps\n- Governor reset completes without CB v2 verification\n- At least one successful conjure build with DSSE-verified provenance",
+              "silks": "end-to-end-depot-lifecycle-verification",
+              "commit": "e8f630f"
             }
           ]
         }
