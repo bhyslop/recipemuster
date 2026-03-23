@@ -3226,9 +3226,10 @@
         "₢AvAAH",
         "₢AvAAI",
         "₢AvAAJ",
-        "₢AvAAK"
+        "₢AvAAK",
+        "₢AvAAL"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3426,6 +3427,17 @@
               "text": "## Character\nImplementation work with GCP infrastructure. Builds on settled reliquary design from paddock.\n\n## Goal\nImplement inscribe operation: mirror all tool images (gcloud, docker, binfmt, syft, alpine, oras, skopeo) from upstream registries to a datestamped GAR namespace. Produce reliquary identifier. Update stitch to resolve step image references from reliquary instead of upstream digest pins.\n\n## Steps\n1. Define reliquary GAR namespace scheme (e.g., {repo}/reliquary/{datestamp}/...)\n2. Implement inscribe GCB job: pull each tool image from upstream, tag for GAR, push, record digests\n3. Produce reliquary manifest (datestamp + image-to-digest mapping)\n4. Add RBRV_RELIQUARY vessel regime variable\n5. Update stitch: when RBRV_RELIQUARY is set, resolve all step image refs from reliquary GAR paths instead of upstream RBRG pins\n6. Add inscribe tabtarget and workbench routing\n7. Test: inscribe, then conjure rbev-busybox using reliquary tool images\n\n## Verification\n- Inscribe mirrors all tool images to GAR\n- Conjure with RBRV_RELIQUARY set uses GAR tool image references\n- Built images are identical (same behavior) to upstream-pin builds",
               "silks": "implement-reliquary-inscribe-tool-images",
               "commit": "e987152"
+            }
+          ]
+        },
+        "₢AvAAL": {
+          "tacks": [
+            {
+              "ts": "260323-1034",
+              "state": "rough",
+              "text": "## Character\nHigh-stakes infrastructure change with end-to-end verification. The culmination of the entire heat.\n\n## Goal\nEnable NO_PUBLIC_EGRESS on the private pool worker and verify the full pipeline works air-gapped: inscribe (already done), enshrine base images, conjure with reliquary + enshrined base images, DSSE vouch — all without public internet access from the build worker.\n\n## Steps\n1. Ensure reliquary is inscribed (₢AvAAK prerequisite)\n2. Ensure base images are enshrined for test vessels (₢AvAAJ prerequisite)\n3. Update private pool config: set egressOption to NO_PUBLIC_EGRESS\n4. Conjure rbev-busybox (FROM scratch, no base image) — verify success\n5. Conjure a vessel with enshrined base image — verify success\n6. Verify vouch (DSSE) works under lockdown (Container Analysis API is a Google API, should work via Private Google Access)\n7. Test failure mode: attempt conjure with unenshrined base image — confirm clean failure\n\n## Verification\n- Private pool has NO_PUBLIC_EGRESS set\n- Conjure succeeds for vessels with all dependencies mirrored\n- Conjure fails cleanly for vessels with unmirrored dependencies\n- Full pipeline (inscribe → enshrine → conjure → vouch) works air-gapped\n- RBSHR egress lockdown item can be graduated from roadmap",
+              "silks": "egress-lockdown-flip-and-verify",
+              "commit": "2bc4fbd"
             }
           ]
         }
