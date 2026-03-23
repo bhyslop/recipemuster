@@ -3367,6 +3367,13 @@
         "₢AvAAG": {
           "tacks": [
             {
+              "ts": "260323-1000",
+              "state": "complete",
+              "text": "## Character\nSystematic review of included AsciiDoc sub-documents. Read each, identify stale GitLab/trigger/slsa-verifier references, rewrite to reflect builds.create + pouch + DSSE.\n\n## Goal\nUpdate RBSAV (ark_vouch), RBSAC (ark_conjure), and RBSRR (RegimeRepo) sub-documents to consistently reflect the new architecture. Remove or update any internal references to eliminated terms.\n\n## Verification\n- grep for eliminated terms across all .adoc files returns zero hits in active content\n- Spec renders consistently (no broken cross-references or stale descriptions)",
+              "silks": "spec-subdocument-gitlab-sweep",
+              "commit": "f40d105"
+            },
+            {
               "ts": "260321-1542",
               "state": "rough",
               "text": "## Character\nSystematic review of included AsciiDoc sub-documents. Read each, identify stale GitLab/trigger/slsa-verifier references, rewrite to reflect builds.create + pouch + DSSE.\n\n## Goal\nUpdate RBSAV (ark_vouch), RBSAC (ark_conjure), and RBSRR (RegimeRepo) sub-documents to consistently reflect the new architecture. Remove or update any internal references to eliminated terms.\n\n## Verification\n- grep for eliminated terms across all .adoc files returns zero hits in active content\n- Spec renders consistently (no broken cross-references or stale descriptions)",
