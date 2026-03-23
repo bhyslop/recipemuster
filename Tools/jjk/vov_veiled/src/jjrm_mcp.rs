@@ -39,6 +39,7 @@ use crate::jjrcu_curry::{jjrcu_CurryArgs, jjrcu_run_curry};
 use crate::jjrgl_garland::{jjrgl_GarlandArgs, jjrgl_run_garland};
 use crate::jjrrs_restring::{jjrrs_RestringArgs, jjrrs_run};
 use crate::jjrld_landing::{jjrld_LandingArgs, jjrld_run_landing};
+use crate::jjrz_gazette::{jjrz_parse_slate_input, jjrz_parse_reslate_input, jjrz_parse_paddock_input};
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 
@@ -220,8 +221,12 @@ pub struct jjrm_CreateParams {
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_EnrollParams {
     pub firemark: String,
-    pub silks: String,
-    pub docket: String,
+    #[serde(default)]
+    pub silks: Option<String>,
+    #[serde(default)]
+    pub docket: Option<String>,
+    #[schemars(description = "Gazette markdown input (alternative to silks+docket). Format: # slate <silks>\\n\\n<docket text>")]
+    pub input: Option<String>,
     pub before: Option<String>,
     pub after: Option<String>,
     #[serde(default)]
@@ -242,8 +247,12 @@ pub struct jjrm_ReorderParams {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ReviseDocketParams {
-    pub coronet: String,
-    pub docket: String,
+    #[serde(default)]
+    pub coronet: Option<String>,
+    #[serde(default)]
+    pub docket: Option<String>,
+    #[schemars(description = "Gazette markdown input (alternative to coronet+docket). Supports mass reslate with multiple notices. Format: # reslate <coronet>\\n\\n<docket text>")]
+    pub input: Option<String>,
 }
 
 
@@ -308,9 +317,12 @@ pub struct jjrm_GetCoronetsParams {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_PaddockParams {
-    pub firemark: String,
+    #[serde(default)]
+    pub firemark: Option<String>,
     pub content: Option<String>,
     pub note: Option<String>,
+    #[schemars(description = "Gazette markdown input for setter mode (alternative to firemark+content). Format: # paddock <firemark>\\n\\n<paddock content>")]
+    pub input: Option<String>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -448,14 +460,29 @@ impl jjrm_McpServer {
             }
             "jjx_enroll" => {
                 let p = deser!(jjrm_EnrollParams);
+                let (silks, docket) = if let Some(ref input) = p.input {
+                    match jjrz_parse_slate_input(input) {
+                        Ok(pair) => pair,
+                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                            format!("jjx_enroll: gazette input error: {}", e),
+                        )])),
+                    }
+                } else {
+                    match (p.silks, p.docket) {
+                        (Some(s), Some(d)) => (s, d),
+                        _ => return Ok(CallToolResult::error(vec![Content::text(
+                            "jjx_enroll: requires either 'input' (gazette) or both 'silks' and 'docket'".to_string(),
+                        )])),
+                    }
+                };
                 jjrm_result(jjrsl_run_slate(jjrsl_SlateArgs {
                     file: gallops_pathbuf(),
                     firemark: p.firemark,
-                    silks: p.silks,
+                    silks,
                     before: p.before,
                     after: p.after,
                     first: p.first,
-                }, p.docket))
+                }, docket))
             }
             "jjx_reorder" => {
                 let p = deser!(jjrm_ReorderParams);
@@ -472,9 +499,32 @@ impl jjrm_McpServer {
             }
             "jjx_revise_docket" => {
                 let p = deser!(jjrm_ReviseDocketParams);
-                jjrm_dispatch_pace(cmd, &p.coronet, |gallops| {
-                    jjrtl_run_revise_docket(gallops, &p.coronet, &p.docket)
-                })
+                if let Some(ref input) = p.input {
+                    let pairs = match jjrz_parse_reslate_input(input) {
+                        Ok(p) => p,
+                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                            format!("jjx_revise_docket: gazette input error: {}", e),
+                        )])),
+                    };
+                    let first_coronet = pairs[0].0.clone();
+                    jjrm_dispatch_pace(cmd, &first_coronet, |gallops| {
+                        for (coronet, docket) in &pairs {
+                            jjrtl_run_revise_docket(gallops, coronet, docket)?;
+                        }
+                        Ok(format!("Revised {} pace(s)", pairs.len()))
+                    })
+                } else {
+                    match (p.coronet, p.docket) {
+                        (Some(coronet), Some(docket)) => {
+                            jjrm_dispatch_pace(cmd, &coronet, |gallops| {
+                                jjrtl_run_revise_docket(gallops, &coronet, &docket)
+                            })
+                        }
+                        _ => Ok(CallToolResult::error(vec![Content::text(
+                            "jjx_revise_docket: requires either 'input' (gazette) or both 'coronet' and 'docket'".to_string(),
+                        )])),
+                    }
+                }
             }
             "jjx_relabel" => {
                 let p = deser!(jjrm_RelabelParams);
@@ -545,11 +595,31 @@ impl jjrm_McpServer {
             }
             "jjx_paddock" => {
                 let p = deser!(jjrm_PaddockParams);
-                jjrm_result(jjrcu_run_curry(jjrcu_CurryArgs {
-                    file: gallops_pathbuf(),
-                    firemark: p.firemark,
-                    note: p.note,
-                }, p.content))
+                if let Some(ref input) = p.input {
+                    let (firemark, content) = match jjrz_parse_paddock_input(input) {
+                        Ok(pair) => pair,
+                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                            format!("jjx_paddock: gazette input error: {}", e),
+                        )])),
+                    };
+                    jjrm_result(jjrcu_run_curry(jjrcu_CurryArgs {
+                        file: gallops_pathbuf(),
+                        firemark,
+                        note: p.note,
+                    }, Some(content)))
+                } else {
+                    let firemark = match p.firemark {
+                        Some(f) => f,
+                        None => return Ok(CallToolResult::error(vec![Content::text(
+                            "jjx_paddock: requires either 'input' (gazette) or 'firemark'".to_string(),
+                        )])),
+                    };
+                    jjrm_result(jjrcu_run_curry(jjrcu_CurryArgs {
+                        file: gallops_pathbuf(),
+                        firemark,
+                        note: p.note,
+                    }, p.content))
+                }
             }
             "jjx_continue" => {
                 let p = deser!(jjrm_ContinueParams);

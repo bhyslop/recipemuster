@@ -306,3 +306,112 @@ fn jjtz_near_match_none_when_distant() {
     let vocab = &[jjrz_Slug::Slate];
     assert_eq!(zjjrz_near_match("completely_different", vocab), None);
 }
+
+// --- Slate input parsing ---
+
+#[test]
+fn jjtz_parse_slate_input_valid() {
+    let md = "# slate my-pace\n\nDocket text here\n";
+    let (silks, docket) = jjrz_parse_slate_input(md).unwrap();
+    assert_eq!(silks, "my-pace");
+    assert_eq!(docket, "Docket text here");
+}
+
+#[test]
+fn jjtz_parse_slate_input_multiline_docket() {
+    let md = "# slate my-pace\n\nLine 1\n\n## Section\n\nLine 2\n";
+    let (silks, docket) = jjrz_parse_slate_input(md).unwrap();
+    assert_eq!(silks, "my-pace");
+    assert!(docket.contains("Line 1"));
+    assert!(docket.contains("## Section"));
+    assert!(docket.contains("Line 2"));
+}
+
+#[test]
+fn jjtz_parse_slate_input_no_notices() {
+    let err = jjrz_parse_slate_input("").unwrap_err();
+    assert!(err.contains("No slate notice"));
+}
+
+#[test]
+fn jjtz_parse_slate_input_multiple_notices() {
+    let md = "# slate p1\n\nD1\n\n# slate p2\n\nD2\n";
+    let err = jjrz_parse_slate_input(md).unwrap_err();
+    assert!(err.contains("Expected one"));
+}
+
+#[test]
+fn jjtz_parse_slate_input_missing_lede() {
+    let md = "# slate\n\nDocket\n";
+    let err = jjrz_parse_slate_input(md).unwrap_err();
+    assert!(err.contains("missing lede"));
+}
+
+#[test]
+fn jjtz_parse_slate_input_wrong_slug() {
+    let md = "# paddock AF\n\nContent\n";
+    let err = jjrz_parse_slate_input(md).unwrap_err();
+    assert!(err.contains("not in vocabulary"));
+}
+
+// --- Reslate input parsing ---
+
+#[test]
+fn jjtz_parse_reslate_input_single() {
+    let md = "# reslate AFAAa\n\nNew docket\n";
+    let pairs = jjrz_parse_reslate_input(md).unwrap();
+    assert_eq!(pairs.len(), 1);
+    assert_eq!(pairs[0].0, "AFAAa");
+    assert_eq!(pairs[0].1, "New docket");
+}
+
+#[test]
+fn jjtz_parse_reslate_input_mass() {
+    let md = "# reslate AFAAa\n\nDocket A\n\n# reslate AFAAb\n\nDocket B\n";
+    let pairs = jjrz_parse_reslate_input(md).unwrap();
+    assert_eq!(pairs.len(), 2);
+}
+
+#[test]
+fn jjtz_parse_reslate_input_no_notices() {
+    let err = jjrz_parse_reslate_input("").unwrap_err();
+    assert!(err.contains("No reslate notice"));
+}
+
+#[test]
+fn jjtz_parse_reslate_input_missing_lede() {
+    let md = "# reslate\n\nDocket\n";
+    let err = jjrz_parse_reslate_input(md).unwrap_err();
+    assert!(err.contains("missing lede"));
+}
+
+// --- Paddock input parsing ---
+
+#[test]
+fn jjtz_parse_paddock_input_valid() {
+    let md = "# paddock AF\n\n## Purpose\n\nBuild things\n";
+    let (firemark, content) = jjrz_parse_paddock_input(md).unwrap();
+    assert_eq!(firemark, "AF");
+    assert!(content.contains("## Purpose"));
+    assert!(content.contains("Build things"));
+}
+
+#[test]
+fn jjtz_parse_paddock_input_no_notices() {
+    let err = jjrz_parse_paddock_input("").unwrap_err();
+    assert!(err.contains("No paddock notice"));
+}
+
+#[test]
+fn jjtz_parse_paddock_input_missing_lede() {
+    let md = "# paddock\n\nContent\n";
+    let err = jjrz_parse_paddock_input(md).unwrap_err();
+    assert!(err.contains("missing lede"));
+}
+
+#[test]
+fn jjtz_parse_paddock_input_multiple_notices() {
+    let md = "# paddock AF\n\nC1\n\n# paddock AG\n\nC2\n";
+    let err = jjrz_parse_paddock_input(md).unwrap_err();
+    assert!(err.contains("Expected one"));
+}

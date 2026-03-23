@@ -260,6 +260,66 @@ impl jjrz_Gazette {
     }
 }
 
+// --- Operation input parsing ---
+
+/// Parse gazette input for enroll (slate) operation.
+/// Returns (silks, docket) from a single slate notice.
+/// Validates: exactly one slate notice, non-empty lede (silks).
+pub fn jjrz_parse_slate_input(markdown: &str) -> Result<(String, String), String> {
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], markdown)
+        .map_err(|diags| diags.join("\n"))?;
+    let entries = g.jjrz_query_by_slug(jjrz_Slug::Slate);
+    if entries.is_empty() {
+        return Err("No slate notice found in gazette input".to_string());
+    }
+    if entries.len() > 1 {
+        return Err(format!("Expected one slate notice, got {}", entries.len()));
+    }
+    let (silks, docket) = entries.into_iter().next().unwrap();
+    if silks.is_empty() {
+        return Err("Slate notice missing lede (silks)".to_string());
+    }
+    Ok((silks, docket))
+}
+
+/// Parse gazette input for revise_docket (reslate) operation.
+/// Returns Vec of (coronet, docket) pairs for mass reslate support.
+/// Validates: at least one reslate notice, all ledes (coronets) non-empty.
+pub fn jjrz_parse_reslate_input(markdown: &str) -> Result<Vec<(String, String)>, String> {
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Reslate], markdown)
+        .map_err(|diags| diags.join("\n"))?;
+    let entries = g.jjrz_query_by_slug(jjrz_Slug::Reslate);
+    if entries.is_empty() {
+        return Err("No reslate notice found in gazette input".to_string());
+    }
+    for (coronet, _) in &entries {
+        if coronet.is_empty() {
+            return Err("Reslate notice missing lede (coronet)".to_string());
+        }
+    }
+    Ok(entries)
+}
+
+/// Parse gazette input for paddock setter operation.
+/// Returns (firemark, content) from a single paddock notice.
+/// Validates: exactly one paddock notice, non-empty lede (firemark).
+pub fn jjrz_parse_paddock_input(markdown: &str) -> Result<(String, String), String> {
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock], markdown)
+        .map_err(|diags| diags.join("\n"))?;
+    let entries = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
+    if entries.is_empty() {
+        return Err("No paddock notice found in gazette input".to_string());
+    }
+    if entries.len() > 1 {
+        return Err(format!("Expected one paddock notice, got {}", entries.len()));
+    }
+    let (firemark, content) = entries.into_iter().next().unwrap();
+    if firemark.is_empty() {
+        return Err("Paddock notice missing lede (firemark)".to_string());
+    }
+    Ok((firemark, content))
+}
+
 // --- Internal helpers ---
 
 /// Check if a line is a notice boundary (# followed by whitespace).
