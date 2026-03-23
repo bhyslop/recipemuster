@@ -3348,6 +3348,13 @@
         "₢AvAAF": {
           "tacks": [
             {
+              "ts": "260323-0935",
+              "state": "complete",
+              "text": "## Character\nMechanical code cleanup in a single large file. Low risk — the dead paths already handle empty variables gracefully.\n\n## Goal\nRemove GitLab-specific dead code from rbgp_Payor.sh: CB v2 connection/repository creation, Secret Manager PAT storage, GitLab setup validation. Remove rbgu_check_rubric_repo_url and zrbgu_gitlab_tokens_url_capture from rbgu_Utility.sh.\n\n## Verification\n- Depot creation tabtarget runs without error on active depot (no GitLab steps attempted)\n- No references to RBRR_RUBRIC_REPO_URL or RBRR_CBV2_CONNECTION_NAME in active code paths",
+              "silks": "payor-gitlab-dead-code-removal",
+              "commit": "1970eb9"
+            },
+            {
               "ts": "260321-1542",
               "state": "rough",
               "text": "## Character\nMechanical code cleanup in a single large file. Low risk — the dead paths already handle empty variables gracefully.\n\n## Goal\nRemove GitLab-specific dead code from rbgp_Payor.sh: CB v2 connection/repository creation, Secret Manager PAT storage, GitLab setup validation. Remove rbgu_check_rubric_repo_url and zrbgu_gitlab_tokens_url_capture from rbgu_Utility.sh.\n\n## Verification\n- Depot creation tabtarget runs without error on active depot (no GitLab steps attempted)\n- No references to RBRR_RUBRIC_REPO_URL or RBRR_CBV2_CONNECTION_NAME in active code paths",
