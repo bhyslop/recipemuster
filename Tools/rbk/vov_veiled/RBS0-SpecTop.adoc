@@ -716,7 +716,7 @@ The `git fetch` operation uses git's internal locking for safe concurrent execut
 
 * *Semantic Preconditions*:
 Operations like
-{rbtgo_trigger_build}
+{rbtgo_ark_conjure}
 require clean git state.
 This is a workflow constraint ensuring reproducible builds, not a collision guard.
 
@@ -730,8 +730,7 @@ Machine type is set at pool creation time via
 {rbrr_gcb_machine_type}
 (a Compute Engine type such as `e2-standard-2`); individual build requests do not specify machine type.
 If the pool's vCPU allocation is nearly exhausted, a second
-{rbtgo_trigger_build}
-invocation will remain in `QUEUED` status while the first is `WORKING`.
+build invocation will remain in `QUEUED` status while the first is `WORKING`.
 The
 {rbrr_gcb_min_concurrent_builds}
 regime variable declares the operator's minimum concurrency requirement.
@@ -1603,7 +1602,7 @@ job submitted after
 completes.
 The vouch verdict depends on vessel mode:
 +
-* *Conjure*: SLSA provenance verification via `slsa-verifier verify-image` against each per-platform digest. Records verifier identity and per-platform verification verdicts.
+* *Conjure*: DSSE envelope signature verification of GCB-signed provenance against each per-platform digest. Records per-platform verification verdicts.
 * *Bind*: Digest-pin comparison — verifies the image digest in GAR matches the pinned upstream reference. No SLSA provenance exists for upstream images.
 * *Graft*: GRAFTED stamp — records that the image was locally built and pushed without provenance chain. An explicit trust boundary marker.
 +
@@ -1615,14 +1614,13 @@ The about pipeline must complete before vouch can run.
 +
 **DSSE envelope verification** (conjure mode only, ₣Av):
 Provenance signatures verified against embedded GCB attestor public keys from `projects/verified-builder` KMS.
-Step 1 (Alpine) downloads a static jq binary and writes the public key PEM to `/workspace/keys/`.
-Step 2 (gcloud) fetches provenance, extracts the v1.0 DSSE envelope, decodes payload + signature, reconstructs PAE, and verifies via `openssl dgst -sha256`.
+Step 1 (Alpine, with jq + openssl) fetches provenance via Container Analysis REST API, extracts the DSSE envelope, decodes payload + signature, reconstructs PAE, and verifies via `openssl dgst -sha256 -verify` against embedded attestor public keys.
 No slsa-verifier, no Python — jq + base64 + openssl only. jq installed for all modes (bind/graft use it for vouch summary composition).
 +
 **Vouch Cloud Build job architecture**:
 Vouch uses the RunBuild API (`builds.create`) rather than trigger dispatch — the consecration is known only after the image arrives in GAR, so a pre-registered trigger cannot provide it.
 The build runs as the {rbtr_mason} service account.
-The vouch step branches on `_RBGV_VESSEL_MODE`: conjure runs SLSA verification, bind runs digest-pin comparison, graft stamps GRAFTED.
+The vouch step branches on `_RBGV_VESSEL_MODE`: conjure runs DSSE provenance verification, bind runs digest-pin comparison, graft stamps GRAFTED.
 +
 Discovered constraints from implementation:
 +
@@ -1632,9 +1630,8 @@ Discovered constraints from implementation:
   * **No gcloud in build steps**: {rbsk_no_gcloud} applies.
     Registry auth must use the GCE metadata server (`http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`) to obtain an access token, then write a static Docker config JSON.
     The `gcloud auth configure-docker` approach fails regardless — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
-  * **Builder image selection**: Step 1 (prepare keys + jq) uses Alpine (wget for static jq binary from GitHub).
-    Step 2 (DSSE verification) uses the gcloud builder image (provenance fetched via `gcloud artifacts docker images describe --show-provenance`; signature verification via `openssl dgst`).
-    Step 3 (push vouch container) uses the Docker builder image (`docker buildx build --push` for multi-platform).
+  * **Builder image selection**: Step 1 (mode-aware verification) uses Alpine (jq + openssl for DSSE verification; metadata server for OAuth token).
+    Step 2 (push vouch container) uses the Docker builder image (`docker buildx build --push` for multi-platform).
   * **GCB dollar escaping**: Step scripts embedded in Build JSON require `$$` for literal `$` and un-escaped `${_RBGV_*}` for GCB substitution variables, following the same `sed` pattern as conjure's `${_RBGY_*}`.
   * **DSSE verification**: Provenance envelope signatures verified against embedded GCB attestor public keys (`projects/verified-builder` KMS). PAE reconstruction + `openssl dgst -sha256 -verify`. No slsa-verifier, no Python — jq + base64 + openssl only.
     builds.create provenance achieves SLSA Build Level 3 (₢AvAAB research confirmed).

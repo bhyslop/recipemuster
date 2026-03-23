@@ -8,12 +8,6 @@ creates a
 {giam_service_account}
 with build management permissions:
 
-//axhoq_precondition
-* Execute {rbtoe_check_rubric_repo_url} (validates {rbrr_rubric_repo_url} using PAT from Secret Manager)
-
-//axhoq_precondition
-* Execute {rbtoe_check_cbv2_connection} to verify {rbtgi_cbv2_connection} is active
-
 //axhopt_typed_parameter
 {rbtr_director}
 . *Validate Input Parameters*:
@@ -105,25 +99,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[pr
 .. {rbbc_require}
 IAM policy update successful
 
-//axhos_step
-. *Grant Secret Manager Access for Inscribe*:
-.. NOTE:
-{rbtr_director}
-needs to fetch the API token from Secret Manager during
-{rbtgo_rubric_inscribe}
-to construct authenticated git URLs.
-.. {rbbc_call}
-link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/getIamPolicy[secrets.getIamPolicy] for `projects/{rbrr_depot_project_id}/secrets/RBGC_CBV2_API_TOKEN_SECRET_NAME`
-.. {rbbc_require}
-HTTP 200 — existing policy must be read successfully before modification. Die on failure; a silent fallback to empty policy would destroy existing bindings (e.g., the Cloud Build service agent binding set by {rbtgo_depot_create}).
-.. *Complete policy write*: Add ALL expected `secretAccessor` bindings to the read policy, regardless of what the read returned:
-... `serviceAccount:«DIRECTOR_EMAIL»` — Director needs secret access for inscribe
-... `serviceAccount:service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com` — Cloud Build service agent needs secret access at build time
-.. NOTE: This complete-policy-write pattern prevents the IAM eventual consistency race: if `getIamPolicy` returns stale data missing the CB service agent binding (set by {rbtgo_depot_create}), the `setIamPolicy` still includes it.
-.. {rbbc_call}
-link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/setIamPolicy[secrets.setIamPolicy] with the complete expected policy
-.. {rbbc_require}
-IAM policy set with all expected secretAccessor bindings
+// Secret Manager access for inscribe eliminated (₣Av) — GitLab PAT no longer used
 
 //axhos_step
 . *Grant

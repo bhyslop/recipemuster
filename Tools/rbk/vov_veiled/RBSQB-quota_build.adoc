@@ -13,9 +13,7 @@ All depots use a private worker pool.
 Machine type is set at pool creation time via
 {rbrr_gcb_machine_type}
 (a Compute Engine type such as `e2-standard-2`); individual build requests do not specify machine type.
-Each
-{rbtgo_trigger_build}
-invocation consumes vCPUs according to the pool's machine type.
+Each build invocation consumes vCPUs according to the pool's machine type.
 If the pool's vCPU count consumes most of the quota, builds serialize because a second invocation cannot acquire enough CPUs.
 
 The primary control for concurrent build capacity is the pool's machine type (set via
@@ -99,8 +97,8 @@ Machine type is set at pool creation time via
 {rbrr_gcb_machine_type};
 individual build requests do not specify machine type.
 The
-{rbtgo_trigger_build}
+{rbtgo_ark_conjure}
 operation includes an automated quota preflight gate that queries this metric and verifies capacity against
 {rbrr_gcb_min_concurrent_builds}
-before dispatching.
+before submission.
 The image listing operation performs the same check as a non-blocking advisory.

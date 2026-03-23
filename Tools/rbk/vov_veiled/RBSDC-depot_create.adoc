@@ -3,8 +3,7 @@
 
 NOTE: This operation creates an
 {rbtgi_depot}
-- a cohesive unit of Recipe Bottle infrastructure including the depot project, build bucket, container repository, Mason service account, and
-{rbtgi_cbv2_connection}
+- a cohesive unit of Recipe Bottle infrastructure including the depot project, build bucket, container repository, Mason service account, and private worker pool
 that share their productive lifecycle.
 
 The
@@ -18,31 +17,6 @@ creates a new depot infrastructure from the
 .. {rbbc_require}
 `«INPUT_DEPOT_NAME»` provided as first argument
 .. Validate depot name: lowercase letters, numbers, hyphens only, max 20 chars
-
-//axhos_step
-. *Validate Rubric Repo URL (GitLab required)*:
-.. {rbbc_require}
-{rbrr_rubric_repo_url}
-is set in regime (`RBRR_RUBRIC_REPO_URL` in `rbrr.env`) or {rbbc_show} tabtarget hint for {rbtc_gitlab_setup} then {rbbc_fatal} "Cannot proceed without GitLab rubric repo"
-.. {rbbc_require}
-URL begins with `https://gitlab.com/` or {rbbc_show} tabtarget hint for {rbtc_gitlab_setup} (GitLab setup guide) then {rbbc_fatal} "Cannot proceed without GitLab rubric repo"
-
-//axhop_parameter_from_stdin
-. *GitLab Project Access Token (stdin)*:
-.. {rbbc_show}
-rubric repo URL
-.. Read one line from stdin: `«GITLAB_TOKEN»`
-.. If empty, {rbbc_show} tabtarget hint for {rbtc_gitlab_setup} (GitLab setup guide) then {rbbc_fatal} "Token is empty"
-
-//axhos_step
-. *Validate Rubric Repo URL reachability*:
-.. Construct authenticated URL using bash builtin: `https://oauth2:«GITLAB_TOKEN»@` + URL path from
-{rbrr_rubric_repo_url}
-.. {rbbc_call}
-`git ls-remote «AUTHENTICATED_URL» HEAD` to verify reachability and credential validity, stderr captured to temp file
-.. {rbbc_require}
-successful exit or {rbbc_fatal} "Rubric repo URL unreachable or token invalid — see «stderr_file»"
-.. Discard `«AUTHENTICATED_URL»` from memory (token must not persist)
 
 //axhos_step
 . *Authenticate as
@@ -91,7 +65,7 @@ valid numeric project number after extracting from name
 
 //axhos_step
 . *Enable Depot Project APIs*:
-.. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `iam`, `secretmanager`, `serviceusage`, `storage`]:
+.. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `iam`, `serviceusage`, `storage`]:
 ... Execute
 {rbtoe_api_enable}
 with service name and `«DEPOT_PROJECT_ID»`
@@ -195,97 +169,17 @@ Permissions*:
 .. {rbtoe_iam_grant_sa} on `«MASON_EMAIL»`
 .. Add member: `serviceAccount:service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
 .. Grant role: `roles/iam.serviceAccountTokenCreator`
-.. NOTE: Cloud Build service agent is Google-provisioned (auto-created when Cloud Build API is enabled), not a user-created service account. The `tokenCreator` role enables build steps running as {rbtr_mason} (via the trigger's `serviceAccount` field) to generate fresh access tokens for GCP API calls — required by the OCI Layout Bridge pattern for GAR authentication (docker login, crane push). This is distinct from `serviceAccountUser` (actAs), which the {rbtr_director} holds on {rbtr_mason} for submitting builds.
+.. NOTE: Cloud Build service agent is Google-provisioned (auto-created when Cloud Build API is enabled), not a user-created service account. The `tokenCreator` role enables build steps running as {rbtr_mason} (via the build JSON's `serviceAccount` field) to generate fresh access tokens for GCP API calls — required for GAR authentication (docker login, crane push). This is distinct from `serviceAccountUser` (actAs), which the {rbtr_director} holds on {rbtr_mason} for submitting builds.
 .. {rbbc_require}
 IAM binding successful
 
-//axhos_step
-. *Store GitLab credentials in Secret Manager (3 secrets)*:
-.. Generate `«WEBHOOK_SECRET»` as random UUID via `uuidgen` (output to temp file, read with bash builtin)
-.. Base64-encode `«GITLAB_TOKEN»` (used for both api and read_api secrets)
-.. Base64-encode `«WEBHOOK_SECRET»`
-.. For each secret (`RBGC_CBV2_API_TOKEN_SECRET_NAME`, `RBGC_CBV2_READ_TOKEN_SECRET_NAME`, `RBGC_CBV2_WEBHOOK_SECRET_NAME`):
-... {rbbc_call}
-link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/create[secrets.create] with:
-.... parent: `projects/«DEPOT_PROJECT_ID»`
-.... secretId: secret name constant
-.... body: `{"replication": {"automatic": {}}}`
-... {rbbc_call}
-link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets.versions/add[secrets.versions.add] with appropriate base64 payload
-... {rbbc_store}
-`«SECRET_VERSION»` from response `.name` field
-.. NOTE: api and read_api secrets store the same token value. Webhook secret is auto-generated UUID. The GitLab project access token must have both `api` and `read_api` scopes — CB v2 verifies `read_api` independently.
-
-//axhos_step
-. *Grant Cloud Build service agent Secret Manager access (all 3 secrets)*:
-.. Construct service agent: `service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
-.. For each of the 3 secrets:
-... {rbtoe_iam_grant_secret} on the secret resource
-... Add Cloud Build service agent with `roles/secretmanager.secretAccessor`
-.. {rbbc_require}
-all IAM bindings successful — existing bindings preserved
-
-//axhos_step
-. *Grant Cloud Build service agent connection admin*:
-.. {rbtoe_iam_grant_project} on `«DEPOT_PROJECT_ID»`
-.. Add `serviceAccount:service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com` with `roles/cloudbuild.connectionAdmin`
-.. {rbbc_require}
-IAM binding successful
-
-//axhos_step
-. *Create CB v2 GitLab Connection*:
-.. Construct connection name: `rbw-«INPUT_DEPOT_NAME»«RBGC_CBV2_CONNECTION_SUFFIX»` (suffix is `-gitlab`)
-.. {rbbc_call}
-link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/create[connections.create] with:
-... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
-... connectionId: `rbw-«INPUT_DEPOT_NAME»-gitlab`
-... body:
-+
-----
-{
-  "gitlabConfig": {
-    "authorizerCredential": {
-      "userTokenSecretVersion": "«API_TOKEN_SECRET_VERSION»"
-    },
-    "readAuthorizerCredential": {
-      "userTokenSecretVersion": "«READ_TOKEN_SECRET_VERSION»"
-    },
-    "webhookSecretSecretVersion": "«WEBHOOK_SECRET_VERSION»"
-  }
-}
-----
-.. {rbbc_await}
-returned {gcp_lro}
-.. {rbbc_store}
-`«CBV2_CONNECTION_NAME»` as `rbw-«INPUT_DEPOT_NAME»-gitlab`
-.. {rbbc_poll}
-link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/get[connections.get] until `installationState.stage` reaches `COMPLETE`
-.. *Retry with backoff on IAM propagation failure*:
-The connection creation LRO serves as the IAM propagation gate (see RBSCIP).
-If the Cloud Build Service Agent cannot yet access the secrets (grant not propagated),
-the LRO fails.  On failure:
-... Delete the zombie connection resource via
-link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/delete[connections.delete]
-(a failed LRO leaves a non-functional connection that blocks re-creation with the same name)
-... Wait per backoff profile (initial 3s, 2x multiplier, cap 20s, deadline 420s)
-... Retry `connections.create` from the top of this step
-.. {rbbc_require}
-connection is COMPLETE or {rbbc_warn} diagnostic checklist ({rbbc_fatal} after):
-... GitLab project access token has both `api` and `read_api` scopes
-... Token is a project access token (not personal)
-... RBRR_RUBRIC_REPO_URL points to correct GitLab project
-
-//axhos_step
-. *Create CB v2 Repository*:
-.. {rbbc_call}
-link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections.repositories/create[repositories.create] with:
-... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}/connections/«CBV2_CONNECTION_NAME»`
-... repositoryId: `«RBGC_CBV2_REPOSITORY_ID»` (constant, currently `rubric`)
-... body: `{"remoteUri": "«RBRR_RUBRIC_REPO_URL»"}`
-.. {rbbc_await}
-returned {gcp_lro}
-.. {rbbc_require}
-repository created successfully
+// GitLab/CBv2 infrastructure steps eliminated (₣Av):
+// - Secret Manager storage (3 GitLab secrets)
+// - Secret Manager access grants for CB service agent
+// - CB service agent connection admin grant
+// - CB v2 GitLab connection creation
+// - CB v2 repository creation
+// Builds now use builds.create with pouch for context delivery — no GitLab connection needed.
 
 //axhoot_typed_output
 {rbtgi_depot}
@@ -297,14 +191,9 @@ required RBRR configuration values:
 ... `RBRR_DEPOT_PROJECT_ID=«DEPOT_PROJECT_ID»`
 ... `RBRR_GCP_REGION={rbrr_gcp_region}`
 ... `RBRR_GAR_REPOSITORY=«GAR_REPOSITORY»`
-... `RBRR_CBV2_CONNECTION_NAME=«CBV2_CONNECTION_NAME»`
 ... `RBRR_GCB_WORKER_POOL=«WORKER_POOL_NAME»`
 .. {rbbc_show}
 Mason service account: `«MASON_EMAIL»`
-.. {rbbc_show}
-CB v2 connection `«CBV2_CONNECTION_NAME»` active with GitLab
-.. {rbbc_show}
-GitLab token stored in Secret Manager (3 secrets: api, read_api, webhook)
 
 //axhoot_typed_output
 {rbtgi_depot}
@@ -314,8 +203,7 @@ GitLab token stored in Secret Manager (3 secrets: api, read_api, webhook)
 to refresh depot project tracking
 
 //axhoc_completion
-Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, private worker pool, CB v2 GitLab connection (COMPLETE), and CB v2 repository linking to the
-{rbtgr_rubric_repo}.
+Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and private worker pool.
 Proceed to
 {rbtgo_governor_reset}
 to create the

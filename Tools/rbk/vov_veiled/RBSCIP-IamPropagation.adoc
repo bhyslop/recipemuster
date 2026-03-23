@@ -19,9 +19,9 @@ readiness gate or fixed sleep delays.
 ==== Rationale
 
 The connection creation LRO tests the actual operation, not a proxy.
-When the Cloud Build Service Agent reads secrets to configure the GitLab connection,
-a successful LRO proves end-to-end readiness: the IAM grant on the secret has propagated,
-the service agent identity is active, and the secret content is valid.
+When the Cloud Build Service Agent accesses resources requiring recently-granted permissions,
+a successful LRO proves end-to-end readiness: the IAM grant has propagated,
+the service agent identity is active, and the resource content is valid.
 
 Fixed `sleep` delays ("sleep and pray") are unreliable:
 

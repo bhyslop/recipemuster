@@ -1,5 +1,7 @@
 ==== Summary
 
+NOTE: SUPERSEDED (₣Av): Trigger dispatch eliminated entirely. Builds now use `builds.create` with pouch for context delivery. This trade study is retained as historical context for the CB v2 connection decision, which itself is now eliminated.
+
 The `triggers.run` REST API cannot dispatch builds against Developer Connect
 repositories. The API's `RunBuildTriggerRequest.source` field only accepts
 `RepoSource` — a 1st generation Cloud Source Repositories type. This is a

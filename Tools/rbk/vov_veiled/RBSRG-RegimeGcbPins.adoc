@@ -15,18 +15,8 @@ RBRG assignment files are found at `.rbk/rbrg.env` and are generated from scratc
 Fully-qualified image reference for ORAS tool used in Cloud Build steps.
 ORAS handles OCI artifact operations beyond container images.
 
-//axhrv_variable
-{rbrg_slsa_verifier_url}
-
-GitHub Releases download URL for the slsa-verifier linux-amd64 binary.
-Used in vouch Cloud Build steps to verify SLSA provenance attestations.
-Refreshed via `rbrg_refresh_binary_pins` which discovers the latest release, downloads the binary, and verifies its checksum against the SLSA provenance attestation (belt and suspenders).
-
-//axhrv_variable
-{rbrg_slsa_verifier_sha256}
-
-SHA256 checksum of the slsa-verifier binary.
-Verified during refresh against both local computation and the SLSA provenance attestation embedded in the release's `.intoto.jsonl` file.
+// slsa-verifier variables eliminated (₣Av) — DSSE envelope verification replaces slsa-verifier
+// {rbrg_slsa_verifier_url} and {rbrg_slsa_verifier_sha256} no longer used
 
 //axhrv_variable
 {rbrg_gcloud_image_ref}

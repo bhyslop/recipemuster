@@ -108,7 +108,7 @@ to update IAM policy on
 `«GOVERNOR_SERVICE_ACCOUNT»` as principal
 .. Add role: `roles/owner` (excluding billing permissions maintained by
 {rbtr_payor})
-.. Add role: `roles/cloudbuild.connectionViewer` (`roles/owner` does not include `cloudbuild.connections.*` permissions required for rubric preflight)
+// roles/cloudbuild.connectionViewer eliminated (₣Av) — CB v2 connections no longer used
 .. Set policy version: 3 for conditional binding support
 .. {rbbc_require}
 IAM policy update successful
@@ -138,18 +138,7 @@ already exists (will be overwritten)
 .. {rbbc_require}
 RBRA file creation successful
 
-//axhos_step
-. *Verify CB v2 Connection Viewer Enforcement*:
-.. NOTE: Skipped if {rbrr_cbv2_connection_name} is not set (governor reset may precede depot creation).
-.. Authenticate as the newly-created {rbtr_governor} using the generated {rbtgi_rbra_file}
-.. {rbbc_call}
-link:https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections/get[connections.get]
-on the CB v2 connection resource
-.. {rbbc_poll}
-with exponential backoff (3s initial, 2x multiplier, 20s cap, 120s deadline) on HTTP 403
-.. {rbbc_require}
-HTTP 200 — `roles/cloudbuild.connectionViewer` grant is enforced, not merely visible in policy
-.. NOTE: IAM policy visibility (binding appears in `getIamPolicy`) does not guarantee enforcement. Only exercising the actual permission confirms propagation is complete (see <<rbscip_trade_study>>).
+// CB v2 Connection Viewer verification step eliminated (₣Av) — CB v2 connections no longer used
 
 //axhoot_typed_output
 {rbtr_governor}

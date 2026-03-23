@@ -21,10 +21,10 @@ The
 grafts an image:
 
 //axhopt_typed_parameter
-{rbtgr_vessel_dir}
+{rbtga_ark}
 . *Validate Input Parameters*:
 .. {rbbc_require}
-vessel directory provided as first argument
+vessel provided as first argument
 .. {rbbc_require}
 local image reference provided as second argument (or defaulted from {rbrv_graft_image})
 .. {rbbc_require}

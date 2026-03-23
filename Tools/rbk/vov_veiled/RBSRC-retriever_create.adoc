@@ -10,12 +10,6 @@ with read-only
 {rbtgi_repository}
 access:
 
-//axhoq_precondition
-* Execute {rbtoe_check_rubric_repo_url} (validates {rbrr_rubric_repo_url} using PAT from Secret Manager)
-
-//axhoq_precondition
-* Execute {rbtoe_check_cbv2_connection} to verify {rbtgi_cbv2_connection} is active
-
 //axhopt_typed_parameter
 {rbtr_retriever}
 . *Validate Input Parameters*:

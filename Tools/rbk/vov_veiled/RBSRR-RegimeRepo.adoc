@@ -141,27 +141,7 @@ Machine type is determined by the pool configuration at creation time, not by in
 Maximum duration for Cloud Build operations before timeout.
 Specified in seconds or duration format (e.g., `3600s`).
 
-//axhrgb_group
-{rbrr_group_cbv2}
-
-Cloud Build v2 connection configuration for GitHub-to-GCP source access used by
-{rbtgo_rubric_inscribe}.
-
-//axhrgv_variable
-{rbrr_cbv2_connection_name}
-
-Short name of the
-{rbtgi_cbv2_connection}
-resource in Cloud Build v2.
-Shared across all vessels in the depot project.
-
-//axhrgv_variable
-{rbrr_rubric_repo_url}
-
-Plain HTTPS URL identifying the
-{rbtgr_rubric_repo}.
-Must be a `gitlab.com` URL.
-No embedded credentials — the GitLab project access token is stored exclusively in Secret Manager.
+// CBv2 group eliminated (₣Av) -- builds.create + pouch replaces triggers; no GitLab connection needed
 
 //axhro_kindle
 {rbkro_kindle}

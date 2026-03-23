@@ -201,9 +201,10 @@ The
 {rbtr_director}
 manages the build lifecycle.
 
-{rbtgo_trigger_build}
+{rbtgo_ark_conjure}
 submits a container build to
-{gcb_service}.
+{gcb_service}
+via `builds.create`.
 The
 {rbtr_mason}
 executes the build within the cloud and publishes the resulting
