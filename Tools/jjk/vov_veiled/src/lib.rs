@@ -22,6 +22,7 @@ pub mod jjrv_validate;
 pub mod jjri_io;
 pub mod jjro_ops;
 pub mod jjru_util;
+pub mod jjrz_gazette;
 pub mod jjrg_gallops;
 pub mod jjrn_notch;
 pub mod jjrnm_markers;
@@ -100,6 +101,9 @@ mod jjtnm_markers;
 
 #[cfg(test)]
 mod jjtu_testdir;
+
+#[cfg(test)]
+mod jjtz_gazette;
 
 // Re-export commonly used types (with RCG prefixes)
 pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark};
