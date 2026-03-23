@@ -3225,9 +3225,10 @@
         "₢AvAAG",
         "₢AvAAH",
         "₢AvAAI",
-        "₢AvAAJ"
+        "₢AvAAJ",
+        "₢AvAAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3414,6 +3415,17 @@
               "text": "## Character\nImplementation work building on settled spec from ₢AvAAI. Mechanical once the spec is clear.\n\n## Goal\nImplement ark_enshrine: GCB job that pulls upstream base image by tag, pushes to GAR, outputs digest. Add RBRV_BASE_IMAGE_[n]_{TAG,SHA} regime variables. Update stitch to resolve base images (SHA present → GAR digest, SHA absent → pass TAG through). Update vouch to record resolution path.\n\n## Steps\n1. Add RBRV_BASE_IMAGE_[123]_{TAG,SHA} to vessel regime (rbrv_regime.sh)\n2. Implement enshrine GCB job builder (stitch JSON for pull+push)\n3. Add enshrine tabtarget and workbench routing\n4. Update conjure stitch to substitute GAR digest when SHA is set\n5. Update vouch to record base image provenance path\n6. Test: enshrine python:3.11-slim, conjure a vessel using it\n\n## Verification\n- Enshrine pulls upstream image and pushes to GAR\n- Conjure with SHA set uses GAR reference\n- Conjure with SHA empty uses upstream tag\n- Vouch records which path was taken",
               "silks": "implement-ark-enshrine-operation",
               "commit": "fa571ce"
+            }
+          ]
+        },
+        "₢AvAAK": {
+          "tacks": [
+            {
+              "ts": "260323-1034",
+              "state": "rough",
+              "text": "## Character\nImplementation work with GCP infrastructure. Builds on settled reliquary design from paddock.\n\n## Goal\nImplement inscribe operation: mirror all tool images (gcloud, docker, binfmt, syft, alpine, oras, skopeo) from upstream registries to a datestamped GAR namespace. Produce reliquary identifier. Update stitch to resolve step image references from reliquary instead of upstream digest pins.\n\n## Steps\n1. Define reliquary GAR namespace scheme (e.g., {repo}/reliquary/{datestamp}/...)\n2. Implement inscribe GCB job: pull each tool image from upstream, tag for GAR, push, record digests\n3. Produce reliquary manifest (datestamp + image-to-digest mapping)\n4. Add RBRV_RELIQUARY vessel regime variable\n5. Update stitch: when RBRV_RELIQUARY is set, resolve all step image refs from reliquary GAR paths instead of upstream RBRG pins\n6. Add inscribe tabtarget and workbench routing\n7. Test: inscribe, then conjure rbev-busybox using reliquary tool images\n\n## Verification\n- Inscribe mirrors all tool images to GAR\n- Conjure with RBRV_RELIQUARY set uses GAR tool image references\n- Built images are identical (same behavior) to upstream-pin builds",
+              "silks": "implement-reliquary-inscribe-tool-images",
+              "commit": "e987152"
             }
           ]
         }
