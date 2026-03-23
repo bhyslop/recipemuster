@@ -572,14 +572,6 @@ rbgg_create_director() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
-  buc_step 'Get project number for Cloud Build SA'
-  rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Get project info"                         "${ZRBGG_INFIX_PROJECT_INFO}"
-
-  local z_project_number
-  z_project_number=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_INFO}" '.projectNumber') \
-    || buc_die "Failed to extract project number"
-
   buc_step 'Adding Cloud Build Editor role (project scope)'
   rbgi_add_project_iam_role                 \
     "${z_token}"                            \
@@ -605,48 +597,8 @@ rbgg_create_director() {
     "serviceAccount:${z_account_email}"     \
     "director-pool"
 
-  buc_step 'Grant Secret Manager access on GitLab api token secret'
-  local -r z_director_secret_resource="projects/${RBRR_DEPOT_PROJECT_ID}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
-  local -r z_director_secret_iam_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_director_secret_resource}:getIamPolicy"
-  rbgu_http_json "GET" "${z_director_secret_iam_get_url}" "${z_token}" "director_secret_get_iam"
-  local z_director_secret_get_code
-  z_director_secret_get_code=$(rbgu_http_code_capture "director_secret_get_iam") || z_director_secret_get_code=""
-  test "${z_director_secret_get_code}" = "200" \
-    || buc_die "Failed to read IAM policy on secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} (HTTP ${z_director_secret_get_code}) — cannot safely add Director binding without reading existing policy"
-
-  # Complete policy: Director + CB service agent both need secretAccessor.
-  # Writing all expected bindings in one setIamPolicy prevents the read-modify-write
-  # race where a stale getIamPolicy could omit depot_create's CB service agent binding.
-  local -r z_cb_service_agent="serviceAccount:service-${z_project_number}@gcp-sa-cloudbuild.${RBGC_SA_EMAIL_DOMAIN}"
-
-  local z_director_secret_partial_policy
-  z_director_secret_partial_policy=$(rbgu_jq_add_member_to_role_capture "director_secret_get_iam" \
-    "roles/secretmanager.secretAccessor" "serviceAccount:${z_account_email}" "") \
-    || buc_die "Failed to add Director binding to secret IAM policy"
-
-  local -r z_secret_intermediate="${BURD_TEMP_DIR}/rbgu_director_secret_complete_iam_u_resp.json"
-  printf '%s\n' "${z_director_secret_partial_policy}" > "${z_secret_intermediate}" \
-    || buc_die "Failed to write intermediate secret IAM policy"
-
-  local z_director_secret_updated_policy
-  z_director_secret_updated_policy=$(rbgu_jq_add_member_to_role_capture "director_secret_complete_iam" \
-    "roles/secretmanager.secretAccessor" "${z_cb_service_agent}" "") \
-    || buc_die "Failed to add CB service agent binding to secret IAM policy"
-
-  local -r z_director_secret_set_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_director_secret_resource}:setIamPolicy"
-  local -r z_director_secret_set_body="${BURD_TEMP_DIR}/rbgg_director_secret_iam.json"
-  printf '{"policy":%s}\n' "${z_director_secret_updated_policy}" > "${z_director_secret_set_body}" \
-    || buc_die "Failed to write director secret IAM policy body"
-
-  rbgu_http_json "POST" "${z_director_secret_set_url}" "${z_token}" "director_secret_set_iam" "${z_director_secret_set_body}"
-  rbgu_http_require_ok "Grant director secret access" "director_secret_set_iam"
-
   buc_step 'Grant serviceAccountUser on Mason'
   rbgi_add_sa_iam_role "${z_token}" "${RBGD_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
-
-  buc_step 'Grant Storage Object Creator on artifacts bucket (only if pre-upload used)'
-  rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectCreator"
-  rbgi_add_bucket_iam_role "${z_token}" "${RBGD_GCS_BUCKET}" "${z_account_email}" "roles/storage.objectViewer"
 
   buc_step 'Grant Artifact Registry roles (complete expected policy)'
   # Complete policy: Director repoAdmin + Mason writer in one setIamPolicy.
