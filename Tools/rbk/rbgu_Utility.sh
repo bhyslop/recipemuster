@@ -801,33 +801,5 @@ rbgu_rbro_load() {
   buc_log_args "RBRO validation successful"
 }
 
-######################################################################
-# Rubric Infrastructure Checks
-
-rbgu_check_rubric_repo_url() {
-  zrbgu_sentinel
-
-  local -r z_url="${1:-}"
-  test -n "${z_url}" || buc_die "Rubric repo URL is empty — set RBRR_RUBRIC_REPO_URL in rbrr.env"
-
-  buc_log_args "Validating rubric repo URL reachability"
-  git ls-remote "${z_url}" HEAD >/dev/null 2>&1 \
-    || buc_die "Rubric repo URL is unreachable — check RBRR_RUBRIC_REPO_URL in rbrr.env"
-
-  buc_log_args "Rubric repo URL validated"
-}
-
-zrbgu_gitlab_tokens_url_capture() {
-  zrbgu_sentinel
-
-  local z_url="${RBRR_RUBRIC_REPO_URL:-}"
-  case "${z_url}" in
-    https://gitlab.com/*) ;;
-    *) return 1 ;;
-  esac
-
-  echo "${z_url%.git}/-/settings/access_tokens"
-}
-
 # eof
 

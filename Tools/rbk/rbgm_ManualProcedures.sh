@@ -406,69 +406,6 @@ rbgm_gitlab_setup() {
   buc_info "GitLab rubric repo setup is no longer required."
   buc_info "Recipe Bottle now uses builds.create + pouch for build context delivery."
   buc_info "No GitLab account, PAT, or CB v2 connection is needed."
-  return 0
-  bug_section  "Why GitLab (not GitHub)?"
-  bug_t        "  GitHub classic PATs grant 'repo' scope across ALL repositories the token"
-  bug_t        "  owner can access. Fine-grained PATs are rejected by Cloud Build v2 connections"
-  bug_t        "  (Google Issue Tracker #343223837). Machine accounts are an alternative but add"
-  bug_t        "  organizational overhead."
-  bug_e
-  bug_t        "  GitLab project access tokens are inherently repository-scoped — they cannot"
-  bug_t        "  access resources outside the associated project. One token, one repo, minimal scope."
-  bug_e
-  bug_section  "Key:"
-  bug_tu       "   Magenta text refers to " "precise words you see on the web page."
-  bug_tc       "   Cyan text is " "something you might copy from here."
-  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
-  bug_e
-  bug_section  "1. Create GitLab Account (if needed):"
-  bug_link     "   Go to: " "GitLab Sign Up" "https://gitlab.com/users/sign_up"
-  bug_t        "   Create a free account if you don't already have one."
-  bug_e
-  bug_section  "2. Create a GitLab Project for the Rubric Repo:"
-  bug_link     "   Go to: " "GitLab New Project" "https://gitlab.com/projects/new#blank_project"
-  bug_tu       "   1. Select " "Create blank project"
-  bug_t        "   2. Configure:"
-  bug_tc       "      - Project name: " "rb-rubric"
-  bug_t        "      - Project slug: auto-fills (leave as-is)"
-  bug_tut      "      - Project deployment target: " "skip" " (leave as 'Select the deployment target')"
-  bug_tut      "      - Visibility Level: " "Private" " (rubric repo has no reason to be public)"
-  bug_tut      "      - Check " "Initialize repository with a README" " (CB v2 needs a non-empty repo)"
-  bug_t        "      - SAST / Secret Detection: leave unchecked (unnecessary for generated build files)"
-  bug_tu       "   3. Click " "Create project"
-  bug_e
-  bug_section  "3. Set RBRR_RUBRIC_REPO_URL:"
-  bug_t        "   After creation, copy the HTTPS clone URL from the project page."
-  bug_tc       "   Example: " "RBRR_RUBRIC_REPO_URL=https://gitlab.com/yourname/rb-rubric.git"
-  bug_tc       "   Edit " "${RBBC_rbrr_file}" " and set this value."
-  bug_e
-  bug_section  "4. Create a Project Access Token:"
-  local z_tokens_url=""
-  z_tokens_url=$(zrbgu_gitlab_tokens_url_capture 2>/dev/null) || z_tokens_url=""
-  if test -n "${z_tokens_url}"; then
-    bug_link     "   Go to: " "Project Access Tokens" "${z_tokens_url}"
-  else
-    bug_t        "   From your rubric repo project page:"
-    bug_tu       "   Left sidebar: " "Settings" " → "
-    bug_tu       "                 " "Access tokens"
-  fi
-  bug_tu       "   Click " "Add new token"
-  bug_t        "   Configure:"
-  bug_tc       "      - Token name: " "rb-depot"
-  bug_t        "      - Token description: (optional, skip)"
-  bug_t        "      - Expiration date: default is 30 days (max 1 year); leave default or extend"
-  bug_tutu     "      - Select a role: change dropdown from " "Guest" " to " "Maintainer"
-  bug_tutu     "      - Select scopes: check both " "api" " and " "read_api"
-  bug_tu       "   Click " "Create project access token"
-  bug_tW       "   4. " "CRITICAL: Copy the token immediately — it won't be shown again"
-  bug_e
-  bug_section  "5. Run Depot Create:"
-  bug_t        "   Run depot_create — it will prompt you to paste the token:"
-  buc_tabtarget "${RBZ_CREATE_DEPOT}" "<depot-name>"
-  bug_t        "   When prompted, paste the token and press Enter."
-  bug_tW       "   " "Do NOT put the token in a command line or pipeline — stdin keeps it out of shell history."
-
-  buc_success "GitLab rubric repo setup guide displayed"
 }
 
 # Dashboard status line — no sentinel (used pre-kindle by onboarding guide)

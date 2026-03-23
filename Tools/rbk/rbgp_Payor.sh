@@ -582,49 +582,6 @@ rbgp_depot_create() {
     buc_die "Depot name must be ${RBGC_GLOBAL_DEPOT_NAME_MAX} characters or less"
   fi
 
-  buc_step 'Validate Rubric Repo URL (GitLab required)'
-  local -r z_rubric_repo_url="${RBRR_RUBRIC_REPO_URL:-}"
-  if test -z "${z_rubric_repo_url}"; then
-    buc_warn "RBRR_RUBRIC_REPO_URL is not set in rbrr.env"
-    buc_info "Set up a GitLab rubric repo first:"
-    buc_tabtarget "${RBZ_GITLAB_SETUP}"
-    buc_die "Cannot proceed without GitLab rubric repo"
-  fi
-
-  # Validate GitLab URL — CB v2 gitlabConfig requires gitlab.com
-  case "${z_rubric_repo_url}" in
-    https://gitlab.com/*) ;;
-    *)
-      buc_warn "RBRR_RUBRIC_REPO_URL is not a gitlab.com URL"
-      buc_info "Only GitLab is supported for CB v2 connections."
-      buc_info "Set up a GitLab rubric repo:"
-      buc_tabtarget "${RBZ_GITLAB_SETUP}"
-      buc_die "Cannot proceed without GitLab rubric repo"
-      ;;
-  esac
-
-  buc_step 'Read GitLab project access token from stdin'
-  buc_info "Rubric repo: ${z_rubric_repo_url}"
-  buc_info "Need a token? Run the setup guide:"
-  buc_tabtarget "${RBZ_GITLAB_SETUP}"
-  local z_gitlab_token=""
-  buc_info "Paste GitLab project access token:"
-  read -r z_gitlab_token || buc_die "Failed to read token from stdin"
-  if test -z "${z_gitlab_token}"; then
-    buc_die "Token is empty"
-  fi
-  buc_log_args "GitLab project access token read from stdin"
-
-  # Construct authenticated URL for validation (token must not persist beyond this check)
-  # Bash builtin substitution: https://gitlab.com/... → https://oauth2:TOKEN@gitlab.com/...
-  local z_auth_url="https://oauth2:${z_gitlab_token}@${z_rubric_repo_url#https://}"
-
-  local -r z_lsremote_stderr="${BURD_TEMP_DIR}/rbgp_lsremote_stderr.txt"
-  git ls-remote "${z_auth_url}" HEAD >/dev/null 2>"${z_lsremote_stderr}" \
-    || buc_die "Rubric repo URL unreachable or token invalid — see ${z_lsremote_stderr}"
-  unset z_auth_url
-  buc_log_args "Rubric repo URL validated"
-
   # Validate region exists in Artifact Registry locations
   buc_log_args 'Validating region exists in Artifact Registry locations'
   local z_token
@@ -710,7 +667,7 @@ rbgp_depot_create() {
   test -n "${z_project_number}" || buc_die "Project number is empty"
 
   buc_step 'Enable depot project APIs'
-  local -r z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis iam secretmanager serviceusage storage"
+  local -r z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis iam serviceusage storage"
   for z_service in ${z_api_services}; do
     rbgu_api_enable "${z_service}" "${z_depot_project_id}" "${z_token}"
   done
@@ -841,296 +798,17 @@ rbgp_depot_create() {
     "roles/logging.logWriter" "serviceAccount:${z_mason_sa_email}" "mason-logs-writer"
 
   buc_step 'Provision Cloud Build service agent'
-  # generateServiceIdentity ensures the default build SA exists ({PN}@cloudbuild.gserviceaccount.com)
-  # but CB v2 connections, secret access, and connection admin use the Cloud Build Service Agent
-  # (service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com) — a different principal.
+  # The Cloud Build Service Agent (service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com)
+  # needs serviceAccountTokenCreator on Mason to impersonate it during builds.create.
   # The service agent is auto-created when the Cloud Build API is enabled; its email is
   # deterministic from the project number. See RBSCIP for the two-SA distinction.
   rbgu_provision_service_agent "cloudbuild" "${z_depot_project_id}" "${z_token}" > /dev/null \
     || buc_die "Failed to provision Cloud Build service agent"
   local -r z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.${RBGC_SA_EMAIL_DOMAIN}"
-  buc_log_args "CB v2 service agent: ${z_cb_service_agent}"
+  buc_log_args "CB service agent: ${z_cb_service_agent}"
 
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
-
-  buc_step 'Store GitLab credentials in Secret Manager (3 secrets)'
-  local -r z_secret_parent="projects/${z_depot_project_id}"
-  local -r z_secret_replication_body="${BURD_TEMP_DIR}/rbgp_secret_replication.json"
-  jq -n '{"replication": {"automatic": {}}}' > "${z_secret_replication_body}" \
-    || buc_die "Failed to build secret replication body"
-
-  # Base64-encode the GitLab token (same value for api and read_api secrets)
-  local z_token_b64
-  z_token_b64=$(printf '%s' "${z_gitlab_token}" | base64) || buc_die "Failed to base64-encode token"
-
-  # Generate webhook secret (random UUID) — uuidgen to temp file, read with builtin
-  local -r z_webhook_uuid_file="${BURD_TEMP_DIR}/rbgp_webhook_uuid.txt"
-  local -r z_webhook_uuid_stderr="${BURD_TEMP_DIR}/rbgp_webhook_uuid_stderr.txt"
-  uuidgen > "${z_webhook_uuid_file}" 2>"${z_webhook_uuid_stderr}" \
-    || buc_die "Failed to generate webhook UUID — see ${z_webhook_uuid_stderr}"
-  local z_webhook_secret
-  z_webhook_secret=$(<"${z_webhook_uuid_file}")
-  test -n "${z_webhook_secret}" || buc_die "Webhook UUID file is empty"
-  # Remove trailing whitespace with bash builtin
-  z_webhook_secret="${z_webhook_secret%"${z_webhook_secret##*[![:space:]]}"}"
-
-  local z_webhook_b64
-  z_webhook_b64=$(printf '%s' "${z_webhook_secret}" | base64) || buc_die "Failed to base64-encode webhook secret"
-
-  # --- Create api token secret ---
-  local -r z_api_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
-  rbgu_http_json "POST" "${z_api_create_url}" "${z_token}" "depot_secret_create_api" "${z_secret_replication_body}"
-  rbgu_http_require_ok "Create secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME}" "depot_secret_create_api"
-
-  local -r z_api_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}:addVersion"
-  jq -n --arg data "${z_token_b64}" '{"payload": {"data": $data}}' \
-    | rbgu_http_json "POST" "${z_api_version_url}" "${z_token}" "depot_secret_version_api" "-"
-  rbgu_http_require_ok "Add api token secret version" "depot_secret_version_api"
-
-  local z_api_token_version
-  z_api_token_version=$(rbgu_json_field_capture "depot_secret_version_api" '.name') \
-    || buc_die "Failed to get api token secret version name"
-  buc_log_args "Secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} stored as ${z_api_token_version}"
-
-  # --- Create read_api token secret (same token value) ---
-  local -r z_read_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_READ_TOKEN_SECRET_NAME}"
-  rbgu_http_json "POST" "${z_read_create_url}" "${z_token}" "depot_secret_create_read" "${z_secret_replication_body}"
-  rbgu_http_require_ok "Create secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME}" "depot_secret_create_read"
-
-  local -r z_read_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_READ_TOKEN_SECRET_NAME}:addVersion"
-  jq -n --arg data "${z_token_b64}" '{"payload": {"data": $data}}' \
-    | rbgu_http_json "POST" "${z_read_version_url}" "${z_token}" "depot_secret_version_read" "-"
-  rbgu_http_require_ok "Add read token secret version" "depot_secret_version_read"
-
-  local z_read_token_version
-  z_read_token_version=$(rbgu_json_field_capture "depot_secret_version_read" '.name') \
-    || buc_die "Failed to get read token secret version name"
-  buc_log_args "Secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME} stored as ${z_read_token_version}"
-
-  # --- Create webhook secret (auto-generated UUID) ---
-  local -r z_wh_create_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets?secretId=${RBGC_CBV2_WEBHOOK_SECRET_NAME}"
-  rbgu_http_json "POST" "${z_wh_create_url}" "${z_token}" "depot_secret_create_webhook" "${z_secret_replication_body}"
-  rbgu_http_require_ok "Create secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME}" "depot_secret_create_webhook"
-
-  local -r z_wh_version_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_parent}/secrets/${RBGC_CBV2_WEBHOOK_SECRET_NAME}:addVersion"
-  jq -n --arg data "${z_webhook_b64}" '{"payload": {"data": $data}}' \
-    | rbgu_http_json "POST" "${z_wh_version_url}" "${z_token}" "depot_secret_version_webhook" "-"
-  rbgu_http_require_ok "Add webhook secret version" "depot_secret_version_webhook"
-
-  local z_webhook_version
-  z_webhook_version=$(rbgu_json_field_capture "depot_secret_version_webhook" '.name') \
-    || buc_die "Failed to get webhook secret version name"
-  buc_log_args "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME} stored as ${z_webhook_version}"
-
-  buc_step 'Verify secret propagation before IAM grants'
-  local -r z_api_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
-  local -r z_read_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_READ_TOKEN_SECRET_NAME}"
-  local -r z_wh_secret_resource="${z_secret_parent}/secrets/${RBGC_CBV2_WEBHOOK_SECRET_NAME}"
-  rbgu_poll_until_ok "Secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME}" \
-    "${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_api_secret_resource}:getIamPolicy" \
-    "${z_token}" "secret_propagate_api"
-  rbgu_poll_until_ok "Secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME}" \
-    "${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_read_secret_resource}:getIamPolicy" \
-    "${z_token}" "secret_propagate_read"
-  rbgu_poll_until_ok "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME}" \
-    "${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_wh_secret_resource}:getIamPolicy" \
-    "${z_token}" "secret_propagate_webhook"
-
-  buc_step 'Grant Cloud Build service agent Secret Manager access (all 3 secrets)'
-
-  rbgi_grant_secret_iam "${z_token}" "${z_api_secret_resource}" \
-    "serviceAccount:${z_cb_service_agent}" "roles/secretmanager.secretAccessor" \
-    "depot_secret_iam_api"
-
-  rbgi_grant_secret_iam "${z_token}" "${z_read_secret_resource}" \
-    "serviceAccount:${z_cb_service_agent}" "roles/secretmanager.secretAccessor" \
-    "depot_secret_iam_read"
-
-  rbgi_grant_secret_iam "${z_token}" "${z_wh_secret_resource}" \
-    "serviceAccount:${z_cb_service_agent}" "roles/secretmanager.secretAccessor" \
-    "depot_secret_iam_webhook"
-
-  buc_step 'Grant Cloud Build service agent connection admin'
-  rbgi_add_project_iam_role "${z_token}" "Grant CB Connection Admin" "projects/${z_depot_project_id}" \
-    "roles/cloudbuild.connectionAdmin" "serviceAccount:${z_cb_service_agent}" "cb-conn-admin"
-
-  buc_step 'Create CB v2 GitLab connection with IAM propagation retry'
-  # Connection creation serves as the IAM propagation gate (see RBSCIP).
-  # If the CB Service Agent cannot yet access secrets, the LRO fails.
-  # Retry with backoff, deleting zombie connections between attempts.
-  local -r z_cbv2_connection_name="rbw-${z_depot_name}${RBGC_CBV2_CONNECTION_SUFFIX}"
-  local -r z_cbv2_parent="projects/${z_depot_project_id}/locations/${z_region}"
-  local -r z_cbv2_create_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections?connectionId=${z_cbv2_connection_name}"
-  local -r z_cbv2_create_body="${BURD_TEMP_DIR}/rbgp_cbv2_connection.json"
-  local -r z_cbv2_zombie_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}"
-
-  jq -n \
-    --arg apiVersion "${z_api_token_version}" \
-    --arg readVersion "${z_read_token_version}" \
-    --arg webhookVersion "${z_webhook_version}" \
-    '{
-      gitlabConfig: {
-        authorizerCredential: {
-          userTokenSecretVersion: $apiVersion
-        },
-        readAuthorizerCredential: {
-          userTokenSecretVersion: $readVersion
-        },
-        webhookSecretSecretVersion: $webhookVersion
-      }
-    }' > "${z_cbv2_create_body}" \
-    || buc_die "Failed to build CB v2 connection body"
-
-  local z_conn_delay=3
-  local -r z_conn_deadline=420
-  local z_conn_attempt=0
-  local z_conn_succeeded=false
-  local z_conn_start_epoch=""
-  date +%s > "${ZRBGP_SCRATCH_FILE}" || buc_die "Failed to capture epoch for connection retry deadline"
-  z_conn_start_epoch=$(<"${ZRBGP_SCRATCH_FILE}")
-  local z_zombie_code=""
-  local z_zombie_del_code=""
-  local z_lro_infix=""
-  local z_lro_status=0
-  local z_cbv2_poll_count=0
-  local z_cbv2_max_polls=0
-  local z_cbv2_stage=""
-  local z_cbv2_poll_infix=""
-  local z_cbv2_poll_code=""
-  local z_conn_now_epoch=""
-  local z_conn_wall_elapsed=0
-
-  while :; do
-    z_conn_attempt=$((z_conn_attempt + 1))
-
-    # Clean up zombie connection (failed prior attempt or previous depot_create run)
-    buc_log_args "Connection attempt ${z_conn_attempt}: check for zombie connection"
-    rbgu_http_json "GET" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_check"
-    z_zombie_code=""
-    z_zombie_code=$(rbgu_http_code_capture "depot_cbv2_zombie_check") || z_zombie_code=""
-    if test "${z_zombie_code}" = "200"; then
-      buc_log_args 'Zombie connection found — deleting before re-creation'
-      rbgu_http_json "DELETE" "${z_cbv2_zombie_url}" "${z_token}" "depot_cbv2_zombie_delete"
-      z_zombie_del_code=""
-      z_zombie_del_code=$(rbgu_http_code_capture "depot_cbv2_zombie_delete") || z_zombie_del_code=""
-      if test "${z_zombie_del_code}" != "200" && test "${z_zombie_del_code}" != "404"; then
-        buc_log_args "Zombie connection DELETE returned HTTP ${z_zombie_del_code} (non-fatal, proceeding)"
-      fi
-      sleep 3
-    fi
-
-    # Attempt connection creation (LRO) in isolation subshell (BCG Variant 2).
-    # buc_die inside rbgu_http_json_lro_ok terminates the subshell, not the retry loop.
-    buc_log_args "Connection attempt ${z_conn_attempt}: creating CB v2 GitLab connection"
-    z_lro_infix="depot_cbv2_create_${z_conn_attempt}"
-    z_lro_status=0
-    (
-      rbgu_http_json_lro_ok \
-        "Create CB v2 GitLab connection (attempt ${z_conn_attempt})" \
-        "${z_token}" \
-        "${z_cbv2_create_url}" \
-        "${z_lro_infix}" \
-        "${z_cbv2_create_body}" \
-        ".name" \
-        "${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}" \
-        "${RBGC_OP_PREFIX_GLOBAL}" \
-        "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
-        "${RBGC_MAX_CONSISTENCY_SEC}" \
-        || buc_die "LRO failed"
-    ) 2>"${BURD_TEMP_DIR}/rbgp_cbv2_lro_stderr_${z_conn_attempt}" || z_lro_status=$?
-
-    if test "${z_lro_status}" = "0"; then
-      # LRO succeeded — poll connection until installationState reaches COMPLETE
-      buc_step 'Verify CB v2 connection is active'
-      z_cbv2_poll_count=0
-      z_cbv2_max_polls=$(( RBGC_MAX_CONSISTENCY_SEC / RBGC_EVENTUAL_CONSISTENCY_SEC ))
-      z_cbv2_stage=""
-
-      while true; do
-        z_cbv2_poll_infix="depot_cbv2_poll_${z_cbv2_poll_count}"
-        rbgu_http_json "GET" "${z_cbv2_zombie_url}" "${z_token}" "${z_cbv2_poll_infix}"
-
-        z_cbv2_poll_code=""
-        z_cbv2_poll_code=$(rbgu_http_code_capture "${z_cbv2_poll_infix}") || z_cbv2_poll_code=""
-
-        if test "${z_cbv2_poll_code}" = "200"; then
-          z_cbv2_stage=$(rbgu_json_field_capture "${z_cbv2_poll_infix}" '.installationState.stage // "UNKNOWN"') \
-            || buc_die "Failed to parse CB v2 connection stage"
-
-          if test "${z_cbv2_stage}" = "COMPLETE"; then
-            buc_log_args "CB v2 connection active"
-            z_conn_succeeded=true
-            break
-          fi
-        elif test "${z_cbv2_poll_code}" = "404"; then
-          z_cbv2_stage="NOT_FOUND"
-        else
-          buc_warn "Unexpected HTTP ${z_cbv2_poll_code} — check temp dir for infix: ${z_cbv2_poll_infix}"
-          buc_die "Poll CB v2 connection: unexpected HTTP ${z_cbv2_poll_code}"
-        fi
-
-        z_cbv2_poll_count=$((z_cbv2_poll_count + 1))
-        test "${z_cbv2_poll_count}" -lt "${z_cbv2_max_polls}" \
-          || {
-            buc_warn "CB v2 connection stuck at stage: ${z_cbv2_stage}"
-            buc_warn "Diagnosis: check temp dir for infixes: ${z_lro_infix}, ${z_cbv2_poll_infix}"
-            buc_warn "Verify: GitLab project access token has api scope"
-            buc_warn "Verify: Token is a project access token (not personal)"
-            buc_warn "Verify: RBRR_RUBRIC_REPO_URL points to correct GitLab project"
-            buc_die  "CB v2 connection failed to reach COMPLETE"
-          }
-
-        buc_log_args "CB v2 connection stage: ${z_cbv2_stage} (poll ${z_cbv2_poll_count}/${z_cbv2_max_polls})"
-        sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
-      done
-
-      test "${z_conn_succeeded}" != "true" || break
-    fi
-
-    # LRO failed — likely IAM propagation delay (service agent cannot read secrets yet)
-    z_conn_now_epoch=""
-    date +%s > "${ZRBGP_SCRATCH_FILE}" || buc_die "Failed to capture epoch for elapsed time"
-    z_conn_now_epoch=$(<"${ZRBGP_SCRATCH_FILE}")
-    z_conn_wall_elapsed=$((z_conn_now_epoch - z_conn_start_epoch))
-    buc_log_args "Connection attempt ${z_conn_attempt} did not succeed (${z_conn_wall_elapsed}s elapsed) — retrying"
-    buc_log_args "LRO details in: ${BURD_TEMP_DIR}/rbgp_cbv2_lro_stderr_${z_conn_attempt}"
-
-    test "${z_conn_wall_elapsed}" -lt "${z_conn_deadline}" \
-      || {
-        buc_warn "Connection retry deadline exceeded after ${z_conn_wall_elapsed}s (${z_conn_attempt} attempts)"
-        buc_warn "LRO stderr captured in: ${BURD_TEMP_DIR}/rbgp_cbv2_lro_stderr_${z_conn_attempt}"
-        buc_warn "Verify: CB Service Agent has roles/secretmanager.secretAccessor on all 3 secrets"
-        buc_warn "Verify: GitLab project access token has api scope"
-        buc_warn "Verify: Token is a project access token (not personal)"
-        buc_warn "Verify: RBRR_RUBRIC_REPO_URL points to correct GitLab project"
-        buc_die  "CB v2 connection creation failed after retry deadline"
-      }
-
-    buc_log_args "Backoff ${z_conn_delay}s before retry"
-    sleep "${z_conn_delay}"
-    z_conn_delay=$((z_conn_delay * 2))
-    test "${z_conn_delay}" -le 20 || z_conn_delay=20
-  done
-
-  buc_step 'Create CB v2 repository'
-  local -r z_cbv2_repo_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_parent}/connections/${z_cbv2_connection_name}/repositories?repositoryId=${RBGC_CBV2_REPOSITORY_ID}"
-  local -r z_cbv2_repo_body="${BURD_TEMP_DIR}/rbgp_cbv2_repository.json"
-
-  jq -n --arg remoteUri "${z_rubric_repo_url}" '{"remoteUri": $remoteUri}' > "${z_cbv2_repo_body}" \
-    || buc_die "Failed to build CB v2 repository body"
-
-  rbgu_http_json_lro_ok \
-    "Create CB v2 repository" \
-    "${z_token}" \
-    "${z_cbv2_repo_url}" \
-    "depot_cbv2_repo_create" \
-    "${z_cbv2_repo_body}" \
-    ".name" \
-    "${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}" \
-    "${RBGC_OP_PREFIX_GLOBAL}" \
-    "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
-    "${RBGC_MAX_CONSISTENCY_SEC}"
 
   buc_step 'Update depot tracking'
   zrbgp_depot_list_update || buc_die "Failed to update depot tracking after creation"
@@ -1138,13 +816,10 @@ rbgp_depot_create() {
   buc_step 'Display depot configuration'
   buc_success 'Depot creation successful'
   buc_info "Mason service account: ${z_mason_sa_email}"
-  buc_info "CB v2 connection '${z_cbv2_connection_name}' active with GitLab"
-  buc_info "GitLab token stored in Secret Manager (3 secrets: api, read_api, webhook)"
   buc_info "Update RBRR configuration:"
   buc_bare "  RBRR_DEPOT_PROJECT_ID=${z_depot_project_id}"
   buc_bare "  RBRR_GCP_REGION=${z_region}"
   buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
-  buc_bare "  RBRR_CBV2_CONNECTION_NAME=${z_cbv2_connection_name}"
   buc_bare "  RBRR_GCB_WORKER_POOL=${z_pool_resource}"
   buc_info "Next: create Governor for this depot:"
   buc_tabtarget "${RBZ_GOVERNOR_RESET}"
@@ -1242,65 +917,6 @@ rbgp_depot_destroy() {
   case "${z_pool_del_code}" in
     200|204|404) buc_log_args "Worker pool ${z_pool_id} cleanup: HTTP ${z_pool_del_code}" ;;
     *) buc_warn "Worker pool cleanup failed: HTTP ${z_pool_del_code} — proceeding" ;;
-  esac
-
-  buc_step 'Delete CB v2 repository (if exists)'
-  local -r z_cbv2_conn="${RBRR_CBV2_CONNECTION_NAME:-}"
-  if test -n "${z_cbv2_conn}"; then
-    local -r z_cbv2_repo_res="projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn}/repositories/${RBGC_CBV2_REPOSITORY_ID}"
-    local -r z_cbv2_repo_del_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_repo_res}"
-    rbgu_http_json "DELETE" "${z_cbv2_repo_del_url}" "${z_token}" "depot_destroy_cbv2_repo"
-    local z_cbv2_repo_del_code
-    z_cbv2_repo_del_code=$(rbgu_http_code_capture "depot_destroy_cbv2_repo") || z_cbv2_repo_del_code=""
-    case "${z_cbv2_repo_del_code}" in
-      200|204|404) buc_log_args "CB v2 repository cleanup: HTTP ${z_cbv2_repo_del_code}" ;;
-      *) buc_warn "CB v2 repository cleanup failed: HTTP ${z_cbv2_repo_del_code} — proceeding" ;;
-    esac
-  fi
-
-  buc_step 'Delete CB v2 connection (if exists)'
-  if test -n "${z_cbv2_conn}"; then
-    local -r z_cbv2_conn_res="projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn}"
-    local -r z_cbv2_conn_del_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/${z_cbv2_conn_res}"
-    rbgu_http_json "DELETE" "${z_cbv2_conn_del_url}" "${z_token}" "depot_destroy_cbv2_conn"
-    local z_cbv2_conn_del_code
-    z_cbv2_conn_del_code=$(rbgu_http_code_capture "depot_destroy_cbv2_conn") || z_cbv2_conn_del_code=""
-    case "${z_cbv2_conn_del_code}" in
-      200|204|404) buc_log_args "CB v2 connection cleanup: HTTP ${z_cbv2_conn_del_code}" ;;
-      *) buc_warn "CB v2 connection cleanup failed: HTTP ${z_cbv2_conn_del_code} — proceeding" ;;
-    esac
-  fi
-
-  buc_step 'Delete Secret Manager secrets (3 GitLab secrets)'
-
-  # --- Delete api token secret ---
-  local -r z_api_del_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_API_TOKEN_SECRET_NAME}"
-  rbgu_http_json "DELETE" "${z_api_del_url}" "${z_token}" "depot_destroy_secret_api"
-  local z_api_del_code
-  z_api_del_code=$(rbgu_http_code_capture "depot_destroy_secret_api") || z_api_del_code=""
-  case "${z_api_del_code}" in
-    200|204|404) buc_log_args "Secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} cleanup: HTTP ${z_api_del_code}" ;;
-    *) buc_warn "Secret ${RBGC_CBV2_API_TOKEN_SECRET_NAME} cleanup failed: HTTP ${z_api_del_code} — proceeding" ;;
-  esac
-
-  # --- Delete read_api token secret ---
-  local -r z_read_del_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_READ_TOKEN_SECRET_NAME}"
-  rbgu_http_json "DELETE" "${z_read_del_url}" "${z_token}" "depot_destroy_secret_read"
-  local z_read_del_code
-  z_read_del_code=$(rbgu_http_code_capture "depot_destroy_secret_read") || z_read_del_code=""
-  case "${z_read_del_code}" in
-    200|204|404) buc_log_args "Secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME} cleanup: HTTP ${z_read_del_code}" ;;
-    *) buc_warn "Secret ${RBGC_CBV2_READ_TOKEN_SECRET_NAME} cleanup failed: HTTP ${z_read_del_code} — proceeding" ;;
-  esac
-
-  # --- Delete webhook secret ---
-  local -r z_wh_del_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/projects/${z_depot_project_id}/secrets/${RBGC_CBV2_WEBHOOK_SECRET_NAME}"
-  rbgu_http_json "DELETE" "${z_wh_del_url}" "${z_token}" "depot_destroy_secret_webhook"
-  local z_wh_del_code
-  z_wh_del_code=$(rbgu_http_code_capture "depot_destroy_secret_webhook") || z_wh_del_code=""
-  case "${z_wh_del_code}" in
-    200|204|404) buc_log_args "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME} cleanup: HTTP ${z_wh_del_code}" ;;
-    *) buc_warn "Secret ${RBGC_CBV2_WEBHOOK_SECRET_NAME} cleanup failed: HTTP ${z_wh_del_code} — proceeding" ;;
   esac
 
   buc_step 'Initiate depot deletion'
@@ -1610,17 +1226,6 @@ rbgp_governor_reset() {
     "serviceAccount:${z_governor_email}" \
     "governor-owner"
 
-  # roles/owner does not include cloudbuild.connections.* permissions (CB v2).
-  # Governor needs connectionViewer for rubric preflight in create_director/create_retriever.
-  buc_step 'Grant CB v2 connection viewer on depot project'
-  rbgi_add_project_iam_role \
-    "${z_token}" \
-    "Grant Governor CB Connection Viewer" \
-    "projects/${z_depot_project_id}" \
-    "roles/cloudbuild.connectionViewer" \
-    "serviceAccount:${z_governor_email}" \
-    "governor-cb-conn-viewer"
-
   buc_step 'Generate service account key (with propagation retry)'
   local -r z_key_req="${BURD_TEMP_DIR}/rbgp_governor_key_request.json"
   printf '%s' '{"privateKeyType": "TYPE_GOOGLE_CREDENTIALS_FILE"}' > "${z_key_req}"
@@ -1687,52 +1292,6 @@ rbgp_governor_reset() {
   test -f "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
 
   rm -f "${z_key_json}" || buc_die "Failed to remove temp key file: ${z_key_json}"
-
-  # Verify CB v2 connectionViewer grant is enforced before declaring success.
-  # Exercise the actual permission with Governor credentials (Pattern B).
-  # Skip if no CB v2 connection configured (governor_reset can precede depot_create).
-  local -r z_cbv2_conn_name="${RBRR_CBV2_CONNECTION_NAME:-}"
-  if test -n "${z_cbv2_conn_name}"; then
-    buc_step 'Verify CB v2 connection viewer enforcement'
-
-    local -r z_cbv2_verify_url="${RBGC_API_ROOT_CLOUDBUILD_V2}${RBGC_CLOUDBUILD_V2}/projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}/connections/${z_cbv2_conn_name}"
-    local z_cbv2_verify_delay=3
-    local z_cbv2_verify_elapsed=0
-    local -r z_cbv2_verify_deadline=120
-    local z_gov_token=""
-    local z_cbv2_verify_code=""
-    local z_cbv2_verify_infix=""
-
-    while :; do
-      # Token acquisition may fail while SA key propagates to Google's OAuth endpoint.
-      # Retry both token failure and permission denial within the same loop.
-      z_gov_token=""
-      z_gov_token=$(rbgo_get_token_capture "${z_rbra_file}") || z_gov_token=""
-
-      z_cbv2_verify_code="TOKEN_FAIL"
-      if test -n "${z_gov_token}"; then
-        z_cbv2_verify_infix="gov_cbv2_verify_${z_cbv2_verify_elapsed}s"
-        rbgu_http_json "GET" "${z_cbv2_verify_url}" "${z_gov_token}" "${z_cbv2_verify_infix}"
-        z_cbv2_verify_code=$(rbgu_http_code_capture "${z_cbv2_verify_infix}") || z_cbv2_verify_code="NO_CODE"
-      fi
-
-      if test "${z_cbv2_verify_code}" = "200"; then
-        buc_log_args "CB v2 connectionViewer grant enforced after ${z_cbv2_verify_elapsed}s"
-        break
-      fi
-
-      z_cbv2_verify_elapsed=$((z_cbv2_verify_elapsed + z_cbv2_verify_delay))
-      test "${z_cbv2_verify_elapsed}" -lt "${z_cbv2_verify_deadline}" \
-        || buc_die "CB v2 connectionViewer grant not enforced after ${z_cbv2_verify_deadline}s — last status: ${z_cbv2_verify_code}"
-
-      buc_log_args "CB v2 verification not ready (${z_cbv2_verify_code}, ${z_cbv2_verify_elapsed}s elapsed) — retrying"
-      sleep "${z_cbv2_verify_delay}"
-      z_cbv2_verify_delay=$((z_cbv2_verify_delay * 2))
-      test "${z_cbv2_verify_delay}" -le 20 || z_cbv2_verify_delay=20
-    done
-  else
-    buc_log_args "No RBRR_CBV2_CONNECTION_NAME set — skipping CB v2 verification"
-  fi
 
   buc_success "Governor reset completed successfully"
   buc_info "Governor service account: ${z_governor_email}"
