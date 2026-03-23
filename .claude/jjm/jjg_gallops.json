@@ -3646,6 +3646,13 @@
         "₢AwAAI": {
           "tacks": [
             {
+              "ts": "260323-1033",
+              "state": "complete",
+              "text": "Implement gazette-based input for write operations: jjx_enroll (slate), jjx_revise_docket (reslate), and jjx_paddock setter.\n\n## Scope\n\nWire gazette parsing into three input-consuming operations:\n\n1. **jjx_enroll** — accept gazette with {jjezs_slate} slug. Parse input, extract silks from lede, docket from content, invoke enroll logic.\n\n2. **jjx_revise_docket** — accept gazette with {jjezs_reslate} slug. Parse input, extract coronet from lede, docket from content, invoke revise logic. Support mass reslate: multiple {jjezs_reslate} notices in one gazette, each with a different coronet lede.\n\n3. **jjx_paddock setter** — accept gazette with {jjezs_paddock} slug. Parse input, extract firemark from lede, content from body, invoke paddock write logic.\n\n## Testing\n\nFor each operation: valid input, error cases (unknown slugs, missing ledes, malformed content), gazette diagnostic quality for LLM consumption.\n\n## Depends on\n\n₢AwAAO (implement-gazette-rust) — needs working jjrz_parse",
+              "silks": "implement-jjf-input-operations",
+              "commit": "d4152fa"
+            },
+            {
               "ts": "260321-1328",
               "state": "rough",
               "text": "Implement gazette-based input for write operations: jjx_enroll (slate), jjx_revise_docket (reslate), and jjx_paddock setter.\n\n## Scope\n\nWire gazette parsing into three input-consuming operations:\n\n1. **jjx_enroll** — accept gazette with {jjezs_slate} slug. Parse input, extract silks from lede, docket from content, invoke enroll logic.\n\n2. **jjx_revise_docket** — accept gazette with {jjezs_reslate} slug. Parse input, extract coronet from lede, docket from content, invoke revise logic. Support mass reslate: multiple {jjezs_reslate} notices in one gazette, each with a different coronet lede.\n\n3. **jjx_paddock setter** — accept gazette with {jjezs_paddock} slug. Parse input, extract firemark from lede, content from body, invoke paddock write logic.\n\n## Testing\n\nFor each operation: valid input, error cases (unknown slugs, missing ledes, malformed content), gazette diagnostic quality for LLM consumption.\n\n## Depends on\n\n₢AwAAO (implement-gazette-rust) — needs working jjrz_parse",
