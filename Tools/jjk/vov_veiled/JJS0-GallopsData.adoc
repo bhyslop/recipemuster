@@ -138,7 +138,6 @@
 :jjdo_orient:         <<jjdo_orient,jjx_orient>>
 :jjdo_search:          <<jjdo_search,jjx_search>>
 :jjdo_enroll:          <<jjdo_enroll,jjx_enroll>>
-:jjdo_revise_docket:  <<jjdo_revise_docket,jjx_revise_docket>>
 :jjdo_relabel:        <<jjdo_relabel,jjx_relabel>>
 :jjdo_drop:           <<jjdo_drop,jjx_drop>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
@@ -297,7 +296,7 @@ The {jjdx_mcp} holds no {jjdgr_gallops} state between calls.
 +
 Operations that previously read text from stdin (
 {jjdo_enroll},
-{jjdo_revise_docket},
+{jjsoprd_revise_docket},
 {jjdo_transfer},
 {jjdo_close},
 {jjdo_landing})
@@ -447,7 +446,7 @@ Maps to {jjdo_enroll}.
 //axl_voices axi_cc_claudemd_verb
 {jjsuv_reslate}::
 Revise a {jjdpr_pace_p} docket.
-Maps to {jjdo_revise_docket}.
+Maps to {jjsoprd_revise_docket}.
 
 [[jjsuv_wrap]]
 //axl_voices axi_cc_claudemd_verb
@@ -1290,27 +1289,6 @@ include::JJSCRL-rail.adoc[]
 ==== {jjdo_relocate}
 
 include::JJSCDR-draft.adoc[]
-
-[[jjdo_revise_docket]]
-//axl_voices axi_cli_subcommand
-==== {jjdo_revise_docket}
-
-Update a {jjdpr_pace_p} docket text.
-
-{jjds_arguments}
-
-* {jjdt_coronet} — target {jjdpr_pace}.
-
-* `docket` (string, required) — new docket text.
-
-{jjds_exit_uniform} 0 success, non-zero error.
-
-{jjds_behavior}
-
-. {jjdr_load}
-. Verify {jjdpr_pace} exists
-. Update docket text on {jjdpr_pace}
-. {jjdr_save}
 
 [[jjdo_relabel]]
 //axl_voices axi_cli_subcommand
