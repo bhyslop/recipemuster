@@ -3676,6 +3676,13 @@
         "₢AwAAL": {
           "tacks": [
             {
+              "ts": "260323-1004",
+              "state": "complete",
+              "text": "Delete `jjdo_revise_docket` from JJS0. Remove its mapping entry, anchor, definition site, and voicing. Update all references within JJS0 to use `{jjsoprd_revise_docket}` instead. This sets the precedent: each migrated operation deletes its old `jjdo_*` term, gradually emptying the legacy Operations section as the new jjsop/jjsgm tree fills.",
+              "silks": "retire-jjdo-revise-docket",
+              "commit": "6751297"
+            },
+            {
               "ts": "260318-1941",
               "state": "rough",
               "text": "Delete `jjdo_revise_docket` from JJS0. Remove its mapping entry, anchor, definition site, and voicing. Update all references within JJS0 to use `{jjsoprd_revise_docket}` instead. This sets the precedent: each migrated operation deletes its old `jjdo_*` term, gradually emptying the legacy Operations section as the new jjsop/jjsgm tree fills.",
