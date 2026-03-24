@@ -266,7 +266,7 @@ caching state between calls would produce stale reads when multiple sessions wri
 === MCP Transport
 
 [[jjdx_mcp]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_longrunning
 {jjdx_mcp}::
 The `vvx mcp` subcommand starts a long-lived stdio server implementing the Model Context Protocol (MCP) specification version 2025-11-25.
 The server communicates via JSON-RPC 2.0 over stdin/stdout.
@@ -1101,13 +1101,13 @@ Section header introducing operation behavior steps.
 == CLI
 
 [[jjdx_vvx]]
-//axl_voices axi_cli_program
+//axl_voices axo_entity
 {jjdx_vvx}::
 The Voce Viva executor.
 Local reference to the VVK-defined CLI program that hosts Job Jockey.
 
 [[jjdx_cli]]
-//axl_voices axi_cli_command_group
+//axl_voices axo_entity
 {jjdx_cli}::
 The historical Job Jockey CLI command group within
 {jjdx_vvx}.
@@ -1267,31 +1267,31 @@ The {jjdx_mcp} resolves the {jjdgr_gallops} path internally.
 === Write Operations
 
 [[jjdo_create]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_create}
 
 include::JJSCNO-nominate.adoc[]
 
 [[jjdo_enroll]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_enroll}
 
 include::JJSCSL-slate.adoc[]
 
 [[jjdo_reorder]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_reorder}
 
 include::JJSCRL-rail.adoc[]
 
 [[jjdo_relocate]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_relocate}
 
 include::JJSCDR-draft.adoc[]
 
 [[jjdo_relabel]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_relabel}
 
 Rename a {jjdpr_pace_p} silks.
@@ -1312,7 +1312,7 @@ Rename a {jjdpr_pace_p} silks.
 . {jjdr_save}
 
 [[jjdo_drop]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_drop}
 
 Set a {jjdpr_pace_p} state to {jjdpe_abandoned}.
@@ -1331,25 +1331,25 @@ Set a {jjdpr_pace_p} state to {jjdpe_abandoned}.
 . {jjdr_save}
 
 [[jjdo_alter]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_alter}
 
 include::JJSCFU-furlough.adoc[]
 
 [[jjdo_continue]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_continue}
 
 include::JJSCGL-garland.adoc[]
 
 [[jjdo_transfer]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_transfer}
 
 include::JJSCRS-restring.adoc[]
 
 [[jjdo_archive]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_archive}
 
 include::JJSCRT-retire.adoc[]
@@ -1357,49 +1357,49 @@ include::JJSCRT-retire.adoc[]
 === Read Operations
 
 [[jjdo_validate]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_validate}
 
 include::JJSCVL-validate.adoc[]
 
 [[jjdo_list]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_list}
 
 include::JJSCMU-muster.adoc[]
 
 [[jjdo_get_brief]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_get_brief}
 
 include::JJSCGS-get-spec.adoc[]
 
 [[jjdo_get_coronets]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_get_coronets}
 
 include::JJSCGC-get-coronets.adoc[]
 
 [[jjdo_landing]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_landing}
 
 include::JJSCLD-landing.adoc[]
 
 [[jjdo_orient]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_orient}
 
 include::JJSCSD-saddle.adoc[]
 
 [[jjdo_search]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_search}
 
 include::JJSCSC-scout.adoc[]
 
 [[jjdo_show]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_show}
 
 include::JJSCPD-parade.adoc[]
@@ -1496,13 +1496,13 @@ Heat-level action codes:
 NOTE: Officium markers migrated to VVC INVITATORY (vvb:...:i:), see VOS0-VoxObscuraSpec.adoc
 
 [[jjdo_log]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_log}
 
 include::JJSCRN-rein.adoc[]
 
 [[jjdo_record]]
-//axl_voices axi_cli_subcommand
+//axvo_procedure axd_transient
 ==== {jjdo_record}
 
 include::JJSCNC-notch.adoc[]
