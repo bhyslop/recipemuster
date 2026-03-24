@@ -268,6 +268,7 @@
 :axt_enum_value:                      <<axt_enum_value,Enum Value>>
 :axt_enum_value_s:                    <<axt_enum_value,Enum Values>>
 :axt_enumeration:                     <<axt_enumeration,Enumeration Type>>
+:axt_map:                             <<axt_map,Map Type>>
 :axt_number:                          <<axt_number,Number Type>>
 :axt_object:                          <<axt_object,Object Type>>
 :axt_string:                          <<axt_string,String Type>>
@@ -737,6 +738,17 @@ A
 representing named field collection forming a composite type.
 Contains typed fields with defined cardinality.
 
+[[axt_map]]
+{axt_map}::
+A
+{axl_motif}
+representing a dictionary structure with typed keys and typed values.
+2-arity: reads two
+{mcm_attribute_reference_s}
+from following text — the first identifies the key type, the second identifies the value type.
+Keys are unique within the map; values are accessed by key lookup.
+Serialization format determines key ordering guarantees and key type constraints (e.g., JSON restricts keys to strings).
+
 [[axt_enumeration]]
 {axt_enumeration}::
 A
@@ -851,11 +863,25 @@ representing a named, typed element within an
 {axr_record}.
 Inherits serialization format from parent
 {axr_record}.
+1-arity: reads one
+{mcm_intaglio}
+from following text — the serialized property name (e.g., the JSON key).
+The
+{mcm_intaglio}
+is the exact wire-level name; the
+{mcm_lemma}
+is the conceptual name.
+Additional type motifs on the annotation line (e.g.,
+{axt_map},
+{axt_string})
+contribute their own arity to the total read sequence:
+{axr_member}
+intaglio first, then type motif lookaheads.
 Qualified by
 {axd_dimension_s}
 in
 {axl_annotation}:
-`//axl_voices axr_member axd_required axd_nullable`
+`//axl_voices axr_member axd_required axt_string`
 
 == Axial JSON Terms
 
