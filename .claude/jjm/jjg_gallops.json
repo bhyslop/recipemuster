@@ -3217,6 +3217,7 @@
       "status": "racing",
       "order": [
         "₢AvAAO",
+        "₢AvAAP",
         "₢AvAAA",
         "₢AvAAB",
         "₢AvAAC",
@@ -3232,7 +3233,7 @@
         "₢AvAAL",
         "₢AvAAH"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3530,6 +3531,17 @@
               "text": "## Character\nArchitectural correction — enshrine must run as a GCB job, not Director-local skopeo.\n\n## Goal\nRewrite enshrine to submit a Cloud Build job (like vouch does) instead of running skopeo on the Director's workstation. The GCB step does inspect + copy, returns anchor strings via buildStepOutputs, Director writes them to rbrv.env.\n\n## Steps\n1. Create GCB step script `rbgje/rbgje01-enshrine-copy.sh`: for each slot, skopeo inspect --raw (digest), construct anchor, skopeo copy --all to GAR. Auth via metadata server token. Write JSON anchor results to /builder/outputs/output.\n2. Rewrite `rbf_enshrine` in Foundry: load vessel, assemble enshrine step, compose builds.create JSON with _RBGE_* substitutions (GAR coords + ORIGIN values), submit, wait, extract anchor JSON from buildStepOutputs.\n3. Delete `zrbf_enshrine_slot` — logic now lives in GCB step script.\n4. Parse anchor results, write each RBRV_IMAGE_n_ANCHOR back to rbrv.env (regime writeback stays local).\n5. Update RBSAE spec to describe GCB submission pattern.\n6. Remove `command -v skopeo` local requirement check.\n\n## Verification\n- Enshrine submits GCB job and returns anchor strings\n- No local skopeo dependency\n- Anchor writeback to rbrv.env still works\n- Re-run produces same anchor (idempotent)",
               "silks": "enshrine-gcb-correction",
               "commit": "73e2bd5"
+            }
+          ]
+        },
+        "₢AvAAP": {
+          "tacks": [
+            {
+              "ts": "260324-0755",
+              "state": "rough",
+              "text": "## Character\nMechanical cleanup — apply BCG-compliant bash-native patterns.\n\n## Goal\nReplace remaining `sed` dollar-escaping in Foundry GCB submission functions with bash parameter expansion, matching the pattern established in enshrine.\n\n## Scope\nFour functions use the `sed 's/\\$/\\$\\$/g; s/\\$\\${_PREFIX_/${_PREFIX_/g'` pattern:\n- `zrbf_stitch_build_json` (conjure, line ~407, `_RBGY_`)\n- `zrbf_mirror_submit` (mirror, line ~1473, `_RBGA_`)\n- `zrbf_about_submit` (about, line ~2811, `_RBGA_`)\n- `zrbf_vouch_submit` (vouch, line ~3181, `_RBGV_`)\n\nAlso `sed` at line ~452 for about step post-processing and line ~4169 for recipe display.\n\n## Pattern\nReplace:\n```bash\nprintf '%s' \"${z_body}\" | sed 's/\\$/\\$\\$/g; s/\\$\\${_PREFIX_/${_PREFIX_/g' > \"${z_escaped_file}\"\n```\nWith:\n```bash\nz_body=\"${z_body//\\$/\\$\\$}\"\nz_body=\"${z_body//\\$\\${_PREFIX_/\\${_PREFIX_}\"\nprintf '%s' \"${z_body}\" > \"${z_escaped_file}\"\n```\n\n## Verification\n- No `sed` in dollar-escaping paths\n- Existing test fixtures pass unchanged",
+              "silks": "bcg-sed-to-parameter-expansion",
+              "commit": "0faf878"
             }
           ]
         }
