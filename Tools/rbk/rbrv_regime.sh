@@ -54,6 +54,15 @@ zrbrv_kindle() {
   buv_string_enroll RBRV_CONJURE_BLDCONTEXT    1  512  "Build context relative to repo root"
   buv_string_enroll RBRV_CONJURE_PLATFORMS     1  512  "Space-separated target platforms"
 
+  buv_group_enroll "Image Group"
+  buv_gate_enroll   RBRV_VESSEL_MODE  conjure
+  buv_string_enroll RBRV_IMAGE_1_ORIGIN   0  512  "Upstream base image tag slot 1 (e.g., python:3.11-slim)"
+  buv_string_enroll RBRV_IMAGE_1_ANCHOR   0  512  "GAR-mirrored anchor slot 1 (written by enshrine)"
+  buv_string_enroll RBRV_IMAGE_2_ORIGIN   0  512  "Upstream base image tag slot 2"
+  buv_string_enroll RBRV_IMAGE_2_ANCHOR   0  512  "GAR-mirrored anchor slot 2 (written by enshrine)"
+  buv_string_enroll RBRV_IMAGE_3_ORIGIN   0  512  "Upstream base image tag slot 3"
+  buv_string_enroll RBRV_IMAGE_3_ANCHOR   0  512  "GAR-mirrored anchor slot 3 (written by enshrine)"
+
   buv_group_enroll "Grafting Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  graft
   buv_string_enroll RBRV_GRAFT_IMAGE                1  512  "Local image reference for graft operations"

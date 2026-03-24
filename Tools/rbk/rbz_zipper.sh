@@ -65,6 +65,7 @@ zrbz_kindle() {
 
   # Retriever/Image commands (rbw-R* colophon family → rbf_cli.sh)
   z_mod="rbf_cli.sh"
+  buz_enroll RBZ_ENSHRINE_ARK                "rbw-DE"       "${z_mod}" "rbf_enshrine"
   buz_enroll RBZ_CREATE_ARK                 "rbw-DC"       "${z_mod}" "rbf_create"
   buz_enroll RBZ_ABJURE_ARK                 "rbw-DA"       "${z_mod}" "rbf_abjure"
   buz_enroll RBZ_SUMMON_ARK                 "rbw-Rs"       "${z_mod}" "rbf_summon"

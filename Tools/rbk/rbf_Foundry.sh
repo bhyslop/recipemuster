@@ -125,6 +125,9 @@ zrbf_kindle() {
   buc_log_args 'Define graft operation files'
   readonly ZRBF_GRAFT_PREFIX="${BURD_TEMP_DIR}/rbf_graft_"
 
+  buc_log_args 'Define enshrine operation files'
+  readonly ZRBF_ENSHRINE_PREFIX="${BURD_TEMP_DIR}/rbf_enshrine_"
+
   buc_log_args 'Define context push operation files'
   readonly ZRBF_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbf_context_"
 
@@ -731,8 +734,144 @@ zrbf_wait_build_completion() {
   buc_success 'Build completed successfully'
 }
 
+zrbf_enshrine_slot() {
+  zrbf_sentinel
+
+  local -r z_n="${1:-}"
+  local -r z_origin="${2:-}"
+  local -r z_vessel_sigil="${3:-}"
+  local -r z_token="${4:-}"
+  local -r z_rbrv_file="${5:-}"
+
+  test -n "${z_n}"             || buc_die "Slot number required"
+  test -n "${z_origin}"        || buc_die "Origin required"
+  test -n "${z_vessel_sigil}"  || buc_die "Vessel sigil required"
+  test -n "${z_token}"         || buc_die "Token required"
+  test -n "${z_rbrv_file}"     || buc_die "Vessel regime file required"
+
+  buc_step "Enshrine slot ${z_n}: ${z_origin}"
+
+  # Inspect upstream for raw manifest (manifest list for multi-platform, single manifest otherwise)
+  local -r z_raw_file="${ZRBF_ENSHRINE_PREFIX}${z_n}_raw_manifest.json"
+  local -r z_digest_file="${ZRBF_ENSHRINE_PREFIX}${z_n}_digest.txt"
+  local -r z_inspect_stderr="${ZRBF_ENSHRINE_PREFIX}${z_n}_inspect_stderr.txt"
+
+  buc_log_args "Inspecting upstream: docker://${z_origin}"
+  skopeo inspect --raw "docker://${z_origin}" \
+    > "${z_raw_file}" 2>"${z_inspect_stderr}" \
+    || buc_die "Failed to inspect upstream: ${z_origin} — see ${z_inspect_stderr}"
+
+  # Compute sha256 of the raw manifest
+  sha256sum "${z_raw_file}" > "${z_digest_file}" \
+    || buc_die "Failed to compute digest"
+  local -r z_full_digest=$(<"${z_digest_file}")
+  test -n "${z_full_digest}" || buc_die "Empty digest"
+  local -r z_sha="${z_full_digest%% *}"
+  test -n "${z_sha}" || buc_die "Failed to extract sha256 from digest line"
+
+  # Construct anchor: sanitize origin (: and / become -), append first 10 hex chars
+  local -r z_sanitized="${z_origin//[:\/]/-}"
+  local -r z_short="${z_sha:0:10}"
+  local -r z_anchor="${z_sanitized}-${z_short}"
+
+  buc_log_args "Anchor: ${z_anchor}"
+  buc_log_args "Digest: sha256:${z_sha}"
+
+  # Construct GAR destination reference
+  local -r z_gar_ref="docker://${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel_sigil}:${z_anchor}"
+
+  # Copy upstream to GAR with anchor tag, preserving manifest list
+  local -r z_copy_stderr="${ZRBF_ENSHRINE_PREFIX}${z_n}_copy_stderr.txt"
+  buc_step "Copying to GAR: ${z_gar_ref}"
+  skopeo copy --all \
+    --dest-creds "oauth2accesstoken:${z_token}" \
+    "docker://${z_origin}" \
+    "${z_gar_ref}" \
+    2>"${z_copy_stderr}" \
+    || buc_die "Failed to copy to GAR — see ${z_copy_stderr}"
+
+  # Write anchor back to vessel regime file
+  local -r z_anchor_var="RBRV_IMAGE_${z_n}_ANCHOR"
+  local -r z_anchor_line="${z_anchor_var}=${z_anchor}"
+  local -r z_anchor_pattern="^${z_anchor_var}="
+  local -r z_updated_file="${ZRBF_ENSHRINE_PREFIX}${z_n}_updated_rbrv.env"
+
+  if grep -q "${z_anchor_pattern}" "${z_rbrv_file}"; then
+    sed "s|${z_anchor_pattern}.*|${z_anchor_line}|" "${z_rbrv_file}" > "${z_updated_file}" \
+      || buc_die "Failed to update ${z_anchor_var} in rbrv.env"
+  else
+    cp "${z_rbrv_file}" "${z_updated_file}" || buc_die "Failed to copy rbrv.env for update"
+    echo "${z_anchor_line}" >> "${z_updated_file}" || buc_die "Failed to append ${z_anchor_var}"
+  fi
+  cp "${z_updated_file}" "${z_rbrv_file}" || buc_die "Failed to write updated rbrv.env"
+
+  buc_success "Slot ${z_n} enshrined: ${z_anchor}"
+}
+
 ######################################################################
 # External Functions (rbf_*)
+
+rbf_enshrine() {
+  zrbf_sentinel
+
+  local -r z_vessel_dir="${1:-}"
+
+  buc_doc_brief "Enshrine upstream base images to GAR for a conjure vessel"
+  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_shown || return 0
+
+  # No-arg: list available vessels
+  if test -z "${z_vessel_dir}"; then
+    local z_sigils=""
+    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+    buc_step "Available vessels:"
+    local z_sigil=""
+    for z_sigil in ${z_sigils}; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    done
+    buc_die "Vessel directory required"
+  fi
+
+  # Verify skopeo is available
+  command -v skopeo >/dev/null 2>&1 \
+    || buc_die "skopeo not found — install via 'brew install skopeo' or equivalent"
+
+  # Load and validate vessel
+  zrbf_load_vessel "${z_vessel_dir}"
+  test "${RBRV_VESSEL_MODE:-}" = "conjure" \
+    || buc_die "Vessel '${RBRV_SIGIL}' is not a conjure vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
+
+  # Check for at least one ORIGIN declaration
+  local z_has_origin=false
+  test -z "${RBRV_IMAGE_1_ORIGIN:-}" || z_has_origin=true
+  test -z "${RBRV_IMAGE_2_ORIGIN:-}" || z_has_origin=true
+  test -z "${RBRV_IMAGE_3_ORIGIN:-}" || z_has_origin=true
+  test "${z_has_origin}" = "true" \
+    || buc_die "Vessel '${RBRV_SIGIL}' has no RBRV_IMAGE_n_ORIGIN declarations"
+
+  # Authenticate as Director
+  buc_step "Loading Director RBRA credentials"
+  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
+
+  buc_step "Authenticating as Director"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  # Enshrine each slot where ORIGIN is set
+  local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
+  local z_n=""
+  local z_origin_var=""
+  local z_origin=""
+  for z_n in 1 2 3; do
+    z_origin_var="RBRV_IMAGE_${z_n}_ORIGIN"
+    z_origin="${!z_origin_var:-}"
+    test -n "${z_origin}" || continue
+    zrbf_enshrine_slot "${z_n}" "${z_origin}" "${RBRV_SIGIL}" "${z_token}" "${z_rbrv_file}"
+  done
+
+  buc_success "Enshrine complete for vessel: ${RBRV_SIGIL}"
+}
 
 rbf_create() {
   zrbf_sentinel
