@@ -3225,11 +3225,12 @@
         "₢AvAAG",
         "₢AvAAI",
         "₢AvAAJ",
+        "₢AvAAM",
         "₢AvAAK",
         "₢AvAAL",
         "₢AvAAH"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3480,6 +3481,17 @@
               "text": "## Character\nHigh-stakes infrastructure change with end-to-end verification. The culmination of the entire heat.\n\n## Goal\nEnable NO_PUBLIC_EGRESS on the private pool worker and verify the full pipeline works air-gapped: inscribe (already done), enshrine base images, conjure with reliquary + enshrined base images, DSSE vouch — all without public internet access from the build worker.\n\n## Steps\n1. Ensure reliquary is inscribed (₢AvAAK prerequisite)\n2. Ensure base images are enshrined for test vessels (₢AvAAJ prerequisite)\n3. Update private pool config: set egressOption to NO_PUBLIC_EGRESS\n4. Conjure rbev-busybox (FROM scratch, no base image) — verify success\n5. Conjure a vessel with enshrined base image — verify success\n6. Verify vouch (DSSE) works under lockdown (Container Analysis API is a Google API, should work via Private Google Access)\n7. Test failure mode: attempt conjure with unenshrined base image — confirm clean failure\n\n## Verification\n- Private pool has NO_PUBLIC_EGRESS set\n- Conjure succeeds for vessels with all dependencies mirrored\n- Conjure fails cleanly for vessels with unmirrored dependencies\n- Full pipeline (inscribe → enshrine → conjure → vouch) works air-gapped\n- RBSHR egress lockdown item can be graduated from roadmap",
               "silks": "egress-lockdown-flip-and-verify",
               "commit": "2bc4fbd"
+            }
+          ]
+        },
+        "₢AvAAM": {
+          "tacks": [
+            {
+              "ts": "260323-1828",
+              "state": "rough",
+              "text": "## Character\nIntegration work connecting enshrine outputs to conjure and vouch pipelines.\n\n## Goal\nConjure resolves ANCHOR to full GAR reference in Dockerfile ARGs. Vouch records which provenance path was taken.\n\n## Steps\n1. Update conjure stitch: when RBRV_IMAGE_n_ANCHOR is set, resolve to full GAR image reference (`REGISTRY/REPO/VESSEL:ANCHOR`) and substitute into Dockerfile ARG\n2. When ANCHOR is empty, pass ORIGIN through as upstream tag (development path)\n3. Update vouch to record base image provenance: anchored (GAR-mirrored) vs pass-through (upstream direct)\n4. Ensure vouch summary includes anchor string when present\n\n## Verification\n- Conjure with ANCHOR set uses GAR reference in build\n- Conjure with ANCHOR empty passes ORIGIN through\n- Vouch records which path was taken",
+              "silks": "wire-anchor-into-conjure-vouch",
+              "commit": "cae9379"
             }
           ]
         }
