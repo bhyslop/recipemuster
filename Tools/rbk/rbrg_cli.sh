@@ -62,12 +62,16 @@ zrbrg_write_rbrg() {
       echo "${z_line}"
     done
     echo ''
-    for z_line in "${ZRBRG_BINARY_LINES[@]}"; do
-      echo "${z_line}"
-    done
-    echo ''
+    if test "${#ZRBRG_BINARY_LINES[@]}" -gt 0; then
+      for z_line in "${ZRBRG_BINARY_LINES[@]}"; do
+        echo "${z_line}"
+      done
+      echo ''
+    fi
     echo "RBRG_IMAGE_PINS_REFRESHED_AT=${ZRBRG_IMAGE_PINS_REFRESHED_AT}"
-    echo "RBRG_BINARY_PINS_REFRESHED_AT=${ZRBRG_BINARY_PINS_REFRESHED_AT}"
+    if test -n "${ZRBRG_BINARY_PINS_REFRESHED_AT}"; then
+      echo "RBRG_BINARY_PINS_REFRESHED_AT=${ZRBRG_BINARY_PINS_REFRESHED_AT}"
+    fi
     echo ''
     echo '# eof'
   } > "${z_temp_file}" || buc_die "Failed to write temporary RBRG file"
@@ -231,14 +235,11 @@ rbrg_refresh_gcb_pins() {
     z_index=$((z_index + 1))
   done
 
-  # Populate shared state: freshly resolved image pins, pass-through binary pins and its timestamp
+  # Populate shared state: freshly resolved image pins (no binary pins — slsa-verifier dropped)
   ZRBRG_IMAGE_LINES=("${z_resolved_lines[@]}")
-  ZRBRG_BINARY_LINES=(
-    "RBRG_SLSA_VERIFIER_URL=\"${RBRG_SLSA_VERIFIER_URL}\""
-    "RBRG_SLSA_VERIFIER_SHA256=\"${RBRG_SLSA_VERIFIER_SHA256}\""
-  )
+  ZRBRG_BINARY_LINES=()
   ZRBRG_IMAGE_PINS_REFRESHED_AT="${BURD_NOW_EPOCH}"
-  ZRBRG_BINARY_PINS_REFRESHED_AT="${RBRG_BINARY_PINS_REFRESHED_AT}"
+  ZRBRG_BINARY_PINS_REFRESHED_AT=""
 
   buc_step "Writing complete RBRG pin file (BCG rewrite pattern)"
   local -r z_temp_rbrg="${z_prefix}rbrg_complete.env"
