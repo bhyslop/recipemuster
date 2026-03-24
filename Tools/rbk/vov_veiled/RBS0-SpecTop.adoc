@@ -2940,7 +2940,7 @@ Upstream base image tag declaration for
 {rbrv_regime}
 conjuring vessels.
 Vessel author declares intent (e.g., `python:3.11-slim`).
-The Dockerfile uses `ARG RBRV_IMAGE_n` / `FROM ${RBRV_IMAGE_n}` -- the build system substitutes the resolved reference at conjure time.
+The Dockerfile uses `ARG RBF_IMAGE_n` / `FROM ${RBF_IMAGE_n}` -- the Foundry substitutes the resolved reference via `--build-arg` at conjure time.
 
 [[rbrv_image_anchor]]
 //axvr_variable axd_optional rbst_image_ref

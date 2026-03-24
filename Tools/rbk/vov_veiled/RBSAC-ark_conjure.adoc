@@ -45,7 +45,7 @@ is present: resolve to full GAR image reference using the anchor tag
 is absent: pass
 {rbrv_image_origin}
 through as the upstream tag (development path)
-.. Resolved references become `RBRV_IMAGE_n` substitution values for the Dockerfile `ARG`/`FROM` pattern
+.. Resolved references become `RBF_IMAGE_n` build-args for the Dockerfile `ARG`/`FROM` pattern
 
 //axhos_step
 . *Assign Consecration*:
