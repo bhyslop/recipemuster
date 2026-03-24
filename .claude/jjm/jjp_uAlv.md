@@ -39,10 +39,10 @@ Platform must match builder (RBGC_BUILD_RUNNER_PLATFORM) even for FROM SCRATCH d
 ## Vocabulary
 
 ### Reliquary
-A co-versioned, datestamped, immutable snapshot of all tool images and vessel base images, emplaced in GAR. Single concept — no separate term for the instance vs the type (tested against load-bearing principle: unlike vessel/consecration, there is no persistent parent entity that accumulates instances). Each reliquary is identified by a datestamped string. Required for all conjure builds.
+A co-versioned, datestamped, immutable snapshot of all GCB step/tool images, emplaced in GAR. Single concept — no separate term for the instance vs the type (tested against load-bearing principle: unlike vessel/consecration, there is no persistent parent entity that accumulates instances). Each reliquary is identified by a datestamped string. Required for all conjure builds. Does NOT include vessel base images — those are handled independently by enshrine/anchors (see Enshrine/Inscribe Separation below).
 
 ### Pouch
-The build context packaged as a FROM SCRATCH OCI image and pushed to GAR. Required for all conjure builds — with triggers eliminated, builds.create has no other context delivery mechanism. The pouch IS how build context reaches GCB, regardless of egress mode. This is independent of the reliquary requirement: the reliquary provides tool/base images, the pouch provides the Dockerfile and build context files.
+The build context packaged as a FROM SCRATCH OCI image and pushed to GAR. Required for all conjure builds — with triggers eliminated, builds.create has no other context delivery mechanism. The pouch IS how build context reaches GCB, regardless of egress mode. This is independent of the reliquary requirement: the reliquary provides tool images, the pouch provides the Dockerfile and build context files.
 
 Tagged as `{vessel}:{consecration}-pouch`, making it a first-class ark artifact alongside `-image`, `-about`, `-vouch`. Cleaned up by abjure with the rest of the consecration's artifacts.
 
@@ -57,7 +57,20 @@ All conjure builds require a reliquary. This is not just an air-gap feature — 
 Simplification cascade: one stitch path, one verification path, one download method, one consecration format semantics. No conditional logic for "reliquary present vs absent."
 
 ### Air-Gap vs Open-Egress Is Network Policy, Not Image Policy
-With required reliquaries, every conjure pulls tool images and base images from GAR mirrors regardless of egress mode. The distinction between air-gap and open-egress is purely network enforcement: whether NO_PUBLIC_EGRESS is set on the private pool. The reliquary makes air-gap the default behavior at the image layer. Open-egress is a permissive network posture, not a different image sourcing strategy.
+With required reliquaries and enshrined base images, every conjure pulls tool images and base images from GAR mirrors regardless of egress mode (tool images via reliquary, base images via anchors). The distinction between air-gap and open-egress is purely network enforcement: whether NO_PUBLIC_EGRESS is set on the private pool. GAR-mirroring is the default behavior at the image layer. Open-egress is a permissive network posture, not a different image sourcing strategy.
+
+### Enshrine/Inscribe Separation (settled 2026-03-23)
+Base images and tool images are handled by separate operations with different scoping, triggering, and tracking:
+
+| | Enshrine (base images) | Inscribe (tool images) |
+|---|---|---|
+| **Scope** | Per-vessel | Fleet-wide |
+| **Trigger** | Vessel author choice | Depot-level ceremony |
+| **Tracking** | `RBRV_IMAGE_n_ANCHOR` in vessel regime | Datestamped reliquary namespace in GAR |
+| **Co-versioning** | Independent per vessel | All tool images co-versioned in one pass |
+| **GAR tag format** | `{sanitized-origin}-{10-char-sha256}` | `{reliquary-datestamp}/{image}` |
+
+This separation is load-bearing: base images evolve per-vessel (a Python vessel updates its base independently of an Alpine vessel), while tool images must be co-versioned (all GCB steps in a build use the same reliquary). Conflating them would force fleet-wide updates when only one vessel's base image changes.
 
 ### RBRV_IMAGE Variables (settled 2026-03-23)
 Vessel regime variables declaring base image dependencies. Up to 3 per vessel (multi-stage Dockerfile support).
@@ -88,16 +101,16 @@ FROM ${RBRV_IMAGE_1}
 Conjure substitutes the full GAR reference (resolved from anchor) at build time.
 
 ### RBRV_RELIQUARY
-Required vessel regime variable for conjure mode. Identifies which reliquary provides tool images and resolved base images for the build. Different vessels may reference different reliquaries — images evolve independently, Recipe Bottle is not opinionated.
+Required vessel regime variable for conjure mode. Identifies which reliquary provides tool images for the build. Different vessels may reference different reliquaries — images evolve independently, Recipe Bottle is not opinionated.
 
 ### RBRG Replaced by Reliquary
 RBRG (regime holding upstream tool image pins with freshness gates) is replaced by the reliquary. The < 1 day freshness gate that currently blocks inscribe is eliminated — you inscribe when you choose, not when a timer forces you. What remains of the upstream source information is a static manifest consumed by inscribe (a list of upstream image references to mirror), not a regime with validation and freshness enforcement.
 
 ### Inscribe Reclaimed
-With GitLab rubric repo eliminated, inscribe is reclaimed as the reliquary generation operation. Walks the vessel fleet, reads `RBRV_IMAGE_*_ORIGIN` declarations and the upstream source manifest, pulls everything from upstream, pushes the complete set to a namespaced GAR location, and produces the reliquary identifier. Co-versioning is enforced by the operation — everything in one pass, one datestamp. Inscribe becomes a required step in depot initialization alongside governor/director/depot creation.
+With GitLab rubric repo eliminated, inscribe is reclaimed as the reliquary generation operation. Reads the upstream tool image source manifest, pulls all tool images from upstream, pushes the complete set to a datestamped GAR namespace, and produces the reliquary identifier. Co-versioning is enforced by the operation — all tool images in one pass, one datestamp. Inscribe becomes a required step in depot initialization alongside governor/director/depot creation.
 
 ### Build = Conjure Execution
-Build (conjure) does: load vessel regime, resolve base images against reliquary, assign consecration, push pouch to GAR, stitch JSON (single path — all step image references from reliquary), submit via builds.create, wait, vouch. Clean separation from inscribe — no overlap.
+Build (conjure) does: load vessel regime, resolve base images from `RBRV_IMAGE_n_ANCHOR` (or pass ORIGIN through), assign consecration, push pouch to GAR, stitch JSON (single path — all step image references from reliquary), submit via builds.create, wait, vouch. Clean separation from both inscribe (tool images) and enshrine (base images) — no overlap.
 
 ### No More Triggers
 Trigger path fully removed. Stitch generates clean builds.create JSON natively. No rubric repo substitutions generated, no post-hoc jq surgery. GitLab elimination is complete: no GitLab account, PAT, Secret Manager entries, CB v2 connection, triggers, or RBRR_RUBRIC_REPO_URL.
