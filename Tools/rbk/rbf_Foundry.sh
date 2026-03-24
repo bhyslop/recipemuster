@@ -404,8 +404,10 @@ zrbf_stitch_build_json() {
     z_body="${z_body//\$\{ZRBF_BUILD_STRATEGY\}/${z_build_strategy}}"
 
     buc_log_args "Escaping dollars for Cloud Build, preserving RBGY substitutions"
-    printf '%s' "${z_body}" | sed 's/\$/\$\$/g; s/\$\${_RBGY_/${_RBGY_/g' \
-      > "${z_escaped_file}" || buc_die "Failed to escape script body for ${z_id}"
+    z_body="${z_body//\$/\$\$}"
+    z_body="${z_body//\$\${_RBGY_/\${_RBGY_}"
+    printf '%s' "${z_body}" > "${z_escaped_file}" \
+      || buc_die "Failed to escape script body for ${z_id}"
 
     case "${z_entrypoint}" in
       bash) z_entrypoint="/bin/bash"; z_arg_flag="-lc" ;;
@@ -449,8 +451,12 @@ zrbf_stitch_build_json() {
   # Build ID: $BUILD_ID → CB built-in substitution (same job = conjure job ID)
   buc_log_args "Post-processing about steps: consecration from workspace, build ID from CB built-in"
   local -r z_about_processed="${ZRBF_STITCH_PREFIX}about_processed.json"
-  sed 's/\${_RBGA_CONSECRATION}/$$(cat .consecration)/g; s/\${_RBGA_BUILD_ID:-}/$BUILD_ID/g' \
-    "${z_about_with_dir}" > "${z_about_processed}" \
+  local z_about_content
+  z_about_content=$(<"${z_about_with_dir}") \
+    || buc_die "Failed to read about steps for post-processing"
+  z_about_content="${z_about_content//\$\{_RBGA_CONSECRATION\}/\$\$(cat .consecration)}"
+  z_about_content="${z_about_content//\$\{_RBGA_BUILD_ID:-\}/\$BUILD_ID}"
+  printf '%s' "${z_about_content}" > "${z_about_processed}" \
     || buc_die "Failed to post-process about steps for conjure"
 
   buc_log_args "Combining image steps and about steps"
@@ -1470,8 +1476,10 @@ zrbf_mirror_submit() {
   test -n "${z_mbody}" || buc_die "Empty mirror script body"
 
   buc_log_args "Escaping dollars for Cloud Build, preserving _RBGA_ substitutions"
-  printf '%s' "${z_mbody}" | sed 's/\$/\$\$/g; s/\$\${_RBGA_/${_RBGA_/g' \
-    > "${z_mescaped_file}" || buc_die "Failed to escape mirror script body"
+  z_mbody="${z_mbody//\$/\$\$}"
+  z_mbody="${z_mbody//\$\${_RBGA_/\${_RBGA_}"
+  printf '%s' "${z_mbody}" > "${z_mescaped_file}" \
+    || buc_die "Failed to escape mirror script body"
 
   echo "[]" > "${z_mirror_step_file}" || buc_die "Failed to initialize mirror step JSON"
   jq \
@@ -2808,8 +2816,10 @@ zrbf_assemble_about_steps() {
     z_abody="${z_abody//\$\{RBRG_SYFT_IMAGE_REF\}/${RBRG_SYFT_IMAGE_REF}}"
 
     buc_log_args "Escaping dollars for Cloud Build, preserving _RBGA_ substitutions"
-    printf '%s' "${z_abody}" | sed 's/\$/\$\$/g; s/\$\${_RBGA_/${_RBGA_/g' \
-      > "${z_aescaped_file}" || buc_die "Failed to escape about script body for ${z_aid}"
+    z_abody="${z_abody//\$/\$\$}"
+    z_abody="${z_abody//\$\${_RBGA_/\${_RBGA_}"
+    printf '%s' "${z_abody}" > "${z_aescaped_file}" \
+      || buc_die "Failed to escape about script body for ${z_aid}"
 
     case "${z_aentrypoint}" in
       bash) z_aentrypoint="/bin/bash"; z_aarg_flag="-lc" ;;
@@ -3178,8 +3188,10 @@ zrbf_vouch_submit() {
     test -n "${z_vbody}" || buc_die "Empty vouch script body: ${z_vscript_path}"
 
     buc_log_args "Escaping dollars for Cloud Build, preserving _RBGV_ substitutions"
-    printf '%s' "${z_vbody}" | sed 's/\$/\$\$/g; s/\$\${_RBGV_/${_RBGV_/g' \
-      > "${z_vescaped_file}" || buc_die "Failed to escape vouch script body for ${z_vid}"
+    z_vbody="${z_vbody//\$/\$\$}"
+    z_vbody="${z_vbody//\$\${_RBGV_/\${_RBGV_}"
+    printf '%s' "${z_vbody}" > "${z_vescaped_file}" \
+      || buc_die "Failed to escape vouch script body for ${z_vid}"
 
     case "${z_ventrypoint}" in
       bash) z_ventrypoint="/bin/bash"; z_varg_flag="-lc" ;;
@@ -4166,7 +4178,9 @@ zrbf_inspect_show_full() {
     echo "  -- Recipe (Dockerfile) ------------------------------------------"
     echo "  The exact Dockerfile used to build this image."
     echo ""
-    sed 's/^/    /' "${z_recipe}"
+    while IFS= read -r z_line; do
+      echo "    ${z_line}"
+    done < "${z_recipe}"
   fi
 
   echo ""
