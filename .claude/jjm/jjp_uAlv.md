@@ -84,7 +84,7 @@ Enshrine uses `skopeo copy --all` to mirror upstream base images to GAR. This pr
 
 **Anchor digest source**: The sha256 digest used in anchor construction is the manifest list digest for multi-platform images, or the single manifest digest for single-platform images. This is what `skopeo inspect --raw` returns. One anchor per ORIGIN regardless of platform count.
 
-**Multi-platform conjure**: No stitching required. The upstream manifest list arrives intact in GAR. When conjure's Dockerfile says `FROM ${RBRV_IMAGE_1}`, the builder pulls the correct platform from the anchored manifest list automatically. The `RBRV_CONJURE_PLATFORMS` variable controls which platforms conjure builds for; the anchored base image just needs to contain those platforms (enshrine mirrors all of them).
+**Multi-platform conjure**: No stitching required. The upstream manifest list arrives intact in GAR. When conjure's Dockerfile says `FROM ${RBF_IMAGE_1}`, the builder pulls the correct platform from the anchored manifest list automatically. The `RBRV_CONJURE_PLATFORMS` variable controls which platforms conjure builds for; the anchored base image just needs to contain those platforms (enshrine mirrors all of them).
 
 ### RBRV_IMAGE Variables (settled 2026-03-23)
 Vessel regime variables declaring base image dependencies. Up to 3 per vessel (multi-stage Dockerfile support).
@@ -109,10 +109,10 @@ anchor="${sanitized}-${short:0:10}"
 
 **Dockerfile usage:**
 ```dockerfile
-ARG RBRV_IMAGE_1
-FROM ${RBRV_IMAGE_1}
+ARG RBF_IMAGE_1
+FROM ${RBF_IMAGE_1}
 ```
-Conjure substitutes the full GAR reference (resolved from anchor) at build time.
+The Foundry substitutes the resolved reference via `--build-arg` at conjure time.
 
 ### RBRV_RELIQUARY
 Required vessel regime variable for conjure mode. Identifies which reliquary provides tool images for the build. Different vessels may reference different reliquaries — images evolve independently, Recipe Bottle is not opinionated.
