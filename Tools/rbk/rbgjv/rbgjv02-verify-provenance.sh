@@ -100,7 +100,7 @@ case "${_RBGV_VESSEL_MODE}" in
 
     echo "All ${DC} platforms verified"
     ${JQ} -n --arg c "${_RBGV_CONSECRATION}" --arg v "${_RBGV_VESSEL}" \
-      '{consecration:$c,vessel:$v,vessel_mode:"conjure",verify_method:"dsse-envelope",platforms:[]}' \
+      '{consecration:$c,vessel:$v,vessel_mode:"conjure",verify_method:"dsse-envelope",base_images:[],platforms:[]}' \
       > /workspace/vouch_summary.json
     for f in /workspace/verify-*.json; do
       P=$(basename "${f}" .json); P="${P#verify-}"
@@ -108,6 +108,25 @@ case "${_RBGV_VESSEL_MODE}" in
         /workspace/vouch_summary.json > /workspace/vs_tmp.json
       mv /workspace/vs_tmp.json /workspace/vouch_summary.json
     done
+    # Record base image provenance (anchored GAR refs or upstream pass-through)
+    if [ -n "${_RBGV_IMAGE_1}" ]; then
+      ${JQ} --arg ref "${_RBGV_IMAGE_1}" --arg prov "${_RBGV_IMAGE_1_PROVENANCE}" \
+        '.base_images += [{slot:1,ref:$ref,provenance:$prov}]' \
+        /workspace/vouch_summary.json > /workspace/vs_tmp.json
+      mv /workspace/vs_tmp.json /workspace/vouch_summary.json
+    fi
+    if [ -n "${_RBGV_IMAGE_2}" ]; then
+      ${JQ} --arg ref "${_RBGV_IMAGE_2}" --arg prov "${_RBGV_IMAGE_2_PROVENANCE}" \
+        '.base_images += [{slot:2,ref:$ref,provenance:$prov}]' \
+        /workspace/vouch_summary.json > /workspace/vs_tmp.json
+      mv /workspace/vs_tmp.json /workspace/vouch_summary.json
+    fi
+    if [ -n "${_RBGV_IMAGE_3}" ]; then
+      ${JQ} --arg ref "${_RBGV_IMAGE_3}" --arg prov "${_RBGV_IMAGE_3_PROVENANCE}" \
+        '.base_images += [{slot:3,ref:$ref,provenance:$prov}]' \
+        /workspace/vouch_summary.json > /workspace/vs_tmp.json
+      mv /workspace/vs_tmp.json /workspace/vouch_summary.json
+    fi
     echo "Vouch summary composed"
     ;;
 

@@ -191,3 +191,14 @@ Step 2 reads from workspace rather than re-discovering from the registry.
 | `_RBGV_BIND_SOURCE` | Pinned upstream image reference (bind only). Source: {rbrv_bind_image}.
 | `_RBGV_GRAFT_SOURCE` | Local image reference at push time (graft only). Source: recorded during {rbtgo_ark_graft}.
 |===
+
+*Base image provenance* (conjure only, empty for other modes)::
+[cols="1,2"]
+|===
+| `_RBGV_IMAGE_1` | Resolved base image reference for slot 1 (full GAR ref if anchored, upstream tag if pass-through). Empty if slot unused.
+| `_RBGV_IMAGE_1_PROVENANCE` | Provenance type for slot 1: `anchored` (GAR-mirrored via enshrine) or `pass-through` (upstream direct). Empty if slot unused.
+| `_RBGV_IMAGE_2` | Resolved base image reference for slot 2.
+| `_RBGV_IMAGE_2_PROVENANCE` | Provenance type for slot 2.
+| `_RBGV_IMAGE_3` | Resolved base image reference for slot 3.
+| `_RBGV_IMAGE_3_PROVENANCE` | Provenance type for slot 3.
+|===

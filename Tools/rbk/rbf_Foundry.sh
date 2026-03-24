@@ -249,6 +249,30 @@ zrbf_stitch_build_json() {
   local -r z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
   local -r z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
 
+  # Resolve base images: ANCHOR → full GAR reference, or pass ORIGIN through
+  # Spec: RBSAC step "Resolve Base Images"
+  local -r z_gar_image_prefix="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${z_sigil}"
+  local z_image_ref_1="" z_image_ref_2="" z_image_ref_3=""
+  local z_ri_n="" z_ri_origin_var="" z_ri_anchor_var="" z_ri_origin="" z_ri_anchor=""
+  for z_ri_n in 1 2 3; do
+    z_ri_origin_var="RBRV_IMAGE_${z_ri_n}_ORIGIN"
+    z_ri_anchor_var="RBRV_IMAGE_${z_ri_n}_ANCHOR"
+    z_ri_origin="${!z_ri_origin_var:-}"
+    z_ri_anchor="${!z_ri_anchor_var:-}"
+    test -n "${z_ri_origin}" || continue
+    local z_ri_ref=""
+    if test -n "${z_ri_anchor}"; then
+      z_ri_ref="${z_gar_image_prefix}:${z_ri_anchor}"
+      buc_log_args "Image slot ${z_ri_n} (anchored): ${z_ri_ref}"
+    else
+      z_ri_ref="${z_ri_origin}"
+      buc_log_args "Image slot ${z_ri_n} (pass-through): ${z_ri_ref}"
+    fi
+    case "${z_ri_n}" in
+      1) z_image_ref_1="${z_ri_ref}" ;; 2) z_image_ref_2="${z_ri_ref}" ;; 3) z_image_ref_3="${z_ri_ref}" ;;
+    esac
+  done
+
   # Platform count detection
   local z_platform_count=0
   local z_remaining_count="${z_platforms}"
@@ -519,6 +543,9 @@ zrbf_stitch_build_json() {
     --arg zjq_rbga_gar_path       "${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}" \
     --arg zjq_rbga_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
     --arg zjq_rbga_dockerfile     "${z_stitch_dockerfile_content}" \
+    --arg zjq_image_1             "${z_image_ref_1}" \
+    --arg zjq_image_2             "${z_image_ref_2}" \
+    --arg zjq_image_3             "${z_image_ref_3}" \
     '{
       steps: [$zjq_steps[0][] |
         if .args then
@@ -539,6 +566,9 @@ zrbf_stitch_build_json() {
         _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
         _RBGY_ARK_SUFFIX_DIAGS:    $zjq_ark_suffix_diags,
         _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts,
+        _RBGY_IMAGE_1:             $zjq_image_1,
+        _RBGY_IMAGE_2:             $zjq_image_2,
+        _RBGY_IMAGE_3:             $zjq_image_3,
         _RBGA_GAR_HOST:            $zjq_rbga_gar_host,
         _RBGA_GAR_PATH:            $zjq_rbga_gar_path,
         _RBGA_VESSEL:              $zjq_moniker,
@@ -2993,6 +3023,32 @@ zrbf_vouch_submit() {
     *)       buc_die "Unknown vessel mode: ${RBRV_VESSEL_MODE}" ;;
   esac
 
+  # Resolve base image provenance (for vouch summary recording)
+  local -r z_vi_gar_prefix="${z_gar_host}/${z_gar_path}/${RBRV_SIGIL}"
+  local z_vi_ref_1="" z_vi_ref_2="" z_vi_ref_3=""
+  local z_vi_prov_1="" z_vi_prov_2="" z_vi_prov_3=""
+  local z_vi_n="" z_vi_origin_var="" z_vi_anchor_var="" z_vi_origin="" z_vi_anchor=""
+  for z_vi_n in 1 2 3; do
+    z_vi_origin_var="RBRV_IMAGE_${z_vi_n}_ORIGIN"
+    z_vi_anchor_var="RBRV_IMAGE_${z_vi_n}_ANCHOR"
+    z_vi_origin="${!z_vi_origin_var:-}"
+    z_vi_anchor="${!z_vi_anchor_var:-}"
+    test -n "${z_vi_origin}" || continue
+    local z_vi_ref="" z_vi_prov=""
+    if test -n "${z_vi_anchor}"; then
+      z_vi_ref="${z_vi_gar_prefix}:${z_vi_anchor}"
+      z_vi_prov="anchored"
+    else
+      z_vi_ref="${z_vi_origin}"
+      z_vi_prov="pass-through"
+    fi
+    case "${z_vi_n}" in
+      1) z_vi_ref_1="${z_vi_ref}"; z_vi_prov_1="${z_vi_prov}" ;;
+      2) z_vi_ref_2="${z_vi_ref}"; z_vi_prov_2="${z_vi_prov}" ;;
+      3) z_vi_ref_3="${z_vi_ref}"; z_vi_prov_3="${z_vi_prov}" ;;
+    esac
+  done
+
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
   local -r z_vouch_step_defs=(
@@ -3070,6 +3126,12 @@ zrbf_vouch_submit() {
     --arg zjq_graft_source      "${z_graft_source}" \
     --arg zjq_ark_suffix_image  "${RBGC_ARK_SUFFIX_IMAGE}" \
     --arg zjq_ark_suffix_vouch  "${RBGC_ARK_SUFFIX_VOUCH}" \
+    --arg zjq_vi_ref_1          "${z_vi_ref_1}" \
+    --arg zjq_vi_prov_1         "${z_vi_prov_1}" \
+    --arg zjq_vi_ref_2          "${z_vi_ref_2}" \
+    --arg zjq_vi_prov_2         "${z_vi_prov_2}" \
+    --arg zjq_vi_ref_3          "${z_vi_ref_3}" \
+    --arg zjq_vi_prov_3         "${z_vi_prov_3}" \
     --arg zjq_pool              "${RBRR_GCB_WORKER_POOL}" \
     --arg zjq_timeout           "${RBRR_GCB_TIMEOUT}" \
     '{
@@ -3083,7 +3145,13 @@ zrbf_vouch_submit() {
         _RBGV_BIND_SOURCE:       $zjq_bind_source,
         _RBGV_GRAFT_SOURCE:      $zjq_graft_source,
         _RBGV_ARK_SUFFIX_IMAGE:  $zjq_ark_suffix_image,
-        _RBGV_ARK_SUFFIX_VOUCH:  $zjq_ark_suffix_vouch
+        _RBGV_ARK_SUFFIX_VOUCH:  $zjq_ark_suffix_vouch,
+        _RBGV_IMAGE_1:           $zjq_vi_ref_1,
+        _RBGV_IMAGE_1_PROVENANCE: $zjq_vi_prov_1,
+        _RBGV_IMAGE_2:           $zjq_vi_ref_2,
+        _RBGV_IMAGE_2_PROVENANCE: $zjq_vi_prov_2,
+        _RBGV_IMAGE_3:           $zjq_vi_ref_3,
+        _RBGV_IMAGE_3_PROVENANCE: $zjq_vi_prov_3
       },
       serviceAccount: $zjq_sa,
       options: {

@@ -4,7 +4,8 @@
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
 #                _RBGY_GAR_HOST_SUFFIX, _RBGY_INSCRIBE_TIMESTAMP,
-#                _RBGY_GIT_COMMIT, _RBGY_GIT_BRANCH
+#                _RBGY_GIT_COMMIT, _RBGY_GIT_BRANCH,
+#                _RBGY_IMAGE_1, _RBGY_IMAGE_2, _RBGY_IMAGE_3 (optional base image refs)
 #
 # Uses buildx --push with docker-container driver. Cloud Build pre-populates
 # Docker credentials in the host daemon; buildx inherits them via the
@@ -25,6 +26,12 @@ test -n "${_RBGY_GAR_REPOSITORY}"      || (echo "_RBGY_GAR_REPOSITORY missing"  
 test -n "${_RBGY_INSCRIBE_TIMESTAMP}"  || (echo "_RBGY_INSCRIBE_TIMESTAMP missing"  >&2; exit 1)
 test -n "${_RBGY_GIT_COMMIT}"          || (echo "_RBGY_GIT_COMMIT missing"          >&2; exit 1)
 test -n "${_RBGY_GIT_BRANCH}"          || (echo "_RBGY_GIT_BRANCH missing"          >&2; exit 1)
+
+# Resolve base image build-args (anchored GAR refs or upstream pass-through)
+BUILD_ARGS=""
+test -z "${_RBGY_IMAGE_1}" || BUILD_ARGS="${BUILD_ARGS} --build-arg RBRV_IMAGE_1=${_RBGY_IMAGE_1}"
+test -z "${_RBGY_IMAGE_2}" || BUILD_ARGS="${BUILD_ARGS} --build-arg RBRV_IMAGE_2=${_RBGY_IMAGE_2}"
+test -z "${_RBGY_IMAGE_3}" || BUILD_ARGS="${BUILD_ARGS} --build-arg RBRV_IMAGE_3=${_RBGY_IMAGE_3}"
 
 MULTI_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_INSCRIBE_TIMESTAMP}-multi"
 
@@ -57,6 +64,7 @@ docker buildx build \
   --label "moniker=${_RBGY_MONIKER}" \
   --label "git.commit=${_RBGY_GIT_COMMIT}" \
   --label "git.branch=${_RBGY_GIT_BRANCH}" \
+  ${BUILD_ARGS} \
   -f "${_RBGY_DOCKERFILE}" \
   .
 
