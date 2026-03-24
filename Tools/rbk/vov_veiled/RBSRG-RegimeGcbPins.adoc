@@ -51,8 +51,10 @@ Configures QEMU binary format support for cross-platform builds.
 //axhrv_variable
 {rbrg_skopeo_image_ref}
 
-Fully-qualified image reference for skopeo tool used in Cloud Build steps.
-Pin retained for potential future use.
+Fully-qualified image reference for skopeo tool.
+Used by
+{rbtgo_ark_enshrine}
+to copy upstream base images to GAR with manifest list preservation (`skopeo copy --all`).
 
 //axhrv_variable
 {rbrg_image_pins_refreshed_at}

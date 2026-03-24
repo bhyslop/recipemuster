@@ -72,6 +72,20 @@ Base images and tool images are handled by separate operations with different sc
 
 This separation is load-bearing: base images evolve per-vessel (a Python vessel updates its base independently of an Alpine vessel), while tool images must be co-versioned (all GCB steps in a build use the same reliquary). Conflating them would force fleet-wide updates when only one vessel's base image changes.
 
+### Anchors Live in Vessel GAR Repository (settled 2026-03-23)
+Enshrined base images are tagged in the same GAR repository as vessel consecration images (`RBRR_GAR_REPOSITORY`). No separate base-image namespace. Anchor tags (`python-3.11-slim-abc123def4`) and consecration tags (`c20260315-r20260323-image`) coexist in the same tag list, distinguishable by pattern. `rbi_list` already sees both; filtering by pattern is trivial.
+
+Rationale: simplest thing that works. A dedicated base-image package would add a new namespace to create during depot initialization, a new target for IAM grants, and a new parameter for skopeo copy — all for a separation that carries no load. The tag patterns don't collide, and the same `rbi_show` infrastructure (which already handles multi-platform manifest lists) inspects both.
+
+### Skopeo for Enshrine Copy (settled 2026-03-23)
+Enshrine uses `skopeo copy --all` to mirror upstream base images to GAR. This preserves manifest lists and all per-platform manifests atomically. Single-platform images work identically — `--all` is a no-op on the platform dimension when only one platform exists.
+
+**Tool choice**: skopeo over crane (not in toolchain, would add a dependency for no new capability) and oras (designed for OCI artifacts, not image mirroring — wrong tool class). Skopeo was already pinned in RBRG with "retained for potential future use"; enshrine is that use.
+
+**Anchor digest source**: The sha256 digest used in anchor construction is the manifest list digest for multi-platform images, or the single manifest digest for single-platform images. This is what `skopeo inspect --raw` returns. One anchor per ORIGIN regardless of platform count.
+
+**Multi-platform conjure**: No stitching required. The upstream manifest list arrives intact in GAR. When conjure's Dockerfile says `FROM ${RBRV_IMAGE_1}`, the builder pulls the correct platform from the anchored manifest list automatically. The `RBRV_CONJURE_PLATFORMS` variable controls which platforms conjure builds for; the anchored base image just needs to contain those platforms (enshrine mirrors all of them).
+
 ### RBRV_IMAGE Variables (settled 2026-03-23)
 Vessel regime variables declaring base image dependencies. Up to 3 per vessel (multi-stage Dockerfile support).
 
@@ -91,7 +105,7 @@ anchor="${sanitized}-${short:0:10}"
 
 **The anchor IS the GAR tag.** Enshrine pushes the mirrored image to GAR tagged with the anchor string. The regime variable holds the same string. One name serves as both human-readable identifier and pull reference. Immutable by convention (same as consecration tags).
 
-**Enshrine writes the anchor.** Enshrine resolves ORIGIN → pulls upstream → pushes to GAR with anchor tag → writes ANCHOR back to the vessel regime. No separate manual step. The regime file diff shows exactly what changed and what it resolved to.
+**Enshrine writes the anchor.** Enshrine resolves ORIGIN → copies upstream to GAR via `skopeo copy --all` with anchor tag → writes ANCHOR back to the vessel regime. No separate manual step. The regime file diff shows exactly what changed and what it resolved to.
 
 **Dockerfile usage:**
 ```dockerfile

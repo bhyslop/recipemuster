@@ -2555,10 +2555,13 @@ Fully-qualified image reference for binfmt Cloud Build step.
 [[rbrg_skopeo_image_ref]]
 //axvr_variable axd_required rbst_image_ref
 {rbrg_skopeo_image_ref}::
-Fully-qualified image reference for skopeo Cloud Build step.
-Historically used to split multi-platform OCI layouts to single-platform for Syft SBOM generation (anchore/syft#1545).
-No longer used in the current pipeline — Syft now scans per-platform images from the local Docker daemon via `docker:` transport after per-platform pullback.
-Pin retained for potential future use.
+Fully-qualified image reference for skopeo tool.
+Used by
+{rbtgo_ark_enshrine}
+to copy upstream base images to
+{gar_service}
+with manifest list preservation (`skopeo copy --all`).
+Previously used to split multi-platform OCI layouts for Syft SBOM generation (anchore/syft#1545); that use replaced by `docker:` transport per-platform pullback.
 
 [[rbrg_image_pins_refreshed_at]]
 //axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp
