@@ -3546,6 +3546,13 @@
         "₢AvAAP": {
           "tacks": [
             {
+              "ts": "260324-0840",
+              "state": "complete",
+              "text": "## Character\nMechanical cleanup — apply BCG-compliant bash-native patterns.\n\n## Goal\nReplace remaining `sed` dollar-escaping in Foundry GCB submission functions with bash parameter expansion, matching the pattern established in enshrine.\n\n## Scope\nFour functions use the `sed 's/\\$/\\$\\$/g; s/\\$\\${_PREFIX_/${_PREFIX_/g'` pattern:\n- `zrbf_stitch_build_json` (conjure, line ~407, `_RBGY_`)\n- `zrbf_mirror_submit` (mirror, line ~1473, `_RBGA_`)\n- `zrbf_about_submit` (about, line ~2811, `_RBGA_`)\n- `zrbf_vouch_submit` (vouch, line ~3181, `_RBGV_`)\n\nAlso `sed` at line ~452 for about step post-processing and line ~4169 for recipe display.\n\n## Pattern\nReplace:\n```bash\nprintf '%s' \"${z_body}\" | sed 's/\\$/\\$\\$/g; s/\\$\\${_PREFIX_/${_PREFIX_/g' > \"${z_escaped_file}\"\n```\nWith:\n```bash\nz_body=\"${z_body//\\$/\\$\\$}\"\nz_body=\"${z_body//\\$\\${_PREFIX_/\\${_PREFIX_}\"\nprintf '%s' \"${z_body}\" > \"${z_escaped_file}\"\n```\n\n## Verification\n- No `sed` in dollar-escaping paths\n- Existing test fixtures pass unchanged",
+              "silks": "bcg-sed-to-parameter-expansion",
+              "commit": "5960fc0"
+            },
+            {
               "ts": "260324-0755",
               "state": "rough",
               "text": "## Character\nMechanical cleanup — apply BCG-compliant bash-native patterns.\n\n## Goal\nReplace remaining `sed` dollar-escaping in Foundry GCB submission functions with bash parameter expansion, matching the pattern established in enshrine.\n\n## Scope\nFour functions use the `sed 's/\\$/\\$\\$/g; s/\\$\\${_PREFIX_/${_PREFIX_/g'` pattern:\n- `zrbf_stitch_build_json` (conjure, line ~407, `_RBGY_`)\n- `zrbf_mirror_submit` (mirror, line ~1473, `_RBGA_`)\n- `zrbf_about_submit` (about, line ~2811, `_RBGA_`)\n- `zrbf_vouch_submit` (vouch, line ~3181, `_RBGV_`)\n\nAlso `sed` at line ~452 for about step post-processing and line ~4169 for recipe display.\n\n## Pattern\nReplace:\n```bash\nprintf '%s' \"${z_body}\" | sed 's/\\$/\\$\\$/g; s/\\$\\${_PREFIX_/${_PREFIX_/g' > \"${z_escaped_file}\"\n```\nWith:\n```bash\nz_body=\"${z_body//\\$/\\$\\$}\"\nz_body=\"${z_body//\\$\\${_PREFIX_/\\${_PREFIX_}\"\nprintf '%s' \"${z_body}\" > \"${z_escaped_file}\"\n```\n\n## Verification\n- No `sed` in dollar-escaping paths\n- Existing test fixtures pass unchanged",
