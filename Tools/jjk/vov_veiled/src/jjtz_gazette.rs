@@ -415,3 +415,81 @@ fn jjtz_parse_paddock_input_multiple_notices() {
     let err = jjrz_parse_paddock_input(md).unwrap_err();
     assert!(err.contains("Expected one"));
 }
+
+// --- Output round-trip tests ---
+
+#[test]
+fn jjtz_output_orient_round_trip() {
+    let md = jjrz_build_read_output("Aw", "## Purpose\n\nBuild things", &[("AwAAJ", "Implement gazette output")]);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock, jjrz_Slug::Pace], &md).unwrap();
+    let paddock = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
+    assert_eq!(paddock.len(), 1);
+    assert_eq!(paddock[0].0, "Aw");
+    assert!(paddock[0].1.contains("## Purpose"));
+    assert!(paddock[0].1.contains("Build things"));
+}
+
+#[test]
+fn jjtz_output_orient_pace_round_trip() {
+    let md = jjrz_build_read_output("Aw", "Paddock text", &[("AwAAJ", "Docket text")]);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock, jjrz_Slug::Pace], &md).unwrap();
+    let paces = g.jjrz_query_by_slug(jjrz_Slug::Pace);
+    assert_eq!(paces.len(), 1);
+    assert_eq!(paces[0].0, "AwAAJ");
+    assert_eq!(paces[0].1, "Docket text");
+}
+
+#[test]
+fn jjtz_output_parade_detail_round_trip() {
+    let paces = &[
+        ("AwAAA", "First docket"),
+        ("AwAAB", "Second docket"),
+        ("AwAAC", "Third docket"),
+    ];
+    let md = jjrz_build_read_output("Aw", "Paddock content", paces);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock, jjrz_Slug::Pace], &md).unwrap();
+    let paddock = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
+    assert_eq!(paddock.len(), 1);
+    assert_eq!(paddock[0].0, "Aw");
+}
+
+#[test]
+fn jjtz_output_parade_detail_paces_round_trip() {
+    let paces = &[
+        ("AwAAA", "First docket"),
+        ("AwAAB", "Second docket"),
+        ("AwAAC", "Third docket"),
+    ];
+    let md = jjrz_build_read_output("Aw", "Paddock content", paces);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock, jjrz_Slug::Pace], &md).unwrap();
+    let pace_entries = g.jjrz_query_by_slug(jjrz_Slug::Pace);
+    assert_eq!(pace_entries.len(), 3);
+    assert_eq!(pace_entries[0].0, "AwAAA");
+    assert_eq!(pace_entries[0].1, "First docket");
+    assert_eq!(pace_entries[1].0, "AwAAB");
+    assert_eq!(pace_entries[2].0, "AwAAC");
+}
+
+#[test]
+fn jjtz_output_paddock_getter_round_trip() {
+    let md = jjrz_build_read_output("AF", "## Paddock heading\n\nPaddock body", &[]);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock, jjrz_Slug::Pace], &md).unwrap();
+    let paddock = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
+    assert_eq!(paddock.len(), 1);
+    assert_eq!(paddock[0].0, "AF");
+    assert!(paddock[0].1.contains("Paddock body"));
+    let paces = g.jjrz_query_by_slug(jjrz_Slug::Pace);
+    assert!(paces.is_empty());
+}
+
+#[test]
+fn jjtz_output_with_preamble_parses() {
+    // Simulate full orient output: human-readable preamble followed by gazette
+    let preamble = "Heat: my-heat (Aw) [racing]\nPaddock: .claude/jjm/jjp_uAlw.md\n\nNext: do-stuff (AwAAJ) [rough]\n\n";
+    let gazette = jjrz_build_read_output("Aw", "Paddock text", &[("AwAAJ", "Docket text")]);
+    let full_output = format!("{}\n{}", preamble, gazette);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock, jjrz_Slug::Pace], &full_output).unwrap();
+    let paddock = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
+    assert_eq!(paddock[0].0, "Aw");
+    assert_eq!(paddock[0].1, "Paddock text");
+}

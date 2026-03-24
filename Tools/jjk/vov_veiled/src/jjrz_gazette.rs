@@ -320,6 +320,20 @@ pub fn jjrz_parse_paddock_input(markdown: &str) -> Result<(String, String), Stri
     Ok((firemark, content))
 }
 
+// --- Operation output building ---
+
+/// Build gazette output for read operations (orient, parade detail, paddock getter).
+/// Returns emitted gazette markdown with paddock and optional pace notices.
+/// Paddock lede is the firemark; pace ledes are coronets.
+pub fn jjrz_build_read_output(firemark: &str, paddock_content: &str, paces: &[(&str, &str)]) -> String {
+    let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+    gazette.jjrz_add(jjrz_Slug::Paddock, firemark, paddock_content).unwrap();
+    for &(coronet, docket) in paces {
+        gazette.jjrz_add(jjrz_Slug::Pace, coronet, docket).unwrap();
+    }
+    gazette.jjrz_emit()
+}
+
 // --- Internal helpers ---
 
 /// Check if a line is a notice boundary (# followed by whitespace).

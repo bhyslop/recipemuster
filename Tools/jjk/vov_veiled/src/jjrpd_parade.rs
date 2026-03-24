@@ -12,6 +12,7 @@ use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_Heat as Heat, jjrg_HeatS
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrq_query::{jjrq_files_for_pace, jjrq_file_touches_for_heat, zjjrq_files_for_commit, zjjrq_bare_filename, zjjrq_is_infra_file};
 use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries, jjrs_SteeplechaseEntry};
+use crate::jjrz_gazette::jjrz_build_read_output;
 use std::collections::BTreeMap;
 use std::fmt::Write;
 use std::fs;
@@ -169,6 +170,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
             }
         };
 
+        let mut gazette_paddock: Option<String> = None;
+
         if args.detail {
             // Detail view: paddock + all dockets
             let paddock_content = match fs::read_to_string(&heat.paddock_file) {
@@ -192,6 +195,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
             vvco_out!(output, "## Paddock");
             vvco_out!(output, "");
             vvco_out!(output, "{}", paddock_content);
+            gazette_paddock = Some(paddock_content);
             vvco_out!(output, "");
             vvco_out!(output, "## Paces");
             vvco_out!(output, "");
@@ -369,6 +373,22 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         // Always show file-touch bitmap and commit swim lanes after pace listing
         jjrpd_write_file_bitmap(&mut output, &firemark, heat);
         jjrpd_write_commit_swimlanes(&mut output, &firemark, heat);
+
+        // Gazette output for structured downstream consumption (detail mode only)
+        if let Some(ref paddock_text) = gazette_paddock {
+            let paces: Vec<(String, String)> = heat.order.iter()
+                .filter_map(|ck| heat.paces.get(ck).map(|p| (ck, p)))
+                .filter_map(|(ck, p)| p.tacks.first().map(|t| (ck, t)))
+                .filter(|(_, t)| !args.remaining || (t.state != PaceState::Complete && t.state != PaceState::Abandoned))
+                .map(|(ck, t)| (ck.clone(), t.text.clone()))
+                .collect();
+            let pace_refs: Vec<(&str, &str)> = paces.iter().map(|(c, d)| (c.as_str(), d.as_str())).collect();
+            let gazette_md = jjrz_build_read_output(&heat_key, paddock_text, &pace_refs);
+            vvco_out!(output, "");
+            for line in gazette_md.lines() {
+                vvco_out!(output, "{}", line);
+            }
+        }
     } else {
         vvco_err!(output, "jjx_show: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
         return (1, output.vvco_finish());

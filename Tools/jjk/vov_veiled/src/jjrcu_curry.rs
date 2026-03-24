@@ -10,6 +10,7 @@ use std::path::PathBuf;
 use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
+use crate::jjrz_gazette::jjrz_build_read_output;
 
 /// Arguments for jjx_curry command
 #[derive(clap::Args, Debug)]
@@ -71,6 +72,14 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, 
             };
 
             vvco_out!(output, "{}", paddock_content);
+
+            // Gazette output for structured downstream consumption
+            let gazette_md = jjrz_build_read_output(&firemark_key, &paddock_content, &[]);
+            vvco_out!(output, "");
+            for line in gazette_md.lines() {
+                vvco_out!(output, "{}", line);
+            }
+
             (0, output.vvco_finish())
         }
         Some(new_content) => {
