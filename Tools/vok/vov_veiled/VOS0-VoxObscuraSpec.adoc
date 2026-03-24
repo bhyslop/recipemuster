@@ -484,7 +484,7 @@ Whisper::for_kit("jjk")
     .display_name("Job Jockey")
     .managed_section("vocjjmc_core.md", "JJK")
     .managed_section("vocjjmc_gallops.md", "JJK_GALLOPS")
-    .concept_model("JJS0-GallopsData.adoc")
+    .concept_model("JJS0_JobJockeySpec.adoc")
     .register(&mut conclave)
 ----
 +
@@ -854,7 +854,7 @@ Indexed by
 {vose_conclave}
 for acronym registry and uniqueness validation.
 +
-Naming: Keeps existing acronym (e.g., `JJS0-GallopsData.adoc`).
+Naming: Keeps existing acronym (e.g., `JJS0_JobJockeySpec.adoc`).
 Registered in
 {vose_whisper}
 via `.concept_model()` builder method.
@@ -1541,7 +1541,7 @@ vvb:1000::R: release parcel 1000
 **Cross-reference:**
 The
 {vost_hallmark}
-concept is shared with Job Jockey's `jjb:` commit format (documented in JJS0-GallopsData.adoc).
+concept is shared with Job Jockey's `jjb:` commit format (documented in JJS0_JobJockeySpec.adoc).
 Both systems use the same resolution logic for sourcing
 {vost_hallmark_s},
 but Job Jockey includes heat/pace identity in the third field while VOK leaves it empty.

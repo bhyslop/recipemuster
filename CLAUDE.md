@@ -118,7 +118,7 @@ Full read and edit access is pre-approved for all files in:
 - **AXMCM** → `cmk/vov_veiled/AXMCM-ClaudeMarkConceptMemo.md`
 
 #### JJK Subdirectory (`Tools/jjk/`)
-- **JJS0** → `jjk/vov_veiled/JJS0-GallopsData.adoc` (Gallops data model specification - main file)
+- **JJS0** → `jjk/vov_veiled/JJS0_JobJockeySpec.adoc` (Job Jockey specification - main file)
 - **JJSCCH** → `jjk/vov_veiled/JJSCCH-chalk.adoc`
 - **JJSCDR** → `jjk/vov_veiled/JJSCDR-draft.adoc`
 - **JJSCFU** → `jjk/vov_veiled/JJSCFU-furlough.adoc`
