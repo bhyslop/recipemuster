@@ -13,6 +13,8 @@
 // jjdpr_: Pace record
 // jjdpm_: Pace members
 // jjdpe_: Pace state enum values
+// jjdcr_: Tack record (state snapshot within a Pace)
+// jjdcm_: Tack members
 // jjdyr_: Column Table record
 // jjdym_: Column Table members
 // jjdye_: Column Table enum values (alignment)
@@ -46,8 +48,10 @@
 :jjdt_slug:       <<jjdt_slug,Slug>>
 
 // Gallops record and members
-:jjdgm_seed:        <<jjdgm_seed,next_heat_seed>>
+:jjdgm_heats:       <<jjdgm_heats,heats>>
 :jjdgm_order:       <<jjdgm_order,heat_order>>
+:jjdgm_seed:        <<jjdgm_seed,next_heat_seed>>
+:jjdgm_version:     <<jjdgm_version,schema_version>>
 :jjdgr_gallops:     <<jjdgr_gallops,Gallops>>
 :jjdgr_gallops_p:   <<jjdgr_gallops,Gallops'>>
 
@@ -61,6 +65,7 @@
 :jjdhm_paddock:   <<jjdhm_paddock,paddock_file>>
 :jjdhm_seed:      <<jjdhm_seed,next_pace_seed>>
 :jjdhm_silks:     <<jjdhm_silks,silks>>
+:jjdhm_paces:     <<jjdhm_paces,paces>>
 :jjdhm_status:    <<jjdhm_status,status>>
 :jjdhr_heat:      <<jjdhr_heat,Heat>>
 :jjdhr_heat_p:    <<jjdhr_heat,Heat's>>
@@ -68,6 +73,7 @@
 
 // Pace record and members
 :jjdpm_coronet:   <<jjdpm_coronet,coronet>>
+:jjdpm_tacks:     <<jjdpm_tacks,tacks>>
 :jjdpr_pace:      <<jjdpr_pace,Pace>>
 :jjdpr_pace_p:    <<jjdpr_pace,Pace's>>
 :jjdpr_pace_s:    <<jjdpr_pace,Paces>>
@@ -78,6 +84,17 @@
 :jjdpe_rough:     <<jjdpe_rough,rough>>
 :jjdpe_defined:   <<jjdpe_defined,defined>>
 :jjdpe_resolved:  <<jjdpe_resolved,resolved>>
+
+// Tack record and members
+:jjdcr_tack:        <<jjdcr_tack,Tack>>
+:jjdcr_tack_p:      <<jjdcr_tack,Tack's>>
+:jjdcr_tack_s:      <<jjdcr_tack,Tacks>>
+:jjdcm_ts:          <<jjdcm_ts,ts>>
+:jjdcm_state:       <<jjdcm_state,state>>
+:jjdcm_text:        <<jjdcm_text,text>>
+:jjdcm_silks:       <<jjdcm_silks,silks>>
+:jjdcm_basis:       <<jjdcm_basis,commit>>
+:jjdcm_direction:   <<jjdcm_direction,direction>>
 
 // Column Table record and members
 :jjdyr_table:  <<jjdyr_table,Column Table>>
@@ -630,7 +647,9 @@ Incremented by
 is the ordered list of
 {jjdt_firemark_s}
 defining heat display and selection order.
-Populated from sorted `heats` keys on first load of old-format files (migration);
+Populated from sorted
+{jjdgm_heats}
+keys on first load of old-format files (migration);
 thereafter maintained explicitly.
 Updated by:
 {jjdo_create}
@@ -639,9 +658,34 @@ Updated by:
 (remove firemark via retain),
 {jjdo_continue}
 (move new firemark to position 0).
-The `heats` object uses BTreeMap (sorted key order) for deterministic serialization;
 {jjdgm_order}
-is the authoritative source for display and selection order, not `heats` key order.
+is the authoritative source for display and selection order, not
+{jjdgm_heats}
+key order.
+
+* [[jjdgm_version]]
+//axl_voices axr_member axd_optional axt_number
+{jjdgm_version}
+is the schema version number.
+Absent in V3 files; present in V4+ as an unsigned integer.
+{jjdr_load}
+detects migration mode when absent or when
+{jjdgm_order}
+is empty.
+
+* [[jjdgm_heats]]
+//axl_voices axr_member axd_required axt_map
+{jjdgm_heats}
+{jjdt_firemark}
+{jjdhr_heat}
+is the dictionary of all
+{jjdhr_heat_s}
+keyed by
+{jjdt_firemark}.
+Serialized with lexicographic key order for deterministic output.
+Display and selection order governed by
+{jjdgm_order},
+not key order.
 
 === {jjdhr_heat}
 
@@ -734,6 +778,22 @@ On load, if the encoded paddock file does not exist on disk, JJK fatals with
 Created by
 {jjdo_create}.
 
+* [[jjdhm_paces]]
+//axl_voices axr_member axd_required axt_map
+{jjdhm_paces}
+{jjdt_coronet}
+{jjdpr_pace}
+is the dictionary of all
+{jjdpr_pace_s}
+within this
+{jjdhr_heat},
+keyed by
+{jjdt_coronet}.
+Serialized with lexicographic key order for deterministic output.
+Execution order governed by
+{jjdhm_order},
+not key order.
+
 ==== Status Values
 
 [[jjdhe_racing]]
@@ -779,6 +839,17 @@ Type:
 {jjdt_coronet}.
 Implicit from JSON key; not stored as separate field.
 
+* [[jjdpm_tacks]]
+//axl_voices axr_member axd_required axd_repeated
+{jjdpm_tacks}
+is the ordered history of state snapshots for this
+{jjdpr_pace}.
+Element type:
+{jjdcr_tack}.
+Index 0 is the current (most recent) tack;
+{jjsgmpt_prepend_tack}
+inserts at position zero.
+
 ==== State Values
 
 [[jjdpe_rough]]
@@ -817,6 +888,60 @@ Predicates for querying pace states by semantic category.
 * abandoned: true
 
 Future states declare their predicate values when added. Query logic uses predicates, not state names.
+
+=== {jjdcr_tack}
+
+[[jjdcr_tack]]
+//axl_voices axr_record_json
+{jjdcr_tack}::
+A state snapshot within a
+{jjdpr_pace}.
+Each mutation to a pace prepends a new
+{jjdcr_tack}
+to the
+{jjdpm_tacks}
+array, capturing the complete state at that point.
+The tack at index 0 is always the current state.
+
+==== Members
+
+* [[jjdcm_ts]]
+//axl_voices axr_member axd_required axt_string
+{jjdcm_ts}
+is the ISO 8601 timestamp of this snapshot.
+
+* [[jjdcm_state]]
+//axl_voices axr_member axd_required axt_enumeration
+{jjdcm_state}
+is the pace state at this snapshot.
+Values:
+{jjdpe_rough},
+{jjdpe_complete},
+{jjdpe_abandoned}.
+
+* [[jjdcm_text]]
+//axl_voices axr_member axd_required axt_string
+{jjdcm_text}
+is the docket text at this snapshot.
+
+* [[jjdcm_silks]]
+//axl_voices axr_member axd_required axt_string
+{jjdcm_silks}
+is the pace display name at this snapshot.
+May change across tacks when a pace is relabeled.
+
+* [[jjdcm_basis]]
+//axl_voices axr_member axd_required axt_string
+{jjdcm_basis}
+is the basis commit SHA at the time of this snapshot.
+Serialized as `commit` in JSON (Rust field `basis`, serde rename).
+Format: 7-character abbreviated SHA, or `0000000` when basis cannot be determined.
+
+* [[jjdcm_direction]]
+//axl_voices axr_member axd_optional axt_string
+{jjdcm_direction}
+is the plan or warrant text.
+Present when the pace requires directed action; absent otherwise.
 
 === {jjdyr_table}
 
