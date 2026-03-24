@@ -702,8 +702,9 @@ zrbf_wait_build_completion() {
   zrbf_sentinel
 
   local z_max_polls="${1:?zrbf_wait_build_completion: max_polls required}"
+  local z_label="${2:?zrbf_wait_build_completion: label required}"
 
-  buc_step 'Waiting for build completion'
+  buc_step "${z_label}: Waiting for build completion"
 
   local z_build_id=""
   z_build_id=$(<"${ZRBF_BUILD_ID_FILE}") || buc_die "No build ID found"
@@ -724,7 +725,7 @@ zrbf_wait_build_completion() {
     sleep 5
 
     z_polls=$((z_polls + 1))
-    test "${z_polls}" -le "${z_max_polls}" || buc_die "Build timeout after ${z_max_polls} polls"
+    test "${z_polls}" -le "${z_max_polls}" || buc_die "${z_label}: Build timeout after ${z_max_polls} polls"
 
     buc_log_args "Fetch build status (poll ${z_polls}/${z_max_polls})"
     curl -s                                                \
@@ -767,12 +768,12 @@ zrbf_wait_build_completion() {
     z_status=$(<"${ZRBF_STATUS_CHECK_FILE}")
     test -n "${z_status}" || buc_die "Status is empty"
 
-    buc_info "Build status: ${z_status} (poll ${z_polls}/${z_max_polls})"
+    buc_info "${z_label}: ${z_status} (poll ${z_polls}/${z_max_polls})"
   done
 
-  test "${z_status}" = "SUCCESS" || buc_die "Build failed with status: ${z_status}"
+  test "${z_status}" = "SUCCESS" || buc_die "${z_label}: Build failed with status: ${z_status}"
 
-  buc_success 'Build completed successfully'
+  buc_success "${z_label}: Build completed successfully"
 }
 
 ######################################################################
@@ -929,7 +930,7 @@ zrbf_enshrine_submit() {
   buc_info "Enshrine build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 50  # ~4 minutes at 5s intervals
+  zrbf_wait_build_completion 50 "Enshrine"  # ~4 minutes at 5s intervals
 }
 
 # Internal: Extract anchor results from completed enshrine build and write to vessel regime
@@ -1151,7 +1152,7 @@ rbf_build() {
   buc_info "Build dispatched: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 960  # 80 minutes at 5s intervals
+  zrbf_wait_build_completion 960 "Conjure"  # 80 minutes at 5s intervals
 
   # Discover consecration from build step output (strong tie — no GAR scanning)
   # Step[0] is extract-context (no output).  Step[1] is derive-tag-base which
@@ -1600,7 +1601,7 @@ zrbf_mirror_submit() {
   buc_info "Mirror build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 100  # ~8 minutes at 5s intervals (image copy + about steps)
+  zrbf_wait_build_completion 100 "Mirror"  # ~8 minutes at 5s intervals (image copy + about steps)
 }
 
 ######################################################################
@@ -3001,7 +3002,7 @@ zrbf_about_submit() {
   buc_info "About build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 50  # ~4 minutes at 5s intervals (private pool)
+  zrbf_wait_build_completion 50 "About"  # ~4 minutes at 5s intervals (private pool)
 }
 
 ######################################################################
@@ -3280,7 +3281,7 @@ zrbf_vouch_submit() {
   buc_info "Vouch build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 50  # ~4 minutes at 5s intervals (private pool is slower)
+  zrbf_wait_build_completion 50 "Vouch"  # ~4 minutes at 5s intervals (private pool is slower)
 }
 
 ######################################################################
