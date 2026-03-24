@@ -3716,6 +3716,13 @@
         "₢AwAAJ": {
           "tacks": [
             {
+              "ts": "260323-1806",
+              "state": "complete",
+              "text": "Implement gazette-based output for read operations: jjx_orient (mount), jjx_show (parade), and jjx_paddock getter.\n\n## Scope\n\nWire gazette building and emitting into three output-producing operations:\n\n1. **jjx_orient** — build gazette with {jjezs_paddock} (firemark lede, paddock content) and {jjezs_pace} (coronet lede, docket content). Emit as markdown in response.\n\n2. **jjx_show --detail** — build gazette with {jjezs_paddock} and {jjezs_pace} when displaying heat with detail flag. Same slug/lede pattern as orient.\n\n3. **jjx_paddock getter** — build gazette with {jjezs_paddock} (firemark lede, paddock content). Emit as markdown.\n\n## Testing\n\nFor each operation: verify emitted gazette parses cleanly (round-trip), verify slug/lede values match expected identities.\n\n## Depends on\n\n₢AwAAO (implement-gazette-rust) — needs working jjrz_build, jjrz_add, jjrz_emit",
+              "silks": "implement-jjf-output-operations",
+              "commit": "6f58e44"
+            },
+            {
               "ts": "260321-1328",
               "state": "rough",
               "text": "Implement gazette-based output for read operations: jjx_orient (mount), jjx_show (parade), and jjx_paddock getter.\n\n## Scope\n\nWire gazette building and emitting into three output-producing operations:\n\n1. **jjx_orient** — build gazette with {jjezs_paddock} (firemark lede, paddock content) and {jjezs_pace} (coronet lede, docket content). Emit as markdown in response.\n\n2. **jjx_show --detail** — build gazette with {jjezs_paddock} and {jjezs_pace} when displaying heat with detail flag. Same slug/lede pattern as orient.\n\n3. **jjx_paddock getter** — build gazette with {jjezs_paddock} (firemark lede, paddock content). Emit as markdown.\n\n## Testing\n\nFor each operation: verify emitted gazette parses cleanly (round-trip), verify slug/lede values match expected identities.\n\n## Depends on\n\n₢AwAAO (implement-gazette-rust) — needs working jjrz_build, jjrz_add, jjrz_emit",
