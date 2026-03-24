@@ -1,0 +1,68 @@
+//axhob_operation
+{rbtgo_ark_enshrine}
+
+NOTE: This operation enshrines upstream base images into
+{gar_service}
+as content-addressed, human-readable anchors.
+The
+{rbtr_director}
+pulls each declared
+{rbrv_image_origin}
+from its upstream registry, pushes to GAR with an anchor tag, and writes the
+{rbrv_image_anchor}
+back to the vessel regime.
+
+NOTE: Enshrine is a pre-build preparation step.
+It must be run before
+{rbtgo_ark_conjure}
+when anchored base images are desired.
+Conjure works without anchors (passing ORIGIN through), but anchored images provide reproducibility and air-gap readiness.
+
+The enshrine operation:
+
+//axhopt_typed_parameter
+{rbrv_sigil}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+vessel provided as first argument
+.. {rbbc_require}
+vessel contains at least one
+{rbrv_image_origin}
+declaration (slots 1-3)
+
+//axhos_step
+. *Enshrine Each Image Slot*:
+.. For each indexed slot (n = 1, 2, 3) where
+{rbrv_image_origin}
+is set:
+... Pull upstream image by tag from the public registry
+... {rbbc_require}
+pull succeeds or {rbbc_fatal} with upstream registry error
+... {rbbc_store}
+`<<DIGEST>>` -- the content-addressable sha256 digest of the pulled image
+... Construct anchor: sanitize origin tag (`:` `/` replaced with `-`), append first 10 hex chars of sha256 digest
+... Example: `python:3.11-slim` with `sha256:abc123def4...` produces `python-3.11-slim-abc123def4`
+... Tag pulled image for GAR repository using the anchor string
+... Push to GAR
+... {rbbc_require}
+push succeeds -- the anchor tag is now a permanent, content-addressed reference in
+{gar_service}
+... Write anchor string to `RBRV_IMAGE_n_ANCHOR` in the vessel's `rbrv.env`
+
+//axhoot_typed_output
+{rbrv_image_anchor}
+Per-slot anchor string written to the vessel regime.
+
+//axhoc_completion
+Successful execution produces anchored base image references in
+{gar_service}
+and updates the vessel regime with
+{rbrv_image_anchor}
+values.
+The vessel is now ready for reproducible
+{rbtgo_ark_conjure}
+builds using GAR-mirrored base images.
+Re-running enshrine with the same
+{rbrv_image_origin}
+but a different upstream digest produces a new anchor (upstream image was updated).
+Re-running with the same digest is idempotent.

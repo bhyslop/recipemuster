@@ -91,6 +91,41 @@ Must be 1-512 characters.
 Examples: `linux/amd64`, `linux/amd64 linux/arm64`.
 
 //axhrgb_group
+{rbrv_group_image}
+
+//axhrgc_gate
+{rbrv_vessel_mode}
+{rbrv_vessel_mode_conjure}
+
+Variables in this group declare base image dependencies for multi-stage Dockerfiles.
+Up to 3 indexed slots (n = 1, 2, 3).
+{rbtgo_ark_enshrine}
+resolves each
+{rbrv_image_origin}
+to a GAR-mirrored
+{rbrv_image_anchor}.
+
+//axhrgv_variable
+{rbrv_image_origin}
+
+Upstream base image tag declaration (e.g., `python:3.11-slim`).
+Vessel author declares intent; the build system resolves to a concrete reference.
+Optional; 0-512 characters per slot.
+
+//axhrgv_variable
+{rbrv_image_anchor}
+
+GAR-mirrored, content-addressed anchor for the base image.
+Written by
+{rbtgo_ark_enshrine}.
+Format: `{sanitized-origin}-{10-char-sha256}`.
+When present, conjure substitutes the full GAR reference.
+When absent, conjure passes
+{rbrv_image_origin}
+through as the upstream tag.
+Optional; 0-512 characters per slot.
+
+//axhrgb_group
 {rbrv_group_grafting}
 
 //axhrgc_gate

@@ -105,6 +105,7 @@
 :rbtgo_ark_about:                 <<rbtgo_ark_about,rbf_about>>
 :rbtgo_ark_graft:                 <<rbtgo_ark_graft,rbf_graft>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbf_summon>>
+:rbtgo_ark_enshrine:             <<rbtgo_ark_enshrine,rbf_enshrine>>
 :rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbf_inspect>>
 :rbtgo_depot_create:              <<rbtgo_depot_create,rbgp_depot_create>>
 :rbtgo_depot_destroy:             <<rbtgo_depot_destroy,rbgp_depot_destroy>>
@@ -384,6 +385,9 @@
 :rbrv_group_grafting:        <<rbrv_group_grafting,Grafting Group>>
 :rbrv_graft_image:           <<rbrv_graft_image,RBRV_GRAFT_IMAGE>>
 :rbrv_graft_optional_dockerfile: <<rbrv_graft_optional_dockerfile,RBRV_GRAFT_OPTIONAL_DOCKERFILE>>
+:rbrv_group_image:               <<rbrv_group_image,Image Group>>
+:rbrv_image_origin:              <<rbrv_image_origin,RBRV_IMAGE_n_ORIGIN>>
+:rbrv_image_anchor:              <<rbrv_image_anchor,RBRV_IMAGE_n_ANCHOR>>
 
 // Recipe Bottle Regime: Authentication (service account credentials)
 :rbra_regime:                <<rbra_regime,RBRA Regime>>
@@ -1017,6 +1021,24 @@ from a vessel specification.
 Build context delivered via pouch (FROM SCRATCH OCI image in GAR), submitted via `builds.create` API. The combined job produces both `-image` and `-about` (about steps embedded via stitch). Vouch is a separate Cloud Build job using DSSE envelope signature verification.
 
 include::RBSAC-ark_conjure.adoc[]
+
+[[rbtgo_ark_enshrine]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_ark_enshrine}
+
+Enshrines upstream base images into
+{gar_service}
+({rbtgog_ark}),
+producing content-addressed
+{rbrv_image_anchor}
+references from
+{rbrv_image_origin}
+declarations.
+The
+{rbtr_director}
+pulls each upstream image by tag, pushes to GAR with a human-readable anchor tag, and writes the anchor back to the vessel regime.
+
+include::RBSAE-ark_enshrine.adoc[]
 
 [[rbtgo_ark_graft]]
 //axvo_method axd_transient axd_grouped
@@ -2897,6 +2919,40 @@ conjuring.
 Target platform architectures for
 {rbrv_regime}
 multi-platform builds.
+
+[[rbrv_group_image]]
+//axvr_group axd_optional
+{rbrv_group_image}::
+Variables declaring base image dependencies within
+{rbrv_regime}.
+Up to 3 indexed slots (n = 1, 2, 3) for multi-stage Dockerfile support.
+Applies to
+{rbrv_vessel_mode_conjure}
+vessels.
+
+[[rbrv_image_origin]]
+//axvr_variable axd_optional rbst_image_ref
+{rbrv_image_origin}::
+Upstream base image tag declaration for
+{rbrv_regime}
+conjuring vessels.
+Vessel author declares intent (e.g., `python:3.11-slim`).
+The Dockerfile uses `ARG RBRV_IMAGE_n` / `FROM ${RBRV_IMAGE_n}` -- the build system substitutes the resolved reference at conjure time.
+
+[[rbrv_image_anchor]]
+//axvr_variable axd_optional rbst_image_ref
+{rbrv_image_anchor}::
+GAR-mirrored, content-addressed reference for a base image in
+{rbrv_regime}
+conjuring vessels.
+Written by
+{rbtgo_ark_enshrine}.
+Format: `{sanitized-origin}-{10-char-sha256}` (e.g., `python-3.11-slim-abc123def4`).
+The anchor serves as both the GAR image tag and the regime variable value.
+When present, conjure resolves the base image from GAR via this anchor.
+When absent, conjure passes
+{rbrv_image_origin}
+through as the upstream tag (development path).
 
 [[rbrv_group_grafting]]
 //axvr_group axd_conditional

@@ -33,6 +33,21 @@ vessel provided as first argument
 vessel contains conjuring configuration (RBRV_CONJURE_DOCKERFILE, RBRV_CONJURE_BLDCONTEXT)
 
 //axhos_step
+. *Resolve Base Images*:
+.. For each indexed slot (n = 1, 2, 3) where
+{rbrv_image_origin}
+is set:
+... If
+{rbrv_image_anchor}
+is present: resolve to full GAR image reference using the anchor tag
+... If
+{rbrv_image_anchor}
+is absent: pass
+{rbrv_image_origin}
+through as the upstream tag (development path)
+.. Resolved references become `RBRV_IMAGE_n` substitution values for the Dockerfile `ARG`/`FROM` pattern
+
+//axhos_step
 . *Assign Consecration*:
 .. Mint
 {rbtga_consecration}
