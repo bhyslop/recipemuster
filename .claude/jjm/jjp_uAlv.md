@@ -46,6 +46,9 @@ The build context packaged as a FROM SCRATCH OCI image and pushed to GAR. Requir
 
 Tagged as `{vessel}:{consecration}-pouch`, making it a first-class ark artifact alongside `-image`, `-about`, `-vouch`. Cleaned up by abjure with the rest of the consecration's artifacts.
 
+### Anchor
+The human-readable, content-addressed GAR tag for an enshrined base image. Format: `{sanitized-origin}-{10-char-sha256}` (e.g., `python-3.11-slim-abc123def4`). Serves as both the GAR image tag and the value stored in the vessel regime. Immutable by convention.
+
 ## Design Decisions (2026-03-21)
 
 ### Reliquaries Are Required
@@ -56,8 +59,33 @@ Simplification cascade: one stitch path, one verification path, one download met
 ### Air-Gap vs Open-Egress Is Network Policy, Not Image Policy
 With required reliquaries, every conjure pulls tool images and base images from GAR mirrors regardless of egress mode. The distinction between air-gap and open-egress is purely network enforcement: whether NO_PUBLIC_EGRESS is set on the private pool. The reliquary makes air-gap the default behavior at the image layer. Open-egress is a permissive network posture, not a different image sourcing strategy.
 
-### RBRV_BASE_IMAGE_[123]
-Optional vessel regime variables declaring base image dependencies in tag form (e.g., `python:3.11-slim`). Up to 3 per vessel (multi-stage Dockerfile support). The vessel author declares intent; the build system resolves to concrete references. The Dockerfile uses `ARG RBRV_BASE_IMAGE_1` / `FROM ${RBRV_BASE_IMAGE_1}` — same name, value substituted at build time with GAR-mirrored digest from the reliquary.
+### RBRV_IMAGE Variables (settled 2026-03-23)
+Vessel regime variables declaring base image dependencies. Up to 3 per vessel (multi-stage Dockerfile support).
+
+- `RBRV_IMAGE_[n]_ORIGIN` — upstream tag declaration (e.g., `python:3.11-slim`). Vessel author declares intent.
+- `RBRV_IMAGE_[n]_ANCHOR` — GAR-mirrored, content-addressed reference. Written by enshrine.
+
+**Anchor format**: `{sanitized-origin}-{10-char-sha256}` — e.g., `python-3.11-slim-abc123def4`
+
+Construction (BCG parameter expansion, no external tools):
+```
+sanitized="${origin//[:\/]/-}"
+short="${digest#sha256:}"
+anchor="${sanitized}-${short:0:10}"
+```
+
+10 hex chars = 40 bits. Astronomically collision-safe at base-image scale.
+
+**The anchor IS the GAR tag.** Enshrine pushes the mirrored image to GAR tagged with the anchor string. The regime variable holds the same string. One name serves as both human-readable identifier and pull reference. Immutable by convention (same as consecration tags).
+
+**Enshrine writes the anchor.** Enshrine resolves ORIGIN → pulls upstream → pushes to GAR with anchor tag → writes ANCHOR back to the vessel regime. No separate manual step. The regime file diff shows exactly what changed and what it resolved to.
+
+**Dockerfile usage:**
+```dockerfile
+ARG RBRV_IMAGE_1
+FROM ${RBRV_IMAGE_1}
+```
+Conjure substitutes the full GAR reference (resolved from anchor) at build time.
 
 ### RBRV_RELIQUARY
 Required vessel regime variable for conjure mode. Identifies which reliquary provides tool images and resolved base images for the build. Different vessels may reference different reliquaries — images evolve independently, Recipe Bottle is not opinionated.
@@ -66,7 +94,7 @@ Required vessel regime variable for conjure mode. Identifies which reliquary pro
 RBRG (regime holding upstream tool image pins with freshness gates) is replaced by the reliquary. The < 1 day freshness gate that currently blocks inscribe is eliminated — you inscribe when you choose, not when a timer forces you. What remains of the upstream source information is a static manifest consumed by inscribe (a list of upstream image references to mirror), not a regime with validation and freshness enforcement.
 
 ### Inscribe Reclaimed
-With GitLab rubric repo eliminated, inscribe is reclaimed as the reliquary generation operation. Walks the vessel fleet, reads RBRV_BASE_IMAGE_* declarations and the upstream source manifest, pulls everything from upstream, pushes the complete set to a namespaced GAR location, and produces the reliquary identifier. Co-versioning is enforced by the operation — everything in one pass, one datestamp. Inscribe becomes a required step in depot initialization alongside governor/director/depot creation.
+With GitLab rubric repo eliminated, inscribe is reclaimed as the reliquary generation operation. Walks the vessel fleet, reads `RBRV_IMAGE_*_ORIGIN` declarations and the upstream source manifest, pulls everything from upstream, pushes the complete set to a namespaced GAR location, and produces the reliquary identifier. Co-versioning is enforced by the operation — everything in one pass, one datestamp. Inscribe becomes a required step in depot initialization alongside governor/director/depot creation.
 
 ### Build = Conjure Execution
 Build (conjure) does: load vessel regime, resolve base images against reliquary, assign consecration, push pouch to GAR, stitch JSON (single path — all step image references from reliquary), submit via builds.create, wait, vouch. Clean separation from inscribe — no overlap.
