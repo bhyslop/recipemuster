@@ -3597,6 +3597,13 @@
         "₢AwAAD": {
           "tacks": [
             {
+              "ts": "260323-1834",
+              "state": "rough",
+              "text": "Replace first-generation annotations on JJS0 operations with RBS0-style voicing annotations.\n\n## Current state\n\nAll JJS0 operations (create, enroll, reorder, show, orient, etc.) carry:\n```\n//axl_voices axi_cli_subcommand\n```\nThis is semantically wrong (they're MCP tools) and lacks dimensions.\n\n## Target state\n\nEach operation carries the appropriate annotation from ₢AwAAC's AXLA gap resolution:\n- Correct interface motif (whatever replaces axi_cli_subcommand for MCP tools)\n- Dimension modifiers matching RBS0 patterns (transient, attended where applicable, grouped if operation groups are formalized)\n\n## Scope\n\n- All `[[jjdo_*]]` anchored definitions in JJS0\n- All `[[jjdr_*]]` routine definitions (these already have `//axvo_procedure axd_internal` — verify correctness)\n- Operation group headers if ₢AwAAC formalizes them as linked terms\n- Skip V4-VOLATILE marked sections\n\n## Character\n\nMechanical with judgment edges — most operations get the same annotation pattern, but attended/unattended distinction requires understanding each operation.\n\n## Depends on\n\n- ₢AwAAC (surface-axla-gaps) — need resolved motifs before applying them",
+              "silks": "axhe-operations-migration",
+              "commit": "ebd92c9"
+            },
+            {
               "ts": "260317-1831",
               "state": "rough",
               "text": "Replace first-generation annotations on JJS0 operations with RBS0-style voicing annotations.\n\n## Current state\n\nAll JJS0 operations (create, enroll, reorder, show, orient, etc.) carry:\n```\n//axl_voices axi_cli_subcommand\n```\nThis is semantically wrong (they're MCP tools) and lacks dimensions.\n\n## Target state\n\nEach operation carries the appropriate annotation from ₢AwAAC's AXLA gap resolution:\n- Correct interface motif (whatever replaces axi_cli_subcommand for MCP tools)\n- Dimension modifiers matching RBS0 patterns (transient, attended where applicable, grouped if operation groups are formalized)\n\n## Scope\n\n- All `[[jjdo_*]]` anchored definitions in JJS0\n- All `[[jjdr_*]]` routine definitions (these already have `//axvo_procedure axd_internal` — verify correctness)\n- Operation group headers if ₢AwAAC formalizes them as linked terms\n- Skip V4-VOLATILE marked sections\n\n## Character\n\nMechanical with judgment edges — most operations get the same annotation pattern, but attended/unattended distinction requires understanding each operation.\n\n## Depends on\n\n- ₢AwAAC (surface-axla-gaps) — need resolved motifs before applying them",
