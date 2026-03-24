@@ -3669,6 +3669,13 @@
         "₢AwAAC": {
           "tacks": [
             {
+              "ts": "260324-0840",
+              "state": "complete",
+              "text": "Migrate JJS0 data model annotations to `axhe*` entity voicing convention.\n\n## Scope\n\nApply the vocabulary mapping established in ₢AwAAB (taxonomy pilot) to JJS0's structural core:\n\n1. **Records**: Gallops, Heat, Pace — `axr_record_json` → `axheb_entity` or equivalent\n2. **Members**: All `axr_member` annotations on Gallops/Heat/Pace fields → `axheft_typed_field` or `axhefm_motif_field`\n3. **Enum values**: HeatStatus (3), PaceState (3), Column Table alignment (2) — `axt_enum_value` → appropriate `axhe*`\n4. **Scalar types**: Firemark, Coronet, Silks, Slug — `axt_string`/`axt_enumeration` → `axhe*` equivalents\n5. **Column Table**: entity + members + enums as a unit\n\n## Character\n\nMechanical with the taxonomy pilot as guide. ~25 annotations to migrate.\n\n## Depends on\n\n₢AwAAB (axhe-taxonomy-pilot) — need the mapping vocabulary",
+              "silks": "axhe-data-model-migration",
+              "commit": "a537aa1"
+            },
+            {
               "ts": "260323-1835",
               "state": "rough",
               "text": "Migrate JJS0 data model annotations to `axhe*` entity voicing convention.\n\n## Scope\n\nApply the vocabulary mapping established in ₢AwAAB (taxonomy pilot) to JJS0's structural core:\n\n1. **Records**: Gallops, Heat, Pace — `axr_record_json` → `axheb_entity` or equivalent\n2. **Members**: All `axr_member` annotations on Gallops/Heat/Pace fields → `axheft_typed_field` or `axhefm_motif_field`\n3. **Enum values**: HeatStatus (3), PaceState (3), Column Table alignment (2) — `axt_enum_value` → appropriate `axhe*`\n4. **Scalar types**: Firemark, Coronet, Silks, Slug — `axt_string`/`axt_enumeration` → `axhe*` equivalents\n5. **Column Table**: entity + members + enums as a unit\n\n## Character\n\nMechanical with the taxonomy pilot as guide. ~25 annotations to migrate.\n\n## Depends on\n\n₢AwAAB (axhe-taxonomy-pilot) — need the mapping vocabulary",
