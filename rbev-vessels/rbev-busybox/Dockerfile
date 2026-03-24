@@ -1,5 +1,6 @@
-# Start with the latest busybox image
-FROM busybox:latest
+# Base image resolved by Foundry (anchored GAR ref or upstream pass-through)
+ARG RBF_IMAGE_1
+FROM ${RBF_IMAGE_1}
 
 # Set working directory
 WORKDIR /app
