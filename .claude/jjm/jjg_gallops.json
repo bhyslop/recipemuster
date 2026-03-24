@@ -3615,6 +3615,13 @@
         "₢AwAAE": {
           "tacks": [
             {
+              "ts": "260323-1834",
+              "state": "rough",
+              "text": "Update record/member/enum/type annotations on JJS0 data model sections that survive V4.\n\n## Scope\n\nAnnotate definitions that are NOT marked V4-VOLATILE:\n\n1. **Gallops record and members** — verify/complete axr_record_json and axr_member annotations\n2. **Heat record and members** — same\n3. **Identity types** (firemark, coronet, silks) — verify axt_string annotations, add dimension modifiers\n4. **Heat status enum** (racing/stabled/retired) — verify axt_enum_value annotations\n5. **Column Table** record/members/enum — these are JJS0-specific display infrastructure, annotate appropriately\n6. **Argument definitions** (jjda_*) — verify axa_cli_option / axa_cli_flag annotations match resolved AXLA vocabulary\n7. **Upper API verbs and slash commands** — verify axi_cc_claudemd_verb and axi_cc_slash_command annotations\n\n## Character\n\nMechanical — systematic pass through non-volatile definitions applying consistent annotation patterns.\n\n## Depends on\n\n- ₢AwAAA (mark-volatile) — need to know what to skip\n- ₢AwAAC (surface-axla-gaps) — need resolved motif vocabulary",
+              "silks": "spec-gap-closure",
+              "commit": "1031ce7"
+            },
+            {
               "ts": "260317-1831",
               "state": "rough",
               "text": "Update record/member/enum/type annotations on JJS0 data model sections that survive V4.\n\n## Scope\n\nAnnotate definitions that are NOT marked V4-VOLATILE:\n\n1. **Gallops record and members** — verify/complete axr_record_json and axr_member annotations\n2. **Heat record and members** — same\n3. **Identity types** (firemark, coronet, silks) — verify axt_string annotations, add dimension modifiers\n4. **Heat status enum** (racing/stabled/retired) — verify axt_enum_value annotations\n5. **Column Table** record/members/enum — these are JJS0-specific display infrastructure, annotate appropriately\n6. **Argument definitions** (jjda_*) — verify axa_cli_option / axa_cli_flag annotations match resolved AXLA vocabulary\n7. **Upper API verbs and slash commands** — verify axi_cc_claudemd_verb and axi_cc_slash_command annotations\n\n## Character\n\nMechanical — systematic pass through non-volatile definitions applying consistent annotation patterns.\n\n## Depends on\n\n- ₢AwAAA (mark-volatile) — need to know what to skip\n- ₢AwAAC (surface-axla-gaps) — need resolved motif vocabulary",
