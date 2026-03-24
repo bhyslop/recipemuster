@@ -3216,6 +3216,7 @@
       "creation_time": "260315",
       "status": "racing",
       "order": [
+        "₢AvAAO",
         "₢AvAAA",
         "₢AvAAB",
         "₢AvAAC",
@@ -3231,7 +3232,7 @@
         "₢AvAAL",
         "₢AvAAH"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3518,6 +3519,17 @@
               "text": "## Character\nEnd-to-end validation of the full enshrine → conjure → vouch pipeline.\n\n## Goal\nProve the enshrine feature works against a real upstream image with multi-platform content.\n\n## Steps\n1. Enshrine a real multi-platform image (e.g., python:3.11-slim) for a test vessel\n2. Verify anchor written to rbrv.env with correct format\n3. Verify image present in GAR with all upstream platforms (rbi_show on anchor tag)\n4. Conjure the vessel using the anchored base image\n5. Verify vouch records anchored provenance path\n\n## Verification\n- Full round-trip: enshrine → conjure → vouch with anchored base image\n- rbi_list shows anchor tag alongside consecration tags\n- Multi-platform manifest list preserved in GAR",
               "silks": "enshrine-end-to-end-verification",
               "commit": "39f81b3"
+            }
+          ]
+        },
+        "₢AvAAO": {
+          "tacks": [
+            {
+              "ts": "260324-0741",
+              "state": "rough",
+              "text": "## Character\nArchitectural correction — enshrine must run as a GCB job, not Director-local skopeo.\n\n## Goal\nRewrite enshrine to submit a Cloud Build job (like vouch does) instead of running skopeo on the Director's workstation. The GCB step does inspect + copy, returns anchor strings via buildStepOutputs, Director writes them to rbrv.env.\n\n## Steps\n1. Create GCB step script `rbgje/rbgje01-enshrine-copy.sh`: for each slot, skopeo inspect --raw (digest), construct anchor, skopeo copy --all to GAR. Auth via metadata server token. Write JSON anchor results to /builder/outputs/output.\n2. Rewrite `rbf_enshrine` in Foundry: load vessel, assemble enshrine step, compose builds.create JSON with _RBGE_* substitutions (GAR coords + ORIGIN values), submit, wait, extract anchor JSON from buildStepOutputs.\n3. Delete `zrbf_enshrine_slot` — logic now lives in GCB step script.\n4. Parse anchor results, write each RBRV_IMAGE_n_ANCHOR back to rbrv.env (regime writeback stays local).\n5. Update RBSAE spec to describe GCB submission pattern.\n6. Remove `command -v skopeo` local requirement check.\n\n## Verification\n- Enshrine submits GCB job and returns anchor strings\n- No local skopeo dependency\n- Anchor writeback to rbrv.env still works\n- Re-run produces same anchor (idempotent)",
+              "silks": "enshrine-gcb-correction",
+              "commit": "73e2bd5"
             }
           ]
         }
