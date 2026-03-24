@@ -3495,6 +3495,13 @@
         "₢AvAAM": {
           "tacks": [
             {
+              "ts": "260323-1900",
+              "state": "complete",
+              "text": "## Character\nIntegration work connecting enshrine outputs to conjure and vouch pipelines.\n\n## Goal\nConjure resolves ANCHOR to full GAR reference in Dockerfile ARGs. Vouch records which provenance path was taken.\n\n## Steps\n1. Update conjure stitch: when RBRV_IMAGE_n_ANCHOR is set, resolve to full GAR image reference (`REGISTRY/REPO/VESSEL:ANCHOR`) and substitute into Dockerfile ARG\n2. When ANCHOR is empty, pass ORIGIN through as upstream tag (development path)\n3. Update vouch to record base image provenance: anchored (GAR-mirrored) vs pass-through (upstream direct)\n4. Ensure vouch summary includes anchor string when present\n\n## Verification\n- Conjure with ANCHOR set uses GAR reference in build\n- Conjure with ANCHOR empty passes ORIGIN through\n- Vouch records which path was taken",
+              "silks": "wire-anchor-into-conjure-vouch",
+              "commit": "cf826b5"
+            },
+            {
               "ts": "260323-1828",
               "state": "rough",
               "text": "## Character\nIntegration work connecting enshrine outputs to conjure and vouch pipelines.\n\n## Goal\nConjure resolves ANCHOR to full GAR reference in Dockerfile ARGs. Vouch records which provenance path was taken.\n\n## Steps\n1. Update conjure stitch: when RBRV_IMAGE_n_ANCHOR is set, resolve to full GAR image reference (`REGISTRY/REPO/VESSEL:ANCHOR`) and substitute into Dockerfile ARG\n2. When ANCHOR is empty, pass ORIGIN through as upstream tag (development path)\n3. Update vouch to record base image provenance: anchored (GAR-mirrored) vs pass-through (upstream direct)\n4. Ensure vouch summary includes anchor string when present\n\n## Verification\n- Conjure with ANCHOR set uses GAR reference in build\n- Conjure with ANCHOR empty passes ORIGIN through\n- Vouch records which path was taken",
