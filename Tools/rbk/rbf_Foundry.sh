@@ -80,6 +80,11 @@ zrbf_kindle() {
   readonly ZRBF_RBGJM_STEPS_DIR="${z_self_dir}/rbgjm"
   test -d "${ZRBF_RBGJM_STEPS_DIR}"   || buc_die "RBGJM steps directory not found: ${ZRBF_RBGJM_STEPS_DIR}"
 
+  buc_log_args 'RBGJE enshrine step scripts (same Tools directory)'
+  # Acronym: rbgje = Recipe Bottle Google Json Enshrine (step scripts in rbgje/ dir)
+  readonly ZRBF_RBGJE_STEPS_DIR="${z_self_dir}/rbgje"
+  test -d "${ZRBF_RBGJE_STEPS_DIR}"   || buc_die "RBGJE steps directory not found: ${ZRBF_RBGJE_STEPS_DIR}"
+
   buc_log_args 'Define temp files for build operations'
   readonly ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
   readonly ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
@@ -764,80 +769,6 @@ zrbf_wait_build_completion() {
   buc_success 'Build completed successfully'
 }
 
-zrbf_enshrine_slot() {
-  zrbf_sentinel
-
-  local -r z_n="${1:-}"
-  local -r z_origin="${2:-}"
-  local -r z_vessel_sigil="${3:-}"
-  local -r z_token="${4:-}"
-  local -r z_rbrv_file="${5:-}"
-
-  test -n "${z_n}"             || buc_die "Slot number required"
-  test -n "${z_origin}"        || buc_die "Origin required"
-  test -n "${z_vessel_sigil}"  || buc_die "Vessel sigil required"
-  test -n "${z_token}"         || buc_die "Token required"
-  test -n "${z_rbrv_file}"     || buc_die "Vessel regime file required"
-
-  buc_step "Enshrine slot ${z_n}: ${z_origin}"
-
-  # Inspect upstream for raw manifest (manifest list for multi-platform, single manifest otherwise)
-  local -r z_raw_file="${ZRBF_ENSHRINE_PREFIX}${z_n}_raw_manifest.json"
-  local -r z_digest_file="${ZRBF_ENSHRINE_PREFIX}${z_n}_digest.txt"
-  local -r z_inspect_stderr="${ZRBF_ENSHRINE_PREFIX}${z_n}_inspect_stderr.txt"
-
-  buc_log_args "Inspecting upstream: docker://${z_origin}"
-  skopeo inspect --raw "docker://${z_origin}" \
-    > "${z_raw_file}" 2>"${z_inspect_stderr}" \
-    || buc_die "Failed to inspect upstream: ${z_origin} — see ${z_inspect_stderr}"
-
-  # Compute sha256 of the raw manifest
-  sha256sum "${z_raw_file}" > "${z_digest_file}" \
-    || buc_die "Failed to compute digest"
-  local -r z_full_digest=$(<"${z_digest_file}")
-  test -n "${z_full_digest}" || buc_die "Empty digest"
-  local -r z_sha="${z_full_digest%% *}"
-  test -n "${z_sha}" || buc_die "Failed to extract sha256 from digest line"
-
-  # Construct anchor: sanitize origin (: and / become -), append first 10 hex chars
-  local -r z_sanitized="${z_origin//[:\/]/-}"
-  local -r z_short="${z_sha:0:10}"
-  local -r z_anchor="${z_sanitized}-${z_short}"
-
-  buc_log_args "Anchor: ${z_anchor}"
-  buc_log_args "Digest: sha256:${z_sha}"
-
-  # Construct GAR destination reference
-  local -r z_gar_ref="docker://${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel_sigil}:${z_anchor}"
-
-  # Copy upstream to GAR with anchor tag, preserving manifest list
-  local -r z_copy_stderr="${ZRBF_ENSHRINE_PREFIX}${z_n}_copy_stderr.txt"
-  buc_step "Copying to GAR: ${z_gar_ref}"
-  skopeo copy --all \
-    --dest-creds "oauth2accesstoken:${z_token}" \
-    "docker://${z_origin}" \
-    "${z_gar_ref}" \
-    2>"${z_copy_stderr}" \
-    || buc_die "Failed to copy to GAR — see ${z_copy_stderr}"
-
-  # Write anchor back to vessel regime file
-  local -r z_anchor_var="RBRV_IMAGE_${z_n}_ANCHOR"
-  local -r z_anchor_line="${z_anchor_var}=${z_anchor}"
-  local -r z_anchor_pattern="^${z_anchor_var}="
-  local -r z_updated_file="${ZRBF_ENSHRINE_PREFIX}${z_n}_updated_rbrv.env"
-
-  if grep -q "${z_anchor_pattern}" "${z_rbrv_file}"; then
-    sed "s|${z_anchor_pattern}.*|${z_anchor_line}|" "${z_rbrv_file}" > "${z_updated_file}" \
-      || buc_die "Failed to update ${z_anchor_var} in rbrv.env"
-  else
-    cp "${z_rbrv_file}" "${z_updated_file}" || buc_die "Failed to copy rbrv.env for update"
-    echo "${z_anchor_line}" >> "${z_updated_file}" || buc_die "Failed to append ${z_anchor_var}"
-  fi
-  cp "${z_updated_file}" "${z_rbrv_file}" || buc_die "Failed to write updated rbrv.env"
-
-  buc_success "Slot ${z_n} enshrined: ${z_anchor}"
-}
-
 ######################################################################
 # External Functions (rbf_*)
 
@@ -846,7 +777,7 @@ rbf_enshrine() {
 
   local -r z_vessel_dir="${1:-}"
 
-  buc_doc_brief "Enshrine upstream base images to GAR for a conjure vessel"
+  buc_doc_brief "Enshrine upstream base images to GAR via Cloud Build"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_shown || return 0
 
@@ -861,10 +792,6 @@ rbf_enshrine() {
     done
     buc_die "Vessel directory required"
   fi
-
-  # Verify skopeo is available
-  command -v skopeo >/dev/null 2>&1 \
-    || buc_die "skopeo not found — install via 'brew install skopeo' or equivalent"
 
   # Load and validate vessel
   zrbf_load_vessel "${z_vessel_dir}"
@@ -888,19 +815,182 @@ rbf_enshrine() {
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  # Enshrine each slot where ORIGIN is set
+  # Submit enshrine as a Cloud Build job (skopeo runs on GCB, not locally)
+  zrbf_enshrine_submit "${z_token}"
+
+  # Extract anchor results from build step outputs
   local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
-  local z_n=""
-  local z_origin_var=""
-  local z_origin=""
-  for z_n in 1 2 3; do
-    z_origin_var="RBRV_IMAGE_${z_n}_ORIGIN"
-    z_origin="${!z_origin_var:-}"
-    test -n "${z_origin}" || continue
-    zrbf_enshrine_slot "${z_n}" "${z_origin}" "${RBRV_SIGIL}" "${z_token}" "${z_rbrv_file}"
-  done
+  zrbf_enshrine_extract_anchors "${z_rbrv_file}"
 
   buc_success "Enshrine complete for vessel: ${RBRV_SIGIL}"
+}
+
+# Internal: Submit enshrine Cloud Build job
+# Single step: skopeo inspect + copy for each ORIGIN slot, returning anchors via buildStepOutputs.
+zrbf_enshrine_submit() {
+  zrbf_sentinel
+
+  local -r z_token="$1"
+
+  buc_step "Constructing enshrine Cloud Build resource"
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+
+  # Assemble enshrine step from script
+  local -r z_script_path="${ZRBF_RBGJE_STEPS_DIR}/rbgje01-enshrine-copy.sh"
+  test -f "${z_script_path}" || buc_die "Enshrine step script not found: ${z_script_path}"
+
+  local -r z_body_file="${ZRBF_ENSHRINE_PREFIX}body.txt"
+  local -r z_escaped_file="${ZRBF_ENSHRINE_PREFIX}escaped.txt"
+
+  buc_log_args "Reading enshrine step script (skip shebang)"
+  tail -n +2 "${z_script_path}" > "${z_body_file}" \
+    || buc_die "Failed to read enshrine step script"
+  local z_body=""
+  z_body=$(<"${z_body_file}")
+  test -n "${z_body}" || buc_die "Empty enshrine script body"
+
+  buc_log_args "Escaping dollars for Cloud Build, preserving _RBGE_ substitutions"
+  z_body="${z_body//\$/\$\$}"
+  z_body="${z_body//\$\${_RBGE_/\${_RBGE_}"
+  printf '%s' "${z_body}" > "${z_escaped_file}" \
+    || buc_die "Failed to write escaped enshrine script body"
+
+  local -r z_step_file="${ZRBF_ENSHRINE_PREFIX}step.json"
+  echo "[]" > "${z_step_file}" || buc_die "Failed to initialize enshrine step JSON"
+
+  local -r z_step_built="${ZRBF_ENSHRINE_PREFIX}step_built.json"
+  jq \
+    --arg name "${RBRG_SKOPEO_IMAGE_REF}" \
+    --arg id "enshrine-copy" \
+    --arg ep "/bin/bash" \
+    --arg flag "-lc" \
+    --rawfile script "${z_escaped_file}" \
+    '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+    "${z_step_file}" > "${z_step_built}" \
+    || buc_die "Failed to build enshrine step JSON"
+  mv "${z_step_built}" "${z_step_file}" \
+    || buc_die "Failed to finalize enshrine step JSON"
+
+  # Compose Build resource JSON
+  buc_log_args "Composing enshrine Build resource JSON"
+  local -r z_build_file="${ZRBF_ENSHRINE_PREFIX}build.json"
+
+  jq -n \
+    --slurpfile zjq_steps  "${z_step_file}" \
+    --arg zjq_sa           "${z_mason_sa}" \
+    --arg zjq_gar_host     "${z_gar_host}" \
+    --arg zjq_gar_path     "${z_gar_path}" \
+    --arg zjq_vessel       "${RBRV_SIGIL}" \
+    --arg zjq_origin_1     "${RBRV_IMAGE_1_ORIGIN:-}" \
+    --arg zjq_origin_2     "${RBRV_IMAGE_2_ORIGIN:-}" \
+    --arg zjq_origin_3     "${RBRV_IMAGE_3_ORIGIN:-}" \
+    --arg zjq_pool         "${RBRR_GCB_WORKER_POOL}" \
+    --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
+    '{
+      steps: $zjq_steps[0],
+      substitutions: {
+        _RBGE_GAR_HOST:          $zjq_gar_host,
+        _RBGE_GAR_PATH:          $zjq_gar_path,
+        _RBGE_VESSEL:            $zjq_vessel,
+        _RBGE_IMAGE_1_ORIGIN:    $zjq_origin_1,
+        _RBGE_IMAGE_2_ORIGIN:    $zjq_origin_2,
+        _RBGE_IMAGE_3_ORIGIN:    $zjq_origin_3
+      },
+      serviceAccount: $zjq_sa,
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $zjq_pool }
+      },
+      timeout: $zjq_timeout
+    }' > "${z_build_file}" \
+    || buc_die "Failed to compose enshrine build JSON"
+
+  buc_log_args "Enshrine build JSON: ${z_build_file}"
+
+  buc_step "Submitting enshrine Cloud Build"
+  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+    "enshrine_build_create" "${z_build_file}"
+  rbgu_http_require_ok "Enshrine build submission" "enshrine_build_create"
+
+  local z_build_id=""
+  z_build_id=$(rbgu_json_field_capture "enshrine_build_create" '.metadata.build.id') || z_build_id=""
+  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
+  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+
+  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  buc_info "Enshrine build submitted: ${z_build_id}"
+  buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
+
+  zrbf_wait_build_completion 50  # ~4 minutes at 5s intervals
+}
+
+# Internal: Extract anchor results from completed enshrine build and write to vessel regime
+# Reads buildStepOutputs from the build status response (populated by /builder/outputs/output)
+zrbf_enshrine_extract_anchors() {
+  zrbf_sentinel
+
+  local -r z_rbrv_file="$1"
+  test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
+
+  buc_step "Extracting anchor results from build step outputs"
+
+  # buildStepOutputs[0] is base64-encoded JSON from the enshrine step
+  local -r z_b64_file="${ZRBF_ENSHRINE_PREFIX}output_b64.txt"
+  local -r z_output_file="${ZRBF_ENSHRINE_PREFIX}output.json"
+
+  jq -r '.results.buildStepOutputs[0] // empty' "${ZRBF_BUILD_STATUS_FILE}" \
+    > "${z_b64_file}" || buc_die "Failed to extract buildStepOutputs from build result"
+  test -s "${z_b64_file}" || buc_die "No buildStepOutputs in build result — enshrine step did not produce output"
+
+  base64 -d < "${z_b64_file}" > "${z_output_file}" \
+    || buc_die "Failed to decode buildStepOutputs base64"
+  test -s "${z_output_file}" || buc_die "Empty decoded buildStepOutputs"
+
+  buc_log_args "Enshrine output:"
+  buc_log_pipe < "${z_output_file}"
+
+  # Write each anchor back to the vessel regime file
+  local z_n=""
+  local z_slot_key=""
+  local z_anchor=""
+  local z_anchor_var=""
+  local z_anchor_line=""
+  local z_updated_file=""
+
+  for z_n in 1 2 3; do
+    z_slot_key="slot_${z_n}"
+    z_anchor=$(jq -r ".${z_slot_key}.anchor // empty" "${z_output_file}") || z_anchor=""
+    test -n "${z_anchor}" || continue
+
+    z_anchor_var="RBRV_IMAGE_${z_n}_ANCHOR"
+    z_anchor_line="${z_anchor_var}=${z_anchor}"
+    z_updated_file="${ZRBF_ENSHRINE_PREFIX}${z_n}_updated_rbrv.env"
+
+    buc_step "Writing anchor slot ${z_n}: ${z_anchor}"
+
+    # Replace existing ANCHOR line or append — bash-native read/match/write
+    local z_found=false
+    while IFS= read -r z_line; do
+      if [[ "${z_line}" == ${z_anchor_var}=* ]]; then
+        printf '%s\n' "${z_anchor_line}"
+        z_found=true
+      else
+        printf '%s\n' "${z_line}"
+      fi
+    done < "${z_rbrv_file}" > "${z_updated_file}" \
+      || buc_die "Failed to process ${z_rbrv_file} for ${z_anchor_var}"
+
+    if [[ "${z_found}" != "true" ]]; then
+      printf '%s\n' "${z_anchor_line}" >> "${z_updated_file}" \
+        || buc_die "Failed to append ${z_anchor_var}"
+    fi
+
+    cp "${z_updated_file}" "${z_rbrv_file}" || buc_die "Failed to write updated rbrv.env"
+
+    buc_success "Slot ${z_n} enshrined: ${z_anchor}"
+  done
 }
 
 rbf_create() {
