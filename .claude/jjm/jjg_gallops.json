@@ -3226,11 +3226,12 @@
         "₢AvAAI",
         "₢AvAAJ",
         "₢AvAAM",
+        "₢AvAAN",
         "₢AvAAK",
         "₢AvAAL",
         "₢AvAAH"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3492,6 +3493,17 @@
               "text": "## Character\nIntegration work connecting enshrine outputs to conjure and vouch pipelines.\n\n## Goal\nConjure resolves ANCHOR to full GAR reference in Dockerfile ARGs. Vouch records which provenance path was taken.\n\n## Steps\n1. Update conjure stitch: when RBRV_IMAGE_n_ANCHOR is set, resolve to full GAR image reference (`REGISTRY/REPO/VESSEL:ANCHOR`) and substitute into Dockerfile ARG\n2. When ANCHOR is empty, pass ORIGIN through as upstream tag (development path)\n3. Update vouch to record base image provenance: anchored (GAR-mirrored) vs pass-through (upstream direct)\n4. Ensure vouch summary includes anchor string when present\n\n## Verification\n- Conjure with ANCHOR set uses GAR reference in build\n- Conjure with ANCHOR empty passes ORIGIN through\n- Vouch records which path was taken",
               "silks": "wire-anchor-into-conjure-vouch",
               "commit": "cae9379"
+            }
+          ]
+        },
+        "₢AvAAN": {
+          "tacks": [
+            {
+              "ts": "260323-1828",
+              "state": "rough",
+              "text": "## Character\nEnd-to-end validation of the full enshrine → conjure → vouch pipeline.\n\n## Goal\nProve the enshrine feature works against a real upstream image with multi-platform content.\n\n## Steps\n1. Enshrine a real multi-platform image (e.g., python:3.11-slim) for a test vessel\n2. Verify anchor written to rbrv.env with correct format\n3. Verify image present in GAR with all upstream platforms (rbi_show on anchor tag)\n4. Conjure the vessel using the anchored base image\n5. Verify vouch records anchored provenance path\n\n## Verification\n- Full round-trip: enshrine → conjure → vouch with anchored base image\n- rbi_list shows anchor tag alongside consecration tags\n- Multi-platform manifest list preserved in GAR",
+              "silks": "enshrine-end-to-end-verification",
+              "commit": "39f81b3"
             }
           ]
         }
