@@ -3554,6 +3554,13 @@
         "₢AwAAB": {
           "tacks": [
             {
+              "ts": "260323-1835",
+              "state": "rough",
+              "text": "Pilot the `axhe*` entity voicing migration on JJS0's Operation Taxonomy section.\n\n## Approach\n\nUse JJSCGZ-gazette.adoc as the Rosetta Stone — it already speaks `axhe*` natively. Map the 6 `axvo_*` annotations in the Operation Taxonomy section (L1160-1249) to `axhe*` equivalents:\n\n- `axvo_group` (jjsogmc_mcp_commands) → appropriate `axhe*` marker\n- `axvo_procedure axd_transient axd_grouped` (jjsoprd_revise_docket) → `axhe*` equivalent\n- `axvo_method axd_transient` (resolve_pace, prepend_tack, revise_docket) → `axhe*` equivalent\n- `axvo_procedure axd_internal` (load, save, persist, wrap routines) → `axhe*` equivalent\n\n## Character\n\nDesign conversation at the boundary — mapping between two vocabularies requires judgment about which structural roles align. Small scope (6 annotations) limits blast radius.\n\n## Produces\n\n- Updated JJS0 Operation Taxonomy section with `axhe*` annotations\n- Mapping table (old → new) captured in commit message or paddock for subsequent paces\n- Discovery of any `axhe*` motifs that need extension",
+              "silks": "axhe-taxonomy-pilot",
+              "commit": "29d6560"
+            },
+            {
               "ts": "260323-1834",
               "state": "rough",
               "text": "Compare JJS0 spec annotations against actual Rust implementation to establish a baseline before normalization.\n\n## Scope\n\nFor each annotated definition in JJS0, check whether the implementation (jjrt_types.rs, jjr*_.rs command files, jjrv_validate.rs) matches the spec's claims. Focus on:\n\n1. **Type annotations**: Do `//axl_voices axr_record_json` and `//axl_voices axr_member` on Gallops/Heat/Pace match actual serde-derived Rust structs?\n2. **Operation annotations**: Do `//axl_voices axi_cli_subcommand` annotations match what the MCP tool registration actually does?\n3. **Enum annotations**: Do `//axl_voices axt_enum_value` markers cover all variants in Rust enums?\n4. **Argument annotations**: Do `//axl_voices axa_cli_option` / `axa_cli_flag` match actual MCP tool parameter schemas?\n\n## Character\n\nAudit discipline — careful, mechanical comparison. Not design work. Read spec, read code, note discrepancies.\n\n## Produces\n\n- **Memo**: `Memos/memo-YYYYMMDD-jjs0-impl-vs-spec-baseline.md` documenting:\n  - Total annotation count and categorized breakdown\n  - Each divergence: spec says X, code does Y\n  - Each gap: spec has annotation but code has no corresponding construct (or vice versa)\n  - Each match: confirmed alignment\n- Memo filename written into ₣Aw paddock so the trailer reassessment pace can find it\n- This baseline informs all subsequent normalization paces AND the trailer reassessment",
@@ -3579,6 +3586,13 @@
         "₢AwAAC": {
           "tacks": [
             {
+              "ts": "260323-1835",
+              "state": "rough",
+              "text": "Migrate JJS0 data model annotations to `axhe*` entity voicing convention.\n\n## Scope\n\nApply the vocabulary mapping established in ₢AwAAB (taxonomy pilot) to JJS0's structural core:\n\n1. **Records**: Gallops, Heat, Pace — `axr_record_json` → `axheb_entity` or equivalent\n2. **Members**: All `axr_member` annotations on Gallops/Heat/Pace fields → `axheft_typed_field` or `axhefm_motif_field`\n3. **Enum values**: HeatStatus (3), PaceState (3), Column Table alignment (2) — `axt_enum_value` → appropriate `axhe*`\n4. **Scalar types**: Firemark, Coronet, Silks, Slug — `axt_string`/`axt_enumeration` → `axhe*` equivalents\n5. **Column Table**: entity + members + enums as a unit\n\n## Character\n\nMechanical with the taxonomy pilot as guide. ~25 annotations to migrate.\n\n## Depends on\n\n₢AwAAB (axhe-taxonomy-pilot) — need the mapping vocabulary",
+              "silks": "axhe-data-model-migration",
+              "commit": "29d6560"
+            },
+            {
               "ts": "260323-1834",
               "state": "rough",
               "text": "Audit JJS0 against AXLA for motif gaps and propose additions.\n\n## Known gaps (from initial analysis)\n\n1. **axa_cli_flag** — JJS0 uses this (lines 925, 942) but AXLA doesn't define it. Needs upstream addition.\n2. **axi_mcp_tool** — JJS0 operations are MCP tools, not CLI subcommands. AXLA has axi_cli_subcommand but nothing for MCP tool interface. Need a motif.\n3. **Transport dimension on operations** — AXLA defines axe_mcp_transport as a motif but JJS0 operations don't carry it. Should MCP-served operations annotate their transport?\n4. **Operation dimension vocabulary** — RBS0 uses axd_transient, axd_attended, axd_grouped. Which of these apply to JJS0's MCP tool operations? Are they all transient? Which are attended?\n5. **Category-level voicing** — JJS0 category prefixes (jjdgr_, jjdgm_) declare intent in comments but don't formally voice AXLA motifs. Is per-definition annotation sufficient or does AXLA need category-level voicing?\n\n## Character\n\nDesign conversation — judgment required on what AXLA should add vs what JJS0 should adapt to existing motifs.\n\n## Produces\n\n- Concrete AXLA additions (new definitions in AXLA-Lexicon.adoc mapping section and definition body)\n- Decision record on each gap: add to AXLA, reuse existing motif, or accept the gap\n- Updated JJS0 mapping section category comments if category-level voicing pattern is adopted",
@@ -3597,6 +3611,13 @@
         "₢AwAAD": {
           "tacks": [
             {
+              "ts": "260323-1835",
+              "state": "rough",
+              "text": "Migrate JJS0 operation and argument annotations to `axhe*` entity voicing convention.\n\n## Scope\n\n1. **20 operations** (`jjdo_*`): Replace `//axl_voices axi_cli_subcommand` with transport-agnostic `axhe*` annotations. These are structural operations, not CLI subcommands.\n2. **13 arguments** (`jjda_*`): Replace `axa_cli_option`/`axa_cli_flag` with `axhe*` parameter annotations. Short-form CLI syntax (`-s`, `-p`) is vestigial — document or remove.\n3. **Transport/CLI definitions**: `jjdx_vvx` (axi_cli_program), `jjdx_cli` (axi_cli_command_group), `jjdx_mcp` (axi_cli_subcommand) — these ARE transport-specific by nature, migrate thoughtfully.\n4. **Upper API verbs** (14): `axi_cc_claudemd_verb` — evaluate whether these belong in `axhe*` or remain in the context-artifact vocabulary.\n5. **Section headers** (3): `axa_argument_list`, `axa_exit_uniform`, `axa_exit_enumerated` — structural formatting annotations.\n\n## Character\n\nLargest migration pace (~50 annotations). Mechanical core with judgment edges on transport-specific definitions and upper API verbs.\n\n## Depends on\n\n₢AwAAB (taxonomy pilot) and ₢AwAAC (data model) — vocabulary and confidence from earlier paces",
+              "silks": "axhe-operations-migration",
+              "commit": "29d6560"
+            },
+            {
               "ts": "260323-1834",
               "state": "rough",
               "text": "Replace first-generation annotations on JJS0 operations with RBS0-style voicing annotations.\n\n## Current state\n\nAll JJS0 operations (create, enroll, reorder, show, orient, etc.) carry:\n```\n//axl_voices axi_cli_subcommand\n```\nThis is semantically wrong (they're MCP tools) and lacks dimensions.\n\n## Target state\n\nEach operation carries the appropriate annotation from ₢AwAAC's AXLA gap resolution:\n- Correct interface motif (whatever replaces axi_cli_subcommand for MCP tools)\n- Dimension modifiers matching RBS0 patterns (transient, attended where applicable, grouped if operation groups are formalized)\n\n## Scope\n\n- All `[[jjdo_*]]` anchored definitions in JJS0\n- All `[[jjdr_*]]` routine definitions (these already have `//axvo_procedure axd_internal` — verify correctness)\n- Operation group headers if ₢AwAAC formalizes them as linked terms\n- Skip V4-VOLATILE marked sections\n\n## Character\n\nMechanical with judgment edges — most operations get the same annotation pattern, but attended/unattended distinction requires understanding each operation.\n\n## Depends on\n\n- ₢AwAAC (surface-axla-gaps) — need resolved motifs before applying them",
@@ -3614,6 +3635,13 @@
         },
         "₢AwAAE": {
           "tacks": [
+            {
+              "ts": "260323-1835",
+              "state": "rough",
+              "text": "Close specification gaps in JJS0, using `axhe*` annotations from the start.\n\n## Scope\n\n1. **Add `jjdo_close` operation**: Code dispatches `jjx_close` to wrap handler (jjrm_mcp.rs:565-571). Params: coronet, summary, size_limit. No spec entry exists. Write full operation definition with `axhe*` annotations.\n2. **Add `jjdo_paddock` operation**: Code dispatches `jjx_paddock` to curry handler (jjrm_mcp.rs:596-622). Params: firemark, content, note, input (gazette). No spec entry exists. Write full operation definition.\n3. **Resolve Bridled state**: `jjrg_PaceState::Bridled` exists in code but only in V3 Legacy spec section. Either declare current or mark for removal in ₣An.\n4. **Tack record**: Only described in V3 Legacy (L1522-1528). Either add current-spec definition or acknowledge V3 Legacy as authoritative for Tack.\n5. **Vestigial arguments**: `jjda_state`, `jjda_pace`, `jjda_created`, `jjda_direction` — no MCP exposure. Mark deprecated or remove.\n6. **Unspecified MCP parameters**: 16 parameters (detail, remaining, rough, pattern, etc.) have no `jjda_` definitions. Add specs or document why not needed.\n\n## Character\n\nMixed — spec writing (operations) + design decisions (bridled, tack, vestigial args). Judgment-heavy.",
+              "silks": "spec-gap-closure",
+              "commit": "29d6560"
+            },
             {
               "ts": "260323-1834",
               "state": "rough",
