@@ -3575,6 +3575,13 @@
         "₢AvAAR": {
           "tacks": [
             {
+              "ts": "260324-0847",
+              "state": "complete",
+              "text": "## Character\nSmall UX improvement — mechanical.\n\n## Goal\nAdd a label parameter to `zrbf_wait_build_completion` so poll status lines identify the build type.\n\n## Steps\n1. Change signature: `zrbf_wait_build_completion max_polls label`\n2. Use label in the `buc_info` line: `\"${z_label}: ${z_status} (poll ${z_polls}/${z_max_polls})\"`\n3. Update all call sites to pass their identity:\n   - `rbf_build` (conjure): `\"Conjure\"`\n   - `zrbf_mirror_submit`: `\"Mirror\"`\n   - `zrbf_about_submit`: `\"About\"`\n   - `zrbf_vouch_submit`: `\"Vouch\"`\n   - `zrbf_enshrine_submit`: `\"Enshrine\"`\n   - `zrbf_graft_submit` (if exists): `\"Graft\"`\n4. Also update the success/failure messages to use the label.\n\n## Verification\n- regime-validation passes\n- Spot-check one build to confirm label appears in output",
+              "silks": "build-poll-label-parameter",
+              "commit": "cd3f70a"
+            },
+            {
               "ts": "260324-0839",
               "state": "rough",
               "text": "## Character\nSmall UX improvement — mechanical.\n\n## Goal\nAdd a label parameter to `zrbf_wait_build_completion` so poll status lines identify the build type.\n\n## Steps\n1. Change signature: `zrbf_wait_build_completion max_polls label`\n2. Use label in the `buc_info` line: `\"${z_label}: ${z_status} (poll ${z_polls}/${z_max_polls})\"`\n3. Update all call sites to pass their identity:\n   - `rbf_build` (conjure): `\"Conjure\"`\n   - `zrbf_mirror_submit`: `\"Mirror\"`\n   - `zrbf_about_submit`: `\"About\"`\n   - `zrbf_vouch_submit`: `\"Vouch\"`\n   - `zrbf_enshrine_submit`: `\"Enshrine\"`\n   - `zrbf_graft_submit` (if exists): `\"Graft\"`\n4. Also update the success/failure messages to use the label.\n\n## Verification\n- regime-validation passes\n- Spot-check one build to confirm label appears in output",
