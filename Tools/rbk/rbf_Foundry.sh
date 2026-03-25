@@ -115,6 +115,7 @@ zrbf_kindle() {
 
   buc_log_args 'Vessel-related files'
   readonly ZRBF_VESSEL_SIGIL_FILE="${BURD_TEMP_DIR}/rbf_vessel_sigil.txt"
+  readonly ZRBF_VESSEL_RESOLVED_DIR_FILE="${BURD_TEMP_DIR}/rbf_vessel_resolved_dir.txt"
 
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
   readonly ZRBF_STITCH_PREFIX="${BURD_TEMP_DIR}/rbf_stitch_"
@@ -611,6 +612,40 @@ zrbf_stitch_build_json() {
   buc_log_args "Stitched ${#z_step_defs[@]} + context + about steps to ${z_output_path}"
 }
 
+# Resolve vessel argument: accepts a sigil (e.g., rbev-sentry-ubuntu-large) or a path
+# (e.g., rbev-vessels/rbev-sentry-ubuntu-large).  On no-arg or invalid arg, lists
+# available vessels and dies.  On success, writes resolved path to ZRBF_VESSEL_RESOLVED_DIR_FILE.
+zrbf_resolve_vessel() {
+  zrbf_sentinel
+
+  local -r z_arg="${1:-}"
+
+  # Try as path first, then as sigil under RBRR_VESSEL_DIR
+  if test -n "${z_arg}" && test -d "${z_arg}" && test -f "${z_arg}/rbrv.env"; then
+    printf '%s' "${z_arg}" > "${ZRBF_VESSEL_RESOLVED_DIR_FILE}" \
+      || buc_die "Failed to write resolved vessel path"
+    return 0
+  fi
+  if test -n "${z_arg}" && test -d "${RBRR_VESSEL_DIR}/${z_arg}" && test -f "${RBRR_VESSEL_DIR}/${z_arg}/rbrv.env"; then
+    printf '%s' "${RBRR_VESSEL_DIR}/${z_arg}" > "${ZRBF_VESSEL_RESOLVED_DIR_FILE}" \
+      || buc_die "Failed to write resolved vessel path"
+    return 0
+  fi
+
+  # Resolution failed — list available vessels and die
+  local z_sigils=""
+  z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+  buc_step "Available vessels:"
+  local z_sigil=""
+  for z_sigil in ${z_sigils}; do
+    buc_bare "        ${z_sigil}"
+  done
+  if test -z "${z_arg}"; then
+    buc_die "Vessel argument required (sigil or path)"
+  fi
+  buc_die "Vessel not found: ${z_arg}"
+}
+
 zrbf_load_vessel() {
   zrbf_sentinel
 
@@ -782,25 +817,14 @@ zrbf_wait_build_completion() {
 rbf_enshrine() {
   zrbf_sentinel
 
-  local -r z_vessel_dir="${1:-}"
-
   buc_doc_brief "Enshrine upstream base images to GAR via Cloud Build"
-  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_shown || return 0
 
-  # No-arg: list available vessels
-  if test -z "${z_vessel_dir}"; then
-    local z_sigils=""
-    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
-    buc_step "Available vessels:"
-    local z_sigil=""
-    for z_sigil in ${z_sigils}; do
-      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
-    done
-    buc_die "Vessel directory required"
-  fi
-
-  # Load and validate vessel
+  # Resolve vessel argument (sigil or path) and load
+  zrbf_resolve_vessel "${1:-}"
+  local -r z_vessel_dir=$(<"${ZRBF_VESSEL_RESOLVED_DIR_FILE}")
+  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
   zrbf_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "conjure" \
     || buc_die "Vessel '${RBRV_SIGIL}' is not a conjure vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
@@ -1003,18 +1027,18 @@ zrbf_enshrine_extract_anchors() {
 rbf_create() {
   zrbf_sentinel
 
-  local -r z_vessel_dir="${1:-}"
-
-  buc_doc_brief "Create an ark from a vessel (conjure, mirror, or graft based on vessel mode)"
-  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_brief "Create a consecration from a vessel (conjure, mirror, or graft based on vessel mode)"
+  buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_shown || return 0
 
-  test -n "${z_vessel_dir}" || buc_die "vessel_dir required"
+  # Resolve vessel argument (sigil or path)
+  zrbf_resolve_vessel "${1:-}"
+  local -r z_vessel_dir=$(<"${ZRBF_VESSEL_RESOLVED_DIR_FILE}")
+  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
 
   # Peek at vessel mode without sourcing (sourcing makes vars readonly,
   # and the downstream function will source again via zrbf_load_vessel)
   local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
-  test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
   local z_mode=""
   local z_mode_line=""
   while IFS= read -r z_mode_line || test -n "${z_mode_line}"; do
@@ -1854,7 +1878,7 @@ rbf_summon() {
 
   # Evaluate ark state
   if test "${z_image_exists}" = "false" && test "${z_about_exists}" = "false"; then
-    buc_die "Ark not found: neither -image nor -about exists"
+    buc_die "Consecration not found: neither -image nor -about exists"
   fi
 
   if test "${z_image_exists}" = "true" && test "${z_about_exists}" = "false"; then
@@ -1898,7 +1922,7 @@ rbf_summon() {
 
   # Display results
   echo ""
-  buc_success "Ark summoned: ${z_vessel}/${z_consecration}"
+  buc_success "Consecration summoned: ${z_vessel}/${z_consecration}"
   if test "${z_image_exists}" = "true"; then
     echo "  - ${z_vessel}:${z_image_tag} retrieved"
   fi
@@ -2229,30 +2253,20 @@ rbf_rubric_inscribe() {
 rbf_abjure() {
   zrbf_sentinel
 
-  local -r z_vessel_dir="${1:-}"
   local z_consecration="${2:-}"
   local z_force="${3:-}"
 
   # Documentation block
-  buc_doc_brief "Abjure an ark (delete all per-platform image, about, and vouch artifacts)"
-  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_brief "Abjure a consecration (delete all per-platform image, about, and vouch artifacts)"
+  buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
 
-  # No-arg: list available vessels
-  if test -z "${z_vessel_dir}"; then
-    local z_sigils
-    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
-    buc_step "Available vessels:"
-    local z_sigil=""
-    for z_sigil in ${z_sigils}; do
-      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
-    done
-    buc_die "Vessel directory required"
-  fi
-
-  # Load vessel
+  # Resolve vessel argument (sigil or path) and load
+  zrbf_resolve_vessel "${1:-}"
+  local -r z_vessel_dir=$(<"${ZRBF_VESSEL_RESOLVED_DIR_FILE}")
+  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
   zrbf_load_vessel "${z_vessel_dir}"
 
   # Validate remaining parameters
@@ -2419,7 +2433,7 @@ rbf_abjure() {
 
   # Evaluate ark state
   if test "${#z_existing_image_tags[@]}" -eq 0 && test "${z_about_exists}" = "false"; then
-    buc_die "Ark not found: no image tags and no -about exists for ${RBRV_SIGIL}/${z_consecration}"
+    buc_die "Consecration not found: no image tags and no -about exists for ${RBRV_SIGIL}/${z_consecration}"
   fi
 
   if test "${#z_existing_image_tags[@]}" -gt 0 && test "${z_about_exists}" = "false"; then
@@ -2574,7 +2588,7 @@ rbf_abjure() {
 
   # Display results
   echo ""
-  buc_success "Ark abjured: ${RBRV_SIGIL}/${z_consecration}"
+  buc_success "Consecration abjured: ${RBRV_SIGIL}/${z_consecration}"
   if (( ${#z_existing_image_tags[@]} )); then
     for z_img_tag in "${z_existing_image_tags[@]}"; do
       echo "  - ${RBRV_SIGIL}:${z_img_tag} deleted"
@@ -2639,27 +2653,19 @@ rbf_vouch_gate() {
 rbf_about() {
   zrbf_sentinel
 
-  local -r z_vessel_dir="${1:-}"
   local -r z_consecration="${2:-}"
   local -r z_conjure_build_id="${3:-}"  # Optional: conjure BUILD_ID for provenance
 
-  buc_doc_brief "Assemble about metadata artifact for an existing ark image"
-  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_brief "Assemble about metadata artifact for an existing consecration image"
+  buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_param "conjure_build_id" "(Optional) Cloud Build job ID from conjure"
   buc_doc_shown || return 0
 
-  if test -z "${z_vessel_dir}"; then
-    local z_sigils
-    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
-    buc_step "Available vessels:"
-    local z_sigil=""
-    for z_sigil in ${z_sigils}; do
-      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
-    done
-    buc_die "Vessel directory required"
-  fi
-
+  # Resolve vessel argument (sigil or path) and load
+  zrbf_resolve_vessel "${1:-}"
+  local -r z_vessel_dir=$(<"${ZRBF_VESSEL_RESOLVED_DIR_FILE}")
+  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
   zrbf_load_vessel "${z_vessel_dir}"
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
 
@@ -3432,11 +3438,11 @@ rbf_check_consecrations() {
   # Tabtarget recommendations
   if test "${z_any_pending}" = "1"; then
     buc_step "Pending consecrations can be vouched:"
-    buc_tabtarget "${RBZ_VOUCH_ARK}"
+    buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
   fi
   if test "${z_any_incomplete}" = "1"; then
     buc_step "Incomplete consecrations should be abjured and re-conjured:"
-    buc_tabtarget "${RBZ_ABJURE_ARK}"
+    buc_tabtarget "${RBZ_ABJURE_CONSECRATION}"
   fi
 
   buc_success "Consecration check complete"

@@ -370,13 +370,13 @@ rbob_start() {
   # Preflight: verify vouch artifacts exist locally — no network calls, fatal if missing
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_VOUCH}" >/dev/null 2>&1; then
     buc_warn "Sentry vouch artifact missing locally: ${ZRBOB_SENTRY_VOUCH}"
-    buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_CONSECRATION}"
+    buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_CONSECRATION}"
     buc_die "Run summon to pull vouch artifact before starting"
   fi
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_VOUCH}" >/dev/null 2>&1; then
     buc_warn "Bottle vouch artifact missing locally: ${ZRBOB_BOTTLE_VOUCH}"
-    buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_CONSECRATION}"
+    buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_CONSECRATION}"
     buc_die "Run summon to pull vouch artifact before starting"
   fi
 

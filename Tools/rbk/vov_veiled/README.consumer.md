@@ -173,9 +173,9 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
     tt/rbw-DI.DirectorInscribesRubric.sh
     ```
 
-12. **Create ark** — Build (conjure) or mirror (bind) each vessel's image (typically 10-20 minutes for conjure builds):
+12. **Create consecration** — Build (conjure) or mirror (bind) each vessel's image (typically 10-20 minutes for conjure builds):
     ```
-    tt/rbw-DC.DirectorCreatesArk.sh rbev-vessels/<vessel-name>
+    tt/rbw-DC.DirectorCreatesConsecration.sh rbev-vessels/<vessel-name>
     ```
 
 13. **Check & vouch** — Verify builds completed and SLSA provenance:
@@ -193,7 +193,7 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
 
 15. **Summon** — Pull vouched images locally (Retriever role):
     ```
-    tt/rbw-Rs.RetrieverSummonsArk.sh <vessel-name> <consecration>
+    tt/rbw-Rs.RetrieverSummonsConsecration.sh <vessel-name> <consecration>
     ```
 
 ## Day-to-Day Operations
@@ -287,7 +287,7 @@ rbev-vessels/
     └── rbrv.env
 ```
 
-Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. Graft vessels push a locally-built image to GAR via docker push — no Cloud Build for the image, but about and vouch still run in Cloud Build. The same `tt/rbw-DC.DirectorCreatesArk.sh` command handles all three: it detects the vessel mode and triggers a Cloud Build (conjure), mirrors from upstream (bind), or pushes a local image (graft). Trust hierarchy: conjure has full SLSA provenance, bind has digest-pin verification, graft has no provenance chain (GRAFTED verdict).
+Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. Graft vessels push a locally-built image to GAR via docker push — no Cloud Build for the image, but about and vouch still run in Cloud Build. The same `tt/rbw-DC.DirectorCreatesConsecration.sh` command handles all three: it detects the vessel mode and triggers a Cloud Build (conjure), mirrors from upstream (bind), or pushes a local image (graft). Trust hierarchy: conjure has full SLSA provenance, bind has digest-pin verification, graft has no provenance chain (GRAFTED verdict).
 
 **Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `nsproto`) is what appears as the imprint in tabtarget filenames:
 

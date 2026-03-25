@@ -732,13 +732,13 @@ rbgm_onboarding() {
       bug_t "  4. Inscribe:"
       buc_tabtarget "${RBZ_RUBRIC_INSCRIBE}"
       bug_t "  5. Conjure sentry vessel:"
-      buc_tabtarget "${RBZ_CREATE_ARK}" "${z_vessel_dir}/${RBRN_SENTRY_VESSEL}"
+      buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir}/${RBRN_SENTRY_VESSEL}"
       bug_t "  6. Conjure bottle vessel:"
-      buc_tabtarget "${RBZ_CREATE_ARK}" "${z_vessel_dir}/${RBRN_BOTTLE_VESSEL}"
+      buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir}/${RBRN_BOTTLE_VESSEL}"
       bug_t "  7. Check consecrations (verify both builds completed):"
       buc_tabtarget "${RBZ_CHECK_CONSECRATIONS}"
       bug_t "  8. Vouch (verify SLSA provenance on built images):"
-      buc_tabtarget "${RBZ_VOUCH_ARK}"
+      buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
       bug_e
       bug_section "Then: Record Consecrations in Nameplate (step 9)"
       bug_t "  The check-consecrations output (step 7) shows your consecration values."
@@ -756,9 +756,9 @@ rbgm_onboarding() {
       bug_t "  Pull the vouched images locally using Retriever credentials."
       bug_e
       bug_t "  1. Summon sentry vessel:"
-      buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
+      buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
       bug_t "  2. Summon bottle vessel:"
-      buc_tabtarget "${RBZ_SUMMON_ARK}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
+      buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
       bug_t "  3. Run full nsproto test suite:"
       bug_tc "        " "tt/rbw-tf.TestFixture.nsproto-security.sh"
       ;;

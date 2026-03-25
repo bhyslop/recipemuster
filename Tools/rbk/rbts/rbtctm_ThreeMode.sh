@@ -53,8 +53,8 @@ rbtctm_three_mode_tcase() {
   test -d "${z_graft_dir}"   || buto_fatal "Vessel directory not found: ${z_graft_dir}"
 
   # Step 1: Conjure busybox
-  buto_section "Step 1/12: Conjuring ark from vessel ${z_conjure_vessel}"
-  buto_tt_expect_ok "${RBZ_CREATE_ARK}" "${z_conjure_dir}"
+  buto_section "Step 1/12: Conjuring consecration from vessel ${z_conjure_vessel}"
+  buto_tt_expect_ok "${RBZ_CREATE_CONSECRATION}" "${z_conjure_dir}"
   local z_conjure_output
   z_conjure_output=$(buto_tt_previous_output_capture)
   local z_conjure_consec
@@ -67,8 +67,8 @@ rbtctm_three_mode_tcase() {
   buto_info "Conjured: ${z_conjure_consec}"
 
   # Step 2: Bind plantuml
-  buto_section "Step 2/12: Binding ark from vessel ${z_bind_vessel}"
-  buto_tt_expect_ok "${RBZ_CREATE_ARK}" "${z_bind_dir}"
+  buto_section "Step 2/12: Binding consecration from vessel ${z_bind_vessel}"
+  buto_tt_expect_ok "${RBZ_CREATE_CONSECRATION}" "${z_bind_dir}"
   local z_bind_output
   z_bind_output=$(buto_tt_previous_output_capture)
   local z_bind_consec
@@ -86,8 +86,8 @@ rbtctm_three_mode_tcase() {
   buto_info "Tweak: ${BURE_TWEAK_NAME}=${BURE_TWEAK_VALUE}"
 
   # Step 3: Graft busybox
-  buto_section "Step 3/12: Grafting ark from vessel ${z_graft_vessel}"
-  buto_tt_expect_ok "${RBZ_CREATE_ARK}" "${z_graft_dir}"
+  buto_section "Step 3/12: Grafting consecration from vessel ${z_graft_vessel}"
+  buto_tt_expect_ok "${RBZ_CREATE_CONSECRATION}" "${z_graft_dir}"
   local z_graft_output
   z_graft_output=$(buto_tt_previous_output_capture)
   local z_graft_consec
@@ -146,18 +146,18 @@ rbtctm_three_mode_tcase() {
   buto_info "Image removed: ${z_full_image_ref}"
 
   # Step 9: Abjure conjure ark
-  buto_section "Step 9/12: Abjuring conjure ark"
-  buto_tt_expect_ok "${RBZ_ABJURE_ARK}" "${z_conjure_dir}" "${z_conjure_consec}" "--force"
+  buto_section "Step 9/12: Abjuring conjure consecration"
+  buto_tt_expect_ok "${RBZ_ABJURE_CONSECRATION}" "${z_conjure_dir}" "${z_conjure_consec}" "--force"
   buto_info "Abjured conjure: ${z_conjure_consec}"
 
   # Step 10: Abjure bind ark
-  buto_section "Step 10/12: Abjuring bind ark"
-  buto_tt_expect_ok "${RBZ_ABJURE_ARK}" "${z_bind_dir}" "${z_bind_consec}" "--force"
+  buto_section "Step 10/12: Abjuring bind consecration"
+  buto_tt_expect_ok "${RBZ_ABJURE_CONSECRATION}" "${z_bind_dir}" "${z_bind_consec}" "--force"
   buto_info "Abjured bind: ${z_bind_consec}"
 
   # Step 11: Abjure graft ark
-  buto_section "Step 11/12: Abjuring graft ark"
-  buto_tt_expect_ok "${RBZ_ABJURE_ARK}" "${z_graft_dir}" "${z_graft_consec}" "--force"
+  buto_section "Step 11/12: Abjuring graft consecration"
+  buto_tt_expect_ok "${RBZ_ABJURE_CONSECRATION}" "${z_graft_dir}" "${z_graft_consec}" "--force"
   buto_info "Abjured graft: ${z_graft_consec}"
 
   # Step 12: Consecration check — verify all three are gone

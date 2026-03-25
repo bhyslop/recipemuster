@@ -18,13 +18,12 @@ tt/rbw-gO.Onboarding.sh
 | Term | Meaning |
 |------|---------|
 | **Vessel** | A specification for a container workload — a directory in `rbev-vessels/` with `rbrv.env` and optionally a `Dockerfile` |
-| **Ark** | The built result: an immutable container image artifact produced from a vessel |
-| **Consecration** | A specific build instance of a vessel, identified by timestamp (e.g. `c260101120000-r260101130000`) |
-| **Vouch** | SLSA provenance verification — proves an ark was built by trusted infrastructure |
-| **Summon** | Pull a vouched ark image to the local workstation |
-| **Conjure** | Trigger a Cloud Build to produce an ark from a vessel |
+| **Consecration** | A specific build instance of a vessel, identified by timestamp (e.g. `c260101120000-r260101130000`). The immutable artifact set: image, about, and vouch |
+| **Vouch** | SLSA provenance verification — proves a consecration was built by trusted infrastructure |
+| **Summon** | Pull a vouched consecration image to the local workstation |
+| **Conjure** | Trigger a Cloud Build to produce a consecration from a vessel |
 | **Inscribe** | Push build definitions from the local repo to the rubric repo for Cloud Build |
-| **Abjure** | Revoke vouch on an ark (mark as no longer trusted) |
+| **Abjure** | Delete a consecration's artifacts from GAR |
 | **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
 | **Nameplate** | Ties a sentry vessel + bottle vessel into a runnable bottle. The moniker (e.g. `nsproto`) is the imprint in tabtargets. |
 | **Regime** | A structured configuration unit: specification + assignment file (`.env`) + validation |
@@ -133,18 +132,17 @@ For full BUK infrastructure documentation, see `Tools/buk/README.md`.
 | `rbw-DPG` | DirectorRefreshesGcbPins | Resolve latest GCB tool image digests |
 | `rbw-DPB` | DirectorRefreshesBinaryPins | Resolve latest slsa-verifier binary |
 | `rbw-DI` | DirectorInscribesRubric | Push build definitions to rubric repo |
-| `rbw-DC` | DirectorCreatesArk | Create ark: conjure (Cloud Build), mirror (bind), or graft (local push) based on vessel mode |
-| `rbw-Db` | DirectorBuildsAbout | About-only Cloud Build job for existing -image (recovery/re-about) |
+| `rbw-DC` | DirectorCreatesConsecration | Create consecration: conjure (Cloud Build), mirror (bind), or graft (local push) based on vessel mode |
 | `rbw-Dc` | DirectorChecksConsecrations | Verify builds completed |
 | `rbw-DV` | DirectorVouchesConsecrations | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
-| `rbw-DA` | DirectorAbjuresArk | Revoke vouch on an ark |
+| `rbw-DA` | DirectorAbjuresConsecration | Revoke a consecration |
 | `rbw-DD` | DirectorDeletesImage | Remove image from registry |
 
 ### Retrieval & Inspection (Retriever role)
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-Rs` | RetrieverSummonsArk | Pull vouched image locally |
+| `rbw-Rs` | RetrieverSummonsConsecration | Pull vouched image locally |
 | `rbw-Rr` | RetrieverRetrievesImage | Raw image pull |
 | `rbw-RiF` | RetrieverInspectsFull | Full provenance display (SBOM, build info, Dockerfile) |
 | `rbw-Ric` | RetrieverInspectsCompact | Compact provenance summary |
