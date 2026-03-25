@@ -3667,9 +3667,10 @@
         "₢AwAAP",
         "₢AwAAQ",
         "₢AwAAR",
-        "₢AwAAS"
+        "₢AwAAS",
+        "₢AwAAT"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4193,6 +4194,17 @@
               "text": "Implement jjx_chapter (list active officia: directory scan of .claude/jjm/officia/, show ID, creation time, whether current process or stale) and jjx_absolve (clear stale officia: remove directories for sessions that are no longer running). Add MCP tool dispatch, param structs, and handler modules.",
               "silks": "implement-chapter-and-absolve",
               "commit": "3431bbe"
+            }
+          ]
+        },
+        "₢AwAAT": {
+          "tacks": [
+            {
+              "ts": "260325-0749",
+              "state": "rough",
+              "text": "Test officium lifecycle end-to-end: verify invitatory creates directory and commit at MCP startup, compline removes directory and creates closing commit, chapter lists active officia correctly, absolve reaps stale directories. Test concurrent session isolation (two officia directories coexist). Test crash recovery (stale directory survives for absolve).",
+              "silks": "test-officium-lifecycle",
+              "commit": "e3b55bf"
             }
           ]
         }
