@@ -3664,9 +3664,10 @@
         "₢AwAAD",
         "₢AwAAE",
         "₢AwAAF",
-        "₢AwAAP"
+        "₢AwAAP",
+        "₢AwAAQ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4157,6 +4158,17 @@
               "text": "Spec the officium lifecycle in JJS0: officium as a bounded MCP session with unique identity, directory layout (.claude/jjm/officia/<id>/), invitatory (internal MCP startup: ID generation, directory creation, model inventory, dynamic instructions), compline (internal MCP shutdown: closing commit, directory cleanup), chapter and absolve as tool operations. Define the gazette file exchange path (fixed filename within per-officium directory). Update linked terms and premises as needed.",
               "silks": "spec-officium-lifecycle",
               "commit": "eea7ebd"
+            }
+          ]
+        },
+        "₢AwAAQ": {
+          "tacks": [
+            {
+              "ts": "260325-0749",
+              "state": "rough",
+              "text": "Implement invitatory at MCP startup in jjrm_serve_stdio: generate officium ID (timestamp+short-token), create per-officium directory (.claude/jjm/officia/<id>/), create invitatory commit with model inventory in body, populate ServerInfo instructions with officium ID and gazette exchange path. Move invitatory from lazy-fire (orient/muster) to deterministic MCP-startup.",
+              "silks": "implement-invitatory-mcp-startup",
+              "commit": "9ad4081"
             }
           ]
         }
