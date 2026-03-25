@@ -3671,9 +3671,10 @@
         "₢AwAAT",
         "₢AwAAU",
         "₢AwAAV",
-        "₢AwAAW"
+        "₢AwAAW",
+        "₢AwAAX"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4241,6 +4242,17 @@
               "text": "Remove legacy duplicate output from orient, show detail, and paddock getter. Currently each emits content twice: once in legacy format (indented Paddock-content:, ## Paddock, raw text) then again in gazette wire format. After gazette migration, the gazette file IS the structured output — remove the legacy inline emission. Operations return concise status text only; structured content lives in the gazette file.",
               "silks": "remove-legacy-duplicate-output",
               "commit": "f6872f4"
+            }
+          ]
+        },
+        "₢AwAAX": {
+          "tacks": [
+            {
+              "ts": "260325-0749",
+              "state": "rough",
+              "text": "Update JJS0 spec to reflect gazette file I/O as the canonical exchange mechanism. Remove any residual references to legacy inline MCP parameter style for multiline content. Ensure operation specs reference gazette slugs and officium directory for input/output. Verify JJSCGZ subdocument aligns with implemented file exchange protocol. This is the spec catching up to the implementation migration.",
+              "silks": "repair-jjs0-gazette-commitment",
+              "commit": "1d11c84"
             }
           ]
         }
