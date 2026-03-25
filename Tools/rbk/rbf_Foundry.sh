@@ -85,6 +85,11 @@ zrbf_kindle() {
   readonly ZRBF_RBGJE_STEPS_DIR="${z_self_dir}/rbgje"
   test -d "${ZRBF_RBGJE_STEPS_DIR}"   || buc_die "RBGJE steps directory not found: ${ZRBF_RBGJE_STEPS_DIR}"
 
+  buc_log_args 'RBGJI inscribe step scripts (same Tools directory)'
+  # Acronym: rbgji = Recipe Bottle Google Json Inscribe (step scripts in rbgji/ dir)
+  readonly ZRBF_RBGJI_STEPS_DIR="${z_self_dir}/rbgji"
+  test -d "${ZRBF_RBGJI_STEPS_DIR}"   || buc_die "RBGJI steps directory not found: ${ZRBF_RBGJI_STEPS_DIR}"
+
   buc_log_args 'Define temp files for build operations'
   readonly ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
   readonly ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
@@ -133,6 +138,9 @@ zrbf_kindle() {
 
   buc_log_args 'Define enshrine operation files'
   readonly ZRBF_ENSHRINE_PREFIX="${BURD_TEMP_DIR}/rbf_enshrine_"
+
+  buc_log_args 'Define reliquary inscribe operation files'
+  readonly ZRBF_RELIQUARY_PREFIX="${BURD_TEMP_DIR}/rbf_reliquary_"
 
   buc_log_args 'Define context push operation files'
   readonly ZRBF_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbf_context_"
@@ -236,6 +244,28 @@ zrbf_quota_preflight() {
   fi
 }
 
+# Internal: Resolve tool image references from reliquary.
+# Must be called after vessel load (reads RBRV_RELIQUARY).
+# Sets module-level ZRBF_TOOL_* variables for downstream step assembly.
+# Idempotent — safe to call multiple times per invocation.
+zrbf_resolve_tool_images() {
+  zrbf_sentinel
+
+  local -r z_reliquary="${RBRV_RELIQUARY:-}"
+  test -n "${z_reliquary}" \
+    || buc_die "RBRV_RELIQUARY is required — run inscribe to create a reliquary first"
+
+  local -r z_rqy_prefix="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_reliquary}"
+  ZRBF_TOOL_GCLOUD="${z_rqy_prefix}/gcloud:latest"
+  ZRBF_TOOL_DOCKER="${z_rqy_prefix}/docker:latest"
+  ZRBF_TOOL_ALPINE="${z_rqy_prefix}/alpine:latest"
+  ZRBF_TOOL_SYFT="${z_rqy_prefix}/syft:latest"
+  ZRBF_TOOL_BINFMT="${z_rqy_prefix}/binfmt:latest"
+  ZRBF_TOOL_SKOPEO="${z_rqy_prefix}/skopeo:latest"
+  ZRBF_TOOL_ORAS="${z_rqy_prefix}/oras:latest"
+  buc_log_args "Tool images resolved from reliquary: ${z_reliquary}"
+}
+
 zrbf_stitch_build_json() {
   zrbf_sentinel
 
@@ -333,17 +363,17 @@ zrbf_stitch_build_json() {
   # Delimiter is | because image refs contain colons (sha256 digests)
   # Pipeline: buildx --push → per-platform pullback → SLSA provenance via images: field
   local z_step_defs=(
-    "rbgjb01-derive-tag-base.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|derive-tag-base"
+    "rbgjb01-derive-tag-base.sh|${ZRBF_TOOL_GCLOUD}|bash|derive-tag-base"
   )
   if test "${z_needs_binfmt}" = "true"; then
-    z_step_defs+=("rbgjb02-qemu-binfmt.sh|${RBRG_DOCKER_IMAGE_REF}|bash|qemu-binfmt")
+    z_step_defs+=("rbgjb02-qemu-binfmt.sh|${ZRBF_TOOL_DOCKER}|bash|qemu-binfmt")
   fi
   z_step_defs+=(
-    "rbgjb03-buildx-push-multi.sh|${RBRG_DOCKER_IMAGE_REF}|bash|buildx-push-multi"
-    "rbgjb04-per-platform-pullback.sh|${RBRG_DOCKER_IMAGE_REF}|bash|per-platform-pullback"
-    "rbgjb05-push-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|push-per-platform"
-    "rbgjb06-imagetools-create.sh|${RBRG_DOCKER_IMAGE_REF}|bash|imagetools-create"
-    "rbgjb07-push-diags.sh|${RBRG_DOCKER_IMAGE_REF}|bash|push-diags"
+    "rbgjb03-buildx-push-multi.sh|${ZRBF_TOOL_DOCKER}|bash|buildx-push-multi"
+    "rbgjb04-per-platform-pullback.sh|${ZRBF_TOOL_DOCKER}|bash|per-platform-pullback"
+    "rbgjb05-push-per-platform.sh|${ZRBF_TOOL_DOCKER}|bash|push-per-platform"
+    "rbgjb06-imagetools-create.sh|${ZRBF_TOOL_DOCKER}|bash|imagetools-create"
+    "rbgjb07-push-diags.sh|${ZRBF_TOOL_DOCKER}|bash|push-diags"
   )
 
   # Compute platform suffixes (used in images: field and substitutions)
@@ -401,7 +431,7 @@ zrbf_stitch_build_json() {
     test -n "${z_body}" || buc_die "Empty script body: ${z_script_path}"
 
     buc_log_args "Baking pinned image refs and build strategy into script text"
-    z_body="${z_body//\$\{RBRG_BINFMT_IMAGE_REF\}/${RBRG_BINFMT_IMAGE_REF}}"
+    z_body="${z_body//\$\{RBRG_BINFMT_IMAGE_REF\}/${ZRBF_TOOL_BINFMT}}"
     z_body="${z_body//\$\{ZRBF_BUILD_STRATEGY\}/${z_build_strategy}}"
 
     buc_log_args "Escaping dollars for Cloud Build, preserving RBGY substitutions"
@@ -494,7 +524,7 @@ zrbf_stitch_build_json() {
   # Context extraction step (first step — extracts build context from pouch in GAR)
   local -r z_extract_step_file="${ZRBF_STITCH_PREFIX}extract_step.json"
   jq -n \
-    --arg name "${RBRG_DOCKER_IMAGE_REF}" \
+    --arg name "${ZRBF_TOOL_DOCKER}" \
     --arg ctx_tag "${z_context_tag}" \
     --arg sigil "${z_sigil}" \
     '{
@@ -814,6 +844,132 @@ zrbf_wait_build_completion() {
 ######################################################################
 # External Functions (rbf_*)
 
+rbf_inscribe() {
+  zrbf_sentinel
+
+  buc_doc_brief "Inscribe a reliquary: mirror all tool images from upstream to a datestamped GAR namespace"
+  buc_doc_shown || return 0
+
+  # Authenticate as Director
+  buc_step "Loading Director RBRA credentials"
+  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
+
+  buc_step "Authenticating as Director"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  # Compute reliquary datestamp: r + YYMMDDHHMMSS
+  local -r z_reliquary="r${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+  buc_info "Reliquary: ${z_reliquary}"
+
+  # Submit inscribe as a Cloud Build job (docker pull/tag/push on GCB)
+  zrbf_inscribe_submit "${z_token}" "${z_reliquary}"
+
+  buc_success "Inscribe complete — reliquary ${z_reliquary} created"
+  buc_info "Add RBRV_RELIQUARY=${z_reliquary} to vessel rbrv.env files to use this reliquary"
+}
+
+# Internal: Submit inscribe Cloud Build job.
+# Single step: docker pull each upstream tool image, tag for GAR, push.
+# Uses gcr.io/cloud-builders/docker as step image (always pullable — Google-hosted).
+zrbf_inscribe_submit() {
+  zrbf_sentinel
+
+  local -r z_token="${1:?Token required}"
+  local -r z_reliquary="${2:?Reliquary datestamp required}"
+
+  buc_step "Constructing inscribe Cloud Build resource"
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+
+  # Inscribe step image: Google-hosted docker builder (always pullable, even under NO_PUBLIC_EGRESS)
+  local -r z_step_image="gcr.io/cloud-builders/docker"
+
+  # Assemble inscribe step from script
+  local -r z_script_path="${ZRBF_RBGJI_STEPS_DIR}/rbgji01-inscribe-mirror.sh"
+  test -f "${z_script_path}" || buc_die "Inscribe step script not found: ${z_script_path}"
+
+  local -r z_body_file="${ZRBF_RELIQUARY_PREFIX}body.txt"
+  local -r z_escaped_file="${ZRBF_RELIQUARY_PREFIX}escaped.txt"
+
+  buc_log_args "Reading inscribe step script (skip shebang)"
+  tail -n +2 "${z_script_path}" > "${z_body_file}" \
+    || buc_die "Failed to read inscribe step script"
+  local z_body=""
+  z_body=$(<"${z_body_file}")
+  test -n "${z_body}" || buc_die "Empty inscribe script body"
+
+  buc_log_args "Escaping dollars for Cloud Build, preserving _RBGN_ substitutions"
+  z_body="${z_body//\$/\$\$}"
+  z_body="${z_body//\$\${_RBGN_/\${_RBGN_}"
+  printf '%s' "${z_body}" > "${z_escaped_file}" \
+    || buc_die "Failed to write escaped inscribe script body"
+
+  local -r z_step_file="${ZRBF_RELIQUARY_PREFIX}step.json"
+  echo "[]" > "${z_step_file}" || buc_die "Failed to initialize inscribe step JSON"
+
+  local -r z_step_built="${ZRBF_RELIQUARY_PREFIX}step_built.json"
+  jq \
+    --arg name "${z_step_image}" \
+    --arg id "inscribe-mirror" \
+    --arg ep "/bin/bash" \
+    --arg flag "-lc" \
+    --rawfile script "${z_escaped_file}" \
+    '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+    "${z_step_file}" > "${z_step_built}" \
+    || buc_die "Failed to build inscribe step JSON"
+  mv "${z_step_built}" "${z_step_file}" \
+    || buc_die "Failed to finalize inscribe step JSON"
+
+  # Compose Build resource JSON
+  buc_log_args "Composing inscribe Build resource JSON"
+  local -r z_build_file="${ZRBF_RELIQUARY_PREFIX}build.json"
+
+  jq -n \
+    --slurpfile zjq_steps  "${z_step_file}" \
+    --arg zjq_sa           "${z_mason_sa}" \
+    --arg zjq_gar_host     "${z_gar_host}" \
+    --arg zjq_gar_path     "${z_gar_path}" \
+    --arg zjq_reliquary    "${z_reliquary}" \
+    --arg zjq_pool         "${RBRR_GCB_WORKER_POOL}" \
+    --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
+    '{
+      steps: $zjq_steps[0],
+      substitutions: {
+        _RBGN_GAR_HOST:     $zjq_gar_host,
+        _RBGN_GAR_PATH:     $zjq_gar_path,
+        _RBGN_RELIQUARY:    $zjq_reliquary
+      },
+      serviceAccount: $zjq_sa,
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $zjq_pool }
+      },
+      timeout: $zjq_timeout
+    }' > "${z_build_file}" \
+    || buc_die "Failed to compose inscribe build JSON"
+
+  buc_log_args "Inscribe build JSON: ${z_build_file}"
+
+  buc_step "Submitting inscribe Cloud Build"
+  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+    "reliquary_build_create" "${z_build_file}"
+  rbgu_http_require_ok "Inscribe build submission" "reliquary_build_create"
+
+  local z_build_id=""
+  z_build_id=$(rbgu_json_field_capture "reliquary_build_create" '.metadata.build.id') || z_build_id=""
+  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
+  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+
+  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  buc_info "Inscribe build submitted: ${z_build_id}"
+  buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
+
+  zrbf_wait_build_completion 120 "Inscribe"  # ~10 minutes at 5s intervals (7 images to pull+push)
+}
+
 rbf_enshrine() {
   zrbf_sentinel
 
@@ -836,6 +992,9 @@ rbf_enshrine() {
   test -z "${RBRV_IMAGE_3_ORIGIN:-}" || z_has_origin=true
   test "${z_has_origin}" = "true" \
     || buc_die "Vessel '${RBRV_SIGIL}' has no RBRV_IMAGE_n_ORIGIN declarations"
+
+  # Resolve tool images from reliquary (enshrine uses skopeo from reliquary)
+  zrbf_resolve_tool_images
 
   # Authenticate as Director
   buc_step "Loading Director RBRA credentials"
@@ -893,7 +1052,7 @@ zrbf_enshrine_submit() {
 
   local -r z_step_built="${ZRBF_ENSHRINE_PREFIX}step_built.json"
   jq \
-    --arg name "${RBRG_SKOPEO_IMAGE_REF}" \
+    --arg name "${ZRBF_TOOL_SKOPEO}" \
     --arg id "enshrine-copy" \
     --arg ep "/bin/bash" \
     --arg flag "-lc" \
@@ -1114,6 +1273,9 @@ rbf_build() {
   test -d "${RBRV_CONJURE_BLDCONTEXT}" || buc_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
 
   buc_info "Building vessel image: ${RBRV_SIGIL}"
+
+  # Resolve tool images from reliquary (required for step image references)
+  zrbf_resolve_tool_images
 
   # Source Director RBRA for credentials
   buc_step "Loading Director RBRA credentials"
@@ -1410,6 +1572,9 @@ rbf_mirror() {
   test -n "${RBRV_BIND_IMAGE:-}" \
     || buc_die "RBRV_BIND_IMAGE not set for bind vessel '${RBRV_SIGIL}'"
 
+  # Resolve tool images from reliquary (mirror uses skopeo + about steps from reliquary)
+  zrbf_resolve_tool_images
+
   # Dirty-tree guard (same as inscribe — mirror should match a committed state)
   buc_step "Verifying clean working tree"
   git diff --quiet \
@@ -1507,7 +1672,7 @@ zrbf_mirror_submit() {
 
   echo "[]" > "${z_mirror_step_file}" || buc_die "Failed to initialize mirror step JSON"
   jq \
-    --arg name "${RBRG_SKOPEO_IMAGE_REF}" \
+    --arg name "${ZRBF_TOOL_SKOPEO}" \
     --arg id "mirror-image" \
     --arg ep "/bin/bash" \
     --arg flag "-lc" \
@@ -1662,6 +1827,9 @@ rbf_graft() {
 
   test -n "${RBRV_GRAFT_IMAGE:-}" \
     || buc_die "RBRV_GRAFT_IMAGE not set for graft vessel '${RBRV_SIGIL}'"
+
+  # Resolve tool images from reliquary (graft about+vouch steps use tool images)
+  zrbf_resolve_tool_images
 
   local -r z_local_image="${RBRV_GRAFT_IMAGE}"
 
@@ -2783,10 +2951,10 @@ zrbf_assemble_about_steps() {
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
   local -r z_about_step_defs=(
-    "rbgja01-discover-platforms.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|discover-platforms"
-    "rbgja02-syft-per-platform.sh|${RBRG_DOCKER_IMAGE_REF}|bash|syft-per-platform"
-    "rbgja03-build-info-per-platform.sh|${RBRG_ALPINE_IMAGE_REF}|sh|build-info-per-platform"
-    "rbgja04-assemble-push-about.sh|${RBRG_DOCKER_IMAGE_REF}|bash|assemble-push-about"
+    "rbgja01-discover-platforms.sh|${ZRBF_TOOL_GCLOUD}|bash|discover-platforms"
+    "rbgja02-syft-per-platform.sh|${ZRBF_TOOL_DOCKER}|bash|syft-per-platform"
+    "rbgja03-build-info-per-platform.sh|${ZRBF_TOOL_ALPINE}|sh|build-info-per-platform"
+    "rbgja04-assemble-push-about.sh|${ZRBF_TOOL_DOCKER}|bash|assemble-push-about"
   )
 
   echo "[]" > "${z_output_file}" || buc_die "Failed to initialize about steps JSON"
@@ -2819,7 +2987,7 @@ zrbf_assemble_about_steps() {
     test -n "${z_abody}" || buc_die "Empty about script body: ${z_ascript_path}"
 
     buc_log_args "Baking pinned image refs into script text"
-    z_abody="${z_abody//\$\{RBRG_SYFT_IMAGE_REF\}/${RBRG_SYFT_IMAGE_REF}}"
+    z_abody="${z_abody//\$\{RBRG_SYFT_IMAGE_REF\}/${ZRBF_TOOL_SYFT}}"
 
     buc_log_args "Escaping dollars for Cloud Build, preserving _RBGA_ substitutions"
     z_abody="${z_abody//\$/\$\$}"
@@ -2860,9 +3028,9 @@ zrbf_assemble_vouch_steps() {
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
   local -r z_vouch_step_defs=(
-    "rbgjv01-download-verifier.sh|${RBRG_ALPINE_IMAGE_REF}|sh|download-verifier"
-    "rbgjv02-verify-provenance.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|verify-provenance"
-    "rbgjv03-assemble-push-vouch.sh|${RBRG_DOCKER_IMAGE_REF}|bash|assemble-push-vouch"
+    "rbgjv01-download-verifier.sh|${ZRBF_TOOL_ALPINE}|sh|download-verifier"
+    "rbgjv02-verify-provenance.sh|${ZRBF_TOOL_GCLOUD}|bash|verify-provenance"
+    "rbgjv03-assemble-push-vouch.sh|${ZRBF_TOOL_DOCKER}|bash|assemble-push-vouch"
   )
 
   echo "[]" > "${z_output_file}" || buc_die "Failed to initialize vouch steps JSON"
@@ -3325,6 +3493,9 @@ rbf_vouch() {
 
   zrbf_load_vessel "${z_vessel_dir}"
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
+
+  # Resolve tool images from reliquary (vouch steps use tool images)
+  zrbf_resolve_tool_images
 
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"

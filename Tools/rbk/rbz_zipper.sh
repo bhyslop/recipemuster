@@ -69,7 +69,7 @@ zrbz_kindle() {
   buz_enroll RBZ_CREATE_CONSECRATION        "rbw-DC"       "${z_mod}" "rbf_create"
   buz_enroll RBZ_ABJURE_CONSECRATION        "rbw-DA"       "${z_mod}" "rbf_abjure"
   buz_enroll RBZ_SUMMON_CONSECRATION                 "rbw-Rs"       "${z_mod}" "rbf_summon"
-  buz_enroll RBZ_RUBRIC_INSCRIBE            "rbw-DI"       "${z_mod}" "rbf_rubric_inscribe"
+  buz_enroll RBZ_INSCRIBE_RELIQUARY         "rbw-DI"       "${z_mod}" "rbf_inscribe"
   buz_enroll RBZ_DELETE_IMAGE               "rbw-DD"       "${z_mod}" "rbf_delete"
   buz_enroll RBZ_RETRIEVE_IMAGE             "rbw-Rr"       "${z_mod}" "rbf_retrieve"
   buz_enroll RBZ_INSPECT_FULL              "rbw-RiF"      "${z_mod}" "rbf_inspect_full"
