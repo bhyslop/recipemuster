@@ -22,6 +22,7 @@
 // jjdr_:  Routines (internal reusable procedures)
 // jjds_:  Section headers (operation documentation structure)
 // jjdx_:  Executor and transport
+// jjdxo_: Officium lifecycle (MCP session management)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
 // jjsuv_: Upper API verbs (equestrian vocabulary)
@@ -138,6 +139,15 @@
 :jjdx_tool_s:   <<jjdx_tool,MCP tools>>
 :jjdx_handler:  <<jjdx_handler,handler>>
 
+// Officium lifecycle
+:jjdxo_officium:    <<jjdxo_officium,Officium>>
+:jjdxo_officium_p:  <<jjdxo_officium,Officium's>>
+:jjdxo_officium_s:  <<jjdxo_officium,Officia>>
+:jjdxo_invitatory:  <<jjdxo_invitatory,Invitatory>>
+:jjdxo_compline:    <<jjdxo_compline,Compline>>
+:jjdxo_exchange:    <<jjdxo_exchange,Exchange Directory>>
+:jjdxo_gazette:     <<jjdxo_gazette,gazette.md>>
+
 // Operations
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
 :jjdo_alter:       <<jjdo_alter,jjx_alter>>
@@ -161,6 +171,8 @@
 :jjdo_close:             <<jjdo_close,jjx_close>>
 :jjdo_paddock:           <<jjdo_paddock,jjx_paddock>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
+:jjdo_chapter:        <<jjdo_chapter,jjx_chapter>>
+:jjdo_absolve:        <<jjdo_absolve,jjx_absolve>>
 
 // Routines
 :jjdr_load:           <<jjdr_load,load routine>>
@@ -194,6 +206,8 @@
 :jjsuv_mount:      <<jjsuv_mount,mount>>
 :jjsuv_groom:      <<jjsuv_groom,groom>>
 :jjsuv_notch:      <<jjsuv_notch,notch>>
+:jjsuv_chapter:    <<jjsuv_chapter,chapter>>
+:jjsuv_absolve:    <<jjsuv_absolve,absolve>>
 
 // Upper API: context artifact
 :jjsuc_insert:  <<jjsuc_insert,CLAUDE.md JJK section>>
@@ -291,6 +305,9 @@ caching state between calls would produce stale reads when multiple sessions wri
 The `vvx mcp` subcommand starts a long-lived stdio server implementing the Model Context Protocol (MCP) specification version 2025-11-25.
 The server communicates via JSON-RPC 2.0 over stdin/stdout.
 Implemented using the `rmcp` crate (official Rust MCP SDK), version pinned exactly.
++
+Each {jjdx_mcp} process opens an {jjdxo_officium} at startup and closes it at shutdown.
+See <<jjdxo_officium>> for lifecycle details.
 
 [[jjdx_tool]]
 //axl_voices axo_entity
@@ -323,6 +340,115 @@ Operations that previously read text from stdin (
 accept structured string parameters instead.
 The {jjdx_mcp} resolves the {jjdgr_gallops} path internally;
 {jjda_file} is not exposed as a tool parameter.
+
+=== Officium Lifecycle
+
+[[jjdxo_officium]]
+//axve_entity
+{jjdxo_officium}::
+A bounded MCP session with a unique identity and a dedicated filesystem directory.
+Each {jjdx_mcp} process has exactly one {jjdxo_officium}.
+The {jjdxo_officium} opens at MCP startup ({jjdxo_invitatory}) and closes at MCP shutdown ({jjdxo_compline}).
++
+The term derives from the Latin _Officium Divinum_ (Divine Office) — a structured, bounded period of intentional work.
+Replaces the VOS `vost_officium` concept with a first-class JJK entity tied to MCP process lifetime rather than git-timeline heuristics.
++
+Multiple {jjdxo_officium_s} may coexist concurrently (multiple Claude Code windows).
+Per {jjdk_sole_operator}, all belong to a single operator.
+The commit lock serializes their mutations; the {jjdxo_exchange} isolates their gazette file I/O.
+
+==== Identity
+
+Each {jjdxo_officium} is assigned a unique identifier at startup.
+Format: `YYMMDD-HHMM-XXXX` where `YYMMDD-HHMM` is the local timestamp and `XXXX` is a short random suffix (4 hex characters) to distinguish concurrent startups.
++
+The identifier appears in the {jjdxo_exchange} path, in the {jjdxo_invitatory} commit, and in the {jjdxo_compline} commit.
+
+==== Directory Layout
+
+Each {jjdxo_officium} creates a directory at startup:
++
+----
+.claude/jjm/officia/<id>/gazette.md
+----
++
+The `officia/` directory is the parent for all active {jjdxo_officium_s}.
+Each {jjdxo_officium} directory contains a single file: {jjdxo_gazette}.
+The directory is created by {jjdxo_invitatory} and removed by {jjdxo_compline}.
+Directories that survive process termination (crash, signal) are stale and may be reaped by {jjdo_absolve}.
+
+[[jjdxo_exchange]]
+//axve_entity
+{jjdxo_exchange}::
+The per-{jjdxo_officium} directory (`.claude/jjm/officia/<id>/`) used for {jjsz_gazette} file exchange between {jjdx_tool_s} and Claude.
++
+Only one {jjsz_gazette} file exists at a time: {jjdxo_gazette}.
+Operations that produce gazette output write to this file; Claude reads it.
+Claude writes gazette input to this file; operations that accept gazette input read it.
++
+The sequential nature of tool calls (one at a time per session) means the single file never has concurrent readers and writers within one {jjdxo_officium}.
+
+[[jjdxo_gazette]]
+//axve_entity
+{jjdxo_gazette}::
+The fixed-name gazette file within an {jjdxo_exchange}: `gazette.md`.
+Contains {jjsz_gazette} wire-format markdown.
++
+Written by the server for output operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock} getter).
+Written by Claude for input operations ({jjdo_enroll}, {jjsoprd_revise_docket}, {jjdo_paddock} setter).
+Read by the counterpart after writing.
+
+[[jjdxo_invitatory]]
+//axvo_procedure axd_internal
+{jjdxo_invitatory}::
+The MCP startup procedure.
+Runs once when {jjdx_mcp} begins serving, before any {jjdx_tool} calls are accepted.
++
+{jjds_behavior}
++
+. Generate {jjdxo_officium} identity (timestamp + random suffix)
+. Create {jjdxo_exchange} directory
+. Create invitatory commit with model inventory in body (action code `i`)
+. Populate `ServerInfo.instructions` with the {jjdxo_exchange} path and {jjdxo_gazette} filename
++
+The dynamic `instructions` field is the mechanism by which the agent learns its gazette exchange path.
+This replaces the VOS invitatory's lazy gap-based heuristic with deterministic MCP-startup execution.
+
+[[jjdxo_compline]]
+//axvo_procedure axd_internal
+{jjdxo_compline}::
+The MCP shutdown procedure.
+Runs when the MCP client disconnects (after `service.waiting().await` returns).
++
+{jjds_behavior}
++
+. Attempt "officium over" commit (action code `o`, empty commit, best-effort)
+. Remove {jjdxo_exchange} directory
++
+If the process is killed by signal, compline does not run.
+The stale {jjdxo_exchange} directory remains for {jjdo_absolve} to reap.
+
+==== Steeplechase Commit Patterns
+
+{jjdxo_invitatory} commit (action code `i`):
++
+----
+jjb:HALLMARK::i: OFFICIUM <id>
+
+haiku: <model-id>
+sonnet: <model-id>
+opus: <model-id>
+host: <hostname>
+platform: <platform>
+----
++
+{jjdxo_compline} commit (action code `o`):
++
+----
+jjb:HALLMARK::o: OFFICIUM <id>
+----
++
+Both use empty identity (no firemark or coronet) — the officium is infrastructure, not affiliated with a heat.
 
 === Deterministic Serialization
 
@@ -357,13 +483,15 @@ Internally, Rust may decode to integers for arithmetic, but the string form is a
 [[jjdk_sole_operator]]
 //axk_premise
 {jjdk_sole_operator}::
-All concurrent {jjdx_mcp} sessions belong to a single operator.
-The commit lock serializes operations across parallel sessions;
+All concurrent {jjdxo_officium_s} belong to a single operator.
+The commit lock serializes operations across parallel {jjdxo_officium_s};
 cross-user concurrency is out of scope.
 +
 Consequently, every operation acquires the lock unconditionally — there is no
 read-only fast path, and the {jjsodp_command_lifecycle} dispatcher need not
 distinguish mutating from non-mutating operations.
++
+{jjdxo_officium_s} need only identification (which session), not authentication (who).
 
 == Equestrian Vocabulary
 
@@ -539,6 +667,18 @@ Orchestrates {jjdo_show} with remaining view, then enters planning mode for stru
 {jjsuv_notch}::
 JJ-aware git commit with heat and pace affiliation.
 Detects context (pace-affiliated or heat-affiliated), then invokes {jjdo_record} with appropriate identity.
+
+[[jjsuv_chapter]]
+//axl_voices axi_cc_claudemd_verb
+{jjsuv_chapter}::
+List active {jjdxo_officium_s}.
+Invokes {jjdo_chapter}.
+
+[[jjsuv_absolve]]
+//axl_voices axi_cc_claudemd_verb
+{jjsuv_absolve}::
+Reap stale {jjdxo_officium} directories.
+Invokes {jjdo_absolve}.
 
 === Slash Commands
 
@@ -1009,6 +1149,10 @@ A structured container for tagged notices in markdown format, used for multiline
 and Claude.
 Each gazette is constructed with a vocabulary of allowed slugs that constrains its contents.
 Notices are keyed by (slug, lede) pairs; the gazette is a two-level map from slug to lede to content.
++
+The physical exchange medium is {jjdxo_gazette} within the {jjdxo_exchange}.
+Operations write gazette output to this file; Claude reads it.
+Claude writes gazette input to this file; operations read it.
 +
 Construction is either by parsing raw markdown (producing a frozen gazette with diagnostic error reporting)
 or by programmatic building (producing an unfrozen gazette that freezes on first content disclosure).
@@ -1549,6 +1693,47 @@ include::JJSCSC-scout.adoc[]
 
 include::JJSCPD-parade.adoc[]
 
+=== Officium Operations
+
+Operations for inspecting and maintaining {jjdxo_officium} state.
+These are infrastructure operations — they do not touch {jjdgr_gallops}.
+
+[[jjdo_chapter]]
+//axvo_procedure axd_transient
+==== {jjdo_chapter}
+
+List active {jjdxo_officium_s}.
+Scans `.claude/jjm/officia/` for directories.
++
+{jjds_behavior}
++
+For each directory, reports:
++
+* {jjdxo_officium} identity (directory name)
+* Creation time (from directory metadata)
+* Whether the owning MCP process is still running (best-effort liveness check)
++
+{jjds_stdout}
++
+Tabular listing of {jjdxo_officium_s} with identity, age, and liveness status.
+
+[[jjdo_absolve]]
+//axvo_procedure axd_transient
+==== {jjdo_absolve}
+
+Reap stale {jjdxo_officium} directories.
+Removes {jjdxo_exchange} directories whose owning MCP process is no longer running.
++
+{jjds_behavior}
++
+. Scan `.claude/jjm/officia/` for directories
+. For each directory, check liveness of owning process
+. Remove directories identified as stale
+. Report what was removed
++
+Refuses to remove the calling {jjdxo_officium_p} own directory.
+If no stale directories exist, reports "nothing to absolve."
+
 === Steeplechase Operations
 
 The steeplechase is Job Jockey's session history, stored in git commits rather than the
@@ -1587,31 +1772,26 @@ Co-Authored-By: ...
 
 Subject format: `{agent} {landed|crashed}` where agent is the executor tier (haiku/sonnet/opus) and landed/crashed indicates success/failure. Body contains the agent's raw completion report.
 
-*Session marker* (created automatically by {jjdo_orient}):
+*{jjdxo_invitatory} marker* (created at MCP startup by {jjdxo_invitatory}):
 ----
-jjb:HALLMARK:₣XX:s: YYMMDD-HHMM session
+jjb:HALLMARK::i: OFFICIUM <id>
 
 haiku: claude-3-5-haiku-20241022
 sonnet: claude-sonnet-4-20250514
 opus: claude-opus-4-5-20251101
 host: macbook-pro.local
 platform: darwin-arm64
-
-Co-Authored-By: ...
 ----
 
-Session markers record when a new work session begins. {jjdo_orient} creates these automatically when:
+*{jjdxo_compline} marker* (created at MCP shutdown by {jjdxo_compline}):
+----
+jjb:HALLMARK::o: OFFICIUM <id>
+----
 
-* The most recent commit in the steeplechase is more than 1 hour old, OR
-* No commits exist in the steeplechase
-
-The subject contains the session start timestamp in `YYMMDD-HHMM` format. The body contains:
-
-* Model IDs for haiku, sonnet, and opus tiers (full model ID strings)
-* Host identifier (machine name)
-* Platform string (e.g., `darwin-arm64`, `linux-x86_64`)
-
-Model IDs are collected via {vosr_probe} routine, which spawns parallel claude invocations via tokio async subprocess spawning. This approach is token-cheap (~10 token prompt, ~15 token response per probe) and provides accurate version tracking for multi-device workflows.
+{jjdxo_invitatory} markers record when an {jjdxo_officium} opens.
+Created deterministically at MCP startup — not gap-heuristic.
+The body contains model IDs for haiku, sonnet, and opus tiers, host identifier, and platform string.
+Model IDs are collected via {vosr_probe} routine, which spawns parallel claude invocations via tokio async subprocess spawning.
 
 Pace-level action codes:
 
@@ -1638,7 +1818,9 @@ Heat-level action codes:
 * `D` — Draft: move pace between heats (uppercase, rare)
 * `R` — Retire: archive heat (uppercase)
 
-NOTE: Officium markers migrated to VVC INVITATORY (vvb:...:i:), see VOS0-VoxObscuraSpec.adoc
+NOTE: {jjdxo_invitatory} and {jjdxo_compline} commits use action codes `i` and `o` respectively.
+See <<jjdxo_invitatory>> and <<jjdxo_compline>> for commit format.
+These replace the earlier VOS-based lazy invitatory with deterministic MCP-lifecycle execution.
 
 [[jjdo_log]]
 //axvo_procedure axd_transient
