@@ -4247,6 +4247,13 @@
         "₢AwAAV": {
           "tacks": [
             {
+              "ts": "260325-0801",
+              "state": "rough",
+              "text": "Migrate gazette I/O to officium exchange directory. Server side: jjrm_McpServer carries exchange_path as state; dispatch code passes it to output handlers (orient, show, paddock getter) which write gazette.md instead of appending gazette markdown to MCP response. Input side: handlers for enroll, redocket, paddock setter read gazette.md from exchange_path instead of inline 'input' param. Remove 'input' field from MCP param structs. The exchange_path threading from server state to handlers is the key structural change.",
+              "silks": "migrate-gazette-io-to-officium-directory",
+              "commit": "a761376"
+            },
+            {
               "ts": "260325-0749",
               "state": "rough",
               "text": "Migrate gazette I/O to use officium directory: input operations (enroll, redocket, paddock setter) read gazette from officium directory file instead of inline input param. Output operations (orient, show detail, paddock getter) write gazette to officium directory file instead of appending to MCP response text. Remove inline input params from MCP param structs. The gazette file becomes the exchange medium, not MCP JSON strings.",
