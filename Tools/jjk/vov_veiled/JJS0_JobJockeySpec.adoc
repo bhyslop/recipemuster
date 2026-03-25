@@ -84,6 +84,7 @@
 :jjdpe_rough:     <<jjdpe_rough,rough>>
 :jjdpe_defined:   <<jjdpe_defined,defined>>
 :jjdpe_resolved:  <<jjdpe_resolved,resolved>>
+:jjdpe_bridled:   <<jjdpe_bridled,bridled>>
 
 // Tack record and members
 :jjdcr_tack:        <<jjdcr_tack,Tack>>
@@ -157,6 +158,8 @@
 :jjdo_enroll:          <<jjdo_enroll,jjx_enroll>>
 :jjdo_relabel:        <<jjdo_relabel,jjx_relabel>>
 :jjdo_drop:           <<jjdo_drop,jjx_drop>>
+:jjdo_close:             <<jjdo_close,jjx_close>>
+:jjdo_paddock:           <<jjdo_paddock,jjx_paddock>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
 
 // Routines
@@ -873,6 +876,14 @@ The
 {jjdpr_pace}
 was stopped without completion.
 
+[[jjdpe_bridled]]
+//axl_voices axt_enum_value axd_internal
+{jjdpe_bridled}::
+V3-legacy state: human-claimed for interactive work (serde alias: `primed`).
+Present in code but deprecated.
+Removal deferred to ₣An (jjk-v4-release-and-legacy-removal).
+New operations MUST NOT produce this state.
+
 ==== State Classification Predicates
 
 Predicates for querying pace states by semantic category.
@@ -917,7 +928,8 @@ is the pace state at this snapshot.
 Values:
 {jjdpe_rough},
 {jjdpe_complete},
-{jjdpe_abandoned}.
+{jjdpe_abandoned},
+{jjdpe_bridled} (V3-legacy, deprecated).
 
 * [[jjdcm_text]]
 //axl_voices axr_member axd_required axt_string
@@ -941,7 +953,8 @@ Format: 7-character abbreviated SHA, or `0000000` when basis cannot be determine
 //axl_voices axr_member axd_optional axt_string
 {jjdcm_direction}
 is the plan or warrant text.
-Present when the pace requires directed action; absent otherwise.
+V3-legacy: present only when state is {jjdpe_bridled}; absent otherwise.
+Will become vestigial when {jjdpe_bridled} is removed by ₣An.
 
 === {jjdyr_table}
 
@@ -1045,6 +1058,12 @@ Output always includes the prefix (`₣` or `₢`).
 
 == Arguments
 
+This section defines reusable argument linked terms shared across multiple operations.
+Operation-specific parameters (e.g., `detail`, `remaining`, `pattern`, `actionable`, `summary`, `content`, `note`, `input`, `agent`, `rough`, `size_limit`, `limit`, `identity`, `files`, `coronets`, `racing`, `stabled`, `docket`)
+are documented inline in their respective operation specs.
+Parameters that are identity types ({jjdt_coronet}, {jjdt_firemark}, {jjdt_silks})
+are referenced as types, not arguments.
+
 [[jjda_file]]
 //axl_voices axa_keyword axd_internal
 {jjda_file}::
@@ -1063,19 +1082,21 @@ The {jjdx_mcp} resolves this path internally.
 Kebab-case display name for the target entity.
 
 [[jjda_state]]
-//axl_voices axa_keyword
+//axl_voices axa_keyword axd_internal
 {jjda_state}::
+V3-legacy.
 Target state for the
 {jjdpr_pace}.
-Values:
-{jjdpe_rough},
-{jjdpe_complete},
-{jjdpe_abandoned}.
+Not exposed as an {jjdx_tool} parameter.
+Removal deferred to ₣An.
 
 [[jjda_pace]]
-//axl_voices axa_keyword
+//axl_voices axa_keyword axd_internal
 {jjda_pace}::
+V3-legacy.
 Pace silks for context in commit messages.
+Not exposed as an {jjdx_tool} parameter.
+Removal deferred to ₣An.
 
 [[jjda_intent]]
 //axl_voices axa_keyword
@@ -1086,9 +1107,12 @@ If provided, used as commit subject in
 if omitted, falls back to haiku diff description.
 
 [[jjda_created]]
-//axl_voices axa_keyword
+//axl_voices axa_keyword axd_internal
 {jjda_created}::
+V3-legacy.
 Creation date in YYMMDD format.
+Not exposed as an {jjdx_tool} parameter.
+Removal deferred to ₣An.
 
 [[jjda_before]]
 //axl_voices axa_keyword
@@ -1173,6 +1197,14 @@ Destination
 {jjdt_firemark}
 for
 {jjdo_relocate}.
+
+[[jjda_direction]]
+//axl_voices axa_keyword axd_internal
+{jjda_direction}::
+V3-legacy.
+Plan or warrant text for {jjdpe_bridled} state.
+Not exposed as an {jjdx_tool} parameter.
+Removal deferred to ₣An.
 
 == Section Headers
 
@@ -1454,6 +1486,18 @@ include::JJSCRS-restring.adoc[]
 ==== {jjdo_archive}
 
 include::JJSCRT-retire.adoc[]
+
+[[jjdo_close]]
+//axvo_procedure axd_transient
+==== {jjdo_close}
+
+include::JJSCWP-wrap.adoc[]
+
+[[jjdo_paddock]]
+//axvo_procedure axd_transient
+==== {jjdo_paddock}
+
+include::JJSCCU-curry.adoc[]
 
 === Read Operations
 

@@ -1,0 +1,34 @@
+Mark a
+{jjdpr_pace}
+complete and commit all uncommitted changes.
+Delegates to the
+{jjdr_wrap}
+routine.
+
+{jjds_arguments}
+
+//axd_required
+* {jjdt_coronet}
+— target
+{jjdpr_pace}
+
+//axd_optional
+* `summary` (string) — wrap summary text.
+If absent, defaults to "pace {silks} complete".
+
+//axd_optional
+* `size_limit` (integer) — maximum commit size in bytes (default 50KB).
+
+{jjds_stdout} Commit hash.
+
+{jjds_exit_enumerated}
+
+* 0 — success
+* 1 — general error (parse failure, gallops error, git error)
+* 2 — size guard exceeded (use `size_limit` to override)
+
+{jjds_behavior}
+
+See
+{jjdr_wrap}
+for the full behavioral sequence.
