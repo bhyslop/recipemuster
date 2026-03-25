@@ -3595,6 +3595,13 @@
         "₢AvAAS": {
           "tacks": [
             {
+              "ts": "260324-1913",
+              "state": "complete",
+              "text": "## Character\nMechanical cleanup — consistent vessel arg handling and vocabulary alignment.\n\n## Goals\n1. Extract `zrbf_resolve_vessel` shared helper (accepts sigil or path, lists on error)\n2. Replace duplicated list-and-die blocks in rbf_enshrine, rbf_create, rbf_abjure, rbf_about\n3. Rename Ark→Consecration in tabtarget frontispieces (DC, DA)\n4. Rename rbw-DE frontispiece: DirectorEnshrinesBaseImages → DirectorEnshrinesVessel\n5. Delete rbw-Db tabtarget (about is automatic; standalone rbf_about remains for graft internal use)\n6. Update spec references (RBSAE, RBSAC, RBS0) if they mention Ark in tabtarget context\n\n## Verification\n- All vessel-arg commands accept both sigil and full path\n- No-arg and invalid-arg both list available vessels\n- No tabtarget frontispiece references Ark\n- rbw-Db tabtarget gone\n- Regime validation passes",
+              "silks": "director-vessel-arg-cleanup",
+              "commit": "6c47f5c"
+            },
+            {
               "ts": "260324-1853",
               "state": "rough",
               "text": "## Character\nMechanical cleanup — consistent vessel arg handling and vocabulary alignment.\n\n## Goals\n1. Extract `zrbf_resolve_vessel` shared helper (accepts sigil or path, lists on error)\n2. Replace duplicated list-and-die blocks in rbf_enshrine, rbf_create, rbf_abjure, rbf_about\n3. Rename Ark→Consecration in tabtarget frontispieces (DC, DA)\n4. Rename rbw-DE frontispiece: DirectorEnshrinesBaseImages → DirectorEnshrinesVessel\n5. Delete rbw-Db tabtarget (about is automatic; standalone rbf_about remains for graft internal use)\n6. Update spec references (RBSAE, RBSAC, RBS0) if they mention Ark in tabtarget context\n\n## Verification\n- All vessel-arg commands accept both sigil and full path\n- No-arg and invalid-arg both list available vessels\n- No tabtarget frontispiece references Ark\n- rbw-Db tabtarget gone\n- Regime validation passes",
