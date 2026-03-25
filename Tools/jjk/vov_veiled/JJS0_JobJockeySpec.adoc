@@ -1046,7 +1046,7 @@ Output always includes the prefix (`₣` or `₢`).
 == Arguments
 
 [[jjda_file]]
-//axl_voices axa_cli_option axd_internal
+//axl_voices axa_keyword axd_internal
 {jjda_file}::
 Path to the
 {jjdgr_gallops}
@@ -1058,74 +1058,60 @@ The {jjdx_mcp} resolves this path internally.
 {jjdx_handler} functions accept the resolved path from the transport layer.
 
 [[jjda_silks]]
-//axl_voices axa_cli_option
+//axl_voices axa_keyword
 {jjda_silks}::
 Kebab-case display name for the target entity.
-Long: `--silks`.
-Short: `-s`.
 
 [[jjda_state]]
-//axl_voices axa_cli_option
+//axl_voices axa_keyword
 {jjda_state}::
 Target state for the
 {jjdpr_pace}.
-Long: `--state`.
-Short: none.
 Values:
 {jjdpe_rough},
 {jjdpe_complete},
 {jjdpe_abandoned}.
 
 [[jjda_pace]]
-//axl_voices axa_cli_option
+//axl_voices axa_keyword
 {jjda_pace}::
 Pace silks for context in commit messages.
-Long: `--pace`.
-Short: `-p`.
 
 [[jjda_intent]]
-//axl_voices axa_cli_option
+//axl_voices axa_keyword
 {jjda_intent}::
 Commit subject provided by opus.
-Long: `--intent`.
-Short: none.
 If provided, used as commit subject in
 {jjdo_record};
 if omitted, falls back to haiku diff description.
 
 [[jjda_created]]
-//axl_voices axa_cli_option
+//axl_voices axa_keyword
 {jjda_created}::
 Creation date in YYMMDD format.
-Long: `--created`.
-Short: `-c`.
 
 [[jjda_before]]
-//axl_voices axa_cli_option
+//axl_voices axa_keyword
 {jjda_before}::
 {jjdt_coronet}
 to insert before.
-Long: `--before`.
-Short: none.
 Mutually exclusive with
 {jjda_after}
 and
 {jjda_first}.
 
 [[jjda_after]]
-//axl_voices axa_cli_option
+//axl_voices axa_keyword
 {jjda_after}::
 {jjdt_coronet}
 to insert after.
-Long: `--after`.
-Short: none.
 Mutually exclusive with
 {jjda_before}
 and
 {jjda_first}.
 
 [[jjda_first]]
-//axl_voices axa_cli_flag
+//axl_voices axa_keyword
 {jjda_first}::
 Position at first actionable slot in
 {jjdhm_order}
@@ -1133,22 +1119,18 @@ Position at first actionable slot in
 {jjdpe_rough}
 pace).
 If no actionable paces exist, positions at end.
-Long: `--first`.
-Short: none.
-Boolean flag, no value.
+Boolean.
 Mutually exclusive with
 {jjda_before}
 and
 {jjda_after}.
 
 [[jjda_last]]
-//axl_voices axa_cli_flag
+//axl_voices axa_keyword
 {jjda_last}::
 Move to end of
 {jjdhm_order}.
-Long: `--last`.
-Short: none.
-Boolean flag, no value.
+Boolean.
 Used only by
 {jjdo_reorder}
 move mode.
@@ -1159,13 +1141,11 @@ and
 {jjda_first}.
 
 [[jjda_move]]
-//axl_voices axa_cli_option
+//axl_voices axa_keyword
 {jjda_move}::
 {jjdt_coronet}
 to relocate within
 {jjdhm_order}.
-Long: `--move`.
-Short: `-m`.
 Triggers move mode in
 {jjdo_reorder}.
 Requires exactly one positioning flag:
@@ -1176,27 +1156,23 @@ or
 {jjda_last}.
 
 [[jjda_status]]
-//axl_voices axa_cli_option
+//axl_voices axa_keyword
 {jjda_status}::
 Filter by
 {jjdhr_heat}
 status.
-Long: `--status`.
-Short: none.
 Values:
 {jjdhe_racing},
 {jjdhe_stabled},
 {jjdhe_retired}.
 
 [[jjda_to]]
-//axl_voices axa_cli_option
+//axl_voices axa_keyword
 {jjda_to}::
 Destination
 {jjdt_firemark}
 for
 {jjdo_relocate}.
-Long: `--to`.
-Short: none.
 
 == Section Headers
 
