@@ -4207,6 +4207,13 @@
         "₢AwAAS": {
           "tacks": [
             {
+              "ts": "260325-0801",
+              "state": "rough",
+              "text": "Implement jjx_chapter and jjx_absolve. Chapter: scan .claude/jjm/officia/ directories, report identity, age, liveness status in tabular format. Absolve: remove directories whose owning process is gone, refuse to remove own directory. Liveness mechanism: write a PID file (or officium metadata JSON) at invitatory; chapter/absolve check if PID is still alive. Add MCP dispatch entries, param structs. These operations do not touch Gallops — they bypass the command lifecycle lock.",
+              "silks": "implement-chapter-and-absolve",
+              "commit": "23db1aa"
+            },
+            {
               "ts": "260325-0749",
               "state": "rough",
               "text": "Implement jjx_chapter (list active officia: directory scan of .claude/jjm/officia/, show ID, creation time, whether current process or stale) and jjx_absolve (clear stale officia: remove directories for sessions that are no longer running). Add MCP tool dispatch, param structs, and handler modules.",
