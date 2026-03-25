@@ -3663,9 +3663,10 @@
         "₢AwAAC",
         "₢AwAAD",
         "₢AwAAE",
-        "₢AwAAF"
+        "₢AwAAF",
+        "₢AwAAP"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4145,6 +4146,17 @@
               "text": "Implement the Gazette entity in Rust per the JJSCGZ-gazette.adoc specification.\n\n## Scope\n\nCreate `jjrz_gazette.rs` implementing:\n\n1. **Gazette struct** — two-level map (slug → lede → content) with vocabulary and frozen state\n2. **jjrz_parse** — construct frozen gazette from markdown, collect all diagnostics as Vec<String> for LLM-legible error reporting\n3. **jjrz_build** — construct unfrozen gazette with vocabulary\n4. **jjrz_add** — add notice, fatal if frozen/bad slug/duplicate (slug,lede) key\n5. **jjrz_query_by_slug** — retrieve entries by slug, triggers freeze-on-disclosure\n6. **jjrz_query_all** — retrieve all notices, triggers freeze-on-disclosure\n7. **jjrz_emit** — produce markdown, triggers freeze-on-disclosure\n8. **Slug constants** — jjezs_slate, jjezs_reslate, jjezs_paddock, jjezs_pace as Rust enum\n\n## Invariants\n\n- Freeze-on-disclosure: any method that reveals notice map contents freezes permanently\n- No ordering semantic\n- Unique (slug, lede) keys, fatal on duplicate\n- Round-trip: parse(vocab, emit(g)) produces identical notice map\n\n## Testing\n\nUnit tests for:\n- Parse: valid markdown, unknown slugs, malformed headers, duplicate keys, near-match suggestions\n- Build/add/freeze: vocabulary enforcement, freeze-on-disclosure, duplicate key fatality\n- Round-trip: parse(emit(x)) == x\n- Directionality: slug direction constants match spec\n\n## Character\n\nStraightforward Rust implementation from a tight spec. The JJSCGZ subdocument is authoritative.",
               "silks": "implement-gazette-rust",
               "commit": "c918711"
+            }
+          ]
+        },
+        "₢AwAAP": {
+          "tacks": [
+            {
+              "ts": "260325-0749",
+              "state": "rough",
+              "text": "Spec the officium lifecycle in JJS0: officium as a bounded MCP session with unique identity, directory layout (.claude/jjm/officia/<id>/), invitatory (internal MCP startup: ID generation, directory creation, model inventory, dynamic instructions), compline (internal MCP shutdown: closing commit, directory cleanup), chapter and absolve as tool operations. Define the gazette file exchange path (fixed filename within per-officium directory). Update linked terms and premises as needed.",
+              "silks": "spec-officium-lifecycle",
+              "commit": "eea7ebd"
             }
           ]
         }
