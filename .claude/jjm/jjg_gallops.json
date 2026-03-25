@@ -3229,13 +3229,14 @@
         "₢AvAAI",
         "₢AvAAJ",
         "₢AvAAM",
+        "₢AvAAS",
         "₢AvAAN",
         "₢AvAAK",
         "₢AvAAL",
         "₢AvAAH",
         "₢AvAAQ"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3587,6 +3588,17 @@
               "text": "## Character\nSmall UX improvement — mechanical.\n\n## Goal\nAdd a label parameter to `zrbf_wait_build_completion` so poll status lines identify the build type.\n\n## Steps\n1. Change signature: `zrbf_wait_build_completion max_polls label`\n2. Use label in the `buc_info` line: `\"${z_label}: ${z_status} (poll ${z_polls}/${z_max_polls})\"`\n3. Update all call sites to pass their identity:\n   - `rbf_build` (conjure): `\"Conjure\"`\n   - `zrbf_mirror_submit`: `\"Mirror\"`\n   - `zrbf_about_submit`: `\"About\"`\n   - `zrbf_vouch_submit`: `\"Vouch\"`\n   - `zrbf_enshrine_submit`: `\"Enshrine\"`\n   - `zrbf_graft_submit` (if exists): `\"Graft\"`\n4. Also update the success/failure messages to use the label.\n\n## Verification\n- regime-validation passes\n- Spot-check one build to confirm label appears in output",
               "silks": "build-poll-label-parameter",
               "commit": "1d5daf8"
+            }
+          ]
+        },
+        "₢AvAAS": {
+          "tacks": [
+            {
+              "ts": "260324-1853",
+              "state": "rough",
+              "text": "## Character\nMechanical cleanup — consistent vessel arg handling and vocabulary alignment.\n\n## Goals\n1. Extract `zrbf_resolve_vessel` shared helper (accepts sigil or path, lists on error)\n2. Replace duplicated list-and-die blocks in rbf_enshrine, rbf_create, rbf_abjure, rbf_about\n3. Rename Ark→Consecration in tabtarget frontispieces (DC, DA)\n4. Rename rbw-DE frontispiece: DirectorEnshrinesBaseImages → DirectorEnshrinesVessel\n5. Delete rbw-Db tabtarget (about is automatic; standalone rbf_about remains for graft internal use)\n6. Update spec references (RBSAE, RBSAC, RBS0) if they mention Ark in tabtarget context\n\n## Verification\n- All vessel-arg commands accept both sigil and full path\n- No-arg and invalid-arg both list available vessels\n- No tabtarget frontispiece references Ark\n- rbw-Db tabtarget gone\n- Regime validation passes",
+              "silks": "director-vessel-arg-cleanup",
+              "commit": "7e4cb92"
             }
           ]
         }
