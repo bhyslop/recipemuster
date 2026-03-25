@@ -152,7 +152,7 @@ zrbf_kindle() {
   readonly ZRBF_SCRATCH_FILE="${BURD_TEMP_DIR}/rbf_scratch.txt"
 
   buc_log_args 'For now lets double check these'
-  test -n "${RBRG_ORAS_IMAGE_REF:-}"   || buc_die "RBRG_ORAS_IMAGE_REF not set"
+  # RBRG_ORAS_IMAGE_REF validation removed — oras not used as GCB step image
 
   readonly ZRBF_KINDLED=1
 }
@@ -262,7 +262,6 @@ zrbf_resolve_tool_images() {
   ZRBF_TOOL_SYFT="${z_rqy_prefix}/syft:latest"
   ZRBF_TOOL_BINFMT="${z_rqy_prefix}/binfmt:latest"
   ZRBF_TOOL_SKOPEO="${z_rqy_prefix}/skopeo:latest"
-  ZRBF_TOOL_ORAS="${z_rqy_prefix}/oras:latest"
   buc_log_args "Tool images resolved from reliquary: ${z_reliquary}"
 }
 

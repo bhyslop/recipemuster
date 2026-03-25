@@ -3,7 +3,7 @@
 # Builder: gcr.io/cloud-builders/docker (always pullable — Google-hosted)
 # Substitutions: _RBGN_GAR_HOST, _RBGN_GAR_PATH, _RBGN_RELIQUARY
 #
-# Mirrors all GCB step/tool images from upstream registries to a datestamped
+# Mirrors all 6 GCB step/tool images from upstream registries to a datestamped
 # GAR namespace (reliquary). Co-versioned: all images in one pass, one datestamp.
 # Single-platform (linux/amd64) — tool images run as GCB steps on amd64 workers.
 # Outputs JSON manifest with tool→digest mapping via /builder/outputs/output.
@@ -22,7 +22,6 @@ MANIFEST=(
   "syft|docker.io/anchore/syft:latest"
   "binfmt|docker.io/tonistiigi/binfmt:latest"
   "skopeo|quay.io/skopeo/stable:latest"
-  "oras|ghcr.io/oras-project/oras:latest"
 )
 
 RESULT='{'
