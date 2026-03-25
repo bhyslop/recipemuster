@@ -4160,6 +4160,13 @@
         "₢AwAAP": {
           "tacks": [
             {
+              "ts": "260325-0810",
+              "state": "complete",
+              "text": "Spec the officium lifecycle in JJS0: officium as a bounded MCP session with unique identity, directory layout (.claude/jjm/officia/<id>/), invitatory (internal MCP startup: ID generation, directory creation, model inventory, dynamic instructions), compline (internal MCP shutdown: closing commit, directory cleanup), chapter and absolve as tool operations. Define the gazette file exchange path (fixed filename within per-officium directory). Update linked terms and premises as needed.",
+              "silks": "spec-officium-lifecycle",
+              "commit": "11b4a77"
+            },
+            {
               "ts": "260325-0749",
               "state": "rough",
               "text": "Spec the officium lifecycle in JJS0: officium as a bounded MCP session with unique identity, directory layout (.claude/jjm/officia/<id>/), invitatory (internal MCP startup: ID generation, directory creation, model inventory, dynamic instructions), compline (internal MCP shutdown: closing commit, directory cleanup), chapter and absolve as tool operations. Define the gazette file exchange path (fixed filename within per-officium directory). Update linked terms and premises as needed.",
