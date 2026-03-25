@@ -471,14 +471,14 @@ zrbf_stitch_build_json() {
     "${z_about_steps_file}" > "${z_about_with_dir}" \
     || buc_die "Failed to add dir to about steps"
 
-  # Consecration: $$(cat .consecration) → CB de-escapes $$ to $, bash reads workspace file
-  # Build ID: $BUILD_ID → CB built-in substitution (same job = conjure job ID)
-  buc_log_args "Post-processing about steps: consecration from workspace, build ID from CB built-in"
+  # Consecration: $(cat .consecration) → bash reads workspace file written by rbgjb01
+  # Build ID: $BUILD_ID → GCB built-in available as env var
+  buc_log_args "Post-processing about steps: consecration from workspace, build ID from env"
   local -r z_about_processed="${ZRBF_STITCH_PREFIX}about_processed.json"
   local z_about_content
   z_about_content=$(<"${z_about_with_dir}") \
     || buc_die "Failed to read about steps for post-processing"
-  z_about_content="${z_about_content//\$\{_RBGA_CONSECRATION\}/\$\$(cat .consecration)}"
+  z_about_content="${z_about_content//\$\{_RBGA_CONSECRATION\}/\$(cat .consecration)}"
   z_about_content="${z_about_content//\$\{_RBGA_BUILD_ID:-\}/\$BUILD_ID}"
   printf '%s' "${z_about_content}" > "${z_about_processed}" \
     || buc_die "Failed to post-process about steps for conjure"
