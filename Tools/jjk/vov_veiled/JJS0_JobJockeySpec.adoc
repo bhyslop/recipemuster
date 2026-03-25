@@ -141,8 +141,8 @@
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
 :jjdo_alter:       <<jjdo_alter,jjx_alter>>
 :jjdo_continue:        <<jjdo_continue,jjx_continue>>
-:jjdo_get_coronets:   <<jjdo_get_coronets,jjx_get_coronets>>
-:jjdo_get_brief:       <<jjdo_get_brief,jjx_get_brief>>
+:jjdo_coronets:   <<jjdo_coronets,jjx_coronets>>
+:jjdo_brief:       <<jjdo_brief,jjx_brief>>
 :jjdo_landing:        <<jjdo_landing,jjx_landing>>
 :jjdo_list:         <<jjdo_list,jjx_list>>
 :jjdo_create:       <<jjdo_create,jjx_create>>
@@ -1469,15 +1469,15 @@ include::JJSCVL-validate.adoc[]
 
 include::JJSCMU-muster.adoc[]
 
-[[jjdo_get_brief]]
+[[jjdo_brief]]
 //axvo_procedure axd_transient
-==== {jjdo_get_brief}
+==== {jjdo_brief}
 
 include::JJSCGS-get-spec.adoc[]
 
-[[jjdo_get_coronets]]
+[[jjdo_coronets]]
 //axvo_procedure axd_transient
-==== {jjdo_get_coronets}
+==== {jjdo_coronets}
 
 include::JJSCGC-get-coronets.adoc[]
 

@@ -9,7 +9,7 @@ in
 {rbtgi_repository}.
 The about scripts (`rbgja01`–`rbgja04`) are uniform across all three vessel modes and always execute as Cloud Build steps.
 This procedure describes those steps — not a standalone Cloud Build job.
-Conjure and bind embed these steps in their primary Cloud Build job alongside image production; graft's primary job consists of these steps alone (degenerate — no image step).
+Conjure and bind embed these steps in their primary Cloud Build job alongside image production; graft combines these steps with vouch steps in a single about+vouch Cloud Build job.
 All jobs run as the
 {rbtr_mason}
 service account on the private pool (`RBRR_GCB_WORKER_POOL`).
@@ -141,7 +141,7 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 *Mode-specific*::
 [cols="1,2"]
 |===
-| `_RBGA_BUILD_ID` | Conjure Cloud Build job ID (conjure only). In the combined conjure job, populated from the built-in `$BUILD_ID`. In graft/recovery standalone about, passed by the director from a prior conjure run. Used by step 3 to populate `build_info.json`. Empty for bind/graft.
+| `_RBGA_BUILD_ID` | Conjure Cloud Build job ID (conjure only). In the combined conjure job, populated from the built-in `$BUILD_ID`. In manual recovery standalone about, passed by the director from a prior conjure run. Used by step 3 to populate `build_info.json`. Empty for bind/graft.
 | `_RBGA_INSCRIBE_TIMESTAMP` | Inscribe timestamp from consecration (conjure only). Empty for bind/graft.
 | `_RBGA_BIND_SOURCE` | Pinned upstream image reference (bind only). Source: {rbrv_bind_image}. Empty for conjure/graft.
 | `_RBGA_GRAFT_SOURCE` | Local image reference at push time (graft only). Empty for conjure/bind.

@@ -12,7 +12,7 @@ use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
 use std::path::PathBuf;
 
-/// Arguments for jjx_get_coronets command
+/// Arguments for jjx_coronets command
 #[derive(clap::Args, Debug)]
 pub struct jjrgc_GetCoronetsArgs {
     /// Path to the Gallops JSON file
@@ -37,7 +37,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
-            vvco_err!(output, "jjx_get_coronets: error: {}", e);
+            vvco_err!(output, "jjx_coronets: error: {}", e);
             return (1, output.vvco_finish());
         }
     };
@@ -45,7 +45,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_get_coronets: error: {}", e);
+            vvco_err!(output, "jjx_coronets: error: {}", e);
             return (1, output.vvco_finish());
         }
     };
@@ -54,7 +54,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
-            vvco_err!(output, "jjx_get_coronets: error: Heat '{}' not found", heat_key);
+            vvco_err!(output, "jjx_coronets: error: Heat '{}' not found", heat_key);
             return (1, output.vvco_finish());
         }
     };

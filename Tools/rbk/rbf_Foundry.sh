@@ -1061,24 +1061,23 @@ rbf_create() {
     || buc_die "Failed to read consecration from output"
   test -n "${z_consecration}" || buc_die "Empty consecration in output"
 
-  # About: graft needs standalone about; conjure and bind combined jobs already produced -about
+  # Metadata pipeline: graft uses combined about+vouch; conjure/bind already have about, need standalone vouch
   case "${z_mode}" in
     conjure)
-      buc_info "About produced by combined conjure job — skipping standalone about"
+      buc_info "About produced by combined conjure job — proceeding to vouch"
+      rbf_vouch "${z_vessel_dir}" "${z_consecration}"
       ;;
     graft)
-      rbf_about "${z_vessel_dir}" "${z_consecration}" ""
+      zrbf_graft_metadata_submit "${z_vessel_dir}" "${z_consecration}"
       ;;
     bind)
-      buc_info "About produced by combined bind job — skipping standalone about"
+      buc_info "About produced by combined bind job — proceeding to vouch"
+      rbf_vouch "${z_vessel_dir}" "${z_consecration}"
       ;;
     *)
       buc_die "Unknown vessel mode in chaining: ${z_mode}"
       ;;
   esac
-
-  # Vouch: all modes
-  rbf_vouch "${z_vessel_dir}" "${z_consecration}"
 }
 
 rbf_build() {
@@ -2849,6 +2848,294 @@ zrbf_assemble_about_steps() {
   done
 }
 
+# Internal: assemble vouch step scripts into JSON array file
+# Args: output_file temp_prefix
+# Reads ZRBF_RBGJV_STEPS_DIR and RBRG_* image refs from module state
+zrbf_assemble_vouch_steps() {
+  zrbf_sentinel
+
+  local -r z_output_file="$1"
+  local -r z_temp_prefix="$2"
+
+  # Step definitions: script|builder|entrypoint|id
+  # Delimiter is | because image refs contain colons (sha256 digests)
+  local -r z_vouch_step_defs=(
+    "rbgjv01-download-verifier.sh|${RBRG_ALPINE_IMAGE_REF}|sh|download-verifier"
+    "rbgjv02-verify-provenance.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|verify-provenance"
+    "rbgjv03-assemble-push-vouch.sh|${RBRG_DOCKER_IMAGE_REF}|bash|assemble-push-vouch"
+  )
+
+  echo "[]" > "${z_output_file}" || buc_die "Failed to initialize vouch steps JSON"
+
+  local z_vdef=""
+  local z_vscript=""
+  local z_vbuilder=""
+  local z_ventrypoint=""
+  local z_vid=""
+  local z_vscript_path=""
+  local z_vbody_file=""
+  local z_vescaped_file=""
+  local z_vsteps_file=""
+  local z_vbody=""
+  local z_varg_flag=""
+
+  for z_vdef in "${z_vouch_step_defs[@]}"; do
+    IFS='|' read -r z_vscript z_vbuilder z_ventrypoint z_vid <<< "${z_vdef}"
+    z_vscript_path="${ZRBF_RBGJV_STEPS_DIR}/${z_vscript}"
+    z_vbody_file="${z_temp_prefix}${z_vid}_body.txt"
+    z_vescaped_file="${z_temp_prefix}${z_vid}_escaped.txt"
+    z_vsteps_file="${z_temp_prefix}${z_vid}_steps.json"
+
+    test -f "${z_vscript_path}" || buc_die "Vouch step script not found: ${z_vscript_path}"
+
+    buc_log_args "Reading script body for ${z_vid} (skip shebang)"
+    tail -n +2 "${z_vscript_path}" > "${z_vbody_file}" \
+      || buc_die "Failed to read vouch step script: ${z_vscript_path}"
+    z_vbody=$(<"${z_vbody_file}")
+    test -n "${z_vbody}" || buc_die "Empty vouch script body: ${z_vscript_path}"
+
+    buc_log_args "Escaping dollars for Cloud Build, preserving _RBGV_ substitutions"
+    z_vbody="${z_vbody//\$/\$\$}"
+    z_vbody="${z_vbody//\$\${_RBGV_/\${_RBGV_}"
+    printf '%s' "${z_vbody}" > "${z_vescaped_file}" \
+      || buc_die "Failed to escape vouch script body for ${z_vid}"
+
+    case "${z_ventrypoint}" in
+      bash) z_ventrypoint="/bin/bash"; z_varg_flag="-lc" ;;
+      sh)   z_ventrypoint="/bin/sh";   z_varg_flag="-c" ;;
+      *)    buc_die "Unknown entrypoint: ${z_ventrypoint}" ;;
+    esac
+
+    buc_log_args "Appending vouch step ${z_vid} to JSON array"
+    jq \
+      --arg name "${z_vbuilder}" \
+      --arg id "${z_vid}" \
+      --arg ep "${z_ventrypoint}" \
+      --arg flag "${z_varg_flag}" \
+      --rawfile script "${z_vescaped_file}" \
+      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+      "${z_output_file}" > "${z_vsteps_file}" \
+      || buc_die "Failed to append vouch step ${z_vid} to JSON"
+    mv "${z_vsteps_file}" "${z_output_file}" \
+      || buc_die "Failed to update vouch steps JSON for ${z_vid}"
+  done
+}
+
+# Internal: submit combined about+vouch Cloud Build job for graft mode.
+# Eliminates the orphan gap between standalone about and vouch by running
+# both step sets in a single GCB submission.
+# Args: vessel_dir consecration
+zrbf_graft_metadata_submit() {
+  zrbf_sentinel
+
+  local -r z_vessel_dir="$1"
+  local -r z_consecration="$2"
+
+  # Load vessel (follows reload pattern used by rbf_about/rbf_vouch)
+  zrbf_load_vessel "${z_vessel_dir}"
+  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+
+  buc_step "Loading Director RBRA credentials"
+  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
+
+  buc_step "Authenticating as Director"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  buc_step "Constructing combined about+vouch Cloud Build resource"
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+
+  # Gate: require -image exists (graft push must have completed)
+  buc_step "Gating on image artifact existence"
+  local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_image_gate_status="${ZRBF_GRAFT_PREFIX}meta_image_status.txt"
+  local -r z_image_gate_response="${ZRBF_GRAFT_PREFIX}meta_image_response.json"
+  local -r z_image_gate_stderr="${ZRBF_GRAFT_PREFIX}meta_image_stderr.txt"
+
+  curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -w "%{http_code}" \
+    -o "${z_image_gate_response}" \
+    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_image_tag}" \
+    > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
+    || buc_die "HEAD request failed for -image artifact — see ${z_image_gate_stderr}"
+
+  local -r z_image_http_code=$(<"${z_image_gate_status}")
+  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for -image"
+  test "${z_image_http_code}" = "200" \
+    || buc_die "Image artifact not found (HTTP ${z_image_http_code}) — graft push must complete before about+vouch"
+
+  buc_info "Image artifact confirmed: ${z_image_tag}"
+
+  # Git metadata (shared temp files, idempotent)
+  zrbf_ensure_git_metadata
+  local z_git_commit=""
+  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}")
+  local z_git_branch=""
+  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}")
+  local z_git_repo=""
+  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")
+
+  # Graft-specific about substitution values
+  local -r z_graft_source="${RBRV_GRAFT_IMAGE:-}"
+  local z_dockerfile_content=""
+  local -r z_dockerfile_max_bytes=4000
+  if test -n "${RBRV_GRAFT_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_GRAFT_OPTIONAL_DOCKERFILE}"; then
+    local -r z_df_size_file="${ZRBF_GRAFT_PREFIX}meta_df_size.txt"
+    wc -c < "${RBRV_GRAFT_OPTIONAL_DOCKERFILE}" > "${z_df_size_file}" \
+      || buc_die "Failed to measure Dockerfile size"
+    local z_df_size=""
+    z_df_size=$(<"${z_df_size_file}")
+    z_df_size="${z_df_size// /}"
+    if test "${z_df_size}" -le "${z_dockerfile_max_bytes}"; then
+      z_dockerfile_content=$(<"${RBRV_GRAFT_OPTIONAL_DOCKERFILE}")
+    else
+      buc_warn "Dockerfile exceeds 4KB substitution limit (${z_df_size} bytes) — recipe.txt omitted"
+    fi
+  fi
+
+  # === Assemble about steps ===
+  local -r z_about_steps_file="${ZRBF_GRAFT_PREFIX}meta_about_steps.json"
+  zrbf_assemble_about_steps "${z_about_steps_file}" "${ZRBF_GRAFT_PREFIX}meta_about_"
+
+  # === Resolve base image provenance (for vouch summary) ===
+  local -r z_vi_gar_prefix="${z_gar_host}/${z_gar_path}/${RBRV_SIGIL}"
+  local z_vi_ref_1="" z_vi_ref_2="" z_vi_ref_3=""
+  local z_vi_prov_1="" z_vi_prov_2="" z_vi_prov_3=""
+  local z_vi_n="" z_vi_origin_var="" z_vi_anchor_var="" z_vi_origin="" z_vi_anchor=""
+  for z_vi_n in 1 2 3; do
+    z_vi_origin_var="RBRV_IMAGE_${z_vi_n}_ORIGIN"
+    z_vi_anchor_var="RBRV_IMAGE_${z_vi_n}_ANCHOR"
+    z_vi_origin="${!z_vi_origin_var:-}"
+    z_vi_anchor="${!z_vi_anchor_var:-}"
+    test -n "${z_vi_origin}" || continue
+    local z_vi_ref="" z_vi_prov=""
+    if test -n "${z_vi_anchor}"; then
+      z_vi_ref="${z_vi_gar_prefix}:${z_vi_anchor}"
+      z_vi_prov="anchored"
+    else
+      z_vi_ref="${z_vi_origin}"
+      z_vi_prov="pass-through"
+    fi
+    case "${z_vi_n}" in
+      1) z_vi_ref_1="${z_vi_ref}"; z_vi_prov_1="${z_vi_prov}" ;;
+      2) z_vi_ref_2="${z_vi_ref}"; z_vi_prov_2="${z_vi_prov}" ;;
+      3) z_vi_ref_3="${z_vi_ref}"; z_vi_prov_3="${z_vi_prov}" ;;
+    esac
+  done
+
+  # === Assemble vouch steps ===
+  local -r z_vouch_steps_file="${ZRBF_GRAFT_PREFIX}meta_vouch_steps.json"
+  zrbf_assemble_vouch_steps "${z_vouch_steps_file}" "${ZRBF_GRAFT_PREFIX}meta_vouch_"
+
+  # === Combine: about steps + vouch steps ===
+  local -r z_combined_steps="${ZRBF_GRAFT_PREFIX}meta_combined_steps.json"
+  jq -s '.[0] + .[1]' "${z_about_steps_file}" "${z_vouch_steps_file}" \
+    > "${z_combined_steps}" || buc_die "Failed to combine about and vouch steps"
+
+  # Compose Build resource JSON with both _RBGA_ and _RBGV_ substitutions
+  buc_log_args "Composing combined about+vouch Build resource JSON"
+  local -r z_build_file="${ZRBF_GRAFT_PREFIX}meta_build.json"
+
+  jq -n \
+    --slurpfile zjq_steps       "${z_combined_steps}" \
+    --arg zjq_sa                "${z_mason_sa}" \
+    --arg zjq_gar_host          "${z_gar_host}" \
+    --arg zjq_gar_path          "${z_gar_path}" \
+    --arg zjq_vessel            "${RBRV_SIGIL}" \
+    --arg zjq_consecration      "${z_consecration}" \
+    --arg zjq_git_commit        "${z_git_commit}" \
+    --arg zjq_git_branch        "${z_git_branch}" \
+    --arg zjq_git_repo          "${z_git_repo}" \
+    --arg zjq_graft_source      "${z_graft_source}" \
+    --arg zjq_dockerfile        "${z_dockerfile_content}" \
+    --arg zjq_ark_suffix_image  "${RBGC_ARK_SUFFIX_IMAGE}" \
+    --arg zjq_ark_suffix_about  "${RBGC_ARK_SUFFIX_ABOUT}" \
+    --arg zjq_ark_suffix_vouch  "${RBGC_ARK_SUFFIX_VOUCH}" \
+    --arg zjq_ark_suffix_diags  "${RBGC_ARK_SUFFIX_DIAGS}" \
+    --arg zjq_vi_ref_1          "${z_vi_ref_1}" \
+    --arg zjq_vi_prov_1         "${z_vi_prov_1}" \
+    --arg zjq_vi_ref_2          "${z_vi_ref_2}" \
+    --arg zjq_vi_prov_2         "${z_vi_prov_2}" \
+    --arg zjq_vi_ref_3          "${z_vi_ref_3}" \
+    --arg zjq_vi_prov_3         "${z_vi_prov_3}" \
+    --arg zjq_pool              "${RBRR_GCB_WORKER_POOL}" \
+    --arg zjq_timeout           "${RBRR_GCB_TIMEOUT}" \
+    '{
+      steps: $zjq_steps[0],
+      substitutions: {
+        _RBGA_GAR_HOST:              $zjq_gar_host,
+        _RBGA_GAR_PATH:              $zjq_gar_path,
+        _RBGA_VESSEL:                $zjq_vessel,
+        _RBGA_CONSECRATION:          $zjq_consecration,
+        _RBGA_VESSEL_MODE:           "graft",
+        _RBGA_GIT_COMMIT:            $zjq_git_commit,
+        _RBGA_GIT_BRANCH:            $zjq_git_branch,
+        _RBGA_GIT_REPO:              $zjq_git_repo,
+        _RBGA_BUILD_ID:              "",
+        _RBGA_INSCRIBE_TIMESTAMP:    "",
+        _RBGA_BIND_SOURCE:           "",
+        _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
+        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
+        _RBGA_ARK_SUFFIX_IMAGE:      $zjq_ark_suffix_image,
+        _RBGA_ARK_SUFFIX_ABOUT:      $zjq_ark_suffix_about,
+        _RBGA_ARK_SUFFIX_DIAGS:      $zjq_ark_suffix_diags,
+        _RBGV_GAR_HOST:              $zjq_gar_host,
+        _RBGV_GAR_PATH:              $zjq_gar_path,
+        _RBGV_VESSEL:                $zjq_vessel,
+        _RBGV_CONSECRATION:          $zjq_consecration,
+        _RBGV_VESSEL_MODE:           "graft",
+        _RBGV_BIND_SOURCE:           "",
+        _RBGV_GRAFT_SOURCE:          $zjq_graft_source,
+        _RBGV_ARK_SUFFIX_IMAGE:      $zjq_ark_suffix_image,
+        _RBGV_ARK_SUFFIX_VOUCH:      $zjq_ark_suffix_vouch,
+        _RBGV_IMAGE_1:               $zjq_vi_ref_1,
+        _RBGV_IMAGE_1_PROVENANCE:    $zjq_vi_prov_1,
+        _RBGV_IMAGE_2:               $zjq_vi_ref_2,
+        _RBGV_IMAGE_2_PROVENANCE:    $zjq_vi_prov_2,
+        _RBGV_IMAGE_3:               $zjq_vi_ref_3,
+        _RBGV_IMAGE_3_PROVENANCE:    $zjq_vi_prov_3
+      },
+      serviceAccount: $zjq_sa,
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $zjq_pool }
+      },
+      timeout: $zjq_timeout
+    }' > "${z_build_file}" \
+    || buc_die "Failed to compose combined about+vouch build JSON"
+
+  buc_log_args "Combined about+vouch build JSON: ${z_build_file}"
+
+  buc_step "Submitting combined about+vouch Cloud Build"
+  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+    "graft_meta_build_create" "${z_build_file}"
+  rbgu_http_require_ok "Combined about+vouch build submission" "graft_meta_build_create"
+
+  local z_build_id=""
+  z_build_id=$(rbgu_json_field_capture "graft_meta_build_create" '.metadata.build.id') || z_build_id=""
+  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
+  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+
+  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  buc_info "Combined about+vouch build submitted: ${z_build_id}"
+  buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
+
+  zrbf_wait_build_completion 100 "About+Vouch"  # ~8 minutes at 5s intervals
+
+  buc_success "About+Vouch complete: ${RBRV_SIGIL}/${z_consecration}"
+  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  buc_info "About artifact: ${RBRV_SIGIL}:${z_about_tag}"
+  buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"
+}
+
 # Internal: submit about Cloud Build job and wait for completion
 zrbf_about_submit() {
   zrbf_sentinel
@@ -3156,69 +3443,9 @@ zrbf_vouch_submit() {
     esac
   done
 
-  # Step definitions: script|builder|entrypoint|id
-  # Delimiter is | because image refs contain colons (sha256 digests)
-  local -r z_vouch_step_defs=(
-    "rbgjv01-download-verifier.sh|${RBRG_ALPINE_IMAGE_REF}|sh|download-verifier"
-    "rbgjv02-verify-provenance.sh|${RBRG_GCLOUD_IMAGE_REF}|bash|verify-provenance"
-    "rbgjv03-assemble-push-vouch.sh|${RBRG_DOCKER_IMAGE_REF}|bash|assemble-push-vouch"
-  )
-
+  # Assemble vouch steps via shared helper
   local -r z_vouch_steps_accumulator="${ZRBF_VOUCH_PREFIX}steps.json"
-  echo "[]" > "${z_vouch_steps_accumulator}" || buc_die "Failed to initialize vouch steps JSON"
-
-  local z_vdef=""
-  local z_vscript=""
-  local z_vbuilder=""
-  local z_ventrypoint=""
-  local z_vid=""
-  local z_vscript_path=""
-  local z_vbody_file=""
-  local z_vescaped_file=""
-  local z_vsteps_file=""
-  local z_vbody=""
-  local z_varg_flag=""
-
-  for z_vdef in "${z_vouch_step_defs[@]}"; do
-    IFS='|' read -r z_vscript z_vbuilder z_ventrypoint z_vid <<< "${z_vdef}"
-    z_vscript_path="${ZRBF_RBGJV_STEPS_DIR}/${z_vscript}"
-    z_vbody_file="${ZRBF_VOUCH_PREFIX}${z_vid}_body.txt"
-    z_vescaped_file="${ZRBF_VOUCH_PREFIX}${z_vid}_escaped.txt"
-    z_vsteps_file="${ZRBF_VOUCH_PREFIX}${z_vid}_steps.json"
-
-    test -f "${z_vscript_path}" || buc_die "Vouch step script not found: ${z_vscript_path}"
-
-    buc_log_args "Reading script body for ${z_vid} (skip shebang)"
-    tail -n +2 "${z_vscript_path}" > "${z_vbody_file}" \
-      || buc_die "Failed to read vouch step script: ${z_vscript_path}"
-    z_vbody=$(<"${z_vbody_file}")
-    test -n "${z_vbody}" || buc_die "Empty vouch script body: ${z_vscript_path}"
-
-    buc_log_args "Escaping dollars for Cloud Build, preserving _RBGV_ substitutions"
-    z_vbody="${z_vbody//\$/\$\$}"
-    z_vbody="${z_vbody//\$\${_RBGV_/\${_RBGV_}"
-    printf '%s' "${z_vbody}" > "${z_vescaped_file}" \
-      || buc_die "Failed to escape vouch script body for ${z_vid}"
-
-    case "${z_ventrypoint}" in
-      bash) z_ventrypoint="/bin/bash"; z_varg_flag="-lc" ;;
-      sh)   z_ventrypoint="/bin/sh";   z_varg_flag="-c" ;;
-      *)    buc_die "Unknown entrypoint: ${z_ventrypoint}" ;;
-    esac
-
-    buc_log_args "Appending vouch step ${z_vid} to JSON array"
-    jq \
-      --arg name "${z_vbuilder}" \
-      --arg id "${z_vid}" \
-      --arg ep "${z_ventrypoint}" \
-      --arg flag "${z_varg_flag}" \
-      --rawfile script "${z_vescaped_file}" \
-      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
-      "${z_vouch_steps_accumulator}" > "${z_vsteps_file}" \
-      || buc_die "Failed to append vouch step ${z_vid} to JSON"
-    mv "${z_vsteps_file}" "${z_vouch_steps_accumulator}" \
-      || buc_die "Failed to update vouch steps JSON for ${z_vid}"
-  done
+  zrbf_assemble_vouch_steps "${z_vouch_steps_accumulator}" "${ZRBF_VOUCH_PREFIX}"
 
   buc_log_args "Composing vouch Build resource JSON"
   local -r z_vouch_build_file="${ZRBF_VOUCH_PREFIX}build.json"

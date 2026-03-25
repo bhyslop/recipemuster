@@ -1,13 +1,13 @@
 
 This document is superseded. The unified `jjx_tally` command has been split into three single-purpose operations:
 
-* `jjx_revise_docket` — Update docket text
+* `jjx_redocket` — Update docket text
 * `jjx_relabel` — Change silks
 * `jjx_drop` — Set state to {jjdpe_abandoned}
 
 Each mutates flat fields on the {jjdpr_pace} directly.
 
-== jjx_revise_docket
+== jjx_redocket
 
 Update the docket text of a {jjdpr_pace}.
 

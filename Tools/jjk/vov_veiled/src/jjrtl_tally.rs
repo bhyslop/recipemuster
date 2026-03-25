@@ -17,7 +17,7 @@ use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
 use crate::jjrn_notch::{jjrn_format_heat_message as format_heat_message, jjrn_HeatAction as HeatAction};
 
-/// Arguments for jjx_revise_docket command
+/// Arguments for jjx_redocket command
 #[derive(clap::Args, Debug)]
 pub struct jjrtl_ReviseDocketArgs {
     /// Path to the Gallops JSON file

@@ -39,7 +39,7 @@ NEVER invent param fields — check the reference below first.
 | mount | heat/pace | See Mount Protocol below |
 | groom | heat | See Groom Protocol below |
 | slate | pace | `jjx_enroll` |
-| reslate | pace | `jjx_revise_docket` |
+| reslate | pace | `jjx_redocket` |
 | notch | pace | See Commit Discipline below |
 | wrap | pace | `jjx_close` |
 | rail | heat | `jjx_reorder` |
@@ -68,11 +68,11 @@ jjx_transfer       {firemark, to, coronets}
 jjx_continue       {firemark}
 jjx_paddock        {firemark, content?, note?}
 jjx_relocate       {coronet, to, before?, after?, first?}
-jjx_revise_docket  {coronet, docket}
+jjx_redocket  {coronet, docket}
 jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
-jjx_get_brief      {coronet}
-jjx_get_coronets   {firemark, remaining?, rough?}
+jjx_brief      {coronet}
+jjx_coronets   {firemark, remaining?, rough?}
 jjx_landing        {coronet, agent, content?}
 jjx_validate       {}
 ```

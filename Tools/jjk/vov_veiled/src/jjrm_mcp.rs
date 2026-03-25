@@ -354,7 +354,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_revise_docket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_get_brief, jjx_get_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -497,13 +497,13 @@ impl jjrm_McpServer {
                     last: p.last,
                 }))
             }
-            "jjx_revise_docket" => {
+            "jjx_redocket" => {
                 let p = deser!(jjrm_ReviseDocketParams);
                 if let Some(ref input) = p.input {
                     let pairs = match jjrz_parse_reslate_input(input) {
                         Ok(p) => p,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
-                            format!("jjx_revise_docket: gazette input error: {}", e),
+                            format!("jjx_redocket: gazette input error: {}", e),
                         )])),
                     };
                     let first_coronet = pairs[0].0.clone();
@@ -521,7 +521,7 @@ impl jjrm_McpServer {
                             })
                         }
                         _ => Ok(CallToolResult::error(vec![Content::text(
-                            "jjx_revise_docket: requires either 'input' (gazette) or both 'coronet' and 'docket'".to_string(),
+                            "jjx_redocket: requires either 'input' (gazette) or both 'coronet' and 'docket'".to_string(),
                         )])),
                     }
                 }
@@ -577,14 +577,14 @@ impl jjrm_McpServer {
                     actionable: p.actionable,
                 }))
             }
-            "jjx_get_brief" => {
+            "jjx_brief" => {
                 let p = deser!(jjrm_GetBriefParams);
                 jjrm_result(jjrgs_run_get_spec(jjrgs_GetSpecArgs {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
                 }))
             }
-            "jjx_get_coronets" => {
+            "jjx_coronets" => {
                 let p = deser!(jjrm_GetCoronetsParams);
                 jjrm_result(jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
                     file: gallops_pathbuf(),
@@ -644,7 +644,7 @@ impl jjrm_McpServer {
                 }, p.content.unwrap_or_default()))
             }
             _ => {
-                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_revise_docket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_get_brief, jjx_get_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing", cmd))]))
+                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing", cmd))]))
             }
         }
     }
