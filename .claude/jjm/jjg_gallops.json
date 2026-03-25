@@ -4265,6 +4265,13 @@
         "₢AwAAW": {
           "tacks": [
             {
+              "ts": "260325-0801",
+              "state": "rough",
+              "text": "Remove legacy duplicate output from orient, show detail, and paddock getter. After gazette migration, these operations write structured content (paddock, docket, pace entries) to gazette.md. Remove the inline legacy emission: 'Paddock-content:' indented block from orient, '## Paddock' section from show detail, raw paddock dump from paddock getter. Unique tabular output (racing-heats table, recent-work table, file-touch bitmap, swim lanes) remains in the MCP response — only the duplicated gazette content is removed.",
+              "silks": "remove-legacy-duplicate-output",
+              "commit": "dbaf024"
+            },
+            {
               "ts": "260325-0749",
               "state": "rough",
               "text": "Remove legacy duplicate output from orient, show detail, and paddock getter. Currently each emits content twice: once in legacy format (indented Paddock-content:, ## Paddock, raw text) then again in gazette wire format. After gazette migration, the gazette file IS the structured output — remove the legacy inline emission. Operations return concise status text only; structured content lives in the gazette file.",
