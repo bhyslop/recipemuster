@@ -3665,9 +3665,10 @@
         "₢AwAAE",
         "₢AwAAF",
         "₢AwAAP",
-        "₢AwAAQ"
+        "₢AwAAQ",
+        "₢AwAAR"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4169,6 +4170,17 @@
               "text": "Implement invitatory at MCP startup in jjrm_serve_stdio: generate officium ID (timestamp+short-token), create per-officium directory (.claude/jjm/officia/<id>/), create invitatory commit with model inventory in body, populate ServerInfo instructions with officium ID and gazette exchange path. Move invitatory from lazy-fire (orient/muster) to deterministic MCP-startup.",
               "silks": "implement-invitatory-mcp-startup",
               "commit": "9ad4081"
+            }
+          ]
+        },
+        "₢AwAAR": {
+          "tacks": [
+            {
+              "ts": "260325-0749",
+              "state": "rough",
+              "text": "Implement compline at MCP shutdown: after service.waiting().await returns in jjrm_serve_stdio, attempt 'officium over' closing commit, remove per-officium directory. Handle crash case gracefully (directory may remain for absolve to clean).",
+              "silks": "implement-compline-mcp-shutdown",
+              "commit": "2287456"
             }
           ]
         }
