@@ -4189,6 +4189,13 @@
         "₢AwAAR": {
           "tacks": [
             {
+              "ts": "260325-0800",
+              "state": "rough",
+              "text": "Implement jjdxo_compline in jjrm_serve_stdio: after service.waiting().await returns, attempt 'officium over' commit (action code 'o', empty commit, best-effort), then remove the exchange directory. Thread officium ID from invitatory through server state to compline — do not re-derive. Handle signal-kill gracefully: if compline doesn't run, the stale directory remains for absolve.",
+              "silks": "implement-compline-mcp-shutdown",
+              "commit": "942b8f4"
+            },
+            {
               "ts": "260325-0749",
               "state": "rough",
               "text": "Implement compline at MCP shutdown: after service.waiting().await returns in jjrm_serve_stdio, attempt 'officium over' closing commit, remove per-officium directory. Handle crash case gracefully (directory may remain for absolve to clean).",
