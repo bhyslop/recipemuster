@@ -3668,9 +3668,10 @@
         "₢AwAAQ",
         "₢AwAAR",
         "₢AwAAS",
-        "₢AwAAT"
+        "₢AwAAT",
+        "₢AwAAU"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4205,6 +4206,17 @@
               "text": "Test officium lifecycle end-to-end: verify invitatory creates directory and commit at MCP startup, compline removes directory and creates closing commit, chapter lists active officia correctly, absolve reaps stale directories. Test concurrent session isolation (two officia directories coexist). Test crash recovery (stale directory survives for absolve).",
               "silks": "test-officium-lifecycle",
               "commit": "e3b55bf"
+            }
+          ]
+        },
+        "₢AwAAU": {
+          "tacks": [
+            {
+              "ts": "260325-0749",
+              "state": "rough",
+              "text": "Update CLAUDE.md JJ configuration section to document gazette file exchange protocol: officium directory path communicated at MCP startup via instructions, gazette wire format (# slug lede / content), fixed filename within officium directory, how to write gazette input (Write tool to path, then call operation), how to read gazette output (Read tool from path after operation). This must land before the gazette migration pace so agents know the protocol.",
+              "silks": "claudemd-gazette-exchange-protocol",
+              "commit": "3539d3a"
             }
           ]
         }
