@@ -114,8 +114,8 @@ FROM ${RBF_IMAGE_1}
 ```
 The Foundry substitutes the resolved reference via `--build-arg` at conjure time.
 
-### RBRV_RELIQUARY
-Required vessel regime variable for conjure mode. Identifies which reliquary provides tool images for the build. Different vessels may reference different reliquaries — images evolve independently, Recipe Bottle is not opinionated.
+### RBRV_RELIQUARY (universal, settled 2026-03-25)
+Required vessel regime variable for ALL vessel modes (conjure, bind, graft). All GCB submissions — conjure build, about, vouch, enshrine, mirror, inscribe — pull step images from the reliquary. This settles the bind/graft open question: universal reliquary is the right answer because bind/graft also submit GCB jobs for about+vouch metadata, and those jobs use tool images. Different vessels may reference different reliquaries — images evolve independently, Recipe Bottle is not opinionated.
 
 ### RBRG Replaced by Reliquary
 RBRG (regime holding upstream tool image pins with freshness gates) is replaced by the reliquary. The < 1 day freshness gate that currently blocks inscribe is eliminated — you inscribe when you choose, not when a timer forces you. What remains of the upstream source information is a static manifest consumed by inscribe (a list of upstream image references to mirror), not a regime with validation and freshness enforcement.
@@ -178,5 +178,19 @@ The Horizon Roadmap egress lockdown entry (RBSHR line 87-93) describes the old a
 ### ~~SLSA Level 3 with builds.create (₢AvAAB)~~ SETTLED
 Yes. builds.create achieves Build L3 by spec and by GCB's own assessment. slsa-verifier is incompatible (conflates Build and Source tracks) and is dropped. Vouch step uses DSSE signature verification: jq + openssl against `verified-builder` KMS public keys. See Research Findings section for full analysis.
 
-### Bind/Graft Vouch and About Step Images
-Vouch and about GCB jobs for bind and graft modes also use step images (gcloud, alpine). Should these modes reference a reliquary for their GCB step images, making the reliquary the universal step-image source for ALL GCB interactions? This would be consistent but may be overkill for simpler modes. If yes, RBRV_RELIQUARY becomes required for all vessel modes, not just conjure.
+### ~~Bind/Graft Vouch and About Step Images~~ SETTLED
+Yes. RBRV_RELIQUARY is required for all vessel modes. Bind/graft submit GCB jobs for about+vouch metadata, and those jobs use tool images (gcloud, alpine, docker). Universal reliquary is the consistent answer. All 8 vessels updated with r260324201411.
+
+### Oras Eliminated from Reliquary (settled 2026-03-25)
+Oras was never used as a GCB step image — it was a CLI tool for OCI artifact operations, not a build step container. The reliquary mirrors only images that appear as GCB step `name` fields: gcloud, docker, alpine, skopeo, syft, binfmt. Removing oras reduces reliquary size and eliminates a stale-pin maintenance burden for an unused image.
+
+### GCB Script Field Migration (settled 2026-03-25)
+All GCB step assembly migrated from `entrypoint` + `args: ["-lc", script]` to `script` field with shebang prefix. Motivation: about step scripts (~8KB) exceed GCB's 10K per-arg limit when inlined as args[1]. The `script` field is designed for multi-line scripts with a much higher limit.
+
+Key facts:
+- `script` field ignores `entrypoint` — GCB writes script to a file and executes it
+- Shell selection via shebang: `#!/bin/bash` or `#!/bin/sh` prepended based on step def tuple's entrypoint field
+- `script` field does NOT support direct GCB substitution expansion — `$$` escaping is irrelevant (and harmful: `$$` in shell is PID). The entire escape/un-escape dance is eliminated.
+- `automapSubstitutions: true` added to all 7 build-level options blocks — maps all GCB substitutions to environment variables, so `${_RBGY_FOO}` works as a shell env var reference
+- All 6 step-assembly sites migrated: stitch (conjure), inscribe, enshrine, mirror, about helper, vouch helper
+- Net simplification: ~18 lines of escaping code removed, substitution references work naturally as shell env vars

@@ -358,7 +358,7 @@ zrbf_stitch_build_json() {
   fi
 
   # Step definitions: script|builder|entrypoint|id
-  # Entrypoint 'bash' uses args ["-lc", script], 'sh' uses ["-c", script]
+  # Entrypoint 'bash' → #!/bin/bash shebang, 'sh' → #!/bin/sh shebang (GCB script field)
   # Delimiter is | because image refs contain colons (sha256 digests)
   # Pipeline: buildx --push → per-platform pullback → SLSA provenance via images: field
   local z_step_defs=(
@@ -406,7 +406,7 @@ zrbf_stitch_build_json() {
   local z_id=""
   local z_script_path=""
   local z_body=""
-  local z_arg_flag=""
+  local z_shebang=""
   local z_body_file=""
   local z_escaped_file=""
   local z_steps_file=""
@@ -433,27 +433,21 @@ zrbf_stitch_build_json() {
     z_body="${z_body//\$\{RBRG_BINFMT_IMAGE_REF\}/${ZRBF_TOOL_BINFMT}}"
     z_body="${z_body//\$\{ZRBF_BUILD_STRATEGY\}/${z_build_strategy}}"
 
-    buc_log_args "Escaping dollars for Cloud Build, preserving RBGY substitutions"
-    z_body="${z_body//\$/\$\$}"
-    z_body="${z_body//\$\${_RBGY_/\${_RBGY_}"
-    printf '%s' "${z_body}" > "${z_escaped_file}" \
-      || buc_die "Failed to escape script body for ${z_id}"
-
     case "${z_entrypoint}" in
-      bash) z_entrypoint="/bin/bash"; z_arg_flag="-lc" ;;
-      sh)   z_entrypoint="/bin/sh";   z_arg_flag="-c" ;;
+      bash) z_shebang="#!/bin/bash" ;;
+      sh)   z_shebang="#!/bin/sh" ;;
       *)    buc_die "Unknown entrypoint: ${z_entrypoint}" ;;
     esac
+    printf '%s\n%s' "${z_shebang}" "${z_body}" > "${z_escaped_file}" \
+      || buc_die "Failed to write script body for ${z_id}"
 
     buc_log_args "Appending step ${z_id} to JSON array"
     jq \
       --arg name "${z_builder}" \
       --arg id "${z_id}" \
-      --arg ep "${z_entrypoint}" \
-      --arg flag "${z_arg_flag}" \
       --arg dir "${z_sigil}" \
       --rawfile script "${z_escaped_file}" \
-      '. + [{name: $name, id: $id, entrypoint: $ep, dir: $dir, args: [$flag, $script]}]' \
+      '. + [{name: $name, id: $id, dir: $dir, script: $script}]' \
       "${z_accumulator_file}" > "${z_steps_file}" \
       || buc_die "Failed to append step ${z_id} to JSON"
     mv "${z_steps_file}" "${z_accumulator_file}" \
@@ -628,6 +622,7 @@ zrbf_stitch_build_json() {
       serviceAccount: $zjq_mason_sa,
       options: {
         requestedVerifyOption: "VERIFIED",
+        automapSubstitutions: true,
         logging: "CLOUD_LOGGING_ONLY",
         pool: { name: $zjq_pool }
       },
@@ -900,10 +895,7 @@ zrbf_inscribe_submit() {
   z_body=$(<"${z_body_file}")
   test -n "${z_body}" || buc_die "Empty inscribe script body"
 
-  buc_log_args "Escaping dollars for Cloud Build, preserving _RBGN_ substitutions"
-  z_body="${z_body//\$/\$\$}"
-  z_body="${z_body//\$\${_RBGN_/\${_RBGN_}"
-  printf '%s' "${z_body}" > "${z_escaped_file}" \
+  printf '#!/bin/bash\n%s' "${z_body}" > "${z_escaped_file}" \
     || buc_die "Failed to write escaped inscribe script body"
 
   local -r z_step_file="${ZRBF_RELIQUARY_PREFIX}step.json"
@@ -913,10 +905,8 @@ zrbf_inscribe_submit() {
   jq \
     --arg name "${z_step_image}" \
     --arg id "inscribe-mirror" \
-    --arg ep "/bin/bash" \
-    --arg flag "-lc" \
     --rawfile script "${z_escaped_file}" \
-    '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+    '. + [{name: $name, id: $id, script: $script}]' \
     "${z_step_file}" > "${z_step_built}" \
     || buc_die "Failed to build inscribe step JSON"
   mv "${z_step_built}" "${z_step_file}" \
@@ -943,6 +933,7 @@ zrbf_inscribe_submit() {
       },
       serviceAccount: $zjq_sa,
       options: {
+        automapSubstitutions: true,
         logging: "CLOUD_LOGGING_ONLY",
         pool: { name: $zjq_pool }
       },
@@ -1040,10 +1031,7 @@ zrbf_enshrine_submit() {
   z_body=$(<"${z_body_file}")
   test -n "${z_body}" || buc_die "Empty enshrine script body"
 
-  buc_log_args "Escaping dollars for Cloud Build, preserving _RBGE_ substitutions"
-  z_body="${z_body//\$/\$\$}"
-  z_body="${z_body//\$\${_RBGE_/\${_RBGE_}"
-  printf '%s' "${z_body}" > "${z_escaped_file}" \
+  printf '#!/bin/bash\n%s' "${z_body}" > "${z_escaped_file}" \
     || buc_die "Failed to write escaped enshrine script body"
 
   local -r z_step_file="${ZRBF_ENSHRINE_PREFIX}step.json"
@@ -1053,10 +1041,8 @@ zrbf_enshrine_submit() {
   jq \
     --arg name "${ZRBF_TOOL_SKOPEO}" \
     --arg id "enshrine-copy" \
-    --arg ep "/bin/bash" \
-    --arg flag "-lc" \
     --rawfile script "${z_escaped_file}" \
-    '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+    '. + [{name: $name, id: $id, script: $script}]' \
     "${z_step_file}" > "${z_step_built}" \
     || buc_die "Failed to build enshrine step JSON"
   mv "${z_step_built}" "${z_step_file}" \
@@ -1089,6 +1075,7 @@ zrbf_enshrine_submit() {
       },
       serviceAccount: $zjq_sa,
       options: {
+        automapSubstitutions: true,
         logging: "CLOUD_LOGGING_ONLY",
         pool: { name: $zjq_pool }
       },
@@ -1663,20 +1650,15 @@ zrbf_mirror_submit() {
   z_mbody=$(<"${z_mbody_file}")
   test -n "${z_mbody}" || buc_die "Empty mirror script body"
 
-  buc_log_args "Escaping dollars for Cloud Build, preserving _RBGA_ substitutions"
-  z_mbody="${z_mbody//\$/\$\$}"
-  z_mbody="${z_mbody//\$\${_RBGA_/\${_RBGA_}"
-  printf '%s' "${z_mbody}" > "${z_mescaped_file}" \
+  printf '#!/bin/bash\n%s' "${z_mbody}" > "${z_mescaped_file}" \
     || buc_die "Failed to escape mirror script body"
 
   echo "[]" > "${z_mirror_step_file}" || buc_die "Failed to initialize mirror step JSON"
   jq \
     --arg name "${ZRBF_TOOL_SKOPEO}" \
     --arg id "mirror-image" \
-    --arg ep "/bin/bash" \
-    --arg flag "-lc" \
     --rawfile script "${z_mescaped_file}" \
-    '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+    '. + [{name: $name, id: $id, script: $script}]' \
     "${z_mirror_step_file}" > "${z_mirror_step_built}" \
     || buc_die "Failed to build mirror step JSON"
   mv "${z_mirror_step_built}" "${z_mirror_step_file}" \
@@ -1765,6 +1747,7 @@ zrbf_mirror_submit() {
       },
       serviceAccount: $zjq_sa,
       options: {
+        automapSubstitutions: true,
         logging: "CLOUD_LOGGING_ONLY",
         pool: { name: $zjq_pool }
       },
@@ -2968,7 +2951,7 @@ zrbf_assemble_about_steps() {
   local z_aescaped_file=""
   local z_asteps_file=""
   local z_abody=""
-  local z_aarg_flag=""
+  local z_ashebang=""
 
   for z_adef in "${z_about_step_defs[@]}"; do
     IFS='|' read -r z_ascript z_abuilder z_aentrypoint z_aid <<< "${z_adef}"
@@ -2988,26 +2971,20 @@ zrbf_assemble_about_steps() {
     buc_log_args "Baking pinned image refs into script text"
     z_abody="${z_abody//\$\{RBRG_SYFT_IMAGE_REF\}/${ZRBF_TOOL_SYFT}}"
 
-    buc_log_args "Escaping dollars for Cloud Build, preserving _RBGA_ substitutions"
-    z_abody="${z_abody//\$/\$\$}"
-    z_abody="${z_abody//\$\${_RBGA_/\${_RBGA_}"
-    printf '%s' "${z_abody}" > "${z_aescaped_file}" \
-      || buc_die "Failed to escape about script body for ${z_aid}"
-
     case "${z_aentrypoint}" in
-      bash) z_aentrypoint="/bin/bash"; z_aarg_flag="-lc" ;;
-      sh)   z_aentrypoint="/bin/sh";   z_aarg_flag="-c" ;;
+      bash) z_ashebang="#!/bin/bash" ;;
+      sh)   z_ashebang="#!/bin/sh" ;;
       *)    buc_die "Unknown entrypoint: ${z_aentrypoint}" ;;
     esac
+    printf '%s\n%s' "${z_ashebang}" "${z_abody}" > "${z_aescaped_file}" \
+      || buc_die "Failed to write about script body for ${z_aid}"
 
     buc_log_args "Appending about step ${z_aid} to JSON array"
     jq \
       --arg name "${z_abuilder}" \
       --arg id "${z_aid}" \
-      --arg ep "${z_aentrypoint}" \
-      --arg flag "${z_aarg_flag}" \
       --rawfile script "${z_aescaped_file}" \
-      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+      '. + [{name: $name, id: $id, script: $script}]' \
       "${z_output_file}" > "${z_asteps_file}" \
       || buc_die "Failed to append about step ${z_aid} to JSON"
     mv "${z_asteps_file}" "${z_output_file}" \
@@ -3044,7 +3021,7 @@ zrbf_assemble_vouch_steps() {
   local z_vescaped_file=""
   local z_vsteps_file=""
   local z_vbody=""
-  local z_varg_flag=""
+  local z_vshebang=""
 
   for z_vdef in "${z_vouch_step_defs[@]}"; do
     IFS='|' read -r z_vscript z_vbuilder z_ventrypoint z_vid <<< "${z_vdef}"
@@ -3061,26 +3038,20 @@ zrbf_assemble_vouch_steps() {
     z_vbody=$(<"${z_vbody_file}")
     test -n "${z_vbody}" || buc_die "Empty vouch script body: ${z_vscript_path}"
 
-    buc_log_args "Escaping dollars for Cloud Build, preserving _RBGV_ substitutions"
-    z_vbody="${z_vbody//\$/\$\$}"
-    z_vbody="${z_vbody//\$\${_RBGV_/\${_RBGV_}"
-    printf '%s' "${z_vbody}" > "${z_vescaped_file}" \
-      || buc_die "Failed to escape vouch script body for ${z_vid}"
-
     case "${z_ventrypoint}" in
-      bash) z_ventrypoint="/bin/bash"; z_varg_flag="-lc" ;;
-      sh)   z_ventrypoint="/bin/sh";   z_varg_flag="-c" ;;
+      bash) z_vshebang="#!/bin/bash" ;;
+      sh)   z_vshebang="#!/bin/sh" ;;
       *)    buc_die "Unknown entrypoint: ${z_ventrypoint}" ;;
     esac
+    printf '%s\n%s' "${z_vshebang}" "${z_vbody}" > "${z_vescaped_file}" \
+      || buc_die "Failed to write vouch script body for ${z_vid}"
 
     buc_log_args "Appending vouch step ${z_vid} to JSON array"
     jq \
       --arg name "${z_vbuilder}" \
       --arg id "${z_vid}" \
-      --arg ep "${z_ventrypoint}" \
-      --arg flag "${z_varg_flag}" \
       --rawfile script "${z_vescaped_file}" \
-      '. + [{name: $name, id: $id, entrypoint: $ep, args: [$flag, $script]}]' \
+      '. + [{name: $name, id: $id, script: $script}]' \
       "${z_output_file}" > "${z_vsteps_file}" \
       || buc_die "Failed to append vouch step ${z_vid} to JSON"
     mv "${z_vsteps_file}" "${z_output_file}" \
@@ -3271,6 +3242,7 @@ zrbf_graft_metadata_submit() {
       },
       serviceAccount: $zjq_sa,
       options: {
+        automapSubstitutions: true,
         logging: "CLOUD_LOGGING_ONLY",
         pool: { name: $zjq_pool }
       },
@@ -3439,6 +3411,7 @@ zrbf_about_submit() {
       },
       serviceAccount: $zjq_sa,
       options: {
+        automapSubstitutions: true,
         logging: "CLOUD_LOGGING_ONLY",
         pool: { name: $zjq_pool }
       },
@@ -3661,6 +3634,7 @@ zrbf_vouch_submit() {
       },
       serviceAccount: $zjq_sa,
       options: {
+        automapSubstitutions: true,
         logging: "CLOUD_LOGGING_ONLY",
         pool: { name: $zjq_pool }
       },
