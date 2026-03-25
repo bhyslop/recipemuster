@@ -397,9 +397,5 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
         }
     }
 
-    if let Err(e) = vvc::vvcp_invitatory().await {
-        vvco_err!(output, "jjx_orient: warning: invitatory failed: {}", e);
-    }
-
     (0, output.vvco_finish())
 }

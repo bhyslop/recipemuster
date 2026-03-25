@@ -399,17 +399,8 @@ Example: `260115-1430` for January 15, 2026 at 14:30.
 [[vost_officium]]
 //axl_voices axt_string
 {vost_officium}::
-A bounded work period opened by the
-{voscai_invitatory}
-commit.
-Replaces the concept of "session" with liturgical terminology.
-The term derives from the Latin for the Divine Office, emphasizing the structured, intentional nature of the work period.
-+
-An
-{vost_officium}
-is considered current if the most recent
-{voscai_invitatory}
-commit was created within the gap threshold (1 hour by default).
+Defined by JJK — see `jjdxo_officium` in JJS0_JobJockeySpec.adoc.
+A bounded MCP session with unique identity, dedicated filesystem directory, and process-lifetime scope.
 
 == Entities
 
@@ -1511,18 +1502,9 @@ vvb:1000::A: allocated hallmark for initial release
 [[voscai_invitatory]]
 //axvo_procedure axd_transient axd_internal
 {voscai_invitatory}::
+Defined by JJK — see `jjdxo_invitatory` in JJS0_JobJockeySpec.adoc.
+Opens an {vost_officium} at MCP startup.
 Action code `i` (lowercase).
-Opens a new
-{vost_officium}
-(bounded work period).
-Created automatically when no recent invitatory exists or the gap exceeds the threshold.
-Includes environment probe data in the commit body.
-+
-Example:
-+
-----
-vvb:1011::i: OFFICIUM 260207-0701
-----
 
 [[voscar_release]]
 //axvo_procedure axd_transient axd_internal

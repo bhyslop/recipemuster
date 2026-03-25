@@ -351,7 +351,6 @@ Each {jjdx_mcp} process has exactly one {jjdxo_officium}.
 The {jjdxo_officium} opens at MCP startup ({jjdxo_invitatory}) and closes at MCP shutdown ({jjdxo_compline}).
 +
 The term derives from the Latin _Officium Divinum_ (Divine Office) — a structured, bounded period of intentional work.
-Replaces the VOS `vost_officium` concept with a first-class JJK entity tied to MCP process lifetime rather than git-timeline heuristics.
 +
 Multiple {jjdxo_officium_s} may coexist concurrently (multiple Claude Code windows).
 Per {jjdk_sole_operator}, all belong to a single operator.
@@ -408,11 +407,11 @@ Runs once when {jjdx_mcp} begins serving, before any {jjdx_tool} calls are accep
 +
 . Generate {jjdxo_officium} identity (timestamp + random suffix)
 . Create {jjdxo_exchange} directory
-. Create invitatory commit with model inventory in body (action code `i`)
+. Collect model inventory via `vvcp_probe()` (VOS utility — spawns parallel claude invocations for haiku/sonnet/opus model IDs, hostname, platform)
+. Create invitatory commit (action code `i`, `jjb`-branded) with model inventory in body
 . Populate `ServerInfo.instructions` with the {jjdxo_exchange} path and {jjdxo_gazette} filename
 +
 The dynamic `instructions` field is the mechanism by which the agent learns its gazette exchange path.
-This replaces the VOS invitatory's lazy gap-based heuristic with deterministic MCP-startup execution.
 
 [[jjdxo_compline]]
 //axvo_procedure axd_internal

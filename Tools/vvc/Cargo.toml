@@ -9,7 +9,6 @@ name = "vvc"
 path = "src/lib.rs"
 
 [dependencies]
-chrono = "0.4"
 clap = { version = "4", features = ["derive"] }
 regex = "1"
 tokio = { version = "1", features = ["rt-multi-thread", "process", "macros", "fs"] }

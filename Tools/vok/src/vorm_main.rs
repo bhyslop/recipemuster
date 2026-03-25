@@ -31,10 +31,6 @@ enum Commands {
     #[command(name = "vvx_commit")]
     VvxCommit(CommitArgs),
 
-    /// Create invitatory commit to open new officium
-    #[command(name = "vvx_invitatory")]
-    VvxInvitatory,
-
     /// Push with lock (prevents concurrent push/commit)
     #[command(name = "vvx_push")]
     VvxPush(PushArgs),
@@ -204,7 +200,6 @@ async fn main() -> ExitCode {
     let exit_code = match cli.command {
         Some(Commands::Guard(args)) => run_guard(args),
         Some(Commands::VvxCommit(args)) => run_commit(args),
-        Some(Commands::VvxInvitatory) => run_invitatory().await,
         Some(Commands::VvxPush(args)) => run_push(args),
         Some(Commands::VvxUnlock) => run_unlock(),
         Some(Commands::ReleaseCollect(args)) => run_release_collect(args),
@@ -246,17 +241,6 @@ fn run_commit(args: CommitArgs) -> i32 {
     };
     let mut output = vvc::vvco_Output::console();
     vvc::commit(&vvc_args, &mut output)
-}
-
-/// Run invitatory command using vvc
-async fn run_invitatory() -> i32 {
-    match vvc::vvcp_invitatory().await {
-        Ok(()) => 0,
-        Err(e) => {
-            eprintln!("invitatory: error: {}", e);
-            1
-        }
-    }
 }
 
 /// Run MCP stdio server

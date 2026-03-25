@@ -138,9 +138,5 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
         ]);
     }
 
-    if let Err(e) = vvc::vvcp_invitatory().await {
-        vvco_err!(output, "jjx_muster: warning: invitatory failed: {}", e);
-    }
-
     (0, output.vvco_finish())
 }
