@@ -3666,9 +3666,10 @@
         "₢AwAAF",
         "₢AwAAP",
         "₢AwAAQ",
-        "₢AwAAR"
+        "₢AwAAR",
+        "₢AwAAS"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4181,6 +4182,17 @@
               "text": "Implement compline at MCP shutdown: after service.waiting().await returns in jjrm_serve_stdio, attempt 'officium over' closing commit, remove per-officium directory. Handle crash case gracefully (directory may remain for absolve to clean).",
               "silks": "implement-compline-mcp-shutdown",
               "commit": "2287456"
+            }
+          ]
+        },
+        "₢AwAAS": {
+          "tacks": [
+            {
+              "ts": "260325-0749",
+              "state": "rough",
+              "text": "Implement jjx_chapter (list active officia: directory scan of .claude/jjm/officia/, show ID, creation time, whether current process or stale) and jjx_absolve (clear stale officia: remove directories for sessions that are no longer running). Add MCP tool dispatch, param structs, and handler modules.",
+              "silks": "implement-chapter-and-absolve",
+              "commit": "3431bbe"
             }
           ]
         }
