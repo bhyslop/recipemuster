@@ -3669,9 +3669,10 @@
         "₢AwAAR",
         "₢AwAAS",
         "₢AwAAT",
-        "₢AwAAU"
+        "₢AwAAU",
+        "₢AwAAV"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4217,6 +4218,17 @@
               "text": "Update CLAUDE.md JJ configuration section to document gazette file exchange protocol: officium directory path communicated at MCP startup via instructions, gazette wire format (# slug lede / content), fixed filename within officium directory, how to write gazette input (Write tool to path, then call operation), how to read gazette output (Read tool from path after operation). This must land before the gazette migration pace so agents know the protocol.",
               "silks": "claudemd-gazette-exchange-protocol",
               "commit": "3539d3a"
+            }
+          ]
+        },
+        "₢AwAAV": {
+          "tacks": [
+            {
+              "ts": "260325-0749",
+              "state": "rough",
+              "text": "Migrate gazette I/O to use officium directory: input operations (enroll, redocket, paddock setter) read gazette from officium directory file instead of inline input param. Output operations (orient, show detail, paddock getter) write gazette to officium directory file instead of appending to MCP response text. Remove inline input params from MCP param structs. The gazette file becomes the exchange medium, not MCP JSON strings.",
+              "silks": "migrate-gazette-io-to-officium-directory",
+              "commit": "b06f005"
             }
           ]
         }
