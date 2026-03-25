@@ -3670,9 +3670,10 @@
         "₢AwAAS",
         "₢AwAAT",
         "₢AwAAU",
-        "₢AwAAV"
+        "₢AwAAV",
+        "₢AwAAW"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4229,6 +4230,17 @@
               "text": "Migrate gazette I/O to use officium directory: input operations (enroll, redocket, paddock setter) read gazette from officium directory file instead of inline input param. Output operations (orient, show detail, paddock getter) write gazette to officium directory file instead of appending to MCP response text. Remove inline input params from MCP param structs. The gazette file becomes the exchange medium, not MCP JSON strings.",
               "silks": "migrate-gazette-io-to-officium-directory",
               "commit": "b06f005"
+            }
+          ]
+        },
+        "₢AwAAW": {
+          "tacks": [
+            {
+              "ts": "260325-0749",
+              "state": "rough",
+              "text": "Remove legacy duplicate output from orient, show detail, and paddock getter. Currently each emits content twice: once in legacy format (indented Paddock-content:, ## Paddock, raw text) then again in gazette wire format. After gazette migration, the gazette file IS the structured output — remove the legacy inline emission. Operations return concise status text only; structured content lives in the gazette file.",
+              "silks": "remove-legacy-duplicate-output",
+              "commit": "f6872f4"
             }
           ]
         }
