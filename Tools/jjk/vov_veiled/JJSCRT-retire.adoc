@@ -13,41 +13,14 @@ This is a destructive operation that permanently removes the heat from active tr
 {jjdhr_heat}
 
 //axd_optional
-* `--execute` — perform the retire operation.
-Without this flag, outputs trophy markdown to stdout as a dry-run preview.
-
-//axd_optional
-* `--size-limit <bytes>` — override the commit size guard limit (default 200KB).
+* `size_limit` (integer) — override the commit size guard limit in bytes (default 200KB).
 Use when a large trophy exceeds the default guard.
 
-{jjds_stdout}
-Without `--execute`: trophy markdown content (dry-run preview).
-With `--execute`: path to the written trophy file.
+{jjds_stdout} Path to the written trophy file.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
-
-Without `--execute` (dry-run):
-
-.
-{jjdr_load};
-on failure, exit immediately with
-{jjdr_load}
-error status
-. Verify
-{jjdhr_heat}
-exists with given
-{jjdt_firemark}
-. Read paddock file contents from
-{jjdhm_paddock}
-. Call
-{jjdo_log}
-internally to get steeplechase entries
-. Build trophy markdown (see format below)
-. Output trophy markdown to stdout
-
-With `--execute`:
 
 . Acquire lock (`refs/vvg/locks/vvx`)
 .
@@ -133,12 +106,12 @@ array
 . Delete paddock file at
 {jjdhm_paddock}
 . Stage exactly three paths: trophy file, gallops.json, paddock file (as deletion)
-. Run size guard with limit from `--size-limit` (default 200KB)
+. Run size guard with limit from `size_limit` (default 200KB)
 . Commit with message per steeplechase conventions
 . If commit fails (size guard or other):
 .. Roll back file changes: restore gallops and paddock from HEAD, remove trophy
 .. Report error clearly with measured size
-.. Advise retry with `--size-limit` override
+.. Advise retry with `size_limit` override
 .. Exit non-zero (working copy is clean for retry)
 . Release lock
 . Output trophy file path to stdout

@@ -8,8 +8,8 @@ Create an L (landing) commit recording agent return from autonomous execution.
 //axd_required
 * agent (positional) — agent tier that executed (haiku, sonnet, opus)
 
-//axd_required
-* `content` (string) — agent completion report (body content)
+//axd_optional
+* `content` (string) — agent completion report (body content). Defaults to empty.
 
 {jjds_stdout} Commit hash
 

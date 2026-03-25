@@ -479,12 +479,12 @@ jjx_record         {identity, files[], size_limit?, intent?}
 jjx_close          {coronet, summary?, size_limit?}
 jjx_log            {firemark, limit?}
 jjx_search         {pattern, actionable?}
-jjx_archive        {firemark, execute?, size_limit?}
+jjx_archive        {firemark, size_limit?}
 jjx_transfer       {firemark, to, coronets}
 jjx_continue       {firemark}
-jjx_paddock        {firemark, content?, note?}
+jjx_paddock        {firemark?, content?, note?}
 jjx_relocate       {coronet, to, before?, after?, first?}
-jjx_revise_docket  {coronet, docket}
+jjx_revise_docket  {coronet?, docket?}
 jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
 jjx_get_brief      {coronet}
