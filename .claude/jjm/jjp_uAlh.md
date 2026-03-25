@@ -318,7 +318,7 @@ These must be updated alongside the type changes, not as an afterthought.
 
 Superseded design seeds: `Memos/memo-20260222-jjk-v4-vision.md`, `Memos/memo-20260224-jjk-v4-gaits.md`
 
-- `Tools/jjk/vov_veiled/JJS0-GallopsData.adoc` — V3 data model (what V4 replaces)
+- `Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc` — V3 data model (what V4 replaces; renamed from JJS0-GallopsData.adoc by ₣Aw)
 - cchat-20260224 — Schema decisions, slash command reduction
 - cchat-20260301/b — Beats, voltes, corral, execution model, quirt identity, warrant structure, gait library
 - cchat-20260302 — Gait working concept: school checklists, confidence gates, review phases
@@ -328,3 +328,46 @@ Superseded design seeds: `Memos/memo-20260222-jjk-v4-vision.md`, `Memos/memo-202
 - cchat-20260317 — Martingale, kimberwick, chukker, warrants in gallops, beat table, branch-per-beat, lane isolation, well-formed gait beats
 - cchat-20260317b — Provender, nosebag, piaffe: beat informational output and gait prose field naming
 - ₢AhAAF/₢AhAAG — Verb restructure and slash command cleanup
+
+## ₣Aw Migration Handoff (2026-03-24)
+
+₣Aw (jjk-v4-0-jjs0-axla-normalization) completed V3 spec infrastructure work. Summary of what changed and what ₣Ah inherits:
+
+### Annotation Migration
+
+JJS0 annotations migrated from transport-coupled CLI-era to transport-agnostic:
+- **20 operations**: `axi_cli_subcommand` → `axvo_procedure axd_transient`
+- **13 arguments**: `axa_cli_option`/`axa_cli_flag` → `axa_keyword`
+- **Deliberately retained**: `axl_voices` on upper API verbs (`axi_cc_claudemd_verb`), entities (`axo_entity`), enum values (`axt_enum_value`), records (`axr_record_json`), members (`axr_member`). These are not transport-coupled.
+
+The `axhe*` entity voicing convention (entity/field/method/parameter/output hierarchy) is proven in JJSCGZ-gazette.adoc. V4 new entities should use `axhe*` from the start.
+
+### Spec Gaps Closed
+
+- `jjdo_close` (JJSCWP-wrap.adoc) and `jjdo_paddock` (JJSCCU-curry.adoc) now have operation specs
+- Bridled state: added to current spec as V3-legacy deprecated (`axd_internal`), removal deferred to ₣An
+- 4 vestigial arguments (`jjda_state`, `jjda_pace`, `jjda_created`, `jjda_direction`) marked `axd_internal`
+- Unspecified MCP params: design decision documented — operation-specific params are inline in operation subdocs, not global `jjda_*` terms
+
+### Data Model Additions
+
+- Tack record (`jjdcr_tack`, 6 members) added to current spec
+- Collection members added: `jjdgm_heats` (map), `jjdhm_paces` (map), `jjdpm_tacks` (array)
+- `jjdgm_version` (schema_version) added to Gallops
+
+### AXLA Extensions
+
+- `axt_map` — 2-arity type (key type + value type)
+- `mcm_intaglio` — wire-level token identity tier (lemma → graven → intaglio)
+- `axr_member` 1-arity for `mcm_intaglio` (JSON key)
+- No new `axhe*` markers needed — the existing 11-marker hierarchy was sufficient
+
+### File Rename
+
+`JJS0-GallopsData.adoc` → `JJS0_JobJockeySpec.adoc`. All active references updated.
+
+### V4-Relevant Findings
+
+- **Bridled removal** is ₣An scope, not ₣Ah. ~80 code references across Rust source and spec subdocs.
+- **`jjdcm_direction`** member becomes vestigial when Bridled is removed.
+- **JJF (gazette) file exchange** works for multiline MCP parameters. V4 operations with complex inputs (warrants, piaffes) should use gazette format.
