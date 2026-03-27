@@ -4555,6 +4555,13 @@
         "₢AwAAa": {
           "tacks": [
             {
+              "ts": "260327-1647",
+              "state": "complete",
+              "text": "Drafted from ₢AvAAU in ₣Av.\n\n## Character\nSpook fix — prevent agent mishandling of case-sensitive identities.\n\n## Goal\nUpdate CLAUDE.md Job Jockey Configuration section to explicitly state that firemarks and coronets are case-sensitive. `AV` ≠ `Av` ≠ `av`. The orient error when passing wrong case is confusing and wastes a tool call.\n\n## Scope\n- CLAUDE.md: Add case-sensitivity warning near the Identities vs Display Names section\n- Consider adding examples showing correct case matters",
+              "silks": "claudemd-firemark-coronet-case-sensitivity",
+              "commit": "6299b3e"
+            },
+            {
               "ts": "260327-0837",
               "state": "rough",
               "text": "Drafted from ₢AvAAU in ₣Av.\n\n## Character\nSpook fix — prevent agent mishandling of case-sensitive identities.\n\n## Goal\nUpdate CLAUDE.md Job Jockey Configuration section to explicitly state that firemarks and coronets are case-sensitive. `AV` ≠ `Av` ≠ `av`. The orient error when passing wrong case is confusing and wastes a tool call.\n\n## Scope\n- CLAUDE.md: Add case-sensitivity warning near the Identities vs Display Names section\n- Consider adding examples showing correct case matters",
