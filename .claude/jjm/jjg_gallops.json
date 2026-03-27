@@ -4365,6 +4365,13 @@
               "state": "rough",
               "text": "Test officium lifecycle end-to-end with the agent-initiated model.\n\n1. Verify jjx_open creates directory, gazette.md, heartbeat, and invitatory commit\n2. Verify every jjx command rejects missing officium param\n3. Verify heartbeat mtime updates on each jjx call\n4. Verify exsanguination at jjx_open reaps stale directories but preserves active ones\n5. Verify probe runs once per day (datestamp file check)\n6. Verify concurrent officia coexist (two directories, isolated gazette I/O)\n7. Verify self-healing: delete officium dir, next jjx call fails, jjx_open recovers\n8. Verify gazette read/write flow through officium exchange path",
               "silks": "test-officium-lifecycle",
+              "commit": "596e945"
+            },
+            {
+              "ts": "260327-0820",
+              "state": "rough",
+              "text": "Test officium lifecycle end-to-end with the agent-initiated model.\n\n1. Verify jjx_open creates directory, gazette.md, heartbeat, and invitatory commit\n2. Verify every jjx command rejects missing officium param\n3. Verify heartbeat mtime updates on each jjx call\n4. Verify exsanguination at jjx_open reaps stale directories but preserves active ones\n5. Verify probe runs once per day (datestamp file check)\n6. Verify concurrent officia coexist (two directories, isolated gazette I/O)\n7. Verify self-healing: delete officium dir, next jjx call fails, jjx_open recovers\n8. Verify gazette read/write flow through officium exchange path",
+              "silks": "test-officium-lifecycle",
               "commit": "070a514"
             },
             {
