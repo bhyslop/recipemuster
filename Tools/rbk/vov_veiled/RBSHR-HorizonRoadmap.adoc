@@ -84,17 +84,15 @@ _Reference_: Heat ₣AU paddock (design conversation capture).
 Items below are evaluated and consciously deferred.  Full analysis with
 revisit triggers lives in RBSCB-CloudBuildPosture.adoc.
 
-**Egress lockdown.**
-Set `egressOption: NO_PUBLIC_EGRESS` on Private Pool workers.  Requires
-dependency mirroring for all external resources (base images, tool images).
-Largest cascading change in pipeline history.  Foundation for VPC-SC.
-_Trigger_: compliance requirement or threat model change requiring
-network isolation of build workers.
-_Reference_: RBSCB-CloudBuildPosture.adoc (Potential Hardening: Egress Lockdown).
+**Egress lockdown — IMPLEMENTED (₣Av).**
+Dual-pool architecture: tether pool (public egress) and airgap pool (`NO_PUBLIC_EGRESS`).
+Operation-level routing: inscribe/enshrine use tether, about/vouch always airgap, conjure/bind per vessel `RBRV_EGRESS_MODE`.
+Reliquaries (tool images) and anchors (base images) provide universal GAR-sourced dependencies.
+_Reference_: RBSCB-CloudBuildPosture.adoc (Implemented: Egress Lockdown via Dual Pools).
 
 **VPC Service Controls perimeter.**
 Wrap depot project in VPC-SC perimeter restricting API access.  Requires
-egress lockdown as prerequisite, org-level admin for perimeter creation,
+egress lockdown (now implemented) as prerequisite, org-level admin for perimeter creation,
 and verification of every GCP API call in the pipeline.
 _Trigger_: organizational security policy mandating VPC-SC, or data
 exfiltration risk assessment.
@@ -102,7 +100,7 @@ _Reference_: RBSCB-CloudBuildPosture.adoc (Potential Hardening: VPC Service Cont
 
 **Cosign image signing.**
 Cryptographic signatures on images, verifiable by downstream consumers.
-KMS-backed keyed signing preferred for egress-lockdown compatibility.
+KMS-backed keyed signing preferred for airgap-pool compatibility.
 Currently redundant given CB-native SLSA v1.0 Build Level 3 attestation.
 _Trigger_: external image distribution, trust verification needed outside
 GCP, or builder strategy expanding beyond Google Cloud Build.

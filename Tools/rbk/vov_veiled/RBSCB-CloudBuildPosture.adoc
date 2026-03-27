@@ -44,17 +44,15 @@ The main repo (tooling, specs, regime files) is never exposed to Google.
 The Director controls what enters the pouch; the cloud is just labor.
 See RBSAC.
 
-**Builder step images are digest-pinned.**
-All `RBRG_*_IMAGE_REF` regime variables enforce `@sha256:<64hex>` digests,
-validated by `buv_val_odref()`.
-Future: reliquaries will freeze tool image versions in GAR, replacing the pin-refresh ceremony.
+**Builder step images are reliquary-sourced.**
+All GCB step images are pulled from a datestamped reliquary in GAR — co-versioned tool images frozen by the inscribe ceremony.
+`RBRV_RELIQUARY` in each vessel regime identifies the active reliquary.
+Base images are separately enshrined via `RBRV_IMAGE_n_ANCHOR`.
 
-**Private pool workers.**
-Every depot gets a private pool — no default-pool path exists.
-Expanded machine type options (64 vs default pool's 5), higher concurrent build limits.
-Public egress is retained — no dependency mirroring cascade.
+**Dual private pool workers (tether + airgap).**
+Every depot gets two private pools: a tether pool (public egress) and an airgap pool (`NO_PUBLIC_EGRESS`).
+Pool routing is operation-level: inscribe and enshrine use tether (upstream access required), about and vouch always use airgap (verification isolated from public registries), conjure and bind use the vessel's `RBRV_EGRESS_MODE`.
 Pools are fully managed by Google (scale to zero, no VMs to maintain).
-Foundation for a future egress lockdown if warranted.
 
 **Artifact Registry storage.**
 Built images are stored in Google Artifact Registry (GAR), not Docker Hub or other external registries.
@@ -181,48 +179,49 @@ Multi-platform vessels use `buildx --push` with per-platform pullback.
 CB pre-populates GAR credentials; no explicit docker login step is needed.
 See RBSOB superseded notice.
 
-==== Potential Hardening: Egress Lockdown
+==== Implemented: Egress Lockdown via Dual Pools
 
-Set `egressOption: NO_PUBLIC_EGRESS` on the Private Pool.
-Workers lose all public internet access.
-This would be the largest cascading change in the pipeline's history.
+Egress lockdown is implemented through the dual-pool architecture.
+The airgap pool (`NO_PUBLIC_EGRESS`) blocks all public internet access.
+Operations that require upstream access (inscribe, enshrine) run on the tether pool.
+Operations that must be isolated (about, vouch) always run on the airgap pool.
+Conjure and bind are routed per vessel's `RBRV_EGRESS_MODE`.
 
-**Dependency mirroring required.**
-Every external resource fetched during build must be pre-staged in GAR or GCS:
+**Dependency mirroring is universal.**
+All GCB step images come from reliquaries (inscribed tool images in GAR).
+All base images come from anchors (enshrined base images in GAR).
+This is not just an airgap feature — it is a universal robustness measure against upstream registry churn.
 
-[cols="1,2,1",options="header"]
+**Operation pool routing:**
+
+[cols="1,1,2",options="header"]
 |===
-|Build Step
-|External Dependency
-|Mitigation
+|Operation
+|Pool
+|Rationale
 
-|binfmt step
-|`tonistiigi/binfmt` from Docker Hub
-|Mirror to GAR
+|Inscribe
+|tether
+|Pulls tool images from upstream registries
 
-|build step
-|Base images from Docker Hub (per vessel Dockerfile)
-|Mirror to GAR; enforce GAR-only `FROM` refs
+|Enshrine
+|tether
+|Pulls base images from upstream via skopeo
 
-|sbom step
-|`anchore/syft` from Docker Hub
-|Mirror to GAR
+|Conjure/Bind
+|vessel's RBRV_EGRESS_MODE
+|Build-time deps vary per vessel
+
+|About
+|airgap (always)
+|Only needs GAR + Google APIs (Private Google Access)
+
+|Vouch
+|airgap (always)
+|Verification isolated from public registries
 |===
 
-**Ongoing maintenance cost.**
-Mirror refresh becomes a recurring operation.
-The existing pin-refresh workflow expands to include mirroring.
-Every tool image security update requires a mirror-refresh-and-commit cycle.
-
-**Additional infrastructure:**
-
-* Private Cloud DNS zone for internal hostname resolution
-* NAT/proxy if any exception egress paths are needed (treat as security event)
-* All `RBRR_GCB_*_IMAGE_REF` pins must point to GAR mirrors, not upstream registries
-
-**Note:** The pouch architecture (Current Posture) already narrows the build context to
-per-vessel Dockerfile and context files -- Cloud Build never fetches from the main repo.
-This limits the egress surface to builder images and base images only.
+**About/vouch always-airgap is a security property**: verification can never be influenced by a compromised public registry, even for tether vessels.
 
 ==== Potential Hardening: VPC Service Controls Perimeter
 
@@ -236,7 +235,7 @@ This restricts which GCP APIs can be called and from where, reducing data exfilt
 * Ingress/egress rules for the perimeter (which services may cross the boundary)
 * Testing: every GCP API call in the pipeline must be verified inside the perimeter — Cloud Logging writes, GCS uploads, Artifact Registry pushes, Cloud Build API calls can break subtly
 
-**Prerequisite:** Egress Lockdown should be in place for the perimeter to be meaningful.
+**Prerequisite:** Egress Lockdown is in place (dual-pool architecture).
 
 ==== Deferred Items
 

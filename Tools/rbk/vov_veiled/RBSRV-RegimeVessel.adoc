@@ -30,6 +30,15 @@ Must be
 or
 {rbrv_vessel_mode_graft}.
 
+//axhrgv_variable
+{rbrv_egress_mode}
+
+Selects which worker pool the primary build operation uses.
+Must be `tether` (public egress) or `airgap` (`NO_PUBLIC_EGRESS`).
+Inscribe and enshrine always use tether regardless of this setting.
+About and vouch always use airgap regardless of this setting.
+Conjure and bind use the pool selected by this variable.
+
 //axhrgb_group
 {rbrv_group_binding}
 
@@ -174,7 +183,7 @@ Validates optional Dockerfile paths when configured: RBRV_BIND_OPTIONAL_DOCKERFI
 {rbkro_render}
 
 Renders via rbcr_* shared module.
-Sections: Core Vessel Identity, Binding Configuration, Conjuring Configuration, Grafting Configuration.
+Sections: Core Vessel Identity, Egress Mode, Binding Configuration, Conjuring Configuration, Grafting Configuration.
 Displays unexpected variables in red.
 Validates after full render completes.
 

@@ -22,6 +22,9 @@ is minted locally by the
 before submission.
 The Director knows the complete artifact tag set before the build begins -- naming authority and verification authority are the same entity.
 
+NOTE: The conjure build job runs on the worker pool selected by the vessel's `RBRV_EGRESS_MODE`: tether pool for vessels needing public internet (e.g., `apt-get` in Dockerfile), airgap pool for vessels with all dependencies enshrined in GAR.
+The subsequent {rbtgo_ark_vouch} always runs on the airgap pool regardless of vessel egress mode.
+
 The conjure operation:
 
 //axhopt_typed_parameter
