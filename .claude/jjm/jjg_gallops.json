@@ -3236,8 +3236,7 @@
         "₢AvAAQ",
         "₢AvAAL",
         "₢AvAAH",
-        "₢AvAAV",
-        "₢AvAAU"
+        "₢AvAAV"
       ],
       "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
@@ -3721,17 +3720,6 @@
             }
           ]
         },
-        "₢AvAAU": {
-          "tacks": [
-            {
-              "ts": "260327-0754",
-              "state": "rough",
-              "text": "## Character\nSpook fix — prevent agent mishandling of case-sensitive identities.\n\n## Goal\nUpdate CLAUDE.md Job Jockey Configuration section to explicitly state that firemarks and coronets are case-sensitive. `AV` ≠ `Av` ≠ `av`. The orient error when passing wrong case is confusing and wastes a tool call.\n\n## Scope\n- CLAUDE.md: Add case-sensitivity warning near the Identities vs Display Names section\n- Consider adding examples showing correct case matters",
-              "silks": "claudemd-firemark-coronet-case-sensitivity",
-              "commit": "b8514b6"
-            }
-          ]
-        },
         "₢AvAAV": {
           "tacks": [
             {
@@ -3775,9 +3763,10 @@
         "₢AwAAV",
         "₢AwAAW",
         "₢AwAAX",
-        "₢AwAAT"
+        "₢AwAAT",
+        "₢AwAAa"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4560,6 +4549,24 @@
               "text": "Spec jjx_chapter and jjx_absolve operations in JJS0 BEFORE implementation.\n\n1. Define jjdo_chapter operation: scan .claude/jjm/officia/ directories, report officium identity, creation time, heartbeat mtime (last activity), staleness status. Tabular output. Bypasses Gallops command lifecycle lock (infrastructure, not heat-affiliated). Takes officium param (to mark caller's own session).\n2. Define jjdo_absolve operation: remove officia directories exceeding staleness threshold. Report what was removed. Refuses to remove caller's own officium (identified by officium param). Bypasses Gallops lock.\n3. Add both to operation registry with appropriate axhe* voicing annotations.\n4. Clarify relationship between absolve and jjx_open exsanguination (absolve is explicit/diagnostic, exsanguination is automatic/silent).\n\nThis pace is spec-only — no code changes. Implementation follows in •AwAAS.",
               "silks": "spec-chapter-absolve-operations",
               "commit": "c1fa83d"
+            }
+          ]
+        },
+        "₢AwAAa": {
+          "tacks": [
+            {
+              "ts": "260327-0837",
+              "state": "rough",
+              "text": "Drafted from ₢AvAAU in ₣Av.\n\n## Character\nSpook fix — prevent agent mishandling of case-sensitive identities.\n\n## Goal\nUpdate CLAUDE.md Job Jockey Configuration section to explicitly state that firemarks and coronets are case-sensitive. `AV` ≠ `Av` ≠ `av`. The orient error when passing wrong case is confusing and wastes a tool call.\n\n## Scope\n- CLAUDE.md: Add case-sensitivity warning near the Identities vs Display Names section\n- Consider adding examples showing correct case matters",
+              "silks": "claudemd-firemark-coronet-case-sensitivity",
+              "commit": "662111e"
+            },
+            {
+              "ts": "260327-0754",
+              "state": "rough",
+              "text": "## Character\nSpook fix — prevent agent mishandling of case-sensitive identities.\n\n## Goal\nUpdate CLAUDE.md Job Jockey Configuration section to explicitly state that firemarks and coronets are case-sensitive. `AV` ≠ `Av` ≠ `av`. The orient error when passing wrong case is confusing and wastes a tool call.\n\n## Scope\n- CLAUDE.md: Add case-sensitivity warning near the Identities vs Display Names section\n- Consider adding examples showing correct case matters",
+              "silks": "claudemd-firemark-coronet-case-sensitivity",
+              "commit": "b8514b6"
             }
           ]
         }
