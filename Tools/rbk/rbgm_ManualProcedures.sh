@@ -346,7 +346,7 @@ rbgm_quota_build() {
   bug_tc       "   RBRR_DEPOT_PROJECT_ID:          " "${RBRR_DEPOT_PROJECT_ID}"
   bug_tc       "   RBRR_GCP_REGION:                " "${RBRR_GCP_REGION}"
   bug_tc       "   RBRR_GCB_MACHINE_TYPE:          " "${RBRR_GCB_MACHINE_TYPE}"
-  bug_tc       "   RBRR_GCB_WORKER_POOL:           " "${RBRR_GCB_WORKER_POOL}"
+  bug_tc       "   RBRR_GCB_POOL_STEM:             " "${RBRR_GCB_POOL_STEM}"
   bug_tc       "   RBRR_GCB_MIN_CONCURRENT_BUILDS: " "${RBRR_GCB_MIN_CONCURRENT_BUILDS}"
   bug_e
   bug_t        "   The build preflight gate checks quota automatically before each build."

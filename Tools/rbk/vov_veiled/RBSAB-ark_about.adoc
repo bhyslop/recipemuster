@@ -12,7 +12,7 @@ This procedure describes those steps — not a standalone Cloud Build job.
 Conjure and bind embed these steps in their primary Cloud Build job alongside image production; graft combines these steps with vouch steps in a single about+vouch Cloud Build job.
 All jobs run as the
 {rbtr_mason}
-service account on the private pool (`RBRR_GCB_WORKER_POOL`).
+service account on the private pool (`RBRR_GCB_POOL_STEM`).
 
 NOTE: The about steps receive their context via substitution variables (`_RBGA_*`) and workspace state, not via function parameters.
 For conjure, the consecration is read from `/workspace` (computed by the preceding build steps); for bind and graft, it comes from the `_RBGA_CONSECRATION` substitution variable.

@@ -171,7 +171,9 @@ zrbgc_kindle() {
   readonly RBGC_API_ROOT_CLOUDBUILD_V2="https://cloudbuild.googleapis.com"
   readonly RBGC_CLOUDBUILD_V2="/v2"
 
-  # Worker pool infrastructure (private pool always)
+  # Worker pool infrastructure (dual pools: tether + airgap)
+  readonly RBGC_POOL_SUFFIX_TETHER="-tether"
+  readonly RBGC_POOL_SUFFIX_AIRGAP="-airgap"
   readonly RBGC_WORKER_POOL_SUFFIX="-pool"
   readonly RBGC_PATH_WORKER_POOLS="/workerPools"
 

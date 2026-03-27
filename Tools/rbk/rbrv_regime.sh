@@ -46,6 +46,10 @@ zrbrv_kindle() {
   buv_group_enroll "Tool Image Reliquary"
   buv_string_enroll RBRV_RELIQUARY             1   14  "Reliquary datestamp (e.g., r260324193326) — identifies tool image set in GAR"
 
+  buv_group_enroll "Egress Mode"
+  buv_enum_enroll   RBRV_EGRESS_MODE                   "Pool routing for primary build operation" \
+                    tether airgap
+
   buv_group_enroll "Binding Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  bind
   buv_fqin_enroll   RBRV_BIND_IMAGE                1  512  "Source image to copy from registry"

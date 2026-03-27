@@ -141,6 +141,15 @@ Machine type is determined by the pool configuration at creation time, not by in
 Maximum duration for Cloud Build operations before timeout.
 Specified in seconds or duration format (e.g., `3600s`).
 
+//axhrgv_variable
+{rbrr_gcb_pool_stem}
+
+Worker pool base name (suffixed with -tether/-airgap by derived constants).
+Derived constants `RBDC_POOL_TETHER` and `RBDC_POOL_AIRGAP` expand this stem into full resource paths for each pool variant.
+Must be set to the base name of the pools created by
+{rbtgo_depot_create}
+for this depot.
+
 // CBv2 group eliminated (₣Av) -- builds.create + pouch replaces triggers; no GitLab connection needed
 
 //axhro_kindle

@@ -52,7 +52,7 @@ zrbrr_kindle() {
 
   buv_group_enroll "Google Cloud Build Configuration"
   buv_gname_enroll   RBRR_GCB_MACHINE_TYPE           3   64  "Machine type for Cloud Build (CE format)"
-  buv_string_enroll  RBRR_GCB_WORKER_POOL            1  512  "Private Pool resource name (required)"
+  buv_gname_enroll   RBRR_GCB_POOL_STEM                1   63  "Worker pool base name (suffixed with -tether/-airgap)"
   buv_string_enroll  RBRR_GCB_TIMEOUT                2   10  "Build timeout (e.g., 1200s)"
   buv_decimal_enroll RBRR_GCB_MIN_CONCURRENT_BUILDS  1  999  "Min concurrent builds required"
 
@@ -89,8 +89,8 @@ zrbrr_enforce() {
   [[ "${RBRR_GCB_TIMEOUT}" =~ ^[0-9]+s$ ]] \
     || buc_die "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT} (expected NNNs)"
 
-  [[ "${RBRR_GCB_WORKER_POOL}" =~ ^projects/[^/]+/locations/[^/]+/workerPools/[^/]+$ ]] \
-    || buc_die "Invalid RBRR_GCB_WORKER_POOL format: ${RBRR_GCB_WORKER_POOL} (expected projects/{P}/locations/{L}/workerPools/{W})"
+  [[ "${RBRR_GCB_POOL_STEM}" =~ ^[a-z][a-z0-9-]+$ ]] \
+    || buc_die "Invalid RBRR_GCB_POOL_STEM format: ${RBRR_GCB_POOL_STEM} (expected lowercase pool base name)"
 
 }
 

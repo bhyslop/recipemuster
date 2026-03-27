@@ -44,8 +44,8 @@ zrbtcrv_rbrr_bad_timeout() {
   zrbrr_enforce
 }
 
-zrbtcrv_rbrr_bad_worker_pool() {
-  export RBRR_GCB_WORKER_POOL="bad-pool-name"
+zrbtcrv_rbrr_bad_pool_stem() {
+  export RBRR_GCB_POOL_STEM="BAD_POOL_NAME"
   zrbrr_kindle
   zrbrr_enforce
 }
@@ -81,9 +81,9 @@ rbtcrv_rbrr_bad_timeout_tcase() {
   buto_unit_expect_fatal zrbtcrv_rbrr_bad_timeout
 }
 
-rbtcrv_rbrr_bad_worker_pool_tcase() {
-  buto_trace "RBRR: invalid GCB_WORKER_POOL format must fail"
-  buto_unit_expect_fatal zrbtcrv_rbrr_bad_worker_pool
+rbtcrv_rbrr_bad_pool_stem_tcase() {
+  buto_trace "RBRR: invalid GCB_POOL_STEM format must fail"
+  buto_unit_expect_fatal zrbtcrv_rbrr_bad_pool_stem
 }
 
 rbtcrv_rbrr_unexpected_var_tcase() {

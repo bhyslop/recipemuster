@@ -307,7 +307,7 @@
 :rbrr_dns_server:            <<rbrr_dns_server,RBRR_DNS_SERVER>>
 :rbrr_gcb_machine_type:      <<rbrr_gcb_machine_type,RBRR_GCB_MACHINE_TYPE>>
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
-:rbrr_gcb_worker_pool:       <<rbrr_gcb_worker_pool,RBRR_GCB_WORKER_POOL>>
+:rbrr_gcb_pool_stem:         <<rbrr_gcb_pool_stem,RBRR_GCB_POOL_STEM>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
 :rbrg_oras_image_ref:    <<rbrg_oras_image_ref,RBRG_ORAS_IMAGE_REF>>
 // slsa-verifier binary pins eliminated (₣Av) — DSSE envelope verification replaces slsa-verifier
@@ -1647,7 +1647,7 @@ Discovered constraints from implementation:
 +
   * **Private worker pool**: The RunBuild API caller ({rbtr_director}) requires `cloudbuild.workerpools.use` to specify a private pool, a permission not included in `roles/cloudbuild.builds.editor`.
     {rbtgo_director_create} grants `roles/cloudbuild.workerPoolUser` at project scope.
-    Vouch runs on the same private pool as conjure (`RBRR_GCB_WORKER_POOL`), eliminating an untested default-pool-with-buildx permutation.
+    Vouch runs on the same private pool as conjure (`RBRR_GCB_POOL_STEM`), eliminating an untested default-pool-with-buildx permutation.
   * **No gcloud in build steps**: {rbsk_no_gcloud} applies.
     Registry auth must use the GCE metadata server (`http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`) to obtain an access token, then write a static Docker config JSON.
     The `gcloud auth configure-docker` approach fails regardless — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
@@ -2481,12 +2481,12 @@ Compute Engine machine type for the private worker pool, consumed at pool creati
 Default: `e2-standard-2`.
 The pool resource holds this value; individual build requests do not specify machine type.
 
-[[rbrr_gcb_worker_pool]]
+[[rbrr_gcb_pool_stem]]
 //axvr_variable axd_required rbst_string
-{rbrr_gcb_worker_pool}::
-Full resource name of the Cloud Build Private Pool for build execution.
-Format: `projects/{project}/locations/{region}/workerPools/{pool}`.
-Must be set to the pool created by
+{rbrr_gcb_pool_stem}::
+Worker pool base name (suffixed with -tether/-airgap by derived constants).
+Derived constants `RBDC_POOL_TETHER` and `RBDC_POOL_AIRGAP` expand this stem into full resource paths.
+Must be set to the pool base name created by
 {rbtgo_depot_create}
 for this depot.
 Builds always use a private pool; the default shared pool is not supported.

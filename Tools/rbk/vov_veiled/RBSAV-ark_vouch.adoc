@@ -13,7 +13,7 @@ The
 {rbtr_director}
 submits a Cloud Build job via `builds.create` (direct submission), which runs as the
 {rbtr_mason}
-service account on the private pool (`RBRR_GCB_WORKER_POOL`).
+service account on the private pool (`RBRR_GCB_POOL_STEM`).
 
 NOTE: Vouch uses `builds.create` rather than trigger dispatch because the
 {rbtga_consecration}

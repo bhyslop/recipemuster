@@ -91,8 +91,8 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.location
 }
 ----
 .. {rbbc_store}
-`«WORKER_POOL_NAME»` as full resource path returned in response `.name` field:
-`projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}/workerPools/rbw-«INPUT_DEPOT_NAME»-pool`
+`«WORKER_POOL_STEM»` as base pool name (without project/region path prefix):
+`rbw-«INPUT_DEPOT_NAME»-pool`
 .. NOTE:
 {rbrr_gcb_machine_type}
 is a Compute Engine machine type (e.g., `e2-standard-2`), consumed at pool creation time.
@@ -191,7 +191,7 @@ required RBRR configuration values:
 ... `RBRR_DEPOT_PROJECT_ID=«DEPOT_PROJECT_ID»`
 ... `RBRR_GCP_REGION={rbrr_gcp_region}`
 ... `RBRR_GAR_REPOSITORY=«GAR_REPOSITORY»`
-... `RBRR_GCB_WORKER_POOL=«WORKER_POOL_NAME»`
+... `RBRR_GCB_POOL_STEM=«WORKER_POOL_STEM»`
 .. {rbbc_show}
 Mason service account: `«MASON_EMAIL»`
 

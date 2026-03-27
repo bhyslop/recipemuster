@@ -41,6 +41,10 @@ zrbdc_kindle() {
   readonly RBDC_DIRECTOR_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-director.env"
   readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/rbro-payor.env"
 
+  # Derive full pool resource paths from stem (suffixes match RBGC_POOL_SUFFIX_TETHER/AIRGAP)
+  readonly RBDC_POOL_TETHER="projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/workerPools/${RBRR_GCB_POOL_STEM}-tether"
+  readonly RBDC_POOL_AIRGAP="projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/workerPools/${RBRR_GCB_POOL_STEM}-airgap"
+
   readonly ZRBDC_KINDLED=1
 }
 

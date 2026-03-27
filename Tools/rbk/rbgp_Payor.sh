@@ -672,11 +672,14 @@ rbgp_depot_create() {
     rbgu_api_enable "${z_service}" "${z_depot_project_id}" "${z_token}"
   done
 
-  buc_step 'Create private worker pool'
-  local -r z_pool_id="rbw-${z_depot_name}${RBGC_WORKER_POOL_SUFFIX}"
+  buc_step 'Create dual worker pools (tether + airgap)'
+  local -r z_pool_stem="rbw-${z_depot_name}${RBGC_WORKER_POOL_SUFFIX}"
   local -r z_pool_parent="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_depot_project_id}/locations/${z_region}${RBGC_PATH_WORKER_POOLS}"
-  local -r z_pool_create_url="${z_pool_parent}?workerPoolId=${z_pool_id}"
-  local -r z_pool_create_body="${BURD_TEMP_DIR}/rbgp_pool_create.json"
+
+  # Tether pool (default egress — public internet access)
+  local -r z_tether_id="${z_pool_stem}${RBGC_POOL_SUFFIX_TETHER}"
+  local -r z_tether_create_url="${z_pool_parent}?workerPoolId=${z_tether_id}"
+  local -r z_tether_create_body="${BURD_TEMP_DIR}/rbgp_pool_tether_create.json"
 
   jq -n --arg machineType "${RBRR_GCB_MACHINE_TYPE}" \
     '{
@@ -685,19 +688,45 @@ rbgp_depot_create() {
           machineType: $machineType
         }
       }
-    }' > "${z_pool_create_body}" || buc_die "Failed to build worker pool creation body"
+    }' > "${z_tether_create_body}" || buc_die "Failed to build tether pool creation body"
 
-  rbgu_http_json "POST" "${z_pool_create_url}" "${z_token}" "depot_pool_create" "${z_pool_create_body}"
-  local z_pool_create_code
-  z_pool_create_code=$(rbgu_http_code_capture "depot_pool_create") || buc_die "Bad pool creation HTTP code"
-  case "${z_pool_create_code}" in
-    200|201) buc_log_args "Worker pool ${z_pool_id} created" ;;
-    409)     buc_log_args "Worker pool ${z_pool_id} already exists (idempotent)" ;;
-    *)       buc_die "Failed to create worker pool: HTTP ${z_pool_create_code}" ;;
+  rbgu_http_json "POST" "${z_tether_create_url}" "${z_token}" "depot_pool_tether_create" "${z_tether_create_body}"
+  local z_tether_create_code
+  z_tether_create_code=$(rbgu_http_code_capture "depot_pool_tether_create") || buc_die "Bad tether pool creation HTTP code"
+  case "${z_tether_create_code}" in
+    200|201) buc_log_args "Tether pool ${z_tether_id} created" ;;
+    409)     buc_log_args "Tether pool ${z_tether_id} already exists (idempotent)" ;;
+    *)       buc_die "Failed to create tether pool: HTTP ${z_tether_create_code}" ;;
   esac
 
-  local -r z_pool_resource="projects/${z_depot_project_id}/locations/${z_region}/workerPools/${z_pool_id}"
-  buc_log_args "Pool resource: ${z_pool_resource}"
+  # Airgap pool (NO_PUBLIC_EGRESS — no public internet)
+  local -r z_airgap_id="${z_pool_stem}${RBGC_POOL_SUFFIX_AIRGAP}"
+  local -r z_airgap_create_url="${z_pool_parent}?workerPoolId=${z_airgap_id}"
+  local -r z_airgap_create_body="${BURD_TEMP_DIR}/rbgp_pool_airgap_create.json"
+
+  jq -n --arg machineType "${RBRR_GCB_MACHINE_TYPE}" \
+    '{
+      privatePoolV1Config: {
+        workerConfig: {
+          machineType: $machineType
+        },
+        networkConfig: {
+          egressOption: "NO_PUBLIC_EGRESS"
+        }
+      }
+    }' > "${z_airgap_create_body}" || buc_die "Failed to build airgap pool creation body"
+
+  rbgu_http_json "POST" "${z_airgap_create_url}" "${z_token}" "depot_pool_airgap_create" "${z_airgap_create_body}"
+  local z_airgap_create_code
+  z_airgap_create_code=$(rbgu_http_code_capture "depot_pool_airgap_create") || buc_die "Bad airgap pool creation HTTP code"
+  case "${z_airgap_create_code}" in
+    200|201) buc_log_args "Airgap pool ${z_airgap_id} created" ;;
+    409)     buc_log_args "Airgap pool ${z_airgap_id} already exists (idempotent)" ;;
+    *)       buc_die "Failed to create airgap pool: HTTP ${z_airgap_create_code}" ;;
+  esac
+
+  local -r z_pool_resource="projects/${z_depot_project_id}/locations/${z_region}/workerPools/${z_pool_stem}"
+  buc_log_args "Pool stem: ${z_pool_resource}"
 
   # Note: OAuth Payor doesn't need explicit permissions on depot since it uses user identity
   # Skip Payor permission grants - OAuth user context provides necessary access
@@ -820,7 +849,7 @@ rbgp_depot_create() {
   buc_bare "  RBRR_DEPOT_PROJECT_ID=${z_depot_project_id}"
   buc_bare "  RBRR_GCP_REGION=${z_region}"
   buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
-  buc_bare "  RBRR_GCB_WORKER_POOL=${z_pool_resource}"
+  buc_bare "  RBRR_GCB_POOL_STEM=${z_pool_stem}"
   buc_info "Next: create Governor for this depot:"
   buc_tabtarget "${RBZ_GOVERNOR_RESET}"
 }
@@ -908,15 +937,29 @@ rbgp_depot_destroy() {
   local z_ts_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
   local -r z_depot_name="${z_without_prefix:0:$((z_name_len - z_ts_suffix_len))}"
 
-  buc_step 'Delete worker pool (if exists)'
-  local -r z_pool_id="rbw-${z_depot_name}${RBGC_WORKER_POOL_SUFFIX}"
-  local -r z_pool_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_pool_id}"
-  rbgu_http_json "DELETE" "${z_pool_del_url}" "${z_token}" "depot_destroy_pool"
-  local z_pool_del_code
-  z_pool_del_code=$(rbgu_http_code_capture "depot_destroy_pool") || z_pool_del_code=""
-  case "${z_pool_del_code}" in
-    200|204|404) buc_log_args "Worker pool ${z_pool_id} cleanup: HTTP ${z_pool_del_code}" ;;
-    *) buc_warn "Worker pool cleanup failed: HTTP ${z_pool_del_code} — proceeding" ;;
+  buc_step 'Delete dual worker pools (if exist)'
+  local -r z_pool_stem="rbw-${z_depot_name}${RBGC_WORKER_POOL_SUFFIX}"
+
+  # Delete tether pool
+  local -r z_tether_del_id="${z_pool_stem}${RBGC_POOL_SUFFIX_TETHER}"
+  local -r z_tether_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_tether_del_id}"
+  rbgu_http_json "DELETE" "${z_tether_del_url}" "${z_token}" "depot_destroy_pool_tether"
+  local z_tether_del_code
+  z_tether_del_code=$(rbgu_http_code_capture "depot_destroy_pool_tether") || z_tether_del_code=""
+  case "${z_tether_del_code}" in
+    200|204|404) buc_log_args "Tether pool ${z_tether_del_id} cleanup: HTTP ${z_tether_del_code}" ;;
+    *) buc_warn "Tether pool cleanup failed: HTTP ${z_tether_del_code} — proceeding" ;;
+  esac
+
+  # Delete airgap pool
+  local -r z_airgap_del_id="${z_pool_stem}${RBGC_POOL_SUFFIX_AIRGAP}"
+  local -r z_airgap_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_airgap_del_id}"
+  rbgu_http_json "DELETE" "${z_airgap_del_url}" "${z_token}" "depot_destroy_pool_airgap"
+  local z_airgap_del_code
+  z_airgap_del_code=$(rbgu_http_code_capture "depot_destroy_pool_airgap") || z_airgap_del_code=""
+  case "${z_airgap_del_code}" in
+    200|204|404) buc_log_args "Airgap pool ${z_airgap_del_id} cleanup: HTTP ${z_airgap_del_code}" ;;
+    *) buc_warn "Airgap pool cleanup failed: HTTP ${z_airgap_del_code} — proceeding" ;;
   esac
 
   buc_step 'Initiate depot deletion'

@@ -393,7 +393,7 @@ rbtb_kindle() {
   butr_fixture_enroll "regime-validation" "" "zrbtb_regime_validation_baste"
   butr_case_enroll "regime-validation" rbtcrv_rbrr_missing_project_id_tcase
   butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_timeout_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_worker_pool_tcase
+  butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_pool_stem_tcase
   butr_case_enroll "regime-validation" rbtcrv_rbrr_unexpected_var_tcase
   butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_vessel_dir_tcase
   butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_secrets_dir_tcase

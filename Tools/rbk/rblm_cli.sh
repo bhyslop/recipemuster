@@ -46,7 +46,7 @@ rblm_reset() {
   bug_e
   bug_t "  RBRR fields blanked (reset to onboarding start):"
   bug_t "    RBRR_DEPOT_PROJECT_ID, RBRR_GAR_REPOSITORY,"
-  bug_t "    RBRR_GCB_WORKER_POOL"
+  bug_t "    RBRR_GCB_POOL_STEM"
   bug_e
   bug_t "  RBRR fields pre-filled to defaults:"
   bug_t "    RBRR_DNS_SERVER, RBRR_GCB_MACHINE_TYPE, RBRR_GCB_TIMEOUT,"
@@ -98,7 +98,8 @@ rblm_reset() {
       # Site-specific fields blanked
       RBRR_DEPOT_PROJECT_ID=*)              printf '%s\n' "RBRR_DEPOT_PROJECT_ID="                      ;;
       RBRR_GAR_REPOSITORY=*)                printf '%s\n' "RBRR_GAR_REPOSITORY="                        ;;
-      RBRR_GCB_WORKER_POOL=*)               printf '%s\n' "RBRR_GCB_WORKER_POOL="                       ;;
+      RBRR_GCB_POOL_STEM=*)                 printf '%s\n' "RBRR_GCB_POOL_STEM="                         ;;
+      RBRR_GCB_WORKER_POOL=*)               continue                                                      ;;
       # GitLab variables eliminated (₣Av) — strip from rbrr.env if present
       RBRR_CBV2_CONNECTION_NAME=*)          continue                                                      ;;
       RBRR_RUBRIC_REPO_URL=*)               continue                                                      ;;
