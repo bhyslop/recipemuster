@@ -4400,6 +4400,13 @@
               "ts": "260327-0819",
               "state": "rough",
               "text": "Migrate gazette I/O to officium exchange directory.\n\nExchange path derived from the officium param on each jjx call (not server state). Dispatcher resolves officium ID to .claude/jjm/officia/<id>/gazette.md and passes path to handlers.\n\nOutput side: orient, show, paddock getter write gazette.md in officium dir instead of appending gazette markdown to MCP response text.\n\nInput side: enroll, redocket, paddock setter read gazette.md from officium dir instead of inline 'input' param. Remove 'input' field from affected MCP param structs.\n\nThe exchange_path threading from dispatcher to handlers is the key structural change. JJK must remain fully functional throughout — test each migrated operation.",
+              "silks": "wire-gazette-to-officium-exchange",
+              "commit": "ef51b56"
+            },
+            {
+              "ts": "260327-0819",
+              "state": "rough",
+              "text": "Migrate gazette I/O to officium exchange directory.\n\nExchange path derived from the officium param on each jjx call (not server state). Dispatcher resolves officium ID to .claude/jjm/officia/<id>/gazette.md and passes path to handlers.\n\nOutput side: orient, show, paddock getter write gazette.md in officium dir instead of appending gazette markdown to MCP response text.\n\nInput side: enroll, redocket, paddock setter read gazette.md from officium dir instead of inline 'input' param. Remove 'input' field from affected MCP param structs.\n\nThe exchange_path threading from dispatcher to handlers is the key structural change. JJK must remain fully functional throughout — test each migrated operation.",
               "silks": "migrate-gazette-io-to-officium-directory",
               "commit": "18778c9"
             },
