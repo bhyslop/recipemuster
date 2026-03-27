@@ -4272,6 +4272,13 @@
         "₢AwAAQ": {
           "tacks": [
             {
+              "ts": "260327-0818",
+              "state": "rough",
+              "text": "Implement jjx_open and officium param threading.\n\n1. Add .claude/jjm/officia/ to .gitignore\n2. Implement jjx_open: generate officium ID (YYMMDD-NNNN format — enumerate existing dirs for today, pick max+1 or 1000), create exchange directory with empty gazette.md and heartbeat file, run vvcp_probe if .probe_date doesn't match today (write datestamp after), create invitatory commit (action code 'i', empty commit with probe body), exsanguinate stale officia (scan heartbeat mtimes, generous threshold ~4-6 hours), return officium ID.\n3. Add officium param to jjrm_JjxParams. Every jjx command except jjx_open requires officium — validate directory exists, touch heartbeat on every dispatch. Derive exchange path from officium ID.\n4. Remove lazy invitatory (AtomicBool + vvcp_invitatory) from jjx dispatcher — jjx_open replaces it.\n5. Define unicode prefix for officium identity (display/params only, not in directory name).\n6. Rename pace silks to match new scope.",
+              "silks": "implement-invitatory-mcp-startup",
+              "commit": "4cb178e"
+            },
+            {
               "ts": "260325-0800",
               "state": "rough",
               "text": "Implement jjdxo_invitatory in jjrm_serve_stdio: generate officium ID (YYMMDD-HHMM-XXXX), create .claude/jjm/officia/<id>/ directory, create invitatory commit (action code 'i') with model inventory in body via vvcp_probe, populate ServerInfo.instructions with exchange directory path. Add officium state (ID, exchange path) to jjrm_McpServer struct. This is a new JJK invitatory — leave VOS vvcp_invitatory in vvcp_probe.rs untouched (other kits may use it). Remove lazy invitatory calls from orient and muster.",
