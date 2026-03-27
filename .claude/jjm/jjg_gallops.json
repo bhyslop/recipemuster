@@ -4447,6 +4447,13 @@
         "₢AwAAX": {
           "tacks": [
             {
+              "ts": "260327-0819",
+              "state": "rough",
+              "text": "Update JJS0 spec to reflect agent-initiated officium lifecycle.\n\n1. Update jjdxo_officium entity: identity format YYMMDD-NNNN (not YYMMDD-HHMM-XXXX), agent-initiated via jjx_open (not MCP server startup), heartbeat liveness (not PID), exsanguination on open (not compline cleanup)\n2. Update jjdxo_invitatory: triggered by jjx_open operation, probe once per day via datestamp file, officium param required on all subsequent calls\n3. Remove or revise jjdxo_compline: no clean shutdown — staleness detected by heartbeat absence, cleanup via exsanguination at next open\n4. Update jjdo_chapter and jjdo_absolve specs for heartbeat-based liveness\n5. Ensure gazette exchange spec references officium param as path source\n6. Verify JJSCGZ subdocument aligns with implemented file exchange protocol",
+              "silks": "repair-jjs0-gazette-commitment",
+              "commit": "3b33a68"
+            },
+            {
               "ts": "260325-0749",
               "state": "rough",
               "text": "Update JJS0 spec to reflect gazette file I/O as the canonical exchange mechanism. Remove any residual references to legacy inline MCP parameter style for multiline content. Ensure operation specs reference gazette slugs and officium directory for input/output. Verify JJSCGZ subdocument aligns with implemented file exchange protocol. This is the spec catching up to the implementation migration.",
