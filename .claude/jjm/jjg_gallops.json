@@ -3540,6 +3540,13 @@
         "₢AvAAN": {
           "tacks": [
             {
+              "ts": "260326-2102",
+              "state": "complete",
+              "text": "## Character\nEnd-to-end validation of the full enshrine → conjure → vouch pipeline.\n\n## Goal\nProve the enshrine feature works against a real upstream image with multi-platform content.\n\n## Steps\n1. Enshrine a real multi-platform image (e.g., python:3.11-slim) for a test vessel\n2. Verify anchor written to rbrv.env with correct format\n3. Verify image present in GAR with all upstream platforms (rbi_show on anchor tag)\n4. Conjure the vessel using the anchored base image\n5. Verify vouch records anchored provenance path\n\n## Verification\n- Full round-trip: enshrine → conjure → vouch with anchored base image\n- rbi_list shows anchor tag alongside consecration tags\n- Multi-platform manifest list preserved in GAR",
+              "silks": "enshrine-end-to-end-verification",
+              "commit": "bea9f48"
+            },
+            {
               "ts": "260323-1828",
               "state": "rough",
               "text": "## Character\nEnd-to-end validation of the full enshrine → conjure → vouch pipeline.\n\n## Goal\nProve the enshrine feature works against a real upstream image with multi-platform content.\n\n## Steps\n1. Enshrine a real multi-platform image (e.g., python:3.11-slim) for a test vessel\n2. Verify anchor written to rbrv.env with correct format\n3. Verify image present in GAR with all upstream platforms (rbi_show on anchor tag)\n4. Conjure the vessel using the anchored base image\n5. Verify vouch records anchored provenance path\n\n## Verification\n- Full round-trip: enshrine → conjure → vouch with anchored base image\n- rbi_list shows anchor tag alongside consecration tags\n- Multi-platform manifest list preserved in GAR",
