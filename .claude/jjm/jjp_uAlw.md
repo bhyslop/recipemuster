@@ -2,58 +2,79 @@
 
 ## Purpose
 
-Build V3 schema infrastructure: AXLA annotation vocabulary upgrade and JJF (Job Jockey File) format for markdown-based MCP file exchange.
+Build V3 schema infrastructure: AXLA annotation vocabulary upgrade, JJF file exchange protocol, and officium lifecycle for gazette I/O isolation.
 
 This heat is **strictly V3 schema**. No breaking changes, no data model rewrites.
 
-## Scope
+## Completed Work
 
-1. **JJF file exchange protocol** — design and implement markdown-based file I/O for multiline MCP parameters (docket, paddock content). Reduces MCP parameter formatting spooks. **DONE** (gazette entity: ₢AwAAO, ₢AwAAI, ₢AwAAJ).
-2. **AXLA annotation migration** — migrate JJS0 from first-generation `axl_voices` annotations (transport-coupled: `axi_cli_subcommand`, `axa_cli_option`) to `axhe*` entity voicing convention (transport-agnostic, structural). JJSCGZ-gazette.adoc is the exemplar.
-3. **Specification gaps** — formalize `jjx_close` and `jjx_paddock` operations (in code, missing from spec). Resolve Bridled/Tack V3-legacy status.
-4. **Entity voicing convention** — the `axhe*` hierarchy (entity, field, method, parameter, output) replaces transport-specific motifs. Proven in JJSCGZ and the ₢AwAAN rename across 29 documents.
+1. **JJF file exchange protocol** — markdown-based file I/O for multiline MCP parameters. **DONE** (₢AwAAO, ₢AwAAI, ₢AwAAJ).
+2. **AXLA annotation migration** — `axhe*` entity voicing convention replaces transport-coupled `axl_voices`. **DONE** (₢AwAAB–₢AwAAF).
+3. **Specification gaps** — formalized `jjx_close`, `jjx_paddock`, V3-legacy resolution. **DONE** (₢AwAAE).
+4. **Officium lifecycle spec** — officium entity, invitatory/compline procedures, gazette exchange path. **DONE** (₢AwAAP). Subsequently redesigned (see below).
 
-## Key Design Insight (2026-03-23)
+## Officium Redesign (2026-03-27)
 
-The original plan assumed we'd mint new transport-specific AXLA motifs (`axi_mcp_tool`, `axa_mcp_parameter`) to replace the CLI-era annotations. This perpetuates the coupling problem — when transport changes, all annotations break again.
+### The Thrash Incident
 
-The `axhe*` entity voicing convention is transport-agnostic by design. `axhems_scoped_method` doesn't care if it's served by CLI, MCP, or any future transport. The migration target is `axhe*`, not new `axl_voices` motifs.
+₢AwAAQ originally implemented `jjdxo_invitatory` at MCP server startup (`jjrm_serve_stdio`). Claude Code desktop spawns/kills MCP server processes at unpredictable frequency — hundreds per minute during health checks and reconnection. This caused catastrophic feedback: each startup created a directory + git commit + probe (spawning parallel claude invocations), which slowed the system, triggering more restarts. Result: 1300+ officia directories, kernel load average 230+, required hard reboot.
 
-## Key Premise Discovered
+Emergency fix landed on ₣Ah: lazy invitatory on first jjx command with 1-hour gap guard via `vvc::vvcp_invitatory()`.
 
-**jjdk_sole_operator** — All concurrent MCP sessions belong to a single operator. Cross-user concurrency is out of scope. This premise collapsed handler complexity: every operation locks unconditionally, handler signature is `FnOnce(&mut Gallops) -> Result<String, String>`.
+### Design Pivot: The Chat Is The Session
 
-## Audit Findings (2026-03-23, in-context, no memo)
+The fundamental error: assuming MCP server process lifetime maps to "a session." It doesn't — the MCP transport layer restarts servers independently of chat sessions. The server process is disposable infrastructure, not a session boundary.
 
-Full spec-vs-impl audit was performed in-context during ₢AwAAB mount. Key findings:
+**New model**: The agent (chat) is the stable identity anchor. `jjx_open` is an explicit agent-initiated operation called once per chat. The MCP server is stateless — officium ID is a routing parameter passed on every jjx call. Server restarts are invisible.
 
-- **20 operations** annotated `axi_cli_subcommand` — all are MCP tools, CLI removed
-- **13 arguments** annotated `axa_cli_option`/`axa_cli_flag` — all are MCP JSON params
-- **Bridled** variant in code, not in current spec enum values (V3 Legacy only)
-- **Tack record** only described in V3 Legacy section
-- **3 operations** in code without spec: `jjx_close`, `jjx_paddock`, `jjx_revise_docket` (last one has taxonomy-level spec via jjsoprd)
-- **16 MCP parameters** unspecified, **4 spec arguments** vestigial
-- **Data model alignment is strong**: all records, members, enums match
-- **Operation Taxonomy** (resolve_pace, prepend_tack, revise_docket) fully matches
+### Key Design Decisions
 
-## Migration Strategy
+- **☉ (U+2609 SUN)** — unicode verification prefix for officium identity. Evokes the Divine Office's daily cycle. Rule: ☉ in params/display, stripped for directory name (parallels ₣/₢).
+- **Identity format**: `YYMMDD-NNNN` — datestamp + autonumber (enumerate existing dirs, pick next unused starting at 1000). No persistent counter file.
+- **Heartbeat liveness** — every jjx dispatch touches a sentinel file in the officium directory. No coupling to process trees or Claude Code internals.
+- **Exsanguination** — at `jjx_open`, scan heartbeat mtimes, reap stale directories (generous threshold). Replaces compline.
+- **No compline** — sessions just stop. Staleness detected by heartbeat absence. Self-healing: if officium dir is missing, agent calls `jjx_open` again.
+- **Gitignored officia/** — `.claude/jjm/officia/` is ephemeral exchange infrastructure, not tracked by git. Eliminates git noise and makes wrong exsanguination benign.
+- **Daily probe** — `.probe_date` datestamp file; `vvcp_probe` runs once per calendar day, not per chat.
 
-Incremental, piloted:
-1. **₢AwAAB**: Pilot on Operation Taxonomy section (6 annotations) — establish mapping
-2. **₢AwAAC**: Data model core (records, members, enums, types — ~25 annotations)
-3. **₢AwAAD**: Operations + arguments (~50 annotations) — largest change
-4. **₢AwAAE**: Spec gap closure (new operation specs, V3-legacy resolutions)
-5. **₢AwAAF**: Verification and ₣Ah handoff
+## Remaining Work — Two Phases
 
-## Sequencing
+### Phase 1: Officium Plumbing (spec → implement → doc → user test)
 
-Completes before ₣Ah resumes. ₣Ah is furloughed during this work.
+| Pace | Silks | Character |
+|------|-------|-----------|
+| ₢AwAAY | spec-agent-initiated-officium | Spec-only: JJS0 officium model |
+| ₢AwAAQ | implement-jjx-open-and-officium-param | Infrastructure: jjx_open + param threading |
+| ₢AwAAU | claudemd-officium-protocol | Documentation for agent behavior |
 
-## Heat constellation
+User tests officium plumbing in real chats before proceeding.
+
+### Phase 2: Gazette Migration
+
+| Pace | Silks | Character |
+|------|-------|-----------|
+| ₢AwAAZ | spec-chapter-absolve-operations | Spec-only: chapter/absolve |
+| ₢AwAAS | implement-chapter-and-absolve | Diagnostic operations |
+| ₢AwAAV | wire-gazette-to-officium-exchange | Handler wiring — the real payoff |
+| ₢AwAAW | remove-legacy-duplicate-output | Strip inline gazette from MCP responses |
+| ₢AwAAX | jjs0-officium-lifecycle-spec-update | Final spec verification pass |
+| ₢AwAAT | test-officium-lifecycle | End-to-end testing |
+
+## Prior Context (retained)
+
+### Key Design Insight (2026-03-23)
+
+The `axhe*` entity voicing convention is transport-agnostic by design. `axhems_scoped_method` doesn't care if it's served by CLI, MCP, or any future transport.
+
+### Key Premise
+
+**jjdk_sole_operator** — All concurrent MCP sessions belong to a single operator. The commit lock serializes their mutations; the officium exchange directory isolates their gazette file I/O.
+
+### Heat Constellation
 
 | Heat | Silks | Role | Status |
 |------|-------|------|--------|
-| ₣Aw | jjk-v4-0-jjs0-axla-normalization | V3 infrastructure — annotations + JJF file exchange | Racing |
-| ₣Ah | jjk-v4-1-school-breeze-founding | V4 schema transition (separate initiative) | Stabled (furloughed) |
-| ₣An | jjk-v4-release-and-legacy-removal | V4 cleanup (separate initiative) | Stabled |
+| ₣Aw | jjk-v4-0-jjs0-axla-normalization | V3 infrastructure — annotations + officium + gazette | Racing |
+| ₣Ah | jjk-v4-1-school-breeze-founding | V4 schema transition | Racing (has emergency invitatory fix) |
+| ₣An | jjk-v4-release-and-legacy-removal | V4 cleanup | Stabled |
 | ₣Am | jjk-v5-notional | Future parking lot | Stabled |
