@@ -585,6 +585,8 @@ zrbf_stitch_build_json() {
       steps: [$zjq_steps[0][] |
         if .args then
           .args = [.args[] | gsub("\\$\\{_RBGA_BUILD_ID\\}"; $zjq_cb_build_id) | gsub("\\$\\{_RBGA_BUILD_ID:-\\}"; $zjq_cb_build_id)]
+        elif .script then
+          .script = (.script | gsub("\\$\\{_RBGA_BUILD_ID\\}"; $zjq_cb_build_id) | gsub("\\$\\{_RBGA_BUILD_ID:-\\}"; $zjq_cb_build_id))
         else . end],
       images: $zjq_images[0],
       substitutions: {
