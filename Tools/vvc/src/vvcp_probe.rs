@@ -7,6 +7,7 @@
 //! Discovers model IDs and platform information by spawning minimal claude invocations.
 //! See Tools/vok/vov_veiled/VOSRP-probe.adoc for specification.
 
+use chrono::{DateTime, Utc};
 use tokio::process::Command;
 
 /// Probe Claude Code environment for model IDs and platform information.
@@ -113,6 +114,94 @@ async fn get_platform() -> String {
     };
 
     format!("{}-{}", os, arch)
+}
+
+/// Brand prefix for VVC commits
+const ZVVCP_BRAND_PREFIX: &str = "vvb";
+
+/// Action code for invitatory commits
+pub const VVCP_ACTION_INVITATORY: &str = "i";
+
+/// Gap threshold in seconds for officium detection (1 hour).
+const ZVVCP_OFFICIUM_GAP_SECS: u64 = 3600;
+
+/// Check if an officium invitatory is needed.
+///
+/// Searches git log for most recent invitatory commit (vvb:...:i:) and checks
+/// if the time gap exceeds the threshold (1 hour).
+/// Returns true if no invitatory found OR gap exceeds threshold.
+async fn zvvcp_needs_officium() -> bool {
+    let pattern = format!("^{}:.*:{}:", ZVVCP_BRAND_PREFIX, VVCP_ACTION_INVITATORY);
+
+    let output = Command::from(crate::vvce_git_command(&[
+            "log",
+            "--all",
+            &format!("--grep={}", pattern),
+            "--format=%ai",
+            "-1",
+        ]))
+        .output()
+        .await;
+
+    let timestamp_str = match output {
+        Ok(output) if output.status.success() => {
+            let s = String::from_utf8_lossy(&output.stdout);
+            let trimmed = s.trim().to_string();
+            if trimmed.is_empty() { return true; }
+            trimmed
+        }
+        _ => return true,
+    };
+
+    match DateTime::parse_from_str(&timestamp_str, "%Y-%m-%d %H:%M:%S %z") {
+        Ok(dt) => {
+            let gap = (Utc::now() - dt.with_timezone(&Utc)).num_seconds();
+            gap.unsigned_abs() > ZVVCP_OFFICIUM_GAP_SECS
+        }
+        Err(_) => true,
+    }
+}
+
+/// Create an invitatory commit to open a new officium.
+///
+/// Checks gap threshold first — no-ops if a recent invitatory exists (within 1 hour).
+/// Otherwise probes for model IDs and creates an empty branded commit.
+pub async fn vvcp_invitatory() -> Result<(), String> {
+    if !zvvcp_needs_officium().await {
+        return Ok(());
+    }
+
+    let probe_data = vvcp_probe().await?;
+    let hallmark = crate::vvcc_get_hallmark();
+    let now = chrono::Local::now();
+    let timestamp = now.format("%y%m%d-%H%M").to_string();
+    let subject = format!("OFFICIUM {}", timestamp);
+
+    let message = crate::vvcc_format_branded(
+        ZVVCP_BRAND_PREFIX,
+        &hallmark,
+        "",
+        VVCP_ACTION_INVITATORY,
+        &subject,
+        Some(&probe_data),
+    );
+
+    let commit_args = crate::vvcc_CommitArgs {
+        prefix: None,
+        message: Some(message),
+        allow_empty: true,
+        no_stage: true,
+        size_limit: crate::VVCG_SIZE_LIMIT,
+        warn_limit: crate::VVCG_WARN_LIMIT,
+    };
+
+    let mut output = crate::vvco_Output::buffer();
+    match crate::vvcc_CommitLock::vvcc_acquire() {
+        Ok(lock) => { lock.vvcc_commit(&commit_args, &mut output)?; }
+        Err(e) => return Err(format!("invitatory lock: {}", e)),
+    };
+
+    Ok(())
 }
 
 #[cfg(test)]

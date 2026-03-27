@@ -34,4 +34,4 @@ pub use vvce_env::{vvce_claude_command, vvce_env, vvce_git_command, VvcEnv};
 pub use vvcg_guard::{vvcg_GuardArgs, vvcg_run as guard, VVCG_SIZE_LIMIT, VVCG_WARN_LIMIT};
 pub use vvcm_machine::{vvcm_CommitArgs, vvcm_commit as machine_commit};
 pub use vvco_output::{vvco_Mode, vvco_Output};
-pub use vvcp_probe::vvcp_probe;
+pub use vvcp_probe::{vvcp_invitatory, vvcp_probe};
