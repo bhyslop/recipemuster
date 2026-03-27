@@ -4484,6 +4484,13 @@
         "₢AwAAX": {
           "tacks": [
             {
+              "ts": "260327-0831",
+              "state": "rough",
+              "text": "Final JJS0 spec verification and reconciliation pass.\n\nThe foundational spec work was done in ₢AwAAY (officium lifecycle) and ₢AwAAZ (chapter/absolve). This pace verifies spec-vs-implementation alignment after all code paces (Q, S, V, W) are complete.\n\n1. Reconcile any drift between spec (written before implementation) and actual built behavior. Update spec where implementation legitimately diverged.\n2. Verify gazette exchange spec references officium param as path source and matches the wiring in ₢AwAAV.\n3. Verify JJSCGZ subdocument aligns with implemented file exchange protocol.\n4. Ensure operation specs for jjx_open, jjx_chapter, jjx_absolve match their implementations.\n5. Review all officium-related linked terms for consistency.\n6. Remove any residual references to legacy inline MCP parameter style for multiline content.",
+              "silks": "jjs0-officium-lifecycle-spec-update",
+              "commit": "5a1326f"
+            },
+            {
               "ts": "260327-0819",
               "state": "rough",
               "text": "Update JJS0 spec to reflect agent-initiated officium lifecycle.\n\n1. Update jjdxo_officium entity: identity format YYMMDD-NNNN (not YYMMDD-HHMM-XXXX), agent-initiated via jjx_open (not MCP server startup), heartbeat liveness (not PID), exsanguination on open (not compline cleanup)\n2. Update jjdxo_invitatory: triggered by jjx_open operation, probe once per day via datestamp file, officium param required on all subsequent calls\n3. Remove or revise jjdxo_compline: no clean shutdown — staleness detected by heartbeat absence, cleanup via exsanguination at next open\n4. Update jjdo_chapter and jjdo_absolve specs for heartbeat-based liveness\n5. Ensure gazette exchange spec references officium param as path source\n6. Verify JJSCGZ subdocument aligns with implemented file exchange protocol",
