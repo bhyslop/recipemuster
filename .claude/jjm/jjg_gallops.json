@@ -3622,6 +3622,13 @@
         "₢AvAAQ": {
           "tacks": [
             {
+              "ts": "260327-0744",
+              "state": "rough",
+              "text": "## Character\nCleanup — remove dead infrastructure from a dropped dependency. Mechanical.\n\n## Goal\nRemove all slsa-verifier binary pin infrastructure from rbrg_cli.sh. The slsa-verifier was dropped in ₢AvAAB (DSSE verification replaces it). The binary pin machinery is now dead code that breaks under `set -u` when the empty array workaround is removed.\n\n## Scope\n- `Tools/rbk/rbrg_cli.sh`: Remove `ZRBRG_BINARY_LINES` and `ZRBRG_BINARY_PINS_REFRESHED_AT` module variables. Remove binary section from `zrbrg_write_rbrg`. Remove `rbrg_refresh_binary_pins` function entirely. Remove binary pass-through from `rbrg_refresh_gcb_pins`. Remove the guard added in ₢AvAAP (temporary workaround).\n- `Tools/rbk/rbrg_regime.sh`: Check for any slsa-verifier enrollment references.\n- Zipper/tabtarget: Remove `rbw-DPB.DirectorRefreshesBinaryPins.sh` tabtarget and its zipper entry — the underlying command is gone.\n- `.rbk/rbrg.env`: Already clean (no binary pin lines). Confirm no regression.\n\n## Verification\n- `BURE_COUNTDOWN=skip tt/rbw-DPG.DirectorRefreshesGcbPins.sh` succeeds\n- No references to `SLSA_VERIFIER` in rbrg_cli.sh\n- No `rbw-DPB` tabtarget remains\n- regime-validation passes",
+              "silks": "rbrg-remove-slsa-verifier-dead-code",
+              "commit": "9b425d7"
+            },
+            {
               "ts": "260324-0821",
               "state": "rough",
               "text": "## Character\nCleanup — remove dead infrastructure from a dropped dependency.\n\n## Goal\nRemove all slsa-verifier binary pin infrastructure from rbrg_cli.sh. The slsa-verifier was dropped in ₢AvAAB (DSSE verification replaces it). The binary pin machinery is now dead code that breaks under `set -u` when the empty array workaround is removed.\n\n## Scope\n- `Tools/rbk/rbrg_cli.sh`: Remove `ZRBRG_BINARY_LINES` and `ZRBRG_BINARY_PINS_REFRESHED_AT` module variables. Remove binary section from `zrbrg_write_rbrg`. Remove `rbrg_refresh_binary_pins` function entirely. Remove binary pass-through from `rbrg_refresh_gcb_pins`. Remove the guard added in ₢AvAAP (temporary workaround).\n- `Tools/rbk/rbrg_regime.sh`: Check for any slsa-verifier enrollment references.\n- Zipper/tabtarget: Check if `rbw-DPB.DirectorRefreshesBinaryPins.sh` references a dead command.\n- `.rbk/rbrg.env`: Already clean (no binary pin lines). Confirm no regression.\n\n## Verification\n- `BURE_COUNTDOWN=skip tt/rbw-DPG.DirectorRefreshesGcbPins.sh` succeeds\n- No references to `SLSA_VERIFIER` in rbrg_cli.sh\n- regime-validation passes",
