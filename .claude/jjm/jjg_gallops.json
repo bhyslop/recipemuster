@@ -3759,6 +3759,7 @@
         "₢AwAAE",
         "₢AwAAF",
         "₢AwAAP",
+        "₢AwAAY",
         "₢AwAAQ",
         "₢AwAAU",
         "₢AwAAR",
@@ -3768,7 +3769,7 @@
         "₢AwAAX",
         "₢AwAAT"
       ],
-      "next_pace_seed": "AAY",
+      "next_pace_seed": "AAZ",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4480,6 +4481,17 @@
               "text": "Update JJS0 spec to reflect gazette file I/O as the canonical exchange mechanism. Remove any residual references to legacy inline MCP parameter style for multiline content. Ensure operation specs reference gazette slugs and officium directory for input/output. Verify JJSCGZ subdocument aligns with implemented file exchange protocol. This is the spec catching up to the implementation migration.",
               "silks": "repair-jjs0-gazette-commitment",
               "commit": "1d11c84"
+            }
+          ]
+        },
+        "₢AwAAY": {
+          "tacks": [
+            {
+              "ts": "260327-0822",
+              "state": "rough",
+              "text": "Update JJS0 spec to reflect agent-initiated officium lifecycle BEFORE implementation.\n\n1. Revise jjdxo_officium entity: identity format YYMMDD-NNNN (autonumber, no persistent counter — enumerate existing dirs, pick next unused starting at 1000). Directory layout: gazette.md + heartbeat sentinel. Gitignored (.claude/jjm/officia/).\n2. Revise jjdxo_invitatory: now triggered by explicit jjx_open operation (not MCP server startup). Agent calls once per chat. Probe runs once per day via .probe_date datestamp file. Invitatory commit (action code 'i') is empty commit with probe body.\n3. Remove or retire jjdxo_compline: no clean shutdown procedure. Staleness detected by heartbeat mtime absence. Cleanup via exsanguination at next jjx_open.\n4. Define exsanguination: at jjx_open, scan existing officia heartbeat mtimes, reap directories exceeding staleness threshold.\n5. Spec jjx_open as a new operation with identity, behavior, and output.\n6. Spec officium param: required on all jjx operations except jjx_open. Dispatcher validates directory exists and touches heartbeat.\n7. Define unicode verification prefix for officium identity.\n8. Update steeplechase commit patterns if affected.\n\nThis pace is spec-only — no code changes. Implementation follows in •AwAAQ.",
+              "silks": "spec-agent-initiated-officium",
+              "commit": "37d92fa"
             }
           ]
         }
