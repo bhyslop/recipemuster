@@ -110,6 +110,7 @@
 :vose_marker:           <<vose_marker,Marker>>
 :vose_marker_s:         <<vose_marker,Markers>>
 :vose_uninstalled_marker: <<vose_uninstalled_marker,Uninstalled Marker>>
+:vose_canonical_binary:  <<vose_canonical_binary,Canonical Binary>>
 
 // Entity members
 :vosem_brand_commit:    <<vosem_brand_commit,brand_commit>>
@@ -138,6 +139,7 @@
 :vosa_subagent_s:       <<vosa_subagent,Subagents>>
 :vosa_concept_model:    <<vosa_concept_model,Concept Model>>
 :vosa_concept_model_s:  <<vosa_concept_model,Concept Models>>
+:vosa_mcp_config:       <<vosa_mcp_config,MCP Configuration>>
 
 // Operations (voso has children)
 :vosor_release:         <<vosor_release,Release>>
@@ -399,8 +401,18 @@ Example: `260115-1430` for January 15, 2026 at 14:30.
 [[vost_officium]]
 //axl_voices axt_string
 {vost_officium}::
-Defined by JJK — see `jjdxo_officium` in JJS0_JobJockeySpec.adoc.
-A bounded MCP session with unique identity, dedicated filesystem directory, and process-lifetime scope.
+A bounded work period opened by the
+{voscai_invitatory}
+commit.
+Replaces the concept of "session" with liturgical terminology.
++
+An
+{vost_officium}
+is considered current if the most recent
+{voscai_invitatory}
+commit was created within the gap threshold (1 hour by default).
++
+See `jjdxo_officium` in JJS0_JobJockeySpec.adoc for lifecycle details including exchange directories and gazette I/O.
 
 == Entities
 
@@ -429,9 +441,10 @@ vvk-parcel-1000/
       ...
     vvk/
       bin/
-        vvx-darwin-arm64
-        vvx-darwin-x86_64
+        vvx-darwin-arm64      # Platform-suffixed (parcel-only)
+        vvx-darwin-x86_64     # Install selects one → canonical vvx
         vvx-linux-x86_64
+        vvx-linux-aarch64
       vvu_uninstall.sh
   claude/
     commands/
@@ -540,10 +553,13 @@ with unique characteristics:
 * Has a
 {vose_whisper}
 like other kits (for CLAUDE.md knowledge)
-* Contents are primarily binaries (`vvx-{platform}`) and the uninstall script
-* Installed like any other kit — `kits/vvk/` in
+* Contents are primarily binaries and the uninstall script
+* The
 {vose_parcel}
-becomes `Tools/vvk/` in target
+carries platform-suffixed binaries (`vvx-{platform}`);
+{vosoi_install}
+selects one and emplaces it as the
+{vose_canonical_binary}
 * Present in every
 {vosp_target_repo}
 — the universal kit
@@ -612,6 +628,42 @@ On
 are collapsed to a single
 {vose_uninstalled_marker},
 preserving user's chosen section ordering for future reinstall.
+
+[[vose_canonical_binary]]
+//axl_voices axo_entity
+{vose_canonical_binary}::
+The unsuffixed `vvx` binary at `${BURC_TOOLS_DIR}/vvk/bin/vvx`.
+Both
+{vosp_kit_forge}
+and
+{vosp_target_repo}
+use this single path.
++
+In the
+{vosp_kit_forge},
+`cargo build` produces the binary and a post-build step copies it to the canonical location.
+In a
+{vosp_target_repo},
+{vosoi_install}
+detects the host platform, selects the matching platform-suffixed binary from the
+{vose_parcel},
+and copies it to the canonical location.
++
+Platform-suffixed binaries (`vvx-darwin-arm64`, `vvx-linux-x86_64`, etc.) exist only inside the
+{vose_parcel}.
+Neither the
+{vosp_kit_forge}
+nor the
+{vosp_target_repo}
+retains platform-suffixed copies after build or install.
++
+The canonical path is gitignored (build artifact).
+A fresh clone requires either `cargo build`
+({vosp_kit_forge})
+or
+{vosoi_install}
+({vosp_target_repo})
+before the binary is available.
 
 [[vose_brand_file]]
 //axl_voices axj_structure
@@ -849,6 +901,38 @@ Naming: Keeps existing acronym (e.g., `JJS0_JobJockeySpec.adoc`).
 Registered in
 {vose_whisper}
 via `.concept_model()` builder method.
+
+[[vosa_mcp_config]]
+//axl_voices axo_entity
+{vosa_mcp_config}::
+The `.mcp.json` file at project root that registers the MCP server with Claude Code.
+Written by
+{vosoi_install},
+removed by
+{vosou_uninstall}.
++
+Content:
++
+----
+{
+  "mcpServers": {
+    "vvx": {
+      "command": "./${BURC_TOOLS_DIR}/vvk/bin/vvx",
+      "args": ["mcp"]
+    }
+  }
+}
+----
++
+Points to the
+{vose_canonical_binary}
+using a relative path from project root.
+Committed to the
+{vosp_target_repo}
+as part of the install commit.
+In the
+{vosp_kit_forge},
+maintained manually or by the build tabtarget.
 
 == Operations
 
@@ -1101,6 +1185,21 @@ copy `kits/{kit}/` to `${BURC_TOOLS_DIR}/{kit}/`
 "{n} kits installed"
 
 //axhos_step
+. *Emplace canonical binary*:
+.. {vosc_call}
+detect host platform via `uname -s` and `uname -m`
+.. {vosc_require}
+platform-suffixed binary exists in `kits/vvk/bin/vvx-{platform}`
+.. {vosc_fatal}
+if missing: "No binary for platform {platform}"
+.. {vosc_call}
+copy `kits/vvk/bin/vvx-{platform}` to `${BURC_TOOLS_DIR}/vvk/bin/vvx`
+.. {vosc_call}
+remove all `vvx-*` platform-suffixed binaries from `${BURC_TOOLS_DIR}/vvk/bin/`
+.. {vosc_step}
+"vvx binary emplaced for {platform}"
+
+//axhos_step
 . *Install Claude config assets*:
 .. {vosc_call}
 copy `claude/commands/*` to `.claude/commands/`
@@ -1132,6 +1231,15 @@ NOTE: This is a deterministic text transformation implemented in Rust.
 No LLM assistance required for marker manipulation.
 
 //axhos_step
+. *Write MCP configuration*:
+.. {vosc_call}
+write
+{vosa_mcp_config}
+at project root (`.mcp.json`)
+.. {vosc_step}
+"MCP server configured"
+
+//axhos_step
 . *Commit installation*:
 .. {vosc_call}
 `git add -A`
@@ -1142,6 +1250,10 @@ No LLM assistance required for marker manipulation.
 
 //axhoom_motif_output
 * Kit assets under `${BURC_TOOLS_DIR}/`
+* {vose_canonical_binary}
+at `${BURC_TOOLS_DIR}/vvk/bin/vvx`
+* {vosa_mcp_config}
+at `.mcp.json`
 * Commands in `.claude/commands/`
 * Hooks in `.claude/hooks/`
 * Brand file at `.vvk/vvbf_brand.json`
@@ -1256,12 +1368,18 @@ NOTE: Preserves user's chosen section ordering for future reinstall.
 //axhos_step
 . *Remove vvx binary*:
 .. {vosc_call}
-enumerate files in `${BURC_TOOLS_DIR}/vvk/bin/`
-.. For each file starting with `vvx`:
-... {vosc_call}
-delete file (e.g., `vvx-darwin-arm64`, `vvx-linux-x86_64`)
+delete
+{vose_canonical_binary}
+at `${BURC_TOOLS_DIR}/vvk/bin/vvx` if exists
 .. {vosc_step}
-"{n} vvx binaries removed"
+"vvx binary removed"
+
+//axhos_step
+. *Remove MCP configuration*:
+.. {vosc_call}
+delete `.mcp.json` at project root if exists
+.. {vosc_step}
+"MCP configuration removed"
 +
 NOTE: Kit directories (`buk/`, `jjk/`, etc.) are intentionally *preserved*.
 Unveiled kit content is typically open-source and remains functional outside Claude Code.
@@ -1286,7 +1404,10 @@ delete `.vvk/` directory if empty
 "Uninstallation committed"
 
 //axhoom_motif_output
-* vvx binaries removed from `${BURC_TOOLS_DIR}/vvk/bin/`
+* {vose_canonical_binary}
+removed from `${BURC_TOOLS_DIR}/vvk/bin/vvx`
+* {vosa_mcp_config}
+removed from `.mcp.json`
 * Commands removed from `.claude/commands/`
 * Hooks removed from `.claude/hooks/`
 * CLAUDE.md sections collapsed to
@@ -1502,9 +1623,24 @@ vvb:1000::A: allocated hallmark for initial release
 [[voscai_invitatory]]
 //axvo_procedure axd_transient axd_internal
 {voscai_invitatory}::
-Defined by JJK — see `jjdxo_invitatory` in JJS0_JobJockeySpec.adoc.
-Opens an {vost_officium} at MCP startup.
 Action code `i` (lowercase).
+Opens a new
+{vost_officium}
+(bounded work period).
+Created automatically when no recent invitatory exists or the gap exceeds the threshold.
+Includes environment probe data in the commit body.
++
+Deferred to the first MCP tool call — not triggered at server startup.
+MCP server processes may be spawned and destroyed at high frequency by the Claude Code host application; running invitatory at startup would create a catastrophic feedback loop of git commits and process spawns.
+The gap threshold (1 hour by default) ensures at most one invitatory commit per work period regardless of how many server restarts occur.
++
+Implementation: `vvcp_invitatory()` in VVC.
++
+Example:
++
+----
+vvb:1011::i: OFFICIUM 260207-0701
+----
 
 [[voscar_release]]
 //axvo_procedure axd_transient axd_internal
