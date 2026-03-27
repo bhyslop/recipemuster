@@ -43,6 +43,12 @@ pub const JJRNM_NOTCH: char = 'n';
 /// Implicit Action: Landing - agent completion
 pub const JJRNM_LANDING: char = 'L';
 
+/// Officium Procedure: Invitatory - MCP session startup
+pub const JJRNM_INVITATORY: char = 'i';
+
+/// Officium Procedure: Compline - MCP session shutdown
+pub const JJRNM_COMPLINE: char = 'o';
+
 /// Registry of all marker codes with their names
 ///
 /// This array provides a central registry for validation and documentation.
@@ -61,5 +67,7 @@ pub const fn jjrnm_all_codes() -> &'static [(char, &'static str)] {
         (JJRNM_GARLAND, "Garland"),
         (JJRNM_NOTCH, "Notch"),
         (JJRNM_LANDING, "Landing"),
+        (JJRNM_INVITATORY, "Invitatory"),
+        (JJRNM_COMPLINE, "Compline"),
     ]
 }

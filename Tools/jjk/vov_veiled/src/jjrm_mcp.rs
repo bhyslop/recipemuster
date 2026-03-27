@@ -365,9 +365,22 @@ pub struct jjrm_JjxParams {
 // MCP Server
 // ============================================================================
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct jjrm_McpServer {
     tool_router: ToolRouter<Self>,
+    // AtomicBool satisfies ServerHandler's Sync bound; actual access is single-threaded.
+    invitatory_done: std::sync::atomic::AtomicBool,
+}
+
+impl Clone for jjrm_McpServer {
+    fn clone(&self) -> Self {
+        Self {
+            tool_router: self.tool_router.clone(),
+            invitatory_done: std::sync::atomic::AtomicBool::new(
+                self.invitatory_done.load(std::sync::atomic::Ordering::Relaxed)
+            ),
+        }
+    }
 }
 
 #[tool_router]
@@ -375,11 +388,21 @@ impl jjrm_McpServer {
     pub fn jjrm_new() -> Self {
         Self {
             tool_router: Self::tool_router(),
+            invitatory_done: std::sync::atomic::AtomicBool::new(false),
         }
     }
 
     #[tool(name = "jjx", description = "Job Jockey Kit - MCP tools for project initiative management")]
     async fn jjx(&self, Parameters(p): Parameters<jjrm_JjxParams>) -> Result<CallToolResult, McpError> {
+        // Lazy invitatory: delegate to VVC which has 1-hour gap guard.
+        // Safe to call on every command — no-ops if officium is current.
+        if !self.invitatory_done.load(std::sync::atomic::Ordering::Relaxed) {
+            if let Err(e) = vvc::vvcp_invitatory().await {
+                eprintln!("jjk: invitatory warning: {}", e);
+            }
+            self.invitatory_done.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+
         let cmd = p.command.as_str();
         let v = match p.params {
             serde_json::Value::String(ref s) => {
@@ -666,6 +689,8 @@ impl ServerHandler for jjrm_McpServer {
 // ============================================================================
 
 /// Start MCP stdio server. Blocks until client disconnects.
+///
+/// Lifecycle: serve → waiting (invitatory deferred to first jjx command)
 pub async fn jjrm_serve_stdio() -> Result<(), Box<dyn std::error::Error>> {
     use rmcp::ServiceExt;
 
