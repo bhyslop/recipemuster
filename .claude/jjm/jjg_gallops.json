@@ -3763,13 +3763,14 @@
         "₢AwAAQ",
         "₢AwAAU",
         "₢AwAAR",
+        "₢AwAAZ",
         "₢AwAAS",
         "₢AwAAV",
         "₢AwAAW",
         "₢AwAAX",
         "₢AwAAT"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4492,6 +4493,17 @@
               "text": "Update JJS0 spec to reflect agent-initiated officium lifecycle BEFORE implementation.\n\n1. Revise jjdxo_officium entity: identity format YYMMDD-NNNN (autonumber, no persistent counter — enumerate existing dirs, pick next unused starting at 1000). Directory layout: gazette.md + heartbeat sentinel. Gitignored (.claude/jjm/officia/).\n2. Revise jjdxo_invitatory: now triggered by explicit jjx_open operation (not MCP server startup). Agent calls once per chat. Probe runs once per day via .probe_date datestamp file. Invitatory commit (action code 'i') is empty commit with probe body.\n3. Remove or retire jjdxo_compline: no clean shutdown procedure. Staleness detected by heartbeat mtime absence. Cleanup via exsanguination at next jjx_open.\n4. Define exsanguination: at jjx_open, scan existing officia heartbeat mtimes, reap directories exceeding staleness threshold.\n5. Spec jjx_open as a new operation with identity, behavior, and output.\n6. Spec officium param: required on all jjx operations except jjx_open. Dispatcher validates directory exists and touches heartbeat.\n7. Define unicode verification prefix for officium identity.\n8. Update steeplechase commit patterns if affected.\n\nThis pace is spec-only — no code changes. Implementation follows in •AwAAQ.",
               "silks": "spec-agent-initiated-officium",
               "commit": "37d92fa"
+            }
+          ]
+        },
+        "₢AwAAZ": {
+          "tacks": [
+            {
+              "ts": "260327-0822",
+              "state": "rough",
+              "text": "Spec jjx_chapter and jjx_absolve operations in JJS0 BEFORE implementation.\n\n1. Define jjdo_chapter operation: scan .claude/jjm/officia/ directories, report officium identity, creation time, heartbeat mtime (last activity), staleness status. Tabular output. Bypasses Gallops command lifecycle lock (infrastructure, not heat-affiliated). Takes officium param (to mark caller's own session).\n2. Define jjdo_absolve operation: remove officia directories exceeding staleness threshold. Report what was removed. Refuses to remove caller's own officium (identified by officium param). Bypasses Gallops lock.\n3. Add both to operation registry with appropriate axhe* voicing annotations.\n4. Clarify relationship between absolve and jjx_open exsanguination (absolve is explicit/diagnostic, exsanguination is automatic/silent).\n\nThis pace is spec-only — no code changes. Implementation follows in •AwAAS.",
+              "silks": "spec-chapter-absolve-operations",
+              "commit": "c1fa83d"
             }
           ]
         }
