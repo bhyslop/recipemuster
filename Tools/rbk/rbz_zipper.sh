@@ -78,7 +78,6 @@ zrbz_kindle() {
   buz_enroll RBZ_VOUCH_CONSECRATIONS        "rbw-DV"       "${z_mod}" "rbf_batch_vouch"
   z_mod="rbrg_cli.sh"
   buz_enroll RBZ_REFRESH_GCB_PINS           "rbw-DPG"      "${z_mod}" "rbrg_refresh_gcb_pins"
-  buz_enroll RBZ_REFRESH_BINARY_PINS        "rbw-DPB"      "${z_mod}" "rbrg_refresh_binary_pins"
 
   # Regime operations
   z_mod="rbrn_cli.sh"

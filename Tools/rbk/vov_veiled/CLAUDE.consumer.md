@@ -130,7 +130,6 @@ For full BUK infrastructure documentation, see `Tools/buk/README.md`.
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
 | `rbw-DPG` | DirectorRefreshesGcbPins | Resolve latest GCB tool image digests |
-| `rbw-DPB` | DirectorRefreshesBinaryPins | Resolve latest slsa-verifier binary |
 | `rbw-DI` | DirectorInscribesRubric | Push build definitions to rubric repo |
 | `rbw-DC` | DirectorCreatesConsecration | Create consecration: conjure (Cloud Build), mirror (bind), or graft (local push) based on vessel mode |
 | `rbw-Dc` | DirectorChecksConsecrations | Verify builds completed |

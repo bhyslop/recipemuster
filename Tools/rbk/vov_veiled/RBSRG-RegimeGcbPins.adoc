@@ -6,7 +6,7 @@ This regime specifies pinned tool references used as builders in
 build steps.
 Each
 {rbrg_regime}
-instance represents the current set of tool pins, managed by two refresh commands: `rbrg_refresh_gcb_pins` for container image pins and `rbrg_refresh_binary_pins` for binary tool pins.
+instance represents the current set of tool pins, managed by `rbrg_refresh_gcb_pins` for container image pins.
 RBRG assignment files are found at `.rbk/rbrg.env` and are generated from scratch by either refresh command (BCG compliant full-file rewrite).
 
 //axhrv_variable
@@ -63,11 +63,7 @@ Timestamp recording when container image pins were last refreshed via `rbrg_refr
 {rbtgo_rubric_inscribe}
 gates on this value — must be less than 1 day old.
 
-//axhrv_variable
-{rbrg_binary_pins_refreshed_at}
-
-Timestamp recording when binary tool pins were last refreshed via `rbrg_refresh_binary_pins` ({rbtc_refresh_binary_pins}).
-Not gated by inscribe — binary pins are updated deliberately.
+// rbrg_binary_pins_refreshed_at eliminated (₣Av) — slsa-verifier dropped
 
 //axhro_kindle
 {rbkro_kindle}
@@ -81,10 +77,10 @@ Locks all enrolled variables against mutation.
 
 Validates fields via buv_vet type checkers.
 Image pins must be valid digest-pinned references.
-Binary pins must be valid URL and SHA256 strings.
+// Binary pin validation eliminated (₣Av) — slsa-verifier dropped
 
 //axhro_render
 {rbkro_render}
 
 Renders via buv_render.
-Sections: GCB Image Pins, GCB Binary Pins.
+Sections: GCB Image Pins.

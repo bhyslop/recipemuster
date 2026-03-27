@@ -25,14 +25,12 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 ######################################################################
 # Internal Functions
 
-# Module-scoped arrays and timestamps for BCG file rewrite — populated by refresh commands
+# Module-scoped arrays and timestamp for BCG file rewrite — populated by refresh commands
 ZRBRG_IMAGE_LINES=()
-ZRBRG_BINARY_LINES=()
 ZRBRG_IMAGE_PINS_REFRESHED_AT=""
-ZRBRG_BINARY_PINS_REFRESHED_AT=""
 
-# BCG compliant: write complete RBRG file from image + binary pin arrays, replace atomically
-# Caller must populate ZRBRG_IMAGE_LINES, ZRBRG_BINARY_LINES, and both REFRESHED_AT values.
+# BCG compliant: write complete RBRG file from image pin array, replace atomically
+# Caller must populate ZRBRG_IMAGE_LINES and ZRBRG_IMAGE_PINS_REFRESHED_AT.
 zrbrg_write_rbrg() {
   local z_vintage="$1"
   local z_temp_file="$2"
@@ -62,16 +60,7 @@ zrbrg_write_rbrg() {
       echo "${z_line}"
     done
     echo ''
-    if test "${#ZRBRG_BINARY_LINES[@]}" -gt 0; then
-      for z_line in "${ZRBRG_BINARY_LINES[@]}"; do
-        echo "${z_line}"
-      done
-      echo ''
-    fi
     echo "RBRG_IMAGE_PINS_REFRESHED_AT=${ZRBRG_IMAGE_PINS_REFRESHED_AT}"
-    if test -n "${ZRBRG_BINARY_PINS_REFRESHED_AT}"; then
-      echo "RBRG_BINARY_PINS_REFRESHED_AT=${ZRBRG_BINARY_PINS_REFRESHED_AT}"
-    fi
     echo ''
     echo '# eof'
   } > "${z_temp_file}" || buc_die "Failed to write temporary RBRG file"
@@ -235,129 +224,9 @@ rbrg_refresh_gcb_pins() {
     z_index=$((z_index + 1))
   done
 
-  # Populate shared state: freshly resolved image pins (no binary pins — slsa-verifier dropped)
+  # Populate shared state: freshly resolved image pins
   ZRBRG_IMAGE_LINES=("${z_resolved_lines[@]}")
-  ZRBRG_BINARY_LINES=()
   ZRBRG_IMAGE_PINS_REFRESHED_AT="${BURD_NOW_EPOCH}"
-  ZRBRG_BINARY_PINS_REFRESHED_AT=""
-
-  buc_step "Writing complete RBRG pin file (BCG rewrite pattern)"
-  local -r z_temp_rbrg="${z_prefix}rbrg_complete.env"
-  zrbrg_write_rbrg "${z_vintage}" "${z_temp_rbrg}"
-
-  buc_step "Refresh complete: ${z_updated} updated, ${z_unchanged} unchanged"
-}
-
-# Command: refresh_binary_pins - discover latest slsa-verifier release and verify checksum
-# Downloads binary, computes local SHA256, fetches SLSA provenance attestation SHA256,
-# dies if they disagree (belt and suspenders).
-# Requires: curl, jq, shasum, BURD_NOW_STAMP set, BURD_TEMP_DIR set
-rbrg_refresh_binary_pins() {
-  buc_doc_brief "Discover latest slsa-verifier release, verify checksum, write RBRG pin file"
-  buc_doc_shown || return 0
-
-  local -r z_rbrg_file="${RBBC_rbrg_file}"
-  test -f "${z_rbrg_file}" || buc_die "RBRG config not found: ${z_rbrg_file}"
-  zburd_sentinel
-
-  local -r z_vintage="${BURD_NOW_STAMP}"
-  local -r z_prefix="${BURD_TEMP_DIR}/rbrg_binary_refresh_"
-  local -r z_releases_file="${z_prefix}releases.json"
-  local -r z_releases_stderr="${z_prefix}releases_stderr.txt"
-  local -r z_binary_file="${z_prefix}slsa-verifier-linux-amd64"
-  local -r z_binary_stderr="${z_prefix}binary_stderr.txt"
-  local -r z_attestation_file="${z_prefix}attestation.intoto.jsonl"
-  local -r z_attestation_stderr="${z_prefix}attestation_stderr.txt"
-  local -r z_local_sha_file="${z_prefix}local_sha256.txt"
-  local -r z_provenance_sha_file="${z_prefix}provenance_sha256.txt"
-
-  # Discover latest release version from GitHub Releases API
-  buc_step "Discovering latest slsa-verifier release from GitHub"
-  curl -sS \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    "https://api.github.com/repos/slsa-framework/slsa-verifier/releases/latest" \
-    -o "${z_releases_file}" 2>"${z_releases_stderr}" \
-    || buc_die "Failed to fetch latest release — see ${z_releases_stderr}"
-
-  local z_tag=""
-  z_tag=$(jq -r '.tag_name // empty' "${z_releases_file}") \
-    || buc_die "Failed to extract tag_name from release response"
-  test -n "${z_tag}" || buc_die "GitHub returned empty tag_name for latest release"
-  buc_info "slsa-verifier latest release: ${z_tag}"
-
-  local -r z_binary_url="https://github.com/slsa-framework/slsa-verifier/releases/download/${z_tag}/slsa-verifier-linux-amd64"
-  local -r z_attestation_url="${z_binary_url}.intoto.jsonl"
-
-  # Download the binary
-  buc_step "Downloading slsa-verifier binary (${z_tag})"
-  curl -sS -L \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time 300 \
-    "${z_binary_url}" \
-    -o "${z_binary_file}" 2>"${z_binary_stderr}" \
-    || buc_die "Failed to download slsa-verifier binary — see ${z_binary_stderr}"
-
-  # Compute local SHA256
-  buc_step "Computing local SHA256 checksum"
-  shasum -a 256 "${z_binary_file}" | cut -d' ' -f1 > "${z_local_sha_file}" \
-    || buc_die "Failed to compute SHA256 of downloaded binary"
-  local z_local_sha=""
-  z_local_sha=$(<"${z_local_sha_file}")
-  test -n "${z_local_sha}" || buc_die "Empty local SHA256"
-
-  # Download the SLSA provenance attestation
-  buc_step "Downloading SLSA provenance attestation"
-  curl -sS -L \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    "${z_attestation_url}" \
-    -o "${z_attestation_file}" 2>"${z_attestation_stderr}" \
-    || buc_die "Failed to download attestation — see ${z_attestation_stderr}"
-
-  # Extract SHA256 from in-toto provenance subject
-  buc_step "Extracting SHA256 from provenance attestation"
-  jq -r '.payload | @base64d | fromjson | [.subject[] | select(.name == "slsa-verifier-linux-amd64")][0].digest.sha256' \
-    "${z_attestation_file}" > "${z_provenance_sha_file}" \
-    || buc_die "Failed to extract SHA256 from attestation"
-  local z_provenance_sha=""
-  z_provenance_sha=$(<"${z_provenance_sha_file}")
-  test -n "${z_provenance_sha}" || buc_die "Empty provenance SHA256"
-
-  # Belt and suspenders: local checksum must match provenance
-  buc_step "Verifying local checksum matches provenance attestation"
-  buc_info "Local SHA256:      ${z_local_sha}"
-  buc_info "Provenance SHA256: ${z_provenance_sha}"
-  test "${z_local_sha}" = "${z_provenance_sha}" \
-    || buc_die "CHECKSUM MISMATCH: local=${z_local_sha} provenance=${z_provenance_sha}"
-  buc_info "Checksums match"
-
-  # Log changes vs current values
-  local z_updated=0
-  local z_unchanged=0
-  if test "${RBRG_SLSA_VERIFIER_URL}" = "${z_binary_url}" \
-       -a "${RBRG_SLSA_VERIFIER_SHA256}" = "${z_local_sha}"; then
-    buc_info "RBRG_SLSA_VERIFIER: unchanged (${z_tag})"
-    z_unchanged=1
-  else
-    buc_info "RBRG_SLSA_VERIFIER_URL: ${RBRG_SLSA_VERIFIER_URL} -> ${z_binary_url}"
-    buc_info "RBRG_SLSA_VERIFIER_SHA256: ${RBRG_SLSA_VERIFIER_SHA256} -> ${z_local_sha}"
-    z_updated=1
-  fi
-
-  # Populate shared state: pass-through image pins and its timestamp, freshly resolved binary pins
-  ZRBRG_IMAGE_LINES=(
-    "RBRG_ORAS_IMAGE_REF=\"${RBRG_ORAS_IMAGE_REF}\""
-    "RBRG_GCLOUD_IMAGE_REF=\"${RBRG_GCLOUD_IMAGE_REF}\""
-    "RBRG_DOCKER_IMAGE_REF=\"${RBRG_DOCKER_IMAGE_REF}\""
-    "RBRG_ALPINE_IMAGE_REF=\"${RBRG_ALPINE_IMAGE_REF}\""
-    "RBRG_SYFT_IMAGE_REF=\"${RBRG_SYFT_IMAGE_REF}\""
-    "RBRG_BINFMT_IMAGE_REF=\"${RBRG_BINFMT_IMAGE_REF}\""
-    "RBRG_SKOPEO_IMAGE_REF=\"${RBRG_SKOPEO_IMAGE_REF}\""
-  )
-  ZRBRG_BINARY_LINES=(
-    "RBRG_SLSA_VERIFIER_URL=\"${z_binary_url}\""
-    "RBRG_SLSA_VERIFIER_SHA256=\"${z_local_sha}\""
-  )
-  ZRBRG_IMAGE_PINS_REFRESHED_AT="${RBRG_IMAGE_PINS_REFRESHED_AT}"
-  ZRBRG_BINARY_PINS_REFRESHED_AT="${BURD_NOW_EPOCH}"
 
   buc_step "Writing complete RBRG pin file (BCG rewrite pattern)"
   local -r z_temp_rbrg="${z_prefix}rbrg_complete.env"

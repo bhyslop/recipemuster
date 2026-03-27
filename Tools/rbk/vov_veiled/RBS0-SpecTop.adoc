@@ -140,7 +140,6 @@
 // Recipe Bottle Term Colophon (tabtarget entry points)
 :rbtc_gitlab_setup:              rbw-gPL (eliminated)
 :rbtc_refresh_gcb_pins:          <<rbtc_refresh_gcb_pins,rbw-DPG>>
-:rbtc_refresh_binary_pins:       <<rbtc_refresh_binary_pins,rbw-DPB>>
 :rbtc_inspect_full:              <<rbtc_inspect_full,rbw-RiF>>
 :rbtc_inspect_compact:           <<rbtc_inspect_compact,rbw-Ric>>
 
@@ -2277,10 +2276,7 @@ Builds now use `builds.create` + pouch for context delivery.
 Tabtarget colophon for GCB container image pin refresh.
 Discovers latest container image digests and updates {rbrr_prefix} pins.
 
-[[rbtc_refresh_binary_pins]]
-{rbtc_refresh_binary_pins}::
-Tabtarget colophon for binary tool pin refresh.
-Discovers latest release from GitHub, downloads binary, verifies SLSA provenance.
+// rbtc_refresh_binary_pins eliminated (₣Av) — slsa-verifier dropped
 
 [[rbtc_inspect_full]]
 {rbtc_inspect_full}::
