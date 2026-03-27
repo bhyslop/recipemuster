@@ -4395,6 +4395,13 @@
         "₢AwAAU": {
           "tacks": [
             {
+              "ts": "260327-0830",
+              "state": "rough",
+              "text": "Update CLAUDE.md JJ configuration section to document officium protocol for phase 1 testing.\n\n1. Document jjx_open: must be called once at start of each chat, returns officium ID (☉YYMMDD-NNNN format). Add to MCP Command Reference table.\n2. Document officium param: required on all subsequent jjx commands — pass the returned ☉-prefixed ID every time.\n3. Document officium ID format: ☉ (U+2609 SUN) unicode prefix + YYMMDD-NNNN datestamp-sequence. Prefix required in params, stripped for directory name.\n4. Self-healing: if any jjx command fails with officium-not-found, call jjx_open again to recover.\n5. Forward-looking note: gazette file exchange via officium directory will be documented after ₢AwAAV lands. For now, gazette I/O continues via existing inline 'input' param.\n6. Update Quick Verbs if needed.\n\nThis pace must complete before user testing of the officium plumbing.",
+              "silks": "claudemd-officium-protocol",
+              "commit": "89881b5"
+            },
+            {
               "ts": "260327-0818",
               "state": "rough",
               "text": "Update CLAUDE.md JJ configuration section to document officium protocol.\n\n1. jjx_open must be called once at start of each chat — returns officium ID\n2. All subsequent jjx commands require officium param — pass the returned ID every time\n3. Gazette exchange: officium directory contains gazette.md for file I/O between agent and server\n4. Agent-side protocol: Write tool to gazette.md path for input operations, Read tool from gazette.md path for output operations\n5. If gazette I/O fails (officium dir missing), call jjx_open again — self-healing\n6. Add jjx_open to the MCP Command Reference table\n7. Update Quick Verbs if needed\n\nThis pace must complete before user testing of the officium plumbing.",
