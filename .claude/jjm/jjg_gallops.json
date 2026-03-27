@@ -4361,6 +4361,13 @@
               "ts": "260327-0818",
               "state": "rough",
               "text": "Update CLAUDE.md JJ configuration section to document officium protocol.\n\n1. jjx_open must be called once at start of each chat — returns officium ID\n2. All subsequent jjx commands require officium param — pass the returned ID every time\n3. Gazette exchange: officium directory contains gazette.md for file I/O between agent and server\n4. Agent-side protocol: Write tool to gazette.md path for input operations, Read tool from gazette.md path for output operations\n5. If gazette I/O fails (officium dir missing), call jjx_open again — self-healing\n6. Add jjx_open to the MCP Command Reference table\n7. Update Quick Verbs if needed\n\nThis pace must complete before user testing of the officium plumbing.",
+              "silks": "claudemd-officium-protocol",
+              "commit": "21eb106"
+            },
+            {
+              "ts": "260327-0818",
+              "state": "rough",
+              "text": "Update CLAUDE.md JJ configuration section to document officium protocol.\n\n1. jjx_open must be called once at start of each chat — returns officium ID\n2. All subsequent jjx commands require officium param — pass the returned ID every time\n3. Gazette exchange: officium directory contains gazette.md for file I/O between agent and server\n4. Agent-side protocol: Write tool to gazette.md path for input operations, Read tool from gazette.md path for output operations\n5. If gazette I/O fails (officium dir missing), call jjx_open again — self-healing\n6. Add jjx_open to the MCP Command Reference table\n7. Update Quick Verbs if needed\n\nThis pace must complete before user testing of the officium plumbing.",
               "silks": "claudemd-gazette-exchange-protocol",
               "commit": "5dcdf50"
             },
