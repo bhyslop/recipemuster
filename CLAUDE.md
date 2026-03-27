@@ -432,6 +432,8 @@ Job Jockey (JJ) is installed for managing project initiatives.
 
 When a command takes a firemark or coronet, provide the identity, not the silks.
 
+**Case sensitivity**: Firemarks and coronets are case-sensitive. `Av` ≠ `AV` ≠ `av`. Passing the wrong case produces a confusing "not found" error. Copy identities exactly as displayed — the final letter's case distinguishes heats (e.g., `₣Av` vs `₣AV` are different heats).
+
 - Target repo dir: `.`
 - JJ Kit path: `Tools/jjk/README.md`
 
