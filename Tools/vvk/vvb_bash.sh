@@ -61,8 +61,8 @@ zvvb_kindle() {
   VVB_PLATFORM=$(zvvb_platform_capture) || buc_die "Failed to detect platform"
   readonly VVB_PLATFORM
 
-  # Public export - full path to platform-specific VVX binary
-  readonly VVB_VVX_BINARY="${VVB_BIN_DIR}/vvx-${VVB_PLATFORM}"
+  # Public export - canonical VVX binary (unsuffixed, platform-independent path)
+  readonly VVB_VVX_BINARY="${VVB_BIN_DIR}/vvx"
 
   readonly ZVVB_KINDLED=1
 }
