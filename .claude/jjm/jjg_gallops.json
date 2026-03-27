@@ -3236,9 +3236,10 @@
         "₢AvAAQ",
         "₢AvAAL",
         "₢AvAAH",
+        "₢AvAAV",
         "₢AvAAU"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAlv.md",
       "paces": {
         "₢AvAAA": {
@@ -3714,6 +3715,17 @@
               "text": "## Character\nSpook fix — prevent agent mishandling of case-sensitive identities.\n\n## Goal\nUpdate CLAUDE.md Job Jockey Configuration section to explicitly state that firemarks and coronets are case-sensitive. `AV` ≠ `Av` ≠ `av`. The orient error when passing wrong case is confusing and wastes a tool call.\n\n## Scope\n- CLAUDE.md: Add case-sensitivity warning near the Identities vs Display Names section\n- Consider adding examples showing correct case matters",
               "silks": "claudemd-firemark-coronet-case-sensitivity",
               "commit": "b8514b6"
+            }
+          ]
+        },
+        "₢AvAAV": {
+          "tacks": [
+            {
+              "ts": "260327-0805",
+              "state": "rough",
+              "text": "## Character\nCleanup — remove obsoleted infrastructure. Mechanical but wide-reaching (regime module, CLI, env file, tabtargets, zipper entries, furnish dependencies, spec references).\n\n## Goal\nEliminate the RBRG regime entirely. With reliquaries required and inscribe owning the upstream-to-GAR mirroring, RBRG's role as authoritative tool image pin source is dead. The refresh command, regime module, env file, and all references should be removed.\n\n## Scope\n- `Tools/rbk/rbrg_cli.sh`: Delete entirely\n- `Tools/rbk/rbrg_regime.sh`: Delete entirely\n- `.rbk/rbrg.env`: Delete entirely\n- `Tools/rbk/rbz_zipper.sh`: Remove RBZ_REFRESH_GCB_PINS entry and rbrg_cli.sh module assignment\n- `tt/rbw-DPG.DirectorRefreshesGcbPins.sh`: Delete tabtarget\n- `tt/rbw-rgv.ValidatePinsRegime.sh`: Delete tabtarget (if exists)\n- `tt/rbw-rgr.RenderPinsRegime.sh`: Delete tabtarget (if exists)\n- Any CLI that sources rbrg_regime.sh or rbrg.env in furnish: remove those source lines and the kindle/enforce calls\n- Spec references: RBS0-SpecTop.adoc (rbtc_refresh_gcb_pins colophon, RBRG linked terms, RBRG variable definitions), RBSRG-RegimeGcbPins.adoc (assess: delete or gut), README.consumer.md, CLAUDE.consumer.md\n- Grep for RBRG_ across codebase to find any remaining consumers\n\n## Prerequisites\n- AvAAH end-to-end verification confirms inscribe works independently of RBRG\n\n## Verification\n- No RBRG_ references remain outside retired history\n- All remaining regime validations pass\n- Inscribe still works (uses its own upstream manifest, not RBRG)",
+              "silks": "rbrg-regime-elimination",
+              "commit": "daf974a"
             }
           ]
         }
