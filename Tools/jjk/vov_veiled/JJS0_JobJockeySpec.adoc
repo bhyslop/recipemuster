@@ -1779,19 +1779,28 @@ The {jjdxo_officium} identity string, prefixed with ☉.
 
 List active {jjdxo_officium_s}.
 Scans `.claude/jjm/officia/` for directories.
+Bypasses the {jjdgr_gallops} lifecycle — infrastructure operation.
++
+{jjds_arguments}
++
+* `officium` (string, required) — identity of the calling {jjdxo_officium}.
+  Used to mark the caller's own entry distinctly in output.
 +
 {jjds_behavior}
 +
-For each directory, reports:
-+
-* {jjdxo_officium} identity (directory name)
-* Creation time (from directory metadata)
-* {jjdxo_heartbeat} age (time since last touch)
-* Staleness assessment (within threshold vs. stale)
+. Scan `.claude/jjm/officia/` for directories
+. For each directory, report:
+  * {jjdxo_officium} identity: ☉-prefixed (e.g. `☉260327-1000`)
+  * Creation time: directory ctime
+  * {jjdxo_heartbeat} mtime: timestamp of last dispatch that touched the heartbeat file
+  * Staleness status: `active` (within threshold) or `stale` (exceeds threshold)
+. Mark the caller's own {jjdxo_officium} entry distinctly (e.g. `← you`)
 +
 {jjds_stdout}
 +
-Tabular listing of {jjdxo_officium_s} with identity, age, heartbeat age, and staleness status.
+Tabular listing of {jjdxo_officium_s}.
+Columns: identity, created, heartbeat mtime, status.
+Caller's own row marked with a distinguishing indicator.
 
 [[jjdo_absolve]]
 //axvo_procedure axd_transient
@@ -1799,19 +1808,30 @@ Tabular listing of {jjdxo_officium_s} with identity, age, heartbeat age, and sta
 
 Reap stale {jjdxo_officium} directories.
 Removes {jjdxo_exchange} directories whose {jjdxo_heartbeat} exceeds the staleness threshold.
+Bypasses the {jjdgr_gallops} lifecycle — infrastructure operation.
++
+{jjds_arguments}
++
+* `officium` (string, required) — identity of the calling {jjdxo_officium}.
+  The caller's own directory is never removed, regardless of staleness.
 +
 {jjds_behavior}
 +
 . Scan `.claude/jjm/officia/` for directories
-. For each directory, check {jjdxo_heartbeat} mtime
-. Remove directories identified as stale (same threshold as {jjdxo_exsanguination})
-. Report what was removed
+. Skip the calling {jjdxo_officium_p} own directory (identified by `officium` param)
+. For each remaining directory, check {jjdxo_heartbeat} mtime
+. Remove directories whose {jjdxo_heartbeat} exceeds the staleness threshold (same threshold as {jjdxo_exsanguination})
+. Report each removed directory by ☉-prefixed identity
+. If no stale directories exist, report "nothing to absolve"
 +
-Refuses to remove the calling {jjdxo_officium_p} own directory.
-If no stale directories exist, reports "nothing to absolve."
+{jjds_stdout}
 +
-NOTE: {jjdxo_exsanguination} runs automatically at each {jjdo_open}.
-{jjdo_absolve} provides manual reaping for diagnostic use.
+List of removed {jjdxo_officium} identities, or the "nothing to absolve" message.
++
+NOTE: {jjdo_absolve} vs. {jjdxo_exsanguination}: these are complementary, not redundant.
+{jjdxo_exsanguination} is *automatic and silent* — it runs inside every {jjdo_open} invocation and produces no output.
+{jjdo_absolve} is *explicit and diagnostic* — it is user-invoked, reports what was removed, and can be called at any time without opening a new {jjdxo_officium}.
+Use {jjdo_absolve} when stale directories accumulate between {jjdo_open} calls, or to inspect cleanup results directly.
 
 === Steeplechase Operations
 
