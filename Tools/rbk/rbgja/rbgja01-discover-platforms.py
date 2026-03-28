@@ -47,6 +47,18 @@ def require_env(name):
     return val
 
 
+def get_consecration():
+    """Get consecration from env var (standalone about) or file (combined conjure)."""
+    val = os.environ.get("_RBGA_CONSECRATION", "")
+    if val:
+        return val
+    try:
+        with open(".consecration") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        die("_RBGA_CONSECRATION not set and .consecration file not found")
+
+
 METADATA_TOKEN_URL = (
     "http://metadata.google.internal/computeMetadata/v1/"
     "instance/service-accounts/default/token"
@@ -75,7 +87,7 @@ def main():
     gar_host       = require_env("_RBGA_GAR_HOST")
     gar_path       = require_env("_RBGA_GAR_PATH")
     vessel         = require_env("_RBGA_VESSEL")
-    consecration   = require_env("_RBGA_CONSECRATION")
+    consecration   = get_consecration()
     _              = require_env("_RBGA_VESSEL_MODE")
     ark_suffix_img = require_env("_RBGA_ARK_SUFFIX_IMAGE")
     ark_suffix_dia = require_env("_RBGA_ARK_SUFFIX_DIAGS")

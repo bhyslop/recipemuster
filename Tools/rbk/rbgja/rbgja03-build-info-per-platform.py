@@ -34,11 +34,28 @@ def require_env(name):
     return val
 
 
+def get_consecration():
+    """Get consecration from env var (standalone about) or file (combined conjure)."""
+    val = os.environ.get("_RBGA_CONSECRATION", "")
+    if val:
+        return val
+    try:
+        with open(".consecration") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        die("_RBGA_CONSECRATION not set and .consecration file not found")
+
+
+def get_build_id():
+    """Get build ID from env var (standalone about) or GCB built-in (combined conjure)."""
+    return os.environ.get("_RBGA_BUILD_ID", "") or os.environ.get("BUILD_ID", "")
+
+
 def main():
     _            = require_env("_RBGA_GAR_HOST")
     _            = require_env("_RBGA_GAR_PATH")
     vessel       = require_env("_RBGA_VESSEL")
-    consecration = require_env("_RBGA_CONSECRATION")
+    consecration = get_consecration()
     vessel_mode  = require_env("_RBGA_VESSEL_MODE")
 
     for fname in ["platforms.txt", "platform_suffixes.txt", "platform_digests.txt"]:
@@ -101,7 +118,7 @@ def main():
         }
 
         if vessel_mode == "conjure":
-            build_id = os.environ.get("_RBGA_BUILD_ID", "")
+            build_id = get_build_id()
             info["build"] = {
                 "build_id": build_id,
                 "inscribe_timestamp": os.environ.get("_RBGA_INSCRIBE_TIMESTAMP", ""),
