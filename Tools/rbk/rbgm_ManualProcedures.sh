@@ -668,7 +668,7 @@ rbgm_onboarding() {
   z_flag=0; test "${z_level}" -ge 2 && z_flag=1
   zrbgm_po_status "${z_flag}" " 2. Payor Install       — Payor:     RBRA credential emplacement"
   z_flag=0; test "${z_level}" -ge 3 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 3. Depot Create        — Payor:     GCP depot project + dual pools"
+  zrbgm_po_status "${z_flag}" " 3. Depot Create        — Payor:     GCP depot project + dual pools       (~2 min)"
   z_flag=0; test "${z_level}" -ge 4 && z_flag=1
   zrbgm_po_status "${z_flag}" " 4. Governor Reset      — Payor:     Admin service account"
   z_flag=0; test "${z_level}" -ge 5 && z_flag=1
@@ -676,13 +676,13 @@ rbgm_onboarding() {
   z_flag=0; test "${z_level}" -ge 6 && z_flag=1
   zrbgm_po_status "${z_flag}" " 6. Retriever Create    — Governor:  Image pull service account"
   z_flag=0; test "${z_level}" -ge 7 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 7. Inscribe Reliquary  — Director:  Freeze tool images in GAR"
+  zrbgm_po_status "${z_flag}" " 7. Inscribe Reliquary  — Director:  Freeze tool images in GAR           (~6 min)"
   z_flag=0; test "${z_level}" -ge 8 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 8. Airgap Build        — Director:  Busybox on air-gapped pool"
+  zrbgm_po_status "${z_flag}" " 8. Airgap Build        — Director:  Busybox on air-gapped pool         (~10 min)"
   z_flag=0; test "${z_level}" -ge 9 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 9. Bottle Build        — Director:  Bottle vessel on tether pool"
+  zrbgm_po_status "${z_flag}" " 9. Bottle Build        — Director:  Bottle vessel on tether pool       (~15 min)"
   z_flag=0; test "${z_level}" -ge 10 && z_flag=1
-  zrbgm_po_status "${z_flag}" "10. Sentry Build        — Director:  Sentry vessel on tether pool"
+  zrbgm_po_status "${z_flag}" "10. Sentry Build        — Director:  Sentry vessel on tether pool       (~15 min)"
   z_flag=0; test "${z_level}" -ge 11 && z_flag=1
   zrbgm_po_status "${z_flag}" "11. Summon Bottle       — Retriever: Pull bottle image locally"
   z_flag=0; test "${z_level}" -ge 12 && z_flag=1
@@ -730,7 +730,7 @@ rbgm_onboarding() {
       bug_t "  Create the GCP depot project that hosts all build infrastructure."
       bug_t "  Depot creation establishes dual worker pools (tether + airgap)."
       bug_e
-      bug_t "  Run:"
+      bug_t "  Run (~2 min — creates GCP project, enables APIs, provisions pools):"
       buc_tabtarget "${RBZ_CREATE_DEPOT}" "<depot-name>"
       ;;
     3)
@@ -762,7 +762,7 @@ rbgm_onboarding() {
       bug_t "  Inscribe mirrors these from upstream into a datestamped reliquary"
       bug_t "  in GAR. This freezes tool versions so builds are reproducible."
       bug_e
-      bug_t "  1. Inscribe reliquary:"
+      bug_t "  1. Inscribe reliquary (~6 min — mirrors 6 tool images ~2 GB to GAR):"
       buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
       bug_t "  2. Record the reliquary ID in the busybox vessel:"
       bug_e
@@ -779,9 +779,9 @@ rbgm_onboarding() {
       bug_t "  the busybox base image to GAR with a content-addressed anchor."
       bug_t "  Then conjure builds the vessel entirely from GAR sources."
       bug_e
-      bug_t "  1. Enshrine busybox base image:"
+      bug_t "  1. Enshrine busybox base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
-      bug_t "  2. Conjure busybox on airgap pool:"
+      bug_t "  2. Conjure busybox on airgap pool (~8 min — conjure + about + vouch):"
       buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
       bug_t "  3. Vouch (verify SLSA provenance):"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
@@ -800,9 +800,9 @@ rbgm_onboarding() {
       bug_t "     Set:"
       bug_tc "        RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
       bug_e
-      bug_t "  2. Enshrine bottle base image (ubuntu:24.04):"
+      bug_t "  2. Enshrine bottle base image (~2 min — ubuntu:24.04):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
-      bug_t "  3. Conjure bottle on tether pool:"
+      bug_t "  3. Conjure bottle on tether pool (~13 min — ubuntu is large):"
       buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
       bug_t "  4. Vouch:"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
@@ -821,9 +821,9 @@ rbgm_onboarding() {
       bug_t "     Set:"
       bug_tc "        RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
       bug_e
-      bug_t "  2. Enshrine sentry base image (ubuntu:24.04 — same as bottle):"
+      bug_t "  2. Enshrine sentry base image (~2 min — ubuntu:24.04, same as bottle):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
-      bug_t "  3. Conjure sentry on tether pool:"
+      bug_t "  3. Conjure sentry on tether pool (~13 min — ubuntu is large):"
       buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
       bug_t "  4. Vouch:"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
