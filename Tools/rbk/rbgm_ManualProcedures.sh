@@ -503,24 +503,18 @@ rbgm_onboarding() {
   local -r z_bottle_sigil="rbev-bottle-ifrit"
 
   # ===================================================================
-  # Phase 1: Role Inventory — probe each RBRA file independently
+  # Phase 1: Role Inventory — probe credential files independently
   # ===================================================================
+  # Role = credential file present on THIS machine.  Committed repo config
+  # (rbrp.env, rbrr.env) is context, not role declaration.
   local z_has_payor=0
-  local z_has_oauth=0
   local z_has_governor=0
   local z_has_director=0
   local z_has_retriever=0
 
-  # Payor: rbrp.env exists with RBRP_PAYOR_PROJECT_ID set
-  if test -f "${RBBC_rbrp_file}"; then
-    if grep -q '^RBRP_PAYOR_PROJECT_ID=.\+' "${RBBC_rbrp_file}"; then
-      z_has_payor=1
-    fi
-  fi
-
-  # OAuth: rbro-payor.env exists in secrets dir
+  # Payor: OAuth credential present (rbro-payor.env in secrets dir)
   if test -n "${z_secrets_dir}" && test -f "${z_secrets_dir}/rbro-payor.env"; then
-    z_has_oauth=1
+    z_has_payor=1
   fi
 
   # Service account credentials: RBRA files in secrets dir
@@ -540,18 +534,11 @@ rbgm_onboarding() {
   # Role Inventory Display
   # ===================================================================
   bug_section "Role Inventory"
-  bug_t "  RBRA file presence IS the role declaration. No flags, no parameters."
+  bug_t "  Credential file presence IS the role declaration. No flags, no parameters."
   bug_t "  The filesystem is the configuration."
   bug_e
 
-  local z_flag=0
-
-  z_flag="${z_has_payor}"
-  zrbgm_po_status "${z_flag}" "Payor       — OAuth (browser flow): creates/funds GCP infrastructure"
-
-  z_flag=0; test "${z_has_payor}" = "1" && test "${z_has_oauth}" = "1" && z_flag=1
-  zrbgm_po_status "${z_flag}" "  OAuth     — Payor credential installed"
-
+  zrbgm_po_status "${z_has_payor}"     "Payor       — OAuth credential: creates/funds GCP infrastructure"
   zrbgm_po_status "${z_has_governor}"  "Governor    — Service account: administers director/retriever credentials"
   zrbgm_po_status "${z_has_director}"  "Director    — Service account: submits builds, manages images"
   zrbgm_po_status "${z_has_retriever}" "Retriever   — Service account: pulls images for local bottles"
@@ -560,27 +547,17 @@ rbgm_onboarding() {
   # ===================================================================
   # Credential Guidance — for absent roles
   # ===================================================================
-  local z_any_absent=0
   if test "${z_has_payor}" = "0" || test "${z_has_governor}" = "0" || \
      test "${z_has_director}" = "0" || test "${z_has_retriever}" = "0"; then
-    z_any_absent=1
-  fi
-
-  if test "${z_any_absent}" = "1"; then
     bug_section "Credential Guidance"
 
     if test "${z_has_payor}" = "0"; then
-      bug_t "  Payor: Configure the GCP payor project identity."
-      bug_tc "    File: " "${RBBC_rbrp_file}"
-      bug_t "    Set RBRP_PAYOR_PROJECT_ID to your GCP project, then run:"
+      bug_t "  Payor: OAuth credential (rbro-payor.env) not found."
+      if test -n "${z_secrets_dir}"; then
+        bug_tc "    Expected at: " "${z_secrets_dir}/rbro-payor.env"
+      fi
+      bug_t "    To become the payor, run Payor Establish then Payor Install:"
       buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
-      bug_e
-    fi
-
-    if test "${z_has_payor}" = "1" && test "${z_has_oauth}" = "0"; then
-      bug_t "  OAuth: Install payor credentials from the JSON file downloaded"
-      bug_t "  during Payor Establish."
-      bug_t "    Run:"
       buc_tabtarget "${RBZ_PAYOR_INSTALL}" "\${HOME}/Downloads/client_secret_*.json"
       bug_e
     fi
@@ -609,25 +586,28 @@ rbgm_onboarding() {
   if test "${z_has_payor}" = "1"; then
     bug_section "Payor Track"
 
-    # Sub-probe: depot project created
+    # Sub-probes: repo-level config facts (committed, not role-specific)
+    local z_has_project=0
+    if test -f "${RBBC_rbrp_file}"; then
+      grep -q '^RBRP_PAYOR_PROJECT_ID=.\+' "${RBBC_rbrp_file}" && z_has_project=1
+    fi
     local z_has_depot=0
     if test -f "${RBBC_rbrr_file}"; then
-      if grep -q '^RBRR_DEPOT_PROJECT_ID=.\+' "${RBBC_rbrr_file}"; then
-        z_has_depot=1
-      fi
+      grep -q '^RBRR_DEPOT_PROJECT_ID=.\+' "${RBBC_rbrr_file}" && z_has_depot=1
     fi
 
-    zrbgm_po_status "${z_has_payor}"    "  Project configured"
-    zrbgm_po_status "${z_has_oauth}"    "  OAuth installed"
+    zrbgm_po_status "${z_has_payor}"    "  OAuth installed"
+    zrbgm_po_status "${z_has_project}"  "  Project configured"
     zrbgm_po_status "${z_has_depot}"    "  Depot created"
     zrbgm_po_status "${z_has_governor}" "  Governor reset"
     bug_e
 
     # Next step for payor
-    if test "${z_has_oauth}" = "0"; then
-      bug_t "  Next: Install OAuth credentials."
-      bug_t "  Run:"
-      buc_tabtarget "${RBZ_PAYOR_INSTALL}" "\${HOME}/Downloads/client_secret_*.json"
+    if test "${z_has_project}" = "0"; then
+      bug_t "  Next: Configure the payor project identity."
+      bug_tc "    Edit: " "${RBBC_rbrp_file}"
+      bug_t "    Set RBRP_PAYOR_PROJECT_ID, then run:"
+      buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
     elif test "${z_has_depot}" = "0"; then
       bug_t "  Next: Create the GCP depot project."
       bug_t "  Review RBRR defaults before proceeding — one RBRR is tied to one depot."
