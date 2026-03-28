@@ -64,7 +64,7 @@ Bottled containers cannot currently reach each other's published entry ports.
 Each bottle is isolated behind its own sentry on a separate enclave network.
 The traffic path is feasible: Bottle A egresses through Sentry A's transit
 bridge, the host kernel routes to Sentry B's transit bridge, and Sentry B's
-existing entry path (socat + RBM-INGRESS) accepts the connection unchanged.
+existing entry path (DNAT + RBM-FORWARD) accepts the connection unchanged.
 The security model is preserved — the sentry remains the sole enforcement
 point, with peer access as a new category of allowed destination alongside
 entry (inbound) and uplink (outbound internet).  Nameplate model: two new

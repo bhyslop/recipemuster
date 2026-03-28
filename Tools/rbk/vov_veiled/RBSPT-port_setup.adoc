@@ -2,30 +2,35 @@
 {scr_port_setup}
 
 If {rbrn_entry_mode} is disabled, this sequence is skipped.
-If {rbrn_entry_mode} is enabled, this sequence configures service port mapping:
+If {rbrn_entry_mode} is enabled, this sequence configures entry port forwarding using kernel-level iptables DNAT.
+No userspace proxy is involved; the kernel forwards packets directly.
 
 //axhos_step
-. Socat Proxy Configuration:
-* Launch socat proxy process in background:
-** Listen on TCP port {rbrn_entry_port_workstation}
-** Forward connections to {at_bottle_container} IP ({rbrn_enclave_bottle_ip}) on port {rbrn_entry_port_enclave}
-** Enable connection forking and address reuse
-** Log output to `/var/log/socat-proxy.log`
-* Verify socat process started successfully
+. IP Forwarding:
+* Enable IPv4 forwarding via `/proc/sys/net/ipv4/ip_forward`
 
 //axhos_step
-. Filter Configuration:
-* Add rule to RBM-INGRESS accepting incoming traffic from bridge network:
-** Interface eth0
+. DNAT Rule:
+* Add PREROUTING rule in nat table:
+** Input interface eth0 ({at_transit_network})
 ** Protocol TCP
 ** Destination port {rbrn_entry_port_workstation}
-* Add rule to RBM-EGRESS accepting outbound connections to bottle:
-** Interface eth1
+** DNAT to {rbrn_enclave_bottle_ip}:{rbrn_entry_port_enclave}
+
+//axhos_step
+. Forward Filter:
+* Add rule to RBM-FORWARD accepting DNATted entry traffic:
+** Input interface eth0, output interface eth1
 ** Protocol TCP
 ** Destination {rbrn_enclave_bottle_ip}
 ** Destination port {rbrn_entry_port_enclave}
-* Add rule to RBM-INGRESS accepting return traffic from bottle:
-** Interface eth1
+
+//axhos_step
+. MASQUERADE Rule:
+* Add POSTROUTING rule in nat table:
+** Output interface eth1 ({at_enclave_network})
 ** Protocol TCP
-** Source {rbrn_enclave_bottle_ip}
-** Source port {rbrn_entry_port_enclave}
+** Destination {rbrn_enclave_bottle_ip}
+** Destination port {rbrn_entry_port_enclave}
+** MASQUERADE (rewrites source to sentry enclave IP)
+* Return traffic is handled by RELATED,ESTABLISHED tracking in the FORWARD chain ({scr_iptables_init} state tracking)
