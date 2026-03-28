@@ -21,7 +21,7 @@ See <<rbtgo_about_substitutions>> below for the full variable reference.
 //axhos_step
 . *Cloud Build Step 1: Discover Platforms* (Python 3):
 .. Image: {rbrg_gcloud_image_ref}
-.. Fetch OAuth token via `gcloud auth print-access-token`
+.. Fetch OAuth token from GCE metadata server
 .. {rbbc_call}
 Docker Registry API: GET manifests for `«CONSECRATION»-image` with OCI media type accept headers
 .. If response is an OCI image index or Docker manifest list:

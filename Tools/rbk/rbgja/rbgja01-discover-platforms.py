@@ -15,7 +15,6 @@
 
 import json
 import os
-import subprocess
 import sys
 import tarfile
 import urllib.error
@@ -47,6 +46,19 @@ def require_env(name):
     return val
 
 
+METADATA_TOKEN_URL = (
+    "http://metadata.google.internal/computeMetadata/v1/"
+    "instance/service-accounts/default/token"
+)
+
+
+def metadata_token():
+    """Fetch OAuth2 access token from GCE metadata server."""
+    req = urllib.request.Request(METADATA_TOKEN_URL, headers={"Metadata-Flavor": "Google"})
+    resp = urllib.request.urlopen(req)
+    return json.loads(resp.read())["access_token"]
+
+
 def gar_fetch(url, token, accept, method="GET"):
     headers = {"Authorization": f"Bearer {token}", "Accept": accept}
     req = urllib.request.Request(url, headers=headers, method=method)
@@ -70,12 +82,8 @@ def main():
     image_tag = f"{consecration}{ark_suffix_img}"
     registry_base = f"https://{gar_host}/v2/{gar_path}/{vessel}"
 
-    print("Fetching OAuth2 token via gcloud")
-    result = subprocess.run(
-        ["gcloud", "auth", "print-access-token"],
-        capture_output=True, text=True, check=True,
-    )
-    token = result.stdout.strip()
+    print("Fetching OAuth2 token via metadata server")
+    token = metadata_token()
 
     print(f"=== Discovering platforms for {vessel}:{image_tag} ===")
 

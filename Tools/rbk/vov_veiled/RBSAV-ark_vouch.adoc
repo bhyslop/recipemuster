@@ -85,7 +85,7 @@ Cloud Console URL for build monitoring
 //axhos_step
 . *Cloud Build Step 2: Mode-Aware Verification* (Python 3):
 .. Image: {rbrg_gcloud_image_ref}
-.. Fetch OAuth token via `gcloud auth print-access-token`
+.. Fetch OAuth token from GCE metadata server
 .. {rbbc_call}
 Docker Registry API: GET manifests for `«CONSECRATION»-image` to obtain OCI image index
 .. Filter out attestation manifests before extracting platforms.

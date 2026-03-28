@@ -752,11 +752,11 @@ All local
 {gcp_service}
 interaction uses direct REST API calls via `curl` with JWT-authenticated bearer tokens.
 +
-**Exception — about/vouch metadata pipelines**: GCB step scripts in the {rbtgo_ark_about} and {rbtgo_ark_vouch} pipelines invoke `gcloud` for two operations:
-(1) `gcloud auth print-access-token` for OAuth token acquisition (could use metadata server, but gcloud is simpler and the image is already pulled);
-(2) `gcloud artifacts docker images describe --show-provenance` for SLSA provenance envelope retrieval (wraps complex Container Analysis API interaction that would be burdensome to replicate via raw REST).
-These scripts run as Python 3 on the gcloud builder image after the primary image is built — the reproducibility concern that motivates this premise is weaker for post-build metadata operations.
-Both calls work under NO_PUBLIC_EGRESS (Private Google Access reaches Google APIs).
+**Exception — vouch provenance fetch**: The {rbtgo_ark_vouch} verification step (conjure mode only) invokes `gcloud artifacts docker images describe --show-provenance` for SLSA provenance envelope retrieval.
+This wraps complex Container Analysis API interaction that would be burdensome to replicate via raw REST.
+All other GCB step operations use the GCE metadata server for OAuth token acquisition and direct registry REST API calls — no gcloud.
+The provenance fetch runs as Python 3 on the gcloud builder image after the primary image is built; the reproducibility concern that motivates this premise is weaker for post-build verification.
+Works under NO_PUBLIC_EGRESS (Private Google Access reaches Google APIs).
 +
 In GCB build step contexts (conjure, bind, enshrine), registry authentication uses the GCE metadata server to obtain an access token and writes a static Docker config JSON.
 +
@@ -766,7 +766,7 @@ The `gcloud auth configure-docker` approach also fails mechanically in GCB steps
 NOTE: The
 {rbrg_gcloud_image_ref}
 pin exists because conjure build steps use the gcloud builder image as a convenience shell (for `bash` and `date`).
-About and vouch metadata steps additionally invoke `gcloud` directly (see exception above).
+The vouch verification step (conjure mode) additionally invokes `gcloud` for provenance retrieval (see exception above).
 
 == Operation Groups
 
@@ -1656,8 +1656,8 @@ Discovered constraints from implementation:
   * **Private worker pool**: The RunBuild API caller ({rbtr_director}) requires `cloudbuild.workerpools.use` to specify a private pool, a permission not included in `roles/cloudbuild.builds.editor`.
     {rbtgo_director_create} grants `roles/cloudbuild.workerPoolUser` at project scope.
     Vouch runs on the same private pool as conjure (`RBRR_GCB_POOL_STEM`), eliminating an untested default-pool-with-buildx permutation.
-  * **gcloud exception**: About and vouch metadata steps invoke `gcloud` directly (see {rbsk_no_gcloud} exception).
-    Conjure build steps and enshrine/inscribe operations continue to use the metadata server for registry auth.
+  * **gcloud exception**: Vouch verification (conjure mode) invokes `gcloud artifacts docker images describe` for provenance retrieval (see {rbsk_no_gcloud} exception).
+    All other steps use the GCE metadata server for OAuth tokens and direct registry REST API calls.
   * **Builder image selection**: Step 1 (Alpine) writes attestor keys (conjure) or is a no-op (bind/graft).
     Step 2 (gcloud/Python 3) runs mode-aware verification.
     Step 3 (Docker) assembles and pushes the vouch container (`docker buildx build --push` for multi-platform).
@@ -2534,7 +2534,7 @@ Fully-qualified image reference for ORAS Cloud Build step.
 {rbrg_gcloud_image_ref}::
 Fully-qualified image reference for gcloud Cloud Build step.
 Conjure build steps use it as a convenience shell (for `bash` and `date`).
-About and vouch metadata steps use it for Python 3 and `gcloud` invocation (see {rbsk_no_gcloud} exception).
+About and vouch metadata steps use it for Python 3; the vouch verification step (conjure) also invokes `gcloud` for provenance retrieval (see {rbsk_no_gcloud} exception).
 
 [[rbrg_docker_image_ref]]
 //axvr_variable axd_required rbst_image_ref
