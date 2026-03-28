@@ -4981,6 +4981,13 @@
         "₢AyAAC": {
           "tacks": [
             {
+              "ts": "260328-0941",
+              "state": "complete",
+              "text": "## Character\nEngineering — new infrastructure in the sentry/bottle start flow.\n\n## Goal\nWire RBRN_VOLUME_MOUNTS through the bottle start flow so that nameplate-configured volume mounts are applied at container creation time. Support read-only and read-write mode flags.\n\n## Deliverables\n\n1. Define RBRN_VOLUME_MOUNTS parsing convention (format TBD — discover during implementation)\n2. Plumb mount arguments into the bottle container creation (rbob_bottle.sh and/or rbj_sentry.sh)\n3. Validate: a nameplate with volume mounts correctly exposes mounted paths inside the bottle\n4. Validate: read-only mounts are enforced (write attempts fail)\n\n## Context\nRBRN_VOLUME_MOUNTS exists as a nameplate field (currently empty in nsproto). The ifrit bottle needs two mounts: project root (ro) and escape test directory (rw). This pace builds the plumbing; the tadmor nameplate pace configures it.\n\n## References\n- .rbk/rbrn_nsproto.env line 52 — RBRN_VOLUME_MOUNTS= (empty)\n- Tools/rbk/rbob_bottle.sh — bottle lifecycle\n- Tools/rbk/rbj_sentry.sh — sentry startup\n- RBS0-SpecTop.adoc — st_volume_mount linked term already exists",
+              "silks": "volume-mount-plumbing",
+              "commit": "39a80a2"
+            },
+            {
               "ts": "260328-0736",
               "state": "rough",
               "text": "## Character\nEngineering — new infrastructure in the sentry/bottle start flow.\n\n## Goal\nWire RBRN_VOLUME_MOUNTS through the bottle start flow so that nameplate-configured volume mounts are applied at container creation time. Support read-only and read-write mode flags.\n\n## Deliverables\n\n1. Define RBRN_VOLUME_MOUNTS parsing convention (format TBD — discover during implementation)\n2. Plumb mount arguments into the bottle container creation (rbob_bottle.sh and/or rbj_sentry.sh)\n3. Validate: a nameplate with volume mounts correctly exposes mounted paths inside the bottle\n4. Validate: read-only mounts are enforced (write attempts fail)\n\n## Context\nRBRN_VOLUME_MOUNTS exists as a nameplate field (currently empty in nsproto). The ifrit bottle needs two mounts: project root (ro) and escape test directory (rw). This pace builds the plumbing; the tadmor nameplate pace configures it.\n\n## References\n- .rbk/rbrn_nsproto.env line 52 — RBRN_VOLUME_MOUNTS= (empty)\n- Tools/rbk/rbob_bottle.sh — bottle lifecycle\n- Tools/rbk/rbj_sentry.sh — sentry startup\n- RBS0-SpecTop.adoc — st_volume_mount linked term already exists",
