@@ -527,7 +527,7 @@ Gazette file exchange is wired: `jjx_orient`, `jjx_show`, and `jjx_paddock` (get
 When user says "mount" or you need to engage the next pace:
 
 1. Run `jjx_orient` command (with optional firemark) to get context
-2. Parse output: Racing-heats table, Heat/Paddock/Next/Docket/Recent-work sections
+2. Parse output: Racing-heats table, Heat/Next/Docket/Recent-work sections. Read paddock and pace docket from the gazette file written to the officium exchange directory.
 3. **Read the paddock before the docket.** The paddock tells you the shape of the work and what's been learned; the docket tells you what to do next. Orientation before action.
 4. Display context to user: racing heats, heat silks, paddock summary, recent work, current pace and docket
 5. **Name assessment**: If pace silks doesn't fit docket, offer rename via `jjx_relabel`

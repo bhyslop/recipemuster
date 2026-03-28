@@ -289,11 +289,6 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
     vvco_out!(output, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
     vvco_out!(output, "Paddock: {}", heat.paddock_file);
     vvco_out!(output, "");
-    vvco_out!(output, "Paddock-content:");
-    for line in paddock_content.lines() {
-        vvco_out!(output, "  {}", line);
-    }
-    vvco_out!(output, "");
 
     // Save gazette data before output section consumes variables
     let gazette_pace_coronet = pace_coronet.clone();

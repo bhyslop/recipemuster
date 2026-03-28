@@ -192,9 +192,6 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
             vvco_out!(output, "Status: {}", status_str);
             vvco_out!(output, "Created: {}", heat.creation_time);
             vvco_out!(output, "");
-            vvco_out!(output, "## Paddock");
-            vvco_out!(output, "");
-            vvco_out!(output, "{}", paddock_content);
             gazette_paddock = Some(paddock_content);
             vvco_out!(output, "");
             vvco_out!(output, "## Paces");

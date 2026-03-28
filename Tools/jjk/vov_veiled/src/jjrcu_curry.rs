@@ -71,8 +71,6 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>, gazette: 
                 }
             };
 
-            vvco_out!(output, "{}", paddock_content);
-
             // Add gazette notice for downstream consumption
             gazette.jjrz_add(jjrz_Slug::Paddock, &firemark_key, &paddock_content).ok();
 
