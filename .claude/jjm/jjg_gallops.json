@@ -691,6 +691,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢AUAAl",
         "₢AUAAk",
         "₢AUAAi",
         "₢AUAAg",
@@ -727,7 +728,7 @@
         "₢AUAAf",
         "₢AUAAj"
       ],
-      "next_pace_seed": "AAl",
+      "next_pace_seed": "AAm",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1581,6 +1582,17 @@
               "text": "## Character\nResearch-first, iterative. The sentry's job is narrow (iptables, dnsmasq, network namespace) but it currently wears a full ubuntu:24.04 suit. This pace explores whether a much leaner base image can pass all 22 nsproto security tests. Expect false starts — package availability, tool paths, and shell compatibility may differ across base images. Think hard, websearch, then try.\n\n## Goal\nProduce a sentry vessel that passes all nsproto security tests with a significantly smaller base image than ubuntu:24.04. Measure the build-time improvement.\n\n## Approach\n1. **Research first**: Inventory exactly which tools/packages the sentry startup script (`rbj_sentry.sh`) and nsproto test suite actually require. Websearch for minimal container images that ship iptables + dnsmasq + iproute2.\n2. **Evaluate candidates**: Alpine, distroless, minimal debian, stripped ubuntu. Consider: package availability, shell compatibility (bash vs ash), tool path differences, iptables backend (nftables vs legacy).\n3. **Prototype**: Create a new vessel definition (or modify existing). Build and run nsproto tests. Iterate on failures.\n4. **Measure**: Compare conjure time and image size against the ubuntu:24.04 baseline (~13 min, reported in onboarding).\n\n## Constraints\n- All 22 nsproto security tests must pass — no test modifications to accommodate the new image\n- The sentry Dockerfile and `rbj_sentry.sh` are the change surface — nsproto test infrastructure stays fixed\n- If no candidate works cleanly, document why and keep ubuntu:24.04\n\n## Verification\n- `tt/rbw-tf.TestFixture.nsproto-security.sh` passes 22/22\n- Conjure time measured and compared to baseline",
               "silks": "slim-sentry-vessel",
               "commit": "750fde3"
+            }
+          ]
+        },
+        "₢AUAAl": {
+          "tacks": [
+            {
+              "ts": "260328-0704",
+              "state": "rough",
+              "text": "## Character\nMechanical refactoring with one judgment call per section: what stays in main CLAUDE.md vs what moves to a kit-owned include file.\n\n## Goal\nReplace the `<!-- MANAGED:KIT:BEGIN/END -->` patching mechanism with `@path` include directives, so each kit owns its CLAUDE.md section as a standalone file.\n\n## Approach\n\n1. **Extract kit sections** — Move each managed section to a kit-owned file:\n   - `<!-- MANAGED:JJK -->` → `Tools/jjk/jjk-claude-context.md`\n   - `<!-- MANAGED:CMK -->` → `Tools/cmk/cmk-claude-context.md`\n   - `<!-- MANAGED:BUK -->` → `Tools/buk/buk-claude-context.md`\n   - `<!-- MANAGED:VVK -->` → `Tools/vvk/vvk-claude-context.md`\n\n2. **Replace managed sections with `@` directives** in main CLAUDE.md:\n   ```markdown\n   @Tools/buk/buk-claude-context.md\n   @Tools/cmk/cmk-claude-context.md\n   @Tools/jjk/jjk-claude-context.md\n   @Tools/vvk/vvk-claude-context.md\n   ```\n\n3. **Remove patching machinery** — Strip `zcmw_patch_claudemd()`, `zjjw_patch_claudemd()`, and related Claude-CLI-invocation code from kit install scripts. Install becomes \"drop the file\"; uninstall becomes \"delete it.\"\n\n4. **Retire dual-source obligation** — JJK's `vocjjmc_core.md` template and the \"also update\" comment become unnecessary. The include file IS the source of truth.\n\n5. **Verify** — Start a fresh Claude Code session to confirm all `@` imports expand correctly. Check that `/cma-doctor` or equivalent can detect missing include targets.\n\n## Constraints\n- Total context should not grow — this is reorganization, not addition\n- Silent-skip behavior is acceptable for optional kits (graceful degradation)\n- File names follow kit prefix discipline: `{kit}-claude-context.md`\n\n## Verification\n- Fresh session loads all kit context correctly\n- No `<!-- MANAGED:` markers remain in main CLAUDE.md\n- Kit install/uninstall scripts no longer invoke Claude CLI for patching\n- `git diff` shows content moved, not changed",
+              "silks": "claudemd-include-restructure",
+              "commit": "375e0bc"
             }
           ]
         }
