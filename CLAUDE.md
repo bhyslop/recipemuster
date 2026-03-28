@@ -479,7 +479,7 @@ jjx_show           {target?, detail?, remaining?}
 jjx_list           {status?}
 jjx_orient         {firemark?}
 jjx_create         {silks}
-jjx_enroll         {firemark, silks, docket, before?, after?, first?}
+jjx_enroll         {firemark, before?, after?, first?}              # silks+docket via gazette_in.md
 jjx_reorder        {firemark, move?, before?, after?, first?, last?}
 jjx_alter          {firemark, racing?, stabled?, silks?}
 jjx_record         {identity, files[], size_limit?, intent?}
@@ -489,9 +489,9 @@ jjx_search         {pattern, actionable?}
 jjx_archive        {firemark, size_limit?}
 jjx_transfer       {firemark, to, coronets}
 jjx_continue       {firemark}
-jjx_paddock        {firemark?, content?, note?}
+jjx_paddock        {firemark?, note?}                               # content via gazette (set) or gazette_out (get)
 jjx_relocate       {coronet, to, before?, after?, first?}
-jjx_redocket  {coronet?, docket?}
+jjx_redocket       {coronet?}                                      # docket via gazette_in.md; supports mass reslate
 jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
 jjx_brief      {coronet}
@@ -506,8 +506,10 @@ jjx_validate       {}
   - Single pace: `{"target": "AFAAb"}`
   - Additional params: `detail`, `remaining` only
 - `jjx_orient` output includes next actionable pace — no separate show call needed
-- `jjx_enroll` docket content goes through `gazette_in.md` (see gazette wire format below), NOT the `docket` param. The param field exists but fails on complex markdown content due to JSON escaping.
-- `jjx_redocket` docket content also goes through `gazette_in.md`, NOT the `docket` param. Same escaping concern.
+- **Gazette output**: `jjx_orient`, `jjx_show` (with detail), and `jjx_paddock` (getter) write `gazette_out.md` with paddock and pace docket notices. Read the gazette file after these commands to get full content.
+- **Gazette input**: `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read docket/content from `gazette_in.md`. Do NOT pass multiline content via JSON params — gazette is the canonical path. The JSON `docket`/`content` params exist as fallback but fail on complex markdown due to escaping.
+- `jjx_redocket` supports **mass reslate**: multiple `# reslate <coronet>` notices in a single `gazette_in.md`, each with its own docket body. All paces updated in one call.
+- `jjx_paddock` `note` param: optional short string appended to the paddock discussion commit message (e.g., `{"note": "updated after spook fix"}`)
 - `jjx_close` takes `summary` as a string param (not stdin pipe)
 - `jjx_record` takes `files` as a native JSON array: `["file1.rs", "file2.rs"]`
 - `jjx_transfer` takes `coronets` as a JSON-encoded string (not a native array): `"[\"AYAAA\", \"AYAAB\"]"`
@@ -524,27 +526,35 @@ The ☉ (U+2609 SUN) prefix parallels ₣/₢ for firemarks/coronets. Pass it ex
 
 Gazette file exchange uses two directional files in the officium exchange directory. Every jjx MCP call unconditionally deletes both gazette files on entry (read+delete `gazette_in.md`, delete `gazette_out.md`). Gazette content has single-MCP-call lifetime — it is a parameter or a return value, not persistent state.
 
-- **`gazette_in.md`** (agent → server): write before calling a setter command. Getter commands (`jjx_orient`, `jjx_show`, `jjx_paddock` getter) write `gazette_out.md` after returning.
-- **`gazette_out.md`** (server → agent): read after a getter command returns. The next jjx call of any kind deletes it.
+- **`gazette_in.md`** (agent → server): write before calling a setter command (`jjx_enroll`, `jjx_redocket`, `jjx_paddock` setter).
+- **`gazette_out.md`** (server → agent): written by getter commands, read after they return. The next jjx call of any kind deletes it.
+  - `jjx_orient` → `# paddock <firemark>` + paddock content, `# pace <coronet>` + docket content (for next actionable pace)
+  - `jjx_show` (with detail) → `# paddock <firemark>` + paddock content, `# pace <coronet>` + docket per pace
+  - `jjx_paddock` (getter) → `# paddock <firemark>` + paddock content
 
 **Gazette wire format (setter commands):**
 Each notice is a `#`-header line with slug and lede, followed by content body. Write `gazette_in.md`, then call the command.
 
-**Critical: `#` (H1) in gazette_in.md is a wire format delimiter, NOT a markdown heading.** Each gazette_in.md has exactly ONE `#` line — the slug line. All markdown headings within the body content must use `##` or deeper. A second `#` line will be parsed as a second notice with an invalid slug.
+**Critical: `#` (H1) in gazette_in.md is a wire format delimiter, NOT a markdown heading.** For single-notice commands (enroll, paddock set), use exactly ONE `#` line. For mass reslate, each `# reslate` line starts a new notice. All markdown headings within body content must use `##` or deeper — a bare `#` line inside content will be parsed as a notice boundary.
 
 **On failure:** If a gazette setter command fails, `gazette_in.md` is already consumed (deleted on entry). You must re-write it from scratch before retrying — there is nothing to re-read.
 
 | Command | Write to `gazette_in.md` | Then call with params |
 |---------|--------------------------|----------------------|
-| `jjx_enroll` | `# slate <silks>` + docket body | `{"firemark": "XX"}` |
-| `jjx_redocket` | `# reslate <coronet>` + docket body | `{"coronet": "XXXXX"}` |
-| `jjx_paddock` (set) | `# paddock <firemark>` + content body | `{}` |
+| `jjx_enroll` | `# slate <silks>` + docket body | `{"firemark": "XX", "before?": ..., "after?": ..., "first?": ...}` |
+| `jjx_redocket` | `# reslate <coronet>` + docket body | `{}` (coronet is in gazette lede) |
+| `jjx_redocket` (mass) | Multiple `# reslate <coronet>` notices, each with docket body | `{}` |
+| `jjx_paddock` (set) | `# paddock <firemark>` + content body | `{"note?": "commit annotation"}` |
 
 Gazette paths: `.claude/jjm/officia/<officium-id>/gazette_in.md` and `gazette_out.md`.
 
 Example — reslate a pace docket:
 1. Write `gazette_in.md`: `# reslate AvAAH\n\n## Character\nNew docket content...`
-2. Call: `jjx_redocket` with `{"coronet": "AvAAH"}`
+2. Call: `jjx_redocket` with `{}` (coronet parsed from gazette lede)
+
+Example — mass reslate multiple paces:
+1. Write `gazette_in.md` with multiple notices: `# reslate AvAAH\n\nFirst docket...\n# reslate AvAAI\n\nSecond docket...`
+2. Call: `jjx_redocket` with `{}`
 
 **Read-modify-write workflow** (paddock editing):
 1. Call `jjx_paddock` getter → reads `gazette_out.md`
@@ -571,8 +581,9 @@ When user says "mount" or you need to engage the next pace:
 When user says "groom":
 
 1. Run `jjx_show` command with `{target: FIREMARK, detail: true, remaining: true}`
-2. Display overview: heat silks, progress, remaining paces with dockets
-3. Enter planning mode: suggest structural operations (slate new paces, rail to reorder, reslate to refine dockets, paddock review)
+2. Read `gazette_out.md` for full paddock and pace docket content
+3. Display overview: heat silks, progress, remaining paces with dockets (from gazette)
+4. Enter planning mode: suggest structural operations (slate new paces, rail to reorder, reslate to refine dockets, paddock review)
 
 ### Commit Discipline
 
