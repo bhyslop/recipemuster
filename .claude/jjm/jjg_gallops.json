@@ -4921,6 +4921,7 @@
       "status": "racing",
       "order": [
         "₢AyAAA",
+        "₢AyAAJ",
         "₢AyAAB",
         "₢AyAAC",
         "₢AyAAD",
@@ -4930,7 +4931,7 @@
         "₢AyAAH",
         "₢AyAAI"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -5092,6 +5093,17 @@
               "text": "## Character\nCreative — the first encounter between the Ifrit and its prison.\n\n## Goal\nRun Claude Code inside the ifrit bottle on the tadmor nameplate. The Ifrit reads the sentry source code, understands its constraints, and writes initial escape test modules into rbtid/. This pace creates the context for later elaboration, not ultimate refinement.\n\n## Deliverables\n\n1. Launch tadmor (slim sentry + ifrit bottle with volume mounts)\n2. Claude Code session inside the bottle: reads project (ro mount), writes to rbtid/ (rw mount)\n3. Ifrit writes at least 2-3 initial escape test modules targeting distinct attack surfaces\n4. Curate and commit the produced modules — review for reproducibility and assertion quality\n5. Run the modules from outside the bottle to validate they execute cleanly\n\n## Constraints\n- The Ifrit writes durable Python test modules — it is a test author, not a live pentester\n- Modules must be reproducible: same inputs, same assertions, deterministic pass/fail\n- Claude Code operates via Anthropic API through the tadmor allowlist (anthropic.com DNS + CIDR)\n- This pace establishes the pattern; comprehensive attack coverage is future work\n\n## References\n- RBSIP-ifrit_pentester.adoc — escape test categories\n- Tools/rbk/rbtid/ — escape test directory (from pace 6)",
               "silks": "first-ifrit-session",
               "commit": "96c011c"
+            }
+          ]
+        },
+        "₢AyAAJ": {
+          "tacks": [
+            {
+              "ts": "260328-0853",
+              "state": "rough",
+              "text": "## Character\nMechanical but precise — document surgery, not design. Read the code, write what it does, delete what it doesn't.\n\n## Goal\nEliminate all spec-code divergences in RBS0 security subdocuments. The sentry script (rbj_sentry.sh) is the source of truth. The spec must describe exactly what the code does — no more, no less.\n\n## Deliverables\n\n1. **RBSPT-port_setup.adoc** — Complete rewrite. Replace socat proxy description with iptables DNAT mechanism:\n   - nat/PREROUTING: DNAT on eth0 tcp dport WS_PORT → BOTTLE_IP:ENCLAVE_PORT\n   - filter/RBM-FORWARD: accept eth0→eth1 tcp to BOTTLE_IP:ENCLAVE_PORT\n   - nat/POSTROUTING: MASQUERADE on eth1 tcp to BOTTLE_IP:ENCLAVE_PORT\n   - Enable ip_forward\n   - Remove all socat references (background process, fork, log, verify)\n   - Remove RBM-INGRESS/RBM-EGRESS filter rules (traffic is forwarded, not input/output)\n\n2. **RBSAX-access_setup.adoc** — Remove phantom references:\n   - Delete \"RBM-PORT-FORWARD\" marking concept (never implemented)\n   - Align disabled-mode description to what code does (two DROP rules, no verification/removal steps)\n\n3. **RBSDS-dns_step.adoc** — Remove phantom features:\n   - Delete DNS Server Validation section (TCP connect test, UDP query — not in code)\n   - Delete NAT Configuration section (DNAT/SNAT for DNS — not in code; dnsmasq handles forwarding)\n   - Verify remaining dnsmasq configuration and filter rule descriptions match code\n\n4. **RBSHR-HorizonRoadmap.adoc** — Update stale reference:\n   - Line 67: \"socat + RBM-INGRESS\" → \"DNAT + RBM-FORWARD\"\n\n## Constraints\n- Read rbj_sentry.sh as source of truth for every claim\n- Do not add aspirational features — spec tracks code, not intent\n- Preserve AsciiDoc annotation patterns (axhob_operation, axhos_step, etc.)\n- Preserve linked term references ({rbrn_*}, {at_*}, {scr_*})\n\n## References\n- Tools/rbk/rbj_sentry.sh — the code (source of truth)\n- Tools/rbk/vov_veiled/RBSPT-port_setup.adoc — complete rewrite\n- Tools/rbk/vov_veiled/RBSAX-access_setup.adoc — phantom removal\n- Tools/rbk/vov_veiled/RBSDS-dns_step.adoc — phantom removal\n- Tools/rbk/vov_veiled/RBSHR-HorizonRoadmap.adoc — stale ref\n- Tools/rbk/vov_veiled/RBSII-iptables_init.adoc — already accurate (verify only)",
+              "silks": "spec-code-alignment",
+              "commit": "8cfc5c8"
             }
           ]
         }
