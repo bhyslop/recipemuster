@@ -424,7 +424,7 @@ The agent calls {jjdo_open} once per chat session.
 +
 . Run {jjdxo_exsanguination} (reap stale officia before creating new one)
 . Generate {jjdxo_officium} identity (datestamp + autonumber)
-. Create {jjdxo_exchange} directory with {jjdxo_heartbeat} file
+. Create {jjdxo_exchange} directory with {jjdxo_gazette} and {jjdxo_heartbeat} files (both empty)
 . Collect model inventory via `vvcp_probe()` if daily probe has not yet run (check `.claude/jjm/officia/.probe_date` datestamp file)
 . Create invitatory commit (action code `i`, `jjb`-branded) with model inventory in body (or empty body if probe skipped)
 . Return {jjdxo_officium} identity string (e.g. `☉260327-1000`)
@@ -1245,7 +1245,7 @@ Output always includes the prefix (`₣` or `₢`).
 == Arguments
 
 This section defines reusable argument linked terms shared across multiple operations.
-Operation-specific parameters (e.g., `detail`, `remaining`, `pattern`, `actionable`, `summary`, `content`, `note`, `input`, `agent`, `rough`, `size_limit`, `limit`, `identity`, `files`, `coronets`, `racing`, `stabled`, `docket`)
+Operation-specific parameters (e.g., `detail`, `remaining`, `pattern`, `actionable`, `summary`, `content`, `note`, `agent`, `rough`, `size_limit`, `limit`, `identity`, `files`, `coronets`, `racing`, `stabled`, `docket`)
 are documented inline in their respective operation specs.
 Parameters that are identity types ({jjdt_coronet}, {jjdt_firemark}, {jjdt_silks})
 are referenced as types, not arguments.
@@ -1522,6 +1522,23 @@ Pace-affiliated commands supply a {jjdt_coronet}; the dispatcher derives the
 parent {jjdt_firemark}.
 +
 Officium operations ({jjdo_open}, {jjdo_chapter}, {jjdo_absolve}) bypass the {jjdgr_gallops} lifecycle entirely — they are infrastructure that does not touch persistent state.
++
+*{jjsz_gazette} I/O wiring* (output and input operations):
++
+Output operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock} getter):
+
+. Dispatcher creates an empty {jjsz_gazette} with appropriate vocabulary
+. Dispatcher passes `&mut` gazette to the handler
+. Handler calls `jjrz_add` on the gazette to populate notices
+. After the handler returns, dispatcher emits the gazette to {jjdxo_gazette} (skips write if gazette is empty)
++
+Input operations ({jjdo_enroll}, {jjsoprd_revise_docket}, {jjdo_paddock} setter):
+
+. Dispatcher reads {jjdxo_gazette} at the start of dispatch
+. If gazette file is non-empty, dispatcher immediately overwrites it with empty content (consume)
+. Non-empty content is parsed via the appropriate gazette parse function; parsed values replace inline params
+. If gazette file is empty, dispatcher falls back to inline params from the MCP call
+. Both paths converge before calling the handler — the handler receives the resolved values regardless of source
 
 === Groups
 
@@ -1542,7 +1559,10 @@ Runs within {jjsodp_command_lifecycle} (pace-affiliated).
 {jjds_arguments}
 +
 * {jjdt_coronet} — target {jjdpr_pace}.
-* `docket` (string, required) — new docket text.
+  Required when {jjdxo_gazette} is empty; parsed from gazette lede when gazette is present.
+* `docket` (string) — new docket text.
+  Required when {jjdxo_gazette} is empty; parsed from gazette content when gazette is present.
+  When gazette is present, multiple (coronet, docket) pairs may be provided as separate gazette notices.
 +
 {jjds_behavior}
 +
@@ -1791,16 +1811,19 @@ Bypasses the {jjdgr_gallops} lifecycle — infrastructure operation.
 . Scan `.claude/jjm/officia/` for directories
 . For each directory, report:
   * {jjdxo_officium} identity: ☉-prefixed (e.g. `☉260327-1000`)
-  * Creation time: directory ctime
+  * Creation time: directory ctime (fall back to mtime if ctime unavailable)
   * {jjdxo_heartbeat} mtime: timestamp of last dispatch that touched the heartbeat file
-  * Staleness status: `active` (within threshold) or `stale` (exceeds threshold)
+  * Age: human-readable elapsed time since heartbeat mtime (e.g. `42s`, `5m`, `1h23m`)
+  * Staleness status: `active` (within threshold), `stale` (exceeds threshold), or `unknown` (heartbeat metadata unavailable)
 . Mark the caller's own {jjdxo_officium} entry distinctly (e.g. `← you`)
 +
 {jjds_stdout}
 +
 Tabular listing of {jjdxo_officium_s}.
-Columns: identity, created, heartbeat mtime, status.
+Columns: Officium, Created, Heartbeat, Age, Status.
+Rows sorted by identity.
 Caller's own row marked with a distinguishing indicator.
+If no officia directories exist, reports "No officia found."
 
 [[jjdo_absolve]]
 //axvo_procedure axd_transient
@@ -1819,14 +1842,17 @@ Bypasses the {jjdgr_gallops} lifecycle — infrastructure operation.
 +
 . Scan `.claude/jjm/officia/` for directories
 . Skip the calling {jjdxo_officium_p} own directory (identified by `officium` param)
-. For each remaining directory, check {jjdxo_heartbeat} mtime
-. Remove directories whose {jjdxo_heartbeat} exceeds the staleness threshold (same threshold as {jjdxo_exsanguination})
+. For each remaining directory:
+  * If no {jjdxo_heartbeat} file exists, treat as stale and remove
+  * Otherwise check {jjdxo_heartbeat} mtime; remove if it exceeds the staleness threshold (same threshold as {jjdxo_exsanguination})
 . Report each removed directory by ☉-prefixed identity
-. If no stale directories exist, report "nothing to absolve"
+. Report each removal error separately
+. If no directories were removed and no errors occurred, report "Nothing to absolve."
 +
 {jjds_stdout}
 +
-List of removed {jjdxo_officium} identities, or the "nothing to absolve" message.
+List of removed {jjdxo_officium} identities (count + per-identity lines), followed by any removal errors.
+When nothing was removed and no errors occurred, reports "Nothing to absolve."
 +
 NOTE: {jjdo_absolve} vs. {jjdxo_exsanguination}: these are complementary, not redundant.
 {jjdxo_exsanguination} is *automatic and silent* — it runs inside every {jjdo_open} invocation and produces no output.

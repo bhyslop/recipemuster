@@ -23,12 +23,14 @@ Use positioning flags to insert at a specific location.
 
 //axd_required
 * {jjda_silks}
+(may be omitted when {jjdxo_gazette} contains `jjezs_slate` input; silks is parsed from gazette lede)
 
 //axd_required
 * `docket` (string) —
 {jjdkm_text}
 content for the initial
 {jjdkr_tack}
+(may be omitted when {jjdxo_gazette} contains `jjezs_slate` input; docket is parsed from gazette content)
 
 //axd_optional
 * {jjda_before}
