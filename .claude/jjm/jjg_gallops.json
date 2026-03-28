@@ -4604,6 +4604,13 @@
         "₢AwAAZ": {
           "tacks": [
             {
+              "ts": "260327-1922",
+              "state": "complete",
+              "text": "Spec jjx_chapter and jjx_absolve operations in JJS0 BEFORE implementation.\n\n1. Define jjdo_chapter operation: scan .claude/jjm/officia/ directories, report officium identity (☉-prefixed), creation time, heartbeat mtime (last activity), staleness status. Mark caller's own officium distinctly in output (identified by officium param). Tabular output. Bypasses Gallops command lifecycle lock (infrastructure, not heat-affiliated). Takes officium param.\n2. Define jjdo_absolve operation: remove officia directories exceeding staleness threshold. Report what was removed. Refuses to remove caller's own officium (identified by officium param). Bypasses Gallops lock. Takes officium param.\n3. Add both to operation registry with appropriate axhe* voicing annotations.\n4. Clarify relationship between absolve and jjx_open exsanguination: absolve is explicit/diagnostic (user-invoked, reports results), exsanguination is automatic/silent (runs within jjx_open, no output).\n\nThis pace is spec-only — no code changes. Implementation follows in ₢AwAAS.",
+              "silks": "spec-chapter-absolve-operations",
+              "commit": "9b72076"
+            },
+            {
               "ts": "260327-0830",
               "state": "rough",
               "text": "Spec jjx_chapter and jjx_absolve operations in JJS0 BEFORE implementation.\n\n1. Define jjdo_chapter operation: scan .claude/jjm/officia/ directories, report officium identity (☉-prefixed), creation time, heartbeat mtime (last activity), staleness status. Mark caller's own officium distinctly in output (identified by officium param). Tabular output. Bypasses Gallops command lifecycle lock (infrastructure, not heat-affiliated). Takes officium param.\n2. Define jjdo_absolve operation: remove officia directories exceeding staleness threshold. Report what was removed. Refuses to remove caller's own officium (identified by officium param). Bypasses Gallops lock. Takes officium param.\n3. Add both to operation registry with appropriate axhe* voicing annotations.\n4. Clarify relationship between absolve and jjx_open exsanguination: absolve is explicit/diagnostic (user-invoked, reports results), exsanguination is automatic/silent (runs within jjx_open, no output).\n\nThis pace is spec-only — no code changes. Implementation follows in ₢AwAAS.",
