@@ -4603,10 +4603,24 @@
       "silks": "rbk-mvp-4-bottle-lifecycle-vocabulary",
       "creation_time": "260327",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢AxAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
-      "paces": {}
+      "paces": {
+        "₢AxAAA": {
+          "tacks": [
+            {
+              "ts": "260327-1726",
+              "state": "rough",
+              "text": "## Character\nDesign conversation turned specification — architectural vocabulary with naming judgment.\n\n## Context\nRecipe Bottle's cloud operations have rich liturgical verbs (conjure, abjure, summon, graft, vouch, enshrine, inscribe) but local bottle service lifecycle uses generic words (start, run, cleanup) with no verb for stop. The agile/sessile service type distinction is load-bearing but was never surfaced in the nameplate or given proper verb support.\n\n## Discovery\n- `bottle_start` stands up sentry+censer+bottle (all persistent) — sessile pattern\n- `bottle_run` dispatches an ephemeral bottle into an already-running sentry+censer envelope — agile pattern\n- The deferred third pattern (persistent envelope, ephemeral workloads) was actually implemented as `bottle_run` all along\n- No operation exists for stopping/tearing down a service\n- agile/sessile are retained as service type names — load-bearing distinction, unique words\n\n## New Vocabulary\n\nbroach (b for begin): Sessile — stand up sentry+censer+bottle. Agile — stand up sentry+censer envelope.\nquench (q for quit): Sessile — tear down bottle+censer+sentry. Agile — tear down censer+sentry.\nassay (a for agile): Sessile — fail (wrong mode). Agile — dispatch ephemeral bottle into running envelope.\n\n## Assay failure modes\n- Sessile service: Cannot assay a sessile service\n- Agile but not broached: Service not broached, broach first then assay\n\n## Deliverables\n\n### A. Nameplate mode field\nAdd agile/sessile mode declaration to RBRN nameplate spec. Every nameplate must declare its service type. Single source of truth for broach/quench/assay dispatch.\n\n### B. RBS0 linked terms\nMint new linked terms and operation definitions. Retire opbs_bottle_start, opbr_bottle_run. Add broach, quench, assay operations. Update at_sessile_service and at_agile_service display terms.\n\n### C. Spec subdocuments\nRename/rewrite RBSBS-bottle_start.adoc and RBSBR-bottle_run.adoc. Create new subdocument for quench. Update RBSBK-bottle_cleanup.adoc role (now internal to quench).\n\n### D. Operator mental model\nSessile: broach ... service runs ... quench\nAgile: broach ... assay assay assay ... quench\n\n## Prefix decisions needed\nThe op prefix pattern needs new suffixes. Current: opbs_ (bottle start), opbr_ (bottle run), opss_ (sentry start). Propose new allocations following terminal exclusivity.\n\n## References\n- RBS0-SpecTop.adoc — main spec, local operations section\n- RBRN-RegimeNameplate.adoc — nameplate spec\n- RBSBS-bottle_start.adoc, RBSBR-bottle_run.adoc, RBSBK-bottle_cleanup.adoc\n- rbob_bottle.sh — implementation",
+              "silks": "spec-broach-quench-assay-vocabulary",
+              "commit": "d4164fa"
+            }
+          ]
+        }
+      }
     }
   }
 }
