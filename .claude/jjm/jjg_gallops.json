@@ -4909,6 +4909,13 @@
         "₢AyAAB": {
           "tacks": [
             {
+              "ts": "260328-0735",
+              "state": "abandoned",
+              "text": "## Character\nMechanical, fast. Follows the sentry gate.\n\n## Goal\nReplace the ubuntu:24.04 bottle vessel with Debian bookworm-slim + socat. The current bottle installs ~30 packages for a container whose runtime function is a socat echo service on port 8888.\n\n## Deliverables\n\n1. New bottle Dockerfile based on `debian:bookworm-slim`\n2. Install only: socat\n3. Update `rbrv.env` for the bottle vessel (new RBRV_IMAGE_1_ORIGIN — same Debian base as sentry, already enshrined)\n4. Conjure the slim bottle on tether pool\n5. Validate nsproto tests still pass with slim bottle + slim sentry pair\n\n## References\n- rbev-vessels/rbev-bottle-ubuntu-test/Dockerfile — current bottle (30 packages)\n- rbev-vessels/rbev-bottle-ubuntu-test/rbrv.env — current vessel config",
+              "silks": "slim-bottle-debian",
+              "commit": "4c39a74"
+            },
+            {
               "ts": "260328-0718",
               "state": "rough",
               "text": "## Character\nMechanical, fast. Follows the sentry gate.\n\n## Goal\nReplace the ubuntu:24.04 bottle vessel with Debian bookworm-slim + socat. The current bottle installs ~30 packages for a container whose runtime function is a socat echo service on port 8888.\n\n## Deliverables\n\n1. New bottle Dockerfile based on `debian:bookworm-slim`\n2. Install only: socat\n3. Update `rbrv.env` for the bottle vessel (new RBRV_IMAGE_1_ORIGIN — same Debian base as sentry, already enshrined)\n4. Conjure the slim bottle on tether pool\n5. Validate nsproto tests still pass with slim bottle + slim sentry pair\n\n## References\n- rbev-vessels/rbev-bottle-ubuntu-test/Dockerfile — current bottle (30 packages)\n- rbev-vessels/rbev-bottle-ubuntu-test/rbrv.env — current vessel config",
