@@ -459,17 +459,23 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
     // Exsanguinate stale officia before creating new one
     zjjrm_exsanguinate(&officia);
 
-    // Generate officium ID
+    // Generate officium ID and atomically claim the exchange directory.
+    // create_dir (not create_dir_all) fails with AlreadyExists if another
+    // session raced to the same ID — retry with next autonumber.
     let today = chrono::Local::now().format("%y%m%d").to_string();
-    let id = zjjrm_generate_officium_id(&officia, &today);
-
-    // Create exchange directory with gazette and heartbeat
-    let exchange = officia.join(&id);
-    if let Err(e) = std::fs::create_dir_all(&exchange) {
-        return Ok(CallToolResult::error(vec![Content::text(
-            format!("jjx_open: error creating exchange dir: {}", e),
-        )]));
-    }
+    let (id, exchange) = loop {
+        let candidate = zjjrm_generate_officium_id(&officia, &today);
+        let path = officia.join(&candidate);
+        match std::fs::create_dir(&path) {
+            Ok(()) => break (candidate, path),
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => continue,
+            Err(e) => {
+                return Ok(CallToolResult::error(vec![Content::text(
+                    format!("jjx_open: error creating exchange dir: {}", e),
+                )]));
+            }
+        }
+    };
     std::fs::write(exchange.join(GAZETTE_FILE), b"").ok();
     std::fs::write(exchange.join(HEARTBEAT_FILE), b"").ok();
 
