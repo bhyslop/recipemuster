@@ -424,39 +424,9 @@ zjjw_emit_notch_command() {
   }
 }
 
-zjjw_emit_claudemd_section() {
-  {
-    echo "## Job Jockey Configuration"
-    echo ""
-    echo "Job Jockey (JJ) is installed for managing project initiatives."
-    echo ""
-    echo "**Concepts:**"
-    echo "- **Heat**: Bounded initiative with coherent goals (3-50 sessions)"
-    echo "- **Pace**: Discrete action within a heat; can be armed for autonomous execution"
-    echo "- **Favor**: Identifier for heats/paces in command output (e.g., ₣AA)"
-    echo "- **Silks**: Kebab-case name for heats/paces (e.g., \`cloud-first-light\`)"
-    echo "- **Paddock**: Per-heat context displayed during saddle"
-    echo "- **Steeplechase**: Execution history captured in git commits"
-    echo "- **Trophy**: Archived heat with full history"
-    echo "- **Itch**: Future work (any detail level)"
-    echo "- **Scar**: Closed work with lessons learned"
-    echo ""
-    echo "- Target repo dir: \`${ZJJW_TARGET_DIR}\`"
-    echo "- JJ Kit path: \`${ZJJW_KIT_PATH}\`"
-    echo ""
-    echo "**Available commands:**"
-    echo "- \`/jjc-heat-saddle\` - Saddle up on heat at session start, analyze and propose approach"
-    echo "- \`/jjc-heat-retire\` - Move completed heat to retired with datestamp"
-    echo "- \`/jjc-pace-new\` - Add a new pace"
-    echo "- \`/jjc-pace-arm\` - Validate pace spec and arm for autonomous execution"
-    echo "- \`/jjc-pace-fly\` - Execute an armed pace autonomously"
-    echo "- \`/jjc-pace-wrap\` - Mark pace complete, auto-notch, analyze next pace, propose approach"
-    echo "- \`/jjc-itch-add\` - Add a new itch to the backlog"
-    echo "- \`/jjc-notch\` - JJ-aware git commit and push"
-    echo ""
-    echo "**Important**: New commands are not available in this installation session. You must restart Claude Code before the new commands become available."
-  }
-}
+## RETIRED: zjjw_emit_claudemd_section
+## JJK context is now maintained as Tools/jjk/jjk-claude-context.md
+## and included via @-directive in CLAUDE.md. No patching needed.
 
 ######################################################################
 # Main Commands
@@ -510,9 +480,11 @@ jjw_install() {
   zjjw_emit_itch_add      > ".claude/commands/jjc-itch-add.md"
   zjjw_emit_notch_command "${z_brand}" > ".claude/commands/jjc-notch.md"
 
-  buc_step "Patching CLAUDE.md"
-  zjjw_emit_claudemd_section > "${BURD_TEMP_DIR}/jjw_claudemd_section.md"
-  zjjw_patch_claudemd
+  buc_step "Verifying CLAUDE.md include directive"
+  if ! grep -q '@Tools/jjk/jjk-claude-context.md' CLAUDE.md 2>/dev/null; then
+    buc_warn "CLAUDE.md does not contain '@Tools/jjk/jjk-claude-context.md' include directive"
+    buc_warn "Add this line to CLAUDE.md: @Tools/jjk/jjk-claude-context.md"
+  fi
 
   buc_step "Adding JJM edit permissions to settings.local.json"
   local z_settings_file=".claude/settings.local.json"
@@ -544,9 +516,6 @@ jjw_uninstall() {
 
   buc_step "Removing agent files"
   rm -f .claude/agents/jjsa-*.md
-
-  buc_step "Removing CLAUDE.md section"
-  zjjw_unpatch_claudemd
 
   buc_step "Removing JJM edit permissions from settings.local.json"
   local z_settings_file=".claude/settings.local.json"
@@ -603,41 +572,9 @@ jjw_check() {
   fi
 }
 
-zjjw_patch_claudemd() {
-  local z_section_file="${BURD_TEMP_DIR}/jjw_claudemd_section.md"
-  local z_prompt_file="${BURD_TEMP_DIR}/jjw_patch_prompt.txt"
-
-  test -f "${z_section_file}" || buc_die "Section file not found: ${z_section_file}"
-
-  local z_section_content
-  z_section_content=$(<"${z_section_file}")
-  test -n "${z_section_content}" || buc_die "Section content is empty"
-
-  {
-    echo "In CLAUDE.md, find the '## Job Jockey Configuration' section."
-    echo "Replace everything from that header until the next '## ' header (or end of file) with this exact content:"
-    echo ""
-    echo "${z_section_content}"
-    echo ""
-    echo "If no such section exists, append at end of file."
-    echo "Preserve all other content exactly as-is."
-  } > "${z_prompt_file}"
-
-  local z_prompt
-  z_prompt=$(<"${z_prompt_file}")
-
-  claude --setting-sources user \
-    --allowedTools "Read,Edit,Write" \
-    -p "${z_prompt}" || buc_die "Claude CLI failed to patch CLAUDE.md"
-}
-
-zjjw_unpatch_claudemd() {
-  local z_prompt="In CLAUDE.md, find the '## Job Jockey Configuration' section. Remove everything from that header until the next '## ' header (or end of file). If no such section exists, do nothing. Preserve all other content exactly as-is."
-
-  claude --setting-sources user \
-    --allowedTools "Read,Edit,Write" \
-    -p "${z_prompt}" 2>/dev/null || true
-}
+## RETIRED: zjjw_patch_claudemd, zjjw_unpatch_claudemd
+## CLAUDE.md patching replaced by @-directive includes.
+## Context file: Tools/jjk/jjk-claude-context.md
 
 ######################################################################
 # Routing

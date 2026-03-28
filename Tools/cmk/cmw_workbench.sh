@@ -506,38 +506,9 @@ zcmw_emit_normalizer_agent() {
   }
 }
 
-zcmw_emit_claudemd_section() {
-  {
-    echo "## Concept Model Kit Configuration"
-    echo ""
-    echo "Concept Model Kit (CMK) is installed for managing concept model documents."
-    echo ""
-    echo "**Configuration:**"
-    echo "- Lenses directory: \`${ZCMW_LENSES_DIR}\`"
-    echo "- Kit path: \`${ZCMW_KIT_PATH}\`"
-    echo "- Upstream remote: \`${ZCMW_UPSTREAM_REMOTE}\`"
-    echo ""
-    echo "**Concept Model Patterns:**"
-    echo "- **Linked Terms**: \`{category_term}\` - references defined vocabulary"
-    echo "- **Attribute References**: \`:category_term: <<anchor,Display Text>>\` - in mapping section"
-    echo "- **Anchors**: \`[[anchor_name]]\` - definition targets"
-    echo "- **Annotations**: \`// ⟦content⟧\` - Strachey brackets for type categorization"
-    echo ""
-    echo "**Available commands:**"
-    echo "- \`/cma-normalize\` - Apply full MCM normalization (haiku)"
-    echo "- \`/cma-render\` - Transform to ClaudeMark (sonnet)"
-    echo "- \`/cma-validate\` - Check links and annotations"
-    echo "- \`/cma-prep-pr\` - Prepare upstream contribution"
-    echo "- \`/cma-doctor\` - Validate installation"
-    echo ""
-    echo "**Subagents:**"
-    echo "- \`cmsa-normalizer\` - Haiku-enforced MCM normalization (text, mapping, validation)"
-    echo ""
-    echo "For full MCM specification, see \`${ZCMW_KIT_DIR}/mcm-MCM-MetaConceptModel.adoc\`."
-    echo ""
-    echo "**Important**: Restart Claude Code session after installation for new commands and subagents to become available."
-  }
-}
+## RETIRED: zcmw_emit_claudemd_section
+## CMK context is now maintained as Tools/cmk/cmk-claude-context.md
+## and included via @-directive in CLAUDE.md. No patching needed.
 
 ######################################################################
 # Main Commands
@@ -561,9 +532,11 @@ cmw_install() {
   buc_step "Emitting subagent files"
   zcmw_emit_normalizer_agent > ".claude/agents/cmsa-normalizer.md"
 
-  buc_step "Patching CLAUDE.md"
-  zcmw_emit_claudemd_section > "${BURD_TEMP_DIR}/cmw_claudemd_section.md"
-  zcmw_patch_claudemd
+  buc_step "Verifying CLAUDE.md include directive"
+  if ! grep -q '@Tools/cmk/cmk-claude-context.md' CLAUDE.md 2>/dev/null; then
+    buc_warn "CLAUDE.md does not contain '@Tools/cmk/cmk-claude-context.md' include directive"
+    buc_warn "Add this line to CLAUDE.md: @Tools/cmk/cmk-claude-context.md"
+  fi
 
   buc_success "Concept Model Kit installed"
   echo ""
@@ -577,47 +550,12 @@ cmw_uninstall() {
   buc_step "Removing subagent files"
   rm -f .claude/agents/cmsa-*.md
 
-  buc_step "Removing CLAUDE.md section"
-  zcmw_unpatch_claudemd
-
-  buc_success "Concept Model Kit uninstalled"
+  buc_success "Concept Model Kit uninstalled (context file preserved in kit directory)"
 }
 
-zcmw_patch_claudemd() {
-  local z_section_file="${BURD_TEMP_DIR}/cmw_claudemd_section.md"
-  local z_prompt_file="${BURD_TEMP_DIR}/cmw_patch_prompt.txt"
-
-  test -f "${z_section_file}" || buc_die "Section file not found: ${z_section_file}"
-
-  local z_section_content
-  z_section_content=$(<"${z_section_file}")
-  test -n "${z_section_content}" || buc_die "Section content is empty"
-
-  {
-    echo "In CLAUDE.md, find the '## Concept Model Kit Configuration' section."
-    echo "Replace everything from that header until the next '## ' header (or end of file) with this exact content:"
-    echo ""
-    echo "${z_section_content}"
-    echo ""
-    echo "If no such section exists, insert it before '## Current Context' if that section exists, otherwise append at end of file."
-    echo "Preserve all other content exactly as-is."
-  } > "${z_prompt_file}"
-
-  local z_prompt
-  z_prompt=$(<"${z_prompt_file}")
-
-  claude --setting-sources user \
-    --allowedTools "Read,Edit,Write" \
-    -p "${z_prompt}" || buc_die "Claude CLI failed to patch CLAUDE.md"
-}
-
-zcmw_unpatch_claudemd() {
-  local z_prompt="In CLAUDE.md, find the '## Concept Model Kit Configuration' section. Remove everything from that header until the next '## ' header (or end of file). If no such section exists, do nothing. Preserve all other content exactly as-is."
-
-  claude --setting-sources user \
-    --allowedTools "Read,Edit,Write" \
-    -p "${z_prompt}" 2>/dev/null || true
-}
+## RETIRED: zcmw_patch_claudemd, zcmw_unpatch_claudemd
+## CLAUDE.md patching replaced by @-directive includes.
+## Context file: Tools/cmk/cmk-claude-context.md
 
 ######################################################################
 # Routing
