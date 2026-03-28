@@ -87,11 +87,12 @@ zbud_setup() {
   # Validate station variables
   zbud_check_string "${BURC_STATION_FILE}" BURS_LOG_DIR 1 256
 
+  mkdir -p "${BURC_TEMP_ROOT_DIR}" || zbud_die "Failed to create temp root: ${BURC_TEMP_ROOT_DIR}"
   local -r z_date_file="${BURC_TEMP_ROOT_DIR}/bud_bootstrap_date.txt"
-  date +'%Y%m%d-%H%M%S %s' > "${z_date_file}" || buc_die "Failed to get datetime"
+  date +'%Y%m%d-%H%M%S %s' > "${z_date_file}" || zbud_die "Failed to get datetime"
   local z_datetime
   z_datetime=$(<"${z_date_file}")
-  test -n "${z_datetime}" || buc_die "Empty datetime from ${z_date_file}"
+  test -n "${z_datetime}" || zbud_die "Empty datetime from ${z_date_file}"
   BURD_NOW_STAMP="${z_datetime% *}-$$-$((RANDOM % 1000))"
   BURD_NOW_EPOCH="${z_datetime#* }"
   zbud_show "Generated timestamp: ${BURD_NOW_STAMP} epoch: ${BURD_NOW_EPOCH}"
@@ -101,7 +102,7 @@ zbud_setup() {
     /*) ;;
     *)  BURD_TEMP_DIR="${PWD}/${BURD_TEMP_DIR}" ;;
   esac
-  mkdir -p                           "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory: ${BURD_TEMP_DIR}"
+  mkdir -p                           "${BURD_TEMP_DIR}" || zbud_die "Failed to create temp directory: ${BURD_TEMP_DIR}"
   zbud_show "Generated temporary dir: ${BURD_TEMP_DIR}"
 
   # Setup transcript file path
@@ -117,9 +118,9 @@ zbud_setup() {
   # Clear if exists, then create fresh
   if test -d "${BURD_OUTPUT_DIR}"; then
     zbud_show "Clearing existing output directory: ${BURD_OUTPUT_DIR}"
-    rm -rf "${BURD_OUTPUT_DIR}" || buc_die "Failed to remove output directory: ${BURD_OUTPUT_DIR}"
+    rm -rf "${BURD_OUTPUT_DIR}" || zbud_die "Failed to remove output directory: ${BURD_OUTPUT_DIR}"
   fi
-  mkdir -p "${BURD_OUTPUT_DIR}" || buc_die "Failed to create output directory: ${BURD_OUTPUT_DIR}"
+  mkdir -p "${BURD_OUTPUT_DIR}" || zbud_die "Failed to create output directory: ${BURD_OUTPUT_DIR}"
 
   zbud_show "Output directory ready: ${BURD_OUTPUT_DIR}"
 
