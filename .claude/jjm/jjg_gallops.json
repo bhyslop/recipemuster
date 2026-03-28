@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "Ax",
+  "next_heat_seed": "Ay",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -19,7 +19,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣Ax"
   ],
   "heats": {
     "₣AD": {
@@ -4585,6 +4586,15 @@
           ]
         }
       }
+    },
+    "₣Ax": {
+      "silks": "rbk-mvp-4-bottle-lifecycle-vocabulary",
+      "creation_time": "260327",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlx.md",
+      "paces": {}
     }
   }
 }
