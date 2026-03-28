@@ -1,5 +1,6 @@
 # Use Ubuntu LTS for stability and ARM support
-FROM ubuntu:24.04
+ARG RBF_IMAGE_1
+FROM ${RBF_IMAGE_1}
 
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive

@@ -492,9 +492,15 @@ rbgm_onboarding() {
   # --- Compute level (strict sequential: first unmet probe stops advancement) ---
   local z_level=0
   local z_secrets_dir=""
+  local z_vessel_dir=""
   local z_gar_host=""
   local z_sentry_vouch_ref=""
   local z_bottle_vouch_ref=""
+
+  # Vessel paths for probing (constants — not dependent on regime sourcing)
+  local -r z_busybox_sigil="rbev-busybox"
+  local -r z_sentry_sigil="rbev-sentry-ubuntu-large"
+  local -r z_bottle_sigil="rbev-bottle-ubuntu-test"
 
   while true; do
     # Level 1: Payor project configured in rbrp.env
@@ -525,21 +531,50 @@ rbgm_onboarding() {
     test -f "${z_secrets_dir}/rbra-retriever.env" || break
     z_level=6
 
-    # Level 7: nsproto consecrations present (conjure completed)
-    test -f "${RBBC_dot_dir}/rbrn_nsproto.env" || break
-    source "${RBBC_dot_dir}/rbrn_nsproto.env"
-    test -n "${RBRN_SENTRY_CONSECRATION:-}" || break
-    test -n "${RBRN_BOTTLE_CONSECRATION:-}" || break
+    # Level 7: Inscribe reliquary (busybox RBRV_RELIQUARY non-empty)
+    z_vessel_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_VESSEL_DIR") || z_vessel_dir=""
+    test -n "${z_vessel_dir}" || break
+    local z_busybox_reliquary=""
+    z_busybox_reliquary=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_busybox_sigil}/rbrv.env" "RBRV_RELIQUARY") || z_busybox_reliquary=""
+    test -n "${z_busybox_reliquary}" || break
     z_level=7
 
-    # Level 8: nsproto vouch images present in local runtime (vouch & summon completed)
+    # Level 8: Airgap build (busybox RBRV_IMAGE_1_ANCHOR non-empty)
+    local z_busybox_anchor=""
+    z_busybox_anchor=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_busybox_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_busybox_anchor=""
+    test -n "${z_busybox_anchor}" || break
+    z_level=8
+
+    # Level 9: Bottle build (bottle RBRV_IMAGE_1_ANCHOR non-empty)
+    local z_bottle_anchor=""
+    z_bottle_anchor=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_bottle_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_bottle_anchor=""
+    test -n "${z_bottle_anchor}" || break
+    z_level=9
+
+    # Level 10: Sentry build (sentry RBRV_IMAGE_1_ANCHOR non-empty)
+    local z_sentry_anchor=""
+    z_sentry_anchor=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_sentry_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_sentry_anchor=""
+    test -n "${z_sentry_anchor}" || break
+    z_level=10
+
+    # Level 11: Summon bottle (RBRN_BOTTLE_CONSECRATION non-empty in nameplate)
+    test -f "${RBBC_dot_dir}/rbrn_nsproto.env" || break
+    source "${RBBC_dot_dir}/rbrn_nsproto.env"
+    test -n "${RBRN_BOTTLE_CONSECRATION:-}" || break
+    z_level=11
+
+    # Level 12: Summon sentry (RBRN_SENTRY_CONSECRATION non-empty in nameplate)
+    test -n "${RBRN_SENTRY_CONSECRATION:-}" || break
+    z_level=12
+
+    # Level 13: Run nsproto (vouch images present in local runtime)
     source "${RBBC_rbrr_file}"
     z_gar_host="${RBRR_GCP_REGION}-docker.pkg.dev"
     z_sentry_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-vouch"
     z_bottle_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}-vouch"
     "${RBRN_RUNTIME}" image inspect "${z_sentry_vouch_ref}" >/dev/null 2>&1 || break
     "${RBRN_RUNTIME}" image inspect "${z_bottle_vouch_ref}" >/dev/null 2>&1 || break
-    z_level=8
+    z_level=13
 
     break
   done
@@ -582,18 +617,46 @@ rbgm_onboarding() {
       ;;
     6)
       bug_section "Recipe Bottle Onboarding — Service Accounts Ready"
-      bug_t "All service accounts are provisioned. Next: inscribe a reliquary,"
-      bug_t "enshrine base images, conjure vessels, and vouch SLSA provenance."
+      bug_t "All service accounts are provisioned. Cloud Build uses tool images"
+      bug_t "(gcloud, docker, skopeo, etc) for its build steps. A reliquary"
+      bug_t "freezes these in GAR so builds are reproducible."
       ;;
     7)
-      bug_section "Recipe Bottle Onboarding — Vessels Built & Verified"
-      bug_t "Nsproto vessels are built and vouched. Next: summon both vessels"
-      bug_t "to pull images locally using Retriever credentials."
+      bug_section "Recipe Bottle Onboarding — Reliquary Inscribed"
+      bug_t "Tool images are frozen in GAR. Next: build a vessel on the"
+      bug_t "air-gapped pool to prove the locked-down path works."
       ;;
     8)
+      bug_section "Recipe Bottle Onboarding — Airgap Build Complete"
+      bug_t "Busybox built on the airgap pool — all dependencies from GAR,"
+      bug_t "zero public internet. Next: build the bottle and sentry vessels"
+      bug_t "on the tether pool (they need apt-get from public repos)."
+      ;;
+    9)
+      bug_section "Recipe Bottle Onboarding — Bottle Built"
+      bug_t "The bottle vessel is built. A bottle runs your workload — untrusted"
+      bug_t "code sandboxed by a sentry. Next: build the sentry that enforces"
+      bug_t "network policy around the bottle."
+      ;;
+    10)
+      bug_section "Recipe Bottle Onboarding — Sentry Built"
+      bug_t "The sentry vessel is built. A sentry creates the network namespace,"
+      bug_t "runs iptables and dnsmasq, and controls what the bottle can reach."
+      bug_t "Next: record consecrations and summon images locally."
+      ;;
+    11)
+      bug_section "Recipe Bottle Onboarding — Bottle Summoned"
+      bug_t "Bottle image is pulled locally. Next: summon the sentry image."
+      ;;
+    12)
+      bug_section "Recipe Bottle Onboarding — Sentry Summoned"
+      bug_t "Both vessel images are local. Next: run the nsproto test suite"
+      bug_t "to verify the sentry/bottle pair works end-to-end."
+      ;;
+    13)
       bug_section "Recipe Bottle Onboarding — Setup Complete"
-      bug_t "Infrastructure is fully provisioned and vessel images are pulled."
-      bug_t "You can now start bottles from your built vessel images."
+      bug_t "Infrastructure is fully provisioned, vessels are built, vouched,"
+      bug_t "and pulled. Run the nsproto security tests to verify everything."
       ;;
   esac
   bug_e
@@ -601,21 +664,31 @@ rbgm_onboarding() {
   # --- Dashboard ---
   local z_flag=0
   z_flag=0; test "${z_level}" -ge 1 && z_flag=1
-  zrbgm_po_status "${z_flag}" "1. Payor Establish     — Payor:     GCP project + OAuth consent screen"
+  zrbgm_po_status "${z_flag}" " 1. Payor Establish     — Payor:     GCP project + OAuth consent screen"
   z_flag=0; test "${z_level}" -ge 2 && z_flag=1
-  zrbgm_po_status "${z_flag}" "2. Payor Install       — Payor:     RBRA credential emplacement"
+  zrbgm_po_status "${z_flag}" " 2. Payor Install       — Payor:     RBRA credential emplacement"
   z_flag=0; test "${z_level}" -ge 3 && z_flag=1
-  zrbgm_po_status "${z_flag}" "3. Depot Create        — Payor:     GCP depot project + dual pools"
+  zrbgm_po_status "${z_flag}" " 3. Depot Create        — Payor:     GCP depot project + dual pools"
   z_flag=0; test "${z_level}" -ge 4 && z_flag=1
-  zrbgm_po_status "${z_flag}" "4. Governor Reset      — Payor:     Admin service account"
+  zrbgm_po_status "${z_flag}" " 4. Governor Reset      — Payor:     Admin service account"
   z_flag=0; test "${z_level}" -ge 5 && z_flag=1
-  zrbgm_po_status "${z_flag}" "5. Director Create     — Governor:  Build service account"
+  zrbgm_po_status "${z_flag}" " 5. Director Create     — Governor:  Build service account"
   z_flag=0; test "${z_level}" -ge 6 && z_flag=1
-  zrbgm_po_status "${z_flag}" "6. Retriever Create    — Governor:  Image pull service account"
+  zrbgm_po_status "${z_flag}" " 6. Retriever Create    — Governor:  Image pull service account"
   z_flag=0; test "${z_level}" -ge 7 && z_flag=1
-  zrbgm_po_status "${z_flag}" "7. Inscribe & Conjure  — Director:  Reliquary, enshrine, build & verify"
+  zrbgm_po_status "${z_flag}" " 7. Inscribe Reliquary  — Director:  Freeze tool images in GAR"
   z_flag=0; test "${z_level}" -ge 8 && z_flag=1
-  zrbgm_po_status "${z_flag}" "8. Summon              — Retriever: Pull vessel images locally"
+  zrbgm_po_status "${z_flag}" " 8. Airgap Build        — Director:  Busybox on air-gapped pool"
+  z_flag=0; test "${z_level}" -ge 9 && z_flag=1
+  zrbgm_po_status "${z_flag}" " 9. Bottle Build        — Director:  Bottle vessel on tether pool"
+  z_flag=0; test "${z_level}" -ge 10 && z_flag=1
+  zrbgm_po_status "${z_flag}" "10. Sentry Build        — Director:  Sentry vessel on tether pool"
+  z_flag=0; test "${z_level}" -ge 11 && z_flag=1
+  zrbgm_po_status "${z_flag}" "11. Summon Bottle       — Retriever: Pull bottle image locally"
+  z_flag=0; test "${z_level}" -ge 12 && z_flag=1
+  zrbgm_po_status "${z_flag}" "12. Summon Sentry       — Retriever: Pull sentry image locally"
+  z_flag=0; test "${z_level}" -ge 13 && z_flag=1
+  zrbgm_po_status "${z_flag}" "13. Run Nsproto         — Verify:    Sentry/bottle security tests"
   bug_e
 
   # --- Next step guidance ---
@@ -684,58 +757,122 @@ rbgm_onboarding() {
       buc_tabtarget "${RBZ_CREATE_RETRIEVER}" "<instance-name>"
       ;;
     6)
-      local z_vessel_dir=""
-      z_vessel_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_VESSEL_DIR") || z_vessel_dir=""
-      bug_section "Next: Inscribe, Enshrine & Conjure (Director role actions)"
-      bug_t "  Inscribe mirrors upstream tool images into a datestamped reliquary in GAR."
-      bug_t "  Enshrine mirrors upstream base images into GAR with content-addressed anchors."
-      bug_t "  Conjure builds vessel images via builds.create + pouch delivery."
-      bug_t "  Vouch verifies SLSA provenance via DSSE signature verification."
+      bug_section "Next: Inscribe Reliquary"
+      bug_t "  Cloud Build steps use tool images (gcloud, docker, skopeo, etc)."
+      bug_t "  Inscribe mirrors these from upstream into a datestamped reliquary"
+      bug_t "  in GAR. This freezes tool versions so builds are reproducible."
       bug_e
-      bug_t "  1. Inscribe reliquary (mirror tool images to GAR):"
+      bug_t "  1. Inscribe reliquary:"
       buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
-      bug_t "  2. Enshrine base images (mirror upstream bases to GAR with anchors):"
-      bug_t "     (enshrine each vessel that declares RBRV_IMAGE_n_ORIGIN)"
-      bug_t "  3. Conjure sentry vessel:"
-      buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir}/${RBRN_SENTRY_VESSEL}"
-      bug_t "  4. Conjure bottle vessel:"
-      buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir}/${RBRN_BOTTLE_VESSEL}"
-      bug_t "  5. Check consecrations (verify both builds completed):"
-      buc_tabtarget "${RBZ_CHECK_CONSECRATIONS}"
-      bug_t "  6. Vouch (verify SLSA provenance on built images):"
-      buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
+      bug_t "  2. Record the reliquary ID in the busybox vessel:"
       bug_e
-      bug_section "Then: Record Consecrations in Nameplate (step 7)"
-      bug_t "  The check-consecrations output (step 5) shows your consecration values."
-      bug_t "  Record them in your nameplate to advance this guide."
+      bug_t "     Edit:"
+      bug_tc "        " "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}/rbrv.env"
       bug_e
-      bug_t "  Edit:"
-      bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
-      bug_e
-      bug_t "  Set these two lines (substitute your actual consecration values):"
-      bug_tc "        RBRN_SENTRY_CONSECRATION=" "c260101120000-r260101130000"
-      bug_tc "        RBRN_BOTTLE_CONSECRATION=" "c260101120000-r260101140000"
+      bug_t "     Set (substitute the reliquary ID from inscribe output):"
+      bug_tc "        RBRV_RELIQUARY=" "<reliquary-id>"
       ;;
     7)
-      bug_section "Next: Summon (Retriever role actions)"
-      bug_t "  Pull the vouched images locally using Retriever credentials."
+      bug_section "Next: Airgap Build — Busybox"
+      bug_t "  This is the strictest build path: the airgap pool has NO public"
+      bug_t "  internet. Every dependency must come from GAR. Enshrine mirrors"
+      bug_t "  the busybox base image to GAR with a content-addressed anchor."
+      bug_t "  Then conjure builds the vessel entirely from GAR sources."
       bug_e
-      bug_t "  1. Summon sentry vessel:"
-      buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_SENTRY_VESSEL} ${RBRN_SENTRY_CONSECRATION}"
-      bug_t "  2. Summon bottle vessel:"
-      buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_BOTTLE_VESSEL} ${RBRN_BOTTLE_CONSECRATION}"
-      bug_t "  3. Run full nsproto test suite:"
-      bug_tc "        " "tt/rbw-tf.TestFixture.nsproto-security.sh"
+      bug_t "  1. Enshrine busybox base image:"
+      buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
+      bug_t "  2. Conjure busybox on airgap pool:"
+      buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
+      bug_t "  3. Vouch (verify SLSA provenance):"
+      buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
       ;;
     8)
-      bug_section "Next: Start a Bottle"
-      bug_t "  Launch a bottle from your built vessel images:"
+      bug_section "Next: Bottle Build"
+      bug_t "  A bottle is the workload container — it runs your application code,"
+      bug_t "  sandboxed inside a sentry's network namespace. The bottle vessel"
+      bug_t "  builds on the tether pool (it needs apt-get from public repos)."
       bug_e
-      buc_tabtarget "${RBZ_BOTTLE_START}" "nsproto"
+      bug_t "  1. Record the reliquary ID in the bottle vessel:"
       bug_e
-      bug_t "  Once the bottle is running, verify with the nsproto security tests:"
+      bug_t "     Edit:"
+      bug_tc "        " "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}/rbrv.env"
       bug_e
+      bug_t "     Set:"
+      bug_tc "        RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
+      bug_e
+      bug_t "  2. Enshrine bottle base image (ubuntu:24.04):"
+      buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
+      bug_t "  3. Conjure bottle on tether pool:"
+      buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
+      bug_t "  4. Vouch:"
+      buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
+      ;;
+    9)
+      bug_section "Next: Sentry Build"
+      bug_t "  A sentry is the security container — it creates the network namespace,"
+      bug_t "  runs iptables and dnsmasq, and controls what the bottle can reach."
+      bug_t "  The sentry starts first; the bottle runs inside its protection."
+      bug_e
+      bug_t "  1. Record the reliquary ID in the sentry vessel:"
+      bug_e
+      bug_t "     Edit:"
+      bug_tc "        " "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}/rbrv.env"
+      bug_e
+      bug_t "     Set:"
+      bug_tc "        RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
+      bug_e
+      bug_t "  2. Enshrine sentry base image (ubuntu:24.04 — same as bottle):"
+      buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
+      bug_t "  3. Conjure sentry on tether pool:"
+      buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
+      bug_t "  4. Vouch:"
+      buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
+      ;;
+    10)
+      bug_section "Next: Summon Bottle"
+      bug_t "  Record the bottle consecration in the nsproto nameplate, then"
+      bug_t "  summon (pull) the bottle image locally using Retriever credentials."
+      bug_e
+      bug_t "  1. Edit the nameplate:"
+      bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
+      bug_e
+      bug_t "     Set (substitute your actual consecration value):"
+      bug_tc "        RBRN_BOTTLE_CONSECRATION=" "<consecration>"
+      bug_e
+      bug_t "  2. Summon bottle:"
+      buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} <consecration>"
+      ;;
+    11)
+      bug_section "Next: Summon Sentry"
+      bug_t "  Record the sentry consecration in the nsproto nameplate, then"
+      bug_t "  summon the sentry image locally."
+      bug_e
+      bug_t "  1. Edit the nameplate:"
+      bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
+      bug_e
+      bug_t "     Set (substitute your actual consecration value):"
+      bug_tc "        RBRN_SENTRY_CONSECRATION=" "<consecration>"
+      bug_e
+      bug_t "  2. Summon sentry:"
+      buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} <consecration>"
+      ;;
+    12)
+      bug_section "Next: Run Nsproto Security Tests"
+      bug_t "  Both vessel images are local. The sentry starts first and creates"
+      bug_t "  the network namespace. The bottle joins and runs inside the sentry's"
+      bug_t "  protection. The test suite verifies the full security envelope."
+      bug_e
+      bug_t "  Run:"
       bug_tc "        " "tt/rbw-tf.TestFixture.nsproto-security.sh"
+      ;;
+    13)
+      bug_section "Setup Complete"
+      bug_t "  Infrastructure is fully provisioned. Vessels are built, vouched,"
+      bug_t "  and pulled. The nsproto security tests verify the sentry/bottle"
+      bug_t "  pair enforces network policy correctly."
+      bug_e
+      bug_t "  Start a bottle:"
+      buc_tabtarget "${RBZ_BOTTLE_START}" "nsproto"
       ;;
   esac
 
