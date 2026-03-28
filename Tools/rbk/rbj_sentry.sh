@@ -58,29 +58,22 @@ iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
 
 echo "RBJp2: Phase 2: Port Setup"
 if test "${RBRN_ENTRY_MODE}" = "enabled"; then
-  echo "RBJp2: Configuring TCP access for bottled services"
+  echo "RBJp2: Configuring entry port via iptables DNAT (no userspace proxy)"
 
-  echo "RBJp2: Allow direct connections from sentry to bottle for the entry port"
-  iptables -A RBM-EGRESS  -o eth1 -p tcp -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" -j ACCEPT || exit 25
-  iptables -A RBM-INGRESS -i eth1 -p tcp -s "${RBRN_ENCLAVE_BOTTLE_IP}" --sport "${RBRN_ENTRY_PORT_ENCLAVE}" -j ACCEPT || exit 25
+  echo "RBJp2: Enabling IP forwarding for entry port DNAT"
+  echo 1 > /proc/sys/net/ipv4/ip_forward || exit 25
 
-  echo "RBJp2: Setting up socat proxy on port ${RBRN_ENTRY_PORT_WORKSTATION} -> ${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}"
-  nohup socat "TCP-LISTEN:${RBRN_ENTRY_PORT_WORKSTATION},fork,reuseaddr" "TCP:${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" >/var/log/socat-proxy.log 2>&1 &
+  echo "RBJp2: DNAT incoming connections on entry port to bottle"
+  iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
+           -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" || exit 25
 
-  echo "RBJp2: Give socat a moment to start"
-  sleep 1
+  echo "RBJp2: Allow forwarding of DNATted entry traffic to bottle"
+  iptables -A RBM-FORWARD -i eth0 -o eth1 -p tcp \
+           -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" -j ACCEPT || exit 25
 
-  echo "RBJp2: Verify socat is running"
-  if pgrep -f "socat.*:${RBRN_ENTRY_PORT_WORKSTATION}" >/dev/null; then
-    echo "RBJp2: Socat proxy started successfully"
-  else
-    echo "RBJp2: ERROR - Socat proxy failed to start"
-    cat /var/log/socat-proxy.log
-    exit 26
-  fi
-
-  echo "RBJp2: Allow incoming connections from bridge network (eth0) on entry port"
-  iptables -A RBM-INGRESS -i eth0 -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" -j ACCEPT || exit 27
+  echo "RBJp2: MASQUERADE return traffic so bottle replies to sentry"
+  iptables -t nat -A POSTROUTING -o eth1 -p tcp \
+           -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" -j MASQUERADE || exit 25
 fi
 
 echo "RBJp2b: Blocking ICMP cross-boundary traffic"
@@ -139,10 +132,6 @@ if test "${RBRN_UPLINK_DNS_MODE}" = "disabled"; then
 else
   echo "RBJp4: Set up DNS Server"
 
-  echo "RBJp4: Process cleanup"
-  killall -9 dnsmasq 2>/dev/null || true
-  sleep 1
-
   echo "RBJp4: Note version in use"
   dnsmasq --version
 
@@ -183,14 +172,10 @@ else
   echo "RBJp4: Echo back the constructed dnsmasq config file"
   cat                                                              /etc/dnsmasq.conf || exit 41
 
-  echo "RBJp4: Process info before launch (zombie dnsmasq diagnostic)..."
-  ps aux
   echo "RBJp4: Starting dnsmasq service"
   dnsmasq
-  echo "RBJp4: Mystery dnsmasq setup delay"
+  echo "RBJp4: Waiting for dnsmasq to initialize"
   sleep 2
-  echo "RBJp4: Process info after launch..."
-  ps aux
 
   echo "RBJp4: Configuring DNS firewall rules"
   iptables -A RBM-INGRESS -i eth1 -p udp --dport 53                         -j ACCEPT || exit 43

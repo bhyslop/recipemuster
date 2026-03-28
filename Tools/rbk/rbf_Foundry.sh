@@ -643,8 +643,8 @@ zrbf_stitch_build_json() {
   buc_log_args "Stitched ${#z_step_defs[@]} + context + about steps to ${z_output_path}"
 }
 
-# Resolve vessel argument: accepts a sigil (e.g., rbev-sentry-ubuntu-large) or a path
-# (e.g., rbev-vessels/rbev-sentry-ubuntu-large).  On no-arg or invalid arg, lists
+# Resolve vessel argument: accepts a sigil (e.g., rbev-sentry-debian-slim) or a path
+# (e.g., rbev-vessels/rbev-sentry-debian-slim).  On no-arg or invalid arg, lists
 # available vessels and dies.  On success, writes resolved path to ZRBF_VESSEL_RESOLVED_DIR_FILE.
 zrbf_resolve_vessel() {
   zrbf_sentinel
