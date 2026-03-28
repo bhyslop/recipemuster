@@ -4380,6 +4380,13 @@
         "₢AwAAS": {
           "tacks": [
             {
+              "ts": "260327-1930",
+              "state": "complete",
+              "text": "Implement jjx_chapter and jjx_absolve as diagnostic operations.\n\njjx_chapter: scan .claude/jjm/officia/ directories, report officium identity, creation time, heartbeat mtime (last activity), age, and liveness status in tabular format. Liveness determined by heartbeat mtime recency. These operations do not touch Gallops — they bypass the command lifecycle lock.\n\njjx_absolve: remove officia directories whose heartbeat exceeds the staleness threshold. Report what was removed. Refuse to remove the caller's own officium (identified by the officium param). Add MCP dispatch entries and param structs for both operations.",
+              "silks": "implement-chapter-and-absolve",
+              "commit": "e7cdda6"
+            },
+            {
               "ts": "260327-0819",
               "state": "rough",
               "text": "Implement jjx_chapter and jjx_absolve as diagnostic operations.\n\njjx_chapter: scan .claude/jjm/officia/ directories, report officium identity, creation time, heartbeat mtime (last activity), age, and liveness status in tabular format. Liveness determined by heartbeat mtime recency. These operations do not touch Gallops — they bypass the command lifecycle lock.\n\njjx_absolve: remove officia directories whose heartbeat exceeds the staleness threshold. Report what was removed. Refuse to remove the caller's own officium (identified by the officium param). Add MCP dispatch entries and param structs for both operations.",
