@@ -506,7 +506,8 @@ jjx_validate       {}
   - Single pace: `{"target": "AFAAb"}`
   - Additional params: `detail`, `remaining` only
 - `jjx_orient` output includes next actionable pace — no separate show call needed
-- `jjx_enroll` takes `docket` as a string param (not stdin)
+- `jjx_enroll` docket content goes through `gazette_in.md` (see gazette wire format below), NOT the `docket` param. The param field exists but fails on complex markdown content due to JSON escaping.
+- `jjx_redocket` docket content also goes through `gazette_in.md`, NOT the `docket` param. Same escaping concern.
 - `jjx_close` takes `summary` as a string param (not stdin pipe)
 - `jjx_record` takes `files` as a native JSON array: `["file1.rs", "file2.rs"]`
 - `jjx_transfer` takes `coronets` as a JSON-encoded string (not a native array): `"[\"AYAAA\", \"AYAAB\"]"`
@@ -528,6 +529,10 @@ Gazette file exchange uses two directional files in the officium exchange direct
 
 **Gazette wire format (setter commands):**
 Each notice is a `#`-header line with slug and lede, followed by content body. Write `gazette_in.md`, then call the command.
+
+**Critical: `#` (H1) in gazette_in.md is a wire format delimiter, NOT a markdown heading.** Each gazette_in.md has exactly ONE `#` line — the slug line. All markdown headings within the body content must use `##` or deeper. A second `#` line will be parsed as a second notice with an invalid slug.
+
+**On failure:** If a gazette setter command fails, `gazette_in.md` is already consumed (deleted on entry). You must re-write it from scratch before retrying — there is nothing to re-read.
 
 | Command | Write to `gazette_in.md` | Then call with params |
 |---------|--------------------------|----------------------|
