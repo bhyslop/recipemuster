@@ -4817,6 +4817,13 @@
         "₢AwAAd": {
           "tacks": [
             {
+              "ts": "260328-0801",
+              "state": "complete",
+              "text": "## Character\n\nMechanical but precise — four string constants drive all wire format output, but the change ripples through tests, specs, and CLAUDE.md examples. Attention to completeness over creativity.\n\n## Docket\n\nAlign gazette wire format slug tokens to their spec-minted `jjezs_*` identifiers. Currently the wire uses bare words (`slate`, `reslate`, `paddock`, `pace`); the spec defines these as `jjezs_slate`, `jjezs_reslate`, `jjezs_paddock`, `jjezs_pace`. Every persistent identifier earns its prefix.\n\nUpdate sites:\n- `jjrz_gazette.rs` — four `JJRZ_SLUG_*` string constants\n- `jjtz_gazette.rs` — all test gazette content using bare slugs\n- `JJSCGZ-gazette.adoc` — wire format examples if any use bare slugs\n- `CLAUDE.md` — JJK context section gazette examples",
+              "silks": "align-wire-slugs-to-jjezs-minted-names",
+              "commit": "cbb98cc"
+            },
+            {
               "ts": "260328-0745",
               "state": "rough",
               "text": "## Character\n\nMechanical but precise — four string constants drive all wire format output, but the change ripples through tests, specs, and CLAUDE.md examples. Attention to completeness over creativity.\n\n## Docket\n\nAlign gazette wire format slug tokens to their spec-minted `jjezs_*` identifiers. Currently the wire uses bare words (`slate`, `reslate`, `paddock`, `pace`); the spec defines these as `jjezs_slate`, `jjezs_reslate`, `jjezs_paddock`, `jjezs_pace`. Every persistent identifier earns its prefix.\n\nUpdate sites:\n- `jjrz_gazette.rs` — four `JJRZ_SLUG_*` string constants\n- `jjtz_gazette.rs` — all test gazette content using bare slugs\n- `JJSCGZ-gazette.adoc` — wire format examples if any use bare slugs\n- `CLAUDE.md` — JJK context section gazette examples",
