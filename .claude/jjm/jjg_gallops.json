@@ -4881,9 +4881,10 @@
         "₢AyAAD",
         "₢AyAAE",
         "₢AyAAF",
-        "₢AyAAG"
+        "₢AyAAG",
+        "₢AyAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -4960,6 +4961,17 @@
               "text": "## Character\nMechanical with user-experience judgment.\n\n## Goal\nRevise the onboarding tabtarget (rbgm_onboarding) to reflect the new slim vessel architecture and enshrine deduplication. Walk the user through the build cycle once so they see how it works.\n\n## Deliverables\n\n1. Enshrine deduplication: when sentry and bottle share the same base image anchor (both Debian bookworm-slim), skip the redundant second enshrine. Detect via RBRV_IMAGE_1_ANCHOR comparison.\n2. Update onboarding dashboard step descriptions and timing estimates for slim vessels (conjure times will be much shorter than ~15 min)\n3. Add ifrit vessel to the onboarding flow (enshrine + conjure after sentry and bottle)\n4. Update step guidance text to reflect Debian bookworm-slim instead of ubuntu:24.04\n5. Integrate tadmor nameplate into the final \"Run tests\" step\n\n## References\n- Tools/rbk/rbgm_ManualProcedures.sh — rbgm_onboarding function (lines 485-880)\n- rbev-vessels/*/rbrv.env — vessel configurations with anchor values",
               "silks": "onboarding-enshrine-revision",
               "commit": "2344e20"
+            }
+          ]
+        },
+        "₢AyAAH": {
+          "tacks": [
+            {
+              "ts": "260328-0720",
+              "state": "rough",
+              "text": "## Character\nOperational — cloud build execution, waiting, validation.\n\n## Goal\nBuild all three slim vessels on Cloud Build: slim sentry, slim bottle, and ifrit bottle. Vouch all three.\n\n## Deliverables\n\n1. Enshrine Debian bookworm-slim base image to GAR (one enshrine, shared by all three vessels)\n2. Conjure slim sentry on tether pool\n3. Conjure slim bottle on tether pool\n4. Conjure ifrit bottle on tether pool\n5. Vouch all three consecrations\n6. Record consecrations in tadmor nameplate\n7. Summon all images locally via retriever\n\n## Dependencies\nRequires completed: slim-sentry-debian (₢AyAAA), slim-bottle-debian (₢AyAAB), ifrit-vessel-definition (₢AyAAD), tadmor-nameplate (₢AyAAE)\n\n## Timing Expectations\nWith slim vessels, conjure times should be dramatically shorter than the ~13 min ubuntu baseline. Measure and record actual durations for onboarding guide update.",
+              "silks": "enshrine-conjure-slim-vessels",
+              "commit": "3344aec"
             }
           ]
         }
