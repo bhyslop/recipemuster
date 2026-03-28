@@ -193,7 +193,7 @@ zrbtcrv_rbrn_baseline_disabled() {
   export RBRN_UPLINK_PORT_MIN="10000"
   export RBRN_UPLINK_DNS_MODE="disabled"
   export RBRN_UPLINK_ACCESS_MODE="disabled"
-  export RBRN_VOLUME_MOUNTS=""
+  export RBRN_DOCKER_VOLUME_MOUNTS=""
 }
 
 zrbtcrv_rbrn_baseline_enabled() {

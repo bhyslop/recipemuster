@@ -16,16 +16,16 @@ from the configured image, establishing network connectivity and volume mounts w
 .. {rbbc_use}
 {at_sentry_container} address as DNS resolver
 .. {rbbc_use}
-{rbrn_volume_mounts} specifications for filesystem access
+runtime-appropriate volume mount specifications for filesystem access (from {rbrn_docker_volume_mounts} or {rbrn_podman_volume_mounts} per {rbrn_runtime})
 
 //axhos_step
 . *Create Container*:
 .. {rbbc_call}
-podman create with:
+container create (via {rbrn_runtime}) with:
 ... Image: {rbrn_bottle_vessel}:{rbrn_bottle_consecration}
 ... Network: {at_enclave_network} (exclusive)
 ... DNS: {at_sentry_container} address
-... Volumes: {rbrn_volume_mounts}
+... Volumes: each semicolon-delimited entry from the active volume mount field, passed verbatim as a `--volume` argument
 ... Cleanup flag: `--rm` (automatic removal on exit)
 .. Allow podman to assign unique container name
 .. {rbbc_require}

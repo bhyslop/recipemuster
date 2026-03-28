@@ -156,11 +156,24 @@ is
 
 Domain names allowed for bottle-initiated DNS resolution.
 
-//axhrv_variable
-{rbrn_volume_mounts}
+//axhrgv_variable
+{rbrn_docker_volume_mounts}
 
-Podman volume mount arguments for the bottle container.
-Optional; 0-240 characters.
+Semicolon-delimited Docker volume mount specifications.
+Each entry is passed verbatim as a `--volume` argument.
+Empty string means no volume mounts.
+Active when {rbrn_runtime} is {rbrn_runtime_docker}.
+0-240 characters.
+
+//axhrgv_variable
+{rbrn_podman_volume_mounts}
+
+Semicolon-delimited Podman volume mount specifications.
+Each entry is passed verbatim as a `--volume` argument.
+Podman-specific options (`:U`, `:O`, `idmap`) are valid here.
+Empty string means no volume mounts.
+Active when {rbrn_runtime} is {rbrn_runtime_podman}.
+0-240 characters.
 
 //axhro_kindle
 {rbkro_kindle}

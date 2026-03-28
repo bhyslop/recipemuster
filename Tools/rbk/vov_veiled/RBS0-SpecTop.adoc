@@ -436,6 +436,7 @@
 :rbst_netmask:               <<rbst_netmask,Netmask>>
 :rbst_cidr_list:             <<rbst_cidr_list,CIDR List>>
 :rbst_domain_list:           <<rbst_domain_list,Domain List>>
+:rbst_volume_mount_list:     <<rbst_volume_mount_list,Volume Mount List>>
 
 // Recipe Bottle Regime: Nameplate (service deployment configuration)
 :rbrn_regime:                       <<rbrn_regime,RBRN Regime>>
@@ -472,7 +473,8 @@
 :rbrn_uplink_dns_mode_disabled:     <<rbrn_uplink_dns_mode_disabled,disabled>>
 :rbrn_uplink_dns_mode_global:       <<rbrn_uplink_dns_mode_global,global>>
 :rbrn_uplink_port_min:              <<rbrn_uplink_port_min,RBRN_UPLINK_PORT_MIN>>
-:rbrn_volume_mounts:                <<rbrn_volume_mounts,RBRN_VOLUME_MOUNTS>>
+:rbrn_docker_volume_mounts:        <<rbrn_docker_volume_mounts,RBRN_DOCKER_VOLUME_MOUNTS>>
+:rbrn_podman_volume_mounts:        <<rbrn_podman_volume_mounts,RBRN_PODMAN_VOLUME_MOUNTS>>
 
 // Google-specific Type Voicings (rbgt_* - voices axtg_* with RB-specific constraints)
 :rbgt_project_id:            <<rbgt_project_id,GCP Project ID>>
@@ -3074,10 +3076,30 @@ CIDR ranges for allowed bottle-initiated outbound traffic.
 {rbrn_uplink_allowed_domains}::
 Domain names allowed for bottle-initiated DNS resolution.
 
-[[rbrn_volume_mounts]]
-//axvr_variable axd_optional rbst_description
-{rbrn_volume_mounts}::
-Podman volume mount arguments for the bottle container; 0-240 characters.
+[[rbrn_docker_volume_mounts]]
+//axvr_variable axd_conditional rbst_volume_mount_list
+{rbrn_docker_volume_mounts}::
+Semicolon-delimited Docker volume mount specifications for the bottle container.
+Each entry is passed verbatim as a `--volume` argument to `docker create`.
+Empty string means no volume mounts.
+Active when
+{rbrn_runtime}
+is
+{rbrn_runtime_docker};
+0-240 characters.
+
+[[rbrn_podman_volume_mounts]]
+//axvr_variable axd_conditional rbst_volume_mount_list
+{rbrn_podman_volume_mounts}::
+Semicolon-delimited Podman volume mount specifications for the bottle container.
+Each entry is passed verbatim as a `--volume` argument to `podman create`.
+Podman-specific options (`:U`, `:O`, `idmap`) are valid here but not in the Docker variant.
+Empty string means no volume mounts.
+Active when
+{rbrn_runtime}
+is
+{rbrn_runtime_podman};
+0-240 characters.
 
 [[rbrn_group_ark_reference]]
 //axvr_group
@@ -3188,6 +3210,13 @@ Each element follows `address/prefix` format (e.g., `10.0.0.0/8 172.16.0.0/12`).
 {rbst_domain_list}::
 Space-delimited list of fully-qualified domain names.
 Each element is a valid DNS domain (e.g., `api.example.com registry.example.com`).
+
+[[rbst_volume_mount_list]]
+//axl_voices axtu_string axd_list
+{rbst_volume_mount_list}::
+Semicolon-delimited list of container volume mount specifications.
+Each element is a complete `--volume` argument value in the syntax of the target container runtime.
+Format: `host_path:container_path[:options]` (e.g., `/src:/mnt/src:ro;/data:/mnt/data:rw`).
 
 === Google-specific Types (rbgt_*)
 

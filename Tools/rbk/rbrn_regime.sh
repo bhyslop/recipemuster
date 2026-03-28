@@ -77,8 +77,13 @@ zrbrn_kindle() {
   buv_gate_enroll    RBRN_UPLINK_ACCESS_MODE  allowlist
   buv_list_cidr_enroll   RBRN_UPLINK_ALLOWED_CIDRS             "Allowed CIDR ranges"
 
-  buv_group_enroll "Volume Mount Configuration"
-  buv_string_enroll  RBRN_VOLUME_MOUNTS            0  240  "Volume mount arguments for Bottle"
+  buv_group_enroll "Volume Mount Configuration (Docker)"
+  buv_gate_enroll    RBRN_RUNTIME  docker
+  buv_string_enroll  RBRN_DOCKER_VOLUME_MOUNTS     0  240  "Docker volume mount specifications for Bottle"
+
+  buv_group_enroll "Volume Mount Configuration (Podman)"
+  buv_gate_enroll    RBRN_RUNTIME  podman
+  buv_string_enroll  RBRN_PODMAN_VOLUME_MOUNTS     0  240  "Podman volume mount specifications for Bottle"
 
   # Guard against unexpected RBRN_ variables not in enrollment
   buv_scope_sentinel RBRN RBRN_

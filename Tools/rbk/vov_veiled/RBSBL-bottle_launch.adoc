@@ -10,16 +10,14 @@ instantiates and configures the service container for the
 . *Launch
 {at_bottle_container}*:
 .. {rbbc_call}
-podman run with:
+container run (via {rbrn_runtime}) with:
 ... image:
 {rbrn_bottle_vessel}:{rbrn_bottle_consecration}
 ... name:
 {at_bottle_container_name}
 ... network: exclusive attachment to
 {at_enclave_network}
-... volumes: apply
-{rbrn_volume_mounts}
-specifications
+... volumes: each semicolon-delimited entry from the active volume mount field ({rbrn_docker_volume_mounts} or {rbrn_podman_volume_mounts} per {rbrn_runtime}), passed verbatim as a `--volume` argument
 ... restart policy: unless-stopped
 .. {rbbc_require}
 container launched successfully
