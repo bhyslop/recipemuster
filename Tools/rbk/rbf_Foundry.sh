@@ -154,13 +154,6 @@ zrbf_kindle() {
   buc_log_args 'For now lets double check these'
   # RBRG_ORAS_IMAGE_REF validation removed — oras not used as GCB step image
 
-  # Pool routing: conjure/bind use vessel's egress mode
-  case "${RBRV_EGRESS_MODE}" in
-    tether) readonly ZRBF_CONJURE_POOL="${RBDC_POOL_TETHER}" ;;
-    airgap) readonly ZRBF_CONJURE_POOL="${RBDC_POOL_AIRGAP}" ;;
-    *) buc_die "Unknown RBRV_EGRESS_MODE: ${RBRV_EGRESS_MODE}" ;;
-  esac
-
   readonly ZRBF_KINDLED=1
 }
 
@@ -560,6 +553,14 @@ zrbf_stitch_build_json() {
   # shellcheck disable=SC2016
   local -r z_cb_build_id='$BUILD_ID'
 
+  # Pool routing: conjure/bind use vessel's egress mode
+  local z_conjure_pool=""
+  case "${RBRV_EGRESS_MODE}" in
+    tether) z_conjure_pool="${RBDC_POOL_TETHER}" ;;
+    airgap) z_conjure_pool="${RBDC_POOL_AIRGAP}" ;;
+    *) buc_die "Unknown RBRV_EGRESS_MODE: ${RBRV_EGRESS_MODE}" ;;
+  esac
+
   jq -n \
     --slurpfile zjq_steps  "${z_all_steps_file}" \
     --slurpfile zjq_images "${z_images_file}" \
@@ -577,7 +578,7 @@ zrbf_stitch_build_json() {
     --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
     --arg zjq_ark_suffix_diags "${RBGC_ARK_SUFFIX_DIAGS}" \
     --arg zjq_inscribe_ts      "${z_inscribe_ts}" \
-    --arg zjq_pool   "${RBDC_POOL_TETHER}" \
+    --arg zjq_pool   "${z_conjure_pool}" \
     --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
     --arg zjq_mason_sa         "${z_mason_sa}" \
     --arg zjq_cb_build_id      "${z_cb_build_id}" \
@@ -1070,7 +1071,7 @@ zrbf_enshrine_submit() {
     --arg zjq_origin_1     "${RBRV_IMAGE_1_ORIGIN:-}" \
     --arg zjq_origin_2     "${RBRV_IMAGE_2_ORIGIN:-}" \
     --arg zjq_origin_3     "${RBRV_IMAGE_3_ORIGIN:-}" \
-    --arg zjq_pool         "${ZRBF_CONJURE_POOL}" \
+    --arg zjq_pool         "${RBDC_POOL_TETHER}" \
     --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
