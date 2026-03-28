@@ -539,6 +539,200 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
     )]))
 }
 
+/// Handle jjx_chapter: list active officia with status.
+fn zjjrm_handle_chapter(caller_officium: &str) -> Result<CallToolResult, McpError> {
+    let bare_caller_id = caller_officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
+    let officia = PathBuf::from(OFFICIA_DIR);
+
+    let entries = match std::fs::read_dir(&officia) {
+        Ok(e) => e,
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("jjx_chapter: cannot read officia dir: {}", e),
+            )]));
+        }
+    };
+
+    let now = std::time::SystemTime::now();
+
+    struct RowInfo {
+        identity: String,
+        created_str: String,
+        heartbeat_str: String,
+        age_str: String,
+        status: String,
+        caller_marker: &'static str,
+    }
+
+    let mut rows: Vec<RowInfo> = Vec::new();
+
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if !path.is_dir() { continue; }
+        let dir_name = match path.file_name() {
+            Some(n) => n.to_string_lossy().to_string(),
+            None => continue,
+        };
+        // Skip hidden files/dirs (e.g. .probe_date is a file, not a dir, but guard anyway)
+        if dir_name.starts_with('.') { continue; }
+
+        let identity = format!("{}{}", OFFICIUM_SUN_PREFIX, dir_name);
+        let caller_marker = if dir_name == bare_caller_id { " \u{2190} you" } else { "" };
+
+        // Created: try created(), fall back to modified()
+        let created_str = match path.metadata() {
+            Ok(meta) => {
+                let time = meta.created().or_else(|_| meta.modified()).ok();
+                match time {
+                    Some(t) => {
+                        let dt: chrono::DateTime<chrono::Local> = t.into();
+                        dt.format("%y%m%d-%H%M").to_string()
+                    }
+                    None => "?".to_string(),
+                }
+            }
+            Err(_) => "?".to_string(),
+        };
+
+        let heartbeat_path = path.join(HEARTBEAT_FILE);
+        let (heartbeat_str, age_str, status) = match heartbeat_path.metadata().and_then(|m| m.modified()) {
+            Ok(hb_mtime) => {
+                let dt: chrono::DateTime<chrono::Local> = hb_mtime.into();
+                let hb_str = dt.format("%y%m%d-%H%M").to_string();
+                let age = now.duration_since(hb_mtime).unwrap_or_default();
+                let age_secs = age.as_secs();
+                let age_str = if age_secs < 60 {
+                    format!("{}s", age_secs)
+                } else if age_secs < 3600 {
+                    format!("{}m", age_secs / 60)
+                } else {
+                    format!("{}h{}m", age_secs / 3600, (age_secs % 3600) / 60)
+                };
+                let status = if age_secs > EXSANGUINATION_THRESHOLD_SECS {
+                    "stale".to_string()
+                } else {
+                    "active".to_string()
+                };
+                (hb_str, age_str, status)
+            }
+            Err(_) => ("?".to_string(), "?".to_string(), "unknown".to_string()),
+        };
+
+        rows.push(RowInfo {
+            identity,
+            created_str,
+            heartbeat_str,
+            age_str,
+            status,
+            caller_marker,
+        });
+    }
+
+    if rows.is_empty() {
+        return Ok(CallToolResult::success(vec![Content::text("No officia found.".to_string())]));
+    }
+
+    // Sort by identity for stable output
+    rows.sort_by(|a, b| a.identity.cmp(&b.identity));
+
+    // Build aligned table
+    let header = format!("{:<20}  {:<12}  {:<12}  {:>7}  {:<8}",
+        "Officium", "Created", "Heartbeat", "Age", "Status");
+    let separator = "-".repeat(header.len() + 16);
+    let mut lines = vec![header, separator];
+    for row in &rows {
+        lines.push(format!("{:<20}  {:<12}  {:<12}  {:>7}  {:<8}{}",
+            row.identity,
+            row.created_str,
+            row.heartbeat_str,
+            row.age_str,
+            row.status,
+            row.caller_marker,
+        ));
+    }
+
+    Ok(CallToolResult::success(vec![Content::text(lines.join("\n"))]))
+}
+
+/// Handle jjx_absolve: remove stale officia directories.
+fn zjjrm_handle_absolve(caller_officium: &str) -> Result<CallToolResult, McpError> {
+    let bare_caller_id = caller_officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
+    let officia = PathBuf::from(OFFICIA_DIR);
+
+    let entries = match std::fs::read_dir(&officia) {
+        Ok(e) => e,
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("jjx_absolve: cannot read officia dir: {}", e),
+            )]));
+        }
+    };
+
+    let now = std::time::SystemTime::now();
+    let mut removed: Vec<String> = Vec::new();
+    let mut errors: Vec<String> = Vec::new();
+
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if !path.is_dir() { continue; }
+        let dir_name = match path.file_name() {
+            Some(n) => n.to_string_lossy().to_string(),
+            None => continue,
+        };
+        if dir_name.starts_with('.') { continue; }
+
+        // Never remove the caller's own officium
+        if dir_name == bare_caller_id { continue; }
+
+        let heartbeat_path = path.join(HEARTBEAT_FILE);
+        if !heartbeat_path.exists() {
+            // No heartbeat — treat as stale
+            match std::fs::remove_dir_all(&path) {
+                Ok(()) => removed.push(format!("{}{}", OFFICIUM_SUN_PREFIX, dir_name)),
+                Err(e) => errors.push(format!("{}{}: {}", OFFICIUM_SUN_PREFIX, dir_name, e)),
+            }
+            continue;
+        }
+
+        let mtime = match heartbeat_path.metadata().and_then(|m| m.modified()) {
+            Ok(t) => t,
+            Err(_) => continue,
+        };
+        let age = match now.duration_since(mtime) {
+            Ok(d) => d,
+            Err(_) => continue,
+        };
+
+        if age.as_secs() > EXSANGUINATION_THRESHOLD_SECS {
+            match std::fs::remove_dir_all(&path) {
+                Ok(()) => removed.push(format!("{}{}", OFFICIUM_SUN_PREFIX, dir_name)),
+                Err(e) => errors.push(format!("{}{}: {}", OFFICIUM_SUN_PREFIX, dir_name, e)),
+            }
+        }
+    }
+
+    let mut lines: Vec<String> = Vec::new();
+
+    if removed.is_empty() && errors.is_empty() {
+        lines.push("Nothing to absolve.".to_string());
+    } else {
+        if !removed.is_empty() {
+            lines.push(format!("Absolved {} officium/officia:", removed.len()));
+            for id in &removed {
+                lines.push(format!("  {}", id));
+            }
+        }
+        if !errors.is_empty() {
+            lines.push(format!("Errors ({}):", errors.len()));
+            for e in &errors {
+                lines.push(format!("  {}", e));
+            }
+        }
+    }
+
+    Ok(CallToolResult::success(vec![Content::text(lines.join("\n"))]))
+}
+
 // ============================================================================
 // MCP Server
 // ============================================================================
@@ -580,6 +774,14 @@ impl jjrm_McpServer {
                 )]));
             }
         }
+        // Officium lifecycle operations — bypass Gallops lock
+        if cmd == "jjx_chapter" {
+            return zjjrm_handle_chapter(p.officium.as_ref().unwrap());
+        }
+        if cmd == "jjx_absolve" {
+            return zjjrm_handle_absolve(p.officium.as_ref().unwrap());
+        }
+
         let v = match p.params {
             serde_json::Value::String(ref s) => {
                 serde_json::from_str(s).unwrap_or(p.params)
@@ -843,7 +1045,7 @@ impl jjrm_McpServer {
                 }, p.content.unwrap_or_default()))
             }
             _ => {
-                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_open, jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing", cmd))]))
+                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_open, jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_chapter, jjx_absolve", cmd))]))
             }
         }
     }
