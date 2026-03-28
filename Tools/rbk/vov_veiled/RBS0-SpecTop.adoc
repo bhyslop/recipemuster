@@ -483,6 +483,15 @@
 // Recipe Bottle Key Premises
 :rbsk_no_gcloud:             <<rbsk_no_gcloud,gcloud CLI Prohibition>>
 
+// Recipe Bottle Ifrit (adversarial AI escape testing)
+// rbsi_ prefix: RB Security Ifrit (adversarial validation concepts)
+:rbsi_ifrit:                 <<rbsi_ifrit,Ifrit>>
+:rbsi_ifrit_s:               <<rbsi_ifrit,Ifrits>>
+:rbsi_campaign:              <<rbsi_campaign,Ifrit Campaign>>
+:rbsi_campaign_s:            <<rbsi_campaign,Ifrit Campaigns>>
+:rbsi_escape_test:           <<rbsi_escape_test,Escape Test>>
+:rbsi_escape_test_s:         <<rbsi_escape_test,Escape Tests>>
+
 // Cross-references to companion specifications
 :xref_AXLA:                  Axial Lexicon Specification
 
@@ -620,6 +629,10 @@ is enabled
 {at_bottle_container}
 
 These properties hold across all operations and failure modes.
+
+=== Adversarial Validation: The Ifrit
+
+include::RBSIP-ifrit_pentester.adoc[]
 
 == Getting Started
 
@@ -3645,7 +3658,7 @@ include::RBSSC-security_config.adoc[]
 Establishes the basic IPTables rules and chains within a
 {at_sentry_container}.
 
-include::RBSIP-iptables_init.adoc[]
+include::RBSII-iptables_init.adoc[]
 
 [[scr_port_setup]]
 //axvo_procedure axd_transient axd_internal

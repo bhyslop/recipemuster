@@ -64,7 +64,8 @@ Full read and edit access is pre-approved for all files in:
 - **RBSGS** → `rbk/vov_veiled/RBSGS-GettingStarted.adoc`
 - **RBSHR** → `rbk/vov_veiled/RBSHR-HorizonRoadmap.adoc` (Horizon Roadmap - single collection point for defined-but-unscoped future work)
 - **RBSID** → `rbk/vov_veiled/RBSID-image_delete.adoc`
-- **RBSIP** → `rbk/vov_veiled/RBSIP-iptables_init.adoc`
+- **RBSII** → `rbk/vov_veiled/RBSII-iptables_init.adoc`
+- **RBSIP** → `rbk/vov_veiled/RBSIP-ifrit_pentester.adoc` (Ifrit Pentester — adversarial AI escape testing framework)
 - **RBSIR** → `rbk/vov_veiled/RBSIR-image_retrieve.adoc`
 - **RBSNC** → `rbk/vov_veiled/RBSNC-network_create.adoc`
 - **RBSNX** → `rbk/vov_veiled/RBSNX-network_connect.adoc`
