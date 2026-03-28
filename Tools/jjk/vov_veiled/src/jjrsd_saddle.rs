@@ -16,7 +16,7 @@ use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
 use crate::jjrq_query::jjrq_resolve_default_heat;
 use crate::jjrpd_parade::{jjrpd_write_file_bitmap, jjrpd_write_commit_swimlanes};
-use crate::jjrz_gazette::jjrz_build_read_output;
+use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
 /// Arguments for saddle command
 #[derive(clap::Args, Debug)]
@@ -30,7 +30,7 @@ pub struct jjrsd_SaddleArgs {
 }
 
 /// Run the saddle command - return Heat context
-pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
+pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
     let mut output = vvco_Output::buffer();
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
@@ -384,17 +384,10 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs) -> (i32, String) {
     jjrpd_write_file_bitmap(&mut output, &firemark, heat);
     jjrpd_write_commit_swimlanes(&mut output, &firemark, heat);
 
-    // Gazette output for structured downstream consumption
-    {
-        let paces: Vec<(&str, &str)> = match (&gazette_pace_coronet, &gazette_spec) {
-            (Some(c), Some(d)) => vec![(c.as_str(), d.as_str())],
-            _ => vec![],
-        };
-        let gazette_md = jjrz_build_read_output(&heat_key, &paddock_content, &paces);
-        vvco_out!(output, "");
-        for line in gazette_md.lines() {
-            vvco_out!(output, "{}", line);
-        }
+    // Add gazette notices for downstream consumption
+    gazette.jjrz_add(jjrz_Slug::Paddock, &heat_key, &paddock_content).ok();
+    if let (Some(c), Some(d)) = (&gazette_pace_coronet, &gazette_spec) {
+        gazette.jjrz_add(jjrz_Slug::Pace, c, d).ok();
     }
 
     (0, output.vvco_finish())

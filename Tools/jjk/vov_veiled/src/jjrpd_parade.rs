@@ -12,7 +12,7 @@ use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_Heat as Heat, jjrg_HeatS
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrq_query::{jjrq_files_for_pace, jjrq_file_touches_for_heat, zjjrq_files_for_commit, zjjrq_bare_filename, zjjrq_is_infra_file};
 use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries, jjrs_SteeplechaseEntry};
-use crate::jjrz_gazette::jjrz_build_read_output;
+use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 use std::collections::BTreeMap;
 use std::fmt::Write;
 use std::fs;
@@ -39,7 +39,7 @@ pub struct jjrpd_ParadeArgs {
 }
 
 /// Run the show command - display comprehensive Heat status
-pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
+pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
     let mut output = vvco_Output::buffer();
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
@@ -374,19 +374,17 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs) -> (i32, String) {
         jjrpd_write_file_bitmap(&mut output, &firemark, heat);
         jjrpd_write_commit_swimlanes(&mut output, &firemark, heat);
 
-        // Gazette output for structured downstream consumption (detail mode only)
+        // Add gazette notices for downstream consumption (detail mode only)
         if let Some(ref paddock_text) = gazette_paddock {
-            let paces: Vec<(String, String)> = heat.order.iter()
-                .filter_map(|ck| heat.paces.get(ck).map(|p| (ck, p)))
-                .filter_map(|(ck, p)| p.tacks.first().map(|t| (ck, t)))
-                .filter(|(_, t)| !args.remaining || (t.state != PaceState::Complete && t.state != PaceState::Abandoned))
-                .map(|(ck, t)| (ck.clone(), t.text.clone()))
-                .collect();
-            let pace_refs: Vec<(&str, &str)> = paces.iter().map(|(c, d)| (c.as_str(), d.as_str())).collect();
-            let gazette_md = jjrz_build_read_output(&heat_key, paddock_text, &pace_refs);
-            vvco_out!(output, "");
-            for line in gazette_md.lines() {
-                vvco_out!(output, "{}", line);
+            gazette.jjrz_add(jjrz_Slug::Paddock, &heat_key, paddock_text).ok();
+            for coronet_key in &heat.order {
+                if let Some(pace) = heat.paces.get(coronet_key) {
+                    if let Some(tack) = pace.tacks.first() {
+                        if !args.remaining || (tack.state != PaceState::Complete && tack.state != PaceState::Abandoned) {
+                            gazette.jjrz_add(jjrz_Slug::Pace, coronet_key, &tack.text).ok();
+                        }
+                    }
+                }
             }
         }
     } else {

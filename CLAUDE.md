@@ -520,7 +520,7 @@ Each chat session must open an officium before using any jjx commands.
 
 The ☉ (U+2609 SUN) prefix parallels ₣/₢ for firemarks/coronets. Pass it exactly as returned — the dispatcher strips it.
 
-NOTE: Gazette file exchange via the officium directory is not yet wired. For now, gazette I/O continues via the existing inline `input` param on commands that support it.
+Gazette file exchange is wired: `jjx_orient`, `jjx_show`, and `jjx_paddock` (getter) write output to `gazette.md` after returning; `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read and consume `gazette.md` before dispatch. The `input` inline param has been removed from all three setter commands.
 
 ### Mount Protocol
 

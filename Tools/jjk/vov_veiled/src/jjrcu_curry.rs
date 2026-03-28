@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
-use crate::jjrz_gazette::jjrz_build_read_output;
+use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
 /// Arguments for jjx_curry command
 #[derive(clap::Args, Debug)]
@@ -28,7 +28,7 @@ pub struct jjrcu_CurryArgs {
 }
 
 /// Handler for jjx_curry command
-pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, String) {
+pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>, gazette: &mut jjrz_Gazette) -> (i32, String) {
     use crate::jjro_ops::jjrg_curry;
 
     let mut output = vvco_Output::buffer();
@@ -73,12 +73,8 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>) -> (i32, 
 
             vvco_out!(output, "{}", paddock_content);
 
-            // Gazette output for structured downstream consumption
-            let gazette_md = jjrz_build_read_output(&firemark_key, &paddock_content, &[]);
-            vvco_out!(output, "");
-            for line in gazette_md.lines() {
-                vvco_out!(output, "{}", line);
-            }
+            // Add gazette notice for downstream consumption
+            gazette.jjrz_add(jjrz_Slug::Paddock, &firemark_key, &paddock_content).ok();
 
             (0, output.vvco_finish())
         }
