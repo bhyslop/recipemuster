@@ -63,14 +63,9 @@ zburc_kindle() {
   # Guard against unexpected BURC_ variables not in enrollment
   buv_scope_sentinel BURC BURC_
 
-  # Export variables needed by child processes (exec'd dispatch, workbenches)
-  export BURC_STATION_FILE
-  export BURC_TABTARGET_DIR
-  export BURC_TOOLS_DIR
-  export BURC_BUK_DIR
-
-  # Lock all enrolled BURC_ variables against mutation
-  buv_lock BURC
+  # Export and lock all enrolled BURC_ variables — committed config,
+  # needed by coordinator child processes across exec boundary
+  buv_export_and_lock BURC
 
   readonly ZBURC_KINDLED=1
 }

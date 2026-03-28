@@ -686,6 +686,20 @@ buv_lock() {
   done
 }
 
+buv_export_and_lock() {
+  zbuv_sentinel
+
+  local -r z_scope="${1:-}"
+  test -n "${z_scope}" || buc_die "buv_export_and_lock: scope required"
+
+  local z_i
+  for z_i in "${!z_buv_scope_roll[@]}"; do
+    test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
+    export "${z_buv_varname_roll[$z_i]}"
+    readonly "${z_buv_varname_roll[$z_i]}"
+  done
+}
+
 # buv_report SCOPE "Label" — rich per-variable display; returns non-zero if any failed
 buv_report() {
   zbuv_sentinel
