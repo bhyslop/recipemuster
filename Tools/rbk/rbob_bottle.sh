@@ -84,6 +84,23 @@ zrbob_kindle() {
   esac
   readonly ZRBOB_CENSER_NETWORK_ARGS
 
+  # Volume mount args (array for proper quoting)
+  # Read the runtime-appropriate field, split on semicolons, emit --volume per entry
+  ZRBOB_VOLUME_ARGS=()
+  local z_vol_mounts=""
+  case "${RBRN_RUNTIME}" in
+    docker) z_vol_mounts="${RBRN_DOCKER_VOLUME_MOUNTS:-}" ;;
+    podman) z_vol_mounts="${RBRN_PODMAN_VOLUME_MOUNTS:-}" ;;
+  esac
+  if test -n "${z_vol_mounts}"; then
+    local z_entry
+    while IFS= read -r -d ';' z_entry || test -n "${z_entry}"; do
+      test -n "${z_entry}" || continue
+      ZRBOB_VOLUME_ARGS+=("--volume" "${z_entry}")
+    done <<< "${z_vol_mounts}"
+  fi
+  readonly ZRBOB_VOLUME_ARGS
+
   # GAR image references (computed once, used by launch and preflight)
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
@@ -300,6 +317,7 @@ zrbob_launch_bottle() {
     --name "${ZRBOB_BOTTLE}" \
     --net=container:"${ZRBOB_CENSER}" \
     --security-opt label=disable \
+    ${ZRBOB_VOLUME_ARGS[@]+"${ZRBOB_VOLUME_ARGS[@]}"} \
     "${ZRBOB_BOTTLE_IMAGE}" \
     > "${ZRBOB_BOTTLE_CREATE_LOG}" \
     || buc_die "Failed to create bottle"
