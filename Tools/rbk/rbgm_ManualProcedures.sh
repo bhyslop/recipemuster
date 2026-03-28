@@ -486,397 +486,346 @@ rbgm_onboarding() {
   # No zrbgm_sentinel — works pre-kindle (load-bearing: the guide's purpose
   # is to run before a valid regime exists; see docket for rationale)
 
-  buc_doc_brief "Adaptive onboarding guide — reads current state and shows next steps"
+  buc_doc_brief "Role-aware onboarding dashboard — probes credentials and shows per-role status"
   buc_doc_shown || return 0
 
-  # --- Compute level (strict sequential: first unmet probe stops advancement) ---
-  local z_level=0
+  # --- Shared state extracted once from config files ---
   local z_secrets_dir=""
   local z_vessel_dir=""
-  local z_gar_host=""
-  local z_sentry_vouch_ref=""
-  local z_bottle_vouch_ref=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+    z_vessel_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_VESSEL_DIR") || z_vessel_dir=""
+  fi
 
-  # Vessel paths for probing (constants — not dependent on regime sourcing)
+  # Vessel sigils (constants — not dependent on regime sourcing)
   local -r z_busybox_sigil="rbev-busybox"
   local -r z_sentry_sigil="rbev-sentry-debian-slim"
   local -r z_bottle_sigil="rbev-bottle-ifrit"
 
-  while true; do
-    # Level 1: Payor project configured in rbrp.env
-    test -f "${RBBC_rbrp_file}" || break
-    grep -q '^RBRP_PAYOR_PROJECT_ID=.\+' "${RBBC_rbrp_file}" || break
-    z_level=1
+  # ===================================================================
+  # Phase 1: Role Inventory — probe each RBRA file independently
+  # ===================================================================
+  local z_has_payor=0
+  local z_has_oauth=0
+  local z_has_governor=0
+  local z_has_director=0
+  local z_has_retriever=0
 
-    # Level 2: OAuth credentials installed (requires secrets dir from rbrr)
-    test -f "${RBBC_rbrr_file}" || break
-    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
-    test -n "${z_secrets_dir}" || break
-    test -f "${z_secrets_dir}/rbro-payor.env" || break
-    z_level=2
+  # Payor: rbrp.env exists with RBRP_PAYOR_PROJECT_ID set
+  if test -f "${RBBC_rbrp_file}"; then
+    if grep -q '^RBRP_PAYOR_PROJECT_ID=.\+' "${RBBC_rbrp_file}"; then
+      z_has_payor=1
+    fi
+  fi
 
-    # Level 3: Depot project created
-    grep -q '^RBRR_DEPOT_PROJECT_ID=.\+' "${RBBC_rbrr_file}" || break
-    z_level=3
+  # OAuth: rbro-payor.env exists in secrets dir
+  if test -n "${z_secrets_dir}" && test -f "${z_secrets_dir}/rbro-payor.env"; then
+    z_has_oauth=1
+  fi
 
-    # Level 4: Governor service account
-    test -f "${z_secrets_dir}/rbra-governor.env" || break
-    z_level=4
+  # Service account credentials: RBRA files in secrets dir
+  if test -n "${z_secrets_dir}"; then
+    test -f "${z_secrets_dir}/rbra-governor.env"  && z_has_governor=1
+    test -f "${z_secrets_dir}/rbra-director.env"   && z_has_director=1
+    test -f "${z_secrets_dir}/rbra-retriever.env"  && z_has_retriever=1
+  fi
 
-    # Level 5: Director service account
-    test -f "${z_secrets_dir}/rbra-director.env" || break
-    z_level=5
-
-    # Level 6: Retriever service account
-    test -f "${z_secrets_dir}/rbra-retriever.env" || break
-    z_level=6
-
-    # Level 7: Inscribe reliquary (busybox RBRV_RELIQUARY non-empty)
-    z_vessel_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_VESSEL_DIR") || z_vessel_dir=""
-    test -n "${z_vessel_dir}" || break
-    local z_busybox_reliquary=""
-    z_busybox_reliquary=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_busybox_sigil}/rbrv.env" "RBRV_RELIQUARY") || z_busybox_reliquary=""
-    test -n "${z_busybox_reliquary}" || break
-    z_level=7
-
-    # Level 8: Airgap build (busybox RBRV_IMAGE_1_ANCHOR non-empty)
-    local z_busybox_anchor=""
-    z_busybox_anchor=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_busybox_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_busybox_anchor=""
-    test -n "${z_busybox_anchor}" || break
-    z_level=8
-
-    # Level 9: Bottle build (bottle RBRV_IMAGE_1_ANCHOR non-empty)
-    local z_bottle_anchor=""
-    z_bottle_anchor=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_bottle_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_bottle_anchor=""
-    test -n "${z_bottle_anchor}" || break
-    z_level=9
-
-    # Level 10: Sentry build (sentry RBRV_IMAGE_1_ANCHOR non-empty)
-    local z_sentry_anchor=""
-    z_sentry_anchor=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_sentry_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_sentry_anchor=""
-    test -n "${z_sentry_anchor}" || break
-    z_level=10
-
-    # Level 11: Summon bottle (RBRN_BOTTLE_CONSECRATION non-empty in nameplate)
-    test -f "${RBBC_dot_dir}/rbrn_nsproto.env" || break
-    source "${RBBC_dot_dir}/rbrn_nsproto.env"
-    test -n "${RBRN_BOTTLE_CONSECRATION:-}" || break
-    z_level=11
-
-    # Level 12: Summon sentry (RBRN_SENTRY_CONSECRATION non-empty in nameplate)
-    test -n "${RBRN_SENTRY_CONSECRATION:-}" || break
-    z_level=12
-
-    # Level 13: Run nsproto (vouch images present in local runtime)
-    source "${RBBC_rbrr_file}"
-    z_gar_host="${RBRR_GCP_REGION}-docker.pkg.dev"
-    z_sentry_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-vouch"
-    z_bottle_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}-vouch"
-    "${RBRN_RUNTIME}" image inspect "${z_sentry_vouch_ref}" >/dev/null 2>&1 || break
-    "${RBRN_RUNTIME}" image inspect "${z_bottle_vouch_ref}" >/dev/null 2>&1 || break
-    z_level=13
-
-    break
-  done
-
-  # --- Frontmatter (level-appropriate orientation for newcomers) ---
-  case "${z_level}" in
-    0)
-      bug_section "Recipe Bottle Onboarding — Configuration Review"
-      bug_t "Welcome to Recipe Bottle. This guide walks you through provisioning"
-      bug_t "Google Cloud infrastructure from scratch. Before starting, review"
-      bug_t "the configuration defaults below."
-      bug_e
-      zrbgm_po_review_defaults
-      ;;
-    1)
-      bug_section "Recipe Bottle Onboarding — Payor Established"
-      bug_t "Your GCP payor project exists. Next you will install OAuth"
-      bug_t "credentials so that CLI tools can act on your behalf."
-      ;;
-    2)
-      bug_section "Recipe Bottle Onboarding — Payor Credentialed"
-      bug_t "Payor credentials are emplaced. Next you will create the GCP"
-      bug_t "depot project that hosts build infrastructure, artifact registry,"
-      bug_t "and secrets."
-      ;;
-    3)
-      bug_section "Recipe Bottle Onboarding — Depot Created"
-      bug_t "Depot project exists. Three service accounts are needed:"
-      bug_t "governor (admin), director (builds), and retriever (image pulls)."
-      ;;
-    4)
-      bug_section "Recipe Bottle Onboarding — Governor Provisioned"
-      bug_t "Governor admin account is ready. Next: create the director"
-      bug_t "service account that executes Cloud Build operations."
-      ;;
-    5)
-      bug_section "Recipe Bottle Onboarding — Director Provisioned"
-      bug_t "Director build account is ready. Next: create the retriever"
-      bug_t "service account for pulling container images to local bottles."
-      ;;
-    6)
-      bug_section "Recipe Bottle Onboarding — Service Accounts Ready"
-      bug_t "All service accounts are provisioned. Cloud Build uses tool images"
-      bug_t "(gcloud, docker, skopeo, etc) for its build steps. A reliquary"
-      bug_t "freezes these in GAR so builds are reproducible."
-      ;;
-    7)
-      bug_section "Recipe Bottle Onboarding — Reliquary Inscribed"
-      bug_t "Tool images are frozen in GAR. Next: build a vessel on the"
-      bug_t "air-gapped pool to prove the locked-down path works."
-      ;;
-    8)
-      bug_section "Recipe Bottle Onboarding — Airgap Build Complete"
-      bug_t "Busybox built on the airgap pool — all dependencies from GAR,"
-      bug_t "zero public internet. Next: build the bottle and sentry vessels"
-      bug_t "on the tether pool (they need apt-get from public repos)."
-      ;;
-    9)
-      bug_section "Recipe Bottle Onboarding — Bottle Built"
-      bug_t "The bottle vessel is built. A bottle runs your workload — untrusted"
-      bug_t "code sandboxed by a sentry. Next: build the sentry that enforces"
-      bug_t "network policy around the bottle."
-      ;;
-    10)
-      bug_section "Recipe Bottle Onboarding — Sentry Built"
-      bug_t "The sentry vessel is built. A sentry creates the network namespace,"
-      bug_t "runs iptables and dnsmasq, and controls what the bottle can reach."
-      bug_t "Next: record consecrations and summon images locally."
-      ;;
-    11)
-      bug_section "Recipe Bottle Onboarding — Bottle Summoned"
-      bug_t "Bottle image is pulled locally. Next: summon the sentry image."
-      ;;
-    12)
-      bug_section "Recipe Bottle Onboarding — Sentry Summoned"
-      bug_t "Both vessel images are local. Next: run the nsproto test suite"
-      bug_t "to verify the sentry/bottle pair works end-to-end."
-      ;;
-    13)
-      bug_section "Recipe Bottle Onboarding — Setup Complete"
-      bug_t "Infrastructure is fully provisioned, vessels are built, vouched,"
-      bug_t "and pulled. Run the nsproto security tests to verify everything."
-      ;;
-  esac
+  # ===================================================================
+  # Header
+  # ===================================================================
+  bug_section "Recipe Bottle Onboarding Dashboard"
   bug_e
 
-  # --- Dashboard ---
+  # ===================================================================
+  # Role Inventory Display
+  # ===================================================================
+  bug_section "Role Inventory"
+  bug_t "  RBRA file presence IS the role declaration. No flags, no parameters."
+  bug_t "  The filesystem is the configuration."
+  bug_e
+
   local z_flag=0
-  z_flag=0; test "${z_level}" -ge 1 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 1. Payor Establish     — Payor:     GCP project + OAuth consent screen"
-  z_flag=0; test "${z_level}" -ge 2 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 2. Payor Install       — Payor:     RBRA credential emplacement"
-  z_flag=0; test "${z_level}" -ge 3 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 3. Depot Create        — Payor:     GCP depot project + dual pools       (~2 min)"
-  z_flag=0; test "${z_level}" -ge 4 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 4. Governor Reset      — Payor:     Admin service account"
-  z_flag=0; test "${z_level}" -ge 5 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 5. Director Create     — Governor:  Build service account"
-  z_flag=0; test "${z_level}" -ge 6 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 6. Retriever Create    — Governor:  Image pull service account"
-  z_flag=0; test "${z_level}" -ge 7 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 7. Inscribe Reliquary  — Director:  Freeze tool images in GAR           (~6 min)"
-  z_flag=0; test "${z_level}" -ge 8 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 8. Airgap Build        — Director:  Busybox on air-gapped pool         (~10 min)"
-  z_flag=0; test "${z_level}" -ge 9 && z_flag=1
-  zrbgm_po_status "${z_flag}" " 9. Bottle Build        — Director:  Bottle vessel on tether pool       (~15 min)"
-  z_flag=0; test "${z_level}" -ge 10 && z_flag=1
-  zrbgm_po_status "${z_flag}" "10. Sentry Build        — Director:  Sentry vessel on tether pool       (~15 min)"
-  z_flag=0; test "${z_level}" -ge 11 && z_flag=1
-  zrbgm_po_status "${z_flag}" "11. Summon Bottle       — Retriever: Pull bottle image locally"
-  z_flag=0; test "${z_level}" -ge 12 && z_flag=1
-  zrbgm_po_status "${z_flag}" "12. Summon Sentry       — Retriever: Pull sentry image locally"
-  z_flag=0; test "${z_level}" -ge 13 && z_flag=1
-  zrbgm_po_status "${z_flag}" "13. Run Nsproto         — Verify:    Sentry/bottle security tests"
+
+  z_flag="${z_has_payor}"
+  zrbgm_po_status "${z_flag}" "Payor       — OAuth (browser flow): creates/funds GCP infrastructure"
+
+  z_flag=0; test "${z_has_payor}" = "1" && test "${z_has_oauth}" = "1" && z_flag=1
+  zrbgm_po_status "${z_flag}" "  OAuth     — Payor credential installed"
+
+  zrbgm_po_status "${z_has_governor}"  "Governor    — Service account: administers director/retriever credentials"
+  zrbgm_po_status "${z_has_director}"  "Director    — Service account: submits builds, manages images"
+  zrbgm_po_status "${z_has_retriever}" "Retriever   — Service account: pulls images for local bottles"
   bug_e
 
-  # --- Next step guidance ---
-  case "${z_level}" in
-    0)
-      bug_section "Next: Payor Establish"
-      bug_t "  If the defaults above look right, proceed to Payor Establish."
-      bug_tc "  To adjust defaults first, edit " "${RBBC_rbrr_file}"
-      bug_t "  and re-run this guide. Nothing is committed until the next step."
-      bug_e
-      bug_t "  Create a GCP project and configure OAuth consent screen."
-      bug_t "  This is the billing anchor for all Recipe Bottle infrastructure."
-      bug_e
-      bug_t "  Run the guided procedure:"
+  # ===================================================================
+  # Credential Guidance — for absent roles
+  # ===================================================================
+  local z_any_absent=0
+  if test "${z_has_payor}" = "0" || test "${z_has_governor}" = "0" || \
+     test "${z_has_director}" = "0" || test "${z_has_retriever}" = "0"; then
+    z_any_absent=1
+  fi
+
+  if test "${z_any_absent}" = "1"; then
+    bug_section "Credential Guidance"
+
+    if test "${z_has_payor}" = "0"; then
+      bug_t "  Payor: Configure the GCP payor project identity."
+      bug_tc "    File: " "${RBBC_rbrp_file}"
+      bug_t "    Set RBRP_PAYOR_PROJECT_ID to your GCP project, then run:"
       buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
-      ;;
-    1)
-      bug_section "Next: Payor Install"
-      bug_t "  Install OAuth credentials from the JSON file downloaded during Payor Establish."
       bug_e
+    fi
+
+    if test "${z_has_payor}" = "1" && test "${z_has_oauth}" = "0"; then
+      bug_t "  OAuth: Install payor credentials from the JSON file downloaded"
+      bug_t "  during Payor Establish."
+      bug_t "    Run:"
+      buc_tabtarget "${RBZ_PAYOR_INSTALL}" "\${HOME}/Downloads/client_secret_*.json"
+      bug_e
+    fi
+
+    if test "${z_has_governor}" = "0" && test "${z_has_director}" = "0" && \
+       test "${z_has_retriever}" = "0" && test -n "${z_secrets_dir}"; then
+      bug_t "  Service accounts (governor, director, retriever) authenticate via"
+      bug_t "  RBRA credential files. Each is a shell-sourceable .env file placed in:"
+      bug_tc "    " "${z_secrets_dir}/"
+      bug_t "  Required permissions: 600. Expected filenames:"
+      bug_t "    rbra-governor.env   — admin for depot project"
+      bug_t "    rbra-director.env   — executes Cloud Build operations"
+      bug_t "    rbra-retriever.env  — pulls images for local bottles"
+      bug_e
+      bug_t "  If you received a credential file, place it at the path above."
+      bug_t "  If you are the payor, create credentials via the payor track below."
+      bug_e
+    fi
+  fi
+
+  # ===================================================================
+  # Phase 2: Per-role Status Tracks
+  # ===================================================================
+
+  # --- Payor Track ---
+  if test "${z_has_payor}" = "1"; then
+    bug_section "Payor Track"
+
+    # Sub-probe: depot project created
+    local z_has_depot=0
+    if test -f "${RBBC_rbrr_file}"; then
+      if grep -q '^RBRR_DEPOT_PROJECT_ID=.\+' "${RBBC_rbrr_file}"; then
+        z_has_depot=1
+      fi
+    fi
+
+    zrbgm_po_status "${z_has_payor}"    "  Project configured"
+    zrbgm_po_status "${z_has_oauth}"    "  OAuth installed"
+    zrbgm_po_status "${z_has_depot}"    "  Depot created"
+    zrbgm_po_status "${z_has_governor}" "  Governor reset"
+    bug_e
+
+    # Next step for payor
+    if test "${z_has_oauth}" = "0"; then
+      bug_t "  Next: Install OAuth credentials."
       bug_t "  Run:"
       buc_tabtarget "${RBZ_PAYOR_INSTALL}" "\${HOME}/Downloads/client_secret_*.json"
-      ;;
-    2)
-      bug_section "Next: Depot Create"
-      bug_t "  Creating a depot binds your RBRR configuration to real cloud resources."
-      bug_t "  Review these values before proceeding — one RBRR is tied to one depot."
+    elif test "${z_has_depot}" = "0"; then
+      bug_t "  Next: Create the GCP depot project."
+      bug_t "  Review RBRR defaults before proceeding — one RBRR is tied to one depot."
       bug_e
       bug_tc "    GCP_REGION                " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCP_REGION)"
       bug_tc "    GCB_MACHINE_TYPE          " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCB_MACHINE_TYPE)"
-      bug_tc "    GCB_TIMEOUT               " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCB_TIMEOUT)"
-      bug_tc "    GCB_MIN_CONCURRENT_BUILDS " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCB_MIN_CONCURRENT_BUILDS)"
       bug_tc "    VESSEL_DIR                " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_VESSEL_DIR)"
       bug_tc "    SECRETS_DIR               " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_SECRETS_DIR)"
       bug_e
-      bug_tc "  To adjust, edit " "${RBBC_rbrr_file}"
-      bug_t "  and re-run this guide."
-      bug_e
-      bug_t "  Create the GCP depot project that hosts all build infrastructure."
-      bug_t "  Depot creation establishes dual worker pools (tether + airgap)."
-      bug_e
-      bug_t "  Run (~2 min — creates GCP project, enables APIs, provisions pools):"
+      bug_t "  Run (~2 min):"
       buc_tabtarget "${RBZ_CREATE_DEPOT}" "<depot-name>"
-      ;;
-    3)
-      bug_section "Next: Governor Reset"
-      bug_t "  Create the governor service account (admin for depot project)."
-      bug_e
+    elif test "${z_has_governor}" = "0"; then
+      bug_t "  Next: Create the governor service account."
       bug_t "  Run:"
       buc_tabtarget "${RBZ_GOVERNOR_RESET}"
-      ;;
-    4)
-      bug_section "Next: Director Create"
-      bug_t "  Create the director service account (executes Cloud Build operations)."
-      bug_t "  The instance name labels this director — use a short identifier."
-      bug_e
-      bug_t "  Run:"
-      buc_tabtarget "${RBZ_CREATE_DIRECTOR}" "<instance-name>"
-      ;;
-    5)
-      bug_section "Next: Retriever Create"
-      bug_t "  Create the retriever service account (pulls images for local bottles)."
-      bug_t "  Use the same instance name as your director."
-      bug_e
-      bug_t "  Run:"
-      buc_tabtarget "${RBZ_CREATE_RETRIEVER}" "<instance-name>"
-      ;;
-    6)
-      bug_section "Next: Inscribe Reliquary"
-      bug_t "  Cloud Build steps use tool images (gcloud, docker, skopeo, etc)."
-      bug_t "  Inscribe mirrors these from upstream into a datestamped reliquary"
-      bug_t "  in GAR. This freezes tool versions so builds are reproducible."
-      bug_e
-      bug_t "  1. Inscribe reliquary (~6 min — mirrors 6 tool images ~2 GB to GAR):"
+    else
+      bug_t "  Payor track complete. Governor, director, and retriever credentials"
+      bug_t "  are issued from the governor track (below) or distributed to machines."
+    fi
+    bug_e
+  fi
+
+  # --- Director Track ---
+  if test "${z_has_director}" = "1"; then
+    bug_section "Director Track"
+
+    # Sub-probe: reliquary inscribed (busybox RBRV_RELIQUARY non-empty)
+    local z_has_reliquary=0
+    local z_busybox_reliquary=""
+    if test -n "${z_vessel_dir}"; then
+      z_busybox_reliquary=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_busybox_sigil}/rbrv.env" "RBRV_RELIQUARY") || z_busybox_reliquary=""
+      test -n "${z_busybox_reliquary}" && z_has_reliquary=1
+    fi
+
+    # Sub-probe: vessels built (IMAGE_1_ANCHOR non-empty for each)
+    local z_has_busybox_built=0
+    local z_has_bottle_built=0
+    local z_has_sentry_built=0
+    if test -n "${z_vessel_dir}"; then
+      local z_tmp=""
+      z_tmp=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_busybox_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_tmp=""
+      test -n "${z_tmp}" && z_has_busybox_built=1
+      z_tmp=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_bottle_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_tmp=""
+      test -n "${z_tmp}" && z_has_bottle_built=1
+      z_tmp=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_sentry_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_tmp=""
+      test -n "${z_tmp}" && z_has_sentry_built=1
+    fi
+
+    local z_all_built=0
+    if test "${z_has_busybox_built}" = "1" && test "${z_has_bottle_built}" = "1" && \
+       test "${z_has_sentry_built}" = "1"; then
+      z_all_built=1
+    fi
+
+    zrbgm_po_status "${z_has_director}"     "  Credentials present"
+    zrbgm_po_status "${z_has_reliquary}"    "  Reliquary inscribed"
+    zrbgm_po_status "${z_has_busybox_built}" "  Busybox built (airgap)"
+    zrbgm_po_status "${z_has_bottle_built}"  "  Bottle built (tether)"
+    zrbgm_po_status "${z_has_sentry_built}"  "  Sentry built (tether)"
+    bug_e
+
+    # Next step for director
+    if test "${z_has_reliquary}" = "0"; then
+      bug_t "  Next: Inscribe reliquary — freeze tool images in GAR."
+      bug_t "  Run (~6 min):"
       buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
-      bug_t "  2. Record the reliquary ID in the busybox vessel:"
-      bug_e
-      bug_t "     Edit:"
-      bug_tc "        " "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}/rbrv.env"
-      bug_e
-      bug_t "     Set (substitute the reliquary ID from inscribe output):"
-      bug_tc "        RBRV_RELIQUARY=" "<reliquary-id>"
-      ;;
-    7)
-      bug_section "Next: Airgap Build — Busybox"
-      bug_t "  This is the strictest build path: the airgap pool has NO public"
-      bug_t "  internet. Every dependency must come from GAR. Enshrine mirrors"
-      bug_t "  the busybox base image to GAR with a content-addressed anchor."
-      bug_t "  Then conjure builds the vessel entirely from GAR sources."
-      bug_e
+      bug_t "  Then record the reliquary ID in the busybox vessel:"
+      bug_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}/rbrv.env"
+      bug_tc "    Set RBRV_RELIQUARY=" "<reliquary-id>"
+    elif test "${z_has_busybox_built}" = "0"; then
+      bug_t "  Next: Airgap build — busybox on the air-gapped pool."
       bug_t "  1. Enshrine busybox base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
-      bug_t "  2. Conjure busybox on airgap pool (~8 min — conjure + about + vouch):"
+      bug_t "  2. Conjure busybox (~8 min):"
       buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
       bug_t "  3. Vouch (verify SLSA provenance):"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
-      ;;
-    8)
-      bug_section "Next: Bottle Build"
-      bug_t "  A bottle is the workload container — it runs your application code,"
-      bug_t "  sandboxed inside a sentry's network namespace. The bottle vessel"
-      bug_t "  builds on the tether pool (it needs apt-get from public repos)."
-      bug_e
-      bug_t "  1. Record the reliquary ID in the bottle vessel:"
-      bug_e
-      bug_t "     Edit:"
-      bug_tc "        " "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}/rbrv.env"
-      bug_e
-      bug_t "     Set:"
-      bug_tc "        RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
-      bug_e
-      bug_t "  2. Enshrine bottle base image (~2 min — ubuntu:24.04):"
+    elif test "${z_has_bottle_built}" = "0"; then
+      bug_t "  Next: Bottle build on tether pool."
+      bug_t "  1. Record reliquary in bottle vessel:"
+      bug_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}/rbrv.env"
+      bug_tc "    Set RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
+      bug_t "  2. Enshrine bottle base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
-      bug_t "  3. Conjure bottle on tether pool (~13 min — ubuntu is large):"
+      bug_t "  3. Conjure bottle (~13 min):"
       buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
       bug_t "  4. Vouch:"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
-      ;;
-    9)
-      bug_section "Next: Sentry Build"
-      bug_t "  A sentry is the security container — it creates the network namespace,"
-      bug_t "  runs iptables and dnsmasq, and controls what the bottle can reach."
-      bug_t "  The sentry starts first; the bottle runs inside its protection."
-      bug_e
-      bug_t "  1. Record the reliquary ID in the sentry vessel:"
-      bug_e
-      bug_t "     Edit:"
-      bug_tc "        " "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}/rbrv.env"
-      bug_e
-      bug_t "     Set:"
-      bug_tc "        RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
-      bug_e
-      bug_t "  2. Enshrine sentry base image (~2 min — ubuntu:24.04, same as bottle):"
+    elif test "${z_has_sentry_built}" = "0"; then
+      bug_t "  Next: Sentry build on tether pool."
+      bug_t "  1. Record reliquary in sentry vessel:"
+      bug_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}/rbrv.env"
+      bug_tc "    Set RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
+      bug_t "  2. Enshrine sentry base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
-      bug_t "  3. Conjure sentry on tether pool (~13 min — ubuntu is large):"
+      bug_t "  3. Conjure sentry (~13 min):"
       buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
       bug_t "  4. Vouch:"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
-      ;;
-    10)
-      bug_section "Next: Summon Bottle"
-      bug_t "  Record the bottle consecration in the nsproto nameplate, then"
-      bug_t "  summon (pull) the bottle image locally using Retriever credentials."
-      bug_e
+    else
+      bug_t "  Director track complete. All vessels built and vouched."
+    fi
+    bug_e
+  fi
+
+  # --- Retriever Track ---
+  if test "${z_has_retriever}" = "1"; then
+    bug_section "Retriever Track"
+
+    # Sub-probe: nameplate consecrations populated
+    local z_has_bottle_consecration=0
+    local z_has_sentry_consecration=0
+    if test -f "${RBBC_dot_dir}/rbrn_nsproto.env"; then
+      source "${RBBC_dot_dir}/rbrn_nsproto.env"
+      test -n "${RBRN_BOTTLE_CONSECRATION:-}" && z_has_bottle_consecration=1
+      test -n "${RBRN_SENTRY_CONSECRATION:-}" && z_has_sentry_consecration=1
+    fi
+
+    # Sub-probe: vouch images present in local runtime
+    local z_has_bottle_summoned=0
+    local z_has_sentry_summoned=0
+    if test "${z_has_bottle_consecration}" = "1" && test "${z_has_sentry_consecration}" = "1" && \
+       test -f "${RBBC_rbrr_file}"; then
+      source "${RBBC_rbrr_file}"
+      local z_gar_host="${RBRR_GCP_REGION}-docker.pkg.dev"
+      local z_bottle_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}-vouch"
+      local z_sentry_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-vouch"
+      "${RBRN_RUNTIME}" image inspect "${z_bottle_vouch_ref}" >/dev/null 2>&1 && z_has_bottle_summoned=1
+      "${RBRN_RUNTIME}" image inspect "${z_sentry_vouch_ref}" >/dev/null 2>&1 && z_has_sentry_summoned=1
+    fi
+
+    zrbgm_po_status "${z_has_retriever}"           "  Credentials present"
+    zrbgm_po_status "${z_has_bottle_consecration}"  "  Bottle consecration recorded"
+    zrbgm_po_status "${z_has_sentry_consecration}"  "  Sentry consecration recorded"
+    zrbgm_po_status "${z_has_bottle_summoned}"      "  Bottle image summoned"
+    zrbgm_po_status "${z_has_sentry_summoned}"      "  Sentry image summoned"
+    bug_e
+
+    # Next step for retriever
+    if test "${z_has_bottle_consecration}" = "0"; then
+      bug_t "  Next: Record bottle consecration in the nsproto nameplate."
       bug_t "  1. Edit the nameplate:"
-      bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
-      bug_e
-      bug_t "     Set (substitute your actual consecration value):"
-      bug_tc "        RBRN_BOTTLE_CONSECRATION=" "<consecration>"
-      bug_e
+      bug_tc "    " "${RBBC_dot_dir}/rbrn_nsproto.env"
+      bug_t "    Set (substitute your actual consecration value):"
+      bug_tc "    RBRN_BOTTLE_CONSECRATION=" "<consecration>"
       bug_t "  2. Summon bottle:"
       buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} <consecration>"
-      ;;
-    11)
-      bug_section "Next: Summon Sentry"
-      bug_t "  Record the sentry consecration in the nsproto nameplate, then"
-      bug_t "  summon the sentry image locally."
-      bug_e
+    elif test "${z_has_sentry_consecration}" = "0"; then
+      bug_t "  Next: Record sentry consecration in the nsproto nameplate."
       bug_t "  1. Edit the nameplate:"
-      bug_tc "        " "${RBBC_dot_dir}/rbrn_nsproto.env"
-      bug_e
-      bug_t "     Set (substitute your actual consecration value):"
-      bug_tc "        RBRN_SENTRY_CONSECRATION=" "<consecration>"
-      bug_e
+      bug_tc "    " "${RBBC_dot_dir}/rbrn_nsproto.env"
+      bug_t "    Set (substitute your actual consecration value):"
+      bug_tc "    RBRN_SENTRY_CONSECRATION=" "<consecration>"
       bug_t "  2. Summon sentry:"
       buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} <consecration>"
-      ;;
-    12)
-      bug_section "Next: Run Nsproto Security Tests"
-      bug_t "  Both vessel images are local. The sentry starts first and creates"
-      bug_t "  the network namespace. The bottle joins and runs inside the sentry's"
-      bug_t "  protection. The test suite verifies the full security envelope."
+    elif test "${z_has_bottle_summoned}" = "0" || test "${z_has_sentry_summoned}" = "0"; then
+      bug_t "  Next: Summon missing images locally."
+      if test "${z_has_bottle_summoned}" = "0"; then
+        bug_t "  Summon bottle:"
+        buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} ${RBRN_BOTTLE_CONSECRATION:-<consecration>}"
+      fi
+      if test "${z_has_sentry_summoned}" = "0"; then
+        bug_t "  Summon sentry:"
+        buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} ${RBRN_SENTRY_CONSECRATION:-<consecration>}"
+      fi
+    else
+      bug_t "  Retriever track complete. Run the nsproto security tests:"
+      bug_tc "    " "tt/rbw-tf.TestFixture.nsproto-security.sh"
       bug_e
-      bug_t "  Run:"
-      bug_tc "        " "tt/rbw-tf.TestFixture.nsproto-security.sh"
-      ;;
-    13)
-      bug_section "Setup Complete"
-      bug_t "  Infrastructure is fully provisioned. Vessels are built, vouched,"
-      bug_t "  and pulled. The nsproto security tests verify the sentry/bottle"
-      bug_t "  pair enforces network policy correctly."
-      bug_e
-      bug_t "  Start a bottle:"
+      bug_t "  Or start a bottle:"
       buc_tabtarget "${RBZ_BOTTLE_START}" "nsproto"
-      ;;
-  esac
+    fi
+    bug_e
+  fi
 
-  buc_success "Onboarding guide displayed"
+  # ===================================================================
+  # No roles detected — first-time user guidance
+  # ===================================================================
+  if test "${z_has_payor}" = "0" && test "${z_has_governor}" = "0" && \
+     test "${z_has_director}" = "0" && test "${z_has_retriever}" = "0"; then
+    bug_section "Getting Started"
+    bug_t "  No roles detected on this machine. Two paths forward:"
+    bug_e
+    bug_t "  A. Full setup (you are the payor):"
+    bug_t "     Review configuration defaults, then begin Payor Establish."
+    bug_e
+    zrbgm_po_review_defaults
+    bug_t "  Run the guided procedure:"
+    buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
+    bug_e
+    bug_t "  B. Retriever-only (you received credential files):"
+    bug_t "     You need two out-of-repo files:"
+    bug_tc "       Station: " "${BURC_STATION_FILE}"
+    bug_t "       RBRA:    Place rbra-retriever.env in RBRR_SECRETS_DIR (per rbrr.env)"
+    bug_t "     Then re-run this guide."
+  fi
+
+  buc_success "Onboarding dashboard displayed"
 }
 
 rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
