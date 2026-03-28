@@ -788,21 +788,14 @@ rbgm_onboarding() {
   # ===================================================================
   if test "${z_has_payor}" = "0" && test "${z_has_governor}" = "0" && \
      test "${z_has_director}" = "0" && test "${z_has_retriever}" = "0"; then
-    bug_section "Getting Started"
+    bug_section "Next Step"
     bug_t "  No roles detected on this machine. Two paths forward:"
     bug_e
     bug_t "  A. Full setup (you are the payor):"
-    bug_t "     Review configuration defaults, then begin Payor Establish."
-    bug_e
-    zrbgm_po_review_defaults
-    bug_t "  Run the guided procedure:"
     buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
     bug_e
     bug_t "  B. Retriever-only (you received credential files):"
-    bug_t "     You need two out-of-repo files:"
-    bug_tc "       Station: " "${BURC_STATION_FILE}"
-    bug_t "       RBRA:    Place rbra-retriever.env in RBRR_SECRETS_DIR (per rbrr.env)"
-    bug_t "     Then re-run this guide."
+    bug_t "     Place rbra-retriever.env in RBRR_SECRETS_DIR and re-run this guide."
   fi
 
   buc_success "Onboarding dashboard displayed"
