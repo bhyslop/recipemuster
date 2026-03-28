@@ -45,16 +45,6 @@ Recipe Bottle uses a role-based security model. Each role authenticates differen
 
 The payor stands apart — requires manual console work and OAuth. All downstream roles authenticate via credential files, enabling automation without human interaction.
 
-## Forbidden Shell Operations
-
-**Never use `cd` in Bash commands — NO exceptions.**
-
-The working directory persists between Bash tool calls. A single `cd` corrupts ALL subsequent commands that use relative paths, including every `./tt/` tabtarget.
-
-- Use absolute paths instead of cd'ing
-
-**There is no safe cd.** Do not reason that "I'll cd back" — the next tool call may be yours or another Claude Code session's, and it will break.
-
 ## Credential Safety
 
 All credential files require `600` permissions and must never be committed to version control.
@@ -62,43 +52,7 @@ All credential files require `600` permissions and must never be committed to ve
 - **Payor OAuth**: `~/.rbw/rbro.env` — client secret + refresh token. Only on the administrator's workstation.
 - **Governor/Director/Retriever**: credential files at paths defined in RBRR (`RBRR_SECRETS_DIR`). Each file contains a service account credential scoped to one role within one depot.
 
-## Test Execution Discipline
-
-Run test fixture tabtargets **sequentially, never in parallel**. Test fixtures share regime state and container/network namespaces — parallel execution causes resource conflicts and false failures.
-
-```
-# Correct: run one at a time
-tt/rbw-tf.TestFixture.regime-validation.sh
-tt/rbw-tf.TestFixture.nsproto-security.sh
-
-# Wrong: never run fixtures concurrently
-tt/rbw-tf.TestFixture.regime-validation.sh & tt/rbw-tf.TestFixture.nsproto-security.sh &
-```
-
-## TabTarget System
-
-TabTargets are lightweight shell scripts in `tt/` that serve as the CLI entry point for all operations. They delegate to workbenches via launchers — no business logic lives in tabtargets.
-
-**Discoverability**: `ls tt/` shows all available commands. Tab completion narrows by prefix: `tt/rbw-<TAB>`.
-
-**Naming pattern**: `{colophon}.{frontispiece}[.{imprint}].sh`
-
-| Part | Purpose | Example |
-|------|---------|---------|
-| **Colophon** | Routing identifier (workbench matches on this) | `rbw-B` |
-| **Frontispiece** | Human-readable description (PascalCase) | `ConnectBottle` |
-| **Imprint** | Optional target parameter (nameplate moniker, fixture name, etc.) | `nsproto` |
-
-Example: `tt/rbw-B.ConnectBottle.nsproto.sh` — colophon `rbw-B` routes to the bottle connect command, frontispiece tells you what it does, imprint `nsproto` selects the nameplate.
-
-Multiple tabtargets can share the same colophon but differ by imprint:
-```
-tt/rbw-s.Start.nsproto.sh
-tt/rbw-s.Start.srjcl.sh
-tt/rbw-s.Start.pluml.sh
-```
-
-For full BUK infrastructure documentation, see `Tools/buk/README.md`.
+@Tools/buk/buk-claude-context.md
 
 ## Command Reference
 

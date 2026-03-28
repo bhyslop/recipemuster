@@ -184,19 +184,6 @@ Full read and edit access is pre-approved for all files in:
 - This collaborator values sincerity over efficiency. When you notice something — a pattern, a concern, an insight about the work or the collaboration itself — say it. Discovery through conversation is part of the work, not a detour from it.
 - Dockets benefit from a `## Character` section describing the cognitive posture the work requires (e.g., "intricate but mechanical," "design conversation requiring judgment"). This helps you bring the right kind of attention.
 
-### Test Execution Discipline
-
-Run test fixture tabtargets **sequentially, never in parallel**. Test fixtures share regime state and container/network namespaces — parallel execution causes resource conflicts and false failures.
-
-```
-# Correct: run one at a time
-tt/rbw-tf.TestFixture.regime-validation.sh
-tt/rbw-tf.TestFixture.nsproto-security.sh
-
-# Wrong: never run fixtures concurrently
-tt/rbw-tf.TestFixture.regime-validation.sh & tt/rbw-tf.TestFixture.nsproto-security.sh &
-```
-
 ### Heredoc Delimiter Selection
 
 When generating heredocs for stdin content, the delimiter must not appear alone on any line within the content.
@@ -215,18 +202,6 @@ When working with .adoc files using MCM patterns:
 - Maintain consistent prefix categories (e.g., `mcm_`, `rbw_`, `gad_`)
 - Use snake_case for anchors, match attribute to anchor
 
-### Forbidden Shell Operations
-
-**Never use `cd` in Bash commands — NO exceptions.**
-
-The working directory persists between Bash tool calls. A single `cd` corrupts ALL subsequent commands that use relative paths, including every `./tt/` tabtarget.
-
-- Use absolute paths instead of cd'ing
-- Use `--manifest-path` or equivalent flags
-- This applies to ALL work — not just Rust builds
-
-**There is no safe cd.** Do not reason that "I'll cd back" — the next tool call may be yours or another officium's, and it will break.
-
 ### Rust Build Discipline
 
 Tabtargets for Rust operations (run from project root):
@@ -234,8 +209,7 @@ Tabtargets for Rust operations (run from project root):
 - `tt/vvw-r.RunVVX.sh <cmd>` → runs vvx binary with arguments
 - `tt/vow-t.Test.sh` → `cargo test --manifest-path Tools/vok/Cargo.toml`
 
-See **Forbidden Shell Operations** above — never `cd`, use `--manifest-path` instead.
-When running cargo directly, use `--manifest-path` to stay at project root.
+Never `cd` — use `--manifest-path` to stay at project root.
 
 ## Prefix Naming Discipline ("mint")
 
@@ -273,7 +247,7 @@ When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-
 
 Tabtargets follow: `{colophon}.{frontispiece}[.{imprint}].sh`
 
-Colophons must reference valid Primary Universe prefixes. See **BUK Concepts** in `Tools/buk/buk-claude-context.md` for terminology (colophon, frontispiece, imprint, workbench).
+Colophons must reference valid Primary Universe prefixes. See **BUK Concepts** in the BUK include for terminology (colophon, frontispiece, imprint, workbench).
 
 ### Extended Namespace Checklist
 
@@ -355,7 +329,7 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 
 @Tools/buk/buk-claude-context.md
 
-@Tools/cmk/cmk-claude-context.md
+@Tools/cmk/vov_veiled/cmk-claude-context.md
 
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
@@ -363,6 +337,6 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 - Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
 - Public project page: https://scaleinv.github.io/recipebottle
 
-@Tools/jjk/jjk-claude-context.md
+@Tools/jjk/vov_veiled/jjk-claude-context.md
 
-@Tools/vvk/vvk-claude-context.md
+@Tools/vvk/vov_veiled/vvk-claude-context.md
