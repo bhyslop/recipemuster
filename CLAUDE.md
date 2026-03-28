@@ -522,6 +522,21 @@ The ☉ (U+2609 SUN) prefix parallels ₣/₢ for firemarks/coronets. Pass it ex
 
 Gazette file exchange is wired: `jjx_orient`, `jjx_show`, and `jjx_paddock` (getter) write output to `gazette.md` after returning; `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read and consume `gazette.md` before dispatch. The `input` inline param has been removed from all three setter commands.
 
+**Gazette wire format (setter commands):**
+Each notice is a `#`-header line with slug and lede, followed by content body. Write the gazette file, then call the command.
+
+| Command | Write to gazette | Then call with params |
+|---------|-----------------|----------------------|
+| `jjx_enroll` | `# slate <silks>` + docket body | `{"firemark": "XX"}` |
+| `jjx_redocket` | `# reslate <coronet>` + docket body | `{"coronet": "XXXXX"}` |
+| `jjx_paddock` (set) | `# paddock <firemark>` + content body | `{}` |
+
+Gazette path: `.claude/jjm/officia/<officium-id>/gazette.md` (read the existing file first, then overwrite with the notice).
+
+Example — reslate a pace docket:
+1. Write gazette: `# reslate AvAAH\n\n## Character\nNew docket content...`
+2. Call: `jjx_redocket` with `{"coronet": "AvAAH"}`
+
 ### Mount Protocol
 
 When user says "mount" or you need to engage the next pace:
