@@ -269,7 +269,7 @@ rbev-vessels/
 ├── rbev-sentry-debian-slim/    # Sentry vessel (conjure — built from source)
 │   ├── Dockerfile
 │   └── rbrv.env
-├── rbev-bottle-ubuntu-test/    # Bottle vessel (conjure — built from source)
+├── rbev-bottle-ifrit/          # Ifrit bottle vessel (conjure — built from source)
 │   ├── Dockerfile
 │   └── rbrv.env
 └── rbev-bottle-plantuml/       # PlantUML server (bind — upstream image pinned by digest)
@@ -281,7 +281,7 @@ Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (li
 **Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `nsproto`) is what appears as the imprint in tabtarget filenames:
 
 ```
-.rbk/rbrn_nsproto.env          # Maps nsproto → rbev-sentry-debian-slim + rbev-bottle-ubuntu-test
+.rbk/rbrn_nsproto.env          # Maps nsproto → rbev-sentry-debian-slim + rbev-bottle-ifrit
 ```
 
 So `tt/rbw-s.Start.nsproto.sh` starts the bottle defined by the `nsproto` nameplate, which selects its sentry and bottle vessel images.

@@ -500,7 +500,7 @@ rbgm_onboarding() {
   # Vessel paths for probing (constants — not dependent on regime sourcing)
   local -r z_busybox_sigil="rbev-busybox"
   local -r z_sentry_sigil="rbev-sentry-debian-slim"
-  local -r z_bottle_sigil="rbev-bottle-ubuntu-test"
+  local -r z_bottle_sigil="rbev-bottle-ifrit"
 
   while true; do
     # Level 1: Payor project configured in rbrp.env
