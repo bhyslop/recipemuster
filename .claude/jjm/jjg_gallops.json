@@ -4876,9 +4876,10 @@
       "status": "racing",
       "order": [
         "₢AyAAA",
-        "₢AyAAB"
+        "₢AyAAB",
+        "₢AyAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -4900,6 +4901,17 @@
               "text": "## Character\nMechanical, fast. Follows the sentry gate.\n\n## Goal\nReplace the ubuntu:24.04 bottle vessel with Debian bookworm-slim + socat. The current bottle installs ~30 packages for a container whose runtime function is a socat echo service on port 8888.\n\n## Deliverables\n\n1. New bottle Dockerfile based on `debian:bookworm-slim`\n2. Install only: socat\n3. Update `rbrv.env` for the bottle vessel (new RBRV_IMAGE_1_ORIGIN — same Debian base as sentry, already enshrined)\n4. Conjure the slim bottle on tether pool\n5. Validate nsproto tests still pass with slim bottle + slim sentry pair\n\n## References\n- rbev-vessels/rbev-bottle-ubuntu-test/Dockerfile — current bottle (30 packages)\n- rbev-vessels/rbev-bottle-ubuntu-test/rbrv.env — current vessel config",
               "silks": "slim-bottle-debian",
               "commit": "eec91d3"
+            }
+          ]
+        },
+        "₢AyAAC": {
+          "tacks": [
+            {
+              "ts": "260328-0719",
+              "state": "rough",
+              "text": "## Character\nEngineering — new infrastructure in the sentry/bottle start flow.\n\n## Goal\nWire RBRN_VOLUME_MOUNTS through the bottle start flow so that nameplate-configured volume mounts are applied at container creation time. Support read-only and read-write mode flags.\n\n## Deliverables\n\n1. Define RBRN_VOLUME_MOUNTS parsing convention (format TBD — discover during implementation)\n2. Plumb mount arguments into the bottle container creation (rbob_bottle.sh and/or rbj_sentry.sh)\n3. Validate: a nameplate with volume mounts correctly exposes mounted paths inside the bottle\n4. Validate: read-only mounts are enforced (write attempts fail)\n\n## Context\nRBRN_VOLUME_MOUNTS exists as a nameplate field (currently empty in nsproto). The ifrit bottle needs two mounts: project root (ro) and escape test directory (rw). This pace builds the plumbing; the tadmor nameplate pace configures it.\n\n## References\n- .rbk/rbrn_nsproto.env line 52 — RBRN_VOLUME_MOUNTS= (empty)\n- Tools/rbk/rbob_bottle.sh — bottle lifecycle\n- Tools/rbk/rbj_sentry.sh — sentry startup\n- RBS0-SpecTop.adoc — st_volume_mount linked term already exists",
+              "silks": "volume-mount-plumbing",
+              "commit": "fe672f4"
             }
           ]
         }
