@@ -4543,6 +4543,13 @@
         "₢AwAAW": {
           "tacks": [
             {
+              "ts": "260327-1955",
+              "state": "complete",
+              "text": "Remove legacy duplicate output from orient, show detail, and paddock getter. After gazette migration (₢AwAAV), these operations write structured content (paddock, docket, pace entries) to gazette.md. Remove the inline legacy emission: 'Paddock-content:' indented block from orient, '## Paddock' section from show detail, raw paddock dump from paddock getter. Unique tabular output (racing-heats table, recent-work table, file-touch bitmap, swim lanes) remains in the MCP response — only the duplicated gazette content is removed.\n\nAlso update CLAUDE.md to reflect the new output shape: agents now read gazette content from the exchange file, not from inline MCP response text.",
+              "silks": "remove-legacy-duplicate-output",
+              "commit": "73e5daa"
+            },
+            {
               "ts": "260327-0830",
               "state": "rough",
               "text": "Remove legacy duplicate output from orient, show detail, and paddock getter. After gazette migration (₢AwAAV), these operations write structured content (paddock, docket, pace entries) to gazette.md. Remove the inline legacy emission: 'Paddock-content:' indented block from orient, '## Paddock' section from show detail, raw paddock dump from paddock getter. Unique tabular output (racing-heats table, recent-work table, file-touch bitmap, swim lanes) remains in the MCP response — only the duplicated gazette content is removed.\n\nAlso update CLAUDE.md to reflect the new output shape: agents now read gazette content from the exchange file, not from inline MCP response text.",
