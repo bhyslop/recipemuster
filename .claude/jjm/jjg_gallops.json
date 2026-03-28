@@ -4283,6 +4283,13 @@
         "₢AwAAQ": {
           "tacks": [
             {
+              "ts": "260327-1845",
+              "state": "complete",
+              "text": "Implement jjx_open and officium param threading per spec from ₢AwAAY.\n\n1. Add .claude/jjm/officia/ to .gitignore.\n2. Implement jjx_open (takes no params):\n   a. Exsanguinate first: scan existing officia heartbeat mtimes, remove directories exceeding staleness threshold.\n   b. Generate officium ID: enumerate .claude/jjm/officia/ dirs matching today's YYMMDD-*, pick max+1 or 1000 if none.\n   c. Create exchange directory .claude/jjm/officia/<id>/ with empty gazette.md and heartbeat file.\n   d. Run vvcp_probe if .claude/jjm/officia/.probe_date doesn't match today (write datestamp after).\n   e. Create invitatory commit (action code 'i', empty commit with probe body).\n   f. Return ☉<id> (officium ID with unicode prefix).\n3. Add officium param to jjrm_JjxParams. Every jjx command except jjx_open requires officium — dispatcher strips ☉ prefix, validates directory exists, touches heartbeat on every call. Derive exchange path from bare ID.\n4. Remove lazy invitatory (AtomicBool + vvcp_invitatory) from jjx dispatcher — jjx_open replaces it. Leave vvcp_invitatory in VVC untouched (other kits may use it).\n5. Retire or remove JJRNM_COMPLINE constant per spec decision in ₢AwAAY.",
+              "silks": "implement-jjx-open-and-officium-param",
+              "commit": "c71ed1c"
+            },
+            {
               "ts": "260327-0830",
               "state": "rough",
               "text": "Implement jjx_open and officium param threading per spec from ₢AwAAY.\n\n1. Add .claude/jjm/officia/ to .gitignore.\n2. Implement jjx_open (takes no params):\n   a. Exsanguinate first: scan existing officia heartbeat mtimes, remove directories exceeding staleness threshold.\n   b. Generate officium ID: enumerate .claude/jjm/officia/ dirs matching today's YYMMDD-*, pick max+1 or 1000 if none.\n   c. Create exchange directory .claude/jjm/officia/<id>/ with empty gazette.md and heartbeat file.\n   d. Run vvcp_probe if .claude/jjm/officia/.probe_date doesn't match today (write datestamp after).\n   e. Create invitatory commit (action code 'i', empty commit with probe body).\n   f. Return ☉<id> (officium ID with unicode prefix).\n3. Add officium param to jjrm_JjxParams. Every jjx command except jjx_open requires officium — dispatcher strips ☉ prefix, validates directory exists, touches heartbeat on every call. Derive exchange path from bare ID.\n4. Remove lazy invitatory (AtomicBool + vvcp_invitatory) from jjx dispatcher — jjx_open replaces it. Leave vvcp_invitatory in VVC untouched (other kits may use it).\n5. Retire or remove JJRNM_COMPLINE constant per spec decision in ₢AwAAY.",
