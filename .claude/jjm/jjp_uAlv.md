@@ -173,6 +173,19 @@ slsa-verifier is dropped from the verification pipeline. The vouch GCB step veri
 ### RBSHR Update Required
 The Horizon Roadmap egress lockdown entry (RBSHR line 87-93) describes the old architecture. Update to reflect reliquary/pouch/builds.create architecture, or graduate the item out of RBSHR entirely since it is now active heat work.
 
+## Implementation Findings (2026-03-27, ₢AvAAH)
+
+### Foundry Pool Routing Fix
+The dual-pool implementation (₢AvAAL) put `RBRV_EGRESS_MODE → ZRBF_CONJURE_POOL` routing in `zrbf_kindle`, which runs for all foundry commands. This broke inscribe (fleet-wide, no vessel context). Fixed: removed from kindle, compute pool locally in conjure stitch where vessel is loaded. Enshrine was also using `ZRBF_CONJURE_POOL` — fixed to always use `RBDC_POOL_TETHER` (enshrine pulls from upstream, needs internet).
+
+### jq Airgap Incompatibility
+All three jq acquisition paths in GCB step scripts fail on airgap:
+1. `apt-get install jq` (rbgja01, gcloud image) — blocked by NO_PUBLIC_EGRESS
+2. `apk add jq` (rbgja03, alpine image) — blocked by NO_PUBLIC_EGRESS
+3. `wget` static binary from github.com (rbgjv01) — blocked by NO_PUBLIC_EGRESS
+
+No reliquary image ships jq. Solution: replace jq with Python 3 (`json` module), which is preinstalled in the gcloud reliquary image. See ₢AvAAW for implementation.
+
 ## Open Questions
 
 ### ~~SLSA Level 3 with builds.create (₢AvAAB)~~ SETTLED
