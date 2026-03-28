@@ -2943,9 +2943,9 @@ zrbf_assemble_about_steps() {
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
   local -r z_about_step_defs=(
-    "rbgja01-discover-platforms.sh|${ZRBF_TOOL_GCLOUD}|bash|discover-platforms"
+    "rbgja01-discover-platforms.py|${ZRBF_TOOL_GCLOUD}|python3|discover-platforms"
     "rbgja02-syft-per-platform.sh|${ZRBF_TOOL_DOCKER}|bash|syft-per-platform"
-    "rbgja03-build-info-per-platform.sh|${ZRBF_TOOL_ALPINE}|sh|build-info-per-platform"
+    "rbgja03-build-info-per-platform.py|${ZRBF_TOOL_GCLOUD}|python3|build-info-per-platform"
     "rbgja04-assemble-push-about.sh|${ZRBF_TOOL_DOCKER}|bash|assemble-push-about"
   )
 
@@ -2982,9 +2982,10 @@ zrbf_assemble_about_steps() {
     z_abody="${z_abody//\$\{RBRG_SYFT_IMAGE_REF\}/${ZRBF_TOOL_SYFT}}"
 
     case "${z_aentrypoint}" in
-      bash) z_ashebang="#!/bin/bash" ;;
-      sh)   z_ashebang="#!/bin/sh" ;;
-      *)    buc_die "Unknown entrypoint: ${z_aentrypoint}" ;;
+      bash)    z_ashebang="#!/bin/bash" ;;
+      sh)      z_ashebang="#!/bin/sh" ;;
+      python3) z_ashebang="#!/usr/bin/env python3" ;;
+      *)       buc_die "Unknown entrypoint: ${z_aentrypoint}" ;;
     esac
     printf '%s\n%s' "${z_ashebang}" "${z_abody}" > "${z_aescaped_file}" \
       || buc_die "Failed to write about script body for ${z_aid}"
@@ -3015,7 +3016,7 @@ zrbf_assemble_vouch_steps() {
   # Delimiter is | because image refs contain colons (sha256 digests)
   local -r z_vouch_step_defs=(
     "rbgjv01-download-verifier.sh|${ZRBF_TOOL_ALPINE}|sh|download-verifier"
-    "rbgjv02-verify-provenance.sh|${ZRBF_TOOL_GCLOUD}|bash|verify-provenance"
+    "rbgjv02-verify-provenance.py|${ZRBF_TOOL_GCLOUD}|python3|verify-provenance"
     "rbgjv03-assemble-push-vouch.sh|${ZRBF_TOOL_DOCKER}|bash|assemble-push-vouch"
   )
 
@@ -3049,9 +3050,10 @@ zrbf_assemble_vouch_steps() {
     test -n "${z_vbody}" || buc_die "Empty vouch script body: ${z_vscript_path}"
 
     case "${z_ventrypoint}" in
-      bash) z_vshebang="#!/bin/bash" ;;
-      sh)   z_vshebang="#!/bin/sh" ;;
-      *)    buc_die "Unknown entrypoint: ${z_ventrypoint}" ;;
+      bash)    z_vshebang="#!/bin/bash" ;;
+      sh)      z_vshebang="#!/bin/sh" ;;
+      python3) z_vshebang="#!/usr/bin/env python3" ;;
+      *)       buc_die "Unknown entrypoint: ${z_ventrypoint}" ;;
     esac
     printf '%s\n%s' "${z_vshebang}" "${z_vbody}" > "${z_vescaped_file}" \
       || buc_die "Failed to write vouch script body for ${z_vid}"
