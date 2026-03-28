@@ -3,11 +3,11 @@ Read or write a
 paddock file.
 Operates in two modes depending on whether content is provided.
 
-*Getter mode* (no content in gazette file, `firemark` param required):
+*Getter mode* (no `gazette_in.md`, `firemark` param required):
 reads the paddock file and returns its contents,
-followed by gazette-formatted output written to {jjdxo_gazette}.
+followed by gazette-formatted output written to `gazette_out.md`.
 
-*Setter mode* (gazette file present, or `firemark` + `content` params provided):
+*Setter mode* (`gazette_in.md` present, or `firemark` + `content` params provided):
 writes new paddock content to the file,
 creates a discussion commit with optional note.
 
@@ -21,7 +21,7 @@ Required in getter mode and in direct setter mode.
 Not required when {jjdxo_gazette} contains setter input (firemark is parsed from gazette).
 
 //axd_optional
-* `content` (string) — new paddock content (direct setter mode, when gazette file is empty).
+* `content` (string) — new paddock content (direct setter mode, when `gazette_in.md` is absent).
 
 //axd_optional
 * `note` (string) — chalk description appended to commit message.
@@ -54,7 +54,7 @@ If absent, commit message is "paddock curried".
 . Write new content to paddock file
 . Commit paddock file with discussion marker (`d` action code)
 
-*Setter (gazette file):*
+*Setter (`gazette_in.md`):*
 
-. Dispatcher reads and consumes {jjdxo_gazette}, parses firemark and content
+. Dispatcher reads `gazette_in.md` via universal entry rule, parses firemark and content
 . Proceed as direct setter

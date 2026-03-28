@@ -44,7 +44,8 @@ use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, jjrz_parse_slate_input, jjrz_
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 const OFFICIA_DIR: &str = ".claude/jjm/officia";
 const HEARTBEAT_FILE: &str = "heartbeat";
-const GAZETTE_FILE: &str = "gazette.md";
+const GAZETTE_IN_FILE: &str = "gazette_in.md";
+const GAZETTE_OUT_FILE: &str = "gazette_out.md";
 const PROBE_DATE_FILE: &str = ".probe_date";
 const EXSANGUINATION_THRESHOLD_SECS: u64 = 4 * 3600;
 const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
@@ -441,10 +442,16 @@ fn zjjrm_validate_officium(officium: &str) -> Result<(), String> {
     Ok(())
 }
 
-/// Resolve officium ID to gazette file path.
-fn zjjrm_gazette_path(officium: &str) -> std::path::PathBuf {
+/// Resolve officium ID to gazette input file path (agent → server).
+fn zjjrm_gazette_in_path(officium: &str) -> std::path::PathBuf {
     let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
-    PathBuf::from(OFFICIA_DIR).join(bare_id).join(GAZETTE_FILE)
+    PathBuf::from(OFFICIA_DIR).join(bare_id).join(GAZETTE_IN_FILE)
+}
+
+/// Resolve officium ID to gazette output file path (server → agent).
+fn zjjrm_gazette_out_path(officium: &str) -> std::path::PathBuf {
+    let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
+    PathBuf::from(OFFICIA_DIR).join(bare_id).join(GAZETTE_OUT_FILE)
 }
 
 /// Handle jjx_open: create a new officium.
@@ -476,7 +483,7 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
             }
         }
     };
-    std::fs::write(exchange.join(GAZETTE_FILE), b"").ok();
+    // No gazette files created at open — they are ephemeral, single-MCP-call lifetime.
     std::fs::write(exchange.join(HEARTBEAT_FILE), b"").ok();
 
     // Daily probe: run vvcp_probe if .probe_date doesn't match today
@@ -782,8 +789,17 @@ impl jjrm_McpServer {
             return zjjrm_handle_absolve(p.officium.as_ref().unwrap());
         }
 
-        // Gazette path for this officium — used by output/input dispatch arms
-        let gazette_path = zjjrm_gazette_path(p.officium.as_ref().unwrap());
+        // Universal entry rule: read+delete gazette_in, delete gazette_out.
+        // Gazette content has single-MCP-call lifetime.
+        let officium_id = p.officium.as_ref().unwrap();
+        let gazette_in_path = zjjrm_gazette_in_path(officium_id);
+        let gazette_out_path = zjjrm_gazette_out_path(officium_id);
+        let gazette_in_content: Option<String> = {
+            let content = std::fs::read_to_string(&gazette_in_path).ok();
+            let _ = std::fs::remove_file(&gazette_in_path);
+            content.filter(|s| !s.trim().is_empty())
+        };
+        let _ = std::fs::remove_file(&gazette_out_path);
 
         let v = match p.params {
             serde_json::Value::String(ref s) => {
@@ -839,7 +855,7 @@ impl jjrm_McpServer {
                     firemark: p.firemark,
                 }, &mut gazette).await;
                 let md = gazette.jjrz_emit();
-                if !md.is_empty() { std::fs::write(&gazette_path, md.as_bytes()).ok(); }
+                if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                 jjrm_result(result)
             }
             "jjx_show" => {
@@ -852,7 +868,7 @@ impl jjrm_McpServer {
                     remaining: p.remaining,
                 }, &mut gazette);
                 let md = gazette.jjrz_emit();
-                if !md.is_empty() { std::fs::write(&gazette_path, md.as_bytes()).ok(); }
+                if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                 jjrm_result(result)
             }
             "jjx_archive" => {
@@ -872,12 +888,8 @@ impl jjrm_McpServer {
             }
             "jjx_enroll" => {
                 let p = deser!(jjrm_EnrollParams);
-                let gazette_content = std::fs::read_to_string(&gazette_path).unwrap_or_default();
-                if !gazette_content.trim().is_empty() {
-                    std::fs::write(&gazette_path, b"").ok();
-                }
-                let (silks, docket) = if !gazette_content.trim().is_empty() {
-                    match jjrz_parse_slate_input(&gazette_content) {
+                let (silks, docket) = if let Some(ref content) = gazette_in_content {
+                    match jjrz_parse_slate_input(content) {
                         Ok(pair) => pair,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("jjx_enroll: gazette input error: {}", e),
@@ -887,7 +899,7 @@ impl jjrm_McpServer {
                     match (p.silks, p.docket) {
                         (Some(s), Some(d)) => (s, d),
                         _ => return Ok(CallToolResult::error(vec![Content::text(
-                            "jjx_enroll: requires gazette file or both 'silks' and 'docket' params".to_string(),
+                            "jjx_enroll: requires gazette_in.md or both 'silks' and 'docket' params".to_string(),
                         )])),
                     }
                 };
@@ -915,12 +927,8 @@ impl jjrm_McpServer {
             }
             "jjx_redocket" => {
                 let p = deser!(jjrm_ReviseDocketParams);
-                let gazette_content = std::fs::read_to_string(&gazette_path).unwrap_or_default();
-                if !gazette_content.trim().is_empty() {
-                    std::fs::write(&gazette_path, b"").ok();
-                }
-                if !gazette_content.trim().is_empty() {
-                    let pairs = match jjrz_parse_reslate_input(&gazette_content) {
+                if let Some(ref content) = gazette_in_content {
+                    let pairs = match jjrz_parse_reslate_input(content) {
                         Ok(p) => p,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("jjx_redocket: gazette input error: {}", e),
@@ -941,7 +949,7 @@ impl jjrm_McpServer {
                             })
                         }
                         _ => Ok(CallToolResult::error(vec![Content::text(
-                            "jjx_redocket: requires gazette file or both 'coronet' and 'docket' params".to_string(),
+                            "jjx_redocket: requires gazette_in.md or both 'coronet' and 'docket' params".to_string(),
                         )])),
                     }
                 }
@@ -1015,11 +1023,9 @@ impl jjrm_McpServer {
             }
             "jjx_paddock" => {
                 let p = deser!(jjrm_PaddockParams);
-                let gazette_content = std::fs::read_to_string(&gazette_path).unwrap_or_default();
-                if !gazette_content.trim().is_empty() {
-                    // Setter mode via gazette file
-                    std::fs::write(&gazette_path, b"").ok();
-                    let (firemark, content) = match jjrz_parse_paddock_input(&gazette_content) {
+                if let Some(ref content) = gazette_in_content {
+                    // Setter mode: gazette_in.md had paddock content
+                    let (firemark, paddock_content) = match jjrz_parse_paddock_input(content) {
                         Ok(pair) => pair,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("jjx_paddock: gazette input error: {}", e),
@@ -1030,15 +1036,16 @@ impl jjrm_McpServer {
                         file: gallops_pathbuf(),
                         firemark,
                         note: p.note,
-                    }, Some(content), &mut gazette);
+                    }, Some(paddock_content), &mut gazette);
                     let md = gazette.jjrz_emit();
-                    if !md.is_empty() { std::fs::write(&gazette_path, md.as_bytes()).ok(); }
+                    if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                     jjrm_result(result)
                 } else {
+                    // Getter mode: no gazette_in.md — read paddock to gazette_out.md
                     let firemark = match p.firemark {
                         Some(f) => f,
                         None => return Ok(CallToolResult::error(vec![Content::text(
-                            "jjx_paddock: requires gazette file or 'firemark' param".to_string(),
+                            "jjx_paddock: requires gazette_in.md or 'firemark' param".to_string(),
                         )])),
                     };
                     let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
@@ -1048,7 +1055,7 @@ impl jjrm_McpServer {
                         note: p.note,
                     }, p.content, &mut gazette);
                     let md = gazette.jjrz_emit();
-                    if !md.is_empty() { std::fs::write(&gazette_path, md.as_bytes()).ok(); }
+                    if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                     jjrm_result(result)
                 }
             }

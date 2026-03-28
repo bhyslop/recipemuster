@@ -61,6 +61,37 @@ Direction: output.
 Lede: {jjdt_coronet} of the target pace.
 Content: operation-specific per-pace text.
 
+== File Exchange Protocol
+
+Gazette file exchange uses two directional files within the {jjdxo_exchange}:
+
+* `gazette_in.md` — Agent to server.
+Functionally a parameter: the agent writes this file before calling a setter command.
+* `gazette_out.md` — Server to agent.
+Functionally a return value: the server writes this file after a getter command completes.
+
+=== Universal Entry Rule
+
+Every {jjdx_tool_s} call, unconditionally, before dispatch:
+
+. Read `gazette_in.md` into memory (if present)
+. Delete `gazette_in.md`
+. Delete `gazette_out.md`
+
+Gazette content has single-MCP-call lifetime.
+After the entry rule, the {jjdxo_exchange} is always clean of gazette files.
+
+Setter commands (enroll, redocket, paddock set) use the in-memory content from step 1.
+If content was absent, the setter fails with a diagnostic.
+Getter commands (orient, show, paddock get) write fresh `gazette_out.md` after processing.
+Non-gazette commands silently discard any in-memory content read in step 1.
+
+=== Bidirectional Slugs
+
+The {jjezs_paddock} slug is marked bidirectional.
+This means it appears in `gazette_in.md` when writing (setter) and `gazette_out.md` when reading (getter).
+Each operation is unidirectional — no single operation touches both files.
+
 == Wire Format
 
 Gazette markdown uses `#`-headers to delimit notices:

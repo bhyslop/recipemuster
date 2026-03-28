@@ -520,22 +520,30 @@ Each chat session must open an officium before using any jjx commands.
 
 The ☉ (U+2609 SUN) prefix parallels ₣/₢ for firemarks/coronets. Pass it exactly as returned — the dispatcher strips it.
 
-Gazette file exchange is wired: `jjx_orient`, `jjx_show`, and `jjx_paddock` (getter) write output to `gazette.md` after returning; `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read and consume `gazette.md` before dispatch. The `input` inline param has been removed from all three setter commands.
+Gazette file exchange uses two directional files in the officium exchange directory. Every jjx MCP call unconditionally deletes both gazette files on entry (read+delete `gazette_in.md`, delete `gazette_out.md`). Gazette content has single-MCP-call lifetime — it is a parameter or a return value, not persistent state.
+
+- **`gazette_in.md`** (agent → server): write before calling a setter command. Getter commands (`jjx_orient`, `jjx_show`, `jjx_paddock` getter) write `gazette_out.md` after returning.
+- **`gazette_out.md`** (server → agent): read after a getter command returns. The next jjx call of any kind deletes it.
 
 **Gazette wire format (setter commands):**
-Each notice is a `#`-header line with slug and lede, followed by content body. Write the gazette file, then call the command.
+Each notice is a `#`-header line with slug and lede, followed by content body. Write `gazette_in.md`, then call the command.
 
-| Command | Write to gazette | Then call with params |
-|---------|-----------------|----------------------|
+| Command | Write to `gazette_in.md` | Then call with params |
+|---------|--------------------------|----------------------|
 | `jjx_enroll` | `# slate <silks>` + docket body | `{"firemark": "XX"}` |
 | `jjx_redocket` | `# reslate <coronet>` + docket body | `{"coronet": "XXXXX"}` |
 | `jjx_paddock` (set) | `# paddock <firemark>` + content body | `{}` |
 
-Gazette path: `.claude/jjm/officia/<officium-id>/gazette.md` (read the existing file first, then overwrite with the notice).
+Gazette paths: `.claude/jjm/officia/<officium-id>/gazette_in.md` and `gazette_out.md`.
 
 Example — reslate a pace docket:
-1. Write gazette: `# reslate AvAAH\n\n## Character\nNew docket content...`
+1. Write `gazette_in.md`: `# reslate AvAAH\n\n## Character\nNew docket content...`
 2. Call: `jjx_redocket` with `{"coronet": "AvAAH"}`
+
+**Read-modify-write workflow** (paddock editing):
+1. Call `jjx_paddock` getter → reads `gazette_out.md`
+2. Rename `gazette_out.md` → `gazette_in.md`, edit content
+3. Call `jjx_paddock` setter
 
 ### Mount Protocol
 

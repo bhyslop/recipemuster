@@ -148,7 +148,7 @@
 :jjdxo_heartbeat:       <<jjdxo_heartbeat,Heartbeat>>
 :jjdxo_exsanguination:  <<jjdxo_exsanguination,Exsanguination>>
 :jjdxo_exchange:        <<jjdxo_exchange,Exchange Directory>>
-:jjdxo_gazette:         <<jjdxo_gazette,gazette.md>>
+:jjdxo_gazette:         <<jjdxo_gazette,Gazette Exchange>>
 
 // Operations
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
@@ -380,12 +380,14 @@ The identifier appears in the {jjdxo_exchange} path and in the {jjdxo_invitatory
 Each {jjdxo_officium} creates a directory via {jjdo_open}:
 +
 ----
-.claude/jjm/officia/<id>/gazette.md
+.claude/jjm/officia/<id>/gazette_in.md   (ephemeral: agent → server)
+.claude/jjm/officia/<id>/gazette_out.md  (ephemeral: server → agent)
 .claude/jjm/officia/<id>/heartbeat
 ----
 +
 The `officia/` directory is the parent for all active {jjdxo_officium_s}.
-Each {jjdxo_officium} directory contains two files: {jjdxo_gazette} for gazette exchange and {jjdxo_heartbeat} for liveness detection.
+Gazette files (`gazette_in.md`, `gazette_out.md`) have single-MCP-call lifetime — they are parameters and return values, not persistent state.
+The {jjdxo_heartbeat} file provides liveness detection.
 +
 The entire `.claude/jjm/officia/` tree is gitignored — it is ephemeral exchange infrastructure, not tracked state.
 This eliminates git noise from officium operations and makes incorrect {jjdxo_exsanguination} benign (no tracked files lost).
@@ -406,12 +408,12 @@ The sequential nature of tool calls (one at a time per session) means the single
 [[jjdxo_gazette]]
 //axve_entity
 {jjdxo_gazette}::
-The fixed-name gazette file within an {jjdxo_exchange}: `gazette.md`.
-Contains {jjsz_gazette} wire-format markdown.
+Two directional gazette files within an {jjdxo_exchange}: `gazette_in.md` (agent to server) and `gazette_out.md` (server to agent).
+Contain {jjsz_gazette} wire-format markdown.
+Both have single-MCP-call lifetime — every {jjdx_tool_s} call deletes both files on entry before dispatch.
 +
-Written by the server for output operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock} getter).
-Written by Claude for input operations ({jjdo_enroll}, {jjsoprd_revise_docket}, {jjdo_paddock} setter).
-Read by the counterpart after writing.
+`gazette_in.md` is written by Claude before setter operations ({jjdo_enroll}, {jjsoprd_revise_docket}, {jjdo_paddock} setter).
+`gazette_out.md` is written by the server after getter operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock} getter).
 
 [[jjdxo_invitatory]]
 //axvo_procedure axd_internal
