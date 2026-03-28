@@ -32,12 +32,14 @@ rblm_reset() {
   local -r z_rbrr="${RBBC_rbrr_file}"
   test -f "${z_rbrr}" || buc_die "RBRR file not found: ${z_rbrr}"
 
-  # Discover secrets dir for pre-confirmation inventory
+  # Discover secrets dir and vessel dir for pre-confirmation inventory
   local z_secrets_dir=""
+  local z_vessel_dir=""
   local z_secrets_line=""
   while IFS= read -r z_secrets_line || test -n "${z_secrets_line}"; do
     case "${z_secrets_line}" in
-      RBRR_SECRETS_DIR=*) z_secrets_dir="${z_secrets_line#RBRR_SECRETS_DIR=}"; break ;;
+      RBRR_SECRETS_DIR=*) z_secrets_dir="${z_secrets_line#RBRR_SECRETS_DIR=}" ;;
+      RBRR_VESSEL_DIR=*)  z_vessel_dir="${z_secrets_line#RBRR_VESSEL_DIR=}"  ;;
     esac
   done < "${z_rbrr}"
 
@@ -77,6 +79,21 @@ rblm_reset() {
     z_any_np=1
   done
   test "${z_any_np}" = "1" || bug_t "    (no nameplates found)"
+  bug_e
+  bug_t "  Vessel regime fields BLANKED (depot-scoped, stale after depot change):"
+  bug_t "    RBRV_RELIQUARY, RBRV_IMAGE_*_ANCHOR in all rbrv.env"
+  if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
+    local z_vr_preview=""
+    local z_any_vr=0
+    for z_vr_preview in "${z_vessel_dir}"/*/rbrv.env; do
+      test -f "${z_vr_preview}" || continue
+      bug_t "    ${z_vr_preview}"
+      z_any_vr=1
+    done
+    test "${z_any_vr}" = "1" || bug_t "    (no vessel regimes found)"
+  else
+    bug_t "    (vessel dir not configured or missing)"
+  fi
   bug_e
   bug_t "  Preserved (payor-scoped, survives depot change):"
   bug_t "    ${z_secrets_dir}/rbro-payor.env"
@@ -138,6 +155,27 @@ rblm_reset() {
     done < "${z_np}" > "${z_np_tmp}" && mv "${z_np_tmp}" "${z_np}"
     bug_t "  Blanked consecrations: ${z_np}"
   done
+
+  # Blank depot-scoped fields in all vessel regime files.
+  # RBRV_RELIQUARY references a reliquary inscribed to the prior depot's GAR.
+  # RBRV_IMAGE_*_ANCHOR references enshrined base images in the prior depot's GAR.
+  # Both become stale after depot change — onboarding requires inscribe + enshrine.
+  if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
+    local z_vr=""
+    local z_vr_tmp=""
+    for z_vr in "${z_vessel_dir}"/*/rbrv.env; do
+      test -f "${z_vr}" || continue
+      z_vr_tmp="${z_vr}.tmp"
+      while IFS= read -r z_line; do
+        case "${z_line}" in
+          RBRV_RELIQUARY=*)       printf '%s\n' "RBRV_RELIQUARY="       ;;
+          RBRV_IMAGE_*_ANCHOR=*)  printf '%s\n' "${z_line%%=*}="        ;;
+          *)                      printf '%s\n' "${z_line}"             ;;
+        esac
+      done < "${z_vr}" > "${z_vr_tmp}" && mv "${z_vr_tmp}" "${z_vr}"
+      bug_t "  Blanked depot-scoped fields: ${z_vr}"
+    done
+  fi
 
   bug_t "  Reset complete: ${z_rbrr}"
   bug_e

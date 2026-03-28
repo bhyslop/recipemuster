@@ -509,40 +509,37 @@ rbgm_onboarding() {
     test -f "${z_secrets_dir}/rbro-payor.env" || break
     z_level=2
 
-    # Level 3: GitLab rubric repo (eliminated ₣Av — auto-pass)
+    # Level 3: Depot project created
+    grep -q '^RBRR_DEPOT_PROJECT_ID=.\+' "${RBBC_rbrr_file}" || break
     z_level=3
 
-    # Level 4: Depot project created
-    grep -q '^RBRR_DEPOT_PROJECT_ID=.\+' "${RBBC_rbrr_file}" || break
+    # Level 4: Governor service account
+    test -f "${z_secrets_dir}/rbra-governor.env" || break
     z_level=4
 
-    # Level 5: Governor service account
-    test -f "${z_secrets_dir}/rbra-governor.env" || break
+    # Level 5: Director service account
+    test -f "${z_secrets_dir}/rbra-director.env" || break
     z_level=5
 
-    # Level 6: Director service account
-    test -f "${z_secrets_dir}/rbra-director.env" || break
+    # Level 6: Retriever service account
+    test -f "${z_secrets_dir}/rbra-retriever.env" || break
     z_level=6
 
-    # Level 7: Retriever service account
-    test -f "${z_secrets_dir}/rbra-retriever.env" || break
-    z_level=7
-
-    # Level 8: nsproto consecrations present (conjure completed)
+    # Level 7: nsproto consecrations present (conjure completed)
     test -f "${RBBC_dot_dir}/rbrn_nsproto.env" || break
     source "${RBBC_dot_dir}/rbrn_nsproto.env"
     test -n "${RBRN_SENTRY_CONSECRATION:-}" || break
     test -n "${RBRN_BOTTLE_CONSECRATION:-}" || break
-    z_level=8
+    z_level=7
 
-    # Level 9: nsproto vouch images present in local runtime (vouch & summon completed)
+    # Level 8: nsproto vouch images present in local runtime (vouch & summon completed)
     source "${RBBC_rbrr_file}"
     z_gar_host="${RBRR_GCP_REGION}-docker.pkg.dev"
     z_sentry_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-vouch"
     z_bottle_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}-vouch"
     "${RBRN_RUNTIME}" image inspect "${z_sentry_vouch_ref}" >/dev/null 2>&1 || break
     "${RBRN_RUNTIME}" image inspect "${z_bottle_vouch_ref}" >/dev/null 2>&1 || break
-    z_level=9
+    z_level=8
 
     break
   done
@@ -564,41 +561,36 @@ rbgm_onboarding() {
       ;;
     2)
       bug_section "Recipe Bottle Onboarding — Payor Credentialed"
-      bug_t "Payor RBRA credentials are emplaced. Next you will connect a GitLab"
-      bug_t "rubric repo where Cloud Build fetches build definitions."
-      ;;
-    3)
-      bug_section "Recipe Bottle Onboarding — Source Connected"
-      bug_t "GitLab rubric repo is configured. Next you will create the GCP"
+      bug_t "Payor credentials are emplaced. Next you will create the GCP"
       bug_t "depot project that hosts build infrastructure, artifact registry,"
       bug_t "and secrets."
       ;;
-    4)
+    3)
       bug_section "Recipe Bottle Onboarding — Depot Created"
       bug_t "Depot project exists. Three service accounts are needed:"
       bug_t "governor (admin), director (builds), and retriever (image pulls)."
       ;;
-    5)
+    4)
       bug_section "Recipe Bottle Onboarding — Governor Provisioned"
       bug_t "Governor admin account is ready. Next: create the director"
       bug_t "service account that executes Cloud Build operations."
       ;;
-    6)
+    5)
       bug_section "Recipe Bottle Onboarding — Director Provisioned"
       bug_t "Director build account is ready. Next: create the retriever"
       bug_t "service account for pulling container images to local bottles."
       ;;
-    7)
+    6)
       bug_section "Recipe Bottle Onboarding — Service Accounts Ready"
-      bug_t "All service accounts are provisioned. Next: inscribe build definitions,"
-      bug_t "conjure vessel images, and vouch SLSA provenance (Director role)."
+      bug_t "All service accounts are provisioned. Next: inscribe a reliquary,"
+      bug_t "enshrine base images, conjure vessels, and vouch SLSA provenance."
       ;;
-    8)
+    7)
       bug_section "Recipe Bottle Onboarding — Vessels Built & Verified"
       bug_t "Nsproto vessels are built and vouched. Next: summon both vessels"
       bug_t "to pull images locally using Retriever credentials."
       ;;
-    9)
+    8)
       bug_section "Recipe Bottle Onboarding — Setup Complete"
       bug_t "Infrastructure is fully provisioned and vessel images are pulled."
       bug_t "You can now start bottles from your built vessel images."
@@ -613,19 +605,17 @@ rbgm_onboarding() {
   z_flag=0; test "${z_level}" -ge 2 && z_flag=1
   zrbgm_po_status "${z_flag}" "2. Payor Install       — Payor:     RBRA credential emplacement"
   z_flag=0; test "${z_level}" -ge 3 && z_flag=1
-  zrbgm_po_status "${z_flag}" "3. GitLab Setup        — Payor:     Rubric repo + access token"
+  zrbgm_po_status "${z_flag}" "3. Depot Create        — Payor:     GCP depot project + dual pools"
   z_flag=0; test "${z_level}" -ge 4 && z_flag=1
-  zrbgm_po_status "${z_flag}" "4. Depot Create        — Payor:     GCP depot project"
+  zrbgm_po_status "${z_flag}" "4. Governor Reset      — Payor:     Admin service account"
   z_flag=0; test "${z_level}" -ge 5 && z_flag=1
-  zrbgm_po_status "${z_flag}" "5. Governor Reset      — Payor:     Admin service account"
+  zrbgm_po_status "${z_flag}" "5. Director Create     — Governor:  Build service account"
   z_flag=0; test "${z_level}" -ge 6 && z_flag=1
-  zrbgm_po_status "${z_flag}" "6. Director Create     — Governor:  Build service account"
+  zrbgm_po_status "${z_flag}" "6. Retriever Create    — Governor:  Image pull service account"
   z_flag=0; test "${z_level}" -ge 7 && z_flag=1
-  zrbgm_po_status "${z_flag}" "7. Retriever Create    — Governor:  Image pull service account"
+  zrbgm_po_status "${z_flag}" "7. Inscribe & Conjure  — Director:  Reliquary, enshrine, build & verify"
   z_flag=0; test "${z_level}" -ge 8 && z_flag=1
-  zrbgm_po_status "${z_flag}" "8. Inscribe & Conjure  — Director:  Push build defs, build & verify vessels"
-  z_flag=0; test "${z_level}" -ge 9 && z_flag=1
-  zrbgm_po_status "${z_flag}" "9. Summon              — Retriever: Pull vessel images locally"
+  zrbgm_po_status "${z_flag}" "8. Summon              — Retriever: Pull vessel images locally"
   bug_e
 
   # --- Next step guidance ---
@@ -650,23 +640,6 @@ rbgm_onboarding() {
       buc_tabtarget "${RBZ_PAYOR_INSTALL}" "\${HOME}/Downloads/client_secret_*.json"
       ;;
     2)
-      bug_section "Next: GitLab Setup"
-      bug_t "  Cloud Build needs build instructions, but should never see your main repo."
-      bug_t "  The rubric repo is a separate, minimal repository that serves as the"
-      bug_t "  security boundary between your project and Google."
-      bug_e
-      bug_t "  You define vessels in your main repo. When you inscribe, Recipe Bottle"
-      bug_t "  translates your vessel definitions into build instructions that Cloud Build"
-      bug_t "  understands, and pushes them to the rubric repo automatically. You never"
-      bug_t "  edit the rubric repo directly."
-      bug_e
-      bug_t "  GitLab is required: its project access tokens are repository-scoped,"
-      bug_t "  which Cloud Build's v2 connection API needs."
-      bug_e
-      bug_t "  Run the guided procedure:"
-      buc_tabtarget "${RBZ_GITLAB_SETUP}"
-      ;;
-    3)
       bug_section "Next: Depot Create"
       bug_t "  Creating a depot binds your RBRR configuration to real cloud resources."
       bug_t "  Review these values before proceeding — one RBRR is tied to one depot."
@@ -677,24 +650,24 @@ rbgm_onboarding() {
       bug_tc "    GCB_MIN_CONCURRENT_BUILDS " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCB_MIN_CONCURRENT_BUILDS)"
       bug_tc "    VESSEL_DIR                " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_VESSEL_DIR)"
       bug_tc "    SECRETS_DIR               " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_SECRETS_DIR)"
-      bug_tc "    RUBRIC_REPO_URL           " "(eliminated — builds.create + pouch)"
       bug_e
       bug_tc "  To adjust, edit " "${RBBC_rbrr_file}"
       bug_t "  and re-run this guide."
       bug_e
       bug_t "  Create the GCP depot project that hosts all build infrastructure."
+      bug_t "  Depot creation establishes dual worker pools (tether + airgap)."
       bug_e
       bug_t "  Run:"
       buc_tabtarget "${RBZ_CREATE_DEPOT}" "<depot-name>"
       ;;
-    4)
+    3)
       bug_section "Next: Governor Reset"
       bug_t "  Create the governor service account (admin for depot project)."
       bug_e
       bug_t "  Run:"
       buc_tabtarget "${RBZ_GOVERNOR_RESET}"
       ;;
-    5)
+    4)
       bug_section "Next: Director Create"
       bug_t "  Create the director service account (executes Cloud Build operations)."
       bug_t "  The instance name labels this director — use a short identifier."
@@ -702,7 +675,7 @@ rbgm_onboarding() {
       bug_t "  Run:"
       buc_tabtarget "${RBZ_CREATE_DIRECTOR}" "<instance-name>"
       ;;
-    6)
+    5)
       bug_section "Next: Retriever Create"
       bug_t "  Create the retriever service account (pulls images for local bottles)."
       bug_t "  Use the same instance name as your director."
@@ -710,36 +683,30 @@ rbgm_onboarding() {
       bug_t "  Run:"
       buc_tabtarget "${RBZ_CREATE_RETRIEVER}" "<instance-name>"
       ;;
-    7)
+    6)
       local z_vessel_dir=""
       z_vessel_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_VESSEL_DIR") || z_vessel_dir=""
-      bug_section "Next: Inscribe & Conjure (Director role actions)"
-      bug_t "  Cloud Build jobs run in Google's infrastructure using specific tool images"
-      bug_t "  (gcloud, docker, oras, etc). Pins lock these to exact digests so builds"
-      bug_t "  are reproducible. Both image and binary pins must be fresh before inscribe."
-      bug_t "  Inscribe translates your vessel definitions into Cloud Build instructions"
-      bug_t "  and pushes them to the rubric repo. It also creates the Cloud Build"
-      bug_t "  triggers that conjure will invoke. Each conjure takes 10-20 minutes."
-      bug_t "  Vouch verifies SLSA provenance on each built image."
+      bug_section "Next: Inscribe, Enshrine & Conjure (Director role actions)"
+      bug_t "  Inscribe mirrors upstream tool images into a datestamped reliquary in GAR."
+      bug_t "  Enshrine mirrors upstream base images into GAR with content-addressed anchors."
+      bug_t "  Conjure builds vessel images via builds.create + pouch delivery."
+      bug_t "  Vouch verifies SLSA provenance via DSSE signature verification."
       bug_e
-      bug_t "  1. Refresh GCB image pins (resolves latest tool image digests):"
-      buc_tabtarget "${RBZ_REFRESH_GCB_PINS}"
-      bug_t "  2. Commit the updated pin file (inscribe requires fresh pins committed):"
-      bug_tc "        " "git add ${RBBC_dot_dir}/rbrg.env"
-      bug_tc "        " "git commit -m \"Refresh GCB pins for inscribe\""
-      bug_t "  3. Inscribe:"
+      bug_t "  1. Inscribe reliquary (mirror tool images to GAR):"
       buc_tabtarget "${RBZ_RUBRIC_INSCRIBE}"
-      bug_t "  4. Conjure sentry vessel:"
+      bug_t "  2. Enshrine base images (mirror upstream bases to GAR with anchors):"
+      bug_t "     (enshrine each vessel that declares RBRV_IMAGE_n_ORIGIN)"
+      bug_t "  3. Conjure sentry vessel:"
       buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir}/${RBRN_SENTRY_VESSEL}"
-      bug_t "  5. Conjure bottle vessel:"
+      bug_t "  4. Conjure bottle vessel:"
       buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir}/${RBRN_BOTTLE_VESSEL}"
-      bug_t "  6. Check consecrations (verify both builds completed):"
+      bug_t "  5. Check consecrations (verify both builds completed):"
       buc_tabtarget "${RBZ_CHECK_CONSECRATIONS}"
-      bug_t "  7. Vouch (verify SLSA provenance on built images):"
+      bug_t "  6. Vouch (verify SLSA provenance on built images):"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
       bug_e
-      bug_section "Then: Record Consecrations in Nameplate (step 8)"
-      bug_t "  The check-consecrations output (step 6) shows your consecration values."
+      bug_section "Then: Record Consecrations in Nameplate (step 7)"
+      bug_t "  The check-consecrations output (step 5) shows your consecration values."
       bug_t "  Record them in your nameplate to advance this guide."
       bug_e
       bug_t "  Edit:"
@@ -749,7 +716,7 @@ rbgm_onboarding() {
       bug_tc "        RBRN_SENTRY_CONSECRATION=" "c260101120000-r260101130000"
       bug_tc "        RBRN_BOTTLE_CONSECRATION=" "c260101120000-r260101140000"
       ;;
-    8)
+    7)
       bug_section "Next: Summon (Retriever role actions)"
       bug_t "  Pull the vouched images locally using Retriever credentials."
       bug_e
@@ -760,7 +727,7 @@ rbgm_onboarding() {
       bug_t "  3. Run full nsproto test suite:"
       bug_tc "        " "tt/rbw-tf.TestFixture.nsproto-security.sh"
       ;;
-    9)
+    8)
       bug_section "Next: Start a Bottle"
       bug_t "  Launch a bottle from your built vessel images:"
       bug_e
