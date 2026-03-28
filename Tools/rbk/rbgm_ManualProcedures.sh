@@ -693,7 +693,7 @@ rbgm_onboarding() {
       bug_t "  Vouch verifies SLSA provenance via DSSE signature verification."
       bug_e
       bug_t "  1. Inscribe reliquary (mirror tool images to GAR):"
-      buc_tabtarget "${RBZ_RUBRIC_INSCRIBE}"
+      buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
       bug_t "  2. Enshrine base images (mirror upstream bases to GAR with anchors):"
       bug_t "     (enshrine each vessel that declares RBRV_IMAGE_n_ORIGIN)"
       bug_t "  3. Conjure sentry vessel:"
