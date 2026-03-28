@@ -8,6 +8,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣Ay",
     "₣Av",
     "₣Ah",
     "₣Aw",
@@ -20,8 +21,7 @@
     "₣Ap",
     "₣Aq",
     "₣Au",
-    "₣Ax",
-    "₣Ay"
+    "₣Ax"
   ],
   "heats": {
     "₣AD": {
@@ -4866,7 +4866,7 @@
     "₣Ay": {
       "silks": "rbk-mvp-4-tadmor-ifrit-creation",
       "creation_time": "260328",
-      "status": "stabled",
+      "status": "racing",
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
