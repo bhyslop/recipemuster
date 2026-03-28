@@ -64,6 +64,7 @@ zburc_kindle() {
   buv_scope_sentinel BURC BURC_
 
   # Export variables needed by child processes (exec'd dispatch, workbenches)
+  export BURC_STATION_FILE
   export BURC_TABTARGET_DIR
   export BURC_TOOLS_DIR
   export BURC_BUK_DIR
