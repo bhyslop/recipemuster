@@ -4877,9 +4877,10 @@
       "order": [
         "₢AyAAA",
         "₢AyAAB",
-        "₢AyAAC"
+        "₢AyAAC",
+        "₢AyAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -4912,6 +4913,17 @@
               "text": "## Character\nEngineering — new infrastructure in the sentry/bottle start flow.\n\n## Goal\nWire RBRN_VOLUME_MOUNTS through the bottle start flow so that nameplate-configured volume mounts are applied at container creation time. Support read-only and read-write mode flags.\n\n## Deliverables\n\n1. Define RBRN_VOLUME_MOUNTS parsing convention (format TBD — discover during implementation)\n2. Plumb mount arguments into the bottle container creation (rbob_bottle.sh and/or rbj_sentry.sh)\n3. Validate: a nameplate with volume mounts correctly exposes mounted paths inside the bottle\n4. Validate: read-only mounts are enforced (write attempts fail)\n\n## Context\nRBRN_VOLUME_MOUNTS exists as a nameplate field (currently empty in nsproto). The ifrit bottle needs two mounts: project root (ro) and escape test directory (rw). This pace builds the plumbing; the tadmor nameplate pace configures it.\n\n## References\n- .rbk/rbrn_nsproto.env line 52 — RBRN_VOLUME_MOUNTS= (empty)\n- Tools/rbk/rbob_bottle.sh — bottle lifecycle\n- Tools/rbk/rbj_sentry.sh — sentry startup\n- RBS0-SpecTop.adoc — st_volume_mount linked term already exists",
               "silks": "volume-mount-plumbing",
               "commit": "fe672f4"
+            }
+          ]
+        },
+        "₢AyAAD": {
+          "tacks": [
+            {
+              "ts": "260328-0719",
+              "state": "rough",
+              "text": "## Character\nMechanical — Dockerfile and rbrv.env authoring.\n\n## Goal\nCreate the `rbev-bottle-ifrit` vessel definition. This is the adversarial bottle that will host Claude Code inside the tadmor nameplate.\n\n## Deliverables\n\n1. Create `rbev-vessels/rbev-bottle-ifrit/` directory\n2. Dockerfile based on `debian:bookworm-slim` installing: nodejs, npm, python3-scapy, strace, bash, curl, git\n3. `rbrv.env` with vessel identity, conjure mode, tether egress, platform declarations\n4. CMD appropriate for an interactive Claude Code session (bash or tail -f, TBD)\n\n## Constraints\n- Debian bookworm-slim base (same as slim sentry and bottle)\n- No diagnostic bloat — only packages required for Claude Code + scapy + strace\n- Multi-arch: linux/amd64 linux/arm64\n\n## References\n- RBSIP-ifrit_pentester.adoc — vessel architecture section\n- rbev-vessels/rbev-sentry-ubuntu-large/rbrv.env — rbrv.env template",
+              "silks": "ifrit-vessel-definition",
+              "commit": "25b7259"
             }
           ]
         }
