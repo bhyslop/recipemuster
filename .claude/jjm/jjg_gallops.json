@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "Ay",
+  "next_heat_seed": "Az",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -20,7 +20,8 @@
     "₣Ap",
     "₣Aq",
     "₣Au",
-    "₣Ax"
+    "₣Ax",
+    "₣Ay"
   ],
   "heats": {
     "₣AD": {
@@ -4861,6 +4862,15 @@
           ]
         }
       }
+    },
+    "₣Ay": {
+      "silks": "rbk-mvp-4-tadmor-ifrit-creation",
+      "creation_time": "260328",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAly.md",
+      "paces": {}
     }
   }
 }
