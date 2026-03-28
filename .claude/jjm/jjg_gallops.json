@@ -4882,9 +4882,10 @@
         "₢AyAAE",
         "₢AyAAF",
         "₢AyAAG",
-        "₢AyAAH"
+        "₢AyAAH",
+        "₢AyAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -4972,6 +4973,17 @@
               "text": "## Character\nOperational — cloud build execution, waiting, validation.\n\n## Goal\nBuild all three slim vessels on Cloud Build: slim sentry, slim bottle, and ifrit bottle. Vouch all three.\n\n## Deliverables\n\n1. Enshrine Debian bookworm-slim base image to GAR (one enshrine, shared by all three vessels)\n2. Conjure slim sentry on tether pool\n3. Conjure slim bottle on tether pool\n4. Conjure ifrit bottle on tether pool\n5. Vouch all three consecrations\n6. Record consecrations in tadmor nameplate\n7. Summon all images locally via retriever\n\n## Dependencies\nRequires completed: slim-sentry-debian (₢AyAAA), slim-bottle-debian (₢AyAAB), ifrit-vessel-definition (₢AyAAD), tadmor-nameplate (₢AyAAE)\n\n## Timing Expectations\nWith slim vessels, conjure times should be dramatically shorter than the ~13 min ubuntu baseline. Measure and record actual durations for onboarding guide update.",
               "silks": "enshrine-conjure-slim-vessels",
               "commit": "3344aec"
+            }
+          ]
+        },
+        "₢AyAAI": {
+          "tacks": [
+            {
+              "ts": "260328-0720",
+              "state": "rough",
+              "text": "## Character\nCreative — the first encounter between the Ifrit and its prison.\n\n## Goal\nRun Claude Code inside the ifrit bottle on the tadmor nameplate. The Ifrit reads the sentry source code, understands its constraints, and writes initial escape test modules into rbtid/. This pace creates the context for later elaboration, not ultimate refinement.\n\n## Deliverables\n\n1. Launch tadmor (slim sentry + ifrit bottle with volume mounts)\n2. Claude Code session inside the bottle: reads project (ro mount), writes to rbtid/ (rw mount)\n3. Ifrit writes at least 2-3 initial escape test modules targeting distinct attack surfaces\n4. Curate and commit the produced modules — review for reproducibility and assertion quality\n5. Run the modules from outside the bottle to validate they execute cleanly\n\n## Constraints\n- The Ifrit writes durable Python test modules — it is a test author, not a live pentester\n- Modules must be reproducible: same inputs, same assertions, deterministic pass/fail\n- Claude Code operates via Anthropic API through the tadmor allowlist (anthropic.com DNS + CIDR)\n- This pace establishes the pattern; comprehensive attack coverage is future work\n\n## References\n- RBSIP-ifrit_pentester.adoc — escape test categories\n- Tools/rbk/rbtid/ — escape test directory (from pace 6)",
+              "silks": "first-ifrit-session",
+              "commit": "96c011c"
             }
           ]
         }
