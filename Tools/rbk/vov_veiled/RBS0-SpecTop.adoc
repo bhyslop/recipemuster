@@ -747,19 +747,26 @@ for the manual Console procedure to review build capacity settings.
 //axl_voices axk_premise
 {rbsk_no_gcloud}::
 {at_recipe_bottle}
-scripts MUST NOT invoke the `gcloud` CLI in any context — local bash scripts, GCB step scripts, or transitively through helper scripts.
-All
+scripts MUST NOT invoke the `gcloud` CLI in local bash scripts or transitively through helper scripts.
+All local
 {gcp_service}
 interaction uses direct REST API calls via `curl` with JWT-authenticated bearer tokens.
-In GCB step contexts, registry authentication uses the GCE metadata server to obtain an access token and writes a static Docker config JSON.
++
+**Exception — about/vouch metadata pipelines**: GCB step scripts in the {rbtgo_ark_about} and {rbtgo_ark_vouch} pipelines invoke `gcloud` for two operations:
+(1) `gcloud auth print-access-token` for OAuth token acquisition (could use metadata server, but gcloud is simpler and the image is already pulled);
+(2) `gcloud artifacts docker images describe --show-provenance` for SLSA provenance envelope retrieval (wraps complex Container Analysis API interaction that would be burdensome to replicate via raw REST).
+These scripts run as Python 3 on the gcloud builder image after the primary image is built — the reproducibility concern that motivates this premise is weaker for post-build metadata operations.
+Both calls work under NO_PUBLIC_EGRESS (Private Google Access reaches Google APIs).
++
+In GCB build step contexts (conjure, bind, enshrine), registry authentication uses the GCE metadata server to obtain an access token and writes a static Docker config JSON.
 +
 Rationale: `gcloud` is an opaque, version-sensitive binary that obscures API semantics, introduces implicit authentication state, and breaks reproducibility.
 The `gcloud auth configure-docker` approach also fails mechanically in GCB steps — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
 +
 NOTE: The
 {rbrg_gcloud_image_ref}
-pin exists because conjure uses the gcloud builder image as a convenience shell (for `bash` and `date`), not for any `gcloud` command.
-This is acceptable — the prohibition is on invoking `gcloud`, not on using the image that contains it.
+pin exists because conjure build steps use the gcloud builder image as a convenience shell (for `bash` and `date`).
+About and vouch metadata steps additionally invoke `gcloud` directly (see exception above).
 
 == Operation Groups
 
@@ -1077,7 +1084,7 @@ Vouches for an
 producing a
 {rbtga_ark_vouch}
 that records mode-aware verification results.
-Conjure: DSSE envelope signature verification (jq + openssl against GCB attestor keys).
+Conjure: DSSE envelope signature verification (Python 3 + openssl against GCB attestor keys).
 Bind: digest-pin comparison.
 Graft: GRAFTED stamp.
 Submitted as a
@@ -1635,8 +1642,9 @@ The about pipeline must complete before vouch can run.
 +
 **DSSE envelope verification** (conjure mode only, ₣Av):
 Provenance signatures verified against embedded GCB attestor public keys from `projects/verified-builder` KMS.
-Step 1 (Alpine, with jq + openssl) fetches provenance via Container Analysis REST API, extracts the DSSE envelope, decodes payload + signature, reconstructs PAE, and verifies via `openssl dgst -sha256 -verify` against embedded attestor public keys.
-No slsa-verifier, no Python — jq + base64 + openssl only. jq installed for all modes (bind/graft use it for vouch summary composition).
+Step 1 (Alpine) writes the attestor public key to `/workspace/keys/`.
+Step 2 (gcloud/Python 3) fetches provenance via `gcloud artifacts docker images describe --show-provenance`, extracts the v1.0 DSSE envelope, decodes base64url payload + signature, reconstructs PAE, and verifies via `openssl dgst -sha256 -verify` subprocess against the embedded attestor key.
+No slsa-verifier, no jq — Python `json` + `base64` modules + openssl subprocess only.
 +
 **Vouch Cloud Build job architecture**:
 Vouch uses the RunBuild API (`builds.create`) rather than trigger dispatch — the consecration is known only after the image arrives in GAR, so a pre-registered trigger cannot provide it.
@@ -1648,13 +1656,13 @@ Discovered constraints from implementation:
   * **Private worker pool**: The RunBuild API caller ({rbtr_director}) requires `cloudbuild.workerpools.use` to specify a private pool, a permission not included in `roles/cloudbuild.builds.editor`.
     {rbtgo_director_create} grants `roles/cloudbuild.workerPoolUser` at project scope.
     Vouch runs on the same private pool as conjure (`RBRR_GCB_POOL_STEM`), eliminating an untested default-pool-with-buildx permutation.
-  * **No gcloud in build steps**: {rbsk_no_gcloud} applies.
-    Registry auth must use the GCE metadata server (`http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token`) to obtain an access token, then write a static Docker config JSON.
-    The `gcloud auth configure-docker` approach fails regardless — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
-  * **Builder image selection**: Step 1 (mode-aware verification) uses Alpine (jq + openssl for DSSE verification; metadata server for OAuth token).
-    Step 2 (push vouch container) uses the Docker builder image (`docker buildx build --push` for multi-platform).
+  * **gcloud exception**: About and vouch metadata steps invoke `gcloud` directly (see {rbsk_no_gcloud} exception).
+    Conjure build steps and enshrine/inscribe operations continue to use the metadata server for registry auth.
+  * **Builder image selection**: Step 1 (Alpine) writes attestor keys (conjure) or is a no-op (bind/graft).
+    Step 2 (gcloud/Python 3) runs mode-aware verification.
+    Step 3 (Docker) assembles and pushes the vouch container (`docker buildx build --push` for multi-platform).
   * **GCB dollar escaping**: Step scripts embedded in Build JSON require `$$` for literal `$` and un-escaped `${_RBGV_*}` for GCB substitution variables, following the same `sed` pattern as conjure's `${_RBGY_*}`.
-  * **DSSE verification**: Provenance envelope signatures verified against embedded GCB attestor public keys (`projects/verified-builder` KMS). PAE reconstruction + `openssl dgst -sha256 -verify`. No slsa-verifier, no Python — jq + base64 + openssl only.
+  * **DSSE verification**: Provenance envelope signatures verified against embedded GCB attestor public keys (`projects/verified-builder` KMS). PAE reconstruction + `openssl dgst -sha256 -verify` subprocess. No slsa-verifier, no jq — Python 3 standard library only.
     builds.create provenance achieves SLSA Build Level 3 (₢AvAAB research confirmed).
 +
 **Idempotent re-vouch**:
@@ -2525,8 +2533,8 @@ Fully-qualified image reference for ORAS Cloud Build step.
 //axvr_variable axd_required rbst_image_ref
 {rbrg_gcloud_image_ref}::
 Fully-qualified image reference for gcloud Cloud Build step.
-Used as a convenience shell (for `bash` and `date`), not for `gcloud` invocation.
-See {rbsk_no_gcloud}.
+Conjure build steps use it as a convenience shell (for `bash` and `date`).
+About and vouch metadata steps use it for Python 3 and `gcloud` invocation (see {rbsk_no_gcloud} exception).
 
 [[rbrg_docker_image_ref]]
 //axvr_variable axd_required rbst_image_ref
@@ -3309,7 +3317,7 @@ Script continues execution. Human operator may note for later.
 {rbbc_store}::
 Capture of a value from command output or API response into a
 {rbbc_variable}.
-Typically via bash assignment or jq extraction.
+Typically via bash assignment, jq extraction, or Python JSON parsing.
 
 [[rbbc_use]]
 //axl_voices axc_use

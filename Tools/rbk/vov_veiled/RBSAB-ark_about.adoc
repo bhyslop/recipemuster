@@ -19,7 +19,7 @@ For conjure, the consecration is read from `/workspace` (computed by the precedi
 See <<rbtgo_about_substitutions>> below for the full variable reference.
 
 //axhos_step
-. *Cloud Build Step 1: Discover Platforms*:
+. *Cloud Build Step 1: Discover Platforms* (Python 3):
 .. Image: {rbrg_gcloud_image_ref}
 .. Fetch OAuth token via `gcloud auth print-access-token`
 .. {rbbc_call}
@@ -68,8 +68,8 @@ per-platform SBOM to `/workspace/sbom-«LABEL».json` (e.g., `sbom-amd64.json`; 
 .. NOTE: Syft's `registry:` transport reads directly from the OCI registry — no docker CLI or local pull required.
 
 //axhos_step
-. *Cloud Build Step 3: Assemble build_info.json*:
-.. Image: {rbrg_alpine_image_ref}
+. *Cloud Build Step 3: Assemble build_info.json* (Python 3):
+.. Image: {rbrg_gcloud_image_ref}
 .. For each platform in `«PLATFORMS»`:
 ... Construct `build_info.json` with mode-aware fields:
 .... Shared: `vessel_mode`, `vessel_name`, `platform`, `image_digest`, `about_timestamp`, `git_commit`, `git_branch`, `git_repo`

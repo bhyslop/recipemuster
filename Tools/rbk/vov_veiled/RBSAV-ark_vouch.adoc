@@ -77,9 +77,15 @@ HTTP 200 response
 Cloud Console URL for build monitoring
 
 //axhos_step
-. *Cloud Build Step 1: Mode-Aware Verification*:
-.. Image: {rbrg_alpine_image_ref} (with jq + openssl installed)
-.. Fetch OAuth token from metadata server for API calls
+. *Cloud Build Step 1: Prepare Verification Keys*:
+.. Image: {rbrg_alpine_image_ref}
+.. If conjure mode: write GCB attestor public key to `/workspace/keys/google-hosted-worker.pub`
+.. If bind or graft mode: no-op (key not needed)
+
+//axhos_step
+. *Cloud Build Step 2: Mode-Aware Verification* (Python 3):
+.. Image: {rbrg_gcloud_image_ref}
+.. Fetch OAuth token via `gcloud auth print-access-token`
 .. {rbbc_call}
 Docker Registry API: GET manifests for `«CONSECRATION»-image` to obtain OCI image index
 .. Filter out attestation manifests before extracting platforms.
@@ -95,21 +101,20 @@ platform list to `/workspace/vouch_platforms.txt`
 **Conjure branch**:
 .. For each `(platform, digest)` in `«PLATFORM_DIGESTS»`:
 ... {rbbc_call}
-Container Analysis REST API to fetch DSSE envelope (provenance occurrences for the image digest)
-... Extract payload (base64), signature (base64), and keyid from the DSSE envelope using jq
-... Decode payload and signature from base64
+`gcloud artifacts docker images describe --show-provenance` to fetch DSSE envelope (provenance occurrences for the image digest)
+... Extract payload (base64url), signature (base64url), and keyid from the DSSE envelope using Python `json` module
+... Decode payload and signature via Python `base64.urlsafe_b64decode`
 ... Reconstruct Pre-Authentication Encoding (PAE): `DSSEv1 {payloadType_len} {payloadType} {payload_len} {payload}`
 ... {rbbc_call}
-`openssl dgst -sha256 -verify «KEY_PEM» -signature «SIG_BIN» «PAE_BIN»` using embedded attestor public key matching keyid
+`openssl dgst -sha256 -verify «KEY_PEM» -signature «SIG_BIN» «PAE_BIN»` via subprocess, using attestor public key from step 1
 ... {rbbc_require}
 signature verification succeeds -- proves GCB signed the provenance
-... {rbbc_call}
-jq to read now-trusted provenance fields: `builder.id`, `buildType`, `invocationId`, subject digest
+... Read now-trusted provenance fields via Python `json`: `builder.id`, `buildType`, `invocationId`, subject digest
 ... {rbbc_store}
 per-platform verification output to `/workspace/verify-«PLATFORM_SUFFIX».json`
 .. {rbbc_require}
 all platforms verify successfully
-.. Compose `vouch_summary.json` via jq: consecration, vessel, vessel_mode, per-platform DSSE verification verdicts
+.. Compose `vouch_summary.json` via Python `json.dump`: consecration, vessel, vessel_mode, per-platform DSSE verification verdicts
 +
 **Bind branch**:
 .. {rbbc_call}
@@ -126,11 +131,11 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
 .. No verification performed -- the GRAFTED verdict explicitly marks the absence of provenance chain
 
 //axhos_step
-. *Cloud Build Step 2: Assemble and Push Vouch Artifact*:
+. *Cloud Build Step 3: Assemble and Push Vouch Artifact*:
 .. Image: {rbrg_docker_image_ref}
 .. Create buildx builder instance (inspect-or-create pattern, same as conjure)
 .. Build multi-platform `FROM scratch` container with summary and per-platform verification files as layers
-.. Platforms: read from `/workspace/vouch_platforms.txt` (written by step 1 for all modes)
+.. Platforms: read from `/workspace/vouch_platforms.txt` (written by step 2 for all modes)
 .. Push to registry tagged `«CONSECRATION»-vouch` via `docker buildx build --push`
 .. {rbbc_require}
 push succeeds
@@ -157,10 +162,11 @@ Successful execution creates a
 artifact in the registry tagged as `«VESSEL»:«CONSECRATION»-vouch`.
 The vouch artifact is a multi-platform container (verification results are architecture-independent metadata; multi-platform is for pull ergonomics so arm64 hosts receive no platform mismatch warning).
 +
-*DSSE verification* (conjure only): Provenance is fetched from the Container Analysis API as a DSSE envelope.
-Signature verification uses attestor public keys embedded in the reliquary (fetched from `projects/verified-builder/` KMS at inscribe time).
-Three keys per region: `google-hosted-worker` (global, v1.0), `provenanceSigner` (global, v0.1), `builtByGCB` (regional, v0.1 legacy).
-No runtime KMS dependency -- air-gap compatible.
+*DSSE verification* (conjure only): Provenance is fetched via `gcloud artifacts docker images describe --show-provenance` as a DSSE envelope.
+The verification script (Python 3) decodes base64url payload and signature, reconstructs PAE, and calls `openssl dgst -sha256 -verify` as a subprocess.
+Attestor public keys are embedded in the step script (sourced from `projects/verified-builder/` KMS); no runtime KMS dependency.
+The about/vouch steps run on the gcloud builder image and invoke `gcloud` directly (see {rbsk_no_gcloud} exception).
+No jq, no slsa-verifier — Python 3 standard library + openssl only. Air-gap compatible (Private Google Access reaches Google APIs).
 +
 *Re-vouch idempotency*: Re-running vouch re-executes verification and pushes a new vouch artifact, overwriting the previous.
 Content is presumed deterministic for conjure and bind; graft re-vouch always produces an identical GRAFTED stamp.
@@ -182,8 +188,8 @@ All `_RBGV_*` substitution variables are passed in the `builds.create` request b
 | `_RBGV_VERIFY_METHOD` | Verification method declaration (`dsse`, `digest_pin`, or `grafted`). Source: derived from vessel mode.
 |===
 
-NOTE: Platform list is discovered by step 1 and written to `/workspace/vouch_platforms.txt`, not passed as a substitution variable.
-Step 2 reads from workspace rather than re-discovering from the registry.
+NOTE: Platform list is discovered by step 2 and written to `/workspace/vouch_platforms.txt`, not passed as a substitution variable.
+Step 3 reads from workspace rather than re-discovering from the registry.
 
 *Mode-specific*::
 [cols="1,2"]
