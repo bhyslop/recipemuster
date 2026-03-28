@@ -123,7 +123,8 @@ def main():
             die(f"Unknown vessel mode: {vessel_mode}")
 
         with open(info_file, "w") as f:
-            json.dump(info, f)
+            json.dump(info, f, indent=2)
+            f.write("\n")
 
         if os.path.getsize(info_file) == 0:
             die(f"build_info output empty for {plat}")

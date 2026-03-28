@@ -25,6 +25,13 @@ def die(msg):
     sys.exit(1)
 
 
+def require_env(name):
+    val = os.environ.get(name, "")
+    if not val:
+        die(f"{name} missing")
+    return val
+
+
 def b64url_decode(s):
     """Decode base64url with padding normalization."""
     remainder = len(s) % 4
@@ -54,11 +61,11 @@ def platform_string(plat_dict):
 
 def main():
     vessel_mode    = os.environ.get("_RBGV_VESSEL_MODE", "")
-    gar_host       = os.environ["_RBGV_GAR_HOST"]
-    gar_path       = os.environ["_RBGV_GAR_PATH"]
-    vessel         = os.environ["_RBGV_VESSEL"]
-    consecration   = os.environ["_RBGV_CONSECRATION"]
-    ark_suffix_img = os.environ["_RBGV_ARK_SUFFIX_IMAGE"]
+    gar_host       = require_env("_RBGV_GAR_HOST")
+    gar_path       = require_env("_RBGV_GAR_PATH")
+    vessel         = require_env("_RBGV_VESSEL")
+    consecration   = require_env("_RBGV_CONSECRATION")
+    ark_suffix_img = require_env("_RBGV_ARK_SUFFIX_IMAGE")
 
     print(f"=== Mode-aware verification ({vessel_mode}) ===")
 
@@ -177,7 +184,8 @@ def _verify_conjure(manifest, is_index, config, full_image, token,
             die(f"No v1.0 envelope for {ps}")
 
         with open(f"/workspace/env-{ps}.json", "w") as f:
-            json.dump(envelope, f)
+            json.dump(envelope, f, indent=2)
+            f.write("\n")
 
         # Verify keyid
         ak = envelope["signatures"][0]["keyid"]
@@ -230,7 +238,8 @@ def _verify_conjure(manifest, is_index, config, full_image, token,
             "verdict": "pass",
         }
         with open(f"/workspace/verify-{ps}.json", "w") as f:
-            json.dump(verify_data, f)
+            json.dump(verify_data, f, indent=2)
+            f.write("\n")
         print(f"  {ps}: DSSE verified OK")
 
     print(f"All {len(entries)} platforms verified")
@@ -260,7 +269,8 @@ def _verify_conjure(manifest, is_index, config, full_image, token,
             vouch_summary["base_images"].append({"slot": slot, "ref": ref, "provenance": prov})
 
     with open("/workspace/vouch_summary.json", "w") as f:
-        json.dump(vouch_summary, f)
+        json.dump(vouch_summary, f, indent=2)
+        f.write("\n")
     print("Vouch summary composed")
 
 
@@ -296,7 +306,8 @@ def _verify_bind(token, registry_base, image_tag, consecration, vessel):
         },
     }
     with open("/workspace/vouch_summary.json", "w") as f:
-        json.dump(vouch_summary, f)
+        json.dump(vouch_summary, f, indent=2)
+        f.write("\n")
     print("Vouch summary composed")
 
 
@@ -314,7 +325,8 @@ def _verify_graft(consecration, vessel):
         },
     }
     with open("/workspace/vouch_summary.json", "w") as f:
-        json.dump(vouch_summary, f)
+        json.dump(vouch_summary, f, indent=2)
+        f.write("\n")
     print("Vouch summary composed")
 
 

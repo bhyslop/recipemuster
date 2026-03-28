@@ -3015,7 +3015,7 @@ zrbf_assemble_vouch_steps() {
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
   local -r z_vouch_step_defs=(
-    "rbgjv01-download-verifier.sh|${ZRBF_TOOL_ALPINE}|sh|download-verifier"
+    "rbgjv01-download-verifier.sh|${ZRBF_TOOL_ALPINE}|sh|prepare-keys"
     "rbgjv02-verify-provenance.py|${ZRBF_TOOL_GCLOUD}|python3|verify-provenance"
     "rbgjv03-assemble-push-vouch.sh|${ZRBF_TOOL_DOCKER}|bash|assemble-push-vouch"
   )

@@ -217,7 +217,11 @@ def _extract_diags(registry_base, token, consecration, ark_suffix_diags):
             resp = gar_fetch(f"{registry_base}/blobs/{layer_digest}", token, DIAGS_ACCEPT)
             data = resp.read()
             with tarfile.open(fileobj=BytesIO(data), mode="r:gz") as tar:
-                tar.extractall()
+                # filter="data" available in 3.12+; gcloud image is 3.10
+                if sys.version_info >= (3, 12):
+                    tar.extractall(filter="data")
+                else:
+                    tar.extractall()
         except Exception:
             print(f"WARN: Failed to extract -diags layer {layer_digest}", file=sys.stderr)
 
