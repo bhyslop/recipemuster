@@ -4749,6 +4749,13 @@
         "₢AwAAc": {
           "tacks": [
             {
+              "ts": "260328-0558",
+              "state": "abandoned",
+              "text": "## Character\nTemporary test pace to verify gazette_in.md enroll path. Drop immediately after verification.",
+              "silks": "gazette-split-test-pace",
+              "commit": "65f40c5"
+            },
+            {
               "ts": "260328-0557",
               "state": "rough",
               "text": "## Character\nTemporary test pace to verify gazette_in.md enroll path. Drop immediately after verification.",
