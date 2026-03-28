@@ -42,7 +42,6 @@ source "${RBTB_SCRIPT_DIR}/rbrp_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${RBTB_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${RBTB_SCRIPT_DIR}/rbgd_DepotConstants.sh"
-source "${RBTB_SCRIPT_DIR}/rbrg_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbf_Foundry.sh"
 source "${RBTB_SCRIPT_DIR}/rbob_bottle.sh"
 source "${RBTB_SCRIPT_DIR}/rbgo_OAuth.sh"
@@ -183,11 +182,6 @@ zrbtb_three_mode_baste() {
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
   zrbrr_enforce
-
-  # Load RBRG regime (GCB pins — needed by foundry kindle)
-  source "${RBBC_rbrg_file}" || buc_die "Failed to source ${RBBC_rbrg_file}"
-  zrbrg_kindle
-  zrbrg_enforce
 
   # Kindle infrastructure for foundry access
   zrbgc_kindle

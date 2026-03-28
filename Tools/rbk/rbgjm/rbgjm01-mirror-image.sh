@@ -1,6 +1,6 @@
 #!/bin/bash
 # RBGJM Step 01: Mirror image from upstream to GAR via skopeo
-# Builder: RBRG_SKOPEO_IMAGE_REF (quay.io/skopeo/stable)
+# Builder: skopeo (from reliquary)
 # Substitutions: _RBGA_GAR_HOST, _RBGA_GAR_PATH, _RBGA_VESSEL,
 #                _RBGA_CONSECRATION, _RBGA_BIND_SOURCE, _RBGA_ARK_SUFFIX_IMAGE
 #

@@ -20,7 +20,7 @@ See <<rbtgo_about_substitutions>> below for the full variable reference.
 
 //axhos_step
 . *Cloud Build Step 1: Discover Platforms* (Python 3):
-.. Image: {rbrg_gcloud_image_ref}
+.. Image: gcloud (from reliquary)
 .. Fetch OAuth token from GCE metadata server
 .. {rbbc_call}
 Docker Registry API: GET manifests for `«CONSECRATION»-image` with OCI media type accept headers
@@ -50,7 +50,7 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-diags`
 
 //axhos_step
 . *Cloud Build Step 2: Syft SBOM Generation*:
-.. Image: {rbrg_docker_image_ref} (runs syft via `docker run` with pinned {rbrg_syft_image_ref})
+.. Image: docker (from reliquary; runs syft via `docker run` with reliquary syft image)
 .. Fetch OAuth token via metadata server (syft authenticates as {rbtr_mason})
 .. For each platform in `«PLATFORMS»`:
 ... Conjure with per-platform tags (multi-platform): {rbbc_call}
@@ -69,7 +69,7 @@ per-platform SBOM to `/workspace/sbom-«LABEL».json` (e.g., `sbom-amd64.json`; 
 
 //axhos_step
 . *Cloud Build Step 3: Assemble build_info.json* (Python 3):
-.. Image: {rbrg_gcloud_image_ref}
+.. Image: gcloud (from reliquary)
 .. For each platform in `«PLATFORMS»`:
 ... Construct `build_info.json` with mode-aware fields organized into nested JSON objects:
 .... Root: `consecration`, `vessel_mode`, `vessel_name`, `platform`, `image_digest`, `about_timestamp`
@@ -92,7 +92,7 @@ The `-diags` path (conjure only) bypasses this limit by conveying the full Docke
 
 //axhos_step
 . *Cloud Build Step 4: Build and Push About Artifact*:
-.. Image: {rbrg_docker_image_ref}
+.. Image: docker (from reliquary)
 .. Create buildx builder instance (inspect-or-create pattern)
 .. Build multi-platform `FROM scratch` container with per-platform SBOM, `build_info.json`, `recipe.txt` (when present), and conjure enrichment files when forwarded from `-diags`: `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (conditional COPY — included only if present in `/workspace`)
 .. For single-platform images: build single-platform `-about` container

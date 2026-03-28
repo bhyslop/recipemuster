@@ -78,13 +78,13 @@ Cloud Console URL for build monitoring
 
 //axhos_step
 . *Cloud Build Step 1: Prepare Verification Keys*:
-.. Image: {rbrg_alpine_image_ref}
+.. Image: alpine (from reliquary)
 .. If conjure mode: write GCB attestor public key to `/workspace/keys/google-hosted-worker.pub`
 .. If bind or graft mode: no-op (key not needed)
 
 //axhos_step
 . *Cloud Build Step 2: Mode-Aware Verification* (Python 3):
-.. Image: {rbrg_gcloud_image_ref}
+.. Image: gcloud (from reliquary)
 .. Fetch OAuth token from GCE metadata server
 .. {rbbc_call}
 Docker Registry API: GET manifests for `«CONSECRATION»-image` to obtain OCI image index
@@ -133,7 +133,7 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
 
 //axhos_step
 . *Cloud Build Step 3: Assemble and Push Vouch Artifact*:
-.. Image: {rbrg_docker_image_ref}
+.. Image: docker (from reliquary)
 .. Create buildx builder instance (inspect-or-create pattern, same as conjure)
 .. Build multi-platform `FROM scratch` container with summary and per-platform verification files as layers
 .. Platforms: read from `/workspace/vouch_platforms.txt` (written by step 2 for all modes)

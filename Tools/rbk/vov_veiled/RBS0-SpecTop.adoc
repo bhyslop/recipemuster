@@ -139,7 +139,7 @@
 
 // Recipe Bottle Term Colophon (tabtarget entry points)
 :rbtc_gitlab_setup:              rbw-gPL (eliminated)
-:rbtc_refresh_gcb_pins:          <<rbtc_refresh_gcb_pins,rbw-DPG>>
+// rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
 :rbtc_inspect_full:              <<rbtc_inspect_full,rbw-RiF>>
 :rbtc_inspect_compact:           <<rbtc_inspect_compact,rbw-Ric>>
 
@@ -309,18 +309,7 @@
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
 :rbrr_gcb_pool_stem:         <<rbrr_gcb_pool_stem,RBRR_GCB_POOL_STEM>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
-:rbrg_oras_image_ref:    <<rbrg_oras_image_ref,RBRG_ORAS_IMAGE_REF>>
-// slsa-verifier binary pins eliminated (₣Av) — DSSE envelope verification replaces slsa-verifier
-:rbrg_slsa_verifier_url:    RBRG_SLSA_VERIFIER_URL (eliminated)
-:rbrg_slsa_verifier_sha256: RBRG_SLSA_VERIFIER_SHA256 (eliminated)
-:rbrg_gcloud_image_ref:  <<rbrg_gcloud_image_ref,RBRG_GCLOUD_IMAGE_REF>>
-:rbrg_docker_image_ref:  <<rbrg_docker_image_ref,RBRG_DOCKER_IMAGE_REF>>
-:rbrg_alpine_image_ref:  <<rbrg_alpine_image_ref,RBRG_ALPINE_IMAGE_REF>>
-:rbrg_syft_image_ref:    <<rbrg_syft_image_ref,RBRG_SYFT_IMAGE_REF>>
-:rbrg_binfmt_image_ref:  <<rbrg_binfmt_image_ref,RBRG_BINFMT_IMAGE_REF>>
-:rbrg_skopeo_image_ref: <<rbrg_skopeo_image_ref,RBRG_SKOPEO_IMAGE_REF>>
-:rbrg_image_pins_refreshed_at: <<rbrg_image_pins_refreshed_at,RBRG_IMAGE_PINS_REFRESHED_AT>>
-// RBRG_BINARY_PINS_REFRESHED_AT eliminated (₣Av) — no binary pins remain
+// RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
 :rbrm_chosen_identity:       <<rbrm_chosen_identity,RBRM_CHOSEN_IDENTITY>>
 :rbrm_chosen_podman_version: <<rbrm_chosen_podman_version,RBRM_CHOSEN_PODMAN_VERSION>>
 :rbrm_chosen_vmimage_origin: <<rbrm_chosen_vmimage_origin,RBRM_CHOSEN_VMIMAGE_ORIGIN>>
@@ -341,8 +330,7 @@
 :rbra_project_id:            <<rbra_project_id,RBRA_PROJECT_ID>>
 :rbra_token_lifetime_sec:    <<rbra_token_lifetime_sec,RBRA_TOKEN_LIFETIME_SEC>>
 
-// Recipe Bottle Regime: GCB Pins
-:rbrg_regime:                <<rbrg_regime,RBRG Regime>>
+// RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
 
 // Recipe Bottle Regime: Machine (Podman VM Supply Chain)
 :rbrm_regime:                <<rbrm_regime,RBRM Regime>>
@@ -763,9 +751,7 @@ In GCB build step contexts (conjure, bind, enshrine), registry authentication us
 Rationale: `gcloud` is an opaque, version-sensitive binary that obscures API semantics, introduces implicit authentication state, and breaks reproducibility.
 The `gcloud auth configure-docker` approach also fails mechanically in GCB steps — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
 +
-NOTE: The
-{rbrg_gcloud_image_ref}
-pin exists because conjure build steps use the gcloud builder image as a convenience shell (for `bash` and `date`).
+NOTE: The gcloud reliquary image exists because conjure build steps use it as a convenience shell (for `bash` and `date`).
 The vouch verification step (conjure mode) additionally invokes `gcloud` for provenance retrieval (see exception above).
 
 == Operation Groups
@@ -2281,11 +2267,7 @@ A network node that serves as the entry point between two networks.
 ELIMINATED (₣Av): GitLab rubric repo setup no longer required.
 Builds now use `builds.create` + pouch for context delivery.
 
-[[rbtc_refresh_gcb_pins]]
-{rbtc_refresh_gcb_pins}::
-Tabtarget colophon for GCB container image pin refresh.
-Discovers latest container image digests and updates {rbrr_prefix} pins.
-
+// rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
 // rbtc_refresh_binary_pins eliminated (₣Av) — slsa-verifier dropped
 
 [[rbtc_inspect_full]]
@@ -2524,60 +2506,8 @@ Minimum concurrent Cloud Build execution count.
 {rbrr_gcb_timeout}::
 Maximum duration for Cloud Build operations.
 
-[[rbrg_oras_image_ref]]
-//axvr_variable axd_required rbst_image_ref
-{rbrg_oras_image_ref}::
-Fully-qualified image reference for ORAS Cloud Build step.
-
-// slsa-verifier binary pins eliminated (₣Av) — DSSE envelope verification replaces slsa-verifier
-
-[[rbrg_gcloud_image_ref]]
-//axvr_variable axd_required rbst_image_ref
-{rbrg_gcloud_image_ref}::
-Fully-qualified image reference for gcloud Cloud Build step.
-Conjure build steps use it as a convenience shell (for `bash` and `date`).
-About and vouch metadata steps use it for Python 3; the vouch verification step (conjure) also invokes `gcloud` for provenance retrieval (see {rbsk_no_gcloud} exception).
-
-[[rbrg_docker_image_ref]]
-//axvr_variable axd_required rbst_image_ref
-{rbrg_docker_image_ref}::
-Fully-qualified image reference for Docker Cloud Build step.
-
-[[rbrg_alpine_image_ref]]
-//axvr_variable axd_required rbst_image_ref
-{rbrg_alpine_image_ref}::
-Fully-qualified image reference for Alpine Cloud Build step.
-
-[[rbrg_syft_image_ref]]
-//axvr_variable axd_required rbst_image_ref
-{rbrg_syft_image_ref}::
-Fully-qualified image reference for Syft SBOM Cloud Build step.
-
-[[rbrg_binfmt_image_ref]]
-//axvr_variable axd_required rbst_image_ref
-{rbrg_binfmt_image_ref}::
-Fully-qualified image reference for binfmt Cloud Build step.
-
-[[rbrg_skopeo_image_ref]]
-//axvr_variable axd_required rbst_image_ref
-{rbrg_skopeo_image_ref}::
-Fully-qualified image reference for skopeo tool.
-Used by
-{rbtgo_ark_enshrine}
-to copy upstream base images to
-{gar_service}
-with manifest list preservation (`skopeo copy --all`).
-Previously used to split multi-platform OCI layouts for Syft SBOM generation (anchore/syft#1545); that use replaced by `docker:` transport per-platform pullback.
-
-[[rbrg_image_pins_refreshed_at]]
-//axl_voices axrg_variable axvr_kindle axvr_validate axtg_timestamp
-{rbrg_image_pins_refreshed_at}::
-Timestamp recording when container image pins were last refreshed.
-Written by `rbrg_refresh_gcb_pins` ({rbtc_refresh_gcb_pins}) on successful completion.
-{rbtgo_rubric_inscribe}
-checks this value and gates on freshness (less than 1 day old).
-
-// RBRG_BINARY_PINS_REFRESHED_AT eliminated (₣Av) — no binary pins remain
+// RBRG variable definitions eliminated (₣Av) — reliquaries replace pin-based tool image management
+// Tool images (gcloud, docker, alpine, syft, binfmt, skopeo) now sourced from reliquary at conjure time
 
 [[rbrr_group_service_accounts]]
 //axvr_group
@@ -2604,20 +2534,8 @@ Container image build process configuration.
 
 include::RBSRR-RegimeRepo.adoc[]
 
-=== GCB Pins Regime (RBRG)
-
-[[rbrg_regime]]
-//axvr_regime axf_bash axrd_file_sourced axrd_singleton
-{rbrg_regime}::
-Pinned tool references for
-{gcb_service}
-build steps.
-Refresh command: `rbrg_refresh_gcb_pins` ({rbtc_refresh_gcb_pins}) for container image pins.
-Binary tool pins (slsa-verifier) eliminated (₣Av) — DSSE envelope verification uses embedded attestor keys.
-Each writes the complete file from scratch (BCG compliant), preserving the other's section.
-Located at `.rbk/rbrg.env`.
-
-include::RBSRG-RegimeGcbPins.adoc[]
+// RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
+// Tool images now sourced from datestamped reliquary namespace in GAR at conjure time
 
 === Machine Regime (RBRM)
 

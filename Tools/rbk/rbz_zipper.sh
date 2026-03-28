@@ -76,8 +76,6 @@ zrbz_kindle() {
   buz_enroll RBZ_INSPECT_COMPACT           "rbw-Ric"      "${z_mod}" "rbf_inspect_compact"
   buz_enroll RBZ_CHECK_CONSECRATIONS        "rbw-Dc"       "${z_mod}" "rbf_check_consecrations"
   buz_enroll RBZ_VOUCH_CONSECRATIONS        "rbw-DV"       "${z_mod}" "rbf_batch_vouch"
-  z_mod="rbrg_cli.sh"
-  buz_enroll RBZ_REFRESH_GCB_PINS           "rbw-DPG"      "${z_mod}" "rbrg_refresh_gcb_pins"
 
   # Regime operations
   z_mod="rbrn_cli.sh"
@@ -90,9 +88,6 @@ zrbz_kindle() {
   z_mod="rbrr_cli.sh"
   buz_enroll RBZ_RENDER_REPO                "rbw-rrr"      "${z_mod}" "rbrr_render"
   buz_enroll RBZ_VALIDATE_REPO              "rbw-rrv"      "${z_mod}" "rbrr_validate"
-  z_mod="rbrg_cli.sh"
-  buz_enroll RBZ_RENDER_PINS                "rbw-rgr"      "${z_mod}" "rbrg_render_pins"
-  buz_enroll RBZ_VALIDATE_PINS              "rbw-rgv"      "${z_mod}" "rbrg_validate_pins"
   z_mod="rbrp_cli.sh"
   buz_enroll RBZ_RENDER_PAYOR               "rbw-rpr"      "${z_mod}" "rbrp_render"
   buz_enroll RBZ_VALIDATE_PAYOR             "rbw-rpv"      "${z_mod}" "rbrp_validate"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # RBGJV Step 03: Build FROM scratch container with verification results, push as -vouch
-# Builder: docker (via RBRG_DOCKER_IMAGE_REF)
+# Builder: docker (from reliquary)
 # Entrypoint: bash
 # Substitutions: _RBGV_GAR_HOST, _RBGV_GAR_PATH, _RBGV_VESSEL,
 #                _RBGV_CONSECRATION, _RBGV_ARK_SUFFIX_VOUCH

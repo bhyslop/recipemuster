@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-SYFT_IMAGE="${RBRG_SYFT_IMAGE_REF}"
+SYFT_IMAGE="${ZRBF_TOOL_SYFT}"
 
 test -n "${_RBGA_GAR_HOST}"       || { echo "_RBGA_GAR_HOST missing"       >&2; exit 1; }
 test -n "${_RBGA_GAR_PATH}"       || { echo "_RBGA_GAR_PATH missing"       >&2; exit 1; }

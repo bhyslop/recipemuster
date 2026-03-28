@@ -28,7 +28,6 @@ ZRBBC_SOURCED=1
 RBBC_kit_subdir="rbk"
 RBBC_dot_dir=".rbk"
 RBBC_rbrr_file="${RBBC_dot_dir}/rbrr.env"
-RBBC_rbrg_file="${RBBC_dot_dir}/rbrg.env"
 RBBC_rbrm_file="${RBBC_dot_dir}/rbrm.env"
 RBBC_rbrp_file="${RBBC_dot_dir}/rbrp.env"
 

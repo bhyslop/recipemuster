@@ -151,9 +151,6 @@ zrbf_kindle() {
   buc_log_args 'Scratch file for sequential temp-file patterns'
   readonly ZRBF_SCRATCH_FILE="${BURD_TEMP_DIR}/rbf_scratch.txt"
 
-  buc_log_args 'For now lets double check these'
-  # RBRG_ORAS_IMAGE_REF validation removed — oras not used as GCB step image
-
   readonly ZRBF_KINDLED=1
 }
 
@@ -430,7 +427,7 @@ zrbf_stitch_build_json() {
     test -n "${z_body}" || buc_die "Empty script body: ${z_script_path}"
 
     buc_log_args "Baking pinned image refs and build strategy into script text"
-    z_body="${z_body//\$\{RBRG_BINFMT_IMAGE_REF\}/${ZRBF_TOOL_BINFMT}}"
+    z_body="${z_body//\$\{ZRBF_TOOL_BINFMT\}/${ZRBF_TOOL_BINFMT}}"
     z_body="${z_body//\$\{ZRBF_BUILD_STRATEGY\}/${z_build_strategy}}"
 
     case "${z_entrypoint}" in
@@ -2137,18 +2134,7 @@ rbf_rubric_inscribe() {
   # RBRR_RUBRIC_REPO_URL is already clean (no embedded PAT)
   local -r z_rubric_url_clean="${RBRR_RUBRIC_REPO_URL}"
 
-  # Phase 0: Pin staleness gate
-  buc_step "Checking GCB pin freshness"
-  local -r z_now_epoch="${BURD_NOW_EPOCH}"
-  local -r z_pins_epoch="${RBRG_IMAGE_PINS_REFRESHED_AT:-0}"
-  local -r z_age=$((z_now_epoch - z_pins_epoch))
-  if test "${z_age}" -gt "${ZRBF_INSCRIBE_STALENESS_SEC}"; then
-    buc_warn "GCB pins are stale (${z_age}s old, limit ${ZRBF_INSCRIBE_STALENESS_SEC}s)"
-    buc_info "Refresh pins first, commit, then re-run inscribe:"
-    buc_tabtarget "${RBZ_REFRESH_GCB_PINS}"
-    buc_die "Cannot inscribe with stale pins"
-  fi
-  buc_info "Pin freshness verified (${z_age}s old)"
+  # Phase 0: Pin staleness gate eliminated (₣Av) — RBRG regime removed
 
   # Phase 1: Capture git metadata for build substitutions
   buc_step "Capturing git metadata for build substitutions"
@@ -2933,7 +2919,7 @@ zrbf_ensure_git_metadata() {
 
 # Internal: assemble about step scripts into JSON array file
 # Args: output_file temp_prefix
-# Reads ZRBF_RBGJA_STEPS_DIR and RBRG_* image refs from module state
+# Reads ZRBF_RBGJA_STEPS_DIR and ZRBF_TOOL_* image refs from module state
 zrbf_assemble_about_steps() {
   zrbf_sentinel
 
@@ -2979,7 +2965,7 @@ zrbf_assemble_about_steps() {
     test -n "${z_abody}" || buc_die "Empty about script body: ${z_ascript_path}"
 
     buc_log_args "Baking pinned image refs into script text"
-    z_abody="${z_abody//\$\{RBRG_SYFT_IMAGE_REF\}/${ZRBF_TOOL_SYFT}}"
+    z_abody="${z_abody//\$\{ZRBF_TOOL_SYFT\}/${ZRBF_TOOL_SYFT}}"
 
     case "${z_aentrypoint}" in
       bash)    z_ashebang="#!/bin/bash" ;;
@@ -3005,7 +2991,7 @@ zrbf_assemble_about_steps() {
 
 # Internal: assemble vouch step scripts into JSON array file
 # Args: output_file temp_prefix
-# Reads ZRBF_RBGJV_STEPS_DIR and RBRG_* image refs from module state
+# Reads ZRBF_RBGJV_STEPS_DIR and ZRBF_TOOL_* image refs from module state
 zrbf_assemble_vouch_steps() {
   zrbf_sentinel
 

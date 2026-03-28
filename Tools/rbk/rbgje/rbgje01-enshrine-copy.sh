@@ -1,6 +1,6 @@
 #!/bin/bash
 # RBGJE Step 01: Enshrine upstream base images to GAR via skopeo
-# Builder: RBRG_SKOPEO_IMAGE_REF (quay.io/skopeo/stable)
+# Builder: skopeo (from reliquary)
 # Substitutions: _RBGE_GAR_HOST, _RBGE_GAR_PATH, _RBGE_VESSEL,
 #                _RBGE_IMAGE_1_ORIGIN, _RBGE_IMAGE_2_ORIGIN, _RBGE_IMAGE_3_ORIGIN
 #

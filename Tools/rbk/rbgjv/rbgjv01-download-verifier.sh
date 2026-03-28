@@ -1,6 +1,6 @@
 #!/bin/sh
 # RBGJV Step 01: Prepare verification keys
-# Builder: alpine (via RBRG_ALPINE_IMAGE_REF)
+# Builder: alpine (from reliquary)
 # Entrypoint: sh (not bash — alpine does not have bash)
 # Substitutions: _RBGV_VESSEL_MODE
 

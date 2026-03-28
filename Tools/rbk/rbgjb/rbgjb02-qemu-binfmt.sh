@@ -5,4 +5,4 @@
 set -euo pipefail
 
 # Register QEMU for cross-platform builds (arm64, arm/v7)
-docker run --privileged --rm "${RBRG_BINFMT_IMAGE_REF}" --install arm64,arm
+docker run --privileged --rm "${ZRBF_TOOL_BINFMT}" --install arm64,arm

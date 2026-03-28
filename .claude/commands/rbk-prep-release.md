@@ -54,7 +54,6 @@ Before stripping removes the spec documents, verify every enrolled RBK regime va
 | `Tools/rbk/rbrp_regime.sh` | `Tools/rbk/vov_veiled/RBSRP-RegimePayor.adoc` |
 | `Tools/rbk/rbrv_regime.sh` | `Tools/rbk/vov_veiled/RBSRV-RegimeVessel.adoc` |
 | `Tools/rbk/rbro_regime.sh` | `Tools/rbk/vov_veiled/RBSRO-RegimeOauth.adoc` |
-| `Tools/rbk/rbrg_regime.sh` | `Tools/rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc` |
 | `Tools/rbk/rbrs_regime.sh` | `Tools/rbk/vov_veiled/RBSRS-RegimeStation.adoc` |
 
 For each regime:

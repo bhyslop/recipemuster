@@ -9,7 +9,7 @@ The
 submits a Cloud Build job that copies each declared
 {rbrv_image_origin}
 from its upstream registry to GAR with an anchor tag using
-{rbrg_skopeo_image_ref}
+the reliquary skopeo image
 (`skopeo copy --all`), preserving the manifest list and all per-platform manifests for multi-platform images.
 The anchor results are returned via `buildStepOutputs` and
 {rbrv_image_anchor}
@@ -41,7 +41,7 @@ declaration (slots 1-3)
 . *Submit Enshrine Cloud Build Job*:
 .. Compose `builds.create` JSON with:
 ... Single step using
-{rbrg_skopeo_image_ref}
+the reliquary skopeo image
 as the builder image (script: `rbgje01-enshrine-copy.sh`)
 ... `_RBGE_*` substitutions: `_RBGE_GAR_HOST`, `_RBGE_GAR_PATH`, `_RBGE_VESSEL`, `_RBGE_IMAGE_n_ORIGIN` (n = 1, 2, 3; empty for unused slots)
 ... Mason SA, private pool, timeout

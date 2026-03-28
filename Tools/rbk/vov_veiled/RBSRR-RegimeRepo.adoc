@@ -115,8 +115,7 @@ Injected into container environment to control DNS behavior.
 Operator-chosen
 {gcb_service}
 build parameters.
-Builder image pins are in the
-{rbrg_regime};
+Builder images are sourced from the reliquary;
 platform targets and VM supply chain are in the
 {rbrm_regime}.
 

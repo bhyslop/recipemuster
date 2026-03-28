@@ -182,11 +182,10 @@ Regimes follow a consistent pattern: `rbw-r{code}{r|v|l}` where `r` = render, `v
 | `rv` | RBRV | Vessel — container image build definitions | `rbw-rvr` | `rbw-rvv` |
 | `rs` | RBRS | Station — developer machine paths | `rbw-rsr` | `rbw-rsv` |
 | `ro` | RBRO | OAuth — payor refresh token (managed) | `rbw-ror` | `rbw-rov` |
-| `rg` | RBRG | Pins — GCB image + binary digests (managed) | `rbw-rgr` | `rbw-rgv` |
 | `ra` | RBRA | Auth — service account credentials (managed) | `rbw-rar` | `rbw-rav` |
 
 **User-configured**: RBRP, RBRR, RBRN, RBRV, RBRS — you edit these during setup.
-**Managed/generated**: RBRO (by payor install), RBRG (by pin refresh), RBRA (by credential creation).
+**Managed/generated**: RBRO (by payor install), RBRA (by credential creation).
 
 Cross-regime operations: `rbw-ni` (nameplate info/survey), `rbw-nv` (validate all nameplates).
 
@@ -225,8 +224,7 @@ Project Root/
 ├── .rbk/                    # Recipe Bottle config regimes
 │   ├── rbrp.env             # Payor regime
 │   ├── rbrr.env             # Repo/depot regime
-│   ├── rbrn_*.env           # Nameplate regimes (per vessel)
-│   └── rbrg.env             # GCB pins (managed)
+│   └── rbrn_*.env           # Nameplate regimes (per vessel)
 ├── tt/                      # TabTargets (ls this to see all commands)
 ├── Tools/
 │   ├── buk/                 # Bash Utility Kit (portable infrastructure)
