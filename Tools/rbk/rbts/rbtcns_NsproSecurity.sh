@@ -30,9 +30,8 @@ set -euo pipefail
 #--- Basic network verification ---
 
 rbtcns_basic_dnsmasq_tcase() {
-  # Verify dnsmasq is running on sentry
-  buto_unit_expect_ok rbtb_exec_sentry ps aux
-  rbtb_exec_sentry ps aux | grep -q dnsmasq || buto_fatal "dnsmasq not running on sentry"
+  # Verify dnsmasq is serving DNS on sentry by querying from censer
+  buto_unit_expect_ok rbtb_exec_censer_i dig +short @"${RBRN_ENCLAVE_SENTRY_IP}" anthropic.com
 }
 
 rbtcns_basic_ping_sentry_tcase() {
@@ -58,7 +57,7 @@ rbtcns_dns_block_google_tcase() {
 #--- TCP 443 connection tests ---
 
 rbtcns_tcp443_allow_anthropic_tcase() {
-  # Get anthropic IP from sentry (which can resolve anything)
+  # Get anthropic IP from sentry (trusted, resolves via upstream DNS)
   local z_ip
   z_ip=$(rbtb_exec_sentry_i dig +short anthropic.com | head -1)
   test -n "${z_ip}" || buto_fatal "Failed to resolve anthropic.com"
@@ -66,7 +65,7 @@ rbtcns_tcp443_allow_anthropic_tcase() {
 }
 
 rbtcns_tcp443_block_google_tcase() {
-  # Get google IP from sentry, then verify bottle cannot connect
+  # Get google IP from sentry (trusted, resolves via upstream DNS)
   local z_ip
   z_ip=$(rbtb_exec_sentry_i dig +short google.com | head -1)
   test -n "${z_ip}" || buto_fatal "Failed to resolve google.com"
