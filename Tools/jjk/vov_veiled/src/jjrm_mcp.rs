@@ -11,7 +11,7 @@
 //! Handlers return (i32, String) — exit code and accumulated output.
 //! The MCP layer converts this to CallToolResult (success/error).
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use rmcp::handler::server::router::tool::ToolRouter;
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::{ServerCapabilities, ServerInfo, CallToolResult, Content};
@@ -42,6 +42,12 @@ use crate::jjrld_landing::{jjrld_LandingArgs, jjrld_run_landing};
 use crate::jjrz_gazette::{jjrz_parse_slate_input, jjrz_parse_reslate_input, jjrz_parse_paddock_input};
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
+const OFFICIA_DIR: &str = ".claude/jjm/officia";
+const HEARTBEAT_FILE: &str = "heartbeat";
+const GAZETTE_FILE: &str = "gazette.md";
+const PROBE_DATE_FILE: &str = ".probe_date";
+const EXSANGUINATION_THRESHOLD_SECS: u64 = 4 * 3600;
+const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
 
 fn gallops_pathbuf() -> PathBuf {
     PathBuf::from(GALLOPS_PATH)
@@ -354,33 +360,186 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_open")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
     pub params: serde_json::Value,
+    #[schemars(description = "Officium identity (from jjx_open). Required for all commands except jjx_open.")]
+    #[serde(default)]
+    pub officium: Option<String>,
+}
+
+// ============================================================================
+// Officium lifecycle — jjdxo_* (Officium Lifecycle in JJS0)
+// ============================================================================
+
+/// Reap stale officium directories by heartbeat mtime.
+fn zjjrm_exsanguinate(officia: &Path) {
+    let entries = match std::fs::read_dir(officia) {
+        Ok(e) => e,
+        Err(_) => return,
+    };
+    let now = std::time::SystemTime::now();
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if !path.is_dir() { continue; }
+        let heartbeat = path.join(HEARTBEAT_FILE);
+        if !heartbeat.exists() {
+            // No heartbeat file — legacy or corrupt. Log warning, skip.
+            eprintln!("jjx exsanguinate: no heartbeat in {:?}, skipping", path.file_name());
+            continue;
+        }
+        let mtime = match heartbeat.metadata().and_then(|m| m.modified()) {
+            Ok(t) => t,
+            Err(_) => continue,
+        };
+        let age = match now.duration_since(mtime) {
+            Ok(d) => d,
+            Err(_) => continue,
+        };
+        if age.as_secs() > EXSANGUINATION_THRESHOLD_SECS {
+            if let Err(e) = std::fs::remove_dir_all(&path) {
+                eprintln!("jjx exsanguinate: failed to remove {:?}: {}", path.file_name(), e);
+            }
+        }
+    }
+}
+
+/// Generate officium ID: YYMMDD-NNNN (autonumber from directory listing).
+fn zjjrm_generate_officium_id(officia: &Path, today: &str) -> String {
+    let prefix = format!("{}-", today);
+    let mut max_num: u32 = 999;
+    if let Ok(entries) = std::fs::read_dir(officia) {
+        for entry in entries.flatten() {
+            let name = entry.file_name();
+            let name = name.to_string_lossy();
+            if let Some(suffix) = name.strip_prefix(&prefix) {
+                if let Ok(num) = suffix.parse::<u32>() {
+                    if num > max_num { max_num = num; }
+                }
+            }
+        }
+    }
+    format!("{}{:04}", prefix, max_num + 1)
+}
+
+/// Check if daily probe is needed (probe_date file doesn't match today).
+fn zjjrm_needs_probe(probe_date_path: &Path, today: &str) -> bool {
+    match std::fs::read_to_string(probe_date_path) {
+        Ok(content) => content.trim() != today,
+        Err(_) => true,
+    }
+}
+
+/// Validate officium directory exists and touch heartbeat.
+fn zjjrm_validate_officium(officium: &str) -> Result<(), String> {
+    let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
+    let exchange = PathBuf::from(OFFICIA_DIR).join(bare_id);
+    if !exchange.is_dir() {
+        return Err(format!(
+            "Officium directory not found: {}. Call jjx_open to create a new officium.",
+            bare_id
+        ));
+    }
+    // Touch heartbeat
+    std::fs::write(exchange.join(HEARTBEAT_FILE), b"").ok();
+    Ok(())
+}
+
+/// Handle jjx_open: create a new officium.
+async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
+    let officia = PathBuf::from(OFFICIA_DIR);
+    if let Err(e) = std::fs::create_dir_all(&officia) {
+        return Ok(CallToolResult::error(vec![Content::text(
+            format!("jjx_open: error creating officia dir: {}", e),
+        )]));
+    }
+
+    // Exsanguinate stale officia before creating new one
+    zjjrm_exsanguinate(&officia);
+
+    // Generate officium ID
+    let today = chrono::Local::now().format("%y%m%d").to_string();
+    let id = zjjrm_generate_officium_id(&officia, &today);
+
+    // Create exchange directory with gazette and heartbeat
+    let exchange = officia.join(&id);
+    if let Err(e) = std::fs::create_dir_all(&exchange) {
+        return Ok(CallToolResult::error(vec![Content::text(
+            format!("jjx_open: error creating exchange dir: {}", e),
+        )]));
+    }
+    std::fs::write(exchange.join(GAZETTE_FILE), b"").ok();
+    std::fs::write(exchange.join(HEARTBEAT_FILE), b"").ok();
+
+    // Daily probe: run vvcp_probe if .probe_date doesn't match today
+    let probe_date_path = officia.join(PROBE_DATE_FILE);
+    let probe_data = if zjjrm_needs_probe(&probe_date_path, &today) {
+        match vvc::vvcp_probe().await {
+            Ok(data) => {
+                std::fs::write(&probe_date_path, &today).ok();
+                Some(data)
+            }
+            Err(e) => {
+                eprintln!("jjx_open: probe warning: {}", e);
+                None
+            }
+        }
+    } else {
+        None
+    };
+
+    // Invitatory commit: jjb:HALLMARK::i: OFFICIUM <id>
+    let hallmark = vvc::vvcc_get_hallmark();
+    let subject = format!("OFFICIUM {}", id);
+    let action = crate::jjrnm_markers::JJRNM_INVITATORY.to_string();
+    let message = vvc::vvcc_format_branded(
+        crate::jjrn_notch::JJRN_COMMIT_PREFIX,
+        &hallmark,
+        "",
+        &action,
+        &subject,
+        probe_data.as_deref(),
+    );
+
+    let commit_args = vvc::vvcc_CommitArgs {
+        prefix: None,
+        message: Some(message),
+        allow_empty: true,
+        no_stage: true,
+        size_limit: vvc::VVCG_SIZE_LIMIT,
+        warn_limit: vvc::VVCG_WARN_LIMIT,
+    };
+
+    match vvc::vvcc_CommitLock::vvcc_acquire() {
+        Ok(lock) => {
+            let mut output = vvc::vvco_Output::buffer();
+            if let Err(e) = lock.vvcc_commit(&commit_args, &mut output) {
+                return Ok(CallToolResult::error(vec![Content::text(
+                    format!("jjx_open: invitatory commit error: {}", e),
+                )]));
+            }
+        }
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("jjx_open: lock error: {}", e),
+            )]));
+        }
+    };
+
+    Ok(CallToolResult::success(vec![Content::text(
+        format!("{}{}", OFFICIUM_SUN_PREFIX, id),
+    )]))
 }
 
 // ============================================================================
 // MCP Server
 // ============================================================================
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct jjrm_McpServer {
     tool_router: ToolRouter<Self>,
-    // AtomicBool satisfies ServerHandler's Sync bound; actual access is single-threaded.
-    invitatory_done: std::sync::atomic::AtomicBool,
-}
-
-impl Clone for jjrm_McpServer {
-    fn clone(&self) -> Self {
-        Self {
-            tool_router: self.tool_router.clone(),
-            invitatory_done: std::sync::atomic::AtomicBool::new(
-                self.invitatory_done.load(std::sync::atomic::Ordering::Relaxed)
-            ),
-        }
-    }
 }
 
 #[tool_router]
@@ -388,22 +547,26 @@ impl jjrm_McpServer {
     pub fn jjrm_new() -> Self {
         Self {
             tool_router: Self::tool_router(),
-            invitatory_done: std::sync::atomic::AtomicBool::new(false),
         }
     }
 
     #[tool(name = "jjx", description = "Job Jockey Kit - MCP tools for project initiative management")]
     async fn jjx(&self, Parameters(p): Parameters<jjrm_JjxParams>) -> Result<CallToolResult, McpError> {
-        // Lazy invitatory: delegate to VVC which has 1-hour gap guard.
-        // Safe to call on every command — no-ops if officium is current.
-        if !self.invitatory_done.load(std::sync::atomic::Ordering::Relaxed) {
-            if let Err(e) = vvc::vvcp_invitatory().await {
-                eprintln!("jjk: invitatory warning: {}", e);
-            }
-            self.invitatory_done.store(true, std::sync::atomic::Ordering::Relaxed);
+        let cmd = p.command.as_str();
+
+        // jjx_open creates the officium — handle before officium validation
+        if cmd == "jjx_open" {
+            return zjjrm_handle_open().await;
         }
 
-        let cmd = p.command.as_str();
+        // Officium envelope: validate directory exists and touch heartbeat
+        if let Some(ref officium) = p.officium {
+            if let Err(e) = zjjrm_validate_officium(officium) {
+                return Ok(CallToolResult::error(vec![Content::text(
+                    format!("jjx {}: {}", cmd, e),
+                )]));
+            }
+        }
         let v = match p.params {
             serde_json::Value::String(ref s) => {
                 serde_json::from_str(s).unwrap_or(p.params)
@@ -667,7 +830,7 @@ impl jjrm_McpServer {
                 }, p.content.unwrap_or_default()))
             }
             _ => {
-                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing", cmd))]))
+                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_open, jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing", cmd))]))
             }
         }
     }
@@ -690,7 +853,7 @@ impl ServerHandler for jjrm_McpServer {
 
 /// Start MCP stdio server. Blocks until client disconnects.
 ///
-/// Lifecycle: serve → waiting (invitatory deferred to first jjx command)
+/// Lifecycle: serve → waiting. Officium created by explicit jjx_open call.
 pub async fn jjrm_serve_stdio() -> Result<(), Box<dyn std::error::Error>> {
     use rmcp::ServiceExt;
 

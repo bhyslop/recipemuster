@@ -50,4 +50,7 @@ Tools/vvc/target/
 # Rubric repo clone (inscribe workspace)
 .rbk/rubric/
 
+# Officium exchange directories (ephemeral, per-session)
+.claude/jjm/officia/
+
 # JJK release directory (parcels ignored via .jjk/.gitignore)
