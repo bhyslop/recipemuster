@@ -3843,9 +3843,10 @@
         "₢AwAAV",
         "₢AwAAW",
         "₢AwAAX",
-        "₢AwAAT"
+        "₢AwAAT",
+        "₢AwAAb"
       ],
-      "next_pace_seed": "AAb",
+      "next_pace_seed": "AAc",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4723,6 +4724,17 @@
               "text": "## Character\nSpook fix — prevent agent mishandling of case-sensitive identities.\n\n## Goal\nUpdate CLAUDE.md Job Jockey Configuration section to explicitly state that firemarks and coronets are case-sensitive. `AV` ≠ `Av` ≠ `av`. The orient error when passing wrong case is confusing and wastes a tool call.\n\n## Scope\n- CLAUDE.md: Add case-sensitivity warning near the Identities vs Display Names section\n- Consider adding examples showing correct case matters",
               "silks": "claudemd-firemark-coronet-case-sensitivity",
               "commit": "b8514b6"
+            }
+          ]
+        },
+        "₢AwAAb": {
+          "tacks": [
+            {
+              "ts": "260327-2154",
+              "state": "rough",
+              "text": "## Character\nSpook fix — operational experience revealed a directional ambiguity in the gazette file exchange. Spec + implementation + documentation, narrow scope.\n\n## Spook\n₣Av chat (₢AvAAV): `jjx_orient` wrote paddock+docket to `gazette.md`. Agent then called `jjx_enroll` without overwriting the gazette. Server consumed the stale orient output as enroll input, failing on `# paddock` slug (expected `# slate`). The error was recoverable but cost a round-trip and required the agent to reason about stale file contents.\n\nRoot cause: a single `gazette.md` file serves as both the server's output channel (orient, show, paddock getter) and the agent's input channel (enroll, redocket, paddock setter). Stale output is indistinguishable from fresh input at the file layer.\n\n## Fix\nSplit `gazette.md` into two directional files:\n\n- **`gazette_in.md`** (Agent → Server): agent writes before setter commands. Server reads and **deletes after consuming**. Absence when a setter command runs → clear \"no input gazette\" error.\n- **`gazette_out.md`** (Server → Agent): server writes after getter commands. Overwrites any prior content. Stale output is harmless — cannot be confused with input.\n\n## Scope\n\n### JJSCGZ-gazette.adoc\n- Add file-level I/O protocol section describing the two files and their lifecycles\n- Existing slug direction annotations (`input`, `output`, `bidirectional`) already map: input slugs appear in `gazette_in.md`, output slugs appear in `gazette_out.md`, bidirectional slugs appear in whichever file matches the operation's direction\n\n### JJS0_JobJockeySpec.adoc\n- Update officium directory layout to show `gazette_in.md` + `gazette_out.md` instead of `gazette.md`\n- Update any prose referencing the gazette exchange path\n\n### Rust implementation\n- Change gazette file read/write paths in the I/O layer\n- Add delete-after-consume for input file reads\n- Gazette data structure (parse, build, emit, query) is unchanged\n\n### CLAUDE.md\n- Update gazette wire format section: paths, protocol, setter/getter table\n- Simplify: \"write gazette_in.md then call\" / \"call then read gazette_out.md\" — no more \"read existing file first\" caveat\n\n## Verification\n- Setter commands fail cleanly with \"no input gazette\" when `gazette_in.md` is absent\n- Getter commands always produce fresh `gazette_out.md`\n- Stale `gazette_out.md` from a prior getter never interferes with a subsequent setter\n- All existing JJK operations work: orient→mount, slate, reslate, paddock get/set",
+              "silks": "gazette-split-input-output",
+              "commit": "e48a2d4"
             }
           ]
         }
