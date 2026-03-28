@@ -15,10 +15,10 @@ use std::fmt;
 
 // --- String boundary consts for slug wire format ---
 
-const JJRZ_SLUG_SLATE: &str = "slate";
-const JJRZ_SLUG_RESLATE: &str = "reslate";
-const JJRZ_SLUG_PADDOCK: &str = "paddock";
-const JJRZ_SLUG_PACE: &str = "pace";
+pub(crate) const JJRZ_SLUG_SLATE: &str = "jjezs_slate";
+pub(crate) const JJRZ_SLUG_RESLATE: &str = "jjezs_reslate";
+pub(crate) const JJRZ_SLUG_PADDOCK: &str = "jjezs_paddock";
+pub(crate) const JJRZ_SLUG_PACE: &str = "jjezs_pace";
 
 /// Slug direction — metadata for how each slug is used in operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -135,18 +135,10 @@ impl jjrz_Gazette {
                         ));
                     }
                     None => {
-                        let suggestion = zjjrz_near_match(slug_str, vocabulary);
-                        let msg = match suggestion {
-                            Some(near) => format!(
-                                "Line {}: unknown slug '{}' (did you mean '{}'?)",
-                                line_num, slug_str, near
-                            ),
-                            None => format!(
-                                "Line {}: unknown slug '{}' (valid: {})",
-                                line_num, slug_str, zjjrz_format_vocab(vocabulary)
-                            ),
-                        };
-                        diagnostics.push(msg);
+                        diagnostics.push(format!(
+                            "Line {}: unknown slug '{}' (valid: {})",
+                            line_num, slug_str, zjjrz_format_vocab(vocabulary)
+                        ));
                     }
                 }
             } else if let Some((_, _, ref mut content_lines, _)) = current {
@@ -382,36 +374,3 @@ fn zjjrz_format_vocab(vocab: &[jjrz_Slug]) -> String {
     vocab.iter().map(|s| s.jjrz_as_str()).collect::<Vec<_>>().join(", ")
 }
 
-/// Find nearest vocabulary slug within edit distance 2
-pub(crate) fn zjjrz_near_match(unknown: &str, vocab: &[jjrz_Slug]) -> Option<&'static str> {
-    let mut best: Option<(&'static str, usize)> = None;
-    for slug in vocab {
-        let dist = zjjrz_edit_distance(unknown, slug.jjrz_as_str());
-        if dist <= 2 {
-            match best {
-                Some((_, d)) if dist < d => best = Some((slug.jjrz_as_str(), dist)),
-                None => best = Some((slug.jjrz_as_str(), dist)),
-                _ => {}
-            }
-        }
-    }
-    best.map(|(s, _)| s)
-}
-
-/// Levenshtein edit distance
-pub(crate) fn zjjrz_edit_distance(a: &str, b: &str) -> usize {
-    let a = a.as_bytes();
-    let b = b.as_bytes();
-    let (m, n) = (a.len(), b.len());
-    let mut prev: Vec<usize> = (0..=n).collect();
-    let mut curr = vec![0; n + 1];
-    for i in 1..=m {
-        curr[0] = i;
-        for j in 1..=n {
-            let cost = if a[i - 1] == b[j - 1] { 0 } else { 1 };
-            curr[j] = (prev[j] + 1).min(curr[j - 1] + 1).min(prev[j - 1] + cost);
-        }
-        std::mem::swap(&mut prev, &mut curr);
-    }
-    prev[n]
-}

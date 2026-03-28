@@ -8,8 +8,8 @@ use super::jjrz_gazette::*;
 
 #[test]
 fn jjtz_parse_single_notice() {
-    let md = "# slate my-pace\n\nDocket text here\n";
-    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], md).unwrap();
+    let md = format!("# {} my-pace\n\nDocket text here\n", JJRZ_SLUG_SLATE);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], &md).unwrap();
     assert!(g.jjrz_is_frozen());
     let entries = g.jjrz_query_by_slug(jjrz_Slug::Slate);
     assert_eq!(entries.len(), 1);
@@ -19,24 +19,26 @@ fn jjtz_parse_single_notice() {
 
 #[test]
 fn jjtz_parse_multiple_notices_same_slug() {
-    let md = "# slate pace-one\n\nFirst docket\n\n# slate pace-two\n\nSecond docket\n";
-    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], md).unwrap();
+    let md = format!("# {} pace-one\n\nFirst docket\n\n# {} pace-two\n\nSecond docket\n",
+        JJRZ_SLUG_SLATE, JJRZ_SLUG_SLATE);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], &md).unwrap();
     let entries = g.jjrz_query_by_slug(jjrz_Slug::Slate);
     assert_eq!(entries.len(), 2);
 }
 
 #[test]
 fn jjtz_parse_multiple_slugs() {
-    let md = "# slate my-pace\n\nDocket\n\n# paddock AF\n\n## Purpose\n\nContent\n";
-    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate, jjrz_Slug::Paddock], md).unwrap();
+    let md = format!("# {} my-pace\n\nDocket\n\n# {} AF\n\n## Purpose\n\nContent\n",
+        JJRZ_SLUG_SLATE, JJRZ_SLUG_PADDOCK);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate, jjrz_Slug::Paddock], &md).unwrap();
     let all = g.jjrz_query_all();
     assert_eq!(all.len(), 2);
 }
 
 #[test]
 fn jjtz_parse_empty_content() {
-    let md = "# paddock AF\n";
-    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock], md).unwrap();
+    let md = format!("# {} AF\n", JJRZ_SLUG_PADDOCK);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock], &md).unwrap();
     let entries = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
     assert_eq!(entries.len(), 1);
     assert_eq!(entries[0].0, "AF");
@@ -51,8 +53,8 @@ fn jjtz_parse_empty_input() {
 
 #[test]
 fn jjtz_parse_absent_lede() {
-    let md = "# paddock\n\nContent without lede\n";
-    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock], md).unwrap();
+    let md = format!("# {}\n\nContent without lede\n", JJRZ_SLUG_PADDOCK);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock], &md).unwrap();
     let entries = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
     assert_eq!(entries.len(), 1);
     assert_eq!(entries[0].0, "");
@@ -61,8 +63,8 @@ fn jjtz_parse_absent_lede() {
 
 #[test]
 fn jjtz_parse_content_with_markdown_headers() {
-    let md = "# paddock AF\n\n## Purpose\n\nSome text\n\n### Details\n\nMore text\n";
-    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock], md).unwrap();
+    let md = format!("# {} AF\n\n## Purpose\n\nSome text\n\n### Details\n\nMore text\n", JJRZ_SLUG_PADDOCK);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock], &md).unwrap();
     let entries = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
     assert_eq!(entries.len(), 1);
     assert!(entries[0].1.contains("## Purpose"));
@@ -71,8 +73,8 @@ fn jjtz_parse_content_with_markdown_headers() {
 
 #[test]
 fn jjtz_parse_content_before_first_header_ignored() {
-    let md = "Some preamble text\n\n# slate my-pace\n\nDocket\n";
-    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], md).unwrap();
+    let md = format!("Some preamble text\n\n# {} my-pace\n\nDocket\n", JJRZ_SLUG_SLATE);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], &md).unwrap();
     let entries = g.jjrz_query_by_slug(jjrz_Slug::Slate);
     assert_eq!(entries.len(), 1);
     assert_eq!(entries[0].1, "Docket");
@@ -90,26 +92,19 @@ fn jjtz_parse_unknown_slug() {
 
 #[test]
 fn jjtz_parse_slug_not_in_vocab() {
-    let md = "# paddock AF\n";
-    let err = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], md).unwrap_err();
+    let md = format!("# {} AF\n", JJRZ_SLUG_PADDOCK);
+    let err = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], &md).unwrap_err();
     assert_eq!(err.len(), 1);
     assert!(err[0].contains("not in vocabulary"));
 }
 
 #[test]
 fn jjtz_parse_duplicate_key() {
-    let md = "# slate my-pace\n\nFirst\n\n# slate my-pace\n\nSecond\n";
-    let err = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], md).unwrap_err();
+    let md = format!("# {} my-pace\n\nFirst\n\n# {} my-pace\n\nSecond\n",
+        JJRZ_SLUG_SLATE, JJRZ_SLUG_SLATE);
+    let err = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], &md).unwrap_err();
     assert_eq!(err.len(), 1);
     assert!(err[0].contains("duplicate key"));
-}
-
-#[test]
-fn jjtz_parse_near_match_suggestion() {
-    let md = "# slatee my-pace\n";
-    let err = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], md).unwrap_err();
-    assert_eq!(err.len(), 1);
-    assert!(err[0].contains("did you mean 'slate'"));
 }
 
 #[test]
@@ -273,8 +268,8 @@ fn jjtz_slug_round_trip_strings() {
 
 #[test]
 fn jjtz_notice_boundary_detection() {
-    assert!(zjjrz_is_notice_boundary("# slate my-pace"));
-    assert!(zjjrz_is_notice_boundary("# paddock"));
+    assert!(zjjrz_is_notice_boundary(&format!("# {} my-pace", JJRZ_SLUG_SLATE)));
+    assert!(zjjrz_is_notice_boundary(&format!("# {}", JJRZ_SLUG_PADDOCK)));
     assert!(zjjrz_is_notice_boundary("#\tslug"));
     assert!(!zjjrz_is_notice_boundary("## heading"));
     assert!(!zjjrz_is_notice_boundary("### heading"));
@@ -284,43 +279,20 @@ fn jjtz_notice_boundary_detection() {
     assert!(!zjjrz_is_notice_boundary("regular text"));
 }
 
-#[test]
-fn jjtz_edit_distance_values() {
-    assert_eq!(zjjrz_edit_distance("slate", "slate"), 0);
-    assert_eq!(zjjrz_edit_distance("slatee", "slate"), 1);
-    assert_eq!(zjjrz_edit_distance("slat", "slate"), 1);
-    assert_eq!(zjjrz_edit_distance("slate", "reslate"), 2);
-    assert_eq!(zjjrz_edit_distance("xyz", "slate"), 5);
-}
-
-#[test]
-fn jjtz_near_match_finds_close() {
-    let vocab = &[jjrz_Slug::Slate, jjrz_Slug::Paddock];
-    assert_eq!(zjjrz_near_match("slatee", vocab), Some("slate"));
-    assert_eq!(zjjrz_near_match("slte", vocab), Some("slate"));
-    assert_eq!(zjjrz_near_match("paddok", vocab), Some("paddock"));
-}
-
-#[test]
-fn jjtz_near_match_none_when_distant() {
-    let vocab = &[jjrz_Slug::Slate];
-    assert_eq!(zjjrz_near_match("completely_different", vocab), None);
-}
-
 // --- Slate input parsing ---
 
 #[test]
 fn jjtz_parse_slate_input_valid() {
-    let md = "# slate my-pace\n\nDocket text here\n";
-    let (silks, docket) = jjrz_parse_slate_input(md).unwrap();
+    let md = format!("# {} my-pace\n\nDocket text here\n", JJRZ_SLUG_SLATE);
+    let (silks, docket) = jjrz_parse_slate_input(&md).unwrap();
     assert_eq!(silks, "my-pace");
     assert_eq!(docket, "Docket text here");
 }
 
 #[test]
 fn jjtz_parse_slate_input_multiline_docket() {
-    let md = "# slate my-pace\n\nLine 1\n\n## Section\n\nLine 2\n";
-    let (silks, docket) = jjrz_parse_slate_input(md).unwrap();
+    let md = format!("# {} my-pace\n\nLine 1\n\n## Section\n\nLine 2\n", JJRZ_SLUG_SLATE);
+    let (silks, docket) = jjrz_parse_slate_input(&md).unwrap();
     assert_eq!(silks, "my-pace");
     assert!(docket.contains("Line 1"));
     assert!(docket.contains("## Section"));
@@ -335,22 +307,22 @@ fn jjtz_parse_slate_input_no_notices() {
 
 #[test]
 fn jjtz_parse_slate_input_multiple_notices() {
-    let md = "# slate p1\n\nD1\n\n# slate p2\n\nD2\n";
-    let err = jjrz_parse_slate_input(md).unwrap_err();
+    let md = format!("# {} p1\n\nD1\n\n# {} p2\n\nD2\n", JJRZ_SLUG_SLATE, JJRZ_SLUG_SLATE);
+    let err = jjrz_parse_slate_input(&md).unwrap_err();
     assert!(err.contains("Expected one"));
 }
 
 #[test]
 fn jjtz_parse_slate_input_missing_lede() {
-    let md = "# slate\n\nDocket\n";
-    let err = jjrz_parse_slate_input(md).unwrap_err();
+    let md = format!("# {}\n\nDocket\n", JJRZ_SLUG_SLATE);
+    let err = jjrz_parse_slate_input(&md).unwrap_err();
     assert!(err.contains("missing lede"));
 }
 
 #[test]
 fn jjtz_parse_slate_input_wrong_slug() {
-    let md = "# paddock AF\n\nContent\n";
-    let err = jjrz_parse_slate_input(md).unwrap_err();
+    let md = format!("# {} AF\n\nContent\n", JJRZ_SLUG_PADDOCK);
+    let err = jjrz_parse_slate_input(&md).unwrap_err();
     assert!(err.contains("not in vocabulary"));
 }
 
@@ -358,8 +330,8 @@ fn jjtz_parse_slate_input_wrong_slug() {
 
 #[test]
 fn jjtz_parse_reslate_input_single() {
-    let md = "# reslate AFAAa\n\nNew docket\n";
-    let pairs = jjrz_parse_reslate_input(md).unwrap();
+    let md = format!("# {} AFAAa\n\nNew docket\n", JJRZ_SLUG_RESLATE);
+    let pairs = jjrz_parse_reslate_input(&md).unwrap();
     assert_eq!(pairs.len(), 1);
     assert_eq!(pairs[0].0, "AFAAa");
     assert_eq!(pairs[0].1, "New docket");
@@ -367,8 +339,9 @@ fn jjtz_parse_reslate_input_single() {
 
 #[test]
 fn jjtz_parse_reslate_input_mass() {
-    let md = "# reslate AFAAa\n\nDocket A\n\n# reslate AFAAb\n\nDocket B\n";
-    let pairs = jjrz_parse_reslate_input(md).unwrap();
+    let md = format!("# {} AFAAa\n\nDocket A\n\n# {} AFAAb\n\nDocket B\n",
+        JJRZ_SLUG_RESLATE, JJRZ_SLUG_RESLATE);
+    let pairs = jjrz_parse_reslate_input(&md).unwrap();
     assert_eq!(pairs.len(), 2);
 }
 
@@ -380,8 +353,8 @@ fn jjtz_parse_reslate_input_no_notices() {
 
 #[test]
 fn jjtz_parse_reslate_input_missing_lede() {
-    let md = "# reslate\n\nDocket\n";
-    let err = jjrz_parse_reslate_input(md).unwrap_err();
+    let md = format!("# {}\n\nDocket\n", JJRZ_SLUG_RESLATE);
+    let err = jjrz_parse_reslate_input(&md).unwrap_err();
     assert!(err.contains("missing lede"));
 }
 
@@ -389,8 +362,8 @@ fn jjtz_parse_reslate_input_missing_lede() {
 
 #[test]
 fn jjtz_parse_paddock_input_valid() {
-    let md = "# paddock AF\n\n## Purpose\n\nBuild things\n";
-    let (firemark, content) = jjrz_parse_paddock_input(md).unwrap();
+    let md = format!("# {} AF\n\n## Purpose\n\nBuild things\n", JJRZ_SLUG_PADDOCK);
+    let (firemark, content) = jjrz_parse_paddock_input(&md).unwrap();
     assert_eq!(firemark, "AF");
     assert!(content.contains("## Purpose"));
     assert!(content.contains("Build things"));
@@ -404,15 +377,15 @@ fn jjtz_parse_paddock_input_no_notices() {
 
 #[test]
 fn jjtz_parse_paddock_input_missing_lede() {
-    let md = "# paddock\n\nContent\n";
-    let err = jjrz_parse_paddock_input(md).unwrap_err();
+    let md = format!("# {}\n\nContent\n", JJRZ_SLUG_PADDOCK);
+    let err = jjrz_parse_paddock_input(&md).unwrap_err();
     assert!(err.contains("missing lede"));
 }
 
 #[test]
 fn jjtz_parse_paddock_input_multiple_notices() {
-    let md = "# paddock AF\n\nC1\n\n# paddock AG\n\nC2\n";
-    let err = jjrz_parse_paddock_input(md).unwrap_err();
+    let md = format!("# {} AF\n\nC1\n\n# {} AG\n\nC2\n", JJRZ_SLUG_PADDOCK, JJRZ_SLUG_PADDOCK);
+    let err = jjrz_parse_paddock_input(&md).unwrap_err();
     assert!(err.contains("Expected one"));
 }
 
@@ -484,7 +457,6 @@ fn jjtz_output_paddock_getter_round_trip() {
 
 #[test]
 fn jjtz_output_with_preamble_parses() {
-    // Simulate full orient output: human-readable preamble followed by gazette
     let preamble = "Heat: my-heat (Aw) [racing]\nPaddock: .claude/jjm/jjp_uAlw.md\n\nNext: do-stuff (AwAAJ) [rough]\n\n";
     let gazette = jjrz_build_read_output("Aw", "Paddock text", &[("AwAAJ", "Docket text")]);
     let full_output = format!("{}\n{}", preamble, gazette);

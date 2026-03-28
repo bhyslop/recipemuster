@@ -270,6 +270,8 @@ JJRN_MARKER_APPROACH => Ok(Self::Approach),
 
 If input doesn't match the canonical const exactly, that's a bug in the producer — not a variant to handle gracefully.
 
+This applies equally to error diagnostics. Do not add "did you mean?" suggestions, fuzzy matching, or edit-distance scoring to error paths. The producer and consumer are the same codebase — a mismatched string is a bug to fix, not a typo to guess at. List the valid values and stop.
+
 ### Serde Integration
 
 Prefer `#[serde(rename = "...")]` or `#[serde(rename_all = "lowercase")]` over manual string methods when serde handles both serialization and deserialization. The attribute is the single definition.
@@ -424,11 +426,32 @@ Large files typically split into 2-3 smaller files by responsibility. Common bou
 
 All split files keep the same cipher prefix for grep-ability.
 
+## Specification Authority Discipline
+
+**If the specification doesn't call for it, don't build it.**
+
+When implementing a module, the specification is the complete description of required behavior. Do not invent features, diagnostics, or affordances beyond what the spec describes — even when they seem "obviously helpful." If you believe a capability is missing from the spec, **stop and ask** rather than silently adding it.
+
+### Why This Exists
+
+LLM agents have strong instincts toward user-friendliness inherited from web development: fuzzy matching, "did you mean?" suggestions, graceful degradation, helpful error recovery. In an internal system with a perfect protocol, these instincts produce non-load-bearing complexity. The cost isn't just the code — it's the expanded state space (Zeroes Theory) and the false signal that the system tolerates imprecision.
+
+### Rules
+
+1. **Spec is the authority**: Implement what the spec says. Not more, not less.
+2. **No speculative features**: Do not add capabilities "because they'll be useful." If they're useful, they'll be specified.
+3. **Stop and ask on invention**: If you're about to write a non-trivial algorithm (edit distance, scoring heuristics, search strategies, caching layers) that the spec doesn't mention, that's a gate — ask the user whether it belongs.
+4. **Error paths are not product features**: Error messages should identify the failure and list valid options. They should not attempt to guess the user's intent.
+
+### Smell Test
+
+If you're writing code that makes the system "nicer" rather than "more correct," stop. Niceness that isn't specified is complexity that isn't earned.
+
 ## Load-Bearing Complexity
 
 Every element in a system must carry weight — its removal would create a gap between intent and behavior. When similar things differ, the difference must be load-bearing or the code should be homogenized.
 
-Rust's type system enforces much of this mechanically: unused fields warn, unused variants warn, dead code warns. The disciplines above — Interface Contamination (no unearned input forms), Constant Discipline (no unearned literals), Constructor Discipline (no unearned construction sites) — are each instantiations of this principle applied to specific domains. When evaluating a new pattern or extraction, ask: "Is this element load-bearing?" If not, it doesn't belong.
+Rust's type system enforces much of this mechanically: unused fields warn, unused variants warn, dead code warns. The disciplines above — Interface Contamination (no unearned input forms), Specification Authority (no unearned features), Constant Discipline (no unearned literals), Constructor Discipline (no unearned construction sites) — are each instantiations of this principle applied to specific domains. When evaluating a new pattern or extraction, ask: "Is this element load-bearing?" If not, it doesn't belong.
 
 ## What RCG Does Not Cover
 
@@ -561,6 +584,12 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 - [ ] Test file imports source module with `use super::*`
 - [ ] Test functions prefixed with test file's prefix
 - [ ] Helper functions local to test file (no prefix needed)
+
+### Specification Authority Discipline
+- [ ] Every function and algorithm traces to a spec requirement
+- [ ] No "helpful" features invented beyond what the spec describes
+- [ ] No non-trivial algorithms (edit distance, scoring, fuzzy matching) without spec basis
+- [ ] Error paths list valid options — they do not guess intent
 
 ### Interface Contamination Discipline
 - [ ] Functions accept exactly one canonical form for each parameter — no aliases
