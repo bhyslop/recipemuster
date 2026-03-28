@@ -4879,9 +4879,10 @@
         "₢AyAAB",
         "₢AyAAC",
         "₢AyAAD",
-        "₢AyAAE"
+        "₢AyAAE",
+        "₢AyAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -4936,6 +4937,17 @@
               "text": "## Character\nMechanical with design judgment on volume mount paths.\n\n## Goal\nCreate the tadmor nameplate (replacing nsproto) that defines the sentry/bottle service for adversarial ifrit testing.\n\n## Deliverables\n\n1. Create `.rbk/rbrn_tadmor.env` with:\n   - RBRN_MONIKER=tadmor\n   - Sentry vessel: slim sentry (from pace 1)\n   - Bottle vessel: rbev-bottle-ifrit (from pace 4)\n   - RBRN_UPLINK_DNS_MODE=allowlist, RBRN_UPLINK_ALLOWED_DOMAINS=anthropic.com\n   - RBRN_UPLINK_ACCESS_MODE=allowlist, RBRN_UPLINK_ALLOWED_CIDRS=160.79.104.0/23\n   - RBRN_VOLUME_MOUNTS configured for project root (ro) + rbtid/ (rw)\n   - Enclave network configuration (IPs, netmask)\n   - Entry port configuration\n2. Create tabtargets: rbw-s.Start.tadmor.sh, rbw-B.ConnectBottle.tadmor.sh, rbw-S.ConnectSentry.tadmor.sh, rbw-z.Stop.tadmor.sh, rbw-o.ObserveNetworks.tadmor.sh\n3. Wire tadmor into nameplate regime (rbrn list/render/validate)\n\n## Note\nThe existing nsproto nameplate remains for now — tadmor is a new nameplate, not an in-place rename. nsproto can be retired separately once tadmor is validated.\n\n## References\n- .rbk/rbrn_nsproto.env — template/reference\n- RBSIP-ifrit_pentester.adoc — volume mount design",
               "silks": "tadmor-nameplate",
               "commit": "d317d1c"
+            }
+          ]
+        },
+        "₢AyAAF": {
+          "tacks": [
+            {
+              "ts": "260328-0719",
+              "state": "rough",
+              "text": "## Character\nDesign — minting, scaffolding, module structure.\n\n## Goal\nMint the rbtid/ escape test directory and scaffold the Python test module framework that Ifrit sessions will populate.\n\n## Deliverables\n\n1. Create `Tools/rbk/rbtid/` directory\n2. Scaffold framework: test runner, assertion patterns, module template\n3. Define rbtiXXX naming convention for individual escape test modules\n4. At least one example/template module showing the expected structure\n5. Update CLAUDE.md with rbtid directory mapping and rbti prefix documentation\n\n## Constraints\n- Modules must be runnable from outside the bottle (for CI) and from inside (for Ifrit sessions)\n- Each module should be self-contained with structured pass/fail assertions\n- Framework must support categorized test organization (DNS, ICMP, sentry-direct, port-floor, metadata, namespace)\n\n## References\n- RBSIP-ifrit_pentester.adoc — escape test directory section\n- Existing test fixture pattern: Tools/rbk/rbtcrv_RegimeValidation.sh",
+              "silks": "rbtid-escape-framework",
+              "commit": "cb4c63b"
             }
           ]
         }
