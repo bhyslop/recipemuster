@@ -71,11 +71,13 @@ per-platform SBOM to `/workspace/sbom-«LABEL».json` (e.g., `sbom-amd64.json`; 
 . *Cloud Build Step 3: Assemble build_info.json* (Python 3):
 .. Image: {rbrg_gcloud_image_ref}
 .. For each platform in `«PLATFORMS»`:
-... Construct `build_info.json` with mode-aware fields:
-.... Shared: `vessel_mode`, `vessel_name`, `platform`, `image_digest`, `about_timestamp`, `git_commit`, `git_branch`, `git_repo`
-.... Conjure: `build_id` (from `_RBGA_BUILD_ID`), `inscribe_timestamp`, `qemu_used`, `slsa_build_level`, `build_invocation_id`, `provenance_predicate_types`, `provenance_builder_id`
-.... Bind: `bind_source` (from `_RBGA_BIND_SOURCE`)
-.... Graft: `graft_source` (from `_RBGA_GRAFT_SOURCE`)
+... Construct `build_info.json` with mode-aware fields organized into nested JSON objects:
+.... Root: `consecration`, `vessel_mode`, `vessel_name`, `platform`, `image_digest`, `about_timestamp`
+.... `git` object: `repo`, `branch`, `commit`
+.... Conjure `build` object: `build_id` (from `_RBGA_BUILD_ID`), `inscribe_timestamp`, `qemu_used`
+.... Conjure `slsa` object: `build_level`, `build_invocation_id`, `provenance_predicate_types`, `provenance_builder_id`
+.... Bind `bind` object: `source` (from `_RBGA_BIND_SOURCE`)
+.... Graft `graft` object: `source` (from `_RBGA_GRAFT_SOURCE`)
 ... {rbbc_store}
 per-platform `build_info.json` to `/workspace/build_info-«LABEL».json` (e.g., `build_info-amd64.json`)
 .. Write `recipe.txt` using dual-source logic:

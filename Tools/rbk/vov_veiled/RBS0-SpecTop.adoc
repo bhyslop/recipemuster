@@ -1603,11 +1603,13 @@ Cloud Build steps.
 Created uniformly across all three vessel modes as part of a Cloud Build job: conjure and bind embed about steps in their primary image job; graft combines about and vouch steps in a single metadata job.
 When a Dockerfile path is configured in the vessel regime, its content is embedded as `recipe.txt` (subject to ~4KB Cloud Build substitution variable size limit; omitted with a warning if exceeded).
 +
-`build_info.json` fields are mode-aware:
-shared fields — `vessel_mode` (`conjure`/`bind`/`graft`), `vessel_name`, `platform`, `image_digest`, `about_timestamp`, `git_commit`, `git_branch`, `git_repo`;
-conjure-only fields — `build_id`, `inscribe_timestamp`, `qemu_used`, `slsa_build_level`, `build_invocation_id`, `provenance_predicate_types`, `provenance_builder_id`;
-bind-only fields — `bind_source` (original upstream image reference);
-graft-only fields — `graft_source` (local image reference at push time).
+`build_info.json` is a nested JSON object with mode-aware fields:
+root — `consecration`, `vessel_mode` (`conjure`/`bind`/`graft`), `vessel_name`, `platform`, `image_digest`, `about_timestamp`;
+`git` object — `repo`, `branch`, `commit`;
+conjure `build` object — `build_id`, `inscribe_timestamp`, `qemu_used`;
+conjure `slsa` object — `build_level`, `build_invocation_id`, `provenance_predicate_types`, `provenance_builder_id`;
+bind `bind` object — `source` (original upstream image reference);
+graft `graft` object — `source` (local image reference at push time).
 +
 **Single-arch vessels**: a single-platform `-about` container with one SBOM and one `build_info.json`.
 +

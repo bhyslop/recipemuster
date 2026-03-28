@@ -114,7 +114,8 @@ signature verification succeeds -- proves GCB signed the provenance
 per-platform verification output to `/workspace/verify-«PLATFORM_SUFFIX».json`
 .. {rbbc_require}
 all platforms verify successfully
-.. Compose `vouch_summary.json` via Python `json.dump`: consecration, vessel, vessel_mode, per-platform DSSE verification verdicts
+.. Compose `vouch_summary.json` via Python `json.dump`: `{consecration, vessel, vessel_mode: "conjure", verify_method: "dsse-envelope", base_images: [...], platforms: [{verifier, builder_id, build_type, subject_digest, keyid, verdict: "pass", platform}, ...]}`
+.. Record base image provenance: for each slot (1-3), if `_RBGV_IMAGE_«N»` is non-empty, append `{slot, ref, provenance}` to `base_images` array
 +
 **Bind branch**:
 .. {rbbc_call}
@@ -124,10 +125,10 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
 .. Extract `«PINNED_DIGEST»` from the `@sha256:...` suffix of `_RBGV_BIND_SOURCE`
 .. {rbbc_require}
 `«ACTUAL_DIGEST»` equals `«PINNED_DIGEST»` -- pin integrity verified
-.. Compose `vouch_summary.json`: consecration, vessel, vessel_mode (`bind`), verdict (`DIGEST_PIN_VERIFIED`), bind_source, actual_digest, pinned_digest
+.. Compose `vouch_summary.json`: `{consecration, vessel, vessel_mode: "bind", verification: {method: "digest-pin", bind_source, actual_digest, pinned_digest, verdict: "DIGEST_PIN_VERIFIED"}}`
 +
 **Graft branch**:
-.. Compose `vouch_summary.json`: consecration, vessel, vessel_mode (`graft`), verdict (`GRAFTED`), graft_source from `_RBGV_GRAFT_SOURCE`
+.. Compose `vouch_summary.json`: `{consecration, vessel, vessel_mode: "graft", verification: {method: "none", graft_source, verdict: "GRAFTED"}}`
 .. No verification performed -- the GRAFTED verdict explicitly marks the absence of provenance chain
 
 //axhos_step
