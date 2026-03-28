@@ -4731,6 +4731,13 @@
         "₢AwAAb": {
           "tacks": [
             {
+              "ts": "260328-0600",
+              "state": "complete",
+              "text": "## Character\nSpook fix — operational experience revealed a directional ambiguity in the gazette file exchange. Spec + implementation + documentation, narrow scope.\n\n## Spook\n₣Av chat (₢AvAAV): `jjx_orient` wrote paddock+docket to `gazette.md`. Agent then called `jjx_enroll` without overwriting the gazette. Server consumed stale orient output as enroll input. Single-file gazette couldn't distinguish directions.\n\n## Design\n\nSplit `gazette.md` into two directional files:\n- **`gazette_in.md`** — Agent → Server. Functionally a parameter.\n- **`gazette_out.md`** — Server → Agent. Functionally a return value.\n\n### Universal Entry Rule\n\nEvery jjx call reads+deletes `gazette_in.md` and deletes `gazette_out.md` before dispatch. Single-MCP-call lifetime — gazette content is a parameter or return value, not persistent state.\n\n## Status\nImplementation complete and verified. All test scenarios pass.",
+              "silks": "gazette-split-input-output",
+              "commit": "3583970"
+            },
+            {
               "ts": "260328-0558",
               "state": "rough",
               "text": "## Character\nSpook fix — operational experience revealed a directional ambiguity in the gazette file exchange. Spec + implementation + documentation, narrow scope.\n\n## Spook\n₣Av chat (₢AvAAV): `jjx_orient` wrote paddock+docket to `gazette.md`. Agent then called `jjx_enroll` without overwriting the gazette. Server consumed stale orient output as enroll input. Single-file gazette couldn't distinguish directions.\n\n## Design\n\nSplit `gazette.md` into two directional files:\n- **`gazette_in.md`** — Agent → Server. Functionally a parameter.\n- **`gazette_out.md`** — Server → Agent. Functionally a return value.\n\n### Universal Entry Rule\n\nEvery jjx call reads+deletes `gazette_in.md` and deletes `gazette_out.md` before dispatch. Single-MCP-call lifetime — gazette content is a parameter or return value, not persistent state.\n\n## Status\nImplementation complete and verified. All test scenarios pass.",
