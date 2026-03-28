@@ -67,3 +67,8 @@ The `axhe*` entity voicing convention is transport-agnostic by design. `axhems_s
 | ₣Ah | jjk-v4-1-school-breeze-founding | V4 schema transition | Racing (has emergency invitatory fix) |
 | ₣An | jjk-v4-release-and-legacy-removal | V4 cleanup | Stabled |
 | ₣Am | jjk-v5-notional | Future parking lot | Stabled |
+
+
+## Gazette Split Verified (2026-03-28)
+
+Universal entry rule tested and confirmed working.
