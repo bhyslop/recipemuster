@@ -29,7 +29,8 @@ ZBUL_LAUNCHER_SOURCED=1
 
 # Establish project root from the sourcing launcher's location
 ZBUL_PROJECT_ROOT="${BASH_SOURCE[1]%/*}/.."
-cd "${ZBUL_PROJECT_ROOT}" || exit 1 # buc_die not available yet
+cd -P "${ZBUL_PROJECT_ROOT}" || exit 1 # buc_die not available yet
+ZBUL_PROJECT_ROOT="${PWD}"
 
 # Establish config directory — canonical locator for .buk/
 export BURD_CONFIG_DIR="${ZBUL_PROJECT_ROOT}/.buk"
@@ -55,6 +56,41 @@ zburc_enforce
 
 # Load BURS configuration and kindle
 z_station_file="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
+z_burs_log_dir="BURS_LOG_DIR"
+if ! test -f "${z_station_file}"; then
+  echo ""
+  echo "SETUP NEEDED: Station Regime file not found"
+  echo ""
+  echo "  Missing: ${z_station_file}"
+  echo ""
+  echo "  The Bash Utility Kit (BUK) launcher uses two regime files:"
+  echo ""
+  echo "    Config Regime (BURC) - checked into the repo at ${BURD_REGIME_FILE}"
+  echo "      Project-level settings: tool paths, tabtarget layout, and the"
+  echo "      location of the Station Regime file."
+  echo "      Inspect: tt/buw-rcr.RenderConfigRegime.sh"
+  echo ""
+  echo "    Station Regime (BURS) - developer-specific, NOT in git"
+  echo "      Machine-level settings that vary per developer or workstation."
+  echo "      The Config Regime says to look for it at: ${BURC_STATION_FILE}"
+  echo "      Inspect: tt/buw-rsr.RenderStationRegime.sh"
+  echo ""
+  echo "  Other toolkits in the project may define additional regime files."
+  echo ""
+  echo "  To get started, create the Station Regime file with this content:"
+  echo ""
+  echo "    ${z_burs_log_dir}=../logs-buk"
+  echo ""
+  echo "  ${z_burs_log_dir} is the first variable required in the Station Regime."
+  echo "  It names the directory for operation logs. All tabtargets run from the"
+  echo "  project root, so relative paths resolve from there. The example above"
+  echo "  places logs in the parent directory of the repo. You may also use an"
+  echo "  absolute path, or a path inside the repo itself (.gitignored) — the"
+  echo "  Config Regime's choice of BURC_STATION_FILE path often signals which"
+  echo "  convention a project prefers."
+  echo ""
+  exit 1
+fi
 source "${z_station_file}" || buc_die "Failed to source: ${z_station_file}"
 source "${BURC_TOOLS_DIR}/buk/burs_regime.sh" || buc_die "Failed to source burs_regime.sh"
 zburs_kindle
