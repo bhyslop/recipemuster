@@ -4880,9 +4880,10 @@
         "₢AyAAC",
         "₢AyAAD",
         "₢AyAAE",
-        "₢AyAAF"
+        "₢AyAAF",
+        "₢AyAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -4948,6 +4949,17 @@
               "text": "## Character\nDesign — minting, scaffolding, module structure.\n\n## Goal\nMint the rbtid/ escape test directory and scaffold the Python test module framework that Ifrit sessions will populate.\n\n## Deliverables\n\n1. Create `Tools/rbk/rbtid/` directory\n2. Scaffold framework: test runner, assertion patterns, module template\n3. Define rbtiXXX naming convention for individual escape test modules\n4. At least one example/template module showing the expected structure\n5. Update CLAUDE.md with rbtid directory mapping and rbti prefix documentation\n\n## Constraints\n- Modules must be runnable from outside the bottle (for CI) and from inside (for Ifrit sessions)\n- Each module should be self-contained with structured pass/fail assertions\n- Framework must support categorized test organization (DNS, ICMP, sentry-direct, port-floor, metadata, namespace)\n\n## References\n- RBSIP-ifrit_pentester.adoc — escape test directory section\n- Existing test fixture pattern: Tools/rbk/rbtcrv_RegimeValidation.sh",
               "silks": "rbtid-escape-framework",
               "commit": "cb4c63b"
+            }
+          ]
+        },
+        "₢AyAAG": {
+          "tacks": [
+            {
+              "ts": "260328-0720",
+              "state": "rough",
+              "text": "## Character\nMechanical with user-experience judgment.\n\n## Goal\nRevise the onboarding tabtarget (rbgm_onboarding) to reflect the new slim vessel architecture and enshrine deduplication. Walk the user through the build cycle once so they see how it works.\n\n## Deliverables\n\n1. Enshrine deduplication: when sentry and bottle share the same base image anchor (both Debian bookworm-slim), skip the redundant second enshrine. Detect via RBRV_IMAGE_1_ANCHOR comparison.\n2. Update onboarding dashboard step descriptions and timing estimates for slim vessels (conjure times will be much shorter than ~15 min)\n3. Add ifrit vessel to the onboarding flow (enshrine + conjure after sentry and bottle)\n4. Update step guidance text to reflect Debian bookworm-slim instead of ubuntu:24.04\n5. Integrate tadmor nameplate into the final \"Run tests\" step\n\n## References\n- Tools/rbk/rbgm_ManualProcedures.sh — rbgm_onboarding function (lines 485-880)\n- rbev-vessels/*/rbrv.env — vessel configurations with anchor values",
+              "silks": "onboarding-enshrine-revision",
+              "commit": "2344e20"
             }
           ]
         }
