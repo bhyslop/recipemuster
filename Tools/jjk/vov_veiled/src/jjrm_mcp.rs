@@ -565,11 +565,18 @@ impl jjrm_McpServer {
             return zjjrm_handle_open().await;
         }
 
-        // Officium envelope: validate directory exists and touch heartbeat
-        if let Some(ref officium) = p.officium {
-            if let Err(e) = zjjrm_validate_officium(officium) {
+        // Officium envelope: required on all commands except jjx_open
+        match p.officium {
+            Some(ref officium) => {
+                if let Err(e) = zjjrm_validate_officium(officium) {
+                    return Ok(CallToolResult::error(vec![Content::text(
+                        format!("jjx {}: {}", cmd, e),
+                    )]));
+                }
+            }
+            None => {
                 return Ok(CallToolResult::error(vec![Content::text(
-                    format!("jjx {}: {}", cmd, e),
+                    format!("jjx {}: officium parameter required. Call jjx_open first to create an officium.", cmd),
                 )]));
             }
         }

@@ -439,9 +439,10 @@ When a command takes a firemark or coronet, provide the identity, not the silks.
 
 **MCP Tool Usage:**
 
-All JJK commands are accessed via the single `mcp__vvx__jjx` MCP tool with two parameters:
+All JJK commands are accessed via the single `mcp__vvx__jjx` MCP tool with three parameters:
 - `command`: string selecting the operation — always the canonical `jjx_*` name (e.g., `"jjx_show"`, `"jjx_enroll"`, `"jjx_record"`)
 - `params`: JSON object with command-specific fields (see reference below)
+- `officium`: officium identity string from `jjx_open` (required on all commands except `jjx_open` — see Officium Protocol below)
 
 **`params` must be a JSON object, never a string.** If params is accidentally stringified (e.g., `"{\"key\": \"val\"}"` instead of `{"key": "val"}`), deserialization will fail. The server has a defensive fallback for this, but always pass a native object.
 
@@ -472,6 +473,7 @@ NEVER invent param fields — check the reference below first.
 All params are JSON objects. `?` = optional, `[]` = array. Booleans default to false.
 
 ```
+jjx_open           {}
 jjx_show           {target?, detail?, remaining?}
 jjx_list           {status?}
 jjx_orient         {firemark?}
@@ -507,6 +509,18 @@ jjx_validate       {}
 - `jjx_close` takes `summary` as a string param (not stdin pipe)
 - `jjx_record` takes `files` as a native JSON array: `["file1.rs", "file2.rs"]`
 - `jjx_transfer` takes `coronets` as a JSON-encoded string (not a native array): `"[\"AYAAA\", \"AYAAB\"]"`
+
+### Officium Protocol
+
+Each chat session must open an officium before using any jjx commands.
+
+1. **At chat start**, call `jjx_open` (no params, no officium field). It returns a ☉-prefixed identity string (e.g., `☉260327-1000`).
+2. **On every subsequent jjx call**, pass the returned identity as the `officium` field on the MCP tool (sibling to `command` and `params`).
+3. **Self-healing**: If any jjx command fails with "Officium directory not found", call `jjx_open` again to create a fresh officium, then retry.
+
+The ☉ (U+2609 SUN) prefix parallels ₣/₢ for firemarks/coronets. Pass it exactly as returned — the dispatcher strips it.
+
+NOTE: Gazette file exchange via the officium directory is not yet wired. For now, gazette I/O continues via the existing inline `input` param on commands that support it.
 
 ### Mount Protocol
 
@@ -548,7 +562,7 @@ Synthesize intent from the conversation — describe *what* was accomplished, no
 When user says "notch", determine context (pace or heat affiliated) and invoke `jjx_record` with the appropriate identity and explicit file list.
 
 **Multi-Officium Discipline:**
-Multiple Claude officia (concurrent git-activity streams, not sessions — see VOS `vost_officium`) may work concurrently in the same repo. The explicit file list in `jjx_record` enables orthogonal commits.
+Multiple Claude officia (concurrent chat sessions, each with its own ☉-prefixed officium ID) may work concurrently in the same repo. The explicit file list in `jjx_record` enables orthogonal commits.
 
 - Claude is **additive only** — make commits, never discard changes
 - "Unexpected" uncommitted changes are likely another officium's work
