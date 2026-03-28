@@ -4829,6 +4829,13 @@
           "tacks": [
             {
               "ts": "260328-0759",
+              "state": "abandoned",
+              "text": "## Character\nMechanical verification — confirm gazette wire format slug prefixes.\n\n## Docket\nThis is a test pace to verify gazette_out.md header slug format.",
+              "silks": "test-wire-verify",
+              "commit": "f93c090"
+            },
+            {
+              "ts": "260328-0759",
               "state": "rough",
               "text": "## Character\nMechanical verification — confirm gazette wire format slug prefixes.\n\n## Docket\nThis is a test pace to verify gazette_out.md header slug format.",
               "silks": "test-wire-verify",
