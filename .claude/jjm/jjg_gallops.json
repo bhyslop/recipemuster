@@ -4952,6 +4952,13 @@
         "₢AyAAD": {
           "tacks": [
             {
+              "ts": "260328-0737",
+              "state": "rough",
+              "text": "## Character\nMechanical — Dockerfile and rbrv.env authoring.\n\n## Goal\nCreate the `rbev-bottle-ifrit` vessel definition. This is the sole bottle vessel for tadmor — it serves double duty as both the functional bottle (socat echo service for security tests) and the adversarial platform (Claude Code + scapy for escape testing).\n\n## Deliverables\n\n1. Create `rbev-vessels/rbev-bottle-ifrit/` directory\n2. Dockerfile based on `debian:bookworm-slim` installing: socat, nodejs, npm, python3-scapy, strace, bash, curl, git\n3. `rbrv.env` with vessel identity, conjure mode, tether egress, platform declarations\n4. CMD runs socat echo service on port 8888 (same as current bottle — load-bearing for entry port tests)\n\n## Constraints\n- Debian bookworm-slim base (same as slim sentry)\n- socat is load-bearing: it exposes port 8888 for entry port security tests\n- No diagnostic bloat — only packages required for Claude Code + scapy + strace + socat\n- Multi-arch: linux/amd64 linux/arm64\n- This is the ONLY bottle vessel — there is no separate slim bottle\n\n## References\n- RBSIP-ifrit_pentester.adoc — vessel architecture section\n- rbev-vessels/rbev-bottle-ubuntu-test/rbrv.env — rbrv.env template\n- rbev-vessels/rbev-bottle-ubuntu-test/Dockerfile — current bottle (for socat CMD pattern)",
+              "silks": "ifrit-vessel-definition",
+              "commit": "8fc8ea9"
+            },
+            {
               "ts": "260328-0719",
               "state": "rough",
               "text": "## Character\nMechanical — Dockerfile and rbrv.env authoring.\n\n## Goal\nCreate the `rbev-bottle-ifrit` vessel definition. This is the adversarial bottle that will host Claude Code inside the tadmor nameplate.\n\n## Deliverables\n\n1. Create `rbev-vessels/rbev-bottle-ifrit/` directory\n2. Dockerfile based on `debian:bookworm-slim` installing: nodejs, npm, python3-scapy, strace, bash, curl, git\n3. `rbrv.env` with vessel identity, conjure mode, tether egress, platform declarations\n4. CMD appropriate for an interactive Claude Code session (bash or tail -f, TBD)\n\n## Constraints\n- Debian bookworm-slim base (same as slim sentry and bottle)\n- No diagnostic bloat — only packages required for Claude Code + scapy + strace\n- Multi-arch: linux/amd64 linux/arm64\n\n## References\n- RBSIP-ifrit_pentester.adoc — vessel architecture section\n- rbev-vessels/rbev-sentry-ubuntu-large/rbrv.env — rbrv.env template",
@@ -4962,6 +4969,13 @@
         },
         "₢AyAAE": {
           "tacks": [
+            {
+              "ts": "260328-0737",
+              "state": "rough",
+              "text": "## Character\nMechanical with design judgment on volume mount paths.\n\n## Goal\nCreate the tadmor nameplate that defines the sentry/bottle service for adversarial ifrit testing, replacing nsproto as the primary nameplate.\n\n## Deliverables\n\n1. Create `.rbk/rbrn_tadmor.env` with:\n   - RBRN_MONIKER=tadmor\n   - Sentry vessel: rbev-sentry-debian-slim (from pace 1)\n   - Bottle vessel: rbev-bottle-ifrit (from pace 4)\n   - RBRN_UPLINK_DNS_MODE=allowlist, RBRN_UPLINK_ALLOWED_DOMAINS=anthropic.com\n   - RBRN_UPLINK_ACCESS_MODE=allowlist, RBRN_UPLINK_ALLOWED_CIDRS=160.79.104.0/23\n   - RBRN_UPLINK_PORT_MIN=10000\n   - RBRN_VOLUME_MOUNTS configured for project root (ro) + rbtid/ (rw)\n   - Enclave network configuration (IPs, netmask)\n   - Entry port configuration\n2. Create tabtargets: rbw-s.Start.tadmor.sh, rbw-B.ConnectBottle.tadmor.sh, rbw-S.ConnectSentry.tadmor.sh, rbw-z.Stop.tadmor.sh, rbw-o.ObserveNetworks.tadmor.sh\n3. Wire tadmor into nameplate regime (rbrn list/render/validate)\n\n## Note\nThe existing nsproto nameplate remains for now — tadmor is a new nameplate, not an in-place rename. nsproto can be retired separately once tadmor is validated.\n\n## References\n- .rbk/rbrn_nsproto.env — template/reference\n- RBSIP-ifrit_pentester.adoc — volume mount design",
+              "silks": "tadmor-nameplate",
+              "commit": "8fc8ea9"
+            },
             {
               "ts": "260328-0719",
               "state": "rough",
@@ -4974,6 +4988,13 @@
         "₢AyAAF": {
           "tacks": [
             {
+              "ts": "260328-0737",
+              "state": "rough",
+              "text": "## Character\nDesign — minting, scaffolding, module structure.\n\n## Goal\nMint the rbtid/ escape test directory and scaffold the Python test module framework that Ifrit sessions will populate.\n\n## Deliverables\n\n1. Create `Tools/rbk/rbtid/` directory\n2. Scaffold framework: test runner, assertion patterns, module template\n3. Define rbtiXXX naming convention for individual escape test modules\n4. At least one example/template module showing the expected structure\n5. Update CLAUDE.md with rbtid directory mapping and rbti prefix documentation\n\n## Constraints\n- Modules are executed inside the bottle behind the sentry — that is their only meaningful execution context\n- Each module should be self-contained with structured pass/fail assertions\n- Framework must support categorized test organization (DNS, ICMP, sentry-direct, port-floor, metadata, namespace)\n\n## References\n- RBSIP-ifrit_pentester.adoc — escape test directory section\n- Existing test fixture pattern: Tools/rbk/rbtcrv_RegimeValidation.sh",
+              "silks": "rbtid-escape-framework",
+              "commit": "8fc8ea9"
+            },
+            {
               "ts": "260328-0719",
               "state": "rough",
               "text": "## Character\nDesign — minting, scaffolding, module structure.\n\n## Goal\nMint the rbtid/ escape test directory and scaffold the Python test module framework that Ifrit sessions will populate.\n\n## Deliverables\n\n1. Create `Tools/rbk/rbtid/` directory\n2. Scaffold framework: test runner, assertion patterns, module template\n3. Define rbtiXXX naming convention for individual escape test modules\n4. At least one example/template module showing the expected structure\n5. Update CLAUDE.md with rbtid directory mapping and rbti prefix documentation\n\n## Constraints\n- Modules must be runnable from outside the bottle (for CI) and from inside (for Ifrit sessions)\n- Each module should be self-contained with structured pass/fail assertions\n- Framework must support categorized test organization (DNS, ICMP, sentry-direct, port-floor, metadata, namespace)\n\n## References\n- RBSIP-ifrit_pentester.adoc — escape test directory section\n- Existing test fixture pattern: Tools/rbk/rbtcrv_RegimeValidation.sh",
@@ -4984,6 +5005,13 @@
         },
         "₢AyAAG": {
           "tacks": [
+            {
+              "ts": "260328-0737",
+              "state": "rough",
+              "text": "## Character\nMechanical with user-experience judgment.\n\n## Goal\nRevise the onboarding tabtarget (rbgm_onboarding) to reflect the new slim vessel architecture and enshrine deduplication. The ifrit bottle is the showcase vessel — onboarding walks the user through building it so they can later run adversarial tests or kick-the-tires bash tests through the same tadmor nameplate.\n\n## Deliverables\n\n1. Enshrine deduplication: when sentry and ifrit bottle share the same base image anchor (both Debian bookworm-slim), skip the redundant second enshrine. Detect via RBRV_IMAGE_1_ANCHOR comparison.\n2. Update onboarding dashboard step descriptions and timing estimates for slim vessels (conjure times will be much shorter than ~15 min)\n3. Add ifrit vessel to the onboarding flow (enshrine + conjure after sentry)\n4. Update step guidance text to reflect Debian bookworm-slim instead of ubuntu:24.04\n5. Integrate tadmor nameplate into the final \"Run tests\" step\n\n## Rationale\nThe ifrit bottle IS the default bottle for new users. It provides both the socat echo service (for security validation) and the Claude Code + scapy platform (for adversarial testing). Onboarding teaches users to build it because it is the primary artifact they will use.\n\n## References\n- Tools/rbk/rbgm_ManualProcedures.sh — rbgm_onboarding function (lines 485-880)\n- rbev-vessels/*/rbrv.env — vessel configurations with anchor values",
+              "silks": "onboarding-enshrine-revision",
+              "commit": "8fc8ea9"
+            },
             {
               "ts": "260328-0720",
               "state": "rough",
@@ -4996,6 +5024,13 @@
         "₢AyAAH": {
           "tacks": [
             {
+              "ts": "260328-0737",
+              "state": "rough",
+              "text": "## Character\nOperational — cloud build execution on a fresh depot, following the onboarding flow.\n\n## Goal\nFull onboarding run-through on a fresh depot: enshrine Debian bookworm-slim, conjure both vessels (slim sentry and ifrit bottle), vouch, summon. This validates the complete build pipeline end-to-end with the new vessel architecture.\n\n## Deliverables\n\n1. Enshrine Debian bookworm-slim base image to GAR (one enshrine — dedup means sentry and ifrit bottle share the same base anchor)\n2. Conjure slim sentry on tether pool\n3. Conjure ifrit bottle on tether pool\n4. Vouch both consecrations\n5. Record consecrations in tadmor nameplate\n6. Summon both images locally via retriever\n7. Run tadmor security tests to validate end-to-end\n\n## Dependencies\nRequires completed: slim-sentry-debian (₢AyAAA), volume-mount-plumbing (₢AyAAC), ifrit-vessel-definition (₢AyAAD), tadmor-nameplate (₢AyAAE), onboarding-enshrine-revision (₢AyAAG)\n\n## Timing Expectations\nWith slim vessels, conjure times should be dramatically shorter than the ~13 min ubuntu baseline. Measure and record actual durations for onboarding guide update.",
+              "silks": "enshrine-conjure-slim-vessels",
+              "commit": "8fc8ea9"
+            },
+            {
               "ts": "260328-0720",
               "state": "rough",
               "text": "## Character\nOperational — cloud build execution, waiting, validation.\n\n## Goal\nBuild all three slim vessels on Cloud Build: slim sentry, slim bottle, and ifrit bottle. Vouch all three.\n\n## Deliverables\n\n1. Enshrine Debian bookworm-slim base image to GAR (one enshrine, shared by all three vessels)\n2. Conjure slim sentry on tether pool\n3. Conjure slim bottle on tether pool\n4. Conjure ifrit bottle on tether pool\n5. Vouch all three consecrations\n6. Record consecrations in tadmor nameplate\n7. Summon all images locally via retriever\n\n## Dependencies\nRequires completed: slim-sentry-debian (₢AyAAA), slim-bottle-debian (₢AyAAB), ifrit-vessel-definition (₢AyAAD), tadmor-nameplate (₢AyAAE)\n\n## Timing Expectations\nWith slim vessels, conjure times should be dramatically shorter than the ~13 min ubuntu baseline. Measure and record actual durations for onboarding guide update.",
@@ -5006,6 +5041,13 @@
         },
         "₢AyAAI": {
           "tacks": [
+            {
+              "ts": "260328-0737",
+              "state": "rough",
+              "text": "## Character\nCreative — the first encounter between the Ifrit and its prison.\n\n## Goal\nRun Claude Code inside the ifrit bottle on the tadmor nameplate. The Ifrit reads the sentry source code, understands its constraints, and writes initial escape test modules into rbtid/. This pace creates the context for later elaboration, not ultimate refinement.\n\n## Deliverables\n\n1. Launch tadmor (slim sentry + ifrit bottle with volume mounts)\n2. Claude Code session inside the bottle: reads project (ro mount), writes to rbtid/ (rw mount)\n3. Ifrit writes at least 2-3 initial escape test modules targeting distinct attack surfaces\n4. Curate and commit the produced modules — review for reproducibility and assertion quality\n5. Re-run modules inside the bottle to confirm reproducibility\n\n## Constraints\n- The Ifrit writes durable Python test modules — it is a test author, not a live pentester\n- All escape test execution happens inside the bottle behind the sentry — that is the only context where security assertions are meaningful\n- Modules must be reproducible: same inputs, same assertions, deterministic pass/fail\n- Claude Code operates via Anthropic API through the tadmor allowlist (anthropic.com DNS + CIDR)\n- This pace establishes the pattern; comprehensive attack coverage is future work\n\n## References\n- RBSIP-ifrit_pentester.adoc — escape test categories\n- Tools/rbk/rbtid/ — escape test directory (from pace 6)",
+              "silks": "first-ifrit-session",
+              "commit": "8fc8ea9"
+            },
             {
               "ts": "260328-0720",
               "state": "rough",
