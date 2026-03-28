@@ -4604,9 +4604,10 @@
       "creation_time": "260327",
       "status": "stabled",
       "order": [
+        "₢AxAAB",
         "₢AxAAA"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -4617,6 +4618,17 @@
               "text": "## Character\nDesign conversation turned specification — architectural vocabulary with naming judgment.\n\n## Context\nRecipe Bottle's cloud operations have rich liturgical verbs (conjure, abjure, summon, graft, vouch, enshrine, inscribe) but local bottle service lifecycle uses generic words (start, run, cleanup) with no verb for stop. The agile/sessile service type distinction is load-bearing but was never surfaced in the nameplate or given proper verb support.\n\n## Discovery\n- `bottle_start` stands up sentry+censer+bottle (all persistent) — sessile pattern\n- `bottle_run` dispatches an ephemeral bottle into an already-running sentry+censer envelope — agile pattern\n- The deferred third pattern (persistent envelope, ephemeral workloads) was actually implemented as `bottle_run` all along\n- No operation exists for stopping/tearing down a service\n- agile/sessile are retained as service type names — load-bearing distinction, unique words\n\n## New Vocabulary\n\nbroach (b for begin): Sessile — stand up sentry+censer+bottle. Agile — stand up sentry+censer envelope.\nquench (q for quit): Sessile — tear down bottle+censer+sentry. Agile — tear down censer+sentry.\nassay (a for agile): Sessile — fail (wrong mode). Agile — dispatch ephemeral bottle into running envelope.\n\n## Assay failure modes\n- Sessile service: Cannot assay a sessile service\n- Agile but not broached: Service not broached, broach first then assay\n\n## Deliverables\n\n### A. Nameplate mode field\nAdd agile/sessile mode declaration to RBRN nameplate spec. Every nameplate must declare its service type. Single source of truth for broach/quench/assay dispatch.\n\n### B. RBS0 linked terms\nMint new linked terms and operation definitions. Retire opbs_bottle_start, opbr_bottle_run. Add broach, quench, assay operations. Update at_sessile_service and at_agile_service display terms.\n\n### C. Spec subdocuments\nRename/rewrite RBSBS-bottle_start.adoc and RBSBR-bottle_run.adoc. Create new subdocument for quench. Update RBSBK-bottle_cleanup.adoc role (now internal to quench).\n\n### D. Operator mental model\nSessile: broach ... service runs ... quench\nAgile: broach ... assay assay assay ... quench\n\n## Prefix decisions needed\nThe op prefix pattern needs new suffixes. Current: opbs_ (bottle start), opbr_ (bottle run), opss_ (sentry start). Propose new allocations following terminal exclusivity.\n\n## References\n- RBS0-SpecTop.adoc — main spec, local operations section\n- RBRN-RegimeNameplate.adoc — nameplate spec\n- RBSBS-bottle_start.adoc, RBSBR-bottle_run.adoc, RBSBK-bottle_cleanup.adoc\n- rbob_bottle.sh — implementation",
               "silks": "spec-broach-quench-assay-vocabulary",
               "commit": "d4164fa"
+            }
+          ]
+        },
+        "₢AxAAB": {
+          "tacks": [
+            {
+              "ts": "260327-1745",
+              "state": "rough",
+              "text": "## Character\nMechanical rename with precision — small file count, grep-and-replace with careful attention to anchors, attributes, and definition text.\n\n## Context\nThe MCM identity tier vocabulary (lemma/graven/intaglio) is being refreshed. Lemma has mathematical connotations, graven and intaglio lack the cohesion of the new craft-register trio. All three new words come from the mason/engraver/foundry world.\n\n## Renames\n\nlemma/lemmata → quoin/quoins (cornerstone that locks the structure)\ngraven → inlay/inlays (set permanently into a surface, recognized but not catalogued)\nintaglio → sprue/sprues (the literal channel from the mould — wire-level token)\n\n## File inventory (4 files, ~31 occurrences)\n\nTools/cmk/vov_veiled/MCM-MetaConceptModel.adoc — 18 hits (definitions, attribute references, anchors, all body references)\nTools/cmk/vov_veiled/AXLA-Lexicon.adoc — 8 hits (lexicon entries)\nTools/rbk/vov_veiled/RBS0-SpecTop.adoc — 1 hit (single lemma reference)\n.claude/jjm/jjp_uAlh.md — 4 hits (paddock historical context)\n\n## Mechanical steps\n\n1. MCM-MetaConceptModel.adoc: rename all mcm_lemma/mcm_graven/mcm_intaglio attributes, anchors, references, definition text, and plural forms\n2. AXLA-Lexicon.adoc: rename lexicon entries and cross-references\n3. RBS0-SpecTop.adoc: rename single lemma reference\n4. jjp_uAlh.md: rename paddock references\n5. Verify: grep for any surviving lemma/graven/intaglio references\n\n## References\n- MCM-MetaConceptModel.adoc lines 958-1005 — current definitions\n- AXLA-Lexicon.adoc — lexicon entries",
+              "silks": "mcm-rename-quoin-inlay-sprue",
+              "commit": "4914b61"
             }
           ]
         }
