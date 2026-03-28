@@ -3,6 +3,12 @@
 # conjure: DSSE envelope signature verification (Python json + openssl)
 # bind: digest-pin comparison | graft: GRAFTED stamp
 # Writes /workspace/vouch_platforms.txt for step 03.
+# Substitutions (GCB anchors — automapSubstitutions provides as env vars):
+#   ${_RBGV_GAR_HOST} ${_RBGV_GAR_PATH} ${_RBGV_VESSEL}
+#   ${_RBGV_CONSECRATION} ${_RBGV_VESSEL_MODE} ${_RBGV_ARK_SUFFIX_IMAGE}
+#   ${_RBGV_IMAGE_1} ${_RBGV_IMAGE_2} ${_RBGV_IMAGE_3}
+#   ${_RBGV_IMAGE_1_PROVENANCE} ${_RBGV_IMAGE_2_PROVENANCE} ${_RBGV_IMAGE_3_PROVENANCE}
+#   ${_RBGV_BIND_SOURCE} ${_RBGV_GRAFT_SOURCE}
 
 import base64
 import json

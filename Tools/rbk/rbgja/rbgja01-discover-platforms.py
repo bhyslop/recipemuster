@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # RBGJAM Step 01: Discover platforms from -image manifest in GAR
 # Builder: gcr.io/cloud-builders/gcloud
-# Substitutions: _RBGA_GAR_HOST, _RBGA_GAR_PATH, _RBGA_VESSEL,
-#                _RBGA_CONSECRATION, _RBGA_VESSEL_MODE,
-#                _RBGA_ARK_SUFFIX_IMAGE, _RBGA_ARK_SUFFIX_DIAGS
+# Substitutions (GCB anchors — automapSubstitutions provides as env vars):
+#   ${_RBGA_GAR_HOST} ${_RBGA_GAR_PATH} ${_RBGA_VESSEL}
+#   ${_RBGA_CONSECRATION} ${_RBGA_VESSEL_MODE}
+#   ${_RBGA_ARK_SUFFIX_IMAGE} ${_RBGA_ARK_SUFFIX_DIAGS}
 #
 # Queries the -image manifest to discover what platforms are present.
 # Handles OCI image index (multi-platform) vs single OCI/Docker manifest.
