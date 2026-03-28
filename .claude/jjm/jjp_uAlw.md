@@ -1,5 +1,3 @@
-# Paddock: jjk-v4-0-jjs0-axla-normalization
-
 ## Purpose
 
 Build V3 schema infrastructure: AXLA annotation vocabulary upgrade, JJF file exchange protocol, and officium lifecycle for gazette I/O isolation.
@@ -37,28 +35,19 @@ The fundamental error: assuming MCP server process lifetime maps to "a session."
 - **Gitignored officia/** — `.claude/jjm/officia/` is ephemeral exchange infrastructure, not tracked by git. Eliminates git noise and makes wrong exsanguination benign.
 - **Daily probe** — `.probe_date` datestamp file; `vvcp_probe` runs once per calendar day, not per chat.
 
-## Remaining Work — Two Phases
+## Gazette Directional Split Spook (2026-03-27)
 
-### Phase 1: Officium Plumbing (spec → implement → doc → user test)
+### The Spook
 
-| Pace | Silks | Character |
-|------|-------|-----------|
-| ₢AwAAY | spec-agent-initiated-officium | Spec-only: JJS0 officium model |
-| ₢AwAAQ | implement-jjx-open-and-officium-param | Infrastructure: jjx_open + param threading |
-| ₢AwAAU | claudemd-officium-protocol | Documentation for agent behavior |
+During ₣Av ₢AvAAV work: `jjx_orient` wrote paddock+docket to `gazette.md`. Agent then called `jjx_enroll` without overwriting the gazette. Server consumed the stale orient output as enroll input, choking on `# paddock` slug where `# slate` was expected. Recoverable but cost a round-trip.
 
-User tests officium plumbing in real chats before proceeding.
+### Root Cause
 
-### Phase 2: Gazette Migration
+Single `gazette.md` serves as both server output channel (orient, show, paddock getter) and agent input channel (enroll, redocket, paddock setter). Stale output from a getter is indistinguishable from fresh input for a setter at the file layer.
 
-| Pace | Silks | Character |
-|------|-------|-----------|
-| ₢AwAAZ | spec-chapter-absolve-operations | Spec-only: chapter/absolve |
-| ₢AwAAS | implement-chapter-and-absolve | Diagnostic operations |
-| ₢AwAAV | wire-gazette-to-officium-exchange | Handler wiring — the real payoff |
-| ₢AwAAW | remove-legacy-duplicate-output | Strip inline gazette from MCP responses |
-| ₢AwAAX | jjs0-officium-lifecycle-spec-update | Final spec verification pass |
-| ₢AwAAT | test-officium-lifecycle | End-to-end testing |
+### Fix: ₢AwAAb
+
+Split into `gazette_in.md` (agent→server, delete-after-consume) and `gazette_out.md` (server→agent, overwrite-before-write). The JJSCGZ spec already has per-slug direction annotations — the conceptual separation exists, the file layer just didn't enforce it.
 
 ## Prior Context (retained)
 
