@@ -3879,9 +3879,10 @@
         "₢AwAAX",
         "₢AwAAT",
         "₢AwAAb",
-        "₢AwAAc"
+        "₢AwAAc",
+        "₢AwAAd"
       ],
-      "next_pace_seed": "AAd",
+      "next_pace_seed": "AAe",
       "paddock_file": ".claude/jjm/jjp_uAlw.md",
       "paces": {
         "₢AwAAA": {
@@ -4809,6 +4810,17 @@
               "text": "## Character\nTemporary test pace to verify gazette_in.md enroll path. Drop immediately after verification.",
               "silks": "gazette-split-test-pace",
               "commit": "a78a1d8"
+            }
+          ]
+        },
+        "₢AwAAd": {
+          "tacks": [
+            {
+              "ts": "260328-0745",
+              "state": "rough",
+              "text": "## Character\n\nMechanical but precise — four string constants drive all wire format output, but the change ripples through tests, specs, and CLAUDE.md examples. Attention to completeness over creativity.\n\n## Docket\n\nAlign gazette wire format slug tokens to their spec-minted `jjezs_*` identifiers. Currently the wire uses bare words (`slate`, `reslate`, `paddock`, `pace`); the spec defines these as `jjezs_slate`, `jjezs_reslate`, `jjezs_paddock`, `jjezs_pace`. Every persistent identifier earns its prefix.\n\nUpdate sites:\n- `jjrz_gazette.rs` — four `JJRZ_SLUG_*` string constants\n- `jjtz_gazette.rs` — all test gazette content using bare slugs\n- `JJSCGZ-gazette.adoc` — wire format examples if any use bare slugs\n- `CLAUDE.md` — JJK context section gazette examples",
+              "silks": "align-wire-slugs-to-jjezs-minted-names",
+              "commit": "83f1409"
             }
           ]
         }
