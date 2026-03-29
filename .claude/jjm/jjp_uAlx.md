@@ -24,26 +24,24 @@ Confidence: HIGH. "Coining vocabulary by defining quoins" — the spelling preve
 
 ## Decided: Lifecycle Verbs
 
-**broach** (6, b for begin) — Open service for use, polymorphic on mode.
-**quench** (6, q for quit) — Extinguish service, polymorphic on mode.
-**decant** (6, d for dispatch) — Pour ephemeral work through agile envelope.
+**charge** (6, c) — Load the crucible and bring to operating temperature. Forge-native.
+**quench** (6, q) — Extinguish the crucible. Forge-native, the original elected stop verb.
+**enjoin** (6, e) — Formally command ephemeral work through agile envelope. Completion connotation.
 
 Verb behavior matrix:
-- broach sessile: stand up sentry + pentacle + bottle
-- broach agile: stand up sentry + pentacle only
+- charge sessile: stand up sentry + pentacle + bottle
+- charge agile: stand up sentry + pentacle only
 - quench sessile: tear down bottle + pentacle + sentry
 - quench agile: tear down pentacle + sentry
-- decant sessile: FAIL (wrong mode)
-- decant agile not broached: FAIL (not broached)
-- decant agile broached: dispatch ephemeral bottle
+- enjoin sessile: FAIL (wrong mode)
+- enjoin agile not charged: FAIL (not charged)
+- enjoin agile charged: dispatch ephemeral bottle
 
 Operator mental model:
-- Sessile: broach ... service runs ... quench
-- Agile: broach ... decant decant decant ... quench
+- Sessile: charge ... service runs ... quench
+- Agile: charge ... enjoin enjoin enjoin ... quench
 
 Confidence: HIGH.
-
-Note: Forge-native alternatives (kindle/quench/cast) are thematically coherent with crucible. Broach/quench/decant remain elected but forge verbs are a recognized option if thematic unity is prioritized later.
 
 ## Decided: Service Mode Names
 
@@ -53,21 +51,17 @@ Confidence: HIGH.
 
 ## Decided: Diagnostic Verbs
 
-**arraign** (7) — bottle (the demon), commanding/adversarial tone.
-**consult** (7) — sentry (the ally), respectful/mutual tone.
-**surveil** (7) — networks (the perimeter), observational.
+**rack** (4, k) — bottle (the demon). The instrument of compulsion — compel the demon to reveal its state. Adversarial, commanding.
+**hail** (4, h) — sentry (the ally). Call out to the guard. Respectful, military.
+**surveil** (7, o) — networks (the perimeter). Observational. Reuses existing ObserveNetworks colophon root.
 
-Pentacle interactive access eliminated — scaffolding with no diagnostic use case. Diagnostic verbs are parameter-driven (moniker as argument), not imprint-driven.
+Pentacle interactive access eliminated — scaffolding with no diagnostic use case.
 
-Confidence: HIGH on arraign/consult. MEDIUM on surveil.
+Confidence: HIGH on rack/hail. MEDIUM on surveil.
 
 ## Decided: "Bottle Service" → Crucible
 
 The tandem container assembly (sentry + pentacle + bottle) is now named **crucible**. The vessel where dangerous materials are subjected to extreme conditions and transformed. Universally understood, precisely correct for the security-containment metaphor.
-
-Forge vocabulary (kindle/quench/cast) is natively coherent with crucible — quench is native to both the forge register and the current lifecycle verbs. The existing verbs (broach/quench/decant) work well alongside crucible.
-
-Colophon root: rbw-c (crucible). Uppercase terminal for lifecycle bookends, lowercase for operational/diagnostic.
 
 Confidence: HIGH.
 
@@ -84,29 +78,45 @@ Maps directly to Solomonic practice: outer protection, inscribed authority, seal
 
 Confidence: HIGH.
 
+## Decided: Colophon Migration
+
+Standalone verb-roots, consistent with existing `s`/`z`/`o` pattern. All six roots are collision-free.
+
+| New | Verb | Replaces | Moniker? |
+|-----|------|----------|----------|
+| `rbw-c` | Charge | `rbw-s` (Start) | yes |
+| `rbw-q` | Quench | `rbw-z` (Stop) | yes |
+| `rbw-e` | Enjoin | (new) | yes |
+| `rbw-h` | Hail sentry | `rbw-S` (ConnectSentry) | yes |
+| `rbw-k` | Rack bottle | `rbw-B` (ConnectBottle) | yes |
+| `rbw-o` | Surveil networks | `rbw-o` (ObserveNetworks) | yes |
+
+Retiring: `rbw-s` (Start), `rbw-z` (Stop), `rbw-B` (ConnectBottle), `rbw-C` (ConnectCenser), `rbw-S` (ConnectSentry).
+
+Tabtarget examples:
+- `tt/rbw-c.Charge.tadmor.sh` (was `tt/rbw-s.Start.tadmor.sh`)
+- `tt/rbw-q.Quench.tadmor.sh` (was `tt/rbw-z.Stop.tadmor.sh`)
+- `tt/rbw-e.Enjoin.tadmor.sh` (new — agile only)
+- `tt/rbw-h.Hail.tadmor.sh` (was `tt/rbw-S.ConnectSentry.tadmor.sh`)
+- `tt/rbw-k.Rack.tadmor.sh` (was `tt/rbw-B.ConnectBottle.tadmor.sh`)
+- `tt/rbw-o.Surveil.tadmor.sh` (was `tt/rbw-o.ObserveNetworks.tadmor.sh`)
+
+Confidence: HIGH.
+
 ## Open: Quoin Prefix Allocation
 
-New quoins: rbtlob_broach, rbtloq_quench, rbtlod_decant, rbrn_service_mode (+_sessile, +_agile).
+New quoins: rbtloc_charge, rbtloq_quench, rbtloe_enjoin, rbrn_service_mode (+_sessile, +_agile).
 Retire: opbs_bottle_start, opbr_bottle_run, opss_sentry_start.
 Rename: at_bottle_service → at_crucible, at_censer_container → at_pentacle_container.
 New: at_crucible — the whole assembly.
 
-## Open: Colophon Root and Tabtarget Migration
+## Open: Surveil Confidence
 
-Root: rbw-c (crucible). Uppercase terminal for lifecycle bookends (Broach, Quench), lowercase for operational/diagnostic. Migration plan covers 7 existing tabtarget families plus new Decant.
-
-## Open: Forge Verb Alignment
-
-With crucible elected, the forge register offers thematically native alternatives to current lifecycle verbs:
-- kindle (start) vs broach (open)
-- quench (stop) — same in both registers
-- cast (dispatch) vs decant (pour)
-
-Decision deferred — broach/quench/decant are already decided at HIGH confidence. Revisit if thematic unity with crucible becomes a priority.
+Surveil remains at MEDIUM. Alternatives considered but not resolved. The colophon reuse of `rbw-o` is clean regardless of verb name.
 
 ## References
 
 - RBS0-SpecTop.adoc, RBRN-RegimeNameplate.adoc, RBSBS/RBSBR/RBSBK specs
 - MCM-MetaConceptModel.adoc, AXLA-Lexicon.adoc
 - rbob_bottle.sh
-- Prior conversations: 260327 session, 260329 crucible/pentacle election
+- Prior conversations: 260327 session, 260329 crucible/pentacle/charge/quench/enjoin/hail/rack election
