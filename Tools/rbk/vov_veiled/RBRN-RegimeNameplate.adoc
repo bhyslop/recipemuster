@@ -5,7 +5,7 @@ This regime specifies variables that define bottle service deployment configurat
 Each
 {rbrn_regime}
 instance represents a distinct service deployment with its own network, entry, and uplink settings.
-RBRN assignment files are found in `.rbk/rbrn_*.env` and configure container deployment and network security.
+RBRN assignment files are found in `.rbk/{moniker}.rbrn.env` and configure container deployment and network security.
 
 //axhrv_variable
 {rbrn_moniker}
@@ -156,24 +156,7 @@ is
 
 Domain names allowed for bottle-initiated DNS resolution.
 
-//axhrgv_variable
-{rbrn_docker_volume_mounts}
-
-Semicolon-delimited Docker volume mount specifications.
-Each entry is passed verbatim as a `--volume` argument.
-Empty string means no volume mounts.
-Active when {rbrn_runtime} is {rbrn_runtime_docker}.
-0-240 characters.
-
-//axhrgv_variable
-{rbrn_podman_volume_mounts}
-
-Semicolon-delimited Podman volume mount specifications.
-Each entry is passed verbatim as a `--volume` argument.
-Podman-specific options (`:U`, `:O`, `idmap`) are valid here.
-Empty string means no volume mounts.
-Active when {rbrn_runtime} is {rbrn_runtime_podman}.
-0-240 characters.
+// Volume mount specifications relocated to per-nameplate compose fragments ({moniker}.compose.yml).
 
 //axhro_kindle
 {rbkro_kindle}
@@ -193,7 +176,7 @@ Conditional validation: entry ports when ENTRY_MODE=enabled, allowlists when *_M
 {rbkro_render}
 
 Renders via rbcr_* shared module with gate-aware section suppression.
-Sections: Core Service Identity, Container Image Configuration, Entry Service Configuration (gated), Enclave Network, Uplink Core, DNS Allowlist (gated), Access Allowlist (gated), Volume Mount.
+Sections: Core Service Identity, Container Image Configuration, Entry Service Configuration (gated), Enclave Network, Uplink Core, DNS Allowlist (gated), Access Allowlist (gated).
 Displays unexpected variables in red.
 Validates after full render completes.
 

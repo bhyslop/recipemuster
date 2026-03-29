@@ -281,7 +281,7 @@ Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (li
 **Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `tadmor`) is what appears as the imprint in tabtarget filenames:
 
 ```
-.rbk/rbrn_tadmor.env          # Maps tadmor → rbev-sentry-debian-slim + rbev-bottle-ifrit
+.rbk/tadmor.rbrn.env          # Maps tadmor → rbev-sentry-debian-slim + rbev-bottle-ifrit
 ```
 
 So `tt/rbw-s.Start.tadmor.sh` starts the bottle defined by the `tadmor` nameplate, which selects its sentry and bottle vessel images.

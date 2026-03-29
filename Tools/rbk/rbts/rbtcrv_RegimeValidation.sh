@@ -193,7 +193,6 @@ zrbtcrv_rbrn_baseline_disabled() {
   export RBRN_UPLINK_PORT_MIN="10000"
   export RBRN_UPLINK_DNS_MODE="disabled"
   export RBRN_UPLINK_ACCESS_MODE="disabled"
-  export RBRN_DOCKER_VOLUME_MOUNTS=""
 }
 
 zrbtcrv_rbrn_baseline_enabled() {
@@ -327,7 +326,7 @@ zrbtcrv_rbrv_validate_vessel() {
 
 zrbtcrv_rbrn_validate_nameplate() {
   local z_moniker="${1}"
-  source "${RBBC_dot_dir}/${RBCC_rbrn_prefix}${z_moniker}${RBCC_rbrn_ext}"
+  source "${RBBC_dot_dir}/${z_moniker}${RBCC_rbrn_suffix}"
   zrbrn_kindle
   zrbrn_enforce
 }

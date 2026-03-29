@@ -36,6 +36,54 @@ ZRBOB_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 ZRBOB_PROJECT_ROOT="${ZRBOB_SCRIPT_DIR}/../.."
 
 ######################################################################
+# Compose-env Validation
+
+# Validate that compose-consumed RBRN fields contain no quotes or ${VAR} references.
+# Compose --env-file does not strip quotes (they become part of the value) and
+# interpolates ${VAR} references (causing unintended expansion). Fields not consumed
+# by compose (e.g., RBRN_DESCRIPTION) are exempt.
+zrbob_validate_compose_env() {
+  # Explicit list of compose-consumed field names (the nameplate↔compose contract)
+  local z_compose_fields="
+    RBRN_MONIKER
+    RBRN_RUNTIME
+    RBRN_SENTRY_VESSEL
+    RBRN_BOTTLE_VESSEL
+    RBRN_SENTRY_CONSECRATION
+    RBRN_BOTTLE_CONSECRATION
+    RBRN_ENTRY_MODE
+    RBRN_ENTRY_PORT_WORKSTATION
+    RBRN_ENTRY_PORT_ENCLAVE
+    RBRN_ENCLAVE_BASE_IP
+    RBRN_ENCLAVE_NETMASK
+    RBRN_ENCLAVE_SENTRY_IP
+    RBRN_ENCLAVE_BOTTLE_IP
+    RBRN_UPLINK_PORT_MIN
+    RBRN_UPLINK_DNS_MODE
+    RBRN_UPLINK_ACCESS_MODE
+    RBRN_UPLINK_ALLOWED_CIDRS
+    RBRN_UPLINK_ALLOWED_DOMAINS
+  "
+
+  local z_field=""
+  for z_field in ${z_compose_fields}; do
+    local z_value="${!z_field:-}"
+    # Check for quotes (compose does not strip them)
+    case "${z_value}" in
+      *\"*|*\'*)
+        buc_die "Compose compatibility: ${z_field} contains quotes — compose --env-file does not strip quotes, they become part of the value"
+        ;;
+    esac
+    # Check for ${VAR} references (compose interpolates them)
+    case "${z_value}" in
+      *'${'*)
+        buc_die "Compose compatibility: ${z_field} contains \${VAR} reference — compose --env-file interpolates these, causing unintended expansion"
+        ;;
+    esac
+  done
+}
+
+######################################################################
 # Kindle and Sentinel
 
 zrbob_kindle() {
@@ -43,6 +91,9 @@ zrbob_kindle() {
 
   # Verify RBRN regime is kindled (provides nameplate config)
   zrbrn_sentinel
+
+  # Validate compose-consumed fields before proceeding
+  zrbob_validate_compose_env
 
   # Verify RBRR regime is kindled (provides repo config like DNS_SERVER)
   zrbrr_sentinel
@@ -83,23 +134,6 @@ zrbob_kindle() {
     podman) ZRBOB_CENSER_NETWORK_ARGS=("--network" "${ZRBOB_NETWORK}:ip=${RBRN_ENCLAVE_BOTTLE_IP}") ;;
   esac
   readonly ZRBOB_CENSER_NETWORK_ARGS
-
-  # Volume mount args (array for proper quoting)
-  # Read the runtime-appropriate field, split on semicolons, emit --volume per entry
-  ZRBOB_VOLUME_ARGS=()
-  local z_vol_mounts=""
-  case "${RBRN_RUNTIME}" in
-    docker) z_vol_mounts="${RBRN_DOCKER_VOLUME_MOUNTS:-}" ;;
-    podman) z_vol_mounts="${RBRN_PODMAN_VOLUME_MOUNTS:-}" ;;
-  esac
-  if test -n "${z_vol_mounts}"; then
-    local z_entry
-    while IFS= read -r -d ';' z_entry || test -n "${z_entry}"; do
-      test -n "${z_entry}" || continue
-      ZRBOB_VOLUME_ARGS+=("--volume" "${z_entry}")
-    done <<< "${z_vol_mounts}"
-  fi
-  readonly ZRBOB_VOLUME_ARGS
 
   # GAR image references (computed once, used by launch and preflight)
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
@@ -317,7 +351,6 @@ zrbob_launch_bottle() {
     --name "${ZRBOB_BOTTLE}" \
     --net=container:"${ZRBOB_CENSER}" \
     --security-opt label=disable \
-    ${ZRBOB_VOLUME_ARGS[@]+"${ZRBOB_VOLUME_ARGS[@]}"} \
     "${ZRBOB_BOTTLE_IMAGE}" \
     > "${ZRBOB_BOTTLE_CREATE_LOG}" \
     || buc_die "Failed to create bottle"

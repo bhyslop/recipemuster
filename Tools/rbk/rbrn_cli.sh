@@ -45,7 +45,7 @@ zrbrn_fleet_survey() {
   printf "${z_row_fmt}" \
     "--------" "-----" "------" "------" "-----------------" "--------------" "--------------" "---" "---"
 
-  local z_sv_files=("${RBBC_dot_dir}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
+  local z_sv_files=("${RBBC_dot_dir}/"*"${RBCC_rbrn_suffix}")
   local z_sv_i=""
   for z_sv_i in "${!z_sv_files[@]}"; do
     test -f "${z_sv_files[$z_sv_i]}" || continue
@@ -198,7 +198,7 @@ zrbrn_furnish() {
 
   # If BUZ_FOLIO is set, load and kindle the specified nameplate
   if test -n "${BUZ_FOLIO:-}"; then
-    local z_nameplate_file="${RBBC_dot_dir}/${RBCC_rbrn_prefix}${BUZ_FOLIO}${RBCC_rbrn_ext}"
+    local z_nameplate_file="${RBBC_dot_dir}/${BUZ_FOLIO}${RBCC_rbrn_suffix}"
     test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
     source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
     zrbrn_kindle

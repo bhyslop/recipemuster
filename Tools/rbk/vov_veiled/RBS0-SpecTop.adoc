@@ -473,8 +473,7 @@
 :rbrn_uplink_dns_mode_disabled:     <<rbrn_uplink_dns_mode_disabled,disabled>>
 :rbrn_uplink_dns_mode_global:       <<rbrn_uplink_dns_mode_global,global>>
 :rbrn_uplink_port_min:              <<rbrn_uplink_port_min,RBRN_UPLINK_PORT_MIN>>
-:rbrn_docker_volume_mounts:        <<rbrn_docker_volume_mounts,RBRN_DOCKER_VOLUME_MOUNTS>>
-:rbrn_podman_volume_mounts:        <<rbrn_podman_volume_mounts,RBRN_PODMAN_VOLUME_MOUNTS>>
+// Volume mount attributes relocated to per-nameplate compose fragments
 
 // Google-specific Type Voicings (rbgt_* - voices axtg_* with RB-specific constraints)
 :rbgt_project_id:            <<rbgt_project_id,GCP Project ID>>
@@ -3076,30 +3075,9 @@ CIDR ranges for allowed bottle-initiated outbound traffic.
 {rbrn_uplink_allowed_domains}::
 Domain names allowed for bottle-initiated DNS resolution.
 
-[[rbrn_docker_volume_mounts]]
-//axvr_variable axd_conditional rbst_volume_mount_list
-{rbrn_docker_volume_mounts}::
-Semicolon-delimited Docker volume mount specifications for the bottle container.
-Each entry is passed verbatim as a `--volume` argument to `docker create`.
-Empty string means no volume mounts.
-Active when
-{rbrn_runtime}
-is
-{rbrn_runtime_docker};
-0-240 characters.
-
-[[rbrn_podman_volume_mounts]]
-//axvr_variable axd_conditional rbst_volume_mount_list
-{rbrn_podman_volume_mounts}::
-Semicolon-delimited Podman volume mount specifications for the bottle container.
-Each entry is passed verbatim as a `--volume` argument to `podman create`.
-Podman-specific options (`:U`, `:O`, `idmap`) are valid here but not in the Docker variant.
-Empty string means no volume mounts.
-Active when
-{rbrn_runtime}
-is
-{rbrn_runtime_podman};
-0-240 characters.
+// Volume mount specifications relocated to per-nameplate compose fragments ({moniker}.compose.yml).
+// Previously: RBRN_DOCKER_VOLUME_MOUNTS, RBRN_PODMAN_VOLUME_MOUNTS — semicolon-delimited strings
+// passed as --volume args. Compose fragments use declarative volumes: sections instead.
 
 [[rbrn_group_ark_reference]]
 //axvr_group

@@ -77,14 +77,6 @@ zrbrn_kindle() {
   buv_gate_enroll    RBRN_UPLINK_ACCESS_MODE  allowlist
   buv_list_cidr_enroll   RBRN_UPLINK_ALLOWED_CIDRS             "Allowed CIDR ranges"
 
-  buv_group_enroll "Volume Mount Configuration (Docker)"
-  buv_gate_enroll    RBRN_RUNTIME  docker
-  buv_string_enroll  RBRN_DOCKER_VOLUME_MOUNTS     0  240  "Docker volume mount specifications for Bottle"
-
-  buv_group_enroll "Volume Mount Configuration (Podman)"
-  buv_gate_enroll    RBRN_RUNTIME  podman
-  buv_string_enroll  RBRN_PODMAN_VOLUME_MOUNTS     0  240  "Podman volume mount specifications for Bottle"
-
   # Guard against unexpected RBRN_ variables not in enrollment
   buv_scope_sentinel RBRN RBRN_
 
@@ -125,18 +117,17 @@ zrbrn_enforce() {
 # Public Functions (rbrn_*)
 
 # List available nameplate monikers as space-separated tokens
-# Prerequisite: RBCC sourced (needs RBBC_dot_dir, RBCC_rbrn_prefix, RBCC_rbrn_ext)
+# Prerequisite: RBCC sourced (needs RBBC_dot_dir, RBCC_rbrn_suffix)
 rbrn_list_capture() {
   zrbcc_sentinel
 
   local z_result=""
-  local z_files=("${RBBC_dot_dir}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
+  local z_files=("${RBBC_dot_dir}/"*"${RBCC_rbrn_suffix}")
   local z_i=""
   for z_i in "${!z_files[@]}"; do
     test -f "${z_files[$z_i]}" || continue
     local z_basename="${z_files[$z_i]##*/}"
-    local z_moniker="${z_basename#"${RBCC_rbrn_prefix}"}"
-    z_moniker="${z_moniker%"${RBCC_rbrn_ext}"}"
+    local z_moniker="${z_basename%"${RBCC_rbrn_suffix}"}"
     z_result="${z_result}${z_result:+ }${z_moniker}"
   done
   test -n "${z_result}" || return 1
@@ -173,7 +164,7 @@ rbrn_preflight() {
   zrbcc_sentinel
 
   # Collect structured data from all nameplates via isolation subshells
-  local z_nameplate_files=("${RBBC_dot_dir}/${RBCC_rbrn_prefix}"*"${RBCC_rbrn_ext}")
+  local z_nameplate_files=("${RBBC_dot_dir}/"*"${RBCC_rbrn_suffix}")
   local z_data_lines=()
   local z_nf_i=""
   for z_nf_i in "${!z_nameplate_files[@]}"; do

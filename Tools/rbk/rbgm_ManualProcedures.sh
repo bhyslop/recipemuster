@@ -77,6 +77,10 @@ zrbgm_kindle() {
   readonly ZRBGM_REPO_ROLE_RESPONSE="${ZRBGM_PREFIX}repo_role_response.json"
   readonly ZRBGM_REPO_ROLE_CODE="${ZRBGM_PREFIX}repo_role_code.txt"
 
+  # Onboarding default nameplate moniker
+  readonly ZRBGM_ONBOARDING_MONIKER="tadmor"
+  readonly ZRBGM_ONBOARDING_NAMEPLATE="${RBBC_dot_dir}/${ZRBGM_ONBOARDING_MONIKER}${RBCC_rbrn_suffix}"
+
   readonly ZRBGM_KINDLED=1
 }
 
@@ -720,8 +724,8 @@ rbgm_onboarding() {
     # Sub-probe: nameplate consecrations populated
     local z_has_bottle_consecration=0
     local z_has_sentry_consecration=0
-    if test -f "${RBBC_dot_dir}/rbrn_tadmor.env"; then
-      source "${RBBC_dot_dir}/rbrn_tadmor.env"
+    if test -f "${ZRBGM_ONBOARDING_NAMEPLATE}"; then
+      source "${ZRBGM_ONBOARDING_NAMEPLATE}"
       test -n "${RBRN_BOTTLE_CONSECRATION:-}" && z_has_bottle_consecration=1
       test -n "${RBRN_SENTRY_CONSECRATION:-}" && z_has_sentry_consecration=1
     fi
@@ -750,7 +754,7 @@ rbgm_onboarding() {
     if test "${z_has_bottle_consecration}" = "0"; then
       bug_t "  Next: Record bottle consecration in the tadmor nameplate."
       bug_t "  1. Edit the nameplate:"
-      bug_tc "    " "${RBBC_dot_dir}/rbrn_tadmor.env"
+      bug_tc "    " "${ZRBGM_ONBOARDING_NAMEPLATE}"
       bug_t "    Set (substitute your actual consecration value):"
       bug_tc "    RBRN_BOTTLE_CONSECRATION=" "<consecration>"
       bug_t "  2. Summon bottle:"
@@ -758,7 +762,7 @@ rbgm_onboarding() {
     elif test "${z_has_sentry_consecration}" = "0"; then
       bug_t "  Next: Record sentry consecration in the tadmor nameplate."
       bug_t "  1. Edit the nameplate:"
-      bug_tc "    " "${RBBC_dot_dir}/rbrn_tadmor.env"
+      bug_tc "    " "${ZRBGM_ONBOARDING_NAMEPLATE}"
       bug_t "    Set (substitute your actual consecration value):"
       bug_tc "    RBRN_SENTRY_CONSECRATION=" "<consecration>"
       bug_t "  2. Summon sentry:"

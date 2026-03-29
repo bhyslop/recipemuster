@@ -49,6 +49,7 @@ zrbgm_furnish() {
       source "${z_rbk_kit_dir}/rbz_zipper.sh"          || buc_die "Failed to source rbz_zipper.sh"
       zbuz_kindle
       zrbz_kindle
+      source "${z_rbk_kit_dir}/rbcc_Constants.sh"          || buc_die "Failed to source rbcc_Constants.sh"
       source "${z_rbk_kit_dir}/rbgm_ManualProcedures.sh" || buc_die "Failed to source rbgm_ManualProcedures.sh"
       zrbgm_kindle
       ;;
