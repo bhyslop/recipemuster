@@ -5089,6 +5089,13 @@
         "₢AyAAF": {
           "tacks": [
             {
+              "ts": "260328-1916",
+              "state": "rough",
+              "text": "## Character\nMechanical — one Dockerfile line, one mkdir.\n\n## Goal\nFinalize the ifrit bottle image and prepare the rbtid/ volume mount target. This is the last infrastructure step before the build pipeline can produce a working ifrit container.\n\n## Deliverables\n\n1. Add `npm install -g @anthropic-ai/claude-code` to `rbev-vessels/rbev-bottle-ifrit/Dockerfile`\n2. Ensure `Tools/rbk/rbtid/` directory exists with `.gitignore` (volume mount host-side target for rw mount)\n\n## Note\nThe escape test runner, module naming convention, and framework structure are deferred to future design work. The rbtid/ directory just needs to exist so the volume mount in rbrn_tadmor.env has a host-side path.\n\n## References\n- rbev-vessels/rbev-bottle-ifrit/Dockerfile — current ifrit Dockerfile\n- .rbk/rbrn_tadmor.env — RBRN_DOCKER_VOLUME_MOUNTS references rbtid/",
+              "silks": "rbtid-escape-framework",
+              "commit": "9690673"
+            },
+            {
               "ts": "260328-0737",
               "state": "rough",
               "text": "## Character\nDesign — minting, scaffolding, module structure.\n\n## Goal\nMint the rbtid/ escape test directory and scaffold the Python test module framework that Ifrit sessions will populate.\n\n## Deliverables\n\n1. Create `Tools/rbk/rbtid/` directory\n2. Scaffold framework: test runner, assertion patterns, module template\n3. Define rbtiXXX naming convention for individual escape test modules\n4. At least one example/template module showing the expected structure\n5. Update CLAUDE.md with rbtid directory mapping and rbti prefix documentation\n\n## Constraints\n- Modules are executed inside the bottle behind the sentry — that is their only meaningful execution context\n- Each module should be self-contained with structured pass/fail assertions\n- Framework must support categorized test organization (DNS, ICMP, sentry-direct, port-floor, metadata, namespace)\n\n## References\n- RBSIP-ifrit_pentester.adoc — escape test directory section\n- Existing test fixture pattern: Tools/rbk/rbtcrv_RegimeValidation.sh",
