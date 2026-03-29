@@ -51,13 +51,13 @@ Confidence: HIGH.
 
 ## Decided: Diagnostic Verbs
 
-**rack** (4, k) — bottle (the demon). The instrument of compulsion — compel the demon to reveal its state. Adversarial, commanding.
+**rack** (4, r) — bottle (the demon). The instrument of compulsion — compel the demon to reveal its state. Adversarial, commanding.
 **hail** (4, h) — sentry (the ally). Call out to the guard. Respectful, military.
-**surveil** (7, o) — networks (the perimeter). Observational. Reuses existing ObserveNetworks colophon root.
+**observe** (7, o) — networks (the perimeter). Observational. Retained from current vocabulary.
 
 Pentacle interactive access eliminated — scaffolding with no diagnostic use case.
 
-Confidence: HIGH on rack/hail. MEDIUM on surveil.
+Confidence: HIGH.
 
 ## Decided: "Bottle Service" → Crucible
 
@@ -67,39 +67,37 @@ Confidence: HIGH.
 
 ## Decided: Censer → Pentacle
 
-The privileged container establishing network namespace and routing is now named **pentacle**. From the Solomonic tradition: the inscribed disc establishing the magician's authority over the contained space, compelling the demon to obey the rules. Maps precisely to function — pentacle defines the namespace rules everything else operates within.
+The privileged container establishing network namespace and routing is now named **pentacle**. From the Solomonic tradition: the inscribed disc establishing the magician's authority over the contained space, compelling the demon to obey the rules.
 
 The three-container trio:
 - **Sentry** — guards the perimeter (eBPF, iptables, dnsmasq)
 - **Pentacle** — establishes authority over the space (network namespace, routing)
 - **Bottle** — holds the demon (application container)
 
-Maps directly to Solomonic practice: outer protection, inscribed authority, sealed vessel.
-
 Confidence: HIGH.
 
-## Decided: Colophon Migration
+## Decided: Crucible Colophon Family
 
-Standalone verb-roots, consistent with existing `s`/`z`/`o` pattern. All six roots are collision-free.
+All crucible operations grouped under `rbw-c*`. Uppercase second letter = lifecycle, lowercase = operational/diagnostic.
 
-| New | Verb | Replaces | Moniker? |
-|-----|------|----------|----------|
-| `rbw-c` | Charge | `rbw-s` (Start) | yes |
-| `rbw-q` | Quench | `rbw-z` (Stop) | yes |
-| `rbw-e` | Enjoin | (new) | yes |
-| `rbw-h` | Hail sentry | `rbw-S` (ConnectSentry) | yes |
-| `rbw-k` | Rack bottle | `rbw-B` (ConnectBottle) | yes |
-| `rbw-o` | Surveil networks | `rbw-o` (ObserveNetworks) | yes |
+| Colophon | Operation | Type |
+|----------|-----------|------|
+| `rbw-cC` | Charge | lifecycle |
+| `rbw-cQ` | Quench | lifecycle |
+| `rbw-ce` | Enjoin | operational |
+| `rbw-ch` | Hail sentry | diagnostic |
+| `rbw-cr` | Rack bottle | diagnostic |
+| `rbw-co` | Observe networks | diagnostic |
 
-Retiring: `rbw-s` (Start), `rbw-z` (Stop), `rbw-B` (ConnectBottle), `rbw-C` (ConnectCenser), `rbw-S` (ConnectSentry).
+Retiring: `rbw-s` (Start), `rbw-z` (Stop), `rbw-B` (ConnectBottle), `rbw-C` (ConnectCenser), `rbw-S` (ConnectSentry), `rbw-o` (ObserveNetworks).
 
 Tabtarget examples:
-- `tt/rbw-c.Charge.tadmor.sh` (was `tt/rbw-s.Start.tadmor.sh`)
-- `tt/rbw-q.Quench.tadmor.sh` (was `tt/rbw-z.Stop.tadmor.sh`)
-- `tt/rbw-e.Enjoin.tadmor.sh` (new — agile only)
-- `tt/rbw-h.Hail.tadmor.sh` (was `tt/rbw-S.ConnectSentry.tadmor.sh`)
-- `tt/rbw-k.Rack.tadmor.sh` (was `tt/rbw-B.ConnectBottle.tadmor.sh`)
-- `tt/rbw-o.Surveil.tadmor.sh` (was `tt/rbw-o.ObserveNetworks.tadmor.sh`)
+- `tt/rbw-cC.Charge.tadmor.sh`
+- `tt/rbw-cQ.Quench.tadmor.sh`
+- `tt/rbw-ce.Enjoin.tadmor.sh`
+- `tt/rbw-ch.Hail.tadmor.sh`
+- `tt/rbw-cr.Rack.tadmor.sh`
+- `tt/rbw-co.Observe.tadmor.sh`
 
 Confidence: HIGH.
 
@@ -110,13 +108,9 @@ Retire: opbs_bottle_start, opbr_bottle_run, opss_sentry_start.
 Rename: at_bottle_service → at_crucible, at_censer_container → at_pentacle_container.
 New: at_crucible — the whole assembly.
 
-## Open: Surveil Confidence
-
-Surveil remains at MEDIUM. Alternatives considered but not resolved. The colophon reuse of `rbw-o` is clean regardless of verb name.
-
 ## References
 
 - RBS0-SpecTop.adoc, RBRN-RegimeNameplate.adoc, RBSBS/RBSBR/RBSBK specs
 - MCM-MetaConceptModel.adoc, AXLA-Lexicon.adoc
 - rbob_bottle.sh
-- Prior conversations: 260327 session, 260329 crucible/pentacle/charge/quench/enjoin/hail/rack election
+- Prior conversations: 260327 session, 260329 vocabulary election session
