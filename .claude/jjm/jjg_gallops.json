@@ -4946,6 +4946,7 @@
       "creation_time": "260328",
       "status": "racing",
       "order": [
+        "₢AyAAL",
         "₢AyAAA",
         "₢AyAAJ",
         "₢AyAAB",
@@ -4958,7 +4959,7 @@
         "₢AyAAK",
         "₢AyAAI"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -5205,6 +5206,17 @@
               "text": "## Character\nOperational verification — hands-on testing of new infrastructure.\n\n## Goal\nValidate that the volume mount plumbing (₢AyAAC) works end-to-end on a running tadmor bottle. This is the gate before the ifrit can use mounts for code reading and escape test writing.\n\n## Deliverables\n\n1. Start tadmor (requires consecrated images from ₢AyAAH)\n2. Verify mounted paths are visible inside the bottle at expected container paths\n3. Verify read-only mount rejects writes (touch/echo to RO path fails)\n4. Verify read-write mount accepts writes (create file in RW path, confirm from host)\n5. Verify mount content correctness (file from host visible inside bottle, and vice versa for RW)\n\n## Dependencies\nRequires: tadmor-nameplate (₢AyAAE), enshrine-conjure-slim-vessels (₢AyAAH)\n\n## References\n- Tools/rbk/rbob_bottle.sh — ZRBOB_VOLUME_ARGS plumbing\n- .rbk/rbrn_tadmor.env — RBRN_DOCKER_VOLUME_MOUNTS field (from ₢AyAAE)",
               "silks": "volume-mount-integration-test",
               "commit": "b05ee8e"
+            }
+          ]
+        },
+        "₢AyAAL": {
+          "tacks": [
+            {
+              "ts": "260329-0837",
+              "state": "rough",
+              "text": "## Character\nArchitectural — design conversation completed, implementation requires careful contract changes across nameplate, orchestration, and container entrypoint boundaries.\n\n## Goal\nReplace imperative docker/podman CLI orchestration in rbob with Docker Compose-based lifecycle management. Solves Windows volume mount path incompatibility and provides declarative security gating via health checks.\n\n## Deliverables\n\n1. Static `docker-compose.yml` in `.rbk/` defining sentry, censer, bottle services and enclave network\n   - Sentry: dual-network (bridge + enclave), privileged, port mappings, env_file for nameplate+rbrr\n   - Censer: enclave network with static IP, privileged, depends_on sentry with health check gate\n   - Bottle: `network_mode: \"service:censer\"`, volume mounts as relative paths, `sessile` profile, depends_on censer with health check gate\n   - Enclave network: subnet from `${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}`\n   - Image refs assembled in YAML via interpolation: `${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_*_VESSEL}:${RBRN_*_CONSECRATION}-image`\n   - RBGC constants (`-docker.pkg.dev`, `-image`, `-vouch`) hardcoded in YAML — they are Google API conventions, not configuration\n\n2. Modify `rbj_sentry.sh` to serve as container entrypoint: security setup + health signal + `exec sleep infinity`\n\n3. New censer init script (naming TBD): DNS config, ARP flush, default route through sentry + health signal + `exec sleep infinity`. Mounted into censer container.\n\n4. Health check chain enforcing security-critical ordering:\n   - Sentry healthy = iptables rules applied + dnsmasq running\n   - Censer healthy = default route through sentry verified\n   - Bottle starts only after censer healthy — ensures bottle inherits fully-configured network namespace\n\n5. Compose invocation patterns in rbob:\n   - Infrastructure start: `docker compose --env-file .rbk/rbrr.env --env-file .rbk/rbrn_{moniker}.env -p {moniker} up -d` (starts sentry + censer only; bottle in sessile profile excluded by default)\n   - Sessile start: same with `--profile sessile` (starts all three)\n   - Agile run: `docker compose ... run --rm bottle <cmd>` (ephemeral bottle against running infrastructure)\n   - Stop: `docker compose ... -p {moniker} down`\n\n6. `zrbob_validate_compose_env()` function in rbob kindle path: validates compose-consumed nameplate/rbrr fields contain no quotes. Explicit field list documents the nameplate↔compose contract. Error message explains the compose constraint.\n\n7. Remove `RBRN_DOCKER_VOLUME_MOUNTS` and `RBRN_PODMAN_VOLUME_MOUNTS` from all nameplates — volume mounts move to compose YAML as relative paths\n\n8. Podman `--internal` network divergence deferred to future podman-specific work\n\n## Key Design Decisions\n- Nameplate `.env` files used directly by compose (no generation step) — `--env-file` flags on command line\n- Compose YAML interpolates `${RBRN_*}` and `${RBRR_*}` variables; env_file directive passes same vars into containers\n- Quotes banned in compose-consumed fields (validated in bash before compose sees the file); description and other bash-only fields may still use quotes\n- One static compose template for all nameplates — parameterized entirely by which env files are passed\n- Sessile vs agile determined by invocation pattern, not compose file structure (bottle in `sessile` profile)\n\n## References\n- rbob_bottle.sh — current imperative orchestration (to be refactored)\n- rbj_sentry.sh — current sentry setup (to become entrypoint)\n- .rbk/rbrn_tadmor.env, .rbk/rbrr.env — env files compose will consume directly\n- RBS0-SpecTop.adoc — spec definitions for volume_mount, bottle_start, bottle_run\n- RBSBL-bottle_launch.adoc, RBSBR-bottle_run.adoc — sessile/agile operation specs",
+              "silks": "compose-lifecycle-integration",
+              "commit": "70cc591"
             }
           ]
         }
