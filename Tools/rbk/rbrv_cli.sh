@@ -31,7 +31,7 @@ rbrv_validate() {
   buc_doc_brief "Validate RBRV vessel regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  test -n "${BUZ_FOLIO:-}" || buc_die "Vessel sigil required (e.g., nsproto-sentry)"
+  test -n "${BUZ_FOLIO:-}" || buc_die "Vessel sigil required (e.g., tadmor-sentry)"
   buc_step "Validating RBRV vessel regime"
   buv_report RBRV "Vessel Regime"
   buc_step "RBRV vessel valid"
@@ -42,7 +42,7 @@ rbrv_render() {
   buc_doc_brief "Display diagnostic view of RBRV vessel regime configuration"
   buc_doc_shown || return 0
 
-  test -n "${BUZ_FOLIO:-}" || buc_die "Vessel sigil required (e.g., nsproto-sentry)"
+  test -n "${BUZ_FOLIO:-}" || buc_die "Vessel sigil required (e.g., tadmor-sentry)"
   buv_render RBRV "RBRV - Recipe Bottle Regime Vessel"
 }
 
@@ -66,7 +66,7 @@ rbrv_list() {
 zrbrv_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
-  buc_doc_env "BUZ_FOLIO             " "Vessel sigil (e.g., nsproto-sentry); empty for list"
+  buc_doc_env "BUZ_FOLIO             " "Vessel sigil (e.g., tadmor-sentry); empty for list"
   buc_doc_env_done || return 0
 
   # Sources (always)

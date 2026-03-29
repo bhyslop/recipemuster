@@ -25,7 +25,7 @@ tt/rbw-gO.Onboarding.sh
 | **Inscribe** | Push build definitions from the local repo to the rubric repo for Cloud Build |
 | **Abjure** | Delete a consecration's artifacts from GAR |
 | **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
-| **Nameplate** | Ties a sentry vessel + bottle vessel into a runnable bottle. The moniker (e.g. `nsproto`) is the imprint in tabtargets. |
+| **Nameplate** | Ties a sentry vessel + bottle vessel into a runnable bottle. The moniker (e.g. `tadmor`) is the imprint in tabtargets. |
 | **Regime** | A structured configuration unit: specification + assignment file (`.env`) + validation |
 | **Sentry** | Security container that enforces network policies via `iptables` and `dnsmasq` |
 | **Censer** | Privileged container that establishes the network namespace shared with the bottle |

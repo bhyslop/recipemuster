@@ -175,7 +175,7 @@ Pattern: `{colophon}.{frontispiece}[.{imprint}].sh`
 Examples:
 +
 * `rbw-B.ConnectBottle.sh` — RBW workbench, ConnectBottle operation
-* `rbw-B.ConnectBottle.nsproto.sh` — same, with imprint specifying target
+* `rbw-B.ConnectBottle.tadmor.sh` — same, with imprint specifying target
 * `jjw-.HeatMount.sh` — JJK workbench, HeatMount operation
 * `buw-tt.LauncherList.sh` — BUK tabtarget testbench, LauncherList operation
 
@@ -244,7 +244,7 @@ Appears after a second dot separator following the
 +
 Examples:
 +
-* `nsproto` in `rbw-B.ConnectBottle.nsproto.sh`
+* `tadmor` in `rbw-B.ConnectBottle.tadmor.sh`
 * `srjcl` in `rbw-B.ConnectBottle.srjcl.sh`
 
 [[busdm_formulary]]
@@ -297,14 +297,14 @@ from own filename
 
 === Dispatch Flow
 
-. User invokes launcher: `./tt/rbw-B.ConnectBottle.nsproto.sh`
+. User invokes launcher: `./tt/rbw-B.ConnectBottle.tadmor.sh`
 . Launcher parses its filename to extract:
 * {busdc_colophon}:
 `rbw-B`
 * {busdf_frontispiece}:
 `ConnectBottle`
 * {busdi_imprint}:
-`nsproto`
+`tadmor`
 . Launcher sources the appropriate
 {busdm_formulary}
 (`rbw_workbench.sh`)

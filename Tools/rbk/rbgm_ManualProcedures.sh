@@ -720,8 +720,8 @@ rbgm_onboarding() {
     # Sub-probe: nameplate consecrations populated
     local z_has_bottle_consecration=0
     local z_has_sentry_consecration=0
-    if test -f "${RBBC_dot_dir}/rbrn_nsproto.env"; then
-      source "${RBBC_dot_dir}/rbrn_nsproto.env"
+    if test -f "${RBBC_dot_dir}/rbrn_tadmor.env"; then
+      source "${RBBC_dot_dir}/rbrn_tadmor.env"
       test -n "${RBRN_BOTTLE_CONSECRATION:-}" && z_has_bottle_consecration=1
       test -n "${RBRN_SENTRY_CONSECRATION:-}" && z_has_sentry_consecration=1
     fi
@@ -748,17 +748,17 @@ rbgm_onboarding() {
 
     # Next step for retriever
     if test "${z_has_bottle_consecration}" = "0"; then
-      bug_t "  Next: Record bottle consecration in the nsproto nameplate."
+      bug_t "  Next: Record bottle consecration in the tadmor nameplate."
       bug_t "  1. Edit the nameplate:"
-      bug_tc "    " "${RBBC_dot_dir}/rbrn_nsproto.env"
+      bug_tc "    " "${RBBC_dot_dir}/rbrn_tadmor.env"
       bug_t "    Set (substitute your actual consecration value):"
       bug_tc "    RBRN_BOTTLE_CONSECRATION=" "<consecration>"
       bug_t "  2. Summon bottle:"
       buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} <consecration>"
     elif test "${z_has_sentry_consecration}" = "0"; then
-      bug_t "  Next: Record sentry consecration in the nsproto nameplate."
+      bug_t "  Next: Record sentry consecration in the tadmor nameplate."
       bug_t "  1. Edit the nameplate:"
-      bug_tc "    " "${RBBC_dot_dir}/rbrn_nsproto.env"
+      bug_tc "    " "${RBBC_dot_dir}/rbrn_tadmor.env"
       bug_t "    Set (substitute your actual consecration value):"
       bug_tc "    RBRN_SENTRY_CONSECRATION=" "<consecration>"
       bug_t "  2. Summon sentry:"
@@ -774,11 +774,11 @@ rbgm_onboarding() {
         buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} ${RBRN_SENTRY_CONSECRATION:-<consecration>}"
       fi
     else
-      bug_t "  Retriever track complete. Run the nsproto security tests:"
-      bug_tc "    " "tt/rbw-tf.TestFixture.nsproto-security.sh"
+      bug_t "  Retriever track complete. Run the tadmor security tests:"
+      bug_tc "    " "tt/rbw-tf.TestFixture.tadmor-security.sh"
       bug_e
       bug_t "  Or start a bottle:"
-      buc_tabtarget "${RBZ_BOTTLE_START}" "nsproto"
+      buc_tabtarget "${RBZ_BOTTLE_START}" "tadmor"
     fi
     bug_e
   fi

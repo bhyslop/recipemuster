@@ -75,9 +75,9 @@ All Recipe Bottle operations are **tabtargets** — lightweight shell scripts in
 **Naming pattern**: `{colophon}.{frontispiece}[.{imprint}].sh`
 - **Colophon**: routing identifier (e.g. `rbw-s`)
 - **Frontispiece**: human-readable description (e.g. `Start`)
-- **Imprint**: optional target parameter, often a vessel name (e.g. `nsproto`)
+- **Imprint**: optional target parameter, often a vessel name (e.g. `tadmor`)
 
-Example: `tt/rbw-s.Start.nsproto.sh` starts the `nsproto` vessel's bottle.
+Example: `tt/rbw-s.Start.tadmor.sh` starts the `tadmor` vessel's bottle.
 
 ## Setup
 
@@ -188,12 +188,12 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
 
 ## Day-to-Day Operations
 
-The examples below use `nsproto` (the included test nameplate). Replace with your own nameplate moniker — imprints in tabtarget filenames match the nameplate name from `.rbk/rbrn_*.env`.
+The examples below use `tadmor` (the included test nameplate). Replace with your own nameplate moniker — imprints in tabtarget filenames match the nameplate name from `.rbk/rbrn_*.env`.
 
 ### Starting a Bottle
 
 ```
-tt/rbw-s.Start.nsproto.sh
+tt/rbw-s.Start.tadmor.sh
 ```
 
 This starts the sentry, censer, and bottle containers for the vessel.
@@ -201,15 +201,15 @@ This starts the sentry, censer, and bottle containers for the vessel.
 ### Connecting
 
 ```
-tt/rbw-B.ConnectBottle.nsproto.sh    # Shell into bottle
-tt/rbw-S.ConnectSentry.nsproto.sh    # Shell into sentry
-tt/rbw-o.ObserveNetworks.nsproto.sh  # View network state
+tt/rbw-B.ConnectBottle.tadmor.sh    # Shell into bottle
+tt/rbw-S.ConnectSentry.tadmor.sh    # Shell into sentry
+tt/rbw-o.ObserveNetworks.tadmor.sh  # View network state
 ```
 
 ### Stopping
 
 ```
-tt/rbw-z.Stop.nsproto.sh
+tt/rbw-z.Stop.tadmor.sh
 ```
 
 ### Inspecting Provenance
@@ -278,13 +278,13 @@ rbev-vessels/
 
 Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. Graft vessels push a locally-built image to GAR via docker push — no Cloud Build for the image, but about and vouch still run in Cloud Build. The same `tt/rbw-DC.DirectorCreatesConsecration.sh` command handles all three: it detects the vessel mode and triggers a Cloud Build (conjure), mirrors from upstream (bind), or pushes a local image (graft). Trust hierarchy: conjure has full SLSA provenance, bind has digest-pin verification, graft has no provenance chain (GRAFTED verdict).
 
-**Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `nsproto`) is what appears as the imprint in tabtarget filenames:
+**Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `tadmor`) is what appears as the imprint in tabtarget filenames:
 
 ```
-.rbk/rbrn_nsproto.env          # Maps nsproto → rbev-sentry-debian-slim + rbev-bottle-ifrit
+.rbk/rbrn_tadmor.env          # Maps tadmor → rbev-sentry-debian-slim + rbev-bottle-ifrit
 ```
 
-So `tt/rbw-s.Start.nsproto.sh` starts the bottle defined by the `nsproto` nameplate, which selects its sentry and bottle vessel images.
+So `tt/rbw-s.Start.tadmor.sh` starts the bottle defined by the `tadmor` nameplate, which selects its sentry and bottle vessel images.
 
 ## Testing
 
@@ -292,7 +292,7 @@ Run test fixtures **sequentially** — they share regime state and container nam
 
 ```
 tt/rbw-tf.TestFixture.regime-validation.sh
-tt/rbw-tf.TestFixture.nsproto-security.sh
+tt/rbw-tf.TestFixture.tadmor-security.sh
 ```
 
 List all available fixtures and suites:

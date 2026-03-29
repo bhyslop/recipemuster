@@ -16,14 +16,14 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBTCNS - Nsproto security test cases for RBTB testbench
+# RBTCNS - Tadmor security test cases for RBTB testbench
 
 set -euo pipefail
 
 ######################################################################
-# Test Cases - nsproto security tests
+# Test Cases - tadmor security tests
 #
-# Ported from rbt_testbench.sh test_nsproto_* functions
+# Originally ported from rbt_testbench.sh test_nsproto_* functions
 # Pattern: buto_unit_expect_ok = success expected, buto_unit_expect_fatal = failure expected
 # Use _i variants for commands that read stdin (dig, traceroute, apt-get)
 

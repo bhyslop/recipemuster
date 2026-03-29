@@ -14,16 +14,16 @@ TabTargets are lightweight shell scripts in `tt/` that serve as the CLI entry po
 |------|---------|---------|
 | **Colophon** | Routing identifier (includes hyphen, workbench matches on this) | `rbw-B`, `buw-tt-ll` |
 | **Frontispiece** | Human-readable description (PascalCase) | `ConnectBottle` |
-| **Imprint** | Optional target parameter (nameplate moniker, fixture name, etc.) | `nsproto` |
+| **Imprint** | Optional target parameter (nameplate moniker, fixture name, etc.) | `tadmor` |
 
 - The `.` is the delimiter between parts
 - The hyphen is part of the colophon (not a separator)
 
-Example: `tt/rbw-B.ConnectBottle.nsproto.sh` — colophon `rbw-B` routes to the bottle connect command, frontispiece tells you what it does, imprint `nsproto` selects the nameplate.
+Example: `tt/rbw-B.ConnectBottle.tadmor.sh` — colophon `rbw-B` routes to the bottle connect command, frontispiece tells you what it does, imprint `tadmor` selects the nameplate.
 
 Multiple tabtargets can share the same colophon but differ by imprint:
 ```
-tt/rbw-s.Start.nsproto.sh
+tt/rbw-s.Start.tadmor.sh
 tt/rbw-s.Start.srjcl.sh
 tt/rbw-s.Start.pluml.sh
 ```
@@ -60,8 +60,8 @@ Run test fixture tabtargets **sequentially, never in parallel**. Test fixtures s
 ```
 # Correct: run one at a time
 tt/rbw-tf.TestFixture.regime-validation.sh
-tt/rbw-tf.TestFixture.nsproto-security.sh
+tt/rbw-tf.TestFixture.tadmor-security.sh
 
 # Wrong: never run fixtures concurrently
-tt/rbw-tf.TestFixture.regime-validation.sh & tt/rbw-tf.TestFixture.nsproto-security.sh &
+tt/rbw-tf.TestFixture.regime-validation.sh & tt/rbw-tf.TestFixture.tadmor-security.sh &
 ```
