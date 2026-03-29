@@ -8,6 +8,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣Ax",
     "₣Ay",
     "₣Av",
     "₣Ah",
@@ -20,8 +21,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣Ax"
+    "₣Au"
   ],
   "heats": {
     "₣AD": {
@@ -4881,7 +4881,7 @@
     "₣Ax": {
       "silks": "rbk-mvp-5-bottle-lifecycle-vocabulary",
       "creation_time": "260327",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢AxAAB",
         "₢AxAAA"
