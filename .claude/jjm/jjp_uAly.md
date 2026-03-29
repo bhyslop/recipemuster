@@ -12,7 +12,9 @@ This heat creates the Ifrit's context: slim vessels, volume mount plumbing, the 
 
 **Tadmor nameplate**: Replaces nsproto as the primary sentry/bottle service definition. Named for the ancient city Solomon built in the wilderness — the same Solomon who imprisoned djinn in brass vessels. Anthropic API connectivity via DNS/CIDR allowlist. Future releases may open to additional LLM providers.
 
-**Volume mount infrastructure**: New work in sentry/bottle start flow. The ifrit bottle gets read-only project mount (full visibility into sentry scripts, iptables config, specs) and read-write mount for escape test persistence (rbtid/).
+**Docker Compose lifecycle**: Replaces imperative docker CLI orchestration (rbob building --volume arrays, exec'ing sentry scripts, sequencing container starts) with declarative Docker Compose. Motivated by Windows volume mount path incompatibility (drive letter colons collide with -v syntax), but the real win is declarative security gating: health check chains ensure censer routing is configured before bottle starts, preventing firewall bypass. One static base compose file (rbob_compose.yml) + per-nameplate fragments for volume mounts. Nameplate .env files consumed directly by compose — no generation step.
+
+**Volume mount infrastructure**: The ifrit bottle gets read-only project mount (full visibility into sentry scripts, iptables config, specs) and read-write mount for escape test persistence (rbtid/). Volume mount specs live in per-nameplate compose fragments as relative paths (portable across Windows/Linux/macOS), NOT in nameplate .env files.
 
 **Escape test curation**: Python modules written by the Ifrit are committed to version control, reviewed, and maintained as first-class test infrastructure — not disposable probe scripts. The rbtid/ directory is the permanent home for these curated escape tests.
 
@@ -25,13 +27,18 @@ This heat creates the Ifrit's context: slim vessels, volume mount plumbing, the 
 - rbti prefix for ifrit test infrastructure (rbtid/ directory, rbtiXXX modules)
 - rbev-bottle-ifrit vessel sigil
 - Anthropic-only for first release
+- Nameplate file naming: {moniker}.rbrn.env (moniker leads, regime type as suffix)
+- Compose file naming: rbob_compose.yml (base), {moniker}.compose.yml (fragment)
+- Sentry/censer entrypoint scripts baked into sentry image (zero mounts for security containers)
+- Container env vars forwarded via environment: with bare names from exported parent shell
+- Compose --env-file for YAML interpolation, environment: for container injection — two distinct mechanisms
+- Podman compose deferred (architecture accommodates via podman compose delegating to Docker Compose v2)
 
 ## References
 
 - RBSIP-ifrit_pentester.adoc — system concept and trade study (committed)
-- Tools/rbk/rbj_sentry.sh — sentry startup script (change surface for slim)
-- Tools/rbk/rbob_bottle.sh — bottle lifecycle (volume mount plumbing)
-- .rbk/rbrn_nsproto.env — current nameplate (to become rbrn_tadmor.env)
-- rbev-vessels/rbev-sentry-ubuntu-large/ — current sentry vessel (to be slimmed)
-- rbev-vessels/rbev-bottle-ubuntu-test/ — current bottle vessel (to be slimmed)
+- Tools/rbk/rbj_sentry.sh — sentry startup script (becomes baked-in entrypoint)
+- Tools/rbk/rbob_bottle.sh — bottle lifecycle (refactored to invoke compose)
+- .rbk/rbrr.env — repo regime (consumed directly by compose)
+- rbev-vessels/rbev-sentry-debian-slim/ — sentry vessel (entrypoint scripts baked in)
 - ₣AU (rbk-mvp-3-release-finalize) — parent MVP, ₢AUAAk superseded by this heat
