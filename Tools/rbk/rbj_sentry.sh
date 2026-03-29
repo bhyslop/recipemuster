@@ -184,5 +184,9 @@ else
   iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBRR_DNS_SERVER}" -j ACCEPT || exit 43
 fi
 
-echo "RBJp4: Sentry setup complete"
+echo "RBJp5: Signaling health"
+touch /tmp/rbj_healthy || exit 50
+
+echo "RBJp5: Sentry setup complete, entering hold"
+exec sleep infinity
 

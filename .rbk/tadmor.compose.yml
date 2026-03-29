@@ -1,0 +1,13 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Tadmor nameplate compose fragment — bottle volume mounts
+#
+# Merged with rbob_compose.yml via: -f .rbk/rbob_compose.yml -f .rbk/tadmor.compose.yml
+# Paths are relative to this file's directory (.rbk/)
+
+services:
+  bottle:
+    volumes:
+      - ../:/project:ro
+      - ../Tools/rbk/rbtid:/rbtid:rw

@@ -1,0 +1,99 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Recipe Bottle base compose file — static infrastructure
+#
+# Invoked via:
+#   docker compose --env-file .rbk/rbrr.env --env-file .rbk/{moniker}.rbrn.env \
+#     -f .rbk/rbob_compose.yml [-f .rbk/{moniker}.compose.yml] -p {moniker} up -d
+#
+# Env-file variables serve dual purpose:
+#   1. YAML interpolation (${VAR} in this file — image refs, subnet, container names)
+#   2. Container environment forwarding (bare names in environment: sections)
+#
+# Network topology:
+#   sentry: default (internet via bridge) + enclave (eth0=default priority:1000, eth1=enclave priority:500)
+#   censer: enclave only (static IP, routes through sentry)
+#   bottle: shares censer network namespace (network_mode: service:censer)
+#
+# Health chain: sentry healthy → censer starts → censer healthy → bottle starts (sessile profile)
+
+services:
+  sentry:
+    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-image
+    container_name: ${RBRN_MONIKER}-sentry
+    privileged: true
+    networks:
+      default:
+        priority: 1000
+      enclave:
+        ipv4_address: ${RBRN_ENCLAVE_SENTRY_IP}
+        priority: 500
+    ports:
+      - "${RBRN_ENTRY_PORT_WORKSTATION}:${RBRN_ENTRY_PORT_WORKSTATION}"
+    environment:
+      - RBRN_ENCLAVE_BASE_IP
+      - RBRN_ENCLAVE_NETMASK
+      - RBRN_ENCLAVE_SENTRY_IP
+      - RBRN_ENCLAVE_BOTTLE_IP
+      - RBRR_DNS_SERVER
+      - RBRN_ENTRY_MODE
+      - RBRN_ENTRY_PORT_WORKSTATION
+      - RBRN_ENTRY_PORT_ENCLAVE
+      - RBRN_UPLINK_DNS_MODE
+      - RBRN_UPLINK_PORT_MIN
+      - RBRN_UPLINK_ACCESS_MODE
+      - RBRN_UPLINK_ALLOWED_CIDRS
+      - RBRN_UPLINK_ALLOWED_DOMAINS
+    volumes:
+      - ../Tools/rbk/rbj_sentry.sh:/opt/rbk/rbj_sentry.sh:ro
+    entrypoint: ["/bin/sh"]
+    command: ["/opt/rbk/rbj_sentry.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/rbj_healthy"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 5s
+
+  censer:
+    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-image
+    container_name: ${RBRN_MONIKER}-censer
+    privileged: true
+    networks:
+      enclave:
+        ipv4_address: ${RBRN_ENCLAVE_BOTTLE_IP}
+    environment:
+      - RBRN_ENCLAVE_SENTRY_IP
+    volumes:
+      - ../Tools/rbk/rboc_censer.sh:/opt/rbk/rboc_censer.sh:ro
+    entrypoint: ["/bin/sh"]
+    command: ["/opt/rbk/rboc_censer.sh"]
+    depends_on:
+      sentry:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/rboc_healthy"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 5s
+
+  bottle:
+    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}-image
+    container_name: ${RBRN_MONIKER}-bottle
+    network_mode: "service:censer"
+    security_opt:
+      - label:disable
+    depends_on:
+      censer:
+        condition: service_healthy
+    profiles:
+      - sessile
+
+networks:
+  enclave:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}

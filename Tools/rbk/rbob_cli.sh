@@ -50,14 +50,18 @@ rbob_validate() {
   test -n "${ZRBOB_BOTTLE}" || buc_die "ZRBOB_BOTTLE not set"
   test -n "${ZRBOB_NETWORK}" || buc_die "ZRBOB_NETWORK not set"
   test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
+  test -f "${ZRBOB_CENSER_SCRIPT}" || buc_die "Censer script not found: ${ZRBOB_CENSER_SCRIPT}"
+  test -f "${ZRBOB_COMPOSE_BASE}" || buc_die "Compose base not found: ${ZRBOB_COMPOSE_BASE}"
 
   buc_step "RBOB configuration valid"
-  echo "Moniker:   ${RBRN_MONIKER}"
-  echo "Runtime:   ${ZRBOB_RUNTIME}"
-  echo "Sentry:    ${ZRBOB_SENTRY}"
-  echo "Censer:    ${ZRBOB_CENSER}"
-  echo "Bottle:    ${ZRBOB_BOTTLE}"
-  echo "Network:   ${ZRBOB_NETWORK}"
+  echo "Moniker:       ${RBRN_MONIKER}"
+  echo "Runtime:       ${ZRBOB_RUNTIME}"
+  echo "Sentry:        ${ZRBOB_SENTRY}"
+  echo "Censer:        ${ZRBOB_CENSER}"
+  echo "Bottle:        ${ZRBOB_BOTTLE}"
+  echo "Network:       ${ZRBOB_NETWORK}"
+  echo "Compose base:  ${ZRBOB_COMPOSE_BASE}"
+  echo "Compose frag:  ${ZRBOB_COMPOSE_FRAGMENT} ($(test -f "${ZRBOB_COMPOSE_FRAGMENT}" && echo 'exists' || echo 'not found'))"
 }
 
 rbob_info() {
