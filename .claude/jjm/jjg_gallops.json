@@ -4948,6 +4948,7 @@
       "order": [
         "₢AyAAL",
         "₢AyAAM",
+        "₢AyAAN",
         "₢AyAAA",
         "₢AyAAJ",
         "₢AyAAB",
@@ -4960,7 +4961,7 @@
         "₢AyAAK",
         "₢AyAAI"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -5243,6 +5244,17 @@
               "text": "## Character\nArchitectural implementation — translating design conversation into working compose file and rbob refactor. The design is settled; this is execution.\n\n## Goal\nCreate the Docker Compose infrastructure and refactor rbob to invoke compose instead of imperative docker commands. Sentry/censer scripts mounted as volumes transitionally (baked into image in later pace). Testable with existing summoned sentry image.\n\n## Deliverables\n\n1. Static base compose file `.rbk/rbob_compose.yml`:\n   - Sentry: dual-network (default + enclave), privileged, port mappings, sentry script mounted + run as command override\n   - Censer: enclave network with static IP, privileged, depends_on sentry with condition: service_healthy, censer init commands as command override\n   - Bottle: network_mode: \"service:censer\", depends_on censer with condition: service_healthy, sessile profile\n   - Enclave network: subnet from ${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}\n   - Image refs via YAML interpolation: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_*_VESSEL}:${RBRN_*_CONSECRATION}-image\n   - Container env vars via environment: with bare variable names forwarded from exported parent shell\n\n2. Per-nameplate compose fragment `.rbk/tadmor.compose.yml`:\n   - Bottle volume mounts as relative paths (./:/project:ro, ./Tools/rbk/rbtid:/rbtid:rw)\n\n3. Refactor rbob to invoke compose:\n   - Kindle exports RBRN_* and RBRR_* vars\n   - rbob_start: docker compose --env-file ... -p {moniker} up -d (infrastructure) or --profile sessile (full)\n   - rbob_stop: docker compose ... -p {moniker} down\n   - Agile run: docker compose ... run --rm bottle <cmd>\n   - Compose file selection: base only, or base + fragment if fragment exists\n\n4. Transitional: sentry script and censer init mounted as read-only volumes from host. Health checks verify security setup completed. This mount is removed when scripts are baked into image (next pace).\n\n## Test\n- `tt/rbw-s.Start.tadmor.sh` — starts sentry+censer via compose (existing summoned sentry image), verify iptables rules and dnsmasq running via docker exec inspection\n- `tt/rbw-z.Stop.tadmor.sh` — clean shutdown via compose down\n- Onboarding dashboard still passes\n\n## References\n- rbob_bottle.sh — current imperative orchestration (being replaced)\n- rbj_sentry.sh — sentry script (mounted transitionally)\n- Design conversation captured in ₢AyAAL docket",
               "silks": "compose-orchestration-base",
               "commit": "a7a6bec"
+            }
+          ]
+        },
+        "₢AyAAN": {
+          "tacks": [
+            {
+              "ts": "260329-0912",
+              "state": "rough",
+              "text": "## Character\nMechanical with security attention — modifying container entrypoints and Dockerfile. The scripts already exist; this is packaging them for self-configuration.\n\n## Goal\nBake sentry setup and censer init scripts into the sentry Dockerfile as entrypoints. Add health checks. Update compose to use baked-in CMD instead of mounted scripts. Security containers have zero volume mounts after this pace.\n\n## Deliverables\n\n1. Modify `rbj_sentry.sh`: append health signal + `exec sleep infinity` after security setup. The script becomes a self-contained entrypoint.\n\n2. New censer init script (naming TBD): resolv.conf → sentry DNS, ARP flush, default route through sentry, health signal, `exec sleep infinity`.\n\n3. Update sentry Dockerfile (`rbev-vessels/rbev-sentry-debian-slim/Dockerfile`):\n   - COPY rbj_sentry.sh to /opt/rbk/rbj_sentry.sh\n   - COPY censer init script to /opt/rbk/\n   - CMD [\"/opt/rbk/rbj_sentry.sh\"] as default entrypoint\n\n4. Add health checks to compose:\n   - Sentry: verify dnsmasq running (or iptables chain exists)\n   - Censer: verify default route through sentry IP\n\n5. Update rbob_compose.yml: remove sentry/censer script mounts, sentry uses default CMD, censer overrides command to censer init script.\n\n6. Security script changes require deliberate build→vouch cycle — this is a feature, not a limitation.\n\n## Test\n- Local: `docker build` sentry image, `docker run` with required env vars, verify health check passes and iptables rules applied\n- Full test deferred to build-summon-validate pace (requires GCB conjure cycle)\n\n## References\n- rbj_sentry.sh — current sentry setup (modified)\n- rbev-vessels/rbev-sentry-debian-slim/Dockerfile — sentry image\n- rbob_compose.yml — remove transitional mounts",
+              "silks": "sentry-censer-entrypoint-bake",
+              "commit": "cd8db38"
             }
           ]
         }
