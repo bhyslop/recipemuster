@@ -101,12 +101,28 @@ Tabtarget examples:
 
 Confidence: HIGH.
 
-## Open: Quoin Prefix Allocation
+## Decided: Quoin Prefix — rbsc_
 
-New quoins: rbtloc_charge, rbtloq_quench, rbtloe_enjoin, rbrn_service_mode (+_sessile, +_agile).
-Retire: opbs_bottle_start, opbr_bottle_run, opss_sentry_start.
-Rename: at_bottle_service → at_crucible, at_censer_container → at_pentacle_container.
-New: at_crucible — the whole assembly.
+All crucible-related quoins use flat `rbsc_` prefix (RB Spec, Crucible category). Follows existing `rbs*` convention (`rbst_` types, `rbsi_` ifrit, `rbsk_` constraints). Term count (~10) doesn't warrant subcategory descent.
+
+New quoins:
+- `rbsc_crucible` — the tandem container assembly
+- `rbsc_pentacle` — namespace/routing container (replaces `at_censer_container`)
+- `rbsc_charge` — lifecycle: stand up crucible
+- `rbsc_quench` — lifecycle: tear down crucible
+- `rbsc_enjoin` — operational: dispatch ephemeral bottle (agile)
+- `rbsc_hail` — diagnostic: sentry
+- `rbsc_rack` — diagnostic: bottle
+- `rbsc_observe` — diagnostic: networks
+- `rbsc_agile` — service mode: ephemeral dispatch pattern
+- `rbsc_sessile` — service mode: persistent service pattern
+
+Retiring: `opbs_bottle_start`, `opbr_bottle_run`, `opss_sentry_start`.
+Migrating display text: `at_bottle_service` → `rbsc_crucible`, `at_censer_container` → `rbsc_pentacle`, `at_agile_service` → `rbsc_agile`, `at_sessile_service` → `rbsc_sessile`.
+
+Note: Full `at_*` retirement is a separate future heat. This heat only mints new `rbsc_` terms and retires the `op*_` terms they directly replace.
+
+Confidence: HIGH.
 
 ## References
 
