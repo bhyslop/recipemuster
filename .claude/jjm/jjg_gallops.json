@@ -4898,9 +4898,10 @@
         "₢AxAAM",
         "₢AxAAN",
         "₢AxAAO",
+        "₢AxAAP",
         "₢AxAAJ"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -5128,6 +5129,17 @@
               "text": "## Character\nTwo renames in the Marshal domain. Self-contained module (rblm_cli.sh). Zero/proof are a natural pair: prepare (zero the regime) then test (proof the release).\n\n## Scope\nReplace **reset → zero** and **duplicate → proof** for Marshal regime lifecycle operations.\n\n## Shell layer\n- `Tools/rbk/rblm_cli.sh`: rename `rblm_reset` → `rblm_zero`, `rblm_duplicate` → `rblm_proof`\n- Update `buc_doc_brief` strings and internal comments\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll\n  - `RBZ_MARSHAL_RESET \"rbw-MR\"` → `RBZ_MARSHAL_ZERO \"rbw-MZ\"` (Z for zero)\n  - `RBZ_MARSHAL_DUPLICATE \"rbw-MD\"` → `RBZ_MARSHAL_PROOF \"rbw-MP\"` (P for proof)\n\n## Tabtarget layer\n- Delete: `tt/rbw-MR.MarshalReset*.sh`, `tt/rbw-MD.MarshalDuplicate*.sh` (or current frontispieces)\n- Create: `tt/rbw-MZ.MarshalZeroes*.sh`, `tt/rbw-MP.MarshalProofs*.sh`\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update any quoin mappings for marshal operations\n- Any spec files referencing marshal operations\n\n## Consumer docs\n- Update Marshal operation rows in CLAUDE.consumer.md and README.consumer.md\n\n## Approach\n- Shell + zipper first\n- Tabtargets second\n- Spec + consumer docs last\n- Grep for remaining `rblm_reset`, `rblm_duplicate`, `rbw-MR`, `rbw-MD` stragglers",
               "silks": "marshal-verbs-zero-proof",
               "commit": "a3eb600"
+            }
+          ]
+        },
+        "₢AxAAP": {
+          "tacks": [
+            {
+              "ts": "260330-1611",
+              "state": "rough",
+              "text": "## Character\nThree renames for image-level artifact operations. All live in the Foundry module (rbf_Foundry.sh / rbf_cli.sh) and share the Retriever/Director colophon families. These parallel the consecration-level verbs (summon/abjure/inspect) but at the individual artifact level.\n\n## Scope\nReplace **retrieve → wrest**, **delete → jettison**, and **inspect → plumb** for image-level operations.\n\n## Shell layer\n- `Tools/rbk/rbf_Foundry.sh`: rename `rbf_retrieve` → `rbf_wrest`, `rbf_delete` → `rbf_jettison`, `rbf_inspect_full` → `rbf_plumb_full`, `rbf_inspect_compact` → `rbf_plumb_compact`\n- Update `buc_doc_brief` strings and internal comments\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll\n  - `RBZ_RETRIEVE_IMAGE \"rbw-Rr\"` → `RBZ_WREST_IMAGE \"rbw-Rw\"` (w for wrest)\n  - `RBZ_DELETE_IMAGE \"rbw-DD\"` → `RBZ_JETTISON_IMAGE \"rbw-DJ\"` (J for jettison)\n  - `RBZ_INSPECT_FULL \"rbw-RiF\"` → `RBZ_PLUMB_FULL \"rbw-RpF\"` (p for plumb)\n  - `RBZ_INSPECT_COMPACT \"rbw-Ric\"` → `RBZ_PLUMB_COMPACT \"rbw-Rpc\"` (p for plumb)\n\n## Tabtarget layer\n- Delete old tabtargets for retrieve/delete/inspect\n- Create new tabtargets with updated colophons and frontispieces\n- Note: inspect has two modes (full/compact) with separate colophons — both rename\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update quoin mappings and anchors\n  - `rbtgo_image_retrieve` or equivalent → `rbtgo_image_wrest`\n  - `rbtgo_image_delete` or equivalent → `rbtgo_image_jettison`\n  - `rbtgo_ark_inspect` → `rbtgo_image_plumb` (or equivalent — evaluate naming)\n  - Update `rbtc_inspect_full` / `rbtc_inspect_compact` colophon quoins\n- Spec files: RBSIR-image_retrieve.adoc, RBSID-image_delete.adoc, RBSAI-ark_inspect.adoc — update internal references\n\n## Consumer docs\n- Update Retriever and Director image operation rows in CLAUDE.consumer.md and README.consumer.md\n\n## Approach\n- Shell + zipper first\n- Tabtargets second\n- Spec + consumer docs last\n- Grep for remaining `rbf_retrieve`, `rbf_delete`, `rbf_inspect`, `rbw-Rr`, `rbw-DD`, `rbw-RiF`, `rbw-Ric` stragglers",
+              "silks": "image-verbs-wrest-jettison-plumb",
+              "commit": "d01fce3"
             }
           ]
         }
