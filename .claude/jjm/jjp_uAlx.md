@@ -1,6 +1,6 @@
 ## Context
 
-Recipe Bottle's cloud operations have rich liturgical verbs (conjure, abjure, summon, graft, vouch, enshrine, inscribe) but local bottle service lifecycle uses generic words (start, run, cleanup) with no verb for stop. This heat addresses the full vocabulary gap: service lifecycle verbs, diagnostic verbs, service type naming, the MCM identity tier vocabulary, renaming "bottle service" to crucible, and renaming "censer" to pentacle.
+Recipe Bottle's operations use generic verbs where liturgical ones belong. This heat addresses the full vocabulary gap across four domains: crucible lifecycle verbs (charge/quench/enjoin), crucible diagnostic verbs (rack/hail/observe), consecration operation verbs (tally/ordain), role/regime authority verbs (knight/forfeit/levy/unmake/mantle/zero/proof), image-level artifact verbs (wrest/jettison/plumb), plus concept renames (censer→pentacle, bottle service→crucible) and MCM identity tier vocabulary.
 
 ## Discovery: Architecture is Sound
 
@@ -75,6 +75,40 @@ Zipper: `RBZ_CHECK_CONSECRATIONS` → `RBZ_TALLY_CONSECRATIONS`, `RBZ_CREATE_CON
 
 Confidence: HIGH.
 
+## Decided: Role Authority & Regime Lifecycle Verbs (Group A)
+
+Renaming the generic verbs used by role actors (Governor, Payor, Marshal) for authority conferral, infrastructure lifecycle, and regime operations. Register: feudal/military commission — the institutional governance layer above the forge/Solomonic operations.
+
+The role nouns (Payor, Governor, Marshal, Director, Retriever, Mason) form a chartered institution: the Payor funds, the Governor authorizes, the Marshal maintains order, the Director commands operations, the Retriever serves, the Mason builds. The verbs come from that same institutional register.
+
+| Operation | Old verb | New verb | Letter | Actor | Register | Rationale |
+|-----------|----------|----------|--------|-------|----------|-----------|
+| Create role SA + IAM | create | **knight** | K | Governor | feudal | Confer knighthood — the Governor knights the Director/Retriever into service. |
+| Delete role SA | delete | **forfeit** | F | Governor | feudal/legal | Authority seized back by decree. The office is forfeit. Pair with knight. |
+| Create depot (GAR + bucket + pool + mason) | create | **levy** | L | Payor | feudal/military | Raise by sovereign authority. The patron raises infrastructure by financial command. |
+| Destroy depot | destroy | **unmake** | U | Payor | archaic | Reverse of creation. More fundamental than "destroy." Pair with levy. |
+| Reset governor (destroy old SA, create fresh) | reset | **mantle** | M | Payor | feudal | Invest with the mantle of authority. Old mantle cast off, new one bestowed. Captures destroy+recreate. |
+| Reset regime to blank template | reset | **zero** | Z | Marshal | military | Zero the instrument before calibration. |
+| Duplicate repo for release testing | duplicate | **proof** | P | Marshal | publishing | A proof copy before the print run. |
+
+Natural pairs: knight/forfeit (confer/seize), levy/unmake (raise/reverse), zero/proof (prepare/test).
+
+Confidence: HIGH.
+
+## Decided: Image/Artifact-level Verbs (Group B)
+
+Renaming the generic verbs for image-level operations. These parallel the consecration-level verbs but operate on individual artifacts rather than coherent consecration packages. Register: forge/Solomonic, with verbs conveying surgical single-artifact nature.
+
+Key insight: "retrieve" was contaminated by the Retriever role name — like naming the Director's primary operation "direct." The verb should not echo the role.
+
+| Operation | Old verb | New verb | Letter | Actor | Register | Rationale |
+|-----------|----------|----------|--------|-------|----------|-----------|
+| Pull specific image by ref | retrieve | **wrest** | W | Retriever | feudal/physical | Seize by force, pull away. Distinct from summon (consecration package). |
+| Delete specific image tag | delete | **jettison** | J | Director | naval | Throw overboard to save the ship. Surgical discard. Distinct from abjure (full consecration). |
+| Examine trust posture | inspect | **plumb** | P | Retriever | mason/forge | Probe the depths with a plumb-bob. Forensic examination of trust. |
+
+Confidence: HIGH.
+
 ## Decided: "Bottle Service" → Crucible
 
 The tandem container assembly (sentry + pentacle + bottle) is now named **crucible**. The vessel where dangerous materials are subjected to extreme conditions and transformed. Universally understood, precisely correct for the security-containment metaphor.
@@ -140,9 +174,17 @@ Note: Full `at_*` retirement is a separate future heat. This heat only mints new
 
 Confidence: HIGH.
 
+## Full Cloud Verb Registry (post this heat)
+
+**Consecration-level** (Solomonic/forge): abjure(A), enshrine(E), ordain(O), summon(S), tally(T), vouch(V)
+**Image-level** (Solomonic/forge): jettison(J), plumb(P), wrest(W)
+**Crucible** (forge): charge(C), enjoin(E), hail(H), observe(O), quench(Q), rack(R)
+**Role/regime** (feudal/military): forfeit(F), knight(K), levy(L), mantle(M), proof(P), unmake(U), zero(Z)
+
 ## References
 
 - RBS0-SpecTop.adoc, RBRN-RegimeNameplate.adoc, RBSBS/RBSBR/RBSBK specs
 - MCM-MetaConceptModel.adoc, AXLA-Lexicon.adoc
-- rbob_bottle.sh, rbf_Foundry.sh
-- Prior conversations: 260327 session, 260329 vocabulary election session, 260330 tally/ordain election session
+- rbob_bottle.sh, rbf_Foundry.sh, rbz_zipper.sh (full colophon registry)
+- rbgg_cli.sh (Governor), rbgp_cli.sh (Payor), rblm_cli.sh (Marshal)
+- Prior conversations: 260327 session, 260329 vocabulary election session, 260330 tally/ordain + Group A/B election sessions
