@@ -5174,9 +5174,10 @@
         "₢AyAAQ",
         "₢AyAAK",
         "₢AyAAI",
-        "₢AyAAR"
+        "₢AyAAR",
+        "₢AyAAS"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -5696,6 +5697,17 @@
               "text": "## Character\nHands-on operational verification with one unknown: does the native Claude Code installer produce a working binary inside the container? Exploratory but bounded.\n\n## Goal\nDemonstrate that the ifrit bottle is a functioning Claude Code environment: the binary runs, authenticates through the sentry's Anthropic allowlist, and can execute a simple prompt. This is the base case that all future sortie development depends on.\n\n## Deliverables\n\n1. Connect to the running tadmor bottle (`rbw-B` / rack)\n2. Verify `claude` binary is on PATH and reports its version\n3. Verify the ANTHROPIC_API_KEY mechanism works inside the container (env var or auth flow)\n4. Execute a simple Claude Code prompt end-to-end (e.g., `claude -p \"say hello\"`)\n5. Confirm the request routes through sentry's DNS allowlist (anthropic.com resolves, traffic exits via allowed CIDR)\n\n## Open Questions\n- How does Claude Code authenticate inside a container? API key via env var, or interactive `claude auth`?\n- Does the native installer's binary path (`/root/.claude/bin/claude`) survive the multi-arch build correctly?\n- Are there additional runtime dependencies beyond what's in the slim image?\n\n## References\n- rbev-vessels/rbev-bottle-ifrit/Dockerfile — native installer + PATH\n- .rbk/tadmor.rbrn.env — Anthropic allowlist config\n- RBSIP-ifrit_pentester.adoc — ifrit system concept",
               "silks": "ifrit-proof-of-life",
               "commit": "3ce2273"
+            }
+          ]
+        },
+        "₢AyAAS": {
+          "tacks": [
+            {
+              "ts": "260330-1614",
+              "state": "rough",
+              "text": "## Character\nSpec writing — careful reconciliation of prose with implemented reality. Requires reading both the spec sections and the actual compose/script code to identify every stale description. Uses current vocabulary (₣Ax renames on top of this).\n\n## Goal\nUpdate RBS0-SpecTop.adoc to accurately describe the Docker Compose architecture, baked-in entrypoints, and IP-based interface discovery — all using the existing term vocabulary (censer, bottle service, etc.). This gives ₣Ax a correct architectural foundation to rename against.\n\n## Staleness Inventory\n\n1. **`--net=container:censer`** (lines 576, 2072) — imperative Docker CLI network sharing. Should describe `network_mode: \"service:censer\"` in compose.\n2. **No Docker Compose description** — bottle lifecycle sections assume imperative `docker run`/`docker exec`. Should describe compose-based orchestration: base compose file + per-nameplate fragments, health check chains, env-file dual purpose.\n3. **No baked-in entrypoints** — sentry and censer scripts baked into the image at build time is a significant security/architecture change. Zero mount surface for security containers.\n4. **No IP-based interface discovery** — spec should document that sentry/censer discover their network interfaces by IP at startup, not by eth0/eth1 naming, due to Docker Compose non-deterministic interface ordering.\n5. **Volume mount architecture** — comments at lines 476/3079 note the relocation to compose fragments, but the prose descriptions may still reference the old RBRN_*_VOLUME_MOUNTS fields.\n\n## Approach\n- Read each stale section alongside the actual implementation (rbob_compose.yml, rbj_sentry.sh, rboc_censer.sh, rbob_bottle.sh)\n- Update prose to match reality, preserving current term vocabulary\n- Do NOT rename terms — ₣Ax owns that\n- Verify no dangling references after edits\n\n## References\n- .rbk/rbob_compose.yml — base compose file\n- .rbk/tadmor.compose.yml — example nameplate fragment\n- rbev-vessels/rbev-sentry-debian-slim/rbj_sentry.sh — interface discovery\n- rbev-vessels/rbev-sentry-debian-slim/rboc_censer.sh — censer init\n- Tools/rbk/rbob_bottle.sh — compose helper, subnet detection",
+              "silks": "rbs0-compose-architecture-reconciliation",
+              "commit": "332969a"
             }
           ]
         }
