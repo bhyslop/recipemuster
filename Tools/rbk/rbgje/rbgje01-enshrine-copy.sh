@@ -1,7 +1,7 @@
 #!/bin/bash
 # RBGJE Step 01: Enshrine upstream base images to GAR via skopeo
 # Builder: skopeo (from reliquary)
-# Substitutions: _RBGE_GAR_HOST, _RBGE_GAR_PATH, _RBGE_VESSEL,
+# Substitutions: _RBGE_GAR_HOST, _RBGE_GAR_PATH,
 #                _RBGE_IMAGE_1_ORIGIN, _RBGE_IMAGE_2_ORIGIN, _RBGE_IMAGE_3_ORIGIN
 #
 # For each non-empty ORIGIN slot: inspect upstream manifest, compute anchor,
@@ -58,7 +58,7 @@ for SLOT in 1 2 3; do
   echo "Digest: sha256:${SHA}"
 
   # Construct GAR destination
-  DEST_REF="${_RBGE_GAR_HOST}/${_RBGE_GAR_PATH}/${_RBGE_VESSEL}:${ANCHOR}"
+  DEST_REF="${_RBGE_GAR_HOST}/${_RBGE_GAR_PATH}/enshrine:${ANCHOR}"
   echo "Dest: ${DEST_REF}"
 
   # Copy upstream to GAR with anchor tag, preserving manifest list

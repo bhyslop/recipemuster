@@ -2890,6 +2890,7 @@ Written by
 {rbtgo_ark_enshrine}.
 Format: `{sanitized-origin}-{10-char-sha256}` (e.g., `python-3.11-slim-abc123def4`).
 The anchor serves as both the GAR image tag and the regime variable value.
+Enshrined images are stored in the shared `enshrine` namespace (`{repo}/enshrine:{anchor}`), not per-vessel — vessels sharing the same base image origin share one enshrined artifact.
 When present, conjure resolves the base image from GAR via this anchor.
 When absent, conjure passes
 {rbrv_image_origin}

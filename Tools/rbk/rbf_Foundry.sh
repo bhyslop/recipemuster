@@ -283,7 +283,7 @@ zrbf_stitch_build_json() {
 
   # Resolve base images: ANCHOR → full GAR reference, or pass ORIGIN through
   # Spec: RBSAC step "Resolve Base Images"
-  local -r z_gar_image_prefix="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${z_sigil}"
+  local -r z_gar_image_prefix="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/enshrine"
   local z_image_ref_1="" z_image_ref_2="" z_image_ref_3=""
   local z_ri_n="" z_ri_origin_var="" z_ri_anchor_var="" z_ri_origin="" z_ri_anchor=""
   for z_ri_n in 1 2 3; do
@@ -1064,7 +1064,6 @@ zrbf_enshrine_submit() {
     --arg zjq_sa           "${z_mason_sa}" \
     --arg zjq_gar_host     "${z_gar_host}" \
     --arg zjq_gar_path     "${z_gar_path}" \
-    --arg zjq_vessel       "${RBRV_SIGIL}" \
     --arg zjq_origin_1     "${RBRV_IMAGE_1_ORIGIN:-}" \
     --arg zjq_origin_2     "${RBRV_IMAGE_2_ORIGIN:-}" \
     --arg zjq_origin_3     "${RBRV_IMAGE_3_ORIGIN:-}" \
@@ -1075,7 +1074,6 @@ zrbf_enshrine_submit() {
       substitutions: {
         _RBGE_GAR_HOST:          $zjq_gar_host,
         _RBGE_GAR_PATH:          $zjq_gar_path,
-        _RBGE_VESSEL:            $zjq_vessel,
         _RBGE_IMAGE_1_ORIGIN:    $zjq_origin_1,
         _RBGE_IMAGE_2_ORIGIN:    $zjq_origin_2,
         _RBGE_IMAGE_3_ORIGIN:    $zjq_origin_3

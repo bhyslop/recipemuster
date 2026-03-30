@@ -710,7 +710,7 @@ rbgm_onboarding() {
       bug_tc "    Set RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
       if test -n "${z_sentry_anchor}" && test -n "${z_bottle_anchor}" && \
          test "${z_sentry_anchor}" = "${z_bottle_anchor}"; then
-        bug_t "  2. Enshrine: SKIP — sentry shares base image with ifrit bottle (already enshrined)"
+        bug_t "  2. Enshrine: SKIP — same base image already enshrined (shared enshrine namespace)"
       else
         bug_t "  2. Enshrine sentry base image (~2 min):"
         buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
