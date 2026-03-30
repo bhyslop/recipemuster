@@ -5093,6 +5093,13 @@
         "₢AyAAF": {
           "tacks": [
             {
+              "ts": "260329-2013",
+              "state": "complete",
+              "text": "## Character\nMechanical — one Dockerfile line.\n\n## Goal\nFinalize the ifrit bottle image. This is the last infrastructure step before the build pipeline can produce a working ifrit container.\n\n## Deliverables\n\n1. Add `npm install -g @anthropic-ai/claude-code` to `rbev-vessels/rbev-bottle-ifrit/Dockerfile`\n\n## Note\nThe rbtid/ directory already exists with scaffolded files from earlier pace work. The sortie framework restructure (renaming, roster, adjutant) is handled in the next pace (₢AyAAO).\n\n## References\n- rbev-vessels/rbev-bottle-ifrit/Dockerfile — current ifrit Dockerfile\n- .rbk/tadmor.compose.yml — volume mount fragment references rbtid/",
+              "silks": "ifrit-bottle-and-rbtid-prep",
+              "commit": "51caddd"
+            },
+            {
               "ts": "260329-1010",
               "state": "rough",
               "text": "## Character\nMechanical — one Dockerfile line.\n\n## Goal\nFinalize the ifrit bottle image. This is the last infrastructure step before the build pipeline can produce a working ifrit container.\n\n## Deliverables\n\n1. Add `npm install -g @anthropic-ai/claude-code` to `rbev-vessels/rbev-bottle-ifrit/Dockerfile`\n\n## Note\nThe rbtid/ directory already exists with scaffolded files from earlier pace work. The sortie framework restructure (renaming, roster, adjutant) is handled in the next pace (₢AyAAO).\n\n## References\n- rbev-vessels/rbev-bottle-ifrit/Dockerfile — current ifrit Dockerfile\n- .rbk/tadmor.compose.yml — volume mount fragment references rbtid/",
