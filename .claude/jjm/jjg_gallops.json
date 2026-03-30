@@ -2,6 +2,7 @@
   "schema_version": 4,
   "next_heat_seed": "A0",
   "heat_order": [
+    "₣Az",
     "₣An",
     "₣Am",
     "₣AD",
@@ -21,8 +22,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣Az"
+    "₣Au"
   ],
   "heats": {
     "₣AD": {
