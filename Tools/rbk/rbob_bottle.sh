@@ -228,6 +228,49 @@ zrbob_vouch_gate_and_summon() {
 }
 
 ######################################################################
+# Subnet Conflict Detection
+
+# Die if another Docker network already occupies this nameplate's subnet.
+# This catches stale networks from prior compose projects that died without
+# compose-down (reboot, Docker Desktop restart, crash). Our own network
+# (from the compose-down above) is excluded.
+zrbob_detect_subnet_conflict() {
+  zrbob_sentinel
+
+  local z_target_subnet="${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}"
+  local z_networks_file="${BURD_TEMP_DIR}/zrbob_detect_networks.txt"
+  local z_subnet_file="${BURD_TEMP_DIR}/zrbob_detect_subnet.txt"
+
+  # List all Docker network names
+  ${ZRBOB_RUNTIME} network ls --format '{{.Name}}' > "${z_networks_file}" \
+    || buc_die "Failed to list Docker networks"
+
+  # Load network names (load-then-iterate per BCG)
+  local z_names=()
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_names+=("${z_line}")
+  done < "${z_networks_file}"
+
+  # Inspect each network's subnet
+  local z_name=""
+  for z_name in "${z_names[@]}"; do
+    # Skip our own compose network — compose down already handled it
+    test "${z_name}" != "${ZRBOB_NETWORK}" || continue
+
+    ${ZRBOB_RUNTIME} network inspect "${z_name}" \
+      --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}' \
+      > "${z_subnet_file}" 2>/dev/null || continue
+
+    local z_subnet=""
+    z_subnet=$(<"${z_subnet_file}")
+
+    if test "${z_subnet}" = "${z_target_subnet}"; then
+      buc_die "Subnet ${z_target_subnet} already claimed by stale network '${z_name}' — clean up manually: docker rm \$(docker ps -aq --filter network=${z_name}) 2>/dev/null; docker network rm ${z_name}"
+    fi
+  done
+}
+
+######################################################################
 # Public API
 
 # Start the complete bottle service (sentry + censer + bottle) via compose
@@ -267,6 +310,10 @@ rbob_start() {
   # Tear down any prior state (tolerates missing project)
   buc_step "Cleaning up any prior state"
   zrbob_compose down --remove-orphans 2>/dev/null || true
+
+  # Defensive check: another compose project may hold a network on our subnet
+  # (e.g., nsproto containers died without compose-down, blocking tadmor's subnet)
+  zrbob_detect_subnet_conflict
 
   # Start services via compose (--profile sessile includes bottle)
   buc_step "Starting services via compose"
