@@ -47,11 +47,11 @@ rbtcns_basic_iptables_tcase() {
 #--- DNS allow/block tests ---
 
 rbtcns_dns_allow_anthropic_tcase() {
-  buto_unit_expect_ok rbtb_exec_bottle nslookup anthropic.com
+  buto_unit_expect_ok rbtb_exec_bottle getent hosts anthropic.com
 }
 
 rbtcns_dns_block_google_tcase() {
-  buto_unit_expect_fatal rbtb_exec_bottle nslookup google.com
+  buto_unit_expect_fatal rbtb_exec_bottle getent hosts google.com
 }
 
 #--- TCP 443 connection tests ---
@@ -75,10 +75,8 @@ rbtcns_tcp443_block_google_tcase() {
 #--- DNS protocol tests ---
 
 rbtcns_dns_nonexist_tcase() {
-  # Non-existent domain should fail with NXDOMAIN
-  local z_output
-  z_output=$(rbtb_exec_bottle nslookup nonexistentdomain123.test 2>&1 || true)
-  echo "${z_output}" | grep -q NXDOMAIN || buto_fatal "Expected NXDOMAIN in output: ${z_output}"
+  # Non-existent domain should fail to resolve
+  buto_unit_expect_fatal rbtb_exec_bottle getent hosts nonexistentdomain123.test
 }
 
 rbtcns_dns_tcp_tcase() {

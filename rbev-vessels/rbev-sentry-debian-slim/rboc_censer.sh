@@ -33,7 +33,10 @@ echo "RBOC: Configuring DNS to use sentry"
 echo "nameserver ${RBRN_ENCLAVE_SENTRY_IP}" > /etc/resolv.conf || exit 10
 
 echo "RBOC: Discovering enclave interface (single non-loopback interface expected)"
-RBOC_ENCLAVE_IF=$(ip -o addr show | grep 'inet ' | grep -v '127.0.0' | awk '{print $2}' | head -1)
+z_temp_file="/tmp/rboc_iface_discovery.txt"
+ip -o -4 addr show scope global > "${z_temp_file}" || exit 11
+read z_num RBOC_ENCLAVE_IF z_rest < "${z_temp_file}"
+rm -f "${z_temp_file}"
 test -n "${RBOC_ENCLAVE_IF}" || { echo "RBOC: FATAL - No enclave interface found"; exit 11; }
 echo "RBOC: Enclave interface = ${RBOC_ENCLAVE_IF}"
 

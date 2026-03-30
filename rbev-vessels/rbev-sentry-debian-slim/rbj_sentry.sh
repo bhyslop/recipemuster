@@ -20,10 +20,22 @@ echo "RBJp1: Validate parameters"
 : "${RBRN_UPLINK_ALLOWED_DOMAINS:?}" && echo "RBJp0: RBRN_UPLINK_ALLOWED_DOMAINS = ${RBRN_UPLINK_ALLOWED_DOMAINS}"
 
 echo "RBJp1: Discovering network interfaces by IP (Docker does not guarantee eth0/eth1 ordering)"
-RBJ_ENCLAVE_IF=$(ip -o addr show | grep " ${RBRN_ENCLAVE_SENTRY_IP}/" | awk '{print $2}')
+z_temp_file="/tmp/rbj_iface_discovery.txt"
+
+ip -o addr show to "${RBRN_ENCLAVE_SENTRY_IP}" > "${z_temp_file}" || exit 11
+read z_num RBJ_ENCLAVE_IF z_rest < "${z_temp_file}"
 test -n "${RBJ_ENCLAVE_IF}" || { echo "FATAL: No interface found with IP ${RBRN_ENCLAVE_SENTRY_IP}"; exit 11; }
-RBJ_UPLINK_IF=$(ip -o addr show | grep -v lo | grep -v " ${RBRN_ENCLAVE_SENTRY_IP}/" | grep 'inet ' | awk '{print $2}' | head -1)
-test -n "${RBJ_UPLINK_IF}"  || { echo "FATAL: No uplink interface found"; exit 11; }
+
+ip -o -4 addr show scope global > "${z_temp_file}" || exit 11
+RBJ_UPLINK_IF=""
+while read z_num z_ifname z_rest; do
+  test "${z_ifname}" = "${RBJ_ENCLAVE_IF}" && continue
+  RBJ_UPLINK_IF="${z_ifname}"
+  break
+done < "${z_temp_file}"
+test -n "${RBJ_UPLINK_IF}" || { echo "FATAL: No uplink interface found"; exit 11; }
+
+rm -f "${z_temp_file}"
 echo "RBJp1: Enclave interface = ${RBJ_ENCLAVE_IF}"
 echo "RBJp1: Uplink interface  = ${RBJ_UPLINK_IF}"
 
