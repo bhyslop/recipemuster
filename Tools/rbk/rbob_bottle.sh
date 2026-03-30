@@ -29,8 +29,6 @@ set -euo pipefail
 test -z "${ZRBOB_SOURCED:-}" || buc_die "Module rbob multiply sourced - check sourcing hierarchy"
 ZRBOB_SOURCED=1
 
-# Store script directory for locating sibling files (rbj_sentry.sh, rboc_censer.sh)
-ZRBOB_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 ######################################################################
 # Compose-env Validation
@@ -121,13 +119,6 @@ zrbob_kindle() {
   readonly ZRBOB_ENV_RBRR="${RBBC_dot_dir}/rbrr.env"
   readonly ZRBOB_ENV_RBRN="${RBBC_dot_dir}/${RBRN_MONIKER}${RBCC_rbrn_suffix}"
 
-  # Sentry script (mounted transitionally into sentry container)
-  readonly ZRBOB_SENTRY_SCRIPT="${ZRBOB_SCRIPT_DIR}/rbj_sentry.sh"
-  test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
-
-  # Censer script (mounted transitionally into censer container)
-  readonly ZRBOB_CENSER_SCRIPT="${ZRBOB_SCRIPT_DIR}/rboc_censer.sh"
-  test -f "${ZRBOB_CENSER_SCRIPT}" || buc_die "Censer script not found: ${ZRBOB_CENSER_SCRIPT}"
 
   # GAR image references (computed once, used by preflight and auto-summon)
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
