@@ -2,6 +2,10 @@
 
 Two concept-removal debts identified during ₣Ax (bottle lifecycle vocabulary) work. Both are deletion/simplification — removing concepts that don't carry their weight. Verb renames discovered in the same conversation live in ₣Ax where the execution happens.
 
+## Sequencing: Depends on ₣Ax
+
+₣Ax (verb colorization) will mint some new quoins using existing `rbtgo_ark_*` naming convention (e.g., `rbtgo_ark_ordain`, `rbtgo_ark_plumb`). This heat's ark removal must account for those ₣Ax-minted names in addition to the pre-existing ark references inventoried below.
+
 ## Debt 1: Remove "Ark" Concept
 
 **Problem**: "Ark" (`rbtga_ark`) is a grouping noun for image+about+vouch artifacts sharing a consecration timestamp. It has three problems:
@@ -12,7 +16,7 @@ Two concept-removal debts identified during ₣Ax (bottle lifecycle vocabulary) 
 
 **Evidence of drift**: The two newest operations (tally, ordain) avoid "ark" naturally. The tally output table headers say "Consecration | Mode | Platforms | Health" — not "Ark."
 
-**Scope**: ~188 occurrences across 19 spec files, ~30 in rbf_Foundry.sh, 4 constants in rbgc_Constants.sh, 8 spec files named `RBS*-ark_*.adoc`, 8 operation quoins named `rbtgo_ark_*`, the entire `rbtga_` prefix category (5 terms), and the `rbtgog_ark` operation group.
+**Scope**: ~188 occurrences across 19 spec files, ~30 in rbf_Foundry.sh, 4 constants in rbgc_Constants.sh, 8 spec files named `RBS*-ark_*.adoc`, 8 operation quoins named `rbtgo_ark_*`, the entire `rbtga_` prefix category (5 terms), and the `rbtgog_ark` operation group. Plus any `rbtgo_ark_*` quoins minted by ₣Ax.
 
 **Design questions for implementation**:
 - What replaces the grouping noun? Options: (a) "consecration" absorbs it — "consecration image," "consecration about," "consecration vouch"; (b) drop the grouping layer entirely — artifacts are just "image artifact," "about artifact," "vouch artifact" scoped by their consecration context; (c) a new forge-register term
@@ -38,7 +42,7 @@ Two concept-removal debts identified during ₣Ax (bottle lifecycle vocabulary) 
 
 ## References
 
-- ₣Ax paddock (verb decisions, ark discussion)
+- ₣Ax paddock (verb decisions, ark forward dependency note)
 - RBS0-SpecTop.adoc lines 75-81 (ark mappings), 960-969 (inscribe deferred), 1507-1534 (ark definition), 1720+ (rubric definition)
 - rbf_Foundry.sh lines 848-870 (inscribe), 575+ (ark suffixes)
 - 260330 conversation: ark assessment, inscribe discovery
