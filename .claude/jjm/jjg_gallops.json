@@ -4883,6 +4883,7 @@
       "creation_time": "260327",
       "status": "racing",
       "order": [
+        "₢AxAAK",
         "₢AxAAB",
         "₢AxAAA",
         "₢AxAAC",
@@ -4894,7 +4895,7 @@
         "₢AxAAI",
         "₢AxAAJ"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -5060,6 +5061,17 @@
               "text": "## Character\nJanitorial. Low risk, wide surface. Updating references in documentation, examples, context files, and historical records to use the new vocabulary consistently.\n\n## Scope\nSweep all remaining files that still reference old vocabulary after the prior paces complete. This catches anything the vertical slices didn't touch.\n\n## File categories\n\n**BUK documentation (examples using old tabtarget names):**\n- `Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` — tabtarget examples\n- `Tools/buk/README.md` — BUK context examples\n- `Tools/buk/buk-claude-context.md` — Claude context examples\n\n**Project context:**\n- `CLAUDE.md` — file acronym mappings, tabtarget examples\n- `.claude/settings.local.json` — permission patterns referencing old colophons\n\n**Consumer-facing docs:**\n- `Tools/rbk/vov_veiled/CLAUDE.consumer.md`\n- `Tools/rbk/vov_veiled/README.consumer.md`\n\n**Historical (retired heat memos):**\n- `.claude/jjm/retired/` — multiple retired heats reference old vocabulary\n- Decision: update or leave as historical record? (Discuss during execution)\n\n**Work tracking:**\n- `.claude/jjm/jjg_gallops.json` — should update organically via jjx operations\n- Paddock content for ₣Ax itself — already uses new vocabulary\n\n## Approach\n- Grep for all remaining instances of: censer, bottle_start, bottle_run, bottle_service, ConnectBottle, ConnectCenser, ConnectSentry, ObserveNetworks, rbw-s, rbw-z, rbw-B, rbw-C, rbw-S, rbw-o, opbs_, opbr_, opss_\n- Update each occurrence in context\n- For retired memos: lean toward updating for searchability, but flag any where the old term is part of the historical narrative",
               "silks": "documentation-sweep",
               "commit": "97ca1ed"
+            }
+          ]
+        },
+        "₢AxAAK": {
+          "tacks": [
+            {
+              "ts": "260330-1423",
+              "state": "rough",
+              "text": "## Character\nSame vertical shape as the charge/quench/enjoin rename paces. Mechanical find-and-replace across shell, dispatch, tabtarget, spec, and consumer docs. The read-only nature of this operation means no runtime risk — renaming perception doesn't break perception.\n\n## Scope\nRename **checks → tally** for the Director's read-only registry consecration audit operation.\n\n## Shell layer\n- `Tools/rbk/rbf_Foundry.sh`: rename `rbf_check_consecrations()` → `rbf_tally()`\n- Update the `# Consecration Check (rbw-Dc)` section comment → `# Consecration Tally (rbw-Dt)`\n- Update `buc_doc_brief` string inside the function\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll\n  - `RBZ_CHECK_CONSECRATIONS \"rbw-Dc\"` → `RBZ_TALLY_CONSECRATIONS \"rbw-Dt\"`\n\n## Tabtarget layer\n- Delete: `tt/rbw-Dc.DirectorChecksConsecrations.sh`\n- Create: `tt/rbw-Dt.DirectorTalliesConsecrations.sh`\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`:\n  - Quoin mapping: `rbtgo_consecration_check` → `rbtgo_consecration_tally`\n  - Anchor: `[[rbtgo_consecration_check]]` → `[[rbtgo_consecration_tally]]`\n  - Section heading and body text referencing \"check\" → \"tally\"\n- `Tools/rbk/vov_veiled/RBSCK-consecration_check.adoc`: update internal references (consider file rename to RBSCK-consecration_tally.adoc — but RBSCK acronym is already allocated, so filename stays; update only content)\n- All spec files that reference `{rbtgo_consecration_check}` — grep and update\n\n## Consumer docs\n- `Tools/rbk/vov_veiled/CLAUDE.consumer.md`: update `rbw-Dc` row\n- `Tools/rbk/vov_veiled/README.consumer.md`: update all `rbw-Dc` / `DirectorChecksConsecrations` references\n\n## Consecration Check Fact Map\n- `RBS0-SpecTop.adoc` defines `rbcc_fact_consec_infix` — the `rbcc_` prefix references \"consecration check.\" Evaluate whether to rename to `rbct_` (consecration tally) or leave as-is since it's a stable internal identifier.\n\n## Approach\n- Shell + zipper first (make routing work)\n- Tabtarget second (make entry point work)\n- Spec + consumer docs last\n- Grep for any remaining `check_consecration` / `ChecksConsecration` / `rbw-Dc` stragglers",
+              "silks": "consecration-checks-to-tally",
+              "commit": "468cbc4"
             }
           ]
         }
