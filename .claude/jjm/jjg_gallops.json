@@ -4889,9 +4889,10 @@
         "₢AxAAD",
         "₢AxAAE",
         "₢AxAAF",
-        "₢AxAAG"
+        "₢AxAAG",
+        "₢AxAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -4996,6 +4997,17 @@
               "text": "## Character\nSame vertical shape as the charge/quench pace but narrower — only one operation. Replaces the agile dispatch command (bottle_run → enjoin).\n\n## Scope\nReplace **run → enjoin** for agile crucible dispatch.\n\n## Shell layer\n- `Tools/rbk/rbob_bottle.sh`: rename `rbob_run()` → `rbob_enjoin()` (or equivalent current function name for bottle_run)\n- Update internal references and comments\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll\n  - Find the bottle_run registration → `RBZ_CRUCIBLE_ENJOIN \"rbw-ce\"`\n\n## Tabtarget layer\n- Identify and delete existing run tabtargets (likely `tt/rbw-r.Run.*` or similar)\n- Create: `tt/rbw-ce.Enjoin.{tadmor,srjcl,pluml}.sh` (only for nameplates that support agile mode)\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBSBR-bottle_run.adoc`: update to reference enjoin verb\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update operation definitions\n\n## Approach\n- Same order as charge/quench: shell → dispatch → tabtargets → spec\n- Note: enjoin on a sessile nameplate should fail — verify the mode guard exists or add it",
               "silks": "operational-verb-enjoin",
               "commit": "f54b563"
+            }
+          ]
+        },
+        "₢AxAAH": {
+          "tacks": [
+            {
+              "ts": "260330-0801",
+              "state": "rough",
+              "text": "## Character\nThree parallel renames with identical vertical shape. Could be done as three sub-steps or all at once since they don't interact.\n\n## Scope\nReplace diagnostic/interactive commands:\n- **ConnectBottle → Rack** (rbw-B → rbw-cr) — compel the demon to reveal state\n- **ConnectSentry → Hail** (rbw-S → rbw-ch) — call out to the guard\n- **ObserveNetworks → Observe** (rbw-o → rbw-co) — retained verb, new colophon\n\nAlso: **ConnectCenser is eliminated** (rbw-C) — pentacle interactive access has no diagnostic use case. Delete without replacement.\n\n## Shell layer\n- `Tools/rbk/rbob_bottle.sh`: rename `rbob_connect_bottle()` → `rbob_rack()`, `rbob_connect_sentry()` → `rbob_hail()`\n- `Tools/rbk/rboo_observe.sh`: function rename if needed, or keep internal name and just re-route\n- Delete `rbob_connect_censer()` — no replacement\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll registrations\n  - `RBZ_BOTTLE_CONNECT \"rbw-B\"` → `RBZ_CRUCIBLE_RACK \"rbw-cr\"`\n  - `RBZ_BOTTLE_SENTRY \"rbw-S\"` → `RBZ_CRUCIBLE_HAIL \"rbw-ch\"`\n  - `RBZ_BOTTLE_OBSERVE \"rbw-o\"` → `RBZ_CRUCIBLE_OBSERVE \"rbw-co\"`\n  - Delete `RBZ_BOTTLE_CENSER \"rbw-C\"` registration\n\n## Tabtarget layer\n- Delete: `tt/rbw-B.ConnectBottle.{tadmor,srjcl}.sh`\n- Delete: `tt/rbw-C.ConnectCenser.tadmor.sh`\n- Delete: `tt/rbw-S.ConnectSentry.{tadmor,srjcl,pluml}.sh`\n- Delete: `tt/rbw-o.ObserveNetworks.{tadmor,srjcl,pluml}.sh`\n- Create: `tt/rbw-cr.Rack.{tadmor,srjcl}.sh`\n- Create: `tt/rbw-ch.Hail.{tadmor,srjcl,pluml}.sh`\n- Create: `tt/rbw-co.Observe.{tadmor,srjcl,pluml}.sh`\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update operation definitions\n- `Tools/rbk/vov_veiled/RBSCE-command_exec.adoc`: update references\n\n## Approach\n- Do all three renames together — they share no state\n- Shell → dispatch → tabtargets → spec",
+              "silks": "diagnostic-verbs-rack-hail-observe",
+              "commit": "ed6386e"
             }
           ]
         }
