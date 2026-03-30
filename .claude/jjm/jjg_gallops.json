@@ -4887,9 +4887,10 @@
         "₢AxAAA",
         "₢AxAAC",
         "₢AxAAD",
-        "₢AxAAE"
+        "₢AxAAE",
+        "₢AxAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -4972,6 +4973,17 @@
               "text": "## Character\nConceptual rename in specification and documentation. Less mechanical than the censer rename — \"bottle service\" is a two-word phrase that appears in varied grammatical contexts (\"the bottle service\", \"bottle service containers\", \"a bottle service lifecycle\"). Requires reading each occurrence in context.\n\n## Scope\nRename the **bottle service** concept (the tandem sentry+pentacle+bottle assembly) to **crucible** in specs and documentation. This is the conceptual container, not any individual container or operation.\n\n## Files\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — primary spec, highest occurrence count\n- `Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc` — cosmology introduction\n- `Tools/rbk/vov_veiled/RBSBS-bottle_start.adoc` — will reference crucible concept\n- `Tools/rbk/vov_veiled/RBSBR-bottle_run.adoc`\n- `Tools/rbk/vov_veiled/RBSBL-bottle_launch.adoc`\n- `Tools/rbk/vov_veiled/RBSSS-sentry_start.adoc`\n- Shell code comments where \"bottle service\" appears as a concept description\n\n## Approach\n- Search for \"bottle.service\" (regex) to catch all grammatical forms\n- Replace with \"crucible\" where it refers to the assembly concept\n- Do NOT rename things that refer to an individual bottle container — only the composite\n- Update AsciiDoc linked terms: `at_bottle_service` → `rbsc_crucible` (but full quoin minting is a later pace)",
               "silks": "bottle-service-to-crucible",
               "commit": "39d30d1"
+            }
+          ]
+        },
+        "₢AxAAF": {
+          "tacks": [
+            {
+              "ts": "260330-0801",
+              "state": "rough",
+              "text": "## Character\nThe most structurally complex pace. Renames two operations (start→charge, stop→quench) across the full vertical: shell functions, zipper dispatch, colophon routing, tabtarget files, and spec. Must leave the system runnable after completion.\n\n## Scope\nReplace **start → charge** and **stop → quench** for crucible lifecycle operations.\n\n## Shell layer\n- `Tools/rbk/rbob_bottle.sh`: rename `rbob_start()` → `rbob_charge()`, `rbob_stop()` → `rbob_quench()`\n- Internal function references and comments\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll registrations\n  - `RBZ_BOTTLE_START \"rbw-s\"` → `RBZ_CRUCIBLE_CHARGE \"rbw-cC\"`\n  - `RBZ_BOTTLE_STOP \"rbw-z\"` → `RBZ_CRUCIBLE_QUENCH \"rbw-cQ\"`\n\n## Tabtarget layer\n- Delete: `tt/rbw-s.Start.{tadmor,srjcl,pluml}.sh`\n- Delete: `tt/rbw-z.Stop.{tadmor,srjcl,pluml}.sh`\n- Create: `tt/rbw-cC.Charge.{tadmor,srjcl,pluml}.sh`\n- Create: `tt/rbw-cQ.Quench.{tadmor,srjcl,pluml}.sh`\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update operation definitions\n- `Tools/rbk/vov_veiled/RBSBS-bottle_start.adoc`: update to reference charge verb (consider file rename to RBSBS?)\n\n## Approach\n- Shell + zipper first (make routing work)\n- Tabtargets second (make entry points work)\n- Spec last (documentation catches up)\n- Verify at least one charge/quench cycle works on tadmor if environment allows",
+              "silks": "lifecycle-verbs-charge-quench",
+              "commit": "70baf4f"
             }
           ]
         }
