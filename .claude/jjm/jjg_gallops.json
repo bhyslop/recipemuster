@@ -5084,10 +5084,11 @@
         "₢AyAAG",
         "₢AyAAP",
         "₢AyAAH",
+        "₢AyAAQ",
         "₢AyAAK",
         "₢AyAAI"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -5564,6 +5565,17 @@
               "text": "## Character\nSurgical foundry refactor with spec updates. Two code files, two spec files, one UX fix. The design decision is made (shared `enshrine` namespace); this is transcription.\n\n## Goal\nDecouple enshrined base images from vessel identity. Currently, enshrine stores base images at `{repo}/{vessel-sigil}:{anchor}`, forcing duplicate enshrines when vessels share a base image. Change to `{repo}/enshrine:{anchor}` so each unique base image is enshrined once regardless of how many vessels consume it.\n\n## Deliverables\n\n1. **`Tools/rbk/rbgje/rbgje01-enshrine-copy.sh`** — Replace `${_RBGE_VESSEL}` with literal `enshrine` in DEST_REF construction (line 61). Remove `_RBGE_VESSEL` substitution if no longer needed by this step.\n\n2. **`Tools/rbk/rbf_Foundry.sh`** — Two changes:\n   - Line 286: Change base image prefix from `.../${z_sigil}` to `.../enshrine` so conjure resolves anchored images from the shared namespace\n   - Lines 1067-1078: Update enshrine Cloud Build substitutions — replace or remove `_RBGE_VESSEL` in favor of fixed `enshrine` namespace\n\n3. **`Tools/rbk/vov_veiled/RBSAE-ark_enshrine.adoc`** — Update spec to document shared namespace: base images stored at `{repo}/enshrine:{anchor}`, not per-vessel. Remove `_RBGE_VESSEL` from substitution documentation if eliminated.\n\n4. **`Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`** — Update enshrine/anchor linked term descriptions to reflect shared namespace.\n\n5. **`Tools/rbk/rbgm_ManualProcedures.sh`** — The ₢AyAAG enshrine dedup logic now correctly reflects reality. Update the skip message text to reference the shared namespace rather than \"shares base image with ifrit bottle.\"\n\n## Test\n- Enshrine one vessel → verify image lands at `{repo}/enshrine:{anchor}`\n- Conjure both sentry and ifrit → both resolve base image from `{repo}/enshrine:{anchor}`\n- Second vessel does NOT require a separate enshrine\n\n## Naming\n- Shared GAR image name: `enshrine` (no `rbev-` prefix — cleanly separated from vessel sigils)\n- No new primary-universe prefix consumed — `enshrine` is a GAR image name within the existing repository\n\n## References\n- Discovery: ₢AyAAH build-summon-validate revealed per-vessel enshrine forces duplicate builds\n- Prior art: ₢AyAAG added dedup logic that was wrong under per-vessel namespacing but correct under shared namespace",
               "silks": "shared-enshrine-namespace",
               "commit": "94e1196"
+            }
+          ]
+        },
+        "₢AyAAQ": {
+          "tacks": [
+            {
+              "ts": "260330-0847",
+              "state": "rough",
+              "text": "## Character\nMechanical Dockerfile optimization with one design question (native installer in container context).\n\n## Goal\nDramatically reduce ifrit bottle build time and image size by switching Claude Code installation from npm to native installer and eliminating scapy's recommended dependency bloat.\n\n## Context\nCurrent ifrit conjure takes ~35 min (multi-arch) due to:\n- `npm install -g @anthropic-ai/claude-code` — massive Node.js dependency tree, built twice (amd64 + arm64)\n- `python3-scapy` pulling ~100 recommended packages including g++, Boost, matplotlib, sympy, tk\n\nnpm installation of Claude Code is officially deprecated in favor of the native standalone installer.\n\n## Deliverables\n\n1. Replace `RUN npm install -g @anthropic-ai/claude-code` with native installer (`curl -fsSL https://claude.ai/install.sh | bash`) — verify this works in non-interactive Dockerfile context\n2. Add `--no-install-recommends` to the scapy apt-get line (scapy's required deps are minimal; the bloat is all recommends)\n3. Evaluate whether `nodejs` and `npm` can be dropped from apt packages (Claude Code native may bundle its own runtime)\n4. Rebuild ifrit vessel and measure time improvement\n5. Update onboarding timing estimates if dramatically different from current ~8 min estimate\n\n## Design Question\nThe native installer (`curl | bash`) may expect an interactive terminal or write to paths that don't exist in a minimal container. Need to verify:\n- Does `install.sh` work in a `RUN` directive?\n- Where does it install the binary? (`/usr/local/bin/claude`?)\n- Does the installed binary need Node.js at runtime?\n\n## References\n- rbev-vessels/rbev-bottle-ifrit/Dockerfile — current Dockerfile\n- https://docs.anthropic.com/en/docs/claude-code/setup — official install docs\n- https://github.com/anthropics/claude-code/issues/24568 — Dockerfile npm deprecation issue",
+              "silks": "ifrit-dockerfile-slim",
+              "commit": "9744e51"
             }
           ]
         }
