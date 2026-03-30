@@ -4891,9 +4891,10 @@
         "₢AxAAF",
         "₢AxAAG",
         "₢AxAAH",
-        "₢AxAAI"
+        "₢AxAAI",
+        "₢AxAAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -5020,6 +5021,17 @@
               "text": "## Character\nSpec-focused, requires MCM fluency. Minting new AsciiDoc linked terms and retiring old ones. Each quoin needs the three-part structure: attribute mapping, anchor definition, and definition text.\n\n## Scope\nMint the **rbsc_** quoin family in RBS0-SpecTop.adoc and retire superseded terms.\n\n## New quoins to mint\n- `rbsc_crucible` — the tandem container assembly (sentry + pentacle + bottle)\n- `rbsc_pentacle` — namespace/routing container (replaces `at_censer_container`)\n- `rbsc_charge` — lifecycle: stand up crucible\n- `rbsc_quench` — lifecycle: tear down crucible\n- `rbsc_enjoin` — operational: dispatch ephemeral bottle (agile)\n- `rbsc_hail` — diagnostic: sentry\n- `rbsc_rack` — diagnostic: bottle\n- `rbsc_observe` — diagnostic: networks\n- `rbsc_agile` — service mode: ephemeral dispatch pattern\n- `rbsc_sessile` — service mode: persistent service pattern\n\n## Terms to retire\n- `opbs_bottle_start` → replaced by `rbsc_charge`\n- `opbr_bottle_run` → replaced by `rbsc_enjoin`\n- `opss_sentry_start` → evaluate: does sentry_start survive as a distinct operation, or is it subsumed by charge?\n\n## Terms to migrate (display text only)\n- `at_bottle_service` → `rbsc_crucible`\n- `at_censer_container` → `rbsc_pentacle`\n- `at_agile_service` → `rbsc_agile`\n- `at_sessile_service` → `rbsc_sessile`\n\nNote: Full `at_*` retirement is out of scope per paddock — only migrate the display text references that directly overlap with new rbsc_ terms.\n\n## Files\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — primary target for all minting and retirement\n- Other spec files that reference the retired `op*_` terms (RBSBS, RBSBR, RBSBL, RBSBK, RBSCE, RBSNC, RBSSS, RBSSR, RBSNX)\n\n## Approach\n- Mint all rbsc_ terms in the mapping and definition sections of RBS0\n- Update cross-references in operation spec files\n- Retire op*_ anchor definitions\n- Verify no dangling references remain",
               "silks": "quoin-minting-rbsc-terms",
               "commit": "d066f16"
+            }
+          ]
+        },
+        "₢AxAAJ": {
+          "tacks": [
+            {
+              "ts": "260330-0802",
+              "state": "rough",
+              "text": "## Character\nJanitorial. Low risk, wide surface. Updating references in documentation, examples, context files, and historical records to use the new vocabulary consistently.\n\n## Scope\nSweep all remaining files that still reference old vocabulary after the prior paces complete. This catches anything the vertical slices didn't touch.\n\n## File categories\n\n**BUK documentation (examples using old tabtarget names):**\n- `Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` — tabtarget examples\n- `Tools/buk/README.md` — BUK context examples\n- `Tools/buk/buk-claude-context.md` — Claude context examples\n\n**Project context:**\n- `CLAUDE.md` — file acronym mappings, tabtarget examples\n- `.claude/settings.local.json` — permission patterns referencing old colophons\n\n**Consumer-facing docs:**\n- `Tools/rbk/vov_veiled/CLAUDE.consumer.md`\n- `Tools/rbk/vov_veiled/README.consumer.md`\n\n**Historical (retired heat memos):**\n- `.claude/jjm/retired/` — multiple retired heats reference old vocabulary\n- Decision: update or leave as historical record? (Discuss during execution)\n\n**Work tracking:**\n- `.claude/jjm/jjg_gallops.json` — should update organically via jjx operations\n- Paddock content for ₣Ax itself — already uses new vocabulary\n\n## Approach\n- Grep for all remaining instances of: censer, bottle_start, bottle_run, bottle_service, ConnectBottle, ConnectCenser, ConnectSentry, ObserveNetworks, rbw-s, rbw-z, rbw-B, rbw-C, rbw-S, rbw-o, opbs_, opbr_, opss_\n- Update each occurrence in context\n- For retired memos: lean toward updating for searchability, but flag any where the old term is part of the historical narrative",
+              "silks": "documentation-sweep",
+              "commit": "97ca1ed"
             }
           ]
         }
