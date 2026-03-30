@@ -19,6 +19,14 @@ echo "RBJp1: Validate parameters"
 : "${RBRN_UPLINK_ALLOWED_CIDRS:?}"   && echo "RBJp0: RBRN_UPLINK_ALLOWED_CIDRS   = ${RBRN_UPLINK_ALLOWED_CIDRS}"
 : "${RBRN_UPLINK_ALLOWED_DOMAINS:?}" && echo "RBJp0: RBRN_UPLINK_ALLOWED_DOMAINS = ${RBRN_UPLINK_ALLOWED_DOMAINS}"
 
+echo "RBJp1: Discovering network interfaces by IP (Docker does not guarantee eth0/eth1 ordering)"
+RBJ_ENCLAVE_IF=$(ip -o addr show | grep " ${RBRN_ENCLAVE_SENTRY_IP}/" | awk '{print $2}')
+test -n "${RBJ_ENCLAVE_IF}" || { echo "FATAL: No interface found with IP ${RBRN_ENCLAVE_SENTRY_IP}"; exit 11; }
+RBJ_UPLINK_IF=$(ip -o addr show | grep -v lo | grep -v " ${RBRN_ENCLAVE_SENTRY_IP}/" | grep 'inet ' | awk '{print $2}' | head -1)
+test -n "${RBJ_UPLINK_IF}"  || { echo "FATAL: No uplink interface found"; exit 11; }
+echo "RBJp1: Enclave interface = ${RBJ_ENCLAVE_IF}"
+echo "RBJp1: Uplink interface  = ${RBJ_UPLINK_IF}"
+
 echo "RBJp1: Beginning IPTables initialization"
 
 echo "RBJp1: Set ephemeral port range for uplink connections"
@@ -53,8 +61,8 @@ iptables -A OUTPUT  -j RBM-EGRESS  || exit 10
 iptables -A FORWARD -j RBM-FORWARD || exit 10
 
 echo "RBJp2: Allowing ICMP within enclave only"
-iptables -A RBM-INGRESS -i eth1 -p icmp -j ACCEPT || exit 20
-iptables -A RBM-EGRESS  -o eth1 -p icmp -j ACCEPT || exit 20
+iptables -A RBM-INGRESS -i ${RBJ_ENCLAVE_IF} -p icmp -j ACCEPT || exit 20
+iptables -A RBM-EGRESS  -o ${RBJ_ENCLAVE_IF} -p icmp -j ACCEPT || exit 20
 
 echo "RBJp2: Phase 2: Port Setup"
 if test "${RBRN_ENTRY_MODE}" = "enabled"; then
@@ -64,56 +72,56 @@ if test "${RBRN_ENTRY_MODE}" = "enabled"; then
   echo 1 > /proc/sys/net/ipv4/ip_forward || exit 25
 
   echo "RBJp2: DNAT incoming connections on entry port to bottle"
-  iptables -t nat -A PREROUTING -i eth0 -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
+  iptables -t nat -A PREROUTING -i ${RBJ_UPLINK_IF} -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
            -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" || exit 25
 
   echo "RBJp2: Allow forwarding of DNATted entry traffic to bottle"
-  iptables -A RBM-FORWARD -i eth0 -o eth1 -p tcp \
+  iptables -A RBM-FORWARD -i ${RBJ_UPLINK_IF} -o ${RBJ_ENCLAVE_IF} -p tcp \
            -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" -j ACCEPT || exit 25
 
   echo "RBJp2: MASQUERADE return traffic so bottle replies to sentry"
-  iptables -t nat -A POSTROUTING -o eth1 -p tcp \
+  iptables -t nat -A POSTROUTING -o ${RBJ_ENCLAVE_IF} -p tcp \
            -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" -j MASQUERADE || exit 25
 fi
 
 echo "RBJp2b: Blocking ICMP cross-boundary traffic"
 iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
-iptables -A RBM-EGRESS  -o eth0 -p icmp -j DROP || exit 28
+iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -p icmp -j DROP || exit 28
 
 echo "RBJp3: Phase 3: Access Setup"
 if test "${RBRN_UPLINK_ACCESS_MODE}" = "disabled"; then
   echo "RBJp3: Blocking all non-port traffic"
-  iptables -A RBM-EGRESS  -o eth0 -j DROP || exit 30
-  iptables -A RBM-FORWARD -i eth1 -j DROP || exit 30
+  iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -j DROP || exit 30
+  iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -j DROP || exit 30
 else
   echo "RBJp3: Setting up network forwarding"
   echo 1 > /proc/sys/net/ipv4/ip_forward               || exit 31
   echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6    || exit 31
   echo 1 > /proc/sys/net/ipv4/conf/all/rp_filter       || exit 31
-  echo 1 > /proc/sys/net/ipv4/conf/eth0/route_localnet || exit 31
+  echo 1 > /proc/sys/net/ipv4/conf/${RBJ_UPLINK_IF}/route_localnet || exit 31
 
   echo "RBJp3: Configuring NAT"
-  iptables -t nat -A POSTROUTING -o eth0 -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
+  iptables -t nat -A POSTROUTING -o ${RBJ_UPLINK_IF} -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
                                        ! -d "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
                                        -j MASQUERADE || exit 31
 
   if test "${RBRN_UPLINK_ACCESS_MODE}" = "global"; then
     echo "RBJp3: Enabling global access"
-    iptables -A RBM-EGRESS  -o eth0 -j ACCEPT || exit 31
-    iptables -A RBM-FORWARD -i eth1 -j ACCEPT || exit 31
+    iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -j ACCEPT || exit 31
+    iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -j ACCEPT || exit 31
   else
     echo "RBJp3: Configuring DNS server access"
-    iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBRR_DNS_SERVER}"        -j ACCEPT || exit 31
-    iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBRR_DNS_SERVER}"        -j ACCEPT || exit 31
-    iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -d "${RBRN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
-    iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -d "${RBRN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
-    iptables -A RBM-FORWARD -i eth1 -p udp --dport 53                                -j DROP   || exit 31
-    iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53                                -j DROP   || exit 31
+    iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -p udp --dport 53 -d "${RBRR_DNS_SERVER}"        -j ACCEPT || exit 31
+    iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -p tcp --dport 53 -d "${RBRR_DNS_SERVER}"        -j ACCEPT || exit 31
+    iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -p udp --dport 53 -d "${RBRN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
+    iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -p tcp --dport 53 -d "${RBRN_ENCLAVE_SENTRY_IP}" -j ACCEPT || exit 31
+    iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -p udp --dport 53                                -j DROP   || exit 31
+    iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -p tcp --dport 53                                -j DROP   || exit 31
 
     echo "RBJp3: Setting up CIDR-based access control"
     for cidr in ${RBRN_UPLINK_ALLOWED_CIDRS}; do
-      iptables -A RBM-EGRESS  -o eth0 -d "${cidr}" -j ACCEPT || exit 32
-      iptables -A RBM-FORWARD -i eth1 -d "${cidr}" -j ACCEPT || exit 32
+      iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -d "${cidr}" -j ACCEPT || exit 32
+      iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -d "${cidr}" -j ACCEPT || exit 32
     done
   fi
 fi
@@ -125,10 +133,10 @@ echo "nameserver ${RBRR_DNS_SERVER}" > /etc/resolv.conf   || exit 40
 
 if test "${RBRN_UPLINK_DNS_MODE}" = "disabled"; then
   echo "RBJp4: Blocking all DNS traffic"
-  iptables -A RBM-FORWARD -i eth1 -p udp --dport 53 -j DROP || exit 40
-  iptables -A RBM-FORWARD -i eth1 -p tcp --dport 53 -j DROP || exit 40
-  iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -j DROP || exit 40
-  iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -j DROP || exit 40
+  iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -p udp --dport 53 -j DROP || exit 40
+  iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -p tcp --dport 53 -j DROP || exit 40
+  iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -p udp --dport 53 -j DROP || exit 40
+  iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -p tcp --dport 53 -j DROP || exit 40
 else
   echo "RBJp4: Set up DNS Server"
 
@@ -137,9 +145,9 @@ else
 
   echo "RBJp4: Configuring dnsmasq"
   echo "bind-interfaces"                                         > /etc/dnsmasq.conf || exit 41
-  echo "interface=eth1"                                         >> /etc/dnsmasq.conf || exit 41
+  echo "interface=${RBJ_ENCLAVE_IF}"                             >> /etc/dnsmasq.conf || exit 41
   echo "listen-address=${RBRN_ENCLAVE_SENTRY_IP}"               >> /etc/dnsmasq.conf || exit 41
-  echo "no-dhcp-interface=eth1"                                 >> /etc/dnsmasq.conf || exit 41
+  echo "no-dhcp-interface=${RBJ_ENCLAVE_IF}"                     >> /etc/dnsmasq.conf || exit 41
   echo "dns-forward-max=150"                                    >> /etc/dnsmasq.conf || exit 41
   echo "cache-size=1000"                                        >> /etc/dnsmasq.conf || exit 41
   echo "min-port=4096"                                          >> /etc/dnsmasq.conf || exit 41
@@ -150,7 +158,7 @@ else
   echo "strict-order"                                           >> /etc/dnsmasq.conf || exit 41
   echo "bogus-priv"                                             >> /etc/dnsmasq.conf || exit 41
   echo "domain-needed"                                          >> /etc/dnsmasq.conf || exit 41
-  echo "except-interface=eth0"                                  >> /etc/dnsmasq.conf || exit 41
+  echo "except-interface=${RBJ_UPLINK_IF}"                       >> /etc/dnsmasq.conf || exit 41
   echo "log-queries=extra"                                      >> /etc/dnsmasq.conf || exit 41
   echo "log-facility=/var/log/dnsmasq.log"                      >> /etc/dnsmasq.conf || exit 41
   echo "log-dhcp"                                               >> /etc/dnsmasq.conf || exit 41
@@ -178,10 +186,10 @@ else
   sleep 2
 
   echo "RBJp4: Configuring DNS firewall rules"
-  iptables -A RBM-INGRESS -i eth1 -p udp --dport 53                         -j ACCEPT || exit 43
-  iptables -A RBM-INGRESS -i eth1 -p tcp --dport 53                         -j ACCEPT || exit 43
-  iptables -A RBM-EGRESS  -o eth0 -p udp --dport 53 -d "${RBRR_DNS_SERVER}" -j ACCEPT || exit 43
-  iptables -A RBM-EGRESS  -o eth0 -p tcp --dport 53 -d "${RBRR_DNS_SERVER}" -j ACCEPT || exit 43
+  iptables -A RBM-INGRESS -i ${RBJ_ENCLAVE_IF} -p udp --dport 53                         -j ACCEPT || exit 43
+  iptables -A RBM-INGRESS -i ${RBJ_ENCLAVE_IF} -p tcp --dport 53                         -j ACCEPT || exit 43
+  iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -p udp --dport 53 -d "${RBRR_DNS_SERVER}" -j ACCEPT || exit 43
+  iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -p tcp --dport 53 -d "${RBRR_DNS_SERVER}" -j ACCEPT || exit 43
 fi
 
 echo "RBJp5: Signaling health"

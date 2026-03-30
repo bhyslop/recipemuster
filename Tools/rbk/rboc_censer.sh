@@ -32,8 +32,13 @@ echo "RBOC: Validate parameters"
 echo "RBOC: Configuring DNS to use sentry"
 echo "nameserver ${RBRN_ENCLAVE_SENTRY_IP}" > /etc/resolv.conf || exit 10
 
+echo "RBOC: Discovering enclave interface (single non-loopback interface expected)"
+RBOC_ENCLAVE_IF=$(ip -o addr show | grep 'inet ' | grep -v '127.0.0' | awk '{print $2}' | head -1)
+test -n "${RBOC_ENCLAVE_IF}" || { echo "RBOC: FATAL - No enclave interface found"; exit 11; }
+echo "RBOC: Enclave interface = ${RBOC_ENCLAVE_IF}"
+
 echo "RBOC: Flushing ARP entries"
-ip link set eth0 down && ip link set eth0 up && ip -s -s neigh flush all || exit 20
+ip link set ${RBOC_ENCLAVE_IF} down && ip link set ${RBOC_ENCLAVE_IF} up && ip -s -s neigh flush all || exit 20
 
 echo "RBOC: Setting default route through sentry"
 ip route add default via "${RBRN_ENCLAVE_SENTRY_IP}" || exit 30
