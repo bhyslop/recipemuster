@@ -24,5 +24,8 @@ RUN apt-get update && apt-get install -y \
     git             \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Claude Code globally
+RUN npm install -g @anthropic-ai/claude-code
+
 # Keep the container alive with a simple echo service on port 8888
 CMD ["socat", "TCP-LISTEN:8888,fork,reuseaddr", "EXEC:cat"]
