@@ -4896,9 +4896,10 @@
         "₢AxAAH",
         "₢AxAAI",
         "₢AxAAM",
+        "₢AxAAN",
         "₢AxAAJ"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -5104,6 +5105,17 @@
               "text": "## Character\nTwo parallel renames in the Governor domain. Same vertical shape as the consecration verb paces. The Governor module (rbgg_cli.sh, rbgg_ functions) is self-contained — these renames don't interact with other modules.\n\n## Scope\nReplace **create → knight** and **delete → forfeit** for Governor role identity operations.\n\n## Shell layer\n- `Tools/rbk/rbgg_cli.sh`: rename `rbgg_create_director` → `rbgg_knight_director`, `rbgg_create_retriever` → `rbgg_knight_retriever`\n- `Tools/rbk/rbgg_cli.sh`: rename `rbgg_delete_service_account` → `rbgg_forfeit_service_account`\n- Update `buc_doc_brief` strings and internal comments\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll\n  - `RBZ_CREATE_RETRIEVER \"rbw-GR\"` → `RBZ_KNIGHT_RETRIEVER \"rbw-GK\"` (K for knight)\n  - `RBZ_CREATE_DIRECTOR \"rbw-GD\"` → `RBZ_KNIGHT_DIRECTOR \"rbw-GN\"` (N to avoid K/D collision? — evaluate colophon letters)\n  - `RBZ_DELETE_SERVICE_ACCOUNT \"rbw-GS\"` → `RBZ_FORFEIT_SERVICE_ACCOUNT \"rbw-GF\"` (F for forfeit)\n\n## Tabtarget layer\n- Delete old `tt/rbw-G*.Governor*` tabtargets for create/delete operations\n- Create new tabtargets with updated colophons and frontispieces\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update quoin mappings and anchors\n  - `rbtgo_director_create` → `rbtgo_director_knight`\n  - `rbtgo_retriever_create` → `rbtgo_retriever_knight`\n  - `rbtgo_sa_delete` → `rbtgo_sa_forfeit`\n- Update section headings and body text\n- Spec files: RBSDI-director_create.adoc, RBSRC-retriever_create.adoc, RBSSD-sa_delete.adoc — update internal references (evaluate file renames)\n\n## Consumer docs\n- `Tools/rbk/vov_veiled/CLAUDE.consumer.md`: update Governor operation rows\n- `Tools/rbk/vov_veiled/README.consumer.md`: update all references\n\n## Approach\n- Shell + zipper first\n- Tabtargets second\n- Spec + consumer docs last\n- Grep for remaining `create_director`, `create_retriever`, `delete_service_account`, `rbw-GR`, `rbw-GD`, `rbw-GS` stragglers",
               "silks": "governor-verbs-knight-forfeit",
               "commit": "f5685bc"
+            }
+          ]
+        },
+        "₢AxAAN": {
+          "tacks": [
+            {
+              "ts": "260330-1611",
+              "state": "rough",
+              "text": "## Character\nThree renames in the Payor domain. Levy/unmake are a natural pair (depot create/destroy); mantle is the governor reset (credential rotation). Two modules: rbgp_cli.sh (depot + governor reset) and rbgm_cli.sh (if any manual procedures reference these).\n\n## Scope\nReplace **create → levy**, **destroy → unmake**, and **reset → mantle** for Payor operations.\n\n## Shell layer\n- `Tools/rbk/rbgp_cli.sh`: rename `rbgp_depot_create` → `rbgp_depot_levy`, `rbgp_depot_destroy` → `rbgp_depot_unmake`, `rbgp_governor_reset` → `rbgp_governor_mantle`\n- Update `buc_doc_brief` strings and internal comments\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll\n  - `RBZ_CREATE_DEPOT \"rbw-PC\"` → `RBZ_LEVY_DEPOT \"rbw-PL\"` (L for levy)\n  - `RBZ_DESTROY_DEPOT \"rbw-PD\"` → `RBZ_UNMAKE_DEPOT \"rbw-PU\"` (U for unmake)\n  - `RBZ_GOVERNOR_RESET \"rbw-PG\"` → `RBZ_MANTLE_GOVERNOR \"rbw-PM\"` (M for mantle)\n\n## Tabtarget layer\n- Delete old `tt/rbw-P*.Payor*` tabtargets for create/destroy/reset\n- Create new tabtargets with updated colophons and frontispieces\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update quoin mappings and anchors\n  - `rbtgo_depot_create` → `rbtgo_depot_levy`\n  - `rbtgo_depot_destroy` → `rbtgo_depot_unmake`\n  - `rbtgo_governor_reset` → `rbtgo_governor_mantle`\n- Spec files: RBSDC-depot_create.adoc, RBSDD-depot_destroy.adoc, RBSGR-governor_reset.adoc — update internal references\n\n## Consumer docs\n- Update Payor operation rows in CLAUDE.consumer.md and README.consumer.md\n\n## Approach\n- Shell + zipper first\n- Tabtargets second\n- Spec + consumer docs last\n- Grep for remaining `depot_create`, `depot_destroy`, `governor_reset`, `rbw-PC`, `rbw-PD`, `rbw-PG` stragglers",
+              "silks": "payor-verbs-levy-unmake-mantle",
+              "commit": "3bfc9df"
             }
           ]
         }
