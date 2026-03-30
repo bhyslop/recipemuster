@@ -4890,9 +4890,10 @@
         "₢AxAAE",
         "₢AxAAF",
         "₢AxAAG",
-        "₢AxAAH"
+        "₢AxAAH",
+        "₢AxAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -5008,6 +5009,17 @@
               "text": "## Character\nThree parallel renames with identical vertical shape. Could be done as three sub-steps or all at once since they don't interact.\n\n## Scope\nReplace diagnostic/interactive commands:\n- **ConnectBottle → Rack** (rbw-B → rbw-cr) — compel the demon to reveal state\n- **ConnectSentry → Hail** (rbw-S → rbw-ch) — call out to the guard\n- **ObserveNetworks → Observe** (rbw-o → rbw-co) — retained verb, new colophon\n\nAlso: **ConnectCenser is eliminated** (rbw-C) — pentacle interactive access has no diagnostic use case. Delete without replacement.\n\n## Shell layer\n- `Tools/rbk/rbob_bottle.sh`: rename `rbob_connect_bottle()` → `rbob_rack()`, `rbob_connect_sentry()` → `rbob_hail()`\n- `Tools/rbk/rboo_observe.sh`: function rename if needed, or keep internal name and just re-route\n- Delete `rbob_connect_censer()` — no replacement\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll registrations\n  - `RBZ_BOTTLE_CONNECT \"rbw-B\"` → `RBZ_CRUCIBLE_RACK \"rbw-cr\"`\n  - `RBZ_BOTTLE_SENTRY \"rbw-S\"` → `RBZ_CRUCIBLE_HAIL \"rbw-ch\"`\n  - `RBZ_BOTTLE_OBSERVE \"rbw-o\"` → `RBZ_CRUCIBLE_OBSERVE \"rbw-co\"`\n  - Delete `RBZ_BOTTLE_CENSER \"rbw-C\"` registration\n\n## Tabtarget layer\n- Delete: `tt/rbw-B.ConnectBottle.{tadmor,srjcl}.sh`\n- Delete: `tt/rbw-C.ConnectCenser.tadmor.sh`\n- Delete: `tt/rbw-S.ConnectSentry.{tadmor,srjcl,pluml}.sh`\n- Delete: `tt/rbw-o.ObserveNetworks.{tadmor,srjcl,pluml}.sh`\n- Create: `tt/rbw-cr.Rack.{tadmor,srjcl}.sh`\n- Create: `tt/rbw-ch.Hail.{tadmor,srjcl,pluml}.sh`\n- Create: `tt/rbw-co.Observe.{tadmor,srjcl,pluml}.sh`\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update operation definitions\n- `Tools/rbk/vov_veiled/RBSCE-command_exec.adoc`: update references\n\n## Approach\n- Do all three renames together — they share no state\n- Shell → dispatch → tabtargets → spec",
               "silks": "diagnostic-verbs-rack-hail-observe",
               "commit": "ed6386e"
+            }
+          ]
+        },
+        "₢AxAAI": {
+          "tacks": [
+            {
+              "ts": "260330-0802",
+              "state": "rough",
+              "text": "## Character\nSpec-focused, requires MCM fluency. Minting new AsciiDoc linked terms and retiring old ones. Each quoin needs the three-part structure: attribute mapping, anchor definition, and definition text.\n\n## Scope\nMint the **rbsc_** quoin family in RBS0-SpecTop.adoc and retire superseded terms.\n\n## New quoins to mint\n- `rbsc_crucible` — the tandem container assembly (sentry + pentacle + bottle)\n- `rbsc_pentacle` — namespace/routing container (replaces `at_censer_container`)\n- `rbsc_charge` — lifecycle: stand up crucible\n- `rbsc_quench` — lifecycle: tear down crucible\n- `rbsc_enjoin` — operational: dispatch ephemeral bottle (agile)\n- `rbsc_hail` — diagnostic: sentry\n- `rbsc_rack` — diagnostic: bottle\n- `rbsc_observe` — diagnostic: networks\n- `rbsc_agile` — service mode: ephemeral dispatch pattern\n- `rbsc_sessile` — service mode: persistent service pattern\n\n## Terms to retire\n- `opbs_bottle_start` → replaced by `rbsc_charge`\n- `opbr_bottle_run` → replaced by `rbsc_enjoin`\n- `opss_sentry_start` → evaluate: does sentry_start survive as a distinct operation, or is it subsumed by charge?\n\n## Terms to migrate (display text only)\n- `at_bottle_service` → `rbsc_crucible`\n- `at_censer_container` → `rbsc_pentacle`\n- `at_agile_service` → `rbsc_agile`\n- `at_sessile_service` → `rbsc_sessile`\n\nNote: Full `at_*` retirement is out of scope per paddock — only migrate the display text references that directly overlap with new rbsc_ terms.\n\n## Files\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — primary target for all minting and retirement\n- Other spec files that reference the retired `op*_` terms (RBSBS, RBSBR, RBSBL, RBSBK, RBSCE, RBSNC, RBSSS, RBSSR, RBSNX)\n\n## Approach\n- Mint all rbsc_ terms in the mapping and definition sections of RBS0\n- Update cross-references in operation spec files\n- Retire op*_ anchor definitions\n- Verify no dangling references remain",
+              "silks": "quoin-minting-rbsc-terms",
+              "commit": "d066f16"
             }
           ]
         }
