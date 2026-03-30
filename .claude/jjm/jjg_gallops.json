@@ -4888,9 +4888,10 @@
         "₢AxAAC",
         "₢AxAAD",
         "₢AxAAE",
-        "₢AxAAF"
+        "₢AxAAF",
+        "₢AxAAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -4984,6 +4985,17 @@
               "text": "## Character\nThe most structurally complex pace. Renames two operations (start→charge, stop→quench) across the full vertical: shell functions, zipper dispatch, colophon routing, tabtarget files, and spec. Must leave the system runnable after completion.\n\n## Scope\nReplace **start → charge** and **stop → quench** for crucible lifecycle operations.\n\n## Shell layer\n- `Tools/rbk/rbob_bottle.sh`: rename `rbob_start()` → `rbob_charge()`, `rbob_stop()` → `rbob_quench()`\n- Internal function references and comments\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll registrations\n  - `RBZ_BOTTLE_START \"rbw-s\"` → `RBZ_CRUCIBLE_CHARGE \"rbw-cC\"`\n  - `RBZ_BOTTLE_STOP \"rbw-z\"` → `RBZ_CRUCIBLE_QUENCH \"rbw-cQ\"`\n\n## Tabtarget layer\n- Delete: `tt/rbw-s.Start.{tadmor,srjcl,pluml}.sh`\n- Delete: `tt/rbw-z.Stop.{tadmor,srjcl,pluml}.sh`\n- Create: `tt/rbw-cC.Charge.{tadmor,srjcl,pluml}.sh`\n- Create: `tt/rbw-cQ.Quench.{tadmor,srjcl,pluml}.sh`\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update operation definitions\n- `Tools/rbk/vov_veiled/RBSBS-bottle_start.adoc`: update to reference charge verb (consider file rename to RBSBS?)\n\n## Approach\n- Shell + zipper first (make routing work)\n- Tabtargets second (make entry points work)\n- Spec last (documentation catches up)\n- Verify at least one charge/quench cycle works on tadmor if environment allows",
               "silks": "lifecycle-verbs-charge-quench",
               "commit": "70baf4f"
+            }
+          ]
+        },
+        "₢AxAAG": {
+          "tacks": [
+            {
+              "ts": "260330-0801",
+              "state": "rough",
+              "text": "## Character\nSame vertical shape as the charge/quench pace but narrower — only one operation. Replaces the agile dispatch command (bottle_run → enjoin).\n\n## Scope\nReplace **run → enjoin** for agile crucible dispatch.\n\n## Shell layer\n- `Tools/rbk/rbob_bottle.sh`: rename `rbob_run()` → `rbob_enjoin()` (or equivalent current function name for bottle_run)\n- Update internal references and comments\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll\n  - Find the bottle_run registration → `RBZ_CRUCIBLE_ENJOIN \"rbw-ce\"`\n\n## Tabtarget layer\n- Identify and delete existing run tabtargets (likely `tt/rbw-r.Run.*` or similar)\n- Create: `tt/rbw-ce.Enjoin.{tadmor,srjcl,pluml}.sh` (only for nameplates that support agile mode)\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBSBR-bottle_run.adoc`: update to reference enjoin verb\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update operation definitions\n\n## Approach\n- Same order as charge/quench: shell → dispatch → tabtargets → spec\n- Note: enjoin on a sessile nameplate should fail — verify the mode guard exists or add it",
+              "silks": "operational-verb-enjoin",
+              "commit": "f54b563"
             }
           ]
         }
