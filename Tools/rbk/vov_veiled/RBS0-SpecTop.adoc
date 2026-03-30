@@ -562,18 +562,31 @@ enforcing network policy on dual networks (bridge and enclave)
 establishing and configuring the network namespace
 * One
 {at_bottle_container}
-running the actual service, sharing the censer's network namespace
+running the actual service, sharing the censer's network namespace via compose `network_mode: "service:censer"`
 * Clear configuration in a single
 {at_nameplate}
-file
+file, extended by per-nameplate compose fragments for volume mounts
+
+Docker Compose orchestrates the container lifecycle declaratively.
+A base compose file (`rbob_compose.yml`) defines the three-container topology with health check chains: the
+{at_sentry_container}
+must be healthy before the
+{at_censer_container}
+starts, and the
+{at_censer_container}
+must be healthy before the
+{at_bottle_container}
+starts.
+This prevents firewall bypass — the bottle cannot send traffic before security policies are enforced.
+Per-nameplate compose fragments (e.g., `«moniker».compose.yml`) add volume mount declarations.
 
 The
 {at_censer_container}
-is a privileged container that establishes the network namespace, configures routing to ensure all traffic flows through the
+is a privileged container that configures routing to ensure all traffic flows through the
 {at_sentry_container},
 then shares this pre-configured namespace with the
 {at_bottle_container}
-via `--net=container:censer`.
+via compose `network_mode: "service:censer"`.
 This ensures security policies are enforced from the first packet, and the
 {at_bottle_container}
 experiences only a functional path to its
@@ -2015,9 +2028,10 @@ Application capable of running
 {st_container_s}
 on the
 {at_workstation}.
-At the time of this writing, `podman` provides the necessary features for full
+Docker with Docker Compose v2 is the primary runtime for
 {at_bottle_service}
-provisions.
+orchestration.
+Podman compose support is architecturally accommodated (podman compose delegates to Docker Compose v2) but deferred.
 
 === Local Architecture Definitions
 
@@ -2048,6 +2062,7 @@ one
 and one
 {at_bottle_container}
 working together to provide secure functionality.
+Orchestrated by Docker Compose with a base compose file (`rbob_compose.yml`) defining the three-container topology and health check chains, plus optional per-nameplate compose fragments for volume mounts.
 Each service maintains strict file system and network boundaries while enabling controlled access to resources.
 
 [[at_sentry_container]]
@@ -2059,18 +2074,20 @@ It connects to both
 and
 {at_enclave_network},
 controlling all network traffic and providing DNS services.
+The sentry discovers its network interfaces by IP at startup using `ip -o addr show to «enclave_ip»`, not by hardcoded interface name, because Docker Compose does not guarantee network-to-interface ordering.
+Initialization and iptables configuration scripts are baked into the image at build time (zero volume mounts for security containers).
 
 [[at_censer_container]]
 {at_censer_container}::
-A privileged container using a minimal image that establishes and configures the network namespace before the
+A privileged container sharing the
+{at_sentry_image}
+that configures routing to ensure all traffic flows through the
+{at_sentry_container}.
+The
 {at_bottle_container}
-starts.
-It sets up routing to ensure all traffic flows through the
-{at_sentry_container},
-then shares this pre-configured namespace with the
-{at_bottle_container}
-via `--net=container:censer`.
-This ensures security policies are enforced from the first packet.
+shares its network namespace via compose `network_mode: "service:censer"`, ensuring security policies are enforced from the first packet.
+Initialization scripts are baked into the sentry image at build time (zero volume mounts for security containers).
+The censer discovers its network interface by IP at startup using `ip -o addr show`, not by hardcoded interface name, because Docker Compose does not guarantee network-to-interface ordering.
 
 [[at_bottle_container]]
 {at_bottle_container}::
@@ -2115,14 +2132,9 @@ can instantiate.
 
 [[at_ebpf_program]]
 {at_ebpf_program}::
-An eBPF TC (Traffic Control) filter program attached to the
-{at_bottle_container_p}
-veth interface that intercepts and rewrites Ethernet frames at the packet level.
-This program ensures all
-{at_bottle_container}
-network traffic routes through its associated
-{at_sentry_container}
-without requiring network namespace manipulation or special container privileges.
+_Historical (Podman era)._
+An eBPF TC filter program formerly used to intercept bottle container traffic.
+Superseded by Docker Compose `network_mode: "service:censer"`, which shares the censer's network namespace directly — achieving the same traffic routing guarantee without eBPF.
 
 [[st_container]]
 {st_container}::
@@ -2207,26 +2219,22 @@ A service that stores and provides access to
 
 [[at_startup_script]]
 {at_startup_script}::
-A shell script that performs initialization and configuration tasks when starting a
+A shell script baked into a vessel image at build time that performs initialization and configuration tasks when starting a
 {at_bottle_service}.
+The sentry startup script (`rbj_sentry.sh`) configures iptables and dnsmasq; the censer init script (`rboc_censer.sh`) configures routing.
+Both live in the sentry vessel's build context directory and are COPYed into the image during conjure.
 
 [[at_transit_network_name]]
 {at_transit_network_name}::
-The unique network name formed by appending `-uplink` to the service's
-{rbrn_moniker}.
-Pattern: `${RBRN_MONIKER}-uplink`.
+The compose `default` network for the service's compose project.
+Compose names it `${RBRN_MONIKER}_default`.
+Provides internet connectivity via the Docker bridge.
 
 [[at_enclave_network_name]]
 {at_enclave_network_name}::
-The unique network name formed by appending `-enclave` to the service's
-{rbrn_moniker}.
-Pattern: `${RBRN_MONIKER}-enclave`.
-
-[[at_enclave_namespace_name]]
-{at_enclave_namespace_name}::
-The unique namespace name formed by appending `-namespace` to the service's
-{rbrn_moniker}.
-Pattern: `${RBRN_MONIKER}-namespace`.
+The compose `enclave` network for the service's compose project, with a static subnet from the nameplate.
+Compose names it `${RBRN_MONIKER}_enclave`.
+Pattern: `${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}`.
 
 [[at_bottle_container_name]]
 {at_bottle_container_name}::
@@ -3193,9 +3201,7 @@ Each element is a valid DNS domain (e.g., `api.example.com registry.example.com`
 [[rbst_volume_mount_list]]
 //axl_voices axtu_string axd_list
 {rbst_volume_mount_list}::
-Semicolon-delimited list of container volume mount specifications.
-Each element is a complete `--volume` argument value in the syntax of the target container runtime.
-Format: `host_path:container_path[:options]` (e.g., `/src:/mnt/src:ro;/data:/mnt/data:rw`).
+_Historical type (Podman era)._ Volume mounts are now declared in per-nameplate compose fragments (`«moniker».compose.yml`) using Docker Compose `volumes:` syntax with relative paths (portable across Windows/Linux/macOS).
 
 === Google-specific Types (rbgt_*)
 

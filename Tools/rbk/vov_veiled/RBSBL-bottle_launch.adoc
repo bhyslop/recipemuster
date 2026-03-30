@@ -1,32 +1,16 @@
 //axhob_operation
 {mkr_bottle_launch}
 
-NOTE: This sequence within
-{opbs_bottle_start}
-instantiates and configures the service container for the
-{at_bottle_service}.
+NOTE: Bottle container creation is managed by Docker Compose.
+The bottle service definition specifies the bottle image, `network_mode: "service:censer"` (shares censer's network namespace), and a `sessile` profile gate.
+Volume mounts are declared in the per-nameplate compose fragment (`«moniker».compose.yml`), not in nameplate env variables.
 
 //axhos_step
-. *Launch
-{at_bottle_container}*:
-.. {rbbc_call}
-container run (via {rbrn_runtime}) with:
-... image:
-{rbrn_bottle_vessel}:{rbrn_bottle_consecration}
-... name:
-{at_bottle_container_name}
-... network: exclusive attachment to
-{at_enclave_network}
-... volumes: each semicolon-delimited entry from the active volume mount field ({rbrn_docker_volume_mounts} or {rbrn_podman_volume_mounts} per {rbrn_runtime}), passed verbatim as a `--volume` argument
-... restart policy: unless-stopped
-.. {rbbc_require}
-container launched successfully
+. *Compose starts bottle after censer health check*:
+.. The bottle's `depends_on` with `condition: service_healthy` ensures the censer has completed routing setup before the bottle starts
+.. The bottle inherits the censer's network namespace — it sees the enclave interface with routing through the sentry already configured
+.. No network configuration occurs inside the bottle container
 
-//axhos_step
-. *Verify Network Configuration*:
-.. Allow container initialization with podman's default network configuration
-.. {rbbc_call}
-{mkc_interface_check}
-to verify container network interface is active
-.. {rbbc_require}
-network interface ready for operation
+//axhoc_completion
+The bottle starts with a pre-configured network path through the sentry.
+Security enforcement is active from the first packet.

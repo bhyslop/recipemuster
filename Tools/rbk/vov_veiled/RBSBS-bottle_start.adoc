@@ -1,9 +1,10 @@
 //axhob_operation
 {opbs_bottle_start}
 
-NOTE: This operation removes any previous container instance and instantiates and configures the service container, thereby establishing a new
+NOTE: This operation starts the full
 {at_sessile_service}
-instance.
+via Docker Compose.
+Compose owns container and network lifecycle; this operation handles preflight validation, cleanup of prior state, subnet conflict detection, and the compose invocation.
 
 //axhos_step
 . *Verify Local Vouch Artifacts*:
@@ -17,22 +18,24 @@ if either vouch artifact is absent: emit clear message directing operator to run
 //axhos_step
 . *Clean Previous Instance*:
 .. {rbbc_call}
-{mkr_bottle_cleanup}
-to remove any existing
-{at_bottle_container}
-.. {rbbc_require}
-cleanup completed successfully
+`docker compose ... down --remove-orphans` to remove any existing containers and networks for this nameplate's compose project
+.. Tolerates missing project (first start)
 
 //axhos_step
-. *Launch Service Container*:
+. *Detect Subnet Conflicts*:
+.. Enumerate all Docker networks and inspect each for subnet match against `{rbrn_enclave_base_ip}/{rbrn_enclave_netmask}`
+.. Skip this nameplate's own compose network (already removed by prior step)
+.. {rbbc_fatal}
+if any foreign network occupies this subnet (stale containers from a prior compose project that died without cleanup)
+
+//axhos_step
+. *Start via Compose*:
 .. {rbbc_call}
-{mkr_bottle_launch}
-to instantiate and configure new
-{at_bottle_container}
-.. {rbbc_require}
-container launched and network configured
+`docker compose --profile sessile up -d` with base compose file, optional nameplate fragment, and env-files for both repo regime and nameplate regime
+.. Compose creates networks, starts sentry, waits for health, starts censer, waits for health, starts bottle
+.. The `sessile` profile includes the bottle container; omitting it starts only sentry and censer (infrastructure mode for agile dispatch)
 
 //axhoc_completion
 Successful execution establishes a new
 {at_sessile_service}
-instance with proper network configuration, ready for operation.
+instance with the health check chain guaranteeing that security enforcement is active before the bottle starts.

@@ -1,46 +1,51 @@
 //axhob_operation
 {opss_sentry_start}
 
-NOTE: This operation orchestrates the precisely ordered sequence of steps needed to start a
-{at_sentry_container}
-that enforces network policy for a new
-{at_bottle_service}.
+NOTE: Docker Compose orchestrates the full container lifecycle declaratively.
+The sentry starts first; its health check (`/tmp/rbj_healthy`) gates the censer; the censer's health check (`/tmp/rboc_healthy`) gates the bottle.
+Network creation, container instantiation, and startup ordering are all managed by compose — the sub-operations below describe what happens inside each container at startup, not imperative orchestration steps.
 
 //axhos_step
-. *Create Network Infrastructure*:
-.. {rbbc_call}
-{mkr_network_create}
-to establish
+. *Compose creates networks and starts sentry*:
+.. Compose creates
 {at_transit_network}
-and
+(`default`) and
 {at_enclave_network}
-.. {rbbc_require}
-both networks created successfully
+(`enclave` with static subnet from nameplate)
+.. Sentry container starts on both networks with privileged mode
+.. Baked-in entrypoint (`rbj_sentry.sh`) executes
 
 //axhos_step
-. *Launch Sentry*:
-.. {rbbc_call}
-{mkr_sentry_run}
-to start
-{at_sentry_container}
-with required privileges and initial network configuration
-.. {rbbc_require}
-sentry container running
+. *Sentry discovers interfaces*:
+.. Sentry uses `ip -o addr show to «enclave_ip»` to identify which interface carries the enclave IP
+.. The other global-scope interface is identified as the uplink
+.. All iptables rules use discovered interface names, not hardcoded eth0/eth1
+.. NOTE: Docker Compose does not guarantee network-to-interface ordering; IP-based discovery is required
 
 //axhos_step
-. *Connect Sentry to Enclave*:
-.. {rbbc_call}
-{mkr_network_connect}
-to attach
-{at_sentry_container}
-to
-{at_enclave_network}
-with proper IP configuration
-.. {rbbc_require}
-sentry has connectivity on both networks
+. *Sentry configures iptables*:
+.. Default policies: DROP on INPUT, FORWARD, OUTPUT
+.. Custom chains: RBM-INGRESS, RBM-EGRESS, RBM-FORWARD
+.. ICMP allowed within enclave only
+.. Entry port DNAT if enabled
+.. Access and DNS rules per nameplate configuration (allowlist/global/disabled modes)
+
+//axhos_step
+. *Sentry starts dnsmasq*:
+.. Listens on enclave interface at
+{rbrn_enclave_sentry_ip}
+.. Domain filtering per
+{rbrn_uplink_dns_mode}
+(allowlist or global)
+.. DNS firewall rules added to RBM-INGRESS and RBM-EGRESS
+
+//axhos_step
+. *Sentry signals health*:
+.. Creates `/tmp/rbj_healthy`
+.. Compose health check detects this and allows censer to start
 
 //axhoc_completion
-Successful execution establishes the
+After sentry is healthy, the
 {at_sentry_container}
-with dual network connectivity, ready to enforce network policy for the
+has dual network connectivity with iptables enforcement and DNS services active, ready to serve the
 {at_bottle_service}.

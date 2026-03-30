@@ -1,70 +1,25 @@
 //axhob_operation
 {mkr_network_create}
 
-NOTE: This sequence within
-{opss_sentry_start}
-establishes required networks for the
-{at_bottle_service}.
+NOTE: Network creation is now managed declaratively by Docker Compose.
+The `networks:` section of `rbob_compose.yml` defines the enclave network with a static subnet from the nameplate regime.
+Compose creates both the default (transit) and enclave networks automatically during `docker compose up`.
 
-//axhos_step
-. *Remove Existing
-{at_transit_network}*:
-.. {rbbc_call}
-podman network remove for
-{at_transit_network_name},
-ignoring errors
-.. NOTE: This ensures a clean state before creating the new transit network
+The enclave network uses:
 
-//axhos_step
-. *Create New
-{at_transit_network}*:
-.. {rbbc_call}
-podman network create with:
-... name:
-{at_transit_network_name}
-... type: bridge
-... IPv6: disabled
-... external connectivity: enabled
-.. Apply configuration consistent with
-{rbrn_moniker}-uplink
-definition
-.. {rbbc_require}
-transit network created successfully
+* driver: bridge
+* subnet: `${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}` (from nameplate env-file)
+* static IPs: sentry at `${RBRN_ENCLAVE_SENTRY_IP}`, censer at `${RBRN_ENCLAVE_BOTTLE_IP}`
 
-//axhos_step
-. *Remove Existing
-{at_enclave_network}*:
-.. {rbbc_call}
-podman network remove for
-{at_enclave_network_name},
-ignoring errors
-.. NOTE: This ensures a clean state before creating the new enclave network
-
-//axhos_step
-. *Create New
-{at_enclave_network}*:
-.. {rbbc_call}
-podman network create with:
-... name:
-{at_enclave_network_name}
-... type: isolated bridge
-... subnet:
-{rbrn_enclave_base_ip}/{rbrn_enclave_netmask}
-... external connectivity: disabled
-... IP assignment: managed by netavark
-.. {rbbc_require}
-enclave network created successfully
+The default network provides internet connectivity via the Docker bridge.
+Each nameplate uses a distinct /24 subnet to prevent cross-nameplate collisions.
 
 //axhoc_completion
-After this sequence completes, both networks exist in standard Podman configuration. The
+Both networks are created as part of the compose lifecycle.
+The
 {at_sentry_container}
-will connect to both networks, while the
+connects to both networks; the
+{at_censer_container}
+connects only to the enclave; the
 {at_bottle_container}
-will connect only to the
-{at_enclave_network}.
-Before the
-{at_bottle_container}
-starts, an
-{at_ebpf_program}
-will be attached to its veth interface to ensure all traffic routes through the
-{at_sentry_container}.
+shares the censer's network namespace via compose `network_mode: "service:censer"`.

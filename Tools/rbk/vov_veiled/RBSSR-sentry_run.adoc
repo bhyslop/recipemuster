@@ -1,40 +1,12 @@
 //axhob_operation
 {mkr_sentry_run}
 
-NOTE: This sequence within
-{opss_sentry_start}
-launches the
-{at_sentry_container}
-with required privileges and initial network configuration.
+NOTE: Sentry container creation and startup is managed by Docker Compose.
+The compose service definition specifies the sentry image, privileged mode, dual network attachment (default + enclave with static IP), environment variables forwarded from the nameplate, and the health check.
 
-//axhos_step
-. *Launch Sentry Container*:
-.. {rbbc_call}
-podman run to create and start
-{at_sentry_container}
-with:
-... name:
-{at_sentry_container_name}
-... network:
-{at_transit_network_name}
-... privileged mode for network namespace management
-... required capabilities for eBPF and routing
-.. {rbbc_require}
-container started successfully
-
-//axhos_step
-. *Verify Sentry Container Running*:
-.. {rbbc_call}
-podman inspect to confirm
-{at_sentry_container}
-is in running state
-.. {rbbc_require}
-container status is running
+The sentry's `CMD` is its baked-in entrypoint script (`/opt/rbk/rbj_sentry.sh`), COPYed into the image during the vessel build.
+No volume mounts are used for security container scripts — the baked entrypoint is the only code that runs.
 
 //axhoc_completion
-After this sequence completes, the
-{at_sentry_container}
-is running and connected to the
-{at_transit_network},
-ready for secondary network attachment via
-{mkr_network_connect}.
+After compose starts the sentry, the baked entrypoint executes: discovers interfaces by IP, configures iptables, starts dnsmasq, and signals health.
+The compose health check (`test -f /tmp/rbj_healthy`) gates downstream containers.
