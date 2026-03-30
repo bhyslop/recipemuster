@@ -647,17 +647,20 @@ rbgm_onboarding() {
     fi
 
     # Sub-probe: vessels built (IMAGE_1_ANCHOR non-empty for each)
+    # Preserve bottle/sentry anchors for enshrine dedup detection
     local z_has_busybox_built=0
     local z_has_bottle_built=0
     local z_has_sentry_built=0
+    local z_bottle_anchor=""
+    local z_sentry_anchor=""
     if test -n "${z_vessel_dir}"; then
       local z_tmp=""
       z_tmp=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_busybox_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_tmp=""
       test -n "${z_tmp}" && z_has_busybox_built=1
-      z_tmp=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_bottle_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_tmp=""
-      test -n "${z_tmp}" && z_has_bottle_built=1
-      z_tmp=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_sentry_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_tmp=""
-      test -n "${z_tmp}" && z_has_sentry_built=1
+      z_bottle_anchor=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_bottle_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_bottle_anchor=""
+      test -n "${z_bottle_anchor}" && z_has_bottle_built=1
+      z_sentry_anchor=$(zrbgm_po_extract_capture "${z_vessel_dir}/${z_sentry_sigil}/rbrv.env" "RBRV_IMAGE_1_ANCHOR") || z_sentry_anchor=""
+      test -n "${z_sentry_anchor}" && z_has_sentry_built=1
     fi
 
     local z_all_built=0
@@ -669,8 +672,8 @@ rbgm_onboarding() {
     zrbgm_po_status "${z_has_director}"     "  Credentials present"
     zrbgm_po_status "${z_has_reliquary}"    "  Reliquary inscribed"
     zrbgm_po_status "${z_has_busybox_built}" "  Busybox built (airgap)"
-    zrbgm_po_status "${z_has_bottle_built}"  "  Bottle built (tether)"
-    zrbgm_po_status "${z_has_sentry_built}"  "  Sentry built (tether)"
+    zrbgm_po_status "${z_has_bottle_built}"  "  Ifrit bottle built (Debian slim, tether)"
+    zrbgm_po_status "${z_has_sentry_built}"  "  Sentry built (Debian slim, tether)"
     bug_e
 
     # Next step for director
@@ -690,24 +693,29 @@ rbgm_onboarding() {
       bug_t "  3. Vouch (verify SLSA provenance):"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
     elif test "${z_has_bottle_built}" = "0"; then
-      bug_t "  Next: Bottle build on tether pool."
+      bug_t "  Next: Ifrit bottle — Debian bookworm-slim on tether pool."
       bug_t "  1. Record reliquary in bottle vessel:"
       bug_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}/rbrv.env"
       bug_tc "    Set RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
       bug_t "  2. Enshrine bottle base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
-      bug_t "  3. Conjure bottle (~13 min):"
+      bug_t "  3. Conjure ifrit bottle (~8 min):"
       buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
       bug_t "  4. Vouch:"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
     elif test "${z_has_sentry_built}" = "0"; then
-      bug_t "  Next: Sentry build on tether pool."
+      bug_t "  Next: Sentry — Debian bookworm-slim on tether pool."
       bug_t "  1. Record reliquary in sentry vessel:"
       bug_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}/rbrv.env"
       bug_tc "    Set RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
-      bug_t "  2. Enshrine sentry base image (~2 min):"
-      buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
-      bug_t "  3. Conjure sentry (~13 min):"
+      if test -n "${z_sentry_anchor}" && test -n "${z_bottle_anchor}" && \
+         test "${z_sentry_anchor}" = "${z_bottle_anchor}"; then
+        bug_t "  2. Enshrine: SKIP — sentry shares base image with ifrit bottle (already enshrined)"
+      else
+        bug_t "  2. Enshrine sentry base image (~2 min):"
+        buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
+      fi
+      bug_t "  3. Conjure sentry (~5 min):"
       buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
       bug_t "  4. Vouch:"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
