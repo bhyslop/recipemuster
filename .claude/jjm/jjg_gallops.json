@@ -4961,6 +4961,13 @@
         "₢AxAAD": {
           "tacks": [
             {
+              "ts": "260330-0807",
+              "state": "rough",
+              "text": "## Character\nWide but mechanical rename. The word \"censer\" appears ~121 times across ~14 files. Most are straightforward text substitution, but the compose file and shell variable names require careful attention to avoid breaking runtime behavior.\n\n## Scope\nRename **censer → pentacle** everywhere: container names, function names, variable names, AsciiDoc references, compose service definitions, tabtarget content, and public-facing assets.\n\n## Files (by risk)\n**Critical (runtime):**\n- `.rbk/rbob_compose.yml` — service name, container name, network aliases\n- `Tools/rbk/rbob_bottle.sh` — ZRBOB_CENSER variable, rbob_connect_censer function\n- `Tools/rbk/rboc_censer.sh` — entire module (consider renaming file to rboc_pentacle.sh)\n- `rbev-vessels/rbev-sentry-debian-slim/rboc_censer.sh` — vessel copy\n\n**High (dispatch):**\n- `Tools/rbk/rbz_zipper.sh` — buz_enroll registration for rbw-C colophon\n\n**Medium (spec/docs):**\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — ~10 occurrences\n- `Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`\n- `Tools/rbk/rboo_observe.sh`\n- `Tools/rbk/rbob_cli.sh`\n- `Tools/rbk/rbtb_testbench.sh`\n- `Tools/rbk/rbts/rbtcns_TadmorSecurity.sh`\n\n**Public-facing:**\n- `index.html` — 3 \"Censer\" references\n- `rbm-abstract-drawio.svg` — check for any censer references\n\n**Low (tracking/context):**\n- `.claude/jjm/jjg_gallops.json` — will update via normal jjx operations\n- `.claude/settings.local.json`\n\n## Approach\n- Start with compose and shell (runtime correctness first)\n- Then spec and docs\n- Then public-facing assets\n- Skip gallops.json (updates organically) and retired memos (sweep pace verifies)\n- Verify `tt/rbw-C.ConnectCenser.*` tabtargets still work (they'll be retired in a later pace, but shouldn't break here)",
+              "silks": "censer-to-pentacle",
+              "commit": "55b904d"
+            },
+            {
               "ts": "260330-0800",
               "state": "rough",
               "text": "## Character\nWide but mechanical rename. The word \"censer\" appears ~121 times across ~14 files. Most are straightforward text substitution, but the compose file and shell variable names require careful attention to avoid breaking runtime behavior.\n\n## Scope\nRename **censer → pentacle** everywhere: container names, function names, variable names, AsciiDoc references, compose service definitions, and tabtarget content.\n\n## Files (by risk)\n**Critical (runtime):**\n- `.rbk/rbob_compose.yml` — service name, container name, network aliases\n- `Tools/rbk/rbob_bottle.sh` — ZRBOB_CENSER variable, rbob_connect_censer function\n- `Tools/rbk/rboc_censer.sh` — entire module (consider renaming file to rboc_pentacle.sh)\n- `rbev-vessels/rbev-sentry-debian-slim/rboc_censer.sh` — vessel copy\n\n**High (dispatch):**\n- `Tools/rbk/rbz_zipper.sh` — buz_enroll registration for rbw-C colophon\n\n**Medium (spec/docs):**\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — ~10 occurrences\n- `Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`\n- `Tools/rbk/rboo_observe.sh`\n- `Tools/rbk/rbob_cli.sh`\n- `Tools/rbk/rbtb_testbench.sh`\n- `Tools/rbk/rbts/rbtcns_TadmorSecurity.sh`\n\n**Low (tracking/context):**\n- `.claude/jjm/jjg_gallops.json` — will update via normal jjx operations\n- `.claude/settings.local.json`\n\n## Approach\n- Start with compose and shell (runtime correctness first)\n- Then spec and docs\n- Skip gallops.json (updates organically) and retired memos (sweep pace)\n- Verify `tt/rbw-C.ConnectCenser.*` tabtargets still work (they'll be retired in a later pace, but shouldn't break here)",
@@ -4971,6 +4978,13 @@
         },
         "₢AxAAE": {
           "tacks": [
+            {
+              "ts": "260330-0807",
+              "state": "rough",
+              "text": "## Character\nConceptual rename in specification, documentation, and public-facing assets. Less mechanical than the censer rename — \"bottle service\" is a two-word phrase that appears in varied grammatical contexts (\"the bottle service\", \"bottle service containers\", \"a bottle service lifecycle\"). Requires reading each occurrence in context.\n\n## Scope\nRename the **bottle service** concept (the tandem sentry+pentacle+bottle assembly) to **crucible** in specs, documentation, and public-facing assets. This is the conceptual container, not any individual container or operation.\n\n## Files\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — primary spec, highest occurrence count\n- `Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc` — cosmology introduction\n- `Tools/rbk/vov_veiled/RBSBS-bottle_start.adoc` — will reference crucible concept\n- `Tools/rbk/vov_veiled/RBSBR-bottle_run.adoc`\n- `Tools/rbk/vov_veiled/RBSBL-bottle_launch.adoc`\n- `Tools/rbk/vov_veiled/RBSSS-sentry_start.adoc`\n- Shell code comments where \"bottle service\" appears as a concept description\n- `index.html` — 3 \"Bottle Service\", 2 \"bottle_service\"\n- `rbm-abstract-drawio.svg` — 3 \"Bottle Service\"\n\n## Approach\n- Search for \"bottle.service\" (regex) to catch all grammatical forms\n- Replace with \"crucible\" where it refers to the assembly concept\n- Do NOT rename things that refer to an individual bottle container — only the composite\n- Update AsciiDoc linked terms: `at_bottle_service` → `rbsc_crucible` (but full quoin minting is a later pace)\n- Update public-facing assets alongside spec work",
+              "silks": "bottle-service-to-crucible",
+              "commit": "55b904d"
+            },
             {
               "ts": "260330-0801",
               "state": "rough",
@@ -5026,6 +5040,13 @@
         },
         "₢AxAAJ": {
           "tacks": [
+            {
+              "ts": "260330-0807",
+              "state": "rough",
+              "text": "## Character\nVerification pass. Low effort, high confidence. Confirms all prior paces achieved complete coverage.\n\n## Scope\nComprehensive grep for any surviving old-vocabulary references. No primary renames — if anything is found, it's a straggler that should have been caught by an earlier pace.\n\n## Search terms\ncenser, bottle_start, bottle_run, bottle_service, ConnectBottle, ConnectCenser, ConnectSentry, ObserveNetworks, rbw-s., rbw-z., rbw-B., rbw-C., rbw-S., rbw-o., opbs_, opbr_, opss_\n\n## Disposition of findings\n- **Active code/spec/docs**: fix immediately (straggler from earlier pace)\n- **Retired heat memos**: evaluate case-by-case — update if the old term is used as a current reference; leave if it's genuinely historical narrative (\"we renamed censer to pentacle\")\n- **gallops.json / settings.local.json**: update if stale references cause confusion\n- If zero findings: the heat is clean. Celebrate briefly.",
+              "silks": "documentation-sweep",
+              "commit": "55b904d"
+            },
             {
               "ts": "260330-0806",
               "state": "rough",
