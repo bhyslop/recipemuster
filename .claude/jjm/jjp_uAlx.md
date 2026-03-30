@@ -59,6 +59,22 @@ Pentacle interactive access eliminated — scaffolding with no diagnostic use ca
 
 Confidence: HIGH.
 
+## Decided: Consecration Operation Verbs
+
+Renaming the two remaining off-metaphor generic verbs in the Director colophon family (`rbw-D*`). Verb initials must not collide with any existing cloud verb: A(abjure), B(bind), C(conjure), D(delete), E(enshrine), G(graft), I(inscribe/inspect), S(summon), V(vouch).
+
+**tally** (5, T) — Count, verify, and classify consecrations by health state. Accounting/forge register: tallying the yield. Read-only registry audit via GAR Docker Registry API.
+**ordain** (6, O) — The Director ordains the consecration; the forge executes conjure/bind/graft. Solomonic/liturgical: the presiding authority initiating the ceremony, delegating specific rites. Master ceremony dispatch.
+
+| Old | New | Colophon | Function | Frontispiece | Quoin |
+|-----|-----|----------|----------|-------------|-------|
+| checks | tally | `rbw-Dc` → `rbw-Dt` | `rbf_check_consecrations` → `rbf_tally` | `DirectorChecksConsecrations` → `DirectorTalliesConsecrations` | `rbtgo_consecration_check` → `rbtgo_consecration_tally` |
+| creates | ordain | `rbw-DC` → `rbw-DO` | `rbf_create` → `rbf_ordain` | `DirectorCreatesConsecration` → `DirectorOrdainsConsecration` | (none) → `rbtgo_ark_ordain` |
+
+Zipper: `RBZ_CHECK_CONSECRATIONS` → `RBZ_TALLY_CONSECRATIONS`, `RBZ_CREATE_CONSECRATION` → `RBZ_ORDAIN_CONSECRATION`.
+
+Confidence: HIGH.
+
 ## Decided: "Bottle Service" → Crucible
 
 The tandem container assembly (sentry + pentacle + bottle) is now named **crucible**. The vessel where dangerous materials are subjected to extreme conditions and transformed. Universally understood, precisely correct for the security-containment metaphor.
@@ -128,5 +144,5 @@ Confidence: HIGH.
 
 - RBS0-SpecTop.adoc, RBRN-RegimeNameplate.adoc, RBSBS/RBSBR/RBSBK specs
 - MCM-MetaConceptModel.adoc, AXLA-Lexicon.adoc
-- rbob_bottle.sh
-- Prior conversations: 260327 session, 260329 vocabulary election session
+- rbob_bottle.sh, rbf_Foundry.sh
+- Prior conversations: 260327 session, 260329 vocabulary election session, 260330 tally/ordain election session
