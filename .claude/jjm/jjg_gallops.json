@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "Az",
+  "next_heat_seed": "A0",
   "heat_order": [
     "₣An",
     "₣Am",
@@ -21,7 +21,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣Az"
   ],
   "heats": {
     "₣AD": {
@@ -5625,6 +5626,15 @@
           ]
         }
       }
+    },
+    "₣Az": {
+      "silks": "rbk-vocabulary-debt-ark-rubric",
+      "creation_time": "260330",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAlz.md",
+      "paces": {}
     }
   }
 }
