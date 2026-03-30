@@ -45,10 +45,6 @@ services:
       - RBRN_UPLINK_ACCESS_MODE
       - RBRN_UPLINK_ALLOWED_CIDRS
       - RBRN_UPLINK_ALLOWED_DOMAINS
-    volumes:
-      - ../Tools/rbk/rbj_sentry.sh:/opt/rbk/rbj_sentry.sh:ro
-    entrypoint: ["/bin/sh"]
-    command: ["/opt/rbk/rbj_sentry.sh"]
     healthcheck:
       test: ["CMD-SHELL", "test -f /tmp/rbj_healthy"]
       interval: 2s
@@ -65,9 +61,6 @@ services:
         ipv4_address: ${RBRN_ENCLAVE_BOTTLE_IP}
     environment:
       - RBRN_ENCLAVE_SENTRY_IP
-    volumes:
-      - ../Tools/rbk/rboc_censer.sh:/opt/rbk/rboc_censer.sh:ro
-    entrypoint: ["/bin/sh"]
     command: ["/opt/rbk/rboc_censer.sh"]
     depends_on:
       sentry:

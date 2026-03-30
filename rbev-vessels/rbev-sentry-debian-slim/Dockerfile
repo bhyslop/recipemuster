@@ -19,5 +19,12 @@ RUN apt-get update && apt-get install -y \
 # Pin iptables-legacy backend (nftables not available in slim)
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 
-# Keep the container alive
-CMD ["tail", "-f", "/dev/null"]
+# Bake entrypoint scripts (sentry setup + censer routing)
+# Source of truth: Tools/rbk/rbj_sentry.sh, Tools/rbk/rboc_censer.sh
+# Changes require deliberate build→vouch cycle
+COPY rbj_sentry.sh  /opt/rbk/rbj_sentry.sh
+COPY rboc_censer.sh /opt/rbk/rboc_censer.sh
+RUN chmod +x /opt/rbk/rbj_sentry.sh /opt/rbk/rboc_censer.sh
+
+# Default: sentry entrypoint (censer overrides via compose command)
+CMD ["/opt/rbk/rbj_sentry.sh"]
