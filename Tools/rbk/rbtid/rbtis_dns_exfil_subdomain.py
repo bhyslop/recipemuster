@@ -16,18 +16,19 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBTIE - DNS exfiltration via subdomain encoding
+# RBTIS - DNS exfiltration via subdomain encoding
+#
+# Sortie: dns_exfil_subdomain
+# Front: dns
 #
 # Attack surface: DNS allowlist permits queries to anthropic.com.
-# This module tests whether data can be exfiltrated by encoding it
+# This sortie tests whether data can be exfiltrated by encoding it
 # as subdomains of the allowed domain (e.g., secret.anthropic.com).
 #
 # The sentry's dnsmasq should either block fabricated subdomains
 # or the query should fail to resolve (NXDOMAIN). Either outcome
 # means the exfiltration channel is closed.
-#
-# Category: dns
-# Requires: scapy (for packet-level DNS construction)
+# Verdict: SECURE if blocked, BREACH if exfiltration succeeds.
 
 import subprocess
 
@@ -96,10 +97,10 @@ def run():
             "detail": f"Unexpected error: {e}",
         })
 
-    all_passed = all(a["passed"] for a in assertions)
+    all_blocked = all(a["passed"] for a in assertions)
     return {
-        "verdict": "PASS" if all_passed else "FAIL",
-        "detail": "DNS subdomain exfiltration channel is closed" if all_passed
+        "verdict": "SECURE" if all_blocked else "BREACH",
+        "detail": "DNS subdomain exfiltration channel is closed" if all_blocked
                   else "DNS subdomain exfiltration channel may be open",
         "assertions": assertions,
     }

@@ -1,0 +1,4 @@
+# Ifrit sortie roster — explicit list of sorties to dispatch
+# One sortie name per line (without rbtis_ prefix or .py extension)
+# Unrostered rbtis_*.py files are flagged as rogue
+dns_exfil_subdomain
