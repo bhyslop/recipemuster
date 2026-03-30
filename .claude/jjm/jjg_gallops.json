@@ -5043,6 +5043,13 @@
         "₢AxAAJ": {
           "tacks": [
             {
+              "ts": "260330-1424",
+              "state": "rough",
+              "text": "## Character\nVerification pass. Low effort, high confidence. Confirms all prior paces achieved complete coverage.\n\n## Scope\nComprehensive grep for any surviving old-vocabulary references. No primary renames — if anything is found, it's a straggler that should have been caught by an earlier pace.\n\n## Search terms\ncenser, bottle_start, bottle_run, bottle_service, ConnectBottle, ConnectCenser, ConnectSentry, ObserveNetworks, rbw-s., rbw-z., rbw-B., rbw-C., rbw-S., rbw-o., opbs_, opbr_, opss_, DirectorChecksConsecrations, DirectorCreatesConsecration, rbf_check_consecrations, rbf_create, rbw-Dc., rbw-DC., rbtgo_consecration_check, RBZ_CHECK_CONSECRATIONS, RBZ_CREATE_CONSECRATION\n\n## Disposition of findings\n- **Active code/spec/docs**: fix immediately (straggler from earlier pace)\n- **Retired heat memos**: evaluate case-by-case — update if the old term is used as a current reference; leave if it's genuinely historical narrative (\"we renamed censer to pentacle\")\n- **gallops.json / settings.local.json**: update if stale references cause confusion\n- If zero findings: the heat is clean. Celebrate briefly.",
+              "silks": "documentation-sweep",
+              "commit": "1f9faa4"
+            },
+            {
               "ts": "260330-0807",
               "state": "rough",
               "text": "## Character\nVerification pass. Low effort, high confidence. Confirms all prior paces achieved complete coverage.\n\n## Scope\nComprehensive grep for any surviving old-vocabulary references. No primary renames — if anything is found, it's a straggler that should have been caught by an earlier pace.\n\n## Search terms\ncenser, bottle_start, bottle_run, bottle_service, ConnectBottle, ConnectCenser, ConnectSentry, ObserveNetworks, rbw-s., rbw-z., rbw-B., rbw-C., rbw-S., rbw-o., opbs_, opbr_, opss_\n\n## Disposition of findings\n- **Active code/spec/docs**: fix immediately (straggler from earlier pace)\n- **Retired heat memos**: evaluate case-by-case — update if the old term is used as a current reference; leave if it's genuinely historical narrative (\"we renamed censer to pentacle\")\n- **gallops.json / settings.local.json**: update if stale references cause confusion\n- If zero findings: the heat is clean. Celebrate briefly.",
