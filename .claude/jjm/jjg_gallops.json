@@ -4958,11 +4958,12 @@
         "₢AyAAF",
         "₢AyAAO",
         "₢AyAAG",
+        "₢AyAAP",
         "₢AyAAH",
         "₢AyAAK",
         "₢AyAAI"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -5414,6 +5415,17 @@
               "text": "## Character\nSpec-first vocabulary update, then mechanical Python restructure. Design decisions are settled; this is transcription.\n\n## Goal\nUpdate RBSIP spec and rbtid/ implementation to use sortie vocabulary. Replace dynamic module discovery with roster-based dispatch.\n\n## Deliverables\n\n1. Update RBSIP-ifrit_pentester.adoc:\n   - Replace \"escape test module\" → \"sortie\" throughout\n   - Replace \"module categories\" → \"fronts\" (dns front, network front, etc.)\n   - Replace runner concept → \"adjutant\" (dispatches sorties, collects debriefs)\n   - Document roster-based dispatch (explicit list, no dynamic discovery)\n   - Document verdict semantics: BREACH (security failed) / SECURE (security held)\n   - Document debrief output format\n   - Update volume mount references: compose fragment, not nameplate field\n   - Mint linked terms if warranted: rbtis_ (sortie), rbtia_ (adjutant), rbtid_roster, rbtid_debrief\n\n2. Rename existing Python files in rbtid/:\n   - `rbtir_runner.py` → `rbtia_adjutant.py`\n   - `rbtie_dns_exfil_subdomain.py` → `rbtis_dns_exfil_subdomain.py`\n   - `rbtir_last_run.json` reference → `rbtid_debrief.json`\n\n3. Rewrite adjutant:\n   - Read roster file (`rbtid_roster.txt`) for explicit sortie list\n   - Flag unrostered `rbtis_*` files as rogue (present but not registered)\n   - Error on roster entries referencing missing modules\n   - Verdict: BREACH / SECURE (not PASS/FAIL)\n   - Debrief output: `rbtid_debrief.json`\n\n4. Create `rbtid_roster.txt` with the one existing sortie: `rbtis_dns_exfil_subdomain`\n\n5. Update existing sortie module: `run()` returns `{verdict: \"BREACH\"|\"SECURE\", ...}`\n\n## Test\n- Run adjutant locally (outside container): discovers roster, loads sortie, produces debrief\n- Verify rogue detection: add an unrostered `rbtis_*.py` file, confirm warning\n- Verify missing detection: add bogus roster entry, confirm error\n\n## References\n- RBSIP-ifrit_pentester.adoc — lines 192-210 (escape test infrastructure section)\n- Tools/rbk/rbtid/ — current files (rbtir_runner.py, rbtie_dns_exfil_subdomain.py)",
               "silks": "sortie-framework-and-rbsip-update",
               "commit": "06475de"
+            }
+          ]
+        },
+        "₢AyAAP": {
+          "tacks": [
+            {
+              "ts": "260330-0757",
+              "state": "rough",
+              "text": "## Character\nSurgical foundry refactor with spec updates. Two code files, two spec files, one UX fix. The design decision is made (shared `enshrine` namespace); this is transcription.\n\n## Goal\nDecouple enshrined base images from vessel identity. Currently, enshrine stores base images at `{repo}/{vessel-sigil}:{anchor}`, forcing duplicate enshrines when vessels share a base image. Change to `{repo}/enshrine:{anchor}` so each unique base image is enshrined once regardless of how many vessels consume it.\n\n## Deliverables\n\n1. **`Tools/rbk/rbgje/rbgje01-enshrine-copy.sh`** — Replace `${_RBGE_VESSEL}` with literal `enshrine` in DEST_REF construction (line 61). Remove `_RBGE_VESSEL` substitution if no longer needed by this step.\n\n2. **`Tools/rbk/rbf_Foundry.sh`** — Two changes:\n   - Line 286: Change base image prefix from `.../${z_sigil}` to `.../enshrine` so conjure resolves anchored images from the shared namespace\n   - Lines 1067-1078: Update enshrine Cloud Build substitutions — replace or remove `_RBGE_VESSEL` in favor of fixed `enshrine` namespace\n\n3. **`Tools/rbk/vov_veiled/RBSAE-ark_enshrine.adoc`** — Update spec to document shared namespace: base images stored at `{repo}/enshrine:{anchor}`, not per-vessel. Remove `_RBGE_VESSEL` from substitution documentation if eliminated.\n\n4. **`Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`** — Update enshrine/anchor linked term descriptions to reflect shared namespace.\n\n5. **`Tools/rbk/rbgm_ManualProcedures.sh`** — The ₢AyAAG enshrine dedup logic now correctly reflects reality. Update the skip message text to reference the shared namespace rather than \"shares base image with ifrit bottle.\"\n\n## Test\n- Enshrine one vessel → verify image lands at `{repo}/enshrine:{anchor}`\n- Conjure both sentry and ifrit → both resolve base image from `{repo}/enshrine:{anchor}`\n- Second vessel does NOT require a separate enshrine\n\n## Naming\n- Shared GAR image name: `enshrine` (no `rbev-` prefix — cleanly separated from vessel sigils)\n- No new primary-universe prefix consumed — `enshrine` is a GAR image name within the existing repository\n\n## References\n- Discovery: ₢AyAAH build-summon-validate revealed per-vessel enshrine forces duplicate builds\n- Prior art: ₢AyAAG added dedup logic that was wrong under per-vessel namespacing but correct under shared namespace",
+              "silks": "shared-enshrine-namespace",
+              "commit": "94e1196"
             }
           ]
         }
