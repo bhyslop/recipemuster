@@ -4885,9 +4885,10 @@
       "order": [
         "₢AxAAB",
         "₢AxAAA",
-        "₢AxAAC"
+        "₢AxAAC",
+        "₢AxAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -4948,6 +4949,17 @@
               "text": "## Character\nMechanical find-and-replace with careful attention to plural forms and surrounding context. The terms appear in definition structures (MCM linked terms), so each replacement must preserve the three-part structure: attribute reference, replacement text, and definition.\n\n## Scope\nRename the MCM identity tier vocabulary across 4 files (~31 occurrences):\n- **lemma/lemmata → quoin/quoins** — Full catalogue entry: mapping + anchor + definition\n- **graven → inlay/inlays** — Prefix-named, subdocument-scoped, no catalogue entry\n- **intaglio → sprue/sprues** — Wire-level token in backticks\n\n## Files\n- `Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc` (~18 occurrences)\n- `Tools/cmk/vov_veiled/AXLA-Lexicon.adoc` (~8 occurrences)\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` (~1 occurrence)\n- `.claude/jjm/jjp_uAlh.md` (~4 occurrences, retired heat memo)\n\n## Approach\n- Search each file for all three old terms (including plural forms: lemmata, gravens if any)\n- Replace with new terms, preserving AsciiDoc structure\n- Verify no dangling cross-references after replacement",
               "silks": "mcm-tier-rename",
               "commit": "96b408f"
+            }
+          ]
+        },
+        "₢AxAAD": {
+          "tacks": [
+            {
+              "ts": "260330-0800",
+              "state": "rough",
+              "text": "## Character\nWide but mechanical rename. The word \"censer\" appears ~121 times across ~14 files. Most are straightforward text substitution, but the compose file and shell variable names require careful attention to avoid breaking runtime behavior.\n\n## Scope\nRename **censer → pentacle** everywhere: container names, function names, variable names, AsciiDoc references, compose service definitions, and tabtarget content.\n\n## Files (by risk)\n**Critical (runtime):**\n- `.rbk/rbob_compose.yml` — service name, container name, network aliases\n- `Tools/rbk/rbob_bottle.sh` — ZRBOB_CENSER variable, rbob_connect_censer function\n- `Tools/rbk/rboc_censer.sh` — entire module (consider renaming file to rboc_pentacle.sh)\n- `rbev-vessels/rbev-sentry-debian-slim/rboc_censer.sh` — vessel copy\n\n**High (dispatch):**\n- `Tools/rbk/rbz_zipper.sh` — buz_enroll registration for rbw-C colophon\n\n**Medium (spec/docs):**\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — ~10 occurrences\n- `Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`\n- `Tools/rbk/rboo_observe.sh`\n- `Tools/rbk/rbob_cli.sh`\n- `Tools/rbk/rbtb_testbench.sh`\n- `Tools/rbk/rbts/rbtcns_TadmorSecurity.sh`\n\n**Low (tracking/context):**\n- `.claude/jjm/jjg_gallops.json` — will update via normal jjx operations\n- `.claude/settings.local.json`\n\n## Approach\n- Start with compose and shell (runtime correctness first)\n- Then spec and docs\n- Skip gallops.json (updates organically) and retired memos (sweep pace)\n- Verify `tt/rbw-C.ConnectCenser.*` tabtargets still work (they'll be retired in a later pace, but shouldn't break here)",
+              "silks": "censer-to-pentacle",
+              "commit": "ce7b7db"
             }
           ]
         }
