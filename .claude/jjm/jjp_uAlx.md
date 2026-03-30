@@ -73,6 +73,8 @@ Renaming the two remaining off-metaphor generic verbs in the Director colophon f
 
 Zipper: `RBZ_CHECK_CONSECRATIONS` → `RBZ_TALLY_CONSECRATIONS`, `RBZ_CREATE_CONSECRATION` → `RBZ_ORDAIN_CONSECRATION`.
 
+Note: `rbtgo_ark_ordain` and other `rbtgo_ark_*` quoins follow existing naming convention. ₣Az (ark concept removal) will revise these names when it executes — no pre-optimization here.
+
 Confidence: HIGH.
 
 ## Decided: Role Authority & Regime Lifecycle Verbs (Group A)
@@ -180,6 +182,10 @@ Confidence: HIGH.
 **Image-level** (Solomonic/forge): jettison(J), plumb(P), wrest(W)
 **Crucible** (forge): charge(C), enjoin(E), hail(H), observe(O), quench(Q), rack(R)
 **Role/regime** (feudal/military): forfeit(F), knight(K), levy(L), mantle(M), proof(P), unmake(U), zero(Z)
+
+## Forward Dependency: ₣Az (ark concept removal)
+
+This heat follows existing `rbtgo_ark_*` naming convention for quoins (e.g., `rbtgo_ark_ordain`, `rbtgo_ark_plumb`). ₣Az will later remove the "ark" concept and revise these names. No pre-optimization — follow convention now, let ₣Az handle the sweep.
 
 ## References
 
