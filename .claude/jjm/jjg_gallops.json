@@ -1725,6 +1725,13 @@
         "₢AUAAn": {
           "tacks": [
             {
+              "ts": "260331-1421",
+              "state": "abandoned",
+              "text": "## Character\nSurgical refactor — move credential file-existence check from module kindle to individual command functions. Testable on a machine with retriever-only credentials.\n\n## Problem\n`zrbf_kindle` (rbf_Foundry.sh:40-41) gates on `RBDC_DIRECTOR_RBRA_FILE` existence at module init. This blocks all 18 foundry commands — including `rbf_retrieve` and `rbf_summon` which only need retriever credentials. A retriever-only station (e.g., cerebro) cannot pull images.\n\n## Scope\n- Remove director file-existence check from `zrbf_kindle` (lines 40-41)\n- Add `test -f \"${RBDC_DIRECTOR_RBRA_FILE}\"` guard to each of the 16 director-dependent commands at point of use\n- Verify `rbf_retrieve` and `rbf_summon` work with retriever credential only (no director on disk)\n- Test on cerebro: `tt/rbw-Rs.RetrieverSummonsConsecration.sh` should succeed without `rbra-director.env`\n\n## Acceptance\n- Summon/retrieve work on a station with only retriever credentials\n- Director commands fail clearly if director credential is missing\n- No behavioral change when both credentials are present",
+              "silks": "remove-director-gate-from-foundry-kindle",
+              "commit": "7570890"
+            },
+            {
               "ts": "260331-0754",
               "state": "rough",
               "text": "## Character\nSurgical refactor — move credential file-existence check from module kindle to individual command functions. Testable on a machine with retriever-only credentials.\n\n## Problem\n`zrbf_kindle` (rbf_Foundry.sh:40-41) gates on `RBDC_DIRECTOR_RBRA_FILE` existence at module init. This blocks all 18 foundry commands — including `rbf_retrieve` and `rbf_summon` which only need retriever credentials. A retriever-only station (e.g., cerebro) cannot pull images.\n\n## Scope\n- Remove director file-existence check from `zrbf_kindle` (lines 40-41)\n- Add `test -f \"${RBDC_DIRECTOR_RBRA_FILE}\"` guard to each of the 16 director-dependent commands at point of use\n- Verify `rbf_retrieve` and `rbf_summon` work with retriever credential only (no director on disk)\n- Test on cerebro: `tt/rbw-Rs.RetrieverSummonsConsecration.sh` should succeed without `rbra-director.env`\n\n## Acceptance\n- Summon/retrieve work on a station with only retriever credentials\n- Director commands fail clearly if director credential is missing\n- No behavioral change when both credentials are present",
