@@ -274,7 +274,7 @@
 // Local Operations (sentry startup, bottle lifecycle, VM management)
 :opss_sentry_start:          <<opss_sentry_start,Sentry Start Rule>>
 :opbs_bottle_start:          <<opbs_bottle_start,Sessile Charge Rule>>
-:opbr_bottle_run:            <<opbr_bottle_run,Agile Bottle Run Rule>>
+:opbr_bottle_run:            <<opbr_bottle_run,Agile Enjoin Rule>>
 :mkr_network_create:         <<mkr_network_create,Network Creation Sequence>>
 :mkr_sentry_run:             <<mkr_sentry_run,Sentry Launch Sequence>>
 :mkr_network_connect:        <<mkr_network_connect,Network Connection Sequence>>
@@ -1265,7 +1265,7 @@ include::RBSBL-bottle_launch.adoc[]
 //axvo_procedure axd_transient
 === {opbr_bottle_run}
 
-Creates and executes a new
+Enjoins a new
 {at_agile_service}
 instance through controlled container instantiation and command execution.
 

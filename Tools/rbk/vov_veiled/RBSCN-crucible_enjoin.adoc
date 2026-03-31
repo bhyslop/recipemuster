@@ -1,7 +1,7 @@
 //axhob_operation
 {opbr_bottle_run}
 
-NOTE: This operation creates and executes a transient
+NOTE: This operation enjoins ephemeral work through a transient
 {at_bottle_container}
 via `docker compose run --rm`.
 Compose manages container creation, dependency startup (sentry + pentacle), and automatic cleanup.
