@@ -1,5 +1,5 @@
 //axhob_operation
-{opbs_bottle_start}
+{rbsc_charge}
 
 NOTE: This operation starts the full
 {at_sessile_service}

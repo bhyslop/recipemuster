@@ -231,6 +231,9 @@
 :at_bottle_container_s:      <<at_bottle_container,Bottle Containers>>
 :rbsc_crucible:              <<rbsc_crucible,Crucible>>
 :rbsc_crucible_s:            <<rbsc_crucible,Crucibles>>
+:rbsc_pentacle:              <<rbsc_pentacle,Pentacle>>
+:rbsc_agile:                 <<rbsc_agile,Agile>>
+:rbsc_sessile:               <<rbsc_sessile,Sessile>>
 :at_pentacle_container:        <<at_pentacle_container,Pentacle Container>>
 :at_container_registry:      <<at_container_registry,Container Registry>>
 // :at_ebpf_program: removed — historical (Podman era), superseded by compose network_mode
@@ -271,10 +274,14 @@
 :st_volume_mount:            <<st_volume_mount,Volume Mount>>
 :st_volume_mount_s:          <<st_volume_mount,Volume Mounts>>
 
-// Local Operations (sentry startup, bottle lifecycle, VM management)
+// Local Operations (sentry startup, crucible lifecycle, VM management)
 :opss_sentry_start:          <<opss_sentry_start,Sentry Start Rule>>
-:opbs_bottle_start:          <<opbs_bottle_start,Sessile Charge Rule>>
-:opbr_bottle_run:            <<opbr_bottle_run,Agile Enjoin Rule>>
+:rbsc_charge:                <<rbsc_charge,Sessile Charge Rule>>
+:rbsc_enjoin:                <<rbsc_enjoin,Agile Enjoin Rule>>
+:rbsc_quench:                <<rbsc_quench,Quench>>
+:rbsc_hail:                  <<rbsc_hail,Hail>>
+:rbsc_rack:                  <<rbsc_rack,Rack>>
+:rbsc_scry:                  <<rbsc_scry,Scry>>
 :mkr_network_create:         <<mkr_network_create,Network Creation Sequence>>
 :mkr_sentry_run:             <<mkr_sentry_run,Sentry Launch Sequence>>
 :mkr_network_connect:        <<mkr_network_connect,Network Connection Sequence>>
@@ -1239,9 +1246,9 @@ include::RBSSR-sentry_run.adoc[]
 
 include::RBSNX-network_connect.adoc[]
 
-[[opbs_bottle_start]]
+[[rbsc_charge]]
 //axvo_procedure axd_transient
-=== {opbs_bottle_start}
+=== {rbsc_charge}
 
 Charges a new
 {at_sessile_service}
@@ -1261,9 +1268,9 @@ include::RBSBK-bottle_cleanup.adoc[]
 
 include::RBSBL-bottle_launch.adoc[]
 
-[[opbr_bottle_run]]
+[[rbsc_enjoin]]
 //axvo_procedure axd_transient
-=== {opbr_bottle_run}
+=== {rbsc_enjoin}
 
 Enjoins a new
 {at_agile_service}
@@ -2036,7 +2043,7 @@ Podman compose support is architecturally accommodated (podman compose delegates
 A long-running
 {rbsc_crucible}
 that charges via
-{opbs_bottle_start}
+{rbsc_charge}
 and persists until explicitly quenched.
 The sessile pattern is used for services that maintain state and provide ongoing functionality.
 
@@ -2045,7 +2052,7 @@ The sessile pattern is used for services that maintain state and provide ongoing
 A transient
 {rbsc_crucible}
 that executes via
-{opbr_bottle_run}
+{rbsc_enjoin}
 and terminates when its command completes.
 The agile pattern is used for one-shot operations that produce output and exit.
 
@@ -2060,6 +2067,68 @@ and one
 working together to provide secure functionality.
 Orchestrated by Docker Compose with a base compose file (`rbob_compose.yml`) defining the three-container topology and health check chains, plus optional per-nameplate compose fragments for volume mounts.
 Each service maintains strict file system and network boundaries while enabling controlled access to resources.
+
+[[rbsc_pentacle]]
+{rbsc_pentacle}::
+The privileged container within a
+{rbsc_crucible}
+that establishes authority over the contained network space.
+Shares the
+{at_sentry_image}
+and configures routing so all traffic flows through the
+{at_sentry_container}.
+The
+{at_bottle_container}
+shares its network namespace via compose `network_mode: "service:pentacle"`.
+
+[[rbsc_sessile]]
+{rbsc_sessile}::
+A
+{rbsc_crucible}
+service mode where the bottle container runs persistently.
+Charged via
+{rbsc_charge}
+and persists until explicitly quenched.
+Used for services that maintain state and provide ongoing functionality.
+
+[[rbsc_agile]]
+{rbsc_agile}::
+A
+{rbsc_crucible}
+service mode where transient bottles are dispatched into an already-running sentry and pentacle.
+Each invocation via
+{rbsc_enjoin}
+creates an ephemeral bottle that terminates when its command completes.
+Used for one-shot operations that produce output and exit.
+
+[[rbsc_quench]]
+{rbsc_quench}::
+Tear down a
+{rbsc_crucible},
+removing all containers and networks for the nameplate's compose project.
+
+[[rbsc_hail]]
+{rbsc_hail}::
+Diagnostic operation: open an interactive shell into the
+{at_sentry_container}
+of a running
+{rbsc_crucible}.
+Call out to the guard to inspect security enforcement state.
+
+[[rbsc_rack]]
+{rbsc_rack}::
+Diagnostic operation: open an interactive shell into the
+{at_bottle_container}
+of a running
+{rbsc_crucible}.
+Compel the demon to reveal its state.
+
+[[rbsc_scry]]
+{rbsc_scry}::
+Diagnostic operation: observe network traffic on a running
+{rbsc_crucible}
+via tcpdump.
+Solomonic divination — see through the veil to the hidden topology.
 
 [[at_sentry_container]]
 {at_sentry_container}::

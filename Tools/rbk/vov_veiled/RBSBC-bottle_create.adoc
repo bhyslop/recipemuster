@@ -2,7 +2,7 @@
 {mkr_bottle_create}
 
 NOTE: This sequence within
-{opbr_bottle_run}
+{rbsc_enjoin}
 describes what Docker Compose does when creating a transient
 {at_bottle_container}
 via `docker compose run`.

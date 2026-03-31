@@ -2,7 +2,7 @@
 {mkr_bottle_cleanup}
 
 NOTE: Cleanup of prior state is handled by `docker compose down --remove-orphans` within
-{opbs_bottle_start}.
+{rbsc_charge}.
 This removes all containers and networks for the nameplate's compose project in a single command.
 Tolerates missing projects (first start on a fresh system).
 

@@ -2,7 +2,7 @@
 {mkr_command_exec}
 
 NOTE: This sequence within
-{opbr_bottle_run}
+{rbsc_enjoin}
 executes a specified command within the transient
 {at_bottle_container}
 created by `docker compose run`.
