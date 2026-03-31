@@ -35,5 +35,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN npm install -g @anthropic-ai/claude-code --omit=dev \
     && npm cache clean --force
 
+# Disable Claude Code telemetry and error reporting (defense-in-depth:
+# sentry DNS/CIDR allowlist would block these anyway, but explicit disable
+# avoids noisy connection failures and keeps the ifrit's network clean)
+ENV DISABLE_TELEMETRY=1
+ENV DISABLE_ERROR_REPORTING=1
+ENV CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+
 # Keep the container alive with a simple echo service on port 8888
 CMD ["socat", "TCP-LISTEN:8888,fork,reuseaddr", "EXEC:cat"]
