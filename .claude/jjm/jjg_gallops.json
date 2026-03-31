@@ -30,10 +30,24 @@
       "silks": "rbk-mvp-3-foundry-decomposition",
       "creation_time": "260331",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢A0AAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAl0.md",
-      "paces": {}
+      "paces": {
+        "₢A0AAA": {
+          "tacks": [
+            {
+              "ts": "260331-1419",
+              "state": "rough",
+              "text": "## Character\nMechanical dead code removal — scan and delete. No behavioral change.\n\n## Context\nGitLab integration was eliminated in ₣Av (builds.create + pouch replaced trigger dispatch). Dead code and comments remain across shell scripts, specs, and consumer docs. rbf_rubric_inscribe is a dead function with GitLab token fetch logic. Clean all of this before decomposing Foundry.\n\n## Inventory\n\n### Dead code to delete\n- rbf_Foundry.sh: entire rbf_rubric_inscribe() function\n- rbgc_Constants.sh: CBv2 GitLab constants (secret names, connection suffix)\n- rbgm_ManualProcedures.sh: rbgm_gitlab_setup() stub function\n- rbgm_cli.sh: rbgm_gitlab_setup dispatch entry\n- rbz_zipper.sh: RBZ_GITLAB_SETUP zipper enrollment\n- tt/rbw-gPL.GitLabSetup.sh: tabtarget (if still exists)\n\n### Spec/doc references to clean\n- RBSRI-rubric_inscribe.adoc: entire doc describes dead GitLab flow — assess delete or gut\n- RBS0-SpecTop.adoc: GitLab comments + eliminated tabtarget colophon\n- README.consumer.md: GitLab account requirement, rubric repo explanation, setup step\n- CLAUDE.consumer.md: GitLab rubric description + rbw-gPL reference\n- RBSDE-depot_levy.adoc, RBSDK-director_knight.adoc, RBSRR-RegimeRepo.adoc: elimination comments\n- rbgg_Governor.sh, rblm_cli.sh: GitLab comments\n\n## Pre-work\nRescan for gitlab (case-insensitive) across all of Tools/rbk/ on mount.\n\n## Acceptance\n- Zero occurrences of gitlab in shell scripts and consumer docs\n- Spec comments may remain as historical notes if they document WHY — use judgment\n- All existing tests pass",
+              "silks": "purge-gitlab-and-rubric-inscribe",
+              "commit": "39358c8"
+            }
+          ]
+        }
+      }
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
