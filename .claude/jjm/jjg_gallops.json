@@ -5220,9 +5220,10 @@
         "₢AyAAK",
         "₢AyAAI",
         "₢AyAAS",
-        "₢AyAAR"
+        "₢AyAAR",
+        "₢AyAAT"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_uAly.md",
       "paces": {
         "₢AyAAA": {
@@ -5753,6 +5754,17 @@
               "text": "## Character\nSpec writing — careful reconciliation of prose with implemented reality. Requires reading both the spec sections and the actual compose/script code to identify every stale description. Uses current vocabulary (₣Ax renames on top of this).\n\n## Goal\nUpdate RBS0-SpecTop.adoc to accurately describe the Docker Compose architecture, baked-in entrypoints, and IP-based interface discovery — all using the existing term vocabulary (censer, bottle service, etc.). This gives ₣Ax a correct architectural foundation to rename against.\n\n## Staleness Inventory\n\n1. **`--net=container:censer`** (lines 576, 2072) — imperative Docker CLI network sharing. Should describe `network_mode: \"service:censer\"` in compose.\n2. **No Docker Compose description** — bottle lifecycle sections assume imperative `docker run`/`docker exec`. Should describe compose-based orchestration: base compose file + per-nameplate fragments, health check chains, env-file dual purpose.\n3. **No baked-in entrypoints** — sentry and censer scripts baked into the image at build time is a significant security/architecture change. Zero mount surface for security containers.\n4. **No IP-based interface discovery** — spec should document that sentry/censer discover their network interfaces by IP at startup, not by eth0/eth1 naming, due to Docker Compose non-deterministic interface ordering.\n5. **Volume mount architecture** — comments at lines 476/3079 note the relocation to compose fragments, but the prose descriptions may still reference the old RBRN_*_VOLUME_MOUNTS fields.\n\n## Approach\n- Read each stale section alongside the actual implementation (rbob_compose.yml, rbj_sentry.sh, rboc_censer.sh, rbob_bottle.sh)\n- Update prose to match reality, preserving current term vocabulary\n- Do NOT rename terms — ₣Ax owns that\n- Verify no dangling references after edits\n\n## References\n- .rbk/rbob_compose.yml — base compose file\n- .rbk/tadmor.compose.yml — example nameplate fragment\n- rbev-vessels/rbev-sentry-debian-slim/rbj_sentry.sh — interface discovery\n- rbev-vessels/rbev-sentry-debian-slim/rboc_censer.sh — censer init\n- Tools/rbk/rbob_bottle.sh — compose helper, subnet detection",
               "silks": "rbs0-compose-architecture-reconciliation",
               "commit": "332969a"
+            }
+          ]
+        },
+        "₢AyAAT": {
+          "tacks": [
+            {
+              "ts": "260331-0839",
+              "state": "rough",
+              "text": "## Character\nSecurity architecture decision requiring careful spec alignment. The ifrit found a real breach — DNS subdomain exfiltration through dnsmasq forwarding. The fix changes how the sentry resolves DNS, which ripples through the spec, the sentry script, and the nameplate variable semantics. Design conversation first, then implementation.\n\n## Goal\nClose the DNS subdomain exfiltration channel discovered by the ifrit's first sortie. The sentry's `server=/domain/upstream` directive forwards all subdomains, allowing data exfiltration encoded in query labels. Choose and implement a countermeasure that eliminates the forwarding path while preserving legitimate API access.\n\n## Options to Evaluate\n\n1. **Static DNS** — replace `server=` with `address=` entries for exact hostnames. No forwarding. Hardcoded IPs.\n2. **Resolve-then-freeze** — sentry resolves allowed domains once at startup, builds static entries, drops forwarding. No hardcoded IPs.\n3. **CoreDNS migration** — replace dnsmasq with CoreDNS for regex-based query filtering. New dependency.\n\nCurrent inclination: resolve-then-freeze (option 2). But evaluate all three against RBS0 goals before committing.\n\n## RBS0 Subdocuments to Review\n\nSpec definitions affected by this change:\n- **RBSDS-dns_step.adoc** (`scr_dns_step`) — DNS Configuration Sequence: describes how dnsmasq is configured, currently uses `server=/domain/upstream` pattern\n- **RBSSS-sentry_start.adoc** (`opss_sentry_start`) — Sentry Start Rule: describes the full startup sequence including DNS setup\n- **RBSAX-access_setup.adoc** (`scr_access_setup`) — Access Control Setup: DNS firewall rules in iptables\n- **RBSSC-security_config.adoc** (`scr_security_config`) — Security Configuration Stage: overall security posture\n\nRegime variables affected:\n- `rbrn_uplink_dns_mode` (allowlist/disabled/global) — semantics change if \"allowlist\" means static resolution instead of forwarding\n- `rbrn_uplink_allowed_domains` (`rbst_domain_list`) — semantics change from \"forwarding targets\" to \"resolution targets\"\n- Possible new variable: exact hostnames vs domain suffixes\n\nImplementation files:\n- `rbev-vessels/rbev-sentry-debian-slim/rbj_sentry.sh` — the sentry script that builds dnsmasq.conf\n- `.rbk/tadmor.rbrn.env` — domain allowlist values\n\n## Verification\n- Ifrit re-runs `sortie_dns_tunnel.py` and gets SECURE verdict\n- All 22 existing security tests still pass\n- Claude Code inside the bottle still authenticates and functions (DNS for api.anthropic.com still resolves)\n\n## Open Questions\n- Does resolve-then-freeze create a timing window where the sentry has upstream DNS but iptables aren't fully locked down yet?\n- Should `RBRN_UPLINK_ALLOWED_DOMAINS` become `RBRN_UPLINK_ALLOWED_HOSTNAMES` to signal the semantic change?\n- Does the `global` DNS mode also need this treatment, or is it inherently accept-all-risk?",
+              "silks": "dns-exfiltration-countermeasure",
+              "commit": "9ff5681"
             }
           ]
         }
