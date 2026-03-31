@@ -31,9 +31,10 @@
       "creation_time": "260331",
       "status": "stabled",
       "order": [
-        "₢A0AAA"
+        "₢A0AAA",
+        "₢A0AAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAl0.md",
       "paces": {
         "₢A0AAA": {
@@ -44,6 +45,17 @@
               "text": "## Character\nMechanical dead code removal — scan and delete. No behavioral change.\n\n## Context\nGitLab integration was eliminated in ₣Av (builds.create + pouch replaced trigger dispatch). Dead code and comments remain across shell scripts, specs, and consumer docs. rbf_rubric_inscribe is a dead function with GitLab token fetch logic. Clean all of this before decomposing Foundry.\n\n## Inventory\n\n### Dead code to delete\n- rbf_Foundry.sh: entire rbf_rubric_inscribe() function\n- rbgc_Constants.sh: CBv2 GitLab constants (secret names, connection suffix)\n- rbgm_ManualProcedures.sh: rbgm_gitlab_setup() stub function\n- rbgm_cli.sh: rbgm_gitlab_setup dispatch entry\n- rbz_zipper.sh: RBZ_GITLAB_SETUP zipper enrollment\n- tt/rbw-gPL.GitLabSetup.sh: tabtarget (if still exists)\n\n### Spec/doc references to clean\n- RBSRI-rubric_inscribe.adoc: entire doc describes dead GitLab flow — assess delete or gut\n- RBS0-SpecTop.adoc: GitLab comments + eliminated tabtarget colophon\n- README.consumer.md: GitLab account requirement, rubric repo explanation, setup step\n- CLAUDE.consumer.md: GitLab rubric description + rbw-gPL reference\n- RBSDE-depot_levy.adoc, RBSDK-director_knight.adoc, RBSRR-RegimeRepo.adoc: elimination comments\n- rbgg_Governor.sh, rblm_cli.sh: GitLab comments\n\n## Pre-work\nRescan for gitlab (case-insensitive) across all of Tools/rbk/ on mount.\n\n## Acceptance\n- Zero occurrences of gitlab in shell scripts and consumer docs\n- Spec comments may remain as historical notes if they document WHY — use judgment\n- All existing tests pass",
               "silks": "purge-gitlab-and-rubric-inscribe",
               "commit": "39358c8"
+            }
+          ]
+        },
+        "₢A0AAB": {
+          "tacks": [
+            {
+              "ts": "260331-1419",
+              "state": "rough",
+              "text": "## Character\nDesign conversation — read the monolith, map function dependencies, decide exact file boundaries. No code changes.\n\n## Context\nrbf_Foundry.sh is ~4,600 lines with ~19 public + ~25 private functions spanning 4 domains. Decomposition plan from grooming session:\n\n| Prefix | Name | Domain |\n|--------|------|--------|\n| rbf | Foundry (non-terminal parent) | — |\n| rbfd | Foundry Director: Build | ordain, conjure, enshrine, graft, kludge, mirror |\n| rbfv | Foundry Verify | about, vouch, batch_vouch |\n| rbfl | Foundry Ledger | inscribe, tally, abjure, delete |\n| rbfr | Foundry Retriever | retrieve, summon, inspect_full, inspect_compact |\n| rbfc | Foundry Core | kindle, sentinel, GCB poll/wait, stitch, fact files, shared helpers |\n\n## Deliverable\nA concrete file-level plan documenting:\n1. Which public functions go to which new module\n2. Which private (zrbf_*) functions are shared vs module-specific\n3. Sourcing chain: how do child modules access core?\n4. CLI routing: one rbf_cli.sh dispatcher, or per-module CLIs?\n5. Kindle/sentinel changes: per-module kindle, or shared?\n6. Director credential check placement per module\n7. Exact list of files to create, modify, delete\n\n## Notes\n- Ax renames will have completed before this mounts — use post-Ax names\n- rbf_rubric_inscribe already deleted in prior pace\n- Function names listed above are pre-Ax; rescan on mount\n\n## Acceptance\n- Written plan reviewed with user before any code changes",
+              "silks": "foundry-decomposition-plan",
+              "commit": "55cd396"
             }
           ]
         }
