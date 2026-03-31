@@ -4884,6 +4884,7 @@
       "creation_time": "260327",
       "status": "racing",
       "order": [
+        "₢AxAAQ",
         "₢AxAAK",
         "₢AxAAL",
         "₢AxAAB",
@@ -4901,7 +4902,7 @@
         "₢AxAAP",
         "₢AxAAJ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -5147,6 +5148,17 @@
               "text": "## Character\nThree renames for image-level artifact operations. All live in the Foundry module (rbf_Foundry.sh / rbf_cli.sh) and share the Retriever/Director colophon families. These parallel the consecration-level verbs (summon/abjure/inspect) but at the individual artifact level.\n\n## Scope\nReplace **retrieve → wrest**, **delete → jettison**, and **inspect → plumb** for image-level operations.\n\n## Shell layer\n- `Tools/rbk/rbf_Foundry.sh`: rename `rbf_retrieve` → `rbf_wrest`, `rbf_delete` → `rbf_jettison`, `rbf_inspect_full` → `rbf_plumb_full`, `rbf_inspect_compact` → `rbf_plumb_compact`\n- Update `buc_doc_brief` strings and internal comments\n\n## Dispatch layer\n- `Tools/rbk/rbz_zipper.sh`: update buz_enroll\n  - `RBZ_RETRIEVE_IMAGE \"rbw-Rr\"` → `RBZ_WREST_IMAGE \"rbw-Rw\"` (w for wrest)\n  - `RBZ_DELETE_IMAGE \"rbw-DD\"` → `RBZ_JETTISON_IMAGE \"rbw-DJ\"` (J for jettison)\n  - `RBZ_INSPECT_FULL \"rbw-RiF\"` → `RBZ_PLUMB_FULL \"rbw-RpF\"` (p for plumb)\n  - `RBZ_INSPECT_COMPACT \"rbw-Ric\"` → `RBZ_PLUMB_COMPACT \"rbw-Rpc\"` (p for plumb)\n\n## Tabtarget layer\n- Delete old tabtargets for retrieve/delete/inspect\n- Create new tabtargets with updated colophons and frontispieces\n- Note: inspect has two modes (full/compact) with separate colophons — both rename\n\n## Spec layer\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: update quoin mappings and anchors\n  - `rbtgo_image_retrieve` or equivalent → `rbtgo_image_wrest`\n  - `rbtgo_image_delete` or equivalent → `rbtgo_image_jettison`\n  - `rbtgo_ark_inspect` → `rbtgo_image_plumb` (or equivalent — evaluate naming)\n  - Update `rbtc_inspect_full` / `rbtc_inspect_compact` colophon quoins\n- Spec files: RBSIR-image_retrieve.adoc, RBSID-image_delete.adoc, RBSAI-ark_inspect.adoc — update internal references\n\n## Consumer docs\n- Update Retriever and Director image operation rows in CLAUDE.consumer.md and README.consumer.md\n\n## Approach\n- Shell + zipper first\n- Tabtargets second\n- Spec + consumer docs last\n- Grep for remaining `rbf_retrieve`, `rbf_delete`, `rbf_inspect`, `rbw-Rr`, `rbw-DD`, `rbw-RiF`, `rbw-Ric` stragglers",
               "silks": "image-verbs-wrest-jettison-plumb",
               "commit": "d01fce3"
+            }
+          ]
+        },
+        "₢AxAAQ": {
+          "tacks": [
+            {
+              "ts": "260330-1803",
+              "state": "rough",
+              "text": "## Character\nPure mechanical file rename — no content changes. Maximizes git rename detection for ancestry tracking (`git log --follow` traces through each rename). Must complete before any verb-rename pace edits subdocument content.\n\n## Scope\nRename 12 RBS0 subdocument files: update acronym to match new operation vocabulary. Update all references in CLAUDE.md, RBS0 include directives, and any other filename references.\n\n## Rename Table\n\n| Old | New | Old Filename | New Filename |\n|-----|-----|--------------|--------------|\n| RBSCK | RBSCL | RBSCK-consecration_check.adoc | RBSCL-consecration_tally.adoc |\n| RBSDC | RBSDE | RBSDC-depot_create.adoc | RBSDE-depot_levy.adoc |\n| RBSBS | RBSCC | RBSBS-bottle_start.adoc | RBSCC-crucible_charge.adoc |\n| RBSBR | RBSCN | RBSBR-bottle_run.adoc | RBSCN-crucible_enjoin.adoc |\n| RBSDI | RBSDK | RBSDI-director_create.adoc | RBSDK-director_knight.adoc |\n| RBSRC | RBSRK | RBSRC-retriever_create.adoc | RBSRK-retriever_knight.adoc |\n| RBSSD | RBSSF | RBSSD-sa_delete.adoc | RBSSF-sa_forfeit.adoc |\n| RBSDD | RBSDU | RBSDD-depot_destroy.adoc | RBSDU-depot_unmake.adoc |\n| RBSGR | RBSGM | RBSGR-governor_reset.adoc | RBSGM-governor_mantle.adoc |\n| RBSIR | RBSIW | RBSIR-image_retrieve.adoc | RBSIW-image_wrest.adoc |\n| RBSID | RBSIJ | RBSID-image_delete.adoc | RBSIJ-image_jettison.adoc |\n| RBSAI | RBSAP | RBSAI-ark_inspect.adoc | RBSAP-ark_plumb.adoc |\n\n## Near Acronym Rationale (4 blocked slots)\n- RBSCL: C(onsecration) ta**L**ly — CT blocked by RBSCTD child\n- RBSDE: D(epot) l**E**vy — DL blocked by RBSDL (depot_list)\n- RBSCC: **C**(rucible) **C**(harge) — domain shift, double-letter precedent (RBSSS, RBSDD)\n- RBSCN: C(rucible) e**N**join — CE blocked by RBSCE (command_exec)\n\n## Reference Updates\n- `CLAUDE.md`: Update all 12 acronym → file mappings in File Acronym Mappings section\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: Update include directives and inline filename references\n- Grep repo for old filenames to catch stragglers (other spec cross-references, dockets, etc.)\n\n## Approach\n- `git mv` all 12 files — NO content changes (pure rename maximizes git rename detection)\n- Update CLAUDE.md and RBS0 references\n- Grep sweep for remaining old-name references\n- Single commit containing all renames + reference updates",
+              "silks": "subdocument-acronym-rename",
+              "commit": "9e8072d"
             }
           ]
         }
