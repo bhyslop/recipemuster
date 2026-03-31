@@ -116,12 +116,12 @@ Note: `CLAUDE.md` is overwritten (replacing the development version). The existi
 
 Show the user what was copied. Wait for acknowledgment.
 
-## Step 9: Marshal reset
+## Step 9: Marshal zero
 
-Run marshal reset while the tabtarget is still available (it will be stripped in Step 10):
+Run marshal zero while the tabtarget is still available (it will be stripped in Step 10):
 
 ```
-tt/rbw-MR.MarshalReset.sh
+tt/rbw-MZ.MarshalZeroes.sh
 ```
 
 This will:
@@ -179,8 +179,8 @@ git rm -f --ignore-unmatch tt/study-mpt.Run.*.sh
 git rm -f --ignore-unmatch tt/vow-*.sh
 git rm -f --ignore-unmatch tt/vslk-*.sh
 git rm -f --ignore-unmatch tt/vvw-*.sh
-git rm -f --ignore-unmatch tt/rbw-MR.MarshalReset.sh
-git rm -f --ignore-unmatch tt/rbw-MD.MarshalDuplicate.sh
+git rm -f --ignore-unmatch tt/rbw-MZ.MarshalZeroes.sh
+git rm -f --ignore-unmatch tt/rbw-MP.MarshalProofs.sh
 ```
 
 **10d. Internal .buk/ launchers (for stripped workbenches):**
@@ -202,7 +202,7 @@ git rm -f --ignore-unmatch MBS.STATION-reference.sh
 git rm -f --ignore-unmatch readme.md
 ```
 
-**10f. Stage the consumer templates and marshal reset changes:**
+**10f. Stage the consumer templates and marshal zero changes:**
 ```
 git add CLAUDE.md README.md
 git add -u
@@ -213,7 +213,7 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 ### What should survive after stripping:
 
 - `.buk/` — `burc.env`, `rbbc_constants.sh`, `launcher.buw_workbench.sh`, `launcher.rbw_workbench.sh`
-- `.rbk/` — all regime `.env` files (already blanked by marshal reset in Step 9)
+- `.rbk/` — all regime `.env` files (already blanked by marshal zero in Step 9)
 - `CLAUDE.md` — consumer version (copied in Step 8)
 - `README.md` — consumer version (copied in Step 8)
 - `LICENSE`
@@ -223,7 +223,7 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 - `rbev-vessels/` — vessel definitions and README
 - `Tools/buk/` — all `.sh` files, `busc_shellcheckrc`, `README.md`, `buts/` test support (minus `vov_veiled/`)
 - `Tools/rbk/` — all `.sh` files (minus `vov_veiled/`)
-- `tt/` — `rbw-*` and `buw-*` tabtargets only (minus `rbw-MR`, `rbw-MD` marshal tabtargets)
+- `tt/` — `rbw-*` and `buw-*` tabtargets only (minus `rbw-MZ`, `rbw-MP` marshal tabtargets)
 
 ## Step 11: Post-strip verification
 

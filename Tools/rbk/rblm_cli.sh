@@ -16,17 +16,17 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBLM CLI - Lifecycle Marshal operations (reset, duplicate)
+# RBLM CLI - Lifecycle Marshal operations (zero, proof)
 
 set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
-# Command: reset - Reset regime to blank template for release
+# Command: zero - Zero regime to blank template for release
 
-rblm_reset() {
-  buc_doc_brief "Reset regime to blank template for release qualification"
+rblm_zero() {
+  buc_doc_brief "Zero regime to blank template for release qualification"
   buc_doc_shown || return 0
 
   local -r z_rbrr="${RBBC_rbrr_file}"
@@ -43,10 +43,10 @@ rblm_reset() {
     esac
   done < "${z_rbrr}"
 
-  bug_section "Marshal Reset"
+  bug_section "Marshal Zero"
   bug_t "  Target: ${z_rbrr}"
   bug_e
-  bug_t "  RBRR fields blanked (reset to onboarding start):"
+  bug_t "  RBRR fields blanked (zeroed to onboarding start):"
   bug_t "    RBRR_DEPOT_PROJECT_ID, RBRR_GAR_REPOSITORY,"
   bug_t "    RBRR_GCB_POOL_STEM"
   bug_e
@@ -98,7 +98,7 @@ rblm_reset() {
   bug_t "  Preserved (payor-scoped, survives depot change):"
   bug_t "    ${z_secrets_dir}/rbro-payor.env"
   bug_e
-  buc_require "Proceed with marshal reset?" "reset"
+  buc_require "Proceed with marshal zero?" "zero"
 
   local -r z_tmp="${z_rbrr}.tmp"
   local z_line=""
@@ -177,18 +177,18 @@ rblm_reset() {
     done
   fi
 
-  bug_t "  Reset complete: ${z_rbrr}"
+  bug_t "  Zero complete: ${z_rbrr}"
   bug_e
   bug_t "  Next: verify onboarding guide detects blank state:"
   buc_tabtarget "${RBZ_ONBOARDING}"
-  buc_success "Regime reset to blank template"
+  buc_success "Regime zeroed to blank template"
 }
 
 ######################################################################
-# Command: duplicate - Create isolated clone for release ceremony testing
+# Command: proof - Create isolated clone for release ceremony testing
 
-rblm_duplicate() {
-  buc_doc_brief "Create isolated clone of repository for release ceremony testing"
+rblm_proof() {
+  buc_doc_brief "Create proof copy of repository for release ceremony testing"
   buc_doc_param "target_dir" "Absolute path to target directory (must not exist)"
   buc_doc_shown || return 0
 
@@ -235,7 +235,7 @@ rblm_duplicate() {
   fi
 
   # Present plan
-  bug_section "Marshal Duplicate"
+  bug_section "Marshal Proof"
   bug_t "  Target directory:     ${z_target_dir}"
   bug_t "  Clone subdirectory:   ${z_clone_dir}"
   bug_t "  Station files:        ${z_target_station_dir}"
@@ -305,11 +305,11 @@ rblm_duplicate() {
   fi
 
   bug_e
-  bug_t "  Duplicate complete: ${z_clone_dir}"
+  bug_t "  Proof complete: ${z_clone_dir}"
   bug_e
   bug_t "  To use the duplicate, start Claude Code from:"
   bug_t "    ${z_clone_dir}"
-  buc_success "Repository duplicated to ${z_target_dir}"
+  buc_success "Proof copy created at ${z_target_dir}"
 }
 
 ######################################################################

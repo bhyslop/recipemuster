@@ -25,7 +25,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBI**  → `rbk/rbi_Image.sh`
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
-- **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - reset regime to blank template, duplicate repo for release testing)
+- **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
 - **RBOB** → `rbk/rbob_bottle.sh`
 - **RBQ**  → `rbk/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBV**  → `rbk/rbv_PodmanVM.sh`

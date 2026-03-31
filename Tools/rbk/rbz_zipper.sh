@@ -47,8 +47,8 @@ zrbz_kindle() {
   buz_enroll RBZ_GITLAB_SETUP               "rbw-gPL"      "${z_mod}" "rbgm_gitlab_setup"
   buz_enroll RBZ_ONBOARDING                 "rbw-gO"       "${z_mod}" "rbgm_onboarding"
   # Marshal operations (rblm_cli.sh — Lifecycle Marshal)
-  buz_enroll RBZ_MARSHAL_RESET              "rbw-MR"       "rblm_cli.sh" "rblm_reset"
-  buz_enroll RBZ_MARSHAL_DUPLICATE          "rbw-MD"       "rblm_cli.sh" "rblm_duplicate"
+  buz_enroll RBZ_MARSHAL_ZERO              "rbw-MZ"       "rblm_cli.sh" "rblm_zero"
+  buz_enroll RBZ_MARSHAL_PROOF             "rbw-MP"       "rblm_cli.sh" "rblm_proof"
 
   # Payor depot operations (rbgp_cli.sh)
   z_mod="rbgp_cli.sh"
