@@ -33,9 +33,10 @@
       "order": [
         "₢A0AAA",
         "₢A0AAB",
-        "₢A0AAC"
+        "₢A0AAC",
+        "₢A0AAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAl0.md",
       "paces": {
         "₢A0AAA": {
@@ -68,6 +69,17 @@
               "text": "## Character\nCareful refactoring — extract shared internals into rbfc without changing any behavior.\n\n## Context\nCreate rbfc (Foundry Core) containing the shared infrastructure that all child modules need: kindle/sentinel, GCB build submission + polling, stitch (build JSON assembly), base64 decode capture, fact file handling. This must land first — the other extractions depend on it.\n\n## Pre-work\nDepends on decomposition plan pace for exact function list and sourcing design.\n\n## Acceptance\n- rbfc module exists with extracted shared functions\n- rbf_Foundry.sh sources rbfc and all existing behavior is unchanged\n- All tests pass — pure refactor, no behavioral change",
               "silks": "extract-foundry-core",
               "commit": "f0f54c3"
+            }
+          ]
+        },
+        "₢A0AAD": {
+          "tacks": [
+            {
+              "ts": "260331-1420",
+              "state": "rough",
+              "text": "## Character\nSurgical extraction — retriever functions have no director credential dependency, making this the cleanest cut.\n\n## Context\nExtract rbfr (Foundry Retriever) from Foundry: the retrieve, summon, and inspect operations. These functions only need retriever credentials. After extraction, rbfr sources rbfc for shared infrastructure but does NOT check for director credentials at kindle time.\n\nThis extraction naturally resolves the director-gate problem (₢AUAAn in ₣AU) — retriever operations no longer share a kindle with director operations.\n\n## Acceptance\n- rbfr module exists with retriever functions\n- Retriever operations work on a station with only retriever credentials\n- All tests pass",
+              "silks": "extract-foundry-retriever",
+              "commit": "49d7896"
             }
           ]
         }
