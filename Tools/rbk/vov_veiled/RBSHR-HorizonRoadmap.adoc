@@ -59,7 +59,7 @@ beyond the current Podman VM approach.
 _Reference_: RBSPV-PodmanVmSupplyChain.adoc (current VM supply chain);
 RBSBS, RBSBR, RBSBL (bottle lifecycle specs).
 
-**Hairpin peer access between bottle services.**
+**Hairpin peer access between crucibles.**
 Bottled containers cannot currently reach each other's published entry ports.
 Each bottle is isolated behind its own sentry on a separate enclave network.
 The traffic path is feasible: Bottle A egresses through Sentry A's transit

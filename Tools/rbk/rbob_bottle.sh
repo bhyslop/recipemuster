@@ -259,12 +259,12 @@ zrbob_detect_subnet_conflict() {
 ######################################################################
 # Public API
 
-# Start the complete bottle service (sentry + pentacle + bottle) via compose
+# Start the crucible (sentry + pentacle + bottle) via compose
 # Requires: RBOB kindled (which requires RBRN and RBRR)
 rbob_start() {
   zrbob_sentinel
 
-  buc_step "Starting bottle service: ${RBRN_MONIKER}"
+  buc_step "Starting crucible: ${RBRN_MONIKER}"
 
   # Cross-nameplate validation (silent on success, dies on conflict)
   rbrn_preflight
@@ -305,18 +305,18 @@ rbob_start() {
   buc_step "Starting services via compose"
   zrbob_compose --profile sessile up -d
 
-  buc_step "Bottle service started: ${RBRN_MONIKER}"
+  buc_step "Crucible started: ${RBRN_MONIKER}"
 }
 
-# Stop the complete bottle service via compose
+# Stop the crucible via compose
 rbob_stop() {
   zrbob_sentinel
 
-  buc_step "Stopping bottle service: ${RBRN_MONIKER}"
+  buc_step "Stopping crucible: ${RBRN_MONIKER}"
 
   zrbob_compose down --remove-orphans
 
-  buc_step "Bottle service stopped: ${RBRN_MONIKER}"
+  buc_step "Crucible stopped: ${RBRN_MONIKER}"
 }
 
 # Connect to sentry container (interactive shell)

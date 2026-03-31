@@ -48,4 +48,4 @@ Network creation, container instantiation, and startup ordering are all managed 
 After sentry is healthy, the
 {at_sentry_container}
 has dual network connectivity with iptables enforcement and DNS services active, ready to serve the
-{at_bottle_service}.
+{rbsc_crucible}.

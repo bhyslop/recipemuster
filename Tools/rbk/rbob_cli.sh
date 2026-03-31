@@ -19,8 +19,8 @@
 # RBOB CLI - Recipe Bottle Orchestration Bottle command-line interface
 #
 # Commands:
-#   start           Start bottle service (sentry + pentacle + bottle)
-#   stop            Stop bottle service
+#   start           Start crucible (sentry + pentacle + bottle)
+#   stop            Stop crucible
 #   connect_sentry  Connect to sentry container
 #   connect_pentacle  Connect to pentacle container
 #   connect_bottle  Connect to bottle container
@@ -83,7 +83,7 @@ rbob_info() {
 rbob_observe() {
   zrbob_sentinel
 
-  buc_doc_brief "Observe network traffic on bottle service containers"
+  buc_doc_brief "Observe network traffic on crucible containers"
   buc_doc_shown || return 0
 
   # Kindle observe module and delegate

@@ -17,7 +17,7 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # RBOO - Recipe Bottle Orchestration Observe
-# Network observation (tcpdump) for bottle services
+# Network observation (tcpdump) for crucibles
 #
 # Requires: buc_command.sh sourced
 # Requires: rbob_bottle.sh sourced and kindled
@@ -82,7 +82,7 @@ zrboo_prefix_bridge() {
 ######################################################################
 # Public API
 
-# Observe network traffic on bottle service containers
+# Observe network traffic on crucible containers
 # Runs until Ctrl+C; all captures run in parallel
 rboo_observe() {
   zrboo_sentinel

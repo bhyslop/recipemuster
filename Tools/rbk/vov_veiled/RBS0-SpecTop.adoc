@@ -224,13 +224,13 @@
 :at_workstation_p:           <<at_workstation,Workstation's>>
 
 // Local Deployment Architecture Terms
-:at_agile_service:           <<at_agile_service,Agile Bottle Service>>
+:at_agile_service:           <<at_agile_service,Agile Crucible>>
 :at_bottle_container:        <<at_bottle_container,Bottle Container>>
 :at_bottle_container_name:   <<at_bottle_container_name,Bottle Container Name>>
 :at_bottle_container_p:      <<at_bottle_container,Bottle Container's>>
 :at_bottle_container_s:      <<at_bottle_container,Bottle Containers>>
-:at_bottle_service:          <<at_bottle_service,Bottle Service>>
-:at_bottle_service_s:        <<at_bottle_service,Bottle Services>>
+:rbsc_crucible:              <<rbsc_crucible,Crucible>>
+:rbsc_crucible_s:            <<rbsc_crucible,Crucibles>>
 :at_pentacle_container:        <<at_pentacle_container,Pentacle Container>>
 :at_container_registry:      <<at_container_registry,Container Registry>>
 // :at_ebpf_program: removed — historical (Podman era), superseded by compose network_mode
@@ -250,7 +250,7 @@
 :at_sentry_container_p:      <<at_sentry_container,Sentry Container's>>
 :at_sentry_container_s:      <<at_sentry_container,Sentry Containers>>
 :at_sentry_image:            <<at_sentry_image,Sentry Image>>
-:at_sessile_service:         <<at_sessile_service,Sessile Bottle Service>>
+:at_sessile_service:         <<at_sessile_service,Sessile Crucible>>
 :at_startup_script:          <<at_startup_script,Startup Script>>
 :at_startup_script_s:        <<at_startup_script,Startup Scripts>>
 :at_transit_network:         <<at_transit_network,Transit Network>>
@@ -553,7 +553,7 @@ and destinations allowed
 * Full logging of allowed and denied traffic
 
 Each
-{at_bottle_service}
+{rbsc_crucible}
 maintains these boundaries through a three-container architecture:
 
 * One
@@ -628,7 +628,7 @@ have no direct network access; all connectivity flows through
 
 . Service Separation
 * Each
-{at_bottle_service}
+{rbsc_crucible}
 fully isolated
 * No cross-service communication
 * Independent security policies
@@ -1217,7 +1217,7 @@ include::RBSAJ-access_jwt_probe.adoc[]
 The precisely ordered sequence of steps needed to start a
 {at_sentry_container}
 that enforces network policy for a new
-{at_bottle_service}.
+{rbsc_crucible}.
 
 include::RBSSS-sentry_start.adoc[]
 
@@ -2025,7 +2025,7 @@ Application capable of running
 on the
 {at_workstation}.
 Docker with Docker Compose v2 is the primary runtime for
-{at_bottle_service}
+{rbsc_crucible}
 orchestration.
 Podman compose support is architecturally accommodated (podman compose delegates to Docker Compose v2) but deferred.
 
@@ -2034,7 +2034,7 @@ Podman compose support is architecturally accommodated (podman compose delegates
 [[at_sessile_service]]
 {at_sessile_service}::
 A long-running
-{at_bottle_service}
+{rbsc_crucible}
 that starts via
 {opbs_bottle_start}
 and persists until explicitly stopped.
@@ -2043,14 +2043,14 @@ The sessile pattern is used for services that maintain state and provide ongoing
 [[at_agile_service]]
 {at_agile_service}::
 A transient
-{at_bottle_service}
+{rbsc_crucible}
 that executes via
 {opbr_bottle_run}
 and terminates when its command completes.
 The agile pattern is used for one-shot operations that produce output and exit.
 
-[[at_bottle_service]]
-{at_bottle_service}::
+[[rbsc_crucible]]
+{rbsc_crucible}::
 A complete service instance consisting of one
 {at_sentry_container},
 one
@@ -2064,7 +2064,7 @@ Each service maintains strict file system and network boundaries while enabling 
 [[at_sentry_container]]
 {at_sentry_container}::
 A privileged container that enforces network security policies for a
-{at_bottle_service}.
+{rbsc_crucible}.
 It connects to both
 {at_transit_network}
 and
@@ -2120,7 +2120,7 @@ This network enables controlled external communication while maintaining securit
 [[at_nameplate]]
 {at_nameplate}::
 A configuration file that defines all aspects of a
-{at_bottle_service},
+{rbsc_crucible},
 including its images, network settings, and security policies.
 Each nameplate provides a complete service specification that the
 {at_rbm_system}
@@ -2154,7 +2154,7 @@ that contains the security enforcement functionality for a
 [[at_moniker]]
 {at_moniker}::
 A unique identifier that distinguishes each
-{at_bottle_service}
+{rbsc_crucible}
 instance within the
 {at_rbm_system}.
 This identifier forms the basis for container names and network identifiers.
@@ -2164,7 +2164,7 @@ This identifier forms the basis for container names and network identifiers.
 The primary operational automation that implements the
 {at_rbm_system}
 lifecycle rules for managing
-{at_bottle_service_s}.
+{rbsc_crucible_s}.
 
 [[at_rbm_config]]
 {at_rbm_config}::
@@ -2202,7 +2202,7 @@ The
 configures it by setting up regime files and creating
 {at_nameplate_s}
 to define
-{at_bottle_service_s}.
+{rbsc_crucible_s}.
 
 [[at_container_registry]]
 {at_container_registry}::
@@ -2212,7 +2212,7 @@ A service that stores and provides access to
 [[at_startup_script]]
 {at_startup_script}::
 A shell script baked into a vessel image at build time that performs initialization and configuration tasks when starting a
-{at_bottle_service}.
+{rbsc_crucible}.
 The sentry startup script (`rbjs_sentry.sh`) configures iptables and dnsmasq; the pentacle init script (`rbjp_pentacle.sh`) configures routing.
 Both live in the sentry vessel's build context directory and are COPYed into the image during conjure.
 
@@ -2936,13 +2936,13 @@ include::RBSRV-RegimeVessel.adoc[]
 [[rbrn_regime]]
 //axvr_regime axf_bash axrd_file_sourced axrd_manifold
 {rbrn_regime}::
-Configuration regime for bottle service deployment.
+Configuration regime for crucible deployment.
 RBRN assignment files in `.rbk/rbrn_*.env` define container deployment and network security settings.
 
 [[rbrn_moniker]]
 //axvr_variable axd_required rbst_xname
 {rbrn_moniker}::
-Unique moniker for the bottle service instance; 2-12 characters.
+Unique moniker for the crucible instance; 2-12 characters.
 
 [[rbrn_description]]
 //axvr_variable axd_optional rbst_description

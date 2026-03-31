@@ -38,7 +38,7 @@ zrbrn_kindle() {
   buv_regime_enroll RBRN
 
   buv_group_enroll "Core Service Identity"
-  buv_xname_enroll   RBRN_MONIKER                 2   12  "Unique identifier for Bottle Service"
+  buv_xname_enroll   RBRN_MONIKER                 2   12  "Unique identifier for Crucible"
   buv_string_enroll  RBRN_DESCRIPTION              0  120  "Human-readable description"
   buv_enum_enroll    RBRN_RUNTIME                              "Container runtime: docker or podman" \
                      docker podman

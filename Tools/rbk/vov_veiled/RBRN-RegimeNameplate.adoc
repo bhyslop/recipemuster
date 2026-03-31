@@ -1,7 +1,7 @@
 //axhrb_regime
 {rbrn_regime}
 
-This regime specifies variables that define bottle service deployment configurations within the Recipe Bottle system.
+This regime specifies variables that define crucible deployment configurations within the Recipe Bottle system.
 Each
 {rbrn_regime}
 instance represents a distinct service deployment with its own network, entry, and uplink settings.
@@ -10,7 +10,7 @@ RBRN assignment files are found in `.rbk/{moniker}.rbrn.env` and configure conta
 //axhrv_variable
 {rbrn_moniker}
 
-Unique moniker for the bottle service instance.
+Unique moniker for the crucible instance.
 Must be 2-12 characters and form a valid cross-context identifier.
 
 //axhrv_variable

@@ -117,13 +117,13 @@ it appears only inside Google-managed Cloud Build step containers (e.g. `gcr.io/
 Auxiliary provenance data, including the per-platform SBOM (`sbom.linux_amd64.spdx.json`), build transcript, build configuration snapshot, and key package summaries, is bundled into a compressed archive and uploaded to GAR as a **Generic Artifact** using the image tag as the package name and a fixed `metadata` version identifier.
 This design keeps the primary image minimal and broadly usable while making rich build history available to those who need it.
 
-=== Part Two: {at_bottle_service} Orchestration
+=== Part Two: {rbsc_crucible} Orchestration
 
 For development services requiring internet and/or IP connectivity at the
 {at_workstation},
 {at_rbm_system}
 then orchestrates startup and configuration of
-{at_bottle_service_s}, which are comprised of a
+{rbsc_crucible_s}, which are comprised of a
 {at_sentry_container},
 a
 {at_pentacle_container},
