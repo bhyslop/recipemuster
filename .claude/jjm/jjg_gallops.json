@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "A0",
+  "next_heat_seed": "A1",
   "heat_order": [
     "₣Az",
     "₣An",
@@ -22,9 +22,19 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣A0"
   ],
   "heats": {
+    "₣A0": {
+      "silks": "rbk-mvp-3-foundry-decomposition",
+      "creation_time": "260331",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAl0.md",
+      "paces": {}
+    },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
       "creation_time": "260117",
