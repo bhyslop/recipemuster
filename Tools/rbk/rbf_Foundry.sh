@@ -171,10 +171,8 @@ zrbf_quota_preflight() {
   zrbf_sentinel
 
   local -r z_token="${1:-}"
-  local -r z_mode="${2:-}"
 
   test -n "${z_token}" || buc_die "zrbf_quota_preflight: token required"
-  test -n "${z_mode}"  || buc_die "zrbf_quota_preflight: mode required (gate|advisory)"
 
   # Extract vCPU count from machine type (last segment after final hyphen)
   local -r z_vcpus="${RBRR_GCB_MACHINE_TYPE##*-}"
@@ -232,10 +230,8 @@ zrbf_quota_preflight() {
 
   if test "${z_max_concurrent}" -lt "${RBRR_GCB_MIN_CONCURRENT_BUILDS}"; then
     buc_warn "Build quota insufficient: ${z_limit} vCPU quota / ${z_vcpus} vCPUs per build = ${z_max_concurrent} concurrent (need ${RBRR_GCB_MIN_CONCURRENT_BUILDS})"
+    buc_warn "Fresh depots start with a low quota. After some build activity, the Edit Quotas option becomes available."
     buc_tabtarget "${RBZ_QUOTA_BUILD}"
-    if test "${z_mode}" = "gate"; then
-      buc_die "Quota preflight failed -- review capacity settings above"
-    fi
   else
     buc_info "Quota OK: ${z_limit} vCPU / ${z_vcpus} per build = ${z_max_concurrent} concurrent (need ${RBRR_GCB_MIN_CONCURRENT_BUILDS})"
   fi
@@ -1278,8 +1274,8 @@ rbf_build() {
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  # Quota preflight -- die if insufficient capacity
-  zrbf_quota_preflight "${z_token}" "gate"
+  # Quota preflight -- warn if insufficient capacity
+  zrbf_quota_preflight "${z_token}"
 
   # Capture git metadata (stitch needs ZRBF_GIT_INFO_FILE)
   buc_step "Capturing git metadata"

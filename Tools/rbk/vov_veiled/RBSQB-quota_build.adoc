@@ -7,7 +7,7 @@ reviews
 {gcb_service}
 private pool quota settings for a
 {rbtgi_depot_project}
-to verify that the *Concurrent Private Pool Build CPUs* quota supports the desired level of parallel build execution.
+to verify that the *Concurrent Build CPUs (Private Pool)* quota supports the desired level of parallel build execution.
 
 All depots use two private worker pools (tether and airgap).
 Machine type is set at pool creation time via
@@ -55,7 +55,7 @@ Console access to the depot project with Owner or Quota Administrator IAM role
 .. In the filter bar, enter `cloudbuild.googleapis.com` to show only
 {gcb_service}
 quotas
-.. Locate the *Concurrent Private Pool Build CPUs* row for the depot region
+.. Locate the *Concurrent Build CPUs (Private Pool)* row for the depot region
 .. {rbhg_store}
 current CPU quota value as `«CPU_QUOTA»`
 .. {rbhg_store}
@@ -82,7 +82,7 @@ This is a last resort and rarely necessary.
 //axhos_step
 . *Confirm Quota Headroom*:
 .. After pool recreation or quota increase, return to *IAM & Admin > Quotas & System Limits*
-.. Filter for `cloudbuild.googleapis.com` and verify the *Concurrent Private Pool Build CPUs* row
+.. Filter for `cloudbuild.googleapis.com` and verify the *Concurrent Build CPUs (Private Pool)* row
 .. {rbhg_require}
 quota headroom supports the required concurrent builds: `«CPU_QUOTA»` ÷ vCPUs per machine type ≥
 {rbrr_gcb_min_concurrent_builds}
@@ -97,7 +97,7 @@ private pool quota is confirmed to support the desired level of concurrent build
 //axhoc_completion
 NOTE: All depots use two private worker pools — tether and airgap — created by
 {rbtgo_depot_levy}.
-The relevant quota metric is *Concurrent Private Pool Build CPUs* on the pool's host project.
+The relevant quota metric is *Concurrent Build CPUs (Private Pool)* on the pool's host project.
 Machine type is set at pool creation time via
 {rbrr_gcb_machine_type};
 individual build requests do not specify machine type.
