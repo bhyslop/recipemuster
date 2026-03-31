@@ -54,7 +54,7 @@ rbtcsj_websocket_kernel_tcase() {
   buto_trace "Running full Python test (WebSocket, session creation, kernel execution)"
   # Run the full Python test (WebSocket, session creation, kernel execution)
   # This test container runs on host network and connects to Jupyter
-  local z_test_script="${RBTB_SCRIPT_DIR}/../../RBM-tests/rbt.test.srjcl.py"
+  local z_test_script="${RBTB_RBTS_DIR}/rbt_test_srjcl.py"
   test -f "${z_test_script}" || buto_fatal "Test script not found: ${z_test_script}"
 
   # Run Python test in dedicated container with networking dependencies
