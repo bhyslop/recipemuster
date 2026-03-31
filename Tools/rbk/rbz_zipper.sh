@@ -115,12 +115,11 @@ zrbz_kindle() {
   z_mod="rbob_cli.sh"
   buz_enroll RBZ_CRUCIBLE_CHARGE "rbw-cC" "${z_mod}" "rbob_charge"         "imprint"
   buz_enroll RBZ_CRUCIBLE_QUENCH "rbw-cQ" "${z_mod}" "rbob_quench"       "imprint"
-  buz_enroll RBZ_BOTTLE_SENTRY  "rbw-S" "${z_mod}" "rbob_connect_sentry" "imprint"
-  buz_enroll RBZ_BOTTLE_PENTACLE  "rbw-C" "${z_mod}" "rbob_connect_pentacle" "imprint"
-  buz_enroll RBZ_BOTTLE_CONNECT "rbw-B"  "${z_mod}" "rbob_connect_bottle" "imprint"
+  buz_enroll RBZ_CRUCIBLE_HAIL  "rbw-ch" "${z_mod}" "rbob_hail"          "imprint"
+  buz_enroll RBZ_CRUCIBLE_RACK  "rbw-cr" "${z_mod}" "rbob_rack"          "imprint"
+  buz_enroll RBZ_CRUCIBLE_SCRY  "rbw-cs" "${z_mod}" "rbob_scry"          "imprint"
   buz_enroll RBZ_BOTTLE_IFRIT   "rbw-Ic" "${z_mod}" "rbob_ifrit_client"  "imprint"
   buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is" "${z_mod}" "rbob_ifrit_sortie"  "imprint"
-  buz_enroll RBZ_BOTTLE_OBSERVE "rbw-o"  "${z_mod}" "rbob_observe"       "imprint"
 
   # Qualification operations
   z_mod="rbq_cli.sh"

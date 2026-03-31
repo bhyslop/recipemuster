@@ -319,24 +319,17 @@ rbob_quench() {
   buc_step "Crucible stopped: ${RBRN_MONIKER}"
 }
 
-# Connect to sentry container (interactive shell)
-rbob_connect_sentry() {
+# Hail sentry — call out to the guard (interactive shell)
+rbob_hail() {
   zrbob_sentinel
-  buc_step "Connecting to sentry: ${ZRBOB_SENTRY}"
+  buc_step "Hailing sentry: ${ZRBOB_SENTRY}"
   exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_SENTRY}" /bin/bash
 }
 
-# Connect to pentacle container (interactive shell)
-rbob_connect_pentacle() {
+# Rack bottle — compel the demon to reveal state (interactive shell)
+rbob_rack() {
   zrbob_sentinel
-  buc_step "Connecting to pentacle: ${ZRBOB_PENTACLE}"
-  exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_PENTACLE}" /bin/bash
-}
-
-# Connect to bottle container (interactive shell)
-rbob_connect_bottle() {
-  zrbob_sentinel
-  buc_step "Connecting to bottle: ${ZRBOB_BOTTLE}"
+  buc_step "Racking bottle: ${ZRBOB_BOTTLE}"
   exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_BOTTLE}" /bin/bash
 }
 

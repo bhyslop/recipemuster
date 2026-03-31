@@ -174,8 +174,8 @@ Pattern: `{colophon}.{frontispiece}[.{imprint}].sh`
 +
 Examples:
 +
-* `rbw-B.ConnectBottle.sh` — RBW workbench, ConnectBottle operation
-* `rbw-B.ConnectBottle.tadmor.sh` — same, with imprint specifying target
+* `rbw-cr.Rack.sh` — RBW workbench, Rack operation
+* `rbw-cr.Rack.tadmor.sh` — same, with imprint specifying target
 * `jjw-.HeatMount.sh` — JJK workbench, HeatMount operation
 * `buw-tt.LauncherList.sh` — BUK tabtarget testbench, LauncherList operation
 
@@ -229,7 +229,7 @@ Appears after the
 {busdc_colophon}
 and dot separator.
 +
-Examples: `Build`, `ConnectBottle`, `RunVVX`, `HeatMount`.
+Examples: `Build`, `Rack`, `RunVVX`, `HeatMount`.
 
 [[busdi_imprint]]
 //axl_voices axt_string
@@ -244,8 +244,8 @@ Appears after a second dot separator following the
 +
 Examples:
 +
-* `tadmor` in `rbw-B.ConnectBottle.tadmor.sh`
-* `srjcl` in `rbw-B.ConnectBottle.srjcl.sh`
+* `tadmor` in `rbw-cr.Rack.tadmor.sh`
+* `srjcl` in `rbw-cr.Rack.srjcl.sh`
 
 [[busdm_formulary]]
 //axl_voices axo_entity
@@ -297,12 +297,12 @@ from own filename
 
 === Dispatch Flow
 
-. User invokes launcher: `./tt/rbw-B.ConnectBottle.tadmor.sh`
+. User invokes launcher: `./tt/rbw-cr.Rack.tadmor.sh`
 . Launcher parses its filename to extract:
 * {busdc_colophon}:
-`rbw-B`
+`rbw-cr`
 * {busdf_frontispiece}:
-`ConnectBottle`
+`Rack`
 * {busdi_imprint}:
 `tadmor`
 . Launcher sources the appropriate
@@ -324,7 +324,7 @@ from own filename
 
     case "$frontispiece" in
         Build)          {prefix}w_build "$imprint" "$@" ;;
-        ConnectBottle)  {prefix}w_connect_bottle "$imprint" "$@" ;;
+        Rack)           {prefix}w_rack "$imprint" "$@" ;;
         *)              buc_fatal "Unknown frontispiece: $frontispiece" ;;
     esac
 }
@@ -387,7 +387,7 @@ follow a structure that encodes both kit identity and formulary type:
 
 * `{cipher}-` — default workbench (e.g., `rbw-`, `jjw-`)
 * `{cipher}-t-` — testbench (e.g., `buw-t-`, `jjw-t-`)
-* `{cipher}-{variant}-` — specialized workbench (e.g., `rbw-B-` for bottle operations)
+* `{cipher}-{variant}-` — specialized workbench (e.g., `rbw-cr-` for crucible rack operations)
 
 The trailing hyphen is always part of the colophon — it separates the routing prefix from the dot-delimited tabtarget components.
 

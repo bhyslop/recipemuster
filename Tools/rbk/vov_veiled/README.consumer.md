@@ -198,12 +198,12 @@ tt/rbw-cC.Charge.tadmor.sh
 
 This charges the crucible — starts the sentry, pentacle, and bottle containers for the vessel.
 
-### Connecting
+### Diagnostics
 
 ```
-tt/rbw-B.ConnectBottle.tadmor.sh    # Shell into bottle
-tt/rbw-S.ConnectSentry.tadmor.sh    # Shell into sentry
-tt/rbw-o.ObserveNetworks.tadmor.sh  # View network state
+tt/rbw-cr.Rack.tadmor.sh    # Shell into bottle (rack the demon)
+tt/rbw-ch.Hail.tadmor.sh    # Shell into sentry (hail the guard)
+tt/rbw-cs.Scry.tadmor.sh    # Observe network traffic (scry the topology)
 ```
 
 ### Stopping

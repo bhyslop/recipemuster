@@ -12,14 +12,14 @@ TabTargets are lightweight shell scripts in `tt/` that serve as the CLI entry po
 
 | Part | Purpose | Example |
 |------|---------|---------|
-| **Colophon** | Routing identifier (includes hyphen, workbench matches on this) | `rbw-B`, `buw-tt-ll` |
-| **Frontispiece** | Human-readable description (PascalCase) | `ConnectBottle` |
+| **Colophon** | Routing identifier (includes hyphen, workbench matches on this) | `rbw-cr`, `buw-tt-ll` |
+| **Frontispiece** | Human-readable description (PascalCase) | `Rack` |
 | **Imprint** | Optional target parameter (nameplate moniker, fixture name, etc.) | `tadmor` |
 
 - The `.` is the delimiter between parts
 - The hyphen is part of the colophon (not a separator)
 
-Example: `tt/rbw-B.ConnectBottle.tadmor.sh` — colophon `rbw-B` routes to the bottle connect command, frontispiece tells you what it does, imprint `tadmor` selects the nameplate.
+Example: `tt/rbw-cr.Rack.tadmor.sh` — colophon `rbw-cr` routes to the crucible rack command, frontispiece tells you what it does, imprint `tadmor` selects the nameplate.
 
 Multiple tabtargets can share the same colophon but differ by imprint:
 ```

@@ -224,8 +224,8 @@ TabTarget filenames encode structured information using publishing terminology:
 
 | Token | Term | Purpose | Example |
 |-------|------|---------|---------|
-| 1 | **Colophon** | Routing identifier—what the workbench matches on | `rbw-B` |
-| 2 | **Frontispiece** | Human-readable description | `ConnectBottle` |
+| 1 | **Colophon** | Routing identifier—what the workbench matches on | `rbw-cr` |
+| 2 | **Frontispiece** | Human-readable description | `Rack` |
 | 3+ | **Imprint** | Embedded parameter(s)—target/instance specifier | `tadmor` |
 
 **Simple example** (no imprint):
@@ -238,10 +238,10 @@ buw-tt-ll.ListLaunchers.sh
 
 **Parameterized example** (with imprint):
 ```
-rbw-B.ConnectBottle.tadmor.sh
-├── Colophon: rbw-B          (workbench routes on this)
-├── Frontispiece: ConnectBottle (human reads this)
-├── Imprint: tadmor         (passed to implementation)
+rbw-cr.Rack.tadmor.sh
+├── Colophon: rbw-cr         (workbench routes on this)
+├── Frontispiece: Rack        (human reads this)
+├── Imprint: tadmor          (passed to implementation)
 └── Extension: sh
 ```
 
@@ -255,7 +255,7 @@ rbw-cC.Charge.pluml.sh
 **Examples**:
 - `tt/buw-tt-ll.ListLaunchers.sh` - List launchers (no imprint)
 - `tt/buw-rv.ValidateRegimes.sh` - Validate regimes (no imprint)
-- `tt/rbw-B.ConnectBottle.tadmor.sh` - Connect to bottle on tadmor (with imprint)
+- `tt/rbw-cr.Rack.tadmor.sh` - Rack bottle on tadmor (with imprint)
 
 **Creation**: Use the `buw-tt-*` commands to create tabtargets:
 - `buw-tt-cbl` - Batch + logging (default)
@@ -270,7 +270,7 @@ BUD parses the filename into tokens using `BURC_TABTARGET_DELIMITER`:
 | Filename | Colophon | Frontispiece | Imprint(s) |
 |----------|----------|--------------|------------|
 | `buw-ll.ListLaunchers.sh` | `buw-ll` | `ListLaunchers` | *(none)* |
-| `rbw-B.ConnectBottle.tadmor.sh` | `rbw-B` | `ConnectBottle` | `tadmor` |
+| `rbw-cr.Rack.tadmor.sh` | `rbw-cr` | `Rack` | `tadmor` |
 
 BUD extracts the colophon using `${filename%%${BURC_TABTARGET_DELIMITER}*}` and passes it to the workbench.
 
@@ -532,15 +532,15 @@ BURD exports the following environment variables for workbench access:
 
 TabTarget filenames are parsed into tokens using `BURC_TABTARGET_DELIMITER`. Each token is exported for workbench access:
 
-| Variable | Semantic Role | For `rbw-B.ConnectBottle.tadmor.sh` |
+| Variable | Semantic Role | For `rbw-cr.Rack.tadmor.sh` |
 |----------|---------------|--------------------------------------|
-| `BURD_TOKEN_1` | **Colophon** | `rbw-B` |
-| `BURD_TOKEN_2` | **Frontispiece** | `ConnectBottle` |
+| `BURD_TOKEN_1` | **Colophon** | `rbw-cr` |
+| `BURD_TOKEN_2` | **Frontispiece** | `Rack` |
 | `BURD_TOKEN_3` | **Imprint** | `tadmor` |
 | `BURD_TOKEN_4` | Imprint (2nd) | *(empty)* |
 | `BURD_TOKEN_5` | Imprint (3rd) | *(empty)* |
-| `BURD_COMMAND` | Colophon | `rbw-B` *(legacy, same as TOKEN_1)* |
-| `BURD_TARGET` | Full filename | `rbw-B.ConnectBottle.tadmor.sh` |
+| `BURD_COMMAND` | Colophon | `rbw-cr` *(legacy, same as TOKEN_1)* |
+| `BURD_TARGET` | Full filename | `rbw-cr.Rack.tadmor.sh` |
 | `BURD_CLI_ARGS` | CLI arguments | *(extra arguments passed to tabtarget)* |
 
 The workbench receives the colophon for routing and imprints as target parameters. The frontispiece is for human readability and typically not used at runtime.

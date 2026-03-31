@@ -10,8 +10,8 @@ Enforce the "pure formulary" pattern across all BUK formularies: formularies rou
 **Formulary** is the architectural term for the component that BUD (dispatch) invokes to route tabtarget colophons to their implementations. Current implementations include workbenches, testbenches, and coordinators.
 
 **TabTarget Anatomy** (publishing terminology):
-- **Colophon** (`BUD_TOKEN_1`) - Routing identifier the formulary matches on (e.g., `rbw-B`)
-- **Frontispiece** (`BUD_TOKEN_2`) - Human-readable description (e.g., `ConnectBottle`)
+- **Colophon** (`BUD_TOKEN_1`) - Routing identifier the formulary matches on (e.g., `rbw-cr`)
+- **Frontispiece** (`BUD_TOKEN_2`) - Human-readable description (e.g., `Rack`)
 - **Imprint** (`BUD_TOKEN_3+`) - Embedded parameters/target specifier (e.g., `nsproto`)
 
 **The Pattern** (established by `rbk_Coordinator.sh`):

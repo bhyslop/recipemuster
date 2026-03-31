@@ -106,10 +106,9 @@ All credential files require `600` permissions and must never be committed to ve
 |----------|-------------|---------|
 | `rbw-cC` | Charge | Charge crucible (sentry + pentacle + bottle containers) |
 | `rbw-cQ` | Quench | Quench crucible |
-| `rbw-B` | ConnectBottle | Shell into the bottle container |
-| `rbw-S` | ConnectSentry | Shell into the sentry container |
-| `rbw-C` | ConnectPentacle | Shell into the pentacle container |
-| `rbw-o` | ObserveNetworks | Display network state for a running bottle |
+| `rbw-cr` | Rack | Shell into the bottle container (compel the demon to reveal state) |
+| `rbw-ch` | Hail | Shell into the sentry container (call out to the guard) |
+| `rbw-cs` | Scry | Observe network traffic on crucible containers |
 
 ### Qualification & Testing
 

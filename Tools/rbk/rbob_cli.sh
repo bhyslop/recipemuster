@@ -21,10 +21,9 @@
 # Commands:
 #   start           Start crucible (sentry + pentacle + bottle)
 #   stop            Stop crucible
-#   connect_sentry  Connect to sentry container
-#   connect_pentacle  Connect to pentacle container
-#   connect_bottle  Connect to bottle container
-#   observe         Observe network traffic (tcpdump)
+#   hail            Hail sentry (interactive shell)
+#   rack            Rack bottle (interactive shell)
+#   scry            Scry network traffic (tcpdump)
 #   info            Show container names, network, and runtime
 #   validate        Validate configuration is complete
 
@@ -80,10 +79,10 @@ rbob_info() {
   echo "Bottle IP: ${RBRN_ENCLAVE_BOTTLE_IP}"
 }
 
-rbob_observe() {
+rbob_scry() {
   zrbob_sentinel
 
-  buc_doc_brief "Observe network traffic on crucible containers"
+  buc_doc_brief "Scry network traffic on crucible containers"
   buc_doc_shown || return 0
 
   # Kindle observe module and delegate
