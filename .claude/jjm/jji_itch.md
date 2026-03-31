@@ -996,11 +996,11 @@ tt/rbw-ll.ListLaunchers.sh rbw       # Show RBW-specific tabtargets
 
 **2. Parameter help for token-based tabtargets**
 ```bash
-tt/rbw-GD.GovernorDirectorCreate.sh --help
+tt/rbw-GK.GovernorKnightsDirector.sh --help
 # Output:
-# Creates a Director service account in the Governor project
-# Usage: tt/rbw-GD.GovernorDirectorCreate.sh <NAMEPLATE>
-# Example: tt/rbw-GD.GovernorDirectorCreate.sh proto
+# Knights a Director service account in the Governor project
+# Usage: tt/rbw-GK.GovernorKnightsDirector.sh <NAMEPLATE>
+# Example: tt/rbw-GK.GovernorKnightsDirector.sh proto
 ```
 
 **3. Context-aware discovery**
@@ -1019,17 +1019,17 @@ tt/rbw-cn.CommandNameplates.sh GD
 # Show which bash function each tabtarget invokes
 tt/rbw-fm.FunctionMap.sh
 # Output:
-# tt/rbw-PC.PayorDepotCreate.sh → rbgp_depot_create()
-# tt/rbw-GD.GovernorDirectorCreate.sh → rbgg_director_create()
+# tt/rbw-PL.PayorLeviesDepot.sh → rbgp_depot_levy()
+# tt/rbw-GK.GovernorKnightsDirector.sh → rbgg_knight_director()
 ```
 
 ### Implementation Hints
 
 - Tabtargets could embed structured comments for parsing:
   ```bash
-  # @description: Creates a Director service account
+  # @description: Knights a Director service account
   # @usage: <NAMEPLATE>
-  # @function: rbgg_director_create
+  # @function: rbgg_knight_director
   ```
 - Or maintain central registry/manifest that maps tabtargets to metadata
 - Help flags could be handled at workbench layer (intercept `--help` before dispatch)

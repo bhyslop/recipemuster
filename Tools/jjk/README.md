@@ -187,7 +187,7 @@ Logged when analyzing a pace and proposing how to approach it:
 ---
 ### 2025-12-25 14:30 - specify-image-delete - APPROACH
 **Proposed approach**:
-- Read rbf_delete implementation to extract step sequence
+- Read rbf_jettison implementation to extract step sequence
 - Apply completeness criteria from RBAGS pattern
 - Document in same format as rbtgo_director_create
 ---

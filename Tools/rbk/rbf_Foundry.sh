@@ -4031,9 +4031,9 @@ rbf_batch_vouch() {
 ######################################################################
 # Plumb (rbw-RpF / rbw-Rpc)
 
-# Internal: core inspect logic shared by full and compact modes
+# Internal: core plumb logic shared by full and compact modes
 # Args: vessel consecration mode
-zrbf_inspect_core() {
+zrbf_plumb_core() {
   local z_vessel="${1:-}"
   z_vessel="${z_vessel##*/}"  # accept directory path or bare moniker
   local -r z_consecration="${2:-}"
@@ -4060,7 +4060,7 @@ zrbf_inspect_core() {
   # Bind vessels: use -about if available, fallback to static display
   if test "${RBRV_VESSEL_MODE}" = "bind"; then
     if test "${z_has_about}" = "false"; then
-      zrbf_inspect_show_bind "${z_vessel}" "${z_consecration}" "${z_mode}"
+      zrbf_plumb_show_bind "${z_vessel}" "${z_consecration}" "${z_mode}"
       return 0
     fi
     # Bind vessel with -about: fall through to shared extract+display path
@@ -4073,7 +4073,7 @@ zrbf_inspect_core() {
 
   # Extract -about contents into temp directory
   buc_step "Extracting -about artifact"
-  local -r z_extract="${BURD_TEMP_DIR}/inspect"
+  local -r z_extract="${BURD_TEMP_DIR}/plumb"
   mkdir -p "${z_extract}" || buc_die "Failed to create extraction directory: ${z_extract}"
   local z_cid=""
   docker create "${z_about_ref}" x > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
@@ -4099,15 +4099,15 @@ zrbf_inspect_core() {
 
   # Display results
   if test "${z_mode}" = "compact"; then
-    zrbf_inspect_show_compact "${z_vessel}" "${z_consecration}" "${z_extract}" "${z_has_vouch}"
+    zrbf_plumb_show_compact "${z_vessel}" "${z_consecration}" "${z_extract}" "${z_has_vouch}"
   else
-    zrbf_inspect_show_full "${z_vessel}" "${z_consecration}" "${z_extract}" "${z_has_vouch}"
+    zrbf_plumb_show_full "${z_vessel}" "${z_consecration}" "${z_extract}" "${z_has_vouch}"
   fi
 }
 
 # Internal: display bind vessel info
 # Args: vessel consecration mode
-zrbf_inspect_show_bind() {
+zrbf_plumb_show_bind() {
   local -r z_vessel="$1"
   local -r z_consecration="$2"
   local -r z_mode="$3"
@@ -4124,7 +4124,7 @@ zrbf_inspect_show_bind() {
 
   echo ""
   echo "================================================================"
-  echo "  CONSECRATION INSPECT: ${z_vessel} / ${z_consecration}"
+  echo "  CONSECRATION PLUMB: ${z_vessel} / ${z_consecration}"
   echo "================================================================"
   echo ""
   echo "  Vessel type:  BIND (external image pinned by digest)"
@@ -4147,7 +4147,7 @@ zrbf_inspect_show_bind() {
 # Internal: shared section rendering used by both compact and full modes
 # Args: extract_dir has_vouch
 # Outputs: vessel type, source, builder, SLSA, SBOM summary, vouch results
-zrbf_inspect_show_sections() {
+zrbf_plumb_show_sections() {
   local -r z_dir="$1"
   local -r z_has_vouch="$2"
 
@@ -4547,7 +4547,7 @@ zrbf_inspect_show_sections() {
 
 # Internal: display compact vessel info (conjure or bind)
 # Args: vessel consecration extract_dir has_vouch
-zrbf_inspect_show_compact() {
+zrbf_plumb_show_compact() {
   local -r z_vessel="$1"
   local -r z_consecration="$2"
   local -r z_dir="$3"
@@ -4555,10 +4555,10 @@ zrbf_inspect_show_compact() {
 
   echo ""
   echo "================================================================"
-  echo "  CONSECRATION INSPECT: ${z_vessel} / ${z_consecration}"
+  echo "  CONSECRATION PLUMB: ${z_vessel} / ${z_consecration}"
   echo "================================================================"
 
-  zrbf_inspect_show_sections "${z_dir}" "${z_has_vouch}"
+  zrbf_plumb_show_sections "${z_dir}" "${z_has_vouch}"
 
   echo ""
   echo "================================================================"
@@ -4568,7 +4568,7 @@ zrbf_inspect_show_compact() {
 # Internal: display full vessel info (conjure or bind)
 # Adds per-package inventory and Dockerfile (conjure only) to the compact sections.
 # Args: vessel consecration extract_dir has_vouch
-zrbf_inspect_show_full() {
+zrbf_plumb_show_full() {
   local -r z_vessel="$1"
   local -r z_consecration="$2"
   local -r z_dir="$3"
@@ -4578,10 +4578,10 @@ zrbf_inspect_show_full() {
 
   echo ""
   echo "================================================================"
-  echo "  CONSECRATION INSPECT (FULL): ${z_vessel} / ${z_consecration}"
+  echo "  CONSECRATION PLUMB (FULL): ${z_vessel} / ${z_consecration}"
   echo "================================================================"
 
-  zrbf_inspect_show_sections "${z_dir}" "${z_has_vouch}"
+  zrbf_plumb_show_sections "${z_dir}" "${z_has_vouch}"
 
   echo ""
   echo "  -- Package Inventory --------------------------------------------"
@@ -4650,7 +4650,7 @@ rbf_plumb_full() {
   buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
-  zrbf_inspect_core "${z_vessel}" "${z_consecration}" "full"
+  zrbf_plumb_core "${z_vessel}" "${z_consecration}" "full"
 }
 
 rbf_plumb_compact() {
@@ -4664,7 +4664,7 @@ rbf_plumb_compact() {
   buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
-  zrbf_inspect_core "${z_vessel}" "${z_consecration}" "compact"
+  zrbf_plumb_core "${z_vessel}" "${z_consecration}" "compact"
 }
 
 # eof

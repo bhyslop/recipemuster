@@ -2,14 +2,14 @@
 
 ## Core invariant
 
-Every mode produces -image and -about through a single primary Cloud Build job, then vouch runs as a second Cloud Build job. Two Cloud Build round-trips per mode. The operator invokes one command (`rbf_create`); the system handles the full pipeline.
+Every mode produces -image and -about through a single primary Cloud Build job, then vouch runs as a second Cloud Build job. Two Cloud Build round-trips per mode. The operator invokes one command (`rbf_ordain`); the system handles the full pipeline.
 
 For conjure and bind, the primary job combines image production with about generation. For graft, the image arrives via local push, so the primary Cloud Build job degenerates to about-only — but it is still the single primary job, not a separate pipeline stage.
 
 ## Pipeline topology
 
 ```
-rbf_create(vessel_dir)
+rbf_ordain(vessel_dir)
   primary Cloud Build job (mode-dispatched, produces -about; conjure/bind also produce -image):
     conjure -> rbf_build (trigger-dispatched: build+about steps in one job)
     bind    -> builds.create job (image copy+about steps in one job)
@@ -35,7 +35,7 @@ The director polls each Cloud Build job to completion before proceeding. One use
 - RBSAV-ark_vouch.adoc: vouch spec (always separate Cloud Build job)
 - RBSAB-ark_about.adoc: about spec (four Cloud Build steps only, no director wrapper)
 - RBSAC-ark_conjure.adoc: conjure spec (combined image+about job)
-- RBSAG-ark_graft.adoc: graft spec (degenerate combined, chaining in rbf_create)
+- RBSAG-ark_graft.adoc: graft spec (degenerate combined, chaining in rbf_ordain)
 - RBS0-SpecTop.adoc: top-level spec (three-mode combined delivery)
 - rbf_Foundry.sh: implementation
 - rbgjb/: conjure Cloud Build steps (stitch must embed rbgja steps)
