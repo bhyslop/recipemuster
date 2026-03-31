@@ -829,7 +829,6 @@
         "₢AUAAF",
         "₢AUAAV",
         "₢AUAAe",
-        "₢AUAAf",
         "₢AUAAj",
         "₢AUAAn"
       ],
@@ -1593,17 +1592,6 @@
               "text": "Extract RBRG pin management functions from rbrr_cli.sh into new rbrg_cli.sh module.\n\n## Functions to move\n\n- zrbrr_write_rbrg → zrbrg_write_rbrg\n- rbrr_validate_pins → rbrg_validate_pins\n- rbrr_render_pins → rbrg_render_pins\n- rbrr_refresh_gcb_pins → rbrg_refresh_gcb_pins\n- rbrr_refresh_binary_pins → rbrg_refresh_binary_pins\n\n## Shared state to move\n\n- ZRBRR_IMAGE_PINS_REFRESHED_AT → ZRBRG_IMAGE_PINS_REFRESHED_AT\n- ZRBRR_BINARY_PINS_REFRESHED_AT → ZRBRG_BINARY_PINS_REFRESHED_AT\n\n## Wiring\n\n- Create Tools/rbk/rbrg_cli.sh with standard module structure (multiple-inclusion guard, kindle, sentinel)\n- Update Tools/rbk/rbz_zipper.sh to route RBRG colophons to new module\n- Verify no remaining RBRG references in rbrr_cli.sh\n- Run fast qualification to verify wiring\n\n## Character\n\nMechanical extraction — self-contained functions, no design judgment needed.",
               "silks": "extract-rbrg-cli-from-rbrr",
               "commit": "b153d71"
-            }
-          ]
-        },
-        "₢AUAAf": {
-          "tacks": [
-            {
-              "ts": "260314-1756",
-              "state": "rough",
-              "text": "## Character\nMechanical with one judgment call (poll threshold).\n\n## Context\nPrivate pool builds sit in QUEUED for 7-13 polls (~40-70s) during normal cold-start scale-from-zero. When two builds compete for the 2 vCPU quota, the second serializes (observed: 130-288 polls, 10-26 min). Historical log analysis in `_logs_buk/hist-rbw-DC-sh-*` confirms the pattern across 68 builds from 2026-03-03 to 2026-03-14.\n\n## Deliverable 1: Polling advisory in zrbf_wait_build_completion\nIn `Tools/rbk/rbf_Foundry.sh` line ~607 (the QUEUED/WORKING while loop), add a one-time advisory when QUEUED persists past ~20 polls (~110s). Use `buc_warn` + `buc_tabtarget \"${RBZ_QUOTA_BUILD}\"`. Fire once (guard variable). Message should convey: \"Build queued longer than normal — another build may be holding the private pool.\"\n\n## Deliverable 2: Quota guide lifecycle repair\nThe guide in `rbgm_ManualProcedures.sh` (rbgm_quota_build function) and spec `RBSQB-quota_build.adoc` were overcorrected in commit 13fd330f to say Console Edit Quotas \"does NOT work\" for this metric. Screenshot evidence shows it DOES work on established depots — the edit panel appears with \"A value above 2 will require approval from your service provider.\" The lifecycle is:\n1. Fresh depot: 2 vCPU limit, Console Edit Quotas not available\n2. Established depot (after some build activity): Console Edit Quotas becomes available, values above 2 require provider approval\n\nRepair the guide to document both paths: Console flow (when available) and support ticket (when Console flow isn't available yet). Git history before 13fd330f has the earlier version that described Console Edit Quotas as working — use it as reference for what to restore, then layer on the fresh-vs-established distinction.\n\n## Threshold rationale\n20 polls × ~5.5s/poll ≈ 110s. Normal cold-start ceiling is ~13 polls (~70s). 20 polls provides clear separation from cold-start noise while catching contention early enough to be useful.",
-              "silks": "queued-build-advisory-and-quota-guide-repair",
-              "commit": "5b45113"
             }
           ]
         },
@@ -5121,9 +5109,10 @@
         "₢AxAAO",
         "₢AxAAP",
         "₢AxAAJ",
+        "₢AxAAS",
         "₢AxAAR"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -5510,6 +5499,24 @@
               "text": "## Character\n\nEnd-to-end verification that all verb renames across ₣Ax land correctly. Not mechanical — requires judgment about what constitutes adequate coverage given the breadth of changes (crucible lifecycle, diagnostics, consecration ops, role authority, image-level ops, marshal ops).\n\n## Scope\n\nExercise every renamed tabtarget and verify dispatch reaches the correct function. Specific coverage:\n\n- **Crucible**: charge/quench/enjoin/hail/rack/scry colophons dispatch correctly\n- **Consecration**: tally/ordain colophons dispatch correctly\n- **Governor**: knight/forfeit/charter colophons dispatch correctly\n- **Payor**: levy/unmake/mantle colophons dispatch correctly\n- **Marshal**: zero/proof colophons dispatch correctly\n- **Image**: wrest/jettison/plumb colophons dispatch correctly\n- **Qualification**: rbw-Qf fast qualification passes (tabtarget/colophon health)\n\n## Approach\n\n- Start with `rbw-Qf` fast qualification — catches any broken tabtarget/colophon/nameplate wiring\n- Then exercise `buc_doc_brief` on each renamed command to verify dispatch without side effects\n- Report any stragglers found during testing",
               "silks": "verb-rename-integration-test",
               "commit": "835f178"
+            }
+          ]
+        },
+        "₢AxAAS": {
+          "tacks": [
+            {
+              "ts": "260331-1427",
+              "state": "rough",
+              "text": "Drafted from ₢AUAAf in ₣AU.\n\n## Character\nMechanical with one judgment call (poll threshold).\n\n## Context\nPrivate pool builds sit in QUEUED for 7-13 polls (~40-70s) during normal cold-start scale-from-zero. When two builds compete for the 2 vCPU quota, the second serializes (observed: 130-288 polls, 10-26 min). Historical log analysis in `_logs_buk/hist-rbw-DC-sh-*` confirms the pattern across 68 builds from 2026-03-03 to 2026-03-14.\n\n## Deliverable 1: Polling advisory in zrbf_wait_build_completion\nIn `Tools/rbk/rbf_Foundry.sh` line ~607 (the QUEUED/WORKING while loop), add a one-time advisory when QUEUED persists past ~20 polls (~110s). Use `buc_warn` + `buc_tabtarget \"${RBZ_QUOTA_BUILD}\"`. Fire once (guard variable). Message should convey: \"Build queued longer than normal — another build may be holding the private pool.\"\n\n## Deliverable 2: Quota guide lifecycle repair\nThe guide in `rbgm_ManualProcedures.sh` (rbgm_quota_build function) and spec `RBSQB-quota_build.adoc` were overcorrected in commit 13fd330f to say Console Edit Quotas \"does NOT work\" for this metric. Screenshot evidence shows it DOES work on established depots — the edit panel appears with \"A value above 2 will require approval from your service provider.\" The lifecycle is:\n1. Fresh depot: 2 vCPU limit, Console Edit Quotas not available\n2. Established depot (after some build activity): Console Edit Quotas becomes available, values above 2 require provider approval\n\nRepair the guide to document both paths: Console flow (when available) and support ticket (when Console flow isn't available yet). Git history before 13fd330f has the earlier version that described Console Edit Quotas as working — use it as reference for what to restore, then layer on the fresh-vs-established distinction.\n\n## Threshold rationale\n20 polls × ~5.5s/poll ≈ 110s. Normal cold-start ceiling is ~13 polls (~70s). 20 polls provides clear separation from cold-start noise while catching contention early enough to be useful.",
+              "silks": "queued-build-advisory-and-quota-guide-repair",
+              "commit": "a8ce919"
+            },
+            {
+              "ts": "260314-1756",
+              "state": "rough",
+              "text": "## Character\nMechanical with one judgment call (poll threshold).\n\n## Context\nPrivate pool builds sit in QUEUED for 7-13 polls (~40-70s) during normal cold-start scale-from-zero. When two builds compete for the 2 vCPU quota, the second serializes (observed: 130-288 polls, 10-26 min). Historical log analysis in `_logs_buk/hist-rbw-DC-sh-*` confirms the pattern across 68 builds from 2026-03-03 to 2026-03-14.\n\n## Deliverable 1: Polling advisory in zrbf_wait_build_completion\nIn `Tools/rbk/rbf_Foundry.sh` line ~607 (the QUEUED/WORKING while loop), add a one-time advisory when QUEUED persists past ~20 polls (~110s). Use `buc_warn` + `buc_tabtarget \"${RBZ_QUOTA_BUILD}\"`. Fire once (guard variable). Message should convey: \"Build queued longer than normal — another build may be holding the private pool.\"\n\n## Deliverable 2: Quota guide lifecycle repair\nThe guide in `rbgm_ManualProcedures.sh` (rbgm_quota_build function) and spec `RBSQB-quota_build.adoc` were overcorrected in commit 13fd330f to say Console Edit Quotas \"does NOT work\" for this metric. Screenshot evidence shows it DOES work on established depots — the edit panel appears with \"A value above 2 will require approval from your service provider.\" The lifecycle is:\n1. Fresh depot: 2 vCPU limit, Console Edit Quotas not available\n2. Established depot (after some build activity): Console Edit Quotas becomes available, values above 2 require provider approval\n\nRepair the guide to document both paths: Console flow (when available) and support ticket (when Console flow isn't available yet). Git history before 13fd330f has the earlier version that described Console Edit Quotas as working — use it as reference for what to restore, then layer on the fresh-vs-established distinction.\n\n## Threshold rationale\n20 polls × ~5.5s/poll ≈ 110s. Normal cold-start ceiling is ~13 polls (~70s). 20 polls provides clear separation from cold-start noise while catching contention early enough to be useful.",
+              "silks": "queued-build-advisory-and-quota-guide-repair",
+              "commit": "5b45113"
             }
           ]
         }
