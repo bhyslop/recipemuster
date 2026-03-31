@@ -56,6 +56,13 @@
         "₢A0AAB": {
           "tacks": [
             {
+              "ts": "260331-1650",
+              "state": "rough",
+              "text": "## Character\nDesign conversation — read the monolith, map function dependencies, decide exact file boundaries. No code changes.\n\n## Context\nrbf_Foundry.sh is ~4,600 lines with ~19 public + ~25 private functions spanning 4 domains. Decomposition plan from grooming session:\n\n| Prefix | Name | Domain |\n|--------|------|--------|\n| rbf | Foundry (non-terminal parent) | — |\n| rbfd | Foundry Director: Build | ordain, conjure, enshrine, graft, kludge, mirror |\n| rbfv | Foundry Verify | about, vouch, batch_vouch |\n| rbfl | Foundry Ledger | inscribe, tally, abjure, delete |\n| rbfr | Foundry Retriever | wrest, summon |\n| rbfc | Foundry Core | kindle, sentinel, GCB poll/wait, stitch, fact files, shared helpers, plumb_full, plumb_compact |\n\n## Deliverable\nA concrete file-level plan documenting:\n1. Which public functions go to which new module\n2. Which private (zrbf_*) functions are shared vs module-specific\n3. Sourcing chain: how do child modules access core?\n4. CLI routing: one rbf_cli.sh dispatcher, or per-module CLIs?\n5. Kindle/sentinel changes: per-module kindle, or shared?\n6. Director credential check placement per module\n7. Exact list of files to create, modify, delete\n\n## Notes\n- Ax renames will have completed before this mounts — use post-Ax names\n- rbf_rubric_inscribe already deleted in prior pace\n- Function names listed above are pre-Ax; rescan on mount\n- plumb functions use no credentials — placed in core, not retriever\n\n## Acceptance\n- Written plan reviewed with user before any code changes",
+              "silks": "foundry-decomposition-plan",
+              "commit": "6510429"
+            },
+            {
               "ts": "260331-1419",
               "state": "rough",
               "text": "## Character\nDesign conversation — read the monolith, map function dependencies, decide exact file boundaries. No code changes.\n\n## Context\nrbf_Foundry.sh is ~4,600 lines with ~19 public + ~25 private functions spanning 4 domains. Decomposition plan from grooming session:\n\n| Prefix | Name | Domain |\n|--------|------|--------|\n| rbf | Foundry (non-terminal parent) | — |\n| rbfd | Foundry Director: Build | ordain, conjure, enshrine, graft, kludge, mirror |\n| rbfv | Foundry Verify | about, vouch, batch_vouch |\n| rbfl | Foundry Ledger | inscribe, tally, abjure, delete |\n| rbfr | Foundry Retriever | retrieve, summon, inspect_full, inspect_compact |\n| rbfc | Foundry Core | kindle, sentinel, GCB poll/wait, stitch, fact files, shared helpers |\n\n## Deliverable\nA concrete file-level plan documenting:\n1. Which public functions go to which new module\n2. Which private (zrbf_*) functions are shared vs module-specific\n3. Sourcing chain: how do child modules access core?\n4. CLI routing: one rbf_cli.sh dispatcher, or per-module CLIs?\n5. Kindle/sentinel changes: per-module kindle, or shared?\n6. Director credential check placement per module\n7. Exact list of files to create, modify, delete\n\n## Notes\n- Ax renames will have completed before this mounts — use post-Ax names\n- rbf_rubric_inscribe already deleted in prior pace\n- Function names listed above are pre-Ax; rescan on mount\n\n## Acceptance\n- Written plan reviewed with user before any code changes",
@@ -67,6 +74,13 @@
         "₢A0AAC": {
           "tacks": [
             {
+              "ts": "260331-1650",
+              "state": "rough",
+              "text": "## Character\nCareful refactoring — extract shared internals into rbfc without changing any behavior.\n\n## Context\nCreate rbfc (Foundry Core) containing the shared infrastructure that all child modules need: kindle/sentinel, GCB build submission + polling, stitch (build JSON assembly), base64 decode capture, fact file handling. Also includes plumb_full and plumb_compact — these inspect locally-pulled images and require no credentials, so they belong in core rather than gating on retriever or director creds.\n\n## Pre-work\nDepends on decomposition plan pace for exact function list and sourcing design.\n\n## Acceptance\n- rbfc module exists with extracted shared functions\n- plumb_full and plumb_compact work without any credential files present\n- rbf_Foundry.sh sources rbfc and all existing behavior is unchanged\n- All tests pass — pure refactor, no behavioral change",
+              "silks": "extract-foundry-core",
+              "commit": "6510429"
+            },
+            {
               "ts": "260331-1420",
               "state": "rough",
               "text": "## Character\nCareful refactoring — extract shared internals into rbfc without changing any behavior.\n\n## Context\nCreate rbfc (Foundry Core) containing the shared infrastructure that all child modules need: kindle/sentinel, GCB build submission + polling, stitch (build JSON assembly), base64 decode capture, fact file handling. This must land first — the other extractions depend on it.\n\n## Pre-work\nDepends on decomposition plan pace for exact function list and sourcing design.\n\n## Acceptance\n- rbfc module exists with extracted shared functions\n- rbf_Foundry.sh sources rbfc and all existing behavior is unchanged\n- All tests pass — pure refactor, no behavioral change",
@@ -77,6 +91,13 @@
         },
         "₢A0AAD": {
           "tacks": [
+            {
+              "ts": "260331-1650",
+              "state": "rough",
+              "text": "## Character\nSurgical extraction — retriever functions have no director credential dependency, making this the cleanest cut.\n\n## Context\nExtract rbfr (Foundry Retriever) from Foundry: the wrest and summon operations. These functions only need retriever credentials. After extraction, rbfr sources rbfc for shared infrastructure but does NOT check for director credentials at kindle time.\n\nThis extraction naturally resolves the director-gate problem (₢AUAAn in ₣AU) — retriever operations no longer share a kindle with director operations.\n\nNote: plumb (inspect) operations were considered for rbfr but moved to rbfc — they use zero credentials and shouldn't gate on retriever creds either.\n\n## Acceptance\n- rbfr module exists with wrest and summon\n- Retriever operations work on a station with only retriever credentials\n- All tests pass",
+              "silks": "extract-foundry-retriever",
+              "commit": "6510429"
+            },
             {
               "ts": "260331-1420",
               "state": "rough",
