@@ -36,8 +36,13 @@ vessel provided as first argument
 vessel contains conjuring configuration (RBRV_CONJURE_DOCKERFILE, RBRV_CONJURE_BLDCONTEXT)
 
 //axhos_step
-. *Verify Enshrined Base Images*:
-.. For each indexed slot (n = 1, 2, 3) where both
+. *Registry Preflight*:
+.. *Reliquary check*: HEAD request to `«RELIQUARY»/docker:latest` manifest in
+{gar_service}.
+{rbbc_require}
+HTTP 200 — on 404, fail with directive to run inscribe first.
+The reliquary is a co-versioned set of builder tool images inscribed from upstream into private GAR. Each vessel declares its reliquary; multiple datestamped reliquaries can coexist.
+.. *Enshrine check*: For each indexed slot (n = 1, 2, 3) where both
 {rbrv_image_origin}
 and
 {rbrv_image_anchor}
@@ -45,10 +50,11 @@ are set:
 ... HEAD request to `enshrine:«ANCHOR»` manifest in
 {gar_service}
 ... {rbbc_require}
-HTTP 200 — on 404, fail with directive to run {rbtgo_ark_enshrine} first
+HTTP 200 — on 404, fail with directive to run {rbtgo_ark_enshrine} first.
+Multiple vessels sharing the same anchor need only one enshrine.
 .. Preflight prevents wasted
 {gcb_service}
-submission time on a missing base image
+submission time on missing images, with copy-paste remediation commands
 
 //axhos_step
 . *Resolve Base Images*:

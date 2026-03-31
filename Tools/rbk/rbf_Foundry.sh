@@ -240,16 +240,78 @@ zrbf_quota_preflight() {
   fi
 }
 
-# Internal: Verify that all anchored base images exist in the enshrine
-# namespace before submitting to Cloud Build. A missing enshrine image
-# causes a build failure minutes later — this preflight catches it immediately.
-# Must be called after vessel load (reads RBRV_IMAGE_*_ANCHOR) and
-# authentication (needs token for registry API).
-zrbf_enshrine_preflight() {
+# Internal: Verify that all required images exist in GAR before submitting
+# to Cloud Build. Checks two layers in dependency order:
+#
+#   1. Reliquary — co-versioned builder tool images (gcloud, docker, syft, etc.)
+#      created by inscribe. One reliquary per depot setup. Enshrine depends on it.
+#   2. Enshrine — upstream base images copied into private GAR, pinned by content
+#      hash. One enshrine per base image anchor. Multiple vessels sharing the same
+#      anchor only need one enshrine.
+#
+# A missing image at either layer causes a Cloud Build failure minutes later.
+# This preflight catches it immediately with copy-paste remediation commands.
+#
+# Must be called after vessel load (reads RBRV_RELIQUARY, RBRV_IMAGE_*_ANCHOR)
+# and authentication (needs token for registry API).
+zrbf_registry_preflight() {
   zrbf_sentinel
 
   local -r z_token="${1:-}"
-  test -n "${z_token}" || buc_die "zrbf_enshrine_preflight: token required"
+  local -r z_vessel_dir="${2:-}"
+  test -n "${z_token}"      || buc_die "zrbf_registry_preflight: token required"
+  test -n "${z_vessel_dir}" || buc_die "zrbf_registry_preflight: vessel_dir required"
+
+  # --- Layer 1: Reliquary tool images ---
+  # Inscribe creates all 6 tool images atomically in one GCB job, so checking
+  # one (docker:latest) is sufficient as a canary for the entire reliquary.
+
+  local -r z_reliquary="${RBRV_RELIQUARY:-}"
+  if test -n "${z_reliquary}"; then
+    buc_step "Verifying reliquary tool images exist in GAR"
+
+    local -r z_rqy_canary="${z_reliquary}/docker"
+    local -r z_rqy_status_file="${ZRBF_PREFLIGHT_PREFIX}reliquary_status.txt"
+    local -r z_rqy_response_file="${ZRBF_PREFLIGHT_PREFIX}reliquary_response.txt"
+    local -r z_rqy_stderr_file="${ZRBF_PREFLIGHT_PREFIX}reliquary_stderr.txt"
+
+    curl --head -sS \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+      -H "Authorization: Bearer ${z_token}" \
+      -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+      -w "%{http_code}" \
+      -o "${z_rqy_response_file}" \
+      "${ZRBF_REGISTRY_API_BASE}/${z_rqy_canary}/manifests/latest" \
+      > "${z_rqy_status_file}" 2>"${z_rqy_stderr_file}" \
+      || buc_die "HEAD request failed for reliquary canary: ${z_rqy_canary}:latest — see ${z_rqy_stderr_file}"
+
+    local z_rqy_http_code=""
+    z_rqy_http_code=$(<"${z_rqy_status_file}")
+    test -n "${z_rqy_http_code}" || buc_die "HTTP status code is empty for reliquary check"
+
+    if test "${z_rqy_http_code}" = "404"; then
+      buc_warn "Reliquary not found: ${z_reliquary}"
+      buc_bare "  The reliquary is a co-versioned set of builder tool images (gcloud, docker,"
+      buc_bare "  syft, alpine, binfmt, skopeo) inscribed from upstream into your private GAR."
+      buc_bare "  Air-gapped worker pools cannot pull from the public internet — the reliquary"
+      buc_bare "  stages these tools so builds can run without egress. All vessels in a depot"
+      buc_bare "  typically share one reliquary. Inscribe creates a new datestamped set:"
+      buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
+      buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir}"
+      buc_die "Registry preflight failed — reliquary missing from GAR"
+    elif test "${z_rqy_http_code}" != "200"; then
+      buc_die "Unexpected HTTP ${z_rqy_http_code} when checking reliquary: ${z_rqy_canary}:latest"
+    fi
+
+    buc_info "Reliquary verified: ${z_reliquary}"
+  fi
+
+  # --- Layer 2: Enshrined base images ---
+  # Each vessel declares base images via RBRV_IMAGE_n_ORIGIN (upstream tag) and
+  # RBRV_IMAGE_n_ANCHOR (content-addressed GAR tag). Enshrine copies the upstream
+  # image into the enshrine namespace, pinned by the anchor hash. The conjure
+  # Dockerfile's FROM references the anchor, not the upstream tag.
 
   buc_step "Verifying enshrined base images exist in GAR"
 
@@ -294,7 +356,13 @@ zrbf_enshrine_preflight() {
     test -n "${z_http_code}" || buc_die "HTTP status code is empty for enshrine check"
 
     if test "${z_http_code}" = "404"; then
-      buc_die "Enshrined base image not found: enshrine:${z_anchor} (from ${z_origin}). Run enshrine before ordain."
+      buc_warn "Enshrined base image not found: enshrine:${z_anchor} (from ${z_origin})"
+      buc_bare "  Enshrine copies upstream base images into your private GAR, pinned by content"
+      buc_bare "  hash. Multiple vessels sharing the same base image anchor need only one enshrine."
+      buc_bare "  Run enshrine, then re-run ordain:"
+      buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir}"
+      buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir}"
+      buc_die "Registry preflight failed — enshrined base image missing from GAR"
     elif test "${z_http_code}" != "200"; then
       buc_die "Unexpected HTTP ${z_http_code} when checking enshrined image: enshrine:${z_anchor}"
     fi
@@ -1354,8 +1422,8 @@ rbf_build() {
   # Quota preflight -- warn if insufficient capacity
   zrbf_quota_preflight "${z_token}"
 
-  # Enshrine preflight -- verify anchored base images exist before expensive operations
-  zrbf_enshrine_preflight "${z_token}"
+  # Registry preflight -- verify reliquary and enshrined base images exist before expensive operations
+  zrbf_registry_preflight "${z_token}" "${z_vessel_dir}"
 
   # Capture git metadata (stitch needs ZRBF_GIT_INFO_FILE)
   buc_step "Capturing git metadata"
