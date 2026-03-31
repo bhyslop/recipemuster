@@ -347,4 +347,12 @@ rbob_ifrit_client() {
   exec ${ZRBOB_RUNTIME} exec -it -w "${RBRR_BOTTLE_WORKSPACE}" "${ZRBOB_BOTTLE}" claude
 }
 
+# Run ifrit sortie adjutant inside bottle (security test dispatch)
+rbob_ifrit_sortie() {
+  zrbob_sentinel
+  buc_step "Running ifrit sortie adjutant in bottle: ${ZRBOB_BOTTLE}"
+  ${ZRBOB_RUNTIME} exec -w "${RBRR_BOTTLE_WORKSPACE}" "${ZRBOB_BOTTLE}" \
+    python3 rbtia_adjutant.py "$@"
+}
+
 # eof

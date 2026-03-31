@@ -118,6 +118,7 @@ zrbz_kindle() {
   buz_enroll RBZ_BOTTLE_CENSER  "rbw-C" "${z_mod}" "rbob_connect_censer" "imprint"
   buz_enroll RBZ_BOTTLE_CONNECT "rbw-B"  "${z_mod}" "rbob_connect_bottle" "imprint"
   buz_enroll RBZ_BOTTLE_IFRIT   "rbw-Ic" "${z_mod}" "rbob_ifrit_client"  "imprint"
+  buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is" "${z_mod}" "rbob_ifrit_sortie"  "imprint"
   buz_enroll RBZ_BOTTLE_OBSERVE "rbw-o"  "${z_mod}" "rbob_observe"       "imprint"
 
   # Qualification operations
