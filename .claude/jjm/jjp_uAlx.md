@@ -1,6 +1,6 @@
 ## Context
 
-Recipe Bottle's operations use generic verbs where liturgical ones belong. This heat addresses the full vocabulary gap across four domains: crucible lifecycle verbs (charge/quench/enjoin), crucible diagnostic verbs (rack/hail/observe), consecration operation verbs (tally/ordain), role/regime authority verbs (knight/forfeit/levy/unmake/mantle/zero/proof), image-level artifact verbs (wrest/jettison/plumb), plus concept renames (censer→pentacle, bottle service→crucible) and MCM identity tier vocabulary.
+Recipe Bottle's operations use generic verbs where liturgical ones belong. This heat addresses the full vocabulary gap across four domains: crucible lifecycle verbs (charge/quench/enjoin), crucible diagnostic verbs (rack/hail/scry), consecration operation verbs (tally/ordain), role/regime authority verbs (knight/forfeit/levy/unmake/mantle/zero/proof), image-level artifact verbs (wrest/jettison/plumb), plus concept renames (censer→pentacle, bottle service→crucible) and MCM identity tier vocabulary.
 
 ## Discovery: Architecture is Sound
 
@@ -53,7 +53,7 @@ Confidence: HIGH.
 
 **rack** (4, r) — bottle (the demon). The instrument of compulsion — compel the demon to reveal its state. Adversarial, commanding.
 **hail** (4, h) — sentry (the ally). Call out to the guard. Respectful, military.
-**observe** (7, o) — networks (the perimeter). Observational. Retained from current vocabulary.
+**scry** (4, s) — networks (the perimeter). Solomonic divination — see through the veil to the hidden topology.
 
 Pentacle interactive access eliminated — scaffolding with no diagnostic use case.
 
@@ -139,7 +139,7 @@ All crucible operations grouped under `rbw-c*`. Uppercase second letter = lifecy
 | `rbw-ce` | Enjoin | operational |
 | `rbw-ch` | Hail sentry | diagnostic |
 | `rbw-cr` | Rack bottle | diagnostic |
-| `rbw-co` | Observe networks | diagnostic |
+| `rbw-cs` | Scry networks | diagnostic |
 
 Retiring: `rbw-s` (Start), `rbw-z` (Stop), `rbw-B` (ConnectBottle), `rbw-C` (ConnectCenser), `rbw-S` (ConnectSentry), `rbw-o` (ObserveNetworks).
 
@@ -149,7 +149,7 @@ Tabtarget examples:
 - `tt/rbw-ce.Enjoin.tadmor.sh`
 - `tt/rbw-ch.Hail.tadmor.sh`
 - `tt/rbw-cr.Rack.tadmor.sh`
-- `tt/rbw-co.Observe.tadmor.sh`
+- `tt/rbw-cs.Scry.tadmor.sh`
 
 Confidence: HIGH.
 
@@ -165,7 +165,7 @@ New quoins:
 - `rbsc_enjoin` — operational: dispatch ephemeral bottle (agile)
 - `rbsc_hail` — diagnostic: sentry
 - `rbsc_rack` — diagnostic: bottle
-- `rbsc_observe` — diagnostic: networks
+- `rbsc_scry` — diagnostic: networks
 - `rbsc_agile` — service mode: ephemeral dispatch pattern
 - `rbsc_sessile` — service mode: persistent service pattern
 
@@ -180,7 +180,7 @@ Confidence: HIGH.
 
 **Consecration-level** (Solomonic/forge): abjure(A), enshrine(E), ordain(O), summon(S), tally(T), vouch(V)
 **Image-level** (Solomonic/forge): jettison(J), plumb(P), wrest(W)
-**Crucible** (forge): charge(C), enjoin(E), hail(H), observe(O), quench(Q), rack(R)
+**Crucible** (forge): charge(C), enjoin(E), hail(H), quench(Q), rack(R), scry(S)
 **Role/regime** (feudal/military): forfeit(F), knight(K), levy(L), mantle(M), proof(P), unmake(U), zero(Z)
 
 ## Forward Dependency: ₣Az (ark concept removal)
@@ -193,4 +193,4 @@ This heat follows existing `rbtgo_ark_*` naming convention for quoins (e.g., `rb
 - MCM-MetaConceptModel.adoc, AXLA-Lexicon.adoc
 - rbob_bottle.sh, rbf_Foundry.sh, rbz_zipper.sh (full colophon registry)
 - rbgg_cli.sh (Governor), rbgp_cli.sh (Payor), rblm_cli.sh (Marshal)
-- Prior conversations: 260327 session, 260329 vocabulary election session, 260330 tally/ordain + Group A/B election sessions
+- Prior conversations: 260327 session, 260329 vocabulary election session, 260330 tally/ordain + Group A/B election sessions, 260331 observe→scry election
