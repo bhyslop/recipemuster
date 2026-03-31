@@ -753,7 +753,7 @@ Both builds succeed; neither overwrites the other.
 
 NOTE: The
 {gcb_service}
-private pool enforces a *Concurrent Build CPUs (Private Pool)* limit per project per region (classified by Google as a non-adjustable system limit; increases require a support ticket).
+private pool enforces a *Concurrent Private Pool Build CPUs* quota per project per region.
 Machine type is set at pool creation time via
 {rbrr_gcb_machine_type}
 (a Compute Engine type such as `e2-standard-2`); individual build requests do not specify machine type.

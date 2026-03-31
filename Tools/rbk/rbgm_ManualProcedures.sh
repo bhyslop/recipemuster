@@ -338,8 +338,12 @@ rbgm_quota_build() {
 
   bug_section  "Cloud Build Concurrent Build Capacity"
   bug_t        "Review your build capacity settings to ensure sufficient concurrent build execution."
-  bug_t        "Recipe Bottle uses a private worker pool — capacity is governed by a per-project"
-  bug_t        "CPU limit that Google classifies as a non-adjustable system limit."
+  bug_t        "Recipe Bottle uses a private worker pool — quota is tracked per private pool host project."
+  bug_e
+  bug_t        "   Private pool machine types vs concurrency at 10-CPU quota:"
+  bug_tc       "     e2-standard-2  " "(2 vCPU)   → 5 concurrent builds"
+  bug_tc       "     e2-standard-8  " "(8 vCPU)   → 1 concurrent build"
+  bug_tc       "     e2-standard-32 " "(32 vCPU)  → needs 32+ CPU quota"
   bug_e
   bug_section  "Key:"
   bug_tu       "   Magenta text refers to " "precise words you see on the web page."
@@ -356,46 +360,33 @@ rbgm_quota_build() {
   bug_t        "   The build preflight gate checks quota automatically before each build."
   bug_t        "   It computes: quota_vCPUs / machine_vCPUs >= RBRR_GCB_MIN_CONCURRENT_BUILDS"
   bug_e
-  bug_section  "2. Check CPU Limit:"
-  bug_t        "   Private pool CPU capacity is tracked under the depot project."
+  bug_section  "2. Check CPU Quota:"
+  bug_t        "   Private pool quota is tracked under the depot project with the metric:"
+  bug_tc       "      " "concurrent_private_pool_build_cpus"
   bug_e
   bug_link     "   Go to: " "Quotas & System Limits" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
   bug_tu       "   1. Verify project " "${RBRR_DEPOT_PROJECT_ID}" " is selected in the project picker"
   bug_t        "   2. In the filter bar, enter:"
   bug_tc       "      " "cloudbuild.googleapis.com"
-  bug_tut      "   3. Locate " "Concurrent Build CPUs (Private Pool)" " for your region"
-  bug_t        "   4. Note the value (typically 2 vCPUs for fresh projects)"
+  bug_tut      "   3. Locate " "concurrent_private_pool_build_cpus" " for your region"
+  bug_t        "   4. Note the quota value and current usage percentage"
+  bug_t        "      If usage is near 100% with one build, the machine type is too large for the quota"
   bug_e
-  bug_t        "   IMPORTANT: This appears as a non-adjustable System limit in the console."
-  bug_t        "   The Console Edit Quotas flow does NOT work for this metric."
-  bug_t        "   Google documentation still describes it as adjustable, but an anti-abuse"
-  bug_t        "   policy change reclassified it. See step 3 for the increase path."
+  bug_section  "3. Adjust Machine Type for Capacity:"
+  bug_t        "   Machine type is the primary control for concurrent build capacity."
+  bug_t        "   Use Compute Engine machine type names in RBRR_GCB_MACHINE_TYPE."
+  bug_tc       "     Set RBRR_GCB_MACHINE_TYPE=" "e2-standard-2"
+  bug_t        "     This uses 2 vCPUs per build, allowing 5 concurrent in a 10-CPU quota."
+  bug_t        "   Then update the pool via workerPools.patch API to apply the change."
   bug_e
-  bug_section  "3. Requesting a Limit Increase:"
-  bug_t        "   The only path to increase private pool CPUs is a manual request to Google:"
+  bug_t        "   If machine type adjustment cannot meet your capacity needs, a CPU quota increase"
+  bug_t        "   can be requested via Console Edit Quotas. This is a last resort and rarely necessary."
   bug_e
-  bug_t        "   With a support plan:"
-  bug_link     "     " "Cloud Console Support" "https://console.cloud.google.com/support?project=${RBRR_DEPOT_PROJECT_ID}"
-  bug_t        "     Create a case for Cloud Build requesting increased private pool CPUs."
-  bug_e
-  bug_t        "   Without a support plan:"
-  bug_link     "     " "Google Issue Tracker" "https://issuetracker.google.com/"
-  bug_t        "     File a request to lift the private pool CPU restriction."
-  bug_e
-  bug_t        "   Typical ask: increase from 2 to 10 vCPUs for the depot project."
-  bug_t        "   With e2-standard-2 (2 vCPU per build), 10 vCPUs allows 5 concurrent builds."
-  bug_e
-  bug_section  "4. Machine Type Reference:"
-  bug_t        "   Each build consumes vCPUs according to the pool's machine type."
-  bug_t        "   Machine type is set at pool creation time via RBRR_GCB_MACHINE_TYPE."
-  bug_e
-  bug_t        "   Private pool machine types vs concurrency:"
-  bug_tc       "     e2-standard-2  " "(2 vCPU)   → 1 concurrent at 2-CPU limit, 5 at 10-CPU"
-  bug_tc       "     e2-standard-8  " "(8 vCPU)   → needs 8+ CPU limit for even 1 build"
-  bug_tc       "     e2-standard-32 " "(32 vCPU)  → needs 32+ CPU limit"
-  bug_e
-  bug_t        "   For onboarding, the default of 1 concurrent build with e2-standard-2 is"
-  bug_t        "   sufficient. Request a limit increase when you need parallel builds."
+  bug_section  "4. Confirm Quota Headroom:"
+  bug_link     "   Return to: " "Quotas & System Limits" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
+  bug_t        "   Filter for cloudbuild.googleapis.com"
+  bug_t        "   Verify: quota / vCPUs per machine type >= RBRR_GCB_MIN_CONCURRENT_BUILDS"
+  bug_tc       "     Current target: " "${RBRR_GCB_MIN_CONCURRENT_BUILDS} concurrent builds"
   bug_e
 
   buc_success "Cloud Build quota guide displayed"

@@ -5,15 +5,17 @@ The
 {at_operator}
 reviews
 {gcb_service}
-private pool capacity settings for a
+private pool quota settings for a
 {rbtgi_depot_project}
-to verify that the *Concurrent Build CPUs (Private Pool)* system limit supports the desired level of parallel build execution.
+to verify that the *Concurrent Private Pool Build CPUs* quota supports the desired level of parallel build execution.
 
 All depots use two private worker pools (tether and airgap).
 Machine type is set at pool creation time via
 {rbrr_gcb_machine_type}
 (a Compute Engine type such as `e2-standard-2`); individual build requests do not specify machine type.
-Each build invocation consumes vCPUs according to the pool's machine type.
+Each
+{rbtgo_ark_conjure}
+invocation consumes vCPUs according to the pool's machine type.
 If the pool's vCPU count consumes most of the quota, builds serialize because a second invocation cannot acquire enough CPUs.
 
 NOTE: The `concurrent_private_pool_build_cpus` quota is project-scoped, not per-pool.
@@ -74,13 +76,13 @@ the result meets or exceeds
 To change it, the pool must be recreated with a different
 {rbrr_gcb_machine_type}
 (e.g., `e2-standard-2` for 2 vCPUs, `e2-highcpu-8` for 8 vCPUs).
-.. If machine type adjustment alone cannot satisfy capacity requirements, a CPU limit increase must be requested via Google Cloud Support ticket or Issue Tracker.
-The Console *Edit Quotas* flow does not work for this metric (Google reclassified it as a non-adjustable system limit due to anti-abuse policy).
+.. If machine type adjustment alone cannot satisfy capacity requirements, a CPU quota increase can be requested via *Edit Quotas*.
+This is a last resort and rarely necessary.
 
 //axhos_step
 . *Confirm Quota Headroom*:
-.. After pool recreation or limit increase, return to *IAM & Admin > Quotas & System Limits*
-.. Filter for `cloudbuild.googleapis.com` and verify the *Concurrent Build CPUs (Private Pool)* row
+.. After pool recreation or quota increase, return to *IAM & Admin > Quotas & System Limits*
+.. Filter for `cloudbuild.googleapis.com` and verify the *Concurrent Private Pool Build CPUs* row
 .. {rbhg_require}
 quota headroom supports the required concurrent builds: `«CPU_QUOTA»` ÷ vCPUs per machine type ≥
 {rbrr_gcb_min_concurrent_builds}
@@ -95,8 +97,7 @@ private pool quota is confirmed to support the desired level of concurrent build
 //axhoc_completion
 NOTE: All depots use two private worker pools — tether and airgap — created by
 {rbtgo_depot_levy}.
-The relevant capacity metric is *Concurrent Build CPUs (Private Pool)* on the pool's host project, classified by Google as a non-adjustable system limit in the console (despite documentation describing it as a quota).
-Increases require a Google Cloud Support ticket or Issue Tracker request.
+The relevant quota metric is *Concurrent Private Pool Build CPUs* on the pool's host project.
 Machine type is set at pool creation time via
 {rbrr_gcb_machine_type};
 individual build requests do not specify machine type.
