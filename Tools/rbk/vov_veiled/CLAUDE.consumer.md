@@ -74,10 +74,10 @@ All credential files require `600` permissions and must never be committed to ve
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-GD` | GovernorCreatesDirector | Provision director (build) service account |
-| `rbw-GR` | GovernorCreatesRetriever | Provision retriever (image pull) service account |
+| `rbw-GK` | GovernorKnightsDirector | Knight director (build) service account |
+| `rbw-GC` | GovernorChartersRetriever | Charter retriever (image pull) service account |
 | `rbw-Gl` | GovernorListsServiceAccounts | List issued service accounts |
-| `rbw-GS` | GovernorDeletesServiceAccount | Revoke a service account |
+| `rbw-GF` | GovernorForfeitsServiceAccount | Forfeit a service account |
 
 ### Build Lifecycle (Director role)
 

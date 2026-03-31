@@ -1,9 +1,9 @@
 //axhob_operation
-{rbtgo_retriever_create}
+{rbtgo_retriever_charter}
 
 The
 {rbtr_governor}
-creates a
+charters a
 {rbtr_retriever}
 {giam_service_account}
 with read-only
@@ -109,4 +109,4 @@ if
 already exists
 
 //axhoc_completion
-Successful execution creates retriever service account with read-only Artifact Registry access and provides RBRA file installation command.
+Successful execution charters retriever service account with read-only Artifact Registry access and provides RBRA file installation command.

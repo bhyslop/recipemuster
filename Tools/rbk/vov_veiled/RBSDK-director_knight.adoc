@@ -1,9 +1,9 @@
 //axhob_operation
-{rbtgo_director_create}
+{rbtgo_director_knight}
 
 The
 {rbtr_governor}
-creates a
+knights a
 {rbtr_director}
 {giam_service_account}
 with build management permissions:
@@ -165,4 +165,4 @@ if
 already exists
 
 //axhoc_completion
-Successful execution creates director service account.
+Successful execution knights director service account.

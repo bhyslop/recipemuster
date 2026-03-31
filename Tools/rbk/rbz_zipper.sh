@@ -56,12 +56,12 @@ zrbz_kindle() {
 
   # Governor commands
   z_mod="rbgg_cli.sh"
-  buz_enroll RBZ_CREATE_RETRIEVER          "rbw-GR"        "${z_mod}" "rbgg_create_retriever"
-  buz_enroll RBZ_CREATE_DIRECTOR           "rbw-GD"        "${z_mod}" "rbgg_create_director"
+  buz_enroll RBZ_CHARTER_RETRIEVER         "rbw-GC"        "${z_mod}" "rbgg_charter_retriever"
+  buz_enroll RBZ_KNIGHT_DIRECTOR           "rbw-GK"        "${z_mod}" "rbgg_knight_director"
 
   z_mod="rbgg_cli.sh"
   buz_enroll RBZ_LIST_SERVICE_ACCOUNTS     "rbw-Gl"        "${z_mod}" "rbgg_list_service_accounts"
-  buz_enroll RBZ_DELETE_SERVICE_ACCOUNT    "rbw-GS"        "${z_mod}" "rbgg_delete_service_account"
+  buz_enroll RBZ_FORFEIT_SERVICE_ACCOUNT   "rbw-GF"        "${z_mod}" "rbgg_forfeit_service_account"
 
   # Retriever/Image commands (rbw-R* colophon family → rbf_cli.sh)
   z_mod="rbf_cli.sh"

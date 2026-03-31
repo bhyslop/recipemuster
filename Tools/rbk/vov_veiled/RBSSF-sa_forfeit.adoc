@@ -1,7 +1,7 @@
 //axhob_operation
-{rbtgo_sa_delete}
+{rbtgo_sa_forfeit}
 
-NOTE: This operation deletes a service account from the
+NOTE: This operation forfeits a service account from the
 {rbtgi_depot_project}.
 It is a multi-role operation that can be invoked by any authenticated role with IAM admin access.
 
@@ -21,22 +21,22 @@ caller has valid OAuth token with `https://www.googleapis.com/auth/cloud-platfor
 `«ACCESS_TOKEN»` from caller context
 
 //axhos_step
-. *Delete Service Account*:
+. *Forfeit Service Account*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/delete[iam.projects.serviceAccounts.delete] with:
 ... method: `DELETE`
 ... endpoint: `https://iam.googleapis.com/v1/projects/{rbrr_depot_project_id}/serviceAccounts/«INPUT_SA_EMAIL»`
 ... header: `Authorization: Bearer «ACCESS_TOKEN»`
 .. {rbbc_require}
-HTTP 200 response OR HTTP 404 (already deleted)
+HTTP 200 response OR HTTP 404 (already forfeit)
 .. {rbbc_warn}
-if HTTP 404: "Service account not found (already deleted)"
+if HTTP 404: "Service account not found (already forfeit)"
 
 //axhoot_typed_output
 {rbtgi_depot_project}
 . *Display Results*:
 .. {rbbc_show}
-delete operation completed
+forfeit operation completed
 
 //axhoc_completion
-Successful completion is indicated by the "delete operation completed" message.
+Successful completion is indicated by the "forfeit operation completed" message.

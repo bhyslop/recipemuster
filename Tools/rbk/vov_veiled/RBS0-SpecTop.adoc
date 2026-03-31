@@ -111,7 +111,7 @@
 :rbtgo_depot_create:              <<rbtgo_depot_create,rbgp_depot_create>>
 :rbtgo_depot_destroy:             <<rbtgo_depot_destroy,rbgp_depot_destroy>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
-:rbtgo_director_create:           <<rbtgo_director_create,rbgg_create_director>>
+:rbtgo_director_knight:           <<rbtgo_director_knight,rbgg_knight_director>>
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbf_batch_vouch>>
 :rbtgo_governor_reset:            <<rbtgo_governor_reset,rbgp_governor_reset>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbf_delete>>
@@ -119,8 +119,8 @@
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbgm_payor_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbgm_payor_refresh>>
-:rbtgo_retriever_create:          <<rbtgo_retriever_create,rbgg_create_retriever>>
-:rbtgo_sa_delete:                 <<rbtgo_sa_delete,rbgg_delete_service_account>>
+:rbtgo_retriever_charter:         <<rbtgo_retriever_charter,rbgg_charter_retriever>>
+:rbtgo_sa_forfeit:                <<rbtgo_sa_forfeit,rbgg_forfeit_service_account>>
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbgm_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_build>>
@@ -956,22 +956,22 @@ include::RBSGM-governor_mantle.adoc[]
 
 == {rbtr_governor} Operations
 
-[[rbtgo_retriever_create]]
+[[rbtgo_retriever_charter]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_retriever_create}
+=== {rbtgo_retriever_charter}
 
-Creates a
+Charters a
 {rbtr_retriever}
 service account
 ({rbtgog_governor}).
 
 include::RBSRK-retriever_knight.adoc[]
 
-[[rbtgo_director_create]]
+[[rbtgo_director_knight]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_director_create}
+=== {rbtgo_director_knight}
 
-Creates a
+Knights a
 {rbtr_director}
 service account
 ({rbtgog_governor}).
@@ -1192,11 +1192,11 @@ resources
 
 include::RBSSL-sa_list.adoc[]
 
-[[rbtgo_sa_delete]]
+[[rbtgo_sa_forfeit]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_sa_delete}
+=== {rbtgo_sa_forfeit}
 
-Deletes
+Forfeits
 {giam_service_account}
 resources
 ({rbtgog_sa}).
@@ -1672,7 +1672,7 @@ The vouch step branches on `_RBGV_VESSEL_MODE`: conjure runs DSSE provenance ver
 Discovered constraints from implementation:
 +
   * **Private worker pool**: The RunBuild API caller ({rbtr_director}) requires `cloudbuild.workerpools.use` to specify a private pool, a permission not included in `roles/cloudbuild.builds.editor`.
-    {rbtgo_director_create} grants `roles/cloudbuild.workerPoolUser` at project scope.
+    {rbtgo_director_knight} grants `roles/cloudbuild.workerPoolUser` at project scope.
     Vouch runs on the same private pool as conjure (`RBRR_GCB_POOL_STEM`), eliminating an untested default-pool-with-buildx permutation.
   * **gcloud exception**: Vouch verification (conjure mode) invokes `gcloud artifacts docker images describe` for provenance retrieval (see {rbsk_no_gcloud} exception).
     All other steps use the GCE metadata server for OAuth tokens and direct registry REST API calls.
@@ -3563,7 +3563,7 @@ service account context:
 exists or
 {rbbc_fatal}
 "Director RBRA file missing - run
-{rbtgo_director_create}",
+{rbtgo_director_knight}",
 . loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
 . generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
 . {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
@@ -3581,7 +3581,7 @@ service account context:
 exists or
 {rbbc_fatal}
 "Retriever RBRA file missing - run
-{rbtgo_retriever_create}",
+{rbtgo_retriever_charter}",
 . loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
 . generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
 . {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,

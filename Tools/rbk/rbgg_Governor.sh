@@ -485,12 +485,12 @@ rbgg_list_service_accounts() {
   buc_success "Service account listing completed"
 }
 
-rbgg_create_retriever() {
+rbgg_charter_retriever() {
   zrbgg_sentinel
 
   local z_instance="${1:-}"
 
-  buc_doc_brief "Create Retriever service account instance"
+  buc_doc_brief "Charter Retriever service account instance"
   buc_doc_param "instance" "Instance name (required)"
   buc_doc_shown || return 0
 
@@ -504,7 +504,7 @@ rbgg_create_retriever() {
   local z_account_name="${RBGC_RETRIEVER_PREFIX}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
-  buc_step "Creating Retriever service account: ${z_account_name}"
+  buc_step "Chartering Retriever service account: ${z_account_name}"
 
   zrbgg_create_service_account_with_key                                          \
     "${z_account_name}"                                                        \
@@ -541,12 +541,12 @@ rbgg_create_retriever() {
   buc_bare "        cp ${z_actual_rbra_file} ${RBDC_RETRIEVER_RBRA_FILE}"
 }
 
-rbgg_create_director() {
+rbgg_knight_director() {
   zrbgg_sentinel
 
   local z_instance="${1:-}"
 
-  buc_doc_brief "Create Director service account instance"
+  buc_doc_brief "Knight Director service account instance"
   buc_doc_param "instance" "Instance name (required)"
   buc_doc_shown || return 0
 
@@ -560,7 +560,7 @@ rbgg_create_director() {
   local z_account_name="${RBGC_DIRECTOR_PREFIX}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
-  buc_step "Creating Director service account: ${z_account_name}"
+  buc_step "Knighting Director service account: ${z_account_name}"
 
   zrbgg_create_service_account_with_key                      \
     "${z_account_name}"                                    \
@@ -696,18 +696,18 @@ rbgg_create_director() {
   buc_bare "        cp ${z_actual_rbra_file} ${RBDC_DIRECTOR_RBRA_FILE}"
 }
 
-rbgg_delete_service_account() {
+rbgg_forfeit_service_account() {
   zrbgg_sentinel
 
   local z_sa_email="${1:-}"
 
-  buc_doc_brief "Delete a service account"
-  buc_doc_param "email" "Email address of the service account to delete"
+  buc_doc_brief "Forfeit a service account"
+  buc_doc_param "email" "Email address of the service account to forfeit"
   buc_doc_shown || return 0
 
   test -n "${z_sa_email}" || buc_die "Service account email required"
 
-  buc_step "Deleting service account: ${z_sa_email}"
+  buc_step "Forfeiting service account: ${z_sa_email}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
@@ -719,7 +719,7 @@ rbgg_delete_service_account() {
   rbgu_http_require_ok "Delete service account" "${ZRBGG_INFIX_DELETE}" \
     404 "not found (already deleted)"
 
-  buc_success "Delete operation completed"
+  buc_success "Forfeit operation completed"
 }
 
 rbgg_destroy_project() {
