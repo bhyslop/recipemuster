@@ -4970,6 +4970,13 @@
         "₢AxAAC": {
           "tacks": [
             {
+              "ts": "260331-1012",
+              "state": "complete",
+              "text": "## Character\nMechanical find-and-replace with careful attention to plural forms and surrounding context. The terms appear in definition structures (MCM linked terms), so each replacement must preserve the three-part structure: attribute reference, replacement text, and definition.\n\n## Scope\nRename the MCM identity tier vocabulary across 4 files (~31 occurrences):\n- **lemma/lemmata → quoin/quoins** — Full catalogue entry: mapping + anchor + definition\n- **graven → inlay/inlays** — Prefix-named, subdocument-scoped, no catalogue entry\n- **intaglio → sprue/sprues** — Wire-level token in backticks\n\n## Files\n- `Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc` (~18 occurrences)\n- `Tools/cmk/vov_veiled/AXLA-Lexicon.adoc` (~8 occurrences)\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` (~1 occurrence)\n- `.claude/jjm/jjp_uAlh.md` (~4 occurrences, retired heat memo)\n\n## Approach\n- Search each file for all three old terms (including plural forms: lemmata, gravens if any)\n- Replace with new terms, preserving AsciiDoc structure\n- Verify no dangling cross-references after replacement",
+              "silks": "mcm-tier-rename",
+              "commit": "e3db804"
+            },
+            {
               "ts": "260330-0800",
               "state": "rough",
               "text": "## Character\nMechanical find-and-replace with careful attention to plural forms and surrounding context. The terms appear in definition structures (MCM linked terms), so each replacement must preserve the three-part structure: attribute reference, replacement text, and definition.\n\n## Scope\nRename the MCM identity tier vocabulary across 4 files (~31 occurrences):\n- **lemma/lemmata → quoin/quoins** — Full catalogue entry: mapping + anchor + definition\n- **graven → inlay/inlays** — Prefix-named, subdocument-scoped, no catalogue entry\n- **intaglio → sprue/sprues** — Wire-level token in backticks\n\n## Files\n- `Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc` (~18 occurrences)\n- `Tools/cmk/vov_veiled/AXLA-Lexicon.adoc` (~8 occurrences)\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` (~1 occurrence)\n- `.claude/jjm/jjp_uAlh.md` (~4 occurrences, retired heat memo)\n\n## Approach\n- Search each file for all three old terms (including plural forms: lemmata, gravens if any)\n- Replace with new terms, preserving AsciiDoc structure\n- Verify no dangling cross-references after replacement",
