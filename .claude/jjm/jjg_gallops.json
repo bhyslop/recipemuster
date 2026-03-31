@@ -35,9 +35,10 @@
         "₢A0AAB",
         "₢A0AAC",
         "₢A0AAD",
-        "₢A0AAE"
+        "₢A0AAE",
+        "₢A0AAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAl0.md",
       "paces": {
         "₢A0AAA": {
@@ -92,6 +93,17 @@
               "text": "## Character\nSurgical extraction — verification functions form a coherent attestation group.\n\n## Context\nExtract rbfv (Foundry Verify) from Foundry: the about, vouch, and batch_vouch operations. These are attestation/metadata operations that run after build operations create images. They use GCB submission (from rbfc) and require director credentials.\n\n## Acceptance\n- rbfv module exists with verification functions\n- All tests pass",
               "silks": "extract-foundry-verify",
               "commit": "476b46c"
+            }
+          ]
+        },
+        "₢A0AAF": {
+          "tacks": [
+            {
+              "ts": "260331-1420",
+              "state": "rough",
+              "text": "## Character\nSurgical extraction — registry management functions.\n\n## Context\nExtract rbfl (Foundry Ledger) from Foundry: the inscribe, tally, abjure, and delete operations. These manage the registry inventory — listing, creating, and destroying consecration artifacts. They use GCB submission (some) and GAR API calls (others), and require director credentials.\n\n## Acceptance\n- rbfl module exists with ledger functions\n- All tests pass",
+              "silks": "extract-foundry-ledger",
+              "commit": "e2cfeaa"
             }
           ]
         }
