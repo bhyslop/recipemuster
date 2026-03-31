@@ -36,6 +36,21 @@ vessel provided as first argument
 vessel contains conjuring configuration (RBRV_CONJURE_DOCKERFILE, RBRV_CONJURE_BLDCONTEXT)
 
 //axhos_step
+. *Verify Enshrined Base Images*:
+.. For each indexed slot (n = 1, 2, 3) where both
+{rbrv_image_origin}
+and
+{rbrv_image_anchor}
+are set:
+... HEAD request to `enshrine:«ANCHOR»` manifest in
+{gar_service}
+... {rbbc_require}
+HTTP 200 — on 404, fail with directive to run {rbtgo_ark_enshrine} first
+.. Preflight prevents wasted
+{gcb_service}
+submission time on a missing base image
+
+//axhos_step
 . *Resolve Base Images*:
 .. For each indexed slot (n = 1, 2, 3) where
 {rbrv_image_origin}

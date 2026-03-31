@@ -139,6 +139,9 @@ zrbf_kindle() {
   buc_log_args 'Define enshrine operation files'
   readonly ZRBF_ENSHRINE_PREFIX="${BURD_TEMP_DIR}/rbf_enshrine_"
 
+  buc_log_args 'Define enshrine preflight files'
+  readonly ZRBF_PREFLIGHT_PREFIX="${BURD_TEMP_DIR}/rbf_preflight_"
+
   buc_log_args 'Define reliquary inscribe operation files'
   readonly ZRBF_RELIQUARY_PREFIX="${BURD_TEMP_DIR}/rbf_reliquary_"
 
@@ -234,6 +237,73 @@ zrbf_quota_preflight() {
     buc_tabtarget "${RBZ_QUOTA_BUILD}"
   else
     buc_info "Quota OK: ${z_limit} vCPU / ${z_vcpus} per build = ${z_max_concurrent} concurrent (need ${RBRR_GCB_MIN_CONCURRENT_BUILDS})"
+  fi
+}
+
+# Internal: Verify that all anchored base images exist in the enshrine
+# namespace before submitting to Cloud Build. A missing enshrine image
+# causes a build failure minutes later — this preflight catches it immediately.
+# Must be called after vessel load (reads RBRV_IMAGE_*_ANCHOR) and
+# authentication (needs token for registry API).
+zrbf_enshrine_preflight() {
+  zrbf_sentinel
+
+  local -r z_token="${1:-}"
+  test -n "${z_token}" || buc_die "zrbf_enshrine_preflight: token required"
+
+  buc_step "Verifying enshrined base images exist in GAR"
+
+  local z_n=""
+  local z_anchor_var=""
+  local z_anchor=""
+  local z_origin_var=""
+  local z_origin=""
+  local z_any_checked="false"
+  local z_status_file=""
+  local z_response_file=""
+  local z_stderr_file=""
+  local z_http_code=""
+
+  for z_n in 1 2 3; do
+    z_origin_var="RBRV_IMAGE_${z_n}_ORIGIN"
+    z_anchor_var="RBRV_IMAGE_${z_n}_ANCHOR"
+    z_origin="${!z_origin_var:-}"
+    z_anchor="${!z_anchor_var:-}"
+
+    # Skip slots without an origin or without an anchor (pass-through images don't need enshrine)
+    test -n "${z_origin}" || continue
+    test -n "${z_anchor}" || continue
+
+    z_any_checked="true"
+    z_status_file="${ZRBF_PREFLIGHT_PREFIX}enshrine_${z_n}_status.txt"
+    z_response_file="${ZRBF_PREFLIGHT_PREFIX}enshrine_${z_n}_response.txt"
+    z_stderr_file="${ZRBF_PREFLIGHT_PREFIX}enshrine_${z_n}_stderr.txt"
+
+    curl --head -sS \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+      -H "Authorization: Bearer ${z_token}" \
+      -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+      -w "%{http_code}" \
+      -o "${z_response_file}" \
+      "${ZRBF_REGISTRY_API_BASE}/enshrine/manifests/${z_anchor}" \
+      > "${z_status_file}" 2>"${z_stderr_file}" \
+      || buc_die "HEAD request failed for enshrined image: enshrine:${z_anchor} — see ${z_stderr_file}"
+
+    z_http_code=$(<"${z_status_file}")
+    test -n "${z_http_code}" || buc_die "HTTP status code is empty for enshrine check"
+
+    if test "${z_http_code}" = "404"; then
+      buc_die "Enshrined base image not found: enshrine:${z_anchor} (from ${z_origin}). Run enshrine before ordain."
+    elif test "${z_http_code}" != "200"; then
+      buc_die "Unexpected HTTP ${z_http_code} when checking enshrined image: enshrine:${z_anchor}"
+    fi
+
+    buc_log_args "Enshrined image verified: enshrine:${z_anchor}"
+  done
+
+  if test "${z_any_checked}" = "true"; then
+    buc_info "All enshrined base images verified in GAR"
   fi
 }
 
@@ -1283,6 +1353,9 @@ rbf_build() {
 
   # Quota preflight -- warn if insufficient capacity
   zrbf_quota_preflight "${z_token}"
+
+  # Enshrine preflight -- verify anchored base images exist before expensive operations
+  zrbf_enshrine_preflight "${z_token}"
 
   # Capture git metadata (stitch needs ZRBF_GIT_INFO_FILE)
   buc_step "Capturing git metadata"
