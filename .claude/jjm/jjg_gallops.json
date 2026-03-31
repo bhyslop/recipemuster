@@ -697,6 +697,7 @@
         "₢AUAAr",
         "₢AUAAp",
         "₢AUAAo",
+        "₢AUAAs",
         "₢AUAAl",
         "₢AUAAk",
         "₢AUAAm",
@@ -736,7 +737,7 @@
         "₢AUAAj",
         "₢AUAAn"
       ],
-      "next_pace_seed": "AAs",
+      "next_pace_seed": "AAt",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1716,6 +1717,17 @@
               "text": "## Character\nMechanical with careful testing — eight call sites across six files, plus elimination of two macOS compatibility hacks. The JWT path is security-sensitive and must be verified end-to-end.\n\n## Context\nConsumer runtime uses `base64` command for encoding and decoding. GNU and macOS implementations diverge: `-d` vs `-D` for decode, `-w0` vs `-b0` for no-wrap. Two files already have explicit fallback hacks for this. `openssl enc -base64` is portable across all platforms with no flag divergence, and openssl is already a committed dependency.\n\n## Pre-work: rescan\nFile renames are in progress. On mount, verify each call site still exists at the expected location.\n\n## Conversion patterns\n\nEncode (JWT base64url):\n- Before: `base64 | tr -d '\\n' | tr '+/' '-_' | tr -d '='`\n- After: `openssl enc -base64 -A | tr '+/' '-_' | tr -d '='`\n- Note: `-A` suppresses line wrapping, eliminating a `tr -d '\\n'` step\n\nDecode (files and strings):\n- Before: `base64 -d` (GNU) or `base64 -D` (macOS fallback)\n- After: `openssl enc -base64 -d`\n- Note: `-d` flag is consistent across all openssl builds\n\nCritical rule: `-A` flag must match on encode and decode sides. External sources (GCB build step outputs, GCP key data) include newlines in their base64 — decode those WITHOUT `-A`.\n\n## Call sites (8 executable + 1 command check)\n\n| File | Line ref | Pattern | Notes |\n|------|----------|---------|-------|\n| rbgo_OAuth.sh | encode | JWT header base64url | Security-sensitive |\n| rbgo_OAuth.sh | encode | JWT signature base64url | Security-sensitive |\n| rbgo_OAuth.sh | command check | `command -v base64` | Remove this check |\n| rbf_Foundry.sh | decode | Secret value decode | _capture function |\n| rbf_Foundry.sh | decode | Build step output decode (enshrine) | File-to-file |\n| rbf_Foundry.sh | decode | Build step output decode (consecration) | File-to-file |\n| rbv_PodmanVM.sh | decode | Manifest entry decode | Here-string input |\n| rgbs_ServiceAccounts.sh | decode | Private key decode | Pipe input |\n| rbgp_Payor.sh | decode | Key decode with macOS -D hack | **Hack eliminated** |\n| rbgg_Governor.sh | decode | Key decode with macOS -D hack | **Hack eliminated** |\n\n## Verification plan\n\n### A. OAuth JWT roundtrip (critical path)\nAfter converting rbgo_OAuth.sh, run the full OAuth flow to verify JWT signing still produces valid tokens:\n1. `tt/rbw-gPR.PayorRefresh.sh` — exercises JWT build, sign, and token exchange\n2. Success = GCP returns a valid access token (the JWT was accepted)\n3. If token exchange fails, the JWT encoding is broken — immediate rollback\n\n### B. Service account key decode\n1. `tt/rbw-GD.GovernorCreatesDirector.sh` — exercises key creation and decode (rbgg_Governor.sh)\n2. Verify the decoded key JSON is valid: the subsequent curl call that uses it will fail if decode is wrong\n\n### C. Build step output decode\n1. `tt/rbw-DE.DirectorEnshrinesVessel.sh` — exercises the enshrine path (rbf_Foundry.sh build step decode)\n2. Success = anchor results extracted and vouch artifact created\n\n### D. Payor key decode (macOS hack removal)\n1. `tt/rbw-gPI.PayorInstall.sh` — exercises rbgp_Payor.sh key decode path\n2. Run on macOS to confirm the openssl path works without the -d/-D fallback\n\n## Acceptance\n- Zero invocations of standalone `base64` command in consumer runtime\n- macOS `-d`/`-D` fallback hacks removed from rbgp_Payor.sh and rbgg_Governor.sh\n- `command -v base64` check removed from rbgo_OAuth.sh\n- OAuth token refresh succeeds (test A)\n- All existing tests pass",
               "silks": "unify-base64-on-openssl",
               "commit": "42c55e7"
+            }
+          ]
+        },
+        "₢AUAAs": {
+          "tacks": [
+            {
+              "ts": "260331-1115",
+              "state": "rough",
+              "text": "## Character\nSpecification writing — document the concrete dependency choices RB has made. Pairs with BCG's universal rules.\n\n## Context\nBCG (₢AUAAg) codifies the universal dependency discipline: POSIX allowlist, eviction table, principles. This pace adds the RB-specific inventory to RBS0 — what Recipe Bottle specifically depends on, categorized by audience.\n\n## Deliverable: RBS0 dependency inventory section\n\n### Consumer dependencies (required for all users)\nDocumented in index.html, enforced by qualification:\n\nbash, git, curl, jq, docker, openssl, ssh/scp/ssh-keygen\n\n### Developer dependencies (not required for consumers)\nUsed in development/testing tooling only:\n\n- **shellcheck** — linter, used by buq_qualify release tier\n- **timeout** — GNU coreutils, used by rbtb_testbench; absent on stock macOS\n\n### Specialized runtime\nPresent in specific operational modules, not required for core workflow:\n\n- **podman** — container runtime (future: dual-runtime support alongside docker)\n- **tcpdump** — network debugging in observe module\n- **sed** — 2 load-bearing uses (log normalization, Podman output parsing)\n- **stty** — terminal width detection in launcher\n\n### Alignment with index.html\nVerify index.html dependency claim matches this inventory. Update if diverged (openssl was previously undeclared).\n\n## References\n- BCG dependency discipline: ₢AUAAg\n- index.html dependency claim (current)\n- RBS0-SpecTop.adoc\n\n## Acceptance\n- RBS0 has a dependency inventory section with consumer/developer/specialized categories\n- index.html updated to declare openssl\n- Categories match the BCG framework (POSIX allowlist not repeated — referenced)",
+              "silks": "declare-rb-dependency-inventory-in-rbs0",
+              "commit": "9960ab1"
             }
           ]
         }
