@@ -693,6 +693,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢AUAAq",
         "₢AUAAp",
         "₢AUAAo",
         "₢AUAAl",
@@ -734,7 +735,7 @@
         "₢AUAAj",
         "₢AUAAn"
       ],
-      "next_pace_seed": "AAq",
+      "next_pace_seed": "AAr",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1678,6 +1679,17 @@
               "text": "## Character\nMechanical — six independent single-site replacements. Each is a one-liner or near it. Rescan on mount since files are being renamed.\n\n## Context\nAudit of consumer runtime scripts found six POSIX utilities with single or near-single call sites that have direct bash builtin replacements. Each eviction is independent — no ordering dependency between them.\n\n## Pre-work: rescan\nFile renames are in progress. On mount, verify each call site still exists at the expected location before converting.\n\n## Eviction inventory\n\n| Command | Expected file | Replacement | Notes |\n|---------|--------------|-------------|-------|\n| **head** | rbi_Image.sh | `read -r` (for head -1) | Trivial |\n| **tr** | rbgo_OAuth.sh | `${var//old/new}` parameter expansion | Verify which characters are translated |\n| **cut** | buc_command.sh | `read` with IFS or parameter expansion | Verify field extraction pattern |\n| **wc** | buq_qualify.sh, butd_dispatch.sh | `${#var}` for length, `${#arr[@]}` for counts | Two files |\n| **tput** | rboo_observe.sh, bud_dispatch.sh | Hardcoded ANSI escapes | Loses terminfo portability — assess whether acceptable |\n| **ls** | buut_tabtarget.sh | Glob expansion `for f in dir/*` | Verify what ls output is consumed |\n\n## Notes\n- **tput** is the only one requiring judgment — ANSI hardcoding loses terminfo abstraction. If the existing usage is just color/reset sequences that are already hardcoded elsewhere in BUK, it's fine. If it queries capabilities, reconsider.\n- **awk** was already evicted from bul_launcher.sh (₢AUAAg notch: stty size + read).\n\n## Acceptance\n- Zero invocations of head, tr, cut, wc, ls in consumer runtime .sh files\n- tput either evicted or explicitly kept with rationale\n- All existing tests pass",
               "silks": "evict-trivial-posix-utilities",
               "commit": "4cf1ac4"
+            }
+          ]
+        },
+        "₢AUAAq": {
+          "tacks": [
+            {
+              "ts": "260331-1046",
+              "state": "rough",
+              "text": "## Character\nMechanical — four call sites, one pattern. Rescan on mount since files are being renamed.\n\n## Context\nConsumer runtime uses both `sha256sum` (Linux coreutils) and `shasum -a 256` (macOS Perl) for hashing, neither universal. `openssl dgst -sha256 -r` produces sha256sum-compatible output and is present on both platforms. Since openssl is already a committed dependency (JWT signing in rbgo_OAuth, checksum fallback in bud_dispatch), standardize all hashing on it.\n\n## Pre-work: rescan\nFile renames are in progress. On mount, verify each call site still exists at the expected location.\n\n## Conversion pattern\n\nReplace all sha256sum/shasum invocations with `openssl dgst -sha256 -r`. The `-r` flag produces `hash *filename` format (sha256sum-compatible). Extract hash with `read -r z_hash _` (bash builtin, no awk/cut).\n\n## Call sites (4)\n\n| File | Current | Notes |\n|------|---------|-------|\n| `bud_dispatch.sh` | `sha256sum` with openssl fallback cascade | Simplify to openssl only |\n| `jja_arcanum.sh` | `shasum -a 256` (macOS-only) | Fix portability bug |\n| `vob_build.sh` | `sha256sum` then `shasum` dual probe | Simplify to openssl only |\n| `rbgje01-enshrine-copy.sh` | `sha256sum` (GCB) | Standardize for consistency |\n\n## Acceptance\n- Zero invocations of sha256sum or shasum in the codebase\n- All sites use `openssl dgst -sha256 -r`\n- Hash extraction uses `read -r` not awk/cut\n- All existing tests pass",
+              "silks": "unify-hashing-on-openssl",
+              "commit": "d098ee9"
             }
           ]
         }
