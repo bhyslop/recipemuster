@@ -345,4 +345,11 @@ rbob_connect_bottle() {
   exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_BOTTLE}" /bin/bash
 }
 
+# Launch Claude Code client inside bottle (ifrit engagement)
+rbob_ifrit_client() {
+  zrbob_sentinel
+  buc_step "Launching Claude Code client in bottle: ${ZRBOB_BOTTLE}"
+  exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_BOTTLE}" claude
+}
+
 # eof
