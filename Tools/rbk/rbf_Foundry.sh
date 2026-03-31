@@ -357,8 +357,11 @@ zrbf_registry_preflight() {
 
     if test "${z_http_code}" = "404"; then
       buc_warn "Enshrined base image not found: enshrine:${z_anchor} (from ${z_origin})"
-      buc_bare "  Enshrine copies upstream base images into your private GAR, pinned by content"
-      buc_bare "  hash. Multiple vessels sharing the same base image anchor need only one enshrine."
+      buc_bare "  Enshrine copies upstream base images (e.g., busybox:latest from Docker Hub) into"
+      buc_bare "  your private GAR, pinned by content hash. Like the reliquary, this ensures"
+      buc_bare "  air-gapped builds never reach the public internet. The anchor tag is stable"
+      buc_bare "  until you deliberately re-enshrine to pick up a newer upstream version."
+      buc_bare "  Multiple vessels sharing the same base image anchor need only one enshrine."
       buc_bare "  Run enshrine, then re-run ordain:"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir}"
       buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir}"
@@ -1934,6 +1937,14 @@ zrbf_mirror_submit() {
     fi
   fi
 
+  # Pool routing: bind uses vessel's egress mode (tether for upstream pulls, airgap if pre-staged)
+  local z_mirror_pool=""
+  case "${RBRV_EGRESS_MODE}" in
+    tether) z_mirror_pool="${RBDC_POOL_TETHER}" ;;
+    airgap) z_mirror_pool="${RBDC_POOL_AIRGAP}" ;;
+    *) buc_die "Unknown RBRV_EGRESS_MODE: ${RBRV_EGRESS_MODE}" ;;
+  esac
+
   # Compose Build resource JSON
   buc_log_args "Composing combined mirror Build resource JSON"
   local -r z_mirror_build_file="${ZRBF_MIRROR_PREFIX}build.json"
@@ -1957,7 +1968,7 @@ zrbf_mirror_submit() {
     --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
     --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
     --arg zjq_ark_suffix_diags "${RBGC_ARK_SUFFIX_DIAGS}" \
-    --arg zjq_pool         "${RBDC_POOL_AIRGAP}" \
+    --arg zjq_pool         "${z_mirror_pool}" \
     --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
