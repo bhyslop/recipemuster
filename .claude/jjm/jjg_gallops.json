@@ -729,9 +729,10 @@
         "₢AUAAV",
         "₢AUAAe",
         "₢AUAAf",
-        "₢AUAAj"
+        "₢AUAAj",
+        "₢AUAAn"
       ],
-      "next_pace_seed": "AAn",
+      "next_pace_seed": "AAo",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1642,6 +1643,17 @@
               "text": "## Character\nDesign conversation with incremental implementation. The onboarding guide today is a 14-level linear staircase assuming one person does everything. This pace restructures it into a role-aware dashboard that adapts to what credentials are present on the machine.\n\n## Docket\nRestructure `rbgm_onboarding()` from a single linear staircase into a role-aware dashboard:\n\n1. **Role inventory section** — probe for each RBRA file independently (retriever, director, governor) plus payor (rbrp.env + OAuth). Show what roles are active on this machine.\n\n2. **RBRA credential guidance** — for absent roles, explain what an RBRA file is, where it goes (`RBRR_SECRETS_DIR`), expected filename per role, required permissions (600). This teaches users who *received* a credential file how to emplace it.\n\n3. **Per-role status tracks** — for each detected role, show its specific readiness:\n   - Retriever: creds → nameplate consecrations → images summoned → bottle runs\n   - Director: creds → reliquary inscribed → vessels built → vouched\n   - Governor: creds → directors/retrievers issued\n   - Payor: project → OAuth → depot → governor reset\n\n4. **Next step guidance** — scoped to the most actionable detected role, not the global staircase.\n\nKey insight: RBRA file presence IS the role declaration. No flags, no parameters. The filesystem is the configuration.\n\nResearch finding: retriever-only machines need only two out-of-repo files: `burs.env` (station skeleton) and `rbra-retriever.env`. Everything else (RBRR, RBRN, BURC) is committed.\n\n## References\n- `Tools/rbk/rbgm_ManualProcedures.sh` — current `rbgm_onboarding()` (lines 485–880)\n- `Tools/rbk/vov_veiled/CLAUDE.consumer.md` — role documentation\n- `Tools/rbk/rbdc_DerivedConstants.sh` — credential path resolution",
               "silks": "role-aware-onboarding-dashboard",
               "commit": "ef10ca2"
+            }
+          ]
+        },
+        "₢AUAAn": {
+          "tacks": [
+            {
+              "ts": "260331-0754",
+              "state": "rough",
+              "text": "## Character\nSurgical refactor — move credential file-existence check from module kindle to individual command functions. Testable on a machine with retriever-only credentials.\n\n## Problem\n`zrbf_kindle` (rbf_Foundry.sh:40-41) gates on `RBDC_DIRECTOR_RBRA_FILE` existence at module init. This blocks all 18 foundry commands — including `rbf_retrieve` and `rbf_summon` which only need retriever credentials. A retriever-only station (e.g., cerebro) cannot pull images.\n\n## Scope\n- Remove director file-existence check from `zrbf_kindle` (lines 40-41)\n- Add `test -f \"${RBDC_DIRECTOR_RBRA_FILE}\"` guard to each of the 16 director-dependent commands at point of use\n- Verify `rbf_retrieve` and `rbf_summon` work with retriever credential only (no director on disk)\n- Test on cerebro: `tt/rbw-Rs.RetrieverSummonsConsecration.sh` should succeed without `rbra-director.env`\n\n## Acceptance\n- Summon/retrieve work on a station with only retriever credentials\n- Director commands fail clearly if director credential is missing\n- No behavioral change when both credentials are present",
+              "silks": "remove-director-gate-from-foundry-kindle",
+              "commit": "a739b10"
             }
           ]
         }
