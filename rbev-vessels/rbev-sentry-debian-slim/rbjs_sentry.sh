@@ -222,7 +222,7 @@ else
 fi
 
 echo "RBJp5: Signaling health"
-touch /tmp/rbj_healthy || exit 50
+touch /tmp/rbjh_healthy || exit 50
 
 echo "RBJp5: Sentry setup complete, entering hold"
 exec sleep infinity

@@ -2203,7 +2203,7 @@ A service that stores and provides access to
 {at_startup_script}::
 A shell script baked into a vessel image at build time that performs initialization and configuration tasks when starting a
 {at_bottle_service}.
-The sentry startup script (`rbj_sentry.sh`) configures iptables and dnsmasq; the censer init script (`rboc_censer.sh`) configures routing.
+The sentry startup script (`rbjs_sentry.sh`) configures iptables and dnsmasq; the censer init script (`rbjc_censer.sh`) configures routing.
 Both live in the sentry vessel's build context directory and are COPYed into the image during conjure.
 
 [[at_transit_network_name]]

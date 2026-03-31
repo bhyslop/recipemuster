@@ -30,7 +30,7 @@ This heat creates the Ifrit's context: slim vessels, volume mount plumbing, the 
 - Nameplate file naming: {moniker}.rbrn.env (moniker leads, regime type as suffix)
 - Compose file naming: rbob_compose.yml (base), {moniker}.compose.yml (fragment)
 - Sentry/censer entrypoint scripts baked into sentry image (zero mounts for security containers)
-- Censer init script: rboc_censer.sh
+- Censer init script: rbjc_censer.sh
 - Container env vars forwarded via environment: with bare names from exported parent shell
 - Compose --env-file for YAML interpolation, environment: for container injection — two distinct mechanisms
 - Podman compose deferred (architecture accommodates via podman compose delegating to Docker Compose v2)
@@ -40,7 +40,7 @@ This heat creates the Ifrit's context: slim vessels, volume mount plumbing, the 
 ## References
 
 - RBSIP-ifrit_pentester.adoc — system concept and trade study (committed)
-- Tools/rbk/rbj_sentry.sh — sentry startup script (becomes baked-in entrypoint)
+- Tools/rbk/rbjs_sentry.sh — sentry startup script (becomes baked-in entrypoint)
 - Tools/rbk/rbob_bottle.sh — bottle lifecycle (refactored to invoke compose)
 - .rbk/rbrr.env — repo regime (consumed directly by compose)
 - rbev-vessels/rbev-sentry-debian-slim/ — sentry vessel (entrypoint scripts baked in)

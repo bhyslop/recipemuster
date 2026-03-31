@@ -4,9 +4,9 @@
 NOTE: Sentry container creation and startup is managed by Docker Compose.
 The compose service definition specifies the sentry image, privileged mode, dual network attachment (default + enclave with static IP), environment variables forwarded from the nameplate, and the health check.
 
-The sentry's `CMD` is its baked-in entrypoint script (`/opt/rbk/rbj_sentry.sh`), COPYed into the image during the vessel build.
+The sentry's `CMD` is its baked-in entrypoint script (`/opt/rbk/rbjs_sentry.sh`), COPYed into the image during the vessel build.
 No volume mounts are used for security container scripts — the baked entrypoint is the only code that runs.
 
 //axhoc_completion
 After compose starts the sentry, the baked entrypoint executes: discovers interfaces by IP, configures iptables, starts dnsmasq, and signals health.
-The compose health check (`test -f /tmp/rbj_healthy`) gates downstream containers.
+The compose health check (`test -f /tmp/rbjh_healthy`) gates downstream containers.

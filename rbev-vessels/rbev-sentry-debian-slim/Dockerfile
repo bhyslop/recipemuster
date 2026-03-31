@@ -20,11 +20,11 @@ RUN apt-get update && apt-get install -y \
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy
 
 # Bake entrypoint scripts (sentry setup + censer routing)
-# Source of truth: Tools/rbk/rbj_sentry.sh, Tools/rbk/rboc_censer.sh
+# Source of truth: Tools/rbk/rbjs_sentry.sh, Tools/rbk/rbjc_censer.sh
 # Changes require deliberate build→vouch cycle
-COPY rbj_sentry.sh  /opt/rbk/rbj_sentry.sh
-COPY rboc_censer.sh /opt/rbk/rboc_censer.sh
-RUN chmod +x /opt/rbk/rbj_sentry.sh /opt/rbk/rboc_censer.sh
+COPY rbjs_sentry.sh  /opt/rbk/rbjs_sentry.sh
+COPY rbjc_censer.sh /opt/rbk/rbjc_censer.sh
+RUN chmod +x /opt/rbk/rbjs_sentry.sh /opt/rbk/rbjc_censer.sh
 
 # Default: sentry entrypoint (censer overrides via compose command)
-CMD ["/opt/rbk/rbj_sentry.sh"]
+CMD ["/opt/rbk/rbjs_sentry.sh"]

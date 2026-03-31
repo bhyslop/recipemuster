@@ -2,7 +2,7 @@
 {opss_sentry_start}
 
 NOTE: Docker Compose orchestrates the full container lifecycle declaratively.
-The sentry starts first; its health check (`/tmp/rbj_healthy`) gates the censer; the censer's health check (`/tmp/rboc_healthy`) gates the bottle.
+The sentry starts first; its health check (`/tmp/rbjh_healthy`) gates the censer; the censer's health check (`/tmp/rbjch_healthy`) gates the bottle.
 Network creation, container instantiation, and startup ordering are all managed by compose — the sub-operations below describe what happens inside each container at startup, not imperative orchestration steps.
 
 //axhos_step
@@ -13,7 +13,7 @@ Network creation, container instantiation, and startup ordering are all managed 
 {at_enclave_network}
 (`enclave` with static subnet from nameplate)
 .. Sentry container starts on both networks with privileged mode
-.. Baked-in entrypoint (`rbj_sentry.sh`) executes
+.. Baked-in entrypoint (`rbjs_sentry.sh`) executes
 
 //axhos_step
 . *Sentry discovers interfaces*:
@@ -41,7 +41,7 @@ Network creation, container instantiation, and startup ordering are all managed 
 
 //axhos_step
 . *Sentry signals health*:
-.. Creates `/tmp/rbj_healthy`
+.. Creates `/tmp/rbjh_healthy`
 .. Compose health check detects this and allows censer to start
 
 //axhoc_completion
