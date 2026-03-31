@@ -1489,19 +1489,11 @@ rbf_retrieve() {
 
   buc_step "Authenticating as Retriever"
 
-  # Prefer Retriever credentials, fallback to Director
-  local z_rbra_file=""
-  if test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" && test -f "${RBDC_RETRIEVER_RBRA_FILE}"; then
-    z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE}"
-    buc_info "Using Retriever credentials"
-  else
-    z_rbra_file="${RBDC_DIRECTOR_RBRA_FILE}"
-    buc_info "Retriever not configured, using Director credentials"
-  fi
+  test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
 
   # Get OAuth token
   local z_token
-  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
   buc_step "Logging into container registry"
 
@@ -1934,19 +1926,11 @@ rbf_summon() {
 
   buc_step "Authenticating for retrieval"
 
-  # Prefer Retriever credentials, fallback to Director
-  local z_rbra_file=""
-  if test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" && test -f "${RBDC_RETRIEVER_RBRA_FILE}"; then
-    z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE}"
-    buc_info "Using Retriever credentials"
-  else
-    z_rbra_file="${RBDC_DIRECTOR_RBRA_FILE}"
-    buc_info "Retriever not configured, using Director credentials"
-  fi
+  test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
 
   # Get OAuth token
   local z_token
-  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
   # Construct ark tags — all use full consecration
   local z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"

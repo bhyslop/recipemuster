@@ -193,19 +193,11 @@ zrbob_vouch_gate_and_summon() {
   test -n "${z_consecration}" || buc_die "zrbob_vouch_gate_and_summon: consecration required"
   test -n "${z_image_ref}"    || buc_die "zrbob_vouch_gate_and_summon: image_ref required"
 
-  # Get OAuth token — prefer Retriever credentials, fallback to Director
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local z_rbra_file=""
-  if test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" && test -f "${RBDC_RETRIEVER_RBRA_FILE}"; then
-    z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE}"
-    buc_info "Using Retriever credentials for auto-summon"
-  else
-    z_rbra_file="${RBDC_DIRECTOR_RBRA_FILE}"
-    buc_info "Retriever not configured, using Director credentials for auto-summon"
-  fi
+  test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
 
   local z_token
-  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || buc_die "Failed to get OAuth token for auto-summon"
+  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token for auto-summon"
 
   # Pull the image
   buc_step "Auto-summoning ${z_image_ref}"
