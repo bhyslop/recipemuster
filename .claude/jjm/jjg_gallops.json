@@ -693,6 +693,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢AUAAt",
         "₢AUAAq",
         "₢AUAAr",
         "₢AUAAp",
@@ -736,7 +737,7 @@
         "₢AUAAj",
         "₢AUAAn"
       ],
-      "next_pace_seed": "AAt",
+      "next_pace_seed": "AAu",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1695,6 +1696,17 @@
               "text": "## Character\nSpecification writing — document the concrete dependency choices RB has made. Pairs with BCG's universal rules.\n\n## Context\nBCG (₢AUAAg) codifies the universal dependency discipline: POSIX allowlist, eviction table, principles. This pace adds the RB-specific inventory to RBS0 — what Recipe Bottle specifically depends on, categorized by audience.\n\n## Deliverable: RBS0 dependency inventory section\n\n### Consumer dependencies (required for all users)\nDocumented in index.html, enforced by qualification:\n\nbash, git, curl, jq, docker, openssl, ssh/scp/ssh-keygen\n\n### Developer dependencies (not required for consumers)\nUsed in development/testing tooling only:\n\n- **shellcheck** — linter, used by buq_qualify release tier\n- **timeout** — GNU coreutils, used by rbtb_testbench; absent on stock macOS\n\n### Specialized runtime\nPresent in specific operational modules, not required for core workflow:\n\n- **podman** — container runtime (future: dual-runtime support alongside docker)\n- **tcpdump** — network debugging in observe module\n- **sed** — 2 load-bearing uses (log normalization, Podman output parsing)\n- **stty** — terminal width detection in launcher\n\n### Alignment with index.html\nVerify index.html dependency claim matches this inventory. Update if diverged (openssl was previously undeclared).\n\n## References\n- BCG dependency discipline: ₢AUAAg\n- index.html dependency claim (current)\n- RBS0-SpecTop.adoc\n\n## Acceptance\n- RBS0 has a dependency inventory section with consumer/developer/specialized categories\n- index.html updated to declare openssl\n- Categories match the BCG framework (POSIX allowlist not repeated — referenced)",
               "silks": "declare-rb-dependency-inventory-in-rbs0",
               "commit": "9960ab1"
+            }
+          ]
+        },
+        "₢AUAAt": {
+          "tacks": [
+            {
+              "ts": "260331-1145",
+              "state": "rough",
+              "text": "## Character\nMechanical bulk deletion — dead code removal, no behavioral change. Grep-driven sweep.\n\n## Context\nThe \"rubric inscribe\" workflow (clone GitLab rubric repo, push build contexts, trigger builds via CB v2 connection) was eliminated in ₣Av. The replacement (builds.create + pouch) is fully operational. However, the dead code, constants, spec, and \"eliminated\" comments were never purged. Additionally, all GitLab references are legacy — RB now uses GitHub exclusively.\n\n**KEEP**: `rbgji01-inscribe-mirror.sh` and its references — this is the current Cloud Build inscribe-mirror step, unrelated to the legacy rubric workflow.\n\n## Inventory\n\n### Dead code removal\n\n| File | What to remove |\n|------|---------------|\n| `rbf_Foundry.sh` | `rbf_rubric_inscribe()` function (~lines 2168-2468), kindle constants `ZRBF_BUILD_RUBRIC_LS` and `ZRBF_INSCRIBE_CLONE_DIR` |\n| `rbgg_Governor.sh` | `zrbgg_rubric_preflight()` function + 2 call sites (lines ~501-502, ~557-558) |\n| `rbgm_ManualProcedures.sh` | `rbgm_gitlab_setup()` function |\n| `rbgm_cli.sh` | `rbgm_gitlab_setup` dispatch case |\n| `rbgc_Constants.sh` | Rubric constants block: `RBGC_RUBRIC_CLONE_DIR`, `RBGC_RUBRIC_TRIGGER_PREFIX`, all 4 `RBGC_CBV2_*` constants, `RBGC_CBV2_REPOSITORY_ID` |\n| `rbra_regime.sh` | `RBRA_RUBRIC_REPO_URL` deprecated enrollment line |\n| `rbz_zipper.sh` | `RBZ_GITLAB_SETUP` enrollment line |\n| `rblm_cli.sh` | `RBRR_RUBRIC_REPO_URL` stripping case |\n| `rbrr_regime.sh` | Rubric elimination comment |\n\n### Spec/doc cleanup\n\n| File | Action |\n|------|--------|\n| `RBSRI-rubric_inscribe.adoc` | Delete entire file |\n| `RBS0-SpecTop.adoc` | Remove `:rbtc_gitlab_setup:` attribute, `[[rbtc_gitlab_setup]]` definition, rubric/gitlab comments |\n| `RBSRR-RegimeRepo.adoc` | Remove gitlab elimination comment |\n| `RBSDE-depot_levy.adoc` | Remove gitlab elimination comment block |\n| `RBSDK-director_knight.adoc` | Remove gitlab/inscribe elimination comment |\n| `RBSCB-CloudBuildPosture.adoc` | Check for rubric references |\n| `RBSTB-trigger_build.adoc` | Check for rubric references |\n| `README.consumer.md` | Remove rubric/gitlab references |\n| `CLAUDE.consumer.md` | Remove rubric/gitlab references |\n| `CLAUDE.md` | Remove RBSRI from file acronym mappings |\n\n### Regime file cleanup\n| File | Action |\n|------|--------|\n| `.gitignore` | Check for rubric-related ignore patterns |\n\n## Acceptance\n- Zero hits for `rubric` in .sh files (consumer runtime)\n- Zero hits for `gitlab` (case-insensitive) in .sh files\n- `RBSRI-rubric_inscribe.adoc` deleted\n- `rbgji01-inscribe-mirror.sh` untouched\n- No behavioral change — all removed code was already dead",
+              "silks": "purge-legacy-rubric-and-gitlab",
+              "commit": "dfc189f"
             }
           ]
         }
