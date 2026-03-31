@@ -291,6 +291,7 @@
 :scr_dns_step:               <<scr_dns_step,DNS Configuration Sequence>>
 
 // Recipe Bottle Regime: Repo
+:rbrr_bottle_workspace:      <<rbrr_bottle_workspace,RBRR_BOTTLE_WORKSPACE>>
 :rbrr_depot_project_id:      <<rbrr_depot_project_id,RBRR_DEPOT_PROJECT_ID>>
 :rbrr_director_rbra_file:    <<rbrr_director_rbra_file,RBRR_DIRECTOR_RBRA_FILE>>
 :rbrr_gar_repository:        <<rbrr_gar_repository,RBRR_GAR_REPOSITORY>>
@@ -2420,6 +2421,14 @@ credentials file for OAuth operations.
 Derived from
 {rbrr_secrets_dir}
 as `rbro-payor.env`.
+
+[[rbrr_bottle_workspace]]
+//axvr_variable axd_required rbst_path
+{rbrr_bottle_workspace}::
+Container-internal working directory path for all
+{at_bottle_container_s}.
+Conventionally `/workspace`, following the industry-standard devcontainer convention.
+Used by compose `working_dir`, volume mount targets, and bottle engagement tabtargets.
 
 [[rbrr_vessel_dir]]
 //axvr_variable axd_required rbst_path

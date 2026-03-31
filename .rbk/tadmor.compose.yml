@@ -8,10 +8,11 @@
 
 services:
   bottle:
+    working_dir: ${RBRR_BOTTLE_WORKSPACE}
     environment:
       - DISABLE_TELEMETRY=1
       - DISABLE_ERROR_REPORTING=1
       - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
     volumes:
-      - ../:/project:ro
-      - ../Tools/rbk/rbtid:/rbtid:rw
+      - ../Tools/rbk/rbtid:${RBRR_BOTTLE_WORKSPACE}:rw
+      - ../:${RBRR_BOTTLE_WORKSPACE}/project:ro

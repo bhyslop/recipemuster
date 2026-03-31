@@ -39,6 +39,7 @@ zrbrr_kindle() {
 
   buv_group_enroll "Vessel and Local Configuration"
   buv_string_enroll  RBRR_VESSEL_DIR           1  255  "Vessel definitions directory"
+  buv_string_enroll  RBRR_BOTTLE_WORKSPACE     1   64  "Container workspace path for bottle working directory"
   buv_ipv4_enroll    RBRR_DNS_SERVER                   "DNS server for containers"
 
   buv_group_enroll "GCP Infrastructure"

@@ -145,6 +145,7 @@ zrbob_kindle() {
   export RBRN_UPLINK_ALLOWED_CIDRS
   export RBRN_UPLINK_ALLOWED_DOMAINS
   export RBRR_DNS_SERVER
+  export RBRR_BOTTLE_WORKSPACE
 
   readonly ZRBOB_KINDLED=1
 }
@@ -341,7 +342,7 @@ rbob_connect_bottle() {
 rbob_ifrit_client() {
   zrbob_sentinel
   buc_step "Launching Claude Code client in bottle: ${ZRBOB_BOTTLE}"
-  exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_BOTTLE}" claude
+  exec ${ZRBOB_RUNTIME} exec -it -w "${RBRR_BOTTLE_WORKSPACE}" "${ZRBOB_BOTTLE}" claude
 }
 
 # eof
