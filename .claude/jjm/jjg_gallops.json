@@ -5120,9 +5120,10 @@
         "₢AxAAN",
         "₢AxAAO",
         "₢AxAAP",
-        "₢AxAAJ"
+        "₢AxAAJ",
+        "₢AxAAR"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_uAlx.md",
       "paces": {
         "₢AxAAA": {
@@ -5498,6 +5499,17 @@
               "text": "## Character\nPure mechanical file rename — no content changes. Maximizes git rename detection for ancestry tracking (`git log --follow` traces through each rename). Must complete before any verb-rename pace edits subdocument content.\n\n## Scope\nRename 12 RBS0 subdocument files: update acronym to match new operation vocabulary. Update all references in CLAUDE.md, RBS0 include directives, and any other filename references.\n\n## Rename Table\n\n| Old | New | Old Filename | New Filename |\n|-----|-----|--------------|--------------|\n| RBSCK | RBSCL | RBSCK-consecration_check.adoc | RBSCL-consecration_tally.adoc |\n| RBSDC | RBSDE | RBSDC-depot_create.adoc | RBSDE-depot_levy.adoc |\n| RBSBS | RBSCC | RBSBS-bottle_start.adoc | RBSCC-crucible_charge.adoc |\n| RBSBR | RBSCN | RBSBR-bottle_run.adoc | RBSCN-crucible_enjoin.adoc |\n| RBSDI | RBSDK | RBSDI-director_create.adoc | RBSDK-director_knight.adoc |\n| RBSRC | RBSRK | RBSRC-retriever_create.adoc | RBSRK-retriever_knight.adoc |\n| RBSSD | RBSSF | RBSSD-sa_delete.adoc | RBSSF-sa_forfeit.adoc |\n| RBSDD | RBSDU | RBSDD-depot_destroy.adoc | RBSDU-depot_unmake.adoc |\n| RBSGR | RBSGM | RBSGR-governor_reset.adoc | RBSGM-governor_mantle.adoc |\n| RBSIR | RBSIW | RBSIR-image_retrieve.adoc | RBSIW-image_wrest.adoc |\n| RBSID | RBSIJ | RBSID-image_delete.adoc | RBSIJ-image_jettison.adoc |\n| RBSAI | RBSAP | RBSAI-ark_inspect.adoc | RBSAP-ark_plumb.adoc |\n\n## Near Acronym Rationale (4 blocked slots)\n- RBSCL: C(onsecration) ta**L**ly — CT blocked by RBSCTD child\n- RBSDE: D(epot) l**E**vy — DL blocked by RBSDL (depot_list)\n- RBSCC: **C**(rucible) **C**(harge) — domain shift, double-letter precedent (RBSSS, RBSDD)\n- RBSCN: C(rucible) e**N**join — CE blocked by RBSCE (command_exec)\n\n## Reference Updates\n- `CLAUDE.md`: Update all 12 acronym → file mappings in File Acronym Mappings section\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: Update include directives and inline filename references\n- Grep repo for old filenames to catch stragglers (other spec cross-references, dockets, etc.)\n\n## Approach\n- `git mv` all 12 files — NO content changes (pure rename maximizes git rename detection)\n- Update CLAUDE.md and RBS0 references\n- Grep sweep for remaining old-name references\n- Single commit containing all renames + reference updates",
               "silks": "subdocument-acronym-rename",
               "commit": "9e8072d"
+            }
+          ]
+        },
+        "₢AxAAR": {
+          "tacks": [
+            {
+              "ts": "260331-1422",
+              "state": "rough",
+              "text": "## Character\n\nEnd-to-end verification that all verb renames across ₣Ax land correctly. Not mechanical — requires judgment about what constitutes adequate coverage given the breadth of changes (crucible lifecycle, diagnostics, consecration ops, role authority, image-level ops, marshal ops).\n\n## Scope\n\nExercise every renamed tabtarget and verify dispatch reaches the correct function. Specific coverage:\n\n- **Crucible**: charge/quench/enjoin/hail/rack/scry colophons dispatch correctly\n- **Consecration**: tally/ordain colophons dispatch correctly\n- **Governor**: knight/forfeit/charter colophons dispatch correctly\n- **Payor**: levy/unmake/mantle colophons dispatch correctly\n- **Marshal**: zero/proof colophons dispatch correctly\n- **Image**: wrest/jettison/plumb colophons dispatch correctly\n- **Qualification**: rbw-Qf fast qualification passes (tabtarget/colophon health)\n\n## Approach\n\n- Start with `rbw-Qf` fast qualification — catches any broken tabtarget/colophon/nameplate wiring\n- Then exercise `buc_doc_brief` on each renamed command to verify dispatch without side effects\n- Report any stragglers found during testing",
+              "silks": "verb-rename-integration-test",
+              "commit": "835f178"
             }
           ]
         }
