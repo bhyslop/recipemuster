@@ -34,9 +34,10 @@
         "₢A0AAA",
         "₢A0AAB",
         "₢A0AAC",
-        "₢A0AAD"
+        "₢A0AAD",
+        "₢A0AAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAl0.md",
       "paces": {
         "₢A0AAA": {
@@ -80,6 +81,17 @@
               "text": "## Character\nSurgical extraction — retriever functions have no director credential dependency, making this the cleanest cut.\n\n## Context\nExtract rbfr (Foundry Retriever) from Foundry: the retrieve, summon, and inspect operations. These functions only need retriever credentials. After extraction, rbfr sources rbfc for shared infrastructure but does NOT check for director credentials at kindle time.\n\nThis extraction naturally resolves the director-gate problem (₢AUAAn in ₣AU) — retriever operations no longer share a kindle with director operations.\n\n## Acceptance\n- rbfr module exists with retriever functions\n- Retriever operations work on a station with only retriever credentials\n- All tests pass",
               "silks": "extract-foundry-retriever",
               "commit": "49d7896"
+            }
+          ]
+        },
+        "₢A0AAE": {
+          "tacks": [
+            {
+              "ts": "260331-1420",
+              "state": "rough",
+              "text": "## Character\nSurgical extraction — verification functions form a coherent attestation group.\n\n## Context\nExtract rbfv (Foundry Verify) from Foundry: the about, vouch, and batch_vouch operations. These are attestation/metadata operations that run after build operations create images. They use GCB submission (from rbfc) and require director credentials.\n\n## Acceptance\n- rbfv module exists with verification functions\n- All tests pass",
+              "silks": "extract-foundry-verify",
+              "commit": "476b46c"
             }
           ]
         }
