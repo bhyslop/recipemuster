@@ -3,20 +3,20 @@
 
 NOTE: This sequence within
 {opbr_bottle_run}
-executes a specified command within the
-{at_bottle_container},
-running the operation in the configured container environment.
+executes a specified command within the transient
+{at_bottle_container}
+created by `docker compose run`.
+The command is passed as arguments to `docker compose run` — compose handles both container startup and command execution in a single invocation.
 
 //axhos_step
 . *Execute Command*:
 .. {rbbc_require}
-`«CONTAINER_ID»` available from container creation
-.. {rbbc_require}
 `«COMMAND_ARGS»` provided as command specification
 .. {rbbc_call}
-podman exec for `«CONTAINER_ID»` with `«COMMAND_ARGS»`
+`docker compose run --rm bottle «COMMAND_ARGS»` (compose starts the container and executes the command in one step)
 .. {rbbc_require}
 command execution completes
+.. Output returned to caller; container removed automatically on exit
 
 //axhoc_completion
-Successful execution runs the requested command within the container, with output returned to caller.
+Successful execution runs the requested command within a transient container that shares the censer's network namespace, with full sentry enforcement active.

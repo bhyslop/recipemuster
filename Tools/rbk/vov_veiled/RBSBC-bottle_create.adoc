@@ -3,35 +3,24 @@
 
 NOTE: This sequence within
 {opbr_bottle_run}
-creates a transient
+describes what Docker Compose does when creating a transient
 {at_bottle_container}
-from the configured image, establishing network connectivity and volume mounts without persisting the container after execution.
+via `docker compose run`.
+Compose inherits the full bottle service definition — image, network mode, volumes, and dependencies — from the base compose file and optional nameplate fragment.
 
 //axhos_step
-. *Configure Container Parameters*:
-.. {rbbc_use}
-{rbrn_bottle_vessel}:{rbrn_bottle_consecration} as source image
-.. {rbbc_use}
-{at_enclave_network} for exclusive network attachment
-.. {rbbc_use}
-{at_sentry_container} address as DNS resolver
-.. {rbbc_use}
-runtime-appropriate volume mount specifications for filesystem access (from {rbrn_docker_volume_mounts} or {rbrn_podman_volume_mounts} per {rbrn_runtime})
+. *Compose resolves container configuration*:
+.. Image: `{rbrn_bottle_vessel}:{rbrn_bottle_consecration}` from compose service definition
+.. Network: inherits `network_mode: "service:censer"` (shares censer's network namespace, which routes through sentry)
+.. Volumes: declared in per-nameplate compose fragment (`«moniker».compose.yml`), not in nameplate env variables
+.. Environment: forwarded from compose env-files and service `environment:` section
 
 //axhos_step
-. *Create Container*:
-.. {rbbc_call}
-container create (via {rbrn_runtime}) with:
-... Image: {rbrn_bottle_vessel}:{rbrn_bottle_consecration}
-... Network: {at_enclave_network} (exclusive)
-... DNS: {at_sentry_container} address
-... Volumes: each semicolon-delimited entry from the active volume mount field, passed verbatim as a `--volume` argument
-... Cleanup flag: `--rm` (automatic removal on exit)
-.. Allow podman to assign unique container name
+. *Compose creates transient container*:
+.. Container created from resolved service definition with `--rm` (automatic removal on exit)
+.. Compose assigns container name (not user-specified for transient runs)
 .. {rbbc_require}
 container created successfully
-.. {rbbc_store}
-`«CONTAINER_ID»` from creation response
 
 //axhoc_completion
-Successful execution creates a configured transient container ready for command execution.
+Successful creation yields a transient container with the same security posture as a sessile bottle — same network namespace, same volume mounts, same sentry enforcement.

@@ -580,6 +580,7 @@ must be healthy before the
 starts.
 This prevents firewall bypass — the bottle cannot send traffic before security policies are enforced.
 Per-nameplate compose fragments (e.g., `«moniker».compose.yml`) add volume mount declarations.
+Env-files passed via `--env-file` serve a dual purpose: YAML interpolation (`${VAR}` references in compose files resolve image refs, subnet, container names) and container environment forwarding (bare variable names in `environment:` sections inject values into containers at runtime).
 
 The
 {at_censer_container}

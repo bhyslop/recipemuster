@@ -1,25 +1,28 @@
 //axhob_operation
 {opbr_bottle_run}
 
-NOTE: This operation orchestrates the creation and execution of an agile (transient)
+NOTE: This operation creates and executes a transient
 {at_bottle_container}
-- a temporary container that executes a single operation and cleans itself up automatically.
+via `docker compose run --rm`.
+Compose manages container creation, dependency startup (sentry + censer), and automatic cleanup.
 
 //axhos_step
-. *Create Transient Container*:
+. *Ensure Infrastructure*:
+.. {rbbc_call}
+`docker compose run` starts sentry and censer as dependencies if not already running (same health check chain as sessile: sentry healthy → censer starts → censer healthy → bottle starts)
+.. {rbbc_require}
+sentry and censer healthy before transient bottle container starts
+
+//axhos_step
+. *Execute via Compose Run*:
 .. {rbbc_call}
 {mkr_bottle_create}
-to establish the temporary container
-.. {rbbc_require}
-container creation successful
-
-//axhos_step
-. *Execute Operation*:
+— compose creates a transient container from the bottle service definition
 .. {rbbc_call}
 {mkr_command_exec}
-with the specified command
-.. {rbbc_require}
-command execution completes
+— the specified command runs in the transient container
+.. The `--rm` flag ensures automatic removal on exit
 
 //axhoc_completion
-Successful execution runs the requested operation in a transient container that automatically removes itself on exit.
+Successful execution runs the requested operation in a transient container with the full security stack (sentry + censer) active.
+The container is removed automatically on exit.
