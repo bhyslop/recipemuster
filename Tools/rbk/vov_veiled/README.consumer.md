@@ -212,11 +212,11 @@ tt/rbw-cs.Scry.tadmor.sh    # Observe network traffic (scry the topology)
 tt/rbw-cQ.Quench.tadmor.sh
 ```
 
-### Inspecting Provenance
+### Plumbing Provenance
 
 ```
-tt/rbw-RiF.RetrieverInspectsFull.sh   # Full: SBOM, build info, Dockerfile
-tt/rbw-Ric.RetrieverInspectsCompact.sh # Compact summary
+tt/rbw-RpF.RetrieverPlumbsFull.sh   # Full: SBOM, build info, Dockerfile
+tt/rbw-Rpc.RetrieverPlumbsCompact.sh # Compact summary
 ```
 
 ## Credential Safety

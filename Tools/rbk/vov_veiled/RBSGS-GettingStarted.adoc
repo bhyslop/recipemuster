@@ -239,7 +239,7 @@ displays the trust posture of a locally-present
 {rbtga_ark},
 reading build provenance, SBOM, and vouch results from the `-about` and `-vouch` artifacts retrieved by
 {rbtgo_ark_summon}.
-Use {rbtc_inspect_compact} for a summary or {rbtc_inspect_full} for complete detail including package inventory and Dockerfile.
+Use {rbtc_plumb_compact} for a summary or {rbtc_plumb_full} for complete detail including package inventory and Dockerfile.
 
 == Recovery
 

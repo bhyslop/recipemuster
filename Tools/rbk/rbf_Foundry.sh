@@ -1486,14 +1486,14 @@ rbf_kludge() {
   esac
 }
 
-rbf_delete() {
+rbf_jettison() {
   zrbf_sentinel
 
   local z_locator="${1:-}"
   local z_force="${2:-}"
 
   # Documentation block
-  buc_doc_brief "Delete an image tag from the registry by locator"
+  buc_doc_brief "Jettison an image tag from the registry by locator"
   buc_doc_param "locator" "Image locator in moniker:tag format (e.g., rbev-busybox:20251231T160211Z-img)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
@@ -1523,14 +1523,14 @@ rbf_delete() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  # Confirm deletion unless --force
+  # Confirm jettison unless --force
   if test "${z_skip_confirm}" = "false"; then
-    buc_require "Will delete: ${z_locator}" "yes"
+    buc_require "Will jettison: ${z_locator}" "yes"
   fi
 
-  buc_step "Deleting: ${z_locator}"
+  buc_step "Jettisoning: ${z_locator}"
 
-  # Delete by tag reference
+  # Jettison by tag reference
   local z_status_file="${ZRBF_DELETE_PREFIX}status.txt"
   local z_response_file="${ZRBF_DELETE_PREFIX}response.json"
 
@@ -1551,19 +1551,19 @@ rbf_delete() {
     local z_body="empty"
     if test -f "${z_response_file}"; then z_body=$(<"${z_response_file}"); fi
     buc_warn "Response body: ${z_body}"
-    buc_die "Delete failed with HTTP ${z_http_code}"
+    buc_die "Jettison failed with HTTP ${z_http_code}"
   fi
 
-  buc_success "Deleted or nonexistent: ${z_locator}"
+  buc_success "Jettisoned or nonexistent: ${z_locator}"
 }
 
-rbf_retrieve() {
+rbf_wrest() {
   zrbf_sentinel
 
   local z_locator="${1:-}"
 
   # Documentation block
-  buc_doc_brief "Pull an image from the registry to local container runtime by locator"
+  buc_doc_brief "Wrest an image from the registry to local container runtime by locator"
   buc_doc_param "locator" "Image locator in moniker:tag format"
   buc_doc_shown || return 0
 
@@ -1610,10 +1610,10 @@ rbf_retrieve() {
 
   # Display results
   echo ""
-  echo "Image retrieved: ${z_full_ref}"
+  echo "Image wrested: ${z_full_ref}"
   echo "Local image ID: ${z_image_id}"
 
-  buc_success "Image pull complete"
+  buc_success "Image wrest complete"
 }
 
 ######################################################################
@@ -4029,7 +4029,7 @@ rbf_batch_vouch() {
 }
 
 ######################################################################
-# Inspect (rbw-RiF / rbw-Ric)
+# Plumb (rbw-RpF / rbw-Rpc)
 
 # Internal: core inspect logic shared by full and compact modes
 # Args: vessel consecration mode
@@ -4639,13 +4639,13 @@ zrbf_inspect_show_full() {
   echo ""
 }
 
-rbf_inspect_full() {
+rbf_plumb_full() {
   zrbf_sentinel
 
   local z_vessel="${1:-}"
   local z_consecration="${2:-}"
 
-  buc_doc_brief "Inspect a consecration's trust posture (full detail)"
+  buc_doc_brief "Plumb a consecration's trust posture (full detail)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
   buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
@@ -4653,13 +4653,13 @@ rbf_inspect_full() {
   zrbf_inspect_core "${z_vessel}" "${z_consecration}" "full"
 }
 
-rbf_inspect_compact() {
+rbf_plumb_compact() {
   zrbf_sentinel
 
   local z_vessel="${1:-}"
   local z_consecration="${2:-}"
 
-  buc_doc_brief "Inspect a consecration's trust posture (compact summary)"
+  buc_doc_brief "Plumb a consecration's trust posture (compact summary)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
   buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0

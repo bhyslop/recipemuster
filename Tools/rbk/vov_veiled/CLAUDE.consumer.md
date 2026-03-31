@@ -89,16 +89,16 @@ All credential files require `600` permissions and must never be committed to ve
 | `rbw-Dt` | DirectorTalliesConsecrations | Verify builds completed |
 | `rbw-DV` | DirectorVouchesConsecrations | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
 | `rbw-DA` | DirectorAbjuresConsecration | Revoke a consecration |
-| `rbw-DD` | DirectorDeletesImage | Remove image from registry |
+| `rbw-DJ` | DirectorJettisonsImage | Jettison image from registry |
 
-### Retrieval & Inspection (Retriever role)
+### Retrieval & Plumb (Retriever role)
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
 | `rbw-Rs` | RetrieverSummonsConsecration | Pull vouched image locally |
-| `rbw-Rr` | RetrieverRetrievesImage | Raw image pull |
-| `rbw-RiF` | RetrieverInspectsFull | Full provenance display (SBOM, build info, Dockerfile) |
-| `rbw-Ric` | RetrieverInspectsCompact | Compact provenance summary |
+| `rbw-Rw` | RetrieverWrestsImage | Wrest image from registry |
+| `rbw-RpF` | RetrieverPlumbsFull | Full provenance display (SBOM, build info, Dockerfile) |
+| `rbw-Rpc` | RetrieverPlumbsCompact | Compact provenance summary |
 
 ### Bottle Operations (imprint = nameplate moniker)
 

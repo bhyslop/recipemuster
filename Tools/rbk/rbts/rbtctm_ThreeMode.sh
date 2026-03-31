@@ -79,7 +79,7 @@ rbtctm_three_mode_tcase() {
   # Retrieve conjured image for graft input
   buto_section "Retrieving conjured busybox for graft input"
   local -r z_graft_retrieve_locator="${z_conjure_ark_stem}${RBGC_ARK_SUFFIX_IMAGE}"
-  buto_tt_expect_ok "${RBZ_RETRIEVE_IMAGE}" "${z_graft_retrieve_locator}"
+  buto_tt_expect_ok "${RBZ_WREST_IMAGE}" "${z_graft_retrieve_locator}"
   local -r z_local_image_ref="${z_conjure_gar_root}/${z_graft_retrieve_locator}"
   export BURE_TWEAK_NAME=threemodegraft
   export BURE_TWEAK_VALUE="${z_local_image_ref}"
@@ -124,7 +124,7 @@ rbtctm_three_mode_tcase() {
   buto_section "Step 6/12: Retrieving image (conjured busybox)"
   local -r z_retrieve_locator="${z_conjure_vessel}:${z_conjure_consec}${RBGC_ARK_SUFFIX_IMAGE}"
   buto_info "Retrieving: ${z_retrieve_locator}"
-  buto_tt_expect_ok "${RBZ_RETRIEVE_IMAGE}" "${z_retrieve_locator}"
+  buto_tt_expect_ok "${RBZ_WREST_IMAGE}" "${z_retrieve_locator}"
 
   # Step 7: Run and verify — docker run the image, assert expected output
   buto_section "Step 7/12: Running image and verifying output"

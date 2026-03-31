@@ -1,7 +1,7 @@
 //axhob_operation
 {rbtgo_image_retrieve}
 
-NOTE: This operation retrieves a container image from
+NOTE: This operation wrests a container image from
 {rbtgi_repository}
 to the local container runtime. The
 {rbtr_retriever}
@@ -68,9 +68,9 @@ if pull fails: "Image pull failed"
 {rbtgi_image}
 . *Display Results*:
 .. {rbbc_show}
-image retrieved: `«FULL_IMAGE_REF»`
+image wrested: `«FULL_IMAGE_REF»`
 .. {rbbc_show}
 local image ID: `«IMAGE_ID»`
 
 //axhoc_completion
-Successful execution retrieves the image and displays the local image ID.
+Successful execution wrests the image and displays the local image ID.

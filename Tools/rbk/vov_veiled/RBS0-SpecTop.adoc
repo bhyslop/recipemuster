@@ -107,15 +107,15 @@
 :rbtgo_ark_graft:                 <<rbtgo_ark_graft,rbf_graft>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbf_summon>>
 :rbtgo_ark_enshrine:             <<rbtgo_ark_enshrine,rbf_enshrine>>
-:rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbf_inspect>>
+:rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbf_plumb>>
 :rbtgo_depot_levy:                <<rbtgo_depot_levy,rbgp_depot_levy>>
 :rbtgo_depot_unmake:              <<rbtgo_depot_unmake,rbgp_depot_unmake>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
 :rbtgo_director_knight:           <<rbtgo_director_knight,rbgg_knight_director>>
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbf_batch_vouch>>
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
-:rbtgo_image_delete:              <<rbtgo_image_delete,rbf_delete>>
-:rbtgo_image_retrieve:            <<rbtgo_image_retrieve,Image Retrieval>>
+:rbtgo_image_delete:              <<rbtgo_image_delete,rbf_jettison>>
+:rbtgo_image_retrieve:            <<rbtgo_image_retrieve,Image Wrest>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbgm_payor_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbgm_payor_refresh>>
@@ -141,8 +141,8 @@
 // Recipe Bottle Term Colophon (tabtarget entry points)
 :rbtc_gitlab_setup:              rbw-gPL (eliminated)
 // rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
-:rbtc_inspect_full:              <<rbtc_inspect_full,rbw-RiF>>
-:rbtc_inspect_compact:           <<rbtc_inspect_compact,rbw-Ric>>
+:rbtc_plumb_full:                <<rbtc_plumb_full,rbw-RpF>>
+:rbtc_plumb_compact:             <<rbtc_plumb_compact,rbw-Rpc>>
 
 :rbtoe_check_rubric_repo_url:     <<rbtoe_check_rubric_repo_url,Rubric Repo URL Check>>
 :rbtoe_check_cbv2_connection:     <<rbtoe_check_cbv2_connection,CB v2 Connection Check>>
@@ -1007,7 +1007,7 @@ NOTE: For multi-platform build authentication challenges and research findings, 
 //axvo_method axd_transient axd_grouped
 === {rbtgo_image_delete}
 
-Deletes
+Jettisons
 {rbtgi_image}
 artifacts
 ({rbtgog_image}).
@@ -1147,7 +1147,7 @@ include::RBSDV-director_vouch.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_image_retrieve}
 
-Retrieves
+Wrests
 {rbtgi_image}
 artifacts
 ({rbtgog_image}).
@@ -1170,12 +1170,12 @@ include::RBSAS-ark_summon.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_ark_inspect}
 
-Inspects an
+Plumbs an
 {rbtga_ark}
 locally
 ({rbtgog_ark}),
 displaying trust posture from locally-present about and vouch artifacts.
-Two modes: {rbtc_inspect_full} (full detail) and {rbtc_inspect_compact} (summary).
+Two modes: {rbtc_plumb_full} (full detail) and {rbtc_plumb_compact} (summary).
 
 include::RBSAP-ark_plumb.adoc[]
 
@@ -2353,14 +2353,14 @@ Builds now use `builds.create` + pouch for context delivery.
 // rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
 // rbtc_refresh_binary_pins eliminated (₣Av) — slsa-verifier dropped
 
-[[rbtc_inspect_full]]
-{rbtc_inspect_full}::
-Tabtarget colophon for full consecration inspect.
+[[rbtc_plumb_full]]
+{rbtc_plumb_full}::
+Tabtarget colophon for full consecration plumb.
 Displays complete trust posture including package inventory, licensing, cache delta, and Dockerfile.
 
-[[rbtc_inspect_compact]]
-{rbtc_inspect_compact}::
-Tabtarget colophon for compact consecration inspect.
+[[rbtc_plumb_compact]]
+{rbtc_plumb_compact}::
+Tabtarget colophon for compact consecration plumb.
 Displays trust posture summary: vessel type, source, SLSA provenance, base image, build output, cache delta, SBOM summary, and vouch results.
 
 

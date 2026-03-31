@@ -1,7 +1,7 @@
 //axhob_operation
 {rbtgo_image_delete}
 
-NOTE: This operation deletes a container image from
+NOTE: This operation jettisons a container image from
 {rbtgi_repository}
 using the Docker Registry HTTP API V2 implemented by
 {gar_service}.
@@ -10,7 +10,7 @@ NOTE: To delete an entire {rbtga_ark} (all three artifacts: `-image`, `-about`, 
 
 The
 {rbtr_director}
-deletes an image by {rbst_locator}:
+jettisons an image by {rbst_locator}:
 
 //axhopt_typed_parameter
 {rbst_locator}
@@ -35,17 +35,17 @@ if malformed (no colon): "Invalid locator format. Expected moniker:tag"
 `«DIRECTOR_TOKEN»` for subsequent API calls
 
 //axhos_step
-. *Confirm Deletion*:
+. *Confirm Jettison*:
 .. Unless `--force` flag is provided:
 ... {rbbc_show}
-`Will delete: «INPUT_LOCATOR»`
+`Will jettison: «INPUT_LOCATOR»`
 ... {rbbc_require}
 user types `yes` to confirm
 ... {rbbc_fatal}
 if not confirmed: "prompt not confirmed."
 
 //axhos_step
-. *Delete Tag*:
+. *Jettison Tag*:
 .. {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#deleting-tags[Docker Registry API: DELETE manifests] with:
 ... method: `DELETE`
@@ -54,13 +54,13 @@ link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#delet
 .. {rbbc_require}
 HTTP 202 (Accepted) or 204 (No Content) response
 .. {rbbc_fatal}
-if delete fails: "Delete failed with HTTP «STATUS_CODE»"
+if jettison fails: "Jettison failed with HTTP «STATUS_CODE»"
 
 //axhoot_typed_output
 {rbst_locator}
 . *Display Results*:
 .. {rbbc_show}
-`Deleted or nonexistent: «INPUT_LOCATOR»`
+`Jettisoned or nonexistent: «INPUT_LOCATOR»`
 
 //axhoc_completion
-Procedure completes successfully when the tag has been deleted from the registry and the deleted message is displayed.
+Procedure completes successfully when the tag has been jettisoned from the registry and the jettisoned message is displayed.

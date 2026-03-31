@@ -1,21 +1,21 @@
 //axhob_operation
 {rbtgo_ark_inspect}
 
-NOTE: This operation inspects an
+NOTE: This operation plumbs an
 {rbtga_ark}
 locally, displaying trust posture from the
 {rbtga_ark_about}
 and
 {rbtga_ark_vouch}
-artifacts that were previously retrieved by
+artifacts that were previously summoned by
 {rbtgo_ark_summon}.
 No remote API calls are made; all data is read from locally-present container images.
 
 NOTE: Two entry points provide different detail levels:
-{rbtc_inspect_full} for complete diagnostic output and
-{rbtc_inspect_compact} for a trust posture summary.
+{rbtc_plumb_full} for complete diagnostic output and
+{rbtc_plumb_compact} for a trust posture summary.
 
-The inspect operation:
+The plumb operation:
 
 //axhopt_typed_parameter
 {rbtga_ark}
@@ -72,7 +72,7 @@ vessel mode (conjure, bind, or graft) from vessel regime
 ... Graft: GRAFTED acknowledgment (`GRAFTED`)
 
 //axhos_step
-. *Display Full-Only Sections* ({rbtc_inspect_full} only):
+. *Display Full-Only Sections* ({rbtc_plumb_full} only):
 .. *Package Inventory*: every syft-detected package (type, name, version) sorted by ecosystem
 .. *Package Licensing*: per-package license and Package URL for compliance review
 .. *Recipe*: the Dockerfile content from `recipe.txt` in the about artifact (available for any mode when the Dockerfile path was configured in the vessel regime). When `recipe.txt` is absent, display the Dockerfile path from `build_info.json` if available, or omit the section.
@@ -84,9 +84,9 @@ vessel mode (conjure, bind, or graft) from vessel regime
 trust posture for the specified consecration
 
 //axhoc_completion
-Inspect is a read-only local operation.
+Plumb is a read-only local operation.
 It does not modify artifacts, contact remote registries, or require authentication.
 All data is extracted from container images already present in the local container runtime.
 +
-*Mode-aware display*: The inspect output adapts to vessel mode.
+*Mode-aware display*: The plumb output adapts to vessel mode.
 Bind and graft vessels display clear trust boundary statements rather than attempting to show provenance data that does not exist.
