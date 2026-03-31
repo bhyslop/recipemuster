@@ -1,0 +1,69 @@
+//axhob_operation
+{rbtgo_ark_kludge}
+
+NOTE: This operation builds a vessel image locally on the workstation using `docker build`, bypassing Cloud Build and GAR entirely. It produces a
+{rbtga_consecration}
+with a `k` prefix (kludge) that composes cleanly with the nameplate and compose infrastructure but is obviously not a production consecration.
+
+NOTE: Kludge is a deliberate development shortcut for fast edit-build-test cycles. It enables iterating on vessel Dockerfiles, entrypoint scripts, and package lists without waiting for a Cloud Build round-trip. The ugly name is intentional -- this is not part of the production consecration pipeline.
+
+NOTE: The kludge consecration format is `k«YYMMDDHHMMSS»`, paralleling conjure's `c«YYMMDDHHMMSS»` and bind's `b«YYMMDDHHMMSS»-r«YYMMDDHHMMSS»`. The `k` prefix makes kludge consecrations visually distinct in nameplate files and `docker image ls` output.
+
+The kludge operation:
+
+//axhopt_typed_parameter
+{rbtga_ark}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+vessel provided as first argument (sigil or path)
+.. {rbbc_require}
+vessel is conjure mode (bind and graft vessels have no local Dockerfile)
+.. {rbbc_require}
+vessel has conjuring configuration (RBRV_CONJURE_DOCKERFILE, RBRV_CONJURE_BLDCONTEXT)
+
+//axhos_step
+. *Resolve Base Images*:
+.. For each indexed slot (n = 1, 2, 3) where
+{rbrv_image_origin}
+is set, use the origin directly as the `RBF_IMAGE_n` build-arg
+.. No enshrine anchor resolution -- kludge pulls base images from upstream registries
+
+//axhos_step
+. *Assign Kludge Consecration*:
+.. Mint consecration as `k«YYMMDDHHMMSS»` from dispatch timestamp
+.. {rbbc_store}
+`«CONSECRATION»`
+
+//axhos_step
+. *Build Image Locally*:
+.. Run `docker build` with resolved `RBF_IMAGE_n` build-args
+.. Build for host platform only (no multi-arch -- development builds run where they are built)
+.. Tag as `«GAR_BASE»/«SIGIL»:«CONSECRATION»-image` to match compose YAML interpolation format
+
+//axhos_step
+. *Create Fake Vouch Tag*:
+.. `docker tag` the image ref to also carry the `-vouch` suffix
+.. This is the same image aliased -- no provenance verification, no DSSE envelope
+.. Satisfies the `rbob_start` vouch gate (`docker image inspect` on vouch ref)
+
+//axhos_step
+. *Report Consecration*:
+.. Print the consecration value for the operator to paste into the nameplate `.env` file
+.. Persist consecration to `BURD_OUTPUT_DIR` for downstream chaining
+
+== Limitations
+
+* Requires GCP depot configuration (foundry kindle validates `RBDC_DIRECTOR_RBRA_FILE` exists, though kludge does not use credentials)
+* Host platform only -- a kludge-built `linux/arm64` image on Apple Silicon will not run on `linux/amd64` hosts
+* No about artifact, no provenance chain -- the vouch tag is a same-image alias with no attestation content
+* Not suitable for release or delivery -- use {rbtgo_ark_conjure} for production consecrations
+
+== Tabtarget
+
+`tt/rbw-ak.ArkKludge.sh «vessel-sigil»`
+
+== See Also
+
+* {rbtgo_ark_conjure} -- production image build via Cloud Build
+* {rbtgo_ark_vouch} -- provenance attestation (kludge bypasses this entirely)
+* {rbtgo_ark_summon} -- pull from GAR (not needed for kludge -- image is already local)

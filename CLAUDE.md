@@ -35,6 +35,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSAG** → `rbk/vov_veiled/RBSAG-ark_graft.adoc` (Graft operation - local image push to GAR)
 - **RBSAI** → `rbk/vov_veiled/RBSAI-ark_inspect.adoc`
 - **RBSAJ** → `rbk/vov_veiled/RBSAJ-access_jwt_probe.adoc`
+- **RBSAK** → `rbk/vov_veiled/RBSAK-ark_kludge.adoc` (Kludge operation - local vessel build for development)
 - **RBSAO** → `rbk/vov_veiled/RBSAO-access_oauth_probe.adoc`
 - **RBSAS** → `rbk/vov_veiled/RBSAS-ark_summon.adoc`
 - **RBSAV** → `rbk/vov_veiled/RBSAV-ark_vouch.adoc`

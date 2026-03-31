@@ -76,6 +76,7 @@ zrbz_kindle() {
   buz_enroll RBZ_INSPECT_COMPACT           "rbw-Ric"      "${z_mod}" "rbf_inspect_compact"
   buz_enroll RBZ_CHECK_CONSECRATIONS        "rbw-Dc"       "${z_mod}" "rbf_check_consecrations"
   buz_enroll RBZ_VOUCH_CONSECRATIONS        "rbw-DV"       "${z_mod}" "rbf_batch_vouch"
+  buz_enroll RBZ_KLUDGE_VESSEL             "rbw-ak"       "${z_mod}" "rbf_kludge"
 
   # Regime operations
   z_mod="rbrn_cli.sh"

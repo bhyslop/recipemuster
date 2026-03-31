@@ -1393,6 +1393,99 @@ rbf_build() {
   buc_success "Vessel image built: ${RBRV_SIGIL}"
 }
 
+######################################################################
+# Kludge Build - Local image build for development
+#
+# Builds a vessel image locally using docker build, tags it with a
+# kludge consecration (k-prefixed timestamp) in the same GAR-style
+# format that compose and rbob_start expect. Also creates a fake
+# vouch tag (same image, aliased) so the vouch gate passes.
+#
+# No Cloud Build, no GAR push, no credentials consumed.
+# Host platform only (no multi-arch).
+
+rbf_kludge() {
+  zrbf_sentinel
+
+  buc_doc_brief "Build vessel image locally for development (no Cloud Build, no GAR push)"
+  buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
+  buc_doc_shown || return 0
+
+  # Resolve vessel argument (sigil or path)
+  zrbf_resolve_vessel "${1:-}"
+  local -r z_vessel_dir=$(<"${ZRBF_VESSEL_RESOLVED_DIR_FILE}")
+  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
+
+  # Load vessel configuration
+  zrbf_load_vessel "${z_vessel_dir}"
+
+  # Validate conjure mode (bind and graft don't have local Dockerfiles)
+  test "${RBRV_VESSEL_MODE}" = "conjure" \
+    || buc_die "Kludge only supports conjure vessels (got: ${RBRV_VESSEL_MODE})"
+  test -n "${RBRV_CONJURE_DOCKERFILE:-}" \
+    || buc_die "Vessel '${RBRV_SIGIL}' has no RBRV_CONJURE_DOCKERFILE"
+  test -n "${RBRV_CONJURE_BLDCONTEXT:-}" \
+    || buc_die "Vessel '${RBRV_SIGIL}' has no RBRV_CONJURE_BLDCONTEXT"
+  test -f "${RBRV_CONJURE_DOCKERFILE}" \
+    || buc_die "Dockerfile not found: ${RBRV_CONJURE_DOCKERFILE}"
+  test -d "${RBRV_CONJURE_BLDCONTEXT}" \
+    || buc_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
+
+  # Resolve base images (use ORIGIN directly — no GAR enshrine lookup for local builds)
+  local z_build_args=()
+  local z_slot="" z_origin_var="" z_origin=""
+  for z_slot in 1 2 3; do
+    z_origin_var="RBRV_IMAGE_${z_slot}_ORIGIN"
+    z_origin="${!z_origin_var:-}"
+    test -n "${z_origin}" || continue
+    z_build_args+=("--build-arg" "RBF_IMAGE_${z_slot}=${z_origin}")
+    buc_info "Image slot ${z_slot}: ${z_origin}"
+  done
+  test ${#z_build_args[@]} -gt 0 || buc_die "No RBRV_IMAGE_n_ORIGIN found in vessel config"
+
+  # Generate kludge consecration (k prefix distinguishes from conjure c, bind b)
+  local -r z_consecration="k${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+
+  # Construct image refs matching compose/vouch-gate format
+  local -r z_image_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_vouch_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+
+  buc_step "Kludge build: ${RBRV_SIGIL}"
+  buc_info "Consecration: ${z_consecration}"
+  buc_info "Image tag: ${z_image_ref}"
+
+  # Build locally (host platform only — no multi-arch for dev builds)
+  buc_step "Building image locally"
+  docker build \
+    "${z_build_args[@]}" \
+    -f "${RBRV_CONJURE_DOCKERFILE}" \
+    -t "${z_image_ref}" \
+    "${RBRV_CONJURE_BLDCONTEXT}" \
+    || buc_die "Local build failed for ${RBRV_SIGIL}"
+
+  # Create fake vouch tag (same image, aliased — satisfies rbob_start vouch gate)
+  buc_step "Creating vouch tag"
+  docker tag "${z_image_ref}" "${z_vouch_ref}" \
+    || buc_die "Failed to create vouch tag"
+
+  # Persist consecration to output directory
+  echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
+    || buc_die "Failed to write consecration to output"
+
+  buc_success "Kludge build complete: ${RBRV_SIGIL}"
+  buc_bare ""
+  buc_bare "  Consecration: ${z_consecration}"
+  buc_bare "  Image:        ${z_image_ref}"
+  buc_bare "  Vouch:        ${z_vouch_ref}"
+  buc_bare ""
+  buc_bare "  Update nameplate .env file:"
+  case "${RBRV_SIGIL}" in
+    *sentry*) buc_bare "    RBRN_SENTRY_CONSECRATION=${z_consecration}" ;;
+    *bottle*|*ifrit*) buc_bare "    RBRN_BOTTLE_CONSECRATION=${z_consecration}" ;;
+    *) buc_bare "    RBRN_*_CONSECRATION=${z_consecration}" ;;
+  esac
+}
+
 rbf_delete() {
   zrbf_sentinel
 
