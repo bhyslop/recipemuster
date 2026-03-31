@@ -778,6 +778,7 @@ zrbf_wait_build_completion() {
 
   local z_status="PENDING"
   local z_polls=0
+  local z_queued_advisory_shown=0
   local z_consecutive_failures=0
   local z_max_consecutive_failures=3
   local z_err_check_file="${ZRBF_STITCH_PREFIX}poll_err_check.txt"
@@ -831,6 +832,12 @@ zrbf_wait_build_completion() {
     test -n "${z_status}" || buc_die "Status is empty"
 
     buc_info "${z_label}: ${z_status} (poll ${z_polls}/${z_max_polls})"
+
+    if test "${z_status}" = "QUEUED" && test "${z_polls}" -ge 20 && test "${z_queued_advisory_shown}" = "0"; then
+      z_queued_advisory_shown=1
+      buc_warn "Build queued longer than normal — another build may be holding the private pool"
+      buc_tabtarget "${RBZ_QUOTA_BUILD}"
+    fi
   done
 
   test "${z_status}" = "SUCCESS" || buc_die "${z_label}: Build failed with status: ${z_status}"
