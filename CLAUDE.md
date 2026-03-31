@@ -33,42 +33,43 @@ Full read and edit access is pre-approved for all files in:
 - **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
 - **RBSAB** → `rbk/vov_veiled/RBSAB-ark_about.adoc` (Standalone Cloud Build about pipeline - syft SBOM + mode-aware build_info)
 - **RBSAC** → `rbk/vov_veiled/RBSAC-ark_conjure.adoc`
+- **RBSAE** → `rbk/vov_veiled/RBSAE-ark_enshrine.adoc`
 - **RBSAG** → `rbk/vov_veiled/RBSAG-ark_graft.adoc` (Graft operation - local image push to GAR)
-- **RBSAI** → `rbk/vov_veiled/RBSAI-ark_inspect.adoc`
 - **RBSAJ** → `rbk/vov_veiled/RBSAJ-access_jwt_probe.adoc`
 - **RBSAK** → `rbk/vov_veiled/RBSAK-ark_kludge.adoc` (Kludge operation - local vessel build for development)
 - **RBSAO** → `rbk/vov_veiled/RBSAO-access_oauth_probe.adoc`
+- **RBSAP** → `rbk/vov_veiled/RBSAP-ark_plumb.adoc`
 - **RBSAS** → `rbk/vov_veiled/RBSAS-ark_summon.adoc`
 - **RBSAV** → `rbk/vov_veiled/RBSAV-ark_vouch.adoc`
 - **RBSAX** → `rbk/vov_veiled/RBSAX-access_setup.adoc`
 - **RBSBC** → `rbk/vov_veiled/RBSBC-bottle_create.adoc`
 - **RBSBK** → `rbk/vov_veiled/RBSBK-bottle_cleanup.adoc`
 - **RBSBL** → `rbk/vov_veiled/RBSBL-bottle_launch.adoc`
-- **RBSBR** → `rbk/vov_veiled/RBSBR-bottle_run.adoc`
-- **RBSBS** → `rbk/vov_veiled/RBSBS-bottle_start.adoc`
 - **RBSCB** → `rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc` (Cloud Build security posture and deferred hardening)
+- **RBSCC** → `rbk/vov_veiled/RBSCC-crucible_charge.adoc`
 - **RBSCE** → `rbk/vov_veiled/RBSCE-command_exec.adoc`
-- **RBSCK** → `rbk/vov_veiled/RBSCK-consecration_check.adoc` (Consecration Check - registry ark inventory with health status)
 - **RBSCIG** → `rbk/vov_veiled/RBSCIG-IamGrantContracts.adoc` (IAM Grant API Contracts - verified behavioral contracts per resource type)
 - **RBSCIP** → `rbk/vov_veiled/RBSCIP-IamPropagation.adoc`
 - **RBSCJ** → `rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`
+- **RBSCL** → `rbk/vov_veiled/RBSCL-consecration_tally.adoc` (Consecration Tally - registry ark inventory with health status)
+- **RBSCN** → `rbk/vov_veiled/RBSCN-crucible_enjoin.adoc`
 - **RBSCO** → `rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`
 - **RBSCTD** → `rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc`
-- **RBSDC** → `rbk/vov_veiled/RBSDC-depot_create.adoc`
-- **RBSDD** → `rbk/vov_veiled/RBSDD-depot_destroy.adoc`
-- **RBSDI** → `rbk/vov_veiled/RBSDI-director_create.adoc`
+- **RBSDE** → `rbk/vov_veiled/RBSDE-depot_levy.adoc`
+- **RBSDK** → `rbk/vov_veiled/RBSDK-director_knight.adoc`
 - **RBSDL** → `rbk/vov_veiled/RBSDL-depot_list.adoc`
 - **RBSDN** → `rbk/vov_veiled/RBSDN-depot_initialize.adoc`
 - **RBSDS** → `rbk/vov_veiled/RBSDS-dns_step.adoc`
+- **RBSDU** → `rbk/vov_veiled/RBSDU-depot_unmake.adoc`
 - **RBSDV** → `rbk/vov_veiled/RBSDV-director_vouch.adoc`
 - **RBSGD** → `rbk/vov_veiled/RBSGD-gdc_establish.adoc`
-- **RBSGR** → `rbk/vov_veiled/RBSGR-governor_reset.adoc`
+- **RBSGM** → `rbk/vov_veiled/RBSGM-governor_mantle.adoc`
 - **RBSGS** → `rbk/vov_veiled/RBSGS-GettingStarted.adoc`
 - **RBSHR** → `rbk/vov_veiled/RBSHR-HorizonRoadmap.adoc` (Horizon Roadmap - single collection point for defined-but-unscoped future work)
-- **RBSID** → `rbk/vov_veiled/RBSID-image_delete.adoc`
 - **RBSII** → `rbk/vov_veiled/RBSII-iptables_init.adoc`
+- **RBSIJ** → `rbk/vov_veiled/RBSIJ-image_jettison.adoc`
 - **RBSIP** → `rbk/vov_veiled/RBSIP-ifrit_pentester.adoc` (Ifrit Pentester — adversarial AI escape testing framework)
-- **RBSIR** → `rbk/vov_veiled/RBSIR-image_retrieve.adoc`
+- **RBSIW** → `rbk/vov_veiled/RBSIW-image_wrest.adoc`
 - **RBSNC** → `rbk/vov_veiled/RBSNC-network_create.adoc`
 - **RBSNX** → `rbk/vov_veiled/RBSNX-network_connect.adoc`
 - **RBSOB** → `rbk/vov_veiled/RBSOB-oci_layout_bridge.adoc`
@@ -79,9 +80,9 @@ Full read and edit access is pre-approved for all files in:
 - **RBSPV** → `rbk/vov_veiled/RBSPV-PodmanVmSupplyChain.adoc`
 - **RBSQB** → `rbk/vov_veiled/RBSQB-quota_build.adoc`
 - **RBSRA** → `rbk/vov_veiled/RBSRA-CredentialFormat.adoc`
-- **RBSRC** → `rbk/vov_veiled/RBSRC-retriever_create.adoc`
 - **RBSRG** → `rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc`
 - **RBSRI** → `rbk/vov_veiled/RBSRI-rubric_inscribe.adoc`
+- **RBSRK** → `rbk/vov_veiled/RBSRK-retriever_knight.adoc`
 - **RBRN**  → `rbk/vov_veiled/RBRN-RegimeNameplate.adoc`
 - **RBSRM** → `rbk/vov_veiled/RBSRM-RegimeMachine.adoc`
 - **RBSRO** → `rbk/vov_veiled/RBSRO-RegimeOauth.adoc`
@@ -90,7 +91,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSRS** → `rbk/vov_veiled/RBSRS-RegimeStation.adoc`
 - **RBSRV** → `rbk/vov_veiled/RBSRV-RegimeVessel.adoc`
 - **RBSSC** → `rbk/vov_veiled/RBSSC-security_config.adoc`
-- **RBSSD** → `rbk/vov_veiled/RBSSD-sa_delete.adoc`
+- **RBSSF** → `rbk/vov_veiled/RBSSF-sa_forfeit.adoc`
 - **RBSSL** → `rbk/vov_veiled/RBSSL-sa_list.adoc`
 - **RBSSR** → `rbk/vov_veiled/RBSSR-sentry_run.adoc`
 - **RBSSS** → `rbk/vov_veiled/RBSSS-sentry_start.adoc`

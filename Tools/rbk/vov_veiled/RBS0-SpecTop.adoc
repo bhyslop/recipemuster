@@ -899,7 +899,7 @@ project, bucket, repository, and
 {rbtr_mason}
 service account.
 
-include::RBSDC-depot_create.adoc[]
+include::RBSDE-depot_levy.adoc[]
 
 [[rbtgo_depot_destroy]]
 //axvo_method axd_transient axd_grouped
@@ -910,7 +910,7 @@ Destroys
 infrastructure
 ({rbtgog_depot}).
 
-include::RBSDD-depot_destroy.adoc[]
+include::RBSDU-depot_unmake.adoc[]
 
 [[rbtgo_depot_list]]
 //axvo_method axd_transient axd_grouped
@@ -944,7 +944,7 @@ Resets
 configuration
 ({rbtgog_governor}).
 
-include::RBSGR-governor_reset.adoc[]
+include::RBSGM-governor_mantle.adoc[]
 
 == {rbtr_governor} Operations
 
@@ -957,7 +957,7 @@ Creates a
 service account
 ({rbtgog_governor}).
 
-include::RBSRC-retriever_create.adoc[]
+include::RBSRK-retriever_knight.adoc[]
 
 [[rbtgo_director_create]]
 //axvo_method axd_transient axd_grouped
@@ -968,7 +968,7 @@ Creates a
 service account
 ({rbtgog_governor}).
 
-include::RBSDI-director_create.adoc[]
+include::RBSDK-director_knight.adoc[]
 
 == {rbtr_director} Operations
 
@@ -1004,7 +1004,7 @@ Deletes
 artifacts
 ({rbtgog_image}).
 
-include::RBSID-image_delete.adoc[]
+include::RBSIJ-image_jettison.adoc[]
 
 [[rbtgo_ark_abjure]]
 //axvo_method axd_transient axd_grouped
@@ -1028,7 +1028,7 @@ consecrations across all regime vessels
 ({rbtgog_ark}),
 classifying each by artifact completeness, platform coverage, and vouch status.
 
-include::RBSCK-consecration_check.adoc[]
+include::RBSCL-consecration_tally.adoc[]
 
 [[rbtgo_ark_conjure]]
 //axvo_method axd_transient axd_grouped
@@ -1135,7 +1135,7 @@ Retrieves
 artifacts
 ({rbtgog_image}).
 
-include::RBSIR-image_retrieve.adoc[]
+include::RBSIW-image_wrest.adoc[]
 
 [[rbtgo_ark_summon]]
 //axvo_method axd_transient axd_grouped
@@ -1160,7 +1160,7 @@ locally
 displaying trust posture from locally-present about and vouch artifacts.
 Two modes: {rbtc_inspect_full} (full detail) and {rbtc_inspect_compact} (summary).
 
-include::RBSAI-ark_inspect.adoc[]
+include::RBSAP-ark_plumb.adoc[]
 
 == Multi Role Operations
 
@@ -1184,7 +1184,7 @@ Deletes
 resources
 ({rbtgog_sa}).
 
-include::RBSSD-sa_delete.adoc[]
+include::RBSSF-sa_forfeit.adoc[]
 
 [[rbtgo_access_jwt_probe]]
 //axvo_method axd_transient axd_grouped
@@ -1237,7 +1237,7 @@ Establishes a new
 {at_sessile_service}
 through controlled container instantiation and configuration.
 
-include::RBSBS-bottle_start.adoc[]
+include::RBSCC-crucible_charge.adoc[]
 
 [[mkr_bottle_cleanup]]
 //axvo_procedure axd_transient axd_internal
@@ -1259,7 +1259,7 @@ Creates and executes a new
 {at_agile_service}
 instance through controlled container instantiation and command execution.
 
-include::RBSBR-bottle_run.adoc[]
+include::RBSCN-crucible_enjoin.adoc[]
 
 [[mkr_bottle_create]]
 //axvo_procedure axd_transient axd_internal
