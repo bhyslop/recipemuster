@@ -45,6 +45,7 @@ services:
       - RBRN_UPLINK_ACCESS_MODE
       - RBRN_UPLINK_ALLOWED_CIDRS
       - RBRN_UPLINK_ALLOWED_DOMAINS
+      - RBJE_PROBE
     healthcheck:
       test: ["CMD-SHELL", "test -f /tmp/rbj_healthy"]
       interval: 2s

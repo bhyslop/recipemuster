@@ -4,6 +4,17 @@ echo "RBJ: Beginning sentry setup script"
 set -e
 test "${RBJ_VERBOSE:-0}" -ge 1 && set -x
 
+echo "RBJp0: Validate compose env-file quoting"
+: "${RBJE_PROBE:?}"
+z_probe_count=0
+for z_word in ${RBJE_PROBE}; do
+  z_probe_count=$((z_probe_count + 1))
+done
+test "${z_probe_count}" -eq 2                || { echo "FATAL: RBJE_PROBE token count ${z_probe_count}, expected 2 — value: '${RBJE_PROBE:-}'"; exit 1; }
+test "$(echo ${RBJE_PROBE} | cut -d' ' -f1)" = "alpha" || { echo "FATAL: RBJE_PROBE first token not 'alpha' — value: '${RBJE_PROBE:-}'"; exit 1; }
+test "$(echo ${RBJE_PROBE} | cut -d' ' -f2)" = "bravo" || { echo "FATAL: RBJE_PROBE second token not 'bravo' — value: '${RBJE_PROBE:-}'"; exit 1; }
+echo "RBJp0: Compose env-file quoting validated — RBJE_PROBE = '${RBJE_PROBE}'"
+
 echo "RBJp1: Validate parameters"
 : "${RBRN_ENCLAVE_BASE_IP:?}"        && echo "RBJp0: RBRN_ENCLAVE_BASE_IP        = ${RBRN_ENCLAVE_BASE_IP}"
 : "${RBRN_ENCLAVE_NETMASK:?}"        && echo "RBJp0: RBRN_ENCLAVE_NETMASK        = ${RBRN_ENCLAVE_NETMASK}"
