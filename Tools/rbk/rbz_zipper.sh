@@ -66,7 +66,7 @@ zrbz_kindle() {
   # Retriever/Image commands (rbw-R* colophon family → rbf_cli.sh)
   z_mod="rbf_cli.sh"
   buz_enroll RBZ_ENSHRINE_VESSEL             "rbw-DE"       "${z_mod}" "rbf_enshrine"
-  buz_enroll RBZ_CREATE_CONSECRATION        "rbw-DC"       "${z_mod}" "rbf_create"
+  buz_enroll RBZ_ORDAIN_CONSECRATION        "rbw-DO"       "${z_mod}" "rbf_ordain"
   buz_enroll RBZ_ABJURE_CONSECRATION        "rbw-DA"       "${z_mod}" "rbf_abjure"
   buz_enroll RBZ_SUMMON_CONSECRATION                 "rbw-Rs"       "${z_mod}" "rbf_summon"
   buz_enroll RBZ_INSCRIBE_RELIQUARY         "rbw-DI"       "${z_mod}" "rbf_inscribe"

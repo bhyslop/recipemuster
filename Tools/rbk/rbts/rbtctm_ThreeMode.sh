@@ -28,7 +28,7 @@ set -euo pipefail
 #   check(all vouched) → vouch_gate → retrieve → run → cleanup →
 #   abjure(×3) → check(all gone)
 #
-# Each rbf_create call produces image + about + vouch (chained internally).
+# Each rbf_ordain call produces image + about + vouch (chained internally).
 # Consecration check verifies health=vouched for all three modes.
 # Steps 5-8 exercise consumer-side operations on the conjured busybox.
 #
@@ -54,7 +54,7 @@ rbtctm_three_mode_tcase() {
 
   # Step 1: Conjure busybox
   buto_section "Step 1/12: Conjuring consecration from vessel ${z_conjure_vessel}"
-  buto_tt_expect_ok "${RBZ_CREATE_CONSECRATION}" "${z_conjure_dir}"
+  buto_tt_expect_ok "${RBZ_ORDAIN_CONSECRATION}" "${z_conjure_dir}"
   local z_conjure_output
   z_conjure_output=$(buto_tt_previous_output_capture)
   local z_conjure_consec
@@ -68,7 +68,7 @@ rbtctm_three_mode_tcase() {
 
   # Step 2: Bind plantuml
   buto_section "Step 2/12: Binding consecration from vessel ${z_bind_vessel}"
-  buto_tt_expect_ok "${RBZ_CREATE_CONSECRATION}" "${z_bind_dir}"
+  buto_tt_expect_ok "${RBZ_ORDAIN_CONSECRATION}" "${z_bind_dir}"
   local z_bind_output
   z_bind_output=$(buto_tt_previous_output_capture)
   local z_bind_consec
@@ -87,7 +87,7 @@ rbtctm_three_mode_tcase() {
 
   # Step 3: Graft busybox
   buto_section "Step 3/12: Grafting consecration from vessel ${z_graft_vessel}"
-  buto_tt_expect_ok "${RBZ_CREATE_CONSECRATION}" "${z_graft_dir}"
+  buto_tt_expect_ok "${RBZ_ORDAIN_CONSECRATION}" "${z_graft_dir}"
   local z_graft_output
   z_graft_output=$(buto_tt_previous_output_capture)
   local z_graft_consec

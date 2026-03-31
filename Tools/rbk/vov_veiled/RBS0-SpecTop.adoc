@@ -100,6 +100,7 @@
 // Recipe Bottle Term Google Operations
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
 :rbtgo_consecration_tally:        <<rbtgo_consecration_tally,rbf_tally>>
+:rbtgo_ark_ordain:                <<rbtgo_ark_ordain,rbf_ordain>>
 :rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbf_build>>
 :rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbf_vouch>>
 :rbtgo_ark_about:                 <<rbtgo_ark_about,rbf_about>>
@@ -1029,6 +1030,15 @@ consecrations across all regime vessels
 classifying each by artifact completeness, platform coverage, and vouch status.
 
 include::RBSCL-consecration_tally.adoc[]
+
+[[rbtgo_ark_ordain]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_ark_ordain}
+
+Ordains a consecration from a vessel — the master ceremony dispatch operation.
+Detects vessel mode (conjure, bind, or graft) and delegates to the appropriate
+{rbtga_ark}
+creation path, then chains metadata and vouch pipeline stages.
 
 [[rbtgo_ark_conjure]]
 //axvo_method axd_transient axd_grouped

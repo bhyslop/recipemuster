@@ -138,4 +138,4 @@ in
 {rbtgi_repository}.
 The {rbtr_director} retains `«BUILD_ID»` and `«CONSECRATION»` from the conjure round-trip.
 The `builds.create` job produces both `-image` and `-about` (about steps embedded via stitch).
-`rbf_create` chains only {rbtgo_ark_vouch} after the combined job completes, passing `«BUILD_ID»` for DSSE provenance verification.
+{rbtgo_ark_ordain} chains only {rbtgo_ark_vouch} after the combined job completes, passing `«BUILD_ID»` for DSSE provenance verification.

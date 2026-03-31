@@ -85,7 +85,7 @@ All credential files require `600` permissions and must never be committed to ve
 |----------|-------------|---------|
 | `rbw-DPG` | DirectorRefreshesGcbPins | Resolve latest GCB tool image digests |
 | `rbw-DI` | DirectorInscribesRubric | Push build definitions to rubric repo |
-| `rbw-DC` | DirectorCreatesConsecration | Create consecration: conjure (Cloud Build), mirror (bind), or graft (local push) based on vessel mode |
+| `rbw-DO` | DirectorOrdainsConsecration | Ordain consecration: conjure (Cloud Build), mirror (bind), or graft (local push) based on vessel mode |
 | `rbw-Dt` | DirectorTalliesConsecrations | Verify builds completed |
 | `rbw-DV` | DirectorVouchesConsecrations | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
 | `rbw-DA` | DirectorAbjuresConsecration | Revoke a consecration |

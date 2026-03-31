@@ -134,7 +134,7 @@ local image reference, registry tag, digest
 Successful execution pushes the locally-built image to
 {rbtgi_repository}
 tagged as `«VESSEL»:«CONSECRATION»-image`.
-The graft operation returns `«CONSECRATION»` to `rbf_create`, which chains the subsequent pipeline stages automatically:
+The graft operation returns `«CONSECRATION»` to {rbtgo_ark_ordain}, which chains the subsequent pipeline stages automatically:
 {rbtgo_ark_about} and {rbtgo_ark_vouch} in a single combined `builds.create` job (about steps followed by vouch steps) to assemble metadata and record the GRAFTED verdict.
 +
 *No SLSA provenance*: Grafted images have no Cloud Build provenance.

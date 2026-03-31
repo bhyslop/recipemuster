@@ -689,7 +689,7 @@ rbgm_onboarding() {
       bug_t "  1. Enshrine busybox base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
       bug_t "  2. Conjure busybox (~8 min):"
-      buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
+      buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
       bug_t "  3. Vouch (verify SLSA provenance):"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
     elif test "${z_has_bottle_built}" = "0"; then
@@ -700,7 +700,7 @@ rbgm_onboarding() {
       bug_t "  2. Enshrine bottle base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
       bug_t "  3. Conjure ifrit bottle (~8 min):"
-      buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
+      buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
       bug_t "  4. Vouch:"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
     elif test "${z_has_sentry_built}" = "0"; then
@@ -716,7 +716,7 @@ rbgm_onboarding() {
         buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
       fi
       bug_t "  3. Conjure sentry (~5 min):"
-      buc_tabtarget "${RBZ_CREATE_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
+      buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
       bug_t "  4. Vouch:"
       buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
     else

@@ -1174,10 +1174,10 @@ zrbf_enshrine_extract_anchors() {
   done
 }
 
-rbf_create() {
+rbf_ordain() {
   zrbf_sentinel
 
-  buc_doc_brief "Create a consecration from a vessel (conjure, mirror, or graft based on vessel mode)"
+  buc_doc_brief "Ordain a consecration from a vessel (conjure, mirror, or graft based on vessel mode)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_shown || return 0
 
@@ -1682,7 +1682,7 @@ rbf_mirror() {
 
   buc_info "Consecration: ${z_consecration}"
 
-  # Persist to output directory for chaining by rbf_create
+  # Persist to output directory for chaining by rbf_ordain
   echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
   echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
