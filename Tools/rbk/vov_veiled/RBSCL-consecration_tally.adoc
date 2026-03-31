@@ -1,5 +1,5 @@
 //axhob_operation
-{rbtgo_consecration_check}
+{rbtgo_consecration_tally}
 
 NOTE: This operation enumerates
 {rbtga_ark}s
@@ -16,7 +16,7 @@ Docker Registry HTTP API V2 for tag data.
 
 The
 {rbtr_director}
-checks consecrations:
+tallies consecrations:
 
 //axhos_step
 . *Enumerate Vessels*:

@@ -99,7 +99,7 @@
 
 // Recipe Bottle Term Google Operations
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
-:rbtgo_consecration_check:        <<rbtgo_consecration_check,rbf_check_consecrations>>
+:rbtgo_consecration_tally:        <<rbtgo_consecration_tally,rbf_tally>>
 :rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbf_build>>
 :rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbf_vouch>>
 :rbtgo_ark_about:                 <<rbtgo_ark_about,rbf_about>>
@@ -1018,9 +1018,9 @@ removing its image, about, and vouch artifacts as a coherent unit.
 
 include::RBSAA-ark_abjure.adoc[]
 
-[[rbtgo_consecration_check]]
+[[rbtgo_consecration_tally]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_consecration_check}
+=== {rbtgo_consecration_tally}
 
 Enumerates
 {rbtga_ark}
@@ -1675,7 +1675,7 @@ If determinism proves unreliable in practice, narrow the comparison to verificat
 +
 **Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image` and `-about`.
 +
-**Display**: {rbtgo_consecration_check} includes a Vouch column showing `yes`/`no` per consecration, detected by matching the `-vouch` tag suffix in the GAR tag list.
+**Display**: {rbtgo_consecration_tally} includes a Vouch column showing `yes`/`no` per consecration, detected by matching the `-vouch` tag suffix in the GAR tag list.
 
 === Foundry Fact Files
 

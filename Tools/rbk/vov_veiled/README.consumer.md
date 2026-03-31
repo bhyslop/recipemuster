@@ -170,7 +170,7 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
 
 13. **Check & vouch** — Verify builds completed and SLSA provenance:
     ```
-    tt/rbw-Dc.DirectorChecksConsecrations.sh
+    tt/rbw-Dt.DirectorTalliesConsecrations.sh
     tt/rbw-DV.DirectorVouchesConsecrations.sh
     ```
 
@@ -313,8 +313,8 @@ tt/rbw-QR.QualifyRelease.sh  # Release: + shellcheck, full test suite
 - **Expired tokens**: `tt/rbw-gPR.PayorRefresh.sh`
 - **Compromised governor**: `tt/rbw-PG.PayorResetsGovernor.sh` (replaces service account, invalidates old credential)
 - **Compromised director/retriever**: `tt/rbw-GS.GovernorDeletesServiceAccount.sh` to revoke, then recreate with `tt/rbw-GD.*` or `tt/rbw-GR.*`
-- **Lost nameplate values**: Re-run `tt/rbw-Dc.DirectorChecksConsecrations.sh` to retrieve consecration values from the registry
-- **Build timeout or failure**: Check build status with `tt/rbw-Dc.DirectorChecksConsecrations.sh`, review logs in the GCP Console for the depot project
+- **Lost nameplate values**: Re-run `tt/rbw-Dt.DirectorTalliesConsecrations.sh` to retrieve consecration values from the registry
+- **Build timeout or failure**: Check build status with `tt/rbw-Dt.DirectorTalliesConsecrations.sh`, review logs in the GCP Console for the depot project
 
 ## Architecture
 

@@ -96,8 +96,8 @@ rbtctm_three_mode_tcase() {
   buto_info "Grafted: ${z_graft_consec}"
 
   # Step 4: Consecration check — verify all three show vouched health
-  buto_section "Step 4/12: Checking consecrations (all three should be vouched)"
-  buto_tt_expect_ok "${RBZ_CHECK_CONSECRATIONS}"
+  buto_section "Step 4/12: Tallying consecrations (all three should be vouched)"
+  buto_tt_expect_ok "${RBZ_TALLY_CONSECRATIONS}"
 
   local z_check_dir
   z_check_dir=$(buto_tt_previous_output_capture)
@@ -161,8 +161,8 @@ rbtctm_three_mode_tcase() {
   buto_info "Abjured graft: ${z_graft_consec}"
 
   # Step 12: Consecration check — verify all three are gone
-  buto_section "Step 12/12: Checking consecrations (post-abjure)"
-  buto_tt_expect_ok "${RBZ_CHECK_CONSECRATIONS}"
+  buto_section "Step 12/12: Tallying consecrations (post-abjure)"
+  buto_tt_expect_ok "${RBZ_TALLY_CONSECRATIONS}"
 
   local z_post_abjure_dir
   z_post_abjure_dir=$(buto_tt_previous_output_capture)

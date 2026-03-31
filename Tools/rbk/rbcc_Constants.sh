@@ -55,7 +55,7 @@ zrbcc_kindle() {
 
   # Fact-file infix for per-vessel-consecration presence files
   # Composed as: ${vessel}${RBCC_FACT_CONSEC_INFIX}${consecration}
-  # Producer: rbf_check_consecrations  Consumer: test cases via test -f
+  # Producer: rbf_tally  Consumer: test cases via test -f
   readonly RBCC_FACT_CONSEC_INFIX="_fact_consec_"
 
   readonly ZRBCC_KINDLED=1

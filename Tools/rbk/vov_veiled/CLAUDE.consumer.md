@@ -86,7 +86,7 @@ All credential files require `600` permissions and must never be committed to ve
 | `rbw-DPG` | DirectorRefreshesGcbPins | Resolve latest GCB tool image digests |
 | `rbw-DI` | DirectorInscribesRubric | Push build definitions to rubric repo |
 | `rbw-DC` | DirectorCreatesConsecration | Create consecration: conjure (Cloud Build), mirror (bind), or graft (local push) based on vessel mode |
-| `rbw-Dc` | DirectorChecksConsecrations | Verify builds completed |
+| `rbw-Dt` | DirectorTalliesConsecrations | Verify builds completed |
 | `rbw-DV` | DirectorVouchesConsecrations | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
 | `rbw-DA` | DirectorAbjuresConsecration | Revoke a consecration |
 | `rbw-DD` | DirectorDeletesImage | Remove image from registry |
@@ -206,4 +206,4 @@ Project Root/
 - **OAuth token expired**: `tt/rbw-gPR.PayorRefresh.sh`
 - **Lost credential file**: Re-run the creation command for that role (payor install, governor reset, director/retriever create).
 - **Tabtarget not found**: Run `tt/rbw-Qf.QualifyFast.sh` to check tabtarget and colophon health.
-- **Build fails**: Check `tt/rbw-Dc.DirectorChecksConsecrations.sh` for build status. Review logs in the GCP Console for the depot project.
+- **Build fails**: Check `tt/rbw-Dt.DirectorTalliesConsecrations.sh` for build status. Review logs in the GCP Console for the depot project.

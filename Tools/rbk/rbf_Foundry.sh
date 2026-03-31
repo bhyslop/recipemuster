@@ -3735,9 +3735,9 @@ zrbf_vouch_submit() {
 }
 
 ######################################################################
-# Consecration Check (rbw-Dc)
+# Consecration Tally (rbw-Dt)
 
-rbf_check_consecrations() {
+rbf_tally() {
   zrbf_sentinel
 
   buc_doc_brief "List consecrations across all vessels with health status"

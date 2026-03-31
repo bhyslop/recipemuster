@@ -74,7 +74,7 @@ zrbz_kindle() {
   buz_enroll RBZ_RETRIEVE_IMAGE             "rbw-Rr"       "${z_mod}" "rbf_retrieve"
   buz_enroll RBZ_INSPECT_FULL              "rbw-RiF"      "${z_mod}" "rbf_inspect_full"
   buz_enroll RBZ_INSPECT_COMPACT           "rbw-Ric"      "${z_mod}" "rbf_inspect_compact"
-  buz_enroll RBZ_CHECK_CONSECRATIONS        "rbw-Dc"       "${z_mod}" "rbf_check_consecrations"
+  buz_enroll RBZ_TALLY_CONSECRATIONS        "rbw-Dt"       "${z_mod}" "rbf_tally"
   buz_enroll RBZ_VOUCH_CONSECRATIONS        "rbw-DV"       "${z_mod}" "rbf_batch_vouch"
   buz_enroll RBZ_KLUDGE_VESSEL             "rbw-ak"       "${z_mod}" "rbf_kludge"
 
