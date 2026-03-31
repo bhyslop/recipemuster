@@ -9,6 +9,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣A0",
     "₣Ax",
     "₣Ay",
     "₣Av",
@@ -22,14 +23,13 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A0"
+    "₣Au"
   ],
   "heats": {
     "₣A0": {
       "silks": "rbk-mvp-3-foundry-decomposition",
       "creation_time": "260331",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢A0AAA",
         "₢A0AAB",
