@@ -694,6 +694,7 @@
       "status": "racing",
       "order": [
         "₢AUAAq",
+        "₢AUAAr",
         "₢AUAAp",
         "₢AUAAo",
         "₢AUAAl",
@@ -735,7 +736,7 @@
         "₢AUAAj",
         "₢AUAAn"
       ],
-      "next_pace_seed": "AAr",
+      "next_pace_seed": "AAs",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1690,6 +1691,17 @@
               "text": "## Character\nMechanical — four call sites, one pattern. Rescan on mount since files are being renamed.\n\n## Context\nConsumer runtime uses both `sha256sum` (Linux coreutils) and `shasum -a 256` (macOS Perl) for hashing, neither universal. `openssl dgst -sha256 -r` produces sha256sum-compatible output and is present on both platforms. Since openssl is already a committed dependency (JWT signing in rbgo_OAuth, checksum fallback in bud_dispatch), standardize all hashing on it.\n\n## Pre-work: rescan\nFile renames are in progress. On mount, verify each call site still exists at the expected location.\n\n## Conversion pattern\n\nReplace all sha256sum/shasum invocations with `openssl dgst -sha256 -r`. The `-r` flag produces `hash *filename` format (sha256sum-compatible). Extract hash with `read -r z_hash _` (bash builtin, no awk/cut).\n\n## Call sites (4)\n\n| File | Current | Notes |\n|------|---------|-------|\n| `bud_dispatch.sh` | `sha256sum` with openssl fallback cascade | Simplify to openssl only |\n| `jja_arcanum.sh` | `shasum -a 256` (macOS-only) | Fix portability bug |\n| `vob_build.sh` | `sha256sum` then `shasum` dual probe | Simplify to openssl only |\n| `rbgje01-enshrine-copy.sh` | `sha256sum` (GCB) | Standardize for consistency |\n\n## Acceptance\n- Zero invocations of sha256sum or shasum in the codebase\n- All sites use `openssl dgst -sha256 -r`\n- Hash extraction uses `read -r` not awk/cut\n- All existing tests pass",
               "silks": "unify-hashing-on-openssl",
               "commit": "d098ee9"
+            }
+          ]
+        },
+        "₢AUAAr": {
+          "tacks": [
+            {
+              "ts": "260331-1104",
+              "state": "rough",
+              "text": "## Character\nMechanical with careful testing — eight call sites across six files, plus elimination of two macOS compatibility hacks. The JWT path is security-sensitive and must be verified end-to-end.\n\n## Context\nConsumer runtime uses `base64` command for encoding and decoding. GNU and macOS implementations diverge: `-d` vs `-D` for decode, `-w0` vs `-b0` for no-wrap. Two files already have explicit fallback hacks for this. `openssl enc -base64` is portable across all platforms with no flag divergence, and openssl is already a committed dependency.\n\n## Pre-work: rescan\nFile renames are in progress. On mount, verify each call site still exists at the expected location.\n\n## Conversion patterns\n\nEncode (JWT base64url):\n- Before: `base64 | tr -d '\\n' | tr '+/' '-_' | tr -d '='`\n- After: `openssl enc -base64 -A | tr '+/' '-_' | tr -d '='`\n- Note: `-A` suppresses line wrapping, eliminating a `tr -d '\\n'` step\n\nDecode (files and strings):\n- Before: `base64 -d` (GNU) or `base64 -D` (macOS fallback)\n- After: `openssl enc -base64 -d`\n- Note: `-d` flag is consistent across all openssl builds\n\nCritical rule: `-A` flag must match on encode and decode sides. External sources (GCB build step outputs, GCP key data) include newlines in their base64 — decode those WITHOUT `-A`.\n\n## Call sites (8 executable + 1 command check)\n\n| File | Line ref | Pattern | Notes |\n|------|----------|---------|-------|\n| rbgo_OAuth.sh | encode | JWT header base64url | Security-sensitive |\n| rbgo_OAuth.sh | encode | JWT signature base64url | Security-sensitive |\n| rbgo_OAuth.sh | command check | `command -v base64` | Remove this check |\n| rbf_Foundry.sh | decode | Secret value decode | _capture function |\n| rbf_Foundry.sh | decode | Build step output decode (enshrine) | File-to-file |\n| rbf_Foundry.sh | decode | Build step output decode (consecration) | File-to-file |\n| rbv_PodmanVM.sh | decode | Manifest entry decode | Here-string input |\n| rgbs_ServiceAccounts.sh | decode | Private key decode | Pipe input |\n| rbgp_Payor.sh | decode | Key decode with macOS -D hack | **Hack eliminated** |\n| rbgg_Governor.sh | decode | Key decode with macOS -D hack | **Hack eliminated** |\n\n## Verification plan\n\n### A. OAuth JWT roundtrip (critical path)\nAfter converting rbgo_OAuth.sh, run the full OAuth flow to verify JWT signing still produces valid tokens:\n1. `tt/rbw-gPR.PayorRefresh.sh` — exercises JWT build, sign, and token exchange\n2. Success = GCP returns a valid access token (the JWT was accepted)\n3. If token exchange fails, the JWT encoding is broken — immediate rollback\n\n### B. Service account key decode\n1. `tt/rbw-GD.GovernorCreatesDirector.sh` — exercises key creation and decode (rbgg_Governor.sh)\n2. Verify the decoded key JSON is valid: the subsequent curl call that uses it will fail if decode is wrong\n\n### C. Build step output decode\n1. `tt/rbw-DE.DirectorEnshrinesVessel.sh` — exercises the enshrine path (rbf_Foundry.sh build step decode)\n2. Success = anchor results extracted and vouch artifact created\n\n### D. Payor key decode (macOS hack removal)\n1. `tt/rbw-gPI.PayorInstall.sh` — exercises rbgp_Payor.sh key decode path\n2. Run on macOS to confirm the openssl path works without the -d/-D fallback\n\n## Acceptance\n- Zero invocations of standalone `base64` command in consumer runtime\n- macOS `-d`/`-D` fallback hacks removed from rbgp_Payor.sh and rbgg_Governor.sh\n- `command -v base64` check removed from rbgo_OAuth.sh\n- OAuth token refresh succeeds (test A)\n- All existing tests pass",
+              "silks": "unify-base64-on-openssl",
+              "commit": "42c55e7"
             }
           ]
         }
