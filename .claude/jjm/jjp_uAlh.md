@@ -358,8 +358,8 @@ The `axhe*` entity voicing convention (entity/field/method/parameter/output hier
 ### AXLA Extensions
 
 - `axt_map` — 2-arity type (key type + value type)
-- `mcm_intaglio` — wire-level token identity tier (lemma → graven → intaglio)
-- `axr_member` 1-arity for `mcm_intaglio` (JSON key)
+- `mcm_sprue` — wire-level token identity tier (quoin → inlay → sprue)
+- `axr_member` 1-arity for `mcm_sprue` (JSON key)
 - No new `axhe*` markers needed — the existing 11-marker hierarchy was sufficient
 
 ### File Rename

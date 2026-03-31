@@ -864,19 +864,19 @@ representing a named, typed element within an
 Inherits serialization format from parent
 {axr_record}.
 1-arity: reads one
-{mcm_intaglio}
+{mcm_sprue}
 from following text — the serialized property name (e.g., the JSON key).
 The
-{mcm_intaglio}
+{mcm_sprue}
 is the exact wire-level name; the
-{mcm_lemma}
+{mcm_quoin}
 is the conceptual name.
 Additional type motifs on the annotation line (e.g.,
 {axt_map},
 {axt_string})
 contribute their own arity to the total read sequence:
 {axr_member}
-intaglio first, then type motif lookaheads.
+sprue first, then type motif lookaheads.
 Qualified by
 {axd_dimension_s}
 in
@@ -2548,7 +2548,7 @@ Variant suffixes identify the source of type identity:
 |{axheb_entity}             |1 {mcm_attribute_reference}  |The entity this subdoc describes
 |{axheft_typed_field}       |1 {mcm_attribute_reference}  |A field's type (domain type term)
 |{axhefm_motif_field}       |0                            |Type on annotation line (motif terms)
-|{axhems_scoped_method}     |1 {mcm_graven}               |Implementation method name; opens Layer 2
+|{axhems_scoped_method}     |1 {mcm_inlay}                |Implementation method name; opens Layer 2
 |{axheme_elevated_method}   |1 {mcm_attribute_reference}  |The parent-document method term
 |{axhempt_typed_parameter}  |1 {mcm_attribute_reference}  |A parameter's type (domain type term)
 |{axhempa_arg_parameter}    |1 {mcm_attribute_reference}  |A parameter's identity (shared argument term)
@@ -2601,12 +2601,12 @@ etc.).
 {axhems_scoped_method}::
 Opens a scoped method scope within the entity.
 The method has no parent-document
-{mcm_lemma}
-— its identity is a
-{mcm_graven}
+{mcm_quoin}
+— its identity is an
+{mcm_inlay}
 that exists only within the entity subdocument.
 Lookahead: 1
-{mcm_graven}
+{mcm_inlay}
 — the implementation method name, recognized by its prefix pattern.
 Opens Layer 2 scope for parameter and output markers.
 
