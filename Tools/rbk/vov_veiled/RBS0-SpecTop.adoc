@@ -232,8 +232,8 @@
 :at_bottle_service_s:        <<at_bottle_service,Bottle Services>>
 :at_censer_container:        <<at_censer_container,Censer Container>>
 :at_container_registry:      <<at_container_registry,Container Registry>>
-:at_ebpf_program:            <<at_ebpf_program,eBPF Program>>
-:at_enclave_namespace_name:  <<at_enclave_namespace_name,Enclave Namespace Name>>
+// :at_ebpf_program: removed — historical (Podman era), superseded by compose network_mode
+// :at_enclave_namespace_name: removed — historical (Podman era), compose manages network naming
 :at_enclave_network:         <<at_enclave_network,Enclave Network>>
 :at_enclave_network_name:    <<at_enclave_network_name,Enclave Network Name>>
 :at_moniker:                 <<at_moniker,Moniker>>
@@ -281,7 +281,7 @@
 :mkr_bottle_launch:          <<mkr_bottle_launch,Bottle Launch Sequence>>
 :mkr_bottle_create:          <<mkr_bottle_create,Bottle Create Sequence>>
 :mkr_command_exec:           <<mkr_command_exec,Command Execution Sequence>>
-:mkc_interface_check:        <<mkc_interface_check,Interface Check Clause>>
+// :mkc_interface_check: removed — historical (Podman era), IP-based discovery replaced interface checks
 
 // Script Internals (security enforcement within sentry container)
 :scr_security_config:        <<scr_security_config,Security Configuration Stage>>
@@ -1275,23 +1275,7 @@ include::RBSCE-command_exec.adoc[]
 
 include::RBSPV-PodmanVmSupplyChain.adoc[]
 
-[[mkc_interface_check]]
-//axvo_procedure axd_transient axd_internal
-==== {mkc_interface_check}
-
-A utility that verifies network interface presence and configuration within a container context:
-
-[source,makefile]
-----
-# Waits until interface has an IPv4 address assigned, fails after timeout
-# @param 1 interface   Network interface name to check
-# @param 2 timeout_s   Number of seconds to wait before failing
-define check_interface
-timeout $(2)s sh -c "while ! ip addr show $(1) | grep -q \"inet \"; do sleep 0.2; done"
-endef
-----
-
-This utility generates precise validation commands for network interface readiness probes, accepting an interface name and timeout duration as parameters.
+// [[mkc_interface_check]] removed — historical (Podman era), IP-based discovery replaced interface checks
 
 // ============================================================================
 // TIER 3: REFERENCE
@@ -2130,11 +2114,7 @@ Each nameplate provides a complete service specification that the
 {at_rbm_system}
 can instantiate.
 
-[[at_ebpf_program]]
-{at_ebpf_program}::
-_Historical (Podman era)._
-An eBPF TC filter program formerly used to intercept bottle container traffic.
-Superseded by Docker Compose `network_mode: "service:censer"`, which shares the censer's network namespace directly — achieving the same traffic routing guarantee without eBPF.
+// [[at_ebpf_program]] removed — historical (Podman era), superseded by compose network_mode
 
 [[st_container]]
 {st_container}::
