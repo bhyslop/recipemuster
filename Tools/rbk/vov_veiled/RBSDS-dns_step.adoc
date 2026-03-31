@@ -40,7 +40,7 @@ If {rbrn_uplink_dns_mode} is global or allowlist, the {at_sentry_container} exec
 *** Return all responses unmodified
 
 ** When {rbrn_uplink_dns_mode} is allowlist:
-*** For each domain in {rbrn_uplink_allowed_domains}: forward to {rbrr_dns_server}
+*** Resolve-then-freeze: for each domain in {rbrn_uplink_allowed_domains}, resolve A records via {rbrr_dns_server} at startup, then freeze as static `address=` entries in dnsmasq. No `server=` forwarding directives — dnsmasq synthesizes responses locally from frozen IPs. Subdomain queries (e.g., `exfil.anthropic.com`) return the frozen parent IP without generating upstream queries, closing the DNS subdomain exfiltration channel.
 *** Return NXDOMAIN for all other queries (address=/#/)
 --
 

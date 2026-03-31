@@ -191,12 +191,18 @@ else
     echo "RBJp4: Enabling global DNS resolution"
     echo "server=${RBRR_DNS_SERVER}"                          >> /etc/dnsmasq.conf || exit 41
   else
-    echo "RBJp4: Configuring domain-based DNS filtering"
-    # Add domain-specific forwarding first
+    echo "RBJp4: Resolve-then-freeze — resolve allowed domains via upstream, freeze as static entries"
     for domain in ${RBRN_UPLINK_ALLOWED_DOMAINS}; do
-      echo "server=/${domain}/${RBRR_DNS_SERVER}"           >> /etc/dnsmasq.conf || exit 41
+      echo "RBJp4: Resolving ${domain} via ${RBRR_DNS_SERVER}"
+      z_ips=$(dig +short A "${domain}" @"${RBRR_DNS_SERVER}" 2>/dev/null | grep -E '^[0-9]+\.' | sort -u)
+      test -n "${z_ips}" || { echo "FATAL: Cannot resolve ${domain} via ${RBRR_DNS_SERVER}"; exit 42; }
+      for z_ip in ${z_ips}; do
+        echo "RBJp4: Freezing ${domain} -> ${z_ip}"
+        echo "address=/${domain}/${z_ip}"                    >> /etc/dnsmasq.conf || exit 41
+      done
     done
-    # Block everything else with NXDOMAIN
+    # No server= lines — no forwarding path exists. Subdomain queries return frozen IPs.
+    # All non-allowed domains get NXDOMAIN.
     echo "address=/#/"                                        >> /etc/dnsmasq.conf || exit 41
   fi
 
