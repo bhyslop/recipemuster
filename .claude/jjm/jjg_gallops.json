@@ -5787,6 +5787,13 @@
         "₢AyAAU": {
           "tacks": [
             {
+              "ts": "260331-0949",
+              "state": "complete",
+              "text": "## Character\nMechanical rename with vessel rebuild — straightforward but touches the trust boundary. Requires new consecration cycle.\n\n## Goal\nRename `rbj_sentry.sh` to `rbjs_sentry.sh` to make `rbj` (Jailer) non-terminal, enabling children: `rbjs` (sentry), `rbje` (environment probe, already created). Clean up terminal exclusivity violation.\n\n## Scope\n- Rename `rbj_sentry.sh` → `rbjs_sentry.sh` in source tree\n- Update Dockerfile COPY and CMD paths\n- Update baked-in path `/opt/rbk/rbj_sentry.sh` → `/opt/rbk/rbjs_sentry.sh`\n- Update CLAUDE.md acronym mapping (RBJ → RBJS)\n- Update spec references (RBSDS, RBSSS, etc.)\n- Build and vouch new sentry vessel image",
+              "silks": "rename-rbj-to-rbjs",
+              "commit": "bea51f6"
+            },
+            {
               "ts": "260331-0901",
               "state": "rough",
               "text": "## Character\nMechanical rename with vessel rebuild — straightforward but touches the trust boundary. Requires new consecration cycle.\n\n## Goal\nRename `rbj_sentry.sh` to `rbjs_sentry.sh` to make `rbj` (Jailer) non-terminal, enabling children: `rbjs` (sentry), `rbje` (environment probe, already created). Clean up terminal exclusivity violation.\n\n## Scope\n- Rename `rbj_sentry.sh` → `rbjs_sentry.sh` in source tree\n- Update Dockerfile COPY and CMD paths\n- Update baked-in path `/opt/rbk/rbj_sentry.sh` → `/opt/rbk/rbjs_sentry.sh`\n- Update CLAUDE.md acronym mapping (RBJ → RBJS)\n- Update spec references (RBSDS, RBSSS, etc.)\n- Build and vouch new sentry vessel image",
