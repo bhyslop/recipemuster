@@ -73,11 +73,11 @@ All Recipe Bottle operations are **tabtargets** — lightweight shell scripts in
 **Discover commands**: `ls tt/` shows everything. Tab completion narrows by prefix: `tt/rbw-<TAB>`.
 
 **Naming pattern**: `{colophon}.{frontispiece}[.{imprint}].sh`
-- **Colophon**: routing identifier (e.g. `rbw-s`)
+- **Colophon**: routing identifier (e.g. `rbw-cC`)
 - **Frontispiece**: human-readable description (e.g. `Start`)
 - **Imprint**: optional target parameter, often a vessel name (e.g. `tadmor`)
 
-Example: `tt/rbw-s.Start.tadmor.sh` starts the `tadmor` vessel's bottle.
+Example: `tt/rbw-cC.Charge.tadmor.sh` charges the `tadmor` crucible.
 
 ## Setup
 
@@ -193,10 +193,10 @@ The examples below use `tadmor` (the included test nameplate). Replace with your
 ### Starting a Bottle
 
 ```
-tt/rbw-s.Start.tadmor.sh
+tt/rbw-cC.Charge.tadmor.sh
 ```
 
-This starts the sentry, pentacle, and bottle containers for the vessel.
+This charges the crucible — starts the sentry, pentacle, and bottle containers for the vessel.
 
 ### Connecting
 
@@ -209,7 +209,7 @@ tt/rbw-o.ObserveNetworks.tadmor.sh  # View network state
 ### Stopping
 
 ```
-tt/rbw-z.Stop.tadmor.sh
+tt/rbw-cQ.Quench.tadmor.sh
 ```
 
 ### Inspecting Provenance
@@ -284,7 +284,7 @@ Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (li
 .rbk/tadmor.rbrn.env          # Maps tadmor → rbev-sentry-debian-slim + rbev-bottle-ifrit
 ```
 
-So `tt/rbw-s.Start.tadmor.sh` starts the bottle defined by the `tadmor` nameplate, which selects its sentry and bottle vessel images.
+So `tt/rbw-cC.Charge.tadmor.sh` charges the crucible defined by the `tadmor` nameplate, which selects its sentry and bottle vessel images.
 
 ## Testing
 

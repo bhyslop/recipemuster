@@ -113,8 +113,8 @@ zrbz_kindle() {
 
   # Bottle operations (imprint channel sets BUZ_FOLIO from BURD_TOKEN_3)
   z_mod="rbob_cli.sh"
-  buz_enroll RBZ_BOTTLE_START   "rbw-s" "${z_mod}" "rbob_start"          "imprint"
-  buz_enroll RBZ_BOTTLE_STOP    "rbw-z" "${z_mod}" "rbob_stop"           "imprint"
+  buz_enroll RBZ_CRUCIBLE_CHARGE "rbw-cC" "${z_mod}" "rbob_charge"         "imprint"
+  buz_enroll RBZ_CRUCIBLE_QUENCH "rbw-cQ" "${z_mod}" "rbob_quench"       "imprint"
   buz_enroll RBZ_BOTTLE_SENTRY  "rbw-S" "${z_mod}" "rbob_connect_sentry" "imprint"
   buz_enroll RBZ_BOTTLE_PENTACLE  "rbw-C" "${z_mod}" "rbob_connect_pentacle" "imprint"
   buz_enroll RBZ_BOTTLE_CONNECT "rbw-B"  "${z_mod}" "rbob_connect_bottle" "imprint"

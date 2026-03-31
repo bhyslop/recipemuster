@@ -23,9 +23,9 @@ Example: `tt/rbw-B.ConnectBottle.tadmor.sh` — colophon `rbw-B` routes to the b
 
 Multiple tabtargets can share the same colophon but differ by imprint:
 ```
-tt/rbw-s.Start.tadmor.sh
-tt/rbw-s.Start.srjcl.sh
-tt/rbw-s.Start.pluml.sh
+tt/rbw-cC.Charge.tadmor.sh
+tt/rbw-cC.Charge.srjcl.sh
+tt/rbw-cC.Charge.pluml.sh
 ```
 
 ### BUK Vocabulary

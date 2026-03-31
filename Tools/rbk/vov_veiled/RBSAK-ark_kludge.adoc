@@ -44,7 +44,7 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 . *Create Fake Vouch Tag*:
 .. `docker tag` the image ref to also carry the `-vouch` suffix
 .. This is the same image aliased -- no provenance verification, no DSSE envelope
-.. Satisfies the `rbob_start` vouch gate (`docker image inspect` on vouch ref)
+.. Satisfies the `rbob_charge` vouch gate (`docker image inspect` on vouch ref)
 
 //axhos_step
 . *Report Consecration*:

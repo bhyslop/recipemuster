@@ -19,7 +19,7 @@
 # RBW Workbench - Routes Recipe Bottle commands to CLIs via zipper registry
 #
 # All commands dispatch via buz_exec_lookup (see rbz_zipper.sh for colophon mapping).
-# Qualification gate runs for rbw-s (bottle start) and rbw-DO (cloud build) before dispatch.
+# Qualification gate runs for rbw-cC (crucible charge) and rbw-DO (cloud build) before dispatch.
 
 set -euo pipefail
 
@@ -63,7 +63,7 @@ rbw_route() {
 
   # Qualification gate for commands that need it
   case "${z_command}" in
-    "${RBZ_BOTTLE_START}"|"${RBZ_ORDAIN_CONSECRATION}")
+    "${RBZ_CRUCIBLE_CHARGE}"|"${RBZ_ORDAIN_CONSECRATION}")
       "${RBW_SCRIPT_DIR}/rbq_cli.sh" rbq_qualify_fast || buc_die "Qualification gate failed"
       ;;
   esac

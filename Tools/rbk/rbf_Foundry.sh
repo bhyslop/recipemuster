@@ -1398,7 +1398,7 @@ rbf_build() {
 #
 # Builds a vessel image locally using docker build, tags it with a
 # kludge consecration (k-prefixed timestamp) in the same GAR-style
-# format that compose and rbob_start expect. Also creates a fake
+# format that compose and rbob_charge expect. Also creates a fake
 # vouch tag (same image, aliased) so the vouch gate passes.
 #
 # No Cloud Build, no GAR push, no credentials consumed.
@@ -1463,7 +1463,7 @@ rbf_kludge() {
     "${RBRV_CONJURE_BLDCONTEXT}" \
     || buc_die "Local build failed for ${RBRV_SIGIL}"
 
-  # Create fake vouch tag (same image, aliased — satisfies rbob_start vouch gate)
+  # Create fake vouch tag (same image, aliased — satisfies rbob_charge vouch gate)
   buc_step "Creating vouch tag"
   docker tag "${z_image_ref}" "${z_vouch_ref}" \
     || buc_die "Failed to create vouch tag"

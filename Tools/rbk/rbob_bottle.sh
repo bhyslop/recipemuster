@@ -261,7 +261,7 @@ zrbob_detect_subnet_conflict() {
 
 # Start the crucible (sentry + pentacle + bottle) via compose
 # Requires: RBOB kindled (which requires RBRN and RBRR)
-rbob_start() {
+rbob_charge() {
   zrbob_sentinel
 
   buc_step "Starting crucible: ${RBRN_MONIKER}"
@@ -309,7 +309,7 @@ rbob_start() {
 }
 
 # Stop the crucible via compose
-rbob_stop() {
+rbob_quench() {
   zrbob_sentinel
 
   buc_step "Stopping crucible: ${RBRN_MONIKER}"

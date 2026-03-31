@@ -273,7 +273,7 @@
 
 // Local Operations (sentry startup, bottle lifecycle, VM management)
 :opss_sentry_start:          <<opss_sentry_start,Sentry Start Rule>>
-:opbs_bottle_start:          <<opbs_bottle_start,Sessile Bottle Start Rule>>
+:opbs_bottle_start:          <<opbs_bottle_start,Sessile Charge Rule>>
 :opbr_bottle_run:            <<opbr_bottle_run,Agile Bottle Run Rule>>
 :mkr_network_create:         <<mkr_network_create,Network Creation Sequence>>
 :mkr_sentry_run:             <<mkr_sentry_run,Sentry Launch Sequence>>
@@ -1243,7 +1243,7 @@ include::RBSNX-network_connect.adoc[]
 //axvo_procedure axd_transient
 === {opbs_bottle_start}
 
-Establishes a new
+Charges a new
 {at_sessile_service}
 through controlled container instantiation and configuration.
 
@@ -2035,9 +2035,9 @@ Podman compose support is architecturally accommodated (podman compose delegates
 {at_sessile_service}::
 A long-running
 {rbsc_crucible}
-that starts via
+that charges via
 {opbs_bottle_start}
-and persists until explicitly stopped.
+and persists until explicitly quenched.
 The sessile pattern is used for services that maintain state and provide ongoing functionality.
 
 [[at_agile_service]]

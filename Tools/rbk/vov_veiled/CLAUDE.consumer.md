@@ -104,8 +104,8 @@ All credential files require `600` permissions and must never be committed to ve
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-s` | Start | Start bottle (sentry + pentacle + bottle containers) |
-| `rbw-z` | Stop | Stop bottle |
+| `rbw-cC` | Charge | Charge crucible (sentry + pentacle + bottle containers) |
+| `rbw-cQ` | Quench | Quench crucible |
 | `rbw-B` | ConnectBottle | Shell into the bottle container |
 | `rbw-S` | ConnectSentry | Shell into the sentry container |
 | `rbw-C` | ConnectPentacle | Shell into the pentacle container |

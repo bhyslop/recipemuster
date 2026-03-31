@@ -790,7 +790,7 @@ rbgm_onboarding() {
       bug_tc "    " "tt/rbw-tf.TestFixture.tadmor-security.sh"
       bug_e
       bug_t "  Or start a bottle:"
-      buc_tabtarget "${RBZ_BOTTLE_START}" "tadmor"
+      buc_tabtarget "${RBZ_CRUCIBLE_CHARGE}" "tadmor"
     fi
     bug_e
   fi

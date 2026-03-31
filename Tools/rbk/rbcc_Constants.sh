@@ -46,7 +46,7 @@ zrbcc_kindle() {
   readonly RBCC_CURL_CONNECT_TIMEOUT_SEC=10
   readonly RBCC_CURL_MAX_TIME_SEC=60
 
-  # Bottle test fixtures sleep after rbob_start to let services (Jupyter, PlantUML)
+  # Bottle test fixtures sleep after rbob_charge to let services (Jupyter, PlantUML)
   # initialize before HTTP assertions. A readiness poll would be precise but adds
   # dynamic state and retry logic that bash handles poorly. Fixed delay is reliable
   # if generous — test suite runtime matters less than test reliability.

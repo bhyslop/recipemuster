@@ -247,9 +247,9 @@ rbw-B.ConnectBottle.tadmor.sh
 
 Multiple tabtargets can share the same colophon and frontispiece but differ by imprint:
 ```
-rbw-s.Start.tadmor.sh    → same command, different targets
-rbw-s.Start.srjcl.sh
-rbw-s.Start.pluml.sh
+rbw-cC.Charge.tadmor.sh    → same command, different targets
+rbw-cC.Charge.srjcl.sh
+rbw-cC.Charge.pluml.sh
 ```
 
 **Examples**:

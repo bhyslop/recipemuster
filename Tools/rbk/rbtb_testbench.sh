@@ -195,20 +195,20 @@ zrbtb_three_mode_baste() {
 zrbtb_tadmor_baste() {
   buto_trace "Baste for tadmor-security fixture"
   rbtb_load_nameplate "tadmor"
-  rbob_start
+  rbob_charge
 }
 
 zrbtb_srjcl_baste() {
   buto_trace "Baste for srjcl-jupyter fixture"
   rbtb_load_nameplate "srjcl"
-  rbob_start
+  rbob_charge
   sleep "${RBCC_BOTTLE_TEST_READINESS_DELAY_SEC}"
 }
 
 zrbtb_pluml_baste() {
   buto_trace "Baste for pluml-diagram fixture"
   rbtb_load_nameplate "pluml"
-  rbob_start
+  rbob_charge
   sleep "${RBCC_BOTTLE_TEST_READINESS_DELAY_SEC}"
 }
 

@@ -61,13 +61,13 @@ External Code → CLI script → furnish() kindles → module functions
 # ❌ External script kindling directly
 source "${TOOLS_DIR}/rbob_bottle.sh"
 zrbob_kindle                          # VIOLATION: kindle leaked outside CLI
-rbob_start
+rbob_charge
 ```
 
 **Correct pattern**:
 ```bash
 # ✅ External script delegates to CLI
-exec "${TOOLS_DIR}/rbob_cli.sh" rbob_start "$@"
+exec "${TOOLS_DIR}/rbob_cli.sh" rbob_charge "$@"
 ```
 
 **What counts as "external code"**:
