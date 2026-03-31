@@ -229,12 +229,13 @@ rbtb_kindle() {
   # Suite constants
   readonly BUTR_SUITE_FAST="fast"
   readonly BUTR_SUITE_SERVICE="service"
+  readonly BUTR_SUITE_CRUCIBLE="crucible"
   readonly BUTR_SUITE_COMPLETE="complete"
 
   butr_kindle
 
-  # -- FAST + COMPLETE: no external dependencies --
-  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
+  # -- FAST + CRUCIBLE + COMPLETE: no external dependencies --
+  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
 
   # kick-tires fixture
   butr_fixture_enroll "kick-tires" "" "zrbtb_noop_baste"
@@ -245,8 +246,8 @@ rbtb_kindle() {
   butr_fixture_enroll "qualify-all" "" "zrbtb_qualify_baste"
   butr_case_enroll "qualify-all" rbtcqa_qualify_fast_tcase
 
-  # -- SERVICE + COMPLETE: needs credentials, no containers --
-  butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
+  # -- SERVICE + CRUCIBLE + COMPLETE: needs credentials, no containers --
+  butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
 
   # access-probe fixture (runs before three-mode; ~30s smoke test for OAuth/credential issues)
   # Regression tests for rbgo_OAuth.sh stderr-capture fix (pace AfAAR)
@@ -263,11 +264,11 @@ rbtb_kindle() {
   butr_fixture_enroll "three-mode" "zrbtb_container_clean_git_litmus_predicate" "zrbtb_three_mode_baste"
   butr_case_enroll "three-mode" rbtctm_three_mode_tcase
 
-  # -- FAST + COMPLETE: no external dependencies --
-  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
+  # -- FAST + CRUCIBLE + COMPLETE: no external dependencies --
+  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
 
-  # -- COMPLETE only: needs container runtime --
-  butr_suite_enroll "${BUTR_SUITE_COMPLETE}"
+  # -- CRUCIBLE + COMPLETE: needs container runtime, uses existing consecrations --
+  butr_suite_enroll "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
 
   # tadmor-security fixture
   butr_fixture_enroll "tadmor-security" "zrbtb_container_runtime_litmus_predicate" "zrbtb_tadmor_baste"
@@ -308,8 +309,8 @@ rbtb_kindle() {
   butr_case_enroll "pluml-diagram" rbtcpl_malformed_diagram_tcase
   butr_case_enroll "pluml-diagram" rbtcpl_text_rendering_tcase
 
-  # -- FAST + COMPLETE: no external dependencies --
-  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
+  # -- FAST + CRUCIBLE + COMPLETE: no external dependencies --
+  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
 
   # regime-smoke fixture
   butr_fixture_enroll "regime-smoke" "" "zrbtb_noop_baste"
@@ -321,8 +322,8 @@ rbtb_kindle() {
   butr_case_enroll "regime-smoke" butcrg_rbrp_tcase
   butr_case_enroll "regime-smoke" butcrg_burd_tcase
 
-  # -- SERVICE + COMPLETE: needs credentials, no containers --
-  butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
+  # -- SERVICE + CRUCIBLE + COMPLETE: needs credentials, no containers --
+  butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
 
   # regime-credentials fixture (requires workstation credentials)
   butr_fixture_enroll "regime-credentials" "" "zrbtb_noop_baste"
@@ -330,8 +331,8 @@ rbtb_kindle() {
   butr_case_enroll "regime-credentials" butcrg_rbro_tcase
   butr_case_enroll "regime-credentials" butcrg_rbrs_tcase
 
-  # -- FAST + COMPLETE: no external dependencies --
-  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_COMPLETE}"
+  # -- FAST + CRUCIBLE + COMPLETE: no external dependencies --
+  butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
 
   # enrollment-validation fixture
   butr_fixture_enroll "enrollment-validation" "" "zrbtb_noop_baste"
@@ -441,7 +442,7 @@ rbtb_route() {
       ;;
     rbw-ts)
       local -r z_suite="${BURD_TOKEN_3:-}"
-      test -n "${z_suite}" || buc_die "rbw-ts: suite imprint required (fast, service, complete)"
+      test -n "${z_suite}" || buc_die "rbw-ts: suite imprint required (fast, service, crucible, complete)"
       butd_run_suite "${z_suite}"
       ;;
     rbw-to)
