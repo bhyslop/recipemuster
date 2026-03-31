@@ -53,10 +53,10 @@ zrbgp_furnish() {
   zrbcc_kindle
 
   zrbrr_kindle
-  # Differential furnish: depot_create establishes the depot — skip enforce
+  # Differential furnish: depot_levy establishes the depot — skip enforce
   # which requires RBRR_DEPOT_PROJECT_ID and other fields it will populate.
   case "${z_command}" in
-    rbgp_depot_create) ;;
+    rbgp_depot_levy) ;;
     *)                 zrbrr_enforce ;;
   esac
   zrbdc_kindle

@@ -6,15 +6,15 @@
 // operation existed.
 //
 // All former depot_initialize responsibilities are now handled by
-// depot_create:
-//   - Rubric repo URL validation (moved to depot_create)
-//   - GitHub PAT storage in Secret Manager (depot_create stdin)
-//   - CB v2 connection creation (fully automated in depot_create)
-//   - CB v2 repository creation (fully automated in depot_create)
+// depot_levy:
+//   - Rubric repo URL validation (moved to depot_levy)
+//   - GitHub PAT storage in Secret Manager (depot_levy stdin)
+//   - CB v2 connection creation (fully automated in depot_levy)
+//   - CB v2 repository creation (fully automated in depot_levy)
 //
 // See paddock session decisions 2026-03-02 for rationale.
 
 NOTE: *This operation is retired.* All depot initialization is now completed by
-{rbtgo_depot_create},
+{rbtgo_depot_levy},
 which handles CB v2 connection setup fully programmatically.
 No separate initialization step is required.

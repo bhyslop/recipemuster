@@ -103,7 +103,7 @@ zrbgg_rubric_preflight() {
   zrbgg_sentinel
 
   local z_gov_rbra="${RBDC_GOVERNOR_RBRA_FILE}"
-  test -f "${z_gov_rbra}" || buc_die "Governor RBRA file not found: ${z_gov_rbra} — run rbgp_governor_reset"
+  test -f "${z_gov_rbra}" || buc_die "Governor RBRA file not found: ${z_gov_rbra} — run rbgp_governor_mantle"
 
   if test -z "${ZRBRA_SOURCED:-}"; then
     source "${BASH_SOURCE[0]%/*}/rbra_regime.sh"

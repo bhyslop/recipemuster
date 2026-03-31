@@ -1,5 +1,5 @@
 //axhob_operation
-{rbtgo_governor_reset}
+{rbtgo_governor_mantle}
 
 NOTE: This operation creates or replaces a
 {rbtr_governor}

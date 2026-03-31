@@ -2399,7 +2399,7 @@ rbf_rubric_inscribe() {
   local z_cbv2_repo_code
   z_cbv2_repo_code=$(rbgu_http_code_capture "inscribe_cbv2_repo_check") || z_cbv2_repo_code=""
   test "${z_cbv2_repo_code}" = "200" \
-    || buc_die "CB v2 repository '${RBGC_CBV2_REPOSITORY_ID}' not found (HTTP ${z_cbv2_repo_code}) — run depot_create to establish CB v2 connection"
+    || buc_die "CB v2 repository '${RBGC_CBV2_REPOSITORY_ID}' not found (HTTP ${z_cbv2_repo_code}) — run depot_levy to establish CB v2 connection"
   buc_info "CB v2 repository verified: ${RBGC_CBV2_REPOSITORY_ID}"
 
   buc_step "Listing existing triggers (batch pre-fetch)"

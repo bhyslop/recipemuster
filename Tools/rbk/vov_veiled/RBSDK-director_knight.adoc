@@ -145,7 +145,7 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. *Complete policy write*: Add ALL expected bindings to the read policy, regardless of what the read returned:
 ... `serviceAccount:«DIRECTOR_EMAIL»` with `roles/artifactregistry.repoAdmin` — Director manages images
 ... `serviceAccount:«MASON_EMAIL»` with `roles/artifactregistry.writer` — Mason pushes images at build time
-.. NOTE: Same complete-policy-write pattern as the secret IAM step. Prevents stale read from overwriting Mason's writer binding set by {rbtgo_depot_create}.
+.. NOTE: Same complete-policy-write pattern as the secret IAM step. Prevents stale read from overwriting Mason's writer binding set by {rbtgo_depot_levy}.
 .. {rbbc_require}
 repository IAM set with all expected bindings
 

@@ -367,7 +367,7 @@ invariant — but they represent incorrect assumptions in the code.
 
 |Secret Manager ({rbtoe_iam_grant_secret})
 |Resolved — now has propagation retry
-|The three secret IAM grants (formerly inline in {rbtgo_depot_create})
+|The three secret IAM grants (formerly inline in {rbtgo_depot_levy})
  are now extracted into {rbtoe_iam_grant_secret} with full propagation
  retry per <<rbscip_trade_study>> backoff profile, explicit etag,
  transient retry, and `requestedPolicyVersion=3`.

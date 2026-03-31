@@ -2,7 +2,7 @@
 //
 // Developer Connect establishment is obsolete. Cloud Build v2 connections
 // replace Developer Connect entirely. CB v2 connection setup is fully
-// automated within depot_create using a classic GitHub PAT (stored in
+// automated within depot_levy using a classic GitHub PAT (stored in
 // Secret Manager) and the GitHub App installation ID.
 //
 // No browser-based OAuth consent flow is needed with CB v2.
@@ -11,4 +11,4 @@
 
 NOTE: *This operation is retired.* Cloud Build v2 connections replace Developer Connect.
 Connection setup is fully automated within
-{rbtgo_depot_create}.
+{rbtgo_depot_levy}.

@@ -557,11 +557,11 @@ rbgp_payor_install() {
   buc_info "  RBRP_OPERATOR_EMAIL=${z_operator_email}"
   buc_info "  RBRP_BILLING_ACCOUNT_ID=<obtain from Cloud Console Billing>"
   buc_info ""
-  buc_info "Next: rbgp_depot_create <depot-name> <region>"
-  buc_info "  Example: rbgp_depot_create dev us-central1"
+  buc_info "Next: rbgp_depot_levy <depot-name> <region>"
+  buc_info "  Example: rbgp_depot_levy dev us-central1"
 }
 
-rbgp_depot_create() {
+rbgp_depot_levy() {
   zrbgp_sentinel
 
   local -r z_depot_name="${1:-}"
@@ -850,11 +850,11 @@ rbgp_depot_create() {
   buc_bare "  RBRR_GCP_REGION=${z_region}"
   buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
   buc_bare "  RBRR_GCB_POOL_STEM=${z_pool_stem}"
-  buc_info "Next: create Governor for this depot:"
-  buc_tabtarget "${RBZ_GOVERNOR_RESET}"
+  buc_info "Next: mantle Governor for this depot:"
+  buc_tabtarget "${RBZ_MANTLE_GOVERNOR}"
 }
 
-rbgp_depot_destroy() {
+rbgp_depot_unmake() {
   zrbgp_sentinel
 
   local -r z_depot_project_id="${1:-}"
@@ -1155,7 +1155,7 @@ rbgp_payor_oauth_refresh() {
   buc_info "Any successful payor operation resets the 6-month timer"
 }
 
-rbgp_governor_reset() {
+rbgp_governor_mantle() {
   zrbgp_sentinel
 
   local -r z_depot_project_id="${RBRR_DEPOT_PROJECT_ID}"

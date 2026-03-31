@@ -1,5 +1,5 @@
 //axhob_operation
-{rbtgo_depot_create}
+{rbtgo_depot_levy}
 
 NOTE: This operation creates an
 {rbtgi_depot}
@@ -205,7 +205,7 @@ to refresh depot project tracking
 //axhoc_completion
 Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and private worker pool.
 Proceed to
-{rbtgo_governor_reset}
+{rbtgo_governor_mantle}
 to create the
 {rbtr_governor}
 for this depot.

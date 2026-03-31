@@ -35,10 +35,10 @@ zrbz_kindle() {
 
   # Payor depot/governor commands
   local z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_CREATE_DEPOT               "rbw-PC"       "${z_mod}" "rbgp_depot_create"
+  buz_enroll RBZ_LEVY_DEPOT                 "rbw-PL"       "${z_mod}" "rbgp_depot_levy"
   buz_enroll RBZ_PAYOR_INSTALL              "rbw-gPI"      "${z_mod}" "rbgp_payor_install"
-  buz_enroll RBZ_DESTROY_DEPOT              "rbw-PD"       "${z_mod}" "rbgp_depot_destroy"
-  buz_enroll RBZ_GOVERNOR_RESET             "rbw-PG"       "${z_mod}" "rbgp_governor_reset"
+  buz_enroll RBZ_UNMAKE_DEPOT               "rbw-PU"       "${z_mod}" "rbgp_depot_unmake"
+  buz_enroll RBZ_MANTLE_GOVERNOR            "rbw-PM"       "${z_mod}" "rbgp_governor_mantle"
   # Payor guide/manual procedures (rbgm_cli.sh)
   z_mod="rbgm_cli.sh"
   buz_enroll RBZ_PAYOR_ESTABLISH            "rbw-gPE"      "${z_mod}" "rbgm_payor_establish"

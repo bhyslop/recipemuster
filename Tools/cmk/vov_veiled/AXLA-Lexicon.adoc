@@ -2302,10 +2302,10 @@ The surface syntax:
 [source,asciidoc]
 ----
 //axhob_operation
-{rbtgo_depot_create}
+{rbtgo_depot_levy}
 
 //axhopt_typed_parameter
-{rbtgo_depot_create_name}
+{rbtgo_depot_levy_name}
 ----
 
 [[axhoc_completion]]
@@ -2413,7 +2413,7 @@ Variant of
 for steps that must be branch-targetable from other steps.
 No lookahead required — bare marker; content follows directly.
 Rare; used when prose in another step says "go to step X" and needs a concrete anchor target.
-Carries a local AsciiDoc anchor following the `operation_waymarkname` naming convention (e.g., `[[depot_create_retry]]`).
+Carries a local AsciiDoc anchor following the `operation_waymarkname` naming convention (e.g., `[[depot_levy_retry]]`).
 The anchor enables intra-document cross-references without S0 elevation — the step remains at the detail site level.
 
 === Nesting Rules

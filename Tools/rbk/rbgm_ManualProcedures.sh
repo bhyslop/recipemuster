@@ -622,11 +622,11 @@ rbgm_onboarding() {
       bug_tc "    RBRR_SECRETS_DIR               " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_SECRETS_DIR)"
       bug_e
       bug_t "  Run (~2 min):"
-      buc_tabtarget "${RBZ_CREATE_DEPOT}" "<depot-name>"
+      buc_tabtarget "${RBZ_LEVY_DEPOT}" "<depot-name>"
     elif test "${z_has_governor}" = "0"; then
-      bug_t "  Next: Create the governor service account."
+      bug_t "  Next: Mantle the governor service account."
       bug_t "  Run:"
-      buc_tabtarget "${RBZ_GOVERNOR_RESET}"
+      buc_tabtarget "${RBZ_MANTLE_GOVERNOR}"
     else
       bug_t "  Payor track complete. Governor, director, and retriever credentials"
       bug_t "  are issued from the governor track (below) or distributed to machines."

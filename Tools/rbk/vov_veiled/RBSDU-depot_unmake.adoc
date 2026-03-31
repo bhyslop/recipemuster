@@ -1,5 +1,5 @@
 //axhob_operation
-{rbtgo_depot_destroy}
+{rbtgo_depot_unmake}
 
 The
 {rbtr_payor}
@@ -97,7 +97,7 @@ project state equals `DELETE_REQUESTED`
 Successful execution destroys depot infrastructure.
 
 NOTE: Depot deletion automatically removes all infrastructure created by
-{rbtgo_depot_create}:
+{rbtgo_depot_levy}:
 the
 {rbtr_mason}
 service account,

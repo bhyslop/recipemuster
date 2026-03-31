@@ -84,7 +84,7 @@ This file enables the
 {rbtr_payor}
 to authenticate for all future operations without repeating the browser flow.
 
-{rbtgo_depot_create}
+{rbtgo_depot_levy}
 provisions the container build infrastructure.
 Most installations require exactly one
 {rbtgi_depot}-
@@ -103,13 +103,13 @@ The
 can manage multiple {rbtgi_depot_s}:
 {rbtgo_depot_list}
 displays all active {rbtgi_depot_s} and their status;
-{rbtgo_depot_destroy}
+{rbtgo_depot_unmake}
 permanently removes a {rbtgi_depot} and all its resources.
 
 The
 {rbtr_payor}
 then executes
-{rbtgo_governor_reset}
+{rbtgo_governor_mantle}
 to create the
 {rbtr_governor}
 service account within the
@@ -257,7 +257,7 @@ If
 credentials are compromised or need rotation, the
 {rbtr_payor}
 executes
-{rbtgo_governor_reset}
+{rbtgo_governor_mantle}
 to replace the existing
 {rbtr_governor}
 service account with a fresh one, generating new

@@ -33,12 +33,12 @@ Common Compute Engine types and their vCPU counts:
 * {rbhg_require}
 {rbtgi_depot}
 exists (completed
-{rbtgo_depot_create})
+{rbtgo_depot_levy})
 
 //axhoq_precondition
 * {rbhg_require}
 `«DEPOT_PROJECT_ID»` known from
-{rbtgo_depot_create}
+{rbtgo_depot_levy}
 output
 
 //axhoq_precondition
@@ -94,7 +94,7 @@ private pool quota is confirmed to support the desired level of concurrent build
 
 //axhoc_completion
 NOTE: All depots use two private worker pools — tether and airgap — created by
-{rbtgo_depot_create}.
+{rbtgo_depot_levy}.
 The relevant capacity metric is *Concurrent Build CPUs (Private Pool)* on the pool's host project, classified by Google as a non-adjustable system limit in the console (despite documentation describing it as a quota).
 Increases require a Google Cloud Support ticket or Issue Tracker request.
 Machine type is set at pool creation time via

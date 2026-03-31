@@ -123,7 +123,7 @@ platform targets and VM supply chain are in the
 {rbrr_gcb_machine_type}
 
 Compute Engine machine type for the private worker pool, consumed at pool creation time by
-{rbtgo_depot_create}.
+{rbtgo_depot_levy}.
 Valid families: `e2`, `n2d`, `c3`.
 Examples: `e2-standard-2`, `e2-highcpu-8`, `n2d-standard-4`.
 
@@ -146,7 +146,7 @@ Specified in seconds or duration format (e.g., `3600s`).
 Worker pool base name (suffixed with -tether/-airgap by derived constants).
 Derived constants `RBDC_POOL_TETHER` and `RBDC_POOL_AIRGAP` expand this stem into full resource paths for each pool variant.
 Must be set to the base name of the pools created by
-{rbtgo_depot_create}
+{rbtgo_depot_levy}
 for this depot.
 
 // CBv2 group eliminated (₣Av) -- builds.create + pouch replaces triggers; no GitLab connection needed

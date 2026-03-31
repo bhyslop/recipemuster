@@ -63,10 +63,10 @@ All credential files require `600` permissions and must never be committed to ve
 | `rbw-gPE` | PayorEstablish | Guided GCP project + OAuth consent screen setup |
 | `rbw-gPI` | PayorInstall | Ingest OAuth credentials from JSON key file |
 | `rbw-gPL` | GitLabSetup | Rubric repo + project access token |
-| `rbw-PC` | PayorCreatesDepot | Provision GCP depot project |
-| `rbw-PG` | PayorResetsGovernor | Create/reset governor service account |
+| `rbw-PL` | PayorLeviesDepot | Provision GCP depot project |
+| `rbw-PM` | PayorMantlesGovernor | Create/replace governor service account |
 | `rbw-Pl` | PayorListsDepots | List all active depots |
-| `rbw-PD` | PayorDestroysDepot | Permanently remove a depot |
+| `rbw-PU` | PayorUnmakesDepot | Permanently remove a depot |
 | `rbw-gO` | Onboarding | Adaptive guide — reads current state, shows next step |
 | `rbw-gPR` | PayorRefresh | Refresh expired OAuth tokens |
 

@@ -75,7 +75,7 @@ is small (per-vessel directories with Dockerfile + build context + JSON) — sha
 exists within the
 {rbtgi_cbv2_connection}
 (created by
-{rbtgo_depot_create})
+{rbtgo_depot_levy})
 .. Create
 {rbtgr_vessel_trigger}
 if it does not exist (via Cloud Build v1 triggers REST API)

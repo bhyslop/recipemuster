@@ -81,7 +81,7 @@ Developer Connect `gitRepositoryLinks` are not usable for this purpose.
 
 This changes the paddock's infrastructure design:
 
-* **Delete**: Developer Connect connection creation from `rbgp_depot_create()`
+* **Delete**: Developer Connect connection creation from `rbgp_depot_levy()`
 * **Delete**: Developer Connect OAuth flow from `rbgm_depot_initialize()`
 * **Add**: CB v2 connection and repository creation
 * **Update**: Linked terms from `rbtgi_source_connection` (Developer Connect)

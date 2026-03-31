@@ -63,4 +63,4 @@ Never commit `~/.rbw/rbro.env` to version control
 //axhoc_completion
 Successful execution stores OAuth credentials and displays payor configuration values.
 Record configuration values for `rbrp.env` setup.
-Use {rbtgo_depot_create} to create depot projects.
+Use {rbtgo_depot_levy} to create depot projects.
