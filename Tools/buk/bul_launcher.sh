@@ -106,7 +106,7 @@ bul_launch() {
   # Subshell probe: /dev/tty may exist but not be openable (CI, sandbox)
   BURD_TERM_COLS=80
   if (exec </dev/tty) 2>/dev/null; then
-    read -r BURD_TERM_COLS < <(tput cols 2>/dev/null)
+    read -r _ BURD_TERM_COLS < <(stty size </dev/tty 2>/dev/null)
     test -n "${BURD_TERM_COLS}" || BURD_TERM_COLS=80
   fi
   export BURD_TERM_COLS
