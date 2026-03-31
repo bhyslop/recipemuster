@@ -11,7 +11,7 @@ Compose inherits the full bottle service definition — image, network mode, vol
 //axhos_step
 . *Compose resolves container configuration*:
 .. Image: `{rbrn_bottle_vessel}:{rbrn_bottle_consecration}` from compose service definition
-.. Network: inherits `network_mode: "service:censer"` (shares censer's network namespace, which routes through sentry)
+.. Network: inherits `network_mode: "service:pentacle"` (shares pentacle's network namespace, which routes through sentry)
 .. Volumes: declared in per-nameplate compose fragment (`«moniker».compose.yml`), not in nameplate env variables
 .. Environment: forwarded from compose env-files and service `environment:` section
 

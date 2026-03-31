@@ -19,10 +19,10 @@
 # RBOB CLI - Recipe Bottle Orchestration Bottle command-line interface
 #
 # Commands:
-#   start           Start bottle service (sentry + censer + bottle)
+#   start           Start bottle service (sentry + pentacle + bottle)
 #   stop            Stop bottle service
 #   connect_sentry  Connect to sentry container
-#   connect_censer  Connect to censer container
+#   connect_pentacle  Connect to pentacle container
 #   connect_bottle  Connect to bottle container
 #   observe         Observe network traffic (tcpdump)
 #   info            Show container names, network, and runtime
@@ -46,18 +46,18 @@ rbob_validate() {
   # All values computed at kindle - just verify they exist
   test -n "${ZRBOB_RUNTIME}" || buc_die "ZRBOB_RUNTIME not set"
   test -n "${ZRBOB_SENTRY}" || buc_die "ZRBOB_SENTRY not set"
-  test -n "${ZRBOB_CENSER}" || buc_die "ZRBOB_CENSER not set"
+  test -n "${ZRBOB_PENTACLE}" || buc_die "ZRBOB_PENTACLE not set"
   test -n "${ZRBOB_BOTTLE}" || buc_die "ZRBOB_BOTTLE not set"
   test -n "${ZRBOB_NETWORK}" || buc_die "ZRBOB_NETWORK not set"
   test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
-  test -f "${ZRBOB_CENSER_SCRIPT}" || buc_die "Censer script not found: ${ZRBOB_CENSER_SCRIPT}"
+  test -f "${ZRBOB_PENTACLE_SCRIPT}" || buc_die "Pentacle script not found: ${ZRBOB_PENTACLE_SCRIPT}"
   test -f "${ZRBOB_COMPOSE_BASE}" || buc_die "Compose base not found: ${ZRBOB_COMPOSE_BASE}"
 
   buc_step "RBOB configuration valid"
   echo "Moniker:       ${RBRN_MONIKER}"
   echo "Runtime:       ${ZRBOB_RUNTIME}"
   echo "Sentry:        ${ZRBOB_SENTRY}"
-  echo "Censer:        ${ZRBOB_CENSER}"
+  echo "Pentacle:        ${ZRBOB_PENTACLE}"
   echo "Bottle:        ${ZRBOB_BOTTLE}"
   echo "Network:       ${ZRBOB_NETWORK}"
   echo "Compose base:  ${ZRBOB_COMPOSE_BASE}"
@@ -73,7 +73,7 @@ rbob_info() {
   buc_step "RBOB Info: ${RBRN_MONIKER}"
   echo "Runtime:   ${ZRBOB_RUNTIME}"
   echo "Sentry:    ${ZRBOB_SENTRY}"
-  echo "Censer:    ${ZRBOB_CENSER}"
+  echo "Pentacle:    ${ZRBOB_PENTACLE}"
   echo "Bottle:    ${ZRBOB_BOTTLE}"
   echo "Network:   ${ZRBOB_NETWORK}"
   echo "Sentry IP: ${RBRN_ENCLAVE_SENTRY_IP}"

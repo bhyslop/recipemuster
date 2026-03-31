@@ -61,9 +61,9 @@ zrboo_sentinel() {
 ######################################################################
 # Output Prefixing Functions
 
-zrboo_prefix_censer() {
+zrboo_prefix_pentacle() {
   while IFS= read -r line; do
-    echo "${ZRBOO_YELLOW}${ZRBOO_BOLD}[CENSER/BOTTLE]${ZRBOO_RESET} ${line}"
+    echo "${ZRBOO_YELLOW}${ZRBOO_BOLD}[PENTACLE/BOTTLE]${ZRBOO_RESET} ${line}"
   done
 }
 
@@ -94,11 +94,11 @@ rboo_observe() {
 
   buc_info "Network topology:"
   buc_info "  SENTRY: Bridge (eth0) <-> Internet, Enclave (eth1) <-> Internal"
-  buc_info "  CENSER/BOTTLE: Shared namespace on Enclave network (eth0)"
+  buc_info "  PENTACLE/BOTTLE: Shared namespace on Enclave network (eth0)"
 
-  # Start censer capture (shared namespace with bottle)
-  buc_info "Starting censer/bottle capture (eth0)"
-  "${ZRBOB_RUNTIME}" exec "${ZRBOB_CENSER}" tcpdump "${ZRBOO_TCPDUMP_OPTS[@]}" -i eth0 2>&1 | zrboo_prefix_censer &
+  # Start pentacle capture (shared namespace with bottle)
+  buc_info "Starting pentacle/bottle capture (eth0)"
+  "${ZRBOB_RUNTIME}" exec "${ZRBOB_PENTACLE}" tcpdump "${ZRBOO_TCPDUMP_OPTS[@]}" -i eth0 2>&1 | zrboo_prefix_pentacle &
 
   # Start sentry enclave capture
   buc_info "Starting sentry enclave capture (eth1)"

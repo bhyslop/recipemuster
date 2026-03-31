@@ -14,7 +14,7 @@ set -e
 : "${RBM_ENCLAVE_NETWORK:?}"      && echo "RBO: RBM_ENCLAVE_NETWORK      = ${RBM_ENCLAVE_NETWORK}"
 : "${RBM_SENTRY_CONTAINER:?}"     && echo "RBO: RBM_SENTRY_CONTAINER     = ${RBM_SENTRY_CONTAINER}"
 : "${RBM_BOTTLE_CONTAINER:?}"     && echo "RBO: RBM_BOTTLE_CONTAINER     = ${RBM_BOTTLE_CONTAINER}"
-: "${RBM_CENSER_CONTAINER:?}"     && echo "RBO: RBM_CENSER_CONTAINER     = ${RBM_CENSER_CONTAINER}"
+: "${RBM_PENTACLE_CONTAINER:?}"     && echo "RBO: RBM_PENTACLE_CONTAINER     = ${RBM_PENTACLE_CONTAINER}"
 
 echo "RBO: Storing terminal control sequences"
 BOLD=$(tput bold)
@@ -42,7 +42,7 @@ echo "RBO: Bridge interface: ${BRIDGE_INTERFACE}"
 echo "RBO: Defining output prefixing functions"
 prefix_bottle() {
     while read -r line; do
-        echo "${YELLOW}${BOLD}RBO: [BOTTLE/CENSER]${RESET} $line"
+        echo "${YELLOW}${BOLD}RBO: [BOTTLE/PENTACLE]${RESET} $line"
     done
 }
 
@@ -60,8 +60,8 @@ prefix_sentry() {
 
 echo "RBO: Starting network capture processes"
 
-echo "RBO: Starting bottle/censer shared namespace capture (using CENSER container)"
-podman --connection "${RBM_MACHINE}" exec "${RBM_CENSER_CONTAINER}" tcpdump -U -l -nn -vvv -i eth0 2>&1 |
+echo "RBO: Starting bottle/pentacle shared namespace capture (using PENTACLE container)"
+podman --connection "${RBM_MACHINE}" exec "${RBM_PENTACLE_CONTAINER}" tcpdump -U -l -nn -vvv -i eth0 2>&1 |
     prefix_bottle &
 
 echo "RBO: Starting bridge perspective capture"
@@ -75,7 +75,7 @@ podman --connection "${RBM_MACHINE}" exec "${RBM_SENTRY_CONTAINER}" tcpdump -U -
 echo "RBO: All capture processes started"
 echo "RBO: Network topology:"
 echo "RBO:   - SENTRY: Bridge (eth0) <-> Internet, Enclave (eth1) <-> Internal"
-echo "RBO:   - BOTTLE/CENSER: Shared namespace on Enclave network (eth0)"
+echo "RBO:   - BOTTLE/PENTACLE: Shared namespace on Enclave network (eth0)"
 echo "RBO: Press Ctrl+C to stop captures"
 
 echo "RBO DIAG: About to wait for processes"

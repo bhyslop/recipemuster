@@ -30,13 +30,13 @@ set -euo pipefail
 #--- Basic network verification ---
 
 rbtcns_basic_dnsmasq_tcase() {
-  # Verify dnsmasq is serving DNS on sentry by querying from censer
-  buto_unit_expect_ok rbtb_exec_censer_i dig +short @"${RBRN_ENCLAVE_SENTRY_IP}" anthropic.com
+  # Verify dnsmasq is serving DNS on sentry by querying from pentacle
+  buto_unit_expect_ok rbtb_exec_pentacle_i dig +short @"${RBRN_ENCLAVE_SENTRY_IP}" anthropic.com
 }
 
 rbtcns_basic_ping_sentry_tcase() {
-  # Censer can ping sentry within enclave
-  buto_unit_expect_ok rbtb_exec_censer ping "${RBRN_ENCLAVE_SENTRY_IP}" -c 2
+  # Pentacle can ping sentry within enclave
+  buto_unit_expect_ok rbtb_exec_pentacle ping "${RBRN_ENCLAVE_SENTRY_IP}" -c 2
 }
 
 rbtcns_basic_iptables_tcase() {

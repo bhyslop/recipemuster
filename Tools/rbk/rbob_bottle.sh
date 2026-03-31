@@ -102,7 +102,7 @@ zrbob_kindle() {
 
   # Container names (for connect and info commands)
   readonly ZRBOB_SENTRY="${RBRN_MONIKER}-sentry"
-  readonly ZRBOB_CENSER="${RBRN_MONIKER}-censer"
+  readonly ZRBOB_PENTACLE="${RBRN_MONIKER}-pentacle"
   readonly ZRBOB_BOTTLE="${RBRN_MONIKER}-bottle"
 
   # Network name (compose names as {project}_{network}; used by observe and info)
@@ -259,7 +259,7 @@ zrbob_detect_subnet_conflict() {
 ######################################################################
 # Public API
 
-# Start the complete bottle service (sentry + censer + bottle) via compose
+# Start the complete bottle service (sentry + pentacle + bottle) via compose
 # Requires: RBOB kindled (which requires RBRN and RBRR)
 rbob_start() {
   zrbob_sentinel
@@ -326,11 +326,11 @@ rbob_connect_sentry() {
   exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_SENTRY}" /bin/bash
 }
 
-# Connect to censer container (interactive shell)
-rbob_connect_censer() {
+# Connect to pentacle container (interactive shell)
+rbob_connect_pentacle() {
   zrbob_sentinel
-  buc_step "Connecting to censer: ${ZRBOB_CENSER}"
-  exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_CENSER}" /bin/bash
+  buc_step "Connecting to pentacle: ${ZRBOB_PENTACLE}"
+  exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_PENTACLE}" /bin/bash
 }
 
 # Connect to bottle container (interactive shell)

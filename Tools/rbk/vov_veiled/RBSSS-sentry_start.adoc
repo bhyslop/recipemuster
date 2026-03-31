@@ -2,7 +2,7 @@
 {opss_sentry_start}
 
 NOTE: Docker Compose orchestrates the full container lifecycle declaratively.
-The sentry starts first; its health check (`/tmp/rbjh_healthy`) gates the censer; the censer's health check (`/tmp/rbjch_healthy`) gates the bottle.
+The sentry starts first; its health check (`/tmp/rbjh_healthy`) gates the pentacle; the pentacle's health check (`/tmp/rbjph_healthy`) gates the bottle.
 Network creation, container instantiation, and startup ordering are all managed by compose — the sub-operations below describe what happens inside each container at startup, not imperative orchestration steps.
 
 //axhos_step
@@ -42,7 +42,7 @@ Network creation, container instantiation, and startup ordering are all managed 
 //axhos_step
 . *Sentry signals health*:
 .. Creates `/tmp/rbjh_healthy`
-.. Compose health check detects this and allows censer to start
+.. Compose health check detects this and allows pentacle to start
 
 //axhoc_completion
 After sentry is healthy, the

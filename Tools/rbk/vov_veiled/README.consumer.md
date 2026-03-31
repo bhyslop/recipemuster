@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > **Early-stage project — security review welcome**
 >
-> Recipe Bottle runs untrusted containers inside a three-container security apparatus: a privileged censer establishes the network namespace, a sentry enforces iptables policy on dual networks, and the bottle workload has no direct network access. The supply chain is hardened with SLSA provenance verification, least-privilege service accounts, and no secrets in version control.
+> Recipe Bottle runs untrusted containers inside a three-container security apparatus: a privileged pentacle establishes the network namespace, a sentry enforces iptables policy on dual networks, and the bottle workload has no direct network access. The supply chain is hardened with SLSA provenance verification, least-privilege service accounts, and no secrets in version control.
 >
 > This architecture is deliberate, but it has not yet had broad independent review — particularly the runtime containment (iptables rules, privileged namespace setup, network isolation enforcement). If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
@@ -32,7 +32,7 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` native
 | **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
 | **Rubric repo** | A separate GitLab repository where Cloud Build fetches build instructions. This is a security boundary — Cloud Build never sees your main repository. You define vessels locally; the inscribe command translates them into build instructions and pushes to the rubric repo automatically. |
 | **Sentry** | Security container that enforces network policies via `iptables` and `dnsmasq` |
-| **Censer** | Privileged container that establishes the network namespace shared with the bottle |
+| **Pentacle** | Privileged container that establishes the network namespace shared with the bottle |
 | **Bottle** | Your workload container, running unmodified in a controlled network environment |
 | **Nameplate** | Per-vessel configuration: runtime, vessel names, consecration values |
 
@@ -53,7 +53,7 @@ Recipe Bottle builds container images on Google Cloud Build (GCB) and stores the
 For running containers with network services, Recipe Bottle orchestrates three containers working together:
 
 - **Sentry** — enforces network security policies via `iptables` and `dnsmasq`
-- **Censer** — establishes a privileged network namespace and shares it with the bottle
+- **Pentacle** — establishes a privileged network namespace and shares it with the bottle
 - **Bottle** — your workload container, running unmodified in a controlled network environment
 
 This ensures security policies are enforced from the first packet, and the bottle container experiences only a functional path to its sentry gateway.
@@ -196,7 +196,7 @@ The examples below use `tadmor` (the included test nameplate). Replace with your
 tt/rbw-s.Start.tadmor.sh
 ```
 
-This starts the sentry, censer, and bottle containers for the vessel.
+This starts the sentry, pentacle, and bottle containers for the vessel.
 
 ### Connecting
 

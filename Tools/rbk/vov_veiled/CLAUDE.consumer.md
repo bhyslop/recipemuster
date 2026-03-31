@@ -28,7 +28,7 @@ tt/rbw-gO.Onboarding.sh
 | **Nameplate** | Ties a sentry vessel + bottle vessel into a runnable bottle. The moniker (e.g. `tadmor`) is the imprint in tabtargets. |
 | **Regime** | A structured configuration unit: specification + assignment file (`.env`) + validation |
 | **Sentry** | Security container that enforces network policies via `iptables` and `dnsmasq` |
-| **Censer** | Privileged container that establishes the network namespace shared with the bottle |
+| **Pentacle** | Privileged container that establishes the network namespace shared with the bottle |
 | **Bottle** | Your workload container, running unmodified in a controlled network environment |
 | **Rubric** | A separate GitLab repo where Cloud Build fetches build instructions (security boundary) |
 
@@ -104,11 +104,11 @@ All credential files require `600` permissions and must never be committed to ve
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-s` | Start | Start bottle (sentry + censer + bottle containers) |
+| `rbw-s` | Start | Start bottle (sentry + pentacle + bottle containers) |
 | `rbw-z` | Stop | Stop bottle |
 | `rbw-B` | ConnectBottle | Shell into the bottle container |
 | `rbw-S` | ConnectSentry | Shell into the sentry container |
-| `rbw-C` | ConnectCenser | Shell into the censer container |
+| `rbw-C` | ConnectPentacle | Shell into the pentacle container |
 | `rbw-o` | ObserveNetworks | Display network state for a running bottle |
 
 ### Qualification & Testing

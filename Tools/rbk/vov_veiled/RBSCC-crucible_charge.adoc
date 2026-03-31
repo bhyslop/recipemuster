@@ -32,8 +32,8 @@ if any foreign network occupies this subnet (stale containers from a prior compo
 . *Start via Compose*:
 .. {rbbc_call}
 `docker compose --profile sessile up -d` with base compose file, optional nameplate fragment, and env-files for both repo regime and nameplate regime
-.. Compose creates networks, starts sentry, waits for health, starts censer, waits for health, starts bottle
-.. The `sessile` profile includes the bottle container; omitting it starts only sentry and censer (infrastructure mode for agile dispatch)
+.. Compose creates networks, starts sentry, waits for health, starts pentacle, waits for health, starts bottle
+.. The `sessile` profile includes the bottle container; omitting it starts only sentry and pentacle (infrastructure mode for agile dispatch)
 
 //axhoc_completion
 Successful execution establishes a new

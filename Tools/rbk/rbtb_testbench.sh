@@ -119,12 +119,12 @@ rbtb_exec_sentry_i() {
   ${ZRBOB_RUNTIME} exec -i "${ZRBOB_SENTRY}" "$@"
 }
 
-rbtb_exec_censer() {
-  ${ZRBOB_RUNTIME} exec "${ZRBOB_CENSER}" "$@"
+rbtb_exec_pentacle() {
+  ${ZRBOB_RUNTIME} exec "${ZRBOB_PENTACLE}" "$@"
 }
 
-rbtb_exec_censer_i() {
-  ${ZRBOB_RUNTIME} exec -i "${ZRBOB_CENSER}" "$@"
+rbtb_exec_pentacle_i() {
+  ${ZRBOB_RUNTIME} exec -i "${ZRBOB_PENTACLE}" "$@"
 }
 
 rbtb_exec_bottle() {

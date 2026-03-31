@@ -2,13 +2,13 @@
 {mkr_bottle_launch}
 
 NOTE: Bottle container creation is managed by Docker Compose.
-The bottle service definition specifies the bottle image, `network_mode: "service:censer"` (shares censer's network namespace), and a `sessile` profile gate.
+The bottle service definition specifies the bottle image, `network_mode: "service:pentacle"` (shares pentacle's network namespace), and a `sessile` profile gate.
 Volume mounts are declared in the per-nameplate compose fragment (`«moniker».compose.yml`), not in nameplate env variables.
 
 //axhos_step
-. *Compose starts bottle after censer health check*:
-.. The bottle's `depends_on` with `condition: service_healthy` ensures the censer has completed routing setup before the bottle starts
-.. The bottle inherits the censer's network namespace — it sees the enclave interface with routing through the sentry already configured
+. *Compose starts bottle after pentacle health check*:
+.. The bottle's `depends_on` with `condition: service_healthy` ensures the pentacle has completed routing setup before the bottle starts
+.. The bottle inherits the pentacle's network namespace — it sees the enclave interface with routing through the sentry already configured
 .. No network configuration occurs inside the bottle container
 
 //axhoc_completion

@@ -13,10 +13,10 @@
 #
 # Network topology:
 #   sentry: default (internet via bridge) + enclave (eth0=default priority:1000, eth1=enclave priority:500)
-#   censer: enclave only (static IP, routes through sentry)
-#   bottle: shares censer network namespace (network_mode: service:censer)
+#   pentacle: enclave only (static IP, routes through sentry)
+#   bottle: shares pentacle network namespace (network_mode: service:pentacle)
 #
-# Health chain: sentry healthy → censer starts → censer healthy → bottle starts (sessile profile)
+# Health chain: sentry healthy → pentacle starts → pentacle healthy → bottle starts (sessile profile)
 
 services:
   sentry:
@@ -53,21 +53,21 @@ services:
       retries: 15
       start_period: 5s
 
-  censer:
+  pentacle:
     image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-image
-    container_name: ${RBRN_MONIKER}-censer
+    container_name: ${RBRN_MONIKER}-pentacle
     privileged: true
     networks:
       enclave:
         ipv4_address: ${RBRN_ENCLAVE_BOTTLE_IP}
     environment:
       - RBRN_ENCLAVE_SENTRY_IP
-    command: ["/opt/rbk/rbjc_censer.sh"]
+    command: ["/opt/rbk/rbjp_pentacle.sh"]
     depends_on:
       sentry:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "test -f /tmp/rbjch_healthy"]
+      test: ["CMD-SHELL", "test -f /tmp/rbjph_healthy"]
       interval: 2s
       timeout: 5s
       retries: 15
@@ -76,11 +76,11 @@ services:
   bottle:
     image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}-image
     container_name: ${RBRN_MONIKER}-bottle
-    network_mode: "service:censer"
+    network_mode: "service:pentacle"
     security_opt:
       - label:disable
     depends_on:
-      censer:
+      pentacle:
         condition: service_healthy
     profiles:
       - sessile

@@ -126,7 +126,7 @@ then orchestrates startup and configuration of
 {at_bottle_service_s}, which are comprised of a
 {at_sentry_container},
 a
-{at_censer_container},
+{at_pentacle_container},
 and a
 {at_bottle_container}
 operating together.
@@ -137,7 +137,7 @@ allows any
 providing or using network services to function as a
 {at_bottle_container}.
 The
-{at_censer_container}
+{at_pentacle_container}
 establishes a privileged network namespace, configures it to route all traffic through the
 {at_sentry_container},
 then shares this pre-configured namespace with the
@@ -262,7 +262,7 @@ images using VM network namespace machinations.
 | Attempting to use eBPF frame rewriting to bypass Netavark gateway behaviors lead to third container concept.
 
 | July 3, 2025
-| {at_censer_container}
+| {at_pentacle_container}
 as privileged network namespace configurator hosting unprivileged
 {at_bottle_container}
 functions; all

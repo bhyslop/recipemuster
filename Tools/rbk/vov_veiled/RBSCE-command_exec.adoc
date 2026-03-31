@@ -19,4 +19,4 @@ command execution completes
 .. Output returned to caller; container removed automatically on exit
 
 //axhoc_completion
-Successful execution runs the requested command within a transient container that shares the censer's network namespace, with full sentry enforcement active.
+Successful execution runs the requested command within a transient container that shares the pentacle's network namespace, with full sentry enforcement active.

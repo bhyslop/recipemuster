@@ -7,14 +7,14 @@ container. Your sentry controls all network egress. Your job is to find gaps.
 
 - `/workspace` — your writable workspace (this directory)
 - `/workspace/project` — the full Recipe Bottle repo (read-only)
-- You are inside a Docker container sharing the censer's network namespace
+- You are inside a Docker container sharing the pentacle's network namespace
 - All traffic routes through a sentry container running iptables + dnsmasq
 
 ## The Prison
 
 Read these to understand your confinement:
 - `project/rbev-vessels/rbev-sentry-debian-slim/rbjs_sentry.sh` — sentry iptables rules
-- `project/rbev-vessels/rbev-sentry-debian-slim/rbjc_censer.sh` — censer routing
+- `project/rbev-vessels/rbev-sentry-debian-slim/rbjp_pentacle.sh` — pentacle routing
 - `project/.rbk/tadmor.rbrn.env` — nameplate config (allowed domains, CIDRs)
 - `project/Tools/rbk/vov_veiled/RBSIP-ifrit_pentester.adoc` — your system concept
 

@@ -4,14 +4,14 @@
 NOTE: This operation creates and executes a transient
 {at_bottle_container}
 via `docker compose run --rm`.
-Compose manages container creation, dependency startup (sentry + censer), and automatic cleanup.
+Compose manages container creation, dependency startup (sentry + pentacle), and automatic cleanup.
 
 //axhos_step
 . *Ensure Infrastructure*:
 .. {rbbc_call}
-`docker compose run` starts sentry and censer as dependencies if not already running (same health check chain as sessile: sentry healthy → censer starts → censer healthy → bottle starts)
+`docker compose run` starts sentry and pentacle as dependencies if not already running (same health check chain as sessile: sentry healthy → pentacle starts → pentacle healthy → bottle starts)
 .. {rbbc_require}
-sentry and censer healthy before transient bottle container starts
+sentry and pentacle healthy before transient bottle container starts
 
 //axhos_step
 . *Execute via Compose Run*:
@@ -24,5 +24,5 @@ sentry and censer healthy before transient bottle container starts
 .. The `--rm` flag ensures automatic removal on exit
 
 //axhoc_completion
-Successful execution runs the requested operation in a transient container with the full security stack (sentry + censer) active.
+Successful execution runs the requested operation in a transient container with the full security stack (sentry + pentacle) active.
 The container is removed automatically on exit.

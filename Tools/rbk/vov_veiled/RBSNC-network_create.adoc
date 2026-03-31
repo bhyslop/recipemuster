@@ -9,7 +9,7 @@ The enclave network uses:
 
 * driver: bridge
 * subnet: `${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}` (from nameplate env-file)
-* static IPs: sentry at `${RBRN_ENCLAVE_SENTRY_IP}`, censer at `${RBRN_ENCLAVE_BOTTLE_IP}`
+* static IPs: sentry at `${RBRN_ENCLAVE_SENTRY_IP}`, pentacle at `${RBRN_ENCLAVE_BOTTLE_IP}`
 
 The default network provides internet connectivity via the Docker bridge.
 Each nameplate uses a distinct /24 subnet to prevent cross-nameplate collisions.
@@ -19,7 +19,7 @@ Both networks are created as part of the compose lifecycle.
 The
 {at_sentry_container}
 connects to both networks; the
-{at_censer_container}
+{at_pentacle_container}
 connects only to the enclave; the
 {at_bottle_container}
-shares the censer's network namespace via compose `network_mode: "service:censer"`.
+shares the pentacle's network namespace via compose `network_mode: "service:pentacle"`.

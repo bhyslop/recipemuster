@@ -116,7 +116,7 @@ zrbz_kindle() {
   buz_enroll RBZ_BOTTLE_START   "rbw-s" "${z_mod}" "rbob_start"          "imprint"
   buz_enroll RBZ_BOTTLE_STOP    "rbw-z" "${z_mod}" "rbob_stop"           "imprint"
   buz_enroll RBZ_BOTTLE_SENTRY  "rbw-S" "${z_mod}" "rbob_connect_sentry" "imprint"
-  buz_enroll RBZ_BOTTLE_CENSER  "rbw-C" "${z_mod}" "rbob_connect_censer" "imprint"
+  buz_enroll RBZ_BOTTLE_PENTACLE  "rbw-C" "${z_mod}" "rbob_connect_pentacle" "imprint"
   buz_enroll RBZ_BOTTLE_CONNECT "rbw-B"  "${z_mod}" "rbob_connect_bottle" "imprint"
   buz_enroll RBZ_BOTTLE_IFRIT   "rbw-Ic" "${z_mod}" "rbob_ifrit_client"  "imprint"
   buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is" "${z_mod}" "rbob_ifrit_sortie"  "imprint"

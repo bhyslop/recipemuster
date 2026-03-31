@@ -231,7 +231,7 @@
 :at_bottle_container_s:      <<at_bottle_container,Bottle Containers>>
 :at_bottle_service:          <<at_bottle_service,Bottle Service>>
 :at_bottle_service_s:        <<at_bottle_service,Bottle Services>>
-:at_censer_container:        <<at_censer_container,Censer Container>>
+:at_pentacle_container:        <<at_pentacle_container,Pentacle Container>>
 :at_container_registry:      <<at_container_registry,Container Registry>>
 // :at_ebpf_program: removed — historical (Podman era), superseded by compose network_mode
 // :at_enclave_namespace_name: removed — historical (Podman era), compose manages network naming
@@ -560,11 +560,11 @@ maintains these boundaries through a three-container architecture:
 {at_sentry_container}
 enforcing network policy on dual networks (bridge and enclave)
 * One
-{at_censer_container}
+{at_pentacle_container}
 establishing and configuring the network namespace
 * One
 {at_bottle_container}
-running the actual service, sharing the censer's network namespace via compose `network_mode: "service:censer"`
+running the actual service, sharing the pentacle's network namespace via compose `network_mode: "service:pentacle"`
 * Clear configuration in a single
 {at_nameplate}
 file, extended by per-nameplate compose fragments for volume mounts
@@ -573,9 +573,9 @@ Docker Compose orchestrates the container lifecycle declaratively.
 A base compose file (`rbob_compose.yml`) defines the three-container topology with health check chains: the
 {at_sentry_container}
 must be healthy before the
-{at_censer_container}
+{at_pentacle_container}
 starts, and the
-{at_censer_container}
+{at_pentacle_container}
 must be healthy before the
 {at_bottle_container}
 starts.
@@ -584,12 +584,12 @@ Per-nameplate compose fragments (e.g., `«moniker».compose.yml`) add volume mou
 Env-files passed via `--env-file` serve a dual purpose: YAML interpolation (`${VAR}` references in compose files resolve image refs, subnet, container names) and container environment forwarding (bare variable names in `environment:` sections inject values into containers at runtime).
 
 The
-{at_censer_container}
+{at_pentacle_container}
 is a privileged container that configures routing to ensure all traffic flows through the
 {at_sentry_container},
 then shares this pre-configured namespace with the
 {at_bottle_container}
-via compose `network_mode: "service:censer"`.
+via compose `network_mode: "service:pentacle"`.
 This ensures security policies are enforced from the first packet, and the
 {at_bottle_container}
 experiences only a functional path to its
@@ -2054,7 +2054,7 @@ The agile pattern is used for one-shot operations that produce output and exit.
 A complete service instance consisting of one
 {at_sentry_container},
 one
-{at_censer_container},
+{at_pentacle_container},
 and one
 {at_bottle_container}
 working together to provide secure functionality.
@@ -2073,22 +2073,22 @@ controlling all network traffic and providing DNS services.
 The sentry discovers its network interfaces by IP at startup using `ip -o addr show to «enclave_ip»`, not by hardcoded interface name, because Docker Compose does not guarantee network-to-interface ordering.
 Initialization and iptables configuration scripts are baked into the image at build time (zero volume mounts for security containers).
 
-[[at_censer_container]]
-{at_censer_container}::
+[[at_pentacle_container]]
+{at_pentacle_container}::
 A privileged container sharing the
 {at_sentry_image}
 that configures routing to ensure all traffic flows through the
 {at_sentry_container}.
 The
 {at_bottle_container}
-shares its network namespace via compose `network_mode: "service:censer"`, ensuring security policies are enforced from the first packet.
+shares its network namespace via compose `network_mode: "service:pentacle"`, ensuring security policies are enforced from the first packet.
 Initialization scripts are baked into the sentry image at build time (zero volume mounts for security containers).
-The censer discovers its network interface by IP at startup using `ip -o addr show`, not by hardcoded interface name, because Docker Compose does not guarantee network-to-interface ordering.
+The pentacle discovers its network interface by IP at startup using `ip -o addr show`, not by hardcoded interface name, because Docker Compose does not guarantee network-to-interface ordering.
 
 [[at_bottle_container]]
 {at_bottle_container}::
 A container that runs the actual service functionality, inheriting its network namespace from the
-{at_censer_container}.
+{at_pentacle_container}.
 It is connected only to the
 {at_enclave_network}
 and configured with specific
@@ -2213,7 +2213,7 @@ A service that stores and provides access to
 {at_startup_script}::
 A shell script baked into a vessel image at build time that performs initialization and configuration tasks when starting a
 {at_bottle_service}.
-The sentry startup script (`rbjs_sentry.sh`) configures iptables and dnsmasq; the censer init script (`rbjc_censer.sh`) configures routing.
+The sentry startup script (`rbjs_sentry.sh`) configures iptables and dnsmasq; the pentacle init script (`rbjp_pentacle.sh`) configures routing.
 Both live in the sentry vessel's build context directory and are COPYed into the image during conjure.
 
 [[at_transit_network_name]]

@@ -16,41 +16,41 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBJC - Censer initialization script
+# RBJP - Pentacle initialization script
 # Configures network routing through sentry for enclave isolation.
-# Baked into sentry image at /opt/rbk/rbjc_censer.sh.
+# Baked into sentry image at /opt/rbk/rbjp_pentacle.sh.
 #
 # Requires: RBRN_ENCLAVE_SENTRY_IP in container environment
 
 set -e
 
-echo "RBJC: Beginning censer setup"
+echo "RBJP: Beginning pentacle setup"
 
-echo "RBJC: Validate parameters"
-: "${RBRN_ENCLAVE_SENTRY_IP:?}" && echo "RBJC: RBRN_ENCLAVE_SENTRY_IP = ${RBRN_ENCLAVE_SENTRY_IP}"
+echo "RBJP: Validate parameters"
+: "${RBRN_ENCLAVE_SENTRY_IP:?}" && echo "RBJP: RBRN_ENCLAVE_SENTRY_IP = ${RBRN_ENCLAVE_SENTRY_IP}"
 
-echo "RBJC: Configuring DNS to use sentry"
+echo "RBJP: Configuring DNS to use sentry"
 echo "nameserver ${RBRN_ENCLAVE_SENTRY_IP}" > /etc/resolv.conf || exit 10
 
-echo "RBJC: Discovering enclave interface (single non-loopback interface expected)"
-z_temp_file="/tmp/rbjc_iface_discovery.txt"
+echo "RBJP: Discovering enclave interface (single non-loopback interface expected)"
+z_temp_file="/tmp/rbjp_iface_discovery.txt"
 ip -o -4 addr show scope global > "${z_temp_file}" || exit 11
-read z_num RBJC_ENCLAVE_IF z_rest < "${z_temp_file}"
+read z_num RBJP_ENCLAVE_IF z_rest < "${z_temp_file}"
 rm -f "${z_temp_file}"
-test -n "${RBJC_ENCLAVE_IF}" || { echo "RBJC: FATAL - No enclave interface found"; exit 11; }
-echo "RBJC: Enclave interface = ${RBJC_ENCLAVE_IF}"
+test -n "${RBJP_ENCLAVE_IF}" || { echo "RBJP: FATAL - No enclave interface found"; exit 11; }
+echo "RBJP: Enclave interface = ${RBJP_ENCLAVE_IF}"
 
-echo "RBJC: Flushing ARP entries"
-ip link set ${RBJC_ENCLAVE_IF} down && ip link set ${RBJC_ENCLAVE_IF} up && ip -s -s neigh flush all || exit 20
+echo "RBJP: Flushing ARP entries"
+ip link set ${RBJP_ENCLAVE_IF} down && ip link set ${RBJP_ENCLAVE_IF} up && ip -s -s neigh flush all || exit 20
 
-echo "RBJC: Setting default route through sentry"
+echo "RBJP: Setting default route through sentry"
 ip route add default via "${RBRN_ENCLAVE_SENTRY_IP}" || exit 30
 
-echo "RBJC: Verifying default route"
-ip route | grep -q "^default via ${RBRN_ENCLAVE_SENTRY_IP}" || { echo "RBJC: FATAL - default route not set"; exit 31; }
+echo "RBJP: Verifying default route"
+ip route | grep -q "^default via ${RBRN_ENCLAVE_SENTRY_IP}" || { echo "RBJP: FATAL - default route not set"; exit 31; }
 
-echo "RBJC: Signaling health"
-touch /tmp/rbjch_healthy || exit 40
+echo "RBJP: Signaling health"
+touch /tmp/rbjph_healthy || exit 40
 
-echo "RBJC: Censer setup complete, entering hold"
+echo "RBJP: Pentacle setup complete, entering hold"
 exec sleep infinity
