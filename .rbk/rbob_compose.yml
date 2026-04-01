@@ -4,8 +4,8 @@
 # Recipe Bottle base compose file — static infrastructure
 #
 # Invoked via:
-#   docker compose --env-file .rbk/rbrr.env --env-file .rbk/{moniker}.rbrn.env \
-#     -f .rbk/rbob_compose.yml [-f .rbk/{moniker}.compose.yml] -p {moniker} up -d
+#   docker compose --env-file .rbk/rbrr.env --env-file .rbk/{moniker}/rbrn.env \
+#     -f .rbk/rbob_compose.yml [-f .rbk/{moniker}/compose.yml] -p {moniker} up -d
 #
 # Env-file variables serve dual purpose:
 #   1. YAML interpolation (${VAR} in this file — image refs, subnet, container names)

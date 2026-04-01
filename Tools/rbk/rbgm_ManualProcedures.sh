@@ -79,7 +79,7 @@ zrbgm_kindle() {
 
   # Onboarding default nameplate moniker
   readonly ZRBGM_ONBOARDING_MONIKER="tadmor"
-  readonly ZRBGM_ONBOARDING_NAMEPLATE="${RBBC_dot_dir}/${ZRBGM_ONBOARDING_MONIKER}${RBCC_rbrn_suffix}"
+  readonly ZRBGM_ONBOARDING_NAMEPLATE="${RBBC_dot_dir}/${ZRBGM_ONBOARDING_MONIKER}/${RBCC_rbrn_file}"
 
   readonly ZRBGM_KINDLED=1
 }

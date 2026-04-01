@@ -326,7 +326,7 @@ zrbtcrv_rbrv_validate_vessel() {
 
 zrbtcrv_rbrn_validate_nameplate() {
   local z_moniker="${1}"
-  source "${RBBC_dot_dir}/${z_moniker}${RBCC_rbrn_suffix}"
+  source "${RBBC_dot_dir}/${z_moniker}/${RBCC_rbrn_file}"
   zrbrn_kindle
   zrbrn_enforce
 }
@@ -353,7 +353,7 @@ rbtcrv_rbrv_all_vessels_tcase() {
 }
 
 rbtcrv_rbrn_all_nameplates_tcase() {
-  buto_trace "Validate all nameplate rbrn_*.env files via kindle+enforce"
+  buto_trace "Validate all nameplate */rbrn.env files via kindle+enforce"
   local z_monikers
   z_monikers=$(rbrn_list_capture) || buto_fatal "No nameplates found"
   local z_moniker=""

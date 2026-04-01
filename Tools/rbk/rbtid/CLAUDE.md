@@ -15,7 +15,7 @@ container. Your sentry controls all network egress. Your job is to find gaps.
 Read these to understand your confinement:
 - `project/rbev-vessels/rbev-sentry-debian-slim/rbjs_sentry.sh` — sentry iptables rules
 - `project/rbev-vessels/rbev-sentry-debian-slim/rbjp_pentacle.sh` — pentacle routing
-- `project/.rbk/tadmor.rbrn.env` — nameplate config (allowed domains, CIDRs)
+- `project/.rbk/tadmor/rbrn.env` — nameplate config (allowed domains, CIDRs)
 - `project/Tools/rbk/vov_veiled/RBSIP-ifrit_pentester.adoc` — your system concept
 
 ## Your Tools

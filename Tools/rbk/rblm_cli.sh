@@ -73,7 +73,7 @@ rblm_zero() {
   bug_t "  Vessel consecrations BLANKED (stale after depot change):"
   local z_np_preview=""
   local z_any_np=0
-  for z_np_preview in "${RBBC_dot_dir}"/rbrn_*.env; do
+  for z_np_preview in "${RBBC_dot_dir}"/*/rbrn.env; do
     test -f "${z_np_preview}" || continue
     bug_t "    ${z_np_preview}"
     z_any_np=1
@@ -143,7 +143,7 @@ rblm_zero() {
   # to require conjure & vouch before declaring setup complete.
   local z_np=""
   local z_np_tmp=""
-  for z_np in "${RBBC_dot_dir}"/rbrn_*.env; do
+  for z_np in "${RBBC_dot_dir}"/*/rbrn.env; do
     test -f "${z_np}" || continue
     z_np_tmp="${z_np}.tmp"
     while IFS= read -r z_line; do

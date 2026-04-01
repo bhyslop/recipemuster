@@ -123,7 +123,7 @@ zrbob_furnish() {
 
   local z_folio="${BUZ_FOLIO:-}"
   test -n "${z_folio}" || buc_die "BUZ_FOLIO must be set to a nameplate moniker"
-  local z_nameplate_file="${RBBC_dot_dir}/${z_folio}${RBCC_rbrn_suffix}"
+  local z_nameplate_file="${RBBC_dot_dir}/${z_folio}/${RBCC_rbrn_file}"
   test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
   zrbrn_kindle

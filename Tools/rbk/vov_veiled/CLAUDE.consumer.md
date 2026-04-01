@@ -243,7 +243,7 @@ Project Root/
 ├── .rbk/                    # Recipe Bottle config regimes
 │   ├── rbrp.env             # Payor regime
 │   ├── rbrr.env             # Repo/depot regime
-│   └── rbrn_*.env           # Nameplate regimes (per vessel)
+│   └── {moniker}/rbrn.env   # Nameplate regimes (per vessel)
 ├── tt/                      # TabTargets (ls this to see all commands)
 ├── Tools/
 │   ├── buk/                 # Bash Utility Kit (portable infrastructure)

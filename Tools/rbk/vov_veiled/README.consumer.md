@@ -181,7 +181,7 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
 
 ## Day-to-Day Operations
 
-The examples below use `tadmor` (the included test nameplate). Replace with your own nameplate moniker — imprints in tabtarget filenames match the nameplate name from `.rbk/rbrn_*.env`.
+The examples below use `tadmor` (the included test nameplate). Replace with your own nameplate moniker — imprints in tabtarget filenames match the nameplate name from `.rbk/*/rbrn.env`.
 
 ### Starting a Bottle
 
@@ -235,7 +235,7 @@ Recipe Bottle uses a Config Regime system — structured configuration with type
 |--------|------|---------|--------|----------|
 | RBRP | `.rbk/rbrp.env` | Payor GCP project identity | `tt/rbw-rpr.*` | `tt/rbw-rpv.*` |
 | RBRR | `.rbk/rbrr.env` | Depot project, region, build config | `tt/rbw-rrr.*` | `tt/rbw-rrv.*` |
-| RBRN | `.rbk/rbrn_*.env` | Per-vessel: runtime, consecrations | `tt/rbw-rnr.*` | `tt/rbw-rnv.*` |
+| RBRN | `.rbk/*/rbrn.env` | Per-vessel: runtime, consecrations | `tt/rbw-rnr.*` | `tt/rbw-rnv.*` |
 | RBRV | vessel dirs | Container image build definitions | `tt/rbw-rvr.*` | `tt/rbw-rvv.*` |
 | RBRS | station file | Developer machine paths (not in git) | `tt/rbw-rsr.*` | `tt/rbw-rsv.*` |
 
@@ -274,7 +274,7 @@ Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (li
 **Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `tadmor`) is what appears as the imprint in tabtarget filenames:
 
 ```
-.rbk/tadmor.rbrn.env          # Maps tadmor → rbev-sentry-debian-slim + rbev-bottle-ifrit
+.rbk/tadmor/rbrn.env          # Maps tadmor → rbev-sentry-debian-slim + rbev-bottle-ifrit
 ```
 
 So `tt/rbw-cC.Charge.tadmor.sh` charges the crucible defined by the `tadmor` nameplate, which selects its sentry and bottle vessel images.

@@ -30,7 +30,7 @@ source "${BURD_CONFIG_DIR}/rbbc_constants.sh" || buc_die "Failed to source rbbc_
 
 # Literal constants (pure string literals, no variable expansion — available at source time)
 RBCC_rbrs_file="../station-files/rbrs.env"
-RBCC_rbrn_suffix=".rbrn.env"
+RBCC_rbrn_file="rbrn.env"
 
 ######################################################################
 # Internal Functions (zrbcc_*)
