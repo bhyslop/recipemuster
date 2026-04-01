@@ -1303,11 +1303,8 @@ rbgp_governor_mantle() {
     || buc_die "Failed to extract privateKeyData"
 
   local -r z_key_json="${BURD_TEMP_DIR}/rbgp_governor_key.json"
-  buc_log_args 'Tolerate macos base64 difference'
-  if ! printf '%s' "${z_key_b64}" | base64 -d > "${z_key_json}" 2>/dev/null; then
-       printf '%s' "${z_key_b64}" | base64 -D > "${z_key_json}" 2>/dev/null \
-      || buc_die "Failed to decode key data"
-  fi
+  printf '%s' "${z_key_b64}" | openssl enc -base64 -d > "${z_key_json}" \
+    || buc_die "Failed to decode key data"
 
   buc_step 'Convert JSON key to RBRA format'
   local -r z_rbra_file="${BURD_OUTPUT_DIR}/governor-${z_timestamp}.rbra"

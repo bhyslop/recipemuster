@@ -31,9 +31,8 @@ zrbgo_kindle() {
   test -z "${ZRBGO_KINDLED:-}" || buc_die "Module rbgo already kindled"
 
   # Validate required tools (rehomed from rbl_Locator.sh)
-  command -v openssl >/dev/null 2>&1 || buc_die "openssl not found - required for JWT signing"
+  command -v openssl >/dev/null 2>&1 || buc_die "openssl not found - required for JWT signing and encoding"
   command -v curl    >/dev/null 2>&1 || buc_die "curl not found - required for OAuth exchange"
-  command -v base64  >/dev/null 2>&1 || buc_die "base64 not found - required for encoding"
   command -v jq      >/dev/null 2>&1 || buc_die "jq not found - required for JSON parsing"
 
   buc_log_args "Ensure RBGC is kindled first"
@@ -65,8 +64,8 @@ zrbgo_base64url_encode_capture() {
 
   local -r z_input="$1"
 
-  # Base64 encode (portable: no -w), strip newlines, then URL-safe transform and remove padding
-  printf '%s' "${z_input}" | base64 | tr -d '\n' | tr '+/' '-_' | tr -d '='
+  # Base64url encode: -A suppresses line wrapping, then URL-safe transform and remove padding
+  printf '%s' "${z_input}" | openssl enc -base64 -A | tr '+/' '-_' | tr -d '='
 }
 
 zrbgo_build_jwt_capture() {
@@ -124,7 +123,7 @@ zrbgo_build_jwt_capture() {
 
   buc_log_args "Base64url encode signature"
   local z_signature
-  z_signature=$(base64 < "${ZRBGO_JWT_SIGNATURE_FILE}" | tr -d '\n' | tr '+/' '-_' | tr -d '=') || return 1
+  z_signature=$(openssl enc -base64 -A < "${ZRBGO_JWT_SIGNATURE_FILE}" | tr '+/' '-_' | tr -d '=') || return 1
 
   buc_log_args "Return complete JWT"
   printf '%s\n' "${z_header_enc}.${z_claims_enc}.${z_signature}"

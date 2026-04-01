@@ -131,7 +131,7 @@ zrgbs_create_service_account_with_key() {
   z_private_key_data=$(rbgu_json_field_capture "${ZRGBS_INFIX_KEY}" '.privateKeyData') \
     || buc_die "Failed to extract private key"
 
-  echo "${z_private_key_data}" | base64 -d > "${z_instance}" \
+  echo "${z_private_key_data}" | openssl enc -base64 -d > "${z_instance}" \
     || buc_die "Failed to decode and write key file"
 
   buc_step 'Set restrictive permissions'

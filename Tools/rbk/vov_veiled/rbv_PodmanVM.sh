@@ -221,7 +221,7 @@ zrbv_process_image_type() {
     local z_disktype_file="${z_decoded_prefix}${z_entry_num}_disktype.txt"
     local   z_digest_file="${z_decoded_prefix}${z_entry_num}_digest.txt"
 
-    base64 -d <<< "${z_entry}"              > "${z_decoded}"
+    openssl enc -base64 -d <<< "${z_entry}"  > "${z_decoded}"
     jq -r '.platform.architecture'          "${z_decoded}" > "${z_arch_file}"
     jq -r '.annotations.disktype // "base"' "${z_decoded}" > "${z_disktype_file}"
     jq -r '.digest'                         "${z_decoded}" > "${z_digest_file}"

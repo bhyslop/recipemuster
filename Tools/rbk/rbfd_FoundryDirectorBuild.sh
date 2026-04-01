@@ -905,7 +905,7 @@ zrbfd_enshrine_extract_anchors() {
     > "${z_b64_file}" || buc_die "Failed to extract buildStepOutputs from build result"
   test -s "${z_b64_file}" || buc_die "No buildStepOutputs in build result — enshrine step did not produce output"
 
-  base64 -d < "${z_b64_file}" > "${z_output_file}" \
+  openssl enc -base64 -d < "${z_b64_file}" > "${z_output_file}" \
     || buc_die "Failed to decode buildStepOutputs base64"
   test -s "${z_output_file}" || buc_die "Empty decoded buildStepOutputs"
 
@@ -1128,7 +1128,7 @@ rbfd_build() {
   local -r z_step_decoded_file="${BURD_TEMP_DIR}/rbfd_step_decoded.txt"
   printf '%s' "${z_step_output}" > "${z_step_b64_file}" \
     || buc_die "Failed to write step output for decoding"
-  base64 -d < "${z_step_b64_file}" > "${z_step_decoded_file}" \
+  openssl enc -base64 -d < "${z_step_b64_file}" > "${z_step_decoded_file}" \
     || buc_die "Failed to base64-decode build step output"
   local z_found_consecration=""
   z_found_consecration=$(<"${z_step_decoded_file}")
