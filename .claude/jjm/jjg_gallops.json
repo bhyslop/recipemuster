@@ -253,9 +253,10 @@
       "creation_time": "260401",
       "status": "stabled",
       "order": [
-        "₢A1AAA"
+        "₢A1AAA",
+        "₢A1AAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -266,6 +267,17 @@
               "text": "## Character\nMinting discipline — careful, mechanical.\n\n## Docket\nMint the `rbtr` prefix tree. Create Rust workspace entries for theurge and ifrit binaries under Tools/vok (or a new crate location — decide during pace). Establish Cargo.toml structure, empty main.rs for both binaries. Verify builds with `tt/vow-b.Build.sh`. No functionality yet — just the skeleton that compiles.\n\nDecide: do theurge and ifrit live as separate crates in the workspace, or separate binaries in one crate? Leaning separate crates since they have completely different dependency profiles (theurge needs process/Docker interaction, ifrit needs raw network/socket capabilities).",
               "silks": "mint-rbtr-prefix-and-workspace",
               "commit": "7a01712"
+            }
+          ]
+        },
+        "₢A1AAB": {
+          "tacks": [
+            {
+              "ts": "260401-1202",
+              "state": "rough",
+              "text": "## Character\nDesign work — judgment required on reporting model.\n\n## Docket\nBuild the theurge case execution framework: case registration, sequential dispatch, pass/fail/skip tracking, colored terminal output, verbose trace files written to TEMP_DIR. This is the equivalent of BUK's bute_engine + buto_operations + butd_dispatch but as a Rust application.\n\nKey behaviors to match from bash precedent:\n- Section headers for test groups\n- Green PASSED / red FAILED per case\n- Summary line at end (N passed, M failed, K skipped)\n- Verbose detail written to files (not rerun, just read)\n- Fatal on first failure option vs run-all mode\n\nNo container interaction yet — test with dummy cases that pass/fail.",
+              "silks": "theurge-reporting-and-case-framework",
+              "commit": "5af721a"
             }
           ]
         }
