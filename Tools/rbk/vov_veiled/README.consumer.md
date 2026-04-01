@@ -189,9 +189,9 @@ This charges the crucible — starts the sentry, pentacle, and bottle containers
 ### Diagnostics
 
 ```
-tt/rbw-cr.Rack.tadmor.sh    # Shell into bottle (rack the demon)
-tt/rbw-ch.Hail.tadmor.sh    # Shell into sentry (hail the guard)
-tt/rbw-cs.Scry.tadmor.sh    # Observe network traffic (scry the topology)
+tt/rbw-cr.Rack.sh tadmor    # Shell into bottle (rack the demon)
+tt/rbw-ch.Hail.sh tadmor    # Shell into sentry (hail the guard)
+tt/rbw-cs.Scry.sh tadmor    # Observe network traffic (scry the topology)
 ```
 
 ### Stopping
