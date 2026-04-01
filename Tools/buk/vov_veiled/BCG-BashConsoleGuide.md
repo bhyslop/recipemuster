@@ -1362,6 +1362,58 @@ eval "${z_varname}=\${z_new_value}"
 eval "local z_val=\${${z_varname}:-}"
 ```
 
+## Command Dependency Discipline
+
+External commands are potential failure points, portability hazards, and supply-chain surface area. Every command invocation outside of bash builtins must earn its place.
+
+### POSIX Utility Allowlist
+
+These external commands are accepted in any BUK-based project. Each has no bash 3.2 builtin replacement and is mandated by POSIX on any system that runs bash:
+
+`chmod`, `cp`, `date`, `find`, `mkdir`, `mktemp`, `mv`, `rm`, `sed`, `sleep`, `sort`, `stty`
+
+Commands on this list need no justification — they are the irreducible dependency floor.
+
+### Evicted Utilities
+
+These commands have bash builtin or declared-dependency replacements. Do not reintroduce them.
+
+| Evicted | Replacement | Notes |
+|---------|-------------|-------|
+| `awk` | `read` with IFS, parameter expansion | Field splitting is a builtin |
+| `base64` | `openssl enc -base64` | Platform flags differ (GNU `-d` vs BSD `-D`) |
+| `cut` | `read` with IFS, parameter expansion | Same as awk — field extraction is a builtin |
+| `grep` | `case`, `test`, `[[ =~ ]]` | BCG-blessed pattern matching; see Test vs Bracket Expressions |
+| `head` | `read -r` | First-line extraction is a single builtin call |
+| `ls` | Glob expansion | `for f in dir/*` iterates without spawning a process |
+| `sha256sum`/`shasum` | `openssl dgst -sha256 -r` | Platform names differ; openssl is universal |
+| `tr` | `${var//old/new}` parameter expansion | Character replacement is a builtin |
+| `wc` | `${#var}`, `${#arr[@]}` | Length measurement is a builtin |
+
+### Declared Dependency Principle
+
+Anything beyond bash builtins and the POSIX allowlist is a **declared dependency** — a cost accepted by every consumer of the project. Declared dependencies must appear in the project's consumer-facing documentation (e.g., the dependency inventory in RBS0) with their justification.
+
+The current declared dependency for Recipe Bottle is `openssl`, which replaces three platform-variant commands (`base64`, `sha256sum`/`shasum`) with a single portable binary present on every target platform.
+
+### Platform-Variant Command Guidance
+
+Commands that exist on both GNU and BSD but with incompatible flags are the worst kind of dependency: they work on the developer's machine and fail on the consumer's. The canonical examples:
+
+- `base64 -d` (GNU) vs `base64 -D` (BSD) — evicted, use `openssl enc -base64 -d`
+- `sha256sum` (GNU) vs `shasum -a 256` (BSD) — evicted, use `openssl dgst -sha256 -r`
+- `stat -c` (GNU) vs `stat -f` (BSD) — wrap in a BUK function or avoid
+
+**Rule**: If a command's flags differ between GNU and BSD, either evict it in favor of a portable declared dependency or wrap it in a BUK function that normalizes the interface. Never rely on flag detection or platform sniffing at call sites.
+
+### LLM Contributor Checkpoint
+
+LLMs reach for whatever solves the immediate problem without feeling the cumulative dependency cost. A `grep -q` is two characters shorter than a `case` block and the model has seen it a million times — but it adds a process spawn, a portability surface, and an entry in the consumer's implicit dependency graph.
+
+The POSIX allowlist and eviction table serve as a checkpoint: if a command isn't on either list, stop and justify it before writing the code. The justification must answer: "Why can't a bash builtin or an already-declared dependency do this?"
+
+---
+
 ## Output and Messaging Patterns
 
 ### Message Hierarchy
