@@ -252,10 +252,24 @@
       "silks": "rbk-theurge-rust-test-infrastructure",
       "creation_time": "260401",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢A1AAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
-      "paces": {}
+      "paces": {
+        "₢A1AAA": {
+          "tacks": [
+            {
+              "ts": "260401-1201",
+              "state": "rough",
+              "text": "## Character\nMinting discipline — careful, mechanical.\n\n## Docket\nMint the `rbtr` prefix tree. Create Rust workspace entries for theurge and ifrit binaries under Tools/vok (or a new crate location — decide during pace). Establish Cargo.toml structure, empty main.rs for both binaries. Verify builds with `tt/vow-b.Build.sh`. No functionality yet — just the skeleton that compiles.\n\nDecide: do theurge and ifrit live as separate crates in the workspace, or separate binaries in one crate? Leaning separate crates since they have completely different dependency profiles (theurge needs process/Docker interaction, ifrit needs raw network/socket capabilities).",
+              "silks": "mint-rbtr-prefix-and-workspace",
+              "commit": "7a01712"
+            }
+          ]
+        }
+      }
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
