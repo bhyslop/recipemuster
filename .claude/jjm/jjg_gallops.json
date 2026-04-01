@@ -908,6 +908,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢AUAAx",
         "₢AUAAv",
         "₢AUAAw",
         "₢AUAAt",
@@ -954,7 +955,7 @@
         "₢AUAAn",
         "₢AUAAu"
       ],
-      "next_pace_seed": "AAx",
+      "next_pace_seed": "AAy",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1953,6 +1954,17 @@
               "text": "## Character\n\nSurgical — fewer call sites than nameplates, but touches credential paths and needs a migration step for existing secrets.\n\n## Docket\n\nRestructure RBRA credential files from `rbra-{role}.env` to `{role}/rbra.env` within the secrets directory. Add `RBRA_ROLE` field for swizzle protection.\n\n**File moves (in `${RBRR_SECRETS_DIR}`):**\n- `rbra-governor.env` → `governor/rbra.env`\n- `rbra-retriever.env` → `retriever/rbra.env`\n- `rbra-director.env` → `director/rbra.env`\n\n**Add `RBRA_ROLE` to each file:**\n- `governor/rbra.env` gets `RBRA_ROLE=governor`\n- `retriever/rbra.env` gets `RBRA_ROLE=retriever`\n- `director/rbra.env` gets `RBRA_ROLE=director`\n\n**Validation:** In `rbra_regime.sh` (or at source-time), assert `RBRA_ROLE` matches the expected role derived from the directory path. Die on mismatch — prevents copy-paste credential swizzle.\n\n**Derived constants update:**\n- `rbdc_DerivedConstants.sh:39-41` — change path pattern from `${RBRR_SECRETS_DIR}/rbra-{role}.env` to `${RBRR_SECRETS_DIR}/{role}/rbra.env`\n\n**Directory provisioning:**\n- Add `mkdir -p` for `governor/`, `retriever/`, `director/` in the access setup flow (wherever secrets dir is created)\n\n**Migration of existing files:**\n- Pace must include a one-shot migration: move existing `rbra-{role}.env` to `{role}/rbra.env` and inject `RBRA_ROLE={role}` line, so testing works without credential regeneration\n\n**Code references to update:**\n- `rbra_cli.sh:39-41,81` — file path resolution\n- `rbf_Foundry.sh` — heavy consumer of `RBDC_DIRECTOR_RBRA_FILE` (paths come from RBDC, no direct changes needed if RBDC is updated)\n- `rbap_AccessProbe.sh:79` — uses `RBDC_GOVERNOR_RBRA_FILE`\n\n**Test plan:**\n- `rbw-rar` (render auth), `rbw-rav` (validate auth), `rbw-ral` (list auth) — RBRA CLI ops\n- Verify credential sourcing still works for foundry operations",
               "silks": "rbra-regime-directory-restructure",
               "commit": "77f37e5"
+            }
+          ]
+        },
+        "₢AUAAx": {
+          "tacks": [
+            {
+              "ts": "260401-0619",
+              "state": "rough",
+              "text": "## Character\n\nSmall scope but security-adjacent — three compose edits that deliberately cross a container environment boundary and make a capability grant auditable.\n\n## Docket\n\nEffect three compose changes for ifrit sortie portability and CAP_NET_RAW hygiene.\n\n**Changes:**\n\n1. **`.rbk/tadmor.compose.yml`** — Add `env_file: tadmor.rbrn.env` to bottle service so RBRN_* vars are available to ifrit sorties at runtime. This is a deliberate security boundary crossing: bottles are normally blind to RBRN vars (sentry gets them explicitly for iptables/dnsmasq). Ifrit needs them for penetration testing against nameplate network topology.\n\n2. **`.rbk/rbob_compose.yml`** — Add `cap_drop: [NET_RAW]` to bottle service so production bottles lose the Docker-default CAP_NET_RAW.\n\n3. **`.rbk/tadmor.compose.yml`** — Add `cap_add: [NET_RAW]` to bottle service so ifrit explicitly opts back in (scapy needs raw sockets). The cap_drop/cap_add pair makes this a deliberate, auditable decision.\n\n## Context\n\nIfrit sorties were hardcoding nameplate IPs. All 11 sorties now read `os.environ[\"RBRN_*\"]` instead, but the bottle container currently receives zero RBRN vars. The `env_file` line closes that gap.\n\nCAP_NET_RAW was never explicitly authorized — it arrived via Docker defaults. Deny-by-default in base, grant-by-exception in ifrit's nameplate fragment.\n\n## Test plan\n\n- `rbw-ch.Hail.tadmor` — verify bottle starts with RBRN vars visible\n- `rbw-Is` (ifrit sortie) — verify sorties can read RBRN_* from environment\n- Confirm cap_drop/cap_add via `docker inspect` on running containers",
+              "silks": "ifrit-sortie-env-and-cap-net-raw",
+              "commit": "50c72f2"
             }
           ]
         }
