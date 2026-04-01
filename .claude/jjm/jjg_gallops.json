@@ -405,6 +405,13 @@
         "₢A1AAE": {
           "tacks": [
             {
+              "ts": "260401-1542",
+              "state": "complete",
+              "text": "## Character\nIntegration milestone — the proof that the architecture works.\n\n## Docket\nWire theurge + ifrit together for the first time against the tadmor nameplate. Theurge charges the crucible via `rbw-cC` tabtarget (ifrit binary is already inside the vessel image), runs 3-5 attack cases via bark tabtarget (exec ifrit in bottle), monitors sentry state from outside via writ tabtarget (exec in sentry), correlates results, reports verdicts.\n\nThis is the moment where \"simultaneous inside/outside observation\" becomes real. Pick cases where outside monitoring adds value (e.g., iptables counter delta on a blocked DNS query).\n\nTheurge owns the full lifecycle: charge → run cases → quench. Establish tabtarget using existing infix pattern with imprint for tier/fixture selection.",
+              "silks": "first-end-to-end-tadmor-cases",
+              "commit": "db16804"
+            },
+            {
               "ts": "260401-1315",
               "state": "rough",
               "text": "## Character\nIntegration milestone — the proof that the architecture works.\n\n## Docket\nWire theurge + ifrit together for the first time against the tadmor nameplate. Theurge charges the crucible via `rbw-cC` tabtarget (ifrit binary is already inside the vessel image), runs 3-5 attack cases via bark tabtarget (exec ifrit in bottle), monitors sentry state from outside via writ tabtarget (exec in sentry), correlates results, reports verdicts.\n\nThis is the moment where \"simultaneous inside/outside observation\" becomes real. Pick cases where outside monitoring adds value (e.g., iptables counter delta on a blocked DNS query).\n\nTheurge owns the full lifecycle: charge → run cases → quench. Establish tabtarget using existing infix pattern with imprint for tier/fixture selection.",
