@@ -322,8 +322,8 @@ rbtb_kindle() {
   butr_case_enroll "regime-smoke" butcrg_rbrp_tcase
   butr_case_enroll "regime-smoke" butcrg_burd_tcase
 
-  # -- SERVICE + CRUCIBLE + COMPLETE: needs credentials, no containers --
-  butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
+  # -- SERVICE + COMPLETE: needs all workstation credentials --
+  butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
 
   # regime-credentials fixture (requires workstation credentials)
   butr_fixture_enroll "regime-credentials" "" "zrbtb_noop_baste"
