@@ -255,9 +255,10 @@
       "order": [
         "₢A1AAA",
         "₢A1AAB",
-        "₢A1AAC"
+        "₢A1AAC",
+        "₢A1AAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -290,6 +291,17 @@
               "text": "## Character\nInfrastructure — mechanical but needs to be solid.\n\n## Docket\nBuild theurge's ability to interact with bottles: charge a nameplate, exec commands into sentry/pentacle/bottle, capture stdout/stderr/exit code, copy files into containers. This is the bridge between theurge and the existing `rbob_bottle.sh` / podman/docker runtime.\n\nDecide: does theurge shell out to `docker exec` / existing tabtargets, or does it use a Docker API client crate? Leaning toward shelling out — simpler, reuses existing bottle infrastructure, avoids a large dependency.\n\nInclude: the \"copy ifrit binary into bottle\" operation that will be the core of the new model.",
               "silks": "theurge-container-interaction-layer",
               "commit": "0414add"
+            }
+          ]
+        },
+        "₢A1AAD": {
+          "tacks": [
+            {
+              "ts": "260401-1202",
+              "state": "rough",
+              "text": "## Character\nDesign + implementation — the attack dispatch model matters.\n\n## Docket\nBuild the ifrit binary: a static Rust executable that takes an attack selector argument, executes one attack, prints structured output (verdict + detail to stdout), exits with 0 (SECURE) or 1 (BREACH/ERROR).\n\nStart with 2-3 simple attacks ported from the bash tadmor-security cases (e.g., dns-allowed-anthropic, dns-blocked-google, apt-get-blocked). These are simpler than the scapy-based python sorties and prove the model.\n\nDesign the attack enum — exhaustive match means adding a variant forces handling. The selector is a string on the command line mapped to an enum variant internally.\n\nStatic linking: target `x86_64-unknown-linux-musl` so the binary runs in any container with no runtime dependencies.",
+              "silks": "ifrit-binary-with-attack-selector",
+              "commit": "93cd662"
             }
           ]
         }
