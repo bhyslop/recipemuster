@@ -45,7 +45,7 @@ import os
 import subprocess
 
 
-ALLOWED_DOMAINS = ["anthropic.com", "claude.ai", "claude.com"]
+ALLOWED_DOMAINS = os.environ["RBRN_UPLINK_ALLOWED_DOMAINS"].split(",")
 
 
 def dig_resolve(name):
@@ -123,9 +123,10 @@ def run():
     # Step 3: Encoded payload subdomain — simulates actual data exfiltration
     payload_label = hashlib.md5(b"BREACH: ifrit escaped").hexdigest()
     nonce = hashlib.md5(os.urandom(8)).hexdigest()[:8]
-    encoded_fqdn = f"{payload_label}.{nonce}.anthropic.com"
+    test_domain = ALLOWED_DOMAINS[0]
+    encoded_fqdn = f"{payload_label}.{nonce}.{test_domain}"
     ip = dig_resolve(encoded_fqdn)
-    parent_ip = parent_ips["anthropic.com"]
+    parent_ip = parent_ips[test_domain]
 
     if ip == parent_ip:
         assertions.append({

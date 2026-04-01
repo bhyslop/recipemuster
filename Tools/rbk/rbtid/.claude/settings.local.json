@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /workspace/rbtis_*.py /workspace/rbtia_adjutant.py)",
+      "Bash(/workspace/rbtid_roster.txt:*)",
+      "Bash(python3:*)",
+      "Bash(ip:*)",
+      "Read(//proc/6/net/**)",
+      "Read(//sys/devices/virtual/net/eth0/**)",
+      "Read(//sys/class/net/**)",
+      "Bash(grep -r \"cap.drop\\\\|cap.add\\\\|--cap-add\\\\|--cap-drop\" /workspace/project/Tools/rbk /workspace/project/rbev-vessels --include=*.sh --include=*.yml)",
+      "Bash(ls:*)",
+      "Bash(env)",
+      "Bash(export RBRN_ENCLAVE_SENTRY_IP=\"10.242.0.2\" RBRN_ENCLAVE_BOTTLE_IP=\"10.242.0.3\" RBRN_UPLINK_ALLOWED_CIDRS=\"160.79.104.0/23\" RBRN_UPLINK_ALLOWED_DOMAINS=\"anthropic.com,claude.ai,claude.com\" RBRN_ENTRY_PORT_WORKSTATION=\"8890\")"
+    ]
+  }
+}
