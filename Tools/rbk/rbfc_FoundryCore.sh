@@ -81,6 +81,13 @@ zrbfc_kindle() {
   buc_log_args 'Scratch file for sequential temp-file patterns'
   readonly ZRBFC_SCRATCH_FILE="${BURD_TEMP_DIR}/rbfc_scratch.txt"
 
+  buc_log_args 'Step script directories (used by shared about/vouch assembly)'
+  local z_self_dir="${BASH_SOURCE[0]%/*}"
+  readonly ZRBFC_RBGJA_STEPS_DIR="${z_self_dir}/rbgja"
+  test -d "${ZRBFC_RBGJA_STEPS_DIR}" || buc_die "RBGJA steps directory not found: ${ZRBFC_RBGJA_STEPS_DIR}"
+  readonly ZRBFC_RBGJV_STEPS_DIR="${z_self_dir}/rbgjv"
+  test -d "${ZRBFC_RBGJV_STEPS_DIR}" || buc_die "RBGJV steps directory not found: ${ZRBFC_RBGJV_STEPS_DIR}"
+
   readonly ZRBFC_KINDLED=1
 }
 
@@ -306,7 +313,7 @@ zrbfc_ensure_git_metadata() {
 
 # Internal: assemble about step scripts into JSON array file
 # Args: output_file temp_prefix
-# Reads ZRBF_RBGJA_STEPS_DIR and ZRBFC_TOOL_* image refs from module state
+# Reads ZRBFC_RBGJA_STEPS_DIR and ZRBFC_TOOL_* image refs from module state
 zrbfc_assemble_about_steps() {
   zrbfc_sentinel
 
@@ -338,7 +345,7 @@ zrbfc_assemble_about_steps() {
 
   for z_adef in "${z_about_step_defs[@]}"; do
     IFS='|' read -r z_ascript z_abuilder z_aentrypoint z_aid <<< "${z_adef}"
-    z_ascript_path="${ZRBF_RBGJA_STEPS_DIR}/${z_ascript}"
+    z_ascript_path="${ZRBFC_RBGJA_STEPS_DIR}/${z_ascript}"
     z_abody_file="${z_temp_prefix}${z_aid}_body.txt"
     z_aescaped_file="${z_temp_prefix}${z_aid}_escaped.txt"
     z_asteps_file="${z_temp_prefix}${z_aid}_steps.json"
@@ -378,7 +385,7 @@ zrbfc_assemble_about_steps() {
 
 # Internal: assemble vouch step scripts into JSON array file
 # Args: output_file temp_prefix
-# Reads ZRBF_RBGJV_STEPS_DIR and ZRBFC_TOOL_* image refs from module state
+# Reads ZRBFC_RBGJV_STEPS_DIR and ZRBFC_TOOL_* image refs from module state
 zrbfc_assemble_vouch_steps() {
   zrbfc_sentinel
 
@@ -409,7 +416,7 @@ zrbfc_assemble_vouch_steps() {
 
   for z_vdef in "${z_vouch_step_defs[@]}"; do
     IFS='|' read -r z_vscript z_vbuilder z_ventrypoint z_vid <<< "${z_vdef}"
-    z_vscript_path="${ZRBF_RBGJV_STEPS_DIR}/${z_vscript}"
+    z_vscript_path="${ZRBFC_RBGJV_STEPS_DIR}/${z_vscript}"
     z_vbody_file="${z_temp_prefix}${z_vid}_body.txt"
     z_vescaped_file="${z_temp_prefix}${z_vid}_escaped.txt"
     z_vsteps_file="${z_temp_prefix}${z_vid}_steps.json"

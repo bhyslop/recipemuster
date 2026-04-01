@@ -49,15 +49,7 @@ zrbf_kindle() {
   readonly ZRBF_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
   test -d "${ZRBF_RBGJB_STEPS_DIR}"   || buc_die "RBGJB steps directory not found: ${ZRBF_RBGJB_STEPS_DIR}"
 
-  buc_log_args 'RBGJV vouch step scripts (same Tools directory)'
-  # Acronym: rbgjv = Recipe Bottle Google Json Vouch (step scripts in rbgjv/ dir)
-  readonly ZRBF_RBGJV_STEPS_DIR="${z_self_dir}/rbgjv"
-  test -d "${ZRBF_RBGJV_STEPS_DIR}"   || buc_die "RBGJV steps directory not found: ${ZRBF_RBGJV_STEPS_DIR}"
-
-  buc_log_args 'RBGJA about step scripts (same Tools directory)'
-  # Acronym: rbgja = Recipe Bottle Google Json About (step scripts in rbgja/ dir)
-  readonly ZRBF_RBGJA_STEPS_DIR="${z_self_dir}/rbgja"
-  test -d "${ZRBF_RBGJA_STEPS_DIR}"   || buc_die "RBGJA steps directory not found: ${ZRBF_RBGJA_STEPS_DIR}"
+  # RBGJV and RBGJA step dirs now owned by rbfc_FoundryCore.sh (shared assembly helpers)
 
   buc_log_args 'RBGJM mirror step scripts (same Tools directory)'
   # Acronym: rbgjm = Recipe Bottle Google Json Mirror (step scripts in rbgjm/ dir)
@@ -82,11 +74,7 @@ zrbf_kindle() {
   readonly ZRBF_DELETE_PREFIX="${BURD_TEMP_DIR}/rbf_delete_"
   readonly ZRBF_TOKEN_FILE="${BURD_TEMP_DIR}/rbf_token.txt"
 
-  buc_log_args 'Define vouch operation file prefix (postfixed per step id)'
-  readonly ZRBF_VOUCH_PREFIX="${BURD_TEMP_DIR}/rbf_vouch_"
-
-  buc_log_args 'Define about operation file prefix (postfixed per step id)'
-  readonly ZRBF_ABOUT_PREFIX="${BURD_TEMP_DIR}/rbf_about_"
+  # Vouch and about prefixes now owned by rbfv_FoundryVerify.sh
 
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
   readonly ZRBF_STITCH_PREFIX="${BURD_TEMP_DIR}/rbf_stitch_"

@@ -40,15 +40,6 @@ zrbfv_kindle() {
   test -n "${RBDC_DIRECTOR_RBRA_FILE:-}" || buc_die "RBDC_DIRECTOR_RBRA_FILE not set"
   test -f "${RBDC_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBDC_DIRECTOR_RBRA_FILE}"
 
-  buc_log_args 'RBGJV vouch step scripts'
-  local z_self_dir="${BASH_SOURCE[0]%/*}"
-  readonly ZRBFV_RBGJV_STEPS_DIR="${z_self_dir}/rbgjv"
-  test -d "${ZRBFV_RBGJV_STEPS_DIR}"   || buc_die "RBGJV steps directory not found: ${ZRBFV_RBGJV_STEPS_DIR}"
-
-  buc_log_args 'RBGJA about step scripts'
-  readonly ZRBFV_RBGJA_STEPS_DIR="${z_self_dir}/rbgja"
-  test -d "${ZRBFV_RBGJA_STEPS_DIR}"   || buc_die "RBGJA steps directory not found: ${ZRBFV_RBGJA_STEPS_DIR}"
-
   buc_log_args 'Define vouch operation file prefix'
   readonly ZRBFV_VOUCH_PREFIX="${BURD_TEMP_DIR}/rbfv_vouch_"
 
@@ -70,6 +61,8 @@ zrbfv_sentinel() {
 # Public Functions (rbfv_*)
 
 rbfv_vouch_gate() {
+  zrbfv_sentinel
+
   local -r z_vessel="${1:-}"
   local -r z_consecration="${2:-}"
 
