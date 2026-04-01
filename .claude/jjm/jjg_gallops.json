@@ -259,9 +259,10 @@
         "₢A1AAD",
         "₢A1AAE",
         "₢A1AAF",
-        "₢A1AAG"
+        "₢A1AAG",
+        "₢A1AAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -338,6 +339,17 @@
               "text": "## Character\nMechanical porting with occasional design judgment — some sorties use scapy which needs a Rust raw socket equivalent.\n\n## Docket\nPort the 11 rostered python sorties from `Tools/rbk/rbtid/rbtis_*.py` to ifrit attack variants. Each python sortie's `run()` function becomes a Rust attack variant.\n\nComplexity gradient:\n- Simple (dig/nc based): dns_exfil_subdomain, meta_cloud_endpoint, net_forbidden_cidr, direct_sentry_probe — straightforward port\n- Medium (need raw sockets): icmp_exfil_payload, net_ipv6_escape, net_srcip_spoof — need `socket2` or similar crate\n- Hard (scapy-level): proto_smuggle_rawsock, net_fragment_evasion, direct_arp_poison, ns_capability_escape — may need careful Rust equivalents\n\nFor each, add corresponding theurge outside-observation where it adds value.",
               "silks": "port-python-sorties-to-ifrit",
               "commit": "eb21cf7"
+            }
+          ]
+        },
+        "₢A1AAH": {
+          "tacks": [
+            {
+              "ts": "260401-1203",
+              "state": "rough",
+              "text": "## Character\nMechanical porting — different bottle types but same pattern.\n\n## Docket\nPort the srjcl-jupyter (3 cases) and pluml-diagram (5 cases) bash test fixtures to theurge. These don't use the ifrit — they're service health tests (HTTP GET, WebSocket kernel creation, rendering verification). Theurge handles them as outside-only cases that charge the appropriate nameplate and probe from the host.\n\nAlso port the four-mode integration test (15 steps) if it fits theurge's model, or assess whether it stays as a separate concern (it tests the build pipeline, not container security).",
+              "silks": "port-srjcl-pluml-service-tests",
+              "commit": "dfbc702"
             }
           ]
         }
