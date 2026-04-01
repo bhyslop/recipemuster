@@ -1,0 +1,18 @@
+--- a/rbev-vessels/rbev-bottle-ifrit/Dockerfile
++++ b/rbev-vessels/rbev-bottle-ifrit/Dockerfile
+@@ -29,7 +29,15 @@
+     dnsutils        \
+     netcat-openbsd  \
+     traceroute      \
+-    && rm -rf /var/lib/apt/lists/*
++    libcap2-bin     \
++    && rm -rf /var/lib/apt/lists/*
++
++# Grant CAP_NET_RAW to python3 so the unprivileged ifrit user can open
++# raw sockets (required for scapy).  cap_add in compose only places the
++# capability in the bounding set; file capabilities promote it into the
++# effective/permitted sets for non-root execution.
++RUN setcap cap_net_raw+eip /usr/bin/python3
+
+ # Install Claude Code globally (npm, then clean cache)
+ RUN npm install -g @anthropic-ai/claude-code --omit=dev \
