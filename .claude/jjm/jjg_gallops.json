@@ -659,6 +659,13 @@
         "₢A1AAP": {
           "tacks": [
             {
+              "ts": "260401-1526",
+              "state": "complete",
+              "text": "## Character\nVerification gate — prove the ifrit vessel works in isolation before attempting the full theurge→ifrit pipeline.\n\n## Docket\nVerify the ifrit binary and vessel image (built in ₢A1AAD) work standalone before ₢A1AAE wires theurge+ifrit end-to-end.\n\n**Verify build:**\n- `rbi-iB` kludge tabtarget produces a vessel image successfully\n- Image contains the ifrit binary at expected path\n- Image contains required network tools (socat, dnsutils, netcat-openbsd, traceroute, strace)\n\n**Verify ifrit binary:**\n- Manually charge a tadmor crucible (via `rbw-cC` tabtarget)\n- Exec ifrit inside the bottle via bark tabtarget with each initial attack selector\n- Confirm: correct stdout format (parseable by theurge's expected contract), correct exit codes (0 for pass/SECURE, nonzero for fail)\n- Confirm: unknown attack selector produces clear error, not a panic\n\n**Verify layer caching:**\n- Rebuild with source-only change, confirm dependency layer is cached (fast rebuild)\n\n**Exit criteria:** Ifrit builds, runs inside a charged bottle, produces parseable output for all initial attack variants. Theurge can depend on this contract in ₢A1AAE.",
+              "silks": "qualify-ifrit-vessel-standalone",
+              "commit": "f6db8e6"
+            },
+            {
               "ts": "260401-1353",
               "state": "rough",
               "text": "## Character\nVerification gate — prove the ifrit vessel works in isolation before attempting the full theurge→ifrit pipeline.\n\n## Docket\nVerify the ifrit binary and vessel image (built in ₢A1AAD) work standalone before ₢A1AAE wires theurge+ifrit end-to-end.\n\n**Verify build:**\n- `rbi-iB` kludge tabtarget produces a vessel image successfully\n- Image contains the ifrit binary at expected path\n- Image contains required network tools (socat, dnsutils, netcat-openbsd, traceroute, strace)\n\n**Verify ifrit binary:**\n- Manually charge a tadmor crucible (via `rbw-cC` tabtarget)\n- Exec ifrit inside the bottle via bark tabtarget with each initial attack selector\n- Confirm: correct stdout format (parseable by theurge's expected contract), correct exit codes (0 for pass/SECURE, nonzero for fail)\n- Confirm: unknown attack selector produces clear error, not a panic\n\n**Verify layer caching:**\n- Rebuild with source-only change, confirm dependency layer is cached (fast rebuild)\n\n**Exit criteria:** Ifrit builds, runs inside a charged bottle, produces parseable output for all initial attack variants. Theurge can depend on this contract in ₢A1AAE.",
