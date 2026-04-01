@@ -98,8 +98,8 @@
 :rbtgr_provenance:          <<rbtgr_provenance,Rubric Provenance>>
 
 // Recipe Bottle Term Google Operations
-:rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbf_abjure>>
-:rbtgo_consecration_tally:        <<rbtgo_consecration_tally,rbf_tally>>
+:rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbfl_abjure>>
+:rbtgo_consecration_tally:        <<rbtgo_consecration_tally,rbfl_tally>>
 :rbtgo_ark_ordain:                <<rbtgo_ark_ordain,rbf_ordain>>
 :rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbf_build>>
 :rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbfv_vouch>>
@@ -114,7 +114,7 @@
 :rbtgo_director_knight:           <<rbtgo_director_knight,rbgg_knight_director>>
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
-:rbtgo_image_delete:              <<rbtgo_image_delete,rbf_jettison>>
+:rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
 :rbtgo_image_retrieve:            <<rbtgo_image_retrieve,rbfr_wrest>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbgm_payor_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
@@ -124,7 +124,7 @@
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbgm_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_build>>
-:rbtgo_rubric_inscribe:          <<rbtgo_rubric_inscribe,rbf_inscribe>>
+:rbtgo_rubric_inscribe:          <<rbtgo_rubric_inscribe,rbfl_inscribe>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbap_payor_oauth_probe>>
 
