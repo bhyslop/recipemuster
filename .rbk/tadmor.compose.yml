@@ -8,12 +8,11 @@
 
 services:
   bottle:
-    user: "1000:1000"
+    user: "ifrit:ifrit"
     working_dir: ${RBRR_BOTTLE_WORKSPACE}
     env_file:
       - tadmor.rbrn.env
     environment:
-      - HOME=${RBRR_BOTTLE_WORKSPACE}
       - DISABLE_TELEMETRY=1
       - DISABLE_ERROR_REPORTING=1
       - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1

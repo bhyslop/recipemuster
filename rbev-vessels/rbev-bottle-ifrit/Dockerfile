@@ -35,6 +35,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN npm install -g @anthropic-ai/claude-code --omit=dev \
     && npm cache clean --force
 
+# Create unprivileged ifrit user with writable home directory.
+# Compose references by name (user: "ifrit:ifrit"), no hardcoded UID.
+RUN useradd -m -s /bin/bash ifrit
+
 # Disable Claude Code telemetry and error reporting (defense-in-depth:
 # sentry DNS/CIDR allowlist would block these anyway, but explicit disable
 # avoids noisy connection failures and keeps the ifrit's network clean)
