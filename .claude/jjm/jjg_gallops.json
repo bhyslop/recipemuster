@@ -258,9 +258,10 @@
         "₢A1AAC",
         "₢A1AAD",
         "₢A1AAE",
-        "₢A1AAF"
+        "₢A1AAF",
+        "₢A1AAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -326,6 +327,17 @@
               "text": "## Character\nMechanical porting — volume work, low judgment.\n\n## Docket\nPort the remaining tadmor-security bash cases (22 total in `rbtcns_TadmorSecurity.sh`) to the theurge+ifrit model. Some become ifrit attack variants (things that run inside the bottle), some become theurge-only cases (exec a command into sentry/pentacle and check from outside). Categorize each existing case as inside, outside, or correlated (both).\n\nCategories from the existing 22:\n- Basic infra (dnsmasq listening, ping, iptables) — likely theurge-only (outside observation)\n- DNS allow/block (11 cases) — correlated (ifrit tries, theurge checks counters)\n- TCP 443 allow/block — correlated\n- Package mgmt block — ifrit-only\n- ICMP restrictions — correlated",
               "silks": "port-remaining-bash-tadmor-security",
               "commit": "50ed6ec"
+            }
+          ]
+        },
+        "₢A1AAG": {
+          "tacks": [
+            {
+              "ts": "260401-1203",
+              "state": "rough",
+              "text": "## Character\nMechanical porting with occasional design judgment — some sorties use scapy which needs a Rust raw socket equivalent.\n\n## Docket\nPort the 11 rostered python sorties from `Tools/rbk/rbtid/rbtis_*.py` to ifrit attack variants. Each python sortie's `run()` function becomes a Rust attack variant.\n\nComplexity gradient:\n- Simple (dig/nc based): dns_exfil_subdomain, meta_cloud_endpoint, net_forbidden_cidr, direct_sentry_probe — straightforward port\n- Medium (need raw sockets): icmp_exfil_payload, net_ipv6_escape, net_srcip_spoof — need `socket2` or similar crate\n- Hard (scapy-level): proto_smuggle_rawsock, net_fragment_evasion, direct_arp_poison, ns_capability_escape — may need careful Rust equivalents\n\nFor each, add corresponding theurge outside-observation where it adds value.",
+              "silks": "port-python-sorties-to-ifrit",
+              "commit": "eb21cf7"
             }
           ]
         }
