@@ -76,6 +76,7 @@ zrbz_kindle() {
   buz_enroll RBZ_TALLY_CONSECRATIONS        "rbw-Dt"       "rbfl_cli.sh" "rbfl_tally"
   buz_enroll RBZ_VOUCH_CONSECRATIONS        "rbw-DV"       "rbfv_cli.sh" "rbfv_batch_vouch"
   buz_enroll RBZ_KLUDGE_VESSEL             "rbw-ak"       "${z_mod}" "rbfd_kludge"
+  buz_enroll RBZ_IFRIT_KLUDGE             "rbi-iB"       "${z_mod}" "rbfd_ifrit_kludge"
 
   # Regime operations
   z_mod="rbrn_cli.sh"

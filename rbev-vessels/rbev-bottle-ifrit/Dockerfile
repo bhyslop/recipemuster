@@ -1,50 +1,47 @@
-# Debian bookworm-slim for ifrit bottle (adversarial AI + socat echo service)
+# Ifrit — in-bottle attack binary for Recipe Bottle crucible testing
+#
+# Single-stage build: Rust toolchain stays in image (test vessel, size
+# irrelevant, iteration speed matters). Layer-cached dependency compilation
+# means source-only changes rebuild just the ifrit crate.
+#
+# Build context: Tools/rbk/rbid/ (the ifrit crate directory)
+
 ARG RBF_IMAGE_1
 FROM ${RBF_IMAGE_1}
 
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install ifrit operational packages (--no-install-recommends eliminates ~100 scapy
-# recommends: g++, Boost, matplotlib, sympy, tk — and nodejs recommends)
-# socat:            Echo service on port 8888 (load-bearing for entry port security tests)
-# python3-scapy:    Arbitrary packet construction for adversarial probing
-# strace:           Syscall boundary mapping from inside the container
-# nodejs + npm:     Claude Code runtime (Node.js application)
-# bash:             Claude Code operational dependency
-# curl:             Claude Code operational dependency
-# git:              Claude Code operational dependency
-# dnsutils:         dig/nslookup for DNS security tests
-# netcat-openbsd:   nc for TCP connectivity tests
-# traceroute:       ICMP path verification tests
+# Install network attack tools (load-bearing for security boundary probes)
+# socat:          Echo service on port 8888 (entry port security tests)
+# dnsutils:       dig/nslookup for DNS security tests
+# netcat-openbsd: nc for TCP connectivity tests
+# traceroute:     ICMP path verification tests
+# strace:         Syscall boundary mapping from inside the container
 RUN apt-get update && apt-get install -y --no-install-recommends \
     socat           \
-    python3-scapy   \
-    strace          \
-    nodejs          \
-    npm             \
-    bash            \
-    curl            \
-    git             \
     dnsutils        \
     netcat-openbsd  \
     traceroute      \
+    strace          \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code globally (npm, then clean cache)
-RUN npm install -g @anthropic-ai/claude-code --omit=dev \
-    && npm cache clean --force
+# Layer-cached dependency build: copy manifests first, dummy compile
+WORKDIR /build
+COPY Cargo.toml Cargo.lock ./
+RUN mkdir src && echo 'fn main() {}' > src/main.rs && \
+    cargo build --release && \
+    rm -rf src target/release/deps/rbid-* target/release/.fingerprint/rbid-*
 
-# Create unprivileged ifrit user with writable home directory.
-# Compose references by name (user: "ifrit:ifrit"), no hardcoded UID.
+# Real source build
+COPY src/ src/
+RUN cargo build --release
+
+# Install binary to standard location
+RUN cp target/release/rbid /usr/local/bin/rbid
+
+# Create unprivileged ifrit user
 RUN useradd -m -s /bin/bash ifrit
 
-# Disable Claude Code telemetry and error reporting (defense-in-depth:
-# sentry DNS/CIDR allowlist would block these anyway, but explicit disable
-# avoids noisy connection failures and keeps the ifrit's network clean)
-ENV DISABLE_TELEMETRY=1
-ENV DISABLE_ERROR_REPORTING=1
-ENV CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
-
-# Keep the container alive with a simple echo service on port 8888
+# Keep the container alive with echo service on port 8888
 CMD ["socat", "TCP-LISTEN:8888,fork,reuseaddr", "EXEC:cat"]
