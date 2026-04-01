@@ -18,9 +18,9 @@
 #
 # RBTCAP - Access probe test cases for RBTB testbench
 #
-# These tests run BEFORE the three-mode suite as a fast smoke test
+# These tests run BEFORE the four-mode suite as a fast smoke test
 # (~30 seconds) for OAuth/credential issues that would otherwise surface
-# only after the three-mode suite begins.
+# only after the four-mode suite begins.
 #
 # Regression tests for the rbgo_OAuth.sh stderr-capture fix (pace AfAAR).
 #
