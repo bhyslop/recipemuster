@@ -105,7 +105,7 @@
 :rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbf_vouch>>
 :rbtgo_ark_about:                 <<rbtgo_ark_about,rbf_about>>
 :rbtgo_ark_graft:                 <<rbtgo_ark_graft,rbf_graft>>
-:rbtgo_ark_summon:                <<rbtgo_ark_summon,rbf_summon>>
+:rbtgo_ark_summon:                <<rbtgo_ark_summon,rbfr_summon>>
 :rbtgo_ark_enshrine:             <<rbtgo_ark_enshrine,rbf_enshrine>>
 :rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbf_plumb>>
 :rbtgo_depot_levy:                <<rbtgo_depot_levy,rbgp_depot_levy>>
@@ -115,7 +115,7 @@
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbf_batch_vouch>>
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbf_jettison>>
-:rbtgo_image_retrieve:            <<rbtgo_image_retrieve,Image Wrest>>
+:rbtgo_image_retrieve:            <<rbtgo_image_retrieve,rbfr_wrest>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbgm_payor_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbgm_payor_refresh>>
