@@ -246,8 +246,8 @@ rbtb_kindle() {
   butr_fixture_enroll "qualify-all" "" "zrbtb_qualify_baste"
   butr_case_enroll "qualify-all" rbtcqa_qualify_fast_tcase
 
-  # -- SERVICE + CRUCIBLE + COMPLETE: needs credentials, no containers --
-  butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
+  # -- SERVICE + COMPLETE: needs credentials, no containers --
+  butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
 
   # access-probe fixture (runs before three-mode; ~30s smoke test for OAuth/credential issues)
   # Regression tests for rbgo_OAuth.sh stderr-capture fix (pace AfAAR)
